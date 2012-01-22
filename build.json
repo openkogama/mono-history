@@ -1,0 +1,17 @@
+{
+    "id": "ad4cad4f-0ba4-5a14-8205-d5c8d4f25d57",
+    "version": "",
+    "unityVersion": "3.4.2f2",
+    "timestamp": 1327271495,
+    "sha256": "11e40d778b3fe3f815931b27ae95c4881c88d1a677214a22fe9338fa2e3809c9",
+    "assemblies": [
+        "Assembly-CSharp-firstpass.dll",
+        "Assembly-CSharp.dll",
+        "Assembly-UnityScript-firstpass.dll",
+        "Boo.Lang.dll",
+        "MVCommon.dll",
+        "MVWorldObject.dll",
+        "PhotonUnity3D.dll",
+        "UnityScript.Lang.dll"
+    ]
+}

@@ -1,0 +1,1 @@
+public delegate void OnCollectionViewItemDelegate(UXCollectionViewItem viewItem);
