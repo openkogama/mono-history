@@ -1,7 +1,7 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Detonator))]
 [AddComponentMenu("Detonator/Glow")]
+[RequireComponent(typeof(Detonator))]
 public class DetonatorGlow : DetonatorComponent
 {
 	private float _baseSize = 1f;

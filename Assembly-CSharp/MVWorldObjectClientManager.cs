@@ -1,66 +1,210 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using MV.WorldObject;
 using UnityEngine;
 
-public class MVWorldObjectClientManager : IWorldObjectManager
+public abstract class MVWorldObjectClientManager
 {
-	private ILogger logger = LoggerManager.Instance.GetLogger(typeof(MVWorldObjectClientManager));
+	protected class WorldObjectMapping
+	{
+		private readonly Dictionary<WorldObjectType, HashSet<int>> worldObjectTypeSets = new Dictionary<WorldObjectType, HashSet<int>>();
 
-	private Dictionary<int, MVPlayer> players;
+		private readonly Dictionary<int, int> gameObjectIdToWorldObjectIdMap = new Dictionary<int, int>();
 
-	private FriendList friends;
+		private readonly Dictionary<Type, WorldObjectType> typeWorldObjectTypeMap = new Dictionary<Type, WorldObjectType>();
 
-	private int avatarId = -1;
+		public void AddWorldObjectToTypeSet(MVWorldObjectClient wo)
+		{
+			if (!worldObjectTypeSets.ContainsKey(wo.WorldObjectType))
+			{
+				worldObjectTypeSets.Add(wo.WorldObjectType, new HashSet<int>());
+				AddWorldObjectToTypeWorldObjectTypeMap(wo.GetType(), wo.WorldObjectType);
+			}
+			worldObjectTypeSets[wo.WorldObjectType].Add(wo.Id);
+			AddToGameObjectIDMap(wo);
+		}
 
-	private bool updateLOD = true;
+		public HashSet<int> GetWorldObjectTypeSet(WorldObjectType worldObjectType)
+		{
+			if (!worldObjectTypeSets.ContainsKey(worldObjectType))
+			{
+				return null;
+			}
+			return worldObjectTypeSets[worldObjectType];
+		}
 
-	private WorldObjectsIdsLodBookkeeping worldObjectsIdsLodBookkeeping = new WorldObjectsIdsLodBookkeeping(new List<int>());
+		public void RemoveWorldObjectFromTypeSet(MVWorldObjectClient wo)
+		{
+			if (!worldObjectTypeSets.ContainsKey(wo.WorldObjectType))
+			{
+				Debug.LogError((object)("RemoveFromTypeSet failed. There is no HashSet defined for type: " + wo.WorldObjectType));
+				return;
+			}
+			worldObjectTypeSets[wo.WorldObjectType].Remove(wo.Id);
+			if (worldObjectTypeSets[wo.WorldObjectType].Count <= 0)
+			{
+				worldObjectTypeSets.Remove(wo.WorldObjectType);
+				RemoveWorldObjectFromTypeWorldObjectTypeMap(wo.GetType());
+			}
+			gameObjectIdToWorldObjectIdMap.Remove(((Object)wo.GameObject).GetInstanceID());
+		}
 
-	private readonly Dictionary<int, MVWorldObjectClient> worldObjects = new Dictionary<int, MVWorldObjectClient>();
+		public bool TryGetWorldObjectTypeFromObjectType(Type type, ref WorldObjectType worldObjectType)
+		{
+			if (!typeWorldObjectTypeMap.ContainsKey(type))
+			{
+				Debug.LogWarning((object)"Could not get worldObject type from type");
+				return false;
+			}
+			worldObjectType = typeWorldObjectTypeMap[type];
+			return true;
+		}
 
-	private readonly Dictionary<WorldObjectType, HashSet<int>> worldObjectTypeSets = new Dictionary<WorldObjectType, HashSet<int>>();
+		public bool TryGetWorldObjectIDFromGameObjectID(int goId, out int woID)
+		{
+			return gameObjectIdToWorldObjectIdMap.TryGetValue(goId, out woID);
+		}
 
-	private readonly Dictionary<int, int> gameObjectIdToWorldObjectIdMap = new Dictionary<int, int>();
+		private void AddToGameObjectIDMap(MVWorldObjectClient wo)
+		{
+			if (gameObjectIdToWorldObjectIdMap.ContainsKey(((Object)wo.GameObject).GetInstanceID()))
+			{
+				Debug.LogError((object)"Key already in gameObjectsWorldObjectsMap");
+			}
+			else
+			{
+				gameObjectIdToWorldObjectIdMap.Add(((Object)wo.GameObject).GetInstanceID(), wo.Id);
+			}
+		}
 
-	private readonly Queue<MVWorldObjectClient> pendingRegisterQueue = new Queue<MVWorldObjectClient>();
+		private void AddWorldObjectToTypeWorldObjectTypeMap(Type type, WorldObjectType worldObjectType)
+		{
+			if (typeWorldObjectTypeMap.ContainsKey(type))
+			{
+				Debug.LogError((object)"Type already contained in typeWorldObjectTypeMap");
+			}
+			else
+			{
+				typeWorldObjectTypeMap.Add(type, worldObjectType);
+			}
+		}
 
-	private readonly Queue<MVWorldObjectClient> pendingUnregisterQueue = new Queue<MVWorldObjectClient>();
+		private void RemoveWorldObjectFromTypeWorldObjectTypeMap(Type type)
+		{
+			if (!typeWorldObjectTypeMap.ContainsKey(type))
+			{
+				Debug.LogError((object)"Type not contained in typeWorldObjectTypeMap");
+			}
+			else
+			{
+				typeWorldObjectTypeMap.Remove(type);
+			}
+		}
+	}
 
-	private readonly Queue<int> pendingUngroupQueue = new Queue<int>();
+	protected class WorldObjectLOD
+	{
+		private struct WorldObjectsIdsLodBookkeeping(List<int> worldObjectsIdsLod)
+		{
+			public int currentPosition = 0;
 
-	private readonly MVMaterialRepository materialRepository = new MVMaterialRepository();
+			public List<int> worldObjectsIdsLod = worldObjectsIdsLod;
 
-	private readonly Dictionary<int, Link> links = new Dictionary<int, Link>();
+			public MVWorldObjectClient currentWorldObject = null;
+		}
 
-	private readonly Queue<Link> pendingLinkQueue = new Queue<Link>();
+		private WorldObjectsIdsLodBookkeeping worldObjectsIdsLodBookkeeping = new WorldObjectsIdsLodBookkeeping(new List<int>());
 
-	private readonly Queue<Link> pendingRemoveLinkQueue = new Queue<Link>();
+		private MVWorldObjectClientManager worldObjectClientManager;
 
-	private readonly Dictionary<int, GameObject> linkObjects = new Dictionary<int, GameObject>();
+		public WorldObjectLOD(MVWorldObjectClientManager worldObjectClientManager)
+		{
+			this.worldObjectClientManager = worldObjectClientManager;
+		}
 
-	private readonly LinkGraph linkGraph = new LinkGraph();
+		public void AddWorldObjectToLOD(int woID)
+		{
+			worldObjectsIdsLodBookkeeping.worldObjectsIdsLod.Add(woID);
+		}
 
-	private MVWorldInventory worldInventory;
+		public void UpdateLOD()
+		{
+			//IL_0043: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0048: Unknown result type (might be due to invalid IL or missing references)
+			//IL_00e6: Unknown result type (might be due to invalid IL or missing references)
+			//IL_00eb: Unknown result type (might be due to invalid IL or missing references)
+			if (!((Object)(object)MVGameController.Instance.Game.CameraController != (Object)null))
+			{
+				return;
+			}
+			worldObjectClientManager.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>().ChangeLODTerrain();
+			Vector3 position = ((Component)((Component)MVGameController.Instance.Game.CameraController).camera).transform.position;
+			float num = 1000f;
+			int num2 = Mathf.Max(1, Mathf.RoundToInt(num * Time.deltaTime));
+			for (int i = 0; i < num2; i++)
+			{
+				if (worldObjectsIdsLodBookkeeping.currentPosition >= worldObjectsIdsLodBookkeeping.worldObjectsIdsLod.Count)
+				{
+					worldObjectsIdsLodBookkeeping.currentPosition = 0;
+				}
+				if (worldObjectClientManager.worldObjects.TryGetValue(worldObjectsIdsLodBookkeeping.worldObjectsIdsLod[worldObjectsIdsLodBookkeeping.currentPosition], out worldObjectsIdsLodBookkeeping.currentWorldObject))
+				{
+					worldObjectsIdsLodBookkeeping.currentWorldObject.ChangeLOD(Vector3.Distance(worldObjectsIdsLodBookkeeping.currentWorldObject.WorldPosition, position));
+				}
+				else
+				{
+					worldObjectsIdsLodBookkeeping.worldObjectsIdsLod.RemoveAt(worldObjectsIdsLodBookkeeping.currentPosition);
+				}
+				worldObjectsIdsLodBookkeeping.currentPosition++;
+			}
+		}
+	}
 
-	private PlayerRepository playerRepository;
+	protected readonly Dictionary<int, MVWorldObjectClient> worldObjects = new Dictionary<int, MVWorldObjectClient>();
 
-	private int localPlayerActorNumber = -1;
+	protected readonly Queue<int> pendingUngroupQueue = new Queue<int>();
+
+	protected readonly WorldObjectLOD worldObjectLOD;
+
+	protected readonly WorldObjectMapping worldObjectMapping;
+
+	protected Dictionary<int, Action<object, WorldObjectDestroyedEventArgs>> woDestroyedEventSubscribers = new Dictionary<int, Action<object, WorldObjectDestroyedEventArgs>>();
+
+	protected Dictionary<Type, Action<object, WorldObjectCreatedEventArgs>> woCreatedEventSubscribers = new Dictionary<Type, Action<object, WorldObjectCreatedEventArgs>>();
 
 	private int rootGroupId = -1;
 
-	private bool hierarchiesHasBeenCreated;
-
-	private MVCubeModelPrototypeTerrain terrain;
-
-	private MVCubeModelFineGrainedTerrain fineGrainedTerrain;
+	private SharedWorldObjectGameplayFunctions sharedWorldObjectGameplayFunctions;
 
 	private Bounds worldBounds = default;
 
-	public HashSet<MVWorldObjectClient> worldObjectsToUpdate = new HashSet<MVWorldObjectClient>();
+	public EventHandler<OnTransferOwnershipResponseEventArgs> OnWorldObjectTransferOwnershipResponse;
 
-	public bool HierarchiesHasBeenCreated => hierarchiesHasBeenCreated;
+	public EventHandler<OnRequestedPrototypeCreatedEventArgs> OnRequestedPrototypeCreated;
+
+	public EventHandler<OnHierarchyLockedEventArgs> OnHierarchyLockedResponse;
+
+	public EventHandler<OnUngroupResponseEventArgs> OnUngroupResponse;
+
+	public EventHandler<OnTransferWosResponseEventArgs> OnTransferWosResponse;
+
+	public EventHandler<CloneWorldObjectTreeResponseEventArgs> CloneWorldObjectTreeResponse;
+
+	public MoveableController MoveableController { get; private set; }
+
+	public Bounds WorldBounds
+	{
+		get
+		{
+			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
+			return worldBounds;
+		}
+	}
+
+	public MVAvatarLocal AvatarLocal { get; set; }
+
+	public WaterPlaneManager WaterPlaneManager { get; set; }
 
 	public MVGroup RootGroup
 	{
@@ -74,167 +218,45 @@ public class MVWorldObjectClientManager : IWorldObjectManager
 		}
 	}
 
-	public Dictionary<int, MVWorldObjectClient> WorldObjects => worldObjects;
-
-	public MVPlayer LocalPlayer => players[localPlayerActorNumber];
-
-	public int LocalPlayerActorNumber
-	{
-		get
-		{
-			return localPlayerActorNumber;
-		}
-		set
-		{
-			if (localPlayerActorNumber == -1)
-			{
-				localPlayerActorNumber = value;
-			}
-		}
-	}
-
-	public MVWorldInventory WorldInventory => worldInventory;
-
-	public MVMaterialRepository MaterialRepository => materialRepository;
-
-	public PlayerRepository PlayerRepository => playerRepository;
-
-	public Dictionary<int, MVPlayer> Players => players;
-
-	public int AvatarId
-	{
-		set
-		{
-			avatarId = value;
-		}
-	}
-
-	public MVCubeModelPrototypeTerrain Terrain
-	{
-		get
-		{
-			return terrain;
-		}
-		set
-		{
-			if (terrain != null)
-			{
-				Debug.LogError((object)"only one terrain allowed");
-			}
-			terrain = value;
-		}
-	}
-
-	public MVCubeModelFineGrainedTerrain FineGrainedTerrain
-	{
-		get
-		{
-			return fineGrainedTerrain;
-		}
-		set
-		{
-			if (fineGrainedTerrain != null)
-			{
-				Debug.LogError((object)"only one terrain allowed");
-			}
-			fineGrainedTerrain = value;
-		}
-	}
-
-	public Bounds WorldBounds
-	{
-		get
-		{
-			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-			return worldBounds;
-		}
-	}
-
-	public MVAvatar WoAvatar
-	{
-		get
-		{
-			if (worldObjects.ContainsKey(avatarId))
-			{
-				return (MVAvatar)worldObjects[avatarId];
-			}
-			return null;
-		}
-	}
-
-	public MVCameraController WeCamera { get; set; }
-
-	public FriendList Friends => friends;
-
-	public Dictionary<int, Link> Links => links;
-
-	public Queue<Link> PendingLinks => pendingLinkQueue;
-
-	public Dictionary<int, GameObject> LinkObjects => linkObjects;
-
-	public LinkGraph LinkGraph => linkGraph;
-
-	public event EventHandler<OnWorldObjectRegisterResponseEventArgs> OnWorldObjectRegisterResponse;
-
-	public event EventHandler<OnTransferOwnershipResponseEventArgs> OnWorldObjectTransferOwnershipResponse;
-
-	public event EventHandler<OnRequestedPrototypeCreatedEventArgs> OnRequestedPrototypeCreated;
-
-	public event EventHandler<OnHierarchyLockedEventArgs> OnHierarchyLockedResponse;
-
-	public event EventHandler<OnUngroupResponseEventArgs> OnUngroupResponse;
+	public SharedWorldObjectGameplayFunctions SharedWorldObjectGameplayFunctions => sharedWorldObjectGameplayFunctions;
 
 	public MVWorldObjectClientManager()
 	{
-		//IL_00cd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d4: Unknown result type (might be due to invalid IL or missing references)
-		playerRepository = new PlayerRepository();
-		worldInventory = new MVWorldInventory();
-		players = new Dictionary<int, MVPlayer>();
-		friends = new FriendList();
-		LinkGraph linkGraph = this.linkGraph;
-		linkGraph.OnResetNode = (LinkGraph.OnResetNodeDelegate)Delegate.Combine(linkGraph.OnResetNode, new LinkGraph.OnResetNodeDelegate(LinkGraph_OnResetNode));
+		//IL_0036: Unknown result type (might be due to invalid IL or missing references)
+		//IL_003c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_003d: Unknown result type (might be due to invalid IL or missing references)
+		MoveableController = new MoveableController();
+		sharedWorldObjectGameplayFunctions = new SharedWorldObjectGameplayFunctions();
+		worldObjectLOD = new WorldObjectLOD(this);
+		worldObjectMapping = new WorldObjectMapping();
 	}
 
-	public void Cleanup()
+	public bool Contains(int woID)
 	{
-		foreach (MVWorldObjectClient value in worldObjects.Values)
+		return worldObjects.ContainsKey(woID);
+	}
+
+	public bool IsType(int woID, WorldObjectType worldObjectType)
+	{
+		if (!worldObjects.ContainsKey(woID))
 		{
-			value.Destroy();
+			Debug.LogWarning((object)"Failed to get worldObject");
+			return false;
 		}
-		worldObjects.Clear();
+		return worldObjects[woID].WorldObjectType == worldObjectType;
 	}
 
-	private void UpdateLOD()
+	public void GetAllWoIds(int id, HashSet<int> ids)
 	{
-		//IL_002c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d9: Unknown result type (might be due to invalid IL or missing references)
-		if (!((Object)(object)WeCamera != (Object)null))
+		MVWorldObjectClient worldObjectClient = GetWorldObjectClient(id);
+		ids.Add(worldObjectClient.Id);
+		if ((object)worldObjectClient.GetType() != typeof(MVGroup))
 		{
 			return;
 		}
-		Terrain.ChangeLODTerrain();
-		Vector3 position = ((Component)((Component)WeCamera).camera).transform.position;
-		float num = 1000f;
-		int num2 = Mathf.Max(1, Mathf.RoundToInt(num * Time.deltaTime));
-		for (int i = 0; i < num2; i++)
+		foreach (MVWorldObjectClient child in ((MVGroup)worldObjectClient).Children)
 		{
-			if (worldObjectsIdsLodBookkeeping.currentPosition >= worldObjectsIdsLodBookkeeping.worldObjectsIdsLod.Count)
-			{
-				worldObjectsIdsLodBookkeeping.currentPosition = 0;
-			}
-			if (worldObjects.TryGetValue(worldObjectsIdsLodBookkeeping.worldObjectsIdsLod[worldObjectsIdsLodBookkeeping.currentPosition], out worldObjectsIdsLodBookkeeping.currentWorldObject))
-			{
-				worldObjectsIdsLodBookkeeping.currentWorldObject.ChangeLOD(Vector3.Distance(worldObjectsIdsLodBookkeeping.currentWorldObject.GameObject.transform.position, position));
-			}
-			else
-			{
-				worldObjectsIdsLodBookkeeping.worldObjectsIdsLod.RemoveAt(worldObjectsIdsLodBookkeeping.currentPosition);
-			}
-			worldObjectsIdsLodBookkeeping.currentPosition++;
+			GetAllWoIds(child.Id, ids);
 		}
 	}
 
@@ -255,217 +277,15 @@ public class MVWorldObjectClientManager : IWorldObjectManager
 		worldBounds.SetMinMax(minVector, maxVector);
 	}
 
-	public void LinkGraph_OnResetNode(int id)
-	{
-		worldObjects[id].ResetLogic();
-	}
-
-	public bool AddLink(Link link)
-	{
-		//IL_00d8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00de: Expected Obj, but got Unknown
-		if (links.ContainsKey(link.id))
-		{
-			Debug.LogError((object)("Link with id: " + link.id + " already added!"));
-			return false;
-		}
-		if (link.inputWOID <= 0 || link.outputWOID <= 0)
-		{
-			Debug.LogError((object)"Attempt to add link, but link is not connected to WorldObjects");
-			return false;
-		}
-		if (!worldObjects.ContainsKey(link.inputWOID))
-		{
-			Debug.LogError((object)"Attempt to add link, but input-wo not registered");
-			return false;
-		}
-		if (!worldObjects.ContainsKey(link.outputWOID))
-		{
-			Debug.LogError((object)"Attempt to add link, but output-wo not registered");
-			return false;
-		}
-		links.Add(link.id, link);
-		linkGraph.AddLink(link.outputWOID, link.inputWOID);
-		GameObject val = (GameObject)Object.Instantiate(Resources.Load("Prefabs/LinkObject"));
-		val.GetComponentInChildren<LinkObjectScript>().linkID = link.id;
-		linkObjects.Add(link.id, val);
-		WorldObjects[link.outputWOID].AddOutputLink(link);
-		WorldObjects[link.inputWOID].AddInputLink(link);
-		return true;
-	}
-
-	public bool RemoveLink(Link link)
-	{
-		if (!links.ContainsKey(link.id))
-		{
-			Debug.LogError((object)("Attempt to remove link with id: " + link.id + ", but link not registered!"));
-			return false;
-		}
-		links.Remove(link.id);
-		linkGraph.RemoveLink(link.outputWOID, link.inputWOID);
-		Object.Destroy((Object)(object)linkObjects[link.id]);
-		linkObjects.Remove(link.id);
-		worldObjects[link.outputWOID].RemoveOutputLink(link);
-		worldObjects[link.inputWOID].RemoveInputLink(link);
-		return true;
-	}
-
-	public void ResetLogicFromId(int worldObjectID)
-	{
-		Debug.Log((object)("ResetLogicFromId: " + worldObjectID));
-		linkGraph.ResetChunk(worldObjectID);
-	}
-
-	public void AddPendingLink(Link link)
-	{
-		pendingLinkQueue.Enqueue(link);
-	}
-
-	public void RemovePendingLink(Link link)
-	{
-		if (!links.ContainsKey(link.id))
-		{
-			Debug.LogError((object)"Attempt to RemovePending link, but link not registered");
-			return;
-		}
-		RemoveLink(link);
-		pendingRemoveLinkQueue.Enqueue(link);
-	}
-
-	public void HandleAddLinkResponse(bool success, int linkID)
-	{
-		if (success)
-		{
-			Link link = pendingLinkQueue.Dequeue();
-			link.id = linkID;
-			AddLink(link);
-		}
-		else
-		{
-			pendingLinkQueue.Dequeue();
-		}
-	}
-
-	public void HandleRemoveLinkResponse(bool success)
-	{
-		if (success)
-		{
-			pendingRemoveLinkQueue.Dequeue();
-			return;
-		}
-		Link link = pendingRemoveLinkQueue.Dequeue();
-		AddLink(link);
-	}
-
-	public int SelectionSetCount(HashSet<int> selectionSet)
-	{
-		int num = 0;
-		foreach (int item in selectionSet)
-		{
-			num += SubtreeCount(item);
-		}
-		return num;
-	}
-
-	public int SubtreeCount(int id)
-	{
-		int num = 0;
-		num++;
-		if ((object)MVGameController.Instance.WOCM.GetWorldObjectClient(id).GetType() == typeof(MVGroup))
-		{
-			foreach (MVWorldObjectClient child in ((MVGroup)MVGameController.Instance.WOCM.GetWorldObjectClient(id)).Children)
-			{
-				num += SubtreeCount(child.Id);
-			}
-		}
-		return num;
-	}
-
-	public void GetAllWoIds(int id, HashSet<int> ids)
-	{
-		MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(id);
-		ids.Add(worldObjectClient.Id);
-		if ((object)worldObjectClient.GetType() != typeof(MVGroup))
-		{
-			return;
-		}
-		foreach (MVWorldObjectClient child in ((MVGroup)worldObjectClient).Children)
-		{
-			GetAllWoIds(child.Id, ids);
-		}
-	}
-
-	public int CountType(int id, Type type)
-	{
-		int num = 0;
-		if ((object)MVGameController.Instance.WOCM.GetWorldObjectClient(id).GetType() == type)
-		{
-			num++;
-		}
-		if ((object)MVGameController.Instance.WOCM.GetWorldObjectClient(id).GetType() == typeof(MVGroup))
-		{
-			foreach (MVWorldObjectClient child in ((MVGroup)MVGameController.Instance.WOCM.GetWorldObjectClient(id)).Children)
-			{
-				num += CountType(child.Id, type);
-			}
-		}
-		return num;
-	}
-
-	private void AddWorldObjectToTypeSet(MVWorldObjectClient wo)
-	{
-		if (!worldObjectTypeSets.ContainsKey(wo.WorldObjectType))
-		{
-			worldObjectTypeSets.Add(wo.WorldObjectType, new HashSet<int>());
-		}
-		worldObjectTypeSets[wo.WorldObjectType].Add(wo.Id);
-	}
-
-	private void RemoveWorldObjectFromTypeSet(MVWorldObjectClient wo)
-	{
-		if (!worldObjectTypeSets.ContainsKey(wo.WorldObjectType))
-		{
-			Debug.LogError((object)("RemoveFromTypeSet failed. There is no HashSet defined for type: " + wo.WorldObjectType));
-			return;
-		}
-		worldObjectTypeSets[wo.WorldObjectType].Remove(wo.Id);
-		if (worldObjectTypeSets[wo.WorldObjectType].Count <= 0)
-		{
-			worldObjectTypeSets.Remove(wo.WorldObjectType);
-		}
-	}
-
-	public void BuildObjectHierarchies()
-	{
-		if (hierarchiesHasBeenCreated)
-		{
-			Debug.LogError((object)"BuildObjectHierarchies can only be called once!");
-			return;
-		}
-		List<MVWorldObjectClient> list = new List<MVWorldObjectClient>();
-		foreach (MVWorldObjectClient value in WorldObjects.Values)
-		{
-			if (value is MVGroup)
-			{
-				list.Add(value);
-			}
-		}
-		foreach (MVWorldObjectClient item in list)
-		{
-			MVGroup mVGroup = (MVGroup)item;
-			mVGroup.BuildHierarchy(isLoadingWorld: true);
-		}
-		hierarchiesHasBeenCreated = true;
-	}
-
 	public List<MVWorldObjectClient> GetWorldObjectsByType(WorldObjectType type)
 	{
 		List<MVWorldObjectClient> list = new List<MVWorldObjectClient>();
-		if (!worldObjectTypeSets.ContainsKey(type))
+		HashSet<int> worldObjectTypeSet = worldObjectMapping.GetWorldObjectTypeSet(type);
+		if (worldObjectTypeSet == null)
 		{
 			return list;
 		}
-		foreach (int item in worldObjectTypeSets[type])
+		foreach (int item in worldObjectTypeSet)
 		{
 			if (!worldObjects.ContainsKey(item))
 			{
@@ -479,516 +299,157 @@ public class MVWorldObjectClientManager : IWorldObjectManager
 		return list;
 	}
 
-	public void Update(MVNetworkGame game)
+	public int GetWoIDHighestInHierarchyWithComponent<T>(int woId) where T : Component
 	{
-		List<MVWorldObjectClient> list = new List<MVWorldObjectClient>();
-		foreach (MVWorldObjectClient value in worldObjects.Values)
+		int result = -1;
+		do
 		{
-			if (value.State != MVWorldObjectState.Destroyed)
+			MVWorldObjectClient worldObjectClient = GetWorldObjectClient(woId);
+			if ((Object)(object)worldObjectClient.GameObject.GetComponent<T>() != (Object)null)
 			{
-				if (value.NetworkObject != null)
-				{
-					value.NetworkObject.Update(game);
-				}
-				if (value is MVLogicObject)
-				{
-					((MVLogicObject)value).Update();
-				}
+				result = worldObjectClient.Id;
 			}
-			if (value.State == MVWorldObjectState.Destroyed)
-			{
-				RemoveWorldObjectFromTypeSet(value);
-				list.Add(value);
-				value.Destroy();
-				Object.Destroy((Object)(object)value.GameObject);
-			}
+			woId = worldObjectClient.GroupId;
 		}
-		foreach (MVWorldObjectClient item in list)
-		{
-			if (worldObjects.ContainsKey(item.GroupId))
-			{
-				((MVGroup)worldObjects[item.GroupId]).RemoveChild(item.Id);
-			}
-			worldObjects.Remove(item.Id);
-		}
-		if (updateLOD)
-		{
-			UpdateLOD();
-		}
+		while (woId != -1);
+		return result;
 	}
 
-	private MVWorldObjectClient WorldObjectFactory(WorldObjectType type, Hashtable data)
+	public T GetSingletonWorldObject<T>() where T : MVWorldObjectClient
 	{
-		switch (type)
+		WorldObjectType worldObjectType = WorldObjectType.Battery;
+		if (!worldObjectMapping.TryGetWorldObjectTypeFromObjectType(typeof(T), ref worldObjectType))
 		{
-		case WorldObjectType.Avatar:
-			return new MVAvatar();
-		case WorldObjectType.CubeModel:
-			return new MVCubeModelInstance();
-		case WorldObjectType.PointLight:
-			return new MVPointLight();
-		case WorldObjectType.SpawnPoint:
-			return new MVSpawnPoint();
-		case WorldObjectType.CubeModelPrototypeTerrain:
-			return new MVCubeModelPrototypeTerrain();
-		case WorldObjectType.Group:
-			return new MVGroup();
-		case WorldObjectType.TriggerBox:
-			return new MVTriggerBox();
-		case WorldObjectType.SoundEmitter:
-			return new MVSoundEmitter();
-		case WorldObjectType.Flag:
-			return new MVFlag();
-		case WorldObjectType.TestLogicCube:
-			return new TestLogicCube();
-		case WorldObjectType.Battery:
-			return new MVBattery();
-		case WorldObjectType.ToggleBox:
-			return new MVToggleBox();
-		case WorldObjectType.Negate:
-			return new MVNegate();
-		case WorldObjectType.And:
-			return new MVAnd();
-		case WorldObjectType.Explosives:
-			return new MVExplosives();
-		case WorldObjectType.TextMsg:
-			return new MVTextMsg();
-		case WorldObjectType.Fire:
-			return new MVFire();
-		case WorldObjectType.Smoke:
-			return new MVSmoke();
-		case WorldObjectType.TimeTrigger:
-			return new MVTimeTrigger();
-		case WorldObjectType.Teleporter:
-			return new MVTeleporter();
-		case WorldObjectType.Goal:
-			return new MVGoal();
-		case WorldObjectType.PickupItemHealthPack:
-			return new MVPickupItemHealthPack();
-		case WorldObjectType.PickupItemCenterGun:
-			return new MVPickupItemCenterGun();
-		case WorldObjectType.CubeModelTerrainFineGrained:
-			return new MVCubeModelFineGrainedTerrain();
-		case WorldObjectType.PressurePlate:
-			return new MVPressurePlate();
-		default:
-			Debug.LogError((object)("WOCM trying to create unknown type: " + type));
+			return (T)null;
+		}
+		MVWorldObjectClient singletonWorldObjectByType = GetSingletonWorldObjectByType(worldObjectType);
+		if (singletonWorldObjectByType == null)
+		{
+			return (T)null;
+		}
+		return (T)singletonWorldObjectByType;
+	}
+
+	private MVWorldObjectClient GetSingletonWorldObjectByType(WorldObjectType worldObjectType)
+	{
+		List<MVWorldObjectClient> worldObjectsByType = GetWorldObjectsByType(worldObjectType);
+		if (worldObjectsByType.Count > 1)
+		{
+			Debug.LogError((object)$"WorldObjectType {worldObjectType} is not a singleton object. Count is {worldObjectsByType.Count}: ");
 			return null;
 		}
+		if (worldObjectsByType.Count == 0)
+		{
+			Debug.LogWarning((object)$"Singleton of worldObject of type: {worldObjectType} not found");
+			return null;
+		}
+		return worldObjectsByType[0];
 	}
 
-	public int RegisterWorldObject(WorldObjectType type, int groupId, Hashtable data, Hashtable runTimeData, int ownerActorNr, Vector3 position, Quaternion rotation, Vector3 scale)
+	public static T GetEnabledMonoBehaviourHighestInHierarchy<T>(GameObject gameObject) where T : MonoBehaviour
 	{
-		//IL_0037: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0047: Unknown result type (might be due to invalid IL or missing references)
-		MVWorldObjectClient mVWorldObjectClient = WorldObjectFactory(type, data);
-		mVWorldObjectClient.WorldObjectType = type;
-		mVWorldObjectClient.GroupId = groupId;
-		mVWorldObjectClient.Data = data;
-		mVWorldObjectClient.RunTimeData = runTimeData;
-		mVWorldObjectClient.RunTimeData = runTimeData;
-		mVWorldObjectClient.OwnerActorNr = ownerActorNr;
-		mVWorldObjectClient.Position = position;
-		mVWorldObjectClient.Rotation = rotation;
-		mVWorldObjectClient.Scale = scale;
-		mVWorldObjectClient.State = MVWorldObjectState.Created;
-		pendingRegisterQueue.Enqueue(mVWorldObjectClient);
-		return 0;
+		T component = gameObject.GetComponent<T>();
+		if ((Object)(object)component != (Object)null && ((Behaviour)component).enabled)
+		{
+			return component;
+		}
+		if ((Object)(object)gameObject.transform.parent == (Object)null)
+		{
+			return (T)(object)null;
+		}
+		return GetEnabledMonoBehaviourHighestInHierarchy<T>(((Component)gameObject.transform.parent).gameObject);
 	}
 
-	public void RegisterWorldObjectResponse(int id, bool success)
+	public int GetWoIDWithLocalOwnerHighestInHierarchy(int woID)
 	{
-		if (success)
+		int result = -1;
+		int actorNr = MVGameController.Instance.Game.LocalPlayer.ActorNr;
+		do
 		{
-			if (pendingRegisterQueue.Count <= 0)
+			MVWorldObjectClient worldObjectClient = GetWorldObjectClient(woID);
+			if (worldObjectClient.OwnerActorNr == actorNr)
 			{
-				Debug.LogError((object)"RegisterWorldObjectResponse, but no object on pendingRegisterQueue");
-				return;
+				result = worldObjectClient.Id;
 			}
-			MVWorldObjectClient mVWorldObjectClient = pendingRegisterQueue.Dequeue();
-			mVWorldObjectClient.SetId(id);
-			mVWorldObjectClient.State = MVWorldObjectState.Synced;
-			mVWorldObjectClient.CreateGameObject(local: true);
-			AddToWorldObjects(mVWorldObjectClient);
-			if (MVGameController.Instance.Game.JoinState == MVJoinState.Playing)
-			{
-				mVWorldObjectClient.Initialize();
-			}
-			if (OnWorldObjectRegisterResponse != null)
-			{
-				OnWorldObjectRegisterResponse(this, new OnWorldObjectRegisterResponseEventArgs(id));
-			}
+			woID = worldObjectClient.GroupId;
 		}
-		else
-		{
-			pendingRegisterQueue.Dequeue();
-		}
+		while (woID != -1);
+		return result;
 	}
 
-	public void RegisterWorldObjectProxy(WorldObjectType type, Hashtable data, Hashtable runTimeData, int id, int groupId, int ownerActorNr, Vector3 position, Quaternion rotation, Vector3 scale)
+	public List<MVWorldObjectClient> GetBlueprintWorldObjectsByType(Type type)
 	{
-		//IL_0054: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0064: Unknown result type (might be due to invalid IL or missing references)
-		if (worldObjects.ContainsKey(id))
+		WorldObjectType worldObjectType = WorldObjectType.Blueprint;
+		List<MVWorldObjectClient> list = new List<MVWorldObjectClient>();
+		HashSet<int> worldObjectTypeSet = worldObjectMapping.GetWorldObjectTypeSet(worldObjectType);
+		if (worldObjectTypeSet == null)
 		{
-			Debug.LogWarning((object)"The worldObject is allready in worldObjects. This probably originates from Wait for group");
-			return;
+			return list;
 		}
-		MVWorldObjectClient mVWorldObjectClient = WorldObjectFactory(type, data);
-		mVWorldObjectClient.SetId(id);
-		mVWorldObjectClient.SetGroupId(groupId);
-		mVWorldObjectClient.WorldObjectType = type;
-		mVWorldObjectClient.Data = data;
-		mVWorldObjectClient.RunTimeData = runTimeData;
-		mVWorldObjectClient.OwnerActorNr = ownerActorNr;
-		mVWorldObjectClient.Position = position;
-		mVWorldObjectClient.Rotation = rotation;
-		mVWorldObjectClient.Scale = scale;
-		mVWorldObjectClient.State = MVWorldObjectState.Synced;
-		mVWorldObjectClient.CreateGameObject(local: false);
-		AddToWorldObjects(mVWorldObjectClient);
-		if (MVGameController.Instance.Game.JoinState == MVJoinState.Playing)
+		foreach (int item in worldObjectTypeSet)
 		{
-			mVWorldObjectClient.Initialize();
+			if (!worldObjects.ContainsKey(item))
+			{
+				Debug.LogError((object)"WorldObjectTypeSet contains id which is NOT in WorldObjects! This should never happen!");
+			}
+			else if (type.Equals(worldObjects[item].GetType()))
+			{
+				list.Add(worldObjects[item]);
+			}
 		}
+		return list;
 	}
 
-	public bool Ungroup(int id)
+	public bool GetUnmodifiedWorldObject(KoGaMaPackageClient koGaMaPackageClient, ref int worldObjectId)
 	{
-		if (!worldObjects.ContainsKey(id))
+		MVWorldObjectClient mVWorldObjectClient = koGaMaPackageClient.worldObjects[koGaMaPackageClient.worldObjectRoot];
+		foreach (MVWorldObjectClient value in worldObjects.Values)
 		{
-			return false;
-		}
-		pendingUngroupQueue.Enqueue(id);
-		return true;
-	}
-
-	public bool UngroupResponse(bool success)
-	{
-		if (success)
-		{
-			if (pendingUngroupQueue.Count <= 0)
+			if (value.GroupId == rootGroupId && value.ItemId == mVWorldObjectClient.ItemId && value.WorldObjectType == mVWorldObjectClient.WorldObjectType)
 			{
-				Debug.LogError((object)"UngroupResponse, but no object on pendingUngroupQueue");
-				return false;
+				int insertedByProfileId = 0;
+				if (value.CompareWithKoGaMaPackage(mVWorldObjectClient, koGaMaPackageClient, ref insertedByProfileId) && insertedByProfileId == MVGameController.Instance.Game.LocalPlayer.ProfileID)
+				{
+					Debug.Log((object)("InsertedByProfileID " + insertedByProfileId));
+					worldObjectId = value.Id;
+					return true;
+				}
 			}
-			int num = pendingUngroupQueue.Dequeue();
-			UngroupExecute(num);
-			if (OnUngroupResponse != null)
-			{
-				OnUngroupResponse(this, new OnUngroupResponseEventArgs(num, success));
-			}
-			return true;
-		}
-		if (pendingUngroupQueue.Count <= 0)
-		{
-			Debug.LogError((object)"UngroupResponse, but no object on pendingUngroupQueue");
-			return false;
-		}
-		int worldObjectID = pendingUngroupQueue.Dequeue();
-		if (OnUngroupResponse != null)
-		{
-			OnUngroupResponse(this, new OnUngroupResponseEventArgs(worldObjectID, success));
 		}
 		return false;
 	}
 
-	public bool UngroupProxy(int id)
-	{
-		if (!worldObjects.ContainsKey(id))
-		{
-			return false;
-		}
-		if (WorldObjects[id].GroupId != -1)
-		{
-			UngroupExecute(id);
-		}
-		return true;
-	}
-
-	private void UngroupExecute(int id)
-	{
-		int groupId = worldObjects[id].GroupId;
-		ArrayList arrayList = new ArrayList(((MVGroup)worldObjects[id]).Children);
-		foreach (MVWorldObjectClient item in arrayList)
-		{
-			((MVGroup)worldObjects[id]).RemoveChild(item.Id);
-			((MVGroup)worldObjects[groupId]).AddChild(item);
-			item.GroupId = groupId;
-		}
-		SetState(id, MVWorldObjectState.Destroyed);
-		Object.Destroy((Object)(object)worldObjects[id].GameObject);
-	}
-
-	public bool UnregisterWorldObject(int id, bool forceDeletion = false)
-	{
-		if (!worldObjects.ContainsKey(id))
-		{
-			return false;
-		}
-		pendingUnregisterQueue.Enqueue(worldObjects[id]);
-		return true;
-	}
-
-	public bool UnregisterWorldObjectResponse(bool success)
-	{
-		if (success)
-		{
-			if (pendingUnregisterQueue.Count <= 0)
-			{
-				Debug.LogError((object)"UnregisterWorldObjectResponse, but no object on pendingUnregisterQueue");
-				return false;
-			}
-			MVWorldObjectClient mVWorldObjectClient = pendingUnregisterQueue.Dequeue();
-			OnUnregisterCleanUpLinks(mVWorldObjectClient);
-			SetState(mVWorldObjectClient.Id, MVWorldObjectState.Destroyed);
-			Object.Destroy((Object)(object)mVWorldObjectClient.GameObject);
-			return true;
-		}
-		pendingUnregisterQueue.Dequeue().DeleteFailed();
-		return true;
-	}
-
-	public bool UnregisterWorldObjectProxy(int id)
-	{
-		if (!worldObjects.ContainsKey(id))
-		{
-			return false;
-		}
-		if (WorldObjects[id].GroupId != -1)
-		{
-			MVGroup mVGroup = (MVGroup)WorldObjects[WorldObjects[id].GroupId];
-			mVGroup.RemoveChild(id);
-		}
-		OnUnregisterCleanUpLinks(WorldObjects[id]);
-		SetState(id, MVWorldObjectState.Destroyed);
-		Object.Destroy((Object)(object)WorldObjects[id].GameObject);
-		return true;
-	}
-
-	private void OnUnregisterCleanUpLinks(MVWorldObjectClient wo)
-	{
-		List<Link> list = new List<Link>();
-		foreach (Link inputLinkRef in wo.InputLinkRefs)
-		{
-			list.Add(inputLinkRef);
-		}
-		foreach (Link outputLinkRef in wo.OutputLinkRefs)
-		{
-			list.Add(outputLinkRef);
-		}
-		foreach (Link item in list)
-		{
-			MVGameController.Instance.Game.RemoveLink(item);
-		}
-	}
-
-	public static void SetState(int id, MVWorldObjectState state)
-	{
-		MVGameController.Instance.WOCM.GetWorldObjectClient(id).State = state;
-		if (!(MVGameController.Instance.WOCM.GetWorldObjectClient(id) is MVGroup))
-		{
-			return;
-		}
-		foreach (MVWorldObjectClient child in ((MVGroup)MVGameController.Instance.WOCM.GetWorldObjectClient(id)).Children)
-		{
-			SetState(child.Id, state);
-		}
-	}
-
-	public bool LockHierarchyResponse(int id, bool lockObject, bool success)
-	{
-		if (!worldObjects.ContainsKey(id))
-		{
-			return false;
-		}
-		if (lockObject)
-		{
-			SetOwnerRecursively(id, localPlayerActorNumber);
-		}
-		else
-		{
-			SetOwnerRecursively(id, 0);
-		}
-		if (OnHierarchyLockedResponse != null)
-		{
-			OnHierarchyLockedResponse(this, new OnHierarchyLockedEventArgs(id, success));
-		}
-		return true;
-	}
-
-	public bool LockHierarchyProxy(int id, int actorNr)
-	{
-		Debug.Log((object)("LockHierarchyProxy " + id));
-		SetOwnerRecursively(id, actorNr);
-		return true;
-	}
-
-	private void SetOwnerRecursively(int id, int actorNr)
-	{
-		worldObjects[id].OwnerActorNr = actorNr;
-		if ((object)worldObjects[id].GetType() != typeof(MVGroup))
-		{
-			return;
-		}
-		foreach (MVWorldObjectClient child in ((MVGroup)worldObjects[id]).Children)
-		{
-			child.OwnerActorNr = actorNr;
-		}
-	}
-
-	public bool TransferOwnershipResponse(int id, int ownerActorNr, bool success)
-	{
-		if (!worldObjects.ContainsKey(id))
-		{
-			return false;
-		}
-		if (success)
-		{
-			WorldObjects[id].OwnerActorNr = ownerActorNr;
-			if (ownerActorNr == 0)
-			{
-				WorldObjects[id].NetworkObject = new MVNetworkListener(WorldObjects[id]);
-			}
-			else
-			{
-				WorldObjects[id].NetworkObject = new MVNetworkReporter(WorldObjects[id]);
-			}
-		}
-		else
-		{
-			Debug.LogWarning((object)"Failed to set ownership...");
-		}
-		if (OnWorldObjectTransferOwnershipResponse != null)
-		{
-			OnWorldObjectTransferOwnershipResponse(this, new OnTransferOwnershipResponseEventArgs(id, ownerActorNr, success));
-		}
-		return true;
-	}
-
-	public bool TransferOwnershipProxy(int id, int ownerActorNr)
-	{
-		//IL_004d: Unknown result type (might be due to invalid IL or missing references)
-		if (!worldObjects.ContainsKey(id))
-		{
-			return false;
-		}
-		WorldObjects[id].OwnerActorNr = ownerActorNr;
-		if (ownerActorNr == 0)
-		{
-			WorldObjects[id].DeSelect();
-		}
-		else
-		{
-			WorldObjects[id].Select(Color.blue);
-		}
-		return true;
-	}
-
-	public void OnUpdatePrototypeEvent(int worldInventoryID, byte[] worldInventoryData)
-	{
-		RuntimePrototypeCubeModel runtimePrototypeCubeModel = WorldInventory.RuntimePrototypes[worldInventoryID];
-		runtimePrototypeCubeModel.UpdatePrototype(new BytePacker(worldInventoryData));
-	}
-
-	public void OnUpdatePrototypeScaleEvent(int worldInventoryID, float scale)
-	{
-		worldInventory.Prototypes[worldInventoryID].Scale = scale;
-		RuntimePrototypeCubeModel runtimePrototypeCubeModel = WorldInventory.RuntimePrototypes[worldInventoryID];
-		runtimePrototypeCubeModel.UpdatePrototypeScale(scale);
-	}
-
-	public void OnUpdateWorldObjectDataEvent(int worldObjectID, Hashtable worldObjectData)
-	{
-		if (!worldObjects.ContainsKey(worldObjectID))
-		{
-			Debug.LogError((object)"Attempt to update WorldObjectData on unknown WorldObject!");
-			return;
-		}
-		worldObjects[worldObjectID].Data = worldObjectData;
-		worldObjects[worldObjectID].OnDataUpdate();
-	}
-
-	public void OnUpdateWorldObjectRunTimeDataEvent(int worldObjectID, Hashtable delta)
-	{
-		logger.Log($"Received OnUpdateWorldObjectRunTimeData event. worldObjectId={worldObjectID.ToString()}");
-		if (!worldObjects.ContainsKey(worldObjectID))
-		{
-			Debug.LogError((object)"Attempt to updata WorldObjectRunTimeData on unknown WorldObject!");
-			return;
-		}
-		MVWorldObjectClient mVWorldObjectClient = worldObjects[worldObjectID];
-		mVWorldObjectClient.RunTimeDataUpdate(delta);
-	}
-
-	public void OnUpdateTerrainEvent(int worldObjectID, byte[] terrainData)
-	{
-	}
-
-	public void DebugLogWorldObjectList()
-	{
-		Debug.Log((object)"----------");
-		Debug.Log((object)"WORLD OBJECT LIST:");
-		foreach (MVWorldObjectClient value in worldObjects.Values)
-		{
-			Debug.Log((object)("WO Type: " + value.WorldObjectType.ToString() + ", Id: " + value.Id + ", Owner: " + value.OwnerActorNr));
-		}
-		Debug.Log((object)"----------");
-	}
-
-	public void AddPrototype(int id, int itemID, int typeID, string name, Hashtable data, float scale, int actorNrInstigator)
-	{
-		worldInventory.AddPrototype(id, itemID, typeID, name, data, scale, actorNrInstigator);
-		if (actorNrInstigator == localPlayerActorNumber && OnRequestedPrototypeCreated != null)
-		{
-			OnRequestedPrototypeCreated(this, new OnRequestedPrototypeCreatedEventArgs(id));
-		}
-	}
-
-	public void RemovePrototype(int id)
-	{
-		worldInventory.RemovePrototype(id);
-	}
-
 	public MVWorldObjectClient GetWorldObjectClient(int id)
 	{
-		if (worldObjects.ContainsKey(id))
+		worldObjects.TryGetValue(id, out var value);
+		return value;
+	}
+
+	public MVWorldObjectClient GetWorldObjectClientWhere(Func<MVWorldObjectClient, bool> predicate)
+	{
+		return worldObjects.Values.FirstOrDefault(predicate);
+	}
+
+	public IEnumerable<MVWorldObjectClient> GetWorldObjectClientsWhere(Func<MVWorldObjectClient, bool> predicate)
+	{
+		return worldObjects.Values.Where(predicate);
+	}
+
+	public MVWorldObjectClient GetWorldObjectByGoId(int goId)
+	{
+		if (worldObjectMapping.TryGetWorldObjectIDFromGameObjectID(goId, out var woID))
 		{
-			return worldObjects[id];
+			return worldObjects[woID];
 		}
 		return null;
-	}
-
-	public MVWorldObject GetWorldObject(int id)
-	{
-		if (!worldObjects.ContainsKey(id))
-		{
-			return null;
-		}
-		return worldObjects[id];
-	}
-
-	public MVWorldObjectClient GetWorldObjectGoId(int goId)
-	{
-		if (gameObjectIdToWorldObjectIdMap.ContainsKey(goId))
-		{
-			return worldObjects[gameObjectIdToWorldObjectIdMap[goId]];
-		}
-		return null;
-	}
-
-	public bool GoIdContains(int goId)
-	{
-		return gameObjectIdToWorldObjectIdMap.ContainsKey(goId);
 	}
 
 	public static MVWorldObjectClient GetMVObject(Transform t)
 	{
-		if (MVGameController.Instance.WOCM.GoIdContains(((Object)((Component)t).gameObject).GetInstanceID()))
+		MVWorldObjectClient worldObjectByGoId = MVGameController.Instance.WOCM.GetWorldObjectByGoId(((Object)((Component)t).gameObject).GetInstanceID());
+		if (worldObjectByGoId != null)
 		{
-			return MVGameController.Instance.WOCM.GetWorldObjectGoId(((Object)((Component)t).gameObject).GetInstanceID());
+			return worldObjectByGoId;
 		}
 		if ((Object)(object)t.parent != (Object)null)
 		{
@@ -997,7 +458,7 @@ public class MVWorldObjectClientManager : IWorldObjectManager
 		return null;
 	}
 
-	public bool Pick(ref VoxelHit hit)
+	public bool Pick(ref VoxelHit hit, HashSet<int> ignoreWoIds = null, int layerMask = -5)
 	{
 		//IL_0005: Unknown result type (might be due to invalid IL or missing references)
 		//IL_000a: Unknown result type (might be due to invalid IL or missing references)
@@ -1006,150 +467,168 @@ public class MVWorldObjectClientManager : IWorldObjectManager
 		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0026: Unknown result type (might be due to invalid IL or missing references)
 		//IL_002b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0082: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0048: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0069: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0071: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0076: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0151: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0158: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0091: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0057: Unknown result type (might be due to invalid IL or missing references)
+		//IL_005c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0078: Unknown result type (might be due to invalid IL or missing references)
+		//IL_007b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0080: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0085: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0140: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0147: Unknown result type (might be due to invalid IL or missing references)
 		Ray ray = Camera.main.ScreenPointToRay(new Vector3(Input.mousePosition.x, Input.mousePosition.y));
 		float num = 0f;
 		bool flag = false;
-		if (MVGameController.Instance.EditorController.IsDrawPlaneActive())
+		if (MVGameController.Instance.EditController != null && MVGameController.Instance.EditController.IsDrawPlaneActive)
 		{
 			Vector3 hit2 = Vector3.zero;
-			if (MVGameController.Instance.EditorController.WorldEditorDrawPlane.Pick(ref hit2))
+			if (MVGameController.Instance.EditController.WorldEditorDrawPlane.Pick(ref hit2))
 			{
 				Vector3 val = hit2 - ray.origin;
 				num = val.magnitude;
 				flag = true;
 			}
 		}
-		List<VoxelHit> list = CollisionDetection.MVHitAll(ray);
+		List<VoxelHit> list = CollisionDetection.MVHitAll(ray, float.PositiveInfinity, ignoreWoIds, layerMask);
 		if (list.Count == 0)
 		{
 			return false;
 		}
 		float num2 = float.PositiveInfinity;
-		bool flag2 = false;
+		bool result = false;
 		foreach (VoxelHit item in list)
 		{
-			if ((!(item.distance < num) && flag) || !((Component)item.transform).gameObject.active)
-			{
-				continue;
-			}
-			Renderer componentInChildren = ((Component)item.transform).gameObject.GetComponentInChildren<Renderer>();
-			if ((Object)(object)componentInChildren != (Object)null && componentInChildren.enabled && (((Component)item.transform).gameObject.layer != LayerMask.NameToLayer("Logic") || MVGameController.Instance.EditorController.IsLogicRendered()))
+			if ((item.distance < num || !flag) && ((Component)item.transform).gameObject.active && (((Component)item.transform).gameObject.layer != LayerMask.NameToLayer("Logic") || MVGameController.Instance.EditController.IsLogicRendered() || IsHitPickup(item)))
 			{
 				float num3 = Vector3.Distance(ray.origin, item.point);
 				if (num3 < num2)
 				{
 					num2 = num3;
 					hit = item;
-					flag2 = true;
+					result = true;
 				}
 			}
 		}
-		if (flag2)
-		{
-		}
-		return flag2;
+		return result;
+	}
+
+	private bool IsHitPickup(VoxelHit hit)
+	{
+		Transform parent = hit.transform.parent;
+		return (Object)(object)((Component)parent).GetComponent<PickupItemObjectScript>() != (Object)null;
 	}
 
 	public MVSpawnPoint GetValidSpawnPoint()
 	{
-		List<MVWorldObjectClient> worldObjectsByType = GetWorldObjectsByType(WorldObjectType.SpawnPoint);
-		if (worldObjectsByType.Count > 0)
+		List<MVWorldObjectClient> list = ((MVGameController.Instance.Game.TeamManager.TeamCount() <= 1) ? GetWorldObjectsByType(GetSpawnPointTypeForNoneTeam()) : GetWorldObjectsByType(GetSpawnPointTypeForTeam(MVGameController.Instance.Game.LocalPlayer.Team)));
+		if (list.Count > 0)
 		{
-			int index = Random.Range(0, worldObjectsByType.Count);
-			return (MVSpawnPoint)worldObjectsByType[index];
+			int index = Random.Range(0, list.Count);
+			return (MVSpawnPoint)list[index];
 		}
 		Debug.LogError((object)"No valid SpawnPoint on planet...");
 		return null;
 	}
 
-	public Vector3 GetValidAvatarStartPosition(int tries = 0)
+	private WorldObjectType GetSpawnPointTypeForTeam(MVTeam team)
 	{
-		//IL_006a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0070: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0071: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0080: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0085: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0086: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0087: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ac: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00bb: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00db: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d5: Unknown result type (might be due to invalid IL or missing references)
-		if (Terrain == null)
+		return team switch
 		{
-			Debug.LogError((object)"No terrain found");
-			BytePacker bytePacker = new BytePacker();
-			bytePacker.Write(1);
-			bytePacker.Write((short)0);
-			bytePacker.Write((short)0);
-			bytePacker.Write((short)0);
-			bytePacker.Write((byte)3);
-			bytePacker.Write((byte)1);
-			Hashtable hashtable = new Hashtable();
-			hashtable[(byte)121] = bytePacker.ToArray();
-			return Vector3.zero;
-		}
-		Vector3 randomCubePos = Terrain.GetRandomCubePos();
-		randomCubePos += Vector3.up * 100f;
-		if (CollisionDetection.MVHit(new Ray(randomCubePos, Vector3.down), out var voxelHit))
-		{
-			randomCubePos = voxelHit.point + Vector3.up * 1f;
-		}
-		else if (tries < 10)
-		{
-			return GetValidAvatarStartPosition(tries++);
-		}
-		return randomCubePos;
+			MVTeam.Blue => WorldObjectType.SpawnPointBlue, 
+			MVTeam.Red => WorldObjectType.SpawnPointRed, 
+			MVTeam.Green => WorldObjectType.SpawnPointGreen, 
+			MVTeam.Yellow => WorldObjectType.SpawnPointYellow, 
+			_ => GetSpawnPointTypeForNoneTeam(), 
+		};
 	}
 
-	public void PreparePlayMode()
+	private WorldObjectType GetSpawnPointTypeForNoneTeam()
 	{
+		if (GetWorldObjectsByType(WorldObjectType.SpawnPointBlue).Count > 0)
+		{
+			return WorldObjectType.SpawnPointBlue;
+		}
+		if (GetWorldObjectsByType(WorldObjectType.SpawnPointRed).Count > 0)
+		{
+			return WorldObjectType.SpawnPointRed;
+		}
+		if (GetWorldObjectsByType(WorldObjectType.SpawnPointGreen).Count > 0)
+		{
+			return WorldObjectType.SpawnPointGreen;
+		}
+		if (GetWorldObjectsByType(WorldObjectType.SpawnPointYellow).Count > 0)
+		{
+			return WorldObjectType.SpawnPointYellow;
+		}
+		return WorldObjectType.SpawnPoint;
 	}
 
-	public void EndPlayMode()
+	public void SubscribeWODestroyedEvent(int woID, Action<object, WorldObjectDestroyedEventArgs> woDestroyedEventHandler)
 	{
-		foreach (MVWorldObjectClient value in worldObjects.Values)
+		if (worldObjects.TryGetValue(woID, out var _))
 		{
-			if (!value.Visible)
+			if (woDestroyedEventSubscribers.TryGetValue(woID, out var _))
 			{
-				value.Visible = true;
+				Dictionary<int, Action<object, WorldObjectDestroyedEventArgs>> dictionary2;
+				Dictionary<int, Action<object, WorldObjectDestroyedEventArgs>> dictionary = (dictionary2 = woDestroyedEventSubscribers);
+				int key2;
+				int key = (key2 = woID);
+				Action<object, WorldObjectDestroyedEventArgs> a = dictionary2[key2];
+				dictionary[key] = (Action<object, WorldObjectDestroyedEventArgs>)Delegate.Combine(a, woDestroyedEventHandler);
+			}
+			else
+			{
+				woDestroyedEventSubscribers[woID] = woDestroyedEventHandler;
 			}
 		}
 	}
 
-	private void AddToWorldObjects(MVWorldObjectClient wo)
+	public void UnsubscribeWODestroyedEvent(int woID, Action<object, WorldObjectDestroyedEventArgs> woDestroyedEventHandler)
 	{
-		if (gameObjectIdToWorldObjectIdMap.ContainsKey(((Object)wo.GameObject).GetInstanceID()))
+		if (woDestroyedEventSubscribers.TryGetValue(woID, out var value))
 		{
-			Debug.LogError((object)"Key already in gameObjectsWorldObjectsMap");
+			value = (Action<object, WorldObjectDestroyedEventArgs>)Delegate.Remove(value, woDestroyedEventHandler);
+		}
+	}
+
+	public void SubscribeWOCreatedEvent(Type type, Action<object, WorldObjectCreatedEventArgs> woCreatedEventHandler)
+	{
+		if (woCreatedEventSubscribers.TryGetValue(type, out var _))
+		{
+			Dictionary<Type, Action<object, WorldObjectCreatedEventArgs>> dictionary2;
+			Dictionary<Type, Action<object, WorldObjectCreatedEventArgs>> dictionary = (dictionary2 = woCreatedEventSubscribers);
+			Type key2;
+			Type key = (key2 = type);
+			Action<object, WorldObjectCreatedEventArgs> a = dictionary2[key2];
+			dictionary[key] = (Action<object, WorldObjectCreatedEventArgs>)Delegate.Combine(a, woCreatedEventHandler);
 		}
 		else
 		{
-			gameObjectIdToWorldObjectIdMap.Add(((Object)wo.GameObject).GetInstanceID(), wo.Id);
+			woCreatedEventSubscribers[type] = woCreatedEventHandler;
 		}
-		if (worldObjects.ContainsKey(wo.Id))
+	}
+
+	public void UnsubscribeWOCreatedEvent(Type type, Action<object, WorldObjectCreatedEventArgs> woCreatedEventHandler)
+	{
+		if (woCreatedEventSubscribers.TryGetValue(type, out var value))
 		{
-			Debug.LogError((object)"Key already in WorldObjects dictionary");
-			return;
+			value = (Action<object, WorldObjectCreatedEventArgs>)Delegate.Remove(value, woCreatedEventHandler);
 		}
-		worldObjectsIdsLodBookkeeping.worldObjectsIdsLod.Add(wo.Id);
-		worldObjects.Add(wo.Id, wo);
-		AddWorldObjectToTypeSet(wo);
+	}
+
+	public bool UnregisterWorldObject(int worldObjectId)
+	{
+		if (!worldObjects.ContainsKey(worldObjectId))
+		{
+			Debug.LogWarning((object)"trying to unregister none existing worldobject");
+			return false;
+		}
+		MVGameController.Instance.Game.UnregisterWorldObject(worldObjectId);
+		return true;
+	}
+
+	public void CloneWorldObjectTree(MVWorldObjectClient root, bool localOwner, bool setAsPreviewItem, bool cloneToRootGroup)
+	{
+		MVGameController.Instance.Game.CloneWorldObjectTree(root, localOwner, setAsPreviewItem, cloneToRootGroup);
 	}
 }

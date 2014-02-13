@@ -5,8 +5,8 @@ using System.Runtime.CompilerServices;
 
 namespace MV.Common.Properties;
 
-[GeneratedCode("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "10.0.0.0")]
 [CompilerGenerated]
+[GeneratedCode("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "10.0.0.0")]
 internal sealed class Settings : ApplicationSettingsBase
 {
 	private static Settings defaultInstance = (Settings)(object)SettingsBase.Synchronized((SettingsBase)(object)new Settings());
@@ -14,8 +14,8 @@ internal sealed class Settings : ApplicationSettingsBase
 	public static Settings Default => defaultInstance;
 
 	[DefaultSettingValue("mvuserdbdev.c86uleowzacr.eu-west-1.rds.amazonaws.com")]
-	[UserScopedSetting]
 	[DebuggerNonUserCode]
+	[UserScopedSetting]
 	public string DBUrl
 	{
 		get
@@ -29,8 +29,8 @@ internal sealed class Settings : ApplicationSettingsBase
 	}
 
 	[UserScopedSetting]
-	[DebuggerNonUserCode]
 	[DefaultSettingValue("MVUserDB")]
+	[DebuggerNonUserCode]
 	public string DBName
 	{
 		get
@@ -59,8 +59,8 @@ internal sealed class Settings : ApplicationSettingsBase
 	}
 
 	[DebuggerNonUserCode]
-	[DefaultSettingValue("Am00c00ma")]
 	[UserScopedSetting]
+	[DefaultSettingValue("Am00c00ma")]
 	public string DBPassword
 	{
 		get

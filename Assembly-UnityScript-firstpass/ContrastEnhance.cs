@@ -44,25 +44,22 @@ public class ContrastEnhance : PostEffectsBase
 		//IL_00a2: Unknown result type (might be due to invalid IL or missing references)
 		//IL_00de: Unknown result type (might be due to invalid IL or missing references)
 		CreateMaterials();
-		checked
-		{
-			RenderTexture temporary = RenderTexture.GetTemporary((int)((float)source.width / 2f), (int)((float)source.height / 2f), 0);
-			RenderTexture temporary2 = RenderTexture.GetTemporary((int)((float)source.width / 4f), (int)((float)source.height / 4f), 0);
-			RenderTexture temporary3 = RenderTexture.GetTemporary((int)((float)source.width / 4f), (int)((float)source.height / 4f), 0);
-			Graphics.Blit((Texture)(object)source, temporary);
-			Graphics.Blit((Texture)(object)temporary, temporary2);
-			_separableBlurMaterial.SetVector("offsets", new Vector4(0f, blurSpread * 1f / (float)temporary2.height, 0f, 0f));
-			Graphics.Blit((Texture)(object)temporary2, temporary3, _separableBlurMaterial);
-			_separableBlurMaterial.SetVector("offsets", new Vector4(blurSpread * 1f / (float)temporary2.width, 0f, 0f, 0f));
-			Graphics.Blit((Texture)(object)temporary3, temporary2, _separableBlurMaterial);
-			_contrastCompositeMaterial.SetTexture("_MainTexBlurred", (Texture)(object)temporary2);
-			_contrastCompositeMaterial.SetFloat("intensity", intensity);
-			_contrastCompositeMaterial.SetFloat("threshhold", threshhold);
-			Graphics.Blit((Texture)(object)source, destination, _contrastCompositeMaterial);
-			RenderTexture.ReleaseTemporary(temporary);
-			RenderTexture.ReleaseTemporary(temporary2);
-			RenderTexture.ReleaseTemporary(temporary3);
-		}
+		RenderTexture temporary = RenderTexture.GetTemporary((int)((float)source.width / 2f), (int)((float)source.height / 2f), 0);
+		RenderTexture temporary2 = RenderTexture.GetTemporary((int)((float)source.width / 4f), (int)((float)source.height / 4f), 0);
+		RenderTexture temporary3 = RenderTexture.GetTemporary((int)((float)source.width / 4f), (int)((float)source.height / 4f), 0);
+		Graphics.Blit((Texture)(object)source, temporary);
+		Graphics.Blit((Texture)(object)temporary, temporary2);
+		_separableBlurMaterial.SetVector("offsets", new Vector4(0f, blurSpread * 1f / (float)temporary2.height, 0f, 0f));
+		Graphics.Blit((Texture)(object)temporary2, temporary3, _separableBlurMaterial);
+		_separableBlurMaterial.SetVector("offsets", new Vector4(blurSpread * 1f / (float)temporary2.width, 0f, 0f, 0f));
+		Graphics.Blit((Texture)(object)temporary3, temporary2, _separableBlurMaterial);
+		_contrastCompositeMaterial.SetTexture("_MainTexBlurred", (Texture)(object)temporary2);
+		_contrastCompositeMaterial.SetFloat("intensity", intensity);
+		_contrastCompositeMaterial.SetFloat("threshhold", threshhold);
+		Graphics.Blit((Texture)(object)source, destination, _contrastCompositeMaterial);
+		RenderTexture.ReleaseTemporary(temporary);
+		RenderTexture.ReleaseTemporary(temporary2);
+		RenderTexture.ReleaseTemporary(temporary3);
 	}
 
 	public override void Main()

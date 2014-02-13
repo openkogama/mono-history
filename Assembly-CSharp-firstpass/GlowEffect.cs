@@ -1,7 +1,7 @@
 using UnityEngine;
 
-[ExecuteInEditMode]
 [RequireComponent(typeof(Camera))]
+[ExecuteInEditMode]
 [AddComponentMenu("Image Effects/Glow")]
 public class GlowEffect : MonoBehaviour
 {

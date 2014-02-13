@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class DictionaryWithChangeEvent<TKey, TValue> : ICollection<KeyValuePair<TKey, TValue>>, IDictionary<TKey, TValue>, IEnumerable<KeyValuePair<TKey, TValue>>, IEnumerable
+public class DictionaryWithChangeEvent<TKey, TValue> : IEnumerable, ICollection<KeyValuePair<TKey, TValue>>, IDictionary<TKey, TValue>, IEnumerable<KeyValuePair<TKey, TValue>>
 {
 	public delegate void OnDictionaryChangeDelegate(IDictionary<TKey, TValue> dictionary);
 

@@ -1,4 +1,5 @@
 public enum DamageFallOffType
 {
-	None
+	NoFallOff,
+	Linear
 }

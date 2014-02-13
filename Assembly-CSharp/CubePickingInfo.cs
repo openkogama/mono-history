@@ -35,5 +35,7 @@ public class CubePickingInfo
 		normal = cubePickingInfo.normal;
 		point = cubePickingInfo.point;
 		iLocalPos = cubePickingInfo.iLocalPos;
+		pickedEdgeIndex0 = cubePickingInfo.pickedEdgeIndex0;
+		pickedEdgeIndex1 = cubePickingInfo.pickedEdgeIndex1;
 	}
 }

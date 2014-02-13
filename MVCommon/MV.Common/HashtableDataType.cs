@@ -9,5 +9,9 @@ public enum HashtableDataType : byte
 	Int32HashtableKeysOnly,
 	Bool,
 	BoolArray,
-	String
+	String,
+	Hashtable,
+	Byte,
+	Int64,
+	Int64Array
 }

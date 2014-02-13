@@ -9,8 +9,6 @@ public class MVWorldInventory
 
 	private const int numberOfLowPriorityMeshGenerations = 1;
 
-	private Dictionary<int, MVPrototype> prototypes = new Dictionary<int, MVPrototype>();
-
 	private Dictionary<int, RuntimePrototypeCubeModel> runtimePrototypes = new Dictionary<int, RuntimePrototypeCubeModel>();
 
 	private Dictionary<int, PendingPrototypeData> pendingRuntimePrototypes = new Dictionary<int, PendingPrototypeData>();
@@ -19,13 +17,17 @@ public class MVWorldInventory
 
 	public OnWorldInventoryChangeDelegate OnWorldInventoryChange;
 
-	public Dictionary<int, MVPrototype> Prototypes => prototypes;
-
 	public Dictionary<int, RuntimePrototypeCubeModel> RuntimePrototypes => runtimePrototypes;
 
 	public void AddRuntimePrototypeToDirty(RuntimePrototypeCubeModel rpcm)
 	{
 		dirtyRPCM.Add(rpcm);
+	}
+
+	public void OnUpdatePrototypeEvent(int worldInventoryID, byte[] worldInventoryData)
+	{
+		RuntimePrototypeCubeModel runtimePrototypeCubeModel = runtimePrototypes[worldInventoryID];
+		runtimePrototypeCubeModel.UpdatePrototype(new BytePacker(worldInventoryData));
 	}
 
 	private void GenerateDirtyRPCM()
@@ -56,33 +58,19 @@ public class MVWorldInventory
 		GenerateDirtyRPCM();
 	}
 
-	public MVPrototype GetPrototype(int Id)
+	public void AddPrototype(Hashtable data)
 	{
-		if (prototypes.ContainsKey(Id))
-		{
-			return prototypes[Id];
-		}
-		Debug.LogError((object)("Id not present " + Id));
-		return null;
-	}
-
-	public void AddPrototype(int id, int itemID, int typeID, string name, Hashtable data, float scale, int actorNrInstigator)
-	{
-		MVPrototype mVPrototype = new MVPrototype();
-		mVPrototype.ID = id;
-		mVPrototype.TypeID = typeID;
-		mVPrototype.Name = name;
-		mVPrototype.Data = data;
-		mVPrototype.Scale = scale;
-		mVPrototype.ItemID = itemID;
-		prototypes.Add(id, mVPrototype);
-		CreateRuntimePrototype(id);
+		int num = (int)data[PrototypeDataParameters.Id];
+		float scale = (float)data[PrototypeDataParameters.Scale];
+		int authorProfileId = (int)data[PrototypeDataParameters.AuthorProfileId];
+		byte[] data2 = (byte[])data[PrototypeDataParameters.Data];
+		RuntimePrototypeCubeModel value = new RuntimePrototypeCubeModel(num, authorProfileId, scale, data2);
+		runtimePrototypes.Add(num, value);
 		NotifyWorldInventoryChange();
 	}
 
 	public void RemovePrototype(int id)
 	{
-		prototypes.Remove(id);
 		runtimePrototypes.Remove(id);
 		NotifyWorldInventoryChange();
 	}
@@ -125,6 +113,8 @@ public class MVWorldInventory
 			{
 				runtimePrototypes.Add(worldInventoryId, pendingRuntimePrototypes[woId].pendingRuntimePrototype);
 				pendingRuntimePrototypes[woId].pendingRuntimePrototype.PrototypeState = PrototypeState.Registered;
+				MVCubeModelInstance mVCubeModelInstance = (MVCubeModelInstance)MVGameController.Instance.WOCM.GetWorldObjectClient(woId);
+				mVCubeModelInstance.Data["protoTypeID"] = worldInventoryId;
 			}
 			else
 			{
@@ -134,16 +124,16 @@ public class MVWorldInventory
 		}
 		else
 		{
-			Debug.Log((object)"Create new prototype and update target cubemodel");
-			MVCubeModelInstance mVCubeModelInstance = (MVCubeModelInstance)MVGameController.Instance.WOCM.WorldObjects[woId];
-			int pid = mVCubeModelInstance.Pid;
+			MVCubeModelInstance mVCubeModelInstance2 = (MVCubeModelInstance)MVGameController.Instance.WOCM.GetWorldObjectClient(woId);
+			int pid = mVCubeModelInstance2.Pid;
 			RuntimePrototypeCubeModel runtimePrototypeCubeModel = runtimePrototypes[pid].CloneGeometry();
 			runtimePrototypeCubeModel.PrototypeId = worldInventoryId;
 			runtimePrototypeCubeModel.PrototypeState = PrototypeState.Registered;
 			runtimePrototypes.Add(worldInventoryId, runtimePrototypeCubeModel);
-			mVCubeModelInstance.PrototypeCubeModel.RemoveInstance(woId);
-			mVCubeModelInstance.PrototypeCubeModel = runtimePrototypeCubeModel;
-			runtimePrototypeCubeModel.CreateInstance(mVCubeModelInstance);
+			mVCubeModelInstance2.PrototypeCubeModel.RemoveInstance(woId);
+			mVCubeModelInstance2.PrototypeCubeModel = runtimePrototypeCubeModel;
+			runtimePrototypeCubeModel.CreateInstance(mVCubeModelInstance2);
+			mVCubeModelInstance2.Data["protoTypeID"] = worldInventoryId;
 		}
 	}
 
@@ -179,37 +169,9 @@ public class MVWorldInventory
 
 	private RuntimePrototypeCubeModel CreatePendingPrototype(int prototypeId)
 	{
-		RuntimePrototypeCubeModel runtimePrototypeCubeModel = MVGameController.Instance.WOCM.WorldInventory.RuntimePrototypes[prototypeId].CloneGeometry(withDeltaCubes: true);
+		RuntimePrototypeCubeModel runtimePrototypeCubeModel = runtimePrototypes[prototypeId].CloneGeometry(withDeltaCubes: true);
 		runtimePrototypeCubeModel.PrototypeState = PrototypeState.Pending;
 		return runtimePrototypeCubeModel;
-	}
-
-	private void CreateRuntimePrototype(int id)
-	{
-		if (!prototypes.ContainsKey(id))
-		{
-			Debug.LogError((object)("Attempt to instantiate prototype with id '" + id + "', but no such id in dictionary"));
-			return;
-		}
-		RuntimePrototypeCubeModel value = new RuntimePrototypeCubeModel(MVGameController.Instance.WOCM.WorldInventory.GetPrototype(id));
-		runtimePrototypes.Add(id, value);
-	}
-
-	public RuntimePrototypeCubeModel GetUnchangedPrototypeByItem(MVItem item)
-	{
-		if (item.itemID == -1)
-		{
-			return null;
-		}
-		RuntimePrototypeCubeModel rpcm = new RuntimePrototypeCubeModel(item);
-		foreach (KeyValuePair<int, RuntimePrototypeCubeModel> runtimePrototype in runtimePrototypes)
-		{
-			if (runtimePrototype.Value.MVItemId == item.itemID && runtimePrototype.Value.CompareGeometry(rpcm))
-			{
-				return runtimePrototype.Value;
-			}
-		}
-		return null;
 	}
 
 	private void NotifyWorldInventoryChange()

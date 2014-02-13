@@ -1,7 +1,7 @@
 using UnityEngine;
 
-[ExecuteInEditMode]
 [AddComponentMenu("Image Effects/Blur")]
+[ExecuteInEditMode]
 public class BlurEffect : MonoBehaviour
 {
 	public int iterations = 3;

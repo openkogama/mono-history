@@ -7,6 +7,7 @@ using UnityScript.Lang;
 [ExecuteInEditMode]
 public class PostEffectsHelper : MonoBehaviour
 {
+	[NonSerialized]
 	public static UnityScript.Lang.Array s_PostEffects = new UnityScript.Lang.Array();
 
 	public override void Start()
@@ -40,7 +41,7 @@ public class PostEffectsHelper : MonoBehaviour
 		num5 *= dist * num7;
 		num6 *= dist * num7;
 		float num8 = 0f - dist;
-		for (int i = 0; i < material.passCount; i = checked(i + 1))
+		for (int i = 0; i < material.passCount; i++)
 		{
 			material.SetPass(i);
 			GL.Begin(7);
@@ -79,7 +80,7 @@ public class PostEffectsHelper : MonoBehaviour
 		bool flag = true;
 		GL.PushMatrix();
 		GL.LoadOrtho();
-		for (int i = 0; i < material.passCount; i = checked(i + 1))
+		for (int i = 0; i < material.passCount; i++)
 		{
 			material.SetPass(i);
 			float num5 = default;
@@ -155,7 +156,7 @@ public class PostEffectsHelper : MonoBehaviour
 		bool flag = true;
 		GL.PushMatrix();
 		GL.LoadOrtho();
-		for (int i = 0; i < material.passCount; i = checked(i + 1))
+		for (int i = 0; i < material.passCount; i++)
 		{
 			material.SetPass(i);
 			GL.Begin(7);

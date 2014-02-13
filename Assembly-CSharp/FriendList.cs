@@ -1,9 +1,14 @@
 using System.Collections.Generic;
+using System.Linq;
 using MV.Common;
 using UnityEngine;
 
 public class FriendList
 {
+	public delegate void OnFriendListUpdatedDelegate();
+
+	public OnFriendListUpdatedDelegate OnFriendListUpdated;
+
 	private Dictionary<int, Friend> friends = new Dictionary<int, Friend>();
 
 	private Dictionary<int, Friend> pending = new Dictionary<int, Friend>();
@@ -30,26 +35,39 @@ public class FriendList
 
 	public void AddFriend(int friendID, int profileID, int friendProfileID, FriendStatus status)
 	{
-		if (profileID == MVGameController.Instance.WOCM.LocalPlayer.ProfileID)
+		if (profileID == MVGameController.Instance.Game.LocalPlayer.ProfileID)
 		{
 			if (!friends.ContainsKey(friendID))
 			{
-				friends.Add(friendID, new Friend(friendProfileID, status));
+				Friend value = new Friend(friendID, friendProfileID, status);
+				friends.Add(friendID, value);
 			}
 		}
-		else if (friendProfileID == MVGameController.Instance.WOCM.LocalPlayer.ProfileID && !pending.ContainsKey(friendID))
+		else if (friendProfileID == MVGameController.Instance.Game.LocalPlayer.ProfileID && !pending.ContainsKey(friendID))
 		{
-			pending.Add(friendID, new Friend(profileID, status));
+			Friend value2 = new Friend(friendID, profileID, status);
+			pending.Add(friendID, value2);
+		}
+		if (OnFriendListUpdated != null)
+		{
+			OnFriendListUpdated();
 		}
 	}
 
 	public void UpdateFriend(int friendID, int profileID, FriendStatus status)
 	{
-		if (profileID == MVGameController.Instance.WOCM.LocalPlayer.ProfileID)
+		if (profileID == MVGameController.Instance.Game.LocalPlayer.ProfileID)
 		{
 			if (friends.ContainsKey(friendID))
 			{
-				friends[friendID].status = status;
+				if (status == FriendStatus.Deleted)
+				{
+					friends.Remove(friendID);
+				}
+				else
+				{
+					friends[friendID].status = status;
+				}
 			}
 			else
 			{
@@ -58,9 +76,35 @@ public class FriendList
 		}
 		else
 		{
-			AddFriend(friendID, MVGameController.Instance.WOCM.LocalPlayer.ProfileID, profileID, status);
 			RemoveFromPendingByProfileID(profileID);
+			if (status != FriendStatus.Deleted)
+			{
+				AddFriend(friendID, MVGameController.Instance.Game.LocalPlayer.ProfileID, profileID, status);
+			}
 		}
+		if (OnFriendListUpdated != null)
+		{
+			OnFriendListUpdated();
+		}
+	}
+
+	public bool IsFriend(int profileID)
+	{
+		Friend friendByProfileID = GetFriendByProfileID(profileID);
+		return friendByProfileID != null && friendByProfileID.status == FriendStatus.Accepted;
+	}
+
+	public Friend GetFriendByProfileID(int profileID)
+	{
+		if (friends.Any((KeyValuePair<int, Friend> f) => f.Value.profileID == profileID))
+		{
+			return friends.First((KeyValuePair<int, Friend> f) => f.Value.profileID == profileID).Value;
+		}
+		if (pending.Any((KeyValuePair<int, Friend> f) => f.Value.profileID == profileID))
+		{
+			return pending.First((KeyValuePair<int, Friend> f) => f.Value.profileID == profileID).Value;
+		}
+		return null;
 	}
 
 	private void RemoveFromPendingByProfileID(int profileID)
@@ -73,6 +117,10 @@ public class FriendList
 				pending.Remove(key);
 				break;
 			}
+		}
+		if (OnFriendListUpdated != null)
+		{
+			OnFriendListUpdated();
 		}
 	}
 }

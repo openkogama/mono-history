@@ -107,7 +107,7 @@ public class PostEffectsBase : MonoBehaviour
 		num5 *= dist * num7;
 		num6 *= dist * num7;
 		float num8 = 0f - dist;
-		for (int i = 0; i < material.passCount; i = checked(i + 1))
+		for (int i = 0; i < material.passCount; i++)
 		{
 			material.SetPass(i);
 			GL.Begin(7);
@@ -146,7 +146,7 @@ public class PostEffectsBase : MonoBehaviour
 		bool flag = true;
 		GL.PushMatrix();
 		GL.LoadOrtho();
-		for (int i = 0; i < material.passCount; i = checked(i + 1))
+		for (int i = 0; i < material.passCount; i++)
 		{
 			material.SetPass(i);
 			float num5 = default;
@@ -222,7 +222,7 @@ public class PostEffectsBase : MonoBehaviour
 		bool flag = true;
 		GL.PushMatrix();
 		GL.LoadOrtho();
-		for (int i = 0; i < material.passCount; i = checked(i + 1))
+		for (int i = 0; i < material.passCount; i++)
 		{
 			material.SetPass(i);
 			GL.Begin(7);

@@ -1,12 +1,16 @@
-public class MVGUIRespawnButton : UXViewScript
+using System;
+using UnityEngine;
+
+public class MVGUIRespawnButton : MonoBehaviour
 {
 	public UXIconButton respawn;
 
-	public override void OnInitialize()
+	public void Initialize()
 	{
-		respawn.OnClick = () =>
+		UXIconButton uXIconButton = respawn;
+		uXIconButton.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXIconButton.OnClick, (UXBaseButton.OnClickDelegate)(() =>
 		{
-			MVGameController.Instance.WOCM.LocalPlayer.Avatar.AvatarController.Respawn();
-		};
+			MVGameController.Instance.IngameController.RespawnAvatar();
+		}));
 	}
 }

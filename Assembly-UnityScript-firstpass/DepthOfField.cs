@@ -181,121 +181,118 @@ public class DepthOfField : PostEffectsBase
 		_preDofMaterial.SetVector("_BokehThreshhold", new Vector4(bokehThreshhold, 1f / (1f - bokehThreshhold) * (1f - num), num, noiseAmount));
 		_preDofMaterial.SetVector("_InvRenderTargetSize", new Vector4(1f / (1f * (float)source.width), 1f / (1f * (float)source.height), 0f, 0f));
 		RenderTexture temporary = RenderTexture.GetTemporary(source.width, source.height, 0);
-		checked
+		RenderTexture temporary2 = RenderTexture.GetTemporary((int)((float)source.width / divider), (int)((float)source.height / divider), 0);
+		RenderTexture temporary3 = RenderTexture.GetTemporary((int)((float)source.width / divider), (int)((float)source.height / divider), 0);
+		RenderTexture temporary4 = RenderTexture.GetTemporary((int)((float)source.width / divider), (int)((float)source.height / divider), 0);
+		RenderTexture temporary5 = RenderTexture.GetTemporary((int)((float)source.width / divider), (int)((float)source.height / divider), 0);
+		((Texture)temporary).filterMode = (FilterMode)1;
+		((Texture)temporary3).filterMode = (FilterMode)1;
+		((Texture)temporary4).filterMode = (FilterMode)1;
+		((Texture)temporary5).filterMode = (FilterMode)1;
+		((Texture)temporary2).filterMode = (FilterMode)1;
+		if (quality >= DofQualitySetting.High)
 		{
-			RenderTexture temporary2 = RenderTexture.GetTemporary((int)((float)source.width / divider), (int)((float)source.height / divider), 0);
-			RenderTexture temporary3 = RenderTexture.GetTemporary((int)((float)source.width / divider), (int)((float)source.height / divider), 0);
-			RenderTexture temporary4 = RenderTexture.GetTemporary((int)((float)source.width / divider), (int)((float)source.height / divider), 0);
-			RenderTexture temporary5 = RenderTexture.GetTemporary((int)((float)source.width / divider), (int)((float)source.height / divider), 0);
-			((Texture)temporary).filterMode = (FilterMode)1;
-			((Texture)temporary3).filterMode = (FilterMode)1;
-			((Texture)temporary4).filterMode = (FilterMode)1;
-			((Texture)temporary5).filterMode = (FilterMode)1;
-			((Texture)temporary2).filterMode = (FilterMode)1;
-			if (quality >= DofQualitySetting.High)
+			Graphics.Blit((Texture)(object)source, temporary, _preDofMaterial, 11);
+			Graphics.Blit((Texture)(object)temporary, temporary3, _preDofMaterial, 12);
+			if (foregroundBlurIterations < 1)
 			{
-				Graphics.Blit((Texture)(object)source, temporary, _preDofMaterial, 11);
-				Graphics.Blit((Texture)(object)temporary, temporary3, _preDofMaterial, 12);
-				if (foregroundBlurIterations < 1)
+				foregroundBlurIterations = 1;
+			}
+			int num2 = ((!enableBokeh) ? 6 : 9);
+			for (int i = 0; i < foregroundBlurIterations; i++)
+			{
+				_preDofMaterial.SetVector("_Vh", new Vector4(foregroundBlurSpread, 0f, 0f, 0f));
+				Graphics.Blit((Texture)(object)temporary3, temporary5, _preDofMaterial, num2);
+				_preDofMaterial.SetVector("_Vh", new Vector4(0f, foregroundBlurSpread, 0f, 0f));
+				Graphics.Blit((Texture)(object)temporary5, temporary3, _preDofMaterial, num2);
+				if (enableBokeh)
 				{
-					foregroundBlurIterations = 1;
-				}
-				int num2 = ((!enableBokeh) ? 6 : 9);
-				for (int i = 0; i < foregroundBlurIterations; i++)
-				{
-					_preDofMaterial.SetVector("_Vh", new Vector4(foregroundBlurSpread, 0f, 0f, 0f));
+					_preDofMaterial.SetVector("_Vh", new Vector4(foregroundBlurSpread, 0f - foregroundBlurSpread, 0f, 0f));
 					Graphics.Blit((Texture)(object)temporary3, temporary5, _preDofMaterial, num2);
-					_preDofMaterial.SetVector("_Vh", new Vector4(0f, foregroundBlurSpread, 0f, 0f));
+					_preDofMaterial.SetVector("_Vh", new Vector4(0f - foregroundBlurSpread, 0f - foregroundBlurSpread, 0f, 0f));
 					Graphics.Blit((Texture)(object)temporary5, temporary3, _preDofMaterial, num2);
-					if (enableBokeh)
-					{
-						_preDofMaterial.SetVector("_Vh", new Vector4(foregroundBlurSpread, 0f - foregroundBlurSpread, 0f, 0f));
-						Graphics.Blit((Texture)(object)temporary3, temporary5, _preDofMaterial, num2);
-						_preDofMaterial.SetVector("_Vh", new Vector4(0f - foregroundBlurSpread, 0f - foregroundBlurSpread, 0f, 0f));
-						Graphics.Blit((Texture)(object)temporary5, temporary3, _preDofMaterial, num2);
-					}
-				}
-				Graphics.Blit((Texture)(object)source, source, _preDofMaterial, 4);
-				Graphics.Blit((Texture)(object)source, temporary2, _preDofMaterial, 12);
-			}
-			else
-			{
-				Graphics.Blit((Texture)(object)source, source, _preDofMaterial, 3);
-				Graphics.Blit((Texture)(object)source, temporary2, _preDofMaterial, 12);
-			}
-			if (blurIterations < 1)
-			{
-				blurIterations = 1;
-			}
-			float num3 = (0f - bokehFalloff) / (1f * (float)blurIterations);
-			_weightedBlurMaterial.SetVector("_Threshhold", new Vector4(bokehThreshhold, 1f / (1f - bokehThreshhold) * (1f - num3), num3, noiseAmount));
-			if (quality >= DofQualitySetting.Medium)
-			{
-				_weightedBlurMaterial.SetVector("offsets", new Vector4(0f, blurSpread * 1.5f / (float)source.height, 0f, 0f));
-				Graphics.Blit((Texture)(object)temporary2, temporary5, _weightedBlurMaterial, 1);
-				_weightedBlurMaterial.SetVector("offsets", new Vector4(blurSpread * 1.5f / (float)source.width, 0f, 0f, 0f));
-				Graphics.Blit((Texture)(object)temporary5, temporary2, _weightedBlurMaterial, 1);
-				int num4 = ((!enableBokeh) ? 1 : 0);
-				for (int j = 0; j < blurIterations; j++)
-				{
-					_weightedBlurMaterial.SetVector("offsets", new Vector4(0f, blurSpread / (float)source.height, 0f, 0f));
-					Graphics.Blit((Texture)(object)((j != 0) ? temporary4 : temporary2), temporary5, _weightedBlurMaterial, num4);
-					_weightedBlurMaterial.SetVector("offsets", new Vector4(blurSpread / (float)source.width, 0f, 0f, 0f));
-					Graphics.Blit((Texture)(object)temporary5, temporary4, _weightedBlurMaterial, num4);
-					if (enableBokeh)
-					{
-						_weightedBlurMaterial.SetVector("offsets", new Vector4(blurSpread / (float)source.width, blurSpread / (float)source.height, 0f, 0f));
-						Graphics.Blit((Texture)(object)temporary4, temporary5, _weightedBlurMaterial, num4);
-						_weightedBlurMaterial.SetVector("offsets", new Vector4(blurSpread / (float)source.width, (0f - blurSpread) / (float)source.height, 0f, 0f));
-						Graphics.Blit((Texture)(object)temporary5, temporary4, _weightedBlurMaterial, num4);
-					}
 				}
 			}
-			else
-			{
-				for (int j = 0; j < blurIterations; j++)
-				{
-					_blurMaterial.SetVector("offsets", new Vector4(0f, blurSpread / (float)source.height, 0f, 0f));
-					Graphics.Blit((Texture)(object)((j != 0) ? temporary4 : temporary2), temporary5, _blurMaterial);
-					_blurMaterial.SetVector("offsets", new Vector4(blurSpread / (float)source.width, 0f, 0f, 0f));
-					Graphics.Blit((Texture)(object)temporary5, temporary4, _blurMaterial);
-				}
-			}
-			bool flag = _focalDistance01 > 0f;
-			if (flag)
-			{
-				flag = focalStartCurve > 0f;
-			}
-			bool flag2 = flag;
-			_preDofMaterial.SetTexture("_FgLowRez", (Texture)(object)temporary3);
-			_preDofMaterial.SetTexture("_BgLowRez", (Texture)(object)temporary4);
-			_preDofMaterial.SetTexture("_BgUnblurredTex", (Texture)(object)temporary2);
-			_weightedBlurMaterial.SetTexture("_TapLow", (Texture)(object)temporary4);
-			_weightedBlurMaterial.SetTexture("_TapMedium", (Texture)(object)temporary2);
-			Graphics.Blit((Texture)(object)temporary4, temporary4, _weightedBlurMaterial, 3);
-			if (quality > DofQualitySetting.Medium)
-			{
-				Graphics.Blit((Texture)(object)source, (!flag2) ? destination : temporary, _preDofMaterial, 0);
-			}
-			else if (quality == DofQualitySetting.Medium)
-			{
-				Graphics.Blit((Texture)(object)source, destination, _preDofMaterial, 2);
-			}
-			else if (quality == DofQualitySetting.Low)
-			{
-				Graphics.Blit((Texture)(object)source, destination, _preDofMaterial, 1);
-			}
-			if (quality > DofQualitySetting.Medium && flag2)
-			{
-				Graphics.Blit((Texture)(object)temporary, temporary2, _preDofMaterial, 12);
-				Graphics.Blit((Texture)(object)temporary, destination, _preDofMaterial, 10);
-			}
-			RenderTexture.ReleaseTemporary(temporary);
-			RenderTexture.ReleaseTemporary(temporary3);
-			RenderTexture.ReleaseTemporary(temporary4);
-			RenderTexture.ReleaseTemporary(temporary5);
-			RenderTexture.ReleaseTemporary(temporary2);
+			Graphics.Blit((Texture)(object)source, source, _preDofMaterial, 4);
+			Graphics.Blit((Texture)(object)source, temporary2, _preDofMaterial, 12);
 		}
+		else
+		{
+			Graphics.Blit((Texture)(object)source, source, _preDofMaterial, 3);
+			Graphics.Blit((Texture)(object)source, temporary2, _preDofMaterial, 12);
+		}
+		if (blurIterations < 1)
+		{
+			blurIterations = 1;
+		}
+		float num3 = (0f - bokehFalloff) / (1f * (float)blurIterations);
+		_weightedBlurMaterial.SetVector("_Threshhold", new Vector4(bokehThreshhold, 1f / (1f - bokehThreshhold) * (1f - num3), num3, noiseAmount));
+		if (quality >= DofQualitySetting.Medium)
+		{
+			_weightedBlurMaterial.SetVector("offsets", new Vector4(0f, blurSpread * 1.5f / (float)source.height, 0f, 0f));
+			Graphics.Blit((Texture)(object)temporary2, temporary5, _weightedBlurMaterial, 1);
+			_weightedBlurMaterial.SetVector("offsets", new Vector4(blurSpread * 1.5f / (float)source.width, 0f, 0f, 0f));
+			Graphics.Blit((Texture)(object)temporary5, temporary2, _weightedBlurMaterial, 1);
+			int num4 = ((!enableBokeh) ? 1 : 0);
+			for (int j = 0; j < blurIterations; j++)
+			{
+				_weightedBlurMaterial.SetVector("offsets", new Vector4(0f, blurSpread / (float)source.height, 0f, 0f));
+				Graphics.Blit((Texture)(object)((j != 0) ? temporary4 : temporary2), temporary5, _weightedBlurMaterial, num4);
+				_weightedBlurMaterial.SetVector("offsets", new Vector4(blurSpread / (float)source.width, 0f, 0f, 0f));
+				Graphics.Blit((Texture)(object)temporary5, temporary4, _weightedBlurMaterial, num4);
+				if (enableBokeh)
+				{
+					_weightedBlurMaterial.SetVector("offsets", new Vector4(blurSpread / (float)source.width, blurSpread / (float)source.height, 0f, 0f));
+					Graphics.Blit((Texture)(object)temporary4, temporary5, _weightedBlurMaterial, num4);
+					_weightedBlurMaterial.SetVector("offsets", new Vector4(blurSpread / (float)source.width, (0f - blurSpread) / (float)source.height, 0f, 0f));
+					Graphics.Blit((Texture)(object)temporary5, temporary4, _weightedBlurMaterial, num4);
+				}
+			}
+		}
+		else
+		{
+			for (int j = 0; j < blurIterations; j++)
+			{
+				_blurMaterial.SetVector("offsets", new Vector4(0f, blurSpread / (float)source.height, 0f, 0f));
+				Graphics.Blit((Texture)(object)((j != 0) ? temporary4 : temporary2), temporary5, _blurMaterial);
+				_blurMaterial.SetVector("offsets", new Vector4(blurSpread / (float)source.width, 0f, 0f, 0f));
+				Graphics.Blit((Texture)(object)temporary5, temporary4, _blurMaterial);
+			}
+		}
+		bool flag = _focalDistance01 > 0f;
+		if (flag)
+		{
+			flag = focalStartCurve > 0f;
+		}
+		bool flag2 = flag;
+		_preDofMaterial.SetTexture("_FgLowRez", (Texture)(object)temporary3);
+		_preDofMaterial.SetTexture("_BgLowRez", (Texture)(object)temporary4);
+		_preDofMaterial.SetTexture("_BgUnblurredTex", (Texture)(object)temporary2);
+		_weightedBlurMaterial.SetTexture("_TapLow", (Texture)(object)temporary4);
+		_weightedBlurMaterial.SetTexture("_TapMedium", (Texture)(object)temporary2);
+		Graphics.Blit((Texture)(object)temporary4, temporary4, _weightedBlurMaterial, 3);
+		if (quality > DofQualitySetting.Medium)
+		{
+			Graphics.Blit((Texture)(object)source, (!flag2) ? destination : temporary, _preDofMaterial, 0);
+		}
+		else if (quality == DofQualitySetting.Medium)
+		{
+			Graphics.Blit((Texture)(object)source, destination, _preDofMaterial, 2);
+		}
+		else if (quality == DofQualitySetting.Low)
+		{
+			Graphics.Blit((Texture)(object)source, destination, _preDofMaterial, 1);
+		}
+		if (quality > DofQualitySetting.Medium && flag2)
+		{
+			Graphics.Blit((Texture)(object)temporary, temporary2, _preDofMaterial, 12);
+			Graphics.Blit((Texture)(object)temporary, destination, _preDofMaterial, 10);
+		}
+		RenderTexture.ReleaseTemporary(temporary);
+		RenderTexture.ReleaseTemporary(temporary3);
+		RenderTexture.ReleaseTemporary(temporary4);
+		RenderTexture.ReleaseTemporary(temporary5);
+		RenderTexture.ReleaseTemporary(temporary2);
 	}
 
 	public override void Main()

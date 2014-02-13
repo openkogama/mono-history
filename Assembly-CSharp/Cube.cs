@@ -31,6 +31,11 @@ public class Cube : CubeBase
 	{
 	}
 
+	public Cube Clone()
+	{
+		return Clone(this);
+	}
+
 	public static Cube Clone(Cube original)
 	{
 		if (original == null)
@@ -61,6 +66,18 @@ public class Cube : CubeBase
 	public static Vector3[] GetVertices(Cube cube)
 	{
 		return GetVertices(cube.Corners);
+	}
+
+	public static IntVector GetCubePosAboveFace(IntVector localPos, Face face)
+	{
+		//IL_001d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
+		IntVector result = new IntVector(localPos.x, localPos.y, localPos.z);
+		Vector3 faceAxis = GetFaceAxis(face);
+		result.x += (short)faceAxis.x;
+		result.y += (short)faceAxis.y;
+		result.z += (short)faceAxis.z;
+		return result;
 	}
 
 	public static Face GetFaceIdentityFromLocalDir(Vector3 localDir)
@@ -152,8 +169,11 @@ public class Cube : CubeBase
 		//IL_004b: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0050: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0055: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0067: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0057: Unknown result type (might be due to invalid IL or missing references)
+		//IL_005a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_005f: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0069: Unknown result type (might be due to invalid IL or missing references)
+		//IL_006b: Unknown result type (might be due to invalid IL or missing references)
 		Vector3[] face2 = GetFace(RotateFaceToTop(cube, face), face);
 		float y = 0.5f;
 		for (int i = 0; i < 4; i++)
@@ -164,7 +184,7 @@ public class Cube : CubeBase
 		for (int j = 0; j < face2.Length; j++)
 		{
 			Vector3 vector = fromTopRotation * face2[j];
-			MathFunctions.RoundVector(ref vector, 3);
+			vector = MathFunctions.RoundVector(vector, 3);
 			face2[j] = vector;
 		}
 		SetFace(cube, face, face2);
@@ -187,127 +207,127 @@ public class Cube : CubeBase
 		return vertices;
 	}
 
-	private static void GetAverageLightValue(Face face, int vertex, Cells cells, IntVector arrayPos, ref Color color)
+	private static void GetAverageLightValue(Face face, int vertex, Dictionary<IntVector, Cell> cells, IntVector cubePos, ref Color color, bool inside)
 	{
 		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0011: Unknown result type (might be due to invalid IL or missing references)
-		if (!CubeModelChunk.UseACShadows)
+		if (!CubeModelChunk.UseAOShadows)
 		{
 			color = Color.white;
 			return;
 		}
 		int num = (int)face * 4 + vertex;
-		IntVector[] array = SharedCubeFunctions.LightTestOffsets[num];
+		IntVector[] array = ((!inside) ? SharedCubeFunctions.LightTestOffsets[num] : SharedCubeFunctions.LightTestOffsetsInside[num]);
 		int num2 = 0;
 		for (int i = 0; i < 4; i++)
 		{
-			IntVector intVector = array[i] + arrayPos;
-			num2 = ((!cells.IsWithinArrayCoordsRange(intVector)) ? (num2 + 255) : (num2 + cells[intVector].lightValue));
+			IntVector key = array[i] + cubePos;
+			num2 = ((!cells.TryGetValue(key, out var value)) ? (num2 + 255) : (num2 + value.lightValue));
 		}
 		color.r = (float)num2 / 1020f;
 		color.b = (float)num2 / 1020f;
 		color.g = (float)num2 / 1020f;
 	}
 
-	public static void GetVisibleFaceVertices(Cube cube, ref CubeModelChunk.FaceData[] faceData, IntVector iVector, IntVector arrayPos, Cells cells, ref int index)
+	public static void GetVisibleFaceVertices(Cube cube, ref CubeModelChunk.FaceData[] faceData, IntVector iVector, Dictionary<IntVector, Cell> cells, ref int index)
 	{
 		//IL_001a: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0058: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0064: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0069: Unknown result type (might be due to invalid IL or missing references)
 		//IL_006e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ba: Unknown result type (might be due to invalid IL or missing references)
 		//IL_00bf: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00fa: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0106: Unknown result type (might be due to invalid IL or missing references)
-		//IL_010b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0110: Unknown result type (might be due to invalid IL or missing references)
-		//IL_014b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0157: Unknown result type (might be due to invalid IL or missing references)
-		//IL_015c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0161: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01bd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01c9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01ce: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01d3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_020e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_021a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_021f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0224: Unknown result type (might be due to invalid IL or missing references)
-		//IL_025f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_026b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0270: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0275: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02b0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02bc: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02c1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02c6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0322: Unknown result type (might be due to invalid IL or missing references)
-		//IL_032e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0333: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0338: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0373: Unknown result type (might be due to invalid IL or missing references)
-		//IL_037f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0384: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0389: Unknown result type (might be due to invalid IL or missing references)
-		//IL_03c4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_03d0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_03d5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_03da: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0415: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0421: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0426: Unknown result type (might be due to invalid IL or missing references)
-		//IL_042b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0487: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0493: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0498: Unknown result type (might be due to invalid IL or missing references)
-		//IL_049d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_04d8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_04e4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_04e9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_04ee: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0529: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0535: Unknown result type (might be due to invalid IL or missing references)
-		//IL_053a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_053f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_057a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0586: Unknown result type (might be due to invalid IL or missing references)
-		//IL_058b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0590: Unknown result type (might be due to invalid IL or missing references)
-		//IL_05ed: Unknown result type (might be due to invalid IL or missing references)
-		//IL_05f9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_05fe: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0603: Unknown result type (might be due to invalid IL or missing references)
-		//IL_063e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_064a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_064f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0654: Unknown result type (might be due to invalid IL or missing references)
-		//IL_068f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_069b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_06a0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_06a5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_06e0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_06ec: Unknown result type (might be due to invalid IL or missing references)
-		//IL_06f1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_06f6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0753: Unknown result type (might be due to invalid IL or missing references)
-		//IL_075f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0764: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0769: Unknown result type (might be due to invalid IL or missing references)
-		//IL_07a4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_07b0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_07b5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_07ba: Unknown result type (might be due to invalid IL or missing references)
-		//IL_07f5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0801: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0806: Unknown result type (might be due to invalid IL or missing references)
-		//IL_080b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0846: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0852: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0857: Unknown result type (might be due to invalid IL or missing references)
-		//IL_085c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00cb: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00d0: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00d5: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0126: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0132: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0137: Unknown result type (might be due to invalid IL or missing references)
+		//IL_013c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_018d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0199: Unknown result type (might be due to invalid IL or missing references)
+		//IL_019e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01a3: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0215: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0221: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0226: Unknown result type (might be due to invalid IL or missing references)
+		//IL_022b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_027c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0288: Unknown result type (might be due to invalid IL or missing references)
+		//IL_028d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0292: Unknown result type (might be due to invalid IL or missing references)
+		//IL_02e3: Unknown result type (might be due to invalid IL or missing references)
+		//IL_02ef: Unknown result type (might be due to invalid IL or missing references)
+		//IL_02f4: Unknown result type (might be due to invalid IL or missing references)
+		//IL_02f9: Unknown result type (might be due to invalid IL or missing references)
+		//IL_034a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0356: Unknown result type (might be due to invalid IL or missing references)
+		//IL_035b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0360: Unknown result type (might be due to invalid IL or missing references)
+		//IL_03d2: Unknown result type (might be due to invalid IL or missing references)
+		//IL_03de: Unknown result type (might be due to invalid IL or missing references)
+		//IL_03e3: Unknown result type (might be due to invalid IL or missing references)
+		//IL_03e8: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0439: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0445: Unknown result type (might be due to invalid IL or missing references)
+		//IL_044a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_044f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_04a0: Unknown result type (might be due to invalid IL or missing references)
+		//IL_04ac: Unknown result type (might be due to invalid IL or missing references)
+		//IL_04b1: Unknown result type (might be due to invalid IL or missing references)
+		//IL_04b6: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0507: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0513: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0518: Unknown result type (might be due to invalid IL or missing references)
+		//IL_051d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_058f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_059b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_05a0: Unknown result type (might be due to invalid IL or missing references)
+		//IL_05a5: Unknown result type (might be due to invalid IL or missing references)
+		//IL_05f6: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0602: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0607: Unknown result type (might be due to invalid IL or missing references)
+		//IL_060c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_065d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0669: Unknown result type (might be due to invalid IL or missing references)
+		//IL_066e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0673: Unknown result type (might be due to invalid IL or missing references)
+		//IL_06c4: Unknown result type (might be due to invalid IL or missing references)
+		//IL_06d0: Unknown result type (might be due to invalid IL or missing references)
+		//IL_06d5: Unknown result type (might be due to invalid IL or missing references)
+		//IL_06da: Unknown result type (might be due to invalid IL or missing references)
+		//IL_074d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0759: Unknown result type (might be due to invalid IL or missing references)
+		//IL_075e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0763: Unknown result type (might be due to invalid IL or missing references)
+		//IL_07b4: Unknown result type (might be due to invalid IL or missing references)
+		//IL_07c0: Unknown result type (might be due to invalid IL or missing references)
+		//IL_07c5: Unknown result type (might be due to invalid IL or missing references)
+		//IL_07ca: Unknown result type (might be due to invalid IL or missing references)
+		//IL_081b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0827: Unknown result type (might be due to invalid IL or missing references)
+		//IL_082c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0831: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0882: Unknown result type (might be due to invalid IL or missing references)
+		//IL_088e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0893: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0898: Unknown result type (might be due to invalid IL or missing references)
+		//IL_090b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0917: Unknown result type (might be due to invalid IL or missing references)
+		//IL_091c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0921: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0972: Unknown result type (might be due to invalid IL or missing references)
+		//IL_097e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0983: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0988: Unknown result type (might be due to invalid IL or missing references)
+		//IL_09d9: Unknown result type (might be due to invalid IL or missing references)
+		//IL_09e5: Unknown result type (might be due to invalid IL or missing references)
+		//IL_09ea: Unknown result type (might be due to invalid IL or missing references)
+		//IL_09ef: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0a40: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0a4c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0a51: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0a56: Unknown result type (might be due to invalid IL or missing references)
 		Vector3 val = new Vector3((float)iVector.x, (float)iVector.y, (float)iVector.z);
 		CubeBase.GetCorners(cube, ref cornersBookkeeping);
 		index = 0;
@@ -316,16 +336,16 @@ public class Cube : CubeBase
 			faceData[index].face = Face.Top;
 			ref Vector3 reference = ref faceData[index].faceVertices[0];
 			reference = val + cornersBookkeeping[0];
-			GetAverageLightValue(faceData[index].face, 0, cells, arrayPos, ref faceData[index].colors[0]);
+			GetAverageLightValue(faceData[index].face, 0, cells, iVector, ref faceData[index].colors[0], cornersBookkeeping[0].y < 0.5f);
 			ref Vector3 reference2 = ref faceData[index].faceVertices[1];
 			reference2 = val + cornersBookkeeping[1];
-			GetAverageLightValue(faceData[index].face, 1, cells, arrayPos, ref faceData[index].colors[1]);
+			GetAverageLightValue(faceData[index].face, 1, cells, iVector, ref faceData[index].colors[1], cornersBookkeeping[1].y < 0.5f);
 			ref Vector3 reference3 = ref faceData[index].faceVertices[2];
 			reference3 = val + cornersBookkeeping[2];
-			GetAverageLightValue(faceData[index].face, 2, cells, arrayPos, ref faceData[index].colors[2]);
+			GetAverageLightValue(faceData[index].face, 2, cells, iVector, ref faceData[index].colors[2], cornersBookkeeping[2].y < 0.5f);
 			ref Vector3 reference4 = ref faceData[index].faceVertices[3];
 			reference4 = val + cornersBookkeeping[3];
-			GetAverageLightValue(faceData[index].face, 3, cells, arrayPos, ref faceData[index].colors[3]);
+			GetAverageLightValue(faceData[index].face, 3, cells, iVector, ref faceData[index].colors[3], cornersBookkeeping[3].y < 0.5f);
 			index++;
 		}
 		if ((cube.hiddenSides & 2) == 0)
@@ -333,16 +353,16 @@ public class Cube : CubeBase
 			faceData[index].face = Face.Bottom;
 			ref Vector3 reference5 = ref faceData[index].faceVertices[0];
 			reference5 = val + cornersBookkeeping[4];
-			GetAverageLightValue(faceData[index].face, 0, cells, arrayPos, ref faceData[index].colors[0]);
+			GetAverageLightValue(faceData[index].face, 0, cells, iVector, ref faceData[index].colors[0], cornersBookkeeping[4].y > -0.5f);
 			ref Vector3 reference6 = ref faceData[index].faceVertices[1];
 			reference6 = val + cornersBookkeeping[5];
-			GetAverageLightValue(faceData[index].face, 1, cells, arrayPos, ref faceData[index].colors[1]);
+			GetAverageLightValue(faceData[index].face, 1, cells, iVector, ref faceData[index].colors[1], cornersBookkeeping[5].y > -0.5f);
 			ref Vector3 reference7 = ref faceData[index].faceVertices[2];
 			reference7 = val + cornersBookkeeping[6];
-			GetAverageLightValue(faceData[index].face, 2, cells, arrayPos, ref faceData[index].colors[2]);
+			GetAverageLightValue(faceData[index].face, 2, cells, iVector, ref faceData[index].colors[2], cornersBookkeeping[6].y > -0.5f);
 			ref Vector3 reference8 = ref faceData[index].faceVertices[3];
 			reference8 = val + cornersBookkeeping[7];
-			GetAverageLightValue(faceData[index].face, 3, cells, arrayPos, ref faceData[index].colors[3]);
+			GetAverageLightValue(faceData[index].face, 3, cells, iVector, ref faceData[index].colors[3], cornersBookkeeping[7].y > -0.5f);
 			index++;
 		}
 		if ((cube.hiddenSides & 4) == 0)
@@ -350,16 +370,16 @@ public class Cube : CubeBase
 			faceData[index].face = Face.Front;
 			ref Vector3 reference9 = ref faceData[index].faceVertices[0];
 			reference9 = val + cornersBookkeeping[7];
-			GetAverageLightValue(faceData[index].face, 0, cells, arrayPos, ref faceData[index].colors[0]);
+			GetAverageLightValue(faceData[index].face, 0, cells, iVector, ref faceData[index].colors[0], cornersBookkeeping[7].z > -0.5f);
 			ref Vector3 reference10 = ref faceData[index].faceVertices[1];
 			reference10 = val + cornersBookkeeping[6];
-			GetAverageLightValue(faceData[index].face, 1, cells, arrayPos, ref faceData[index].colors[1]);
+			GetAverageLightValue(faceData[index].face, 1, cells, iVector, ref faceData[index].colors[1], cornersBookkeeping[6].z > -0.5f);
 			ref Vector3 reference11 = ref faceData[index].faceVertices[2];
 			reference11 = val + cornersBookkeeping[1];
-			GetAverageLightValue(faceData[index].face, 2, cells, arrayPos, ref faceData[index].colors[2]);
+			GetAverageLightValue(faceData[index].face, 2, cells, iVector, ref faceData[index].colors[2], cornersBookkeeping[1].z > -0.5f);
 			ref Vector3 reference12 = ref faceData[index].faceVertices[3];
 			reference12 = val + cornersBookkeeping[0];
-			GetAverageLightValue(faceData[index].face, 3, cells, arrayPos, ref faceData[index].colors[3]);
+			GetAverageLightValue(faceData[index].face, 3, cells, iVector, ref faceData[index].colors[3], cornersBookkeeping[0].z > -0.5f);
 			index++;
 		}
 		if ((cube.hiddenSides & 8) == 0)
@@ -367,16 +387,16 @@ public class Cube : CubeBase
 			faceData[index].face = Face.Back;
 			ref Vector3 reference13 = ref faceData[index].faceVertices[0];
 			reference13 = val + cornersBookkeeping[5];
-			GetAverageLightValue(faceData[index].face, 0, cells, arrayPos, ref faceData[index].colors[0]);
+			GetAverageLightValue(faceData[index].face, 0, cells, iVector, ref faceData[index].colors[0], cornersBookkeeping[5].z < 0.5f);
 			ref Vector3 reference14 = ref faceData[index].faceVertices[1];
 			reference14 = val + cornersBookkeeping[4];
-			GetAverageLightValue(faceData[index].face, 1, cells, arrayPos, ref faceData[index].colors[1]);
+			GetAverageLightValue(faceData[index].face, 1, cells, iVector, ref faceData[index].colors[1], cornersBookkeeping[4].z < 0.5f);
 			ref Vector3 reference15 = ref faceData[index].faceVertices[2];
 			reference15 = val + cornersBookkeeping[3];
-			GetAverageLightValue(faceData[index].face, 2, cells, arrayPos, ref faceData[index].colors[2]);
+			GetAverageLightValue(faceData[index].face, 2, cells, iVector, ref faceData[index].colors[2], cornersBookkeeping[3].z < 0.5f);
 			ref Vector3 reference16 = ref faceData[index].faceVertices[3];
 			reference16 = val + cornersBookkeeping[2];
-			GetAverageLightValue(faceData[index].face, 3, cells, arrayPos, ref faceData[index].colors[3]);
+			GetAverageLightValue(faceData[index].face, 3, cells, iVector, ref faceData[index].colors[3], cornersBookkeeping[2].z < 0.5f);
 			index++;
 		}
 		if ((cube.hiddenSides & 0x10) == 0)
@@ -384,16 +404,16 @@ public class Cube : CubeBase
 			faceData[index].face = Face.Left;
 			ref Vector3 reference17 = ref faceData[index].faceVertices[0];
 			reference17 = val + cornersBookkeeping[4];
-			GetAverageLightValue(faceData[index].face, 0, cells, arrayPos, ref faceData[index].colors[0]);
+			GetAverageLightValue(faceData[index].face, 0, cells, iVector, ref faceData[index].colors[0], cornersBookkeeping[4].x > -0.5f);
 			ref Vector3 reference18 = ref faceData[index].faceVertices[1];
 			reference18 = val + cornersBookkeeping[7];
-			GetAverageLightValue(faceData[index].face, 1, cells, arrayPos, ref faceData[index].colors[1]);
+			GetAverageLightValue(faceData[index].face, 1, cells, iVector, ref faceData[index].colors[1], cornersBookkeeping[7].x > -0.5f);
 			ref Vector3 reference19 = ref faceData[index].faceVertices[2];
 			reference19 = val + cornersBookkeeping[0];
-			GetAverageLightValue(faceData[index].face, 2, cells, arrayPos, ref faceData[index].colors[2]);
+			GetAverageLightValue(faceData[index].face, 2, cells, iVector, ref faceData[index].colors[2], cornersBookkeeping[0].x > -0.5f);
 			ref Vector3 reference20 = ref faceData[index].faceVertices[3];
 			reference20 = val + cornersBookkeeping[3];
-			GetAverageLightValue(faceData[index].face, 3, cells, arrayPos, ref faceData[index].colors[3]);
+			GetAverageLightValue(faceData[index].face, 3, cells, iVector, ref faceData[index].colors[3], cornersBookkeeping[3].x > -0.5f);
 			index++;
 		}
 		if ((cube.hiddenSides & 0x20) == 0)
@@ -401,16 +421,16 @@ public class Cube : CubeBase
 			faceData[index].face = Face.Right;
 			ref Vector3 reference21 = ref faceData[index].faceVertices[0];
 			reference21 = val + cornersBookkeeping[6];
-			GetAverageLightValue(faceData[index].face, 0, cells, arrayPos, ref faceData[index].colors[0]);
+			GetAverageLightValue(faceData[index].face, 0, cells, iVector, ref faceData[index].colors[0], cornersBookkeeping[6].x < 0.5f);
 			ref Vector3 reference22 = ref faceData[index].faceVertices[1];
 			reference22 = val + cornersBookkeeping[5];
-			GetAverageLightValue(faceData[index].face, 1, cells, arrayPos, ref faceData[index].colors[1]);
+			GetAverageLightValue(faceData[index].face, 1, cells, iVector, ref faceData[index].colors[1], cornersBookkeeping[5].x < 0.5f);
 			ref Vector3 reference23 = ref faceData[index].faceVertices[2];
 			reference23 = val + cornersBookkeeping[2];
-			GetAverageLightValue(faceData[index].face, 2, cells, arrayPos, ref faceData[index].colors[2]);
+			GetAverageLightValue(faceData[index].face, 2, cells, iVector, ref faceData[index].colors[2], cornersBookkeeping[2].x < 0.5f);
 			ref Vector3 reference24 = ref faceData[index].faceVertices[3];
 			reference24 = val + cornersBookkeeping[1];
-			GetAverageLightValue(faceData[index].face, 3, cells, arrayPos, ref faceData[index].colors[3]);
+			GetAverageLightValue(faceData[index].face, 3, cells, iVector, ref faceData[index].colors[3], cornersBookkeeping[1].x < 0.5f);
 			index++;
 		}
 	}
@@ -631,10 +651,16 @@ public class Cube : CubeBase
 		//IL_0076: Unknown result type (might be due to invalid IL or missing references)
 		//IL_007b: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0080: Unknown result type (might be due to invalid IL or missing references)
-		//IL_011d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0129: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_014b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00eb: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00f1: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00f6: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0109: Unknown result type (might be due to invalid IL or missing references)
+		//IL_010f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0114: Unknown result type (might be due to invalid IL or missing references)
+		//IL_016f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_017b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0191: Unknown result type (might be due to invalid IL or missing references)
+		//IL_019d: Unknown result type (might be due to invalid IL or missing references)
 		Vector3[] edge = GetEdge(info.cube, info.pickedFace, info.pickedEdge);
 		Vector3[] edge2 = GetEdge(info.cube, info.pickedFace, info.pickedEdge);
 		if (edgeIndex0)
@@ -649,10 +675,21 @@ public class Cube : CubeBase
 		}
 		float min = -0.5f;
 		float max = 0.5f;
+		if (IsOutOfBound(edge))
+		{
+			if (IsFaceBoxSideAligened(info.cube, info.pickedFace))
+			{
+				Debug.Log((object)"Add cube based on corner pull!");
+				coob = CubeOutOfBoundState.OutOfBoundsAddVertex;
+			}
+			return;
+		}
 		MathFunctions.ClampVector(ref edge[0], min, max);
 		MathFunctions.ClampVector(ref edge[1], min, max);
-		MathFunctions.RoundVector(ref edge[0], 3);
-		MathFunctions.RoundVector(ref edge[1], 3);
+		ref Vector3 reference3 = ref edge[0];
+		reference3 = MathFunctions.RoundVector(edge[0], 3);
+		ref Vector3 reference4 = ref edge[1];
+		reference4 = MathFunctions.RoundVector(edge[1], 3);
 		Vector3[] corners = (Vector3[])info.cube.Corners.Clone();
 		SetEdge(ref corners, info.pickedFace, info.pickedEdge, edge);
 		if (IsLegal(corners))
@@ -677,6 +714,12 @@ public class Cube : CubeBase
 		//IL_0051: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0056: Unknown result type (might be due to invalid IL or missing references)
 		//IL_005b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00bb: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00c1: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00c6: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00d9: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00df: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00e4: Unknown result type (might be due to invalid IL or missing references)
 		Vector3[] edge = GetEdge(info.cube, info.pickedFace, info.pickedEdge);
 		ref Vector3 reference = ref edge[0];
 		reference = edge[0] + value * axis;
@@ -694,8 +737,10 @@ public class Cube : CubeBase
 		}
 		MathFunctions.ClampVector(ref edge[0], min, max);
 		MathFunctions.ClampVector(ref edge[1], min, max);
-		MathFunctions.RoundVector(ref edge[0], 3);
-		MathFunctions.RoundVector(ref edge[1], 3);
+		ref Vector3 reference3 = ref edge[0];
+		reference3 = MathFunctions.RoundVector(edge[0], 3);
+		ref Vector3 reference4 = ref edge[1];
+		reference4 = MathFunctions.RoundVector(edge[1], 3);
 		Vector3[] corners = (Vector3[])info.cube.Corners.Clone();
 		SetEdge(ref corners, info.pickedFace, info.pickedEdge, edge);
 		if (IsLegal(corners))
@@ -710,11 +755,15 @@ public class Cube : CubeBase
 
 	private static bool FaceIsOutOfCubeBoundery(Vector3[] faceVertices)
 	{
+		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0027: Unknown result type (might be due to invalid IL or missing references)
+		//IL_002c: Unknown result type (might be due to invalid IL or missing references)
 		float num = -0.5f;
 		float num2 = 0.5f;
 		for (int i = 0; i < faceVertices.Length; i++)
 		{
-			MathFunctions.RoundVector(ref faceVertices[i], 3);
+			ref Vector3 reference = ref faceVertices[i];
+			reference = MathFunctions.RoundVector(faceVertices[i], 3);
 			int num3 = 0;
 			for (int j = 0; j < 3; j++)
 			{
@@ -747,12 +796,16 @@ public class Cube : CubeBase
 
 	private static void ClampFace(ref Vector3[] faceVertices)
 	{
+		//IL_0032: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0038: Unknown result type (might be due to invalid IL or missing references)
+		//IL_003d: Unknown result type (might be due to invalid IL or missing references)
 		float min = -0.5f;
 		float max = 0.5f;
 		for (int i = 0; i < faceVertices.Length; i++)
 		{
 			MathFunctions.ClampVector(ref faceVertices[i], min, max);
-			MathFunctions.RoundVector(ref faceVertices[i], 3);
+			ref Vector3 reference = ref faceVertices[i];
+			reference = MathFunctions.RoundVector(faceVertices[i], 3);
 		}
 	}
 
@@ -1139,7 +1192,8 @@ public class Cube : CubeBase
 		//IL_043f: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0444: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0449: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0456: Unknown result type (might be due to invalid IL or missing references)
+		//IL_044e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0451: Unknown result type (might be due to invalid IL or missing references)
 		List<Vector3> list = new List<Vector3>(8);
 		List<Vector3> list2 = new List<Vector3>(8);
 		for (int i = 0; i < cubeCorners.Count; i++)
@@ -1236,8 +1290,7 @@ public class Cube : CubeBase
 		for (int k = 0; k < cubeCorners.Count; k++)
 		{
 			Vector3 vector = fromTopRotation * cubeCorners[k];
-			MathFunctions.RoundVector(ref vector, 3);
-			cubeCorners[k] = vector;
+			cubeCorners[k] = MathFunctions.RoundVector(vector, 3);
 		}
 		return cubeCorners;
 	}
@@ -1332,8 +1385,9 @@ public class Cube : CubeBase
 		//IL_0108: Unknown result type (might be due to invalid IL or missing references)
 		//IL_010d: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0112: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0122: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0123: Unknown result type (might be due to invalid IL or missing references)
+		//IL_011a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_011c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0121: Unknown result type (might be due to invalid IL or missing references)
 		cornersBookkeeping = cube.Corners;
 		Vector3[] array = new Vector3[8]
 		{
@@ -1350,8 +1404,8 @@ public class Cube : CubeBase
 		for (int i = 0; i < array.Length; i++)
 		{
 			Vector3 vector = toTopRotation * array[i];
-			MathFunctions.RoundVector(ref vector, 3);
-			array[i] = vector;
+			ref Vector3 reference = ref array[i];
+			reference = MathFunctions.RoundVector(vector, 3);
 		}
 		return array;
 	}

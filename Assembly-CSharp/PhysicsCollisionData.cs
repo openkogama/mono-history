@@ -14,28 +14,14 @@ public struct PhysicsCollisionData
 
 	public Collider collider;
 
-	public PhysicsCollisionData(Vector3 point, Transform transform, bool isInsideCollider, float distance, Vector3 normal, Collider collider)
-	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0002: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0020: Unknown result type (might be due to invalid IL or missing references)
-		this.point = point;
-		this.transform = transform;
-		this.isInsideCollider = isInsideCollider;
-		this.distance = distance;
-		this.normal = normal;
-		this.collider = collider;
-	}
-
 	public PhysicsCollisionData(RaycastHit hit)
 	{
 		//IL_0003: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0008: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0036: Unknown result type (might be due to invalid IL or missing references)
+		//IL_003b: Unknown result type (might be due to invalid IL or missing references)
 		point = hit.point;
-		transform = hit.transform;
+		transform = ((Component)hit.collider).transform;
 		isInsideCollider = false;
 		distance = hit.distance;
 		normal = hit.normal;

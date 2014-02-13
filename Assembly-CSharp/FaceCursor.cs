@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-internal class FaceCursor : IModelCursor
+internal class FaceCursor : ICursor
 {
 	private Material materialCorner;
 
@@ -33,7 +33,7 @@ internal class FaceCursor : IModelCursor
 		((Renderer)val).material = materialEdge;
 	}
 
-	public void Destroy()
+	public void Remove()
 	{
 		Object.Destroy((Object)(object)gameObject);
 	}

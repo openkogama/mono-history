@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
@@ -8,6 +10,10 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel
 
 	public Dictionary<IntVector, GameObject> chunkInstances = new Dictionary<IntVector, GameObject>();
 
+	private bool beingEdited;
+
+	private Queue<CubeModelChangedEventArgs> changedEventArgsQueue = new Queue<CubeModelChangedEventArgs>();
+
 	public RuntimePrototypeCubeModel PrototypeCubeModel
 	{
 		get
@@ -16,30 +22,89 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel
 		}
 		set
 		{
-			prototypeCubeModel = value;
+			if (prototypeCubeModel != value)
+			{
+				prototypeCubeModel.DirtyChunksRegenerated -= DirtyChunksRegeneratedHandler;
+				prototypeCubeModel = value;
+				prototypeCubeModel.DirtyChunksRegenerated += DirtyChunksRegeneratedHandler;
+			}
 		}
 	}
 
 	public int Pid => prototypeCubeModel.PrototypeId;
 
+	public Func<IModelingConstraint> ModelingConstraintBuilder { get; set; }
+
+	public bool BeingEdited
+	{
+		get
+		{
+			return beingEdited;
+		}
+		set
+		{
+			if (beingEdited != value)
+			{
+				beingEdited = value;
+				if (BeingEditedChanged != null)
+				{
+					BeingEditedChanged(this, new EditStateEventArgs(value));
+				}
+			}
+		}
+	}
+
+	public bool ContainsCubes => prototypeCubeModel.ContainsCubes;
+
+	public int CubeCount => prototypeCubeModel.CubeCount;
+
 	public float PrototypeScale => prototypeCubeModel.Scale;
 
 	public List<GameObject> Chunks => new List<GameObject>(chunkInstances.Values);
 
-	protected override void CreateMVWOC(bool local)
+	public MeshFilter[] MeshFilters
 	{
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0016: Expected Obj, but got Unknown
-		//IL_0063: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0087: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0092: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b6: Unknown result type (might be due to invalid IL or missing references)
-		gameObject = new GameObject(GetType().ToString());
+		get
+		{
+			List<GameObject> chunks = Chunks;
+			MeshFilter[] array = new MeshFilter[chunkInstances.Values.Count];
+			for (int i = 0; i < array.Length; i++)
+			{
+				array[i] = chunks[i].GetComponent<MeshFilter>();
+			}
+			return array;
+		}
+	}
+
+	public event EventHandler<CubeModelChangedEventArgs> Changed;
+
+	public event EventHandler<EditStateEventArgs> BeingEditedChanged;
+
+	public MVCubeModelBase(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects, Dictionary<int, RuntimePrototypeCubeModel> prototypes)
+		: base(data, worldObjects)
+	{
+		//IL_006f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0080: Unknown result type (might be due to invalid IL or missing references)
+		//IL_008b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_009c: Unknown result type (might be due to invalid IL or missing references)
 		int key = (int)Data["protoTypeID"];
-		prototypeCubeModel = MVGameController.Instance.WOCM.WorldInventory.RuntimePrototypes[key];
+		prototypeCubeModel = prototypes[key];
 		prototypeCubeModel.CreateInstance(this);
-		gameObject.transform.localScale = Vector3.one * MVGameController.Instance.WOCM.WorldInventory.RuntimePrototypes[key].Scale;
-		Scale = Vector3.one * MVGameController.Instance.WOCM.WorldInventory.RuntimePrototypes[key].Scale;
+		prototypeCubeModel.DirtyChunksRegenerated += DirtyChunksRegeneratedHandler;
+		gameObject.transform.localScale = Vector3.one * prototypes[key].Scale;
+		Scale = Vector3.one * prototypes[key].Scale;
+		ModelingConstraintBuilder = () => new ModelingDynamicBoxConstraint(this, SharedCubeFunctions.CubeConstraint);
+		SetName();
+	}
+
+	public override string ToString()
+	{
+		string text = base.ToString();
+		if (prototypeCubeModel != null)
+		{
+			text = text + " authorProfileID " + prototypeCubeModel.AuthorProfileID;
+		}
+		return text + " can add to inventory " + ((interactionFlags & InteractionFlags.CanAddToInventory) != 0);
 	}
 
 	public void HandleDelta()
@@ -70,20 +135,26 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel
 	{
 		if (prototypeCubeModel.InstancesCount > 1)
 		{
-			MVGameController.Instance.WOCM.WorldInventory.RequestWoMakeUniquePrototype(id);
+			MVGameController.Instance.Game.World.WorldInventory.RequestWoMakeUniquePrototype(id);
 		}
 	}
 
 	public void RemoveCube(IntVector pos)
 	{
 		MakeUnique();
-		prototypeCubeModel.RemoveCube(pos);
+		if (prototypeCubeModel.RemoveCube(pos))
+		{
+			changedEventArgsQueue.Enqueue(new CubeModelChangedEventArgs(CubeAction.Deleted, pos));
+		}
 	}
 
 	public void AddCube(IntVector pos, CubeBase cube)
 	{
 		MakeUnique();
-		prototypeCubeModel.AddCube(pos, (Cube)cube);
+		if (prototypeCubeModel.AddCube(pos, (Cube)cube))
+		{
+			changedEventArgsQueue.Enqueue(new CubeModelChangedEventArgs(CubeAction.Added, pos));
+		}
 	}
 
 	public void SetMaterial(IntVector iVector, Face face, byte material)
@@ -96,6 +167,7 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel
 	{
 		MakeUnique();
 		prototypeCubeModel.ReplaceCube(iVector, materialId);
+		changedEventArgsQueue.Enqueue(new CubeModelChangedEventArgs(CubeAction.FaceChanged, iVector));
 	}
 
 	public void CornersChangedDone(IntVector iVector, Cube cube)
@@ -125,11 +197,6 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel
 	{
 		Cube cube2 = new Cube(cube.ByteCorners, cube.FaceMaterials);
 		prototypeCubeModel.AddCubeNetworkUpdate(pos, cube2);
-	}
-
-	public bool CubesLeft()
-	{
-		return prototypeCubeModel.CubesLeft();
 	}
 
 	public void CubePosToChunkPos(ref IntVector pos)
@@ -214,9 +281,41 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel
 		return result;
 	}
 
-	public override Bounds GetLocalBounds()
+	public override Bounds GetLocalBounds(BoundsContext boundsContext)
 	{
 		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
 		return GetMeshBounds();
+	}
+
+	public Vector3 GetWorldCenterPos()
+	{
+		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
+		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_000f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0014: Unknown result type (might be due to invalid IL or missing references)
+		Transform val = transform;
+		Bounds meshBounds = GetMeshBounds();
+		return val.TransformPoint(meshBounds.center);
+	}
+
+	public void Enable(bool active)
+	{
+		List<GameObject> chunks = Chunks;
+		foreach (GameObject item in chunks)
+		{
+			item.active = active;
+		}
+	}
+
+	private void DirtyChunksRegeneratedHandler(object sender, EventArgs args)
+	{
+		while (0 < changedEventArgsQueue.Count)
+		{
+			CubeModelChangedEventArgs e = changedEventArgsQueue.Dequeue();
+			if (Changed != null)
+			{
+				Changed(this, e);
+			}
+		}
 	}
 }

@@ -1,17 +1,15 @@
+using System.Collections;
+using System.Collections.Generic;
+using Localize;
+using MV.WorldObject;
 using UnityEngine;
 
-public class MVSpawnPoint : MVLogicObject
+public abstract class MVSpawnPoint : MVLogicObject
 {
-	protected override void CreateMVWOC(bool local)
+	public MVSpawnPoint(Hashtable data, string prefabPath, Dictionary<int, MVWorldObjectClient> worldObjects)
+		: base(data, prefabPath, worldObjects)
 	{
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Expected Obj, but got Unknown
-		interactionFlags = InteractionFlags.Selectable;
-		gameObject = (GameObject)Object.Instantiate(Resources.Load("Prefabs/SpawnPointObject"), Vector3.zero, Quaternion.identity);
-		((Object)gameObject).name = GetType().ToString();
-		gameObject.layer = LayerMask.NameToLayer("Logic");
+		interactionFlags = InteractionFlags.Selectable | InteractionFlags.CanRotateY;
 	}
 
 	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
@@ -25,5 +23,16 @@ public class MVSpawnPoint : MVLogicObject
 		Vector3 one = Vector3.one;
 		one.y = 2f;
 		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, one);
+	}
+
+	public override bool Delete(MVWorldObjectClientManager worldObjectClientManager, ref TextSlotIndex errorTextIndex)
+	{
+		int num = MVGameController.Instance.WOCM.GetWorldObjectsByType(WorldObjectType.SpawnPointBlue).Count + MVGameController.Instance.WOCM.GetWorldObjectsByType(WorldObjectType.SpawnPointRed).Count + MVGameController.Instance.WOCM.GetWorldObjectsByType(WorldObjectType.SpawnPointGreen).Count + MVGameController.Instance.WOCM.GetWorldObjectsByType(WorldObjectType.SpawnPointYellow).Count;
+		if (num <= 1)
+		{
+			errorTextIndex = TextSlotIndex.DeleteSpawnPointWarning;
+			return false;
+		}
+		return base.Delete(worldObjectClientManager, ref errorTextIndex);
 	}
 }

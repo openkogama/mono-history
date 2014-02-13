@@ -1,36 +1,66 @@
+using System;
 using UnityEngine;
 
 public class MVGUIEditorToggles : UXViewScript
 {
-	public UXToggleIconButton workplaneToggle;
-
-	public UXToggleIconButton cloakeToggle;
-
-	public UXToggleIconButton camToggle;
-
-	public UXToggleIconButton jetPackToggle;
+	public UXToggleIconButton drawplaneToggle;
 
 	public UXToggleIconButton logicRenderingToggle;
 
 	public UXToggleIconButton gridSnapToggle;
 
-	public override void OnShow()
+	public UXGroup toggleGroup;
+
+	public static bool GridSnap;
+
+	private bool logicRendered;
+
+	public bool LogicRendered
 	{
-		((Component)workplaneToggle).gameObject.SetActiveRecursively(true);
-		((Component)cloakeToggle).gameObject.SetActiveRecursively(true);
-		((Component)camToggle).gameObject.SetActiveRecursively(true);
-		((Component)jetPackToggle).gameObject.SetActiveRecursively(true);
-		((Component)logicRenderingToggle).gameObject.SetActiveRecursively(true);
-		((Component)gridSnapToggle).gameObject.SetActiveRecursively(true);
+		get
+		{
+			return logicRendered;
+		}
+		set
+		{
+			if (value != logicRendered)
+			{
+				ToggleLogicRendering();
+			}
+		}
 	}
 
-	public override void OnHide()
+	public void InitializeButtons()
 	{
-		((Component)workplaneToggle).gameObject.SetActiveRecursively(false);
-		((Component)cloakeToggle).gameObject.SetActiveRecursively(false);
-		((Component)camToggle).gameObject.SetActiveRecursively(false);
-		((Component)jetPackToggle).gameObject.SetActiveRecursively(false);
-		((Component)logicRenderingToggle).gameObject.SetActiveRecursively(false);
-		((Component)gridSnapToggle).gameObject.SetActiveRecursively(false);
+		UXToggleIconButton uXToggleIconButton = logicRenderingToggle;
+		uXToggleIconButton.OnToggle = (UXToggleIconButton.OnToggleDelegate)Delegate.Combine(uXToggleIconButton.OnToggle, (UXToggleIconButton.OnToggleDelegate)((bool active) =>
+		{
+			LogicRendered = active;
+		}));
+		LogicRendered = true;
+		gridSnapToggle.ToggleState = GridSnap;
+		UXToggleIconButton uXToggleIconButton2 = gridSnapToggle;
+		uXToggleIconButton2.OnToggle = (UXToggleIconButton.OnToggleDelegate)Delegate.Combine(uXToggleIconButton2.OnToggle, (UXToggleIconButton.OnToggleDelegate)((bool active) =>
+		{
+			GridSnap = active;
+		}));
+	}
+
+	public void ToggleLogicRendering()
+	{
+		logicRendered = !logicRendered;
+		Camera camera = ((Component)MVGameController.Instance.Game.CameraController).camera;
+		if ((Object)(object)camera != (Object)null)
+		{
+			if (logicRendered)
+			{
+				camera.cullingMask |= 1 << (LayerMask.NameToLayer("Logic") & 0x1F);
+			}
+			else
+			{
+				camera.cullingMask &= ~(1 << (LayerMask.NameToLayer("Logic") & 0x1F));
+			}
+		}
+		logicRenderingToggle.SetToggleState(logicRendered);
 	}
 }

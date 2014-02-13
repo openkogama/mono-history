@@ -16,7 +16,7 @@ public class CharacterMotor : MonoBehaviour
 	{
 		[Serializable]
 		[CompilerGenerated]
-		private sealed class _0024 : GenericGeneratorEnumerator<object>, IEnumerator
+		internal sealed class _0024 : GenericGeneratorEnumerator<object>, IEnumerator
 		{
 			internal Transform _0024platform_002422;
 

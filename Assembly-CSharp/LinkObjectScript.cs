@@ -4,6 +4,8 @@ public class LinkObjectScript : MonoBehaviour
 {
 	public int linkID = -1;
 
+	public bool isObjectLink;
+
 	private void Awake()
 	{
 		((Behaviour)this).enabled = false;

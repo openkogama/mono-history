@@ -5,6 +5,14 @@ namespace MV.WorldObject;
 
 public class CubeBase
 {
+	protected static byte[][] cornerCubes = new byte[4][]
+	{
+		new byte[8] { 20, 120, 124, 124, 104, 104, 100, 0 },
+		new byte[8] { 120, 120, 124, 24, 4, 104, 100, 100 },
+		new byte[8] { 20, 20, 124, 24, 4, 104, 0, 0 },
+		new byte[8] { 20, 120, 24, 24, 4, 4, 100, 0 }
+	};
+
 	protected byte unIndentedSides;
 
 	protected static byte[] identityByteCorners = new byte[8] { 20, 120, 124, 24, 4, 104, 100, 0 };
@@ -49,6 +57,11 @@ public class CubeBase
 		}
 	}
 
+	public static byte[] GetCornerCube(int index)
+	{
+		return (byte[])cornerCubes[index].Clone();
+	}
+
 	public static void GetCorners(CubeBase cube, ref Vector3[] corners)
 	{
 		CubeDataPacker.ByteArrayToCorners(ref cube.byteCorners, ref corners);
@@ -67,6 +80,7 @@ public class CubeBase
 	{
 		this.byteCorners = byteCorners;
 		this.faceMaterials = faceMaterials;
+		SetCubeFlags(this);
 	}
 
 	public CubeBase(BytePacker bp, byte byteFlags)
@@ -224,6 +238,20 @@ public class CubeBase
 			FaceFlags.Left => Face.Left, 
 			FaceFlags.Right => Face.Right, 
 			_ => Face.Top, 
+		};
+	}
+
+	public static FaceFlags FaceToFaceFlag(Face face)
+	{
+		return face switch
+		{
+			Face.Top => FaceFlags.Top, 
+			Face.Bottom => FaceFlags.Bottom, 
+			Face.Front => FaceFlags.Front, 
+			Face.Back => FaceFlags.Back, 
+			Face.Left => FaceFlags.Left, 
+			Face.Right => FaceFlags.Right, 
+			_ => (FaceFlags)0, 
 		};
 	}
 

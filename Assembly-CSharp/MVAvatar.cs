@@ -1,65 +1,132 @@
 using System;
-using MV.WorldObject;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class MVAvatar : MVWorldObjectClient
+public class MVAvatar : MVGroup
 {
-	private bool isLocal;
-
-	private Avatar avatar;
+	protected Avatar avatar;
 
 	public MVRuntimeDataVariableClampedFloat Health;
 
-	public MVRuntimeDataVariable Animation;
+	public MVRuntimeDataVariable Modifiers;
 
-	public MVRuntimeDataVariable CenterSlot;
-
-	public MVRuntimeDataVariable RightSlot;
-
-	public MVRuntimeDataVariable LeftSlot;
-
-	public MVRuntimeDataVariable AboveSlot;
+	public MVRuntimeDataVariable CurrentItem;
 
 	public MVRuntimeDataVariable IsFiring;
 
-	private AvatarController avatarController;
+	public MVRuntimeDataVariable Invulnerable;
 
-	public Avatar Avatar => avatar;
+	public MVRuntimeDataVariable Animation;
 
-	public AvatarController AvatarController => avatarController;
+	public MVRuntimeDataVariable CollectibleCount;
 
-	protected override void CreateMVWOC(bool isLocal)
+	private readonly Vector3 characterControllerCenterOffset = new Vector3(0f, 0.95f, 0f);
+
+	private Ray lineOfFire;
+
+	private bool isLocal;
+
+	private static string prefabPath = "Prefabs/Avatar/Avatar";
+
+	private MVBody body;
+
+	protected AvatarPickupOwner avatarPickupOwner;
+
+	public Vector3 CharacterControllerCenterOffset
 	{
-		this.isLocal = isLocal;
-		interactionFlags = InteractionFlags.None;
-		Health = RuntimeDataVariables.NewClampedFloat("health", 0.2f, writeThrough: false, 0f, 100f);
-		Animation = RuntimeDataVariables.New("animation", 0f, writeThrough: false);
-		CenterSlot = RuntimeDataVariables.New("centerSlot", 0f, writeThrough: true);
-		RightSlot = RuntimeDataVariables.New("rightSlot", 0f, writeThrough: true);
-		LeftSlot = RuntimeDataVariables.New("leftSlot", 0f, writeThrough: true);
-		AboveSlot = RuntimeDataVariables.New("aboveSlot", 0f, writeThrough: true);
-		IsFiring = RuntimeDataVariables.New("isFiring", 0f, writeThrough: false);
-		Object val = Object.Instantiate(Resources.Load("Prefabs/Avatar/Avatar"));
-		gameObject = (GameObject)(object)((val is GameObject) ? val : null);
-		gameObject.layer = LayerMask.NameToLayer("Player");
-		((Object)gameObject).name = GetType().ToString();
-		avatar = gameObject.GetComponent<Avatar>();
-		avatar.Initialize(this, isLocal);
-		avatar.NameTag = ((!isLocal) ? MVGameController.Instance.WOCM.Players[OwnerActorNr].Username : string.Empty);
-		InitializeAnimation();
-		InitializeHealth();
-		InitializeAvatarItemSlots();
-		if (isLocal)
+		get
 		{
-			MVGameController.Instance.WOCM.AvatarId = id;
-			avatarController = gameObject.AddComponent<AvatarController>();
-			avatarController.Initialize(this, avatar);
+			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
+			return characterControllerCenterOffset;
+		}
+	}
+
+	public MVBody Body => body;
+
+	public MVAvatar(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+		: base(data, prefabPath, worldObjects)
+	{
+		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0015: Unknown result type (might be due to invalid IL or missing references)
+		isLocal = (int)Data["actorNr"] == MVGameController.Instance.Game.LocalPlayer.ActorNr;
+		interactionFlags = InteractionFlags.None;
+		PlayInteractionType = PlayInteractionType.HandlesHits;
+		Health = RuntimeDataVariables.NewClampedFloat("health", 0.2f, writeThrough: false, 0f, 100f);
+		IsFiring = RuntimeDataVariables.New("isFiring", 0f, writeThrough: false);
+		Modifiers = RuntimeDataVariables.New("modifiers", 1f, writeThrough: false);
+		CurrentItem = RuntimeDataVariables.New("currentItem", 0f, writeThrough: true);
+		Invulnerable = RuntimeDataVariables.New("invulnerable", 0.2f, writeThrough: true);
+		Animation = RuntimeDataVariables.New("animation", 0f, writeThrough: false);
+		CollectibleCount = RuntimeDataVariables.New("collectibleCount", 0f, writeThrough: false);
+		gameObject.layer = LayerMask.NameToLayer("Player");
+		avatar = gameObject.GetComponent<Avatar>();
+	}
+
+	public virtual void VehicleEntered()
+	{
+	}
+
+	public virtual void OnLeaveVehicle()
+	{
+		Debug.Log((object)"Do the thing with the legs");
+	}
+
+	protected void HandleLeaveVehicle()
+	{
+		if (!(Group is MVVehicleBase))
+		{
+			Debug.LogError((object)("Trying to leave vehicle but Group is not vehicleBase " + GetType()));
+			return;
+		}
+		VehicleSeatManager component = Group.GameObject.GetComponent<VehicleSeatManager>();
+		if ((Object)(object)component == (Object)null)
+		{
+			Debug.LogError((object)"Did not find seatmanager. Cannot detach");
+			return;
+		}
+		component.DetachFromSeat(this);
+		AvatarPickupOwner component2 = gameObject.GetComponent<AvatarPickupOwner>();
+		if ((Object)(object)component2 == (Object)null)
+		{
+			Debug.LogError((object)"Could not find AvatarPickupOwner");
 		}
 		else
 		{
-			Object.Destroy((Object)(object)gameObject.GetComponent<MvCharacterController>());
-			MVGameController.Instance.WOCM.Players[OwnerActorNr].Avatar = this;
+			component2.AdditionalIgnoreWOIDS = null;
 		}
+	}
+
+	public void SetTeam()
+	{
+		avatar.NameTag = (string)Data["ownerUserName"];
+	}
+
+	public override void Initialize()
+	{
+		base.Initialize();
+		gameObject.AddComponent<InteractionDataHandler>();
+		avatarPickupOwner = gameObject.AddComponent<AvatarPickupOwner>();
+		avatarPickupOwner.Init(CurrentItem, IsFiring, this, body);
+		avatarPickupOwner.IsLocal = isLocal;
+		avatar.Initialize(this, isLocal);
+		InitializeHealth();
+		InitializeModifiers();
+		MVGameController.Instance.Game.Players.TryGetValue(OwnerActorNr, out var value);
+		if (value != null)
+		{
+			value.Avatar = this;
+		}
+	}
+
+	private void InitializeModifiers()
+	{
+		MVRuntimeDataVariable modifiers = Modifiers;
+		modifiers.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(modifiers.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object obj) =>
+		{
+			avatar.UpdateModifiers((Hashtable)obj);
+		}));
+		avatar.UpdateModifiers((Hashtable)Modifiers.Value);
 	}
 
 	private void InitializeHealth()
@@ -72,88 +139,40 @@ public class MVAvatar : MVWorldObjectClient
 		avatar.Health = Health.Value;
 	}
 
-	private void InitializeAnimation()
+	public override void AddChild(MVWorldObjectClient child)
 	{
-		MVRuntimeDataVariable animation = Animation;
-		animation.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(animation.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object obj) =>
+		base.AddChild(child);
+		if (child is MVBody mVBody)
 		{
-			avatar.SetAnimation((string)obj);
-		}));
-		avatar.SetAnimation((string)Animation.Value);
-	}
-
-	private void InitializeAvatarItemSlots()
-	{
-		MVRuntimeDataVariable centerSlot = CenterSlot;
-		centerSlot.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(centerSlot.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object prefabName) =>
-		{
-			avatar.Equip(AvatarItemSlotName.Center, (string)prefabName);
-		}));
-		avatar.Equip(AvatarItemSlotName.Center, (string)CenterSlot.Value);
-		MVRuntimeDataVariable rightSlot = RightSlot;
-		rightSlot.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(rightSlot.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object prefabName) =>
-		{
-			avatar.Equip(AvatarItemSlotName.Right, (string)prefabName);
-		}));
-		avatar.Equip(AvatarItemSlotName.Right, (string)RightSlot.Value);
-		MVRuntimeDataVariable leftSlot = LeftSlot;
-		leftSlot.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(leftSlot.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object prefabName) =>
-		{
-			avatar.Equip(AvatarItemSlotName.Left, (string)prefabName);
-		}));
-		avatar.Equip(AvatarItemSlotName.Left, (string)LeftSlot.Value);
-		MVRuntimeDataVariable aboveSlot = AboveSlot;
-		aboveSlot.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(aboveSlot.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object prefabName) =>
-		{
-			avatar.Equip(AvatarItemSlotName.Above, (string)prefabName);
-		}));
-		avatar.Equip(AvatarItemSlotName.Above, (string)AboveSlot.Value);
-		MVRuntimeDataVariable isFiring = IsFiring;
-		isFiring.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(isFiring.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object value) =>
-		{
-			avatar.HandleFiring((bool)value);
-		}));
-	}
-
-	public void HandlePickupItem(WorldObjectType type, int instigatorActorNr)
-	{
-		Debug.Log((object)"AVATAR: HandlePickupItem");
-		switch (type)
-		{
-		case WorldObjectType.PickupItemHealthPack:
-			Health.Value += 50f;
-			break;
-		case WorldObjectType.PickupItemCenterGun:
-			CenterSlot.Value = string.Empty;
-			CenterSlot.Value = "Prefabs/AvatarItemCenterGun";
-			break;
+			body = mVBody;
+			body.Attach(this, isLocal);
 		}
 	}
 
-	public void Unequip(AvatarItemSlotName slotName)
+	public override void TransferChild(int id)
 	{
-		switch (slotName)
+		base.TransferChild(id);
+		MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(id);
+		if (worldObjectClient is MVBody newBody)
 		{
-		case AvatarItemSlotName.Center:
-			CenterSlot.Value = string.Empty;
-			break;
-		case AvatarItemSlotName.Right:
-			RightSlot.Value = string.Empty;
-			break;
-		case AvatarItemSlotName.Left:
-			LeftSlot.Value = string.Empty;
-			break;
-		case AvatarItemSlotName.Above:
-			AboveSlot.Value = string.Empty;
-			break;
+			AttachBody(newBody);
 		}
 	}
 
-	public void UnequipAll()
+	protected virtual void AttachBody(MVBody newBody)
 	{
-		CenterSlot.Value = string.Empty;
-		RightSlot.Value = string.Empty;
-		LeftSlot.Value = string.Empty;
-		AboveSlot.Value = string.Empty;
+		//IL_002d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0038: Unknown result type (might be due to invalid IL or missing references)
+		if (body != null)
+		{
+			body.Detach();
+		}
+		if (newBody != null)
+		{
+			newBody.Position = new Vector3(0f, 0.03f, 0f);
+			newBody.Rotation = Quaternion.identity;
+			newBody.Attach(this, isLocal);
+			body = newBody;
+		}
 	}
 }

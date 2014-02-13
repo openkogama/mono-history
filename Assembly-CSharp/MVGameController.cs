@@ -1,291 +1,409 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using Localize;
+using MV.Common;
 using UnityEngine;
 
-public class MVGameController : MonoBehaviour, IInputHandler
+public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerSubscriber
 {
-	private static MVGameController instance;
+	public delegate void OnPostGameInitDelegate();
 
-	private ILogger logger;
+	public OnPostGameInitDelegate OnPostGameInit;
 
-	public string ip = "127.0.0.1";
+	private static bool catchUpdateLoopExceptions;
 
-	public int portDev = 5056;
+	private static MVGameController _instance;
 
-	public int portTest = 5055;
-
-	public string username = "TestUser";
-
-	public string password = "TestUser";
-
-	public string planetName = "TestPlanet";
-
-	private string gameName = string.Empty;
-
-	private string sessionLocatorUrlBase;
-
-	private string gameSessionLocatorUrlExt = "/PHP/GameSessionLocator.php?";
-
-	private string editSessionLocatorUrlExt = "/PHP/EditSessionLocator.php?";
-
-	private bool playInEditor;
-
-	private bool returnToEditor;
-
-	private MVNetworkGame game;
-
-	private IIngameController ingameController;
+	private GameSessionData gameSessionData;
 
 	private HotKeys hotkeys;
 
-	public MVGUIManager guiManager;
+	private MVGUILoginHandler loginForm;
 
-	private MVWorldObjectClientManager worldObjectClientManager;
+	private TimeReward timeReward;
 
-	public bool fixedToYPlane = true;
-
-	public MVNetworkGame Game => game;
-
-	public MVWorldObjectClientManager WOCM => worldObjectClientManager;
-
-	public IIngameController IngameController => ingameController;
-
-	public EditorController EditorController
-	{
-		get
-		{
-			if (ingameController != null && ingameController is EditorController)
-			{
-				return ingameController as EditorController;
-			}
-			return null;
-		}
-	}
+	public UpdateController UpdateController { get; private set; }
 
 	public static MVGameController Instance
 	{
 		get
 		{
-			//IL_005c: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0062: Expected Obj, but got Unknown
-			if ((Object)(object)instance == (Object)null)
+			if ((Object)(object)_instance == (Object)null)
 			{
-				instance = Object.FindObjectOfType(typeof(MVGameController)) as MVGameController;
-				instance.logger = LoggerManager.Instance.GetLogger(typeof(MVGameController));
+				_instance = Object.FindObjectOfType(typeof(MVGameController)) as MVGameController;
 			}
-			if ((Object)(object)instance == (Object)null)
+			if ((Object)(object)_instance == (Object)null)
 			{
-				GameObject val = new GameObject("AManager");
-				instance = val.AddComponent(typeof(MVGameController)) as MVGameController;
-				Debug.LogWarning((object)"This should not be called before start");
+				Debug.LogWarning((object)"No instance of MVGameController found. Is the game shutting down?");
 			}
-			return instance;
+			return _instance;
 		}
 	}
 
-	public int Priority => 2000;
+	public MVNetworkGame Game { get; private set; }
+
+	public MVWorldObjectClientManager WOCM
+	{
+		get
+		{
+			if (Game == null)
+			{
+				return null;
+			}
+			return Game.WorldObjectClientManager;
+		}
+	}
+
+	public AIngameController IngameController { get; private set; }
+
+	public IAudioManager AudioManager { get; private set; }
+
+	public BrowserComm BrowserComm { get; set; }
+
+	public TimeReward TimeReward => timeReward;
+
+	public int Priority => InputHandlerPriority.GAME;
+
+	public MVGameMode GameMode
+	{
+		get
+		{
+			if (gameSessionData == null)
+			{
+				Debug.LogError((object)"gammeSessionData not set yet!");
+				return MVGameMode.Play;
+			}
+			return gameSessionData.GameMode;
+		}
+	}
+
+	public int PlanetID
+	{
+		get
+		{
+			if (gameSessionData == null)
+			{
+				Debug.LogError((object)"gammeSessionData not set yet!");
+				return -1;
+			}
+			return gameSessionData.PlanetID;
+		}
+	}
+
+	public int ProfileID
+	{
+		get
+		{
+			if (gameSessionData == null)
+			{
+				Debug.LogError((object)"gammeSessionData not set yet!");
+				return -1;
+			}
+			return gameSessionData.ProfileID;
+		}
+	}
+
+	public bool IsTouristSession
+	{
+		get
+		{
+			if (gameSessionData == null)
+			{
+				Debug.LogError((object)"gammeSessionData not set yet!");
+				return true;
+			}
+			return gameSessionData.ProfileID <= 0;
+		}
+	}
+
+	public GameSessionData GameSessionData => gameSessionData;
+
+	public AEditController EditController
+	{
+		get
+		{
+			if (IngameController != null && IngameController is AEditController)
+			{
+				return IngameController as AEditController;
+			}
+			return null;
+		}
+	}
+
+	public CharacterEditorController CharacterEditorController
+	{
+		get
+		{
+			if (IngameController != null && GameMode == MVGameMode.CharacterEditor)
+			{
+				return IngameController as CharacterEditorController;
+			}
+			return null;
+		}
+	}
+
+	public EditorController EditorController
+	{
+		get
+		{
+			if (IngameController != null && GameMode == MVGameMode.Edit)
+			{
+				return IngameController as EditorController;
+			}
+			return null;
+		}
+	}
+
+	public PlayController PlayController
+	{
+		get
+		{
+			if (IngameController != null && GameMode == MVGameMode.Play)
+			{
+				return IngameController as PlayController;
+			}
+			return null;
+		}
+	}
+
+	public static string GetIPFromDevServerTarget(DevServerTarget devTarget)
+	{
+		return devTarget switch
+		{
+			DevServerTarget.Dev => "95.211.176.21:5055", 
+			DevServerTarget.Test => "54.228.103.157:5055", 
+			DevServerTarget.RC => "95.211.176.46:5055", 
+			DevServerTarget.Vault => "95.211.176.62:5055", 
+			DevServerTarget.NewTest => "54.228.103.157:5055", 
+			DevServerTarget.Local => "127.0.0.1:5055", 
+			_ => string.Empty, 
+		};
+	}
 
 	private void OnApplicationQuit()
 	{
-		UXUtils.FindObjectOfType<MVInputHandlerPrioritizer>().Unregister(instance);
-		instance = null;
+		UXUtils.FindObjectOfType<MVInputHandlerPrioritizer>().Unregister(_instance);
+		_instance = null;
 	}
 
 	private void Awake()
 	{
+		BrowserComm = UXUtils.FindObjectOfType<BrowserComm>();
 		AudioEventHandler.Awake();
+		timeReward = new TimeReward();
+	}
+
+	private T FindOrLogError<T>(string errorMsg) where T : MonoBehaviour
+	{
+		Object val = Object.FindObjectOfType(typeof(T));
+		if (val == (Object)null)
+		{
+			Debug.LogError((object)errorMsg);
+			return (T)(object)null;
+		}
+		return (T)(object)((val is T) ? val : null);
+	}
+
+	private void ReceivedWebParamsCallback(Dictionary<string, object> gameSessionData)
+	{
+		Debug.Log((object)("WEBPARAMS: " + gameSessionData));
+		StartGame(new GameSessionData(gameSessionData));
+	}
+
+	public void StartGame(GameSessionData gameSessionData)
+	{
+		this.gameSessionData = gameSessionData;
+		Localization.Instance.CultureName = gameSessionData.Language.Replace('_', '-');
+		loginForm.View.Hide();
+		Game = new MVNetworkGame();
+		Game.Join();
 	}
 
 	private void Start()
 	{
+		UpdateController = new UpdateController();
+		UpdateController.AddFixedUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
+		UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
 		UXUtils.FindObjectOfType<MVInputHandlerPrioritizer>().Register(this);
+		AudioManager = FindOrLogError<AudioManager>("AudioManager must be present in scene!");
+		loginForm = UXUtils.FindGUIObjectOfType<MVGUILoginHandler>();
 		Object.DontDestroyOnLoad((Object)(object)((Component)this).gameObject);
 		Application.runInBackground = true;
-		string[] array = Application.srcValue.Split(new char[1] { '?' });
-		bool flag = false;
-		if (array.Length > 1)
+		Localization.Instance.CultureName = "en-US";
+		CustomBuildSettings customBuildSettings = Resources.Load("Prefabs/CustomBuildSettings", typeof(CustomBuildSettings)) as CustomBuildSettings;
+		bool showLogin = customBuildSettings.ShowLogin;
+		if (Application.isEditor || showLogin)
 		{
-			string text = array[1];
-			if (text.Length > 0)
-			{
-				Debug.Log((object)("Web initparams: " + text));
-				string[] array2 = text.Split(new char[1] { '&' });
-				string[] array3 = array2;
-				foreach (string text2 in array3)
-				{
-					Debug.Log((object)("webParam: " + text2));
-					string[] array4 = text2.Split(new char[1] { '=' });
-					switch (array4[0])
-					{
-					case "Username":
-						username = (string)array4[1].Clone();
-						if (username.Length == 0)
-						{
-							username = "Anonymous";
-						}
-						Debug.Log((object)("Web setting username = " + username));
-						break;
-					case "Password":
-						password = (string)array4[1].Clone();
-						Debug.Log((object)("Web setting password = " + password));
-						break;
-					case "PlanetName":
-						planetName = (string)array4[1].Clone();
-						Debug.Log((object)("Web setting planetName = " + planetName));
-						break;
-					case "EditMode":
-						flag = array4[1].ToLower() == "true";
-						break;
-					}
-				}
-			}
-			if (Application.absoluteURL.Length > 0)
-			{
-				sessionLocatorUrlBase = Application.absoluteURL.Substring(0, Application.absoluteURL.LastIndexOf("WebPlayer.unity3d") - 1);
-				sessionLocatorUrlBase = sessionLocatorUrlBase.Substring(0, sessionLocatorUrlBase.LastIndexOf('/'));
-			}
-			guiManager.HideLoginView();
-			if (flag)
-			{
-				EditPlanet(fromWeb: true);
-			}
-			else
-			{
-				JoinPlanet(fromWeb: true);
-			}
+			loginForm.View.Show();
 		}
 		else
 		{
-			guiManager.ShowLoginView();
+			BrowserComm.ToWeb.ExternalCall("sendPlayerParams", ReceivedWebParamsCallback);
 		}
 	}
 
 	private void OnLevelWasLoaded(int level)
 	{
-		if (Application.loadedLevelName == "LoadPlanet")
+		if (!(Application.loadedLevelName == "UnloadPlanet"))
 		{
-			guiManager.ShowInGameMenu();
+			return;
 		}
-		else
+		Debug.Log((object)"Scene loaded");
+		if (!Application.isWebPlayer)
 		{
-			if (!(Application.loadedLevelName == "UnloadPlanet"))
+			if ((Object)(object)loginForm != (Object)null)
 			{
-				return;
-			}
-			if (playInEditor)
-			{
-				JoinPlanetInPlayTest();
-				return;
-			}
-			if (returnToEditor)
-			{
-				EditPlanet(Application.isWebPlayer);
-				return;
-			}
-			Debug.Log((object)"Scene loaded");
-			if (!Application.isWebPlayer)
-			{
-				guiManager.ShowLoginView();
+				loginForm.View.Show();
 			}
 			else
 			{
-				guiManager.HideLoginView();
-				UXScreen uXScreen = Object.FindObjectOfType(typeof(UXScreen)) as UXScreen;
+				Debug.LogError((object)"loginForm was null!");
+			}
+		}
+		else
+		{
+			if ((Object)(object)loginForm != (Object)null)
+			{
+				loginForm.View.Hide();
+			}
+			else
+			{
+				Debug.LogError((object)"loginForm was null!");
+			}
+			UXScreen uXScreen = Object.FindObjectOfType(typeof(UXScreen)) as UXScreen;
+			if ((Object)(object)uXScreen != (Object)null)
+			{
 				if (uXScreen.Fullscreen)
 				{
 					uXScreen.Fullscreen = false;
 				}
 			}
-			guiManager.HideGameHUD();
-			game = null;
-			GC.Collect();
+			else
+			{
+				Debug.LogError((object)"UXScreen was null!");
+			}
+		}
+		Game = null;
+		GC.Collect();
+	}
+
+	public void LoadLevel()
+	{
+		((MonoBehaviour)this).StartCoroutine(WaitForLoadToStart());
+	}
+
+	private IEnumerator WaitForLoadToStart()
+	{
+		while (!Application.CanStreamedLevelBeLoaded("LoadPlanet"))
+		{
+			yield return null;
+		}
+		Application.LoadLevel("LoadPlanet");
+		Game.LevelLoadStarted();
+	}
+
+	private void UpdateGame()
+	{
+		Game.Update();
+		if (Game.JoinState == MVJoinState.Playing)
+		{
+			if (IngameController == null)
+			{
+				InitializePlayingState();
+				IngameController.Initialize();
+				IngameController.ShowBriefing();
+			}
+			IngameController.Update();
 		}
 	}
 
 	private void Update()
 	{
-		if (game != null)
+		if (UpdateController != null)
 		{
-			if (game.ConnState == MVConnState.Exception)
+			UpdateController.Update();
+		}
+	}
+
+	public void UpdateControllerUpdate()
+	{
+		if (Game != null)
+		{
+			if (Game.ConnState == MVConnState.Exception || Game.ConnState == MVConnState.TimeoutDisconnect || Game.ConnState == MVConnState.SendError || Game.ConnState == MVConnState.Disconnected)
 			{
-				guiManager.ShowReconnectDialog("Connection Exception\nReconnect?", OnReconnectFromDialog, OnDisconnectFromDialog);
-				game.ConnState = MVConnState.HandlingException;
-			}
-			else if (game.ConnState == MVConnState.TimeoutDisconnect)
-			{
-				guiManager.ShowReconnectDialog("Connection Timeout.\nReconnect?", OnReconnectFromDialog, OnDisconnectFromDialog);
-				game.ConnState = MVConnState.HandlingException;
-			}
-			else if (game.ConnState == MVConnState.SendError)
-			{
-				guiManager.ShowReconnectDialog("Connection Lost.\nReconnect?", OnReconnectFromDialog, OnDisconnectFromDialog);
-				game.ConnState = MVConnState.HandlingException;
-			}
-			else if (game.ConnState == MVConnState.Disconnected)
-			{
-				Debug.Log((object)"MVGame disconnected - destroy game session");
-				CleanUp();
-			}
-			else
-			{
+				Debug.Log((object)("Game.ConnState " + Game.ConnState));
 				try
 				{
-					game.Update();
-					if (game.JoinState == MVJoinState.Playing)
+					TextSlotIndex messageIndex = TextSlotIndex.ConnectionLostMessage;
+					if (Game.ConnState == MVConnState.Exception)
 					{
-						if (ingameController == null)
-						{
-							InitializePlayingState();
-							ingameController.Initialize();
-						}
-						ingameController.Update();
+						messageIndex = TextSlotIndex.ConnectionExceptionMessage;
 					}
+					else if (Game.ConnState == MVConnState.TimeoutDisconnect)
+					{
+						messageIndex = TextSlotIndex.ConnectionTimeoutMessage;
+					}
+					else if (Game.ConnState == MVConnState.SendError)
+					{
+						messageIndex = TextSlotIndex.ConnectionLostMessage;
+					}
+					UXUtils.FindGUIObjectOfType<UXDialogFactory>().CreateDialog(messageIndex, TextSlotIndex.ErrorHeadline).AddPositiveButton(TextSlotIndex.Confirm)
+						.AddNegativeButton(TextSlotIndex.Reject)
+						.SetOnResultCallback(OnReconnectDialogResult)
+						.Show();
 				}
 				catch (Exception ex)
 				{
-					Debug.LogWarning((object)("Exception in Update: " + ex.ToString()));
+					Debug.LogError((object)ex);
 				}
+				Game.ConnState = MVConnState.HandlingException;
+				Debug.Log((object)Game.ConnState);
+				CleanUp();
+			}
+			else if (catchUpdateLoopExceptions)
+			{
+				try
+				{
+					UpdateGame();
+				}
+				catch (Exception ex2)
+				{
+					Debug.LogWarning((object)("Exception in Update: " + ex2.ToString()));
+				}
+			}
+			else
+			{
+				UpdateGame();
 			}
 		}
 		AudioEventHandler.Update();
 	}
 
-	public void OnReconnectFromDialog()
+	public void OnReconnectDialogResult(UXDialogBox dialog)
 	{
-		Debug.Log((object)"Reconnect from Reconnect-dialog");
-		string text = game.PlanetName;
-		string text2 = game.GameName;
-		string text3 = game.Ip;
-		int port = game.Port;
-		bool editorMode = game.EditorMode;
-		game = null;
-		worldObjectClientManager.Cleanup();
-		worldObjectClientManager = null;
-		ingameController = null;
-		GC.Collect();
-		game = new MVNetworkGame(text, text2, text3, port, editorMode, guiManager);
-		worldObjectClientManager = new MVWorldObjectClientManager();
-		if (!game.Join(username, password))
+		if ((Object)(object)BrowserComm != (Object)null)
 		{
-			guiManager.ShowLoginView();
-			Debug.Log((object)("Unable to connect to game on address: " + text3 + ":" + portTest));
-			game = null;
-			worldObjectClientManager = null;
+			if (dialog.DialogResult == UXDialogResult.Positive)
+			{
+				BrowserComm.ToWeb.ExternalCall("refresh");
+			}
+			else
+			{
+				BrowserComm.ToWeb.ExternalCall("goBack");
+			}
 		}
-	}
-
-	public void OnDisconnectFromDialog()
-	{
-		Debug.Log((object)"Disconnect from Reconnect-dialog");
-		CleanUp();
-		Application.Quit();
+		else
+		{
+			Debug.LogError((object)"BrowserComm is null");
+		}
 	}
 
 	public bool HandleInput()
 	{
-		if (game != null && game.JoinState == MVJoinState.Playing && ingameController != null)
+		if (Game != null && Game.JoinState == MVJoinState.Playing && IngameController != null)
 		{
-			ingameController.HandleInput();
+			IngameController.HandleInput();
 			hotkeys.HandleInput();
 		}
 		return false;
@@ -293,252 +411,72 @@ public class MVGameController : MonoBehaviour, IInputHandler
 
 	public void LateUpdate()
 	{
-		if (ingameController != null)
+		if (IngameController != null)
 		{
-			ingameController.LateUpdate();
+			IngameController.LateUpdate();
 		}
 	}
 
-	public void FixedUpdate()
+	private void FixedUpdate()
 	{
-		if (ingameController != null)
+		if (UpdateController != null)
 		{
-			ingameController.FixedUpdate();
+			UpdateController.FixedUpdate();
+		}
+	}
+
+	public void UpdateControllerFixedUpdate()
+	{
+		if (IngameController != null)
+		{
+			IngameController.FixedUpdate();
 		}
 	}
 
 	private void InitializePlayingState()
 	{
 		hotkeys = new HotKeys();
-		if (game.EditorMode)
+		switch (GameMode)
 		{
-			ingameController = new EditorController();
-			return;
-		}
-		ingameController = new PlayController();
-		Camera camera = ((Component)Instance.WOCM.WeCamera).camera;
-		if ((camera.cullingMask & LayerMask.NameToLayer("Logic")) == LayerMask.NameToLayer("Logic"))
-		{
-			camera.cullingMask -= 1 << (LayerMask.NameToLayer("Logic") & 0x1F);
+		case MVGameMode.Play:
+			IngameController = new PlayController();
+			break;
+		case MVGameMode.Edit:
+			IngameController = new EditorController();
+			break;
+		case MVGameMode.CharacterEditor:
+			IngameController = new CharacterEditorController();
+			break;
 		}
 	}
 
 	private void CleanUp()
 	{
-		if (ingameController != null)
+		if (IngameController != null)
 		{
-			ingameController.Deinitialize();
+			IngameController.Deinitialize();
 		}
-		if (game.Peer != null)
+		if (Game.Peer != null)
 		{
-			game.Peer.StopThread();
+			Game.Peer.StopThread();
 		}
-		game = null;
-		ingameController = null;
+		Game.Cleanup();
+		SetNetworkGame(null);
+		IngameController = null;
 		hotkeys = null;
-		worldObjectClientManager.Cleanup();
-		worldObjectClientManager = null;
 		GC.Collect();
 		Application.LoadLevel("UnloadPlanet");
+		UpdateController = null;
 	}
 
-	private IEnumerator JoinFromWeb()
+	public void SetNetworkGame(MVNetworkGame game)
 	{
-		string gameSessionLocatorUrl = sessionLocatorUrlBase + gameSessionLocatorUrlExt + "ProfileID=0&PlanetName=" + planetName;
-		Debug.Log((object)gameSessionLocatorUrl);
-		WWW www = new WWW(gameSessionLocatorUrl);
-		yield return www;
-		string returnFromPHP = www.text;
-		Debug.Log((object)returnFromPHP);
-		int indexStatusText = returnFromPHP.IndexOf("STATUS:");
-		int indexGSText = returnFromPHP.IndexOf("GAMESERVERIP:");
-		int indexGNText = returnFromPHP.IndexOf("GAMENAME:");
-		int statusValueStartIndex = returnFromPHP.IndexOf("'", indexStatusText) + 1;
-		int statusValueEndIndex = returnFromPHP.IndexOf("'", statusValueStartIndex);
-		int ipValueStartIndex = returnFromPHP.IndexOf("'", indexGSText) + 1;
-		int ipValueEndIndex = returnFromPHP.IndexOf("'", ipValueStartIndex);
-		int gnValueStartIndex = returnFromPHP.IndexOf("'", indexGNText) + 1;
-		int gnValueEndIndex = returnFromPHP.IndexOf("'", gnValueStartIndex);
-		int status = Convert.ToInt32(returnFromPHP.Substring(statusValueStartIndex, statusValueEndIndex - statusValueStartIndex));
-		ip = returnFromPHP.Substring(ipValueStartIndex, ipValueEndIndex - ipValueStartIndex);
-		gameName = returnFromPHP.Substring(gnValueStartIndex, gnValueEndIndex - gnValueStartIndex);
-		Debug.Log((object)("Status:" + status));
-		Debug.Log((object)("ServerIP: " + ip));
-		Debug.Log((object)("GameName: " + gameName));
-		Debug.Log((object)("GameName length: " + gameName.Length));
-		if (gameName == "null")
-		{
-			gameName = planetName;
-		}
-		switch (status)
-		{
-		case 1:
-			guiManager.ShowMessageBox("The Planet Name '" + planetName + "'\ndoes not exist in the database");
-			break;
-		case 2:
-			guiManager.HideLoginView();
-			game = new MVNetworkGame(planetName, gameName, ip, portTest, editorMode: false, guiManager);
-			worldObjectClientManager = new MVWorldObjectClientManager();
-			if (!game.Join(username, password))
-			{
-				guiManager.ShowLoginView();
-				Debug.Log((object)("Unable to connect to game on address: " + ip + ":" + portTest));
-				game = null;
-				worldObjectClientManager = null;
-			}
-			break;
-		case 3:
-			guiManager.ShowMessageBox("No game servers found!");
-			break;
-		case 4:
-			guiManager.HideLoginView();
-			game = new MVNetworkGame(planetName, gameName, ip, portTest, editorMode: false, guiManager);
-			worldObjectClientManager = new MVWorldObjectClientManager();
-			if (!game.Join(username, password))
-			{
-				guiManager.ShowLoginView();
-				Debug.Log((object)("Unable to connect to game on address: " + ip + ":" + portTest));
-				game = null;
-				worldObjectClientManager = null;
-			}
-			break;
-		}
-		www.Dispose();
-	}
-
-	public void JoinPlanet(bool fromWeb)
-	{
-		if (fromWeb)
-		{
-			((MonoBehaviour)this).StartCoroutine(JoinFromWeb());
-			return;
-		}
-		guiManager.HideLoginView();
-		game = new MVNetworkGame(planetName, planetName, ip, portDev, editorMode: false, guiManager);
-		worldObjectClientManager = new MVWorldObjectClientManager();
-		if (!game.Join(username, password))
-		{
-			guiManager.ShowLoginView();
-			Debug.Log((object)("Unable to connect to game on address: " + ip + ":" + portDev));
-			game = null;
-			worldObjectClientManager = null;
-		}
-	}
-
-	public void JoinPlanetInPlayTest()
-	{
-		game = new MVNetworkGame(planetName, planetName, ip, portDev, editorMode: false, guiManager);
-		worldObjectClientManager = new MVWorldObjectClientManager();
-		playInEditor = false;
-		returnToEditor = true;
-		if (!game.Join(username, password))
-		{
-			Debug.Log((object)("Unable to connect to game on address: " + ip + ":" + portDev));
-			game = null;
-			worldObjectClientManager = null;
-		}
-	}
-
-	private IEnumerator EditFromWeb()
-	{
-		string editSessionLocatorUrl = sessionLocatorUrlBase + editSessionLocatorUrlExt + "PlanetName=" + planetName;
-		Debug.Log((object)editSessionLocatorUrl);
-		WWW www = new WWW(editSessionLocatorUrl);
-		yield return www;
-		string returnFromPHP = www.text;
-		Debug.Log((object)returnFromPHP);
-		int indexStatusText = returnFromPHP.IndexOf("STATUS:");
-		int indexGSText = returnFromPHP.IndexOf("GAMESERVERIP:");
-		int statusValueStartIndex = returnFromPHP.IndexOf("'", indexStatusText) + 1;
-		int statusValueEndIndex = returnFromPHP.IndexOf("'", statusValueStartIndex);
-		int ipValueStartIndex = returnFromPHP.IndexOf("'", indexGSText) + 1;
-		int ipValueEndIndex = returnFromPHP.IndexOf("'", ipValueStartIndex);
-		int status = Convert.ToInt32(returnFromPHP.Substring(statusValueStartIndex, statusValueEndIndex - statusValueStartIndex));
-		ip = returnFromPHP.Substring(ipValueStartIndex, ipValueEndIndex - ipValueStartIndex);
-		Debug.Log((object)("Status:" + status));
-		Debug.Log((object)("ServerIP: " + ip));
-		gameName = planetName;
-		switch (status)
-		{
-		case 1:
-			guiManager.ShowMessageBox("Project named '" + planetName + "' does not exist");
-			break;
-		case 2:
-			guiManager.ShowMessageBox("Error with the Internet and/or database connection...");
-			break;
-		case 3:
-			guiManager.HideLoginView();
-			game = new MVNetworkGame(planetName, gameName, ip, portTest, editorMode: true, guiManager);
-			worldObjectClientManager = new MVWorldObjectClientManager();
-			if (!game.Join(username, password))
-			{
-				guiManager.ShowLoginView();
-				Debug.Log((object)("Unable to connect to project on address: " + ip + ":" + portTest));
-				game = null;
-				worldObjectClientManager = null;
-			}
-			break;
-		}
-	}
-
-	public void EditPlanet(bool fromWeb)
-	{
-		if (fromWeb)
-		{
-			((MonoBehaviour)this).StartCoroutine(EditFromWeb());
-			return;
-		}
-		guiManager.HideLoginView();
-		game = new MVNetworkGame(planetName, planetName, ip, portDev, editorMode: true, guiManager);
-		worldObjectClientManager = new MVWorldObjectClientManager();
-		if (!game.Join(username, password))
-		{
-			guiManager.ShowLoginView();
-			Debug.Log((object)("Unable to connect to game on address: " + ip + ":" + portDev));
-			guiManager.ShowMessageBox("Unable to connect to the game.\nPlease check your Internet connection.");
-			game = null;
-			worldObjectClientManager = null;
-		}
-	}
-
-	public void PlayInEditor()
-	{
-		Debug.Log((object)"PlayInEditor... (not yet implemented)");
-		playInEditor = true;
-		LeaveGame();
+		Game = game;
 	}
 
 	public void LeaveGame()
 	{
-		WOCM.WoAvatar.GameObject.SetActiveRecursively(false);
-		game.Leave();
-	}
-
-	public void ToggleEditMode()
-	{
-	}
-
-	public void ToggleGrid()
-	{
-		if (ingameController is EditorController)
-		{
-			(ingameController as EditorController).ToggleGrid();
-		}
-	}
-
-	public void ToggleWorkPlane()
-	{
-		if (ingameController is EditorController)
-		{
-			(ingameController as EditorController).ToggleWorkPlane();
-		}
-	}
-
-	public void ToggleLogicRendering()
-	{
-		if (ingameController is EditorController)
-		{
-			(ingameController as EditorController).ToggleLogicRendering();
-		}
+		WOCM.AvatarLocal.GameObject.SetActiveRecursively(false);
+		Game.Leave();
 	}
 }

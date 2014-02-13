@@ -1,7 +1,7 @@
 using UnityEngine;
 
-[AddComponentMenu("Detonator/Heatwave (Pro Only)")]
 [RequireComponent(typeof(Detonator))]
+[AddComponentMenu("Detonator/Heatwave (Pro Only)")]
 public class DetonatorHeatwave : DetonatorComponent
 {
 	private GameObject _heatwave;

@@ -1,7 +1,7 @@
 using UnityEngine;
 
-[AddComponentMenu("Image Effects/Grayscale")]
 [ExecuteInEditMode]
+[AddComponentMenu("Image Effects/Grayscale")]
 public class GrayscaleEffect : ImageEffectBase
 {
 	public Texture textureRamp;

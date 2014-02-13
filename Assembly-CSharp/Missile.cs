@@ -55,15 +55,15 @@ public class Missile : MonoBehaviour
 		//IL_000a: Unknown result type (might be due to invalid IL or missing references)
 		//IL_000f: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-		List<ElipsoidOverlapResult> list = MVElipsoidOverlapCheck.ElipsoidOverlapCheckSector(Vector3.one * 5f, target, Quaternion.identity);
-		foreach (ElipsoidOverlapResult item in list)
+		List<MVOverlapResult> list = MVElipsoidOverlapCheck.ElipsoidOverlapCheckSector(Vector3.one * 5f, target, Quaternion.identity);
+		foreach (MVOverlapResult item in list)
 		{
 			IntVector[] localCubePos = item.localCubePos;
 			foreach (IntVector pos in localCubePos)
 			{
-				((MVCubeModelBase)MVGameController.Instance.WOCM.WorldObjects[item.woId]).RemoveCube(pos);
+				((MVCubeModelBase)MVGameController.Instance.WOCM.GetWorldObjectClient(item.woId)).RemoveCube(pos);
 			}
-			((MVCubeModelBase)MVGameController.Instance.WOCM.WorldObjects[item.woId]).HandleDelta();
+			((MVCubeModelBase)MVGameController.Instance.WOCM.GetWorldObjectClient(item.woId)).HandleDelta();
 		}
 	}
 }

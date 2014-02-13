@@ -1,23 +1,42 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using MV.WorldObject;
 using UnityEngine;
 
-public abstract class MVLogicObject : MVWorldObjectClient, WorldObjectWithClone, WorldObjectWithLogicReset
+public abstract class MVLogicObject : MVWorldObjectClient
 {
-	private Color selectedColor = new Color(1f, 0.6f, 0.6f, 1f);
+	protected bool disabledByLod;
 
-	private Color[] deselectColors;
+	private Bounds localBounds = new Bounds(Vector3.zero, Vector3.one);
 
-	protected MVLogicObject()
+	protected float cullDistance = 145f;
+
+	protected MVLogicObject(Hashtable data, string prefabPath, Dictionary<int, MVWorldObjectClient> worldObjects)
+		: base(data, prefabPath, worldObjects)
 	{
-		//IL_0015: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
+		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00a2: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00a8: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00ad: Unknown result type (might be due to invalid IL or missing references)
+		interactionFlags = InteractionFlags.Selectable | InteractionFlags.CanRotateY | InteractionFlags.CanClone | InteractionFlags.CanResetLogic;
+		PlayInteractionType = PlayInteractionType.ExcludeFromInteraction;
+		gameObject.layer = LayerMask.NameToLayer("Logic");
+		previewLayerMask |= LayerFlags.Logic;
+		MeshRenderer[] meshRenderers = (from r in gameObject.GetComponentsInChildren<MeshRenderer>()
+			where ((Object)r).name != "ioConnectorCube" && ((Object)r).name != "ioConnectorSphere"
+			select r).ToArray();
+		localBounds = ComputeLocalBounds(gameObject.transform.position, meshRenderers);
 	}
 
 	protected virtual void OnUpdate()
 	{
 	}
 
-	public override void ResetLogic()
+	public override void Reset()
 	{
 	}
 
@@ -30,64 +49,101 @@ public abstract class MVLogicObject : MVWorldObjectClient, WorldObjectWithClone,
 		}
 	}
 
+	public override Bounds GetLocalBounds(BoundsContext boundsContext)
+	{
+		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
+		return localBounds;
+	}
+
 	public override void Select(Color color)
 	{
-		//IL_004d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0052: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0061: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0066: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0075: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0089: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0097: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a8: Unknown result type (might be due to invalid IL or missing references)
-		if (deselectColors == null)
-		{
-			MeshRenderer[] componentsInChildren = gameObject.GetComponentsInChildren<MeshRenderer>();
-			int num = 0;
-			deselectColors = new Color[componentsInChildren.Length];
-			MeshRenderer[] array = componentsInChildren;
-			foreach (MeshRenderer val in array)
-			{
-				ref Color reference = ref deselectColors[num++];
-				reference = new Color(((Renderer)val).material.color.r, ((Renderer)val).material.color.g, ((Renderer)val).material.color.b, ((Renderer)val).material.color.a);
-				((Renderer)val).material.color = selectedColor;
-			}
-		}
+		AddSelectionBox();
 	}
 
 	public override void DeSelect()
 	{
-		//IL_003f: Unknown result type (might be due to invalid IL or missing references)
-		if (deselectColors != null)
-		{
-			MeshRenderer[] componentsInChildren = gameObject.GetComponentsInChildren<MeshRenderer>();
-			int num = 0;
-			MeshRenderer[] array = componentsInChildren;
-			foreach (MeshRenderer val in array)
-			{
-				((Renderer)val).material.color = deselectColors[num++];
-			}
-			deselectColors = null;
-			selectedConnector = SelectedConnector.None;
-		}
+		RemoveSelectionBox();
+		selectedConnector = SelectedConnector.None;
 	}
 
 	public override void Initialize()
 	{
+		base.Initialize();
 		SharedLinkFunctions.EvaluateLinks(this);
 		SharedLinkFunctions.UpdateOutputLinks(this);
 	}
 
-	public void Clone()
+	public override void InitializeInventory()
 	{
-		MVGameController.Instance.EditorController.CloneLogicObject(WorldObjectType, Data);
+		base.InitializeInventory();
+		(from r in GameObject.GetComponentsInChildren<MeshRenderer>()
+			where ((Object)r).name == "ioConnectorCube" || ((Object)r).name == "ioConnectorSphere"
+			select r).ToList().ForEach((MeshRenderer r) =>
+		{
+			((Component)r).gameObject.active = false;
+		});
 	}
 
-	public void Reset()
+	public override void ChangeLOD(float distance)
 	{
-		MVGameController.Instance.Game.ResetLogicChunk(id);
+		if (disabledByLod && distance < cullDistance)
+		{
+			disabledByLod = false;
+			Renderer[] componentsInChildren = gameObject.GetComponentsInChildren<Renderer>();
+			Renderer[] array = componentsInChildren;
+			foreach (Renderer val in array)
+			{
+				val.enabled = true;
+			}
+		}
+		else if (!disabledByLod && distance >= cullDistance)
+		{
+			disabledByLod = true;
+			Renderer[] componentsInChildren2 = gameObject.GetComponentsInChildren<Renderer>();
+			Renderer[] array2 = componentsInChildren2;
+			foreach (Renderer val2 in array2)
+			{
+				val2.enabled = false;
+			}
+		}
+	}
+
+	protected Bounds ComputeLocalBounds(Vector3 origin, MeshRenderer[] meshRenderers)
+	{
+		//IL_0002: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
+		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_001d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0026: Unknown result type (might be due to invalid IL or missing references)
+		//IL_002b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_002c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0036: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0037: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0085: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0042: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0047: Unknown result type (might be due to invalid IL or missing references)
+		//IL_004b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0050: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0051: Unknown result type (might be due to invalid IL or missing references)
+		//IL_005d: Unknown result type (might be due to invalid IL or missing references)
+		Bounds result = new Bounds(Vector3.zero, Vector3.zero);
+		if (meshRenderers.Length > 0)
+		{
+			Bounds bounds = ((Renderer)meshRenderers[0]).bounds;
+			bounds.center -= origin;
+			result = bounds;
+			for (int i = 1; i < meshRenderers.Length; i++)
+			{
+				bounds = ((Renderer)meshRenderers[i]).bounds;
+				bounds.center -= origin;
+				result.Encapsulate(bounds);
+			}
+		}
+		else
+		{
+			Debug.LogWarning((object)"Mesh filters required for correct bounds", (Object)(object)GameObject);
+		}
+		return result;
 	}
 }

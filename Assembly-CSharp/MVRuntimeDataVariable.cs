@@ -7,8 +7,6 @@ public class MVRuntimeDataVariable
 
 	public delegate void OnWriteThroughDelegate(object newValue);
 
-	private ILogger logger = LoggerManager.Instance.GetLogger(typeof(MVRuntimeDataVariable));
-
 	private string variableId;
 
 	private object value;

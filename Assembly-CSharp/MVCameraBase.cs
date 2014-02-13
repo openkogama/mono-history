@@ -2,13 +2,32 @@ using UnityEngine;
 
 public class MVCameraBase : MonoBehaviour
 {
-	protected CameraType cameraType = CameraType.None;
+	public float cameraRadius = 0.3f;
 
 	protected IgnoreInputTypes ignoreInputTypes;
 
-	public CameraType CameraType => cameraType;
+	public virtual Vector3 FireDirection
+	{
+		get
+		{
+			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
+			return ((Component)this).transform.forward;
+		}
+	}
 
-	public virtual void HandleInput()
+	public virtual Vector3 FireOrigin
+	{
+		get
+		{
+			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0011: Unknown result type (might be due to invalid IL or missing references)
+			//IL_001c: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0021: Unknown result type (might be due to invalid IL or missing references)
+			return ((Component)this).transform.position + ((Component)this).transform.forward * cameraRadius;
+		}
+	}
+
+	public virtual void HandleInput(MVCameraController camController)
 	{
 	}
 
@@ -38,15 +57,11 @@ public class MVCameraBase : MonoBehaviour
 	{
 	}
 
-	public virtual void DrawPlaneMoved(Vector3 to)
-	{
-	}
-
-	public virtual void Shake(float duration, float strength)
-	{
-	}
-
 	public virtual void Respawn()
+	{
+	}
+
+	public virtual void FocusOnObject(MVWorldObjectClient wo)
 	{
 	}
 }

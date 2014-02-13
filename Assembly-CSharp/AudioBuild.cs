@@ -22,8 +22,6 @@ public class AudioBuild : MonoBehaviour
 
 	private float currentTranslateMoveValue;
 
-	private bool TranslateOutOfGrid;
-
 	public AudioBuild()
 	{
 		//IL_0001: Unknown result type (might be due to invalid IL or missing references)

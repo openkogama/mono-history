@@ -165,7 +165,7 @@ public class LinkGraph
 		}
 	}
 
-	public void ResetChunk(int worldObjectID)
+	public bool ResetChunk(int worldObjectID)
 	{
 		foreach (LinkGraphNode item in nodeSet)
 		{
@@ -174,7 +174,7 @@ public class LinkGraph
 		LinkGraphNode linkGraphNode = Find(worldObjectID);
 		if (linkGraphNode == null)
 		{
-			return;
+			return false;
 		}
 		if (OnResetNode != null)
 		{
@@ -189,6 +189,7 @@ public class LinkGraph
 		{
 			ResetRecursiveFrom(fromNeighbor, linkGraphNode);
 		}
+		return true;
 	}
 
 	private void ResetRecursiveTo(LinkGraphNode fromNode, LinkGraphNode toNode)

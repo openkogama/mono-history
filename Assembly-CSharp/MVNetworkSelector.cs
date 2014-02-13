@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MV.WorldObject;
 
@@ -7,10 +8,13 @@ public class MVNetworkSelector
 
 	private Queue<int> pendingRequestedOwnershipIds = new Queue<int>();
 
+	private static MVWorldObjectClientManager WOCM => MVGameController.Instance.WOCM;
+
 	public MVNetworkSelector(EditorStateMachine esm)
 	{
 		this.esm = esm;
-		MVGameController.Instance.WOCM.OnWorldObjectTransferOwnershipResponse += Instance_OnWorldObjectTransferOwnershipResponse;
+		MVWorldObjectClientManager wOCM = WOCM;
+		wOCM.OnWorldObjectTransferOwnershipResponse = (EventHandler<OnTransferOwnershipResponseEventArgs>)Delegate.Combine(wOCM.OnWorldObjectTransferOwnershipResponse, new EventHandler<OnTransferOwnershipResponseEventArgs>(Instance_OnWorldObjectTransferOwnershipResponse));
 	}
 
 	public bool RequestOwnership(HashSet<int> selectionSet)
@@ -26,42 +30,15 @@ public class MVNetworkSelector
 		return true;
 	}
 
-	public bool RequestOwnershipRecursive(int id)
-	{
-		if (pendingRequestedOwnershipIds.Count != 0)
-		{
-			return false;
-		}
-		if (!CanRequestOwnerShip(id))
-		{
-			return false;
-		}
-		RequestOwnershipRecursiveInternal(id);
-		return true;
-	}
-
-	private void RequestOwnershipRecursiveInternal(int id)
-	{
-		RequestOwnership(id);
-		if ((object)MVGameController.Instance.WOCM.GetWorldObjectClient(id).GetType() != typeof(MVGroup))
-		{
-			return;
-		}
-		foreach (MVWorldObjectClient child in ((MVGroup)MVGameController.Instance.WOCM.GetWorldObjectClient(id)).Children)
-		{
-			RequestOwnershipRecursiveInternal(child.Id);
-		}
-	}
-
 	public bool CanRequestOwnerShip(int id)
 	{
 		if (!OwnershipTest(id))
 		{
 			return false;
 		}
-		if ((object)MVGameController.Instance.WOCM.GetWorldObjectClient(id).GetType() == typeof(MVGroup))
+		if (WOCM.GetWorldObjectClient(id) is MVGroup mVGroup)
 		{
-			foreach (MVWorldObjectClient child in ((MVGroup)MVGameController.Instance.WOCM.GetWorldObjectClient(id)).Children)
+			foreach (MVWorldObjectClient child in mVGroup.Children)
 			{
 				if (!CanRequestOwnerShip(child.Id))
 				{
@@ -94,7 +71,8 @@ public class MVNetworkSelector
 
 	private static bool OwnershipTest(int id)
 	{
-		if (MVGameController.Instance.WOCM.GetWorldObjectClient(id).OwnerActorNr != 0 && MVGameController.Instance.WOCM.GetWorldObjectClient(id).OwnerActorNr != MVGameController.Instance.WOCM.LocalPlayer.ActorNr)
+		MVWorldObjectClient worldObjectClient = WOCM.GetWorldObjectClient(id);
+		if (worldObjectClient != null && worldObjectClient.OwnerActorNr != 0 && worldObjectClient.OwnerActorNr != MVGameController.Instance.Game.LocalPlayer.ActorNr)
 		{
 			return false;
 		}
@@ -103,16 +81,18 @@ public class MVNetworkSelector
 
 	private void RequestOwnership(int id)
 	{
-		if (MVGameController.Instance.WOCM.GetWorldObjectClient(id).OwnerActorNr != MVGameController.Instance.WOCM.LocalPlayer.ActorNr && MVGameController.Instance.WOCM.GetWorldObjectClient(id).OwnerActorNr == 0)
+		MVWorldObjectClient worldObjectClient = WOCM.GetWorldObjectClient(id);
+		if ((worldObjectClient == null || worldObjectClient.OwnerActorNr != MVGameController.Instance.Game.LocalPlayer.ActorNr) && WOCM.GetWorldObjectClient(id).OwnerActorNr == 0)
 		{
 			pendingRequestedOwnershipIds.Enqueue(id);
-			MVGameController.Instance.Game.TransferOwnership(id, MVGameController.Instance.WOCM.LocalPlayer.ActorNr);
+			MVGameController.Instance.Game.TransferOwnership(id, MVGameController.Instance.Game.LocalPlayer.ActorNr, null);
 		}
 	}
 
 	private static void RequestReleaseOwnership(int id)
 	{
-		MVGameController.Instance.Game.TransferOwnership(id, 0);
+		MVWorldObjectClient worldObjectClient = WOCM.GetWorldObjectClient(id);
+		MVGameController.Instance.Game.TransferOwnership(id, 0, worldObjectClient.Transform);
 	}
 
 	private void Instance_OnWorldObjectTransferOwnershipResponse(object sender, OnTransferOwnershipResponseEventArgs e)
@@ -128,7 +108,7 @@ public class MVNetworkSelector
 			int num = pendingRequestedOwnershipIds.Dequeue();
 			if (pendingRequestedOwnershipIds.Count == 0)
 			{
-				esm.Event = EditorEvent.EditCubes;
+				esm.Event = EditorEvent.ESTerrainEdit;
 			}
 		}
 	}

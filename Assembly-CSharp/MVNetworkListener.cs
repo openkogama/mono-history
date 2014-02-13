@@ -5,36 +5,51 @@ using UnityEngine;
 
 public class MVNetworkListener : MVNetworkObject
 {
+	private int delayedTime;
+
+	private HashSet<INetworkUpdateListener> updateListenerList = new HashSet<INetworkUpdateListener>();
+
 	private Queue<NetworkTransformPackage> transformQueue;
 
 	private Queue<NetworkInputPackage> inputQueue;
-
-	private float timeCurrentTransform;
 
 	private NetworkTransformPackage currentPackage;
 
 	private NetworkTransformPackage nextPackage;
 
-	private Vector3 calculatedVelocity = Vector3.zero;
-
 	private bool transformReportingHasStopped;
 
-	public Vector3 CalculatedVelocity
-	{
-		get
-		{
-			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-			return calculatedVelocity;
-		}
-	}
+	public int DelayedTime => delayedTime;
 
 	public MVNetworkListener(MVWorldObjectClient owner)
 		: base(owner)
 	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
 		transformQueue = new Queue<NetworkTransformPackage>();
 		inputQueue = new Queue<NetworkInputPackage>();
+	}
+
+	public void SetOwnerTransformToMostResentPackage()
+	{
+		//IL_0061: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0072: Unknown result type (might be due to invalid IL or missing references)
+		NetworkTransformPackage networkTransformPackage = null;
+		foreach (NetworkTransformPackage item in transformQueue)
+		{
+			networkTransformPackage = item;
+		}
+		if (networkTransformPackage == null)
+		{
+			networkTransformPackage = nextPackage;
+		}
+		if (networkTransformPackage == null)
+		{
+			networkTransformPackage = currentPackage;
+		}
+		if (networkTransformPackage != null)
+		{
+			WorldObject.Position = networkTransformPackage.position;
+			WorldObject.Rotation = networkTransformPackage.rotation;
+		}
 	}
 
 	public void ClearTransformQueue()
@@ -56,40 +71,47 @@ public class MVNetworkListener : MVNetworkObject
 		inputQueue.Enqueue(p);
 	}
 
+	public void AddNetorkUpdateListener(INetworkUpdateListener listener)
+	{
+		updateListenerList.Add(listener);
+	}
+
+	public void RmoveNetorkUpdateListener(INetworkUpdateListener listener)
+	{
+		updateListenerList.Remove(listener);
+	}
+
 	public override void Update(MVNetworkGame game)
 	{
-		int delayedTime = game.Peer.ServerTimeInMilliSeconds - 100 - 100 - 100;
+		delayedTime = game.ServerTimeInMilliSeconds - 100 - 100 - 100;
 		UpdateTransform(game, delayedTime);
 		UpdateInput(game, delayedTime);
+		foreach (INetworkUpdateListener updateListener in updateListenerList)
+		{
+			updateListener.OnNetworkUpdated();
+		}
 	}
 
 	private void UpdateTransform(MVNetworkGame game, int delayedTime)
 	{
-		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0026: Unknown result type (might be due to invalid IL or missing references)
-		//IL_042f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0440: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0445: Unknown result type (might be due to invalid IL or missing references)
-		//IL_044a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0404: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0424: Unknown result type (might be due to invalid IL or missing references)
-		//IL_028f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02af: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02df: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02ea: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02f0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0310: Unknown result type (might be due to invalid IL or missing references)
-		//IL_031b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0321: Unknown result type (might be due to invalid IL or missing references)
-		//IL_03b2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_03d4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_035d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_037d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_02d1: Unknown result type (might be due to invalid IL or missing references)
+		//IL_02e7: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01ac: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01c2: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01e8: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01f3: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01f9: Unknown result type (might be due to invalid IL or missing references)
+		//IL_020f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_021a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0220: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0293: Unknown result type (might be due to invalid IL or missing references)
+		//IL_02ab: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0252: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0268: Unknown result type (might be due to invalid IL or missing references)
 		if (WorldObject.State == MVWorldObjectState.Destroyed)
 		{
 			return;
 		}
-		Vector3 localPosition = WorldObject.GameObject.transform.localPosition;
 		if (!transformReportingHasStopped)
 		{
 			if (currentPackage == null && transformQueue.Count > 0)
@@ -125,6 +147,7 @@ public class MVNetworkListener : MVNetworkObject
 			{
 				num2 = (float)(delayedTime - currentPackage.timestamp) / num;
 				transformReportingHasStopped = true;
+				Debug.Log((object)"Transform reporting stopped");
 			}
 			if (num == 0f)
 			{
@@ -133,38 +156,35 @@ public class MVNetworkListener : MVNetworkObject
 			}
 			if (num2 < 0f)
 			{
-				Debug.Log((object)("Negative interpolation (" + delayedTime + " - " + currentPackage.timestamp + ") / (" + nextPackage.timestamp + " - " + currentPackage.timestamp + ") = (" + (delayedTime - currentPackage.timestamp) + ") / (" + (nextPackage.timestamp - currentPackage.timestamp) + ") = " + num2));
-				WorldObject.GameObject.transform.localPosition = currentPackage.position;
-				WorldObject.GameObject.transform.localRotation = currentPackage.rotation;
+				WorldObject.Position = currentPackage.position;
+				WorldObject.Rotation = currentPackage.rotation;
+				return;
 			}
-			else if (num2 <= 1f)
+			if (num2 <= 1f)
 			{
-				WorldObject.GameObject.transform.localPosition = Vector3.Lerp(currentPackage.position, nextPackage.position, num2);
-				WorldObject.GameObject.transform.localRotation = Quaternion.Lerp(currentPackage.rotation, nextPackage.rotation, num2);
+				WorldObject.Position = Vector3.Lerp(currentPackage.position, nextPackage.position, num2);
+				WorldObject.Rotation = Quaternion.Lerp(currentPackage.rotation, nextPackage.rotation, num2);
+				return;
+			}
+			float num3 = Mathf.Min(num2, 2f);
+			if (transformReportingHasStopped)
+			{
+				WorldObject.Position = nextPackage.position;
+				WorldObject.Rotation = nextPackage.rotation;
+				currentPackage = null;
+				nextPackage = null;
 			}
 			else
 			{
-				float num3 = Mathf.Min(num2, 2f);
-				if (transformReportingHasStopped)
-				{
-					WorldObject.GameObject.transform.localPosition = nextPackage.position;
-					WorldObject.GameObject.transform.localRotation = nextPackage.rotation;
-					currentPackage = null;
-					nextPackage = null;
-				}
-				else
-				{
-					WorldObject.GameObject.transform.localPosition = ExtrapolatePosition(Mathf.Min(num2, num3));
-					WorldObject.GameObject.transform.localRotation = ExtrapolateRotation(Mathf.Min(num2, num3));
-				}
+				WorldObject.Position = ExtrapolatePosition(Mathf.Min(num2, num3));
+				WorldObject.Rotation = ExtrapolateRotation(Mathf.Min(num2, num3));
 			}
 		}
 		else if (currentPackage != null)
 		{
-			WorldObject.GameObject.transform.localPosition = currentPackage.position;
-			WorldObject.GameObject.transform.localRotation = currentPackage.rotation;
+			WorldObject.Position = currentPackage.position;
+			WorldObject.Rotation = currentPackage.rotation;
 		}
-		calculatedVelocity = localPosition - WorldObject.GameObject.transform.localPosition;
 	}
 
 	private void UpdateInput(MVNetworkGame game, int delayedTime)

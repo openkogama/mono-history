@@ -1,10 +1,17 @@
+using System.Collections;
+using System.Collections.Generic;
+using MV.Common;
 using UnityEngine;
 
 public class MVFire : MVLogicObject
 {
+	private const string prefabPath = "Prefabs/FireObject";
+
 	private GameObject particleGO;
 
 	private GameObject audioGO;
+
+	private float ignoreDistanceSqr = 100f;
 
 	private float damageRadius = 2.5f;
 
@@ -14,21 +21,14 @@ public class MVFire : MVLogicObject
 
 	public override bool HasOutputConnector => false;
 
-	protected override void CreateMVWOC(bool local)
+	public MVFire(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+		: base(data, "Prefabs/FireObject", worldObjects)
 	{
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Expected Obj, but got Unknown
-		//IL_0061: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0066: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0070: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007a: Expected Obj, but got Unknown
-		interactionFlags = InteractionFlags.Selectable;
-		gameObject = (GameObject)Object.Instantiate(Resources.Load("Prefabs/FireObject"), Vector3.zero, Quaternion.identity);
-		((Object)gameObject).name = GetType().ToString();
-		gameObject.layer = LayerMask.NameToLayer("Logic");
-		particleGO = (GameObject)Object.Instantiate(Resources.Load("ParticleFX/Fire1"), Vector3.zero, Quaternion.identity);
+		//IL_0044: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0049: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
+		//IL_005d: Expected Obj, but got Unknown
+		particleGO = (GameObject)Object.Instantiate(Resources.Load("ParticleFX/Fire1"), gameObject.transform.position, Quaternion.identity);
 		particleGO.transform.parent = gameObject.transform;
 		ParticleEmitter[] componentsInChildren = particleGO.GetComponentsInChildren<ParticleEmitter>();
 		foreach (ParticleEmitter val in componentsInChildren)
@@ -40,16 +40,56 @@ public class MVFire : MVLogicObject
 
 	protected override void OnUpdate()
 	{
-		//IL_0040: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0050: Unknown result type (might be due to invalid IL or missing references)
-		if (InputState || InputLinkRefs.Count == 0)
+		//IL_0036: Unknown result type (might be due to invalid IL or missing references)
+		//IL_003b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0090: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0095: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0096: Unknown result type (might be due to invalid IL or missing references)
+		//IL_009b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0102: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0107: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00df: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00e0: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00e5: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00e7: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00e9: Unknown result type (might be due to invalid IL or missing references)
+		//IL_013d: Unknown result type (might be due to invalid IL or missing references)
+		if (!InputState && InputLinkRefs.Count != 0)
 		{
-			MVPlayer localPlayer = MVGameController.Instance.WOCM.LocalPlayer;
-			float num = Vector3.Distance(((Component)localPlayer.Avatar.Avatar).gameObject.transform.position, gameObject.transform.position);
-			if (num <= damageRadius)
+			return;
+		}
+		HashSet<int> localControlledWorldObjects = MVGameController.Instance.Game.PlayerController.LocalControlledWorldObjects;
+		Vector3 val = transform.position;
+		foreach (int item in localControlledWorldObjects)
+		{
+			MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(item);
+			if (worldObjectClient == null)
 			{
-				float damage = Time.deltaTime * damageValue * (1f - num / damageRadius);
-				localPlayer.Avatar.AvatarController.ApplyProximityDamage(damage);
+				continue;
+			}
+			InteractionDataHandlerBase component = worldObjectClient.GameObject.GetComponent<InteractionDataHandlerBase>();
+			if ((Object)(object)component == (Object)null)
+			{
+				continue;
+			}
+			Vector3 val2 = worldObjectClient.WorldPosition - val;
+			if (!(val2.sqrMagnitude > ignoreDistanceSqr))
+			{
+				float num = damageRadius;
+				if ((Object)(object)worldObjectClient.GameObject.collider != (Object)null)
+				{
+					Vector3 val3 = worldObjectClient.GameObject.collider.ClosestPointOnBounds(val);
+					num = Vector3.Distance(val3, val);
+				}
+				else
+				{
+					Vector3.Distance(worldObjectClient.GameObject.transform.position, val);
+				}
+				if (num <= damageRadius)
+				{
+					float damage = Time.deltaTime * damageValue * (1f - num / damageRadius);
+					component.HandleInteraction(ProximityDamageAndImpulse.Create(damage, Vector3.zero, PlayerKilledByType.Fire), interactionIsLocal: true);
+				}
 			}
 		}
 	}
@@ -60,10 +100,6 @@ public class MVFire : MVLogicObject
 		if (InputLinkRefs.Count == 0)
 		{
 			ToggleEmitter(toggle: true);
-		}
-		else
-		{
-			ToggleEmitter(toggle: false);
 		}
 	}
 
@@ -81,6 +117,7 @@ public class MVFire : MVLogicObject
 
 	public override void OnInputStateChanged()
 	{
+		Debug.Log((object)("InputState " + InputState));
 		if (InputState)
 		{
 			ToggleEmitter(toggle: true);

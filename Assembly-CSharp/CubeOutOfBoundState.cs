@@ -4,5 +4,6 @@ public enum CubeOutOfBoundState
 	OutOfBoundsAdd,
 	OutOfBoundsRemove,
 	NoChange,
-	OutOfBoundsAddEdge
+	OutOfBoundsAddEdge,
+	OutOfBoundsAddVertex
 }

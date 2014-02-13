@@ -3,45 +3,23 @@ using UnityEngine;
 
 public class EditorStateMachine : FSMEntity
 {
-	public delegate void OnCurrentMaterialChangeDelegate(byte currentMaterialId, Material currentMaterial);
-
 	public const float sqrEpsilon = 0.64f;
 
 	private MVNetworkSelector networkSelector;
 
 	private MVCameraController weCamera;
 
+	private CubeModelingStateMachine editModel = new CubeModelingStateMachine();
+
 	private SelectionController selectionController;
 
-	private byte currentMaterialId;
+	public MVNetworkSelector NetworkSelector => networkSelector;
 
-	private Material currentMaterial;
-
-	public OnCurrentMaterialChangeDelegate OnCurrentMaterialChange;
-
-	public MVCameraController WeCamera => weCamera;
+	public MVCameraController CameraController => weCamera;
 
 	public bool GridMode { get; set; }
 
-	public byte CurrentMaterialId
-	{
-		get
-		{
-			return currentMaterialId;
-		}
-		set
-		{
-			currentMaterialId = value;
-			if (OnCurrentMaterialChange != null)
-			{
-				OnCurrentMaterialChange(currentMaterialId, CurrentMaterial);
-			}
-		}
-	}
-
-	public Material CurrentMaterial => MVGameController.Instance.WOCM.MaterialRepository.GetMaterial(currentMaterialId).material;
-
-	public MVNetworkSelector NetworkSelector => networkSelector;
+	public CubeModelingStateMachine CubeModelingStateMachine => editModel;
 
 	public EditorEvent CurEvent => (EditorEvent)(int)curEvent;
 
@@ -49,15 +27,19 @@ public class EditorStateMachine : FSMEntity
 
 	public EditorEvent NextEvent => (EditorEvent)(int)nextEvent;
 
-	public int ParentGroup => selectionController.ParentGroup;
+	public ISelectionController SelectionController => selectionController;
 
-	public bool ParentGroupIsRoot => selectionController.ParentGroup == MVGameController.Instance.WOCM.RootGroup.Id;
+	public HashSet<int> SelectedIDs => selectionController.SelectedIDs;
 
 	public HashSet<MVWorldObjectClient> SelectedWOs => selectionController.SelectedWOs;
 
 	public MVWorldObjectClient SingleSelectedWO => selectionController.SingleSelectedWO;
 
-	public HashSet<int> Selected => selectionController.Selected;
+	public int ParentGroupID => selectionController.ParentGroupID;
+
+	public MVGroup ParentGroup => selectionController.ParentGroup;
+
+	public bool ParentGroupIsRoot => selectionController.ParentGroupID == MVGameController.Instance.WOCM.RootGroup.Id;
 
 	public EditorStateMachine()
 	{
@@ -69,19 +51,49 @@ public class EditorStateMachine : FSMEntity
 		GridMode = true;
 	}
 
-	public void PushParent(int id)
+	public void EnterGroup(MVGroup group)
 	{
-		selectionController.PushParent(id);
+		selectionController.EnterGroup(group);
 	}
 
-	public int PopParent()
+	public int ExitGroup()
 	{
-		return selectionController.PopParent();
+		return selectionController.ExitGroup();
 	}
 
-	public void DeSelect()
+	public int ExitGroupToRoot()
 	{
-		selectionController.DeSelect();
+		return selectionController.ExitGroupToRoot();
+	}
+
+	public MVWorldObjectClient Select(bool addToSelection, int layerMask = -5)
+	{
+		return selectionController.Select(addToSelection, showVisuals: true, layerMask);
+	}
+
+	public MVWorldObjectClient Select(VoxelHit hit, bool addToSelection)
+	{
+		return selectionController.Select(hit, addToSelection);
+	}
+
+	public void DeSelectWorldObject(MVWorldObjectClient wo)
+	{
+		selectionController.DeSelectWorldObject(wo);
+	}
+
+	public MVWorldObjectClient SelectWO(int id, bool addToSelection, bool showVisuals = true)
+	{
+		return selectionController.SelectWO(id, addToSelection, showVisuals);
+	}
+
+	public void DeSelectAll()
+	{
+		selectionController.DeSelectAll();
+	}
+
+	public void DeSelectAllExcept(int id)
+	{
+		selectionController.DeSelectAllExcept(id);
 	}
 
 	public bool IsSelected(int id)
@@ -89,30 +101,9 @@ public class EditorStateMachine : FSMEntity
 		return selectionController.IsSelected(id);
 	}
 
-	public bool Select(bool addToSelection)
-	{
-		return selectionController.Select(addToSelection);
-	}
-
-	public bool SelectWo(int id, bool addToSelection)
-	{
-		return selectionController.SelectWo(id, addToSelection);
-	}
-
-	public void SelectNewRegisteredObject(MVWorldObjectClient wo)
-	{
-		selectionController.SelectNewRegisteredObject(wo);
-	}
-
-	public int GetParentBelow(int parent, int child)
-	{
-		return selectionController.GetParentBelow(parent, child);
-	}
-
 	public override void Update()
 	{
 		base.Update();
 		CollisionDetectionTests.Update();
-		selectionController.UpdateSelectionGizmos();
 	}
 }

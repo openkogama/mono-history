@@ -91,9 +91,26 @@ public struct IntVector
 		this.z = (short)z;
 	}
 
+	public IntVector(float x, float y, float z)
+	{
+		this.x = (short)x;
+		this.y = (short)y;
+		this.z = (short)z;
+	}
+
 	public override string ToString()
 	{
 		return "x: " + x + " y: " + y + " z: " + z;
+	}
+
+	public static IntVector operator +(IntVector i1)
+	{
+		return i1;
+	}
+
+	public static IntVector operator -(IntVector i1)
+	{
+		return new IntVector(-i1.x, -i1.y, -i1.z);
 	}
 
 	public static IntVector operator +(IntVector i1, IntVector i2)

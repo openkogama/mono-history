@@ -20,5 +20,10 @@ public enum DBReasonCode
 	FriendOtherProfileRejected,
 	PurchaserIsOwner,
 	InsufficientFunds,
-	RedundantRow
+	RedundantRow,
+	NotInInventory,
+	ProductIsPurchased,
+	UnknownGameMode,
+	NoDatabaseAvailable,
+	AttemptingWriteOnReadDB
 }

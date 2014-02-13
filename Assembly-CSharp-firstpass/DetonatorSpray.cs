@@ -1,7 +1,7 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Detonator))]
 [AddComponentMenu("Detonator/Object Spray")]
+[RequireComponent(typeof(Detonator))]
 public class DetonatorSpray : DetonatorComponent
 {
 	public GameObject sprayObject;

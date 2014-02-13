@@ -8,4 +8,8 @@ public class CleanroomSetup : MonoBehaviour
 		MVInputHandlerPrioritizer component2 = ((Component)this).GetComponent<MVInputHandlerPrioritizer>();
 		component2.Register(component);
 	}
+
+	private void Start()
+	{
+	}
 }

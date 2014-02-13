@@ -5,11 +5,11 @@ public class MVGUICurrentSelectedMaterialCube : MonoBehaviour
 {
 	public delegate void OnClickDelegate();
 
+	public OnClickDelegate OnClick;
+
 	private MeshRenderer[] meshRenderers;
 
 	private UXMouseClickObject materialSelectionActivationClickObject;
-
-	public OnClickDelegate OnClick;
 
 	public Material CurrentMaterial
 	{

@@ -3,102 +3,67 @@ using UnityEngine;
 
 public class MVGUINewModelDialog : UXViewScript
 {
-	private class Size
+	public GameObject smallButton;
+
+	public GameObject mediumButton;
+
+	public GameObject largeButton;
+
+	public GameObject smallCube;
+
+	public GameObject mediumCube;
+
+	public GameObject largeCube;
+
+	public UXWindow newModelWindow;
+
+	public override void OnInitialize()
 	{
-		private UXToggle toggle;
-
-		private float scale;
-
-		public UXToggle Toggle => toggle;
-
-		public float Scale => scale;
-
-		public Size(MVGUINewModelDialog dialog, UXToggle toggle, float scale)
+		UXMouseClickObject component = smallButton.GetComponent<UXMouseClickObject>();
+		component.OnClick = (UXMouseClickObject.OnClickDelegate)Delegate.Combine(component.OnClick, (UXMouseClickObject.OnClickDelegate)((UXMouseClickObject click, Vector3 pos) =>
 		{
-			Size size = this;
-			this.toggle = toggle;
-			this.scale = scale;
-			toggle.OnToggle = (UXToggle t) =>
-			{
-				if (toggle.On)
-				{
-					Size[] sizes = dialog.sizes;
-					foreach (Size size2 in sizes)
-					{
-						if (size2 != size)
-						{
-							size2.toggle.On = false;
-						}
-					}
-				}
-			};
-		}
-	}
-
-	public UXTextField nameTextField;
-
-	public UXToggle smallToggle;
-
-	public UXToggle mediumToggle;
-
-	public UXToggle largeToggle;
-
-	public UXButton okButton;
-
-	public UXButton cancelButton;
-
-	private Size[] sizes;
-
-	public static MVGUINewModelDialog New()
-	{
-		Object val = Object.Instantiate(Resources.Load("Prefabs/GUI/NewModelDialog"));
-		MVGUINewModelDialog dialog = ((GameObject)((val is GameObject) ? val : null)).GetComponent<MVGUINewModelDialog>();
-		dialog.Initialize();
-		UXView uXView = dialog.View;
-		uXView.OnHide = (UXView.OnHideDelegate)Delegate.Combine(uXView.OnHide, (UXView.OnHideDelegate)(() =>
-		{
-			UXFullscreenColliderBox.Instance.RemoveBlockingObject(dialog);
-			Object.Destroy((Object)(object)((Component)dialog).gameObject);
+			CreateAndHide(0.25f);
 		}));
-		UXFullscreenColliderBox.Instance.AddBlockingObject(dialog);
-		return dialog;
-	}
-
-	public void Start()
-	{
-		sizes = new Size[3]
+		UXMouseClickObject component2 = mediumButton.GetComponent<UXMouseClickObject>();
+		component2.OnClick = (UXMouseClickObject.OnClickDelegate)Delegate.Combine(component2.OnClick, (UXMouseClickObject.OnClickDelegate)((UXMouseClickObject click, Vector3 pos) =>
 		{
-			new Size(this, smallToggle, 0.25f),
-			new Size(this, mediumToggle, 0.5f),
-			new Size(this, largeToggle, 1f)
-		};
-		okButton.OnClick = OKButtonOnClick;
-		cancelButton.OnClick = CancelButtonOnClick;
-		View.Initialize();
-		nameTextField.RequestFocus();
-	}
-
-	private void OKButtonOnClick()
-	{
-		MVGameController.Instance.EditorController.OnAddNewPrototype(nameTextField.Text, GetSelectedScale());
-		View.Hide();
-	}
-
-	private void CancelButtonOnClick()
-	{
-		View.Hide();
-	}
-
-	private float GetSelectedScale()
-	{
-		Size[] array = sizes;
-		foreach (Size size in array)
+			CreateAndHide(0.5f);
+		}));
+		UXMouseClickObject component3 = largeButton.GetComponent<UXMouseClickObject>();
+		component3.OnClick = (UXMouseClickObject.OnClickDelegate)Delegate.Combine(component3.OnClick, (UXMouseClickObject.OnClickDelegate)((UXMouseClickObject click, Vector3 pos) =>
 		{
-			if (size.Toggle.On)
-			{
-				return size.Scale;
-			}
-		}
-		throw new Exception("No model size selected.");
+			CreateAndHide(1f);
+		}));
+		UXWindow uXWindow = newModelWindow;
+		uXWindow.OnExitButtonClick = (UXWindow.OnExitButtonClickDelegate)Delegate.Combine(uXWindow.OnExitButtonClick, (UXWindow.OnExitButtonClickDelegate)(() =>
+		{
+			View.Hide();
+		}));
+	}
+
+	public override void OnHide()
+	{
+		base.OnHide();
+		UXFullscreenColliderBox.Instance.RemoveBlockingObject(this);
+	}
+
+	public override void OnShow()
+	{
+		base.OnShow();
+		SetMaterial(MVGameController.Instance.EditController.EditorStateMachine.CubeModelingStateMachine.CurrentMaterial);
+		UXFullscreenColliderBox.Instance.AddBlockingObject(this);
+	}
+
+	private void SetMaterial(Material material)
+	{
+		smallCube.renderer.material = material;
+		mediumCube.renderer.material = material;
+		largeCube.renderer.material = material;
+	}
+
+	private void CreateAndHide(float size)
+	{
+		MVGameController.Instance.EditController.EditorWorldObjectCreation.OnAddNewPrototype(string.Empty, size);
+		View.Hide();
 	}
 }

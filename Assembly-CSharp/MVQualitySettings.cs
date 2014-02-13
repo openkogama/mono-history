@@ -3,7 +3,11 @@ using UnityEngine;
 
 public class MVQualitySettings : MonoBehaviour
 {
-	public delegate void OnQualityLevedChanged(QualityLevel level);
+	public delegate void OnQualityLevedChanged(int level);
+
+	public const int QualitySD = 0;
+
+	public const int QualityHD = 1;
 
 	private static LodData[] lodSettingsFastest = new LodData[2]
 	{
@@ -47,31 +51,19 @@ public class MVQualitySettings : MonoBehaviour
 
 	public static OnQualityLevedChanged onQualityLevelChanged;
 
-	public static LodData[] CurrentLodData
-	{
-		get
-		{
-			//IL_0005: Unknown result type (might be due to invalid IL or missing references)
-			return lodSettings[QualitySettings.currentLevel];
-		}
-	}
+	public static LodData[] CurrentLodData => lodSettings[QualitySettings.GetQualityLevel()];
 
-	public static QualityLevel CurrentLevel
+	public static int CurrentLevel
 	{
 		get
 		{
-			//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-			return QualitySettings.currentLevel;
+			return QualitySettings.GetQualityLevel();
 		}
 		set
 		{
-			//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-			//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0020: Unknown result type (might be due to invalid IL or missing references)
-			if (value != QualitySettings.currentLevel)
+			if (value != QualitySettings.GetQualityLevel())
 			{
-				QualitySettings.currentLevel = value;
+				QualitySettings.SetQualityLevel(value, true);
 				if (onQualityLevelChanged != null)
 				{
 					onQualityLevelChanged(value);
@@ -80,25 +72,11 @@ public class MVQualitySettings : MonoBehaviour
 		}
 	}
 
-	private void QualityChanged(QualityLevel level)
+	private void QualityChanged(int level)
 	{
-		//IL_001a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003a: Expected I4, but got Unknown
 		postprocessFogEffect = Object.FindObjectOfType(typeof(PostprocessFog)) as PostprocessFog;
-		switch ((int)level)
+		switch (level)
 		{
-		case 0:
-		case 1:
-		case 2:
-			Shader.globalMaximumLOD = 100;
-			break;
-		case 3:
-		case 4:
-		case 5:
-			Shader.globalMaximumLOD = 500;
-			break;
 		}
 	}
 
@@ -114,8 +92,7 @@ public class MVQualitySettings : MonoBehaviour
 
 	public void Start()
 	{
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
-		CurrentLevel = (QualityLevel)2;
+		CurrentLevel = 0;
 		QualityChanged(CurrentLevel);
 	}
 }

@@ -9,8 +9,8 @@ public class UXButtonAudio : MonoBehaviour
 	private void Awake()
 	{
 		clickSound = GUIAudioBank.Instance.GetSound("buttonClick");
-		UXButton component = ((Component)this).GetComponent<UXButton>();
-		component.OnClick = (UXButton.OnClickDelegate)Delegate.Combine(component.OnClick, new UXButton.OnClickDelegate(HandleOnClick));
+		UXTextButton component = ((Component)this).GetComponent<UXTextButton>();
+		component.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(component.OnClick, new UXBaseButton.OnClickDelegate(HandleOnClick));
 	}
 
 	private void HandleOnClick()

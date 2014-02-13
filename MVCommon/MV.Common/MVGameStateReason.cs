@@ -4,5 +4,6 @@ public enum MVGameStateReason
 {
 	None,
 	Timeout,
-	FlagCaptured
+	FlagReached,
+	AllCollectiblesFound
 }

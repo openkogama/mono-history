@@ -109,54 +109,51 @@ public class SunShafts : PostEffectsBase
 		{
 			num = 1f;
 		}
-		checked
+		RenderTexture temporary = RenderTexture.GetTemporary((int)((float)source.width / num), (int)((float)source.height / num), 0);
+		RenderTexture temporary2 = RenderTexture.GetTemporary((int)((float)source.width / num), (int)((float)source.height / num), 0);
+		Graphics.Blit((Texture)(object)source, destination);
+		if (!useDepthTexture)
 		{
-			RenderTexture temporary = RenderTexture.GetTemporary((int)((float)source.width / num), (int)((float)source.height / num), 0);
-			RenderTexture temporary2 = RenderTexture.GetTemporary((int)((float)source.width / num), (int)((float)source.height / num), 0);
-			Graphics.Blit((Texture)(object)source, destination);
-			if (!useDepthTexture)
-			{
-				RenderTexture val = (RenderTexture.active = RenderTexture.GetTemporary(source.width, source.height, 0));
-				GL.ClearWithSkybox(false, ((Component)this).camera);
-				_compMaterial.SetTexture("_Skybox", (Texture)(object)val);
-				Graphics.Blit((Texture)(object)source, source, _compMaterial);
-				RenderTexture.ReleaseTemporary(val);
-			}
-			else
-			{
-				Graphics.Blit((Texture)(object)source, source, _clearMaterial);
-			}
-			_encodeDepthRGBA8Material.SetFloat("noSkyBoxMask", 1f - useSkyBoxAlpha);
-			_encodeDepthRGBA8Material.SetFloat("dontUseSkyboxBrightness", 0f);
-			Graphics.Blit((Texture)(object)source, temporary2, _encodeDepthRGBA8Material);
-			DrawBorder(temporary2, _simpleClearMaterial);
-			Vector3 val2 = Vector3.one * 0.5f;
-			val2 = ((!Object.op_Implicit((Object)(object)sunTransform)) ? new Vector3(0.5f, 0.5f, 0f) : ((Component)this).camera.WorldToViewportPoint(sunTransform.position));
-			_radialDepthBlurMaterial.SetVector("blurRadius4", new Vector4(1f, 1f, 0f, 0f) * sunShaftBlurRadius);
-			_radialDepthBlurMaterial.SetVector("sunPosition", new Vector4(val2.x, val2.y, val2.z, maxRadius));
-			if (radialBlurIterations < 1)
-			{
-				radialBlurIterations = 1;
-			}
-			for (int i = 0; i < radialBlurIterations; i++)
-			{
-				Graphics.Blit((Texture)(object)temporary2, temporary, _radialDepthBlurMaterial);
-				Graphics.Blit((Texture)(object)temporary, temporary2, _radialDepthBlurMaterial);
-			}
-			_sunShaftsMaterial.SetFloat("sunShaftIntensity", sunShaftIntensity);
-			if (!(val2.z < 0f))
-			{
-				_sunShaftsMaterial.SetVector("sunColor", new Vector4(sunColor.r, sunColor.g, sunColor.b, sunColor.a));
-			}
-			else
-			{
-				_sunShaftsMaterial.SetVector("sunColor", new Vector4(0f, 0f, 0f, 0f));
-			}
-			_sunShaftsMaterial.SetTexture("_ColorBuffer", (Texture)(object)source);
-			Graphics.Blit((Texture)(object)temporary2, destination, _sunShaftsMaterial);
-			RenderTexture.ReleaseTemporary(temporary2);
-			RenderTexture.ReleaseTemporary(temporary);
+			RenderTexture val = (RenderTexture.active = RenderTexture.GetTemporary(source.width, source.height, 0));
+			GL.ClearWithSkybox(false, ((Component)this).camera);
+			_compMaterial.SetTexture("_Skybox", (Texture)(object)val);
+			Graphics.Blit((Texture)(object)source, source, _compMaterial);
+			RenderTexture.ReleaseTemporary(val);
 		}
+		else
+		{
+			Graphics.Blit((Texture)(object)source, source, _clearMaterial);
+		}
+		_encodeDepthRGBA8Material.SetFloat("noSkyBoxMask", 1f - useSkyBoxAlpha);
+		_encodeDepthRGBA8Material.SetFloat("dontUseSkyboxBrightness", 0f);
+		Graphics.Blit((Texture)(object)source, temporary2, _encodeDepthRGBA8Material);
+		DrawBorder(temporary2, _simpleClearMaterial);
+		Vector3 val2 = Vector3.one * 0.5f;
+		val2 = ((!Object.op_Implicit((Object)(object)sunTransform)) ? new Vector3(0.5f, 0.5f, 0f) : ((Component)this).camera.WorldToViewportPoint(sunTransform.position));
+		_radialDepthBlurMaterial.SetVector("blurRadius4", new Vector4(1f, 1f, 0f, 0f) * sunShaftBlurRadius);
+		_radialDepthBlurMaterial.SetVector("sunPosition", new Vector4(val2.x, val2.y, val2.z, maxRadius));
+		if (radialBlurIterations < 1)
+		{
+			radialBlurIterations = 1;
+		}
+		for (int i = 0; i < radialBlurIterations; i++)
+		{
+			Graphics.Blit((Texture)(object)temporary2, temporary, _radialDepthBlurMaterial);
+			Graphics.Blit((Texture)(object)temporary, temporary2, _radialDepthBlurMaterial);
+		}
+		_sunShaftsMaterial.SetFloat("sunShaftIntensity", sunShaftIntensity);
+		if (!(val2.z < 0f))
+		{
+			_sunShaftsMaterial.SetVector("sunColor", new Vector4(sunColor.r, sunColor.g, sunColor.b, sunColor.a));
+		}
+		else
+		{
+			_sunShaftsMaterial.SetVector("sunColor", new Vector4(0f, 0f, 0f, 0f));
+		}
+		_sunShaftsMaterial.SetTexture("_ColorBuffer", (Texture)(object)source);
+		Graphics.Blit((Texture)(object)temporary2, destination, _sunShaftsMaterial);
+		RenderTexture.ReleaseTemporary(temporary2);
+		RenderTexture.ReleaseTemporary(temporary);
 	}
 
 	public override void Main()

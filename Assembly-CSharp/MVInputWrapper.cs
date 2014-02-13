@@ -6,6 +6,8 @@ internal static class MVInputWrapper
 {
 	public static bool ignoreAllKeys = false;
 
+	public static bool hasLostFocus = false;
+
 	private static float prevMouseUpTime;
 
 	private static Vector3 prevMouseUpPos = default;
@@ -17,6 +19,12 @@ internal static class MVInputWrapper
 	private static HashSet<KeyCode> keyUpUsed = new HashSet<KeyCode>();
 
 	private static Dictionary<string, bool> usedAxes = new Dictionary<string, bool>();
+
+	private static Vector3 prevMousePos = default;
+
+	private static DateTime latestMouseMoveTime = DateTime.Now;
+
+	private static HashSet<KeyCode> currentKeyDownStates = new HashSet<KeyCode>();
 
 	private static Dictionary<char, KeyCode[]> char2keyCode = new Dictionary<char, KeyCode[]>
 	{
@@ -214,11 +222,31 @@ internal static class MVInputWrapper
 		}
 	};
 
+	public static DateTime LatestMouseMoveTime => latestMouseMoveTime;
+
+	public static bool ControlDown => GetKey((KeyCode)310, useKey: false, forceKeyUse: true) || GetKey((KeyCode)309, useKey: false, forceKeyUse: true) || GetKey((KeyCode)306, useKey: false, forceKeyUse: true) || GetKey((KeyCode)305, useKey: false, forceKeyUse: true);
+
 	static MVInputWrapper()
 	{
-		//IL_0008: Unknown result type (might be due to invalid IL or missing references)
 		//IL_000e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0014: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0015: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0044: Unknown result type (might be due to invalid IL or missing references)
+		//IL_004a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_004b: Unknown result type (might be due to invalid IL or missing references)
+	}
+
+	public static void Update()
+	{
+		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0005: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0050: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0055: Unknown result type (might be due to invalid IL or missing references)
+		if (Input.mousePosition != prevMousePos || Input.GetAxisRaw("Mouse ScrollWheel") > float.Epsilon || Input.GetAxisRaw("Mouse X") > float.Epsilon || Input.GetAxisRaw("Mouse Y") > float.Epsilon)
+		{
+			prevMousePos = Input.mousePosition;
+			latestMouseMoveTime = DateTime.Now;
+		}
 	}
 
 	public static void Reset()
@@ -238,6 +266,7 @@ internal static class MVInputWrapper
 			//IL_0000: Unknown result type (might be due to invalid IL or missing references)
 			return !Input.GetKeyUp(keyCode);
 		});
+		hasLostFocus = false;
 	}
 
 	public static void RegisterKeyAsUsed(char c)
@@ -280,65 +309,55 @@ internal static class MVInputWrapper
 		keyUpUsed.Add(key);
 	}
 
-	public static bool KeyDownHasBeenUsed(KeyCode key)
+	public static bool GetKey(KeyCode key, bool useKey = false, bool forceKeyUse = false)
+	{
+		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
+		return GetKey(key, useKey, (Func<KeyCode, bool>)Input.GetKey, keyUsed, forceKeyUse, false);
+	}
+
+	public static bool GetKeyDown(KeyCode key, bool useKey = false, bool forceKeyUse = false)
+	{
+		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0026: Unknown result type (might be due to invalid IL or missing references)
+		bool key2 = GetKey(key, useKey, (Func<KeyCode, bool>)Input.GetKeyDown, keyDownUsed, forceKeyUse, false);
+		if (key2)
+		{
+			currentKeyDownStates.Add(key);
+		}
+		return key2;
+	}
+
+	public static bool GetKeyUp(KeyCode key, bool useKey = false, bool forceKeyUse = false)
 	{
 		//IL_000f: Unknown result type (might be due to invalid IL or missing references)
-		return ignoreAllKeys || keyDownUsed.Contains(key);
+		//IL_0019: Unknown result type (might be due to invalid IL or missing references)
+		//IL_003f: Unknown result type (might be due to invalid IL or missing references)
+		bool focusFix = hasLostFocus && currentKeyDownStates.Contains(key);
+		bool key2 = GetKey(key, useKey, (Func<KeyCode, bool>)Input.GetKeyUp, keyUpUsed, forceKeyUse, focusFix);
+		if (key2)
+		{
+			currentKeyDownStates.Remove(key);
+		}
+		return key2;
 	}
 
-	public static bool KeyHasBeenUsed(KeyCode key)
+	private static bool GetKey(KeyCode key, bool useKey, Func<KeyCode, bool> inputFun, HashSet<KeyCode> usedKeyCodes, bool forceKeyUse, bool focusFix = false)
 	{
-		//IL_000f: Unknown result type (might be due to invalid IL or missing references)
-		return ignoreAllKeys || keyUsed.Contains(key);
-	}
-
-	public static bool KeyUpHasBeenUsed(KeyCode key)
-	{
-		//IL_000f: Unknown result type (might be due to invalid IL or missing references)
-		return ignoreAllKeys || keyUpUsed.Contains(key);
-	}
-
-	public static bool GetKey(KeyCode key)
-	{
-		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-		return GetKey(key, useKey: false);
-	}
-
-	public static bool GetKey(KeyCode key, bool useKey)
-	{
-		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-		return GetKey(key, useKey, (Func<KeyCode, bool>)Input.GetKey, keyUsed);
-	}
-
-	public static bool GetKeyDown(KeyCode key)
-	{
-		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-		return GetKeyDown(key, useKey: false);
-	}
-
-	public static bool GetKeyDown(KeyCode key, bool useKey)
-	{
-		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-		return GetKey(key, useKey, (Func<KeyCode, bool>)Input.GetKeyDown, keyDownUsed);
-	}
-
-	public static bool GetKeyUp(KeyCode key)
-	{
-		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-		return GetKeyUp(key, useKey: false);
-	}
-
-	public static bool GetKeyUp(KeyCode key, bool useKey)
-	{
-		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-		return GetKey(key, useKey, (Func<KeyCode, bool>)Input.GetKeyUp, keyUpUsed);
-	}
-
-	private static bool GetKey(KeyCode key, bool useKey, Func<KeyCode, bool> inputFun, HashSet<KeyCode> usedKeyCodes)
-	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0033: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0011: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0017: Invalid comparison between Unknown and I4
+		//IL_0041: Unknown result type (might be due to invalid IL or missing references)
+		//IL_001c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0022: Invalid comparison between Unknown and I4
+		//IL_0055: Unknown result type (might be due to invalid IL or missing references)
+		if (!forceKeyUse && ignoreAllKeys && (int)key != 323 && (int)key != 324)
+		{
+			return false;
+		}
+		if (focusFix)
+		{
+			return true;
+		}
 		bool flag = inputFun(key);
 		if (flag)
 		{
@@ -356,17 +375,17 @@ internal static class MVInputWrapper
 
 	public static bool GetDoubleClick(KeyCode key)
 	{
-		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_000f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_001c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_007a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_007f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0043: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0048: Unknown result type (might be due to invalid IL or missing references)
+		//IL_004d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0052: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0064: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0069: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0032: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0037: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0041: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0058: Unknown result type (might be due to invalid IL or missing references)
-		if (KeyHasBeenUsed(key))
+		if (ignoreAllKeys || keyUsed.Contains(key))
 		{
 			return false;
 		}

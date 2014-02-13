@@ -1,18 +1,27 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
 public class MVCubeModelFineGrainedTerrain : MVCubeModelBase
 {
-	protected override void CreateMVWOC(bool local)
+	public MVCubeModelFineGrainedTerrain(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects, Dictionary<int, RuntimePrototypeCubeModel> prototypes)
+		: base(data, worldObjects, prototypes)
 	{
-		base.CreateMVWOC(local);
 		interactionFlags = InteractionFlags.None;
-		MVGameController.Instance.WOCM.FineGrainedTerrain = this;
-	}
-
-	public override void Initialize()
-	{
 	}
 
 	public override void Destroy()
 	{
 		prototypeCubeModel.RemoveInstance(id);
+		base.Destroy();
+	}
+
+	public override void Select(Color color)
+	{
+	}
+
+	public override void Reset()
+	{
+		PrototypeCubeModel.RemoveAllCubesLocal();
 	}
 }

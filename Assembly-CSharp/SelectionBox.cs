@@ -20,6 +20,11 @@ public class SelectionBox : MonoBehaviour
 
 	private void Start()
 	{
+		((Component)this).gameObject.layer = LayerMask.NameToLayer("UIItems");
+	}
+
+	public void Init(IModelingConstraint constraint, string layer = "UIItems")
+	{
 	}
 
 	private void Update()

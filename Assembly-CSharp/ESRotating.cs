@@ -20,41 +20,69 @@ internal class ESRotating : ESStateBase
 
 	private Vector3 pivot;
 
+	private ILaserPointer laser;
+
 	public override void Enter(EditorStateMachine e)
 	{
 		//IL_003a: Unknown result type (might be due to invalid IL or missing references)
 		//IL_003f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a9: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00e1: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00e6: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00d0: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00d5: Unknown result type (might be due to invalid IL or missing references)
 		Debug.Log((object)GetType().ToString());
 		targets = new List<MVWorldObjectClient>();
-		if (!e.NetworkSelector.RequestOwnership(e.Selected))
+		if (!e.NetworkSelector.RequestOwnership(e.SelectedIDs))
 		{
 			e.PopState();
 			return;
 		}
 		prevMouseX = Input.mousePosition.x;
-		foreach (int item in e.Selected)
+		List<Transform> list = new List<Transform>();
+		foreach (int selectedID in e.SelectedIDs)
 		{
-			targets.Add(MVGameController.Instance.WOCM.GetWorldObjectClient(item));
+			MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(selectedID);
+			targets.Add(worldObjectClient);
+			list.Add(worldObjectClient.Transform);
 		}
-		pivot = SharedCubeFunctions.GetWorldCenter(targets);
+		if (targets.Count == 1)
+		{
+			pivot = targets[0].WorldPivot;
+		}
+		else
+		{
+			pivot = SharedCubeFunctions.GetWorldCenter(list);
+		}
+		laser = MVGameController.Instance.WOCM.AvatarLocal.LaserPointer;
+		laser.ChangeState(LaserPointerState.Transforming);
+		laser.LaserActive = true;
 	}
 
 	public override void Execute(EditorStateMachine e)
 	{
-		//IL_0034: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0039: Unknown result type (might be due to invalid IL or missing references)
-		//IL_019c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01a1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00dd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0125: Unknown result type (might be due to invalid IL or missing references)
-		//IL_012a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0148: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0036: Unknown result type (might be due to invalid IL or missing references)
+		//IL_003b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0237: Unknown result type (might be due to invalid IL or missing references)
+		//IL_023c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0251: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00a1: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00a7: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00bd: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00c2: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00ef: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00f4: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0111: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0116: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0138: Unknown result type (might be due to invalid IL or missing references)
+		//IL_013d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0173: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0178: Unknown result type (might be due to invalid IL or missing references)
+		//IL_019d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01ca: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01cf: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01e3: Unknown result type (might be due to invalid IL or missing references)
+		//IL_015f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0164: Unknown result type (might be due to invalid IL or missing references)
 		base.Execute(e);
 		float num = 1f;
 		if (e.GridMode)
@@ -70,19 +98,40 @@ internal class ESRotating : ESStateBase
 				float num3 = 0f;
 				if (targets.Count == 1)
 				{
-					Vector3 vector = targets[0].GameObject.transform.eulerAngles;
-					MathFunctions.RoundVector(ref vector, 0);
-					targets[0].GameObject.transform.eulerAngles = vector;
-					num3 = (float)Math.Round((float)Math.Round(targets[0].GameObject.transform.eulerAngles.y) % num, 0);
+					targets[0].WorldEulerAngles = MathFunctions.RoundVector(targets[0].WorldEulerAngles, 0);
+					double value = Math.Round(targets[0].WorldEulerAngles.y) % (double)num;
+					num3 = (float)Math.Round(value, 0);
 				}
-				foreach (MVWorldObjectClient target in targets)
+				if (targets.Count == 1)
 				{
-					target.GameObject.transform.RotateAround(pivot, Vector3.up, (0f - num2) * num - num3);
-					target.SyncRot = target.GameObject.transform.rotation;
+					Vector3 axis = Vector3.up;
+					if (targets[0].HasInteractionFlag(InteractionFlags.CanRotateX))
+					{
+						axis = Vector3.right;
+					}
+					else if (targets[0].HasInteractionFlag(InteractionFlags.CanRotateY))
+					{
+						axis = Vector3.up;
+					}
+					else if (targets[0].HasInteractionFlag(InteractionFlags.CanRotateZ))
+					{
+						axis = Vector3.forward;
+					}
+					targets[0].RotateAround(pivot, axis, (0f - num2) * num - num3);
+					targets[0].SyncRot = targets[0].WorldRotation;
+				}
+				else
+				{
+					foreach (MVWorldObjectClient target in targets)
+					{
+						target.RotateAround(pivot, Vector3.up, (0f - num2) * num - num3);
+						target.SyncRot = target.WorldRotation;
+					}
 				}
 				xAcc -= num2 * rotateThreshold;
 			}
 			prevMouseX = Input.mousePosition.x;
+			laser.UpdatePosition(pivot);
 		}
 		else
 		{
@@ -92,21 +141,21 @@ internal class ESRotating : ESStateBase
 
 	public override void Exit(EditorStateMachine e)
 	{
+		laser.ChangeState(LaserPointerState.Idle);
+		laser.LaserActive = false;
 		DoGridSnapping();
-		e.NetworkSelector.RequestReleaseOwnership(e.Selected);
+		e.NetworkSelector.RequestReleaseOwnership(e.SelectedIDs);
 	}
 
 	private void DoGridSnapping()
 	{
-		//IL_005c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0061: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0077: Unknown result type (might be due to invalid IL or missing references)
+		//IL_003e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0043: Unknown result type (might be due to invalid IL or missing references)
 		float num = 0f;
-		num = ((!MVGameController.Instance.EditorController.GridSnap) ? 0.0625f : 1f);
+		num = ((!AEditController.IsGridSnap()) ? 0.0625f : 1f);
 		foreach (MVWorldObjectClient target in targets)
 		{
-			target.GameObject.transform.position = target.GetClosestGridPoint(num, target.GameObject.transform.position);
-			target.SyncPos = target.GameObject.transform.position;
+			target.SyncPos = target.GetClosestGridPoint(num, target.WorldPosition);
 		}
 	}
 }

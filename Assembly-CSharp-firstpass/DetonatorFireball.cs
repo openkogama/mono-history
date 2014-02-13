@@ -1,7 +1,7 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Detonator))]
 [AddComponentMenu("Detonator/Fireball")]
+[RequireComponent(typeof(Detonator))]
 public class DetonatorFireball : DetonatorComponent
 {
 	private float _baseSize = 1f;

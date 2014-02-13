@@ -6,6 +6,8 @@ internal class ESWaitForClone : ESStateBase
 
 	private Quaternion rot = Quaternion.identity;
 
+	private bool goToInsert;
+
 	public ESWaitForClone()
 	{
 		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
@@ -16,26 +18,39 @@ internal class ESWaitForClone : ESStateBase
 
 	public override void Enter(EditorStateMachine e)
 	{
-		//IL_001b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0020: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0036: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003b: Unknown result type (might be due to invalid IL or missing references)
-		Debug.Log((object)"ESWaitForClone");
-		pos = e.SingleSelectedWO.GameObject.transform.position;
-		rot = e.SingleSelectedWO.GameObject.transform.rotation;
-		e.DeSelect();
+		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
+		if (e.SingleSelectedWO != null)
+		{
+			pos = e.SingleSelectedWO.WorldPosition;
+			rot = e.SingleSelectedWO.WorldRotation;
+		}
+		e.DeSelectAll();
+		if (e.Data.ContainsKey("goToInsert"))
+		{
+			goToInsert = true;
+		}
 	}
 
 	public override void Execute(EditorStateMachine e)
 	{
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0019: Unknown result type (might be due to invalid IL or missing references)
+		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
 		base.Execute(e);
 		if (e.SingleSelectedWO != null)
 		{
-			e.SingleSelectedWO.GameObject.transform.position = pos;
-			e.SingleSelectedWO.GameObject.transform.rotation = rot;
-			e.PushState(EditorEvent.ESTranslate, EditorEvent.ObjectSelected);
+			e.SingleSelectedWO.WorldPosition = pos;
+			e.SingleSelectedWO.WorldRotation = rot;
+			if (goToInsert)
+			{
+				e.PushState(EditorEvent.ESInsert, EditorEvent.ObjectSelected);
+			}
+			else
+			{
+				e.PushState(EditorEvent.ESTranslate, EditorEvent.ObjectSelected);
+			}
 		}
 	}
 

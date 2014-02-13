@@ -122,32 +122,29 @@ public class ColorCorrectionCurves : PostEffectsBase
 		//IL_018b: Unknown result type (might be due to invalid IL or missing references)
 		//IL_01ac: Unknown result type (might be due to invalid IL or missing references)
 		//IL_01cd: Unknown result type (might be due to invalid IL or missing references)
-		checked
+		if (updateTextures && redChannel != null && greenChannel != null && blueChannel != null)
 		{
-			if (updateTextures && redChannel != null && greenChannel != null && blueChannel != null)
+			for (float num = 0f; num <= 1f; num += 1f / 255f)
 			{
-				for (float num = 0f; num <= 1f; num += 1f / 255f)
-				{
-					float num2 = Mathf.Clamp(redChannel.Evaluate(num), 0f, 1f);
-					float num3 = Mathf.Clamp(greenChannel.Evaluate(num), 0f, 1f);
-					float num4 = Mathf.Clamp(blueChannel.Evaluate(num), 0f, 1f);
-					_rgbChannelTex.SetPixel((int)Mathf.Floor(num * 255f), 0, new Color(num2, num2, num2));
-					_rgbChannelTex.SetPixel((int)Mathf.Floor(num * 255f), 1, new Color(num3, num3, num3));
-					_rgbChannelTex.SetPixel((int)Mathf.Floor(num * 255f), 2, new Color(num4, num4, num4));
-					float num5 = Mathf.Clamp(zCurve.Evaluate(num), 0f, 1f);
-					_zCurve.SetPixel((int)Mathf.Floor(num * 255f), 0, new Color(num5, num5, num5));
-					num2 = Mathf.Clamp(depthRedChannel.Evaluate(num), 0f, 1f);
-					num3 = Mathf.Clamp(depthGreenChannel.Evaluate(num), 0f, 1f);
-					num4 = Mathf.Clamp(depthBlueChannel.Evaluate(num), 0f, 1f);
-					_rgbDepthChannelTex.SetPixel((int)Mathf.Floor(num * 255f), 0, new Color(num2, num2, num2));
-					_rgbDepthChannelTex.SetPixel((int)Mathf.Floor(num * 255f), 1, new Color(num3, num3, num3));
-					_rgbDepthChannelTex.SetPixel((int)Mathf.Floor(num * 255f), 2, new Color(num4, num4, num4));
-				}
-				_rgbChannelTex.Apply();
-				_rgbDepthChannelTex.Apply();
-				_zCurve.Apply();
-				updateTextures = false;
+				float num2 = Mathf.Clamp(redChannel.Evaluate(num), 0f, 1f);
+				float num3 = Mathf.Clamp(greenChannel.Evaluate(num), 0f, 1f);
+				float num4 = Mathf.Clamp(blueChannel.Evaluate(num), 0f, 1f);
+				_rgbChannelTex.SetPixel((int)Mathf.Floor(num * 255f), 0, new Color(num2, num2, num2));
+				_rgbChannelTex.SetPixel((int)Mathf.Floor(num * 255f), 1, new Color(num3, num3, num3));
+				_rgbChannelTex.SetPixel((int)Mathf.Floor(num * 255f), 2, new Color(num4, num4, num4));
+				float num5 = Mathf.Clamp(zCurve.Evaluate(num), 0f, 1f);
+				_zCurve.SetPixel((int)Mathf.Floor(num * 255f), 0, new Color(num5, num5, num5));
+				num2 = Mathf.Clamp(depthRedChannel.Evaluate(num), 0f, 1f);
+				num3 = Mathf.Clamp(depthGreenChannel.Evaluate(num), 0f, 1f);
+				num4 = Mathf.Clamp(depthBlueChannel.Evaluate(num), 0f, 1f);
+				_rgbDepthChannelTex.SetPixel((int)Mathf.Floor(num * 255f), 0, new Color(num2, num2, num2));
+				_rgbDepthChannelTex.SetPixel((int)Mathf.Floor(num * 255f), 1, new Color(num3, num3, num3));
+				_rgbDepthChannelTex.SetPixel((int)Mathf.Floor(num * 255f), 2, new Color(num4, num4, num4));
 			}
+			_rgbChannelTex.Apply();
+			_rgbDepthChannelTex.Apply();
+			_zCurve.Apply();
+			updateTextures = false;
 		}
 	}
 

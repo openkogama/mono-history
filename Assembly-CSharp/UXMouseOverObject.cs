@@ -3,13 +3,13 @@ using UnityEngine;
 [AddComponentMenu("UX/Handlers/Mouse over object")]
 public class UXMouseOverObject : MonoBehaviour
 {
-	public delegate void OnMouseOverEnterDelegate(UXMouseOverObject mouseOverObject);
+	public delegate void OnMouseOverDelegate(UXMouseOverObject mouseOverObject);
 
-	public delegate void OnMouseOverExitDelegate(UXMouseOverObject mouseOverObject);
+	public OnMouseOverDelegate OnMouseOverEnter;
 
-	public OnMouseOverEnterDelegate OnMouseOverEnter;
+	public OnMouseOverDelegate OnMouseOver;
 
-	public OnMouseOverExitDelegate OnMouseOverExit;
+	public OnMouseOverDelegate OnMouseOverExit;
 
 	public void NotifyOnMouseOverEnter()
 	{
@@ -24,6 +24,14 @@ public class UXMouseOverObject : MonoBehaviour
 		if (OnMouseOverExit != null)
 		{
 			OnMouseOverExit(this);
+		}
+	}
+
+	public void NotifyOnMouseOver()
+	{
+		if (OnMouseOver != null)
+		{
+			OnMouseOver(this);
 		}
 	}
 }

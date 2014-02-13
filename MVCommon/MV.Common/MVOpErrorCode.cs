@@ -14,6 +14,8 @@ public class MVOpErrorCode
 
 	public const int JoinDeserializationFailed = -6;
 
+	public const int JoinOperationValidationFailed = -7;
+
 	public const int PublishNotAuthorized = -2;
 
 	public const int InventoryPrototypeNotFound = -2;
@@ -27,6 +29,8 @@ public class MVOpErrorCode
 	public const int InventoryNotAuthorizedButForSale = -6;
 
 	public const int InventoryAlreadyInInventory = -7;
+
+	public const int InventoryKogamaPackageCreationFailed = -8;
 
 	public const int FriendNotFound = -2;
 

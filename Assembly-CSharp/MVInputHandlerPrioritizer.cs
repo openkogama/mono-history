@@ -20,8 +20,9 @@ public class MVInputHandlerPrioritizer : MonoBehaviour
 	{
 		try
 		{
-			foreach (IInputHandler inputHandler in inputHandlers)
+			for (int i = 0; i < inputHandlers.Count; i++)
 			{
+				IInputHandler inputHandler = inputHandlers[i];
 				if (inputHandler.HandleInput())
 				{
 					break;

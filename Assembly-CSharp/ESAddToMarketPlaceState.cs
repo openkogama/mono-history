@@ -1,0 +1,92 @@
+using MV.Common;
+using MV.WorldObject;
+using UnityEngine;
+
+internal class ESAddToMarketPlaceState : ESStateBase
+{
+	private enum AddToMarketPlaceInternalState
+	{
+		None,
+		WaitingForMarketPlaceItem,
+		CompareMarketPlaceItemWithInventoryItem,
+		WaitingForMarketPlaceInfo
+	}
+
+	private AddToMarketPlaceInternalState internalState;
+
+	private BytePacker inventoryItemData;
+
+	private BytePacker marketPlaceItemData;
+
+	public override void Enter(EditorStateMachine e)
+	{
+		int num = (int)e.Data["ItemID"];
+		if (!MVGameController.Instance.Game.PlayerRepository.PlayerInventory.TryGetValue(num, out var value))
+		{
+			Debug.LogError((object)"Item not found");
+			e.PopState();
+			return;
+		}
+		if (value.authorProfileID == MVGameController.Instance.Game.LocalPlayer.ProfileID)
+		{
+			Debug.Log((object)"Is already authorprofile. Skip to pricing, description and naming");
+			e.PopState();
+			return;
+		}
+		if (!value.resellable)
+		{
+			Debug.LogError((object)"Is not resellable");
+			e.PopState();
+			return;
+		}
+		inventoryItemData = new BytePacker(value.data);
+		internalState = AddToMarketPlaceInternalState.WaitingForMarketPlaceItem;
+		MVGameController.Instance.Game.ReceivedItemFromQuery += WOCM_ReceivedItemFromQuery;
+		MVGameController.Instance.Game.RequestMarketPlaceItem(num);
+	}
+
+	public override void Execute(EditorStateMachine e)
+	{
+		switch (internalState)
+		{
+		case AddToMarketPlaceInternalState.WaitingForMarketPlaceItem:
+			if (marketPlaceItemData != null)
+			{
+				internalState = AddToMarketPlaceInternalState.CompareMarketPlaceItemWithInventoryItem;
+			}
+			break;
+		case AddToMarketPlaceInternalState.CompareMarketPlaceItemWithInventoryItem:
+		{
+			KoGaMaPackageClient koGaMaPackageClient = new KoGaMaPackageClient(inventoryItemData, readRuntimeValues: false);
+			KoGaMaPackageClient koGaMaPackageClient2 = new KoGaMaPackageClient(marketPlaceItemData, readRuntimeValues: false);
+			float num = KoGaMaPackageClient.Compare(koGaMaPackageClient2, koGaMaPackageClient);
+			if (num <= CommonValues.CompareThreshold)
+			{
+				Debug.Log((object)$"Compare val {num} <= threshold {CommonValues.CompareThreshold}. This item can be added to marketplace");
+				internalState = AddToMarketPlaceInternalState.WaitingForMarketPlaceInfo;
+			}
+			else
+			{
+				Debug.Log((object)$"Compare val {num} > threshold {CommonValues.CompareThreshold}. This item can not be added to marketplace");
+				e.PopState();
+			}
+			koGaMaPackageClient.Destroy();
+			koGaMaPackageClient2.Destroy();
+			break;
+		}
+		case AddToMarketPlaceInternalState.WaitingForMarketPlaceInfo:
+			Debug.Log((object)AddToMarketPlaceInternalState.WaitingForMarketPlaceInfo);
+			break;
+		}
+	}
+
+	private void WOCM_ReceivedItemFromQuery(object sender, ReceivedItemFromQueryEventArgs e)
+	{
+		MVGameController.Instance.Game.ReceivedItemFromQuery -= WOCM_ReceivedItemFromQuery;
+		marketPlaceItemData = e.KoGaMaData;
+	}
+
+	public override void Exit(EditorStateMachine e)
+	{
+	}
+}

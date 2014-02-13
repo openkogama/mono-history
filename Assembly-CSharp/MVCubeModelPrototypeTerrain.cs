@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
@@ -8,14 +9,14 @@ public class MVCubeModelPrototypeTerrain : MVCubeModelBase
 
 	private int currentLODPosition;
 
-	protected override void CreateMVWOC(bool local)
+	public MVCubeModelPrototypeTerrain(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects, Dictionary<int, RuntimePrototypeCubeModel> prototypes)
+		: base(data, worldObjects, prototypes)
 	{
-		//IL_002b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0063: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0090: Unknown result type (might be due to invalid IL or missing references)
-		base.CreateMVWOC(local);
+		//IL_0038: Unknown result type (might be due to invalid IL or missing references)
+		//IL_006b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0070: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0098: Unknown result type (might be due to invalid IL or missing references)
+		//IL_009d: Unknown result type (might be due to invalid IL or missing references)
 		interactionFlags = InteractionFlags.IsTerrain;
 		MVGameController.Instance.WOCM.UpdateWorldBounds(SharedCubeFunctions.GetAxisAlignedBoundsRecursively(gameObject.transform).Value);
 		foreach (KeyValuePair<IntVector, GameObject> chunkInstance in chunkInstances)
@@ -23,7 +24,6 @@ public class MVCubeModelPrototypeTerrain : MVCubeModelBase
 			IntVector key = chunkInstance.Key;
 			LODBookkeeping.Add(new TerrainLOD(key, Scale.x * (float)CubeModelChunk.ChunkSize * new Vector3((float)key.x, (float)key.y, (float)key.z)));
 		}
-		MVGameController.Instance.WOCM.Terrain = this;
 	}
 
 	public void ChangeLODTerrain()
@@ -33,7 +33,7 @@ public class MVCubeModelPrototypeTerrain : MVCubeModelBase
 		//IL_0098: Unknown result type (might be due to invalid IL or missing references)
 		//IL_009d: Unknown result type (might be due to invalid IL or missing references)
 		float num = 100f;
-		Vector3 val = ((Component)MVGameController.Instance.WOCM.WeCamera).transform.position;
+		Vector3 val = ((Component)MVGameController.Instance.Game.CameraController).transform.position;
 		int num2 = Mathf.Max(1, Mathf.RoundToInt(num * Time.deltaTime));
 		for (int i = 0; i < num2; i++)
 		{
@@ -85,28 +85,25 @@ public class MVCubeModelPrototypeTerrain : MVCubeModelBase
 	{
 		if (!MVQualitySettings.CurrentLodData[terrainLOD.lodId].isVisible)
 		{
-			if (chunk.active)
+			if (chunk.renderer.enabled)
 			{
-				chunk.SetActiveRecursively(false);
+				chunk.renderer.enabled = false;
 			}
 			return;
 		}
-		if (!chunk.active)
+		if (!chunk.renderer.enabled)
 		{
-			chunk.SetActiveRecursively(true);
+			chunk.renderer.enabled = true;
 		}
 		CubeModelChunk cubeModelChunk = prototypeCubeModel.Chunks[terrainLOD.localPos];
 		chunk.GetComponent<MeshFilter>().sharedMesh = cubeModelChunk.GetMeshData(MVQualitySettings.CurrentLodData[terrainLOD.lodId].mipMeshSetting).mesh;
 		((Renderer)chunk.GetComponent<MeshRenderer>()).sharedMaterials = cubeModelChunk.GetMeshData(MVQualitySettings.CurrentLodData[terrainLOD.lodId].mipMeshSetting).materials;
 	}
 
-	public override void Initialize()
-	{
-	}
-
 	public override void Destroy()
 	{
 		prototypeCubeModel.RemoveInstance(id);
+		base.Destroy();
 	}
 
 	public override void Select(Color color)

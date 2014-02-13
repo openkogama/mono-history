@@ -11,12 +11,8 @@ public class UXMouseOverAudio : MonoBehaviour
 	private void Awake()
 	{
 		sound = GUIAudioBank.Instance.GetSound("hover");
-		if ((Object)(object)((Component)this).GetComponent<UXMouseOverObject>() == (Object)null)
-		{
-			Debug.LogError((object)((Object)((Component)this).gameObject).name);
-		}
-		UXMouseOverObject component = ((Component)this).GetComponent<UXMouseOverObject>();
-		component.OnMouseOverEnter = (UXMouseOverObject.OnMouseOverEnterDelegate)Delegate.Combine(component.OnMouseOverEnter, new UXMouseOverObject.OnMouseOverEnterDelegate(HandleMouseOverEnter));
+		UXMouseOverObject uXMouseOverObject = UXUtils.AddComponentIfNotExists<UXMouseOverObject>(((Component)this).gameObject);
+		uXMouseOverObject.OnMouseOverEnter = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(uXMouseOverObject.OnMouseOverEnter, new UXMouseOverObject.OnMouseOverDelegate(HandleMouseOverEnter));
 	}
 
 	private void HandleMouseOverEnter(UXMouseOverObject mouseOverObject)

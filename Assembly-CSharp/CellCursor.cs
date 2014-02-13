@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
 
-public class CellCursor : IModelCursor
+public class CellCursor : ICursor
 {
 	private List<CellCursorCubeLineMesh> cursorCubes = new List<CellCursorCubeLineMesh>();
 
@@ -25,7 +25,7 @@ public class CellCursor : IModelCursor
 		}
 	}
 
-	public void Destroy()
+	public void Remove()
 	{
 		foreach (CellCursorCubeLineMesh cursorCube in cursorCubes)
 		{

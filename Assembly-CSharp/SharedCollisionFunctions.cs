@@ -36,10 +36,16 @@ public static class SharedCollisionFunctions
 		//IL_002d: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0032: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0037: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0038: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0039: Unknown result type (might be due to invalid IL or missing references)
+		//IL_003e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_003f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0040: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0045: Unknown result type (might be due to invalid IL or missing references)
 		Vector3 vector = localSpaceBounds.min + Vector3.one * 0.51f;
 		Vector3 vector2 = localSpaceBounds.max + Vector3.one * 0.49f;
-		MathFunctions.FloorVector(ref vector);
-		MathFunctions.FloorVector(ref vector2);
+		vector = MathFunctions.FloorVector(vector);
+		vector2 = MathFunctions.FloorVector(vector2);
 		for (int i = 0; i < 3; i++)
 		{
 			min[i] = (short)vector[i];

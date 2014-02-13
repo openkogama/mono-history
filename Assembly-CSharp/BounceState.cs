@@ -7,16 +7,20 @@ public class BounceState
 
 	private float impactVelSlopeNormalMinDot = 0.2f;
 
-	private float minBounceVal = 2f;
+	private float minBounceVal = 40f;
 
-	public Vector3 bounceVelocity = Vector3.zero;
+	private float bounceStrengthThres = 10f;
 
-	public bool bounced;
+	private Vector3 bounceVelocity = Vector3.zero;
+
+	private bool bounced;
+
+	public bool Bounced => bounced;
 
 	public BounceState()
 	{
-		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0027: Unknown result type (might be due to invalid IL or missing references)
+		//IL_002d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0032: Unknown result type (might be due to invalid IL or missing references)
 		SetValuesToTweakSheet();
 	}
 
@@ -44,48 +48,55 @@ public class BounceState
 		return velocity;
 	}
 
-	public void UpdateBounceState(List<MVControllerColliderHit> moveHits)
+	public void UpdateBounceState(List<MVControllerColliderHit> moveHits, MVInteractableBase interactableLocal)
 	{
-		//IL_003b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0040: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0049: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0050: Unknown result type (might be due to invalid IL or missing references)
+		//IL_004d: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0052: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0056: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0112: Unknown result type (might be due to invalid IL or missing references)
+		//IL_005b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_005d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0062: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0064: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0068: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0119: Unknown result type (might be due to invalid IL or missing references)
-		//IL_011e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0123: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0135: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0141: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0120: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0125: Unknown result type (might be due to invalid IL or missing references)
+		//IL_012a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0157: Unknown result type (might be due to invalid IL or missing references)
+		//IL_015e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0163: Unknown result type (might be due to invalid IL or missing references)
 		MVControllerColliderHit mVControllerColliderHit = default;
 		bool flag = false;
+		bounced = false;
 		foreach (MVControllerColliderHit moveHit in moveHits)
 		{
 			MVControllerColliderHit current = moveHit;
-			if (current.material.physicalProperties.bouncyness > 0f)
+			float num = interactableLocal.HandleModifierEffect(AvatarModifierEffect.Bounciness, current.material.physicalProperties.bouncyness);
+			if (num > 0f)
 			{
 				Vector3 val = current.impactVelocity;
 				val.Normalize();
 				val = -val;
-				if (Vector3.Dot(val, current.slopeNormal) > impactVelSlopeNormalMinDot && current.impactVelocity.magnitude * current.material.physicalProperties.bouncyness > minBounceVal)
+				if (Vector3.Dot(val, current.slopeNormal) > impactVelSlopeNormalMinDot && current.impactVelocity.magnitude * num > minBounceVal)
 				{
 					mVControllerColliderHit = current;
 					flag = true;
+					bounced = true;
 					break;
 				}
 			}
 		}
 		if (flag)
 		{
-			float bouncyness = mVControllerColliderHit.material.physicalProperties.bouncyness;
-			float targetJumpHeight = Mathf.Clamp(MVPhysics.CalculateJumpForceFromVerticalVelocity(mVControllerColliderHit.impactVelocity.magnitude) * bouncyness, 0f, maxHeight * bouncyness);
-			float num = MVPhysics.CalculateJumpVerticalSpeed(targetJumpHeight);
+			float num2 = interactableLocal.HandleModifierEffect(AvatarModifierEffect.Bounciness, mVControllerColliderHit.material.physicalProperties.bouncyness);
+			float targetJumpHeight = Mathf.Clamp(MVPhysics.CalculateJumpForceFromVerticalVelocity(mVControllerColliderHit.impactVelocity.magnitude) * num2, 0f, maxHeight * num2);
+			float num3 = MVPhysics.CalculateJumpVerticalSpeed(targetJumpHeight);
 			bounceVelocity = GetOutVectorFromInVector(mVControllerColliderHit.slopeNormal, mVControllerColliderHit.impactVelocity);
 			bounceVelocity.Normalize();
-			bounceVelocity *= num;
+			if (num3 < bounceStrengthThres)
+			{
+				num3 *= num3 / bounceStrengthThres;
+			}
+			bounceVelocity *= num3;
 		}
 	}
 

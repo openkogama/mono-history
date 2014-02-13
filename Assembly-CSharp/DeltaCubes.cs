@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using MV.WorldObject;
+using UnityEngine;
 
 public class DeltaCubes
 {
@@ -41,6 +42,16 @@ public class DeltaCubes
 		case CubeAction.FaceChanged:
 		case CubeAction.CornersChangedDone:
 		{
+			if (!Cube.IsLegal(rpcm.GetCube(keyValuePair.Key).Corners))
+			{
+				Debug.LogError((object)"Illegal cube detected in delta cube dequeue");
+				return null;
+			}
+			if (Cube.IsCollapsed(rpcm.GetCube(keyValuePair.Key).Corners))
+			{
+				Debug.LogWarning((object)"IsCollapsed  cube detected in delta cube dequeue");
+				return null;
+			}
 			bytePacker.Write((byte)keyValuePair.Value);
 			byte[] byteCorners = rpcm.GetCube(keyValuePair.Key).ByteCorners;
 			byte[] faceMaterials = rpcm.GetCube(keyValuePair.Key).FaceMaterials;

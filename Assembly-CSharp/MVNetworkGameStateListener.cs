@@ -30,16 +30,12 @@ public class MVNetworkGameStateListener
 		currentGameState = gameStateType;
 		this.startTime = startTime;
 		this.duration = duration;
-		timeLeft = duration - (game.Peer.ServerTimeInMilliSeconds - startTime);
+		timeLeft = duration - (game.ServerTimeInMilliSeconds - startTime);
 		lastReason = reason;
 		lastInstigatorActorNr = actorNr;
 		if (OnGameStateChanged != null)
 		{
 			OnGameStateChanged(this, new GameStateChangeEventArgs(actorNr, reason));
-		}
-		if (gameStateType == MVGameStateType.Round)
-		{
-			game.ResetWorld();
 		}
 	}
 
@@ -51,7 +47,7 @@ public class MVNetworkGameStateListener
 		}
 		if (timeLeft > 0)
 		{
-			timeLeft = duration - (game.Peer.ServerTimeInMilliSeconds - startTime);
+			timeLeft = duration - (game.ServerTimeInMilliSeconds - startTime);
 			if (timeLeft < 0)
 			{
 				timeLeft = 0;

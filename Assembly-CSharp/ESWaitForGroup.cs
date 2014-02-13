@@ -1,6 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using MV.WorldObject;
+using MV.Common;
 using UnityEngine;
 
 internal class ESWaitForGroup : ESStateBase
@@ -8,7 +9,8 @@ internal class ESWaitForGroup : ESStateBase
 	private enum WaitForGroupsState
 	{
 		WaitingForLock,
-		WaitingForGroup
+		WaitingForGroup,
+		WaitingForTransferWos
 	}
 
 	private bool abort;
@@ -21,10 +23,12 @@ internal class ESWaitForGroup : ESStateBase
 
 	private WaitForGroupsState state;
 
+	private int createGroupId = -1;
+
 	public override void Enter(EditorStateMachine e)
 	{
 		e.LockState = true;
-		if (e.Selected.Count == 0 || e.Selected.Count == 1)
+		if (e.SelectedIDs.Count == 0 || e.SelectedIDs.Count == 1)
 		{
 			e.LockState = false;
 			e.PopState();
@@ -32,11 +36,12 @@ internal class ESWaitForGroup : ESStateBase
 		}
 		lockList = new List<int>();
 		state = WaitForGroupsState.WaitingForLock;
-		MVGameController.Instance.WOCM.OnHierarchyLockedResponse += WOCM_OnHierarchyLockedResponse;
-		foreach (int item in e.Selected)
+		MVWorldObjectClientManager wOCM = MVGameController.Instance.WOCM;
+		wOCM.OnHierarchyLockedResponse = (EventHandler<OnHierarchyLockedEventArgs>)Delegate.Combine(wOCM.OnHierarchyLockedResponse, new EventHandler<OnHierarchyLockedEventArgs>(WOCM_OnHierarchyLockedResponse));
+		foreach (int selectedID in e.SelectedIDs)
 		{
-			lockList.Add(item);
-			MVGameController.Instance.Game.LockHierarchy(item, lockHierarchy: true);
+			lockList.Add(selectedID);
+			MVGameController.Instance.Game.LockHierarchy(selectedID, lockHierarchy: true);
 		}
 		lockCount = lockList.Count;
 	}
@@ -53,22 +58,35 @@ internal class ESWaitForGroup : ESStateBase
 		switch (state)
 		{
 		case WaitForGroupsState.WaitingForLock:
+			if (responseReceived)
+			{
+				CreateGroup(e);
+				state = WaitForGroupsState.WaitingForGroup;
+				responseReceived = false;
+			}
+			break;
+		case WaitForGroupsState.WaitingForGroup:
+		{
 			if (!responseReceived)
 			{
 				break;
 			}
-			GroupSelected(e);
+			MVWorldObjectClientManager wOCM = MVGameController.Instance.WOCM;
+			wOCM.OnTransferWosResponse = (EventHandler<OnTransferWosResponseEventArgs>)Delegate.Combine(wOCM.OnTransferWosResponse, new EventHandler<OnTransferWosResponseEventArgs>(WOCM_OnTransferWosResponse));
+			MVGameController.Instance.Game.TransferWorldObjectsToGroup(createGroupId, lockList.ToArray());
 			foreach (int @lock in lockList)
 			{
 				MVGameController.Instance.Game.LockHierarchy(@lock, lockHierarchy: false);
 			}
-			state = WaitForGroupsState.WaitingForGroup;
+			MVGameController.Instance.Game.TransferOwnership(createGroupId, 0, null);
+			state = WaitForGroupsState.WaitingForTransferWos;
 			responseReceived = false;
-			e.DeSelect();
 			break;
-		case WaitForGroupsState.WaitingForGroup:
+		}
+		case WaitForGroupsState.WaitingForTransferWos:
 			if (responseReceived)
 			{
+				e.SelectWO(createGroupId, addToSelection: false);
 				e.LockState = false;
 				e.PopState();
 			}
@@ -76,31 +94,41 @@ internal class ESWaitForGroup : ESStateBase
 		}
 	}
 
-	public void GroupSelected(EditorStateMachine e)
-	{
-		//IL_006a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ab: Unknown result type (might be due to invalid IL or missing references)
-		Hashtable hashtable = new Hashtable();
-		Hashtable hashtable2 = new Hashtable();
-		HashSet<MVWorldObjectClient> selectedWOs = e.SelectedWOs;
-		foreach (int @lock in lockList)
-		{
-			hashtable2.Add(@lock, (byte)0);
-		}
-		hashtable.Add("children", hashtable2);
-		Vector3 worldCenter = SharedCubeFunctions.GetWorldCenter(selectedWOs);
-		MVGameController.Instance.WOCM.OnWorldObjectRegisterResponse += WOCM_OnWorldObjectRegisterResponse;
-		MVGameController.Instance.Game.RegisterWorldObject(WorldObjectType.Group, e.ParentGroup, hashtable, new Hashtable(), worldCenter, Quaternion.identity, Vector3.one, localOwner: true, transferOwnershipToServerOnLeave: true);
-	}
-
-	private void WOCM_OnWorldObjectRegisterResponse(object sender, OnWorldObjectRegisterResponseEventArgs e)
+	private void WOCM_OnTransferWosResponse(object sender, OnTransferWosResponseEventArgs e)
 	{
 		responseReceived = true;
-		MVGameController.Instance.Game.TransferOwnership(e.worldObjectID, 0);
-		MVGameController.Instance.WOCM.OnWorldObjectRegisterResponse -= WOCM_OnWorldObjectRegisterResponse;
+		MVWorldObjectClientManager wOCM = MVGameController.Instance.WOCM;
+		wOCM.OnTransferWosResponse = (EventHandler<OnTransferWosResponseEventArgs>)Delegate.Remove(wOCM.OnTransferWosResponse, new EventHandler<OnTransferWosResponseEventArgs>(WOCM_OnTransferWosResponse));
+	}
+
+	public void CreateGroup(EditorStateMachine e)
+	{
+		//IL_0049: Unknown result type (might be due to invalid IL or missing references)
+		//IL_004e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0095: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0096: Unknown result type (might be due to invalid IL or missing references)
+		//IL_009b: Unknown result type (might be due to invalid IL or missing references)
+		List<Transform> list = new List<Transform>();
+		foreach (MVWorldObjectClient selectedWO in e.SelectedWOs)
+		{
+			list.Add(selectedWO.Transform);
+		}
+		Vector3 worldCenter = SharedCubeFunctions.GetWorldCenter(list);
+		World world = MVGameController.Instance.Game.World;
+		world.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Combine(world.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(WOCM_InitializedGameQueryData));
+		MVGameController.Instance.Game.RequestBuiltInItem(BuiltInItem.Group, e.ParentGroupID, new Hashtable(), worldCenter, Quaternion.identity, Vector3.one, localOwner: true, transferOwnershipToServerOnLeave: true);
+	}
+
+	private void WOCM_InitializedGameQueryData(object sender, InitializedGameQueryDataEventArgs e)
+	{
+		if (MVGameController.Instance.Game.LocalPlayerActorNumber == e.InstigatorActorNumber)
+		{
+			responseReceived = true;
+			createGroupId = e.RootWO.Id;
+			World world = MVGameController.Instance.Game.World;
+			world.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Remove(world.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(WOCM_InitializedGameQueryData));
+			Debug.Log((object)"Received group");
+		}
 	}
 
 	private void WOCM_OnHierarchyLockedResponse(object sender, OnHierarchyLockedEventArgs e)
@@ -112,7 +140,8 @@ internal class ESWaitForGroup : ESStateBase
 			if (lockCount == 0)
 			{
 				responseReceived = true;
-				MVGameController.Instance.WOCM.OnHierarchyLockedResponse -= WOCM_OnHierarchyLockedResponse;
+				MVWorldObjectClientManager wOCM = MVGameController.Instance.WOCM;
+				wOCM.OnHierarchyLockedResponse = (EventHandler<OnHierarchyLockedEventArgs>)Delegate.Remove(wOCM.OnHierarchyLockedResponse, new EventHandler<OnHierarchyLockedEventArgs>(WOCM_OnHierarchyLockedResponse));
 			}
 			return;
 		}
@@ -121,7 +150,8 @@ internal class ESWaitForGroup : ESStateBase
 			MVGameController.Instance.Game.LockHierarchy(@lock, lockHierarchy: false);
 		}
 		abort = true;
-		MVGameController.Instance.WOCM.OnHierarchyLockedResponse -= WOCM_OnHierarchyLockedResponse;
+		MVWorldObjectClientManager wOCM2 = MVGameController.Instance.WOCM;
+		wOCM2.OnHierarchyLockedResponse = (EventHandler<OnHierarchyLockedEventArgs>)Delegate.Remove(wOCM2.OnHierarchyLockedResponse, new EventHandler<OnHierarchyLockedEventArgs>(WOCM_OnHierarchyLockedResponse));
 	}
 
 	public override void Exit(EditorStateMachine e)

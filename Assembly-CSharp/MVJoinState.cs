@@ -1,18 +1,25 @@
 public enum MVJoinState
 {
 	Joining,
+	SynchronizingGameTime,
+	FetchingCreditStatus,
+	FetchingMaterials,
 	FetchingItemTypes,
 	FetchingOwnershipTypes,
 	FetchingInventory,
-	FetchingPrototypes,
-	FetchingUserList,
+	FetchingBuiltInItems,
+	FetchingShopInventory,
+	FetchingAvatarShopInventory,
+	FetchingGameSnapShot,
 	FetchingFriends,
-	FetchingWorldObjects,
-	FetchingLinks,
-	BuildingGroupHierarchies,
+	FetchingTeamList,
+	SelectingTeam,
+	SettingTeam,
+	FetchingStreamingAssets,
+	FetchingStreamingAssetInventory,
 	CreatingAvatar,
 	SettingActorReady,
-	InitializingWorld,
 	Playing,
-	Leaving
+	Leaving,
+	FetchingActiveAvatar
 }

@@ -1,290 +1,90 @@
 using System;
 using UnityEngine;
 
-public class MVGUISelectionGizmo : MonoBehaviour
+public class MVGUISelectionGizmo : MVGUIGizmoBase
 {
-	public delegate void GizmoClickDelegate();
-
-	public UXMouseClickObject clone;
-
-	public UXMouseClickObject delete;
-
-	public UXMouseClickObject rotate;
-
-	public UXMouseClickObject xzTranslate;
-
-	public UXMouseClickObject yTranslate;
-
-	public UXMouseClickObject open;
-
-	public UXMouseClickObject editButton;
-
-	public UXMouseClickObject logicReset;
-
-	public UXMouseClickObject addToInventory;
-
-	public GizmoClickDelegate OnClone;
-
-	public GizmoClickDelegate OnDelete;
-
 	public GizmoClickDelegate OnRotate;
 
 	public GizmoClickDelegate OnXZtranslate;
 
 	public GizmoClickDelegate OnYtranslate;
 
-	public GizmoClickDelegate OnEdit;
+	public UXIconButton rotate;
 
-	public GizmoClickDelegate OnOpen;
+	public UXIconButton xzTranslate;
 
-	public GizmoClickDelegate OnLogicReset;
+	public UXIconButton yTranslateUp;
 
-	public GizmoClickDelegate OnAddToInventory;
+	public UXIconButton yTranslateDown;
 
-	private bool visible;
-
-	private bool showEditButton;
-
-	private bool showSettingsButton;
-
-	private bool showCloneButton;
-
-	private bool showLogicResetButton;
-
-	private bool showAddToInventoryButton;
-
-	private Vector3 worldPosition = Vector3.zero;
-
-	private UXCamera uxCamera;
-
-	private Camera mainCamera;
-
-	public Vector3 WorldPosition
+	protected override void InitializeGizmo()
 	{
-		get
-		{
-			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-			return worldPosition;
-		}
-		set
-		{
-			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0002: Unknown result type (might be due to invalid IL or missing references)
-			worldPosition = value;
-		}
+		base.InitializeGizmo();
+		UXMouseClickObject component = ((Component)rotate).GetComponent<UXMouseClickObject>();
+		component.OnMouseDown = (UXMouseClickObject.OnMouseDownDelegate)Delegate.Combine(component.OnMouseDown, (UXMouseClickObject.OnMouseDownDelegate)((UXMouseClickObject clickObject, Vector3 mousePos) => FireGizmoDelegate(OnRotate)));
+		UXMouseClickObject component2 = ((Component)xzTranslate).GetComponent<UXMouseClickObject>();
+		component2.OnMouseDown = (UXMouseClickObject.OnMouseDownDelegate)Delegate.Combine(component2.OnMouseDown, (UXMouseClickObject.OnMouseDownDelegate)((UXMouseClickObject clickObject, Vector3 mousePos) => FireGizmoDelegate(OnXZtranslate)));
+		UXMouseClickObject component3 = ((Component)yTranslateUp).GetComponent<UXMouseClickObject>();
+		component3.OnMouseDown = (UXMouseClickObject.OnMouseDownDelegate)Delegate.Combine(component3.OnMouseDown, (UXMouseClickObject.OnMouseDownDelegate)((UXMouseClickObject clickObject, Vector3 mousePos) => FireGizmoDelegate(OnYtranslate)));
+		UXMouseClickObject component4 = ((Component)yTranslateDown).GetComponent<UXMouseClickObject>();
+		component4.OnMouseDown = (UXMouseClickObject.OnMouseDownDelegate)Delegate.Combine(component4.OnMouseDown, (UXMouseClickObject.OnMouseDownDelegate)((UXMouseClickObject clickObject, Vector3 mousePos) => FireGizmoDelegate(OnYtranslate)));
+		InitializeMouseOverListeners();
 	}
 
-	public bool Visible
+	private bool FireGizmoDelegate(GizmoClickDelegate gizmoClick)
 	{
-		get
-		{
-			return visible;
-		}
-		set
-		{
-			visible = value;
-			UpdateVisiblity();
-		}
+		gizmoClick?.Invoke();
+		return false;
 	}
 
-	public bool ShowEditButton
+	protected override void UpdateVisibility()
 	{
-		get
-		{
-			return showEditButton;
-		}
-		set
-		{
-			showEditButton = value;
-			UpdateVisiblity();
-		}
+		rotate.SetVisible(Visible && rotate.buttonEnabled);
+		xzTranslate.SetVisible(Visible && xzTranslate.buttonEnabled);
+		yTranslateUp.SetVisible(Visible && yTranslateUp.buttonEnabled);
+		yTranslateDown.SetVisible(Visible && yTranslateDown.buttonEnabled);
 	}
 
-	public bool ShowSettingButton
+	private void InitializeMouseOverListeners()
 	{
-		get
+		UXMouseOverObject component = ((Component)rotate).GetComponent<UXMouseOverObject>();
+		component.OnMouseOverEnter = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(component.OnMouseOverEnter, (UXMouseOverObject.OnMouseOverDelegate)((UXMouseOverObject mouseOverObject) =>
 		{
-			return showSettingsButton;
-		}
-		set
-		{
-			showSettingsButton = value;
-			UpdateVisiblity();
-		}
-	}
-
-	public bool ShowCloneButton
-	{
-		get
-		{
-			return showCloneButton;
-		}
-		set
-		{
-			showCloneButton = value;
-			UpdateVisiblity();
-		}
-	}
-
-	public bool ShowAddToInventoryButton
-	{
-		get
-		{
-			return showAddToInventoryButton;
-		}
-		set
-		{
-			showAddToInventoryButton = value;
-			UpdateVisiblity();
-		}
-	}
-
-	public bool ShowLogicResetButton
-	{
-		get
-		{
-			return showLogicResetButton;
-		}
-		set
-		{
-			showLogicResetButton = value;
-			UpdateVisiblity();
-		}
-	}
-
-	public MVGUISelectionGizmo()
-	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-	}
-
-	public void Awake()
-	{
-		uxCamera = Object.FindObjectOfType(typeof(UXCamera)) as UXCamera;
-		mainCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
-		visible = Object.op_Implicit((Object)(object)((Component)this).GetComponent<UXVisible>());
-		UXMouseClickObject uXMouseClickObject = clone;
-		uXMouseClickObject.OnMouseDown = (UXMouseClickObject.OnMouseDownDelegate)Delegate.Combine(uXMouseClickObject.OnMouseDown, (UXMouseClickObject.OnMouseDownDelegate)((UXMouseClickObject clickObject, Vector3 mousePositionWorld) =>
-		{
-			if (OnClone != null)
-			{
-				OnClone();
-			}
-			return false;
+			((Component)xzTranslate).GetComponent<UXMouseOverColorFade>().OnMouseOverExit(mouseOverObject);
+			((Component)yTranslateUp).GetComponent<UXMouseOverColorFade>().OnMouseOverExit(mouseOverObject);
 		}));
-		UXMouseClickObject uXMouseClickObject2 = rotate;
-		uXMouseClickObject2.OnMouseDown = (UXMouseClickObject.OnMouseDownDelegate)Delegate.Combine(uXMouseClickObject2.OnMouseDown, (UXMouseClickObject.OnMouseDownDelegate)((UXMouseClickObject clickObject, Vector3 mousePositionWorld) =>
+		UXMouseOverObject component2 = ((Component)xzTranslate).GetComponent<UXMouseOverObject>();
+		component2.OnMouseOverEnter = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(component2.OnMouseOverEnter, (UXMouseOverObject.OnMouseOverDelegate)((UXMouseOverObject mouseOverObject) =>
 		{
-			if (OnRotate != null)
-			{
-				OnRotate();
-			}
-			return false;
+			((Component)rotate).GetComponent<UXMouseOverColorFade>().OnMouseOverExit(mouseOverObject);
+			((Component)yTranslateUp).GetComponent<UXMouseOverColorFade>().OnMouseOverExit(mouseOverObject);
 		}));
-		UXMouseClickObject uXMouseClickObject3 = xzTranslate;
-		uXMouseClickObject3.OnMouseDown = (UXMouseClickObject.OnMouseDownDelegate)Delegate.Combine(uXMouseClickObject3.OnMouseDown, (UXMouseClickObject.OnMouseDownDelegate)((UXMouseClickObject clickObject, Vector3 mousePositionWorld) =>
+		UXMouseOverObject component3 = ((Component)xzTranslate).GetComponent<UXMouseOverObject>();
+		component3.OnMouseOverExit = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(component3.OnMouseOverExit, (UXMouseOverObject.OnMouseOverDelegate)((UXMouseOverObject mouseOverObject) =>
 		{
-			if (OnXZtranslate != null)
-			{
-				OnXZtranslate();
-			}
-			return false;
+			((Component)rotate).GetComponent<UXMouseOverColorFade>().OnMouseOverEnter(mouseOverObject);
 		}));
-		UXMouseClickObject uXMouseClickObject4 = yTranslate;
-		uXMouseClickObject4.OnMouseDown = (UXMouseClickObject.OnMouseDownDelegate)Delegate.Combine(uXMouseClickObject4.OnMouseDown, (UXMouseClickObject.OnMouseDownDelegate)((UXMouseClickObject clickObject, Vector3 mousePositionWorld) =>
+		UXMouseOverObject component4 = ((Component)yTranslateUp).GetComponent<UXMouseOverObject>();
+		component4.OnMouseOverEnter = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(component4.OnMouseOverEnter, (UXMouseOverObject.OnMouseOverDelegate)((UXMouseOverObject mouseOverObject) =>
 		{
-			if (OnYtranslate != null)
-			{
-				OnYtranslate();
-			}
-			return false;
+			((Component)yTranslateDown).GetComponent<UXMouseOverColorFade>().OnMouseOverEnter(mouseOverObject);
+			((Component)rotate).GetComponent<UXMouseOverColorFade>().OnMouseOverExit(mouseOverObject);
+			((Component)xzTranslate).GetComponent<UXMouseOverColorFade>().OnMouseOverExit(mouseOverObject);
 		}));
-		UXMouseClickObject uXMouseClickObject5 = delete;
-		uXMouseClickObject5.OnClick = (UXMouseClickObject.OnClickDelegate)Delegate.Combine(uXMouseClickObject5.OnClick, (UXMouseClickObject.OnClickDelegate)((UXMouseClickObject clickObject, Vector3 mousePositionWorld) =>
+		UXMouseOverObject component5 = ((Component)yTranslateUp).GetComponent<UXMouseOverObject>();
+		component5.OnMouseOverExit = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(component5.OnMouseOverExit, (UXMouseOverObject.OnMouseOverDelegate)((UXMouseOverObject mouseOverObject) =>
 		{
-			if (OnDelete != null)
-			{
-				OnDelete();
-			}
+			((Component)yTranslateDown).GetComponent<UXMouseOverColorFade>().OnMouseOverExit(mouseOverObject);
 		}));
-		UXMouseClickObject uXMouseClickObject6 = open;
-		uXMouseClickObject6.OnMouseDown = (UXMouseClickObject.OnMouseDownDelegate)Delegate.Combine(uXMouseClickObject6.OnMouseDown, (UXMouseClickObject.OnMouseDownDelegate)((UXMouseClickObject clickObject, Vector3 mousePositionWorld) => true));
-		UXMouseClickObject uXMouseClickObject7 = open;
-		uXMouseClickObject7.OnMouseUp = (UXMouseClickObject.OnMouseUpDelegate)Delegate.Combine(uXMouseClickObject7.OnMouseUp, (UXMouseClickObject.OnMouseUpDelegate)((UXMouseClickObject clickObject, Vector3 mousePositionWorld) =>
+		UXMouseOverObject component6 = ((Component)yTranslateDown).GetComponent<UXMouseOverObject>();
+		component6.OnMouseOverEnter = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(component6.OnMouseOverEnter, (UXMouseOverObject.OnMouseOverDelegate)((UXMouseOverObject mouseOverObject) =>
 		{
-			if (OnOpen != null)
-			{
-				OnOpen();
-			}
+			((Component)yTranslateUp).GetComponent<UXMouseOverColorFade>().OnMouseOverEnter(mouseOverObject);
 		}));
-		UXMouseClickObject uXMouseClickObject8 = editButton;
-		uXMouseClickObject8.OnClick = (UXMouseClickObject.OnClickDelegate)Delegate.Combine(uXMouseClickObject8.OnClick, (UXMouseClickObject.OnClickDelegate)((UXMouseClickObject clickObject, Vector3 mousePositionWorld) =>
+		UXMouseOverObject component7 = ((Component)yTranslateDown).GetComponent<UXMouseOverObject>();
+		component7.OnMouseOverExit = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(component7.OnMouseOverExit, (UXMouseOverObject.OnMouseOverDelegate)((UXMouseOverObject mouseOverObject) =>
 		{
-			if (OnEdit != null)
-			{
-				OnEdit();
-			}
+			((Component)yTranslateUp).GetComponent<UXMouseOverColorFade>().OnMouseOverExit(mouseOverObject);
 		}));
-		UXMouseClickObject uXMouseClickObject9 = addToInventory;
-		uXMouseClickObject9.OnClick = (UXMouseClickObject.OnClickDelegate)Delegate.Combine(uXMouseClickObject9.OnClick, (UXMouseClickObject.OnClickDelegate)((UXMouseClickObject clickObject, Vector3 mousePositionWorld) =>
-		{
-			if (OnAddToInventory != null)
-			{
-				OnAddToInventory();
-			}
-		}));
-		UXMouseClickObject uXMouseClickObject10 = logicReset;
-		uXMouseClickObject10.OnClick = (UXMouseClickObject.OnClickDelegate)Delegate.Combine(uXMouseClickObject10.OnClick, (UXMouseClickObject.OnClickDelegate)((UXMouseClickObject clickObject, Vector3 mousePositionWorld) =>
-		{
-			if (OnLogicReset != null)
-			{
-				OnLogicReset();
-			}
-		}));
-	}
-
-	public void Start()
-	{
-		Visible = false;
-	}
-
-	public void Update()
-	{
-		UpdatePosition();
-	}
-
-	public void OnEnable()
-	{
-		UpdatePosition();
-	}
-
-	private void UpdatePosition()
-	{
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0011: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005d: Unknown result type (might be due to invalid IL or missing references)
-		Vector3 val = mainCamera.WorldToScreenPoint(worldPosition);
-		if (val.z < -1f)
-		{
-			val.x = -20f;
-			val.y = -20f;
-		}
-		val.z = 10f;
-		((Component)this).transform.position = ((Component)uxCamera).camera.ScreenToWorldPoint(val);
-	}
-
-	private void UpdateVisiblity()
-	{
-		((Component)clone).gameObject.SetActiveRecursively(visible);
-		((Component)delete).gameObject.SetActiveRecursively(visible);
-		((Component)rotate).gameObject.SetActiveRecursively(visible);
-		((Component)xzTranslate).gameObject.SetActiveRecursively(visible);
-		((Component)yTranslate).gameObject.SetActiveRecursively(visible);
-		((Component)open).gameObject.SetActiveRecursively(visible && showEditButton);
-		((Component)editButton).gameObject.SetActiveRecursively(visible && showSettingsButton);
-		((Component)addToInventory).gameObject.SetActiveRecursively(visible && showAddToInventoryButton);
-		((Component)logicReset).gameObject.SetActiveRecursively(visible && showLogicResetButton);
 	}
 }

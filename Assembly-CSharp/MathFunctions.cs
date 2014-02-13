@@ -394,25 +394,58 @@ public static class MathFunctions
 		return new Vector2(v.x, v.y);
 	}
 
-	public static void RoundVector(ref Vector3 vector, int decimals)
+	public static Vector3 RoundVector(Vector3 vector, int decimals)
 	{
+		//IL_0042: Unknown result type (might be due to invalid IL or missing references)
 		vector.x = (float)Math.Round(vector.x, decimals);
 		vector.y = (float)Math.Round(vector.y, decimals);
 		vector.z = (float)Math.Round(vector.z, decimals);
+		return vector;
 	}
 
-	public static void FloorVector(ref Vector3 vector)
+	public static Vector3 FloorVector(Vector3 vector)
 	{
+		//IL_003f: Unknown result type (might be due to invalid IL or missing references)
 		vector.x = (float)Math.Floor(vector.x);
 		vector.y = (float)Math.Floor(vector.y);
 		vector.z = (float)Math.Floor(vector.z);
+		return vector;
 	}
 
-	public static void CeilVector(ref Vector3 vector)
+	public static Vector3 CeilVector(Vector3 vector)
 	{
+		//IL_0039: Unknown result type (might be due to invalid IL or missing references)
 		vector.x = Mathf.Ceil(vector.x);
 		vector.y = Mathf.Ceil(vector.y);
 		vector.z = Mathf.Ceil(vector.z);
+		return vector;
+	}
+
+	public static Vector3 TruncateVector(Vector3 vector, int digits)
+	{
+		//IL_0042: Unknown result type (might be due to invalid IL or missing references)
+		vector.x = (float)Truncate(vector.x, digits);
+		vector.y = (float)Truncate(vector.y, digits);
+		vector.z = (float)Truncate(vector.z, digits);
+		return vector;
+	}
+
+	public static double Truncate(double number, int digits)
+	{
+		double num = Math.Pow(10.0, digits);
+		int num2 = (int)(num * number);
+		return (double)num2 / num;
+	}
+
+	public static Vector3 ToVector3(this IntVector v)
+	{
+		//IL_0018: Unknown result type (might be due to invalid IL or missing references)
+		return new Vector3((float)v.x, (float)v.y, (float)v.z);
+	}
+
+	public static IntVector ToIntVector(this Vector3 v)
+	{
+		return new IntVector((short)v.x, (short)v.y, (short)v.z);
 	}
 
 	public static void Vector3ToVector2(ref Vector3 from, ref Vector2 to, int ignoreAxis)
@@ -757,14 +790,10 @@ public static class MathFunctions
 		//IL_0004: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
 		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0014: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0019: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
 		n = GetNormal(pa, pb, pc);
-		Vector3 val = lineDir + n;
-		float sqrMagnitude = val.sqrMagnitude;
-		if (sqrMagnitude >= 2f)
+		if (Vector3.Dot(n, lineDir) > 0f)
 		{
 			return false;
 		}
@@ -782,24 +811,24 @@ public static class MathFunctions
 		{
 			return false;
 		}
+		Vector3 val = default;
+		val.x = pa.x - p.x;
+		val.y = pa.y - p.y;
+		val.z = pa.z - p.z;
+		val.Normalize();
 		Vector3 val2 = default;
-		val2.x = pa.x - p.x;
-		val2.y = pa.y - p.y;
-		val2.z = pa.z - p.z;
+		val2.x = pb.x - p.x;
+		val2.y = pb.y - p.y;
+		val2.z = pb.z - p.z;
 		val2.Normalize();
 		Vector3 val3 = default;
-		val3.x = pb.x - p.x;
-		val3.y = pb.y - p.y;
-		val3.z = pb.z - p.z;
+		val3.x = pc.x - p.x;
+		val3.y = pc.y - p.y;
+		val3.z = pc.z - p.z;
 		val3.Normalize();
-		Vector3 val4 = default;
-		val4.x = pc.x - p.x;
-		val4.y = pc.y - p.y;
-		val4.z = pc.z - p.z;
-		val4.Normalize();
-		float num4 = val2.x * val3.x + val2.y * val3.y + val2.z * val3.z;
-		float num5 = val3.x * val4.x + val3.y * val4.y + val3.z * val4.z;
-		float num6 = val4.x * val2.x + val4.y * val2.y + val4.z * val2.z;
+		float num4 = val.x * val2.x + val.y * val2.y + val.z * val2.z;
+		float num5 = val2.x * val3.x + val2.y * val3.y + val2.z * val3.z;
+		float num6 = val3.x * val.x + val3.y * val.y + val3.z * val.z;
 		float num7 = (Mathf.Acos(num4) + Mathf.Acos(num5) + Mathf.Acos(num6)) * 57.29578f;
 		if (Mathf.Abs(num7 - 360f) > 0.1f)
 		{
@@ -891,5 +920,46 @@ public static class MathFunctions
 		eulerFrom.x = eulerTo.x;
 		Quaternion val2 = Quaternion.Euler(eulerFrom);
 		return Quaternion.Slerp(val, val2, Time.deltaTime * speed);
+	}
+
+	public static float Pow2(float val)
+	{
+		return val * val;
+	}
+
+	public static Matrix4x4 AbsMatrix(Matrix4x4 m)
+	{
+		//IL_0002: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0043: Unknown result type (might be due to invalid IL or missing references)
+		Matrix4x4 result = default;
+		for (int i = 0; i < 3; i++)
+		{
+			for (int j = 0; j < 3; j++)
+			{
+				result[j, i] = Mathf.Abs(m[j, i]);
+			}
+		}
+		return result;
+	}
+
+	public static Bounds FastAABBTransform(Matrix4x4 m, Bounds b)
+	{
+		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
+		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0015: Unknown result type (might be due to invalid IL or missing references)
+		//IL_001a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_001f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0024: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0025: Unknown result type (might be due to invalid IL or missing references)
+		//IL_002b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_002c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
+		Matrix4x4 val = AbsMatrix(m);
+		Vector3 val2 = m.MultiplyPoint(b.center);
+		Vector3 val3 = val.MultiplyVector(b.extents);
+		return new Bounds(val2, 2f * val3);
 	}
 }

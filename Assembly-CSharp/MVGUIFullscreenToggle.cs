@@ -6,17 +6,18 @@ public class MVGUIFullscreenToggle : MonoBehaviour
 {
 	private UXScreen screen;
 
+	public UXToggleIconButton FullScreenToggle => ((Component)this).GetComponent<UXToggleIconButton>();
+
 	private void Awake()
 	{
 		screen = Object.FindObjectOfType(typeof(UXScreen)) as UXScreen;
-		UXToggleIconButton toggleButton = ((Component)this).GetComponent<UXToggleIconButton>();
-		toggleButton.ToggleState = Screen.fullScreen;
-		UXToggleIconButton uXToggleIconButton = toggleButton;
-		uXToggleIconButton.OnToggle = (UXToggleIconButton.OnToggleDelegate)Delegate.Combine(uXToggleIconButton.OnToggle, new UXToggleIconButton.OnToggleDelegate(HandleOnToggle));
+		FullScreenToggle.SetToggleState(screen.Fullscreen);
+		UXToggleIconButton fullScreenToggle = FullScreenToggle;
+		fullScreenToggle.OnToggle = (UXToggleIconButton.OnToggleDelegate)Delegate.Combine(fullScreenToggle.OnToggle, new UXToggleIconButton.OnToggleDelegate(HandleOnToggle));
 		UXScreen uXScreen = screen;
 		uXScreen.OnFullScreenChange = (UXScreen.OnFullScreenChangeDelegate)Delegate.Combine(uXScreen.OnFullScreenChange, (UXScreen.OnFullScreenChangeDelegate)((bool fullscreen) =>
 		{
-			toggleButton.ToggleState = fullscreen;
+			FullScreenToggle.SetToggleState(fullscreen);
 		}));
 	}
 

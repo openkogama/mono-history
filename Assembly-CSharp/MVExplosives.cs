@@ -1,14 +1,18 @@
+using System.Collections;
+using System.Collections.Generic;
+using MV.Common;
+using MV.WorldObject;
 using UnityEngine;
 
-public class MVExplosives : MVLogicObject
+public class MVExplosives(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects) : MVLogicObject(data, "Prefabs/ExplosivesObject", worldObjects)
 {
+	private const string prefabPath = "Prefabs/ExplosivesObject";
+
 	private float damageRadius = 10f;
 
 	private float damageValue = 150f;
 
 	private float shockwaveAcceleration = 3500f;
-
-	private GameObject particleGO;
 
 	private GameObject audioGO;
 
@@ -17,24 +21,6 @@ public class MVExplosives : MVLogicObject
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => false;
-
-	protected override void CreateMVWOC(bool local)
-	{
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Expected Obj, but got Unknown
-		//IL_0061: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0066: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0070: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007a: Expected Obj, but got Unknown
-		interactionFlags = InteractionFlags.Selectable;
-		gameObject = (GameObject)Object.Instantiate(Resources.Load("Prefabs/ExplosivesObject"), Vector3.zero, Quaternion.identity);
-		((Object)gameObject).name = GetType().ToString();
-		gameObject.layer = LayerMask.NameToLayer("Logic");
-		particleGO = (GameObject)Object.Instantiate(Resources.Load("ParticleFX/Explosion"), Vector3.zero, Quaternion.identity);
-		particleGO.transform.parent = gameObject.transform;
-	}
 
 	public override void OnInputStateChanged()
 	{
@@ -46,36 +32,50 @@ public class MVExplosives : MVLogicObject
 
 	private void ApplyProximityDamage()
 	{
-		//IL_0025: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0035: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0095: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00aa: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00af: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c4: Unknown result type (might be due to invalid IL or missing references)
-		MVPlayer localPlayer = MVGameController.Instance.WOCM.LocalPlayer;
-		float num = Vector3.Distance(((Component)localPlayer.Avatar.Avatar).gameObject.transform.position, gameObject.transform.position);
-		if (num <= damageRadius)
+		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0062: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0067: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0077: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00d8: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00e8: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00ed: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00f2: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00f6: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00fd: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0108: Unknown result type (might be due to invalid IL or missing references)
+		//IL_010d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0111: Unknown result type (might be due to invalid IL or missing references)
+		Collider[] array = Physics.OverlapSphere(gameObject.transform.position, damageRadius, 1 << LayerMask.NameToLayer("Player"));
+		Collider[] array2 = array;
+		foreach (Collider val in array2)
 		{
-			float num2 = 1f - num / damageRadius;
-			float damage = damageValue * num2;
-			localPlayer.Avatar.AvatarController.ApplyProximityDamage(damage);
-			AvatarController avatarController = localPlayer.Avatar.AvatarController;
-			Vector3 val = ((Component)localPlayer.Avatar.Avatar).gameObject.transform.position - gameObject.transform.position;
-			avatarController.ApplyImpulse(val.normalized * num2 * shockwaveAcceleration, suspendImpactDamage: true);
+			MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(((Component)val).transform);
+			if (mVObject == null)
+			{
+				continue;
+			}
+			float num = Vector3.Distance(((Component)val).collider.ClosestPointOnBounds(gameObject.transform.position), gameObject.transform.position);
+			if (num <= damageRadius)
+			{
+				InteractionDataHandlerBase component = mVObject.GameObject.GetComponent<InteractionDataHandlerBase>();
+				if (!((Object)(object)component == (Object)null))
+				{
+					float num2 = 1f - num / damageRadius;
+					float damage = damageValue * num2;
+					Vector3 val2 = mVObject.GameObject.transform.position - gameObject.transform.position;
+					Vector3 impulse = val2.normalized * num2 * shockwaveAcceleration;
+					InteractionData interaction = ProximityDamageAndImpulse.Create(damage, impulse, PlayerKilledByType.Explosive);
+					component.HandleInteraction(interaction, interactionIsLocal: true);
+				}
+			}
 		}
 	}
 
 	public void Explode()
 	{
-		ParticleEmitter[] componentsInChildren = particleGO.GetComponentsInChildren<ParticleEmitter>();
-		foreach (ParticleEmitter val in componentsInChildren)
-		{
-			val.Emit();
-		}
+		//IL_0015: Unknown result type (might be due to invalid IL or missing references)
+		//IL_001a: Unknown result type (might be due to invalid IL or missing references)
+		Object.Instantiate(Resources.Load("ParticleFX/Explosion"), gameObject.transform.position, Quaternion.identity);
 		ApplyProximityDamage();
-		gameObject.audio.Play();
 	}
 }

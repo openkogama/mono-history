@@ -9,6 +9,7 @@ internal class ESAddLink : ESStateBase
 
 	public override void Enter(EditorStateMachine esm)
 	{
+		Debug.Log((object)"ESAddLink enter");
 		wo = esm.SingleSelectedWO;
 		if (wo == null)
 		{
@@ -37,52 +38,50 @@ internal class ESAddLink : ESStateBase
 
 	public override void Execute(EditorStateMachine e)
 	{
-		//IL_00b2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0130: Unknown result type (might be due to invalid IL or missing references)
-		base.Execute(e);
+		//IL_0079: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00c3: Unknown result type (might be due to invalid IL or missing references)
 		if (!MVInputWrapper.GetKeyUp((KeyCode)323))
 		{
 			return;
 		}
 		VoxelHit hit = default;
-		if (MVGameController.Instance.WOCM.Pick(ref hit) && hit.woId != -1 && MVGameController.Instance.WOCM.WorldObjects.ContainsKey(hit.woId))
+		if (MVGameController.Instance.WOCM.Pick(ref hit) && hit.woId != -1)
 		{
-			if (MVGameController.Instance.WOCM.WorldObjects[hit.woId].HasInputConnector && e.SingleSelectedWO.SelectedConnector == SelectedConnector.Output)
+			MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(hit.woId);
+			if (worldObjectClient != null)
 			{
-				if (MVGameController.Instance.WOCM.WorldObjects[hit.woId].IsPointOverInputConnector(Input.mousePosition))
+				if (worldObjectClient.HasInputConnector && e.SingleSelectedWO.SelectedConnector == SelectedConnector.Output)
 				{
-					tempLink.inputWOID = hit.woId;
-					AddTempLink();
+					if (worldObjectClient.IsPointOverInputConnector(Input.mousePosition))
+					{
+						tempLink.inputWOID = hit.woId;
+						DoAddLink();
+					}
+				}
+				else if (worldObjectClient.HasOutputConnector && e.SingleSelectedWO.SelectedConnector == SelectedConnector.Input && worldObjectClient.IsPointOverOutputConnector(Input.mousePosition))
+				{
+					tempLink.outputWOID = hit.woId;
+					DoAddLink();
 				}
 			}
-			else if (MVGameController.Instance.WOCM.WorldObjects[hit.woId].HasOutputConnector && e.SingleSelectedWO.SelectedConnector == SelectedConnector.Input && MVGameController.Instance.WOCM.WorldObjects[hit.woId].IsPointOverOutputConnector(Input.mousePosition))
-			{
-				tempLink.outputWOID = hit.woId;
-				AddTempLink();
-			}
 		}
-		e.PopState();
+		e.DeSelectAll();
+		if (e.ParentGroupID == MVGameController.Instance.WOCM.RootGroup.Id)
+		{
+			e.Event = EditorEvent.ESTerrainEdit;
+		}
+		else
+		{
+			e.PopState();
+		}
 	}
 
-	private bool AddTempLink()
+	private bool DoAddLink()
 	{
-		if (tempLink.outputWOID <= 0 || tempLink.inputWOID <= 0)
+		if (!MVGameController.Instance.Game.AddLink(tempLink))
 		{
 			return false;
 		}
-		if (tempLink.inputWOID == tempLink.outputWOID)
-		{
-			return false;
-		}
-		if (!MVGameController.Instance.WOCM.WorldObjects[tempLink.outputWOID].ValidateLink(tempLink))
-		{
-			return false;
-		}
-		if (!MVGameController.Instance.WOCM.LinkGraph.ValidateLink(tempLink.outputWOID, tempLink.inputWOID))
-		{
-			return false;
-		}
-		MVGameController.Instance.Game.AddLink(tempLink);
 		return true;
 	}
 

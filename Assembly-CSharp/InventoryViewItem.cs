@@ -1,259 +1,140 @@
 using System;
+using System.Collections;
+using Localize;
 using MV.WorldObject;
 using UnityEngine;
 
-public class InventoryViewItem : UXCollectionViewItem
+public class InventoryViewItem : MVGUIBasicViewItem
 {
-	public GameObject deleteButtonPrefab;
+	public UXIconButton InfoButton;
 
-	private IUXCollectionItem item;
+	protected bool _isBuilding;
 
-	private int textureSize = 128;
+	public MVWorldObjectClient WO { get; private set; }
 
-	private GameObject previewItemsRoot;
+	public ObjectPreviewer ObjectPreviewer { get; protected set; }
 
-	private UXIconButton deleteButton;
+	public Transform PreviewItemsRoot { get; set; }
 
-	private static float curX;
-
-	private float previewCamAdditionalHeight = 2.5f;
-
-	private float previewCamDist = 2.5f;
-
-	private float previewItemRotateSpeed = 9.3f;
-
-	private GameObject previewCamObject;
-
-	private Camera previewCam;
-
-	private GameObject previewGameObject;
-
-	public override IUXCollectionItem Item
+	public override void SetVisible(bool visible)
 	{
-		get
+		base.SetVisible(visible);
+		if ((Object)(object)InfoButton != (Object)null)
 		{
-			return item;
-		}
-		set
-		{
-			item = value;
+			InfoButton.SetVisible(visible: false);
 		}
 	}
 
-	public GameObject PreviewItemsRoot
+	public override void Initialize()
 	{
-		get
+		if (!_isBuilding)
 		{
-			return previewItemsRoot;
-		}
-		set
-		{
-			previewItemsRoot = value;
+			_isBuilding = true;
+			((Component)this).gameObject.active = true;
+			BuildImagePlane();
+			MVItem item = Item.Object as MVItem;
+			if ((Object)(object)InfoButton != (Object)null)
+			{
+				UXIconButton infoButton = InfoButton;
+				infoButton.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(infoButton.OnClick, new UXBaseButton.OnClickDelegate(OnOpenItemActionDialog));
+			}
+			BuildViewItem(item, 128, 128);
 		}
 	}
 
-	private Mesh BuildMesh()
+	protected void BuildViewItem(MVItem item, int previewWidth, int previewHeight)
 	{
-		return UXUtils.BuildPlaneMesh();
+		_loading = true;
+		LoadingCircle.SetVisible(Visible);
+		((MonoBehaviour)this).StartCoroutine(ItemViewRoutine(item, previewWidth, previewHeight));
 	}
 
-	public void Initialize()
+	private IEnumerator ItemViewRoutine(MVItem item, int previewWidth, int previewHeight)
 	{
-		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Expected Obj, but got Unknown
-		//IL_0084: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008a: Expected Obj, but got Unknown
-		//IL_00c8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01b3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01d0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01d5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01da: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01ed: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01f2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0204: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0209: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0214: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0219: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0224: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0229: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0259: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0277: Unknown result type (might be due to invalid IL or missing references)
-		//IL_027c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0281: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0294: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0299: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02ac: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02b1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02be: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02c3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02d0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02d5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0302: Unknown result type (might be due to invalid IL or missing references)
-		//IL_030e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0313: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0320: Unknown result type (might be due to invalid IL or missing references)
-		//IL_032e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0333: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0357: Unknown result type (might be due to invalid IL or missing references)
-		//IL_035e: Expected Obj, but got Unknown
-		//IL_0374: Unknown result type (might be due to invalid IL or missing references)
-		//IL_037b: Expected Obj, but got Unknown
-		//IL_03a5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_03af: Unknown result type (might be due to invalid IL or missing references)
-		//IL_03c0: Unknown result type (might be due to invalid IL or missing references)
-		MVItem mVItem = item.Object as MVItem;
-		previewCamObject = new GameObject();
-		previewCamObject.transform.parent = previewItemsRoot.transform;
-		((Object)previewCamObject).name = $"Preview_{mVItem.name}_RenderCam";
-		previewCamObject.layer = LayerMask.NameToLayer("Preview");
-		RenderTexture val = new RenderTexture(textureSize, textureSize, 16);
-		((Texture)val).filterMode = (FilterMode)1;
-		previewCam = previewCamObject.AddComponent<Camera>();
-		previewCam.clearFlags = (CameraClearFlags)2;
-		previewCam.backgroundColor = new Color(0f, 0f, 0f, 0f);
-		previewCam.fieldOfView = 35f;
-		previewCam.aspect = 1f;
-		previewCam.cullingMask = 1 << LayerMask.NameToLayer("Preview");
-		previewCam.near = 0.05f;
-		previewCam.far = 100f;
-		previewCam.targetTexture = val;
-		previewGameObject = new RuntimePrototypeCubeModel(mVItem).GetMesh();
-		previewGameObject.transform.parent = previewItemsRoot.transform;
-		((Object)previewGameObject).name = "Preview_" + mVItem.name + "_Item";
-		HelperFunctions.SetLayerRecursively(previewGameObject.transform, "Preview");
-		previewGameObject.transform.position = new Vector3(curX, 0f, 10f);
-		Bounds? axisAlignedBoundsRecursively = SharedCubeFunctions.GetAxisAlignedBoundsRecursively(previewGameObject.transform);
-		Bounds val2 = new Bounds(Vector3.zero, Vector3.one);
-		if (axisAlignedBoundsRecursively.HasValue)
-		{
-			val2 = axisAlignedBoundsRecursively.Value;
-		}
-		else
-		{
-			Debug.Log((object)"Failed to find bounds!");
-		}
-		float num = Mathf.Max(val2.size.x, Mathf.Max(val2.size.y, val2.size.z));
-		float num2 = 1f / num;
-		previewGameObject.transform.localScale = new Vector3(num2, num2, num2);
-		Bounds? axisAlignedBoundsRecursively2 = SharedCubeFunctions.GetAxisAlignedBoundsRecursively(previewGameObject.transform);
-		Bounds val3 = new Bounds(Vector3.zero, Vector3.one);
-		if (axisAlignedBoundsRecursively2.HasValue)
-		{
-			val3 = axisAlignedBoundsRecursively2.Value;
-		}
-		else
-		{
-			Debug.Log((object)"Failed to find bounds!");
-		}
-		float x = val3.center.x;
-		float y = val3.center.y;
-		float z = val3.center.z;
-		((Component)previewCam).transform.position = new Vector3(x, y + previewCamAdditionalHeight * num2, z - previewCamDist);
-		Vector3 center = val3.center;
-		((Component)previewCam).transform.LookAt(center);
-		curX += val2.size.x + 100f;
-		Object val4 = Resources.Load("Materials/ItemPreview");
-		Material val5 = new Material((Material)(object)((val4 is Material) ? val4 : null));
-		((Object)val5).hideFlags = (HideFlags)13;
-		val5.mainTexture = (Texture)(object)val;
-		GameObject val6 = new GameObject("Image Plane");
-		val6.layer = LayerMask.NameToLayer("UXElement");
-		val6.transform.parent = ((Component)this).transform;
-		val6.transform.localScale = Vector3.one * 6f;
-		val6.transform.localPosition = Vector3.zero;
-		MeshFilter val7 = val6.AddComponent<MeshFilter>();
-		val7.mesh = BuildMesh();
-		MeshRenderer val8 = val6.AddComponent<MeshRenderer>();
-		((Renderer)val8).material = val5;
-		UXMouseOverObject uXMouseOverObject = val6.AddComponent<UXMouseOverObject>();
-		uXMouseOverObject.OnMouseOverEnter = (UXMouseOverObject.OnMouseOverEnterDelegate)Delegate.Combine(uXMouseOverObject.OnMouseOverEnter, (UXMouseOverObject.OnMouseOverEnterDelegate)((UXMouseOverObject moo) =>
-		{
-			NotifyMouseOver();
-		}));
-		UXMouseClickObject uXMouseClickObject = val6.AddComponent<UXMouseClickObject>();
-		uXMouseClickObject.OnClick = (UXMouseClickObject.OnClickDelegate)Delegate.Combine(uXMouseClickObject.OnClick, (UXMouseClickObject.OnClickDelegate)((UXMouseClickObject clickObject, Vector3 mousePositionWorld) =>
-		{
-			NotifySelection();
-		}));
-		UXVisibility uXVisibility = val6.AddComponent<UXVisibility>();
-		val6.AddComponent<UXVisibilityMeshRenderers>();
-		val6.AddComponent<BoxCollider>();
-		val6.AddComponent<UXVisibilityCollider>();
-		InitializeDeleteButton();
-		bool mouseOver = false;
-		bool visible = false;
-		uXMouseOverObject.OnMouseOverEnter = (UXMouseOverObject.OnMouseOverEnterDelegate)Delegate.Combine(uXMouseOverObject.OnMouseOverEnter, (UXMouseOverObject.OnMouseOverEnterDelegate)((UXMouseOverObject obj) =>
-		{
-			mouseOver = true;
-			((Component)deleteButton).renderer.enabled = mouseOver && visible;
-		}));
-		uXMouseOverObject.OnMouseOverExit = (UXMouseOverObject.OnMouseOverExitDelegate)Delegate.Combine(uXMouseOverObject.OnMouseOverExit, (UXMouseOverObject.OnMouseOverExitDelegate)((UXMouseOverObject obj) =>
-		{
-			mouseOver = false;
-			((Component)deleteButton).renderer.enabled = mouseOver && visible;
-		}));
-		uXVisibility.OnVisibilityChange = (UXVisibility.VisibilityChangeDelegate)Delegate.Combine(uXVisibility.OnVisibilityChange, (UXVisibility.VisibilityChangeDelegate)((float v) =>
-		{
-			visible = v > 0f;
-			((Component)deleteButton).renderer.enabled = mouseOver && visible;
-		}));
+		KoGaMaPackageClient koGaMaPackageClient = ARepository.GetKoGaMaPackageFromItem(item);
+		WO = koGaMaPackageClient.worldObjects[koGaMaPackageClient.worldObjectRoot];
+		ObjectPreviewer = ObjectPreviewer.Create(previewWidth, previewHeight, (CameraClearFlags)2, WO.PreviewLayerMask, Vector3.zero, PreviewItemsRoot, new Vector3(100f, 100f, 10f * (float)Item.Index), item.name, WO, WO.GameObject);
+		Material previewMaterial = new Material(ItemPreviewMaterial);
+		((Object)previewMaterial).hideFlags = (HideFlags)13;
+		previewMaterial.mainTexture = (Texture)(object)ObjectPreviewer.PreviewTexture;
+		MeshRenderer meshRenderer = ((Component)ItemImagePlane).gameObject.AddComponent<MeshRenderer>();
+		((Renderer)meshRenderer).material = previewMaterial;
+		OnInventoryViewItemBuilt();
+		yield return 0;
 	}
 
-	private void InitializeDeleteButton()
+	protected virtual void OnInventoryViewItemBuilt()
 	{
-		//IL_0026: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0060: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0075: Unknown result type (might be due to invalid IL or missing references)
-		Object val = Object.Instantiate((Object)(object)deleteButtonPrefab);
-		deleteButton = ((GameObject)((val is GameObject) ? val : null)).GetComponent<UXIconButton>();
-		((Component)deleteButton).transform.localScale = Vector3.one;
-		((Component)deleteButton).transform.parent = ((Component)this).transform;
-		((Component)deleteButton).transform.localPosition = new Vector3(1.3f, 1.3f, -2f);
-		((Component)deleteButton).transform.localScale = Vector3.one;
-		UXIconButton uXIconButton = deleteButton;
-		uXIconButton.OnClick = (UXIconButton.OnClickDelegate)Delegate.Combine(uXIconButton.OnClick, (UXIconButton.OnClickDelegate)(() =>
-		{
-			NotifyRemove();
-		}));
+		_loading = false;
+		LoadingCircle.SetVisible(visible: false);
+		AddListeners();
+		IsInitialized = true;
+		_isBuilding = false;
 	}
 
-	private void NotifySelection()
+	protected virtual void AddListeners()
 	{
-		if (OnSelection != null)
+		MVItem mVItem = Item.Object as MVItem;
+		if (mVItem.itemCategoryID == 1 || mVItem.itemCategoryID == 5 || mVItem.itemCategoryID == 8)
 		{
-			OnSelection(this);
+			AddTooltip(mVItem.name);
+		}
+		if (mVItem.itemCategoryID == 6 || mVItem.itemCategoryID == 7 || mVItem.itemCategoryID == 10)
+		{
+			AddTooltip(ToolTipText.Instance.GetToolTipTextFromItemName(mVItem.name));
 		}
 	}
 
-	private void NotifyRemove()
+	private void OnOpenItemActionDialog()
 	{
-		if (OnRemove != null)
+		MVGameController.Instance.EditController.HideCurrentWindow();
+		UXDialogFactory uXDialogFactory = UXUtils.FindGUIObjectOfType<UXDialogFactory>();
+		uXDialogFactory.CreateCustomDialog("Prefabs/GUI/Item Action/ItemActionDialog", TextSlotIndex.Empty, noButtons: true).SetOnResultCallback(OnCloseItemActionDialog);
+		(uXDialogFactory.CurrentlyBuildingDialogBox as MVGUIItemActionDialog).SetMVItem(Item.Object as MVItem);
+		uXDialogFactory.Show();
+	}
+
+	private void OnCloseItemActionDialog(UXDialogBox dialogBox)
+	{
+		MVGameController.Instance.EditController.ShowInventory();
+	}
+
+	public override void OnMouseSlotOver(int slotIndex, int visiblePage)
+	{
+		base.OnMouseSlotOver(slotIndex, visiblePage);
+		if (PageIndex == visiblePage && (Object)(object)InfoButton != (Object)null)
 		{
-			OnRemove(this);
+			InfoButton.SetVisible(visible: true);
 		}
 	}
 
-	private void NotifyMouseOver()
+	public override void OnMouseSlotOverExit(int slotIndex, int visiblePage)
 	{
-		if (OnMouseOver != null)
+		base.OnMouseSlotOverExit(slotIndex, visiblePage);
+		if ((Object)(object)InfoButton != (Object)null)
 		{
-			OnMouseOver(this);
+			InfoButton.SetVisible(visible: false);
 		}
 	}
 
-	public void Update()
+	public override void Update()
 	{
-		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0027: Unknown result type (might be due to invalid IL or missing references)
-		if ((Object)(object)previewGameObject != (Object)null)
+		base.Update();
+		if (IsInitialized)
 		{
-			previewGameObject.transform.RotateAround(SharedCubeFunctions.GetWorldCenter(previewGameObject), Vector3.up, previewItemRotateSpeed * Time.deltaTime);
+			ObjectPreviewer.UpdateRotation();
 		}
 	}
 
-	public void OnDestroy()
+	public virtual void OnDestroy()
 	{
-		Object.Destroy((Object)(object)previewCamObject);
-		Object.Destroy((Object)(object)previewGameObject);
+		if (WO != null)
+		{
+			WO.Destroy();
+		}
+		if ((Object)(object)ObjectPreviewer != (Object)null)
+		{
+			ObjectPreviewer.Destroy();
+		}
 	}
 }

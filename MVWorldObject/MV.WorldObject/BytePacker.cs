@@ -216,6 +216,26 @@ public class BytePacker
 		Write((uint)value);
 	}
 
+	public void Write(ulong value)
+	{
+		Write(new byte[8]
+		{
+			(byte)(value >> 56),
+			(byte)(value >> 48),
+			(byte)(value >> 40),
+			(byte)(value >> 32),
+			(byte)(value >> 24),
+			(byte)(value >> 16),
+			(byte)(value >> 8),
+			(byte)value
+		});
+	}
+
+	public void Write(long value)
+	{
+		Write((ulong)value);
+	}
+
 	public void Write(float value)
 	{
 		byte[] bytes = BitConverter.GetBytes(value);
@@ -293,6 +313,27 @@ public class BytePacker
 		num |= _buffer[_position++] << 16;
 		num |= _buffer[_position++] << 8;
 		return num | _buffer[_position++];
+	}
+
+	public ulong ReadUInt64()
+	{
+		if (_position + 8 > _buffer.Count)
+		{
+			throw new EndOfStreamException("The end of the stream is reached.");
+		}
+		ulong num = (ulong)_buffer[_position++] << 56;
+		num |= (ulong)_buffer[_position++] << 48;
+		num |= (ulong)_buffer[_position++] << 40;
+		num |= (ulong)_buffer[_position++] << 32;
+		num |= (ulong)_buffer[_position++] << 24;
+		num |= (ulong)_buffer[_position++] << 16;
+		num |= (ulong)_buffer[_position++] << 8;
+		return num | _buffer[_position++];
+	}
+
+	public long ReadInt64()
+	{
+		return (long)ReadUInt64();
 	}
 
 	public float ReadSingle()

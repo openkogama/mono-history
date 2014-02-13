@@ -1,28 +1,25 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class MVSmoke : MVLogicObject
 {
+	private const string prefabPath = "Prefabs/SmokeObject";
+
 	private GameObject particleGO;
 
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => false;
 
-	protected override void CreateMVWOC(bool local)
+	public MVSmoke(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+		: base(data, "Prefabs/SmokeObject", worldObjects)
 	{
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Expected Obj, but got Unknown
-		//IL_0061: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0066: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0070: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007a: Expected Obj, but got Unknown
-		interactionFlags = InteractionFlags.Selectable;
-		gameObject = (GameObject)Object.Instantiate(Resources.Load("Prefabs/SmokeObject"), Vector3.zero, Quaternion.identity);
-		((Object)gameObject).name = GetType().ToString();
-		gameObject.layer = LayerMask.NameToLayer("Logic");
-		particleGO = (GameObject)Object.Instantiate(Resources.Load("ParticleFX/FluffySmoke"), Vector3.zero, Quaternion.identity);
+		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0032: Unknown result type (might be due to invalid IL or missing references)
+		//IL_003c: Expected Obj, but got Unknown
+		particleGO = (GameObject)Object.Instantiate(Resources.Load("ParticleFX/FluffySmoke"), gameObject.transform.position, Quaternion.identity);
 		particleGO.transform.parent = gameObject.transform;
 		ToggleEmitter(toggle: false);
 	}
@@ -33,10 +30,6 @@ public class MVSmoke : MVLogicObject
 		if (InputLinkRefs.Count == 0)
 		{
 			ToggleEmitter(toggle: true);
-		}
-		else
-		{
-			ToggleEmitter(toggle: false);
 		}
 	}
 

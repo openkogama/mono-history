@@ -1,112 +1,107 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public class MovementMap
 {
-	private Dictionary<NetworkInputKeyCodes, Vector3> map = new Dictionary<NetworkInputKeyCodes, Vector3>();
-
-	private bool shift;
+	private Vector3 moveDirection = Vector3.zero;
 
 	private bool jump;
+
+	private bool run;
+
+	private bool use;
+
+	private bool fire;
+
+	private bool drop;
 
 	public Vector3 Direction
 	{
 		get
 		{
-			//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0005: Unknown result type (might be due to invalid IL or missing references)
-			//IL_001e: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0024: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0025: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0026: Unknown result type (might be due to invalid IL or missing references)
-			//IL_002b: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0049: Unknown result type (might be due to invalid IL or missing references)
-			Vector3 val = Vector3.zero;
-			foreach (Vector3 value in map.Values)
-			{
-				val += value;
-			}
-			return val;
+			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
+			return moveDirection;
 		}
 	}
 
-	public bool Shift => shift;
-
-	public bool Jump
+	public bool Fire
 	{
 		get
 		{
-			return jump;
+			return fire;
 		}
 		set
 		{
-			jump = value;
+			fire = value;
 		}
 	}
 
-	public void Add(NetworkInputKeyCodes keyCode, Vector3 direction)
+	public bool Drop => drop;
+
+	public bool Run => run;
+
+	public bool Jump => jump;
+
+	public bool Use => use;
+
+	public MovementMap()
 	{
-		//IL_0018: Unknown result type (might be due to invalid IL or missing references)
-		if (!map.ContainsKey(keyCode))
-		{
-			map.Add(keyCode, direction);
-		}
+		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
 	}
 
-	public void Remove(NetworkInputKeyCodes keyCode)
+	public void HandleInputState()
 	{
-		map.Remove(keyCode);
-	}
-
-	public void Reset()
-	{
-		map.Clear();
-		shift = false;
-		jump = false;
-	}
-
-	public void Update(NetworkInputActionCodes actionCode, NetworkInputKeyCodes keyCode)
-	{
-		//IL_000e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0027: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0040: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0059: Unknown result type (might be due to invalid IL or missing references)
-		if (keyCode == NetworkInputKeyCodes.Left && actionCode == NetworkInputActionCodes.Down)
+		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
+		//IL_002c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0036: Unknown result type (might be due to invalid IL or missing references)
+		//IL_003b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_009b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00a0: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00a5: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00aa: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0066: Unknown result type (might be due to invalid IL or missing references)
+		//IL_006b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0070: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0075: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00d5: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00da: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00df: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00e4: Unknown result type (might be due to invalid IL or missing references)
+		moveDirection = Vector3.zero;
+		if (MVInputWrapper.GetKey((KeyCode)119) || MVInputWrapper.GetKey((KeyCode)273))
 		{
-			Add(NetworkInputKeyCodes.Left, Vector3.left);
+			moveDirection += Vector3.forward;
 		}
-		if (keyCode == NetworkInputKeyCodes.Right && actionCode == NetworkInputActionCodes.Down)
+		else if (MVInputWrapper.GetKey((KeyCode)115) || MVInputWrapper.GetKey((KeyCode)274))
 		{
-			Add(NetworkInputKeyCodes.Right, Vector3.right);
+			moveDirection -= Vector3.forward;
 		}
-		if (keyCode == NetworkInputKeyCodes.Up && actionCode == NetworkInputActionCodes.Down)
+		if (MVInputWrapper.GetKey((KeyCode)97) || MVInputWrapper.GetKey((KeyCode)276))
 		{
-			Add(NetworkInputKeyCodes.Up, Vector3.forward);
+			moveDirection -= Vector3.right;
 		}
-		if (keyCode == NetworkInputKeyCodes.Down && actionCode == NetworkInputActionCodes.Down)
+		else if (MVInputWrapper.GetKey((KeyCode)100) || MVInputWrapper.GetKey((KeyCode)275))
 		{
-			Add(NetworkInputKeyCodes.Down, Vector3.back);
+			moveDirection += Vector3.right;
 		}
-		if (actionCode == NetworkInputActionCodes.Up)
+		run = MVInputWrapper.GetKey((KeyCode)304) || MVInputWrapper.GetKey((KeyCode)303);
+		jump = MVInputWrapper.GetKey((KeyCode)32);
+		use = false;
+		if (MVInputWrapper.GetKeyUp((KeyCode)101))
 		{
-			Remove(keyCode);
+			use = true;
 		}
-		if (keyCode == NetworkInputKeyCodes.Shift && actionCode == NetworkInputActionCodes.Up)
+		fire = false;
+		if (MVInputWrapper.GetKey((KeyCode)323))
 		{
-			shift = false;
+			fire = true;
 		}
-		if (keyCode == NetworkInputKeyCodes.Shift && actionCode == NetworkInputActionCodes.Down)
+		drop = false;
+		if (MVInputWrapper.GetKeyUp((KeyCode)113))
 		{
-			shift = true;
-		}
-		if (keyCode == NetworkInputKeyCodes.Jump && actionCode == NetworkInputActionCodes.Down)
-		{
-			jump = true;
-		}
-		if (keyCode == NetworkInputKeyCodes.Jump && actionCode == NetworkInputActionCodes.Up)
-		{
-			jump = false;
+			drop = true;
 		}
 	}
 }

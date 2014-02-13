@@ -1,7 +1,11 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class MVPointLight : MVLogicObject, WorldObjectWithSettings, WorldObjectWithLogicReset
+public class MVPointLight : MVLogicObject
 {
+	private const string prefabPath = "Prefabs/DefaultPointLight";
+
 	private GameObject lightObject;
 
 	private Light lightComponent;
@@ -10,17 +14,11 @@ public class MVPointLight : MVLogicObject, WorldObjectWithSettings, WorldObjectW
 
 	public override bool HasOutputConnector => false;
 
-	protected override void CreateMVWOC(bool local)
+	public MVPointLight(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+		: base(data, "Prefabs/DefaultPointLight", worldObjects)
 	{
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Expected Obj, but got Unknown
-		//IL_0084: Unknown result type (might be due to invalid IL or missing references)
-		interactionFlags = InteractionFlags.Selectable;
-		gameObject = (GameObject)Object.Instantiate(Resources.Load("Prefabs/DefaultPointLight"), Vector3.zero, Quaternion.identity);
-		((Object)gameObject).name = GetType().ToString();
-		gameObject.layer = LayerMask.NameToLayer("Logic");
+		//IL_004d: Unknown result type (might be due to invalid IL or missing references)
+		interactionFlags |= InteractionFlags.HasSettings;
 		lightComponent = gameObject.GetComponent<Light>();
 		((Behaviour)lightComponent).enabled = false;
 		OnDataUpdate();
@@ -34,6 +32,10 @@ public class MVPointLight : MVLogicObject, WorldObjectWithSettings, WorldObjectW
 		if (InputLinkRefs.Count == 0)
 		{
 			((Behaviour)lightComponent).enabled = true;
+		}
+		else
+		{
+			OnInputStateChanged();
 		}
 	}
 
@@ -77,9 +79,5 @@ public class MVPointLight : MVLogicObject, WorldObjectWithSettings, WorldObjectW
 		{
 			Debug.LogWarning((object)"'OLD' light object discovered...updating the Data field to include light settings");
 		}
-	}
-
-	public void EditSettings()
-	{
 	}
 }

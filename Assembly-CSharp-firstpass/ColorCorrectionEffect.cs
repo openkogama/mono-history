@@ -1,7 +1,7 @@
 using UnityEngine;
 
-[ExecuteInEditMode]
 [AddComponentMenu("Image Effects/Color Correction (Ramp)")]
+[ExecuteInEditMode]
 public class ColorCorrectionEffect : ImageEffectBase
 {
 	public Texture textureRamp;

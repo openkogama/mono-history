@@ -3,7 +3,7 @@ using UnityEngine;
 
 internal class ESTranslate : ESStateBase
 {
-	private const float _mouseSensitivity = 2.5f;
+	private const float _mouseSensitivity = 0.05f;
 
 	private const bool _moveWithAvatar = true;
 
@@ -21,6 +21,8 @@ internal class ESTranslate : ESStateBase
 
 	private List<TranslateData> translateDatas = new List<TranslateData>();
 
+	private List<MVWorldObjectClient> targets = new List<MVWorldObjectClient>();
+
 	private float initialDistance;
 
 	private Vector3 originPrevFrame = Vector3.zero;
@@ -29,21 +31,25 @@ internal class ESTranslate : ESStateBase
 
 	private float scrollMoveDistance;
 
+	private bool fixedToYPlane = true;
+
 	private bool lockY;
 
 	private HashSet<int> woIds;
 
+	private ILaserPointer laser;
+
 	public ESTranslate()
 	{
-		//IL_0029: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0034: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0039: Unknown result type (might be due to invalid IL or missing references)
 	}
 
 	public override void Enter(EditorStateMachine e)
 	{
-		//IL_0207: Unknown result type (might be due to invalid IL or missing references)
-		//IL_020c: Unknown result type (might be due to invalid IL or missing references)
-		if (MVGameController.Instance.EditorController.GridSnap)
+		//IL_0231: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0236: Unknown result type (might be due to invalid IL or missing references)
+		if (AEditController.IsGridSnap())
 		{
 			gridSize = 1f;
 		}
@@ -66,78 +72,80 @@ internal class ESTranslate : ESStateBase
 		{
 			initialDistance = GetInitialAvatarMoveObjectDistance(e);
 		}
-		if (initialDistance < 25f)
-		{
-			Debug.Log((object)"is moving with smallest size");
-		}
 		recalcLocalDirCamToObjects = true;
 		translateDatas = new List<TranslateData>();
-		e.WeCamera.IgnoreInputTypes(IgnoreInputTypes.MouseScroll | IgnoreInputTypes.Avatar);
-		if (!e.NetworkSelector.RequestOwnership(e.Selected))
+		targets = new List<MVWorldObjectClient>();
+		e.CameraController.IgnoreInputTypes(IgnoreInputTypes.MouseScroll | IgnoreInputTypes.Avatar);
+		if (!e.NetworkSelector.RequestOwnership(e.SelectedIDs))
 		{
+			Debug.Log((object)"Ownership request failed");
 			e.PopState();
 			return;
 		}
-		foreach (int item in e.Selected)
+		laser = MVGameController.Instance.WOCM.AvatarLocal.LaserPointer;
+		laser.ChangeState(LaserPointerState.Transforming);
+		laser.LaserActive = true;
+		foreach (int selectedID in e.SelectedIDs)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(item);
+			MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(selectedID);
+			targets.Add(worldObjectClient);
 			translateDatas.Add(new TranslateData(worldObjectClient, gridSize));
 		}
-		e.WeCamera.TertiaryCameraActive = true;
-		e.WeCamera.TertiaryCamera.SetReplacementShader(e.WeCamera.transparentMultiplyColor, string.Empty);
+		e.CameraController.TertiaryCameraActive = true;
+		e.CameraController.TertiaryCamera.SetReplacementShader(e.CameraController.transparentMultiplyColor, string.Empty);
 		woIds = new HashSet<int>();
 		foreach (TranslateData translateData in translateDatas)
 		{
 			MVGameController.Instance.WOCM.GetAllWoIds(translateData.wo.Id, woIds);
-			SharedCubeFunctions.SetLayerRecursively(translateData.wo.GameObject.transform, select: true);
+			SharedCubeFunctions.SetLayerRecursively(translateData.wo.Transform, select: true);
 		}
 		Screen.showCursor = false;
-		originPrevFrame = MVGameController.Instance.WOCM.WoAvatar.GameObject.transform.position;
+		originPrevFrame = MVGameController.Instance.WOCM.AvatarLocal.GameObject.transform.position;
+		UXUtils.FindGUIObjectOfType<UXInputDispatcher>().BlockGUIInput = true;
 	}
 
 	public override void Execute(EditorStateMachine e)
 	{
-		//IL_0018: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0058: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0078: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0096: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00cf: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d4: Unknown result type (might be due to invalid IL or missing references)
+		//IL_001a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_001f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0051: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0057: Unknown result type (might be due to invalid IL or missing references)
+		//IL_005c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0061: Unknown result type (might be due to invalid IL or missing references)
+		//IL_007c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0081: Unknown result type (might be due to invalid IL or missing references)
+		//IL_009a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_009f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00a0: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00a5: Unknown result type (might be due to invalid IL or missing references)
 		//IL_00d5: Unknown result type (might be due to invalid IL or missing references)
 		//IL_00da: Unknown result type (might be due to invalid IL or missing references)
-		//IL_010e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0113: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0118: Unknown result type (might be due to invalid IL or missing references)
-		//IL_012f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0140: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0145: Unknown result type (might be due to invalid IL or missing references)
-		//IL_014a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_024a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_025b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0260: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0265: Unknown result type (might be due to invalid IL or missing references)
-		//IL_017f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01b5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01d7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01dc: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01f9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01fe: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0283: Unknown result type (might be due to invalid IL or missing references)
-		//IL_028a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_028f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02b7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02bc: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02bd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_022f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02f0: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00db: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00e0: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0114: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0119: Unknown result type (might be due to invalid IL or missing references)
+		//IL_011e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0135: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0146: Unknown result type (might be due to invalid IL or missing references)
+		//IL_014b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0150: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0206: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0217: Unknown result type (might be due to invalid IL or missing references)
+		//IL_021c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0221: Unknown result type (might be due to invalid IL or missing references)
+		//IL_017b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_019d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01a2: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01bf: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01c4: Unknown result type (might be due to invalid IL or missing references)
+		//IL_023f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0246: Unknown result type (might be due to invalid IL or missing references)
+		//IL_024b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0269: Unknown result type (might be due to invalid IL or missing references)
+		//IL_026e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_026f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01eb: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0298: Unknown result type (might be due to invalid IL or missing references)
 		base.Execute(e);
 		if (!MVInputWrapper.GetKeyUp((KeyCode)323))
 		{
@@ -146,8 +154,8 @@ internal class ESTranslate : ESStateBase
 			{
 				recalcLocalDirCamToObjects = true;
 			}
-			Vector3 val = MVGameController.Instance.WOCM.WoAvatar.GameObject.transform.position - originPrevFrame;
-			originPrevFrame = MVGameController.Instance.WOCM.WoAvatar.GameObject.transform.position;
+			Vector3 val = MVGameController.Instance.WOCM.AvatarLocal.GameObject.transform.position - originPrevFrame;
+			originPrevFrame = MVGameController.Instance.WOCM.AvatarLocal.GameObject.transform.position;
 			for (int i = 0; i < translateDatas.Count; i++)
 			{
 				TranslateData translateData = translateDatas[i];
@@ -166,13 +174,12 @@ internal class ESTranslate : ESStateBase
 				Vector3 val2 = translateDatas[i].prevGridifiedPosition - translateDatas[i].ungridifiedPosition;
 				if (num < val2.magnitude)
 				{
-					translateDatas[i].wo.GameObject.transform.position = translateDatas[i].gridifiedPosition;
-					translateDatas[i].wo.SyncPos = translateDatas[i].wo.GameObject.transform.position;
+					translateDatas[i].wo.SyncPos = translateDatas[i].gridifiedPosition;
 					translateDatas[i].prevGridifiedPosition = translateDatas[i].gridifiedPosition;
 					translateDatas[i].ungridifiedPosition = translateDatas[i].gridifiedPosition;
 					if (playTranslateSounds)
 					{
-						AudioEventHandler.AddTranslateSoundData(0f, moveToGridPos: true, translateDatas[i].wo.GameObject.transform.position);
+						AudioEventHandler.AddTranslateSoundData(0f, moveToGridPos: true, translateDatas[i].wo.WorldPosition);
 					}
 					continue;
 				}
@@ -181,13 +188,14 @@ internal class ESTranslate : ESStateBase
 				if (magnitude > completelyStuckLimit * gridSize)
 				{
 					val3 *= stickyModifier;
-					translateDatas[i].wo.GameObject.transform.position = translateDatas[i].prevGridifiedPosition + val3;
+					translateDatas[i].wo.WorldPosition = translateDatas[i].prevGridifiedPosition + val3;
 				}
 				if (playTranslateSounds)
 				{
-					AudioEventHandler.AddTranslateSoundData(magnitude, moveToGridPos: false, translateDatas[i].wo.GameObject.transform.position);
+					AudioEventHandler.AddTranslateSoundData(magnitude, moveToGridPos: false, translateDatas[i].wo.WorldPosition);
 				}
 			}
+			UpdateLaserPosition(targets);
 		}
 		else
 		{
@@ -195,34 +203,51 @@ internal class ESTranslate : ESStateBase
 		}
 	}
 
+	private void UpdateLaserPosition(List<MVWorldObjectClient> wos)
+	{
+		//IL_0019: Unknown result type (might be due to invalid IL or missing references)
+		//IL_006e: Unknown result type (might be due to invalid IL or missing references)
+		if (wos.Count == 1)
+		{
+			laser.UpdatePosition(wos[0].WorldPivot);
+			return;
+		}
+		List<Transform> list = new List<Transform>();
+		foreach (MVWorldObjectClient wo in wos)
+		{
+			list.Add(wo.Transform);
+		}
+		laser.UpdatePosition(SharedCubeFunctions.GetWorldCenter(list));
+	}
+
 	public override void Exit(EditorStateMachine e)
 	{
-		//IL_007d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008e: Unknown result type (might be due to invalid IL or missing references)
-		Debug.Log((object)("leaving " + GetType()));
-		e.WeCamera.IgnoreInputTypes(IgnoreInputTypes.None);
-		e.WeCamera.TertiaryCameraActive = false;
-		e.WeCamera.TertiaryCamera.ResetReplacementShader();
+		//IL_0076: Unknown result type (might be due to invalid IL or missing references)
+		laser.ChangeState(LaserPointerState.Idle);
+		laser.LaserActive = false;
+		e.CameraController.IgnoreInputTypes(IgnoreInputTypes.None);
+		e.CameraController.TertiaryCameraActive = false;
+		e.CameraController.TertiaryCamera.ResetReplacementShader();
 		foreach (TranslateData translateData in translateDatas)
 		{
 			SharedCubeFunctions.SetLayerRecursively(translateData.wo.GameObject.transform, select: false);
-			translateData.wo.GameObject.transform.position = translateData.prevGridifiedPosition;
 			translateData.wo.SyncPos = translateData.prevGridifiedPosition;
 		}
 		Screen.showCursor = true;
-		e.NetworkSelector.RequestReleaseOwnership(e.Selected);
+		e.NetworkSelector.RequestReleaseOwnership(e.SelectedIDs);
+		UXUtils.FindGUIObjectOfType<UXInputDispatcher>().BlockGUIInput = false;
 	}
 
 	private bool GetInitialCamMoveObjectHitDistance(EditorStateMachine e, ref float hitDistance)
 	{
-		//IL_002e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0043: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0048: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0041: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0046: Unknown result type (might be due to invalid IL or missing references)
+		//IL_004b: Unknown result type (might be due to invalid IL or missing references)
 		VoxelHit hit = default;
 		if (MVGameController.Instance.WOCM.Pick(ref hit) && hit.woId != -1)
 		{
-			Vector3 val = hit.point - ((Component)e.WeCamera).transform.position;
+			Vector3 val = hit.point - ((Component)e.CameraController).transform.position;
 			hitDistance = val.magnitude;
 			return true;
 		}
@@ -231,14 +256,14 @@ internal class ESTranslate : ESStateBase
 
 	private bool GetInitialAvatarMoveObjectHitDistance(EditorStateMachine e, ref float hitDistance)
 	{
-		//IL_0045: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0063: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0068: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0048: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0066: Unknown result type (might be due to invalid IL or missing references)
+		//IL_006b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0070: Unknown result type (might be due to invalid IL or missing references)
 		VoxelHit hit = default;
-		if (MVGameController.Instance.WOCM.Pick(ref hit) && hit.woId != -1 && e.Selected.Contains(hit.woId))
+		if (MVGameController.Instance.WOCM.Pick(ref hit) && hit.woId != -1 && e.SelectedIDs.Contains(hit.woId))
 		{
-			Vector3 val = hit.point - MVGameController.Instance.WOCM.WoAvatar.GameObject.transform.position;
+			Vector3 val = hit.point - MVGameController.Instance.WOCM.AvatarLocal.GameObject.transform.position;
 			hitDistance = val.magnitude;
 			return true;
 		}
@@ -249,17 +274,17 @@ internal class ESTranslate : ESStateBase
 	{
 		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0026: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0052: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0058: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0043: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0048: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0049: Unknown result type (might be due to invalid IL or missing references)
+		//IL_004e: Unknown result type (might be due to invalid IL or missing references)
 		float num = 0f;
 		int num2 = 0;
-		Vector3 position = MVGameController.Instance.WOCM.WoAvatar.GameObject.transform.position;
+		Vector3 position = MVGameController.Instance.WOCM.AvatarLocal.GameObject.transform.position;
 		foreach (MVWorldObjectClient selectedWO in e.SelectedWOs)
 		{
 			float num3 = num;
-			Vector3 val = selectedWO.GameObject.transform.position - position;
+			Vector3 val = selectedWO.WorldPosition - position;
 			num = num3 + val.magnitude;
 			num2++;
 		}
@@ -268,74 +293,74 @@ internal class ESTranslate : ESStateBase
 
 	private void RotateWithCamera(EditorStateMachine e, int targetIndex)
 	{
-		//IL_0147: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0165: Unknown result type (might be due to invalid IL or missing references)
-		//IL_016a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_016f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_017c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_012f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_014d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0152: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0157: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0164: Unknown result type (might be due to invalid IL or missing references)
 		//IL_000d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01c2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01c7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01cc: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01e6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01eb: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01f0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01f4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01fb: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0200: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0202: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0207: Unknown result type (might be due to invalid IL or missing references)
-		//IL_020c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0191: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01a1: Unknown result type (might be due to invalid IL or missing references)
 		//IL_01a6: Unknown result type (might be due to invalid IL or missing references)
 		//IL_01ab: Unknown result type (might be due to invalid IL or missing references)
 		//IL_01b0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0052: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0057: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0074: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0079: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0081: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0087: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0092: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0097: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0032: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0037: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0041: Unknown result type (might be due to invalid IL or missing references)
-		//IL_021c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0221: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0226: Unknown result type (might be due to invalid IL or missing references)
-		//IL_024d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0252: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0256: Unknown result type (might be due to invalid IL or missing references)
-		//IL_025b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0260: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0098: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0099: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d2: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01ca: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01cf: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01d4: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01d8: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01df: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01e4: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01e6: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01eb: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01f0: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0175: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0185: Unknown result type (might be due to invalid IL or missing references)
+		//IL_018a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_018f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0194: Unknown result type (might be due to invalid IL or missing references)
+		//IL_004e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0058: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0070: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0075: Unknown result type (might be due to invalid IL or missing references)
+		//IL_007a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_007d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0083: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0088: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0089: Unknown result type (might be due to invalid IL or missing references)
+		//IL_008e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0093: Unknown result type (might be due to invalid IL or missing references)
+		//IL_001e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_002e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0033: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0038: Unknown result type (might be due to invalid IL or missing references)
+		//IL_003d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0200: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0205: Unknown result type (might be due to invalid IL or missing references)
+		//IL_020a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0231: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0236: Unknown result type (might be due to invalid IL or missing references)
+		//IL_023a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_023f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0244: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0094: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0095: Unknown result type (might be due to invalid IL or missing references)
+		//IL_009a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00c4: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00e2: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00e7: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00ec: Unknown result type (might be due to invalid IL or missing references)
 		//IL_00f0: Unknown result type (might be due to invalid IL or missing references)
 		//IL_00f5: Unknown result type (might be due to invalid IL or missing references)
 		//IL_00fa: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00fe: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0103: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0108: Unknown result type (might be due to invalid IL or missing references)
 		if (recalcLocalDirCamToObjects)
 		{
 			Matrix4x4 val = default;
-			if (!MVGameController.Instance.fixedToYPlane)
+			if (!fixedToYPlane)
 			{
-				val = Matrix4x4.TRS(Vector3.zero, ((Component)e.WeCamera).transform.rotation, Vector3.one);
+				val = Matrix4x4.TRS(Vector3.zero, ((Component)e.CameraController).transform.rotation, Vector3.one);
 			}
 			else
 			{
-				float num = MathFunctions.Yaw(((Component)e.WeCamera).transform.rotation * Vector3.forward);
+				float num = MathFunctions.Yaw(((Component)e.CameraController).transform.rotation * Vector3.forward);
 				Vector3 eulerAngles = new Vector3(0f, num, 0f);
 				Quaternion identity = Quaternion.identity;
 				identity.eulerAngles = eulerAngles;
@@ -345,28 +370,28 @@ internal class ESTranslate : ESStateBase
 			for (int i = 0; i < translateDatas.Count; i++)
 			{
 				TranslateData translateData = translateDatas[i];
-				Vector3 val2 = translateDatas[i].wo.GameObject.transform.position - MVGameController.Instance.WOCM.WoAvatar.GameObject.transform.position;
+				Vector3 val2 = translateDatas[i].wo.WorldPosition - MVGameController.Instance.WOCM.AvatarLocal.GameObject.transform.position;
 				translateData.localDirCamToObject = val.MultiplyVector(val2.normalized);
 			}
 			recalcLocalDirCamToObjects = false;
 		}
-		Vector3 val3 = translateDatas[targetIndex].wo.GameObject.transform.position - MVGameController.Instance.WOCM.WoAvatar.GameObject.transform.position;
+		Vector3 val3 = translateDatas[targetIndex].wo.WorldPosition - MVGameController.Instance.WOCM.AvatarLocal.GameObject.transform.position;
 		float magnitude = val3.magnitude;
 		Matrix4x4 val4 = default;
-		if (!MVGameController.Instance.fixedToYPlane)
+		if (!fixedToYPlane)
 		{
-			val4 = Matrix4x4.TRS(Vector3.zero, ((Component)e.WeCamera).transform.rotation, Vector3.one);
+			val4 = Matrix4x4.TRS(Vector3.zero, ((Component)e.CameraController).transform.rotation, Vector3.one);
 		}
 		else
 		{
-			float num2 = MathFunctions.Yaw(((Component)e.WeCamera).transform.rotation * Vector3.forward);
+			float num2 = MathFunctions.Yaw(((Component)e.CameraController).transform.rotation * Vector3.forward);
 			Vector3 eulerAngles2 = new Vector3(0f, num2, 0f);
 			Quaternion identity2 = Quaternion.identity;
 			identity2.eulerAngles = eulerAngles2;
 			val4 = Matrix4x4.TRS(Vector3.zero, identity2, Vector3.one);
 		}
 		Vector3 val5 = val4.MultiplyVector(translateDatas[targetIndex].localDirCamToObject);
-		translateDatas[targetIndex].ungridifiedPosition = MVGameController.Instance.WOCM.WoAvatar.GameObject.transform.position + val5 * magnitude;
+		translateDatas[targetIndex].ungridifiedPosition = MVGameController.Instance.WOCM.AvatarLocal.GameObject.transform.position + val5 * magnitude;
 	}
 
 	private Vector3 GetDeltaMouse(EditorStateMachine e)
@@ -380,17 +405,17 @@ internal class ESTranslate : ESStateBase
 		//IL_0034: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0050: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0055: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0125: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0126: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0127: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0120: Unknown result type (might be due to invalid IL or missing references)
-		Vector3 v = ((Component)e.WeCamera).transform.rotation * Vector3.forward;
+		//IL_00c3: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0084: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00c8: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00c9: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00ca: Unknown result type (might be due to invalid IL or missing references)
+		Vector3 v = ((Component)e.CameraController).transform.rotation * Vector3.forward;
 		v.y = 0f;
 		v.Normalize();
 		float num = MathFunctions.SignedAngle(Vector3.forward, v, Vector3.up) * 57.29578f;
 		Quaternion val = Quaternion.Euler(0f, num, 0f);
-		Vector3 val2 = ((!MVInputWrapper.GetKey((KeyCode)304) && !MVInputWrapper.GetKey((KeyCode)303) && !lockY) ? new Vector3(Input.GetAxis("Mouse X") * initialDistance * 2.5f * Mathf.Clamp(Time.deltaTime, 0f, 0.03f), 0f, Input.GetAxis("Mouse Y") * initialDistance * 2.5f * Mathf.Clamp(Time.deltaTime, 0f, 0.03f)) : new Vector3(0f, Input.GetAxis("Mouse Y") * initialDistance * 2.5f * Mathf.Clamp(Time.deltaTime, 0f, 0.03f), 0f));
+		Vector3 val2 = ((!lockY) ? new Vector3(Input.GetAxisRaw("Mouse X") * initialDistance * 0.05f, 0f, Input.GetAxisRaw("Mouse Y") * initialDistance * 0.05f) : new Vector3(0f, Input.GetAxisRaw("Mouse Y") * initialDistance * 0.05f, 0f));
 		return val * val2;
 	}
 }

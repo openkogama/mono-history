@@ -116,8 +116,8 @@ public static class MVRaycast
 		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0030: Unknown result type (might be due to invalid IL or missing references)
 		//IL_003b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0054: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b5: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0055: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00b6: Unknown result type (might be due to invalid IL or missing references)
 		Vector3 direction = ray.direction;
 		if (direction.sqrMagnitude == 0f)
 		{
@@ -128,7 +128,7 @@ public static class MVRaycast
 			foundWos.Clear();
 		}
 		RaycastHit[] source = Physics.RaycastAll(ray, distance, layerMask);
-		Collider[] overlapResult = Physics.OverlapSphere(ray.origin, 0f);
+		Collider[] overlapResult = Physics.OverlapSphere(ray.origin, 0f, layerMask);
 		PhysicsCollisionData[] physicsCollisionData = SharedCollisionFunctions.GetPhysicsCollisionData(overlapResult, source.ToArray(), ray.origin);
 		List<VoxelHit> list = new List<VoxelHit>();
 		for (int i = 0; i < physicsCollisionData.Length; i++)
@@ -259,7 +259,7 @@ public static class MVRaycast
 		voxelHit.isCubeHit = true;
 		voxelHit.woId = cubeModelBase.Id;
 		voxelHit.collider = cubeModelBase.GameObject.collider;
-		voxelHit.transform = cubeModelBase.GameObject.transform;
+		voxelHit.transform = cubeModelBase.Transform;
 		voxelHit.interactionFlags = cubeModelBase.InteractionFlags;
 	}
 
@@ -444,76 +444,77 @@ public static class MVRaycast
 
 	private static bool GetHitPoint(Ray ray, Cube cube, ref VoxelHit vHit, IntVector voxelPos, Vector3 localBoundsHitPoint, Vector3 scale, float scaledDistance)
 	{
-		//IL_0125: Unknown result type (might be due to invalid IL or missing references)
-		//IL_012c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0159: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0160: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0037: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0062: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0072: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0077: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0081: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0086: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0143: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0148: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0149: Unknown result type (might be due to invalid IL or missing references)
-		//IL_014e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ae: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00bf: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00db: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0051: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0067: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0178: Unknown result type (might be due to invalid IL or missing references)
+		//IL_017d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_017f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0184: Unknown result type (might be due to invalid IL or missing references)
+		//IL_007d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0087: Unknown result type (might be due to invalid IL or missing references)
+		//IL_008d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0092: Unknown result type (might be due to invalid IL or missing references)
+		//IL_009c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00a1: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00a6: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00b1: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00d5: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00da: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00df: Unknown result type (might be due to invalid IL or missing references)
 		//IL_00e1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01b2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01b9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01be: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01c3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01ca: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01d4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01d9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01e6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01f3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0200: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00e6: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00f7: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00fe: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0109: Unknown result type (might be due to invalid IL or missing references)
+		//IL_010e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0113: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0126: Unknown result type (might be due to invalid IL or missing references)
+		//IL_012b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01ef: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01f4: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01fb: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0205: Unknown result type (might be due to invalid IL or missing references)
 		//IL_020a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_029d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02a2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02a4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02a9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0221: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0228: Unknown result type (might be due to invalid IL or missing references)
-		//IL_022d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0237: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0241: Unknown result type (might be due to invalid IL or missing references)
-		//IL_024b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0250: Unknown result type (might be due to invalid IL or missing references)
-		//IL_025d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_026a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0277: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0281: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02cd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02d2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02d7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02d9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02de: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02ef: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02f6: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0217: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0224: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0231: Unknown result type (might be due to invalid IL or missing references)
+		//IL_023b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_02c7: Unknown result type (might be due to invalid IL or missing references)
+		//IL_02cc: Unknown result type (might be due to invalid IL or missing references)
+		//IL_02ce: Unknown result type (might be due to invalid IL or missing references)
+		//IL_02d3: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0257: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0261: Unknown result type (might be due to invalid IL or missing references)
+		//IL_026b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0275: Unknown result type (might be due to invalid IL or missing references)
+		//IL_027a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0287: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0294: Unknown result type (might be due to invalid IL or missing references)
+		//IL_02a1: Unknown result type (might be due to invalid IL or missing references)
+		//IL_02ab: Unknown result type (might be due to invalid IL or missing references)
+		//IL_02f7: Unknown result type (might be due to invalid IL or missing references)
+		//IL_02fc: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0301: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0306: Unknown result type (might be due to invalid IL or missing references)
-		//IL_030b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0303: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0308: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0319: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0320: Unknown result type (might be due to invalid IL or missing references)
+		//IL_032b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0330: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0335: Unknown result type (might be due to invalid IL or missing references)
 		if (cube.HiddenSides != 63)
 		{
 			if (cube.UnIndentedSides == 63)
 			{
 				cubeBounds.center = new Vector3((float)voxelPos.x, (float)voxelPos.y, (float)voxelPos.z);
 				float num = 0f;
+				if (cubeBounds.Contains(intersectRay.origin))
+				{
+					return false;
+				}
 				if (cubeBounds.IntersectRay(intersectRay, ref num))
 				{
 					Vector3 localDir = intersectRay.origin + intersectRay.direction * num - cubeBounds.center;
@@ -521,10 +522,16 @@ public static class MVRaycast
 					{
 						return false;
 					}
+					Face faceIdentityFromLocalDir = Cube.GetFaceIdentityFromLocalDir(localDir);
+					FaceFlags faceFlags = CubeBase.FaceToFaceFlag(faceIdentityFromLocalDir);
+					if (((uint)cube.HiddenSides & (uint)faceFlags) != 0)
+					{
+						return false;
+					}
 					Vector3 val = MathFunctions.MultiplyVector(num * intersectRay.direction, scale);
 					vHit.distance = val.magnitude;
 					vHit.point = ray.origin + ray.direction * vHit.distance;
-					vHit.face = Cube.GetFaceIdentityFromLocalDir(localDir);
+					vHit.face = faceIdentityFromLocalDir;
 					vHit.normal = Cube.GetFaceAxis(vHit.face);
 					return true;
 				}
@@ -547,7 +554,7 @@ public static class MVRaycast
 					}
 					Face face = CubeBase.FaceFlagToFace((FaceFlags)value);
 					Vector3[] face2 = Cube.GetFace(corners, CubeBase.FaceFlagToFace((FaceFlags)value));
-					if (MathFunctions.LineFacetCollision(localBoundsHitPoint - intersectRay.direction, localBoundsHitPoint + intersectRay.direction * 300f, face2[0], face2[3], face2[2], intersectRay.direction, ref p, ref vHit.normal) || MathFunctions.LineFacetCollision(localBoundsHitPoint - intersectRay.direction, intersectRay.origin + intersectRay.direction * 300f, face2[2], face2[1], face2[0], intersectRay.direction, ref p, ref vHit.normal))
+					if (MathFunctions.LineFacetCollision(intersectRay.origin, localBoundsHitPoint + intersectRay.direction * 300f, face2[0], face2[3], face2[2], intersectRay.direction, ref p, ref vHit.normal) || MathFunctions.LineFacetCollision(intersectRay.origin, intersectRay.origin + intersectRay.direction * 300f, face2[2], face2[1], face2[0], intersectRay.direction, ref p, ref vHit.normal))
 					{
 						Vector3 val3 = intersectRay.origin - p;
 						float magnitude = val3.magnitude;

@@ -1,153 +1,138 @@
 using System;
+using Localize;
 using UnityEngine;
 
-[RequireComponent(typeof(UXMouseClickObject))]
-[AddComponentMenu("UX/Elements/Tab Pane")]
-public class UXTabPane : MonoBehaviour
+public class UXTabPane : UXGUIElement
 {
 	public delegate void OnTabClickDelegate(int tabid);
 
-	public int tabId;
+	public OnTabClickDelegate OnTabClick;
 
-	public string headerText;
+	[SerializeField]
+	public TextSlotIndex index = TextSlotIndex.Empty;
 
-	public GameObject textPrefab;
+	[SerializeField]
+	private string _headerText;
 
 	private UXText uiHeaderText;
 
-	public float headerTextInsert = 0.8f;
+	[SerializeField]
+	private float _headerTextScale = 1f;
 
-	public UXGroup tabGroup;
+	[SerializeField]
+	private UXGroup _tabGroup;
 
-	private float BUTTON_TEXT_Z = -1f;
+	[SerializeField]
+	private bool _fitWidthToText;
 
-	private float uvUnit = 1f;
+	[SerializeField]
+	private Material _selected;
 
-	private float headerHeight;
+	[SerializeField]
+	private Material _notSelected;
 
-	private float headerInsert;
+	private int _tabId;
 
-	public float headerWidth;
-
-	private Material selected;
-
-	public Material notSelected;
-
-	private Vector3 center;
-
-	public OnTabClickDelegate OnTabClick;
+	public UXGroup TabGroup => _tabGroup;
 
 	public void Start()
 	{
-		selected = ((Component)this).renderer.material;
+		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0011: Expected Obj, but got Unknown
+		//IL_0018: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0022: Expected Obj, but got Unknown
+		_selected = new Material(_selected);
+		_notSelected = new Material(_notSelected);
 	}
 
 	public void Show()
 	{
-		((Component)this).renderer.material = selected;
-		tabGroup.Visible = true;
+		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
+		((Component)this).renderer.material = _selected;
+		uiHeaderText.Color = Color.white;
+		_tabGroup.Show();
 	}
 
 	public void Hide()
 	{
-		((Component)this).renderer.material = notSelected;
-		tabGroup.Visible = false;
+		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
+		((Component)this).renderer.material = _notSelected;
+		uiHeaderText.Color = Color.gray;
+		_tabGroup.Hide();
 	}
 
-	public float GetTabInsert()
+	public void BuildTab(float headerHeight, int tabId)
 	{
-		return headerInsert;
-	}
-
-	public void BuildTab(float headerInsert, float headerHeight)
-	{
-		this.headerInsert = headerInsert;
-		this.headerHeight = headerHeight;
-		GenerateTab();
-	}
-
-	private void GenerateTab()
-	{
-		//IL_0020: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0025: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0036: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0070: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00bc: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c7: Unknown result type (might be due to invalid IL or missing references)
-		center = new Vector3(UXEnums.GetRatio(UXHorizontal.Left) * headerWidth, UXEnums.GetRatio(UXVertical.Top) * headerHeight, 0f);
-		Object val = Object.Instantiate((Object)(object)textPrefab, Vector3.zero, Quaternion.identity);
+		//IL_007c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0156: Unknown result type (might be due to invalid IL or missing references)
+		_tabId = tabId;
+		if (index != TextSlotIndex.Empty)
+		{
+			_headerText = Localization.Instance.GetText(index);
+		}
+		Object val = Object.Instantiate(Resources.Load("Prefabs/UX/Text"));
 		uiHeaderText = ((GameObject)((val is GameObject) ? val : null)).GetComponent<UXText>();
 		((Component)uiHeaderText).transform.parent = ((Component)this).transform;
-		((Component)uiHeaderText).transform.localScale = Vector3.one;
-		uiHeaderText.verticalAlign = UXVertical.Middle;
-		uiHeaderText.horizontalAlign = UXHorizontal.Left;
-		((Component)uiHeaderText).transform.localPosition = new Vector3(headerInsert + headerTextInsert, headerHeight / 2f, BUTTON_TEXT_Z) - center;
-		uiHeaderText.Text = headerText;
+		((Component)uiHeaderText).transform.localScale = new Vector3(_headerTextScale, _headerTextScale, _headerTextScale);
+		uiHeaderText.Text = _headerText;
+		uiHeaderText.ignoreClipping = true;
+		uiHeaderText.SetVisible(Visible);
+		if (_fitWidthToText)
+		{
+			Width = uiHeaderText.TextWidth;
+		}
+		Height = headerHeight;
+		SetSize(Width, Height);
+		((Component)this).gameObject.AddComponent<MeshRenderer>();
+		((Component)this).renderer.material = _selected;
+		((Component)this).renderer.enabled = Visible;
 		MeshFilter val2 = ((Component)this).gameObject.AddComponent<MeshFilter>();
 		val2.mesh = BuildMesh();
-		if ((Object)(object)((Component)this).GetComponent<BoxCollider>() == (Object)null)
-		{
-			((Component)this).gameObject.AddComponent<BoxCollider>();
-		}
-		UXMouseClickObject component = ((Component)this).GetComponent<UXMouseClickObject>();
-		component.OnMouseDown = (UXMouseClickObject.OnMouseDownDelegate)Delegate.Combine(component.OnMouseDown, (UXMouseClickObject.OnMouseDownDelegate)((UXMouseClickObject clickObject, Vector3 mousePositionWorld) => true));
-		component.OnClick = (UXMouseClickObject.OnClickDelegate)Delegate.Combine(component.OnClick, new UXMouseClickObject.OnClickDelegate(HandleOnClick));
+		((Component)uiHeaderText).transform.localPosition = new Vector3(0f, Height / 2f + 0.25f, -0.01f);
+		UXUtils.AddComponentIfNotExists<BoxCollider>(((Component)this).gameObject);
+		((Component)this).collider.enabled = Visible;
+		UXMouseClickObject uXMouseClickObject = UXUtils.AddComponentIfNotExists<UXMouseClickObject>(((Component)this).gameObject);
+		uXMouseClickObject.OnMouseDown = (UXMouseClickObject.OnMouseDownDelegate)Delegate.Combine(uXMouseClickObject.OnMouseDown, (UXMouseClickObject.OnMouseDownDelegate)((UXMouseClickObject clickObject, Vector3 mousePositionWorld) => true));
+		uXMouseClickObject.OnClick = (UXMouseClickObject.OnClickDelegate)Delegate.Combine(uXMouseClickObject.OnClick, new UXMouseClickObject.OnClickDelegate(HandleOnClick));
 	}
 
-	private Mesh BuildMesh()
+	public override void SetAlpha(float alpha, string materialProperty = "_MainColor")
 	{
-		//IL_002f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0035: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0063: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0069: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0073: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0095: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00cd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_010b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0110: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0141: Expected Obj, but got Unknown
-		Vector3[] array = new Vector3[4];
-		int[] array2 = new int[6];
-		Vector2[] array3 = new Vector2[array.Length];
-		ref Vector3 reference = ref array[0];
-		reference = new Vector3(headerInsert, headerHeight, 0f) - center;
-		ref Vector3 reference2 = ref array[1];
-		reference2 = new Vector3(headerInsert + headerWidth, headerHeight, 0f) - center;
-		ref Vector3 reference3 = ref array[2];
-		reference3 = new Vector3(headerInsert, 0f, 0f) - center;
-		ref Vector3 reference4 = ref array[3];
-		reference4 = new Vector3(headerInsert + headerWidth, 0f, 0f) - center;
-		for (int i = 0; i < array.Length; i++)
+		//IL_0018: Unknown result type (might be due to invalid IL or missing references)
+		//IL_001d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0025: Unknown result type (might be due to invalid IL or missing references)
+		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0042: Unknown result type (might be due to invalid IL or missing references)
+		//IL_004f: Unknown result type (might be due to invalid IL or missing references)
+		uiHeaderText.SetAlpha(alpha);
+		Color color = _selected.GetColor(materialProperty);
+		Color color2 = _notSelected.GetColor(materialProperty);
+		color.a = alpha;
+		color2.a = alpha;
+		_selected.SetColor(materialProperty, color);
+		_notSelected.SetColor(materialProperty, color2);
+	}
+
+	public override void SetVisible(bool visible)
+	{
+		Visible = visible;
+		if ((Object)(object)uiHeaderText != (Object)null)
 		{
-			ref Vector2 reference5 = ref array3[i];
-			reference5 = new Vector2(array[i].x / uvUnit, array[i].y / uvUnit);
+			uiHeaderText.SetVisible(visible);
 		}
-		array2[0] = 2;
-		array2[1] = 0;
-		array2[2] = 1;
-		array2[3] = 2;
-		array2[4] = 1;
-		array2[5] = 3;
-		Mesh val = new Mesh();
-		((Object)val).name = "UITabPane Mesh";
-		val.vertices = array;
-		val.uv = array3;
-		val.triangles = array2;
-		val.RecalculateNormals();
-		val.RecalculateBounds();
-		return val;
+		if ((Object)(object)((Component)this).renderer != (Object)null)
+		{
+			((Component)this).renderer.enabled = visible;
+		}
+		if ((Object)(object)((Component)this).collider != (Object)null)
+		{
+			((Component)this).collider.enabled = visible;
+		}
+	}
+
+	public string GetHeaderText()
+	{
+		return _headerText;
 	}
 
 	public void HandleOnClick(UXMouseClickObject mouseClickObject, Vector3 mousePositionWorld)
@@ -164,7 +149,7 @@ public class UXTabPane : MonoBehaviour
 	{
 		if (OnTabClick != null)
 		{
-			OnTabClick(tabId);
+			OnTabClick(_tabId);
 		}
 	}
 }

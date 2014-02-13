@@ -1,3 +1,4 @@
+using Localize;
 using UnityEngine;
 
 [AddComponentMenu("UX/Management/Screen")]
@@ -41,20 +42,20 @@ public class UXScreen : MonoBehaviour
 		}
 		set
 		{
-			//IL_001f: Unknown result type (might be due to invalid IL or missing references)
-			//IL_002e: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0033: Unknown result type (might be due to invalid IL or missing references)
-			//IL_003b: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0040: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0049: Unknown result type (might be due to invalid IL or missing references)
-			//IL_004e: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0076: Unknown result type (might be due to invalid IL or missing references)
-			//IL_007b: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0089: Unknown result type (might be due to invalid IL or missing references)
-			//IL_008e: Unknown result type (might be due to invalid IL or missing references)
-			//IL_009e: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00a3: Unknown result type (might be due to invalid IL or missing references)
-			if (value != fullscreen)
+			//IL_002a: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0039: Unknown result type (might be due to invalid IL or missing references)
+			//IL_003e: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0046: Unknown result type (might be due to invalid IL or missing references)
+			//IL_004b: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0054: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0059: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0081: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0086: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0094: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0099: Unknown result type (might be due to invalid IL or missing references)
+			//IL_00a9: Unknown result type (might be due to invalid IL or missing references)
+			//IL_00ae: Unknown result type (might be due to invalid IL or missing references)
+			if (value != fullscreen && AllowFullscreenChange())
 			{
 				fullscreen = value;
 				if (fullscreen)
@@ -129,6 +130,17 @@ public class UXScreen : MonoBehaviour
 			Debug.Log((object)("Fullscreen change detected. " + fullscreen + " " + Screen.fullScreen));
 			Fullscreen = Screen.fullScreen;
 		}
+	}
+
+	private bool AllowFullscreenChange()
+	{
+		bool flag = !(BrowserComm.BrowserName == "Microsoft Internet Explorer") || BrowserComm.BrowserVersion < 8;
+		if (!flag)
+		{
+			UXUtils.FindGUIObjectOfType<MVGUIMenu>().View.Hide();
+			UXUtils.FindGUIObjectOfType<UXDialogFactory>().CreateDialog(TextSlotIndex.FullscreenIE8Message, TextSlotIndex.ErrorHeadline).Show();
+		}
+		return flag;
 	}
 
 	private void Resize()

@@ -1,28 +1,69 @@
 using System;
-using MV.WorldObject;
+using MV.Common;
 using UnityEngine;
 
 public class TriggerBoxEvents : MonoBehaviour
 {
+	public event EventHandler<TriggerEventArgs> TriggerEnterOverride;
+
+	public event EventHandler<TriggerEventArgs> TriggerExitOverride;
+
 	public event EventHandler<TriggerEventArgs> TriggerEnter;
 
 	public event EventHandler<TriggerEventArgs> TriggerExit;
 
-	private void OnTriggerEnter(Collider other)
+	public void OnMVTriggerEnter(Collider other)
 	{
-		MVWorldObjectClient worldObjectGoId = MVGameController.Instance.WOCM.GetWorldObjectGoId(((Object)((Component)other).gameObject).GetInstanceID());
-		if (worldObjectGoId.WorldObjectType == WorldObjectType.Avatar && TriggerEnter != null)
+		MVWorldObjectClient validWorldObject = GetValidWorldObject(other);
+		if (validWorldObject != null && MVGameController.Instance.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.Round)
 		{
-			TriggerEnter(this, new TriggerEventArgs(worldObjectGoId.Id));
+			if (TriggerEnterOverride != null)
+			{
+				TriggerEnterOverride(this, new TriggerEventArgs(validWorldObject.Id));
+			}
+			else if (TriggerEnter != null)
+			{
+				TriggerEnter(this, new TriggerEventArgs(validWorldObject.Id));
+			}
 		}
 	}
 
-	private void OnTriggerExit(Collider other)
+	public void OnMVTriggerExit(Collider other)
 	{
-		MVWorldObjectClient worldObjectGoId = MVGameController.Instance.WOCM.GetWorldObjectGoId(((Object)((Component)other).gameObject).GetInstanceID());
-		if (worldObjectGoId.WorldObjectType == WorldObjectType.Avatar && TriggerExit != null)
+		MVWorldObjectClient validWorldObject = GetValidWorldObject(other);
+		if (validWorldObject != null)
 		{
-			TriggerExit(this, new TriggerEventArgs(worldObjectGoId.Id));
+			if (TriggerExitOverride != null)
+			{
+				TriggerExitOverride(this, new TriggerEventArgs(validWorldObject.Id));
+			}
+			else if (TriggerExit != null)
+			{
+				TriggerExit(this, new TriggerEventArgs(validWorldObject.Id));
+			}
 		}
+	}
+
+	private MVWorldObjectClient GetValidWorldObject(Collider other)
+	{
+		MVWorldObjectClient mVWorldObjectClient = MVWorldObjectClientManager.GetMVObject(((Component)other).gameObject.transform);
+		if (mVWorldObjectClient == null)
+		{
+			return null;
+		}
+		int woIDHighestInHierarchyWithComponent = MVGameController.Instance.WOCM.GetWoIDHighestInHierarchyWithComponent<Rigidbody>(mVWorldObjectClient.Id);
+		if (woIDHighestInHierarchyWithComponent == -1)
+		{
+			return null;
+		}
+		if (woIDHighestInHierarchyWithComponent != mVWorldObjectClient.Id)
+		{
+			mVWorldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
+		}
+		if (mVWorldObjectClient.OwnerActorNr != MVGameController.Instance.Game.LocalPlayer.ActorNr)
+		{
+			return null;
+		}
+		return mVWorldObjectClient;
 	}
 }

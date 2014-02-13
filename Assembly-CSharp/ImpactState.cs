@@ -3,11 +3,13 @@ using UnityEngine;
 
 public class ImpactState
 {
+	private const int suspendImpactDamageFrames = 1;
+
 	public Vector3 prevVelocityChangeVector = Vector3.zero;
 
-	public bool collidedPrevFrame;
+	private bool collidedPrevFrame;
 
-	public float averageSoftnessPrevFrame = 1f;
+	private float averageSoftnessPrevFrame = 1f;
 
 	private float maxAccBeforeDamageDealt = 35f;
 
@@ -15,7 +17,7 @@ public class ImpactState
 
 	private float impactDamage;
 
-	private bool suspendImpactDamage;
+	private int suspendImpactDamageCounter = 1;
 
 	public float ImpactDamage => impactDamage;
 
@@ -36,36 +38,43 @@ public class ImpactState
 	{
 		//IL_0008: Unknown result type (might be due to invalid IL or missing references)
 		//IL_000d: Unknown result type (might be due to invalid IL or missing references)
-		suspendImpactDamage = true;
+		suspendImpactDamageCounter = 1;
 		prevVelocityChangeVector = Vector3.zero;
 		collidedPrevFrame = false;
 	}
 
-	public float CalcImpactDamage(float velocityChange)
+	private float CalcImpactDamage(float velocityChange)
 	{
 		return velocityChange * impactDamageMultiplier;
 	}
 
-	public void UpdateImpactState(Vector3 curVelocityChangeVector, List<MVControllerColliderHit> moveHits)
+	public float UpdateImpactState(Vector3 curVelocity, Vector3 prevVelocity, List<MVControllerColliderHit> moveHits, MVInteractableBase interactableLocal)
 	{
-		//IL_0072: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0073: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0029: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0062: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0067: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0002: Unknown result type (might be due to invalid IL or missing references)
+		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0011: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0098: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0099: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0049: Unknown result type (might be due to invalid IL or missing references)
+		//IL_004e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_004f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0054: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0088: Unknown result type (might be due to invalid IL or missing references)
+		//IL_008d: Unknown result type (might be due to invalid IL or missing references)
+		Vector3 val = (curVelocity - prevVelocity) * Time.deltaTime;
 		impactDamage = 0f;
-		if (suspendImpactDamage)
+		if (suspendImpactDamageCounter > 0)
 		{
-			return;
+			suspendImpactDamageCounter--;
+			return 0f;
 		}
 		if (collidedPrevFrame)
 		{
-			Vector3 val = prevVelocityChangeVector + curVelocityChangeVector;
+			Vector3 val2 = prevVelocityChangeVector + val;
 			float num = maxAccBeforeDamageDealt * Time.deltaTime;
-			float magnitude = val.magnitude;
+			float magnitude = val2.magnitude;
 			magnitude *= averageSoftnessPrevFrame;
 			if (magnitude > num)
 			{
@@ -75,7 +84,7 @@ public class ImpactState
 		}
 		else
 		{
-			prevVelocityChangeVector = curVelocityChangeVector;
+			prevVelocityChangeVector = val;
 		}
 		if (moveHits.Count > 0)
 		{
@@ -83,7 +92,7 @@ public class ImpactState
 			averageSoftnessPrevFrame = 0f;
 			foreach (MVControllerColliderHit moveHit in moveHits)
 			{
-				averageSoftnessPrevFrame += moveHit.material.physicalProperties.softness;
+				averageSoftnessPrevFrame += interactableLocal.HandleModifierEffect(AvatarModifierEffect.Softness, moveHit.material.physicalProperties.softness);
 			}
 			averageSoftnessPrevFrame /= moveHits.Count;
 		}
@@ -92,5 +101,6 @@ public class ImpactState
 			collidedPrevFrame = false;
 			averageSoftnessPrevFrame = -1f;
 		}
+		return impactDamage;
 	}
 }

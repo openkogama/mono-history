@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MV.Common;
 using UnityEngine;
 
 public class MVCameraController : MonoBehaviour
@@ -10,21 +11,23 @@ public class MVCameraController : MonoBehaviour
 
 	public Transform jetPackCamera;
 
+	public Transform freeRoamCamera;
+
+	public Transform avatarAccessoryCamera;
+
+	public Transform orbitCamera;
+
 	public Shader transparentMultiplyColor;
 
-	public bool freezeCamera;
-
-	private readonly Dictionary<CameraType, MVCameraBase> cameraes = new Dictionary<CameraType, MVCameraBase>();
+	private readonly Dictionary<CameraType, MVCameraBase> cameras = new Dictionary<CameraType, MVCameraBase>();
 
 	private MVCameraBase curCamera;
 
 	private ILogger logger;
 
-	private bool cameraLocked;
+	public Transform secondaryCamera;
 
-	private Transform secondaryCamera;
-
-	private Transform tertiaryCamera;
+	public Transform tertiaryCamera;
 
 	private CameraType currentCameraType;
 
@@ -58,42 +61,62 @@ public class MVCameraController : MonoBehaviour
 
 	public MVCameraBase CurCamera => curCamera;
 
-	public CameraType CurrentCameraType => currentCameraType;
-
 	public event EventHandler<OnIgnoreInputTypesArgs> onIgnoreInputTypes;
+
+	public T GetCamera<T>() where T : MVCameraBase
+	{
+		foreach (KeyValuePair<CameraType, MVCameraBase> camera in cameras)
+		{
+			if ((object)((object)camera.Value).GetType() == typeof(T))
+			{
+				return (T)camera.Value;
+			}
+		}
+		return (T)null;
+	}
+
+	private void Awake()
+	{
+		logger = LoggerManager.Instance.GetLogger(typeof(MVCameraController));
+		cameras[CameraType.ThirdPerson] = ((Component)playModeCamera).gameObject.GetComponent<MVCameraBase>();
+		cameras[CameraType.JetPackCamera] = ((Component)jetPackCamera).gameObject.GetComponent<MVCameraBase>();
+		cameras[CameraType.FreeRoam] = ((Component)freeRoamCamera).gameObject.GetComponent<MVCameraBase>();
+		cameras[CameraType.AvatarAccessory] = ((Component)avatarAccessoryCamera).gameObject.GetComponent<MVCameraBase>();
+		cameras[CameraType.OrbitCamera] = ((Component)orbitCamera).gameObject.GetComponent<MVCameraBase>();
+		foreach (KeyValuePair<CameraType, MVCameraBase> camera in cameras)
+		{
+			camera.Value.Init(this);
+		}
+		MVGameController.Instance.Game.CameraController = this;
+		transitionCamera.Init(this);
+	}
 
 	public void Init()
 	{
-		//IL_003e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006c: Unknown result type (might be due to invalid IL or missing references)
-		logger = LoggerManager.Instance.GetLogger(typeof(MVCameraController));
-		((Component)this).transform.position = MVGameController.Instance.WOCM.LocalPlayer.Avatar.GameObject.transform.position;
-		((Component)this).transform.rotation = MVGameController.Instance.WOCM.LocalPlayer.Avatar.GameObject.transform.rotation;
-		cameraes[CameraType.ThirdPerson] = ((Component)playModeCamera).gameObject.GetComponent<MVCameraBase>();
-		cameraes[CameraType.JetPackCamera] = ((Component)jetPackCamera).gameObject.GetComponent<MVCameraBase>();
-		foreach (KeyValuePair<CameraType, MVCameraBase> camerae in cameraes)
+		((Component)this).gameObject.camera.cullingMask = ~((1 << LayerMask.NameToLayer("UXElement")) | (1 << LayerMask.NameToLayer("Preview")) | (1 << LayerMask.NameToLayer("Hidden")));
+		Camera camera = ((Component)MVGameController.Instance.Game.CameraController).camera;
+		if (MVGameController.Instance.Game.GameMode == MVGameMode.Play && (camera.cullingMask & LayerMask.NameToLayer("Logic")) == LayerMask.NameToLayer("Logic"))
 		{
-			camerae.Value.Init(this);
+			Camera camera2 = ((Component)this).gameObject.camera;
+			camera2.cullingMask -= 1 << (LayerMask.NameToLayer("Logic") & 0x1F);
 		}
-		transitionCamera.Init(this);
-		secondaryCamera = GameObject.Find("Secondary Camera").transform;
-		((Component)secondaryCamera).gameObject.active = false;
-		if ((Object)(object)secondaryCamera == (Object)null)
+	}
+
+	public bool RequestCursorLock()
+	{
+		MVGUIAskForFocus mVGUIAskForFocus = UXUtils.FindGUIObjectOfType<MVGUIAskForFocus>();
+		MVGUIMenu mVGUIMenu = UXUtils.FindGUIObjectOfType<MVGUIMenu>();
+		UXDialogFactory uXDialogFactory = UXUtils.FindGUIObjectOfType<UXDialogFactory>();
+		Screen.lockCursor = !mVGUIMenu.View.isVisible && !uXDialogFactory.DialogOpen;
+		if (Screen.lockCursor)
 		{
-			Debug.LogWarning((object)"Secondary camera not found");
+			mVGUIAskForFocus.RegainFocus();
 		}
-		tertiaryCamera = GameObject.Find("Tertiary Camera").transform;
-		((Component)tertiaryCamera).gameObject.active = false;
-		if ((Object)(object)tertiaryCamera == (Object)null)
-		{
-			Debug.LogWarning((object)"tertiaryCamera camera not found");
-		}
-		GameObject.Find("Main Camera").camera.cullingMask = ~((1 << LayerMask.NameToLayer("UXElement")) | (1 << LayerMask.NameToLayer("Preview")));
+		return Screen.lockCursor;
 	}
 
 	public void Respawn()
 	{
-		Debug.Log((object)("Respawn " + ((object)curCamera).GetType()));
 		curCamera.Respawn();
 	}
 
@@ -105,25 +128,25 @@ public class MVCameraController : MonoBehaviour
 		}
 	}
 
-	public void DrawPlaneMoved(Vector3 to)
-	{
-		//IL_0020: Unknown result type (might be due to invalid IL or missing references)
-		foreach (KeyValuePair<CameraType, MVCameraBase> camerae in cameraes)
-		{
-			camerae.Value.DrawPlaneMoved(to);
-		}
-	}
-
 	public void SetCamera(CameraType cameraType)
 	{
-		Debug.Log((object)("Setting camera to " + cameraType));
 		logger.Log(string.Concat("SetCamera(", cameraType, ")."));
-		currentCameraType = cameraType;
+		EnterCamera(cameras[cameraType]);
+	}
+
+	public void SetCamera(MVCameraBase newCamera)
+	{
+		newCamera.Init(this);
+		EnterCamera(newCamera);
+	}
+
+	private void EnterCamera(MVCameraBase newCamera)
+	{
 		if ((Object)(object)curCamera != (Object)null)
 		{
 			curCamera.Exit(this);
 		}
-		curCamera = cameraes[cameraType];
+		curCamera = newCamera;
 		curCamera.Enter(this);
 	}
 
@@ -132,26 +155,14 @@ public class MVCameraController : MonoBehaviour
 		transitionCamera.InitTransition(this, ((Component)curCamera).transform, transitionTime, soft);
 	}
 
-	public void ForceCamera(Vector3 pos, Vector3 lookAt)
-	{
-		Debug.LogWarning((object)"Force Camera is not implemented!");
-	}
-
 	public void UpdateCamera()
 	{
-		if (freezeCamera)
-		{
-			return;
-		}
 		if (transitionCamera.rotPercentage < 1f)
 		{
-			if (!cameraLocked)
-			{
-				curCamera.UpdateCamera(this, ((Component)this).transform);
-			}
+			curCamera.UpdateCamera(this, ((Component)this).transform);
 			transitionCamera.UpdateCamera(this, ((Component)this).transform);
 		}
-		else if (!cameraLocked)
+		else
 		{
 			curCamera.UpdateCamera(this, ((Component)this).transform);
 		}
@@ -159,11 +170,6 @@ public class MVCameraController : MonoBehaviour
 
 	public void HandleInput()
 	{
-		curCamera.HandleInput();
-	}
-
-	public void ToggleCameraLock()
-	{
-		cameraLocked = !cameraLocked;
+		curCamera.HandleInput(this);
 	}
 }

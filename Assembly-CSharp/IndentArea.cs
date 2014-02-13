@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class IndentArea : IModelCursor
+public class IndentArea : ICursor
 {
 	private Material materialEdge;
 
@@ -35,7 +35,7 @@ public class IndentArea : IModelCursor
 		((Renderer)val).material = materialNone;
 	}
 
-	public void Destroy()
+	public void Remove()
 	{
 		Object.Destroy((Object)(object)gameObject);
 	}

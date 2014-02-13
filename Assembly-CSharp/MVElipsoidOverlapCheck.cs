@@ -86,7 +86,7 @@ public static class MVElipsoidOverlapCheck
 		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0008: Unknown result type (might be due to invalid IL or missing references)
 		checkType = ElipsoidOverlapCheckType.Bool;
-		List<ElipsoidOverlapResult> list = ElipsoidOverlapCheck(radius, position, rotation, ignoreWoIds, layerMask);
+		List<MVOverlapResult> list = ElipsoidOverlapCheck(radius, position, rotation, ignoreWoIds, layerMask);
 		if (list.Count > 0 && list[0].localCubePos != null && list[0].localCubePos.Length > 0)
 		{
 			return true;
@@ -94,7 +94,7 @@ public static class MVElipsoidOverlapCheck
 		return false;
 	}
 
-	public static List<ElipsoidOverlapResult> ElipsoidOverlapCheckSector(Vector3 radius, Vector3 position, Quaternion rotation, int layerMask = -5, HashSet<int> ignoreWoIds = null)
+	public static List<MVOverlapResult> ElipsoidOverlapCheckSector(Vector3 radius, Vector3 position, Quaternion rotation, int layerMask = -5, HashSet<int> ignoreWoIds = null)
 	{
 		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
@@ -108,7 +108,7 @@ public static class MVElipsoidOverlapCheck
 		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0008: Unknown result type (might be due to invalid IL or missing references)
 		checkType = ElipsoidOverlapCheckType.Bool;
-		List<ElipsoidOverlapResult> list = ElipsoidOverlapCheck(position, transform, localBounds, ignoreWoIds, layerMask);
+		List<MVOverlapResult> list = ElipsoidOverlapCheck(position, transform, localBounds, ignoreWoIds, layerMask);
 		if (list.Count > 0 && list[0].localCubePos != null && list[0].localCubePos.Length > 0)
 		{
 			return true;
@@ -116,7 +116,7 @@ public static class MVElipsoidOverlapCheck
 		return false;
 	}
 
-	public static List<ElipsoidOverlapResult> ElipsoidOverlapCheckSector(Vector3 position, Transform transform, Bounds localBounds, int layerMask = -5, HashSet<int> ignoreWoIds = null)
+	public static List<MVOverlapResult> ElipsoidOverlapCheckSector(Vector3 position, Transform transform, Bounds localBounds, int layerMask = -5, HashSet<int> ignoreWoIds = null)
 	{
 		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0008: Unknown result type (might be due to invalid IL or missing references)
@@ -124,7 +124,7 @@ public static class MVElipsoidOverlapCheck
 		return ElipsoidOverlapCheck(position, transform, localBounds, ignoreWoIds, layerMask);
 	}
 
-	private static List<ElipsoidOverlapResult> ElipsoidOverlapCheck(Vector3 position, Transform transform, Bounds localBounds, HashSet<int> ignoreWoIds, int layerMask = -5)
+	private static List<MVOverlapResult> ElipsoidOverlapCheck(Vector3 position, Transform transform, Bounds localBounds, HashSet<int> ignoreWoIds, int layerMask = -5)
 	{
 		//IL_0003: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0008: Unknown result type (might be due to invalid IL or missing references)
@@ -152,13 +152,13 @@ public static class MVElipsoidOverlapCheck
 		return ElipsoidOverlapCheck(radius, position, transform.rotation, ignoreWoIds, layerMask);
 	}
 
-	private static List<ElipsoidOverlapResult> ElipsoidOverlapCheck(Vector3 radius, Vector3 position, Quaternion rotation, HashSet<int> ignoreWoIds, int layerMask = -5)
+	private static List<MVOverlapResult> ElipsoidOverlapCheck(Vector3 radius, Vector3 position, Quaternion rotation, HashSet<int> ignoreWoIds, int layerMask = -5)
 	{
 		//IL_0035: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0069: Unknown result type (might be due to invalid IL or missing references)
 		//IL_006a: Unknown result type (might be due to invalid IL or missing references)
 		//IL_006b: Unknown result type (might be due to invalid IL or missing references)
-		List<ElipsoidOverlapResult> list = new List<ElipsoidOverlapResult>();
+		List<MVOverlapResult> list = new List<MVOverlapResult>();
 		float num = 0f;
 		for (int i = 0; i < 3; i++)
 		{
@@ -184,72 +184,72 @@ public static class MVElipsoidOverlapCheck
 		return list;
 	}
 
-	private static bool ElipsoidOverlapCheckOnWo(Vector3 radius, Vector3 position, Quaternion rotation, GameObject chunk, MVWorldObjectClient wo, out ElipsoidOverlapResult elipsoidOverlapResult)
+	private static bool ElipsoidOverlapCheckOnWo(Vector3 radius, Vector3 position, Quaternion rotation, GameObject chunk, MVWorldObjectClient wo, out MVOverlapResult elipsoidOverlapResult)
 	{
+		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0027: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0032: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0037: Unknown result type (might be due to invalid IL or missing references)
 		//IL_003c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0041: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0046: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0047: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0048: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0049: Unknown result type (might be due to invalid IL or missing references)
+		//IL_003d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_003e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_003f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0044: Unknown result type (might be due to invalid IL or missing references)
 		//IL_004e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0058: Unknown result type (might be due to invalid IL or missing references)
 		//IL_005d: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0062: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0067: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006c: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0071: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0072: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0077: Unknown result type (might be due to invalid IL or missing references)
 		//IL_007c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0081: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0086: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0090: Unknown result type (might be due to invalid IL or missing references)
+		//IL_008d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0092: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0097: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0098: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0099: Unknown result type (might be due to invalid IL or missing references)
+		//IL_009a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_009b: Unknown result type (might be due to invalid IL or missing references)
 		//IL_009c: Unknown result type (might be due to invalid IL or missing references)
 		//IL_00a1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a5: Unknown result type (might be due to invalid IL or missing references)
 		//IL_00a6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ab: Unknown result type (might be due to invalid IL or missing references)
 		//IL_00b0: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00b5: Unknown result type (might be due to invalid IL or missing references)
 		//IL_00ba: Unknown result type (might be due to invalid IL or missing references)
 		//IL_00bf: Unknown result type (might be due to invalid IL or missing references)
 		//IL_00c4: Unknown result type (might be due to invalid IL or missing references)
 		//IL_00c9: Unknown result type (might be due to invalid IL or missing references)
 		//IL_00ce: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00da: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00df: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0161: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00cf: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00d0: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00d5: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0157: Unknown result type (might be due to invalid IL or missing references)
+		//IL_015c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0165: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0166: Unknown result type (might be due to invalid IL or missing references)
-		//IL_016f: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0170: Unknown result type (might be due to invalid IL or missing references)
-		//IL_017a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0113: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0114: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0115: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0116: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0109: Unknown result type (might be due to invalid IL or missing references)
+		//IL_010a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_010b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_010c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_010d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0112: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0117: Unknown result type (might be due to invalid IL or missing references)
-		//IL_011c: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0121: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0126: Unknown result type (might be due to invalid IL or missing references)
 		//IL_012b: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0130: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0135: Unknown result type (might be due to invalid IL or missing references)
 		//IL_013a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0144: Unknown result type (might be due to invalid IL or missing references)
 		elipsoidOverlapResult = default;
 		if (wo is MVCubeModelBase)
 		{
-			MVCubeModelBase mVCubeModelBase = (MVCubeModelBase)wo;
-			localToWorld = mVCubeModelBase.GameObject.transform.localToWorldMatrix;
-			worldToLocal = mVCubeModelBase.GameObject.transform.worldToLocalMatrix;
+			MVCubeModelBase cmb = (MVCubeModelBase)wo;
+			localToWorld = chunk.transform.localToWorldMatrix;
+			worldToLocal = chunk.transform.worldToLocalMatrix;
 			elipsoidSpaceToWorld = Matrix4x4.TRS(position, rotation, radius);
 			worldToElipsoidSpace = elipsoidSpaceToWorld.inverse;
 			localToElipsoidSpace = worldToElipsoidSpace * localToWorld;
@@ -273,12 +273,12 @@ public static class MVElipsoidOverlapCheck
 			Vector3[] tangentNormalsLocalSpace = GetTangentNormalsLocalSpace();
 			Bounds boundsFromAxisAlignedVectors = GetBoundsFromAxisAlignedVectors(tangentNormalsLocalSpace);
 			boundsFromAxisAlignedVectors.center = worldToLocal.MultiplyPoint(position);
-			return ScanElipsoidBounds(boundsFromAxisAlignedVectors, chunk, mVCubeModelBase, ref elipsoidOverlapResult);
+			return ScanElipsoidBounds(boundsFromAxisAlignedVectors, chunk, cmb, ref elipsoidOverlapResult);
 		}
 		return false;
 	}
 
-	private static bool ScanElipsoidBounds(Bounds localElipsoidBounds, GameObject chunk, MVCubeModelBase cmb, ref ElipsoidOverlapResult elipsoidOverlapResult)
+	private static bool ScanElipsoidBounds(Bounds localElipsoidBounds, GameObject chunk, MVCubeModelBase cmb, ref MVOverlapResult elipsoidOverlapResult)
 	{
 		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0019: Unknown result type (might be due to invalid IL or missing references)
@@ -319,7 +319,7 @@ public static class MVElipsoidOverlapCheck
 		return flag;
 	}
 
-	private static bool HandleCube(IntVector cubePos, MVCubeModelBase cmb, ref ElipsoidOverlapResult elipsoidOverlapResult)
+	private static bool HandleCube(IntVector cubePos, MVCubeModelBase cmb, ref MVOverlapResult elipsoidOverlapResult)
 	{
 		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0038: Unknown result type (might be due to invalid IL or missing references)

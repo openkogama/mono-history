@@ -263,8 +263,8 @@ public static class CollisionDetectionTests
 		Bounds bounds = componentInChildren.sharedMesh.bounds;
 		if (Input.GetKeyDown((KeyCode)107))
 		{
-			List<ElipsoidOverlapResult> list = MVElipsoidOverlapCheck.ElipsoidOverlapCheckSector(val2.origin, sphere.transform, bounds);
-			foreach (ElipsoidOverlapResult item in list)
+			List<MVOverlapResult> list = MVElipsoidOverlapCheck.ElipsoidOverlapCheckSector(val2.origin, sphere.transform, bounds);
+			foreach (MVOverlapResult item in list)
 			{
 				MVCubeModelBase mVCubeModelBase = (MVCubeModelBase)MVGameController.Instance.WOCM.GetWorldObjectClient(item.woId);
 				IntVector[] localCubePos = item.localCubePos;
@@ -329,8 +329,8 @@ public static class CollisionDetectionTests
 		sphere.transform.position = val2.origin;
 		if (Input.GetKeyDown((KeyCode)107))
 		{
-			List<ElipsoidOverlapResult> list = MVElipsoidOverlapCheck.ElipsoidOverlapCheckSector(val3, val2.origin, sphere.transform.rotation);
-			foreach (ElipsoidOverlapResult item in list)
+			List<MVOverlapResult> list = MVElipsoidOverlapCheck.ElipsoidOverlapCheckSector(val3, val2.origin, sphere.transform.rotation);
+			foreach (MVOverlapResult item in list)
 			{
 				MVCubeModelBase mVCubeModelBase = (MVCubeModelBase)MVGameController.Instance.WOCM.GetWorldObjectClient(item.woId);
 				IntVector[] localCubePos = item.localCubePos;

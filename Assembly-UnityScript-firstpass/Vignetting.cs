@@ -53,31 +53,28 @@ public class Vignetting : PostEffectsBase
 		//IL_00f2: Unknown result type (might be due to invalid IL or missing references)
 		CreateMaterials();
 		RenderTexture temporary = RenderTexture.GetTemporary(source.width, source.height, 0);
-		checked
+		RenderTexture temporary2 = RenderTexture.GetTemporary((int)((float)source.width / 2f), (int)((float)source.height / 2f), 0);
+		RenderTexture temporary3 = RenderTexture.GetTemporary((int)((float)source.width / 4f), (int)((float)source.height / 4f), 0);
+		RenderTexture temporary4 = RenderTexture.GetTemporary((int)((float)source.width / 4f), (int)((float)source.height / 4f), 0);
+		Graphics.Blit((Texture)(object)source, temporary2, _chromAberrationMaterial, 0);
+		Graphics.Blit((Texture)(object)temporary2, temporary3);
+		for (int i = 0; i < 2; i++)
 		{
-			RenderTexture temporary2 = RenderTexture.GetTemporary((int)((float)source.width / 2f), (int)((float)source.height / 2f), 0);
-			RenderTexture temporary3 = RenderTexture.GetTemporary((int)((float)source.width / 4f), (int)((float)source.height / 4f), 0);
-			RenderTexture temporary4 = RenderTexture.GetTemporary((int)((float)source.width / 4f), (int)((float)source.height / 4f), 0);
-			Graphics.Blit((Texture)(object)source, temporary2, _chromAberrationMaterial, 0);
-			Graphics.Blit((Texture)(object)temporary2, temporary3);
-			for (int i = 0; i < 2; i++)
-			{
-				_separableBlurMaterial.SetVector("offsets", new Vector4(0f, 1.5f / (float)temporary3.height, 0f, 0f));
-				Graphics.Blit((Texture)(object)temporary3, temporary4, _separableBlurMaterial);
-				_separableBlurMaterial.SetVector("offsets", new Vector4(1.5f / (float)temporary3.width, 0f, 0f, 0f));
-				Graphics.Blit((Texture)(object)temporary4, temporary3, _separableBlurMaterial);
-			}
-			_vignetteMaterial.SetFloat("vignetteIntensity", vignetteIntensity);
-			_vignetteMaterial.SetFloat("blurVignette", blurVignette);
-			_vignetteMaterial.SetTexture("_VignetteTex", (Texture)(object)temporary3);
-			Graphics.Blit((Texture)(object)source, temporary, _vignetteMaterial);
-			_chromAberrationMaterial.SetFloat("chromaticAberrationIntensity", chromaticAberrationIntensity);
-			Graphics.Blit((Texture)(object)temporary, destination, _chromAberrationMaterial, 1);
-			RenderTexture.ReleaseTemporary(temporary);
-			RenderTexture.ReleaseTemporary(temporary2);
-			RenderTexture.ReleaseTemporary(temporary3);
-			RenderTexture.ReleaseTemporary(temporary4);
+			_separableBlurMaterial.SetVector("offsets", new Vector4(0f, 1.5f / (float)temporary3.height, 0f, 0f));
+			Graphics.Blit((Texture)(object)temporary3, temporary4, _separableBlurMaterial);
+			_separableBlurMaterial.SetVector("offsets", new Vector4(1.5f / (float)temporary3.width, 0f, 0f, 0f));
+			Graphics.Blit((Texture)(object)temporary4, temporary3, _separableBlurMaterial);
 		}
+		_vignetteMaterial.SetFloat("vignetteIntensity", vignetteIntensity);
+		_vignetteMaterial.SetFloat("blurVignette", blurVignette);
+		_vignetteMaterial.SetTexture("_VignetteTex", (Texture)(object)temporary3);
+		Graphics.Blit((Texture)(object)source, temporary, _vignetteMaterial);
+		_chromAberrationMaterial.SetFloat("chromaticAberrationIntensity", chromaticAberrationIntensity);
+		Graphics.Blit((Texture)(object)temporary, destination, _chromAberrationMaterial, 1);
+		RenderTexture.ReleaseTemporary(temporary);
+		RenderTexture.ReleaseTemporary(temporary2);
+		RenderTexture.ReleaseTemporary(temporary3);
+		RenderTexture.ReleaseTemporary(temporary4);
 	}
 
 	public override void Main()

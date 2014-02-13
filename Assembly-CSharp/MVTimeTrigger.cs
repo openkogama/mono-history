@@ -1,61 +1,67 @@
+using System.Collections;
+using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
 
-public class MVTimeTrigger : MVLogicObject, WorldObjectWithSettings
+public class MVTimeTrigger : MVLogicObject
 {
-	private GameObject audioGO;
+	private const string prefabPath = "Prefabs/TimeTriggerObject";
 
-	private AudioLogicCube audioLC;
+	private GameObject audioGO;
 
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => true;
 
-	protected override void CreateMVWOC(bool local)
+	public MVTimeTrigger(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+		: base(data, "Prefabs/TimeTriggerObject", worldObjects)
 	{
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Expected Obj, but got Unknown
-		//IL_0061: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0066: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0070: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007a: Expected Obj, but got Unknown
-		interactionFlags = InteractionFlags.Selectable;
-		gameObject = (GameObject)Object.Instantiate(Resources.Load("Prefabs/TimeTriggerObject"), Vector3.zero, Quaternion.identity);
-		((Object)gameObject).name = GetType().ToString();
-		gameObject.layer = LayerMask.NameToLayer("Logic");
+		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_002f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0039: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0043: Expected Obj, but got Unknown
+		interactionFlags |= InteractionFlags.HasSettings;
 		audioGO = (GameObject)Object.Instantiate(Resources.Load("Audio/AudioPrefabs/TimeTriggerSound"), Vector3.zero, Quaternion.identity);
 		audioGO.transform.parent = gameObject.transform;
-		audioLC = audioGO.GetComponentInChildren<AudioLogicCube>();
 	}
 
 	public override void OnInputStateChanged()
 	{
-		if (InputState && (float)Data["currentTime"] > 0f)
-		{
-			audioLC.Play(on: true);
-		}
-		if (!InputState)
-		{
-			audioLC.Play(on: false);
-		}
 	}
 
 	public override void OnDataUpdate()
 	{
-		if ((float)Data["currentTime"] <= 0f)
+		if ((int)Data["state"] == 2)
 		{
 			foreach (Link outputLinkRef in OutputLinkRefs)
 			{
 				outputLinkRef.isSet = true;
 			}
-			audioLC.Play(on: false);
 			return;
 		}
-		foreach (Link outputLinkRef2 in OutputLinkRefs)
+		if ((int)Data["state"] == 0 && (float)Data["duration"] > 0f)
 		{
-			outputLinkRef2.isSet = false;
+			foreach (Link outputLinkRef2 in OutputLinkRefs)
+			{
+				outputLinkRef2.isSet = false;
+			}
+			return;
+		}
+		if ((int)Data["state"] == 1 && (float)Data["duration"] <= 0f)
+		{
+			foreach (Link outputLinkRef3 in OutputLinkRefs)
+			{
+				outputLinkRef3.isSet = false;
+			}
+			return;
+		}
+		if ((int)Data["state"] != 3)
+		{
+			return;
+		}
+		foreach (Link outputLinkRef4 in OutputLinkRefs)
+		{
+			outputLinkRef4.isSet = false;
 		}
 	}
 }

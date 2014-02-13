@@ -1,7 +1,7 @@
 using UnityEngine;
 
-[ExecuteInEditMode]
 [AddComponentMenu("Image Effects/Vortex")]
+[ExecuteInEditMode]
 public class VortexEffect : ImageEffectBase
 {
 	public Vector2 radius = new Vector2(0.4f, 0.4f);

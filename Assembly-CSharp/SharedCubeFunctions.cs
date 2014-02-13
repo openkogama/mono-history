@@ -59,7 +59,7 @@ internal static class SharedCubeFunctions
 			new IntVector(0, -1, 0),
 			new IntVector(0, -1, 1),
 			new IntVector(1, -1, 1),
-			new IntVector(1, -1, -1)
+			new IntVector(1, -1, 0)
 		},
 		new IntVector[4]
 		{
@@ -186,6 +186,178 @@ internal static class SharedCubeFunctions
 			new IntVector(1, 1, -1),
 			new IntVector(1, 1, 0),
 			new IntVector(1, 0, 0)
+		}
+	};
+
+	public static IntVector[][] LightTestOffsetsInside = new IntVector[24][]
+	{
+		new IntVector[4]
+		{
+			new IntVector(-1, 0, -1),
+			new IntVector(-1, 0, 0),
+			new IntVector(0, 0, 0),
+			new IntVector(0, 0, -1)
+		},
+		new IntVector[4]
+		{
+			new IntVector(0, 0, -1),
+			new IntVector(0, 0, 0),
+			new IntVector(1, 0, 0),
+			new IntVector(1, 0, -1)
+		},
+		new IntVector[4]
+		{
+			new IntVector(0, 0, 0),
+			new IntVector(0, 0, 1),
+			new IntVector(1, 0, 1),
+			new IntVector(1, 0, 0)
+		},
+		new IntVector[4]
+		{
+			new IntVector(-1, 0, 0),
+			new IntVector(-1, 0, 1),
+			new IntVector(0, 0, 1),
+			new IntVector(0, 0, 0)
+		},
+		new IntVector[4]
+		{
+			new IntVector(-1, 0, 0),
+			new IntVector(-1, 0, 1),
+			new IntVector(0, 0, 1),
+			new IntVector(0, 0, 0)
+		},
+		new IntVector[4]
+		{
+			new IntVector(0, 0, 0),
+			new IntVector(0, 0, 1),
+			new IntVector(1, 0, 1),
+			new IntVector(1, 0, -1)
+		},
+		new IntVector[4]
+		{
+			new IntVector(0, 0, -1),
+			new IntVector(0, 0, 0),
+			new IntVector(1, 0, 0),
+			new IntVector(1, 0, -1)
+		},
+		new IntVector[4]
+		{
+			new IntVector(-1, 0, -1),
+			new IntVector(-1, 0, 0),
+			new IntVector(0, 0, 0),
+			new IntVector(0, 0, -1)
+		},
+		new IntVector[4]
+		{
+			new IntVector(-1, -1, 0),
+			new IntVector(-1, 0, 0),
+			new IntVector(0, 0, 0),
+			new IntVector(0, -1, 0)
+		},
+		new IntVector[4]
+		{
+			new IntVector(0, -1, 0),
+			new IntVector(0, 0, 0),
+			new IntVector(1, 0, 0),
+			new IntVector(1, -1, 0)
+		},
+		new IntVector[4]
+		{
+			new IntVector(0, 0, 0),
+			new IntVector(0, 1, 0),
+			new IntVector(1, 1, 0),
+			new IntVector(1, 0, 0)
+		},
+		new IntVector[4]
+		{
+			new IntVector(-1, 0, 0),
+			new IntVector(-1, 1, 0),
+			new IntVector(0, 1, 0),
+			new IntVector(0, 0, 0)
+		},
+		new IntVector[4]
+		{
+			new IntVector(0, -1, 0),
+			new IntVector(0, 0, 0),
+			new IntVector(1, 0, 0),
+			new IntVector(1, -1, 0)
+		},
+		new IntVector[4]
+		{
+			new IntVector(-1, -1, 0),
+			new IntVector(-1, 0, 0),
+			new IntVector(0, 0, 0),
+			new IntVector(0, -1, 0)
+		},
+		new IntVector[4]
+		{
+			new IntVector(-1, 0, 0),
+			new IntVector(-1, 1, 0),
+			new IntVector(0, 1, 0),
+			new IntVector(0, 0, 0)
+		},
+		new IntVector[4]
+		{
+			new IntVector(0, 0, 0),
+			new IntVector(0, 1, 0),
+			new IntVector(1, 1, 0),
+			new IntVector(1, 0, 0)
+		},
+		new IntVector[4]
+		{
+			new IntVector(0, -1, 0),
+			new IntVector(0, 0, 0),
+			new IntVector(0, 0, 1),
+			new IntVector(0, -1, 1)
+		},
+		new IntVector[4]
+		{
+			new IntVector(0, -1, -1),
+			new IntVector(0, 0, -1),
+			new IntVector(0, 0, 0),
+			new IntVector(0, -1, 0)
+		},
+		new IntVector[4]
+		{
+			new IntVector(0, 0, -1),
+			new IntVector(0, 1, -1),
+			new IntVector(0, 1, 0),
+			new IntVector(0, 0, 0)
+		},
+		new IntVector[4]
+		{
+			new IntVector(0, 0, 0),
+			new IntVector(0, 1, 0),
+			new IntVector(0, 1, 1),
+			new IntVector(0, 0, 1)
+		},
+		new IntVector[4]
+		{
+			new IntVector(0, -1, -1),
+			new IntVector(0, 0, -1),
+			new IntVector(0, 0, 0),
+			new IntVector(0, -1, 0)
+		},
+		new IntVector[4]
+		{
+			new IntVector(0, -1, 0),
+			new IntVector(0, 0, 0),
+			new IntVector(0, 0, 1),
+			new IntVector(0, -1, 1)
+		},
+		new IntVector[4]
+		{
+			new IntVector(0, 0, 0),
+			new IntVector(0, 1, 0),
+			new IntVector(0, 1, 1),
+			new IntVector(0, 0, 1)
+		},
+		new IntVector[4]
+		{
+			new IntVector(0, 0, -1),
+			new IntVector(0, 1, -1),
+			new IntVector(0, 1, 0),
+			new IntVector(0, 0, 0)
 		}
 	};
 
@@ -379,7 +551,81 @@ internal static class SharedCubeFunctions
 		mesh.RecalculateBounds();
 	}
 
-	private static Vector3[] GetVertices(Vector3[] corners)
+	public static Vector3[] GetCorners()
+	{
+		//IL_001c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
+		//IL_003c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0041: Unknown result type (might be due to invalid IL or missing references)
+		//IL_005c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0061: Unknown result type (might be due to invalid IL or missing references)
+		//IL_007c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0081: Unknown result type (might be due to invalid IL or missing references)
+		//IL_009c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00a1: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00bc: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00c1: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00dc: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00e1: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00fc: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0101: Unknown result type (might be due to invalid IL or missing references)
+		return new Vector3[8]
+		{
+			new Vector3(-0.5f, 0.5f, -0.5f),
+			new Vector3(0.5f, 0.5f, -0.5f),
+			new Vector3(0.5f, 0.5f, 0.5f),
+			new Vector3(-0.5f, 0.5f, 0.5f),
+			new Vector3(-0.5f, -0.5f, 0.5f),
+			new Vector3(0.5f, -0.5f, 0.5f),
+			new Vector3(0.5f, -0.5f, -0.5f),
+			new Vector3(-0.5f, -0.5f, -0.5f)
+		};
+	}
+
+	public static Vector3[] GetCorners(Bounds bounds)
+	{
+		//IL_0002: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0009: Unknown result type (might be due to invalid IL or missing references)
+		return GetCorners(bounds.min, bounds.max);
+	}
+
+	public static Vector3[] GetCorners(Vector3 min, Vector3 max)
+	{
+		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0027: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0048: Unknown result type (might be due to invalid IL or missing references)
+		//IL_004d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_006e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0073: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0094: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0099: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00ba: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00bf: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00e0: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00e5: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0106: Unknown result type (might be due to invalid IL or missing references)
+		//IL_010b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_012c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0131: Unknown result type (might be due to invalid IL or missing references)
+		return new Vector3[8]
+		{
+			new Vector3(min.x, max.y, min.z),
+			new Vector3(max.x, max.y, min.z),
+			new Vector3(max.x, max.y, max.z),
+			new Vector3(min.x, max.y, max.z),
+			new Vector3(min.x, min.y, max.z),
+			new Vector3(max.x, min.y, max.z),
+			new Vector3(max.x, min.y, min.z),
+			new Vector3(min.x, min.y, min.z)
+		};
+	}
+
+	public static Vector3[] GetVertices()
+	{
+		return GetVertices(GetCorners());
+	}
+
+	public static Vector3[] GetVertices(Vector3[] corners)
 	{
 		//IL_000a: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
@@ -433,12 +679,15 @@ internal static class SharedCubeFunctions
 		//IL_002d: Unknown result type (might be due to invalid IL or missing references)
 		//IL_002e: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0033: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0034: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0036: Unknown result type (might be due to invalid IL or missing references)
+		//IL_003b: Unknown result type (might be due to invalid IL or missing references)
 		//IL_003e: Unknown result type (might be due to invalid IL or missing references)
 		//IL_003f: Unknown result type (might be due to invalid IL or missing references)
 		Matrix4x4 val = Matrix4x4.TRS(rotation * scale * 0.5f, rotation, Vector3.one * gridSize);
 		Matrix4x4 inverse = val.inverse;
 		Vector3 vector = inverse.MultiplyPoint(worldPosition);
-		MathFunctions.RoundVector(ref vector, 0);
+		vector = MathFunctions.RoundVector(vector, 0);
 		return val.MultiplyPoint(vector);
 	}
 
@@ -447,15 +696,14 @@ internal static class SharedCubeFunctions
 		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
 		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_001f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0026: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0013: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0014: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0019: Unknown result type (might be due to invalid IL or missing references)
 		Vector3 vector = gameObject.transform.InverseTransformPoint(point);
-		if (floor)
-		{
-			MathFunctions.FloorVector(ref vector);
-		}
-		else
-		{
-			MathFunctions.RoundVector(ref vector, 0);
-		}
+		vector = ((!floor) ? MathFunctions.RoundVector(vector, 0) : MathFunctions.FloorVector(vector));
 		return new IntVector((short)vector.x, (short)vector.y, (short)vector.z);
 	}
 
@@ -465,29 +713,29 @@ internal static class SharedCubeFunctions
 		//IL_0029: Unknown result type (might be due to invalid IL or missing references)
 		//IL_002e: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0046: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0052: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0062: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0067: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b5: Unknown result type (might be due to invalid IL or missing references)
+		//IL_004b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_004c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0051: Unknown result type (might be due to invalid IL or missing references)
+		//IL_005b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0060: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0065: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00b2: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00b3: Unknown result type (might be due to invalid IL or missing references)
 		if (cubeSegments < 0)
 		{
 			Debug.LogError((object)"CubeSegments is at least 1");
 		}
 		float num = (float)Math.Round(1f / (float)cubeSegments, 2);
-		Vector3 vector = gameObject.transform.InverseTransformPoint(worldPos);
-		Vector3 val = new Vector3(vector.x, vector.y, vector.z);
-		MathFunctions.FloorVector(ref vector);
-		vector -= Vector3.one * 0.5f;
+		Vector3 val = gameObject.transform.InverseTransformPoint(worldPos);
+		Vector3 val2 = new Vector3(val.x, val.y, val.z);
+		val = MathFunctions.FloorVector(val) - Vector3.one * 0.5f;
 		for (int i = 0; i < 3; i++)
 		{
-			float num2 = val[i] - vector[i];
+			float num2 = val2[i] - val[i];
 			int num3 = Mathf.FloorToInt(num2 / num);
-			vector[i] += (float)num3 * num;
+			val[i] += (float)num3 * num;
 		}
-		return gameObject.transform.TransformPoint(vector);
+		return gameObject.transform.TransformPoint(val);
 	}
 
 	public static Vector3 LocalToWorld(GameObject gameObject, IntVector iVector)
@@ -495,31 +743,6 @@ internal static class SharedCubeFunctions
 		//IL_001e: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
 		return gameObject.transform.TransformPoint(new Vector3((float)iVector.x, (float)iVector.y, (float)iVector.z));
-	}
-
-	public static Vector3 ToGridAlignedPos(GameObject gameObject, Vector3 worldPos)
-	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0018: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0055: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0061: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0062: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0067: Unknown result type (might be due to invalid IL or missing references)
-		IntVector iVector = WorldToLocal(gameObject, worldPos, floor: true);
-		worldPos = LocalToWorld(gameObject, iVector);
-		Vector3 localScale = gameObject.transform.localScale;
-		Vector3 one = Vector3.one;
-		for (int i = 0; i < 3; i++)
-		{
-			one[i] = one[i] * localScale[i] * 0.5f;
-		}
-		return worldPos + gameObject.transform.rotation * one;
 	}
 
 	public static Dictionary<IntVector, Cube> CreateFromBytePackage(BytePacker bp)
@@ -657,73 +880,73 @@ internal static class SharedCubeFunctions
 
 	public static CubeOutOfBoundState MoveEdge(MVCubeModelBase cmb, CubePickingInfo info, Vector3 mousePositionDelta, ref float delta, ref float deltaAccum, float mouseSensitivity, ref bool edgeMoved, bool edgeIndex0, bool edgeIndex1)
 	{
-		//IL_003e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0034: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0039: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0043: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0057: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0071: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0076: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0096: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a6: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0048: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0058: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0073: Unknown result type (might be due to invalid IL or missing references)
+		//IL_007e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0083: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0088: Unknown result type (might be due to invalid IL or missing references)
+		//IL_008d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0092: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0095: Unknown result type (might be due to invalid IL or missing references)
+		//IL_009a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_009f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00a4: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00a9: Unknown result type (might be due to invalid IL or missing references)
 		//IL_00ab: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00bd: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00ad: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00af: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00b1: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00b6: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00c0: Unknown result type (might be due to invalid IL or missing references)
 		//IL_00c2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00cc: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00c4: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00c9: Unknown result type (might be due to invalid IL or missing references)
 		//IL_00ce: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ec: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0100: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0102: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0104: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0109: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0113: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0115: Unknown result type (might be due to invalid IL or missing references)
-		//IL_011a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_011f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0134: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0139: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0220: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0227: Unknown result type (might be due to invalid IL or missing references)
-		//IL_022c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0231: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0236: Unknown result type (might be due to invalid IL or missing references)
-		//IL_023a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_023f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01a0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01a7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01ac: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01b1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01b6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01ba: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01bf: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01e2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01e9: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00dd: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00df: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00e1: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00e6: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00f0: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00f2: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00f7: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00fc: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0111: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0116: Unknown result type (might be due to invalid IL or missing references)
 		//IL_01ee: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01f3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01f8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01fc: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0201: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01f5: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01fa: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01ff: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0204: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0208: Unknown result type (might be due to invalid IL or missing references)
+		//IL_020d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0178: Unknown result type (might be due to invalid IL or missing references)
+		//IL_017f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0184: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0189: Unknown result type (might be due to invalid IL or missing references)
+		//IL_018e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0192: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0197: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01b5: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01bc: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01c1: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01c6: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01cb: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01cf: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01d4: Unknown result type (might be due to invalid IL or missing references)
 		if (cmb.GetCube(info.iLocalPos) == null)
 		{
 			return CubeOutOfBoundState.WithinBounds;
 		}
 		CubeOutOfBoundState outOfBoundState = CubeOutOfBoundState.NoChange;
 		float num = ScaleFactor(cmb.GameObject, info.pickedFace) * 0.25f;
-		float num2 = (cmb.GameObject.transform.localScale.x + cmb.GameObject.transform.localScale.y + cmb.GameObject.transform.localScale.z) / 3f;
+		float num2 = (cmb.Scale.x + cmb.Scale.y + cmb.Scale.z) / 3f;
 		float num3 = num / num2;
-		Vector3 val = Vector4.op_Implicit(cmb.GameObject.transform.localToWorldMatrix * Vector4.op_Implicit(Cube.GetFaceAxis(info.pickedFace)));
+		Vector3 val = Vector4.op_Implicit(cmb.Transform.localToWorldMatrix * Vector4.op_Implicit(Cube.GetFaceAxis(info.pickedFace)));
 		Vector3 val2 = info.point + val * deltaAccum;
 		Debug.DrawLine(val2, val2 + val, Color.magenta);
 		Debug.DrawLine(val2, val2 + Vector3.up, Color.magenta);
@@ -743,20 +966,20 @@ internal static class SharedCubeFunctions
 				if (edgeIndex0 || edgeIndex1)
 				{
 					float value = delta;
-					Vector4 val4 = cmb.GameObject.transform.worldToLocalMatrix * Vector4.op_Implicit(val.normalized);
+					Vector4 val4 = cmb.Transform.worldToLocalMatrix * Vector4.op_Implicit(val.normalized);
 					Cube.MoveVertex(info, value, Vector4.op_Implicit(val4.normalized), edgeIndex0, edgeIndex1, ref outOfBoundState);
 				}
 				else
 				{
 					float value2 = delta;
-					Vector4 val5 = cmb.GameObject.transform.worldToLocalMatrix * Vector4.op_Implicit(val.normalized);
+					Vector4 val5 = cmb.Transform.worldToLocalMatrix * Vector4.op_Implicit(val.normalized);
 					Cube.MoveEdge(info, value2, Vector4.op_Implicit(val5.normalized), ref outOfBoundState);
 				}
 			}
 			else
 			{
 				float delta2 = delta;
-				Vector4 val6 = cmb.GameObject.transform.worldToLocalMatrix * Vector4.op_Implicit(val.normalized);
+				Vector4 val6 = cmb.Transform.worldToLocalMatrix * Vector4.op_Implicit(val.normalized);
 				Cube.MoveFace(info, delta2, Vector4.op_Implicit(val6.normalized), ref outOfBoundState);
 			}
 			delta = 0f;
@@ -805,7 +1028,7 @@ internal static class SharedCubeFunctions
 		}
 	}
 
-	public static bool GetPickingInfo(MVCubeModelBase cr, ref CubePickingInfo info, IndentArea indentArea, bool updateIndentArea)
+	public static bool GetPickingInfo(MVCubeModelBase cr, ref CubePickingInfo info)
 	{
 		//IL_0005: Unknown result type (might be due to invalid IL or missing references)
 		//IL_000a: Unknown result type (might be due to invalid IL or missing references)
@@ -826,87 +1049,10 @@ internal static class SharedCubeFunctions
 			info.point = voxelHit.point;
 			info.normal = voxelHit.normal;
 			info.pickedEdge = Cube.GetEdge(cr.GameObject, info.cube, info.pickedFace, voxelHit.point, info.iLocalPos);
-			if (indentArea != null && updateIndentArea)
-			{
-				indentArea.UpdateIndentArea(info, cr.GameObject);
-				if (indentArea.IsColliding())
-				{
-					info.pickedEdge = Edge.None;
-					indentArea.GameObject.active = true;
-				}
-				else
-				{
-					indentArea.GameObject.active = false;
-				}
-			}
 			GetVertices(info, cr.GameObject);
 			return true;
 		}
 		return false;
-	}
-
-	public static Vector3 GetWorldCenter(bool upper, GameObject gameObject)
-	{
-		//IL_000e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0024: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0029: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0042: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0047: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0050: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0092: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0096: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0068: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0071: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0076: Unknown result type (might be due to invalid IL or missing references)
-		Bounds? axisAlignedBoundsRecursively = GetAxisAlignedBoundsRecursively(gameObject.transform);
-		Vector3 result = default;
-		if (axisAlignedBoundsRecursively.HasValue)
-		{
-			Bounds value = axisAlignedBoundsRecursively.Value;
-			result.x = value.center.x;
-			Bounds value2 = axisAlignedBoundsRecursively.Value;
-			result.z = value2.center.z;
-			if (!upper)
-			{
-				Bounds value3 = axisAlignedBoundsRecursively.Value;
-				result.y = value3.min.y;
-			}
-			else
-			{
-				Bounds value4 = axisAlignedBoundsRecursively.Value;
-				result.y = value4.max.y;
-			}
-		}
-		return result;
-	}
-
-	public static Vector3 GetWorldCenter(HashSet<MVWorldObjectClient> wos)
-	{
-		//IL_0049: Unknown result type (might be due to invalid IL or missing references)
-		List<Transform> list = new List<Transform>();
-		foreach (MVWorldObjectClient wo in wos)
-		{
-			list.Add(wo.GameObject.transform);
-		}
-		return GetWorldCenter(list);
-	}
-
-	public static Vector3 GetWorldCenter(List<MVWorldObjectClient> wos)
-	{
-		//IL_0049: Unknown result type (might be due to invalid IL or missing references)
-		List<Transform> list = new List<Transform>();
-		foreach (MVWorldObjectClient wo in wos)
-		{
-			list.Add(wo.GameObject.transform);
-		}
-		return GetWorldCenter(list);
 	}
 
 	public static Bounds? GetAxisAlignedBoundsRecursively(List<MVWorldObjectClient> wos)
@@ -914,7 +1060,7 @@ internal static class SharedCubeFunctions
 		List<Transform> list = new List<Transform>();
 		foreach (MVWorldObjectClient wo in wos)
 		{
-			list.Add(wo.GameObject.transform);
+			list.Add(wo.Transform);
 		}
 		return GetAxisAlignedBoundsRecursively(list);
 	}
@@ -987,13 +1133,13 @@ internal static class SharedCubeFunctions
 		return Vector3.zero;
 	}
 
-	public static Vector3 GetWorldCenter(GameObject gameObject)
+	public static Vector3 GetWorldCenter(Transform transform)
 	{
-		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0015: Unknown result type (might be due to invalid IL or missing references)
 		//IL_001a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
-		Bounds? axisAlignedBoundsRecursively = GetAxisAlignedBoundsRecursively(gameObject.transform);
+		//IL_001d: Unknown result type (might be due to invalid IL or missing references)
+		Bounds? axisAlignedBoundsRecursively = GetAxisAlignedBoundsRecursively(transform);
 		if (axisAlignedBoundsRecursively.HasValue)
 		{
 			Bounds value = axisAlignedBoundsRecursively.Value;
@@ -1004,8 +1150,8 @@ internal static class SharedCubeFunctions
 
 	public static void SetLayerRecursively(Transform t, bool select)
 	{
-		//IL_00e3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e9: Expected Obj, but got Unknown
+		//IL_014b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0151: Expected Obj, but got Unknown
 		if (select)
 		{
 			if (((Component)t).gameObject.layer == LayerMask.NameToLayer("Default"))
@@ -1016,6 +1162,10 @@ internal static class SharedCubeFunctions
 			{
 				((Component)t).gameObject.layer = LayerMask.NameToLayer("LogicSelected");
 			}
+			else if (((Component)t).gameObject.layer == LayerMask.NameToLayer("Player"))
+			{
+				((Component)t).gameObject.layer = LayerMask.NameToLayer("PlayerSelected");
+			}
 		}
 		else if (((Component)t).gameObject.layer == LayerMask.NameToLayer("CamRotateTarget"))
 		{
@@ -1025,46 +1175,15 @@ internal static class SharedCubeFunctions
 		{
 			((Component)t).gameObject.layer = LayerMask.NameToLayer("Logic");
 		}
+		else if (((Component)t).gameObject.layer == LayerMask.NameToLayer("PlayerSelected"))
+		{
+			((Component)t).gameObject.layer = LayerMask.NameToLayer("Player");
+		}
 		foreach (Transform item in t)
 		{
 			Transform t2 = item;
 			SetLayerRecursively(t2, select);
 		}
-	}
-
-	public static int GetCubeCountModels()
-	{
-		int num = 0;
-		foreach (KeyValuePair<int, RuntimePrototypeCubeModel> runtimePrototype in MVGameController.Instance.WOCM.WorldInventory.RuntimePrototypes)
-		{
-			if ((object)runtimePrototype.Value.GetType() == typeof(RuntimePrototypeCubeModel))
-			{
-				RuntimePrototypeCubeModel value = runtimePrototype.Value;
-				num += value.GetCubeCount();
-			}
-		}
-		return num;
-	}
-
-	public static Dictionary<IntVector, Cube> GetCubeDict(BytePacker bp)
-	{
-		Dictionary<IntVector, Cube> dictionary = new Dictionary<IntVector, Cube>();
-		int num = bp.ReadInt32();
-		for (int i = 0; i < num; i++)
-		{
-			IntVector intVector = new IntVector(bp.ReadInt16(), bp.ReadInt16(), bp.ReadInt16());
-			byte b = bp.ReadByte();
-			Cube value = new Cube(bp, b);
-			dictionary.Add(intVector, value);
-			int cubesInRow = CubeDataPacker.GetCubesInRow(b);
-			for (int j = 1; j < cubesInRow; j++)
-			{
-				IntVector key = intVector;
-				key.x += (short)j;
-				dictionary.Add(key, value);
-			}
-		}
-		return dictionary;
 	}
 
 	public static IntVector CubePosToChunk(IntVector cubePos, int chunkSize)

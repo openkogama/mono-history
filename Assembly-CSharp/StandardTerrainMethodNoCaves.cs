@@ -11,8 +11,6 @@ public static class StandardTerrainMethodNoCaves
 
 	private static float noizeFactor = 100f;
 
-	private static int cubeAddedCounter = 0;
-
 	private static List<IntVector> generatedCubes = new List<IntVector>();
 
 	public static void GenerateTerrain(int noiseBlockOffset)

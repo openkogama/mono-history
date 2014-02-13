@@ -21,6 +21,8 @@ public class UXView : MonoBehaviour
 
 	public bool isVisible;
 
+	public bool releaseFocusOnHide;
+
 	private UXScreen screen;
 
 	private List<UXFocusObject> focusObjects;
@@ -38,10 +40,10 @@ public class UXView : MonoBehaviour
 	{
 		if (!isInitialized)
 		{
-			screen = UXUtils.FindObjectOfType<UXScreen>();
+			screen = UXUtils.FindGUIObjectOfType<UXScreen>();
 			UXScreen uXScreen = screen;
 			uXScreen.OnResize = (UXScreen.OnResizeDelegate)Delegate.Combine(uXScreen.OnResize, new UXScreen.OnResizeDelegate(OnResize));
-			focusManager = UXUtils.FindObjectOfType<UXFocusManager>();
+			focusManager = UXUtils.FindGUIObjectOfType<UXFocusManager>();
 			if (isVisible)
 			{
 				Show();
@@ -93,6 +95,10 @@ public class UXView : MonoBehaviour
 			OnHide();
 		}
 		isVisible = false;
+		if (releaseFocusOnHide)
+		{
+			ReleaseFocus();
+		}
 	}
 
 	public void OnResize()
@@ -160,6 +166,14 @@ public class UXView : MonoBehaviour
 		focusManager.CurrentFocus = PreviousFocusObject(focusManager.CurrentFocus);
 	}
 
+	public void ReleaseFocus()
+	{
+		if ((Object)(object)focusManager != (Object)null)
+		{
+			focusManager.CurrentFocus = null;
+		}
+	}
+
 	public void RequestFocus(UXFocusObject focusObject)
 	{
 		if ((Object)(object)focusObject == (Object)null)
@@ -174,8 +188,11 @@ public class UXView : MonoBehaviour
 
 	public void OnDestroy()
 	{
-		UXScreen uXScreen = screen;
-		uXScreen.OnResize = (UXScreen.OnResizeDelegate)Delegate.Remove(uXScreen.OnResize, new UXScreen.OnResizeDelegate(OnResize));
+		if ((Object)(object)screen != (Object)null)
+		{
+			UXScreen uXScreen = screen;
+			uXScreen.OnResize = (UXScreen.OnResizeDelegate)Delegate.Remove(uXScreen.OnResize, new UXScreen.OnResizeDelegate(OnResize));
+		}
 	}
 
 	public void SetVisible(bool isVisible)

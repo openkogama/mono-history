@@ -1,48 +1,30 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
-public class SelectionController
+public class SelectionController : ISelectionController
 {
-	private HashSet<int> selected = new HashSet<int>();
+	private HashSet<int> selectedIDs = new HashSet<int>();
 
 	private Stack<int> parentGroups = new Stack<int>();
 
-	private SelectionGizmo selectionGizmo;
+	private MVWorldObjectClientManager WOCM => MVGameController.Instance.WOCM;
 
-	public int ParentGroup
-	{
-		get
-		{
-			UpdateParentGroupStack();
-			return parentGroups.Peek();
-		}
-	}
+	public int ParentGroupID => parentGroups.Peek();
 
-	public HashSet<int> Selected
-	{
-		get
-		{
-			HashSet<int> hashSet = new HashSet<int>();
-			foreach (int item in selected)
-			{
-				if (!MVGameController.Instance.WOCM.WorldObjects.ContainsKey(item))
-				{
-					hashSet.Add(item);
-				}
-			}
-			selected.ExceptWith(hashSet);
-			return selected;
-		}
-	}
+	public MVGroup ParentGroup => (MVGroup)WOCM.GetWorldObjectClient(ParentGroupID);
+
+	public HashSet<int> SelectedIDs => selectedIDs;
 
 	public HashSet<MVWorldObjectClient> SelectedWOs
 	{
 		get
 		{
 			HashSet<MVWorldObjectClient> hashSet = new HashSet<MVWorldObjectClient>();
-			foreach (int item in Selected)
+			foreach (int selectedID in selectedIDs)
 			{
-				hashSet.Add(MVGameController.Instance.WOCM.GetWorldObjectClient(item));
+				hashSet.Add(WOCM.GetWorldObjectClient(selectedID));
 			}
 			return hashSet;
 		}
@@ -52,11 +34,11 @@ public class SelectionController
 	{
 		get
 		{
-			if (Selected.Count == 1)
+			if (SelectedIDs.Count == 1)
 			{
-				return MVGameController.Instance.WOCM.GetWorldObjectClient(new List<int>(selected)[0]);
+				return WOCM.GetWorldObjectClient(selectedIDs.First());
 			}
-			if (Selected.Count != 0)
+			if (0 < SelectedIDs.Count)
 			{
 				Debug.LogWarning((object)"Trying to access single selected even though multiple objects are selected");
 			}
@@ -64,226 +46,219 @@ public class SelectionController
 		}
 	}
 
+	public event EventHandler<WorldObjectDestroyedEventArgs> SelectedWorldObjectDeleted = delegate
+	{
+	};
+
 	public SelectionController()
 	{
-		//IL_003b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0041: Expected Obj, but got Unknown
-		PushParent(MVGameController.Instance.WOCM.RootGroup.Id);
-		GameObject val = new GameObject("Selection Controller Bounds Gizmo");
-		selectionGizmo = val.AddComponent<SelectionGizmo>();
+		parentGroups.Push(WOCM.RootGroup.Id);
 	}
 
-	public void PushParent(int id)
+	private void WOCM_WorldObjectDestroyedHandler(object sender, WorldObjectDestroyedEventArgs e)
 	{
-		if (!parentGroups.Contains(id))
+		bool flag = false;
+		if (selectedIDs.Contains(e.WordObjectID))
 		{
-			parentGroups.Push(id);
+			flag = true;
+			selectedIDs.Remove(e.WordObjectID);
 		}
-		else
+		if (parentGroups.Contains(e.WordObjectID))
 		{
-			Debug.LogError((object)"parent allready in stack");
+			flag = true;
+			while (e.WordObjectID != parentGroups.Pop())
+			{
+			}
+		}
+		if (flag)
+		{
+			SelectedWorldObjectDeleted(this, e);
 		}
 	}
 
-	public int PopParent()
+	private void PushWOParents(MVWorldObjectClient wo, bool addAsParent = false)
 	{
-		if (parentGroups.Count > 1)
-		{
-			return parentGroups.Pop();
-		}
-		Debug.LogError((object)"Trying to pop root of parent stack");
-		return -1;
-	}
-
-	private void UpdateParentGroupStack()
-	{
-		if (parentGroups.Count == 0)
-		{
-			Debug.LogError((object)"parentGroups is 0. Is should always contain at least 1, the root");
-		}
-		else if (!MVGameController.Instance.WOCM.WorldObjects.ContainsKey(parentGroups.Peek()))
+		while (1 < parentGroups.Count)
 		{
 			parentGroups.Pop();
-			UpdateParentGroupStack();
+		}
+		Queue<int> queue = new Queue<int>();
+		MVWorldObjectClient worldObjectClient = WOCM.GetWorldObjectClient(wo.GroupId);
+		while (worldObjectClient.Id != WOCM.RootGroup.Id)
+		{
+			if (!worldObjectClient.HasInteractionFlag(InteractionFlags.DontPushGroupToSelectionStack))
+			{
+				queue.Enqueue(worldObjectClient.Id);
+			}
+			worldObjectClient = WOCM.GetWorldObjectClient(worldObjectClient.GroupId);
+		}
+		while (queue.Count != 0)
+		{
+			parentGroups.Push(queue.Dequeue());
+		}
+		if (addAsParent)
+		{
+			parentGroups.Push(wo.Id);
+		}
+		foreach (int parentGroup in parentGroups)
+		{
+			WOCM.SubscribeWODestroyedEvent(parentGroup, WOCM_WorldObjectDestroyedHandler);
 		}
 	}
 
-	private bool DeSelectAll(int exceptionId)
+	public MVWorldObjectClient SelectWO(int id, bool addToSelection = false, bool showVisuals = true)
 	{
-		bool result = false;
-		HashSet<int> hashSet = new HashSet<int>();
-		foreach (MVWorldObjectClient selectedWO in SelectedWOs)
-		{
-			if (selectedWO.Id != exceptionId)
-			{
-				hashSet.Add(selectedWO.Id);
-			}
-			else
-			{
-				result = true;
-			}
-		}
-		foreach (int item in hashSet)
-		{
-			MVGameController.Instance.WOCM.GetWorldObjectClient(item).DeSelect();
-		}
-		selected.ExceptWith(hashSet);
-		return result;
-	}
-
-	public bool SelectWo(int id, bool addToSelection)
-	{
-		MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(id);
+		//IL_0105: Unknown result type (might be due to invalid IL or missing references)
+		MVWorldObjectClient worldObjectClient = WOCM.GetWorldObjectClient(id);
 		if (!addToSelection)
 		{
-			if (DeSelectAll(id))
-			{
-				return true;
-			}
-			if (worldObjectClient.OwnerActorNr == 0)
-			{
-				selected.Add(worldObjectClient.Id);
-				SetSelectVisualization(worldObjectClient, select: true);
-				return true;
-			}
+			DeSelectAllExcept(id);
+		}
+		if (worldObjectClient.OwnerActorNr != 0 && worldObjectClient.OwnerActorNr != MVGameController.Instance.Game.LocalPlayer.ActorNr)
+		{
+			Debug.LogWarning((object)("Trying to select WO " + id + " that is owned by another acotr"));
+			return null;
+		}
+		if (!MVGroup.IsDescendant(ParentGroupID, id) && !worldObjectClient.HasInteractionFlag(InteractionFlags.DirectlySelectable))
+		{
+			Debug.LogWarning((object)("Trying to select WO " + id + " outside the parent group " + ParentGroupID));
+			return null;
+		}
+		if (ParentGroupID != worldObjectClient.GroupId)
+		{
+			PushWOParents(worldObjectClient);
+		}
+		selectedIDs.Add(worldObjectClient.Id);
+		WOCM.SubscribeWODestroyedEvent(worldObjectClient.Id, WOCM_WorldObjectDestroyedHandler);
+		if (showVisuals)
+		{
+			worldObjectClient.Select(Color.blue);
 		}
 		else
 		{
-			if (selected.Contains(id))
-			{
-				return true;
-			}
-			if (worldObjectClient.OwnerActorNr == 0 || worldObjectClient.OwnerActorNr == MVGameController.Instance.WOCM.LocalPlayer.ActorNr)
-			{
-				selected.Add(worldObjectClient.Id);
-				SetSelectVisualization(worldObjectClient, select: true);
-				return true;
-			}
+			worldObjectClient.Select();
 		}
-		return false;
+		Debug.Log((object)("Selected: " + worldObjectClient));
+		return worldObjectClient;
 	}
 
-	public void SelectNewRegisteredObject(MVWorldObjectClient wo)
-	{
-		foreach (int item in selected)
-		{
-			MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(item);
-			if (worldObjectClient != null)
-			{
-				SetSelectVisualization(worldObjectClient, select: false);
-			}
-		}
-		selected.Clear();
-		selected.Add(wo.Id);
-		SetSelectVisualization(wo, select: true);
-	}
-
-	private static void SetSelectVisualization(MVWorldObjectClient wo, bool select)
-	{
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0029: Unknown result type (might be due to invalid IL or missing references)
-		if (wo != null)
-		{
-			if (select)
-			{
-				Color color = new Color(1f, 0.5f, 0.5f, 0.5f);
-				wo.Select(color);
-			}
-			else
-			{
-				wo.DeSelect();
-			}
-		}
-	}
-
-	public bool IsWorldObjectSelected(int id)
-	{
-		if (selected.Contains(id))
-		{
-			return true;
-		}
-		if (SingleSelectedWO != null && (object)MVGameController.Instance.WOCM.GetWorldObjectClient(SingleSelectedWO.Id).GetType() == typeof(MVGroup))
-		{
-			return MVGroup.IsDescendant(SingleSelectedWO.Id, id);
-		}
-		return false;
-	}
-
-	public bool Select(bool addToSelection)
+	public MVWorldObjectClient Select(bool addToSelection = false, bool showVisuals = true, int layerMask = -5)
 	{
 		VoxelHit hit = default;
-		if (MVGameController.Instance.WOCM.Pick(ref hit) && (hit.interactionFlags & InteractionFlags.Selectable) != 0)
+		if (!WOCM.Pick(ref hit, null, layerMask))
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(hit.woId);
-			if (worldObjectClient.GroupId != ParentGroup)
+			return null;
+		}
+		return Select(hit, addToSelection, showVisuals);
+	}
+
+	public MVWorldObjectClient Select(VoxelHit hit, bool addToSelection = false, bool showVisuals = true)
+	{
+		if ((hit.interactionFlags & InteractionFlags.Selectable) == 0)
+		{
+			return null;
+		}
+		MVWorldObjectClient worldObjectClient = WOCM.GetWorldObjectClient(hit.woId);
+		bool flag = (hit.interactionFlags & InteractionFlags.DirectlySelectable) == InteractionFlags.DirectlySelectable;
+		bool flag2 = (hit.interactionFlags & InteractionFlags.SelectionRequiresEditGroup) == InteractionFlags.SelectionRequiresEditGroup;
+		Debug.Log((object)string.Concat(new object[8] { "Select: [", worldObjectClient, "] ParentGroup id: ", ParentGroupID, " dirSelect: ", flag, " reqOpenGroup: ", flag2 }));
+		if (flag2 || (!parentGroups.Contains(worldObjectClient.GroupId) && !flag))
+		{
+			int groupAbove = MVGroup.GetGroupAbove(ParentGroupID, worldObjectClient.Id, InteractionFlags.DirectlySelectable);
+			if (groupAbove == -1)
 			{
-				Debug.Log((object)"not parent group");
-				Debug.Log((object)("ParentGroup " + ParentGroup));
-				Debug.Log((object)("wo.Id " + worldObjectClient.Id));
-				Debug.Log((object)("wo.GroupId " + worldObjectClient.GroupId));
-				int groupAbove = MVGroup.GetGroupAbove(ParentGroup, worldObjectClient.Id);
-				if (groupAbove == -1)
-				{
-					Debug.Log((object)"could not find appropriate group Id");
-					return false;
-				}
-				MVGroup mVGroup = (MVGroup)MVGameController.Instance.WOCM.GetWorldObjectClient(groupAbove);
-				if (SelectWo(mVGroup.Id, addToSelection))
-				{
-					foreach (MVWorldObjectClient child in mVGroup.Children)
-					{
-						SetSelectVisualization(child, select: true);
-					}
-					return true;
-				}
-				PushParent(worldObjectClient.GroupId);
+				Debug.Log((object)"Could not find appropriate group Id");
+				return null;
 			}
-			else if (SelectWo(worldObjectClient.Id, addToSelection))
-			{
-				return true;
-			}
-			return false;
+			return SelectWO(groupAbove, addToSelection, showVisuals);
+		}
+		return SelectWO(worldObjectClient.Id, addToSelection, showVisuals);
+	}
+
+	public bool SelectParent(bool showVisuals = true)
+	{
+		DeSelectAll();
+		if (ParentGroupID != WOCM.RootGroup.Id)
+		{
+			return SelectWO(ParentGroupID, addToSelection: false, showVisuals) != null;
 		}
 		return false;
 	}
 
-	public void DeSelect()
+	public void DeSelectAll()
 	{
-		foreach (int item in selected)
+		foreach (int selectedID in selectedIDs)
 		{
-			MVGameController.Instance.WOCM.GetWorldObjectClient(item).DeSelect();
+			WOCM.GetWorldObjectClient(selectedID).DeSelect();
+			WOCM.UnsubscribeWODestroyedEvent(selectedID, WOCM_WorldObjectDestroyedHandler);
 		}
-		Debug.Log((object)"Deselect");
-		selected.Clear();
+		selectedIDs.Clear();
 	}
 
-	public int GetParentBelow(int parentId, int childId)
+	public void DeSelectAllExcept(int id)
 	{
-		if (MVGameController.Instance.WOCM.GetWorldObjectClient(childId) == null)
+		if (!selectedIDs.Contains(id))
 		{
-			Debug.LogWarning((object)("childId is not valid. Id is: " + childId));
-			return -1;
+			DeSelectAll();
+			return;
 		}
-		if (MVGameController.Instance.WOCM.GetWorldObjectClient(childId).GroupId == -1)
+		foreach (int selectedID in selectedIDs)
 		{
-			return -1;
+			if (selectedID != id)
+			{
+				WOCM.GetWorldObjectClient(selectedID).DeSelect();
+				WOCM.UnsubscribeWODestroyedEvent(selectedID, WOCM_WorldObjectDestroyedHandler);
+			}
 		}
-		if (MVGameController.Instance.WOCM.GetWorldObjectClient(parentId).Id == MVGameController.Instance.WOCM.GetWorldObjectClient(childId).GroupId)
+		selectedIDs.RemoveWhere((int s) => s != id);
+	}
+
+	public void DeSelectWorldObject(MVWorldObjectClient wo)
+	{
+		wo.DeSelect();
+		WOCM.UnsubscribeWODestroyedEvent(wo.Id, WOCM_WorldObjectDestroyedHandler);
+		selectedIDs.Remove(wo.Id);
+	}
+
+	public void EnterGroup(MVGroup group)
+	{
+		DeSelectAll();
+		PushWOParents(group, addAsParent: true);
+	}
+
+	public int ExitGroup()
+	{
+		DeSelectAll();
+		if (1 < parentGroups.Count)
 		{
-			return childId;
+			int num = parentGroups.Pop();
+			WOCM.UnsubscribeWODestroyedEvent(num, WOCM_WorldObjectDestroyedHandler);
+			return num;
 		}
-		return GetParentBelow(parentId, MVGameController.Instance.WOCM.GetWorldObjectClient(childId).GroupId);
+		Debug.LogWarning((object)"Trying to exit root group!");
+		return parentGroups.Peek();
+	}
+
+	public int ExitGroupToRoot()
+	{
+		DeSelectAll();
+		while (1 < parentGroups.Count)
+		{
+			int woID = parentGroups.Pop();
+			WOCM.UnsubscribeWODestroyedEvent(woID, WOCM_WorldObjectDestroyedHandler);
+		}
+		return parentGroups.Peek();
 	}
 
 	public bool IsSelected(int id)
 	{
-		foreach (int item in selected)
+		foreach (int selectedID in selectedIDs)
 		{
-			if (id == item)
+			if (id == selectedID)
 			{
 				return true;
 			}
-			if (IsChildOf(item, id))
+			if (IsChildOf(id, selectedID))
 			{
 				return true;
 			}
@@ -291,21 +266,24 @@ public class SelectionController
 		return false;
 	}
 
-	public bool IsChildOf(int parentId, int childId)
+	public bool IsChildOf(int childId, int parentId)
 	{
-		if (MVGameController.Instance.WOCM.GetWorldObjectClient(childId).GroupId == -1)
+		MVWorldObjectClient worldObjectClient = WOCM.GetWorldObjectClient(childId);
+		MVWorldObjectClient worldObjectClient2 = WOCM.GetWorldObjectClient(parentId);
+		return IsChildOf(worldObjectClient, worldObjectClient2);
+	}
+
+	public bool IsChildOf(MVWorldObjectClient child, MVWorldObjectClient parent)
+	{
+		if (child.GroupId == -1)
 		{
 			return false;
 		}
-		if (MVGameController.Instance.WOCM.GetWorldObjectClient(parentId).Id == MVGameController.Instance.WOCM.GetWorldObjectClient(childId).GroupId)
+		if (child.GroupId == parent.Id)
 		{
 			return true;
 		}
-		return IsChildOf(parentId, MVGameController.Instance.WOCM.GetWorldObjectClient(childId).GroupId);
-	}
-
-	public void UpdateSelectionGizmos()
-	{
-		selectionGizmo.wos = SelectedWOs;
+		MVWorldObjectClient worldObjectClient = WOCM.GetWorldObjectClient(child.GroupId);
+		return IsChildOf(worldObjectClient, parent);
 	}
 }

@@ -1,23 +1,36 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
+using Localize;
 using MV.WorldObject;
 using UnityEngine;
 
 public class MVWorldObjectClient : MVWorldObject
 {
+	public new delegate void CallBackDelegate(MVWorldObjectClient woc);
+
 	protected bool isCastingShadows;
 
 	protected static int woShadowCastersCount;
 
 	protected static int woMaxShadowCasters = 20;
 
+	private int goId;
+
 	protected string name;
 
 	protected GameObject gameObject;
 
+	protected Transform transform;
+
 	protected MVNetworkObject networkObject;
 
-	protected InteractionFlags interactionFlags;
+	private bool reactsToLODChanges = true;
+
+	private MVGroup group;
+
+	private bool selected;
 
 	protected SelectedConnector selectedConnector;
 
@@ -25,15 +38,321 @@ public class MVWorldObjectClient : MVWorldObject
 
 	protected GameObject outputConnectorObject;
 
+	protected GameObject objectConnectorObject;
+
+	protected InteractionFlags interactionFlags;
+
+	protected LayerFlags previewLayerMask = LayerFlags.Default;
+
 	private MVRuntimeDataVariables runtimeDataVariables;
+
+	public override Vector3 Position
+	{
+		get
+		{
+			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
+			return transform.localPosition;
+		}
+		set
+		{
+			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
+			//IL_000b: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0012: Unknown result type (might be due to invalid IL or missing references)
+			//IL_001e: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0023: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0024: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0025: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0042: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0043: Unknown result type (might be due to invalid IL or missing references)
+			Vector3 val = transform.position;
+			transform.localPosition = value;
+			Vector3 val2 = transform.position;
+			if (val != val2 && PositionChanged != null)
+			{
+				PositionChanged(this, new PositionChangedEventArgs(val, val2));
+			}
+		}
+	}
+
+	public override Quaternion Rotation
+	{
+		get
+		{
+			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
+			return transform.localRotation;
+		}
+		set
+		{
+			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
+			//IL_000b: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0012: Unknown result type (might be due to invalid IL or missing references)
+			//IL_001e: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0023: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0024: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0025: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0042: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0043: Unknown result type (might be due to invalid IL or missing references)
+			Quaternion val = transform.rotation;
+			transform.localRotation = value;
+			Quaternion val2 = transform.rotation;
+			if (val != val2 && RotationChanged != null)
+			{
+				RotationChanged(this, new RotationChangedEventArgs(val, val2));
+			}
+		}
+	}
+
+	public Vector3 EulerAngles
+	{
+		get
+		{
+			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
+			return transform.localEulerAngles;
+		}
+		set
+		{
+			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
+			//IL_000b: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0012: Unknown result type (might be due to invalid IL or missing references)
+			//IL_001e: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0023: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0024: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0025: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0042: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0043: Unknown result type (might be due to invalid IL or missing references)
+			Quaternion val = transform.rotation;
+			transform.localEulerAngles = value;
+			Quaternion val2 = transform.rotation;
+			if (val != val2 && RotationChanged != null)
+			{
+				RotationChanged(this, new RotationChangedEventArgs(val, val2));
+			}
+		}
+	}
+
+	public override Vector3 Scale
+	{
+		get
+		{
+			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
+			return transform.localScale;
+		}
+		set
+		{
+			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
+			//IL_000b: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0012: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0018: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0019: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0036: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0037: Unknown result type (might be due to invalid IL or missing references)
+			Vector3 localScale = transform.localScale;
+			transform.localScale = value;
+			if (localScale != value && ScaleChanged != null)
+			{
+				ScaleChanged(this, new ScaleChangedEventArgs(localScale, value));
+			}
+		}
+	}
+
+	public new Vector3 WorldPosition
+	{
+		get
+		{
+			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
+			return transform.position;
+		}
+		set
+		{
+			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
+			//IL_000b: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0012: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0018: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0019: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0036: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0037: Unknown result type (might be due to invalid IL or missing references)
+			Vector3 val = transform.position;
+			transform.position = value;
+			if (val != value && PositionChanged != null)
+			{
+				PositionChanged(this, new PositionChangedEventArgs(val, value));
+			}
+		}
+	}
+
+	public new Quaternion WorldRotation
+	{
+		get
+		{
+			//IL_000b: Unknown result type (might be due to invalid IL or missing references)
+			return gameObject.transform.rotation;
+		}
+		set
+		{
+			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
+			//IL_000b: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0012: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0018: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0019: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0036: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0037: Unknown result type (might be due to invalid IL or missing references)
+			Quaternion val = transform.rotation;
+			transform.rotation = value;
+			if (val != value && RotationChanged != null)
+			{
+				RotationChanged(this, new RotationChangedEventArgs(val, value));
+			}
+		}
+	}
+
+	public Vector3 WorldEulerAngles
+	{
+		get
+		{
+			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
+			return transform.eulerAngles;
+		}
+		set
+		{
+			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
+			//IL_000b: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0012: Unknown result type (might be due to invalid IL or missing references)
+			//IL_001e: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0023: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0024: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0025: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0042: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0043: Unknown result type (might be due to invalid IL or missing references)
+			Quaternion val = transform.rotation;
+			transform.eulerAngles = value;
+			Quaternion val2 = transform.rotation;
+			if (val != val2 && RotationChanged != null)
+			{
+				RotationChanged(this, new RotationChangedEventArgs(val, val2));
+			}
+		}
+	}
+
+	public virtual Vector3 SyncPos
+	{
+		get
+		{
+			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
+			return WorldPosition;
+		}
+		set
+		{
+			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
+			WorldPosition = value;
+			State = MVWorldObjectState.Dirty;
+		}
+	}
+
+	public virtual Quaternion SyncRot
+	{
+		get
+		{
+			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
+			return WorldRotation;
+		}
+		set
+		{
+			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
+			WorldRotation = value;
+			State = MVWorldObjectState.Dirty;
+		}
+	}
+
+	public bool ReactsToLODChanges
+	{
+		get
+		{
+			return reactsToLODChanges;
+		}
+		set
+		{
+			reactsToLODChanges = value;
+		}
+	}
+
+	public MVGroup Group
+	{
+		get
+		{
+			return group;
+		}
+		set
+		{
+			group = value;
+		}
+	}
+
+	public bool Selected
+	{
+		get
+		{
+			return selected;
+		}
+		protected set
+		{
+			if (selected != value)
+			{
+				selected = value;
+				OnSelectedChanged(value);
+			}
+		}
+	}
+
+	public HashSet<int> WorldIDsRecursive
+	{
+		get
+		{
+			HashSet<int> childIDs = new HashSet<int>();
+			CallBackDelegate callBack = (MVWorldObjectClient wo) =>
+			{
+				childIDs.Add(wo.Id);
+			};
+			TraverseRecursiveTail(callBack);
+			return childIDs;
+		}
+	}
+
+	public virtual Vector3 WorldPivot
+	{
+		get
+		{
+			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
+			return SharedCubeFunctions.GetWorldCenter(transform);
+		}
+	}
 
 	public override bool HasInputConnector => false;
 
 	public override bool HasOutputConnector => false;
 
-	public InteractionFlags InteractionFlags => interactionFlags;
+	public override bool HasObjectConnector => false;
+
+	public InteractionFlags InteractionFlags
+	{
+		get
+		{
+			return interactionFlags;
+		}
+		set
+		{
+			interactionFlags = value;
+		}
+	}
+
+	public LayerFlags PreviewLayerMask => previewLayerMask;
+
+	public PlayInteractionType PlayInteractionType { get; set; }
+
+	public int GameObjectID => goId;
 
 	public GameObject GameObject => gameObject;
+
+	public Transform Transform => transform;
 
 	public MVNetworkObject NetworkObject
 	{
@@ -67,37 +386,21 @@ public class MVWorldObjectClient : MVWorldObject
 		}
 	}
 
-	public virtual Vector3 SyncPos
+	public virtual Vector3 ObjectConnectorOffset
 	{
 		get
 		{
-			//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-			return gameObject.transform.position;
-		}
-		set
-		{
-			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-			Position = value;
-			gameObject.transform.position = value;
-			State = MVWorldObjectState.Dirty;
+			//IL_000f: Unknown result type (might be due to invalid IL or missing references)
+			return new Vector3(0f, 0f, -1f);
 		}
 	}
 
-	public virtual Quaternion SyncRot
+	public virtual Quaternion ObjectConnectorRotation
 	{
 		get
 		{
-			//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-			return gameObject.transform.rotation;
-		}
-		set
-		{
-			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-			Rotation = value;
-			gameObject.transform.rotation = value;
-			State = MVWorldObjectState.Dirty;
+			//IL_0000: Unknown result type (might be due to invalid IL or missing references)
+			return Quaternion.identity;
 		}
 	}
 
@@ -136,16 +439,195 @@ public class MVWorldObjectClient : MVWorldObject
 		}
 	}
 
-	public MVWorldObjectClient()
+	public event EventHandler<PositionChangedEventArgs> PositionChanged;
+
+	public event EventHandler<RotationChangedEventArgs> RotationChanged;
+
+	public event EventHandler<ScaleChangedEventArgs> ScaleChanged;
+
+	public event EventHandler<SelectedEventArgs> SelectedChanged;
+
+	public event EventHandler ObjectDestroyed;
+
+	public MVWorldObjectClient(Hashtable data, string prefabPath, Dictionary<int, MVWorldObjectClient> worldObjects)
 	{
-		runtimeDataVariables = new MVRuntimeDataVariables(this);
+		gameObject = LoadPrefab(prefabPath);
+		transform = gameObject.transform;
+		CreateWorldObject(data, worldObjects);
 	}
 
-	protected virtual void CreateMVWOC(bool local)
+	public MVWorldObjectClient(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
 	{
+		//IL_0015: Unknown result type (might be due to invalid IL or missing references)
+		//IL_001f: Expected Obj, but got Unknown
+		gameObject = new GameObject();
+		goId = ((Object)gameObject).GetInstanceID();
+		transform = gameObject.transform;
+		CreateWorldObject(data, worldObjects);
+	}
+
+	protected GameObject LoadPrefab(string prefabPath)
+	{
+		Object val = Resources.Load(prefabPath);
+		if (val == (Object)null)
+		{
+			Debug.LogError((object)("Could not find prefab: " + prefabPath));
+		}
+		Object val2 = Object.Instantiate(val);
+		GameObject val3 = (GameObject)(object)((val2 is GameObject) ? val2 : null);
+		goId = ((Object)val3).GetInstanceID();
+		return val3;
+	}
+
+	public bool HasInteractionFlag(InteractionFlags flag)
+	{
+		return (interactionFlags & flag) == flag;
+	}
+
+	private void SetupBusinessLogic()
+	{
+		if (MVGameController.Instance.Game.ItemBusinessLogic.CanAddItemToInventory(itemId))
+		{
+			interactionFlags |= InteractionFlags.CanAddToInventory;
+		}
+	}
+
+	private void ApplyData(Hashtable data)
+	{
+		//IL_0069: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0080: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0097: Unknown result type (might be due to invalid IL or missing references)
+		id = (int)data[WorldObjectDataParameters.Id];
+		groupId = (int)data[WorldObjectDataParameters.GroudId];
+		itemId = (int)data[WorldObjectDataParameters.ItemId];
+		WorldObjectType = (WorldObjectType)(int)data[WorldObjectDataParameters.WorldObjectType];
+		Position = (Vector3)data[WorldObjectDataParameters.Position];
+		Rotation = (Quaternion)data[WorldObjectDataParameters.Rotation];
+		Scale = (Vector3)data[WorldObjectDataParameters.Scale];
+		Data = (Hashtable)data[WorldObjectDataParameters.Data];
+		if (data.ContainsKey(WorldObjectDataParameters.RuntimeData))
+		{
+			RunTimeData = (Hashtable)data[WorldObjectDataParameters.RuntimeData];
+		}
+		else
+		{
+			RunTimeData = RuntimeVariablesRepository.GetRuntimeVariables(WorldObjectType);
+		}
+		if (data.ContainsKey(WorldObjectDataParameters.OwnerActorNumber))
+		{
+			OwnerActorNr = (int)data[WorldObjectDataParameters.OwnerActorNumber];
+		}
+		if (data.ContainsKey(WorldObjectDataParameters.PreviewOwnerProfileId))
+		{
+			PreviewOwnerProfileId = (int)data[WorldObjectDataParameters.PreviewOwnerProfileId];
+		}
+	}
+
+	private void CreateWorldObject(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	{
+		CreateConnectors();
+		ApplyData(data);
+		SetName();
+		runtimeDataVariables = new MVRuntimeDataVariables(this);
+		if (groupId != -1)
+		{
+			group = (MVGroup)worldObjects[groupId];
+			group.AddChild(this);
+		}
+		SetupBusinessLogic();
+	}
+
+	public MVWorldObjectClient GetHitInteractionHandlingWO()
+	{
+		switch (PlayInteractionType)
+		{
+		case PlayInteractionType.Solid:
+		case PlayInteractionType.ExcludeFromInteraction:
+			return null;
+		case PlayInteractionType.HandlesHits:
+			return this;
+		case PlayInteractionType.ParentHandlesHits:
+			if (GroupId != -1)
+			{
+				MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(GroupId);
+				return worldObjectClient.GetHitInteractionHandlingWO();
+			}
+			Debug.LogWarning((object)"WorldObject has ParentHandlesHits, but no parent group!", (Object)(object)gameObject);
+			return null;
+		default:
+			return null;
+		}
+	}
+
+	public virtual void TraverseRecursiveTail(CallBackDelegate callBack)
+	{
+		callBack(this);
+	}
+
+	public virtual bool CompareWithKoGaMaPackage(MVWorldObjectClient wo, KoGaMaPackageClient koGaMaPackageClient, ref int insertedByProfileId)
+	{
+		return false;
+	}
+
+	public virtual void Compare(MVWorldObjectClient wo, bool visibleCubesOnly, ref int matchingCubeCount, ref int investigatedCubeCount)
+	{
+	}
+
+	public virtual MVWorldObjectClient Clone(int ownerActorNumber, int cloneGroupId, CloneBookkeeping cloneBookkeeping, Dictionary<int, MVWorldObjectClient> worldObjects, Dictionary<int, RuntimePrototypeCubeModel> prototypes)
+	{
+		Hashtable hashtable = DeepCopyWorldObjectDataParameters();
+		hashtable[WorldObjectDataParameters.Id] = cloneBookkeeping.cloneIdIncrement;
+		hashtable[WorldObjectDataParameters.GroudId] = cloneGroupId;
+		hashtable[WorldObjectDataParameters.OwnerActorNumber] = ownerActorNumber;
+		hashtable[WorldObjectDataParameters.ItemId] = itemId;
+		hashtable[WorldObjectDataParameters.PreviewOwnerProfileId] = PreviewOwnerProfileId;
+		MVWorldObjectClient mVWorldObjectClient = KoGaMaPackageClient.WorldObjectFactory(hashtable, worldObjects, prototypes);
+		cloneBookkeeping.worldObjectIdsMaps.Add(id, mVWorldObjectClient.id);
+		mVWorldObjectClient.SetNetworkObject(MVGameController.Instance.Game.LocalPlayerActorNumber == ownerActorNumber);
+		mVWorldObjectClient.State = MVWorldObjectState.Synced;
+		MVGameController.Instance.Game.AddCloneToWorldObjects(mVWorldObjectClient);
+		GetLinksForClone(cloneBookkeeping.linkIds);
+		GetObjectLinksForClone(cloneBookkeeping.objectLinkIds);
+		cloneBookkeeping.cloneIdIncrement++;
+		return mVWorldObjectClient;
+	}
+
+	public virtual void SetWorldObjectToPurchased()
+	{
+		PreviewOwnerProfileId = 0;
+		interactionFlags &= ~InteractionFlags.IsPreview;
+		RemovePreviewBox();
+	}
+
+	public void SetNetworkObject(bool local)
+	{
+		if ((object)GetType() != typeof(MVCubeModelFineGrainedTerrain) && (object)GetType() != typeof(MVCubeModelPrototypeTerrain))
+		{
+			if (local)
+			{
+				networkObject = new MVNetworkReporter(this);
+			}
+			else
+			{
+				networkObject = new MVNetworkListener(this);
+			}
+		}
 	}
 
 	public virtual void Initialize()
+	{
+		if (PreviewOwnerProfileId != 0)
+		{
+			AddPreviewBox();
+			interactionFlags |= InteractionFlags.IsPreview;
+		}
+	}
+
+	public virtual void InitializeInventory()
+	{
+	}
+
+	public virtual void PlayModeInitialize()
 	{
 	}
 
@@ -154,6 +636,10 @@ public class MVWorldObjectClient : MVWorldObject
 		if ((Object)(object)gameObject != (Object)null)
 		{
 			Object.Destroy((Object)(object)gameObject);
+		}
+		if (ObjectDestroyed != null)
+		{
+			ObjectDestroyed(this, new EventArgs());
 		}
 	}
 
@@ -165,24 +651,112 @@ public class MVWorldObjectClient : MVWorldObject
 	{
 	}
 
-	public void RunTimeDataUpdate(Hashtable dataDelta)
+	public virtual bool OnEnterObject(EditorStateMachine e)
+	{
+		return false;
+	}
+
+	public virtual bool OnExitObject(EditorStateMachine e)
+	{
+		e.Event = EditorEvent.ObjectSelected;
+		return false;
+	}
+
+	protected virtual void OnSelectedChanged(bool selected)
+	{
+		if (SelectedChanged != null)
+		{
+			SelectedChanged(this, new SelectedEventArgs(selected));
+		}
+	}
+
+	public virtual bool ValidateObjectLinkTarget(MVWorldObjectClient wo)
+	{
+		return false;
+	}
+
+	public void SendPackage(Hashtable package)
+	{
+		MVGameController.Instance.Game.WorldObjectRPC(id, package);
+	}
+
+	public virtual void ReceivePackage(MVPlayer p, Hashtable package)
+	{
+		foreach (DictionaryEntry item in package)
+		{
+			if ((byte)item.Key == 0)
+			{
+				ReceiveInteractionPackage(new InteractionData((byte[])item.Value, withSharedValues: true), p);
+			}
+			else
+			{
+				Debug.LogError((object)"Unknown package type");
+			}
+		}
+	}
+
+	public virtual void ReceiveInteractionPackage(InteractionData interactionStruct, MVPlayer p)
+	{
+		AvatarPackages.packages[interactionStruct.InteractionType].ParseAndHandlePackage(this, p, interactionStruct);
+	}
+
+	private void CreateConnectors()
+	{
+		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0027: Unknown result type (might be due to invalid IL or missing references)
+		//IL_002c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
+		//IL_003b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0045: Expected Obj, but got Unknown
+		//IL_0081: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0087: Unknown result type (might be due to invalid IL or missing references)
+		//IL_008c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0091: Unknown result type (might be due to invalid IL or missing references)
+		//IL_009b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00a5: Expected Obj, but got Unknown
+		//IL_00e1: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00e7: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00ec: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00f2: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00fc: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0106: Expected Obj, but got Unknown
+		if (HasInputConnector)
+		{
+			inputConnectorObject = (GameObject)Object.Instantiate(Resources.Load("Prefabs/InputConnectorObject"), gameObject.transform.position + InputConnectorOffset, Quaternion.identity);
+			inputConnectorObject.transform.parent = gameObject.transform;
+		}
+		if (HasOutputConnector)
+		{
+			outputConnectorObject = (GameObject)Object.Instantiate(Resources.Load("Prefabs/OutputConnectorObject"), gameObject.transform.position + OutputConnectorOffset, Quaternion.identity);
+			outputConnectorObject.transform.parent = gameObject.transform;
+		}
+		if (HasObjectConnector)
+		{
+			objectConnectorObject = (GameObject)Object.Instantiate(Resources.Load("Prefabs/ObjectConnectorObject"), gameObject.transform.position + ObjectConnectorOffset, ObjectConnectorRotation);
+			objectConnectorObject.transform.parent = gameObject.transform;
+		}
+	}
+
+	public void RuntimeDataUpdate(Hashtable dataDelta)
 	{
 		RuntimeDataVariables.Receive(dataDelta);
 		OnRunTimeDataUpdate();
 	}
 
-	protected void UpdateRunTimeData(Hashtable dataDelta)
+	public override void PartialUpdateWOData(Hashtable woData)
 	{
-		MVGameController.Instance.Game.UpdateWorldObjectRunTimeData(Id, dataDelta);
+		base.PartialUpdateWOData(woData);
+		OnDataUpdate();
+	}
+
+	public override void PartialRemoveFromWOData(Hashtable entriesToRemove)
+	{
+		base.PartialRemoveFromWOData(entriesToRemove);
+		OnDataUpdate();
 	}
 
 	public virtual void HandleInput(NetworkInputActionCodes actionCode, NetworkInputKeyCodes keyCode)
 	{
-	}
-
-	public virtual void DeSelect()
-	{
-		selectedConnector = SelectedConnector.None;
 	}
 
 	public virtual void ChangeLOD(float distance)
@@ -212,6 +786,12 @@ public class MVWorldObjectClient : MVWorldObject
 			esm.PushState(EditorEvent.ESAddLink);
 			return true;
 		}
+		if (HasObjectConnector && (Object)(object)collider == (Object)(object)objectConnectorObject.GetComponentInChildren<Collider>())
+		{
+			selectedConnector = SelectedConnector.Object;
+			esm.PushState(EditorEvent.ESAddObjectLink);
+			return true;
+		}
 		return false;
 	}
 
@@ -237,6 +817,17 @@ public class MVWorldObjectClient : MVWorldObject
 		return outputConnectorObject.transform.position;
 	}
 
+	public Vector3 GetObjectConnectorPos()
+	{
+		//IL_0027: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0016: Unknown result type (might be due to invalid IL or missing references)
+		if (!HasObjectConnector)
+		{
+			return gameObject.transform.position;
+		}
+		return objectConnectorObject.transform.position;
+	}
+
 	public bool IsPointOverInputConnector(Vector3 mousePoint)
 	{
 		//IL_000e: Unknown result type (might be due to invalid IL or missing references)
@@ -257,7 +848,7 @@ public class MVWorldObjectClient : MVWorldObject
 		return DoesScreenPointHitCollider(mousePoint, outputConnectorObject.GetComponentInChildren<Collider>());
 	}
 
-	public void HighlightConnector(bool state)
+	public virtual void HighlightConnector(bool state)
 	{
 		//IL_004f: Unknown result type (might be due to invalid IL or missing references)
 		//IL_003b: Unknown result type (might be due to invalid IL or missing references)
@@ -291,7 +882,7 @@ public class MVWorldObjectClient : MVWorldObject
 		//IL_001b: Unknown result type (might be due to invalid IL or missing references)
 		//IL_003d: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0042: Unknown result type (might be due to invalid IL or missing references)
-		Ray val = ((Component)MVGameController.Instance.WOCM.WeCamera).camera.ScreenPointToRay(point);
+		Ray val = ((Component)MVGameController.Instance.Game.CameraController).camera.ScreenPointToRay(point);
 		RaycastHit[] array = Physics.RaycastAll(val);
 		if (array.Length > 0)
 		{
@@ -308,7 +899,7 @@ public class MVWorldObjectClient : MVWorldObject
 		return false;
 	}
 
-	public virtual Bounds GetLocalBounds()
+	public virtual Bounds GetLocalBounds(BoundsContext boundsContext)
 	{
 		//IL_001a: Unknown result type (might be due to invalid IL or missing references)
 		//IL_001f: Unknown result type (might be due to invalid IL or missing references)
@@ -317,94 +908,18 @@ public class MVWorldObjectClient : MVWorldObject
 		return new Bounds(Vector3.zero, Vector3.zero);
 	}
 
-	public Vector3[] GetBoundsCornersLocal()
+	public Vector3[] GetBoundsCornersLocal(BoundsContext boundsContext)
 	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0016: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0025: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0034: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0039: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0041: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0046: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0054: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0059: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0064: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0069: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0074: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0079: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0082: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0087: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0095: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00aa: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ba: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00db: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00eb: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00fb: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0104: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0109: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0117: Unknown result type (might be due to invalid IL or missing references)
-		//IL_011c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0127: Unknown result type (might be due to invalid IL or missing references)
-		//IL_012c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0137: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0145: Unknown result type (might be due to invalid IL or missing references)
-		//IL_014a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0158: Unknown result type (might be due to invalid IL or missing references)
-		//IL_015d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0168: Unknown result type (might be due to invalid IL or missing references)
-		//IL_016d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0178: Unknown result type (might be due to invalid IL or missing references)
-		//IL_017d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0186: Unknown result type (might be due to invalid IL or missing references)
-		//IL_018b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0199: Unknown result type (might be due to invalid IL or missing references)
-		//IL_019e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01a9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01ae: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01b9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01be: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01c7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01cc: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01da: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01df: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01ea: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01ef: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01fa: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01ff: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0208: Unknown result type (might be due to invalid IL or missing references)
-		//IL_020d: Unknown result type (might be due to invalid IL or missing references)
-		Bounds localBounds = GetLocalBounds();
-		return new Vector3[8]
-		{
-			new Vector3(localBounds.min.x, localBounds.max.y, localBounds.min.z),
-			new Vector3(localBounds.max.x, localBounds.max.y, localBounds.min.z),
-			new Vector3(localBounds.max.x, localBounds.max.y, localBounds.max.z),
-			new Vector3(localBounds.min.x, localBounds.max.y, localBounds.max.z),
-			new Vector3(localBounds.min.x, localBounds.min.y, localBounds.max.z),
-			new Vector3(localBounds.max.x, localBounds.min.y, localBounds.max.z),
-			new Vector3(localBounds.max.x, localBounds.min.y, localBounds.min.z),
-			new Vector3(localBounds.min.x, localBounds.min.y, localBounds.min.z)
-		};
+		//IL_0002: Unknown result type (might be due to invalid IL or missing references)
+		return SharedCubeFunctions.GetCorners(GetLocalBounds(boundsContext));
 	}
 
-	public Vector3[] GetBoundsCornersWorld()
+	public Vector3[] GetBoundsCornersWorld(BoundsContext boundsContext)
 	{
+		//IL_000d: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-		Matrix4x4 localToWorld = GameObject.transform.localToWorldMatrix;
-		return GetBoundsCornersLocal().Select((Vector3 localCorner) =>
+		Matrix4x4 localToWorld = transform.localToWorldMatrix;
+		return GetBoundsCornersLocal(boundsContext).Select((Vector3 localCorner) =>
 		{
 			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
 			//IL_0007: Unknown result type (might be due to invalid IL or missing references)
@@ -412,88 +927,104 @@ public class MVWorldObjectClient : MVWorldObject
 		}).ToArray();
 	}
 
-	public virtual bool GetTranslateData(out TranslateObjectData tod, float maxDistanceBase, float minDistance, float maxDistance)
+	public virtual void Select()
 	{
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0030: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0074: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0079: Unknown result type (might be due to invalid IL or missing references)
-		tod = default;
-		MeshRenderer componentInChildren = GameObject.GetComponentInChildren<MeshRenderer>();
-		if ((Object)(object)componentInChildren == (Object)null)
-		{
-			return false;
-		}
-		Bounds bounds = ((Renderer)componentInChildren).bounds;
-		Vector3 extents = bounds.extents;
-		tod.worldBoundsExtentsMagnitude = extents.magnitude;
-		tod.maxDistance = Mathf.Clamp(maxDistanceBase * tod.worldBoundsExtentsMagnitude, minDistance, maxDistance);
-		MeshFilter componentInChildren2 = GameObject.GetComponentInChildren<MeshFilter>();
-		if ((Object)(object)componentInChildren2 == (Object)null)
-		{
-			return false;
-		}
-		tod.localBounds = componentInChildren2.sharedMesh.bounds;
-		tod.transform = GameObject.transform;
-		tod.gameObject = gameObject;
-		tod.worldBounds = SharedCubeFunctions.GetAxisAlignedBoundsRecursively(tod.transform);
-		return true;
+		Selected = true;
 	}
 
 	public virtual void Select(Color color)
 	{
-		//IL_001f: Unknown result type (might be due to invalid IL or missing references)
-		Material[] materials = gameObject.renderer.materials;
-		Material[] array = materials;
-		foreach (Material val in array)
-		{
-			val.color = color;
-		}
-		gameObject.renderer.materials = materials;
 		AddSelectionBox();
+		Selected = true;
+	}
+
+	public virtual void DeSelect()
+	{
+		selectedConnector = SelectedConnector.None;
+		RemoveSelectionBox();
+		Selected = false;
+	}
+
+	public virtual void CheckCanInsert(MVGUIInventoryGroup.CanInsertDelegate canInsert)
+	{
+		canInsert?.Invoke(canInsert: true);
+	}
+
+	public virtual void AddPreviewBox()
+	{
+		PreviewBox previewBox = gameObject.GetComponentInChildren<PreviewBox>();
+		if ((Object)(object)previewBox == (Object)null)
+		{
+			GameObject val = CreateBox("PreviewBox", 1.005f);
+			previewBox = val.AddComponent<PreviewBox>();
+		}
+		previewBox.Show("Materials/PreviewBoxMaterial", GetBoundsCornersLocal(BoundsContext.BoxVisualization));
 	}
 
 	public virtual void AddSelectionBox()
 	{
-		//IL_001d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0023: Expected Obj, but got Unknown
-		//IL_003f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0069: Unknown result type (might be due to invalid IL or missing references)
 		SelectionBox selectionBox = gameObject.GetComponentInChildren<SelectionBox>();
 		if ((Object)(object)selectionBox == (Object)null)
 		{
-			GameObject val = new GameObject("SelectionBox");
-			val.transform.parent = gameObject.transform;
-			val.transform.localPosition = Vector3.zero;
-			val.transform.localRotation = Quaternion.identity;
-			val.transform.localScale = Vector3.one * 1.001f;
+			GameObject val = CreateBox("SelectionBox", 1.001f);
 			selectionBox = val.AddComponent<SelectionBox>();
 		}
-		selectionBox.FadeIn(0.2f, "Materials/SelectBoxMaterial", GetBoundsCornersLocal());
+		selectionBox.FadeIn(0.2f, "Materials/SelectBoxMaterial", GetBoundsCornersLocal(BoundsContext.BoxVisualization));
+	}
+
+	protected GameObject CreateBox(string name, float scale)
+	{
+		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0007: Expected Obj, but got Unknown
+		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0033: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0043: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0049: Unknown result type (might be due to invalid IL or missing references)
+		GameObject val = new GameObject(name);
+		val.transform.parent = gameObject.transform;
+		val.transform.localPosition = Vector3.zero;
+		val.transform.localRotation = Quaternion.identity;
+		val.transform.localScale = Vector3.one * scale;
+		return val;
 	}
 
 	public virtual void RemoveSelectionBox()
 	{
-		SelectionBox componentInChildren = gameObject.GetComponentInChildren<SelectionBox>();
-		if ((Object)(object)componentInChildren != (Object)null)
+		if (!((Object)(object)gameObject == (Object)null))
 		{
-			componentInChildren.FadeOutDestroy(0.8f);
+			SelectionBox componentInChildren = gameObject.GetComponentInChildren<SelectionBox>();
+			if ((Object)(object)componentInChildren != (Object)null)
+			{
+				componentInChildren.FadeOutDestroy(0.8f);
+			}
 		}
 	}
 
-	public virtual bool Delete()
+	public virtual void RemovePreviewBox()
 	{
-		GameObject.SetActiveRecursively(false);
+		if (!((Object)(object)gameObject == (Object)null))
+		{
+			PreviewBox componentInChildren = gameObject.GetComponentInChildren<PreviewBox>();
+			if ((Object)(object)componentInChildren != (Object)null)
+			{
+				componentInChildren.DestroyBox();
+			}
+		}
+	}
+
+	public virtual bool Delete(MVWorldObjectClientManager worldObjectClientManager, ref TextSlotIndex errorTextIndex)
+	{
+		gameObject.SetActiveRecursively(false);
+		worldObjectClientManager.UnregisterWorldObject(id);
 		return true;
 	}
 
 	public virtual void DeleteFailed()
 	{
-		GameObject.SetActiveRecursively(true);
+		if ((Object)(object)gameObject != (Object)null)
+		{
+			gameObject.SetActiveRecursively(true);
+		}
 	}
 
 	public void ClearTransformQueue()
@@ -504,82 +1035,64 @@ public class MVWorldObjectClient : MVWorldObject
 		}
 	}
 
-	public void CreateGameObject(bool local)
+	public void SetName()
 	{
-		//IL_001e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0037: Expected Obj, but got Unknown
-		//IL_00af: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00db: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0069: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0078: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0082: Expected Obj, but got Unknown
-		CreateMVWOC(local);
-		if (HasInputConnector)
-		{
-			inputConnectorObject = (GameObject)Object.Instantiate(Resources.Load("Prefabs/InputConnectorObject"), InputConnectorOffset, Quaternion.identity);
-			inputConnectorObject.transform.parent = gameObject.transform;
-		}
-		if (HasOutputConnector)
-		{
-			outputConnectorObject = (GameObject)Object.Instantiate(Resources.Load("Prefabs/OutputConnectorObject"), OutputConnectorOffset, Quaternion.identity);
-			outputConnectorObject.transform.parent = gameObject.transform;
-		}
-		SetName();
-		gameObject.transform.localPosition = Position;
-		gameObject.transform.localRotation = Rotation;
-		gameObject.transform.localScale = Scale;
-		if (MVGameController.Instance.WOCM.HierarchiesHasBeenCreated && groupId != -1)
-		{
-			MVGroup mVGroup = (MVGroup)MVGameController.Instance.WOCM.GetWorldObjectClient(groupId);
-			mVGroup.AddChild(this);
-		}
-		if ((object)GetType() != typeof(MVCubeModelPrototypeTerrain) && (object)GetType() != typeof(MVCubeModelFineGrainedTerrain))
-		{
-			if (local)
-			{
-				networkObject = new MVNetworkReporter(this);
-			}
-			else
-			{
-				networkObject = new MVNetworkListener(this);
-			}
-		}
+		((Object)gameObject).name = ToString();
 	}
 
-	private void SetName()
+	public override string ToString()
 	{
-		((Object)gameObject).name = GetType().ToString() + " id " + id + " group id " + groupId;
+		return GetType().ToString() + " id " + id + " group id " + groupId + " item id " + itemId;
 	}
 
-	public void SetId(int id)
+	public virtual Vector3 GetTargetPosition()
 	{
-		base.id = id;
-	}
-
-	public void SetGroupId(int groupId)
-	{
-		base.groupId = groupId;
-	}
-
-	internal void DestroyGameObject()
-	{
-		Object.Destroy((Object)(object)gameObject);
-	}
-
-	public void SetParent(MVWorldObjectClient parent)
-	{
-		if (parent != null)
+		//IL_0035: Unknown result type (might be due to invalid IL or missing references)
+		//IL_003a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_003d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_002e: Unknown result type (might be due to invalid IL or missing references)
+		Collider componentInChildren = gameObject.GetComponentInChildren<Collider>();
+		if ((Object)(object)componentInChildren == (Object)null)
 		{
-			Debug.Log((object)"setting transform parent!");
-			gameObject.transform.parent = parent.gameObject.transform;
+			Debug.LogWarning((object)("Did not find collider. Using transform.Position for " + this));
+			return transform.position;
 		}
-		else
+		Bounds bounds = componentInChildren.bounds;
+		return bounds.center;
+	}
+
+	public float ComputeObjectRadius()
+	{
+		//IL_0002: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
+		//IL_000a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0015: Unknown result type (might be due to invalid IL or missing references)
+		//IL_001f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0024: Unknown result type (might be due to invalid IL or missing references)
+		Bounds localBounds = GetLocalBounds(BoundsContext.Default);
+		Vector3 val = localBounds.size.Multiply(Scale) * 0.5f;
+		return val.magnitude;
+	}
+
+	public void RotateAround(Vector3 pivot, Vector3 axis, float angle)
+	{
+		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
+		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0013: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0020: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0025: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0026: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0027: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0044: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0045: Unknown result type (might be due to invalid IL or missing references)
+		Quaternion val = transform.rotation;
+		transform.RotateAround(pivot, axis, angle);
+		Quaternion val2 = transform.rotation;
+		if (val != val2 && RotationChanged != null)
 		{
-			gameObject.transform.parent = null;
+			RotationChanged(this, new RotationChangedEventArgs(val, val2));
 		}
 	}
 }

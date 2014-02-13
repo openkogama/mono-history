@@ -2,5 +2,8 @@ public enum CameraType
 {
 	None = -1,
 	ThirdPerson,
-	JetPackCamera
+	JetPackCamera,
+	FreeRoam,
+	AvatarAccessory,
+	OrbitCamera
 }

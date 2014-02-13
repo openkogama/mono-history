@@ -62,7 +62,7 @@ public class Crease : PostEffectsBase
 		RenderTexture temporary3 = RenderTexture.GetTemporary(source.width / 2, source.height / 2, 0);
 		Graphics.Blit((Texture)(object)source, temporary, _depthFetchMaterial);
 		Graphics.Blit((Texture)(object)temporary, temporary2);
-		for (int i = 0; i < softness; i = checked(i + 1))
+		for (int i = 0; i < softness; i++)
 		{
 			_blurMaterial.SetVector("offsets", new Vector4(0f, spread / (float)temporary2.height, 0f, 0f));
 			Graphics.Blit((Texture)(object)temporary2, temporary3, _blurMaterial);

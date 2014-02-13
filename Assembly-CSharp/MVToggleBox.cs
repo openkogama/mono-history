@@ -1,24 +1,27 @@
+using System.Collections;
+using System.Collections.Generic;
 using MV.WorldObject;
-using UnityEngine;
 
-public class MVToggleBox : MVLogicObject, WorldObjectWithSettings, WorldObjectWithLogicReset
+public class MVToggleBox : MVLogicObject
 {
+	private const string prefabPath = "Prefabs/ToggleBoxObject";
+
 	private bool currentOutputState;
 
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => true;
 
-	protected override void CreateMVWOC(bool local)
+	public MVToggleBox(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+		: base(data, "Prefabs/ToggleBoxObject", worldObjects)
 	{
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Expected Obj, but got Unknown
-		interactionFlags = InteractionFlags.Selectable;
-		gameObject = (GameObject)Object.Instantiate(Resources.Load("Prefabs/ToggleBoxObject"), Vector3.zero, Quaternion.identity);
-		((Object)gameObject).name = GetType().ToString();
-		gameObject.layer = LayerMask.NameToLayer("Logic");
+		interactionFlags |= InteractionFlags.HasSettings;
+	}
+
+	public override void Initialize()
+	{
+		OnDataUpdate();
+		base.Initialize();
 	}
 
 	public override void OnDataUpdate()

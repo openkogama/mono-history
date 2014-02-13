@@ -5,5 +5,6 @@ public enum MVGameStateType
 	None,
 	PrepareRound,
 	Round,
-	RoundEnded
+	RoundEnded,
+	TTRoundEnding
 }

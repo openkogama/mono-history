@@ -1,20 +1,16 @@
-using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 
 public class MVAnd : MVLogicObject
 {
+	private const string prefabPath = "Prefabs/AndObject";
+
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => true;
 
-	protected override void CreateMVWOC(bool local)
+	public MVAnd(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+		: base(data, "Prefabs/AndObject", worldObjects)
 	{
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Expected Obj, but got Unknown
-		interactionFlags = InteractionFlags.Selectable;
-		gameObject = (GameObject)Object.Instantiate(Resources.Load("Prefabs/AndObject"), Vector3.zero, Quaternion.identity);
-		((Object)gameObject).name = GetType().ToString();
-		gameObject.layer = LayerMask.NameToLayer("Logic");
 	}
 }

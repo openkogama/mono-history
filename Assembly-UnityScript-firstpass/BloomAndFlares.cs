@@ -164,114 +164,111 @@ public class BloomAndFlares : PostEffectsBase
 		//IL_0603: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0642: Unknown result type (might be due to invalid IL or missing references)
 		CreateMaterials();
-		checked
+		if (!string.IsNullOrEmpty(bloomThisTag) && bloomThisTag != "Untagged")
 		{
-			if (!string.IsNullOrEmpty(bloomThisTag) && bloomThisTag != "Untagged")
+			GameObject[] array = GameObject.FindGameObjectsWithTag(bloomThisTag);
+			int i = 0;
+			GameObject[] array2 = array;
+			for (int length = array2.Length; i < length; i++)
 			{
-				GameObject[] array = GameObject.FindGameObjectsWithTag(bloomThisTag);
-				int i = 0;
-				GameObject[] array2 = array;
-				for (int length = array2.Length; i < length; i++)
+				if (Object.op_Implicit((Object)(MeshFilter)array2[i].GetComponent(typeof(MeshFilter))))
 				{
-					if (Object.op_Implicit((Object)(MeshFilter)array2[i].GetComponent(typeof(MeshFilter))))
-					{
-						MeshFilter val = (MeshFilter)array2[i].GetComponent(typeof(MeshFilter));
-						Mesh sharedMesh = ((val is MeshFilter) ? val : null).sharedMesh;
-						_alphaAddMaterial.SetPass(0);
-						Graphics.DrawMeshNow(sharedMesh, array2[i].transform.localToWorldMatrix);
-					}
+					MeshFilter val = (MeshFilter)array2[i].GetComponent(typeof(MeshFilter));
+					Mesh sharedMesh = ((val is MeshFilter) ? val : null).sharedMesh;
+					_alphaAddMaterial.SetPass(0);
+					Graphics.DrawMeshNow(sharedMesh, array2[i].transform.localToWorldMatrix);
 				}
 			}
-			RenderTexture temporary = RenderTexture.GetTemporary((int)((float)source.width / 2f), (int)((float)source.height / 2f), 0);
-			RenderTexture temporary2 = RenderTexture.GetTemporary((int)((float)source.width / 4f), (int)((float)source.height / 4f), 0);
-			RenderTexture temporary3 = RenderTexture.GetTemporary((int)((float)source.width / 4f), (int)((float)source.height / 4f), 0);
-			RenderTexture temporary4 = RenderTexture.GetTemporary((int)((float)source.width / 4f), (int)((float)source.height / 4f), 0);
-			Graphics.Blit((Texture)(object)source, temporary);
-			Graphics.Blit((Texture)(object)temporary, temporary2);
-			RenderTexture.ReleaseTemporary(temporary);
-			_brightPassFilterMaterial.SetVector("threshhold", new Vector4(bloomThreshhold, 1f / (1f - bloomThreshhold), 0f, 0f));
-			_brightPassFilterMaterial.SetFloat("useSrcAlphaAsMask", useSrcAlphaAsMask);
-			Graphics.Blit((Texture)(object)temporary2, temporary3, _brightPassFilterMaterial);
-			if (bloomBlurIterations < 1)
-			{
-				bloomBlurIterations = 1;
-			}
-			Graphics.Blit((Texture)(object)temporary3, temporary2);
-			for (int j = 0; j < bloomBlurIterations; j++)
+		}
+		RenderTexture temporary = RenderTexture.GetTemporary((int)((float)source.width / 2f), (int)((float)source.height / 2f), 0);
+		RenderTexture temporary2 = RenderTexture.GetTemporary((int)((float)source.width / 4f), (int)((float)source.height / 4f), 0);
+		RenderTexture temporary3 = RenderTexture.GetTemporary((int)((float)source.width / 4f), (int)((float)source.height / 4f), 0);
+		RenderTexture temporary4 = RenderTexture.GetTemporary((int)((float)source.width / 4f), (int)((float)source.height / 4f), 0);
+		Graphics.Blit((Texture)(object)source, temporary);
+		Graphics.Blit((Texture)(object)temporary, temporary2);
+		RenderTexture.ReleaseTemporary(temporary);
+		_brightPassFilterMaterial.SetVector("threshhold", new Vector4(bloomThreshhold, 1f / (1f - bloomThreshhold), 0f, 0f));
+		_brightPassFilterMaterial.SetFloat("useSrcAlphaAsMask", useSrcAlphaAsMask);
+		Graphics.Blit((Texture)(object)temporary2, temporary3, _brightPassFilterMaterial);
+		if (bloomBlurIterations < 1)
+		{
+			bloomBlurIterations = 1;
+		}
+		Graphics.Blit((Texture)(object)temporary3, temporary2);
+		for (int j = 0; j < bloomBlurIterations; j++)
+		{
+			_separableBlurMaterial.SetVector("offsets", new Vector4(0f, sepBlurSpread * 1f / (float)temporary2.height, 0f, 0f));
+			Graphics.Blit((Texture)(object)temporary2, temporary4, _separableBlurMaterial);
+			_separableBlurMaterial.SetVector("offsets", new Vector4(sepBlurSpread * 1f / (float)temporary2.width, 0f, 0f, 0f));
+			Graphics.Blit((Texture)(object)temporary4, temporary2, _separableBlurMaterial);
+		}
+		Graphics.Blit((Texture)(object)source, destination);
+		if (lensflares)
+		{
+			_brightPassFilterMaterial.SetVector("threshhold", new Vector4(lensflareThreshhold, 1f / (1f - lensflareThreshhold), 0f, 0f));
+			_brightPassFilterMaterial.SetFloat("useSrcAlphaAsMask", 0f);
+			Graphics.Blit((Texture)(object)temporary3, temporary4, _brightPassFilterMaterial);
+			if (lensflareMode == LensflareStyle.Ghosting)
 			{
 				_separableBlurMaterial.SetVector("offsets", new Vector4(0f, sepBlurSpread * 1f / (float)temporary2.height, 0f, 0f));
-				Graphics.Blit((Texture)(object)temporary2, temporary4, _separableBlurMaterial);
+				Graphics.Blit((Texture)(object)temporary4, temporary3, _separableBlurMaterial);
 				_separableBlurMaterial.SetVector("offsets", new Vector4(sepBlurSpread * 1f / (float)temporary2.width, 0f, 0f, 0f));
-				Graphics.Blit((Texture)(object)temporary4, temporary2, _separableBlurMaterial);
+				Graphics.Blit((Texture)(object)temporary3, temporary4, _separableBlurMaterial);
+				_vignetteMaterial.SetFloat("vignetteIntensity", 0.975f);
+				Graphics.Blit((Texture)(object)temporary4, temporary3, _vignetteMaterial);
+				_lensFlareMaterial.SetVector("colorA", new Vector4(flareColorA.r, flareColorA.g, flareColorA.b, flareColorA.a) * lensflareIntensity);
+				_lensFlareMaterial.SetVector("colorB", new Vector4(flareColorB.r, flareColorB.g, flareColorB.b, flareColorB.a) * lensflareIntensity);
+				_lensFlareMaterial.SetVector("colorC", new Vector4(flareColorC.r, flareColorC.g, flareColorC.b, flareColorC.a) * lensflareIntensity);
+				_lensFlareMaterial.SetVector("colorD", new Vector4(flareColorD.r, flareColorD.g, flareColorD.b, flareColorD.a) * lensflareIntensity);
+				Graphics.Blit((Texture)(object)temporary3, temporary2, _lensFlareMaterial);
 			}
-			Graphics.Blit((Texture)(object)source, destination);
-			if (lensflares)
+			else
 			{
-				_brightPassFilterMaterial.SetVector("threshhold", new Vector4(lensflareThreshhold, 1f / (1f - lensflareThreshhold), 0f, 0f));
-				_brightPassFilterMaterial.SetFloat("useSrcAlphaAsMask", 0f);
-				Graphics.Blit((Texture)(object)temporary3, temporary4, _brightPassFilterMaterial);
-				if (lensflareMode == LensflareStyle.Ghosting)
+				_hollywoodFlareBlurMaterial.SetVector("offsets", new Vector4(0f, sepBlurSpread * 1f / (float)temporary2.height, 0f, 0f));
+				_hollywoodFlareBlurMaterial.SetTexture("_NonBlurredTex", (Texture)(object)temporary2);
+				_hollywoodFlareBlurMaterial.SetVector("tintColor", new Vector4(flareColorA.r, flareColorA.g, flareColorA.b, flareColorA.a) * flareColorA.a * lensflareIntensity);
+				Graphics.Blit((Texture)(object)temporary4, temporary3, _hollywoodFlareBlurMaterial);
+				_hollywoodFlareStretchMaterial.SetVector("offsets", new Vector4(sepBlurSpread * 1f / (float)temporary2.width, 0f, 0f, 0f));
+				_hollywoodFlareStretchMaterial.SetFloat("stretchWidth", hollyStretchWidth);
+				Graphics.Blit((Texture)(object)temporary3, temporary4, _hollywoodFlareStretchMaterial);
+				if (lensflareMode == LensflareStyle.Hollywood)
 				{
-					_separableBlurMaterial.SetVector("offsets", new Vector4(0f, sepBlurSpread * 1f / (float)temporary2.height, 0f, 0f));
-					Graphics.Blit((Texture)(object)temporary4, temporary3, _separableBlurMaterial);
-					_separableBlurMaterial.SetVector("offsets", new Vector4(sepBlurSpread * 1f / (float)temporary2.width, 0f, 0f, 0f));
-					Graphics.Blit((Texture)(object)temporary3, temporary4, _separableBlurMaterial);
-					_vignetteMaterial.SetFloat("vignetteIntensity", 0.975f);
-					Graphics.Blit((Texture)(object)temporary4, temporary3, _vignetteMaterial);
-					_lensFlareMaterial.SetVector("colorA", new Vector4(flareColorA.r, flareColorA.g, flareColorA.b, flareColorA.a) * lensflareIntensity);
-					_lensFlareMaterial.SetVector("colorB", new Vector4(flareColorB.r, flareColorB.g, flareColorB.b, flareColorB.a) * lensflareIntensity);
-					_lensFlareMaterial.SetVector("colorC", new Vector4(flareColorC.r, flareColorC.g, flareColorC.b, flareColorC.a) * lensflareIntensity);
-					_lensFlareMaterial.SetVector("colorD", new Vector4(flareColorD.r, flareColorD.g, flareColorD.b, flareColorD.a) * lensflareIntensity);
-					Graphics.Blit((Texture)(object)temporary3, temporary2, _lensFlareMaterial);
+					for (int k = 0; k < hollywoodFlareBlurIterations; k++)
+					{
+						_separableBlurMaterial.SetVector("offsets", new Vector4(sepBlurSpread * 1f / (float)temporary2.width, 0f, 0f, 0f));
+						Graphics.Blit((Texture)(object)temporary4, temporary3, _separableBlurMaterial);
+						_separableBlurMaterial.SetVector("offsets", new Vector4(sepBlurSpread * 1f / (float)temporary2.width, 0f, 0f, 0f));
+						Graphics.Blit((Texture)(object)temporary3, temporary4, _separableBlurMaterial);
+					}
+					_addBrightStuffBlendOneOneMaterial.SetFloat("intensity", 1f);
+					Graphics.Blit((Texture)(object)temporary4, temporary2, _addBrightStuffBlendOneOneMaterial);
 				}
 				else
 				{
-					_hollywoodFlareBlurMaterial.SetVector("offsets", new Vector4(0f, sepBlurSpread * 1f / (float)temporary2.height, 0f, 0f));
-					_hollywoodFlareBlurMaterial.SetTexture("_NonBlurredTex", (Texture)(object)temporary2);
-					_hollywoodFlareBlurMaterial.SetVector("tintColor", new Vector4(flareColorA.r, flareColorA.g, flareColorA.b, flareColorA.a) * flareColorA.a * lensflareIntensity);
-					Graphics.Blit((Texture)(object)temporary4, temporary3, _hollywoodFlareBlurMaterial);
-					_hollywoodFlareStretchMaterial.SetVector("offsets", new Vector4(sepBlurSpread * 1f / (float)temporary2.width, 0f, 0f, 0f));
-					_hollywoodFlareStretchMaterial.SetFloat("stretchWidth", hollyStretchWidth);
-					Graphics.Blit((Texture)(object)temporary3, temporary4, _hollywoodFlareStretchMaterial);
-					if (lensflareMode == LensflareStyle.Hollywood)
+					for (int l = 0; l < hollywoodFlareBlurIterations; l++)
 					{
-						for (int k = 0; k < hollywoodFlareBlurIterations; k++)
-						{
-							_separableBlurMaterial.SetVector("offsets", new Vector4(sepBlurSpread * 1f / (float)temporary2.width, 0f, 0f, 0f));
-							Graphics.Blit((Texture)(object)temporary4, temporary3, _separableBlurMaterial);
-							_separableBlurMaterial.SetVector("offsets", new Vector4(sepBlurSpread * 1f / (float)temporary2.width, 0f, 0f, 0f));
-							Graphics.Blit((Texture)(object)temporary3, temporary4, _separableBlurMaterial);
-						}
-						_addBrightStuffBlendOneOneMaterial.SetFloat("intensity", 1f);
-						Graphics.Blit((Texture)(object)temporary4, temporary2, _addBrightStuffBlendOneOneMaterial);
+						_separableBlurMaterial.SetVector("offsets", new Vector4(sepBlurSpread * 1f / (float)temporary2.width, 0f, 0f, 0f));
+						Graphics.Blit((Texture)(object)temporary4, temporary3, _separableBlurMaterial);
+						_separableBlurMaterial.SetVector("offsets", new Vector4(sepBlurSpread * 1f / (float)temporary2.width, 0f, 0f, 0f));
+						Graphics.Blit((Texture)(object)temporary3, temporary4, _separableBlurMaterial);
 					}
-					else
-					{
-						for (int l = 0; l < hollywoodFlareBlurIterations; l++)
-						{
-							_separableBlurMaterial.SetVector("offsets", new Vector4(sepBlurSpread * 1f / (float)temporary2.width, 0f, 0f, 0f));
-							Graphics.Blit((Texture)(object)temporary4, temporary3, _separableBlurMaterial);
-							_separableBlurMaterial.SetVector("offsets", new Vector4(sepBlurSpread * 1f / (float)temporary2.width, 0f, 0f, 0f));
-							Graphics.Blit((Texture)(object)temporary3, temporary4, _separableBlurMaterial);
-						}
-						_vignetteMaterial.SetFloat("vignetteIntensity", 1f);
-						Graphics.Blit((Texture)(object)temporary4, temporary3, _vignetteMaterial);
-						_lensFlareMaterial.SetVector("colorA", new Vector4(flareColorA.r, flareColorA.g, flareColorA.b, flareColorA.a) * flareColorA.a * lensflareIntensity);
-						_lensFlareMaterial.SetVector("colorB", new Vector4(flareColorB.r, flareColorB.g, flareColorB.b, flareColorB.a) * flareColorB.a * lensflareIntensity);
-						_lensFlareMaterial.SetVector("colorC", new Vector4(flareColorC.r, flareColorC.g, flareColorC.b, flareColorC.a) * flareColorC.a * lensflareIntensity);
-						_lensFlareMaterial.SetVector("colorD", new Vector4(flareColorD.r, flareColorD.g, flareColorD.b, flareColorD.a) * flareColorD.a * lensflareIntensity);
-						Graphics.Blit((Texture)(object)temporary3, temporary4, _lensFlareMaterial);
-						_addBrightStuffBlendOneOneMaterial.SetFloat("intensity", 1f);
-						Graphics.Blit((Texture)(object)temporary4, temporary2, _addBrightStuffBlendOneOneMaterial);
-					}
+					_vignetteMaterial.SetFloat("vignetteIntensity", 1f);
+					Graphics.Blit((Texture)(object)temporary4, temporary3, _vignetteMaterial);
+					_lensFlareMaterial.SetVector("colorA", new Vector4(flareColorA.r, flareColorA.g, flareColorA.b, flareColorA.a) * flareColorA.a * lensflareIntensity);
+					_lensFlareMaterial.SetVector("colorB", new Vector4(flareColorB.r, flareColorB.g, flareColorB.b, flareColorB.a) * flareColorB.a * lensflareIntensity);
+					_lensFlareMaterial.SetVector("colorC", new Vector4(flareColorC.r, flareColorC.g, flareColorC.b, flareColorC.a) * flareColorC.a * lensflareIntensity);
+					_lensFlareMaterial.SetVector("colorD", new Vector4(flareColorD.r, flareColorD.g, flareColorD.b, flareColorD.a) * flareColorD.a * lensflareIntensity);
+					Graphics.Blit((Texture)(object)temporary3, temporary4, _lensFlareMaterial);
+					_addBrightStuffBlendOneOneMaterial.SetFloat("intensity", 1f);
+					Graphics.Blit((Texture)(object)temporary4, temporary2, _addBrightStuffBlendOneOneMaterial);
 				}
 			}
-			_addBrightStuffBlendOneOneMaterial.SetFloat("intensity", bloomIntensity);
-			Graphics.Blit((Texture)(object)temporary2, destination, _addBrightStuffBlendOneOneMaterial);
-			RenderTexture.ReleaseTemporary(temporary2);
-			RenderTexture.ReleaseTemporary(temporary3);
-			RenderTexture.ReleaseTemporary(temporary4);
 		}
+		_addBrightStuffBlendOneOneMaterial.SetFloat("intensity", bloomIntensity);
+		Graphics.Blit((Texture)(object)temporary2, destination, _addBrightStuffBlendOneOneMaterial);
+		RenderTexture.ReleaseTemporary(temporary2);
+		RenderTexture.ReleaseTemporary(temporary3);
+		RenderTexture.ReleaseTemporary(temporary4);
 	}
 
 	public override void Main()

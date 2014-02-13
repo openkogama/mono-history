@@ -111,4 +111,16 @@ public static class CollisionDetection
 		}
 		return MVSweptElipsoidCheck.MVElipsoidCast(ray, transform, localBounds, distance, out voxelHit, ignoreWoIds, layerMask);
 	}
+
+	public static List<MVOverlapResult> ElipsoidOverlapSector(Vector3 position, Quaternion rotation, Vector3 radius, HashSet<int> ignoreWoIds = null, int layerMask = -5)
+	{
+		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_000d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_000e: Unknown result type (might be due to invalid IL or missing references)
+		if (IGNORE_ALL)
+		{
+			return null;
+		}
+		return MVElipsoidOverlapCheck.ElipsoidOverlapCheckSector(radius, position, rotation, layerMask, ignoreWoIds);
+	}
 }

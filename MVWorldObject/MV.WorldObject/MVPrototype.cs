@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace MV.WorldObject;
 
@@ -11,15 +12,13 @@ public class MVPrototype
 
 	protected int typeID;
 
-	protected string name;
+	protected string name = "";
 
 	protected Hashtable data;
 
 	protected float scale;
 
-	protected int authorProfileID;
-
-	protected int authorPlanetID;
+	protected int insertedInWorldByProfileID;
 
 	protected int instanceCounter;
 
@@ -95,27 +94,15 @@ public class MVPrototype
 		}
 	}
 
-	public int AuthorProfileID
+	public int InsertedInWorldByProfileID
 	{
 		get
 		{
-			return authorProfileID;
+			return insertedInWorldByProfileID;
 		}
 		set
 		{
-			authorProfileID = value;
-		}
-	}
-
-	public int AuthorPlanetID
-	{
-		get
-		{
-			return authorPlanetID;
-		}
-		set
-		{
-			authorPlanetID = value;
+			insertedInWorldByProfileID = value;
 		}
 	}
 
@@ -136,4 +123,48 @@ public class MVPrototype
 	}
 
 	public event EventHandler<LastInstanceRemovedEventArgs> LastInstanceRemoved;
+
+	public static byte[] GetPrototypeData(Dictionary<IntVector, byte[]> cubeDict)
+	{
+		BytePacker bytePacker = new BytePacker();
+		int num = 0;
+		bytePacker.Write(cubeDict.Count);
+		foreach (KeyValuePair<IntVector, byte[]> item in cubeDict)
+		{
+			if (CubeDataPacker.GetCubesInRow(item.Value[0]) != 0)
+			{
+				bytePacker.Write(item.Key.x);
+				bytePacker.Write(item.Key.y);
+				bytePacker.Write(item.Key.z);
+				bytePacker.Write(item.Value);
+				num++;
+			}
+		}
+		bytePacker.Position = 0;
+		bytePacker.Write(num);
+		return bytePacker.ToArray();
+	}
+
+	public virtual MVPrototype ShallowCopy()
+	{
+		return (MVPrototype)MemberwiseClone();
+	}
+
+	public virtual MVPrototype DeepCopy()
+	{
+		MVPrototype mVPrototype = ShallowCopy();
+		Dictionary<IntVector, byte[]> dictionary = (Dictionary<IntVector, byte[]>)Data[(byte)48];
+		Dictionary<IntVector, byte[]> dictionary2 = new Dictionary<IntVector, byte[]>();
+		foreach (KeyValuePair<IntVector, byte[]> item in dictionary)
+		{
+			byte[] array = new byte[item.Value.Length];
+			for (int i = 0; i < item.Value.Length; i++)
+			{
+				array[i] = item.Value[i];
+			}
+			dictionary2.Add(item.Key, array);
+		}
+		mVPrototype.Data[(byte)48] = dictionary2;
+		return mVPrototype;
+	}
 }

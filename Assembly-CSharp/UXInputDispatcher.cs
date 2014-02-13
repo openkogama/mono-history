@@ -51,9 +51,13 @@ public class UXInputDispatcher : MonoBehaviour, IInputHandler
 	{
 		private StateContext context;
 
+		private bool validDragObject;
+
 		private Vector3 dragStartPosition = Vector3.zero;
 
 		private UXDragObject potentialDragObject;
+
+		private bool mouseDownObject;
 
 		private bool sticky;
 
@@ -84,40 +88,56 @@ public class UXInputDispatcher : MonoBehaviour, IInputHandler
 
 		private void HandleStartDrag()
 		{
-			//IL_003e: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0043: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0048: Unknown result type (might be due to invalid IL or missing references)
-			//IL_004d: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0070: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0091: Unknown result type (might be due to invalid IL or missing references)
+			//IL_005b: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0060: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0065: Unknown result type (might be due to invalid IL or missing references)
+			//IL_006a: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0049: Unknown result type (might be due to invalid IL or missing references)
+			//IL_004e: Unknown result type (might be due to invalid IL or missing references)
+			//IL_008d: Unknown result type (might be due to invalid IL or missing references)
+			//IL_00ae: Unknown result type (might be due to invalid IL or missing references)
 			if (Input.GetMouseButtonDown(0))
 			{
 				potentialDragObject = UXUtils.FindFirstWithComponent<UXDragObject>((ICollection<GameObject>)context.Objects);
 			}
 			if (Input.GetMouseButton(0) && (Object)(object)potentialDragObject != (Object)null)
 			{
-				Vector3 val = dragStartPosition - Input.mousePosition;
-				if (val.sqrMagnitude > 0f && potentialDragObject.OnDragStart(context.MousePositionWorld))
+				if (!validDragObject)
 				{
-					context.InputDispatcher.State = new Dragging(context, dragStartPosition, potentialDragObject);
+					dragStartPosition = Input.mousePosition;
+					validDragObject = true;
 				}
+				Vector3 val = dragStartPosition - Input.mousePosition;
+				if (val.sqrMagnitude > 0f)
+				{
+					if (potentialDragObject.OnDragStart(context.MousePositionWorld))
+					{
+						context.InputDispatcher.State = new Dragging(context, dragStartPosition, potentialDragObject);
+					}
+					validDragObject = false;
+				}
+			}
+			else
+			{
+				validDragObject = false;
 			}
 		}
 
 		private void HandleMouseClick()
 		{
-			//IL_007d: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00b4: Unknown result type (might be due to invalid IL or missing references)
-			//IL_009a: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00cc: Unknown result type (might be due to invalid IL or missing references)
-			bool keyDown = MVInputWrapper.GetKeyDown((KeyCode)323, useKey: false);
-			bool key = MVInputWrapper.GetKey((KeyCode)323, useKey: false);
-			bool keyUp = MVInputWrapper.GetKeyUp((KeyCode)323, useKey: false);
+			//IL_0083: Unknown result type (might be due to invalid IL or missing references)
+			//IL_00c1: Unknown result type (might be due to invalid IL or missing references)
+			//IL_00a0: Unknown result type (might be due to invalid IL or missing references)
+			//IL_00eb: Unknown result type (might be due to invalid IL or missing references)
+			bool keyDown = MVInputWrapper.GetKeyDown((KeyCode)323);
+			bool key = MVInputWrapper.GetKey((KeyCode)323);
+			bool keyUp = MVInputWrapper.GetKeyUp((KeyCode)323);
 			if (!keyDown && !keyUp && !key)
 			{
 				return;
 			}
 			bool flag = false;
+			bool flag2 = false;
 			foreach (GameObject @object in context.Objects)
 			{
 				UXMouseClickObject component = @object.GetComponent<UXMouseClickObject>();
@@ -129,6 +149,7 @@ public class UXInputDispatcher : MonoBehaviour, IInputHandler
 						if (!flag)
 						{
 							component.NotifyOnClick(context.MousePositionWorld);
+							mouseDownObject = true;
 							flag = true;
 						}
 					}
@@ -136,12 +157,13 @@ public class UXInputDispatcher : MonoBehaviour, IInputHandler
 					{
 						component.NotifyMouseDownMove(context.MousePositionWorld);
 					}
-					if (keyUp)
+					if (keyUp && mouseDownObject && !flag2)
 					{
 						component.NotifyMouseUp(context.MousePositionWorld);
+						flag2 = true;
 					}
 				}
-				if (keyDown)
+				if (keyDown && (!flag || (flag && Object.op_Implicit((Object)(object)@object) == flag)))
 				{
 					UXFocusObject component2 = @object.GetComponent<UXFocusObject>();
 					if ((Object)(object)component2 != (Object)null)
@@ -150,29 +172,48 @@ public class UXInputDispatcher : MonoBehaviour, IInputHandler
 					}
 				}
 			}
+			if (keyUp)
+			{
+				mouseDownObject = false;
+			}
 		}
 
 		private void HandleMouseOver()
 		{
-			foreach (GameObject item in context.ObjectsEntered)
+			if (!Screen.showCursor)
+			{
+				return;
+			}
+			foreach (GameObject item in context.ObjectsExited)
 			{
 				if ((Object)(object)item != (Object)null)
 				{
 					UXMouseOverObject component = item.GetComponent<UXMouseOverObject>();
 					if ((Object)(object)component != (Object)null)
 					{
-						component.NotifyOnMouseOverEnter();
+						component.NotifyOnMouseOverExit();
 					}
 				}
 			}
-			foreach (GameObject item2 in context.ObjectsExited)
+			foreach (GameObject item2 in context.ObjectsEntered)
 			{
 				if ((Object)(object)item2 != (Object)null)
 				{
 					UXMouseOverObject component2 = item2.GetComponent<UXMouseOverObject>();
 					if ((Object)(object)component2 != (Object)null)
 					{
-						component2.NotifyOnMouseOverExit();
+						component2.NotifyOnMouseOverEnter();
+					}
+				}
+			}
+			foreach (GameObject @object in context.Objects)
+			{
+				if ((Object)(object)@object != (Object)null)
+				{
+					UXMouseOverObject component3 = @object.GetComponent<UXMouseOverObject>();
+					if ((Object)(object)component3 != (Object)null)
+					{
+						component3.NotifyOnMouseOver();
 					}
 				}
 			}
@@ -277,7 +318,7 @@ public class UXInputDispatcher : MonoBehaviour, IInputHandler
 			foreach (GameObject @object in context.Objects)
 			{
 				UXDropObject component = @object.GetComponent<UXDropObject>();
-				if ((Object)(object)component != (Object)null && component.OnDragOverExit != null)
+				if ((Object)(object)component != (Object)null && component.OnDragOverExit != null && (Object)(object)dragObject != (Object)null)
 				{
 					component.OnDragOverExit(((Component)dragObject).gameObject);
 				}
@@ -317,6 +358,8 @@ public class UXInputDispatcher : MonoBehaviour, IInputHandler
 
 	private Queue<InputState> stateQueue = new Queue<InputState>();
 
+	public bool BlockGUIInput { get; set; }
+
 	public int Priority => InputHandlerPriority.UI;
 
 	public InputState State
@@ -345,7 +388,7 @@ public class UXInputDispatcher : MonoBehaviour, IInputHandler
 
 	public void Awake()
 	{
-		focusManager = UXUtils.FindObjectOfType<UXFocusManager>();
+		focusManager = UXUtils.FindGUIObjectOfType<UXFocusManager>();
 		uiLayerMask = 1 << LayerMask.NameToLayer("UXElement");
 		state = NORMAL_STATE;
 		UXUtils.FindObjectOfType<MVInputHandlerPrioritizer>().Register(this);
@@ -367,7 +410,7 @@ public class UXInputDispatcher : MonoBehaviour, IInputHandler
 		context.ObjectsEntered = hashSet;
 		context.ObjectsExited = hashSet2;
 		HandleNonUIElementEvents();
-		bool result = State.Update();
+		bool result = !BlockGUIInput && State.Update();
 		CleanupObjects();
 		return result;
 	}
@@ -448,9 +491,9 @@ public class UXInputDispatcher : MonoBehaviour, IInputHandler
 
 	private void HandleNonUIElementEvents()
 	{
-		//IL_0052: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c8: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0058: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0093: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00ce: Unknown result type (might be due to invalid IL or missing references)
 		bool keyDown = MVInputWrapper.GetKeyDown((KeyCode)323);
 		bool key = MVInputWrapper.GetKey((KeyCode)323);
 		bool keyUp = MVInputWrapper.GetKeyUp((KeyCode)323);

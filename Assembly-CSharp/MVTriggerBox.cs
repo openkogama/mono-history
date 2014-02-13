@@ -1,8 +1,12 @@
+using System.Collections;
+using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
 
-public class MVTriggerBox : MVLogicObject, WorldObjectWithSettings, WorldObjectWithLogicReset
+public class MVTriggerBox : MVLogicObject
 {
+	private const string prefabPath = "Prefabs/TriggerBoxObject";
+
 	private TriggerBoxEvents triggerBoxEvents;
 
 	private GameObject audioGO;
@@ -22,6 +26,22 @@ public class MVTriggerBox : MVLogicObject, WorldObjectWithSettings, WorldObjectW
 		}
 	}
 
+	public MVTriggerBox(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+		: base(data, "Prefabs/TriggerBoxObject", worldObjects)
+	{
+		//IL_0069: Unknown result type (might be due to invalid IL or missing references)
+		//IL_006e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0078: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0082: Expected Obj, but got Unknown
+		interactionFlags |= InteractionFlags.HasSettings;
+		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
+		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
+		triggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
+		audioGO = (GameObject)Object.Instantiate(Resources.Load("Audio/AudioPrefabs/TriggerBoxSound"), Vector3.zero, Quaternion.identity);
+		audioGO.transform.parent = gameObject.transform;
+		audioLC = audioGO.GetComponentInChildren<AudioLogicCube>();
+	}
+
 	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
 	{
 		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
@@ -32,54 +52,26 @@ public class MVTriggerBox : MVLogicObject, WorldObjectWithSettings, WorldObjectW
 		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, Vector3.one * 2f);
 	}
 
-	protected override void CreateMVWOC(bool local)
-	{
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Expected Obj, but got Unknown
-		//IL_00a0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00af: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b9: Expected Obj, but got Unknown
-		interactionFlags = InteractionFlags.Selectable;
-		gameObject = (GameObject)Object.Instantiate(Resources.Load("Prefabs/TriggerBoxObject"), Vector3.zero, Quaternion.identity);
-		((Object)gameObject).name = GetType().ToString();
-		gameObject.layer = LayerMask.NameToLayer("Logic");
-		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
-		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
-		triggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
-		audioGO = (GameObject)Object.Instantiate(Resources.Load("Audio/AudioPrefabs/TriggerBoxSound"), Vector3.zero, Quaternion.identity);
-		audioGO.transform.parent = gameObject.transform;
-		audioLC = audioGO.GetComponentInChildren<AudioLogicCube>();
-	}
-
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		if (MVGameController.Instance.WOCM.LocalPlayer.Avatar.AvatarController.AvatarState == AvatarState.Playing)
-		{
-			MVGameController.Instance.Game.TriggerBoxEnter(this);
-		}
+		MVGameController.Instance.Game.TriggerBoxEnter(Id, e.instigatorWOID);
 	}
 
 	private void triggerBoxEvents_TriggerExit(object sender, TriggerEventArgs e)
 	{
-		if (MVGameController.Instance.WOCM.LocalPlayer.Avatar.AvatarController.AvatarState == AvatarState.Playing)
-		{
-			MVGameController.Instance.Game.TriggerBoxExit(this);
-		}
+		MVGameController.Instance.Game.TriggerBoxExit(Id, e.instigatorWOID);
 	}
 
 	public void OnEnter(MVPlayer player)
 	{
-		if (player != MVGameController.Instance.WOCM.LocalPlayer)
+		if (player != MVGameController.Instance.Game.LocalPlayer)
 		{
 		}
 	}
 
 	public void OnExit(MVPlayer player)
 	{
-		if (player != MVGameController.Instance.WOCM.LocalPlayer)
+		if (player != MVGameController.Instance.Game.LocalPlayer)
 		{
 		}
 	}
@@ -106,5 +98,6 @@ public class MVTriggerBox : MVLogicObject, WorldObjectWithSettings, WorldObjectW
 	{
 		triggerBoxEvents.TriggerEnter -= triggerBoxEvents_TriggerEnter;
 		triggerBoxEvents.TriggerExit -= triggerBoxEvents_TriggerExit;
+		base.Destroy();
 	}
 }

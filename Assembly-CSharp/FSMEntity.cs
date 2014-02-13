@@ -63,6 +63,7 @@ public class FSMEntity
 				}
 				stateName = value.ToString();
 				currentState = state;
+				nextEvent = null;
 				prevEvent = curEvent;
 				curEvent = value;
 				currentState.Enter(this);
@@ -126,5 +127,15 @@ public class FSMEntity
 			return true;
 		}
 		return false;
+	}
+
+	public void ClearStateStack()
+	{
+		if (0 < stateStack.Count)
+		{
+			EditorEvent editorEvent = stateStack.Pop();
+			clearStack = true;
+			Event = editorEvent;
+		}
 	}
 }

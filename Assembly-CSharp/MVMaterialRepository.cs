@@ -11,53 +11,41 @@ public class MVMaterialRepository
 
 	private MVMaterial noMaterial;
 
+	private MVMaterial inAirMaterial = new MVMaterial(null, MVPhysics.airPhysicalProperties, MaterialSound.None, AvatarModifierPackageType.None);
+
+	private PhysicalProperties physicalPropertiesDefault = new PhysicalProperties(0.43f, 0f, 1f, 20f, 100000f);
+
 	public int MaterialCount => materials.Count;
+
+	public MVMaterial InAirMaterial => inAirMaterial;
 
 	public MVMaterialRepository()
 	{
-		//IL_001c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Expected Obj, but got Unknown
-		noMaterial = new MVMaterial((Material)Resources.Load("Materials/CubeMaterialBasics/notexture"), MaterialPhysicalProperties.PhysicalPropertiesDefault);
-		AddMaterial("Materials/CubeMaterialBasics/scarletredmat00");
-		AddMaterial("Materials/CubeMaterialBasics/scarletredmat01");
-		AddMaterial("Materials/CubeMaterialBasics/scarletredmat02");
-		AddMaterial("Materials/CubeMaterialBasics/chocolatemat00");
-		AddMaterial("Materials/CubeMaterialBasics/plummat00");
-		AddMaterial("Materials/CubeMaterialBasics/skybluemat00");
-		AddMaterial("Materials/CubeMaterialBasics/skybluemat01");
-		AddMaterial("Materials/CubeMaterialBasics/skybluemat02");
-		AddMaterial("Materials/CubeMaterialBasics/chocolatemat01");
-		AddMaterial("Materials/CubeMaterialBasics/plummat01");
-		AddMaterial("Materials/CubeMaterialBasics/chameleonmat00");
-		AddMaterial("Materials/CubeMaterialBasics/chameleonmat01");
-		AddMaterial("Materials/CubeMaterialBasics/chameleonmat02");
-		AddMaterial("Materials/CubeMaterialBasics/chocolatemat02");
-		AddMaterial("Materials/CubeMaterialBasics/plummat02");
-		AddMaterial("Materials/CubeMaterialBasics/orangemat00");
-		AddMaterial("Materials/CubeMaterialBasics/orangemat01");
-		AddMaterial("Materials/CubeMaterialBasics/orangemat02");
-		AddMaterial("Materials/CubeMaterialBasics/buttermat00");
-		AddMaterial("Materials/CubeMaterialBasics/buttermat01");
-		AddMaterial("Materials/CubeMaterialBasics/aluminiummat00");
-		AddMaterial("Materials/CubeMaterialBasics/aluminiummat01");
-		AddMaterial("Materials/CubeMaterialBasics/aluminiummat02");
-		AddMaterial("Materials/CubeMaterialBasics/aluminiummat03");
-		AddMaterial("Materials/CubeMaterialBasics/buttermat02");
-		AddMaterial("Materials/CubeMaterialBasics/func_ice00");
-		AddMaterial("Materials/CubeMaterialBasics/func_lava00", typeof(LavaAnimator));
-		AddMaterial("Materials/CubeMaterialBasics/func_bouncy00");
+		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0065: Expected Obj, but got Unknown
+		noMaterial = new MVMaterial((Material)Resources.Load("Cube/Materials/notexture"), physicalPropertiesDefault, MaterialSound.None, AvatarModifierPackageType.None);
 	}
 
-	private void AddMaterial(string materialResourceFileName, Type materialAnimatorType = null)
+	public void SetMaterialPrice(int materialID, int materialUnlockPriceGold, int materialUnlockPriceSilver)
+	{
+		materials[materialID].unlockPriceGold = materialUnlockPriceGold;
+	}
+
+	public void SetMaterialUnlocked(int materialId, bool unlocked)
+	{
+		materials[materialId].isUnlocked = unlocked;
+	}
+
+	public void AddMaterial(string name, string description, string path, MaterialSound materialSound, AvatarModifierPackageType modifierPackageType, int priceGold, int priceSilver, bool isUnlocked, float[] physicalProperties, Type materialAnimatorType = null)
 	{
 		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
 		//IL_000c: Expected Obj, but got Unknown
-		Material material = (Material)Resources.Load(materialResourceFileName);
+		Material material = (Material)Resources.Load(path);
 		if ((object)materialAnimatorType != null)
 		{
 			CreateMaterialAnimator(material, materialAnimatorType);
 		}
-		materials.Add(new MVMaterial(material, MaterialPhysicalProperties.GetPhysicalProperty(materials.Count)));
+		materials.Add(new MVMaterial(name, description, material, new PhysicalProperties(physicalProperties[0], physicalProperties[1], physicalProperties[2], physicalProperties[3], physicalProperties[4]), materialSound, modifierPackageType, priceGold, priceSilver, isUnlocked));
 	}
 
 	private void CreateMaterialAnimator(Material material, Type materialAnimatorType)
@@ -74,8 +62,19 @@ public class MVMaterialRepository
 	{
 		if (materialId >= materials.Count)
 		{
+			Debug.LogError((object)"Material out of range");
 			return noMaterial;
 		}
 		return materials[materialId];
+	}
+
+	public PhysicalProperties GetMaterialPhysicalProperties(byte materialId)
+	{
+		if (materialId >= materials.Count)
+		{
+			Debug.LogError((object)"Material out of range");
+			return noMaterial.physicalProperties;
+		}
+		return materials[materialId].physicalProperties;
 	}
 }

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
@@ -14,44 +13,7 @@ public class CubeModelChunk
 		public Face face;
 	}
 
-	internal struct MipMeshBookkeeping(List<Cube> cubes)
-	{
-		private List<Cube> cubes = cubes;
-
-		public int CubesCount => cubes.Count;
-
-		public void AddCube(Cube cube)
-		{
-			cubes.Add(cube);
-		}
-
-		public int GetDominantCubeMaterial(Dictionary<int, int> materialCounts)
-		{
-			materialCounts.Clear();
-			foreach (Cube cube in cubes)
-			{
-				int material = CubeBase.GetMaterial(cube, Face.Top);
-				if (!materialCounts.ContainsKey(material))
-				{
-					materialCounts.Add(material, 0);
-				}
-				materialCounts[material]++;
-			}
-			int result = -1;
-			int num = 0;
-			foreach (KeyValuePair<int, int> materialCount in materialCounts)
-			{
-				if (materialCount.Value > num)
-				{
-					result = materialCount.Key;
-					num = materialCount.Value;
-				}
-			}
-			return result;
-		}
-	}
-
-	public static readonly bool UseACShadows = false;
+	public static readonly bool UseAOShadows = true;
 
 	private static int chunkSize = 32;
 
@@ -65,7 +27,7 @@ public class CubeModelChunk
 
 	private int cubeCount;
 
-	private Cells cells;
+	private Dictionary<IntVector, Cell> cells = new Dictionary<IntVector, Cell>();
 
 	private static FaceData[] faceData = new FaceData[6]
 	{
@@ -87,25 +49,16 @@ public class CubeModelChunk
 
 	private static float bookKeepingFloat = 0f;
 
-	private static Vector2 cubePosOffset = new Vector2(0f, 0f);
-
-	private static Dictionary<int, int> materialCounts = new Dictionary<int, int>();
-
-	private static Dictionary<IntVector, MipMeshBookkeeping> mipMeshBookkeeping = new Dictionary<IntVector, MipMeshBookkeeping>();
-
-	private static IntVector intVectorBookkeeping = default;
-
 	public static int ChunkSize => chunkSize;
 
 	public int CubeCount => cubeCount;
 
 	public CubeModelChunk(IntVector iVector)
 	{
-		//IL_00a3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ad: Expected Obj, but got Unknown
+		//IL_0098: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00a2: Expected Obj, but got Unknown
 		name = "chunk" + iVector.x + "." + iVector.y + "." + iVector.z;
 		chunkPos = iVector;
-		cells = new Cells(chunkPos, ChunkSize);
 		for (int i = 0; i < meshes.Length; i++)
 		{
 			ref SharedMeshData reference = ref meshes[i];
@@ -122,82 +75,113 @@ public class CubeModelChunk
 		//IL_0076: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0085: Unknown result type (might be due to invalid IL or missing references)
 		//IL_008a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a8: Unknown result type (might be due to invalid IL or missing references)
 	}
 
 	public CubeModelChunk CloneGeometry(Vector3 scale)
 	{
-		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0070: Unknown result type (might be due to invalid IL or missing references)
 		CubeModelChunk cubeModelChunk = new CubeModelChunk(chunkPos);
-		cubeModelChunk.cells = cells.Clone();
+		foreach (KeyValuePair<IntVector, Cell> cell in cells)
+		{
+			cubeModelChunk.cells.Add(cell.Key, cell.Value.Clone());
+		}
 		cubeModelChunk.cubeCount = cubeCount;
 		cubeModelChunk.RebuildChunk(scale);
-		cubeModelChunk.RebuildMipMapMesh(scale);
 		return cubeModelChunk;
 	}
 
 	public bool CompareGeometry(CubeModelChunk chunk)
 	{
-		for (int i = 0; i < chunkSize; i++)
+		if (cells.Count != chunk.cells.Count)
 		{
-			for (int j = 0; j < chunkSize; j++)
+			return false;
+		}
+		foreach (KeyValuePair<IntVector, Cell> cell in cells)
+		{
+			if (chunk.cells.TryGetValue(cell.Key, out var value))
 			{
-				for (int k = 0; k < chunkSize; k++)
+				if (cell.Value.cube != value.cube)
 				{
-					if ((chunk.cells[i, j, k].cube == null && cells[i, j, k].cube != null) || (chunk.cells[i, j, k].cube != null && cells[i, j, k].cube == null))
-					{
-						return false;
-					}
-					if (chunk.cells[i, j, k].cube != cells[i, j, k].cube)
-					{
-						return false;
-					}
+					return false;
 				}
+				continue;
 			}
+			return false;
 		}
 		return true;
 	}
 
+	public bool CompareGeometry(CubeModelChunk chunk, ref int matchingCubeCount, ref int investigatedCubeCount, bool visibleCubesOnly)
+	{
+		int num = 0;
+		int num2 = 0;
+		foreach (KeyValuePair<IntVector, Cell> cell in cells)
+		{
+			if (visibleCubesOnly && cell.Value.cube.HiddenSides == 63)
+			{
+				continue;
+			}
+			if (chunk != null && chunk.cells.TryGetValue(cell.Key, out var value))
+			{
+				bool flag = true;
+				for (int i = 0; i < 8; i++)
+				{
+					if (cell.Value.cube.ByteCorners[i] != value.cube.ByteCorners[i])
+					{
+						flag = false;
+						break;
+					}
+				}
+				if (flag)
+				{
+					num++;
+				}
+			}
+			num2++;
+		}
+		matchingCubeCount += num;
+		investigatedCubeCount += num2;
+		return num == num2;
+	}
+
 	public Cube GetCube(IntVector iVector)
 	{
-		return cells.GetCell(iVector).cube;
+		if (cells.TryGetValue(iVector, out var value))
+		{
+			return value.cube;
+		}
+		return null;
 	}
 
 	public bool ContainsCube(IntVector iVector)
 	{
-		return !(cells.GetCell(iVector).cube == null);
+		return cells.ContainsKey(iVector);
 	}
 
 	public void AddToChunk(IntVector iVector, Cube cube, bool setVisibility = true)
 	{
-		if (!cells.ContainsCube(iVector))
+		if (!cells.ContainsKey(iVector))
 		{
 			cubeCount++;
+			cells.Add(iVector, new Cell(cube, byte.MaxValue));
 		}
-		cells.SetCube(iVector, cube);
+		else
+		{
+			Cell value = cells[iVector];
+			value.cube = cube;
+			cells[iVector] = value;
+		}
 		if (setVisibility)
 		{
-			SetCubeVisibilityWithNeighbors(cells.GetArrayCoords(iVector));
+			SetCubeVisibilityWithNeighbors(iVector);
 		}
 	}
 
 	public IntVector GetFirstSolidCubePos()
 	{
-		for (int i = 0; i < ChunkSize; i++)
+		if (cells.Count > 0)
 		{
-			for (int j = 0; j < ChunkSize; j++)
-			{
-				for (int k = 0; k < ChunkSize; k++)
-				{
-					IntVector worldCoords = cells.GetWorldCoords(new IntVector((short)i, (short)j, (short)k));
-					if (cells.ContainsCube(worldCoords))
-					{
-						return worldCoords;
-					}
-				}
-			}
+			return cells.GetEnumerator().Current.Key;
 		}
 		Debug.LogError((object)"No cube found in chunk. This is a problem");
 		return IntVector.One;
@@ -205,10 +189,10 @@ public class CubeModelChunk
 
 	public void RemoveFromChunk(IntVector iVector)
 	{
-		if (cells.ContainsCube(iVector))
+		if (cells.ContainsKey(iVector))
 		{
-			cells.RemoveCube(iVector);
-			SetCubeVisibilityWithNeighbors(cells.GetArrayCoords(iVector));
+			cells.Remove(iVector);
+			SetCubeVisibilityWithNeighbors(iVector);
 			cubeCount--;
 		}
 	}
@@ -221,30 +205,25 @@ public class CubeModelChunk
 		}
 	}
 
-	private static void CalculateLights(Cells cells)
+	private static void CalculateLights(Dictionary<IntVector, Cell> cells)
 	{
-		Cell[,,] cellsArray = cells.CellsArray;
-		byte b = 0;
-		for (int i = 0; i < cells.ChunkSize; i++)
+		Dictionary<IntVector, Cell> dictionary = new Dictionary<IntVector, Cell>();
+		foreach (KeyValuePair<IntVector, Cell> cell in cells)
 		{
-			for (int j = 0; j < cells.ChunkSize; j++)
-			{
-				for (int k = 0; k < cells.ChunkSize; k++)
-				{
-					b = (byte)((cellsArray[i, j, k].cube == null) ? byte.MaxValue : 0);
-					Cell cell = cellsArray[i, j, k];
-					cell.lightValue = b;
-					cellsArray[i, j, k] = cell;
-				}
-			}
+			Cell value = cell.Value;
+			value.lightValue = (byte)(((value.cube.UnIndentedSides & 0x3F) != 63) ? 255u : 0u);
+			dictionary.Add(cell.Key, value);
+		}
+		foreach (KeyValuePair<IntVector, Cell> item in dictionary)
+		{
+			cells[item.Key] = item.Value;
 		}
 	}
 
 	public void RebuildChunk(Vector3 scale)
 	{
-		//IL_0029: Unknown result type (might be due to invalid IL or missing references)
-		DateTime now = DateTime.Now;
-		if (UseACShadows)
+		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
+		if (UseAOShadows)
 		{
 			CalculateLights(cells);
 		}
@@ -252,40 +231,6 @@ public class CubeModelChunk
 		RebuildMesh(ref meshData, cells, scale);
 		meshData.SetToMesh(ref meshes[0].mesh, ref meshes[0].materials);
 		UpdateInstances();
-	}
-
-	public void RebuildMipMapMesh(Vector3 scale)
-	{
-		//IL_002e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0038: Expected Obj, but got Unknown
-		//IL_0060: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006a: Expected Obj, but got Unknown
-		//IL_008e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00da: Unknown result type (might be due to invalid IL or missing references)
-		MeshData meshData = new MeshData();
-		if ((Object)(object)meshes[1].mesh == (Object)null)
-		{
-			meshes[1].mesh = new Mesh();
-		}
-		if ((Object)(object)meshes[2].mesh == (Object)null)
-		{
-			meshes[2].mesh = new Mesh();
-		}
-		int power = 2;
-		if (GetMipMeshCells(cells, 2, out var cellsMipmap))
-		{
-			SetCubeVisibility(cellsMipmap);
-			CalculateLights(cellsMipmap);
-			RebuildMesh(ref meshData, cellsMipmap, scale, power);
-			meshData.SetToMesh(ref meshes[1].mesh, ref meshes[1].materials);
-		}
-		if (GetMipMeshCells(cellsMipmap, 2, out var cellsMipmap2))
-		{
-			SetCubeVisibility(cellsMipmap2);
-			CalculateLights(cellsMipmap2);
-			RebuildMesh(ref meshData, cellsMipmap2, scale, 4);
-			meshData.SetToMesh(ref meshes[2].mesh, ref meshes[2].materials);
-		}
 	}
 
 	public SharedMeshData GetMeshData(MeshSetting mipMesh)
@@ -342,9 +287,9 @@ public class CubeModelChunk
 		//IL_0066: Unknown result type (might be due to invalid IL or missing references)
 		//IL_006b: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0078: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00aa: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ba: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ca: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00a5: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00b5: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00c5: Unknown result type (might be due to invalid IL or missing references)
 		GameObject val = new GameObject(name);
 		MeshFilter val2 = val.AddComponent<MeshFilter>();
 		MeshRenderer val3 = val.AddComponent<MeshRenderer>();
@@ -361,7 +306,7 @@ public class CubeModelChunk
 		{
 			val.AddComponent<BoxCollider>();
 		}
-		val.transform.parent = cubeInstance.GameObject.transform;
+		val.transform.parent = cubeInstance.Transform;
 		val.transform.localPosition = Vector3.zero;
 		val.transform.localRotation = Quaternion.identity;
 		val.transform.localScale = Vector3.one;
@@ -373,10 +318,9 @@ public class CubeModelChunk
 	private void SetCubeVisibilityWithNeighbors(IntVector pos)
 	{
 		IntVector cubeVisibility = new IntVector(pos.x, pos.y, pos.z);
-		Cube cube = cells[pos].cube;
-		if (cube != null)
+		if (cells.TryGetValue(pos, out var value))
 		{
-			CubeBase.SetCubeFlags(cube);
+			CubeBase.SetCubeFlags(value.cube);
 		}
 		SetCubeVisibility(cubeVisibility);
 		cubeVisibility.x++;
@@ -398,14 +342,10 @@ public class CubeModelChunk
 
 	private void SetCubeVisibility(IntVector iVector)
 	{
-		if (cells.IsWithinArrayCoordsRange(iVector))
+		if (cells.TryGetValue(iVector, out var value))
 		{
-			Cube cube = cells[iVector].cube;
-			if (cube != null)
-			{
-				cube.HiddenSides = 0;
-				SetCubeVisibility(cells, iVector, cube);
-			}
+			value.cube.HiddenSides = 0;
+			SetCubeVisibility(cells, iVector, value.cube);
 		}
 	}
 
@@ -414,64 +354,58 @@ public class CubeModelChunk
 		SetCubeVisibility(cells);
 	}
 
-	private static void SetCubeVisibility(Cells cells)
+	private static void SetCubeVisibility(Dictionary<IntVector, Cell> cells)
 	{
-		for (int i = 0; i < cells.ChunkSize; i++)
+		foreach (KeyValuePair<IntVector, Cell> cell in cells)
 		{
-			for (int j = 0; j < cells.ChunkSize; j++)
-			{
-				for (int k = 0; k < cells.ChunkSize; k++)
-				{
-					SetCubeVisibility(cells, new IntVector((short)i, (short)j, (short)k), cells[i, j, k].cube);
-				}
-			}
+			SetCubeVisibility(cells, cell.Key, cell.Value.cube);
 		}
 	}
 
-	private static void SetCubeVisibility(Cells cells, IntVector pos, Cube cube)
+	private static void SetCubeVisibility(Dictionary<IntVector, Cell> cells, IntVector pos, Cube cube)
 	{
-		if (!(cube == null))
+		if (!(cube == null) && cells.ContainsKey(pos))
 		{
-			IntVector intVector = new IntVector(pos.x, pos.y, pos.z);
-			intVector.y++;
-			if (cells.IsWithinArrayCoordsRange(intVector))
+			IntVector key = new IntVector(pos.x, pos.y, pos.z);
+			key.y++;
+			if (cells.ContainsKey(key))
 			{
-				Cube neighborCube = cells[intVector].cube;
+				Cube neighborCube = cells[key].cube;
 				SimpleFaceVisibilityTest(FaceFlags.Top, FaceFlags.Bottom, ref cube, ref neighborCube);
 			}
-			intVector.y -= 2;
-			if (cells.IsWithinArrayCoordsRange(intVector))
+			key.y -= 2;
+			if (cells.ContainsKey(key))
 			{
-				Cube neighborCube = cells[intVector].cube;
+				Cube neighborCube = cells[key].cube;
 				SimpleFaceVisibilityTest(FaceFlags.Bottom, FaceFlags.Top, ref cube, ref neighborCube);
 			}
-			intVector.y++;
-			intVector.z++;
-			if (cells.IsWithinArrayCoordsRange(intVector))
+			key.y++;
+			key.z++;
+			if (cells.ContainsKey(key))
 			{
-				Cube neighborCube = cells[intVector].cube;
+				Cube neighborCube = cells[key].cube;
 				SimpleFaceVisibilityTest(FaceFlags.Back, FaceFlags.Front, ref cube, ref neighborCube);
 			}
-			intVector.z -= 2;
-			if (cells.IsWithinArrayCoordsRange(intVector))
+			key.z -= 2;
+			if (cells.ContainsKey(key))
 			{
-				Cube neighborCube = cells[intVector].cube;
+				Cube neighborCube = cells[key].cube;
 				SimpleFaceVisibilityTest(FaceFlags.Front, FaceFlags.Back, ref cube, ref neighborCube);
 			}
-			intVector.z++;
-			intVector.x++;
-			if (cells.IsWithinArrayCoordsRange(intVector))
+			key.z++;
+			key.x++;
+			if (cells.ContainsKey(key))
 			{
-				Cube neighborCube = cells[intVector].cube;
+				Cube neighborCube = cells[key].cube;
 				SimpleFaceVisibilityTest(FaceFlags.Right, FaceFlags.Left, ref cube, ref neighborCube);
 			}
-			intVector.x -= 2;
-			if (cells.IsWithinArrayCoordsRange(intVector))
+			key.x -= 2;
+			if (cells.ContainsKey(key))
 			{
-				Cube neighborCube = cells[intVector].cube;
+				Cube neighborCube = cells[key].cube;
 				SimpleFaceVisibilityTest(FaceFlags.Left, FaceFlags.Right, ref cube, ref neighborCube);
 			}
-			intVector.x++;
+			key.x++;
 		}
 	}
 
@@ -585,72 +519,63 @@ public class CubeModelChunk
 		}
 	}
 
-	private static void RebuildMesh(ref MeshData meshData, Cells cells, Vector3 scale, int power = 1)
+	private static void RebuildMesh(ref MeshData meshData, Dictionary<IntVector, Cell> cells, Vector3 scale, int power = 1)
 	{
-		//IL_0164: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0189: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01c2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00fd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0104: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0109: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0127: Unknown result type (might be due to invalid IL or missing references)
+		//IL_014c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0185: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00c0: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00c7: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00cc: Unknown result type (might be due to invalid IL or missing references)
 		meshData.vertices = new List<Vector3>();
 		meshData.uv = new List<Vector2>();
 		meshData.colors = new List<Color>();
 		int num = 0;
 		meshData.materials = new List<Material>();
 		Dictionary<int, int> dictionary = new Dictionary<int, int>();
-		Cell[,,] cellsArray = cells.CellsArray;
-		for (int i = 0; i < cells.ChunkSize; i++)
+		foreach (KeyValuePair<IntVector, Cell> cell in cells)
 		{
-			for (int j = 0; j < cells.ChunkSize; j++)
+			if (cell.Value.cube.HiddenSides == 63)
 			{
-				for (int k = 0; k < cells.ChunkSize; k++)
+				continue;
+			}
+			int index = 0;
+			Cube.GetVisibleFaceVertices(cell.Value.cube, ref faceData, cell.Key, cells, ref index);
+			if (power != 1)
+			{
+				for (int i = 0; i < index; i++)
 				{
-					if (cellsArray[i, j, k].cube == null || cellsArray[i, j, k].cube.HiddenSides == 63)
+					for (int j = 0; j < faceData[i].faceVertices.Length; j++)
 					{
-						continue;
-					}
-					IntVector intVector = new IntVector((short)i, (short)j, (short)k);
-					IntVector worldCoords = cells.GetWorldCoords(intVector);
-					int index = 0;
-					Cube.GetVisibleFaceVertices(cellsArray[i, j, k].cube, ref faceData, worldCoords, intVector, cells, ref index);
-					if (power != 1)
-					{
-						for (int l = 0; l < index; l++)
-						{
-							for (int m = 0; m < faceData[l].faceVertices.Length; m++)
-							{
-								ref Vector3 reference = ref faceData[l].faceVertices[m];
-								reference *= (float)power;
-							}
-						}
-					}
-					for (int n = 0; n < index; n++)
-					{
-						for (int num2 = 0; num2 < 4; num2++)
-						{
-							meshData.vertices.Add(faceData[n].faceVertices[num2]);
-							meshData.colors.Add(faceData[n].colors[num2]);
-						}
-						meshData.uv.AddRange(GetFaceUvs(faceData[n].faceVertices, faceData[n].face, scale));
-						byte material = CubeBase.GetMaterial(cells[i, j, k].cube, faceData[n].face);
-						Material material2 = MVGameController.Instance.WOCM.MaterialRepository.GetMaterial(material).material;
-						if (!dictionary.ContainsKey(material))
-						{
-							meshData.materials.Add(material2);
-							meshData.subMeshTriangles.Add(new List<int>());
-							dictionary.Add(material, meshData.materials.Count - 1);
-						}
-						int index2 = dictionary[material];
-						meshData.subMeshTriangles[index2].Add(num * 4);
-						meshData.subMeshTriangles[index2].Add(num * 4 + 3);
-						meshData.subMeshTriangles[index2].Add(num * 4 + 2);
-						meshData.subMeshTriangles[index2].Add(num * 4 + 2);
-						meshData.subMeshTriangles[index2].Add(num * 4 + 1);
-						meshData.subMeshTriangles[index2].Add(num * 4);
-						num++;
+						ref Vector3 reference = ref faceData[i].faceVertices[j];
+						reference *= (float)power;
 					}
 				}
+			}
+			for (int k = 0; k < index; k++)
+			{
+				for (int l = 0; l < 4; l++)
+				{
+					meshData.vertices.Add(faceData[k].faceVertices[l]);
+					meshData.colors.Add(faceData[k].colors[l]);
+				}
+				meshData.uv.AddRange(GetFaceUvs(faceData[k].faceVertices, faceData[k].face, scale));
+				byte material = CubeBase.GetMaterial(cell.Value.cube, faceData[k].face);
+				Material material2 = MVGameController.Instance.Game.MaterialRepository.GetMaterial(material).material;
+				if (!dictionary.ContainsKey(material))
+				{
+					meshData.materials.Add(material2);
+					meshData.subMeshTriangles.Add(new List<int>());
+					dictionary.Add(material, meshData.materials.Count - 1);
+				}
+				int index2 = dictionary[material];
+				meshData.subMeshTriangles[index2].Add(num * 4);
+				meshData.subMeshTriangles[index2].Add(num * 4 + 3);
+				meshData.subMeshTriangles[index2].Add(num * 4 + 2);
+				meshData.subMeshTriangles[index2].Add(num * 4 + 2);
+				meshData.subMeshTriangles[index2].Add(num * 4 + 1);
+				meshData.subMeshTriangles[index2].Add(num * 4);
+				num++;
 			}
 		}
 	}
@@ -758,46 +683,5 @@ public class CubeModelChunk
 			reference2 /= num;
 		}
 		return uvs;
-	}
-
-	private static bool GetMipMeshCells(Cells cells, int gridPower, out Cells cellsMipmap)
-	{
-		cellsMipmap = new Cells(cells.ChunkPos, cells.ChunkSize / gridPower);
-		if (!Mathf.IsPowerOfTwo(gridPower))
-		{
-			Debug.LogError((object)"gridPower must be power of 2!");
-			return false;
-		}
-		mipMeshBookkeeping.Clear();
-		int num = gridPower * gridPower * gridPower / 3;
-		for (int i = 0; i < cells.ChunkSize; i++)
-		{
-			for (int j = 0; j < cells.ChunkSize; j++)
-			{
-				for (int k = 0; k < cells.ChunkSize; k++)
-				{
-					intVectorBookkeeping.x = (short)i;
-					intVectorBookkeeping.y = (short)j;
-					intVectorBookkeeping.z = (short)k;
-					if (!(cells[i, j, k].cube == null))
-					{
-						intVectorBookkeeping /= gridPower;
-						if (!mipMeshBookkeeping.ContainsKey(intVectorBookkeeping))
-						{
-							mipMeshBookkeeping.Add(intVectorBookkeeping, new MipMeshBookkeeping(new List<Cube>()));
-						}
-						mipMeshBookkeeping[intVectorBookkeeping].AddCube(cells[i, j, k].cube);
-					}
-				}
-			}
-		}
-		foreach (KeyValuePair<IntVector, MipMeshBookkeeping> item in mipMeshBookkeeping)
-		{
-			if (item.Value.CubesCount >= num)
-			{
-				cellsMipmap[item.Key] = new Cell(new Cube(CubeBase.IdentityByteCorners, Cube.CreateMaterialArray((byte)item.Value.GetDominantCubeMaterial(materialCounts))), 0);
-			}
-		}
-		return true;
 	}
 }

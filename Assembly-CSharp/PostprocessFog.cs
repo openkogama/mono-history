@@ -1,9 +1,9 @@
 using System;
 using UnityEngine;
 
-[RequireComponent(typeof(Camera))]
-[ExecuteInEditMode]
 [AddComponentMenu("Image Effects/Skybox-based Fog")]
+[ExecuteInEditMode]
+[RequireComponent(typeof(Camera))]
 public class PostprocessFog : MonoBehaviour
 {
 	public float startDistance = 200f;
@@ -14,18 +14,31 @@ public class PostprocessFog : MonoBehaviour
 
 	private Material fogMaterial;
 
+	private Camera transparentCam;
+
 	private void Start()
 	{
+		//IL_0026: Unknown result type (might be due to invalid IL or missing references)
+		//IL_002c: Expected Obj, but got Unknown
 		fogMaterial = CreateMaterial(fogShader, fogMaterial, checkShaderSupport: true);
 		CheckSupport(needDepth: true);
+		GameObject val = new GameObject("Transparent Camera");
+		val.transform.parent = ((Component)this).transform;
+		transparentCam = val.AddComponent<Camera>();
+		transparentCam.CopyFrom(((Component)this).camera);
+		transparentCam.depth = 10f;
+		transparentCam.depthTextureMode = (DepthTextureMode)0;
+		transparentCam.clearFlags = (CameraClearFlags)4;
+		transparentCam.cullingMask = 1 << LayerMask.NameToLayer("Logic");
+		Camera camera = ((Component)this).camera;
+		camera.cullingMask &= ~(1 << (LayerMask.NameToLayer("Logic") & 0x1F));
 	}
 
 	private void OnEnable()
 	{
-		//IL_0019: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_000d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0013: Unknown result type (might be due to invalid IL or missing references)
 		RenderSettings.fog = false;
-		((Component)this).camera.clearFlags = (CameraClearFlags)2;
 		Camera camera = ((Component)this).camera;
 		camera.depthTextureMode = (DepthTextureMode)(camera.depthTextureMode | 1);
 	}
@@ -37,7 +50,6 @@ public class PostprocessFog : MonoBehaviour
 		RenderSettings.fogColor = ((Component)this).camera.backgroundColor;
 		RenderSettings.fogStartDistance = startDistance;
 		RenderSettings.fogEndDistance = ((Component)this).camera.farClipPlane;
-		((Component)this).camera.clearFlags = (CameraClearFlags)2;
 		((Component)this).camera.depthTextureMode = (DepthTextureMode)0;
 	}
 

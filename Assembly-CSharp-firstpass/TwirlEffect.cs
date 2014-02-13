@@ -1,7 +1,7 @@
 using UnityEngine;
 
-[ExecuteInEditMode]
 [AddComponentMenu("Image Effects/Twirl")]
+[ExecuteInEditMode]
 public class TwirlEffect : ImageEffectBase
 {
 	public Vector2 radius = new Vector2(0.3f, 0.3f);

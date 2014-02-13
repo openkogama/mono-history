@@ -1,170 +1,159 @@
-using System.Collections.Generic;
-using MV.WorldObject;
+using MV.Common;
 using UnityEngine;
 
 internal class HotKeys
 {
-	public enum DamageFalloutType
-	{
-		Linear
-	}
+	private DevHotKeys devHotkeys = new DevHotKeys();
+
+	private AEditController EditController => MVGameController.Instance.EditController;
+
+	private bool AllowHotkeys => (Object)(object)UXUtils.FindGUIObjectOfType<UXFocusManager>().CurrentFocus == (Object)null && !UXUtils.FindGUIObjectOfType<UXDialogFactory>().DialogOpen;
 
 	public void HandleInput()
 	{
-		if (!MVGameController.Instance.Game.EditorMode)
+		devHotkeys.HandleInput();
+		if (AllowHotkeys && !Input.GetKey((KeyCode)48))
 		{
-			return;
+			HandleSharedHotKeys();
+			HandlePlayModeHotKeys();
+			HandleEditModeHotKeys();
+			HandleCharacterEditorModeHotKeys();
 		}
-		if (MVInputWrapper.GetKeyDown((KeyCode)102))
+	}
+
+	private void HandleSharedHotKeys()
+	{
+		if (MVInputWrapper.GetKeyUp((KeyCode)111))
 		{
-			MVGameController.Instance.EditorController.ToggleWorkPlane();
+			MVGameController.Instance.IngameController.ToggleFullScreen();
 		}
-		if (MVInputWrapper.GetKeyDown((KeyCode)116))
+		if (MVInputWrapper.GetKeyUp((KeyCode)116) || MVInputWrapper.GetKeyUp((KeyCode)13))
 		{
-			MVGameController.Instance.EditorController.ShowChat();
+			if (!MVGameController.Instance.Game.TouristChatAllowed && MVGameController.Instance.IsTouristSession)
+			{
+				MVGameController.Instance.IngameController.ShowRegisterPopup();
+			}
+			else
+			{
+				MVGameController.Instance.IngameController.ShowChat(fromShortcut: true);
+			}
+		}
+		if (MVInputWrapper.GetKeyUp((KeyCode)109))
+		{
+			MVGameController.Instance.IngameController.ToggleMenu();
 		}
 		if (MVInputWrapper.GetKeyDown((KeyCode)107))
 		{
-			MVGameController.Instance.WOCM.WoAvatar.AvatarController.Die();
+			MVGameController.Instance.IngameController.RespawnAvatar();
 		}
-		if (!Application.isEditor)
+		if (MVInputWrapper.GetKeyDown((KeyCode)104))
+		{
+			MVBody body = MVGameController.Instance.WOCM.AvatarLocal.Body;
+			body.AccessoryParticlesVisible = !body.AccessoryParticlesVisible;
+		}
+		if (MVInputWrapper.GetKeyUp((KeyCode)9))
+		{
+			MVGameController.Instance.IngameController.ShowPlayersWindow(show: false);
+		}
+		else if (MVInputWrapper.GetKeyDown((KeyCode)9))
+		{
+			MVGameController.Instance.IngameController.ShowPlayersWindow(show: true);
+		}
+	}
+
+	private void HandlePlayModeHotKeys()
+	{
+		bool flag = MVGameController.Instance.EditorController != null && MVGameController.Instance.EditorController.PlayInEditor;
+		if (MVGameController.Instance.Game.GameMode != MVGameMode.Play && !flag)
 		{
 			return;
 		}
-		if (MVInputWrapper.GetKeyDown((KeyCode)98))
+		if (MVInputWrapper.GetKeyDown((KeyCode)113))
 		{
-			TestHandleRemoveCubes();
-		}
-		if (MVInputWrapper.GetKeyDown((KeyCode)111))
-		{
-			MVWorldObjectClient contextMenuSelectionWO = MVGameController.Instance.EditorController.GetContextMenuSelectionWO();
-			if (contextMenuSelectionWO != null && contextMenuSelectionWO is MVCubeModelBase)
+			MVEquipable component = MVGameController.Instance.WOCM.AvatarLocal.GameObject.GetComponent<MVEquipable>();
+			if ((Object)(object)component != (Object)null)
 			{
-				MVCubeModelBase mVCubeModelBase = (MVCubeModelBase)contextMenuSelectionWO;
-				GameObject mesh = MVGameController.Instance.WOCM.WorldInventory.RuntimePrototypes[mVCubeModelBase.Pid].GetMesh();
+				component.Equip(AvatarItemType.Hand, null);
 			}
 		}
-		if (MVInputWrapper.GetKeyDown((KeyCode)110))
+		if (!MVInputWrapper.GetKeyDown((KeyCode)101))
 		{
-			FireBazooka();
 		}
-		if (MVInputWrapper.GetKeyDown((KeyCode)108) && !MVInputWrapper.GetKey((KeyCode)304))
+	}
+
+	private void HandleEditModeHotKeys()
+	{
+		if (MVGameController.Instance.Game.GameMode != MVGameMode.Edit)
 		{
-			MVWorldObjectClient contextMenuSelectionWO2 = MVGameController.Instance.EditorController.GetContextMenuSelectionWO();
-			if (contextMenuSelectionWO2 != null && contextMenuSelectionWO2 is MVCubeModelBase)
+			return;
+		}
+		HandleEditControllerHotKeys();
+		if (MVInputWrapper.GetKeyDown((KeyCode)118))
+		{
+			MVWorldObjectClient singleSelectedWO = MVGameController.Instance.EditController.EditorStateMachine.SingleSelectedWO;
+			if (singleSelectedWO != null)
 			{
-				MVCubeModelBase cm = (MVCubeModelBase)contextMenuSelectionWO2;
-				ObjExporterScript.CubeModelToFile(cm);
-			}
-		}
-		else if (MVInputWrapper.GetKeyDown((KeyCode)108) && MVInputWrapper.GetKey((KeyCode)304))
-		{
-			ObjExporterScript.CubeModelToFile(MVGameController.Instance.WOCM.Terrain);
-		}
-		if (MVInputWrapper.GetKeyDown((KeyCode)109))
-		{
-			MVWorldObjectClient contextMenuSelectionWO3 = MVGameController.Instance.EditorController.GetContextMenuSelectionWO();
-			if (contextMenuSelectionWO3 != null && contextMenuSelectionWO3 is MVCubeModelBase)
-			{
-				MVCubeModelBase mVCubeModelBase2 = (MVCubeModelBase)contextMenuSelectionWO3;
-				RuntimePrototypeCubeModel prototypeCubeModel = mVCubeModelBase2.PrototypeCubeModel;
-				prototypeCubeModel.CreateMipMapMeshes();
+				MVGameController.Instance.Game.CameraController.CurCamera.FocusOnObject(singleSelectedWO);
 			}
 		}
 	}
 
-	private void TransferCubesFromModelToOtherModelTest()
+	private void HandleCharacterEditorModeHotKeys()
 	{
-		Dictionary<int, MVWorldObjectClient> worldObjects = MVGameController.Instance.WOCM.WorldObjects;
-		MVCubeModelBase mVCubeModelBase = null;
-		MVCubeModelBase mVCubeModelBase2 = null;
-		foreach (KeyValuePair<int, MVWorldObjectClient> item in worldObjects)
+		if (MVGameController.Instance.Game.GameMode == MVGameMode.CharacterEditor)
 		{
-			if (item.Value.WorldObjectType == WorldObjectType.CubeModel)
+			HandleEditControllerHotKeys();
+		}
+	}
+
+	private void HandleEditControllerHotKeys()
+	{
+		if (EditController == null)
+		{
+			return;
+		}
+		if (MVInputWrapper.GetKeyDown((KeyCode)112) && MVGameController.Instance.Game.GameMode != MVGameMode.CharacterEditor)
+		{
+			EditController.TogglePlayInEditor();
+		}
+		if (MVInputWrapper.GetKeyDown((KeyCode)108))
+		{
+			EditController.ToggleLogicRendering();
+		}
+		if (!EditController.PlayInEditor)
+		{
+			if (MVInputWrapper.GetKeyDown((KeyCode)103))
 			{
-				MVCubeModelBase mVCubeModelBase3 = (MVCubeModelBase)item.Value;
-				if (mVCubeModelBase3.PrototypeCubeModel.Name == "InitCell")
-				{
-					mVCubeModelBase = mVCubeModelBase3;
-				}
-				if (mVCubeModelBase3.PrototypeCubeModel.Name == "TargetCell")
-				{
-					mVCubeModelBase2 = mVCubeModelBase3;
-				}
+				EditController.ToggleGridSnap();
 			}
-		}
-		if (mVCubeModelBase != null && mVCubeModelBase2 != null)
-		{
-			IntVector intVector = new IntVector(-1, -1, -1);
-			IntVector intVector2 = new IntVector(0, 0, 0);
-			IntVector intVector3 = new IntVector(1, 1, 1);
-		}
-	}
-
-	private void TestHandleRemoveCubes()
-	{
-		//IL_002e: Unknown result type (might be due to invalid IL or missing references)
-		MVSpawnPoint mVSpawnPoint = (MVSpawnPoint)MVGameController.Instance.WOCM.GetWorldObjectsByType(WorldObjectType.SpawnPoint)[0];
-		float radius = 5.5f;
-		List<CommonOverlapArg> wOIdsWithinRadius = MVGameController.Instance.Game.GetWOIdsWithinRadius(radius, mVSpawnPoint.Position);
-		int[] array = new int[wOIdsWithinRadius.Count];
-		for (int i = 0; i < wOIdsWithinRadius.Count; i++)
-		{
-			array[i] = wOIdsWithinRadius[i].wo.Id;
-		}
-	}
-
-	private void CommonOverlapTestTest()
-	{
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0084: Unknown result type (might be due to invalid IL or missing references)
-		MVSpawnPoint mVSpawnPoint = (MVSpawnPoint)MVGameController.Instance.WOCM.GetWorldObjectsByType(WorldObjectType.SpawnPoint)[0];
-		float num = 1.5f;
-		Vector3 position = mVSpawnPoint.Position;
-		DebugClass.DrawPoint(mVSpawnPoint.Position, 100f);
-		Collider[] array = Physics.OverlapSphere(mVSpawnPoint.Position, num);
-		List<CommonOverlapResult> list = new List<CommonOverlapResult>();
-		List<int> list2 = new List<int>();
-		for (int i = 0; i < array.Length; i++)
-		{
-			MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(((Component)array[i]).transform);
-			if (mVObject is MVCubeModelBase)
+			if (MVInputWrapper.GetKeyDown((KeyCode)102))
 			{
-				CommonOverlapArg overlapArg = new CommonOverlapArg(mVObject);
-				if (SphereOverlapTest.OverlapWo(overlapArg, num, position, out var overlapResult))
-				{
-					list.Add(overlapResult);
-					Debug.Log((object)overlapResult.cubes.Count);
-					list2.Add(overlapResult.woId);
-				}
+				EditController.ToggleDrawPlane();
 			}
-		}
-		MVGameController.Instance.Game.RequestRemoveCubesWithinRadius(list2.ToArray(), num, position, 200f, DamageFallOffType.None);
-	}
-
-	private void FireBazooka()
-	{
-		//IL_0005: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0020: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0025: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0033: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007a: Unknown result type (might be due to invalid IL or missing references)
-		Ray ray = Camera.main.ScreenPointToRay(new Vector3(Input.mousePosition.x, Input.mousePosition.y));
-		VoxelHit voxelHit = default;
-		if (CollisionDetection.MVHit(ray, out voxelHit))
-		{
-			Missile missile = Missile.CreateMissile();
-			((Component)missile).transform.position = MVGameController.Instance.WOCM.WoAvatar.GameObject.transform.position;
-			missile.Fire(voxelHit.point);
+			if (MVInputWrapper.GetKeyUp((KeyCode)49))
+			{
+				EditController.CubeTools.editCubeButton.Toggle();
+			}
+			if (MVInputWrapper.GetKeyUp((KeyCode)50))
+			{
+				EditController.CubeTools.deleteCubeButton.Toggle();
+			}
+			if (MVInputWrapper.GetKeyUp((KeyCode)51))
+			{
+				EditController.CubeTools.paintCubeButton.Toggle();
+			}
+			if (MVInputWrapper.GetKeyUp((KeyCode)114))
+			{
+				EditController.ShowMaterialChangeWindow();
+			}
+			if (MVInputWrapper.GetKeyUp((KeyCode)105))
+			{
+				EditController.ShowInventory();
+			}
+			if (MVInputWrapper.GetKeyUp((KeyCode)110))
+			{
+				EditController.ShowNewModelWindow();
+			}
 		}
 	}
 }

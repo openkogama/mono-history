@@ -1,17 +1,18 @@
 {
-    "id": "ad4cad4f-0ba4-5a14-8205-d5c8d4f25d57",
-    "version": "",
-    "unityVersion": "3.4.2f2",
-    "timestamp": 1327271495,
-    "sha256": "11e40d778b3fe3f815931b27ae95c4881c88d1a677214a22fe9338fa2e3809c9",
+    "id": "a5cf0141-d2c2-522d-a154-192371a3b3bf",
+    "version": "1.8.3.2",
+    "unityVersion": "3.5.7f6",
+    "timestamp": 1392293934,
+    "sha256": "b63544e02b10a1160c24b5e15b73ecab1cae1415a9f8bc158aa0ae080583850d",
     "assemblies": [
         "Assembly-CSharp-firstpass.dll",
         "Assembly-CSharp.dll",
         "Assembly-UnityScript-firstpass.dll",
         "Boo.Lang.dll",
+        "JsonFx.Json.dll",
         "MVCommon.dll",
         "MVWorldObject.dll",
-        "PhotonUnity3D.dll",
+        "Photon3Unity3D.dll",
         "UnityScript.Lang.dll"
     ]
 }

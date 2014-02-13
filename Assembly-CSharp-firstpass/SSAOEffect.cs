@@ -1,8 +1,8 @@
 using System;
 using UnityEngine;
 
-[ExecuteInEditMode]
 [RequireComponent(typeof(Camera))]
+[ExecuteInEditMode]
 [AddComponentMenu("Image Effects/Screen Space Ambient Occlusion")]
 public class SSAOEffect : MonoBehaviour
 {

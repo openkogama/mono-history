@@ -34,18 +34,26 @@ public class UXFullscreenColliderBox : MonoBehaviour
 
 	private void Awake()
 	{
-		//IL_0038: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0042: Expected Obj, but got Unknown
-		//IL_00d9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ee: Unknown result type (might be due to invalid IL or missing references)
-		screen = UXUtils.FindObjectOfType<UXScreen>();
+		screen = UXUtils.FindGUIObjectOfType<UXScreen>();
 		UXScreen uXScreen = screen;
 		uXScreen.OnResize = (UXScreen.OnResizeDelegate)Delegate.Combine(uXScreen.OnResize, new UXScreen.OnResizeDelegate(OnResize));
+		if ((Object)(object)go == (Object)null)
+		{
+			InitializeCollider();
+		}
+	}
+
+	private void InitializeCollider()
+	{
+		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0010: Expected Obj, but got Unknown
+		//IL_00a7: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00bc: Unknown result type (might be due to invalid IL or missing references)
 		go = new GameObject("Collider");
 		boxCollider = go.AddComponent<BoxCollider>();
 		mouseClickObject = go.AddComponent<UXMouseClickObject>();
 		mouseClickObject.OnMouseDown = (UXMouseClickObject clickObject, Vector3 mousePositionWorld) => true;
-		mouseClickObject.OnClick = (UXMouseClickObject clickObject, Vector3 mousePositionWorld) =>
+		mouseClickObject.OnMouseUp = (UXMouseClickObject clickObject, Vector3 mousePositionWorld) =>
 		{
 			if (OnClick != null)
 			{
@@ -66,14 +74,31 @@ public class UXFullscreenColliderBox : MonoBehaviour
 
 	public void AddBlockingObject(object o)
 	{
+		if ((Object)(object)go == (Object)null)
+		{
+			InitializeCollider();
+		}
 		blockingObjects.Add(o);
 		go.active = blockingObjects.Count > 0;
 	}
 
 	public void RemoveBlockingObject(object o)
 	{
+		if ((Object)(object)go == (Object)null)
+		{
+			InitializeCollider();
+		}
 		blockingObjects.Remove(o);
 		go.active = blockingObjects.Count > 0;
+		if (!go.active)
+		{
+			OnClick = null;
+		}
+	}
+
+	public int number()
+	{
+		return blockingObjects.Count;
 	}
 
 	public void UpdatePlacement()
