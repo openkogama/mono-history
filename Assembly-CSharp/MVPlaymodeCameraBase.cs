@@ -25,12 +25,10 @@ public class MVPlaymodeCameraBase : MVCameraBase
 	public override void Enter(MVCameraController camController)
 	{
 		base.Enter(camController);
-		camController.RequestCursorLock();
 	}
 
 	public override void Exit(MVCameraController camController)
 	{
-		Screen.lockCursor = false;
 		AvatarCameraFade component = ((Component)camController).gameObject.GetComponent<AvatarCameraFade>();
 		if ((Object)(object)component != (Object)null)
 		{

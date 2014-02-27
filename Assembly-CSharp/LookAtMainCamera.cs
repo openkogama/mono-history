@@ -6,7 +6,7 @@ public class LookAtMainCamera : MonoBehaviour
 
 	private void Start()
 	{
-		mainCamera = GameObject.Find("Main Camera").camera;
+		mainCamera = ((Component)MVGameController.Instance.Game.CameraController).GetComponent<Camera>();
 	}
 
 	private void LateUpdate()

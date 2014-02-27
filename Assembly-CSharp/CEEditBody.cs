@@ -24,8 +24,8 @@ public class CEEditBody : ESStateBase
 
 	public override void Enter(EditorStateMachine esm)
 	{
-		//IL_020f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0215: Expected Obj, but got Unknown
+		//IL_0200: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0206: Expected Obj, but got Unknown
 		base.Enter(esm);
 		MVGameController.Instance.Game.CameraController.SetCamera(CameraType.JetPackCamera);
 		MVGameController.Instance.Game.CameraController.CurCamera.FocusOnObject(esm.SingleSelectedWO);
@@ -36,7 +36,7 @@ public class CEEditBody : ESStateBase
 		tintedWo = null;
 		targetCubeModel = (MVCubeModelInstance)esm.SingleSelectedWO;
 		modelBody = (IWorldObjectWithModelingConstraint)WOCM.GetWorldObjectClient(targetCubeModel.GroupId);
-		guiEditModel = Object.FindObjectOfType(typeof(MVGUIEditModel)) as MVGUIEditModel;
+		guiEditModel = UXUtils.FindGUIObjectOfType<MVGUIEditModel>();
 		guiEditModel.View.Show();
 		guiEditModel.exitButton.OnClick = () =>
 		{

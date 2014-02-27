@@ -5,7 +5,6 @@ public class ThirdPersonCamera : PlaymodeCamera
 	public override void HandleInput(MVCameraController cameraController)
 	{
 		base.HandleInput(cameraController);
-		cameraController.RequestCursorLock();
 		UpdateTargetRotation();
 	}
 

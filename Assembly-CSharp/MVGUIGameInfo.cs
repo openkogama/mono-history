@@ -1,5 +1,4 @@
 using System;
-using Localize;
 using MV.WorldObject;
 using UnityEngine;
 
@@ -7,7 +6,7 @@ public class MVGUIGameInfo : UXViewScript
 {
 	public UXText playersText;
 
-	public UXText teamText;
+	public UXPlane teamIcon;
 
 	public Color blueTeamColor;
 
@@ -16,6 +15,16 @@ public class MVGUIGameInfo : UXViewScript
 	public Color greenTeamColor;
 
 	public Color yellowTeamColor;
+
+	public Material blueTeamMaterial;
+
+	public Material redTeamMaterial;
+
+	public Material greenTeamMaterial;
+
+	public Material yellowTeamMaterial;
+
+	public Material neutralTeamMaterial;
 
 	private bool _isInitialized;
 
@@ -47,35 +56,27 @@ public class MVGUIGameInfo : UXViewScript
 
 	private void UpdatePlayersText()
 	{
-		playersText.Text = string.Format(Localization.Instance.GetText(TextSlotIndex.NumberofPlayers), MVGameController.Instance.Game.Players.Count);
+		playersText.Text = MVGameController.Instance.Game.Players.Count.ToString();
 	}
 
 	private void UpdateTeamText()
 	{
-		//IL_004e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d5: Unknown result type (might be due to invalid IL or missing references)
 		switch (MVGameController.Instance.Game.LocalPlayer.Team)
 		{
 		case MVTeam.Blue:
-			teamText.Text = Localization.Instance.GetText(TextSlotIndex.BlueTeam);
-			teamText.Color = blueTeamColor;
+			teamIcon.SetMaterial(blueTeamMaterial);
 			break;
 		case MVTeam.Red:
-			teamText.Text = Localization.Instance.GetText(TextSlotIndex.RedTeam);
-			teamText.Color = redTeamColor;
+			teamIcon.SetMaterial(redTeamMaterial);
 			break;
 		case MVTeam.Green:
-			teamText.Text = Localization.Instance.GetText(TextSlotIndex.GreenTeam);
-			teamText.Color = greenTeamColor;
+			teamIcon.SetMaterial(greenTeamMaterial);
 			break;
 		case MVTeam.Yellow:
-			teamText.Text = Localization.Instance.GetText(TextSlotIndex.YellowTeam);
-			teamText.Color = yellowTeamColor;
+			teamIcon.SetMaterial(yellowTeamMaterial);
 			break;
 		default:
-			teamText.Text = string.Empty;
+			teamIcon.SetMaterial(neutralTeamMaterial);
 			break;
 		}
 	}

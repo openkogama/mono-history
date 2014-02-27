@@ -84,7 +84,6 @@ public class VehicleCamera : PlaymodeCamera
 	public override void HandleInput(MVCameraController cameraController)
 	{
 		base.HandleInput(cameraController);
-		cameraController.RequestCursorLock();
 		UpdateTargetRotation();
 	}
 

@@ -284,8 +284,6 @@ public class UXDialogFactory : MonoBehaviour
 		}
 		CurrentDialogBox.OnShowDialog();
 		go.active = true;
-		screenLock = Screen.lockCursor;
-		Screen.lockCursor = false;
 	}
 
 	public void CloseDialog()
@@ -300,7 +298,6 @@ public class UXDialogFactory : MonoBehaviour
 		else
 		{
 			go.active = false;
-			Screen.lockCursor = screenLock;
 		}
 		currentDialogBox.OnCloseDialog();
 		Object.Destroy((Object)(object)((Component)currentDialogBox).gameObject);

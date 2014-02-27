@@ -3,13 +3,7 @@ using UnityEngine;
 
 public class PickupGUI
 {
-	private UXGroup crossHairGroup;
-
-	private UXPlane crossHairPlane;
-
-	private UXText ammoText;
-
-	private UXText chargeText;
+	private MVGUICrossHair guiCrossHair;
 
 	private MVPickupOwner pickupOwner;
 
@@ -17,59 +11,56 @@ public class PickupGUI
 	{
 		get
 		{
-			return crossHairGroup.Visible;
+			return guiCrossHair.group.Visible;
 		}
 		set
 		{
-			crossHairGroup.SetVisible(value);
+			guiCrossHair.group.SetVisible(value);
 		}
 	}
 
 	public PickupGUI(MVPickupOwner pickupOwner)
 	{
 		this.pickupOwner = pickupOwner;
-		crossHairGroup = GameObject.Find("CrossHair").GetComponent<UXGroup>();
-		crossHairPlane = ((Component)((Component)crossHairGroup).transform.FindChild("CrossHairPlane")).GetComponentInChildren<UXPlane>();
-		ammoText = ((Component)((Component)crossHairGroup).transform.FindChild("Ammo")).GetComponentInChildren<UXText>();
-		chargeText = ((Component)((Component)crossHairGroup).transform.FindChild("Charge")).GetComponentInChildren<UXText>();
-		crossHairGroup.SetVisible(visible: false);
+		guiCrossHair = UXUtils.FindGUIObjectOfType<MVGUICrossHair>();
+		guiCrossHair.group.SetVisible(visible: false);
 		pickupOwner.onEquipItem = (MVPickupOwner.OnEquipItemDelegate)Delegate.Combine(pickupOwner.onEquipItem, new MVPickupOwner.OnEquipItemDelegate(OnEquipItem));
 		pickupOwner.onUnequipItem = (MVPickupOwner.OnUnequipItemDelegate)Delegate.Combine(pickupOwner.onUnequipItem, new MVPickupOwner.OnUnequipItemDelegate(OnUnequipItem));
 	}
 
 	public void Update()
 	{
-		//IL_009a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00cd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c6: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00b8: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00bd: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00f0: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00df: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00e4: Unknown result type (might be due to invalid IL or missing references)
 		if (!((Object)(object)pickupOwner.CurrentItem == (Object)null))
 		{
 			int num = 0;
 			num = pickupOwner.CurrentItem.Quantity;
-			if (num == 0 && ammoText.Visible)
+			if (num == 0 && guiCrossHair.ammoText.Visible)
 			{
-				ammoText.SetVisible(visible: false);
+				guiCrossHair.ammoText.SetVisible(visible: false);
 			}
-			if (num > 0 && !ammoText.Visible)
+			if (num > 0 && !guiCrossHair.ammoText.Visible)
 			{
-				ammoText.SetVisible(visible: true);
+				guiCrossHair.ammoText.SetVisible(visible: true);
 			}
-			if (ammoText.Visible)
+			if (guiCrossHair.ammoText.Visible)
 			{
-				ammoText.Text = string.Empty + num;
+				guiCrossHair.ammoText.Text = string.Empty + num;
 			}
 			Color color = Color.magenta;
 			if ((Object)(object)pickupOwner.CurrentItem != (Object)null)
 			{
 				color = pickupOwner.CurrentItem.CrossHairColor;
 			}
-			crossHairPlane.SetColor(color, string.Empty);
-			chargeText.SetVisible(pickupOwner.CurrentItem.ChargeState > 0f);
-			if (chargeText.Visible)
+			guiCrossHair.crossHairPlane.SetColor(color, string.Empty);
+			guiCrossHair.chargeText.SetVisible(pickupOwner.CurrentItem.ChargeState > 0f);
+			if (guiCrossHair.chargeText.Visible)
 			{
-				chargeText.Text = string.Empty + Mathf.Round(pickupOwner.CurrentItem.ChargeState * 100f);
+				guiCrossHair.chargeText.Text = string.Empty + Mathf.Round(pickupOwner.CurrentItem.ChargeState * 100f);
 			}
 		}
 	}
@@ -84,9 +75,9 @@ public class PickupGUI
 
 	private void OnEquipItem(PickupItem item)
 	{
-		if (Object.op_Implicit((Object)(object)crossHairGroup) && item.ActivateGunModeOnEquip)
+		if (Object.op_Implicit((Object)(object)guiCrossHair.group) && item.ActivateGunModeOnEquip)
 		{
-			crossHairGroup.SetVisible(visible: true);
+			guiCrossHair.group.SetVisible(visible: true);
 		}
 	}
 
@@ -105,9 +96,9 @@ public class PickupGUI
 
 	private void OnUnequipItem(PickupItem item)
 	{
-		if (Object.op_Implicit((Object)(object)crossHairGroup))
+		if (Object.op_Implicit((Object)(object)guiCrossHair.group))
 		{
-			crossHairGroup.SetVisible(visible: false);
+			guiCrossHair.group.SetVisible(visible: false);
 		}
 	}
 }

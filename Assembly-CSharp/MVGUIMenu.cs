@@ -25,14 +25,20 @@ public class MVGUIMenu : UXViewScript
 
 	private bool _isInitialized;
 
-	private MVGUIPressM pressMText;
+	[SerializeField]
+	private UXIconButton _exitButton;
 
 	public override void OnInitialize()
 	{
-		//IL_0005: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Expected Obj, but got Unknown
-		//IL_0041: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0051: Unknown result type (might be due to invalid IL or missing references)
+		//IL_003d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0043: Expected Obj, but got Unknown
+		//IL_0079: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0089: Unknown result type (might be due to invalid IL or missing references)
+		UXIconButton exitButton = _exitButton;
+		exitButton.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(exitButton.OnClick, (UXBaseButton.OnClickDelegate)(() =>
+		{
+			MVGameController.Instance.IngameController.ToggleMenu();
+		}));
 		GameObject val = new GameObject("IconBG");
 		val.layer = LayerMask.NameToLayer("UXElement");
 		val.transform.parent = iconRoot;
@@ -41,7 +47,6 @@ public class MVGUIMenu : UXViewScript
 		val.AddComponent<UXPlane>().SetSize(menuBGWidth, menuBGHeight);
 		MeshRenderer val2 = val.AddComponent<MeshRenderer>();
 		((Renderer)val2).material = menuBGMaterial;
-		pressMText = UXUtils.FindGUIObjectOfType<MVGUIPressM>();
 	}
 
 	private void InitializeComponents()
@@ -92,8 +97,6 @@ public class MVGUIMenu : UXViewScript
 		{
 			CharacterEditorIconRoot.Show();
 		}
-		Screen.lockCursor = false;
-		pressMText.ShowOpenText(_shortcut);
 		MVGameController.Instance.WOCM.AvatarLocal.ShowHealth = false;
 		UXFullscreenColliderBox.Instance.AddBlockingObject(this);
 	}
@@ -111,24 +114,12 @@ public class MVGUIMenu : UXViewScript
 		}
 		if (_isInitialized)
 		{
-			Screen.lockCursor = ShouldLockCursor();
-			pressMText.ShowStandardText();
 			if (_isInitialized && MVGameController.Instance.WOCM != null)
 			{
-				MVGameController.Instance.WOCM.AvatarLocal.ShowHealth = ThirdPersonPlay();
+				MVGameController.Instance.WOCM.AvatarLocal.ShowHealth = MVGameController.Instance.Game.IsPlaying;
 			}
 			UXFullscreenColliderBox.Instance.RemoveBlockingObject(this);
 		}
-	}
-
-	private bool ShouldLockCursor()
-	{
-		return ThirdPersonPlay() && !UXUtils.FindGUIObjectOfType<UXDialogFactory>().DialogOpen;
-	}
-
-	private bool ThirdPersonPlay()
-	{
-		return (MVGameController.Instance.EditController != null && MVGameController.Instance.EditController.PlayInEditor) || MVGameController.Instance.IngameController is PlayController;
 	}
 
 	public void ShowOnShortcut(bool show)

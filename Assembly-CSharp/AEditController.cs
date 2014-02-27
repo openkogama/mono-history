@@ -157,16 +157,16 @@ public abstract class AEditController : AIngameController
 	protected override void ResolveGUIElements()
 	{
 		base.ResolveGUIElements();
-		GameObject editGUI = UXUtils.GetGUIHandler().editGUI;
-		editorTools = editGUI.GetComponentInChildren<MVGUIEditorTools>();
-		editorToggles = editGUI.GetComponentInChildren<MVGUIEditorToggles>();
-		CubeTools = editGUI.GetComponentInChildren<MVGUICubeTools>();
-		newModelWindow = editGUI.GetComponentInChildren<MVGUINewModelDialog>();
+		GameObject gameObject = ((Component)UXUtils.FindGUIObjectOfType<MVGUIEditor>()).gameObject;
+		editorTools = gameObject.GetComponentInChildren<MVGUIEditorTools>();
+		editorToggles = gameObject.GetComponentInChildren<MVGUIEditorToggles>();
+		CubeTools = gameObject.GetComponentInChildren<MVGUICubeTools>();
+		newModelWindow = gameObject.GetComponentInChildren<MVGUINewModelDialog>();
 		aggregateInventory = ((Component)editorTools).GetComponent<MVGUIAggregateInventoryButton>().aggregateInventory;
-		shopView = editGUI.GetComponentInChildren<MVGUIShopView>();
-		materialSelectionWindow = editGUI.GetComponentInChildren<MVGUIMaterialSelectionWindow>();
-		playButton = editGUI.GetComponentInChildren<MVGUIPlayButton>();
-		workplaneArrows = editGUI.GetComponentInChildren<MVGUIDrawplaneControls>();
+		shopView = gameObject.GetComponentInChildren<MVGUIShopView>();
+		materialSelectionWindow = gameObject.GetComponentInChildren<MVGUIMaterialSelectionWindow>();
+		playButton = gameObject.GetComponentInChildren<MVGUIPlayButton>();
+		workplaneArrows = gameObject.GetComponentInChildren<MVGUIDrawplaneControls>();
 	}
 
 	public override void ToggleShowUI()
