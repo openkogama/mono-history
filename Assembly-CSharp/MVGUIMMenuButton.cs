@@ -36,7 +36,7 @@ public class MVGUIMMenuButton : MonoBehaviour
 		}
 		else if (MVGameController.Instance.Game.IsPlaying)
 		{
-			if (flag && MVGameController.Instance.IsTouristSession)
+			if (flag && MVGameController.Instance.IsTouristSession && UXUtils.FindGUIObjectOfType<MVGUIRoot>().ShowRegisterMenuForTourist)
 			{
 				_uxView.Show();
 				UXUtils.FindGUIObjectOfType<LockCursorManager>().ForceLoseFocus();
