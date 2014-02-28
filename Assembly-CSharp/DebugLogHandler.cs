@@ -34,10 +34,6 @@ public static class DebugLogHandler
 	{
 		DebugLogHandler.showErrorPopupClient = showErrorPopupClient;
 		DebugLogHandler.enableSentry = enableSentry;
-		if ((Object)(object)((Component)MVGameController.Instance).gameObject.GetComponent<DebugConsole>() == (Object)null)
-		{
-			((Component)MVGameController.Instance).gameObject.AddComponent<DebugConsole>();
-		}
 	}
 
 	private static void HandleLog(string logString, string stackTrace, LogType type)

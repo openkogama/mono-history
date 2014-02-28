@@ -254,7 +254,6 @@ public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerS
 		if (Application.isEditor || showLogin)
 		{
 			LoginForm.View.Show();
-			((Component)this).gameObject.AddComponent<DebugConsole>();
 		}
 		else
 		{
