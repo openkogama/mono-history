@@ -13,9 +13,13 @@ public abstract class AIngameController
 
 	protected ScoreManager scoreManager;
 
+	protected MVGUIAskForFocus askForFocus;
+
 	protected MVGUIGameState gameState;
 
 	protected MVGUIMenu menu;
+
+	protected MVGUIPressM menuPrompt;
 
 	protected MVGUIPressEToUsePrompt pressEToUsePrompt;
 
@@ -92,11 +96,13 @@ public abstract class AIngameController
 	protected virtual void ResolveGUIElements()
 	{
 		gameState = UXUtils.FindGUIObjectOfType<MVGUIGameState>();
+		askForFocus = UXUtils.FindGUIObjectOfType<MVGUIAskForFocus>();
 		chatWindow = UXUtils.FindGUIObjectOfType<MVGUIChatWindow>();
 		chatWindowToggle = UXUtils.FindGUIObjectOfType<MVGUIChatWindowToggle>();
 		gameMessages = UXUtils.FindGUIObjectOfType<MVGUIGameMessages>();
 		gameInfo = UXUtils.FindGUIObjectOfType<MVGUIGameInfo>();
 		menu = UXUtils.FindGUIObjectOfType<MVGUIMenu>();
+		menuPrompt = UXUtils.FindGUIObjectOfType<MVGUIPressM>();
 		pressEToUsePrompt = UXUtils.FindGUIObjectOfType<MVGUIPressEToUsePrompt>();
 	}
 
@@ -105,6 +111,8 @@ public abstract class AIngameController
 		InitializeSocialUI();
 		gameState.View.Show();
 		gameState.gameMsgs.Text = string.Empty;
+		menuPrompt.View.Show();
+		menuPrompt.ShowStandardText();
 	}
 
 	private void InitializeSocialUI()
@@ -137,19 +145,24 @@ public abstract class AIngameController
 		uiShown = !uiShown;
 		if (uiShown)
 		{
+			menuPrompt.View.Show();
 			gameMessages.View.Show();
 			gameInfo.View.Show();
-			return;
 		}
-		menu.View.Hide();
-		gameInfo.View.Hide();
-		HideChat();
-		gameMessages.View.Hide();
+		else
+		{
+			menu.View.Hide();
+			menuPrompt.View.Hide();
+			gameInfo.View.Hide();
+			HideChat();
+			gameMessages.View.Hide();
+		}
 	}
 
 	public virtual void RemoveUI()
 	{
 		menu.View.Hide();
+		menuPrompt.View.Hide();
 		gameInfo.View.Hide();
 		HideChat();
 		gameMessages.View.Hide();
@@ -224,14 +237,8 @@ public abstract class AIngameController
 
 	public virtual void RespawnAvatar()
 	{
-		if (MVGameController.Instance.Game.IsPlaying)
-		{
-			MVGameController.Instance.WOCM.AvatarLocal.Suicide();
-		}
-		else
-		{
-			MVGameController.Instance.WOCM.AvatarLocal.Respawn();
-		}
+		bool flag = this is PlayController;
+		MVGameController.Instance.WOCM.AvatarLocal.Respawn(flag, flag);
 	}
 
 	protected void ShowSingleWindow(UXView view)

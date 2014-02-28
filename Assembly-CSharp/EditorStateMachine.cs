@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 public class EditorStateMachine : FSMEntity
 {
@@ -45,7 +46,8 @@ public class EditorStateMachine : FSMEntity
 		transitionTable = new EditorStateTransitionTable();
 		networkSelector = new MVNetworkSelector(this);
 		selectionController = new SelectionController();
-		weCamera = MVGameController.Instance.Game.CameraController;
+		GameObject gameObject = ((Component)(MVCameraController)(object)Object.FindObjectOfType(typeof(MVCameraController))).gameObject;
+		weCamera = gameObject.GetComponent<MVCameraController>();
 		GridMode = true;
 	}
 

@@ -9,9 +9,9 @@ public class PlayController : AIngameController
 	protected override void ResolveGUIElements()
 	{
 		base.ResolveGUIElements();
-		GameObject gameObject = ((Component)UXUtils.FindGUIObjectOfType<MVGUIPlayMode>()).gameObject;
-		speedometer = gameObject.GetComponentInChildren<MVGUISpeedometer>();
-		reward = gameObject.GetComponentInChildren<MVGUIReward>();
+		GameObject playGUI = UXUtils.GetGUIHandler().playGUI;
+		speedometer = playGUI.GetComponentInChildren<MVGUISpeedometer>();
+		reward = playGUI.GetComponentInChildren<MVGUIReward>();
 	}
 
 	public override void ToggleShowUI()

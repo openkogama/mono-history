@@ -10,7 +10,7 @@ public class MVGUIFullscreenToggle : MonoBehaviour
 
 	private void Awake()
 	{
-		screen = UXUtils.FindGUIObjectOfType<UXScreen>();
+		screen = Object.FindObjectOfType(typeof(UXScreen)) as UXScreen;
 		FullScreenToggle.SetToggleState(screen.Fullscreen);
 		UXToggleIconButton fullScreenToggle = FullScreenToggle;
 		fullScreenToggle.OnToggle = (UXToggleIconButton.OnToggleDelegate)Delegate.Combine(fullScreenToggle.OnToggle, new UXToggleIconButton.OnToggleDelegate(HandleOnToggle));

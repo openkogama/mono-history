@@ -22,12 +22,11 @@ public class UXTabWindow : UXWindow
 
 	public List<UXTabPane> TabPanes => _tabs;
 
-	public override void Awake()
+	public override void Start()
 	{
-		//IL_00bc: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00dd: Unknown result type (might be due to invalid IL or missing references)
-		base.Awake();
+		//IL_00b6: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00d2: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00d7: Unknown result type (might be due to invalid IL or missing references)
 		float num = 0f;
 		for (int i = 0; i < _tabs.Count; i++)
 		{
@@ -47,6 +46,7 @@ public class UXTabWindow : UXWindow
 		Transform transform = ((Component)this).transform;
 		transform.localPosition += new Vector3(0f, (0f - _tabPaneHeight) / 2f, 0f);
 		SelectTab(0);
+		base.Start();
 	}
 
 	private void AlignTabs()

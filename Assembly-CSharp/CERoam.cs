@@ -73,7 +73,7 @@ public class CERoam : ESStateBase
 		{
 			if ((Object)(object)guiEditModel == (Object)null)
 			{
-				guiEditModel = UXUtils.FindGUIObjectOfType<MVGUIEditModel>();
+				guiEditModel = Object.FindObjectOfType(typeof(MVGUIEditModel)) as MVGUIEditModel;
 			}
 			guiEditModel.View.Show();
 			guiEditModel.exitButton.OnClick = () =>

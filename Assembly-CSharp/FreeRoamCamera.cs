@@ -72,10 +72,13 @@ public class FreeRoamCamera : MVCameraBase
 		xAxis = (xAxisTarget = ((Component)camController).transform.eulerAngles.x);
 		yAxis = (yAxisTarget = ((Component)camController).transform.eulerAngles.y);
 		((Component)this).transform.eulerAngles = ((Component)camController).transform.eulerAngles;
+		Screen.lockCursor = true;
+		UXUtils.FindGUIObjectOfType<MVGUIAskForFocus>().RegainFocus();
 	}
 
 	public override void Exit(MVCameraController camController)
 	{
+		Screen.lockCursor = false;
 	}
 
 	public override void Init(MVCameraController camController)

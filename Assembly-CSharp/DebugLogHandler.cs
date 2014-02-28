@@ -2,54 +2,38 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class DebugLogHandler
+public class DebugLogHandler
 {
-	private static bool logErrorHasBeenSendOnce = false;
+	private bool logErrorHasBeenSendOnce;
 
-	private static bool showErrorPopupClient = false;
+	private bool showErrorPopupClient;
 
-	private static bool enableSentry = false;
+	private bool enableSentry;
 
-	private static Queue<Dictionary<string, object>> logContextQueue = new Queue<Dictionary<string, object>>();
+	private Queue<Dictionary<string, object>> logContextQueue = new Queue<Dictionary<string, object>>();
 
-	private static int maxLogContextQueueCount = 10;
+	private int maxLogContextQueueCount = 10;
 
-	private static List<Action<string, string, LogType>> logHandlers = new List<Action<string, string, LogType>>();
+	private HashSet<string> ignoreLogStrings = new HashSet<string> { "Fullscreen mode can only be enabled in the web player after clicking on the content." };
 
-	private static HashSet<string> ignoreLogStrings = new HashSet<string> { "Fullscreen mode can only be enabled in the web player after clicking on the content." };
-
-	public static void AddLogHandler(Action<string, string, LogType> logHandler)
+	public DebugLogHandler(bool showErrorPopupClient, bool enableSentry)
 	{
-		logHandlers.Add(logHandler);
-	}
-
-	public static void Init()
-	{
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0011: Expected Obj, but got Unknown
+		//IL_0047: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0051: Expected Obj, but got Unknown
+		this.showErrorPopupClient = showErrorPopupClient;
+		this.enableSentry = enableSentry;
 		Application.RegisterLogCallback((LogCallback)HandleLog);
 	}
 
-	public static void Setup(bool showErrorPopupClient, bool enableSentry)
+	private void HandleLog(string logString, string stackTrace, LogType type)
 	{
-		DebugLogHandler.showErrorPopupClient = showErrorPopupClient;
-		DebugLogHandler.enableSentry = enableSentry;
-	}
-
-	private static void HandleLog(string logString, string stackTrace, LogType type)
-	{
-		//IL_001b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0049: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004b: Invalid comparison between Unknown and I4
-		//IL_0063: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0050: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0052: Invalid comparison between Unknown and I4
-		//IL_007c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ac: Unknown result type (might be due to invalid IL or missing references)
-		foreach (Action<string, string, LogType> logHandler in logHandlers)
-		{
-			logHandler(logString, stackTrace, type);
-		}
+		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_000e: Invalid comparison between Unknown and I4
+		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0013: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0015: Invalid comparison between Unknown and I4
+		//IL_0042: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0073: Unknown result type (might be due to invalid IL or missing references)
 		if (logErrorHasBeenSendOnce)
 		{
 			return;
@@ -71,12 +55,12 @@ public static class DebugLogHandler
 		logErrorHasBeenSendOnce = true;
 	}
 
-	private static bool IsIgnored(string logString)
+	private bool IsIgnored(string logString)
 	{
 		return ignoreLogStrings.Contains(logString);
 	}
 
-	private static void AddLogToLogContext(string logString, LogType type)
+	private void AddLogToLogContext(string logString, LogType type)
 	{
 		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
 		Dictionary<string, object> dictionary = new Dictionary<string, object>();
@@ -90,9 +74,9 @@ public static class DebugLogHandler
 		}
 	}
 
-	private static Dictionary<string, object> GetExtraSentryData()
+	private Dictionary<string, object> GetExtraSentryData()
 	{
-		//IL_0091: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0098: Unknown result type (might be due to invalid IL or missing references)
 		Dictionary<string, object> dictionary = new Dictionary<string, object>();
 		dictionary.Add("Time.frameCount", Time.frameCount);
 		dictionary.Add("BrowserInfo", GetBrowserInfo());
@@ -108,7 +92,7 @@ public static class DebugLogHandler
 		return dictionary;
 	}
 
-	private static string GetIsTouristSession()
+	private string GetIsTouristSession()
 	{
 		if ((Object)(object)MVGameController.Instance == (Object)null)
 		{
@@ -117,7 +101,7 @@ public static class DebugLogHandler
 		return MVGameController.Instance.IsTouristSession.ToString();
 	}
 
-	private static string GetPlanetID()
+	private string GetPlanetID()
 	{
 		if ((Object)(object)MVGameController.Instance == (Object)null)
 		{
@@ -126,7 +110,7 @@ public static class DebugLogHandler
 		return MVGameController.Instance.PlanetID.ToString();
 	}
 
-	private static string GetProfileID()
+	private string GetProfileID()
 	{
 		if ((Object)(object)MVGameController.Instance == (Object)null)
 		{
@@ -135,7 +119,7 @@ public static class DebugLogHandler
 		return MVGameController.Instance.ProfileID.ToString();
 	}
 
-	private static string GetGameMode()
+	private string GetGameMode()
 	{
 		if ((Object)(object)MVGameController.Instance == (Object)null)
 		{
@@ -144,7 +128,7 @@ public static class DebugLogHandler
 		return MVGameController.Instance.GameMode.ToString();
 	}
 
-	private static string GetJoinState()
+	private string GetJoinState()
 	{
 		if ((Object)(object)MVGameController.Instance == (Object)null)
 		{
@@ -157,7 +141,7 @@ public static class DebugLogHandler
 		return MVGameController.Instance.Game.JoinState.ToString();
 	}
 
-	private static string GetPlayersCount()
+	private string GetPlayersCount()
 	{
 		if ((Object)(object)MVGameController.Instance == (Object)null)
 		{
@@ -170,7 +154,7 @@ public static class DebugLogHandler
 		return MVGameController.Instance.Game.Players.Count.ToString();
 	}
 
-	private static string GetSystemInfo()
+	private string GetSystemInfo()
 	{
 		Dictionary<string, string> dictionary = new Dictionary<string, string>();
 		dictionary.Add("operatingSystem", SystemInfo.operatingSystem);
@@ -193,7 +177,7 @@ public static class DebugLogHandler
 		return GenerateSystemInfoString(dictionary);
 	}
 
-	private static string GenerateSystemInfoString(Dictionary<string, string> systemInfo)
+	private string GenerateSystemInfoString(Dictionary<string, string> systemInfo)
 	{
 		string text = string.Empty;
 		foreach (KeyValuePair<string, string> item in systemInfo)
@@ -203,7 +187,7 @@ public static class DebugLogHandler
 		return text;
 	}
 
-	private static string GetLogContext()
+	private string GetLogContext()
 	{
 		string text = string.Empty;
 		foreach (Dictionary<string, object> item in logContextQueue)
@@ -218,7 +202,7 @@ public static class DebugLogHandler
 		return text;
 	}
 
-	private static string GetBrowserInfo()
+	private string GetBrowserInfo()
 	{
 		return $"{BrowserComm.BrowserName}. version: {BrowserComm.BrowserVersion}";
 	}

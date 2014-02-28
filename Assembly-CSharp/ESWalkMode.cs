@@ -43,8 +43,8 @@ internal class ESWalkMode : ESStateBase
 		}
 		MVCameraController cameraController = MVGameController.Instance.Game.CameraController;
 		MVAvatarLocal avatarLocal = MVGameController.Instance.WOCM.AvatarLocal;
-		JetPackCamera camera = MVGameController.Instance.Game.CameraController.GetCamera<JetPackCamera>();
-		avatarLocal.WorldPosition = camera.ComputeAvatarPositionFromTransform(((Component)cameraController).transform);
+		JetPackCamera jetPackCamera = Object.FindObjectOfType(typeof(JetPackCamera)) as JetPackCamera;
+		avatarLocal.WorldPosition = jetPackCamera.ComputeAvatarPositionFromTransform(((Component)cameraController).transform);
 		Vector3 eulerAngles = ((Component)cameraController).transform.eulerAngles;
 		eulerAngles.x = 0f;
 		avatarLocal.WorldEulerAngles = eulerAngles;

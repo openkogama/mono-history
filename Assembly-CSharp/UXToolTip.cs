@@ -13,7 +13,7 @@ public class UXToolTip : MonoBehaviour
 
 	public bool HitOnDragOver;
 
-	private void Start()
+	private void Awake()
 	{
 		UXMouseOverObject component = ((Component)this).GetComponent<UXMouseOverObject>();
 		component.OnMouseOverEnter = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(component.OnMouseOverEnter, new UXMouseOverObject.OnMouseOverDelegate(OnMouseOverEnter));

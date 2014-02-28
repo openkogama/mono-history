@@ -110,14 +110,14 @@ public class CharacterEditorController : AEditController
 	protected override void ResolveGUIElements()
 	{
 		base.ResolveGUIElements();
-		GameObject gameObject = ((Component)UXUtils.FindGUIObjectOfType<MVGUIAvatarEditor>()).gameObject;
-		AnimationToggles = gameObject.GetComponentInChildren<MVGUIAnimationToggles>();
-		CharacterEditScreenshot = gameObject.GetComponentInChildren<MVGUICharacterEditScreenShot>();
-		AvatarShop = gameObject.GetComponentInChildren<MVGUIAvatarShopWindow>();
-		AvatarSlotButtonView = gameObject.GetComponentInChildren<MVGUIAvatarSlotButtonView>();
-		AvatarAccessoryButtons = gameObject.GetComponentInChildren<MVGUIAvatarAccessoryButtons>();
-		AvatarAccessoryInventory = gameObject.GetComponentInChildren<MVGUIAvatarAccessoryInventory>();
-		AvatarAccessoryShop = gameObject.GetComponentInChildren<MVGUIAvatarAccessoryShop>();
+		GameObject characterEditGUI = UXUtils.GetGUIHandler().characterEditGUI;
+		AnimationToggles = characterEditGUI.GetComponentInChildren<MVGUIAnimationToggles>();
+		CharacterEditScreenshot = characterEditGUI.GetComponentInChildren<MVGUICharacterEditScreenShot>();
+		AvatarShop = characterEditGUI.GetComponentInChildren<MVGUIAvatarShopWindow>();
+		AvatarSlotButtonView = characterEditGUI.GetComponentInChildren<MVGUIAvatarSlotButtonView>();
+		AvatarAccessoryButtons = characterEditGUI.GetComponentInChildren<MVGUIAvatarAccessoryButtons>();
+		AvatarAccessoryInventory = characterEditGUI.GetComponentInChildren<MVGUIAvatarAccessoryInventory>();
+		AvatarAccessoryShop = characterEditGUI.GetComponentInChildren<MVGUIAvatarAccessoryShop>();
 	}
 
 	protected override void SetPlayInEditorMode(bool playInEditor)

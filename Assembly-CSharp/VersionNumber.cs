@@ -16,12 +16,9 @@ public class VersionNumber : MonoBehaviour
 
 	public string VersionString => versionMajor + "." + versionMinor + "." + versionMicro + "." + versionBuild;
 
-	private void Update()
+	private void Awake()
 	{
-		if (MVGameController.Instance.GameJoined)
-		{
-			((Component)this).gameObject.SetActiveRecursively(false);
-		}
+		Object.DontDestroyOnLoad((Object)(object)((Component)this).gameObject);
 	}
 
 	private void Start()

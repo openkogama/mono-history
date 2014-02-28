@@ -374,11 +374,10 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 
 	public void Respawn(bool suicide = false, bool delayRespawn = false)
 	{
-		//IL_00ec: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0102: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01a6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01bc: Unknown result type (might be due to invalid IL or missing references)
-		Debug.Log((object)"Respawn!");
+		//IL_00e2: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00f8: Unknown result type (might be due to invalid IL or missing references)
+		//IL_019c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01b2: Unknown result type (might be due to invalid IL or missing references)
 		MVTriggerHandler component = gameObject.GetComponent<MVTriggerHandler>();
 		if ((Object)(object)component == (Object)null)
 		{
@@ -488,10 +487,10 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 
 	private void Initialize(AvatarPickupOwner pickupOwner, AvatarMotor avatarMotor)
 	{
-		//IL_0128: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0147: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0166: Unknown result type (might be due to invalid IL or missing references)
-		thirdPersonCam = MVGameController.Instance.Game.CameraController.GetCamera<ThirdPersonCamera>();
+		//IL_012d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_014c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_016b: Unknown result type (might be due to invalid IL or missing references)
+		thirdPersonCam = Object.FindObjectOfType(typeof(ThirdPersonCamera)) as ThirdPersonCamera;
 		this.pickupOwner = pickupOwner;
 		pickupOwner.onHandleFiring = (MVPickupOwner.OnHandleFiringDelegate)Delegate.Combine(pickupOwner.onHandleFiring, new MVPickupOwner.OnHandleFiringDelegate(OnHandleFiring));
 		pickupGUI = new PickupGUI(pickupOwner);
@@ -516,10 +515,10 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 				Die();
 			}
 		}));
-		UXCamera uXCamera = UXUtils.FindGUIObjectOfType<UXCamera>();
-		if (Object.op_Implicit((Object)(object)uXCamera))
+		GameObject val = GameObject.Find("UX Camera");
+		if (Object.op_Implicit((Object)(object)val))
 		{
-			Camera camera = ((Component)uXCamera).camera;
+			Camera camera = val.camera;
 			HealthBar componentInChildren = gameObject.GetComponentInChildren<HealthBar>();
 			((Component)componentInChildren).transform.parent = ((Component)camera).transform;
 			((Component)componentInChildren).transform.localRotation = Quaternion.identity;
@@ -527,9 +526,9 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 			((Component)componentInChildren).transform.localScale = new Vector3(70f, 45f, 1f);
 			Renderer[] componentsInChildren = ((Component)componentInChildren).GetComponentsInChildren<Renderer>();
 			Renderer[] array = componentsInChildren;
-			foreach (Renderer val in array)
+			foreach (Renderer val2 in array)
 			{
-				((Component)val).gameObject.layer = LayerMask.NameToLayer("UXElement");
+				((Component)val2).gameObject.layer = LayerMask.NameToLayer("UXElement");
 			}
 		}
 		else
@@ -545,16 +544,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		{
 			Die();
 			MVGameController.Instance.Game.PostGameMsg(MVGameMsgType.AvatarKilled, GameMessages.MakePlayerKilledMessage(MVGameController.Instance.Game.LocalPlayerActorNumber, MVGameController.Instance.Game.LocalPlayerActorNumber, PlayerKilledByType.Crushed));
-		}
-	}
-
-	public void Suicide()
-	{
-		if (state != AvatarState.Dead)
-		{
-			Die();
-			Debug.Log((object)"Avatar dead");
-			MVGameController.Instance.Game.PostGameMsg(MVGameMsgType.AvatarKilled, GameMessages.MakePlayerKilledMessage(MVGameController.Instance.Game.LocalPlayerActorNumber, MVGameController.Instance.Game.LocalPlayerActorNumber, PlayerKilledByType.Suicide));
 		}
 	}
 

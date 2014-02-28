@@ -63,7 +63,7 @@ internal class ESSelection : ESStateBase
 	{
 		InitializeSelectionGizmo();
 		InitializeRightClickMenuGizmo();
-		exitButton = UXUtils.FindGUIObjectOfType<MVGUIEditModel>();
+		exitButton = Object.FindObjectOfType(typeof(MVGUIEditModel)) as MVGUIEditModel;
 	}
 
 	private void InitializeSelectionGizmo()

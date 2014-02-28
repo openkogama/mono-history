@@ -102,8 +102,17 @@ public class MVCameraController : MonoBehaviour
 		}
 	}
 
-	public void RequestCursorLock()
+	public bool RequestCursorLock()
 	{
+		MVGUIAskForFocus mVGUIAskForFocus = UXUtils.FindGUIObjectOfType<MVGUIAskForFocus>();
+		MVGUIMenu mVGUIMenu = UXUtils.FindGUIObjectOfType<MVGUIMenu>();
+		UXDialogFactory uXDialogFactory = UXUtils.FindGUIObjectOfType<UXDialogFactory>();
+		Screen.lockCursor = !mVGUIMenu.View.isVisible && !uXDialogFactory.DialogOpen;
+		if (Screen.lockCursor)
+		{
+			mVGUIAskForFocus.RegainFocus();
+		}
+		return Screen.lockCursor;
 	}
 
 	public void Respawn()

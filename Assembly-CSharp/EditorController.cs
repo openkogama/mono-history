@@ -16,8 +16,8 @@ public class EditorController : AEditController
 	protected override void ResolveGUIElements()
 	{
 		base.ResolveGUIElements();
-		GameObject gameObject = ((Component)UXUtils.FindGUIObjectOfType<MVGUIEditor>()).gameObject;
-		publish = gameObject.GetComponentInChildren<MVGUIPublishButton>();
+		GameObject editGUI = UXUtils.GetGUIHandler().editGUI;
+		publish = editGUI.GetComponentInChildren<MVGUIPublishButton>();
 	}
 
 	public override void Initialize()

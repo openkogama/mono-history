@@ -20,12 +20,12 @@ internal class ESCubeEdit : ESStateBase
 
 	public override void Enter(EditorStateMachine e)
 	{
-		//IL_00fe: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0104: Expected Obj, but got Unknown
-		//IL_01fb: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0200: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0229: Unknown result type (might be due to invalid IL or missing references)
-		//IL_022e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_010d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0113: Expected Obj, but got Unknown
+		//IL_020a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_020f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0238: Unknown result type (might be due to invalid IL or missing references)
+		//IL_023d: Unknown result type (might be due to invalid IL or missing references)
 		Debug.Log((object)"ESCubeEdit enter");
 		exitButtonWasPressed = false;
 		if (e.SingleSelectedWO == null)
@@ -38,7 +38,7 @@ internal class ESCubeEdit : ESStateBase
 		exitButtonWasPressed = false;
 		targetCubeModel = (MVCubeModelBase)e.SingleSelectedWO;
 		e.DeSelectAll();
-		guiEditModel = UXUtils.FindGUIObjectOfType<MVGUIEditModel>();
+		guiEditModel = Object.FindObjectOfType(typeof(MVGUIEditModel)) as MVGUIEditModel;
 		guiEditModel.View.Show();
 		guiEditModel.exitButton.OnClick = () =>
 		{

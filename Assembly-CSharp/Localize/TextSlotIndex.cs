@@ -345,9 +345,5 @@ public enum TextSlotIndex
 	NoWinnerCollectibles,
 	GhostSettingHeader,
 	AdvancedGhost,
-	Aggression,
-	HoldToMMenu,
-	HelpTextMove,
-	HelpTextJump,
-	HelpTextLook
+	Aggression
 }
