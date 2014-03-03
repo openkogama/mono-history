@@ -38,10 +38,6 @@ internal class HotKeys
 				MVGameController.Instance.IngameController.ShowChat(fromShortcut: true);
 			}
 		}
-		if (MVInputWrapper.GetKeyUp((KeyCode)109))
-		{
-			MVGameController.Instance.IngameController.ToggleMenu();
-		}
 		if (MVInputWrapper.GetKeyDown((KeyCode)107))
 		{
 			MVGameController.Instance.IngameController.RespawnAvatar();
@@ -51,11 +47,11 @@ internal class HotKeys
 			MVBody body = MVGameController.Instance.WOCM.AvatarLocal.Body;
 			body.AccessoryParticlesVisible = !body.AccessoryParticlesVisible;
 		}
-		if (MVInputWrapper.GetKeyUp((KeyCode)9))
+		if (MVInputWrapper.GetKeyUp((KeyCode)9) || MVInputWrapper.GetKeyUp((KeyCode)109))
 		{
 			MVGameController.Instance.IngameController.ShowPlayersWindow(show: false);
 		}
-		else if (MVInputWrapper.GetKeyDown((KeyCode)9))
+		else if (MVInputWrapper.GetKeyDown((KeyCode)9) || MVInputWrapper.GetKeyDown((KeyCode)109))
 		{
 			MVGameController.Instance.IngameController.ShowPlayersWindow(show: true);
 		}

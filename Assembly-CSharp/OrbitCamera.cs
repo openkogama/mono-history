@@ -61,7 +61,6 @@ public class OrbitCamera : MVCameraBase
 		eulerTargetRot = ComputeEulerRotationToTarget(((Component)camController).transform.position);
 		((Component)this).transform.rotation = Quaternion.Euler(eulerTargetRot);
 		lookAtPos = MVGameController.Instance.WOCM.AvatarLocal.GameObject.transform.position;
-		UXUtils.FindGUIObjectOfType<MVGUIAskForFocus>().RegainFocus();
 	}
 
 	public override void Init(MVCameraController camController)

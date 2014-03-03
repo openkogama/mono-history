@@ -13,15 +13,12 @@ public class MVGUILoading : UXViewScript
 
 	public GameObject loadingCube;
 
-	public VersionNumber versionNumber;
-
 	private MVGameController gameController;
 
 	public override void OnHide()
 	{
 		base.OnHide();
 		loadingCube.gameObject.active = false;
-		((Component)versionNumber.uxText).gameObject.SetActiveRecursively(Debug.isDebugBuild);
 	}
 
 	public override void OnShow()
@@ -29,15 +26,14 @@ public class MVGUILoading : UXViewScript
 		base.OnShow();
 		loadingCube.gameObject.active = true;
 		loadingCube.renderer.material = materials[0];
-		((Component)versionNumber.uxText).gameObject.SetActiveRecursively(true);
 	}
 
 	public void Update()
 	{
-		//IL_00bf: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00c1: Unknown result type (might be due to invalid IL or missing references)
 		if ((Object)(object)gameController == (Object)null)
 		{
-			gameController = UXUtils.FindObjectOfType<MVGameController>();
+			gameController = MVGameController.Instance;
 		}
 		if ((Object)(object)gameController != (Object)null && gameController.Game != null)
 		{
@@ -45,7 +41,7 @@ public class MVGUILoading : UXViewScript
 			{
 				View.Hide();
 			}
-			else if (gameController.Game.JoinState == MVJoinState.Joining && !View.isVisible)
+			else if (gameController.Game.JoinState != MVJoinState.Playing && !View.isVisible)
 			{
 				View.Show();
 			}

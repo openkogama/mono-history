@@ -26,7 +26,7 @@ public class UXFullscreenColliderBox : MonoBehaviour
 		{
 			if ((Object)(object)instance == (Object)null)
 			{
-				instance = Object.FindObjectOfType(typeof(UXFullscreenColliderBox)) as UXFullscreenColliderBox;
+				instance = UXUtils.FindGUIObjectOfType<UXFullscreenColliderBox>();
 			}
 			return instance;
 		}

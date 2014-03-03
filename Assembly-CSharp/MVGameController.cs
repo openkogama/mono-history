@@ -7,6 +7,12 @@ using UnityEngine;
 
 public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerSubscriber
 {
+	public enum LoadMode
+	{
+		Overwrite,
+		Additive
+	}
+
 	public delegate void OnPostGameInitDelegate();
 
 	public OnPostGameInitDelegate OnPostGameInit;
@@ -19,7 +25,7 @@ public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerS
 
 	private HotKeys hotkeys;
 
-	private MVGUILoginHandler loginForm;
+	public MVGUILoginHandler LoginForm;
 
 	private TimeReward timeReward;
 
@@ -64,6 +70,18 @@ public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerS
 	public TimeReward TimeReward => timeReward;
 
 	public int Priority => InputHandlerPriority.GAME;
+
+	public bool GameJoined
+	{
+		get
+		{
+			if (Game == null)
+			{
+				return false;
+			}
+			return Game.JoinState == MVJoinState.Playing;
+		}
+	}
 
 	public MVGameMode GameMode
 	{
@@ -189,6 +207,7 @@ public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerS
 
 	private void Awake()
 	{
+		DebugLogHandler.Init();
 		BrowserComm = UXUtils.FindObjectOfType<BrowserComm>();
 		AudioEventHandler.Awake();
 		timeReward = new TimeReward();
@@ -215,7 +234,7 @@ public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerS
 	{
 		this.gameSessionData = gameSessionData;
 		Localization.Instance.CultureName = gameSessionData.Language.Replace('_', '-');
-		loginForm.View.Hide();
+		LoginForm.View.Hide();
 		Game = new MVNetworkGame();
 		Game.Join();
 	}
@@ -227,7 +246,6 @@ public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerS
 		UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
 		UXUtils.FindObjectOfType<MVInputHandlerPrioritizer>().Register(this);
 		AudioManager = FindOrLogError<AudioManager>("AudioManager must be present in scene!");
-		loginForm = UXUtils.FindGUIObjectOfType<MVGUILoginHandler>();
 		Object.DontDestroyOnLoad((Object)(object)((Component)this).gameObject);
 		Application.runInBackground = true;
 		Localization.Instance.CultureName = "en-US";
@@ -235,7 +253,7 @@ public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerS
 		bool showLogin = customBuildSettings.ShowLogin;
 		if (Application.isEditor || showLogin)
 		{
-			loginForm.View.Show();
+			LoginForm.View.Show();
 		}
 		else
 		{
@@ -245,6 +263,7 @@ public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerS
 
 	private void OnLevelWasLoaded(int level)
 	{
+		Debug.Log((object)("OnLevelWasLoaded: " + level + " Application.loadedLevelName: " + Application.loadedLevelName));
 		if (!(Application.loadedLevelName == "UnloadPlanet"))
 		{
 			return;
@@ -252,9 +271,9 @@ public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerS
 		Debug.Log((object)"Scene loaded");
 		if (!Application.isWebPlayer)
 		{
-			if ((Object)(object)loginForm != (Object)null)
+			if ((Object)(object)LoginForm != (Object)null)
 			{
-				loginForm.View.Show();
+				LoginForm.View.Show();
 			}
 			else
 			{
@@ -263,15 +282,15 @@ public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerS
 		}
 		else
 		{
-			if ((Object)(object)loginForm != (Object)null)
+			if ((Object)(object)LoginForm != (Object)null)
 			{
-				loginForm.View.Hide();
+				LoginForm.View.Hide();
 			}
 			else
 			{
 				Debug.LogError((object)"loginForm was null!");
 			}
-			UXScreen uXScreen = Object.FindObjectOfType(typeof(UXScreen)) as UXScreen;
+			UXScreen uXScreen = UXUtils.FindGUIObjectOfType<UXScreen>();
 			if ((Object)(object)uXScreen != (Object)null)
 			{
 				if (uXScreen.Fullscreen)
@@ -288,19 +307,34 @@ public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerS
 		GC.Collect();
 	}
 
-	public void LoadLevel()
+	public void LoadLevel(string levelName, LoadMode loadMode, Action callback)
 	{
-		((MonoBehaviour)this).StartCoroutine(WaitForLoadToStart());
+		Debug.Log((object)("Wait load level " + levelName + ", frame " + Time.frameCount));
+		((MonoBehaviour)this).StartCoroutine(WaitForLevel(levelName, loadMode, callback));
 	}
 
-	private IEnumerator WaitForLoadToStart()
+	private IEnumerator WaitForLevel(string levelName, LoadMode loadMode, Action callback)
 	{
-		while (!Application.CanStreamedLevelBeLoaded("LoadPlanet"))
+		while (!Application.CanStreamedLevelBeLoaded(levelName))
 		{
 			yield return null;
 		}
-		Application.LoadLevel("LoadPlanet");
-		Game.LevelLoadStarted();
+		Debug.Log((object)("Start load level " + levelName + ", frame " + Time.frameCount));
+		AsyncOperation asyncOperation;
+		switch (loadMode)
+		{
+		default:
+			yield break;
+		case LoadMode.Overwrite:
+			asyncOperation = Application.LoadLevelAsync(levelName);
+			break;
+		case LoadMode.Additive:
+			asyncOperation = Application.LoadLevelAdditiveAsync(levelName);
+			break;
+		}
+		yield return asyncOperation;
+		Debug.Log((object)("Finished load level " + levelName + ", frame " + Time.frameCount));
+		callback();
 	}
 
 	private void UpdateGame()
@@ -310,6 +344,7 @@ public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerS
 		{
 			if (IngameController == null)
 			{
+				Debug.Log((object)("JoinState: " + Game.JoinState));
 				InitializePlayingState();
 				IngameController.Initialize();
 				IngameController.ShowBriefing();
@@ -461,17 +496,12 @@ public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerS
 			Game.Peer.StopThread();
 		}
 		Game.Cleanup();
-		SetNetworkGame(null);
+		Game = null;
 		IngameController = null;
 		hotkeys = null;
 		GC.Collect();
 		Application.LoadLevel("UnloadPlanet");
 		UpdateController = null;
-	}
-
-	public void SetNetworkGame(MVNetworkGame game)
-	{
-		Game = game;
 	}
 
 	public void LeaveGame()

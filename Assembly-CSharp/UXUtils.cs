@@ -5,9 +5,25 @@ using UnityEngine;
 
 public static class UXUtils
 {
-	private static MVGUIHandler guiRoot;
+	private static MVGUIRoot guiRoot = null;
 
 	private static Dictionary<Type, Component> cachedReferences = new Dictionary<Type, Component>();
+
+	private static MVGUIRoot GuiRoot
+	{
+		get
+		{
+			if ((Object)(object)guiRoot == (Object)null)
+			{
+				guiRoot = FindObjectOfType<MVGUIRoot>();
+			}
+			if ((Object)(object)guiRoot == (Object)null)
+			{
+				Debug.LogError((object)"Failed to find MVGUIRoot");
+			}
+			return guiRoot;
+		}
+	}
 
 	public static void VisitSubtree(Transform root, Action<GameObject> visitor)
 	{
@@ -86,15 +102,16 @@ public static class UXUtils
 		return null;
 	}
 
+	public static void AddSubTree(Transform transform)
+	{
+		transform.parent = ((Component)GuiRoot).transform;
+	}
+
 	public static T FindGUIObjectOfType<T>() where T : class
 	{
-		if ((Object)(object)guiRoot == (Object)null)
-		{
-			guiRoot = FindObjectOfType<MVGUIHandler>();
-		}
 		if (!cachedReferences.ContainsKey(typeof(T)))
 		{
-			Component componentInChildren = ((Component)guiRoot).gameObject.GetComponentInChildren(typeof(T));
+			Component componentInChildren = ((Component)GuiRoot).gameObject.GetComponentInChildren(typeof(T));
 			if (!((Object)(object)componentInChildren != (Object)null))
 			{
 				return (T)null;
@@ -102,15 +119,6 @@ public static class UXUtils
 			cachedReferences.Add(typeof(T), componentInChildren);
 		}
 		return cachedReferences[typeof(T)] as T;
-	}
-
-	public static MVGUIHandler GetGUIHandler()
-	{
-		if ((Object)(object)guiRoot == (Object)null)
-		{
-			guiRoot = FindObjectOfType<MVGUIHandler>();
-		}
-		return guiRoot;
 	}
 
 	public static T AddComponentIfNotExists<T>(GameObject gameObject) where T : Component

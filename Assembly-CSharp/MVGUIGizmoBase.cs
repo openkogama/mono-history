@@ -63,8 +63,8 @@ public abstract class MVGUIGizmoBase : MonoBehaviour
 
 	protected virtual void InitializeGizmo()
 	{
-		uxCamera = Object.FindObjectOfType(typeof(UXCamera)) as UXCamera;
-		mainCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
+		uxCamera = UXUtils.FindGUIObjectOfType<UXCamera>();
+		mainCamera = ((Component)MVGameController.Instance.Game.CameraController).GetComponent<Camera>();
 	}
 
 	protected void UpdatePosition()
