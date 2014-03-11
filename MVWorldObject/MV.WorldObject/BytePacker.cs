@@ -249,8 +249,9 @@ public class BytePacker
 		{
 			throw new ArgumentNullException("value", "The string cannot be null.");
 		}
-		Write7BitEncodedInt(value.Length);
-		Write(Encoding.ASCII.GetBytes(value));
+		byte[] bytes = Encoding.UTF8.GetBytes(value);
+		Write7BitEncodedInt(bytes.Length);
+		Write(bytes);
 	}
 
 	public byte ReadByte()
@@ -347,7 +348,7 @@ public class BytePacker
 	{
 		int count = Read7BitEncodedInt();
 		byte[] bytes = ReadBytes(count);
-		return Encoding.ASCII.GetString(bytes);
+		return Encoding.UTF8.GetString(bytes);
 	}
 
 	public void Delete(int count)
