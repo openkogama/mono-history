@@ -5,5 +5,6 @@ public enum DevServerTarget
 	RC,
 	Vault,
 	Local,
-	NewTest
+	NewTest,
+	SpilGamesTest
 }

@@ -195,6 +195,7 @@ public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerS
 			DevServerTarget.Vault => "95.211.176.62:5055", 
 			DevServerTarget.NewTest => "54.228.103.157:5055", 
 			DevServerTarget.Local => "127.0.0.1:5055", 
+			DevServerTarget.SpilGamesTest => "212.72.60.140:5033", 
 			_ => string.Empty, 
 		};
 	}
@@ -232,6 +233,10 @@ public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerS
 
 	public void StartGame(GameSessionData gameSessionData)
 	{
+		Debug.Log((object)gameSessionData.Ip);
+		string text = gameSessionData.Ip.Split(new char[1] { ':' })[0];
+		Debug.Log((object)text);
+		Debug.Log((object)("PrefetchSocketPolicy " + Security.PrefetchSocketPolicy(text, 844, 10000)));
 		this.gameSessionData = gameSessionData;
 		Localization.Instance.CultureName = gameSessionData.Language.Replace('_', '-');
 		LoginForm.View.Hide();
