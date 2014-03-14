@@ -236,7 +236,7 @@ public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerS
 		Debug.Log((object)gameSessionData.Ip);
 		string text = gameSessionData.Ip.Split(new char[1] { ':' })[0];
 		Debug.Log((object)text);
-		Debug.Log((object)("PrefetchSocketPolicy " + Security.PrefetchSocketPolicy(text, 844, 10000)));
+		Debug.Log((object)("PrefetchSocketPolicy " + Security.PrefetchSocketPolicy(text, 845, 10000)));
 		this.gameSessionData = gameSessionData;
 		Localization.Instance.CultureName = gameSessionData.Language.Replace('_', '-');
 		LoginForm.View.Hide();
