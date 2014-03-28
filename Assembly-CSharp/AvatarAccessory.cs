@@ -20,10 +20,6 @@ public abstract class AvatarAccessory : MonoBehaviour
 
 	public bool ConstantWorldRotation;
 
-	public bool ConstantLocalRotation;
-
-	public bool ConstantLocalPosition;
-
 	private int _gameObjectID;
 
 	private Transform _transform;
@@ -37,10 +33,6 @@ public abstract class AvatarAccessory : MonoBehaviour
 	private bool attached;
 
 	private Quaternion worldRotationOnAttach;
-
-	private Quaternion localRotationOnAttach;
-
-	private Vector3 localPositionOnAttach;
 
 	private static MVWorldObjectClientManager WOCM => MVGameController.Instance.WOCM;
 
@@ -94,18 +86,12 @@ public abstract class AvatarAccessory : MonoBehaviour
 		{
 			//IL_0025: Unknown result type (might be due to invalid IL or missing references)
 			//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0036: Unknown result type (might be due to invalid IL or missing references)
-			//IL_003b: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0047: Unknown result type (might be due to invalid IL or missing references)
-			//IL_004c: Unknown result type (might be due to invalid IL or missing references)
 			if (attached != value)
 			{
 				attached = value;
 				if (attached)
 				{
 					worldRotationOnAttach = Transform.rotation;
-					localRotationOnAttach = Transform.localRotation;
-					localPositionOnAttach = Transform.localPosition;
 				}
 			}
 		}
@@ -147,22 +133,9 @@ public abstract class AvatarAccessory : MonoBehaviour
 	protected virtual void Update()
 	{
 		//IL_001d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0039: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0055: Unknown result type (might be due to invalid IL or missing references)
-		if (attached)
+		if (attached && ConstantWorldRotation)
 		{
-			if (ConstantLocalPosition)
-			{
-				Transform.localPosition = localPositionOnAttach;
-			}
-			if (ConstantLocalRotation)
-			{
-				Transform.rotation = localRotationOnAttach;
-			}
-			if (ConstantWorldRotation)
-			{
-				Transform.rotation = worldRotationOnAttach;
-			}
+			Transform.rotation = worldRotationOnAttach;
 		}
 	}
 

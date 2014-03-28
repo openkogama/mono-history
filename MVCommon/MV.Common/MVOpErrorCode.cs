@@ -16,6 +16,10 @@ public class MVOpErrorCode
 
 	public const int JoinOperationValidationFailed = -7;
 
+	public const int JoinProfileNotFound = -8;
+
+	public const int JoinTouristNotAllowedInMode = -9;
+
 	public const int PublishNotAuthorized = -2;
 
 	public const int InventoryPrototypeNotFound = -2;

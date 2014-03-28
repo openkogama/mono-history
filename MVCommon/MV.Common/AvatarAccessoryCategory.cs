@@ -2,7 +2,7 @@ namespace MV.Common;
 
 public enum AvatarAccessoryCategory
 {
-	Undefinded,
+	Undefined,
 	Hat,
 	Particles
 }

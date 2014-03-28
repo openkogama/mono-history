@@ -3053,9 +3053,6 @@ public class MVNetworkGame : IPhotonPeerListener
 		short returnCode = operationResponse.ReturnCode;
 		MVOperationCodes operationCode = (MVOperationCodes)operationResponse.OperationCode;
 		Dictionary<byte, object> parameters = operationResponse.Parameters;
-		if (returnCode != 0)
-		{
-		}
 		switch (operationCode)
 		{
 		case MVOperationCodes.Join:
@@ -3066,46 +3063,12 @@ public class MVNetworkGame : IPhotonPeerListener
 				OnJoinResponse(parameters);
 				break;
 			}
-			string text = string.Empty;
-			TextSlotIndex textSlotIndex2 = TextSlotIndex.Empty;
-			ValueInsert values = null;
-			switch (returnCode)
+			string message = "Undefined join error.";
+			if (operationResponse.DebugMessage != null)
 			{
-			case -1:
-				text = "Undefined Error";
-				break;
-			case -4:
-				text = "Planet '" + MVGameController.Instance.PlanetID + "' recently disposed on server";
-				break;
-			case -3:
-				textSlotIndex2 = TextSlotIndex.NotAuthorizedToJoinPlanetInEdit;
-				values = new ValueInsert().AddInt(MVGameController.Instance.PlanetID);
-				break;
-			case -2:
-				text = "The planet '" + MVGameController.Instance.PlanetID + "' was not found";
-				if (GameMode != MVGameMode.Edit)
-				{
-					text += " among Published Planets";
-				}
-				break;
-			case -6:
-				text = "The planet '" + MVGameController.Instance.PlanetID + "' failed\nduring load";
-				break;
-			case -5:
-				text = "The profile has already joined the planet '" + MVGameController.Instance.PlanetID + "'";
-				break;
-			case -7:
-				text = "The join operation could not be validated server-side";
-				break;
+				message = operationResponse.DebugMessage;
 			}
-			if (textSlotIndex2 != TextSlotIndex.Empty)
-			{
-				UXUtils.FindGUIObjectOfType<UXDialogFactory>().CreateDialog(textSlotIndex2, TextSlotIndex.ErrorOccured, UXDialogType.Simple, noButtons: false, stackDialog: false, canClose: true, values).Show();
-			}
-			else
-			{
-				UXUtils.FindGUIObjectOfType<UXDialogFactory>().CreateDevelopmentDialog(text, "Error").Show();
-			}
+			UXUtils.FindGUIObjectOfType<UXDialogFactory>().CreateDevelopmentDialog(message, "Error").Show();
 			peer.Disconnect();
 			break;
 		}

@@ -16,9 +16,11 @@ public class MVGUISettingsDialogSoundEmitter : MVGUIDynamicSettingsDialog
 	private Dictionary<string, DialogData> BuildDialogData()
 	{
 		Dictionary<string, DialogData> dictionary = new Dictionary<string, DialogData>();
+		List<string> list = new List<string>(Enum.GetNames(typeof(AmbientAudioCategory)));
+		list.Remove(AmbientAudioCategory.Undefined.ToString());
 		dictionary.Add("CategoryComboBox", new TextComboBoxData
 		{
-			items = Enum.GetNames(typeof(AmbientAudioCategory))
+			items = list.ToArray()
 		});
 		dictionary.Add("PitchSlider", new SliderData
 		{

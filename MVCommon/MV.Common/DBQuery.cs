@@ -59,7 +59,6 @@ public enum DBQuery
 	GetActiveAvatarBody,
 	GetAvatarBody,
 	SerializeAvatar,
-	RequestAvatarPlanet,
 	GetBuiltInItemIds,
 	RequestClientShopInventory,
 	PurchaseItemClientShopInventory,
@@ -93,6 +92,5 @@ public enum DBQuery
 	RequestStreamingAssetDetails,
 	RequestItemDetails,
 	RequestAvatarDetails,
-	TestQuery,
-	PublishPlanet
+	TestQuery
 }

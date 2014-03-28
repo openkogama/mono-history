@@ -2,7 +2,8 @@ namespace MV.Common;
 
 public enum AmbientAudioCategory
 {
-	Nature = 1,
+	Undefined,
+	Nature,
 	Machinery,
 	Urban,
 	MusicLoop,

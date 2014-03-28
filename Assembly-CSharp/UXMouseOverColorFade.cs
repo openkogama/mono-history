@@ -3,8 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(UXDropObject))]
 [RequireComponent(typeof(UXMouseOverObject))]
+[RequireComponent(typeof(UXDropObject))]
 public class UXMouseOverColorFade : MonoBehaviour
 {
 	public bool HitOnDragOver;
