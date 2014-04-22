@@ -49,6 +49,14 @@ public class MVPickupItemBase : MVLogicObject
 		{
 			AvatarItemType.CubeGun,
 			"Prefabs/Pickups/PickupItemCubeGun"
+		},
+		{
+			AvatarItemType.SixShooter,
+			"Prefabs/Pickups/PickupItemSixShooter"
+		},
+		{
+			AvatarItemType.DoubleSixShooter,
+			"Prefabs/Pickups/PickupItemDoubleSixShooter"
 		}
 	};
 

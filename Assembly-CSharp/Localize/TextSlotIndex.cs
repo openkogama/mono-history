@@ -349,5 +349,6 @@ public enum TextSlotIndex
 	HoldToMMenu,
 	HelpTextMove,
 	HelpTextJump,
-	HelpTextLook
+	HelpTextLook,
+	SixShooter
 }

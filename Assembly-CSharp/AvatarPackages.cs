@@ -48,6 +48,10 @@ public static class AvatarPackages
 		{
 			InteractionPackageType.ProximityDamageAndImpulse,
 			new ProximityDamageAndImpulse()
+		},
+		{
+			InteractionPackageType.SixShooterHit,
+			new SixShooterHitPackage()
 		}
 	};
 }

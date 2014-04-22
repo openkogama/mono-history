@@ -27,10 +27,10 @@ public class DevHotKeys
 	private void EditorTestKeys()
 	{
 		//IL_0f66: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0fe7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0ff1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0ff6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0ffb: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0ffe: Unknown result type (might be due to invalid IL or missing references)
+		//IL_1008: Unknown result type (might be due to invalid IL or missing references)
+		//IL_100d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_1012: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0619: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0620: Expected Obj, but got Unknown
 		if (MVInputWrapper.GetKey((KeyCode)48) && MVInputWrapper.GetKeyDown((KeyCode)99))
@@ -367,7 +367,9 @@ public class DevHotKeys
 			if (MVInputWrapper.GetKeyUp((KeyCode)116))
 			{
 				Debug.Log((object)"DEV KEY");
-				MVGameController.Instance.Game.RegisterWorldObject(WorldObjectType.CollectibleItem, MVGameController.Instance.WOCM.RootGroup.Id, new Hashtable(), Vector3.up * 25f, Quaternion.identity, Vector3.one, localOwner: true, transferOwnershipToServerOnLeave: true);
+				Hashtable hashtable13 = new Hashtable();
+				hashtable13.Add("itemType", AvatarItemType.DoubleSixShooter);
+				MVGameController.Instance.Game.RegisterWorldObject(WorldObjectType.PickupItemSpawner, MVGameController.Instance.WOCM.RootGroup.Id, hashtable13, Vector3.up * 25f, Quaternion.identity, Vector3.one, localOwner: true, transferOwnershipToServerOnLeave: true);
 			}
 		}
 		else if (MVInputWrapper.GetKey((KeyCode)54))

@@ -13,5 +13,7 @@ public enum AvatarItemType
 	Sword,
 	Shotgun,
 	Flamethrower,
-	CubeGun
+	CubeGun,
+	SixShooter,
+	DoubleSixShooter
 }

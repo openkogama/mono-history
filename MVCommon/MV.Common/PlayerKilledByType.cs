@@ -18,5 +18,7 @@ public enum PlayerKilledByType : byte
 	FlameThrower,
 	Crushed,
 	Ghost,
-	AdvancedGhost
+	AdvancedGhost,
+	SixShooter,
+	DoubleSixShooter
 }

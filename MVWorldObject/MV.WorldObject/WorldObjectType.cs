@@ -63,5 +63,7 @@ public enum WorldObjectType
 	MonoPlane,
 	JetPack,
 	RoundCube,
-	AdvancedGhost
+	AdvancedGhost,
+	PickupItemSixShooter,
+	PickUpItemDoubleSixShooter
 }

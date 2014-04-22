@@ -363,7 +363,8 @@ public class LocalizedTextCollections
 			"Hold M or TAB to show Menu",
 			"Move = WASD/Arrow keys",
 			"Jump = SPACE",
-			"Look = Mouse"
+			"Look = Mouse",
+			"Colt45"
 		}));
 		TextCollections.Add("da-DK", new TextCollection(new List<string>
 		{
@@ -710,7 +711,8 @@ public class LocalizedTextCollections
 			"Alle Stjernerne Er Blevet Indsamlet Af",
 			"Oculus settings",
 			"{0} was eliminated by an Oculus",
-			"Aggression"
+			"Aggression",
+			"Colt45"
 		}));
 		TextCollections.Add("nb-NO", new TextCollection(new List<string>
 		{
@@ -1054,7 +1056,8 @@ public class LocalizedTextCollections
 			"Reach the lowest altitude before time is up",
 			"There is already an object of this type in the game. Only one per game is allowed",
 			"Flag Reached By ",
-			"All Stars Collected By "
+			"All Stars Collected By ",
+			"Colt45"
 		}));
 		TextCollections.Add("sv-SE", new TextCollection(new List<string>
 		{
@@ -1401,7 +1404,8 @@ public class LocalizedTextCollections
 			"Alla stjärnor samlades ihop av",
 			"Oculus-inställningar",
 			"{0} eliminerades av en oculus",
-			"Angrepp"
+			"Angrepp",
+			"Colt45"
 		}));
 		TextCollections.Add("pt", new TextCollection(new List<string>
 		{
@@ -2099,7 +2103,8 @@ public class LocalizedTextCollections
 			"Kaikki tähdet keräsi",
 			"Oculus settings",
 			"{0} was eliminated by an Oculus",
-			"Aggression"
+			"Aggression",
+			"Colt45"
 		}));
 		TextCollections.Add("pl-PL", new TextCollection(new List<string>
 		{
@@ -2446,7 +2451,8 @@ public class LocalizedTextCollections
 			"All Stars Collected By ",
 			"Oculus settings",
 			"{0} was eliminated by an Oculus",
-			"Aggression"
+			"Aggression",
+			"Colt45"
 		}));
 		TextCollections.Add("de-DE", new TextCollection(new List<string>
 		{
@@ -2793,7 +2799,8 @@ public class LocalizedTextCollections
 			"Alle Sterne gesammelt von",
 			"Oculus-Einstellungen",
 			"{0} wurde von einem Oculus eliminiert.",
-			"Aggressivität"
+			"Aggressivität",
+			"Colt45"
 		}));
 		TextCollections.Add("fr-FR", new TextCollection(new List<string>
 		{
@@ -3140,7 +3147,8 @@ public class LocalizedTextCollections
 			"Toutes les étoiles récupérées par",
 			"Paramètres d'oculus",
 			"{0} a eu le malheur de croiser la route d'un oculus",
-			"Agressivité"
+			"Agressivité",
+			"Colt45"
 		}));
 		TextCollections.Add("id-ID", new TextCollection(new List<string>
 		{
@@ -3487,7 +3495,8 @@ public class LocalizedTextCollections
 			"Semua Bintang Dikumpulkan Oleh",
 			"Pengaturan Okulus",
 			"{0} disingkirkan oleh Okulus",
-			"Agresi"
+			"Agresi",
+			"Colt45"
 		}));
 	}
 
@@ -3838,7 +3847,8 @@ public class LocalizedTextCollections
 			"Tutte le stelle raccolte da",
 			"Impostazioni Oculo",
 			"{0} è stato eliminato da un Oculo",
-			"Aggressione"
+			"Aggressione",
+			"Colt45"
 		}));
 		TextCollections.Add("nl-NL", new TextCollection(new List<string>
 		{
@@ -4185,7 +4195,8 @@ public class LocalizedTextCollections
 			"Alle sterren verzameld door",
 			"Oculus-instellingen",
 			"{0} is uitgeschakeld door een Oculus",
-			"Agressie"
+			"Agressie",
+			"Colt45"
 		}));
 		TextCollections.Add("ru-RU", new TextCollection(new List<string>
 		{
@@ -4532,7 +4543,8 @@ public class LocalizedTextCollections
 			"Все звезды собрал",
 			"Параметры Ока",
 			"{0} уничтожен Оком",
-			"Агрессия"
+			"Агрессия",
+			"Colt45"
 		}));
 		TextCollections.Add("tr-TR", new TextCollection(new List<string>
 		{
@@ -4879,7 +4891,8 @@ public class LocalizedTextCollections
 			"Tüm Yıldızları Topladı:",
 			"Göz ayarları",
 			"{0}, bir Göz tarafından alt edildi",
-			"Saldırı"
+			"Saldırı",
+			"Colt45"
 		}));
 		TextCollections.Add("es-ES", new TextCollection(new List<string>
 		{
@@ -5226,7 +5239,8 @@ public class LocalizedTextCollections
 			"Todas las estrellas recogidas por",
 			"Configuración de los Oculus",
 			"{0} fue eliminado por un Oculus",
-			"Agresividad"
+			"Agresividad",
+			"Colt45"
 		}));
 	}
 }
