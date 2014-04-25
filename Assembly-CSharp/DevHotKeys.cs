@@ -368,7 +368,7 @@ public class DevHotKeys
 			{
 				Debug.Log((object)"DEV KEY");
 				Hashtable hashtable13 = new Hashtable();
-				hashtable13.Add("itemType", AvatarItemType.DoubleSixShooter);
+				hashtable13.Add("itemType", AvatarItemType.SixShooter);
 				MVGameController.Instance.Game.RegisterWorldObject(WorldObjectType.PickupItemSpawner, MVGameController.Instance.WOCM.RootGroup.Id, hashtable13, Vector3.up * 25f, Quaternion.identity, Vector3.one, localOwner: true, transferOwnershipToServerOnLeave: true);
 			}
 		}

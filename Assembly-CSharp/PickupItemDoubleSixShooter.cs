@@ -31,7 +31,13 @@ public class PickupItemDoubleSixShooter : PickupItemWithDelay
 
 	public ParticleEmitter fireEmitter;
 
-	public float hitImpact = 100f;
+	public float hitImpact = 300f;
+
+	public Animation animComponentL;
+
+	public Animation animComponentR;
+
+	public AnimationClip gunFireAnim;
 
 	public override AvatarItemType Type => AvatarItemType.DoubleSixShooter;
 
@@ -48,27 +54,29 @@ public class PickupItemDoubleSixShooter : PickupItemWithDelay
 	{
 		//IL_0037: Unknown result type (might be due to invalid IL or missing references)
 		//IL_001b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0081: Unknown result type (might be due to invalid IL or missing references)
+		//IL_008d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0092: Unknown result type (might be due to invalid IL or missing references)
 		//IL_005b: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0060: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0094: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00fb: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0135: Unknown result type (might be due to invalid IL or missing references)
-		//IL_016c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0171: Unknown result type (might be due to invalid IL or missing references)
-		//IL_017c: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00b6: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00c1: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00c6: Unknown result type (might be due to invalid IL or missing references)
+		//IL_011d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0157: Unknown result type (might be due to invalid IL or missing references)
+		//IL_018e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0193: Unknown result type (might be due to invalid IL or missing references)
+		//IL_019e: Unknown result type (might be due to invalid IL or missing references)
 		Bullet bullet = null;
 		bullet = ((ammo % 2 != 0) ? Bullet.CreateBullet(bulletPrefab, muzzlePoint2.position) : Bullet.CreateBullet(bulletPrefab, muzzlePoint.position));
 		if (ammo % 2 == 0)
 		{
 			Object.Instantiate((Object)(object)fireEmitter, muzzlePoint.position, Quaternion.identity);
+			animComponentL.Play("RevolverRecoil");
 		}
 		else
 		{
 			Object.Instantiate((Object)(object)fireEmitter, muzzlePoint2.position, Quaternion.identity);
+			animComponentR.Play("RevolverRecoil");
 		}
 		Ray lineOfFire = new Ray(owner.LookOrigin, owner.LookDirection);
 		Bullet bullet2 = bullet;
@@ -79,7 +87,7 @@ public class PickupItemDoubleSixShooter : PickupItemWithDelay
 		}
 		bullet.Fire(owner.GetAbsolutProjectileSpeed(bulletSpeed), bulletRange, lineOfFire, owner.IgnoreWOIDs);
 		ammo--;
-		MVGameController.Instance.AudioManager.Play("projectile fire", fireSoundClip, muzzlePoint.position, 0.35f, SoundRangeDistance.Long);
+		MVGameController.Instance.AudioManager.Play("projectile fire", fireSoundClip, muzzlePoint.position, 0.28f, SoundRangeDistance.Long);
 		isFiring = false;
 		MVRigidBody component = ((Component)owner).GetComponent<MVRigidBody>();
 		if ((Object)(object)component != (Object)null)
@@ -109,21 +117,28 @@ public class PickupItemDoubleSixShooter : PickupItemWithDelay
 	{
 		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0041: Unknown result type (might be due to invalid IL or missing references)
+		//IL_008d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_009d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00a2: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00a7: Unknown result type (might be due to invalid IL or missing references)
 		//IL_00a9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ae: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b9: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00ab: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00b0: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00b4: Unknown result type (might be due to invalid IL or missing references)
+		//IL_00bc: Unknown result type (might be due to invalid IL or missing references)
 		int woIDHighestInHierarchyWithComponent = MVGameController.Instance.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
 		MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
 		if (worldObjectClient != null)
 		{
 			float num = Vector3.Distance(voxelHit.point, ((Component)owner).transform.position);
 			float num2 = num / bulletRange;
-			float num3 = damageFalloff.Evaluate(num2) * rangeDamage + baseDamage;
-			Debug.Log((object)("DAMAGE: " + num3));
+			float damage = damageFalloff.Evaluate(num2) * rangeDamage + baseDamage;
 			InteractionDataHandlerBase component = worldObjectClient.GameObject.GetComponent<InteractionDataHandlerBase>();
 			if ((Object)(object)component != (Object)null)
 			{
-				component.HandleInteraction(SixShooterHitPackage.Create(-worldObjectClient.Transform.forward * hitImpact, num3), interactionIsLocal: false);
+				Vector3 val = voxelHit.point - ((Component)owner).transform.position;
+				val = Vector3.Normalize(val);
+				component.HandleInteraction(SixShooterHitPackage.Create(val * hitImpact, damage), interactionIsLocal: false);
 			}
 		}
 	}

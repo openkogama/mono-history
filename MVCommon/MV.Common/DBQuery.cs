@@ -67,7 +67,6 @@ public enum DBQuery
 	GetAllAvatarBodies,
 	RequestAvatarShopInventory,
 	PurchaseAvatar,
-	CreateNewAvatar,
 	ResetAvatar,
 	GetProtoAvatar,
 	LogProductPurchase,
