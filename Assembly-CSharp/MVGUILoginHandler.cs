@@ -11,6 +11,8 @@ public class MVGUILoginHandler : UXViewScript
 
 	public UXTextButton CEButton;
 
+	public UXToggleIconButton embeddedGameToggleButton;
+
 	public UXComboBox devServerTargetCombobox;
 
 	public UXTextField serverTextField;
@@ -37,6 +39,12 @@ public class MVGUILoginHandler : UXViewScript
 		uXTextButton2.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXTextButton2.OnClick, new UXBaseButton.OnClickDelegate(JoinIslandOnClick));
 		UXTextButton cEButton = CEButton;
 		cEButton.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(cEButton.OnClick, new UXBaseButton.OnClickDelegate(CEOnClick));
+		gameSessionData["embedded"] = embeddedGameToggleButton.ToggleState;
+		UXToggleIconButton uXToggleIconButton = embeddedGameToggleButton;
+		uXToggleIconButton.OnToggle = (UXToggleIconButton.OnToggleDelegate)Delegate.Combine(uXToggleIconButton.OnToggle, (UXToggleIconButton.OnToggleDelegate)((bool value) =>
+		{
+			gameSessionData["embedded"] = value;
+		}));
 		UXTextField uXTextField = serverTextField;
 		uXTextField.OnValueChanged = (UXTextInputElement.OnValueChangedDelegate)Delegate.Combine(uXTextField.OnValueChanged, (UXTextInputElement.OnValueChangedDelegate)((string value) =>
 		{

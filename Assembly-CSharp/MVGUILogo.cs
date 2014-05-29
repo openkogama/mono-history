@@ -5,15 +5,9 @@ public class MVGUILogo : MonoBehaviour
 	[SerializeField]
 	private UXView _uxView;
 
-	private void Awake()
-	{
-		Debug.LogWarning((object)"Hardcoded disable of MVGUILogo...");
-		((Component)this).gameObject.SetActiveRecursively(false);
-	}
-
 	private void Update()
 	{
-		if (!MVGameController.Instance.GameJoined || MVGameController.Instance.IsTouristSession)
+		if (!MVGameController.Instance.GameJoined || MVGameController.Instance.IsTouristSession || MVGameController.Instance.IsEmbedded)
 		{
 			_uxView.Show();
 		}

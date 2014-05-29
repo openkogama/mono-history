@@ -18,7 +18,36 @@ internal class HotKeys
 			HandlePlayModeHotKeys();
 			HandleEditModeHotKeys();
 			HandleCharacterEditorModeHotKeys();
+			HandleEmbedModeHotKeys();
 		}
+	}
+
+	private void HandleEmbedModeHotKeys()
+	{
+		if (MVGameController.Instance.GameSessionData.Embedded)
+		{
+			if (MVInputWrapper.GetKeyUp((KeyCode)49))
+			{
+				EmbedChangeGame(1);
+			}
+			if (MVInputWrapper.GetKeyUp((KeyCode)50))
+			{
+				EmbedChangeGame(2);
+			}
+			if (MVInputWrapper.GetKeyUp((KeyCode)51))
+			{
+				EmbedChangeGame(3);
+			}
+			if (MVInputWrapper.GetKeyUp((KeyCode)52))
+			{
+				EmbedChangeGame(4);
+			}
+		}
+	}
+
+	private void EmbedChangeGame(int index)
+	{
+		BrowserComm.ToWeb.ExternalCall("gotoGameByIndex", index);
 	}
 
 	private void HandleSharedHotKeys()

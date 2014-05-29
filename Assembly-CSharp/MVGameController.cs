@@ -135,6 +135,8 @@ public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerS
 		}
 	}
 
+	public bool IsEmbedded => gameSessionData.Embedded;
+
 	public GameSessionData GameSessionData => gameSessionData;
 
 	public AEditController EditController

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using MV.Common;
+using UnityEngine;
 
 public class GameSessionData
 {
@@ -15,6 +16,8 @@ public class GameSessionData
 
 	private readonly string planetName = string.Empty;
 
+	private readonly bool embedded;
+
 	public string Ip => ip;
 
 	public int ProfileID => profileID;
@@ -27,6 +30,8 @@ public class GameSessionData
 
 	public string PlanetName => planetName;
 
+	public bool Embedded => embedded;
+
 	public GameSessionData(Dictionary<string, object> gameSessionData)
 	{
 		ip = (string)gameSessionData["serverIP"];
@@ -34,6 +39,8 @@ public class GameSessionData
 		planetID = (int)gameSessionData["planetID"];
 		gameMode = (MVGameMode)(int)gameSessionData["gameMode"];
 		language = (string)gameSessionData["language"];
+		embedded = (bool)gameSessionData["embedded"];
+		Debug.Log((object)("embedded " + embedded));
 		if (gameSessionData.ContainsKey("planetName"))
 		{
 			planetName = (string)gameSessionData["planetName"];
