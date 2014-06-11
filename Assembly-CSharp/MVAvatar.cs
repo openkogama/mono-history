@@ -44,6 +44,8 @@ public class MVAvatar : MVGroup
 
 	public MVBody Body => body;
 
+	public Avatar Avatar => avatar;
+
 	public MVAvatar(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, prefabPath, worldObjects)
 	{

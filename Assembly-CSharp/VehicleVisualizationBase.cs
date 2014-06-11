@@ -3,9 +3,9 @@ using UnityEngine;
 
 public class VehicleVisualizationBase : MonoBehaviour
 {
-	private float disableVisualizationDistance = 40f;
+	protected float disableVisualizationDistance = 40f;
 
-	private float cullDistance = 145f;
+	protected float cullDistance = 145f;
 
 	private bool disabledByLod;
 

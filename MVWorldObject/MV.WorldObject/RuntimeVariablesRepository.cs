@@ -30,6 +30,10 @@ public static class RuntimeVariablesRepository
 		{
 			WorldObjectType.SentryGun,
 			SentryGun()
+		},
+		{
+			WorldObjectType.HamsterWheel,
+			HamsterWheelRuntimeData()
 		}
 	};
 
@@ -69,6 +73,20 @@ public static class RuntimeVariablesRepository
 		hashtable.Add("modifiers", new Hashtable());
 		hashtable.Add("currentItem", new Hashtable());
 		hashtable.Add("isDead", false);
+		return hashtable;
+	}
+
+	private static Hashtable HamsterWheelRuntimeData()
+	{
+		Hashtable hashtable = new Hashtable();
+		hashtable.Add("health", 150f);
+		hashtable.Add("isFiring", false);
+		hashtable.Add("modifiers", new Hashtable());
+		hashtable.Add("currentItem", new Hashtable());
+		hashtable.Add("isDead", false);
+		hashtable.Add("isMovingForward", false);
+		hashtable.Add("isMovingBackwards", false);
+		hashtable.Add("isGrounded", false);
 		return hashtable;
 	}
 

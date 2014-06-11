@@ -23,6 +23,10 @@ public class MVMonoPlane : MVSimpleOneSeatVehicle
 	public override void Initialize()
 	{
 		base.Initialize();
+		if (!IsInSpawner)
+		{
+			gameObject.AddComponent<InteractionDataHandler>();
+		}
 		MVRuntimeDataVariable isVehicleDead = IsVehicleDead;
 		isVehicleDead.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(isVehicleDead.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnIsDeadChange));
 		MVCubeModelBase mVCubeModelBase = (MVCubeModelBase)GetChild("MonoPlaneHull");

@@ -26,11 +26,10 @@ public class DevHotKeys
 
 	private void EditorTestKeys()
 	{
-		//IL_0f66: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0ffe: Unknown result type (might be due to invalid IL or missing references)
-		//IL_1008: Unknown result type (might be due to invalid IL or missing references)
-		//IL_100d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_1012: Unknown result type (might be due to invalid IL or missing references)
+		//IL_105b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_1065: Unknown result type (might be due to invalid IL or missing references)
+		//IL_106a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_106f: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0619: Unknown result type (might be due to invalid IL or missing references)
 		//IL_0620: Expected Obj, but got Unknown
 		if (MVInputWrapper.GetKey((KeyCode)48) && MVInputWrapper.GetKeyDown((KeyCode)99))
@@ -355,11 +354,16 @@ public class DevHotKeys
 		{
 			if (MVInputWrapper.GetKeyUp((KeyCode)116))
 			{
-				InteractionData interactionData = new InteractionData(InteractionPackageType.MutantHit, 10f, Vector3.one);
-				Debug.Log((object)interactionData);
-				byte[] byteArray = interactionData.ToByteArray();
-				InteractionData interactionData2 = new InteractionData(byteArray, withSharedValues: true);
-				Debug.Log((object)interactionData2);
+				Hashtable hashtable13 = new Hashtable();
+				Hashtable hashtable14 = new Hashtable();
+				hashtable14["spawnWorldObjectID"] = 75606;
+				hashtable13["ChildrenMap"] = hashtable14;
+				Hashtable hashtable15 = new Hashtable();
+				hashtable15["RespawnInterval"] = 10000;
+				hashtable15["BlueprintData"] = hashtable13;
+				MVGameController.Instance.EditorController.EditorStateMachine.Data.Add("woData", hashtable15);
+				ESBlueprintCreator.worldObjectTypeToBeCreated = WorldObjectType.WorldObjectSpawnerVehicle;
+				MVGameController.Instance.EditorController.EditorStateMachine.PushState(EditorEvent.ESBlueprintCreator);
 			}
 		}
 		else if (MVInputWrapper.GetKey((KeyCode)55))
@@ -367,9 +371,9 @@ public class DevHotKeys
 			if (MVInputWrapper.GetKeyUp((KeyCode)116))
 			{
 				Debug.Log((object)"DEV KEY");
-				Hashtable hashtable13 = new Hashtable();
-				hashtable13.Add("itemType", AvatarItemType.SixShooter);
-				MVGameController.Instance.Game.RegisterWorldObject(WorldObjectType.PickupItemSpawner, MVGameController.Instance.WOCM.RootGroup.Id, hashtable13, Vector3.up * 25f, Quaternion.identity, Vector3.one, localOwner: true, transferOwnershipToServerOnLeave: true);
+				Hashtable hashtable16 = new Hashtable();
+				hashtable16.Add("itemType", AvatarItemType.SixShooter);
+				MVGameController.Instance.Game.RegisterWorldObject(WorldObjectType.PickupItemSpawner, MVGameController.Instance.WOCM.RootGroup.Id, hashtable16, Vector3.up * 25f, Quaternion.identity, Vector3.one, localOwner: true, transferOwnershipToServerOnLeave: true);
 			}
 		}
 		else if (MVInputWrapper.GetKey((KeyCode)54))

@@ -244,6 +244,8 @@ public class KoGaMaPackageClient
 			return new MVRoundCube(worldObjectData, worldObjects);
 		case WorldObjectType.AdvancedGhost:
 			return new MVAdvancedGhost(worldObjectData, worldObjects);
+		case WorldObjectType.HamsterWheel:
+			return new MVHamsterWheel(worldObjectData, worldObjects);
 		default:
 			Debug.LogError((object)("WOCM trying to create unknown type: " + worldObjectType));
 			return null;

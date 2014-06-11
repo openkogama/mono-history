@@ -1353,11 +1353,12 @@ public class MVNetworkGame : IPhotonPeerListener
 		{
 			Debug.Log((object)"Setting planetId to -1 as GameMode CharacterEditor is not using a planet");
 		}
-		dictionary.Add(11, MVGameController.Instance.ProfileID);
 		dictionary.Add(byte.MaxValue, MVGameController.Instance.GameSessionData.PlanetName);
 		dictionary.Add(87, MVGameController.Instance.PlanetID);
 		dictionary.Add(117, GameMode);
 		dictionary.Add(159, MVGameController.Instance.GameSessionData.Language);
+		Debug.Log((object)MVGameController.Instance.GameSessionData.ProfileToken);
+		dictionary.Add(160, MVGameController.Instance.GameSessionData.ProfileToken);
 		peer.OpCustom(byte.MaxValue, dictionary, sendReliable: true);
 	}
 

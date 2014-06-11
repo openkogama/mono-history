@@ -18,6 +18,8 @@ public class GameSessionData
 
 	private readonly bool embedded;
 
+	private readonly string profileToken = string.Empty;
+
 	public string Ip => ip;
 
 	public int ProfileID => profileID;
@@ -32,6 +34,8 @@ public class GameSessionData
 
 	public bool Embedded => embedded;
 
+	public string ProfileToken => profileToken;
+
 	public GameSessionData(Dictionary<string, object> gameSessionData)
 	{
 		ip = (string)gameSessionData["serverIP"];
@@ -40,6 +44,7 @@ public class GameSessionData
 		gameMode = (MVGameMode)(int)gameSessionData["gameMode"];
 		language = (string)gameSessionData["language"];
 		embedded = (bool)gameSessionData["embedded"];
+		profileToken = (string)gameSessionData["token"];
 		Debug.Log((object)("embedded " + embedded));
 		if (gameSessionData.ContainsKey("planetName"))
 		{

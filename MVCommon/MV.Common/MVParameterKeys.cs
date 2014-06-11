@@ -162,6 +162,7 @@ public enum MVParameterKeys : byte
 	ItemOverwriteExisting = 157,
 	ExtraSentryData = 158,
 	RegionCode = 159,
+	ProfileToken = 160,
 	GameId = byte.MaxValue,
 	ActorNr = 254,
 	TargetActorNr = 253,

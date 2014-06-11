@@ -90,6 +90,10 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 
 	public MVAvatar AttachedAvatar => attachedAvatar;
 
+	public List<MVCubeModelInstance> AttachedParts => attachedPartModels;
+
+	public AvatarBlobShadowController BlobShadow => shadowBlob;
+
 	public new bool Visible
 	{
 		get

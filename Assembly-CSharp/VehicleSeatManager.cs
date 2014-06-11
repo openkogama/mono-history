@@ -5,6 +5,10 @@ using UnityEngine;
 
 public class VehicleSeatManager : MonoBehaviour
 {
+	public delegate void OnSeatOccupiedChangeDelegate();
+
+	public OnSeatOccupiedChangeDelegate OnSeatOccupiedChange;
+
 	public List<VehicleSeatBase> seats = new List<VehicleSeatBase>();
 
 	public TriggerBoxEvents triggerBoxEvents;
@@ -161,6 +165,10 @@ public class VehicleSeatManager : MonoBehaviour
 		{
 			vehicleSeatBase.SetCamera();
 		}
+		if (OnSeatOccupiedChange != null)
+		{
+			OnSeatOccupiedChange();
+		}
 	}
 
 	private void SetToSeatTransform(MVAvatar vehicleUser, int seatID)
@@ -217,5 +225,9 @@ public class VehicleSeatManager : MonoBehaviour
 			Debug.LogError((object)("occupiedSeatCount less than 0 " + occupiedSeatCount));
 		}
 		UpdateTriggerBoxEventsCollider();
+		if (OnSeatOccupiedChange != null)
+		{
+			OnSeatOccupiedChange();
+		}
 	}
 }

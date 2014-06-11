@@ -124,6 +124,7 @@ public class BrowserComm : MonoBehaviour
 			dataValidationDefinitionGroup.Add("language", typeof(string));
 			dataValidationDefinitionGroup.Add("planetName", typeof(string), isOptional: true);
 			dataValidationDefinitionGroup.Add("embedded", typeof(bool));
+			dataValidationDefinitionGroup.Add("token", typeof(string));
 			return dataValidationDefinitionGroup;
 		}
 

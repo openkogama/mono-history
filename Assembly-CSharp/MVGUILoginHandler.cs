@@ -142,6 +142,7 @@ public class MVGUILoginHandler : UXViewScript
 		if (Debug.isDebugBuild)
 		{
 			gameSessionData["profileID"] = Convert.ToInt32(GetPrefOrDefault("Dev_profileId", "-1"));
+			gameSessionData["token"] = GetPrefOrDefault("Dev_profileId", "-1");
 			gameSessionData["serverIP"] = GetPrefOrDefault("Dev_serverip", string.Empty);
 			gameSessionData["planetID"] = Convert.ToInt32(GetPrefOrDefault("Dev_planetId", "-1"));
 		}

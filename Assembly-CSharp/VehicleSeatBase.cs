@@ -11,9 +11,13 @@ public class VehicleSeatBase : MonoBehaviour
 
 	public Transform AvatarAttachPoint;
 
+	private MVAvatar owner;
+
 	private int seatID = -1;
 
 	public bool IsOccupied { get; set; }
+
+	public MVAvatar Owner => owner;
 
 	public int SeatID
 	{
@@ -52,6 +56,7 @@ public class VehicleSeatBase : MonoBehaviour
 				component.Unequip();
 			}
 		}
+		owner = avatar;
 	}
 
 	public virtual void Detach(MVAvatar avatar)

@@ -14,7 +14,7 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase
 
 		protected MVTriggerHandler triggerHandler;
 
-		private SimpleVehicleMotorBase vehicleMotor;
+		protected SimpleVehicleMotorBase vehicleMotor;
 
 		private MVSimpleOneSeatVehicle owner;
 
@@ -134,10 +134,6 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase
 		CurrentItem = RuntimeDataVariables.New("currentItem", 0f, writeThrough: true);
 		IsFiring = RuntimeDataVariables.New("isFiring", 0f, writeThrough: false);
 		Modifiers = RuntimeDataVariables.New("modifiers", 1f, writeThrough: false);
-		if (!IsInSpawner)
-		{
-			gameObject.AddComponent<InteractionDataHandler>();
-		}
 		VehiclePickupOwner vehiclePickupOwner = gameObject.AddComponent<VehiclePickupOwner>();
 		MVPickupMountPoint componentInChildren = gameObject.GetComponentInChildren<MVPickupMountPoint>();
 		vehiclePickupOwner.Init(CurrentItem, IsFiring, ((Component)componentInChildren).transform);
