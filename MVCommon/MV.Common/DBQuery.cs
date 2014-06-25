@@ -91,5 +91,7 @@ public enum DBQuery
 	RequestStreamingAssetDetails,
 	RequestItemDetails,
 	RequestAvatarDetails,
+	InsertAvatarIntoAvatarShopInventory,
+	DeleteAvatarFromShopInventory,
 	TestQuery
 }

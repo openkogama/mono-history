@@ -20,6 +20,8 @@ public class MVOpErrorCode
 
 	public const int JoinTouristNotAllowedInMode = -9;
 
+	public const int JoinGameInitializationFailed = -10;
+
 	public const int PublishNotAuthorized = -2;
 
 	public const int InventoryPrototypeNotFound = -2;

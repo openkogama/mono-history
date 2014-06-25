@@ -18,6 +18,8 @@ public class CharacterEditorController : AEditController
 
 	public MVGUIAnimationToggles AnimationToggles { get; private set; }
 
+	public MVGUIAvatarSellcs AvatarSell { get; private set; }
+
 	public MVGUICharacterEditScreenShot CharacterEditScreenshot { get; private set; }
 
 	public MVGUIAvatarShopWindow AvatarShop { get; private set; }
@@ -102,9 +104,22 @@ public class CharacterEditorController : AEditController
 		MVAvatarLocal avatarLocal = MVGameController.Instance.WOCM.AvatarLocal;
 		avatarLocal.WorldPosition = mVSpawnPointBlue.WorldPosition - Vector3.up;
 		avatarLocal.WorldRotation = mVSpawnPointBlue.WorldRotation;
+		Debug.Log((object)("BodyWOID " + mVBody2.Id));
+		UpdateSellButton(mVBody2.Id);
 		AvatarSlotButtonView.InitializeAvatarSlotButtonView();
 		EditorStateMachine.EnterGroup(mVBody2);
 		EditorStateMachine.Event = EditorEvent.CERoam;
+	}
+
+	private void UpdateSellButton(int woBodyId)
+	{
+		if (!MVGameController.Instance.Game.AvatarMetaDataWoMap.TryGetValue(woBodyId, out var avatarMetaData))
+		{
+			Debug.LogError((object)"Could not find woID");
+			return;
+		}
+		Debug.Log((object)avatarMetaData);
+		AvatarSell.UpdateAvatarMetaData(woBodyId, avatarMetaData);
 	}
 
 	protected override void ResolveGUIElements()
@@ -112,6 +127,7 @@ public class CharacterEditorController : AEditController
 		base.ResolveGUIElements();
 		GameObject gameObject = ((Component)UXUtils.FindGUIObjectOfType<MVGUIAvatarEditor>()).gameObject;
 		AnimationToggles = gameObject.GetComponentInChildren<MVGUIAnimationToggles>();
+		AvatarSell = gameObject.GetComponentInChildren<MVGUIAvatarSellcs>();
 		CharacterEditScreenshot = gameObject.GetComponentInChildren<MVGUICharacterEditScreenShot>();
 		AvatarShop = gameObject.GetComponentInChildren<MVGUIAvatarShopWindow>();
 		AvatarSlotButtonView = gameObject.GetComponentInChildren<MVGUIAvatarSlotButtonView>();
@@ -138,6 +154,7 @@ public class CharacterEditorController : AEditController
 
 	public void ShowAvatarTools()
 	{
+		AvatarSell.View.Show();
 		CharacterEditScreenshot.View.Show();
 		AvatarSlotButtonView.View.Show();
 		AvatarAccessoryButtons.View.Show();
@@ -145,6 +162,7 @@ public class CharacterEditorController : AEditController
 
 	public void HideAvatarTools()
 	{
+		AvatarSell.View.Hide();
 		CharacterEditScreenshot.View.Hide();
 		AvatarSlotButtonView.View.Hide();
 		AvatarAccessoryButtons.View.Hide();
@@ -212,6 +230,7 @@ public class CharacterEditorController : AEditController
 			{
 				AnimationToggles.View.Show();
 				CharacterEditScreenshot.View.Show();
+				AvatarSell.View.Show();
 				AvatarSlotButtonView.View.Show();
 				AvatarAccessoryButtons.View.Show();
 			}
@@ -225,6 +244,7 @@ public class CharacterEditorController : AEditController
 		}
 		else
 		{
+			AvatarSell.View.Hide();
 			AnimationToggles.View.Hide();
 			CharacterEditScreenshot.View.Hide();
 			AvatarShop.View.Hide();
@@ -238,6 +258,7 @@ public class CharacterEditorController : AEditController
 	public override void RemoveUI()
 	{
 		base.RemoveUI();
+		AvatarSell.View.Hide();
 		AnimationToggles.View.Hide();
 		CharacterEditScreenshot.View.Hide();
 		AvatarSlotButtonView.View.Hide();
@@ -374,10 +395,11 @@ public class CharacterEditorController : AEditController
 		mVBody.ShadowVisible = false;
 		mVBody.WorldPosition = animator.hidePos;
 		mVBody.WorldRotation = animator.displayRotation;
+		MVGameController.Instance.Game.AvatarMetaDataWoMap.ResetAvatar(animator.Bodies[bodiesMarkedForDelete[0]].Id, WoID);
 		animator.Bodies[bodiesMarkedForDelete[0]] = mVBody;
 		EditorStateMachine.EnterGroup(mVBody);
 		EditorStateMachine.Event = EditorEvent.CERoam;
-		SwitchAvatar(bodyindex, bodiesMarkedForDelete[0], Animate: true);
+		SwitchAvatar(bodyindex, bodiesMarkedForDelete[0], Animate: false);
 		bodiesMarkedForDelete.RemoveAt(0);
 		if (OnAvatarBodiesUpdated != null)
 		{
@@ -399,6 +421,7 @@ public class CharacterEditorController : AEditController
 		animator.Bodies[newIndex].Visible = true;
 		EditorStateMachine.EnterGroup(animator.Bodies[newIndex]);
 		EditorStateMachine.Event = EditorEvent.CERoam;
+		UpdateSellButton(animator.Bodies[newIndex].Id);
 		MVGameController.Instance.Game.SetActiveAvatar(animator.Bodies[newIndex].Id);
 	}
 }

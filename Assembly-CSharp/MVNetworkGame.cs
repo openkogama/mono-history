@@ -209,6 +209,8 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	private WorldNetwork worldNetwork;
 
+	private MvAvatarMetaDataWoMap avatarMetaDataWoMap;
+
 	public MVItemBusinessLogic ItemBusinessLogic => itemBusinessLogic;
 
 	public ItemCategories ItemCategories => itemCategories;
@@ -319,6 +321,8 @@ public class MVNetworkGame : IPhotonPeerListener
 	public ShopRepository ShopRepository => shopRepository;
 
 	public ShopRepository AvatarShopRepository => avatarShopRepository;
+
+	public MvAvatarMetaDataWoMap AvatarMetaDataWoMap => avatarMetaDataWoMap;
 
 	public MVTeamManager TeamManager => teamManager;
 
@@ -508,6 +512,10 @@ public class MVNetworkGame : IPhotonPeerListener
 			}
 			break;
 		case MVJoinState.FetchingAvatarShopInventory:
+			JoinState = MVJoinState.InitializeAvatarEdit;
+			peer.OpCustom(79, new Dictionary<byte, object>(), sendReliable: true);
+			break;
+		case MVJoinState.InitializeAvatarEdit:
 			FetchGameSnapshot();
 			break;
 		case MVJoinState.FetchingShopInventory:
@@ -1358,7 +1366,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		dictionary.Add(117, GameMode);
 		dictionary.Add(159, MVGameController.Instance.GameSessionData.Language);
 		Debug.Log((object)MVGameController.Instance.GameSessionData.ProfileToken);
-		dictionary.Add(160, MVGameController.Instance.GameSessionData.ProfileToken);
+		dictionary.Add(163, MVGameController.Instance.GameSessionData.ProfileToken);
 		peer.OpCustom(byte.MaxValue, dictionary, sendReliable: true);
 	}
 
@@ -1479,6 +1487,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public void OnPurchaseProductResponse(int returnCode, Hashtable purchaseResponseData)
 	{
+		Debug.Log((object)"PurchaseProductResponse");
 		if (PurchaseProductResponseHandler != null)
 		{
 			PurchaseProductResponseHandler(returnCode, purchaseResponseData);
@@ -1778,6 +1787,23 @@ public class MVNetworkGame : IPhotonPeerListener
 		hashtable.Add((byte)0, worldObjectID);
 		attachWorldObjectToSeatData.Add(72, hashtable);
 		peer.OpCustom(74, attachWorldObjectToSeatData, sendReliable: true);
+	}
+
+	public void AddAvatarToAvatarShopInventory(int worldObjectId, int priceSilver, string name, byte[] imageData)
+	{
+		Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
+		dictionary.Add(20, worldObjectId);
+		dictionary.Add(132, priceSilver);
+		dictionary.Add(162, name);
+		dictionary.Add(119, imageData);
+		peer.OpCustom(80, dictionary, sendReliable: true);
+	}
+
+	public void DeleteAvatarFromShopInventory(int worldObjectId)
+	{
+		Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
+		dictionary.Add(20, worldObjectId);
+		peer.OpCustom(81, dictionary, sendReliable: true);
 	}
 
 	public void SpawnVehicleWithDriver(int worldObjectSpawnerVehicleID, int worldObjectID, VehicleSeatBase seatBase)
@@ -3414,17 +3440,37 @@ public class MVNetworkGame : IPhotonPeerListener
 				}
 			}
 			break;
+		case MVOperationCodes.InitializeAvatarEdit:
+		{
+			byte[] buffer = (byte[])parameters[160];
+			avatarMetaDataWoMap = new MvAvatarMetaDataWoMap(new BytePacker(buffer));
+			GotoNextJoinState();
+			break;
+		}
+		case MVOperationCodes.AddAvatarToAvatarShopInventory:
+			if (OnMarketPlaceActionComplete != null)
+			{
+				OnMarketPlaceActionComplete(returnCode == 0);
+			}
+			break;
+		case MVOperationCodes.DeleteAvatarFromShopInventory:
+			if (OnMarketPlaceActionComplete != null)
+			{
+				OnMarketPlaceActionComplete(returnCode == 0);
+			}
+			break;
 		}
 	}
 
 	public void OnEvent(EventData photonEvent)
 	{
-		//IL_085e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_08b0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_08de: Unknown result type (might be due to invalid IL or missing references)
-		//IL_08f1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_08f3: Unknown result type (might be due to invalid IL or missing references)
-		switch (photonEvent.Code)
+		//IL_0862: Unknown result type (might be due to invalid IL or missing references)
+		//IL_08b4: Unknown result type (might be due to invalid IL or missing references)
+		//IL_08e2: Unknown result type (might be due to invalid IL or missing references)
+		//IL_08f5: Unknown result type (might be due to invalid IL or missing references)
+		//IL_08f7: Unknown result type (might be due to invalid IL or missing references)
+		byte code = photonEvent.Code;
+		switch (code)
 		{
 		case byte.MaxValue:
 		{
@@ -3472,6 +3518,8 @@ public class MVNetworkGame : IPhotonPeerListener
 			break;
 		case 10:
 			worldNetwork.WorldInventory.OnUpdatePrototypeEvent((int)photonEvent[45], (byte[])photonEvent[47]);
+			break;
+		case 11:
 			break;
 		case 3:
 			worldNetwork.WorldObjectClientManagerNetwork.OnUpdateWorldObjectDataEvent((int)photonEvent[20], (Hashtable)photonEvent[16]);
@@ -3720,6 +3768,18 @@ public class MVNetworkGame : IPhotonPeerListener
 			BrowserComm.ToWeb.ExternalCall("refreshCredentials");
 			break;
 		}
+		case 59:
+		{
+			int woID = (int)photonEvent[20];
+			byte[] buffer = (byte[])photonEvent[161];
+			MvAvatarMetaData mvAvatarMetaData = new MvAvatarMetaData(new BytePacker(buffer));
+			Debug.Log((object)mvAvatarMetaData);
+			avatarMetaDataWoMap.Add(woID, mvAvatarMetaData);
+			break;
+		}
+		default:
+			Debug.LogError((object)("Unknown event: " + code));
+			break;
 		}
 	}
 

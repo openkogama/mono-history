@@ -61,6 +61,7 @@ public enum MVEventCodes : byte
 	DetachWorldObjectFromVehicle = 56,
 	SpawnVehicleWithDriver = 57,
 	Reward = 58,
+	UpdateAvatarMetaData = 59,
 	Join = byte.MaxValue,
 	Leave = 254,
 	PropertiesChanged = 253
