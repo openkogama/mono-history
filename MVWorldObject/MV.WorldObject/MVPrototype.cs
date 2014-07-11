@@ -94,8 +94,6 @@ public class MVPrototype
 		}
 	}
 
-	public bool IsEmpty => ((Dictionary<IntVector, byte[]>)Data[(byte)48]).Count == 0;
-
 	public int InsertedInWorldByProfileID
 	{
 		get

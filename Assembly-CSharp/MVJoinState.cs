@@ -21,6 +21,5 @@ public enum MVJoinState
 	SettingActorReady,
 	Playing,
 	Leaving,
-	FetchingActiveAvatar,
-	InitializeAvatarEdit
+	FetchingActiveAvatar
 }

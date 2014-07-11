@@ -82,9 +82,9 @@ public class MVHamsterWheel(Hashtable data, Dictionary<int, MVWorldObjectClient>
 
 	public override void Initialize()
 	{
-		IsMovingForward = RuntimeDataVariables.New("isMovingForward", 0f, writeThrough: true);
-		IsMovingBackwards = RuntimeDataVariables.New("isMovingBackwards", 0f, writeThrough: true);
-		IsGrounded = RuntimeDataVariables.New("isGrounded", 0f, writeThrough: true);
+		IsMovingForward = RuntimeDataVariables.New("isMovingForward", 2f, writeThrough: false);
+		IsMovingBackwards = RuntimeDataVariables.New("isMovingBackwards", 2f, writeThrough: false);
+		IsGrounded = RuntimeDataVariables.New("isGrounded", 2f, writeThrough: false);
 		base.Initialize();
 		if (!IsInSpawner)
 		{
