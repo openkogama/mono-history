@@ -55,18 +55,22 @@ public class AvatarScreenshotGenerator : MonoBehaviour
 
 	private void Update()
 	{
-		//IL_0071: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0077: Unknown result type (might be due to invalid IL or missing references)
+		//IL_007d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0083: Unknown result type (might be due to invalid IL or missing references)
 		if (!generatingScreenshot)
 		{
 			return;
 		}
 		if (Time.frameCount == generateStartFrame + 1)
 		{
-			if (particleSystems != null)
+			if (particleSystems == null)
 			{
-				ParticleSystem[] array = particleSystems;
-				foreach (ParticleSystem val in array)
+				return;
+			}
+			ParticleSystem[] array = particleSystems;
+			foreach (ParticleSystem val in array)
+			{
+				if ((Object)(object)val != (Object)null)
 				{
 					val.Simulate(2f, true);
 				}

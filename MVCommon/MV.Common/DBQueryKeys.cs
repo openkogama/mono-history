@@ -129,5 +129,9 @@ public enum DBQueryKeys
 	PublishAutorization,
 	BlobMetaData,
 	OutData,
-	PendingItemID
+	PendingItemID,
+	AvatarRevisionID,
+	ActiveAvatarID,
+	Avatars,
+	AvatarMetaData
 }
