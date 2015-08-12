@@ -49,7 +49,6 @@ public enum DBQueryKeys
 	ItemPrice,
 	IsItemInInventory,
 	IsGamePublished,
-	AmountXP,
 	HasPlayedGame,
 	NumEditSessions,
 	MaterialList,
@@ -133,5 +132,13 @@ public enum DBQueryKeys
 	AvatarRevisionID,
 	ActiveAvatarID,
 	Avatars,
-	AvatarMetaData
+	AvatarMetaData,
+	QueryCacheID,
+	GameTypeID,
+	Level,
+	ProtoPlanetID,
+	Prices,
+	GameCoinBoost,
+	GameCoinBoostDelta,
+	GameCoinBoostDeltas
 }

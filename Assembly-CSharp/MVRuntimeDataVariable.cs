@@ -1,4 +1,5 @@
-using System.Collections;
+using System.Collections.Generic;
+using CodeStage.AntiCheat.ObscuredTypes;
 using UnityEngine;
 
 public class MVRuntimeDataVariable
@@ -7,7 +8,7 @@ public class MVRuntimeDataVariable
 
 	public delegate void OnWriteThroughDelegate(object newValue);
 
-	private string variableId;
+	private ObscuredString variableId;
 
 	private object value;
 
@@ -29,12 +30,13 @@ public class MVRuntimeDataVariable
 	{
 		get
 		{
-			return value;
+			return ObscuredTypesConverter.CreateUnObscuredValue(value);
 		}
 		set
 		{
-			bool flag = this.value != value;
-			this.value = value;
+			object obj = ObscuredTypesConverter.CreateObscuredValue(value);
+			bool flag = this.value != obj;
+			this.value = obj;
 			if (flag)
 			{
 				NotifyChange();
@@ -42,29 +44,29 @@ public class MVRuntimeDataVariable
 		}
 	}
 
-	public MVRuntimeDataVariable(string variableId, float sendInterval, Hashtable initialRuntimeData, bool writeThrough)
+	public MVRuntimeDataVariable(string variableId, float sendInterval, Dictionary<object, object> initialRuntimeData, bool writeThrough)
 	{
 		this.variableId = variableId;
 		this.sendInterval = sendInterval;
 		this.writeThrough = writeThrough;
-		if (!initialRuntimeData.ContainsKey(variableId))
+		if (!initialRuntimeData.ContainsObscuredKey(this.variableId))
 		{
-			Debug.LogError((object)("Initial runtime data does not contain " + variableId));
+			Debug.LogError("Initial runtime data does not contain " + this.variableId);
 		}
-		value = initialRuntimeData[variableId];
+		value = initialRuntimeData[this.variableId];
 		sendValue = value;
 	}
 
-	public void Receive(Hashtable runtimeDataDelta)
+	public void Receive(Dictionary<object, object> runtimeDataDelta)
 	{
-		if (runtimeDataDelta.ContainsKey(variableId))
+		string key = variableId.ToString();
+		if (runtimeDataDelta.ContainsKey(key))
 		{
-			object obj = runtimeDataDelta[variableId];
-			Value = obj;
+			Value = runtimeDataDelta[key];
 		}
 	}
 
-	public void Send(Hashtable runtimeDataDelta)
+	public void Send(ref Dictionary<object, object> runtimeDataDelta)
 	{
 		if (!value.Equals(sendValue))
 		{
@@ -82,7 +84,7 @@ public class MVRuntimeDataVariable
 	{
 		if (OnChange != null)
 		{
-			OnChange(value);
+			OnChange(Value);
 		}
 		if (writeThrough && OnWriteThrough != null)
 		{
@@ -104,7 +106,7 @@ public class MVRuntimeDataVariable<T> : MVRuntimeDataVariable
 		}
 	}
 
-	public MVRuntimeDataVariable(string variableId, float sendInterval, Hashtable initialRuntimeData, bool writeThrough)
+	public MVRuntimeDataVariable(string variableId, float sendInterval, Dictionary<object, object> initialRuntimeData, bool writeThrough)
 		: base(variableId, sendInterval, initialRuntimeData, writeThrough)
 	{
 	}

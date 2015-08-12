@@ -1,107 +1,91 @@
+using System;
 using UnityEngine;
 
 public class MovementMap
 {
-	private Vector3 moveDirection = Vector3.zero;
+	[Flags]
+	private enum MovementMapFlags
+	{
+		None = 0,
+		Left = 1,
+		Forward = 2,
+		Right = 4,
+		Back = 8,
+		Jump = 0x10,
+		Run = 0x20
+	}
 
-	private bool jump;
+	private MovementMapFlags frameUpdateMovementMapState;
 
-	private bool run;
-
-	private bool use;
-
-	private bool fire;
-
-	private bool drop;
+	private MovementMapFlags movementMapState;
 
 	public Vector3 Direction
 	{
 		get
 		{
-			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-			return moveDirection;
+			Vector3 zero = Vector3.zero;
+			if ((movementMapState & MovementMapFlags.Forward) != 0)
+			{
+				zero += Vector3.forward;
+			}
+			if ((movementMapState & MovementMapFlags.Back) != 0)
+			{
+				zero -= Vector3.forward;
+			}
+			if ((movementMapState & MovementMapFlags.Left) != 0)
+			{
+				zero -= Vector3.right;
+			}
+			if ((movementMapState & MovementMapFlags.Right) != 0)
+			{
+				zero += Vector3.right;
+			}
+			return zero;
 		}
 	}
 
-	public bool Fire
+	public bool Run => (movementMapState & MovementMapFlags.Run) != 0;
+
+	public bool Jump => (movementMapState & MovementMapFlags.Jump) != 0;
+
+	public void HandleInputState(bool fromFrameUpdate)
 	{
-		get
+		MovementMapFlags movementMapFlags = MovementMapFlags.None;
+		movementMapState = MovementMapFlags.None;
+		if (!MVInputWrapper.ignoreInGameInput)
 		{
-			return fire;
-		}
-		set
-		{
-			fire = value;
-		}
-	}
-
-	public bool Drop => drop;
-
-	public bool Run => run;
-
-	public bool Jump => jump;
-
-	public bool Use => use;
-
-	public MovementMap()
-	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-	}
-
-	public void HandleInputState()
-	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0036: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00aa: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0066: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0070: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0075: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00da: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00df: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e4: Unknown result type (might be due to invalid IL or missing references)
-		moveDirection = Vector3.zero;
-		if (MVInputWrapper.GetKey((KeyCode)119) || MVInputWrapper.GetKey((KeyCode)273))
-		{
-			moveDirection += Vector3.forward;
-		}
-		else if (MVInputWrapper.GetKey((KeyCode)115) || MVInputWrapper.GetKey((KeyCode)274))
-		{
-			moveDirection -= Vector3.forward;
-		}
-		if (MVInputWrapper.GetKey((KeyCode)97) || MVInputWrapper.GetKey((KeyCode)276))
-		{
-			moveDirection -= Vector3.right;
-		}
-		else if (MVInputWrapper.GetKey((KeyCode)100) || MVInputWrapper.GetKey((KeyCode)275))
-		{
-			moveDirection += Vector3.right;
-		}
-		run = MVInputWrapper.GetKey((KeyCode)304) || MVInputWrapper.GetKey((KeyCode)303);
-		jump = MVInputWrapper.GetKey((KeyCode)32);
-		use = false;
-		if (MVInputWrapper.GetKeyUp((KeyCode)101))
-		{
-			use = true;
-		}
-		fire = false;
-		if (MVInputWrapper.GetKey((KeyCode)323))
-		{
-			fire = true;
-		}
-		drop = false;
-		if (MVInputWrapper.GetKeyUp((KeyCode)113))
-		{
-			drop = true;
+			if (MVInputWrapper.GetBooleanControl(KogamaControls.MoveForward))
+			{
+				movementMapFlags |= MovementMapFlags.Forward;
+			}
+			if (MVInputWrapper.GetBooleanControl(KogamaControls.MoveBackwards))
+			{
+				movementMapFlags |= MovementMapFlags.Back;
+			}
+			if (MVInputWrapper.GetBooleanControl(KogamaControls.MoveLeft))
+			{
+				movementMapFlags |= MovementMapFlags.Left;
+			}
+			if (MVInputWrapper.GetBooleanControl(KogamaControls.MoveRight))
+			{
+				movementMapFlags |= MovementMapFlags.Right;
+			}
+			if (MVInputWrapper.GetBooleanControl(KogamaControls.Run))
+			{
+				movementMapFlags |= MovementMapFlags.Run;
+			}
+			if (MVInputWrapper.GetBooleanControl(KogamaControls.Jump))
+			{
+				movementMapFlags |= MovementMapFlags.Jump;
+			}
+			if (fromFrameUpdate)
+			{
+				frameUpdateMovementMapState |= movementMapFlags;
+				return;
+			}
+			movementMapState |= movementMapFlags;
+			movementMapState |= frameUpdateMovementMapState;
+			frameUpdateMovementMapState = MovementMapFlags.None;
 		}
 	}
 }

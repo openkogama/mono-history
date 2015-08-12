@@ -7,5 +7,6 @@ public enum MVProductType
 	StreamingAsset,
 	Item,
 	Avatar,
-	RespawnNow
+	RespawnNow,
+	GameCoinBooster
 }

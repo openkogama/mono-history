@@ -1,4 +1,3 @@
-using MV.Common;
 using UnityEngine;
 
 public class MVGUIPodiumSeat : MonoBehaviour
@@ -7,23 +6,25 @@ public class MVGUIPodiumSeat : MonoBehaviour
 
 	public UXText winnerText;
 
-	public void BuildPodiumSeat(string name, int winnerData, MVWinningCondition winningType)
+	public void BuildPodiumSeat(string name, int winnerData, GameStatCounterType statType)
 	{
 		winnerName.Text = name;
-		switch (winningType)
+		Debug.Log(statType);
+		switch (statType)
 		{
-		case MVWinningCondition.MostKills:
+		case GameStatCounterType.Kill:
+		case GameStatCounterType.OculusKill:
 			winnerText.Text = "Kills: " + winnerData;
 			break;
-		case MVWinningCondition.FindAllCollectibles:
+		case GameStatCounterType.Collectible:
 			winnerText.Text = "Items: " + winnerData;
 			break;
-		case MVWinningCondition.HighestAltitude:
-		case MVWinningCondition.LowestAltitude:
+		case GameStatCounterType.YUp:
+		case GameStatCounterType.YDown:
 		{
-			Debug.Log((object)("WINNERDATA: " + winnerData));
+			Debug.Log("WINNERDATA: " + winnerData);
 			float num2 = (float)winnerData / 100f;
-			winnerText.Text = string.Format("Altitude: " + num2.ToString("0.000"), new object[0]);
+			winnerText.Text = string.Format("Altitude: " + num2.ToString("0.000"));
 			break;
 		}
 		default:

@@ -1,6 +1,5 @@
 using System;
-using System.Collections;
-using Localize;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class MVGUIProductShopDialog : UXCustomDialogBox
@@ -31,7 +30,7 @@ public class MVGUIProductShopDialog : UXCustomDialogBox
 
 	public GameObject productPreview;
 
-	private Hashtable purchaseResponseData;
+	private Dictionary<object, object> purchaseResponseData;
 
 	private int priceGold;
 
@@ -44,7 +43,7 @@ public class MVGUIProductShopDialog : UXCustomDialogBox
 	public void SetAllowInsertProductPreview(bool allowInsert)
 	{
 		this.allowInsert = allowInsert;
-		((Component)previewButton).gameObject.SetActiveRecursively(this.allowInsert);
+		previewButton.gameObject.SetActive(this.allowInsert);
 	}
 
 	public void SetPrice(int gold, int silver)
@@ -55,23 +54,18 @@ public class MVGUIProductShopDialog : UXCustomDialogBox
 		silverPriceText.Text = priceSilver + string.Empty;
 		if (priceGold == 0)
 		{
-			goldPriceText.SetAlpha(0.3f);
-			goldCubePlane.SetAlpha(0.5f, "_MainColor");
+			goldPriceText.SetAlpha(0.3f, string.Empty);
+			goldCubePlane.SetAlpha(0.5f, string.Empty);
 		}
 		if (priceSilver == 0)
 		{
-			silverPriceText.SetAlpha(0.3f);
-			silverCubePlane.SetAlpha(0.5f, "_MainColor");
+			silverPriceText.SetAlpha(0.3f, string.Empty);
+			silverCubePlane.SetAlpha(0.5f, string.Empty);
 		}
 	}
 
 	public override void OnShowDialog()
 	{
-		//IL_00f0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ae: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b3: Unknown result type (might be due to invalid IL or missing references)
 		base.OnShowDialog();
 		if (!isInitialized)
 		{
@@ -82,14 +76,14 @@ public class MVGUIProductShopDialog : UXCustomDialogBox
 			uXTextButton2.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXTextButton2.OnClick, new UXBaseButton.OnClickDelegate(OnClickInsertProductPreview));
 			isInitialized = true;
 		}
-		((Component)previewButton).gameObject.SetActiveRecursively(allowInsert);
+		previewButton.gameObject.SetActive(allowInsert);
 		if (!allowInsert)
 		{
-			Transform transform = ((Component)productDescription).transform;
-			transform.localPosition += 4f * Vector3.left;
+			productDescription.transform.localPosition += 4f * Vector3.left;
 		}
 		waitText.SetVisible(visible: false);
 		DialogWindow.MoveHeader(new Vector3(-6f, DialogWindow.Height / 2f - 1f, -0.1f));
+		DialogResult = UXDialogResult.Negative;
 	}
 
 	public override object GetResult()
@@ -101,7 +95,7 @@ public class MVGUIProductShopDialog : UXCustomDialogBox
 	{
 		if (OnInsertProductPreview != null)
 		{
-			DialogFactory.CreateDialog(TextSlotIndex.PreviewMessage, TextSlotIndex.InsertPreview, UXDialogType.Simple, noButtons: false, stackDialog: true).AddPositiveButton(TextSlotIndex.Ok).SetOnResultCallback(OnInsertAlertDialogResult)
+			DialogFactory.CreateDialog(TM._("Since you are previewing this item,\nit will be deleted when you exit."), TM._("Insert Preview"), UXDialogType.Simple, noButtons: false, stackDialog: true).AddPositiveButton(TM._("Ok")).SetOnResultCallback(OnInsertAlertDialogResult)
 				.Show();
 		}
 	}
@@ -117,19 +111,19 @@ public class MVGUIProductShopDialog : UXCustomDialogBox
 	{
 		if (OnTryPurchaseProduct != null)
 		{
-			MVNetworkGame game = MVGameController.Instance.Game;
-			game.PurchaseProductResponseHandler = (Action<int, Hashtable>)Delegate.Combine(game.PurchaseProductResponseHandler, new Action<int, Hashtable>(ProductPurchaseResponseHandler));
+			MVNetworkGame game = MVGameController.Game;
+			game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Combine(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
 			OnTryPurchaseProduct();
-			((Component)purchaseButton).gameObject.SetActiveRecursively(false);
+			purchaseButton.gameObject.SetActive(value: false);
 			waitText.SetVisible(visible: true);
 			DialogWindow.GetExitButton().SetVisible(visible: false);
 		}
 	}
 
-	private void ProductPurchaseResponseHandler(int returnCode, Hashtable purchaseResponseData)
+	private void ProductPurchaseResponseHandler(int returnCode, Dictionary<object, object> purchaseResponseData)
 	{
-		MVNetworkGame game = MVGameController.Instance.Game;
-		game.PurchaseProductResponseHandler = (Action<int, Hashtable>)Delegate.Remove(game.PurchaseProductResponseHandler, new Action<int, Hashtable>(ProductPurchaseResponseHandler));
+		MVNetworkGame game = MVGameController.Game;
+		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Remove(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
 		if (returnCode == 0)
 		{
 			this.purchaseResponseData = purchaseResponseData;
@@ -145,30 +139,48 @@ public class MVGUIProductShopDialog : UXCustomDialogBox
 
 	private void ShowErrorDialog(int returnCode)
 	{
-		if (returnCode == 3)
+		if (returnCode == 1)
 		{
 			if (priceGold > 0 && priceSilver == 0)
 			{
-				Application.ExternalCall("attentionGetGold", new object[1] { 1 });
-				DialogFactory.CreateDialog(TextSlotIndex.GetGoldMessage, TextSlotIndex.InsufficientFunds, UXDialogType.Simple, noButtons: false, stackDialog: true).SetOnResultCallback(OnGoldPurchaseDialogResult).Show();
+				DialogFactory.CreateDialog(TM._("Get more gold?"), TM._("Insufficient Funds"), UXDialogType.Simple, noButtons: false, stackDialog: true).AddPositiveButton(TM._("Ok")).AddNegativeButton(TM._("Cancel"))
+					.SetOnResultCallback(OnGoldPurchaseDialogResult)
+					.Show();
 			}
 			else if (priceGold == 0 && priceSilver > 0)
 			{
-				DialogFactory.CreateDialog(TextSlotIndex.NotEnoughSilver, TextSlotIndex.InsufficientFunds, UXDialogType.Simple, noButtons: false, stackDialog: true).Show();
+				DialogFactory.CreateDialog(TM._("Get more silver"), TM._("Insufficient Funds"), UXDialogType.Simple, noButtons: false, stackDialog: true).AddPositiveButton(TM._("Ok")).AddNegativeButton(TM._("Cancel"))
+					.SetOnResultCallback(OnSilverConvertDialogResult)
+					.Show();
 			}
 			else
 			{
-				DialogFactory.CreateDialog(TextSlotIndex.NotEnoughFunds, TextSlotIndex.InsufficientFunds, UXDialogType.Simple, noButtons: false, stackDialog: true).Show();
+				DialogFactory.CreateDialog(TM._("Get more gold?"), TM._("Insufficient Funds"), UXDialogType.Simple, noButtons: false, stackDialog: true).AddPositiveButton(TM._("Ok")).AddNegativeButton(TM._("Cancel"))
+					.SetOnResultCallback(OnGoldPurchaseDialogResult)
+					.Show();
 			}
 		}
 		else
 		{
-			DialogFactory.CreateDialog(TextSlotIndex.ErrorOccured, TextSlotIndex.ErrorHeadline, UXDialogType.Simple, noButtons: false, stackDialog: true, canClose: true, new ValueInsert().AddInt(returnCode)).Show();
+			DialogFactory.CreateDialog(TM._("An error occured:\n"), TM._("Error"), UXDialogType.Simple, noButtons: false, stackDialog: true, canClose: true, new ValueInsert().AddInt(returnCode)).Show();
+		}
+	}
+
+	public void OnSilverConvertDialogResult(UXDialogBox dialog)
+	{
+		if (dialog.DialogResult == UXDialogResult.Positive)
+		{
+			BrowserComm.ToJavaScript.ExternalCall("gotoConvertToSilver");
+			BrowserComm.ExecuteBrowserRequest(MVGameController.GameSessionData.convertToSilverURL);
 		}
 	}
 
 	public void OnGoldPurchaseDialogResult(UXDialogBox dialog)
 	{
-		Application.ExternalCall("attentionGetGold", new object[1] { 0 });
+		if (dialog.DialogResult == UXDialogResult.Positive)
+		{
+			BrowserComm.ToJavaScript.ExternalCall("gotoPurchaseGold");
+			BrowserComm.ExecuteBrowserRequest(MVGameController.GameSessionData.purchaseGoldURL);
+		}
 	}
 }

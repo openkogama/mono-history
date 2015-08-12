@@ -4,6 +4,6 @@ public class Test
 {
 	public Test(int i)
 	{
-		Debug.Log((object)i);
+		Debug.Log(i);
 	}
 }

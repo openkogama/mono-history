@@ -14,9 +14,7 @@ public class Blinker
 
 	public Blinker(float interval, Material m, Color color)
 	{
-		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
-		Object val = Object.Instantiate((Object)(object)m);
-		blinkMaterial = (Material)(object)((val is Material) ? val : null);
+		blinkMaterial = Object.Instantiate(m);
 		blinkMaterial.color = color;
 		blinkInterval = interval;
 	}
@@ -35,7 +33,6 @@ public class Blinker
 
 	public void Draw(Mesh mesh, Transform tfm)
 	{
-		//IL_0034: Unknown result type (might be due to invalid IL or missing references)
 		if (!IsExpired && Mathf.Repeat(Time.time * blinkInterval, 1f) < 0.5f)
 		{
 			for (int i = 0; i < mesh.subMeshCount; i++)

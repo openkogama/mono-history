@@ -1,5 +1,4 @@
 using System;
-using UnityEngine;
 
 public class MVGUIAvatarShopWindow : UXViewScript
 {
@@ -39,7 +38,7 @@ public class MVGUIAvatarShopWindow : UXViewScript
 
 	public override void OnInitialize()
 	{
-		_window = ((Component)this).gameObject.GetComponentInChildren<UXWindow>();
+		_window = gameObject.GetComponentInChildren<UXWindow>();
 	}
 
 	private void InitializeAvatarShop()

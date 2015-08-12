@@ -39,19 +39,19 @@ public class UXCollectionViewSlot : MonoBehaviour
 
 	public void Start()
 	{
-		UXMouseOverObject uXMouseOverObject = UXUtils.AddComponentIfNotExists<UXMouseOverObject>(((Component)this).gameObject);
+		UXMouseOverObject uXMouseOverObject = UXUtils.AddComponentIfNotExists<UXMouseOverObject>(gameObject);
 		uXMouseOverObject.OnMouseOverEnter = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(uXMouseOverObject.OnMouseOverEnter, new UXMouseOverObject.OnMouseOverDelegate(HandleMouseOverEnter));
 		uXMouseOverObject.OnMouseOver = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(uXMouseOverObject.OnMouseOver, new UXMouseOverObject.OnMouseOverDelegate(HandleMouseOver));
 		uXMouseOverObject.OnMouseOverExit = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(uXMouseOverObject.OnMouseOverExit, new UXMouseOverObject.OnMouseOverDelegate(HandleMouseOverExit));
-		UXMouseClickObject uXMouseClickObject = UXUtils.AddComponentIfNotExists<UXMouseClickObject>(((Component)this).gameObject);
+		UXMouseClickObject uXMouseClickObject = UXUtils.AddComponentIfNotExists<UXMouseClickObject>(gameObject);
 		uXMouseClickObject.OnMouseUp = (UXMouseClickObject.OnMouseUpDelegate)Delegate.Combine(uXMouseClickObject.OnMouseUp, new UXMouseClickObject.OnMouseUpDelegate(HandleMouseClick));
-		UXDragObject uXDragObject = UXUtils.AddComponentIfNotExists<UXDragObject>(((Component)this).gameObject);
+		UXDragObject uXDragObject = UXUtils.AddComponentIfNotExists<UXDragObject>(gameObject);
 		uXDragObject.OnDragStart = (UXDragObject.OnDragStartDelegate)Delegate.Combine(uXDragObject.OnDragStart, new UXDragObject.OnDragStartDelegate(HandleMouseDragStart));
 		uXDragObject.OnDrag = (UXDragObject.OnDragDelegate)Delegate.Combine(uXDragObject.OnDrag, new UXDragObject.OnDragDelegate(HandleMouseDrag));
 		uXDragObject.OnDragStop = (UXDragObject.OnDragStopDelegate)Delegate.Combine(uXDragObject.OnDragStop, new UXDragObject.OnDragStopDelegate(HandleMouseDragStop));
-		UXDropObject uXDropObject = UXUtils.AddComponentIfNotExists<UXDropObject>(((Component)this).gameObject);
+		UXDropObject uXDropObject = UXUtils.AddComponentIfNotExists<UXDropObject>(gameObject);
 		uXDropObject.AcceptDrop = (UXDropObject.AcceptDropDelegate)Delegate.Combine(uXDropObject.AcceptDrop, new UXDropObject.AcceptDropDelegate(HandleMouseDrop));
-		mouseOverScale = ((Component)this).GetComponent<UXSimpleMouseOverScale>();
+		mouseOverScale = GetComponent<UXSimpleMouseOverScale>();
 	}
 
 	public void SetVisiblePage(int pageIndex)
@@ -70,7 +70,7 @@ public class UXCollectionViewSlot : MonoBehaviour
 	public void SetVisible(bool visible)
 	{
 		Visible = visible;
-		((Component)this).gameObject.GetComponent<UXPlane>().SetVisible(visible);
+		gameObject.GetComponent<UXPlane>().SetVisible(visible);
 		foreach (KeyValuePair<int, UXCollectionViewItem> pageIndexToViewItem in _pageIndexToViewItems)
 		{
 			pageIndexToViewItem.Value.SetVisible(Visible && pageIndexToViewItem.Key == _visiblePage);
@@ -80,7 +80,7 @@ public class UXCollectionViewSlot : MonoBehaviour
 
 	public void Reset()
 	{
-		if ((Object)(object)mouseOverScale != (Object)null)
+		if (mouseOverScale != null)
 		{
 			mouseOverScale.Reset();
 		}
@@ -88,27 +88,21 @@ public class UXCollectionViewSlot : MonoBehaviour
 
 	public void AttachViewItem(UXCollectionViewItem viewItem, int pageIndex)
 	{
-		//IL_0040: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0050: Unknown result type (might be due to invalid IL or missing references)
 		if (_pageIndexToViewItems.ContainsKey(pageIndex))
 		{
-			Debug.LogWarning((object)"Trying to add view item to occupied slot");
+			Debug.LogWarning("Trying to add view item to occupied slot");
 			return;
 		}
 		_pageIndexToViewItems.Add(pageIndex, viewItem);
-		((Component)viewItem).transform.parent = ((Component)this).transform;
-		((Component)viewItem).transform.localPosition = Vector3.zero;
-		((Component)viewItem).transform.localScale = Vector3.one;
+		viewItem.transform.parent = transform;
+		viewItem.transform.localPosition = Vector3.zero;
+		viewItem.transform.localScale = Vector3.one;
 		if (_visiblePage == pageIndex && !viewItem.IsInitialized)
 		{
 			viewItem.Initialize();
 		}
 		viewItem.PageIndex = pageIndex;
 		viewItem.OnAttachToSlot(this);
-		if (!((Component)this).gameObject.active)
-		{
-			((Component)viewItem).gameObject.SetActiveRecursively(false);
-		}
 		Reset();
 	}
 
@@ -123,23 +117,21 @@ public class UXCollectionViewSlot : MonoBehaviour
 
 	public UXCollectionViewItem DetachViewItem(int pageIndex, bool detachAndDestroy = false)
 	{
-		//IL_0067: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0077: Unknown result type (might be due to invalid IL or missing references)
 		UXCollectionViewItem uXCollectionViewItem = _pageIndexToViewItems[pageIndex];
 		_pageIndexToViewItems.Remove(pageIndex);
 		Reset();
 		if (detachAndDestroy)
 		{
-			if ((Object)(object)uXCollectionViewItem != (Object)null)
+			if (uXCollectionViewItem != null)
 			{
 				uXCollectionViewItem.OnDetachFromSlot(this);
-				Object.Destroy((Object)(object)((Component)uXCollectionViewItem).gameObject);
+				UnityEngine.Object.Destroy(uXCollectionViewItem.gameObject);
 			}
 			return null;
 		}
-		((Component)uXCollectionViewItem).transform.parent = ((Component)this).transform.parent.parent;
-		((Component)uXCollectionViewItem).transform.localPosition = Vector3.zero;
-		((Component)uXCollectionViewItem).transform.localScale = Vector3.one;
+		uXCollectionViewItem.transform.parent = transform.parent.parent;
+		uXCollectionViewItem.transform.localPosition = Vector3.zero;
+		uXCollectionViewItem.transform.localScale = Vector3.one;
 		uXCollectionViewItem.OnDetachFromSlot(this);
 		return uXCollectionViewItem;
 	}
@@ -190,7 +182,6 @@ public class UXCollectionViewSlot : MonoBehaviour
 
 	public bool HandleMouseDragStart(Vector3 mousePositionWorld)
 	{
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
 		if (OnSlotMouseDragStart != null)
 		{
 			OnSlotMouseDragStart(SlotIndex, mousePositionWorld);
@@ -200,7 +191,6 @@ public class UXCollectionViewSlot : MonoBehaviour
 
 	public void HandleMouseDrag(Vector3 mousePositionWorld)
 	{
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
 		if (OnSlotMouseDrag != null)
 		{
 			OnSlotMouseDrag(-1, mousePositionWorld);

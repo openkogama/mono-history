@@ -12,7 +12,7 @@ public class UXTextInputAudio : MonoBehaviour
 	{
 		entrySound = GUIAudioBank.Instance.GetSound("textField_characterEntry");
 		deleteSound = GUIAudioBank.Instance.GetSound("textField_characterDelete");
-		UXTextInputElement component = ((Component)this).GetComponent<UXTextInputElement>();
+		UXTextInputElement component = GetComponent<UXTextInputElement>();
 		component.OnCharacterEntry = (UXTextInputElement.OnCharacterEntryDelegate)Delegate.Combine(component.OnCharacterEntry, new UXTextInputElement.OnCharacterEntryDelegate(HandleOnCharacterEntry));
 		component.OnCharacterDelete = (UXTextInputElement.OnCharacterDeleteDelegate)Delegate.Combine(component.OnCharacterDelete, new UXTextInputElement.OnCharacterDeleteDelegate(HandleOnCharacterDelete));
 	}

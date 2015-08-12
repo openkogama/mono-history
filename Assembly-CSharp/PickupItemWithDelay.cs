@@ -1,4 +1,5 @@
 using System.Collections;
+using CodeStage.AntiCheat.ObscuredTypes;
 using UnityEngine;
 
 public abstract class PickupItemWithDelay : PickupItem
@@ -11,7 +12,8 @@ public abstract class PickupItemWithDelay : PickupItem
 
 	public Transform muzzlePoint;
 
-	public float fireInterval = 1f;
+	[SerializeField]
+	protected ObscuredFloat fireInterval = 1f;
 
 	protected bool isFiring;
 
@@ -23,28 +25,14 @@ public abstract class PickupItemWithDelay : PickupItem
 	{
 		get
 		{
-			//IL_003a: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0027: Unknown result type (might be due to invalid IL or missing references)
-			//IL_002d: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0033: Unknown result type (might be due to invalid IL or missing references)
 			float num = Time.time - lastFireTime;
-			float num2 = Mathf.Clamp01(num / fireInterval);
+			float num2 = Mathf.Clamp01(num / (float)fireInterval);
 			if (num2 < 1f)
 			{
 				return Color.Lerp(crossHairCannotFireLow, crossHairCannotFireHigh, num2);
 			}
 			return crossHairCanFire;
 		}
-	}
-
-	protected PickupItemWithDelay()
-	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0011: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001c: Unknown result type (might be due to invalid IL or missing references)
 	}
 
 	protected virtual void OnFire(bool isLocal)
@@ -57,7 +45,7 @@ public abstract class PickupItemWithDelay : PickupItem
 
 	private void Start()
 	{
-		meshRenderers = ((Component)this).GetComponentsInChildren<MeshRenderer>();
+		meshRenderers = GetComponentsInChildren<MeshRenderer>();
 		OnStart();
 	}
 
@@ -65,11 +53,11 @@ public abstract class PickupItemWithDelay : PickupItem
 	{
 		if (isFiring)
 		{
-			Debug.Log((object)"Got TriggerStart, but were firing");
+			Debug.Log("Got TriggerStart, but were firing");
 		}
 		else
 		{
-			((MonoBehaviour)this).StartCoroutine(DoAutoFire());
+			StartCoroutine(DoAutoFire());
 		}
 	}
 
@@ -83,7 +71,7 @@ public abstract class PickupItemWithDelay : PickupItem
 		isFiring = true;
 		while (isFiring)
 		{
-			if (!IsAmmoDepleted && Time.time - lastFireTime > fireInterval)
+			if (!IsAmmoDepleted && Time.time - lastFireTime > (float)fireInterval)
 			{
 				lastFireTime = Time.time;
 				OnFire(owner.IsLocal);
@@ -91,7 +79,7 @@ public abstract class PickupItemWithDelay : PickupItem
 			if (IsAmmoDepleted)
 			{
 				MVEquipable equipable = owner.WorldObjectOwner.GameObject.GetComponent<MVEquipable>();
-				if ((Object)(object)equipable != (Object)null)
+				if (equipable != null)
 				{
 					equipable.Unequip();
 				}

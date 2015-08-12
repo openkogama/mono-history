@@ -10,22 +10,19 @@ public class VersionNumber : MonoBehaviour
 
 	public int versionBuild;
 
-	public UXText uxText;
+	public string versionGuid = string.Empty;
 
-	public UXView uxView;
+	public int versionStreamingAssets;
 
 	public string VersionString => versionMajor + "." + versionMinor + "." + versionMicro + "." + versionBuild;
 
-	private void Update()
-	{
-		if (MVGameController.Instance.GameJoined)
-		{
-			((Component)this).gameObject.SetActiveRecursively(false);
-		}
-	}
-
 	private void Start()
 	{
-		uxText.Text = "Build " + VersionString;
+		Debug.Log("ClientBuild: " + VersionString);
+	}
+
+	public override string ToString()
+	{
+		return "Build: " + VersionString;
 	}
 }

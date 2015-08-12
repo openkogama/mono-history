@@ -15,5 +15,6 @@ public enum InteractionPackageType : byte
 	SentryTowerIce = 11,
 	AdvancedGhostBodyRotateWeaponPackage = 12,
 	ProximityDamageAndImpulse = 13,
-	SixShooterHit = 14
+	SixShooterHit = 14,
+	ThrowingStarHit = 15
 }

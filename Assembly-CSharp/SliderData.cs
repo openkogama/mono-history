@@ -13,7 +13,7 @@ public class SliderData : DialogData
 	public override void ApplyDataToElement(GameObject element)
 	{
 		UXSlider component = element.GetComponent<UXSlider>();
-		if (!((Object)(object)component == (Object)null))
+		if (!(component == null))
 		{
 			if (setMinMaxValue)
 			{

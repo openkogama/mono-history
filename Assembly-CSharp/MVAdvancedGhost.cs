@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
@@ -25,16 +24,9 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 
 	private float cullDistance = 100f;
 
-	public override Vector3 WorldPivot
-	{
-		get
-		{
-			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-			return transform.position;
-		}
-	}
+	public override Vector3 WorldPivot => transform.position;
 
-	public MVAdvancedGhost(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVAdvancedGhost(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, "Prefabs/AdvancedGhost/AdvancedGhost", worldObjects)
 	{
 		interactionFlags |= InteractionFlags.Selectable | InteractionFlags.CanRotateY | InteractionFlags.CanEdit | InteractionFlags.CanClone | InteractionFlags.HasSettings;
@@ -50,25 +42,23 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 		AdvancedGhostMotor advancedGhostMotor = GameObject.AddComponent<AdvancedGhostMotor>();
 		advancedGhostBehaviour = GameObject.GetComponentInChildren<AdvancedGhostBehaviour>();
 		advancedGhostBehaviour.Init(mVCubeModelBase, advancedGhostMotor, interactable.IsDead, id);
-		editableCubeModelWrapper = new AdvancedGhostCubeModelWrapper(mVCubeModelBase, ((Component)advancedGhostBehaviour.GhostVisualization).transform);
-		advancedGhostMotor.Init(((Component)advancedGhostBehaviour).transform, interactable);
-		if (MVGameController.Instance.GameMode == MVGameMode.Edit)
+		editableCubeModelWrapper = new AdvancedGhostCubeModelWrapper(mVCubeModelBase, advancedGhostBehaviour.GhostVisualization.transform);
+		advancedGhostMotor.Init(advancedGhostBehaviour.gameObject, interactable);
+		if (MVGameController.GameMode == MVGameMode.Edit)
 		{
 			SetupEditorIcon(mVCubeModelBase);
 		}
 		Hide();
-		MVGameController.Instance.Game.GameStateController.AddUpdateObject(this);
+		MVGameController.Game.GameStateController.AddUpdateObject(this);
 		OnDataUpdate();
 	}
 
 	private void SetupEditorIcon(MVCubeModelBase cubeModelBody)
 	{
-		//IL_0045: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005a: Unknown result type (might be due to invalid IL or missing references)
 		advancedGhostIcon = Object.Instantiate(Resources.Load("Prefabs/AdvancedGhost/GhostEditorIcon", typeof(AdvancedGhostIcon))) as AdvancedGhostIcon;
-		((Component)advancedGhostIcon).transform.parent = transform;
-		((Component)advancedGhostIcon).transform.localPosition = Vector3.zero;
-		((Component)advancedGhostIcon).transform.localRotation = Quaternion.identity;
+		advancedGhostIcon.transform.parent = transform;
+		advancedGhostIcon.transform.localPosition = Vector3.zero;
+		advancedGhostIcon.transform.localRotation = Quaternion.identity;
 		advancedGhostIcon.Init(cubeModelBody);
 	}
 
@@ -78,8 +68,8 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 		advancedGhostBehaviour = GameObject.GetComponentInChildren<AdvancedGhostBehaviour>();
 		MVCubeModelBase mVCubeModelBase = (MVCubeModelBase)GetChild("BodyCubeModel");
 		SetupEditorIcon(mVCubeModelBase);
-		mVCubeModelBase.GameObject.SetActiveRecursively(false);
-		((Component)advancedGhostIcon).gameObject.SetLayerRecursively(LayerMask.NameToLayer("Default"));
+		mVCubeModelBase.GameObject.SetActive(value: false);
+		advancedGhostIcon.gameObject.SetLayerRecursively(LayerMask.NameToLayer("Default"));
 		SetGameMode(isPlayMode: false);
 	}
 
@@ -87,45 +77,41 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 	{
 		if (isPlayMode)
 		{
-			((Component)advancedGhostBehaviour).gameObject.SetActiveRecursively(true);
-			if ((Object)(object)advancedGhostIcon != (Object)null)
+			advancedGhostBehaviour.gameObject.SetActive(value: true);
+			if (advancedGhostIcon != null)
 			{
-				((Component)advancedGhostIcon).gameObject.SetActiveRecursively(false);
+				advancedGhostIcon.gameObject.SetActive(value: false);
 			}
 			advancedGhostBehaviour.SetGameMode(isPlayMode);
 			if (editableCubeModelWrapper.CubeModelIsBeingEdited)
 			{
-				Debug.LogWarning((object)"Todo: Fix this hack. This is simply because OnExitObject is not called if user enters playmode while editing cube model");
+				Debug.LogWarning("Todo: Fix this hack. This is simply because OnExitObject is not called if user enters playmode while editing cube model");
 				editableCubeModelWrapper.ExitEdit();
-				editableCubeModelWrapper.CubeModel.GameObject.SetActiveRecursively(true);
+				editableCubeModelWrapper.CubeModel.GameObject.SetActive(value: true);
 			}
 		}
 		else
 		{
-			((Component)advancedGhostBehaviour).gameObject.SetActiveRecursively(false);
-			((Component)advancedGhostIcon).gameObject.SetActiveRecursively(true);
+			advancedGhostBehaviour.gameObject.SetActive(value: false);
+			advancedGhostIcon.gameObject.SetActive(value: true);
 		}
 	}
 
 	public override bool OnEnterObject(EditorStateMachine e)
 	{
-		((Component)advancedGhostIcon).gameObject.SetActiveRecursively(false);
+		advancedGhostIcon.gameObject.SetActive(value: false);
 		return editableCubeModelWrapper.OnEnterObject(e, transform);
 	}
 
 	public override bool OnExitObject(EditorStateMachine e)
 	{
-		Debug.Log((object)"On exit object");
-		((Component)advancedGhostIcon).gameObject.SetActiveRecursively(true);
+		Debug.Log("On exit object");
+		advancedGhostIcon.gameObject.SetActive(value: true);
 		return editableCubeModelWrapper.OnExitObject(e);
 	}
 
 	public override Bounds GetLocalBounds(BoundsContext boundsContext)
 	{
-		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0014: Unknown result type (might be due to invalid IL or missing references)
 		return new Bounds(Vector3.up, 3f * Vector3.one);
 	}
 
@@ -141,26 +127,32 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 
 	public override void Destroy()
 	{
-		MVGameController.Instance.Game.GameStateController.RemoveObject(this);
+		MVGameController.Game.GameStateController.RemoveObject(this);
 		base.Destroy();
 	}
 
 	public override Vector3 GetTargetPosition()
 	{
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0015: Unknown result type (might be due to invalid IL or missing references)
-		return ((Component)advancedGhostBehaviour).transform.position + Vector3.up;
+		return advancedGhostBehaviour.transform.position + Vector3.up;
 	}
 
-	private void ReceiveDamage(float damage)
+	private void ReceiveDamage(float amount, MVPlayer damageDealer, PlayerKilledByType damageType)
 	{
-		//IL_0046: Unknown result type (might be due to invalid IL or missing references)
 		advancedGhostBehaviour.ReceivedDamage();
 		if (interactable.IsDead())
 		{
+			HandleGameCounting(amount, damageDealer, damageType);
 			HashSet<int> worldIDsRecursive = WorldIDsRecursive;
-			MVGameController.Instance.WOCM.SharedWorldObjectGameplayFunctions.ExplosionCreator.Explode(((Component)advancedGhostBehaviour.GhostVisualization).transform.position, deathExplosionDamageValue, deathExplosionRadius, deathExplosionImpulse, worldIDsRecursive);
+			SharedWorldObjectGameplayFunctions.Explosion.Explode("ParticleFX/Explosion", advancedGhostBehaviour.GhostVisualization.transform.position, deathExplosionDamageValue, deathExplosionRadius, deathExplosionImpulse, local: true, null, worldIDsRecursive);
+		}
+	}
+
+	private void HandleGameCounting(float amount, MVPlayer damageDealer, PlayerKilledByType damageType)
+	{
+		if (damageDealer.ActorNr == MVGameController.Game.LocalPlayer.ActorNr && (damageDealer.Avatar.Transform.position - advancedGhostBehaviour.transform.position).magnitude < 10f)
+		{
+			GameSessionCounters.Increment(GameSessionCounterType.OculusKilledByLocalPlayerInCloseCombat);
+			Debug.Log("Close combat");
 		}
 	}
 
@@ -175,7 +167,7 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 		advancedGhostBehaviour.LOD = distance / cullDistance;
 		if (!visible && distance < cullDistance)
 		{
-			SetGameMode(MVGameController.Instance.Game.IsPlaying);
+			SetGameMode(MVGameController.Game.IsPlaying);
 			visible = true;
 		}
 		else if (visible && distance >= cullDistance)
@@ -192,10 +184,10 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 
 	private void SetVisible(bool visible)
 	{
-		((Component)advancedGhostBehaviour).gameObject.SetActiveRecursively(visible);
-		if ((Object)(object)advancedGhostIcon != (Object)null)
+		advancedGhostBehaviour.gameObject.SetActive(visible);
+		if (advancedGhostIcon != null)
 		{
-			((Component)advancedGhostIcon).gameObject.SetActiveRecursively(visible);
+			advancedGhostIcon.gameObject.SetActive(visible);
 		}
 	}
 
@@ -203,7 +195,7 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 	{
 		advancedGhostBehaviour.Speed = (float)Data["Speed"];
 		advancedGhostBehaviour.Radius = (float)Data["Radius"];
-		if ((Object)(object)advancedGhostIcon != (Object)null)
+		if (advancedGhostIcon != null)
 		{
 			advancedGhostIcon.Radius = (float)Data["Radius"];
 		}

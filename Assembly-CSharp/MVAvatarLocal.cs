@@ -1,6 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
@@ -11,7 +11,8 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 	{
 		Editing,
 		Playing,
-		Dead
+		Dead,
+		Hidden
 	}
 
 	private const float maxFallBelow = 200f;
@@ -38,7 +39,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 
 	private AvatarState state;
 
-	private ThirdPersonCamera thirdPersonCam;
+	private PlaymodeCamera playmodeCam;
 
 	private bool showingRespawnDelay;
 
@@ -46,18 +47,35 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 
 	private PickupGUI pickupGUI;
 
-	private bool CanReceivePackages => Time.time - respawnTime > respawnTimeOut;
+	private MVRigidBody vehicleRigidBody;
 
-	private bool IsSeated
+	private AvatarFader avatarFader;
+
+	private string currAnim = string.Empty;
+
+	private bool CanReceivePackages => Time.time - respawnTime > respawnTimeOut && (byte)AvatarRuntimeDataState.Value == 1;
+
+	public float SetTransparency
+	{
+		set
+		{
+			if (avatarFader != null)
+			{
+				avatarFader.SetTransparency(value);
+			}
+		}
+	}
+
+	public bool IsSeated
 	{
 		get
 		{
-			if (!RunTimeData.ContainsKey("seat"))
+			if (!RunTimeData.ContainsObscuredKey("seat"))
 			{
-				Debug.LogError((object)"MVAvatarLocal does not contain key seat");
+				Debug.LogError("MVAvatarLocal does not contain key seat");
 				return false;
 			}
-			return (int)RunTimeData["seat"] != -1;
+			return (int)(ObscuredInt)RunTimeData.GetObscuredType("seat") != -1;
 		}
 	}
 
@@ -65,7 +83,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 	{
 		get
 		{
-			if ((Object)(object)pickupOwner == (Object)null)
+			if (pickupOwner == null)
 			{
 				return false;
 			}
@@ -81,7 +99,9 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 
 	public bool IsDead => state == AvatarState.Dead;
 
-	public bool IsEnteringVehicle => MVGameController.Instance.Game.PlayerController.IsEnteringVehicle;
+	public bool IsEnteringVehicle => MVGameController.Game.PlayerController.IsEnteringVehicle;
+
+	public bool IsInVehicle => vehicleRigidBody != null;
 
 	public AvatarModes AvatarModes => modes;
 
@@ -96,29 +116,17 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 			if (value is WalkMode)
 			{
 				Mode = value;
-				ShowHealth = true;
-				ResetAvatar();
-				gameObject.collider.enabled = true;
+				ResetAvatar(toHiddenState: false);
+				gameObject.GetComponent<Collider>().enabled = true;
 			}
 			else if (value is JetPackMode)
 			{
-				ResetAvatar();
+				ResetAvatar(toHiddenState: false);
 				Mode = value;
-				ShowHealth = false;
-				gameObject.collider.enabled = false;
+				gameObject.GetComponent<Collider>().enabled = false;
 			}
 		}
 	}
-
-	public bool ShowHealth
-	{
-		set
-		{
-			avatar.ShowHealth = value;
-		}
-	}
-
-	public HealthBar HealthAndOxygenBar => avatar.HealthAndOxygenBar;
 
 	private AvatarMode Mode
 	{
@@ -128,48 +136,43 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		}
 		set
 		{
-			//IL_00f2: Unknown result type (might be due to invalid IL or missing references)
-			if (mode != null)
-			{
-				mode.Deactivate();
-			}
 			mode = value;
 			if (mode == null)
 			{
 				return;
 			}
-			mode.Activate();
 			RigidBody.Reset();
+			mode.Activate();
 			if (value == modes.JetPackMode)
 			{
 				state = AvatarState.Editing;
 				MVEquipable component = gameObject.GetComponent<MVEquipable>();
-				if ((Object)(object)component != (Object)null)
+				if (component != null)
 				{
 					component.Unequip();
 				}
 				MVTriggerHandler component2 = gameObject.GetComponent<MVTriggerHandler>();
-				if ((Object)(object)component2 == (Object)null)
+				if (component2 == null)
 				{
-					Debug.LogError((object)"TriggerHandler on avatar is null");
+					Debug.LogError("TriggerHandler on avatar is null");
 				}
 				else
 				{
-					((Behaviour)component2).enabled = false;
+					component2.enabled = false;
 				}
-				MVGameController.Instance.Game.LocalPlayer.ResetCheckpoint();
+				MVGameController.Game.LocalPlayer.ResetCheckpoint();
 			}
 			else if (value == modes.WalkMode)
 			{
-				MVGameController.Instance.WOCM.UpdateWorldBounds(SharedCubeFunctions.GetAxisAlignedBoundsRecursively(MVGameController.Instance.WOCM.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>().Transform).Value);
+				MVGameController.WOCM.UpdateWorldBounds(SharedCubeFunctions.GetAxisAlignedBoundsRecursively(MVGameController.WOCM.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>().Transform).Value);
 				MVTriggerHandler component3 = gameObject.GetComponent<MVTriggerHandler>();
-				if ((Object)(object)component3 == (Object)null)
+				if (component3 == null)
 				{
-					Debug.LogError((object)"TriggerHandler on avatar is null");
+					Debug.LogError("TriggerHandler on avatar is null");
 				}
 				else
 				{
-					((Behaviour)component3).enabled = true;
+					component3.enabled = true;
 				}
 				state = AvatarState.Playing;
 			}
@@ -178,17 +181,25 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 
 	public event EventHandler Respawned;
 
-	public MVAvatarLocal(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, worldObjects)
 	{
 		SetNetworkObject(local: true);
 	}
 
+	public Vector3 GetAbsoluteVelocity()
+	{
+		if (vehicleRigidBody != null)
+		{
+			return vehicleRigidBody.Velocity;
+		}
+		return RigidBody.Velocity;
+	}
+
 	public override void Initialize()
 	{
-		//IL_008e: Unknown result type (might be due to invalid IL or missing references)
 		base.Initialize();
-		avatar.NameTag = string.Empty;
+		avatarFader = new AvatarFader(Body.Transform);
 		avatarMotor = gameObject.AddComponent<AvatarMotor>();
 		triggerHandler = gameObject.AddComponent<MVTriggerHandler>();
 		AvatarInteractable avatarInteractable = gameObject.AddComponent<AvatarInteractable>();
@@ -196,48 +207,71 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		interactableLocal = avatarInteractable;
 		AvatarEquipable avatarEquipable = gameObject.AddComponent<AvatarEquipable>();
 		avatarEquipable.Init(interactableLocal, CurrentItem);
-		avatarMotor.Init(interactableLocal, CharacterControllerCenterOffset);
+		avatarMotor.Init(avatarInteractable, CharacterControllerCenterOffset);
 		Initialize(avatarPickupOwner, avatarMotor);
-		MVGameController.Instance.WOCM.AvatarLocal = this;
-		useInteractorHandler = gameObject.AddComponent<UseInteractorHandler>();
-		useInteractorHandler.Init(gameObject.collider);
-		MVGameController.Instance.Game.PlayerController.Push(this);
+		MVGameController.WOCM.AvatarLocal = this;
+		if (MVGameController.GameMode != MVGameMode.CharacterEditor)
+		{
+			useInteractorHandler = gameObject.AddComponent<UseInteractorHandler>();
+			useInteractorHandler.Init(gameObject.GetComponent<Collider>());
+		}
+		MVGameController.Game.PlayerController.Push(this);
 		InitializeCamera();
 	}
 
-	public void SetCharacterController(MvCharacterController characterController)
+	protected override void AvatarStateChangedHandler(object a)
 	{
-		avatarMotor.CharacterController = characterController;
+		base.AvatarStateChangedHandler(a);
+		if ((byte)a == 0)
+		{
+			LayerUtil.SetLayerRecursively(Body.Transform, "Player", "CamRotateTarget");
+			MVGameController.Game.CameraController.GetComponent<GrayscaleEffect>().enabled = true;
+			MVGameController.Game.CameraController.SecondaryCameraActive = true;
+			Body.Transform.localRotation = Quaternion.AngleAxis(180f, Vector3.up);
+		}
+		else
+		{
+			Body.Transform.localRotation = Quaternion.AngleAxis(0f, Vector3.up);
+			MVGameController.Game.CameraController.GetComponent<GrayscaleEffect>().enabled = false;
+			MVGameController.Game.CameraController.SecondaryCameraActive = false;
+			LayerUtil.SetLayerRecursively(Body.Transform, "CamRotateTarget", "Player");
+		}
+	}
+
+	public void SetCharacterController(SmoothCharacterController characterController)
+	{
+		avatarMotor.OverrideCharacterController(characterController);
 	}
 
 	public void LeaveVehicle()
 	{
+		vehicleRigidBody = null;
 		int vehicleID = -1;
-		if (!MVGameController.Instance.Game.PlayerController.DetachWorldObjectFromVehicle(Id, ref vehicleID))
+		if (!MVGameController.Game.PlayerController.DetachWorldObjectFromVehicle(Id, ref vehicleID))
 		{
 			return;
 		}
 		if (vehicleID != -1)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(vehicleID);
+			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(vehicleID);
 			if (worldObjectClient != null && worldObjectClient is MVVehicleBase)
 			{
 				((MVVehicleBase)worldObjectClient).LeaveLocal();
 			}
 			else
 			{
-				Debug.LogError((object)("vehicleWO is null or type is not IVehicle " + vehicleID));
+				Debug.LogError("vehicleWO is null or type is not IVehicle " + vehicleID);
 			}
 		}
 		HandleLeaveVehicle();
-		MVGameController.Instance.Game.CameraController.SetCamera(CameraType.ThirdPerson);
+		MVGameController.Game.CameraController.SetPlayModeCam();
 		RigidBody.Reset();
-		((Behaviour)RigidBody).enabled = true;
+		RigidBody.enabled = true;
 		triggerHandler.Reset();
-		((Behaviour)triggerHandler).enabled = true;
+		triggerHandler.enabled = true;
 		if (networkObject == null || networkObject is MVNetworkListener)
 		{
-			Debug.LogError((object)"NetworkObject null or listener on detach. Should be reporter");
+			Debug.LogError("NetworkObject null or listener on detach. Should be reporter");
 		}
 		else
 		{
@@ -247,58 +281,50 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 
 	public override void VehicleEntered()
 	{
-		if ((Object)(object)Group.GameObject.GetComponent<MVRigidBody>() != (Object)null)
+		if (Group.GameObject.GetComponent<MVRigidBody>() != null)
 		{
-			((Behaviour)RigidBody).enabled = false;
-			((Behaviour)triggerHandler).enabled = false;
+			RigidBody.enabled = false;
+			triggerHandler.enabled = false;
 		}
+		vehicleRigidBody = MVWorldObjectClientManager.GetEnabledMonoBehaviourHighestInHierarchy<MVRigidBody>(gameObject);
 	}
 
-	public MovementMap Update(MovementMap movementMap)
+	public InteractionInput Update(InteractionInput interactionMap)
 	{
-		//IL_00b7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00bc: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0083: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0088: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00fe: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0101: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0106: Unknown result type (might be due to invalid IL or missing references)
 		UpdateInvulnerable();
 		if (state == AvatarState.Playing)
 		{
-			pickupOwner.HandleFire(movementMap.Fire, IsFiring);
+			pickupOwner.HandleFire(interactionMap.Fire, IsFiring);
 		}
-		if (state != AvatarState.Dead && ((Behaviour)RigidBody).enabled)
+		if (RigidBody.enabled)
 		{
-			Mode.FrameUpdate(movementMap);
+			Mode.FrameUpdate();
 		}
 		if (InGunMode)
 		{
-			pickupGUI.Update();
-			if (Object.op_Implicit((Object)(object)thirdPersonCam))
+			if (GameDB.IsClassicGame)
 			{
-				thirdPersonCam.lookAtOffset = thirdPersonCam.shoulderOffset;
+				pickupGUI.Update();
+			}
+			if ((bool)playmodeCam)
+			{
+				playmodeCam.lookAtOffset = playmodeCam.shoulderOffset;
 			}
 		}
-		else if (Object.op_Implicit((Object)(object)thirdPersonCam))
+		else if ((bool)playmodeCam)
 		{
-			thirdPersonCam.lookAtOffset = new Vector3(0f, 0.7f, 0f);
+			playmodeCam.lookAtOffset = new Vector3(0f, 0.7f, 0f);
 		}
-		if (!MVGameController.Instance.Game.IsPlaying)
+		if (!MVGameController.Game.IsPlaying)
 		{
-			return movementMap;
+			return interactionMap;
 		}
-		float y = gameObject.transform.position.y;
-		Bounds worldBounds = MVGameController.Instance.WOCM.WorldBounds;
-		if (y < worldBounds.min.y - 200f && !IsDead)
+		if (gameObject.transform.position.y < MVGameController.WOCM.WorldBounds.min.y - 200f && !IsDead)
 		{
 			DieByFalling();
-			Debug.Log((object)"Death by falling");
+			Debug.Log("Death by falling");
 		}
-		if (movementMap.Use && !RigidBody.IsMovementLocked)
+		if (interactionMap.Use && !RigidBody.IsMovementLocked)
 		{
 			if (IsSeated)
 			{
@@ -309,7 +335,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 				useInteractorHandler.Use();
 			}
 		}
-		if (movementMap.Drop)
+		if (interactionMap.Drop)
 		{
 			gameObject.GetComponent<MVEquipable>().Equip(AvatarItemType.Hand, null);
 		}
@@ -317,13 +343,11 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		{
 			HandleStuck();
 		}
-		return movementMap;
+		return interactionMap;
 	}
 
 	public MovementMap FixedUpdate(MovementMap movementMap)
 	{
-		//IL_0089: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008e: Unknown result type (might be due to invalid IL or missing references)
 		modes.WalkMode.InGunMode = InGunMode;
 		modes.WalkMode.ForceRotateAvatarToFiringDirection = ForceRotateAvatarToFiringDirection;
 		switch (state)
@@ -333,15 +357,11 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 			break;
 		case AvatarState.Playing:
 			FixedUpdateCurrentMode(movementMap);
-			if ((InGunMode || ForceRotateAvatarToFiringDirection) && ((Behaviour)RigidBody).enabled)
+			if ((InGunMode || ForceRotateAvatarToFiringDirection) && RigidBody.enabled && RigidBody.Velocity.sqrMagnitude > 0.001f)
 			{
-				Vector3 velocity = RigidBody.Velocity;
-				if (velocity.sqrMagnitude > 0.001f)
-				{
-					RotateAvatarToFiringDirection();
-				}
+				RotateAvatarToFiringDirection();
 			}
-			if (!((Behaviour)avatarMotor).enabled)
+			if (!avatarMotor.enabled)
 			{
 				avatarMotor.UpdateVelocity();
 			}
@@ -350,7 +370,14 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 			FixedUpdateCurrentMode(movementMap);
 			if (Time.time - deadTime > deadInterval)
 			{
-				Respawn();
+				Respawn(toHiddenState: true);
+			}
+			break;
+		case AvatarState.Hidden:
+			if (LockCursorManager.LockCursor)
+			{
+				state = AvatarState.Playing;
+				ToPlay();
 			}
 			break;
 		}
@@ -359,70 +386,59 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 
 	public void SetAnimation(string animationState)
 	{
-		Hashtable hashtable = (Hashtable)Animation.Value;
-		string text = (string)hashtable["state"];
-		if (text != animationState)
+		if (!(currAnim == animationState))
 		{
-			int serverTimeInMilliSeconds = MVGameController.Instance.Game.ServerTimeInMilliSeconds;
-			Hashtable hashtable2 = new Hashtable();
-			hashtable2.Add("state", animationState);
-			hashtable2.Add("timeStamp", serverTimeInMilliSeconds);
-			hashtable = hashtable2;
-			Animation.Value = hashtable;
+			Dictionary<object, object> dictionary = (Dictionary<object, object>)Animation.Value;
+			if (currAnim != animationState)
+			{
+				int serverTimeInMilliSeconds = MVGameController.Game.ServerTimeInMilliSeconds;
+				Dictionary<object, object> dictionary2 = new Dictionary<object, object>();
+				dictionary2.Add("state", animationState);
+				dictionary2.Add("timeStamp", serverTimeInMilliSeconds);
+				dictionary = dictionary2;
+				Animation.Value = dictionary;
+				currAnim = animationState;
+			}
 		}
 	}
 
-	public void Respawn(bool suicide = false, bool delayRespawn = false)
+	public void Respawn(bool toHiddenState)
 	{
-		//IL_00ec: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0102: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01a6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01bc: Unknown result type (might be due to invalid IL or missing references)
-		Debug.Log((object)"Respawn!");
+		Debug.Log("Respawn " + toHiddenState);
 		MVTriggerHandler component = gameObject.GetComponent<MVTriggerHandler>();
-		if ((Object)(object)component == (Object)null)
+		if (component == null)
 		{
-			Debug.LogError((object)"TriggerHandler on avatar is null");
+			Debug.LogError("TriggerHandler on avatar is null");
 		}
 		else
 		{
-			((Behaviour)component).enabled = true;
+			component.enabled = true;
 		}
 		if (showingRespawnDelay)
 		{
 			return;
 		}
-		if (!MVGameController.Instance.Game.TeamManager.IsTeamActive(MVGameController.Instance.Game.TeamManager.GetTeamFromActorNr(OwnerActorNr)))
+		if (!MVGameController.Game.TeamManager.IsTeamActive(MVGameController.Game.TeamManager.GetTeamFromActorNr(OwnerActorNr)))
 		{
-			List<MVTeam> teamList = MVGameController.Instance.Game.TeamManager.GetTeamList();
-			MVGameController.Instance.Game.SetTeam((teamList.Count != 1) ? teamList[0] : MVTeam.None);
+			List<MVTeam> teamList = MVGameController.Game.TeamManager.GetTeamList();
+			MVGameController.Game.SetTeam(teamList[0]);
 		}
-		respawnTime = Time.time;
-		ResetAvatar();
-		MVCheckpoint checkpoint = MVGameController.Instance.Game.LocalPlayer.GetCheckpoint();
+		ResetAvatar(toHiddenState);
+		MVCheckpoint checkpoint = MVGameController.Game.LocalPlayer.GetCheckpoint();
 		if (checkpoint != null)
 		{
-			gameObject.transform.position = checkpoint.WorldPosition;
-			gameObject.transform.rotation = checkpoint.WorldRotation;
-			MVGameController.Instance.Game.CameraController.Respawn();
+			SetSpawnTransform(checkpoint.WorldPosition, checkpoint.WorldRotation);
 		}
 		else
 		{
-			MVLogicObject validSpawnPoint = MVGameController.Instance.WOCM.GetValidSpawnPoint();
+			MVLogicObject validSpawnPoint = MVGameController.WOCM.GetValidSpawnPoint();
 			if (validSpawnPoint == null)
 			{
-				Debug.LogError((object)"No spawn-point found on planet!");
+				Debug.LogError("No spawn-point found on planet!");
 			}
 			else
 			{
-				if (suicide && state != AvatarState.Dead)
-				{
-					Debug.Log((object)"Avatar dead");
-					MVGameController.Instance.Game.PostGameMsg(MVGameMsgType.AvatarKilled, GameMessages.MakePlayerKilledMessage(MVGameController.Instance.Game.LocalPlayerActorNumber, MVGameController.Instance.Game.LocalPlayerActorNumber, PlayerKilledByType.Suicide));
-				}
-				GameObject.transform.position = validSpawnPoint.WorldPosition;
-				GameObject.transform.rotation = validSpawnPoint.WorldRotation;
-				MVGameController.Instance.Game.CameraController.Respawn();
+				SetSpawnTransform(validSpawnPoint.WorldPosition, validSpawnPoint.WorldRotation);
 			}
 		}
 		if (Respawned != null)
@@ -431,10 +447,26 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		}
 	}
 
+	public void Suicide()
+	{
+		if (state != AvatarState.Dead)
+		{
+			Die();
+		}
+	}
+
+	private void SetSpawnTransform(Vector3 position, Quaternion rotation)
+	{
+		GameObject.transform.position = position;
+		GameObject.transform.rotation = rotation;
+		MVGameController.Game.CameraController.Respawn();
+		avatarMotor.Reset();
+	}
+
 	protected override void AttachBody(MVBody newBody)
 	{
 		base.AttachBody(newBody);
-		if (!MVGameController.Instance.Game.IsPlaying)
+		if (!MVGameController.Game.IsPlaying)
 		{
 			newBody.Visible = false;
 		}
@@ -442,63 +474,67 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		{
 			newBody.Visible = true;
 		}
-		MVGameController.Instance.Game.TransferOwnership(newBody.Id, 0, null);
+		MVGameController.Game.TransferOwnership(newBody.Id, 0, null);
 		foreach (MVWorldObjectClient child in newBody.Children)
 		{
-			MVGameController.Instance.Game.TransferOwnership(child.Id, 0, null);
+			MVGameController.Game.TransferOwnership(child.Id, 0, null);
 		}
 	}
 
 	private void DieByFalling()
 	{
 		Health.Value = 0f;
-		MVGameController.Instance.Game.PostGameMsg(MVGameMsgType.AvatarKilled, GameMessages.MakePlayerKilledMessage(MVGameController.Instance.Game.LocalPlayerActorNumber, MVGameController.Instance.Game.LocalPlayerActorNumber, PlayerKilledByType.FallOffWorld));
+		MVGameController.Game.PostGameMsg(MVGameMsgType.AvatarKilled, GameMessages.MakePlayerKilledMessage(MVGameController.Game.LocalPlayerActorNumber, MVGameController.Game.LocalPlayerActorNumber, PlayerKilledByType.FallOffWorld));
 	}
 
 	private void RotateAvatarToFiringDirection()
 	{
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
 		Vector3 lookDirection = avatarPickupOwner.LookDirection;
 		lookDirection.y = 0f;
-		((Component)avatarMotor.CharacterController).transform.forward = lookDirection;
+		avatarMotor.OverrideDirection(lookDirection);
 	}
 
 	private void InitializeCamera()
 	{
-		if (MVGameController.Instance.Game.GameMode == MVGameMode.Play)
+		if (MVGameController.GameMode == MVGameMode.Play)
 		{
-			MVGameController.Instance.Game.CameraController.SetCamera(CameraType.ThirdPerson);
+			MVGameController.Game.CameraController.SetPlayModeCam();
 		}
 		else
 		{
-			MVGameController.Instance.Game.CameraController.SetCamera(CameraType.JetPackCamera);
+			MVGameController.Game.CameraController.SetCamera(CameraType.JetPackCamera);
 		}
 	}
 
 	private void FixedUpdateCurrentMode(MovementMap movementMap)
 	{
-		if (((Behaviour)RigidBody).enabled)
+		if (RigidBody.enabled)
 		{
 			Mode.FixedUpdate(movementMap);
-			State = MVWorldObjectState.Dirty;
 		}
 	}
 
 	private void Initialize(AvatarPickupOwner pickupOwner, AvatarMotor avatarMotor)
 	{
-		//IL_0128: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0147: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0166: Unknown result type (might be due to invalid IL or missing references)
-		thirdPersonCam = MVGameController.Instance.Game.CameraController.GetCamera<ThirdPersonCamera>();
+		switch (GameDB.GameType)
+		{
+		case MVGameType.Classic:
+			playmodeCam = MVGameController.Game.CameraController.GetCamera<ThirdPersonCamera>();
+			break;
+		case MVGameType.Platformer:
+			playmodeCam = MVGameController.Game.CameraController.GetCamera<PlatformerCamera>();
+			break;
+		}
 		this.pickupOwner = pickupOwner;
 		pickupOwner.onHandleFiring = (MVPickupOwner.OnHandleFiringDelegate)Delegate.Combine(pickupOwner.onHandleFiring, new MVPickupOwner.OnHandleFiringDelegate(OnHandleFiring));
-		pickupGUI = new PickupGUI(pickupOwner);
+		if (GameDB.IsClassicGame)
+		{
+			pickupGUI = new PickupGUI(pickupOwner);
+		}
 		modes = new AvatarModes();
 		modes.JetPackMode = new JetPackMode(this);
 		modes.WalkMode = new WalkMode(this, avatarMotor);
-		if (MVGameController.Instance.Game.GameMode == MVGameMode.Edit)
+		if (MVGameController.GameMode == MVGameMode.Edit)
 		{
 			Mode = modes.JetPackMode;
 			state = AvatarState.Editing;
@@ -506,7 +542,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		else
 		{
 			Mode = modes.WalkMode;
-			state = AvatarState.Playing;
+			state = AvatarState.Hidden;
 		}
 		MVRuntimeDataVariableClampedFloat health = Health;
 		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object obj) =>
@@ -516,27 +552,8 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 				Die();
 			}
 		}));
-		UXCamera uXCamera = UXUtils.FindGUIObjectOfType<UXCamera>();
-		if (Object.op_Implicit((Object)(object)uXCamera))
-		{
-			Camera camera = ((Component)uXCamera).camera;
-			HealthBar componentInChildren = gameObject.GetComponentInChildren<HealthBar>();
-			((Component)componentInChildren).transform.parent = ((Component)camera).transform;
-			((Component)componentInChildren).transform.localRotation = Quaternion.identity;
-			((Component)componentInChildren).transform.localPosition = new Vector3(0f, 92f, 9f);
-			((Component)componentInChildren).transform.localScale = new Vector3(70f, 45f, 1f);
-			Renderer[] componentsInChildren = ((Component)componentInChildren).GetComponentsInChildren<Renderer>();
-			Renderer[] array = componentsInChildren;
-			foreach (Renderer val in array)
-			{
-				((Component)val).gameObject.layer = LayerMask.NameToLayer("UXElement");
-			}
-		}
-		else
-		{
-			Debug.LogWarning((object)"Cannot find UX Camera to place health bar under!");
-		}
-		respawnTime = Time.time;
+		HealthBar componentInChildren = gameObject.GetComponentInChildren<HealthBar>();
+		UnityEngine.Object.Destroy(componentInChildren.gameObject);
 	}
 
 	private void HandleStuck()
@@ -544,17 +561,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		if (state == AvatarState.Playing)
 		{
 			Die();
-			MVGameController.Instance.Game.PostGameMsg(MVGameMsgType.AvatarKilled, GameMessages.MakePlayerKilledMessage(MVGameController.Instance.Game.LocalPlayerActorNumber, MVGameController.Instance.Game.LocalPlayerActorNumber, PlayerKilledByType.Crushed));
-		}
-	}
-
-	public void Suicide()
-	{
-		if (state != AvatarState.Dead)
-		{
-			Die();
-			Debug.Log((object)"Avatar dead");
-			MVGameController.Instance.Game.PostGameMsg(MVGameMsgType.AvatarKilled, GameMessages.MakePlayerKilledMessage(MVGameController.Instance.Game.LocalPlayerActorNumber, MVGameController.Instance.Game.LocalPlayerActorNumber, PlayerKilledByType.Suicide));
+			MVGameController.Game.PostGameMsg(MVGameMsgType.AvatarKilled, GameMessages.MakePlayerKilledMessage(MVGameController.Game.LocalPlayerActorNumber, MVGameController.Game.LocalPlayerActorNumber, PlayerKilledByType.Crushed));
 		}
 	}
 
@@ -566,7 +573,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 			deadTime = Time.time;
 			SetAnimation("Dead");
 			MVEquipable component = gameObject.GetComponent<MVEquipable>();
-			if ((Object)(object)component != (Object)null)
+			if (component != null)
 			{
 				component.Unequip();
 			}
@@ -575,57 +582,88 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 				LeaveVehicle();
 			}
 			MVTriggerHandler component2 = gameObject.GetComponent<MVTriggerHandler>();
-			if ((Object)(object)component2 == (Object)null)
+			if (component2 == null)
 			{
-				Debug.LogError((object)"TriggerHandler on avatar is null");
+				Debug.LogError("TriggerHandler on avatar is null");
 			}
 			else
 			{
-				((Behaviour)component2).enabled = false;
+				component2.enabled = false;
 			}
 		}
 	}
 
-	private void ResetAvatar()
+	private void ResetAvatar(bool toHiddenState)
 	{
 		showingRespawnDelay = false;
-		State = MVWorldObjectState.Dirty;
 		SetAnimation("Idle");
 		RigidBody.Reset();
 		Health.Value = 100f;
 		if (IsSeated)
 		{
-			Debug.Log((object)"Left vehicle");
+			Debug.Log("Left vehicle");
 			LeaveVehicle();
 		}
 		MVEquipable component = GameObject.GetComponent<MVEquipable>();
-		if ((Object)(object)component != (Object)null)
+		if (component != null)
 		{
 			component.Unequip();
 		}
-		if ((Object)(object)interactableLocal != (Object)null)
+		if (interactableLocal != null)
 		{
 			interactableLocal.ClearModifiers();
 		}
 		AvatarState avatarState = AvatarState.Playing;
-		if (MVGameController.Instance.EditController != null && !MVGameController.Instance.EditController.PlayInEditor)
+		if (toHiddenState || state == AvatarState.Hidden)
+		{
+			avatarState = AvatarState.Hidden;
+		}
+		if (MVGameController.EditController != null && !MVGameController.Game.IsPlaying)
 		{
 			avatarState = AvatarState.Editing;
 		}
 		state = avatarState;
+		if (state == AvatarState.Hidden)
+		{
+			LockCursorManager.LockCursor = false;
+		}
+		switch (state)
+		{
+		case AvatarState.Hidden:
+			ToHidden();
+			break;
+		case AvatarState.Playing:
+			ToPlay();
+			break;
+		case AvatarState.Editing:
+			ToEdit();
+			break;
+		case AvatarState.Dead:
+			break;
+		}
+	}
+
+	private void ToEdit()
+	{
+		AvatarRuntimeDataState.Value = (byte)2;
+	}
+
+	private void ToPlay()
+	{
+		respawnTime = Time.time;
+		AvatarRuntimeDataState.Value = (byte)1;
+	}
+
+	private void ToHidden()
+	{
+		AvatarRuntimeDataState.Value = (byte)0;
 	}
 
 	private void OnHandleFiring(bool isFiring)
 	{
-		//IL_0027: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002c: Unknown result type (might be due to invalid IL or missing references)
-		if (InGunMode && isFiring && ((Behaviour)RigidBody).enabled)
+		if (InGunMode && isFiring && RigidBody.enabled && RigidBody.Velocity.sqrMagnitude < 0.01f)
 		{
-			Vector3 velocity = RigidBody.Velocity;
-			if (velocity.sqrMagnitude < 0.01f)
-			{
-				RotateAvatarToFiringDirection();
-			}
+			RotateAvatarToFiringDirection();
 		}
 	}
 

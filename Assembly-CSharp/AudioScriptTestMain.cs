@@ -6,12 +6,12 @@ public class AudioScriptTestMain : MonoBehaviour
 
 	private void Awake()
 	{
-		scripts = ((Component)this).GetComponents<AudioScript>();
+		scripts = GetComponents<AudioScript>();
 		AudioScript[] array = scripts;
 		foreach (AudioScript audioScript in array)
 		{
 			audioScript.Test();
-			MonoBehaviour.print((object)((object)audioScript).GetType().Name);
+			MonoBehaviour.print(audioScript.GetType().Name);
 		}
 	}
 

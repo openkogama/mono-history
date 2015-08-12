@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
@@ -13,13 +12,9 @@ public class MVTimeTrigger : MVLogicObject
 
 	public override bool HasOutputConnector => true;
 
-	public MVTimeTrigger(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVTimeTrigger(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, "Prefabs/TimeTriggerObject", worldObjects)
 	{
-		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0039: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0043: Expected Obj, but got Unknown
 		interactionFlags |= InteractionFlags.HasSettings;
 		audioGO = (GameObject)Object.Instantiate(Resources.Load("Audio/AudioPrefabs/TimeTriggerSound"), Vector3.zero, Quaternion.identity);
 		audioGO.transform.parent = gameObject.transform;

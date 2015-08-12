@@ -1,5 +1,4 @@
 using System;
-using Localize;
 using MV.WorldObject;
 using UnityEngine;
 
@@ -16,10 +15,9 @@ public class MVGUICubeModel : MVGUIInventoryGroup
 		uXBucket.OnDropInto = (UXBucket.OnDropDelegate)Delegate.Combine(uXBucket.OnDropInto, (UXBucket.OnDropDelegate)((GameObject drop) =>
 		{
 			dropItem = collectionView.GetDraggedViewItem();
-			if ((Object)(object)dropItem != (Object)null)
+			if (dropItem != null)
 			{
-				UXUtils.FindGUIObjectOfType<UXDialogFactory>().CreateDialog(TextSlotIndex.DeleteConfirm, TextSlotIndex.DeleteHeadline).AddPositiveButton(TextSlotIndex.Confirm)
-					.AddNegativeButton(TextSlotIndex.Reject)
+				UXUtils.UXDialogFactory.CreateDialog(TM._("Are you sure\nwant to delete?"), TM._("Delete")).AddPositiveButton(TM._("Yes")).AddNegativeButton(TM._("No"))
 					.SetOnResultCallback(HandleRemoveItem)
 					.Show();
 			}
@@ -34,7 +32,7 @@ public class MVGUICubeModel : MVGUIInventoryGroup
 			if (item != null)
 			{
 				int itemID = (item.Object as MVItem).itemID;
-				MVGameController.Instance.Game.RemoveItemFromInventory(itemID);
+				MVGameController.Game.RemoveItemFromInventory(itemID);
 			}
 		}
 	}

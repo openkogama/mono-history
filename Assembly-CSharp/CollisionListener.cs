@@ -12,15 +12,15 @@ internal class CollisionListener : MonoBehaviour
 
 	private void Awake()
 	{
-		if ((Object)(object)((Component)this).gameObject.GetComponent<BoxCollider>() == (Object)null)
+		if (gameObject.GetComponent<BoxCollider>() == null)
 		{
-			((Component)this).gameObject.AddComponent<BoxCollider>();
+			gameObject.AddComponent<BoxCollider>();
 			hadBoxCollider = false;
 		}
-		body = ((Component)this).gameObject.GetComponent<Rigidbody>();
-		if ((Object)(object)body == (Object)null)
+		body = gameObject.GetComponent<Rigidbody>();
+		if (body == null)
 		{
-			body = ((Component)this).gameObject.AddComponent<Rigidbody>();
+			body = gameObject.AddComponent<Rigidbody>();
 			hadRigidBody = false;
 		}
 		else
@@ -36,28 +36,14 @@ internal class CollisionListener : MonoBehaviour
 
 	public bool SweepTest(Vector3 from, Vector3 to, out RaycastHit hit)
 	{
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0020: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0029: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0049: Unknown result type (might be due to invalid IL or missing references)
-		Vector3 position = ((Component)this).transform.position;
-		((Component)this).transform.position = from;
+		Vector3 position = transform.position;
+		transform.position = from;
 		bool result = false;
-		Rigidbody val = body;
-		Vector3 val2 = to - from;
-		Vector3 val3 = to - from;
-		if (val.SweepTest(val2, ref hit, val3.magnitude))
+		if (body.SweepTest(to - from, out hit, (to - from).magnitude))
 		{
 			result = true;
 		}
-		((Component)this).transform.position = position;
+		transform.position = position;
 		return result;
 	}
 
@@ -65,15 +51,15 @@ internal class CollisionListener : MonoBehaviour
 	{
 		if (!hadRigidBody)
 		{
-			Object.Destroy((Object)(object)((Component)this).gameObject.GetComponent<Rigidbody>());
+			Object.Destroy(gameObject.GetComponent<Rigidbody>());
 		}
 		else
 		{
-			((Component)this).gameObject.GetComponent<Rigidbody>().isKinematic = wasKinematic;
+			gameObject.GetComponent<Rigidbody>().isKinematic = wasKinematic;
 		}
 		if (!hadBoxCollider)
 		{
-			Object.Destroy((Object)(object)((Component)this).gameObject.GetComponent<BoxCollider>());
+			Object.Destroy(gameObject.GetComponent<BoxCollider>());
 		}
 	}
 }

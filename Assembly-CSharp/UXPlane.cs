@@ -10,57 +10,44 @@ public class UXPlane : UXGUIElement, IUXContainer
 
 	public string materialProperty = "_MainColor";
 
-	public UXPlane()
-	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-	}
-
 	public override void SetVisible(bool visible)
 	{
 		Visible = visible;
-		if ((Object)(object)((Component)this).collider != (Object)null)
+		if (GetComponent<Collider>() != null)
 		{
-			((Component)this).collider.enabled = visible;
+			GetComponent<Collider>().enabled = visible;
 		}
-		if ((Object)(object)((Component)this).renderer != (Object)null)
+		if (GetComponent<Renderer>() != null)
 		{
-			((Component)this).renderer.enabled = visible;
+			GetComponent<Renderer>().enabled = visible;
 		}
 	}
 
 	public void SetColor(Color color, string colorProperty = "")
 	{
-		//IL_0019: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Unknown result type (might be due to invalid IL or missing references)
 		if (colorProperty.Equals(string.Empty))
 		{
 			colorProperty = materialProperty;
 		}
 		_color = color;
-		((Component)this).renderer.material.SetColor(colorProperty, color);
+		GetComponent<Renderer>().material.SetColor(colorProperty, color);
 	}
 
 	public override void SetAlpha(float alpha, string colorProperty = "")
 	{
-		//IL_0025: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003d: Unknown result type (might be due to invalid IL or missing references)
 		if (colorProperty.Equals(string.Empty))
 		{
 			colorProperty = materialProperty;
 		}
-		_color = ((Component)this).renderer.material.GetColor(colorProperty);
+		_color = GetComponent<Renderer>().material.GetColor(colorProperty);
 		_color.a = alpha;
 		SetColor(_color, colorProperty);
 	}
 
 	public override void Awake()
 	{
-		//IL_0029: Unknown result type (might be due to invalid IL or missing references)
 		base.Awake();
-		UXUtils.AddComponentIfNotExists<MeshFilter>(((Component)this).gameObject).mesh = BuildMesh();
+		BuildMesh(UXUtils.AddComponentIfNotExists<MeshFilter>(gameObject).mesh);
 		if (_applyColorOnAwake)
 		{
 			SetColor(_color, materialProperty);
@@ -70,6 +57,6 @@ public class UXPlane : UXGUIElement, IUXContainer
 	public override void SetSize(float width, float height)
 	{
 		base.SetSize(width, height);
-		UXUtils.AddComponentIfNotExists<MeshFilter>(((Component)this).gameObject).mesh = BuildMesh();
+		BuildMesh(UXUtils.AddComponentIfNotExists<MeshFilter>(gameObject).mesh);
 	}
 }

@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,13 +13,12 @@ public class MVPointLight : MVLogicObject
 
 	public override bool HasOutputConnector => false;
 
-	public MVPointLight(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVPointLight(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, "Prefabs/DefaultPointLight", worldObjects)
 	{
-		//IL_004d: Unknown result type (might be due to invalid IL or missing references)
 		interactionFlags |= InteractionFlags.HasSettings;
 		lightComponent = gameObject.GetComponent<Light>();
-		((Behaviour)lightComponent).enabled = false;
+		lightComponent.enabled = false;
 		OnDataUpdate();
 		gameObject.transform.localScale = Vector3.one;
 	}
@@ -31,7 +29,7 @@ public class MVPointLight : MVLogicObject
 		OnDataUpdate();
 		if (InputLinkRefs.Count == 0)
 		{
-			((Behaviour)lightComponent).enabled = true;
+			lightComponent.enabled = true;
 		}
 		else
 		{
@@ -43,7 +41,7 @@ public class MVPointLight : MVLogicObject
 	{
 		if (InputLinkRefs.Count == 0)
 		{
-			((Behaviour)lightComponent).enabled = true;
+			lightComponent.enabled = true;
 		}
 		else
 		{
@@ -55,17 +53,16 @@ public class MVPointLight : MVLogicObject
 	{
 		if (InputState)
 		{
-			((Behaviour)lightComponent).enabled = true;
+			lightComponent.enabled = true;
 		}
 		else
 		{
-			((Behaviour)lightComponent).enabled = false;
+			lightComponent.enabled = false;
 		}
 	}
 
 	public override void OnDataUpdate()
 	{
-		//IL_0066: Unknown result type (might be due to invalid IL or missing references)
 		if (Data.ContainsKey("color"))
 		{
 			float[] array = (float[])Data["color"];
@@ -77,7 +74,7 @@ public class MVPointLight : MVLogicObject
 		}
 		else
 		{
-			Debug.LogWarning((object)"'OLD' light object discovered...updating the Data field to include light settings");
+			Debug.LogWarning("'OLD' light object discovered...updating the Data field to include light settings");
 		}
 	}
 }

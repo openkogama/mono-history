@@ -17,35 +17,29 @@ public class MVGUIPickDialog : UXCustomDialogBox
 
 	public override void OnShowDialog()
 	{
-		//IL_0029: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0033: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0060: Unknown result type (might be due to invalid IL or missing references)
 		base.OnShowDialog();
-		screen = UXUtils.FindGUIObjectOfType<UXScreen>();
-		Vector3 val = ((Component)DialogWindow).transform.InverseTransformPoint(screen.GetPosition(UXHorizontal.Left, UXVertical.Top, 0f));
-		val.z = 0f;
-		((Component)DialogWindow).transform.localPosition = val + new Vector3(9f, -3f, 0f);
+		screen = UXUtils.UXScreen;
+		Vector3 vector = DialogWindow.transform.InverseTransformPoint(screen.GetPosition(UXHorizontal.Left, UXVertical.Top, 0f));
+		vector.z = 0f;
+		DialogWindow.transform.localPosition = vector + new Vector3(9f, -3f, 0f);
 	}
 
 	private void Update()
 	{
-		if (!Input.GetMouseButtonUp(0))
+		if (!MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
 		{
 			return;
 		}
 		VoxelHit hit = default;
-		bool flag = MVGameController.Instance.WOCM.Pick(ref hit);
-		if (flag && (MVGameController.Instance.WOCM.IsType(hit.woId, WorldObjectType.CubeModelPrototypeTerrain) || hit.woId == -1))
+		bool flag = MVGameController.WOCM.Pick(ref hit);
+		if (flag && (MVGameController.WOCM.IsType(hit.woId, WorldObjectType.CubeModelPrototypeTerrain) || hit.woId == -1))
 		{
 			flag = false;
 		}
 		if (flag)
 		{
 			int woId = hit.woId;
-			if (MVObjectIsType(MVGameController.Instance.WOCM.GetWorldObjectClient(hit.woId).Transform, pickType, out woId))
+			if (MVObjectIsType(MVGameController.WOCM.GetWorldObjectClient(hit.woId).Transform, pickType, out woId))
 			{
 				pickedWOId = woId;
 				OnPositiveClose();
@@ -53,22 +47,22 @@ public class MVGUIPickDialog : UXCustomDialogBox
 			}
 			else
 			{
-				Debug.Log((object)("picked something else: " + MVGameController.Instance.WOCM.GetWorldObjectClient(hit.woId).GetType()));
+				Debug.Log("picked something else: " + MVGameController.WOCM.GetWorldObjectClient(hit.woId).GetType());
 			}
 		}
 	}
 
 	private bool MVObjectIsType(Transform t, Type type, out int woId)
 	{
-		MVWorldObjectClient worldObjectByGoId = MVGameController.Instance.WOCM.GetWorldObjectByGoId(((Object)((Component)t).gameObject).GetInstanceID());
+		MVWorldObjectClient worldObjectByGoId = MVGameController.WOCM.GetWorldObjectByGoId(t.gameObject.GetInstanceID());
 		if (worldObjectByGoId != null)
 		{
 			woId = worldObjectByGoId.Id;
-			if ((object)type == null)
+			if (type == null)
 			{
 				return true;
 			}
-			if (MVGameController.Instance.WOCM.IsType(woId, WorldObjectType.CubeModelPrototypeTerrain))
+			if (MVGameController.WOCM.IsType(woId, WorldObjectType.CubeModelPrototypeTerrain))
 			{
 				return false;
 			}
@@ -77,7 +71,7 @@ public class MVGUIPickDialog : UXCustomDialogBox
 				return true;
 			}
 		}
-		if ((Object)(object)t.parent != (Object)null)
+		if (t.parent != null)
 		{
 			return MVObjectIsType(t.parent, type, out woId);
 		}

@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -35,7 +34,7 @@ public class MVGUIAddToInventoryDevDialog : UXCustomDialogBox
 
 	private bool _isInitialized;
 
-	private MVWorldObjectClientManager WOCM => MVGameController.Instance.WOCM;
+	private MVWorldObjectClientManager WOCM => MVGameController.WOCM;
 
 	public override void OnShowDialog()
 	{
@@ -62,7 +61,7 @@ public class MVGUIAddToInventoryDevDialog : UXCustomDialogBox
 				}
 			}));
 			InitializeWoIDStep();
-			itemTypeComboBox.Add(MVGameController.Instance.Game.ItemCategories.GetNames());
+			itemTypeComboBox.Add(MVGameController.Game.ItemCategories.GetNames());
 			_isInitialized = true;
 		}
 		itemTypeComboBox.Close();
@@ -201,9 +200,9 @@ public class MVGUIAddToInventoryDevDialog : UXCustomDialogBox
 
 	private int FindParentID(Transform t)
 	{
-		if ((Object)(object)t.parent != (Object)null)
+		if (t.parent != null)
 		{
-			MVWorldObjectClient worldObjectByGoId = WOCM.GetWorldObjectByGoId(((Object)((Component)t.parent).gameObject).GetInstanceID());
+			MVWorldObjectClient worldObjectByGoId = WOCM.GetWorldObjectByGoId(t.parent.gameObject.GetInstanceID());
 			if (worldObjectByGoId != null)
 			{
 				return worldObjectByGoId.Id;
@@ -226,7 +225,7 @@ public class MVGUIAddToInventoryDevDialog : UXCustomDialogBox
 			text += "\nNo woID entered.";
 			flag = true;
 		}
-		if ((Object)(object)itemTypeComboBox.CurrentlySelectedItem == (Object)null)
+		if (itemTypeComboBox.CurrentlySelectedItem == null)
 		{
 			text += "\nNo ItemType chosen.";
 			flag = true;
@@ -240,12 +239,12 @@ public class MVGUIAddToInventoryDevDialog : UXCustomDialogBox
 
 	public override object GetResult()
 	{
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add("name", nameTextField.Text);
-		hashtable.Add("woId", int.Parse(woIdTextField.Text));
-		string name = (string)itemTypeComboBox.CurrentlySelectedItem.GetValue();
-		hashtable.Add("itemCategory", MVGameController.Instance.Game.ItemCategories.NameToID(name));
-		hashtable.Add("overWrite", overwriteToggle.ToggleState);
-		return hashtable;
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add("name", nameTextField.Text);
+		dictionary.Add("woId", int.Parse(woIdTextField.Text));
+		string text = (string)itemTypeComboBox.CurrentlySelectedItem.GetValue();
+		dictionary.Add("itemCategory", MVGameController.Game.ItemCategories.NameToID(text));
+		dictionary.Add("overWrite", overwriteToggle.ToggleState);
+		return dictionary;
 	}
 }

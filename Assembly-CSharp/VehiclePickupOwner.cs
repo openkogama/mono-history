@@ -13,7 +13,7 @@ public class VehiclePickupOwner : MVPickupOwner
 
 	public void OnLocalObjectsDestroyed()
 	{
-		Debug.Log((object)"OnLocalObjectsDestroyed");
+		Debug.Log("OnLocalObjectsDestroyed");
 		IsLocal = false;
 	}
 
@@ -23,12 +23,10 @@ public class VehiclePickupOwner : MVPickupOwner
 
 	protected override void Equip(AvatarItemType type, int variantId)
 	{
-		//IL_0020: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0030: Unknown result type (might be due to invalid IL or missing references)
 		PickupItem pickupItem = CreateAvatarItem(type, variantId);
-		((Component)pickupItem).transform.parent = mountTransform;
-		((Component)pickupItem).transform.localPosition = Vector3.zero;
-		((Component)pickupItem).transform.localRotation = Quaternion.identity;
+		pickupItem.transform.parent = mountTransform;
+		pickupItem.transform.localPosition = Vector3.zero;
+		pickupItem.transform.localRotation = Quaternion.identity;
 		if (onEquipItem != null)
 		{
 			onEquipItem(currentItem);
@@ -37,10 +35,10 @@ public class VehiclePickupOwner : MVPickupOwner
 
 	protected override void Unequip()
 	{
-		if (!((Object)(object)currentItem == (Object)null))
+		if (!(currentItem == null))
 		{
 			currentItem.OnUnequip();
-			Object.Destroy((Object)(object)((Component)currentItem).gameObject);
+			Object.Destroy(currentItem.gameObject);
 			currentItem = null;
 			if (onUnequipItem != null)
 			{

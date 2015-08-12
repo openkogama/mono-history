@@ -39,27 +39,18 @@ public class UXToolTipObject : UXViewScript
 
 	private UXInputDispatcher uxInputDispatcher;
 
-	public UXToolTipObject()
-	{
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-	}
-
 	public void ReadyToolTip(string toolTip, Vector3 position)
 	{
-		//IL_0073: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0074: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0079: Unknown result type (might be due to invalid IL or missing references)
-		if ((Object)(object)uxCamera == (Object)null)
+		if (uxCamera == null)
 		{
-			screen = UXUtils.FindGUIObjectOfType<UXScreen>();
+			screen = UXUtils.UXScreen;
 			UXScreen uXScreen = screen;
 			uXScreen.OnFullScreenChange = (UXScreen.OnFullScreenChangeDelegate)Delegate.Combine(uXScreen.OnFullScreenChange, (UXScreen.OnFullScreenChangeDelegate)((bool full) =>
 			{
 				UpdateScreenSize();
 			}));
 			uxCamera = screen.Camera;
-			uxInputDispatcher = UXUtils.FindGUIObjectOfType<UXInputDispatcher>();
+			uxInputDispatcher = UXUtils.UXInputDispatcher;
 			UpdateScreenSize();
 		}
 		currentToolTip = toolTip;
@@ -72,41 +63,19 @@ public class UXToolTipObject : UXViewScript
 
 	private void UpdateScreenSize()
 	{
-		//IL_0018: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0024: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0025: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0034: Unknown result type (might be due to invalid IL or missing references)
-		Vector2 val = new Vector2(uxCamera.GetScreenWidth(), uxCamera.GetScreenHeight());
-		screenSize = Vector2.op_Implicit(uxCamera.ScreenToWorldPoint(Vector2.op_Implicit(val)));
+		Vector2 vector = new Vector2(Screen.width, Screen.height);
+		screenSize = uxCamera.ScreenToWorldPoint(vector);
 	}
 
 	private void ShowToolTip()
 	{
-		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0047: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0058: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0059: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0064: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0069: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0097: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a4: Unknown result type (might be due to invalid IL or missing references)
 		View.Show();
 		toolTipText.Text = currentToolTip;
 		ScaleToolTipBox();
-		Vector2 val = toolTipWindow.Size.xy() * screen.Scale / 2f;
-		Vector2 offset = toolTipPosition.xy() + val + BOX_MOUSE_OFFSET;
-		DoBoundsFix(ref offset, val);
-		((Component)View).transform.position = new Vector3(offset.x, offset.y, ((Component)View).transform.position.z);
+		Vector2 vector = toolTipWindow.Size.xy() * screen.Scale / 2f;
+		Vector2 offset = toolTipPosition.xy() + vector + BOX_MOUSE_OFFSET;
+		DoBoundsFix(ref offset, vector);
+		View.transform.position = new Vector3(offset.x, offset.y, View.transform.position.z);
 		showing = true;
 	}
 
@@ -132,18 +101,13 @@ public class UXToolTipObject : UXViewScript
 
 	private void ScaleToolTipBox()
 	{
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0036: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003b: Unknown result type (might be due to invalid IL or missing references)
-		Vector2 val = Vector2.op_Implicit(toolTipText.Size);
-		toolTipWindow.SetSize(Vector2.op_Implicit(new Vector3(val.x + 1f, val.y + 1f, 1f)));
+		Vector2 vector = toolTipText.Size;
+		toolTipWindow.SetSize(new Vector3(vector.x + 1f, vector.y + 1f, 1f));
 	}
 
 	public void HandleOnMouseOver()
 	{
-		if (!((Object)(object)uxInputDispatcher != (Object)null) || !uxInputDispatcher.BlockGUIInput)
+		if (!(uxInputDispatcher != null) || !uxInputDispatcher.BlockGUIInput)
 		{
 			hp += Time.deltaTime * hpIncreaseRate;
 			if (hp > 1f)

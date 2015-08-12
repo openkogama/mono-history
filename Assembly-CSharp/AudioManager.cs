@@ -16,7 +16,7 @@ public class AudioManager : MonoBehaviour, IAudioManager
 
 	private void Awake()
 	{
-		Object.DontDestroyOnLoad((Object)(object)((Component)this).gameObject);
+		Object.DontDestroyOnLoad(gameObject);
 	}
 
 	private void Update()
@@ -27,7 +27,7 @@ public class AudioManager : MonoBehaviour, IAudioManager
 			if (!activeSound.audio.isPlaying)
 			{
 				activeSound.finished = true;
-				Object.Destroy((Object)(object)activeSound.go);
+				Object.Destroy(activeSound.go);
 				list.Add(activeSound);
 			}
 		}
@@ -39,24 +39,18 @@ public class AudioManager : MonoBehaviour, IAudioManager
 
 	public Sound Play(string name, AudioClip clip, Vector3 position, float volume, SoundRangeDistance range)
 	{
-		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0016: Expected Obj, but got Unknown
-		//IL_002d: Unknown result type (might be due to invalid IL or missing references)
-		GameObject val = new GameObject("Sound (" + name + ")");
-		val.transform.parent = ((Component)this).transform;
-		val.transform.position = position;
-		AudioSource val2 = val.AddComponent<AudioSource>();
-		val2.clip = clip;
-		val2.playOnAwake = false;
-		val2.volume = volume;
-		val2.loop = false;
-		val2.rolloffMode = (AudioRolloffMode)0;
-		val2.minDistance = GetMinDistanceFromRange(range);
-		val2.maxDistance = GetMaxDistanceFromRange(range);
-		val2.Play();
+		GameObject gameObject = (GameObject)Object.Instantiate(Resources.Load("Audio/BaseAudioManagerPrefab"));
+		gameObject.name = "Sound (" + name + ")";
+		gameObject.transform.parent = transform;
+		gameObject.transform.position = position;
+		AudioSource component = gameObject.GetComponent<AudioSource>();
+		component.clip = clip;
+		component.volume = volume;
+		component.maxDistance = GetMaxDistanceFromRange(range);
+		component.Play();
 		Sound sound = new Sound();
-		sound.go = val;
-		sound.audio = val2;
+		sound.go = gameObject;
+		sound.audio = component;
 		sound.finished = false;
 		activeSounds.Add(sound);
 		return sound;
@@ -64,25 +58,19 @@ public class AudioManager : MonoBehaviour, IAudioManager
 
 	public Sound Play(string name, AudioSource audioSource, Vector3 position)
 	{
-		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0016: Expected Obj, but got Unknown
-		//IL_002d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0062: Unknown result type (might be due to invalid IL or missing references)
-		GameObject val = new GameObject("Sound (" + name + ")");
-		val.transform.parent = ((Component)this).transform;
-		val.transform.position = position;
-		AudioSource val2 = val.AddComponent<AudioSource>();
-		val2.clip = audioSource.clip;
-		val2.playOnAwake = false;
-		val2.volume = audioSource.volume;
-		val2.loop = false;
-		val2.rolloffMode = audioSource.rolloffMode;
-		val2.minDistance = audioSource.minDistance;
-		val2.maxDistance = audioSource.maxDistance;
-		val2.Play();
+		GameObject gameObject = (GameObject)Object.Instantiate(Resources.Load("Audio/BaseAudioManagerPrefab"));
+		gameObject.name = "Sound (" + name + ")";
+		gameObject.transform.parent = transform;
+		gameObject.transform.position = position;
+		AudioSource component = gameObject.GetComponent<AudioSource>();
+		component.clip = audioSource.clip;
+		component.volume = audioSource.volume;
+		component.pitch = audioSource.pitch;
+		component.maxDistance = audioSource.maxDistance;
+		component.Play();
 		Sound sound = new Sound();
-		sound.go = val;
-		sound.audio = val2;
+		sound.go = gameObject;
+		sound.audio = component;
 		sound.finished = false;
 		activeSounds.Add(sound);
 		return sound;
@@ -103,10 +91,10 @@ public class AudioManager : MonoBehaviour, IAudioManager
 	{
 		return range switch
 		{
-			SoundRangeDistance.Short => 5f, 
-			SoundRangeDistance.Medium => 10f, 
+			SoundRangeDistance.Short => 20f, 
+			SoundRangeDistance.Medium => 30f, 
 			SoundRangeDistance.Long => 50f, 
-			_ => 10f, 
+			_ => 30f, 
 		};
 	}
 }

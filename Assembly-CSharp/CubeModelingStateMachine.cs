@@ -1,3 +1,4 @@
+using CodeStage.AntiCheat.ObscuredTypes;
 using MV.WorldObject;
 using UnityEngine;
 
@@ -5,7 +6,7 @@ public class CubeModelingStateMachine : FSMEntity
 {
 	public delegate void OnCurrentMaterialChangeDelegate(byte currentMaterialId, Material currentMaterial);
 
-	private byte currentMaterialId;
+	private ObscuredByte currentMaterialId = (byte)0;
 
 	private Material currentMaterial;
 
@@ -33,7 +34,7 @@ public class CubeModelingStateMachine : FSMEntity
 		}
 	}
 
-	public Material CurrentMaterial => MVGameController.Instance.Game.MaterialRepository.GetMaterial(currentMaterialId).material;
+	public Material CurrentMaterial => MVGameController.Game.MaterialRepository.GetMaterial(currentMaterialId).material;
 
 	public CubePickingInfo SelectedCube { get; set; }
 
@@ -79,7 +80,7 @@ public class CubeModelingStateMachine : FSMEntity
 	{
 		if (targetCubeModel == null)
 		{
-			Debug.Log((object)"Not set");
+			Debug.Log("Not set");
 			return;
 		}
 		SelectedCube = DoPicking();
@@ -89,26 +90,14 @@ public class CubeModelingStateMachine : FSMEntity
 
 	public CubePickingInfo DoPicking()
 	{
-		//IL_0018: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0039: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0044: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0049: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0059: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0068: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0072: Unknown result type (might be due to invalid IL or missing references)
 		CubePickingInfo info = new CubePickingInfo();
 		if (SharedCubeFunctions.GetPickingInfo(targetCubeModel, ref info))
 		{
 			Vector3 hit = Vector3.zero;
-			if (MVGameController.Instance.EditController.WorldEditorDrawPlane.Pick(ref hit))
+			if (MVGameController.EditController.WorldEditorDrawPlane.Pick(ref hit))
 			{
-				Vector3 val = hit - ((Component)Camera.main).transform.position;
-				float magnitude = val.magnitude;
-				Vector3 val2 = info.point - ((Component)Camera.main).transform.position;
-				float magnitude2 = val2.magnitude;
+				float magnitude = (hit - Camera.main.transform.position).magnitude;
+				float magnitude2 = (info.point - Camera.main.transform.position).magnitude;
 				if (magnitude - 0.01f < magnitude2)
 				{
 					return null;
@@ -121,7 +110,7 @@ public class CubeModelingStateMachine : FSMEntity
 
 	public void RemoveCursors()
 	{
-		Screen.showCursor = true;
+		Cursor.visible = true;
 		((CubeModelTool)currentState).HideCursor();
 	}
 
@@ -178,7 +167,7 @@ public class CubeModelingStateMachine : FSMEntity
 		bool flag = constraint.CanAddCubeAt(requestedCubePos);
 		if (!flag)
 		{
-			Debug.Log((object)string.Concat("Pos ", requestedCubePos, " not within constraint "));
+			Debug.Log(string.Concat("Pos ", requestedCubePos, " not within constraint "));
 		}
 		return flag;
 	}

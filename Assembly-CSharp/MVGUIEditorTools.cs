@@ -2,8 +2,6 @@ public class MVGUIEditorTools : UXViewScript
 {
 	public UXGroup editingTools;
 
-	public MVGUICurrentSelectedMaterialCube currentSelectedMaterialCube;
-
 	public UXIconButton newModelButton;
 
 	public UXIconButton aggregateInventoryButton;

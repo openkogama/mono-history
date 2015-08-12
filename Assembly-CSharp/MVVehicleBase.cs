@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -21,6 +20,19 @@ public abstract class MVVehicleBase : MVBlueprintBase
 
 		protected abstract MVVehicleBase Owner { get; }
 
+		public List<T> GetLocalComponents<T>() where T : Component
+		{
+			List<T> list = new List<T>();
+			foreach (Component localComponent in localComponents)
+			{
+				if (localComponent is T)
+				{
+					list.Add((T)localComponent);
+				}
+			}
+			return list;
+		}
+
 		public virtual void Destroy()
 		{
 			if (onDestroy != null)
@@ -29,7 +41,7 @@ public abstract class MVVehicleBase : MVBlueprintBase
 			}
 			foreach (Component localComponent in localComponents)
 			{
-				Object.Destroy((Object)(object)localComponent);
+				UnityEngine.Object.Destroy(localComponent);
 			}
 		}
 
@@ -39,6 +51,19 @@ public abstract class MVVehicleBase : MVBlueprintBase
 			{
 				onEnter();
 			}
+			List<MVRigidBody> list = GetLocalComponents<MVRigidBody>();
+			if (list.Count == 0)
+			{
+				Debug.LogWarning("Failed to get rigid bodies");
+			}
+			if (list.Count > 1)
+			{
+				Debug.LogWarning("More than 1 rigidBody. This is unexpected");
+			}
+			if (list.Count == 1)
+			{
+				list[0].IsPlayerControlled = true;
+			}
 		}
 
 		public virtual void Leave()
@@ -47,9 +72,22 @@ public abstract class MVVehicleBase : MVBlueprintBase
 			{
 				onLeave();
 			}
+			List<MVRigidBody> list = GetLocalComponents<MVRigidBody>();
+			if (list.Count == 0)
+			{
+				Debug.LogWarning("Failed to get rigid bodies");
+			}
+			if (list.Count > 1)
+			{
+				Debug.LogWarning("More than 1 rigidBody. This is unexpected");
+			}
+			if (list.Count > 0)
+			{
+				list[0].IsPlayerControlled = false;
+			}
 		}
 
-		public abstract MovementMap Update(MovementMap movementMap);
+		public abstract InteractionInput Update(InteractionInput interactionInput);
 
 		public abstract MovementMap FixedUpdate(MovementMap movementMap);
 
@@ -73,7 +111,7 @@ public abstract class MVVehicleBase : MVBlueprintBase
 			{
 				localAvatar.LeaveVehicle();
 			}
-			MVGameController.Instance.Game.PlayerController.OverrideRemoveTimeForDismountedWorldObject(Id, timeBeforeUnregisterAfterDeath);
+			MVGameController.Game.PlayerController.OverrideRemoveTimeForDismountedWorldObject(Id, timeBeforeUnregisterAfterDeath);
 			Owner.IsVehicleDead.Value = true;
 		}
 	}
@@ -90,9 +128,14 @@ public abstract class MVVehicleBase : MVBlueprintBase
 
 	public virtual bool IsInSpawner { get; private set; }
 
-	protected MVVehicleBase(Hashtable data, string vehiclePrefab, Dictionary<int, MVWorldObjectClient> worldObjects)
+	protected MVVehicleBase(Dictionary<object, object> data, string vehiclePrefab, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, vehiclePrefab, worldObjects)
 	{
+	}
+
+	public override void OnDataUpdate()
+	{
+		base.OnDataUpdate();
 	}
 
 	public override void Initialize()
@@ -106,6 +149,7 @@ public abstract class MVVehicleBase : MVBlueprintBase
 			IsInSpawner = true;
 		}
 		LayerUtil.SetLayerRecursively(transform, "Default", "Player");
+		interactionFlags |= InteractionFlags.CanUseGameCoins;
 	}
 
 	public void LeaveLocal()
@@ -115,7 +159,7 @@ public abstract class MVVehicleBase : MVBlueprintBase
 
 	public override void ChangeLOD(float distance)
 	{
-		if ((Object)(object)visualization != (Object)null)
+		if (visualization != null)
 		{
 			visualization.ChangeLOD(distance);
 		}
@@ -126,7 +170,7 @@ public abstract class MVVehicleBase : MVBlueprintBase
 	public void Enter(MVAvatar vehicleUser, int seatID)
 	{
 		int num = vehicleUser.OwnerActorNr;
-		bool flag = MVGameController.Instance.Game.LocalPlayer.ActorNr == num;
+		bool flag = MVGameController.Game.LocalPlayer.ActorNr == num;
 		seatManager.AttachWorldObjectToSeat(num, flag, vehicleUser, seatID);
 		if (flag)
 		{
@@ -134,7 +178,7 @@ public abstract class MVVehicleBase : MVBlueprintBase
 			{
 				localObjects = CreateLocalObjects(seatID, (MVAvatarLocal)vehicleUser);
 			}
-			MVGameController.Instance.Game.PlayerController.Push(localObjects);
+			MVGameController.Game.PlayerController.Push(localObjects);
 			((MVAvatarLocal)vehicleUser).SetAnimation("Idle");
 			localObjects.Enter();
 		}

@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Localize;
 using UnityEngine;
 
 public class MVGUIBMManageData : UXCustomDialogBox
@@ -41,7 +39,7 @@ public class MVGUIBMManageData : UXCustomDialogBox
 		}
 	}
 
-	public void BuildData(Hashtable data)
+	public void BuildData(Dictionary<object, object> data)
 	{
 		_unknownData = 0;
 		foreach (string key in data.Keys)
@@ -59,17 +57,17 @@ public class MVGUIBMManageData : UXCustomDialogBox
 		MVGUIBMDataLine mVGUIBMDataLine = null;
 		if (data is int)
 		{
-			mVGUIBMDataLine = (MVGUIBMIntDataLine)(object)Object.Instantiate((Object)(object)intLinePrefab);
+			mVGUIBMDataLine = UnityEngine.Object.Instantiate(intLinePrefab);
 		}
 		else if (data is float)
 		{
-			mVGUIBMDataLine = (MVGUIBMFloatDataLine)(object)Object.Instantiate((Object)(object)floatLinePrefab);
+			mVGUIBMDataLine = UnityEngine.Object.Instantiate(floatLinePrefab);
 		}
 		else if (data is string)
 		{
-			mVGUIBMDataLine = (MVGUIBMStringDataLine)(object)Object.Instantiate((Object)(object)stringLinePrefab);
+			mVGUIBMDataLine = UnityEngine.Object.Instantiate(stringLinePrefab);
 		}
-		if ((Object)(object)mVGUIBMDataLine != (Object)null)
+		if (mVGUIBMDataLine != null)
 		{
 			mVGUIBMDataLine.BuildLine(name, data);
 			mVGUIBMDataLine.OnRemoveDataLine = OnDeleteDataLine;
@@ -84,8 +82,8 @@ public class MVGUIBMManageData : UXCustomDialogBox
 	private void OnDeleteDataLine(UXLine line)
 	{
 		deleteLine = line;
-		DialogFactory.CreateDialog(TextSlotIndex.DeleteConfirm, TextSlotIndex.DeleteHeadline, UXDialogType.Simple, noButtons: false, stackDialog: true).SetOnResultCallback(OnDeleteDataResponse).AddPositiveButton(TextSlotIndex.Confirm)
-			.AddNegativeButton(TextSlotIndex.Reject)
+		DialogFactory.CreateDialog(TM._("Are you sure\nwant to delete?"), TM._("Delete"), UXDialogType.Simple, noButtons: false, stackDialog: true).SetOnResultCallback(OnDeleteDataResponse).AddPositiveButton(TM._("Yes"))
+			.AddNegativeButton(TM._("No"))
 			.Show();
 	}
 
@@ -114,10 +112,10 @@ public class MVGUIBMManageData : UXCustomDialogBox
 	{
 		if (dialogBox.DialogResult == UXDialogResult.Positive)
 		{
-			Hashtable hashtable = (Hashtable)dialogBox.GetResult();
-			string name = (string)hashtable["name"];
-			BlueprintManagerDataType type = (BlueprintManagerDataType)(int)hashtable["type"];
-			BuildDataLine(name, GetDefaultDataFromDataType(type));
+			Dictionary<object, object> dictionary = (Dictionary<object, object>)dialogBox.GetResult();
+			string text = (string)dictionary["name"];
+			BlueprintManagerDataType type = (BlueprintManagerDataType)(int)dictionary["type"];
+			BuildDataLine(text, GetDefaultDataFromDataType(type));
 		}
 	}
 
@@ -134,19 +132,19 @@ public class MVGUIBMManageData : UXCustomDialogBox
 
 	public override object GetResult()
 	{
-		Hashtable hashtable = new Hashtable();
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
 		foreach (UXLine line in dataBox.GetLines())
 		{
 			MVGUIBMDataLine mVGUIBMDataLine = (MVGUIBMDataLine)line;
 			if (mVGUIBMDataLine.GetName() != string.Empty && mVGUIBMDataLine.GetValue() != null)
 			{
-				hashtable.Add(mVGUIBMDataLine.GetName(), mVGUIBMDataLine.GetValue());
+				dictionary.Add(mVGUIBMDataLine.GetName(), mVGUIBMDataLine.GetValue());
 			}
 			else
 			{
-				Debug.Log((object)$"Ignoring data with name '{mVGUIBMDataLine.GetName()}' and value '{mVGUIBMDataLine.GetValue()}'");
+				Debug.Log($"Ignoring data with name '{mVGUIBMDataLine.GetName()}' and value '{mVGUIBMDataLine.GetValue()}'");
 			}
 		}
-		return hashtable;
+		return dictionary;
 	}
 }

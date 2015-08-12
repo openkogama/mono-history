@@ -2,10 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using CodeStage.AntiCheat.ObscuredTypes;
 using UnityEngine;
 
 public static class Extensions
 {
+	private static ObscuredString obscuredString = string.Empty;
+
 	public static string ToSerializeString(this Vector3 vec)
 	{
 		StringBuilder stringBuilder = new StringBuilder(vec.x.ToString());
@@ -16,8 +19,7 @@ public static class Extensions
 
 	public static Vector3 ToVector3FromSerializeString(this string text)
 	{
-		//IL_0044: Unknown result type (might be due to invalid IL or missing references)
-		string[] array = text.Split(new char[1] { ' ' });
+		string[] array = text.Split(' ');
 		if (array.Length != 3)
 		{
 			throw new ArgumentException("The input string doesnt contain 3 floats: " + text);
@@ -27,17 +29,17 @@ public static class Extensions
 
 	public static void Log<T>(this IEnumerable<T> collection, string prependInfo = null, bool eachEntryNewLine = true)
 	{
-		collection.Log((Action<string>)Debug.Log, prependInfo, eachEntryNewLine);
+		collection.Log(Debug.Log, prependInfo, eachEntryNewLine);
 	}
 
 	public static void LogWarning<T>(this IEnumerable<T> collection, string prependInfo = null, bool eachEntryNewLine = true)
 	{
-		collection.Log((Action<string>)Debug.LogWarning, prependInfo, eachEntryNewLine);
+		collection.Log(Debug.LogWarning, prependInfo, eachEntryNewLine);
 	}
 
 	public static void LogError<T>(this IEnumerable<T> collection, string prependInfo = null, bool eachEntryNewLine = true)
 	{
-		collection.Log((Action<string>)Debug.LogError, prependInfo, eachEntryNewLine);
+		collection.Log(Debug.LogError, prependInfo, eachEntryNewLine);
 	}
 
 	private static void Log<T>(this IEnumerable<T> collection, Action<string> logFunc, string prependInfo = null, bool eachEntryNewLine = true)
@@ -89,17 +91,17 @@ public static class Extensions
 
 	public static void LogRecursive(this IEnumerable collection, string prependInfo = null, bool eachEntryNewLine = true)
 	{
-		collection.LogRecursive((Action<string>)Debug.Log, prependInfo, eachEntryNewLine);
+		collection.LogRecursive(Debug.Log, prependInfo, eachEntryNewLine);
 	}
 
 	public static void LogWarningRecursive(this IEnumerable collection, string prependInfo = null, bool eachEntryNewLine = true)
 	{
-		collection.LogRecursive((Action<string>)Debug.LogWarning, prependInfo, eachEntryNewLine);
+		collection.LogRecursive(Debug.LogWarning, prependInfo, eachEntryNewLine);
 	}
 
 	public static void LogErrorRecursive(this IEnumerable collection, string prependInfo = null, bool eachEntryNewLine = true)
 	{
-		collection.LogRecursive((Action<string>)Debug.LogError, prependInfo, eachEntryNewLine);
+		collection.LogRecursive(Debug.LogError, prependInfo, eachEntryNewLine);
 	}
 
 	private static void LogRecursive(this IEnumerable collection, Action<string> logFunc, string prependInfo = null, bool eachEntryNewLine = true)
@@ -136,17 +138,17 @@ public static class Extensions
 			{
 				sb.Append(", ");
 			}
-			if (item is DictionaryEntry dictionaryEntry)
+			if (item is KeyValuePair<object, object> keyValuePair)
 			{
-				sb.Append("[k: ").Append(dictionaryEntry.Key.ToString()).Append(" v: ");
-				if (dictionaryEntry.Value is IEnumerable && !(dictionaryEntry.Value is string))
+				sb.Append("[k: ").Append(keyValuePair.Key.ToString()).Append(" v: ");
+				if (keyValuePair.Value is IEnumerable && !(keyValuePair.Value is string))
 				{
-					sb.AppendRecursive((IEnumerable)dictionaryEntry.Value, depth + 1, eachEntryNewLine);
+					sb.AppendRecursive((IEnumerable)keyValuePair.Value, depth + 1, eachEntryNewLine);
 					flag = true;
 				}
 				else
 				{
-					sb.Append((dictionaryEntry.Value != null) ? dictionaryEntry.Value.ToString() : "NULL");
+					sb.Append((keyValuePair.Value != null) ? keyValuePair.Value.ToString() : "NULL");
 					sb.Append(']');
 				}
 			}
@@ -175,66 +177,66 @@ public static class Extensions
 				.Append(item.Value)
 				.Append("]");
 		}
-		Debug.Log((object)stringBuilder.ToString());
+		Debug.Log(stringBuilder.ToString());
+	}
+
+	public static object GetObscuredType(this Dictionary<object, object> hashtable, string key)
+	{
+		obscuredString = key;
+		return hashtable[obscuredString];
+	}
+
+	public static void SetObscuredType<T>(this Dictionary<object, object> hashtable, string key, T value)
+	{
+		obscuredString = key;
+		hashtable[obscuredString] = value;
+	}
+
+	public static bool ContainsObscuredKey(this Dictionary<object, object> hashtable, string key)
+	{
+		obscuredString = key;
+		return hashtable.ContainsKey(obscuredString);
 	}
 
 	public static void ScaleBounds(this GameObject gameObject, float targetSize)
 	{
-		//IL_000e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0013: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0018: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0030: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0042: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0047: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0052: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0057: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0062: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0067: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0088: Unknown result type (might be due to invalid IL or missing references)
 		Bounds? axisAlignedBoundsRecursively = SharedCubeFunctions.GetAxisAlignedBoundsRecursively(gameObject.transform);
-		Bounds val = new Bounds(Vector3.zero, Vector3.one);
+		Bounds bounds = new Bounds(Vector3.zero, Vector3.one);
 		if (axisAlignedBoundsRecursively.HasValue)
 		{
-			val = axisAlignedBoundsRecursively.Value;
+			bounds = axisAlignedBoundsRecursively.Value;
 		}
 		else
 		{
-			Debug.Log((object)"Failed to find bounds!");
+			Debug.Log("Failed to find bounds!");
 		}
-		float num = Mathf.Max(val.size.x, Mathf.Max(val.size.y, val.size.z));
+		float num = Mathf.Max(bounds.size.x, Mathf.Max(bounds.size.y, bounds.size.z));
 		float num2 = targetSize / num;
 		gameObject.transform.localScale = new Vector3(num2, num2, num2);
 	}
 
 	public static Transform FindChildRecursively(this Transform transform, string child)
 	{
-		//IL_0014: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001a: Expected Obj, but got Unknown
-		//IL_0077: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007d: Expected Obj, but got Unknown
-		Transform val = null;
+		Transform transform2 = null;
 		foreach (Transform item in transform)
 		{
-			Transform val2 = item;
-			if (((Object)val2).name == child)
+			if (item.name == child)
 			{
-				val = val2;
+				transform2 = item;
 				break;
 			}
 		}
-		if ((Object)(object)val == (Object)null)
+		if (transform2 == null)
 		{
 			foreach (Transform item2 in transform)
 			{
-				Transform transform2 = item2;
-				val = transform2.FindChildRecursively(child);
-				if ((Object)(object)val != (Object)null)
+				transform2 = item2.FindChildRecursively(child);
+				if (transform2 != null)
 				{
-					return val;
+					return transform2;
 				}
 			}
 		}
-		return val;
+		return transform2;
 	}
 }

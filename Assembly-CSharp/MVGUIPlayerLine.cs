@@ -49,24 +49,20 @@ public class MVGUIPlayerLine : UXLine
 		}
 		levelText.Text = string.Empty;
 		playersText.Text = text;
-		MVPlayer mVPlayer = player;
-		mVPlayer.OnScoreUpdated = (MVPlayer.OnScoreUpdatedDelegate)Delegate.Combine(mVPlayer.OnScoreUpdated, new MVPlayer.OnScoreUpdatedDelegate(UpdateScore));
-		scoreText.Text = player.Score + string.Empty;
+		scoreText.Text = data.player.GetGameStat(GameStatCounterType.Kill).ToString();
 		InitializeListeners();
 	}
 
 	public void UpdateLine(PlayerData data)
 	{
-		//IL_005f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0099: Unknown result type (might be due to invalid IL or missing references)
 		player = data.player;
 		friend = data.friend;
-		scoreText.Text = player.Score + string.Empty;
+		scoreText.Text = data.Score.ToString();
 		if (friend != null && friend.status == FriendStatus.Accepted)
 		{
 			playersText.Color = Color.green;
 		}
-		if (player.IsAnonymous && player != MVGameController.Instance.Game.LocalPlayer)
+		if (player.IsAnonymous && player != MVGameController.Game.LocalPlayer)
 		{
 			playersText.Color = Color.gray;
 		}
@@ -78,15 +74,9 @@ public class MVGUIPlayerLine : UXLine
 		return player;
 	}
 
-	public override void DestroyLine()
-	{
-		MVPlayer mVPlayer = player;
-		mVPlayer.OnScoreUpdated = (MVPlayer.OnScoreUpdatedDelegate)Delegate.Remove(mVPlayer.OnScoreUpdated, new MVPlayer.OnScoreUpdatedDelegate(UpdateScore));
-	}
-
 	private void UpdateScore(int score)
 	{
-		scoreText.Text = score + string.Empty;
+		scoreText.Text = score.ToString();
 	}
 
 	public void OnMouseOver()
@@ -113,18 +103,51 @@ public class MVGUIPlayerLine : UXLine
 		UXIconButton uXIconButton = requestButton;
 		uXIconButton.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXIconButton.OnClick, (UXBaseButton.OnClickDelegate)(() =>
 		{
-			MVGameController.Instance.Game.RequestFriendShipByID(player.ProfileID);
+			try
+			{
+				ValidateFriendRequest();
+				MVGameController.Game.RequestFriendShipByID(player.ProfileID);
+			}
+			catch (Exception ex)
+			{
+				Debug.Log(ex.Message);
+				UXUtils.FindGUIObjectOfType<MVGUIChatWindow>().AddLine(ex.Message, Color.red);
+			}
 		}));
 		UXIconButton uXIconButton2 = acceptButton;
 		uXIconButton2.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXIconButton2.OnClick, (UXBaseButton.OnClickDelegate)(() =>
 		{
-			MVGameController.Instance.Game.RequestAcceptFriendShip(friend.friendID);
+			try
+			{
+				ValidateFriendRequest();
+				MVGameController.Game.RequestAcceptFriendShip(friend.friendID);
+			}
+			catch (Exception ex)
+			{
+				Debug.Log(ex.Message);
+				UXUtils.FindGUIObjectOfType<MVGUIChatWindow>().AddLine(ex.Message, Color.red);
+			}
 		}));
 		UXIconButton uXIconButton3 = cancelButton;
 		uXIconButton3.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXIconButton3.OnClick, (UXBaseButton.OnClickDelegate)(() =>
 		{
-			MVGameController.Instance.Game.RequestRejectFriendShip(friend.friendID);
+			MVGameController.Game.RequestRejectFriendShip(friend.friendID);
 		}));
+	}
+
+	private void ValidateFriendRequest()
+	{
+		int level = MVGameController.Game.LocalPlayer.Level;
+		int friendsLimit = BadgeManager.GetFriendsLimit(level);
+		int count = MVGameController.Game.Friends.Friends.Count;
+		if (count < friendsLimit)
+		{
+			return;
+		}
+		int num = level + 1;
+		int friendsLimit2 = BadgeManager.GetFriendsLimit(num);
+		string format = TM._("You can only have {0} friends at level {1}. Get to level {2} and you can have {3} friends.");
+		throw new Exception(string.Format(format, friendsLimit, level, num, friendsLimit2));
 	}
 
 	private void UpdateButtons()
@@ -133,17 +156,17 @@ public class MVGUIPlayerLine : UXLine
 		showRequestButton = false;
 		showCancelButton = false;
 		showPendingButton = false;
-		if (player.IsAnonymous || MVGameController.Instance.Game.LocalPlayer.IsAnonymous)
+		if (player.IsAnonymous || MVGameController.Game.LocalPlayer.IsAnonymous)
 		{
 			return;
 		}
-		if (friend == null && player != MVGameController.Instance.Game.LocalPlayer)
+		if (friend == null && player != MVGameController.Game.LocalPlayer)
 		{
 			showRequestButton = true;
 		}
 		else if (friend != null && friend.status == FriendStatus.Pending)
 		{
-			if (MVGameController.Instance.Game.Friends.Friends.ContainsValue(friend))
+			if (MVGameController.Game.Friends.Friends.ContainsValue(friend))
 			{
 				showPendingButton = true;
 			}

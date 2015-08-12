@@ -32,7 +32,7 @@ public class AudioScriptSFXCubes : MonoBehaviour
 
 	private void Awake()
 	{
-		cubeSFXSource = ((Component)this).gameObject.AddComponent<AudioSource>();
+		cubeSFXSource = gameObject.AddComponent<AudioSource>();
 		cubeSFXSource.playOnAwake = false;
 	}
 
@@ -71,52 +71,52 @@ public class AudioScriptSFXCubes : MonoBehaviour
 				cubeSFXSource.clip = sideDragIn;
 			}
 		}
-		Debug.Log((object)(cubeSFXSource.volume + "  " + cubeSFXSource.clip));
+		Debug.Log(cubeSFXSource.volume + "  " + cubeSFXSource.clip);
 		cubeSFXSource.Play();
 		cubeLength = newCubeLength;
 	}
 
 	private void Update()
 	{
-		if (Input.GetKeyDown("1"))
+		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.DrawAudioBox, forceKeyUse: false, 0))
 		{
 			Drag(1);
 		}
-		if (Input.GetKeyDown("2"))
+		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.DrawAudioBox, forceKeyUse: false, 1))
 		{
 			Drag(2);
 		}
-		if (Input.GetKeyDown("3"))
+		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.DrawAudioBox, forceKeyUse: false, 2))
 		{
 			Drag(3);
 		}
-		if (Input.GetKeyDown("4"))
+		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.DrawAudioBox, forceKeyUse: false, 3))
 		{
 			Drag(4);
 		}
-		if (Input.GetKeyDown("5"))
+		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.DrawAudioBox, forceKeyUse: false, 4))
 		{
 			Drag(5);
 		}
-		if (Input.GetKeyDown("6"))
+		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.DrawAudioBox, forceKeyUse: false, 5))
 		{
 			Drag(6);
 		}
-		if (Input.GetKeyDown("7"))
+		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.DrawAudioBox, forceKeyUse: false, 6))
 		{
 			Drag(7);
 		}
-		if (Input.GetKeyDown("8"))
+		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.DrawAudioBox, forceKeyUse: false, 7))
 		{
 			Drag(8);
 		}
-		if (Input.GetKeyDown("9"))
+		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.DrawAudioBox, forceKeyUse: false, 8))
 		{
 			Drag(9);
 		}
-		if (Input.GetKeyDown("0"))
+		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.DrawAudioBox, forceKeyUse: false, 9))
 		{
-			Drag(0);
+			Drag(10);
 		}
 	}
 }

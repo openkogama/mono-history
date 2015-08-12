@@ -24,24 +24,24 @@ public class MVGUIAvatarAccessoryShopPreview : MonoBehaviour
 
 	private void OnAvatarAccessoryCreated(AvatarAccessory createdAvatarAccessory)
 	{
-		//IL_002e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0038: Expected Obj, but got Unknown
-		if ((Object)(object)this == (Object)null || !((Component)this).gameObject.active)
+		if (this == null || !gameObject.activeInHierarchy)
 		{
-			Object.Destroy((Object)(object)((Component)createdAvatarAccessory).gameObject);
+			Object.Destroy(createdAvatarAccessory.gameObject);
 			return;
 		}
 		previewItemRoot = new GameObject("Preview Items Root - Avatar Accessory Shop Preview");
-		((MonoBehaviour)this).StartCoroutine(ItemViewRoutine(createdAvatarAccessory));
+		StartCoroutine(ItemViewRoutine(createdAvatarAccessory));
 	}
 
 	private IEnumerator ItemViewRoutine(AvatarAccessory createdAvatarAccessory)
 	{
-		objectPreviewer = ObjectPreviewer.Create(512, (CameraClearFlags)2, LayerFlags.Default | LayerFlags.CamRotateTarget, previewItemRoot.transform, "Preview Item", ((Component)createdAvatarAccessory).gameObject);
-		Material previewMaterial = new Material(ItemPreviewMaterial);
-		((Object)previewMaterial).hideFlags = (HideFlags)13;
-		previewMaterial.mainTexture = (Texture)(object)objectPreviewer.PreviewTexture;
-		((Component)ItemImagePlane).renderer.material = previewMaterial;
+		objectPreviewer = ObjectPreviewer.Create(512, CameraClearFlags.Color, LayerFlags.Default | LayerFlags.CamRotateTarget, previewItemRoot.transform, "Preview Item", createdAvatarAccessory.gameObject);
+		Material previewMaterial = new Material(ItemPreviewMaterial)
+		{
+			hideFlags = HideFlags.HideAndDontSave,
+			mainTexture = objectPreviewer.PreviewTexture
+		};
+		ItemImagePlane.GetComponent<Renderer>().material = previewMaterial;
 		loadingCircle.SetVisible(visible: false);
 		ItemImagePlane.SetVisible(visible: true);
 		yield return 0;
@@ -49,12 +49,11 @@ public class MVGUIAvatarAccessoryShopPreview : MonoBehaviour
 
 	private void Update()
 	{
-		//IL_001b: Unknown result type (might be due to invalid IL or missing references)
 		if (loadingCircle.Visible)
 		{
-			((Component)loadingCircle).transform.RotateAroundLocal(Vector3.forward, 20f * Time.deltaTime);
+			loadingCircle.transform.Rotate(Vector3.forward, 20f * Time.deltaTime * 57.29578f);
 		}
-		if ((Object)(object)objectPreviewer != (Object)null)
+		if (objectPreviewer != null)
 		{
 			objectPreviewer.UpdateRotation();
 		}
@@ -62,13 +61,13 @@ public class MVGUIAvatarAccessoryShopPreview : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		if ((Object)(object)objectPreviewer != (Object)null)
+		if (objectPreviewer != null)
 		{
 			objectPreviewer.Destroy();
 		}
-		if (Object.op_Implicit((Object)(object)previewItemRoot))
+		if ((bool)previewItemRoot)
 		{
-			Object.Destroy((Object)(object)previewItemRoot);
+			Object.Destroy(previewItemRoot);
 		}
 	}
 }

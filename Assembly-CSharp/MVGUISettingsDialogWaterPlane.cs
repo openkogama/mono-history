@@ -1,12 +1,11 @@
 using System.Collections.Generic;
-using Localize;
 using MV.WorldObject;
 
 public class MVGUISettingsDialogWaterPlane : MVGUIDynamicSettingsDialog
 {
 	public MVGUISettingsDialogWaterPlane()
 	{
-		UXDialogFactory uXDialogFactory = dialogFactory.CreateCustomDialog("Prefabs/GUI/Box Settings Dialogs/WaterPlaneSettingsDialog", TextSlotIndex.WaterPlaneBox).AddPositiveButton(TextSlotIndex.Ok).AddNegativeButton(TextSlotIndex.Cancel)
+		UXDialogFactory uXDialogFactory = dialogFactory.CreateCustomDialog("Prefabs/GUI/Box Settings Dialogs/WaterPlaneSettingsDialog", TM._("Water Plane")).AddPositiveButton(TM._("Ok")).AddNegativeButton(TM._("Cancel"))
 			.SetOnResultCallback(OnDialogResult)
 			.SetOnIntermediateResultCallback(OnIntermediateResult)
 			.SetValues(BuildDialogData());

@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
@@ -10,16 +9,6 @@ public static class BytePackerFunctionsVersion11
 {
 	public static BytePacker GetBytePackerFromKogamaDataPackage(KogamaDataPackage kogamaDataPackage, bool writeRuntimeData)
 	{
-		//IL_0175: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0187: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0199: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01ab: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01bd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01cf: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01e1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01f3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0205: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0217: Unknown result type (might be due to invalid IL or missing references)
 		BytePacker bytePacker = new BytePacker();
 		bytePacker.Write(kogamaDataPackage.prototypes.Count);
 		foreach (MVPrototype value in kogamaDataPackage.prototypes.Values)
@@ -64,7 +53,7 @@ public static class BytePackerFunctionsVersion11
 			if (writeRuntimeData)
 			{
 				WriteWorldObjectOwnerState(bytePacker, item);
-				WriteDataToBytePacker(bytePacker, item.runTimeData);
+				WriteDataToBytePacker(bytePacker, item.RunTimeData);
 			}
 		}
 		bytePacker.Write(kogamaDataPackage.links.Count);
@@ -117,7 +106,7 @@ public static class BytePackerFunctionsVersion11
 		bp.Position = bp.Length;
 	}
 
-	private static void WriteDataToBytePacker(BytePacker bp, Hashtable data)
+	private static void WriteDataToBytePacker(BytePacker bp, Dictionary<object, object> data)
 	{
 		bp.Write(data.Count);
 		foreach (string key in data.Keys)
@@ -155,10 +144,10 @@ public static class BytePackerFunctionsVersion11
 				}
 				continue;
 			}
-			if (data[key] is Hashtable)
+			if (data[key] is Dictionary<object, object>)
 			{
 				bp.Write((byte)8);
-				WriteDataToBytePacker(bp, (Hashtable)data[key]);
+				WriteDataToBytePacker(bp, (Dictionary<object, object>)data[key]);
 				continue;
 			}
 			if (data[key] is bool)
@@ -211,7 +200,7 @@ public static class BytePackerFunctionsVersion11
 		}
 	}
 
-	public static Hashtable GetDataParameters(BytePacker bp, KogamaDataType kogamaDataType, bool readRuntimeData)
+	public static Dictionary<object, object> GetDataParameters(BytePacker bp, KogamaDataType kogamaDataType, bool readRuntimeData)
 	{
 		return kogamaDataType switch
 		{
@@ -223,61 +212,55 @@ public static class BytePackerFunctionsVersion11
 		};
 	}
 
-	private static Hashtable GetPrototypeDataParameters(BytePacker bp)
+	private static Dictionary<object, object> GetPrototypeDataParameters(BytePacker bp)
 	{
 		int num = bp.ReadInt32();
 		float num2 = bp.ReadSingle();
 		int num3 = bp.ReadInt32();
 		int count = bp.ReadInt32();
 		byte[] value = bp.ReadBytes(count);
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add(PrototypeDataParameters.Id, num);
-		hashtable.Add(PrototypeDataParameters.Scale, num2);
-		hashtable.Add(PrototypeDataParameters.Data, value);
-		hashtable.Add(PrototypeDataParameters.AuthorProfileId, num3);
-		return hashtable;
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add(PrototypeDataParameters.Id, num);
+		dictionary.Add(PrototypeDataParameters.Scale, num2);
+		dictionary.Add(PrototypeDataParameters.Data, value);
+		dictionary.Add(PrototypeDataParameters.AuthorProfileId, num3);
+		return dictionary;
 	}
 
-	private static Hashtable GetWorldObjectDataParameters(BytePacker bp, bool readRuntimeData)
+	private static Dictionary<object, object> GetWorldObjectDataParameters(BytePacker bp, bool readRuntimeData)
 	{
-		//IL_0030: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0068: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0109: Unknown result type (might be due to invalid IL or missing references)
 		int num = bp.ReadInt32();
 		int num2 = bp.ReadInt32();
 		int num3 = bp.ReadInt32();
 		WorldObjectType worldObjectType = (WorldObjectType)bp.ReadInt32();
-		Vector3 val = new Vector3(bp.ReadSingle(), bp.ReadSingle(), bp.ReadSingle());
-		Quaternion val2 = new Quaternion(bp.ReadSingle(), bp.ReadSingle(), bp.ReadSingle(), bp.ReadSingle());
-		Vector3 val3 = new Vector3(bp.ReadSingle(), bp.ReadSingle(), bp.ReadSingle());
-		Hashtable hashtable = new Hashtable();
+		Vector3 vector = new Vector3(bp.ReadSingle(), bp.ReadSingle(), bp.ReadSingle());
+		Quaternion quaternion = new Quaternion(bp.ReadSingle(), bp.ReadSingle(), bp.ReadSingle(), bp.ReadSingle());
+		Vector3 vector2 = new Vector3(bp.ReadSingle(), bp.ReadSingle(), bp.ReadSingle());
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
 		int numNameValuePairs = bp.ReadInt32();
-		GetHashTableFromBytePacker(bp, hashtable, numNameValuePairs);
-		Hashtable hashtable2 = new Hashtable();
-		hashtable2.Add(WorldObjectDataParameters.Id, num);
-		hashtable2.Add(WorldObjectDataParameters.GroudId, num2);
-		hashtable2.Add(WorldObjectDataParameters.ItemId, num3);
-		hashtable2.Add(WorldObjectDataParameters.WorldObjectType, worldObjectType);
-		hashtable2.Add(WorldObjectDataParameters.Position, val);
-		hashtable2.Add(WorldObjectDataParameters.Rotation, val2);
-		hashtable2.Add(WorldObjectDataParameters.Scale, val3);
-		hashtable2.Add(WorldObjectDataParameters.Data, hashtable);
-		Hashtable hashtable3 = hashtable2;
+		GetHashTableFromBytePacker(bp, dictionary, numNameValuePairs);
+		Dictionary<object, object> dictionary2 = new Dictionary<object, object>();
+		dictionary2.Add(WorldObjectDataParameters.Id, num);
+		dictionary2.Add(WorldObjectDataParameters.GroudId, num2);
+		dictionary2.Add(WorldObjectDataParameters.ItemId, num3);
+		dictionary2.Add(WorldObjectDataParameters.WorldObjectType, worldObjectType);
+		dictionary2.Add(WorldObjectDataParameters.Position, vector);
+		dictionary2.Add(WorldObjectDataParameters.Rotation, quaternion);
+		dictionary2.Add(WorldObjectDataParameters.Scale, vector2);
+		dictionary2.Add(WorldObjectDataParameters.Data, dictionary);
+		Dictionary<object, object> dictionary3 = dictionary2;
 		if (readRuntimeData)
 		{
-			ReadWorldObjectOwnerState(bp, hashtable3);
+			ReadWorldObjectOwnerState(bp, dictionary3);
 			int numNameValuePairs2 = bp.ReadInt32();
-			Hashtable hashtable4 = new Hashtable();
-			GetHashTableFromBytePacker(bp, hashtable4, numNameValuePairs2);
-			hashtable3.Add(WorldObjectDataParameters.RuntimeData, hashtable4);
+			Dictionary<object, object> dictionary4 = new Dictionary<object, object>();
+			GetHashTableFromBytePacker(bp, dictionary4, numNameValuePairs2);
+			dictionary3.Add(WorldObjectDataParameters.RuntimeData, dictionary4);
 		}
-		return hashtable3;
+		return dictionary3;
 	}
 
-	private static void ReadWorldObjectOwnerState(BytePacker bp, Hashtable worldObjectData)
+	private static void ReadWorldObjectOwnerState(BytePacker bp, Dictionary<object, object> worldObjectData)
 	{
 		byte b = bp.ReadByte();
 		if ((b & 1) != 0)
@@ -292,31 +275,31 @@ public static class BytePackerFunctionsVersion11
 		}
 	}
 
-	private static Hashtable GetLinkDataParameters(BytePacker bp)
+	private static Dictionary<object, object> GetLinkDataParameters(BytePacker bp)
 	{
 		int num = bp.ReadInt32();
 		int num2 = bp.ReadInt32();
 		int num3 = bp.ReadInt32();
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add(LinkDataParameter.Id, num);
-		hashtable.Add(LinkDataParameter.OutputWOID, num2);
-		hashtable.Add(LinkDataParameter.InputWOID, num3);
-		return hashtable;
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add(LinkDataParameter.Id, num);
+		dictionary.Add(LinkDataParameter.OutputWOID, num2);
+		dictionary.Add(LinkDataParameter.InputWOID, num3);
+		return dictionary;
 	}
 
-	private static Hashtable GetObjectLinkDataParameters(BytePacker bp)
+	private static Dictionary<object, object> GetObjectLinkDataParameters(BytePacker bp)
 	{
 		int num = bp.ReadInt32();
 		int num2 = bp.ReadInt32();
 		int num3 = bp.ReadInt32();
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add(ObjectLinkDataParameter.Id, num);
-		hashtable.Add(ObjectLinkDataParameter.ObjectLinkConnectorWOID, num2);
-		hashtable.Add(ObjectLinkDataParameter.ObjectWOID, num3);
-		return hashtable;
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add(ObjectLinkDataParameter.Id, num);
+		dictionary.Add(ObjectLinkDataParameter.ObjectLinkConnectorWOID, num2);
+		dictionary.Add(ObjectLinkDataParameter.ObjectWOID, num3);
+		return dictionary;
 	}
 
-	private static void GetHashTableFromBytePacker(BytePacker bp, Hashtable data, int numNameValuePairs)
+	private static void GetHashTableFromBytePacker(BytePacker bp, Dictionary<object, object> data, int numNameValuePairs)
 	{
 		for (int i = 0; i < numNameValuePairs; i++)
 		{
@@ -355,12 +338,12 @@ public static class BytePackerFunctionsVersion11
 			case HashtableDataType.Int32HashtableKeysOnly:
 			{
 				int num5 = bp.ReadInt32();
-				Hashtable hashtable2 = new Hashtable();
+				Dictionary<object, object> dictionary2 = new Dictionary<object, object>();
 				for (int n = 0; n < num5; n++)
 				{
-					hashtable2.Add(bp.ReadInt32(), (byte)0);
+					dictionary2.Add(bp.ReadInt32(), (byte)0);
 				}
-				data.Add(key, hashtable2);
+				data.Add(key, dictionary2);
 				break;
 			}
 			case HashtableDataType.Bool:
@@ -382,10 +365,10 @@ public static class BytePackerFunctionsVersion11
 				break;
 			case HashtableDataType.Hashtable:
 			{
-				Hashtable hashtable = new Hashtable();
-				data.Add(key, hashtable);
+				Dictionary<object, object> dictionary = new Dictionary<object, object>();
+				data.Add(key, dictionary);
 				int numNameValuePairs2 = bp.ReadInt32();
-				GetHashTableFromBytePacker(bp, hashtable, numNameValuePairs2);
+				GetHashTableFromBytePacker(bp, dictionary, numNameValuePairs2);
 				break;
 			}
 			case HashtableDataType.Byte:

@@ -4,6 +4,5 @@ public enum MVWinningState
 {
 	NoWinner,
 	OneWinner,
-	SeveralWinners,
 	OrderedListOfWinners
 }

@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Localize;
 using MV.Common;
 using UnityEngine;
 
@@ -19,7 +17,7 @@ public class MVGUIAvatarAccessoryExpirationDialog : UXCustomDialogBox
 
 	public Transform previewRoot;
 
-	private ProductInventoryInfo<StreamingAssetInfo> productInventoryInfo;
+	private ProductInventoryInfo productInventoryInfo;
 
 	private StreamingAssetInfo streamingAssetInfo;
 
@@ -27,7 +25,7 @@ public class MVGUIAvatarAccessoryExpirationDialog : UXCustomDialogBox
 
 	private bool _isInitialized;
 
-	private MVNetworkGame Game => MVGameController.Instance.Game;
+	private MVNetworkGame Game => MVGameController.Game;
 
 	public override void OnShowDialog()
 	{
@@ -53,10 +51,8 @@ public class MVGUIAvatarAccessoryExpirationDialog : UXCustomDialogBox
 		okButton.SetVisible(visible: false);
 	}
 
-	public void BuildExpirationDialog(ProductInventoryInfo<StreamingAssetInfo> productInventoryInfo)
+	public void BuildExpirationDialog(ProductInventoryInfo productInventoryInfo)
 	{
-		//IL_00e2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f2: Unknown result type (might be due to invalid IL or missing references)
 		this.productInventoryInfo = productInventoryInfo;
 		streamingAssetInfo = productInventoryInfo.ProductInfo;
 		if (Game.StreamingAssetShopInventory.Contains(streamingAssetInfo.ProductID))
@@ -65,33 +61,31 @@ public class MVGUIAvatarAccessoryExpirationDialog : UXCustomDialogBox
 		}
 		else
 		{
-			expirationText.index = TextSlotIndex.Empty;
-			expirationText.Text = Localization.Instance.GetText(TextSlotIndex.ItemExpiredCantExtend);
+			expirationText.Text = TM._("Item can't be renewed and will now be removed.");
 			okButton.SetVisible(visible: true);
 			extendButton.SetVisible(visible: false);
 			removeButton.SetVisible(visible: false);
 		}
 		itemNameText.Text = streamingAssetInfo.Name;
-		Object val = Object.Instantiate(Resources.Load("Prefabs/GUI/ShopPreview/AvatarAccessoryShopPreview"));
-		MVGUIAvatarAccessoryShopPreview component = ((GameObject)((val is GameObject) ? val : null)).GetComponent<MVGUIAvatarAccessoryShopPreview>();
+		MVGUIAvatarAccessoryShopPreview component = (UnityEngine.Object.Instantiate(Resources.Load("Prefabs/GUI/ShopPreview/AvatarAccessoryShopPreview")) as GameObject).GetComponent<MVGUIAvatarAccessoryShopPreview>();
 		component.CreateNewViewItem(streamingAssetInfo);
-		((Component)component).transform.parent = previewRoot;
-		((Component)component).transform.localScale = Vector3.one;
-		((Component)component).transform.localPosition = Vector3.zero;
+		component.transform.parent = previewRoot;
+		component.transform.localScale = Vector3.one;
+		component.transform.localPosition = Vector3.zero;
 	}
 
 	public override object GetResult()
 	{
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add("oldInventoryID", productInventoryInfo.InventoryID);
-		hashtable.Add("newInventoryID", newInventoryID);
-		return hashtable;
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add("oldInventoryID", productInventoryInfo.InventoryID);
+		dictionary.Add("newInventoryID", newInventoryID);
+		return dictionary;
 	}
 
 	private void OpenShopDialog()
 	{
-		UXDialogFactory uXDialogFactory = UXUtils.FindGUIObjectOfType<UXDialogFactory>();
-		uXDialogFactory.CreateCustomDialog("Prefabs/GUI/Dialogs/AvatarAccessoryShopDialog", TextSlotIndex.Empty, noButtons: true, stackDialog: true).SetOnResultCallback(OnPurchaseDialogResult).SetValues(BuildDialogData())
+		UXDialogFactory uXDialogFactory = UXUtils.UXDialogFactory;
+		uXDialogFactory.CreateCustomDialog("Prefabs/GUI/Dialogs/AvatarAccessoryShopDialog", string.Empty, noButtons: true, stackDialog: true).SetOnResultCallback(OnPurchaseDialogResult).SetValues(BuildDialogData())
 			.Show();
 		MVGUIAvatarAccessoryShopDialog mVGUIAvatarAccessoryShopDialog = (MVGUIAvatarAccessoryShopDialog)uXDialogFactory.CurrentDialogBox;
 		mVGUIAvatarAccessoryShopDialog.BuildShopDialogForRentRenewal(streamingAssetInfo, productInventoryInfo.InventoryID);
@@ -110,12 +104,11 @@ public class MVGUIAvatarAccessoryExpirationDialog : UXCustomDialogBox
 			text = streamingAssetInfo.Desc,
 			useWordWrap = true
 		});
-		Object val = Object.Instantiate(Resources.Load("Prefabs/GUI/ShopPreview/AvatarAccessoryShopPreview"));
-		MVGUIAvatarAccessoryShopPreview component = ((GameObject)((val is GameObject) ? val : null)).GetComponent<MVGUIAvatarAccessoryShopPreview>();
+		MVGUIAvatarAccessoryShopPreview component = (UnityEngine.Object.Instantiate(Resources.Load("Prefabs/GUI/ShopPreview/AvatarAccessoryShopPreview")) as GameObject).GetComponent<MVGUIAvatarAccessoryShopPreview>();
 		component.CreateNewViewItem(streamingAssetInfo);
 		dictionary.Add("AccessoryPreview", new ProductPreviewData
 		{
-			productPreview = ((Component)component).gameObject
+			productPreview = component.gameObject
 		});
 		return dictionary;
 	}
@@ -124,18 +117,18 @@ public class MVGUIAvatarAccessoryExpirationDialog : UXCustomDialogBox
 	{
 		if (dialogBox.DialogResult == UXDialogResult.Positive)
 		{
-			Hashtable hashtable = (Hashtable)dialogBox.GetResult();
-			bool flag = (bool)hashtable["isRenting"];
-			int num = (int)hashtable[(byte)74];
-			long ticks = (long)hashtable[(byte)84];
+			Dictionary<object, object> dictionary = (Dictionary<object, object>)dialogBox.GetResult();
+			bool flag = (bool)dictionary["isRenting"];
+			int num = (int)dictionary[(byte)73];
+			long ticks = (long)dictionary[(byte)83];
 			DateTime purchaseTime = new DateTime(ticks);
 			if (!Game.StreamingAssetInventory.Contains(num))
 			{
-				AddToInventory(num, purchaseTime, hashtable, flag);
+				AddToInventory(num, purchaseTime, dictionary, flag);
 			}
 			if (flag)
 			{
-				HandleRent(num, purchaseTime, hashtable);
+				HandleRent(num, purchaseTime, dictionary);
 			}
 			newInventoryID = num;
 			OnPositiveClose();
@@ -143,10 +136,10 @@ public class MVGUIAvatarAccessoryExpirationDialog : UXCustomDialogBox
 		}
 	}
 
-	private void HandleRent(int invID, DateTime purchaseTime, Hashtable purchaseResponse)
+	private void HandleRent(int invID, DateTime purchaseTime, Dictionary<object, object> purchaseResponse)
 	{
-		int rentExpireSeconds = (int)purchaseResponse[(byte)81];
-		ProductInventoryInfo<StreamingAssetInfo> productInventoryInfo = Game.StreamingAssetInventory.Get(invID);
+		int rentExpireSeconds = (int)purchaseResponse[(byte)80];
+		ProductInventoryInfo productInventoryInfo = Game.StreamingAssetInventory.Get(invID);
 		productInventoryInfo.Renew(purchaseTime, rentExpireSeconds);
 		InventoryExpirationInfo expirationInfo = Game.StreamingAssetExpirationChecker.GetExpirationInfo(invID);
 		if (expirationInfo != null)
@@ -158,9 +151,9 @@ public class MVGUIAvatarAccessoryExpirationDialog : UXCustomDialogBox
 		Game.StreamingAssetExpirationChecker.AddExpirationInfo(expirationInfo);
 	}
 
-	private void AddToInventory(int invID, DateTime purchaseTime, Hashtable purchaseResponse, bool isRenting)
+	private void AddToInventory(int invID, DateTime purchaseTime, Dictionary<object, object> purchaseResponse, bool isRenting)
 	{
-		ProductInventoryInfo<StreamingAssetInfo> invInfo = new ProductInventoryInfo<StreamingAssetInfo>(invID, streamingAssetInfo, purchaseTime, isRenting);
+		ProductInventoryInfo invInfo = new ProductInventoryInfo(invID, streamingAssetInfo, purchaseTime, isRenting);
 		Game.StreamingAssetInventory.Add(invInfo);
 		Game.StreamingAssetInventory.NotifyProductInventoryChange();
 	}

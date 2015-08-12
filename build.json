@@ -1,18 +1,26 @@
 {
-    "id": "bdb78226-32c9-5a43-91a5-86f8137bfe4e",
-    "version": "1.9.0.1",
-    "unityVersion": "3.5.7f6",
-    "timestamp": 1405354409,
-    "sha256": "7ff2d9246c2e8bd92fef4daad986db791f30e0d14eefcaf2a43f306be3c0afa4",
+    "id": "9d5cf890-17c9-571b-9816-8d1973abcaef",
+    "version": "1.25.12.280",
+    "unityVersion": "5.1.1f1",
+    "timestamp": 1439379738,
+    "sha256": "eb761355cef4346a802d2b79e81f5df40cbda64d0e5403eae535d38261816886",
     "assemblies": [
         "Assembly-CSharp-firstpass.dll",
         "Assembly-CSharp.dll",
         "Assembly-UnityScript-firstpass.dll",
-        "Boo.Lang.dll",
-        "JsonFx.Json.dll",
         "MVCommon.dll",
         "MVWorldObject.dll",
+        "Mono.Security.dll",
         "Photon3Unity3D.dll",
-        "UnityScript.Lang.dll"
+        "SampleClassLibrary.dll",
+        "System.Core.dll",
+        "System.Xml.dll",
+        "System.dll",
+        "UnityEngine.Analytics.dll",
+        "UnityEngine.Networking.dll",
+        "UnityEngine.UI.dll",
+        "UnityEngine.dll",
+        "mscorlib.dll",
+        "websocket-sharp.dll"
     ]
 }

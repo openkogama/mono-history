@@ -1,8 +1,8 @@
-using System.Collections;
 using System.Collections.Generic;
+using CodeStage.AntiCheat.ObscuredTypes;
 using UnityEngine;
 
-public abstract class MVWorldObjectSpawner(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects) : MVBlueprintBase(data, worldObjects)
+public abstract class MVWorldObjectSpawner(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects) : MVBlueprintBase(data, worldObjects)
 {
 	private UseInteractor useInteractor;
 
@@ -14,21 +14,21 @@ public abstract class MVWorldObjectSpawner(Hashtable data, Dictionary<int, MVWor
 	{
 		base.Initialize();
 		int respawnInterval = (int)Data["RespawnInterval"];
-		int takenTime = (int)RunTimeData["UseTime"];
+		int takenTime = (ObscuredInt)RunTimeData.GetObscuredType("UseTime");
 		spawnStateWrapper = new SpawnStateWrapper(respawnInterval, takenTime, OnSpawnStateChange);
-		if (!childIdMap.Contains("spawnWorldObjectID"))
+		if (!childIdMap.ContainsKey("spawnWorldObjectID"))
 		{
-			Debug.LogError((object)"No spawnWorldObject");
+			Debug.LogError("No spawnWorldObject");
 			return;
 		}
 		spawnWorldObjectID = (int)childIdMap["spawnWorldObjectID"];
 		TriggerBoxEvents componentInChildren = gameObject.GetComponentInChildren<TriggerBoxEvents>();
-		if ((Object)(object)componentInChildren == (Object)null)
+		if (componentInChildren == null)
 		{
-			Debug.LogWarning((object)"Did not find triggerBoxEvents");
+			Debug.LogWarning("Did not find triggerBoxEvents");
 			return;
 		}
-		useInteractor = new UseInteractor(Id, reset: true, ((Component)componentInChildren).collider, Use);
+		useInteractor = new UseInteractor(Id, reset: true, componentInChildren.GetComponent<Collider>(), Use);
 		componentInChildren.TriggerEnterOverride += useInteractor.triggerBoxEvents_TriggerEnter;
 		componentInChildren.TriggerExitOverride += useInteractor.triggerBoxEvents_TriggerExit;
 	}
@@ -44,7 +44,7 @@ public abstract class MVWorldObjectSpawner(Hashtable data, Dictionary<int, MVWor
 
 	public virtual void Take(int takeTime)
 	{
-		RunTimeData["UseTime"] = takeTime;
+		RunTimeData.SetObscuredType("UseTime", (ObscuredInt)takeTime);
 		spawnStateWrapper.TakenTime = takeTime;
 	}
 
@@ -52,15 +52,15 @@ public abstract class MVWorldObjectSpawner(Hashtable data, Dictionary<int, MVWor
 	{
 		if (spawnState == SpawnState.None)
 		{
-			Debug.LogError((object)"SpawnState is none");
+			Debug.LogError("SpawnState is none");
 		}
 		switch (spawnState)
 		{
 		case SpawnState.Listening:
-			Debug.Log((object)"Switch to listening");
+			Debug.Log("Switch to listening");
 			break;
 		case SpawnState.Taken:
-			Debug.Log((object)"Switch to taken");
+			Debug.Log("Switch to taken");
 			break;
 		}
 	}

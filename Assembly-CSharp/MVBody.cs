@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using MV.Common;
@@ -16,7 +15,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 
 	private static string prefabPath = "Prefabs/Avatar/skeleton7";
 
-	private Hashtable accessoryData;
+	private Dictionary<object, object> accessoryData;
 
 	private BoneAnimation animation;
 
@@ -45,6 +44,8 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 	private bool accessoryParticlesVisible = true;
 
 	private bool collidersEnabled = true;
+
+	private bool accessoryMoveOverride;
 
 	private Dictionary<int, AvatatAccessoryPos> pendingAccessoryPositions = new Dictionary<int, AvatatAccessoryPos>();
 
@@ -82,7 +83,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 
 	private Vector3 modelScale = Vector3.zero;
 
-	private MVNetworkGame Game => MVGameController.Instance.Game;
+	private MVNetworkGame Game => MVGameController.Game;
 
 	public BoneAnimation Animation => animation;
 
@@ -159,15 +160,36 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		}
 	}
 
+	public bool AccessoryMoveOverride
+	{
+		get
+		{
+			return accessoryMoveOverride;
+		}
+		set
+		{
+			accessoryMoveOverride = value;
+			if (accessoryMoveOverride)
+			{
+				MakeAccessoriesSelectable();
+				return;
+			}
+			SelectionHelperAvatarAccessory[] componentsInChildren = gameObject.GetComponentsInChildren<SelectionHelperAvatarAccessory>(includeInactive: true);
+			SelectionHelperAvatarAccessory[] array = componentsInChildren;
+			foreach (SelectionHelperAvatarAccessory selectionHelperAvatarAccessory in array)
+			{
+				UnityEngine.Object.Destroy(selectionHelperAvatarAccessory.gameObject);
+			}
+		}
+	}
+
 	public bool AccessoriesLoaded => pendingAccessoryPositions.Count == 0;
 
 	public event EventHandler<EventArgs> AccessoriesChanged;
 
-	public MVBody(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVBody(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, prefabPath, worldObjects)
 	{
-		//IL_00bf: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c4: Unknown result type (might be due to invalid IL or missing references)
 		MVWorldObjectClient value = null;
 		if (worldObjects.TryGetValue(groupId, out value))
 		{
@@ -175,42 +197,23 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		}
 		GetComponents();
 		previewLayerMask |= LayerFlags.Player;
-	}
-
-	private void GetComponents()
-	{
-		if ((Object)(object)animation == (Object)null)
-		{
-			animation = gameObject.GetComponent<BoneAnimation>();
-		}
-		if ((Object)(object)blinker == (Object)null)
-		{
-			blinker = gameObject.GetComponent<AvatarBlinker>();
-		}
-		if ((Object)(object)shadowBlob == (Object)null)
-		{
-			shadowBlob = gameObject.GetComponentInChildren<AvatarBlobShadowController>();
-		}
-		if ((Object)(object)bodyData == (Object)null)
-		{
-			bodyData = gameObject.GetComponent<BodyData>();
-		}
+		gameObject.layer = LayerMask.NameToLayer("Player");
 	}
 
 	public override void Initialize()
 	{
 		if (initialized)
 		{
-			Debug.LogWarning((object)("Trying to initialize body " + id + " more than once"));
+			Debug.LogWarning("Trying to initialize body " + id + " more than once");
 			return;
 		}
 		base.Initialize();
-		InitializeCommon();
 		blinker.MeshFilters = gameObject.GetComponentsInChildren<MeshFilter>();
+		InitializeCommon();
 		if (attachedAvatar != null)
 		{
 			CollidersEnabled = false;
-			((Behaviour)shadowBlob).enabled = true;
+			shadowBlob.enabled = true;
 			attachedPartModels.ForEach((MVCubeModelInstance cmi) =>
 			{
 				cmi.ReactsToLODChanges = false;
@@ -219,9 +222,23 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		else
 		{
 			CollidersEnabled = true;
-			((Behaviour)shadowBlob).enabled = false;
+			shadowBlob.enabled = false;
 		}
 		initialized = true;
+	}
+
+	public void EditorSwapAccessoryAssetPath(int invID, string assetPath)
+	{
+		if (Application.isEditor)
+		{
+			if (!accessoryMap.ContainsKey(invID))
+			{
+				Debug.LogError(string.Format("Tried to swap asset path for of missing accessory, ID " + invID));
+				return;
+			}
+			string keyPath = "BlueprintData\\" + BlueprintData.AvatarAccessoryData.ToString("d") + "\\" + invID + "\\" + AvatarAccessoryData.AssetPath.ToString("d");
+			Game.UpdateWorldObjectDataPartial(Id, keyPath, assetPath);
+		}
 	}
 
 	public override void InitializeInventory()
@@ -229,17 +246,11 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		base.InitializeInventory();
 		InitializeCommon();
 		CollidersEnabled = false;
-		((Behaviour)shadowBlob).enabled = false;
+		shadowBlob.enabled = false;
 		attachedPartModels.ForEach((MVCubeModelInstance cmi) =>
 		{
 			cmi.ReactsToLODChanges = false;
 		});
-	}
-
-	private void InitializeCommon()
-	{
-		AttachCubes();
-		GetAccessoriesFromBPData();
 	}
 
 	public override void Destroy()
@@ -248,283 +259,45 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		AvatarAccessory[] array = accessoryMap.Values.ToArray();
 		foreach (AvatarAccessory acc in array)
 		{
-			DestroyAccessory(acc, calledFromDestroy: true);
-		}
-	}
-
-	private void UpdateVisibility()
-	{
-		foreach (Renderer renderer in renderers)
-		{
-			renderer.enabled = visible;
-		}
-		if (shadowVisible && (Object)(object)shadowBlob != (Object)null)
-		{
-			((Behaviour)shadowBlob).enabled = visible;
-		}
-		if ((Object)(object)blinker != (Object)null)
-		{
-			blinker.Visible = visible;
-		}
-		foreach (AvatarAccessory value in accessoryMap.Values)
-		{
-			if (value.Category == AvatarAccessoryCategory.Particles)
+			try
 			{
-				value.Visible = accessoryParticlesVisible && visible;
+				DestroyAccessory(acc, calledFromDestroy: true);
 			}
-			else
+			catch (Exception message)
 			{
-				value.Visible = visible;
+				Debug.LogError(message);
 			}
 		}
-	}
-
-	public void Attach(MVAvatar mvAvatar, bool isLocal)
-	{
-		attachedAvatar = mvAvatar;
-		if (attachedAvatar != null)
-		{
-			GetComponents();
-			if ((Object)(object)animation != (Object)null)
-			{
-				animation.Attach(attachedAvatar, isLocal);
-			}
-			if ((Object)(object)blinker != (Object)null)
-			{
-				blinker.Visible = visible;
-				blinker.Attach(mvAvatar);
-			}
-			CollidersEnabled = false;
-			((Behaviour)shadowBlob).enabled = true;
-			attachedPartModels.ForEach((MVCubeModelInstance cmi) =>
-			{
-				cmi.ReactsToLODChanges = false;
-			});
-		}
-	}
-
-	public void Detach()
-	{
-		Debug.Log((object)("Detaching body " + id));
-		animation.Detach();
-		if ((Object)(object)blinker != (Object)null)
-		{
-			blinker.Detach();
-		}
-		((Behaviour)shadowBlob).enabled = false;
-	}
-
-	private void GetAccessoriesFromBPData()
-	{
-		accessoryData = (Hashtable)blueprintData[BlueprintData.AvatarAccessoryData.ToString("d")];
-		if (accessoryData == null)
-		{
-			return;
-		}
-		HashSet<int> hashSet = new HashSet<int>();
-		foreach (DictionaryEntry accessoryDatum in accessoryData)
-		{
-			Hashtable hashtable = (Hashtable)accessoryDatum.Value;
-			int num = (int)hashtable[AvatarAccessoryData.InventoryID.ToString("d")];
-			string assetPath = (string)hashtable[AvatarAccessoryData.AssetPath.ToString("d")];
-			DateTime purchaseTime = new DateTime((long)hashtable[AvatarAccessoryData.PurchaseTimeTicks.ToString("d")]);
-			int num2 = (int)hashtable[AvatarAccessoryData.RentExpireSeconds.ToString("d")];
-			hashSet.Add(num);
-			AvatarAccessorySlot slot = (AvatarAccessorySlot)(int)hashtable[AvatarAccessoryData.Slot.ToString("d")];
-			float offset = (float)hashtable[AvatarAccessoryData.Offset.ToString("d")];
-			AvatatAccessoryPos value = new AvatatAccessoryPos
-			{
-				Slot = slot,
-				Offset = offset
-			};
-			if (!accessoryMap.ContainsKey(num))
-			{
-				if (!pendingAccessoryPositions.ContainsKey(num))
-				{
-					pendingAccessoryPositions[num] = value;
-					if (0 < num2)
-					{
-						if (!Game.StreamingAssetExpirationChecker.Contains(num))
-						{
-							InventoryExpirationInfo expInfo = new InventoryExpirationInfo(MVProductType.StreamingAsset, num, ProductExpirationState.Expiring, purchaseTime, num2);
-							Game.StreamingAssetExpirationChecker.AddExpirationInfo(expInfo);
-						}
-						else
-						{
-							Debug.LogWarning((object)("Body " + id + " not adding stored expiration data to checker"));
-						}
-					}
-					AvatarAccessory.Create(num, assetPath, purchaseTime, num2, LoadedAccessoryCallback);
-				}
-				else
-				{
-					Debug.Log((object)("Body " + id + " data contains multiple accessories with ID " + num));
-					Debug.LogError((object)"Body data contains multiple accessories with the same inventoryID. This is caused by user hiding and show accessories");
-				}
-			}
-			else
-			{
-				Debug.LogWarning((object)("Body " + id + " already has attached accessory " + num));
-			}
-		}
-		List<AvatarAccessory> list = new List<AvatarAccessory>();
-		foreach (KeyValuePair<int, AvatarAccessory> item in accessoryMap)
-		{
-			if (!hashSet.Contains(item.Key))
-			{
-				list.Add(item.Value);
-			}
-		}
-		if (0 < list.Count)
-		{
-			Debug.Log((object)("Body " + id + " removing accessories missing in bpData: " + list.BuildString(eachEntryNewLine: false)));
-			list.ForEach((AvatarAccessory a) =>
-			{
-				DestroyAccessory(a);
-			});
-		}
-		foreach (KeyValuePair<int, AvatarAccessory> item2 in accessoryMap)
-		{
-			if (AccessoryShouldBeSelecable(item2.Value))
-			{
-				MakeAccessorySelectable(item2.Value, item2.Value.Slot);
-			}
-		}
-	}
-
-	private void LoadedAccessoryCallback(AvatarAccessory accessory)
-	{
-		if (!((Object)(object)accessory == (Object)null))
-		{
-			if (accessory.ExpirationInfo != null)
-			{
-				Debug.Log((object)("Body " + id + " loaded acccessory: " + accessory.InventoryID + " expiring at " + accessory.ExpirationInfo.RentExpireTime));
-			}
-			else
-			{
-				Debug.Log((object)("Body " + id + " loaded acccessory: " + accessory.InventoryID + " NOT expiring"));
-			}
-			AvatatAccessoryPos avatatAccessoryPos = pendingAccessoryPositions[accessory.InventoryID];
-			pendingAccessoryPositions.Remove(accessory.InventoryID);
-			if (AttachAccessory(accessory, avatatAccessoryPos.Slot, avatatAccessoryPos.Offset) && AccessoryShouldBeSelecable(accessory))
-			{
-				MakeAccessorySelectable(accessory, avatatAccessoryPos.Slot);
-			}
-		}
-	}
-
-	private bool AccessoryShouldBeSelecable(AvatarAccessory accessory)
-	{
-		if (MVGameController.Instance.GameMode != MVGameMode.CharacterEditor)
-		{
-			return false;
-		}
-		if (accessory.Category != AvatarAccessoryCategory.Hat)
-		{
-			return false;
-		}
-		if ((object)Group.GetType() == typeof(MVAvatarLocal))
-		{
-			return false;
-		}
-		return true;
-	}
-
-	private void MakeAccessorySelectable(AvatarAccessory accessory, AvatarAccessorySlot accessorySlot)
-	{
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Expected Obj, but got Unknown
-		//IL_0048: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0059: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006a: Unknown result type (might be due to invalid IL or missing references)
-		MeshFilter[] componentsInChildren = ((Component)accessory.Transform).gameObject.GetComponentsInChildren<MeshFilter>();
-		MeshFilter[] array = componentsInChildren;
-		foreach (MeshFilter val in array)
-		{
-			GameObject val2 = new GameObject("SelectionHelper");
-			val2.transform.parent = ((Component)val).gameObject.transform;
-			val2.transform.localPosition = Vector3.zero;
-			val2.transform.localRotation = Quaternion.identity;
-			val2.transform.localScale = Vector3.one;
-			MeshCollider val3 = val2.AddComponent<MeshCollider>();
-			val3.sharedMesh = val.sharedMesh;
-			val2.layer = LayerMask.NameToLayer("Hidden");
-			SelectionHelperAvatarAccessory selectionHelperAvatarAccessory = val2.AddComponent<SelectionHelperAvatarAccessory>();
-			selectionHelperAvatarAccessory.Init(accessory, accessorySlot, Id);
-		}
-	}
-
-	private Transform GetSlotTransform(AvatarAccessorySlot slot)
-	{
-		if (slot == AvatarAccessorySlot.WholeBody)
-		{
-			return gameObject.transform;
-		}
-		return bodyData.GetPartBone(slotBoneNameMap[slot]);
 	}
 
 	public Vector3 GetSlotPosition(AvatarAccessorySlot slot, Vector3 offset)
 	{
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0019: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0026: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0074: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0079: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0088: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0092: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0093: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0095: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ab: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ac: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ae: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ba: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00bf: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c5: Unknown result type (might be due to invalid IL or missing references)
 		if (slot == AvatarAccessorySlot.WholeBody)
 		{
-			Vector3 val = gameObject.transform.position;
-			Bounds localBounds = GetLocalBounds(BoundsContext.Preview);
-			return val + localBounds.center + offset;
+			return gameObject.transform.position + GetLocalBounds(BoundsContext.Preview).center + offset;
 		}
 		string text = slotBoneNameMap[slot];
 		Transform partBone = bodyData.GetPartBone(text);
-		if ((Object)(object)partBone == (Object)null)
+		if (partBone == null)
 		{
-			Debug.LogError((object)$"Accessory: Failed to get bone {text} for slot {slot}");
+			Debug.LogError($"Accessory: Failed to get bone {text} for slot {slot}");
 		}
-		Vector3 val2 = partBone.position;
-		val2 += partBone.right * offset.x;
-		val2 += partBone.up * offset.y;
-		return val2 + partBone.forward * offset.z;
+		Vector3 vector = partBone.position;
+		vector += partBone.right * offset.x;
+		vector += partBone.up * offset.y;
+		return vector + partBone.forward * offset.z;
 	}
 
 	public bool AttachAccessory(AvatarAccessory acc, AvatarAccessorySlot slot, float offset)
 	{
 		if (slot == AvatarAccessorySlot.Undefined || !Enum.IsDefined(typeof(AvatarAccessorySlot), slot))
 		{
-			Debug.LogError((object)("Trying to attach accessory to an invalid slot " + (int)slot));
+			Debug.LogError("Trying to attach accessory to an invalid slot " + (int)slot);
 			return false;
 		}
-		if (!Enumerable.Contains(acc.ValidSlots, slot))
+		if (!acc.ValidSlots.Contains(slot))
 		{
-			Debug.LogError((object)string.Concat(new object[4]
-			{
-				"Trying to attach accessory in slot: ",
-				slot,
-				", allowed: ",
-				acc.ValidSlots.BuildString()
-			}));
+			Debug.LogError(string.Concat("Trying to attach accessory in slot: ", slot, ", allowed: ", acc.ValidSlots.BuildString()));
 			return false;
 		}
 		if (!accessoryMap.ContainsKey(acc.InventoryID))
@@ -541,14 +314,15 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 			ApplyAccessoryOffset(acc, slot);
 			acc.Attached = true;
 			Collider[] array = acc.Colliders;
-			foreach (Collider val in array)
+			foreach (Collider collider in array)
 			{
-				val.enabled = false;
+				collider.enabled = false;
 			}
+			Debug.Log("Attached accessory");
 			acc.Transform.SetLayerRecursively(gameObject.layer);
 			acc.Visible = Visible;
-			bool flag = Game.GameMode != MVGameMode.CharacterEditor || attachedAvatar == null;
-			ProductInventoryInfo<StreamingAssetInfo> productInventoryInfo = Game.StreamingAssetInventory.Get(acc.InventoryID);
+			bool flag = MVGameController.GameMode != MVGameMode.CharacterEditor || attachedAvatar == null;
+			ProductInventoryInfo productInventoryInfo = Game.StreamingAssetInventory.Get(acc.InventoryID);
 			if (flag && productInventoryInfo != null)
 			{
 				productInventoryInfo.EquippedOn = this;
@@ -560,37 +334,12 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 			}
 			return true;
 		}
-		Debug.LogError((object)("Trying to add accessory " + acc.InventoryID + " second time!"));
+		Debug.LogError("Trying to add accessory " + acc.InventoryID + " second time!");
 		return false;
 	}
 
 	public void ApplyAccessoryOffset(AvatarAccessory acc, AvatarAccessorySlot slot)
 	{
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0016: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0020: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0025: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00fd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0103: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0108: Unknown result type (might be due to invalid IL or missing references)
-		//IL_010d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0115: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0070: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0075: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0078: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0084: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0089: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0097: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ae: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00bb: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00bd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c2: Unknown result type (might be due to invalid IL or missing references)
 		acc.Transform.localPosition = Vector3.zero;
 		acc.Transform.localRotation = Quaternion.identity;
 		Vector3 zero = Vector3.zero;
@@ -602,20 +351,19 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		{
 			MVCubeModelInstance bodyPart = GetBodyPart(slotBoneNameMap[slot]);
 			Bounds localBounds = bodyPart.GetLocalBounds(BoundsContext.Default);
-			Vector3 val = localBounds.center + new Vector3(0f, localBounds.extents.y, 0f);
-			Vector3 val2 = bodyPart.Transform.TransformPoint(val);
-			Vector3 val3 = acc.Transform.parent.InverseTransformPoint(val2);
-			zero.y += val3.y;
+			Vector3 vector = localBounds.center + new Vector3(0f, localBounds.extents.y, 0f);
+			Vector3 vector2 = bodyPart.Transform.TransformPoint(vector);
+			zero.y += acc.Transform.parent.InverseTransformPoint(vector2).y;
 		}
 		acc.Transform.position = GetSlotPosition(slot, zero);
 		if (acc.HasAttachmentPoint)
 		{
-			Vector3 val4 = acc.Transform.position - acc.AttachmentPointWorldPos;
-			acc.Transform.Translate(val4, (Space)0);
+			Vector3 translation = acc.Transform.position - acc.AttachmentPointWorldPos;
+			acc.Transform.Translate(translation, Space.World);
 		}
 	}
 
-	public void AttachAccessoryPermanent(AvatarAccessory acc, AvatarAccessorySlot slot, float offset, ProductInventoryInfo<StreamingAssetInfo> invInfo)
+	public void AttachAccessoryPermanent(AvatarAccessory acc, AvatarAccessorySlot slot, float offset, ProductInventoryInfo invInfo)
 	{
 		if (AttachAccessory(acc, slot, offset))
 		{
@@ -623,13 +371,13 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		}
 	}
 
-	public void MarkAccessoryPermanent(ProductInventoryInfo<StreamingAssetInfo> invInfo)
+	public void MarkAccessoryPermanent(ProductInventoryInfo invInfo)
 	{
 		AvatarAccessory value = null;
 		accessoryMap.TryGetValue(invInfo.InventoryID, out value);
-		if ((Object)(object)value == (Object)null)
+		if (value == null)
 		{
-			Debug.LogError((object)("Cant set accessory " + invInfo.InventoryID + " as permanet because it hasn't been added to the body " + id));
+			Debug.LogError("Cant set accessory " + invInfo.InventoryID + " as permanet because it hasn't been added to the body " + id);
 		}
 		else
 		{
@@ -637,38 +385,45 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		}
 	}
 
-	private void MarkAccessoryPermanent(AvatarAccessory acc, ProductInventoryInfo<StreamingAssetInfo> invInfo)
+	public void Attach(MVAvatar mvAvatar, bool isLocal)
 	{
-		Hashtable hashtable = new Hashtable();
-		hashtable[AvatarAccessoryData.InventoryID.ToString("d")] = acc.InventoryID;
-		hashtable[AvatarAccessoryData.Slot.ToString("d")] = acc.Slot;
-		hashtable[AvatarAccessoryData.Offset.ToString("d")] = acc.Offset;
-		hashtable[AvatarAccessoryData.AssetPath.ToString("d")] = invInfo.ProductInfo.AssetPath;
-		hashtable[AvatarAccessoryData.PurchaseTimeTicks.ToString("d")] = invInfo.PurchaseTime.Ticks;
-		hashtable[AvatarAccessoryData.RentExpireSeconds.ToString("d")] = (invInfo.IsRented ? invInfo.ProductInfo.ShopInfo.RentExpireSeconds : 0);
-		Game.UpdateWorldObjectDataPartial(Id, "BlueprintData\\" + BlueprintData.AvatarAccessoryData.ToString("d") + "\\" + acc.InventoryID, hashtable);
+		attachedAvatar = mvAvatar;
+		if (attachedAvatar != null)
+		{
+			GetComponents();
+			if (animation != null)
+			{
+				animation.Attach(attachedAvatar, isLocal);
+			}
+			if (blinker != null)
+			{
+				blinker.Visible = visible;
+				blinker.Attach(mvAvatar);
+			}
+			CollidersEnabled = false;
+			shadowBlob.enabled = true;
+			attachedPartModels.ForEach((MVCubeModelInstance cmi) =>
+			{
+				cmi.ReactsToLODChanges = false;
+			});
+		}
 	}
 
-	public IEnumerable<AvatarAccessory> GetAccessories(AvatarAccessorySlot slot, AvatarAccessoryCategory category)
+	public void Detach()
 	{
-		return accessoryMap.Values.Where((AvatarAccessory a) => a.Slot == slot && a.Category == category);
+		Debug.Log("Detaching body " + id);
+		animation.Detach();
+		if (blinker != null)
+		{
+			blinker.Detach();
+		}
+		shadowBlob.enabled = false;
 	}
 
 	public IEnumerable<AvatarAccessory> GetAccessories(AvatarAccessorySlot slot)
 	{
+		Debug.Log("IEnumerable<AvatarAccessory> GetAccessories(AvatarAccessorySlot slot)");
 		return accessoryMap.Values.Where((AvatarAccessory a) => a.Slot == slot);
-	}
-
-	public IEnumerable<AvatarAccessory> GetAccessories(AvatarAccessoryCategory category)
-	{
-		return accessoryMap.Values.Where((AvatarAccessory a) => a.Category == category);
-	}
-
-	public AvatarAccessory GetAccessory(int inventoryID)
-	{
-		AvatarAccessory value = null;
-		accessoryMap.TryGetValue(inventoryID, out value);
-		return value;
 	}
 
 	public HashSet<AvatarAccessory> GetAccessories()
@@ -683,6 +438,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 
 	public int GetAccessoryID(AvatarAccessorySlot slot)
 	{
+		Debug.Log("int GetAccessoryID(AvatarAccessorySlot slot)");
 		if (!AnyAccessoryInSlot(slot))
 		{
 			return -1;
@@ -714,13 +470,13 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		{
 			return accessoryMap[inventoryID].Slot;
 		}
-		Debug.LogError((object)("Accessory with inventory ID " + inventoryID + " is not attached"));
+		Debug.LogError("Accessory with inventory ID " + inventoryID + " is not attached");
 		return AvatarAccessorySlot.Undefined;
 	}
 
 	public void DetachAccessory(AvatarAccessory acc, bool calledFromDestroy = false)
 	{
-		ProductInventoryInfo<StreamingAssetInfo> productInventoryInfo = Game.StreamingAssetInventory.Get(acc.InventoryID);
+		ProductInventoryInfo productInventoryInfo = Game.StreamingAssetInventory.Get(acc.InventoryID);
 		if (productInventoryInfo != null)
 		{
 			productInventoryInfo.EquippedOn = null;
@@ -743,16 +499,16 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 
 	public void DestroyAccessory(AvatarAccessory acc, bool calledFromDestroy = false)
 	{
-		Debug.Log((object)"Destroying accessories");
+		Debug.Log("Destroying accessories");
 		DetachAccessory(acc, calledFromDestroy);
-		Object.Destroy((Object)(object)((Component)acc).gameObject);
+		UnityEngine.Object.Destroy(acc.gameObject);
 	}
 
 	public void DestroyAccessory(int inventoryID)
 	{
 		if (!accessoryMap.ContainsKey(inventoryID))
 		{
-			Debug.LogWarning((object)("Trying to detach non-attached avatar accessory with inventoryid: " + inventoryID));
+			Debug.LogWarning("Trying to detach non-attached avatar accessory with inventoryid: " + inventoryID);
 		}
 		else
 		{
@@ -760,21 +516,291 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		}
 	}
 
+	public void StartBlinking(BlinkType type, float duration)
+	{
+		blinker.StartBlinking(type, duration);
+	}
+
+	public void StopBlinking(BlinkType type)
+	{
+		blinker.StopBlinking(type);
+	}
+
+	public GameObject CopyByValue()
+	{
+		bool flag = Visible;
+		if (!Visible)
+		{
+			Visible = true;
+		}
+		GameObject gameObject = UnityEngine.Object.Instantiate(GameObject);
+		CopyMaterialsByValue(gameObject);
+		Visible = flag;
+		return gameObject;
+	}
+
+	private void CopyMaterialsByValue(GameObject bodyCloneGO)
+	{
+		MeshRenderer[] componentsInChildren = bodyCloneGO.GetComponentsInChildren<MeshRenderer>();
+		MeshRenderer[] array = componentsInChildren;
+		foreach (MeshRenderer meshRenderer in array)
+		{
+			List<Material> list = new List<Material>();
+			Material[] sharedMaterials = meshRenderer.sharedMaterials;
+			foreach (Material material in sharedMaterials)
+			{
+				if (material == null)
+				{
+					Debug.Log("MeshRendererer.GameObjectName " + meshRenderer.gameObject.name);
+					continue;
+				}
+				Material item = new Material(material);
+				list.Add(item);
+			}
+			meshRenderer.materials = list.ToArray();
+		}
+	}
+
+	private void InitializeCommon()
+	{
+		AttachCubes();
+		GetAccessoriesFromBPData();
+	}
+
+	private void GetComponents()
+	{
+		if (animation == null)
+		{
+			animation = gameObject.GetComponent<BoneAnimation>();
+		}
+		if (blinker == null)
+		{
+			blinker = gameObject.GetComponent<AvatarBlinker>();
+		}
+		if (shadowBlob == null)
+		{
+			shadowBlob = gameObject.GetComponentInChildren<AvatarBlobShadowController>();
+		}
+		if (bodyData == null)
+		{
+			bodyData = gameObject.GetComponent<BodyData>();
+		}
+	}
+
+	private void UpdateVisibility()
+	{
+		foreach (Renderer renderer in renderers)
+		{
+			renderer.enabled = visible;
+		}
+		if (shadowVisible && shadowBlob != null)
+		{
+			shadowBlob.enabled = visible;
+		}
+		if (blinker != null)
+		{
+			blinker.Visible = visible;
+		}
+		foreach (AvatarAccessory value in accessoryMap.Values)
+		{
+			if (value.Category == AvatarAccessoryCategory.Particles)
+			{
+				value.Visible = accessoryParticlesVisible && visible;
+			}
+			else
+			{
+				value.Visible = visible;
+			}
+		}
+	}
+
+	private void GetAccessoriesFromBPData()
+	{
+		if (!blueprintData.ContainsKey(BlueprintData.AvatarAccessoryData.ToString("d")))
+		{
+			return;
+		}
+		accessoryData = (Dictionary<object, object>)blueprintData[BlueprintData.AvatarAccessoryData.ToString("d")];
+		if (accessoryData == null)
+		{
+			return;
+		}
+		HashSet<int> hashSet = new HashSet<int>();
+		foreach (KeyValuePair<object, object> accessoryDatum in accessoryData)
+		{
+			Dictionary<object, object> dictionary = (Dictionary<object, object>)accessoryDatum.Value;
+			int num = (int)dictionary[AvatarAccessoryData.InventoryID.ToString("d")];
+			string assetPath = (string)dictionary[AvatarAccessoryData.AssetPath.ToString("d")];
+			DateTime purchaseTime = new DateTime((long)dictionary[AvatarAccessoryData.PurchaseTimeTicks.ToString("d")]);
+			int num2 = (int)dictionary[AvatarAccessoryData.RentExpireSeconds.ToString("d")];
+			hashSet.Add(num);
+			AvatarAccessorySlot slot = (AvatarAccessorySlot)(int)dictionary[AvatarAccessoryData.Slot.ToString("d")];
+			float offset = (float)dictionary[AvatarAccessoryData.Offset.ToString("d")];
+			AvatatAccessoryPos value = new AvatatAccessoryPos
+			{
+				Slot = slot,
+				Offset = offset
+			};
+			if (!accessoryMap.ContainsKey(num))
+			{
+				if (!pendingAccessoryPositions.ContainsKey(num))
+				{
+					pendingAccessoryPositions[num] = value;
+					if (0 < num2)
+					{
+						if (!Game.StreamingAssetExpirationChecker.Contains(num))
+						{
+							InventoryExpirationInfo expInfo = new InventoryExpirationInfo(MVProductType.StreamingAsset, num, ProductExpirationState.Expiring, purchaseTime, num2);
+							Game.StreamingAssetExpirationChecker.AddExpirationInfo(expInfo);
+						}
+						else
+						{
+							Debug.LogWarning("Body " + id + " not adding stored expiration data to checker");
+						}
+					}
+					AvatarAccessory.Create(num, assetPath, purchaseTime, num2, LoadedAccessoryCallback);
+				}
+				else
+				{
+					Debug.Log("Body " + id + " data contains multiple accessories with ID " + num);
+					Debug.LogError("Body data contains multiple accessories with the same inventoryID. This is caused by user hiding and show accessories");
+				}
+			}
+			else
+			{
+				Debug.LogWarning("Body " + id + " already has attached accessory " + num);
+			}
+		}
+		List<AvatarAccessory> list = new List<AvatarAccessory>();
+		foreach (KeyValuePair<int, AvatarAccessory> item in accessoryMap)
+		{
+			if (!hashSet.Contains(item.Key))
+			{
+				list.Add(item.Value);
+			}
+		}
+		if (0 < list.Count)
+		{
+			Debug.Log("Body " + id + " removing accessories missing in bpData: " + list.BuildString(eachEntryNewLine: false));
+			list.ForEach((AvatarAccessory a) =>
+			{
+				DestroyAccessory(a);
+			});
+		}
+		MakeAccessoriesSelectable();
+	}
+
+	private void MakeAccessoriesSelectable()
+	{
+		foreach (KeyValuePair<int, AvatarAccessory> item in accessoryMap)
+		{
+			if (AccessoryShouldBeSelecable(item.Value))
+			{
+				Debug.Log("Trying to make accessory selectable");
+				MakeAccessorySelectable(item.Value, item.Value.Slot);
+			}
+		}
+	}
+
+	private void LoadedAccessoryCallback(AvatarAccessory accessory)
+	{
+		if (!(accessory == null))
+		{
+			if (accessory.ExpirationInfo != null)
+			{
+				Debug.Log("Body " + id + " loaded acccessory: " + accessory.InventoryID + " expiring at " + accessory.ExpirationInfo.RentExpireTime);
+			}
+			else
+			{
+				Debug.Log("Body " + id + " loaded acccessory: " + accessory.InventoryID + " NOT expiring");
+			}
+			AvatatAccessoryPos avatatAccessoryPos = pendingAccessoryPositions[accessory.InventoryID];
+			pendingAccessoryPositions.Remove(accessory.InventoryID);
+			if (AttachAccessory(accessory, avatatAccessoryPos.Slot, avatatAccessoryPos.Offset) && AccessoryShouldBeSelecable(accessory))
+			{
+				MakeAccessorySelectable(accessory, avatatAccessoryPos.Slot);
+			}
+		}
+	}
+
+	private bool AccessoryShouldBeSelecable(AvatarAccessory accessory)
+	{
+		if (accessoryMoveOverride && accessory.Category == AvatarAccessoryCategory.Hat)
+		{
+			return true;
+		}
+		if (MVGameController.GameMode != MVGameMode.CharacterEditor)
+		{
+			return false;
+		}
+		if (accessory.Category != AvatarAccessoryCategory.Hat)
+		{
+			return false;
+		}
+		if (Group.GetType() == typeof(MVAvatarLocal))
+		{
+			return false;
+		}
+		return true;
+	}
+
+	private void MakeAccessorySelectable(AvatarAccessory accessory, AvatarAccessorySlot accessorySlot)
+	{
+		MeshFilter[] componentsInChildren = accessory.Transform.gameObject.GetComponentsInChildren<MeshFilter>();
+		MeshFilter[] array = componentsInChildren;
+		foreach (MeshFilter meshFilter in array)
+		{
+			GameObject gameObject = new GameObject("SelectionHelper");
+			gameObject.transform.parent = meshFilter.gameObject.transform;
+			gameObject.transform.localPosition = Vector3.zero;
+			gameObject.transform.localRotation = Quaternion.identity;
+			gameObject.transform.localScale = Vector3.one;
+			MeshCollider meshCollider = gameObject.AddComponent<MeshCollider>();
+			meshCollider.sharedMesh = meshFilter.sharedMesh;
+			gameObject.layer = LayerMask.NameToLayer("Hidden");
+			SelectionHelperAvatarAccessory selectionHelperAvatarAccessory = gameObject.AddComponent<SelectionHelperAvatarAccessory>();
+			selectionHelperAvatarAccessory.Init(accessory, accessorySlot, Id);
+		}
+	}
+
+	private Transform GetSlotTransform(AvatarAccessorySlot slot)
+	{
+		if (slot == AvatarAccessorySlot.WholeBody)
+		{
+			return gameObject.transform;
+		}
+		return bodyData.GetPartBone(slotBoneNameMap[slot]);
+	}
+
+	private void MarkAccessoryPermanent(AvatarAccessory acc, ProductInventoryInfo invInfo)
+	{
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary[AvatarAccessoryData.InventoryID.ToString("d")] = acc.InventoryID;
+		dictionary[AvatarAccessoryData.Slot.ToString("d")] = acc.Slot;
+		dictionary[AvatarAccessoryData.Offset.ToString("d")] = acc.Offset;
+		dictionary[AvatarAccessoryData.AssetPath.ToString("d")] = invInfo.ProductInfo.AssetPath;
+		dictionary[AvatarAccessoryData.PurchaseTimeTicks.ToString("d")] = invInfo.PurchaseTime.Ticks;
+		dictionary[AvatarAccessoryData.RentExpireSeconds.ToString("d")] = (invInfo.IsRented ? invInfo.ProductInfo.ShopInfo.RentExpireSeconds : 0);
+		Game.UpdateWorldObjectDataPartial(Id, "BlueprintData\\" + BlueprintData.AvatarAccessoryData.ToString("d") + "\\" + acc.InventoryID, dictionary);
+	}
+
 	private void RemoveFromBPData(AvatarAccessory acc)
 	{
-		Hashtable hashtable = (Hashtable)blueprintData[BlueprintData.AvatarAccessoryData.ToString("d")];
-		if (hashtable != null && hashtable.Contains(acc.InventoryID.ToString()))
+		if (!blueprintData.ContainsKey(BlueprintData.AvatarAccessoryData.ToString("d")))
 		{
-			hashtable.Remove(acc.InventoryID.ToString());
+			Debug.LogWarning("No avatar accessoryData");
+			return;
+		}
+		Dictionary<object, object> dictionary = (Dictionary<object, object>)blueprintData[BlueprintData.AvatarAccessoryData.ToString("d")];
+		if (dictionary != null && dictionary.ContainsKey(acc.InventoryID.ToString()))
+		{
+			dictionary.Remove(acc.InventoryID.ToString());
 			Game.RemoveWorldObjectDataPartial(Id, "BlueprintData\\" + BlueprintData.AvatarAccessoryData.ToString("d") + "\\" + acc.InventoryID);
 		}
 	}
 
 	public override Bounds GetLocalBounds(BoundsContext boundsContext)
 	{
-		//IL_000f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
 		return new Bounds(new Vector3(0f, 1f, 0f), new Vector3(0.8f, 2.2f, 1f));
 	}
 
@@ -787,12 +813,6 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 
 	public IModelingConstraint GetModelConstaint(MVCubeModelInstance cubeModel)
 	{
-		//IL_005a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0067: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0082: Unknown result type (might be due to invalid IL or missing references)
 		IModelingConstraint value = null;
 		if (idChildMap.ContainsKey(cubeModel.Id))
 		{
@@ -828,7 +848,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 
 	private void AttachCubes()
 	{
-		foreach (DictionaryEntry item in childIdMap)
+		foreach (KeyValuePair<object, object> item in childIdMap)
 		{
 			string boneName = (string)item.Key;
 			AttachCube(boneName);
@@ -841,23 +861,19 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 
 	private void AttachCube(string boneName)
 	{
-		//IL_005b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0060: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0077: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0087: Unknown result type (might be due to invalid IL or missing references)
 		Transform partBone = bodyData.GetPartBone(boneName);
 		MVCubeModelInstance bodyPart = GetBodyPart(boneName);
 		attachedPartModels.Add(bodyPart);
-		GameObject val = bodyPart.GameObject;
-		((Object)val).name = boneName + " model " + bodyPart.Id;
-		val.SetLayerRecursively(LayerMask.NameToLayer("Player"));
-		modelScale = val.transform.localScale;
-		val.transform.parent = partBone;
-		val.transform.localPosition = Vector3.zero;
-		val.transform.localRotation = Quaternion.identity;
-		colliders.Add(val.GetComponentInChildren<Collider>());
-		renderers.Add(val.GetComponentInChildren<Renderer>());
-		AlignModel(boneName, partBone, val);
+		GameObject gameObject = bodyPart.GameObject;
+		gameObject.name = boneName + " model " + bodyPart.Id;
+		gameObject.SetLayerRecursively(LayerMask.NameToLayer("Player"));
+		modelScale = gameObject.transform.localScale;
+		gameObject.transform.parent = partBone;
+		gameObject.transform.localPosition = Vector3.zero;
+		gameObject.transform.localRotation = Quaternion.identity;
+		colliders.Add(gameObject.GetComponentInChildren<Collider>());
+		renderers.Add(gameObject.GetComponentInChildren<Renderer>());
+		AlignModel(boneName, partBone, gameObject);
 		bodyPart.BeingEditedChanged += CubeModelBase_BeingEditedChanged;
 	}
 
@@ -880,90 +896,37 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 
 	private void AlignModel(string boneName, Transform bone, GameObject model)
 	{
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_019f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01af: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01bb: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00dc: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ed: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00fd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0104: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0109: Unknown result type (might be due to invalid IL or missing references)
-		//IL_010f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0114: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0119: Unknown result type (might be due to invalid IL or missing references)
-		//IL_011e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0125: Unknown result type (might be due to invalid IL or missing references)
-		//IL_012a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0130: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0135: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0141: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0147: Unknown result type (might be due to invalid IL or missing references)
-		//IL_014c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0151: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0158: Unknown result type (might be due to invalid IL or missing references)
-		//IL_015e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0163: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0168: Unknown result type (might be due to invalid IL or missing references)
-		//IL_016f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0175: Unknown result type (might be due to invalid IL or missing references)
-		//IL_017a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_017f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0186: Unknown result type (might be due to invalid IL or missing references)
-		//IL_018c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0191: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0196: Unknown result type (might be due to invalid IL or missing references)
 		Vector3 partBoneSpacePosition = bodyData.GetPartBoneSpacePosition(boneName);
-		Quaternion val = Quaternion.identity;
+		Quaternion quaternion = Quaternion.identity;
 		switch (boneName)
 		{
 		case "Head":
-			val = Quaternion.LookRotation(bone.right, bone.up);
+			quaternion = Quaternion.LookRotation(bone.right, bone.up);
 			break;
 		case "Torso":
-			val = Quaternion.LookRotation(-bone.right, bone.up);
+			quaternion = Quaternion.LookRotation(-bone.right, bone.up);
 			break;
 		case "RArm":
-			val = Quaternion.LookRotation(-bone.up, -bone.right);
+			quaternion = Quaternion.LookRotation(-bone.up, -bone.right);
 			break;
 		case "LArm":
-			val = Quaternion.LookRotation(-bone.up, bone.right);
+			quaternion = Quaternion.LookRotation(-bone.up, bone.right);
 			break;
 		case "RUpLeg":
-			val = Quaternion.LookRotation(bone.forward, bone.up);
+			quaternion = Quaternion.LookRotation(bone.forward, bone.up);
 			break;
 		case "RLowLeg":
-			val = Quaternion.LookRotation(bone.right, bone.up);
+			quaternion = Quaternion.LookRotation(bone.right, bone.up);
 			break;
 		case "LUpLeg":
-			val = Quaternion.LookRotation(bone.forward, bone.up);
+			quaternion = Quaternion.LookRotation(bone.forward, bone.up);
 			break;
 		case "LLowLeg":
-			val = Quaternion.LookRotation(bone.right, bone.up);
+			quaternion = Quaternion.LookRotation(bone.right, bone.up);
 			break;
 		}
 		partBoneSpacePosition.Scale(modelScale);
-		model.transform.rotation = val;
+		model.transform.rotation = quaternion;
 		model.transform.Translate(partBoneSpacePosition);
-	}
-
-	public void StartBlinking(BlinkType type, float duration)
-	{
-		blinker.StartBlinking(type, duration);
-	}
-
-	public void StopBlinking(BlinkType type)
-	{
-		blinker.StopBlinking(type);
 	}
 }

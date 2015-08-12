@@ -19,19 +19,19 @@ public class AvatarAccessoryInventoryCollection : IUXCollection
 	{
 		this.streamingAssetInventory = streamingAssetInventory;
 		StreamingAssetInventory streamingAssetInventory2 = this.streamingAssetInventory;
-		streamingAssetInventory2.OnProductInventoryChange = (ProductInventory<StreamingAssetInfo>.OnProductInventoryChangeDelegate)Delegate.Combine(streamingAssetInventory2.OnProductInventoryChange, new ProductInventory<StreamingAssetInfo>.OnProductInventoryChangeDelegate(HandleStreamingAssetInventoryChange));
+		streamingAssetInventory2.OnProductInventoryChange = (ProductInventory.OnProductInventoryChangeDelegate)Delegate.Combine(streamingAssetInventory2.OnProductInventoryChange, new ProductInventory.OnProductInventoryChangeDelegate(HandleStreamingAssetInventoryChange));
 		HandleStreamingAssetInventoryChange(streamingAssetInventory);
 	}
 
 	private List<int> GetAvatarAccessoryIds(bool removeEquipped = true)
 	{
-		List<ProductInventoryInfo<StreamingAssetInfo>> list = streamingAssetInventory.Get(StreamingAssetType.AvatarAccessory).ToList();
+		List<ProductInventoryInfo> list = streamingAssetInventory.Get(StreamingAssetType.AvatarAccessory).ToList();
 		if (removeEquipped)
 		{
-			list.RemoveAll((ProductInventoryInfo<StreamingAssetInfo> aa) => aa.IsEquipped);
+			list.RemoveAll((ProductInventoryInfo aa) => aa.IsEquipped);
 		}
 		List<int> list2 = new List<int>();
-		foreach (ProductInventoryInfo<StreamingAssetInfo> item in list)
+		foreach (ProductInventoryInfo item in list)
 		{
 			list2.Add(item.InventoryID);
 		}
@@ -43,7 +43,7 @@ public class AvatarAccessoryInventoryCollection : IUXCollection
 		return cache[index];
 	}
 
-	private void HandleStreamingAssetInventoryChange(ProductInventory<StreamingAssetInfo> productInventory)
+	private void HandleStreamingAssetInventoryChange(ProductInventory productInventory)
 	{
 		streamingAssetInventory = (StreamingAssetInventory)productInventory;
 		List<int> avatarAccessoryIds = GetAvatarAccessoryIds();

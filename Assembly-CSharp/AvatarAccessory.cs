@@ -34,9 +34,9 @@ public abstract class AvatarAccessory : MonoBehaviour
 
 	private Quaternion worldRotationOnAttach;
 
-	private static MVWorldObjectClientManager WOCM => MVGameController.Instance.WOCM;
+	private static MVWorldObjectClientManager WOCM => MVGameController.WOCM;
 
-	private static MVNetworkGame Game => MVGameController.Instance.Game;
+	private static MVNetworkGame Game => MVGameController.Game;
 
 	public AvatarAccessoryCategory Category { get; protected set; }
 
@@ -67,9 +67,9 @@ public abstract class AvatarAccessory : MonoBehaviour
 			if (_visible != value)
 			{
 				Renderer[] renderers = _renderers;
-				foreach (Renderer val in renderers)
+				foreach (Renderer renderer in renderers)
 				{
-					val.enabled = value;
+					renderer.enabled = value;
 				}
 				_visible = value;
 			}
@@ -84,8 +84,6 @@ public abstract class AvatarAccessory : MonoBehaviour
 		}
 		set
 		{
-			//IL_0025: Unknown result type (might be due to invalid IL or missing references)
-			//IL_002a: Unknown result type (might be due to invalid IL or missing references)
 			if (attached != value)
 			{
 				attached = value;
@@ -97,32 +95,25 @@ public abstract class AvatarAccessory : MonoBehaviour
 		}
 	}
 
-	public virtual Vector3 AttachmentPointWorldPos
-	{
-		get
-		{
-			//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-			return Vector3.zero;
-		}
-	}
+	public virtual Vector3 AttachmentPointWorldPos => Vector3.zero;
 
 	public virtual bool HasAttachmentPoint => false;
 
 	protected virtual void Awake()
 	{
-		_gameObjectID = ((Object)((Component)this).gameObject).GetInstanceID();
-		_transform = ((Component)this).transform;
-		_colliders = ((Component)this).GetComponentsInChildren<Collider>();
+		_gameObjectID = gameObject.GetInstanceID();
+		_transform = transform;
+		_colliders = GetComponentsInChildren<Collider>();
 		Collider[] colliders = _colliders;
-		foreach (Collider val in colliders)
+		foreach (Collider collider in colliders)
 		{
-			val.enabled = false;
+			collider.enabled = false;
 		}
-		_renderers = ((Component)this).GetComponentsInChildren<Renderer>();
+		_renderers = GetComponentsInChildren<Renderer>();
 		Renderer[] renderers = _renderers;
-		foreach (Renderer val2 in renderers)
+		foreach (Renderer renderer in renderers)
 		{
-			val2.enabled = _visible;
+			renderer.enabled = _visible;
 		}
 	}
 
@@ -132,7 +123,6 @@ public abstract class AvatarAccessory : MonoBehaviour
 
 	protected virtual void Update()
 	{
-		//IL_001d: Unknown result type (might be due to invalid IL or missing references)
 		if (attached && ConstantWorldRotation)
 		{
 			Transform.rotation = worldRotationOnAttach;
@@ -159,23 +149,18 @@ public abstract class AvatarAccessory : MonoBehaviour
 
 	public virtual Bounds GetWorldBounds()
 	{
-		//IL_0002: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0033: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0025: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
 		Bounds result = default;
 		bool flag = true;
 		Renderer[] renderers = _renderers;
-		foreach (Renderer val in renderers)
+		foreach (Renderer renderer in renderers)
 		{
 			if (flag)
 			{
-				result = val.bounds;
+				result = renderer.bounds;
 			}
 			else
 			{
-				result.Encapsulate(val.bounds);
+				result.Encapsulate(renderer.bounds);
 			}
 		}
 		return result;
@@ -183,16 +168,10 @@ public abstract class AvatarAccessory : MonoBehaviour
 
 	public virtual Bounds GetLocalBounds()
 	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0036: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0027: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002c: Unknown result type (might be due to invalid IL or missing references)
 		Bounds worldBounds = GetWorldBounds();
-		if ((Object)(object)((Component)this).transform != (Object)null)
+		if (transform != null)
 		{
-			worldBounds.center -= ((Component)this).transform.position;
+			worldBounds.center -= transform.position;
 		}
 		return worldBounds;
 	}
@@ -202,7 +181,7 @@ public abstract class AvatarAccessory : MonoBehaviour
 		InventoryID = p.InventoryID;
 		AssetPath = p.AssetReqPath;
 		ExpirationInfo = GetExpirationInfo(p);
-		((Object)this).name = "Accessory " + InventoryID + " " + bundleName;
+		name = "Accessory " + InventoryID + " " + bundleName;
 	}
 
 	private InventoryExpirationInfo GetExpirationInfo(AvatarAccessoryParams p)
@@ -223,8 +202,8 @@ public abstract class AvatarAccessory : MonoBehaviour
 		}
 		if (!expirationInfo.Equals(p.ExpirationInfo))
 		{
-			Debug.LogError((object)("StreamingAssetInventory contains expiration info different from the one given in creation params for inventoryID: " + p.InventoryID));
-			Debug.LogError((object)string.Concat(new object[4] { "ParExp: ", p.ExpirationInfo, "\n InvExp ", expirationInfo }));
+			Debug.LogError("StreamingAssetInventory contains expiration info different from the one given in creation params for inventoryID: " + p.InventoryID);
+			Debug.LogError(string.Concat("ParExp: ", p.ExpirationInfo, "\n InvExp ", expirationInfo));
 		}
 		return expirationInfo;
 	}
@@ -272,11 +251,11 @@ public abstract class AvatarAccessory : MonoBehaviour
 		Create(par, accessoryCreatedCallback);
 	}
 
-	public static void Create(ProductInventoryInfo<StreamingAssetInfo> invInfo, Action<AvatarAccessory> accessoryCreatedCallback)
+	public static void Create(ProductInventoryInfo invInfo, Action<AvatarAccessory> accessoryCreatedCallback)
 	{
 		if (invInfo.ProductInfo == null)
 		{
-			Debug.LogError((object)"Can't create from inventory info because ProductInfo is NULL or ProductInfo.ShopInfo is NULL");
+			Debug.LogError("Can't create from inventory info because ProductInfo is NULL or ProductInfo.ShopInfo is NULL");
 			return;
 		}
 		AvatarAccessoryParams par = new AvatarAccessoryParams(invInfo.InventoryID, invInfo.ProductInfo.RequestPath);
@@ -288,7 +267,7 @@ public abstract class AvatarAccessory : MonoBehaviour
 		StreamingAssetInfo streamingAssetInfo = Game.StreamingAssetInfoMap.Values.FirstOrDefault((StreamingAssetInfo sai) => sai.AssetPath == assetPath);
 		if (streamingAssetInfo == null)
 		{
-			Debug.LogError((object)("Cannot create accessory, asset info not fetched. path: " + assetPath));
+			Debug.LogError("Cannot create accessory, asset info not fetched. path: " + assetPath);
 			return;
 		}
 		AvatarAccessoryParams par = new AvatarAccessoryParams(inventoryID, streamingAssetInfo.RequestPath);
@@ -300,20 +279,20 @@ public abstract class AvatarAccessory : MonoBehaviour
 		MapParamsToCallback(par, accessoryCreatedCallback);
 		if (MapAssetPathToParams(par))
 		{
-			Game.AssetBundleMgr.RequestAssetBundle(par.AssetReqPath, LoadedAccessoryAsset, autoRetry: true, highPriority: true);
+			AsyncWWWManager.WWWRequest(new StreamingAssetRequest(Urls.StreamingAssets + par.AssetReqPath, LoadedAccessoryAsset));
 		}
 	}
 
-	private static void LoadedAccessoryAsset(AssetBundle bundle, string assetPath)
+	private static void LoadedAccessoryAsset(WWW www)
 	{
-		//IL_00fa: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0101: Expected Obj, but got Unknown
-		HashSet<AvatarAccessoryParams> hashSet = assetPathToParamsMap[assetPath];
+		string text = www.url.TrimStart(Urls.StreamingAssets.ToCharArray());
+		text = text.Split('?')[0];
+		HashSet<AvatarAccessoryParams> hashSet = assetPathToParamsMap[text];
 		HashSet<AvatarAccessoryParams> hashSet2 = new HashSet<AvatarAccessoryParams>(hashSet);
 		HashSet<AvatarAccessoryParams> hashSet3 = new HashSet<AvatarAccessoryParams>();
-		int num = assetPath.LastIndexOf('/');
-		int num2 = assetPath.LastIndexOf('.');
-		string bundleName = assetPath.Substring(num + 1, num2 - num - 1);
+		int num = text.LastIndexOf('/');
+		int num2 = text.LastIndexOf('.');
+		string bundleName = text.Substring(num + 1, num2 - num - 1);
 		foreach (AvatarAccessoryParams item in hashSet2)
 		{
 			Action<AvatarAccessory> value = null;
@@ -323,20 +302,24 @@ public abstract class AvatarAccessory : MonoBehaviour
 			for (int i = 0; i < array.Length; i++)
 			{
 				Action<AvatarAccessory> action = (Action<AvatarAccessory>)array[i];
-				if ((Object)(object)bundle == (Object)null || bundle.mainAsset == (Object)null)
+				if (www == null || www.assetBundle == null || www.assetBundle.mainAsset == null)
 				{
-					string text = "Failed to create accessory from bundle " + assetPath;
-					if ((Object)(object)bundle != (Object)null && bundle.mainAsset == (Object)null)
+					string text2 = "Failed to create accessory from bundle " + www.url;
+					if (www != null && www.assetBundle == null)
 					{
-						text += ". Bundle has no main asset";
+						text2 += ". Bundle has no main asset";
 					}
-					Debug.LogError((object)text);
+					else if (www != null && www.assetBundle.mainAsset == null)
+					{
+						text2 += ". Bundle has no main asset";
+					}
+					Debug.LogError(text2);
 					action(null);
 				}
 				else
 				{
-					GameObject val = (GameObject)Object.Instantiate(bundle.mainAsset);
-					AvatarAccessory component = val.GetComponent<AvatarAccessory>();
+					GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(www.assetBundle.mainAsset);
+					AvatarAccessory component = gameObject.GetComponent<AvatarAccessory>();
 					component.InitAccessory(item, bundleName);
 					action(component);
 				}
@@ -359,12 +342,11 @@ public abstract class AvatarAccessory : MonoBehaviour
 		hashSet.ExceptWith(hashSet2);
 		if (hashSet.Count == 0)
 		{
-			assetPathToParamsMap.Remove(assetPath);
+			assetPathToParamsMap.Remove(text);
 		}
 		else
 		{
-			LoadedAccessoryAsset(bundle, assetPath);
+			LoadedAccessoryAsset(www);
 		}
-		Game.AssetBundleMgr.UnsubscribeBundleCallback(assetPath, LoadedAccessoryAsset);
 	}
 }

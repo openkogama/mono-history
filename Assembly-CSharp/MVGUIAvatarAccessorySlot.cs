@@ -32,21 +32,21 @@ public class MVGUIAvatarAccessorySlot : UXPlane
 
 	private bool waitForEquip;
 
-	private ProductInventoryInfo<StreamingAssetInfo> waitingToBeEquipped;
+	private ProductInventoryInfo waitingToBeEquipped;
 
-	private MVNetworkGame Game => MVGameController.Instance.Game;
+	private MVNetworkGame Game => MVGameController.Game;
 
-	private CharacterEditorController CEController => MVGameController.Instance.CharacterEditorController;
+	private CharacterEditorController CEController => MVGameController.CharacterEditorController;
 
 	private MVBody AvatarBody
 	{
 		get
 		{
-			if ((Object)(object)MVGameController.Instance == (Object)null || CEController == null)
+			if (MVGameController.GameMode == MVGameMode.CharacterEditor)
 			{
-				return null;
+				return CEController.CurrentBody;
 			}
-			return CEController.CurrentBody;
+			return MVGameController.WOCM.AvatarLocal.Body;
 		}
 	}
 
@@ -66,7 +66,7 @@ public class MVGUIAvatarAccessorySlot : UXPlane
 			RemoveExpirationTimer();
 			if (_inventoryIDOfItemInSlot != -1)
 			{
-				ProductInventoryInfo<StreamingAssetInfo> productInventoryInfo = Game.StreamingAssetInventory.Get(InventoryIDOfItemInSlot);
+				ProductInventoryInfo productInventoryInfo = Game.StreamingAssetInventory.Get(InventoryIDOfItemInSlot);
 				if (productInventoryInfo != null)
 				{
 					RentedItemInSlot = productInventoryInfo.IsRented;
@@ -79,20 +79,14 @@ public class MVGUIAvatarAccessorySlot : UXPlane
 		}
 	}
 
-	public MVGUIAvatarAccessorySlot()
-	{
-		//IL_0008: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000d: Unknown result type (might be due to invalid IL or missing references)
-	}
-
 	private void Start()
 	{
 		UXIconButton uXIconButton = unequipAvatarAccessoryButton;
 		uXIconButton.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXIconButton.OnClick, new UXBaseButton.OnClickDelegate(Unequip));
-		UXDropObject component = ((Component)this).GetComponent<UXDropObject>();
+		UXDropObject component = GetComponent<UXDropObject>();
 		component.AcceptDrop = (UXDropObject.AcceptDropDelegate)Delegate.Combine(component.AcceptDrop, new UXDropObject.AcceptDropDelegate(AcceptDrop));
 		component.OnDrop = (UXDropObject.OnDropDelegate)Delegate.Combine(component.OnDrop, new UXDropObject.OnDropDelegate(OnDrop));
-		UXMouseOverObject component2 = ((Component)this).GetComponent<UXMouseOverObject>();
+		UXMouseOverObject component2 = GetComponent<UXMouseOverObject>();
 		component2.OnMouseOverEnter = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(component2.OnMouseOverEnter, (UXMouseOverObject.OnMouseOverDelegate)((UXMouseOverObject obj) =>
 		{
 			OnMouseOverEnter();
@@ -113,8 +107,8 @@ public class MVGUIAvatarAccessorySlot : UXPlane
 	public override void SetAlpha(float alpha, string materialProperty = "_MainColor")
 	{
 		base.SetAlpha(alpha, materialProperty);
-		occupiedIndicator.SetAlpha(alpha, "_MainColor");
-		unequipAvatarAccessoryButton.SetAlpha(alpha);
+		occupiedIndicator.SetAlpha(alpha, string.Empty);
+		unequipAvatarAccessoryButton.SetAlpha(alpha, string.Empty);
 	}
 
 	public void HightlightSlot(bool validSlot)
@@ -122,7 +116,7 @@ public class MVGUIAvatarAccessorySlot : UXPlane
 		this.validSlot = validSlot;
 		if (!validSlot)
 		{
-			SetAlpha(0.1f);
+			SetAlpha(0.1f, string.Empty);
 		}
 		else if (SlotOccupied)
 		{
@@ -133,7 +127,7 @@ public class MVGUIAvatarAccessorySlot : UXPlane
 
 	public void StopSlotHighlight()
 	{
-		SetAlpha(0.8f);
+		SetAlpha(0.8f, string.Empty);
 		SetVisible(Visible);
 	}
 
@@ -148,8 +142,8 @@ public class MVGUIAvatarAccessorySlot : UXPlane
 
 	private void OnMouseOverEnter()
 	{
-		SetAlpha(0.90000004f);
-		if ((Object)(object)rentTimer != (Object)null)
+		SetAlpha(0.90000004f, string.Empty);
+		if (rentTimer != null)
 		{
 			rentTimer.SetVisible(Visible);
 		}
@@ -158,7 +152,7 @@ public class MVGUIAvatarAccessorySlot : UXPlane
 	private void OnMouseOverExit()
 	{
 		SetStopDragItem();
-		if ((Object)(object)rentTimer != (Object)null)
+		if (rentTimer != null)
 		{
 			rentTimer.SetVisible(visible: false);
 		}
@@ -166,33 +160,27 @@ public class MVGUIAvatarAccessorySlot : UXPlane
 
 	private void CreateExpirationTimer(int inventoryID)
 	{
-		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0027: Expected Obj, but got Unknown
-		//IL_0055: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0065: Unknown result type (might be due to invalid IL or missing references)
 		InventoryExpirationInfo expirationInfo = Game.StreamingAssetExpirationChecker.GetExpirationInfo(inventoryID);
-		GameObject val = (GameObject)Object.Instantiate(Resources.Load("Prefabs/GUI/AvatarAccessory/AvatarAccessoryRentTimer"));
-		val.transform.parent = ((Component)this).transform;
-		val.transform.localPosition = new Vector3(0f, (0f - Height) / 2f, 0f);
-		val.transform.localScale = Vector3.one;
-		rentTimer = val.GetComponent<MVGUIAvatarAccessoryRentTimer>();
+		GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("Prefabs/GUI/AvatarAccessory/AvatarAccessoryRentTimer"));
+		gameObject.transform.parent = transform;
+		gameObject.transform.localPosition = new Vector3(0f, (0f - Height) / 2f, 0f);
+		gameObject.transform.localScale = Vector3.one;
+		rentTimer = gameObject.GetComponent<MVGUIAvatarAccessoryRentTimer>();
 		rentTimer.InitializeRentTimer(expirationInfo);
 		rentTimer.SetVisible(visible: false);
 	}
 
 	private void RemoveExpirationTimer()
 	{
-		if (!((Object)(object)rentTimer == (Object)null))
+		if (!(rentTimer == null))
 		{
-			Object.Destroy((Object)(object)((Component)rentTimer).gameObject);
+			UnityEngine.Object.Destroy(rentTimer.gameObject);
 			rentTimer = null;
 		}
 	}
 
 	public void RefreshEquippedState()
 	{
-		//IL_006c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0061: Unknown result type (might be due to invalid IL or missing references)
 		if (AvatarBody != null && AvatarBody.AnyAccessoryInSlot(avatarAccessorySlot))
 		{
 			InventoryIDOfItemInSlot = AvatarBody.GetAccessoryID(avatarAccessorySlot);
@@ -207,12 +195,19 @@ public class MVGUIAvatarAccessorySlot : UXPlane
 		}
 		unequipAvatarAccessoryButton.SetVisible(Visible && SlotOccupied);
 		occupiedIndicator.SetVisible(Visible && SlotOccupied);
-		SetAlpha(0.8f);
+		SetAlpha(0.8f, string.Empty);
 	}
 
-	private void Equip(ProductInventoryInfo<StreamingAssetInfo> productInventoryInfo)
+	private void Equip(ProductInventoryInfo productInventoryInfo)
 	{
-		if (!waitForEquip)
+		if (Application.isEditor && productInventoryInfo.ProductInfo.IsEditorPreview)
+		{
+			if (SlotOccupied)
+			{
+				AvatarBody.EditorSwapAccessoryAssetPath(InventoryIDOfItemInSlot, productInventoryInfo.ProductInfo.AssetPath);
+			}
+		}
+		else if (!waitForEquip)
 		{
 			if (SlotOccupied)
 			{
@@ -229,8 +224,6 @@ public class MVGUIAvatarAccessorySlot : UXPlane
 
 	private void OnAvatarAccessoryCreated(AvatarAccessory avatarAccessory)
 	{
-		//IL_00be: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b3: Unknown result type (might be due to invalid IL or missing references)
 		MVNetworkGame game = Game;
 		game.OnSetAvatarAccessoryResponse = (Action<bool>)Delegate.Combine(game.OnSetAvatarAccessoryResponse, new Action<bool>(Game_OnSetAvatarAccessorySlotResponseEquipHandler));
 		Game.SetAvatarAccessorySlot(AvatarBody.Id, avatarAccessory.InventoryID, avatarAccessorySlot, avatarAccessory.DefaultOffset);
@@ -294,16 +287,16 @@ public class MVGUIAvatarAccessorySlot : UXPlane
 
 	private bool AcceptDrop(GameObject dropObject)
 	{
-		if ((Object)(object)_dragItem != (Object)null)
+		if (_dragItem != null)
 		{
-			return (Object)(object)_dragItem.AvatarAccessory != (Object)null && validSlot;
+			return _dragItem.AvatarAccessory != null && validSlot;
 		}
 		return false;
 	}
 
 	private void OnDrop(GameObject dropObject)
 	{
-		if ((Object)(object)_dragItem != (Object)null)
+		if (_dragItem != null)
 		{
 			_itemDroppedInSlot = true;
 		}

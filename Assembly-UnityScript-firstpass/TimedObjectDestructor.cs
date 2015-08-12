@@ -13,21 +13,21 @@ public class TimedObjectDestructor : MonoBehaviour
 		timeOut = 1f;
 	}
 
-	public override void Awake()
+	public virtual void Awake()
 	{
-		((MonoBehaviour)this).Invoke("DestroyNow", timeOut);
+		Invoke("DestroyNow", timeOut);
 	}
 
-	public override void DestroyNow()
+	public virtual void DestroyNow()
 	{
 		if (detachChildren)
 		{
-			((Component)this).transform.DetachChildren();
+			transform.DetachChildren();
 		}
-		Object.DestroyObject((Object)(object)((Component)this).gameObject);
+		UnityEngine.Object.DestroyObject(gameObject);
 	}
 
-	public override void Main()
+	public virtual void Main()
 	{
 	}
 }

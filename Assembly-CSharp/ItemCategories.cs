@@ -20,7 +20,7 @@ public class ItemCategories
 	{
 		if (!itemCategoriesNameID.ContainsKey(name))
 		{
-			Debug.LogError((object)"Could not find category id");
+			Debug.LogError("Could not find category id");
 			return -1;
 		}
 		return itemCategoriesNameID[name];
@@ -30,7 +30,7 @@ public class ItemCategories
 	{
 		if (!itemCategoriesIDName.ContainsKey(id))
 		{
-			Debug.LogError((object)"Could not find category name");
+			Debug.LogError("Could not find category name");
 			return string.Empty;
 		}
 		return itemCategoriesIDName[id];

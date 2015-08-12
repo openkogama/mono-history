@@ -16,7 +16,7 @@ public class AvatarAccessoryParticles : AvatarAccessory
 	{
 		base.Awake();
 		Category = AvatarAccessoryCategory.Particles;
-		RootParticleSystem = ((Component)this).GetComponentInChildren<ParticleSystem>();
+		RootParticleSystem = GetComponentInChildren<ParticleSystem>();
 	}
 
 	protected override void Start()
@@ -26,26 +26,16 @@ public class AvatarAccessoryParticles : AvatarAccessory
 
 	public override Bounds GetWorldBounds()
 	{
-		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0014: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0019: Unknown result type (might be due to invalid IL or missing references)
 		return new Bounds(Vector3.zero, new Vector3(2f, 2f, 2f));
 	}
 
 	public override Bounds GetLocalBounds()
 	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
 		return GetWorldBounds();
 	}
 
 	protected override void Update()
 	{
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0039: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003e: Unknown result type (might be due to invalid IL or missing references)
 		base.Update();
 		if (prevPosition != Transform.position)
 		{

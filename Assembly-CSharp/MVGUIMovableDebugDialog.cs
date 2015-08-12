@@ -1,4 +1,4 @@
-using System.Collections;
+using System.Collections.Generic;
 
 public class MVGUIMovableDebugDialog : UXCustomDialogBox
 {
@@ -16,13 +16,13 @@ public class MVGUIMovableDebugDialog : UXCustomDialogBox
 
 	public override object GetResult()
 	{
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add("Pos", positionTextField.Text);
-		hashtable.Add("Rot", rotationTextField.Text);
-		hashtable.Add("Vel", velocityTextField.Text);
-		hashtable.Add("AngVel", angularVelocityTextField.Text);
-		hashtable.Add("Dist", distanceTextField.Text);
-		hashtable.Add("ParentID", parentIDTextField.Text);
-		return hashtable;
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add("Pos", positionTextField.Text);
+		dictionary.Add("Rot", rotationTextField.Text);
+		dictionary.Add("Vel", velocityTextField.Text);
+		dictionary.Add("AngVel", angularVelocityTextField.Text);
+		dictionary.Add("Dist", distanceTextField.Text);
+		dictionary.Add("ParentID", parentIDTextField.Text);
+		return dictionary;
 	}
 }

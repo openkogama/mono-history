@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using MV.Common;
 using MV.WorldObject;
@@ -26,8 +25,8 @@ public abstract class MVInteractable : MVInteractableBase
 
 	protected bool IgnoreDamage(MVPlayer damageDealer)
 	{
-		MVTeam teamFromActorNr = MVGameController.Instance.Game.TeamManager.GetTeamFromActorNr(worldObjectParent.OwnerActorNr);
-		if (teamFromActorNr != MVTeam.None && damageDealer != null && teamFromActorNr == damageDealer.Team && MVGameController.Instance.Game.LocalPlayer.ProfileID != damageDealer.ProfileID)
+		MVTeam teamFromActorNr = MVGameController.Game.TeamManager.GetTeamFromActorNr(worldObjectParent.OwnerActorNr);
+		if (MVGameController.Game.TeamManager.TeamCount() > 1 && damageDealer != null && teamFromActorNr == damageDealer.Team && MVGameController.Game.LocalPlayer.ActorNr != damageDealer.ActorNr)
 		{
 			return true;
 		}
@@ -44,7 +43,7 @@ public abstract class MVInteractable : MVInteractableBase
 			float num = item.Value * Time.deltaTime;
 			if (num != 0f)
 			{
-				TakeDamage(num, MVGameController.Instance.Game.Players[key], PlayerKilledByType.FlameThrower);
+				TakeDamage(num, MVGameController.Game.Players[key], PlayerKilledByType.FlameThrower);
 			}
 		}
 		float num2 = HandleModifierEffect(AvatarModifierEffect.EnvironmentDamagePrSec, 0f) * Time.deltaTime;
@@ -57,12 +56,12 @@ public abstract class MVInteractable : MVInteractableBase
 	public override void AddModifier(AvatarModifierPackageType type, int id = -1, AvatarModifierPackage.AvatarModifier[] additionalModifers = null)
 	{
 		modifierPackages.AddModifier(type, id, additionalModifers);
-		Hashtable hashtable = ((Hashtable)runtimeDataModifiers.Value).Clone() as Hashtable;
+		Dictionary<object, object> dictionary = new Dictionary<object, object>((Dictionary<object, object>)runtimeDataModifiers.Value);
 		string key = "_" + type;
-		if (!hashtable.Contains(key))
+		if (!dictionary.ContainsKey(key))
 		{
-			hashtable.Add(key, (byte)0);
-			runtimeDataModifiers.Value = hashtable;
+			dictionary.Add(key, (byte)0);
+			runtimeDataModifiers.Value = dictionary;
 		}
 	}
 
@@ -73,12 +72,12 @@ public abstract class MVInteractable : MVInteractableBase
 
 	public override void RemoveModifier(AvatarModifierPackageType type, int id = -1)
 	{
-		Hashtable hashtable = ((Hashtable)runtimeDataModifiers.Value).Clone() as Hashtable;
+		Dictionary<object, object> dictionary = new Dictionary<object, object>((Dictionary<object, object>)runtimeDataModifiers.Value);
 		string key = "_" + type;
-		if (hashtable.Contains(key))
+		if (dictionary.ContainsKey(key))
 		{
-			hashtable.Remove(key);
-			runtimeDataModifiers.Value = hashtable;
+			dictionary.Remove(key);
+			runtimeDataModifiers.Value = dictionary;
 			modifierPackages.RemoveModifier(type, id);
 		}
 	}

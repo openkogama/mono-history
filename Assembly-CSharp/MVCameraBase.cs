@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class MVCameraBase : MonoBehaviour
@@ -6,24 +7,15 @@ public class MVCameraBase : MonoBehaviour
 
 	protected IgnoreInputTypes ignoreInputTypes;
 
-	public virtual Vector3 FireDirection
-	{
-		get
-		{
-			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-			return ((Component)this).transform.forward;
-		}
-	}
+	public virtual Vector3 FireDirection => transform.forward;
 
-	public virtual Vector3 FireOrigin
+	public virtual Vector3 FireOrigin => transform.position + transform.forward * cameraRadius;
+
+	public virtual CameraType CameraType
 	{
 		get
 		{
-			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0011: Unknown result type (might be due to invalid IL or missing references)
-			//IL_001c: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0021: Unknown result type (might be due to invalid IL or missing references)
-			return ((Component)this).transform.position + ((Component)this).transform.forward * cameraRadius;
+			throw new Exception("CameraType not implemented");
 		}
 	}
 
@@ -31,22 +23,15 @@ public class MVCameraBase : MonoBehaviour
 	{
 	}
 
-	private void camController_onIgnoreInputTypes(object sender, OnIgnoreInputTypesArgs e)
+	public void camController_onIgnoreInputTypes(object sender, OnIgnoreInputTypesArgs e)
 	{
 		ignoreInputTypes = e.inputTypes;
 	}
 
 	public virtual void UpdateCamera(MVCameraController camController, Transform targetTransform)
 	{
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0018: Unknown result type (might be due to invalid IL or missing references)
-		targetTransform.position = ((Component)this).transform.position;
-		targetTransform.rotation = ((Component)this).transform.rotation;
-	}
-
-	public virtual void Init(MVCameraController camController)
-	{
-		camController.onIgnoreInputTypes += camController_onIgnoreInputTypes;
+		targetTransform.position = transform.position;
+		targetTransform.rotation = transform.rotation;
 	}
 
 	public virtual void Enter(MVCameraController camController)

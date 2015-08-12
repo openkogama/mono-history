@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,19 +7,19 @@ public class MVDragonTargetArea : MVBlueprintBase
 
 	private TriggerBoxEvents triggerBoxEvents;
 
-	public MVDragonTargetArea(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVDragonTargetArea(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, "Prefabs/Blueprints/HurtingFlames", worldObjects)
 	{
 		interactionFlags |= InteractionFlags.CanClone;
 		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
-		if ((Object)(object)triggerBoxEvents != (Object)null)
+		if (triggerBoxEvents != null)
 		{
 			triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 			triggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
 		}
 		else
 		{
-			Debug.LogError((object)("A TriggerBoxEvents object is missing in PickupItem type: " + GetType().Name));
+			Debug.LogError("A TriggerBoxEvents object is missing in PickupItem type: " + GetType().Name);
 		}
 	}
 

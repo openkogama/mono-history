@@ -24,24 +24,18 @@ internal class ESRotating : ESStateBase
 
 	public override void Enter(EditorStateMachine e)
 	{
-		//IL_003a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d5: Unknown result type (might be due to invalid IL or missing references)
-		Debug.Log((object)GetType().ToString());
+		Debug.Log(GetType().ToString());
 		targets = new List<MVWorldObjectClient>();
 		if (!e.NetworkSelector.RequestOwnership(e.SelectedIDs))
 		{
 			e.PopState();
 			return;
 		}
-		prevMouseX = Input.mousePosition.x;
+		prevMouseX = MVInputWrapper.GetPointerPosition().x;
 		List<Transform> list = new List<Transform>();
 		foreach (int selectedID in e.SelectedIDs)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(selectedID);
+			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(selectedID);
 			targets.Add(worldObjectClient);
 			list.Add(worldObjectClient.Transform);
 		}
@@ -53,45 +47,22 @@ internal class ESRotating : ESStateBase
 		{
 			pivot = SharedCubeFunctions.GetWorldCenter(list);
 		}
-		laser = MVGameController.Instance.WOCM.AvatarLocal.LaserPointer;
+		laser = MVGameController.WOCM.AvatarLocal.LaserPointer;
 		laser.ChangeState(LaserPointerState.Transforming);
 		laser.LaserActive = true;
 	}
 
 	public override void Execute(EditorStateMachine e)
 	{
-		//IL_0036: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0237: Unknown result type (might be due to invalid IL or missing references)
-		//IL_023c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0251: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00bd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ef: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0111: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0116: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0138: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0173: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0178: Unknown result type (might be due to invalid IL or missing references)
-		//IL_019d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01ca: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01cf: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01e3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_015f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0164: Unknown result type (might be due to invalid IL or missing references)
 		base.Execute(e);
 		float num = 1f;
 		if (e.GridMode)
 		{
 			num = 15f;
 		}
-		if (MVInputWrapper.GetKey((KeyCode)323))
+		if (MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect))
 		{
-			xAcc += (Input.mousePosition.x - prevMouseX) * (mouseSensitivity / num);
+			xAcc += (MVInputWrapper.GetPointerPosition().x - prevMouseX) * (mouseSensitivity / num);
 			while (Mathf.Abs(xAcc) > rotateThreshold)
 			{
 				float num2 = xAcc / Mathf.Abs(xAcc);
@@ -130,7 +101,7 @@ internal class ESRotating : ESStateBase
 				}
 				xAcc -= num2 * rotateThreshold;
 			}
-			prevMouseX = Input.mousePosition.x;
+			prevMouseX = MVInputWrapper.GetPointerPosition().x;
 			laser.UpdatePosition(pivot);
 		}
 		else
@@ -149,10 +120,8 @@ internal class ESRotating : ESStateBase
 
 	private void DoGridSnapping()
 	{
-		//IL_003e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0043: Unknown result type (might be due to invalid IL or missing references)
 		float num = 0f;
-		num = ((!AEditController.IsGridSnap()) ? 0.0625f : 1f);
+		num = ((!MVGameController.EditorController.IsGridSnap()) ? 0.0625f : 1f);
 		foreach (MVWorldObjectClient target in targets)
 		{
 			target.SyncPos = target.GetClosestGridPoint(num, target.WorldPosition);

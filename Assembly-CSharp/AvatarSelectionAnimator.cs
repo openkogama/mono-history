@@ -40,26 +40,17 @@ public class AvatarSelectionAnimator : MonoBehaviour
 	{
 		get
 		{
-			//IL_003e: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0044: Expected Obj, but got Unknown
-			if ((Object)(object)_instance == (Object)null)
+			if (_instance == null)
 			{
-				_instance = Object.FindObjectOfType(typeof(AvatarSelectionAnimator)) as AvatarSelectionAnimator;
+				_instance = UnityEngine.Object.FindObjectOfType(typeof(AvatarSelectionAnimator)) as AvatarSelectionAnimator;
 			}
-			if ((Object)(object)_instance == (Object)null)
+			if (_instance == null)
 			{
-				GameObject val = new GameObject("AvatarSelectionAnimator");
-				_instance = val.AddComponent(typeof(AvatarSelectionAnimator)) as AvatarSelectionAnimator;
+				GameObject gameObject = new GameObject("AvatarSelectionAnimator");
+				_instance = gameObject.AddComponent(typeof(AvatarSelectionAnimator)) as AvatarSelectionAnimator;
 			}
 			return _instance;
 		}
-	}
-
-	public AvatarSelectionAnimator()
-	{
-		//IL_0025: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0034: Unknown result type (might be due to invalid IL or missing references)
 	}
 
 	private void Start()
@@ -69,27 +60,6 @@ public class AvatarSelectionAnimator : MonoBehaviour
 
 	private void Update()
 	{
-		//IL_00ce: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00da: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ea: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0105: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0116: Unknown result type (might be due to invalid IL or missing references)
-		//IL_012d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0134: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0139: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0144: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0149: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0150: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0155: Unknown result type (might be due to invalid IL or missing references)
-		//IL_015a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0170: Unknown result type (might be due to invalid IL or missing references)
-		//IL_017b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01a7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01c2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01f0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0206: Unknown result type (might be due to invalid IL or missing references)
 		if (targetIndex == -1 || currentIndex == -1)
 		{
 			return;
@@ -134,8 +104,6 @@ public class AvatarSelectionAnimator : MonoBehaviour
 
 	public void SetTargetIndex(int currentIndexInp, int TargetIndexInp)
 	{
-		//IL_0020: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0036: Unknown result type (might be due to invalid IL or missing references)
 		if (currentIndexInp == TargetIndexInp && targetIndex == -1)
 		{
 			Bodies[currentIndexInp].WorldPosition = displayPos;
@@ -158,12 +126,6 @@ public class AvatarSelectionAnimator : MonoBehaviour
 
 	public void SetTargetIndexNoAnim(int oldindex, int TargetIndexInp)
 	{
-		//IL_0050: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0066: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0093: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0039: Unknown result type (might be due to invalid IL or missing references)
 		if (currentIndex != -1)
 		{
 			Bodies[currentIndex].WorldPosition = hidePos;

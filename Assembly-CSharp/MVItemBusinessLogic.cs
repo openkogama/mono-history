@@ -10,7 +10,7 @@ public class MVItemBusinessLogic
 	{
 		if (items.ContainsKey(item.itemID))
 		{
-			Debug.LogWarning((object)"Item already added to business logic. Will be overwritten!");
+			Debug.LogWarning("Item already added to business logic. Will be overwritten!");
 			return;
 		}
 		MVItem mVItem = new MVItem();

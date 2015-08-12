@@ -1,4 +1,4 @@
-using System.Collections;
+using System.Collections.Generic;
 using MV.Common;
 
 public class AvatarEquipable : MVEquipable
@@ -13,7 +13,7 @@ public class AvatarEquipable : MVEquipable
 		this.currentItem = currentItem;
 	}
 
-	public override void Equip(AvatarItemType type, Hashtable itemData, int variantID = 0)
+	public override void Equip(AvatarItemType type, Dictionary<object, object> itemData, int variantID = 0)
 	{
 		switch (type)
 		{
@@ -23,15 +23,21 @@ public class AvatarEquipable : MVEquipable
 			interactableLocal.TakeDamage(-50f, null, PlayerKilledByType.None);
 			return;
 		case AvatarItemType.Mutant:
+			interactableLocal.RemoveModifier(AvatarModifierPackageType.NinjaRun);
 			interactableLocal.AddModifier(AvatarModifierPackageType.Mutant);
 			Unequip();
+			return;
+		case AvatarItemType.NinjaRun:
+			interactableLocal.RemoveModifier(AvatarModifierPackageType.Mutant);
+			interactableLocal.RemoveModifier(AvatarModifierPackageType.NinjaRun);
+			interactableLocal.AddModifier(AvatarModifierPackageType.NinjaRun);
 			return;
 		}
 		if (!interactableLocal.HasModifier(AvatarModifierPackageType.Mutant))
 		{
 			if (itemData != null)
 			{
-				currentItem.Value = new Hashtable
+				currentItem.Value = new Dictionary<object, object>
 				{
 					{
 						"type",
@@ -43,7 +49,7 @@ public class AvatarEquipable : MVEquipable
 			}
 			else
 			{
-				currentItem.Value = new Hashtable
+				currentItem.Value = new Dictionary<object, object>
 				{
 					{
 						"type",
@@ -57,6 +63,6 @@ public class AvatarEquipable : MVEquipable
 
 	public override void Unequip()
 	{
-		currentItem.Value = new Hashtable { { "type", 5 } };
+		currentItem.Value = new Dictionary<object, object> { { "type", 5 } };
 	}
 }

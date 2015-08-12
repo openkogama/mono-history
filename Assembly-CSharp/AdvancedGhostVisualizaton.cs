@@ -52,26 +52,20 @@ public class AdvancedGhostVisualizaton : MonoBehaviour
 
 		protected override void UpdateEffect(AdvancedGhostVisualizaton ghostVisualizaton)
 		{
-			//IL_0002: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0007: Unknown result type (might be due to invalid IL or missing references)
-			//IL_000e: Unknown result type (might be due to invalid IL or missing references)
 			Vector3 localScale = UpdateScale(ghostVisualizaton);
-			((Component)ghostVisualizaton).transform.localScale = localScale;
+			ghostVisualizaton.transform.localScale = localScale;
 		}
 
 		private Vector3 UpdateScale(AdvancedGhostVisualizaton ghostVisualizaton)
 		{
-			//IL_000f: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0015: Unknown result type (might be due to invalid IL or missing references)
 			float num = timeLeft / duration;
 			return ghostVisualizaton.baseScale * num;
 		}
 
 		public override void Exit(AdvancedGhostVisualizaton ghost)
 		{
-			//IL_0007: Unknown result type (might be due to invalid IL or missing references)
-			((Component)ghost).transform.localScale = ghost.baseScale;
-			((Component)ghost).gameObject.SetActiveRecursively(false);
+			ghost.transform.localScale = ghost.baseScale;
+			ghost.gameObject.SetActive(value: false);
 		}
 	}
 
@@ -80,32 +74,25 @@ public class AdvancedGhostVisualizaton : MonoBehaviour
 		public Respawn(float duration, AdvancedGhostVisualizaton ghostVisualizaton)
 			: base(duration)
 		{
-			//IL_000d: Unknown result type (might be due to invalid IL or missing references)
-			((Component)ghostVisualizaton).transform.localScale = Vector3.zero;
-			((Component)ghostVisualizaton).gameObject.SetActiveRecursively(true);
+			ghostVisualizaton.transform.localScale = Vector3.zero;
+			ghostVisualizaton.gameObject.SetActive(value: true);
 		}
 
 		protected override void UpdateEffect(AdvancedGhostVisualizaton ghostVisualizaton)
 		{
-			//IL_0002: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0007: Unknown result type (might be due to invalid IL or missing references)
-			//IL_000e: Unknown result type (might be due to invalid IL or missing references)
 			Vector3 localScale = UpdateScale(ghostVisualizaton);
-			((Component)ghostVisualizaton).transform.localScale = localScale;
+			ghostVisualizaton.transform.localScale = localScale;
 		}
 
 		private Vector3 UpdateScale(AdvancedGhostVisualizaton ghostVisualizaton)
 		{
-			//IL_0016: Unknown result type (might be due to invalid IL or missing references)
-			//IL_001c: Unknown result type (might be due to invalid IL or missing references)
 			float num = (duration - timeLeft) / duration;
 			return ghostVisualizaton.baseScale * num;
 		}
 
 		public override void Exit(AdvancedGhostVisualizaton ghost)
 		{
-			//IL_0007: Unknown result type (might be due to invalid IL or missing references)
-			((Component)ghost).transform.localScale = ghost.baseScale;
+			ghost.transform.localScale = ghost.baseScale;
 		}
 	}
 
@@ -127,9 +114,7 @@ public class AdvancedGhostVisualizaton : MonoBehaviour
 
 	private void Awake()
 	{
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		baseScale = ((Component)this).transform.localScale;
+		baseScale = transform.localScale;
 	}
 
 	public void SetRotationSpeed(float rotationSpeed)
@@ -174,7 +159,7 @@ public class AdvancedGhostVisualizaton : MonoBehaviour
 
 	private void Start()
 	{
-		blinker.Init(((Component)this).gameObject.GetComponentsInChildren<MeshFilter>());
+		blinker.Init(gameObject.GetComponentsInChildren<MeshFilter>());
 	}
 
 	private void OnEnable()

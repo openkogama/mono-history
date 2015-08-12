@@ -6,7 +6,7 @@ public class AudioScriptTestB : AudioScript
 
 	public void TestPrint()
 	{
-		MonoBehaviour.print((object)"TestPrint: B");
+		MonoBehaviour.print("TestPrint: B");
 	}
 
 	public override void Test()

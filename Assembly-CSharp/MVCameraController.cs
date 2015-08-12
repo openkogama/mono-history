@@ -5,43 +5,154 @@ using UnityEngine;
 
 public class MVCameraController : MonoBehaviour
 {
-	public TransitionCamera transitionCamera;
+	private class CameraStack
+	{
+		private readonly List<MVCameraBase> activeCameras = new List<MVCameraBase>();
 
-	public Transform playModeCamera;
+		private readonly Dictionary<CameraType, MVCameraBase> cameras = new Dictionary<CameraType, MVCameraBase>();
 
-	public Transform jetPackCamera;
+		private TransitionCamera TransitionCamera => (TransitionCamera)cameras[CameraType.TransitionCamera];
 
-	public Transform freeRoamCamera;
+		public MVCameraBase CurCamera
+		{
+			get
+			{
+				if (activeCameras.Count == 0)
+				{
+					return null;
+				}
+				return activeCameras[activeCameras.Count - 1];
+			}
+		}
 
-	public Transform avatarAccessoryCamera;
+		public CameraStack(List<MVCameraBase> camerasList, MVCameraController cameraController)
+		{
+			foreach (MVCameraBase cameras in camerasList)
+			{
+				this.cameras.Add(cameras.CameraType, cameras);
+			}
+		}
 
-	public Transform orbitCamera;
+		public void SetCamera(CameraType cameraType, MVCameraController cameraController)
+		{
+			EnterCamera(cameras[cameraType], cameraController);
+		}
+
+		public void SetCamera(MVCameraBase newCamera, MVCameraController cameraController)
+		{
+			EnterCamera(newCamera, cameraController);
+		}
+
+		public void StartTransitionCam(MVCameraController cameraController, float transitionTime = 2f, bool soft = false)
+		{
+			TransitionCamera.InitTransition(cameraController, CurCamera.transform, transitionTime, soft);
+		}
+
+		public void UpdateCamera(MVCameraController cameraController)
+		{
+			if (TransitionCamera.RotPercentage < 1f)
+			{
+				CurCamera.UpdateCamera(cameraController, cameraController.transform);
+				TransitionCamera.UpdateCamera(cameraController, cameraController.transform);
+			}
+			else
+			{
+				CurCamera.UpdateCamera(cameraController, cameraController.transform);
+			}
+		}
+
+		public void HandleInput(MVCameraController cameraController)
+		{
+			CurCamera.HandleInput(cameraController);
+		}
+
+		private void EnterCamera(MVCameraBase newCamera, MVCameraController cameraController)
+		{
+			for (int num = activeCameras.Count - 1; num >= 0; num--)
+			{
+				activeCameras[num].Exit(cameraController);
+				cameraController.onIgnoreInputTypes = (EventHandler<OnIgnoreInputTypesArgs>)Delegate.Remove(cameraController.onIgnoreInputTypes, new EventHandler<OnIgnoreInputTypesArgs>(activeCameras[num].camController_onIgnoreInputTypes));
+				activeCameras.RemoveAt(num);
+			}
+			activeCameras.Add(newCamera);
+			cameraController.onIgnoreInputTypes = (EventHandler<OnIgnoreInputTypesArgs>)Delegate.Combine(cameraController.onIgnoreInputTypes, new EventHandler<OnIgnoreInputTypesArgs>(CurCamera.camController_onIgnoreInputTypes));
+			CurCamera.Enter(cameraController);
+		}
+
+		public T GetCamera<T>() where T : MVCameraBase
+		{
+			foreach (KeyValuePair<CameraType, MVCameraBase> camera in cameras)
+			{
+				if (camera.Value.GetType() == typeof(T))
+				{
+					return (T)camera.Value;
+				}
+			}
+			return (T)null;
+		}
+
+		public void PushCamera(CameraType cameraType, MVCameraController cameraController)
+		{
+			PushCamera(cameras[cameraType], cameraController);
+		}
+
+		public void PushCamera(MVCameraBase cameraBase, MVCameraController cameraController)
+		{
+			activeCameras.Add(cameraBase);
+			cameraController.onIgnoreInputTypes = (EventHandler<OnIgnoreInputTypesArgs>)Delegate.Combine(cameraController.onIgnoreInputTypes, new EventHandler<OnIgnoreInputTypesArgs>(CurCamera.camController_onIgnoreInputTypes));
+			CurCamera.Enter(cameraController);
+		}
+
+		public void RemoveCamera(CameraType cameraType, MVCameraController cameraController)
+		{
+			RemoveCamera(cameras[cameraType], cameraController);
+		}
+
+		public void RemoveCamera(MVCameraBase cameraBase, MVCameraController cameraController)
+		{
+			for (int num = activeCameras.Count - 1; num >= 0; num--)
+			{
+				if (activeCameras[num] == cameraBase)
+				{
+					activeCameras[num].Exit(cameraController);
+					cameraController.onIgnoreInputTypes = (EventHandler<OnIgnoreInputTypesArgs>)Delegate.Remove(cameraController.onIgnoreInputTypes, new EventHandler<OnIgnoreInputTypesArgs>(CurCamera.camController_onIgnoreInputTypes));
+					activeCameras.RemoveAt(num);
+					break;
+				}
+			}
+		}
+	}
+
+	private CameraStack cameraStack;
+
+	[SerializeField]
+	private List<MVCameraBase> cameraBases = new List<MVCameraBase>();
+
+	[SerializeField]
+	private Transform secondaryCamera;
+
+	[SerializeField]
+	private Transform tertiaryCamera;
+
+	private bool isLogicRendered;
 
 	public Shader transparentMultiplyColor;
 
-	private readonly Dictionary<CameraType, MVCameraBase> cameras = new Dictionary<CameraType, MVCameraBase>();
+	private static float baseVolume;
 
-	private MVCameraBase curCamera;
+	private static bool mute;
 
-	private ILogger logger;
-
-	public Transform secondaryCamera;
-
-	public Transform tertiaryCamera;
-
-	private CameraType currentCameraType;
-
-	public bool IgnoreInput { get; set; }
+	public static Action<bool> OnMuteChange;
 
 	public bool SecondaryCameraActive
 	{
 		get
 		{
-			return ((Component)secondaryCamera).gameObject.active;
+			return secondaryCamera.gameObject.activeInHierarchy;
 		}
 		set
 		{
-			((Component)secondaryCamera).gameObject.active = value;
+			secondaryCamera.gameObject.SetActive(value);
 		}
 	}
 
@@ -49,66 +160,88 @@ public class MVCameraController : MonoBehaviour
 	{
 		get
 		{
-			return ((Component)tertiaryCamera).gameObject.active;
+			return tertiaryCamera.gameObject.activeInHierarchy;
 		}
 		set
 		{
-			((Component)tertiaryCamera).gameObject.active = value;
+			tertiaryCamera.gameObject.SetActive(value);
 		}
 	}
 
-	public Camera TertiaryCamera => ((Component)tertiaryCamera).GetComponent<Camera>();
+	public Camera TertiaryCamera => tertiaryCamera.GetComponent<Camera>();
 
-	public MVCameraBase CurCamera => curCamera;
+	public bool IsLogicRendered => isLogicRendered;
+
+	public MVCameraBase CurCamera => cameraStack.CurCamera;
+
+	public static bool Mute
+	{
+		get
+		{
+			return mute;
+		}
+		set
+		{
+			mute = value;
+			if (mute)
+			{
+				Debug.Log("Sound off " + baseVolume);
+				AudioListener.volume = 0f;
+			}
+			else
+			{
+				Debug.Log("Sound on " + baseVolume);
+				AudioListener.volume = baseVolume;
+			}
+			if (OnMuteChange != null)
+			{
+				OnMuteChange(mute);
+			}
+		}
+	}
 
 	public event EventHandler<OnIgnoreInputTypesArgs> onIgnoreInputTypes;
 
+	public void RenderLogic(bool renderLogic)
+	{
+		if (renderLogic)
+		{
+			GetComponent<Camera>().cullingMask |= 1 << LayerMask.NameToLayer("Logic");
+		}
+		else
+		{
+			GetComponent<Camera>().cullingMask &= ~(1 << LayerMask.NameToLayer("Logic"));
+		}
+		isLogicRendered = renderLogic;
+	}
+
 	public T GetCamera<T>() where T : MVCameraBase
 	{
-		foreach (KeyValuePair<CameraType, MVCameraBase> camera in cameras)
-		{
-			if ((object)((object)camera.Value).GetType() == typeof(T))
-			{
-				return (T)camera.Value;
-			}
-		}
-		return (T)null;
+		return cameraStack.GetCamera<T>();
 	}
 
 	private void Awake()
 	{
-		logger = LoggerManager.Instance.GetLogger(typeof(MVCameraController));
-		cameras[CameraType.ThirdPerson] = ((Component)playModeCamera).gameObject.GetComponent<MVCameraBase>();
-		cameras[CameraType.JetPackCamera] = ((Component)jetPackCamera).gameObject.GetComponent<MVCameraBase>();
-		cameras[CameraType.FreeRoam] = ((Component)freeRoamCamera).gameObject.GetComponent<MVCameraBase>();
-		cameras[CameraType.AvatarAccessory] = ((Component)avatarAccessoryCamera).gameObject.GetComponent<MVCameraBase>();
-		cameras[CameraType.OrbitCamera] = ((Component)orbitCamera).gameObject.GetComponent<MVCameraBase>();
-		foreach (KeyValuePair<CameraType, MVCameraBase> camera in cameras)
-		{
-			camera.Value.Init(this);
-		}
-		MVGameController.Instance.Game.CameraController = this;
-		transitionCamera.Init(this);
+		MVGameController.Game.CameraController = this;
+		cameraStack = new CameraStack(cameraBases, this);
+		baseVolume = AudioListener.volume;
+		Debug.Log(baseVolume);
+		Mute = false;
 	}
 
 	public void Init()
 	{
-		((Component)this).gameObject.camera.cullingMask = ~((1 << LayerMask.NameToLayer("UXElement")) | (1 << LayerMask.NameToLayer("Preview")) | (1 << LayerMask.NameToLayer("Hidden")));
-		Camera camera = ((Component)MVGameController.Instance.Game.CameraController).camera;
-		if (MVGameController.Instance.Game.GameMode == MVGameMode.Play && (camera.cullingMask & LayerMask.NameToLayer("Logic")) == LayerMask.NameToLayer("Logic"))
+		gameObject.GetComponent<Camera>().cullingMask = ~((1 << LayerMask.NameToLayer("UXElement")) | (1 << LayerMask.NameToLayer("Preview")) | ((1 << LayerMask.NameToLayer("Hidden")) | (1 << LayerMask.NameToLayer("UXElementSecondary"))));
+		Camera component = MVGameController.Game.CameraController.GetComponent<Camera>();
+		if (MVGameController.GameMode == MVGameMode.Play && (component.cullingMask & LayerMask.NameToLayer("Logic")) == LayerMask.NameToLayer("Logic"))
 		{
-			Camera camera2 = ((Component)this).gameObject.camera;
-			camera2.cullingMask -= 1 << (LayerMask.NameToLayer("Logic") & 0x1F);
+			gameObject.GetComponent<Camera>().cullingMask -= 1 << LayerMask.NameToLayer("Logic");
 		}
-	}
-
-	public void RequestCursorLock()
-	{
 	}
 
 	public void Respawn()
 	{
-		curCamera.Respawn();
+		cameraStack.CurCamera.Respawn();
 	}
 
 	public void IgnoreInputTypes(IgnoreInputTypes inputTypes)
@@ -119,48 +252,61 @@ public class MVCameraController : MonoBehaviour
 		}
 	}
 
+	public void SetPlayModeCam()
+	{
+		switch (GameDB.GameType)
+		{
+		case MVGameType.Classic:
+			cameraStack.SetCamera(CameraType.ThirdPerson, this);
+			break;
+		case MVGameType.Platformer:
+			cameraStack.SetCamera(CameraType.Platformer, this);
+			break;
+		}
+	}
+
 	public void SetCamera(CameraType cameraType)
 	{
-		logger.Log(string.Concat("SetCamera(", cameraType, ")."));
-		EnterCamera(cameras[cameraType]);
+		cameraStack.SetCamera(cameraType, this);
 	}
 
-	public void SetCamera(MVCameraBase newCamera)
+	public void SetCamera(MVCameraBase cameraBase)
 	{
-		newCamera.Init(this);
-		EnterCamera(newCamera);
+		cameraStack.SetCamera(cameraBase, this);
 	}
 
-	private void EnterCamera(MVCameraBase newCamera)
+	public void PushCamera(CameraType cameraType)
 	{
-		if ((Object)(object)curCamera != (Object)null)
-		{
-			curCamera.Exit(this);
-		}
-		curCamera = newCamera;
-		curCamera.Enter(this);
+		cameraStack.PushCamera(cameraType, this);
+	}
+
+	public void PushCamera(MVCameraBase cameraBase)
+	{
+		cameraStack.PushCamera(cameraBase, this);
+	}
+
+	public void RemoveCamera(CameraType cameraType)
+	{
+		cameraStack.RemoveCamera(cameraType, this);
+	}
+
+	public void RemoveCamera(MVCameraBase cameraBase)
+	{
+		cameraStack.RemoveCamera(cameraBase, this);
 	}
 
 	public void StartTransitionCam(float transitionTime = 2f, bool soft = false)
 	{
-		transitionCamera.InitTransition(this, ((Component)curCamera).transform, transitionTime, soft);
+		cameraStack.StartTransitionCam(this, transitionTime, soft);
 	}
 
 	public void UpdateCamera()
 	{
-		if (transitionCamera.rotPercentage < 1f)
-		{
-			curCamera.UpdateCamera(this, ((Component)this).transform);
-			transitionCamera.UpdateCamera(this, ((Component)this).transform);
-		}
-		else
-		{
-			curCamera.UpdateCamera(this, ((Component)this).transform);
-		}
+		cameraStack.HandleInput(this);
+		cameraStack.UpdateCamera(this);
 	}
 
 	public void HandleInput()
 	{
-		curCamera.HandleInput(this);
 	}
 }

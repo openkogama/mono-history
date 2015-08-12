@@ -1,33 +1,46 @@
-using System.Collections;
 using MV.WorldObject;
+using UnityEngine;
 
 public class MVPlayer
 {
-	public delegate void OnScoreUpdatedDelegate(int score);
-
-	public OnScoreUpdatedDelegate OnScoreUpdated;
-
-	private MVTeam team = MVTeam.None;
+	public delegate void OnLevelChangedDelegate(int level);
 
 	private int checkpointWOID = -1;
 
+	protected int level = 1;
+
+	private MVTeam team;
+
+	public OnLevelChangedDelegate OnLevelChanged;
+
 	private MVAvatar _avatar;
 
-	private int _score;
-
-	public int ProfileID { get; set; }
+	public int ProfileID { get; private set; }
 
 	public bool IsAnonymous => ProfileID == 0;
 
-	public int ActorNr { get; set; }
+	public int ActorNr { get; private set; }
 
-	public string Username { get; set; }
+	public string Username { get; private set; }
 
-	public string Password { get; set; }
+	public string RegionCode { get; private set; }
 
-	public int SilverAmount { get; set; }
-
-	public int GoldAmount { get; set; }
+	public int Level
+	{
+		get
+		{
+			return level;
+		}
+		set
+		{
+			bool flag = level != value;
+			level = value;
+			if (flag && OnLevelChanged != null)
+			{
+				OnLevelChanged(level);
+			}
+		}
+	}
 
 	public MVTeam Team
 	{
@@ -55,39 +68,29 @@ public class MVPlayer
 		}
 	}
 
-	public int Score
+	public MVPlayer(int actorNumber, int profileID, string userName, string regionCode)
 	{
-		get
+		ActorNr = actorNumber;
+		ProfileID = profileID;
+		if (profileID <= 0)
 		{
-			return _score;
+			string newValue = TM._("Tourist");
+			userName = userName.Replace("Tourist", newValue);
 		}
-		set
-		{
-			_score = value;
-			if (OnScoreUpdated != null)
-			{
-				OnScoreUpdated(_score);
-			}
-		}
+		Username = userName;
+		RegionCode = regionCode;
 	}
 
-	public int CollectibleCount
+	public MVPlayer(int actorNumber, int profileID, string userName, int level, string regionCode)
+		: this(actorNumber, profileID, userName, regionCode)
 	{
-		get
-		{
-			return (int)Avatar.CollectibleCount.Value;
-		}
-		private set
-		{
-			Avatar.CollectibleCount.Value = value;
-		}
+		Level = level;
+		Debug.Log("Level " + Level);
 	}
-
-	public Hashtable InitAvatarStatus { get; set; }
 
 	public void SetCheckpoint(int woid)
 	{
-		if (MVGameController.Instance.WOCM.IsType(woid, WorldObjectType.CheckPoint))
+		if (MVGameController.WOCM.IsType(woid, WorldObjectType.CheckPoint))
 		{
 			checkpointWOID = woid;
 		}
@@ -99,9 +102,9 @@ public class MVPlayer
 		{
 			return null;
 		}
-		if (MVGameController.Instance.WOCM.IsType(checkpointWOID, WorldObjectType.CheckPoint))
+		if (MVGameController.WOCM.IsType(checkpointWOID, WorldObjectType.CheckPoint))
 		{
-			return MVGameController.Instance.WOCM.GetWorldObjectClient(checkpointWOID) as MVCheckpoint;
+			return MVGameController.WOCM.GetWorldObjectClient(checkpointWOID) as MVCheckpoint;
 		}
 		checkpointWOID = -1;
 		return null;
@@ -112,23 +115,8 @@ public class MVPlayer
 		checkpointWOID = -1;
 	}
 
-	public void ChangeScore(int amount)
+	public int GetGameStat(GameStatCounterType gameStatCounterType)
 	{
-		int score = _score;
-		score += amount;
-		Score = ((score >= 0) ? score : 0);
-	}
-
-	public void Reset()
-	{
-		Score = 0;
-		CollectibleCount = 0;
-	}
-
-	public void ChangeCollectibleCount(int amount)
-	{
-		int collectibleCount = CollectibleCount;
-		collectibleCount += amount;
-		CollectibleCount = collectibleCount;
+		return MVGameController.Game.GameStatCounterManager.GetActorCount(gameStatCounterType, team, ActorNr);
 	}
 }

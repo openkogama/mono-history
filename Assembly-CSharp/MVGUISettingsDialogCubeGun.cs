@@ -1,5 +1,5 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
 
 public class MVGUISettingsDialogCubeGun
 {
@@ -11,9 +11,10 @@ public class MVGUISettingsDialogCubeGun
 
 	public MVGUISettingsDialogCubeGun()
 	{
-		currentMaterial = MVGameController.Instance.EditorController.EditorStateMachine.CubeModelingStateMachine.CurrentMaterialId;
-		wo = MVGameController.Instance.EditorController.GetSettingsDialogSelectionWO();
-		materialSelection = MVGameController.Instance.EditorController.ShowMaterialChangeWindow();
+		MVMaterialRepository.AllowDestructibleMaterialSelection = true;
+		currentMaterial = MVGameController.EditorController.EditorStateMachine.CubeModelingStateMachine.CurrentMaterialId;
+		wo = MVGameController.EditorController.GetSettingsDialogSelectionWO();
+		materialSelection = MVGameController.EditorController.ShowMaterialChangeWindow();
 		MVGUIMaterialSelectionWindow mVGUIMaterialSelectionWindow = materialSelection;
 		mVGUIMaterialSelectionWindow.OnMaterialSelection = (MVGUIMaterialSelectionWindow.OnMaterialSelectionDelegate)Delegate.Combine(mVGUIMaterialSelectionWindow.OnMaterialSelection, new MVGUIMaterialSelectionWindow.OnMaterialSelectionDelegate(SetCubeGunMaterial));
 		UXView view = materialSelection.View;
@@ -22,10 +23,10 @@ public class MVGUISettingsDialogCubeGun
 
 	private void SetCubeGunMaterial(byte materialId)
 	{
-		MVGameController.Instance.EditorController.EditorStateMachine.CubeModelingStateMachine.CurrentMaterialId = currentMaterial;
-		Hashtable data = wo.Data;
-		((Hashtable)data["itemData"])["material"] = materialId;
-		MVGameController.Instance.Game.UpdateWorldObjectDataPartial(wo.Id, data);
+		MVGameController.EditorController.EditorStateMachine.CubeModelingStateMachine.CurrentMaterialId = currentMaterial;
+		Dictionary<object, object> data = wo.Data;
+		((Dictionary<object, object>)data["itemData"])["material"] = materialId;
+		MVGameController.Game.UpdateWorldObjectDataPartial(wo.Id, data);
 		MVGUIMaterialSelectionWindow mVGUIMaterialSelectionWindow = materialSelection;
 		mVGUIMaterialSelectionWindow.OnMaterialSelection = (MVGUIMaterialSelectionWindow.OnMaterialSelectionDelegate)Delegate.Remove(mVGUIMaterialSelectionWindow.OnMaterialSelection, new MVGUIMaterialSelectionWindow.OnMaterialSelectionDelegate(SetCubeGunMaterial));
 		UXView view = materialSelection.View;
@@ -34,6 +35,7 @@ public class MVGUISettingsDialogCubeGun
 
 	private void OnHide()
 	{
+		MVMaterialRepository.AllowDestructibleMaterialSelection = false;
 		MVGUIMaterialSelectionWindow mVGUIMaterialSelectionWindow = materialSelection;
 		mVGUIMaterialSelectionWindow.OnMaterialSelection = (MVGUIMaterialSelectionWindow.OnMaterialSelectionDelegate)Delegate.Remove(mVGUIMaterialSelectionWindow.OnMaterialSelection, new MVGUIMaterialSelectionWindow.OnMaterialSelectionDelegate(SetCubeGunMaterial));
 		UXView view = materialSelection.View;

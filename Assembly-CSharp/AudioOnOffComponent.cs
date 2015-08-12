@@ -27,9 +27,8 @@ public class AudioOnOffComponent : MonoBehaviour
 
 	private void Awake()
 	{
-		Object val = Object.Instantiate((Object)(object)audioSourcePrefab);
-		onOffAudioSource = ((GameObject)((val is GameObject) ? val : null)).GetComponent<AudioSource>();
-		((Component)onOffAudioSource).transform.parent = ((Component)this).transform;
+		onOffAudioSource = Object.Instantiate(audioSourcePrefab).GetComponent<AudioSource>();
+		onOffAudioSource.transform.parent = transform;
 		onOffAudioSource.loop = loop;
 	}
 
@@ -44,7 +43,7 @@ public class AudioOnOffComponent : MonoBehaviour
 			TurnOff();
 			break;
 		}
-		((MonoBehaviour)this).StartCoroutine(Fader(0f, 1f));
+		StartCoroutine(Fader(0f, 1f));
 	}
 
 	private IEnumerator Fader(float minEndPoint, float maxEndPoint)
@@ -56,20 +55,20 @@ public class AudioOnOffComponent : MonoBehaviour
 		while (counter < 1f)
 		{
 			fadeNum = Mathf.Lerp(startFade, fadeToNum, counter);
-			MonoBehaviour.print((object)fadeNum);
+			MonoBehaviour.print(fadeNum);
 			onOffAudioSource.pitch = fadeNum;
 			counter += Time.deltaTime * fadeSpeed;
 			yield return 0;
 		}
 		fadeNum = fadeToNum;
 		onOffAudioSource.pitch = fadeNum;
-		MonoBehaviour.print((object)("End: " + fadeNum));
-		((MonoBehaviour)this).StartCoroutine(Fader(minEndPoint, maxEndPoint));
+		MonoBehaviour.print("End: " + fadeNum);
+		StartCoroutine(Fader(minEndPoint, maxEndPoint));
 	}
 
 	public virtual void TurnOn()
 	{
-		if ((Object)(object)onClip != (Object)null)
+		if (onClip != null)
 		{
 			PlayClip(onOffAudioSource, onClip, loop, onMinPitch, onMaxPitch, onMinVol, onMaxVol);
 		}

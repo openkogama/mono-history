@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
@@ -37,9 +36,9 @@ public abstract class MVWorldObject
 
 	private WorldObjectType type;
 
-	internal Hashtable data;
+	internal Dictionary<object, object> data;
 
-	internal Hashtable runTimeData = new Hashtable();
+	private Dictionary<object, object> runTimeData = new Dictionary<object, object>();
 
 	private int timestamp;
 
@@ -109,13 +108,10 @@ public abstract class MVWorldObject
 	{
 		get
 		{
-			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
 			return position;
 		}
 		set
 		{
-			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0002: Unknown result type (might be due to invalid IL or missing references)
 			position = value;
 		}
 	}
@@ -124,13 +120,10 @@ public abstract class MVWorldObject
 	{
 		get
 		{
-			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
 			return rotation;
 		}
 		set
 		{
-			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0002: Unknown result type (might be due to invalid IL or missing references)
 			rotation = value;
 		}
 	}
@@ -139,34 +132,17 @@ public abstract class MVWorldObject
 	{
 		get
 		{
-			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
 			return scale;
 		}
 		set
 		{
-			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0002: Unknown result type (might be due to invalid IL or missing references)
 			scale = value;
 		}
 	}
 
-	public virtual Vector3 WorldPosition
-	{
-		get
-		{
-			//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-			return Vector3.zero;
-		}
-	}
+	public virtual Vector3 WorldPosition => Vector3.zero;
 
-	public virtual Quaternion WorldRotation
-	{
-		get
-		{
-			//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-			return Quaternion.identity;
-		}
-	}
+	public virtual Quaternion WorldRotation => Quaternion.identity;
 
 	public WorldObjectType WorldObjectType
 	{
@@ -180,7 +156,7 @@ public abstract class MVWorldObject
 		}
 	}
 
-	public Hashtable Data
+	public Dictionary<object, object> Data
 	{
 		get
 		{
@@ -192,7 +168,7 @@ public abstract class MVWorldObject
 		}
 	}
 
-	public Hashtable RunTimeData
+	public virtual Dictionary<object, object> RunTimeData
 	{
 		get
 		{
@@ -262,12 +238,6 @@ public abstract class MVWorldObject
 
 	public MVWorldObject(MVWorldObject wo)
 	{
-		//IL_0094: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0099: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ac: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b1: Unknown result type (might be due to invalid IL or missing references)
 		id = wo.id;
 		groupId = wo.groupId;
 		inputState = wo.inputState;
@@ -295,24 +265,21 @@ public abstract class MVWorldObject
 		RunTimeData = RuntimeVariablesRepository.GetRuntimeVariables(WorldObjectType);
 	}
 
-	public Hashtable DeepCopyWorldObjectDataParameters()
+	public Dictionary<object, object> DeepCopyWorldObjectDataParameters()
 	{
-		//IL_009a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c8: Unknown result type (might be due to invalid IL or missing references)
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add(WorldObjectDataParameters.WorldObjectType, WorldObjectType);
-		hashtable.Add(WorldObjectDataParameters.Id, Id);
-		hashtable.Add(WorldObjectDataParameters.GroudId, GroupId);
-		hashtable.Add(WorldObjectDataParameters.ItemId, ItemId);
-		hashtable.Add(WorldObjectDataParameters.OwnerActorNumber, OwnerActorNr);
-		hashtable.Add(WorldObjectDataParameters.PreviewOwnerProfileId, PreviewOwnerProfileId);
-		hashtable.Add(WorldObjectDataParameters.Position, Position);
-		hashtable.Add(WorldObjectDataParameters.Rotation, Rotation);
-		hashtable.Add(WorldObjectDataParameters.Scale, Scale);
-		hashtable.Add(WorldObjectDataParameters.Data, HashtableFunctions.DeepCopyHashTable(Data));
-		hashtable.Add(WorldObjectDataParameters.RuntimeData, HashtableFunctions.DeepCopyHashTable(RunTimeData));
-		return hashtable;
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add(WorldObjectDataParameters.WorldObjectType, WorldObjectType);
+		dictionary.Add(WorldObjectDataParameters.Id, Id);
+		dictionary.Add(WorldObjectDataParameters.GroudId, GroupId);
+		dictionary.Add(WorldObjectDataParameters.ItemId, ItemId);
+		dictionary.Add(WorldObjectDataParameters.OwnerActorNumber, OwnerActorNr);
+		dictionary.Add(WorldObjectDataParameters.PreviewOwnerProfileId, PreviewOwnerProfileId);
+		dictionary.Add(WorldObjectDataParameters.Position, Position);
+		dictionary.Add(WorldObjectDataParameters.Rotation, Rotation);
+		dictionary.Add(WorldObjectDataParameters.Scale, Scale);
+		dictionary.Add(WorldObjectDataParameters.Data, HashtableFunctions.DeepCopyHashTable(Data));
+		dictionary.Add(WorldObjectDataParameters.RuntimeData, HashtableFunctions.DeepCopyHashTable(RunTimeData));
+		return dictionary;
 	}
 
 	protected void GetLinksForClone(List<int> links)
@@ -508,15 +475,15 @@ public abstract class MVWorldObject
 
 	public override string ToString()
 	{
-		return string.Concat(new object[7] { WorldObjectType, " id: ", id, " groupId: ", groupId, " itemId: ", itemId });
+		return string.Concat(WorldObjectType, " id: ", id, " groupId: ", groupId, " itemId: ", itemId);
 	}
 
-	public virtual void PartialUpdateWOData(Hashtable newWOData)
+	public virtual void PartialUpdateWOData(Dictionary<object, object> newWOData)
 	{
 		CommonUtils.PartialUpdateHashtable(data, newWOData);
 	}
 
-	public virtual void PartialRemoveFromWOData(Hashtable dataToRemove)
+	public virtual void PartialRemoveFromWOData(Dictionary<object, object> dataToRemove)
 	{
 		CommonUtils.PartialRemoveFromHashtable(data, dataToRemove);
 	}

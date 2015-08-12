@@ -12,7 +12,7 @@ public class CellCursor : ICursor
 		{
 			foreach (CellCursorCubeLineMesh cursorCube in cursorCubes)
 			{
-				cursorCube.GameObject.active = value;
+				cursorCube.GameObject.SetActive(value);
 			}
 		}
 	}

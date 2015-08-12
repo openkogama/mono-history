@@ -15,10 +15,9 @@ public class DeleteCursor
 
 	public void UpdateCursor(CubePickingInfo selectedCube, MVCubeModelBase targetCubeModel, bool deletedCube)
 	{
-		//IL_0067: Unknown result type (might be due to invalid IL or missing references)
 		if (deletedCube)
 		{
-			MVGameController.Instance.WOCM.AvatarLocal.LaserPointer.ActivateLaserForDuration(deleteCubeLaserOnTime);
+			MVGameController.WOCM.AvatarLocal.LaserPointer.ActivateLaserForDuration(deleteCubeLaserOnTime);
 			deleteCubeTime = Time.time;
 		}
 		if (Time.time - deleteCubeTime < deleteCubeLaserOnTime)
@@ -26,7 +25,7 @@ public class DeleteCursor
 		}
 		if (selectedCube != null)
 		{
-			MVGameController.Instance.WOCM.AvatarLocal.LaserPointer.UpdatePosition(selectedCube.point);
+			MVGameController.WOCM.AvatarLocal.LaserPointer.UpdatePosition(selectedCube.point);
 			deleteCursor.Active = true;
 			deleteCursor.SetCursor(selectedCube.iLocalPos, targetCubeModel.GameObject);
 		}

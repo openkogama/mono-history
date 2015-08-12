@@ -25,28 +25,24 @@ public class UseInteractorHandler : MVComponent
 
 	private void UpdateInteractorsWOID()
 	{
-		//IL_0093: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0098: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a2: Unknown result type (might be due to invalid IL or missing references)
 		List<int> list = new List<int>();
 		foreach (KeyValuePair<int, UseInteractor> useInteractor in useInteractors)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(useInteractor.Key);
+			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(useInteractor.Key);
 			if (worldObjectClient == null || useInteractor.Value == null)
 			{
 				list.Add(useInteractor.Key);
 				continue;
 			}
-			if ((Object)(object)useInteractor.Value.TrigggerCollider == (Object)null)
+			if (useInteractor.Value.TrigggerCollider == null)
 			{
 				list.Add(useInteractor.Key);
 				continue;
 			}
 			Collider trigggerCollider = useInteractor.Value.TrigggerCollider;
-			Bounds bounds = trigggerCollider.bounds;
-			if (!bounds.Intersects(triggingCollider.bounds))
+			if (!trigggerCollider.bounds.Intersects(triggingCollider.bounds))
 			{
-				Debug.Log((object)"Removing due to bounds not intersecting");
+				Debug.Log("Removing due to bounds not intersecting");
 				list.Add(useInteractor.Key);
 			}
 		}
@@ -69,41 +65,32 @@ public class UseInteractorHandler : MVComponent
 		{
 			flag = true;
 		}
-		if (MVGameController.Instance.IngameController != null)
+		if (flag)
 		{
-			if (flag)
+			ShowUseOption option = ShowUseOption.Normal;
+			List<UseInteractor> list = SortByDistance();
+			if (list.Count > 0)
 			{
-				MVGameController.Instance.IngameController.ShowEUseIcon();
+				MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(list[0].WoOwnerId);
+				if (worldObjectClient is MVWorldObjectSpawnerVehicle && (worldObjectClient as MVWorldObjectSpawnerVehicle).GameCoinLogic.PurchaseAmount > 0)
+				{
+					option = ((worldObjectClient as MVWorldObjectSpawnerVehicle).GameCoinLogic.CanUse() ? ShowUseOption.GameCoinsEnough : ShowUseOption.GameCoinsInsufficient);
+				}
 			}
-			else
-			{
-				MVGameController.Instance.IngameController.HideEUseIcon();
-			}
+			MVGameController.PlayController.ShowEUseIcon(option);
+		}
+		else
+		{
+			MVGameController.PlayController.HideEUseIcon();
 		}
 	}
 
 	private bool IsInFront(Collider triggerCollider)
 	{
-		//IL_0016: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0020: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0025: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0027: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0035: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0043: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0048: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0049: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004a: Unknown result type (might be due to invalid IL or missing references)
-		Transform transform = ((Component)MVGameController.Instance.Game.CameraController).transform;
-		Vector3 val = transform.rotation * Vector3.forward;
-		Bounds bounds = triggerCollider.bounds;
-		Vector3 val2 = bounds.center - transform.position;
-		Vector3 normalized = val2.normalized;
-		if (Vector3.Dot(val, normalized) > 0f)
+		Transform transform = MVGameController.Game.CameraController.transform;
+		Vector3 lhs = transform.rotation * Vector3.forward;
+		Vector3 normalized = (triggerCollider.bounds.center - transform.position).normalized;
+		if (Vector3.Dot(lhs, normalized) > 0f)
 		{
 			return true;
 		}
@@ -112,22 +99,9 @@ public class UseInteractorHandler : MVComponent
 
 	private List<UseInteractor> SortByDistance()
 	{
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0030: Unknown result type (might be due to invalid IL or missing references)
 		List<UseInteractor> source = useInteractors.Values.ToList();
-		Bounds bounds = ((Component)triggingCollider).collider.bounds;
-		Vector3 triggingColliderPosition = bounds.center;
-		return source.OrderBy((UseInteractor a) =>
-		{
-			//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0011: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0016: Unknown result type (might be due to invalid IL or missing references)
-			//IL_001b: Unknown result type (might be due to invalid IL or missing references)
-			Vector3 val = ((Component)a.TrigggerCollider).transform.position - triggingColliderPosition;
-			return val.sqrMagnitude;
-		}).ToList();
+		Vector3 triggingColliderPosition = triggingCollider.GetComponent<Collider>().bounds.center;
+		return source.OrderBy((UseInteractor a) => (a.TrigggerCollider.transform.position - triggingColliderPosition).sqrMagnitude).ToList();
 	}
 
 	public bool Use()

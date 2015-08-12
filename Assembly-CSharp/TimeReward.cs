@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using UnityEngine;
 
 public class TimeReward : IUpdatecontrollerSubscriber
@@ -30,6 +31,22 @@ public class TimeReward : IUpdatecontrollerSubscriber
 			Denied
 		}
 
+		private class RewardData
+		{
+			public bool rewardEnabled;
+
+			public int timeInSeconds;
+
+			public int gold;
+
+			public int silver;
+
+			public override string ToString()
+			{
+				return $"rewardEnabled {rewardEnabled}. timeInSeconds {timeInSeconds}. gold {gold}. silver {silver}.";
+			}
+		}
+
 		private RequestRewardDataStatus requestedRewardDataStatus;
 
 		private RewardCountdown rewardCountdown;
@@ -38,7 +55,9 @@ public class TimeReward : IUpdatecontrollerSubscriber
 
 		public RequestRewardData()
 		{
-			BrowserComm.ToWeb.ExternalCall("requestRewardData", OnRewardData);
+			GameSessionData gameSessionData = MVGameController.GameSessionData;
+			string text = $"?profile_id={gameSessionData.profileID}&planet_id={gameSessionData.planetID}&token={gameSessionData.token}";
+			AsyncWWWManager.WWWRequest(new GetRequest(MVGameController.GameSessionData.gameRewardDataURL + text, OnRewardData));
 		}
 
 		private void TestExternalCallBack(string function, Action<Dictionary<string, object>> action)
@@ -71,17 +90,20 @@ public class TimeReward : IUpdatecontrollerSubscriber
 			return this;
 		}
 
-		private void OnRewardData(Dictionary<string, object> rewardData)
+		private void OnRewardData(WWW www)
 		{
-			if (!(bool)rewardData["rewardEnabled"])
+			if (!string.IsNullOrEmpty(www.error))
+			{
+				Debug.LogError(www.error);
+				return;
+			}
+			RewardData rewardData = JsonConvert.DeserializeObject<RewardData>(www.text);
+			if (!rewardData.rewardEnabled)
 			{
 				requestedRewardDataStatus = RequestRewardDataStatus.Denied;
 				return;
 			}
-			int timeInSeconds = (int)rewardData["timeInSeconds"];
-			int amountGold = (int)rewardData["gold"];
-			int amountSilver = (int)rewardData["silver"];
-			rewardCountdown = new RewardCountdown(timeInSeconds, amountGold, amountSilver);
+			rewardCountdown = new RewardCountdown(rewardData.timeInSeconds, rewardData.gold, rewardData.silver);
 			requestedRewardDataStatus = RequestRewardDataStatus.Accepted;
 		}
 	}
@@ -92,7 +114,7 @@ public class TimeReward : IUpdatecontrollerSubscriber
 
 		public RewardCountdown(int timeInSeconds, int amountGold, int amountSilver)
 		{
-			Debug.Log((object)"Time is started");
+			Debug.Log("Time is started");
 			waitForTicks = new WaitForTicks(timeInSeconds * 1000);
 			rewardStateEventArgs = new RewardStateDataEventArgs(timeInSeconds, amountGold, amountSilver);
 		}
@@ -101,7 +123,7 @@ public class TimeReward : IUpdatecontrollerSubscriber
 		{
 			if (waitForTicks.TimeIsUp)
 			{
-				Debug.Log((object)"Time is up");
+				Debug.Log("Time is up");
 				return new RequestReward();
 			}
 			return this;
@@ -112,7 +134,12 @@ public class TimeReward : IUpdatecontrollerSubscriber
 	{
 		public RequestReward()
 		{
-			BrowserComm.ToWeb.ExternalCall("requestReward");
+			GameSessionData gameSessionData = MVGameController.GameSessionData;
+			WWWForm wWWForm = new WWWForm();
+			wWWForm.AddField("token", gameSessionData.token);
+			wWWForm.AddField("profile_id", gameSessionData.profileID);
+			wWWForm.AddField("planet_id", gameSessionData.planetID);
+			AsyncWWWManager.WWWRequest(new PostRequest(gameSessionData.gameRewardURL, wWWForm, null));
 		}
 
 		public override RewardStateBase Update()
@@ -135,8 +162,11 @@ public class TimeReward : IUpdatecontrollerSubscriber
 
 	public void Init()
 	{
-		MVGameController.Instance.UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
-		rewardStateBase = new RequestRewardData();
+		UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
+		if (!MVGameController.UsingDevSessionData)
+		{
+			rewardStateBase = new RequestRewardData();
+		}
 	}
 
 	public void UpdateControllerFixedUpdate()

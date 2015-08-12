@@ -40,18 +40,6 @@ public class DetonatorSpray : DetonatorComponent
 
 	public override void Explode()
 	{
-		//IL_0052: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0064: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0069: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0133: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0146: Unknown result type (might be due to invalid IL or missing references)
-		//IL_014b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_014c: Unknown result type (might be due to invalid IL or missing references)
 		if (!_delayedExplosionStarted)
 		{
 			_explodeDelay = explodeDelayMin + Random.value * (explodeDelayMax - explodeDelayMin);
@@ -61,16 +49,15 @@ public class DetonatorSpray : DetonatorComponent
 			int num = (int)(detail * (float)count);
 			for (int i = 0; i < num; i++)
 			{
-				Vector3 val = Random.onUnitSphere * (startingRadius * size);
-				Vector3 val2 = new Vector3(velocity.x * size, velocity.y * size, velocity.z * size);
-				Object val3 = Object.Instantiate((Object)(object)sprayObject, ((Component)this).transform.position + val, ((Component)this).transform.rotation);
-				GameObject val4 = (GameObject)(object)((val3 is GameObject) ? val3 : null);
-				val4.transform.parent = ((Component)this).transform;
+				Vector3 vector = Random.onUnitSphere * (startingRadius * size);
+				Vector3 b = new Vector3(velocity.x * size, velocity.y * size, velocity.z * size);
+				GameObject gameObject = Object.Instantiate(sprayObject, transform.position + vector, transform.rotation) as GameObject;
+				gameObject.transform.parent = transform;
 				_tmpScale = minScale + Random.value * (maxScale - minScale);
 				_tmpScale *= size;
-				val4.transform.localScale = new Vector3(_tmpScale, _tmpScale, _tmpScale);
-				val4.rigidbody.velocity = Vector3.Scale(val.normalized, val2);
-				Object.Destroy((Object)(object)val4, duration * timeScale);
+				gameObject.transform.localScale = new Vector3(_tmpScale, _tmpScale, _tmpScale);
+				gameObject.GetComponent<Rigidbody>().velocity = Vector3.Scale(vector.normalized, b);
+				Object.Destroy(gameObject, duration * timeScale);
 				_delayedExplosionStarted = false;
 				_explodeDelay = 0f;
 			}
@@ -83,8 +70,6 @@ public class DetonatorSpray : DetonatorComponent
 
 	public void Reset()
 	{
-		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0015: Unknown result type (might be due to invalid IL or missing references)
 		velocity = new Vector3(15f, 15f, 15f);
 	}
 }

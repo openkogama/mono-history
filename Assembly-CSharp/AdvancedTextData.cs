@@ -5,4 +5,6 @@ public struct AdvancedTextData
 	public string textData;
 
 	public Color colorData;
+
+	public float offset;
 }

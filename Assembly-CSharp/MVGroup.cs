@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -19,13 +18,13 @@ public class MVGroup : MVWorldObjectClient
 		}
 	}
 
-	public MVGroup(Hashtable data, string prefabPath, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVGroup(Dictionary<object, object> data, string prefabPath, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, prefabPath, worldObjects)
 	{
 		CreateGroup();
 	}
 
-	public MVGroup(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVGroup(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, worldObjects)
 	{
 		CreateGroup();
@@ -56,31 +55,14 @@ public class MVGroup : MVWorldObjectClient
 
 	private static Bounds ComputeLocalChildBounds(MVWorldObjectClient wo, BoundsContext boundsContext)
 	{
-		//IL_0008: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0014: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0019: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0026: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0027: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0029: Unknown result type (might be due to invalid IL or missing references)
-		Transform val = wo.Transform;
-		Matrix4x4 m = Matrix4x4.TRS(val.localPosition, val.localRotation, val.localScale);
+		Transform transform = wo.Transform;
+		Matrix4x4 m = Matrix4x4.TRS(transform.localPosition, transform.localRotation, transform.localScale);
 		Bounds localBounds = wo.GetLocalBounds(boundsContext);
 		return MathFunctions.FastAABBTransform(m, localBounds);
 	}
 
 	public static Bounds ComputeBoundsForWOs(List<MVWorldObjectClient> woList, BoundsContext boundsContext)
 	{
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0015: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0054: Unknown result type (might be due to invalid IL or missing references)
 		if (woList.Count == 0)
 		{
 			return new Bounds(Vector3.zero, Vector3.zero);
@@ -95,7 +77,6 @@ public class MVGroup : MVWorldObjectClient
 
 	public override Bounds GetLocalBounds(BoundsContext boundsContext)
 	{
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
 		return ComputeBoundsForWOs(Children, boundsContext);
 	}
 
@@ -110,7 +91,6 @@ public class MVGroup : MVWorldObjectClient
 
 	public override void Select(Color color)
 	{
-		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
 		Selected = true;
 		foreach (MVWorldObjectClient child in Children)
 		{
@@ -191,8 +171,8 @@ public class MVGroup : MVWorldObjectClient
 
 	public virtual void TransferChild(int id)
 	{
-		MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(id);
-		MVGroup mVGroup = (MVGroup)MVGameController.Instance.WOCM.GetWorldObjectClient(worldObjectClient.GroupId);
+		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(id);
+		MVGroup mVGroup = (MVGroup)MVGameController.WOCM.GetWorldObjectClient(worldObjectClient.GroupId);
 		mVGroup.RemoveChild(id);
 		worldObjectClient.Transform.parent = transform;
 		worldObjectClient.GroupId = base.id;
@@ -202,25 +182,16 @@ public class MVGroup : MVWorldObjectClient
 
 	public virtual void AddChild(MVWorldObjectClient child)
 	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0008: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0014: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0033: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003a: Unknown result type (might be due to invalid IL or missing references)
-		Vector3 val = child.Position;
-		Quaternion val2 = child.Rotation;
-		Vector3 val3 = child.Scale;
+		Vector3 vector = child.Position;
+		Quaternion quaternion = child.Rotation;
+		Vector3 vector2 = child.Scale;
 		child.Transform.parent = gameObject.transform;
-		child.Position = val;
-		child.Rotation = val2;
-		child.Scale = val3;
+		child.Position = vector;
+		child.Rotation = quaternion;
+		child.Scale = vector2;
 		if (children.ContainsKey(child.Id))
 		{
-			Debug.Log((object)("Group " + Id + "already contains child " + child.Id));
+			Debug.Log("Group " + Id + "already contains child " + child.Id);
 		}
 		else
 		{
@@ -238,7 +209,7 @@ public class MVGroup : MVWorldObjectClient
 	{
 		do
 		{
-			leafId = MVGameController.Instance.WOCM.GetWorldObjectClient(leafId).GroupId;
+			leafId = MVGameController.WOCM.GetWorldObjectClient(leafId).GroupId;
 			if (leafId == -1)
 			{
 				return false;
@@ -253,14 +224,14 @@ public class MVGroup : MVWorldObjectClient
 		int result = leaf;
 		while (true)
 		{
-			int num = MVGameController.Instance.WOCM.GetWorldObjectClient(result).GroupId;
+			int num = MVGameController.WOCM.GetWorldObjectClient(result).GroupId;
 			if (num == -1)
 			{
 				return -1;
 			}
 			if (returnParentIfHasFlags != InteractionFlags.None)
 			{
-				MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(num);
+				MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(num);
 				if (worldObjectClient.HasInteractionFlag(returnParentIfHasFlags))
 				{
 					return num;
@@ -277,12 +248,12 @@ public class MVGroup : MVWorldObjectClient
 
 	public static int GetParentBelow(int parentId, int childId)
 	{
-		MVWorldObjectClientManager wOCM = MVGameController.Instance.WOCM;
+		MVWorldObjectClientManager wOCM = MVGameController.WOCM;
 		MVWorldObjectClient worldObjectClient = wOCM.GetWorldObjectClient(childId);
 		MVWorldObjectClient worldObjectClient2 = wOCM.GetWorldObjectClient(parentId);
 		if (worldObjectClient == null)
 		{
-			Debug.LogWarning((object)("childId is not valid. Id is: " + childId));
+			Debug.LogWarning("childId is not valid. Id is: " + childId);
 			return -1;
 		}
 		return GetParentBelow(worldObjectClient2, worldObjectClient);
@@ -302,18 +273,18 @@ public class MVGroup : MVWorldObjectClient
 		{
 			return child.Id;
 		}
-		MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(child.GroupId);
+		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(child.GroupId);
 		return GetParentBelow(parent, worldObjectClient);
 	}
 
 	public override bool OnEnterObject(EditorStateMachine e)
 	{
-		MVGameController.Instance.Game.CameraController.CurCamera.FocusOnObject(this);
-		Debug.Log((object)("*** Entering group: " + ToString()));
+		MVGameController.Game.CameraController.CurCamera.FocusOnObject(this);
+		Debug.Log("*** Entering group: " + ToString());
 		e.EnterGroup(this);
 		SharedCubeFunctions.SetLayerRecursively(e.ParentGroup.Transform, select: true);
 		e.CameraController.SecondaryCameraActive = true;
-		((Behaviour)((Component)e.CameraController).GetComponent<GrayscaleEffect>()).enabled = true;
+		e.CameraController.GetComponent<GrayscaleEffect>().enabled = true;
 		e.Event = EditorEvent.ObjectSelected;
 		return true;
 	}

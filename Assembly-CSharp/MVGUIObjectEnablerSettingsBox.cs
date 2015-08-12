@@ -1,12 +1,10 @@
-using System.Collections;
 using System.Collections.Generic;
-using Localize;
 
 public class MVGUIObjectEnablerSettingsBox : MVGUISettingsDialog
 {
 	public MVGUIObjectEnablerSettingsBox()
 	{
-		dialogFactory.CreateDialog(TextSlotIndex.ShowOutline, TextSlotIndex.ObjectEnabler, UXDialogType.Toggle).AddPositiveButton(TextSlotIndex.Confirm).AddNegativeButton(TextSlotIndex.Reject)
+		dialogFactory.CreateDialog(TM._("Show Outline"), TM._("Object Enabler"), UXDialogType.Toggle).AddPositiveButton(TM._("Yes")).AddNegativeButton(TM._("No"))
 			.SetOnResultCallback(OnDialogResult)
 			.SetValues(BuildDialogData())
 			.Show();
@@ -17,9 +15,9 @@ public class MVGUIObjectEnablerSettingsBox : MVGUISettingsDialog
 		if (dialog.DialogResult == UXDialogResult.Positive)
 		{
 			bool flag = (bool)dialog.GetResult();
-			Hashtable hashtable = (Hashtable)wo.Data.Clone();
-			hashtable["showOutline"] = flag;
-			MVGameController.Instance.Game.UpdateWorldObjectDataPartial(wo.Id, hashtable);
+			Dictionary<object, object> dictionary = new Dictionary<object, object>(wo.Data);
+			dictionary["showOutline"] = flag;
+			MVGameController.Game.UpdateWorldObjectDataPartial(wo.Id, dictionary);
 		}
 	}
 

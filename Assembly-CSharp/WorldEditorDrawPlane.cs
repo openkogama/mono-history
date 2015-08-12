@@ -31,34 +31,28 @@ public class WorldEditorDrawPlane : MonoBehaviour
 	{
 		set
 		{
-			//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0033: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0044: Unknown result type (might be due to invalid IL or missing references)
-			//IL_004e: Unknown result type (might be due to invalid IL or missing references)
 			_targetGameObject = value;
-			((Component)this).transform.parent = _targetGameObject.transform;
-			((Component)this).transform.localScale = Vector3.one;
-			((Component)this).transform.localRotation = Quaternion.identity;
-			((Component)this).transform.localPosition = GetDirectionVector() * 0.5f;
+			transform.parent = _targetGameObject.transform;
+			transform.localScale = Vector3.one;
+			transform.localRotation = Quaternion.identity;
+			transform.localPosition = GetDirectionVector() * 0.5f;
 			int layer = (IsOnLandscape ? LayerUtil.GetLayerNumber(LayerFlags.UIItems) : _targetGameObject.layer);
 			SetLayer(layer);
 			UpdateEditorPlanePosition();
 		}
 	}
 
-	public bool IsOnLandscape => (Object)(object)_targetGameObject == (Object)(object)MVGameController.Instance.WOCM.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>().GameObject;
+	public bool IsOnLandscape => _targetGameObject == MVGameController.WOCM.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>().GameObject;
 
 	public Vector3 Pos
 	{
 		get
 		{
-			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-			return ((Component)this).transform.localPosition;
+			return transform.localPosition;
 		}
 		private set
 		{
-			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-			((Component)this).transform.localPosition = value;
+			transform.localPosition = value;
 			UpdateEditorPlanePosition();
 			UpdateAltitude();
 		}
@@ -73,8 +67,8 @@ public class WorldEditorDrawPlane : MonoBehaviour
 		set
 		{
 			isActive = value;
-			DrawPlaneVisualization.active = value;
-			DrawPlaneCursor.active = value;
+			DrawPlaneVisualization.SetActive(value);
+			DrawPlaneCursor.SetActive(value);
 			UpdateAltitude();
 		}
 	}
@@ -99,22 +93,16 @@ public class WorldEditorDrawPlane : MonoBehaviour
 	{
 		set
 		{
-			//IL_0024: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0029: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0043: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0048: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0062: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0067: Unknown result type (might be due to invalid IL or missing references)
 			switch (value)
 			{
 			case DrawPlaneAxis.X:
-				((Component)this).transform.localRotation = Quaternion.AngleAxis(90f, Vector3.back);
+				transform.localRotation = Quaternion.AngleAxis(90f, Vector3.back);
 				break;
 			case DrawPlaneAxis.Y:
-				((Component)this).transform.localRotation = Quaternion.AngleAxis(0f, Vector3.up);
+				transform.localRotation = Quaternion.AngleAxis(0f, Vector3.up);
 				break;
 			case DrawPlaneAxis.Z:
-				((Component)this).transform.localRotation = Quaternion.AngleAxis(90f, Vector3.right);
+				transform.localRotation = Quaternion.AngleAxis(90f, Vector3.right);
 				break;
 			}
 			if (IsOnLandscape)
@@ -132,60 +120,31 @@ public class WorldEditorDrawPlane : MonoBehaviour
 
 	public void CachePos()
 	{
-		//IL_0002: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
 		_cachedPos = Pos;
 	}
 
 	public void RestorePos()
 	{
-		//IL_0002: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
 		Pos = _cachedPos;
 		_cachedPos = Vector3.zero;
 	}
 
 	public void Start()
 	{
-		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004e: Unknown result type (might be due to invalid IL or missing references)
 		GenerateDrawPlane(DrawPlaneVisualization);
-		DrawPlaneVisualization.renderer.material.mainTextureScale = new Vector2((float)MeshScale, (float)MeshScale);
-		DrawPlaneVisualization.renderer.material.mainTextureOffset = new Vector2(0.5f, 0.5f);
+		DrawPlaneVisualization.GetComponent<Renderer>().material.mainTextureScale = new Vector2(MeshScale, MeshScale);
+		DrawPlaneVisualization.GetComponent<Renderer>().material.mainTextureOffset = new Vector2(0.5f, 0.5f);
 		GenerateDrawPlane(DrawPlaneCursor);
 	}
 
 	private void GenerateDrawPlane(GameObject drawPlane)
 	{
 		MeshFilter component = drawPlane.GetComponent<MeshFilter>();
-		component.mesh = GenerateMesh((Object)(object)drawPlane == (Object)(object)DrawPlaneVisualization);
+		GenerateMesh(component.mesh, drawPlane == DrawPlaneVisualization);
 	}
 
-	private Mesh GenerateMesh(bool scale = true)
+	private void GenerateMesh(Mesh mesh, bool scale = true)
 	{
-		//IL_0045: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0050: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0071: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0076: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0091: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0097: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00bd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_010b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0110: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0126: Unknown result type (might be due to invalid IL or missing references)
-		//IL_012b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0141: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0146: Unknown result type (might be due to invalid IL or missing references)
-		//IL_014b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0152: Expected Obj, but got Unknown
 		float num = ((!scale) ? 1f : ((float)MeshScale));
 		Vector3[] array = new Vector3[4];
 		int[] array2 = new int[6];
@@ -212,14 +171,12 @@ public class WorldEditorDrawPlane : MonoBehaviour
 		reference7 = new Vector2(1f, 1f);
 		ref Vector2 reference8 = ref array3[3];
 		reference8 = new Vector2(1f, 0f);
-		Mesh val = new Mesh();
-		((Object)val).name = "DrawPlaneMesh";
-		val.vertices = array;
-		val.triangles = array2;
-		val.uv = array3;
-		val.RecalculateBounds();
-		val.RecalculateNormals();
-		return val;
+		mesh.name = "DrawPlaneMesh";
+		mesh.vertices = array;
+		mesh.triangles = array2;
+		mesh.uv = array3;
+		mesh.RecalculateBounds();
+		mesh.RecalculateNormals();
 	}
 
 	private void SetLayer(int layer)
@@ -230,30 +187,13 @@ public class WorldEditorDrawPlane : MonoBehaviour
 
 	public void SetToCameraPos()
 	{
-		//IL_000a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0072: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0091: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0096: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0097: Unknown result type (might be due to invalid IL or missing references)
-		Vector3 forward = ((Component)Camera.main).transform.forward;
-		Vector3 val = new Vector3((!(forward.x > 0.1f)) ? (-5f) : 5f, (!(forward.y > 0.1f)) ? (-5f) : 5f, (!(forward.z > 0f)) ? (-7f) : 5f);
-		SetToGridAlignedPos(MVGameController.Instance.WOCM.AvatarLocal.GameObject.transform.position + val);
+		Vector3 forward = Camera.main.transform.forward;
+		Vector3 vector = new Vector3((!(forward.x > 0.1f)) ? (-5f) : 5f, (!(forward.y > 0.1f)) ? (-5f) : 5f, (!(forward.z > 0f)) ? (-7f) : 5f);
+		SetToGridAlignedPos(MVGameController.WOCM.AvatarLocal.GameObject.transform.position + vector);
 	}
 
 	public void SetToGridAlignedPos(Vector3 pos)
 	{
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0011: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0014: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0019: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002d: Unknown result type (might be due to invalid IL or missing references)
 		Vector3 vector = _targetGameObject.transform.InverseTransformPoint(pos);
 		vector = MathFunctions.RoundVector(vector, 0);
 		Pos = vector.Multiply(GetDirectionVector()) + GetOffsetVector();
@@ -261,43 +201,16 @@ public class WorldEditorDrawPlane : MonoBehaviour
 
 	public void SetToTargetGameObjectZero()
 	{
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
 		SetToGridAlignedPos(_targetGameObject.transform.position);
 	}
 
 	private void UpdateEditorPlanePosition()
 	{
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0011: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0014: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0019: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0034: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0039: Unknown result type (might be due to invalid IL or missing references)
-		ref Plane reference = ref editorPlane;
-		Matrix4x4 localToWorldMatrix = ((Component)this).transform.localToWorldMatrix;
-		Vector3 val = localToWorldMatrix.MultiplyVector(Vector3.up);
-		Vector3 normalized = val.normalized;
-		Matrix4x4 localToWorldMatrix2 = ((Component)this).transform.localToWorldMatrix;
-		reference.SetNormalAndPosition(normalized, localToWorldMatrix2.MultiplyPoint(Vector3.zero));
+		editorPlane.SetNormalAndPosition(transform.localToWorldMatrix.MultiplyVector(Vector3.up).normalized, transform.localToWorldMatrix.MultiplyPoint(Vector3.zero));
 	}
 
 	public bool GetCubePosOnDrawplane(GameObject gameObject, out IntVector intVectorHitPos)
 	{
-		//IL_0002: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0025: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0030: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0032: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0037: Unknown result type (might be due to invalid IL or missing references)
 		Vector3 hit = default;
 		bool result = Pick(ref hit);
 		hit = _targetGameObject.transform.InverseTransformPoint(hit);
@@ -309,52 +222,30 @@ public class WorldEditorDrawPlane : MonoBehaviour
 
 	private void UpdateAltitude()
 	{
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0033: Unknown result type (might be due to invalid IL or missing references)
-		Altitude = (int)(((Component)this).transform.localPosition.x + ((Component)this).transform.localPosition.y + ((Component)this).transform.localPosition.z - 0.5f);
+		Altitude = (int)(transform.localPosition.x + transform.localPosition.y + transform.localPosition.z - 0.5f);
 	}
 
 	public void UpdateDrawPlane()
 	{
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0024: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0025: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0032: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004a: Unknown result type (might be due to invalid IL or missing references)
 		CheckInput();
 		Vector3 hit = Vector3.zero;
 		if (Pick(ref hit))
 		{
-			hit = ((Component)((Component)this).transform).transform.InverseTransformPoint(hit);
+			hit = transform.transform.InverseTransformPoint(hit);
 			hit = MathFunctions.RoundVector(hit, 0);
-			DrawPlaneCursor.active = true;
+			DrawPlaneCursor.SetActive(value: true);
 			DrawPlaneCursor.transform.localPosition = hit;
 		}
 		else
 		{
-			DrawPlaneCursor.active = false;
+			DrawPlaneCursor.SetActive(value: false);
 		}
 		FollowAvatar();
 	}
 
 	private void FollowAvatar()
 	{
-		//IL_001a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0024: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0025: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0027: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0044: Unknown result type (might be due to invalid IL or missing references)
-		Vector3 vector = ((Component)this).transform.InverseTransformPoint(((Component)MVGameController.Instance.Game.CameraController).transform.position);
+		Vector3 vector = transform.InverseTransformPoint(MVGameController.Game.CameraController.transform.position);
 		vector = MathFunctions.RoundVector(vector, 0);
 		vector.y = 0f;
 		DrawPlaneVisualization.transform.localPosition = vector;
@@ -362,19 +253,16 @@ public class WorldEditorDrawPlane : MonoBehaviour
 
 	private Vector3 GetDirectionVector()
 	{
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-		return ((Component)this).transform.localRotation * Vector3.up;
+		return transform.localRotation * Vector3.up;
 	}
 
 	public void CheckInput()
 	{
-		if (MVInputWrapper.GetKey((KeyCode)280))
+		if (MVInputWrapper.GetBooleanControl(KogamaControls.MoveDrawPlaneDown))
 		{
 			MoveDrawPlane(-1);
 		}
-		if (MVInputWrapper.GetKey((KeyCode)281))
+		if (MVInputWrapper.GetBooleanControl(KogamaControls.MoveDrawPlaneUp))
 		{
 			MoveDrawPlane(1);
 		}
@@ -382,53 +270,28 @@ public class WorldEditorDrawPlane : MonoBehaviour
 
 	public void MoveDrawPlane(int dir)
 	{
-		//IL_0018: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0039: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0043: Unknown result type (might be due to invalid IL or missing references)
 		if (Time.time - lastMovePlaneDelta > 0.1f)
 		{
-			Pos += ((Component)this).transform.localRotation * ((dir != 1) ? Vector3.up : Vector3.down);
+			Pos += transform.localRotation * ((dir != 1) ? Vector3.down : Vector3.up);
 			lastMovePlaneDelta = Time.time;
 		}
 	}
 
 	public bool Pick(ref Vector3 hit)
 	{
-		//IL_0005: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0024: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0029: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Unknown result type (might be due to invalid IL or missing references)
-		Ray ray = Camera.main.ScreenPointToRay(new Vector3(Input.mousePosition.x, Input.mousePosition.y));
+		Ray ray = Camera.main.ScreenPointToRay(new Vector3(MVInputWrapper.GetPointerPosition().x, MVInputWrapper.GetPointerPosition().y));
 		return RayCast(ray, ref hit, ignoreActiveFlag: false);
 	}
 
 	private bool RayCast(Ray ray, ref Vector3 hit, bool ignoreActiveFlag)
 	{
-		//IL_0019: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0029: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0030: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0035: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0038: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0043: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0048: Unknown result type (might be due to invalid IL or missing references)
 		if (!isActive && !ignoreActiveFlag)
 		{
 			return false;
 		}
-		float num = default;
-		if (editorPlane.Raycast(ray, ref num))
+		if (editorPlane.Raycast(ray, out var enter))
 		{
-			Vector3 origin = ray.origin;
-			Vector3 direction = ray.direction;
-			hit = origin + direction.normalized * num;
+			hit = ray.origin + ray.direction.normalized * enter;
 			return true;
 		}
 		return false;
@@ -436,22 +299,13 @@ public class WorldEditorDrawPlane : MonoBehaviour
 
 	private Vector3 GetCubePlaceOffset()
 	{
-		//IL_001a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0024: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0026: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0046: Unknown result type (might be due to invalid IL or missing references)
-		Vector3 val = ((Component)this).transform.InverseTransformPoint(((Component)MVGameController.Instance.Game.CameraController).transform.position);
+		Vector3 vector = transform.InverseTransformPoint(MVGameController.Game.CameraController.transform.position);
 		Vector3 offsetVector = GetOffsetVector();
-		return offsetVector * (float)((val.y > 0f) ? 1 : (-1));
+		return offsetVector * ((vector.y > 0f) ? 1 : (-1));
 	}
 
 	private Vector3 GetOffsetVector()
 	{
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
 		return 0.5f * GetDirectionVector();
 	}
 }

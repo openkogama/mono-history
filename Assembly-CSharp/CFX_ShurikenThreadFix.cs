@@ -7,13 +7,13 @@ public class CFX_ShurikenThreadFix : MonoBehaviour
 
 	private void Awake()
 	{
-		systems = ((Component)this).GetComponentsInChildren<ParticleSystem>();
+		systems = GetComponentsInChildren<ParticleSystem>();
 		ParticleSystem[] array = systems;
-		foreach (ParticleSystem val in array)
+		foreach (ParticleSystem particleSystem in array)
 		{
-			val.enableEmission = false;
+			particleSystem.enableEmission = false;
 		}
-		((MonoBehaviour)this).StartCoroutine("WaitFrame");
+		StartCoroutine("WaitFrame");
 	}
 
 	private IEnumerator WaitFrame()
@@ -23,7 +23,7 @@ public class CFX_ShurikenThreadFix : MonoBehaviour
 		foreach (ParticleSystem ps in array)
 		{
 			ps.enableEmission = true;
-			ps.Play(true);
+			ps.Play(withChildren: true);
 		}
 	}
 }

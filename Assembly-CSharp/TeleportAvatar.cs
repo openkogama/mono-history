@@ -38,32 +38,29 @@ public class TeleportAvatar : MonoBehaviour
 	{
 		avatar.WorldPosition = originPosition;
 		MVRigidBody rigidBody = avatar.GameObject.GetComponent<MVRigidBody>();
-		if ((Object)(object)rigidBody != (Object)null)
+		if (rigidBody != null)
 		{
 			rigidBody.IsMovementLocked = true;
 			rigidBody.Reset();
 		}
-		MVGameController.Instance.AudioManager.Play("Teleport avatar", leaveClip, avatar.WorldPosition, 0.8f, SoundRangeDistance.Short);
-		yield return ((MonoBehaviour)this).StartCoroutine(DoForSeconds(teleportTime, (float t) =>
+		MVGameController.AudioManager.Play("Teleport avatar", leaveClip, avatar.WorldPosition, 0.4f, SoundRangeDistance.Short);
+		yield return StartCoroutine(DoForSeconds(teleportTime, (float t) =>
 		{
-			//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0027: Unknown result type (might be due to invalid IL or missing references)
 			avatar.Scale = Vector3.one * (1f - BlockStep(t, 5f));
 		}));
 		avatar.WorldPosition = targetPosition;
 		avatar.SyncPos = targetPosition;
-		((Component)this).transform.position = targetPosition;
-		MVGameController.Instance.AudioManager.Play("Teleport avatar", arriveClip, avatar.WorldPosition, 0.8f, SoundRangeDistance.Short);
-		yield return ((MonoBehaviour)this).StartCoroutine(DoForSeconds(teleportTime, (float t) =>
+		transform.position = targetPosition;
+		rigidBody.Reset();
+		MVGameController.AudioManager.Play("Teleport avatar", arriveClip, avatar.WorldPosition, 0.4f, SoundRangeDistance.Short);
+		yield return StartCoroutine(DoForSeconds(teleportTime, (float t) =>
 		{
-			//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0021: Unknown result type (might be due to invalid IL or missing references)
 			avatar.Scale = Vector3.one * BlockStep(t, 5f);
 		}));
-		if ((Object)(object)rigidBody != (Object)null)
+		if (rigidBody != null)
 		{
 			rigidBody.IsMovementLocked = false;
 		}
-		Object.Destroy((Object)(object)((Component)this).gameObject);
+		Object.Destroy(gameObject);
 	}
 }

@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
@@ -21,69 +20,46 @@ public class MVFire : MVLogicObject
 
 	public override bool HasOutputConnector => false;
 
-	public MVFire(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVFire(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, "Prefabs/FireObject", worldObjects)
 	{
-		//IL_0044: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0049: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005d: Expected Obj, but got Unknown
 		particleGO = (GameObject)Object.Instantiate(Resources.Load("ParticleFX/Fire1"), gameObject.transform.position, Quaternion.identity);
 		particleGO.transform.parent = gameObject.transform;
 		ParticleEmitter[] componentsInChildren = particleGO.GetComponentsInChildren<ParticleEmitter>();
-		foreach (ParticleEmitter val in componentsInChildren)
+		foreach (ParticleEmitter particleEmitter in componentsInChildren)
 		{
-			val.emit = false;
+			particleEmitter.emit = false;
 		}
-		gameObject.audio.pitch = 1f + Random.Range(-0.2f, 0.2f);
+		gameObject.GetComponent<AudioSource>().pitch = 1f + Random.Range(-0.2f, 0.2f);
 	}
 
 	protected override void OnUpdate()
 	{
-		//IL_0036: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0090: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0095: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0096: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0102: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0107: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00df: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013d: Unknown result type (might be due to invalid IL or missing references)
 		if (!InputState && InputLinkRefs.Count != 0)
 		{
 			return;
 		}
-		HashSet<int> localControlledWorldObjects = MVGameController.Instance.Game.PlayerController.LocalControlledWorldObjects;
-		Vector3 val = transform.position;
+		HashSet<int> localControlledWorldObjects = MVGameController.Game.PlayerController.LocalControlledWorldObjects;
+		Vector3 vector = transform.position;
 		foreach (int item in localControlledWorldObjects)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(item);
+			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(item);
 			if (worldObjectClient == null)
 			{
 				continue;
 			}
 			InteractionDataHandlerBase component = worldObjectClient.GameObject.GetComponent<InteractionDataHandlerBase>();
-			if ((Object)(object)component == (Object)null)
-			{
-				continue;
-			}
-			Vector3 val2 = worldObjectClient.WorldPosition - val;
-			if (!(val2.sqrMagnitude > ignoreDistanceSqr))
+			if (!(component == null) && !((worldObjectClient.WorldPosition - vector).sqrMagnitude > ignoreDistanceSqr))
 			{
 				float num = damageRadius;
-				if ((Object)(object)worldObjectClient.GameObject.collider != (Object)null)
+				if (worldObjectClient.GameObject.GetComponent<Collider>() != null)
 				{
-					Vector3 val3 = worldObjectClient.GameObject.collider.ClosestPointOnBounds(val);
-					num = Vector3.Distance(val3, val);
+					Vector3 a = worldObjectClient.GameObject.GetComponent<Collider>().ClosestPointOnBounds(vector);
+					num = Vector3.Distance(a, vector);
 				}
 				else
 				{
-					Vector3.Distance(worldObjectClient.GameObject.transform.position, val);
+					Vector3.Distance(worldObjectClient.GameObject.transform.position, vector);
 				}
 				if (num <= damageRadius)
 				{
@@ -117,7 +93,7 @@ public class MVFire : MVLogicObject
 
 	public override void OnInputStateChanged()
 	{
-		Debug.Log((object)("InputState " + InputState));
+		Debug.Log("InputState " + InputState);
 		if (InputState)
 		{
 			ToggleEmitter(toggle: true);
@@ -131,17 +107,17 @@ public class MVFire : MVLogicObject
 	private void ToggleEmitter(bool toggle)
 	{
 		ParticleEmitter[] componentsInChildren = particleGO.GetComponentsInChildren<ParticleEmitter>();
-		foreach (ParticleEmitter val in componentsInChildren)
+		foreach (ParticleEmitter particleEmitter in componentsInChildren)
 		{
-			val.emit = toggle;
+			particleEmitter.emit = toggle;
 		}
 		if (toggle)
 		{
-			gameObject.audio.Play();
+			gameObject.GetComponent<AudioSource>().Play();
 		}
 		else
 		{
-			gameObject.audio.Stop();
+			gameObject.GetComponent<AudioSource>().Stop();
 		}
 	}
 }

@@ -16,20 +16,16 @@ public class CEEditBody : ESStateBase
 
 	private bool exitButtonWasPressed;
 
-	private MVWorldObjectClientManager WOCM => MVGameController.Instance.WOCM;
+	private MVWorldObjectClientManager WOCM => MVGameController.WOCM;
 
-	private AEditController EditController => MVGameController.Instance.EditController;
-
-	private CharacterEditorController CharacterEditorController => MVGameController.Instance.CharacterEditorController;
+	private CharacterEditorController CharacterEditorController => MVGameController.CharacterEditorController;
 
 	public override void Enter(EditorStateMachine esm)
 	{
-		//IL_0200: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0206: Expected Obj, but got Unknown
 		base.Enter(esm);
-		MVGameController.Instance.Game.CameraController.SetCamera(CameraType.JetPackCamera);
-		MVGameController.Instance.Game.CameraController.CurCamera.FocusOnObject(esm.SingleSelectedWO);
-		EditController.ShowEditorTools(cubeEditMode: true);
+		MVGameController.Game.CameraController.SetCamera(CameraType.JetPackCamera);
+		MVGameController.Game.CameraController.CurCamera.FocusOnObject(esm.SingleSelectedWO);
+		CharacterEditorController.ShowEditorTools();
 		CharacterEditorController.HideAnimationToggles();
 		CharacterEditorController.HideAvatarTools();
 		exitButtonWasPressed = false;
@@ -54,9 +50,9 @@ public class CEEditBody : ESStateBase
 		}
 		SharedCubeFunctions.SetLayerRecursively(WOCM.AvatarLocal.Transform, select: false);
 		SharedCubeFunctions.SetLayerRecursively(targetCubeModel.Transform, select: true);
-		((Behaviour)((Component)esm.CameraController).GetComponent<GrayscaleEffect>()).enabled = true;
+		esm.CameraController.GetComponent<GrayscaleEffect>().enabled = true;
 		esm.CameraController.SecondaryCameraActive = true;
-		EditController.DrawPlaneToModel(targetCubeModel.GameObject);
+		CharacterEditorController.CubeModelingController.DrawPlaneToModel(targetCubeModel.GameObject);
 		if (jetPackMode == null)
 		{
 			jetPackMode = WOCM.AvatarLocal.AvatarModes.JetPackMode;
@@ -64,8 +60,8 @@ public class CEEditBody : ESStateBase
 		jetPackMode.YMovementSpeedScale = 0.25f;
 		jetPackMode.XZMovementSpeedScale = 0.25f;
 		IModelingConstraint modelConstaint = modelBody.GetModelConstaint(targetCubeModel);
-		GameObject val = new GameObject("constrainVisualizer");
-		constraintVisualizer = val.AddComponent<ConstraintVisualizer>();
+		GameObject gameObject = new GameObject("constrainVisualizer");
+		constraintVisualizer = gameObject.AddComponent<ConstraintVisualizer>();
 		constraintVisualizer.Init(targetCubeModel, modelConstaint);
 		esm.CubeModelingStateMachine.StartEdit(targetCubeModel, modelConstaint);
 	}
@@ -86,12 +82,13 @@ public class CEEditBody : ESStateBase
 	public override void Exit(EditorStateMachine esm)
 	{
 		base.Exit(esm);
-		EditController.ReturnDrawPlaneToLandscape();
-		if (EditController.IsDrawPlaneActive)
+		CharacterEditorController.CubeModelingController.ReturnDrawPlaneToLandscape();
+		if (CharacterEditorController.CubeModelingController.IsDrawPlaneActive)
 		{
-			EditController.ToggleDrawPlane();
+			CharacterEditorController.CubeModelingController.ToggleDrawPlane();
 		}
-		Object.Destroy((Object)(object)((Component)constraintVisualizer).gameObject);
+		UnityEngine.Object.Destroy(constraintVisualizer.gameObject);
+		CharacterEditorController.HideEditorTools();
 		if (!esm.ParentGroupIsRoot)
 		{
 			SharedCubeFunctions.SetLayerRecursively(WOCM.GetWorldObjectClient(esm.ParentGroupID).Transform, select: true);
@@ -99,7 +96,7 @@ public class CEEditBody : ESStateBase
 		else
 		{
 			SharedCubeFunctions.SetLayerRecursively(targetCubeModel.Transform, select: false);
-			((Behaviour)((Component)esm.CameraController).GetComponent<GrayscaleEffect>()).enabled = false;
+			esm.CameraController.GetComponent<GrayscaleEffect>().enabled = false;
 			esm.CameraController.SecondaryCameraActive = false;
 		}
 		guiEditModel.View.Hide();

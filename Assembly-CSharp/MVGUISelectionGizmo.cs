@@ -20,13 +20,13 @@ public class MVGUISelectionGizmo : MVGUIGizmoBase
 	protected override void InitializeGizmo()
 	{
 		base.InitializeGizmo();
-		UXMouseClickObject component = ((Component)rotate).GetComponent<UXMouseClickObject>();
+		UXMouseClickObject component = rotate.GetComponent<UXMouseClickObject>();
 		component.OnMouseDown = (UXMouseClickObject.OnMouseDownDelegate)Delegate.Combine(component.OnMouseDown, (UXMouseClickObject.OnMouseDownDelegate)((UXMouseClickObject clickObject, Vector3 mousePos) => FireGizmoDelegate(OnRotate)));
-		UXMouseClickObject component2 = ((Component)xzTranslate).GetComponent<UXMouseClickObject>();
+		UXMouseClickObject component2 = xzTranslate.GetComponent<UXMouseClickObject>();
 		component2.OnMouseDown = (UXMouseClickObject.OnMouseDownDelegate)Delegate.Combine(component2.OnMouseDown, (UXMouseClickObject.OnMouseDownDelegate)((UXMouseClickObject clickObject, Vector3 mousePos) => FireGizmoDelegate(OnXZtranslate)));
-		UXMouseClickObject component3 = ((Component)yTranslateUp).GetComponent<UXMouseClickObject>();
+		UXMouseClickObject component3 = yTranslateUp.GetComponent<UXMouseClickObject>();
 		component3.OnMouseDown = (UXMouseClickObject.OnMouseDownDelegate)Delegate.Combine(component3.OnMouseDown, (UXMouseClickObject.OnMouseDownDelegate)((UXMouseClickObject clickObject, Vector3 mousePos) => FireGizmoDelegate(OnYtranslate)));
-		UXMouseClickObject component4 = ((Component)yTranslateDown).GetComponent<UXMouseClickObject>();
+		UXMouseClickObject component4 = yTranslateDown.GetComponent<UXMouseClickObject>();
 		component4.OnMouseDown = (UXMouseClickObject.OnMouseDownDelegate)Delegate.Combine(component4.OnMouseDown, (UXMouseClickObject.OnMouseDownDelegate)((UXMouseClickObject clickObject, Vector3 mousePos) => FireGizmoDelegate(OnYtranslate)));
 		InitializeMouseOverListeners();
 	}
@@ -47,44 +47,44 @@ public class MVGUISelectionGizmo : MVGUIGizmoBase
 
 	private void InitializeMouseOverListeners()
 	{
-		UXMouseOverObject component = ((Component)rotate).GetComponent<UXMouseOverObject>();
+		UXMouseOverObject component = rotate.GetComponent<UXMouseOverObject>();
 		component.OnMouseOverEnter = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(component.OnMouseOverEnter, (UXMouseOverObject.OnMouseOverDelegate)((UXMouseOverObject mouseOverObject) =>
 		{
-			((Component)xzTranslate).GetComponent<UXMouseOverColorFade>().OnMouseOverExit(mouseOverObject);
-			((Component)yTranslateUp).GetComponent<UXMouseOverColorFade>().OnMouseOverExit(mouseOverObject);
+			xzTranslate.GetComponent<UXMouseOverColorFade>().OnMouseOverExit(mouseOverObject);
+			yTranslateUp.GetComponent<UXMouseOverColorFade>().OnMouseOverExit(mouseOverObject);
 		}));
-		UXMouseOverObject component2 = ((Component)xzTranslate).GetComponent<UXMouseOverObject>();
+		UXMouseOverObject component2 = xzTranslate.GetComponent<UXMouseOverObject>();
 		component2.OnMouseOverEnter = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(component2.OnMouseOverEnter, (UXMouseOverObject.OnMouseOverDelegate)((UXMouseOverObject mouseOverObject) =>
 		{
-			((Component)rotate).GetComponent<UXMouseOverColorFade>().OnMouseOverExit(mouseOverObject);
-			((Component)yTranslateUp).GetComponent<UXMouseOverColorFade>().OnMouseOverExit(mouseOverObject);
+			rotate.GetComponent<UXMouseOverColorFade>().OnMouseOverExit(mouseOverObject);
+			yTranslateUp.GetComponent<UXMouseOverColorFade>().OnMouseOverExit(mouseOverObject);
 		}));
-		UXMouseOverObject component3 = ((Component)xzTranslate).GetComponent<UXMouseOverObject>();
+		UXMouseOverObject component3 = xzTranslate.GetComponent<UXMouseOverObject>();
 		component3.OnMouseOverExit = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(component3.OnMouseOverExit, (UXMouseOverObject.OnMouseOverDelegate)((UXMouseOverObject mouseOverObject) =>
 		{
-			((Component)rotate).GetComponent<UXMouseOverColorFade>().OnMouseOverEnter(mouseOverObject);
+			rotate.GetComponent<UXMouseOverColorFade>().OnMouseOverEnter(mouseOverObject);
 		}));
-		UXMouseOverObject component4 = ((Component)yTranslateUp).GetComponent<UXMouseOverObject>();
+		UXMouseOverObject component4 = yTranslateUp.GetComponent<UXMouseOverObject>();
 		component4.OnMouseOverEnter = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(component4.OnMouseOverEnter, (UXMouseOverObject.OnMouseOverDelegate)((UXMouseOverObject mouseOverObject) =>
 		{
-			((Component)yTranslateDown).GetComponent<UXMouseOverColorFade>().OnMouseOverEnter(mouseOverObject);
-			((Component)rotate).GetComponent<UXMouseOverColorFade>().OnMouseOverExit(mouseOverObject);
-			((Component)xzTranslate).GetComponent<UXMouseOverColorFade>().OnMouseOverExit(mouseOverObject);
+			yTranslateDown.GetComponent<UXMouseOverColorFade>().OnMouseOverEnter(mouseOverObject);
+			rotate.GetComponent<UXMouseOverColorFade>().OnMouseOverExit(mouseOverObject);
+			xzTranslate.GetComponent<UXMouseOverColorFade>().OnMouseOverExit(mouseOverObject);
 		}));
-		UXMouseOverObject component5 = ((Component)yTranslateUp).GetComponent<UXMouseOverObject>();
+		UXMouseOverObject component5 = yTranslateUp.GetComponent<UXMouseOverObject>();
 		component5.OnMouseOverExit = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(component5.OnMouseOverExit, (UXMouseOverObject.OnMouseOverDelegate)((UXMouseOverObject mouseOverObject) =>
 		{
-			((Component)yTranslateDown).GetComponent<UXMouseOverColorFade>().OnMouseOverExit(mouseOverObject);
+			yTranslateDown.GetComponent<UXMouseOverColorFade>().OnMouseOverExit(mouseOverObject);
 		}));
-		UXMouseOverObject component6 = ((Component)yTranslateDown).GetComponent<UXMouseOverObject>();
+		UXMouseOverObject component6 = yTranslateDown.GetComponent<UXMouseOverObject>();
 		component6.OnMouseOverEnter = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(component6.OnMouseOverEnter, (UXMouseOverObject.OnMouseOverDelegate)((UXMouseOverObject mouseOverObject) =>
 		{
-			((Component)yTranslateUp).GetComponent<UXMouseOverColorFade>().OnMouseOverEnter(mouseOverObject);
+			yTranslateUp.GetComponent<UXMouseOverColorFade>().OnMouseOverEnter(mouseOverObject);
 		}));
-		UXMouseOverObject component7 = ((Component)yTranslateDown).GetComponent<UXMouseOverObject>();
+		UXMouseOverObject component7 = yTranslateDown.GetComponent<UXMouseOverObject>();
 		component7.OnMouseOverExit = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(component7.OnMouseOverExit, (UXMouseOverObject.OnMouseOverDelegate)((UXMouseOverObject mouseOverObject) =>
 		{
-			((Component)yTranslateUp).GetComponent<UXMouseOverColorFade>().OnMouseOverExit(mouseOverObject);
+			yTranslateUp.GetComponent<UXMouseOverColorFade>().OnMouseOverExit(mouseOverObject);
 		}));
 	}
 }

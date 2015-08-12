@@ -7,15 +7,11 @@ public class GizmoDrawer : MonoBehaviour
 
 	public void AddSphere(Vector3 center, float radius, Color color, bool clear = false)
 	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0003: Unknown result type (might be due to invalid IL or missing references)
 		Add(new SphereGizmo(center, radius, color), clear);
 	}
 
 	public void AddBounds(Bounds bounds, Color color, bool clear = false)
 	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0002: Unknown result type (might be due to invalid IL or missing references)
 		Add(new CubeGizmo(bounds, color), clear);
 	}
 

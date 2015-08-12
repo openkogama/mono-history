@@ -1,5 +1,4 @@
 using System;
-using Localize;
 using UnityEngine;
 
 public abstract class MVGUIBasicViewItem : UXCollectionViewItem
@@ -24,18 +23,14 @@ public abstract class MVGUIBasicViewItem : UXCollectionViewItem
 
 	protected void BuildImagePlane()
 	{
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001d: Expected Obj, but got Unknown
-		//IL_0044: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0063: Unknown result type (might be due to invalid IL or missing references)
-		if (!((Object)(object)ItemImagePlane != (Object)null))
+		if (!(ItemImagePlane != null))
 		{
-			GameObject val = new GameObject("Image Plane");
-			val.layer = LayerMask.NameToLayer("UXElement");
-			val.transform.parent = ((Component)this).transform;
-			val.transform.localScale = Vector3.one;
-			val.transform.localPosition = new Vector3(0f, 0f, -0.01f);
-			ItemImagePlane = val.AddComponent<UXPlane>();
+			GameObject gameObject = new GameObject("Image Plane");
+			gameObject.layer = LayerMask.NameToLayer("UXElement");
+			gameObject.transform.parent = transform;
+			gameObject.transform.localScale = Vector3.one;
+			gameObject.transform.localPosition = new Vector3(0f, 0f, -0.01f);
+			ItemImagePlane = gameObject.AddComponent<UXPlane>();
 			ItemImagePlane.SetSize(Width, Height);
 			ItemImagePlane.SetVisible(Visible);
 		}
@@ -45,12 +40,11 @@ public abstract class MVGUIBasicViewItem : UXCollectionViewItem
 	{
 		if (!(tooltipText == string.Empty))
 		{
-			tooltip = ((Component)ItemImagePlane).gameObject.GetComponent<UXToolTip>();
-			if ((Object)(object)tooltip == (Object)null)
+			tooltip = ItemImagePlane.gameObject.GetComponent<UXToolTip>();
+			if (tooltip == null)
 			{
-				tooltip = ((Component)ItemImagePlane).gameObject.AddComponent<UXToolTip>();
+				tooltip = ItemImagePlane.gameObject.AddComponent<UXToolTip>();
 			}
-			tooltip.toolTipTextID = TextSlotIndex.Empty;
 			tooltip.toolTipText = tooltipText;
 		}
 	}
@@ -79,7 +73,7 @@ public abstract class MVGUIBasicViewItem : UXCollectionViewItem
 
 	public override void OnMouseSlotOverEnter(int slotIndex, int visiblePage)
 	{
-		if (PageIndex == visiblePage && (Object)(object)tooltip != (Object)null && ((Component)this).gameObject.active)
+		if (PageIndex == visiblePage && tooltip != null && gameObject.activeInHierarchy)
 		{
 			tooltip.OnMouseOverEnter(null);
 		}
@@ -87,7 +81,7 @@ public abstract class MVGUIBasicViewItem : UXCollectionViewItem
 
 	public override void OnMouseSlotOver(int slotIndex, int visiblePage)
 	{
-		if (PageIndex == visiblePage && (Object)(object)tooltip != (Object)null && ((Component)this).gameObject.active)
+		if (PageIndex == visiblePage && tooltip != null && gameObject.activeInHierarchy)
 		{
 			tooltip.HandleOnMouseOver(null);
 		}
@@ -100,11 +94,11 @@ public abstract class MVGUIBasicViewItem : UXCollectionViewItem
 	public override void SetVisible(bool visible)
 	{
 		base.SetVisible(visible);
-		if ((Object)(object)ItemImagePlane != (Object)null)
+		if (ItemImagePlane != null)
 		{
 			ItemImagePlane.SetVisible(visible);
 		}
-		if ((Object)(object)LoadingCircle != (Object)null)
+		if (LoadingCircle != null)
 		{
 			LoadingCircle.SetVisible(visible && _loading);
 		}
@@ -112,10 +106,9 @@ public abstract class MVGUIBasicViewItem : UXCollectionViewItem
 
 	public virtual void Update()
 	{
-		//IL_0016: Unknown result type (might be due to invalid IL or missing references)
 		if (_loading)
 		{
-			((Component)LoadingCircle).transform.RotateAroundLocal(Vector3.forward, 20f * Time.deltaTime);
+			LoadingCircle.transform.Rotate(Vector3.forward, 20f * Time.deltaTime * 57.29578f);
 		}
 	}
 }

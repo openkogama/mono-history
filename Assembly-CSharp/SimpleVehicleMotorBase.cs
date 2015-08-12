@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class SimpleVehicleMotorBase : MVRigidBody
@@ -8,11 +7,9 @@ public abstract class SimpleVehicleMotorBase : MVRigidBody
 
 	protected MVInteractableBase interactableLocal;
 
-	protected MvCharacterController controller;
+	protected SmoothCharacterController smoothController;
 
 	protected StuckEvaluator stuckEvaluator;
-
-	protected List<MVControllerColliderHit> moveHits = new List<MVControllerColliderHit>();
 
 	public Vector3 DirectInputMoveMap;
 
@@ -20,19 +17,21 @@ public abstract class SimpleVehicleMotorBase : MVRigidBody
 
 	public bool HandleInput;
 
-	public virtual void Init(MvCharacterController characterController, MVInteractableBase interactableLocal)
+	protected MvCharacterController Controller => smoothController.Controller;
+
+	public virtual void Init(SmoothCharacterController smoothController, VehicleInteractable interactableLocal)
 	{
-		characterController.OnControllerColliderHit = (MvCharacterController.OnControllerColliderHitDelegate)Delegate.Combine(characterController.OnControllerColliderHit, new MvCharacterController.OnControllerColliderHitDelegate(OnControllerColliderHit));
+		Init();
+		this.smoothController = smoothController;
+		MvCharacterController controller = Controller;
+		controller.OnControllerColliderHit = (Action<MVControllerColliderHit>)Delegate.Combine(controller.OnControllerColliderHit, new Action<MVControllerColliderHit>(interactableLocal.HandleMoveHit));
 		movableMotorState = new MVMovableMotorState();
-		stuckEvaluator = new StuckEvaluator(characterController.GetOverlappingObjects);
+		stuckEvaluator = new StuckEvaluator(Controller.GetOverlappingObjects);
 		this.interactableLocal = interactableLocal;
-		controller = characterController;
 	}
 
 	public virtual void OnLocalVehicleLeave()
 	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
 		DirectInputMoveMap = Vector3.zero;
 	}
 
@@ -43,8 +42,14 @@ public abstract class SimpleVehicleMotorBase : MVRigidBody
 
 	public abstract void VehicleUpdateFunction();
 
-	private void OnControllerColliderHit(MVControllerColliderHit hit)
+	public override void Reset()
 	{
-		moveHits.Add(hit);
+		base.Reset();
+		smoothController.Reset();
+	}
+
+	public void UpdateFunction()
+	{
+		smoothController.SmoothMove();
 	}
 }

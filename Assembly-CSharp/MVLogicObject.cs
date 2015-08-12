@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using MV.WorldObject;
@@ -12,22 +11,15 @@ public abstract class MVLogicObject : MVWorldObjectClient
 
 	protected float cullDistance = 145f;
 
-	protected MVLogicObject(Hashtable data, string prefabPath, Dictionary<int, MVWorldObjectClient> worldObjects)
+	protected MVLogicObject(Dictionary<object, object> data, string prefabPath, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, prefabPath, worldObjects)
 	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ad: Unknown result type (might be due to invalid IL or missing references)
 		interactionFlags = InteractionFlags.Selectable | InteractionFlags.CanRotateY | InteractionFlags.CanClone | InteractionFlags.CanResetLogic;
 		PlayInteractionType = PlayInteractionType.ExcludeFromInteraction;
 		gameObject.layer = LayerMask.NameToLayer("Logic");
 		previewLayerMask |= LayerFlags.Logic;
 		MeshRenderer[] meshRenderers = (from r in gameObject.GetComponentsInChildren<MeshRenderer>()
-			where ((Object)r).name != "ioConnectorCube" && ((Object)r).name != "ioConnectorSphere"
+			where r.name != "ioConnectorCube" && r.name != "ioConnectorSphere"
 			select r).ToArray();
 		localBounds = ComputeLocalBounds(gameObject.transform.position, meshRenderers);
 	}
@@ -51,7 +43,6 @@ public abstract class MVLogicObject : MVWorldObjectClient
 
 	public override Bounds GetLocalBounds(BoundsContext boundsContext)
 	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
 		return localBounds;
 	}
 
@@ -77,10 +68,10 @@ public abstract class MVLogicObject : MVWorldObjectClient
 	{
 		base.InitializeInventory();
 		(from r in GameObject.GetComponentsInChildren<MeshRenderer>()
-			where ((Object)r).name == "ioConnectorCube" || ((Object)r).name == "ioConnectorSphere"
+			where r.name == "ioConnectorCube" || r.name == "ioConnectorSphere"
 			select r).ToList().ForEach((MeshRenderer r) =>
 		{
-			((Component)r).gameObject.active = false;
+			r.gameObject.SetActive(value: false);
 		});
 	}
 
@@ -91,9 +82,9 @@ public abstract class MVLogicObject : MVWorldObjectClient
 			disabledByLod = false;
 			Renderer[] componentsInChildren = gameObject.GetComponentsInChildren<Renderer>();
 			Renderer[] array = componentsInChildren;
-			foreach (Renderer val in array)
+			foreach (Renderer renderer in array)
 			{
-				val.enabled = true;
+				renderer.enabled = true;
 			}
 		}
 		else if (!disabledByLod && distance >= cullDistance)
@@ -101,48 +92,31 @@ public abstract class MVLogicObject : MVWorldObjectClient
 			disabledByLod = true;
 			Renderer[] componentsInChildren2 = gameObject.GetComponentsInChildren<Renderer>();
 			Renderer[] array2 = componentsInChildren2;
-			foreach (Renderer val2 in array2)
+			foreach (Renderer renderer2 in array2)
 			{
-				val2.enabled = false;
+				renderer2.enabled = false;
 			}
 		}
 	}
 
 	protected Bounds ComputeLocalBounds(Vector3 origin, MeshRenderer[] meshRenderers)
 	{
-		//IL_0002: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0026: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0036: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0037: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0085: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0042: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0047: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0050: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0051: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005d: Unknown result type (might be due to invalid IL or missing references)
 		Bounds result = new Bounds(Vector3.zero, Vector3.zero);
 		if (meshRenderers.Length > 0)
 		{
-			Bounds bounds = ((Renderer)meshRenderers[0]).bounds;
+			Bounds bounds = meshRenderers[0].bounds;
 			bounds.center -= origin;
 			result = bounds;
 			for (int i = 1; i < meshRenderers.Length; i++)
 			{
-				bounds = ((Renderer)meshRenderers[i]).bounds;
+				bounds = meshRenderers[i].bounds;
 				bounds.center -= origin;
 				result.Encapsulate(bounds);
 			}
 		}
 		else
 		{
-			Debug.LogWarning((object)"Mesh filters required for correct bounds", (Object)(object)GameObject);
+			Debug.LogWarning("Mesh filters required for correct bounds", GameObject);
 		}
 		return result;
 	}

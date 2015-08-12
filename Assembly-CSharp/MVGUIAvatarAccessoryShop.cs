@@ -5,7 +5,12 @@ using UnityEngine;
 
 public class MVGUIAvatarAccessoryShop : MVGUIAvatarAccessoryBasicView
 {
+	private bool fromShown;
+
 	public List<MVGUIAvatarAccessoryShopGroup> avatarAccessoryGroups;
+
+	[SerializeField]
+	private AvatarAccessoryController avatarAccessoryController;
 
 	private StreamingAssetInfo waitingToBeAttached;
 
@@ -18,24 +23,31 @@ public class MVGUIAvatarAccessoryShop : MVGUIAvatarAccessoryBasicView
 	public override void OnHide()
 	{
 		base.OnHide();
-		if (AvatarBody != null)
+		if (AvatarBody != null && fromShown)
 		{
 			ResetAttachedAvatarItem();
 		}
+		fromShown = false;
+	}
+
+	public override void OnShow()
+	{
+		base.OnShow();
+		fromShown = true;
 	}
 
 	protected override void DoInitialize()
 	{
 		foreach (MVGUIAvatarAccessoryShopGroup avatarAccessoryGroup in avatarAccessoryGroups)
 		{
-			avatarAccessoryGroup.Initialize();
+			avatarAccessoryGroup.Initialize(avatarAccessoryController);
 			avatarAccessoryGroup.OnItemPreview = (MVGUIAvatarAccessoryShopGroup.OnItemPreviewDelegate)Delegate.Combine(avatarAccessoryGroup.OnItemPreview, new MVGUIAvatarAccessoryShopGroup.OnItemPreviewDelegate(PreviewAvatarItem));
 		}
 	}
 
 	private void ResetAttachedAvatarItem()
 	{
-		if ((Object)(object)previewAvatarAccessory != (Object)null)
+		if (previewAvatarAccessory != null)
 		{
 			DetachAndDestroyPreviewItem();
 		}
@@ -47,7 +59,7 @@ public class MVGUIAvatarAccessoryShop : MVGUIAvatarAccessoryBasicView
 
 	private void PreviewAvatarItem(AvatarAccessoryShopViewItem viewItem)
 	{
-		if ((Object)(object)viewItem == (Object)null)
+		if (viewItem == null)
 		{
 			ResetAttachedAvatarItem();
 			return;
@@ -68,7 +80,7 @@ public class MVGUIAvatarAccessoryShop : MVGUIAvatarAccessoryBasicView
 		StreamingAssetInfo streamingAssetInfo = (StreamingAssetInfo)viewItem.Item.Object;
 		if (waitingToBeAttached != streamingAssetInfo)
 		{
-			Object.Destroy((Object)(object)((Component)avatarAccessory).gameObject);
+			UnityEngine.Object.Destroy(avatarAccessory.gameObject);
 			return;
 		}
 		waitingToBeAttached = null;
@@ -87,7 +99,7 @@ public class MVGUIAvatarAccessoryShop : MVGUIAvatarAccessoryBasicView
 	private void DetachAndDestroyPreviewItem()
 	{
 		AvatarBody.DetachAccessory(previewAvatarAccessory);
-		Object.Destroy((Object)(object)((Component)previewAvatarAccessory).gameObject);
+		UnityEngine.Object.Destroy(previewAvatarAccessory.gameObject);
 		previewViewItem.previewButton.SetToggleState(toggle: false);
 		previewStreamingAssetInfo = null;
 		previewAvatarAccessory = null;

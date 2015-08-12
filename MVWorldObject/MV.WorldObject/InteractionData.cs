@@ -20,15 +20,15 @@ public struct InteractionData
 	{
 		{
 			InteractionPackageType.CenterGun,
-			new InteractionData(InteractionPackageType.CenterGun, 13f)
+			new InteractionData(InteractionPackageType.CenterGun, 13f, Vector3.zero, PlayerKilledByType.None, isShared: true)
 		},
 		{
 			InteractionPackageType.RailGunHit,
-			new InteractionData(InteractionPackageType.RailGunHit, 100f)
+			new InteractionData(InteractionPackageType.RailGunHit, 100f, Vector3.zero, PlayerKilledByType.None, isShared: true)
 		},
 		{
 			InteractionPackageType.MutantHit,
-			new InteractionData(InteractionPackageType.MutantHit, 110f)
+			new InteractionData(InteractionPackageType.MutantHit, 110f, Vector3.zero, PlayerKilledByType.None, isShared: true)
 		}
 	};
 
@@ -42,14 +42,7 @@ public struct InteractionData
 
 	public float Damage => damage;
 
-	public Vector3 Impulse
-	{
-		get
-		{
-			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-			return impulse;
-		}
-	}
+	public Vector3 Impulse => impulse;
 
 	public InteractionPackageType InteractionType => interactionType;
 
@@ -67,63 +60,86 @@ public struct InteractionData
 	public InteractionData(InteractionPackageType interactionType)
 		: this(interactionType, 0f, Vector3.zero, PlayerKilledByType.None)
 	{
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
 	}
 
 	public InteractionData(InteractionPackageType interactionType, float damage)
 		: this(interactionType, damage, Vector3.zero, PlayerKilledByType.None)
 	{
-		//IL_0003: Unknown result type (might be due to invalid IL or missing references)
 	}
 
 	public InteractionData(InteractionPackageType interactionType, Vector3 impulse)
 		: this(interactionType, 0f, impulse, PlayerKilledByType.None)
 	{
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
 	}
 
 	public InteractionData(InteractionPackageType interactionType, float damage, Vector3 impulse)
 		: this(interactionType, damage, impulse, PlayerKilledByType.None)
 	{
-		//IL_0003: Unknown result type (might be due to invalid IL or missing references)
 	}
 
 	public InteractionData(InteractionPackageType interactionType, PlayerKilledByType playerKilledByType)
 		: this(interactionType, 0f, Vector3.zero, playerKilledByType)
 	{
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
 	}
 
 	public InteractionData(InteractionPackageType interactionType, float damage, PlayerKilledByType playerKilledByType)
 		: this(interactionType, damage, Vector3.zero, playerKilledByType)
 	{
-		//IL_0003: Unknown result type (might be due to invalid IL or missing references)
 	}
 
 	public InteractionData(InteractionPackageType interactionType, Vector3 impulse, PlayerKilledByType playerKilledByType)
 		: this(interactionType, 0f, impulse, playerKilledByType)
 	{
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
 	}
 
 	public InteractionData(InteractionPackageType interactionType, float damage, Vector3 impulse, PlayerKilledByType playerKilledByType)
 	{
-		//IL_000f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-		this.damage = damage;
 		this.interactionType = interactionType;
+		InteractionData sharedData = GetSharedData(interactionType);
+		Validate(sharedData, interactionType, damage, impulse, playerKilledByType);
+		this.damage = damage;
+		this.impulse = impulse;
+		this.playerKilledByType = playerKilledByType;
+		if (damage == 0f)
+		{
+			this.damage = sharedData.damage;
+		}
+		if (impulse.sqrMagnitude <= 1E-05f)
+		{
+			this.impulse = sharedData.impulse;
+		}
+		if (playerKilledByType == PlayerKilledByType.None)
+		{
+			this.playerKilledByType = sharedData.playerKilledByType;
+		}
+	}
+
+	private InteractionData(InteractionPackageType interactionType, float damage, Vector3 impulse, PlayerKilledByType playerKilledByType, bool isShared)
+	{
+		this.interactionType = interactionType;
+		this.damage = damage;
 		this.impulse = impulse;
 		this.playerKilledByType = playerKilledByType;
 	}
 
-	public InteractionData(byte[] byteArray, bool withSharedValues)
+	private static void Validate(InteractionData sharedInteractionData, InteractionPackageType interactionType, float damage, Vector3 impulse, PlayerKilledByType playerKilledByType)
 	{
-		//IL_0013: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0018: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0092: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a4: Unknown result type (might be due to invalid IL or missing references)
+		if (damage != 0f && sharedInteractionData.damage != 0f)
+		{
+			throw new Exception("Both sharedValues.damage and construction argument damage defined for type: " + interactionType);
+		}
+		if (impulse.sqrMagnitude > 1E-05f && sharedInteractionData.impulse.sqrMagnitude > 1E-05f)
+		{
+			throw new Exception("Both sharedValues.impulse and construction argument impulse defined for type: " + interactionType);
+		}
+		if (playerKilledByType != PlayerKilledByType.None && sharedInteractionData.playerKilledByType != PlayerKilledByType.None)
+		{
+			throw new Exception("Both sharedValues.playerKilledByType and construction argument playerKilledByType defined for type: " + interactionType);
+		}
+	}
+
+	public InteractionData(byte[] byteArray)
+	{
 		damage = 0f;
 		interactionType = InteractionPackageType.None;
 		impulse = Vector3.zero;
@@ -139,7 +155,7 @@ public struct InteractionData
 		{
 			damage = bytePacker.ReadSingle();
 		}
-		else if (withSharedValues)
+		else
 		{
 			damage = sharedData.damage;
 		}
@@ -147,7 +163,7 @@ public struct InteractionData
 		{
 			impulse = new Vector3(bytePacker.ReadSingle(), bytePacker.ReadSingle(), bytePacker.ReadSingle());
 		}
-		else if (withSharedValues)
+		else
 		{
 			impulse = sharedData.impulse;
 		}
@@ -155,7 +171,7 @@ public struct InteractionData
 		{
 			playerKilledByType = (PlayerKilledByType)bytePacker.ReadByte();
 		}
-		else if (withSharedValues)
+		else
 		{
 			playerKilledByType = sharedData.playerKilledByType;
 		}
@@ -165,25 +181,26 @@ public struct InteractionData
 	{
 		ByteFlags byteFlags = (ByteFlags)0;
 		BytePacker bytePacker = new BytePacker();
+		InteractionData sharedData = GetSharedData(interactionType);
 		bytePacker.Write((byte)byteFlags);
 		if (interactionType != InteractionPackageType.None)
 		{
 			bytePacker.Write((byte)interactionType);
 			byteFlags |= ByteFlags.InteractionType;
 		}
-		if (damage != 0f)
+		if (damage != 0f && sharedData.damage == 0f)
 		{
 			bytePacker.Write(damage);
 			byteFlags |= ByteFlags.Damage;
 		}
-		if (impulse.sqrMagnitude > 1E-05f)
+		if (impulse.sqrMagnitude > 1E-05f && sharedData.impulse.sqrMagnitude <= 1E-05f)
 		{
 			bytePacker.Write(impulse.x);
 			bytePacker.Write(impulse.y);
 			bytePacker.Write(impulse.z);
 			byteFlags |= ByteFlags.Impulse;
 		}
-		if (playerKilledByType != PlayerKilledByType.None)
+		if (playerKilledByType != PlayerKilledByType.None && sharedData.playerKilledByType == PlayerKilledByType.None)
 		{
 			bytePacker.Write((byte)playerKilledByType);
 			byteFlags |= ByteFlags.PlayerKilledByType;
@@ -195,7 +212,6 @@ public struct InteractionData
 
 	public override string ToString()
 	{
-		//IL_002b: Unknown result type (might be due to invalid IL or missing references)
-		return string.Format("damage: {0}, AvatarPackageType: {1}, impulse {2}, playerKilledByType {3}", new object[4] { damage, interactionType, impulse, playerKilledByType });
+		return $"damage: {damage}, AvatarPackageType: {interactionType}, impulse {impulse}, playerKilledByType {playerKilledByType}";
 	}
 }

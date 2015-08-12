@@ -1,8 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Localize;
 using MV.Common;
 using UnityEngine;
 
@@ -18,15 +16,33 @@ public class MVGUIAvatarAccessoryShopGroup : MVGUIAvatarAccessoryBaseGroup
 
 	private AvatarAccessory accessoryToBeEquipped;
 
-	private CharacterEditorController CEController => MVGameController.Instance.CharacterEditorController;
+	private AvatarAccessoryController avatarAccessoryController;
 
-	private MVBody AvatarBody => CEController.CurrentBody;
+	private CharacterEditorController CEController => MVGameController.CharacterEditorController;
+
+	private MVBody AvatarBody
+	{
+		get
+		{
+			if (MVGameController.GameMode == MVGameMode.CharacterEditor)
+			{
+				return CEController.CurrentBody;
+			}
+			return MVGameController.WOCM.AvatarLocal.Body;
+		}
+	}
 
 	public AvatarAccessoryShopCollection AvatarAccessoryShopCollection { get; protected set; }
 
+	public override void Initialize(AvatarAccessoryController avatarAccessoryController)
+	{
+		base.Initialize(avatarAccessoryController);
+		this.avatarAccessoryController = avatarAccessoryController;
+	}
+
 	protected override void InitializeCollectionView()
 	{
-		Debug.Log((object)("Streaming assets in shop: " + Game.StreamingAssetShopInventory.Count));
+		Debug.Log("Streaming assets in shop: " + Game.StreamingAssetShopInventory.Count);
 		AvatarAccessoryShopCollection = new AvatarAccessoryShopCollection(Game.StreamingAssetShopInventory);
 		collectionView.Initialize();
 		collectionView.InstansiateViewItem = InstansiateViewItem;
@@ -56,14 +72,14 @@ public class MVGUIAvatarAccessoryShopGroup : MVGUIAvatarAccessoryBaseGroup
 			OnItemPreview(null);
 		}
 		OpenShopDialog(item);
-		((Component)MVGameController.Instance.CharacterEditorController.AvatarAccessoryShop).gameObject.SetActiveRecursively(false);
+		avatarAccessoryController.AvatarAccessoryShop.gameObject.SetActive(value: false);
 	}
 
 	private void OpenShopDialog(IUXCollectionItem item)
 	{
 		streamingAssetInfo = (StreamingAssetInfo)item.Object;
-		UXDialogFactory uXDialogFactory = UXUtils.FindGUIObjectOfType<UXDialogFactory>();
-		uXDialogFactory.CreateCustomDialog("Prefabs/GUI/Dialogs/AvatarAccessoryShopDialog", TextSlotIndex.Empty, noButtons: true).SetOnResultCallback(OnPurchaseDialogResult).SetValues(BuildDialogData())
+		UXDialogFactory uXDialogFactory = UXUtils.UXDialogFactory;
+		uXDialogFactory.CreateCustomDialog("Prefabs/GUI/Dialogs/AvatarAccessoryShopDialog", string.Empty, noButtons: true).SetOnResultCallback(OnPurchaseDialogResult).SetValues(BuildDialogData())
 			.Show();
 		MVGUIAvatarAccessoryShopDialog mVGUIAvatarAccessoryShopDialog = (MVGUIAvatarAccessoryShopDialog)uXDialogFactory.CurrentDialogBox;
 		mVGUIAvatarAccessoryShopDialog.BuildShopDialog(item.Object as StreamingAssetInfo);
@@ -82,12 +98,11 @@ public class MVGUIAvatarAccessoryShopGroup : MVGUIAvatarAccessoryBaseGroup
 			text = streamingAssetInfo.Desc,
 			useWordWrap = true
 		});
-		Object val = Object.Instantiate(Resources.Load("Prefabs/GUI/ShopPreview/AvatarAccessoryShopPreview"));
-		MVGUIAvatarAccessoryShopPreview component = ((GameObject)((val is GameObject) ? val : null)).GetComponent<MVGUIAvatarAccessoryShopPreview>();
+		MVGUIAvatarAccessoryShopPreview component = (UnityEngine.Object.Instantiate(Resources.Load("Prefabs/GUI/ShopPreview/AvatarAccessoryShopPreview")) as GameObject).GetComponent<MVGUIAvatarAccessoryShopPreview>();
 		component.CreateNewViewItem(streamingAssetInfo);
 		dictionary.Add("AccessoryPreview", new ProductPreviewData
 		{
-			productPreview = ((Component)component).gameObject
+			productPreview = component.gameObject
 		});
 		return dictionary;
 	}
@@ -96,15 +111,15 @@ public class MVGUIAvatarAccessoryShopGroup : MVGUIAvatarAccessoryBaseGroup
 	{
 		if (dialogBox.DialogResult != UXDialogResult.Positive)
 		{
-			((Component)MVGameController.Instance.CharacterEditorController.AvatarAccessoryShop).gameObject.SetActiveRecursively(true);
+			avatarAccessoryController.AvatarAccessoryShop.gameObject.SetActive(value: true);
 		}
-		((Component)MVGameController.Instance.CharacterEditorController.AvatarAccessoryShop).gameObject.SetActiveRecursively(true);
+		avatarAccessoryController.AvatarAccessoryShop.gameObject.SetActive(value: true);
 	}
 
-	private void HandleRent(int invID, DateTime purchaseTime, Hashtable purchaseResponse)
+	private void HandleRent(int invID, DateTime purchaseTime, Dictionary<object, object> purchaseResponse)
 	{
-		int rentExpireSeconds = (int)purchaseResponse[(byte)81];
-		ProductInventoryInfo<StreamingAssetInfo> productInventoryInfo = Game.StreamingAssetInventory.Get(invID);
+		int rentExpireSeconds = (int)purchaseResponse[(byte)80];
+		ProductInventoryInfo productInventoryInfo = Game.StreamingAssetInventory.Get(invID);
 		productInventoryInfo.Renew(purchaseTime, rentExpireSeconds);
 		InventoryExpirationInfo expirationInfo = Game.StreamingAssetExpirationChecker.GetExpirationInfo(invID);
 		if (expirationInfo != null)
@@ -116,20 +131,20 @@ public class MVGUIAvatarAccessoryShopGroup : MVGUIAvatarAccessoryBaseGroup
 		Game.StreamingAssetExpirationChecker.AddExpirationInfo(expirationInfo);
 	}
 
-	private void AddToInventory(int invID, DateTime purchaseTime, Hashtable purchaseResponse, bool isRenting)
+	private void AddToInventory(int invID, DateTime purchaseTime, Dictionary<object, object> purchaseResponse, bool isRenting)
 	{
 		int productID = streamingAssetInfo.ProductID;
 		StreamingAssetInfo value = null;
 		Game.StreamingAssetInfoMap.TryGetValue(productID, out value);
 		if (value != null)
 		{
-			ProductInventoryInfo<StreamingAssetInfo> invInfo = new ProductInventoryInfo<StreamingAssetInfo>(invID, value, purchaseTime, isRenting);
+			ProductInventoryInfo invInfo = new ProductInventoryInfo(invID, value, purchaseTime, isRenting);
 			Game.StreamingAssetInventory.Add(invInfo);
 			Game.StreamingAssetInventory.NotifyProductInventoryChange();
 		}
 		else
 		{
-			Debug.LogError((object)"Trying to add non-existing avatar accessory to inventory");
+			Debug.LogError("Trying to add non-existing avatar accessory to inventory");
 		}
 	}
 
@@ -137,13 +152,13 @@ public class MVGUIAvatarAccessoryShopGroup : MVGUIAvatarAccessoryBaseGroup
 	{
 		if (dialogBox.DialogResult == UXDialogResult.Positive)
 		{
-			ProductInventoryInfo<StreamingAssetInfo> invInfo = Game.StreamingAssetInventory.Get(purchasedInventoryID);
+			ProductInventoryInfo invInfo = Game.StreamingAssetInventory.Get(purchasedInventoryID);
 			AvatarAccessory.Create(invInfo, AvatarAccessoryCreateHandler);
 		}
 		else
 		{
-			MVGameController.Instance.CharacterEditorController.AvatarAccessoryInventory.ShowInventoryUpdated();
-			((Component)MVGameController.Instance.CharacterEditorController.AvatarAccessoryShop).gameObject.SetActiveRecursively(true);
+			avatarAccessoryController.AvatarAccessoryInventory.ShowInventoryUpdated();
+			avatarAccessoryController.AvatarAccessoryShop.gameObject.SetActive(value: true);
 		}
 	}
 
@@ -151,7 +166,7 @@ public class MVGUIAvatarAccessoryShopGroup : MVGUIAvatarAccessoryBaseGroup
 	{
 		accessoryToBeEquipped = avatarAccessory;
 		AvatarAccessory avatarAccessory2 = AvatarBody.GetAccessories(avatarAccessory.DefaultSlot).FirstOrDefault();
-		if ((Object)(object)avatarAccessory2 != (Object)null)
+		if (avatarAccessory2 != null)
 		{
 			Unequip(avatarAccessory2);
 		}
@@ -177,9 +192,9 @@ public class MVGUIAvatarAccessoryShopGroup : MVGUIAvatarAccessoryBaseGroup
 			Equip();
 			return;
 		}
-		Object.Destroy((Object)(object)((Component)accessoryToBeEquipped).gameObject);
+		UnityEngine.Object.Destroy(accessoryToBeEquipped.gameObject);
 		accessoryToBeEquipped = null;
-		((Component)CEController.AvatarAccessoryShop).gameObject.SetActiveRecursively(true);
+		avatarAccessoryController.AvatarAccessoryShop.gameObject.SetActive(value: true);
 	}
 
 	private void Equip()
@@ -189,7 +204,7 @@ public class MVGUIAvatarAccessoryShopGroup : MVGUIAvatarAccessoryBaseGroup
 		game.OnSetAvatarAccessoryResponse = (Action<bool>)Delegate.Combine(game.OnSetAvatarAccessoryResponse, new Action<bool>(Game_OnSetAvatarAccessorySlotResponseEquipHandler));
 		Game.SetAvatarAccessorySlot(AvatarBody.Id, avatarAccessory.InventoryID, avatarAccessory.DefaultSlot, avatarAccessory.DefaultOffset);
 		AvatarBody.AttachAccessory(avatarAccessory, accessoryToBeEquipped.DefaultSlot, accessoryToBeEquipped.DefaultOffset);
-		((Component)CEController.AvatarAccessoryShop).gameObject.SetActiveRecursively(true);
+		avatarAccessoryController.AvatarAccessoryShop.gameObject.SetActive(value: true);
 	}
 
 	private void Game_OnSetAvatarAccessorySlotResponseEquipHandler(bool setSlotSuccess)
@@ -214,13 +229,11 @@ public class MVGUIAvatarAccessoryShopGroup : MVGUIAvatarAccessoryBaseGroup
 
 	protected override UXCollectionViewItem InstansiateViewItem(IUXCollectionItem item)
 	{
-		//IL_0038: Unknown result type (might be due to invalid IL or missing references)
-		Object val = Object.Instantiate((Object)(object)inventoryViewItemPrefab);
-		GameObject val2 = (GameObject)(object)((val is GameObject) ? val : null);
-		val2.layer = LayerMask.NameToLayer("UXElement");
-		val2.transform.parent = ((Component)this).transform;
-		val2.transform.localScale = Vector3.one;
-		AvatarAccessoryShopViewItem component = val2.GetComponent<AvatarAccessoryShopViewItem>();
+		GameObject gameObject = UnityEngine.Object.Instantiate(inventoryViewItemPrefab);
+		gameObject.layer = LayerMask.NameToLayer("UXElement");
+		gameObject.transform.parent = transform;
+		gameObject.transform.localScale = Vector3.one;
+		AvatarAccessoryShopViewItem component = gameObject.GetComponent<AvatarAccessoryShopViewItem>();
 		component.Item = item;
 		component.PreviewItemsRoot = previewItemsRoot;
 		component.OnPreviewAvatarAccessory = (AvatarAccessoryShopViewItem.OnPreviewAvatarAccessoryDelegate)Delegate.Combine(component.OnPreviewAvatarAccessory, new AvatarAccessoryShopViewItem.OnPreviewAvatarAccessoryDelegate(PreviewAvatarItem));

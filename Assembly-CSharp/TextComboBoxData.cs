@@ -9,7 +9,7 @@ public class TextComboBoxData : DialogData
 	public override void ApplyDataToElement(GameObject element)
 	{
 		UXComboBox component = element.GetComponent<UXComboBox>();
-		if (!((Object)(object)component == (Object)null))
+		if (!(component == null))
 		{
 			component.Add(items);
 			component.SetCurrentItem(currentlySelectedIndex);

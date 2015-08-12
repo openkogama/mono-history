@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 
 public class MVNegate : MVLogicObject
@@ -9,7 +8,7 @@ public class MVNegate : MVLogicObject
 
 	public override bool HasOutputConnector => true;
 
-	public MVNegate(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVNegate(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, "Prefabs/NegateObject", worldObjects)
 	{
 	}

@@ -1,4 +1,4 @@
-using System.Collections;
+using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
 
@@ -14,7 +14,7 @@ public class VehicleEquipable : MVEquipable
 		this.currentItem = currentItem;
 	}
 
-	public override void Equip(AvatarItemType type, Hashtable itemData, int variantID = 0)
+	public override void Equip(AvatarItemType type, Dictionary<object, object> itemData, int variantID = 0)
 	{
 		switch (type)
 		{
@@ -22,12 +22,15 @@ public class VehicleEquipable : MVEquipable
 			interactableLocal.TakeDamage(-50f, null, PlayerKilledByType.None);
 			return;
 		case AvatarItemType.Mutant:
-			Debug.Log((object)"Ignoring mutant on car pick up");
+			Debug.Log("Ignoring mutant on car pick up");
+			return;
+		case AvatarItemType.NinjaRun:
+			Debug.Log("Ignoring Ninjarun on car pickup");
 			return;
 		}
 		if (itemData != null)
 		{
-			currentItem.Value = new Hashtable
+			currentItem.Value = new Dictionary<object, object>
 			{
 				{
 					"type",
@@ -39,7 +42,7 @@ public class VehicleEquipable : MVEquipable
 		}
 		else
 		{
-			currentItem.Value = new Hashtable
+			currentItem.Value = new Dictionary<object, object>
 			{
 				{
 					"type",
@@ -52,6 +55,6 @@ public class VehicleEquipable : MVEquipable
 
 	public override void Unequip()
 	{
-		currentItem.Value = new Hashtable();
+		currentItem.Value = new Dictionary<object, object>();
 	}
 }

@@ -1,4 +1,4 @@
-using System.Collections;
+using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
 
@@ -11,9 +11,9 @@ public class MVEquipableProxy : MVEquipable
 		this.equipable = equipable;
 	}
 
-	public override void Equip(AvatarItemType type, Hashtable itemData, int variantID = 0)
+	public override void Equip(AvatarItemType type, Dictionary<object, object> itemData, int variantID = 0)
 	{
-		Debug.Log((object)"Equip");
+		Debug.Log("Equip");
 		equipable.Equip(type, itemData, variantID);
 	}
 

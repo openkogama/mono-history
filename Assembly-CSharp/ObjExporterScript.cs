@@ -1,74 +1,65 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using MV.WorldObject;
 using UnityEngine;
 
 public static class ObjExporterScript
 {
 	public static string MeshToString(MeshFilter mf)
 	{
-		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0058: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0136: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_019c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01a1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0202: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0207: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0268: Unknown result type (might be due to invalid IL or missing references)
-		//IL_026d: Unknown result type (might be due to invalid IL or missing references)
 		Mesh sharedMesh = mf.sharedMesh;
-		Material[] sharedMaterials = ((Component)mf).renderer.sharedMaterials;
+		Material[] sharedMaterials = mf.GetComponent<Renderer>().sharedMaterials;
 		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.Append("g ").Append(((Object)mf).name).Append("\n");
+		stringBuilder.Append("g ").Append(mf.name).Append("\n");
 		Vector3[] vertices = sharedMesh.vertices;
 		for (int i = 0; i < vertices.Length; i++)
 		{
-			Vector3 val = vertices[i];
-			stringBuilder.Append($"v {val.x} {val.y} {val.z}\n");
+			Vector3 vector = vertices[i];
+			stringBuilder.Append($"v {vector.x} {vector.y} {vector.z}\n");
 		}
 		stringBuilder.Append("\n");
 		Vector3[] normals = sharedMesh.normals;
 		for (int j = 0; j < normals.Length; j++)
 		{
-			Vector3 val2 = normals[j];
-			stringBuilder.Append($"vn {val2.x} {val2.y} {val2.z}\n");
+			Vector3 vector2 = normals[j];
+			stringBuilder.Append($"vn {vector2.x} {vector2.y} {vector2.z}\n");
 		}
 		stringBuilder.Append("\n");
 		Vector2[] uv = sharedMesh.uv;
 		for (int k = 0; k < uv.Length; k++)
 		{
-			Vector2 val3 = uv[k];
-			stringBuilder.Append($"vt {val3.x} {val3.y}\n");
+			Vector2 vector3 = uv[k];
+			stringBuilder.Append($"vt {vector3.x} {vector3.y}\n");
 		}
 		stringBuilder.Append("\n");
-		Vector2[] uv2 = sharedMesh.uv1;
+		Vector2[] uv2 = sharedMesh.uv2;
 		for (int l = 0; l < uv2.Length; l++)
 		{
-			Vector2 val4 = uv2[l];
-			stringBuilder.Append($"vt1 {val4.x} {val4.y}\n");
+			Vector2 vector4 = uv2[l];
+			stringBuilder.Append($"vt1 {vector4.x} {vector4.y}\n");
 		}
 		stringBuilder.Append("\n");
 		Vector2[] uv3 = sharedMesh.uv2;
 		for (int m = 0; m < uv3.Length; m++)
 		{
-			Vector2 val5 = uv3[m];
-			stringBuilder.Append($"vt2 {val5.x} {val5.y}\n");
+			Vector2 vector5 = uv3[m];
+			stringBuilder.Append($"vt2 {vector5.x} {vector5.y}\n");
 		}
 		stringBuilder.Append("\n");
 		Color[] colors = sharedMesh.colors;
 		for (int n = 0; n < colors.Length; n++)
 		{
-			Color val6 = colors[n];
-			stringBuilder.Append(string.Format("vc {0} {1} {2} {3}\n", new object[4] { val6.r, val6.g, val6.b, val6.a }));
+			Color color = colors[n];
+			stringBuilder.Append($"vc {color.r} {color.g} {color.b} {color.a}\n");
 		}
 		for (int num = 0; num < sharedMesh.subMeshCount; num++)
 		{
 			stringBuilder.Append("\n");
-			stringBuilder.Append("usemtl ").Append(((Object)sharedMaterials[num]).name).Append("\n");
-			stringBuilder.Append("usemap ").Append(((Object)sharedMaterials[num]).name).Append("\n");
+			stringBuilder.Append("usemtl ").Append(sharedMaterials[num].name).Append("\n");
+			stringBuilder.Append("usemap ").Append(sharedMaterials[num].name).Append("\n");
 			int[] triangles = sharedMesh.GetTriangles(num);
 			for (int num2 = 0; num2 < triangles.Length; num2 += 3)
 			{
@@ -80,10 +71,10 @@ public static class ObjExporterScript
 
 	public static void CubeModelToFile(MVCubeModelBase cm)
 	{
-		foreach (GameObject chunk in cm.Chunks)
+		foreach (KeyValuePair<IntVector, GameObject> item in (IEnumerable)cm.ChunkInstances)
 		{
-			MeshToFile(chunk.GetComponent<MeshFilter>(), ((Object)cm.GameObject).name + ((Object)chunk).name + ".obj", append: false);
-			Debug.Log((object)("Saved obj file " + ((Object)cm.GameObject).name + ((Object)chunk).name + ".obj"));
+			MeshToFile(item.Value.GetComponent<MeshFilter>(), cm.GameObject.name + item.Value.name + ".obj", append: false);
+			Debug.Log("Saved obj file " + cm.GameObject.name + item.Value.name + ".obj");
 		}
 	}
 

@@ -30,36 +30,36 @@ public class Detonator_0020Spray_0020Helper : MonoBehaviour
 		stopTimeMax = 10f;
 	}
 
-	public override void Start()
+	public virtual void Start()
 	{
-		isReallyOn = ((Component)this).particleEmitter.emit;
-		((Component)this).particleEmitter.emit = false;
+		isReallyOn = GetComponent<ParticleEmitter>().emit;
+		GetComponent<ParticleEmitter>().emit = false;
 		spawnTime = Time.time;
-		startTime = Random.value * (startTimeMax - startTimeMin) + startTimeMin + Time.time;
-		stopTime = Random.value * (stopTimeMax - stopTimeMin) + stopTimeMin + Time.time;
-		if (!(Random.value <= 0.5f))
+		startTime = UnityEngine.Random.value * (startTimeMax - startTimeMin) + startTimeMin + Time.time;
+		stopTime = UnityEngine.Random.value * (stopTimeMax - stopTimeMin) + stopTimeMin + Time.time;
+		if (!(UnityEngine.Random.value <= 0.5f))
 		{
-			((Component)this).renderer.material = firstMaterial;
+			GetComponent<Renderer>().material = firstMaterial;
 		}
 		else
 		{
-			((Component)this).renderer.material = secondMaterial;
+			GetComponent<Renderer>().material = secondMaterial;
 		}
 	}
 
-	public override void FixedUpdate()
+	public virtual void FixedUpdate()
 	{
 		if (!(Time.time <= startTime))
 		{
-			((Component)this).particleEmitter.emit = isReallyOn;
+			GetComponent<ParticleEmitter>().emit = isReallyOn;
 		}
 		if (!(Time.time <= stopTime))
 		{
-			((Component)this).particleEmitter.emit = false;
+			GetComponent<ParticleEmitter>().emit = false;
 		}
 	}
 
-	public override void Main()
+	public virtual void Main()
 	{
 	}
 }

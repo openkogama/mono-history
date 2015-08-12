@@ -12,13 +12,13 @@ public class DummyWorldObjectSetup : MonoBehaviour
 		{
 			DummyWorldObjectClientManager.AddDummyWorldObjectClient(new DummyWorldObjectClient(dummyWorldObject));
 		}
-		Debug.Log((object)CalcOffset(3, 5, 9));
+		Debug.Log(CalcOffset(3, 5, 9));
 	}
 
 	public int CalcOffset(int curTime, int offset, int range)
 	{
 		int num = curTime % range;
-		Debug.Log((object)num);
+		Debug.Log(num);
 		if (num > offset)
 		{
 			offset = range - (num - offset);

@@ -80,6 +80,14 @@ public static class AvatarModifierPackageFactory
 				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.JumpPower, Const(0.1f)),
 				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.Speed, Const(0.4f))
 			})
+		},
+		{
+			AvatarModifierPackageType.NinjaRun,
+			new AvatarModifierPackage(AvatarModifierPackageType.NinjaRun, AvatarModifierPackageAdditionPolicy.Renew, 7f, new AvatarModifierPackage.AvatarModifier[2]
+			{
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.Speed, Const(3f)),
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.ThrustFactor, Const(20f))
+			})
 		}
 	};
 

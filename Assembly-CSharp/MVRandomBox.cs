@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using MV.WorldObject;
 
@@ -10,7 +9,7 @@ public class MVRandomBox : MVLogicObject
 
 	public override bool HasOutputConnector => true;
 
-	public MVRandomBox(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVRandomBox(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, "Prefabs/RandomBoxObject", worldObjects)
 	{
 	}

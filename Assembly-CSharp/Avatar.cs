@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
@@ -8,46 +7,116 @@ public class Avatar : MonoBehaviour
 {
 	public MVAvatar mvAvatar;
 
-	private HealthBar healthBar;
-
 	private bool isLocal;
-
-	private string username;
 
 	private Dictionary<AvatarModifierPackageType, AvatarModifier> modifiers = new Dictionary<AvatarModifierPackageType, AvatarModifier>();
 
+	private static string _particlePrefab = "ParticleFX/XP";
+
+	[SerializeField]
+	private AvatarBadge avatarBadge;
+
+	[SerializeField]
+	private TextMesh avatarName;
+
+	[SerializeField]
+	private AvatarLevelUp avatarLevelUp;
+
+	[SerializeField]
+	private Transform nameTagLabel;
+
+	private bool nameTagLabelVisible;
+
 	public bool IsLocal => isLocal;
 
-	public HealthBar HealthAndOxygenBar => healthBar;
-
-	public bool ShowHealth
+	public bool NameTagLabelVisible
 	{
+		get
+		{
+			return nameTagLabelVisible;
+		}
 		set
 		{
-			((Component)healthBar).gameObject.SetActiveRecursively(value);
+			nameTagLabelVisible = value;
+			Renderer[] componentsInChildren = nameTagLabel.GetComponentsInChildren<Renderer>(includeInactive: true);
+			Renderer[] array = componentsInChildren;
+			foreach (Renderer renderer in array)
+			{
+				renderer.enabled = nameTagLabelVisible;
+			}
 		}
 	}
 
-	public bool IsHealthShown => ((Component)healthBar).gameObject.active;
-
-	public string NameTag
+	public void Initialize(MVAvatar mvAvatar, bool isLocal)
 	{
-		set
+		this.mvAvatar = mvAvatar;
+		this.isLocal = isLocal;
+		if (isLocal)
 		{
-			//IL_0011: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0016: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0057: Unknown result type (might be due to invalid IL or missing references)
-			//IL_005c: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0062: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0067: Unknown result type (might be due to invalid IL or missing references)
-			//IL_006d: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0072: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0078: Unknown result type (might be due to invalid IL or missing references)
-			//IL_007d: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0098: Unknown result type (might be due to invalid IL or missing references)
-			((Component)this).gameObject.GetComponentInChildren<TextMesh>().text = value;
-			Color color = Color.white;
-			switch (MVGameController.Instance.Game.Players[mvAvatar.OwnerActorNr].Team)
+			UnityEngine.Object.Destroy(avatarBadge.gameObject);
+			MVLocalPlayer localPlayer = MVGameController.Game.LocalPlayer;
+			localPlayer.OnXPProgressData = (XPProgress.OnXPProgressDataDelegate)Delegate.Combine(localPlayer.OnXPProgressData, new XPProgress.OnXPProgressDataDelegate(OnXpProgress));
+		}
+		else
+		{
+			avatarBadge.Initialize(mvAvatar.OwnerActorNr);
+		}
+		avatarLevelUp.Init(mvAvatar.OwnerActorNr);
+	}
+
+	private void OnXpProgress(XPProgressData xpProgressData)
+	{
+		ParticleSystem component = (UnityEngine.Object.Instantiate(Resources.Load(_particlePrefab)) as GameObject).GetComponent<ParticleSystem>();
+		component.transform.parent = transform;
+		component.transform.localPosition = Vector3.up;
+		component.transform.localRotation = Quaternion.identity;
+		component.transform.localScale = Vector3.one;
+		component.emissionRate = xpProgressData.XPDelta;
+		component.Play();
+	}
+
+	public void UpdateModifiers(Dictionary<object, object> newModifiers)
+	{
+		List<AvatarModifierPackageType> list = new List<AvatarModifierPackageType>();
+		foreach (AvatarModifierPackageType key in modifiers.Keys)
+		{
+			string text = "_" + key;
+			if (!newModifiers.ContainsKey(text))
+			{
+				AvatarModifierPackageType item = (AvatarModifierPackageType)(int)Enum.Parse(typeof(AvatarModifierPackageType), text.TrimStart('_'));
+				list.Add(item);
+			}
+		}
+		foreach (AvatarModifierPackageType item2 in list)
+		{
+			modifiers[item2].Deactivate(this);
+			modifiers.Remove(item2);
+		}
+		foreach (KeyValuePair<object, object> newModifier in newModifiers)
+		{
+			string text2 = newModifier.Key as string;
+			AvatarModifierPackageType avatarModifierPackageType = (AvatarModifierPackageType)(int)Enum.Parse(typeof(AvatarModifierPackageType), text2.TrimStart('_'));
+			if (!modifiers.ContainsKey(avatarModifierPackageType))
+			{
+				AvatarModifier avatarModifier = AvatarModifier.CreateFromType(avatarModifierPackageType, this);
+				if (avatarModifier != null)
+				{
+					avatarModifier.transform.parent = transform;
+					avatarModifier.transform.localPosition = Vector3.zero;
+					modifiers.Add(avatarModifierPackageType, avatarModifier);
+					avatarModifier.Activate(this);
+				}
+			}
+		}
+	}
+
+	public void UpdateNameTag()
+	{
+		avatarName.text = MVGameController.Game.Players[mvAvatar.OwnerActorNr].Username;
+		Color color = Color.white;
+		if (MVGameController.Game.TeamManager.TeamCount() > 1)
+		{
+			switch (MVGameController.Game.Players[mvAvatar.OwnerActorNr].Team)
 			{
 			case MVTeam.Blue:
 				color = Color.blue;
@@ -62,60 +131,8 @@ public class Avatar : MonoBehaviour
 				color = Color.yellow;
 				break;
 			}
-			((Component)((Component)this).gameObject.GetComponentInChildren<TextMesh>()).renderer.material.color = color;
 		}
-	}
-
-	public float Health
-	{
-		set
-		{
-			healthBar.Health = value;
-		}
-	}
-
-	public void Initialize(MVAvatar mvAvatar, bool isLocal)
-	{
-		this.mvAvatar = mvAvatar;
-		this.isLocal = isLocal;
-		healthBar = ((Component)this).GetComponentInChildren<HealthBar>();
-		healthBar.Oxygen = 0f;
-	}
-
-	public void UpdateModifiers(Hashtable newModifiers)
-	{
-		//IL_0175: Unknown result type (might be due to invalid IL or missing references)
-		List<AvatarModifierPackageType> list = new List<AvatarModifierPackageType>();
-		foreach (AvatarModifierPackageType key in modifiers.Keys)
-		{
-			string text = "_" + key;
-			if (!newModifiers.ContainsKey(text))
-			{
-				AvatarModifierPackageType item = (AvatarModifierPackageType)(int)Enum.Parse(typeof(AvatarModifierPackageType), text.TrimStart(new char[1] { '_' }));
-				list.Add(item);
-			}
-		}
-		foreach (AvatarModifierPackageType item2 in list)
-		{
-			modifiers[item2].Deactivate(this);
-			modifiers.Remove(item2);
-		}
-		foreach (DictionaryEntry newModifier in newModifiers)
-		{
-			string text2 = newModifier.Key as string;
-			AvatarModifierPackageType avatarModifierPackageType = (AvatarModifierPackageType)(int)Enum.Parse(typeof(AvatarModifierPackageType), text2.TrimStart(new char[1] { '_' }));
-			if (!modifiers.ContainsKey(avatarModifierPackageType))
-			{
-				AvatarModifier avatarModifier = AvatarModifier.CreateFromType(avatarModifierPackageType, this);
-				if ((Object)(object)avatarModifier != (Object)null)
-				{
-					((Component)avatarModifier).transform.parent = ((Component)this).transform;
-					((Component)avatarModifier).transform.localPosition = Vector3.zero;
-					modifiers.Add(avatarModifierPackageType, avatarModifier);
-					avatarModifier.Activate(this);
-				}
-			}
-		}
+		avatarName.GetComponent<Renderer>().material.color = color;
 	}
 
 	public void StartBlinking(BlinkType type, float duration)

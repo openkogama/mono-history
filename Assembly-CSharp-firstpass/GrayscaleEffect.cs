@@ -12,6 +12,6 @@ public class GrayscaleEffect : ImageEffectBase
 	{
 		material.SetTexture("_RampTex", textureRamp);
 		material.SetFloat("_RampOffset", rampOffset);
-		Graphics.Blit((Texture)(object)source, destination, material);
+		Graphics.Blit(source, destination, material);
 	}
 }

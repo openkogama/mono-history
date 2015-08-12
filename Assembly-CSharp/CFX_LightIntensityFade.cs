@@ -19,7 +19,7 @@ public class CFX_LightIntensityFade : MonoBehaviour
 
 	private void Start()
 	{
-		baseIntensity = ((Component)this).light.intensity;
+		baseIntensity = GetComponent<Light>().intensity;
 	}
 
 	private void OnEnable()
@@ -28,7 +28,7 @@ public class CFX_LightIntensityFade : MonoBehaviour
 		p_delay = delay;
 		if (delay > 0f)
 		{
-			((Behaviour)((Component)this).light).enabled = false;
+			GetComponent<Light>().enabled = false;
 		}
 	}
 
@@ -39,17 +39,17 @@ public class CFX_LightIntensityFade : MonoBehaviour
 			p_delay -= Time.deltaTime;
 			if (p_delay <= 0f)
 			{
-				((Behaviour)((Component)this).light).enabled = true;
+				GetComponent<Light>().enabled = true;
 			}
 		}
 		else if (p_lifetime / duration < 1f)
 		{
-			((Component)this).light.intensity = Mathf.Lerp(baseIntensity, finalIntensity, p_lifetime / duration);
+			GetComponent<Light>().intensity = Mathf.Lerp(baseIntensity, finalIntensity, p_lifetime / duration);
 			p_lifetime += Time.deltaTime;
 		}
 		else if (autodestruct)
 		{
-			Object.Destroy((Object)(object)((Component)this).gameObject);
+			Object.Destroy(gameObject);
 		}
 	}
 }

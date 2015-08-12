@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class MVGUICurrentSelectedMaterialCube : MonoBehaviour
+public class MVGUICurrentSelectedMaterialCube : UXViewScript
 {
 	public delegate void OnClickDelegate();
 
@@ -16,17 +16,18 @@ public class MVGUICurrentSelectedMaterialCube : MonoBehaviour
 		set
 		{
 			MeshRenderer[] array = meshRenderers;
-			foreach (MeshRenderer val in array)
+			foreach (MeshRenderer meshRenderer in array)
 			{
-				((Renderer)val).material = value;
+				meshRenderer.material = value;
 			}
 		}
 	}
 
-	public void Awake()
+	public override void Awake()
 	{
-		meshRenderers = ((Component)this).GetComponentsInChildren<MeshRenderer>(true);
-		materialSelectionActivationClickObject = ((Component)this).GetComponentInChildren<UXMouseClickObject>();
+		base.Awake();
+		meshRenderers = GetComponentsInChildren<MeshRenderer>(includeInactive: true);
+		materialSelectionActivationClickObject = GetComponentInChildren<UXMouseClickObject>();
 		UXMouseClickObject uXMouseClickObject = materialSelectionActivationClickObject;
 		uXMouseClickObject.OnMouseDown = (UXMouseClickObject.OnMouseDownDelegate)Delegate.Combine(uXMouseClickObject.OnMouseDown, (UXMouseClickObject.OnMouseDownDelegate)((UXMouseClickObject clickObject, Vector3 mousePositionWorld) => true));
 		UXMouseClickObject uXMouseClickObject2 = materialSelectionActivationClickObject;
@@ -37,5 +38,25 @@ public class MVGUICurrentSelectedMaterialCube : MonoBehaviour
 				OnClick();
 			}
 		}));
+	}
+
+	public override void OnShow()
+	{
+		base.OnShow();
+		MeshRenderer[] array = meshRenderers;
+		foreach (MeshRenderer meshRenderer in array)
+		{
+			meshRenderer.enabled = true;
+		}
+	}
+
+	public override void OnHide()
+	{
+		base.OnHide();
+		MeshRenderer[] array = meshRenderers;
+		foreach (MeshRenderer meshRenderer in array)
+		{
+			meshRenderer.enabled = false;
+		}
 	}
 }

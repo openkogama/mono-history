@@ -1,0 +1,58 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+public static class BadgeManager
+{
+	public const int defaultMaxFriendsLimit = 200;
+
+	private static string baseUrl;
+
+	private static Dictionary<int, BadgeUrlData> badgeUrls = new Dictionary<int, BadgeUrlData>();
+
+	private static int maxLevelBadge = 0;
+
+	public static void Initialize(List<BadgeUrlData> badgeUrlDatas)
+	{
+		foreach (BadgeUrlData badgeUrlData in badgeUrlDatas)
+		{
+			if (badgeUrlData.Level > maxLevelBadge)
+			{
+				maxLevelBadge = badgeUrlData.Level;
+			}
+			if (!badgeUrls.ContainsKey(badgeUrlData.Level))
+			{
+				badgeUrls.Add(badgeUrlData.Level, badgeUrlData);
+			}
+		}
+	}
+
+	public static int GetFriendsLimit(int level)
+	{
+		if (!badgeUrls.ContainsKey(level))
+		{
+			return 200;
+		}
+		return badgeUrls[level].FriendsLimit;
+	}
+
+	public static void GetBadgeTexture(int level, Action<WWW> callback)
+	{
+		HandleBadgeRequest(level, callback);
+	}
+
+	private static void HandleBadgeRequest(int level, Action<WWW> callback)
+	{
+		if (maxLevelBadge == 0)
+		{
+			Debug.LogError("No badges was loaded");
+			return;
+		}
+		if (!badgeUrls.ContainsKey(level))
+		{
+			Debug.LogWarning("Level exceeds defined badges. Using maxBadge");
+			level = maxLevelBadge;
+		}
+		AsyncWWWManager.WWWRequest(new CachedGetRequest(badgeUrls[level].URL, callback));
+	}
+}

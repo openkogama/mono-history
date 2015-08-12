@@ -1,23 +1,22 @@
-using System.Collections;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
 
 public class MVBlueprintBase : MVGroup
 {
-	protected Hashtable blueprintData;
+	protected Dictionary<object, object> blueprintData;
 
-	protected Hashtable childIdMap;
+	protected Dictionary<object, object> childIdMap;
 
-	protected Hashtable idChildMap = new Hashtable();
+	protected Dictionary<object, object> idChildMap = new Dictionary<object, object>();
 
-	public MVBlueprintBase(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVBlueprintBase(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, worldObjects)
 	{
 		MapDataToFields();
 	}
 
-	public MVBlueprintBase(Hashtable data, string prefabPath, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVBlueprintBase(Dictionary<object, object> data, string prefabPath, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, prefabPath, worldObjects)
 	{
 		MapDataToFields();
@@ -40,16 +39,16 @@ public class MVBlueprintBase : MVGroup
 	{
 		if (wo.WorldObjectType != WorldObjectType)
 		{
-			Debug.LogError((object)"Trying to compare different types of WorldObjects");
+			Debug.LogError("Trying to compare different types of WorldObjects");
 		}
 		if (!(wo is MVBlueprintBase))
 		{
-			Debug.LogError((object)"Not a blue print");
+			Debug.LogError("Not a blue print");
 		}
 		MVBlueprintBase mVBlueprintBase = (MVBlueprintBase)wo;
-		Hashtable hashtable = (Hashtable)Data["BlueprintData"];
-		Hashtable hashtable2 = (Hashtable)hashtable["ChildrenMap"];
-		foreach (DictionaryEntry item in hashtable2)
+		Dictionary<object, object> dictionary = (Dictionary<object, object>)Data["BlueprintData"];
+		Dictionary<object, object> dictionary2 = (Dictionary<object, object>)dictionary["ChildrenMap"];
+		foreach (KeyValuePair<object, object> item in dictionary2)
 		{
 			MVWorldObjectClient child = GetChild((string)item.Key);
 			MVWorldObjectClient child2 = mVBlueprintBase.GetChild((string)item.Key);
@@ -72,9 +71,9 @@ public class MVBlueprintBase : MVGroup
 
 	protected bool CompareWorldObjectsInChildrenMap(MVWorldObjectClient wo, KoGaMaPackageClient koGaMaPackageClient, List<string> compareChildren, ref int insertedByProfileId)
 	{
-		if ((object)wo.GetType() != GetType())
+		if (wo.GetType() != GetType())
 		{
-			Debug.LogError((object)$"Types does not match this {GetType()} and other {wo.GetType()}");
+			Debug.LogError($"Types does not match this {GetType()} and other {wo.GetType()}");
 			return false;
 		}
 		MVBlueprintBase mVBlueprintBase = (MVBlueprintBase)wo;
@@ -83,7 +82,7 @@ public class MVBlueprintBase : MVGroup
 			MVWorldObjectClient child = mVBlueprintBase.GetChild(compareChild);
 			if (child == null)
 			{
-				Debug.LogError((object)$"otherChild {compareChild} is null");
+				Debug.LogError($"otherChild {compareChild} is null");
 				return false;
 			}
 			MVWorldObjectClient child2 = GetChild(compareChild);
@@ -97,14 +96,14 @@ public class MVBlueprintBase : MVGroup
 
 	private void MapDataToFields()
 	{
-		if (!Data.Contains("BlueprintData"))
+		if (!Data.ContainsKey("BlueprintData"))
 		{
-			Debug.LogError((object)"No blueprint data");
+			Debug.LogError("No blueprint data");
 			return;
 		}
-		blueprintData = (Hashtable)Data["BlueprintData"];
-		childIdMap = (Hashtable)blueprintData["ChildrenMap"];
-		foreach (DictionaryEntry item in childIdMap)
+		blueprintData = (Dictionary<object, object>)Data["BlueprintData"];
+		childIdMap = (Dictionary<object, object>)blueprintData["ChildrenMap"];
+		foreach (KeyValuePair<object, object> item in childIdMap)
 		{
 			idChildMap[item.Value] = item.Key;
 		}
@@ -115,32 +114,32 @@ public class MVBlueprintBase : MVGroup
 		MVBlueprintBase mVBlueprintBase = (MVBlueprintBase)base.Clone(ownerActorNumber, cloneGroupId, cloneBookkeeping, worldObjects, prototypes);
 		if (mVBlueprintBase.blueprintData != null)
 		{
-			Hashtable hashtable = mVBlueprintBase.blueprintData;
-			if (hashtable.Contains(BlueprintData.ChildrenMap.ToString()))
+			Dictionary<object, object> dictionary = mVBlueprintBase.blueprintData;
+			if (dictionary.ContainsKey(BlueprintData.ChildrenMap.ToString()))
 			{
-				Hashtable hashtable2 = (Hashtable)hashtable[BlueprintData.ChildrenMap.ToString()];
-				Hashtable hashtable3 = new Hashtable();
+				Dictionary<object, object> dictionary2 = (Dictionary<object, object>)dictionary[BlueprintData.ChildrenMap.ToString()];
+				Dictionary<object, object> dictionary3 = new Dictionary<object, object>();
 				List<object> list = new List<object>();
-				foreach (object key in hashtable2.Keys)
+				foreach (object key in dictionary2.Keys)
 				{
 					list.Add(key);
 				}
 				foreach (object item in list)
 				{
-					int num = cloneBookkeeping.worldObjectIdsMaps[(int)hashtable2[item]];
-					hashtable2[item] = num;
-					hashtable3[num] = item;
+					int num = cloneBookkeeping.worldObjectIdsMaps[(int)dictionary2[item]];
+					dictionary2[item] = num;
+					dictionary3[num] = item;
 				}
-				mVBlueprintBase.idChildMap = hashtable3;
+				mVBlueprintBase.idChildMap = dictionary3;
 			}
 			else
 			{
-				Debug.LogError((object)"No children map");
+				Debug.LogError("No children map");
 			}
 		}
 		else
 		{
-			Debug.LogError((object)"No blueprint data");
+			Debug.LogError("No blueprint data");
 		}
 		return mVBlueprintBase;
 	}
@@ -155,7 +154,7 @@ public class MVBlueprintBase : MVGroup
 		}
 		else
 		{
-			Debug.LogError((object)$"Child with name {child} not found in {this}");
+			Debug.LogError($"Child with name {child} not found in {this}");
 		}
 		return result;
 	}

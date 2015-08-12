@@ -1,4 +1,5 @@
 using System;
+using CodeStage.AntiCheat.ObscuredTypes;
 using UnityEngine;
 
 public struct AvatarModifierPackage(AvatarModifierPackageType avatarModifierPackageType, AvatarModifierPackageAdditionPolicy avatarModifierPackageAdditionPolicy, float duration, AvatarModifierPackage.AvatarModifier[] avatarModifiers)
@@ -14,11 +15,11 @@ public struct AvatarModifierPackage(AvatarModifierPackageType avatarModifierPack
 
 	public int id = -1;
 
-	public float duration = duration;
+	public ObscuredFloat duration = duration;
 
 	public AvatarModifier[] avatarModifiers = avatarModifiers;
 
-	private float timeStamp = Time.time;
+	private ObscuredFloat timeStamp = Time.time;
 
 	private AvatarModifierPackageType avatarModifierPackageType = avatarModifierPackageType;
 
@@ -32,7 +33,7 @@ public struct AvatarModifierPackage(AvatarModifierPackageType avatarModifierPack
 	{
 		get
 		{
-			if (duration > Time.time - timeStamp)
+			if ((float)duration > Time.time - (float)timeStamp)
 			{
 				return false;
 			}
@@ -42,7 +43,7 @@ public struct AvatarModifierPackage(AvatarModifierPackageType avatarModifierPack
 		{
 			if (value)
 			{
-				timeStamp = (0f - duration) * 2f;
+				timeStamp = (0f - (float)duration) * 2f;
 			}
 		}
 	}

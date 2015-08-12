@@ -27,10 +27,10 @@ public class UXMouseOverHighlight : MonoBehaviour
 
 	public void Awake()
 	{
-		UXMouseOverObject uXMouseOverObject = UXUtils.AddComponentIfNotExists<UXMouseOverObject>(((Component)this).gameObject);
+		UXMouseOverObject uXMouseOverObject = UXUtils.AddComponentIfNotExists<UXMouseOverObject>(gameObject);
 		uXMouseOverObject.OnMouseOverEnter = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(uXMouseOverObject.OnMouseOverEnter, new UXMouseOverObject.OnMouseOverDelegate(OnMouseOverEnter));
 		uXMouseOverObject.OnMouseOverExit = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(uXMouseOverObject.OnMouseOverExit, new UXMouseOverObject.OnMouseOverDelegate(OnMouseOverExit));
-		UXDropObject uXDropObject = UXUtils.AddComponentIfNotExists<UXDropObject>(((Component)this).gameObject);
+		UXDropObject uXDropObject = UXUtils.AddComponentIfNotExists<UXDropObject>(gameObject);
 		uXDropObject.OnDragOverEnter = (UXDropObject.OnDragOverEnterDelegate)Delegate.Combine(uXDropObject.OnDragOverEnter, (UXDropObject.OnDragOverEnterDelegate)((GameObject drop) =>
 		{
 			if (HitOnDragOver)
@@ -54,10 +54,10 @@ public class UXMouseOverHighlight : MonoBehaviour
 
 	public void OnMouseOverEnter(UXMouseOverObject mouseOverObject)
 	{
-		if (((Component)this).gameObject.active)
+		if (gameObject.activeInHierarchy)
 		{
-			((MonoBehaviour)this).StopAllCoroutines();
-			((MonoBehaviour)this).StartCoroutine(Fade(1f, 0.1f));
+			StopAllCoroutines();
+			StartCoroutine(Fade(1f, 0.1f));
 		}
 		else
 		{
@@ -68,10 +68,10 @@ public class UXMouseOverHighlight : MonoBehaviour
 
 	public void OnMouseOverExit(UXMouseOverObject mouseOverObject)
 	{
-		if (((Component)this).gameObject.active)
+		if (gameObject.activeInHierarchy)
 		{
-			((MonoBehaviour)this).StopAllCoroutines();
-			((MonoBehaviour)this).StartCoroutine(Fade(0f, 0.3f));
+			StopAllCoroutines();
+			StartCoroutine(Fade(0f, 0.3f));
 		}
 		else
 		{
@@ -82,7 +82,7 @@ public class UXMouseOverHighlight : MonoBehaviour
 
 	private IEnumerator Fade(float target, float duration)
 	{
-		yield return ((MonoBehaviour)this).StartCoroutine(pTween.To(duration, ratio, target, (float t) =>
+		yield return StartCoroutine(pTween.To(duration, ratio, target, (float t) =>
 		{
 			ratio = t;
 			UpdateColor(Mathf.SmoothStep(0f, 1f, ratio));
@@ -91,15 +91,10 @@ public class UXMouseOverHighlight : MonoBehaviour
 
 	private void UpdateColor(float ratio)
 	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0033: Unknown result type (might be due to invalid IL or missing references)
-		Color val = Color.Lerp(minColor, maxColor, ratio);
+		Color color = Color.Lerp(minColor, maxColor, ratio);
 		foreach (Material material in materials)
 		{
-			material.SetColor(shaderColorProperty, val);
+			material.SetColor(shaderColorProperty, color);
 		}
 	}
 
@@ -116,14 +111,6 @@ public class UXMouseOverHighlight : MonoBehaviour
 
 	private void UpdateMinMaxColor()
 	{
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0030: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0035: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0040: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0041: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0046: Unknown result type (might be due to invalid IL or missing references)
 		if (materials.Count != 0)
 		{
 			Color color = materials[0].GetColor(shaderColorProperty);

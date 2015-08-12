@@ -7,7 +7,7 @@ public class AnimPause : MonoBehaviour
 
 	private void Awake()
 	{
-		_boneAnimation = ((Component)this).GetComponent<BoneAnimation>();
+		_boneAnimation = GetComponent<BoneAnimation>();
 	}
 
 	private void Start()
@@ -16,11 +16,11 @@ public class AnimPause : MonoBehaviour
 
 	private void Update()
 	{
-		if (Input.GetKeyDown((KeyCode)49))
+		if (MVInputWrapper.DebugGetKeyDown(KeyCode.Alpha1))
 		{
 			_boneAnimation.PlayAndPauseAt("Walk", 1f);
 		}
-		if (Input.GetKeyDown((KeyCode)50))
+		if (MVInputWrapper.DebugGetKeyDown(KeyCode.Alpha2))
 		{
 			_boneAnimation.Play("Walk");
 		}

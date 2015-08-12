@@ -29,28 +29,14 @@ public class AudioLoopBoxRadioPrototype : MonoBehaviour
 
 	private float maxFadeTime = 20f;
 
-	public AudioLoopBoxRadioPrototype()
-	{
-		//IL_000e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0018: Expected Obj, but got Unknown
-	}
-
 	private void Awake()
 	{
-		//IL_001c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0040: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0074: Expected Obj, but got Unknown
-		//IL_0114: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0163: Unknown result type (might be due to invalid IL or missing references)
-		GameObject val = GameObject.CreatePrimitive((PrimitiveType)4);
-		val.transform.localScale = new Vector3(1.1f, 0f, 3.15f);
-		val.renderer.material.color = new Color(0.2f, 0.2f, 0.2f);
-		val.transform.position = new Vector3(-5.1f, -0.5f, 14.4f);
-		GameObject val2 = new GameObject("cubes");
-		masterSource = ((Component)this).gameObject.AddComponent<AudioSource>();
+		GameObject gameObject = GameObject.CreatePrimitive(PrimitiveType.Plane);
+		gameObject.transform.localScale = new Vector3(1.1f, 0f, 3.15f);
+		gameObject.GetComponent<Renderer>().material.color = new Color(0.2f, 0.2f, 0.2f);
+		gameObject.transform.position = new Vector3(-5.1f, -0.5f, 14.4f);
+		GameObject gameObject2 = new GameObject("cubes");
+		masterSource = base.gameObject.AddComponent<AudioSource>();
 		masterSource.playOnAwake = true;
 		masterSource.loop = true;
 		masterSource.clip = loops[0];
@@ -58,14 +44,14 @@ public class AudioLoopBoxRadioPrototype : MonoBehaviour
 		masterSource.Play();
 		for (int i = 0; i < loopSources.Length; i++)
 		{
-			cubes[i] = GameObject.CreatePrimitive((PrimitiveType)3);
-			cubes[i].transform.parent = val2.transform;
+			cubes[i] = GameObject.CreatePrimitive(PrimitiveType.Cube);
+			cubes[i].transform.parent = gameObject2.transform;
 			cubes[i].transform.localScale = new Vector3(0.1f, 0.1f, 1f);
-			cubes[i].renderer.material.mainTextureScale = new Vector2(0.1f, 1f);
+			cubes[i].GetComponent<Renderer>().material.mainTextureScale = new Vector2(0.1f, 1f);
 			cubes[i].transform.position = new Vector3(-0.05f, 0f, (float)i * 1.2f);
-			cubes[i].renderer.material.mainTexture = textures[i];
+			cubes[i].GetComponent<Renderer>().material.mainTexture = textures[i];
 			loopSources[i] = cubes[i].AddComponent<AudioSource>();
-			loopSources[i].panLevel = 0f;
+			loopSources[i].spatialBlend = 0f;
 			loopSources[i].playOnAwake = false;
 			loopSources[i].loop = true;
 			loopSources[i].clip = loops[i];
@@ -76,7 +62,7 @@ public class AudioLoopBoxRadioPrototype : MonoBehaviour
 		AwakePlay(10, 0.35f);
 		AwakePlay(12, 0.37f);
 		AwakePlay(6, 0.23f);
-		((MonoBehaviour)this).StartCoroutine("LoopShiftTimer");
+		StartCoroutine("LoopShiftTimer");
 	}
 
 	private void AwakePlay(int loopSourceID, float volumeValue)
@@ -116,11 +102,11 @@ public class AudioLoopBoxRadioPrototype : MonoBehaviour
 				float num = Random.Range(downStepMin, downStepMax);
 				if (loopSources[j].volume - num > 0f)
 				{
-					((MonoBehaviour)this).StartCoroutine(LoopFader(j, loopSources[j].volume - num));
+					StartCoroutine(LoopFader(j, loopSources[j].volume - num));
 				}
 				else
 				{
-					((MonoBehaviour)this).StartCoroutine(LoopFader(j, 0f));
+					StartCoroutine(LoopFader(j, 0f));
 				}
 			}
 		}
@@ -143,7 +129,7 @@ public class AudioLoopBoxRadioPrototype : MonoBehaviour
 				{
 					loopSources[num4].time = masterSource.time;
 					loopSources[num4].Play();
-					((MonoBehaviour)this).StartCoroutine(LoopFader(num4, Random.Range(upVolLo, upVolHi)));
+					StartCoroutine(LoopFader(num4, Random.Range(upVolLo, upVolHi)));
 					flag = false;
 					num2++;
 				}
@@ -160,7 +146,7 @@ public class AudioLoopBoxRadioPrototype : MonoBehaviour
 				{
 					loopSources[num5].time = masterSource.time;
 					loopSources[num5].Play();
-					((MonoBehaviour)this).StartCoroutine(LoopFader(num5, Random.Range(upVolLo, upVolHi)));
+					StartCoroutine(LoopFader(num5, Random.Range(upVolLo, upVolHi)));
 					flag2 = false;
 					num2++;
 				}
@@ -179,7 +165,7 @@ public class AudioLoopBoxRadioPrototype : MonoBehaviour
 			{
 				loopSources[num6].time = masterSource.time;
 				loopSources[num6].Play();
-				((MonoBehaviour)this).StartCoroutine(LoopFader(num6, Random.Range(upVolLo, upVolHi)));
+				StartCoroutine(LoopFader(num6, Random.Range(upVolLo, upVolHi)));
 				flag3 = false;
 			}
 		}
@@ -203,12 +189,9 @@ public class AudioLoopBoxRadioPrototype : MonoBehaviour
 
 	private void Meter(int loopSourceID, float volumeValue)
 	{
-		//IL_0026: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0048: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0073: Unknown result type (might be due to invalid IL or missing references)
 		float num = volumeValue * 9.9f + 0.1f;
 		cubes[loopSourceID].transform.localScale = new Vector3(num, 0.1f, 1f);
-		cubes[loopSourceID].renderer.material.mainTextureScale = new Vector2(num, 1f);
+		cubes[loopSourceID].GetComponent<Renderer>().material.mainTextureScale = new Vector2(num, 1f);
 		cubes[loopSourceID].transform.position = new Vector3(num * -0.5f, 0f, (float)loopSourceID * 1.2f);
 	}
 
@@ -217,7 +200,7 @@ public class AudioLoopBoxRadioPrototype : MonoBehaviour
 		while (true)
 		{
 			NewVolumes();
-			yield return (object)new WaitForSeconds(Random.Range(minTime, maxTime));
+			yield return new WaitForSeconds(Random.Range(minTime, maxTime));
 		}
 	}
 }

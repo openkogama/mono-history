@@ -4,7 +4,7 @@ internal class ESPlaceEndpoint : ESStateBase
 {
 	public override void Enter(EditorStateMachine esm)
 	{
-		Debug.Log((object)"ESPlaceEndpoint state ENTER");
+		Debug.Log("ESPlaceEndpoint state ENTER");
 	}
 
 	public override void Execute(EditorStateMachine e)

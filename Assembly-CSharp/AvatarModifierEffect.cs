@@ -11,5 +11,6 @@ public enum AvatarModifierEffect
 	Softness,
 	StaticFriction,
 	WallJump,
-	FlamerDamagePrSec
+	FlamerDamagePrSec,
+	ThrustFactor
 }

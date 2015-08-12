@@ -1,6 +1,3 @@
-using System;
-
-[Serializable]
 public class ProductShopInfo
 {
 	public bool IsBuyable;

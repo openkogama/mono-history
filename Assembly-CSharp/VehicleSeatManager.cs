@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
 using UnityEngine;
 
@@ -34,16 +35,16 @@ public class VehicleSeatManager : MonoBehaviour
 			{
 				if (seat.SeatType == SeatType.Driver)
 				{
-					if ((Object)(object)vehicleSeatBase != (Object)null)
+					if (vehicleSeatBase != null)
 					{
-						Debug.LogError((object)"Multiple driver seats");
+						Debug.LogError("Multiple driver seats");
 					}
 					vehicleSeatBase = seat;
 				}
 			}
-			if ((Object)(object)vehicleSeatBase == (Object)null)
+			if (vehicleSeatBase == null)
 			{
-				Debug.LogError((object)"No driver seat");
+				Debug.LogError("No driver seat");
 			}
 			return vehicleSeatBase;
 		}
@@ -77,7 +78,7 @@ public class VehicleSeatManager : MonoBehaviour
 			seats[i].SeatID = i;
 		}
 		woOwner = wo;
-		useInteractor = new UseInteractor(woOwner.Id, reset: true, ((Component)triggerBoxEvents).collider, Use);
+		useInteractor = new UseInteractor(woOwner.Id, reset: true, triggerBoxEvents.GetComponent<Collider>(), Use);
 		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
 		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
 		foreach (MVWorldObjectClient child in wo.Children)
@@ -86,18 +87,18 @@ public class VehicleSeatManager : MonoBehaviour
 			{
 				continue;
 			}
-			if (!child.RunTimeData.Contains("seat"))
+			if (!child.RunTimeData.ContainsObscuredKey("seat"))
 			{
-				Debug.LogError((object)"Did not find seat key");
+				Debug.LogError("Did not find seat key");
 				continue;
 			}
-			int num = (int)child.RunTimeData["seat"];
+			int num = (ObscuredInt)child.RunTimeData.GetObscuredType("seat");
 			if (num == -1)
 			{
-				Debug.LogError((object)"Found avatar child with seatID -1");
+				Debug.LogError("Found avatar child with seatID -1");
 				continue;
 			}
-			Debug.Log((object)("Found avatar child with seat ID " + num));
+			Debug.Log("Found avatar child with seat ID " + num);
 			SetToSeatTransform((MVAvatar)child, num);
 		}
 	}
@@ -112,10 +113,10 @@ public class VehicleSeatManager : MonoBehaviour
 		{
 			if (!seat.IsOccupied && seat.SeatType == SeatType.Driver)
 			{
-				Debug.Log((object)("Trying to do seat operation " + woOwner));
-				if (MVGameController.Instance.Game.PlayerController.AttachWorldObjectToSeat(woOwner.Id, userWoId, seat))
+				Debug.Log("Trying to do seat operation " + woOwner);
+				if (MVGameController.Game.PlayerController.AttachWorldObjectToSeat(woOwner.Id, userWoId, seat))
 				{
-					Debug.Log((object)"Succesfully send AttachWorldObjectToSeat");
+					Debug.Log("Succesfully send AttachWorldObjectToSeat");
 					return true;
 				}
 			}
@@ -126,21 +127,21 @@ public class VehicleSeatManager : MonoBehaviour
 	public void AttachWorldObjectToSeat(int instigatorActorNr, bool instigatorIsLocal, MVAvatar vehicleUser, int vehicleSeatID)
 	{
 		VehicleSeatBase vehicleSeatBase = seats[vehicleSeatID];
-		if (!vehicleUser.RunTimeData.Contains("seat"))
+		if (!vehicleUser.RunTimeData.ContainsObscuredKey("seat"))
 		{
-			Debug.LogError((object)"RunTimeData of wo does not contain seat");
+			Debug.LogError("RunTimeData of wo does not contain seat");
 			return;
 		}
 		bool flag = instigatorActorNr == woOwner.OwnerActorNr;
-		bool flag2 = woOwner.OwnerActorNr == MVGameController.Instance.Game.LocalPlayer.ActorNr;
+		bool flag2 = woOwner.OwnerActorNr == MVGameController.Game.LocalPlayer.ActorNr;
 		if (!flag && flag2)
 		{
 			if (!(woOwner.NetworkObject is MVNetworkReporter))
 			{
-				Debug.LogError((object)"Expected reporter when vehicle is local");
+				Debug.LogError("Expected reporter when vehicle is local");
 				return;
 			}
-			Debug.Log((object)"Getting rid of reporter as vehicle is stolen by other user");
+			Debug.Log("Getting rid of reporter as vehicle is stolen by other user");
 			woOwner.NetworkObject = new MVNetworkListener(woOwner);
 		}
 		if (vehicleSeatBase.SeatType == SeatType.Driver)
@@ -149,7 +150,7 @@ public class VehicleSeatManager : MonoBehaviour
 			{
 				if (woOwner.NetworkObject is MVNetworkReporter)
 				{
-					Debug.LogError((object)"Network reporter already set");
+					Debug.LogError("Network reporter already set");
 					return;
 				}
 				((MVNetworkListener)woOwner.NetworkObject).SetOwnerTransformToMostResentPackage();
@@ -159,7 +160,7 @@ public class VehicleSeatManager : MonoBehaviour
 		}
 		woOwner.TransferChild(vehicleUser.Id);
 		vehicleUser.ClearTransformQueue();
-		vehicleUser.RunTimeData["seat"] = vehicleSeatID;
+		vehicleUser.RunTimeData.SetObscuredType("seat", (ObscuredInt)vehicleSeatID);
 		SetToSeatTransform(vehicleUser, vehicleSeatID);
 		if (instigatorIsLocal)
 		{
@@ -173,9 +174,6 @@ public class VehicleSeatManager : MonoBehaviour
 
 	private void SetToSeatTransform(MVAvatar vehicleUser, int seatID)
 	{
-		//IL_0025: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0035: Unknown result type (might be due to invalid IL or missing references)
 		VehicleSeatBase vehicleSeatBase = seats[seatID];
 		vehicleUser.GameObject.transform.parent = vehicleSeatBase.AvatarAttachPoint;
 		vehicleUser.Position = -vehicleUser.CharacterControllerCenterOffset;
@@ -184,7 +182,7 @@ public class VehicleSeatManager : MonoBehaviour
 		occupiedSeatCount++;
 		if (occupiedSeatCount > seats.Count)
 		{
-			Debug.LogError((object)("occupiedSeatCount more than number of seat " + occupiedSeatCount));
+			Debug.LogError("occupiedSeatCount more than number of seat " + occupiedSeatCount);
 		}
 		UpdateTriggerBoxEventsCollider();
 	}
@@ -193,36 +191,38 @@ public class VehicleSeatManager : MonoBehaviour
 	{
 		if (isDead || enterVehicleDisabled)
 		{
-			((Component)triggerBoxEvents).collider.enabled = false;
+			triggerBoxEvents.GetComponent<Collider>().enabled = false;
 		}
 		else if (occupiedSeatCount == seats.Count)
 		{
-			((Component)triggerBoxEvents).collider.enabled = false;
+			triggerBoxEvents.GetComponent<Collider>().enabled = false;
 		}
 		else
 		{
-			((Component)triggerBoxEvents).collider.enabled = true;
+			triggerBoxEvents.GetComponent<Collider>().enabled = true;
 		}
 	}
 
 	public void DetachFromSeat(MVAvatar vehicleUser)
 	{
-		//IL_0054: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007a: Unknown result type (might be due to invalid IL or missing references)
-		int index = (int)vehicleUser.RunTimeData["seat"];
+		Debug.Log("DetachFromSeat");
+		int index = (ObscuredInt)vehicleUser.RunTimeData.GetObscuredType("seat");
 		vehicleUser.GameObject.transform.parent = woOwner.GameObject.transform;
 		VehicleSeatBase vehicleSeatBase = seats[index];
-		vehicleUser.GameObject.transform.localPosition = ((Component)vehicleSeatBase).transform.localPosition - vehicleUser.CharacterControllerCenterOffset;
-		vehicleUser.GameObject.transform.localRotation = ((Component)vehicleSeatBase).transform.localRotation;
-		MVGameController.Instance.WOCM.RootGroup.TransferChild(vehicleUser.Id);
-		vehicleUser.RunTimeData["seat"] = -1;
+		vehicleUser.GameObject.transform.localPosition = vehicleSeatBase.transform.localPosition - vehicleUser.CharacterControllerCenterOffset;
+		vehicleUser.GameObject.transform.localRotation = vehicleSeatBase.transform.localRotation;
+		MVGameController.WOCM.RootGroup.TransferChild(vehicleUser.Id);
+		vehicleUser.RunTimeData.SetObscuredType("seat", (ObscuredInt)(-1));
+		if (vehicleUser.GetType() == typeof(MVAvatarLocal))
+		{
+			Debug.Log("LOCAL AVATAR");
+			vehicleSeatBase.RemoveCamera();
+		}
 		vehicleSeatBase.Detach(vehicleUser);
 		occupiedSeatCount--;
 		if (occupiedSeatCount < 0)
 		{
-			Debug.LogError((object)("occupiedSeatCount less than 0 " + occupiedSeatCount));
+			Debug.LogError("occupiedSeatCount less than 0 " + occupiedSeatCount);
 		}
 		UpdateTriggerBoxEventsCollider();
 		if (OnSeatOccupiedChange != null)

@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
@@ -11,7 +10,7 @@ public class MVSentryGunBlueprint : MVBlueprintBase
 
 	public MVCubeModelBase EditableCubesWO => editableCubes;
 
-	public MVSentryGunBlueprint(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVSentryGunBlueprint(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.CanEdit;
@@ -31,23 +30,23 @@ public class MVSentryGunBlueprint : MVBlueprintBase
 
 	public void InitializeCommon()
 	{
-		Hashtable hashtable = (Hashtable)Data["BlueprintData"];
-		Hashtable hashtable2 = (Hashtable)hashtable["ChildrenMap"];
-		if (hashtable2 == null)
+		Dictionary<object, object> dictionary = (Dictionary<object, object>)Data["BlueprintData"];
+		Dictionary<object, object> dictionary2 = (Dictionary<object, object>)dictionary["ChildrenMap"];
+		if (dictionary2 == null)
 		{
-			Debug.LogWarning((object)"MVSentryGunBlueprint does not have any children. Removing it");
-			MVGameController.Instance.WOCM.UnregisterWorldObject(id);
+			Debug.LogWarning("MVSentryGunBlueprint does not have any children. Removing it");
+			MVGameController.WOCM.UnregisterWorldObject(id);
 			return;
 		}
 		editableCubes = (MVCubeModelBase)GetChild("editableCubeModel");
 		gun = (MVSentryGun)GetChild("sentryGun");
 		if (editableCubes == null)
 		{
-			Debug.Log((object)"Missing editable cubes");
+			Debug.Log("Missing editable cubes");
 		}
 		if (gun == null)
 		{
-			Debug.Log((object)"Missing gun");
+			Debug.Log("Missing gun");
 		}
 		gun.RaycastIgnoreWorldObjectIds = new HashSet<int> { gun.Id, editableCubes.Id };
 		gun.InteractionFlags |= InteractionFlags.SelectionRequiresEditGroup | InteractionFlags.NotUserTransformable;
@@ -58,10 +57,10 @@ public class MVSentryGunBlueprint : MVBlueprintBase
 	public override bool CompareWithKoGaMaPackage(MVWorldObjectClient wo, KoGaMaPackageClient koGaMaPackageClient, ref int insertedByProfileId)
 	{
 		MVSentryGunBlueprint mVSentryGunBlueprint = (MVSentryGunBlueprint)wo;
-		Hashtable hashtable = (Hashtable)mVSentryGunBlueprint.Data["BlueprintData"];
-		Hashtable hashtable2 = (Hashtable)hashtable["ChildrenMap"];
-		int key = (int)hashtable2["editableCubeModel"];
-		int key2 = (int)hashtable2["sentryGun"];
+		Dictionary<object, object> dictionary = (Dictionary<object, object>)mVSentryGunBlueprint.Data["BlueprintData"];
+		Dictionary<object, object> dictionary2 = (Dictionary<object, object>)dictionary["ChildrenMap"];
+		int key = (int)dictionary2["editableCubeModel"];
+		int key2 = (int)dictionary2["sentryGun"];
 		MVCubeModelInstance wo2 = (MVCubeModelInstance)koGaMaPackageClient.worldObjects[key];
 		MVSentryGun wo3 = (MVSentryGun)koGaMaPackageClient.worldObjects[key2];
 		MVCubeModelInstance mVCubeModelInstance = (MVCubeModelInstance)GetChild("editableCubeModel");
@@ -71,7 +70,7 @@ public class MVSentryGunBlueprint : MVBlueprintBase
 
 	public override bool OnEnterObject(EditorStateMachine e)
 	{
-		MVGameController.Instance.Game.CameraController.CurCamera.FocusOnObject(this);
+		MVGameController.Game.CameraController.CurCamera.FocusOnObject(this);
 		e.SelectWO(EditableCubesWO.Id, addToSelection: false);
 		e.Event = EditorEvent.EditCubes;
 		return true;

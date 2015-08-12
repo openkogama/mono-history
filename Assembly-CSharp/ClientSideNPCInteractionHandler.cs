@@ -1,4 +1,4 @@
-using System.Collections;
+using System.Collections.Generic;
 using MV.WorldObject;
 
 public class ClientSideNPCInteractionHandler : InteractionDataHandlerBase
@@ -18,7 +18,7 @@ public class ClientSideNPCInteractionHandler : InteractionDataHandlerBase
 		{
 			return false;
 		}
-		worldObjectParent.SendPackage(new Hashtable { 
+		worldObjectParent.SendPackage(new Dictionary<object, object> { 
 		{
 			(byte)0,
 			interaction.ToByteArray()

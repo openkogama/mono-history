@@ -1,4 +1,4 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -18,9 +18,11 @@ public class MVCollectible : MVLogicObject
 
 	private GameObject pickupMesh;
 
-	private PickupItemObjectScript pickupItem;
+	private GreyOutObjectScript pickupItem;
 
 	private ObjectParticleEmitterScript particles;
+
+	private WorldObjectEnableController worldObjectEnableController;
 
 	private CollectibleClientState state;
 
@@ -32,47 +34,109 @@ public class MVCollectible : MVLogicObject
 
 	private float pickedUpTime;
 
+	private bool initializedInWorld;
+
 	public override bool HasInputConnector => false;
 
 	public override bool HasOutputConnector => false;
 
-	public MVCollectible(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVCollectible(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, "Prefabs/CollectibleObject", worldObjects)
 	{
-		pickupItem = gameObject.GetComponent<PickupItemObjectScript>();
+		Create();
+	}
+
+	public MVCollectible(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects, string overridePrefabPath)
+		: base(data, overridePrefabPath, worldObjects)
+	{
+		Create();
+	}
+
+	private void Create()
+	{
+		pickupItem = gameObject.GetComponent<GreyOutObjectScript>();
 		pickupMesh = pickupItem.pickupObject;
 		particles = gameObject.GetComponent<ObjectParticleEmitterScript>();
+		worldObjectEnableController = gameObject.GetComponentInChildren<WorldObjectEnableController>();
 		TriggerBoxEvents componentInChildren = gameObject.GetComponentInChildren<TriggerBoxEvents>();
-		if ((Object)(object)componentInChildren != (Object)null)
+		if (componentInChildren != null)
 		{
 			componentInChildren.TriggerEnter += triggerBoxEvents_TriggerEnter;
-			componentInChildren.TriggerExit += triggerBoxEvents_TriggerExit;
 		}
 		else
 		{
-			Debug.LogError((object)("A TriggerBoxEvents object is missing in PickupItem type: " + GetType().Name));
+			Debug.LogError("A TriggerBoxEvents object is missing in PickupItem type: " + GetType().Name);
 		}
 		AllWorldObjectTriggerBoxEvents componentInChildren2 = gameObject.GetComponentInChildren<AllWorldObjectTriggerBoxEvents>();
-		if ((Object)(object)componentInChildren2 != (Object)null)
+		if (componentInChildren2 != null)
 		{
 			componentInChildren2.TriggerEnter += allWorldObjectTriggerBoxEvents_TriggerEnter;
 		}
 		else
 		{
-			Debug.LogError((object)("A AllWorldObjectTriggerBoxEvents object is missing in PickupItem type: " + GetType().Name));
+			Debug.LogError("A AllWorldObjectTriggerBoxEvents object is missing in PickupItem type: " + GetType().Name);
 		}
+		SetVisible();
+	}
+
+	public override void Initialize()
+	{
+		base.Initialize();
+		AllCollectiblesCollectedClient allCollectiblesCollectedClient = MVGameController.Game.WinningConditionManager.GetSingletonWinnerConditionByType<AllCollectiblesCollectedClient>();
+		if (allCollectiblesCollectedClient == null)
+		{
+			allCollectiblesCollectedClient = MVGameController.Game.WinningConditionManager.CreateWinnerCondition<AllCollectiblesCollectedClient>(new object[0]);
+		}
+		allCollectiblesCollectedClient.SetLimit(allCollectiblesCollectedClient.Limit + 1);
+		initializedInWorld = true;
+	}
+
+	public override void Destroy()
+	{
+		base.Destroy();
+		if (initializedInWorld)
+		{
+			AllCollectiblesCollectedClient singletonWinnerConditionByType = MVGameController.Game.WinningConditionManager.GetSingletonWinnerConditionByType<AllCollectiblesCollectedClient>();
+			if (singletonWinnerConditionByType == null)
+			{
+				throw new Exception("AllCollectiblesCollected not found.");
+			}
+			if (singletonWinnerConditionByType.Limit == 0)
+			{
+				throw new Exception("AllCollectiblesCollected limit is 0");
+			}
+			singletonWinnerConditionByType.SetLimit(singletonWinnerConditionByType.Limit - 1);
+			if (singletonWinnerConditionByType.Limit == 0)
+			{
+				MVGameController.Game.WinningConditionManager.RemoveWinnerCondition(singletonWinnerConditionByType.ID);
+			}
+		}
+	}
+
+	private void SetVisible()
+	{
+		if (!isVisible)
+		{
+			pickupItem.GreyIn();
+			isVisible = true;
+		}
+		state = CollectibleClientState.Visible;
 	}
 
 	private void allWorldObjectTriggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		int num = MVGameController.Instance.WOCM.GetWorldObjectClient(e.instigatorWOID).OwnerActorNr;
-		bool flag = MVGameController.Instance.Game.LocalPlayer.ActorNr == num;
+		if (worldObjectEnableController.EnableState != EnableState.Enable)
+		{
+			return;
+		}
+		int num = MVGameController.WOCM.GetWorldObjectClient(e.instigatorWOID).OwnerActorNr;
+		bool flag = MVGameController.Game.LocalPlayer.ActorNr == num;
 		bool flag2 = num <= 0;
 		if ((flag && isVisible) || (!flag && !flag2))
 		{
-			if (Object.op_Implicit((Object)(object)gameObject.audio))
+			if ((bool)gameObject.GetComponent<AudioSource>())
 			{
-				gameObject.audio.Play();
+				gameObject.GetComponent<AudioSource>().Play();
 			}
 			particles.Play();
 		}
@@ -80,43 +144,27 @@ public class MVCollectible : MVLogicObject
 
 	public virtual void OnPickup(int actorNr)
 	{
-		if (actorNr == MVGameController.Instance.Game.LocalPlayer.ActorNr)
+		if (actorNr == MVGameController.Game.LocalPlayer.ActorNr)
 		{
 			isVisible = false;
-			pickupItem.Take();
-			MVGameController.Instance.Game.LocalPlayer.ChangeCollectibleCount(1);
+			pickupItem.GreyOut();
 			state = CollectibleClientState.PickedUp;
 			pickedUpTime = Time.realtimeSinceStartup;
 		}
 	}
 
-	public override void Initialize()
-	{
-		base.Initialize();
-		if (!isVisible)
-		{
-			pickupItem.Respawn();
-			isVisible = true;
-		}
-		state = CollectibleClientState.Visible;
-	}
-
 	public override void Reset()
 	{
-		Initialize();
+		SetVisible();
 	}
 
 	protected override void OnUpdate()
 	{
-		//IL_0042: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0057: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0118: Unknown result type (might be due to invalid IL or missing references)
 		if (state == CollectibleClientState.Visible || state == CollectibleClientState.Invisible)
 		{
 			float num = 0.35f + Mathf.Sin(Time.realtimeSinceStartup * 3f) * 0.05f;
 			pickupMesh.transform.localScale = new Vector3(num, num, num);
-			pickupMesh.transform.RotateAround(Vector3.up, Time.deltaTime * rotationSpeed);
+			pickupMesh.transform.Rotate(Vector3.up, Time.deltaTime * rotationSpeed * 57.29578f, Space.Self);
 		}
 		else if (state == CollectibleClientState.PickedUp)
 		{
@@ -143,13 +191,9 @@ public class MVCollectible : MVLogicObject
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		if (isVisible)
+		if (worldObjectEnableController.EnableState == EnableState.Enable && isVisible)
 		{
-			MVGameController.Instance.Game.TriggerBoxEnter(Id, e.instigatorWOID);
+			MVGameController.Game.TriggerBoxEnter(Id, e.instigatorWOID);
 		}
-	}
-
-	private void triggerBoxEvents_TriggerExit(object sender, TriggerEventArgs e)
-	{
 	}
 }

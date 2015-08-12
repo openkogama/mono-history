@@ -20,7 +20,7 @@ public class SelectionBox : MonoBehaviour
 
 	private void Start()
 	{
-		((Component)this).gameObject.layer = LayerMask.NameToLayer("UIItems");
+		gameObject.layer = LayerMask.NameToLayer("UIItems");
 	}
 
 	public void Init(IModelingConstraint constraint, string layer = "UIItems")
@@ -29,26 +29,20 @@ public class SelectionBox : MonoBehaviour
 
 	private void Update()
 	{
-		//IL_0075: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0121: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0126: Unknown result type (might be due to invalid IL or missing references)
-		//IL_014b: Unknown result type (might be due to invalid IL or missing references)
 		if (isFadingOut)
 		{
 			if (Time.time - fadeOutBeginTime > fadeOutTime)
 			{
-				Object.Destroy((Object)(object)((Component)this).gameObject);
+				Object.Destroy(gameObject);
 				return;
 			}
 			float num = (fadeOutTime - (Time.time - fadeOutBeginTime)) / fadeOutTime * baseAlpha;
 			if (currentAlpha > num)
 			{
-				Color color = ((Component)this).gameObject.renderer.material.GetColor("_Color");
+				Color color = gameObject.GetComponent<Renderer>().material.GetColor("_Color");
 				color.a = num;
 				currentAlpha = num;
-				((Component)this).gameObject.renderer.material.SetColor("_Color", color);
+				gameObject.GetComponent<Renderer>().material.SetColor("_Color", color);
 			}
 		}
 		else if (isFadingIn)
@@ -65,49 +59,44 @@ public class SelectionBox : MonoBehaviour
 			}
 			if (currentAlpha < num2)
 			{
-				Color color2 = ((Component)this).gameObject.renderer.material.GetColor("_Color");
+				Color color2 = gameObject.GetComponent<Renderer>().material.GetColor("_Color");
 				color2.a = num2;
 				currentAlpha = num2;
-				((Component)this).gameObject.renderer.material.SetColor("_Color", color2);
+				gameObject.GetComponent<Renderer>().material.SetColor("_Color", color2);
 			}
 		}
 	}
 
 	public void FadeIn(float fadeInTime, string material, Vector3[] corners)
 	{
-		//IL_005d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0067: Expected Obj, but got Unknown
-		//IL_00a2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c8: Unknown result type (might be due to invalid IL or missing references)
 		isFadingOut = false;
 		isFadingIn = true;
 		this.fadeInTime = fadeInTime;
 		fadeInBeginTime = Time.time;
-		MeshRenderer val = ((Component)this).gameObject.GetComponent<MeshRenderer>();
+		MeshRenderer meshRenderer = gameObject.GetComponent<MeshRenderer>();
 		float a = 0f;
-		if ((Object)(object)val == (Object)null)
+		if (meshRenderer == null)
 		{
-			val = ((Component)this).gameObject.AddComponent<MeshRenderer>();
+			meshRenderer = gameObject.AddComponent<MeshRenderer>();
 		}
 		else
 		{
 			a = currentAlpha;
 		}
-		((Renderer)val).material = (Material)Resources.Load(material);
-		MeshFilter val2 = ((Component)this).gameObject.GetComponent<MeshFilter>();
-		if ((Object)(object)val2 == (Object)null)
+		meshRenderer.material = (Material)Resources.Load(material);
+		MeshFilter meshFilter = gameObject.GetComponent<MeshFilter>();
+		if (meshFilter == null)
 		{
-			val2 = ((Component)this).gameObject.AddComponent<MeshFilter>();
+			meshFilter = gameObject.AddComponent<MeshFilter>();
 		}
-		((Object)((Renderer)val).material).hideFlags = (HideFlags)4;
-		Color color = ((Renderer)val).material.GetColor("_Color");
+		meshRenderer.material.hideFlags = HideFlags.DontSave;
+		Color color = meshRenderer.material.GetColor("_Color");
 		baseAlpha = color.a;
 		color.a = a;
-		((Renderer)val).material.SetColor("_Color", color);
-		val2.mesh.Clear();
-		SharedCubeFunctions.AddCubeMesh(val2.mesh, corners, insideOut: false);
-		SharedCubeFunctions.AddCubeMeshCubeLines(val2.mesh, corners, 0.01f);
+		meshRenderer.material.SetColor("_Color", color);
+		meshFilter.mesh.Clear();
+		SharedCubeFunctions.AddCubeMesh(meshFilter.mesh, corners, insideOut: false);
+		SharedCubeFunctions.AddCubeMeshCubeLines(meshFilter.mesh, corners, 0.01f);
 	}
 
 	public void FadeOutDestroy(float fadeOutTime)

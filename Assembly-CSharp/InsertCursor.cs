@@ -6,25 +6,25 @@ public class InsertCursor : MonoBehaviour
 
 	private void Start()
 	{
-		renderers = ((Component)this).GetComponentsInChildren<MeshRenderer>();
-		((Behaviour)this).enabled = false;
+		renderers = GetComponentsInChildren<MeshRenderer>();
+		enabled = false;
 	}
 
 	private void OnDisable()
 	{
 		MeshRenderer[] array = renderers;
-		foreach (MeshRenderer val in array)
+		foreach (MeshRenderer meshRenderer in array)
 		{
-			((Renderer)val).enabled = false;
+			meshRenderer.enabled = false;
 		}
 	}
 
 	private void OnEnable()
 	{
 		MeshRenderer[] array = renderers;
-		foreach (MeshRenderer val in array)
+		foreach (MeshRenderer meshRenderer in array)
 		{
-			((Renderer)val).enabled = true;
+			meshRenderer.enabled = true;
 		}
 	}
 }

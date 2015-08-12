@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
@@ -17,64 +16,38 @@ public class MVPressurePlate : MVLogicObject
 
 	private float speed = 1.8f;
 
+	private GameCoinLogic gameCoinLogic;
+
+	private bool didEnterWithGameCoins;
+
+	private Vector3 gameCoinDisplayObjectOffset = new Vector3(0f, 0.9f, 0f);
+
 	public override bool HasInputConnector => false;
 
 	public override bool HasOutputConnector => true;
 
-	public override Vector3 OutputConnectorOffset
-	{
-		get
-		{
-			//IL_000f: Unknown result type (might be due to invalid IL or missing references)
-			return new Vector3(2f, 0.25f, 0f);
-		}
-	}
+	public override Vector3 OutputConnectorOffset => new Vector3(2f, 0.25f, 0f);
 
-	public MVPressurePlate(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVPressurePlate(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, "Prefabs/PressurePlateObject", worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
+		interactionFlags |= InteractionFlags.CanUseGameCoins;
 		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
 		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		triggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
-		plateModel = ((Component)gameObject.GetComponentInChildren<Animation>()).gameObject;
+		plateModel = gameObject.GetComponentInChildren<Animation>().gameObject;
 		SetVisibility();
+		gameCoinLogic = new GameCoinLogic(gameObject, Data, gameCoinDisplayObjectOffset);
 	}
 
 	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
 	{
-		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
 		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, Vector3.one * 2f);
 	}
 
 	protected override void OnUpdate()
 	{
-		//IL_0016: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00dc: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0045: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0075: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0093: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ae: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_010b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0110: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0136: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_014f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0154: Unknown result type (might be due to invalid IL or missing references)
-		//IL_016a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_016f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0178: Unknown result type (might be due to invalid IL or missing references)
 		if (isDown && plateModel.transform.localPosition.y > minY)
 		{
 			float num = Mathf.Min(speed * Time.smoothDeltaTime, plateModel.transform.localPosition.y - minY);
@@ -85,10 +58,24 @@ public class MVPressurePlate : MVLogicObject
 			float num2 = Mathf.Min(speed * Time.smoothDeltaTime, 0f - plateModel.transform.localPosition.y);
 			plateModel.transform.localPosition = new Vector3(plateModel.transform.localPosition.x, plateModel.transform.localPosition.y + num2, plateModel.transform.localPosition.z);
 		}
+		if (triggerBoxEvents.IsInTrigger && gameCoinLogic.PurchaseAmount > 0 && !didEnterWithGameCoins)
+		{
+			if (gameCoinLogic.ShowUseGUI())
+			{
+				DoEnter(MVGameController.WOCM.AvatarLocal.Id);
+				didEnterWithGameCoins = true;
+			}
+		}
+		else if (!triggerBoxEvents.IsInTrigger && didEnterWithGameCoins)
+		{
+			DoExit(MVGameController.WOCM.AvatarLocal.Id);
+			didEnterWithGameCoins = false;
+		}
 	}
 
 	public override void OnDataUpdate()
 	{
+		gameCoinLogic.OnDataUpdate(Data);
 		SetVisibility();
 	}
 
@@ -101,44 +88,60 @@ public class MVPressurePlate : MVLogicObject
 	public override void InitializeInventory()
 	{
 		base.InitializeInventory();
-		((Component)gameObject.transform.FindChild("TriggerCube")).gameObject.active = false;
+		gameObject.transform.FindChild("TriggerCube").gameObject.SetActive(value: false);
 	}
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		int woIDWithLocalOwnerHighestInHierarchy = MVGameController.Instance.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(e.instigatorWOID);
-		if (woIDWithLocalOwnerHighestInHierarchy == -1)
+		if (gameCoinLogic.PurchaseAmount <= 0)
 		{
-			Debug.LogError((object)"Pressure plate entered by object which is not owned locally");
-			return;
+			int woIDWithLocalOwnerHighestInHierarchy = MVGameController.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(e.instigatorWOID);
+			if (woIDWithLocalOwnerHighestInHierarchy == -1)
+			{
+				Debug.LogError("Pressure plate entered by object which is not owned locally");
+				return;
+			}
+			DoEnter(woIDWithLocalOwnerHighestInHierarchy);
+			isDown = true;
 		}
-		MVGameController.Instance.Game.TriggerBoxEnter(Id, woIDWithLocalOwnerHighestInHierarchy);
-		isDown = true;
 	}
 
 	private void triggerBoxEvents_TriggerExit(object sender, TriggerEventArgs e)
 	{
-		int woIDWithLocalOwnerHighestInHierarchy = MVGameController.Instance.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(e.instigatorWOID);
-		if (woIDWithLocalOwnerHighestInHierarchy == -1)
+		if (gameCoinLogic.PurchaseAmount <= 0)
 		{
-			Debug.LogError((object)"Pressure plated exited by object which is not owned locally. This might be ok?");
+			int woIDWithLocalOwnerHighestInHierarchy = MVGameController.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(e.instigatorWOID);
+			if (woIDWithLocalOwnerHighestInHierarchy == -1)
+			{
+				Debug.LogError("Pressure plated exited by object which is not owned locally. This might be ok?");
+			}
+			else
+			{
+				DoExit(woIDWithLocalOwnerHighestInHierarchy);
+			}
 		}
-		else
-		{
-			MVGameController.Instance.Game.TriggerBoxExit(Id, woIDWithLocalOwnerHighestInHierarchy);
-		}
+	}
+
+	private void DoEnter(int instigatorWOID)
+	{
+		MVGameController.Game.TriggerBoxEnter(Id, instigatorWOID);
+	}
+
+	private void DoExit(int instigatorWOID)
+	{
+		MVGameController.Game.TriggerBoxExit(Id, instigatorWOID);
 	}
 
 	public void OnEnter(MVPlayer player)
 	{
-		if (player != MVGameController.Instance.Game.LocalPlayer)
+		if (player != MVGameController.Game.LocalPlayer)
 		{
 		}
 	}
 
 	public void OnExit(MVPlayer player)
 	{
-		if (player != MVGameController.Instance.Game.LocalPlayer)
+		if (player != MVGameController.Game.LocalPlayer)
 		{
 		}
 	}
@@ -163,9 +166,9 @@ public class MVPressurePlate : MVLogicObject
 
 	public override void Destroy()
 	{
-		Debug.Log((object)"TriggerBox destroy...");
 		triggerBoxEvents.TriggerEnter -= triggerBoxEvents_TriggerEnter;
 		triggerBoxEvents.TriggerExit -= triggerBoxEvents_TriggerExit;
+		gameCoinLogic.OnDestroy(Data);
 		base.Destroy();
 	}
 

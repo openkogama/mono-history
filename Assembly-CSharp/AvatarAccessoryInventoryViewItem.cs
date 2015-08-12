@@ -4,11 +4,11 @@ public class AvatarAccessoryInventoryViewItem : AvatarAccessoryBasicViewItem
 {
 	private MVGUIAvatarAccessoryRentTimer avatarAccessoryRentTimer;
 
-	protected MVNetworkGame Game => MVGameController.Instance.Game;
+	protected MVNetworkGame Game => MVGameController.Game;
 
 	public int InventoryID { get; private set; }
 
-	public ProductInventoryInfo<StreamingAssetInfo> InventoryInfo => Game.StreamingAssetInventory.Get(InventoryID);
+	public ProductInventoryInfo InventoryInfo => Game.StreamingAssetInventory.Get(InventoryID);
 
 	public override void Initialize()
 	{
@@ -38,15 +38,11 @@ public class AvatarAccessoryInventoryViewItem : AvatarAccessoryBasicViewItem
 
 	private void CreateExpirationTimer(InventoryExpirationInfo inventoryExpirationInfo)
 	{
-		//IL_000f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0015: Expected Obj, but got Unknown
-		//IL_0043: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
-		GameObject val = (GameObject)Object.Instantiate(Resources.Load("Prefabs/GUI/AvatarAccessory/AvatarAccessoryRentTimer"));
-		val.transform.parent = ((Component)this).transform;
-		val.transform.localPosition = new Vector3(0f, (0f - Height) / 2f, 0f);
-		val.transform.localScale = Vector3.one;
-		avatarAccessoryRentTimer = val.GetComponent<MVGUIAvatarAccessoryRentTimer>();
+		GameObject gameObject = (GameObject)Object.Instantiate(Resources.Load("Prefabs/GUI/AvatarAccessory/AvatarAccessoryRentTimer"));
+		gameObject.transform.parent = transform;
+		gameObject.transform.localPosition = new Vector3(0f, (0f - Height) / 2f, 0f);
+		gameObject.transform.localScale = Vector3.one;
+		avatarAccessoryRentTimer = gameObject.GetComponent<MVGUIAvatarAccessoryRentTimer>();
 		avatarAccessoryRentTimer.InitializeRentTimer(inventoryExpirationInfo);
 		avatarAccessoryRentTimer.SetVisible(Visible);
 	}
@@ -54,7 +50,7 @@ public class AvatarAccessoryInventoryViewItem : AvatarAccessoryBasicViewItem
 	public override void OnAttachToSlot(UXCollectionViewSlot slot)
 	{
 		base.OnAttachToSlot(slot);
-		if ((Object)(object)avatarAccessoryRentTimer != (Object)null)
+		if (avatarAccessoryRentTimer != null)
 		{
 			avatarAccessoryRentTimer.SetVisible(Visible);
 		}
@@ -63,7 +59,7 @@ public class AvatarAccessoryInventoryViewItem : AvatarAccessoryBasicViewItem
 	public override void OnDetachFromSlot(UXCollectionViewSlot slot)
 	{
 		base.OnDetachFromSlot(slot);
-		if ((Object)(object)avatarAccessoryRentTimer != (Object)null)
+		if (avatarAccessoryRentTimer != null)
 		{
 			avatarAccessoryRentTimer.SetVisible(visible: false);
 		}
@@ -72,7 +68,7 @@ public class AvatarAccessoryInventoryViewItem : AvatarAccessoryBasicViewItem
 	public override void SetVisible(bool visible)
 	{
 		base.SetVisible(visible);
-		if ((Object)(object)avatarAccessoryRentTimer != (Object)null)
+		if (avatarAccessoryRentTimer != null)
 		{
 			avatarAccessoryRentTimer.SetVisible(visible);
 		}

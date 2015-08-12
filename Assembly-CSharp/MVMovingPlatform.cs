@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
@@ -17,37 +16,16 @@ public class MVMovingPlatform : MVMovable
 	{
 		get
 		{
-			//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-			//IL_002e: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0033: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0038: Unknown result type (might be due to invalid IL or missing references)
-			//IL_003b: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0041: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0046: Unknown result type (might be due to invalid IL or missing references)
-			//IL_004e: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0053: Unknown result type (might be due to invalid IL or missing references)
-			//IL_005f: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0064: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0065: Unknown result type (might be due to invalid IL or missing references)
-			//IL_006a: Unknown result type (might be due to invalid IL or missing references)
-			//IL_006f: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0074: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0075: Unknown result type (might be due to invalid IL or missing references)
 			if (end == null || start == null)
 			{
 				return Velocity;
 			}
-			Vector3 val = end.Position - start.Position;
-			Vector3 normalized = val.normalized;
-			Vector3 val2 = Velocity;
-			val = normalized * val2.magnitude;
-			val = Vector4.op_Implicit(start.Transform.localToWorldMatrix * Vector4.op_Implicit(val));
-			return val;
+			Vector3 vector = (end.Position - start.Position).normalized * Velocity.magnitude;
+			return start.Transform.localToWorldMatrix * vector;
 		}
 	}
 
-	public MVMovingPlatform(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVMovingPlatform(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, worldObjects)
 	{
 	}
@@ -57,7 +35,7 @@ public class MVMovingPlatform : MVMovable
 		base.Initialize();
 		if (CubeModel == null)
 		{
-			Debug.LogWarning((object)("Moving platform " + id + " init - movable's cube model is NULL! If this is a new platform group restart the session. Otherwise it is broken."));
+			Debug.LogWarning("Moving platform " + id + " init - movable's cube model is NULL! If this is a new platform group restart the session. Otherwise it is broken.");
 			return;
 		}
 		IntVector min = new IntVector(-5, -2, -5);
@@ -76,40 +54,20 @@ public class MVMovingPlatform : MVMovable
 
 	public void RecalculateMovement()
 	{
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0011: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0016: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0065: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0054: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0055: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0093: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0081: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0087: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0098: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ab: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00bd: Unknown result type (might be due to invalid IL or missing references)
-		Vector3 val = end.WorldPosition - start.WorldPosition;
+		Vector3 vector = end.WorldPosition - start.WorldPosition;
 		WorldPosition = start.WorldPosition;
-		Vector3 val2 = val;
-		val2.y = 0f;
-		val2.Normalize();
-		if (0.5f < val2.magnitude)
+		Vector3 forward = vector;
+		forward.y = 0f;
+		forward.Normalize();
+		if (0.5f < forward.magnitude)
 		{
-			WorldRotation = Quaternion.LookRotation(val2, Vector3.up);
+			WorldRotation = Quaternion.LookRotation(forward, Vector3.up);
 		}
-		Vector3 val3 = Velocity;
-		float magnitude = val3.magnitude;
-		Vector3 val4 = ((!(0f < magnitude)) ? val.normalized : (val.normalized * magnitude));
-		SetDistance(val.magnitude);
-		SetOrgRotation(Quaternion.LookRotation(val.normalized));
-		SetVelocity(val4);
+		float magnitude = Velocity.magnitude;
+		Vector3 vector2 = ((!(0f < magnitude)) ? vector.normalized : (vector.normalized * magnitude));
+		SetDistance(vector.magnitude);
+		SetOrgRotation(Quaternion.LookRotation(vector.normalized));
+		SetVelocity(vector2);
 	}
 
 	private void MVCubeModelBase_BeingEditedChanged(object sender, EditStateEventArgs e)

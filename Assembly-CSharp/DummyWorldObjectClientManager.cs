@@ -13,7 +13,7 @@ public static class DummyWorldObjectClientManager
 	{
 		dummyWorldObjectClient.Id = dummyCounter;
 		dummyWos.Add(dummyCounter, dummyWorldObjectClient);
-		gameObjectIdToWorldObjectIdMap.Add(((Object)dummyWorldObjectClient.GameObject).GetInstanceID(), dummyCounter);
+		gameObjectIdToWorldObjectIdMap.Add(dummyWorldObjectClient.GameObject.GetInstanceID(), dummyCounter);
 		dummyCounter++;
 	}
 
@@ -42,11 +42,11 @@ public static class DummyWorldObjectClientManager
 
 	public static DummyWorldObjectClient GetMVObject(Transform t)
 	{
-		if (gameObjectIdToWorldObjectIdMap.ContainsKey(((Object)((Component)t).gameObject).GetInstanceID()))
+		if (gameObjectIdToWorldObjectIdMap.ContainsKey(t.gameObject.GetInstanceID()))
 		{
-			return GetWorldObjectByGoId(((Object)((Component)t).gameObject).GetInstanceID());
+			return GetWorldObjectByGoId(t.gameObject.GetInstanceID());
 		}
-		if ((Object)(object)t.parent != (Object)null)
+		if (t.parent != null)
 		{
 			return GetMVObject(t.parent);
 		}

@@ -1,37 +1,59 @@
 using UnityEngine;
 
-public class PlayController : AIngameController
+public class PlayController : PlayControllerBase
 {
-	public MVGUISpeedometer speedometer;
+	private AvatarAccessoryControllerPlayMode avatarAccessoryController;
 
-	public MVGUIReward reward;
+	private GameCoinButtonController gameCoinsController;
+
+	public override void Initialize()
+	{
+		base.Initialize();
+		avatarAccessoryController.Initialize();
+		gameCoinsController.Initialize();
+	}
+
+	public override void HandleInput()
+	{
+		base.HandleInput();
+		avatarAccessoryController.HandleInput();
+	}
 
 	protected override void ResolveGUIElements()
 	{
 		base.ResolveGUIElements();
-		GameObject gameObject = ((Component)UXUtils.FindGUIObjectOfType<MVGUIPlayMode>()).gameObject;
-		speedometer = gameObject.GetComponentInChildren<MVGUISpeedometer>();
-		reward = gameObject.GetComponentInChildren<MVGUIReward>();
+		GameObject gameObject = UXUtils.FindGUIObjectOfType<MVGUIPlayMode>().gameObject;
+		avatarAccessoryController = AIngameController.FindGUIObjectOfType<AvatarAccessoryControllerPlayMode>(gameObject);
+		gameCoinsController = AIngameController.FindGUIObjectOfType<GameCoinButtonController>(gameObject);
+		bottomCenterToggles = AIngameController.FindGUIObjectOfType<MVGUIBottomCenterToggles>(gameObject);
 	}
 
-	public override void ToggleShowUI()
+	protected override void Hide()
 	{
-		base.ToggleShowUI();
-		if (uiShown)
-		{
-			speedometer.View.Show();
-		}
-		else
-		{
-			speedometer.View.Hide();
-		}
-		MVGameController.Instance.WOCM.AvatarLocal.ShowHealth = uiShown;
+		base.Hide();
+		gameCoinsController.View.Hide();
+		avatarAccessoryController.AvatarAccessoryButtons.View.Hide();
+		avatarAccessoryController.CloseAvatarAccessoryView();
 	}
 
-	public override void RemoveUI()
+	protected override void ShowLostFocusGUI()
 	{
-		base.RemoveUI();
-		speedometer.View.Hide();
-		reward.View.Hide();
+		base.ShowLostFocusGUI();
+		avatarAccessoryController.AvatarAccessoryButtons.View.Show();
+		chatController.ShowChat(takeControl: false, retainControlAfterMessageSend: true);
+		chatController.CanAutoHide = false;
+		avatarAccessoryController.AccessoryMoveOverride = true;
+		gameCoinsController.View.Show();
+	}
+
+	protected override void HideLostFocusGUI()
+	{
+		base.HideLostFocusGUI();
+		avatarAccessoryController.AvatarAccessoryButtons.View.Hide();
+		avatarAccessoryController.AccessoryMoveOverride = false;
+		avatarAccessoryController.CloseAvatarAccessoryView();
+		chatController.ShowChat(takeControl: false, retainControlAfterMessageSend: false);
+		chatController.CanAutoHide = true;
+		gameCoinsController.View.Hide();
 	}
 }

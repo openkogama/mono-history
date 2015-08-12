@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace MV.WorldObject;
@@ -14,7 +13,7 @@ public class MVPrototype
 
 	protected string name = "";
 
-	protected Hashtable data;
+	protected Dictionary<object, object> data;
 
 	protected float scale;
 
@@ -70,7 +69,7 @@ public class MVPrototype
 		}
 	}
 
-	public Hashtable Data
+	public Dictionary<object, object> Data
 	{
 		get
 		{

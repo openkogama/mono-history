@@ -20,7 +20,7 @@ public class MVGUIReward : UXViewScript
 	public override void Awake()
 	{
 		base.Awake();
-		MVGameController.Instance.TimeReward.RewardStateChanged += TimeReward_RewardStateChanged;
+		MVGameController.TimeReward.RewardStateChanged += TimeReward_RewardStateChanged;
 	}
 
 	private void TimeReward_RewardStateChanged(object sender, RewardStateDataEventArgs e)
@@ -29,8 +29,8 @@ public class MVGUIReward : UXViewScript
 		{
 			SetupRewardType(e.amountGold, e.amountSilver);
 			timeSpan = e.timeSpan;
-			((MonoBehaviour)this).StartCoroutine(CountDown());
-			((MonoBehaviour)this).StartCoroutine(RewardCoroutine());
+			StartCoroutine(CountDown());
+			StartCoroutine(RewardCoroutine());
 		}
 	}
 
@@ -38,12 +38,12 @@ public class MVGUIReward : UXViewScript
 	{
 		if (amountGold <= 0 && amountSilver <= 0)
 		{
-			Debug.LogError((object)"Both gold and silver amounts are 0");
+			Debug.LogError("Both gold and silver amounts are 0");
 			return false;
 		}
 		if (amountGold > 0 && amountSilver > 0)
 		{
-			Debug.LogWarning((object)"Both gold and silver amounts are more than 0. Using gold");
+			Debug.LogWarning("Both gold and silver amounts are more than 0. Using gold");
 		}
 		return true;
 	}
@@ -72,11 +72,11 @@ public class MVGUIReward : UXViewScript
 
 	private IEnumerator RewardCoroutine()
 	{
-		yield return ((MonoBehaviour)this).StartCoroutine(WaitUntilRewardTimeIsAlmostUp());
-		yield return ((MonoBehaviour)this).StartCoroutine(ShowGUI());
-		yield return ((MonoBehaviour)this).StartCoroutine(WaitUntilRewardTimeIsUp());
-		((MonoBehaviour)this).StartCoroutine(rewardCube.DoAnimation());
-		yield return ((MonoBehaviour)this).StartCoroutine(HideGUI());
+		yield return StartCoroutine(WaitUntilRewardTimeIsAlmostUp());
+		yield return StartCoroutine(ShowGUI());
+		yield return StartCoroutine(WaitUntilRewardTimeIsUp());
+		StartCoroutine(rewardCube.DoAnimation());
+		yield return StartCoroutine(HideGUI());
 	}
 
 	private IEnumerator ShowGUI()
@@ -84,18 +84,18 @@ public class MVGUIReward : UXViewScript
 		View.Show();
 		rewardGroup.SetVisible(visible: true);
 		rewardCube.SetVisible(visible: true);
-		yield return ((MonoBehaviour)this).StartCoroutine(pTween.To(fadeTime, 0f, 1f, (float t) =>
+		yield return StartCoroutine(pTween.To(fadeTime, 0f, 1f, (float t) =>
 		{
-			rewardGroup.SetAlpha(t);
+			rewardGroup.SetAlpha(t, string.Empty);
 			rewardCube.SetAlpha(t);
 		}));
 	}
 
 	private IEnumerator HideGUI()
 	{
-		yield return ((MonoBehaviour)this).StartCoroutine(pTween.To(fadeTime, 1f, 0f, (float t) =>
+		yield return StartCoroutine(pTween.To(fadeTime, 1f, 0f, (float t) =>
 		{
-			rewardGroup.SetAlpha(t);
+			rewardGroup.SetAlpha(t, string.Empty);
 			rewardCube.SetAlpha(t);
 			if (t == 0f)
 			{

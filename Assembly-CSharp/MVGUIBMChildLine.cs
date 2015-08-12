@@ -31,7 +31,7 @@ public class MVGUIBMChildLine : UXLine
 	public int GetWoId()
 	{
 		int result = 0;
-		int.TryParse(woIDField.Text.Split(new char[1] { '.' })[0], out result);
+		int.TryParse(woIDField.Text.Split('.')[0], out result);
 		return result;
 	}
 }

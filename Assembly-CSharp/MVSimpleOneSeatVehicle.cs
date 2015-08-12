@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
@@ -22,30 +21,33 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase
 
 		protected override MVVehicleBase Owner => owner;
 
-		public LocalObjectsSimpleVehicle(MVSimpleOneSeatVehicle vehicleBase, MvCharacterController controller, SimpleVehicleMotorBase hoverCraftMotor)
+		public LocalObjectsSimpleVehicle(MVSimpleOneSeatVehicle vehicleBase, SmoothCharacterController smoothController, SimpleVehicleMotorBase hoverCraftMotor)
 		{
 			MVRuntimeDataVariableClampedFloat health = vehicleBase.Health;
 			health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnHealthChange));
 			GameObject gameObject = vehicleBase.GameObject;
 			VehicleInteractable vehicleInteractable = gameObject.AddComponent<VehicleInteractable>();
 			vehicleInteractable.Init(vehicleBase.Modifiers, vehicleBase.Health);
-			hoverCraftMotor.Init(controller, vehicleInteractable);
+			hoverCraftMotor.Init(smoothController, vehicleInteractable);
 			onLeave = (Action)Delegate.Combine(onLeave, new Action(hoverCraftMotor.OnLocalVehicleLeave));
 			VehicleEquipable vehicleEquipable = gameObject.AddComponent<VehicleEquipable>();
 			vehicleEquipable.Init(vehicleInteractable, vehicleBase.CurrentItem);
 			pickupOwner = vehicleBase.GameObject.GetComponent<VehiclePickupOwner>();
 			pickupOwner.IsLocal = true;
 			onDestroy = (Action)Delegate.Combine(onDestroy, new Action(pickupOwner.OnLocalObjectsDestroyed));
-			pickupGUI = new PickupGUI(pickupOwner);
-			onDestroy = (Action)Delegate.Combine(onDestroy, new Action(pickupGUI.Destroy));
-			onEnter = (Action)Delegate.Combine(onEnter, new Action(pickupGUI.Enter));
-			onLeave = (Action)Delegate.Combine(onLeave, new Action(pickupGUI.Leave));
+			if (GameDB.IsClassicGame)
+			{
+				pickupGUI = new PickupGUI(pickupOwner);
+				onDestroy = (Action)Delegate.Combine(onDestroy, new Action(pickupGUI.Destroy));
+				onEnter = (Action)Delegate.Combine(onEnter, new Action(pickupGUI.Enter));
+				onLeave = (Action)Delegate.Combine(onLeave, new Action(pickupGUI.Leave));
+			}
 			triggerHandler = gameObject.AddComponent<MVTriggerHandler>();
-			localComponents.Add((Component)(object)vehicleInteractable);
-			localComponents.Add((Component)(object)controller);
-			localComponents.Add((Component)(object)hoverCraftMotor);
-			localComponents.Add((Component)(object)vehicleEquipable);
-			localComponents.Add((Component)(object)triggerHandler);
+			localComponents.Add(vehicleInteractable);
+			localComponents.Add(smoothController);
+			localComponents.Add(hoverCraftMotor);
+			localComponents.Add(vehicleEquipable);
+			localComponents.Add(triggerHandler);
 			vehicleMotor = hoverCraftMotor;
 			owner = vehicleBase;
 		}
@@ -61,25 +63,21 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase
 		{
 			base.Leave();
 			owner.IsFiring.Value = false;
-			((Behaviour)triggerHandler).enabled = false;
+			triggerHandler.enabled = false;
 		}
 
 		public override void Enter()
 		{
 			base.Enter();
-			((Behaviour)triggerHandler).enabled = true;
+			triggerHandler.enabled = true;
 		}
 
 		public override MovementMap FixedUpdate(MovementMap movementMap)
 		{
-			//IL_0019: Unknown result type (might be due to invalid IL or missing references)
-			//IL_001e: Unknown result type (might be due to invalid IL or missing references)
-			owner.State = MVWorldObjectState.Dirty;
 			if (movementMap != null)
 			{
 				vehicleMotor.DirectInputMoveMap = movementMap.Direction;
 				vehicleMotor.Jump = movementMap.Jump;
-				movementMap.Fire = false;
 				vehicleMotor.HandleInput = true;
 			}
 			else
@@ -90,24 +88,28 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase
 			return movementMap;
 		}
 
-		public override MovementMap Update(MovementMap movementMap)
+		public override InteractionInput Update(InteractionInput interactionInput)
 		{
-			if (movementMap == null)
+			vehicleMotor.UpdateFunction();
+			if (interactionInput == null)
 			{
 				return null;
 			}
-			pickupOwner.HandleFire(movementMap.Fire, owner.IsFiring);
-			pickupGUI.Update();
-			movementMap.Fire = false;
-			if (movementMap.Drop)
+			pickupOwner.HandleFire(interactionInput.Fire, owner.IsFiring);
+			if (GameDB.IsClassicGame)
+			{
+				pickupGUI.Update();
+			}
+			interactionInput.Fire = false;
+			if (interactionInput.Drop)
 			{
 				owner.GameObject.GetComponent<MVEquipable>().Unequip();
 			}
 			if (vehicleMotor.IsStuck())
 			{
-				Debug.Log((object)"Vehicle is stuck");
+				Debug.Log("Vehicle is stuck");
 			}
-			return movementMap;
+			return interactionInput;
 		}
 	}
 
@@ -121,7 +123,7 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase
 
 	protected EditableCubeModelWrapper editableCubeModelWrapper;
 
-	protected MVSimpleOneSeatVehicle(Hashtable data, string _vehiclePrefab, Dictionary<int, MVWorldObjectClient> worldObjects)
+	protected MVSimpleOneSeatVehicle(Dictionary<object, object> data, string _vehiclePrefab, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, _vehiclePrefab, worldObjects)
 	{
 	}
@@ -136,7 +138,7 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase
 		Modifiers = RuntimeDataVariables.New("modifiers", 1f, writeThrough: false);
 		VehiclePickupOwner vehiclePickupOwner = gameObject.AddComponent<VehiclePickupOwner>();
 		MVPickupMountPoint componentInChildren = gameObject.GetComponentInChildren<MVPickupMountPoint>();
-		vehiclePickupOwner.Init(CurrentItem, IsFiring, ((Component)componentInChildren).transform);
+		vehiclePickupOwner.Init(CurrentItem, IsFiring, componentInChildren.transform);
 	}
 
 	public override void Select(Color color)

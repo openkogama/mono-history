@@ -1,7 +1,9 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
+using MV.WorldObject;
+using MV.WorldObject.RuntimeEvents;
 using UnityEngine;
 
 public class PickupItemBazooka : PickupItemWithDelay
@@ -26,32 +28,26 @@ public class PickupItemBazooka : PickupItemWithDelay
 
 	public AudioClip rocketHitSound;
 
-	private int currentAmmo = 10;
+	private ObscuredInt currentAmmo = 10;
 
 	public override AvatarItemType Type => AvatarItemType.Bazooka;
 
 	public override int Quantity => currentAmmo;
 
-	protected override bool IsAmmoDepleted => currentAmmo <= 0;
+	protected override bool IsAmmoDepleted => (int)currentAmmo <= 0;
 
 	protected override void OnStart()
 	{
 		currentAmmo = ammo;
 	}
 
-	public override void OnStateChanged(Hashtable newState)
+	public override void OnStateChanged(Dictionary<object, object> newState)
 	{
 		currentAmmo = ammo;
 	}
 
 	protected override void OnFire(bool isLocal)
 	{
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0069: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0074: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0079: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0096: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c2: Unknown result type (might be due to invalid IL or missing references)
 		Bullet bullet = Bullet.CreateBullet(rocketPrefab, muzzlePoint.position);
 		bullet.onHit = (Bullet.OnHitDelegate)Delegate.Combine(bullet.onHit, new Bullet.OnHitDelegate(HandleRocketHit));
 		if (isLocal)
@@ -59,44 +55,42 @@ public class PickupItemBazooka : PickupItemWithDelay
 			bullet.onHitLocal = (Bullet.OnHitDelegate)Delegate.Combine(bullet.onHitLocal, new Bullet.OnHitDelegate(HandleRocketHitLocal));
 		}
 		bullet.Fire(lineOfFire: new Ray(owner.LookOrigin, owner.LookDirection), speed: owner.GetAbsolutProjectileSpeed(rocketSpeed), range: rocketRange, ignoreWoIDs: owner.IgnoreWOIDs);
-		MVGameController.Instance.AudioManager.Play("rocket fired", ((Component)this).audio, muzzlePoint.position);
-		currentAmmo--;
+		MVGameController.AudioManager.Play("rocket fired", GetComponent<AudioSource>(), muzzlePoint.position);
+		if (isLocal)
+		{
+			MVGameController.AudioManager.Play("rocket fired", GetComponent<AudioSource>(), Camera.main.transform.position + Camera.main.transform.forward);
+		}
+		else
+		{
+			MVGameController.AudioManager.Play("rocket fired", GetComponent<AudioSource>(), muzzlePoint.position);
+		}
+		currentAmmo = (int)currentAmmo - 1;
 	}
 
 	private void HandleRocketHitLocal(VoxelHit voxelHit, Ray lineOfFire)
 	{
-		//IL_0002: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0075: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0080: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00af: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00bb: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ed: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ff: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0104: Unknown result type (might be due to invalid IL or missing references)
-		//IL_010a: Unknown result type (might be due to invalid IL or missing references)
 		Collider[] array = Physics.OverlapSphere(voxelHit.point, blastRadius);
 		HashSet<int> hashSet = new HashSet<int>();
 		Collider[] array2 = array;
-		foreach (Collider val in array2)
+		foreach (Collider collider in array2)
 		{
-			MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(((Component)val).transform);
+			MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(collider.transform);
 			if (mVObject != null && !hashSet.Contains(mVObject.Id))
 			{
-				InteractionDataHandlerBase component = mVObject.GameObject.GetComponent<InteractionDataHandlerBase>();
-				if ((Object)(object)component != (Object)null)
+				if (mVObject.WorldObjectType == WorldObjectType.CubeModelPrototypeTerrain)
 				{
-					float num = Vector3.Distance(voxelHit.point, ((Component)val).transform.position) / blastRadius;
-					float damage = damageFalloff.Evaluate(num) * baseDamage;
-					Vector3 val2 = ((Component)val).transform.position - voxelHit.point;
-					Vector3 normalized = val2.normalized;
+					ExplosionEvent explosion = new ExplosionEvent(RuntimeEventType.Bazooka, voxelHit.point, voxelHit.normal);
+					MVGameController.Game.World.RuntimeEventManager.SendRuntimeEvent(explosion);
+				}
+				InteractionDataHandlerBase component = mVObject.GameObject.GetComponent<InteractionDataHandlerBase>();
+				if (component != null)
+				{
+					float time = Vector3.Distance(voxelHit.point, collider.transform.position) / blastRadius;
+					float damage = damageFalloff.Evaluate(time) * baseDamage;
+					Vector3 normalized = (collider.transform.position - voxelHit.point).normalized;
 					normalized.y += 0.1f;
 					normalized.Normalize();
-					Vector3 impulse = normalized * baseImpulse * impulseFalloff.Evaluate(num);
+					Vector3 impulse = normalized * baseImpulse * impulseFalloff.Evaluate(time);
 					component.HandleInteraction(ProximityDamageAndImpulse.Create(damage, impulse, PlayerKilledByType.BazookaGun), interactionIsLocal: false);
 					hashSet.Add(mVObject.Id);
 				}
@@ -106,10 +100,7 @@ public class PickupItemBazooka : PickupItemWithDelay
 
 	private void HandleRocketHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0034: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0039: Unknown result type (might be due to invalid IL or missing references)
-		MVGameController.Instance.AudioManager.Play("rocket hit", rocketHitSound, voxelHit.point, 0.4f, SoundRangeDistance.Long);
-		Object.Instantiate(Resources.Load("ParticleFX/Explosion"), voxelHit.point, Quaternion.identity);
+		MVGameController.AudioManager.Play("rocket hit", rocketHitSound, voxelHit.point, 0.4f, SoundRangeDistance.Long);
+		UnityEngine.Object.Instantiate(Resources.Load("ParticleFX/Explosion"), voxelHit.point, Quaternion.identity);
 	}
 }

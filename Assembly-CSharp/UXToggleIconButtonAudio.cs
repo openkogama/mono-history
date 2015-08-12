@@ -15,9 +15,9 @@ public class UXToggleIconButtonAudio : MonoBehaviour
 		onSound = GUIAudioBank.Instance.GetSound("toggle_on");
 		offSound = GUIAudioBank.Instance.GetSound("toggle_off");
 		hoverSound = GUIAudioBank.Instance.GetSound("hover");
-		UXToggleIconButton component = ((Component)this).GetComponent<UXToggleIconButton>();
+		UXToggleIconButton component = GetComponent<UXToggleIconButton>();
 		component.OnToggle = (UXToggleIconButton.OnToggleDelegate)Delegate.Combine(component.OnToggle, new UXToggleIconButton.OnToggleDelegate(HandleOnToggle));
-		UXMouseOverObject component2 = ((Component)this).GetComponent<UXMouseOverObject>();
+		UXMouseOverObject component2 = GetComponent<UXMouseOverObject>();
 		component2.OnMouseOverEnter = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(component2.OnMouseOverEnter, new UXMouseOverObject.OnMouseOverDelegate(HandleMouseOverEnter));
 	}
 

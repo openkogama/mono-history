@@ -2,13 +2,33 @@ using UnityEngine;
 
 public class MVGUIGameState : UXViewScript
 {
-	public UXText gameMsgs;
+	[SerializeField]
+	private UXText itemMsg;
 
-	public UXText briefingMsg;
+	[SerializeField]
+	private UXBucket itemIcon;
 
-	public UXText itemMsg;
-
-	public GameObject timeIcon;
-
-	public GameObject itemIcon;
+	private void Update()
+	{
+		AllCollectiblesCollectedClient singletonWinnerConditionByType = MVGameController.Game.WinningConditionManager.GetSingletonWinnerConditionByType<AllCollectiblesCollectedClient>();
+		if (singletonWinnerConditionByType != null)
+		{
+			string text = MVGameController.Game.LocalPlayer.GetGameStat(GameStatCounterType.Collectible) + "/" + singletonWinnerConditionByType.Limit;
+			if (text != itemMsg.Text)
+			{
+				itemMsg.Text = text;
+			}
+			if (View.isVisible)
+			{
+				itemMsg.SetVisible(visible: true);
+				itemIcon.SetVisible(visible: true);
+			}
+		}
+		else
+		{
+			itemMsg.Text = string.Empty;
+			itemMsg.SetVisible(visible: false);
+			itemIcon.SetVisible(visible: false);
+		}
+	}
 }

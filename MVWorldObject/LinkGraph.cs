@@ -108,7 +108,7 @@ public class LinkGraph
 		return from.ToNeighbors.Remove(to);
 	}
 
-	public bool Contains(int worldObjectID)
+	public bool ContainsKey(int worldObjectID)
 	{
 		foreach (LinkGraphNode item in nodeSet)
 		{

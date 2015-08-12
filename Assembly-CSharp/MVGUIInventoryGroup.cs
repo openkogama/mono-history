@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using Localize;
 using MV.WorldObject;
 using UnityEngine;
 
@@ -20,8 +19,6 @@ public class MVGUIInventoryGroup : MonoBehaviour
 
 	public bool showTextIfEmpty;
 
-	public TextSlotIndex emptyIndex = TextSlotIndex.Empty;
-
 	public string emptyText;
 
 	public Color textColor;
@@ -34,14 +31,11 @@ public class MVGUIInventoryGroup : MonoBehaviour
 
 	public RepositoryCollection repositoryCollection { get; protected set; }
 
-	protected UXGroup Group => ((Component)this).gameObject.GetComponent<UXGroup>();
+	protected UXGroup Group => gameObject.GetComponent<UXGroup>();
 
 	public virtual void Initialize()
 	{
-		if (emptyIndex != TextSlotIndex.Empty)
-		{
-			emptyText = Localization.Instance.GetText(emptyIndex);
-		}
+		emptyText = TM._(emptyText);
 		CreatePreviewItemRoot();
 		InitializeCollectionView();
 		if (showTextIfEmpty)
@@ -52,13 +46,12 @@ public class MVGUIInventoryGroup : MonoBehaviour
 
 	protected void CreatePreviewItemRoot()
 	{
-		//IL_0016: Unknown result type (might be due to invalid IL or missing references)
-		previewItemsRoot = new GameObject("Preview Root - " + ((Object)((Component)this).gameObject).name).transform;
+		previewItemsRoot = new GameObject("Preview Root - " + gameObject.name).transform;
 	}
 
 	protected virtual void InitializeCollectionView()
 	{
-		repositoryCollection = new PlayerRepositoryCollection(MVGameController.Instance.Game.PlayerRepository, allowedCategoriesTypes);
+		repositoryCollection = new PlayerRepositoryCollection(MVGameController.Game.PlayerRepository, allowedCategoriesTypes);
 		collectionView.Initialize();
 		collectionView.InstansiateViewItem = InstansiateViewItem;
 		UXCollectionView uXCollectionView = collectionView;
@@ -73,17 +66,11 @@ public class MVGUIInventoryGroup : MonoBehaviour
 
 	private void InitializeEmptyText()
 	{
-		//IL_0050: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0075: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0087: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b5: Unknown result type (might be due to invalid IL or missing references)
-		Object val = Object.Instantiate(Resources.Load("Prefabs/UX/Text"));
-		_emptyUIText = ((GameObject)((val is GameObject) ? val : null)).GetComponent<UXText>();
-		((Object)_emptyUIText).name = "EmptyText";
-		((Component)_emptyUIText).transform.parent = ((Component)this).transform;
-		((Component)_emptyUIText).transform.localScale = Vector3.one;
-		((Component)_emptyUIText).transform.localPosition = new Vector3(0f, ((Component)collectionView).transform.localPosition.y, -0.01f);
+		_emptyUIText = (UnityEngine.Object.Instantiate(Resources.Load("Prefabs/UX/Text")) as GameObject).GetComponent<UXText>();
+		_emptyUIText.name = "EmptyText";
+		_emptyUIText.transform.parent = transform;
+		_emptyUIText.transform.localScale = Vector3.one;
+		_emptyUIText.transform.localPosition = new Vector3(0f, collectionView.transform.localPosition.y, -0.01f);
 		_emptyUIText.Text = emptyText;
 		_emptyUIText.TextSize = UXTextSize.Large;
 		_emptyUIText.Color = textColor;
@@ -95,29 +82,29 @@ public class MVGUIInventoryGroup : MonoBehaviour
 	{
 		if (repositoryCollection.Count == 0)
 		{
-			((Component)this).gameObject.GetComponent<UXGroup>().Hide();
+			gameObject.GetComponent<UXGroup>().Hide();
 		}
 		_emptyUIText.SetVisible(repositoryCollection.Count == 0);
 	}
 
 	private void OnEnable()
 	{
-		if ((Object)(object)previewItemsRoot != (Object)null)
+		if (previewItemsRoot != null)
 		{
-			((Component)previewItemsRoot).GetComponentsInChildren<Camera>().ToList().ForEach((Camera c) =>
+			previewItemsRoot.GetComponentsInChildren<Camera>().ToList().ForEach((Camera c) =>
 			{
-				((Behaviour)c).enabled = true;
+				c.enabled = true;
 			});
 		}
 	}
 
 	private void OnDisable()
 	{
-		if ((Object)(object)previewItemsRoot != (Object)null)
+		if (previewItemsRoot != null)
 		{
-			((Component)previewItemsRoot).GetComponentsInChildren<Camera>().ToList().ForEach((Camera c) =>
+			previewItemsRoot.GetComponentsInChildren<Camera>().ToList().ForEach((Camera c) =>
 			{
-				((Behaviour)c).enabled = false;
+				c.enabled = false;
 			});
 		}
 	}
@@ -132,7 +119,7 @@ public class MVGUIInventoryGroup : MonoBehaviour
 	public virtual void InitializeAfterReset()
 	{
 		CreatePreviewItemRoot();
-		repositoryCollection = new PlayerRepositoryCollection(MVGameController.Instance.Game.PlayerRepository, allowedCategoriesTypes);
+		repositoryCollection = new PlayerRepositoryCollection(MVGameController.Game.PlayerRepository, allowedCategoriesTypes);
 		collectionView.Collection = repositoryCollection;
 	}
 
@@ -142,18 +129,18 @@ public class MVGUIInventoryGroup : MonoBehaviour
 		MVItem mVItem2 = (MVItem)destinationItem.Object;
 		if (mVItem != null && mVItem2 != null)
 		{
-			MVGameController.Instance.Game.PlayerRepository.SwapItems(mVItem.itemID, mVItem2.itemID);
+			MVGameController.Game.PlayerRepository.SwapItems(mVItem.itemID, mVItem2.itemID);
 		}
-		MVGameController.Instance.Game.UpdateInventorySlots();
+		MVGameController.Game.UpdateInventorySlots();
 	}
 
 	private void OnMoveItem(IUXCollectionItem item, int destinationIndex)
 	{
 		if (item != null)
 		{
-			MVGameController.Instance.Game.PlayerRepository.MoveItem((item.Object as MVItem).itemID, destinationIndex);
+			MVGameController.Game.PlayerRepository.MoveItem((item.Object as MVItem).itemID, destinationIndex);
 		}
-		MVGameController.Instance.Game.UpdateInventorySlots();
+		MVGameController.Game.UpdateInventorySlots();
 	}
 
 	private void OnItemSelection(IUXCollectionItem item)
@@ -167,7 +154,7 @@ public class MVGUIInventoryGroup : MonoBehaviour
 	{
 		if (canInsert)
 		{
-			MVGameController.Instance.EditController.EditorWorldObjectCreation.OnAddItemFromInventory(_insertItem, isPreviewItem: false);
+			MVGameController.EditorController.EditorWorldObjectCreation.OnAddItemFromInventory(_insertItem, isPreviewItem: false);
 			if (NotifyItemSelection != null)
 			{
 				NotifyItemSelection();
@@ -177,13 +164,11 @@ public class MVGUIInventoryGroup : MonoBehaviour
 
 	protected virtual UXCollectionViewItem InstansiateViewItem(IUXCollectionItem item)
 	{
-		//IL_0038: Unknown result type (might be due to invalid IL or missing references)
-		Object val = Object.Instantiate((Object)(object)inventoryViewItemPrefab);
-		GameObject val2 = (GameObject)(object)((val is GameObject) ? val : null);
-		val2.layer = LayerMask.NameToLayer("UXElement");
-		val2.transform.parent = ((Component)this).transform;
-		val2.transform.localScale = Vector3.one;
-		InventoryViewItem component = val2.GetComponent<InventoryViewItem>();
+		GameObject gameObject = UnityEngine.Object.Instantiate(inventoryViewItemPrefab);
+		gameObject.layer = LayerMask.NameToLayer("UXElement");
+		gameObject.transform.parent = transform;
+		gameObject.transform.localScale = Vector3.one;
+		InventoryViewItem component = gameObject.GetComponent<InventoryViewItem>();
 		component.Item = item;
 		component.PreviewItemsRoot = previewItemsRoot;
 		return component;

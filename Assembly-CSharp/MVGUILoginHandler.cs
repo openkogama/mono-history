@@ -5,6 +5,15 @@ using UnityEngine;
 
 public class MVGUILoginHandler : UXViewScript
 {
+	public enum DevServerTarget
+	{
+		Dev,
+		Test,
+		Local,
+		DevWebGL,
+		LocalWebGL
+	}
+
 	public UXTextButton buildButton;
 
 	public UXTextButton playButton;
@@ -21,7 +30,12 @@ public class MVGUILoginHandler : UXViewScript
 
 	public UXTextField planetIdTextField;
 
-	private Dictionary<string, object> gameSessionData = new Dictionary<string, object>();
+	private Dictionary<string, object> gameSessionData = new Dictionary<string, object>
+	{
+		{ "newToken", "clientDefinedNewToken." },
+		{ "newPlanetName", "game-server-test" },
+		{ "isSoftLaunch", false }
+	};
 
 	private bool first = true;
 
@@ -30,6 +44,19 @@ public class MVGUILoginHandler : UXViewScript
 	private string _serverip;
 
 	private string _planetId;
+
+	private static string GetIPFromDevServerTarget(DevServerTarget devTarget)
+	{
+		return devTarget switch
+		{
+			DevServerTarget.Local => "127.0.0.1:5055", 
+			DevServerTarget.Dev => "37.48.122.12:5055", 
+			DevServerTarget.Test => "37.48.122.14:5055", 
+			DevServerTarget.DevWebGL => "ws://37.48.122.12:9090", 
+			DevServerTarget.LocalWebGL => "ws://127.0.0.1:9090", 
+			_ => string.Empty, 
+		};
+	}
 
 	private void InitializeListeners()
 	{
@@ -58,7 +85,7 @@ public class MVGUILoginHandler : UXViewScript
 		UXComboBox uXComboBox = devServerTargetCombobox;
 		uXComboBox.OnComboBoxItemSelect = (UXComboBox.OnComboBoxItemSelectDelegate)Delegate.Combine(uXComboBox.OnComboBoxItemSelect, (UXComboBox.OnComboBoxItemSelectDelegate)((int index) =>
 		{
-			string iPFromDevServerTarget = MVGameController.GetIPFromDevServerTarget((DevServerTarget)index);
+			string iPFromDevServerTarget = GetIPFromDevServerTarget((DevServerTarget)index);
 			serverTextField.Text = iPFromDevServerTarget;
 			PlayerPrefs.SetInt("serverIndex", index);
 		}));
@@ -72,6 +99,7 @@ public class MVGUILoginHandler : UXViewScript
 			{
 				gameSessionData["profileID"] = result;
 			}
+			gameSessionData["token"] = value;
 		}));
 		planetIdTextField.Text = ((int)gameSessionData["planetID"]).ToString();
 		UXTextField uXTextField3 = planetIdTextField;
@@ -84,23 +112,8 @@ public class MVGUILoginHandler : UXViewScript
 		}));
 	}
 
-	public override void Awake()
-	{
-		base.Awake();
-		if (!Debug.isDebugBuild)
-		{
-			View.Hide();
-			((Behaviour)this).enabled = false;
-		}
-	}
-
 	public override void OnShow()
 	{
-		if (!Debug.isDebugBuild)
-		{
-			View.Hide();
-			return;
-		}
 		base.OnShow();
 		if (first)
 		{
@@ -112,7 +125,10 @@ public class MVGUILoginHandler : UXViewScript
 
 	public void Update()
 	{
-		UpdatePrefValuesIfChanged();
+		if (View.isVisible)
+		{
+			UpdatePrefValuesIfChanged();
+		}
 	}
 
 	private void JoinIslandOnClick()
@@ -134,18 +150,16 @@ public class MVGUILoginHandler : UXViewScript
 	{
 		gameSessionData["gameMode"] = gameMode;
 		gameSessionData["language"] = "en_US";
-		MVGameController.Instance.StartGame(new GameSessionData(gameSessionData));
+		MVGameController.StartGame(new GameSessionData(gameSessionData));
+		View.Hide();
 	}
 
 	private void SetValuesToPrefOrDefault()
 	{
-		if (Debug.isDebugBuild)
-		{
-			gameSessionData["profileID"] = Convert.ToInt32(GetPrefOrDefault("Dev_profileId", "-1"));
-			gameSessionData["token"] = GetPrefOrDefault("Dev_profileId", "-1");
-			gameSessionData["serverIP"] = GetPrefOrDefault("Dev_serverip", string.Empty);
-			gameSessionData["planetID"] = Convert.ToInt32(GetPrefOrDefault("Dev_planetId", "-1"));
-		}
+		gameSessionData["profileID"] = Convert.ToInt32(GetPrefOrDefault("Dev_profileId", "-1"));
+		gameSessionData["token"] = GetPrefOrDefault("Dev_profileId", "-1");
+		gameSessionData["serverIP"] = GetPrefOrDefault("Dev_serverip", string.Empty);
+		gameSessionData["planetID"] = Convert.ToInt32(GetPrefOrDefault("Dev_planetId", "-1"));
 	}
 
 	private void UpdatePrefValuesIfChanged()

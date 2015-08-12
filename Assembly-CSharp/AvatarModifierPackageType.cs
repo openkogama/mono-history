@@ -10,5 +10,6 @@ public enum AvatarModifierPackageType
 	NoFriction,
 	FlamerBurn,
 	Underwater,
-	Frozen
+	Frozen,
+	NinjaRun
 }

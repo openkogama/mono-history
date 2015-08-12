@@ -1,5 +1,4 @@
 using System;
-using UnityEngine;
 
 public class MVGUICubeTools : UXViewScript
 {
@@ -74,18 +73,18 @@ public class MVGUICubeTools : UXViewScript
 	public override void OnShow()
 	{
 		base.OnShow();
-		((Component)editCubeButton).gameObject.SetActiveRecursively(true);
-		((Component)deleteCubeButton).gameObject.SetActiveRecursively(true);
-		((Component)paintCubeButton).gameObject.SetActiveRecursively(true);
-		((Component)sprayPaintCubeButton).gameObject.SetActiveRecursively(true);
+		editCubeButton.gameObject.SetActive(value: true);
+		deleteCubeButton.gameObject.SetActive(value: true);
+		paintCubeButton.gameObject.SetActive(value: true);
+		sprayPaintCubeButton.gameObject.SetActive(value: true);
 	}
 
 	public override void OnHide()
 	{
 		base.OnHide();
-		((Component)editCubeButton).gameObject.SetActiveRecursively(false);
-		((Component)deleteCubeButton).gameObject.SetActiveRecursively(false);
-		((Component)paintCubeButton).gameObject.SetActiveRecursively(false);
-		((Component)sprayPaintCubeButton).gameObject.SetActiveRecursively(false);
+		editCubeButton.gameObject.SetActive(value: false);
+		deleteCubeButton.gameObject.SetActive(value: false);
+		paintCubeButton.gameObject.SetActive(value: false);
+		sprayPaintCubeButton.gameObject.SetActive(value: false);
 	}
 }

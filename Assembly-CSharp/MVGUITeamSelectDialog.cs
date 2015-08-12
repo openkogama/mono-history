@@ -27,12 +27,12 @@ public class MVGUITeamSelectDialog : UXCustomDialogBox
 
 	private void BuildTeamLists()
 	{
-		List<MVTeam> teamList = MVGameController.Instance.Game.TeamManager.GetTeamList();
+		List<MVTeam> teamList = MVGameController.Game.TeamManager.GetTeamList();
 		NoOfTeams = teamList.Count;
 		if (NoOfTeams == 1)
 		{
-			returnTeam = MVTeam.None;
-			UXUtils.FindGUIObjectOfType<UXDialogFactory>().CloseDialog();
+			returnTeam = teamList[0];
+			UXUtils.UXDialogFactory.CloseDialog();
 			return;
 		}
 		AddedTeams = 0;
@@ -44,49 +44,39 @@ public class MVGUITeamSelectDialog : UXCustomDialogBox
 
 	private void AddTeamList(MVTeam team)
 	{
-		//IL_0056: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0068: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b7: Unknown result type (might be due to invalid IL or missing references)
-		MVGUITeamList mVGUITeamList = ((NoOfTeams != 2) ? QuarterTeamList : HalfTeamList);
-		MVGUITeamList mVGUITeamList2 = Object.Instantiate((Object)(object)mVGUITeamList) as MVGUITeamList;
-		((Component)mVGUITeamList2).transform.parent = TeamListRoot;
-		((Component)mVGUITeamList2).transform.localScale = Vector3.one;
-		((Component)mVGUITeamList2).transform.localPosition = GetTeamListPosition(mVGUITeamList2);
-		mVGUITeamList2.InitializeTeamList(team);
-		UXIconButton uXIconButton = Object.Instantiate((Object)(object)TeamSelectButton) as UXIconButton;
-		((Component)uXIconButton).transform.parent = ((Component)mVGUITeamList2).transform;
-		((Component)uXIconButton).transform.localScale = Vector3.one;
-		((Component)uXIconButton).transform.localPosition = GetButtonPosition();
+		MVGUITeamList original = ((NoOfTeams != 2) ? QuarterTeamList : HalfTeamList);
+		MVGUITeamList mVGUITeamList = UnityEngine.Object.Instantiate(original);
+		mVGUITeamList.transform.parent = TeamListRoot;
+		mVGUITeamList.transform.localScale = Vector3.one;
+		mVGUITeamList.transform.localPosition = GetTeamListPosition(mVGUITeamList);
+		mVGUITeamList.InitializeTeamList(team);
+		UXIconButton uXIconButton = UnityEngine.Object.Instantiate(TeamSelectButton);
+		uXIconButton.transform.parent = mVGUITeamList.transform;
+		uXIconButton.transform.localScale = Vector3.one;
+		uXIconButton.transform.localPosition = GetButtonPosition();
 		uXIconButton.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXIconButton.OnClick, (UXBaseButton.OnClickDelegate)(() =>
 		{
 			SetTeamAndClose(team);
 		}));
-		((Component)uXIconButton).GetComponent<MVGUITeamJoinButton>().InitializeJoinButton(team, mVGUITeamList2);
+		uXIconButton.GetComponent<MVGUITeamJoinButton>().InitializeJoinButton(team, mVGUITeamList);
 		AddedTeams++;
 	}
 
 	private Vector3 GetTeamListPosition(MVGUITeamList playerList)
 	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0044: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008f: Unknown result type (might be due to invalid IL or missing references)
 		Vector2 fullSize = playerList.GetFullSize();
 		if (NoOfTeams == 2)
 		{
-			float num = ((AddedTeams != 0) ? 0f : (0f - fullSize.x));
-			return new Vector3(num, fullSize.y / 2f, 0f);
+			float x = ((AddedTeams != 0) ? 0f : (0f - fullSize.x));
+			return new Vector3(x, fullSize.y / 2f, 0f);
 		}
-		float num2 = ((AddedTeams % 2 != 0) ? 0f : (0f - fullSize.x));
-		float num3 = ((AddedTeams >= 2) ? 0f : fullSize.y);
-		return new Vector3(num2, num3, 0f);
+		float x2 = ((AddedTeams % 2 != 0) ? 0f : (0f - fullSize.x));
+		float y = ((AddedTeams >= 2) ? 0f : fullSize.y);
+		return new Vector3(x2, y, 0f);
 	}
 
 	private Vector3 GetButtonPosition()
 	{
-		//IL_0030: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001b: Unknown result type (might be due to invalid IL or missing references)
 		if (NoOfTeams == 2)
 		{
 			return new Vector3(14f, -10f, -0.1f);
@@ -97,7 +87,7 @@ public class MVGUITeamSelectDialog : UXCustomDialogBox
 	private void SetTeamAndClose(MVTeam team)
 	{
 		returnTeam = team;
-		UXUtils.FindGUIObjectOfType<UXDialogFactory>().CloseDialog();
+		UXUtils.UXDialogFactory.CloseDialog();
 	}
 
 	public override object GetResult()

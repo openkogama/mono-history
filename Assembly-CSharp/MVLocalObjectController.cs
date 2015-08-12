@@ -19,7 +19,7 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 
 		public AttachState(int worldObjectID)
 		{
-			MVNetworkObject networkObject = MVGameController.Instance.WOCM.GetWorldObjectClient(worldObjectID).NetworkObject;
+			MVNetworkObject networkObject = MVGameController.WOCM.GetWorldObjectClient(worldObjectID).NetworkObject;
 			if (networkObject is MVNetworkReporter)
 			{
 				((MVNetworkReporter)networkObject).suspendTransformReporting = true;
@@ -30,7 +30,7 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 
 		public void HandleAttachFailed()
 		{
-			MVNetworkObject networkObject = MVGameController.Instance.WOCM.GetWorldObjectClient(woID).NetworkObject;
+			MVNetworkObject networkObject = MVGameController.WOCM.GetWorldObjectClient(woID).NetworkObject;
 			if (networkObject is MVNetworkReporter && transformDataWasSuspended)
 			{
 				((MVNetworkReporter)networkObject).suspendTransformReporting = false;
@@ -75,6 +75,8 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 
 	private MovementMap movementMap = new MovementMap();
 
+	private InteractionInput interactionInput = new InteractionInput();
+
 	private IAttachInterface attachState;
 
 	private Stack<ILocalObject> localControlledStack = new Stack<ILocalObject>();
@@ -117,10 +119,10 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 				return null;
 			}
 			int id = localControlledStack.Peek().Id;
-			MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(id);
+			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(id);
 			if (worldObjectClient == null)
 			{
-				Debug.LogError((object)"wo does not exist");
+				Debug.LogError("wo does not exist");
 			}
 			return worldObjectClient;
 		}
@@ -128,8 +130,8 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 
 	public MVLocalObjectController(MVWorldObjectClientManagerNetwork worldObjectClientManagerNetwork)
 	{
-		MVGameController.Instance.UpdateController.AddUpdateObject(this, UpdatePriority.PRE_UPDATEBUCKET_10);
-		MVGameController.Instance.UpdateController.AddFixedUpdateObject(this, UpdatePriority.PRE_UPDATEBUCKET_10);
+		UpdateController.AddUpdateObject(this, UpdatePriority.PRE_UPDATEBUCKET_10);
+		UpdateController.AddFixedUpdateObject(this, UpdatePriority.PRE_UPDATEBUCKET_10);
 		this.worldObjectClientManagerNetwork = worldObjectClientManagerNetwork;
 	}
 
@@ -140,7 +142,7 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 
 	public void UpdateControllerUpdate()
 	{
-		if (MVGameController.Instance.Game.JoinState == MVJoinState.Playing)
+		if (MVGameController.Game.JoinState == MVJoinState.Playing)
 		{
 			UpdateLocalControlledObjects();
 			UpdateDismountedPlayerControlledObjects();
@@ -149,7 +151,7 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 
 	public void UpdateControllerFixedUpdate()
 	{
-		if (MVGameController.Instance.Game.JoinState == MVJoinState.Playing)
+		if (MVGameController.Game.JoinState == MVJoinState.Playing)
 		{
 			FixedUpdateLocalControlledObjects();
 			FixedUpdateDismountedPlayerControlledObjects();
@@ -160,12 +162,12 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 	{
 		if (attachState != null && attachState is DetachState)
 		{
-			Debug.LogError((object)"EnterDetachState is already pending with detach state ");
+			Debug.LogError("EnterDetachState is already pending with detach state ");
 			return false;
 		}
 		if (localControlledStack.Count == 0)
 		{
-			Debug.LogError((object)"Trying to detach but nothing in stack to detach");
+			Debug.LogError("Trying to detach but nothing in stack to detach");
 			return false;
 		}
 		ILocalObject localObject = localControlledStack.Pop();
@@ -174,8 +176,8 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 			dismountedLocalControlledObjects.Add(localObject.Id, new DismountedPlayerControlledObject(localObject));
 		}
 		attachState = new DetachState();
-		Debug.Log((object)"Detaching from vehicle");
-		MVGameController.Instance.Game.DetachWorldObjectFromVehicle(worldObjectID);
+		Debug.Log("Detaching from vehicle");
+		MVGameController.Game.DetachWorldObjectFromVehicle(worldObjectID);
 		vehicleID = localObject.Id;
 		return true;
 	}
@@ -184,7 +186,7 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 	{
 		if (!dismountedLocalControlledObjects.ContainsKey(woID))
 		{
-			Debug.LogError((object)"Dismounted object not found");
+			Debug.LogError("Dismounted object not found");
 		}
 		else
 		{
@@ -196,7 +198,7 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 	{
 		if (dismountedLocalControlledObjects.ContainsKey(seatOwnerWoID))
 		{
-			Debug.Log((object)"Removing dismountedPlayerObject because of seat change");
+			Debug.Log("Removing dismountedPlayerObject because of seat change");
 			dismountedLocalControlledObjects.Remove(seatOwnerWoID);
 		}
 		worldObjectClientManagerNetwork.OnAttachWorldObjectToSeat(instigatorActorNr, seatOwnerWoID, worldObjectID, seatID);
@@ -206,11 +208,11 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 	{
 		if (attachState != null)
 		{
-			Debug.LogWarning((object)("AttachWorldObjectToSeat is already pending with id " + attachState));
+			Debug.LogWarning("AttachWorldObjectToSeat is already pending with id " + attachState);
 			return false;
 		}
 		attachState = new AttachState(worldObjectID);
-		MVGameController.Instance.Game.AttachWorldObjectToSeat(seatOwnerWoID, worldObjectID, seatBase);
+		MVGameController.Game.AttachWorldObjectToSeat(seatOwnerWoID, worldObjectID, seatBase);
 		return true;
 	}
 
@@ -218,16 +220,16 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 	{
 		if (LocalControlledWorldObjects.Count >= maxLoclControlledObjects)
 		{
-			Debug.LogWarning((object)("Can't have more active Client Controlled WorldObjects. Count is " + LocalControlledWorldObjects.Count + " max is " + maxLoclControlledObjects));
+			Debug.LogWarning("Can't have more active Client Controlled WorldObjects. Count is " + LocalControlledWorldObjects.Count + " max is " + maxLoclControlledObjects);
 			return false;
 		}
 		if (attachState != null)
 		{
-			Debug.LogError((object)"SpawnVehicleWithDriver is already pending");
+			Debug.LogError("SpawnVehicleWithDriver is already pending");
 			return false;
 		}
 		attachState = new AttachState(worldObjectID);
-		MVGameController.Instance.Game.SpawnVehicleWithDriver(worldObjectSpawnerVehicleID, worldObjectID, seatBase);
+		MVGameController.Game.SpawnVehicleWithDriver(worldObjectSpawnerVehicleID, worldObjectID, seatBase);
 		return true;
 	}
 
@@ -236,7 +238,7 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 		attachState = null;
 		if (!success)
 		{
-			Debug.LogError((object)"HandleDetachWorldObjectFromVehicle failed");
+			Debug.LogError("HandleDetachWorldObjectFromVehicle failed");
 		}
 	}
 
@@ -254,14 +256,15 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 
 	private void UpdateLocalControlledObjects()
 	{
-		movementMap.HandleInputState();
+		movementMap.HandleInputState(fromFrameUpdate: true);
+		interactionInput.HandleInputState();
 		if (localControlledStack.Count != 0)
 		{
 			ILocalObject[] array = localControlledStack.ToArray();
 			ILocalObject[] array2 = array;
 			foreach (ILocalObject localObject in array2)
 			{
-				movementMap = localObject.Update(movementMap);
+				interactionInput = localObject.Update(interactionInput);
 			}
 		}
 	}
@@ -282,7 +285,7 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 		}
 		foreach (int item in list)
 		{
-			MVGameController.Instance.WOCM.UnregisterWorldObject(item);
+			MVGameController.WOCM.UnregisterWorldObject(item);
 			dismountedLocalControlledObjects.Remove(item);
 		}
 	}
@@ -291,6 +294,7 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 	{
 		if (localControlledStack.Count != 0)
 		{
+			movementMap.HandleInputState(fromFrameUpdate: false);
 			ILocalObject[] array = localControlledStack.ToArray();
 			ILocalObject[] array2 = array;
 			foreach (ILocalObject localObject in array2)
@@ -312,12 +316,12 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 	{
 		if (attachState == null)
 		{
-			Debug.LogError((object)"trying to leave attachState, but no attach state created");
+			Debug.LogError("trying to leave attachState, but no attach state created");
 			return false;
 		}
 		if (attachState is DetachState)
 		{
-			Debug.LogWarning((object)"AttachState is detachState");
+			Debug.LogWarning("AttachState is detachState");
 		}
 		((AttachState)attachState).HandleAttachFailed();
 		attachState = null;

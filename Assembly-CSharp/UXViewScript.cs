@@ -20,7 +20,7 @@ public class UXViewScript : MonoBehaviour
 		if (!isInitialized)
 		{
 			isInitialized = true;
-			view = ((Component)this).GetComponent<UXView>();
+			view = GetComponent<UXView>();
 			UXView uXView = view;
 			uXView.OnShow = (UXView.OnShowDelegate)Delegate.Combine(uXView.OnShow, new UXView.OnShowDelegate(OnShow));
 			UXView uXView2 = view;
@@ -40,25 +40,28 @@ public class UXViewScript : MonoBehaviour
 
 	public virtual void OnShow()
 	{
-		for (int i = 0; i < ((Component)this).transform.childCount; i++)
+		for (int i = 0; i < transform.childCount; i++)
 		{
-			((Component)((Component)this).transform.GetChild(i)).gameObject.SetActiveRecursively(true);
+			transform.GetChild(i).gameObject.SetActive(value: true);
 		}
 	}
 
 	public virtual void OnHide()
 	{
-		for (int i = 0; i < ((Component)this).transform.childCount; i++)
+		for (int i = 0; i < transform.childCount; i++)
 		{
-			((Component)((Component)this).transform.GetChild(i)).gameObject.SetActiveRecursively(false);
+			transform.GetChild(i).gameObject.SetActive(value: false);
 		}
 	}
 
 	public void OnDestroy()
 	{
-		UXView uXView = view;
-		uXView.OnShow = (UXView.OnShowDelegate)Delegate.Remove(uXView.OnShow, new UXView.OnShowDelegate(OnShow));
-		UXView uXView2 = view;
-		uXView2.OnHide = (UXView.OnHideDelegate)Delegate.Remove(uXView2.OnHide, new UXView.OnHideDelegate(OnHide));
+		if (!(view == null))
+		{
+			UXView uXView = view;
+			uXView.OnShow = (UXView.OnShowDelegate)Delegate.Remove(uXView.OnShow, new UXView.OnShowDelegate(OnShow));
+			UXView uXView2 = view;
+			uXView2.OnHide = (UXView.OnHideDelegate)Delegate.Remove(uXView2.OnHide, new UXView.OnHideDelegate(OnHide));
+		}
 	}
 }

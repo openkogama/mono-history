@@ -12,12 +12,10 @@ public class ImageEffectBase : MonoBehaviour
 	{
 		get
 		{
-			//IL_0018: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0022: Expected Obj, but got Unknown
-			if ((Object)(object)m_Material == (Object)null)
+			if (m_Material == null)
 			{
 				m_Material = new Material(shader);
-				((Object)m_Material).hideFlags = (HideFlags)13;
+				m_Material.hideFlags = HideFlags.HideAndDontSave;
 			}
 			return m_Material;
 		}
@@ -27,19 +25,19 @@ public class ImageEffectBase : MonoBehaviour
 	{
 		if (!SystemInfo.supportsImageEffects)
 		{
-			((Behaviour)this).enabled = false;
+			enabled = false;
 		}
-		else if (!Object.op_Implicit((Object)(object)shader) || !shader.isSupported)
+		else if (!shader || !shader.isSupported)
 		{
-			((Behaviour)this).enabled = false;
+			enabled = false;
 		}
 	}
 
 	protected void OnDisable()
 	{
-		if (Object.op_Implicit((Object)(object)m_Material))
+		if ((bool)m_Material)
 		{
-			Object.DestroyImmediate((Object)(object)m_Material);
+			Object.DestroyImmediate(m_Material);
 		}
 	}
 }

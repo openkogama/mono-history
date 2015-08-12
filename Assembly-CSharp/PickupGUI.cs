@@ -22,7 +22,7 @@ public class PickupGUI
 	public PickupGUI(MVPickupOwner pickupOwner)
 	{
 		this.pickupOwner = pickupOwner;
-		guiCrossHair = UXUtils.FindGUIObjectOfType<MVGUICrossHair>();
+		guiCrossHair = (UnityEngine.Object.Instantiate(Resources.Load("Prefabs/GUI/CrossHair")) as GameObject).GetComponent<MVGUICrossHair>();
 		guiCrossHair.group.SetVisible(visible: false);
 		pickupOwner.onEquipItem = (MVPickupOwner.OnEquipItemDelegate)Delegate.Combine(pickupOwner.onEquipItem, new MVPickupOwner.OnEquipItemDelegate(OnEquipItem));
 		pickupOwner.onUnequipItem = (MVPickupOwner.OnUnequipItemDelegate)Delegate.Combine(pickupOwner.onUnequipItem, new MVPickupOwner.OnUnequipItemDelegate(OnUnequipItem));
@@ -30,12 +30,7 @@ public class PickupGUI
 
 	public void Update()
 	{
-		//IL_00b8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00bd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00df: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e4: Unknown result type (might be due to invalid IL or missing references)
-		if (!((Object)(object)pickupOwner.CurrentItem == (Object)null))
+		if (!(pickupOwner.CurrentItem == null))
 		{
 			int num = 0;
 			num = pickupOwner.CurrentItem.Quantity;
@@ -52,7 +47,7 @@ public class PickupGUI
 				guiCrossHair.ammoText.Text = string.Empty + num;
 			}
 			Color color = Color.magenta;
-			if ((Object)(object)pickupOwner.CurrentItem != (Object)null)
+			if (pickupOwner.CurrentItem != null)
 			{
 				color = pickupOwner.CurrentItem.CrossHairColor;
 			}
@@ -75,7 +70,7 @@ public class PickupGUI
 
 	private void OnEquipItem(PickupItem item)
 	{
-		if (Object.op_Implicit((Object)(object)guiCrossHair.group) && item.ActivateGunModeOnEquip)
+		if ((bool)guiCrossHair.group && item.ActivateGunModeOnEquip)
 		{
 			guiCrossHair.group.SetVisible(visible: true);
 		}
@@ -83,7 +78,7 @@ public class PickupGUI
 
 	public void Enter()
 	{
-		if ((Object)(object)pickupOwner.CurrentItem != (Object)null)
+		if (pickupOwner.CurrentItem != null)
 		{
 			OnEquipItem(pickupOwner.CurrentItem);
 		}
@@ -96,7 +91,7 @@ public class PickupGUI
 
 	private void OnUnequipItem(PickupItem item)
 	{
-		if (Object.op_Implicit((Object)(object)guiCrossHair.group))
+		if ((bool)guiCrossHair.group)
 		{
 			guiCrossHair.group.SetVisible(visible: false);
 		}

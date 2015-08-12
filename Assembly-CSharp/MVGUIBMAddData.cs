@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Localize;
 using UnityEngine;
 
 public class MVGUIBMAddData : UXCustomDialogBox
@@ -55,7 +53,7 @@ public class MVGUIBMAddData : UXCustomDialogBox
 	public override void OnCloseDialog()
 	{
 		base.OnCloseDialog();
-		(UXUtils.FindComponentInParents(typeof(UXView), ((Component)this).transform.parent) as UXView).ReleaseFocus();
+		(UXUtils.FindComponentInParents(typeof(UXView), transform.parent) as UXView).ReleaseFocus();
 	}
 
 	public void ChangeStep(int stepChange)
@@ -82,17 +80,17 @@ public class MVGUIBMAddData : UXCustomDialogBox
 		}
 		if (flag)
 		{
-			DialogFactory.CreateDialog(TextSlotIndex.ForgotName, TextSlotIndex.ErrorHeadline, UXDialogType.Simple, noButtons: false, stackDialog: true).Show();
+			DialogFactory.CreateDialog("You forgot these things:\n\nNo name entered.", TM._("Error"), UXDialogType.Simple, noButtons: false, stackDialog: true).Show();
 		}
 		return !flag;
 	}
 
 	public override object GetResult()
 	{
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add("name", nameTextField.Text);
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add("name", nameTextField.Text);
 		string value = (string)typeComboBox.CurrentlySelectedItem.GetValue();
-		hashtable.Add("type", (BlueprintManagerDataType)(int)Enum.Parse(typeof(BlueprintManagerDataType), value));
-		return hashtable;
+		dictionary.Add("type", (BlueprintManagerDataType)(int)Enum.Parse(typeof(BlueprintManagerDataType), value));
+		return dictionary;
 	}
 }

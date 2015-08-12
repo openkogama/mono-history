@@ -1,0 +1,55 @@
+using System;
+using System.Collections.Generic;
+
+public class MVOculusKillLimit : MVLogicObject
+{
+	private const string prefabPath = "Prefabs/OculusKillLimitCubeObject";
+
+	private bool initializedInWorld;
+
+	private int KillLimit => (int)Data["killLimit"];
+
+	public MVOculusKillLimit(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
+		: base(data, "Prefabs/OculusKillLimitCubeObject", worldObjects)
+	{
+		interactionFlags |= InteractionFlags.HasSettings;
+		interactionFlags &= ~InteractionFlags.CanClone;
+	}
+
+	public override void Initialize()
+	{
+		base.Initialize();
+		MVGameController.Game.WinningConditionManager.CreateWinnerCondition<OculusKillLimitClient>(new object[1] { KillLimit });
+		initializedInWorld = true;
+	}
+
+	public override bool IsSingletonObject()
+	{
+		return true;
+	}
+
+	public override void OnDataUpdate()
+	{
+		base.OnDataUpdate();
+		OculusKillLimitClient singletonWinnerConditionByType = MVGameController.Game.WinningConditionManager.GetSingletonWinnerConditionByType<OculusKillLimitClient>();
+		if (singletonWinnerConditionByType == null)
+		{
+			throw new Exception("Couldn't find killLimitClient winning condition.");
+		}
+		singletonWinnerConditionByType.SetLimit(KillLimit);
+	}
+
+	public override void Destroy()
+	{
+		base.Destroy();
+		if (initializedInWorld)
+		{
+			OculusKillLimitClient singletonWinnerConditionByType = MVGameController.Game.WinningConditionManager.GetSingletonWinnerConditionByType<OculusKillLimitClient>();
+			if (singletonWinnerConditionByType == null)
+			{
+				throw new Exception("Couldn't find killLimitClient winning condition.");
+			}
+			MVGameController.Game.WinningConditionManager.RemoveWinnerCondition(singletonWinnerConditionByType.ID);
+		}
+	}
+}

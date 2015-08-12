@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using MV.Common;
+using MV.WorldObject;
 using UnityEngine;
 
 public class PickupItemSword : PickupItemWithDelay
@@ -21,6 +22,8 @@ public class PickupItemSword : PickupItemWithDelay
 
 	public AudioSource hitAudioSource;
 
+	public Transform MuzzlePointHitTerrain;
+
 	private bool checkingOverlaps;
 
 	public override AvatarItemType Type => AvatarItemType.Sword;
@@ -31,10 +34,17 @@ public class PickupItemSword : PickupItemWithDelay
 
 	protected override void OnFire(bool isLocal)
 	{
-		//IL_002e: Unknown result type (might be due to invalid IL or missing references)
 		swordAnim.Play();
 		isFiring = false;
-		MVGameController.Instance.AudioManager.Play("sword swing", ((Component)this).audio, muzzlePoint.position);
+		MVGameController.AudioManager.Play("sword swing", GetComponent<AudioSource>(), muzzlePoint.position);
+		if (isLocal)
+		{
+			MVGameController.AudioManager.Play("sword swing", GetComponent<AudioSource>(), Camera.main.transform.position + Camera.main.transform.forward);
+		}
+		else
+		{
+			MVGameController.AudioManager.Play("sword swing", GetComponent<AudioSource>(), muzzlePoint.position);
+		}
 		if (isLocal)
 		{
 		}
@@ -50,7 +60,7 @@ public class PickupItemSword : PickupItemWithDelay
 			Collider[] array = hits;
 			foreach (Collider h in array)
 			{
-				MVWorldObjectClient wo = MVWorldObjectClientManager.GetMVObject(((Component)h).transform);
+				MVWorldObjectClient wo = MVWorldObjectClientManager.GetMVObject(h.transform);
 				if (wo != null && !owner.IgnoreWOIDs.Contains(wo.Id))
 				{
 					hitWos.Add(wo);
@@ -67,20 +77,21 @@ public class PickupItemSword : PickupItemWithDelay
 			if (wo2.Id != owner.WorldObjectOwner.Id)
 			{
 				InteractionDataHandlerBase interactionHandler = wo2.GameObject.GetComponent<InteractionDataHandlerBase>();
-				if ((Object)(object)interactionHandler != (Object)null)
+				if (interactionHandler != null)
 				{
 					hitOpponent = true;
 					Vector3 impulse = dir * pushMagnitude;
 					float dmg = hitDamage;
 					interactionHandler.HandleInteraction(SwordHitPackage.Create(impulse, dmg), interactionIsLocal: false);
-					Object.Instantiate((Object)(object)bloodParticlesPrefab, wo2.GetTargetPosition(), Quaternion.identity);
+					Object.Instantiate(bloodParticlesPrefab, wo2.GetTargetPosition(), Quaternion.identity);
 				}
 			}
 		}
+		DoRemoveCubes();
 		if (hitOpponent)
 		{
-			MVRigidBody rigidBody = ((Component)owner).GetComponent<MVRigidBody>();
-			if ((Object)(object)rigidBody != (Object)null)
+			MVRigidBody rigidBody = owner.GetComponent<MVRigidBody>();
+			if (rigidBody != null)
 			{
 				rigidBody.AddImpulse(-dir * 700f);
 			}
@@ -88,11 +99,25 @@ public class PickupItemSword : PickupItemWithDelay
 		}
 	}
 
+	private void DoRemoveCubes()
+	{
+		Ray ray = new Ray(MuzzlePointHitTerrain.position - owner.LookDirection, owner.LookDirection);
+		Debug.DrawLine(ray.origin, ray.origin + ray.direction * 3f, Color.red, 10f);
+		if (CollisionDetection.MVHit(ray, out var voxelHit, 3f, new HashSet<int>(), 1 << LayerMask.NameToLayer("Default")))
+		{
+			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(voxelHit.woId);
+			if (worldObjectClient.WorldObjectType == WorldObjectType.CubeModelPrototypeTerrain || worldObjectClient.WorldObjectType == WorldObjectType.CubeModelTerrainFineGrained)
+			{
+				MVGameController.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, 20f);
+			}
+		}
+	}
+
 	public void StartOverlapCheck()
 	{
 		if (owner.IsLocal && !checkingOverlaps)
 		{
-			((MonoBehaviour)this).StartCoroutine(DoOverlapCheck());
+			StartCoroutine(DoOverlapCheck());
 		}
 	}
 
@@ -106,7 +131,6 @@ public class PickupItemSword : PickupItemWithDelay
 
 	private void OnDrawGizmos()
 	{
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
 		Gizmos.DrawWireSphere(muzzlePoint.position, pushRadius);
 	}
 }

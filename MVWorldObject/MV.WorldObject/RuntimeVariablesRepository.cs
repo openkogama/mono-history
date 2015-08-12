@@ -1,11 +1,10 @@
-using System.Collections;
 using System.Collections.Generic;
 
 namespace MV.WorldObject;
 
 public static class RuntimeVariablesRepository
 {
-	private static Dictionary<WorldObjectType, Hashtable> runtimeVariables = new Dictionary<WorldObjectType, Hashtable>
+	private static Dictionary<WorldObjectType, Dictionary<object, object>> runtimeVariables = new Dictionary<WorldObjectType, Dictionary<object, object>>
 	{
 		{
 			WorldObjectType.Avatar,
@@ -37,93 +36,93 @@ public static class RuntimeVariablesRepository
 		}
 	};
 
-	public static Hashtable GetRuntimeVariables(WorldObjectType worldObjectType)
+	public static Dictionary<object, object> GetRuntimeVariables(WorldObjectType worldObjectType)
 	{
 		if (!runtimeVariables.ContainsKey(worldObjectType))
 		{
-			return new Hashtable();
+			return new Dictionary<object, object>();
 		}
 		return HashtableFunctions.DeepCopyHashTable(runtimeVariables[worldObjectType]);
 	}
 
-	private static Hashtable AvatarRuntimeData()
+	private static Dictionary<object, object> AvatarRuntimeData()
 	{
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add("health", 100f);
-		hashtable.Add("isFiring", false);
-		hashtable.Add("modifiers", new Hashtable());
-		hashtable.Add("currentItem", new Hashtable { { "type", 5 } });
-		hashtable.Add("lineOfFire", new Hashtable());
-		hashtable.Add("invulnerable", false);
-		hashtable.Add("seat", -1);
-		hashtable.Add("collectibleCount", 0);
-		Hashtable hashtable2 = new Hashtable();
-		hashtable2.Add("state", "Idle");
-		hashtable2.Add("timeStamp", 0);
-		Hashtable value = hashtable2;
-		hashtable.Add("animation", value);
-		return hashtable;
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add("health", 100f);
+		dictionary.Add("isFiring", false);
+		dictionary.Add("modifiers", new Dictionary<object, object>());
+		dictionary.Add("currentItem", new Dictionary<object, object> { { "type", 5 } });
+		dictionary.Add("lineOfFire", new Dictionary<object, object>());
+		dictionary.Add("invulnerable", false);
+		dictionary.Add("seat", -1);
+		dictionary.Add("avatarRuntimeState", (byte)0);
+		Dictionary<object, object> dictionary2 = new Dictionary<object, object>();
+		dictionary2.Add("state", "Idle");
+		dictionary2.Add("timeStamp", 0);
+		Dictionary<object, object> value = dictionary2;
+		dictionary.Add("animation", value);
+		return dictionary;
 	}
 
-	private static Hashtable HoverCraftRuntimeData()
+	private static Dictionary<object, object> HoverCraftRuntimeData()
 	{
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add("health", 150f);
-		hashtable.Add("isFiring", false);
-		hashtable.Add("modifiers", new Hashtable());
-		hashtable.Add("currentItem", new Hashtable());
-		hashtable.Add("isDead", false);
-		return hashtable;
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add("health", 150f);
+		dictionary.Add("isFiring", false);
+		dictionary.Add("modifiers", new Dictionary<object, object>());
+		dictionary.Add("currentItem", new Dictionary<object, object>());
+		dictionary.Add("isDead", false);
+		return dictionary;
 	}
 
-	private static Hashtable HamsterWheelRuntimeData()
+	private static Dictionary<object, object> HamsterWheelRuntimeData()
 	{
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add("health", 150f);
-		hashtable.Add("isFiring", false);
-		hashtable.Add("modifiers", new Hashtable());
-		hashtable.Add("currentItem", new Hashtable());
-		hashtable.Add("isDead", false);
-		hashtable.Add("isMovingForward", false);
-		hashtable.Add("isMovingBackwards", false);
-		hashtable.Add("isGrounded", false);
-		return hashtable;
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add("health", 150f);
+		dictionary.Add("isFiring", false);
+		dictionary.Add("modifiers", new Dictionary<object, object>());
+		dictionary.Add("currentItem", new Dictionary<object, object>());
+		dictionary.Add("isDead", false);
+		dictionary.Add("isMovingForward", false);
+		dictionary.Add("isMovingBackwards", false);
+		dictionary.Add("isGrounded", false);
+		return dictionary;
 	}
 
-	private static Hashtable MonoPlaneRuntimeData()
+	private static Dictionary<object, object> MonoPlaneRuntimeData()
 	{
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add("health", 80f);
-		hashtable.Add("isFiring", false);
-		hashtable.Add("modifiers", new Hashtable());
-		hashtable.Add("currentItem", new Hashtable());
-		hashtable.Add("isDead", false);
-		return hashtable;
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add("health", 80f);
+		dictionary.Add("isFiring", false);
+		dictionary.Add("modifiers", new Dictionary<object, object>());
+		dictionary.Add("currentItem", new Dictionary<object, object>());
+		dictionary.Add("isDead", false);
+		return dictionary;
 	}
 
-	private static Hashtable JetPackRuntimeData()
+	private static Dictionary<object, object> JetPackRuntimeData()
 	{
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add("health", 20f);
-		hashtable.Add("modifiers", new Hashtable());
-		hashtable.Add("isDead", false);
-		hashtable.Add("jetMode", (byte)0);
-		return hashtable;
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add("health", 20f);
+		dictionary.Add("modifiers", new Dictionary<object, object>());
+		dictionary.Add("isDead", false);
+		dictionary.Add("jetMode", (byte)0);
+		return dictionary;
 	}
 
-	private static Hashtable AdvancedGhostRuntimeData()
+	private static Dictionary<object, object> AdvancedGhostRuntimeData()
 	{
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add("health", 80f);
-		hashtable.Add("modifiers", new Hashtable());
-		hashtable.Add("deathTime", 0);
-		return hashtable;
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add("health", 80f);
+		dictionary.Add("modifiers", new Dictionary<object, object>());
+		dictionary.Add("deathTime", 0);
+		return dictionary;
 	}
 
-	private static Hashtable SentryGun()
+	private static Dictionary<object, object> SentryGun()
 	{
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add("health", 300f);
-		return hashtable;
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add("health", 300f);
+		return dictionary;
 	}
 }

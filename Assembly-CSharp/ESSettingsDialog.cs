@@ -11,33 +11,25 @@ internal class ESSettingsDialog : ESStateBase
 
 	public override void Execute(EditorStateMachine e)
 	{
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0033: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0038: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0111: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0117: Unknown result type (might be due to invalid IL or missing references)
-		//IL_011c: Unknown result type (might be due to invalid IL or missing references)
-		if (MVInputWrapper.GetKeyDown((KeyCode)324))
+		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelectAlt))
 		{
-			downPosition = Input.mousePosition;
+			downPosition = MVInputWrapper.GetPointerPosition();
 		}
-		if (MVInputWrapper.GetKeyUp((KeyCode)324))
+		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelectAlt))
 		{
-			if (Vector3.SqrMagnitude(Input.mousePosition - downPosition) < 0.64f)
+			if (Vector3.SqrMagnitude(MVInputWrapper.GetPointerPosition() - downPosition) < 0.64f)
 			{
 				VoxelHit hit = default;
-				if (MVGameController.Instance.WOCM.Pick(ref hit) && (hit.interactionFlags & InteractionFlags.IsTerrain) == 0)
+				if (MVGameController.WOCM.Pick(ref hit) && (hit.interactionFlags & InteractionFlags.IsTerrain) == 0)
 				{
 					if (e.SingleSelectedWO.Id != hit.woId)
 					{
-						MVGUIDialogBoxWrapper.Instance.ShowSettingsDialog(MVGameController.Instance.WOCM.GetWorldObjectClient(hit.woId));
+						MVGUIDialogBoxWrapper.Instance.ShowSettingsDialog(MVGameController.WOCM.GetWorldObjectClient(hit.woId));
 						e.SelectWO(hit.woId, addToSelection: false);
 					}
 					else
 					{
-						MVGUIDialogBoxWrapper.Instance.ShowSettingsDialog(MVGameController.Instance.WOCM.GetWorldObjectClient(e.SingleSelectedWO.Id));
+						MVGUIDialogBoxWrapper.Instance.ShowSettingsDialog(MVGameController.WOCM.GetWorldObjectClient(e.SingleSelectedWO.Id));
 					}
 				}
 			}
@@ -46,7 +38,7 @@ internal class ESSettingsDialog : ESStateBase
 				e.Event = EditorEvent.ObjectSelected;
 			}
 		}
-		else if (MVInputWrapper.GetKey((KeyCode)324) && Vector3.SqrMagnitude(Input.mousePosition - downPosition) > 0.64f)
+		else if (MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelectAlt) && Vector3.SqrMagnitude(MVInputWrapper.GetPointerPosition() - downPosition) > 0.64f)
 		{
 			e.Event = EditorEvent.ObjectSelected;
 		}

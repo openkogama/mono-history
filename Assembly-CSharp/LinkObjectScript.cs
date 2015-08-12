@@ -8,6 +8,6 @@ public class LinkObjectScript : MonoBehaviour
 
 	private void Awake()
 	{
-		((Behaviour)this).enabled = false;
+		enabled = false;
 	}
 }

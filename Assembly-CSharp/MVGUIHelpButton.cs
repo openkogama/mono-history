@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public class MVGUIHelpButton : UXViewScript
 {
 	public MVGUIHelp helpWindow;
@@ -9,13 +7,13 @@ public class MVGUIHelpButton : UXViewScript
 	public override void OnShow()
 	{
 		base.OnShow();
-		((Component)helpButton).gameObject.SetActiveRecursively(true);
+		helpButton.gameObject.SetActive(value: true);
 	}
 
 	public override void OnHide()
 	{
 		base.OnHide();
-		((Component)helpButton).gameObject.SetActiveRecursively(false);
+		helpButton.gameObject.SetActive(value: false);
 		helpWindow.View.Hide();
 	}
 

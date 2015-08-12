@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public abstract class MVGUISettingsDialog
 {
 	protected UXDialogFactory dialogFactory;
@@ -8,10 +6,10 @@ public abstract class MVGUISettingsDialog
 
 	public MVGUISettingsDialog()
 	{
-		if ((Object)(object)dialogFactory == (Object)null)
+		if (dialogFactory == null)
 		{
-			dialogFactory = UXUtils.FindGUIObjectOfType<UXDialogFactory>();
+			dialogFactory = UXUtils.UXDialogFactory;
 		}
-		wo = MVGameController.Instance.EditorController.GetSettingsDialogSelectionWO();
+		wo = MVGameController.EditorController.GetSettingsDialogSelectionWO();
 	}
 }

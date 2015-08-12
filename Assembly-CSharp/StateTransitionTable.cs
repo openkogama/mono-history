@@ -19,7 +19,7 @@ public abstract class StateTransitionTable
 		}
 		catch (KeyNotFoundException)
 		{
-			Debug.LogWarning((object)"KeyNotFoundException found");
+			Debug.LogWarning("KeyNotFoundException found");
 			return null;
 		}
 	}

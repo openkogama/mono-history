@@ -1,5 +1,4 @@
 using MV.WorldObject;
-using UnityEngine;
 
 public class FlamethrowerHitPackage : InteractionPackage
 {
@@ -11,7 +10,7 @@ public class FlamethrowerHitPackage : InteractionPackage
 	public override void ParseAndHandlePackage(MVWorldObjectClient worldObjectClient, MVPlayer shooter, InteractionData interactionStruct)
 	{
 		MVInteractableBase component = worldObjectClient.GameObject.GetComponent<MVInteractableBase>();
-		if ((Object)(object)component != (Object)null)
+		if (component != null)
 		{
 			component.AddModifier(AvatarModifierPackageType.FlamerBurn, shooter.ActorNr);
 		}

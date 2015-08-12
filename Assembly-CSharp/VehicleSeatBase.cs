@@ -33,16 +33,48 @@ public class VehicleSeatBase : MonoBehaviour
 			}
 			else
 			{
-				Debug.LogError((object)"Trying to re-set seatID");
+				Debug.LogError("Trying to re-set seatID");
 			}
 		}
 	}
 
 	public void SetCamera()
 	{
-		if (!((Object)(object)Camera == (Object)null))
+		if (Camera == null)
 		{
-			MVGameController.Instance.Game.CameraController.SetCamera(Camera);
+			Debug.LogWarning("Camera is null");
+			return;
+		}
+		switch (GameDB.GameType)
+		{
+		case MVGameType.Classic:
+			MVGameController.Game.CameraController.PushCamera(Camera);
+			break;
+		case MVGameType.Platformer:
+			break;
+		default:
+			MVGameController.Game.CameraController.PushCamera(Camera);
+			break;
+		}
+	}
+
+	public virtual void RemoveCamera()
+	{
+		if (Camera == null)
+		{
+			Debug.LogWarning("Camera is null");
+			return;
+		}
+		switch (GameDB.GameType)
+		{
+		case MVGameType.Classic:
+			MVGameController.Game.CameraController.RemoveCamera(Camera);
+			break;
+		case MVGameType.Platformer:
+			break;
+		default:
+			MVGameController.Game.CameraController.RemoveCamera(Camera);
+			break;
 		}
 	}
 
@@ -51,7 +83,7 @@ public class VehicleSeatBase : MonoBehaviour
 		if (UnequipVehicleUser)
 		{
 			MVEquipable component = avatar.GameObject.GetComponent<MVEquipable>();
-			if ((Object)(object)component != (Object)null)
+			if (component != null)
 			{
 				component.Unequip();
 			}

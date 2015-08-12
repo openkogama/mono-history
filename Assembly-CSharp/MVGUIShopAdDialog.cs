@@ -1,8 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Localize;
 using MV.WorldObject;
 using UnityEngine;
 
@@ -30,9 +28,9 @@ public class MVGUIShopAdDialog : MVGUIAdDialog
 
 	private bool _initialized;
 
-	public ShopRepository shopRepository => MVGameController.Instance.Game.ShopRepository;
+	public ShopRepository shopRepository => MVGameController.Game.ShopRepository;
 
-	private AEditController EditController => MVGameController.Instance.EditController;
+	private AEditController EditController => MVGameController.EditController;
 
 	public override bool CanShow()
 	{
@@ -40,13 +38,13 @@ public class MVGUIShopAdDialog : MVGUIAdDialog
 		IDictionary<int, MVItem> shopInventory = shopRepository.ShopInventory;
 		if (shopInventory.Count == 0)
 		{
-			Debug.Log((object)"No items to shop in shop ad. Closing Dialog");
+			Debug.Log("No items to shop in shop ad. Closing Dialog");
 			return false;
 		}
 		possibleShopItems = shopInventory.Values.Where((MVItem mvItem) => allowedItemTypes.Contains(mvItem.itemCategoryID)).ToList();
 		if (possibleShopItems.Count == 0)
 		{
-			Debug.Log((object)"No items to shop in shop ad. Closing Dialog");
+			Debug.Log("No items to shop in shop ad. Closing Dialog");
 			return false;
 		}
 		return true;
@@ -54,19 +52,17 @@ public class MVGUIShopAdDialog : MVGUIAdDialog
 
 	public override void OnShowDialog()
 	{
-		//IL_0085: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009a: Unknown result type (might be due to invalid IL or missing references)
 		base.OnShowDialog();
 		if (!_initialized)
 		{
-			adItem = possibleShopItems[Random.Range(0, possibleShopItems.Count)];
-			Debug.Log((object)("Showing itemid: " + adItem.itemID));
+			adItem = possibleShopItems[UnityEngine.Random.Range(0, possibleShopItems.Count)];
+			Debug.Log("Showing itemid: " + adItem.itemID);
 			adViewItem = InstansiateViewItem(adItem);
-			((Component)adViewItem).transform.parent = adViewItemRoot;
-			((Component)adViewItem).transform.localPosition = Vector3.zero;
-			((Component)adViewItem).transform.localScale = Vector3.one;
+			adViewItem.transform.parent = adViewItemRoot;
+			adViewItem.transform.localPosition = Vector3.zero;
+			adViewItem.transform.localScale = Vector3.one;
 			adName.Text = adItem.name;
-			adText.Text = Localization.Instance.GetText(TextSlotIndex.ShopAdText);
+			adText.Text = TM._("Why not get this great item from the shop?");
 			UXTextButton uXTextButton = goToShopButton;
 			uXTextButton.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXTextButton.OnClick, (UXBaseButton.OnClickDelegate)(() =>
 			{
@@ -78,7 +74,7 @@ public class MVGUIShopAdDialog : MVGUIAdDialog
 
 	private void FindAllowedItemTypes()
 	{
-		MVGUIAggregateInventory shopInventory = MVGameController.Instance.EditController.GetShopInventory();
+		MVGUIAggregateInventory shopInventory = MVGameController.EditorController.GetShopInventory();
 		foreach (MVGUIShopInventoryGroup inventoryGroup in shopInventory.inventoryGroups)
 		{
 			allowedItemTypes.AddRange(inventoryGroup.allowedCategoriesTypes);
@@ -87,8 +83,8 @@ public class MVGUIShopAdDialog : MVGUIAdDialog
 
 	private void OpenShopDialog()
 	{
-		UXDialogFactory uXDialogFactory = UXUtils.FindGUIObjectOfType<UXDialogFactory>();
-		uXDialogFactory.CreateCustomDialog("Prefabs/GUI/Dialogs/BrightProductShopDialog", TextSlotIndex.Empty, noButtons: true, stackDialog: true).SetOnResultCallback(OnPurchaseDialogResult).SetValues(BuildDialogData())
+		UXDialogFactory uXDialogFactory = UXUtils.UXDialogFactory;
+		uXDialogFactory.CreateCustomDialog("Prefabs/GUI/Dialogs/BrightProductShopDialog", string.Empty, noButtons: true, stackDialog: true).SetOnResultCallback(OnPurchaseDialogResult).SetValues(BuildDialogData())
 			.Show();
 		MVGUIProductShopDialog mVGUIProductShopDialog = (MVGUIProductShopDialog)uXDialogFactory.CurrentDialogBox;
 		mVGUIProductShopDialog.SetAllowInsertProductPreview(allowInsert: true);
@@ -99,7 +95,7 @@ public class MVGUIShopAdDialog : MVGUIAdDialog
 		mVGUIProductShopDialog.SetPrice(adItem.priceGold, adItem.priceSilver);
 		mVGUIProductShopDialog.OnTryPurchaseProduct = () =>
 		{
-			MVGameController.Instance.Game.UnlockClientShopInventoryItem(adItem.itemID);
+			MVGameController.Game.UnlockClientShopInventoryItem(adItem.itemID);
 		};
 	}
 
@@ -111,65 +107,57 @@ public class MVGUIShopAdDialog : MVGUIAdDialog
 			text = adItem.name,
 			useWordWrap = true
 		});
-		Object val = Object.Instantiate(Resources.Load("Prefabs/GUI/ShopPreview/ItemShopPreview"));
-		MVGUIItemShopPreview component = ((GameObject)((val is GameObject) ? val : null)).GetComponent<MVGUIItemShopPreview>();
+		MVGUIItemShopPreview component = (UnityEngine.Object.Instantiate(Resources.Load("Prefabs/GUI/ShopPreview/ItemShopPreview")) as GameObject).GetComponent<MVGUIItemShopPreview>();
 		component.BuildItemShopPreview(adItem, 12f, 12f);
 		dictionary.Add("ProductPreview", new ProductPreviewData
 		{
-			productPreview = ((Component)component).gameObject
+			productPreview = component.gameObject
 		});
 		return dictionary;
 	}
 
 	private void InsertPreviewItem()
 	{
-		if (EditController.PlayInEditor)
-		{
-			EditController.TogglePlayInEditor();
-		}
-		EditController.EditorWorldObjectCreation.OnAddItemFromInventory(adItem, isPreviewItem: true);
+		MVGameController.EditorController.EditorWorldObjectCreation.OnAddItemFromInventory(adItem, isPreviewItem: true);
 	}
 
 	private void OnPurchaseDialogResult(UXDialogBox dialogBox)
 	{
 		if (dialogBox.DialogResult == UXDialogResult.Positive)
 		{
-			Hashtable hashtable = (Hashtable)dialogBox.GetResult();
-			if (!hashtable.ContainsKey((byte)22))
+			Dictionary<object, object> dictionary = (Dictionary<object, object>)dialogBox.GetResult();
+			if (!dictionary.ContainsKey((byte)22))
 			{
-				Debug.LogError((object)"Purchased product, but received no slot index to put it into");
+				Debug.LogError("Purchased product, but received no slot index to put it into");
 				return;
 			}
-			int num = (int)hashtable[(byte)22];
-			MVGameController.Instance.Game.PlayerRepository.PlayerInventory.Add(adItem.itemID, adItem);
-			MVGameController.Instance.Game.PlayerRepository.itemIDToInventorySlotIndex.Add(adItem.itemID, num);
-			MVGameController.Instance.Game.PlayerRepository.NotifyRepositoryChange();
-			MVGameController.Instance.Game.ShopRepository.RemoveItem(adItem.itemID);
-			MVGameController.Instance.Game.ShopRepository.ReorganizeItemsByItemType(notifyOfChange: true);
+			int num = (int)dictionary[(byte)22];
+			MVGameController.Game.PlayerRepository.PlayerInventory.Add(adItem.itemID, adItem);
+			MVGameController.Game.PlayerRepository.itemIDToInventorySlotIndex.Add(adItem.itemID, num);
+			MVGameController.Game.PlayerRepository.NotifyRepositoryChange();
+			MVGameController.Game.ShopRepository.RemoveItem(adItem.itemID);
+			MVGameController.Game.ShopRepository.ReorganizeItemsByItemType(notifyOfChange: true);
 		}
 		DialogFactory.CloseDialog();
 	}
 
 	private AdViewItem InstansiateViewItem(MVItem mvItem)
 	{
-		//IL_0038: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
-		Object val = Object.Instantiate((Object)(object)adViewItemPrefab);
-		GameObject val2 = (GameObject)(object)((val is GameObject) ? val : null);
-		val2.layer = LayerMask.NameToLayer("UXElement");
-		val2.transform.parent = ((Component)this).transform;
-		val2.transform.localScale = Vector3.one;
-		previewItemsRoot = new GameObject("Preview Root - " + ((Object)val2).name).transform;
-		AdViewItem component = val2.GetComponent<AdViewItem>();
+		GameObject gameObject = UnityEngine.Object.Instantiate(adViewItemPrefab);
+		gameObject.layer = LayerMask.NameToLayer("UXElement");
+		gameObject.transform.parent = transform;
+		gameObject.transform.localScale = Vector3.one;
+		previewItemsRoot = new GameObject("Preview Root - " + gameObject.name).transform;
+		AdViewItem component = gameObject.GetComponent<AdViewItem>();
 		component.BuildViewItem(mvItem, previewItemsRoot);
 		return component;
 	}
 
 	public void OnDestroy()
 	{
-		if ((Object)(object)previewItemsRoot != (Object)null)
+		if (previewItemsRoot != null)
 		{
-			Object.Destroy((Object)(object)((Component)previewItemsRoot).gameObject);
+			UnityEngine.Object.Destroy(previewItemsRoot.gameObject);
 		}
 	}
 }

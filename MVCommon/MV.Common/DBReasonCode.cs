@@ -18,12 +18,11 @@ public enum DBReasonCode
 	FriendProfileRejected,
 	FriendOtherPending,
 	FriendOtherProfileRejected,
-	PurchaserIsOwner,
-	InsufficientFunds,
 	RedundantRow,
 	NotInInventory,
 	ProductIsPurchased,
 	UnknownGameMode,
 	NoDatabaseAvailable,
-	AttemptingWriteOnReadDB
+	AttemptingWriteOnReadDB,
+	UserIsAuthorProfile
 }

@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
 public class MVGUIDeleteWoidDevDialog : UXCustomDialogBox
@@ -74,8 +73,8 @@ public class MVGUIDeleteWoidDevDialog : UXCustomDialogBox
 
 	public override object GetResult()
 	{
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add("woId", int.Parse(woIdTextField.Text));
-		return hashtable;
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add("woId", int.Parse(woIdTextField.Text));
+		return dictionary;
 	}
 }

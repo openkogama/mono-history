@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -15,22 +14,13 @@ public class MVWaterPlane : MVLogicObject
 
 	public override bool HasOutputConnector => false;
 
-	public MVWaterPlane(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVWaterPlane(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, "Prefabs/Logic/WaterPlane", worldObjects)
 	{
-		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0032: Expected Obj, but got Unknown
-		//IL_0050: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0055: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0061: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0071: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0076: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008b: Unknown result type (might be due to invalid IL or missing references)
-		gameObject.renderer.material = new Material(gameObject.renderer.material);
+		gameObject.GetComponent<Renderer>().material = new Material(gameObject.GetComponent<Renderer>().material);
 		interactionFlags |= InteractionFlags.HasSettings;
-		localBounds = ((Renderer)gameObject.GetComponent<MeshRenderer>()).bounds;
-		ref Bounds reference = ref localBounds;
-		reference.center -= gameObject.transform.position;
+		localBounds = gameObject.GetComponent<MeshRenderer>().bounds;
+		localBounds.center -= gameObject.transform.position;
 		gameObject.transform.localScale = Vector3.one;
 		waterManager = Object.FindObjectOfType(typeof(WaterPlaneManager)) as WaterPlaneManager;
 	}
@@ -46,7 +36,6 @@ public class MVWaterPlane : MVLogicObject
 
 	public override Bounds GetLocalBounds(BoundsContext boundsContext)
 	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
 		return localBounds;
 	}
 
@@ -61,7 +50,7 @@ public class MVWaterPlane : MVLogicObject
 		{
 			HashSet<MVWorldObjectClient> hashSet = new HashSet<MVWorldObjectClient>();
 			hashSet.Add(waterManager.WaterPlanes.First());
-			MVGameController.Instance.EditorController.Delete(hashSet);
+			MVGameController.EditorController.Delete(hashSet);
 			canInsert(canInsert: true);
 		}
 		else
@@ -83,13 +72,11 @@ public class MVWaterPlane : MVLogicObject
 
 	public override void OnDataUpdate()
 	{
-		//IL_003f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0067: Unknown result type (might be due to invalid IL or missing references)
 		if (Data.ContainsKey("waterColor"))
 		{
 			float[] array = (float[])Data["waterColor"];
 			waterManager.WaterColor = new Color(array[0], array[1], array[2], 0.8f);
-			gameObject.renderer.material.SetColor("_MaskedColor", new Color(array[0], array[1], array[2]));
+			gameObject.GetComponent<Renderer>().material.SetColor("_MaskedColor", new Color(array[0], array[1], array[2]));
 		}
 	}
 

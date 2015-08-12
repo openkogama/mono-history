@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using MV.WorldObject;
@@ -13,6 +14,8 @@ public class RuntimePrototypeCubeModel
 	private MeshGeneratePriority meshGeneratePriority;
 
 	private bool useMeshGeneratePrioritySystem = true;
+
+	private int chunkSize = 32;
 
 	private PrototypeState prototypeState = PrototypeState.Pending;
 
@@ -31,6 +34,8 @@ public class RuntimePrototypeCubeModel
 	private HashSet<int> instances = new HashSet<int>();
 
 	public MeshGeneratePriority MeshGeneratePriority => meshGeneratePriority;
+
+	public int ChunkSize => chunkSize;
 
 	public PrototypeState PrototypeState
 	{
@@ -51,13 +56,13 @@ public class RuntimePrototypeCubeModel
 					logger.Log("pendingDeltaCubes.Count " + pendingDeltaCubes.Count);
 					if (pendingDeltaCubes.Count > 0)
 					{
-						MVGameController.Instance.Game.UpdatePrototype(prototypeId, pendingDeltaCubes.ToArray());
+						MVGameController.Game.UpdatePrototype(prototypeId, pendingDeltaCubes.ToArray());
 						pendingDeltaCubes.Clear();
 					}
 				}
 				else
 				{
-					Debug.LogError((object)"prototypeId is -1 which means that is it no yet assigned");
+					Debug.LogError("prototypeId is -1 which means that is it no yet assigned");
 				}
 				break;
 			}
@@ -116,6 +121,34 @@ public class RuntimePrototypeCubeModel
 
 	public RuntimePrototypeCubeModel(int id, int authorProfileId, float scale, byte[] data)
 	{
+		Create(id, authorProfileId, scale, data);
+	}
+
+	public RuntimePrototypeCubeModel(int id, int authorProfileId, float scale, byte[] data, int chunkSize)
+	{
+		FineGrainedTerrainOverrideChunkSize(chunkSize);
+		Create(id, authorProfileId, scale, data);
+	}
+
+	private void FineGrainedTerrainOverrideChunkSize(int size)
+	{
+		Debug.Log("ChunkSize overwritten");
+		if (!Mathf.IsPowerOfTwo(size))
+		{
+			Debug.LogError("Not power of 2");
+		}
+		else if (CubeCount > 0)
+		{
+			Debug.LogError("Can not override chunk size if cubes already present");
+		}
+		else
+		{
+			chunkSize = size;
+		}
+	}
+
+	private void Create(int id, int authorProfileId, float scale, byte[] data)
+	{
 		prototypeId = id;
 		this.scale = scale;
 		authorProfileID = authorProfileId;
@@ -128,8 +161,6 @@ public class RuntimePrototypeCubeModel
 
 	public RuntimePrototypeCubeModel CloneGeometry(bool withDeltaCubes = false)
 	{
-		//IL_004b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0056: Unknown result type (might be due to invalid IL or missing references)
 		RuntimePrototypeCubeModel runtimePrototypeCubeModel = new RuntimePrototypeCubeModel();
 		runtimePrototypeCubeModel.scale = scale;
 		runtimePrototypeCubeModel.authorProfileID = authorProfileID;
@@ -155,39 +186,39 @@ public class RuntimePrototypeCubeModel
 		}
 	}
 
+	public bool MeshGenerateDirtyChunksAll(ref int meshUpdates)
+	{
+		foreach (IntVector dirtyChunk in dirtyChunks)
+		{
+			RebuildChunk(dirtyChunk, scale * Vector3.one);
+			meshUpdates--;
+		}
+		dirtyChunks.Clear();
+		return MeshGenerateStatus();
+	}
+
 	public bool MeshGenerateDirtyChunks(ref int meshUpdates)
 	{
-		//IL_0097: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0032: Unknown result type (might be due to invalid IL or missing references)
-		if (meshGeneratePriority == MeshGeneratePriority.High)
+		HashSet<IntVector> hashSet = new HashSet<IntVector>();
+		foreach (IntVector dirtyChunk in dirtyChunks)
 		{
-			foreach (IntVector dirtyChunk in dirtyChunks)
+			RebuildChunk(dirtyChunk, scale * Vector3.one);
+			hashSet.Add(dirtyChunk);
+			meshUpdates--;
+			if (meshUpdates <= 0)
 			{
-				RebuildChunk(dirtyChunk, scale * Vector3.one);
-				meshUpdates--;
-			}
-			dirtyChunks.Clear();
-		}
-		else
-		{
-			HashSet<IntVector> hashSet = new HashSet<IntVector>();
-			foreach (IntVector dirtyChunk2 in dirtyChunks)
-			{
-				RebuildChunk(dirtyChunk2, scale * Vector3.one);
-				hashSet.Add(dirtyChunk2);
-				meshUpdates--;
-				if (meshUpdates <= 0)
-				{
-					break;
-				}
-			}
-			foreach (IntVector item in hashSet)
-			{
-				dirtyChunks.Remove(item);
+				break;
 			}
 		}
+		foreach (IntVector item in hashSet)
+		{
+			dirtyChunks.Remove(item);
+		}
+		return MeshGenerateStatus();
+	}
+
+	private bool MeshGenerateStatus()
+	{
 		DirtyChunksRegenerated(this, EventArgs.Empty);
 		if (dirtyChunks.Count == 0)
 		{
@@ -199,25 +230,19 @@ public class RuntimePrototypeCubeModel
 
 	public GameObject GetMesh()
 	{
-		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0006: Expected Obj, but got Unknown
-		//IL_001f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0025: Expected Obj, but got Unknown
-		//IL_0086: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0096: Unknown result type (might be due to invalid IL or missing references)
-		GameObject val = new GameObject();
+		GameObject gameObject = new GameObject();
 		foreach (KeyValuePair<IntVector, CubeModelChunk> chunk in chunks)
 		{
-			GameObject val2 = new GameObject();
-			MeshRenderer val3 = val2.AddComponent<MeshRenderer>();
-			MeshFilter val4 = val2.AddComponent<MeshFilter>();
-			val4.sharedMesh = chunk.Value.GetMeshData(MeshSetting.OriginalMesh).mesh;
-			((Renderer)val3).sharedMaterials = chunk.Value.GetMeshData(MeshSetting.OriginalMesh).materials;
-			val2.transform.parent = val.transform;
-			val2.transform.position = Vector3.zero;
-			val2.transform.rotation = Quaternion.identity;
+			GameObject gameObject2 = new GameObject();
+			MeshRenderer meshRenderer = gameObject2.AddComponent<MeshRenderer>();
+			MeshFilter meshFilter = gameObject2.AddComponent<MeshFilter>();
+			meshFilter.sharedMesh = chunk.Value.GetMeshData().mesh;
+			meshRenderer.sharedMaterials = chunk.Value.GetMeshData().materials;
+			gameObject2.transform.parent = gameObject.transform;
+			gameObject2.transform.position = Vector3.zero;
+			gameObject2.transform.rotation = Quaternion.identity;
 		}
-		return val;
+		return gameObject;
 	}
 
 	private void SetVisibility()
@@ -230,9 +255,8 @@ public class RuntimePrototypeCubeModel
 
 	public Vector3 GetRandomCubePos(GameObject go)
 	{
-		//IL_0034: Unknown result type (might be due to invalid IL or missing references)
 		List<IntVector> list = chunks.Keys.ToList();
-		return SharedCubeFunctions.LocalToWorld(go, chunks[list[Random.Range(0, list.Count)]].GetFirstSolidCubePos());
+		return SharedCubeFunctions.LocalToWorld(go, chunks[list[UnityEngine.Random.Range(0, list.Count)]].GetFirstSolidCubePos());
 	}
 
 	public Cube GetCube(IntVector cubePos)
@@ -242,12 +266,12 @@ public class RuntimePrototypeCubeModel
 
 	public bool AddCube(IntVector pos, Cube cube)
 	{
-		IntVector key = SharedCubeFunctions.CubePosToChunk(pos, CubeModelChunk.ChunkSize);
+		IntVector key = SharedCubeFunctions.CubePosToChunk(pos, chunkSize);
 		if (chunks.ContainsKey(key) && chunks[key].ContainsCube(pos))
 		{
 			return false;
 		}
-		AddToChunk(pos, cube, MeshGeneratePriority.High);
+		AddToChunk(pos, cube, MeshGeneratePriority.HighGenerateAllDirty);
 		deltaCubes.Enqueue(pos, CubeAction.Added);
 		return true;
 	}
@@ -257,7 +281,7 @@ public class RuntimePrototypeCubeModel
 		if (cube != null)
 		{
 			Cube.UnIndentFace(cube, face);
-			AddToChunk(localPos, cube, MeshGeneratePriority.High);
+			AddToChunk(localPos, cube, MeshGeneratePriority.HighGenerateAllDirty);
 			deltaCubes.Enqueue(localPos, CubeAction.CornersChangedDone);
 		}
 	}
@@ -268,7 +292,7 @@ public class RuntimePrototypeCubeModel
 		if (!(cube == null))
 		{
 			Cube.SetMaterial(cube, face, materialId);
-			AddToChunk(iVector, cube, MeshGeneratePriority.High);
+			AddToChunk(iVector, cube, MeshGeneratePriority.HighGenerateAllDirty);
 			deltaCubes.Enqueue(iVector, CubeAction.FaceChanged);
 		}
 	}
@@ -284,25 +308,25 @@ public class RuntimePrototypeCubeModel
 		{
 			Cube.SetMaterial(cube, (Face)value, materialId);
 		}
-		AddToChunk(iVector, cube, MeshGeneratePriority.High);
+		AddToChunk(iVector, cube, MeshGeneratePriority.HighGenerateAllDirty);
 		deltaCubes.Enqueue(iVector, CubeAction.FaceChanged);
 	}
 
 	public void CornersChangedDone(IntVector iVector, Cube cube)
 	{
-		AddToChunk(iVector, cube, MeshGeneratePriority.High);
+		AddToChunk(iVector, cube, MeshGeneratePriority.HighGenerateAllDirty);
 		deltaCubes.Enqueue(iVector, CubeAction.CornersChangedDone);
 	}
 
 	public void CornersChanged(IntVector iVector, Cube cube)
 	{
-		AddToChunk(iVector, cube, MeshGeneratePriority.High);
+		AddToChunk(iVector, cube, MeshGeneratePriority.HighGenerateAllDirty);
 		deltaCubes.Enqueue(iVector, CubeAction.CornersChanged);
 	}
 
 	public bool RemoveCube(IntVector iVector)
 	{
-		IntVector key = SharedCubeFunctions.CubePosToChunk(iVector, CubeModelChunk.ChunkSize);
+		IntVector key = SharedCubeFunctions.CubePosToChunk(iVector, chunkSize);
 		if (!chunks.ContainsKey(key))
 		{
 			return false;
@@ -311,18 +335,18 @@ public class RuntimePrototypeCubeModel
 		{
 			return false;
 		}
-		RemoveFromChunk(iVector, MeshGeneratePriority.High);
+		RemoveFromChunk(iVector, MeshGeneratePriority.HighGenerateAllDirty);
 		deltaCubes.Enqueue(iVector, CubeAction.Deleted);
 		return true;
 	}
 
 	public void CreateInstance(MVCubeModelBase cm)
 	{
-		foreach (KeyValuePair<IntVector, GameObject> chunkInstance in cm.chunkInstances)
+		foreach (KeyValuePair<IntVector, GameObject> item in (IEnumerable)cm.ChunkInstances)
 		{
-			Object.Destroy((Object)(object)chunkInstance.Value);
+			UnityEngine.Object.Destroy(item.Value);
 		}
-		cm.chunkInstances.Clear();
+		cm.ChunkInstances.Clear();
 		foreach (KeyValuePair<IntVector, CubeModelChunk> chunk in chunks)
 		{
 			SetInstanceDataRef(chunk.Key, cm);
@@ -339,7 +363,7 @@ public class RuntimePrototypeCubeModel
 	{
 		foreach (KeyValuePair<IntVector, CubeModelChunk> chunk in chunks)
 		{
-			cm.GetChunkInstance(chunk.Key).renderer.sharedMaterials = chunk.Value.GetMeshData(MeshSetting.OriginalMesh).materials;
+			cm.GetChunkInstance(chunk.Key).GetComponent<Renderer>().sharedMaterials = chunk.Value.GetMeshData().materials;
 		}
 	}
 
@@ -354,11 +378,11 @@ public class RuntimePrototypeCubeModel
 			case CubeAction.Added:
 			case CubeAction.FaceChanged:
 			case CubeAction.CornersChangedDone:
-				rpcm.RemoveCubeNetworkUpdate(iVector);
-				rpcm.AddCubeNetworkUpdate(iVector, new Cube(bp, bp.ReadByte()));
+				rpcm.RemoveCubeNetworkUpdate(iVector, MeshGeneratePriority.Low);
+				rpcm.AddCubeNetworkUpdate(iVector, new Cube(bp, bp.ReadByte()), MeshGeneratePriority.Low);
 				break;
 			case CubeAction.Deleted:
-				rpcm.RemoveCubeNetworkUpdate(iVector);
+				rpcm.RemoveCubeNetworkUpdate(iVector, MeshGeneratePriority.Low);
 				break;
 			}
 		}
@@ -366,12 +390,11 @@ public class RuntimePrototypeCubeModel
 
 	public void UpdatePrototype(BytePacker bp)
 	{
-		//IL_0057: Unknown result type (might be due to invalid IL or missing references)
 		DecodeBytePacker(bp, this);
 		foreach (int instance in instances)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(instance);
-			if (worldObjectClient.OwnerActorNr != 0 && worldObjectClient.OwnerActorNr != MVGameController.Instance.Game.LocalPlayerActorNumber)
+			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(instance);
+			if (worldObjectClient.OwnerActorNr != 0 && worldObjectClient.OwnerActorNr != MVGameController.Game.LocalPlayerActorNumber)
 			{
 				worldObjectClient.Select(Color.blue);
 			}
@@ -380,17 +403,17 @@ public class RuntimePrototypeCubeModel
 
 	public void UpdatePrototypeScale(float scale)
 	{
-		Debug.LogError((object)"This must be reimplemented!");
+		Debug.LogError("This must be reimplemented!");
 	}
 
-	public void AddCubeNetworkUpdate(IntVector iVector, Cube cube)
+	public void AddCubeNetworkUpdate(IntVector iVector, Cube cube, MeshGeneratePriority priority)
 	{
-		AddToChunk(iVector, cube, MeshGeneratePriority.Low);
+		AddToChunk(iVector, cube, priority);
 	}
 
-	public void RemoveCubeNetworkUpdate(IntVector iVector)
+	public void RemoveCubeNetworkUpdate(IntVector iVector, MeshGeneratePriority priority)
 	{
-		RemoveFromChunk(iVector, MeshGeneratePriority.Low);
+		RemoveFromChunk(iVector, priority);
 	}
 
 	public void HandleDelta()
@@ -402,7 +425,7 @@ public class RuntimePrototypeCubeModel
 			{
 				if (prototypeState == PrototypeState.Registered)
 				{
-					MVGameController.Instance.Game.UpdatePrototype(prototypeId, array);
+					MVGameController.Game.UpdatePrototype(prototypeId, array);
 				}
 				else if (prototypeState == PrototypeState.Pending)
 				{
@@ -414,7 +437,6 @@ public class RuntimePrototypeCubeModel
 
 	private void RebuildChunk(IntVector chunkPos, Vector3 scale)
 	{
-		//IL_001f: Unknown result type (might be due to invalid IL or missing references)
 		if (chunks.ContainsKey(chunkPos))
 		{
 			CubeModelChunk cubeModelChunk = chunks[chunkPos];
@@ -424,8 +446,6 @@ public class RuntimePrototypeCubeModel
 
 	private void RebuildPrototypeMesh()
 	{
-		//IL_0020: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Unknown result type (might be due to invalid IL or missing references)
 		foreach (KeyValuePair<IntVector, CubeModelChunk> chunk in chunks)
 		{
 			chunk.Value.RebuildChunk(Vector3.one * scale);
@@ -436,7 +456,7 @@ public class RuntimePrototypeCubeModel
 	{
 		foreach (int instance in instances)
 		{
-			SetInstanceDataRef(chunkPos, (MVCubeModelBase)MVGameController.Instance.WOCM.GetWorldObjectClient(instance));
+			SetInstanceDataRef(chunkPos, (MVCubeModelBase)MVGameController.WOCM.GetWorldObjectClient(instance));
 		}
 	}
 
@@ -444,9 +464,9 @@ public class RuntimePrototypeCubeModel
 	{
 		foreach (int instance in instances)
 		{
-			MVCubeModelBase mVCubeModelBase = (MVCubeModelBase)MVGameController.Instance.WOCM.GetWorldObjectClient(instance);
-			Object.Destroy((Object)(object)mVCubeModelBase.chunkInstances[chunkPos]);
-			mVCubeModelBase.chunkInstances.Remove(chunkPos);
+			MVCubeModelBase mVCubeModelBase = (MVCubeModelBase)MVGameController.WOCM.GetWorldObjectClient(instance);
+			UnityEngine.Object.Destroy(mVCubeModelBase.ChunkInstances.GetChunk(chunkPos));
+			mVCubeModelBase.ChunkInstances.Remove(chunkPos);
 		}
 	}
 
@@ -476,7 +496,7 @@ public class RuntimePrototypeCubeModel
 
 	private void AddToChunk(IntVector iVector, Cube cube, MeshGeneratePriority meshGeneratePriority, bool setVisibility = true)
 	{
-		IntVector intVector = SharedCubeFunctions.CubePosToChunk(iVector, CubeModelChunk.ChunkSize);
+		IntVector intVector = SharedCubeFunctions.CubePosToChunk(iVector, chunkSize);
 		if (!chunks.ContainsKey(intVector))
 		{
 			CubeModelChunk value = new CubeModelChunk(intVector);
@@ -489,7 +509,7 @@ public class RuntimePrototypeCubeModel
 
 	private CubeModelChunk GetChunkFromCubePos(IntVector cubePos)
 	{
-		IntVector key = SharedCubeFunctions.CubePosToChunk(cubePos, CubeModelChunk.ChunkSize);
+		IntVector key = SharedCubeFunctions.CubePosToChunk(cubePos, chunkSize);
 		if (chunks.TryGetValue(key, out var value))
 		{
 			return value;
@@ -499,7 +519,7 @@ public class RuntimePrototypeCubeModel
 
 	private void RemoveFromChunk(IntVector iVector, MeshGeneratePriority meshGeneratePriority)
 	{
-		IntVector intVector = SharedCubeFunctions.CubePosToChunk(iVector, CubeModelChunk.ChunkSize);
+		IntVector intVector = SharedCubeFunctions.CubePosToChunk(iVector, chunkSize);
 		if (chunks.ContainsKey(intVector))
 		{
 			chunks[intVector].RemoveFromChunk(iVector);
@@ -523,7 +543,7 @@ public class RuntimePrototypeCubeModel
 			dirtyChunks.Add(chunkPos);
 			if (this.meshGeneratePriority == MeshGeneratePriority.None)
 			{
-				MVGameController.Instance.Game.World.WorldInventory.AddRuntimePrototypeToDirty(this);
+				MVGameController.Game.World.WorldInventory.AddRuntimePrototypeToDirty(this);
 			}
 			if (meshGeneratePriority > this.meshGeneratePriority)
 			{
@@ -548,10 +568,10 @@ public class RuntimePrototypeCubeModel
 
 	public void CubePosToChunkPos(ref IntVector cubePos)
 	{
-		IntVector intVector = SharedCubeFunctions.CubePosToChunk(cubePos, CubeModelChunk.ChunkSize);
-		cubePos.x -= (short)(CubeModelChunk.ChunkSize * intVector.x);
-		cubePos.y -= (short)(CubeModelChunk.ChunkSize * intVector.y);
-		cubePos.z -= (short)(CubeModelChunk.ChunkSize * intVector.z);
+		IntVector intVector = SharedCubeFunctions.CubePosToChunk(cubePos, chunkSize);
+		cubePos.x -= (short)(chunkSize * intVector.x);
+		cubePos.y -= (short)(chunkSize * intVector.y);
+		cubePos.z -= (short)(chunkSize * intVector.z);
 	}
 
 	public bool CompareGeometry(RuntimePrototypeCubeModel rpcm)

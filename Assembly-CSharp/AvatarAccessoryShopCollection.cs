@@ -17,7 +17,7 @@ public class AvatarAccessoryShopCollection : IUXCollection
 	{
 		this.streamingAssetShopInventory = streamingAssetShopInventory;
 		StreamingAssetShopInventory streamingAssetShopInventory2 = this.streamingAssetShopInventory;
-		streamingAssetShopInventory2.OnProductShopInventoryChange = (ProductShopInventory<StreamingAssetInfo>.OnProductShopInventoryChangeDelegate)Delegate.Combine(streamingAssetShopInventory2.OnProductShopInventoryChange, new ProductShopInventory<StreamingAssetInfo>.OnProductShopInventoryChangeDelegate(HandleStreamingAssetShopInventoryChange));
+		streamingAssetShopInventory2.OnProductShopInventoryChange = (ProductShopInventory.OnProductShopInventoryChangeDelegate)Delegate.Combine(streamingAssetShopInventory2.OnProductShopInventoryChange, new ProductShopInventory.OnProductShopInventoryChangeDelegate(HandleStreamingAssetShopInventoryChange));
 		HandleStreamingAssetShopInventoryChange(streamingAssetShopInventory);
 	}
 
@@ -31,7 +31,7 @@ public class AvatarAccessoryShopCollection : IUXCollection
 		return cache[index];
 	}
 
-	private void HandleStreamingAssetShopInventoryChange(ProductShopInventory<StreamingAssetInfo> productShopInventory)
+	private void HandleStreamingAssetShopInventoryChange(ProductShopInventory productShopInventory)
 	{
 		streamingAssetShopInventory = (StreamingAssetShopInventory)productShopInventory;
 		List<StreamingAssetInfo> avatarAccessories = GetAvatarAccessories();

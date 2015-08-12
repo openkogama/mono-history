@@ -49,7 +49,7 @@ public class BlinkerBase : MonoBehaviour
 
 	private void LateUpdate()
 	{
-		if (!visible || meshFilters == null)
+		if (!visible || meshFilters == null || blinkers == null || blinkers.Values == null)
 		{
 			return;
 		}
@@ -58,10 +58,10 @@ public class BlinkerBase : MonoBehaviour
 			if (!value.IsExpired)
 			{
 				MeshFilter[] array = meshFilters;
-				foreach (MeshFilter val in array)
+				foreach (MeshFilter meshFilter in array)
 				{
-					Transform transform = ((Component)val).transform;
-					value.Draw(val.mesh, transform);
+					Transform tfm = meshFilter.transform;
+					value.Draw(meshFilter.mesh, tfm);
 				}
 			}
 		}

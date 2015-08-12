@@ -16,7 +16,7 @@ public class Tuple<T1, T2>
 		{
 			return false;
 		}
-		if ((object)GetType() != obj.GetType())
+		if (GetType() != obj.GetType())
 		{
 			return false;
 		}

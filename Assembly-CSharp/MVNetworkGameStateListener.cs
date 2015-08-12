@@ -23,6 +23,8 @@ public class MVNetworkGameStateListener
 
 	public int LastInstigatorActorNr => lastInstigatorActorNr;
 
+	public int StartTime => startTime;
+
 	public event EventHandler<GameStateChangeEventArgs> OnGameStateChanged;
 
 	public void ChangeState(MVNetworkGame game, MVGameStateType gameStateType, int startTime, int duration, MVGameStateReason reason, int actorNr)

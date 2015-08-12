@@ -7,16 +7,19 @@ internal class ESWalkMode : ESStateBase
 
 	public override void Enter(EditorStateMachine esm)
 	{
-		MVCameraController cameraController = MVGameController.Instance.Game.CameraController;
-		((Behaviour)((Component)esm.CameraController).GetComponent<GrayscaleEffect>()).enabled = false;
+		MVCameraController cameraController = MVGameController.Game.CameraController;
+		esm.CameraController.GetComponent<GrayscaleEffect>().enabled = false;
 		esm.CameraController.SecondaryCameraActive = false;
-		cameraController.StartTransitionCam(1f);
-		cameraController.SetCamera(CameraType.ThirdPerson);
+		if (GameDB.GameType != MVGameType.Platformer)
+		{
+			cameraController.StartTransitionCam(1f);
+		}
+		cameraController.SetPlayModeCam();
 		esm.ClearStateStack();
 		esm.DeSelectAll();
 		esm.ExitGroupToRoot();
-		MVEquipable component = MVGameController.Instance.WOCM.AvatarLocal.GameObject.GetComponent<MVEquipable>();
-		if ((Object)(object)component != (Object)null)
+		MVEquipable component = MVGameController.WOCM.AvatarLocal.GameObject.GetComponent<MVEquipable>();
+		if (component != null)
 		{
 			component.Unequip();
 		}
@@ -24,7 +27,7 @@ internal class ESWalkMode : ESStateBase
 
 	public override void Execute(EditorStateMachine e)
 	{
-		if (!MVGameController.Instance.EditController.PlayInEditor)
+		if (!MVGameController.EditorController.PlayInEditor)
 		{
 			e.Event = EditorEvent.ESTerrainEdit;
 		}
@@ -32,20 +35,16 @@ internal class ESWalkMode : ESStateBase
 
 	public override void Exit(EditorStateMachine esm)
 	{
-		//IL_006c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0081: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0090: Unknown result type (might be due to invalid IL or missing references)
-		MVEquipable component = MVGameController.Instance.WOCM.AvatarLocal.GameObject.GetComponent<MVEquipable>();
-		if ((Object)(object)component != (Object)null)
+		MVEquipable component = MVGameController.WOCM.AvatarLocal.GameObject.GetComponent<MVEquipable>();
+		if (component != null)
 		{
 			component.Equip(AvatarItemType.LaserPointer, null);
 		}
-		MVCameraController cameraController = MVGameController.Instance.Game.CameraController;
-		MVAvatarLocal avatarLocal = MVGameController.Instance.WOCM.AvatarLocal;
-		JetPackCamera camera = MVGameController.Instance.Game.CameraController.GetCamera<JetPackCamera>();
-		avatarLocal.WorldPosition = camera.ComputeAvatarPositionFromTransform(((Component)cameraController).transform);
-		Vector3 eulerAngles = ((Component)cameraController).transform.eulerAngles;
+		MVCameraController cameraController = MVGameController.Game.CameraController;
+		MVAvatarLocal avatarLocal = MVGameController.WOCM.AvatarLocal;
+		JetPackCamera camera = MVGameController.Game.CameraController.GetCamera<JetPackCamera>();
+		avatarLocal.WorldPosition = camera.ComputeAvatarPositionFromTransform(cameraController.transform);
+		Vector3 eulerAngles = cameraController.transform.eulerAngles;
 		eulerAngles.x = 0f;
 		avatarLocal.WorldEulerAngles = eulerAngles;
 		cameraController.SetCamera(CameraType.JetPackCamera);

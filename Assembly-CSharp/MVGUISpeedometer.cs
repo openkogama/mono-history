@@ -12,14 +12,12 @@ public class MVGUISpeedometer : UXViewScript
 
 	private void Update()
 	{
-		//IL_0071: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0076: Unknown result type (might be due to invalid IL or missing references)
-		if (MVGameController.Instance.WOCM == null || MVGameController.Instance.Game.PlayerController.CurrentWorldObject == null)
+		if (MVGameController.WOCM == null || MVGameController.Game.PlayerController.CurrentWorldObject == null)
 		{
 			return;
 		}
-		MVRigidBody component = MVGameController.Instance.Game.PlayerController.CurrentWorldObject.GameObject.GetComponent<MVRigidBody>();
-		if ((Object)(object)component == (Object)null)
+		MVRigidBody component = MVGameController.Game.PlayerController.CurrentWorldObject.GameObject.GetComponent<MVRigidBody>();
+		if (component == null)
 		{
 			if (View.isVisible)
 			{
@@ -27,9 +25,8 @@ public class MVGUISpeedometer : UXViewScript
 			}
 			return;
 		}
-		Vector3 velocity = component.Velocity;
-		float num = velocity.magnitude * 3.6f;
-		curSpeed = Mathf.Lerp(curSpeed, num, Time.deltaTime);
+		float to = component.Velocity.magnitude * 3.6f;
+		curSpeed = Mathf.Lerp(curSpeed, to, Time.deltaTime);
 		if (curSpeed > 100f)
 		{
 			if (!View.isVisible)
@@ -47,28 +44,23 @@ public class MVGUISpeedometer : UXViewScript
 	public override void OnShow()
 	{
 		speedGroup.SetVisible(visible: true);
-		((MonoBehaviour)this).StopAllCoroutines();
-		((MonoBehaviour)this).StartCoroutine(pTween.To(fadeTime, 0f, 1f, (float t) =>
+		StopAllCoroutines();
+		StartCoroutine(pTween.To(fadeTime, 0f, 1f, (float t) =>
 		{
-			speedGroup.SetAlpha(t);
+			speedGroup.SetAlpha(t, string.Empty);
 		}));
 	}
 
 	public override void OnHide()
 	{
-		((MonoBehaviour)this).StopAllCoroutines();
-		((MonoBehaviour)this).StartCoroutine(pTween.To(fadeTime, 1f, 0f, (float t) =>
+		StopAllCoroutines();
+		StartCoroutine(pTween.To(fadeTime, 1f, 0f, (float t) =>
 		{
-			speedGroup.SetAlpha(t);
+			speedGroup.SetAlpha(t, string.Empty);
 			if (t == 0f)
 			{
 				speedGroup.SetVisible(visible: false);
 			}
 		}));
-	}
-
-	public void SetSpeedText(string text)
-	{
-		speedText.Text = text;
 	}
 }

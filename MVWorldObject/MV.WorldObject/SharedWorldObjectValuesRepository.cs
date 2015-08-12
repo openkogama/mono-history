@@ -1,11 +1,10 @@
-using System.Collections;
 using System.Collections.Generic;
 
 namespace MV.WorldObject;
 
 public static class SharedWorldObjectValuesRepository
 {
-	private static Dictionary<WorldObjectType, Hashtable> values = new Dictionary<WorldObjectType, Hashtable>
+	private static Dictionary<WorldObjectType, Dictionary<object, object>> values = new Dictionary<WorldObjectType, Dictionary<object, object>>
 	{
 		{
 			WorldObjectType.AdvancedGhost,
@@ -17,26 +16,26 @@ public static class SharedWorldObjectValuesRepository
 		}
 	};
 
-	public static Hashtable GetValues(WorldObjectType worldObjectType)
+	public static Dictionary<object, object> GetValues(WorldObjectType worldObjectType)
 	{
 		if (!values.ContainsKey(worldObjectType))
 		{
-			return new Hashtable();
+			return new Dictionary<object, object>();
 		}
 		return HashtableFunctions.DeepCopyHashTable(values[worldObjectType]);
 	}
 
-	private static Hashtable AdvancedGhostData()
+	private static Dictionary<object, object> AdvancedGhostData()
 	{
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add("RespawnInterval", 15000);
-		return hashtable;
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add("RespawnInterval", 15000);
+		return dictionary;
 	}
 
-	private static Hashtable SentryGun()
+	private static Dictionary<object, object> SentryGun()
 	{
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add("RespawnInterval", 15000);
-		return hashtable;
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add("RespawnInterval", 15000);
+		return dictionary;
 	}
 }

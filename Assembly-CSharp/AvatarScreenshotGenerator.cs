@@ -24,26 +24,14 @@ public class AvatarScreenshotGenerator : MonoBehaviour
 
 	private Action<Texture2D> screenShotDataTexHandler;
 
-	public AvatarScreenshotGenerator()
-	{
-		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0015: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002f: Unknown result type (might be due to invalid IL or missing references)
-	}
-
 	public static void Generate(GameObject bodyCloneGO, Action<Texture2D> screenShotDataTexHandler)
 	{
-		//IL_0015: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0034: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0064: Expected Obj, but got Unknown
 		bodyCloneGO.transform.position = new Vector3(1000f, 1000f, 1000f);
 		bodyCloneGO.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
 		LayerUtil.SetLayerRecursively(bodyCloneGO.transform, "Preview");
 		bodyCloneGO.ScaleBounds(1f);
-		GameObject val = new GameObject("AvatarScreenShotGenerator");
-		AvatarScreenshotGenerator avatarScreenshotGenerator = val.AddComponent<AvatarScreenshotGenerator>();
+		GameObject gameObject = new GameObject("AvatarScreenShotGenerator");
+		AvatarScreenshotGenerator avatarScreenshotGenerator = gameObject.AddComponent<AvatarScreenshotGenerator>();
 		avatarScreenshotGenerator.screenShotDataTexHandler = screenShotDataTexHandler;
 		avatarScreenshotGenerator.bodyCloneGO = bodyCloneGO;
 		avatarScreenshotGenerator.boneAnimation = bodyCloneGO.GetComponentInChildren<BoneAnimation>();
@@ -55,8 +43,6 @@ public class AvatarScreenshotGenerator : MonoBehaviour
 
 	private void Update()
 	{
-		//IL_007d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0083: Unknown result type (might be due to invalid IL or missing references)
 		if (!generatingScreenshot)
 		{
 			return;
@@ -68,17 +54,17 @@ public class AvatarScreenshotGenerator : MonoBehaviour
 				return;
 			}
 			ParticleSystem[] array = particleSystems;
-			foreach (ParticleSystem val in array)
+			foreach (ParticleSystem particleSystem in array)
 			{
-				if ((Object)(object)val != (Object)null)
+				if (particleSystem != null)
 				{
-					val.Simulate(2f, true);
+					particleSystem.Simulate(2f, withChildren: true);
 				}
 			}
 		}
 		else if (Time.frameCount == generateStartFrame + 2)
 		{
-			ScreenShotGenerator.Generate(bodyCloneGO, cameraOffset, lookAtOffset, (Action<Texture2D>)ScreenShotDataTexHandler, false);
+			ScreenShotGenerator.Generate(bodyCloneGO, cameraOffset, lookAtOffset, ScreenShotDataTexHandler);
 		}
 	}
 
@@ -88,12 +74,12 @@ public class AvatarScreenshotGenerator : MonoBehaviour
 		{
 			screenShotDataTexHandler(screenshotTex);
 		}
-		Object.Destroy((Object)(object)bodyCloneGO);
+		UnityEngine.Object.Destroy(bodyCloneGO);
 		generatingScreenshot = false;
 		generateStartFrame = -1;
 		bodyCloneGO = null;
 		boneAnimation = null;
-		Object.Destroy((Object)(object)((Component)this).gameObject);
+		UnityEngine.Object.Destroy(gameObject);
 	}
 
 	private void WriteToDisk(byte[] pngData)

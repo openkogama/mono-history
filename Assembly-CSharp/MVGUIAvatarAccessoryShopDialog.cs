@@ -1,7 +1,6 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
-using Localize;
 using MV.Common;
 using UnityEngine;
 
@@ -45,7 +44,7 @@ public class MVGUIAvatarAccessoryShopDialog : UXCustomDialogBox
 
 	private int priceSilver;
 
-	private Hashtable purchaseResponseData;
+	private Dictionary<object, object> purchaseResponseData;
 
 	private bool isRenting;
 
@@ -61,19 +60,19 @@ public class MVGUIAvatarAccessoryShopDialog : UXCustomDialogBox
 
 	private StreamingAssetInfo streamingAssetInfo;
 
-	private MVNetworkGame Game => MVGameController.Instance.Game;
+	private MVNetworkGame Game => MVGameController.Game;
 
-	private CharacterEditorController CEController => MVGameController.Instance.CharacterEditorController;
+	private CharacterEditorController CEController => MVGameController.CharacterEditorController;
 
 	private MVBody AvatarBody
 	{
 		get
 		{
-			if (Game.GameMode == MVGameMode.CharacterEditor)
+			if (MVGameController.GameMode == MVGameMode.CharacterEditor)
 			{
 				return CEController.CurrentBody;
 			}
-			return MVGameController.Instance.WOCM.AvatarLocal.Body;
+			return MVGameController.WOCM.AvatarLocal.Body;
 		}
 	}
 
@@ -101,72 +100,72 @@ public class MVGUIAvatarAccessoryShopDialog : UXCustomDialogBox
 			{
 				if (ShopInfo.PriceGold == 0)
 				{
-					purchaseGoldGroup.SetAlpha(0.4f);
+					purchaseGoldGroup.SetAlpha(0.4f, string.Empty);
 				}
 				if (ShopInfo.RentPriceSilver == 0)
 				{
-					purchaseSilverGroup.SetAlpha(0.4f);
+					purchaseSilverGroup.SetAlpha(0.4f, string.Empty);
 				}
 			}
 			else
 			{
-				purchaseGroup.SetAlpha(0.4f);
+				purchaseGroup.SetAlpha(0.4f, string.Empty);
 			}
 			if (ShopInfo.IsRentable)
 			{
 				SetRentText(ShopInfo.RentExpireSeconds);
 				if (ShopInfo.RentPriceGold == 0)
 				{
-					rentGoldGroup.SetAlpha(0.4f);
+					rentGoldGroup.SetAlpha(0.4f, string.Empty);
 				}
 				if (ShopInfo.RentPriceSilver == 0)
 				{
-					rentSilverGroup.SetAlpha(0.4f);
+					rentSilverGroup.SetAlpha(0.4f, string.Empty);
 				}
 			}
 			else
 			{
-				rentGroup.SetAlpha(0.4f);
+				rentGroup.SetAlpha(0.4f, string.Empty);
 			}
-			((Component)purchaseButton).collider.enabled = ShopInfo.IsBuyable;
-			((Component)rentButton).collider.enabled = ShopInfo.IsRentable;
-			((Component)removeButton).collider.enabled = renewingItem;
+			purchaseButton.GetComponent<Collider>().enabled = ShopInfo.IsBuyable;
+			rentButton.GetComponent<Collider>().enabled = ShopInfo.IsRentable;
+			removeButton.GetComponent<Collider>().enabled = renewingItem;
 			removeButton.SetVisible(renewingItem);
 		}
 		else
 		{
-			Debug.LogError((object)"Trying to build shop with no shop info");
+			Debug.LogError("Trying to build shop with no shop info");
 		}
 	}
 
 	private void SetRentText(int rentExpireSeconds)
 	{
 		float num = 0f;
-		TextSlotIndex textSlotIndex = TextSlotIndex.Empty;
+		string empty = string.Empty;
 		if (rentExpireSeconds < 3600)
 		{
 			num = (float)rentExpireSeconds / 60f;
-			textSlotIndex = TextSlotIndex.ForMinutes;
+			empty = TM._("{0} minutes");
 		}
 		else if (rentExpireSeconds < 86400)
 		{
 			num = (float)rentExpireSeconds / 60f / 60f;
-			textSlotIndex = TextSlotIndex.ForHours;
+			empty = TM._("{0} hours");
 		}
 		else
 		{
 			num = (float)rentExpireSeconds / 60f / 60f / 24f;
-			textSlotIndex = TextSlotIndex.ForDays;
+			empty = TM._("{0} days");
 		}
 		ValueInsert valueInsert = new ValueInsert();
 		valueInsert.AddString($"{num:0.#}");
-		string text = Localization.Instance.GetTextWithValues(textSlotIndex, valueInsert);
+		string text = TM.GetTextWithValues(empty, valueInsert);
 		if (num == 1f)
 		{
 			text = text.Substring(0, text.Length - 1);
 		}
 		rentTimeText.Text = text;
-		rentButton.Text = Localization.Instance.GetText((!renewingItem) ? TextSlotIndex.Rent : TextSlotIndex.Extend);
+		rentButton.Text = ((!renewingItem) ? TM._("Rent") : TM._("Extend"));
 	}
 
 	public override void OnShowDialog()
@@ -192,12 +191,18 @@ public class MVGUIAvatarAccessoryShopDialog : UXCustomDialogBox
 
 	private void OnPurchaseClick()
 	{
-		TryPurchaseAvatarAccessory(ShopInfo.PriceGold, ShopInfo.PriceSilver, isRenting: false);
+		if (!streamingAssetInfo.IsEditorPreview)
+		{
+			TryPurchaseAvatarAccessory(ShopInfo.PriceGold, ShopInfo.PriceSilver, isRenting: false);
+		}
 	}
 
 	private void OnRentClick()
 	{
-		TryPurchaseAvatarAccessory(ShopInfo.RentPriceGold, ShopInfo.RentPriceSilver, isRenting: true);
+		if (!streamingAssetInfo.IsEditorPreview)
+		{
+			TryPurchaseAvatarAccessory(ShopInfo.RentPriceGold, ShopInfo.RentPriceSilver, isRenting: true);
+		}
 	}
 
 	private void TryPurchaseAvatarAccessory(int priceGold, int priceSilver, bool isRenting)
@@ -206,7 +211,7 @@ public class MVGUIAvatarAccessoryShopDialog : UXCustomDialogBox
 		this.priceSilver = priceSilver;
 		this.isRenting = isRenting;
 		MVNetworkGame game = Game;
-		game.PurchaseProductResponseHandler = (Action<int, Hashtable>)Delegate.Combine(game.PurchaseProductResponseHandler, new Action<int, Hashtable>(ProductPurchaseResponseHandler));
+		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Combine(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
 		if (isRenting)
 		{
 			if (renewingItem)
@@ -244,9 +249,9 @@ public class MVGUIAvatarAccessoryShopDialog : UXCustomDialogBox
 	private MVBody GetBodyOfEquippedItem(int inventoryID)
 	{
 		int num = 0;
-		if (Game.GameMode == MVGameMode.CharacterEditor)
+		if (MVGameController.GameMode == MVGameMode.CharacterEditor)
 		{
-			CharacterEditorController characterEditorController = MVGameController.Instance.IngameController as CharacterEditorController;
+			CharacterEditorController characterEditorController = MVGameController.IngameController as CharacterEditorController;
 			foreach (MVBody body in characterEditorController.Bodies)
 			{
 				MVBody mVBody = body;
@@ -259,19 +264,19 @@ public class MVGUIAvatarAccessoryShopDialog : UXCustomDialogBox
 		}
 		else
 		{
-			num = MVGameController.Instance.WOCM.AvatarLocal.Body.Id;
+			num = MVGameController.WOCM.AvatarLocal.Body.Id;
 		}
 		if (num != 0)
 		{
-			return MVGameController.Instance.WOCM.GetWorldObjectClient(num) as MVBody;
+			return MVGameController.WOCM.GetWorldObjectClient(num) as MVBody;
 		}
 		return null;
 	}
 
-	private void ProductPurchaseResponseHandler(int returnCode, Hashtable purchaseResponseData)
+	private void ProductPurchaseResponseHandler(int returnCode, Dictionary<object, object> purchaseResponseData)
 	{
 		MVNetworkGame game = Game;
-		game.PurchaseProductResponseHandler = (Action<int, Hashtable>)Delegate.Remove(game.PurchaseProductResponseHandler, new Action<int, Hashtable>(ProductPurchaseResponseHandler));
+		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Remove(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
 		waitText.SetVisible(visible: false);
 		if (returnCode == 0)
 		{
@@ -287,42 +292,13 @@ public class MVGUIAvatarAccessoryShopDialog : UXCustomDialogBox
 		{
 			DialogWindow.GetExitButton().SetVisible(visible: true);
 		}
-		ShowErrorDialog(returnCode);
+		PurchaseFailedDialog.ShowErrorDialog(returnCode, priceGold, priceSilver);
 	}
 
-	private void ShowErrorDialog(int returnCode)
+	private void HandleSuccessfulPurchase(Dictionary<object, object> purchaseResponseData)
 	{
-		if (returnCode == 3)
-		{
-			if (priceGold > 0 && priceSilver == 0)
-			{
-				Application.ExternalCall("attentionGetGold", new object[1] { 1 });
-				DialogFactory.CreateDialog(TextSlotIndex.GetGoldMessage, TextSlotIndex.InsufficientFunds, UXDialogType.Simple, noButtons: false, stackDialog: true).SetOnResultCallback(OnGoldPurchaseDialogResult).Show();
-			}
-			else if (priceGold == 0 && priceSilver > 0)
-			{
-				DialogFactory.CreateDialog(TextSlotIndex.NotEnoughSilver, TextSlotIndex.InsufficientFunds, UXDialogType.Simple, noButtons: false, stackDialog: true).Show();
-			}
-			else
-			{
-				DialogFactory.CreateDialog(TextSlotIndex.NotEnoughFunds, TextSlotIndex.InsufficientFunds, UXDialogType.Simple, noButtons: false, stackDialog: true).Show();
-			}
-		}
-		else
-		{
-			DialogFactory.CreateDialog(TextSlotIndex.ErrorOccured, TextSlotIndex.ErrorHeadline, UXDialogType.Simple, noButtons: false, stackDialog: true, canClose: true, new ValueInsert().AddInt(returnCode)).Show();
-		}
-	}
-
-	public void OnGoldPurchaseDialogResult(UXDialogBox dialog)
-	{
-		Application.ExternalCall("attentionGetGold", new object[1] { 0 });
-	}
-
-	private void HandleSuccessfulPurchase(Hashtable purchaseResponseData)
-	{
-		purchasedInventoryID = (int)purchaseResponseData[(byte)74];
-		long ticks = (long)purchaseResponseData[(byte)84];
+		purchasedInventoryID = (int)purchaseResponseData[(byte)73];
+		long ticks = (long)purchaseResponseData[(byte)83];
 		DateTime purchaseTime = new DateTime(ticks);
 		if (!Game.StreamingAssetInventory.Contains(purchasedInventoryID))
 		{
@@ -334,9 +310,9 @@ public class MVGUIAvatarAccessoryShopDialog : UXCustomDialogBox
 		}
 		if (!renewingItem || !AvatarBody.HasAccessoryWithID(expiredInventoryID))
 		{
-			UXDialogFactory uXDialogFactory = UXUtils.FindGUIObjectOfType<UXDialogFactory>();
-			uXDialogFactory.CreateDialog(TextSlotIndex.OfferAttachAccessory, TextSlotIndex.Empty, UXDialogType.Simple, noButtons: false, stackDialog: true).SetOnResultCallback(OnAttachOfferDialogResult).AddPositiveButton(TextSlotIndex.Confirm)
-				.AddNegativeButton(TextSlotIndex.Reject)
+			UXDialogFactory uXDialogFactory = UXUtils.UXDialogFactory;
+			uXDialogFactory.CreateDialog(TM._("Attach to avatar now?"), string.Empty, UXDialogType.Simple, noButtons: false, stackDialog: true).SetOnResultCallback(OnAttachOfferDialogResult).AddPositiveButton(TM._("Yes"))
+				.AddNegativeButton(TM._("No"))
 				.Show();
 		}
 		else
@@ -350,27 +326,27 @@ public class MVGUIAvatarAccessoryShopDialog : UXCustomDialogBox
 		}
 	}
 
-	private void AddToInventory(int invID, DateTime purchaseTime, Hashtable purchaseResponse, bool isRenting)
+	private void AddToInventory(int invID, DateTime purchaseTime, Dictionary<object, object> purchaseResponse, bool isRenting)
 	{
 		int productID = streamingAssetInfo.ProductID;
 		StreamingAssetInfo value = null;
 		Game.StreamingAssetInfoMap.TryGetValue(productID, out value);
 		if (value != null)
 		{
-			ProductInventoryInfo<StreamingAssetInfo> invInfo = new ProductInventoryInfo<StreamingAssetInfo>(invID, value, purchaseTime, isRenting);
+			ProductInventoryInfo invInfo = new ProductInventoryInfo(invID, value, purchaseTime, isRenting);
 			Game.StreamingAssetInventory.Add(invInfo);
 			Game.StreamingAssetInventory.NotifyProductInventoryChange();
 		}
 		else
 		{
-			Debug.LogError((object)"Trying to add non-existing avatar accessory to inventory");
+			Debug.LogError("Trying to add non-existing avatar accessory to inventory");
 		}
 	}
 
-	private void UpdateExpirationInfo(int invID, DateTime purchaseTime, Hashtable purchaseResponse)
+	private void UpdateExpirationInfo(int invID, DateTime purchaseTime, Dictionary<object, object> purchaseResponse)
 	{
-		int rentExpireSeconds = (int)purchaseResponse[(byte)81];
-		ProductInventoryInfo<StreamingAssetInfo> productInventoryInfo = Game.StreamingAssetInventory.Get(invID);
+		int rentExpireSeconds = (int)purchaseResponse[(byte)80];
+		ProductInventoryInfo productInventoryInfo = Game.StreamingAssetInventory.Get(invID);
 		productInventoryInfo.Renew(purchaseTime, rentExpireSeconds);
 		InventoryExpirationInfo expirationInfo = Game.StreamingAssetExpirationChecker.GetExpirationInfo(invID);
 		if (expirationInfo != null)
@@ -391,12 +367,12 @@ public class MVGUIAvatarAccessoryShopDialog : UXCustomDialogBox
 		}
 		OnPositiveClose();
 		DialogFactory.CloseDialog();
-		MVGameController.Instance.CharacterEditorController.AvatarAccessoryInventory.ShowInventoryUpdated();
+		UXUtils.FindGUIObjectOfType<AvatarAccessoryController>().AvatarAccessoryInventory.ShowInventoryUpdated();
 	}
 
 	private void AttachPurchasedAccessory()
 	{
-		ProductInventoryInfo<StreamingAssetInfo> invInfo = Game.StreamingAssetInventory.Get(purchasedInventoryID);
+		ProductInventoryInfo invInfo = Game.StreamingAssetInventory.Get(purchasedInventoryID);
 		AvatarAccessory.Create(invInfo, AvatarAccessoryCreateHandler);
 	}
 
@@ -404,7 +380,7 @@ public class MVGUIAvatarAccessoryShopDialog : UXCustomDialogBox
 	{
 		accessoryToBeEquipped = avatarAccessory;
 		AvatarAccessory avatarAccessory2 = AvatarBody.GetAccessories(avatarAccessory.DefaultSlot).FirstOrDefault();
-		if ((Object)(object)avatarAccessory2 != (Object)null)
+		if (avatarAccessory2 != null)
 		{
 			Unequip(avatarAccessory2);
 		}
@@ -430,7 +406,7 @@ public class MVGUIAvatarAccessoryShopDialog : UXCustomDialogBox
 			Equip();
 			return;
 		}
-		Object.Destroy((Object)(object)((Component)accessoryToBeEquipped).gameObject);
+		UnityEngine.Object.Destroy(accessoryToBeEquipped.gameObject);
 		accessoryToBeEquipped = null;
 		OnPositiveClose();
 		DialogFactory.CloseDialog();
@@ -461,7 +437,7 @@ public class MVGUIAvatarAccessoryShopDialog : UXCustomDialogBox
 
 	private void OnRemoveClick()
 	{
-		purchaseResponseData = purchaseResponseData ?? new Hashtable();
+		purchaseResponseData = purchaseResponseData ?? new Dictionary<object, object>();
 		purchaseResponseData["oldInventoryID"] = expiredInventoryID;
 		OnNegativeClose();
 		DialogFactory.CloseDialog();

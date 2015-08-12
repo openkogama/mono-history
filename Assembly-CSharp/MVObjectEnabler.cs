@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using MV.Common;
 using MV.WorldObject;
@@ -19,7 +18,7 @@ public class MVObjectEnabler : MVLogicObject
 
 	public bool ShowingOutline => showingOutline;
 
-	public MVObjectEnabler(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVObjectEnabler(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, "Prefabs/Logic/ObjectEnabler", worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
@@ -81,20 +80,20 @@ public class MVObjectEnabler : MVLogicObject
 	private void ShowObjects(bool visible)
 	{
 		bool flag = visible;
-		if (MVGameController.Instance.Game.GameMode == MVGameMode.Edit && (MVGameController.Instance.EditController == null || !MVGameController.Instance.EditController.PlayInEditor))
+		if (MVGameController.GameMode == MVGameMode.Edit && (MVGameController.EditController == null || !MVGameController.EditorController.PlayInEditor))
 		{
 			flag = true;
 		}
 		foreach (ObjectLink objectLinkRef in ObjectLinkRefs)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(objectLinkRef.objectWOID);
+			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(objectLinkRef.objectWOID);
 			if (worldObjectClient is MVCubeModelBase)
 			{
 				(worldObjectClient as MVCubeModelBase).Enable(flag);
 			}
 			else
 			{
-				MVGameController.Instance.WOCM.GetWorldObjectClient(objectLinkRef.objectWOID).Visible = flag;
+				MVGameController.WOCM.GetWorldObjectClient(objectLinkRef.objectWOID).Visible = flag;
 			}
 		}
 	}

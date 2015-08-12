@@ -12,8 +12,6 @@ public class ConstraintBoxChangedEventArgs : EventArgs
 
 	public ConstraintBoxChangedEventArgs(Vector3 center, IntVector minCorner, IntVector maxCorner)
 	{
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0008: Unknown result type (might be due to invalid IL or missing references)
 		Center = center;
 		MinCorner = minCorner;
 		MaxCorner = maxCorner;

@@ -24,6 +24,6 @@ public class SelectionHelperAvatarAccessory : MonoBehaviour
 
 	public override string ToString()
 	{
-		return string.Format("AvatarBodyWoID " + avatarBodyWoID, new object[0]);
+		return string.Format("AvatarBodyWoID " + avatarBodyWoID);
 	}
 }

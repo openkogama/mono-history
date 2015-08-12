@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using CodeStage.AntiCheat.ObscuredTypes;
 using MV.WorldObject;
 using UnityEngine;
 
@@ -44,7 +45,6 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 		protected override Type UpdateState(AdvancedGhostBehaviour ghostBehaviour)
 		{
-			//IL_0007: Unknown result type (might be due to invalid IL or missing references)
 			ghostBehaviour.SetDesiredPosition(ghostBehaviour.networkedValues.SyncPosition);
 			if (ghostBehaviour.perception.TryGetNewTarget(out var _))
 			{
@@ -92,7 +92,7 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 	{
 		public void Enter(AdvancedGhostBehaviour ghostBehaviour)
 		{
-			((Component)ghostBehaviour.GhostVisualization).gameObject.SetActiveRecursively(false);
+			ghostBehaviour.GhostVisualization.gameObject.SetActive(value: false);
 		}
 
 		public Type Update(AdvancedGhostBehaviour ghostBehaviour)
@@ -115,7 +115,7 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 	{
 		public void Enter(AdvancedGhostBehaviour ghostBehaviour)
 		{
-			Debug.Log((object)"Reset entered");
+			Debug.Log("Reset entered");
 		}
 
 		public Type Update(AdvancedGhostBehaviour ghostBehaviour)
@@ -136,10 +136,9 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 		public override void Enter(AdvancedGhostBehaviour ghostBehaviour)
 		{
-			//IL_0049: Unknown result type (might be due to invalid IL or missing references)
 			if (!ghostBehaviour.perception.TryGetNewTarget(out var worldObjectClient))
 			{
-				Debug.LogError((object)"Entering alert without valid attack target");
+				Debug.LogError("Entering alert without valid attack target");
 			}
 			ghostBehaviour.weapon.SetAttackValueFactor(0.5f);
 			ghostBehaviour.GhostVisualization.SetRotationSpeed(alertRotationSpeed);
@@ -148,20 +147,13 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 		protected override Type UpdateState(AdvancedGhostBehaviour ghostBehaviour)
 		{
-			//IL_0024: Unknown result type (might be due to invalid IL or missing references)
-			//IL_003a: Unknown result type (might be due to invalid IL or missing references)
-			//IL_004f: Unknown result type (might be due to invalid IL or missing references)
-			//IL_005a: Unknown result type (might be due to invalid IL or missing references)
-			//IL_005f: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0064: Unknown result type (might be due to invalid IL or missing references)
 			if (!ghostBehaviour.perception.TryGetNewTarget(out var worldObjectClient))
 			{
 				return typeof(Idle);
 			}
 			ghostBehaviour.SetDesiredPosition(ghostBehaviour.networkedValues.SyncPosition);
 			ghostBehaviour.GhostVisualization.ghostEye.UpdateLookAtTarget(worldObjectClient.GetTargetPosition());
-			Vector3 val = worldObjectClient.GameObject.transform.position - ((Component)ghostBehaviour).transform.position;
-			if (val.magnitude < ghostBehaviour.perceptionRadius * alertMultiplier)
+			if ((worldObjectClient.GameObject.transform.position - ghostBehaviour.transform.position).magnitude < ghostBehaviour.perceptionRadius * alertMultiplier)
 			{
 				return typeof(Attack);
 			}
@@ -180,10 +172,9 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 		public override void Enter(AdvancedGhostBehaviour ghostBehaviour)
 		{
-			//IL_0049: Unknown result type (might be due to invalid IL or missing references)
 			if (!ghostBehaviour.perception.TryGetCurrentTarget(out var worldObjectClient))
 			{
-				Debug.LogError((object)"Entering attack without valid attack target");
+				Debug.LogError("Entering attack without valid attack target");
 			}
 			ghostBehaviour.weapon.SetAttackValueFactor(1f);
 			ghostBehaviour.GhostVisualization.SetRotationSpeed(attackRotationSpeed);
@@ -192,10 +183,6 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 		protected override Type UpdateState(AdvancedGhostBehaviour ghostBehaviour)
 		{
-			//IL_0030: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0035: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0041: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0049: Unknown result type (might be due to invalid IL or missing references)
 			if (!ghostBehaviour.perception.TryGetCurrentTarget(out var worldObjectClient) && !ghostBehaviour.perception.TryGetNewTarget(out worldObjectClient))
 			{
 				return typeof(Idle);
@@ -238,7 +225,6 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 		public void Update()
 		{
-			//IL_0021: Unknown result type (might be due to invalid IL or missing references)
 			if (syncedInterval.Update())
 			{
 				perception.Update(ghostBehaviour.networkedValues.SyncPosition, ghostBehaviour.perceptionRadius);
@@ -247,13 +233,16 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 		public bool TryGetCurrentTarget(out MVWorldObjectClient worldObjectClient)
 		{
-			//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-			worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(currentWoID);
+			worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(currentWoID);
 			if (worldObjectClient == null)
 			{
 				return false;
 			}
 			if (!IsWithinRoamRadius(worldObjectClient.GetTargetPosition()))
+			{
+				return false;
+			}
+			if (!worldObjectClient.GameObject.GetComponent<InteractionDataHandlerBase>().enabled)
 			{
 				return false;
 			}
@@ -273,10 +262,6 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 		private bool TryGetTarget(List<MVWorldObjectClient> targets, out MVWorldObjectClient target)
 		{
-			//IL_0035: Unknown result type (might be due to invalid IL or missing references)
-			//IL_003a: Unknown result type (might be due to invalid IL or missing references)
-			//IL_003d: Unknown result type (might be due to invalid IL or missing references)
-			//IL_004f: Unknown result type (might be due to invalid IL or missing references)
 			MVWorldObjectClient mVWorldObjectClient = null;
 			float num = ghostBehaviour.RoamRadius;
 			foreach (MVWorldObjectClient target2 in targets)
@@ -302,8 +287,6 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 		private bool CanSense(Vector3 targetPosition)
 		{
-			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-			//IL_000d: Unknown result type (might be due to invalid IL or missing references)
 			if (IsWithinRoamRadius(targetPosition) && IsWithinPerceptionRadius(targetPosition))
 			{
 				return true;
@@ -313,12 +296,7 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 		private bool IsWithinRoamRadius(Vector3 targetPosition)
 		{
-			//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0011: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0016: Unknown result type (might be due to invalid IL or missing references)
-			Vector3 val = ghostBehaviour.transformParent.position - targetPosition;
-			if (val.magnitude > ghostBehaviour.RoamRadius)
+			if ((ghostBehaviour.transformParent.position - targetPosition).magnitude > ghostBehaviour.RoamRadius)
 			{
 				return false;
 			}
@@ -327,12 +305,7 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 		private bool IsWithinPerceptionRadius(Vector3 targetPosition)
 		{
-			//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0011: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0016: Unknown result type (might be due to invalid IL or missing references)
-			Vector3 val = ghostBehaviour.networkedValues.SyncPosition - targetPosition;
-			if (val.magnitude > ghostBehaviour.perceptionRadius)
+			if ((ghostBehaviour.networkedValues.SyncPosition - targetPosition).magnitude > ghostBehaviour.perceptionRadius)
 			{
 				return false;
 			}
@@ -341,12 +314,7 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 		private float DistanceToTargetPosition(Vector3 targetPosition)
 		{
-			//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0011: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0016: Unknown result type (might be due to invalid IL or missing references)
-			Vector3 val = ghostBehaviour.networkedValues.SyncPosition - targetPosition;
-			return val.magnitude;
+			return (ghostBehaviour.networkedValues.SyncPosition - targetPosition).magnitude;
 		}
 	}
 
@@ -370,23 +338,9 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 		private bool didMeasure;
 
-		public Vector3 SyncPosition
-		{
-			get
-			{
-				//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-				return nextPosition;
-			}
-		}
+		public Vector3 SyncPosition => nextPosition;
 
-		public Vector3 SyncLookDir
-		{
-			get
-			{
-				//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-				return lookDir;
-			}
-		}
+		public Vector3 SyncLookDir => lookDir;
 
 		public NetworkedValues(AdvancedGhostBehaviour ghostBehaviour)
 		{
@@ -397,42 +351,29 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 		public void Update()
 		{
-			//IL_0033: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0038: Unknown result type (might be due to invalid IL or missing references)
-			//IL_003f: Unknown result type (might be due to invalid IL or missing references)
-			nextPosition = patrolPattern(WaitForTicks.GetEnvironmentTick(0), ghostBehaviour.speed, ghostBehaviour.radius, ((Component)ghostBehaviour).transform.parent);
+			nextPosition = patrolPattern(WaitForTicks.GetEnvironmentTick(0), ghostBehaviour.speed, ghostBehaviour.radius, ghostBehaviour.transform.parent);
 			GetNextLookAt(nextPosition, WaitForTicks.GetEnvironmentTick(0));
 		}
 
 		public Vector3 GetPosition(float delta)
 		{
-			//IL_003b: Unknown result type (might be due to invalid IL or missing references)
 			int deltaMilliseconds = (int)(delta * 1000f);
-			return patrolPattern(WaitForTicks.GetEnvironmentTick(deltaMilliseconds), ghostBehaviour.speed, ghostBehaviour.radius, ((Component)ghostBehaviour).transform.parent);
+			return patrolPattern(WaitForTicks.GetEnvironmentTick(deltaMilliseconds), ghostBehaviour.speed, ghostBehaviour.radius, ghostBehaviour.transform.parent);
 		}
 
 		private void GetNextLookAt(Vector3 curPosition, int serverTimeInMilliSeconds)
 		{
-			//IL_0051: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0056: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0058: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0059: Unknown result type (might be due to invalid IL or missing references)
-			//IL_005a: Unknown result type (might be due to invalid IL or missing references)
-			//IL_005f: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0062: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0067: Unknown result type (might be due to invalid IL or missing references)
-			float num = minLookDeltaOffset * (1f / ghostBehaviour.speed);
+			float num = minLookDeltaOffset * (1f / (float)ghostBehaviour.speed);
 			int arg = serverTimeInMilliSeconds + (int)(num * 1000f);
-			Vector3 val = patrolPattern(arg, ghostBehaviour.speed, ghostBehaviour.radius, ((Component)ghostBehaviour).transform.parent);
-			Vector3 val2 = val - curPosition;
-			lookDir = val2.normalized;
+			Vector3 vector = patrolPattern(arg, ghostBehaviour.speed, ghostBehaviour.radius, ghostBehaviour.transform.parent);
+			lookDir = (vector - curPosition).normalized;
 		}
 
 		private void Test(double serverTimeNormalizedToPeriod)
 		{
 			if (serverTimeNormalizedToPeriod > 5000.0 && !didMeasure)
 			{
-				Debug.Log((object)WaitForTicks.Diff(prevServertime));
+				Debug.Log(WaitForTicks.Diff(prevServertime));
 				prevServertime = WaitForTicks.GetEnvironmentTick(0);
 				didMeasure = true;
 			}
@@ -444,11 +385,6 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 		private Vector3 EaseInEaseOutBackAndForward(int serverTimeInMilliSeconds, float speed, float radius, Transform transform)
 		{
-			//IL_0052: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0059: Unknown result type (might be due to invalid IL or missing references)
-			//IL_005b: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0060: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0062: Unknown result type (might be due to invalid IL or missing references)
 			speed *= 0.2f;
 			float num = radius * ((float)Math.PI * 2f);
 			float num2 = speed / num;
@@ -457,17 +393,12 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 			int num5 = serverTimeInMilliSeconds % num4;
 			float num6 = (float)num5 / (float)num4;
 			float serverTimeWithSpeedFactor = (float)Math.PI * 2f * num6;
-			Vector3 val = new Vector3(GetX(serverTimeWithSpeedFactor, radius), 0f, 0f);
-			return transform.TransformPoint(val);
+			Vector3 position = new Vector3(GetX(serverTimeWithSpeedFactor, radius), 0f, 0f);
+			return transform.TransformPoint(position);
 		}
 
 		private Vector3 Circle(int serverTimeInMilliSeconds, float speed, float radius, Transform transform)
 		{
-			//IL_0056: Unknown result type (might be due to invalid IL or missing references)
-			//IL_005d: Unknown result type (might be due to invalid IL or missing references)
-			//IL_005f: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0064: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0066: Unknown result type (might be due to invalid IL or missing references)
 			speed *= 0.2f;
 			float num = radius * ((float)Math.PI * 2f);
 			float num2 = speed / num;
@@ -476,8 +407,8 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 			int num5 = serverTimeInMilliSeconds % num4;
 			float num6 = (float)num5 / (float)num4;
 			float serverTimeWithSpeedFactor = (float)Math.PI * 2f * num6;
-			Vector3 val = new Vector3(GetX(serverTimeWithSpeedFactor, radius), 0f, GetY(serverTimeWithSpeedFactor, radius));
-			return transform.TransformPoint(val);
+			Vector3 position = new Vector3(GetX(serverTimeWithSpeedFactor, radius), 0f, GetY(serverTimeWithSpeedFactor, radius));
+			return transform.TransformPoint(position);
 		}
 
 		private float GetX(float serverTimeWithSpeedFactor, float radius)
@@ -492,38 +423,6 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 		private Vector3 BackAndForward(int serverTimeInMilliSeconds, float speed, float radius, Transform transform)
 		{
-			//IL_0041: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0047: Unknown result type (might be due to invalid IL or missing references)
-			//IL_004c: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0067: Unknown result type (might be due to invalid IL or missing references)
-			//IL_006c: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0071: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0075: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0077: Unknown result type (might be due to invalid IL or missing references)
-			//IL_007e: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0080: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0085: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0087: Unknown result type (might be due to invalid IL or missing references)
-			//IL_008c: Unknown result type (might be due to invalid IL or missing references)
-			//IL_009d: Unknown result type (might be due to invalid IL or missing references)
-			//IL_009f: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00a6: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00a8: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00ad: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00b2: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00b7: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00c6: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00c8: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00cc: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00d1: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00d6: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00da: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00dc: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00e1: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00e3: Unknown result type (might be due to invalid IL or missing references)
-			//IL_005c: Unknown result type (might be due to invalid IL or missing references)
-			//IL_005e: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0063: Unknown result type (might be due to invalid IL or missing references)
 			float num = radius * 2f;
 			float num2 = radius * 2f * 2f;
 			float num3 = speed * 0.2f;
@@ -532,17 +431,17 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 			int num6 = serverTimeInMilliSeconds % num5;
 			float num7 = (float)num6 / (float)num5;
 			float num8 = num7 * num2;
-			Vector3 val = Vector3.back * radius;
+			Vector3 vector = Vector3.back * radius;
 			if (num8 > num)
 			{
 				num8 %= num;
-				val = -val;
+				vector = -vector;
 			}
-			Vector3 val2 = -val.normalized;
-			Debug.DrawLine(transform.TransformPoint(val), transform.TransformPoint(val) + val2, Color.blue, 0.5f);
-			Debug.DrawLine(transform.TransformPoint(val), transform.TransformPoint(val) + Vector3.right, Color.blue, 0.5f);
-			Vector3 val3 = val + val2 * num8;
-			return transform.TransformPoint(val3);
+			Vector3 vector2 = -vector.normalized;
+			Debug.DrawLine(transform.TransformPoint(vector), transform.TransformPoint(vector) + vector2, Color.blue, 0.5f);
+			Debug.DrawLine(transform.TransformPoint(vector), transform.TransformPoint(vector) + Vector3.right, Color.blue, 0.5f);
+			Vector3 position = vector + vector2 * num8;
+			return transform.TransformPoint(position);
 		}
 	}
 
@@ -556,15 +455,11 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 	private Transform transformParent;
 
-	private Vector3 prevLocalPosition;
-
 	private Vector3 nextPosition;
-
-	private float minDeltaPos = 0.01f;
 
 	private Func<bool> isDead;
 
-	private float speed = 10f;
+	private ObscuredFloat speed = 10f;
 
 	private float radius = 10f;
 
@@ -593,7 +488,7 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 		set
 		{
 			speed = value;
-			perceptionRadius = minPerceptionRadius + speed * speedPerceptionFactor;
+			perceptionRadius = minPerceptionRadius + (float)speed * speedPerceptionFactor;
 		}
 	}
 
@@ -615,14 +510,11 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 	public void Init(MVCubeModelBase body, AdvancedGhostMotor advancedGhostMotor, Func<bool> isDead, int woID)
 	{
-		//IL_0032: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0037: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0043: Unknown result type (might be due to invalid IL or missing references)
-		transformParent = ((Component)this).transform.parent;
+		transformParent = transform.parent;
 		perception = new AdvancedGhostPerception(this, woID);
 		networkedValues = new NetworkedValues(this);
 		nextPosition = networkedValues.SyncPosition;
-		((Component)this).transform.position = nextPosition;
+		transform.position = nextPosition;
 		this.advancedGhostMotor = advancedGhostMotor;
 		this.isDead = isDead;
 		InitBody(body);
@@ -662,12 +554,13 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 	{
 		if (perception == null)
 		{
-			Debug.LogWarning((object)"This is neccessary because of image generation");
+			Debug.LogWarning("This is neccessary because of image generation");
 			return;
 		}
 		perception.Update();
 		networkedValues.Update();
 		UpdateBehaviourState();
+		advancedGhostMotor.FrameUpdate();
 		if (respawn)
 		{
 			DoRespawn();
@@ -676,9 +569,9 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 	private void FixedUpdate()
 	{
-		if ((Object)(object)advancedGhostMotor == (Object)null)
+		if (advancedGhostMotor == null)
 		{
-			Debug.LogWarning((object)"This is neccessary because of image generation");
+			Debug.LogWarning("This is neccessary because of image generation");
 		}
 		else
 		{
@@ -688,16 +581,11 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 	private void DoRespawn()
 	{
-		//IL_002e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0044: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0051: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0056: Unknown result type (might be due to invalid IL or missing references)
 		if (clearEffectsBecauseOfReset)
 		{
 			GhostVisualization.PlayEffect(AdvancedGhostVisualizaton.Effect.None, 0f);
 		}
-		((Component)this).transform.position = networkedValues.GetPosition(0f - Time.deltaTime);
+		transform.position = networkedValues.GetPosition(0f - Time.deltaTime);
 		nextPosition = networkedValues.SyncPosition;
 		advancedGhostMotor.Reset(GetMoveVector(nextPosition));
 		respawn = false;
@@ -718,57 +606,19 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 	private void UpdatePositionAndRotation()
 	{
-		//IL_0002: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0013: Unknown result type (might be due to invalid IL or missing references)
 		Vector3 moveVector = GetMoveVector(nextPosition);
 		advancedGhostMotor.MoveDirection = moveVector;
-		advancedGhostMotor.UpdateFunction();
+		advancedGhostMotor.FixedUpdateFunction();
 		if (lod < lodPercentageForRotationUpdate)
 		{
-			UpdateRotation();
-		}
-	}
-
-	private void UpdateRotation()
-	{
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0013: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0018: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0032: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0034: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0039: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0041: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0046: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0048: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0049: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0070: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0075: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0076: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0080: Unknown result type (might be due to invalid IL or missing references)
-		Vector3 localPosition = ((Component)this).transform.localPosition;
-		Vector3 val = localPosition - prevLocalPosition;
-		if (val.sqrMagnitude > minDeltaPos * minDeltaPos)
-		{
-			Vector3 val2 = localPosition - prevLocalPosition;
-			Vector3 normalized = val2.normalized;
-			prevLocalPosition = localPosition;
-			if (Mathf.Abs(normalized.y) < 0.5f)
-			{
-				((Component)this).transform.localRotation = Quaternion.Slerp(((Component)this).transform.localRotation, Quaternion.LookRotation(normalized), 0.1f);
-			}
+			advancedGhostMotor.FixedUpdateRotation();
 		}
 	}
 
 	private void UpdateBehaviourState()
 	{
 		Type type = currentState.Update(this);
-		if ((object)currentState.GetType() != type)
+		if (currentState.GetType() != type)
 		{
 			SetCurrentState(type);
 		}
@@ -787,46 +637,14 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 	private Vector3 GetMoveVector(Vector3 targetPos)
 	{
-		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0002: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0027: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0047: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0051: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0056: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0076: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0080: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0085: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00af: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00bb: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ca: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ec: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f1: Unknown result type (might be due to invalid IL or missing references)
 		Debug.DrawLine(targetPos, targetPos + Vector3.up, Color.cyan, 0.3f);
 		Debug.DrawLine(targetPos, targetPos + Vector3.right, Color.cyan, 0.3f);
-		Debug.DrawLine(((Component)this).transform.position, ((Component)this).transform.position + Vector3.up, Color.red, 0.3f);
-		Debug.DrawLine(((Component)this).transform.position, ((Component)this).transform.position + Vector3.right, Color.red, 0.3f);
-		Debug.DrawLine(((Component)this).transform.position, targetPos, Color.yellow, 0.3f);
-		Vector3 result = (targetPos - ((Component)this).transform.position) / Time.deltaTime;
+		Debug.DrawLine(transform.position, transform.position + Vector3.up, Color.red, 0.3f);
+		Debug.DrawLine(transform.position, transform.position + Vector3.right, Color.red, 0.3f);
+		Debug.DrawLine(transform.position, targetPos, Color.yellow, 0.3f);
+		Vector3 result = (targetPos - transform.position) / Time.deltaTime;
 		float magnitude = result.magnitude;
-		if (magnitude > speed)
+		if (magnitude > (float)speed)
 		{
 			result = result.normalized * speed;
 		}
@@ -835,8 +653,6 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 	private void SetDesiredPosition(Vector3 position)
 	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0002: Unknown result type (might be due to invalid IL or missing references)
 		nextPosition = position;
 	}
 }

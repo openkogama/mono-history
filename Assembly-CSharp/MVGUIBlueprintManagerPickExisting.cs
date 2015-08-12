@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Localize;
 using UnityEngine;
 
 public class MVGUIBlueprintManagerPickExisting : UXCustomDialogBox
@@ -21,7 +20,7 @@ public class MVGUIBlueprintManagerPickExisting : UXCustomDialogBox
 
 	private bool _isInitialized;
 
-	private MVWorldObjectClientManager WOCM => MVGameController.Instance.WOCM;
+	private MVWorldObjectClientManager WOCM => MVGameController.WOCM;
 
 	public override void OnShowDialog()
 	{
@@ -65,7 +64,7 @@ public class MVGUIBlueprintManagerPickExisting : UXCustomDialogBox
 		{
 			text = "Select Blueprint"
 		});
-		DialogFactory.CreateCustomDialog("Prefabs/GUI/Dev Tools/PickDialog", TextSlotIndex.Empty, noButtons: true, stackDialog: true).SetValues(dictionary).SetOnResultCallback(OnPickChildResponse)
+		DialogFactory.CreateCustomDialog("Prefabs/GUI/Dev Tools/PickDialog", string.Empty, noButtons: true, stackDialog: true).SetValues(dictionary).SetOnResultCallback(OnPickChildResponse)
 			.Show();
 		(DialogFactory.CurrentDialogBox as MVGUIPickDialog).SetPickType(typeof(MVBlueprintBase));
 	}
@@ -151,9 +150,9 @@ public class MVGUIBlueprintManagerPickExisting : UXCustomDialogBox
 
 	private int FindParentID(Transform t)
 	{
-		if ((Object)(object)t.parent != (Object)null)
+		if (t.parent != null)
 		{
-			MVWorldObjectClient worldObjectByGoId = WOCM.GetWorldObjectByGoId(((Object)((Component)t.parent).gameObject).GetInstanceID());
+			MVWorldObjectClient worldObjectByGoId = WOCM.GetWorldObjectByGoId(t.parent.gameObject.GetInstanceID());
 			if (worldObjectByGoId != null)
 			{
 				return worldObjectByGoId.Id;
@@ -170,7 +169,7 @@ public class MVGUIBlueprintManagerPickExisting : UXCustomDialogBox
 			DialogFactory.CreateDevelopmentDialog("Woid is not valid or not blueprint", "Error", UXDialogType.Simple, noButtons: false, stackDialog: true).Show();
 			return;
 		}
-		(UXUtils.FindComponentInParents(typeof(UXView), ((Component)this).transform.parent) as UXView).ReleaseFocus();
+		(UXUtils.FindComponentInParents(typeof(UXView), transform.parent) as UXView).ReleaseFocus();
 		OnPositiveClose();
 		DialogFactory.CloseDialog();
 		DialogFactory.CreateCustomDevelopmentDialog("Prefabs/GUI/Dev Tools/BlueprintManager/BlueprintManagerOverview", "Blueprint Manager", noButtons: true).Show();

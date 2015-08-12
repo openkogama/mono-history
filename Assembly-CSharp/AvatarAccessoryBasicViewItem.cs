@@ -38,7 +38,7 @@ public abstract class AvatarAccessoryBasicViewItem : MVGUIBasicViewItem
 
 	protected void OnAvatarAccessoryCreated(AvatarAccessory createdAvatarAccessory)
 	{
-		if ((Object)(object)createdAvatarAccessory != (Object)null)
+		if (createdAvatarAccessory != null)
 		{
 			ItemViewRoutine(createdAvatarAccessory);
 		}
@@ -46,15 +46,13 @@ public abstract class AvatarAccessoryBasicViewItem : MVGUIBasicViewItem
 
 	private void ItemViewRoutine(AvatarAccessory createdAvatarAccessory)
 	{
-		//IL_003a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0040: Expected Obj, but got Unknown
 		AvatarAccessory = createdAvatarAccessory;
-		objectPreviewer = ObjectPreviewer.Create(256, (CameraClearFlags)2, LayerFlags.Default | LayerFlags.CamRotateTarget, PreviewItemsRoot, streamingAssetInfo.Name, ((Component)createdAvatarAccessory).gameObject);
-		Material val = new Material(ItemPreviewMaterial);
-		((Object)val).hideFlags = (HideFlags)13;
-		val.mainTexture = (Texture)(object)objectPreviewer.PreviewTexture;
-		MeshRenderer val2 = ((Component)ItemImagePlane).gameObject.AddComponent<MeshRenderer>();
-		((Renderer)val2).material = val;
+		objectPreviewer = ObjectPreviewer.Create(256, CameraClearFlags.Color, LayerFlags.Default | LayerFlags.CamRotateTarget, PreviewItemsRoot, streamingAssetInfo.Name, createdAvatarAccessory.gameObject);
+		Material material = new Material(ItemPreviewMaterial);
+		material.hideFlags = HideFlags.HideAndDontSave;
+		material.mainTexture = objectPreviewer.PreviewTexture;
+		MeshRenderer meshRenderer = ItemImagePlane.gameObject.AddComponent<MeshRenderer>();
+		meshRenderer.material = material;
 		OnAvatarAccessoryViewItemBuilt();
 	}
 
@@ -81,13 +79,13 @@ public abstract class AvatarAccessoryBasicViewItem : MVGUIBasicViewItem
 
 	private void OnDestroy()
 	{
-		if ((Object)(object)objectPreviewer != (Object)null)
+		if (objectPreviewer != null)
 		{
 			objectPreviewer.Destroy();
 		}
-		if ((Object)(object)AvatarAccessory != (Object)null)
+		if (AvatarAccessory != null)
 		{
-			Object.Destroy((Object)(object)((Component)AvatarAccessory).gameObject);
+			Object.Destroy(AvatarAccessory.gameObject);
 		}
 	}
 }

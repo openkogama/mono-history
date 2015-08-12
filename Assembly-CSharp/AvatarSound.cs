@@ -23,24 +23,22 @@ public class AvatarSound : MonoBehaviour
 
 	private void Update()
 	{
-		if ((Object)(object)nextSoundToPlay != (Object)null && !((Component)this).audio.isPlaying)
+		if (nextSoundToPlay != null && !GetComponent<AudioSource>().isPlaying)
 		{
-			((Component)this).audio.clip = nextSoundToPlay;
-			((Component)this).audio.Play();
+			GetComponent<AudioSource>().clip = nextSoundToPlay;
+			GetComponent<AudioSource>().Play();
 			nextSoundToPlay = null;
 		}
 	}
 
 	public void HandleWallJump()
 	{
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-		audioManager.Play("Parkeur jump", soundTouchParkeur, ((Component)this).transform.position, 0.8f, SoundRangeDistance.Short);
+		audioManager.Play("Parkeur jump", soundTouchParkeur, transform.position, 0.5f, SoundRangeDistance.Short);
 	}
 
 	public void HandleActiveBounce()
 	{
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-		audioManager.Play("Bounchy jump", soundTouchBouncy, ((Component)this).transform.position, 0.8f, SoundRangeDistance.Short);
+		audioManager.Play("Bounchy jump", soundTouchBouncy, transform.position, 0.5f, SoundRangeDistance.Short);
 	}
 
 	private void HandleOnAvatarAnimationTick(string animation, int pose)

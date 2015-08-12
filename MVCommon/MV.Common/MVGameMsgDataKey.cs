@@ -6,5 +6,7 @@ public enum MVGameMsgDataKey
 	KillerID,
 	WeaponType,
 	Username,
-	AchievementType
+	AchievementType,
+	TxtMsg,
+	IsFriend
 }

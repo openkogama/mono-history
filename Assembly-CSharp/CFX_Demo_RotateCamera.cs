@@ -10,11 +10,9 @@ public class CFX_Demo_RotateCamera : MonoBehaviour
 
 	private void Update()
 	{
-		//IL_0016: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001b: Unknown result type (might be due to invalid IL or missing references)
 		if (rotating)
 		{
-			((Component)this).transform.RotateAround(rotationCenter.position, Vector3.up, speed * Time.deltaTime);
+			transform.RotateAround(rotationCenter.position, Vector3.up, speed * Time.deltaTime);
 		}
 	}
 }

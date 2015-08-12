@@ -15,7 +15,7 @@ public class FrozenModifier : AvatarModifier
 	protected override void OnDeactivated(Avatar target)
 	{
 		target.StopBlinking(BlinkType.Frozen);
-		((MonoBehaviour)this).StartCoroutine(DoFadeAndDestroy());
+		StartCoroutine(DoFadeAndDestroy());
 	}
 
 	private IEnumerator DoFadeAndDestroy()
@@ -25,6 +25,6 @@ public class FrozenModifier : AvatarModifier
 		{
 			yield return 0;
 		}
-		Object.Destroy((Object)(object)((Component)this).gameObject);
+		Object.Destroy(gameObject);
 	}
 }

@@ -1,5 +1,6 @@
 using MV.WorldObject;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class GUICellCursor : MonoBehaviour
 {
@@ -120,18 +121,13 @@ public class GUICellCursor : MonoBehaviour
 
 	private void Awake()
 	{
-		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0058: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0098: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a8: Unknown result type (might be due to invalid IL or missing references)
-		((Component)this).gameObject.layer = LayerMask.NameToLayer("UIItems");
-		MeshRenderer val = ((Component)this).gameObject.AddComponent<MeshRenderer>();
-		((Renderer)val).castShadows = false;
-		((Renderer)val).receiveShadows = false;
-		MeshFilter val2 = ((Component)this).gameObject.AddComponent<MeshFilter>();
-		((Renderer)val).material = material;
-		baseAlpha = ((Renderer)val).material.GetColor("_Color").a;
+		gameObject.layer = LayerMask.NameToLayer("UIItems");
+		MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
+		meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
+		meshRenderer.receiveShadows = false;
+		MeshFilter meshFilter = gameObject.AddComponent<MeshFilter>();
+		meshRenderer.material = material;
+		baseAlpha = meshRenderer.material.GetColor("_Color").a;
 		currentAlpha = baseAlpha;
 		Vector3[] array = new Vector3[CubeBase.IdentityCorners.Length];
 		for (int i = 0; i < CubeBase.IdentityCorners.Length; i++)
@@ -141,50 +137,41 @@ public class GUICellCursor : MonoBehaviour
 		}
 		if (lineMesh)
 		{
-			SharedCubeFunctions.AddCubeMeshCubeLines(val2.mesh, array, lineWidth);
+			SharedCubeFunctions.AddCubeMeshCubeLines(meshFilter.mesh, array, lineWidth);
 		}
 		if (cubeMesh)
 		{
-			SharedCubeFunctions.AddCubeMesh(val2.mesh, array, insideOut: false);
+			SharedCubeFunctions.AddCubeMesh(meshFilter.mesh, array, insideOut: false);
 		}
 		if (invertedCubeMesh)
 		{
-			SharedCubeFunctions.AddCubeMesh(val2.mesh, array, insideOut: true);
+			SharedCubeFunctions.AddCubeMesh(meshFilter.mesh, array, insideOut: true);
 		}
 	}
 
 	public void SetCursorCube(IntVector position, GameObject cubeGameObject)
 	{
-		//IL_0024: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0029: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0035: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0052: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006d: Unknown result type (might be due to invalid IL or missing references)
 		pos = position;
 		prevCursorSetTime = Time.time;
-		Transform transform = ((Component)this).gameObject.transform;
+		Transform transform = gameObject.transform;
 		Vector3 position2 = SharedCubeFunctions.LocalToWorld(cubeGameObject, pos);
-		((Component)this).gameObject.transform.position = position2;
+		gameObject.transform.position = position2;
 		transform.position = position2;
-		((Component)this).gameObject.transform.localScale = cubeGameObject.transform.localScale;
-		((Component)this).gameObject.transform.rotation = cubeGameObject.transform.rotation;
-		((Component)this).gameObject.active = true;
+		gameObject.transform.localScale = cubeGameObject.transform.localScale;
+		gameObject.transform.rotation = cubeGameObject.transform.rotation;
+		gameObject.SetActive(value: true);
 	}
 
 	private void SetMaterialOpacity(float alphaValue)
 	{
-		//IL_0029: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0049: Unknown result type (might be due to invalid IL or missing references)
-		Material[] materials = ((Component)this).gameObject.renderer.materials;
-		foreach (Material val in materials)
+		Material[] materials = gameObject.GetComponent<Renderer>().materials;
+		foreach (Material material in materials)
 		{
-			((Object)val).hideFlags = (HideFlags)4;
-			Color color = val.GetColor("_Color");
+			material.hideFlags = HideFlags.DontSave;
+			Color color = material.GetColor("_Color");
 			currentAlpha = alphaValue;
 			color.a = currentAlpha;
-			val.SetColor("_Color", color);
+			material.SetColor("_Color", color);
 		}
 	}
 
@@ -203,6 +190,6 @@ public class GUICellCursor : MonoBehaviour
 
 	public void Destroy()
 	{
-		Object.Destroy((Object)(object)((Component)this).gameObject);
+		Object.Destroy(gameObject);
 	}
 }

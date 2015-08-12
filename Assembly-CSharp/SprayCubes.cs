@@ -7,26 +7,25 @@ internal class SprayCubes : CubeModelTool
 
 	private CubePickingInfo cubeNotToBeSprayed;
 
-	private WorldEditorDrawPlane DrawPlane => MVGameController.Instance.EditController.WorldEditorDrawPlane;
+	private WorldEditorDrawPlane DrawPlane => MVGameController.EditController.WorldEditorDrawPlane;
 
 	public override void Enter(CubeModelingStateMachine e)
 	{
 		sprayCursor = new SprayCursor();
-		MVGameController.Instance.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.SprayCubes);
-		waitForMouseUp = MVInputWrapper.GetKey((KeyCode)323);
+		MVGameController.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.SprayCubes);
+		waitForMouseUp = MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect);
 	}
 
 	public override void Execute(CubeModelingStateMachine e)
 	{
-		//IL_009a: Unknown result type (might be due to invalid IL or missing references)
 		base.Execute(e);
 		if (waitForMouseUp)
 		{
-			waitForMouseUp = MVInputWrapper.GetKey((KeyCode)323);
+			waitForMouseUp = MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect);
 			return;
 		}
 		bool addCube = false;
-		if (MVInputWrapper.GetKey((KeyCode)323))
+		if (MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect))
 		{
 			if (e.SelectedCube != null)
 			{
@@ -59,7 +58,7 @@ internal class SprayCubes : CubeModelTool
 	public override void Exit(CubeModelingStateMachine e)
 	{
 		HideCursor();
-		MVGameController.Instance.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.Idle);
+		MVGameController.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.Idle);
 	}
 
 	public override void HideCursor()

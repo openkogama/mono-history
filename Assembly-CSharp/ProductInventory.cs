@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class ProductInventory<TProduct> where TProduct : ProductInfo
+public class ProductInventory
 {
-	public delegate void OnProductInventoryChangeDelegate(ProductInventory<TProduct> productInventory);
+	public delegate void OnProductInventoryChangeDelegate(ProductInventory productInventory);
 
 	public OnProductInventoryChangeDelegate OnProductInventoryChange;
 
-	protected Dictionary<int, ProductInventoryInfo<TProduct>> Inventory = new Dictionary<int, ProductInventoryInfo<TProduct>>();
+	protected Dictionary<int, ProductInventoryInfo> Inventory = new Dictionary<int, ProductInventoryInfo>();
 
 	protected InventoryExpirationChecker expirationChecker;
 
-	private static MVWorldObjectClientManager WOCM => MVGameController.Instance.WOCM;
+	private static MVWorldObjectClientManager WOCM => MVGameController.WOCM;
 
 	public int Count => Inventory.Count;
 
@@ -27,11 +27,11 @@ public class ProductInventory<TProduct> where TProduct : ProductInfo
 		return Inventory.ContainsKey(inventoryID);
 	}
 
-	public void Add(ProductInventoryInfo<TProduct> invInfo)
+	public void Add(ProductInventoryInfo invInfo)
 	{
 		if (invInfo.ProductInfo == null)
 		{
-			Debug.LogError((object)"Trying to add inventory info without product info to inventory.");
+			Debug.LogError("Trying to add inventory info without product info to inventory.");
 			return;
 		}
 		if (invInfo.IsRented && invInfo.ProductInfo.ShopInfo != null && !expirationChecker.Contains(invInfo.InventoryID))
@@ -44,13 +44,13 @@ public class ProductInventory<TProduct> where TProduct : ProductInfo
 		NotifyProductInventoryChange();
 	}
 
-	protected virtual void OnAdded(ProductInventoryInfo<TProduct> invInfo)
+	protected virtual void OnAdded(ProductInventoryInfo invInfo)
 	{
 	}
 
-	public ProductInventoryInfo<TProduct> Get(int inventoryID)
+	public ProductInventoryInfo Get(int inventoryID)
 	{
-		ProductInventoryInfo<TProduct> value = null;
+		ProductInventoryInfo value = null;
 		Inventory.TryGetValue(inventoryID, out value);
 		return value;
 	}
@@ -60,7 +60,7 @@ public class ProductInventory<TProduct> where TProduct : ProductInfo
 		return new HashSet<int>(Inventory.Keys);
 	}
 
-	public void Remove(ProductInventoryInfo<TProduct> inventoryInfo)
+	public void Remove(ProductInventoryInfo inventoryInfo)
 	{
 		Remove(inventoryInfo.InventoryID);
 		NotifyProductInventoryChange();
@@ -72,14 +72,14 @@ public class ProductInventory<TProduct> where TProduct : ProductInfo
 		NotifyProductInventoryChange();
 	}
 
-	public IEnumerable<ProductInventoryInfo<TProduct>> Get(Func<ProductInventoryInfo<TProduct>, bool> predicate)
+	public IEnumerable<ProductInventoryInfo> Get(Func<ProductInventoryInfo, bool> predicate)
 	{
 		return Inventory.Values.Where(predicate);
 	}
 
-	public IEnumerable<ProductInventoryInfo<TProduct>> GetRented()
+	public IEnumerable<ProductInventoryInfo> GetRented()
 	{
-		return Inventory.Values.Where((ProductInventoryInfo<TProduct> invInfo) => invInfo.IsRented);
+		return Inventory.Values.Where((ProductInventoryInfo invInfo) => invInfo.IsRented);
 	}
 
 	public string BuildLogString(string prependMessage)

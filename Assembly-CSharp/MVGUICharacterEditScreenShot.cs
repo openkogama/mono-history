@@ -1,5 +1,4 @@
 using System;
-using Localize;
 using MV.Common;
 using UnityEngine;
 
@@ -11,7 +10,7 @@ public class MVGUICharacterEditScreenShot : UXViewScript
 
 	private AudioBankSound screenshotSound;
 
-	private MVNetworkGame Game => MVGameController.Instance.Game;
+	private MVNetworkGame Game => MVGameController.Game;
 
 	public override void OnInitialize()
 	{
@@ -31,21 +30,23 @@ public class MVGUICharacterEditScreenShot : UXViewScript
 		{
 			screenshotSound.Play();
 		}
-		int profileID = MVGameController.Instance.Game.LocalPlayer.ProfileID;
-		Game.ScreenshotUploaded += MVNetworGame_ScreenshotUploadedHandler;
-		Game.UploadScreenshot(screenshotTex.EncodeToPNG(), ImageType.Avatar, profileID);
+		int profileID = MVGameController.Game.LocalPlayer.ProfileID;
+		if (Game.UploadScreenshot(screenshotTex.EncodeToPNG(), ImageType.Avatar, profileID))
+		{
+			Game.ScreenshotUploaded += MVNetworGame_ScreenshotUploadedHandler;
+		}
 	}
 
 	private void MVNetworGame_ScreenshotUploadedHandler(object sender, ScreenshotUploadedEventArgs e)
 	{
-		MVGameController.Instance.Game.ScreenshotUploaded -= MVNetworGame_ScreenshotUploadedHandler;
+		MVGameController.Game.ScreenshotUploaded -= MVNetworGame_ScreenshotUploadedHandler;
 		if (e.Uploaded)
 		{
-			UXUtils.FindGUIObjectOfType<UXDialogFactory>().CreateDialog(TextSlotIndex.ScreenshotTaken).Show();
+			UXUtils.UXDialogFactory.CreateDialog(TM._("Screenshot Taken!"), string.Empty).Show();
 		}
 		else
 		{
-			UXUtils.FindGUIObjectOfType<UXDialogFactory>().CreateDialog(TextSlotIndex.ScreenshotNotTaken).Show();
+			UXUtils.UXDialogFactory.CreateDialog(TM._("There was a server communication problem. Try again!"), string.Empty).Show();
 		}
 	}
 }

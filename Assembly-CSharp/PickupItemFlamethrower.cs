@@ -41,17 +41,16 @@ public class PickupItemFlamethrower : PickupItem
 
 	private void Start()
 	{
-		meshRenderers = ((Component)this).GetComponentsInChildren<MeshRenderer>();
+		meshRenderers = GetComponentsInChildren<MeshRenderer>();
 		currentFuel = fuelAmount;
 	}
 
 	private void OnDrawGizmos()
 	{
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		Gizmos.DrawWireSphere(((Component)hitZoneCenter).transform.position, hitRadius);
+		Gizmos.DrawWireSphere(hitZoneCenter.transform.position, hitRadius);
 	}
 
-	public override void OnStateChanged(Hashtable newState)
+	public override void OnStateChanged(Dictionary<object, object> newState)
 	{
 		currentFuel = fuelAmount;
 	}
@@ -61,7 +60,7 @@ public class PickupItemFlamethrower : PickupItem
 		while (IsStillFlaming() && currentFuel > 0f)
 		{
 			Fire(owner.WorldObjectOwner.Id);
-			yield return (object)new WaitForSeconds(0.2f);
+			yield return new WaitForSeconds(0.2f);
 		}
 	}
 
@@ -70,7 +69,7 @@ public class PickupItemFlamethrower : PickupItem
 		while (IsStillFlaming())
 		{
 			currentFuel -= burnRate * Time.deltaTime;
-			((Component)muzzlePoint).transform.forward = owner.LookDirection;
+			muzzlePoint.transform.forward = owner.LookDirection;
 			if (owner.IsLocal)
 			{
 				MVRigidBody mvRigidBody = owner.WorldObjectOwner.GameObject.GetComponent<MVRigidBody>();
@@ -79,7 +78,7 @@ public class PickupItemFlamethrower : PickupItem
 					float verticalVelocity = mvRigidBody.Velocity.y;
 					if (verticalVelocity < 0f)
 					{
-						float flamerImpulse = owner.LookDirection.y * 30f * 0.95f;
+						float flamerImpulse = owner.LookDirection.y * (float)MVPhysics.Gravity * 0.95f * Time.deltaTime * 40f;
 						float impulseY = Mathf.Min(flamerImpulse, verticalVelocity);
 						mvRigidBody.AddImpulse(new Vector3(0f, 0f - impulseY, 0f), suspendImpactDamage: true);
 					}
@@ -88,7 +87,7 @@ public class PickupItemFlamethrower : PickupItem
 			if (currentFuel < 0f)
 			{
 				MVEquipable equipable = owner.WorldObjectOwner.GameObject.GetComponent<MVEquipable>();
-				if ((Object)(object)equipable != (Object)null)
+				if (equipable != null)
 				{
 					equipable.Unequip();
 				}
@@ -97,7 +96,7 @@ public class PickupItemFlamethrower : PickupItem
 			yield return 0;
 		}
 		flameParticles.enableEmission = false;
-		((Component)this).audio.Stop();
+		GetComponent<AudioSource>().Stop();
 	}
 
 	public override void TriggerBegin(int instigatorActorNr)
@@ -110,11 +109,11 @@ public class PickupItemFlamethrower : PickupItem
 		}
 		flamerStartTime = Time.time;
 		flameParticles.enableEmission = true;
-		((Component)this).audio.Play();
+		GetComponent<AudioSource>().Play();
 		flameParticles.Play();
 		isFlaming = true;
-		((MonoBehaviour)this).StartCoroutine(DoFlaming());
-		((MonoBehaviour)this).StartCoroutine(DoFuelBurn());
+		StartCoroutine(DoFlaming());
+		StartCoroutine(DoFuelBurn());
 	}
 
 	public override void TriggerEnd()
@@ -137,26 +136,18 @@ public class PickupItemFlamethrower : PickupItem
 
 	private List<InteractionDataHandlerBase> SphereOverlapAgainsWos()
 	{
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0036: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004b: Unknown result type (might be due to invalid IL or missing references)
 		List<InteractionDataHandlerBase> list = new List<InteractionDataHandlerBase>();
-		Vector3 val = hitZoneCenter.position - muzzlePoint.position;
-		Ray ray = new Ray(muzzlePoint.position, val.normalized);
+		Vector3 vector = hitZoneCenter.position - muzzlePoint.position;
+		Ray ray = new Ray(muzzlePoint.position, vector.normalized);
 		int layerMask = 1 << LayerMask.NameToLayer("Player");
-		List<VoxelHit> list2 = CollisionDetection.MVSphereCastAll(ray, hitRadius, val.magnitude, owner.IgnoreWOIDs, layerMask);
+		List<VoxelHit> list2 = CollisionDetection.MVSphereCastAll(ray, hitRadius, vector.magnitude, owner.IgnoreWOIDs, layerMask);
 		foreach (VoxelHit item in list2)
 		{
 			MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(item.transform);
 			if (mVObject != null)
 			{
 				InteractionDataHandlerBase component = mVObject.GameObject.GetComponent<InteractionDataHandlerBase>();
-				if ((Object)(object)component != (Object)null)
+				if (component != null)
 				{
 					list.Add(component);
 				}

@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,13 +11,9 @@ public class MVSmoke : MVLogicObject
 
 	public override bool HasOutputConnector => false;
 
-	public MVSmoke(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVSmoke(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, "Prefabs/SmokeObject", worldObjects)
 	{
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0032: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003c: Expected Obj, but got Unknown
 		particleGO = (GameObject)Object.Instantiate(Resources.Load("ParticleFX/FluffySmoke"), gameObject.transform.position, Quaternion.identity);
 		particleGO.transform.parent = gameObject.transform;
 		ToggleEmitter(toggle: false);
@@ -60,9 +55,9 @@ public class MVSmoke : MVLogicObject
 	private void ToggleEmitter(bool toggle)
 	{
 		ParticleEmitter[] componentsInChildren = particleGO.GetComponentsInChildren<ParticleEmitter>();
-		foreach (ParticleEmitter val in componentsInChildren)
+		foreach (ParticleEmitter particleEmitter in componentsInChildren)
 		{
-			val.emit = toggle;
+			particleEmitter.emit = toggle;
 		}
 	}
 }

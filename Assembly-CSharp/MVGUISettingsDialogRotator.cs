@@ -1,11 +1,10 @@
 using System.Collections.Generic;
-using Localize;
 
 public class MVGUISettingsDialogRotator : MVGUISettingsDialog
 {
 	public MVGUISettingsDialogRotator()
 	{
-		dialogFactory.CreateCustomDialog("Prefabs/GUI/Box Settings Dialogs/MovableSpeedSettingsDialog", TextSlotIndex.Rotator).AddPositiveButton(TextSlotIndex.Ok).AddNegativeButton(TextSlotIndex.Cancel)
+		dialogFactory.CreateCustomDialog("Prefabs/GUI/Box Settings Dialogs/MovableSpeedSettingsDialog", TM._("Rotator")).AddPositiveButton(TM._("Ok")).AddNegativeButton(TM._("Cancel"))
 			.SetOnResultCallback(OnDialogResult)
 			.SetValues(BuildDialogData())
 			.Show();
@@ -18,9 +17,9 @@ public class MVGUISettingsDialogRotator : MVGUISettingsDialog
 			float num = (float)dialog.GetResult();
 			MVRotator mVRotator = wo as MVRotator;
 			string keyPath = "BlueprintData\\AngularSpeed";
-			MVGameController.Instance.Game.UpdateWorldObjectDataPartial(mVRotator.Id, keyPath, num);
+			MVGameController.Game.UpdateWorldObjectDataPartial(mVRotator.Id, keyPath, num);
 		}
-		MVGameController.Instance.EditorController.EditorStateMachine.DeSelectAll();
+		MVGameController.EditorController.EditorStateMachine.DeSelectAll();
 	}
 
 	private Dictionary<string, DialogData> BuildDialogData()

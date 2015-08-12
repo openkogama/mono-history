@@ -4,6 +4,8 @@ public class PlayerData
 
 	public Friend friend;
 
+	public int Score => player.GetGameStat(GameStatCounterType.Kill);
+
 	public PlayerData(MVPlayer player, Friend friend)
 	{
 		this.player = player;

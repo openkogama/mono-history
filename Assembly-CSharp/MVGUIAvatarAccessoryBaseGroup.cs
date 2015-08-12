@@ -10,11 +10,11 @@ public abstract class MVGUIAvatarAccessoryBaseGroup : MonoBehaviour
 
 	protected Transform previewItemsRoot;
 
-	protected UXGroup Group => ((Component)this).gameObject.GetComponent<UXGroup>();
+	protected UXGroup Group => gameObject.GetComponent<UXGroup>();
 
-	protected MVNetworkGame Game => MVGameController.Instance.Game;
+	protected MVNetworkGame Game => MVGameController.Game;
 
-	public virtual void Initialize()
+	public virtual void Initialize(AvatarAccessoryController avatarAccessoryController)
 	{
 		CreatePreviewItemRoot();
 		InitializeCollectionView();
@@ -26,30 +26,29 @@ public abstract class MVGUIAvatarAccessoryBaseGroup : MonoBehaviour
 
 	private void CreatePreviewItemRoot()
 	{
-		//IL_0016: Unknown result type (might be due to invalid IL or missing references)
-		previewItemsRoot = new GameObject("Preview Root - " + ((Object)((Component)this).gameObject).name).transform;
+		previewItemsRoot = new GameObject("Preview Root - " + gameObject.name).transform;
 	}
 
 	protected abstract void InitializeCollectionView();
 
 	protected virtual void OnShow()
 	{
-		if ((Object)(object)previewItemsRoot != (Object)null)
+		if (previewItemsRoot != null)
 		{
-			((Component)previewItemsRoot).GetComponentsInChildren<Camera>().ToList().ForEach((Camera c) =>
+			previewItemsRoot.GetComponentsInChildren<Camera>().ToList().ForEach((Camera c) =>
 			{
-				((Behaviour)c).enabled = true;
+				c.enabled = true;
 			});
 		}
 	}
 
 	protected virtual void OnHide()
 	{
-		if ((Object)(object)previewItemsRoot != (Object)null)
+		if (previewItemsRoot != null)
 		{
-			((Component)previewItemsRoot).GetComponentsInChildren<Camera>().ToList().ForEach((Camera c) =>
+			previewItemsRoot.GetComponentsInChildren<Camera>().ToList().ForEach((Camera c) =>
 			{
-				((Behaviour)c).enabled = false;
+				c.enabled = false;
 			});
 		}
 	}

@@ -1,6 +1,5 @@
 using MV.Common;
 using MV.WorldObject;
-using UnityEngine;
 
 public class MutantHitPackage : InteractionPackage
 {
@@ -12,7 +11,7 @@ public class MutantHitPackage : InteractionPackage
 	public override void ParseAndHandlePackage(MVWorldObjectClient worldObjectClient, MVPlayer shooter, InteractionData interactionStruct)
 	{
 		MVInteractableBase component = worldObjectClient.GameObject.GetComponent<MVInteractableBase>();
-		if ((Object)(object)component != (Object)null)
+		if (component != null)
 		{
 			component.TakeDamage(interactionStruct.Damage, shooter, PlayerKilledByType.Mutant);
 		}

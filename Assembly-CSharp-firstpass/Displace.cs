@@ -1,16 +1,16 @@
 using UnityEngine;
 
-[ExecuteInEditMode]
 [RequireComponent(typeof(WaterBase))]
+[ExecuteInEditMode]
 public class Displace : MonoBehaviour
 {
 	private WaterBase waterBase;
 
 	public void Start()
 	{
-		if (!Object.op_Implicit((Object)(object)waterBase))
+		if (!waterBase)
 		{
-			waterBase = (WaterBase)(object)((Component)this).gameObject.GetComponent(typeof(WaterBase));
+			waterBase = (WaterBase)gameObject.GetComponent(typeof(WaterBase));
 		}
 	}
 

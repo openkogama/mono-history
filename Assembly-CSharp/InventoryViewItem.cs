@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using Localize;
 using MV.WorldObject;
 using UnityEngine;
 
@@ -19,7 +17,7 @@ public class InventoryViewItem : MVGUIBasicViewItem
 	public override void SetVisible(bool visible)
 	{
 		base.SetVisible(visible);
-		if ((Object)(object)InfoButton != (Object)null)
+		if (InfoButton != null)
 		{
 			InfoButton.SetVisible(visible: false);
 		}
@@ -30,10 +28,10 @@ public class InventoryViewItem : MVGUIBasicViewItem
 		if (!_isBuilding)
 		{
 			_isBuilding = true;
-			((Component)this).gameObject.active = true;
+			gameObject.SetActive(value: true);
 			BuildImagePlane();
 			MVItem item = Item.Object as MVItem;
-			if ((Object)(object)InfoButton != (Object)null)
+			if (InfoButton != null)
 			{
 				UXIconButton infoButton = InfoButton;
 				infoButton.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(infoButton.OnClick, new UXBaseButton.OnClickDelegate(OnOpenItemActionDialog));
@@ -46,21 +44,20 @@ public class InventoryViewItem : MVGUIBasicViewItem
 	{
 		_loading = true;
 		LoadingCircle.SetVisible(Visible);
-		((MonoBehaviour)this).StartCoroutine(ItemViewRoutine(item, previewWidth, previewHeight));
+		ItemViewRoutine(item, previewWidth, previewHeight);
 	}
 
-	private IEnumerator ItemViewRoutine(MVItem item, int previewWidth, int previewHeight)
+	private void ItemViewRoutine(MVItem item, int previewWidth, int previewHeight)
 	{
-		KoGaMaPackageClient koGaMaPackageClient = ARepository.GetKoGaMaPackageFromItem(item);
-		WO = koGaMaPackageClient.worldObjects[koGaMaPackageClient.worldObjectRoot];
-		ObjectPreviewer = ObjectPreviewer.Create(previewWidth, previewHeight, (CameraClearFlags)2, WO.PreviewLayerMask, Vector3.zero, PreviewItemsRoot, new Vector3(100f, 100f, 10f * (float)Item.Index), item.name, WO, WO.GameObject);
-		Material previewMaterial = new Material(ItemPreviewMaterial);
-		((Object)previewMaterial).hideFlags = (HideFlags)13;
-		previewMaterial.mainTexture = (Texture)(object)ObjectPreviewer.PreviewTexture;
-		MeshRenderer meshRenderer = ((Component)ItemImagePlane).gameObject.AddComponent<MeshRenderer>();
-		((Renderer)meshRenderer).material = previewMaterial;
+		KoGaMaPackageClient koGaMaPackageFromItem = ARepository.GetKoGaMaPackageFromItem(item);
+		WO = koGaMaPackageFromItem.worldObjects[koGaMaPackageFromItem.worldObjectRoot];
+		ObjectPreviewer = ObjectPreviewer.Create(previewWidth, previewHeight, CameraClearFlags.Color, WO.PreviewLayerMask, Vector3.zero, PreviewItemsRoot, new Vector3(100f, 100f, 10f * (float)Item.Index), item.name, WO, WO.GameObject);
+		Material material = new Material(ItemPreviewMaterial);
+		material.hideFlags = HideFlags.HideAndDontSave;
+		material.mainTexture = ObjectPreviewer.PreviewTexture;
+		MeshRenderer meshRenderer = ItemImagePlane.gameObject.AddComponent<MeshRenderer>();
+		meshRenderer.material = material;
 		OnInventoryViewItemBuilt();
-		yield return 0;
 	}
 
 	protected virtual void OnInventoryViewItemBuilt()
@@ -81,28 +78,28 @@ public class InventoryViewItem : MVGUIBasicViewItem
 		}
 		if (mVItem.itemCategoryID == 6 || mVItem.itemCategoryID == 7 || mVItem.itemCategoryID == 10)
 		{
-			AddTooltip(ToolTipText.Instance.GetToolTipTextFromItemName(mVItem.name));
+			AddTooltip(ItemNameToLocalizedString.GetToolTipTextFromItemName(mVItem.name));
 		}
 	}
 
 	private void OnOpenItemActionDialog()
 	{
-		MVGameController.Instance.EditController.HideCurrentWindow();
-		UXDialogFactory uXDialogFactory = UXUtils.FindGUIObjectOfType<UXDialogFactory>();
-		uXDialogFactory.CreateCustomDialog("Prefabs/GUI/Item Action/ItemActionDialog", TextSlotIndex.Empty, noButtons: true).SetOnResultCallback(OnCloseItemActionDialog);
+		MVGameController.EditController.HideCurrentWindow();
+		UXDialogFactory uXDialogFactory = UXUtils.UXDialogFactory;
+		uXDialogFactory.CreateCustomDialog("Prefabs/GUI/Item Action/ItemActionDialog", string.Empty, noButtons: true).SetOnResultCallback(OnCloseItemActionDialog);
 		(uXDialogFactory.CurrentlyBuildingDialogBox as MVGUIItemActionDialog).SetMVItem(Item.Object as MVItem);
 		uXDialogFactory.Show();
 	}
 
 	private void OnCloseItemActionDialog(UXDialogBox dialogBox)
 	{
-		MVGameController.Instance.EditController.ShowInventory();
+		MVGameController.EditorController.ShowInventory();
 	}
 
 	public override void OnMouseSlotOver(int slotIndex, int visiblePage)
 	{
 		base.OnMouseSlotOver(slotIndex, visiblePage);
-		if (PageIndex == visiblePage && (Object)(object)InfoButton != (Object)null)
+		if (PageIndex == visiblePage && InfoButton != null)
 		{
 			InfoButton.SetVisible(visible: true);
 		}
@@ -111,7 +108,7 @@ public class InventoryViewItem : MVGUIBasicViewItem
 	public override void OnMouseSlotOverExit(int slotIndex, int visiblePage)
 	{
 		base.OnMouseSlotOverExit(slotIndex, visiblePage);
-		if ((Object)(object)InfoButton != (Object)null)
+		if (InfoButton != null)
 		{
 			InfoButton.SetVisible(visible: false);
 		}
@@ -132,7 +129,7 @@ public class InventoryViewItem : MVGUIBasicViewItem
 		{
 			WO.Destroy();
 		}
-		if ((Object)(object)ObjectPreviewer != (Object)null)
+		if (ObjectPreviewer != null)
 		{
 			ObjectPreviewer.Destroy();
 		}

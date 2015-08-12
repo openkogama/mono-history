@@ -1,5 +1,4 @@
 using System;
-using Localize;
 using MV.WorldObject;
 using UnityEngine;
 
@@ -40,7 +39,7 @@ public class MVGUISellAvatarDialog : UXViewScript
 		uXTextButton2.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXTextButton2.OnClick, new UXBaseButton.OnClickDelegate(SellClicked));
 		UXTextButton uXTextButton3 = update;
 		uXTextButton3.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXTextButton3.OnClick, new UXBaseButton.OnClickDelegate(UpdateClicked));
-		dialogFactory = UXUtils.FindGUIObjectOfType<UXDialogFactory>();
+		dialogFactory = UXUtils.UXDialogFactory;
 		UXWindow uXWindow = window;
 		uXWindow.OnExitButtonClick = (UXWindow.OnExitButtonClickDelegate)Delegate.Combine(uXWindow.OnExitButtonClick, (UXWindow.OnExitButtonClickDelegate)(() =>
 		{
@@ -54,16 +53,14 @@ public class MVGUISellAvatarDialog : UXViewScript
 		this.woID = woID;
 		if (avatarMetaData.priceSilver <= 0)
 		{
-			UXTextField uXTextField = priceTextField;
-			int priceSilver = avatarMetaData.priceSilver;
-			uXTextField.Text = priceSilver.ToString();
+			priceTextField.Text = avatarMetaData.priceSilver.ToString();
 		}
 		avatarName.Text = avatarMetaData.name;
 	}
 
 	public void SellClicked()
 	{
-		Debug.Log((object)"SellClick");
+		Debug.Log("SellClick");
 		int num = Convert.ToInt32(priceTextField.Text);
 		if (num > 0 && avatarName.Text != string.Empty)
 		{
@@ -73,9 +70,9 @@ public class MVGUISellAvatarDialog : UXViewScript
 
 	private void ScreenShotCallback(Texture2D screenshotTex)
 	{
-		Debug.Log((object)"Screenshot taken");
+		Debug.Log("Screenshot taken");
 		int priceSilver = Convert.ToInt32(priceTextField.Text);
-		dialogFactory.CreateCustomDialog("Prefabs/GUI/Avatar Action/AvatarMarketPlaceActionDialog", TextSlotIndex.SellOnMarketplace, noButtons: true, stackDialog: true, canClose: false).SetOnResultCallback(OnAddToMarketplaceReturn);
+		dialogFactory.CreateCustomDialog("Prefabs/GUI/Avatar Action/AvatarMarketPlaceActionDialog", TM._("Sell Item"), noButtons: true, stackDialog: true, canClose: false).SetOnResultCallback(OnAddToMarketplaceReturn);
 		(dialogFactory.CurrentlyBuildingDialogBox as MVGUIAvatarMarketPlaceActionDialog).SellAvatar(woID, priceSilver, avatarName.Text, screenshotTex.EncodeToPNG());
 		dialogFactory.Show();
 		View.Hide();
@@ -83,35 +80,36 @@ public class MVGUISellAvatarDialog : UXViewScript
 
 	private void OnAddToMarketplaceReturn(UXDialogBox dialogBox)
 	{
-		TextSlotIndex messageIndex;
+		string txt;
 		if (dialogBox.DialogResult != UXDialogResult.Positive)
 		{
-			messageIndex = ((!avatarMetaData.isOnMarketPlace) ? TextSlotIndex.SellItemOnMarketplaceFailed : TextSlotIndex.UpdateItemOnMarketplaceFailed);
+			txt = ((!avatarMetaData.isOnMarketPlace) ? "Failed to put '{0}' on the marketplace." : "Failed to update '{0}'.");
 		}
 		else
 		{
-			messageIndex = ((!avatarMetaData.isOnMarketPlace) ? TextSlotIndex.SellItemOnMarketplaceSuccessful : TextSlotIndex.UpdateItemOnMarketplaceSuccessful);
+			txt = ((!avatarMetaData.isOnMarketPlace) ? "'{0}' is now on the marketplace." : "'{0}' updated on marketplace.");
 		}
-		ShowResultDialog(messageIndex);
+		ShowResultDialog(txt);
 	}
 
 	private void OnDeleteFromMarketplaceReturn(UXDialogBox dialogBox)
 	{
-		TextSlotIndex messageIndex = ((dialogBox.DialogResult != UXDialogResult.Positive) ? TextSlotIndex.RemoveItemFromMarketplaceFailed : TextSlotIndex.RemoveItemFromMarketplaceSuccessful);
-		ShowResultDialog(messageIndex);
+		string txt = ((dialogBox.DialogResult != UXDialogResult.Positive) ? TM._("Failed to remove '{0}' from marketplace.") : TM._("Removed '{0}' from marketplace."));
+		ShowResultDialog(txt);
 	}
 
-	private void ShowResultDialog(TextSlotIndex messageIndex)
+	private void ShowResultDialog(string txt)
 	{
+		Debug.Log(txt);
 		ValueInsert valueInsert = new ValueInsert();
 		valueInsert.AddString(avatarName.Text);
-		dialogFactory.CreateDialog(messageIndex, TextSlotIndex.Notice, UXDialogType.Simple, noButtons: false, stackDialog: true, canClose: true, valueInsert).Show();
+		dialogFactory.CreateDialog(TM.GetTextWithValues(txt, valueInsert), TM._("Notice"), UXDialogType.Simple, noButtons: false, stackDialog: true, canClose: true, valueInsert).Show();
 	}
 
 	public void RemoveClicked()
 	{
-		Debug.Log((object)"RemoveClick");
-		dialogFactory.CreateCustomDialog("Prefabs/GUI/Avatar Action/AvatarMarketPlaceActionDialog", TextSlotIndex.RemoveFromMarketplace, noButtons: true, stackDialog: true, canClose: false).SetOnResultCallback(OnDeleteFromMarketplaceReturn);
+		Debug.Log("RemoveClick");
+		dialogFactory.CreateCustomDialog("Prefabs/GUI/Avatar Action/AvatarMarketPlaceActionDialog", TM._("Remove Item"), noButtons: true, stackDialog: true, canClose: false).SetOnResultCallback(OnDeleteFromMarketplaceReturn);
 		(dialogFactory.CurrentlyBuildingDialogBox as MVGUIAvatarMarketPlaceActionDialog).DeleteAvatar(woID);
 		dialogFactory.Show();
 		View.Hide();
@@ -119,7 +117,7 @@ public class MVGUISellAvatarDialog : UXViewScript
 
 	public void UpdateClicked()
 	{
-		Debug.Log((object)"UpdateClick");
+		Debug.Log("UpdateClick");
 		SellClicked();
 	}
 
@@ -127,6 +125,7 @@ public class MVGUISellAvatarDialog : UXViewScript
 	{
 		base.OnHide();
 		UXFullscreenColliderBox.Instance.RemoveBlockingObject(this);
+		MVInputWrapper.ignoreAllKeys = false;
 	}
 
 	public override void OnShow()

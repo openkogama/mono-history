@@ -22,6 +22,10 @@ public class MVOpErrorCode
 
 	public const int JoinGameInitializationFailed = -10;
 
+	public const int JoinGamePingNotOk = -11;
+
+	public const int JoinFirstPingNotOk = -12;
+
 	public const int PublishNotAuthorized = -2;
 
 	public const int InventoryPrototypeNotFound = -2;

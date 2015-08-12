@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Localize;
 using UnityEngine;
 
 public class UXDialogFactory : MonoBehaviour
@@ -11,7 +10,7 @@ public class UXDialogFactory : MonoBehaviour
 
 	public Vector2 MinimumDialogBoxSize = new Vector2(25f, 12f);
 
-	public Vector2 EdgeBuffer = Vector2.op_Implicit(new Vector3(5f, 2f));
+	public Vector2 EdgeBuffer = new Vector3(5f, 2f);
 
 	public float ButtonsOffset = 2.5f;
 
@@ -61,21 +60,12 @@ public class UXDialogFactory : MonoBehaviour
 
 	public UXDialogBox CurrentlyBuildingDialogBox { get; private set; }
 
-	public UXDialogFactory()
-	{
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0020: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0025: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-	}
-
 	public void Awake()
 	{
-		screen = UXUtils.FindGUIObjectOfType<UXScreen>();
+		screen = UXUtils.UXScreen;
 		UXScreen uXScreen = screen;
 		uXScreen.OnResize = (UXScreen.OnResizeDelegate)Delegate.Combine(uXScreen.OnResize, new UXScreen.OnResizeDelegate(UpdatePlacement));
-		if ((Object)(object)go == (Object)null)
+		if (go == null)
 		{
 			InitializeCollider();
 		}
@@ -83,10 +73,6 @@ public class UXDialogFactory : MonoBehaviour
 
 	private void InitializeCollider()
 	{
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0010: Expected Obj, but got Unknown
-		//IL_00a9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00be: Unknown result type (might be due to invalid IL or missing references)
 		go = new GameObject("Collider");
 		boxCollider = go.AddComponent<BoxCollider>();
 		UXMouseClickObject uXMouseClickObject = go.AddComponent<UXMouseClickObject>();
@@ -95,30 +81,22 @@ public class UXDialogFactory : MonoBehaviour
 		{
 		};
 		go.layer = LayerMask.NameToLayer("UXElement");
-		go.transform.parent = ((Component)this).transform;
+		go.transform.parent = transform;
 		go.transform.localPosition = Vector3.zero;
 		go.transform.localScale = Vector3.one;
-		go.active = false;
+		go.SetActive(value: false);
 	}
 
 	public void UpdatePlacement()
 	{
-		//IL_001f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0036: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0048: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0052: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0076: Unknown result type (might be due to invalid IL or missing references)
 		go.transform.position = screen.GetPosition(UXHorizontal.Center, UXVertical.Middle, depth - 2f);
-		Vector3 val = screen.GetPosition(UXHorizontal.Left, UXVertical.Top, 0f) - screen.GetPosition(UXHorizontal.Right, UXVertical.Bottom, 0f);
-		boxCollider.size = new Vector3(Mathf.Abs(val.x), Mathf.Abs(val.y), 10f);
+		Vector3 vector = screen.GetPosition(UXHorizontal.Left, UXVertical.Top, 0f) - screen.GetPosition(UXHorizontal.Right, UXVertical.Bottom, 0f);
+		boxCollider.size = new Vector3(Mathf.Abs(vector.x), Mathf.Abs(vector.y), 10f);
 	}
 
-	public UXDialogFactory CreateDialog(TextSlotIndex messageIndex, TextSlotIndex headerIndex = TextSlotIndex.Empty, UXDialogType dialogType = UXDialogType.Simple, bool noButtons = false, bool stackDialog = false, bool canClose = true, ValueInsert values = null)
+	public UXDialogFactory CreateDialog(string message, string header = "", UXDialogType dialogType = UXDialogType.Simple, bool noButtons = false, bool stackDialog = false, bool canClose = true, ValueInsert values = null)
 	{
-		string textWithValues = Localization.Instance.GetTextWithValues(messageIndex, values);
-		string textWithValues2 = Localization.Instance.GetTextWithValues(headerIndex, values);
-		return BuildDialog(textWithValues, textWithValues2, dialogType, noButtons, stackDialog, canClose, values);
+		return BuildDialog(message, header, dialogType, noButtons, stackDialog, canClose, values);
 	}
 
 	public UXDialogFactory CreateDevelopmentDialog(string message, string header, UXDialogType dialogType = UXDialogType.Simple, bool noButtons = false, bool stackDialog = false, bool canClose = true, ValueInsert values = null)
@@ -132,23 +110,21 @@ public class UXDialogFactory : MonoBehaviour
 
 	public UXDialogFactory BuildDialog(string text, string header, UXDialogType dialogType = UXDialogType.Simple, bool noButtons = false, bool stackDialog = false, bool canClose = true, ValueInsert values = null)
 	{
-		//IL_004e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0063: Unknown result type (might be due to invalid IL or missing references)
-		if ((Object)(object)CurrentDialogBox != (Object)null && !stackDialog)
+		if (CurrentDialogBox != null && !stackDialog)
 		{
 			return null;
 		}
 		DestroyBuildingDialog();
 		CurrentlyBuildingDialogBox = AddDialog(dialogType);
-		((Component)CurrentlyBuildingDialogBox).transform.parent = DialogRoot;
-		((Component)CurrentlyBuildingDialogBox).transform.localPosition = Vector3.zero;
-		((Component)CurrentlyBuildingDialogBox).transform.localScale = Vector3.one;
-		UXText component = UXUtils.FindChild(((Component)CurrentlyBuildingDialogBox).gameObject, "Text").GetComponent<UXText>();
+		CurrentlyBuildingDialogBox.transform.parent = DialogRoot;
+		CurrentlyBuildingDialogBox.transform.localPosition = Vector3.zero;
+		CurrentlyBuildingDialogBox.transform.localScale = Vector3.one;
+		UXText component = UXUtils.FindChild(CurrentlyBuildingDialogBox.gameObject, "Text").GetComponent<UXText>();
 		component.Text = text;
-		UXWindow component2 = UXUtils.FindChild(((Component)CurrentlyBuildingDialogBox).gameObject, "Window").GetComponent<UXWindow>();
+		UXWindow component2 = UXUtils.FindChild(CurrentlyBuildingDialogBox.gameObject, "Window").GetComponent<UXWindow>();
 		component2.SetHeaderText(header);
 		allowNoButtons = noButtons;
-		((Component)CurrentlyBuildingDialogBox).gameObject.SetActiveRecursively(false);
+		CurrentlyBuildingDialogBox.gameObject.SetActive(value: false);
 		currentDialogButtons.Clear();
 		if (canClose)
 		{
@@ -161,9 +137,9 @@ public class UXDialogFactory : MonoBehaviour
 		return this;
 	}
 
-	public UXDialogFactory CreateCustomDialog(string prefabPath, TextSlotIndex headerIndex = TextSlotIndex.Empty, bool noButtons = false, bool stackDialog = false, bool canClose = true)
+	public UXDialogFactory CreateCustomDialog(string prefabPath, string header = "", bool noButtons = false, bool stackDialog = false, bool canClose = true)
 	{
-		return BuildCustomDialog(prefabPath, Localization.Instance.GetText(headerIndex), noButtons, stackDialog, canClose);
+		return BuildCustomDialog(prefabPath, header, noButtons, stackDialog, canClose);
 	}
 
 	public UXDialogFactory CreateCustomDevelopmentDialog(string prefabPath, string header, bool noButtons = false, bool stackDialog = false, bool canClose = true)
@@ -177,21 +153,19 @@ public class UXDialogFactory : MonoBehaviour
 
 	private UXDialogFactory BuildCustomDialog(string prefabPath, string header, bool noButtons = false, bool stackDialog = false, bool canClose = true)
 	{
-		//IL_004e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0063: Unknown result type (might be due to invalid IL or missing references)
-		if ((Object)(object)CurrentDialogBox != (Object)null && !stackDialog)
+		if (CurrentDialogBox != null && !stackDialog)
 		{
 			return null;
 		}
 		DestroyBuildingDialog();
 		CurrentlyBuildingDialogBox = AddDialog(prefabPath);
-		((Component)CurrentlyBuildingDialogBox).transform.parent = DialogRoot;
-		((Component)CurrentlyBuildingDialogBox).transform.localPosition = Vector3.zero;
-		((Component)CurrentlyBuildingDialogBox).transform.localScale = Vector3.one;
-		UXWindow component = UXUtils.FindChild(((Component)CurrentlyBuildingDialogBox).gameObject, "Window").GetComponent<UXWindow>();
+		CurrentlyBuildingDialogBox.transform.parent = DialogRoot;
+		CurrentlyBuildingDialogBox.transform.localPosition = Vector3.zero;
+		CurrentlyBuildingDialogBox.transform.localScale = Vector3.one;
+		UXWindow component = UXUtils.FindChild(CurrentlyBuildingDialogBox.gameObject, "Window").GetComponent<UXWindow>();
 		component.SetHeaderText(header);
 		allowNoButtons = noButtons;
-		((Component)CurrentlyBuildingDialogBox).gameObject.SetActiveRecursively(false);
+		CurrentlyBuildingDialogBox.gameObject.SetActive(value: false);
 		currentDialogButtons.Clear();
 		if (canClose)
 		{
@@ -204,17 +178,17 @@ public class UXDialogFactory : MonoBehaviour
 		return this;
 	}
 
-	public UXDialogFactory AddPositiveButton(TextSlotIndex index, float buttonWidth = 0f)
+	public UXDialogFactory AddPositiveButton(string txt, float buttonWidth = 0f)
 	{
-		string text = Localization.Instance.GetText(index);
-		AddButton(text, buttonWidth, CurrentlyBuildingDialogBox.OnPositiveClose);
+		string buttonText = TM._(txt);
+		AddButton(buttonText, buttonWidth, CurrentlyBuildingDialogBox.OnPositiveClose);
 		return this;
 	}
 
-	public UXDialogFactory AddNegativeButton(TextSlotIndex index, float buttonWidth = 0f)
+	public UXDialogFactory AddNegativeButton(string txt, float buttonWidth = 0f)
 	{
-		string text = Localization.Instance.GetText(index);
-		AddButton(text, buttonWidth, CurrentlyBuildingDialogBox.OnNegativeClose);
+		string buttonText = TM._(txt);
+		AddButton(buttonText, buttonWidth, CurrentlyBuildingDialogBox.OnNegativeClose);
 		return this;
 	}
 
@@ -241,20 +215,22 @@ public class UXDialogFactory : MonoBehaviour
 		foreach (KeyValuePair<string, DialogData> elementDatum in elementData)
 		{
 			string key = elementDatum.Key;
-			GameObject val = UXUtils.FindChild(((Component)CurrentlyBuildingDialogBox).gameObject, key);
-			if ((Object)(object)val != (Object)null)
+			GameObject gameObject = UXUtils.FindChild(CurrentlyBuildingDialogBox.gameObject, key);
+			if (gameObject != null)
 			{
-				elementDatum.Value.ApplyDataToElement(val);
+				elementDatum.Value.ApplyDataToElement(gameObject);
+				continue;
 			}
+			throw new Exception("Could not find element with name: " + key);
 		}
 		return this;
 	}
 
 	public void DestroyBuildingDialog()
 	{
-		if ((Object)(object)CurrentlyBuildingDialogBox != (Object)null)
+		if (CurrentlyBuildingDialogBox != null)
 		{
-			Object.Destroy((Object)(object)((Component)CurrentlyBuildingDialogBox).gameObject);
+			UnityEngine.Object.Destroy(CurrentlyBuildingDialogBox.gameObject);
 			CurrentlyBuildingDialogBox = null;
 			currentDialogButtons.Clear();
 		}
@@ -262,28 +238,25 @@ public class UXDialogFactory : MonoBehaviour
 
 	public void Show()
 	{
-		//IL_007d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0082: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d7: Unknown result type (might be due to invalid IL or missing references)
-		if ((Object)(object)CurrentDialogBox != (Object)null)
+		if (CurrentDialogBox != null)
 		{
-			((Component)CurrentDialogBox).gameObject.SetActiveRecursively(false);
+			CurrentDialogBox.gameObject.SetActive(value: false);
 		}
 		if (currentDialogButtons.Count == 0 && !allowNoButtons)
 		{
-			AddPositiveButton(TextSlotIndex.Ok);
+			AddPositiveButton("Ok");
 		}
 		dialogs.Push(CurrentlyBuildingDialogBox);
 		CurrentlyBuildingDialogBox = null;
-		((Component)CurrentDialogBox).gameObject.SetActiveRecursively(true);
+		CurrentDialogBox.gameObject.SetActive(value: true);
 		Vector2 size = CurrentDialogBox.GetSize();
 		if (currentDialogButtons.Count > 0)
 		{
-			GameObject val = UXUtils.FindChild(((Component)CurrentDialogBox).gameObject, "Buttons");
-			val.transform.localPosition = new Vector3(0f - GetTotalButtonWidth() / 2f, (0f - size.y) / 2f + ButtonsOffset, -0.01f);
+			GameObject gameObject = UXUtils.FindChild(CurrentDialogBox.gameObject, "Buttons");
+			gameObject.transform.localPosition = new Vector3(0f - GetTotalButtonWidth() / 2f, (0f - size.y) / 2f + ButtonsOffset, -0.01f);
 		}
 		CurrentDialogBox.OnShowDialog();
-		go.active = true;
+		go.SetActive(value: true);
 	}
 
 	public void CloseDialog()
@@ -292,30 +265,28 @@ public class UXDialogFactory : MonoBehaviour
 		dialogs.Pop();
 		if (dialogs.Count > 0)
 		{
-			((Component)CurrentDialogBox).gameObject.SetActiveRecursively(true);
+			CurrentDialogBox.gameObject.SetActive(value: true);
 			CurrentDialogBox.OnShowDialog();
 		}
 		else
 		{
-			go.active = false;
+			go.SetActive(value: false);
 		}
 		currentDialogBox.OnCloseDialog();
-		Object.Destroy((Object)(object)((Component)currentDialogBox).gameObject);
+		UnityEngine.Object.Destroy(currentDialogBox.gameObject);
 	}
 
 	private void AddButton(string buttonText, float buttonWidth, UXBaseButton.OnClickDelegate onClick)
 	{
-		//IL_007a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ae: Unknown result type (might be due to invalid IL or missing references)
-		Transform transform = UXUtils.FindChild(((Component)CurrentlyBuildingDialogBox).gameObject, "Buttons").transform;
-		UXTextButton uXTextButton = Object.Instantiate((Object)(object)ButtonPrefab) as UXTextButton;
+		Transform parent = UXUtils.FindChild(CurrentlyBuildingDialogBox.gameObject, "Buttons").transform;
+		UXTextButton uXTextButton = UnityEngine.Object.Instantiate(ButtonPrefab);
 		uXTextButton.FitButtonSizeToText = true;
 		uXTextButton.Text = buttonText;
 		float minButtonWidth = Mathf.Max(MinButtonWidth, buttonWidth);
 		uXTextButton.FitToText(minButtonWidth, ButtonHeight);
-		((Component)uXTextButton).transform.parent = transform;
-		((Component)uXTextButton).transform.localScale = Vector3.one;
-		((Component)uXTextButton).transform.localPosition = new Vector3(GetTotalButtonWidth() + ButtonMargin + uXTextButton.Width / 2f, 0f, 0f);
+		uXTextButton.transform.parent = parent;
+		uXTextButton.transform.localScale = Vector3.one;
+		uXTextButton.transform.localPosition = new Vector3(GetTotalButtonWidth() + ButtonMargin + uXTextButton.Width / 2f, 0f, 0f);
 		uXTextButton.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXTextButton.OnClick, (UXBaseButton.OnClickDelegate)(() =>
 		{
 			FireResult(onClick);
@@ -341,20 +312,11 @@ public class UXDialogFactory : MonoBehaviour
 
 	private Vector2 GetRequiredDialogSize(Vector2 textBounds)
 	{
-		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0002: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0004: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0009: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0019: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0060: Unknown result type (might be due to invalid IL or missing references)
-		Vector2 val = textBounds;
-		val = val + EdgeBuffer + new Vector2(0f, ButtonHeight);
-		val.x = Mathf.Max(MinimumDialogBoxSize.x, val.x);
-		val.y = Mathf.Max(MinimumDialogBoxSize.y, val.y);
-		return val;
+		Vector2 vector = textBounds;
+		vector = vector + EdgeBuffer + new Vector2(0f, ButtonHeight);
+		vector.x = Mathf.Max(MinimumDialogBoxSize.x, vector.x);
+		vector.y = Mathf.Max(MinimumDialogBoxSize.y, vector.y);
+		return vector;
 	}
 
 	private UXDialogBox AddDialog(UXDialogType dialogType)
@@ -363,16 +325,16 @@ public class UXDialogFactory : MonoBehaviour
 		switch (dialogType)
 		{
 		case UXDialogType.Simple:
-			result = Object.Instantiate((Object)(object)SimpleDialogPrefab) as UXDialogBox;
+			result = UnityEngine.Object.Instantiate(SimpleDialogPrefab);
 			break;
 		case UXDialogType.TextField:
-			result = Object.Instantiate((Object)(object)TextFieldDialogPrefab) as UXDialogBox;
+			result = UnityEngine.Object.Instantiate(TextFieldDialogPrefab);
 			break;
 		case UXDialogType.Toggle:
-			result = Object.Instantiate((Object)(object)ToggleDialogPrefab) as UXDialogBox;
+			result = UnityEngine.Object.Instantiate(ToggleDialogPrefab);
 			break;
 		case UXDialogType.ComboBox:
-			result = Object.Instantiate((Object)(object)ComboBoxDialogPrefab) as UXDialogBox;
+			result = UnityEngine.Object.Instantiate(ComboBoxDialogPrefab);
 			break;
 		}
 		return result;
@@ -381,7 +343,6 @@ public class UXDialogFactory : MonoBehaviour
 	private UXDialogBox AddDialog(string prefabPath)
 	{
 		UXDialogBox uXDialogBox = null;
-		Object val = Object.Instantiate(Resources.Load(prefabPath));
-		return ((GameObject)((val is GameObject) ? val : null)).GetComponent<UXDialogBox>();
+		return (UnityEngine.Object.Instantiate(Resources.Load(prefabPath)) as GameObject).GetComponent<UXDialogBox>();
 	}
 }

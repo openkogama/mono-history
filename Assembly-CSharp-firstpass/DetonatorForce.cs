@@ -1,7 +1,7 @@
 using UnityEngine;
 
-[AddComponentMenu("Detonator/Force")]
 [RequireComponent(typeof(Detonator))]
+[AddComponentMenu("Detonator/Force")]
 public class DetonatorForce : DetonatorComponent
 {
 	private float _baseRadius = 50f;
@@ -48,13 +48,6 @@ public class DetonatorForce : DetonatorComponent
 
 	public override void Explode()
 	{
-		//IL_0060: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0065: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_014b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0156: Unknown result type (might be due to invalid IL or missing references)
-		//IL_019a: Unknown result type (might be due to invalid IL or missing references)
 		if (!on || detailThreshold > detail)
 		{
 			return;
@@ -65,31 +58,30 @@ public class DetonatorForce : DetonatorComponent
 		}
 		if (_explodeDelay <= 0f)
 		{
-			_explosionPosition = ((Component)this).transform.position;
+			_explosionPosition = transform.position;
 			_colliders = Physics.OverlapSphere(_explosionPosition, radius);
 			Collider[] colliders = _colliders;
-			foreach (Collider val in colliders)
+			foreach (Collider collider in colliders)
 			{
-				if (!Object.op_Implicit((Object)(object)val) || !Object.op_Implicit((Object)(object)((Component)val).rigidbody))
+				if (!collider || !collider.GetComponent<Rigidbody>())
 				{
 					continue;
 				}
-				((Component)val).rigidbody.AddExplosionForce(power * size, _explosionPosition, radius * size, 4f * MyDetonator().upwardsBias * size);
-				((Component)this).SendMessage("OnDetonatorForceHit", (object)null, (SendMessageOptions)1);
-				if (Object.op_Implicit((Object)(object)fireObject))
+				collider.GetComponent<Rigidbody>().AddExplosionForce(power * size, _explosionPosition, radius * size, 4f * MyDetonator().upwardsBias * size);
+				SendMessage("OnDetonatorForceHit", null, SendMessageOptions.DontRequireReceiver);
+				if ((bool)fireObject)
 				{
-					if (Object.op_Implicit((Object)(object)((Component)val).transform.Find(((Object)fireObject).name + "(Clone)")))
+					if ((bool)collider.transform.Find(fireObject.name + "(Clone)"))
 					{
 						return;
 					}
-					Object val2 = Object.Instantiate((Object)(object)fireObject, ((Component)this).transform.position, ((Component)this).transform.rotation);
-					_tempFireObject = (GameObject)(object)((val2 is GameObject) ? val2 : null);
-					_tempFireObject.transform.parent = ((Component)val).transform;
+					_tempFireObject = Object.Instantiate(fireObject, transform.position, transform.rotation) as GameObject;
+					_tempFireObject.transform.parent = collider.transform;
 					_tempFireObject.transform.localPosition = new Vector3(0f, 0f, 0f);
-					if (Object.op_Implicit((Object)(object)_tempFireObject.particleEmitter))
+					if ((bool)_tempFireObject.GetComponent<ParticleEmitter>())
 					{
-						_tempFireObject.particleEmitter.emit = true;
-						Object.Destroy((Object)(object)_tempFireObject, fireObjectLife);
+						_tempFireObject.GetComponent<ParticleEmitter>().emit = true;
+						Object.Destroy(_tempFireObject, fireObjectLife);
 					}
 				}
 			}

@@ -1,10 +1,7 @@
 using System;
-using UnityEngine;
 
 public class MVGUIEditorToggles : UXViewScript
 {
-	public UXToggleIconButton drawplaneToggle;
-
 	public UXToggleIconButton logicRenderingToggle;
 
 	public UXToggleIconButton gridSnapToggle;
@@ -13,17 +10,15 @@ public class MVGUIEditorToggles : UXViewScript
 
 	public static bool GridSnap;
 
-	private bool logicRendered;
-
 	public bool LogicRendered
 	{
 		get
 		{
-			return logicRendered;
+			return MVGameController.Game.CameraController.IsLogicRendered;
 		}
 		set
 		{
-			if (value != logicRendered)
+			if (value != MVGameController.Game.CameraController.IsLogicRendered)
 			{
 				ToggleLogicRendering();
 			}
@@ -48,19 +43,8 @@ public class MVGUIEditorToggles : UXViewScript
 
 	public void ToggleLogicRendering()
 	{
-		logicRendered = !logicRendered;
-		Camera camera = ((Component)MVGameController.Instance.Game.CameraController).camera;
-		if ((Object)(object)camera != (Object)null)
-		{
-			if (logicRendered)
-			{
-				camera.cullingMask |= 1 << (LayerMask.NameToLayer("Logic") & 0x1F);
-			}
-			else
-			{
-				camera.cullingMask &= ~(1 << (LayerMask.NameToLayer("Logic") & 0x1F));
-			}
-		}
-		logicRenderingToggle.SetToggleState(logicRendered);
+		bool flag = !MVGameController.Game.CameraController.IsLogicRendered;
+		MVGameController.Game.CameraController.RenderLogic(flag);
+		logicRenderingToggle.SetToggleState(flag);
 	}
 }

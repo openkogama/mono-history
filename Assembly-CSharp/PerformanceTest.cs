@@ -14,16 +14,14 @@ public class PerformanceTest : MonoBehaviour
 	{
 		get
 		{
-			//IL_003e: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0044: Expected Obj, but got Unknown
-			if ((Object)(object)_instance == (Object)null)
+			if (_instance == null)
 			{
 				_instance = Object.FindObjectOfType(typeof(PerformanceTest)) as PerformanceTest;
 			}
-			if ((Object)(object)_instance == (Object)null)
+			if (_instance == null)
 			{
-				GameObject val = new GameObject("PerformanceTest");
-				_instance = val.AddComponent(typeof(PerformanceTest)) as PerformanceTest;
+				GameObject gameObject = new GameObject("PerformanceTest");
+				_instance = gameObject.AddComponent(typeof(PerformanceTest)) as PerformanceTest;
 			}
 			return _instance;
 		}
@@ -31,24 +29,24 @@ public class PerformanceTest : MonoBehaviour
 
 	public void Init()
 	{
-		Debug.Log((object)"Performancetest Init");
+		Debug.Log("Performancetest Init");
 	}
 
 	private void Start()
 	{
-		serverStartTime = MVGameController.Instance.Game.Peer.ServerTimeInMilliSeconds;
-		Debug.Log((object)"Performance Test Starting");
+		serverStartTime = MVGameController.Game.Peer.ServerTimeInMilliSeconds;
+		Debug.Log("Performance Test Starting");
 	}
 
 	private void FixedUpdate()
 	{
-		int num = MVGameController.Instance.Game.Peer.ServerTimeInMilliSeconds - serverStartTime;
+		int num = MVGameController.Game.Peer.ServerTimeInMilliSeconds - serverStartTime;
 		clientTime += Time.fixedDeltaTime;
 		debuglogInterval++;
 		if (debuglogInterval > 59)
 		{
 			debuglogInterval = 0;
-			Debug.Log((object)("Servertime : " + num + " clientTime: " + clientTime));
+			Debug.Log("Servertime : " + num + " clientTime: " + clientTime);
 		}
 	}
 }

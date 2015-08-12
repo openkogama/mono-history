@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Localize;
 using MV.WorldObject;
 using UnityEngine;
 
@@ -10,19 +9,19 @@ public class MVGUIAvatarShopInventory : MVGUIInventoryGroup
 
 	protected override void InitializeCollectionView()
 	{
-		repositoryCollection = new ShopRepositoryCollection(MVGameController.Instance.Game.AvatarShopRepository, new int[0]);
+		repositoryCollection = new ShopRepositoryCollection(MVGameController.Game.AvatarShopRepository, new int[0]);
 		collectionView.InstansiateViewItem = InstansiateViewItem;
 		UXCollectionView uXCollectionView = collectionView;
 		uXCollectionView.OnItemSelection = (UXCollectionView.OnBasicItemEventDelegate)Delegate.Combine(uXCollectionView.OnItemSelection, new UXCollectionView.OnBasicItemEventDelegate(OnItemSelection));
 		collectionView.Collection = repositoryCollection;
 		collectionView.Initialize();
-		collectionView.SetVisible(((Component)this).gameObject.GetComponent<UXViewScript>().View.isVisible);
+		collectionView.SetVisible(gameObject.GetComponent<UXViewScript>().View.isVisible);
 	}
 
 	public override void InitializeAfterReset()
 	{
 		CreatePreviewItemRoot();
-		repositoryCollection = new ShopRepositoryCollection(MVGameController.Instance.Game.AvatarShopRepository, new int[0]);
+		repositoryCollection = new ShopRepositoryCollection(MVGameController.Game.AvatarShopRepository, new int[0]);
 		collectionView.Collection = repositoryCollection;
 	}
 
@@ -34,14 +33,14 @@ public class MVGUIAvatarShopInventory : MVGUIInventoryGroup
 	private void ShowAvatarPurchaseDialog(IUXCollectionItem collectionItem)
 	{
 		_purchaseItem = (MVItem)collectionItem.Object;
-		UXDialogFactory uXDialogFactory = UXUtils.FindGUIObjectOfType<UXDialogFactory>();
-		uXDialogFactory.CreateCustomDialog("Prefabs/GUI/Dialogs/BrightProductShopDialog", TextSlotIndex.Empty, noButtons: true).SetOnResultCallback(OnPurchaseDialogResult).SetValues(BuildDialogData(_purchaseItem, collectionItem.Index))
+		UXDialogFactory uXDialogFactory = UXUtils.UXDialogFactory;
+		uXDialogFactory.CreateCustomDialog("Prefabs/GUI/Dialogs/BrightProductShopDialog", string.Empty, noButtons: true).SetOnResultCallback(OnPurchaseDialogResult).SetValues(BuildDialogData(_purchaseItem, collectionItem.Index))
 			.Show();
 		MVGUIProductShopDialog mVGUIProductShopDialog = (MVGUIProductShopDialog)uXDialogFactory.CurrentDialogBox;
 		mVGUIProductShopDialog.SetPrice(_purchaseItem.priceGold, _purchaseItem.priceSilver);
 		mVGUIProductShopDialog.OnTryPurchaseProduct = () =>
 		{
-			MVGameController.Instance.Game.PurchaseAvatar(_purchaseItem.itemID);
+			MVGameController.Game.PurchaseAvatar(_purchaseItem.itemID);
 		};
 	}
 
@@ -53,12 +52,11 @@ public class MVGUIAvatarShopInventory : MVGUIInventoryGroup
 			text = "New Avatar"
 		});
 		AvatarViewItem avatarViewItem = (AvatarViewItem)collectionView.GetCollectionViewItemFromIndex(slotIndex);
-		Object val = Object.Instantiate(Resources.Load("Prefabs/GUI/ShopPreview/AvatarShopPreview"));
-		MVGUIAvatarShopPreview component = ((GameObject)((val is GameObject) ? val : null)).GetComponent<MVGUIAvatarShopPreview>();
+		MVGUIAvatarShopPreview component = (UnityEngine.Object.Instantiate(Resources.Load("Prefabs/GUI/ShopPreview/AvatarShopPreview")) as GameObject).GetComponent<MVGUIAvatarShopPreview>();
 		component.SetAvatarViewItem(avatarViewItem);
 		dictionary.Add("ProductPreview", new ProductPreviewData
 		{
-			productPreview = ((Component)component).gameObject
+			productPreview = component.gameObject
 		});
 		return dictionary;
 	}
@@ -67,7 +65,7 @@ public class MVGUIAvatarShopInventory : MVGUIInventoryGroup
 	{
 		if (dialogBox.DialogResult == UXDialogResult.Positive)
 		{
-			MVGameController.Instance.CharacterEditorController.AvatarShop.View.Hide();
+			MVGameController.CharacterEditorController.AvatarShop.View.Hide();
 		}
 		_purchaseItem = null;
 	}

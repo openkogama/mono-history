@@ -6,7 +6,6 @@ public enum MVWorldObjectState
 	Created,
 	Deserialized,
 	Synced,
-	Dirty,
 	Destroyed,
 	StopTransform
 }

@@ -30,7 +30,7 @@ public class MVGUIBlueprintManagerEntry : UXCustomDialogBox
 
 	private void OpenExistingBlueprint()
 	{
-		(UXUtils.FindComponentInParents(typeof(UXView), ((Component)this).transform.parent) as UXView).ReleaseFocus();
+		(UXUtils.FindComponentInParents(typeof(UXView), transform.parent) as UXView).ReleaseFocus();
 		OnPositiveClose();
 		DialogFactory.CloseDialog();
 		DialogFactory.CreateCustomDevelopmentDialog("Prefabs/GUI/Dev Tools/BlueprintManager/BlueprintManagerPickExisting", "Pick Existing", noButtons: true).Show();
@@ -38,8 +38,8 @@ public class MVGUIBlueprintManagerEntry : UXCustomDialogBox
 
 	private void OpenBluePrintOverview(int woID)
 	{
-		Debug.Log((object)("picked id: " + woID));
-		(UXUtils.FindComponentInParents(typeof(UXView), ((Component)this).transform.parent) as UXView).ReleaseFocus();
+		Debug.Log("picked id: " + woID);
+		(UXUtils.FindComponentInParents(typeof(UXView), transform.parent) as UXView).ReleaseFocus();
 		OnPositiveClose();
 		DialogFactory.CloseDialog();
 		DialogFactory.CreateCustomDevelopmentDialog("Prefabs/GUI/Dev Tools/BlueprintManager/BlueprintManagerOverview", "Blueprint Manager", noButtons: true).Show();

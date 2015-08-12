@@ -11,38 +11,38 @@ public class MVQualitySettings : MonoBehaviour
 
 	private static LodData[] lodSettingsFastest = new LodData[2]
 	{
-		new LodData(0f, isVisible: true, MeshSetting.OriginalMesh, shadows: true),
-		new LodData(300f, isVisible: false, MeshSetting.OriginalMesh, shadows: true)
+		new LodData(0f, isVisible: true, shadows: true),
+		new LodData(300f, isVisible: false, shadows: true)
 	};
 
 	private static LodData[] lodSettingsFast = new LodData[2]
 	{
-		new LodData(0f, isVisible: true, MeshSetting.OriginalMesh, shadows: true),
-		new LodData(300f, isVisible: false, MeshSetting.OriginalMesh, shadows: true)
+		new LodData(0f, isVisible: true, shadows: true),
+		new LodData(300f, isVisible: false, shadows: true)
 	};
 
 	private static LodData[] lodSettingsSimple = new LodData[2]
 	{
-		new LodData(0f, isVisible: true, MeshSetting.OriginalMesh, shadows: true),
-		new LodData(300f, isVisible: false, MeshSetting.OriginalMesh, shadows: true)
+		new LodData(0f, isVisible: true, shadows: true),
+		new LodData(300f, isVisible: false, shadows: true)
 	};
 
 	private static LodData[] lodSettingsGood = new LodData[2]
 	{
-		new LodData(0f, isVisible: true, MeshSetting.OriginalMesh, shadows: true),
-		new LodData(300f, isVisible: false, MeshSetting.OriginalMesh, shadows: true)
+		new LodData(0f, isVisible: true, shadows: true),
+		new LodData(300f, isVisible: false, shadows: true)
 	};
 
 	private static LodData[] lodSettingsBeautiful = new LodData[2]
 	{
-		new LodData(0f, isVisible: true, MeshSetting.OriginalMesh, shadows: true),
-		new LodData(500f, isVisible: false, MeshSetting.OriginalMesh, shadows: true)
+		new LodData(0f, isVisible: true, shadows: true),
+		new LodData(500f, isVisible: false, shadows: true)
 	};
 
 	private static LodData[] lodSettingsFantastic = new LodData[2]
 	{
-		new LodData(0f, isVisible: true, MeshSetting.OriginalMesh, shadows: true),
-		new LodData(300f, isVisible: false, MeshSetting.OriginalMesh, shadows: true)
+		new LodData(0f, isVisible: true, shadows: true),
+		new LodData(300f, isVisible: false, shadows: true)
 	};
 
 	private static LodData[][] lodSettings = new LodData[6][] { lodSettingsFastest, lodSettingsFast, lodSettingsSimple, lodSettingsGood, lodSettingsBeautiful, lodSettingsFantastic };
@@ -63,7 +63,7 @@ public class MVQualitySettings : MonoBehaviour
 		{
 			if (value != QualitySettings.GetQualityLevel())
 			{
-				QualitySettings.SetQualityLevel(value, true);
+				QualitySettings.SetQualityLevel(value, applyExpensiveChanges: true);
 				if (onQualityLevelChanged != null)
 				{
 					onQualityLevelChanged(value);
@@ -74,7 +74,7 @@ public class MVQualitySettings : MonoBehaviour
 
 	private void QualityChanged(int level)
 	{
-		postprocessFogEffect = Object.FindObjectOfType(typeof(PostprocessFog)) as PostprocessFog;
+		postprocessFogEffect = UnityEngine.Object.FindObjectOfType(typeof(PostprocessFog)) as PostprocessFog;
 		switch (level)
 		{
 		}

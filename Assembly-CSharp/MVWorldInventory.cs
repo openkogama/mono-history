@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
@@ -15,9 +14,19 @@ public class MVWorldInventory
 
 	private List<RuntimePrototypeCubeModel> dirtyRPCM = new List<RuntimePrototypeCubeModel>();
 
+	private int fineGrainedTerrainPrototypeID = -1;
+
 	public OnWorldInventoryChangeDelegate OnWorldInventoryChange;
 
 	public Dictionary<int, RuntimePrototypeCubeModel> RuntimePrototypes => runtimePrototypes;
+
+	public int FineGrainedTerrainPrototypeID
+	{
+		set
+		{
+			fineGrainedTerrainPrototypeID = value;
+		}
+	}
 
 	public void AddRuntimePrototypeToDirty(RuntimePrototypeCubeModel rpcm)
 	{
@@ -30,26 +39,39 @@ public class MVWorldInventory
 		runtimePrototypeCubeModel.UpdatePrototype(new BytePacker(worldInventoryData));
 	}
 
-	private void GenerateDirtyRPCM()
+	private void GenerateAllDirty(ref int counter)
 	{
-		int meshUpdates = 1;
 		for (int num = dirtyRPCM.Count - 1; num >= 0; num--)
 		{
-			if (dirtyRPCM[num].MeshGeneratePriority == MeshGeneratePriority.High && dirtyRPCM[num].MeshGenerateDirtyChunks(ref meshUpdates))
+			if (dirtyRPCM[num].MeshGeneratePriority == MeshGeneratePriority.HighGenerateAllDirty && dirtyRPCM[num].MeshGenerateDirtyChunksAll(ref counter))
 			{
 				dirtyRPCM.RemoveAt(num);
 			}
 		}
-		for (int num2 = dirtyRPCM.Count - 1; num2 >= 0; num2--)
+	}
+
+	private bool GenerateDirty(MeshGeneratePriority priority, ref int counter)
+	{
+		for (int num = dirtyRPCM.Count - 1; num >= 0; num--)
 		{
-			if (dirtyRPCM[num2].MeshGeneratePriority == MeshGeneratePriority.Low)
+			if (dirtyRPCM[num].MeshGeneratePriority == priority)
 			{
-				if (!dirtyRPCM[num2].MeshGenerateDirtyChunks(ref meshUpdates))
+				if (!dirtyRPCM[num].MeshGenerateDirtyChunks(ref counter))
 				{
-					break;
+					return false;
 				}
-				dirtyRPCM.RemoveAt(num2);
+				dirtyRPCM.RemoveAt(num);
 			}
+		}
+		return true;
+	}
+
+	private void GenerateDirtyRPCM()
+	{
+		int counter = 1;
+		GenerateAllDirty(ref counter);
+		if (GenerateDirty(MeshGeneratePriority.Medium, ref counter) && GenerateDirty(MeshGeneratePriority.Low, ref counter))
+		{
 		}
 	}
 
@@ -58,13 +80,13 @@ public class MVWorldInventory
 		GenerateDirtyRPCM();
 	}
 
-	public void AddPrototype(Hashtable data)
+	public void AddPrototype(Dictionary<object, object> data)
 	{
 		int num = (int)data[PrototypeDataParameters.Id];
 		float scale = (float)data[PrototypeDataParameters.Scale];
 		int authorProfileId = (int)data[PrototypeDataParameters.AuthorProfileId];
 		byte[] data2 = (byte[])data[PrototypeDataParameters.Data];
-		RuntimePrototypeCubeModel value = new RuntimePrototypeCubeModel(num, authorProfileId, scale, data2);
+		RuntimePrototypeCubeModel value = ((num == fineGrainedTerrainPrototypeID) ? new RuntimePrototypeCubeModel(num, authorProfileId, scale, data2, 16) : new RuntimePrototypeCubeModel(num, authorProfileId, scale, data2));
 		runtimePrototypes.Add(num, value);
 		NotifyWorldInventoryChange();
 	}
@@ -79,7 +101,7 @@ public class MVWorldInventory
 	{
 		if (pendingRuntimePrototypes.ContainsKey(woId))
 		{
-			MVCubeModelInstance mVCubeModelInstance = (MVCubeModelInstance)MVGameController.Instance.WOCM.GetWorldObjectClient(woId);
+			MVCubeModelInstance mVCubeModelInstance = (MVCubeModelInstance)MVGameController.WOCM.GetWorldObjectClient(woId);
 			if (mVCubeModelInstance != null)
 			{
 				if (runtimePrototypes.ContainsKey(pendingRuntimePrototypes[woId].prevPrototypeId))
@@ -89,18 +111,18 @@ public class MVWorldInventory
 				}
 				else
 				{
-					Debug.LogError((object)"Trying to unpend but prev prototype does not exist anymore");
+					Debug.LogError("Trying to unpend but prev prototype does not exist anymore");
 				}
 			}
 			else
 			{
-				Debug.Log((object)"Trying to unpend non existing cube model. This is probably because it was deleted");
+				Debug.Log("Trying to unpend non existing cube model. This is probably because it was deleted");
 			}
 			pendingRuntimePrototypes.Remove(woId);
 		}
 		else
 		{
-			Debug.Log((object)"Trying to unpend runtime prototype but it is no longer pending. Probably because an event unpended it allready");
+			Debug.Log("Trying to unpend runtime prototype but it is no longer pending. Probably because an event unpended it allready");
 		}
 	}
 
@@ -113,18 +135,18 @@ public class MVWorldInventory
 			{
 				runtimePrototypes.Add(worldInventoryId, pendingRuntimePrototypes[woId].pendingRuntimePrototype);
 				pendingRuntimePrototypes[woId].pendingRuntimePrototype.PrototypeState = PrototypeState.Registered;
-				MVCubeModelInstance mVCubeModelInstance = (MVCubeModelInstance)MVGameController.Instance.WOCM.GetWorldObjectClient(woId);
+				MVCubeModelInstance mVCubeModelInstance = (MVCubeModelInstance)MVGameController.WOCM.GetWorldObjectClient(woId);
 				mVCubeModelInstance.Data["protoTypeID"] = worldInventoryId;
 			}
 			else
 			{
-				Debug.LogError((object)"Pending runtime prototype allready in worldInventory!");
+				Debug.LogError("Pending runtime prototype allready in worldInventory!");
 			}
 			pendingRuntimePrototypes.Remove(woId);
 		}
 		else
 		{
-			MVCubeModelInstance mVCubeModelInstance2 = (MVCubeModelInstance)MVGameController.Instance.WOCM.GetWorldObjectClient(woId);
+			MVCubeModelInstance mVCubeModelInstance2 = (MVCubeModelInstance)MVGameController.WOCM.GetWorldObjectClient(woId);
 			int pid = mVCubeModelInstance2.Pid;
 			RuntimePrototypeCubeModel runtimePrototypeCubeModel = runtimePrototypes[pid].CloneGeometry();
 			runtimePrototypeCubeModel.PrototypeId = worldInventoryId;
@@ -139,24 +161,24 @@ public class MVWorldInventory
 
 	public void RequestWoMakeUniquePrototype(int woId)
 	{
-		MVCubeModelInstance mVCubeModelInstance = (MVCubeModelInstance)MVGameController.Instance.WOCM.GetWorldObjectClient(woId);
+		MVCubeModelInstance mVCubeModelInstance = (MVCubeModelInstance)MVGameController.WOCM.GetWorldObjectClient(woId);
 		if (runtimePrototypes[mVCubeModelInstance.Pid].InstancesCount == 1)
 		{
-			Debug.LogError((object)"The cubemodel is allready unique");
+			Debug.LogError("The cubemodel is allready unique");
 			return;
 		}
 		if (pendingRuntimePrototypes.ContainsKey(woId))
 		{
-			Debug.Log((object)"allready pending!");
+			Debug.Log("allready pending!");
 			return;
 		}
 		ReplaceWithPendingRuntimePrototype(woId);
-		MVGameController.Instance.Game.RequestWoUniquePrototype(woId);
+		MVGameController.Game.RequestWoUniquePrototype(woId);
 	}
 
 	private void ReplaceWithPendingRuntimePrototype(int woId)
 	{
-		MVCubeModelInstance mVCubeModelInstance = (MVCubeModelInstance)MVGameController.Instance.WOCM.GetWorldObjectClient(woId);
+		MVCubeModelInstance mVCubeModelInstance = (MVCubeModelInstance)MVGameController.WOCM.GetWorldObjectClient(woId);
 		RuntimePrototypeCubeModel prototypeCubeModel = mVCubeModelInstance.PrototypeCubeModel;
 		RuntimePrototypeCubeModel runtimePrototypeCubeModel = CreatePendingPrototype(mVCubeModelInstance.Pid);
 		prototypeCubeModel.DeltaCubes.Clear();

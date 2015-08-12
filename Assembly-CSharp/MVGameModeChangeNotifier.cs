@@ -10,7 +10,7 @@ public class MVGameModeChangeNotifier : IUpdatecontrollerSubscriber
 	public MVGameModeChangeNotifier()
 	{
 		_currentState = GetPresentState();
-		MVGameController.Instance.UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
+		UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
 	}
 
 	public void AddUpdateObject(IGameStateControllerSubscriber obj)
@@ -45,15 +45,15 @@ public class MVGameModeChangeNotifier : IUpdatecontrollerSubscriber
 
 	private UpdateCondition GetPresentState()
 	{
-		if (MVGameController.Instance.GameMode == MVGameMode.Edit && MVGameController.Instance.Game.IsPlaying)
+		if (MVGameController.GameMode == MVGameMode.Edit && MVGameController.Game.IsPlaying)
 		{
 			return UpdateCondition.EDITOR_PLAYMODE;
 		}
-		if (MVGameController.Instance.GameMode == MVGameMode.Edit)
+		if (MVGameController.GameMode == MVGameMode.Edit)
 		{
 			return UpdateCondition.EDITOR;
 		}
-		if (MVGameController.Instance.GameMode == MVGameMode.Play)
+		if (MVGameController.GameMode == MVGameMode.Play)
 		{
 			return UpdateCondition.INGAME;
 		}

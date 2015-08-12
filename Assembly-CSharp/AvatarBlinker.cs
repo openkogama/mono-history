@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MV.Common;
 using UnityEngine;
 
 public class AvatarBlinker : BlinkerBase
@@ -18,27 +19,8 @@ public class AvatarBlinker : BlinkerBase
 
 	private float previousBlinkHealth = 100f;
 
-	public AvatarBlinker()
-	{
-		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0015: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0044: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0049: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0063: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0078: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007d: Unknown result type (might be due to invalid IL or missing references)
-	}
-
 	private void Awake()
 	{
-		//IL_0015: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0032: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0089: Unknown result type (might be due to invalid IL or missing references)
 		blinkers = new Dictionary<BlinkType, Blinker>
 		{
 			{
@@ -71,6 +53,8 @@ public class AvatarBlinker : BlinkerBase
 		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(HealthChangeHandler));
 		MVRuntimeDataVariable invulnerable = mvAvatar.Invulnerable;
 		invulnerable.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(invulnerable.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(InvulnerableChangedHandler));
+		MVRuntimeDataVariable avatarRuntimeDataState = mvAvatar.AvatarRuntimeDataState;
+		avatarRuntimeDataState.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(avatarRuntimeDataState.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChangedHandler));
 	}
 
 	public void Detach()
@@ -80,6 +64,8 @@ public class AvatarBlinker : BlinkerBase
 		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Remove(health.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(HealthChangeHandler));
 		MVRuntimeDataVariable invulnerable = mvAvatar.Invulnerable;
 		invulnerable.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Remove(invulnerable.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(InvulnerableChangedHandler));
+		MVRuntimeDataVariable avatarRuntimeDataState = mvAvatar.AvatarRuntimeDataState;
+		avatarRuntimeDataState.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Remove(avatarRuntimeDataState.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChangedHandler));
 	}
 
 	public void HealthChangeHandler(object v)
@@ -92,15 +78,29 @@ public class AvatarBlinker : BlinkerBase
 		previousBlinkHealth = num;
 	}
 
-	public void InvulnerableChangedHandler(object v)
+	private void InvulnerableChangedHandler(object v)
 	{
-		if ((bool)v)
+		bool flag = (bool)v;
+		AvatarRuntimeState avatarRuntimeState = (AvatarRuntimeState)(byte)mvAvatar.AvatarRuntimeDataState.Value;
+		if (flag && avatarRuntimeState == AvatarRuntimeState.Playing)
 		{
 			StartBlinking(BlinkType.Invulnerable, float.PositiveInfinity);
 		}
 		else
 		{
 			StopBlinking(BlinkType.Invulnerable);
+		}
+	}
+
+	private void AvatarStateChangedHandler(object a)
+	{
+		if ((byte)a == 0)
+		{
+			StopBlinking(BlinkType.Invulnerable);
+		}
+		else if ((bool)mvAvatar.Invulnerable.Value)
+		{
+			StartBlinking(BlinkType.Invulnerable, float.PositiveInfinity);
 		}
 	}
 }

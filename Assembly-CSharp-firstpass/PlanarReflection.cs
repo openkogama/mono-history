@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -24,62 +23,46 @@ public class PlanarReflection : MonoBehaviour
 
 	private Dictionary<Camera, bool> helperCameras;
 
-	public PlanarReflection()
-	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0027: Unknown result type (might be due to invalid IL or missing references)
-	}
-
 	public void Start()
 	{
-		sharedMaterial = ((WaterBase)(object)((Component)this).gameObject.GetComponent(typeof(WaterBase))).sharedMaterial;
+		sharedMaterial = ((WaterBase)gameObject.GetComponent(typeof(WaterBase))).sharedMaterial;
 	}
 
 	private Camera CreateReflectionCameraFor(Camera cam)
 	{
-		//IL_0042: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0048: Expected Obj, but got Unknown
-		//IL_007c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a1: Unknown result type (might be due to invalid IL or missing references)
-		string text = ((Object)((Component)this).gameObject).name + "Reflection" + ((Object)cam).name;
-		GameObject val = GameObject.Find(text);
-		if (!Object.op_Implicit((Object)(object)val))
+		string text = base.gameObject.name + "Reflection" + cam.name;
+		GameObject gameObject = GameObject.Find(text);
+		if (!gameObject)
 		{
-			val = new GameObject(text, new Type[1] { typeof(Camera) });
+			gameObject = new GameObject(text, typeof(Camera));
 		}
-		if (!Object.op_Implicit((Object)(object)val.GetComponent(typeof(Camera))))
+		if (!gameObject.GetComponent(typeof(Camera)))
 		{
-			val.AddComponent(typeof(Camera));
+			gameObject.AddComponent(typeof(Camera));
 		}
-		Camera camera = val.camera;
-		camera.backgroundColor = clearColor;
-		camera.clearFlags = (CameraClearFlags)(reflectSkybox ? 1 : 2);
-		SetStandardCameraParameter(camera, reflectionMask);
-		if (!Object.op_Implicit((Object)(object)camera.targetTexture))
+		Camera component = gameObject.GetComponent<Camera>();
+		component.backgroundColor = clearColor;
+		component.clearFlags = (reflectSkybox ? CameraClearFlags.Skybox : CameraClearFlags.Color);
+		SetStandardCameraParameter(component, reflectionMask);
+		if (!component.targetTexture)
 		{
-			camera.targetTexture = CreateTextureFor(cam);
+			component.targetTexture = CreateTextureFor(cam);
 		}
-		return camera;
+		return component;
 	}
 
 	private void SetStandardCameraParameter(Camera cam, LayerMask mask)
 	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001e: Unknown result type (might be due to invalid IL or missing references)
-		cam.cullingMask = LayerMask.op_Implicit(mask) & ~(1 << LayerMask.NameToLayer("Water"));
+		cam.cullingMask = (int)mask & ~(1 << LayerMask.NameToLayer("Water"));
 		cam.backgroundColor = Color.black;
-		((Behaviour)cam).enabled = false;
+		cam.enabled = false;
 	}
 
 	private RenderTexture CreateTextureFor(Camera cam)
 	{
-		//IL_0024: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Expected Obj, but got Unknown
-		RenderTexture val = new RenderTexture(Mathf.FloorToInt(cam.pixelWidth * 0.5f), Mathf.FloorToInt(cam.pixelHeight * 0.5f), 24);
-		((Object)val).hideFlags = (HideFlags)4;
-		return val;
+		RenderTexture renderTexture = new RenderTexture(Mathf.FloorToInt((float)cam.pixelWidth * 0.5f), Mathf.FloorToInt((float)cam.pixelHeight * 0.5f), 24);
+		renderTexture.hideFlags = HideFlags.DontSave;
+		return renderTexture;
 	}
 
 	public void RenderHelpCameras(Camera currentCam)
@@ -94,7 +77,7 @@ public class PlanarReflection : MonoBehaviour
 		}
 		if (!helperCameras[currentCam])
 		{
-			if (!Object.op_Implicit((Object)(object)reflectionCamera))
+			if (!reflectionCamera)
 			{
 				reflectionCamera = CreateReflectionCameraFor(currentCam);
 			}
@@ -114,9 +97,9 @@ public class PlanarReflection : MonoBehaviour
 	public void WaterTileBeingRendered(Transform tr, Camera currentCam)
 	{
 		RenderHelpCameras(currentCam);
-		if (Object.op_Implicit((Object)(object)reflectionCamera) && Object.op_Implicit((Object)(object)sharedMaterial))
+		if ((bool)reflectionCamera && (bool)sharedMaterial)
 		{
-			sharedMaterial.SetTexture(reflectionSampler, (Texture)(object)reflectionCamera.targetTexture);
+			sharedMaterial.SetTexture(reflectionSampler, reflectionCamera.targetTexture);
 		}
 	}
 
@@ -134,131 +117,70 @@ public class PlanarReflection : MonoBehaviour
 
 	private void RenderReflectionFor(Camera cam, Camera reflectCamera)
 	{
-		//IL_0035: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_011e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0123: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0140: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0156: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0166: Unknown result type (might be due to invalid IL or missing references)
-		//IL_016b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_016f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0174: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0188: Unknown result type (might be due to invalid IL or missing references)
-		//IL_018d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_018f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0191: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01ba: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01bf: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01c4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01c6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01c8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01ca: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01cf: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01d8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01dd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01e5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01ea: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01ef: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01f3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01f8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01fa: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0206: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0207: Unknown result type (might be due to invalid IL or missing references)
-		//IL_020e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0213: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0216: Unknown result type (might be due to invalid IL or missing references)
-		//IL_021b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_021d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_021f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0221: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0226: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0229: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0236: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0243: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0248: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0266: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00bf: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c5: Expected Obj, but got Unknown
-		//IL_00fc: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00eb: Expected Obj, but got Unknown
-		if (!Object.op_Implicit((Object)(object)reflectCamera) || (Object.op_Implicit((Object)(object)sharedMaterial) && !sharedMaterial.HasProperty(reflectionSampler)))
+		if (!reflectCamera || ((bool)sharedMaterial && !sharedMaterial.HasProperty(reflectionSampler)))
 		{
 			return;
 		}
-		reflectCamera.cullingMask = LayerMask.op_Implicit(reflectionMask) & ~(1 << LayerMask.NameToLayer("Water"));
+		reflectCamera.cullingMask = (int)reflectionMask & ~(1 << LayerMask.NameToLayer("Water"));
 		SaneCameraSettings(reflectCamera);
 		reflectCamera.backgroundColor = clearColor;
-		reflectCamera.clearFlags = (CameraClearFlags)(reflectSkybox ? 1 : 2);
-		if (reflectSkybox && Object.op_Implicit((Object)(object)((Component)cam).gameObject.GetComponent(typeof(Skybox))))
+		reflectCamera.clearFlags = (reflectSkybox ? CameraClearFlags.Skybox : CameraClearFlags.Color);
+		if (reflectSkybox && (bool)cam.gameObject.GetComponent(typeof(Skybox)))
 		{
-			Skybox val = (Skybox)((Component)reflectCamera).gameObject.GetComponent(typeof(Skybox));
-			if (!Object.op_Implicit((Object)(object)val))
+			Skybox skybox = (Skybox)reflectCamera.gameObject.GetComponent(typeof(Skybox));
+			if (!skybox)
 			{
-				val = (Skybox)((Component)reflectCamera).gameObject.AddComponent(typeof(Skybox));
+				skybox = (Skybox)reflectCamera.gameObject.AddComponent(typeof(Skybox));
 			}
-			val.material = ((Skybox)((Component)cam).GetComponent(typeof(Skybox))).material;
+			skybox.material = ((Skybox)cam.GetComponent(typeof(Skybox))).material;
 		}
-		GL.SetRevertBackfacing(true);
-		Transform transform = ((Component)this).transform;
-		Vector3 eulerAngles = ((Component)cam).transform.eulerAngles;
-		((Component)reflectCamera).transform.eulerAngles = new Vector3(0f - eulerAngles.x, eulerAngles.y, eulerAngles.z);
-		((Component)reflectCamera).transform.position = ((Component)cam).transform.position;
-		Vector3 position = ((Component)transform).transform.position;
+		GL.invertCulling = true;
+		Transform transform = base.transform;
+		Vector3 eulerAngles = cam.transform.eulerAngles;
+		reflectCamera.transform.eulerAngles = new Vector3(0f - eulerAngles.x, eulerAngles.y, eulerAngles.z);
+		reflectCamera.transform.position = cam.transform.position;
+		Vector3 position = transform.transform.position;
 		position.y = transform.position.y;
-		Vector3 up = ((Component)transform).transform.up;
-		float num = 0f - Vector3.Dot(up, position) - clipPlaneOffset;
-		Vector4 plane = new Vector4(up.x, up.y, up.z, num);
-		Matrix4x4 val2 = Matrix4x4.zero;
-		val2 = CalculateReflectionMatrix(val2, plane);
-		oldpos = ((Component)cam).transform.position;
-		Vector3 position2 = val2.MultiplyPoint(oldpos);
-		reflectCamera.worldToCameraMatrix = cam.worldToCameraMatrix * val2;
+		Vector3 up = transform.transform.up;
+		float w = 0f - Vector3.Dot(up, position) - clipPlaneOffset;
+		Vector4 plane = new Vector4(up.x, up.y, up.z, w);
+		Matrix4x4 zero = Matrix4x4.zero;
+		zero = CalculateReflectionMatrix(zero, plane);
+		oldpos = cam.transform.position;
+		Vector3 position2 = zero.MultiplyPoint(oldpos);
+		reflectCamera.worldToCameraMatrix = cam.worldToCameraMatrix * zero;
 		Vector4 clipPlane = CameraSpacePlane(reflectCamera, position, up, 1f);
 		Matrix4x4 projectionMatrix = cam.projectionMatrix;
 		projectionMatrix = CalculateObliqueMatrix(projectionMatrix, clipPlane);
 		reflectCamera.projectionMatrix = projectionMatrix;
-		((Component)reflectCamera).transform.position = position2;
-		Vector3 eulerAngles2 = ((Component)cam).transform.eulerAngles;
-		((Component)reflectCamera).transform.eulerAngles = new Vector3(0f - eulerAngles2.x, eulerAngles2.y, eulerAngles2.z);
+		reflectCamera.transform.position = position2;
+		Vector3 eulerAngles2 = cam.transform.eulerAngles;
+		reflectCamera.transform.eulerAngles = new Vector3(0f - eulerAngles2.x, eulerAngles2.y, eulerAngles2.z);
 		reflectCamera.Render();
-		GL.SetRevertBackfacing(false);
+		GL.invertCulling = false;
 	}
 
 	private void SaneCameraSettings(Camera helperCam)
 	{
-		//IL_0008: Unknown result type (might be due to invalid IL or missing references)
-		helperCam.depthTextureMode = (DepthTextureMode)0;
+		helperCam.depthTextureMode = DepthTextureMode.None;
 		helperCam.backgroundColor = Color.black;
-		helperCam.clearFlags = (CameraClearFlags)2;
-		helperCam.renderingPath = (RenderingPath)1;
+		helperCam.clearFlags = CameraClearFlags.Color;
+		helperCam.renderingPath = RenderingPath.Forward;
 	}
 
 	private static Matrix4x4 CalculateObliqueMatrix(Matrix4x4 projection, Vector4 clipPlane)
 	{
-		//IL_0002: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0029: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0033: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0034: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0042: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0047: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ac: Unknown result type (might be due to invalid IL or missing references)
-		Vector4 val = projection.inverse * new Vector4(sgn(clipPlane.x), sgn(clipPlane.y), 1f, 1f);
-		Vector4 val2 = clipPlane * (2f / Vector4.Dot(clipPlane, val));
-		projection[2] = val2.x - projection[3];
-		projection[6] = val2.y - projection[7];
-		projection[10] = val2.z - projection[11];
-		projection[14] = val2.w - projection[15];
+		Vector4 b = projection.inverse * new Vector4(sgn(clipPlane.x), sgn(clipPlane.y), 1f, 1f);
+		Vector4 vector = clipPlane * (2f / Vector4.Dot(clipPlane, b));
+		projection[2] = vector.x - projection[3];
+		projection[6] = vector.y - projection[7];
+		projection[10] = vector.z - projection[11];
+		projection[14] = vector.w - projection[15];
 		return projection;
 	}
 
 	private static Matrix4x4 CalculateReflectionMatrix(Matrix4x4 reflectionMat, Vector4 plane)
 	{
-		//IL_01aa: Unknown result type (might be due to invalid IL or missing references)
 		reflectionMat.m00 = 1f - 2f * plane[0] * plane[0];
 		reflectionMat.m01 = -2f * plane[0] * plane[1];
 		reflectionMat.m02 = -2f * plane[0] * plane[2];
@@ -293,30 +215,10 @@ public class PlanarReflection : MonoBehaviour
 
 	private Vector4 CameraSpacePlane(Camera cam, Vector3 pos, Vector3 normal, float sideSign)
 	{
-		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0008: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0014: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0019: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0025: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0026: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0036: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0051: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0052: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0059: Unknown result type (might be due to invalid IL or missing references)
-		Vector3 val = pos + normal * clipPlaneOffset;
+		Vector3 v = pos + normal * clipPlaneOffset;
 		Matrix4x4 worldToCameraMatrix = cam.worldToCameraMatrix;
-		Vector3 val2 = worldToCameraMatrix.MultiplyPoint(val);
-		Vector3 val3 = worldToCameraMatrix.MultiplyVector(normal);
-		Vector3 val4 = val3.normalized * sideSign;
-		return new Vector4(val4.x, val4.y, val4.z, 0f - Vector3.Dot(val2, val4));
+		Vector3 lhs = worldToCameraMatrix.MultiplyPoint(v);
+		Vector3 rhs = worldToCameraMatrix.MultiplyVector(normal).normalized * sideSign;
+		return new Vector4(rhs.x, rhs.y, rhs.z, 0f - Vector3.Dot(lhs, rhs));
 	}
 }

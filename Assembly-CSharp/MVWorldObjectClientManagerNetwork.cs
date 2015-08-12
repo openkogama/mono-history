@@ -30,10 +30,24 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 		{
 			value.Reset();
 		}
-		if (MVGameController.Instance.Game.IsPlaying)
+		if (MVGameController.Game.IsPlaying)
 		{
-			MVGameController.Instance.Game.LocalPlayer.ResetCheckpoint();
-			AvatarLocal.Respawn();
+			MVGameController.Game.LocalPlayer.ResetCheckpoint();
+			MVGameController.Game.GameCoinManager.Reset(MVGameController.Game);
+			AvatarLocal.Respawn(toHiddenState: true);
+		}
+		if (OnResetWorldDone != null)
+		{
+			OnResetWorldDone(this, new EventArgs());
+		}
+	}
+
+	public void ResetLocalWorldObject()
+	{
+		List<MVWorldObjectClient> worldObjectsByType = GetWorldObjectsByType(WorldObjectType.CollectibleItem);
+		foreach (MVWorldObjectClient item in worldObjectsByType)
+		{
+			item.Reset();
 		}
 	}
 
@@ -60,22 +74,22 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 		}
 	}
 
-	public void OnUpdateWorldObjectDataEvent(int worldObjectID, Hashtable worldObjectData)
+	public void OnUpdateWorldObjectDataEvent(int worldObjectID, Dictionary<object, object> worldObjectData)
 	{
 		if (!worldObjects.ContainsKey(worldObjectID))
 		{
-			Debug.LogError((object)("Attempt to update WorldObjectData on unknown WorldObject " + worldObjectID));
+			Debug.LogError("Attempt to update WorldObjectData on unknown WorldObject " + worldObjectID);
 			return;
 		}
 		worldObjects[worldObjectID].Data = worldObjectData;
 		worldObjects[worldObjectID].OnDataUpdate();
 	}
 
-	public void OnUpdateWorldObjectDataPartialEvent(int worldObjectID, Hashtable worldObjectData)
+	public void OnUpdateWorldObjectDataPartialEvent(int worldObjectID, Dictionary<object, object> worldObjectData)
 	{
 		if (!worldObjects.ContainsKey(worldObjectID))
 		{
-			Debug.LogError((object)("Attempt to update WorldObjectData on unknown WorldObject " + worldObjectID));
+			Debug.LogError("Attempt to update WorldObjectData on unknown WorldObject " + worldObjectID);
 		}
 		else
 		{
@@ -83,12 +97,12 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 		}
 	}
 
-	public void OnRemoveWorldObjectDataPartialEvent(int worldObjectID, Hashtable worldObjectDataToRemove)
+	public void OnRemoveWorldObjectDataPartialEvent(int worldObjectID, Dictionary<object, object> worldObjectDataToRemove)
 	{
-		Debug.Log((object)worldObjectDataToRemove.BuildStringRecursive("Remove wo " + worldObjectID + " data partial event"));
+		Debug.Log(worldObjectDataToRemove.BuildStringRecursive("Remove wo " + worldObjectID + " data partial event"));
 		if (!worldObjects.ContainsKey(worldObjectID))
 		{
-			Debug.LogError((object)("Attempt to remove data from WorldObjectData on unknown WorldObject " + worldObjectID));
+			Debug.LogError("Attempt to remove data from WorldObjectData on unknown WorldObject " + worldObjectID);
 		}
 		else
 		{
@@ -96,11 +110,11 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 		}
 	}
 
-	public void OnUpdateWorldObjectRunTimeDataEvent(int worldObjectID, Hashtable delta)
+	public void OnUpdateWorldObjectRunTimeDataEvent(int worldObjectID, Dictionary<object, object> delta)
 	{
 		if (!worldObjects.ContainsKey(worldObjectID))
 		{
-			Debug.LogError((object)("Attempt to update WorldObjectData on unknown WorldObject " + worldObjectID));
+			Debug.LogError("Attempt to update WorldObjectData on unknown WorldObject " + worldObjectID);
 			return;
 		}
 		MVWorldObjectClient mVWorldObjectClient = worldObjects[worldObjectID];
@@ -109,7 +123,6 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 
 	public bool TransferOwnershipProxy(int id, int ownerActorNr)
 	{
-		//IL_004d: Unknown result type (might be due to invalid IL or missing references)
 		if (!worldObjects.ContainsKey(id))
 		{
 			return false;
@@ -130,7 +143,7 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 	{
 		if (!success)
 		{
-			Debug.LogError((object)"HandleTransferWorldObjectsToGroup failed");
+			Debug.LogError("HandleTransferWorldObjectsToGroup failed");
 		}
 		if (OnTransferWosResponse != null)
 		{
@@ -158,7 +171,7 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 		}
 		else
 		{
-			Debug.LogWarning((object)"Failed to set ownership...");
+			Debug.LogWarning("Failed to set ownership...");
 		}
 		if (OnWorldObjectTransferOwnershipResponse != null)
 		{
@@ -175,7 +188,7 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 		}
 		if (lockObject)
 		{
-			SetOwnerRecursively(id, MVGameController.Instance.Game.LocalPlayerActorNumber);
+			SetOwnerRecursively(id, MVGameController.Game.LocalPlayerActorNumber);
 		}
 		else
 		{
@@ -190,16 +203,16 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 
 	public bool LockHierarchyProxy(int id, int actorNr)
 	{
-		Debug.Log((object)("LockHierarchyProxy " + id));
+		Debug.Log("LockHierarchyProxy " + id);
 		SetOwnerRecursively(id, actorNr);
 		return true;
 	}
 
 	private void SetOwnerRecursively(int id, int actorNr)
 	{
-		Debug.LogError((object)"SetOwnerRecursively is not recursive! Idiot!");
+		Debug.LogError("SetOwnerRecursively is not recursive! Idiot!");
 		worldObjects[id].OwnerActorNr = actorNr;
-		if ((object)worldObjects[id].GetType() != typeof(MVGroup))
+		if (worldObjects[id].GetType() != typeof(MVGroup))
 		{
 			return;
 		}
@@ -215,7 +228,7 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 		{
 			if (pendingUngroupQueue.Count <= 0)
 			{
-				Debug.LogError((object)"UngroupResponse, but no object on pendingUngroupQueue");
+				Debug.LogError("UngroupResponse, but no object on pendingUngroupQueue");
 				return false;
 			}
 			int num = pendingUngroupQueue.Dequeue();
@@ -228,7 +241,7 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 		}
 		if (pendingUngroupQueue.Count <= 0)
 		{
-			Debug.LogError((object)"UngroupResponse, but no object on pendingUngroupQueue");
+			Debug.LogError("UngroupResponse, but no object on pendingUngroupQueue");
 			return false;
 		}
 		int worldObjectID = pendingUngroupQueue.Dequeue();
@@ -261,7 +274,7 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 			((MVGroup)worldObjects[groupId]).TransferChild(item.Id);
 		}
 		SetState(id, MVWorldObjectState.Destroyed);
-		Object.Destroy((Object)(object)worldObjects[id].GameObject);
+		UnityEngine.Object.Destroy(worldObjects[id].GameObject);
 	}
 
 	public void SetState(int id, MVWorldObjectState state)
@@ -298,7 +311,7 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 				worldObjectMapping.RemoveWorldObjectFromTypeSet(value);
 				list.Add(value);
 				value.Destroy();
-				Object.Destroy((Object)(object)value.GameObject);
+				UnityEngine.Object.Destroy(value.GameObject);
 			}
 		}
 		foreach (MVWorldObjectClient item in list)
@@ -333,11 +346,11 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 		MVWorldObjectClient value2;
 		if (!worldObjects.TryGetValue(seatOwnerWoID, out var value))
 		{
-			Debug.LogError((object)"SeatOwnerWorldObject Not found");
+			Debug.LogError("SeatOwnerWorldObject Not found");
 		}
 		else if (!worldObjects.TryGetValue(worldObjectID, out value2))
 		{
-			Debug.LogError((object)"worldObjectClient not found");
+			Debug.LogError("worldObjectClient not found");
 		}
 		else
 		{
@@ -349,7 +362,7 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 	{
 		if (worldObjects.ContainsKey(wo.Id))
 		{
-			Debug.LogError((object)"Key already in WorldObjects dictionary");
+			Debug.LogError("Key already in WorldObjects dictionary");
 			return;
 		}
 		worldObjectLOD.AddWorldObjectToLOD(wo.Id);
@@ -379,7 +392,7 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 		return rootOriginal.Clone(ownerActorNumber, rootOriginal.GroupId, cloneBookkeeping, worldObjects, worldInventory.RuntimePrototypes);
 	}
 
-	public void AddWorldObject(Hashtable data, MVWorldInventory worldInventory)
+	public void AddWorldObject(Dictionary<object, object> data, MVWorldInventory worldInventory)
 	{
 		MVWorldObjectClient mVWorldObjectClient = KoGaMaPackageClient.WorldObjectFactory(data, worldObjects, worldInventory.RuntimePrototypes);
 		if (mVWorldObjectClient != null && mVWorldObjectClient.NetworkObject == null)

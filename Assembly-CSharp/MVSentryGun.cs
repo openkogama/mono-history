@@ -1,5 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
+using CodeStage.AntiCheat.ObscuredTypes;
+using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 
@@ -45,20 +46,13 @@ public class MVSentryGun : MVLogicObject
 
 	public override bool HasOutputConnector => false;
 
-	public override Vector3 InputConnectorOffset
-	{
-		get
-		{
-			//IL_000f: Unknown result type (might be due to invalid IL or missing references)
-			return new Vector3(-2f, 0f, 0f);
-		}
-	}
+	public override Vector3 InputConnectorOffset => new Vector3(-2f, 0f, 0f);
 
 	public HashSet<int> RaycastIgnoreWorldObjectIds { get; set; }
 
 	public SentryGunBeamType BeamType => beamType;
 
-	public MVSentryGun(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVSentryGun(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, "Prefabs/Logic/SentryGunObject", worldObjects)
 	{
 		sentryGunScript = gameObject.GetComponentInChildren<SentryGunScript>();
@@ -106,7 +100,7 @@ public class MVSentryGun : MVLogicObject
 		}
 	}
 
-	public void ReceiveDamage(float damage)
+	public void ReceiveDamage(float amount, MVPlayer damageDealer, PlayerKilledByType damageType)
 	{
 		if (interactable.IsDead())
 		{
@@ -126,7 +120,7 @@ public class MVSentryGun : MVLogicObject
 			return;
 		}
 		sentryGunScript.SmokeEnabled = false;
-		sentryGunScript.SetHealth((float)RunTimeData["health"]);
+		sentryGunScript.SetHealth((ObscuredFloat)RunTimeData.GetObscuredType("health"));
 	}
 
 	public override void Select(Color color)
@@ -158,21 +152,6 @@ public class MVSentryGun : MVLogicObject
 
 	protected override void OnUpdate()
 	{
-		//IL_0077: Unknown result type (might be due to invalid IL or missing references)
-		//IL_031b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0322: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0327: Unknown result type (might be due to invalid IL or missing references)
-		//IL_032b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0115: Unknown result type (might be due to invalid IL or missing references)
-		//IL_011a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0129: Unknown result type (might be due to invalid IL or missing references)
-		//IL_012e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0140: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0145: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0149: Unknown result type (might be due to invalid IL or missing references)
-		//IL_014e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0154: Unknown result type (might be due to invalid IL or missing references)
 		base.OnUpdate();
 		if (DoRespawn())
 		{
@@ -180,32 +159,30 @@ public class MVSentryGun : MVLogicObject
 		}
 		if ((InputState || InputLinkRefs.Count == 0) && !interactable.IsDead())
 		{
-			if (intervalWithRandomSeed.Update() && MVGameController.Instance.Game.IsPlaying)
+			if (intervalWithRandomSeed.Update() && MVGameController.Game.IsPlaying)
 			{
 				HashSet<int> hashSet = new HashSet<int>();
 				Collider[] array = Physics.OverlapSphere(gameObject.transform.position, laserRange, 1 << LayerMask.NameToLayer("Player"));
 				Collider[] array2 = array;
-				foreach (Collider val in array2)
+				foreach (Collider collider in array2)
 				{
-					MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(((Component)val).transform);
+					MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(collider.transform);
 					if (mVObject == null)
 					{
 						continue;
 					}
 					int num = mVObject.Id;
 					InteractionDataHandlerBase component = mVObject.GameObject.GetComponent<InteractionDataHandlerBase>();
-					if ((Object)(object)component == (Object)null || !component.CanHandle(interactionType, interactionIsLocal: true))
+					if (component == null || !component.CanHandle(interactionType, interactionIsLocal: true))
 					{
 						continue;
 					}
-					mVObject = MVGameController.Instance.WOCM.GetWorldObjectClient(num);
+					mVObject = MVGameController.WOCM.GetWorldObjectClient(num);
 					Vector3 targetPosition = mVObject.GetTargetPosition();
-					Vector3 val2 = gameObject.transform.position;
-					Vector3 val3 = targetPosition - gameObject.transform.position;
-					Ray ray = new Ray(val2, val3.normalized);
+					Ray ray = new Ray(gameObject.transform.position, (targetPosition - gameObject.transform.position).normalized);
 					if (HitsTarget(ray, num) && !hashSet.Contains(num))
 					{
-						if (woIdsBeamsMap.TryGetValue(mVObject.Id, out var value) && (Object)(object)value != (Object)null)
+						if (woIdsBeamsMap.TryGetValue(mVObject.Id, out var value) && value != null)
 						{
 							value.RefreshTime();
 						}
@@ -237,48 +214,40 @@ public class MVSentryGun : MVLogicObject
 		DoFrameDelete();
 		foreach (KeyValuePair<int, SentryGunBeam> item3 in woIdsBeamsMap)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(item3.Key);
+			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(item3.Key);
 			Collider componentInChildren = worldObjectClient.GameObject.GetComponentInChildren<Collider>();
-			SentryGunBeam value2 = item3.Value;
-			Vector3 start = gameObject.transform.position;
-			Bounds bounds = componentInChildren.bounds;
-			value2.SetBeamPositions(start, bounds.center);
+			item3.Value.SetBeamPositions(gameObject.transform.position, componentInChildren.bounds.center);
 		}
-		if (woIdsBeamsMap.Count > 0 && !gameObject.audio.isPlaying)
+		if (woIdsBeamsMap.Count > 0 && !gameObject.GetComponent<AudioSource>().isPlaying)
 		{
-			gameObject.audio.Play();
+			gameObject.GetComponent<AudioSource>().Play();
 		}
-		if (woIdsBeamsMap.Count == 0 && gameObject.audio.isPlaying)
+		if (woIdsBeamsMap.Count == 0 && gameObject.GetComponent<AudioSource>().isPlaying)
 		{
-			gameObject.audio.Stop();
+			gameObject.GetComponent<AudioSource>().Stop();
 		}
-		float num2 = ((woIdsBeamsMap.Count <= 0) ? 0.5f : 1f);
+		float to = ((woIdsBeamsMap.Count <= 0) ? 0.5f : 1f);
 		if (interactable.IsDead())
 		{
-			num2 = 0f;
+			to = 0f;
 		}
-		glowFactor = Mathf.Lerp(glowFactor, num2, Time.deltaTime * 2.5f);
+		glowFactor = Mathf.Lerp(glowFactor, to, Time.deltaTime * 2.5f);
 		sentryGunScript.SetGlowFactor(glowFactor);
 	}
 
 	private void DoFrameDelete()
 	{
-		//IL_0076: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0080: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0082: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008f: Unknown result type (might be due to invalid IL or missing references)
 		List<int> list = new List<int>();
 		foreach (KeyValuePair<int, SentryGunBeam> item in woIdsBeamsMap)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(item.Key);
-			if (worldObjectClient == null || (Object)(object)item.Value == (Object)null)
+			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(item.Key);
+			if (worldObjectClient == null || item.Value == null)
 			{
 				list.Add(item.Key);
 				continue;
 			}
-			Vector3 val = worldObjectClient.GameObject.GetComponentInChildren<Collider>().ClosestPointOnBounds(gameObject.transform.position);
-			if (Vector3.Distance(val, gameObject.transform.position) > laserRange)
+			Vector3 a = worldObjectClient.GameObject.GetComponentInChildren<Collider>().ClosestPointOnBounds(gameObject.transform.position);
+			if (Vector3.Distance(a, gameObject.transform.position) > laserRange)
 			{
 				list.Add(item.Key);
 			}
@@ -291,7 +260,6 @@ public class MVSentryGun : MVLogicObject
 
 	private bool HitsTarget(Ray ray, int woID)
 	{
-		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
 		if (CollisionDetection.MVHit(ray, out var voxelHit, laserRange, RaycastIgnoreWorldObjectIds))
 		{
 			return voxelHit.woId == woID;
@@ -301,23 +269,12 @@ public class MVSentryGun : MVLogicObject
 
 	private void ApplyDamage(MVWorldObjectClient wo, InteractionDataHandlerBase interactionDataHandlerBase)
 	{
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0024: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002f: Unknown result type (might be due to invalid IL or missing references)
-		SentryGunBeamType btype = beamType;
-		Vector3 val = wo.GetTargetPosition() - gameObject.transform.position;
-		InteractionData interaction = BeamTypeToInteractionPackageType(btype, val.normalized * pushBackStrength);
+		InteractionData interaction = BeamTypeToInteractionPackageType(beamType, (wo.GetTargetPosition() - gameObject.transform.position).normalized * pushBackStrength);
 		interactionDataHandlerBase.HandleInteraction(interaction, interactionIsLocal: true);
 	}
 
 	private static InteractionData BeamTypeToInteractionPackageType(SentryGunBeamType btype, Vector3 impulse)
 	{
-		//IL_0015: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
 		return btype switch
 		{
 			SentryGunBeamType.FireBeam => SentryTowerFirePackage.Create(impulse), 

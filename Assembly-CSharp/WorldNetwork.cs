@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
@@ -10,6 +9,8 @@ public class WorldNetwork : World
 	private ObjectLinks objectLinks;
 
 	public MVWorldObjectClientManagerNetwork WorldObjectClientManagerNetwork => worldObjectClientManager;
+
+	public RuntimeEventManagerNetwork RuntimeEventManagerNetwork => runtimeEventManagerNetwork;
 
 	public WorldNetwork()
 	{
@@ -26,19 +27,50 @@ public class WorldNetwork : World
 		objectLinks.Update();
 	}
 
+	public void CreateGameWorldFromQueryData(BytePacker queryData, int instigatorActorNumber)
+	{
+		MVWorldObjectClient root = InitializeQueryData(queryData);
+		ConstructRuntimeEventManager();
+		DeserializeRuntimeEvents(queryData);
+		CreateQueryEvent(root, instigatorActorNumber);
+	}
+
+	private void ConstructRuntimeEventManager()
+	{
+		MVCubeModelPrototypeTerrain singletonWorldObject = WorldObjectClientManager.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>();
+		MVCubeModelFineGrainedTerrain singletonWorldObject2 = WorldObjectClientManager.GetSingletonWorldObject<MVCubeModelFineGrainedTerrain>();
+		runtimeEventManagerNetwork = new RuntimeEventManagerNetwork(singletonWorldObject, singletonWorldObject2);
+	}
+
 	public void AddGameQueryDataToGameWorld(BytePacker queryData, int instigatorActorNumber)
+	{
+		MVWorldObjectClient root = InitializeQueryData(queryData);
+		CreateQueryEvent(root, instigatorActorNumber);
+	}
+
+	private MVWorldObjectClient InitializeQueryData(BytePacker queryData)
 	{
 		int koGaMaData = KogamaDataHandler.GetKoGaMaData(queryData, HandleDeserializedWorldData, readRuntimeData: true);
 		MVWorldObjectClient worldObjectClient = worldObjectClientManager.GetWorldObjectClient(koGaMaData);
 		worldObjectClient?.Initialize();
+		return worldObjectClient;
+	}
+
+	private void DeserializeRuntimeEvents(BytePacker queryData)
+	{
+		RuntimeEventManagerNetwork.DeserializeRuntimeEvents(queryData);
+	}
+
+	private void CreateQueryEvent(MVWorldObjectClient root, int instigatorActorNumber)
+	{
 		if (InitializedGameQueryData != null)
 		{
-			InitializedGameQueryDataEventArgs e = new InitializedGameQueryDataEventArgs(worldObjectClient, instigatorActorNumber);
+			InitializedGameQueryDataEventArgs e = new InitializedGameQueryDataEventArgs(root, instigatorActorNumber);
 			InitializedGameQueryData(this, e);
 		}
 	}
 
-	private void HandleDeserializedWorldData(Hashtable data, KogamaDataType dataType)
+	private void HandleDeserializedWorldData(Dictionary<object, object> data, KogamaDataType dataType)
 	{
 		switch (dataType)
 		{
@@ -57,17 +89,17 @@ public class WorldNetwork : World
 		}
 	}
 
-	private void AddPrototype(Hashtable data)
+	private void AddPrototype(Dictionary<object, object> data)
 	{
 		WorldInventory.AddPrototype(data);
 	}
 
-	private void AddWorldObject(Hashtable data)
+	private void AddWorldObject(Dictionary<object, object> data)
 	{
 		worldObjectClientManager.AddWorldObject(data, worldInventory);
 	}
 
-	private void AddLink(Hashtable data)
+	private void AddLink(Dictionary<object, object> data)
 	{
 		Link link = new Link();
 		link.id = (int)data[LinkDataParameter.Id];
@@ -76,7 +108,7 @@ public class WorldNetwork : World
 		AddLink(link);
 	}
 
-	private void AddObjectLink(Hashtable data)
+	private void AddObjectLink(Dictionary<object, object> data)
 	{
 		ObjectLink objectLink = new ObjectLink();
 		objectLink.id = (int)data[ObjectLinkDataParameter.Id];
@@ -110,7 +142,7 @@ public class WorldNetwork : World
 	{
 		if (cloneBookkeeping.cloneLinkIdIncrement == -1 && cloneBookkeeping.linkIds.Count > 0)
 		{
-			Debug.LogError((object)"Found links client side even none was detected serverside");
+			Debug.LogError("Found links client side even none was detected serverside");
 		}
 		foreach (int linkId in cloneBookkeeping.linkIds)
 		{
@@ -129,7 +161,7 @@ public class WorldNetwork : World
 	{
 		if (cloneBookkeeping.cloneObjectLinkIdIncrement == -1 && cloneBookkeeping.objectLinkIds.Count > 0)
 		{
-			Debug.LogError((object)"Found links client side even none was detected serverside");
+			Debug.LogError("Found links client side even none was detected serverside");
 		}
 		foreach (int objectLinkId in cloneBookkeeping.objectLinkIds)
 		{
@@ -153,7 +185,7 @@ public class WorldNetwork : World
 		MVWorldObjectClient worldObjectClient = worldObjectClientManager.GetWorldObjectClient(id);
 		OnUnregisterCleanUpLinks(worldObjectClient);
 		worldObjectClientManager.SetState(worldObjectClient.Id, MVWorldObjectState.Destroyed);
-		Object.Destroy((Object)(object)worldObjectClient.GameObject);
+		Object.Destroy(worldObjectClient.GameObject);
 		worldObjectClientManager.OnWorldObjectDestroyed(worldObjectClient.Id);
 		return true;
 	}
@@ -179,7 +211,7 @@ public class WorldNetwork : World
 
 	public void ResetLogicFromId(int worldObjectID)
 	{
-		Debug.Log((object)("ResetLogicFromId: " + worldObjectID));
+		Debug.Log("ResetLogicFromId: " + worldObjectID);
 		links.ResetChunk(worldObjectID);
 	}
 
@@ -199,7 +231,7 @@ public class WorldNetwork : World
 	{
 		if (!links.Contains(linkID))
 		{
-			Debug.LogError((object)"RemoveLink event, but link not registered!");
+			Debug.LogError("RemoveLink event, but link not registered!");
 			return;
 		}
 		Link link = links.GetLink(linkID);
@@ -222,7 +254,7 @@ public class WorldNetwork : World
 	{
 		if (!links.Contains(linkID))
 		{
-			Debug.LogError((object)"Attempt to remove link, but link not registered");
+			Debug.LogError("Attempt to remove link, but link not registered");
 			return false;
 		}
 		Link link = links.GetLink(linkID);
@@ -275,7 +307,7 @@ public class WorldNetwork : World
 	{
 		if (!objectLinks.Contains(objectLinkID))
 		{
-			Debug.LogError((object)"RemoveLink event, but link not registered!");
+			Debug.LogError("RemoveLink event, but link not registered!");
 			return;
 		}
 		ObjectLink objectLink = objectLinks.GetObjectLink(objectLinkID);
@@ -297,7 +329,7 @@ public class WorldNetwork : World
 	{
 		if (!objectLinks.Contains(objectLinkID))
 		{
-			Debug.LogError((object)"Attempt to remove link, but link not registered");
+			Debug.LogError("Attempt to remove link, but link not registered");
 			return false;
 		}
 		ObjectLink objectLink = objectLinks.GetObjectLink(objectLinkID);

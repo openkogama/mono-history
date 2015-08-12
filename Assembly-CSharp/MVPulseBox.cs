@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using MV.WorldObject;
 
@@ -13,7 +12,7 @@ public class MVPulseBox : MVLogicObject
 
 	public override bool HasOutputConnector => true;
 
-	public MVPulseBox(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVPulseBox(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, "Prefabs/PulseBoxObject", worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
@@ -44,7 +43,7 @@ public class MVPulseBox : MVLogicObject
 		{
 			int num = (int)((float)Data["intervalOn"] * 1000f);
 			int num2 = (int)((float)Data["intervalOff"] * 1000f);
-			int num3 = Math.Abs(MVGameController.Instance.Game.Peer.ServerTimeInMilliSeconds) % (num + num2);
+			int num3 = Math.Abs(MVGameController.Game.Peer.ServerTimeInMilliSeconds) % (num + num2);
 			if (num3 > num)
 			{
 				SetOutput(output: false);

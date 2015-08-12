@@ -1,5 +1,4 @@
 using MV.WorldObject;
-using UnityEngine;
 
 public class AvatarViewItem : InventoryViewItem
 {
@@ -28,7 +27,7 @@ public class AvatarViewItem : InventoryViewItem
 	{
 		base.OnInventoryViewItemBuilt();
 		MVItem mVItem = Item.Object as MVItem;
-		UXText componentInChildren = ((Component)this).GetComponentInChildren<UXText>();
+		UXText componentInChildren = GetComponentInChildren<UXText>();
 		componentInChildren.Text = mVItem.name;
 	}
 
@@ -47,7 +46,7 @@ public class AvatarViewItem : InventoryViewItem
 	public override void Update()
 	{
 		base.Update();
-		if ((Object)(object)ObjectPreviewer != (Object)null)
+		if (ObjectPreviewer != null)
 		{
 			ObjectPreviewer.UpdateRotation(20f);
 		}

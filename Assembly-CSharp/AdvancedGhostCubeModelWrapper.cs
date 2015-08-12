@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
 
@@ -16,9 +18,9 @@ public class AdvancedGhostCubeModelWrapper : EditableCubeModelWrapper
 		SetToTransformParent();
 		SetConstraints(new IntVector(-11, -4, -11), new IntVector(11, 4, 11), 180);
 		cubeModelBase.ReactsToLODChanges = false;
-		foreach (GameObject chunk in cubeModelBase.Chunks)
+		foreach (KeyValuePair<IntVector, GameObject> item in (IEnumerable)cubeModelBase.ChunkInstances)
 		{
-			chunk.renderer.enabled = true;
+			item.Value.GetComponent<Renderer>().enabled = true;
 		}
 	}
 
@@ -37,35 +39,30 @@ public class AdvancedGhostCubeModelWrapper : EditableCubeModelWrapper
 
 	private void EnterEdit(Transform transform)
 	{
-		//IL_001c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
 		CubeModel.Transform.parent = transform;
 		CubeModel.Transform.localPosition = Vector3.zero;
 		CubeModel.Transform.localRotation = Quaternion.identity;
-		CubeModel.GameObject.SetActiveRecursively(true);
-		MonoBehaviour[] components = ((Component)CubeModel.Transform).GetComponents<MonoBehaviour>();
-		foreach (MonoBehaviour val in components)
+		CubeModel.GameObject.SetActive(value: true);
+		MonoBehaviour[] components = CubeModel.Transform.GetComponents<MonoBehaviour>();
+		foreach (MonoBehaviour monoBehaviour in components)
 		{
-			((Behaviour)val).enabled = false;
+			monoBehaviour.enabled = false;
 		}
 	}
 
 	public void ExitEdit()
 	{
 		SetToTransformParent();
-		CubeModel.GameObject.SetActiveRecursively(false);
-		MonoBehaviour[] components = ((Component)CubeModel.Transform).GetComponents<MonoBehaviour>();
-		foreach (MonoBehaviour val in components)
+		MonoBehaviour[] components = CubeModel.Transform.GetComponents<MonoBehaviour>();
+		foreach (MonoBehaviour monoBehaviour in components)
 		{
-			((Behaviour)val).enabled = true;
+			monoBehaviour.enabled = true;
 		}
 		cubeModelIsBeingEdited = false;
 	}
 
 	private void SetToTransformParent()
 	{
-		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0036: Unknown result type (might be due to invalid IL or missing references)
 		CubeModel.Transform.parent = transformParent;
 		CubeModel.Transform.localPosition = Vector3.zero;
 		CubeModel.Transform.localRotation = Quaternion.identity;

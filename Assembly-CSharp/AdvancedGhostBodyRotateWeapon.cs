@@ -35,19 +35,16 @@ public class AdvancedGhostBodyRotateWeapon : MonoBehaviour
 
 	private void SetupWeaponCollision()
 	{
-		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0028: Expected Obj, but got Unknown
 		ghostTriggers.Clear();
-		foreach (Transform item in ((Component)this).transform)
+		foreach (Transform item in base.transform)
 		{
-			Transform val = item;
-			if ((Object)(object)((Component)val).collider != (Object)null)
+			if (item.GetComponent<Collider>() != null)
 			{
-				((Component)val).collider.isTrigger = true;
-				AdvancedGhostTriggerBase advancedGhostTriggerBase = ((Component)val).gameObject.GetComponent<AdvancedGhostTriggerBase>();
-				if ((Object)(object)advancedGhostTriggerBase == (Object)null)
+				item.GetComponent<Collider>().isTrigger = true;
+				AdvancedGhostTriggerBase advancedGhostTriggerBase = item.gameObject.GetComponent<AdvancedGhostTriggerBase>();
+				if (advancedGhostTriggerBase == null)
 				{
-					advancedGhostTriggerBase = ((Component)val).gameObject.AddComponent<AdvancedGhostTriggerBase>();
+					advancedGhostTriggerBase = item.gameObject.AddComponent<AdvancedGhostTriggerBase>();
 				}
 				ghostTriggers.Add(advancedGhostTriggerBase);
 			}
@@ -56,15 +53,6 @@ public class AdvancedGhostBodyRotateWeapon : MonoBehaviour
 
 	private void Update()
 	{
-		//IL_00af: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00bf: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00cd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00dd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ec: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f4: Unknown result type (might be due to invalid IL or missing references)
 		if (factor <= 0f)
 		{
 			return;
@@ -75,7 +63,7 @@ public class AdvancedGhostBodyRotateWeapon : MonoBehaviour
 			int[] attackTargets = ghostTrigger.AttackTargets;
 			foreach (int id in attackTargets)
 			{
-				MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(id);
+				MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(id);
 				if (worldObjectClient == null)
 				{
 					continue;
@@ -85,14 +73,13 @@ public class AdvancedGhostBodyRotateWeapon : MonoBehaviour
 				{
 					continue;
 				}
-				if ((Object)(object)component == (Object)null)
+				if (component == null)
 				{
-					Debug.LogError((object)"WorldObject does not have interactionHandler");
+					Debug.LogError("WorldObject does not have interactionHandler");
 					continue;
 				}
-				Vector3 val = worldObjectClient.GetTargetPosition() - ((Component)this).gameObject.transform.position;
-				Vector3 val2 = val.normalized * impulseStrength;
-				InteractionData interaction = AdvancedGhostBodyRotateWeaponPackage.Create(damage * factor, val2 * factor);
+				Vector3 vector = (worldObjectClient.GetTargetPosition() - gameObject.transform.position).normalized * impulseStrength;
+				InteractionData interaction = AdvancedGhostBodyRotateWeaponPackage.Create(damage * factor, vector * factor);
 				if (component.HandleInteraction(interaction, interactionIsLocal: true))
 				{
 					timeoutMap.Add(worldObjectClient.Id);

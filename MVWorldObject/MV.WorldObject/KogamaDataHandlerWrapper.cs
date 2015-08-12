@@ -1,11 +1,11 @@
-using System.Collections;
+using System.Collections.Generic;
 using MV.WorldObject.BytePackerFunctions;
 
 namespace MV.WorldObject;
 
 public static class KogamaDataHandlerWrapper
 {
-	public static Hashtable GetDataParameters(int serializeVersion, BytePacker bp, KogamaDataType kogamaDataType, bool readRuntimeData)
+	public static Dictionary<object, object> GetDataParameters(int serializeVersion, BytePacker bp, KogamaDataType kogamaDataType, bool readRuntimeData)
 	{
 		if (serializeVersion == 11)
 		{

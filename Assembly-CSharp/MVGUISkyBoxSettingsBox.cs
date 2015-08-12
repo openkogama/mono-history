@@ -1,5 +1,5 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class MVGUISkyBoxSettingsBox : UXCustomDialogBox
@@ -105,16 +105,15 @@ public class MVGUISkyBoxSettingsBox : UXCustomDialogBox
 
 	public override object GetResult()
 	{
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add("color", new float[3] { r, g, b });
-		hashtable.Add("sunAngle", sunAngle);
-		hashtable.Add("fogDensity", fogDensity);
-		return hashtable;
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add("color", new float[3] { r, g, b });
+		dictionary.Add("sunAngle", sunAngle);
+		dictionary.Add("fogDensity", fogDensity);
+		return dictionary;
 	}
 
 	private void UpdateColor()
 	{
-		//IL_0018: Unknown result type (might be due to invalid IL or missing references)
 		colorCube.SetColor(new Color(r, g, b), string.Empty);
 	}
 }

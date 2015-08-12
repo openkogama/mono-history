@@ -14,23 +14,21 @@ public class SwordAnimationEventHandler : MonoBehaviour
 	{
 		swordItem.StopOverlapCheck();
 		arcInstance.emit = false;
-		((Component)arcInstance).transform.parent = null;
+		arcInstance.transform.parent = null;
 	}
 
 	private void SwordAnimStart()
 	{
-		//IL_0042: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0057: Unknown result type (might be due to invalid IL or missing references)
 		swordItem.StartOverlapCheck();
-		arcInstance = Object.Instantiate((Object)(object)trailArcPrefab) as TrailArc;
-		((Component)arcInstance).transform.parent = target;
-		((Component)arcInstance).transform.localPosition = Vector3.zero;
-		((Component)arcInstance).transform.localRotation = Quaternion.identity;
+		arcInstance = Object.Instantiate(trailArcPrefab);
+		arcInstance.transform.parent = target;
+		arcInstance.transform.localPosition = Vector3.zero;
+		arcInstance.transform.localRotation = Quaternion.identity;
 	}
 
 	private void OnDisable()
 	{
-		if (Object.op_Implicit((Object)(object)arcInstance))
+		if ((bool)arcInstance)
 		{
 			SwordAnimHit();
 		}

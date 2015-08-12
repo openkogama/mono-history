@@ -10,21 +10,15 @@ public class DragonHead : MonoBehaviour
 
 	public void Initialize(MVDragon owner)
 	{
-		//IL_002e: Unknown result type (might be due to invalid IL or missing references)
 		worldObject = owner;
-		linkToTarget = ((Component)this).gameObject.GetComponentInChildren<ParticleSystem>();
-		((Component)linkToTarget).transform.position = ((Component)this).gameObject.transform.position;
+		linkToTarget = gameObject.GetComponentInChildren<ParticleSystem>();
+		linkToTarget.transform.position = gameObject.transform.position;
 		StopFiring();
 	}
 
 	private float getParticlesLifeTime()
 	{
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0020: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0025: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-		Vector3 val = ((Component)this).gameObject.transform.position - worldObject.DragonTargetArea.transform.position;
-		float magnitude = val.magnitude;
+		float magnitude = (gameObject.transform.position - worldObject.DragonTargetArea.transform.position).magnitude;
 		return magnitude / linkToTarget.startSpeed;
 	}
 
@@ -45,7 +39,7 @@ public class DragonHead : MonoBehaviour
 		if (isFiring)
 		{
 			isFiring = false;
-			if (Object.op_Implicit((Object)(object)linkToTarget))
+			if ((bool)linkToTarget)
 			{
 				linkToTarget.enableEmission = false;
 			}
@@ -57,7 +51,7 @@ public class DragonHead : MonoBehaviour
 		if (!isFiring)
 		{
 			isFiring = true;
-			if (Object.op_Implicit((Object)(object)linkToTarget))
+			if ((bool)linkToTarget)
 			{
 				linkToTarget.enableEmission = true;
 			}

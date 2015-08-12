@@ -32,58 +32,23 @@ internal class ESInsert : ESStateBase
 
 	private HashSet<int> woIgnoreList = new HashSet<int>();
 
-	public ESInsert()
-	{
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0011: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001c: Unknown result type (might be due to invalid IL or missing references)
-	}
-
 	public override void Enter(EditorStateMachine e)
 	{
-		//IL_00cd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00fc: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0101: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0106: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0135: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0142: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0147: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0148: Unknown result type (might be due to invalid IL or missing references)
-		//IL_014d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0157: Unknown result type (might be due to invalid IL or missing references)
-		//IL_015c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0165: Unknown result type (might be due to invalid IL or missing references)
-		//IL_016a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0173: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0178: Unknown result type (might be due to invalid IL or missing references)
-		//IL_017d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_018d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0193: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0198: Unknown result type (might be due to invalid IL or missing references)
-		//IL_019d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01a2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01aa: Unknown result type (might be due to invalid IL or missing references)
-		laser = MVGameController.Instance.WOCM.AvatarLocal.LaserPointer;
+		laser = MVGameController.WOCM.AvatarLocal.LaserPointer;
 		laser.ChangeState(LaserPointerState.Inserting);
 		laser.LaserActive = true;
-		if (!Object.op_Implicit((Object)(object)previewMaterial))
+		if (!previewMaterial)
 		{
-			Object val = Resources.Load("Materials/InsertPreviewMaterial");
-			previewMaterial = (Material)(object)((val is Material) ? val : null);
+			previewMaterial = Resources.Load("Materials/InsertPreviewMaterial") as Material;
 		}
 		float num = e.SingleSelectedWO.ComputeObjectRadius();
 		float num2 = Camera.main.fieldOfView * 0.5f * 0.8f;
 		distanceInFreeSpace = Mathf.Max(5f, num / Mathf.Tan(num2 * ((float)Math.PI / 180f)));
-		Debug.Log((object)("Insert free distance = " + distanceInFreeSpace));
-		insertCursor = Object.FindObjectOfType(typeof(InsertCursor)) as InsertCursor;
+		Debug.Log("Insert free distance = " + distanceInFreeSpace);
+		insertCursor = UnityEngine.Object.FindObjectOfType(typeof(InsertCursor)) as InsertCursor;
 		insertOffset = Vector3.zero;
-		insertPosition = ((Component)Camera.main).transform.position + ((Component)Camera.main).transform.forward * distanceInFreeSpace;
-		Screen.showCursor = false;
+		insertPosition = Camera.main.transform.position + Camera.main.transform.forward * distanceInFreeSpace;
+		Cursor.visible = false;
 		if (!e.NetworkSelector.RequestOwnership(e.SelectedIDs))
 		{
 			e.PopState();
@@ -91,74 +56,18 @@ internal class ESInsert : ESStateBase
 		}
 		Vector3 worldPivot = e.SingleSelectedWO.WorldPivot;
 		pivotToOrigin = e.SingleSelectedWO.WorldPosition - worldPivot;
-		Ray val2 = Camera.main.ScreenPointToRay(new Vector3(Input.mousePosition.x, Input.mousePosition.y));
-		Vector3 worldPosition = ComputeSnapPosition(e.SingleSelectedWO, val2.GetPoint(distanceInFreeSpace) + pivotToOrigin);
+		Ray ray = Camera.main.ScreenPointToRay(new Vector3(MVInputWrapper.GetPointerPosition().x, MVInputWrapper.GetPointerPosition().y));
+		Vector3 worldPosition = ComputeSnapPosition(e.SingleSelectedWO, ray.GetPoint(distanceInFreeSpace) + pivotToOrigin);
 		e.SingleSelectedWO.WorldPosition = worldPosition;
 		e.SingleSelectedWO.Visible = false;
 		previewMeshes = e.SingleSelectedWO.GameObject.GetComponentsInChildren<MeshFilter>();
-		isNewPrototype = e.Data.Contains("IsNewPrototype");
+		isNewPrototype = e.Data.ContainsKey("IsNewPrototype");
 		woIgnoreList = ((!(e.SingleSelectedWO is MVGroup)) ? new HashSet<int> { e.SingleSelectedWO.Id } : (e.SingleSelectedWO as MVGroup).GetHierarchyWorldObjectIDs());
-		UXUtils.FindGUIObjectOfType<UXInputDispatcher>().BlockGUIInput = true;
+		UXUtils.UXInputDispatcher.BlockGUIInput = true;
 	}
 
 	public override void Execute(EditorStateMachine e)
 	{
-		//IL_001d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0029: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0047: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0048: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0058: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0069: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ee: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00fe: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0103: Unknown result type (might be due to invalid IL or missing references)
-		//IL_010d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0112: Unknown result type (might be due to invalid IL or missing references)
-		//IL_011b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0120: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0129: Unknown result type (might be due to invalid IL or missing references)
-		//IL_012e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0133: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0143: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0149: Unknown result type (might be due to invalid IL or missing references)
-		//IL_014e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0153: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0158: Unknown result type (might be due to invalid IL or missing references)
-		//IL_015b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0162: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0167: Unknown result type (might be due to invalid IL or missing references)
-		//IL_016c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_016e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0172: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0177: Unknown result type (might be due to invalid IL or missing references)
-		//IL_017c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0181: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0188: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01ab: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01b0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01b5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01bb: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01c1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01c6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01cb: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ae: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00bf: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01d2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01e0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01e5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01ea: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01f8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01fd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_020a: Unknown result type (might be due to invalid IL or missing references)
 		previewMeshes = e.SingleSelectedWO.GameObject.GetComponentsInChildren<MeshFilter>();
 		base.Execute(e);
 		Vector3 position = Vector3.zero;
@@ -167,38 +76,38 @@ internal class ESInsert : ESStateBase
 		if (DrawPlanePick(e.SingleSelectedWO, ref position, ref rawPosition, ref normal))
 		{
 			insertPosition = position;
-			((Component)insertCursor).transform.position = rawPosition;
-			((Component)insertCursor).transform.rotation = Quaternion.LookRotation(normal);
-			((Behaviour)insertCursor).enabled = true;
+			insertCursor.transform.position = rawPosition;
+			insertCursor.transform.rotation = Quaternion.LookRotation(normal);
+			insertCursor.enabled = true;
 		}
 		else if (WorldPick(e.SingleSelectedWO, ref position, ref rawPosition, ref normal))
 		{
 			insertPosition = position;
-			((Component)insertCursor).transform.position = rawPosition;
-			((Component)insertCursor).transform.rotation = Quaternion.LookRotation(normal);
-			((Behaviour)insertCursor).enabled = true;
+			insertCursor.transform.position = rawPosition;
+			insertCursor.transform.rotation = Quaternion.LookRotation(normal);
+			insertCursor.enabled = true;
 		}
 		else
 		{
-			((Behaviour)insertCursor).enabled = false;
+			insertCursor.enabled = false;
 			insertOffset = Vector3.Lerp(insertOffset, Vector3.zero, Time.deltaTime * 10f);
-			Ray val = Camera.main.ScreenPointToRay(new Vector3(Input.mousePosition.x, Input.mousePosition.y));
-			Vector3 val2 = ComputeSnapPosition(e.SingleSelectedWO, val.GetPoint(distanceInFreeSpace) + pivotToOrigin);
-			Vector3 val3 = insertPosition - val.origin;
-			Vector3 val4 = val2 - val.origin;
-			insertPosition = val.origin + val4.normalized * Mathf.Lerp(val3.magnitude, val4.magnitude, Time.deltaTime * 5f);
+			Ray ray = Camera.main.ScreenPointToRay(new Vector3(MVInputWrapper.GetPointerPosition().x, MVInputWrapper.GetPointerPosition().y));
+			Vector3 vector = ComputeSnapPosition(e.SingleSelectedWO, ray.GetPoint(distanceInFreeSpace) + pivotToOrigin);
+			Vector3 vector2 = insertPosition - ray.origin;
+			Vector3 vector3 = vector - ray.origin;
+			insertPosition = ray.origin + vector3.normalized * Mathf.Lerp(vector2.magnitude, vector3.magnitude, Time.deltaTime * 5f);
 			rawPosition = insertPosition - pivotToOrigin;
 		}
 		laser.UpdatePosition(rawPosition);
-		Vector3 val5 = ComputeSnapPosition(e.SingleSelectedWO, insertPosition);
-		e.SingleSelectedWO.SyncPos = Vector3.Lerp(e.SingleSelectedWO.WorldPosition, val5, Time.deltaTime * 20f);
+		Vector3 to = ComputeSnapPosition(e.SingleSelectedWO, insertPosition);
+		e.SingleSelectedWO.SyncPos = Vector3.Lerp(e.SingleSelectedWO.WorldPosition, to, Time.deltaTime * 20f);
 		e.SingleSelectedWO.Visible = false;
 		DrawObject(e.SingleSelectedWO.GameObject);
-		if (MVInputWrapper.GetKeyUp((KeyCode)323))
+		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
 		{
 			if (isNewPrototype)
 			{
-				MVGameController.Instance.Game.CameraController.CurCamera.FocusOnObject(e.SingleSelectedWO);
+				MVGameController.Game.CameraController.CurCamera.FocusOnObject(e.SingleSelectedWO);
 				e.Event = EditorEvent.EditCubes;
 			}
 			else
@@ -210,13 +119,8 @@ internal class ESInsert : ESStateBase
 
 	public override void Exit(EditorStateMachine e)
 	{
-		//IL_003e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0043: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0048: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0059: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006b: Unknown result type (might be due to invalid IL or missing references)
-		Screen.showCursor = true;
-		((Behaviour)insertCursor).enabled = false;
+		Cursor.visible = true;
+		insertCursor.enabled = false;
 		laser.ChangeState(LaserPointerState.Idle);
 		laser.LaserActive = false;
 		e.SingleSelectedWO.Visible = true;
@@ -224,82 +128,40 @@ internal class ESInsert : ESStateBase
 		e.SingleSelectedWO.GameObject.transform.position = position;
 		e.SingleSelectedWO.SyncPos = e.SingleSelectedWO.WorldPosition;
 		e.NetworkSelector.RequestReleaseOwnership(e.SelectedIDs);
-		UXUtils.FindGUIObjectOfType<UXInputDispatcher>().BlockGUIInput = false;
+		UXUtils.UXInputDispatcher.BlockGUIInput = false;
 	}
 
 	private Vector3 ComputeObjectOffset(MVWorldObjectClient wo, Vector3 surfaceNormal)
 	{
-		//IL_0008: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0030: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0035: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0040: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0045: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0047: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0075: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0076: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0083: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0088: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0060: Unknown result type (might be due to invalid IL or missing references)
 		Vector3[] boundsCornersLocal = wo.GetBoundsCornersLocal(BoundsContext.Insert);
-		Vector3 val = Vector3.zero;
+		Vector3 lhs = Vector3.zero;
 		float num = 0f;
 		Vector3[] array = boundsCornersLocal;
 		foreach (Vector3 a in array)
 		{
-			Vector3 val2 = a.Multiply(wo.Scale) + pivotToOrigin;
-			float num2 = Vector3.Dot(surfaceNormal, val2.normalized);
+			Vector3 vector = a.Multiply(wo.Scale) + pivotToOrigin;
+			float num2 = Vector3.Dot(surfaceNormal, vector.normalized);
 			if (num2 > num)
 			{
-				val = val2;
+				lhs = vector;
 				num = num2;
 			}
 		}
-		return Vector3.Dot(val, surfaceNormal) * surfaceNormal - pivotToOrigin;
+		return Vector3.Dot(lhs, surfaceNormal) * surfaceNormal - pivotToOrigin;
 	}
 
 	private bool DrawPlanePick(MVWorldObjectClient wo, ref Vector3 position, ref Vector3 rawPosition, ref Vector3 normal)
 	{
-		//IL_0014: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0019: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0044: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0049: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0082: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0091: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0094: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0095: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00aa: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b7: Unknown result type (might be due to invalid IL or missing references)
-		if (MVGameController.Instance.EditController.IsDrawPlaneActive)
+		if (MVGameController.EditController.CubeModelingController.IsDrawPlaneActive)
 		{
 			Vector3 hit = Vector3.zero;
-			if (MVGameController.Instance.EditController.WorldEditorDrawPlane.Pick(ref hit))
+			if (MVGameController.EditController.WorldEditorDrawPlane.Pick(ref hit))
 			{
-				Vector3 val = ((!(MVGameController.Instance.EditController.WorldEditorDrawPlane.Pos.y < MVGameController.Instance.WOCM.AvatarLocal.GameObject.transform.position.y)) ? Vector3.up : (-Vector3.up));
-				Vector3 val2 = ComputeObjectOffset(wo, val);
-				position = hit - val2;
+				Vector3 vector = ((!(MVGameController.EditController.WorldEditorDrawPlane.Pos.y < MVGameController.WOCM.AvatarLocal.GameObject.transform.position.y)) ? Vector3.up : (-Vector3.up));
+				Vector3 vector2 = ComputeObjectOffset(wo, vector);
+				position = hit - vector2;
 				rawPosition = hit;
-				normal = -val;
+				normal = -vector;
 				return true;
 			}
 		}
@@ -308,27 +170,11 @@ internal class ESInsert : ESStateBase
 
 	private bool WorldPick(MVWorldObjectClient wo, ref Vector3 position, ref Vector3 rawPosition, ref Vector3 normal)
 	{
-		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0034: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0039: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0041: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0052: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0060: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0065: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0072: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0077: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0080: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0085: Unknown result type (might be due to invalid IL or missing references)
 		VoxelHit hit = default;
-		if (MVGameController.Instance.WOCM.Pick(ref hit, woIgnoreList))
+		if (MVGameController.WOCM.Pick(ref hit, woIgnoreList))
 		{
-			Vector3 val = ComputeObjectOffset(wo, -hit.normal);
-			insertOffset = Vector3.Lerp(insertOffset, val, Time.deltaTime * 10f);
+			Vector3 to = ComputeObjectOffset(wo, -hit.normal);
+			insertOffset = Vector3.Lerp(insertOffset, to, Time.deltaTime * 10f);
 			position = hit.point - insertOffset;
 			rawPosition = hit.point;
 			normal = hit.normal;
@@ -339,21 +185,18 @@ internal class ESInsert : ESStateBase
 
 	private Vector3 ComputeSnapPosition(MVWorldObjectClient wo, Vector3 originalPos)
 	{
-		//IL_001c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001d: Unknown result type (might be due to invalid IL or missing references)
-		float gridSize = ((!AEditController.IsGridSnap()) ? 0.0625f : 1f);
+		float gridSize = ((!MVGameController.EditorController.IsGridSnap()) ? 0.0625f : 1f);
 		return wo.GetClosestGridPoint(gridSize, originalPos);
 	}
 
 	private void DrawObject(GameObject go)
 	{
-		//IL_0025: Unknown result type (might be due to invalid IL or missing references)
 		MeshFilter[] array = previewMeshes;
-		foreach (MeshFilter val in array)
+		foreach (MeshFilter meshFilter in array)
 		{
-			for (int j = 0; j < val.sharedMesh.subMeshCount; j++)
+			for (int j = 0; j < meshFilter.sharedMesh.subMeshCount; j++)
 			{
-				Graphics.DrawMesh(val.sharedMesh, ((Component)val).transform.localToWorldMatrix, previewMaterial, LayerMask.NameToLayer("Default"), Camera.main, j);
+				Graphics.DrawMesh(meshFilter.sharedMesh, meshFilter.transform.localToWorldMatrix, previewMaterial, LayerMask.NameToLayer("Default"), Camera.main, j);
 			}
 		}
 	}

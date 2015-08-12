@@ -45,10 +45,10 @@ public class UXMouseOverScale : MonoBehaviour
 
 	private void Awake()
 	{
-		UXMouseOverObject component = ((Component)this).GetComponent<UXMouseOverObject>();
+		UXMouseOverObject component = GetComponent<UXMouseOverObject>();
 		component.OnMouseOverEnter = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(component.OnMouseOverEnter, new UXMouseOverObject.OnMouseOverDelegate(OnMouseOverEnter));
 		component.OnMouseOverExit = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(component.OnMouseOverExit, new UXMouseOverObject.OnMouseOverDelegate(OnMouseOverExit));
-		screen = UXUtils.FindGUIObjectOfType<UXScreen>();
+		screen = UXUtils.UXScreen;
 		UXScreen uXScreen = screen;
 		uXScreen.OnFullScreenChange = (UXScreen.OnFullScreenChangeDelegate)Delegate.Combine(uXScreen.OnFullScreenChange, new UXScreen.OnFullScreenChangeDelegate(OnFullScreen));
 		RefreshScaleValues();
@@ -56,38 +56,16 @@ public class UXMouseOverScale : MonoBehaviour
 
 	public void RefreshScaleValues(bool resetScale = false)
 	{
-		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0034: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0046: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0050: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0062: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0067: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0078: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00bb: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00dc: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ed: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f2: Unknown result type (might be due to invalid IL or missing references)
 		if (resetScale)
 		{
 			ratio = 0f;
 			UpdateScale(ratio);
 		}
-		minScale = minScaleFactor * ((Component)this).transform.localScale;
-		midScale = midScaleFactor * ((Component)this).transform.localScale;
-		maxScale = maxScaleFactor * ((Component)this).transform.localScale;
-		pos = ((Component)this).transform.localPosition;
-		if (Object.op_Implicit((Object)(object)scaleWith))
+		minScale = minScaleFactor * transform.localScale;
+		midScale = midScaleFactor * transform.localScale;
+		maxScale = maxScaleFactor * transform.localScale;
+		pos = transform.localPosition;
+		if ((bool)scaleWith)
 		{
 			minScaleWith = minScaleFactor * scaleWith.localScale;
 			midScaleWith = midScaleFactor * scaleWith.localScale;
@@ -109,15 +87,6 @@ public class UXMouseOverScale : MonoBehaviour
 
 	private void OnFullScreen(bool full)
 	{
-		//IL_003e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0055: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0087: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0093: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0098: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a8: Unknown result type (might be due to invalid IL or missing references)
 		if (ignoreFullScreen)
 		{
 			full = false;
@@ -127,9 +96,9 @@ public class UXMouseOverScale : MonoBehaviour
 		UpdateScale(ratio);
 		if (!freezePos)
 		{
-			((Component)this).transform.localPosition = pos + ((!full) ? scaledOffsetWindowed : scaledOffsetFull);
+			transform.localPosition = pos + ((!full) ? scaledOffsetWindowed : scaledOffsetFull);
 		}
-		if ((Object)(object)scaleWith != (Object)null && !freezePos)
+		if (scaleWith != null && !freezePos)
 		{
 			scaleWith.localPosition = scaleWithPos + ((!full) ? scaledOffsetWindowed : (-scaledOffsetFull));
 		}
@@ -137,7 +106,7 @@ public class UXMouseOverScale : MonoBehaviour
 
 	private IEnumerator Scale(float target, float duration)
 	{
-		yield return ((MonoBehaviour)this).StartCoroutine(pTween.To(duration, ratio, target, (float t) =>
+		yield return StartCoroutine(pTween.To(duration, ratio, target, (float t) =>
 		{
 			ratio = t;
 			UpdateScale(Mathf.SmoothStep(0f, 1f, ratio));
@@ -146,28 +115,6 @@ public class UXMouseOverScale : MonoBehaviour
 
 	private void UpdateScale(float ratio)
 	{
-		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0005: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0054: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0061: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0067: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0072: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0079: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0029: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0034: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0036: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0042: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0047: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0096: Unknown result type (might be due to invalid IL or missing references)
 		Vector3 zero = Vector3.zero;
 		Vector3 zero2 = Vector3.zero;
 		if (fullScreen && !ignoreFullScreen)
@@ -180,8 +127,8 @@ public class UXMouseOverScale : MonoBehaviour
 			zero = Vector3.Lerp(minScale, midScale, ratio);
 			zero2 = Vector3.Lerp(minScaleWith, midScaleWith, ratio);
 		}
-		((Component)this).transform.localScale = zero;
-		if ((Object)(object)scaleWith != (Object)null)
+		transform.localScale = zero;
+		if (scaleWith != null)
 		{
 			scaleWith.localScale = zero2;
 		}
@@ -189,19 +136,19 @@ public class UXMouseOverScale : MonoBehaviour
 
 	public void OnMouseOverEnter(UXMouseOverObject mouseOverObject)
 	{
-		((MonoBehaviour)this).StopAllCoroutines();
-		if (((Component)this).gameObject.active)
+		StopAllCoroutines();
+		if (gameObject.activeInHierarchy)
 		{
-			((MonoBehaviour)this).StartCoroutine(Scale(1f, 0.1f));
+			StartCoroutine(Scale(1f, 0.1f));
 		}
 	}
 
 	public void OnMouseOverExit(UXMouseOverObject mouseOverObject)
 	{
-		((MonoBehaviour)this).StopAllCoroutines();
-		if (((Component)this).gameObject.active)
+		StopAllCoroutines();
+		if (gameObject.activeInHierarchy)
 		{
-			((MonoBehaviour)this).StartCoroutine(Scale(0f, 0.1f));
+			StartCoroutine(Scale(0f, 0.1f));
 		}
 	}
 

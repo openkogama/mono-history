@@ -1,5 +1,4 @@
 using System;
-using Localize;
 using UnityEngine;
 
 [RequireComponent(typeof(UXMouseOverObject))]
@@ -7,22 +6,20 @@ public class UXToolTip : MonoBehaviour
 {
 	private UXToolTipObject toolTipObject;
 
-	public TextSlotIndex toolTipTextID;
-
 	public string toolTipText;
 
 	public bool HitOnDragOver;
 
 	private void Start()
 	{
-		UXMouseOverObject component = ((Component)this).GetComponent<UXMouseOverObject>();
+		UXMouseOverObject component = GetComponent<UXMouseOverObject>();
 		component.OnMouseOverEnter = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(component.OnMouseOverEnter, new UXMouseOverObject.OnMouseOverDelegate(OnMouseOverEnter));
 		component.OnMouseOver = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(component.OnMouseOver, new UXMouseOverObject.OnMouseOverDelegate(HandleOnMouseOver));
 		toolTipObject = UXUtils.FindGUIObjectOfType<UXToolTipObject>();
-		UXDropObject uXDropObject = ((Component)this).GetComponent<UXDropObject>();
-		if ((Object)(object)uXDropObject == (Object)null)
+		UXDropObject uXDropObject = GetComponent<UXDropObject>();
+		if (uXDropObject == null)
 		{
-			uXDropObject = ((Component)this).gameObject.AddComponent<UXDropObject>();
+			uXDropObject = gameObject.AddComponent<UXDropObject>();
 		}
 		UXDropObject uXDropObject2 = uXDropObject;
 		uXDropObject2.OnDragOverEnter = (UXDropObject.OnDragOverEnterDelegate)Delegate.Combine(uXDropObject2.OnDragOverEnter, (UXDropObject.OnDragOverEnterDelegate)((GameObject g) =>
@@ -38,12 +35,7 @@ public class UXToolTip : MonoBehaviour
 
 	public void OnMouseOverEnter(UXMouseOverObject mouseOverObject)
 	{
-		//IL_0042: Unknown result type (might be due to invalid IL or missing references)
-		if (toolTipText == null || toolTipText == string.Empty)
-		{
-			toolTipText = ToolTipText.Instance.GetToolTipText(toolTipTextID);
-		}
-		toolTipObject.ReadyToolTip(toolTipText, Input.mousePosition);
+		toolTipObject.ReadyToolTip(TM._(toolTipText), MVInputWrapper.GetPointerPosition());
 	}
 
 	public void HandleOnMouseOver(UXMouseOverObject mouseOverObject)

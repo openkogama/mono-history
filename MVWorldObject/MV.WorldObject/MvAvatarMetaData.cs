@@ -48,6 +48,6 @@ public class MvAvatarMetaData
 
 	public override string ToString()
 	{
-		return string.Format("avatarID: {0}. name: {1}. priceSilver: {2}. priceGold: {3}. isOnMarketPlace: {4}. canBeSoldOnMarketPlace: {5}.", new object[6] { avatarID, name, priceSilver, priceGold, isOnMarketPlace, canBeSoldOnMarketPlace });
+		return $"avatarID: {avatarID}. name: {name}. priceSilver: {priceSilver}. priceGold: {priceGold}. isOnMarketPlace: {isOnMarketPlace}. canBeSoldOnMarketPlace: {canBeSoldOnMarketPlace}.";
 	}
 }

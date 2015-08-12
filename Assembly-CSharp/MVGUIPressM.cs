@@ -1,23 +1,21 @@
-using Localize;
-
 public class MVGUIPressM : UXViewScript
 {
 	public UXText pressMText;
 
 	public void ShowStandardText()
 	{
-		pressMText.Text = Localization.Instance.GetText(TextSlotIndex.SHOW_MENU);
+		pressMText.Text = TM._("Press M to show Menu");
 	}
 
 	public void ShowOpenText(bool shortcut)
 	{
 		if (shortcut)
 		{
-			pressMText.Text = Localization.Instance.GetText(TextSlotIndex.HIDE_MENU_RELEASE);
+			pressMText.Text = TM._("Release TAB to hide Menu");
 		}
 		else
 		{
-			pressMText.Text = Localization.Instance.GetText(TextSlotIndex.HIDE_MENU_PRESS);
+			pressMText.Text = TM._("Press M to hide Menu");
 		}
 	}
 

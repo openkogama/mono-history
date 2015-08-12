@@ -7,7 +7,7 @@ public class ToggleIconData : DialogData
 	public override void ApplyDataToElement(GameObject element)
 	{
 		UXToggleIconButton component = element.GetComponent<UXToggleIconButton>();
-		if (!((Object)(object)component == (Object)null))
+		if (!(component == null))
 		{
 			component.ToggleState = toggleValue;
 		}

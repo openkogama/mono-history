@@ -31,7 +31,7 @@ public class MVGUICompareSlider : UXGUIElement
 		set
 		{
 			ratio = Mathf.Clamp01(value);
-			if ((Object)(object)ratioPlane != (Object)null && (Object)(object)backgroundPlane != (Object)null)
+			if (ratioPlane != null && backgroundPlane != null)
 			{
 				UpdateRatioDisplay();
 			}
@@ -47,7 +47,7 @@ public class MVGUICompareSlider : UXGUIElement
 		set
 		{
 			requiredRatio = Mathf.Clamp01(value);
-			if ((Object)(object)ratioPlane != (Object)null && (Object)(object)backgroundPlane != (Object)null)
+			if (ratioPlane != null && backgroundPlane != null)
 			{
 				UpdateRatioDisplay();
 			}
@@ -56,10 +56,6 @@ public class MVGUICompareSlider : UXGUIElement
 
 	public void Start()
 	{
-		//IL_0056: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0082: Unknown result type (might be due to invalid IL or missing references)
-		//IL_011f: Unknown result type (might be due to invalid IL or missing references)
 		backgroundPlane = BuildPlane("BackgroundPlane");
 		ratioPlane = BuildPlane("RatioPlane");
 		requiredRatioPlane = BuildPlane("RequiredRatioPlane");
@@ -71,22 +67,18 @@ public class MVGUICompareSlider : UXGUIElement
 		ratioPlane.SetVisible(Visible && ratio > 0f);
 		requiredRatioPlane.SetVisible(Visible && requiredRatio > 0f);
 		backgroundPlane.SetSize(Width, Height);
-		((Component)ratioPlane).transform.localPosition = new Vector3(0f, 0f, -0.01f);
+		ratioPlane.transform.localPosition = new Vector3(0f, 0f, -0.01f);
 		UpdateRatioDisplay();
 	}
 
 	private UXPlane BuildPlane(string name)
 	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0007: Expected Obj, but got Unknown
-		//IL_002e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003e: Unknown result type (might be due to invalid IL or missing references)
-		GameObject val = new GameObject(name);
-		val.layer = LayerMask.NameToLayer("UXElement");
-		val.transform.parent = ((Component)this).transform;
-		val.transform.localPosition = Vector3.zero;
-		val.transform.localScale = Vector3.one;
-		UXPlane uXPlane = val.AddComponent<UXPlane>();
+		GameObject gameObject = new GameObject(name);
+		gameObject.layer = LayerMask.NameToLayer("UXElement");
+		gameObject.transform.parent = transform;
+		gameObject.transform.localPosition = Vector3.zero;
+		gameObject.transform.localScale = Vector3.one;
+		UXPlane uXPlane = gameObject.AddComponent<UXPlane>();
 		uXPlane.uses9PatchMaterial = uses9PatchMaterial;
 		uXPlane.SetMaterial(planeMaterial);
 		uXPlane.SetAlignment(UXHorizontal.Left, UXVertical.Middle);
@@ -103,7 +95,7 @@ public class MVGUICompareSlider : UXGUIElement
 	public override void SetVisible(bool visible)
 	{
 		Visible = visible;
-		if (!((Object)(object)backgroundPlane == (Object)null) && !((Object)(object)ratioPlane == (Object)null))
+		if (!(backgroundPlane == null) && !(ratioPlane == null))
 		{
 			backgroundPlane.SetVisible(visible);
 			ratioPlane.SetVisible(visible && ratio > 0f);
@@ -119,12 +111,11 @@ public class MVGUICompareSlider : UXGUIElement
 
 	private void UpdateRatioDisplay()
 	{
-		//IL_005c: Unknown result type (might be due to invalid IL or missing references)
 		if (ratio == 0f)
 		{
 			ratioPlane.SetVisible(visible: false);
 		}
 		ratioPlane.SetSize(Width * ratio, Height);
-		((Component)requiredRatioPlane).transform.localPosition = new Vector3(Width * requiredRatio, 0f, -0.2f);
+		requiredRatioPlane.transform.localPosition = new Vector3(Width * requiredRatio, 0f, -0.2f);
 	}
 }

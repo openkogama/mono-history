@@ -1,12 +1,10 @@
-using System.Collections;
 using System.Collections.Generic;
-using Localize;
 
 public class MVGUISettingsDialogTriggerBox : MVGUISettingsDialog
 {
 	public MVGUISettingsDialogTriggerBox()
 	{
-		dialogFactory.CreateDialog(TextSlotIndex.Once, TextSlotIndex.TriggerBox, UXDialogType.Toggle).AddPositiveButton(TextSlotIndex.Confirm).AddNegativeButton(TextSlotIndex.Cancel)
+		dialogFactory.CreateDialog(TM._("Once"), TM._("Trigger Box"), UXDialogType.Toggle).AddPositiveButton(TM._("Yes")).AddNegativeButton(TM._("No"))
 			.SetOnResultCallback(OnDialogResult)
 			.SetValues(BuildDialogData())
 			.Show();
@@ -17,9 +15,9 @@ public class MVGUISettingsDialogTriggerBox : MVGUISettingsDialog
 		if (dialog.DialogResult == UXDialogResult.Positive)
 		{
 			bool flag = (bool)dialog.GetResult();
-			Hashtable hashtable = (Hashtable)wo.Data.Clone();
-			hashtable["once"] = flag;
-			MVGameController.Instance.Game.UpdateWorldObjectDataPartial(wo.Id, hashtable);
+			Dictionary<object, object> dictionary = new Dictionary<object, object>(wo.Data);
+			dictionary["once"] = flag;
+			MVGameController.Game.UpdateWorldObjectDataPartial(wo.Id, dictionary);
 		}
 	}
 

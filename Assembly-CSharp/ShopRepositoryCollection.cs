@@ -22,7 +22,7 @@ public class ShopRepositoryCollection : RepositoryCollection
 		{
 			DefaultCollectionItem defaultCollectionItem = (DefaultCollectionItem)array[i];
 			MVItem mVItem = (MVItem)defaultCollectionItem.Object;
-			Debug.Log((object)"GetSlotIndexFromItemId");
+			Debug.Log("GetSlotIndexFromItemId");
 			if (mVItem.itemID == itemId)
 			{
 				return defaultCollectionItem.Index;
@@ -35,7 +35,7 @@ public class ShopRepositoryCollection : RepositoryCollection
 	{
 		if (!(repository is ShopRepository))
 		{
-			Debug.LogError((object)string.Concat("Trying to use Repository of type '", repository.GetType(), "' in ShopRepositoryCollection"));
+			Debug.LogError(string.Concat("Trying to use Repository of type '", repository.GetType(), "' in ShopRepositoryCollection"));
 			return;
 		}
 		ShopRepository shopRepository = (ShopRepository)repository;

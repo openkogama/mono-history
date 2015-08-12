@@ -1,5 +1,4 @@
 using System;
-using Localize;
 
 public class MVGUIItemActionManage : MVGUIItemAction
 {
@@ -14,8 +13,7 @@ public class MVGUIItemActionManage : MVGUIItemAction
 
 	private void AskForDeleteItem()
 	{
-		UXUtils.FindGUIObjectOfType<UXDialogFactory>().CreateDialog(TextSlotIndex.DeleteConfirm, TextSlotIndex.DeleteHeadline, UXDialogType.Simple, noButtons: false, stackDialog: true).AddPositiveButton(TextSlotIndex.Confirm)
-			.AddNegativeButton(TextSlotIndex.Reject)
+		UXUtils.UXDialogFactory.CreateDialog(TM._("Are you sure\nwant to delete?"), TM._("Delete"), UXDialogType.Simple, noButtons: false, stackDialog: true).AddPositiveButton(TM._("Yes")).AddNegativeButton(TM._("No"))
 			.SetOnResultCallback(DeleteItem)
 			.Show();
 	}
@@ -24,7 +22,7 @@ public class MVGUIItemActionManage : MVGUIItemAction
 	{
 		if (dialogBox.DialogResult == UXDialogResult.Positive)
 		{
-			MVGameController.Instance.Game.RemoveItemFromInventory(item.itemID);
+			MVGameController.Game.RemoveItemFromInventory(item.itemID);
 			FireOnActionCompleted();
 		}
 	}

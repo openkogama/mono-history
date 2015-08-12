@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,7 +5,11 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 {
 	private GameObject groundAura;
 
-	private PickupItemObjectScript pickupItemObjectScript;
+	private GreyOutObjectScript pickupItemObjectScript;
+
+	private GameCoinLogic gameCoinLogic;
+
+	private Vector3 displayObjectOffset = new Vector3(0f, 1.8f, 0f);
 
 	protected float cullDistance = 145f;
 
@@ -14,17 +17,35 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 
 	public int SpawnWorldObjectID => spawnWorldObjectID;
 
-	public MVWorldObjectSpawnerVehicle(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public GameCoinLogic GameCoinLogic => gameCoinLogic;
+
+	public MVWorldObjectSpawnerVehicle(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, worldObjects)
 	{
 		previewLayerMask |= LayerFlags.Player;
+		gameCoinLogic = new GameCoinLogic(gameObject, Data, displayObjectOffset);
+	}
+
+	public override void OnDataUpdate()
+	{
+		base.OnDataUpdate();
+		gameCoinLogic.OnDataUpdate(Data);
+	}
+
+	public override void Destroy()
+	{
+		if (gameCoinLogic != null)
+		{
+			gameCoinLogic.OnDestroy(Data);
+		}
+		base.Destroy();
 	}
 
 	public override void Initialize()
 	{
 		if (GetChild("spawnWorldObjectID") == null)
 		{
-			Debug.LogError((object)"Could not get spawnPoint child spawnWorldObjectID. This should only happend when creating a spawner with a new vehicle");
+			Debug.LogError("Could not get spawnPoint child spawnWorldObjectID. This should only happend when creating a spawner with a new vehicle");
 			return;
 		}
 		base.Initialize();
@@ -32,13 +53,13 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 		InitializeCommon();
 		interactionFlags |= mVVehicleBase.InteractionFlags;
 		interactionFlags |= InteractionFlags.DirectlySelectable;
-		pickupItemObjectScript = gameObject.AddComponent<PickupItemObjectScript>();
+		pickupItemObjectScript = gameObject.AddComponent<GreyOutObjectScript>();
 		pickupItemObjectScript.hiddenShader = Shader.Find("Custom/Pickup Unavailable");
-		if ((Object)(object)pickupItemObjectScript.hiddenShader == (Object)null)
+		if (pickupItemObjectScript.hiddenShader == null)
 		{
-			Debug.LogError((object)"hiddenShader not found");
+			Debug.LogError("hiddenShader not found");
 		}
-		pickupItemObjectScript.pickupObject = MVGameController.Instance.WOCM.GetWorldObjectClient(spawnWorldObjectID).GameObject;
+		pickupItemObjectScript.pickupObject = MVGameController.WOCM.GetWorldObjectClient(spawnWorldObjectID).GameObject;
 		pickupItemObjectScript.InitializeOriginalMaterials();
 	}
 
@@ -50,28 +71,10 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 
 	private void InitializeCommon()
 	{
-		//IL_001c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0035: Expected Obj, but got Unknown
-		//IL_005b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0060: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0067: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0074: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0087: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a1: Unknown result type (might be due to invalid IL or missing references)
 		MVVehicleBase mVVehicleBase = (MVVehicleBase)GetChild("spawnWorldObjectID");
 		groundAura = (GameObject)Object.Instantiate(Resources.Load("ParticleFX/CFX_GroundAura"), Vector3.zero, Quaternion.identity);
 		groundAura.transform.parent = gameObject.transform;
-		Transform val = groundAura.transform;
-		Vector3 zero = Vector3.zero;
-		Vector3 up = Vector3.up;
-		Bounds localBounds = mVVehicleBase.GetLocalBounds(BoundsContext.BoxVisualization);
-		val.localPosition = zero + up * (0f - localBounds.extents.y) * 0.9f;
+		groundAura.transform.localPosition = Vector3.zero + Vector3.up * (0f - mVVehicleBase.GetLocalBounds(BoundsContext.BoxVisualization).extents.y) * 0.9f;
 		groundAura.transform.rotation = Quaternion.identity;
 	}
 
@@ -79,20 +82,20 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 	{
 		if (spawnState == SpawnState.None)
 		{
-			Debug.LogError((object)"SpawnState is none");
+			Debug.LogError("SpawnState is none");
 		}
 		switch (spawnState)
 		{
 		case SpawnState.Listening:
-			pickupItemObjectScript.Respawn();
-			groundAura.active = true;
+			pickupItemObjectScript.GreyIn();
+			groundAura.SetActive(value: true);
 			break;
 		case SpawnState.Taken:
-			if (MVGameController.Instance.Game.IsPlaying)
+			if (MVGameController.Game.IsPlaying)
 			{
-				pickupItemObjectScript.Take();
+				pickupItemObjectScript.GreyOut();
 			}
-			groundAura.active = false;
+			groundAura.SetActive(value: false);
 			break;
 		}
 	}
@@ -104,57 +107,62 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 			disabledByLod = false;
 			Renderer[] componentsInChildren = groundAura.GetComponentsInChildren<Renderer>();
 			Renderer[] array = componentsInChildren;
-			foreach (Renderer val in array)
+			foreach (Renderer renderer in array)
 			{
-				val.enabled = true;
+				renderer.enabled = true;
 			}
 		}
 		else if (!disabledByLod && distance >= cullDistance)
 		{
 			Renderer[] componentsInChildren2 = groundAura.GetComponentsInChildren<Renderer>();
 			Renderer[] array2 = componentsInChildren2;
-			foreach (Renderer val2 in array2)
+			foreach (Renderer renderer2 in array2)
 			{
-				val2.enabled = false;
+				renderer2.enabled = false;
 			}
 		}
 	}
 
 	public override void Select(Color color)
 	{
-		//IL_001d: Unknown result type (might be due to invalid IL or missing references)
-		MVGameController.Instance.WOCM.GetWorldObjectClient(SpawnWorldObjectID)?.Select(color);
+		MVGameController.WOCM.GetWorldObjectClient(SpawnWorldObjectID)?.Select(color);
 	}
 
 	protected override bool Use(int userWoID)
 	{
-		Debug.Log((object)("SpawnObjectID " + spawnWorldObjectID));
+		Debug.Log("SpawnObjectID " + spawnWorldObjectID);
 		if (spawnStateWrapper.SpawnState == SpawnState.Taken)
 		{
 			return false;
 		}
-		MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(spawnWorldObjectID);
+		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(spawnWorldObjectID);
 		if (worldObjectClient == null)
 		{
-			Debug.LogError((object)"SpawnWorldObject is null");
+			Debug.LogError("SpawnWorldObject is null");
+			return false;
+		}
+		if (!gameCoinLogic.CanUse())
+		{
+			Debug.Log("Need " + gameCoinLogic.PurchaseAmount + " GameCoins to use this vehicle");
 			return false;
 		}
 		VehicleSeatManager component = worldObjectClient.GameObject.GetComponent<VehicleSeatManager>();
-		if ((Object)(object)component == (Object)null)
+		if (component == null)
 		{
-			Debug.LogError((object)"No vehicleSeatManager");
+			Debug.LogError("No vehicleSeatManager");
 			return false;
 		}
 		VehicleSeatBase driverSeat = component.DriverSeat;
-		if ((Object)(object)driverSeat == (Object)null)
+		if (driverSeat == null)
 		{
-			Debug.LogError((object)"No driver seat");
+			Debug.LogError("No driver seat");
 			return false;
 		}
-		Debug.Log((object)("Trying to spawn vehicle spawner ID is " + Id));
-		if (MVGameController.Instance.Game.PlayerController.SpawnVehicleWithDriver(Id, userWoID, driverSeat))
+		Debug.Log("Trying to spawn vehicle spawner ID is " + Id);
+		if (MVGameController.Game.PlayerController.SpawnVehicleWithDriver(Id, userWoID, driverSeat))
 		{
-			Debug.Log((object)"Succesfully send spawn vehicle");
+			Debug.Log("Succesfully send spawn vehicle");
+			MVGameController.Game.GameCoinManager.Consume(gameCoinLogic);
 			return true;
 		}
 		return true;
@@ -162,17 +170,17 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 
 	public override bool OnEnterObject(EditorStateMachine e)
 	{
-		MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(spawnWorldObjectID);
+		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(spawnWorldObjectID);
 		if (spawnStateWrapper.SpawnState == SpawnState.Taken)
 		{
-			pickupItemObjectScript.Respawn();
+			pickupItemObjectScript.GreyIn();
 		}
 		return worldObjectClient.OnEnterObject(e);
 	}
 
 	public override bool OnExitObject(EditorStateMachine e)
 	{
-		MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(spawnWorldObjectID);
+		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(spawnWorldObjectID);
 		return worldObjectClient.OnExitObject(e);
 	}
 
@@ -180,14 +188,25 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 	{
 		if (!(wo is MVWorldObjectSpawnerVehicle))
 		{
-			Debug.LogError((object)"Not a vehicle spawner");
+			Debug.LogError("Not a vehicle spawner");
 			return false;
 		}
 		MVWorldObjectSpawnerVehicle mVWorldObjectSpawnerVehicle = (MVWorldObjectSpawnerVehicle)wo;
+		if (mVWorldObjectSpawnerVehicle.Data.ContainsKey("gameCoinAmount"))
+		{
+			if (!Data.ContainsKey("gameCoinAmount"))
+			{
+				return false;
+			}
+			if (Data["gameCoinAmount"] != mVWorldObjectSpawnerVehicle.Data["gameCointAmount"])
+			{
+				return false;
+			}
+		}
 		MVWorldObjectClient child = mVWorldObjectSpawnerVehicle.GetChild("spawnWorldObjectID");
 		if (child == null)
 		{
-			Debug.LogError((object)"Did not find other spawnWorldObject");
+			Debug.LogError("Did not find other spawnWorldObject");
 			return false;
 		}
 		return GetChild("spawnWorldObjectID").CompareWithKoGaMaPackage(child, koGaMaPackageClient, ref insertedByProfileId);

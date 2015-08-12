@@ -8,6 +8,9 @@ public class MVGUIAvatarAccessoryInventory : MVGUIAvatarAccessoryBasicView
 
 	public MVGUIAvatarAccessorySlotManager avatarAccessorySlots;
 
+	[SerializeField]
+	private AvatarAccessoryController avatarAccessoryController;
+
 	public UXGroup inventoryUpdatedGroup;
 
 	public override void OnShow()
@@ -30,7 +33,7 @@ public class MVGUIAvatarAccessoryInventory : MVGUIAvatarAccessoryBasicView
 	{
 		foreach (MVGUIAvatarAccessoryInventoryGroup avatarAccessoryGroup in avatarAccessoryGroups)
 		{
-			avatarAccessoryGroup.Initialize();
+			avatarAccessoryGroup.Initialize(avatarAccessoryController);
 			avatarAccessoryGroup.OnViewItemDragStart = (MVGUIAvatarAccessoryInventoryGroup.OnViewItemActionDelegate)Delegate.Combine(avatarAccessoryGroup.OnViewItemDragStart, new MVGUIAvatarAccessoryInventoryGroup.OnViewItemActionDelegate(OnStartDragAvatarAccessory));
 			avatarAccessoryGroup.OnViewItemDragEnd = (MVGUIAvatarAccessoryInventoryGroup.OnViewItemActionDelegate)Delegate.Combine(avatarAccessoryGroup.OnViewItemDragEnd, new MVGUIAvatarAccessoryInventoryGroup.OnViewItemActionDelegate(OnStopDragAvatarAccessory));
 			avatarAccessoryGroup.OnViewItemMouseOverEnter = (MVGUIAvatarAccessoryInventoryGroup.OnViewItemActionDelegate)Delegate.Combine(avatarAccessoryGroup.OnViewItemMouseOverEnter, new MVGUIAvatarAccessoryInventoryGroup.OnViewItemActionDelegate(OnViewItemMouseOverEnter));
@@ -66,7 +69,7 @@ public class MVGUIAvatarAccessoryInventory : MVGUIAvatarAccessoryBasicView
 
 	private void OnViewItemMouseOverEnter(AvatarAccessoryInventoryViewItem viewItem)
 	{
-		if ((Object)(object)viewItem != (Object)null && (Object)(object)viewItem.AvatarAccessory != (Object)null)
+		if (viewItem != null && viewItem.AvatarAccessory != null)
 		{
 			avatarAccessorySlots.HighlightSlots(viewItem.AvatarAccessory.ValidSlots);
 		}

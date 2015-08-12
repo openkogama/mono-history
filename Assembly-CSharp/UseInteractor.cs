@@ -32,18 +32,13 @@ public class UseInteractor
 
 	private UseInteractorHandler GetUseInteractorHandler(int woID)
 	{
-		MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(woID);
-		if (worldObjectClient != null)
-		{
-			return worldObjectClient.GameObject.GetComponent<UseInteractorHandler>();
-		}
-		return null;
+		return MVGameController.WOCM.GetWorldObjectClient(woID)?.GameObject.GetComponent<UseInteractorHandler>();
 	}
 
 	public void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
 		UseInteractorHandler useInteractorHandler = GetUseInteractorHandler(e.instigatorWOID);
-		if ((Object)(object)useInteractorHandler != (Object)null)
+		if (useInteractorHandler != null)
 		{
 			useInteractorHandler.AddUseInteractor(this);
 		}
@@ -52,7 +47,7 @@ public class UseInteractor
 	public void triggerBoxEvents_TriggerExit(object sender, TriggerEventArgs e)
 	{
 		UseInteractorHandler useInteractorHandler = GetUseInteractorHandler(e.instigatorWOID);
-		if ((Object)(object)useInteractorHandler != (Object)null)
+		if (useInteractorHandler != null)
 		{
 			useInteractorHandler.RemoveUseInteractor(this);
 		}

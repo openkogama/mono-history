@@ -99,28 +99,14 @@ public class Detonator : MonoBehaviour
 
 	public static Material defaultHeatwaveMaterial;
 
-	public Detonator()
-	{
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0011: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0046: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004b: Unknown result type (might be due to invalid IL or missing references)
-	}
-
-	static Detonator()
-	{
-		//IL_001e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-	}
-
 	private void Awake()
 	{
 		FillDefaultMaterials();
-		components = ((Component)this).GetComponents(typeof(DetonatorComponent));
+		components = GetComponents(typeof(DetonatorComponent));
 		Component[] array = components;
 		for (int i = 0; i < array.Length; i++)
 		{
-			DetonatorComponent detonatorComponent = (DetonatorComponent)(object)array[i];
+			DetonatorComponent detonatorComponent = (DetonatorComponent)array[i];
 			if (detonatorComponent is DetonatorFireball)
 			{
 				_fireball = detonatorComponent as DetonatorFireball;
@@ -154,80 +140,80 @@ public class Detonator : MonoBehaviour
 				_heatwave = detonatorComponent as DetonatorHeatwave;
 			}
 		}
-		if (!Object.op_Implicit((Object)(object)_fireball) && autoCreateFireball)
+		if (!_fireball && autoCreateFireball)
 		{
-			_fireball = ((Component)this).gameObject.AddComponent("DetonatorFireball") as DetonatorFireball;
+			_fireball = gameObject.AddComponent<DetonatorFireball>();
 			_fireball.Reset();
 		}
-		if (!Object.op_Implicit((Object)(object)_smoke) && autoCreateSmoke)
+		if (!_smoke && autoCreateSmoke)
 		{
-			_smoke = ((Component)this).gameObject.AddComponent("DetonatorSmoke") as DetonatorSmoke;
+			_smoke = gameObject.AddComponent<DetonatorSmoke>();
 			_smoke.Reset();
 		}
-		if (!Object.op_Implicit((Object)(object)_sparks) && autoCreateSparks)
+		if (!_sparks && autoCreateSparks)
 		{
-			_sparks = ((Component)this).gameObject.AddComponent("DetonatorSparks") as DetonatorSparks;
+			_sparks = gameObject.AddComponent<DetonatorSparks>();
 			_sparks.Reset();
 		}
-		if (!Object.op_Implicit((Object)(object)_shockwave) && autoCreateShockwave)
+		if (!_shockwave && autoCreateShockwave)
 		{
-			_shockwave = ((Component)this).gameObject.AddComponent("DetonatorShockwave") as DetonatorShockwave;
+			_shockwave = gameObject.AddComponent<DetonatorShockwave>();
 			_shockwave.Reset();
 		}
-		if (!Object.op_Implicit((Object)(object)_glow) && autoCreateGlow)
+		if (!_glow && autoCreateGlow)
 		{
-			_glow = ((Component)this).gameObject.AddComponent("DetonatorGlow") as DetonatorGlow;
+			_glow = gameObject.AddComponent<DetonatorGlow>();
 			_glow.Reset();
 		}
-		if (!Object.op_Implicit((Object)(object)_light) && autoCreateLight)
+		if (!_light && autoCreateLight)
 		{
-			_light = ((Component)this).gameObject.AddComponent("DetonatorLight") as DetonatorLight;
+			_light = gameObject.AddComponent<DetonatorLight>();
 			_light.Reset();
 		}
-		if (!Object.op_Implicit((Object)(object)_force) && autoCreateForce)
+		if (!_force && autoCreateForce)
 		{
-			_force = ((Component)this).gameObject.AddComponent("DetonatorForce") as DetonatorForce;
+			_force = gameObject.AddComponent<DetonatorForce>();
 			_force.Reset();
 		}
-		if (!Object.op_Implicit((Object)(object)_heatwave) && autoCreateHeatwave && SystemInfo.supportsImageEffects)
+		if (!_heatwave && autoCreateHeatwave && SystemInfo.supportsImageEffects)
 		{
-			_heatwave = ((Component)this).gameObject.AddComponent("DetonatorHeatwave") as DetonatorHeatwave;
+			_heatwave = gameObject.AddComponent<DetonatorHeatwave>();
 			_heatwave.Reset();
 		}
-		components = ((Component)this).GetComponents(typeof(DetonatorComponent));
+		components = GetComponents(typeof(DetonatorComponent));
 	}
 
 	private void FillDefaultMaterials()
 	{
-		if (!Object.op_Implicit((Object)(object)fireballAMaterial))
+		if (!fireballAMaterial)
 		{
 			fireballAMaterial = DefaultFireballAMaterial();
 		}
-		if (!Object.op_Implicit((Object)(object)fireballBMaterial))
+		if (!fireballBMaterial)
 		{
 			fireballBMaterial = DefaultFireballBMaterial();
 		}
-		if (!Object.op_Implicit((Object)(object)smokeAMaterial))
+		if (!smokeAMaterial)
 		{
 			smokeAMaterial = DefaultSmokeAMaterial();
 		}
-		if (!Object.op_Implicit((Object)(object)smokeBMaterial))
+		if (!smokeBMaterial)
 		{
 			smokeBMaterial = DefaultSmokeBMaterial();
 		}
-		if (!Object.op_Implicit((Object)(object)shockwaveMaterial))
+		if (!shockwaveMaterial)
 		{
 			shockwaveMaterial = DefaultShockwaveMaterial();
 		}
-		if (!Object.op_Implicit((Object)(object)sparksMaterial))
+		if (!sparksMaterial)
 		{
 			sparksMaterial = DefaultSparksMaterial();
 		}
-		if (!Object.op_Implicit((Object)(object)glowMaterial))
+		if (!glowMaterial)
 		{
 			glowMaterial = DefaultGlowMaterial();
 		}
-		if (!Object.op_Implicit((Object)(object)heatwaveMaterial))
+		if (!heatwaveMaterial)
 		{
 			heatwaveMaterial = DefaultHeatwaveMaterial();
 		}
@@ -246,34 +232,18 @@ public class Detonator : MonoBehaviour
 	{
 		if (destroyTime > 0f && _lastExplosionTime + destroyTime <= Time.time)
 		{
-			Object.Destroy((Object)(object)((Component)this).gameObject);
+			Object.Destroy(gameObject);
 		}
 	}
 
 	private void UpdateComponents()
 	{
-		//IL_00b3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ca: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00db: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ec: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00fd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0103: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0114: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0119: Unknown result type (might be due to invalid IL or missing references)
-		//IL_011e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0125: Unknown result type (might be due to invalid IL or missing references)
-		//IL_012b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0140: Unknown result type (might be due to invalid IL or missing references)
 		if (_firstComponentUpdate)
 		{
 			Component[] array = components;
 			for (int i = 0; i < array.Length; i++)
 			{
-				DetonatorComponent detonatorComponent = (DetonatorComponent)(object)array[i];
+				DetonatorComponent detonatorComponent = (DetonatorComponent)array[i];
 				detonatorComponent.Init();
 				detonatorComponent.SetStartValues();
 			}
@@ -286,7 +256,7 @@ public class Detonator : MonoBehaviour
 		Component[] array2 = components;
 		for (int j = 0; j < array2.Length; j++)
 		{
-			DetonatorComponent detonatorComponent2 = (DetonatorComponent)(object)array2[j];
+			DetonatorComponent detonatorComponent2 = (DetonatorComponent)array2[j];
 			if (detonatorComponent2.detonatorControlled)
 			{
 				detonatorComponent2.size = detonatorComponent2.startSize * (size / _baseSize);
@@ -305,7 +275,7 @@ public class Detonator : MonoBehaviour
 		Component[] array = components;
 		for (int i = 0; i < array.Length; i++)
 		{
-			DetonatorComponent detonatorComponent = (DetonatorComponent)(object)array[i];
+			DetonatorComponent detonatorComponent = (DetonatorComponent)array[i];
 			UpdateComponents();
 			detonatorComponent.Explode();
 		}
@@ -313,8 +283,6 @@ public class Detonator : MonoBehaviour
 
 	public void Reset()
 	{
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0011: Unknown result type (might be due to invalid IL or missing references)
 		size = 10f;
 		color = _baseColor;
 		duration = _baseDuration;
@@ -323,41 +291,30 @@ public class Detonator : MonoBehaviour
 
 	public static Material DefaultFireballAMaterial()
 	{
-		//IL_0020: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Expected Obj, but got Unknown
-		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0077: Unknown result type (might be due to invalid IL or missing references)
-		if ((Object)(object)defaultFireballAMaterial != (Object)null)
+		if (defaultFireballAMaterial != null)
 		{
 			return defaultFireballAMaterial;
 		}
 		defaultFireballAMaterial = new Material(Shader.Find("Particles/Additive"));
-		((Object)defaultFireballAMaterial).name = "FireballA-Default";
-		Object val = Resources.Load("Detonator/Textures/Fireball");
-		Texture2D mainTexture = (Texture2D)(object)((val is Texture2D) ? val : null);
+		defaultFireballAMaterial.name = "FireballA-Default";
+		Texture2D mainTexture = Resources.Load("Detonator/Textures/Fireball") as Texture2D;
 		defaultFireballAMaterial.SetColor("_TintColor", Color.white);
-		defaultFireballAMaterial.mainTexture = (Texture)(object)mainTexture;
+		defaultFireballAMaterial.mainTexture = mainTexture;
 		defaultFireballAMaterial.mainTextureScale = new Vector2(0.5f, 1f);
 		return defaultFireballAMaterial;
 	}
 
 	public static Material DefaultFireballBMaterial()
 	{
-		//IL_0020: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Expected Obj, but got Unknown
-		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0077: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0090: Unknown result type (might be due to invalid IL or missing references)
-		if ((Object)(object)defaultFireballBMaterial != (Object)null)
+		if (defaultFireballBMaterial != null)
 		{
 			return defaultFireballBMaterial;
 		}
 		defaultFireballBMaterial = new Material(Shader.Find("Particles/Additive"));
-		((Object)defaultFireballBMaterial).name = "FireballB-Default";
-		Object val = Resources.Load("Detonator/Textures/Fireball");
-		Texture2D mainTexture = (Texture2D)(object)((val is Texture2D) ? val : null);
+		defaultFireballBMaterial.name = "FireballB-Default";
+		Texture2D mainTexture = Resources.Load("Detonator/Textures/Fireball") as Texture2D;
 		defaultFireballBMaterial.SetColor("_TintColor", Color.white);
-		defaultFireballBMaterial.mainTexture = (Texture)(object)mainTexture;
+		defaultFireballBMaterial.mainTexture = mainTexture;
 		defaultFireballBMaterial.mainTextureScale = new Vector2(0.5f, 1f);
 		defaultFireballBMaterial.mainTextureOffset = new Vector2(0.5f, 0f);
 		return defaultFireballBMaterial;
@@ -365,41 +322,30 @@ public class Detonator : MonoBehaviour
 
 	public static Material DefaultSmokeAMaterial()
 	{
-		//IL_0020: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Expected Obj, but got Unknown
-		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0077: Unknown result type (might be due to invalid IL or missing references)
-		if ((Object)(object)defaultSmokeAMaterial != (Object)null)
+		if (defaultSmokeAMaterial != null)
 		{
 			return defaultSmokeAMaterial;
 		}
 		defaultSmokeAMaterial = new Material(Shader.Find("Particles/Alpha Blended"));
-		((Object)defaultSmokeAMaterial).name = "SmokeA-Default";
-		Object val = Resources.Load("Detonator/Textures/Smoke");
-		Texture2D mainTexture = (Texture2D)(object)((val is Texture2D) ? val : null);
+		defaultSmokeAMaterial.name = "SmokeA-Default";
+		Texture2D mainTexture = Resources.Load("Detonator/Textures/Smoke") as Texture2D;
 		defaultSmokeAMaterial.SetColor("_TintColor", Color.white);
-		defaultSmokeAMaterial.mainTexture = (Texture)(object)mainTexture;
+		defaultSmokeAMaterial.mainTexture = mainTexture;
 		defaultSmokeAMaterial.mainTextureScale = new Vector2(0.5f, 1f);
 		return defaultSmokeAMaterial;
 	}
 
 	public static Material DefaultSmokeBMaterial()
 	{
-		//IL_0020: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Expected Obj, but got Unknown
-		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0077: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0090: Unknown result type (might be due to invalid IL or missing references)
-		if ((Object)(object)defaultSmokeBMaterial != (Object)null)
+		if (defaultSmokeBMaterial != null)
 		{
 			return defaultSmokeBMaterial;
 		}
 		defaultSmokeBMaterial = new Material(Shader.Find("Particles/Alpha Blended"));
-		((Object)defaultSmokeBMaterial).name = "SmokeB-Default";
-		Object val = Resources.Load("Detonator/Textures/Smoke");
-		Texture2D mainTexture = (Texture2D)(object)((val is Texture2D) ? val : null);
+		defaultSmokeBMaterial.name = "SmokeB-Default";
+		Texture2D mainTexture = Resources.Load("Detonator/Textures/Smoke") as Texture2D;
 		defaultSmokeBMaterial.SetColor("_TintColor", Color.white);
-		defaultSmokeBMaterial.mainTexture = (Texture)(object)mainTexture;
+		defaultSmokeBMaterial.mainTexture = mainTexture;
 		defaultSmokeBMaterial.mainTextureScale = new Vector2(0.5f, 1f);
 		defaultSmokeBMaterial.mainTextureOffset = new Vector2(0.5f, 0f);
 		return defaultSmokeBMaterial;
@@ -407,73 +353,58 @@ public class Detonator : MonoBehaviour
 
 	public static Material DefaultSparksMaterial()
 	{
-		//IL_0020: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Expected Obj, but got Unknown
-		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
-		if ((Object)(object)defaultSparksMaterial != (Object)null)
+		if (defaultSparksMaterial != null)
 		{
 			return defaultSparksMaterial;
 		}
 		defaultSparksMaterial = new Material(Shader.Find("Particles/Additive"));
-		((Object)defaultSparksMaterial).name = "Sparks-Default";
-		Object val = Resources.Load("Detonator/Textures/GlowDot");
-		Texture2D mainTexture = (Texture2D)(object)((val is Texture2D) ? val : null);
+		defaultSparksMaterial.name = "Sparks-Default";
+		Texture2D mainTexture = Resources.Load("Detonator/Textures/GlowDot") as Texture2D;
 		defaultSparksMaterial.SetColor("_TintColor", Color.white);
-		defaultSparksMaterial.mainTexture = (Texture)(object)mainTexture;
+		defaultSparksMaterial.mainTexture = mainTexture;
 		return defaultSparksMaterial;
 	}
 
 	public static Material DefaultShockwaveMaterial()
 	{
-		//IL_0020: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Expected Obj, but got Unknown
-		//IL_0067: Unknown result type (might be due to invalid IL or missing references)
-		if ((Object)(object)defaultShockwaveMaterial != (Object)null)
+		if (defaultShockwaveMaterial != null)
 		{
 			return defaultShockwaveMaterial;
 		}
 		defaultShockwaveMaterial = new Material(Shader.Find("Particles/Additive"));
-		((Object)defaultShockwaveMaterial).name = "Shockwave-Default";
-		Object val = Resources.Load("Detonator/Textures/Shockwave");
-		Texture2D mainTexture = (Texture2D)(object)((val is Texture2D) ? val : null);
+		defaultShockwaveMaterial.name = "Shockwave-Default";
+		Texture2D mainTexture = Resources.Load("Detonator/Textures/Shockwave") as Texture2D;
 		defaultShockwaveMaterial.SetColor("_TintColor", new Color(0.1f, 0.1f, 0.1f, 1f));
-		defaultShockwaveMaterial.mainTexture = (Texture)(object)mainTexture;
+		defaultShockwaveMaterial.mainTexture = mainTexture;
 		return defaultShockwaveMaterial;
 	}
 
 	public static Material DefaultGlowMaterial()
 	{
-		//IL_0020: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Expected Obj, but got Unknown
-		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
-		if ((Object)(object)defaultGlowMaterial != (Object)null)
+		if (defaultGlowMaterial != null)
 		{
 			return defaultGlowMaterial;
 		}
 		defaultGlowMaterial = new Material(Shader.Find("Particles/Additive"));
-		((Object)defaultGlowMaterial).name = "Glow-Default";
-		Object val = Resources.Load("Detonator/Textures/Glow");
-		Texture2D mainTexture = (Texture2D)(object)((val is Texture2D) ? val : null);
+		defaultGlowMaterial.name = "Glow-Default";
+		Texture2D mainTexture = Resources.Load("Detonator/Textures/Glow") as Texture2D;
 		defaultGlowMaterial.SetColor("_TintColor", Color.white);
-		defaultGlowMaterial.mainTexture = (Texture)(object)mainTexture;
+		defaultGlowMaterial.mainTexture = mainTexture;
 		return defaultGlowMaterial;
 	}
 
 	public static Material DefaultHeatwaveMaterial()
 	{
-		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0034: Expected Obj, but got Unknown
 		if (SystemInfo.supportsImageEffects)
 		{
-			if ((Object)(object)defaultHeatwaveMaterial != (Object)null)
+			if (defaultHeatwaveMaterial != null)
 			{
 				return defaultHeatwaveMaterial;
 			}
 			defaultHeatwaveMaterial = new Material(Shader.Find("HeatDistort"));
-			((Object)defaultHeatwaveMaterial).name = "Heatwave-Default";
-			Object val = Resources.Load("Detonator/Textures/Heatwave");
-			Texture2D val2 = (Texture2D)(object)((val is Texture2D) ? val : null);
-			defaultHeatwaveMaterial.SetTexture("_BumpMap", (Texture)(object)val2);
+			defaultHeatwaveMaterial.name = "Heatwave-Default";
+			Texture2D texture = Resources.Load("Detonator/Textures/Heatwave") as Texture2D;
+			defaultHeatwaveMaterial.SetTexture("_BumpMap", texture);
 			return defaultHeatwaveMaterial;
 		}
 		return null;

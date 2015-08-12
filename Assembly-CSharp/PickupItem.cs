@@ -1,4 +1,4 @@
-using System.Collections;
+using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
 
@@ -10,18 +10,16 @@ public abstract class PickupItem : MonoBehaviour
 
 	public virtual int Quantity => 0;
 
-	public virtual Color CrossHairColor
-	{
-		get
-		{
-			//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-			return Color.green;
-		}
-	}
+	public virtual Color CrossHairColor => Color.green;
 
 	public virtual float ChargeState => 0f;
 
-	public virtual bool ActivateGunModeOnEquip => true;
+	public virtual bool ActivateGunModeOnEquip => GameDB.GameType switch
+	{
+		MVGameType.Classic => true, 
+		MVGameType.Platformer => false, 
+		_ => true, 
+	};
 
 	public abstract AvatarItemType Type { get; }
 
@@ -43,6 +41,8 @@ public abstract class PickupItem : MonoBehaviour
 			AvatarItemType.CubeGun => "Prefabs/AvatarItems/AvatarItemCubeGun", 
 			AvatarItemType.SixShooter => "Prefabs/AvatarItems/AvatarItemSixShooter", 
 			AvatarItemType.DoubleSixShooter => "Prefabs/AvatarItems/AvatarItemDoubleSixShooter", 
+			AvatarItemType.ThrowingStar => "Prefabs/AvatarItems/AvatarItemThrowingStar", 
+			AvatarItemType.MultiThrowingStar => "Prefabs/AvatarItems/AvatarItemMultiThrowingStar", 
 			_ => string.Empty, 
 		};
 	}
@@ -65,7 +65,7 @@ public abstract class PickupItem : MonoBehaviour
 	{
 	}
 
-	public virtual void OnStateChanged(Hashtable newState)
+	public virtual void OnStateChanged(Dictionary<object, object> newState)
 	{
 	}
 

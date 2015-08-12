@@ -19,15 +19,15 @@ public class CERoam : ESStateBase
 
 	private bool didExit;
 
-	private MVWorldObjectClientManager WOCM => MVGameController.Instance.WOCM;
+	private MVWorldObjectClientManager WOCM => MVGameController.WOCM;
 
-	private AEditController EditController => MVGameController.Instance.EditController;
+	private AEditController EditController => MVGameController.EditController;
 
-	private CharacterEditorController CharacterEditorController => MVGameController.Instance.CharacterEditorController;
+	private CharacterEditorController CharacterEditorController => MVGameController.CharacterEditorController;
 
 	public CERoam()
 	{
-		if (MVGameController.Instance.GameMode == MVGameMode.CharacterEditor)
+		if (MVGameController.GameMode == MVGameMode.CharacterEditor)
 		{
 			accessoryMover = new AccessoryMover();
 		}
@@ -35,20 +35,17 @@ public class CERoam : ESStateBase
 
 	public override void Enter(EditorStateMachine esm)
 	{
-		//IL_009c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d4: Unknown result type (might be due to invalid IL or missing references)
 		didExit = false;
 		exitButtonWasPressed = false;
-		EditController.HideEditorTools();
+		EditController.CubeModelingController.HideEditorTools();
 		esm.CubeModelingStateMachine.RemoveCursors();
 		tintedWo = null;
 		SharedCubeFunctions.SetLayerRecursively(esm.ParentGroup.Transform, select: true);
-		((Behaviour)((Component)esm.CameraController).GetComponent<GrayscaleEffect>()).enabled = true;
+		esm.CameraController.GetComponent<GrayscaleEffect>().enabled = true;
 		esm.CameraController.SecondaryCameraActive = true;
 		if (esm.ParentGroup is MVBody)
 		{
-			if ((Object)(object)guiEditModel != (Object)null)
+			if (guiEditModel != null)
 			{
 				guiEditModel.View.Hide();
 			}
@@ -66,12 +63,12 @@ public class CERoam : ESStateBase
 			CharacterEditorController.ShowAvatarTools();
 			CharacterEditorController.AnimationToggles.AttachAnimation(mVBody.Animation);
 			CharacterEditorController.AnimationToggles.ToggleAnimation("Idle");
-			MVGameController.Instance.Game.CameraController.SetCamera(CameraType.JetPackCamera);
-			MVGameController.Instance.Game.CameraController.CurCamera.FocusOnObject(esm.ParentGroup);
+			MVGameController.Game.CameraController.SetCamera(CameraType.JetPackCamera);
+			MVGameController.Game.CameraController.CurCamera.FocusOnObject(esm.ParentGroup);
 		}
 		else
 		{
-			if ((Object)(object)guiEditModel == (Object)null)
+			if (guiEditModel == null)
 			{
 				guiEditModel = UXUtils.FindGUIObjectOfType<MVGUIEditModel>();
 			}
@@ -133,12 +130,12 @@ public class CERoam : ESStateBase
 		int layerMask = -5 & ~(1 << LayerMask.NameToLayer("Hidden"));
 		if (WOCM.Pick(ref hit, new HashSet<int>(), layerMask) && hit.woId != -1)
 		{
-			if (MVInputWrapper.GetKeyUp((KeyCode)323) && downWorldObjectID == hit.woId)
+			if (MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect) && downWorldObjectID == hit.woId)
 			{
 				downWorldObjectID = -1;
 				return esm.Select(addToSelection: false, layerMask) != null;
 			}
-			if (MVInputWrapper.GetKeyDown((KeyCode)323))
+			if (MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelect))
 			{
 				downWorldObjectID = hit.woId;
 			}
@@ -150,7 +147,7 @@ public class CERoam : ESStateBase
 	{
 		esm.DeSelectAll();
 		esm.ExitGroup();
-		((Behaviour)((Component)esm.CameraController).GetComponent<GrayscaleEffect>()).enabled = false;
+		esm.CameraController.GetComponent<GrayscaleEffect>().enabled = false;
 		SharedCubeFunctions.SetLayerRecursively(esm.ParentGroup.Transform, select: false);
 		esm.Event = EditorEvent.CERoam;
 	}
@@ -170,7 +167,7 @@ public class CERoam : ESStateBase
 				MVGroup mVGroup = (MVGroup)esm.SingleSelectedWO;
 				esm.EnterGroup(mVGroup);
 				SharedCubeFunctions.SetLayerRecursively(mVGroup.Transform, select: true);
-				((Behaviour)((Component)esm.CameraController).GetComponent<GrayscaleEffect>()).enabled = true;
+				esm.CameraController.GetComponent<GrayscaleEffect>().enabled = true;
 				esm.CameraController.SecondaryCameraActive = true;
 				esm.Event = EditorEvent.CERoam;
 				return true;

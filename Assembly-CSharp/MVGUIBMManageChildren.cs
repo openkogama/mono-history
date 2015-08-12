@@ -1,5 +1,4 @@
-using System.Collections;
-using Localize;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class MVGUIBMManageChildren : UXCustomDialogBox
@@ -32,10 +31,10 @@ public class MVGUIBMManageChildren : UXCustomDialogBox
 	public override void OnCloseDialog()
 	{
 		base.OnCloseDialog();
-		(UXUtils.FindComponentInParents(typeof(UXView), ((Component)this).transform.parent) as UXView).ReleaseFocus();
+		(UXUtils.FindComponentInParents(typeof(UXView), transform.parent) as UXView).ReleaseFocus();
 	}
 
-	public void BuildChildren(Hashtable childMap)
+	public void BuildChildren(Dictionary<object, object> childMap)
 	{
 		foreach (string key in childMap.Keys)
 		{
@@ -46,7 +45,7 @@ public class MVGUIBMManageChildren : UXCustomDialogBox
 
 	private void BuildChildLine(string name, int woid)
 	{
-		MVGUIBMChildLine mVGUIBMChildLine = Object.Instantiate((Object)(object)childLinePrefab) as MVGUIBMChildLine;
+		MVGUIBMChildLine mVGUIBMChildLine = Object.Instantiate(childLinePrefab);
 		mVGUIBMChildLine.BuildLine(name, woid);
 		mVGUIBMChildLine.OnRemoveChildLine = OnDeleteChildLine;
 		childBox.AddLine(mVGUIBMChildLine);
@@ -55,8 +54,8 @@ public class MVGUIBMManageChildren : UXCustomDialogBox
 	private void OnDeleteChildLine(UXLine line)
 	{
 		deleteLine = line;
-		DialogFactory.CreateDialog(TextSlotIndex.DeleteChildConfirm, TextSlotIndex.DeleteHeadline, UXDialogType.Simple, noButtons: false, stackDialog: true).SetOnResultCallback(OnDeleteChildResponse).AddPositiveButton(TextSlotIndex.Confirm)
-			.AddNegativeButton(TextSlotIndex.Reject)
+		DialogFactory.CreateDialog("Delete Child ?", "Delete", UXDialogType.Simple, noButtons: false, stackDialog: true).SetOnResultCallback(OnDeleteChildResponse).AddPositiveButton("Yes")
+			.AddNegativeButton("No")
 			.Show();
 	}
 
@@ -79,29 +78,29 @@ public class MVGUIBMManageChildren : UXCustomDialogBox
 	{
 		if (dialogBox.DialogResult == UXDialogResult.Positive)
 		{
-			Hashtable hashtable = (Hashtable)dialogBox.GetResult();
-			string name = (string)hashtable["name"];
-			int woid = (int)hashtable["woId"];
-			BuildChildLine(name, woid);
+			Dictionary<object, object> dictionary = (Dictionary<object, object>)dialogBox.GetResult();
+			string text = (string)dictionary["name"];
+			int woid = (int)dictionary["woId"];
+			BuildChildLine(text, woid);
 			childText.Text = $"Children: {childBox.GetLines().Count}";
 		}
 	}
 
 	public override object GetResult()
 	{
-		Hashtable hashtable = new Hashtable();
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
 		foreach (UXLine line in childBox.GetLines())
 		{
 			MVGUIBMChildLine mVGUIBMChildLine = (MVGUIBMChildLine)line;
 			if (mVGUIBMChildLine.GetName() != string.Empty && mVGUIBMChildLine.GetWoId() > 0)
 			{
-				hashtable.Add(mVGUIBMChildLine.GetName(), mVGUIBMChildLine.GetWoId());
+				dictionary.Add(mVGUIBMChildLine.GetName(), mVGUIBMChildLine.GetWoId());
 			}
 			else
 			{
-				Debug.Log((object)$"Ignoring child with name '{mVGUIBMChildLine.GetName()}' and woid '{mVGUIBMChildLine.GetWoId()}'");
+				Debug.Log($"Ignoring child with name '{mVGUIBMChildLine.GetName()}' and woid '{mVGUIBMChildLine.GetWoId()}'");
 			}
 		}
-		return hashtable;
+		return dictionary;
 	}
 }

@@ -1,11 +1,10 @@
 using System.Collections.Generic;
-using Localize;
 
 public class MVGUISettingsDialogPulseBox : MVGUIDynamicSettingsDialog
 {
 	public MVGUISettingsDialogPulseBox()
 	{
-		dialogFactory.CreateCustomDialog("Prefabs/GUI/Box Settings Dialogs/PulseBoxSettingsDialog", TextSlotIndex.PulseBox).AddPositiveButton(TextSlotIndex.Ok).AddNegativeButton(TextSlotIndex.Cancel)
+		dialogFactory.CreateCustomDialog("Prefabs/GUI/Box Settings Dialogs/PulseBoxSettingsDialog", TM._("Pulse Box")).AddPositiveButton(TM._("Ok")).AddNegativeButton(TM._("Cancel"))
 			.SetOnResultCallback(OnDialogResult)
 			.SetOnIntermediateResultCallback(OnIntermediateResult)
 			.SetValues(BuildDialogData())

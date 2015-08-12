@@ -13,14 +13,14 @@ public class UXFocusManager : MonoBehaviour
 		}
 		set
 		{
-			if ((Object)(object)value != (Object)(object)currentFocus)
+			if (value != currentFocus)
 			{
-				if ((Object)(object)currentFocus != (Object)null)
+				if (currentFocus != null)
 				{
 					currentFocus.NotifyFocusExit();
 				}
 				currentFocus = value;
-				if ((Object)(object)currentFocus != (Object)null)
+				if (currentFocus != null)
 				{
 					currentFocus.NotifyFocusEnter();
 				}
@@ -30,9 +30,9 @@ public class UXFocusManager : MonoBehaviour
 
 	public void Update()
 	{
-		if ((Object)(object)currentFocus != (Object)null && Input.GetKeyDown((KeyCode)9))
+		if (currentFocus != null && MVInputWrapper.GetBooleanControlUp(KogamaControls.ChangeFocus))
 		{
-			if (Input.GetKey((KeyCode)304) || Input.GetKey((KeyCode)303))
+			if (MVInputWrapper.GetBooleanControl(KogamaControls.ChangeChangeFocusDirection))
 			{
 				currentFocus.NotifyPreviousFocusRequest();
 			}

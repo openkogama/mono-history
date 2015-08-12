@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,7 +13,7 @@ public class MVTeleportGroup : MVBlueprintBase
 
 	public MVTeleporter Teleporter2 => teleporter2;
 
-	public MVTeleportGroup(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVTeleportGroup(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, "Prefabs/Blueprints/TeleportGroup", worldObjects)
 	{
 	}
@@ -22,23 +21,23 @@ public class MVTeleportGroup : MVBlueprintBase
 	public override void Initialize()
 	{
 		base.Initialize();
-		Hashtable hashtable = (Hashtable)Data["BlueprintData"];
-		Hashtable hashtable2 = (Hashtable)hashtable["ChildrenMap"];
-		if (hashtable2 == null)
+		Dictionary<object, object> dictionary = (Dictionary<object, object>)Data["BlueprintData"];
+		Dictionary<object, object> dictionary2 = (Dictionary<object, object>)dictionary["ChildrenMap"];
+		if (dictionary2 == null)
 		{
-			Debug.LogWarning((object)"TeleportGroup does not have any children. Removing it");
-			MVGameController.Instance.WOCM.UnregisterWorldObject(id);
+			Debug.LogWarning("TeleportGroup does not have any children. Removing it");
+			MVGameController.WOCM.UnregisterWorldObject(id);
 			return;
 		}
-		teleporter1 = RetrieveTeleporter(hashtable2, "teleporter1");
-		teleporter2 = RetrieveTeleporter(hashtable2, "teleporter2");
+		teleporter1 = RetrieveTeleporter(dictionary2, "teleporter1");
+		teleporter2 = RetrieveTeleporter(dictionary2, "teleporter2");
 		if (teleporter1 == null)
 		{
-			Debug.Log((object)"Missing teleporter 1");
+			Debug.Log("Missing teleporter 1");
 		}
 		if (teleporter2 == null)
 		{
-			Debug.Log((object)"Missing teleporter 2");
+			Debug.Log("Missing teleporter 2");
 		}
 		if (teleporter1 != null && teleporter2 != null)
 		{
@@ -59,11 +58,11 @@ public class MVTeleportGroup : MVBlueprintBase
 		}
 	}
 
-	private MVTeleporter RetrieveTeleporter(Hashtable table, string id)
+	private MVTeleporter RetrieveTeleporter(Dictionary<object, object> table, string id)
 	{
-		if (table.Contains(id))
+		if (table.ContainsKey(id))
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient((int)table[id]);
+			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient((int)table[id]);
 			if (worldObjectClient == null || !(worldObjectClient is MVTeleporter))
 			{
 				return null;

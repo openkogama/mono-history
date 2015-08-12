@@ -1,6 +1,5 @@
 using System;
-using System.Collections;
-using UnityEngine;
+using System.Collections.Generic;
 
 public class MVGUITextMsgSettingsBox : UXCustomDialogBox
 {
@@ -64,15 +63,15 @@ public class MVGUITextMsgSettingsBox : UXCustomDialogBox
 
 	public override object GetResult()
 	{
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add("text", text);
-		hashtable.Add("textSize", textSize);
-		return hashtable;
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add("text", text);
+		dictionary.Add("textSize", textSize);
+		return dictionary;
 	}
 
 	public override void OnCloseDialog()
 	{
 		base.OnCloseDialog();
-		(UXUtils.FindComponentInParents(typeof(UXView), ((Component)this).transform.parent) as UXView).ReleaseFocus();
+		(UXUtils.FindComponentInParents(typeof(UXView), transform.parent) as UXView).ReleaseFocus();
 	}
 }

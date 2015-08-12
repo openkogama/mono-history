@@ -8,10 +8,9 @@ public class FlagRotator : MonoBehaviour
 
 	private void Update()
 	{
-		//IL_001c: Unknown result type (might be due to invalid IL or missing references)
-		if ((Object)(object)flag != (Object)null)
+		if (flag != null)
 		{
-			((Component)flag).transform.RotateAround(Vector3.up, Time.deltaTime * rotationSpeed);
+			flag.transform.Rotate(Vector3.up, Time.deltaTime * rotationSpeed * 57.29578f, Space.Self);
 		}
 	}
 }

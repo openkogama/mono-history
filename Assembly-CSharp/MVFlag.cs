@@ -1,4 +1,4 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,32 +8,80 @@ public class MVFlag : MVLogicObject
 
 	private TriggerBoxEvents triggerBoxEvents;
 
-	public MVFlag(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	private bool initializedInWorld;
+
+	private WorldObjectEnableController worldObjectEnableController;
+
+	private GameCoinLogic gameCoinLogic;
+
+	private Vector3 gameCoinDisplayObjectOffset = new Vector3(0f, 2.5f, 0f);
+
+	public MVFlag(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, "Prefabs/FlagObject", worldObjects)
 	{
 		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
 		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
+		interactionFlags |= InteractionFlags.CanUseGameCoins;
+		gameCoinLogic = new GameCoinLogic(gameObject, Data, gameCoinDisplayObjectOffset);
 	}
 
 	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
 	{
-		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
 		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, Vector3.one * 2f);
+	}
+
+	public override void Initialize()
+	{
+		base.Initialize();
+		if (MVGameController.Game.WinningConditionManager.GetSingletonWinnerConditionByType<FlagReachedClient>() == null)
+		{
+			MVGameController.Game.WinningConditionManager.CreateWinnerCondition<FlagReachedClient>(new object[0]);
+		}
+		initializedInWorld = true;
+		worldObjectEnableController = gameObject.GetComponentInChildren<WorldObjectEnableController>();
+	}
+
+	public override void OnDataUpdate()
+	{
+		base.OnDataUpdate();
+		gameCoinLogic.OnDataUpdate(Data);
+	}
+
+	protected override void OnUpdate()
+	{
+		base.OnUpdate();
+		if (triggerBoxEvents.IsInTrigger && gameCoinLogic.PurchaseAmount > 0 && worldObjectEnableController.EnableState == EnableState.Enable && gameCoinLogic.ShowUseGUI())
+		{
+			DoCaptureFlag();
+		}
 	}
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		Debug.Log((object)"FLAG CAPTURED!");
-		MVGameController.Instance.Game.ReportCaptureFlag();
+		if (worldObjectEnableController.EnableState == EnableState.Enable && gameCoinLogic.PurchaseAmount <= 0)
+		{
+			DoCaptureFlag();
+		}
+	}
+
+	private void DoCaptureFlag()
+	{
+		MVGameController.Game.ReportCaptureFlag();
 	}
 
 	public override void Destroy()
 	{
 		triggerBoxEvents.TriggerEnter -= triggerBoxEvents_TriggerEnter;
+		gameCoinLogic.OnDestroy(Data);
 		base.Destroy();
+		if (initializedInWorld && MVGameController.Game.World.WorldObjectClientManager.GetWorldObjectsByType(WorldObjectType).Count == 0)
+		{
+			FlagReachedClient singletonWinnerConditionByType = MVGameController.Game.WinningConditionManager.GetSingletonWinnerConditionByType<FlagReachedClient>();
+			if (singletonWinnerConditionByType == null)
+			{
+				throw new Exception("Could not find FlagReached singleton");
+			}
+			MVGameController.Game.WinningConditionManager.RemoveWinnerCondition(singletonWinnerConditionByType.ID);
+		}
 	}
 }

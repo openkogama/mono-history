@@ -1,5 +1,4 @@
 using System;
-using Localize;
 using UnityEngine;
 
 public class UXWindow : UXGUIElement, IUXContainer
@@ -13,8 +12,6 @@ public class UXWindow : UXGUIElement, IUXContainer
 	public string headerText;
 
 	private UXText uiHeaderText;
-
-	public TextSlotIndex index = TextSlotIndex.Empty;
 
 	public Color headerTextColor;
 
@@ -43,13 +40,13 @@ public class UXWindow : UXGUIElement, IUXContainer
 			if (isInitialized)
 			{
 				UXIconButton exitButton = GetExitButton();
-				if (_hasExitButton && (Object)(object)exitButton == (Object)null)
+				if (_hasExitButton && exitButton == null)
 				{
 					AddExitButton();
 				}
-				else if (!_hasExitButton && (Object)(object)exitButton != (Object)null)
+				else if (!_hasExitButton && exitButton != null)
 				{
-					Object.Destroy((Object)(object)((Component)exitButton).gameObject);
+					UnityEngine.Object.Destroy(exitButton.gameObject);
 				}
 			}
 		}
@@ -57,7 +54,6 @@ public class UXWindow : UXGUIElement, IUXContainer
 
 	public override void Awake()
 	{
-		//IL_0013: Unknown result type (might be due to invalid IL or missing references)
 		base.Awake();
 		if (PresetWindowSize != UXPresetWindowSize.None)
 		{
@@ -67,8 +63,12 @@ public class UXWindow : UXGUIElement, IUXContainer
 
 	public virtual void Start()
 	{
-		MeshFilter val = ((Component)this).gameObject.AddComponent<MeshFilter>();
-		val.mesh = BuildMesh();
+		MeshFilter meshFilter = gameObject.GetComponent<MeshFilter>();
+		if (meshFilter == null)
+		{
+			meshFilter = gameObject.AddComponent<MeshFilter>();
+		}
+		BuildMesh(meshFilter.mesh);
 		BuildHeaderText();
 		if (_hasExitButton)
 		{
@@ -80,10 +80,10 @@ public class UXWindow : UXGUIElement, IUXContainer
 	public override void SetSize(float width, float height)
 	{
 		base.SetSize(width, height);
-		MeshFilter component = ((Component)this).gameObject.GetComponent<MeshFilter>();
-		if ((Object)(object)component != (Object)null)
+		MeshFilter component = gameObject.GetComponent<MeshFilter>();
+		if (component != null)
 		{
-			component.mesh = BuildMesh();
+			BuildMesh(component.mesh);
 		}
 		if (_hasExitButton)
 		{
@@ -93,22 +93,12 @@ public class UXWindow : UXGUIElement, IUXContainer
 
 	private void BuildHeaderText()
 	{
-		//IL_0078: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0093: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ae: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f4: Unknown result type (might be due to invalid IL or missing references)
-		if (index != TextSlotIndex.Empty)
-		{
-			headerText = Localization.Instance.GetText(index);
-		}
-		Object val = Object.Instantiate(Resources.Load("Prefabs/UX/Text"));
-		uiHeaderText = ((GameObject)((val is GameObject) ? val : null)).GetComponent<UXText>();
-		((Object)((Component)uiHeaderText).gameObject).name = "HeaderText";
-		((Component)uiHeaderText).transform.parent = ((Component)this).transform;
-		((Component)uiHeaderText).transform.localScale = Vector3.one;
-		((Component)uiHeaderText).transform.localPosition = ((!(headerPos != Vector3.zero)) ? GetPresetHeaderPosition() : headerPos);
+		headerText = TM._(headerText);
+		uiHeaderText = (UnityEngine.Object.Instantiate(Resources.Load("Prefabs/UX/Text")) as GameObject).GetComponent<UXText>();
+		uiHeaderText.gameObject.name = "HeaderText";
+		uiHeaderText.transform.parent = transform;
+		uiHeaderText.transform.localScale = Vector3.one;
+		uiHeaderText.transform.localPosition = ((!(headerPos != Vector3.zero)) ? GetPresetHeaderPosition() : headerPos);
 		uiHeaderText.verticalAlign = UXVertical.Top;
 		uiHeaderText.horizontalAlign = UXHorizontal.Center;
 		uiHeaderText.TextSize = UXTextSize.Large;
@@ -119,7 +109,7 @@ public class UXWindow : UXGUIElement, IUXContainer
 	public void SetHeaderText(string headerText)
 	{
 		this.headerText = headerText;
-		if ((Object)(object)uiHeaderText != (Object)null)
+		if (uiHeaderText != null)
 		{
 			uiHeaderText.Text = this.headerText;
 		}
@@ -127,23 +117,19 @@ public class UXWindow : UXGUIElement, IUXContainer
 
 	public void MoveHeader(Vector3 headerPos)
 	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0002: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0024: Unknown result type (might be due to invalid IL or missing references)
 		this.headerPos = headerPos;
-		if ((Object)(object)uiHeaderText != (Object)null)
+		if (uiHeaderText != null)
 		{
-			((Component)uiHeaderText).transform.localPosition = this.headerPos;
+			uiHeaderText.transform.localPosition = this.headerPos;
 		}
 	}
 
 	public void AddExitButton()
 	{
-		//IL_0033: Unknown result type (might be due to invalid IL or missing references)
-		UXIconButton uXIconButton = Object.Instantiate((Object)(object)_exitButtonPrefab) as UXIconButton;
-		((Object)uXIconButton).name = "ExitButton";
-		((Component)uXIconButton).transform.parent = ((Component)this).transform;
-		((Component)uXIconButton).transform.localScale = Vector3.one;
+		UXIconButton uXIconButton = UnityEngine.Object.Instantiate(_exitButtonPrefab);
+		uXIconButton.name = "ExitButton";
+		uXIconButton.transform.parent = transform;
+		uXIconButton.transform.localScale = Vector3.one;
 		PlaceExitButton();
 		uXIconButton.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXIconButton.OnClick, (UXBaseButton.OnClickDelegate)(() =>
 		{
@@ -156,33 +142,25 @@ public class UXWindow : UXGUIElement, IUXContainer
 
 	private void PlaceExitButton()
 	{
-		//IL_0036: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0050: Unknown result type (might be due to invalid IL or missing references)
 		UXIconButton exitButton = GetExitButton();
-		if ((Object)(object)exitButton != (Object)null)
+		if (exitButton != null)
 		{
-			((Component)exitButton).transform.localPosition = new Vector3(Width / 2f, Height / 2f, -0.1f) - new Vector3(2.5f, 2f, _exitButtonZOffset);
+			exitButton.transform.localPosition = new Vector3(Width / 2f, Height / 2f, -0.1f) - new Vector3(2.5f, 2f, _exitButtonZOffset);
 		}
 	}
 
 	public UXIconButton GetExitButton()
 	{
-		Transform val = ((Component)this).transform.FindChild("ExitButton");
-		if ((Object)(object)val != (Object)null)
+		Transform transform = base.transform.FindChild("ExitButton");
+		if (transform != null)
 		{
-			return ((Component)val).GetComponent<UXIconButton>();
+			return transform.GetComponent<UXIconButton>();
 		}
 		return null;
 	}
 
 	private Vector2 GetPresetWindowSize()
 	{
-		//IL_002e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006e: Unknown result type (might be due to invalid IL or missing references)
 		return PresetWindowSize switch
 		{
 			UXPresetWindowSize.Small => new Vector2(35f, 15f), 
@@ -195,10 +173,6 @@ public class UXWindow : UXGUIElement, IUXContainer
 
 	private Vector3 GetPresetHeaderPosition()
 	{
-		//IL_0047: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0060: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0082: Unknown result type (might be due to invalid IL or missing references)
 		return PresetWindowSize switch
 		{
 			UXPresetWindowSize.Large => new Vector3((0f - Width) / 2f, Height / 2f, -0.1f) + new Vector3(10f, -1f, 0f), 

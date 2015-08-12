@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Localize;
 using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
@@ -30,17 +28,17 @@ public class MVGUIBlueprintManagerOverview : UXCustomDialogBox
 
 	private MVWorldObjectClient blueprintWorldObject;
 
-	private Hashtable blueprintData;
+	private Dictionary<object, object> blueprintData;
 
 	private bool _isInitialized;
 
 	public void SetWoid(int woId)
 	{
 		this.woId = woId;
-		if (woId != -1 && MVGameController.Instance.WOCM.GetWorldObjectClient(woId).Data.ContainsKey(BLUEPRINT_DATA_KEY))
+		if (woId != -1 && MVGameController.WOCM.GetWorldObjectClient(woId).Data.ContainsKey(BLUEPRINT_DATA_KEY))
 		{
-			blueprintWorldObject = MVGameController.Instance.WOCM.GetWorldObjectClient(woId);
-			blueprintData = (Hashtable)blueprintWorldObject.Data[BLUEPRINT_DATA_KEY];
+			blueprintWorldObject = MVGameController.WOCM.GetWorldObjectClient(woId);
+			blueprintData = (Dictionary<object, object>)blueprintWorldObject.Data[BLUEPRINT_DATA_KEY];
 			if (blueprintData.ContainsKey(TYPE_KEY))
 			{
 				typeText.Text = string.Empty + (BlueprintType)(byte)blueprintData[TYPE_KEY];
@@ -58,11 +56,11 @@ public class MVGUIBlueprintManagerOverview : UXCustomDialogBox
 			}
 			if (blueprintData.ContainsKey(CHILDREN_KEY))
 			{
-				childrenText.Text = string.Empty + ((Hashtable)blueprintData[CHILDREN_KEY]).Count;
+				childrenText.Text = string.Empty + ((Dictionary<object, object>)blueprintData[CHILDREN_KEY]).Count;
 			}
 			else
 			{
-				blueprintData.Add(CHILDREN_KEY, new Hashtable());
+				blueprintData.Add(CHILDREN_KEY, new Dictionary<object, object>());
 				childrenText.Text = string.Empty + 0;
 			}
 			dataText.Text = string.Empty + (blueprintData.Count - 2);
@@ -70,8 +68,8 @@ public class MVGUIBlueprintManagerOverview : UXCustomDialogBox
 		}
 		else
 		{
-			blueprintData = new Hashtable();
-			blueprintData.Add(CHILDREN_KEY, new Hashtable());
+			blueprintData = new Dictionary<object, object>();
+			blueprintData.Add(CHILDREN_KEY, new Dictionary<object, object>());
 			childrenText.Text = string.Empty + 0;
 			dataText.Text = string.Empty + 0;
 			string[] names2 = Enum.GetNames(typeof(BlueprintType));
@@ -80,7 +78,7 @@ public class MVGUIBlueprintManagerOverview : UXCustomDialogBox
 			{
 				items = names2
 			});
-			DialogFactory.CreateDialog(TextSlotIndex.SelectType, TextSlotIndex.SelectTypeHeadline, UXDialogType.ComboBox, noButtons: false, stackDialog: true, canClose: false).SetOnResultCallback(OnSelectTypeResponse).SetValues(dictionary2)
+			DialogFactory.CreateDialog(TM._("Select Type"), TM._("Type"), UXDialogType.ComboBox, noButtons: false, stackDialog: true, canClose: false).SetOnResultCallback(OnSelectTypeResponse).SetValues(dictionary2)
 				.Show();
 		}
 	}
@@ -99,14 +97,14 @@ public class MVGUIBlueprintManagerOverview : UXCustomDialogBox
 		}
 	}
 
-	private void PrintData(Hashtable table, string insert = "")
+	private void PrintData(Dictionary<object, object> table, string insert = "")
 	{
 		foreach (string key in table.Keys)
 		{
-			Debug.Log((object)$"{insert}{key}: {table[key]}");
-			if (table[key] is Hashtable)
+			Debug.Log($"{insert}{key}: {table[key]}");
+			if (table[key] is Dictionary<object, object>)
 			{
-				PrintData(table[key] as Hashtable, insert + "    ");
+				PrintData(table[key] as Dictionary<object, object>, insert + "    ");
 			}
 		}
 	}
@@ -137,25 +135,25 @@ public class MVGUIBlueprintManagerOverview : UXCustomDialogBox
 
 	private void ManageChildren()
 	{
-		DialogFactory.CreateCustomDevelopmentDialog("Prefabs/GUI/Dev Tools/BlueprintManager/ManageChildren/BlueprintManagerManageChildren", "Manage Children", noButtons: false, stackDialog: true).AddPositiveButton(TextSlotIndex.Ok).AddNegativeButton(TextSlotIndex.Cancel)
+		DialogFactory.CreateCustomDevelopmentDialog("Prefabs/GUI/Dev Tools/BlueprintManager/ManageChildren/BlueprintManagerManageChildren", "Manage Children", noButtons: false, stackDialog: true).AddPositiveButton(TM._("Ok")).AddNegativeButton(TM._("Cancel"))
 			.SetOnResultCallback(OnManageChildrenResponse)
 			.Show();
-		(DialogFactory.CurrentDialogBox as MVGUIBMManageChildren).BuildChildren((Hashtable)blueprintData[CHILDREN_KEY]);
+		(DialogFactory.CurrentDialogBox as MVGUIBMManageChildren).BuildChildren((Dictionary<object, object>)blueprintData[CHILDREN_KEY]);
 	}
 
 	private void OnManageChildrenResponse(UXDialogBox dialogBox)
 	{
 		if (dialogBox.DialogResult == UXDialogResult.Positive)
 		{
-			Hashtable hashtable = (Hashtable)dialogBox.GetResult();
-			blueprintData[CHILDREN_KEY] = hashtable;
-			childrenText.Text = string.Empty + hashtable.Count;
+			Dictionary<object, object> dictionary = (Dictionary<object, object>)dialogBox.GetResult();
+			blueprintData[CHILDREN_KEY] = dictionary;
+			childrenText.Text = string.Empty + dictionary.Count;
 		}
 	}
 
 	private void ManageData()
 	{
-		DialogFactory.CreateCustomDevelopmentDialog("Prefabs/GUI/Dev Tools/BlueprintManager/ManageData/BlueprintManagerManageData", "Manage Data", noButtons: false, stackDialog: true).AddPositiveButton(TextSlotIndex.Ok).AddNegativeButton(TextSlotIndex.Cancel)
+		DialogFactory.CreateCustomDevelopmentDialog("Prefabs/GUI/Dev Tools/BlueprintManager/ManageData/BlueprintManagerManageData", "Manage Data", noButtons: false, stackDialog: true).AddPositiveButton(TM._("Ok")).AddNegativeButton(TM._("Cancel"))
 			.SetOnResultCallback(OnManageDataResponse)
 			.Show();
 		(DialogFactory.CurrentDialogBox as MVGUIBMManageData).BuildData(blueprintData);
@@ -167,24 +165,24 @@ public class MVGUIBlueprintManagerOverview : UXCustomDialogBox
 		{
 			return;
 		}
-		Hashtable hashtable = (Hashtable)dialogBox.GetResult();
+		Dictionary<object, object> dictionary = (Dictionary<object, object>)dialogBox.GetResult();
 		byte b = (byte)blueprintData[TYPE_KEY];
-		Hashtable value = (Hashtable)blueprintData[CHILDREN_KEY];
-		blueprintData = new Hashtable();
-		foreach (string key in hashtable.Keys)
+		Dictionary<object, object> value = (Dictionary<object, object>)blueprintData[CHILDREN_KEY];
+		blueprintData = new Dictionary<object, object>();
+		foreach (string key in dictionary.Keys)
 		{
-			blueprintData.Add(key, hashtable[key]);
+			blueprintData.Add(key, dictionary[key]);
 		}
 		blueprintData.Add(TYPE_KEY, b);
 		blueprintData.Add(CHILDREN_KEY, value);
-		dataText.Text = string.Empty + hashtable.Count;
+		dataText.Text = string.Empty + dictionary.Count;
 	}
 
 	private void CreateBlueprint()
 	{
 		if (woId != -1)
 		{
-			Hashtable data = blueprintWorldObject.Data;
+			Dictionary<object, object> data = blueprintWorldObject.Data;
 			if (!data.ContainsKey(BLUEPRINT_DATA_KEY))
 			{
 				data.Add(BLUEPRINT_DATA_KEY, blueprintData);
@@ -193,15 +191,15 @@ public class MVGUIBlueprintManagerOverview : UXCustomDialogBox
 			{
 				data[BLUEPRINT_DATA_KEY] = blueprintData;
 			}
-			MVGameController.Instance.Game.UpdateWorldObjectData(blueprintWorldObject.Id, data);
+			MVGameController.Game.UpdateWorldObjectData(blueprintWorldObject.Id, data);
 		}
 		else
 		{
-			Hashtable hashtable = new Hashtable();
-			hashtable.Add(BLUEPRINT_DATA_KEY, blueprintData);
-			Hashtable value = hashtable;
-			MVGameController.Instance.EditController.EditorStateMachine.Data.Add("woData", value);
-			MVGameController.Instance.EditController.EditorStateMachine.PushState(EditorEvent.ESBlueprintCreator);
+			Dictionary<object, object> dictionary = new Dictionary<object, object>();
+			dictionary.Add(BLUEPRINT_DATA_KEY, blueprintData);
+			Dictionary<object, object> value = dictionary;
+			MVGameController.EditController.EditorStateMachine.Data.Add("woData", value);
+			MVGameController.EditController.EditorStateMachine.PushState(EditorEvent.ESBlueprintCreator);
 		}
 		OnPositiveClose();
 		DialogFactory.CloseDialog();

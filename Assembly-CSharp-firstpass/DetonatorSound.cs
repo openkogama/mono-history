@@ -26,9 +26,7 @@ public class DetonatorSound : DetonatorComponent
 
 	public override void Init()
 	{
-		//IL_0011: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001b: Expected Obj, but got Unknown
-		_soundComponent = (AudioSource)((Component)this).gameObject.AddComponent("AudioSource");
+		_soundComponent = gameObject.AddComponent<AudioSource>();
 	}
 
 	private void Update()
@@ -46,8 +44,6 @@ public class DetonatorSound : DetonatorComponent
 
 	public override void Explode()
 	{
-		//IL_0057: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0062: Unknown result type (might be due to invalid IL or missing references)
 		if (detailThreshold > detail)
 		{
 			return;
@@ -58,7 +54,7 @@ public class DetonatorSound : DetonatorComponent
 		}
 		if (_explodeDelay <= 0f)
 		{
-			if (Vector3.Distance(((Component)Camera.main).transform.position, ((Component)this).transform.position) < distanceThreshold)
+			if (Vector3.Distance(Camera.main.transform.position, transform.position) < distanceThreshold)
 			{
 				_idx = (int)(Random.value * (float)nearSounds.Length);
 				_soundComponent.PlayOneShot(nearSounds[_idx]);

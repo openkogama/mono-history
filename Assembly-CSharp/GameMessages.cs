@@ -1,17 +1,8 @@
-using System.Collections;
+using System.Collections.Generic;
 using MV.Common;
 
 public class GameMessages
 {
-	public struct PlayerKilledMessage
-	{
-		public int playerId;
-
-		public int killerId;
-
-		public PlayerKilledByType weaponType;
-	}
-
 	public struct PlayerJoinMessage
 	{
 		public int playerId;
@@ -41,37 +32,16 @@ public class GameMessages
 		public int playerID;
 	}
 
-	public static string PlayerKilledByTypeToPrettyString(PlayerKilledByType type)
+	public static Dictionary<object, object> MakePlayerKilledMessage(int avatarId, int killerId, PlayerKilledByType weaponType)
 	{
-		return type switch
-		{
-			PlayerKilledByType.CenterGun => "Center Gun", 
-			PlayerKilledByType.BazookaGun => "Bazooka", 
-			PlayerKilledByType.RailGun => "Rail Gun", 
-			_ => type.ToString(), 
-		};
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add((byte)0, avatarId);
+		dictionary.Add((byte)1, killerId);
+		dictionary.Add((byte)2, (byte)weaponType);
+		return dictionary;
 	}
 
-	public static PlayerKilledMessage ParsePlayerKilledMessage(Hashtable package)
-	{
-		return new PlayerKilledMessage
-		{
-			playerId = (int)package[(byte)0],
-			killerId = (int)package[(byte)1],
-			weaponType = (PlayerKilledByType)(byte)package[(byte)2]
-		};
-	}
-
-	public static Hashtable MakePlayerKilledMessage(int avatarId, int killerId, PlayerKilledByType weaponType)
-	{
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add((byte)0, avatarId);
-		hashtable.Add((byte)1, killerId);
-		hashtable.Add((byte)2, (byte)weaponType);
-		return hashtable;
-	}
-
-	public static PlayerJoinMessage ParsePlayerJoinMessage(Hashtable package)
+	public static PlayerJoinMessage ParsePlayerJoinMessage(Dictionary<object, object> package)
 	{
 		return new PlayerJoinMessage
 		{
@@ -79,7 +49,7 @@ public class GameMessages
 		};
 	}
 
-	public static PlayerLeftMessage ParsePlayerLeftMessage(Hashtable package)
+	public static PlayerLeftMessage ParsePlayerLeftMessage(Dictionary<object, object> package)
 	{
 		return new PlayerLeftMessage
 		{
@@ -88,7 +58,7 @@ public class GameMessages
 		};
 	}
 
-	public static CollectibleMessage ParseCollectibleMessage(Hashtable package)
+	public static CollectibleMessage ParseCollectibleMessage(Dictionary<object, object> package)
 	{
 		return new CollectibleMessage
 		{
@@ -96,7 +66,7 @@ public class GameMessages
 		};
 	}
 
-	public static AchievementGetMessage ParseAchievementGetMessage(Hashtable package)
+	public static AchievementGetMessage ParseAchievementGetMessage(Dictionary<object, object> package)
 	{
 		return new AchievementGetMessage
 		{
@@ -105,7 +75,7 @@ public class GameMessages
 		};
 	}
 
-	public static CheckpointMessage ParseCheckpointMessage(Hashtable package)
+	public static CheckpointMessage ParseCheckpointMessage(Dictionary<object, object> package)
 	{
 		return new CheckpointMessage
 		{

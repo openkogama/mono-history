@@ -33,7 +33,7 @@ public class PlayerRepositoryCollection : RepositoryCollection
 	{
 		if (!(repository is PlayerRepository))
 		{
-			Debug.LogError((object)string.Concat("Trying to use Repository of type '", repository.GetType(), "' in PlayerRepositoryCollection"));
+			Debug.LogError(string.Concat("Trying to use Repository of type '", repository.GetType(), "' in PlayerRepositoryCollection"));
 			return;
 		}
 		PlayerRepository playerRepository = (PlayerRepository)repository;

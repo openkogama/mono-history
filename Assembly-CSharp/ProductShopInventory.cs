@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ProductShopInventory<TProduct> where TProduct : ProductInfo
+public class ProductShopInventory
 {
-	public delegate void OnProductShopInventoryChangeDelegate(ProductShopInventory<TProduct> productShopInventory);
+	public delegate void OnProductShopInventoryChangeDelegate(ProductShopInventory productShopInventory);
 
 	public OnProductShopInventoryChangeDelegate OnProductShopInventoryChange;
 
-	protected Dictionary<int, TProduct> Inventory = new Dictionary<int, TProduct>();
+	protected Dictionary<int, StreamingAssetInfo> Inventory = new Dictionary<int, StreamingAssetInfo>();
 
 	public int Count => Inventory.Count;
 
@@ -16,11 +16,11 @@ public class ProductShopInventory<TProduct> where TProduct : ProductInfo
 		return Inventory.ContainsKey(productID);
 	}
 
-	public void Add(TProduct node)
+	public void Add(StreamingAssetInfo node)
 	{
 		if (node.ShopInfo == null)
 		{
-			Debug.LogError((object)"Trying to add product without shop info to the shop invventory");
+			Debug.LogError("Trying to add product without shop info to the shop invventory");
 		}
 		else
 		{

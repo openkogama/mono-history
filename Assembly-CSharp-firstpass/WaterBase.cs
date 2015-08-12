@@ -11,8 +11,6 @@ public class WaterBase : MonoBehaviour
 
 	public void UpdateShader()
 	{
-		//IL_0095: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009b: Unknown result type (might be due to invalid IL or missing references)
 		if (waterQuality > WaterQuality.Medium)
 		{
 			sharedMaterial.shader.maximumLOD = 501;
@@ -29,10 +27,9 @@ public class WaterBase : MonoBehaviour
 		{
 			Shader.EnableKeyword("WATER_EDGEBLEND_ON");
 			Shader.DisableKeyword("WATER_EDGEBLEND_OFF");
-			if (Object.op_Implicit((Object)(object)Camera.main))
+			if ((bool)Camera.main)
 			{
-				Camera main = Camera.main;
-				main.depthTextureMode = (DepthTextureMode)(main.depthTextureMode | 1);
+				Camera.main.depthTextureMode |= DepthTextureMode.Depth;
 			}
 		}
 		else
@@ -44,17 +41,15 @@ public class WaterBase : MonoBehaviour
 
 	public void WaterTileBeingRendered(Transform tr, Camera currentCam)
 	{
-		//IL_0018: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001e: Unknown result type (might be due to invalid IL or missing references)
-		if (Object.op_Implicit((Object)(object)currentCam) && edgeBlend)
+		if ((bool)currentCam && edgeBlend)
 		{
-			currentCam.depthTextureMode = (DepthTextureMode)(currentCam.depthTextureMode | 1);
+			currentCam.depthTextureMode |= DepthTextureMode.Depth;
 		}
 	}
 
 	public void Update()
 	{
-		if (Object.op_Implicit((Object)(object)sharedMaterial))
+		if ((bool)sharedMaterial)
 		{
 			UpdateShader();
 		}

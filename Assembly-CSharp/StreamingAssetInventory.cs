@@ -2,24 +2,24 @@ using System.Collections.Generic;
 using System.Linq;
 using MV.Common;
 
-public class StreamingAssetInventory : ProductInventory<StreamingAssetInfo>
+public class StreamingAssetInventory : ProductInventory
 {
-	private static MVWorldObjectClientManager WOCM => MVGameController.Instance.WOCM;
+	private static MVWorldObjectClientManager WOCM => MVGameController.WOCM;
 
 	public StreamingAssetInventory(InventoryExpirationChecker expirationChecker)
 		: base(expirationChecker)
 	{
 	}
 
-	protected override void OnAdded(ProductInventoryInfo<StreamingAssetInfo> invInfo)
+	protected override void OnAdded(ProductInventoryInfo invInfo)
 	{
 		base.OnAdded(invInfo);
-		MVGameController.Instance.Game.AssetBundleMgr.RequestAssetBundle(invInfo.ProductInfo.RequestPath, null, autoRetry: true, highPriority: false);
+		AsyncWWWManager.WWWRequest(new StreamingAssetRequest(Urls.StreamingAssets + invInfo.ProductInfo.RequestPath, null));
 	}
 
-	public IEnumerable<ProductInventoryInfo<StreamingAssetInfo>> Get(StreamingAssetType type)
+	public IEnumerable<ProductInventoryInfo> Get(StreamingAssetType type)
 	{
-		return Inventory.Values.Where((ProductInventoryInfo<StreamingAssetInfo> invInfo) =>
+		return Inventory.Values.Where((ProductInventoryInfo invInfo) =>
 		{
 			StreamingAssetInfo productInfo = invInfo.ProductInfo;
 			return productInfo != null && productInfo.StreamedAssetType == type;

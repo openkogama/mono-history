@@ -19,7 +19,7 @@ public class AccessoryMover
 		public AccessoryOffsetMouseWrapper(SelectionHelperAvatarAccessory selectionHelperAvatarAccessory)
 		{
 			this.selectionHelperAvatarAccessory = selectionHelperAvatarAccessory;
-			body = (MVBody)MVGameController.Instance.WOCM.GetWorldObjectClient(selectionHelperAvatarAccessory.AvatarBodyWoID);
+			body = (MVBody)MVGameController.WOCM.GetWorldObjectClient(selectionHelperAvatarAccessory.AvatarBodyWoID);
 			startTime = Time.time;
 		}
 
@@ -29,7 +29,7 @@ public class AccessoryMover
 			{
 				didMoveAccessory = true;
 				float offset = selectionHelperAvatarAccessory.AvatarAccessory.Offset;
-				offset += Input.GetAxis("Mouse Y") * 0.1f;
+				offset += MVInputWrapper.GetAxis("Mouse Y") * 0.1f;
 				selectionHelperAvatarAccessory.AvatarAccessory.Offset = Mathf.Clamp(offset, -0.8f, 0.2f);
 				body.ApplyAccessoryOffset(selectionHelperAvatarAccessory.AvatarAccessory, selectionHelperAvatarAccessory.Slot);
 				return true;
@@ -39,7 +39,7 @@ public class AccessoryMover
 
 		public void SetOffset()
 		{
-			MVGameController.Instance.Game.UpdateAvatarAccessoryOffset(selectionHelperAvatarAccessory.AvatarBodyWoID, selectionHelperAvatarAccessory.Slot, selectionHelperAvatarAccessory.AvatarAccessory.Offset);
+			MVGameController.Game.UpdateAvatarAccessoryOffset(selectionHelperAvatarAccessory.AvatarBodyWoID, selectionHelperAvatarAccessory.Slot, selectionHelperAvatarAccessory.AvatarAccessory.Offset);
 		}
 	}
 
@@ -51,17 +51,15 @@ public class AccessoryMover
 
 	public AccessoryMover()
 	{
-		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
-		Object val = Object.Instantiate(Resources.Load("Prefabs/GUI/AvatarAccessory/AvatarAccessoryMoveIcon"));
-		GameObject val2 = (GameObject)(object)((val is GameObject) ? val : null);
-		val2.transform.localPosition = Vector3.zero;
-		avatarAccessoryMoveIcon = val2.GetComponent<MVGUIAvatarAccessoryMoveIcon>();
+		GameObject gameObject = Object.Instantiate(Resources.Load("Prefabs/GUI/AvatarAccessory/AvatarAccessoryMoveIcon")) as GameObject;
+		gameObject.transform.localPosition = Vector3.zero;
+		avatarAccessoryMoveIcon = gameObject.GetComponent<MVGUIAvatarAccessoryMoveIcon>();
+		avatarAccessoryMoveIcon.SetVisible(visible: false);
 	}
 
 	public bool MoveAccessory()
 	{
-		//IL_0082: Unknown result type (might be due to invalid IL or missing references)
-		if (MVInputWrapper.GetKeyUp((KeyCode)323))
+		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
 		{
 			if (accessoryOffsetMouseWrapper == null)
 			{
@@ -77,7 +75,7 @@ public class AccessoryMover
 			return result;
 		}
 		SelectionHelperAvatarAccessory selectionHelperAvatarAccessory = null;
-		if (PickSelectionHelperAvatarAccessory(out selectionHelperAvatarAccessory, out var raycastHit) && accessoryOffsetMouseWrapper == null && (Object)(object)selectionHelperAvatarAccessory != (Object)null)
+		if (PickSelectionHelperAvatarAccessory(out selectionHelperAvatarAccessory, out var raycastHit) && accessoryOffsetMouseWrapper == null && selectionHelperAvatarAccessory != null)
 		{
 			avatarAccessoryMoveIcon.SetVisible(visible: true);
 			avatarAccessoryMoveIcon.WorldPosition = raycastHit.point;
@@ -86,9 +84,9 @@ public class AccessoryMover
 		{
 			avatarAccessoryMoveIcon.SetVisible(visible: false);
 		}
-		if (MVInputWrapper.GetKey((KeyCode)323) && accessoryOffsetMouseWrapper == null)
+		if (MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect) && accessoryOffsetMouseWrapper == null)
 		{
-			if (!((Object)(object)selectionHelperAvatarAccessory != (Object)null))
+			if (!(selectionHelperAvatarAccessory != null))
 			{
 				return false;
 			}
@@ -114,18 +112,10 @@ public class AccessoryMover
 
 	private bool PickAccessory(out GameObject gameObject, out RaycastHit raycastHit)
 	{
-		//IL_0005: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0024: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0029: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-		Ray val = Camera.main.ScreenPointToRay(new Vector3(Input.mousePosition.x, Input.mousePosition.y));
-		if (Physics.Raycast(val, ref raycastHit, float.PositiveInfinity, 1 << LayerMask.NameToLayer("Hidden")))
+		Ray ray = Camera.main.ScreenPointToRay(new Vector3(MVInputWrapper.GetPointerPosition().x, MVInputWrapper.GetPointerPosition().y));
+		if (Physics.Raycast(ray, out raycastHit, float.PositiveInfinity, 1 << LayerMask.NameToLayer("Hidden")))
 		{
-			gameObject = ((Component)raycastHit.collider).gameObject;
+			gameObject = raycastHit.collider.gameObject;
 			return true;
 		}
 		gameObject = null;

@@ -11,7 +11,7 @@ public abstract class MVGUIItemAction : MonoBehaviour
 
 	protected bool _isInitialized;
 
-	protected UXGroup ActionGroup => ((Component)this).GetComponent<UXGroup>();
+	protected UXGroup ActionGroup => GetComponent<UXGroup>();
 
 	public virtual void UpdateItemAction(MVItem item)
 	{

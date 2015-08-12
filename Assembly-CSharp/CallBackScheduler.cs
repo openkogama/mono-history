@@ -17,10 +17,8 @@ internal class CallBackScheduler : MonoBehaviour
 
 	public static void ScheduleAfterTime(Action callBack, float time)
 	{
-		//IL_0005: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Expected Obj, but got Unknown
-		GameObject val = new GameObject("CallBackSheduler");
-		CallBackScheduler callBackScheduler = val.AddComponent<CallBackScheduler>();
+		GameObject gameObject = new GameObject("CallBackSheduler");
+		CallBackScheduler callBackScheduler = gameObject.AddComponent<CallBackScheduler>();
 		callBackScheduler.ScheduleCallAfterTime(callBack, time);
 	}
 
@@ -32,17 +30,15 @@ internal class CallBackScheduler : MonoBehaviour
 
 	public static void ScheduleAfterFrames(Action callBack, int framesToWait)
 	{
-		//IL_0005: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Expected Obj, but got Unknown
-		GameObject val = new GameObject("CallBackSheduler");
-		CallBackScheduler callBackScheduler = val.AddComponent<CallBackScheduler>();
+		GameObject gameObject = new GameObject("CallBackSheduler");
+		CallBackScheduler callBackScheduler = gameObject.AddComponent<CallBackScheduler>();
 		callBackScheduler.ScheduleCallAfterFrames(callBack, framesToWait);
 	}
 
 	private void ScheduleCallAfterTime(Action callBack, float time)
 	{
 		this.callBack = callBack;
-		((MonoBehaviour)this).Invoke("CallFunc", time);
+		Invoke("CallFunc", time);
 	}
 
 	private void ScheduleCallAfterFrames(Action callBack, int framesToWait)
@@ -55,7 +51,7 @@ internal class CallBackScheduler : MonoBehaviour
 	private void CallFunc()
 	{
 		callBack();
-		Object.Destroy((Object)(object)this);
+		UnityEngine.Object.Destroy(this);
 	}
 
 	private void Update()
@@ -63,7 +59,7 @@ internal class CallBackScheduler : MonoBehaviour
 		if (0 <= framesToWait && startFrame + framesToWait == Time.frameCount)
 		{
 			callBack();
-			Object.Destroy((Object)(object)this);
+			UnityEngine.Object.Destroy(this);
 		}
 	}
 }

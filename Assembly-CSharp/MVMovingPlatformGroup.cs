@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,9 +8,9 @@ public class MVMovingPlatformGroup : MVBlueprintBase
 
 	private LineRenderer lineRenderer;
 
-	private Hashtable nodeMap;
+	private Dictionary<object, object> nodeMap;
 
-	private Hashtable nextNodeMap;
+	private Dictionary<object, object> nextNodeMap;
 
 	private MVMovingPlatformNode startNode;
 
@@ -23,14 +22,27 @@ public class MVMovingPlatformGroup : MVBlueprintBase
 
 	private bool initializeFailed;
 
-	private MVWorldObjectClientManager WOCM => MVGameController.Instance.WOCM;
+	private MVWorldObjectClientManager WOCM => MVGameController.WOCM;
 
 	public MVMovingPlatform Platform => platform;
 
-	public MVMovingPlatformGroup(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public override bool Visible
+	{
+		get
+		{
+			return base.Visible;
+		}
+		set
+		{
+			base.Visible = value;
+			platform.CubeModel.Visible = false;
+		}
+	}
+
+	public MVMovingPlatformGroup(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, "Prefabs/Blueprints/MovingPlatformGroup", worldObjects)
 	{
-		nextNodeMap = (Hashtable)blueprintData["NextNodeMap"];
+		nextNodeMap = (Dictionary<object, object>)blueprintData["NextNodeMap"];
 		lineRenderer = GameObject.GetComponentInChildren<LineRenderer>();
 		interactionFlags |= InteractionFlags.CanEdit | InteractionFlags.HasSettings;
 		previewLayerMask |= LayerFlags.Logic;
@@ -69,7 +81,7 @@ public class MVMovingPlatformGroup : MVBlueprintBase
 
 	private void InitializeCommon()
 	{
-		foreach (DictionaryEntry item in childIdMap)
+		foreach (KeyValuePair<object, object> item in childIdMap)
 		{
 			if (!item.Key.ToString().Equals("Platform"))
 			{
@@ -78,7 +90,7 @@ public class MVMovingPlatformGroup : MVBlueprintBase
 				MVMovingPlatformNode mVMovingPlatformNode = (MVMovingPlatformNode)GetChild(num2);
 				if (mVMovingPlatformNode == null)
 				{
-					Debug.LogWarning((object)("Platform group " + id + " init - Could not find child node " + num2 + "! If this is a new platform group restart the session. Otherwise it is broken."));
+					Debug.LogWarning("Platform group " + id + " init - Could not find child node " + num2 + "! If this is a new platform group restart the session. Otherwise it is broken.");
 					initializeFailed = true;
 					return;
 				}
@@ -86,7 +98,7 @@ public class MVMovingPlatformGroup : MVBlueprintBase
 				woIdToNodeIdMap[mVMovingPlatformNode.Id] = num;
 			}
 		}
-		foreach (DictionaryEntry item2 in nextNodeMap)
+		foreach (KeyValuePair<object, object> item2 in nextNodeMap)
 		{
 			int key = Convert.ToInt32(item2.Key.ToString());
 			int key2 = (int)item2.Value;
@@ -105,17 +117,13 @@ public class MVMovingPlatformGroup : MVBlueprintBase
 		}
 		else
 		{
-			Debug.LogWarning((object)("Platform group " + id + " init - Could not find child platform! If this is a new platform group restart the session. Otherwise it is broken."));
+			Debug.LogWarning("Platform group " + id + " init - Could not find child platform! If this is a new platform group restart the session. Otherwise it is broken.");
 			initializeFailed = true;
 		}
 	}
 
 	private void UpdateLine()
 	{
-		//IL_0034: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0039: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0061: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0081: Unknown result type (might be due to invalid IL or missing references)
 		if (!initializeFailed)
 		{
 			lineRenderer.useWorldSpace = false;
@@ -161,10 +169,7 @@ public class MVMovingPlatformGroup : MVBlueprintBase
 
 	public override bool OnEnterObject(EditorStateMachine e)
 	{
-		MVGameController.Instance.Game.CameraController.CurCamera.FocusOnObject(Platform.CubeModel);
-		e.EnterGroup(Platform);
-		e.SelectWO(Platform.CubeModelID, addToSelection: false);
-		e.Event = EditorEvent.EditCubes;
+		Platform.OnEnterObject(e);
 		return true;
 	}
 

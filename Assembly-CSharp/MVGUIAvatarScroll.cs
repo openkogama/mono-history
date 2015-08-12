@@ -8,7 +8,7 @@ public class MVGUIAvatarScroll : UXViewScript
 
 	public UXText indexText;
 
-	private CharacterEditorController CEController => MVGameController.Instance.CharacterEditorController;
+	private CharacterEditorController CEController => MVGameController.CharacterEditorController;
 
 	public override void OnInitialize()
 	{

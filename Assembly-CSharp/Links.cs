@@ -17,7 +17,6 @@ public class Links
 
 	public Links(LinkGraph.OnResetNodeDelegate onResetNode)
 	{
-		Debug.Log((object)("Camera controller " + ((Object)(object)MVGameController.Instance.Game.CameraController == (Object)null)));
 		LinkGraph linkGraph = this.linkGraph;
 		linkGraph.OnResetNode = (LinkGraph.OnResetNodeDelegate)Delegate.Combine(linkGraph.OnResetNode, onResetNode);
 	}
@@ -26,13 +25,13 @@ public class Links
 	{
 		if (!links.ContainsKey(linkID))
 		{
-			Debug.LogError((object)("Attempt to remove link with id: " + linkID + ", but link not registered!"));
+			Debug.LogError("Attempt to remove link with id: " + linkID + ", but link not registered!");
 			return false;
 		}
 		Link link = links[linkID];
 		links.Remove(link.id);
 		linkGraph.RemoveLink(link.outputWOID, link.inputWOID);
-		Object.Destroy((Object)(object)linkObjects[link.id]);
+		UnityEngine.Object.Destroy(linkObjects[link.id]);
 		linkObjects.Remove(link.id);
 		outputWo.RemoveOutputLink(link);
 		inputWo.RemoveInputLink(link);
@@ -65,7 +64,7 @@ public class Links
 	{
 		if (!links.ContainsKey(linkID))
 		{
-			Debug.LogWarning((object)"Link not found");
+			Debug.LogWarning("Link not found");
 			return null;
 		}
 		return links[linkID];
@@ -73,17 +72,15 @@ public class Links
 
 	public bool AddLink(Link link, MVWorldObjectClient outputWo, MVWorldObjectClient inputWo)
 	{
-		//IL_0049: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004f: Expected Obj, but got Unknown
 		if (!ValidateLink(link, outputWo, inputWo))
 		{
 			return false;
 		}
 		links.Add(link.id, link);
 		linkGraph.AddLink(link.outputWOID, link.inputWOID);
-		GameObject val = (GameObject)Object.Instantiate(Resources.Load("Prefabs/LinkObject"));
-		val.GetComponentInChildren<LinkObjectScript>().linkID = link.id;
-		linkObjects.Add(link.id, val);
+		GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("Prefabs/LinkObject"));
+		gameObject.GetComponentInChildren<LinkObjectScript>().linkID = link.id;
+		linkObjects.Add(link.id, gameObject);
 		outputWo.AddOutputLink(link);
 		inputWo.AddInputLink(link);
 		return true;
@@ -117,7 +114,7 @@ public class Links
 		}
 		if (link.inputWOID <= 0 || link.outputWOID <= 0)
 		{
-			Debug.LogError((object)"Attempt to add link, but link not added to input/output WO's");
+			Debug.LogError("Attempt to add link, but link not added to input/output WO's");
 			return false;
 		}
 		return true;
@@ -127,7 +124,7 @@ public class Links
 	{
 		if (!links.ContainsKey(linkID))
 		{
-			Debug.LogError((object)"Attempt to RemovePending link, but link not registered");
+			Debug.LogError("Attempt to RemovePending link, but link not registered");
 			return;
 		}
 		Link item = links[linkID];

@@ -21,9 +21,9 @@ public class ModelCursor
 		}
 		set
 		{
-			faceCursor.GameObject.active = value;
+			faceCursor.GameObject.SetActive(value);
 			errorCursor.Active = value;
-			indentArea.GameObject.active = value;
+			indentArea.GameObject.SetActive(value);
 		}
 	}
 
@@ -41,53 +41,14 @@ public class ModelCursor
 
 	private void HandleLaserMovingEdge(CubePickingInfo movingEdgeCube, GameObject targetGameObject)
 	{
-		//IL_0020: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0042: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0062: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0067: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0078: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0079: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0084: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0089: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00cd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00dc: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ee: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_012e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0140: Unknown result type (might be due to invalid IL or missing references)
-		//IL_014a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_014f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_011a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_011f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0186: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0157: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0159: Unknown result type (might be due to invalid IL or missing references)
-		//IL_015a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_015c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0166: Unknown result type (might be due to invalid IL or missing references)
-		//IL_016b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0170: Unknown result type (might be due to invalid IL or missing references)
 		Vector3[] faceVerticesWorld = Cube.GetFaceVerticesWorld(targetGameObject, movingEdgeCube.cube, movingEdgeCube.pickedFace, movingEdgeCube.iLocalPos);
-		Vector3 val = (faceVerticesWorld[0] + faceVerticesWorld[1] + faceVerticesWorld[2] + faceVerticesWorld[3]) / 4f;
+		Vector3 vector = (faceVerticesWorld[0] + faceVerticesWorld[1] + faceVerticesWorld[2] + faceVerticesWorld[3]) / 4f;
 		bool flag = false;
-		Vector3 val2 = default;
+		Vector3 vector2 = default;
 		if (movingEdgeCube.pickedEdge == Edge.None)
 		{
-			val2 = val;
-			Debug.DrawLine(val2, val2 + Vector3.up, Color.gray);
+			vector2 = vector;
+			Debug.DrawLine(vector2, vector2 + Vector3.up, Color.gray);
 		}
 		else
 		{
@@ -95,45 +56,42 @@ public class ModelCursor
 			flag = true;
 			if (!movingEdgeCube.pickedEdgeIndex0)
 			{
-				val2 = ((!movingEdgeCube.pickedEdgeIndex1) ? ((edgeVerticesWorld[0] + edgeVerticesWorld[1]) / 2f) : edgeVerticesWorld[1]);
+				vector2 = ((!movingEdgeCube.pickedEdgeIndex1) ? ((edgeVerticesWorld[0] + edgeVerticesWorld[1]) / 2f) : edgeVerticesWorld[1]);
 			}
 			else
 			{
-				val2 = edgeVerticesWorld[0];
+				vector2 = edgeVerticesWorld[0];
 				Debug.DrawLine(edgeVerticesWorld[0], edgeVerticesWorld[0] + Vector3.up, Color.gray);
 			}
 		}
 		if (flag)
 		{
-			val2 += (val - val2) * 0.2f;
+			vector2 += (vector - vector2) * 0.2f;
 		}
-		MVGameController.Instance.WOCM.AvatarLocal.LaserPointer.UpdatePosition(val2);
+		MVGameController.WOCM.AvatarLocal.LaserPointer.UpdatePosition(vector2);
 	}
 
 	private void HandleLaser(CubePickingInfo movingEdgeCube, CubePickingInfo selectedCube, GameObject targetGameObject, BuildState buildState, bool addCube)
 	{
-		//IL_000a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00dd: Unknown result type (might be due to invalid IL or missing references)
 		if (buildState == BuildState.PaintCubes)
 		{
 			Vector3 hit = default;
-			MVGameController.Instance.EditController.WorldEditorDrawPlane.Pick(ref hit);
-			MVGameController.Instance.WOCM.AvatarLocal.LaserPointer.ActivateLaserForDuration(addCubeLaserOnTime);
-			MVGameController.Instance.WOCM.AvatarLocal.LaserPointer.UpdatePosition(hit);
+			MVGameController.EditController.WorldEditorDrawPlane.Pick(ref hit);
+			MVGameController.WOCM.AvatarLocal.LaserPointer.ActivateLaserForDuration(addCubeLaserOnTime);
+			MVGameController.WOCM.AvatarLocal.LaserPointer.UpdatePosition(hit);
 		}
 		else if (movingEdgeCube != null)
 		{
 			HandleLaserMovingEdge(movingEdgeCube, targetGameObject);
-			MVGameController.Instance.WOCM.AvatarLocal.LaserPointer.ActivateLaserForDuration(addCubeLaserOnTime);
+			MVGameController.WOCM.AvatarLocal.LaserPointer.ActivateLaserForDuration(addCubeLaserOnTime);
 		}
 		else if (addCube)
 		{
-			MVGameController.Instance.WOCM.AvatarLocal.LaserPointer.ActivateLaserForDuration(addCubeLaserOnTime);
+			MVGameController.WOCM.AvatarLocal.LaserPointer.ActivateLaserForDuration(addCubeLaserOnTime);
 		}
 		else if (selectedCube != null)
 		{
-			MVGameController.Instance.WOCM.AvatarLocal.LaserPointer.UpdatePosition(selectedCube.point);
+			MVGameController.WOCM.AvatarLocal.LaserPointer.UpdatePosition(selectedCube.point);
 		}
 	}
 
@@ -142,18 +100,18 @@ public class ModelCursor
 		if (movingEdgeCube != null)
 		{
 			indentArea.UpdateIndentArea(movingEdgeCube, targetGameObject);
-			faceCursor.GameObject.active = true;
+			faceCursor.GameObject.SetActive(value: true);
 			faceCursor.UpdateCursor(movingEdgeCube, targetGameObject);
 		}
 		else if (selectedCube != null)
 		{
-			faceCursor.GameObject.active = true;
+			faceCursor.GameObject.SetActive(value: true);
 			faceCursor.UpdateCursor(selectedCube, targetGameObject);
 		}
 		else
 		{
-			faceCursor.GameObject.active = false;
-			indentArea.GameObject.active = false;
+			faceCursor.GameObject.SetActive(value: false);
+			indentArea.GameObject.SetActive(value: false);
 		}
 		errorCursor.UpdateCursor();
 		HandleLaser(movingEdgeCube, selectedCube, targetGameObject, buildState, addCube);

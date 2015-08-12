@@ -15,7 +15,7 @@ public class UXCollectionViewAudio : MonoBehaviour
 		menuNextSound = GUIAudioBank.Instance.GetSound("menu_next");
 		menuPrevSound = GUIAudioBank.Instance.GetSound("menu_prev");
 		selectSound = GUIAudioBank.Instance.GetSound("menu_click");
-		UXCollectionView component = ((Component)this).GetComponent<UXCollectionView>();
+		UXCollectionView component = GetComponent<UXCollectionView>();
 		component.OnItemSelection = (UXCollectionView.OnBasicItemEventDelegate)Delegate.Combine(component.OnItemSelection, new UXCollectionView.OnBasicItemEventDelegate(HandleItemSelection));
 	}
 

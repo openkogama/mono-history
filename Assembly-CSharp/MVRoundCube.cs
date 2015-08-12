@@ -1,21 +1,30 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
-using MV.Common;
-using MV.WorldObject;
 
 public class MVRoundCube : MVLogicObject
 {
 	private const string prefabPath = "Prefabs/RoundCubeObject";
 
-	public override bool HasInputConnector => false;
+	private bool initializedInWorld;
 
-	public override bool HasOutputConnector => true;
+	private GameStatCounterType WinningCondition => (GameStatCounterType)(int)Data["winningCondition"];
 
-	public MVRoundCube(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public int DurationInMilliseconds => (int)Data["interval"] * 1000;
+
+	public MVRoundCube(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, "Prefabs/RoundCubeObject", worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
-		MVGameController.Instance.Game.NetworkGameStateListener.OnGameStateChanged += NetworkGameStateListener_OnGameStateChanged;
+		interactionFlags &= ~InteractionFlags.CanClone;
+	}
+
+	public override void Initialize()
+	{
+		base.Initialize();
+		MVWorldObjectClientManager wOCM = MVGameController.WOCM;
+		wOCM.OnResetWorldDone = (EventHandler<EventArgs>)Delegate.Combine(wOCM.OnResetWorldDone, new EventHandler<EventArgs>(OnResetWorldDone));
+		MVGameController.Game.WinningConditionManager.CreateWinnerCondition<TimeLimitClient>(new object[1] { WinningCondition });
+		initializedInWorld = true;
 	}
 
 	public override bool IsSingletonObject()
@@ -25,24 +34,27 @@ public class MVRoundCube : MVLogicObject
 
 	public override void Destroy()
 	{
-		MVGameController.Instance.Game.NetworkGameStateListener.OnGameStateChanged -= NetworkGameStateListener_OnGameStateChanged;
 		base.Destroy();
+		if (initializedInWorld)
+		{
+			MVWorldObjectClientManager wOCM = MVGameController.WOCM;
+			wOCM.OnResetWorldDone = (EventHandler<EventArgs>)Delegate.Remove(wOCM.OnResetWorldDone, new EventHandler<EventArgs>(OnResetWorldDone));
+			TimeLimitClient singletonWinnerConditionByType = MVGameController.Game.WinningConditionManager.GetSingletonWinnerConditionByType<TimeLimitClient>();
+			if (singletonWinnerConditionByType == null)
+			{
+				throw new Exception("Couldn't find TimeLimit winning condition.");
+			}
+			MVGameController.Game.WinningConditionManager.RemoveWinnerCondition(singletonWinnerConditionByType.ID);
+		}
 	}
 
-	private void NetworkGameStateListener_OnGameStateChanged(object sender, GameStateChangeEventArgs e)
+	private void OnResetWorldDone(object sender, EventArgs e)
 	{
-		MVNetworkGameStateListener networkGameStateListener = MVGameController.Instance.Game.NetworkGameStateListener;
-		if (networkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded)
+		TimeLimitClient singletonWinnerConditionByType = MVGameController.Game.WinningConditionManager.GetSingletonWinnerConditionByType<TimeLimitClient>();
+		if (singletonWinnerConditionByType == null)
 		{
-			foreach (Link outputLinkRef in OutputLinkRefs)
-			{
-				outputLinkRef.isSet = true;
-			}
-			return;
+			throw new Exception("Couldn't find TimeLimit winning condition.");
 		}
-		foreach (Link outputLinkRef2 in OutputLinkRefs)
-		{
-			outputLinkRef2.isSet = false;
-		}
+		singletonWinnerConditionByType.CounterType = WinningCondition;
 	}
 }

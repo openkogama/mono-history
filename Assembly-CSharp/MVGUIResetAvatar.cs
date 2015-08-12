@@ -1,6 +1,4 @@
 using System;
-using Localize;
-using UnityEngine;
 
 public class MVGUIResetAvatar : UXViewScript
 {
@@ -17,10 +15,9 @@ public class MVGUIResetAvatar : UXViewScript
 
 	private void ShowResetDialog()
 	{
-		if (!((Object)(object)UXUtils.FindGUIObjectOfType<UXDialogFactory>().CurrentDialogBox != (Object)null))
+		if (!(UXUtils.UXDialogFactory.CurrentDialogBox != null))
 		{
-			UXUtils.FindGUIObjectOfType<UXDialogFactory>().CreateDialog(TextSlotIndex.ResestAvatarConfirm, TextSlotIndex.ResetAvatarHeadline).AddPositiveButton(TextSlotIndex.Confirm)
-				.AddNegativeButton(TextSlotIndex.Reject)
+			UXUtils.UXDialogFactory.CreateDialog(TM._("This will remove any changes you've made.\nAre you sure?"), TM._("Reset Avatar")).AddPositiveButton(TM._("Yes")).AddNegativeButton(TM._("No"))
 				.SetOnResultCallback(ResetAvatarCallBack)
 				.Show();
 		}
@@ -30,7 +27,7 @@ public class MVGUIResetAvatar : UXViewScript
 	{
 		if (dialogBox.DialogResult == UXDialogResult.Positive)
 		{
-			MVGameController.Instance.Game.ResetAvatar((MVGameController.Instance.IngameController as CharacterEditorController).MarkAndReturnCurrentAvatarID());
+			MVGameController.Game.ResetAvatar((MVGameController.IngameController as CharacterEditorController).MarkAndReturnCurrentAvatarID());
 		}
 	}
 }

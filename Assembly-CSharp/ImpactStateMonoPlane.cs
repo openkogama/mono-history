@@ -33,18 +33,12 @@ public class ImpactStateMonoPlane
 
 	private int suspendImpactDamageCounter = 1;
 
-	public float ImpactDamage => impactDamage;
+	private List<MVControllerColliderHit> moveHits = new List<MVControllerColliderHit>();
 
-	public ImpactStateMonoPlane()
-	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-	}
+	public float ImpactDamage => impactDamage;
 
 	public void SuspendImpactDamage()
 	{
-		//IL_0008: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000d: Unknown result type (might be due to invalid IL or missing references)
 		suspendImpactDamageCounter = 1;
 		prevVelocityChangeVector = Vector3.zero;
 		collidedPrevFrame = false;
@@ -65,43 +59,41 @@ public class ImpactStateMonoPlane
 		{
 			return accThresMultipliers[MVCollisionFlags.Below];
 		}
-		Debug.LogError((object)"Did not find proper collision flag");
+		Debug.LogError("Did not find proper collision flag");
 		return null;
 	}
 
-	public float UpdateImpactState(Vector3 curVelocity, Vector3 prevVelocity, List<MVControllerColliderHit> moveHits, MVInteractableBase interactableLocal)
+	public void HandleMoveHit(MVControllerColliderHit moveHit)
 	{
-		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0002: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0011: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0049: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0054: Unknown result type (might be due to invalid IL or missing references)
-		//IL_019a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_019b: Unknown result type (might be due to invalid IL or missing references)
-		Vector3 val = (curVelocity - prevVelocity) * Time.deltaTime;
+		if (!moveHit.testWithOutMoving)
+		{
+			moveHits.Add(moveHit);
+		}
+	}
+
+	public float UpdateImpactState(Vector3 curVelocity, Vector3 prevVelocity, MVInteractableBase interactableLocal)
+	{
+		Vector3 vector = (curVelocity - prevVelocity) * Time.deltaTime;
 		impactDamage = 0f;
 		if (suspendImpactDamageCounter > 0)
 		{
 			suspendImpactDamageCounter--;
+			moveHits.Clear();
 			return 0f;
 		}
 		if (collidedPrevFrame)
 		{
-			Vector3 val2 = prevVelocityChangeVector + val;
+			Vector3 vector2 = prevVelocityChangeVector + vector;
 			float[] impactVals = GetImpactVals(collisionFlagsPrevFrame);
 			float num = impactVals[0];
-			float num2 = val2.magnitude * Time.deltaTime;
+			float num2 = vector2.magnitude * Time.deltaTime;
 			num2 *= averageSoftnessPrevFrame;
 			float num3 = num2 * impactVals[1];
 			if (num3 > num)
 			{
 				if (num3 > 0f)
 				{
-					Debug.Log((object)("Damage " + num3 + " frame " + Time.frameCount));
+					Debug.Log("Damage " + num3 + " frame " + Time.frameCount);
 				}
 				impactDamage = num3;
 			}
@@ -123,7 +115,8 @@ public class ImpactStateMonoPlane
 			collisionFlagsPrevFrame = MVCollisionFlags.None;
 			averageSoftnessPrevFrame = -1f;
 		}
-		prevVelocityChangeVector = val;
+		prevVelocityChangeVector = vector;
+		moveHits.Clear();
 		return impactDamage;
 	}
 }

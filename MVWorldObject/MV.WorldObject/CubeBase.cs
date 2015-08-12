@@ -5,14 +5,6 @@ namespace MV.WorldObject;
 
 public class CubeBase
 {
-	protected static byte[][] cornerCubes = new byte[4][]
-	{
-		new byte[8] { 20, 120, 124, 124, 104, 104, 100, 0 },
-		new byte[8] { 120, 120, 124, 24, 4, 104, 100, 100 },
-		new byte[8] { 20, 20, 124, 24, 4, 104, 0, 0 },
-		new byte[8] { 20, 120, 24, 24, 4, 4, 100, 0 }
-	};
-
 	protected byte unIndentedSides;
 
 	protected static byte[] identityByteCorners = new byte[8] { 20, 120, 124, 24, 4, 104, 100, 0 };
@@ -57,11 +49,6 @@ public class CubeBase
 		}
 	}
 
-	public static byte[] GetCornerCube(int index)
-	{
-		return (byte[])cornerCubes[index].Clone();
-	}
-
 	public static void GetCorners(CubeBase cube, ref Vector3[] corners)
 	{
 		CubeDataPacker.ByteArrayToCorners(ref cube.byteCorners, ref corners);
@@ -87,6 +74,11 @@ public class CubeBase
 	{
 		CubeDataPacker.ReadCompressedCube(byteFlags, bp, ref byteCorners, ref faceMaterials);
 		SetCubeFlags(this);
+	}
+
+	public CubeBase(byte material)
+		: this(identityByteCorners, new byte[6] { material, material, material, material, material, material })
+	{
 	}
 
 	public static CubeBase Clone(CubeBase original)
@@ -257,54 +249,6 @@ public class CubeBase
 
 	public static void GetFace(ref Vector3[] corners, ref Vector3[] faceVertices, Face face)
 	{
-		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0036: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0050: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0065: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0084: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ce: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ed: Unknown result type (might be due to invalid IL or missing references)
-		//IL_016c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0171: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0186: Unknown result type (might be due to invalid IL or missing references)
-		//IL_018b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01a0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01a5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01ba: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01bf: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0103: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0108: Unknown result type (might be due to invalid IL or missing references)
-		//IL_011d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0122: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0137: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0151: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0156: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01d5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01da: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01ef: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01f4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0209: Unknown result type (might be due to invalid IL or missing references)
-		//IL_020e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0223: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0228: Unknown result type (might be due to invalid IL or missing references)
-		//IL_023e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0243: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0258: Unknown result type (might be due to invalid IL or missing references)
-		//IL_025d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0272: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0277: Unknown result type (might be due to invalid IL or missing references)
-		//IL_028c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0291: Unknown result type (might be due to invalid IL or missing references)
 		switch (face)
 		{
 		case Face.Top:

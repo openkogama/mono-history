@@ -1,16 +1,25 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
+using MV.Common;
 using UnityEngine;
 
 public class MVGUIChatWindow : UXViewScript
 {
-	private const float FADE_IN_TIME = 1f;
+	private enum State
+	{
+		Hidden,
+		ShowWithChatControls,
+		ShowWithOutChatControls
+	}
 
-	private const float MESSAGE_STAY_TIME = 5f;
+	private const float ALPHA_FADE_TO = 0.5f;
 
-	private const float FADE_OUT_TIME = 0.5f;
+	private const float MESSAGE_STAY_TIME = 10f;
 
-	private const float ALPHA_FADE_TO = 0.7f;
+	private State state;
+
+	[SerializeField]
+	private FadeTransition fadeTransition;
 
 	public UXWindow chatWindow;
 
@@ -24,68 +33,156 @@ public class MVGUIChatWindow : UXViewScript
 
 	public MVGUIChatWindowLine chatLinePrefab;
 
-	private int _lastMessageProfileID = -1;
-
-	private bool _useAlternateChatColor;
-
-	private bool _isShown;
-
-	private bool _openedFromShortCut;
-
-	private bool _fadingIn;
-
 	private bool _isInitialized;
 
 	private bool _enterDown;
 
+	private string helpString = "/h";
+
+	[SerializeField]
+	private Color friendColor = new Color(122f, 209f, 122f);
+
+	[SerializeField]
+	private Color gameMessageColor = default;
+
+	private bool canAutoHide = true;
+
+	private bool retainControlAfterMessageSend;
+
+	private float activatedTime = -10f;
+
+	public bool CanAutoHide
+	{
+		set
+		{
+			canAutoHide = value;
+		}
+	}
+
 	public void InitializeChat()
 	{
-		if (!_isInitialized)
+		if (_isInitialized)
 		{
-			MVNetworkGame game = MVGameController.Instance.Game;
-			game.OnReceivedChatMessage = (MVNetworkGame.OnReceivedChatMessageDelegate)Delegate.Combine(game.OnReceivedChatMessage, new MVNetworkGame.OnReceivedChatMessageDelegate(OnChatMessage));
-			InitializeChatFunctions();
-			InitializeFocusHelpers();
-			_isInitialized = true;
+			return;
 		}
 		View.releaseFocusOnHide = true;
 		View.Hide();
-	}
-
-	private void InitializeChatFunctions()
-	{
-		UXTextButton uXTextButton = chatButton;
-		uXTextButton.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXTextButton.OnClick, (UXBaseButton.OnClickDelegate)(() =>
+		MVNetworkGame game = MVGameController.Game;
+		game.OnReceivedGameMsg = (MVNetworkGame.OnReceivedGameMsgDelegate)Delegate.Combine(game.OnReceivedGameMsg, new MVNetworkGame.OnReceivedGameMsgDelegate(AddLine));
+		InitializeChatFunctions();
+		InitializeFocusHelpers();
+		UXSlider uXSlider = chatLog.UXSlider;
+		uXSlider.OnValueChangedIntermediate = (UXSlider.OnValueChangedIntermediateDelegate)Delegate.Combine(uXSlider.OnValueChangedIntermediate, new UXSlider.OnValueChangedIntermediateDelegate(OnSliderChange));
+		activatedTime = Time.time - 10f;
+		if (!LevelingManager.silentMode)
 		{
-			MVGameController.Instance.Game.SendChatMsg(chatField.Text);
-			chatField.Text = string.Empty;
-			if (_openedFromShortCut)
+			if (!LevelingManager.IsInitialized)
 			{
-				HideChat();
+				LevelingManager.OnLevelingInitialized = (LevelingManager.OnlevelingInitializedDelegate)Delegate.Combine(LevelingManager.OnLevelingInitialized, new LevelingManager.OnlevelingInitializedDelegate(OnLevelingInitialize));
 			}
-			_enterDown = false;
-		}));
+			else
+			{
+				OnLevelingInitialize();
+			}
+		}
+		CreateStatus();
+		_isInitialized = true;
 	}
 
-	private void InitializeFocusHelpers()
+	public void KeepAlive()
 	{
-		//IL_00aa: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00cb: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e9: Unknown result type (might be due to invalid IL or missing references)
-		UXTextButton uXTextButton = chatButton;
-		uXTextButton.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXTextButton.OnClick, (UXBaseButton.OnClickDelegate)(() =>
+		View.Show();
+	}
+
+	private void OnSliderChange(UXSlider slider, float val)
+	{
+		View.Show();
+	}
+
+	public void AddLine(string line, Color color)
+	{
+		MVGUIChatWindowLine mVGUIChatWindowLine = UnityEngine.Object.Instantiate(chatLinePrefab);
+		mVGUIChatWindowLine.BuildLine(line, color);
+		AddLine(mVGUIChatWindowLine);
+	}
+
+	public void RemoveLine()
+	{
+		chatLog.RemoveLine(0);
+	}
+
+	private void CreateStatus()
+	{
+		CreateFriendsStatus();
+		CreateHelpKey();
+	}
+
+	private void CreateHelpKey()
+	{
+		if (MVGameController.GameMode != MVGameMode.CharacterEditor && !MVGameController.Game.IsTouristSession)
 		{
-			View.ReleaseFocus();
-		}));
-		UXTextField uXTextField = chatField;
-		uXTextField.OnFocusChange = (UXTextInputElement.OnFocusChangeDelegate)Delegate.Combine(uXTextField.OnFocusChange, new UXTextInputElement.OnFocusChangeDelegate(HandleFocusChange));
-		BoxCollider val = ((Component)chatWindow).gameObject.AddComponent<BoxCollider>();
-		UXMouseClickObject uXMouseClickObject = ((Component)chatWindow).gameObject.AddComponent<UXMouseClickObject>();
-		uXMouseClickObject.OnMouseDown = (UXMouseClickObject.OnMouseDownDelegate)Delegate.Combine(uXMouseClickObject.OnMouseDown, (UXMouseClickObject.OnMouseDownDelegate)((UXMouseClickObject clickObject, Vector3 mousePositionWorld) => true));
-		val.size = chatField.Size;
-		val.center = ((Component)chatWindow).transform.InverseTransformPoint(((Component)chatField).transform.localPosition) + new Vector3(0f, 0f, 0.1f);
+			string format = TM._("Type {0} for help\nPress <Enter> or <T> to chat");
+			AddLine(string.Format(format, helpString), Color.grey);
+		}
+	}
+
+	public void CreateHelpTxt()
+	{
+		string line = TM._("<M> Menu\n<H> Toggle HD Mode");
+		switch (MVGameController.GameMode)
+		{
+		case MVGameMode.CharacterEditor:
+			break;
+		case MVGameMode.Edit:
+		{
+			AddLine(line, Color.grey);
+			string line3 = TM._("\n\n<PgDown> Move Workplane Down\n<PgUp> Move Workplane Up\n<TAB> Show Players\n<P> Play Mode\n<P> Edit Mode\n<1> Edit Cube\n<2> Delete Cube\n<3> Paint Cube\n<G> Toggle Grid Snap Size\n");
+			string line4 = TM._("<F> Toggle Workplane\n<H> Toggle Vanity Item\n<L> Toggle Show Logic Cubes\n<R> Change Cube Material\n<I> Open Inventory\n<N> Create New Model\n<V> Focus on selected object");
+			AddLine(line3, Color.grey);
+			AddLine(line4, Color.grey);
+			break;
+		}
+		case MVGameMode.Play:
+		{
+			AddLine(line, Color.grey);
+			string line2 = TM._("\n\n<WASD> Move\n<Space> Jump\n<K> Respawn\n<Left Mouse> Fire Weapon\n<Q> Drop currently equipped weapon");
+			AddLine(line2, Color.grey);
+			break;
+		}
+		}
+	}
+
+	private void CreateUsersOfLanguageStatus()
+	{
+		Dictionary<int, MVPlayer> onlineFriends = MVGameController.Game.Friends.GetOnlineFriends();
+		string regionCode = MVGameController.Game.LocalPlayer.RegionCode;
+		bool flag = false;
+		foreach (KeyValuePair<int, MVPlayer> player in MVGameController.Game.Players)
+		{
+			if (player.Value.RegionCode == regionCode && !onlineFriends.ContainsKey(player.Key) && player.Value.ActorNr != MVGameController.Game.LocalPlayer.ActorNr)
+			{
+				if (!flag)
+				{
+					AddLine(TM._("Users from your country: "), friendColor);
+				}
+				flag = true;
+				AddLine(player.Value.Username, friendColor);
+			}
+		}
+	}
+
+	private void CreateFriendsStatus()
+	{
+		Dictionary<int, MVPlayer> onlineFriends = MVGameController.Game.Friends.GetOnlineFriends();
+		if (onlineFriends.Count <= 0)
+		{
+			return;
+		}
+		AddLine("Friends online:", friendColor);
+		foreach (MVPlayer value in onlineFriends.Values)
+		{
+			AddLine(value.Username, friendColor);
+		}
 	}
 
 	public override void OnHide()
@@ -93,17 +190,235 @@ public class MVGUIChatWindow : UXViewScript
 		chatWindow.SetVisible(visible: false);
 		chatLog.SetVisible(visible: false);
 		chatControlGroup.SetVisible(visible: false);
+		state = State.Hidden;
 	}
 
 	public override void OnShow()
 	{
 		chatWindow.SetVisible(visible: true);
 		chatLog.SetVisible(visible: true);
-		chatControlGroup.SetVisible(visible: true);
-		chatWindow.SetAlpha(1f);
-		chatLog.SetAlpha(1f);
-		chatField.SetAlpha(1f);
-		chatButton.SetAlpha(1f);
+		if (state == State.ShowWithChatControls)
+		{
+			chatControlGroup.SetVisible(visible: true);
+		}
+		activatedTime = Time.time;
+		fadeTransition.FadeIn(null);
+	}
+
+	public void ShowChat(bool takeFocus, bool retainControlAfterMessageSend)
+	{
+		this.retainControlAfterMessageSend = retainControlAfterMessageSend;
+		if (takeFocus)
+		{
+			TakeFocus();
+		}
+		state = State.ShowWithChatControls;
+		View.Show();
+		_enterDown = false;
+	}
+
+	private void Update()
+	{
+		if (_enterDown && MVInputWrapper.GetBooleanControlUp(KogamaControls.ChatSendLine, forceKeyUse: true) && chatField.HasFocus)
+		{
+			chatButton.FireOnClick();
+		}
+		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.ChatSendLine, forceKeyUse: true) && chatField.HasFocus)
+		{
+			_enterDown = true;
+		}
+		if (Time.time - activatedTime > 10f && canAutoHide && !chatField.HasFocus && View.isVisible && fadeTransition.GuiFadeState != GuiFadeState.FadeOut)
+		{
+			fadeTransition.FadeOut(OnFadedOut);
+		}
+	}
+
+	private void OnFadedOut()
+	{
+		View.Hide();
+		chatLog.SetSliderValue(100f);
+	}
+
+	private void AddLine(UXLine uxLine)
+	{
+		if (state == State.Hidden)
+		{
+			state = State.ShowWithOutChatControls;
+		}
+		uxLine.SetAlpha((!View.isVisible) ? 0f : 1f, string.Empty);
+		chatLog.AddLine(uxLine);
+		View.Show();
+	}
+
+	private void OnLevelingInitialize()
+	{
+		if (MVGameController.GameMode == MVGameMode.Play)
+		{
+			OnPlayModeLevelingEnabledChanged(LevelingManager.LevelingEnabled);
+			LevelingManager.OnPlayModeLevelingEnabledChanged = (LevelingManager.OnPlayModeLevelingEnabledChangedDelegate)Delegate.Combine(LevelingManager.OnPlayModeLevelingEnabledChanged, new LevelingManager.OnPlayModeLevelingEnabledChangedDelegate(OnPlayModeLevelingEnabledChanged));
+		}
+		MVLocalPlayer localPlayer = MVGameController.Game.LocalPlayer;
+		localPlayer.OnXPProgressData = (XPProgress.OnXPProgressDataDelegate)Delegate.Combine(localPlayer.OnXPProgressData, new XPProgress.OnXPProgressDataDelegate(OnXPProgressData));
+	}
+
+	private void OnXPProgressData(XPProgressData xpProgressData)
+	{
+		AddLine(xpProgressData.XPString, Color.yellow);
+	}
+
+	private void OnPlayModeLevelingEnabledChanged(bool activated)
+	{
+		if (activated)
+		{
+			string line = TM._("Leveling activated! Players in game: ") + MVGameController.Game.Players.Count;
+			AddLine(line, Color.green);
+		}
+		else
+		{
+			string line = TM._("Leveling deactivated! Players in game: ") + MVGameController.Game.Players.Count;
+			AddLine(line, Color.red);
+		}
+	}
+
+	private void AddLine(MVGameMsgType msgType, Dictionary<object, object> message)
+	{
+		switch (msgType)
+		{
+		case MVGameMsgType.AvatarKilled:
+			if (GameMessagesRepository.ShowKilledMessage(message))
+			{
+				string line = GameMessagesRepository.CreateKilledMessage(message);
+				AddLine(line, gameMessageColor);
+			}
+			break;
+		case MVGameMsgType.UserJoined:
+		{
+			MVGUIChatWindowLine mVGUIChatWindowLine2 = UnityEngine.Object.Instantiate(chatLinePrefab);
+			int key = (int)message[(byte)0];
+			MVPlayer mVPlayer = MVGameController.Game.Players[key];
+			if (MVGameController.Game.Friends.IsFriend(mVPlayer.ProfileID))
+			{
+				if (msgType == MVGameMsgType.UserJoined)
+				{
+					string username = mVPlayer.Username;
+					Color color = friendColor;
+					mVGUIChatWindowLine2.BuildLine(string.Format("{0} {1}", username, TM._("joined the game")), color);
+					GUIAudioBank.Instance.GetSound("toggle_on").Play();
+				}
+				AddLine(mVGUIChatWindowLine2);
+			}
+			break;
+		}
+		case MVGameMsgType.UserLeft:
+		{
+			MVGUIChatWindowLine mVGUIChatWindowLine = UnityEngine.Object.Instantiate(chatLinePrefab);
+			string arg = (string)message[(byte)3];
+			if ((bool)message[(byte)6])
+			{
+				mVGUIChatWindowLine.BuildLine(string.Format("{0} {1}", arg, TM._("left the game")), Color.grey);
+				AddLine(mVGUIChatWindowLine);
+			}
+			break;
+		}
+		case MVGameMsgType.CollectiblePickedUp:
+			Debug.LogWarning("Not showing CollectiblePickedUp line");
+			break;
+		case MVGameMsgType.AchievementUnlocked:
+			break;
+		case MVGameMsgType.CheckpointReached:
+			Debug.LogWarning("Not showing CheckpointReached line");
+			break;
+		case MVGameMsgType.Chat:
+			AddChatLine(message);
+			break;
+		default:
+			Debug.Log("GameMsg of type " + msgType.ToString() + " received...");
+			break;
+		}
+	}
+
+	private void AddChatLine(Dictionary<object, object> data)
+	{
+		string arg = (string)data[(byte)5];
+		int key = (int)data[(byte)0];
+		MVPlayer mVPlayer = MVGameController.Game.Players[key];
+		arg = $"[{mVPlayer.Username}]: {arg}";
+		if (MVGameController.Game.Friends.IsFriend(mVPlayer.ProfileID))
+		{
+			GUIAudioBank.Instance.GetSound("toggle_on").Play();
+			AddLine(arg, friendColor);
+		}
+		else
+		{
+			AddLine(arg, Color.white);
+		}
+	}
+
+	private void AddXPLine(byte xpId, int actorNumber)
+	{
+		string username = MVGameController.Game.Players[actorNumber].Username;
+		string xPText = XPManager.GetXPText(xpId);
+		string line = string.Format("{0} {1} {2}", username, TM._("got"), xPText);
+		AddLine(line, Color.yellow);
+	}
+
+	private void InitializeChatFunctions()
+	{
+		UXTextButton uXTextButton = chatButton;
+		uXTextButton.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXTextButton.OnClick, (UXBaseButton.OnClickDelegate)(() =>
+		{
+			if (!retainControlAfterMessageSend)
+			{
+				chatField.ReleaseFocus();
+				chatControlGroup.Hide();
+				state = State.ShowWithOutChatControls;
+			}
+			else
+			{
+				Debug.Log("Take focus");
+				TakeFocus();
+			}
+			activatedTime = Time.time;
+			_enterDown = false;
+			if (chatField.Text != helpString && !MVGameController.Game.IsTouristSession)
+			{
+				SendChatMessage(chatField.Text);
+			}
+			else
+			{
+				CreateHelpTxt();
+			}
+			chatField.Text = string.Empty;
+		}));
+	}
+
+	private void SendChatMessage(string chatMsg)
+	{
+		if (!(chatMsg == string.Empty))
+		{
+			if (chatMsg.Length > 256)
+			{
+				Debug.LogWarning("ChatMsg too long. Truncated to 256 chars!");
+				chatMsg = chatMsg.Substring(0, 256);
+			}
+			MVGameController.Game.PostGameMsg(MVGameMsgType.Chat, new Dictionary<object, object>
+			{
+				{
+					(byte)0,
+					MVGameController.Game.LocalPlayer.ActorNr
+				},
+				{
+					(byte)5,
+					chatMsg
+				}
+			});
+		}
+	}
+
+	private void InitializeFocusHelpers()
+	{
+		UXTextField uXTextField = chatField;
+		uXTextField.OnFocusChange = (UXTextInputElement.OnFocusChangeDelegate)Delegate.Combine(uXTextField.OnFocusChange, new UXTextInputElement.OnFocusChangeDelegate(HandleFocusChange));
 	}
 
 	public void TakeFocus()
@@ -121,24 +436,10 @@ public class MVGUIChatWindow : UXViewScript
 				View.ReleaseFocus();
 			};
 		}
-		else if ((Object)(object)UXFullscreenColliderBox.Instance != (Object)null)
+		else if (UXFullscreenColliderBox.Instance != null)
 		{
 			UXFullscreenColliderBox.Instance.OnClick = null;
 			UXFullscreenColliderBox.Instance.RemoveBlockingObject(chatWindow);
-		}
-	}
-
-	public void ShowChat(bool openFromShortCut)
-	{
-		if (!View.isVisible || _fadingIn)
-		{
-			((MonoBehaviour)this).StopAllCoroutines();
-			_enterDown = false;
-			_fadingIn = false;
-			_isShown = true;
-			_openedFromShortCut = openFromShortCut;
-			View.Show();
-			chatField.ReleaseFocus();
 		}
 	}
 
@@ -146,58 +447,5 @@ public class MVGUIChatWindow : UXViewScript
 	{
 		View.Hide();
 		chatField.ReleaseFocus();
-		_isShown = false;
-	}
-
-	private void Update()
-	{
-		if (_enterDown && (Input.GetKeyUp((KeyCode)13) || Input.GetKeyUp((KeyCode)271)) && chatField.HasFocus && !_fadingIn)
-		{
-			chatButton.FireOnClick();
-		}
-		if ((Input.GetKeyDown((KeyCode)13) || Input.GetKeyDown((KeyCode)271)) && chatField.HasFocus && !_fadingIn)
-		{
-			_enterDown = true;
-		}
-	}
-
-	private void OnChatMessage(MVPlayer sender, string message)
-	{
-		if (!_isShown && !_fadingIn)
-		{
-			((MonoBehaviour)this).StartCoroutine("FadeShowMessage");
-		}
-		if (_lastMessageProfileID != -1 && _lastMessageProfileID != sender.ProfileID)
-		{
-			_useAlternateChatColor = !_useAlternateChatColor;
-		}
-		MVGUIChatWindowLine mVGUIChatWindowLine = Object.Instantiate((Object)(object)chatLinePrefab) as MVGUIChatWindowLine;
-		mVGUIChatWindowLine.BuildLine(sender, message, _useAlternateChatColor);
-		mVGUIChatWindowLine.SetAlpha((!View.isVisible || _fadingIn) ? 0f : 1f);
-		chatLog.AddLine(mVGUIChatWindowLine);
-		_lastMessageProfileID = sender.ProfileID;
-	}
-
-	private IEnumerator FadeShowMessage()
-	{
-		_fadingIn = true;
-		View.Show();
-		chatField.SetAlpha(0f);
-		chatButton.SetAlpha(0f);
-		yield return ((MonoBehaviour)this).StartCoroutine(pTween.To(1f, 0f, 1f, (float t) =>
-		{
-			chatWindow.SetAlpha(Mathf.Clamp(t, 0f, 0.7f));
-			chatLog.SetAlpha(t);
-		}));
-		_isShown = true;
-		yield return (object)new WaitForSeconds(5f);
-		yield return ((MonoBehaviour)this).StartCoroutine(pTween.To(0.5f, 1f, 0f, (float t) =>
-		{
-			chatWindow.SetAlpha(Mathf.Clamp(t, 0f, 0.7f));
-			chatLog.SetAlpha(t);
-		}));
-		View.Hide();
-		_isShown = false;
-		_fadingIn = false;
 	}
 }

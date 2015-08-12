@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 
 public class MVGoal : MVLogicObject
@@ -9,7 +8,7 @@ public class MVGoal : MVLogicObject
 
 	public override bool HasOutputConnector => false;
 
-	public MVGoal(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVGoal(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, "Prefabs/GoalObject", worldObjects)
 	{
 	}

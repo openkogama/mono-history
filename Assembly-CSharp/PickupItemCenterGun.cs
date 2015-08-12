@@ -1,11 +1,13 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
+using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
+using MV.WorldObject;
 using UnityEngine;
 
 public class PickupItemCenterGun : PickupItemWithDelay
 {
-	public int ammo;
+	public ObscuredInt ammo;
 
 	public Material hitDecalMaterial;
 
@@ -17,21 +19,15 @@ public class PickupItemCenterGun : PickupItemWithDelay
 
 	public override int Quantity => ammo;
 
-	protected override bool IsAmmoDepleted => ammo <= 0;
+	protected override bool IsAmmoDepleted => (int)ammo <= 0;
 
-	public override void OnStateChanged(Hashtable newState)
+	public override void OnStateChanged(Dictionary<object, object> newState)
 	{
 		ammo = 100;
 	}
 
 	protected override void OnFire(bool isLocal)
 	{
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0084: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00be: Unknown result type (might be due to invalid IL or missing references)
 		Bullet bullet = Bullet.CreateBullet(bulletPrefab, muzzlePoint.position);
 		Ray lineOfFire = new Ray(owner.LookOrigin, owner.LookDirection);
 		bullet.onHit = (Bullet.OnHitDelegate)Delegate.Combine(bullet.onHit, new Bullet.OnHitDelegate(HandleHit));
@@ -40,38 +36,40 @@ public class PickupItemCenterGun : PickupItemWithDelay
 			bullet.onHitLocal = HandleDirectHit;
 		}
 		bullet.Fire(owner.GetAbsolutProjectileSpeed(70f), 100f, lineOfFire, owner.IgnoreWOIDs);
-		ammo--;
-		MVGameController.Instance.AudioManager.Play("projectile fire", ((Component)this).audio, muzzlePoint.position);
+		--ammo;
+		MVGameController.AudioManager.Play("projectile fire", GetComponent<AudioSource>(), muzzlePoint.position);
+		if (isLocal)
+		{
+			MVGameController.AudioManager.Play("projectile fire", GetComponent<AudioSource>(), Camera.main.transform.position + Camera.main.transform.forward);
+		}
+		else
+		{
+			MVGameController.AudioManager.Play("projectile fire", GetComponent<AudioSource>(), muzzlePoint.position);
+		}
 		isFiring = false;
 	}
 
 	private void HandleHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
-		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0011: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0051: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0061: Unknown result type (might be due to invalid IL or missing references)
-		Quaternion val = Quaternion.FromToRotation(Vector3.up, voxelHit.normal);
-		MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(voxelHit.woId);
-		string text = ((!(worldObjectClient is MVAvatar)) ? "ParticleFX/Sparks" : "ParticleFX/Blood");
-		Object.Instantiate(Resources.Load(text), voxelHit.point, val);
+		Quaternion rotation = Quaternion.FromToRotation(Vector3.up, voxelHit.normal);
+		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(voxelHit.woId);
+		string path = ((!(worldObjectClient is MVAvatar)) ? "ParticleFX/Sparks" : "ParticleFX/Blood");
+		UnityEngine.Object.Instantiate(Resources.Load(path), voxelHit.point, rotation);
 		MeshDecal.Create(new MeshDecal.Hit(voxelHit.point, voxelHit.normal, 1f), hitDecalMaterial, null);
 	}
 
 	private void HandleDirectHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
-		int woIDHighestInHierarchyWithComponent = MVGameController.Instance.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
-		MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
+		InteractionData interaction = CenterGunHitPackage.Create();
+		MVGameController.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, interaction.Damage);
+		int woIDHighestInHierarchyWithComponent = MVGameController.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
+		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
 		if (worldObjectClient != null)
 		{
 			InteractionDataHandlerBase component = worldObjectClient.GameObject.GetComponent<InteractionDataHandlerBase>();
-			if ((Object)(object)component != (Object)null)
+			if (component != null)
 			{
-				component.HandleInteraction(CenterGunHitPackage.Create(), interactionIsLocal: false);
+				component.HandleInteraction(interaction, interactionIsLocal: false);
 			}
 		}
 	}

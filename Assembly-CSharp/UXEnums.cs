@@ -7,15 +7,15 @@ public class UXEnums
 	{
 		{
 			UXHorizontal.Left,
-			(TextAlignment)0
+			TextAlignment.Left
 		},
 		{
 			UXHorizontal.Center,
-			(TextAlignment)1
+			TextAlignment.Center
 		},
 		{
 			UXHorizontal.Right,
-			(TextAlignment)2
+			TextAlignment.Right
 		}
 	};
 
@@ -23,39 +23,39 @@ public class UXEnums
 	{
 		{
 			new Tuple<UXHorizontal, UXVertical>(UXHorizontal.Left, UXVertical.Top),
-			(TextAnchor)0
+			TextAnchor.UpperLeft
 		},
 		{
 			new Tuple<UXHorizontal, UXVertical>(UXHorizontal.Center, UXVertical.Top),
-			(TextAnchor)1
+			TextAnchor.UpperCenter
 		},
 		{
 			new Tuple<UXHorizontal, UXVertical>(UXHorizontal.Right, UXVertical.Top),
-			(TextAnchor)2
+			TextAnchor.UpperRight
 		},
 		{
 			new Tuple<UXHorizontal, UXVertical>(UXHorizontal.Left, UXVertical.Middle),
-			(TextAnchor)3
+			TextAnchor.MiddleLeft
 		},
 		{
 			new Tuple<UXHorizontal, UXVertical>(UXHorizontal.Center, UXVertical.Middle),
-			(TextAnchor)4
+			TextAnchor.MiddleCenter
 		},
 		{
 			new Tuple<UXHorizontal, UXVertical>(UXHorizontal.Right, UXVertical.Middle),
-			(TextAnchor)5
+			TextAnchor.MiddleRight
 		},
 		{
 			new Tuple<UXHorizontal, UXVertical>(UXHorizontal.Left, UXVertical.Bottom),
-			(TextAnchor)6
+			TextAnchor.LowerLeft
 		},
 		{
 			new Tuple<UXHorizontal, UXVertical>(UXHorizontal.Center, UXVertical.Bottom),
-			(TextAnchor)7
+			TextAnchor.LowerCenter
 		},
 		{
 			new Tuple<UXHorizontal, UXVertical>(UXHorizontal.Right, UXVertical.Bottom),
-			(TextAnchor)8
+			TextAnchor.LowerRight
 		}
 	});
 
@@ -93,13 +93,11 @@ public class UXEnums
 
 	public static TextAlignment ToTextAlignment(UXHorizontal horizontal)
 	{
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
 		return toTextAlignment[horizontal];
 	}
 
 	public static TextAnchor ToTextAnchor(UXHorizontal horizontal, UXVertical vertical)
 	{
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
 		return toTextAnchor[new Tuple<UXHorizontal, UXVertical>(horizontal, vertical)];
 	}
 

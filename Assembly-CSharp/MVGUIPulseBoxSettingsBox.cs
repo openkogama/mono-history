@@ -1,5 +1,5 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
 
 public class MVGUIPulseBoxSettingsBox : UXCustomDialogBox
 {
@@ -17,10 +17,10 @@ public class MVGUIPulseBoxSettingsBox : UXCustomDialogBox
 
 	public override object GetResult()
 	{
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add("intervalOn", enabledTimeIntermediate);
-		hashtable.Add("intervalOff", disabledTimeIntermediate);
-		return hashtable;
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add("intervalOn", enabledTimeIntermediate);
+		dictionary.Add("intervalOff", disabledTimeIntermediate);
+		return dictionary;
 	}
 
 	public override void OnShowDialog()

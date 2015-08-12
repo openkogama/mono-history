@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Localize;
 using MV.WorldObject;
 using UnityEngine;
 
@@ -27,8 +25,6 @@ internal class ESSelection : ESStateBase
 
 		public PickResult(Vector3 mousePosition, VoxelHit hit, T data)
 		{
-			//IL_0007: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0008: Unknown result type (might be due to invalid IL or missing references)
 			this.mousePosition = mousePosition;
 			this.hit = hit;
 			this.data = data;
@@ -57,7 +53,7 @@ internal class ESSelection : ESStateBase
 
 	private PickResult<LinkObjectScript> pickedLink;
 
-	private MVWorldObjectClientManager WOCM => MVGameController.Instance.WOCM;
+	private MVWorldObjectClientManager WOCM => MVGameController.WOCM;
 
 	public ESSelection()
 	{
@@ -68,11 +64,9 @@ internal class ESSelection : ESStateBase
 
 	private void InitializeSelectionGizmo()
 	{
-		//IL_001b: Unknown result type (might be due to invalid IL or missing references)
-		Object val = Object.Instantiate(Resources.Load("Prefabs/GUI/Gizmos/SelectionGizmo"));
-		GameObject val2 = (GameObject)(object)((val is GameObject) ? val : null);
-		val2.transform.localPosition = Vector3.zero;
-		translateGizmo = val2.GetComponent<MVGUISelectionGizmo>();
+		GameObject gameObject = UnityEngine.Object.Instantiate(Resources.Load("Prefabs/GUI/Gizmos/SelectionGizmo")) as GameObject;
+		gameObject.transform.localPosition = Vector3.zero;
+		translateGizmo = gameObject.GetComponent<MVGUISelectionGizmo>();
 		MVGUISelectionGizmo mVGUISelectionGizmo = translateGizmo;
 		mVGUISelectionGizmo.OnRotate = (MVGUIGizmoBase.GizmoClickDelegate)Delegate.Combine(mVGUISelectionGizmo.OnRotate, (MVGUIGizmoBase.GizmoClickDelegate)(() =>
 		{
@@ -92,11 +86,9 @@ internal class ESSelection : ESStateBase
 
 	private void InitializeRightClickMenuGizmo()
 	{
-		//IL_001b: Unknown result type (might be due to invalid IL or missing references)
-		Object val = Object.Instantiate(Resources.Load("Prefabs/GUI/Gizmos/RightClickGizmo"));
-		GameObject val2 = (GameObject)(object)((val is GameObject) ? val : null);
-		val2.transform.localPosition = Vector3.zero;
-		rightClickGizmo = val2.GetComponent<MVGUIRightClickGizmo>();
+		GameObject gameObject = UnityEngine.Object.Instantiate(Resources.Load("Prefabs/GUI/Gizmos/RightClickGizmo")) as GameObject;
+		gameObject.transform.localPosition = Vector3.zero;
+		rightClickGizmo = gameObject.GetComponent<MVGUIRightClickGizmo>();
 	}
 
 	private void OnRightGlickGizmoMouseDown()
@@ -106,10 +98,17 @@ internal class ESSelection : ESStateBase
 
 	private void ShowContextMenuGizmo()
 	{
-		//IL_0211: Unknown result type (might be due to invalid IL or missing references)
+		if (selectedWorldObject.HasInteractionFlag(InteractionFlags.CanUseGameCoins))
+		{
+			rightClickGizmo.AddButton(TM._("Game Coins"), () =>
+			{
+				MVGUIDialogBoxWrapper.Instance.ShowGameCoinsDialog(selectedWorldObject);
+				rightClickGizmoSelect = false;
+			});
+		}
 		if (selectedWorldObject.HasInteractionFlag(InteractionFlags.HasSettings))
 		{
-			rightClickGizmo.AddButton(Localization.Instance.GetText(TextSlotIndex.Settings), () =>
+			rightClickGizmo.AddButton(TM._("Settings"), () =>
 			{
 				MVGUIDialogBoxWrapper.Instance.ShowSettingsDialog(selectedWorldObject);
 				rightClickGizmoSelect = false;
@@ -117,8 +116,8 @@ internal class ESSelection : ESStateBase
 		}
 		if (selectedWorldObject.HasInteractionFlag(InteractionFlags.CanEdit) && !selectedWorldObject.HasInteractionFlag(InteractionFlags.IsPreview))
 		{
-			Debug.Log((object)"CanEdit");
-			rightClickGizmo.AddButton(Localization.Instance.GetText(TextSlotIndex.EditModel), () =>
+			Debug.Log("CanEdit");
+			rightClickGizmo.AddButton(TM._("Edit Model"), () =>
 			{
 				gizmoAction = GizmoAction.Open;
 				rightClickGizmoSelect = false;
@@ -126,49 +125,49 @@ internal class ESSelection : ESStateBase
 		}
 		if (selectedWorldObject.HasInteractionFlag(InteractionFlags.CanResetLogic))
 		{
-			rightClickGizmo.AddButton(Localization.Instance.GetText(TextSlotIndex.ResetLogic), () =>
+			rightClickGizmo.AddButton(TM._("Reset Logic"), () =>
 			{
-				MVGameController.Instance.Game.ResetLogicChunk(selectedWorldObject.Id);
+				MVGameController.Game.ResetLogicChunk(selectedWorldObject.Id);
 				rightClickGizmoSelect = false;
 			});
 		}
 		if (CanClone())
 		{
-			rightClickGizmo.AddButton(Localization.Instance.GetText(TextSlotIndex.Clone), () =>
+			rightClickGizmo.AddButton(TM._("Clone"), () =>
 			{
 				deselectAfterTranslate = true;
-				MVGameController.Instance.EditController.EditorWorldObjectCreation.CloneHierarchy(selectedWorldObject, cloneToRoot: false, setAsPreviewItem: false);
+				MVGameController.EditorController.EditorWorldObjectCreation.CloneHierarchy(selectedWorldObject, cloneToRoot: false, setAsPreviewItem: false);
 				rightClickGizmoSelect = false;
 			});
 		}
 		if (selectedWorldObject.HasInteractionFlag(InteractionFlags.CanAddToInventory) && !selectedWorldObject.HasInteractionFlag(InteractionFlags.IsPreview))
 		{
-			rightClickGizmo.AddButton(Localization.Instance.GetText(TextSlotIndex.AddToInventory), () =>
+			rightClickGizmo.AddButton(TM._("Add To Inventory"), () =>
 			{
-				MVGameController.Instance.EditController.AddToInventory(selectedWorldObject);
+				MVGameController.EditorController.AddToInventory(selectedWorldObject);
 				rightClickGizmoSelect = false;
 			});
 		}
-		if (selectedWorldObject.HasInteractionFlag(InteractionFlags.IsPreview) && selectedWorldObject.PreviewOwnerProfileId == MVGameController.Instance.Game.LocalPlayer.ProfileID)
+		if (selectedWorldObject.HasInteractionFlag(InteractionFlags.IsPreview) && selectedWorldObject.PreviewOwnerProfileId == MVGameController.Game.LocalPlayer.ProfileID)
 		{
-			rightClickGizmo.AddButton(Localization.Instance.GetText(TextSlotIndex.Purchase), () =>
+			rightClickGizmo.AddButton(TM._("Purchase"), () =>
 			{
-				MVItem shopItem = MVGameController.Instance.Game.ShopRepository.ShopInventory[selectedWorldObject.ItemId];
-				UXDialogFactory uXDialogFactory = UXUtils.FindGUIObjectOfType<UXDialogFactory>();
-				uXDialogFactory.CreateCustomDialog("Prefabs/GUI/Dialogs/BrightProductShopDialog", TextSlotIndex.Empty, noButtons: true).SetOnResultCallback(OnPurchaseDialogResult).SetValues(BuildDialogData(shopItem))
+				MVItem shopItem = MVGameController.Game.ShopRepository.ShopInventory[selectedWorldObject.ItemId];
+				UXDialogFactory uXDialogFactory = UXUtils.UXDialogFactory;
+				uXDialogFactory.CreateCustomDialog("Prefabs/GUI/Dialogs/BrightProductShopDialog", string.Empty, noButtons: true).SetOnResultCallback(OnPurchaseDialogResult).SetValues(BuildDialogData(shopItem))
 					.Show();
 				MVGUIProductShopDialog mVGUIProductShopDialog = (MVGUIProductShopDialog)uXDialogFactory.CurrentDialogBox;
 				mVGUIProductShopDialog.SetPrice(shopItem.priceGold, shopItem.priceSilver);
 				mVGUIProductShopDialog.OnTryPurchaseProduct = () =>
 				{
-					MVGameController.Instance.Game.UnlockClientShopInventoryItem(shopItem.itemID);
+					MVGameController.Game.UnlockClientShopInventoryItem(shopItem.itemID);
 				};
 				rightClickGizmoSelect = false;
 			});
 		}
-		rightClickGizmo.AddButton(Localization.Instance.GetText(TextSlotIndex.Delete), () =>
+		rightClickGizmo.AddButton(TM._("Delete"), () =>
 		{
-			MVGameController.Instance.EditorController.Delete(editorStateMachine.SelectedWOs);
+			MVGameController.EditorController.Delete(editorStateMachine.SelectedWOs);
 			rightClickGizmoSelect = false;
 		});
 		MVGUIRightClickGizmo mVGUIRightClickGizmo = rightClickGizmo;
@@ -187,10 +186,6 @@ internal class ESSelection : ESStateBase
 			{
 				return false;
 			}
-			if (MVGameController.Instance.Game.ItemBusinessLogic.GetItem(selectedWO.ItemId) == null)
-			{
-				return false;
-			}
 		}
 		return true;
 	}
@@ -203,12 +198,11 @@ internal class ESSelection : ESStateBase
 			text = item.name,
 			useWordWrap = true
 		});
-		Object val = Object.Instantiate(Resources.Load("Prefabs/GUI/ShopPreview/ItemShopPreview"));
-		MVGUIItemShopPreview component = ((GameObject)((val is GameObject) ? val : null)).GetComponent<MVGUIItemShopPreview>();
+		MVGUIItemShopPreview component = (UnityEngine.Object.Instantiate(Resources.Load("Prefabs/GUI/ShopPreview/ItemShopPreview")) as GameObject).GetComponent<MVGUIItemShopPreview>();
 		component.BuildItemShopPreview(item, 12f, 12f);
 		dictionary.Add("ProductPreview", new ProductPreviewData
 		{
-			productPreview = ((Component)component).gameObject
+			productPreview = component.gameObject
 		});
 		return dictionary;
 	}
@@ -217,36 +211,35 @@ internal class ESSelection : ESStateBase
 	{
 		if (dialogBox.DialogResult == UXDialogResult.Positive)
 		{
-			Hashtable hashtable = (Hashtable)dialogBox.GetResult();
-			if (hashtable.ContainsKey((byte)22))
+			Dictionary<object, object> dictionary = (Dictionary<object, object>)dialogBox.GetResult();
+			if (dictionary.ContainsKey((byte)22))
 			{
-				int num = (int)hashtable[(byte)22];
-				MVItem mVItem = MVGameController.Instance.Game.ShopRepository.ShopInventory[selectedWorldObject.ItemId];
-				MVGameController.Instance.Game.PlayerRepository.PlayerInventory.Add(mVItem.itemID, mVItem);
-				MVGameController.Instance.Game.PlayerRepository.itemIDToInventorySlotIndex.Add(mVItem.itemID, num);
-				MVGameController.Instance.Game.PlayerRepository.NotifyRepositoryChange();
-				MVGameController.Instance.Game.ShopRepository.RemoveItem(mVItem.itemID);
-				MVGameController.Instance.Game.ShopRepository.ReorganizeItemsByItemType(notifyOfChange: true);
+				int num = (int)dictionary[(byte)22];
+				MVItem mVItem = MVGameController.Game.ShopRepository.ShopInventory[selectedWorldObject.ItemId];
+				MVGameController.Game.PlayerRepository.PlayerInventory.Add(mVItem.itemID, mVItem);
+				MVGameController.Game.PlayerRepository.itemIDToInventorySlotIndex.Add(mVItem.itemID, num);
+				MVGameController.Game.PlayerRepository.NotifyRepositoryChange();
+				MVGameController.Game.ShopRepository.RemoveItem(mVItem.itemID);
+				MVGameController.Game.ShopRepository.ReorganizeItemsByItemType(notifyOfChange: true);
 			}
 			else
 			{
-				Debug.LogError((object)"Purchased product, but received no slot index to put it into");
+				Debug.LogError("Purchased product, but received no slot index to put it into");
 			}
 		}
 	}
 
 	private void ShowLinkMenuGizmo()
 	{
-		//IL_0061: Unknown result type (might be due to invalid IL or missing references)
-		rightClickGizmo.AddButton(Localization.Instance.GetText(TextSlotIndex.Delete), () =>
+		rightClickGizmo.AddButton(TM._("Delete"), () =>
 		{
 			if (selectedLinkObject.isObjectLink)
 			{
-				MVGameController.Instance.Game.RemoveObjectLink(selectedLinkObject.linkID);
+				MVGameController.Game.RemoveObjectLink(selectedLinkObject.linkID);
 			}
 			else
 			{
-				MVGameController.Instance.Game.RemoveLink(selectedLinkObject.linkID);
+				MVGameController.Game.RemoveLink(selectedLinkObject.linkID);
 			}
 			rightClickGizmoSelect = false;
 			editorStateMachine.DeSelectAll();
@@ -263,8 +256,6 @@ internal class ESSelection : ESStateBase
 
 	public override void Enter(EditorStateMachine e)
 	{
-		//IL_01bf: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0208: Unknown result type (might be due to invalid IL or missing references)
 		bool flag = e.SingleSelectedWO != null && (e.SingleSelectedWO.InteractionFlags & InteractionFlags.DirectlySelectable) != 0;
 		if (deselectAfterTranslate)
 		{
@@ -287,7 +278,7 @@ internal class ESSelection : ESStateBase
 		}
 		if (e.SelectedIDs.Count != 0 && e.SelectedIDs.Count > 1)
 		{
-			Debug.LogWarning((object)"Entering selection state with multiple items, lolwut?");
+			Debug.LogWarning("Entering selection state with multiple items, lolwut?");
 		}
 		editorStateMachine = e;
 		editorStateMachine.SelectionController.SelectedWorldObjectDeleted += SelectionController_SelectedWorldObjectDeletedHandler;
@@ -307,39 +298,28 @@ internal class ESSelection : ESStateBase
 			if (!flag)
 			{
 				e.CameraController.SecondaryCameraActive = true;
-				((Behaviour)((Component)e.CameraController).GetComponent<GrayscaleEffect>()).enabled = true;
+				e.CameraController.GetComponent<GrayscaleEffect>().enabled = true;
 			}
 		}
 		gizmoAction = GizmoAction.None;
 		VoxelHit hit = default;
-		if (MVGameController.Instance.WOCM.Pick(ref hit))
+		if (MVGameController.WOCM.Pick(ref hit))
 		{
-			pickedTarget = new PickResult<MVWorldObjectClient>(Input.mousePosition, hit, MVGameController.Instance.WOCM.GetWorldObjectClient(hit.woId));
+			pickedTarget = new PickResult<MVWorldObjectClient>(MVInputWrapper.GetPointerPosition(), hit, MVGameController.WOCM.GetWorldObjectClient(hit.woId));
 			selectedWorldObject = e.SingleSelectedWO;
 		}
 		LinkObjectScript linkHit = GetLinkHit(e, ref hit);
-		pickedLink = ((!((Object)(object)linkHit != (Object)null)) ? null : new PickResult<LinkObjectScript>(Input.mousePosition, hit, linkHit));
+		pickedLink = ((!(linkHit != null)) ? null : new PickResult<LinkObjectScript>(MVInputWrapper.GetPointerPosition(), hit, linkHit));
 	}
 
 	public override void Execute(EditorStateMachine e)
 	{
-		//IL_019e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0263: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0268: Unknown result type (might be due to invalid IL or missing references)
-		//IL_026d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0272: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0483: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02ec: Unknown result type (might be due to invalid IL or missing references)
-		//IL_053c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_04ba: Unknown result type (might be due to invalid IL or missing references)
-		//IL_057f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_03f0: Unknown result type (might be due to invalid IL or missing references)
 		base.Execute(e);
-		if ((Object)(object)UXUtils.FindGUIObjectOfType<UXDialogFactory>().CurrentDialogBox != (Object)null || MVGameController.Instance.EditController.WindowShown)
+		if (UXUtils.UXDialogFactory.CurrentDialogBox != null || MVGameController.EditController.WindowShown)
 		{
 			e.DeSelectAll();
 			HideGizmos();
-			if (e.ParentGroup == MVGameController.Instance.WOCM.RootGroup)
+			if (e.ParentGroup == MVGameController.WOCM.RootGroup)
 			{
 				e.Event = EditorEvent.ESTerrainEdit;
 			}
@@ -354,45 +334,45 @@ internal class ESSelection : ESStateBase
 			{
 				return;
 			}
-			if (MVInputWrapper.GetKeyUp((KeyCode)13))
+			if (MVInputWrapper.GetBooleanControlUp(KogamaControls.EnterObject))
 			{
 				if (e.SingleSelectedWO != null && EnterObject(e, e.SingleSelectedWO))
 				{
 					return;
 				}
 			}
-			else if (MVInputWrapper.GetKeyDown((KeyCode)127))
+			else if (MVInputWrapper.GetBooleanControlDown(KogamaControls.DeleteObject))
 			{
-				MVGameController.Instance.EditorController.Delete(e.SelectedWOs);
+				MVGameController.EditorController.Delete(e.SelectedWOs);
 				HideGizmos();
 				return;
 			}
-			if (MVInputWrapper.GetKeyDown((KeyCode)27))
+			if (MVInputWrapper.GetBooleanControlDown(KogamaControls.LeaveObject))
 			{
 				HandleEscape(e);
 				return;
 			}
 			VoxelHit hit = default;
-			bool flag = MVGameController.Instance.WOCM.Pick(ref hit);
-			if (flag && (MVGameController.Instance.WOCM.IsType(hit.woId, WorldObjectType.CubeModelPrototypeTerrain) || hit.woId == -1))
+			bool flag = MVGameController.WOCM.Pick(ref hit);
+			if (flag && (MVGameController.WOCM.IsType(hit.woId, WorldObjectType.CubeModelPrototypeTerrain) || hit.woId == -1))
 			{
 				flag = false;
 			}
 			TintObjectsOnMouseOver(e, flag, hit);
 			if (pickedTarget != null)
 			{
-				MVWorldObjectClientManager wOCM = MVGameController.Instance.WOCM;
+				MVWorldObjectClientManager wOCM = MVGameController.WOCM;
 				VoxelHit hit2 = pickedTarget.hit;
 				if (wOCM.GetWorldObjectClient(hit2.woId) == null)
 				{
 					pickedTarget = null;
 				}
 			}
-			if (MVInputWrapper.GetKeyDown((KeyCode)323))
+			if (MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelect))
 			{
 				if (flag)
 				{
-					pickedTarget = new PickResult<MVWorldObjectClient>(Input.mousePosition, hit, MVGameController.Instance.WOCM.GetWorldObjectClient(hit.woId));
+					pickedTarget = new PickResult<MVWorldObjectClient>(MVInputWrapper.GetPointerPosition(), hit, MVGameController.WOCM.GetWorldObjectClient(hit.woId));
 					HashSet<int> selectedIDs = e.SelectedIDs;
 					VoxelHit hit3 = pickedTarget.hit;
 					bool flag2 = selectedIDs.Contains(hit3.woId);
@@ -400,19 +380,14 @@ internal class ESSelection : ESStateBase
 					{
 						bool addToSelection = flag2;
 						selectedWorldObject = e.Select(pickedTarget.hit, addToSelection);
-						Debug.Log((object)("SelectedWorldObject: " + selectedWorldObject));
+						Debug.Log("SelectedWorldObject: " + selectedWorldObject);
 					}
 					HideGizmos();
 				}
 			}
-			else if (MVInputWrapper.GetKey((KeyCode)323))
+			else if (MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect))
 			{
-				if (pickedTarget == null)
-				{
-					return;
-				}
-				Vector3 val = pickedTarget.mousePosition - Input.mousePosition;
-				if (val.magnitude > 0.5f || MVInputWrapper.GetAxisRaw("Mouse ScrollWheel") != 0f)
+				if (pickedTarget != null && ((pickedTarget.mousePosition - MVInputWrapper.GetPointerPosition()).magnitude > 0.5f || MVInputWrapper.GetAxisRaw("Mouse ScrollWheel") != 0f))
 				{
 					if (e.SelectedIDs.Count == 1)
 					{
@@ -421,7 +396,7 @@ internal class ESSelection : ESStateBase
 					e.PushState(EditorEvent.ESTranslate);
 				}
 			}
-			else if (MVInputWrapper.GetKeyUp((KeyCode)323))
+			else if (MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
 			{
 				if (selectedWorldObject != null && pickedTarget != null && IsMouseUpValid(pickedTarget.mousePosition))
 				{
@@ -442,7 +417,7 @@ internal class ESSelection : ESStateBase
 				{
 					e.DeSelectAll();
 					HideGizmos();
-					if (e.ParentGroup == MVGameController.Instance.WOCM.RootGroup)
+					if (e.ParentGroup == MVGameController.WOCM.RootGroup)
 					{
 						e.Event = EditorEvent.ESTerrainEdit;
 					}
@@ -450,28 +425,28 @@ internal class ESSelection : ESStateBase
 				pickedLink = null;
 				pickedTarget = null;
 			}
-			else if (MVInputWrapper.GetKeyDown((KeyCode)324))
+			else if (MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelectAlt))
 			{
 				VoxelHit hit5 = default;
 				LinkObjectScript linkHit = GetLinkHit(e, ref hit5);
-				if ((Object)(object)linkHit != (Object)null)
+				if (linkHit != null)
 				{
-					pickedLink = new PickResult<LinkObjectScript>(Input.mousePosition, hit5, linkHit);
+					pickedLink = new PickResult<LinkObjectScript>(MVInputWrapper.GetPointerPosition(), hit5, linkHit);
 				}
 				else if (flag)
 				{
-					MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(hit.woId);
-					pickedTarget = new PickResult<MVWorldObjectClient>(Input.mousePosition, hit, worldObjectClient);
+					MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(hit.woId);
+					pickedTarget = new PickResult<MVWorldObjectClient>(MVInputWrapper.GetPointerPosition(), hit, worldObjectClient);
 					if (!e.SelectedWOs.Contains(pickedTarget.data))
 					{
 						selectedWorldObject = e.Select(pickedTarget.hit, addToSelection: false);
-						Debug.Log((object)("SelectedWorldObject: " + selectedWorldObject));
+						Debug.Log("SelectedWorldObject: " + selectedWorldObject);
 					}
 				}
 			}
 			else
 			{
-				if (!MVInputWrapper.GetKeyUp((KeyCode)324))
+				if (!MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelectAlt))
 				{
 					return;
 				}
@@ -492,7 +467,7 @@ internal class ESSelection : ESStateBase
 						}
 						else
 						{
-							Debug.LogWarning((object)"There should be selected objects at this point - Martin");
+							Debug.LogWarning("There should be selected objects at this point - Martin");
 						}
 					}
 				}
@@ -516,7 +491,7 @@ internal class ESSelection : ESStateBase
 		if (e.ParentGroupIsRoot || (e.SingleSelectedWO != null && e.SingleSelectedWO.HasInteractionFlag(InteractionFlags.DirectlySelectable)))
 		{
 			e.CameraController.SecondaryCameraActive = false;
-			((Behaviour)((Component)e.CameraController).GetComponent<GrayscaleEffect>()).enabled = false;
+			e.CameraController.GetComponent<GrayscaleEffect>().enabled = false;
 		}
 		HideGizmos();
 		exitButton.View.Hide();
@@ -526,12 +501,7 @@ internal class ESSelection : ESStateBase
 
 	private bool IsMouseUpValid(Vector3 mousePosition)
 	{
-		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		Vector3 val = mousePosition - Input.mousePosition;
-		return val.sqrMagnitude < 20f;
+		return (mousePosition - MVInputWrapper.GetPointerPosition()).sqrMagnitude < 20f;
 	}
 
 	private bool CheckAndHandleGizmoAction(EditorStateMachine e)
@@ -589,27 +559,20 @@ internal class ESSelection : ESStateBase
 
 	private LinkObjectScript GetLinkHit(EditorStateMachine e, ref VoxelHit hit)
 	{
-		//IL_0044: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0049: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0090: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0095: Unknown result type (might be due to invalid IL or missing references)
-		if (MVGameController.Instance.EditController.IsLogicRendered())
+		if (MVGameController.EditorController.IsLogicRendered())
 		{
 			float num = float.PositiveInfinity;
-			if (MVGameController.Instance.WOCM.Pick(ref hit))
+			if (MVGameController.WOCM.Pick(ref hit))
 			{
 				num = hit.distance;
 			}
-			Ray val = ((Component)e.CameraController).camera.ScreenPointToRay(Input.mousePosition);
-			int num2 = 1 << LayerMask.NameToLayer("Logic");
-			RaycastHit val2 = default;
-			Physics.Raycast(val, ref val2, float.PositiveInfinity, num2);
-			if ((Object)(object)val2.collider != (Object)null && val2.distance < num)
+			Ray ray = e.CameraController.GetComponent<Camera>().ScreenPointToRay(MVInputWrapper.GetPointerPosition());
+			int layerMask = 1 << LayerMask.NameToLayer("Logic");
+			Physics.Raycast(ray, out var hitInfo, float.PositiveInfinity, layerMask);
+			if (hitInfo.collider != null && hitInfo.distance < num)
 			{
-				hit.point = val2.point;
-				return ((Component)val2.collider).gameObject.GetComponentInChildren<LinkObjectScript>();
+				hit.point = hitInfo.point;
+				return hitInfo.collider.gameObject.GetComponentInChildren<LinkObjectScript>();
 			}
 		}
 		return null;
@@ -617,7 +580,7 @@ internal class ESSelection : ESStateBase
 
 	private bool EnterObject(EditorStateMachine e, MVWorldObjectClient selectedWo)
 	{
-		Debug.Log((object)"EnterObject");
+		Debug.Log("EnterObject");
 		return selectedWo.OnEnterObject(e);
 	}
 
@@ -634,7 +597,7 @@ internal class ESSelection : ESStateBase
 		e.ExitGroup();
 		if (e.ParentGroupIsRoot)
 		{
-			((Behaviour)((Component)e.CameraController).GetComponent<GrayscaleEffect>()).enabled = false;
+			e.CameraController.GetComponent<GrayscaleEffect>().enabled = false;
 			e.CameraController.SecondaryCameraActive = false;
 			e.DeSelectAll();
 			e.Event = EditorEvent.ESTerrainEdit;

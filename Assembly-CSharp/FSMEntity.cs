@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,7 +15,7 @@ public class FSMEntity
 
 	protected string stateName;
 
-	protected Hashtable data = new Hashtable();
+	protected Dictionary<object, object> data = new Dictionary<object, object>();
 
 	private bool clearStack = true;
 
@@ -24,7 +23,7 @@ public class FSMEntity
 
 	protected bool lockState;
 
-	public Hashtable Data => data;
+	public Dictionary<object, object> Data => data;
 
 	public bool LockState
 	{
@@ -44,7 +43,7 @@ public class FSMEntity
 		{
 			if (lockState)
 			{
-				Debug.LogWarning((object)("State is locked, could not set state to: " + value));
+				Debug.LogWarning("State is locked, could not set state to: " + value);
 				return;
 			}
 			nextEvent = value;

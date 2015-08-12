@@ -1,6 +1,3 @@
-using MV.Common;
-using MV.WorldObject;
-
 public class MVGUIWinnerLine : UXLine
 {
 	public UXText winnerName;
@@ -9,31 +6,20 @@ public class MVGUIWinnerLine : UXLine
 
 	private int maxNameChars = 13;
 
-	public void BuildLine(int num, WinnerListNode winnerNode, MVWinningCondition winningType, bool isTeamGame)
+	public void BuildLine(int num, int scoreCount, string entryName, GameStatCounterType gameStatCounterType)
 	{
-		string empty = string.Empty;
-		if (isTeamGame)
+		if (entryName.Length >= maxNameChars)
 		{
-			MVTeam actorNr = (MVTeam)winnerNode.actorNr;
-			empty = string.Concat(actorNr, " team");
+			entryName = entryName.Substring(0, maxNameChars) + "...";
+		}
+		winnerName.Text = "#" + num + " - " + entryName;
+		if (gameStatCounterType == GameStatCounterType.Kill)
+		{
+			score.Text = "Score: " + scoreCount;
 		}
 		else
 		{
-			MVPlayer mVPlayer = MVGameController.Instance.Game.Players[winnerNode.actorNr];
-			empty = mVPlayer.Username;
-		}
-		if (empty.Length >= maxNameChars)
-		{
-			empty = empty.Substring(0, maxNameChars) + "...";
-		}
-		winnerName.Text = "#" + num + " - " + empty;
-		if (winningType == MVWinningCondition.MostKills)
-		{
-			score.Text = "Score: " + winnerNode.data;
-		}
-		else
-		{
-			score.Text = FormatWinnerTime(winnerNode.data);
+			score.Text = FormatWinnerTime(scoreCount);
 		}
 	}
 

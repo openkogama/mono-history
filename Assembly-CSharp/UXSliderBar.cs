@@ -9,16 +9,15 @@ public class UXSliderBar : UXPlane
 
 	private void Start()
 	{
-		UXMouseClickObject uXMouseClickObject = ((Component)this).gameObject.AddComponent<UXMouseClickObject>();
+		UXMouseClickObject uXMouseClickObject = gameObject.AddComponent<UXMouseClickObject>();
 		uXMouseClickObject.OnMouseDown = (UXMouseClickObject.OnMouseDownDelegate)Delegate.Combine(uXMouseClickObject.OnMouseDown, new UXMouseClickObject.OnMouseDownDelegate(OnBarClick));
-		((Component)this).gameObject.AddComponent<BoxCollider>();
+		gameObject.AddComponent<BoxCollider>();
 		ignoreClipping = true;
 		SetVisible(Visible);
 	}
 
 	private bool OnBarClick(UXMouseClickObject mouseClickObject, Vector3 worldMousePos)
 	{
-		//IL_0011: Unknown result type (might be due to invalid IL or missing references)
 		if (OnSliderBarClick != null)
 		{
 			OnSliderBarClick(worldMousePos);

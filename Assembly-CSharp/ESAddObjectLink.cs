@@ -12,7 +12,7 @@ internal class ESAddObjectLink : ESStateBase
 		wo = esm.SingleSelectedWO;
 		if (wo == null)
 		{
-			Debug.LogWarning((object)"state started with multi-selection or no selection - there can be only one connector selected when adding object link!");
+			Debug.LogWarning("state started with multi-selection or no selection - there can be only one connector selected when adding object link!");
 			esm.PopState();
 			return;
 		}
@@ -24,7 +24,7 @@ internal class ESAddObjectLink : ESStateBase
 		}
 		else
 		{
-			Debug.LogError((object)"Should not happen - object links can only be added when starting from object-connector");
+			Debug.LogError("Should not happen - object links can only be added when starting from object-connector");
 			esm.PopState();
 		}
 	}
@@ -32,14 +32,14 @@ internal class ESAddObjectLink : ESStateBase
 	public override void Execute(EditorStateMachine e)
 	{
 		base.Execute(e);
-		if (!MVInputWrapper.GetKeyUp((KeyCode)323))
+		if (!MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
 		{
 			return;
 		}
 		VoxelHit hit = default;
-		if (MVGameController.Instance.WOCM.Pick(ref hit) && hit.woId != -1)
+		if (MVGameController.WOCM.Pick(ref hit) && hit.woId != -1)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(hit.woId);
+			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(hit.woId);
 			if (worldObjectClient != null && wo.Id != hit.woId && !wo.ObjectLinkRefs.Exists((ObjectLink o) => o.objectWOID == hit.woId) && wo.ValidateObjectLinkTarget(worldObjectClient))
 			{
 				tempLink.objectWOID = hit.woId;
@@ -47,7 +47,7 @@ internal class ESAddObjectLink : ESStateBase
 			}
 		}
 		e.DeSelectAll();
-		if (e.ParentGroupID == MVGameController.Instance.WOCM.RootGroup.Id)
+		if (e.ParentGroupID == MVGameController.WOCM.RootGroup.Id)
 		{
 			e.Event = EditorEvent.ESTerrainEdit;
 		}
@@ -64,7 +64,7 @@ internal class ESAddObjectLink : ESStateBase
 
 	private bool DoAddLink()
 	{
-		MVGameController.Instance.Game.AddObjectLink(tempLink);
+		MVGameController.Game.AddObjectLink(tempLink);
 		return true;
 	}
 }

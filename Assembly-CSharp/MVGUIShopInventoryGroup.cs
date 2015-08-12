@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Localize;
 using MV.WorldObject;
 using UnityEngine;
 
@@ -11,7 +9,7 @@ public class MVGUIShopInventoryGroup : MVGUIInventoryGroup
 
 	protected override void InitializeCollectionView()
 	{
-		repositoryCollection = new ShopRepositoryCollection(MVGameController.Instance.Game.ShopRepository, allowedCategoriesTypes);
+		repositoryCollection = new ShopRepositoryCollection(MVGameController.Game.ShopRepository, allowedCategoriesTypes);
 		collectionView.Initialize();
 		collectionView.InstansiateViewItem = InstansiateViewItem;
 		UXCollectionView uXCollectionView = collectionView;
@@ -23,17 +21,17 @@ public class MVGUIShopInventoryGroup : MVGUIInventoryGroup
 	public override void InitializeAfterReset()
 	{
 		CreatePreviewItemRoot();
-		repositoryCollection = new ShopRepositoryCollection(MVGameController.Instance.Game.ShopRepository, allowedCategoriesTypes);
+		repositoryCollection = new ShopRepositoryCollection(MVGameController.Game.ShopRepository, allowedCategoriesTypes);
 		collectionView.Collection = repositoryCollection;
 	}
 
 	private void OnItemSelection(IUXCollectionItem collectionItem)
 	{
 		_purchaseItem = (MVItem)collectionItem.Object;
-		UXDialogFactory uXDialogFactory = UXUtils.FindGUIObjectOfType<UXDialogFactory>();
-		uXDialogFactory.CreateCustomDialog("Prefabs/GUI/Dialogs/BrightProductShopDialog", TextSlotIndex.Empty, noButtons: true).SetOnResultCallback(OnPurchaseDialogResult).SetValues(BuildDialogData(_purchaseItem, collectionItem.Index))
+		UXDialogFactory uXDialogFactory = UXUtils.UXDialogFactory;
+		uXDialogFactory.CreateCustomDialog("Prefabs/GUI/Dialogs/BrightProductShopDialog", string.Empty, noButtons: true).SetOnResultCallback(OnPurchaseDialogResult).SetValues(BuildDialogData(_purchaseItem, collectionItem.Index))
 			.Show();
-		((Component)collectionView).gameObject.SetActiveRecursively(false);
+		collectionView.gameObject.SetActive(value: false);
 		MVGUIProductShopDialog mVGUIProductShopDialog = (MVGUIProductShopDialog)uXDialogFactory.CurrentDialogBox;
 		mVGUIProductShopDialog.SetAllowInsertProductPreview(allowInsert: true);
 		mVGUIProductShopDialog.OnInsertProductPreview = () =>
@@ -43,7 +41,7 @@ public class MVGUIShopInventoryGroup : MVGUIInventoryGroup
 		mVGUIProductShopDialog.SetPrice(_purchaseItem.priceGold, _purchaseItem.priceSilver);
 		mVGUIProductShopDialog.OnTryPurchaseProduct = () =>
 		{
-			MVGameController.Instance.Game.UnlockClientShopInventoryItem(_purchaseItem.itemID);
+			MVGameController.Game.UnlockClientShopInventoryItem(_purchaseItem.itemID);
 		};
 	}
 
@@ -60,19 +58,18 @@ public class MVGUIShopInventoryGroup : MVGUIInventoryGroup
 			text = item.description.Replace("\\n", "\n"),
 			useWordWrap = true
 		});
-		Object val = Object.Instantiate(Resources.Load("Prefabs/GUI/ShopPreview/ItemShopPreview"));
-		MVGUIItemShopPreview component = ((GameObject)((val is GameObject) ? val : null)).GetComponent<MVGUIItemShopPreview>();
+		MVGUIItemShopPreview component = (UnityEngine.Object.Instantiate(Resources.Load("Prefabs/GUI/ShopPreview/ItemShopPreview")) as GameObject).GetComponent<MVGUIItemShopPreview>();
 		component.BuildItemShopPreview(item, 12f, 12f);
 		dictionary.Add("ProductPreview", new ProductPreviewData
 		{
-			productPreview = ((Component)component).gameObject
+			productPreview = component.gameObject
 		});
 		return dictionary;
 	}
 
 	private void InsertPreviewItem(MVItem item)
 	{
-		MVGameController.Instance.EditController.EditorWorldObjectCreation.OnAddItemFromInventory(item, isPreviewItem: true);
+		MVGameController.EditorController.EditorWorldObjectCreation.OnAddItemFromInventory(item, isPreviewItem: true);
 		if (NotifyItemSelection != null)
 		{
 			NotifyItemSelection();
@@ -83,20 +80,20 @@ public class MVGUIShopInventoryGroup : MVGUIInventoryGroup
 	{
 		if (dialogBox.DialogResult == UXDialogResult.Positive)
 		{
-			Hashtable hashtable = (Hashtable)dialogBox.GetResult();
-			if (!hashtable.ContainsKey((byte)22))
+			Dictionary<object, object> dictionary = (Dictionary<object, object>)dialogBox.GetResult();
+			if (!dictionary.ContainsKey((byte)22))
 			{
-				Debug.LogError((object)"Purchased product, but received no slot index to put it into");
+				Debug.LogError("Purchased product, but received no slot index to put it into");
 				return;
 			}
-			int num = (int)hashtable[(byte)22];
-			MVGameController.Instance.Game.PlayerRepository.PlayerInventory.Add(_purchaseItem.itemID, _purchaseItem);
-			MVGameController.Instance.Game.PlayerRepository.itemIDToInventorySlotIndex.Add(_purchaseItem.itemID, num);
-			MVGameController.Instance.Game.ItemBusinessLogic.AddItem(_purchaseItem);
-			MVGameController.Instance.Game.PlayerRepository.NotifyRepositoryChange();
-			MVGameController.Instance.Game.ShopRepository.RemoveItem(_purchaseItem.itemID);
-			MVGameController.Instance.Game.ShopRepository.ReorganizeItemsByItemType(notifyOfChange: true);
+			int num = (int)dictionary[(byte)22];
+			MVGameController.Game.PlayerRepository.PlayerInventory.Add(_purchaseItem.itemID, _purchaseItem);
+			MVGameController.Game.PlayerRepository.itemIDToInventorySlotIndex.Add(_purchaseItem.itemID, num);
+			MVGameController.Game.ItemBusinessLogic.AddItem(_purchaseItem);
+			MVGameController.Game.PlayerRepository.NotifyRepositoryChange();
+			MVGameController.Game.ShopRepository.RemoveItem(_purchaseItem.itemID);
+			MVGameController.Game.ShopRepository.ReorganizeItemsByItemType(notifyOfChange: true);
 		}
-		((Component)collectionView).gameObject.SetActiveRecursively(true);
+		collectionView.gameObject.SetActive(value: true);
 	}
 }

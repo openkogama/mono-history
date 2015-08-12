@@ -1,5 +1,4 @@
 using System;
-using Localize;
 using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
@@ -58,7 +57,7 @@ public class MVGUIItemActionReselling : MVGUIItemAction
 
 	private UXDialogFactory dialogFactory;
 
-	private bool UserIsAuthor => item.authorProfileID == MVGameController.Instance.Game.LocalPlayer.ProfileID;
+	private bool UserIsAuthor => item.authorProfileID == MVGameController.Game.LocalPlayer.ProfileID;
 
 	private bool ItemOnMarketplace => item.shopInventoryID != 0;
 
@@ -67,8 +66,7 @@ public class MVGUIItemActionReselling : MVGUIItemAction
 		base.UpdateItemAction(item);
 		if (ItemOnMarketplace && UserIsAuthor)
 		{
-			sellItemButton.index = TextSlotIndex.UpdateMarketplaceItem;
-			sellItemButton.Text = Localization.Instance.GetText(sellItemButton.index);
+			sellItemButton.Text = TM._("Update Item");
 			showRemoveButton = true;
 		}
 		nameTextField.Text = item.name;
@@ -113,7 +111,7 @@ public class MVGUIItemActionReselling : MVGUIItemAction
 		uXTextButton2.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXTextButton2.OnClick, new UXBaseButton.OnClickDelegate(RemoveFromMarketplace));
 		UXGroup actionGroup = ActionGroup;
 		actionGroup.OnShowGroup = (UXGroup.OnGroupEventDelegate)Delegate.Combine(actionGroup.OnShowGroup, new UXGroup.OnGroupEventDelegate(OnShowResellGroup));
-		dialogFactory = UXUtils.FindGUIObjectOfType<UXDialogFactory>();
+		dialogFactory = UXUtils.UXDialogFactory;
 		base.Initialize();
 	}
 
@@ -139,13 +137,13 @@ public class MVGUIItemActionReselling : MVGUIItemAction
 		doingCompare = true;
 		compareSlider.SetVisible(visible: false);
 		loadingGroup.SetVisible(ActionGroup.Visible);
-		MVGameController.Instance.Game.ReceivedItemFromQuery += OnLoadMarketPlaceItem;
-		MVGameController.Instance.Game.RequestMarketPlaceItem(item.itemID);
+		MVGameController.Game.ReceivedItemFromQuery += OnLoadMarketPlaceItem;
+		MVGameController.Game.RequestMarketPlaceItem(item.itemID);
 	}
 
 	private void OnLoadMarketPlaceItem(object sender, ReceivedItemFromQueryEventArgs e)
 	{
-		MVGameController.Instance.Game.ReceivedItemFromQuery -= OnLoadMarketPlaceItem;
+		MVGameController.Game.ReceivedItemFromQuery -= OnLoadMarketPlaceItem;
 		BytePacker koGaMaData = e.KoGaMaData;
 		KoGaMaPackageClient koGaMaPackageClient = new KoGaMaPackageClient(new BytePacker(item.data), readRuntimeValues: false);
 		KoGaMaPackageClient koGaMaPackageClient2 = new KoGaMaPackageClient(koGaMaData, readRuntimeValues: false);
@@ -172,15 +170,14 @@ public class MVGUIItemActionReselling : MVGUIItemAction
 
 	private void OnDestroy()
 	{
-		MVGameController.Instance.Game.ReceivedItemFromQuery -= OnLoadMarketPlaceItem;
+		MVGameController.Game.ReceivedItemFromQuery -= OnLoadMarketPlaceItem;
 	}
 
 	private void Update()
 	{
-		//IL_001b: Unknown result type (might be due to invalid IL or missing references)
 		if (loadingCircle.Visible)
 		{
-			((Component)loadingCircle).transform.RotateAroundLocal(Vector3.forward, 12f * Time.deltaTime);
+			loadingCircle.transform.Rotate(Vector3.forward, 12f * Time.deltaTime * 57.29578f);
 		}
 		if (ActionGroup.Visible)
 		{
@@ -190,12 +187,6 @@ public class MVGUIItemActionReselling : MVGUIItemAction
 
 	private void ValidateInput()
 	{
-		//IL_0072: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0067: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0099: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00cb: Unknown result type (might be due to invalid IL or missing references)
 		bool flag = nameTextField.Text.Length > 0;
 		bool flag2 = descriptionTextBox.Text.Length > 0;
 		int result = 0;
@@ -204,59 +195,61 @@ public class MVGUIItemActionReselling : MVGUIItemAction
 		descriptionValidToggle.SetColor((!differentEnough || !flag2) ? inputInvalidColor : inputValidColor, string.Empty);
 		silverPriceValidToggle.SetColor((!differentEnough || !flag3) ? inputInvalidColor : inputValidColor, string.Empty);
 		canSell = flag && flag2 && flag3;
+		string text;
 		if (!differentEnough && !UserIsAuthor)
 		{
-			sellText.index = TextSlotIndex.NotDifferentEnough;
-		}
-		else if (!canSell)
-		{
-			sellText.index = TextSlotIndex.FillOutEverything;
+			text = TM._("Your model is not different enough compared to the original model");
 		}
 		else
 		{
-			sellText.index = TextSlotIndex.Empty;
+			text = (canSell ? string.Empty : TM._("Please make sure all the required information is entered"));
 		}
-		sellText.Text = Localization.Instance.GetText(sellText.index);
+		sellText.Text = text;
 		sellItemButton.SetVisible(canSell && (UserIsAuthor || differentEnough));
 	}
 
 	private void RemoveFromMarketplace()
 	{
-		dialogFactory.CreateCustomDialog("Prefabs/GUI/Item Action/MarketPlaceActionDialog", TextSlotIndex.RemoveFromMarketplace, noButtons: true, stackDialog: true, canClose: false).SetOnResultCallback(OnRemoveFromMarketplaceReturn);
+		dialogFactory.CreateCustomDialog("Prefabs/GUI/Item Action/MarketPlaceActionDialog", TM._("Remove Item"), noButtons: true, stackDialog: true, canClose: false).SetOnResultCallback(OnRemoveFromMarketplaceReturn);
 		(dialogFactory.CurrentlyBuildingDialogBox as MVGUIMarketPlaceActionDialog).RemoveItem(item.itemID);
 		dialogFactory.Show();
 	}
 
 	private void SellItem()
 	{
+		if (MVGameController.Game.LocalPlayer.Level < MVGameController.Game.MarketPlaceLevel)
+		{
+			dialogFactory.CreateDialog(TM._("You can not add to marketplace before reaching level: ") + MVGameController.Game.MarketPlaceLevel, string.Empty, UXDialogType.Simple, noButtons: true, stackDialog: true).Show();
+			return;
+		}
 		string text = nameTextField.Text;
 		string text2 = descriptionTextBox.Text;
 		int silverPrice = int.Parse(silverPriceTextField.Text);
 		itemUpdate = ItemOnMarketplace;
-		dialogFactory.CreateCustomDialog("Prefabs/GUI/Item Action/MarketPlaceActionDialog", TextSlotIndex.SellOnMarketplace, noButtons: true, stackDialog: true, canClose: false).SetOnResultCallback(OnAddToMarketplaceReturn);
+		dialogFactory.CreateCustomDialog("Prefabs/GUI/Item Action/MarketPlaceActionDialog", TM._("Sell Item"), noButtons: true, stackDialog: true, canClose: false).SetOnResultCallback(OnAddToMarketplaceReturn);
 		(dialogFactory.CurrentlyBuildingDialogBox as MVGUIMarketPlaceActionDialog).SellItem(item.itemID, text, text2, silverPrice);
 		dialogFactory.Show();
 	}
 
 	private void OnRemoveFromMarketplaceReturn(UXDialogBox dialogBox)
 	{
-		TextSlotIndex messageIndex;
+		string txt;
 		if (dialogBox.DialogResult == UXDialogResult.Positive)
 		{
-			MVGameController.Instance.Game.ItemBusinessLogic.GetItem(item.itemID).shopInventoryID = 0;
-			MVGameController.Instance.Game.PlayerRepository.PlayerInventory[item.itemID].shopInventoryID = 0;
-			messageIndex = TextSlotIndex.RemoveItemFromMarketplaceSuccessful;
+			MVGameController.Game.ItemBusinessLogic.GetItem(item.itemID).shopInventoryID = 0;
+			MVGameController.Game.PlayerRepository.PlayerInventory[item.itemID].shopInventoryID = 0;
+			txt = TM._("Removed '{0}' from marketplace.");
 		}
 		else
 		{
-			messageIndex = TextSlotIndex.RemoveItemFromMarketplaceFailed;
+			txt = TM._("Failed to remove '{0}' from marketplace.");
 		}
-		ShowResultDialog(messageIndex);
+		ShowResultDialog(txt);
 	}
 
 	private void OnAddToMarketplaceReturn(UXDialogBox dialogBox)
 	{
-		TextSlotIndex messageIndex;
+		string txt;
 		if (dialogBox.DialogResult == UXDialogResult.Positive)
 		{
 			string text = nameTextField.Text;
@@ -265,22 +258,22 @@ public class MVGUIItemActionReselling : MVGUIItemAction
 			item.name = text;
 			item.description = text2;
 			item.priceSilver = priceSilver;
-			item.authorProfileID = MVGameController.Instance.Game.LocalPlayer.ProfileID;
-			MVGameController.Instance.Game.ItemBusinessLogic.GetItem(item.itemID).name = text;
-			messageIndex = ((!itemUpdate) ? TextSlotIndex.SellItemOnMarketplaceSuccessful : TextSlotIndex.UpdateItemOnMarketplaceSuccessful);
+			item.authorProfileID = MVGameController.Game.LocalPlayer.ProfileID;
+			MVGameController.Game.ItemBusinessLogic.GetItem(item.itemID).name = text;
+			txt = ((!itemUpdate) ? TM._("'{0}' is now on the marketplace.") : TM._("'{0}' updated on marketplace."));
 		}
 		else
 		{
-			messageIndex = ((!itemUpdate) ? TextSlotIndex.SellItemOnMarketplaceFailed : TextSlotIndex.UpdateItemOnMarketplaceFailed);
+			txt = ((!itemUpdate) ? TM._("Failed to put '{0}' on the marketplace.") : TM._("Failed to update '{0}'."));
 		}
-		ShowResultDialog(messageIndex);
+		ShowResultDialog(txt);
 	}
 
-	private void ShowResultDialog(TextSlotIndex messageIndex)
+	private void ShowResultDialog(string txt)
 	{
 		ValueInsert valueInsert = new ValueInsert();
 		valueInsert.AddString(item.name);
-		dialogFactory.CreateDialog(messageIndex, TextSlotIndex.Notice, UXDialogType.Simple, noButtons: false, stackDialog: true, canClose: true, valueInsert).SetOnResultCallback(OnCloseActionCompleteDialog).Show();
+		dialogFactory.CreateDialog(TM.GetTextWithValues(txt, valueInsert), TM._("Notice"), UXDialogType.Simple, noButtons: false, stackDialog: true, canClose: true, valueInsert).SetOnResultCallback(OnCloseActionCompleteDialog).Show();
 	}
 
 	private void OnCloseActionCompleteDialog(UXDialogBox dialogBox)

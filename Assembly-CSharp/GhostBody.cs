@@ -22,9 +22,8 @@ public class GhostBody : MonoBehaviour
 
 	private void UpdateRotation()
 	{
-		//IL_0018: Unknown result type (might be due to invalid IL or missing references)
 		currentAngularRotation = RotationWithInertia(angularMaxRotation);
-		((Component)this).transform.RotateAroundLocal(Vector3.up, currentAngularRotation * Time.deltaTime);
+		transform.Rotate(Vector3.up, currentAngularRotation * Time.deltaTime * 57.29578f, Space.Self);
 	}
 
 	private float RotationWithInertia(float desiredAngularRotation)

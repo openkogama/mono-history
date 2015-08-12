@@ -8,16 +8,13 @@ public struct LodData
 
 	public bool isVisible;
 
-	public MeshSetting mipMeshSetting;
-
 	public bool shadows;
 
-	public LodData(float activateDistance, bool isVisible, MeshSetting mipMeshSetting, bool shadows)
+	public LodData(float activateDistance, bool isVisible, bool shadows)
 	{
 		idCounter++;
 		this.activateDistance = activateDistance;
 		this.isVisible = isVisible;
-		this.mipMeshSetting = mipMeshSetting;
 		this.shadows = shadows;
 	}
 }

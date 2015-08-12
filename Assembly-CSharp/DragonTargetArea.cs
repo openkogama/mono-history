@@ -12,18 +12,18 @@ public class DragonTargetArea : MonoBehaviour
 
 	private void Start()
 	{
-		emitters = ((Component)this).gameObject.GetComponentsInChildren<ParticleEmitter>();
+		emitters = gameObject.GetComponentsInChildren<ParticleEmitter>();
 		StopFiring();
-		((Component)this).GetComponentInChildren<TriggerBoxEvents>().TriggerEnter += DragonTargetArea_TriggerEnter;
-		((Component)this).GetComponentInChildren<TriggerBoxEvents>().TriggerExit += DragonTargetArea_TriggerExit;
+		GetComponentInChildren<TriggerBoxEvents>().TriggerEnter += DragonTargetArea_TriggerEnter;
+		GetComponentInChildren<TriggerBoxEvents>().TriggerExit += DragonTargetArea_TriggerExit;
 	}
 
 	private void OnDestroy()
 	{
-		if (!((Object)(object)((Component)this).GetComponentInChildren<TriggerBoxEvents>() == (Object)null))
+		if (!(GetComponentInChildren<TriggerBoxEvents>() == null))
 		{
-			((Component)this).GetComponentInChildren<TriggerBoxEvents>().TriggerEnter -= DragonTargetArea_TriggerEnter;
-			((Component)this).GetComponentInChildren<TriggerBoxEvents>().TriggerExit -= DragonTargetArea_TriggerExit;
+			GetComponentInChildren<TriggerBoxEvents>().TriggerEnter -= DragonTargetArea_TriggerEnter;
+			GetComponentInChildren<TriggerBoxEvents>().TriggerExit -= DragonTargetArea_TriggerExit;
 		}
 	}
 
@@ -37,9 +37,9 @@ public class DragonTargetArea : MonoBehaviour
 		if (emitters != null)
 		{
 			ParticleEmitter[] array = emitters;
-			foreach (ParticleEmitter val in array)
+			foreach (ParticleEmitter particleEmitter in array)
 			{
-				val.emit = true;
+				particleEmitter.emit = true;
 			}
 		}
 	}
@@ -50,9 +50,9 @@ public class DragonTargetArea : MonoBehaviour
 		if (emitters != null)
 		{
 			ParticleEmitter[] array = emitters;
-			foreach (ParticleEmitter val in array)
+			foreach (ParticleEmitter particleEmitter in array)
 			{
-				val.emit = false;
+				particleEmitter.emit = false;
 			}
 		}
 	}

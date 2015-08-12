@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using MV.WorldObject;
+using MV.WorldObject.RuntimeEvents;
 using UnityEngine;
 
 public abstract class MVRigidBody : MVComponent
@@ -41,18 +42,28 @@ public abstract class MVRigidBody : MVComponent
 
 			private bool HandleFineGrained()
 			{
-				MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(overlapResult.woId);
+				MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(overlapResult.woId);
 				if (worldObjectClient is MVCubeModelFineGrainedTerrain)
 				{
 					MVCubeModelFineGrainedTerrain mVCubeModelFineGrainedTerrain = (MVCubeModelFineGrainedTerrain)worldObjectClient;
 					IntVector[] localCubePos = overlapResult.localCubePos;
-					foreach (IntVector pos in localCubePos)
+					foreach (IntVector intVector in localCubePos)
 					{
-						mVCubeModelFineGrainedTerrain.RemoveCube(pos);
-					}
-					if (overlapResult.localCubePos.Length > 0)
-					{
-						mVCubeModelFineGrainedTerrain.HandleDelta();
+						Cube cube = mVCubeModelFineGrainedTerrain.GetCube(intVector);
+						if (!(cube == null))
+						{
+							float toughness = MVGameController.Game.MaterialRepository.GetMaterial(cube.FaceMaterials[0]).physicalProperties.toughness;
+							if (toughness != 0f)
+							{
+								MVGameController.Game.World.RuntimeEventManager.SendRuntimeEvent(new SingleCubeFineGrainedEvent(intVector));
+								mVCubeModelFineGrainedTerrain.RemoveCubeNetworkUpdate(intVector);
+							}
+							else
+							{
+								mVCubeModelFineGrainedTerrain.RemoveCube(intVector);
+								mVCubeModelFineGrainedTerrain.HandleDelta();
+							}
+						}
 					}
 					return true;
 				}
@@ -132,7 +143,7 @@ public abstract class MVRigidBody : MVComponent
 			{
 				if (dictionary.ContainsKey(item.woId))
 				{
-					Debug.LogWarning((object)"This happens due to error in MVElipsoid overlapCheck caused by multiple chunks in cube model.");
+					Debug.LogWarning("This happens due to error in MVElipsoid overlapCheck caused by multiple chunks in cube model.");
 				}
 				else
 				{
@@ -143,11 +154,15 @@ public abstract class MVRigidBody : MVComponent
 		}
 	}
 
+	protected MVGroundState groundState = new MVGroundState();
+
 	protected MVCollisionFlags collisionFlags;
 
 	protected float weight = 1f;
 
 	protected float density = 1f;
+
+	protected bool isPlayerControlled = true;
 
 	private List<Vector3> impulseVectors = new List<Vector3>();
 
@@ -157,10 +172,21 @@ public abstract class MVRigidBody : MVComponent
 
 	public abstract bool IsMovementLocked { get; set; }
 
+	public bool IsPlayerControlled
+	{
+		get
+		{
+			return isPlayerControlled;
+		}
+		set
+		{
+			isPlayerControlled = value;
+		}
+	}
+
 	public void AddImpulse(Vector3 impulse, bool suspendImpactDamage = false)
 	{
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		if (((Behaviour)this).enabled)
+		if (enabled)
 		{
 			impulseVectors.Add(impulse);
 			if (suspendImpactDamage)
@@ -175,62 +201,60 @@ public abstract class MVRigidBody : MVComponent
 		impulseVectors.Clear();
 	}
 
+	protected void Init()
+	{
+		MVGroundState mVGroundState = groundState;
+		mVGroundState.OnGroundChange = (Action<GroundChange>)Delegate.Combine(mVGroundState.OnGroundChange, new Action<GroundChange>(HandleGroundStateChange));
+	}
+
+	private void HandleGroundStateChange(GroundChange groundChange)
+	{
+		if (isPlayerControlled)
+		{
+			switch (groundChange)
+			{
+			case GroundChange.FromGroundedToAir:
+				GameSessionCounters.SetCount(GameSessionCounterType.Grounded, 0);
+				break;
+			case GroundChange.FromAirToGrounded:
+				GameSessionCounters.SetCount(GameSessionCounterType.Grounded, 1);
+				break;
+			}
+		}
+	}
+
 	protected Vector3 GetImpulse(Vector3 velocity, MVInteractableBase interactableLocal)
 	{
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0030: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0032: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0033: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0038: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0056: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0063: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0068: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0069: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0083: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0088: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0094: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0095: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0096: Unknown result type (might be due to invalid IL or missing references)
 		if (impulseVectors.Count == 0)
 		{
 			return velocity;
 		}
-		Vector3 val = Vector3.zero;
+		Vector3 zero = Vector3.zero;
 		foreach (Vector3 impulseVector in impulseVectors)
 		{
-			val += impulseVector;
+			zero += impulseVector;
 		}
-		val /= (float)impulseVectors.Count;
-		val *= Time.deltaTime * 1f / interactableLocal.HandleModifierEffect(AvatarModifierEffect.Weight, weight);
+		zero *= 0.02f / interactableLocal.HandleModifierEffect(AvatarModifierEffect.Weight, weight);
 		impulseVectors.Clear();
-		return velocity + val;
+		return velocity + zero;
+	}
+
+	protected static Vector3 VelocityDamping(Vector3 velocity, float defaultDampning, MVInteractableBase interactableLocal)
+	{
+		float num = interactableLocal.HandleModifierEffect(AvatarModifierEffect.VelocityDamping, 1f);
+		velocity -= (velocity - num * velocity) * (Time.fixedDeltaTime / 0.02f);
+		return velocity;
 	}
 
 	protected static Vector3 AdjustGroundVelocityToNormal(Vector3 hVelocity, Vector3 groundNormal)
 	{
-		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0005: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0013: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0016: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
-		Vector3 val = Vector3.Cross(Vector3.up, hVelocity);
-		Vector3 val2 = Vector3.Cross(val, groundNormal);
-		return val2.normalized * hVelocity.magnitude;
+		Vector3 lhs = Vector3.Cross(Vector3.up, hVelocity);
+		return Vector3.Cross(lhs, groundNormal).normalized * hVelocity.magnitude;
 	}
 
 	protected Vector3 ApplyGravity(Vector3 velocity, Vector3 velocityPrevFrame, MVInteractableBase interactableLocal)
 	{
-		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
-		velocity.y = velocityPrevFrame.y - 30f * interactableLocal.HandleModifierEffect(AvatarModifierEffect.Density, density) * Time.deltaTime;
+		velocity.y = velocityPrevFrame.y - (float)MVPhysics.Gravity * interactableLocal.HandleModifierEffect(AvatarModifierEffect.Density, density) * Time.deltaTime;
 		return velocity;
 	}
 

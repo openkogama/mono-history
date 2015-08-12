@@ -15,7 +15,7 @@ public struct CollisionState
 
 	public Vector3 direction;
 
-	public MVCubeModelBase cmb;
+	public ICubeModelCollider cmb;
 
 	public Matrix4x4 localToElipsoidSpace;
 

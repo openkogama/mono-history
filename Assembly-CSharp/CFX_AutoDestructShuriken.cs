@@ -8,23 +8,23 @@ public class CFX_AutoDestructShuriken : MonoBehaviour
 
 	private void OnEnable()
 	{
-		((MonoBehaviour)this).StartCoroutine("CheckIfAlive");
+		StartCoroutine("CheckIfAlive");
 	}
 
 	private IEnumerator CheckIfAlive()
 	{
 		do
 		{
-			yield return (object)new WaitForSeconds(0.5f);
+			yield return new WaitForSeconds(0.5f);
 		}
-		while (((Component)this).GetComponent<ParticleSystem>().IsAlive(true));
+		while (GetComponent<ParticleSystem>().IsAlive(withChildren: true));
 		if (OnlyDeactivate)
 		{
-			((Component)this).gameObject.SetActiveRecursively(false);
+			gameObject.SetActive(value: false);
 		}
 		else
 		{
-			Object.Destroy((Object)(object)((Component)this).gameObject);
+			Object.Destroy(gameObject);
 		}
 	}
 }

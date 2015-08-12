@@ -36,16 +36,6 @@ public class DetonatorHeatwave : DetonatorComponent
 
 	private void Update()
 	{
-		//IL_004e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0072: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0077: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0092: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013d: Unknown result type (might be due to invalid IL or missing references)
 		if (_delayedExplosionStarted)
 		{
 			_explodeDelay -= Time.deltaTime;
@@ -54,26 +44,24 @@ public class DetonatorHeatwave : DetonatorComponent
 				Explode();
 			}
 		}
-		if (Object.op_Implicit((Object)(object)_heatwave))
+		if ((bool)_heatwave)
 		{
-			_heatwave.transform.rotation = Quaternion.FromToRotation(Vector3.up, ((Component)Camera.main).transform.position - _heatwave.transform.position);
+			_heatwave.transform.rotation = Quaternion.FromToRotation(Vector3.up, Camera.main.transform.position - _heatwave.transform.position);
 			_heatwave.transform.localPosition = localPosition + Vector3.forward * zOffset;
 			_elapsedTime += Time.deltaTime;
 			_normalizedTime = _elapsedTime / duration;
 			s = Mathf.Lerp(_startSize, _maxSize, _normalizedTime);
-			_heatwave.renderer.material.SetFloat("_BumpAmt", (1f - _normalizedTime) * distortion);
+			_heatwave.GetComponent<Renderer>().material.SetFloat("_BumpAmt", (1f - _normalizedTime) * distortion);
 			_heatwave.gameObject.transform.localScale = new Vector3(s, s, s);
 			if (_elapsedTime > duration)
 			{
-				Object.Destroy((Object)(object)_heatwave.gameObject);
+				Object.Destroy(_heatwave.gameObject);
 			}
 		}
 	}
 
 	public override void Explode()
 	{
-		//IL_008a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0094: Expected Obj, but got Unknown
 		if (!SystemInfo.supportsImageEffects || detailThreshold > detail || !on)
 		{
 			return;
@@ -87,15 +75,15 @@ public class DetonatorHeatwave : DetonatorComponent
 			_startSize = 0f;
 			_maxSize = size * 10f;
 			_material = new Material(Shader.Find("HeatDistort"));
-			_heatwave = GameObject.CreatePrimitive((PrimitiveType)4);
-			Object.Destroy((Object)(object)_heatwave.GetComponent(typeof(MeshCollider)));
-			if (!Object.op_Implicit((Object)(object)heatwaveMaterial))
+			_heatwave = GameObject.CreatePrimitive(PrimitiveType.Plane);
+			Object.Destroy(_heatwave.GetComponent(typeof(MeshCollider)));
+			if (!heatwaveMaterial)
 			{
 				heatwaveMaterial = MyDetonator().heatwaveMaterial;
 			}
 			_material.CopyPropertiesFromMaterial(heatwaveMaterial);
-			_heatwave.renderer.material = _material;
-			_heatwave.transform.parent = ((Component)this).transform;
+			_heatwave.GetComponent<Renderer>().material = _material;
+			_heatwave.transform.parent = transform;
 			_delayedExplosionStarted = false;
 			_explodeDelay = 0f;
 		}

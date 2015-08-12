@@ -13,6 +13,6 @@ public class ScoreSorter : IComparer<PlayerData>
 		{
 			return 0;
 		}
-		return data.player.Score;
+		return data.Score;
 	}
 }

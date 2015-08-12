@@ -1,20 +1,20 @@
-using System.Collections;
+using System.Collections.Generic;
 
 public class MVGUIDynamicSettingsDialog : MVGUISettingsDialog
 {
-	protected Hashtable oldData;
+	protected Dictionary<object, object> oldData;
 
 	public MVGUIDynamicSettingsDialog()
 	{
-		oldData = (Hashtable)wo.Data.Clone();
+		oldData = new Dictionary<object, object>(wo.Data);
 	}
 
 	protected void OnDialogResult(UXDialogBox dialog)
 	{
 		if (dialog.DialogResult == UXDialogResult.Positive)
 		{
-			Hashtable woData = (Hashtable)dialog.GetResult();
-			MVGameController.Instance.Game.UpdateWorldObjectDataPartial(wo.Id, woData);
+			Dictionary<object, object> woData = (Dictionary<object, object>)dialog.GetResult();
+			MVGameController.Game.UpdateWorldObjectDataPartial(wo.Id, woData);
 		}
 		else
 		{
@@ -25,7 +25,7 @@ public class MVGUIDynamicSettingsDialog : MVGUISettingsDialog
 
 	protected void OnIntermediateResult(UXDialogBox dialog)
 	{
-		Hashtable woData = (Hashtable)dialog.GetResult();
+		Dictionary<object, object> woData = (Dictionary<object, object>)dialog.GetResult();
 		wo.PartialUpdateWOData(woData);
 	}
 }

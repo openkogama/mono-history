@@ -1,12 +1,10 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 public class MVCubeGun : MVPickupItemBase
 {
 	private CubeBullet cubeBullet;
 
-	public MVCubeGun(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVCubeGun(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
@@ -15,13 +13,13 @@ public class MVCubeGun : MVPickupItemBase
 
 	private void SetCubeMaterial()
 	{
-		if ((Object)(object)cubeBullet == (Object)null)
+		if (cubeBullet == null)
 		{
 			cubeBullet = gameObject.GetComponentInChildren<CubeBullet>();
 		}
-		Hashtable hashtable = (Hashtable)Data["itemData"];
-		cubeBullet.SetCubeMaterial((byte)hashtable["material"]);
-		gameObject.GetComponentInChildren<PickupItemObjectScript>().InitializeOriginalMaterials();
+		Dictionary<object, object> dictionary = (Dictionary<object, object>)Data["itemData"];
+		cubeBullet.SetCubeMaterial((byte)dictionary["material"]);
+		gameObject.GetComponentInChildren<GreyOutObjectScript>().InitializeOriginalMaterials();
 	}
 
 	public override void OnDataUpdate()

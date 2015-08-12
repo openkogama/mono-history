@@ -12,12 +12,10 @@ public class TexturePreviewer : MonoBehaviour
 	{
 		get
 		{
-			//IL_0015: Unknown result type (might be due to invalid IL or missing references)
-			//IL_001b: Expected Obj, but got Unknown
-			if ((Object)(object)_instance == (Object)null)
+			if (_instance == null)
 			{
-				GameObject val = new GameObject("TexturePreviewer");
-				_instance = val.AddComponent<TexturePreviewer>();
+				GameObject gameObject = new GameObject("TexturePreviewer");
+				_instance = gameObject.AddComponent<TexturePreviewer>();
 			}
 			return _instance;
 		}

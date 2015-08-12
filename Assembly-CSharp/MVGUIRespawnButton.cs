@@ -10,7 +10,8 @@ public class MVGUIRespawnButton : MonoBehaviour
 		UXIconButton uXIconButton = respawn;
 		uXIconButton.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXIconButton.OnClick, (UXBaseButton.OnClickDelegate)(() =>
 		{
-			MVGameController.Instance.IngameController.RespawnAvatar();
+			MVGameController.IngameController.RespawnAvatar();
 		}));
+		respawn.SetVisible(visible: true);
 	}
 }

@@ -1,4 +1,4 @@
-using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class MVRuntimeDataVariableClampedFloat : MVRuntimeDataVariable<float>
@@ -19,7 +19,7 @@ public class MVRuntimeDataVariableClampedFloat : MVRuntimeDataVariable<float>
 		}
 	}
 
-	public MVRuntimeDataVariableClampedFloat(string variableId, float sendInterval, Hashtable initialRuntimeData, bool writeThrough, float min, float max)
+	public MVRuntimeDataVariableClampedFloat(string variableId, float sendInterval, Dictionary<object, object> initialRuntimeData, bool writeThrough, float min, float max)
 		: base(variableId, sendInterval, initialRuntimeData, writeThrough)
 	{
 		this.min = min;

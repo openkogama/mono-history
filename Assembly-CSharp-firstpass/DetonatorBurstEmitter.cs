@@ -88,34 +88,24 @@ public class DetonatorBurstEmitter : DetonatorComponent
 
 	private float _tmpAngularVelocity;
 
-	public DetonatorBurstEmitter()
-	{
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001c: Unknown result type (might be due to invalid IL or missing references)
-	}
-
 	public override void Init()
 	{
-		MonoBehaviour.print((object)"UNUSED");
+		MonoBehaviour.print("UNUSED");
 	}
 
 	public void Awake()
 	{
-		//IL_00c2: Unknown result type (might be due to invalid IL or missing references)
-		Component val = ((Component)this).gameObject.AddComponent("EllipsoidParticleEmitter");
-		_particleEmitter = (ParticleEmitter)(object)((val is ParticleEmitter) ? val : null);
-		Component val2 = ((Component)this).gameObject.AddComponent("ParticleRenderer");
-		_particleRenderer = (ParticleRenderer)(object)((val2 is ParticleRenderer) ? val2 : null);
-		Component val3 = ((Component)this).gameObject.AddComponent("ParticleAnimator");
-		_particleAnimator = (ParticleAnimator)(object)((val3 is ParticleAnimator) ? val3 : null);
-		((Object)_particleEmitter).hideFlags = (HideFlags)13;
-		((Object)_particleRenderer).hideFlags = (HideFlags)13;
-		((Object)_particleAnimator).hideFlags = (HideFlags)13;
+		_particleEmitter = gameObject.AddComponent<EllipsoidParticleEmitter>();
+		_particleRenderer = gameObject.AddComponent<ParticleRenderer>();
+		_particleAnimator = gameObject.AddComponent<ParticleAnimator>();
+		_particleEmitter.hideFlags = HideFlags.HideAndDontSave;
+		_particleRenderer.hideFlags = HideFlags.HideAndDontSave;
+		_particleAnimator.hideFlags = HideFlags.HideAndDontSave;
 		_particleAnimator.damping = _baseDamping;
 		_particleEmitter.emit = false;
 		_particleRenderer.maxParticleSize = maxScreenSize;
-		((Renderer)_particleRenderer).material = material;
-		((Renderer)_particleRenderer).material.color = Color.white;
+		_particleRenderer.material = material;
+		_particleRenderer.material.color = Color.white;
 		_particleAnimator.sizeGrow = sizeGrow;
 		if (explodeOnAwake)
 		{
@@ -155,8 +145,6 @@ public class DetonatorBurstEmitter : DetonatorComponent
 
 	public void Reset()
 	{
-		//IL_000e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0013: Unknown result type (might be due to invalid IL or missing references)
 		size = _baseSize;
 		color = _baseColor;
 		damping = _baseDamping;
@@ -164,51 +152,6 @@ public class DetonatorBurstEmitter : DetonatorComponent
 
 	public override void Explode()
 	{
-		//IL_005c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0187: Unknown result type (might be due to invalid IL or missing references)
-		//IL_018c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01ca: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01cf: Unknown result type (might be due to invalid IL or missing references)
-		//IL_020d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0212: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0250: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0255: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0293: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0298: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00cb: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ed: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0105: Unknown result type (might be due to invalid IL or missing references)
-		//IL_010a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0122: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0127: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0144: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02c1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0334: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0339: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0315: Unknown result type (might be due to invalid IL or missing references)
-		//IL_031a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0346: Unknown result type (might be due to invalid IL or missing references)
-		//IL_035d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0362: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0367: Unknown result type (might be due to invalid IL or missing references)
-		//IL_036e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0374: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0379: Unknown result type (might be due to invalid IL or missing references)
-		//IL_037e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0384: Unknown result type (might be due to invalid IL or missing references)
-		//IL_03aa: Unknown result type (might be due to invalid IL or missing references)
-		//IL_03af: Unknown result type (might be due to invalid IL or missing references)
-		//IL_03b4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0447: Unknown result type (might be due to invalid IL or missing references)
-		//IL_045e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0463: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0468: Unknown result type (might be due to invalid IL or missing references)
-		//IL_04ad: Unknown result type (might be due to invalid IL or missing references)
-		//IL_04b3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_04c5: Unknown result type (might be due to invalid IL or missing references)
 		if (!on)
 		{
 			return;
@@ -252,7 +195,7 @@ public class DetonatorBurstEmitter : DetonatorComponent
 				reference10 = new Color(color.r, color.g, color.b, color.a * 0f);
 			}
 			_particleAnimator.colorAnimation = array;
-			((Renderer)_particleRenderer).material = material;
+			_particleRenderer.material = material;
 			_particleAnimator.force = force;
 			_tmpCount = count * detail;
 			if (_tmpCount < 1f)
@@ -261,7 +204,7 @@ public class DetonatorBurstEmitter : DetonatorComponent
 			}
 			if (_particleEmitter.useWorldSpace)
 			{
-				_thisPos = ((Component)this).gameObject.transform.position;
+				_thisPos = gameObject.transform.position;
 			}
 			else
 			{

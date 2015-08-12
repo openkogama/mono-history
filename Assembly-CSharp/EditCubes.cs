@@ -31,7 +31,7 @@ internal class EditCubes : CubeModelTool
 
 	private ModelCursor modelCursor;
 
-	private WorldEditorDrawPlane DrawPlane => MVGameController.Instance.EditController.WorldEditorDrawPlane;
+	private WorldEditorDrawPlane DrawPlane => MVGameController.EditController.WorldEditorDrawPlane;
 
 	public override bool CursorVisible
 	{
@@ -50,25 +50,16 @@ internal class EditCubes : CubeModelTool
 		delta = 0f;
 		deltaAccum = 0f;
 		modelCursor = new ModelCursor();
-		MVGameController.Instance.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.EditingCube);
-		waitForMouseUp = MVInputWrapper.GetKey((KeyCode)323);
+		MVGameController.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.EditingCube);
+		waitForMouseUp = MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect);
 	}
 
 	public override void Execute(CubeModelingStateMachine e)
 	{
-		//IL_04bd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_04c2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_04c7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_04d8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0625: Unknown result type (might be due to invalid IL or missing references)
-		//IL_07a6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_07c8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0953: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0975: Unknown result type (might be due to invalid IL or missing references)
 		base.Execute(e);
 		if (waitForMouseUp)
 		{
-			waitForMouseUp = MVInputWrapper.GetKey((KeyCode)323);
+			waitForMouseUp = MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect);
 			return;
 		}
 		bool flag = true;
@@ -82,14 +73,14 @@ internal class EditCubes : CubeModelTool
 			if (modelCursor.IndentArea.IsColliding())
 			{
 				e.SelectedCube.pickedEdge = Edge.None;
-				modelCursor.IndentArea.GameObject.active = true;
+				modelCursor.IndentArea.GameObject.SetActive(value: true);
 			}
 			else
 			{
-				modelCursor.IndentArea.GameObject.active = false;
+				modelCursor.IndentArea.GameObject.SetActive(value: false);
 			}
 		}
-		if (MVInputWrapper.GetKeyUp((KeyCode)323))
+		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
 		{
 			prevMouseUpTime = Time.time;
 		}
@@ -98,16 +89,16 @@ internal class EditCubes : CubeModelTool
 		switch (currentInternalState)
 		{
 		case BuildState.Idle:
-			if (currentInternalState == BuildState.Idle && MVInputWrapper.GetKeyUp((KeyCode)323))
+			if (currentInternalState == BuildState.Idle && MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
 			{
-				Screen.showCursor = true;
+				Cursor.visible = true;
 				currentInternalState = BuildState.MainState;
 			}
 			break;
 		case BuildState.MainState:
 			if (e.SelectedCube != null)
 			{
-				if (MVInputWrapper.GetKeyUp((KeyCode)323))
+				if (MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
 				{
 					if (!e.AddCube())
 					{
@@ -121,12 +112,12 @@ internal class EditCubes : CubeModelTool
 					break;
 				}
 			}
-			else if (MVInputWrapper.GetKeyDown((KeyCode)323) && DrawPlane.Active)
+			else if (MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelect) && DrawPlane.Active)
 			{
 				currentInternalState = BuildState.PaintCubes;
 				break;
 			}
-			if (MVInputWrapper.GetKey((KeyCode)323) && Time.time - prevMouseUpTime > mouseUpTimeBeforeMoveEdge && GotoMultiChangeCubes(e))
+			if (MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect) && Time.time - prevMouseUpTime > mouseUpTimeBeforeMoveEdge && GotoMultiChangeCubes(e))
 			{
 				prevMaterial = e.CurrentMaterialId;
 				byte material = CubeBase.GetMaterial(prevSelectedCube.cube, prevSelectedCube.pickedFace);
@@ -134,11 +125,11 @@ internal class EditCubes : CubeModelTool
 				movingEdgeCube = prevSelectedCube;
 				currentInternalState = BuildState.MultiChangeCubes;
 				deltaAccum = 0f;
-				Screen.showCursor = false;
+				Cursor.visible = false;
 			}
 			break;
 		case BuildState.PaintCubes:
-			if (!MVInputWrapper.GetKeyUp((KeyCode)323))
+			if (!MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
 			{
 				if (DrawPlane.GetCubePosOnDrawplane(e.TargetCubeModel.GameObject, out var intVectorHitPos) && e.CanAddCubeAt(intVectorHitPos))
 				{
@@ -160,11 +151,11 @@ internal class EditCubes : CubeModelTool
 				edgeHasMoved = false;
 				break;
 			}
-			if (MVInputWrapper.GetKeyUp((KeyCode)323))
+			if (MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
 			{
 				currentInternalState = BuildState.MainState;
 				e.CurrentMaterialId = prevMaterial;
-				Screen.showCursor = true;
+				Cursor.visible = true;
 				if (edgeHasMoved)
 				{
 					if (Cube.IsCollapsed(movingEdgeCube.cube.Corners))
@@ -254,7 +245,7 @@ internal class EditCubes : CubeModelTool
 				else
 				{
 					modelCursor.SetErrorCursor(cubePosAboveFace2, e.TargetCubeModel.GameObject);
-					Debug.Log((object)"Failed to add cube");
+					Debug.Log("Failed to add cube");
 					e.TargetCubeModel.CornersChangedDone(movingEdgeCube.iLocalPos, movingEdgeCube.cube);
 					movingEdgeCube = null;
 				}
@@ -280,7 +271,7 @@ internal class EditCubes : CubeModelTool
 				else
 				{
 					modelCursor.SetErrorCursor(cubePosAboveFace4, e.TargetCubeModel.GameObject);
-					Debug.Log((object)"Failed to add cube");
+					Debug.Log("Failed to add cube");
 					e.TargetCubeModel.CornersChangedDone(movingEdgeCube.iLocalPos, movingEdgeCube.cube);
 					movingEdgeCube = null;
 				}
@@ -359,8 +350,8 @@ internal class EditCubes : CubeModelTool
 			edgeHasMoved = false;
 		}
 		HideCursor();
-		Screen.showCursor = true;
-		MVGameController.Instance.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.Idle);
+		Cursor.visible = true;
+		MVGameController.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.Idle);
 	}
 
 	public override void HideCursor()
@@ -384,8 +375,6 @@ internal class EditCubes : CubeModelTool
 
 	private IntVector GetCubePosNeighborOppositeFace(IntVector localPos, Face face)
 	{
-		//IL_001d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
 		IntVector result = new IntVector(localPos.x, localPos.y, localPos.z);
 		Vector3 faceAxis = Cube.GetFaceAxis(face);
 		result.x -= (short)faceAxis.x;
@@ -396,19 +385,10 @@ internal class EditCubes : CubeModelTool
 
 	private void SetEditDetail(CubeModelingStateMachine e)
 	{
-		//IL_002c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0046: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0051: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0065: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006a: Unknown result type (might be due to invalid IL or missing references)
 		if (e.SelectedCube != null && movingEdgeCube == null)
 		{
-			Vector3 val = SharedCubeFunctions.LocalToWorld(e.TargetCubeModel.GameObject, e.SelectedCube.iLocalPos);
-			Vector3 val2 = ((Component)MVGameController.Instance.Game.CameraController).transform.position - val;
-			if (val2.magnitude > detailEditModeMaxDistance * e.TargetCubeModel.Scale.y)
+			Vector3 vector = SharedCubeFunctions.LocalToWorld(e.TargetCubeModel.GameObject, e.SelectedCube.iLocalPos);
+			if ((MVGameController.Game.CameraController.transform.position - vector).magnitude > detailEditModeMaxDistance * e.TargetCubeModel.Scale.y)
 			{
 				mouseSensitivity = 1.325f;
 				modelCursor.SetIndentAreaSize(1f);

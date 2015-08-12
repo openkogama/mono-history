@@ -38,14 +38,14 @@ public class EditorStateMachine : FSMEntity
 
 	public MVGroup ParentGroup => selectionController.ParentGroup;
 
-	public bool ParentGroupIsRoot => selectionController.ParentGroupID == MVGameController.Instance.WOCM.RootGroup.Id;
+	public bool ParentGroupIsRoot => selectionController.ParentGroupID == MVGameController.WOCM.RootGroup.Id;
 
 	public EditorStateMachine()
 	{
 		transitionTable = new EditorStateTransitionTable();
 		networkSelector = new MVNetworkSelector(this);
 		selectionController = new SelectionController();
-		weCamera = MVGameController.Instance.Game.CameraController;
+		weCamera = MVGameController.Game.CameraController;
 		GridMode = true;
 	}
 
@@ -102,6 +102,5 @@ public class EditorStateMachine : FSMEntity
 	public override void Update()
 	{
 		base.Update();
-		CollisionDetectionTests.Update();
 	}
 }

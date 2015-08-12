@@ -1,4 +1,5 @@
 using System;
+using MV.Common;
 using UnityEngine;
 
 public abstract class MVGUIAvatarAccessoryBasicView : UXViewScript
@@ -17,20 +18,25 @@ public abstract class MVGUIAvatarAccessoryBasicView : UXViewScript
 	{
 		get
 		{
-			if ((Object)(object)MVGameController.Instance == (Object)null || MVGameController.Instance.CharacterEditorController == null)
+			if (MVGameController.CharacterEditorController != null)
+			{
+				return MVGameController.CharacterEditorController.CurrentBody;
+			}
+			try
+			{
+				return MVGameController.Game.LocalPlayer.Avatar.Body;
+			}
+			catch (Exception)
 			{
 				return null;
 			}
-			return MVGameController.Instance.CharacterEditorController.CurrentBody;
 		}
 	}
 
 	public override void OnShow()
 	{
-		//IL_007b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0080: Unknown result type (might be due to invalid IL or missing references)
 		base.OnShow();
-		Debug.Log((object)"Show acc view");
+		Debug.Log("Show acc view");
 		if (!_isInitialized)
 		{
 			DoInitialize();
@@ -38,32 +44,33 @@ public abstract class MVGUIAvatarAccessoryBasicView : UXViewScript
 			uXTabWindow.OnExitButtonClick = (UXWindow.OnExitButtonClickDelegate)Delegate.Combine(uXTabWindow.OnExitButtonClick, new UXWindow.OnExitButtonClickDelegate(HideAvatarAccessoryView));
 			UXTabWindow uXTabWindow2 = tabs;
 			uXTabWindow2.OnTabSelect = (UXTabWindow.OnTabSelectedDelegate)Delegate.Combine(uXTabWindow2.OnTabSelect, new UXTabWindow.OnTabSelectedDelegate(OnTabsChange));
-			windowedOffset = ((Component)tabs).transform.localPosition.x;
-			uxScreen = UXUtils.FindGUIObjectOfType<UXScreen>();
+			windowedOffset = tabs.transform.localPosition.x;
+			uxScreen = UXUtils.UXScreen;
 			UXScreen uXScreen = uxScreen;
 			uXScreen.OnFullScreenChange = (UXScreen.OnFullScreenChangeDelegate)Delegate.Combine(uXScreen.OnFullScreenChange, new UXScreen.OnFullScreenChangeDelegate(OnFullScreenChange));
 			OnFullScreenChange(uxScreen.Fullscreen);
 			_isInitialized = true;
 		}
 		tabs.SelectTab(currentTab);
+		if (MVGameController.GameMode == MVGameMode.CharacterEditor)
+		{
+			MVGameController.CharacterEditorController.EditorStateMachine.Event = EditorEvent.CEAvatarAccessory;
+		}
 	}
 
 	private void OnFullScreenChange(bool full)
 	{
-		//IL_0059: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0064: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
 		if (full)
 		{
 			View.horizontalAnchor = UXHorizontal.Center;
 			View.UpdatePlacement();
-			((Component)tabs).transform.localPosition = Vector3.zero;
+			tabs.transform.localPosition = Vector3.zero;
 		}
 		else
 		{
 			View.horizontalAnchor = UXHorizontal.Left;
 			View.UpdatePlacement();
-			((Component)tabs).transform.localPosition = Vector3.right * windowedOffset;
+			tabs.transform.localPosition = Vector3.right * windowedOffset;
 		}
 	}
 
@@ -71,6 +78,10 @@ public abstract class MVGUIAvatarAccessoryBasicView : UXViewScript
 	{
 		base.OnHide();
 		tabs.GetTab(currentTab).Hide();
+		if (MVGameController.GameMode == MVGameMode.CharacterEditor && MVGameController.CharacterEditorController.EditorStateMachine != null)
+		{
+			MVGameController.CharacterEditorController.EditorStateMachine.Event = EditorEvent.CERoam;
+		}
 	}
 
 	public UXTabPane GetCurrentTab()
@@ -87,6 +98,6 @@ public abstract class MVGUIAvatarAccessoryBasicView : UXViewScript
 
 	private void HideAvatarAccessoryView()
 	{
-		MVGameController.Instance.CharacterEditorController.CloseAvatarAccessoryView();
+		UXUtils.FindGUIObjectOfType<AvatarAccessoryController>().CloseAvatarAccessoryView();
 	}
 }

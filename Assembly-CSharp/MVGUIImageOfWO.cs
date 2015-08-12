@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using MV.Common;
-using UnityEngine;
 
 public class MVGUIImageOfWO : UXCustomDialogBox
 {
@@ -51,13 +50,13 @@ public class MVGUIImageOfWO : UXCustomDialogBox
 		int result = 0;
 		if (int.TryParse(woId.Text, out result))
 		{
-			int itemID = MVGameController.Instance.WOCM.GetWorldObjectClient(result).ItemId;
+			int itemID = MVGameController.WOCM.GetWorldObjectClient(result).ItemId;
 			Action<byte[]> callback = (byte[] imageData) =>
 			{
-				MVGameController.Instance.Game.UploadScreenshot(imageData, ImageType.Item, itemID);
+				MVGameController.Game.UploadScreenshot(imageData, ImageType.Item, itemID);
 			};
-			MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(result);
-			Coroutines.StartCoroutine(AEditController.CreateTextureFromData(worldObjectClient, callback));
+			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(result);
+			Coroutines.StartCoroutine(ImageGenerator.CreateTextureFromData(worldObjectClient, callback));
 		}
 	}
 
@@ -67,7 +66,7 @@ public class MVGUIImageOfWO : UXCustomDialogBox
 		{
 			int id = (int)dialogBox.GetResult();
 			woId.Text = id.ToString();
-			nameText.Text = ((Object)MVGameController.Instance.WOCM.GetWorldObjectClient(id).GameObject).name;
+			nameText.Text = MVGameController.WOCM.GetWorldObjectClient(id).GameObject.name;
 		}
 	}
 
@@ -76,11 +75,11 @@ public class MVGUIImageOfWO : UXCustomDialogBox
 		int result = 0;
 		if (int.TryParse(woId.Text, out result))
 		{
-			int groupId = MVGameController.Instance.WOCM.GetWorldObjectClient(result).GroupId;
+			int groupId = MVGameController.WOCM.GetWorldObjectClient(result).GroupId;
 			if (groupId != -1)
 			{
 				woId.Text = groupId.ToString();
-				nameText.Text = ((Object)MVGameController.Instance.WOCM.GetWorldObjectClient(groupId).GameObject).name;
+				nameText.Text = MVGameController.WOCM.GetWorldObjectClient(groupId).GameObject.name;
 			}
 		}
 	}

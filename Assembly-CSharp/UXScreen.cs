@@ -1,4 +1,3 @@
-using Localize;
 using UnityEngine;
 
 [AddComponentMenu("UX/Management/Screen")]
@@ -30,9 +29,11 @@ public class UXScreen : MonoBehaviour
 
 	public OnFullScreenChangeDelegate OnFullScreenChange;
 
-	private Resolution? lastResolution;
+	private int screenWidthBeforeFullscreen = 940;
 
-	public Camera Camera => ((Component)this).camera;
+	private int screenHeightBeforeFullscreen = 482;
+
+	public Camera Camera => GetComponent<Camera>();
 
 	public bool Fullscreen
 	{
@@ -42,46 +43,18 @@ public class UXScreen : MonoBehaviour
 		}
 		set
 		{
-			//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0039: Unknown result type (might be due to invalid IL or missing references)
-			//IL_003e: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0046: Unknown result type (might be due to invalid IL or missing references)
-			//IL_004b: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0054: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0059: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0081: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0086: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0094: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0099: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00a9: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00ae: Unknown result type (might be due to invalid IL or missing references)
 			if (value != fullscreen && AllowFullscreenChange())
 			{
 				fullscreen = value;
 				if (fullscreen)
 				{
-					lastResolution = Screen.currentResolution;
-					Resolution currentResolution = Screen.currentResolution;
-					int width = currentResolution.width;
-					Resolution currentResolution2 = Screen.currentResolution;
-					int height = currentResolution2.height;
-					Resolution currentResolution3 = Screen.currentResolution;
-					Screen.SetResolution(width, height, true, currentResolution3.refreshRate);
-				}
-				else if (lastResolution.HasValue)
-				{
-					Resolution value2 = lastResolution.Value;
-					int width2 = value2.width;
-					Resolution value3 = lastResolution.Value;
-					int height2 = value3.height;
-					Resolution value4 = lastResolution.Value;
-					Screen.SetResolution(width2, height2, false, value4.refreshRate);
+					Screen.SetResolution(Screen.currentResolution.width, Screen.currentResolution.height, fullscreen: true);
 				}
 				else
 				{
 					Screen.fullScreen = false;
+					Screen.SetResolution(screenWidthBeforeFullscreen, screenHeightBeforeFullscreen, fullscreen: false);
 				}
-				fullscreen = Screen.fullScreen;
 				if (OnFullScreenChange != null)
 				{
 					OnFullScreenChange(fullscreen);
@@ -100,17 +73,18 @@ public class UXScreen : MonoBehaviour
 
 	public Vector3 GetPosition(UXHorizontal horizontal, UXVertical vertical, float depth)
 	{
-		//IL_0008: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0013: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0018: Unknown result type (might be due to invalid IL or missing references)
 		return positions[(int)horizontal, (int)vertical] + Vector3.forward * depth;
+	}
+
+	public void Init(int width, int height)
+	{
+		screenWidthBeforeFullscreen = width;
+		screenHeightBeforeFullscreen = height;
 	}
 
 	private void LateUpdate()
 	{
 		DetectScreenResize();
-		DetectFullScreenChange();
 	}
 
 	private void DetectScreenResize()
@@ -127,7 +101,6 @@ public class UXScreen : MonoBehaviour
 	{
 		if (fullscreen != Screen.fullScreen)
 		{
-			Debug.Log((object)("Fullscreen change detected. " + fullscreen + " " + Screen.fullScreen));
 			Fullscreen = Screen.fullScreen;
 		}
 	}
@@ -138,58 +111,29 @@ public class UXScreen : MonoBehaviour
 		if (!flag)
 		{
 			UXUtils.FindGUIObjectOfType<MVGUIMenu>().View.Hide();
-			UXUtils.FindGUIObjectOfType<UXDialogFactory>().CreateDialog(TextSlotIndex.FullscreenIE8Message, TextSlotIndex.ErrorHeadline).Show();
+			UXUtils.UXDialogFactory.CreateDialog(TM._("Fullscreen is not supported in \nInternet Explorer version 8+.\n\nPlease use another browser,\n to use fullscreen."), TM._("Error")).Show();
 		}
 		return flag;
 	}
 
 	private void Resize()
 	{
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0074: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0092: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0097: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ba: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00dd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00fb: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0100: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0119: Unknown result type (might be due to invalid IL or missing references)
-		//IL_011e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0123: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0141: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0146: Unknown result type (might be due to invalid IL or missing references)
-		//IL_015f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0164: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0169: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0182: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0187: Unknown result type (might be due to invalid IL or missing references)
-		//IL_018c: Unknown result type (might be due to invalid IL or missing references)
-		float num = 0f - ((Component)((Component)this).camera).transform.position.z;
-		int num2 = horizontalPadding;
-		int num3 = Screen.width - horizontalPadding;
-		int num4 = Screen.width / 2;
-		int num5 = verticalPadding;
-		int num6 = Screen.height - verticalPadding;
-		int num7 = Screen.height / 2;
-		positions[0, 0] = ((Component)this).camera.ScreenToWorldPoint(new Vector3((float)num2, (float)num6, num));
-		positions[2, 0] = ((Component)this).camera.ScreenToWorldPoint(new Vector3((float)num3, (float)num6, num));
-		positions[0, 2] = ((Component)this).camera.ScreenToWorldPoint(new Vector3((float)num2, (float)num5, num));
-		positions[2, 2] = ((Component)this).camera.ScreenToWorldPoint(new Vector3((float)num3, (float)num5, num));
-		positions[1, 0] = ((Component)this).camera.ScreenToWorldPoint(new Vector3((float)num4, (float)num6, num));
-		positions[1, 2] = ((Component)this).camera.ScreenToWorldPoint(new Vector3((float)num4, (float)num5, num));
-		positions[0, 1] = ((Component)this).camera.ScreenToWorldPoint(new Vector3((float)num2, (float)num7, num));
-		positions[2, 1] = ((Component)this).camera.ScreenToWorldPoint(new Vector3((float)num3, (float)num7, num));
-		scale = ((Component)this).camera.ScreenToWorldPoint(new Vector3((float)num4 + screenUnit, (float)num7, num)).x / worldUnit;
+		float z = 0f - GetComponent<Camera>().transform.position.z;
+		int num = horizontalPadding;
+		int num2 = Screen.width - horizontalPadding;
+		int num3 = Screen.width / 2;
+		int num4 = verticalPadding;
+		int num5 = Screen.height - verticalPadding;
+		int num6 = Screen.height / 2;
+		positions[0, 0] = GetComponent<Camera>().ScreenToWorldPoint(new Vector3(num, num5, z));
+		positions[2, 0] = GetComponent<Camera>().ScreenToWorldPoint(new Vector3(num2, num5, z));
+		positions[0, 2] = GetComponent<Camera>().ScreenToWorldPoint(new Vector3(num, num4, z));
+		positions[2, 2] = GetComponent<Camera>().ScreenToWorldPoint(new Vector3(num2, num4, z));
+		positions[1, 0] = GetComponent<Camera>().ScreenToWorldPoint(new Vector3(num3, num5, z));
+		positions[1, 2] = GetComponent<Camera>().ScreenToWorldPoint(new Vector3(num3, num4, z));
+		positions[0, 1] = GetComponent<Camera>().ScreenToWorldPoint(new Vector3(num, num6, z));
+		positions[2, 1] = GetComponent<Camera>().ScreenToWorldPoint(new Vector3(num2, num6, z));
+		scale = GetComponent<Camera>().ScreenToWorldPoint(new Vector3((float)num3 + screenUnit, num6, z)).x / worldUnit;
 		NotifyResize();
 	}
 
@@ -203,21 +147,6 @@ public class UXScreen : MonoBehaviour
 
 	public void OnDrawGizmosSelected()
 	{
-		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0050: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0090: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00af: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ce: Unknown result type (might be due to invalid IL or missing references)
 		Gizmos.color = Color.yellow;
 		Gizmos.DrawLine(positions[0, 0], positions[2, 0]);
 		Gizmos.DrawLine(positions[0, 0], positions[0, 2]);

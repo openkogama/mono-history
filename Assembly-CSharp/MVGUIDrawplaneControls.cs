@@ -30,12 +30,12 @@ public class MVGUIDrawplaneControls : UXViewScript
 		UXIconButton uXIconButton = upArrow;
 		uXIconButton.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXIconButton.OnClick, (UXBaseButton.OnClickDelegate)(() =>
 		{
-			MoveDrawPlane(-1);
+			MoveDrawPlane(1);
 		}));
 		UXIconButton uXIconButton2 = downArrow;
 		uXIconButton2.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXIconButton2.OnClick, (UXBaseButton.OnClickDelegate)(() =>
 		{
-			MoveDrawPlane(1);
+			MoveDrawPlane(-1);
 		}));
 		UXToggleIconButton uXToggleIconButton = switchX;
 		uXToggleIconButton.OnToggle = (UXToggleIconButton.OnToggleDelegate)Delegate.Combine(uXToggleIconButton.OnToggle, (UXToggleIconButton.OnToggleDelegate)((bool toggle) =>
@@ -52,14 +52,13 @@ public class MVGUIDrawplaneControls : UXViewScript
 		{
 			SelectOrientation(DrawPlaneAxis.Z, switchZ);
 		}));
-		UXScreen uXScreen = UXUtils.FindGUIObjectOfType<UXScreen>();
+		UXScreen uXScreen = UXUtils.UXScreen;
 		uXScreen.OnFullScreenChange = (UXScreen.OnFullScreenChangeDelegate)Delegate.Combine(uXScreen.OnFullScreenChange, new UXScreen.OnFullScreenChangeDelegate(ScaleIcons));
 		ScaleIcons(uXScreen.Fullscreen);
 	}
 
 	private void ScaleIcons(bool full)
 	{
-		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
 		float num = ((!full) ? WindowedScale : FullScreenScale);
 		ScaleParent.localScale = new Vector3(num, num, num);
 	}
@@ -67,8 +66,11 @@ public class MVGUIDrawplaneControls : UXViewScript
 	public new void OnDestroy()
 	{
 		base.OnDestroy();
-		UXScreen uXScreen = UXUtils.FindGUIObjectOfType<UXScreen>();
-		uXScreen.OnFullScreenChange = (UXScreen.OnFullScreenChangeDelegate)Delegate.Remove(uXScreen.OnFullScreenChange, new UXScreen.OnFullScreenChangeDelegate(ScaleIcons));
+		if (UXUtils.UXScreen != null)
+		{
+			UXScreen uXScreen = UXUtils.UXScreen;
+			uXScreen.OnFullScreenChange = (UXScreen.OnFullScreenChangeDelegate)Delegate.Remove(uXScreen.OnFullScreenChange, new UXScreen.OnFullScreenChangeDelegate(ScaleIcons));
+		}
 	}
 
 	public override void OnShow()
@@ -76,9 +78,9 @@ public class MVGUIDrawplaneControls : UXViewScript
 		base.OnShow();
 		if (first)
 		{
-			editController = MVGameController.Instance.EditController;
-			AEditController aEditController = editController;
-			aEditController.OnDrawplaneAltitudeChanged = (AEditController.OnWorkPlaneAltitudeChangedDelegate)Delegate.Combine(aEditController.OnDrawplaneAltitudeChanged, new AEditController.OnWorkPlaneAltitudeChangedDelegate(UpdateAltitudeText));
+			editController = MVGameController.EditController;
+			CubeModelingController cubeModelingController = editController.CubeModelingController;
+			cubeModelingController.OnDrawplaneAltitudeChanged = (CubeModelingController.OnWorkPlaneAltitudeChangedDelegate)Delegate.Combine(cubeModelingController.OnDrawplaneAltitudeChanged, new CubeModelingController.OnWorkPlaneAltitudeChangedDelegate(UpdateAltitudeText));
 			UpdateAltitudeText(editController.WorldEditorDrawPlane.Altitude);
 			first = false;
 		}

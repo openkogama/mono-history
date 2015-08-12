@@ -75,9 +75,9 @@ public abstract class UXTextInputElement : UXGUIElement, IInputHandler, IUXConta
 	{
 		get
 		{
-			if ((Object)(object)_view == (Object)null)
+			if (_view == null)
 			{
-				_view = UXUtils.FindComponentInParents(typeof(UXView), ((Component)this).transform.parent) as UXView;
+				_view = UXUtils.FindComponentInParents(typeof(UXView), transform.parent) as UXView;
 			}
 			return _view;
 		}
@@ -109,15 +109,12 @@ public abstract class UXTextInputElement : UXGUIElement, IInputHandler, IUXConta
 		protected set
 		{
 			_hasFocus = value;
-			if ((Object)(object)_uiCursor != (Object)null)
+			if (_uiCursor != null)
 			{
 				_uiCursor.SetVisible(_hasFocus);
 			}
 			NotifyFocusChange(_hasFocus);
-			if (MVGameController.Instance.IngameController != null)
-			{
-				MVGameController.Instance.IngameController.SetIgnoreKeyInput(_hasFocus);
-			}
+			MVInputWrapper.ignoreAllKeys = _hasFocus;
 			CursorIndex = _cursorIndex;
 		}
 	}
@@ -130,7 +127,6 @@ public abstract class UXTextInputElement : UXGUIElement, IInputHandler, IUXConta
 		}
 		set
 		{
-			//IL_006f: Unknown result type (might be due to invalid IL or missing references)
 			_cursorIndex = Mathf.Clamp(value, 0, _text.Length);
 			if (GetActualText(_text).Length == 0)
 			{
@@ -139,9 +135,9 @@ public abstract class UXTextInputElement : UXGUIElement, IInputHandler, IUXConta
 			if (_isInitialized)
 			{
 				UpdateText();
-				if ((Object)(object)_uiCursor != (Object)null)
+				if (_uiCursor != null)
 				{
-					((Component)_uiCursor).transform.localPosition = GetCursorPosition(GetActualText(_text));
+					_uiCursor.transform.localPosition = GetCursorPosition(GetActualText(_text));
 				}
 			}
 		}
@@ -168,7 +164,7 @@ public abstract class UXTextInputElement : UXGUIElement, IInputHandler, IUXConta
 
 	private void InitializeFocusObject()
 	{
-		_focusObject = ((Component)this).gameObject.AddComponent<UXFocusObject>();
+		_focusObject = gameObject.AddComponent<UXFocusObject>();
 		UXFocusObject focusObject = _focusObject;
 		focusObject.OnFocusEnter = (UXFocusObject.OnFocusEnterDelegate)Delegate.Combine(focusObject.OnFocusEnter, new UXFocusObject.OnFocusEnterDelegate(HandleOnFocusEnter));
 		UXFocusObject focusObject2 = _focusObject;
@@ -181,22 +177,18 @@ public abstract class UXTextInputElement : UXGUIElement, IInputHandler, IUXConta
 
 	private void CreateTextBoxBG()
 	{
-		((Component)this).gameObject.AddComponent<MeshFilter>().mesh = BuildMesh();
-		((Component)this).gameObject.AddComponent<BoxCollider>();
-		((Component)this).renderer.enabled = Visible;
-		((Component)this).collider.enabled = Visible;
+		BuildMesh(gameObject.AddComponent<MeshFilter>().mesh);
+		gameObject.AddComponent<BoxCollider>();
+		GetComponent<Renderer>().enabled = Visible;
+		GetComponent<Collider>().enabled = Visible;
 	}
 
 	protected virtual void CreateText()
 	{
-		//IL_0040: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0061: Unknown result type (might be due to invalid IL or missing references)
-		Object val = Object.Instantiate(Resources.Load("Prefabs/UX/Text"));
-		_uiText = ((GameObject)((val is GameObject) ? val : null)).GetComponent<UXText>();
-		((Component)_uiText).transform.parent = ((Component)this).transform;
-		((Component)_uiText).transform.localScale = Vector3.one * _textScale;
-		((Component)_uiText).transform.localPosition = GetTextBasePosition();
+		_uiText = (UnityEngine.Object.Instantiate(Resources.Load("Prefabs/UX/Text")) as GameObject).GetComponent<UXText>();
+		_uiText.transform.parent = transform;
+		_uiText.transform.localScale = Vector3.one * _textScale;
+		_uiText.transform.localPosition = GetTextBasePosition();
 		_uiText.horizontalAlign = UXHorizontal.Left;
 		_uiText.verticalAlign = UXVertical.Middle;
 		_uiText.SetVisible(Visible);
@@ -206,19 +198,15 @@ public abstract class UXTextInputElement : UXGUIElement, IInputHandler, IUXConta
 
 	private void CreateCursor()
 	{
-		//IL_0005: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Expected Obj, but got Unknown
-		//IL_0037: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ab: Unknown result type (might be due to invalid IL or missing references)
-		GameObject val = new GameObject("Cursor");
-		val.layer = LayerMask.NameToLayer("UXElement");
-		val.transform.parent = ((Component)_uiText).transform;
-		val.transform.localScale = Vector3.one;
-		_uiCursor = val.AddComponent<UXPlane>();
+		GameObject gameObject = new GameObject("Cursor");
+		gameObject.layer = LayerMask.NameToLayer("UXElement");
+		gameObject.transform.parent = _uiText.transform;
+		gameObject.transform.localScale = Vector3.one;
+		_uiCursor = gameObject.AddComponent<UXPlane>();
 		_uiCursor.SetSize(0.1f, GetCursorHeight());
 		_uiCursor.SetMaterial(_cursorMaterial);
 		_uiCursor.SetVisible(Visible && HasFocus);
-		((Component)_uiCursor).transform.localPosition = GetCursorPosition(GetActualText(_text));
+		_uiCursor.transform.localPosition = GetCursorPosition(GetActualText(_text));
 	}
 
 	protected abstract float GetCursorHeight();
@@ -239,30 +227,21 @@ public abstract class UXTextInputElement : UXGUIElement, IInputHandler, IUXConta
 
 	protected void UpdateText()
 	{
-		//IL_003f: Unknown result type (might be due to invalid IL or missing references)
-		if ((Object)(object)_uiText != (Object)null)
+		if (_uiText != null)
 		{
 			_uiText.Text = GetActualText(_text);
-			((Component)_uiText).transform.localPosition = GetTextOffset(_uiText.Text);
+			_uiText.transform.localPosition = GetTextOffset(_uiText.Text);
 		}
 	}
 
 	protected Vector2 MeasureTextLength(string text)
 	{
-		//IL_0024: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0029: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0037: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0044: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0056: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006d: Unknown result type (might be due to invalid IL or missing references)
-		if ((Object)(object)_textCalculator == (Object)null)
+		if (_textCalculator == null)
 		{
 			_textCalculator = UXUtils.FindGUIObjectOfType<UXTextSizeCalculator>();
 		}
-		Vector2 val = new Vector2(((Component)this).transform.localScale.x, ((Component)this).transform.localScale.y);
-		return _textCalculator.MeasureString(GetActualText(text), val * _textScale, _uiText.TextSize);
+		Vector2 vector = new Vector2(transform.localScale.x, transform.localScale.y);
+		return _textCalculator.MeasureString(GetActualText(text), vector * _textScale, _uiText.TextSize);
 	}
 
 	public bool HandleInput()
@@ -276,14 +255,12 @@ public abstract class UXTextInputElement : UXGUIElement, IInputHandler, IUXConta
 
 	private void HandleRepeatKey(KeyCode keyCode, Action handler)
 	{
-		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0025: Unknown result type (might be due to invalid IL or missing references)
-		if (MVInputWrapper.GetKeyDown(keyCode, useKey: false, forceKeyUse: true))
+		if (MVInputWrapper.InputCharActiveDown(keyCode))
 		{
 			handler();
 			_repeatTime = Time.realtimeSinceStartup + REPEAT_INTERVAL_FIRST;
 		}
-		if (MVInputWrapper.GetKey(keyCode, useKey: false, forceKeyUse: true) && Time.realtimeSinceStartup > _repeatTime)
+		if (MVInputWrapper.InputCharActive(keyCode) && Time.realtimeSinceStartup > _repeatTime)
 		{
 			handler();
 			_repeatTime = Time.realtimeSinceStartup + REPEAT_INTERVAL;
@@ -292,15 +269,15 @@ public abstract class UXTextInputElement : UXGUIElement, IInputHandler, IUXConta
 
 	protected virtual void HandleKeyInput()
 	{
-		HandleRepeatKey((KeyCode)276, () =>
+		HandleRepeatKey(KeyCode.LeftArrow, () =>
 		{
 			MoveCursor(-1);
 		});
-		HandleRepeatKey((KeyCode)275, () =>
+		HandleRepeatKey(KeyCode.RightArrow, () =>
 		{
 			MoveCursor(1);
 		});
-		HandleRepeatKey((KeyCode)127, () =>
+		HandleRepeatKey(KeyCode.Delete, () =>
 		{
 			if (_text.Length > 0 && CursorIndex < _text.Length)
 			{
@@ -310,8 +287,8 @@ public abstract class UXTextInputElement : UXGUIElement, IInputHandler, IUXConta
 			}
 		});
 		bool flag = false;
-		string inputString = Input.inputString;
-		foreach (char c in inputString)
+		string stringInput = MVInputWrapper.GetStringInput();
+		foreach (char c in stringInput)
 		{
 			if (c == BACKSPACE_CHAR)
 			{
@@ -335,7 +312,6 @@ public abstract class UXTextInputElement : UXGUIElement, IInputHandler, IUXConta
 					InsertCharacter(c);
 				}
 			}
-			MVInputWrapper.RegisterKeyAsUsed(c);
 		}
 		if (flag)
 		{
@@ -368,23 +344,23 @@ public abstract class UXTextInputElement : UXGUIElement, IInputHandler, IUXConta
 	public override void SetAlpha(float alpha, string materialProperty = "_MainColor")
 	{
 		base.SetAlpha(alpha, materialProperty);
-		_uiText.SetAlpha(alpha);
+		_uiText.SetAlpha(alpha, string.Empty);
 		_uiCursor.SetAlpha(alpha, materialProperty);
 	}
 
 	public override void SetVisible(bool visible)
 	{
 		Visible = visible;
-		((Component)this).renderer.enabled = visible;
-		if ((Object)(object)((Component)this).collider != (Object)null)
+		GetComponent<Renderer>().enabled = visible;
+		if (GetComponent<Collider>() != null)
 		{
-			((Component)this).collider.enabled = visible;
+			GetComponent<Collider>().enabled = visible;
 		}
-		if ((Object)(object)_uiText != (Object)null)
+		if (_uiText != null)
 		{
 			_uiText.SetVisible(visible);
 		}
-		if ((Object)(object)_uiCursor != (Object)null)
+		if (_uiCursor != null)
 		{
 			_uiCursor.SetVisible(visible && HasFocus);
 		}
@@ -398,11 +374,13 @@ public abstract class UXTextInputElement : UXGUIElement, IInputHandler, IUXConta
 	public void HandleOnFocusEnter(UXFocusObject focusObject)
 	{
 		_cursorIndex = _text.Length;
+		Debug.Log("On FOcus Enter");
 		HasFocus = true;
 	}
 
 	public void HandleOnFocusExit(UXFocusObject focusObject)
 	{
+		Debug.Log("On FOcus Exit");
 		HasFocus = false;
 	}
 
@@ -423,7 +401,7 @@ public abstract class UXTextInputElement : UXGUIElement, IInputHandler, IUXConta
 
 	public void ReleaseFocus()
 	{
-		if ((Object)(object)View != (Object)null)
+		if (View != null)
 		{
 			View.ReleaseFocus();
 		}

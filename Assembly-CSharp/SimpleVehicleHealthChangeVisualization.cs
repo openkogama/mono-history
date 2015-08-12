@@ -23,7 +23,7 @@ public class SimpleVehicleHealthChangeVisualization : MonoBehaviour
 		}));
 		prevHealth = health.Value;
 		this.maxHealth = maxHealth;
-		vehicleBlinker.Init(((Component)hull).gameObject.GetComponentsInChildren<MeshFilter>());
+		vehicleBlinker.Init(hull.gameObject.GetComponentsInChildren<MeshFilter>());
 		vehicleBlinker.Visible = true;
 	}
 
@@ -32,12 +32,12 @@ public class SimpleVehicleHealthChangeVisualization : MonoBehaviour
 		if (newHealth < maxHealth && !ellipsoidParticleEmitter.emit)
 		{
 			ellipsoidParticleEmitter.emit = true;
-			((Component)fire).particleSystem.enableEmission = true;
+			fire.GetComponent<ParticleSystem>().enableEmission = true;
 		}
 		if (newHealth == maxHealth && ellipsoidParticleEmitter.emit)
 		{
 			ellipsoidParticleEmitter.emit = false;
-			((Component)fire).particleSystem.enableEmission = false;
+			fire.GetComponent<ParticleSystem>().enableEmission = false;
 			return;
 		}
 		if (prevHealth > newHealth)
@@ -47,7 +47,7 @@ public class SimpleVehicleHealthChangeVisualization : MonoBehaviour
 		float num = (1f - newHealth / maxHealth) * damageParticleFactor;
 		ellipsoidParticleEmitter.minSize = num;
 		ellipsoidParticleEmitter.maxSize = num;
-		((Component)fire).particleSystem.startSize = num * 0.3f;
+		fire.GetComponent<ParticleSystem>().startSize = num * 0.3f;
 		prevHealth = newHealth;
 	}
 }

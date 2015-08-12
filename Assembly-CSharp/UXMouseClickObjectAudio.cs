@@ -11,7 +11,7 @@ public class UXMouseClickObjectAudio : MonoBehaviour
 	private void Awake()
 	{
 		clickSound = GUIAudioBank.Instance.GetSound("buttonClick");
-		UXMouseClickObject component = ((Component)this).GetComponent<UXMouseClickObject>();
+		UXMouseClickObject component = GetComponent<UXMouseClickObject>();
 		component.OnClick = (UXMouseClickObject.OnClickDelegate)Delegate.Combine(component.OnClick, new UXMouseClickObject.OnClickDelegate(HandleOnClick));
 	}
 

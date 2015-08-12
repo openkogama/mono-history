@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Localize;
 using UnityEngine;
 
 public class MVGUISelectDevToolDialog : UXCustomDialogBox
@@ -47,7 +45,7 @@ public class MVGUISelectDevToolDialog : UXCustomDialogBox
 
 	private void OpenImageOfWOButtion()
 	{
-		Debug.Log((object)"OpenImageOfWOButtion");
+		Debug.Log("OpenImageOfWOButtion");
 		DialogFactory.CloseDialog();
 		DialogFactory.CreateCustomDevelopmentDialog("Prefabs/GUI/Dev Tools/ImageOfWO", "Image Of WO", noButtons: true).Show();
 	}
@@ -70,29 +68,23 @@ public class MVGUISelectDevToolDialog : UXCustomDialogBox
 		{
 			return;
 		}
-		Hashtable hashtable = (Hashtable)dialogBox.GetResult();
-		string name = (string)hashtable["name"];
-		int woId = (int)hashtable["woId"];
-		int itemCategory = (int)hashtable["itemCategory"];
-		bool overWrite = (bool)hashtable["overWrite"];
-		string message = string.Format("Add with following data?:\n\nItemTypeName: {0}\nID: {1}\nItemCategory: {2}\nOverWrite: {3}", new object[4]
-		{
-			name,
-			woId,
-			MVGameController.Instance.Game.ItemCategories.IDToName(itemCategory),
-			overWrite
-		});
-		DialogFactory.CreateDevelopmentDialog(message, "Notice", UXDialogType.Simple, noButtons: false, stackDialog: false, canClose: false).AddPositiveButton(TextSlotIndex.Confirm).AddNegativeButton(TextSlotIndex.Reject)
+		Dictionary<object, object> dictionary = (Dictionary<object, object>)dialogBox.GetResult();
+		string name = (string)dictionary["name"];
+		int woId = (int)dictionary["woId"];
+		int itemCategory = (int)dictionary["itemCategory"];
+		bool overWrite = (bool)dictionary["overWrite"];
+		string message = $"Add with following data?:\n\nItemTypeName: {name}\nID: {woId}\nItemCategory: {MVGameController.Game.ItemCategories.IDToName(itemCategory)}\nOverWrite: {overWrite}";
+		DialogFactory.CreateDevelopmentDialog(message, "Notice", UXDialogType.Simple, noButtons: false, stackDialog: false, canClose: false).AddPositiveButton(TM._("Yes")).AddNegativeButton(TM._("No"))
 			.SetOnResultCallback((UXDialogBox dialog) =>
 			{
 				if (dialog.DialogResult == UXDialogResult.Positive)
 				{
-					Debug.Log((object)string.Format("Adding to INV with name: {0} - id: {1} - itemType: {2} - overWrite: {3}", new object[4] { name, woId, itemCategory, overWrite }));
+					Debug.Log($"Adding to INV with name: {name} - id: {woId} - itemType: {itemCategory} - overWrite: {overWrite}");
 					Action<byte[]> callback = (byte[] imageData) =>
 					{
-						MVGameController.Instance.Game.AddWorldObjectToInventorDev(woId, imageData, name, itemCategory, overWrite);
+						MVGameController.Game.AddWorldObjectToInventorDev(woId, imageData, name, itemCategory, overWrite);
 					};
-					Coroutines.StartCoroutine(AEditController.CreateTextureFromData(MVGameController.Instance.WOCM.GetWorldObjectClient(woId), callback));
+					Coroutines.StartCoroutine(ImageGenerator.CreateTextureFromData(MVGameController.WOCM.GetWorldObjectClient(woId), callback));
 				}
 			})
 			.Show();
@@ -110,15 +102,15 @@ public class MVGUISelectDevToolDialog : UXCustomDialogBox
 		{
 			return;
 		}
-		Hashtable hashtable = (Hashtable)dialogBox.GetResult();
-		int woId = (int)hashtable["woId"];
-		DialogFactory.CreateDevelopmentDialog("Are you sure you want to delete the following woid:\n\n" + woId, "Delete?").AddPositiveButton(TextSlotIndex.Confirm).AddNegativeButton(TextSlotIndex.Reject)
+		Dictionary<object, object> dictionary = (Dictionary<object, object>)dialogBox.GetResult();
+		int woId = (int)dictionary["woId"];
+		DialogFactory.CreateDevelopmentDialog("Are you sure you want to delete the following woid:\n\n" + woId, "Delete?").AddPositiveButton(TM._("Yes")).AddNegativeButton(TM._("No"))
 			.SetOnResultCallback((UXDialogBox dialog) =>
 			{
 				if (dialog.DialogResult == UXDialogResult.Positive)
 				{
-					HashSet<MVWorldObjectClient> deleteSet = new HashSet<MVWorldObjectClient> { MVGameController.Instance.WOCM.GetWorldObjectClient(woId) };
-					MVGameController.Instance.EditController.Delete(deleteSet);
+					HashSet<MVWorldObjectClient> deleteSet = new HashSet<MVWorldObjectClient> { MVGameController.WOCM.GetWorldObjectClient(woId) };
+					MVGameController.EditorController.Delete(deleteSet);
 				}
 			})
 			.Show();

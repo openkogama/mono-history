@@ -9,7 +9,7 @@ public class TextData : DialogData
 	public override void ApplyDataToElement(GameObject element)
 	{
 		UXText component = element.GetComponent<UXText>();
-		if (!((Object)(object)component == (Object)null))
+		if (!(component == null))
 		{
 			component.WordWrap = useWordWrap;
 			component.Text = text;

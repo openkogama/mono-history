@@ -24,7 +24,7 @@ public class UXFullscreenColliderBox : MonoBehaviour
 	{
 		get
 		{
-			if ((Object)(object)instance == (Object)null)
+			if (instance == null)
 			{
 				instance = UXUtils.FindGUIObjectOfType<UXFullscreenColliderBox>();
 			}
@@ -34,10 +34,10 @@ public class UXFullscreenColliderBox : MonoBehaviour
 
 	private void Awake()
 	{
-		screen = UXUtils.FindGUIObjectOfType<UXScreen>();
+		screen = UXUtils.UXScreen;
 		UXScreen uXScreen = screen;
 		uXScreen.OnResize = (UXScreen.OnResizeDelegate)Delegate.Combine(uXScreen.OnResize, new UXScreen.OnResizeDelegate(OnResize));
-		if ((Object)(object)go == (Object)null)
+		if (go == null)
 		{
 			InitializeCollider();
 		}
@@ -45,10 +45,6 @@ public class UXFullscreenColliderBox : MonoBehaviour
 
 	private void InitializeCollider()
 	{
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0010: Expected Obj, but got Unknown
-		//IL_00a7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00bc: Unknown result type (might be due to invalid IL or missing references)
 		go = new GameObject("Collider");
 		boxCollider = go.AddComponent<BoxCollider>();
 		mouseClickObject = go.AddComponent<UXMouseClickObject>();
@@ -61,10 +57,10 @@ public class UXFullscreenColliderBox : MonoBehaviour
 			}
 		};
 		go.layer = LayerMask.NameToLayer("UXElement");
-		go.transform.parent = ((Component)this).transform;
+		go.transform.parent = transform;
 		go.transform.localPosition = Vector3.zero;
 		go.transform.localScale = Vector3.one;
-		go.active = false;
+		go.SetActive(value: false);
 	}
 
 	public void OnResize()
@@ -74,23 +70,23 @@ public class UXFullscreenColliderBox : MonoBehaviour
 
 	public void AddBlockingObject(object o)
 	{
-		if ((Object)(object)go == (Object)null)
+		if (go == null)
 		{
 			InitializeCollider();
 		}
 		blockingObjects.Add(o);
-		go.active = blockingObjects.Count > 0;
+		go.SetActive(blockingObjects.Count > 0);
 	}
 
 	public void RemoveBlockingObject(object o)
 	{
-		if ((Object)(object)go == (Object)null)
+		if (go == null)
 		{
 			InitializeCollider();
 		}
 		blockingObjects.Remove(o);
-		go.active = blockingObjects.Count > 0;
-		if (!go.active)
+		go.SetActive(blockingObjects.Count > 0);
+		if (!go.activeInHierarchy)
 		{
 			OnClick = null;
 		}
@@ -103,14 +99,8 @@ public class UXFullscreenColliderBox : MonoBehaviour
 
 	public void UpdatePlacement()
 	{
-		//IL_0014: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0042: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0047: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006b: Unknown result type (might be due to invalid IL or missing references)
-		((Component)this).transform.position = screen.GetPosition(UXHorizontal.Center, UXVertical.Middle, depth);
-		Vector3 val = screen.GetPosition(UXHorizontal.Left, UXVertical.Top, 0f) - screen.GetPosition(UXHorizontal.Right, UXVertical.Bottom, 0f);
-		boxCollider.size = new Vector3(Mathf.Abs(val.x), Mathf.Abs(val.y), 10f);
+		transform.position = screen.GetPosition(UXHorizontal.Center, UXVertical.Middle, depth);
+		Vector3 vector = screen.GetPosition(UXHorizontal.Left, UXVertical.Top, 0f) - screen.GetPosition(UXHorizontal.Right, UXVertical.Bottom, 0f);
+		boxCollider.size = new Vector3(Mathf.Abs(vector.x), Mathf.Abs(vector.y), 10f);
 	}
 }

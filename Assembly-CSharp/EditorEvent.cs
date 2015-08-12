@@ -22,5 +22,6 @@ public enum EditorEvent
 	CEEditBody = 46,
 	ESBodyCreator = 48,
 	ESAddToMarketPlaceState = 49,
-	CEAvatarAccessory = 50
+	CEAvatarAccessory = 50,
+	PMAvatarAccessory = 51
 }

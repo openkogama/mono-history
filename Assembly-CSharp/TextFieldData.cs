@@ -9,7 +9,7 @@ public class TextFieldData : DialogData
 	public override void ApplyDataToElement(GameObject element)
 	{
 		UXTextField component = element.GetComponent<UXTextField>();
-		if (!((Object)(object)component == (Object)null))
+		if (!(component == null))
 		{
 			component.Text = text;
 			TextInputType? textInputType = allowedInput;

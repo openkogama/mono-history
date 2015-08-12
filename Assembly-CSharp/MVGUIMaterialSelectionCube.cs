@@ -1,5 +1,4 @@
 using System;
-using Localize;
 using UnityEngine;
 
 public class MVGUIMaterialSelectionCube : UXGUIElement
@@ -18,11 +17,15 @@ public class MVGUIMaterialSelectionCube : UXGUIElement
 
 	private int _materialId = -1;
 
+	private Material originalMaterial;
+
+	private bool isGreyedOut;
+
 	private MVMaterial mvMaterial;
 
 	private Vector3 mouseDownPos;
 
-	private GameObject ChildCube => ((Component)((Component)this).transform.FindChild("Cube")).gameObject;
+	private GameObject ChildCube => transform.FindChild("Cube").gameObject;
 
 	public int MaterialId
 	{
@@ -33,41 +36,52 @@ public class MVGUIMaterialSelectionCube : UXGUIElement
 		set
 		{
 			_materialId = value;
-			mvMaterial = MVGameController.Instance.Game.MaterialRepository.GetMaterial((byte)_materialId);
-			ChildCube.renderer.material = mvMaterial.material;
+			mvMaterial = MVGameController.Game.MaterialRepository.GetMaterial((byte)_materialId);
+			ChildCube.GetComponent<Renderer>().material = mvMaterial.material;
+			originalMaterial = mvMaterial.material;
 			AddToolTip(mvMaterial.name);
+		}
+	}
+
+	public static Material GreyedOutMaterial { get; set; }
+
+	public bool IsGreyedOut
+	{
+		get
+		{
+			return isGreyedOut;
+		}
+		set
+		{
+			isGreyedOut = value;
+			if (isGreyedOut)
+			{
+				ChildCube.GetComponent<Renderer>().material = GreyedOutMaterial;
+			}
+			else
+			{
+				ChildCube.GetComponent<Renderer>().material = originalMaterial;
+			}
 		}
 	}
 
 	public void Start()
 	{
-		UXMouseClickObject component = ((Component)this).GetComponent<UXMouseClickObject>();
+		UXMouseClickObject component = GetComponent<UXMouseClickObject>();
 		component.OnMouseDown = (UXMouseClickObject.OnMouseDownDelegate)Delegate.Combine(component.OnMouseDown, (UXMouseClickObject.OnMouseDownDelegate)((UXMouseClickObject clickObject, Vector3 mousePositionWorld) =>
 		{
-			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0002: Unknown result type (might be due to invalid IL or missing references)
 			mouseDownPos = mousePositionWorld;
 			return false;
 		}));
 		component.OnMouseUp = (UXMouseClickObject.OnMouseUpDelegate)Delegate.Combine(component.OnMouseUp, (UXMouseClickObject.OnMouseUpDelegate)((UXMouseClickObject clickObject, Vector3 mousePositionWorld) =>
 		{
-			//IL_0036: Unknown result type (might be due to invalid IL or missing references)
-			//IL_003b: Unknown result type (might be due to invalid IL or missing references)
-			//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-			//IL_000d: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-			if (OnSelection != null)
+			if (OnSelection != null && (mousePositionWorld - mouseDownPos).magnitude < 2f)
 			{
-				Vector3 val = mousePositionWorld - mouseDownPos;
-				if (val.magnitude < 2f)
-				{
-					OnSelection(this);
-				}
+				OnSelection(this);
 			}
 			mouseDownPos = Vector3.zero;
 		}));
-		UXMouseOverObject component2 = ((Component)this).GetComponent<UXMouseOverObject>();
+		UXMouseOverObject component2 = GetComponent<UXMouseOverObject>();
 		component2.OnMouseOverEnter = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(component2.OnMouseOverEnter, (UXMouseOverObject.OnMouseOverDelegate)((UXMouseOverObject o) =>
 		{
 			if (OnMouseOver != null)
@@ -82,27 +96,36 @@ public class MVGUIMaterialSelectionCube : UXGUIElement
 		Visible = visible;
 		lockObject.SetVisible(visible && !mvMaterial.isUnlocked);
 		keyObject.SetVisible(visible: false);
-		ChildCube.renderer.enabled = visible;
-		if ((Object)(object)ChildCube.collider != (Object)null)
+		bool isAvailable = mvMaterial.IsAvailable;
+		if (!isAvailable)
 		{
-			ChildCube.collider.enabled = visible;
+			IsGreyedOut = true;
 		}
-		((Component)this).collider.enabled = visible;
+		else
+		{
+			IsGreyedOut = false;
+		}
+		ChildCube.GetComponent<Renderer>().enabled = visible;
+		if (ChildCube.GetComponent<Collider>() != null)
+		{
+			ChildCube.GetComponent<Collider>().enabled = visible && isAvailable;
+		}
+		GetComponent<Collider>().enabled = visible && isAvailable;
 	}
 
 	public void StartKeyAnimation()
 	{
 		keyObject.SetVisible(visible: true);
-		((Component)this).gameObject.animation.Play();
+		gameObject.GetComponent<Animation>().Play();
 	}
 
 	public void StopKeyAnimation()
 	{
-		if (((Component)this).gameObject.animation.IsPlaying("UnlockAnimation"))
+		if (gameObject.GetComponent<Animation>().IsPlaying("UnlockAnimation"))
 		{
 			keyObject.SetVisible(visible: false);
 			lockObject.SetVisible(visible: false);
-			((Component)this).gameObject.animation.Rewind();
+			gameObject.GetComponent<Animation>().Rewind();
 		}
 	}
 
@@ -121,20 +144,15 @@ public class MVGUIMaterialSelectionCube : UXGUIElement
 		ChildCube.AddComponent<BoxCollider>();
 		ChildCube.AddComponent<UXMouseOverObject>();
 		UXToolTip uXToolTip = ChildCube.AddComponent<UXToolTip>();
-		uXToolTip.toolTipTextID = TextSlotIndex.Empty;
 		uXToolTip.toolTipText = tooltipText;
 	}
 
 	public GameObject GetPreviewCube()
 	{
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0011: Expected Obj, but got Unknown
-		//IL_0026: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0045: Unknown result type (might be due to invalid IL or missing references)
-		GameObject val = (GameObject)Object.Instantiate((Object)(object)ChildCube);
-		val.transform.localPosition = new Vector3(9f, 1.5f, -4f);
-		val.transform.localScale = new Vector3(7f, 7f, 7f);
-		val.AddComponent<MVGUIMaterialPurchasePreviewCube>();
-		return val;
+		GameObject gameObject = UnityEngine.Object.Instantiate(ChildCube);
+		gameObject.transform.localPosition = new Vector3(9f, 1.5f, -4f);
+		gameObject.transform.localScale = new Vector3(7f, 7f, 7f);
+		gameObject.AddComponent<MVGUIMaterialPurchasePreviewCube>();
+		return gameObject;
 	}
 }

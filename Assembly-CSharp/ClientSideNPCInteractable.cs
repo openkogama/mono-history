@@ -1,15 +1,16 @@
 using System;
+using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 
 public class ClientSideNPCInteractable : MVInteractableBase
 {
-	private Action<float> takeDamageCallback;
+	private Action<float, MVPlayer, PlayerKilledByType> takeDamageCallback;
 
 	private int respawnInterval;
 
-	public void Init(Action<float> takeDamageCallback)
+	public void Init(Action<float, MVPlayer, PlayerKilledByType> takeDamageCallback)
 	{
 		this.takeDamageCallback = takeDamageCallback;
 		respawnInterval = (int)SharedWorldObjectValuesRepository.GetValues(worldObjectParent.WorldObjectType)["RespawnInterval"];
@@ -17,35 +18,36 @@ public class ClientSideNPCInteractable : MVInteractableBase
 
 	public bool IsDead()
 	{
-		return respawnInterval > WaitForTicks.Diff((int)worldObjectParent.RunTimeData["deathTime"]);
+		return respawnInterval > WaitForTicks.Diff((ObscuredInt)worldObjectParent.RunTimeData.GetObscuredType("deathTime"));
 	}
 
 	public override void TakeDamage(float amount, MVPlayer damageDealer, PlayerKilledByType damageType)
 	{
 		if (!IsDead())
 		{
-			float num = (float)worldObjectParent.RunTimeData["health"];
+			float num = (ObscuredFloat)worldObjectParent.RunTimeData.GetObscuredType("health");
 			num -= amount;
-			worldObjectParent.RunTimeData["health"] = num;
+			worldObjectParent.RunTimeData.SetObscuredType("health", (ObscuredFloat)num);
 			if (num < 0f)
 			{
 				num = (float)RuntimeVariablesRepository.GetRuntimeVariables(worldObjectParent.WorldObjectType)["health"];
-				worldObjectParent.RunTimeData["deathTime"] = WaitForTicks.GetEnvironmentTick(0);
+				worldObjectParent.RunTimeData.SetObscuredType("deathTime", (ObscuredInt)WaitForTicks.GetEnvironmentTick(0));
+				Debug.Log("TakeDamageKilled");
 			}
-			takeDamageCallback(amount);
-			worldObjectParent.RunTimeData["health"] = num;
+			takeDamageCallback(amount, damageDealer, damageType);
+			worldObjectParent.RunTimeData.SetObscuredType("health", (ObscuredFloat)num);
 		}
 	}
 
 	public void Reset()
 	{
 		worldObjectParent.RunTimeData = RuntimeVariablesRepository.GetRuntimeVariables(worldObjectParent.WorldObjectType);
-		worldObjectParent.RunTimeData["deathTime"] = WaitForTicks.GetEnvironmentTick(-respawnInterval);
+		worldObjectParent.RunTimeData.SetObscuredType("deathTime", (ObscuredInt)WaitForTicks.GetEnvironmentTick(-respawnInterval));
 	}
 
 	public override void AddModifier(AvatarModifierPackageType type, int id, AvatarModifierPackage.AvatarModifier[] additionalModifers)
 	{
-		Debug.Log((object)"Ignore add modifier");
+		Debug.Log("Ignore add modifier");
 	}
 
 	public override bool HasModifier(AvatarModifierPackageType type)
@@ -55,7 +57,7 @@ public class ClientSideNPCInteractable : MVInteractableBase
 
 	public override void RemoveModifier(AvatarModifierPackageType type, int id)
 	{
-		Debug.Log((object)"Ignore remove modifier");
+		Debug.Log("Ignore remove modifier");
 	}
 
 	public override float HandleModifierEffect(AvatarModifierEffect avatarModifierEffect, float baseValue)
@@ -65,6 +67,6 @@ public class ClientSideNPCInteractable : MVInteractableBase
 
 	public override void ClearModifiers()
 	{
-		Debug.Log((object)" ignore ClearModifiers");
+		Debug.Log(" ignore ClearModifiers");
 	}
 }

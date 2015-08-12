@@ -25,34 +25,28 @@ public class ObjectEnabler : MonoBehaviour
 
 	private void DrawObject(MeshFilter[] previewMeshes)
 	{
-		//IL_0020: Unknown result type (might be due to invalid IL or missing references)
-		foreach (MeshFilter val in previewMeshes)
+		foreach (MeshFilter meshFilter in previewMeshes)
 		{
-			for (int j = 0; j < val.sharedMesh.subMeshCount; j++)
+			for (int j = 0; j < meshFilter.sharedMesh.subMeshCount; j++)
 			{
-				Graphics.DrawMesh(val.sharedMesh, ((Component)val).transform.localToWorldMatrix, blah, LayerMask.NameToLayer("Default"), Camera.main, j);
+				Graphics.DrawMesh(meshFilter.sharedMesh, meshFilter.transform.localToWorldMatrix, blah, LayerMask.NameToLayer("Default"), Camera.main, j);
 			}
 		}
 	}
 
 	private void Awake()
 	{
-		Object val = Resources.Load("Materials/ObjectHidden", typeof(Material));
-		Material val2 = (Material)(object)((val is Material) ? val : null);
-		Object val3 = Object.Instantiate((Object)(object)val2);
-		blah = (Material)(object)((val3 is Material) ? val3 : null);
+		Material original = Resources.Load("Materials/ObjectHidden", typeof(Material)) as Material;
+		blah = Object.Instantiate(original);
 	}
 
 	private void OnDestroy()
 	{
-		Object.Destroy((Object)(object)blah);
+		Object.Destroy(blah);
 	}
 
 	private void Update()
 	{
-		//IL_003e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0043: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0057: Unknown result type (might be due to invalid IL or missing references)
 		float num = ((!isEnabled) ? 0.15f : 0.05f);
 		currentAlpha = Mathf.Lerp(currentAlpha, num, Time.deltaTime * 1f);
 		Color color = blah.color;
@@ -64,7 +58,7 @@ public class ObjectEnabler : MonoBehaviour
 		}
 		foreach (ObjectLink objectLinkRef in woObjectEnabler.ObjectLinkRefs)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(objectLinkRef.objectWOID);
+			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(objectLinkRef.objectWOID);
 			if (worldObjectClient is MVCubeModelInstance)
 			{
 				MVCubeModelInstance mVCubeModelInstance = worldObjectClient as MVCubeModelInstance;

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MV.Common;
 
-public class StreamingAssetShopInventory : ProductShopInventory<StreamingAssetInfo>
+public class StreamingAssetShopInventory : ProductShopInventory
 {
 	public int GetCategoryIDFromAssetID(int assetID)
 	{

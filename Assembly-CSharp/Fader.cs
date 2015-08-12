@@ -12,21 +12,15 @@ public class Fader : MonoBehaviour
 
 	public void Awake()
 	{
-		_renderer = ((Component)this).GetComponent<Renderer>();
+		_renderer = GetComponent<Renderer>();
 		normalShader = _renderer.material.shader;
 	}
 
 	public void Fade(float fadeFactor)
 	{
-		//IL_00bb: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0076: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008f: Unknown result type (might be due to invalid IL or missing references)
 		if (faded != fadeFactor < 1f)
 		{
-			Debug.Log((object)("Faded " + faded + " factor " + fadeFactor));
+			Debug.Log("Faded " + faded + " factor " + fadeFactor);
 		}
 		if (fadeFactor < 1f)
 		{

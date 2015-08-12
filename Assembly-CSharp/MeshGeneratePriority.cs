@@ -2,5 +2,6 @@ public enum MeshGeneratePriority
 {
 	None,
 	Low,
-	High
+	Medium,
+	HighGenerateAllDirty
 }

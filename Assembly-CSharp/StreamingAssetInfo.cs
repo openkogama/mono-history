@@ -1,20 +1,54 @@
 using System;
 using MV.Common;
 
-[Serializable]
-public class StreamingAssetInfo : ProductInfo
+public class StreamingAssetInfo
 {
+	public MVProductType ProductType;
+
+	public int ProductID;
+
+	public string Name;
+
+	public string Desc;
+
+	public ProductShopInfo ShopInfo;
+
 	public static readonly TimeSpan ExpiringFetchThreshold = TimeSpan.FromMinutes(3.0);
 
 	public StreamingAssetType StreamedAssetType;
 
 	public int CategoryID;
 
-	public string AssetPath;
+	public string _assetPath;
 
-	public int Version;
+	private bool _isEditorPreview;
 
-	public string RequestPath => (Version != 0) ? (AssetPath + "?v=" + Version) : AssetPath;
+	public string AssetPath
+	{
+		get
+		{
+			return _assetPath;
+		}
+		set
+		{
+			_assetPath = value;
+			_isEditorPreview = _assetPath.StartsWith("file://");
+		}
+	}
+
+	public bool IsEditorPreview
+	{
+		get
+		{
+			return _isEditorPreview;
+		}
+		set
+		{
+			_isEditorPreview = value;
+		}
+	}
+
+	public string RequestPath => AssetPath;
 
 	public string CategoryName => StreamedAssetType switch
 	{
@@ -23,7 +57,7 @@ public class StreamingAssetInfo : ProductInfo
 		_ => null, 
 	};
 
-	public override bool IsEquippable => StreamedAssetType == StreamingAssetType.AvatarAccessory;
+	public bool IsEquippable => StreamedAssetType == StreamingAssetType.AvatarAccessory;
 
 	public StreamingAssetInfo()
 	{
@@ -32,6 +66,6 @@ public class StreamingAssetInfo : ProductInfo
 
 	public override string ToString()
 	{
-		return "assetID: " + ProductID + ", name: " + Name + ", ver: " + Version + ", " + ((ShopInfo != null) ? ShopInfo.ToString() : string.Empty);
+		return "assetID: " + ProductID + ", name: " + Name + ", " + ((ShopInfo != null) ? ShopInfo.ToString() : string.Empty);
 	}
 }

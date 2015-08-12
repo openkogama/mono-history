@@ -10,15 +10,10 @@ public class AllWorldObjectTriggerBoxEvents : MonoBehaviour
 
 	private void OnTriggerEnter(Collider other)
 	{
-		if (MVGameController.Instance.Game.NetworkGameStateListener.CurrentGameState != MVGameStateType.Round)
+		if (MVGameController.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.Round)
 		{
-			return;
-		}
-		MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(((Component)other).gameObject.transform);
-		if (mVObject != null)
-		{
-			Debug.Log((object)("OnTriggerEnter wo: " + mVObject));
-			if (TriggerEnter != null)
+			MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(other.gameObject.transform);
+			if (mVObject != null && TriggerEnter != null)
 			{
 				TriggerEnter(this, new TriggerEventArgs(mVObject.Id));
 			}
@@ -27,10 +22,10 @@ public class AllWorldObjectTriggerBoxEvents : MonoBehaviour
 
 	private void OnTriggerExit(Collider other)
 	{
-		MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(((Component)other).gameObject.transform);
+		MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(other.gameObject.transform);
 		if (mVObject != null)
 		{
-			Debug.Log((object)("OnTriggerExit wo: " + mVObject));
+			Debug.Log("OnTriggerExit wo: " + mVObject);
 			if (TriggerExit != null)
 			{
 				TriggerExit(this, new TriggerEventArgs(mVObject.Id));

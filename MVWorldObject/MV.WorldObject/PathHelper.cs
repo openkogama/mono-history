@@ -1,17 +1,12 @@
-using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace MV.WorldObject;
 
 public class PathHelper
 {
-	public static Vector3 GetPositionByTime(Vector3 position, Vector3[] waypoints, Hashtable data, ref float pathTime, ref int oldWayPoint, ref int newWayPoint, ref bool shouldStop)
+	public static Vector3 GetPositionByTime(Vector3 position, Vector3[] waypoints, Dictionary<object, object> data, ref float pathTime, ref int oldWayPoint, ref int newWayPoint, ref bool shouldStop)
 	{
-		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0041: Unknown result type (might be due to invalid IL or missing references)
 		return (MoverPattern)data["pattern"] switch
 		{
 			MoverPattern.Loop => GetPositionByTimeLoop(position, waypoints, data, ref pathTime, ref oldWayPoint, ref newWayPoint, ref shouldStop), 
@@ -22,12 +17,6 @@ public class PathHelper
 
 	public static float CalcRoundTripTime(Vector3[] waypoints, MoverPattern pattern, float moveSpeed)
 	{
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0020: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0041: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0051: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0073: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0081: Unknown result type (might be due to invalid IL or missing references)
 		float num = 0f;
 		for (int i = 1; i < waypoints.Length; i++)
 		{
@@ -36,7 +25,7 @@ public class PathHelper
 		switch (pattern)
 		{
 		case MoverPattern.Loop:
-			num += Vector3.Distance(waypoints[0], waypoints[^1]);
+			num += Vector3.Distance(waypoints[0], waypoints[waypoints.Length - 1]);
 			break;
 		case MoverPattern.PingPong:
 		{
@@ -52,28 +41,8 @@ public class PathHelper
 		return num / moveSpeed;
 	}
 
-	private static Vector3 GetPositionByTimeLoop(Vector3 position, Vector3[] waypoints, Hashtable data, ref float pathTime, ref int oldWayPoint, ref int newWayPoint, ref bool shouldStop)
+	private static Vector3 GetPositionByTimeLoop(Vector3 position, Vector3[] waypoints, Dictionary<object, object> data, ref float pathTime, ref int oldWayPoint, ref int newWayPoint, ref bool shouldStop)
 	{
-		//IL_0041: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0046: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0056: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0065: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00fc: Unknown result type (might be due to invalid IL or missing references)
-		//IL_010a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0172: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0180: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0187: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0125: Unknown result type (might be due to invalid IL or missing references)
-		//IL_012f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0144: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0150: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0151: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0166: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b8: Unknown result type (might be due to invalid IL or missing references)
 		float num = (float)data["speed"];
 		bool flag = (bool)data["once"];
 		float num2 = pathTime * num;
@@ -83,7 +52,7 @@ public class PathHelper
 		newWayPoint = -1;
 		bool flag2 = false;
 		shouldStop = false;
-		Vector3 val = Vector3.zero;
+		Vector3 vector = Vector3.zero;
 		for (int i = 1; i < waypoints.Length; i++)
 		{
 			num3 += Vector3.Distance(waypoints[i], waypoints[i - 1]);
@@ -98,7 +67,7 @@ public class PathHelper
 		if (flag && flag2 && oldWayPoint == 0 && num4 == waypoints.Length - 1)
 		{
 			shouldStop = true;
-			val = waypoints[0];
+			vector = waypoints[0];
 		}
 		if (!flag2)
 		{
@@ -108,41 +77,19 @@ public class PathHelper
 		}
 		float num5 = num3 - num2;
 		float num6 = Vector3.Distance(waypoints[newWayPoint], waypoints[oldWayPoint]);
-		float num7 = (num6 - num5) / num6;
+		float t = (num6 - num5) / num6;
 		if (shouldStop)
 		{
-			float num8 = Vector3.Distance(position, Vector3.Lerp(waypoints[oldWayPoint], waypoints[newWayPoint], num7));
-			float num9 = Vector3.Distance(position, val);
-			pathTime -= (num8 - num9) / num;
-			return val;
+			float num7 = Vector3.Distance(position, Vector3.Lerp(waypoints[oldWayPoint], waypoints[newWayPoint], t));
+			float num8 = Vector3.Distance(position, vector);
+			pathTime -= (num7 - num8) / num;
+			return vector;
 		}
-		return Vector3.Lerp(waypoints[oldWayPoint], waypoints[newWayPoint], num7);
+		return Vector3.Lerp(waypoints[oldWayPoint], waypoints[newWayPoint], t);
 	}
 
-	private static Vector3 GetPositionByTimePingPong(Vector3 position, Vector3[] waypoints, Hashtable data, ref float pathTime, ref int oldWayPoint, ref int newWayPoint, ref bool shouldStop)
+	private static Vector3 GetPositionByTimePingPong(Vector3 position, Vector3[] waypoints, Dictionary<object, object> data, ref float pathTime, ref int oldWayPoint, ref int newWayPoint, ref bool shouldStop)
 	{
-		//IL_0041: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0046: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0056: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0065: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_014c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01b4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01c2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01c9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0167: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0171: Unknown result type (might be due to invalid IL or missing references)
-		//IL_017f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0186: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0192: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0193: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01a8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ce: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00db: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00af: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0129: Unknown result type (might be due to invalid IL or missing references)
-		//IL_012e: Unknown result type (might be due to invalid IL or missing references)
 		float num = (float)data["speed"];
 		bool flag = (bool)data["once"];
 		float num2 = pathTime * num;
@@ -152,7 +99,7 @@ public class PathHelper
 		newWayPoint = -1;
 		bool flag2 = false;
 		shouldStop = false;
-		Vector3 val = Vector3.zero;
+		Vector3 vector = Vector3.zero;
 		for (int i = 1; i < waypoints.Length; i++)
 		{
 			num3 += Vector3.Distance(waypoints[i], waypoints[i - 1]);
@@ -167,7 +114,7 @@ public class PathHelper
 		if (flag && flag2 && oldWayPoint == 0 && num4 == 1)
 		{
 			shouldStop = true;
-			val = waypoints[0];
+			vector = waypoints[0];
 		}
 		if (!flag2)
 		{
@@ -185,18 +132,18 @@ public class PathHelper
 		if (flag && oldWayPoint == waypoints.Length - 1 && num4 == waypoints.Length - 2)
 		{
 			shouldStop = true;
-			val = waypoints[^1];
+			vector = waypoints[waypoints.Length - 1];
 		}
 		float num6 = num3 - num2;
 		float num7 = Vector3.Distance(waypoints[newWayPoint], waypoints[oldWayPoint]);
-		float num8 = (num7 - num6) / num7;
+		float t = (num7 - num6) / num7;
 		if (shouldStop)
 		{
-			float num9 = Vector3.Distance(position, Vector3.Lerp(waypoints[oldWayPoint], waypoints[newWayPoint], num8));
-			float num10 = Vector3.Distance(position, val);
-			pathTime -= (num9 - num10) / num;
-			return val;
+			float num8 = Vector3.Distance(position, Vector3.Lerp(waypoints[oldWayPoint], waypoints[newWayPoint], t));
+			float num9 = Vector3.Distance(position, vector);
+			pathTime -= (num8 - num9) / num;
+			return vector;
 		}
-		return Vector3.Lerp(waypoints[oldWayPoint], waypoints[newWayPoint], num8);
+		return Vector3.Lerp(waypoints[oldWayPoint], waypoints[newWayPoint], t);
 	}
 }

@@ -1,8 +1,8 @@
 public abstract class MVNetworkObject
 {
-	protected const int broadcastInterval = 100;
+	protected const int broadcastInterval = 200;
 
-	protected const int clientDelay = 100;
+	protected const int clientDelay = 200;
 
 	private MVWorldObjectClient worldObject;
 

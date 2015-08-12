@@ -239,7 +239,7 @@ public class BytePacker
 	public void Write(float value)
 	{
 		byte[] bytes = BitConverter.GetBytes(value);
-		Array.Reverse((Array)bytes);
+		Array.Reverse(bytes);
 		Write(bytes);
 	}
 
@@ -340,7 +340,7 @@ public class BytePacker
 	public float ReadSingle()
 	{
 		byte[] array = ReadBytes(4);
-		Array.Reverse((Array)array);
+		Array.Reverse(array);
 		return BitConverter.ToSingle(array, 0);
 	}
 

@@ -1,13 +1,13 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
 
 namespace MV.Common;
 
 public static class CommonUtils
 {
-	public static void PartialUpdateHashtable(Hashtable target, Hashtable source)
+	public static void PartialUpdateHashtable(Dictionary<object, object> target, Dictionary<object, object> source)
 	{
-		foreach (DictionaryEntry item in source)
+		foreach (KeyValuePair<object, object> item in source)
 		{
 			if (item.Value == null)
 			{
@@ -16,27 +16,18 @@ public static class CommonUtils
 			if (target.ContainsKey(item.Key))
 			{
 				object obj = target[item.Key];
-				if ((object)obj.GetType() != item.Value.GetType())
+				if (obj.GetType() != item.Value.GetType())
 				{
-					throw new ArgumentException(string.Concat(new object[7]
-					{
-						"Incompatible types ",
-						obj.GetType(),
-						" and ",
-						item.Value.GetType(),
-						" for key [",
-						item.Key,
-						"]"
-					}));
+					throw new ArgumentException(string.Concat("Incompatible types ", obj.GetType(), " and ", item.Value.GetType(), " for key [", item.Key, "]"));
 				}
-				if (!(obj is Hashtable hashtable))
+				if (!(obj is Dictionary<object, object> dictionary))
 				{
 					target[item.Key] = item.Value;
 				}
-				else if (hashtable != null)
+				else if (dictionary != null)
 				{
-					Hashtable source2 = item.Value as Hashtable;
-					PartialUpdateHashtable(hashtable, source2);
+					Dictionary<object, object> source2 = item.Value as Dictionary<object, object>;
+					PartialUpdateHashtable(dictionary, source2);
 				}
 			}
 			else
@@ -46,21 +37,21 @@ public static class CommonUtils
 		}
 	}
 
-	public static void PartialRemoveFromHashtable(Hashtable target, Hashtable source)
+	public static void PartialRemoveFromHashtable(Dictionary<object, object> target, Dictionary<object, object> source)
 	{
-		foreach (DictionaryEntry item in source)
+		foreach (KeyValuePair<object, object> item in source)
 		{
 			if (item.Value == null)
 			{
 				target.Remove(item.Key);
 				continue;
 			}
-			if (!(item.Value is Hashtable source2))
+			if (!(item.Value is Dictionary<object, object> source2))
 			{
 				target.Remove(item.Key);
 				continue;
 			}
-			if (target[item.Key] is Hashtable target2)
+			if (target[item.Key] is Dictionary<object, object> target2)
 			{
 				PartialRemoveFromHashtable(target2, source2);
 				continue;

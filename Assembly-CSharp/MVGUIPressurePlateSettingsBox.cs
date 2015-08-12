@@ -1,12 +1,10 @@
-using System.Collections;
 using System.Collections.Generic;
-using Localize;
 
 public class MVGUIPressurePlateSettingsBox : MVGUISettingsDialog
 {
 	public MVGUIPressurePlateSettingsBox()
 	{
-		dialogFactory.CreateDialog(TextSlotIndex.Hide, TextSlotIndex.PressurePlate, UXDialogType.Toggle).AddPositiveButton(TextSlotIndex.Confirm).AddNegativeButton(TextSlotIndex.Cancel)
+		dialogFactory.CreateDialog(TM._("Hide"), TM._("Pressure Plate"), UXDialogType.Toggle).AddPositiveButton(TM._("Yes")).AddNegativeButton(TM._("Cancel"))
 			.SetOnResultCallback(OnDialogResult)
 			.SetValues(BuildDialogData())
 			.Show();
@@ -17,13 +15,13 @@ public class MVGUIPressurePlateSettingsBox : MVGUISettingsDialog
 		if (dialog.DialogResult == UXDialogResult.Positive)
 		{
 			bool flag = (bool)dialog.GetResult();
-			Hashtable hashtable = (Hashtable)wo.Data.Clone();
-			if (!hashtable.ContainsKey("hide"))
+			Dictionary<object, object> dictionary = new Dictionary<object, object>(wo.Data);
+			if (!dictionary.ContainsKey("hide"))
 			{
-				hashtable.Add("hide", false);
+				dictionary.Add("hide", false);
 			}
-			hashtable["hide"] = flag;
-			MVGameController.Instance.Game.UpdateWorldObjectDataPartial(wo.Id, hashtable);
+			dictionary["hide"] = flag;
+			MVGameController.Game.UpdateWorldObjectDataPartial(wo.Id, dictionary);
 		}
 	}
 

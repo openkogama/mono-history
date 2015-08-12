@@ -33,12 +33,10 @@ public class AudioBank
 
 	public AudioBank(string audioResourcesPath)
 	{
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0029: Expected Obj, but got Unknown
 		this.audioResourcesPath = audioResourcesPath;
-		GameObject val = new GameObject($"AudioBank ({audioResourcesPath})");
-		audioSource = val.AddComponent<AudioSource>();
-		Object.DontDestroyOnLoad((Object)(object)val);
+		GameObject gameObject = new GameObject($"AudioBank ({audioResourcesPath})");
+		audioSource = gameObject.AddComponent<AudioSource>();
+		Object.DontDestroyOnLoad(gameObject);
 	}
 
 	public AudioBankSound GetSound(string id)
@@ -46,13 +44,11 @@ public class AudioBank
 		if (!sounds.TryGetValue(id, out var value))
 		{
 			value = new AudioBankSoundImpl(this, id);
-			string text = audioResourcesPath + id;
-			AudioBankSoundImpl audioBankSoundImpl = value;
-			Object val = Resources.Load(text, typeof(AudioClip));
-			audioBankSoundImpl.audioClip = (AudioClip)(object)((val is AudioClip) ? val : null);
-			if ((Object)(object)value.audioClip == (Object)null)
+			string path = audioResourcesPath + id;
+			value.audioClip = Resources.Load(path, typeof(AudioClip)) as AudioClip;
+			if (value.audioClip == null)
 			{
-				Debug.LogWarning((object)$"Could not load sound '{id}' from 'Resources/{audioResourcesPath}'.");
+				Debug.LogWarning($"Could not load sound '{id}' from 'Resources/{audioResourcesPath}'.");
 			}
 			sounds[id] = value;
 		}
@@ -61,7 +57,7 @@ public class AudioBank
 
 	private void Play(AudioBankSoundImpl sound)
 	{
-		if ((Object)(object)sound.audioClip != (Object)null)
+		if (sound.audioClip != null)
 		{
 			audioSource.pitch = Random.Range(0.9f, 1.1f);
 		}

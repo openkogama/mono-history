@@ -7,18 +7,8 @@ public class VehicleBlinker : BlinkerBase
 
 	public Color blinkAboutToExpireColor = new Color(29f, 108f, 219f);
 
-	public VehicleBlinker()
-	{
-		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0015: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002f: Unknown result type (might be due to invalid IL or missing references)
-	}
-
 	private void Awake()
 	{
-		//IL_0015: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0032: Unknown result type (might be due to invalid IL or missing references)
 		blinkers = new Dictionary<BlinkType, Blinker>
 		{
 			{

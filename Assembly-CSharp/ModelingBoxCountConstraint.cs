@@ -24,7 +24,7 @@ public class ModelingBoxCountConstraint : ModelingBoxConstraint
 		bool flag = minCubesCount < cubeModel.CubeCount;
 		if (!flag)
 		{
-			Debug.Log((object)("Constraint violited! min: " + minCubesCount + " current " + cubeModel.CubeCount));
+			Debug.Log("Constraint violited! min: " + minCubesCount + " current " + cubeModel.CubeCount);
 		}
 		return flag;
 	}

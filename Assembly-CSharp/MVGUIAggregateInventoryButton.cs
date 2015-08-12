@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public class MVGUIAggregateInventoryButton : UXViewScript
 {
 	public MVGUIAggregateInventory aggregateInventory;
@@ -8,19 +6,19 @@ public class MVGUIAggregateInventoryButton : UXViewScript
 
 	public void ShowInventory()
 	{
-		MVGameController.Instance.EditController.ShowInventory();
+		MVGameController.EditorController.ShowInventory();
 	}
 
 	public override void OnShow()
 	{
 		base.OnShow();
-		((Component)inventoryIcon).gameObject.SetActiveRecursively(true);
+		inventoryIcon.gameObject.SetActive(value: true);
 	}
 
 	public override void OnHide()
 	{
 		base.OnHide();
-		((Component)inventoryIcon).gameObject.SetActiveRecursively(false);
+		inventoryIcon.gameObject.SetActive(value: false);
 		aggregateInventory.View.Hide();
 	}
 

@@ -17,7 +17,7 @@ public class UXSimpleMouseOverScale : MonoBehaviour
 
 	private void Awake()
 	{
-		UXMouseOverObject component = ((Component)this).GetComponent<UXMouseOverObject>();
+		UXMouseOverObject component = GetComponent<UXMouseOverObject>();
 		component.OnMouseOverEnter = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(component.OnMouseOverEnter, new UXMouseOverObject.OnMouseOverDelegate(OnMouseOverEnter));
 		component.OnMouseOverExit = (UXMouseOverObject.OnMouseOverDelegate)Delegate.Combine(component.OnMouseOverExit, new UXMouseOverObject.OnMouseOverDelegate(OnMouseOverExit));
 		RefreshScaleValues();
@@ -34,7 +34,7 @@ public class UXSimpleMouseOverScale : MonoBehaviour
 
 	private IEnumerator Scale(float target, float duration)
 	{
-		yield return ((MonoBehaviour)this).StartCoroutine(pTween.To(duration, ratio, target, (float t) =>
+		yield return StartCoroutine(pTween.To(duration, ratio, target, (float t) =>
 		{
 			ratio = t;
 			UpdateScale(Mathf.SmoothStep(0f, 1f, ratio));
@@ -43,26 +43,24 @@ public class UXSimpleMouseOverScale : MonoBehaviour
 
 	private void UpdateScale(float ratio)
 	{
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001d: Unknown result type (might be due to invalid IL or missing references)
-		((Component)this).transform.localScale = Vector3.one * Mathf.Lerp(minScale, maxScale, ratio);
+		transform.localScale = Vector3.one * Mathf.Lerp(minScale, maxScale, ratio);
 	}
 
 	public void OnMouseOverEnter(UXMouseOverObject mouseOverObject)
 	{
-		((MonoBehaviour)this).StopAllCoroutines();
-		if (((Component)this).gameObject.active)
+		StopAllCoroutines();
+		if (gameObject.activeInHierarchy)
 		{
-			((MonoBehaviour)this).StartCoroutine(Scale(1f, scaleUpDuration));
+			StartCoroutine(Scale(1f, scaleUpDuration));
 		}
 	}
 
 	public void OnMouseOverExit(UXMouseOverObject mouseOverObject)
 	{
-		((MonoBehaviour)this).StopAllCoroutines();
-		if (((Component)this).gameObject.active)
+		StopAllCoroutines();
+		if (gameObject.activeInHierarchy)
 		{
-			((MonoBehaviour)this).StartCoroutine(Scale(0f, scaleDownDuration));
+			StartCoroutine(Scale(0f, scaleDownDuration));
 		}
 	}
 

@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -20,22 +19,13 @@ public class MVDragon : MVBlueprintBase
 
 	public GameObject DragonTargetArea => dragonTargetArea;
 
-	public bool IsPlayMode => MVGameController.Instance.EditController != null && MVGameController.Instance.EditController.PlayInEditor;
+	public bool IsPlayMode => MVGameController.EditorController != null && MVGameController.EditorController.PlayInEditor;
 
-	public override Vector3 WorldPivot
-	{
-		get
-		{
-			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-			return WorldPosition;
-		}
-	}
+	public override Vector3 WorldPivot => WorldPosition;
 
-	public MVDragon(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVDragon(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, "Prefabs/Blueprints/DragonPosition", worldObjects)
 	{
-		//IL_002e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0033: Unknown result type (might be due to invalid IL or missing references)
 		dragonTargetArea = LoadPrefab("Prefabs/Blueprints/DragonTargetArea");
 		dragonTargetArea.transform.Translate(2f * Vector3.left);
 		interactionFlags |= InteractionFlags.CanEdit;
@@ -63,11 +53,11 @@ public class MVDragon : MVBlueprintBase
 		dragonNeck = GetChild((int)childIdMap["DragonNeck"]) as MVCubeModelInstance;
 		if (dragonHead == null)
 		{
-			Debug.Log((object)"Missing dragon head");
+			Debug.Log("Missing dragon head");
 		}
 		if (dragonNeck == null)
 		{
-			Debug.Log((object)"Missing dragon Neck");
+			Debug.Log("Missing dragon Neck");
 		}
 		if (dragonHead != null && dragonNeck != null)
 		{
@@ -85,7 +75,6 @@ public class MVDragon : MVBlueprintBase
 
 	public override void Select(Color color)
 	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
 		base.Select(color);
 		Dragon component = GameObject.GetComponent<Dragon>();
 		component.UpdateNeck(fullUpdate: true);
@@ -104,7 +93,7 @@ public class MVDragon : MVBlueprintBase
 		{
 			return false;
 		}
-		MVGameController.Instance.Game.CameraController.CurCamera.FocusOnObject(this);
+		MVGameController.Game.CameraController.CurCamera.FocusOnObject(this);
 		e.SelectWO(dragonNeck.Id, addToSelection: false);
 		e.Event = EditorEvent.EditCubes;
 		return true;
@@ -118,16 +107,11 @@ public class MVDragon : MVBlueprintBase
 
 	public override Bounds GetLocalBounds(BoundsContext boundsContext)
 	{
-		//IL_0018: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0045: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005d: Unknown result type (might be due to invalid IL or missing references)
-		Transform component = ((Component)GameObject.GetComponentInChildren<MeshRenderer>()).gameObject.GetComponent<Transform>();
-		Bounds val = new Bounds(Vector3.zero, component.localScale);
+		Transform component = GameObject.GetComponentInChildren<MeshRenderer>().gameObject.GetComponent<Transform>();
+		Bounds bounds = new Bounds(Vector3.zero, component.localScale);
 		return boundsContext switch
 		{
-			BoundsContext.Insert => val, 
+			BoundsContext.Insert => bounds, 
 			_ => base.GetLocalBounds(boundsContext), 
 		};
 	}

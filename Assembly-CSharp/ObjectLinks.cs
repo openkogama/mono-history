@@ -16,7 +16,7 @@ public class ObjectLinks
 	{
 		if (!objectLinks.ContainsKey(objectLinkID))
 		{
-			Debug.LogWarning((object)"objectLinkID not found");
+			Debug.LogWarning("objectLinkID not found");
 			return null;
 		}
 		return objectLinks[objectLinkID];
@@ -43,7 +43,7 @@ public class ObjectLinks
 	{
 		if (!objectLinks.ContainsKey(link.id))
 		{
-			Debug.LogError((object)"Attempt to RemovePending ObjectLink, but link not registered");
+			Debug.LogError("Attempt to RemovePending ObjectLink, but link not registered");
 			return;
 		}
 		RemoveObjectLink(link, objectConnectorWo);
@@ -59,11 +59,11 @@ public class ObjectLinks
 	{
 		if (!objectLinks.ContainsKey(link.id))
 		{
-			Debug.LogError((object)"Attempt to remove ObjectLink, but link is not registered");
+			Debug.LogError("Attempt to remove ObjectLink, but link is not registered");
 			return false;
 		}
 		objectLinks.Remove(link.id);
-		Object.Destroy((Object)(object)objectLinkObjects[link.id]);
+		Object.Destroy(objectLinkObjects[link.id]);
 		objectLinkObjects.Remove(link.id);
 		objectConnectorWo.RemoveObjectLink(link);
 		return true;
@@ -73,17 +73,17 @@ public class ObjectLinks
 	{
 		if (objectLinks.ContainsKey(objectLink.id))
 		{
-			Debug.LogError((object)"Attempt to add ObjectLink, but link with id already registered!");
+			Debug.LogError("Attempt to add ObjectLink, but link with id already registered!");
 			return false;
 		}
 		if (objectLink.objectConnectorWOID <= 0 || objectLink.objectWOID <= 0)
 		{
-			Debug.LogError((object)"Attempt to add ObjectLink, but link is not connected!");
+			Debug.LogError("Attempt to add ObjectLink, but link is not connected!");
 			return false;
 		}
 		if (objectConnectorWo == null || objectWo == null)
 		{
-			Debug.LogError((object)"Attempt to add ObjectLink, but one of the ends points to unregistered WorldObjects");
+			Debug.LogError("Attempt to add ObjectLink, but one of the ends points to unregistered WorldObjects");
 			return false;
 		}
 		return true;
@@ -91,17 +91,15 @@ public class ObjectLinks
 
 	public bool AddObjectLink(ObjectLink objectLink, MVWorldObjectClient objectConnectorWo, MVWorldObjectClient objectWo)
 	{
-		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0037: Expected Obj, but got Unknown
 		if (!ValidateObjectLink(objectLink, objectConnectorWo, objectWo))
 		{
 			return false;
 		}
 		objectLinks.Add(objectLink.id, objectLink);
-		GameObject val = (GameObject)Object.Instantiate(Resources.Load("Prefabs/ObjectLinkObject"));
-		val.GetComponentInChildren<LinkObjectScript>().linkID = objectLink.id;
-		val.GetComponentInChildren<LinkObjectScript>().isObjectLink = true;
-		objectLinkObjects.Add(objectLink.id, val);
+		GameObject gameObject = (GameObject)Object.Instantiate(Resources.Load("Prefabs/ObjectLinkObject"));
+		gameObject.GetComponentInChildren<LinkObjectScript>().linkID = objectLink.id;
+		gameObject.GetComponentInChildren<LinkObjectScript>().isObjectLink = true;
+		objectLinkObjects.Add(objectLink.id, gameObject);
 		objectConnectorWo.AddObjectLink(objectLink);
 		return true;
 	}

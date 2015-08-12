@@ -16,8 +16,8 @@ public class UXDialogBox : MonoBehaviour
 
 	public virtual void OnShowDialog()
 	{
-		DialogFactory = UXUtils.FindGUIObjectOfType<UXDialogFactory>();
-		DialogWindow = UXUtils.FindChild(((Component)this).gameObject, "Window").GetComponent<UXWindow>();
+		DialogFactory = UXUtils.UXDialogFactory;
+		DialogWindow = UXUtils.FindChild(gameObject, "Window").GetComponent<UXWindow>();
 	}
 
 	public virtual void OnCloseDialog()
@@ -43,13 +43,11 @@ public class UXDialogBox : MonoBehaviour
 
 	public virtual Vector2 GetSize()
 	{
-		//IL_0032: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0037: Unknown result type (might be due to invalid IL or missing references)
-		if ((Object)(object)DialogWindow == (Object)null)
+		if (DialogWindow == null)
 		{
-			DialogWindow = UXUtils.FindChild(((Component)this).gameObject, "Window").GetComponent<UXWindow>();
+			DialogWindow = UXUtils.FindChild(gameObject, "Window").GetComponent<UXWindow>();
 		}
-		return Vector2.op_Implicit(DialogWindow.Size);
+		return DialogWindow.Size;
 	}
 
 	public virtual void OnPositiveClose()

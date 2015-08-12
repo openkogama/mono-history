@@ -1,5 +1,5 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
 
 public class MVGUITimeTriggerSettingsBox : UXCustomDialogBox
 {
@@ -17,10 +17,10 @@ public class MVGUITimeTriggerSettingsBox : UXCustomDialogBox
 
 	public override object GetResult()
 	{
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add("time", delayTimeIntermediate);
-		hashtable.Add("duration", durationTimeIntermediate);
-		return hashtable;
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add("time", delayTimeIntermediate);
+		dictionary.Add("duration", durationTimeIntermediate);
+		return dictionary;
 	}
 
 	public override void OnShowDialog()

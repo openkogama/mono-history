@@ -44,12 +44,12 @@ public class DeltaCubes
 		{
 			if (!Cube.IsLegal(rpcm.GetCube(keyValuePair.Key).Corners))
 			{
-				Debug.LogError((object)"Illegal cube detected in delta cube dequeue");
+				Debug.LogError("Illegal cube detected in delta cube dequeue");
 				return null;
 			}
 			if (Cube.IsCollapsed(rpcm.GetCube(keyValuePair.Key).Corners))
 			{
-				Debug.LogWarning((object)"IsCollapsed  cube detected in delta cube dequeue");
+				Debug.LogWarning("IsCollapsed  cube detected in delta cube dequeue");
 				return null;
 			}
 			bytePacker.Write((byte)keyValuePair.Value);

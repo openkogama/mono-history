@@ -1,6 +1,6 @@
 using MV.Common;
 
-public class AvatarInteractable : MVInteractable
+public class AvatarInteractable : MVInteractable, IMoveHitHandler
 {
 	private MVRuntimeDataVariable invulnerable;
 
@@ -12,14 +12,14 @@ public class AvatarInteractable : MVInteractable
 
 	public override void TakeDamage(float amount, MVPlayer damageDealer, PlayerKilledByType damageType)
 	{
-		if (!IgnoreDamage(damageDealer) && MVGameController.Instance.Game.IsPlaying && !(bool)invulnerable.Value && !HasModifier(AvatarModifierPackageType.Mutant))
+		if (!IgnoreDamage(damageDealer) && MVGameController.Game.IsPlaying && !(bool)invulnerable.Value && !HasModifier(AvatarModifierPackageType.Mutant))
 		{
 			float value = health.Value;
 			health.Value -= amount;
 			if (health.Value <= 0f && value > 0f)
 			{
-				int killerId = damageDealer?.ActorNr ?? MVGameController.Instance.Game.LocalPlayerActorNumber;
-				MVGameController.Instance.Game.PostGameMsg(MVGameMsgType.AvatarKilled, GameMessages.MakePlayerKilledMessage(MVGameController.Instance.Game.LocalPlayerActorNumber, killerId, damageType));
+				int killerId = damageDealer?.ActorNr ?? MVGameController.Game.LocalPlayerActorNumber;
+				MVGameController.Game.PostGameMsg(MVGameMsgType.AvatarKilled, GameMessages.MakePlayerKilledMessage(MVGameController.Game.LocalPlayerActorNumber, killerId, damageType));
 			}
 		}
 	}
@@ -38,5 +38,10 @@ public class AvatarInteractable : MVInteractable
 			break;
 		}
 		base.AddModifier(type, id, additionalModifers);
+	}
+
+	public void HandleMoveHit(MVControllerColliderHit moveHit)
+	{
+		AddModifier(moveHit.material.modifierPackageType);
 	}
 }

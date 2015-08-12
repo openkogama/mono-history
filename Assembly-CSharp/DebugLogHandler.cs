@@ -6,13 +6,9 @@ public static class DebugLogHandler
 {
 	private static bool logErrorHasBeenSendOnce = false;
 
-	private static bool showErrorPopupClient = false;
-
-	private static bool enableSentry = false;
-
 	private static Queue<Dictionary<string, object>> logContextQueue = new Queue<Dictionary<string, object>>();
 
-	private static int maxLogContextQueueCount = 10;
+	private static int maxLogContextQueueCount = 15;
 
 	private static List<Action<string, string, LogType>> logHandlers = new List<Action<string, string, LogType>>();
 
@@ -25,27 +21,11 @@ public static class DebugLogHandler
 
 	public static void Init()
 	{
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0011: Expected Obj, but got Unknown
-		Application.RegisterLogCallback((LogCallback)HandleLog);
-	}
-
-	public static void Setup(bool showErrorPopupClient, bool enableSentry)
-	{
-		DebugLogHandler.showErrorPopupClient = showErrorPopupClient;
-		DebugLogHandler.enableSentry = enableSentry;
+		Application.logMessageReceived += HandleLog;
 	}
 
 	private static void HandleLog(string logString, string stackTrace, LogType type)
 	{
-		//IL_001b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0049: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004b: Invalid comparison between Unknown and I4
-		//IL_0063: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0050: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0052: Invalid comparison between Unknown and I4
-		//IL_007c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ac: Unknown result type (might be due to invalid IL or missing references)
 		foreach (Action<string, string, LogType> logHandler in logHandlers)
 		{
 			logHandler(logString, stackTrace, type);
@@ -54,19 +34,19 @@ public static class DebugLogHandler
 		{
 			return;
 		}
-		if ((int)type == 2 || (int)type == 3 || IsIgnored(logString))
+		if (type == LogType.Warning || type == LogType.Log || IsIgnored(logString))
 		{
 			AddLogToLogContext(logString, type);
 			return;
 		}
-		if (showErrorPopupClient)
+		if (MVClientSettings.IsDebugMode)
 		{
-			UXDialogFactory uXDialogFactory = UXUtils.FindGUIObjectOfType<UXDialogFactory>();
-			uXDialogFactory.BuildDialog(stackTrace, ((Enum)type).ToString(), UXDialogType.Simple, noButtons: false, stackDialog: true).Show();
+			UXDialogFactory uXDialogFactory = UXUtils.UXDialogFactory;
+			uXDialogFactory.BuildDialog(stackTrace, type.ToString(), UXDialogType.Simple, noButtons: false, stackDialog: true).Show();
 		}
-		if (enableSentry)
+		if (MVClientSettings.EnableSentry)
 		{
-			MVGameController.Instance.Game.SendClientLog(logString, stackTrace, type, GetExtraSentryData());
+			MVGameController.Game.SendClientLog(logString, stackTrace, type, GetExtraSentryData());
 		}
 		logErrorHasBeenSendOnce = true;
 	}
@@ -78,10 +58,9 @@ public static class DebugLogHandler
 
 	private static void AddLogToLogContext(string logString, LogType type)
 	{
-		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
 		Dictionary<string, object> dictionary = new Dictionary<string, object>();
 		dictionary.Add("Time.frameCount", Time.frameCount);
-		dictionary.Add("LogType", ((Enum)type).ToString());
+		dictionary.Add("LogType", type.ToString());
 		dictionary.Add("Log", logString);
 		logContextQueue.Enqueue(dictionary);
 		if (logContextQueue.Count > maxLogContextQueueCount)
@@ -92,7 +71,6 @@ public static class DebugLogHandler
 
 	private static Dictionary<string, object> GetExtraSentryData()
 	{
-		//IL_0091: Unknown result type (might be due to invalid IL or missing references)
 		Dictionary<string, object> dictionary = new Dictionary<string, object>();
 		dictionary.Add("Time.frameCount", Time.frameCount);
 		dictionary.Add("BrowserInfo", GetBrowserInfo());
@@ -102,7 +80,7 @@ public static class DebugLogHandler
 		dictionary.Add("Is tourist session", GetIsTouristSession());
 		dictionary.Add("ProfileID", GetProfileID());
 		dictionary.Add("PlanetID", GetPlanetID());
-		dictionary.Add("RuntimePlatform", ((Enum)Application.platform).ToString());
+		dictionary.Add("RuntimePlatform", Application.platform.ToString());
 		dictionary.Add("SystemInfo", GetSystemInfo());
 		dictionary.Add("Log Context", GetLogContext());
 		return dictionary;
@@ -110,64 +88,40 @@ public static class DebugLogHandler
 
 	private static string GetIsTouristSession()
 	{
-		if ((Object)(object)MVGameController.Instance == (Object)null)
-		{
-			return "MVGameController is null";
-		}
-		return MVGameController.Instance.IsTouristSession.ToString();
+		return MVGameController.Game.IsTouristSession.ToString();
 	}
 
 	private static string GetPlanetID()
 	{
-		if ((Object)(object)MVGameController.Instance == (Object)null)
-		{
-			return "MVGameController is null";
-		}
-		return MVGameController.Instance.PlanetID.ToString();
+		return MVGameController.GameSessionData.planetID.ToString();
 	}
 
 	private static string GetProfileID()
 	{
-		if ((Object)(object)MVGameController.Instance == (Object)null)
-		{
-			return "MVGameController is null";
-		}
-		return MVGameController.Instance.ProfileID.ToString();
+		return MVGameController.GameSessionData.profileID.ToString();
 	}
 
 	private static string GetGameMode()
 	{
-		if ((Object)(object)MVGameController.Instance == (Object)null)
-		{
-			return "MVGameController is null";
-		}
-		return MVGameController.Instance.GameMode.ToString();
+		return MVGameController.GameMode.ToString();
 	}
 
 	private static string GetJoinState()
 	{
-		if ((Object)(object)MVGameController.Instance == (Object)null)
+		if (MVGameController.Game == null)
 		{
-			return "MVGameController is null";
+			return "MVGameController.Game is null";
 		}
-		if (MVGameController.Instance.Game == null)
-		{
-			return "MVGameController.Instance.Game is null";
-		}
-		return MVGameController.Instance.Game.JoinState.ToString();
+		return MVGameController.Game.JoinState.ToString();
 	}
 
 	private static string GetPlayersCount()
 	{
-		if ((Object)(object)MVGameController.Instance == (Object)null)
+		if (MVGameController.WOCM == null)
 		{
-			return "MVGameController is null";
+			return "MVGameController.WOCM is null";
 		}
-		if (MVGameController.Instance.WOCM == null)
-		{
-			return "MVGameController.Instance.WOCM is null";
-		}
-		return MVGameController.Instance.Game.Players.Count.ToString();
+		return MVGameController.Game.Players.Count.ToString();
 	}
 
 	private static string GetSystemInfo()
@@ -184,12 +138,10 @@ public static class DebugLogHandler
 		dictionary.Add("graphicsDeviceVendorID", SystemInfo.graphicsDeviceVendorID.ToString());
 		dictionary.Add("graphicsDeviceVersion", SystemInfo.graphicsDeviceVersion);
 		dictionary.Add("graphicsShaderLevel", SystemInfo.graphicsShaderLevel.ToString());
-		dictionary.Add("graphicsPixelFillrate", SystemInfo.graphicsPixelFillrate.ToString());
 		dictionary.Add("supportsShadows", SystemInfo.supportsShadows.ToString());
 		dictionary.Add("supportsRenderTextures", SystemInfo.supportsRenderTextures.ToString());
 		dictionary.Add("supportsImageEffects", SystemInfo.supportsImageEffects.ToString());
 		dictionary.Add("supportedRenderTargetCount", SystemInfo.supportedRenderTargetCount.ToString());
-		dictionary.Add("supportsVertexPrograms", SystemInfo.supportsVertexPrograms.ToString());
 		return GenerateSystemInfoString(dictionary);
 	}
 

@@ -6,15 +6,15 @@ using UnityEngine;
 
 public class MVTeamManager
 {
-	public delegate void OnTeamScoreUpdateDelegate();
-
 	public delegate void OnTeamsUpdatedDelegate();
 
 	private MVTeamData[] teamData = new MVTeamData[4];
 
-	public OnTeamScoreUpdateDelegate OnTeamScoreUpdate;
-
 	public OnTeamsUpdatedDelegate OnTeamsUpdated;
+
+	public event EventHandler<TeamEventArgs> OnTeamAdded;
+
+	public event EventHandler<TeamEventArgs> OnTeamRemoved;
 
 	public MVTeamManager()
 	{
@@ -26,24 +26,27 @@ public class MVTeamManager
 
 	public void AddTeam(MVTeam team)
 	{
-		if (team == MVTeam.None)
+		if (team == MVTeam.Server)
 		{
-			Debug.LogError((object)"Attempt to AddTeam of type None");
+			Debug.LogError("Attempt to AddTeam of type Server");
 			return;
 		}
 		teamData[(int)team].active = true;
-		teamData[(int)team].score = 0;
 		if (OnTeamsUpdated != null)
 		{
 			OnTeamsUpdated();
+		}
+		if (OnTeamAdded != null && OnTeamAdded != null)
+		{
+			OnTeamAdded(this, new TeamEventArgs(team));
 		}
 	}
 
 	public void RemoveTeam(MVTeam team)
 	{
-		if (team == MVTeam.None)
+		if (team == MVTeam.Server)
 		{
-			Debug.LogError((object)"Attempt to RemoveTeam of type None");
+			Debug.LogError("Attempt to RemoveTeam of type Server");
 			return;
 		}
 		teamData[(int)team].active = false;
@@ -51,79 +54,24 @@ public class MVTeamManager
 		{
 			OnTeamsUpdated();
 		}
+		if (OnTeamRemoved != null && OnTeamRemoved != null)
+		{
+			OnTeamRemoved(this, new TeamEventArgs(team));
+		}
 	}
 
 	public bool IsTeamActive(MVTeam team)
 	{
-		if (team == MVTeam.None)
-		{
-			return false;
-		}
 		return teamData[(int)team].active;
 	}
 
-	public void AddScore(MVTeam team, int score)
+	public int GetScore(MVTeam team, GameStatCounterType gameStatCounterType)
 	{
-		switch (team)
-		{
-		case MVTeam.None:
-			Debug.LogError((object)"Attempt to AddScore to team of type None");
-			return;
-		case MVTeam.All:
-			foreach (MVTeam team2 in GetTeamList())
-			{
-				teamData[(int)team2].score += score;
-			}
-			break;
-		default:
-			if (teamData[(int)team].active)
-			{
-				teamData[(int)team].score += score;
-			}
-			break;
-		}
-		if (OnTeamScoreUpdate != null)
-		{
-			OnTeamScoreUpdate();
-		}
-	}
-
-	public void SetScore(MVTeam team, int score)
-	{
-		switch (team)
-		{
-		case MVTeam.None:
-			return;
-		case MVTeam.All:
-			foreach (MVTeam team2 in GetTeamList())
-			{
-				teamData[(int)team2].score = score;
-			}
-			break;
-		default:
-			if (teamData[(int)team].active)
-			{
-				teamData[(int)team].score = score;
-			}
-			break;
-		}
-		if (OnTeamScoreUpdate != null)
-		{
-			OnTeamScoreUpdate();
-		}
-	}
-
-	public int GetScore(MVTeam team)
-	{
-		if (team == MVTeam.None)
-		{
-			return 0;
-		}
 		if (!teamData[(int)team].active)
 		{
 			return 0;
 		}
-		return teamData[(int)team].score;
+		return MVGameController.Game.GameStatCounterManager.GetTeamCount(gameStatCounterType, team);
 	}
 
 	public int TeamCount()
@@ -154,12 +102,12 @@ public class MVTeamManager
 
 	public List<MVPlayer> GetPlayersInTeam(MVTeam team)
 	{
-		return MVGameController.Instance.Game.Players.Values.Where((MVPlayer player) => player.Team == team).ToList();
+		return MVGameController.Game.Players.Values.Where((MVPlayer player) => player.Team == team).ToList();
 	}
 
 	public MVTeam GetTeamFromActorNr(int actorNumber)
 	{
-		return MVGameController.Instance.Game.Players[actorNumber].Team;
+		return MVGameController.Game.Players[actorNumber].Team;
 	}
 
 	public int GetNoOfPlayersInTeam(MVTeam team)

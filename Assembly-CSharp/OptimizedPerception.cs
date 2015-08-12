@@ -11,8 +11,6 @@ public class OptimizedPerception
 
 	public void Update(Vector3 position, float radius)
 	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0002: Unknown result type (might be due to invalid IL or missing references)
 		this.position = position;
 		this.radius = radius;
 		UpdatePotentialTargets();
@@ -57,30 +55,33 @@ public class OptimizedPerception
 
 	private bool GetValidTarget(int woID, out MVWorldObjectClient wo)
 	{
-		if (!MVGameController.Instance.WOCM.Contains(woID))
+		if (!MVGameController.WOCM.Contains(woID))
 		{
-			Debug.Log((object)("Does not contain woid " + woID));
+			Debug.Log("Does not contain woid " + woID);
 			wo = null;
 			return false;
 		}
-		wo = MVGameController.Instance.WOCM.GetWorldObjectClient(woID);
+		wo = MVGameController.WOCM.GetWorldObjectClient(woID);
+		if (!wo.GameObject.GetComponent<InteractionDataHandlerBase>().enabled)
+		{
+			return false;
+		}
 		return true;
 	}
 
 	private void UpdatePotentialTargets()
 	{
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
 		potentialTargets.Clear();
 		Collider[] array = Physics.OverlapSphere(position, radius, 1 << LayerMask.NameToLayer("Player"));
 		Collider[] array2 = array;
-		foreach (Collider val in array2)
+		foreach (Collider collider in array2)
 		{
-			MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(((Component)val).transform);
+			MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(collider.transform);
 			if (mVObject != null)
 			{
 				int id = mVObject.Id;
 				InteractionDataHandlerBase component = mVObject.GameObject.GetComponent<InteractionDataHandlerBase>();
-				if (!((Object)(object)component == (Object)null))
+				if (!(component == null) && component.enabled)
 				{
 					potentialTargets.Add(id);
 				}

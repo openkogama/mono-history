@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -36,10 +35,36 @@ public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 
 	private void Start()
 	{
-		if (!((Component)this).animation.isPlaying)
+		if (!GetComponent<Animation>().isPlaying)
 		{
-			((Component)this).animation.Play("Idle", (PlayMode)4);
+			GetComponent<Animation>().Play("Idle", PlayMode.StopAll);
 		}
+	}
+
+	public void PlayFootstepAudio()
+	{
+		if (mvAvatar == null)
+		{
+			return;
+		}
+		if (mvAvatar.Avatar.IsLocal)
+		{
+			if (GameDB.LocalAvatar.RigidBody.Grounded && !GameDB.LocalAvatar.IsInVehicle)
+			{
+				GetComponent<AudioSource>().pitch = GetFootstepPitch();
+				MVGameController.AudioManager.Play("Footstep", GetComponent<AudioSource>(), Camera.main.transform.position + Camera.main.transform.forward);
+			}
+		}
+		else
+		{
+			GetComponent<AudioSource>().pitch = GetFootstepPitch();
+			MVGameController.AudioManager.Play("Footstep", GetComponent<AudioSource>(), mvAvatar.Body.Transform.position);
+		}
+	}
+
+	private float GetFootstepPitch()
+	{
+		return UnityEngine.Random.Range(0.7f, 1.2f);
 	}
 
 	public void Attach(MVAvatar mvAvatar, bool isLocal)
@@ -56,7 +81,7 @@ public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 
 	public void Detach()
 	{
-		((Component)this).animation.Stop();
+		GetComponent<Animation>().Stop();
 		MVRuntimeDataVariable animation = mvAvatar.Animation;
 		animation.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Remove(animation.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AnimationChangeHandler));
 		if (woListener != null)
@@ -68,9 +93,9 @@ public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 
 	private void AnimationChangeHandler(object animData)
 	{
-		Hashtable hashtable = (Hashtable)animData;
-		string state = (string)hashtable["state"];
-		int timeStamp = (int)hashtable["timeStamp"];
+		Dictionary<object, object> dictionary = (Dictionary<object, object>)animData;
+		string state = (string)dictionary["state"];
+		int timeStamp = (int)dictionary["timeStamp"];
 		if (mvAvatar is MVAvatarLocal)
 		{
 			currentAnim = new AnimationData(state, timeStamp);
@@ -89,18 +114,18 @@ public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 		{
 			if (currentAnim.State == "Jump")
 			{
-				((Component)this).animation.Rewind("Jump");
-				((Component)this).animation.Play(currentAnim.State, (PlayMode)4);
+				GetComponent<Animation>().Rewind("Jump");
+				GetComponent<Animation>().Play(currentAnim.State, PlayMode.StopAll);
 			}
 			else
 			{
-				((Component)this).animation.CrossFade(currentAnim.State, 0.3f, (PlayMode)4);
+				GetComponent<Animation>().CrossFade(currentAnim.State, 0.3f, PlayMode.StopAll);
 			}
 			float num = 0f;
 			if (woListener != null && currentAnim.TimeStamp < woListener.DelayedTime)
 			{
-				num = 0.001f * (float)(woListener.DelayedTime - currentAnim.TimeStamp) / ((Component)this).animation[currentAnim.State].length;
-				((Component)this).animation[currentAnim.State].time = num;
+				num = 0.001f * (float)(woListener.DelayedTime - currentAnim.TimeStamp) / GetComponent<Animation>()[currentAnim.State].length;
+				GetComponent<Animation>()[currentAnim.State].time = num;
 			}
 			if (prevAnim != null && AnimationClipStopped != null)
 			{
@@ -162,63 +187,57 @@ public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 	public void Play(string animationName)
 	{
 		playingAnimations.Add(animationName);
-		((Component)this).animation[animationName].speed = 1f;
-		((Component)this).animation[animationName].time = 0f;
-		((Component)this).animation.Play(animationName, (PlayMode)4);
+		GetComponent<Animation>()[animationName].speed = 1f;
+		GetComponent<Animation>()[animationName].time = 0f;
+		GetComponent<Animation>().Play(animationName, PlayMode.StopAll);
 	}
 
 	public void PlayAndPauseAt(string animationName, float time)
 	{
 		playingAnimations.Add(animationName);
-		((Component)this).animation.Play(animationName, (PlayMode)4);
-		((Component)this).animation[animationName].time = time;
-		((Component)this).animation[animationName].speed = 0f;
+		GetComponent<Animation>().Play(animationName, PlayMode.StopAll);
+		GetComponent<Animation>()[animationName].time = time;
+		GetComponent<Animation>()[animationName].speed = 0f;
 		pauseNextFrame = true;
 		playStartFrame = Time.frameCount;
-		((Component)this).animation.Sample();
+		GetComponent<Animation>().Sample();
 	}
 
 	public void CrossFade(string animationName, float fadeTime)
 	{
 		playingAnimations.Add(animationName);
-		((Component)this).animation.CrossFade(animationName, fadeTime, (PlayMode)4);
+		GetComponent<Animation>().CrossFade(animationName, fadeTime, PlayMode.StopAll);
 	}
 
 	public void Stop()
 	{
-		((Component)this).animation.Stop();
+		GetComponent<Animation>().Stop();
 	}
 
 	public bool IsPlaying(string animationName)
 	{
-		return ((Component)this).animation.IsPlaying(animationName);
+		return GetComponent<Animation>().IsPlaying(animationName);
 	}
 
 	private void Update()
 	{
-		//IL_0093: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0099: Expected Obj, but got Unknown
-		//IL_003f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0045: Expected Obj, but got Unknown
 		if (pauseNextFrame && Time.frameCount == playStartFrame + 1)
 		{
-			((Component)this).animation.Stop();
-			foreach (AnimationState item in ((Component)this).animation)
+			GetComponent<Animation>().Stop();
+			foreach (AnimationState item in GetComponent<Animation>())
 			{
-				AnimationState val = item;
-				val.speed = 1f;
+				item.speed = 1f;
 			}
 			pauseNextFrame = false;
 		}
-		foreach (AnimationState item2 in ((Component)this).animation)
+		foreach (AnimationState item2 in GetComponent<Animation>())
 		{
-			AnimationState val2 = item2;
-			if (playingAnimations.Contains(val2.name) && !val2.enabled)
+			if (playingAnimations.Contains(item2.name) && !item2.enabled)
 			{
-				playingAnimations.Remove(val2.name);
+				playingAnimations.Remove(item2.name);
 				if (AnimationClipStopped != null)
 				{
-					AnimationClipStoppedEventArgs e = new AnimationClipStoppedEventArgs(val2.name);
+					AnimationClipStoppedEventArgs e = new AnimationClipStoppedEventArgs(item2.name);
 					AnimationClipStopped(this, e);
 				}
 			}

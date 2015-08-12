@@ -13,38 +13,32 @@ public class MVGUILoading : UXViewScript
 
 	public GameObject loadingCube;
 
-	private MVGameController gameController;
-
 	public override void OnHide()
 	{
 		base.OnHide();
-		loadingCube.gameObject.active = false;
+		loadingCube.gameObject.SetActive(value: false);
 	}
 
 	public override void OnShow()
 	{
 		base.OnShow();
-		loadingCube.gameObject.active = true;
-		loadingCube.renderer.material = materials[0];
+		loadingCube.gameObject.SetActive(value: true);
+		loadingCube.GetComponent<Renderer>().material = materials[0];
 	}
 
 	public void Update()
 	{
-		//IL_00c1: Unknown result type (might be due to invalid IL or missing references)
-		if ((Object)(object)gameController == (Object)null)
+		if (MVGameController.Game == null)
 		{
-			gameController = MVGameController.Instance;
+			return;
 		}
-		if ((Object)(object)gameController != (Object)null && gameController.Game != null)
+		if (MVGameController.Game.JoinState == MVJoinState.Playing && View.isVisible)
 		{
-			if (gameController.Game.JoinState == MVJoinState.Playing && View.isVisible)
-			{
-				View.Hide();
-			}
-			else if (gameController.Game.JoinState != MVJoinState.Playing && !View.isVisible)
-			{
-				View.Show();
-			}
+			View.Hide();
+		}
+		else if (MVGameController.Game.JoinState != MVJoinState.Playing && !View.isVisible)
+		{
+			View.Show();
 		}
 		if (!View.isVisible)
 		{
@@ -59,7 +53,7 @@ public class MVGUILoading : UXViewScript
 			{
 				currentMaterial = 0;
 			}
-			loadingCube.renderer.material = materials[currentMaterial];
+			loadingCube.GetComponent<Renderer>().material = materials[currentMaterial];
 			time = 0f;
 		}
 	}

@@ -1,10 +1,14 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class MVAvatarRemote : MVAvatar
 {
 	private const float hitTimeOut = 2f;
+
+	private HealthBar healthBar;
+
+	private CapsuleCollider triggerCollider;
 
 	private float impulseMagnitudeFactor = 0.6f;
 
@@ -18,7 +22,7 @@ public class MVAvatarRemote : MVAvatar
 
 	private float cullDistance = 145f;
 
-	public MVAvatarRemote(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVAvatarRemote(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, worldObjects)
 	{
 		SetNetworkObject(local: false);
@@ -27,74 +31,73 @@ public class MVAvatarRemote : MVAvatar
 	public override void Initialize()
 	{
 		base.Initialize();
-		avatar.NameTag = (string)Data["ownerUserName"];
-		CreateTriggerCollider();
+		avatar.UpdateNameTag();
+		healthBar = gameObject.GetComponentInChildren<HealthBar>();
+		healthBar.Oxygen = 0f;
+		InitializeHealth();
+		triggerCollider = CreateTriggerCollider();
+		AvatarStateChangedHandler(AvatarRuntimeDataState.Value);
 	}
 
-	private void CreateTriggerCollider()
+	private void InitializeHealth()
 	{
-		//IL_0005: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Expected Obj, but got Unknown
-		//IL_0027: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0037: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0070: Expected Obj, but got Unknown
-		GameObject val = new GameObject("triggerCollider");
-		val.transform.parent = gameObject.transform;
-		val.transform.localPosition = Vector3.zero;
-		val.transform.localRotation = Quaternion.identity;
-		val.layer = LayerMask.NameToLayer("Player");
-		CapsuleCollider val2 = val.AddComponent<CapsuleCollider>();
-		((Collider)val2).isTrigger = true;
-		CapsuleCollider val3 = (CapsuleCollider)gameObject.collider;
-		val2.height = val3.height;
-		val2.radius = val3.radius;
-		TriggerBoxEvents triggerBoxEvents = val.AddComponent<TriggerBoxEvents>();
+		MVRuntimeDataVariableClampedFloat health = Health;
+		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object obj) =>
+		{
+			healthBar.Health = (float)obj;
+		}));
+		healthBar.Health = Health.Value;
+	}
+
+	private CapsuleCollider CreateTriggerCollider()
+	{
+		GameObject gameObject = new GameObject("triggerCollider");
+		gameObject.transform.parent = base.gameObject.transform;
+		gameObject.transform.localPosition = Vector3.zero;
+		gameObject.transform.localRotation = Quaternion.identity;
+		gameObject.layer = LayerMask.NameToLayer("Player");
+		CapsuleCollider capsuleCollider = gameObject.AddComponent<CapsuleCollider>();
+		capsuleCollider.isTrigger = true;
+		CapsuleCollider capsuleCollider2 = (CapsuleCollider)base.gameObject.GetComponent<Collider>();
+		capsuleCollider.height = capsuleCollider2.height;
+		capsuleCollider.radius = capsuleCollider2.radius;
+		TriggerBoxEvents triggerBoxEvents = gameObject.AddComponent<TriggerBoxEvents>();
 		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
+		return capsuleCollider;
 	}
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		//IL_0051: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0056: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0057: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0062: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00be: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f7: Unknown result type (might be due to invalid IL or missing references)
 		if (Time.time - prevHitTime < 2f)
 		{
 			return;
 		}
-		MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(e.instigatorWOID);
+		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(e.instigatorWOID);
 		if (!(worldObjectClient is MVVehicleBase))
 		{
 			return;
 		}
 		MVRigidBody component = worldObjectClient.GameObject.GetComponent<MVRigidBody>();
-		if (!((Object)(object)component != (Object)null))
+		if (!(component != null))
 		{
 			return;
 		}
-		Vector3 val = component.Velocity;
-		val /= Time.deltaTime;
-		if (!(val.magnitude < minVelocity))
+		Vector3 velocity = component.Velocity;
+		velocity /= Time.deltaTime;
+		if (!(velocity.magnitude < minVelocity))
 		{
-			float num = Mathf.Clamp(val.magnitude, velocityMinMagnitude, velocityMaxMagnitude);
+			float num = Mathf.Clamp(velocity.magnitude, velocityMinMagnitude, velocityMaxMagnitude);
 			num *= impulseMagnitudeFactor;
-			val.y = 0f;
-			val.Normalize();
-			val.y = 1f;
-			val.Normalize();
-			val *= num;
+			velocity.y = 0f;
+			velocity.Normalize();
+			velocity.y = 1f;
+			velocity.Normalize();
+			velocity *= num;
 			InteractionDataHandlerBase component2 = gameObject.GetComponent<InteractionDataHandlerBase>();
-			if ((Object)(object)component2 != (Object)null)
+			if (component2 != null)
 			{
-				Debug.Log((object)("Applying impulse " + val));
-				component2.HandleInteraction(ImpulseHitPackage.Create(val), interactionIsLocal: false);
+				Debug.Log("Applying impulse " + velocity);
+				component2.HandleInteraction(ImpulseHitPackage.Create(velocity), interactionIsLocal: false);
 				prevHitTime = Time.time;
 			}
 		}
@@ -102,13 +105,30 @@ public class MVAvatarRemote : MVAvatar
 
 	public override void ChangeLOD(float distance)
 	{
-		if (!Body.Visible && distance < cullDistance)
+		if (!Body.Visible && distance < cullDistance && (byte)AvatarRuntimeDataState.Value != 0)
 		{
 			Body.Visible = true;
 		}
 		else if (Body.Visible && distance >= cullDistance)
 		{
 			Body.Visible = false;
+		}
+	}
+
+	protected override void AvatarStateChangedHandler(object a)
+	{
+		base.AvatarStateChangedHandler(a);
+		if ((byte)a == 0)
+		{
+			Body.Visible = false;
+			avatar.NameTagLabelVisible = false;
+			triggerCollider.enabled = false;
+		}
+		else
+		{
+			Body.Visible = true;
+			avatar.NameTagLabelVisible = true;
+			triggerCollider.enabled = true;
 		}
 	}
 

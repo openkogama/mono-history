@@ -25,10 +25,6 @@ public class CubePickingInfo
 
 	public CubePickingInfo(CubePickingInfo cubePickingInfo)
 	{
-		//IL_002c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0038: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003d: Unknown result type (might be due to invalid IL or missing references)
 		cube = cubePickingInfo.cube;
 		pickedFace = cubePickingInfo.pickedFace;
 		pickedEdge = cubePickingInfo.pickedEdge;

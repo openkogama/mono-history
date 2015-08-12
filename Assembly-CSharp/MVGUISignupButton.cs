@@ -1,16 +1,9 @@
-using Localize;
 using UnityEngine;
 
 public class MVGUISignupButton : MonoBehaviour
 {
 	[SerializeField]
 	private UXBaseButton _baseButton;
-
-	[SerializeField]
-	private string _externalCallFunction = "gotoRegisterForm";
-
-	[SerializeField]
-	private string _externalCallArg = "play";
 
 	[SerializeField]
 	private bool confirmationPopup;
@@ -32,8 +25,7 @@ public class MVGUISignupButton : MonoBehaviour
 
 	private void DoConfirmationPopup()
 	{
-		UXUtils.FindGUIObjectOfType<UXDialogFactory>().CreateCustomDialog("Prefabs/GUI/Dialogs/PublishDialog", TextSlotIndex.PublishPlanet).AddPositiveButton(TextSlotIndex.Confirm)
-			.AddNegativeButton(TextSlotIndex.Reject)
+		UXUtils.UXDialogFactory.CreateCustomDialog("Prefabs/GUI/Dialogs/PublishDialog", TM._("Publish Your Game")).AddPositiveButton(TM._("Yes")).AddNegativeButton(TM._("No"))
 			.SetOnResultCallback(OnButtonOnClick)
 			.Show();
 	}
@@ -48,6 +40,7 @@ public class MVGUISignupButton : MonoBehaviour
 
 	private void DoExternalCall()
 	{
-		Application.ExternalCall(_externalCallFunction, new object[1] { _externalCallArg });
+		BrowserComm.ToJavaScript.ExternalCall("gotoSignup");
+		BrowserComm.ExecuteBrowserRequest(MVGameController.GameSessionData.signupURL);
 	}
 }

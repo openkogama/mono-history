@@ -10,7 +10,7 @@ public class ESStateBase : IState
 
 	private ILogger logger;
 
-	private MVWorldObjectClientManager WOCM => MVGameController.Instance.WOCM;
+	private MVWorldObjectClientManager WOCM => MVGameController.WOCM;
 
 	private EditorEvent StateType => stateType;
 
@@ -64,38 +64,19 @@ public class ESStateBase : IState
 	protected void TintObjectsOnMouseOver(EditorStateMachine e)
 	{
 		VoxelHit hit = default;
-		bool pickSuccess = MVGameController.Instance.WOCM.Pick(ref hit);
+		bool pickSuccess = MVGameController.WOCM.Pick(ref hit);
 		TintObjectsOnMouseOver(e, pickSuccess, hit);
 	}
 
 	protected void TintObjectsOnMouseOver(EditorStateMachine e, bool pickSuccess, VoxelHit hit)
 	{
-		//IL_0044: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0049: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0052: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0057: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0068: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0071: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0086: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01c1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01cc: Unknown result type (might be due to invalid IL or missing references)
 		if (tintedWo != null && debug)
 		{
 			MeshFilter componentInChildren = tintedWo.GameObject.GetComponentInChildren<MeshFilter>();
-			if ((Object)(object)componentInChildren != (Object)null)
+			if (componentInChildren != null)
 			{
-				Transform transform = tintedWo.Transform;
-				Bounds bounds = componentInChildren.sharedMesh.bounds;
-				Vector3 position = transform.TransformPoint(bounds.center);
-				Transform transform2 = CollisionDetectionTests.sphere.transform;
-				Bounds bounds2 = componentInChildren.sharedMesh.bounds;
-				transform2.localScale = MathFunctions.MultiplyVector(bounds2.size / 2f, tintedWo.Scale);
+				Vector3 position = tintedWo.Transform.TransformPoint(componentInChildren.sharedMesh.bounds.center);
+				CollisionDetectionTests.sphere.transform.localScale = MathFunctions.MultiplyVector(componentInChildren.sharedMesh.bounds.size / 2f, tintedWo.Scale);
 				CollisionDetectionTests.sphere.transform.position = position;
 				CollisionDetectionTests.sphere.transform.rotation = tintedWo.WorldRotation;
 			}

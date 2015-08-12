@@ -35,51 +35,24 @@ public class MVGUITeamList : UXScrollableBox
 
 	private MVTeamManager teamManager;
 
-	public MVGUITeamList()
-	{
-		//IL_0015: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0034: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0039: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0058: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0072: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0077: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0091: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0096: Unknown result type (might be due to invalid IL or missing references)
-	}
-
 	public void InitializeTeamList(MVTeam team)
 	{
 		this.team = team;
-		teamManager = MVGameController.Instance.Game.TeamManager;
-		MVNetworkGame game = MVGameController.Instance.Game;
+		teamManager = MVGameController.Game.TeamManager;
+		MVNetworkGame game = MVGameController.Game;
 		game.onPlayerListChanged = (MVNetworkGame.OnPlayerListChangedDelegate)Delegate.Combine(game.onPlayerListChanged, new MVNetworkGame.OnPlayerListChangedDelegate(UpdatePlayerNumber));
 		UpdatePlayerNumber();
-		MVTeamManager mVTeamManager = teamManager;
-		mVTeamManager.OnTeamScoreUpdate = (MVTeamManager.OnTeamScoreUpdateDelegate)Delegate.Combine(mVTeamManager.OnTeamScoreUpdate, new MVTeamManager.OnTeamScoreUpdateDelegate(UpdateTeamScore));
-		UpdateTeamScore();
 		ColorizeHeader();
 	}
 
 	public Vector2 GetFullSize()
 	{
-		//IL_0018: Unknown result type (might be due to invalid IL or missing references)
 		return new Vector2(Width + 1f, Height + 2f);
 	}
 
 	private void ColorizeHeader()
 	{
-		//IL_000e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0036: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0088: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b1: Unknown result type (might be due to invalid IL or missing references)
-		if (team == MVTeam.None)
+		if (teamManager.TeamCount() == 1)
 		{
 			ColorizeHeader(noneTeamColor);
 		}
@@ -107,13 +80,11 @@ public class MVGUITeamList : UXScrollableBox
 
 	private void ColorizeHeader(Color color)
 	{
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
 		header.SetColor(color, string.Empty);
 	}
 
 	private void ColorizeHeaderText(Color color)
 	{
-		//IL_001a: Unknown result type (might be due to invalid IL or missing references)
 		foreach (UXText uiText in uiTexts)
 		{
 			uiText.Color = color;
@@ -122,17 +93,22 @@ public class MVGUITeamList : UXScrollableBox
 
 	private void UpdatePlayerNumber()
 	{
-		if ((Object)(object)playerNumber != (Object)null)
+		if (playerNumber != null)
 		{
 			playerNumber.Text = teamManager.GetNoOfPlayersInTeam(team) + string.Empty;
 		}
 	}
 
-	private void UpdateTeamScore()
+	public override void Update()
 	{
-		if ((Object)(object)teamScore != (Object)null)
+		base.Update();
+		if (!(teamScore == null))
 		{
-			teamScore.Text = teamManager.GetScore(team) + string.Empty;
+			string text = teamManager.GetScore(team, GameStatCounterType.Kill).ToString();
+			if (teamScore.Text != text)
+			{
+				teamScore.Text = text;
+			}
 		}
 	}
 }

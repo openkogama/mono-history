@@ -18,5 +18,6 @@ public enum LayerFlags
 	UXElement = 0x10000,
 	HudObjects = 0x20000,
 	Hidden = 0x40000,
-	PlayerSelected = 0x80000
+	PlayerSelected = 0x80000,
+	UXElementSecondary = 0x100000
 }

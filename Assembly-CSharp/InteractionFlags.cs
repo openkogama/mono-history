@@ -23,5 +23,6 @@ public enum InteractionFlags
 	CanResetLogic = 0x10000,
 	IsPreview = 0x20000,
 	IsUsable = 0x40000,
-	CantAddChildren = 0x80000
+	CantAddChildren = 0x80000,
+	CanUseGameCoins = 0x100000
 }

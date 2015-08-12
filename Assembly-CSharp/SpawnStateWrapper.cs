@@ -27,7 +27,7 @@ public class SpawnStateWrapper : IUpdatecontrollerSubscriber
 		this.respawnInterval = respawnInterval;
 		this.stateChangeCallback = stateChangeCallback;
 		this.takenTime = takenTime;
-		MVGameController.Instance.UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
+		UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
 	}
 
 	public void UpdateControllerUpdate()
@@ -54,6 +54,6 @@ public class SpawnStateWrapper : IUpdatecontrollerSubscriber
 
 	public void Destroy()
 	{
-		MVGameController.Instance.UpdateController.RemoveObject(this);
+		UpdateController.RemoveObject(this);
 	}
 }

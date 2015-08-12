@@ -1,103 +1,26 @@
-using System.Collections;
 using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
 
 public class MVCubeModelPrototypeTerrain : MVCubeModelBase
 {
-	private List<TerrainLOD> LODBookkeeping = new List<TerrainLOD>();
+	private Dictionary<IntVector, CubeBase> removedCubes = new Dictionary<IntVector, CubeBase>();
 
-	private int currentLODPosition;
+	private TerrainLODComponent terrainLODComponent;
 
-	public MVCubeModelPrototypeTerrain(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects, Dictionary<int, RuntimePrototypeCubeModel> prototypes)
+	public bool RequiresResetToEdit => removedCubes.Count > 0;
+
+	public MVCubeModelPrototypeTerrain(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects, Dictionary<int, RuntimePrototypeCubeModel> prototypes)
 		: base(data, worldObjects, prototypes)
 	{
-		//IL_0038: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0070: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0098: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009d: Unknown result type (might be due to invalid IL or missing references)
 		interactionFlags = InteractionFlags.IsTerrain;
-		MVGameController.Instance.WOCM.UpdateWorldBounds(SharedCubeFunctions.GetAxisAlignedBoundsRecursively(gameObject.transform).Value);
-		foreach (KeyValuePair<IntVector, GameObject> chunkInstance in chunkInstances)
-		{
-			IntVector key = chunkInstance.Key;
-			LODBookkeeping.Add(new TerrainLOD(key, Scale.x * (float)CubeModelChunk.ChunkSize * new Vector3((float)key.x, (float)key.y, (float)key.z)));
-		}
+		MVGameController.WOCM.UpdateWorldBounds(SharedCubeFunctions.GetAxisAlignedBoundsRecursively(gameObject.transform).Value);
+		terrainLODComponent = new TerrainLODComponent(prototypeCubeModel, chunkInstances, new DynamicLODDistance(1f, 600f, 20000), Scale.x, debug: false);
 	}
 
 	public void ChangeLODTerrain()
 	{
-		//IL_001a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0098: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009d: Unknown result type (might be due to invalid IL or missing references)
-		float num = 100f;
-		Vector3 val = ((Component)MVGameController.Instance.Game.CameraController).transform.position;
-		int num2 = Mathf.Max(1, Mathf.RoundToInt(num * Time.deltaTime));
-		for (int i = 0; i < num2; i++)
-		{
-			if (currentLODPosition >= LODBookkeeping.Count)
-			{
-				currentLODPosition = 0;
-			}
-			TerrainLOD terrainLOD = LODBookkeeping[currentLODPosition];
-			if (chunkInstances.TryGetValue(terrainLOD.localPos, out var value))
-			{
-				float distance = Vector3.Distance(LODBookkeeping[currentLODPosition].worldPos, val);
-				ChangeLODChunk(ref terrainLOD, value, distance);
-				LODBookkeeping[currentLODPosition] = terrainLOD;
-			}
-			else
-			{
-				LODBookkeeping.RemoveAt(currentLODPosition);
-			}
-			currentLODPosition++;
-		}
-	}
-
-	private void ChangeLODChunk(ref TerrainLOD terrainLOD, GameObject chunk, float distance)
-	{
-		float num = MVQualitySettings.CurrentLodData[terrainLOD.lodId].activateDistance * 2f;
-		float num2 = float.PositiveInfinity;
-		bool flag = terrainLOD.lodId + 1 < MVQualitySettings.CurrentLodData.Length;
-		bool flag2 = terrainLOD.lodId - 1 >= 0;
-		if (flag)
-		{
-			num2 = MVQualitySettings.CurrentLodData[terrainLOD.lodId + 1].activateDistance * 2f;
-		}
-		if (!(distance < num2) || !(distance >= num))
-		{
-			if (distance > num2 && flag)
-			{
-				terrainLOD.lodId++;
-				SetLod(terrainLOD, chunk);
-			}
-			if (distance < num && flag2)
-			{
-				terrainLOD.lodId--;
-				SetLod(terrainLOD, chunk);
-			}
-		}
-	}
-
-	private void SetLod(TerrainLOD terrainLOD, GameObject chunk)
-	{
-		if (!MVQualitySettings.CurrentLodData[terrainLOD.lodId].isVisible)
-		{
-			if (chunk.renderer.enabled)
-			{
-				chunk.renderer.enabled = false;
-			}
-			return;
-		}
-		if (!chunk.renderer.enabled)
-		{
-			chunk.renderer.enabled = true;
-		}
-		CubeModelChunk cubeModelChunk = prototypeCubeModel.Chunks[terrainLOD.localPos];
-		chunk.GetComponent<MeshFilter>().sharedMesh = cubeModelChunk.GetMeshData(MVQualitySettings.CurrentLodData[terrainLOD.lodId].mipMeshSetting).mesh;
-		((Renderer)chunk.GetComponent<MeshRenderer>()).sharedMaterials = cubeModelChunk.GetMeshData(MVQualitySettings.CurrentLodData[terrainLOD.lodId].mipMeshSetting).materials;
+		terrainLODComponent.ChangeLODTerrain();
 	}
 
 	public override void Destroy()
@@ -116,12 +39,37 @@ public class MVCubeModelPrototypeTerrain : MVCubeModelBase
 
 	public GameObject GetChunkInstance(IntVector chunkPos)
 	{
-		return chunkInstances[chunkPos];
+		return chunkInstances.GetChunk(chunkPos);
 	}
 
 	public Vector3 GetRandomCubePos()
 	{
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
 		return prototypeCubeModel.GetRandomCubePos(gameObject);
+	}
+
+	public override void RemoveCubeNetworkUpdate(IntVector pos)
+	{
+		if (removedCubes.ContainsKey(pos))
+		{
+			Debug.LogWarning("This has already been destroyed");
+			return;
+		}
+		removedCubes.Add(pos, GetCubeBase(pos));
+		base.RemoveCubeNetworkUpdate(pos);
+	}
+
+	public override void Reset()
+	{
+		base.Reset();
+		foreach (KeyValuePair<IntVector, CubeBase> removedCube in removedCubes)
+		{
+			AddCubeNetworkUpdate(removedCube.Key, removedCube.Value);
+		}
+		removedCubes.Clear();
+	}
+
+	public bool RemovedCubesContainsKey(IntVector intVector)
+	{
+		return removedCubes.ContainsKey(intVector);
 	}
 }

@@ -1,15 +1,15 @@
 using System;
-using System.Collections.Generic;
+using CodeStage.AntiCheat.ObscuredTypes;
 using MV.WorldObject;
 using UnityEngine;
 
-internal class MVGroundState
+public class MVGroundState
 {
+	private const float groundDepth = 0.1f;
+
 	private MVMaterial groundMaterial = new MVMaterial();
 
-	private float groundDepth = 0.1f;
-
-	private bool grounded;
+	private ObscuredBool grounded = false;
 
 	private Vector3 groundNormal = Vector3.zero;
 
@@ -17,97 +17,88 @@ internal class MVGroundState
 
 	private Vector3 gradientDirection;
 
+	public Action<GroundChange> OnGroundChange;
+
 	public float GradientAngle => gradientAngle;
 
-	public float GroundDepth => groundDepth;
+	public float GroundDepth => 0.1f;
 
 	public MVMaterial GroundMaterial => groundMaterial;
 
 	public bool Grounded => grounded;
 
-	public Vector3 GroundNormal
-	{
-		get
-		{
-			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-			return groundNormal;
-		}
-	}
-
-	public MVGroundState()
-	{
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001c: Unknown result type (might be due to invalid IL or missing references)
-	}
+	public Vector3 GroundNormal => groundNormal;
 
 	public Vector3 ApplySlidingVelocity(Vector3 velocity, float density, MVInteractableBase interactableLocal)
 	{
-		//IL_009d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0049: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0060: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0065: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0091: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0096: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009b: Unknown result type (might be due to invalid IL or missing references)
 		if (Grounded)
 		{
-			Vector3 val = gradientDirection * Mathf.Sin(gradientAngle * ((float)Math.PI / 180f)) * (1f - MathFunctions.Pow2(interactableLocal.HandleModifierEffect(AvatarModifierEffect.Friction, GroundMaterial.physicalProperties.friction))) * 30f * interactableLocal.HandleModifierEffect(AvatarModifierEffect.Density, density);
-			if (val.magnitude > interactableLocal.HandleModifierEffect(AvatarModifierEffect.StaticFriction, GroundMaterial.physicalProperties.staticFriction))
+			Vector3 vector = gradientDirection * Mathf.Sin(gradientAngle * ((float)Math.PI / 180f)) * (1f - MathFunctions.Pow2(interactableLocal.HandleModifierEffect(AvatarModifierEffect.Friction, GroundMaterial.physicalProperties.friction))) * MVPhysics.Gravity * interactableLocal.HandleModifierEffect(AvatarModifierEffect.Density, density);
+			if (vector.magnitude > interactableLocal.HandleModifierEffect(AvatarModifierEffect.StaticFriction, GroundMaterial.physicalProperties.staticFriction))
 			{
-				velocity += val * Time.deltaTime;
+				velocity += vector * Time.deltaTime;
 			}
 		}
 		return velocity;
 	}
 
-	public GroundChange UpdateIsGrounded(Vector3 velocity, List<MVControllerColliderHit> moveHits, MvCharacterController controller)
+	public bool GroundTest(out MVControllerColliderHit groundHit, MvCharacterController controller, Vector3 velocity, bool sendCollData, float additionalGroundDepth = 0f)
 	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0025: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0032: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0037: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0070: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0075: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005b: Unknown result type (might be due to invalid IL or missing references)
+		return controller.TestWithOutSliding(0.1f + additionalGroundDepth, Vector3.down, velocity * Time.fixedDeltaTime, out groundHit);
+	}
+
+	public bool Update(MvCharacterController controller, Vector3 velocity, float additionalGroundDepth = 0f)
+	{
+		bool flag = GroundTest(out var groundHit, controller, velocity, sendCollData: true, additionalGroundDepth);
+		UpdateGroundStateWithHit(controller, flag, groundHit);
+		return flag;
+	}
+
+	public void UpdateGroundStateWithHitExternal(MvCharacterController controller, MVControllerColliderHit groundHit)
+	{
+		UpdateGroundStateWithHit(controller, foundGroundHit: true, groundHit);
+	}
+
+	private void UpdateGroundStateWithHit(MvCharacterController controller, bool foundGroundHit, MVControllerColliderHit groundHit)
+	{
+		UpdateGroundData(controller, foundGroundHit, groundHit);
+		UpdateGroundChange();
+	}
+
+	private void UpdateGroundData(MvCharacterController controller, bool foundGroundHit, MVControllerColliderHit groundHit)
+	{
 		groundNormal = Vector3.zero;
-		if (controller.TestWithOutSliding(groundDepth, Vector3.down, out var colliderHit))
+		if (foundGroundHit)
 		{
-			colliderHit.impactVelocity = Vector3.zero;
-			groundNormal = colliderHit.slopeNormal;
-			if (moveHits.Count == 0 && velocity.magnitude > 0.01f)
-			{
-				colliderHit.impactVelocity = velocity;
-			}
-			moveHits.Add(colliderHit);
-			gradientDirection = controller.GetGradientDirection(colliderHit.hit);
+			groundHit.impactVelocity = Vector3.zero;
+			groundNormal = groundHit.slopeNormal;
+			gradientDirection = controller.GetGradientDirection(groundHit.hit);
 			gradientAngle = controller.GetGradientAngle(gradientDirection);
-			groundMaterial = MVGameController.Instance.Game.MaterialRepository.GetMaterial(CubeBase.GetMaterial(colliderHit.hit.cube, colliderHit.hit.face));
+			groundMaterial = MVGameController.Game.MaterialRepository.GetMaterial(CubeBase.GetMaterial(groundHit.hit.cube, groundHit.hit.face));
 		}
 		else
 		{
-			groundMaterial = MVGameController.Instance.Game.MaterialRepository.InAirMaterial;
+			groundMaterial = MVGameController.Game.MaterialRepository.InAirMaterial;
 		}
-		if (Grounded && !IsGroundedTest())
+	}
+
+	private void UpdateGroundChange()
+	{
+		GroundChange obj = GroundChange.UnChanged;
+		if ((bool)grounded && !IsGroundedTest())
 		{
 			grounded = false;
-			return GroundChange.FromGroundedToAir;
+			obj = GroundChange.FromGroundedToAir;
 		}
-		if (!Grounded && IsGroundedTest())
+		else if (!grounded && IsGroundedTest())
 		{
 			grounded = true;
-			return GroundChange.FromAirToGrounded;
+			obj = GroundChange.FromAirToGrounded;
 		}
-		return GroundChange.UnChanged;
+		if (OnGroundChange != null)
+		{
+			OnGroundChange(obj);
+		}
 	}
 
 	private bool IsGroundedTest()

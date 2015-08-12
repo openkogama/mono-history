@@ -39,7 +39,6 @@ public class pTween
 
 	public static void WorkerTo(float duration, float startValue, float endValue, Action<float> callback)
 	{
-		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
 		new GameObject().AddComponent<Worker>().To(duration, startValue, endValue, callback);
 	}
 

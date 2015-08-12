@@ -152,7 +152,7 @@ public class UXCollectionView : UXGUIElement, IUXContainer
 		{
 			AddViewItemsToSlots();
 		}
-		if ((Object)(object)_nextButton != (Object)null)
+		if (_nextButton != null)
 		{
 			UXTextButton nextButton = _nextButton;
 			nextButton.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(nextButton.OnClick, (UXBaseButton.OnClickDelegate)(() =>
@@ -161,19 +161,19 @@ public class UXCollectionView : UXGUIElement, IUXContainer
 			}));
 			if (_allowMoveItems && !_dontShowExtraPage)
 			{
-				UXDropObject component = ((Component)_nextButton).GetComponent<UXDropObject>();
+				UXDropObject component = _nextButton.GetComponent<UXDropObject>();
 				component.OnDragOverEnter = (UXDropObject.OnDragOverEnterDelegate)Delegate.Combine(component.OnDragOverEnter, (UXDropObject.OnDragOverEnterDelegate)((GameObject dragObject) =>
 				{
 					HandleOnDragEnterButton(1);
 				}));
-				UXDropObject component2 = ((Component)_nextButton).GetComponent<UXDropObject>();
+				UXDropObject component2 = _nextButton.GetComponent<UXDropObject>();
 				component2.OnDragOverExit = (UXDropObject.OnDragOverExitDelegate)Delegate.Combine(component2.OnDragOverExit, (UXDropObject.OnDragOverExitDelegate)((GameObject dragObject) =>
 				{
 					HandleOnDragExitButton();
 				}));
 			}
 		}
-		if ((Object)(object)_prevButton != (Object)null)
+		if (_prevButton != null)
 		{
 			UXTextButton prevButton = _prevButton;
 			prevButton.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(prevButton.OnClick, (UXBaseButton.OnClickDelegate)(() =>
@@ -182,12 +182,12 @@ public class UXCollectionView : UXGUIElement, IUXContainer
 			}));
 			if (_allowMoveItems && !_dontShowExtraPage)
 			{
-				UXDropObject component3 = ((Component)_prevButton).GetComponent<UXDropObject>();
+				UXDropObject component3 = _prevButton.GetComponent<UXDropObject>();
 				component3.OnDragOverEnter = (UXDropObject.OnDragOverEnterDelegate)Delegate.Combine(component3.OnDragOverEnter, (UXDropObject.OnDragOverEnterDelegate)((GameObject dragObject) =>
 				{
 					HandleOnDragEnterButton(-1);
 				}));
-				UXDropObject component4 = ((Component)_prevButton).GetComponent<UXDropObject>();
+				UXDropObject component4 = _prevButton.GetComponent<UXDropObject>();
 				component4.OnDragOverExit = (UXDropObject.OnDragOverExitDelegate)Delegate.Combine(component4.OnDragOverExit, (UXDropObject.OnDragOverExitDelegate)((GameObject dragObject) =>
 				{
 					HandleOnDragExitButton();
@@ -211,56 +211,39 @@ public class UXCollectionView : UXGUIElement, IUXContainer
 
 	private void CreateItemRoot()
 	{
-		//IL_0005: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Expected Obj, but got Unknown
-		//IL_003f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004f: Unknown result type (might be due to invalid IL or missing references)
-		GameObject val = new GameObject("ItemRoot");
-		val.layer = LayerMask.NameToLayer("UXElement");
-		_itemRoot = val.transform;
-		_itemRoot.parent = ((Component)this).transform;
+		GameObject gameObject = new GameObject("ItemRoot");
+		gameObject.layer = LayerMask.NameToLayer("UXElement");
+		_itemRoot = gameObject.transform;
+		_itemRoot.parent = transform;
 		_itemRoot.localPosition = GetItemRootStartPosition();
 		_itemRoot.localScale = Vector3.one;
 	}
 
 	protected virtual Vector3 GetItemRootStartPosition()
 	{
-		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0015: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0034: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003e: Unknown result type (might be due to invalid IL or missing references)
 		return ((float)(_columns - 1) * _columnSpacing * Vector3.left + (float)(_rows - 1) * _rowSpacing * Vector3.up) / 2f;
 	}
 
 	private void CreateSlotRoot()
 	{
-		//IL_0005: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Expected Obj, but got Unknown
-		//IL_0043: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
-		GameObject val = new GameObject("SlotRoot");
-		val.layer = LayerMask.NameToLayer("UXElement");
-		_slotRoot = val.transform;
-		_slotRoot.parent = ((Component)_itemRoot).transform;
+		GameObject gameObject = new GameObject("SlotRoot");
+		gameObject.layer = LayerMask.NameToLayer("UXElement");
+		_slotRoot = gameObject.transform;
+		_slotRoot.parent = _itemRoot.transform;
 		_slotRoot.localPosition = Vector3.zero;
 		_slotRoot.localScale = Vector3.one;
 	}
 
 	private void CreateSlots(int slots)
 	{
-		//IL_007f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008f: Unknown result type (might be due to invalid IL or missing references)
 		for (int i = 0; i < slots; i++)
 		{
-			Object val = Object.Instantiate((Object)(object)_slotPrefab);
-			GameObject val2 = (GameObject)(object)((val is GameObject) ? val : null);
-			((Object)val2).name = $"{((Object)this).name} - Slot {_slots.Count}";
-			val2.transform.parent = ((Component)_slotRoot).transform;
-			val2.transform.localPosition = GetSlotPosition(_slots.Count / _rows, _slots.Count % _rows);
-			val2.transform.localScale = Vector3.one;
-			UXCollectionViewSlot component = val2.GetComponent<UXCollectionViewSlot>();
+			GameObject gameObject = UnityEngine.Object.Instantiate(_slotPrefab);
+			gameObject.name = $"{name} - Slot {_slots.Count}";
+			gameObject.transform.parent = _slotRoot.transform;
+			gameObject.transform.localPosition = GetSlotPosition(_slots.Count / _rows, _slots.Count % _rows);
+			gameObject.transform.localScale = Vector3.one;
+			UXCollectionViewSlot component = gameObject.GetComponent<UXCollectionViewSlot>();
 			component.SlotIndex = _slots.Count;
 			component.OnSlotMouseClick = (UXCollectionViewSlot.SlotEventDelegate)Delegate.Combine(component.OnSlotMouseClick, new UXCollectionViewSlot.SlotEventDelegate(HandleOnSlotMouseClick));
 			component.OnSlotMouseOverEnter = (UXCollectionViewSlot.SlotEventDelegate)Delegate.Combine(component.OnSlotMouseOverEnter, new UXCollectionViewSlot.SlotEventDelegate(HandleOnSlotMouseOverEnter));
@@ -276,7 +259,7 @@ public class UXCollectionView : UXGUIElement, IUXContainer
 			{
 				_slotWidth = component.Width;
 				_slotHeight = component.Height;
-				if ((Object)(object)_mouseOverIndicator != (Object)null)
+				if (_mouseOverIndicator != null)
 				{
 					_mouseOverIndicator.SetSize(_slotWidth, _slotHeight);
 				}
@@ -294,21 +277,13 @@ public class UXCollectionView : UXGUIElement, IUXContainer
 				break;
 			}
 			UXCollectionViewSlot uXCollectionViewSlot = _slots[_slots.Count - 1];
-			Object.Destroy((Object)(object)((Component)uXCollectionViewSlot).gameObject);
+			UnityEngine.Object.Destroy(uXCollectionViewSlot.gameObject);
 			_slots.RemoveAt(_slots.Count - 1);
 		}
 	}
 
 	private Vector3 GetSlotPosition(int column, int row)
 	{
-		//IL_0024: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0029: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0037: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0041: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0050: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0055: Unknown result type (might be due to invalid IL or missing references)
 		if (_columns == 1)
 		{
 			row += column * _rows;
@@ -341,24 +316,20 @@ public class UXCollectionView : UXGUIElement, IUXContainer
 		}
 		foreach (UXCollectionViewItem value in dictionary.Values)
 		{
-			Object.Destroy((Object)(object)((Component)value).gameObject);
+			UnityEngine.Object.Destroy(value.gameObject);
 		}
 	}
 
 	private void BuildMouseOverIndicator()
 	{
-		//IL_0005: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Expected Obj, but got Unknown
-		//IL_0037: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0047: Unknown result type (might be due to invalid IL or missing references)
-		GameObject val = new GameObject("MouseOverIndicator");
-		val.layer = LayerMask.NameToLayer("UXElement");
-		val.transform.parent = ((Component)_itemRoot).transform;
-		val.transform.localPosition = Vector3.zero;
-		val.transform.localScale = Vector3.one;
-		MeshRenderer val2 = val.AddComponent<MeshRenderer>();
-		((Renderer)val2).material = _mouseOverIndicatorMaterial;
-		_mouseOverIndicator = val.AddComponent<UXPlane>();
+		GameObject gameObject = new GameObject("MouseOverIndicator");
+		gameObject.layer = LayerMask.NameToLayer("UXElement");
+		gameObject.transform.parent = _itemRoot.transform;
+		gameObject.transform.localPosition = Vector3.zero;
+		gameObject.transform.localScale = Vector3.one;
+		MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
+		meshRenderer.material = _mouseOverIndicatorMaterial;
+		_mouseOverIndicator = gameObject.AddComponent<UXPlane>();
 		_mouseOverIndicator.uses9PatchMaterial = true;
 		_mouseOverIndicator.SetSize(_slotWidth, _slotHeight);
 		PlaceMouseOverIndicator(0, 0);
@@ -379,7 +350,7 @@ public class UXCollectionView : UXGUIElement, IUXContainer
 
 	private void OnCollectionChange()
 	{
-		if ((Object)(object)_dragItem != (Object)null)
+		if (_dragItem != null)
 		{
 			HandleOnSlotMouseDrop(-1, -1);
 		}
@@ -395,28 +366,17 @@ public class UXCollectionView : UXGUIElement, IUXContainer
 
 	protected void PlaceMouseOverIndicator(int row, int column)
 	{
-		//IL_0015: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0032: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0041: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0046: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0057: Unknown result type (might be due to invalid IL or missing references)
 		_mouseOverIndicator.SetVisible(visible: true);
 		Vector3 localPosition = (float)column * _columnSpacing * Vector3.right + (float)row * _rowSpacing * Vector3.down + -0.03f * Vector3.forward;
-		((Component)_mouseOverIndicator).transform.localPosition = localPosition;
+		_mouseOverIndicator.transform.localPosition = localPosition;
 	}
 
 	public override void Update()
 	{
-		//IL_0048: Unknown result type (might be due to invalid IL or missing references)
 		base.Update();
-		if ((Object)(object)_mouseOverIndicator != (Object)null && _mouseOverIndicator.Visible)
+		if (_mouseOverIndicator != null && _mouseOverIndicator.Visible)
 		{
-			((Component)_mouseOverIndicator).transform.localScale = ((Component)_slots[_currentSlotMouseOver]).transform.localScale;
+			_mouseOverIndicator.transform.localScale = _slots[_currentSlotMouseOver].transform.localScale;
 		}
 	}
 
@@ -444,7 +404,7 @@ public class UXCollectionView : UXGUIElement, IUXContainer
 
 	protected virtual void UpdateIndexText()
 	{
-		if ((Object)(object)_indexText != (Object)null)
+		if (_indexText != null)
 		{
 			_indexText.Text = $"{CurrentPage + 1}/{Pages}";
 		}
@@ -455,7 +415,7 @@ public class UXCollectionView : UXGUIElement, IUXContainer
 		if (OnSlotMouseOverEnter != null)
 		{
 			UXCollectionViewItem viewItem = _slots[slotIndex].GetViewItem(CurrentPage);
-			if ((Object)(object)viewItem != (Object)null && !viewItem.Deleted)
+			if (viewItem != null && !viewItem.Deleted)
 			{
 				OnSlotMouseOverEnter(viewItem.Item);
 			}
@@ -479,7 +439,7 @@ public class UXCollectionView : UXGUIElement, IUXContainer
 		if (OnSlotMouseOverExit != null)
 		{
 			UXCollectionViewItem viewItem = _slots[slotIndex].GetViewItem(CurrentPage);
-			if ((Object)(object)viewItem != (Object)null && !viewItem.Deleted)
+			if (viewItem != null && !viewItem.Deleted)
 			{
 				OnSlotMouseOverExit(viewItem.Item);
 			}
@@ -494,7 +454,7 @@ public class UXCollectionView : UXGUIElement, IUXContainer
 	{
 		UXCollectionViewSlot uXCollectionViewSlot = _slots[slotIndex];
 		UXCollectionViewItem viewItem = uXCollectionViewSlot.GetViewItem(CurrentPage);
-		if ((Object)(object)viewItem != (Object)null && !viewItem.Deleted)
+		if (viewItem != null && !viewItem.Deleted)
 		{
 			uXCollectionViewSlot.Reset();
 			if (OnItemSelection != null)
@@ -506,8 +466,7 @@ public class UXCollectionView : UXGUIElement, IUXContainer
 
 	private void HandleOnSlotMouseDragStart(int slotIndex, Vector3 dragPos)
 	{
-		//IL_0058: Unknown result type (might be due to invalid IL or missing references)
-		if (!((Object)(object)_slots[slotIndex].GetViewItem(CurrentPage) == (Object)null))
+		if (!(_slots[slotIndex].GetViewItem(CurrentPage) == null))
 		{
 			_dragFromGlobalSlotIndex = slotIndex + CurrentPage * SlotsPerPage;
 			_dragItem = _slots[slotIndex].DetachViewItem(CurrentPage);
@@ -521,28 +480,24 @@ public class UXCollectionView : UXGUIElement, IUXContainer
 
 	private void HandleOnSlotMouseDrag(int slotIndex, Vector3 dragPos)
 	{
-		//IL_001c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003a: Unknown result type (might be due to invalid IL or missing references)
-		if ((Object)(object)_dragItem != (Object)null)
+		if (_dragItem != null)
 		{
-			Vector3 localPosition = ((Component)_itemRoot).transform.InverseTransformPoint(dragPos);
+			Vector3 localPosition = _itemRoot.transform.InverseTransformPoint(dragPos);
 			localPosition.z = -1f;
-			((Component)_dragItem).transform.localPosition = localPosition;
+			_dragItem.transform.localPosition = localPosition;
 		}
 	}
 
 	private void HandleOnSlotMouseDrop(int slotIndex, int visiblePage)
 	{
-		if ((Object)(object)_dragItem == (Object)null)
+		if (_dragItem == null)
 		{
 			return;
 		}
 		_slots[_dragFromGlobalSlotIndex % SlotsPerPage].AttachViewItem(_dragItem, _dragFromGlobalSlotIndex / SlotsPerPage);
 		if (slotIndex != -1)
 		{
-			if ((Object)(object)_slots[slotIndex].GetViewItem(CurrentPage) != (Object)null)
+			if (_slots[slotIndex].GetViewItem(CurrentPage) != null)
 			{
 				if (OnSwapItems != null)
 				{
@@ -564,21 +519,21 @@ public class UXCollectionView : UXGUIElement, IUXContainer
 
 	private void HandleOnDragEnterButton(int direction)
 	{
-		((MonoBehaviour)this).StartCoroutine("DragScrollRoutine", (object)direction);
+		StartCoroutine("DragScrollRoutine", direction);
 	}
 
 	private void HandleOnDragExitButton()
 	{
-		((MonoBehaviour)this).StopCoroutine("DragScrollRoutine");
+		StopCoroutine("DragScrollRoutine");
 	}
 
 	private IEnumerator DragScrollRoutine(int direction)
 	{
-		yield return (object)new WaitForSeconds(1f);
+		yield return new WaitForSeconds(1f);
 		while (true)
 		{
 			Scroll(direction);
-			yield return (object)new WaitForSeconds(0.8f);
+			yield return new WaitForSeconds(0.8f);
 		}
 	}
 
@@ -589,7 +544,7 @@ public class UXCollectionView : UXGUIElement, IUXContainer
 		{
 			slot.SetVisible(visible);
 		}
-		if (!visible && (Object)(object)_mouseOverIndicator != (Object)null)
+		if (!visible && _mouseOverIndicator != null)
 		{
 			_mouseOverIndicator.SetVisible(visible: false);
 		}
@@ -597,7 +552,7 @@ public class UXCollectionView : UXGUIElement, IUXContainer
 
 	private void RefreshSlotVisibility()
 	{
-		if (!((Component)this).gameObject.active)
+		if (!gameObject.activeInHierarchy)
 		{
 			return;
 		}

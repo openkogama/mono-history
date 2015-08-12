@@ -28,7 +28,7 @@ public class UXScrollingText : UXGUIElement, IUXContainer
 		set
 		{
 			_text = value;
-			if ((Object)(object)uiText != (Object)null)
+			if (uiText != null)
 			{
 				uiText.Text = _text;
 				textWidth = uiText.TextWidth;
@@ -40,17 +40,12 @@ public class UXScrollingText : UXGUIElement, IUXContainer
 
 	private void Initialize()
 	{
-		//IL_0051: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0056: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0069: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007e: Unknown result type (might be due to invalid IL or missing references)
 		if (UXUtils.FindGUIObjectOfType<UXTextSizeCalculator>().IsInitialized)
 		{
-			Object val = Object.Instantiate(Resources.Load("Prefabs/UX/Text"));
-			uiText = ((GameObject)((val is GameObject) ? val : null)).GetComponent<UXText>();
-			((Component)uiText).transform.parent = ((Component)this).transform;
-			((Component)uiText).transform.localPosition = new Vector3(0f - Alignment.x, 0f, 0f);
-			((Component)uiText).transform.localScale = Vector3.one;
+			uiText = (Object.Instantiate(Resources.Load("Prefabs/UX/Text")) as GameObject).GetComponent<UXText>();
+			uiText.transform.parent = transform;
+			uiText.transform.localPosition = new Vector3(0f - Alignment.x, 0f, 0f);
+			uiText.transform.localScale = Vector3.one;
 			uiText.SetAlignment(UXHorizontal.Left, verticalAlign);
 			uiText.Text = _text;
 			textWidth = uiText.TextWidth;
@@ -62,14 +57,11 @@ public class UXScrollingText : UXGUIElement, IUXContainer
 
 	public override void SetAlpha(float alpha, string materialProperty = "_MainColor")
 	{
-		uiText.SetAlpha(alpha);
+		uiText.SetAlpha(alpha, string.Empty);
 	}
 
 	public override void Update()
 	{
-		//IL_002f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0034: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d3: Unknown result type (might be due to invalid IL or missing references)
 		base.Update();
 		if (!isInitialized)
 		{
@@ -80,14 +72,14 @@ public class UXScrollingText : UXGUIElement, IUXContainer
 		float num = 0f - Alignment.x;
 		if (scroll)
 		{
-			float num2 = Mathf.PingPong(time * 2f, textWidth - Width + 2f) - 2f;
-			num2 = Mathf.Clamp(num2, 0f, textWidth - Width);
-			num += -1f * num2;
+			float value = Mathf.PingPong(time * 2f, textWidth - Width + 2f) - 2f;
+			value = Mathf.Clamp(value, 0f, textWidth - Width);
+			num += -1f * value;
 		}
 		else if (centerTextIfFit)
 		{
 			num += (Width - textWidth) / 2f;
 		}
-		((Component)uiText).transform.localPosition = new Vector3(num, 0f, 0f);
+		uiText.transform.localPosition = new Vector3(num, 0f, 0f);
 	}
 }

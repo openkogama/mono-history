@@ -6,9 +6,13 @@ public abstract class World
 
 	protected MVWorldInventory worldInventory;
 
+	protected RuntimeEventManagerNetwork runtimeEventManagerNetwork;
+
 	public EventHandler<InitializedGameQueryDataEventArgs> InitializedGameQueryData;
 
 	public MVWorldInventory WorldInventory => worldInventory;
 
 	public MVWorldObjectClientManager WorldObjectClientManager => worldObjectClientManager;
+
+	public RuntimeEventManager RuntimeEventManager => runtimeEventManagerNetwork;
 }

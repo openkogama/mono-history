@@ -1,5 +1,8 @@
 using System.Collections;
+using System.Collections.Generic;
+using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
+using MV.WorldObject;
 using UnityEngine;
 
 public class PickupItemRailGun : PickupItem
@@ -38,7 +41,7 @@ public class PickupItemRailGun : PickupItem
 
 	private float chargeBeginTime;
 
-	private int currentAmmo = 10;
+	private ObscuredInt currentAmmo = 10;
 
 	public override AvatarItemType Type => AvatarItemType.RailGun;
 
@@ -60,11 +63,6 @@ public class PickupItemRailGun : PickupItem
 	{
 		get
 		{
-			//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0051: Unknown result type (might be due to invalid IL or missing references)
-			//IL_003e: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0044: Unknown result type (might be due to invalid IL or missing references)
-			//IL_004a: Unknown result type (might be due to invalid IL or missing references)
 			if (!isCharging)
 			{
 				return crossHairCannotFireLow;
@@ -72,28 +70,20 @@ public class PickupItemRailGun : PickupItem
 			float num = chargeCurve.Evaluate(Time.time - chargeBeginTime);
 			if (num < 1f)
 			{
-				float num2 = num / 1f;
-				return Color.Lerp(crossHairCannotFireLow, crossHairCannotFireHigh, num2);
+				float t = num / 1f;
+				return Color.Lerp(crossHairCannotFireLow, crossHairCannotFireHigh, t);
 			}
 			return crossHairCanFire;
 		}
 	}
 
-	public PickupItemRailGun()
-	{
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0042: Unknown result type (might be due to invalid IL or missing references)
-	}
-
 	private void Start()
 	{
-		meshRenderers = ((Component)this).GetComponentsInChildren<MeshRenderer>();
+		meshRenderers = GetComponentsInChildren<MeshRenderer>();
 		currentAmmo = ammo;
 	}
 
-	public override void OnStateChanged(Hashtable newState)
+	public override void OnStateChanged(Dictionary<object, object> newState)
 	{
 		currentAmmo = ammo;
 	}
@@ -101,11 +91,11 @@ public class PickupItemRailGun : PickupItem
 	private IEnumerator DoChargingAnimation()
 	{
 		chargeParticles.Play();
-		Material m = ((Component)chargeParticles).renderer.sharedMaterial;
-		while (isCharging && (Object)(object)owner.CurrentItem == (Object)(object)this)
+		Material m = chargeParticles.GetComponent<Renderer>().sharedMaterial;
+		while (isCharging && owner.CurrentItem == this)
 		{
 			float charge = chargeCurve.Evaluate(Time.time - chargeBeginTime);
-			((Component)this).audio.volume = charge * 0.2f;
+			GetComponent<AudioSource>().volume = charge * 0.2f;
 			if (owner.IsLocal)
 			{
 				Camera.main.fieldOfView = Mathf.Lerp(60f, 25f, charge);
@@ -113,11 +103,11 @@ public class PickupItemRailGun : PickupItem
 			chargeParticles.time = charge;
 			if (charge >= 1f)
 			{
-				((Component)chargeParticles).renderer.material.SetColor("_TintColor", new Color(1f, 0.4f, 0.1f, 1f));
+				chargeParticles.GetComponent<Renderer>().material.SetColor("_TintColor", new Color(1f, 0.4f, 0.1f, 1f));
 			}
 			yield return 0;
 		}
-		((Component)chargeParticles).renderer.sharedMaterial = m;
+		chargeParticles.GetComponent<Renderer>().sharedMaterial = m;
 		chargeParticles.Stop();
 		if (owner.IsLocal)
 		{
@@ -136,15 +126,15 @@ public class PickupItemRailGun : PickupItem
 
 	public override void TriggerBegin(int instigatorActorNr)
 	{
-		if (Object.op_Implicit((Object)(object)chargeSound))
+		if ((bool)chargeSound)
 		{
-			((Component)this).audio.clip = chargeSound;
-			((Component)this).audio.loop = true;
-			((Component)this).audio.Play();
+			GetComponent<AudioSource>().clip = chargeSound;
+			GetComponent<AudioSource>().loop = true;
+			GetComponent<AudioSource>().Play();
 		}
 		isCharging = true;
 		chargeBeginTime = Time.time;
-		((MonoBehaviour)this).StartCoroutine(DoChargingAnimation());
+		StartCoroutine(DoChargingAnimation());
 	}
 
 	public override void TriggerEnd()
@@ -156,26 +146,26 @@ public class PickupItemRailGun : PickupItem
 		float num = chargeCurve.Evaluate(Time.time - chargeBeginTime);
 		if (num < 1f)
 		{
-			((Component)this).audio.Stop();
-			((Component)this).audio.loop = false;
+			GetComponent<AudioSource>().Stop();
+			GetComponent<AudioSource>().loop = false;
 			isCharging = false;
 			return;
 		}
-		if (Object.op_Implicit((Object)(object)releaseSound))
+		if ((bool)releaseSound)
 		{
-			((Component)this).audio.Stop();
-			((Component)this).audio.loop = false;
-			((Component)this).audio.PlayOneShot(releaseSound);
+			GetComponent<AudioSource>().Stop();
+			GetComponent<AudioSource>().loop = false;
+			GetComponent<AudioSource>().PlayOneShot(releaseSound);
 		}
 		missColor.a = 1f;
 		hitColor.a = missColor.a;
 		Fire();
 		isCharging = false;
-		currentAmmo--;
-		if (currentAmmo == 0)
+		currentAmmo = (int)currentAmmo - 1;
+		if ((int)currentAmmo == 0)
 		{
-			MVEquipable component = ((Component)owner).GetComponent<MVEquipable>();
-			if ((Object)(object)component != (Object)null)
+			MVEquipable component = owner.GetComponent<MVEquipable>();
+			if (component != null)
 			{
 				component.Unequip();
 			}
@@ -184,36 +174,23 @@ public class PickupItemRailGun : PickupItem
 
 	private void Fire()
 	{
-		//IL_0008: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0013: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0018: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0040: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0062: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0067: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_010c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_010d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0126: Unknown result type (might be due to invalid IL or missing references)
-		//IL_011b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_012b: Unknown result type (might be due to invalid IL or missing references)
 		Ray ray = new Ray(owner.LookOrigin, owner.LookDirection);
 		bool flag = false;
 		int layerMask = (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("Player"));
 		Vector3 point;
 		if (CollisionDetection.MVHit(ray, out var voxelHit, range, owner.IgnoreWOIDs, layerMask))
 		{
+			InteractionData interaction = RailgunHitPackage.Create();
+			MVGameController.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, interaction.Damage);
 			point = voxelHit.point;
-			int woIDHighestInHierarchyWithComponent = MVGameController.Instance.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
-			MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
+			int woIDHighestInHierarchyWithComponent = MVGameController.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
+			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
 			if (owner.IsLocal && worldObjectClient != null)
 			{
 				InteractionDataHandlerBase component = worldObjectClient.GameObject.GetComponent<InteractionDataHandlerBase>();
-				if ((Object)(object)component != (Object)null)
+				if (component != null)
 				{
-					component.HandleInteraction(RailgunHitPackage.Create(), interactionIsLocal: false);
+					component.HandleInteraction(interaction, interactionIsLocal: false);
 				}
 			}
 			flag = true;
@@ -222,7 +199,7 @@ public class PickupItemRailGun : PickupItem
 		{
 			point = ray.GetPoint(range);
 		}
-		RailRay railRay = Object.Instantiate((Object)(object)railGunRayPrefab, muzzlePoint.position, Quaternion.identity) as RailRay;
+		RailRay railRay = Object.Instantiate(railGunRayPrefab, muzzlePoint.position, Quaternion.identity) as RailRay;
 		railRay.target = point;
 		railRay.startColor = ((!flag) ? missColor : hitColor);
 	}

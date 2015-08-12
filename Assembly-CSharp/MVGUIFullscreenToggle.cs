@@ -1,23 +1,24 @@
 using System;
 using UnityEngine;
 
-[RequireComponent(typeof(UXToggleIconButton))]
-public class MVGUIFullscreenToggle : MonoBehaviour
+public class MVGUIFullscreenToggle : UXViewScript
 {
 	private UXScreen screen;
 
-	public UXToggleIconButton FullScreenToggle => ((Component)this).GetComponent<UXToggleIconButton>();
+	[SerializeField]
+	private UXToggleIconButton fullscreenButton;
 
-	private void Awake()
+	public override void OnInitialize()
 	{
-		screen = UXUtils.FindGUIObjectOfType<UXScreen>();
-		FullScreenToggle.SetToggleState(screen.Fullscreen);
-		UXToggleIconButton fullScreenToggle = FullScreenToggle;
-		fullScreenToggle.OnToggle = (UXToggleIconButton.OnToggleDelegate)Delegate.Combine(fullScreenToggle.OnToggle, new UXToggleIconButton.OnToggleDelegate(HandleOnToggle));
+		base.OnInitialize();
+		screen = UXUtils.UXScreen;
+		fullscreenButton.SetToggleState(screen.Fullscreen);
+		UXToggleIconButton uXToggleIconButton = fullscreenButton;
+		uXToggleIconButton.OnToggle = (UXToggleIconButton.OnToggleDelegate)Delegate.Combine(uXToggleIconButton.OnToggle, new UXToggleIconButton.OnToggleDelegate(HandleOnToggle));
 		UXScreen uXScreen = screen;
 		uXScreen.OnFullScreenChange = (UXScreen.OnFullScreenChangeDelegate)Delegate.Combine(uXScreen.OnFullScreenChange, (UXScreen.OnFullScreenChangeDelegate)((bool fullscreen) =>
 		{
-			FullScreenToggle.SetToggleState(fullscreen);
+			fullscreenButton.SetToggleState(fullscreen);
 		}));
 	}
 

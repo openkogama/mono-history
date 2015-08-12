@@ -62,7 +62,7 @@ public class InventoryExpirationChecker
 			}
 			if (value.IsExpiredNotRenewed)
 			{
-				Debug.LogWarning((object)("ExpInfo " + value.InventoryID + " expired, not renewed"));
+				Debug.LogWarning("ExpInfo " + value.InventoryID + " expired, not renewed");
 				expiredIDs.Remove(value.InventoryID);
 				expired.Remove(value);
 				expiredUnrenewedIDs.Add(value.InventoryID);

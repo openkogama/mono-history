@@ -6,12 +6,12 @@ public class Worker : MonoBehaviour
 {
 	public void To(float duration, float startValue, float endValue, Action<float> callback)
 	{
-		((MonoBehaviour)this).StartCoroutine(DoTo(duration, startValue, endValue, callback));
+		StartCoroutine(DoTo(duration, startValue, endValue, callback));
 	}
 
 	public IEnumerator DoTo(float duration, float startValue, float endValue, Action<float> callback)
 	{
-		yield return ((MonoBehaviour)this).StartCoroutine(pTween.To(duration, startValue, endValue, callback));
-		Object.Destroy((Object)(object)((Component)this).gameObject);
+		yield return StartCoroutine(pTween.To(duration, startValue, endValue, callback));
+		UnityEngine.Object.Destroy(gameObject);
 	}
 }

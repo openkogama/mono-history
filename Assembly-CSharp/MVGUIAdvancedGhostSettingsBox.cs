@@ -1,5 +1,5 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
 
 public class MVGUIAdvancedGhostSettingsBox : UXCustomDialogBox
 {
@@ -47,9 +47,9 @@ public class MVGUIAdvancedGhostSettingsBox : UXCustomDialogBox
 
 	public override object GetResult()
 	{
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add("Radius", radius);
-		hashtable.Add("Speed", speed);
-		return hashtable;
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add("Radius", radius);
+		dictionary.Add("Speed", speed);
+		return dictionary;
 	}
 }

@@ -6,27 +6,32 @@ public class CEAvatarAccessory : ESStateBase
 
 	private JetPackMode jetPackMode;
 
-	private MVWorldObjectClientManager WOCM => MVGameController.Instance.WOCM;
+	private MVWorldObjectClientManager WOCM => MVGameController.WOCM;
 
-	private AEditController EditController => MVGameController.Instance.EditController;
+	private AEditController EditController => MVGameController.EditController;
 
-	private CharacterEditorController CharacterEditorController => MVGameController.Instance.CharacterEditorController;
+	private CharacterEditorController CharacterEditorController => MVGameController.CharacterEditorController;
 
 	public override void Enter(EditorStateMachine esm)
 	{
 		base.Enter(esm);
-		EditController.HideEditorTools();
-		CharacterEditorController.HideAnimationToggles();
-		CharacterEditorController.HideAvatarTools();
+		EditController.CubeModelingController.HideEditorTools();
 		if (jetPackMode == null)
 		{
 			jetPackMode = WOCM.AvatarLocal.AvatarModes.JetPackMode;
 		}
 		jetPackMode.YMovementSpeedScale = 0f;
 		jetPackMode.XZMovementSpeedScale = 0f;
-		currentBody = AvatarSelectionAnimator.Instance.Bodies[CharacterEditorController.CurrentBodyIndex];
-		MVGameController.Instance.Game.CameraController.SetCamera(CameraType.AvatarAccessory);
-		MVGameController.Instance.Game.CameraController.CurCamera.FocusOnObject(currentBody);
+		if (MVGameController.CharacterEditorController != null)
+		{
+			currentBody = MVGameController.CharacterEditorController.CurrentBody;
+		}
+		else
+		{
+			currentBody = MVGameController.Game.LocalPlayer.Avatar.Body;
+		}
+		MVGameController.Game.CameraController.SetCamera(CameraType.AvatarAccessory);
+		MVGameController.Game.CameraController.CurCamera.FocusOnObject(currentBody);
 		WOCM.AvatarLocal.LaserPointer.SetLaserCubeVisible(visible: false);
 	}
 
@@ -37,17 +42,13 @@ public class CEAvatarAccessory : ESStateBase
 
 	public override void Exit(EditorStateMachine esm)
 	{
-		//IL_005c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0061: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0066: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0072: Unknown result type (might be due to invalid IL or missing references)
 		base.Exit(esm);
-		MVGameController.Instance.Game.CameraController.SetCamera(CameraType.JetPackCamera);
+		MVGameController.Game.CameraController.SetCamera(CameraType.JetPackCamera);
 		MVSpawnPointBlue mVSpawnPointBlue = (MVSpawnPointBlue)WOCM.GetWorldObjectClientWhere((MVWorldObjectClient wo) => wo is MVSpawnPointBlue);
-		MVAvatarLocal avatarLocal = MVGameController.Instance.WOCM.AvatarLocal;
+		MVAvatarLocal avatarLocal = MVGameController.WOCM.AvatarLocal;
 		avatarLocal.WorldPosition = mVSpawnPointBlue.WorldPosition - Vector3.up;
 		avatarLocal.WorldRotation = mVSpawnPointBlue.WorldRotation;
-		MVGameController.Instance.Game.CameraController.CurCamera.FocusOnObject(currentBody);
+		MVGameController.Game.CameraController.CurCamera.FocusOnObject(currentBody);
 		WOCM.AvatarLocal.LaserPointer.SetLaserCubeVisible(visible: true);
 	}
 }

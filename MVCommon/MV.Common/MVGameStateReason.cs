@@ -5,5 +5,6 @@ public enum MVGameStateReason
 	None,
 	Timeout,
 	FlagReached,
-	AllCollectiblesFound
+	AllCollectiblesFound,
+	GameHasExceededMaxRuntimeEvents
 }

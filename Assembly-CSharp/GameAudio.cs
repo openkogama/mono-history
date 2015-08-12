@@ -4,26 +4,26 @@ public class GameAudio : MonoBehaviour
 {
 	public void BeforeRound()
 	{
-		Debug.Log((object)"Game Audio: BeforeRound");
+		Debug.Log("Game Audio: BeforeRound");
 	}
 
 	public void StartRound()
 	{
-		Debug.Log((object)"Game Audio: StartRound");
+		Debug.Log("Game Audio: StartRound");
 	}
 
 	public void RoundEndsNoWinner()
 	{
-		Debug.Log((object)"Game Audio: RoundEndsNoWinnder");
+		Debug.Log("Game Audio: RoundEndsNoWinnder");
 	}
 
 	public void YouWonTheGame()
 	{
-		Debug.Log((object)"Game Audio: YouWonTheGame");
+		Debug.Log("Game Audio: YouWonTheGame");
 	}
 
 	public void GameWonBySomeone()
 	{
-		Debug.Log((object)"Game Audio: GameWonBySomeone");
+		Debug.Log("Game Audio: GameWonBySomeone");
 	}
 }

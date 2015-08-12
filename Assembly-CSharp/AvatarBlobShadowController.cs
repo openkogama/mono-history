@@ -19,7 +19,7 @@ public class AvatarBlobShadowController : MonoBehaviour
 
 	private void OnDisable()
 	{
-		((Behaviour)blobProjector).enabled = false;
+		blobProjector.enabled = false;
 	}
 
 	private void OnDestroy()
@@ -32,10 +32,10 @@ public class AvatarBlobShadowController : MonoBehaviour
 		switch (level)
 		{
 		case 0:
-			((Behaviour)blobProjector).enabled = true;
+			blobProjector.enabled = true;
 			break;
 		case 1:
-			((Behaviour)blobProjector).enabled = false;
+			blobProjector.enabled = false;
 			break;
 		}
 	}

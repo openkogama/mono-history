@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Localize;
 
 public class MVGUIBMStringDataLine : MVGUIBMDataLine
 {
@@ -26,8 +25,7 @@ public class MVGUIBMStringDataLine : MVGUIBMDataLine
 			text = value + string.Empty,
 			allowedInput = TextInputType.All
 		});
-		UXUtils.FindGUIObjectOfType<UXDialogFactory>().CreateDialog(TextSlotIndex.StringValue, TextSlotIndex.ChangeValue, UXDialogType.TextField, noButtons: false, stackDialog: true).SetValues(dictionary)
-			.SetOnResultCallback(OnModifyResult)
+		UXUtils.UXDialogFactory.CreateDialog("String Value", "Change Value", UXDialogType.TextField, noButtons: false, stackDialog: true).SetValues(dictionary).SetOnResultCallback(OnModifyResult)
 			.Show();
 	}
 

@@ -22,67 +22,58 @@ public class MVGUIAvatarPictureTaker : MonoBehaviour
 
 	public void TakePicture(MVWorldObjectClient avatar, OnPictureTakenDelegate OnPictureTaken)
 	{
-		//IL_0043: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0052: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0074: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0079: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0087: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0091: Expected Obj, but got Unknown
 		if (_takingPicture)
 		{
 			_takingPicture = false;
-			((MonoBehaviour)this).StopAllCoroutines();
-			Object.Destroy((Object)(object)_avatarCloneGO);
+			StopAllCoroutines();
+			Object.Destroy(_avatarCloneGO);
 		}
 		this.OnPictureTaken = OnPictureTaken;
 		_layersToRender = avatar.PreviewLayerMask | LayerFlags.Hidden;
-		GameObject gameObject = avatar.GameObject;
-		Vector3 val = Vector3.up * 1000f + Vector3.right * 20f * (float)(++shotsInProgress);
-		_avatarCloneGO = (GameObject)Object.Instantiate((Object)(object)gameObject, val, Quaternion.identity);
+		GameObject original = avatar.GameObject;
+		Vector3 position = Vector3.up * 1000f + Vector3.right * 20f * ++shotsInProgress;
+		_avatarCloneGO = (GameObject)Object.Instantiate(original, position, Quaternion.identity);
 		AvatarAccessoryParticles[] componentsInChildren = _avatarCloneGO.GetComponentsInChildren<AvatarAccessoryParticles>();
 		foreach (AvatarAccessoryParticles avatarAccessoryParticles in componentsInChildren)
 		{
-			avatarAccessoryParticles.RootParticleSystem.Simulate(1f, true);
+			avatarAccessoryParticles.RootParticleSystem.Simulate(1f, withChildren: true);
 		}
 		_avatarCloneGO.transform.SetLayerRecursively(LayerUtil.GetLayerNumber(LayerFlags.Hidden));
 		_boneAnimation = _avatarCloneGO.GetComponent<BoneAnimation>();
 		_boneAnimation.PlayAndPauseAt("Idle", 0.01f);
 		_takingPicture = true;
-		((MonoBehaviour)this).StartCoroutine(TakePictureRoutine());
+		StartCoroutine(TakePictureRoutine());
 	}
 
 	private IEnumerator TakePictureRoutine()
 	{
-		Camera pictureCamera = ((Component)this).gameObject.GetComponent<Camera>();
+		Camera pictureCamera = gameObject.GetComponent<Camera>();
 		pictureCamera.aspect = 1f;
-		((Behaviour)pictureCamera).enabled = true;
-		RenderTexture renderTexture = new RenderTexture(previewResolution, previewResolution, 16);
-		((Texture)renderTexture).filterMode = (FilterMode)1;
-		((Object)renderTexture).hideFlags = (HideFlags)4;
-		pictureCamera.targetTexture = renderTexture;
-		Vector3 cameraPos = ((Component)this).transform.localPosition;
-		Quaternion cameraRotation = ((Component)this).transform.localRotation;
-		((Component)this).transform.parent = _avatarCloneGO.transform;
-		((Component)this).transform.localPosition = cameraPos;
-		((Component)this).transform.localRotation = cameraRotation;
-		_avatarCloneGO.GetComponentsInChildren<MeshRenderer>(true).ToList().ForEach((MeshRenderer mr) =>
+		pictureCamera.enabled = true;
+		RenderTexture renderTexture = new RenderTexture(previewResolution, previewResolution, 16)
 		{
-			((Renderer)mr).enabled = true;
+			filterMode = FilterMode.Bilinear,
+			hideFlags = HideFlags.DontSave
+		};
+		pictureCamera.targetTexture = renderTexture;
+		Vector3 cameraPos = transform.localPosition;
+		Quaternion cameraRotation = transform.localRotation;
+		transform.parent = _avatarCloneGO.transform;
+		transform.localPosition = cameraPos;
+		transform.localRotation = cameraRotation;
+		_avatarCloneGO.GetComponentsInChildren<MeshRenderer>(includeInactive: true).ToList().ForEach((MeshRenderer mr) =>
+		{
+			mr.enabled = true;
 		});
-		yield return (object)new WaitForEndOfFrame();
-		Texture2D pictureTexture = new Texture2D(previewResolution, previewResolution, (TextureFormat)5, false);
+		yield return new WaitForEndOfFrame();
+		Texture2D pictureTexture = new Texture2D(previewResolution, previewResolution, TextureFormat.ARGB32, mipmap: false);
 		RenderTexture.active = renderTexture;
-		pictureTexture.ReadPixels(new Rect(0f, 0f, (float)renderTexture.width, (float)renderTexture.height), 0, 0);
+		pictureTexture.ReadPixels(new Rect(0f, 0f, renderTexture.width, renderTexture.height), 0, 0);
 		pictureTexture.Apply();
 		RenderTexture.active = null;
-		Object.DestroyImmediate((Object)(object)renderTexture);
-		Object.DestroyImmediate((Object)(object)((Component)this).gameObject);
-		Object.DestroyImmediate((Object)(object)_avatarCloneGO);
+		Object.DestroyImmediate(renderTexture);
+		Object.DestroyImmediate(gameObject);
+		Object.DestroyImmediate(_avatarCloneGO);
 		if (OnPictureTaken != null)
 		{
 			OnPictureTaken(pictureTexture);
@@ -93,13 +84,11 @@ public class MVGUIAvatarPictureTaker : MonoBehaviour
 
 	private void OnPreCull()
 	{
-		//IL_0011: Unknown result type (might be due to invalid IL or missing references)
-		LayerUtil.SetLayerRecursively(_avatarCloneGO.transform, LayerMask.op_Implicit((int)_layersToRender), LayerUtil.GetLayerNumber(LayerFlags.Preview));
+		LayerUtil.SetLayerRecursively(_avatarCloneGO.transform, (int)_layersToRender, LayerUtil.GetLayerNumber(LayerFlags.Preview));
 	}
 
 	private void OnPostRender()
 	{
-		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-		LayerUtil.SetLayerRecursively(_avatarCloneGO.transform, LayerMask.op_Implicit(8192), LayerUtil.GetLayerNumber(LayerFlags.Hidden));
+		LayerUtil.SetLayerRecursively(_avatarCloneGO.transform, 8192, LayerUtil.GetLayerNumber(LayerFlags.Hidden));
 	}
 }

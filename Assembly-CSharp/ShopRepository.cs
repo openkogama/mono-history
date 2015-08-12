@@ -52,25 +52,15 @@ public class ShopRepository : ARepository
 
 	public void CreateWorldObjectHierarchies()
 	{
-		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0005: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0015: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0070: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0076: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0077: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0078: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007d: Unknown result type (might be due to invalid IL or missing references)
-		Vector3 val = Vector3.zero;
-		Vector3 val2 = Vector3.up * 10f;
+		Vector3 zero = Vector3.zero;
+		Vector3 vector = Vector3.up * 10f;
 		List<KoGaMaPackageClient> list = new List<KoGaMaPackageClient>();
 		foreach (KeyValuePair<int, MVItem> item in ShopInventory)
 		{
 			KoGaMaPackageClient koGaMaPackageFromItem = ARepository.GetKoGaMaPackageFromItem(item.Value);
 			koGaMaPackageFromItem.worldObjects[koGaMaPackageFromItem.worldObjectRoot].Visible = true;
-			koGaMaPackageFromItem.worldObjects[koGaMaPackageFromItem.worldObjectRoot].Position = val;
-			val += val2;
+			koGaMaPackageFromItem.worldObjects[koGaMaPackageFromItem.worldObjectRoot].Position = zero;
+			zero += vector;
 			list.Add(koGaMaPackageFromItem);
 		}
 	}

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public struct PhysicsCollisionData
+public class PhysicsCollisionData
 {
 	public Vector3 point;
 
@@ -14,31 +14,29 @@ public struct PhysicsCollisionData
 
 	public Collider collider;
 
-	public PhysicsCollisionData(RaycastHit hit)
+	public void Set(RaycastHit hit)
 	{
-		//IL_0003: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0008: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0036: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003b: Unknown result type (might be due to invalid IL or missing references)
 		point = hit.point;
-		transform = ((Component)hit.collider).transform;
+		transform = hit.collider.transform;
 		isInsideCollider = false;
 		distance = hit.distance;
 		normal = hit.normal;
 		collider = hit.collider;
 	}
 
-	public PhysicsCollisionData(Collider collider, Vector3 origin)
+	public void Set(Collider collider, Vector3 origin)
 	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0002: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0026: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Unknown result type (might be due to invalid IL or missing references)
 		point = origin;
-		transform = ((Component)collider).transform;
+		transform = collider.transform;
 		isInsideCollider = true;
 		distance = 0f;
 		normal = Vector3.zero;
 		this.collider = collider;
+	}
+
+	public void Clear()
+	{
+		transform = null;
+		collider = null;
 	}
 }

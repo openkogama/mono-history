@@ -1,8 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Localize;
 using MV.Common;
 using UnityEngine;
 
@@ -56,7 +54,7 @@ public class MVGUISoundEmitterSettingsBox : UXCustomDialogBox
 
 	private bool isInitialized;
 
-	private MVNetworkGame Game => MVGameController.Instance.Game;
+	private MVNetworkGame Game => MVGameController.Game;
 
 	private bool Preview
 	{
@@ -67,27 +65,27 @@ public class MVGUISoundEmitterSettingsBox : UXCustomDialogBox
 		set
 		{
 			_preview = value;
-			if ((Object)(object)PreviewLine != (Object)null && !_preview)
+			if (PreviewLine != null && !_preview)
 			{
 				PreviewLine.playButton.SetToggleState(toggle: false);
 				PreviewLine.PlayOnLoad = false;
 			}
-			if ((Object)(object)_loadingLine != (Object)null)
+			if (_loadingLine != null)
 			{
 				_loadingLine.PlayOnLoad = false;
 			}
 		}
 	}
 
-	private Hashtable selectedSoundData
+	private Dictionary<object, object> selectedSoundData
 	{
 		get
 		{
-			Hashtable hashtable = new Hashtable();
-			hashtable.Add("id", selectedSoundID);
-			hashtable.Add("url", selectedSoundUrl);
-			hashtable.Add("name", selectedSoundName);
-			return hashtable;
+			Dictionary<object, object> dictionary = new Dictionary<object, object>();
+			dictionary.Add("id", selectedSoundID);
+			dictionary.Add("url", selectedSoundUrl);
+			dictionary.Add("name", selectedSoundName);
+			return dictionary;
 		}
 	}
 
@@ -99,7 +97,7 @@ public class MVGUISoundEmitterSettingsBox : UXCustomDialogBox
 		}
 		set
 		{
-			if ((Object)(object)_selectedLine != (Object)null)
+			if (_selectedLine != null)
 			{
 				_selectedLine.SetSelected(selected: false);
 			}
@@ -121,7 +119,7 @@ public class MVGUISoundEmitterSettingsBox : UXCustomDialogBox
 		}
 		set
 		{
-			if ((Object)(object)_previewLine != (Object)null)
+			if (_previewLine != null)
 			{
 				_previewLine.PlayOnLoad = false;
 			}
@@ -228,7 +226,7 @@ public class MVGUISoundEmitterSettingsBox : UXCustomDialogBox
 		}));
 	}
 
-	public void SetCurrentSound(Hashtable data)
+	public void SetCurrentSound(Dictionary<object, object> data)
 	{
 		int soundID = (selectedSoundID = (int)data["id"]);
 		selectedSoundUrl = (string)data["url"];
@@ -252,7 +250,7 @@ public class MVGUISoundEmitterSettingsBox : UXCustomDialogBox
 		soundBitesScrollableBox.FocusOnLine(SelectedLine);
 		if (flag)
 		{
-			UXUtils.FindGUIObjectOfType<UXDialogFactory>().CreateDialog(TextSlotIndex.SoundEmitterWarning, TextSlotIndex.Notice, UXDialogType.Simple, noButtons: false, stackDialog: true).Show();
+			UXUtils.UXDialogFactory.CreateDialog(TM._("The sound in this sound emitter is no longer available.\nIf you pick another sound, you can not change it back"), TM._("Notice"), UXDialogType.Simple, noButtons: false, stackDialog: true).Show();
 		}
 	}
 
@@ -269,7 +267,7 @@ public class MVGUISoundEmitterSettingsBox : UXCustomDialogBox
 	private void BuildSoundBiteCategories()
 	{
 		categoryToAssets = new Dictionary<AmbientAudioCategory, List<SoundBite>>();
-		foreach (ProductInventoryInfo<StreamingAssetInfo> item in Game.StreamingAssetInventory.Get(StreamingAssetType.AmbientAudio))
+		foreach (ProductInventoryInfo item in Game.StreamingAssetInventory.Get(StreamingAssetType.AmbientAudio))
 		{
 			AmbientAudioCategory categoryID = (AmbientAudioCategory)item.ProductInfo.CategoryID;
 			if (!categoryToAssets.ContainsKey(categoryID))
@@ -325,14 +323,14 @@ public class MVGUISoundEmitterSettingsBox : UXCustomDialogBox
 		{
 			PreviewLine = soundEmitterLine;
 			Preview = true;
-			UXDialogFactory uXDialogFactory = UXUtils.FindGUIObjectOfType<UXDialogFactory>();
-			uXDialogFactory.CreateCustomDialog("Prefabs/GUI/Dialogs/ProductShopDialog", TextSlotIndex.Empty, noButtons: true, stackDialog: true).SetOnResultCallback(OnShopDialogResult).SetValues(BuildDialogData())
+			UXDialogFactory uXDialogFactory = UXUtils.UXDialogFactory;
+			uXDialogFactory.CreateCustomDialog("Prefabs/GUI/Dialogs/ProductShopDialog", string.Empty, noButtons: true, stackDialog: true).SetOnResultCallback(OnShopDialogResult).SetValues(BuildDialogData())
 				.Show();
 			MVGUIProductShopDialog mVGUIProductShopDialog = (MVGUIProductShopDialog)uXDialogFactory.CurrentDialogBox;
 			mVGUIProductShopDialog.SetPrice(PreviewLine.AssetInfo.ShopInfo.PriceGold, PreviewLine.AssetInfo.ShopInfo.PriceSilver);
 			mVGUIProductShopDialog.OnTryPurchaseProduct = () =>
 			{
-				MVGameController.Instance.Game.PurchaseStreamingAsset(StreamingAssetType.AmbientAudio, PreviewLine.AssetInfo.ProductID);
+				MVGameController.Game.PurchaseStreamingAsset(StreamingAssetType.AmbientAudio, PreviewLine.AssetInfo.ProductID);
 			};
 		}
 		FireIntermediateResult();
@@ -350,8 +348,7 @@ public class MVGUISoundEmitterSettingsBox : UXCustomDialogBox
 			text = PreviewLine.AssetInfo.Desc,
 			useWordWrap = true
 		});
-		Object val = Object.Instantiate(Resources.Load("Prefabs/GUI/ShopPreview/SoundEmitterPreview"));
-		GameObject productPreview = (GameObject)(object)((val is GameObject) ? val : null);
+		GameObject productPreview = UnityEngine.Object.Instantiate(Resources.Load("Prefabs/GUI/ShopPreview/SoundEmitterPreview")) as GameObject;
 		dictionary.Add("ProductPreview", new ProductPreviewData
 		{
 			productPreview = productPreview
@@ -365,9 +362,9 @@ public class MVGUISoundEmitterSettingsBox : UXCustomDialogBox
 		if (dialogBox.DialogResult == UXDialogResult.Positive)
 		{
 			SelectedLine = PreviewLine;
-			Hashtable hashtable = (Hashtable)dialogBox.GetResult();
-			int inventoryID = (int)hashtable[(byte)74];
-			ProductInventoryInfo<StreamingAssetInfo> invInfo = new ProductInventoryInfo<StreamingAssetInfo>(purchaseTime: new DateTime((long)hashtable[(byte)84]), inventoryID: inventoryID, productInfo: SelectedLine.AssetInfo);
+			Dictionary<object, object> dictionary = (Dictionary<object, object>)dialogBox.GetResult();
+			int inventoryID = (int)dictionary[(byte)73];
+			ProductInventoryInfo invInfo = new ProductInventoryInfo(purchaseTime: new DateTime((long)dictionary[(byte)83]), inventoryID: inventoryID, productInfo: SelectedLine.AssetInfo);
 			Game.StreamingAssetInventory.Add(invInfo);
 			SetSoundBiteToUnlocked(SelectedLine.AssetInfo.CategoryID - 1, SelectedLine.AssetInfo.Name);
 			categoryComboBox.SetCurrentItem(SelectedLine.AssetInfo.CategoryID - 1);
@@ -377,7 +374,7 @@ public class MVGUISoundEmitterSettingsBox : UXCustomDialogBox
 
 	private void LoadPreview(MVGUISoundEmitterLine soundEmitterLine)
 	{
-		if ((Object)(object)_loadingLine != (Object)null)
+		if (_loadingLine != null)
 		{
 			_loadingLine.PlayOnLoad = false;
 		}
@@ -402,7 +399,7 @@ public class MVGUISoundEmitterSettingsBox : UXCustomDialogBox
 
 	private void CreateSoundBiteLines(string category)
 	{
-		if (!Enumerable.Contains(Enum.GetNames(typeof(AmbientAudioCategory)), category))
+		if (!Enum.GetNames(typeof(AmbientAudioCategory)).Contains(category))
 		{
 			return;
 		}
@@ -414,8 +411,7 @@ public class MVGUISoundEmitterSettingsBox : UXCustomDialogBox
 		List<SoundBite> list = categoryToAssets[key];
 		foreach (SoundBite item in list)
 		{
-			Object val = Object.Instantiate(Resources.Load("Prefabs/GUI/Lines/SoundEmitterLine"));
-			MVGUISoundEmitterLine component = ((GameObject)((val is GameObject) ? val : null)).GetComponent<MVGUISoundEmitterLine>();
+			MVGUISoundEmitterLine component = (UnityEngine.Object.Instantiate(Resources.Load("Prefabs/GUI/Lines/SoundEmitterLine")) as GameObject).GetComponent<MVGUISoundEmitterLine>();
 			component.BuildLine(item.assetInfo, item.unlocked);
 			component.OnLineClick = (MVGUISoundEmitterLine.OnLineActionDelegate)Delegate.Combine(component.OnLineClick, new MVGUISoundEmitterLine.OnLineActionDelegate(UpdateSelectedSoundBite));
 			component.OnNodePreviewClick = (MVGUISoundEmitterLine.OnLineActionDelegate)Delegate.Combine(component.OnNodePreviewClick, new MVGUISoundEmitterLine.OnLineActionDelegate(LoadPreview));
@@ -446,7 +442,7 @@ public class MVGUISoundEmitterSettingsBox : UXCustomDialogBox
 	private void SetSoundBiteToUnlocked(int categoryIndex, string soundName)
 	{
 		string text = (string)categoryComboBox.Items[categoryIndex].GetValue();
-		Debug.Log((object)(text + " - " + soundName));
+		Debug.Log(text + " - " + soundName);
 		AmbientAudioCategory key = (AmbientAudioCategory)(int)Enum.Parse(typeof(AmbientAudioCategory), text);
 		List<SoundBite> list = categoryToAssets[key];
 		for (int i = 0; i < list.Count; i++)
@@ -463,25 +459,25 @@ public class MVGUISoundEmitterSettingsBox : UXCustomDialogBox
 
 	public override object GetResult()
 	{
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add("volume", volume);
-		hashtable.Add("pitch", pitch);
-		hashtable.Add("range", Mathf.RoundToInt(range));
-		hashtable.Add("mute", mute);
-		hashtable.Add("loop", true);
-		Hashtable hashtable2 = hashtable;
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add("volume", volume);
+		dictionary.Add("pitch", pitch);
+		dictionary.Add("range", Mathf.RoundToInt(range));
+		dictionary.Add("mute", mute);
+		dictionary.Add("loop", true);
+		Dictionary<object, object> dictionary2 = dictionary;
 		if (Preview)
 		{
-			hashtable2.Add("name", PreviewLine.AssetInfo.Name);
-			hashtable2.Add("url", PreviewLine.AssetInfo.AssetPath);
-			hashtable2.Add("id", PreviewLine.AssetInfo.ProductID);
+			dictionary2.Add("name", PreviewLine.AssetInfo.Name);
+			dictionary2.Add("url", PreviewLine.AssetInfo.AssetPath);
+			dictionary2.Add("id", PreviewLine.AssetInfo.ProductID);
 		}
 		else
 		{
-			hashtable2.Add("name", selectedSoundName);
-			hashtable2.Add("url", selectedSoundUrl);
-			hashtable2.Add("id", selectedSoundID);
+			dictionary2.Add("name", selectedSoundName);
+			dictionary2.Add("url", selectedSoundUrl);
+			dictionary2.Add("id", selectedSoundID);
 		}
-		return hashtable2;
+		return dictionary2;
 	}
 }

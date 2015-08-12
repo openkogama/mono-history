@@ -4,6 +4,6 @@ public class MVGUISubTree : MonoBehaviour
 {
 	public void Awake()
 	{
-		UXUtils.AddSubTree(((Component)this).transform);
+		UXUtils.AddSubTree(transform);
 	}
 }

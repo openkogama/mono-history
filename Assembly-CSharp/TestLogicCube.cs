@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 
 public class TestLogicCube : MVLogicObject
@@ -9,7 +8,7 @@ public class TestLogicCube : MVLogicObject
 
 	public override bool HasOutputConnector => true;
 
-	public TestLogicCube(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public TestLogicCube(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, "Prefabs/TestLogicCubeObject", worldObjects)
 	{
 	}

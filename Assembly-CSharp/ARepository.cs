@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using MV.WorldObject;
 
@@ -6,18 +5,18 @@ public abstract class ARepository
 {
 	public delegate void OnRepositoryChangeDelegate(ARepository repository);
 
-	public delegate void OnWorldObjectTypeExtracted(WorldObjectType worldObjectType, Hashtable woData);
+	public delegate void OnWorldObjectTypeExtracted(WorldObjectType worldObjectType, Dictionary<object, object> woData);
 
 	public OnRepositoryChangeDelegate OnRepositoryChange;
 
 	public Dictionary<int, string> PlanetOwnershipTypes;
 
-	public Hashtable itemIDToInventorySlotIndex;
+	public Dictionary<object, object> itemIDToInventorySlotIndex;
 
 	public ARepository()
 	{
 		PlanetOwnershipTypes = new Dictionary<int, string>();
-		itemIDToInventorySlotIndex = new Hashtable();
+		itemIDToInventorySlotIndex = new Dictionary<object, object>();
 	}
 
 	public virtual void RemoveItem(int itemId)
@@ -60,7 +59,7 @@ public abstract class ARepository
 
 	public static void GetWorldObjectTypeFromMVItemData(byte[] data, OnWorldObjectTypeExtracted onWorldObjectExtracted)
 	{
-		KogamaDataHandler.DataCallBack callBack = (Hashtable returnData, KogamaDataType dataType) =>
+		KogamaDataHandler.DataCallBack callBack = (Dictionary<object, object> returnData, KogamaDataType dataType) =>
 		{
 			KogamaDataType kogamaDataType = dataType;
 			if (kogamaDataType == KogamaDataType.WorldObjects && returnData.ContainsKey(WorldObjectDataParameters.WorldObjectType))
@@ -68,7 +67,7 @@ public abstract class ARepository
 				WorldObjectType worldObjectType = (WorldObjectType)(int)returnData[WorldObjectDataParameters.WorldObjectType];
 				if (onWorldObjectExtracted != null)
 				{
-					onWorldObjectExtracted(worldObjectType, (Hashtable)returnData[WorldObjectDataParameters.Data]);
+					onWorldObjectExtracted(worldObjectType, (Dictionary<object, object>)returnData[WorldObjectDataParameters.Data]);
 				}
 			}
 		};

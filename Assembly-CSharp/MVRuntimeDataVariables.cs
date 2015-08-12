@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
 public class MVRuntimeDataVariables
@@ -38,7 +37,7 @@ public class MVRuntimeDataVariables
 		return mVRuntimeDataVariableClampedFloat;
 	}
 
-	public void Receive(Hashtable runtimeData)
+	public void Receive(Dictionary<object, object> runtimeData)
 	{
 		foreach (MVRuntimeDataVariable variable in variables)
 		{
@@ -46,21 +45,21 @@ public class MVRuntimeDataVariables
 		}
 	}
 
-	public Hashtable Send()
+	public Dictionary<object, object> Send()
 	{
-		Hashtable hashtable = new Hashtable();
+		Dictionary<object, object> runtimeDataDelta = new Dictionary<object, object>();
 		foreach (MVRuntimeDataVariable variable in variables)
 		{
-			variable.Send(hashtable);
+			variable.Send(ref runtimeDataDelta);
 		}
-		return hashtable;
+		return (Dictionary<object, object>)ObscuredTypesConverter.CreateUnObscuredValue(runtimeDataDelta);
 	}
 
 	public void OnWriteThrough(object value)
 	{
 		if (owner.NetworkObject != null && owner.NetworkObject is MVNetworkReporter)
 		{
-			(owner.NetworkObject as MVNetworkReporter).SyncRunTimeDataVariables(MVGameController.Instance.Game);
+			(owner.NetworkObject as MVNetworkReporter).SyncRunTimeDataVariables(MVGameController.Game);
 		}
 	}
 }

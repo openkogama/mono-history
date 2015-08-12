@@ -1,0 +1,41 @@
+using System.Collections.Generic;
+
+public class MVCameraSettings : MVLogicObject
+{
+	private const string prefabPath = "Prefabs/CameraSettingsObject";
+
+	public override bool HasInputConnector => false;
+
+	public override bool HasOutputConnector => false;
+
+	public MVCameraSettings(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
+		: base(data, "Prefabs/CameraSettingsObject", worldObjects)
+	{
+		interactionFlags |= InteractionFlags.HasSettings;
+		interactionFlags &= ~InteractionFlags.CanClone;
+	}
+
+	public override void Initialize()
+	{
+		base.Initialize();
+		OnDataUpdate();
+	}
+
+	public override void OnDataUpdate()
+	{
+		PlaymodeCamera playmodeCamera = GameDB.GetPlaymodeCamera();
+		playmodeCamera.UpdateFromCameraSettings(Data);
+	}
+
+	public override bool IsSingletonObject()
+	{
+		return true;
+	}
+
+	public override void Destroy()
+	{
+		PlaymodeCamera playmodeCamera = GameDB.GetPlaymodeCamera();
+		playmodeCamera.SetDefaultSettings();
+		base.Destroy();
+	}
+}

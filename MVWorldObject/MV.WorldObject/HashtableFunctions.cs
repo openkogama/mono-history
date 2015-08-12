@@ -1,43 +1,54 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
 
 namespace MV.WorldObject;
 
 public static class HashtableFunctions
 {
-	public static Hashtable DeepCopyHashTable(Hashtable from)
+	public static Dictionary<object, object> DeepCopyHashTable(Dictionary<object, object> from, Dictionary<object, object> to)
 	{
-		Hashtable hashtable = new Hashtable();
-		foreach (DictionaryEntry item in from)
+		foreach (KeyValuePair<object, object> item in from)
 		{
 			Type type = item.Value.GetType();
 			object obj;
-			if ((object)type == typeof(float[]))
+			if (type == typeof(float[]))
 			{
 				int num = ((float[])item.Value).Length;
 				obj = new float[num];
 				Array.Copy((float[])item.Value, (float[])obj, num);
 			}
-			else if ((object)type == typeof(int[]))
+			else if (type == typeof(int[]))
 			{
 				int num2 = ((int[])item.Value).Length;
 				obj = new int[num2];
 				Array.Copy((int[])item.Value, (int[])obj, num2);
 			}
-			else if ((object)type == typeof(Hashtable))
+			else if (type == typeof(byte[]))
 			{
-				obj = DeepCopyHashTable((Hashtable)item.Value);
+				int num3 = ((byte[])item.Value).Length;
+				obj = new byte[num3];
+				Array.Copy((byte[])item.Value, (byte[])obj, num3);
+			}
+			else if (type == typeof(Dictionary<object, object>))
+			{
+				obj = DeepCopyHashTable((Dictionary<object, object>)item.Value);
 			}
 			else
 			{
-				if (!type.IsPrimitive && (object)type != typeof(string))
+				if (!type.IsPrimitive && type != typeof(string))
 				{
 					throw new ArgumentException("Type not handled in deepcopy hash table types " + item.Value.GetType());
 				}
 				obj = item.Value;
 			}
-			hashtable.Add(item.Key, obj);
+			to.Add(item.Key, obj);
 		}
-		return hashtable;
+		return to;
+	}
+
+	public static Dictionary<object, object> DeepCopyHashTable(Dictionary<object, object> from)
+	{
+		Dictionary<object, object> to = new Dictionary<object, object>();
+		return DeepCopyHashTable(from, to);
 	}
 }

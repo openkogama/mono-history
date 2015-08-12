@@ -1,13 +1,13 @@
 using System;
 using UnityEngine;
 
-public class ProductInventoryInfo<T> where T : ProductInfo
+public class ProductInventoryInfo
 {
 	private MVWorldObjectClient equippedOn;
 
 	public int InventoryID { get; private set; }
 
-	public T ProductInfo { get; private set; }
+	public StreamingAssetInfo ProductInfo { get; private set; }
 
 	public bool IsRented { get; private set; }
 
@@ -23,19 +23,18 @@ public class ProductInventoryInfo<T> where T : ProductInfo
 		}
 		set
 		{
-			T productInfo = ProductInfo;
-			if (productInfo.IsEquippable)
+			if (ProductInfo.IsEquippable)
 			{
 				equippedOn = value;
 			}
 			else
 			{
-				Debug.LogError((object)("Trying to equip unequippable inventory item: " + ToString()));
+				Debug.LogError("Trying to equip unequippable inventory item: " + ToString());
 			}
 		}
 	}
 
-	public ProductInventoryInfo(int inventoryID, T productInfo, DateTime purchaseTime, bool isRented = false)
+	public ProductInventoryInfo(int inventoryID, StreamingAssetInfo productInfo, DateTime purchaseTime, bool isRented = false)
 	{
 		InventoryID = inventoryID;
 		ProductInfo = productInfo;
@@ -51,9 +50,6 @@ public class ProductInventoryInfo<T> where T : ProductInfo
 
 	public override string ToString()
 	{
-		object[] array = new object[4] { "inventoryID: ", InventoryID, ", ", null };
-		T productInfo = ProductInfo;
-		array[3] = productInfo.ToString();
-		return string.Concat(array);
+		return "inventoryID: " + InventoryID + ", " + ProductInfo.ToString();
 	}
 }

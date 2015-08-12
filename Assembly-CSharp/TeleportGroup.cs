@@ -8,8 +8,6 @@ public class TeleportGroup : MonoBehaviour
 
 	public void Initialize(MVTeleportGroup owner)
 	{
-		//IL_0068: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0084: Unknown result type (might be due to invalid IL or missing references)
 		worldObject = owner;
 		worldObject.Teleporter1.PositionChanged += PositionChanged;
 		worldObject.Teleporter2.PositionChanged += PositionChanged;
@@ -29,9 +27,6 @@ public class TeleportGroup : MonoBehaviour
 
 	private void PositionChanged(object sender, PositionChangedEventArgs args)
 	{
-		//IL_001e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0081: Unknown result type (might be due to invalid IL or missing references)
 		if (sender == worldObject)
 		{
 			lineRenderer.SetPosition(0, worldObject.Teleporter1.WorldPosition);

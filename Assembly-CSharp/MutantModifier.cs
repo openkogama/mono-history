@@ -23,7 +23,7 @@ public class MutantModifier : AvatarModifier
 	{
 		target.StopBlinking(BlinkType.Poison);
 		isDeactivating = true;
-		((MonoBehaviour)this).StartCoroutine(DoFadeAndDestroy());
+		StartCoroutine(DoFadeAndDestroy());
 	}
 
 	private IEnumerator DoFadeAndDestroy()
@@ -34,25 +34,24 @@ public class MutantModifier : AvatarModifier
 		{
 			yield return 0;
 		}
-		Object.Destroy((Object)(object)((Component)this).gameObject);
+		Object.Destroy(gameObject);
 	}
 
 	private void Update()
 	{
-		//IL_0027: Unknown result type (might be due to invalid IL or missing references)
 		if (!owner.IsLocal || isDeactivating)
 		{
 			return;
 		}
-		Collider[] array = Physics.OverlapSphere(((Component)owner).transform.position, hitRadius, 1 << LayerMask.NameToLayer("Player"));
+		Collider[] array = Physics.OverlapSphere(owner.transform.position, hitRadius, 1 << LayerMask.NameToLayer("Player"));
 		Collider[] array2 = array;
-		foreach (Collider val in array2)
+		foreach (Collider collider in array2)
 		{
-			Avatar component = ((Component)val).GetComponent<Avatar>();
-			if (!((Object)(object)component == (Object)(object)owner) && !((Object)(object)component == (Object)null))
+			Avatar component = collider.GetComponent<Avatar>();
+			if (!(component == owner) && !(component == null))
 			{
-				InteractionDataHandlerBase component2 = ((Component)component).gameObject.GetComponent<InteractionDataHandlerBase>();
-				if ((Object)(object)component2 != (Object)null)
+				InteractionDataHandlerBase component2 = component.gameObject.GetComponent<InteractionDataHandlerBase>();
+				if (component2 != null)
 				{
 					component2.HandleInteraction(MutantHitPackage.Create(), interactionIsLocal: false);
 				}

@@ -1,4 +1,4 @@
-using System.Collections;
+using System.Collections.Generic;
 using MV.WorldObject;
 
 public class InteractionDataHandler : InteractionDataHandlerBase
@@ -19,7 +19,7 @@ public class InteractionDataHandler : InteractionDataHandlerBase
 		}
 		else
 		{
-			worldObjectParent.SendPackage(new Hashtable { 
+			worldObjectParent.SendPackage(new Dictionary<object, object> { 
 			{
 				(byte)0,
 				interaction.ToByteArray()

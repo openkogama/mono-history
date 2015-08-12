@@ -52,6 +52,10 @@ public static class AvatarPackages
 		{
 			InteractionPackageType.SixShooterHit,
 			new SixShooterHitPackage()
+		},
+		{
+			InteractionPackageType.ThrowingStarHit,
+			new ThrowingStarHitPackage()
 		}
 	};
 }

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Localize;
 
 public class MVGUIBMFloatDataLine : MVGUIBMDataLine
 {
@@ -26,8 +25,7 @@ public class MVGUIBMFloatDataLine : MVGUIBMDataLine
 			text = value + string.Empty,
 			allowedInput = TextInputType.Numerical
 		});
-		UXUtils.FindGUIObjectOfType<UXDialogFactory>().CreateDialog(TextSlotIndex.FloatValue, TextSlotIndex.ChangeValue, UXDialogType.TextField, noButtons: false, stackDialog: true).SetValues(dictionary)
-			.SetOnResultCallback(OnModifyResult)
+		UXUtils.UXDialogFactory.CreateDialog("Float value", "Change Value", UXDialogType.TextField, noButtons: false, stackDialog: true).SetValues(dictionary).SetOnResultCallback(OnModifyResult)
 			.Show();
 	}
 
@@ -43,7 +41,7 @@ public class MVGUIBMFloatDataLine : MVGUIBMDataLine
 			}
 			else
 			{
-				UXUtils.FindGUIObjectOfType<UXDialogFactory>().CreateDialog(TextSlotIndex.FailedToParseValue, TextSlotIndex.ErrorHeadline).Show();
+				UXUtils.UXDialogFactory.CreateDialog("Failed to parse new value", "Error").Show();
 			}
 		}
 	}

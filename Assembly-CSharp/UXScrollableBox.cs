@@ -43,11 +43,9 @@ public class UXScrollableBox : UXGUIElement, IUXContainer
 
 	private float totalLinesHeight;
 
-	public UXScrollableBox()
-	{
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0011: Unknown result type (might be due to invalid IL or missing references)
-	}
+	private int maxNumberOfLines = 30;
+
+	public UXSlider UXSlider => uiSlider;
 
 	public override void Awake()
 	{
@@ -62,15 +60,10 @@ public class UXScrollableBox : UXGUIElement, IUXContainer
 
 	public void Initialize()
 	{
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0048: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0063: Unknown result type (might be due to invalid IL or missing references)
 		InitializeBackground();
 		InitializeSlider();
 		boxItemsOffset = new GameObject("ItemsOffset").transform;
-		boxItemsOffset.parent = ((Component)this).transform;
+		boxItemsOffset.parent = transform;
 		boxItemsOffset.localPosition = new Vector3(0f, Height, 0f) - Alignment;
 		boxItemsOffset.localScale = Vector3.one;
 	}
@@ -90,12 +83,11 @@ public class UXScrollableBox : UXGUIElement, IUXContainer
 
 	private void InitializeBackground()
 	{
-		//IL_0033: Unknown result type (might be due to invalid IL or missing references)
-		MeshFilter val = UXUtils.AddComponentIfNotExists<MeshFilter>(((Component)this).gameObject);
-		val.mesh = BuildMesh();
+		MeshFilter meshFilter = UXUtils.AddComponentIfNotExists<MeshFilter>(gameObject);
+		BuildMesh(meshFilter.mesh);
 		if (showBackground)
 		{
-			((Renderer)((Component)this).GetComponent<MeshRenderer>()).material.SetColor("_MainColor", Color.white);
+			GetComponent<MeshRenderer>().material.SetColor("_MainColor", Color.white);
 		}
 		if (colorAlternateLines)
 		{
@@ -105,63 +97,36 @@ public class UXScrollableBox : UXGUIElement, IUXContainer
 
 	private void InitializeBackgroundLines()
 	{
-		//IL_0005: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Expected Obj, but got Unknown
-		//IL_004b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0050: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0060: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0065: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0079: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0089: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c9: Unknown result type (might be due to invalid IL or missing references)
-		GameObject val = new GameObject("BGLines");
-		bgLinesOffset = val.transform;
-		val.layer = LayerMask.NameToLayer("UXElement");
-		val.transform.parent = ((Component)this).transform;
-		val.transform.localPosition = new Vector3(Width / 2f - Alignment.x, Height - Alignment.y - 1f, -0.01f);
-		val.transform.localScale = Vector2.op_Implicit(Vector2.one);
+		GameObject gameObject = new GameObject("BGLines");
+		bgLinesOffset = gameObject.transform;
+		gameObject.layer = LayerMask.NameToLayer("UXElement");
+		gameObject.transform.parent = transform;
+		gameObject.transform.localPosition = new Vector3(Width / 2f - Alignment.x, Height - Alignment.y - 1f, -0.01f);
+		gameObject.transform.localScale = Vector2.one;
 		for (int i = 0; (float)i < Height / backgroundLineHeight + 2f; i += 2)
 		{
-			CreateBGLine(val.transform, new Vector2(0f, (0f - backgroundLineHeight) * (float)(i + 1)), Width, backgroundLineHeight, alternateLineColor);
+			CreateBGLine(gameObject.transform, new Vector2(0f, (0f - backgroundLineHeight) * (float)(i + 1)), Width, backgroundLineHeight, alternateLineColor);
 		}
 	}
 
 	private void CreateBGLine(Transform parent, Vector2 offset, float width, float height, Color color)
 	{
-		//IL_0005: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Expected Obj, but got Unknown
-		//IL_002d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0043: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0071: Unknown result type (might be due to invalid IL or missing references)
-		GameObject val = new GameObject("BGLine");
-		val.layer = LayerMask.NameToLayer("UXElement");
-		val.transform.parent = parent;
-		val.transform.localPosition = Vector2.op_Implicit(offset);
-		val.transform.localScale = Vector2.op_Implicit(Vector2.one);
-		MeshRenderer val2 = val.AddComponent<MeshRenderer>();
-		((Renderer)val2).material = lineMaterial;
-		UXPlane uXPlane = val.AddComponent<UXPlane>();
+		GameObject gameObject = new GameObject("BGLine");
+		gameObject.layer = LayerMask.NameToLayer("UXElement");
+		gameObject.transform.parent = parent;
+		gameObject.transform.localPosition = offset;
+		gameObject.transform.localScale = Vector2.one;
+		MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
+		meshRenderer.material = lineMaterial;
+		UXPlane uXPlane = gameObject.AddComponent<UXPlane>();
 		uXPlane.SetSize(width, height);
 		uXPlane.SetColor(color, string.Empty);
 	}
 
 	private void InitializeSlider()
 	{
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0082: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0087: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0092: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a7: Unknown result type (might be due to invalid IL or missing references)
-		Object val = Object.Instantiate((Object)(object)SliderPrefab, Vector3.zero, Quaternion.identity);
-		sliderObject = (GameObject)(object)((val is GameObject) ? val : null);
-		sliderObject.transform.parent = ((Component)this).gameObject.transform;
+		sliderObject = Object.Instantiate(SliderPrefab, Vector3.zero, Quaternion.identity) as GameObject;
+		sliderObject.transform.parent = gameObject.transform;
 		sliderObject.transform.localPosition = new Vector3(Width + sliderWidth / 2f, Height / 2f - SliderOffset.y / 2f, -0.5f) - Alignment + SliderOffset;
 		sliderObject.transform.localScale = Vector3.one;
 		uiSlider = sliderObject.GetComponent<UXSlider>();
@@ -185,15 +150,12 @@ public class UXScrollableBox : UXGUIElement, IUXContainer
 
 	public override void SetSize(float width, float height)
 	{
-		//IL_005d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0063: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0068: Unknown result type (might be due to invalid IL or missing references)
 		base.SetSize(width, height);
-		if ((Object)(object)bgLinesOffset != (Object)null)
+		if (bgLinesOffset != null)
 		{
-			Object.Destroy((Object)(object)((Component)bgLinesOffset).gameObject);
+			Object.Destroy(bgLinesOffset.gameObject);
 		}
-		Object.Destroy((Object)(object)sliderObject);
+		Object.Destroy(sliderObject);
 		uiSlider = null;
 		InitializeBackground();
 		InitializeSlider();
@@ -207,8 +169,6 @@ public class UXScrollableBox : UXGUIElement, IUXContainer
 
 	private float FindLinesHeight(int start, int stop)
 	{
-		//IL_001a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001f: Unknown result type (might be due to invalid IL or missing references)
 		float num = 0f;
 		for (int i = start; i < stop; i++)
 		{
@@ -219,7 +179,7 @@ public class UXScrollableBox : UXGUIElement, IUXContainer
 
 	public void SetSliderEnabled(bool enabled)
 	{
-		((Component)uiSlider).gameObject.SetActiveRecursively(enabled);
+		uiSlider.gameObject.SetActive(enabled);
 	}
 
 	public void SetSliderValue(float val)
@@ -248,19 +208,30 @@ public class UXScrollableBox : UXGUIElement, IUXContainer
 		return Lines;
 	}
 
+	private void CalcLinePositions(UXLine line, float lineHeight)
+	{
+		line.gameObject.transform.parent = boxItemsOffset;
+		line.gameObject.transform.localPosition = new Vector3(GetLineInsert(line), 0f - lineHeight - line.GetLineSize().y / 2f, -0.01f);
+		line.gameObject.transform.localScale = Vector3.one;
+	}
+
 	public void AddLine(UXLine line)
 	{
-		//IL_0045: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0073: Unknown result type (might be due to invalid IL or missing references)
-		((Component)line).gameObject.layer = LayerMask.NameToLayer("UXElement");
-		((Component)line).gameObject.transform.parent = boxItemsOffset;
-		((Component)line).gameObject.transform.localPosition = new Vector3(GetLineInsert(line), 0f - totalLinesHeight - line.GetLineSize().y / 2f, -0.01f);
-		((Component)line).gameObject.transform.localScale = Vector3.one;
+		if (Lines.Count >= maxNumberOfLines)
+		{
+			RemoveLine(0);
+		}
+		line.gameObject.layer = LayerMask.NameToLayer("UXElement");
+		float num = 0f;
+		foreach (UXLine line2 in Lines)
+		{
+			CalcLinePositions(line2, num);
+			num += line2.GetLineSize().y;
+		}
+		CalcLinePositions(line, totalLinesHeight);
 		Lines.Add(line);
-		bool flag = uiSlider.Value == uiSlider.MaxValue;
 		CalculateTotalLinesHeight();
+		bool flag = uiSlider.Value == uiSlider.MaxValue;
 		UpdateSlider();
 		if (ScrollBehaviour == ScrollBoxBehaviour.ScrollOnNew || (flag && ScrollBehaviour == ScrollBoxBehaviour.ScrollOnEnd))
 		{
@@ -280,12 +251,6 @@ public class UXScrollableBox : UXGUIElement, IUXContainer
 
 	private float GetLineInsert(UXLine line)
 	{
-		//IL_0024: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0029: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0052: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006f: Unknown result type (might be due to invalid IL or missing references)
 		return lineAlignment switch
 		{
 			LineAlignment.Left => 0f + line.Alignment.x, 
@@ -306,7 +271,7 @@ public class UXScrollableBox : UXGUIElement, IUXContainer
 		if (destroy)
 		{
 			line.DestroyLine();
-			Object.Destroy((Object)(object)((Component)line).gameObject);
+			Object.Destroy(line.gameObject);
 		}
 		CalculateTotalLinesHeight();
 		if (OnLinesChanged != null)
@@ -322,7 +287,7 @@ public class UXScrollableBox : UXGUIElement, IUXContainer
 			foreach (UXLine line in Lines)
 			{
 				line.DestroyLine();
-				Object.Destroy((Object)(object)((Component)line).gameObject);
+				Object.Destroy(line.gameObject);
 			}
 		}
 		Lines.Clear();
@@ -370,12 +335,7 @@ public class UXScrollableBox : UXGUIElement, IUXContainer
 
 	private void Align()
 	{
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0029: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0043: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0048: Unknown result type (might be due to invalid IL or missing references)
-		if (!((Object)(object)this == (Object)null))
+		if (!(this == null))
 		{
 			boxItemsOffset.localPosition = new Vector3(0f, Height, 0f) - Alignment + new Vector3(0f, currentHeight, 0f);
 			if (colorAlternateLines)
@@ -388,13 +348,6 @@ public class UXScrollableBox : UXGUIElement, IUXContainer
 
 	private void UpdateBGLines()
 	{
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0043: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0048: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0060: Unknown result type (might be due to invalid IL or missing references)
 		Vector3 localPosition = new Vector3(Width / 2f, Height, 0f) - Alignment + new Vector3(0f, (currentHeight - 1f) % 4f, 0f);
 		localPosition.z = -0.01f;
 		bgLinesOffset.localPosition = localPosition;
@@ -402,20 +355,12 @@ public class UXScrollableBox : UXGUIElement, IUXContainer
 
 	private void UpdateVisibility()
 	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0037: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0046: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0065: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006a: Unknown result type (might be due to invalid IL or missing references)
 		Rect boundingBox = GetBoundingBox();
 		float yMax = boundingBox.yMax;
 		float yMin = boundingBox.yMin;
 		foreach (UXLine line in Lines)
 		{
-			Vector3 position = ((Component)line).transform.position;
+			Vector3 position = line.transform.position;
 			float num = position.y + line.ScreenSize.y / 2f;
 			float num2 = position.y - line.ScreenSize.y / 2f;
 			line.SetVisible(Visible && ((num <= yMax && num > yMin) || (num2 >= yMin && num2 < yMax)));

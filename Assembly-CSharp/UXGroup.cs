@@ -48,14 +48,11 @@ public class UXGroup : UXGUIElement
 
 	private List<UXGUIElement> GetImmediateChildren()
 	{
-		//IL_001d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0023: Expected Obj, but got Unknown
 		List<UXGUIElement> list = new List<UXGUIElement>();
-		foreach (Transform item in ((Component)this).transform)
+		foreach (Transform item in base.transform)
 		{
-			Transform val = item;
-			UXGUIElement component = ((Component)val).gameObject.GetComponent<UXGUIElement>();
-			if ((Object)(object)component != (Object)null)
+			UXGUIElement component = item.gameObject.GetComponent<UXGUIElement>();
+			if (component != null)
 			{
 				list.Add(component);
 			}

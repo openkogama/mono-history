@@ -1,6 +1,6 @@
 using MV.Common;
 
-public class VehicleInteractable : MVInteractable
+public class VehicleInteractable : MVInteractable, IMoveHitHandler
 {
 	public override void TakeDamage(float amount, MVPlayer damageDealer, PlayerKilledByType damageType)
 	{
@@ -20,5 +20,10 @@ public class VehicleInteractable : MVInteractable
 		{
 			base.AddModifier(type, id, additionalModifers);
 		}
+	}
+
+	public void HandleMoveHit(MVControllerColliderHit moveHit)
+	{
+		AddModifier(moveHit.material.modifierPackageType);
 	}
 }

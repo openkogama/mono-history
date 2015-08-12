@@ -9,27 +9,26 @@ public class MVGUIAvatarMarketPlaceActionDialog : UXCustomDialogBox
 
 	private void Update()
 	{
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		((Component)loadingCircle).transform.RotateAroundLocal(Vector3.forward, 12f * Time.deltaTime);
+		loadingCircle.transform.Rotate(Vector3.forward, 12f * Time.deltaTime * 57.29578f);
 	}
 
 	public void SellAvatar(int woID, int priceSilver, string name, byte[] imageData)
 	{
-		MVNetworkGame game = MVGameController.Instance.Game;
+		MVNetworkGame game = MVGameController.Game;
 		game.OnMarketPlaceActionComplete = (MVNetworkGame.OnMarketPlaceActionCompleteDelegate)Delegate.Combine(game.OnMarketPlaceActionComplete, new MVNetworkGame.OnMarketPlaceActionCompleteDelegate(OnAddToMarketplaceReturn));
-		MVGameController.Instance.Game.AddAvatarToAvatarShopInventory(woID, priceSilver, name, imageData);
+		MVGameController.Game.AddAvatarToAvatarShopInventory(woID, priceSilver, name, imageData);
 	}
 
 	public void DeleteAvatar(int avatarID)
 	{
-		MVNetworkGame game = MVGameController.Instance.Game;
+		MVNetworkGame game = MVGameController.Game;
 		game.OnMarketPlaceActionComplete = (MVNetworkGame.OnMarketPlaceActionCompleteDelegate)Delegate.Combine(game.OnMarketPlaceActionComplete, new MVNetworkGame.OnMarketPlaceActionCompleteDelegate(OnAddToMarketplaceReturn));
-		MVGameController.Instance.Game.DeleteAvatarFromShopInventory(avatarID);
+		MVGameController.Game.DeleteAvatarFromShopInventory(avatarID);
 	}
 
 	private void OnAddToMarketplaceReturn(bool success)
 	{
-		MVNetworkGame game = MVGameController.Instance.Game;
+		MVNetworkGame game = MVGameController.Game;
 		game.OnMarketPlaceActionComplete = (MVNetworkGame.OnMarketPlaceActionCompleteDelegate)Delegate.Remove(game.OnMarketPlaceActionComplete, new MVNetworkGame.OnMarketPlaceActionCompleteDelegate(OnAddToMarketplaceReturn));
 		if (success)
 		{

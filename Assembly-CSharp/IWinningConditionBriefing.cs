@@ -1,0 +1,6 @@
+public interface IWinningConditionBriefing
+{
+	void GetBriefing(MVGUIWinningConditionBriefingView winningConditionBriefingView);
+
+	void GetDebriefing(MVGUIWinningConditionDebriefingView winningConditionDebriefingView);
+}

@@ -1,8 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Localize;
 using MV.Common;
 using UnityEngine;
 
@@ -14,13 +12,13 @@ public class MVSoundEmitter : MVLogicObject
 
 	private AudioSource currentSrc;
 
-	private MVNetworkGame Game => MVGameController.Instance.Game;
+	private MVNetworkGame Game => MVGameController.Game;
 
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => false;
 
-	public MVSoundEmitter(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVSoundEmitter(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, "Prefabs/SoundEmitterObject", worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
@@ -29,10 +27,10 @@ public class MVSoundEmitter : MVLogicObject
 	public override void Initialize()
 	{
 		base.Initialize();
-		if (!Data.ContainsKey("url"))
+		if (!Data.ContainsKey("url") || Data["url"].ToString().StartsWith("file://"))
 		{
 			StreamingAssetInfo streamingAssetInfo = null;
-			foreach (StreamingAssetInfo value in MVGameController.Instance.Game.StreamingAssetInfoMap.Values)
+			foreach (StreamingAssetInfo value in MVGameController.Game.StreamingAssetInfoMap.Values)
 			{
 				if (value.StreamedAssetType == StreamingAssetType.AmbientAudio && value.ShopInfo.PriceGold == 0)
 				{
@@ -45,7 +43,7 @@ public class MVSoundEmitter : MVLogicObject
 				Data["name"] = "ForestBirds";
 				Data["id"] = 1;
 				Data["url"] = "AmbientAudio/Nature/kgm_amb_forest.unity3d";
-				Debug.LogError((object)"Failed to get default streaming inventory data");
+				Debug.LogError("Failed to get default streaming inventory data");
 				return;
 			}
 			Data["name"] = streamingAssetInfo.Name;
@@ -60,7 +58,7 @@ public class MVSoundEmitter : MVLogicObject
 
 	public override void OnInputStateChanged()
 	{
-		if ((Object)(object)currentSrc != (Object)null)
+		if (currentSrc != null)
 		{
 			if (ShouldPlay() && !currentSrc.isPlaying)
 			{
@@ -87,42 +85,58 @@ public class MVSoundEmitter : MVLogicObject
 			StreamingAssetInfo streamingAssetInfo = Game.StreamingAssetInfoMap.Values.FirstOrDefault((StreamingAssetInfo sai) => sai.AssetPath == currentUrl);
 			if (streamingAssetInfo != null)
 			{
-				MVGameController.Instance.Game.AssetBundleMgr.RequestAssetBundle(streamingAssetInfo.RequestPath, StreamingAssetCallback, autoRetry: true, highPriority: true);
+				AsyncWWWManager.WWWRequest(new StreamingAssetRequest(Urls.StreamingAssets + streamingAssetInfo.RequestPath, StreamingAssetCallback));
 			}
 			else
 			{
-				Debug.LogError((object)("Could not find asset info for audio " + currentUrl));
+				Debug.LogError("Could not find asset info for audio " + currentUrl);
 			}
 		}
-		else if ((Object)(object)currentSrc != (Object)null)
+		else if (currentSrc != null)
 		{
 			UpdateSound(currentSrc);
 		}
 	}
 
-	public void StreamingAssetCallback(AssetBundle assetBundle, string bundlePath)
+	public void StreamingAssetCallback(WWW www)
 	{
-		//IL_006a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0070: Expected Obj, but got Unknown
-		//IL_0094: Unknown result type (might be due to invalid IL or missing references)
-		MVGameController.Instance.Game.AssetBundleMgr.UnsubscribeBundleCallback(bundlePath, StreamingAssetCallback);
-		Debug.Log((object)("SOUND EMITTER StreamingAssetCallback, url = " + bundlePath + ", currentUrl = " + currentUrl));
-		if ((Object)(object)GameObject != (Object)null && (Object)(object)assetBundle != (Object)null)
+		try
 		{
+			Validate(www);
 			StopAndDestroySound();
-			GameObject val = (GameObject)Object.Instantiate(assetBundle.mainAsset);
-			AudioSource component = val.GetComponent<AudioSource>();
-			((Component)component).transform.parent = transform;
-			((Component)component).transform.position = transform.position;
+			GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(www.assetBundle.mainAsset);
+			AudioSource component = gameObject.GetComponent<AudioSource>();
+			component.transform.parent = transform;
+			component.transform.position = transform.position;
 			Data["loop"] = component.loop;
 			UpdateSound(component);
 		}
+		catch (Exception ex)
+		{
+			Debug.LogError("Failed sound update" + ex);
+		}
 	}
 
-	public override bool Delete(MVWorldObjectClientManager worldObjectClientManager, ref TextSlotIndex errorTextIndex)
+	private void Validate(WWW www)
+	{
+		if (GameObject == null)
+		{
+			throw new Exception("gameObject == null");
+		}
+		if (www == null)
+		{
+			throw new Exception("www== null");
+		}
+		if (www.assetBundle == null)
+		{
+			throw new Exception("www.assetBundle == null");
+		}
+	}
+
+	public override bool Delete(MVWorldObjectClientManager worldObjectClientManager, ref string errorText)
 	{
 		StopAndDestroySound();
-		return base.Delete(worldObjectClientManager, ref errorTextIndex);
+		return base.Delete(worldObjectClientManager, ref errorText);
 	}
 
 	private void UpdateSound(AudioSource source)
@@ -134,7 +148,7 @@ public class MVSoundEmitter : MVLogicObject
 			source.volume = (float)Data["volume"];
 			source.pitch = (float)Data["pitch"];
 			source.loop = (bool)Data["loop"];
-			source.rolloffMode = (AudioRolloffMode)2;
+			source.rolloffMode = AudioRolloffMode.Custom;
 			source.dopplerLevel = 0f;
 			source.minDistance = GetMinDistanceFromRangeAmbient((SoundRangeDistance)(int)Data["range"]);
 			source.maxDistance = GetMaxDistanceFromRangeAmbient((SoundRangeDistance)(int)Data["range"]);
@@ -153,14 +167,14 @@ public class MVSoundEmitter : MVLogicObject
 		catch (Exception arg)
 		{
 			string text = string.Empty;
-			foreach (DictionaryEntry datum in Data)
+			foreach (KeyValuePair<object, object> datum in Data)
 			{
 				string empty = string.Empty;
 				text += string.Format(arg2: (datum.Value == null) ? "null" : datum.Value.GetType().ToString(), format: "Key: {0}, ValueType: {1}, Value: {2}\n", arg0: datum.Key, arg1: datum.Value);
 			}
-			int planetID = MVGameController.Instance.PlanetID;
-			string text2 = $"SoundEmitter error on planet: {planetID}. Data {text}. Exception {arg}";
-			Debug.LogError((object)text2);
+			int planetID = MVGameController.Game.gameSessionData.planetID;
+			string message = $"SoundEmitter error on planet: {planetID}. Data {text}. Exception {arg}";
+			Debug.LogError(message);
 		}
 	}
 
@@ -179,13 +193,13 @@ public class MVSoundEmitter : MVLogicObject
 
 	private void StopAndDestroySound()
 	{
-		if ((Object)(object)currentSrc != (Object)null)
+		if (currentSrc != null)
 		{
 			if (currentSrc.isPlaying)
 			{
 				currentSrc.Stop();
 			}
-			Object.Destroy((Object)(object)((Component)currentSrc).gameObject);
+			UnityEngine.Object.Destroy(currentSrc.gameObject);
 			currentSrc = null;
 		}
 	}

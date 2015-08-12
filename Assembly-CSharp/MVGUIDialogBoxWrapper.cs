@@ -1,4 +1,4 @@
-using System.Collections;
+using System.Collections.Generic;
 using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
@@ -21,6 +21,11 @@ public class MVGUIDialogBoxWrapper
 
 	private MVGUIDialogBoxWrapper()
 	{
+	}
+
+	public void ShowGameCoinsDialog(MVWorldObjectClient wo)
+	{
+		new MVGUISettingsDialogGameCoins();
 	}
 
 	public void ShowSettingsDialog(MVWorldObjectClient wo)
@@ -87,17 +92,32 @@ public class MVGUIDialogBoxWrapper
 		case WorldObjectType.AdvancedGhost:
 			new MVGUISettingsDialogAdvancedGhost();
 			break;
+		case WorldObjectType.KillLimit:
+			new MVGUISettingsDialogKillLimit();
+			break;
+		case WorldObjectType.OculusKillLimit:
+			new MVGUISettingsDialogKillLimit();
+			break;
+		case WorldObjectType.CameraSettings:
+			new MVGUISettingsDialogCameraSettings();
+			break;
+		case WorldObjectType.GravityCube:
+			new MVGUISettingsDialogGravityCube();
+			break;
+		case WorldObjectType.GameCoinChest:
+			new MVGUISettingsDialogGameCoinChest();
+			break;
 		default:
-			Debug.LogError((object)("No settings dialog available for wo type " + wo.WorldObjectType));
+			Debug.LogError("No settings dialog available for wo type " + wo.WorldObjectType);
 			break;
 		}
 	}
 
 	private bool CreateBluprintDialog()
 	{
-		MVWorldObjectClient settingsDialogSelectionWO = MVGameController.Instance.EditorController.GetSettingsDialogSelectionWO();
-		Hashtable hashtable = (Hashtable)settingsDialogSelectionWO.Data["BlueprintData"];
-		switch ((BlueprintType)(byte)hashtable[BlueprintData.ClientSideType.ToString()])
+		MVWorldObjectClient settingsDialogSelectionWO = MVGameController.EditorController.GetSettingsDialogSelectionWO();
+		Dictionary<object, object> dictionary = (Dictionary<object, object>)settingsDialogSelectionWO.Data["BlueprintData"];
+		switch ((BlueprintType)(byte)dictionary[BlueprintData.ClientSideType.ToString()])
 		{
 		case BlueprintType.MovingPlatformGroup:
 			new MVGUISettingsDialogMovingPlatform();

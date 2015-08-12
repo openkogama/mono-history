@@ -15,7 +15,7 @@ public class AdvancedGhostTriggerBase : MonoBehaviour
 
 	private void OnTriggerStay(Collider other)
 	{
-		if (((Behaviour)this).enabled)
+		if (enabled)
 		{
 			AddTarget(other);
 		}
@@ -32,13 +32,13 @@ public class AdvancedGhostTriggerBase : MonoBehaviour
 	private bool TryGetValidWorldObjectID(Collider collider, out int woID)
 	{
 		woID = -1;
-		if (((Component)collider).gameObject.layer != LayerMask.NameToLayer("Player"))
+		if (collider.gameObject.layer != LayerMask.NameToLayer("Player"))
 		{
 			return false;
 		}
-		MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(((Component)collider).transform);
+		MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(collider.transform);
 		InteractionDataHandlerBase component = mVObject.GameObject.GetComponent<InteractionDataHandlerBase>();
-		if ((Object)(object)component == (Object)null)
+		if (component == null)
 		{
 			return false;
 		}

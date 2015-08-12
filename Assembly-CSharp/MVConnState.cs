@@ -1,10 +1,10 @@
 public enum MVConnState
 {
 	Disconnected,
+	DisconnectedByUser,
 	Connecting,
 	Joining,
 	Joined,
-	Leaving,
 	Disconnecting,
 	Exception,
 	TimeoutDisconnect,

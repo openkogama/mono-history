@@ -9,7 +9,7 @@ public class MVGUIAvatarShopButton : UXViewScript
 		UXIconButton avatarShopButton = AvatarShopButton;
 		avatarShopButton.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(avatarShopButton.OnClick, (UXBaseButton.OnClickDelegate)(() =>
 		{
-			MVGameController.Instance.CharacterEditorController.ShowAvatarShopWindow();
+			MVGameController.CharacterEditorController.ShowAvatarShopWindow();
 		}));
 	}
 }

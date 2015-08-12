@@ -13,45 +13,23 @@ public static class LookupTableGenerators
 
 	public static void GenerateLoopUpTableForFaceCover()
 	{
-		//IL_004e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0058: Unknown result type (might be due to invalid IL or missing references)
 		List<List<Vector2>> permutations = new List<List<Vector2>>();
 		GenerateLoopUpTableForFaceCoverRecur(permutations, new List<Vector2>());
-		Debug.Log((object)permutations.Count);
+		Debug.Log(permutations.Count);
 		PrunePermutations(ref permutations);
-		Debug.Log((object)permutations.Count);
+		Debug.Log(permutations.Count);
 		for (int i = 0; i < 10; i++)
 		{
 			for (int j = 0; j < 4; j++)
 			{
-				Debug.Log((object)(permutations[i][j] + Vector2.one));
+				Debug.Log(permutations[i][j] + Vector2.one);
 			}
-			Debug.Log((object)"###############");
+			Debug.Log("###############");
 		}
 	}
 
 	private static void PrunePermutations(ref List<List<Vector2>> permutations)
 	{
-		//IL_001c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0042: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0050: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0068: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0076: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ab: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00bc: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ee: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0133: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0146: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0171: Unknown result type (might be due to invalid IL or missing references)
 		HashSet<Vector2> hashSet = new HashSet<Vector2>();
 		HashSet<int> hashSet2 = new HashSet<int>();
 		for (int i = 0; i < permutations.Count; i++)
@@ -127,8 +105,6 @@ public static class LookupTableGenerators
 
 	private static void GenerateLoopUpTableForFaceCoverRecur(List<List<Vector2>> permutations, List<Vector2> vectors)
 	{
-		//IL_002c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0039: Unknown result type (might be due to invalid IL or missing references)
 		for (int i = 0; i < positionsOnPlaneAxis; i++)
 		{
 			for (int j = 0; j < positionsOnPlaneAxis; j++)
@@ -150,9 +126,6 @@ public static class LookupTableGenerators
 
 	public static void GenerateLookUpTables2()
 	{
-		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006b: Unknown result type (might be due to invalid IL or missing references)
 		int num = 0;
 		string text = "static Vector3[] bytePositionLookUpTable = new Vector3[]{\n";
 		string text2 = "static Dictionary<Vector3, byte> positionByteLookUpTable = new Dictionary<Vector3, byte>{\n";
@@ -162,10 +135,10 @@ public static class LookupTableGenerators
 			{
 				for (int k = 0; k < positionsOnPlaneAxis; k++)
 				{
-					Vector3 val = new Vector3(((float)i - 2f) / 4f, ((float)j - 2f) / 4f, ((float)k - 2f) / 4f);
-					bytePositionLookUpTable.Add((byte)num, val);
-					positionByteLookUpTable.Add(val, (byte)num);
-					string text3 = "new Vector3(" + val.x + "f, " + val.y + "f, " + val.z + "f)";
+					Vector3 vector = new Vector3(((float)i - 2f) / 4f, ((float)j - 2f) / 4f, ((float)k - 2f) / 4f);
+					bytePositionLookUpTable.Add((byte)num, vector);
+					positionByteLookUpTable.Add(vector, (byte)num);
+					string text3 = "new Vector3(" + vector.x + "f, " + vector.y + "f, " + vector.z + "f)";
 					text = text + text3 + ",\n";
 					string text4 = text2;
 					text2 = text4 + "{" + text3 + ", " + num + "},\n";
@@ -185,9 +158,6 @@ public static class LookupTableGenerators
 
 	public static void GenerateLookUpTables()
 	{
-		//IL_0053: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006b: Unknown result type (might be due to invalid IL or missing references)
 		int num = 0;
 		string text = "static Dictionary<byte, Vector3> bytePositionLookUpTable = new Dictionary<byte, Vector3>{\n";
 		string text2 = "static Dictionary<Vector3, byte> positionByteLookUpTable = new Dictionary<Vector3, byte>{\n";
@@ -197,10 +167,10 @@ public static class LookupTableGenerators
 			{
 				for (int k = 0; k < positionsOnPlaneAxis; k++)
 				{
-					Vector3 val = new Vector3(((float)i - 2f) / 4f, ((float)j - 2f) / 4f, ((float)k - 2f) / 4f);
-					bytePositionLookUpTable.Add((byte)num, val);
-					positionByteLookUpTable.Add(val, (byte)num);
-					string text3 = "new Vector3(" + val.x + "f, " + val.y + "f, " + val.z + "f)";
+					Vector3 vector = new Vector3(((float)i - 2f) / 4f, ((float)j - 2f) / 4f, ((float)k - 2f) / 4f);
+					bytePositionLookUpTable.Add((byte)num, vector);
+					positionByteLookUpTable.Add(vector, (byte)num);
+					string text3 = "new Vector3(" + vector.x + "f, " + vector.y + "f, " + vector.z + "f)";
 					string text4 = text;
 					text = text4 + "{" + num + ", " + text3 + "},\n";
 					text4 = text2;

@@ -63,8 +63,6 @@ public class UXInputDispatcher : MonoBehaviour, IInputHandler
 
 		public NormalState(StateContext context)
 		{
-			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
 			this.context = context;
 		}
 
@@ -78,7 +76,7 @@ public class UXInputDispatcher : MonoBehaviour, IInputHandler
 			HandleMouseOver();
 			HandleMouseClick();
 			HandleStartDrag();
-			if (sticky && MVInputWrapper.GetKeyUp((KeyCode)323))
+			if (sticky && MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
 			{
 				sticky = false;
 				return true;
@@ -88,27 +86,18 @@ public class UXInputDispatcher : MonoBehaviour, IInputHandler
 
 		private void HandleStartDrag()
 		{
-			//IL_005b: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0060: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0065: Unknown result type (might be due to invalid IL or missing references)
-			//IL_006a: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0049: Unknown result type (might be due to invalid IL or missing references)
-			//IL_004e: Unknown result type (might be due to invalid IL or missing references)
-			//IL_008d: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00ae: Unknown result type (might be due to invalid IL or missing references)
-			if (Input.GetMouseButtonDown(0))
+			if (MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelect))
 			{
-				potentialDragObject = UXUtils.FindFirstWithComponent<UXDragObject>((ICollection<GameObject>)context.Objects);
+				potentialDragObject = UXUtils.FindFirstWithComponent<UXDragObject>(context.Objects);
 			}
-			if (Input.GetMouseButton(0) && (Object)(object)potentialDragObject != (Object)null)
+			if (MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect) && potentialDragObject != null)
 			{
 				if (!validDragObject)
 				{
-					dragStartPosition = Input.mousePosition;
+					dragStartPosition = MVInputWrapper.GetPointerPosition();
 					validDragObject = true;
 				}
-				Vector3 val = dragStartPosition - Input.mousePosition;
-				if (val.sqrMagnitude > 0f)
+				if ((dragStartPosition - MVInputWrapper.GetPointerPosition()).sqrMagnitude > 0f)
 				{
 					if (potentialDragObject.OnDragStart(context.MousePositionWorld))
 					{
@@ -125,14 +114,10 @@ public class UXInputDispatcher : MonoBehaviour, IInputHandler
 
 		private void HandleMouseClick()
 		{
-			//IL_0083: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00c1: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00a0: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00eb: Unknown result type (might be due to invalid IL or missing references)
-			bool keyDown = MVInputWrapper.GetKeyDown((KeyCode)323);
-			bool key = MVInputWrapper.GetKey((KeyCode)323);
-			bool keyUp = MVInputWrapper.GetKeyUp((KeyCode)323);
-			if (!keyDown && !keyUp && !key)
+			bool booleanControlDown = MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelect);
+			bool booleanControl = MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect);
+			bool booleanControlUp = MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect);
+			if (!booleanControlDown && !booleanControlUp && !booleanControl)
 			{
 				return;
 			}
@@ -141,9 +126,9 @@ public class UXInputDispatcher : MonoBehaviour, IInputHandler
 			foreach (GameObject @object in context.Objects)
 			{
 				UXMouseClickObject component = @object.GetComponent<UXMouseClickObject>();
-				if ((Object)(object)component != (Object)null)
+				if (component != null)
 				{
-					if (keyDown)
+					if (booleanControlDown)
 					{
 						sticky = component.NotifyMouseDown(context.MousePositionWorld);
 						if (!flag)
@@ -153,26 +138,26 @@ public class UXInputDispatcher : MonoBehaviour, IInputHandler
 							flag = true;
 						}
 					}
-					if (key)
+					if (booleanControl)
 					{
 						component.NotifyMouseDownMove(context.MousePositionWorld);
 					}
-					if (keyUp && mouseDownObject && !flag2)
+					if (booleanControlUp && mouseDownObject && !flag2)
 					{
 						component.NotifyMouseUp(context.MousePositionWorld);
 						flag2 = true;
 					}
 				}
-				if (keyDown && (!flag || (flag && Object.op_Implicit((Object)(object)@object) == flag)))
+				if (booleanControlDown && (!flag || (flag && (bool)@object == flag)))
 				{
 					UXFocusObject component2 = @object.GetComponent<UXFocusObject>();
-					if ((Object)(object)component2 != (Object)null)
+					if (component2 != null)
 					{
 						context.InputDispatcher.focusManager.CurrentFocus = component2;
 					}
 				}
 			}
-			if (keyUp)
+			if (booleanControlUp)
 			{
 				mouseDownObject = false;
 			}
@@ -180,16 +165,16 @@ public class UXInputDispatcher : MonoBehaviour, IInputHandler
 
 		private void HandleMouseOver()
 		{
-			if (!Screen.showCursor)
+			if (!Cursor.visible)
 			{
 				return;
 			}
 			foreach (GameObject item in context.ObjectsExited)
 			{
-				if ((Object)(object)item != (Object)null)
+				if (item != null)
 				{
 					UXMouseOverObject component = item.GetComponent<UXMouseOverObject>();
-					if ((Object)(object)component != (Object)null)
+					if (component != null)
 					{
 						component.NotifyOnMouseOverExit();
 					}
@@ -197,10 +182,10 @@ public class UXInputDispatcher : MonoBehaviour, IInputHandler
 			}
 			foreach (GameObject item2 in context.ObjectsEntered)
 			{
-				if ((Object)(object)item2 != (Object)null)
+				if (item2 != null)
 				{
 					UXMouseOverObject component2 = item2.GetComponent<UXMouseOverObject>();
-					if ((Object)(object)component2 != (Object)null)
+					if (component2 != null)
 					{
 						component2.NotifyOnMouseOverEnter();
 					}
@@ -208,10 +193,10 @@ public class UXInputDispatcher : MonoBehaviour, IInputHandler
 			}
 			foreach (GameObject @object in context.Objects)
 			{
-				if ((Object)(object)@object != (Object)null)
+				if (@object != null)
 				{
 					UXMouseOverObject component3 = @object.GetComponent<UXMouseOverObject>();
-					if ((Object)(object)component3 != (Object)null)
+					if (component3 != null)
 					{
 						component3.NotifyOnMouseOver();
 					}
@@ -234,8 +219,6 @@ public class UXInputDispatcher : MonoBehaviour, IInputHandler
 
 		public Dragging(StateContext context, Vector3 dragStartPosition, UXDragObject dragObject)
 		{
-			//IL_0015: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0016: Unknown result type (might be due to invalid IL or missing references)
 			this.context = context;
 			this.dragObject = dragObject;
 			this.dragStartPosition = dragStartPosition;
@@ -254,24 +237,23 @@ public class UXInputDispatcher : MonoBehaviour, IInputHandler
 
 		private void HandleDrag()
 		{
-			//IL_0110: Unknown result type (might be due to invalid IL or missing references)
 			foreach (GameObject item in context.ObjectsExited)
 			{
 				UXDropObject component = item.GetComponent<UXDropObject>();
-				if ((Object)(object)component != (Object)null && component.OnDragOverExit != null)
+				if (component != null && component.OnDragOverExit != null)
 				{
-					component.OnDragOverExit(((Component)dragObject).gameObject);
+					component.OnDragOverExit(dragObject.gameObject);
 				}
 			}
 			foreach (GameObject item2 in context.ObjectsEntered)
 			{
 				UXDropObject component2 = item2.GetComponent<UXDropObject>();
-				if ((Object)(object)component2 != (Object)null && component2.OnDragOverEnter != null)
+				if (component2 != null && component2.OnDragOverEnter != null)
 				{
-					component2.OnDragOverEnter(((Component)dragObject).gameObject);
+					component2.OnDragOverEnter(dragObject.gameObject);
 				}
 			}
-			if (!Input.GetMouseButton(0))
+			if (!MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect))
 			{
 				return;
 			}
@@ -282,27 +264,26 @@ public class UXInputDispatcher : MonoBehaviour, IInputHandler
 			foreach (GameObject @object in context.Objects)
 			{
 				UXDropObject component3 = @object.GetComponent<UXDropObject>();
-				if ((Object)(object)component3 != (Object)null && component3.OnDragOver != null)
+				if (component3 != null && component3.OnDragOver != null)
 				{
-					component3.OnDragOver(((Component)dragObject).gameObject);
+					component3.OnDragOver(dragObject.gameObject);
 				}
 			}
 		}
 
 		private void HandleDrop()
 		{
-			//IL_0094: Unknown result type (might be due to invalid IL or missing references)
-			if (!Input.GetMouseButtonUp(0))
+			if (!MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
 			{
 				return;
 			}
-			UXDropObject uXDropObject = UXUtils.FindFirstWithComponent<UXDropObject>((ICollection<GameObject>)context.Objects);
+			UXDropObject uXDropObject = UXUtils.FindFirstWithComponent<UXDropObject>(context.Objects);
 			bool isDrop = false;
-			if ((Object)(object)uXDropObject != (Object)null && uXDropObject.AcceptDrop != null && uXDropObject.AcceptDrop(((Component)dragObject).gameObject))
+			if (uXDropObject != null && uXDropObject.AcceptDrop != null && uXDropObject.AcceptDrop(dragObject.gameObject))
 			{
 				if (uXDropObject.OnDrop != null)
 				{
-					uXDropObject.OnDrop(((Component)dragObject).gameObject);
+					uXDropObject.OnDrop(dragObject.gameObject);
 				}
 				isDrop = true;
 			}
@@ -318,9 +299,9 @@ public class UXInputDispatcher : MonoBehaviour, IInputHandler
 			foreach (GameObject @object in context.Objects)
 			{
 				UXDropObject component = @object.GetComponent<UXDropObject>();
-				if ((Object)(object)component != (Object)null && component.OnDragOverExit != null && (Object)(object)dragObject != (Object)null)
+				if (component != null && component.OnDragOverExit != null && dragObject != null)
 				{
-					component.OnDragOverExit(((Component)dragObject).gameObject);
+					component.OnDragOverExit(dragObject.gameObject);
 				}
 			}
 		}
@@ -396,16 +377,13 @@ public class UXInputDispatcher : MonoBehaviour, IInputHandler
 
 	public bool HandleInput()
 	{
-		//IL_0045: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004f: Unknown result type (might be due to invalid IL or missing references)
 		List<GameObject> list = objects;
 		objects = FindHitObjects();
 		HashSet<GameObject> hashSet = new HashSet<GameObject>(objects);
 		hashSet.ExceptWith(list);
 		HashSet<GameObject> hashSet2 = new HashSet<GameObject>(list);
 		hashSet2.ExceptWith(objects);
-		context.MousePositionWorld = ((Component)this).camera.ScreenToWorldPoint(Input.mousePosition);
+		context.MousePositionWorld = GetComponent<Camera>().ScreenToWorldPoint(MVInputWrapper.GetPointerPosition());
 		context.Objects = objects;
 		context.ObjectsEntered = hashSet;
 		context.ObjectsExited = hashSet2;
@@ -440,32 +418,28 @@ public class UXInputDispatcher : MonoBehaviour, IInputHandler
 		foreach (GameObject item in objectsForCleanup)
 		{
 			objects.Remove(item);
-			Object.Destroy((Object)(object)item);
+			UnityEngine.Object.Destroy(item);
 		}
 		objectsForCleanup.Clear();
 	}
 
 	private List<GameObject> FindHitObjects()
 	{
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0011: Unknown result type (might be due to invalid IL or missing references)
-		Ray val = ((Component)this).camera.ScreenPointToRay(Input.mousePosition);
-		RaycastHit[] array = Physics.RaycastAll(val, float.PositiveInfinity, uiLayerMask);
+		Ray ray = GetComponent<Camera>().ScreenPointToRay(MVInputWrapper.GetPointerPosition());
+		RaycastHit[] array = Physics.RaycastAll(ray, float.PositiveInfinity, uiLayerMask);
 		Array.Sort(array, (RaycastHit a, RaycastHit b) => a.distance.CompareTo(b.distance));
 		UXView uXView = ((modalViews.Count <= 0) ? null : modalViews.Peek());
 		List<GameObject> list = new List<GameObject>();
-		if ((Object)(object)uXView == (Object)null)
+		if (uXView == null)
 		{
-			list.AddRange(array.Select((RaycastHit hit) => ((Component)hit.collider).gameObject));
+			list.AddRange(array.Select((RaycastHit hit) => hit.collider.gameObject));
 		}
 		else
 		{
-			foreach (GameObject item in array.Select((RaycastHit hit) => ((Component)hit.collider).gameObject))
+			foreach (GameObject item in array.Select((RaycastHit hit) => hit.collider.gameObject))
 			{
 				UXView uXView2 = FindParentView(item);
-				if ((Object)(object)uXView2 == (Object)null || (Object)(object)uXView2 == (Object)(object)uXView)
+				if (uXView2 == null || uXView2 == uXView)
 				{
 					list.Add(item);
 				}
@@ -481,7 +455,7 @@ public class UXInputDispatcher : MonoBehaviour, IInputHandler
 			return value;
 		}
 		UXView uXView = UXUtils.FindComponentInParents(typeof(UXView), gameObject.transform) as UXView;
-		if ((Object)(object)uXView != (Object)null)
+		if (uXView != null)
 		{
 			anchestorView[gameObject] = uXView;
 			return uXView;
@@ -491,21 +465,18 @@ public class UXInputDispatcher : MonoBehaviour, IInputHandler
 
 	private void HandleNonUIElementEvents()
 	{
-		//IL_0058: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0093: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ce: Unknown result type (might be due to invalid IL or missing references)
-		bool keyDown = MVInputWrapper.GetKeyDown((KeyCode)323);
-		bool key = MVInputWrapper.GetKey((KeyCode)323);
-		bool keyUp = MVInputWrapper.GetKeyUp((KeyCode)323);
-		if (keyDown && context.InputDispatcher.OnMouseButtonDown != null)
+		bool booleanControlDown = MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelect);
+		bool booleanControl = MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect);
+		bool booleanControlUp = MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect);
+		if (booleanControlDown && context.InputDispatcher.OnMouseButtonDown != null)
 		{
 			context.InputDispatcher.OnMouseButtonDown(context.MousePositionWorld);
 		}
-		if (key && context.InputDispatcher.OnMouseButton != null)
+		if (booleanControl && context.InputDispatcher.OnMouseButton != null)
 		{
 			context.InputDispatcher.OnMouseButton(context.MousePositionWorld);
 		}
-		if (keyUp && context.InputDispatcher.OnMouseButtonUp != null)
+		if (booleanControlUp && context.InputDispatcher.OnMouseButtonUp != null)
 		{
 			context.InputDispatcher.OnMouseButtonUp(context.MousePositionWorld);
 		}

@@ -13,9 +13,17 @@ public class TrailArc : MonoBehaviour
 
 	private bool emittingDone;
 
+	public int maxPointsDrawn;
+
+	public int pointsStored = 60;
+
 	public float minVel = 10f;
 
 	public bool faceCamera = true;
+
+	public bool twist = true;
+
+	private float time;
 
 	public float lifetime = 1f;
 
@@ -85,18 +93,7 @@ public class TrailArc : MonoBehaviour
 
 	private void Start()
 	{
-		//IL_0079: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0083: Expected Obj, but got Unknown
-		//IL_008e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00dd: Expected Obj, but got Unknown
-		//IL_0106: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0110: Expected Obj, but got Unknown
-		//IL_011c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0121: Unknown result type (might be due to invalid IL or missing references)
-		saved = new Vector3[60];
+		saved = new Vector3[pointsStored];
 		savedUp = new Vector3[saved.Length];
 		points = new Vector3[saved.Length * segmentsPerPoint];
 		pointsUp = new Vector3[points.Length];
@@ -106,104 +103,52 @@ public class TrailArc : MonoBehaviour
 		trail.transform.position = Vector3.zero;
 		trail.transform.rotation = Quaternion.identity;
 		trail.transform.localScale = Vector3.one;
-		MeshFilter val = (MeshFilter)trail.AddComponent(typeof(MeshFilter));
-		mesh = val.mesh;
+		MeshFilter meshFilter = (MeshFilter)trail.AddComponent(typeof(MeshFilter));
+		mesh = meshFilter.mesh;
 		trail.AddComponent(typeof(MeshRenderer));
 		trailMaterial = new Material(material);
 		fadeOutRatio = trailMaterial.GetColor("_TintColor").a;
-		trail.renderer.material = trailMaterial;
+		trail.GetComponent<Renderer>().material = trailMaterial;
 	}
 
 	private void printPoints()
 	{
-		//IL_0060: Unknown result type (might be due to invalid IL or missing references)
 		if (savedCnt != 0)
 		{
 			string text = "Saved Points at time " + Time.time + ":\n";
 			for (int i = 0; i < savedCnt; i++)
 			{
 				string text2 = text;
-				text = string.Concat(new object[6]
-				{
-					text2,
-					"Index: ",
-					i,
-					"\tPos: ",
-					saved[i],
-					"\n"
-				});
+				text = string.Concat(text2, "Index: ", i, "\tPos: ", saved[i], "\n");
 			}
-			MonoBehaviour.print((object)text);
+			MonoBehaviour.print(text);
 		}
 	}
 
 	private void printAllPoints()
 	{
-		//IL_0060: Unknown result type (might be due to invalid IL or missing references)
 		if (pointCnt != 0)
 		{
 			string text = "Points at time " + Time.time + ":\n";
 			for (int i = 0; i < pointCnt; i++)
 			{
 				string text2 = text;
-				text = string.Concat(new object[6]
-				{
-					text2,
-					"Index: ",
-					i,
-					"\tPos: ",
-					points[i],
-					"\n"
-				});
+				text = string.Concat(text2, "Index: ", i, "\tPos: ", points[i], "\n");
 			}
-			MonoBehaviour.print((object)text);
+			MonoBehaviour.print(text);
 		}
 	}
 
 	private void findCoordinates(int index)
 	{
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0035: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0049: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0062: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0068: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0069: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0074: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0082: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0087: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0116: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0117: Unknown result type (might be due to invalid IL or missing references)
-		//IL_011e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_011f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0124: Unknown result type (might be due to invalid IL or missing references)
-		//IL_012b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_012d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0132: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0139: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0140: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0145: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0163: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0176: Unknown result type (might be due to invalid IL or missing references)
-		//IL_017d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0182: Unknown result type (might be due to invalid IL or missing references)
 		if (index != 0 && index < savedCnt - 2)
 		{
-			Vector3 val = saved[index - 1];
-			Vector3 val2 = saved[index];
-			Vector3 val3 = saved[index + 1];
-			Vector3 val4 = saved[index + 2];
-			Vector3 val5 = 0.5f * (val3 - val);
-			Vector3 val6 = 0.5f * (val4 - val2);
+			Vector3 vector = saved[index - 1];
+			Vector3 vector2 = saved[index];
+			Vector3 vector3 = saved[index + 1];
+			Vector3 vector4 = saved[index + 2];
+			Vector3 vector5 = 0.5f * (vector3 - vector);
+			Vector3 vector6 = 0.5f * (vector4 - vector2);
 			int num = index * segmentsPerPoint;
 			for (int i = num; i < num + segmentsPerPoint; i++)
 			{
@@ -216,7 +161,7 @@ public class TrailArc : MonoBehaviour
 				float num8 = num4 - num3;
 				int num9 = i - segmentsPerPoint;
 				ref Vector3 reference = ref points[num9];
-				reference = num5 * val2 + num6 * val3 + num7 * val5 + num8 * val6;
+				reference = num5 * vector2 + num6 * vector3 + num7 * vector5 + num8 * vector6;
 				ref Vector3 reference2 = ref pointsUp[num9];
 				reference2 = Vector3.Lerp(savedUp[index], savedUp[index + 1], num2);
 			}
@@ -226,124 +171,19 @@ public class TrailArc : MonoBehaviour
 
 	private void Update()
 	{
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0070: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0094: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0095: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0238: Unknown result type (might be due to invalid IL or missing references)
-		//IL_023d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_023e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0243: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0146: Unknown result type (might be due to invalid IL or missing references)
-		//IL_014b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0167: Unknown result type (might be due to invalid IL or missing references)
-		//IL_016c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01ba: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01bf: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01db: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01e0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0268: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0269: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0285: Unknown result type (might be due to invalid IL or missing references)
-		//IL_028a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0344: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0349: Unknown result type (might be due to invalid IL or missing references)
-		//IL_04da: Unknown result type (might be due to invalid IL or missing references)
-		//IL_04df: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0387: Unknown result type (might be due to invalid IL or missing references)
-		//IL_04f6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_04fb: Unknown result type (might be due to invalid IL or missing references)
-		//IL_092d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0942: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0512: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0517: Unknown result type (might be due to invalid IL or missing references)
-		//IL_051e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0523: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0538: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0549: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0550: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0555: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0634: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0636: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0647: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0649: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0576: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0587: Unknown result type (might be due to invalid IL or missing references)
-		//IL_058e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0593: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0608: Unknown result type (might be due to invalid IL or missing references)
-		//IL_061c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0623: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0628: Unknown result type (might be due to invalid IL or missing references)
-		//IL_05dd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_05e2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0818: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0827: Unknown result type (might be due to invalid IL or missing references)
-		//IL_082e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0838: Unknown result type (might be due to invalid IL or missing references)
-		//IL_083d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0842: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0854: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0863: Unknown result type (might be due to invalid IL or missing references)
-		//IL_086a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0874: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0879: Unknown result type (might be due to invalid IL or missing references)
-		//IL_087e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0895: Unknown result type (might be due to invalid IL or missing references)
-		//IL_089a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_08b3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_08b8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0758: Unknown result type (might be due to invalid IL or missing references)
-		//IL_074e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_075a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0781: Unknown result type (might be due to invalid IL or missing references)
-		//IL_076b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0786: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0788: Unknown result type (might be due to invalid IL or missing references)
-		//IL_078a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_078c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0791: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0793: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0795: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0797: Unknown result type (might be due to invalid IL or missing references)
-		//IL_079c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_079e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_07a0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_07a2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_07a7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_07ab: Unknown result type (might be due to invalid IL or missing references)
-		//IL_07b0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_07bd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_07bf: Unknown result type (might be due to invalid IL or missing references)
-		//IL_07c3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_07cd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_07d2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_07d7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_07e9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_07eb: Unknown result type (might be due to invalid IL or missing references)
-		//IL_07ef: Unknown result type (might be due to invalid IL or missing references)
-		//IL_07f9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_07fe: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0803: Unknown result type (might be due to invalid IL or missing references)
 		try
 		{
-			Vector3 position = ((Component)this).transform.position;
+			Vector3 position = transform.position;
 			if (!initialized && Emit)
 			{
 				ref Vector3 reference = ref saved[savedCnt];
-				reference = ((Component)this).transform.TransformPoint(0f, 0f, 0f - pointDistance);
+				reference = transform.TransformPoint(0f, 0f, 0f - pointDistance);
 				ref Vector3 reference2 = ref savedUp[savedCnt];
-				reference2 = ((Component)this).transform.up;
+				reference2 = transform.up;
 				savedCnt++;
 				saved[savedCnt] = position;
 				ref Vector3 reference3 = ref savedUp[savedCnt];
-				reference3 = ((Component)this).transform.up;
+				reference3 = transform.up;
 				savedCnt++;
 				lastPointCreationTime = Time.time;
 				initialized = true;
@@ -361,15 +201,15 @@ public class TrailArc : MonoBehaviour
 				if (!emittingDone && pointCnt > 0)
 				{
 					ref Vector3 reference4 = ref saved[savedCnt];
-					reference4 = ((Component)this).transform.TransformPoint(0f, 0f, pointDistance);
+					reference4 = transform.TransformPoint(0f, 0f, pointDistance);
 					ref Vector3 reference5 = ref savedUp[savedCnt];
-					reference5 = ((Component)this).transform.up;
+					reference5 = transform.up;
 					savedCnt++;
 					findCoordinates(savedCnt - 3);
 					ref Vector3 reference6 = ref saved[savedCnt];
-					reference6 = ((Component)this).transform.TransformPoint(0f, 0f, pointDistance * 2f);
+					reference6 = transform.TransformPoint(0f, 0f, pointDistance * 2f);
 					ref Vector3 reference7 = ref savedUp[savedCnt];
-					reference7 = ((Component)this).transform.up;
+					reference7 = transform.up;
 					savedCnt++;
 					findCoordinates(savedCnt - 3);
 				}
@@ -379,30 +219,35 @@ public class TrailArc : MonoBehaviour
 			{
 				Emit = false;
 			}
-			if (Emit)
+			if (Emit && (saved[savedCnt - 1] - position).sqrMagnitude > pointSqrDistance)
 			{
-				Vector3 val = saved[savedCnt - 1] - position;
-				if (val.sqrMagnitude > pointSqrDistance)
+				if (savedCnt > saved.Length - 1)
 				{
-					saved[savedCnt] = position;
-					ref Vector3 reference8 = ref savedUp[savedCnt];
-					reference8 = ((Component)this).transform.up;
-					savedCnt++;
-					if (averageCreationTime == 0f)
-					{
-						averageCreationTime = Time.time - lastPointCreationTime;
-					}
-					else
-					{
-						float num = Time.time - lastPointCreationTime;
-						averageCreationTime = (averageCreationTime + num) * 0.5f;
-					}
-					averageInsertionTime = averageCreationTime * tRatio;
-					lastPointCreationTime = Time.time;
-					if (savedCnt > 3)
-					{
-						findCoordinates(savedCnt - 3);
-					}
+					saved = new Vector3[pointsStored];
+					savedUp = new Vector3[saved.Length];
+					points = new Vector3[saved.Length * segmentsPerPoint];
+					pointsUp = new Vector3[points.Length];
+					savedCnt = 0;
+					displayCnt = 0;
+				}
+				saved[savedCnt] = position;
+				ref Vector3 reference8 = ref savedUp[savedCnt];
+				reference8 = transform.up;
+				savedCnt++;
+				if (averageCreationTime == 0f)
+				{
+					averageCreationTime = Time.time - lastPointCreationTime;
+				}
+				else
+				{
+					float num = Time.time - lastPointCreationTime;
+					averageCreationTime = (averageCreationTime + num) * 0.5f;
+				}
+				averageInsertionTime = averageCreationTime * tRatio;
+				lastPointCreationTime = Time.time;
+				if (savedCnt > 3)
+				{
+					findCoordinates(savedCnt - 3);
 				}
 			}
 			if (!Emit && displayCnt == pointCnt)
@@ -416,10 +261,10 @@ public class TrailArc : MonoBehaviour
 				}
 				if (printResults)
 				{
-					MonoBehaviour.print((object)("Trail effect ending with a segment count of: " + pointCnt));
+					MonoBehaviour.print("Trail effect ending with a segment count of: " + pointCnt);
 				}
-				Object.Destroy((Object)(object)trail);
-				Object.Destroy((Object)(object)((Component)this).gameObject);
+				UnityEngine.Object.Destroy(trail);
+				UnityEngine.Object.Destroy(gameObject);
 				return;
 			}
 			if (displayCnt < pointCnt)
@@ -434,52 +279,57 @@ public class TrailArc : MonoBehaviour
 					elapsedInsertionTime -= averageInsertionTime;
 				}
 			}
-			if (displayCnt < 2)
+			if (displayCnt < 2 || maxPointsDrawn == 1)
 			{
-				trail.renderer.enabled = false;
+				trail.GetComponent<Renderer>().enabled = false;
 				return;
 			}
-			trail.renderer.enabled = true;
+			trail.GetComponent<Renderer>().enabled = true;
 			lifeTimeRatio = 1f / lifetime;
-			Vector3[] array = new Vector3[displayCnt * 2];
-			Vector2[] array2 = new Vector2[displayCnt * 2];
-			int[] array3 = new int[(displayCnt - 1) * 6];
-			Color[] array4 = new Color[displayCnt * 2];
-			float num2 = 1f / (float)(displayCnt - 1);
-			Vector3 position2 = ((Component)Camera.main).transform.position;
-			for (int i = 0; i < displayCnt; i++)
+			int num2 = displayCnt;
+			if (num2 > maxPointsDrawn && maxPointsDrawn > 0)
 			{
-				Vector3 val2 = points[i];
-				float num3 = (float)i * num2;
-				Color val3;
+				num2 = maxPointsDrawn;
+			}
+			Vector3[] array = new Vector3[num2 * 2];
+			Vector2[] array2 = new Vector2[num2 * 2];
+			int[] array3 = new int[(num2 - 1) * 6];
+			Color[] array4 = new Color[num2 * 2];
+			float num3 = 1f / (float)(num2 - 1);
+			Vector3 position2 = Camera.main.transform.position;
+			for (int i = 0; i < num2; i++)
+			{
+				Vector3 vector = points[i + displayCnt - num2];
+				float num4 = (float)i * num3;
+				Color color2;
 				if (colors.Length == 0)
 				{
-					val3 = Color.Lerp(Color.clear, Color.white, num3);
+					color2 = Color.Lerp(Color.clear, Color.white, num4);
 				}
 				else if (colors.Length == 1)
 				{
-					val3 = Color.Lerp(Color.clear, colors[0], num3);
+					color2 = Color.Lerp(Color.clear, colors[0], num4);
 				}
 				else if (colors.Length == 2)
 				{
-					val3 = Color.Lerp(colors[1], colors[0], num3);
+					color2 = Color.Lerp(colors[1], colors[0], num4);
 				}
 				else
 				{
-					float num4 = (float)(colors.Length - 1) - num3 * (float)(colors.Length - 1);
-					if (num4 == (float)(colors.Length - 1))
+					float num5 = (float)(colors.Length - 1) - num4 * (float)(colors.Length - 1);
+					if (num5 == (float)(colors.Length - 1))
 					{
-						val3 = colors[colors.Length - 1];
+						color2 = colors[colors.Length - 1];
 					}
 					else
 					{
-						int num5 = (int)Mathf.Floor(num4);
-						float num6 = num4 - (float)num5;
-						val3 = Color.Lerp(colors[num5], colors[num5 + 1], num6);
+						int num6 = (int)Mathf.Floor(num5);
+						float t = num5 - (float)num6;
+						color2 = Color.Lerp(colors[num6], colors[num6 + 1], t);
 					}
 				}
-				array4[i * 2] = val3;
-				array4[i * 2 + 1] = val3;
+				array4[i * 2] = color2;
+				array4[i * 2 + 1] = color2;
 				float num7;
 				if (widths.Length == 0)
 				{
@@ -491,11 +341,11 @@ public class TrailArc : MonoBehaviour
 				}
 				else if (widths.Length == 2)
 				{
-					num7 = Mathf.Lerp(widths[1], widths[0], num3);
+					num7 = Mathf.Lerp(widths[1], widths[0], num4);
 				}
 				else
 				{
-					float num8 = (float)(widths.Length - 1) - num3 * (float)(widths.Length - 1);
+					float num8 = (float)(widths.Length - 1) - num4 * (float)(widths.Length - 1);
 					if (num8 == (float)(widths.Length - 1))
 					{
 						num7 = widths[widths.Length - 1];
@@ -503,44 +353,57 @@ public class TrailArc : MonoBehaviour
 					else
 					{
 						int num9 = (int)Mathf.Floor(num8);
-						float num10 = num8 - (float)num9;
-						num7 = Mathf.Lerp(widths[num9], widths[num9 + 1], num10);
+						float t2 = num8 - (float)num9;
+						num7 = Mathf.Lerp(widths[num9], widths[num9 + 1], t2);
 					}
 				}
 				if (faceCamera)
 				{
-					Vector3 val4 = ((i != displayCnt - 1) ? val2 : points[i - 1]);
-					Vector3 val5 = ((i != displayCnt - 1) ? points[i + 1] : val2);
-					Vector3 val6 = val5 - val4;
-					Vector3 val7 = position2 - val2;
-					Vector3 val8 = Vector3.Cross(val6, val7);
-					Vector3 normalized = val8.normalized;
+					Vector3 vector2 = ((i != num2 - 1) ? vector : points[i - 1 + displayCnt - num2]);
+					Vector3 vector3 = ((i != num2 - 1) ? points[i + 1 + displayCnt - num2] : vector);
+					Vector3 lhs = vector3 - vector2;
+					Vector3 rhs = position2 - vector;
+					Vector3 normalized = Vector3.Cross(lhs, rhs).normalized;
 					ref Vector3 reference9 = ref array[i * 2];
-					reference9 = val2 + normalized * num7 * 0.5f;
+					reference9 = vector + normalized * num7 * 0.5f;
 					ref Vector3 reference10 = ref array[i * 2 + 1];
-					reference10 = val2 - normalized * num7 * 0.5f;
+					reference10 = vector - normalized * num7 * 0.5f;
+				}
+				else if (twist)
+				{
+					time += Time.deltaTime;
+					Vector3 vector4 = ((i != num2 - 1) ? vector : points[i - 1 + displayCnt - num2]);
+					Vector3 vector5 = ((i != num2 - 1) ? points[i + 1 + displayCnt - num2] : vector);
+					Vector3 axis = vector5 - vector4;
+					Quaternion quaternion = Quaternion.AngleAxis(Mathf.Sin(time), axis);
+					Vector3 vector6 = quaternion * Vector3.up;
+					vector6 = Vector3.up;
+					ref Vector3 reference11 = ref array[i * 2];
+					reference11 = vector + vector6 * num7 * 0.5f;
+					ref Vector3 reference12 = ref array[i * 2 + 1];
+					reference12 = vector - vector6 * num7 * 0.5f;
 				}
 				else
 				{
-					ref Vector3 reference11 = ref array[i * 2];
-					reference11 = val2 + pointsUp[i] * num7 * 0.5f;
-					ref Vector3 reference12 = ref array[i * 2 + 1];
-					reference12 = val2 - pointsUp[i] * num7 * 0.5f;
+					ref Vector3 reference13 = ref array[i * 2];
+					reference13 = vector + pointsUp[i + displayCnt - num2] * num7 * 0.5f;
+					ref Vector3 reference14 = ref array[i * 2 + 1];
+					reference14 = vector - pointsUp[i + displayCnt - num2] * num7 * 0.5f;
 				}
-				ref Vector2 reference13 = ref array2[i * 2];
-				reference13 = new Vector2(num3, 0f);
-				ref Vector2 reference14 = ref array2[i * 2 + 1];
-				reference14 = new Vector2(num3, 1f);
+				ref Vector2 reference15 = ref array2[i * 2];
+				reference15 = new Vector2(num4, 0f);
+				ref Vector2 reference16 = ref array2[i * 2 + 1];
+				reference16 = new Vector2(num4, 1f);
 				if (i > 0)
 				{
-					int num11 = (i - 1) * 6;
-					int num12 = i * 2;
-					array3[num11] = num12 - 2;
-					array3[num11 + 1] = num12 - 1;
-					array3[num11 + 2] = num12;
-					array3[num11 + 3] = num12;
-					array3[num11 + 4] = num12 - 1;
-					array3[num11 + 5] = num12 + 1;
+					int num10 = (i - 1) * 6;
+					int num11 = i * 2;
+					array3[num10] = num11 - 2;
+					array3[num10 + 1] = num11 - 1;
+					array3[num10 + 2] = num11;
+					array3[num10 + 3] = num11;
+					array3[num10 + 4] = num11 - 1;
+					array3[num10 + 5] = num11 + 1;
 				}
 			}
 			trail.transform.position = Vector3.zero;
@@ -551,9 +414,9 @@ public class TrailArc : MonoBehaviour
 			mesh.uv = array2;
 			mesh.triangles = array3;
 		}
-		catch (Exception ex)
+		catch (Exception message)
 		{
-			MonoBehaviour.print((object)ex);
+			MonoBehaviour.print(message);
 		}
 	}
 }

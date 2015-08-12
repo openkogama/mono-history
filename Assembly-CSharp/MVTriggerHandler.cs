@@ -13,14 +13,14 @@ public class MVTriggerHandler : MonoBehaviour
 
 	private void OnTriggerStay(Collider other)
 	{
-		if (!((Behaviour)this).enabled)
+		if (!enabled)
 		{
 			return;
 		}
-		TriggerBoxEvents component = ((Component)other).GetComponent<TriggerBoxEvents>();
-		if ((Object)(object)component != (Object)null)
+		TriggerBoxEvents component = other.GetComponent<TriggerBoxEvents>();
+		if (component != null)
 		{
-			int instanceID = ((Object)((Component)component).gameObject).GetInstanceID();
+			int instanceID = component.gameObject.GetInstanceID();
 			if (!newTriggerBoxEvents.ContainsKey(instanceID))
 			{
 				newTriggerBoxEvents.Add(instanceID, component);
@@ -60,7 +60,6 @@ public class MVTriggerHandler : MonoBehaviour
 		{
 			triggerBoxEvents[item].OnMVTriggerExit(triggingCollider);
 			triggerBoxEvents.Remove(item);
-			Debug.Log((object)("Exit " + item));
 		}
 		foreach (int item2 in list2)
 		{
@@ -92,13 +91,13 @@ public class MVTriggerHandler : MonoBehaviour
 
 	private void Start()
 	{
-		if ((Object)(object)((Component)this).collider == (Object)null)
+		if (GetComponent<Collider>() == null)
 		{
-			Debug.LogError((object)"Did not find collider");
+			Debug.LogError("Did not find collider");
 		}
 		else
 		{
-			triggingCollider = ((Component)this).collider;
+			triggingCollider = GetComponent<Collider>();
 		}
 	}
 }

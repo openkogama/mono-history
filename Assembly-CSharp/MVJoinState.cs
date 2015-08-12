@@ -1,6 +1,8 @@
 public enum MVJoinState
 {
+	None,
 	Joining,
+	LoadGUI,
 	SynchronizingGameTime,
 	FetchingCreditStatus,
 	FetchingMaterials,
@@ -12,10 +14,10 @@ public enum MVJoinState
 	FetchingAvatarShopInventory,
 	FetchingGameSnapShot,
 	FetchingFriends,
-	FetchingTeamList,
 	SelectingTeam,
 	SettingTeam,
 	FetchingStreamingAssets,
+	FetchingStreamingAssetsAmbientAudio,
 	FetchingStreamingAssetInventory,
 	CreatingAvatar,
 	SettingActorReady,

@@ -6,10 +6,10 @@ internal class PaintCubes : CubeModelTool
 
 	public override void Enter(CubeModelingStateMachine e)
 	{
-		Debug.Log((object)GetType().ToString());
+		Debug.Log(GetType().ToString());
 		paintCursor = new PaintCursor();
-		MVGameController.Instance.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.PaintCubes);
-		waitForMouseUp = MVInputWrapper.GetKey((KeyCode)323);
+		MVGameController.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.PaintCubes);
+		waitForMouseUp = MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect);
 	}
 
 	public override void Execute(CubeModelingStateMachine e)
@@ -17,11 +17,11 @@ internal class PaintCubes : CubeModelTool
 		base.Execute(e);
 		if (waitForMouseUp)
 		{
-			waitForMouseUp = MVInputWrapper.GetKey((KeyCode)323);
+			waitForMouseUp = MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect);
 			return;
 		}
 		bool isPainting = false;
-		if (MVInputWrapper.GetKey((KeyCode)323) && e.SelectedCube != null)
+		if (MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect) && e.SelectedCube != null)
 		{
 			if (e.SelectedCube.cube.FaceMaterials[0] != e.CurrentMaterialId)
 			{
@@ -35,7 +35,7 @@ internal class PaintCubes : CubeModelTool
 
 	public override void Exit(CubeModelingStateMachine e)
 	{
-		MVGameController.Instance.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.Idle);
+		MVGameController.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.Idle);
 		HideCursor();
 	}
 

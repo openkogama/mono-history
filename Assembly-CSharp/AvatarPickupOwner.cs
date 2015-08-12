@@ -31,8 +31,8 @@ public class AvatarPickupOwner : MVPickupOwner
 		{
 			if (currentItem != laserPointer)
 			{
-				MVEquipable component = ((Component)this).GetComponent<MVEquipable>();
-				if ((Object)(object)component != (Object)null)
+				MVEquipable component = GetComponent<MVEquipable>();
+				if (component != null)
 				{
 					component.Equip(AvatarItemType.LaserPointer, null);
 				}
@@ -51,20 +51,16 @@ public class AvatarPickupOwner : MVPickupOwner
 
 	private void InitLaser()
 	{
-		LaserPointer laserPointer = Resources.Load(PickupItem.GetPrefabNameForAvatarItemType(AvatarItemType.LaserPointer), typeof(LaserPointer)) as LaserPointer;
-		LaserPointer laserPointer2 = Object.Instantiate((Object)(object)laserPointer) as LaserPointer;
-		((Component)laserPointer2).gameObject.SetActiveRecursively(false);
-		laserPointer2.owner = this;
-		this.laserPointer = laserPointer2;
-		laserPointerAvatarItem = laserPointer2;
+		LaserPointer original = Resources.Load(PickupItem.GetPrefabNameForAvatarItemType(AvatarItemType.LaserPointer), typeof(LaserPointer)) as LaserPointer;
+		LaserPointer laserPointer = Object.Instantiate(original);
+		laserPointer.gameObject.SetActive(value: false);
+		laserPointer.owner = this;
+		this.laserPointer = laserPointer;
+		laserPointerAvatarItem = laserPointer;
 	}
 
 	protected override void Equip(AvatarItemType type, int variantId)
 	{
-		//IL_00b3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0069: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0079: Unknown result type (might be due to invalid IL or missing references)
 		PickupItem pickupItem;
 		if (type == AvatarItemType.LaserPointer)
 		{
@@ -78,15 +74,15 @@ public class AvatarPickupOwner : MVPickupOwner
 		}
 		if (body != null)
 		{
-			((Component)pickupItem).transform.parent = body.BodyData.GetPartBone("Torso");
-			((Component)pickupItem).transform.localPosition = new Vector3(0f, 0.25f, 0f);
-			((Component)pickupItem).transform.localRotation = Quaternion.identity;
+			pickupItem.transform.parent = body.BodyData.GetPartBone("Torso");
+			pickupItem.transform.localPosition = new Vector3(0f, 0.25f, 0f);
+			pickupItem.transform.localRotation = Quaternion.identity;
 		}
 		else
 		{
-			((Component)pickupItem).transform.parent = ((Component)this).gameObject.transform;
-			((Component)pickupItem).transform.localPosition = new Vector3(0f, 0.6f, 0f);
-			((Component)pickupItem).transform.localRotation = Quaternion.identity;
+			pickupItem.transform.parent = gameObject.transform;
+			pickupItem.transform.localPosition = new Vector3(0f, 0.6f, 0f);
+			pickupItem.transform.localRotation = Quaternion.identity;
 		}
 		if (onEquipItem != null)
 		{
@@ -96,12 +92,12 @@ public class AvatarPickupOwner : MVPickupOwner
 
 	protected override void Unequip()
 	{
-		if (!((Object)(object)currentItem == (Object)null))
+		if (!(currentItem == null))
 		{
 			currentItem.OnUnequip();
 			if (currentItem.Type != AvatarItemType.LaserPointer)
 			{
-				Object.Destroy((Object)(object)((Component)currentItem).gameObject);
+				Object.Destroy(currentItem.gameObject);
 			}
 			currentItem = null;
 			if (onUnequipItem != null)
@@ -113,10 +109,9 @@ public class AvatarPickupOwner : MVPickupOwner
 
 	private void OnAvatarScaleChanged(object sender, ScaleChangedEventArgs e)
 	{
-		//IL_0027: Unknown result type (might be due to invalid IL or missing references)
-		if ((Object)(object)currentItem != (Object)null)
+		if (currentItem != null)
 		{
-			((Component)currentItem).gameObject.transform.localScale = worldObjectParent.Scale;
+			currentItem.gameObject.transform.localScale = worldObjectParent.Scale;
 		}
 	}
 }

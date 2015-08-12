@@ -16,10 +16,9 @@ public class SprayCursor
 
 	public void UpdateCursor(CubePickingInfo selectedCube, MVCubeModelBase targetCubeModel, bool addCube)
 	{
-		//IL_009d: Unknown result type (might be due to invalid IL or missing references)
 		if (addCube)
 		{
-			MVGameController.Instance.WOCM.AvatarLocal.LaserPointer.ActivateLaserForDuration(addCubeLaserOnTime);
+			MVGameController.WOCM.AvatarLocal.LaserPointer.ActivateLaserForDuration(addCubeLaserOnTime);
 			addCubeTime = Time.time;
 		}
 		if (selectedCube != null)
@@ -30,7 +29,7 @@ public class SprayCursor
 			if (Time.time - addCubeTime < addCubeLaserOnTime)
 			{
 			}
-			MVGameController.Instance.WOCM.AvatarLocal.LaserPointer.UpdatePosition(selectedCube.point);
+			MVGameController.WOCM.AvatarLocal.LaserPointer.UpdatePosition(selectedCube.point);
 		}
 		else
 		{

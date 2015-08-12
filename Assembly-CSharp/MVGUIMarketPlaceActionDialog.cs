@@ -9,27 +9,26 @@ public class MVGUIMarketPlaceActionDialog : UXCustomDialogBox
 
 	private void Update()
 	{
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		((Component)loadingCircle).transform.RotateAroundLocal(Vector3.forward, 12f * Time.deltaTime);
+		loadingCircle.transform.Rotate(Vector3.forward, 12f * Time.deltaTime * 57.29578f);
 	}
 
 	public void SellItem(int itemID, string name, string description, int silverPrice)
 	{
-		MVNetworkGame game = MVGameController.Instance.Game;
+		MVNetworkGame game = MVGameController.Game;
 		game.OnMarketPlaceActionComplete = (MVNetworkGame.OnMarketPlaceActionCompleteDelegate)Delegate.Combine(game.OnMarketPlaceActionComplete, new MVNetworkGame.OnMarketPlaceActionCompleteDelegate(OnAddToMarketplaceReturn));
-		MVGameController.Instance.Game.RequestAddItemToMarketPlace(itemID, name, description, silverPrice);
+		MVGameController.Game.RequestAddItemToMarketPlace(itemID, name, description, silverPrice);
 	}
 
 	public void RemoveItem(int itemID)
 	{
-		MVNetworkGame game = MVGameController.Instance.Game;
+		MVNetworkGame game = MVGameController.Game;
 		game.OnMarketPlaceActionComplete = (MVNetworkGame.OnMarketPlaceActionCompleteDelegate)Delegate.Combine(game.OnMarketPlaceActionComplete, new MVNetworkGame.OnMarketPlaceActionCompleteDelegate(OnAddToMarketplaceReturn));
-		MVGameController.Instance.Game.RequestRemoveItemFromMarketPlace(itemID);
+		MVGameController.Game.RequestRemoveItemFromMarketPlace(itemID);
 	}
 
 	private void OnAddToMarketplaceReturn(bool success)
 	{
-		MVNetworkGame game = MVGameController.Instance.Game;
+		MVNetworkGame game = MVGameController.Game;
 		game.OnMarketPlaceActionComplete = (MVNetworkGame.OnMarketPlaceActionCompleteDelegate)Delegate.Remove(game.OnMarketPlaceActionComplete, new MVNetworkGame.OnMarketPlaceActionCompleteDelegate(OnAddToMarketplaceReturn));
 		if (success)
 		{

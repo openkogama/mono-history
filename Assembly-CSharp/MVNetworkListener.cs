@@ -30,8 +30,6 @@ public class MVNetworkListener : MVNetworkObject
 
 	public void SetOwnerTransformToMostResentPackage()
 	{
-		//IL_0061: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0072: Unknown result type (might be due to invalid IL or missing references)
 		NetworkTransformPackage networkTransformPackage = null;
 		foreach (NetworkTransformPackage item in transformQueue)
 		{
@@ -62,7 +60,6 @@ public class MVNetworkListener : MVNetworkObject
 	public void AddTransformPackage(NetworkTransformPackage p)
 	{
 		transformQueue.Enqueue(p);
-		WorldObject.State = MVWorldObjectState.Dirty;
 		transformReportingHasStopped = false;
 	}
 
@@ -83,7 +80,7 @@ public class MVNetworkListener : MVNetworkObject
 
 	public override void Update(MVNetworkGame game)
 	{
-		delayedTime = game.ServerTimeInMilliSeconds - 100 - 100 - 100;
+		delayedTime = game.ServerTimeInMilliSeconds - 200 - 200 - 200;
 		UpdateTransform(game, delayedTime);
 		UpdateInput(game, delayedTime);
 		foreach (INetworkUpdateListener updateListener in updateListenerList)
@@ -94,20 +91,6 @@ public class MVNetworkListener : MVNetworkObject
 
 	private void UpdateTransform(MVNetworkGame game, int delayedTime)
 	{
-		//IL_02d1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02e7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01ac: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01c2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01e8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01f3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01f9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_020f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_021a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0220: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0293: Unknown result type (might be due to invalid IL or missing references)
-		//IL_02ab: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0252: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0268: Unknown result type (might be due to invalid IL or missing references)
 		if (WorldObject.State == MVWorldObjectState.Destroyed)
 		{
 			return;
@@ -147,11 +130,10 @@ public class MVNetworkListener : MVNetworkObject
 			{
 				num2 = (float)(delayedTime - currentPackage.timestamp) / num;
 				transformReportingHasStopped = true;
-				Debug.Log((object)"Transform reporting stopped");
 			}
 			if (num == 0f)
 			{
-				Debug.Log((object)"Interpolation INTERVAL IS ZERO!!!");
+				Debug.Log("Interpolation INTERVAL IS ZERO!!!");
 				num2 = 1f;
 			}
 			if (num2 < 0f)
@@ -166,7 +148,7 @@ public class MVNetworkListener : MVNetworkObject
 				WorldObject.Rotation = Quaternion.Lerp(currentPackage.rotation, nextPackage.rotation, num2);
 				return;
 			}
-			float num3 = Mathf.Min(num2, 2f);
+			float b = Mathf.Min(num2, 2f);
 			if (transformReportingHasStopped)
 			{
 				WorldObject.Position = nextPackage.position;
@@ -176,8 +158,8 @@ public class MVNetworkListener : MVNetworkObject
 			}
 			else
 			{
-				WorldObject.Position = ExtrapolatePosition(Mathf.Min(num2, num3));
-				WorldObject.Rotation = ExtrapolateRotation(Mathf.Min(num2, num3));
+				WorldObject.Position = ExtrapolatePosition(Mathf.Min(num2, b));
+				WorldObject.Rotation = ExtrapolateRotation(Mathf.Min(num2, b));
 			}
 		}
 		else if (currentPackage != null)
@@ -198,21 +180,12 @@ public class MVNetworkListener : MVNetworkObject
 
 	private Vector3 ExtrapolatePosition(float interpFactor)
 	{
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0011: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0016: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0024: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0034: Unknown result type (might be due to invalid IL or missing references)
-		Vector3 val = nextPackage.position - currentPackage.position;
-		return (interpFactor - 1f) * val + nextPackage.position;
+		Vector3 vector = nextPackage.position - currentPackage.position;
+		return (interpFactor - 1f) * vector + nextPackage.position;
 	}
 
 	private Quaternion ExtrapolateRotation(float interpFactor)
 	{
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
 		return nextPackage.rotation;
 	}
 }

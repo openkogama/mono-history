@@ -1,5 +1,3 @@
-using Localize;
-
 public class MVGUIPublishButton : UXViewScript
 {
 	public UXIconButton publishButton;
@@ -8,16 +6,15 @@ public class MVGUIPublishButton : UXViewScript
 	{
 		publishButton.OnClick = () =>
 		{
-			if (MVGameController.Instance.Game.LocalPlayer.PlanetOwnershipTypeID == 2)
+			if (MVGameController.Game.LocalPlayer.PlanetOwnershipTypeID == 2)
 			{
-				UXUtils.FindGUIObjectOfType<UXDialogFactory>().CreateCustomDialog("Prefabs/GUI/Dialogs/PublishDialog", TextSlotIndex.PublishPlanet).AddPositiveButton(TextSlotIndex.Confirm)
-					.AddNegativeButton(TextSlotIndex.Reject)
+				UXUtils.UXDialogFactory.CreateCustomDialog("Prefabs/GUI/Dialogs/PublishDialog", TM._("Publish Your Game")).AddPositiveButton(TM._("Yes")).AddNegativeButton(TM._("No"))
 					.SetOnResultCallback(PublishButtonOnClick)
 					.Show();
 			}
 			else
 			{
-				UXUtils.FindGUIObjectOfType<UXDialogFactory>().CreateDialog(TextSlotIndex.PlanetAuthorizeError, TextSlotIndex.ErrorHeadline).Show();
+				UXUtils.UXDialogFactory.CreateDialog(TM._("You are not authorized to\npublish this planet"), TM._("Error")).Show();
 			}
 		};
 	}
@@ -26,7 +23,7 @@ public class MVGUIPublishButton : UXViewScript
 	{
 		if (dialog.DialogResult == UXDialogResult.Positive)
 		{
-			MVGameController.Instance.Game.PublishPlanet();
+			MVGameController.Game.PublishPlanet();
 		}
 	}
 }

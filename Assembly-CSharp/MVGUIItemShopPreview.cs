@@ -15,24 +15,24 @@ public class MVGUIItemShopPreview : MonoBehaviour
 	public void BuildItemShopPreview(MVItem item, float width = 12f, float height = 12f)
 	{
 		ItemImagePlane.SetSize(width, height);
-		((MonoBehaviour)this).StartCoroutine(ItemViewRoutine(item, 512, 512));
+		StartCoroutine(ItemViewRoutine(item, 512, 512));
 	}
 
 	private IEnumerator ItemViewRoutine(MVItem item, int previewWidth, int previewHeight)
 	{
 		KoGaMaPackageClient koGaMaPackageClient = ARepository.GetKoGaMaPackageFromItem(item);
 		WO = koGaMaPackageClient.worldObjects[koGaMaPackageClient.worldObjectRoot];
-		itemPreviewRoot = new GameObject("Item preview root - " + ((Object)((Component)this).gameObject).name).transform;
-		objectPreviewer = ObjectPreviewer.Create(previewWidth, previewHeight, (CameraClearFlags)2, WO.PreviewLayerMask, Vector3.zero, itemPreviewRoot, new Vector3(0f, 0f, 10f), item.name, WO, WO.GameObject);
-		((Component)ItemImagePlane).renderer.material = new Material(((Component)ItemImagePlane).renderer.material);
-		((Object)((Component)ItemImagePlane).renderer.material).hideFlags = (HideFlags)13;
-		((Component)ItemImagePlane).renderer.material.mainTexture = (Texture)(object)objectPreviewer.PreviewTexture;
+		itemPreviewRoot = new GameObject("Item preview root - " + gameObject.name).transform;
+		objectPreviewer = ObjectPreviewer.Create(previewWidth, previewHeight, CameraClearFlags.Color, WO.PreviewLayerMask, Vector3.zero, itemPreviewRoot, new Vector3(0f, 0f, 10f), item.name, WO, WO.GameObject);
+		ItemImagePlane.GetComponent<Renderer>().material = new Material(ItemImagePlane.GetComponent<Renderer>().material);
+		ItemImagePlane.GetComponent<Renderer>().material.hideFlags = HideFlags.HideAndDontSave;
+		ItemImagePlane.GetComponent<Renderer>().material.mainTexture = objectPreviewer.PreviewTexture;
 		yield return null;
 	}
 
 	private void Update()
 	{
-		if ((Object)(object)objectPreviewer != (Object)null)
+		if (objectPreviewer != null)
 		{
 			objectPreviewer.UpdateRotation();
 		}
@@ -44,13 +44,13 @@ public class MVGUIItemShopPreview : MonoBehaviour
 		{
 			WO.Destroy();
 		}
-		if ((Object)(object)objectPreviewer != (Object)null)
+		if (objectPreviewer != null)
 		{
-			Object.Destroy((Object)(object)((Component)objectPreviewer).gameObject);
+			Object.Destroy(objectPreviewer.gameObject);
 		}
-		if ((Object)(object)itemPreviewRoot != (Object)null)
+		if (itemPreviewRoot != null)
 		{
-			Object.Destroy((Object)(object)((Component)itemPreviewRoot).gameObject);
+			Object.Destroy(itemPreviewRoot.gameObject);
 		}
 	}
 }

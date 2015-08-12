@@ -8,18 +8,18 @@ public class AudioLogicCube : MonoBehaviour
 
 	private void Awake()
 	{
-		audioOnOffComponents = ((Component)this).GetComponents<AudioOnOffComponent>();
+		audioOnOffComponents = GetComponents<AudioOnOffComponent>();
 	}
 
 	private void Update()
 	{
 		if (testKeys)
 		{
-			if (Input.GetKeyDown("z"))
+			if (MVInputWrapper.DebugGetKeyDown("z"))
 			{
 				Play(on: true);
 			}
-			if (Input.GetKeyDown("x"))
+			if (MVInputWrapper.DebugGetKeyDown("x"))
 			{
 				Play(on: false);
 			}

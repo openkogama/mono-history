@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
@@ -9,63 +8,23 @@ public class MVRotator : MVMovable
 
 	private static HashSet<MVRotator> selectedRotators = new HashSet<MVRotator>();
 
-	private MVWorldObjectClientManager WOCM => MVGameController.Instance.WOCM;
+	private MVWorldObjectClientManager WOCM => MVGameController.WOCM;
 
-	public Vector3 InitAngularVelocity
-	{
-		get
-		{
-			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-			return initAngularVelocity;
-		}
-	}
+	public Vector3 InitAngularVelocity => initAngularVelocity;
 
-	public bool Horizontal
-	{
-		get
-		{
-			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0019: Unknown result type (might be due to invalid IL or missing references)
-			//IL_001e: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0031: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0036: Unknown result type (might be due to invalid IL or missing references)
-			return AngularVelocity.x == 0f && AngularVelocity.y != 0f && AngularVelocity.z == 0f;
-		}
-	}
+	public bool Horizontal => AngularVelocity.x == 0f && AngularVelocity.y != 0f && AngularVelocity.z == 0f;
 
-	public bool Vertical
-	{
-		get
-		{
-			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0019: Unknown result type (might be due to invalid IL or missing references)
-			//IL_001e: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0031: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0036: Unknown result type (might be due to invalid IL or missing references)
-			return AngularVelocity.x != 0f && AngularVelocity.y == 0f && AngularVelocity.z == 0f;
-		}
-	}
+	public bool Vertical => AngularVelocity.x != 0f && AngularVelocity.y == 0f && AngularVelocity.z == 0f;
 
-	public override Vector3 WorldPivot
-	{
-		get
-		{
-			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-			return WorldPosition;
-		}
-	}
+	public override Vector3 WorldPivot => WorldPosition;
 
-	public MVRotator(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVRotator(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, worldObjects)
 	{
 	}
 
 	public override void Initialize()
 	{
-		//IL_00a8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ad: Unknown result type (might be due to invalid IL or missing references)
 		base.Initialize();
 		interactionFlags |= InteractionFlags.CanRotateY | InteractionFlags.CanEdit | InteractionFlags.HasSettings;
 		List<MVWorldObjectClient> blueprintWorldObjectsByType = WOCM.GetBlueprintWorldObjectsByType(typeof(MVRotator));
@@ -82,7 +41,7 @@ public class MVRotator : MVMovable
 		IntVector max = new IntVector(15, 15, 15);
 		if (CubeModel == null)
 		{
-			Debug.LogWarning((object)("Rotator " + id + " init - movable's cube model is NULL! If this is a new platform group restart the session. Otherwise it is broken."));
+			Debug.LogWarning("Rotator " + id + " init - movable's cube model is NULL! If this is a new platform group restart the session. Otherwise it is broken.");
 			return;
 		}
 		CubeModel.ModelingConstraintBuilder = () => new ModelingBoxCountConstraint(CubeModel, min, max, 1);
@@ -135,20 +94,11 @@ public class MVRotator : MVMovable
 
 	public override Bounds GetLocalBounds(BoundsContext boundsContext)
 	{
-		//IL_0002: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0026: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0032: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0038: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003a: Unknown result type (might be due to invalid IL or missing references)
 		Bounds localBounds = base.GetLocalBounds(boundsContext);
 		if (boundsContext == BoundsContext.Preview)
 		{
-			Bounds val = new Bounds(-localBounds.center, localBounds.size);
-			localBounds.Encapsulate(val);
+			Bounds bounds = new Bounds(-localBounds.center, localBounds.size);
+			localBounds.Encapsulate(bounds);
 			return localBounds;
 		}
 		return localBounds;

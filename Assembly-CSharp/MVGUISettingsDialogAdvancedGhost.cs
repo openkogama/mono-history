@@ -1,11 +1,10 @@
 using System.Collections.Generic;
-using Localize;
 
 public class MVGUISettingsDialogAdvancedGhost : MVGUIDynamicSettingsDialog
 {
 	public MVGUISettingsDialogAdvancedGhost()
 	{
-		dialogFactory.CreateCustomDialog("Prefabs/GUI/Box Settings Dialogs/AdvancedGhostSettingsDialog", TextSlotIndex.Light).AddPositiveButton(TextSlotIndex.Ok).AddNegativeButton(TextSlotIndex.Cancel)
+		dialogFactory.CreateCustomDialog("Prefabs/GUI/Box Settings Dialogs/AdvancedGhostSettingsDialog", TM._("Oculus settings")).AddPositiveButton(TM._("Ok")).AddNegativeButton(TM._("Cancel"))
 			.SetOnResultCallback(OnDialogResult)
 			.SetOnIntermediateResultCallback(OnIntermediateResult)
 			.SetValues(BuildDialogData())

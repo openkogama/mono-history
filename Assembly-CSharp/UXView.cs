@@ -40,7 +40,7 @@ public class UXView : MonoBehaviour
 	{
 		if (!isInitialized)
 		{
-			screen = UXUtils.FindGUIObjectOfType<UXScreen>();
+			screen = UXUtils.UXScreen;
 			UXScreen uXScreen = screen;
 			uXScreen.OnResize = (UXScreen.OnResizeDelegate)Delegate.Combine(uXScreen.OnResize, new UXScreen.OnResizeDelegate(OnResize));
 			focusManager = UXUtils.FindGUIObjectOfType<UXFocusManager>();
@@ -108,38 +108,19 @@ public class UXView : MonoBehaviour
 
 	public void UpdatePlacement()
 	{
-		//IL_001e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0039: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003e: Unknown result type (might be due to invalid IL or missing references)
-		((Component)this).transform.position = screen.GetPosition(horizontalAnchor, verticalAnchor, depth);
-		((Component)this).transform.localScale = screen.Scale * Vector3.one;
+		transform.position = screen.GetPosition(horizontalAnchor, verticalAnchor, depth);
+		transform.localScale = screen.Scale * Vector3.one;
 	}
 
 	private void InitializeFocusObjects()
 	{
-		//IL_0019: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0024: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0029: Unknown result type (might be due to invalid IL or missing references)
-		focusObjects = new List<UXFocusObject>(((Component)this).GetComponentsInChildren<UXFocusObject>(true));
+		focusObjects = new List<UXFocusObject>(GetComponentsInChildren<UXFocusObject>(includeInactive: true));
 		Vector3 primarySortAxis = Vector3.down;
 		Vector3 secondarySortAxis = Vector3.right;
 		focusObjects.Sort((UXFocusObject a, UXFocusObject b) =>
 		{
-			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-			//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0018: Unknown result type (might be due to invalid IL or missing references)
-			//IL_001a: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0025: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0027: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0044: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0046: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0052: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0054: Unknown result type (might be due to invalid IL or missing references)
-			Vector3 position = ((Component)a).transform.position;
-			Vector3 position2 = ((Component)b).transform.position;
+			Vector3 position = a.transform.position;
+			Vector3 position2 = b.transform.position;
 			float num = Vector3.Dot(position, primarySortAxis);
 			float num2 = Vector3.Dot(position2, primarySortAxis);
 			if (num > num2)
@@ -168,7 +149,7 @@ public class UXView : MonoBehaviour
 
 	public void ReleaseFocus()
 	{
-		if ((Object)(object)focusManager != (Object)null)
+		if (focusManager != null)
 		{
 			focusManager.CurrentFocus = null;
 		}
@@ -176,7 +157,7 @@ public class UXView : MonoBehaviour
 
 	public void RequestFocus(UXFocusObject focusObject)
 	{
-		if ((Object)(object)focusObject == (Object)null)
+		if (focusObject == null)
 		{
 			throw new ArgumentNullException();
 		}
@@ -188,7 +169,7 @@ public class UXView : MonoBehaviour
 
 	public void OnDestroy()
 	{
-		if ((Object)(object)screen != (Object)null)
+		if (screen != null)
 		{
 			UXScreen uXScreen = screen;
 			uXScreen.OnResize = (UXScreen.OnResizeDelegate)Delegate.Remove(uXScreen.OnResize, new UXScreen.OnResizeDelegate(OnResize));
@@ -217,31 +198,8 @@ public class UXView : MonoBehaviour
 
 	public void OnDrawGizmosSelected()
 	{
-		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0015: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0092: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0097: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00bc: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00dc: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e1: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00eb: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0101: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0106: Unknown result type (might be due to invalid IL or missing references)
-		//IL_010b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0110: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0112: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0114: Unknown result type (might be due to invalid IL or missing references)
-		//IL_011b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_011d: Unknown result type (might be due to invalid IL or missing references)
 		Gizmos.color = Color.white;
-		Matrix4x4 localToWorldMatrix = ((Component)this).transform.localToWorldMatrix;
+		Matrix4x4 localToWorldMatrix = transform.localToWorldMatrix;
 		float num;
 		if (horizontalAnchor != UXHorizontal.Left)
 		{
@@ -261,11 +219,11 @@ public class UXView : MonoBehaviour
 			num2 = -1f;
 		}
 		float num3 = 1f;
-		Vector3 val = localToWorldMatrix.MultiplyPoint(num3 * new Vector3(0f, num2 + 1f, 0f));
-		Vector3 val2 = localToWorldMatrix.MultiplyPoint(num3 * new Vector3(0f, num2 - 1f, 0f));
-		Vector3 val3 = localToWorldMatrix.MultiplyPoint(num3 * new Vector3(num - 1f, 0f, 0f));
-		Vector3 val4 = localToWorldMatrix.MultiplyPoint(num3 * new Vector3(num + 1f, 0f, 0f));
-		Gizmos.DrawLine(val, val2);
-		Gizmos.DrawLine(val3, val4);
+		Vector3 vector = localToWorldMatrix.MultiplyPoint(num3 * new Vector3(0f, num2 + 1f, 0f));
+		Vector3 to = localToWorldMatrix.MultiplyPoint(num3 * new Vector3(0f, num2 - 1f, 0f));
+		Vector3 vector2 = localToWorldMatrix.MultiplyPoint(num3 * new Vector3(num - 1f, 0f, 0f));
+		Vector3 to2 = localToWorldMatrix.MultiplyPoint(num3 * new Vector3(num + 1f, 0f, 0f));
+		Gizmos.DrawLine(vector, to);
+		Gizmos.DrawLine(vector2, to2);
 	}
 }

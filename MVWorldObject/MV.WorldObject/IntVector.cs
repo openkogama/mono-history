@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace MV.WorldObject;
 
-public struct IntVector
+public struct IntVector : IEquatable<IntVector>
 {
 	public short x;
 
@@ -98,6 +98,11 @@ public struct IntVector
 		this.z = (short)z;
 	}
 
+	public Vector3 ToVector3()
+	{
+		return new Vector3(x, y, z);
+	}
+
 	public override string ToString()
 	{
 		return "x: " + x + " y: " + y + " z: " + z;
@@ -135,13 +140,17 @@ public struct IntVector
 
 	public static Vector3 operator *(IntVector iV, Vector3 vector3)
 	{
-		//IL_0030: Unknown result type (might be due to invalid IL or missing references)
 		return new Vector3(vector3.x * (float)iV.x, vector3.y * (float)iV.y, vector3.z * (float)iV.z);
 	}
 
 	public static IntVector operator /(IntVector iV, int i)
 	{
 		return new IntVector((short)(iV.x / i), (short)(iV.y / i), (short)(iV.z / i));
+	}
+
+	public int SquareMagnitude()
+	{
+		return x * x + y * y + z * z;
 	}
 
 	public static int IntVectorToIndex(IntVector intVector, int chunkSize)

@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 
 public class MVAnd : MVLogicObject
@@ -9,7 +8,7 @@ public class MVAnd : MVLogicObject
 
 	public override bool HasOutputConnector => true;
 
-	public MVAnd(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVAnd(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, "Prefabs/AndObject", worldObjects)
 	{
 	}

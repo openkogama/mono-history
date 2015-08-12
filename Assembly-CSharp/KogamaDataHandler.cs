@@ -1,14 +1,19 @@
-using System.Collections;
+using System.Collections.Generic;
 using MV.WorldObject;
 
 public static class KogamaDataHandler
 {
-	public delegate void DataCallBack(Hashtable data, KogamaDataType dataType);
+	public delegate void DataCallBack(Dictionary<object, object> data, KogamaDataType dataType);
 
 	private static int serializeVersion = 11;
 
+	private static int maxDeserializeTimeBeforeService = 1000;
+
+	private static int timeSinceService = WaitForTicksLocal.GetEnvironmentTick(0);
+
 	public static int GetKoGaMaData(BytePacker bp, DataCallBack callBack, bool readRuntimeData)
 	{
+		timeSinceService = WaitForTicksLocal.GetEnvironmentTick(0);
 		GetPrototypeData(bp, callBack);
 		int worldObjectData = GetWorldObjectData(bp, callBack, readRuntimeData);
 		GetLinks(bp, callBack);
@@ -21,8 +26,18 @@ public static class KogamaDataHandler
 		int num = bp.ReadInt32();
 		for (int i = 0; i < num; i++)
 		{
-			Hashtable dataParameters = KogamaDataHandlerWrapper.GetDataParameters(serializeVersion, bp, KogamaDataType.Prototypes, readRuntimeData: false);
+			Dictionary<object, object> dataParameters = KogamaDataHandlerWrapper.GetDataParameters(serializeVersion, bp, KogamaDataType.Prototypes, readRuntimeData: false);
 			callBack(dataParameters, KogamaDataType.Prototypes);
+			HandleService();
+		}
+	}
+
+	private static void HandleService()
+	{
+		if (WaitForTicksLocal.Diff(timeSinceService) > maxDeserializeTimeBeforeService)
+		{
+			MVGameController.Game.Service();
+			timeSinceService = WaitForTicksLocal.GetEnvironmentTick(0);
 		}
 	}
 
@@ -32,12 +47,13 @@ public static class KogamaDataHandler
 		int num2 = -1;
 		for (int i = 0; i < num; i++)
 		{
-			Hashtable dataParameters = KogamaDataHandlerWrapper.GetDataParameters(serializeVersion, bp, KogamaDataType.WorldObjects, readRuntimeData);
+			Dictionary<object, object> dataParameters = KogamaDataHandlerWrapper.GetDataParameters(serializeVersion, bp, KogamaDataType.WorldObjects, readRuntimeData);
 			if (num2 == -1)
 			{
 				num2 = (int)dataParameters[WorldObjectDataParameters.Id];
 			}
 			callBack(dataParameters, KogamaDataType.WorldObjects);
+			HandleService();
 		}
 		return num2;
 	}
@@ -47,8 +63,9 @@ public static class KogamaDataHandler
 		int num = bp.ReadInt32();
 		for (int i = 0; i < num; i++)
 		{
-			Hashtable dataParameters = KogamaDataHandlerWrapper.GetDataParameters(serializeVersion, bp, KogamaDataType.Links, readRuntimeData: false);
+			Dictionary<object, object> dataParameters = KogamaDataHandlerWrapper.GetDataParameters(serializeVersion, bp, KogamaDataType.Links, readRuntimeData: false);
 			callBack(dataParameters, KogamaDataType.Links);
+			HandleService();
 		}
 	}
 
@@ -57,8 +74,9 @@ public static class KogamaDataHandler
 		int num = bp.ReadInt32();
 		for (int i = 0; i < num; i++)
 		{
-			Hashtable dataParameters = KogamaDataHandlerWrapper.GetDataParameters(serializeVersion, bp, KogamaDataType.ObjectLinks, readRuntimeData: false);
+			Dictionary<object, object> dataParameters = KogamaDataHandlerWrapper.GetDataParameters(serializeVersion, bp, KogamaDataType.ObjectLinks, readRuntimeData: false);
 			callBack(dataParameters, KogamaDataType.ObjectLinks);
+			HandleService();
 		}
 	}
 }

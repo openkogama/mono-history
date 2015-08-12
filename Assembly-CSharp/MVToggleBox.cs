@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using MV.WorldObject;
 
@@ -12,7 +11,7 @@ public class MVToggleBox : MVLogicObject
 
 	public override bool HasOutputConnector => true;
 
-	public MVToggleBox(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVToggleBox(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, "Prefabs/ToggleBoxObject", worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;

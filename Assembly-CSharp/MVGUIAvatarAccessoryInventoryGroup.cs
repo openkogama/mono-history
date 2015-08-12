@@ -1,5 +1,4 @@
 using System;
-using Localize;
 using UnityEngine;
 
 public class MVGUIAvatarAccessoryInventoryGroup : MVGUIAvatarAccessoryBaseGroup
@@ -14,7 +13,7 @@ public class MVGUIAvatarAccessoryInventoryGroup : MVGUIAvatarAccessoryBaseGroup
 
 	public OnViewItemActionDelegate OnViewItemMouseOverExit;
 
-	public TextSlotIndex emptyIndex = TextSlotIndex.Empty;
+	public string txt = string.Empty;
 
 	public Color textColor;
 
@@ -22,9 +21,9 @@ public class MVGUIAvatarAccessoryInventoryGroup : MVGUIAvatarAccessoryBaseGroup
 
 	public AvatarAccessoryInventoryCollection avatarAccessoryInventoryCollection { get; protected set; }
 
-	public override void Initialize()
+	public override void Initialize(AvatarAccessoryController avatarAccessoryController)
 	{
-		base.Initialize();
+		base.Initialize(avatarAccessoryController);
 		InitializeEmptyText();
 	}
 
@@ -47,16 +46,12 @@ public class MVGUIAvatarAccessoryInventoryGroup : MVGUIAvatarAccessoryBaseGroup
 
 	private void InitializeEmptyText()
 	{
-		//IL_0050: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0074: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ac: Unknown result type (might be due to invalid IL or missing references)
-		Object val = Object.Instantiate(Resources.Load("Prefabs/UX/Text"));
-		_emptyUIText = ((GameObject)((val is GameObject) ? val : null)).GetComponent<UXText>();
-		((Object)_emptyUIText).name = "EmptyText";
-		((Component)_emptyUIText).transform.parent = ((Component)this).transform;
-		((Component)_emptyUIText).transform.localScale = Vector3.one;
-		((Component)_emptyUIText).transform.localPosition = new Vector3(-3.5f, -1.5f, -0.01f);
-		_emptyUIText.Text = Localization.Instance.GetText(emptyIndex);
+		_emptyUIText = (UnityEngine.Object.Instantiate(Resources.Load("Prefabs/UX/Text")) as GameObject).GetComponent<UXText>();
+		_emptyUIText.name = "EmptyText";
+		_emptyUIText.transform.parent = transform;
+		_emptyUIText.transform.localScale = Vector3.one;
+		_emptyUIText.transform.localPosition = new Vector3(-3.5f, -1.5f, -0.01f);
+		_emptyUIText.Text = TM._(txt);
 		_emptyUIText.TextSize = UXTextSize.Medium;
 		_emptyUIText.Color = textColor;
 	}
@@ -132,13 +127,11 @@ public class MVGUIAvatarAccessoryInventoryGroup : MVGUIAvatarAccessoryBaseGroup
 
 	protected override UXCollectionViewItem InstansiateViewItem(IUXCollectionItem item)
 	{
-		//IL_0038: Unknown result type (might be due to invalid IL or missing references)
-		Object val = Object.Instantiate((Object)(object)inventoryViewItemPrefab);
-		GameObject val2 = (GameObject)(object)((val is GameObject) ? val : null);
-		val2.layer = LayerMask.NameToLayer("UXElement");
-		val2.transform.parent = ((Component)this).transform;
-		val2.transform.localScale = Vector3.one;
-		AvatarAccessoryInventoryViewItem component = val2.GetComponent<AvatarAccessoryInventoryViewItem>();
+		GameObject gameObject = UnityEngine.Object.Instantiate(inventoryViewItemPrefab);
+		gameObject.layer = LayerMask.NameToLayer("UXElement");
+		gameObject.transform.parent = transform;
+		gameObject.transform.localScale = Vector3.one;
+		AvatarAccessoryInventoryViewItem component = gameObject.GetComponent<AvatarAccessoryInventoryViewItem>();
 		component.Item = item;
 		component.PreviewItemsRoot = previewItemsRoot;
 		return component;

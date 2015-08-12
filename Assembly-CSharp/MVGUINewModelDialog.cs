@@ -50,20 +50,25 @@ public class MVGUINewModelDialog : UXViewScript
 	public override void OnShow()
 	{
 		base.OnShow();
-		SetMaterial(MVGameController.Instance.EditController.EditorStateMachine.CubeModelingStateMachine.CurrentMaterial);
+		MVMaterial material = MVGameController.Game.MaterialRepository.GetMaterial(MVGameController.EditController.EditorStateMachine.CubeModelingStateMachine.CurrentMaterialId);
+		if (material.IsDestructible)
+		{
+			MVGameController.EditController.EditorStateMachine.CubeModelingStateMachine.CurrentMaterialId = 21;
+		}
+		SetMaterial(MVGameController.EditController.EditorStateMachine.CubeModelingStateMachine.CurrentMaterial);
 		UXFullscreenColliderBox.Instance.AddBlockingObject(this);
 	}
 
 	private void SetMaterial(Material material)
 	{
-		smallCube.renderer.material = material;
-		mediumCube.renderer.material = material;
-		largeCube.renderer.material = material;
+		smallCube.GetComponent<Renderer>().material = material;
+		mediumCube.GetComponent<Renderer>().material = material;
+		largeCube.GetComponent<Renderer>().material = material;
 	}
 
 	private void CreateAndHide(float size)
 	{
-		MVGameController.Instance.EditController.EditorWorldObjectCreation.OnAddNewPrototype(string.Empty, size);
+		MVGameController.EditorController.EditorWorldObjectCreation.OnAddNewPrototype(string.Empty, size);
 		View.Hide();
 	}
 }

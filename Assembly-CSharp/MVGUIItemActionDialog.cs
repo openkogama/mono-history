@@ -26,7 +26,7 @@ public class MVGUIItemActionDialog : UXCustomDialogBox
 		}
 		if (mvItem.itemCategoryID != 1)
 		{
-			int num = MVGameController.Instance.Game.PlayerRepository.CountItemsWithOriginalID(mvItem.originalItemID);
+			int num = MVGameController.Game.PlayerRepository.CountItemsWithOriginalID(mvItem.originalItemID);
 			tabWindow.GetTab(2).SetVisible(num > 1);
 		}
 		if (_isInitialized)
@@ -37,14 +37,14 @@ public class MVGUIItemActionDialog : UXCustomDialogBox
 		{
 			if (tabPane.Visible)
 			{
-				MVGUIItemAction component = ((Component)tabPane.TabGroup).GetComponent<MVGUIItemAction>();
+				MVGUIItemAction component = tabPane.TabGroup.GetComponent<MVGUIItemAction>();
 				component.UpdateItemAction(mvItem);
 				component.OnActionCompleted = (MVGUIItemAction.OnActionCompletedDelegate)Delegate.Combine(component.OnActionCompleted, new MVGUIItemAction.OnActionCompletedDelegate(OnActionCompleted));
 			}
 		}
 		UXTabWindow uXTabWindow = tabWindow;
 		uXTabWindow.OnTabSelect = (UXTabWindow.OnTabSelectedDelegate)Delegate.Combine(uXTabWindow.OnTabSelect, new UXTabWindow.OnTabSelectedDelegate(OnTabSelected));
-		parentView = (UXView)(object)UXUtils.FindComponentInParents(typeof(UXView), ((Component)this).transform.parent);
+		parentView = (UXView)UXUtils.FindComponentInParents(typeof(UXView), transform.parent);
 		_isInitialized = true;
 	}
 
@@ -62,13 +62,11 @@ public class MVGUIItemActionDialog : UXCustomDialogBox
 	private void OnActionCompleted()
 	{
 		OnPositiveClose();
-		UXUtils.FindGUIObjectOfType<UXDialogFactory>().CloseDialog();
+		UXUtils.UXDialogFactory.CloseDialog();
 	}
 
 	public override Vector2 GetSize()
 	{
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		return Vector2.op_Implicit(tabWindow.Size);
+		return tabWindow.Size;
 	}
 }

@@ -1,55 +1,77 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using Localize;
+using System.Runtime.InteropServices;
+using System.Text;
 using MV.Common;
+using Newtonsoft.Json;
 using UnityEngine;
 
 public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerSubscriber
 {
-	public enum LoadMode
-	{
-		Overwrite,
-		Additive
-	}
-
 	public delegate void OnPostGameInitDelegate();
 
-	public OnPostGameInitDelegate OnPostGameInit;
+	private static bool quitHasBeenCalled;
 
-	private static bool catchUpdateLoopExceptions;
+	private static int reAuthTestTries = 3;
 
-	private static MVGameController _instance;
+	private static CustomBuildSettings customBuildSettings;
 
-	private GameSessionData gameSessionData;
+	private static TimeReward timeReward;
 
-	private HotKeys hotkeys;
+	private static string versionGuid;
 
-	public MVGUILoginHandler LoginForm;
+	private static int versionStreamingAssets = -1;
 
-	private TimeReward timeReward;
+	private static OverrideMaterials overrideMaterials;
 
-	public UpdateController UpdateController { get; private set; }
+	[SerializeField]
+	private MVGUILoginHandler LoginForm;
 
-	public static MVGameController Instance
+	public static OnPostGameInitDelegate OnPostGameInit;
+
+	public static bool LevelingTestMode;
+
+	private static bool OkToReAuth
 	{
 		get
 		{
-			if ((Object)(object)_instance == (Object)null)
+			reAuthTestTries--;
+			if (reAuthTestTries >= 0)
 			{
-				_instance = Object.FindObjectOfType(typeof(MVGameController)) as MVGameController;
+				return true;
 			}
-			if ((Object)(object)_instance == (Object)null)
-			{
-				Debug.LogWarning((object)"No instance of MVGameController found. Is the game shutting down?");
-			}
-			return _instance;
+			return false;
 		}
 	}
 
-	public MVNetworkGame Game { get; private set; }
+	public static string VersionGuid => versionGuid;
 
-	public MVWorldObjectClientManager WOCM
+	public static int VersionStreamingAssets => versionStreamingAssets;
+
+	public static bool UsingDevSessionData => customBuildSettings.ShowLogin || Application.isEditor;
+
+	public static MVNetworkGame Game { get; private set; }
+
+	public static GameSessionData GameSessionData => Game.gameSessionData;
+
+	public static MVGameMode GameMode => Game.gameSessionData.gameMode;
+
+	public static MVWorldObjectClientManager WOCM => Game.WorldObjectClientManager;
+
+	public static IAudioManager AudioManager { get; private set; }
+
+	public static BrowserComm BrowserComm { get; set; }
+
+	public static TimeReward TimeReward => timeReward;
+
+	public int Priority => InputHandlerPriority.GAME;
+
+	public static GizmoDrawer GizmoDrawer { get; private set; }
+
+	public static LevelLoader LevelLoader { get; private set; }
+
+	public static VersionNumber VersionNumber { get; private set; }
+
+	public static AIngameController IngameController
 	{
 		get
 		{
@@ -57,286 +79,239 @@ public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerS
 			{
 				return null;
 			}
-			return Game.WorldObjectClientManager;
+			return Game.IngameController;
 		}
 	}
 
-	public AIngameController IngameController { get; private set; }
+	public static AEditController EditController => Game.EditController;
 
-	public IAudioManager AudioManager { get; private set; }
+	public static CharacterEditorController CharacterEditorController => Game.CharacterEditorController;
 
-	public BrowserComm BrowserComm { get; set; }
+	public static EditorController EditorController => Game.EditorController;
 
-	public TimeReward TimeReward => timeReward;
-
-	public int Priority => InputHandlerPriority.GAME;
-
-	public bool GameJoined
-	{
-		get
-		{
-			if (Game == null)
-			{
-				return false;
-			}
-			return Game.JoinState == MVJoinState.Playing;
-		}
-	}
-
-	public MVGameMode GameMode
-	{
-		get
-		{
-			if (gameSessionData == null)
-			{
-				Debug.LogError((object)"gammeSessionData not set yet!");
-				return MVGameMode.Play;
-			}
-			return gameSessionData.GameMode;
-		}
-	}
-
-	public int PlanetID
-	{
-		get
-		{
-			if (gameSessionData == null)
-			{
-				Debug.LogError((object)"gammeSessionData not set yet!");
-				return -1;
-			}
-			return gameSessionData.PlanetID;
-		}
-	}
-
-	public int ProfileID
-	{
-		get
-		{
-			if (gameSessionData == null)
-			{
-				Debug.LogError((object)"gammeSessionData not set yet!");
-				return -1;
-			}
-			return gameSessionData.ProfileID;
-		}
-	}
-
-	public bool IsTouristSession
-	{
-		get
-		{
-			if (gameSessionData == null)
-			{
-				Debug.LogError((object)"gammeSessionData not set yet!");
-				return true;
-			}
-			return gameSessionData.ProfileID <= 0;
-		}
-	}
-
-	public bool IsEmbedded => gameSessionData.Embedded;
-
-	public GameSessionData GameSessionData => gameSessionData;
-
-	public AEditController EditController
-	{
-		get
-		{
-			if (IngameController != null && IngameController is AEditController)
-			{
-				return IngameController as AEditController;
-			}
-			return null;
-		}
-	}
-
-	public CharacterEditorController CharacterEditorController
-	{
-		get
-		{
-			if (IngameController != null && GameMode == MVGameMode.CharacterEditor)
-			{
-				return IngameController as CharacterEditorController;
-			}
-			return null;
-		}
-	}
-
-	public EditorController EditorController
-	{
-		get
-		{
-			if (IngameController != null && GameMode == MVGameMode.Edit)
-			{
-				return IngameController as EditorController;
-			}
-			return null;
-		}
-	}
-
-	public PlayController PlayController
-	{
-		get
-		{
-			if (IngameController != null && GameMode == MVGameMode.Play)
-			{
-				return IngameController as PlayController;
-			}
-			return null;
-		}
-	}
-
-	public static string GetIPFromDevServerTarget(DevServerTarget devTarget)
-	{
-		return devTarget switch
-		{
-			DevServerTarget.Dev => "95.211.176.21:5055", 
-			DevServerTarget.Test => "54.228.103.157:5055", 
-			DevServerTarget.RC => "95.211.176.46:5055", 
-			DevServerTarget.Vault => "95.211.176.62:5055", 
-			DevServerTarget.NewTest => "54.228.103.157:5055", 
-			DevServerTarget.Local => "127.0.0.1:5055", 
-			_ => string.Empty, 
-		};
-	}
-
-	private void OnApplicationQuit()
-	{
-		UXUtils.FindObjectOfType<MVInputHandlerPrioritizer>().Unregister(_instance);
-		_instance = null;
-	}
+	public static PlayControllerBase PlayController => Game.PlayController;
 
 	private void Awake()
 	{
-		DebugLogHandler.Init();
-		BrowserComm = UXUtils.FindObjectOfType<BrowserComm>();
-		AudioEventHandler.Awake();
+		GizmoDrawer = GetComponent<GizmoDrawer>();
+		LevelLoader = GetComponent<LevelLoader>();
+		AudioManager = GetComponent<AudioManager>();
+		BrowserComm = GetComponentInChildren<BrowserComm>();
+		overrideMaterials = GetComponentInChildren<OverrideMaterials>();
 		timeReward = new TimeReward();
-	}
-
-	private T FindOrLogError<T>(string errorMsg) where T : MonoBehaviour
-	{
-		Object val = Object.FindObjectOfType(typeof(T));
-		if (val == (Object)null)
-		{
-			Debug.LogError((object)errorMsg);
-			return (T)(object)null;
-		}
-		return (T)(object)((val is T) ? val : null);
-	}
-
-	private void ReceivedWebParamsCallback(Dictionary<string, object> gameSessionData)
-	{
-		Debug.Log((object)("WEBPARAMS: " + gameSessionData));
-		StartGame(new GameSessionData(gameSessionData));
-	}
-
-	public void StartGame(GameSessionData gameSessionData)
-	{
-		this.gameSessionData = gameSessionData;
-		Localization.Instance.CultureName = gameSessionData.Language.Replace('_', '-');
-		LoginForm.View.Hide();
-		Game = new MVNetworkGame();
-		Game.Join();
+		DebugLogHandler.Init();
+		CheatHandling.Init();
+		AudioEventHandler.Init();
+		GetComponent<MVInputHandlerPrioritizer>().Register(this);
+		InitVersion();
+		InitUpdateController();
+		UnityEngine.Object.DontDestroyOnLoad(gameObject);
+		Application.runInBackground = true;
 	}
 
 	private void Start()
 	{
-		UpdateController = new UpdateController();
-		UpdateController.AddFixedUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
-		UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
-		UXUtils.FindObjectOfType<MVInputHandlerPrioritizer>().Register(this);
-		AudioManager = FindOrLogError<AudioManager>("AudioManager must be present in scene!");
-		Object.DontDestroyOnLoad((Object)(object)((Component)this).gameObject);
-		Application.runInBackground = true;
-		Localization.Instance.CultureName = "en-US";
-		CustomBuildSettings customBuildSettings = Resources.Load("Prefabs/CustomBuildSettings", typeof(CustomBuildSettings)) as CustomBuildSettings;
-		bool showLogin = customBuildSettings.ShowLogin;
-		if (Application.isEditor || showLogin)
+		customBuildSettings = Resources.Load("Prefabs/CustomBuildSettings", typeof(CustomBuildSettings)) as CustomBuildSettings;
+		bool flag = Application.isEditor || customBuildSettings.ShowLogin;
+		if (flag)
 		{
 			LoginForm.View.Show();
 		}
-		else
+		InitStandAlone(flag);
+	}
+
+	private void Update()
+	{
+		UpdateController.Update();
+	}
+
+	private void FixedUpdate()
+	{
+		UpdateController.FixedUpdate();
+	}
+
+	private void LateUpdate()
+	{
+		if (IngameController != null && IngameController.IsInitialized)
 		{
-			BrowserComm.ToWeb.ExternalCall("sendPlayerParams", ReceivedWebParamsCallback);
+			Game.World.WorldInventory.LateUpdate();
+			Game.CameraController.UpdateCamera();
 		}
 	}
 
-	private void OnLevelWasLoaded(int level)
+	private void OnApplicationQuit()
 	{
-		Debug.Log((object)("OnLevelWasLoaded: " + level + " Application.loadedLevelName: " + Application.loadedLevelName));
-		if (!(Application.loadedLevelName == "UnloadPlanet"))
+		Debug.Log("On application quit");
+		if (Game != null && Game.Peer != null && Game.ConnState == MVConnState.Joined)
+		{
+			Game.Peer.Disconnect();
+		}
+		if (GameSessionData != null)
+		{
+			SessionLocatorPing.LeaveSession();
+		}
+		CleanUp();
+	}
+
+	public void UpdateControllerUpdate()
+	{
+		AsyncWWWManager.Update();
+		if (Game == null)
 		{
 			return;
 		}
-		Debug.Log((object)"Scene loaded");
-		if (!Application.isWebPlayer)
+		try
 		{
-			if ((Object)(object)LoginForm != (Object)null)
-			{
-				LoginForm.View.Show();
-			}
-			else
-			{
-				Debug.LogError((object)"loginForm was null!");
-			}
+			UpdateGame();
 		}
-		else
+		catch (Exception ex)
 		{
-			if ((Object)(object)LoginForm != (Object)null)
+			if (Application.isEditor)
 			{
-				LoginForm.View.Hide();
+				throw;
 			}
-			else
-			{
-				Debug.LogError((object)"loginForm was null!");
-			}
-			UXScreen uXScreen = UXUtils.FindGUIObjectOfType<UXScreen>();
-			if ((Object)(object)uXScreen != (Object)null)
-			{
-				if (uXScreen.Fullscreen)
-				{
-					uXScreen.Fullscreen = false;
-				}
-			}
-			else
-			{
-				Debug.LogError((object)"UXScreen was null!");
-			}
+			Debug.LogError("Exception in Update: " + ex.ToString());
 		}
-		Game = null;
-		GC.Collect();
 	}
 
-	public void LoadLevel(string levelName, LoadMode loadMode, Action callback)
+	public void UpdateControllerFixedUpdate()
 	{
-		Debug.Log((object)("Wait load level " + levelName + ", frame " + Time.frameCount));
-		((MonoBehaviour)this).StartCoroutine(WaitForLevel(levelName, loadMode, callback));
 	}
 
-	private IEnumerator WaitForLevel(string levelName, LoadMode loadMode, Action callback)
+	public static void StartGame(GameSessionData gameSessionData)
 	{
-		while (!Application.CanStreamedLevelBeLoaded(levelName))
+		Game = new MVNetworkGame(gameSessionData);
+		if (!Game.Join())
 		{
-			yield return null;
+			Debug.LogError("Failed to connect");
 		}
-		Debug.Log((object)("Start load level " + levelName + ", frame " + Time.frameCount));
-		AsyncOperation asyncOperation;
-		switch (loadMode)
+	}
+
+	public static bool TryReauth()
+	{
+		if (Game != null && OkToReAuth)
 		{
-		default:
-			yield break;
-		case LoadMode.Overwrite:
-			asyncOperation = Application.LoadLevelAsync(levelName);
-			break;
-		case LoadMode.Additive:
-			asyncOperation = Application.LoadLevelAdditiveAsync(levelName);
-			break;
+			Game.Peer.Disconnect();
+			AsyncWWWManager.WWWRequest(new GetRequest(Game.gameSessionData.reauthURL, OnReceivedWebParametersFromHttpRequest));
+			return true;
 		}
-		yield return asyncOperation;
-		Debug.Log((object)("Finished load level " + levelName + ", frame " + Time.frameCount));
-		callback();
+		return false;
+	}
+
+	public static void ApplicationQuit(QuitBaseCallback applicationQuitObject)
+	{
+		Debug.Log("Application quit");
+		if (!quitHasBeenCalled)
+		{
+			quitHasBeenCalled = true;
+			applicationQuitObject?.OnQuit();
+			Application.Quit();
+		}
+	}
+
+	public static void RegisterOverrideMaterials()
+	{
+		if (Application.isEditor)
+		{
+			overrideMaterials.Register();
+		}
+	}
+
+	public bool HandleInput()
+	{
+		if (Game != null && Game.JoinState == MVJoinState.Playing && IngameController.IsInitialized)
+		{
+			IngameController.HandleInput();
+		}
+		return false;
+	}
+
+	private void InitVersion()
+	{
+		GameObject gameObject = UnityEngine.Object.Instantiate(Resources.Load("Prefabs/Version Number")) as GameObject;
+		gameObject.transform.parent = transform;
+		VersionNumber = gameObject.GetComponent<VersionNumber>();
+		versionGuid = VersionNumber.versionGuid;
+		versionStreamingAssets = VersionNumber.versionStreamingAssets;
+	}
+
+	private void InitUpdateController()
+	{
+		UpdateController.AddFixedUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
+		UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
+	}
+
+	private static void ReceivedWebParamsCallback(bool ok, string data)
+	{
+		if (ok)
+		{
+			Debug.Log("WEBPARAMS: " + data);
+			GameSessionData gameSessionData = JsonConvert.DeserializeObject<GameSessionData>(data);
+			Debug.Log(gameSessionData.pingURL);
+			Debug.Log(gameSessionData.disconnectURL);
+			StartGame(gameSessionData);
+		}
+	}
+
+	private static void InitWebPlayer(bool developmentMode)
+	{
+		BrowserComm.enableExternalCall = !developmentMode;
+		UXScreen uXScreen = UXUtils.FindGUIObjectOfType<UXScreen>();
+		uXScreen.Init(Screen.width, Screen.height);
+		if (!developmentMode)
+		{
+			BrowserComm.ToJavaScript.GetBrowserVersion();
+			BrowserComm.ToJavaScript.ExternalCall("sendPlayerParams", ReceivedWebParamsCallback);
+		}
+	}
+
+	private static void InitStandAlone(bool developmentMode)
+	{
+		DeleteScreenPlayerPrefs();
+		BrowserComm.enableBrowserRequest = !developmentMode;
+		UXScreen uXScreen = UXUtils.FindGUIObjectOfType<UXScreen>();
+		uXScreen.Fullscreen = false;
+		Screen.SetResolution(940, 482, fullscreen: false);
+		uXScreen.Init(940, 482);
+		SetPosition(0, 0, Screen.width, Screen.height);
+		if (developmentMode)
+		{
+			return;
+		}
+		string[] commandLineArgs = Environment.GetCommandLineArgs();
+		string text = string.Empty;
+		string[] array = commandLineArgs;
+		foreach (string text2 in array)
+		{
+			string[] array2 = text2.Split(new string[1] { "kogamaPackage:" }, StringSplitOptions.None);
+			if (array2.Length == 2)
+			{
+				text += array2[1];
+			}
+		}
+		Debug.Log("combined " + text);
+		byte[] bytes = Convert.FromBase64String(text);
+		string text3 = Encoding.UTF8.GetString(bytes);
+		Debug.Log(text3);
+		AsyncWWWManager.WWWRequest(new GetRequest(text3, OnReceivedWebParametersFromHttpRequest));
+	}
+
+	[DllImport("user32.dll")]
+	private static extern bool SetWindowPos(IntPtr hwnd, int hWndInsertAfter, int x, int Y, int cx, int cy, int wFlags);
+
+	[DllImport("user32.dll")]
+	public static extern IntPtr FindWindow(string className, string windowName);
+
+	public static void SetPosition(int x, int y, int resX = 0, int resY = 0)
+	{
+		SetWindowPos(FindWindow(null, "KoGaMa"), 0, x, y, resX, resY, (resX * resY == 0) ? 1 : 0);
+	}
+
+	private static void OnReceivedWebParametersFromHttpRequest(WWW www)
+	{
+		string text = www.text;
+		Debug.Log(text);
+		ReceivedWebParamsCallback(ok: true, text);
 	}
 
 	private void UpdateGame()
@@ -344,171 +319,36 @@ public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerS
 		Game.Update();
 		if (Game.JoinState == MVJoinState.Playing)
 		{
-			if (IngameController == null)
+			if (!IngameController.IsInitialized)
 			{
-				Debug.Log((object)("JoinState: " + Game.JoinState));
-				InitializePlayingState();
 				IngameController.Initialize();
-				IngameController.ShowBriefing();
 			}
 			IngameController.Update();
-		}
-	}
-
-	private void Update()
-	{
-		if (UpdateController != null)
-		{
-			UpdateController.Update();
-		}
-	}
-
-	public void UpdateControllerUpdate()
-	{
-		if (Game != null)
-		{
-			if (Game.ConnState == MVConnState.Exception || Game.ConnState == MVConnState.TimeoutDisconnect || Game.ConnState == MVConnState.SendError || Game.ConnState == MVConnState.Disconnected)
-			{
-				Debug.Log((object)("Game.ConnState " + Game.ConnState));
-				try
-				{
-					TextSlotIndex messageIndex = TextSlotIndex.ConnectionLostMessage;
-					if (Game.ConnState == MVConnState.Exception)
-					{
-						messageIndex = TextSlotIndex.ConnectionExceptionMessage;
-					}
-					else if (Game.ConnState == MVConnState.TimeoutDisconnect)
-					{
-						messageIndex = TextSlotIndex.ConnectionTimeoutMessage;
-					}
-					else if (Game.ConnState == MVConnState.SendError)
-					{
-						messageIndex = TextSlotIndex.ConnectionLostMessage;
-					}
-					UXUtils.FindGUIObjectOfType<UXDialogFactory>().CreateDialog(messageIndex, TextSlotIndex.ErrorHeadline).AddPositiveButton(TextSlotIndex.Confirm)
-						.AddNegativeButton(TextSlotIndex.Reject)
-						.SetOnResultCallback(OnReconnectDialogResult)
-						.Show();
-				}
-				catch (Exception ex)
-				{
-					Debug.LogError((object)ex);
-				}
-				Game.ConnState = MVConnState.HandlingException;
-				Debug.Log((object)Game.ConnState);
-				CleanUp();
-			}
-			else if (catchUpdateLoopExceptions)
-			{
-				try
-				{
-					UpdateGame();
-				}
-				catch (Exception ex2)
-				{
-					Debug.LogWarning((object)("Exception in Update: " + ex2.ToString()));
-				}
-			}
-			else
-			{
-				UpdateGame();
-			}
 		}
 		AudioEventHandler.Update();
 	}
 
-	public void OnReconnectDialogResult(UXDialogBox dialog)
-	{
-		if ((Object)(object)BrowserComm != (Object)null)
-		{
-			if (dialog.DialogResult == UXDialogResult.Positive)
-			{
-				BrowserComm.ToWeb.ExternalCall("refresh");
-			}
-			else
-			{
-				BrowserComm.ToWeb.ExternalCall("goBack");
-			}
-		}
-		else
-		{
-			Debug.LogError((object)"BrowserComm is null");
-		}
-	}
-
-	public bool HandleInput()
-	{
-		if (Game != null && Game.JoinState == MVJoinState.Playing && IngameController != null)
-		{
-			IngameController.HandleInput();
-			hotkeys.HandleInput();
-		}
-		return false;
-	}
-
-	public void LateUpdate()
-	{
-		if (IngameController != null)
-		{
-			IngameController.LateUpdate();
-		}
-	}
-
-	private void FixedUpdate()
-	{
-		if (UpdateController != null)
-		{
-			UpdateController.FixedUpdate();
-		}
-	}
-
-	public void UpdateControllerFixedUpdate()
-	{
-		if (IngameController != null)
-		{
-			IngameController.FixedUpdate();
-		}
-	}
-
-	private void InitializePlayingState()
-	{
-		hotkeys = new HotKeys();
-		switch (GameMode)
-		{
-		case MVGameMode.Play:
-			IngameController = new PlayController();
-			break;
-		case MVGameMode.Edit:
-			IngameController = new EditorController();
-			break;
-		case MVGameMode.CharacterEditor:
-			IngameController = new CharacterEditorController();
-			break;
-		}
-	}
-
 	private void CleanUp()
 	{
-		if (IngameController != null)
+		try
 		{
-			IngameController.Deinitialize();
+			Game.Cleanup();
+			Game = null;
+			UpdateController.Clear();
+			UnityEngine.Object.Destroy(gameObject);
+			DeleteScreenPlayerPrefs();
+			GC.Collect();
 		}
-		if (Game.Peer != null)
+		catch (Exception ex)
 		{
-			Game.Peer.StopThread();
+			Debug.Log("From clean up " + ex.Message);
 		}
-		Game.Cleanup();
-		Game = null;
-		IngameController = null;
-		hotkeys = null;
-		GC.Collect();
-		Application.LoadLevel("UnloadPlanet");
-		UpdateController = null;
 	}
 
-	public void LeaveGame()
+	private static void DeleteScreenPlayerPrefs()
 	{
-		WOCM.AvatarLocal.GameObject.SetActiveRecursively(false);
-		Game.Leave();
+		PlayerPrefs.DeleteKey("Screenmanager Is Fullscreen mode");
+		PlayerPrefs.DeleteKey("Screenmanager Resolution Height");
+		PlayerPrefs.DeleteKey("Screenmanager Resolution Width");
 	}
 }

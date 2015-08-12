@@ -6,6 +6,6 @@ public class AudioScriptTestA : AudioScript
 
 	public void TestPrint()
 	{
-		MonoBehaviour.print((object)"TestPrint: A");
+		MonoBehaviour.print("TestPrint: A");
 	}
 }

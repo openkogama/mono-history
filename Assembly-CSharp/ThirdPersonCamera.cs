@@ -1,37 +1,45 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class ThirdPersonCamera : PlaymodeCamera
 {
+	public override CameraType CameraType => CameraType.ThirdPerson;
+
 	public override void HandleInput(MVCameraController cameraController)
 	{
 		base.HandleInput(cameraController);
 		UpdateTargetRotation();
 	}
 
-	private void OnDrawGizmos()
+	public override void SetDefaultSettings()
 	{
+		distanceToAvatar = 5f;
+	}
+
+	public override void UpdateFromCameraSettings(Dictionary<object, object> data)
+	{
+		distanceToAvatar = (float)data["distanceToAvatar"];
 	}
 
 	private void UpdateTargetRotation()
 	{
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b9: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00bf: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c5: Unknown result type (might be due to invalid IL or missing references)
-		Vector3 eulerAngles = targetRot.eulerAngles;
+		Vector3 eulerAngles = targetRot.EulerAngles;
 		float num = 0f - eulerAngles.x;
 		float num2 = eulerAngles.y;
-		autoRotate = Screen.lockCursor;
+		autoRotate = Cursor.lockState == CursorLockMode.Locked;
 		if (autoRotate && (ignoreInputTypes & IgnoreInputTypes.MouseMovement) == 0)
 		{
 			num2 += MVInputWrapper.GetAxis("Mouse X") * mouseSensitivity;
 			num += MVInputWrapper.GetAxis("Mouse Y") * mouseSensitivity;
 			aroundYInertia = aroundYInertiaMouseControlled;
 		}
-		num = ((!(num < -180f)) ? Mathf.Clamp(num, 0f - maximumY, 1000f) : Mathf.Clamp(num, -1000f, -360f - minimumY));
+		num = MathFunctions.NormalizeAngle(num);
+		if (num > 180f)
+		{
+			num -= 360f;
+		}
+		num = Mathf.Clamp(num, minimumY, maximumY);
 		eulerAngles = new Vector3(0f - num, num2, 0f);
-		targetRot = Quaternion.Euler(eulerAngles);
+		targetRot.SetTargetRotation(eulerAngles.x, eulerAngles.y);
 	}
 }

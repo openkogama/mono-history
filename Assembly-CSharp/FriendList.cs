@@ -35,7 +35,7 @@ public class FriendList
 
 	public void AddFriend(int friendID, int profileID, int friendProfileID, FriendStatus status)
 	{
-		if (profileID == MVGameController.Instance.Game.LocalPlayer.ProfileID)
+		if (profileID == MVGameController.Game.LocalPlayer.ProfileID)
 		{
 			if (!friends.ContainsKey(friendID))
 			{
@@ -43,7 +43,7 @@ public class FriendList
 				friends.Add(friendID, value);
 			}
 		}
-		else if (friendProfileID == MVGameController.Instance.Game.LocalPlayer.ProfileID && !pending.ContainsKey(friendID))
+		else if (friendProfileID == MVGameController.Game.LocalPlayer.ProfileID && !pending.ContainsKey(friendID))
 		{
 			Friend value2 = new Friend(friendID, profileID, status);
 			pending.Add(friendID, value2);
@@ -56,7 +56,7 @@ public class FriendList
 
 	public void UpdateFriend(int friendID, int profileID, FriendStatus status)
 	{
-		if (profileID == MVGameController.Instance.Game.LocalPlayer.ProfileID)
+		if (profileID == MVGameController.Game.LocalPlayer.ProfileID)
 		{
 			if (friends.ContainsKey(friendID))
 			{
@@ -71,7 +71,7 @@ public class FriendList
 			}
 			else
 			{
-				Debug.LogError((object)"Tried updating friend that doesnt exist");
+				Debug.LogError("Tried updating friend that doesnt exist");
 			}
 		}
 		else
@@ -79,7 +79,7 @@ public class FriendList
 			RemoveFromPendingByProfileID(profileID);
 			if (status != FriendStatus.Deleted)
 			{
-				AddFriend(friendID, MVGameController.Instance.Game.LocalPlayer.ProfileID, profileID, status);
+				AddFriend(friendID, MVGameController.Game.LocalPlayer.ProfileID, profileID, status);
 			}
 		}
 		if (OnFriendListUpdated != null)
@@ -105,6 +105,19 @@ public class FriendList
 			return pending.First((KeyValuePair<int, Friend> f) => f.Value.profileID == profileID).Value;
 		}
 		return null;
+	}
+
+	public Dictionary<int, MVPlayer> GetOnlineFriends()
+	{
+		Dictionary<int, MVPlayer> dictionary = new Dictionary<int, MVPlayer>();
+		foreach (KeyValuePair<int, MVPlayer> player in MVGameController.Game.Players)
+		{
+			if (IsFriend(player.Value.ProfileID))
+			{
+				dictionary.Add(player.Key, player.Value);
+			}
+		}
+		return dictionary;
 	}
 
 	private void RemoveFromPendingByProfileID(int profileID)

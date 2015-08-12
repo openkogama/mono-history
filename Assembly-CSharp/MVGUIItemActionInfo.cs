@@ -29,7 +29,7 @@ public class MVGUIItemActionInfo : MVGUIItemAction
 	public override void UpdateItemAction(MVItem item)
 	{
 		base.UpdateItemAction(item);
-		nameText.Text = item.name;
+		nameText.Text = ItemNameToLocalizedString.GetToolTipTextFromItemName(item.name);
 		silverPriceText.Text = string.Empty + item.priceSilver;
 		goldPriceText.Text = string.Empty + item.priceGold;
 		if (item.description != null)
@@ -47,39 +47,36 @@ public class MVGUIItemActionInfo : MVGUIItemAction
 	protected override void Initialize()
 	{
 		base.Initialize();
-		UXGroup component = ((Component)this).GetComponent<UXGroup>();
+		UXGroup component = GetComponent<UXGroup>();
 		component.OnShowGroup = (UXGroup.OnGroupEventDelegate)Delegate.Combine(component.OnShowGroup, (UXGroup.OnGroupEventDelegate)(() =>
 		{
-			if ((Object)(object)preview != (Object)null)
+			if (preview != null)
 			{
 				preview.ItemImagePlane.SetVisible(visible: true);
 			}
-			((Component)viewItemRoot).gameObject.SetActiveRecursively(true);
+			viewItemRoot.gameObject.SetActive(value: true);
 			descriptionText.SetVisible(visible: true);
 			descriptionSlider.SetVisible(showDescriptionSlider);
 		}));
-		UXGroup component2 = ((Component)this).GetComponent<UXGroup>();
+		UXGroup component2 = GetComponent<UXGroup>();
 		component2.OnHideGroup = (UXGroup.OnGroupEventDelegate)Delegate.Combine(component2.OnHideGroup, (UXGroup.OnGroupEventDelegate)(() =>
 		{
-			if ((Object)(object)preview != (Object)null)
+			if (preview != null)
 			{
 				preview.ItemImagePlane.SetVisible(visible: false);
 			}
-			((Component)viewItemRoot).gameObject.SetActiveRecursively(false);
+			viewItemRoot.gameObject.SetActive(value: false);
 			descriptionText.SetVisible(visible: false);
 		}));
 	}
 
 	private void BuildViewItem(MVItem item)
 	{
-		//IL_0056: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006b: Unknown result type (might be due to invalid IL or missing references)
-		Object val = Object.Instantiate(Resources.Load("Prefabs/GUI/ShopPreview/ItemShopPreview"));
-		preview = ((GameObject)((val is GameObject) ? val : null)).GetComponent<MVGUIItemShopPreview>();
+		preview = (UnityEngine.Object.Instantiate(Resources.Load("Prefabs/GUI/ShopPreview/ItemShopPreview")) as GameObject).GetComponent<MVGUIItemShopPreview>();
 		preview.BuildItemShopPreview(item, 16f, 16f);
-		((Component)preview).transform.parent = viewItemRoot;
-		((Component)preview).transform.localPosition = Vector3.zero;
-		((Component)preview).transform.localScale = Vector3.one;
+		preview.transform.parent = viewItemRoot;
+		preview.transform.localPosition = Vector3.zero;
+		preview.transform.localScale = Vector3.one;
 	}
 
 	private void InitializeSlider()
@@ -108,8 +105,8 @@ public class MVGUIItemActionInfo : MVGUIItemAction
 	private void UpdateSliderSize()
 	{
 		float num = descriptionTextBoxHeight / descriptionText.TextHeight;
-		float num2 = ((!(descriptionText.TextHeight < descriptionTextBoxHeight)) ? (num * descriptionTextBoxHeight) : descriptionTextBoxHeight);
-		descriptionSlider.SetSliderSize(1f, Mathf.Clamp(num2, 2f, descriptionTextBoxHeight));
+		float value = ((!(descriptionText.TextHeight < descriptionTextBoxHeight)) ? (num * descriptionTextBoxHeight) : descriptionTextBoxHeight);
+		descriptionSlider.SetSliderSize(1f, Mathf.Clamp(value, 2f, descriptionTextBoxHeight));
 		if (descriptionText.TextHeight < descriptionTextBoxHeight)
 		{
 			UpdateText(0f);
@@ -118,8 +115,6 @@ public class MVGUIItemActionInfo : MVGUIItemAction
 
 	private void UpdateText(float textOffset)
 	{
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0011: Unknown result type (might be due to invalid IL or missing references)
-		((Component)descriptionOffset).transform.localPosition = Vector3.up * textOffset;
+		descriptionOffset.transform.localPosition = Vector3.up * textOffset;
 	}
 }

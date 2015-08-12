@@ -1,18 +1,8 @@
 public abstract class AvatarMode
 {
-	public virtual void Activate()
-	{
-	}
+	public abstract void Activate();
 
-	public virtual void FixedUpdate(MovementMap movementMap)
-	{
-	}
+	public abstract void FixedUpdate(MovementMap movementMap);
 
-	public virtual void FrameUpdate(MovementMap movementMap)
-	{
-	}
-
-	public virtual void Deactivate()
-	{
-	}
+	public abstract void FrameUpdate();
 }

@@ -20,5 +20,7 @@ public enum PlayerKilledByType : byte
 	Ghost,
 	AdvancedGhost,
 	SixShooter,
-	DoubleSixShooter
+	DoubleSixShooter,
+	ThrowingStar,
+	MultiThrowingStar
 }

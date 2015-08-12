@@ -1,56 +1,82 @@
 using System.Collections.Generic;
 using MV.Common;
-using UnityEngine;
 
 public class GameSessionData
 {
-	private readonly string ip = string.Empty;
+	public string serverIP = string.Empty;
 
-	private readonly int profileID = -1;
+	public int profileID = -1;
 
-	private readonly int planetID = -1;
+	public int planetID = -1;
 
-	private readonly MVGameMode gameMode = MVGameMode.Play;
+	public MVGameMode gameMode = MVGameMode.Play;
 
-	private readonly string language = string.Empty;
+	public string language = string.Empty;
 
-	private readonly string planetName = string.Empty;
+	public string planetName = string.Empty;
 
-	private readonly bool embedded;
+	public bool embedded;
 
-	private readonly string profileToken = string.Empty;
+	public string token = string.Empty;
 
-	public string Ip => ip;
+	public string newToken = "newProfileTokenNotSet";
 
-	public int ProfileID => profileID;
+	public string newPlanetName = "game-server-test";
 
-	public int PlanetID => planetID;
+	public string pingURL = string.Empty;
 
-	public MVGameMode GameMode => gameMode;
+	public string disconnectURL = string.Empty;
 
-	public string Language => language;
+	public string gameRewardURL = string.Empty;
 
-	public string PlanetName => planetName;
+	public string convertToSilverURL = string.Empty;
 
-	public bool Embedded => embedded;
+	public string gamePublishedURL = string.Empty;
 
-	public string ProfileToken => profileToken;
+	public string purchaseGoldURL = string.Empty;
+
+	public string loginURL = string.Empty;
+
+	public string signupURL = string.Empty;
+
+	public string idleURL = string.Empty;
+
+	public string disconnectedURL = string.Empty;
+
+	public string region = "RegionNotDefined";
+
+	public string ezKey = "z6U6gACPMA1m8zg5";
+
+	public string reauthURL = string.Empty;
+
+	public string gameRewardDataURL = string.Empty;
+
+	public GameSessionData()
+	{
+	}
 
 	public GameSessionData(Dictionary<string, object> gameSessionData)
 	{
-		ip = (string)gameSessionData["serverIP"];
+		serverIP = (string)gameSessionData["serverIP"];
 		profileID = (int)gameSessionData["profileID"];
 		planetID = (int)gameSessionData["planetID"];
 		gameMode = (MVGameMode)(int)gameSessionData["gameMode"];
 		language = (string)gameSessionData["language"];
 		embedded = (bool)gameSessionData["embedded"];
-		profileToken = (string)gameSessionData["token"];
-		Debug.Log((object)("embedded " + embedded));
+		token = (string)gameSessionData["token"];
+		if (gameSessionData.ContainsKey("newToken"))
+		{
+			newToken = (string)gameSessionData["newToken"];
+		}
+		if (gameSessionData.ContainsKey("newPlanetName"))
+		{
+			newPlanetName = (string)gameSessionData["newPlanetName"];
+		}
 		if (gameSessionData.ContainsKey("planetName"))
 		{
 			planetName = (string)gameSessionData["planetName"];
 		}
-		if (GameMode == MVGameMode.CharacterEditor)
+		if (gameMode == MVGameMode.CharacterEditor)
 		{
 			planetID = -1;
 		}

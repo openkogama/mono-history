@@ -8,7 +8,7 @@ public class ScrollableBoxData : DialogData
 	public override void ApplyDataToElement(GameObject element)
 	{
 		UXScrollableBox component = element.GetComponent<UXScrollableBox>();
-		if ((Object)(object)component == (Object)null)
+		if (component == null)
 		{
 			return;
 		}

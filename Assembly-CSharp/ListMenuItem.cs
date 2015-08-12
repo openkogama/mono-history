@@ -22,11 +22,10 @@ public abstract class ListMenuItem : MonoBehaviour
 
 	protected virtual void Initialize()
 	{
-		//IL_0024: Unknown result type (might be due to invalid IL or missing references)
 		InitializeMouseOverObject();
-		BoxCollider val = ((Component)this).gameObject.AddComponent<BoxCollider>();
-		val.size = new Vector3(width, GetHeight(), 0.1f);
-		UXMouseClickObject uXMouseClickObject = ((Component)this).gameObject.AddComponent<UXMouseClickObject>();
+		BoxCollider boxCollider = gameObject.AddComponent<BoxCollider>();
+		boxCollider.size = new Vector3(width, GetHeight(), 0.1f);
+		UXMouseClickObject uXMouseClickObject = gameObject.AddComponent<UXMouseClickObject>();
 		uXMouseClickObject.OnMouseDown = (UXMouseClickObject.OnMouseDownDelegate)Delegate.Combine(uXMouseClickObject.OnMouseDown, (UXMouseClickObject.OnMouseDownDelegate)((UXMouseClickObject uxClickObject, Vector3 mousePos) =>
 		{
 			mouseDown = true;
@@ -44,22 +43,15 @@ public abstract class ListMenuItem : MonoBehaviour
 
 	private void InitializeMouseOverObject()
 	{
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0010: Expected Obj, but got Unknown
-		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0046: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0086: Expected Obj, but got Unknown
 		mouseOverObject = new GameObject("MouseOver");
-		mouseOverObject.transform.parent = ((Component)this).transform;
+		mouseOverObject.transform.parent = transform;
 		mouseOverObject.transform.localPosition = Vector3.zero;
 		mouseOverObject.transform.localScale = Vector3.one;
 		mouseOverObject.transform.localRotation = Quaternion.identity;
-		MeshRenderer val = mouseOverObject.AddComponent<MeshRenderer>();
-		((Renderer)val).material = (Material)Resources.Load("Materials/UX/ListMenu/MouseOver");
-		MeshFilter val2 = mouseOverObject.AddComponent<MeshFilter>();
-		val2.mesh = UXUtils.BuildPlaneMesh(width, GetHeight(), "MenuItemMouseOverMesh");
+		MeshRenderer meshRenderer = mouseOverObject.AddComponent<MeshRenderer>();
+		meshRenderer.material = (Material)Resources.Load("Materials/UX/ListMenu/MouseOver");
+		MeshFilter meshFilter = mouseOverObject.AddComponent<MeshFilter>();
+		UXUtils.BuildPlaneMesh(meshFilter.mesh, width, GetHeight(), "MenuItemMouseOverMesh");
 	}
 
 	public abstract float GetHeight();
@@ -92,6 +84,6 @@ public abstract class ListMenuItem : MonoBehaviour
 
 	protected virtual void UpdateMouseOver()
 	{
-		mouseOverObject.active = mouseOver;
+		mouseOverObject.SetActive(mouseOver);
 	}
 }

@@ -1,6 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using Localize;
 using UnityEngine;
 
 public class MVTeleporter : MVLogicObject
@@ -17,33 +15,17 @@ public class MVTeleporter : MVLogicObject
 
 	private MVTeleporter target;
 
-	public override Vector3 InputConnectorOffset
-	{
-		get
-		{
-			//IL_000f: Unknown result type (might be due to invalid IL or missing references)
-			return new Vector3(-1.5f, 0f, 0f);
-		}
-	}
+	private GameCoinLogic gameCoinLogic;
 
-	public override Vector3 ObjectConnectorOffset
-	{
-		get
-		{
-			//IL_000f: Unknown result type (might be due to invalid IL or missing references)
-			return new Vector3(0f, 1.5f, 0f);
-		}
-	}
+	private Vector3 gameCoinDisplayObjectOffset = new Vector3(0f, 1.5f, 0f);
 
-	public override Quaternion ObjectConnectorRotation
-	{
-		get
-		{
-			//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0005: Unknown result type (might be due to invalid IL or missing references)
-			return Quaternion.LookRotation(Vector3.down);
-		}
-	}
+	private bool isDestroyed;
+
+	public override Vector3 InputConnectorOffset => new Vector3(-1.5f, 0f, 0f);
+
+	public override Vector3 ObjectConnectorOffset => new Vector3(0f, 1.5f, 0f);
+
+	public override Quaternion ObjectConnectorRotation => Quaternion.LookRotation(Vector3.down);
 
 	public override bool HasInputConnector => false;
 
@@ -59,7 +41,7 @@ public class MVTeleporter : MVLogicObject
 		}
 	}
 
-	public MVTeleporter(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVTeleporter(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, "Prefabs/TelePorterObject", worldObjects)
 	{
 		teleportAvatarPrefab = Resources.Load("Prefabs/Logic/TeleportAvatar", typeof(TeleportAvatar)) as TeleportAvatar;
@@ -68,6 +50,14 @@ public class MVTeleporter : MVLogicObject
 		triggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
 		teleportParticles = gameObject.GetComponentInChildren<ParticleSystem>();
 		interactionFlags &= ~InteractionFlags.CanClone;
+		interactionFlags |= InteractionFlags.CanUseGameCoins;
+		gameCoinLogic = new GameCoinLogic(gameObject, Data, gameCoinDisplayObjectOffset);
+	}
+
+	public override void OnDataUpdate()
+	{
+		base.OnDataUpdate();
+		gameCoinLogic.OnDataUpdate(Data);
 	}
 
 	public override void Initialize()
@@ -76,9 +66,18 @@ public class MVTeleporter : MVLogicObject
 		OnInputLinkChanged();
 	}
 
-	public override bool Delete(MVWorldObjectClientManager worldObjectClientManager, ref TextSlotIndex errorTextIndex)
+	protected override void OnUpdate()
 	{
-		return worldObjectClientManager.GetWorldObjectClient(groupId)?.Delete(worldObjectClientManager, ref errorTextIndex) ?? false;
+		base.OnUpdate();
+		if (gameCoinLogic.PurchaseAmount > 0 && triggerBoxEvents.IsInTrigger && !avatarIgnoreList.Contains(MVGameController.WOCM.AvatarLocal) && gameCoinLogic.ShowUseGUI())
+		{
+			DoTeleport(MVGameController.WOCM.AvatarLocal.Id);
+		}
+	}
+
+	public override bool Delete(MVWorldObjectClientManager worldObjectClientManager, ref string errorText)
+	{
+		return worldObjectClientManager.GetWorldObjectClient(groupId)?.Delete(worldObjectClientManager, ref errorText) ?? false;
 	}
 
 	public override bool ValidateObjectLinkTarget(MVWorldObjectClient wo)
@@ -88,11 +87,8 @@ public class MVTeleporter : MVLogicObject
 
 	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
 	{
-		//IL_002c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0033: Unknown result type (might be due to invalid IL or missing references)
-		Vector3 val = new Vector3(Mathf.Round(position.x / gridSize), Mathf.Round(position.y / gridSize), Mathf.Round(position.z / gridSize));
-		return val * gridSize;
+		Vector3 vector = new Vector3(Mathf.Round(position.x / gridSize), Mathf.Round(position.y / gridSize), Mathf.Round(position.z / gridSize));
+		return vector * gridSize;
 	}
 
 	public override void OnInputLinkChanged()
@@ -103,8 +99,6 @@ public class MVTeleporter : MVLogicObject
 
 	public override void OnInputStateChanged()
 	{
-		//IL_0054: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003b: Unknown result type (might be due to invalid IL or missing references)
 		base.OnInputStateChanged();
 		bool flag = InputLinkRefs.Count == 0 || InputState;
 		teleportParticles.startColor = ((!flag) ? new Color(1f, 0.5f, 0f) : new Color(0f, 0.5f, 1f));
@@ -112,23 +106,29 @@ public class MVTeleporter : MVLogicObject
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		//IL_008b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0090: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ae: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00bf: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c4: Unknown result type (might be due to invalid IL or missing references)
-		if (InputLinkRefs.Count != 0 && !InputState)
+		if ((InputLinkRefs.Count == 0 || InputState) && gameCoinLogic.PurchaseAmount <= 0)
+		{
+			DoTeleport(e.instigatorWOID);
+		}
+	}
+
+	private void DoTeleport(int instigatorWOID)
+	{
+		MVTeleporter mVTeleporter = target;
+		if (!(MVGameController.WOCM.GetWorldObjectClient(instigatorWOID) is MVAvatarLocal))
 		{
 			return;
 		}
-		MVTeleporter mVTeleporter = target;
-		if (MVGameController.Instance.WOCM.GetWorldObjectClient(e.instigatorWOID) is MVAvatarLocal)
+		MVAvatarLocal mVAvatarLocal = MVGameController.WOCM.GetWorldObjectClient(instigatorWOID) as MVAvatarLocal;
+		if (!mVAvatarLocal.IsEnteringVehicle)
 		{
-			MVAvatarLocal mVAvatarLocal = MVGameController.Instance.WOCM.GetWorldObjectClient(e.instigatorWOID) as MVAvatarLocal;
-			if (!mVAvatarLocal.IsEnteringVehicle && !avatarIgnoreList.Contains(mVAvatarLocal))
+			if (mVAvatarLocal.IsSeated)
 			{
-				TeleportAvatar teleportAvatar = Object.Instantiate((Object)(object)teleportAvatarPrefab, transform.position, Quaternion.identity) as TeleportAvatar;
+				mVAvatarLocal.LeaveVehicle();
+			}
+			if (!avatarIgnoreList.Contains(mVAvatarLocal))
+			{
+				TeleportAvatar teleportAvatar = Object.Instantiate(teleportAvatarPrefab, transform.position, Quaternion.identity) as TeleportAvatar;
 				teleportAvatar.avatar = mVAvatarLocal;
 				teleportAvatar.targetPosition = target.WorldPosition;
 				teleportAvatar.originPosition = transform.position;
@@ -139,13 +139,26 @@ public class MVTeleporter : MVLogicObject
 
 	private void triggerBoxEvents_TriggerExit(object sender, TriggerEventArgs e)
 	{
-		if (MVGameController.Instance.WOCM.GetWorldObjectClient(e.instigatorWOID) is MVAvatarLocal)
+		if (MVGameController.WOCM.GetWorldObjectClient(e.instigatorWOID) is MVAvatarLocal)
 		{
-			MVAvatarLocal avatarLocal = MVGameController.Instance.WOCM.AvatarLocal;
+			MVAvatarLocal avatarLocal = MVGameController.WOCM.AvatarLocal;
 			if (e.instigatorWOID == avatarLocal.Id)
 			{
 				avatarIgnoreList.Remove(avatarLocal);
 			}
+		}
+	}
+
+	public override void Destroy()
+	{
+		if (!isDestroyed)
+		{
+			if (gameCoinLogic != null)
+			{
+				gameCoinLogic.OnDestroy(Data);
+			}
+			base.Destroy();
+			isDestroyed = true;
 		}
 	}
 }

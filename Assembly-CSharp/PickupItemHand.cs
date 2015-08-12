@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using MV.Common;
+using MV.WorldObject;
 using UnityEngine;
 
 public class PickupItemHand : PickupItemWithDelay
@@ -17,5 +19,19 @@ public class PickupItemHand : PickupItemWithDelay
 
 	protected override void OnFire(bool isLocal)
 	{
+	}
+
+	private void DoRemoveCubes()
+	{
+		Ray ray = new Ray(muzzlePoint.position - owner.LookDirection, owner.LookDirection);
+		Debug.DrawLine(ray.origin, ray.origin + ray.direction * 2f, Color.red, 10f);
+		if (CollisionDetection.MVHit(ray, out var voxelHit, 2f, new HashSet<int>(), 1 << LayerMask.NameToLayer("Default")))
+		{
+			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(voxelHit.woId);
+			if (worldObjectClient.WorldObjectType == WorldObjectType.CubeModelPrototypeTerrain || worldObjectClient.WorldObjectType == WorldObjectType.CubeModelTerrainFineGrained)
+			{
+				MVGameController.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, 20f);
+			}
+		}
 	}
 }

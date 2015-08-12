@@ -26,6 +26,6 @@ public class NPCHealth : MonoBehaviour
 		{
 			curHealth = 0f;
 		}
-		Debug.Log((object)("hit: " + curHealth));
+		Debug.Log("hit: " + curHealth);
 	}
 }

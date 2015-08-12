@@ -4,9 +4,14 @@ public class UXCamera : MonoBehaviour
 {
 	private bool fogState;
 
+	[SerializeField]
+	private Camera secondaryUXCamera;
+
+	public Camera SecondaryUXCamera => secondaryUXCamera;
+
 	public void Awake()
 	{
-		((Component)this).camera.cullingMask = 1 << LayerMask.NameToLayer("UXElement");
+		GetComponent<Camera>().cullingMask = 1 << LayerMask.NameToLayer("UXElement");
 	}
 
 	public void OnPreRender()

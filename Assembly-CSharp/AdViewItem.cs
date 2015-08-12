@@ -22,21 +22,17 @@ public class AdViewItem : MonoBehaviour
 	public void BuildViewItem(MVItem mvItem, Transform previewItemsRoot)
 	{
 		BuildImagePlane();
-		((MonoBehaviour)this).StartCoroutine(ItemViewRoutine(mvItem, 512, 512, previewItemsRoot));
+		StartCoroutine(ItemViewRoutine(mvItem, 512, 512, previewItemsRoot));
 	}
 
 	private void BuildImagePlane()
 	{
-		//IL_0005: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Expected Obj, but got Unknown
-		//IL_0032: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0051: Unknown result type (might be due to invalid IL or missing references)
-		GameObject val = new GameObject("Image Plane");
-		val.layer = LayerMask.NameToLayer("UXElement");
-		val.transform.parent = ((Component)this).transform;
-		val.transform.localScale = Vector3.one;
-		val.transform.localPosition = new Vector3(0f, 0f, -0.01f);
-		ItemImagePlane = val.AddComponent<UXPlane>();
+		GameObject gameObject = new GameObject("Image Plane");
+		gameObject.layer = LayerMask.NameToLayer("UXElement");
+		gameObject.transform.parent = transform;
+		gameObject.transform.localScale = Vector3.one;
+		gameObject.transform.localPosition = new Vector3(0f, 0f, -0.01f);
+		ItemImagePlane = gameObject.AddComponent<UXPlane>();
 		ItemImagePlane.SetSize(Width, Height);
 	}
 
@@ -44,18 +40,20 @@ public class AdViewItem : MonoBehaviour
 	{
 		KoGaMaPackageClient koGaMaPackageClient = ARepository.GetKoGaMaPackageFromItem(item);
 		WO = koGaMaPackageClient.worldObjects[koGaMaPackageClient.worldObjectRoot];
-		objectPreviewer = ObjectPreviewer.Create(previewWidth, previewHeight, (CameraClearFlags)2, WO.PreviewLayerMask, Vector3.zero, previewItemsRoot, new Vector3(0f, 0f, 10f), item.name, WO, WO.GameObject);
-		Material previewMaterial = new Material(ItemPreviewMaterial);
-		((Object)previewMaterial).hideFlags = (HideFlags)13;
-		previewMaterial.mainTexture = (Texture)(object)objectPreviewer.PreviewTexture;
-		MeshRenderer meshRenderer = ((Component)ItemImagePlane).gameObject.AddComponent<MeshRenderer>();
-		((Renderer)meshRenderer).material = previewMaterial;
+		objectPreviewer = ObjectPreviewer.Create(previewWidth, previewHeight, CameraClearFlags.Color, WO.PreviewLayerMask, Vector3.zero, previewItemsRoot, new Vector3(0f, 0f, 10f), item.name, WO, WO.GameObject);
+		Material previewMaterial = new Material(ItemPreviewMaterial)
+		{
+			hideFlags = HideFlags.HideAndDontSave,
+			mainTexture = objectPreviewer.PreviewTexture
+		};
+		MeshRenderer meshRenderer = ItemImagePlane.gameObject.AddComponent<MeshRenderer>();
+		meshRenderer.material = previewMaterial;
 		yield return null;
 	}
 
 	private void Update()
 	{
-		if ((Object)(object)objectPreviewer != (Object)null)
+		if (objectPreviewer != null)
 		{
 			objectPreviewer.UpdateRotation();
 		}
@@ -67,7 +65,7 @@ public class AdViewItem : MonoBehaviour
 		{
 			WO.Destroy();
 		}
-		if ((Object)(object)objectPreviewer != (Object)null)
+		if (objectPreviewer != null)
 		{
 			objectPreviewer.Destroy();
 		}

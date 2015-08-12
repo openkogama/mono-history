@@ -2,7 +2,7 @@ public interface ILocalObject
 {
 	int Id { get; }
 
-	MovementMap Update(MovementMap movementMap);
+	InteractionInput Update(InteractionInput movementMap);
 
 	MovementMap FixedUpdate(MovementMap movementMap);
 }

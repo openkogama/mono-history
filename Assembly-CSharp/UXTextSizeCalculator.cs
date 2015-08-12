@@ -26,24 +26,16 @@ public class UXTextSizeCalculator : UXViewScript
 
 	public Vector2 MeasureString(string text, UXTextSize textSize = UXTextSize.Medium)
 	{
-		//IL_0002: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0008: Unknown result type (might be due to invalid IL or missing references)
 		return MeasureString(text, Vector2.one, textSize);
 	}
 
 	public Vector2 MeasureString(string text, Vector2 scale, UXTextSize textSize)
 	{
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0146: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0093: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00df: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e4: Unknown result type (might be due to invalid IL or missing references)
 		if (!initialized)
 		{
 			return Vector2.zero;
 		}
-		string[] array = text.Split(new char[1] { '\n' });
+		string[] array = text.Split('\n');
 		float num = 0f;
 		float num2 = 0f;
 		string[] array2 = array;
@@ -65,9 +57,9 @@ public class UXTextSizeCalculator : UXViewScript
 				{
 					MeasureCharSize(c, textSize);
 				}
-				Vector2 val = char2size[textSize][c];
-				num3 += val.x;
-				num4 = Mathf.Max(num4, val.y);
+				Vector2 vector = char2size[textSize][c];
+				num3 += vector.x;
+				num4 = Mathf.Max(num4, vector.y);
 			}
 			num = Mathf.Max(num, num3);
 			num2 += num4;
@@ -77,9 +69,6 @@ public class UXTextSizeCalculator : UXViewScript
 
 	private void MeasureCharSize(char c, UXTextSize textSize)
 	{
-		//IL_0047: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005a: Unknown result type (might be due to invalid IL or missing references)
 		if (c.Equals(' '))
 		{
 			SpecialSpaceCase(textSize);
@@ -94,21 +83,16 @@ public class UXTextSizeCalculator : UXViewScript
 
 	private void SpecialSpaceCase(UXTextSize textSize)
 	{
-		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0027: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0050: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0060: Unknown result type (might be due to invalid IL or missing references)
 		textObject.TextSize = textSize;
 		textObject.Text = " A";
-		Vector2 val = textObject.RenderAndGetTextBounds();
-		char2size[textSize].Add(' ', new Vector2(val.x - char2size[textSize]['A'].x, val.y));
+		Vector2 vector = textObject.RenderAndGetTextBounds();
+		char2size[textSize].Add(' ', new Vector2(vector.x - char2size[textSize]['A'].x, vector.y));
 		textObject.Text = string.Empty;
 	}
 
 	private IEnumerator MeasureBasicChars()
 	{
-		yield return (object)new WaitForEndOfFrame();
+		yield return new WaitForEndOfFrame();
 		initialized = true;
 		foreach (int textSize in Enum.GetValues(typeof(UXTextSize)))
 		{
@@ -126,6 +110,6 @@ public class UXTextSizeCalculator : UXViewScript
 
 	public override void OnInitialize()
 	{
-		((MonoBehaviour)this).StartCoroutine(MeasureBasicChars());
+		StartCoroutine(MeasureBasicChars());
 	}
 }

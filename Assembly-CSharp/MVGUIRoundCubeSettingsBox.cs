@@ -1,5 +1,5 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
 
 public class MVGUIRoundCubeSettingsBox : UXCustomDialogBox
 {
@@ -15,16 +15,17 @@ public class MVGUIRoundCubeSettingsBox : UXCustomDialogBox
 
 	public override object GetResult()
 	{
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add("interval", Convert.ToInt32(intervalIntermediate));
-		hashtable.Add("winningCondition", winningConditionIntermediate);
-		return hashtable;
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add("interval", Convert.ToInt32(intervalIntermediate));
+		dictionary.Add("winningCondition", winningConditionIntermediate);
+		return dictionary;
 	}
 
 	public override void OnShowDialog()
 	{
 		base.OnShowDialog();
 		UpdateIntervalTime(intervalSlider.Value);
+		winningConditionIntermediate = (int)MVGUISettingsDialogRoundCube.availableGameStatCounters[winningConditionComboBox.CurrentlySelectedItemIndex].gameStatCounterType;
 		UXSlider uXSlider = intervalSlider;
 		uXSlider.OnValueChanged = (UXSlider.OnValueChangedDelegate)Delegate.Combine(uXSlider.OnValueChanged, (UXSlider.OnValueChangedDelegate)((UXSlider slider) =>
 		{
@@ -38,7 +39,7 @@ public class MVGUIRoundCubeSettingsBox : UXCustomDialogBox
 		UXComboBox uXComboBox = winningConditionComboBox;
 		uXComboBox.OnComboBoxItemSelect = (UXComboBox.OnComboBoxItemSelectDelegate)Delegate.Combine(uXComboBox.OnComboBoxItemSelect, (UXComboBox.OnComboBoxItemSelectDelegate)((int item) =>
 		{
-			winningConditionIntermediate = item;
+			winningConditionIntermediate = (int)MVGUISettingsDialogRoundCube.availableGameStatCounters[item].gameStatCounterType;
 		}));
 	}
 

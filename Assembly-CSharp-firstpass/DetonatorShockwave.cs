@@ -1,7 +1,7 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Detonator))]
 [AddComponentMenu("Detonator/Shockwave")]
+[RequireComponent(typeof(Detonator))]
 public class DetonatorShockwave : DetonatorComponent
 {
 	private float _baseSize = 1f;
@@ -20,14 +20,6 @@ public class DetonatorShockwave : DetonatorComponent
 
 	public ParticleRenderMode renderMode;
 
-	public DetonatorShockwave()
-	{
-		//IL_0026: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0036: Unknown result type (might be due to invalid IL or missing references)
-	}
-
 	public override void Init()
 	{
 		FillMaterials(wipe: false);
@@ -36,7 +28,7 @@ public class DetonatorShockwave : DetonatorComponent
 
 	public void FillMaterials(bool wipe)
 	{
-		if (!Object.op_Implicit((Object)(object)shockwaveMaterial) || wipe)
+		if (!shockwaveMaterial || wipe)
 		{
 			shockwaveMaterial = MyDetonator().shockwaveMaterial;
 		}
@@ -44,13 +36,9 @@ public class DetonatorShockwave : DetonatorComponent
 
 	public void BuildShockwave()
 	{
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0010: Expected Obj, but got Unknown
-		//IL_004c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0062: Unknown result type (might be due to invalid IL or missing references)
 		_shockwave = new GameObject("Shockwave");
-		_shockwaveEmitter = (DetonatorBurstEmitter)(object)_shockwave.AddComponent("DetonatorBurstEmitter");
-		_shockwave.transform.parent = ((Component)this).transform;
+		_shockwaveEmitter = _shockwave.AddComponent<DetonatorBurstEmitter>();
+		_shockwave.transform.parent = transform;
 		_shockwave.transform.localRotation = Quaternion.identity;
 		_shockwave.transform.localPosition = localPosition;
 		_shockwaveEmitter.material = shockwaveMaterial;
@@ -60,15 +48,6 @@ public class DetonatorShockwave : DetonatorComponent
 
 	public void UpdateShockwave()
 	{
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0039: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0124: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0129: Unknown result type (might be due to invalid IL or missing references)
 		_shockwave.transform.localPosition = Vector3.Scale(localPosition, new Vector3(size, size, size));
 		_shockwaveEmitter.color = color;
 		_shockwaveEmitter.duration = duration;
@@ -88,10 +67,6 @@ public class DetonatorShockwave : DetonatorComponent
 
 	public void Reset()
 	{
-		//IL_003e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0043: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004f: Unknown result type (might be due to invalid IL or missing references)
 		FillMaterials(wipe: true);
 		on = true;
 		size = _baseSize;

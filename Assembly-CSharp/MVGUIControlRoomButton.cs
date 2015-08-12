@@ -1,5 +1,3 @@
-using Localize;
-
 public class MVGUIControlRoomButton : UXViewScript
 {
 	public UXIconButton controlRoomButton;
@@ -8,8 +6,7 @@ public class MVGUIControlRoomButton : UXViewScript
 	{
 		controlRoomButton.OnClick = () =>
 		{
-			UXUtils.FindGUIObjectOfType<UXDialogFactory>().CreateCustomDialog("Prefabs/GUI/ControlRoom/ControlRoomDialog", TextSlotIndex.ControlRoom).AddPositiveButton(TextSlotIndex.Save)
-				.AddNegativeButton(TextSlotIndex.Cancel)
+			UXUtils.UXDialogFactory.CreateCustomDialog("Prefabs/GUI/ControlRoom/ControlRoomDialog", TM._("Control Room")).AddPositiveButton(TM._("Save")).AddNegativeButton(TM._("Cancel"))
 				.SetOnResultCallback(ControlRoomOnResult)
 				.Show();
 		};

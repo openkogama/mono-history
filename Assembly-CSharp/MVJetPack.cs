@@ -1,7 +1,8 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using MV.Common;
 using MV.WorldObject;
+using MV.WorldObject.RuntimeEvents;
 using UnityEngine;
 
 public class MVJetPack : MVVehicleBase
@@ -42,7 +43,7 @@ public class MVJetPack : MVVehicleBase
 
 		private bool leaveMode;
 
-		private MvCharacterController avatarController;
+		private SmoothCharacterController avatarController;
 
 		private JetPackVisualization jetPackVisualization;
 
@@ -60,17 +61,17 @@ public class MVJetPack : MVVehicleBase
 
 		public LocalObjectsJetPack(MVJetPack vehicleBase, MVAvatarLocal vehicleUser, JetPackParameters jetPackTypeParameters, VehicleSeatBase seat)
 		{
-			avatarController = vehicleUser.GameObject.GetComponent<MvCharacterController>();
-			MVInteractableBase component = vehicleUser.GameObject.GetComponent<MVInteractableBase>();
+			avatarController = vehicleUser.GameObject.GetComponent<SmoothCharacterController>();
+			AvatarInteractable component = vehicleUser.GameObject.GetComponent<AvatarInteractable>();
 			MVEquipable component2 = vehicleUser.GameObject.GetComponent<MVEquipable>();
 			avatarPickupOwner = vehicleUser.GameObject.GetComponent<MVPickupOwner>();
-			if ((Object)(object)avatarController == (Object)null || (Object)(object)component == (Object)null || (Object)(object)component2 == (Object)null || (Object)(object)avatarPickupOwner == (Object)null)
+			if (avatarController == null || component == null || component2 == null || avatarPickupOwner == null)
 			{
-				Debug.LogError((object)"Failed to get component. Cant create LocalObjects for JetPack");
+				Debug.LogError("Failed to get component. Cant create LocalObjects for JetPack");
 				return;
 			}
-			MvCharacterController mvCharacterController = avatarController.CloneToGameObject(vehicleBase.GameObject, ((Component)seat).gameObject);
-			vehicleUser.SetCharacterController(mvCharacterController);
+			SmoothCharacterController smoothCharacterController = avatarController.Clone(vehicleBase.GameObject, seat.gameObject);
+			vehicleUser.SetCharacterController(smoothCharacterController);
 			thrustTimeOverheatThreshold = jetPackTypeParameters.thrustTimeOverheatThreshold;
 			coolDownFactor = jetPackTypeParameters.coolDownFactor;
 			MVRuntimeDataVariableClampedFloat health = vehicleBase.Health;
@@ -80,15 +81,15 @@ public class MVJetPack : MVVehicleBase
 			VehicleInteractable vehicleInteractable = gameObject.AddComponent<VehicleInteractable>();
 			vehicleInteractable.Init(vehicleBase.Modifiers, vehicleBase.Health);
 			JetPackMotor jetPackMotor = gameObject.AddComponent<JetPackMotor>();
-			jetPackMotor.Init(component, vehicleInteractable, mvCharacterController, jetPackTypeParameters.thrustStrength, jetPackTypeParameters.density);
+			jetPackMotor.Init(component, vehicleInteractable, smoothCharacterController, jetPackTypeParameters.thrustStrength, jetPackTypeParameters.density);
 			MVEquipableProxy mVEquipableProxy = gameObject.AddComponent<MVEquipableProxy>();
 			mVEquipableProxy.Init(component2);
 			triggerHandler = gameObject.AddComponent<MVTriggerHandler>();
-			localComponents.Add((Component)(object)triggerHandler);
-			localComponents.Add((Component)(object)vehicleInteractable);
-			localComponents.Add((Component)(object)jetPackMotor);
-			localComponents.Add((Component)(object)mvCharacterController);
-			localComponents.Add((Component)(object)mVEquipableProxy);
+			localComponents.Add(triggerHandler);
+			localComponents.Add(vehicleInteractable);
+			localComponents.Add(jetPackMotor);
+			localComponents.Add(smoothCharacterController);
+			localComponents.Add(mVEquipableProxy);
 			vehicleMotor = jetPackMotor;
 			owner = vehicleBase;
 			this.vehicleUser = vehicleUser;
@@ -116,9 +117,18 @@ public class MVJetPack : MVVehicleBase
 			vehicleMotor.LeaveMode = true;
 			vehicleUser.SetCharacterController(avatarController);
 			vehicleUser.ForceRotateAvatarToFiringDirection = false;
-			((Behaviour)triggerHandler).enabled = false;
+			triggerHandler.enabled = false;
 			MVPickupOwner mVPickupOwner = avatarPickupOwner;
 			mVPickupOwner.onHandleFiring = (MVPickupOwner.OnHandleFiringDelegate)Delegate.Remove(mVPickupOwner.onHandleFiring, new MVPickupOwner.OnHandleFiringDelegate(OnFiring));
+		}
+
+		public override InteractionInput Update(InteractionInput interactionInput)
+		{
+			if (!walkMode)
+			{
+				vehicleMotor.FrameUpdate();
+			}
+			return interactionInput;
 		}
 
 		public override void Enter()
@@ -126,31 +136,22 @@ public class MVJetPack : MVVehicleBase
 			base.Enter();
 			leaveMode = false;
 			vehicleMotor.LeaveMode = false;
-			((Behaviour)triggerHandler).enabled = true;
-			vehicleUser.ForceRotateAvatarToFiringDirection = true;
+			triggerHandler.enabled = true;
+			if (GameDB.GameType == MVGameType.Platformer)
+			{
+				vehicleUser.ForceRotateAvatarToFiringDirection = false;
+			}
+			else
+			{
+				vehicleUser.ForceRotateAvatarToFiringDirection = true;
+			}
 			MVPickupOwner mVPickupOwner = avatarPickupOwner;
 			mVPickupOwner.onHandleFiring = (MVPickupOwner.OnHandleFiringDelegate)Delegate.Combine(mVPickupOwner.onHandleFiring, new MVPickupOwner.OnHandleFiringDelegate(OnFiring));
 		}
 
 		public override MovementMap FixedUpdate(MovementMap movementMap)
 		{
-			//IL_0037: Unknown result type (might be due to invalid IL or missing references)
-			//IL_003c: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00de: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0051: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0056: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0093: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0098: Unknown result type (might be due to invalid IL or missing references)
-			//IL_006a: Unknown result type (might be due to invalid IL or missing references)
-			//IL_006f: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0071: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0076: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0086: Unknown result type (might be due to invalid IL or missing references)
-			//IL_008b: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00b7: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00bc: Unknown result type (might be due to invalid IL or missing references)
-			//IL_00c5: Unknown result type (might be due to invalid IL or missing references)
-			owner.State = MVWorldObjectState.Dirty;
+			movementMap = HandleWalkMode(movementMap);
 			bool thrust = false;
 			if (movementMap != null)
 			{
@@ -166,24 +167,23 @@ public class MVJetPack : MVVehicleBase
 			bool shouldSetRotation = false;
 			if (movementMap != null)
 			{
-				Transform transform = ((Component)Camera.main).transform;
-				Vector3 val = movementMap.Direction;
-				if (val.magnitude > 0f)
+				Transform transform = Camera.main.transform;
+				Vector3 vector = movementMap.Direction;
+				if (vector.magnitude > 0f)
 				{
-					Vector3 val2 = transform.rotation * val;
-					val2.y = 0f;
-					val = val2.normalized;
+					Vector3 vector2 = transform.rotation * vector;
+					vector2.y = 0f;
+					vector = vector2.normalized;
 				}
-				Vector3 velocity = vehicleMotor.Velocity;
-				if (velocity.sqrMagnitude > 0.001f || wasFiring)
+				if (vehicleMotor.Velocity.sqrMagnitude > 0.001f || wasFiring)
 				{
 					setQuaternion = FiringDirectionRotation();
 					shouldSetRotation = true;
 				}
-				vehicleMotor.InputMoveDirection = val;
+				vehicleMotor.InputMoveDirection = vector;
 			}
 			vehicleMotor.Thrust = thrust;
-			vehicleMotor.UpdateFunction(setQuaternion, shouldSetRotation);
+			vehicleMotor.FixedUpdateFunction(setQuaternion, shouldSetRotation);
 			return movementMap;
 		}
 
@@ -259,16 +259,12 @@ public class MVJetPack : MVVehicleBase
 
 		private Quaternion FiringDirectionRotation()
 		{
-			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-			//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0018: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0019: Unknown result type (might be due to invalid IL or missing references)
 			Vector3 lookDirection = avatarPickupOwner.LookDirection;
 			lookDirection.y = 0f;
 			return Quaternion.LookRotation(lookDirection);
 		}
 
-		public override MovementMap Update(MovementMap movementMap)
+		public MovementMap HandleWalkMode(MovementMap movementMap)
 		{
 			if (movementMap == null)
 			{
@@ -279,9 +275,9 @@ public class MVJetPack : MVVehicleBase
 			{
 				vehicleUser.SetAnimation("Idle");
 			}
-			if (((Behaviour)vehicleUser.RigidBody).enabled != walkMode)
+			if (vehicleUser.RigidBody.enabled != walkMode)
 			{
-				((Behaviour)vehicleUser.RigidBody).enabled = walkMode;
+				vehicleUser.RigidBody.enabled = walkMode;
 			}
 			if (walkMode)
 			{
@@ -289,7 +285,7 @@ public class MVJetPack : MVVehicleBase
 			}
 			if (vehicleMotor.IsStuck())
 			{
-				Debug.Log((object)"Vehicle is stuck");
+				Debug.Log("Vehicle is stuck");
 			}
 			return movementMap;
 		}
@@ -319,7 +315,7 @@ public class MVJetPack : MVVehicleBase
 		}
 	};
 
-	public MVJetPack(Hashtable data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public MVJetPack(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, GetPickupPrefabName(data), worldObjects)
 	{
 		interactionFlags |= InteractionFlags.CanEdit;
@@ -379,9 +375,9 @@ public class MVJetPack : MVVehicleBase
 		base.VehicleEntered(vehicleUser, seatID);
 		seatManager.EnterVehicleDisabled = true;
 		AvatarPickupOwner component = vehicleUser.GameObject.GetComponent<AvatarPickupOwner>();
-		if ((Object)(object)component == (Object)null)
+		if (component == null)
 		{
-			Debug.LogError((object)"Failed to get avatarPickupOwner");
+			Debug.LogError("Failed to get avatarPickupOwner");
 			return;
 		}
 		HashSet<int> worldIDsRecursive = WorldIDsRecursive;
@@ -396,11 +392,6 @@ public class MVJetPack : MVVehicleBase
 
 	public override Bounds GetLocalBounds(BoundsContext boundsContext)
 	{
-		//IL_0014: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0019: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0030: Unknown result type (might be due to invalid IL or missing references)
 		if (boundsContext == BoundsContext.Insert || boundsContext == BoundsContext.BoxVisualization || boundsContext == BoundsContext.Preview)
 		{
 			return new Bounds(Vector3.zero, Vector3.one * 2f);
@@ -410,32 +401,31 @@ public class MVJetPack : MVVehicleBase
 
 	private void OnIsDeadChange(object isDead)
 	{
-		//IL_001d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0027: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0051: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0052: Unknown result type (might be due to invalid IL or missing references)
 		if ((bool)isDead)
 		{
 			HashSet<int> worldIDsRecursive = WorldIDsRecursive;
-			Vector3 val = gameObject.transform.rotation * Vector3.back;
-			MVGameController.Instance.WOCM.SharedWorldObjectGameplayFunctions.ExplosionCreator.Explode(gameObject.transform.position + val, 10f, 5f, 1000f, worldIDsRecursive);
+			Vector3 vector = gameObject.transform.rotation * Vector3.back;
+			if (localObjects == null)
+			{
+				SharedWorldObjectGameplayFunctions.Explosion.Explode("ParticleFX/Explosion", gameObject.transform.position + vector, 10f, 5f, 1000f, local: true, null, worldIDsRecursive);
+				return;
+			}
+			ExplosionEvent explosionEvent = new ExplosionEvent(RuntimeEventType.Bazooka, gameObject.transform.position + vector);
+			SharedWorldObjectGameplayFunctions.Explosion.Explode("ParticleFX/Explosion", gameObject.transform.position + vector, 10f, 5f, 1000f, local: false, explosionEvent, worldIDsRecursive);
 		}
 	}
 
-	private static JetPackType GetJetPackType(Hashtable data)
+	private static JetPackType GetJetPackType(Dictionary<object, object> data)
 	{
-		Hashtable hashtable = (Hashtable)data[WorldObjectDataParameters.Data];
-		if (!hashtable.Contains("jetPackType"))
+		Dictionary<object, object> dictionary = (Dictionary<object, object>)data[WorldObjectDataParameters.Data];
+		if (!dictionary.ContainsKey("jetPackType"))
 		{
-			Debug.LogError((object)"WoData does not contain jetPackType ");
+			Debug.LogError("WoData does not contain jetPackType ");
 		}
-		return (JetPackType)(byte)hashtable["jetPackType"];
+		return (JetPackType)(byte)dictionary["jetPackType"];
 	}
 
-	private static string GetPickupPrefabName(Hashtable data)
+	private static string GetPickupPrefabName(Dictionary<object, object> data)
 	{
 		return jetPackTypes[GetJetPackType(data)];
 	}

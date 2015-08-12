@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Localize;
 using UnityEngine;
 
 public class MVGUIBMAddChild : UXCustomDialogBox
@@ -61,7 +59,7 @@ public class MVGUIBMAddChild : UXCustomDialogBox
 	public override void OnCloseDialog()
 	{
 		base.OnCloseDialog();
-		(UXUtils.FindComponentInParents(typeof(UXView), ((Component)this).transform.parent) as UXView).ReleaseFocus();
+		(UXUtils.FindComponentInParents(typeof(UXView), transform.parent) as UXView).ReleaseFocus();
 	}
 
 	public void ChangeStep(int stepChange)
@@ -113,25 +111,25 @@ public class MVGUIBMAddChild : UXCustomDialogBox
 		bool flag3 = flag || flag2;
 		if (flag3)
 		{
-			TextSlotIndex messageIndex = TextSlotIndex.ForgotNameAndWoid;
+			string message = "You forgot these things:\n\nNo name entered.\n\nNo woID entered.";
 			if (!flag)
 			{
-				messageIndex = TextSlotIndex.ForgotWOid;
+				message = "You forgot these things:\n\nNo woID entered.";
 			}
 			if (!flag2)
 			{
-				messageIndex = TextSlotIndex.ForgotName;
+				message = "You forgot these things:\n\nNo name entered.";
 			}
-			DialogFactory.CreateDialog(messageIndex, TextSlotIndex.ErrorHeadline, UXDialogType.Simple, noButtons: false, stackDialog: true).Show();
+			DialogFactory.CreateDialog(message, "Error", UXDialogType.Simple, noButtons: false, stackDialog: true).Show();
 		}
 		return !flag3;
 	}
 
 	public override object GetResult()
 	{
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add("name", nameTextField.Text);
-		hashtable.Add("woId", int.Parse(woidTextField.Text.Split(new char[1] { '.' })[0]));
-		return hashtable;
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add("name", nameTextField.Text);
+		dictionary.Add("woId", int.Parse(woidTextField.Text.Split('.')[0]));
+		return dictionary;
 	}
 }

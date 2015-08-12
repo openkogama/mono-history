@@ -1,11 +1,10 @@
 using System.Collections.Generic;
-using Localize;
 
 public class MVGUISettingsDialogTextMsg : MVGUIDynamicSettingsDialog
 {
 	public MVGUISettingsDialogTextMsg()
 	{
-		dialogFactory.CreateCustomDialog("Prefabs/GUI/Box Settings Dialogs/TextMsgSettingsDialog", TextSlotIndex.TextMessage).AddPositiveButton(TextSlotIndex.Ok).AddNegativeButton(TextSlotIndex.Cancel)
+		dialogFactory.CreateCustomDialog("Prefabs/GUI/Box Settings Dialogs/TextMsgSettingsDialog", TM._("Text Message")).AddPositiveButton(TM._("Ok")).AddNegativeButton(TM._("Cancel"))
 			.SetOnResultCallback(OnDialogResult)
 			.SetOnIntermediateResultCallback(OnIntermediateResult)
 			.SetValues(BuildDialogData())

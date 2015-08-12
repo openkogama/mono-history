@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Localize;
 using UnityEngine;
 
 public class MVGUIWaterPlaneSettingsBox : UXCustomDialogBox
@@ -105,7 +103,7 @@ public class MVGUIWaterPlaneSettingsBox : UXCustomDialogBox
 			items = names,
 			currentlySelectedIndex = modifierPackageType
 		});
-		DialogFactory.CreateDialog(TextSlotIndex.SelectModifier, TextSlotIndex.Modifier, UXDialogType.ComboBox, noButtons: false, stackDialog: true, canClose: false).SetOnResultCallback(OnChangeModifierResult).SetValues(dictionary)
+		DialogFactory.CreateDialog(TM._("Select Modifier"), TM._("Modifier"), UXDialogType.ComboBox, noButtons: false, stackDialog: true, canClose: false).SetOnResultCallback(OnChangeModifierResult).SetValues(dictionary)
 			.Show();
 	}
 
@@ -125,15 +123,14 @@ public class MVGUIWaterPlaneSettingsBox : UXCustomDialogBox
 
 	public override object GetResult()
 	{
-		Hashtable hashtable = new Hashtable();
-		hashtable.Add("waterColor", new float[3] { wr, wg, wb });
-		hashtable.Add("avatarModifierPackageType", modifierPackageType);
-		return hashtable;
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add("waterColor", new float[3] { wr, wg, wb });
+		dictionary.Add("avatarModifierPackageType", modifierPackageType);
+		return dictionary;
 	}
 
 	private void UpdateColor()
 	{
-		//IL_0018: Unknown result type (might be due to invalid IL or missing references)
 		colorCube.SetColor(new Color(wr, wg, wb), string.Empty);
 	}
 }

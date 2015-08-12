@@ -29,8 +29,7 @@ public class UXMouseClickObject : MonoBehaviour
 
 	public void NotifyOnClick(Vector3 mousePositionWorld)
 	{
-		//IL_0032: Unknown result type (might be due to invalid IL or missing references)
-		logger.Log($"{((Object)((Component)this).gameObject).name} clicked");
+		logger.Log($"{gameObject.name} clicked");
 		if (OnClick != null)
 		{
 			OnClick(this, mousePositionWorld);
@@ -39,7 +38,6 @@ public class UXMouseClickObject : MonoBehaviour
 
 	public bool NotifyMouseDown(Vector3 mousePositionWorld)
 	{
-		//IL_002b: Unknown result type (might be due to invalid IL or missing references)
 		bool result = false;
 		if (OnMouseDown != null)
 		{
@@ -58,7 +56,6 @@ public class UXMouseClickObject : MonoBehaviour
 
 	public void NotifyMouseDownMove(Vector3 mousePositionWorld)
 	{
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
 		if (OnMouseDownMove != null)
 		{
 			OnMouseDownMove(this, mousePositionWorld);
@@ -67,7 +64,6 @@ public class UXMouseClickObject : MonoBehaviour
 
 	public void NotifyMouseUp(Vector3 mousePositionWorld)
 	{
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
 		if (OnMouseUp != null)
 		{
 			OnMouseUp(this, mousePositionWorld);

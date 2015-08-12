@@ -15,17 +15,17 @@ public class CubeModelChunk
 
 	public static readonly bool UseAOShadows = true;
 
-	private static int chunkSize = 32;
-
 	private IntVector chunkPos;
 
 	private List<GameObject> instances = new List<GameObject>();
 
-	private SharedMeshData[] meshes = new SharedMeshData[3];
+	private SharedMeshData sharedMeshData = default;
 
 	private string name;
 
 	private int cubeCount;
+
+	private int triangleCount;
 
 	private Dictionary<IntVector, Cell> cells = new Dictionary<IntVector, Cell>();
 
@@ -49,37 +49,19 @@ public class CubeModelChunk
 
 	private static float bookKeepingFloat = 0f;
 
-	public static int ChunkSize => chunkSize;
+	public int TriangleCount => triangleCount;
 
 	public int CubeCount => cubeCount;
 
 	public CubeModelChunk(IntVector iVector)
 	{
-		//IL_0098: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a2: Expected Obj, but got Unknown
 		name = "chunk" + iVector.x + "." + iVector.y + "." + iVector.z;
 		chunkPos = iVector;
-		for (int i = 0; i < meshes.Length; i++)
-		{
-			ref SharedMeshData reference = ref meshes[i];
-			reference = new SharedMeshData(new Mesh());
-		}
-	}
-
-	static CubeModelChunk()
-	{
-		//IL_005d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0062: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0067: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0071: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0076: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0085: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008a: Unknown result type (might be due to invalid IL or missing references)
+		sharedMeshData = new SharedMeshData(new Mesh());
 	}
 
 	public CubeModelChunk CloneGeometry(Vector3 scale)
 	{
-		//IL_0070: Unknown result type (might be due to invalid IL or missing references)
 		CubeModelChunk cubeModelChunk = new CubeModelChunk(chunkPos);
 		foreach (KeyValuePair<IntVector, Cell> cell in cells)
 		{
@@ -163,14 +145,8 @@ public class CubeModelChunk
 		if (!cells.ContainsKey(iVector))
 		{
 			cubeCount++;
-			cells.Add(iVector, new Cell(cube, byte.MaxValue));
 		}
-		else
-		{
-			Cell value = cells[iVector];
-			value.cube = cube;
-			cells[iVector] = value;
-		}
+		cells[iVector] = new Cell(cube);
 		if (setVisibility)
 		{
 			SetCubeVisibilityWithNeighbors(iVector);
@@ -183,7 +159,7 @@ public class CubeModelChunk
 		{
 			return cells.GetEnumerator().Current.Key;
 		}
-		Debug.LogError((object)"No cube found in chunk. This is a problem");
+		Debug.LogError("No cube found in chunk. This is a problem");
 		return IntVector.One;
 	}
 
@@ -201,58 +177,33 @@ public class CubeModelChunk
 	{
 		foreach (GameObject instance in instances)
 		{
-			Object.Destroy((Object)(object)instance);
-		}
-	}
-
-	private static void CalculateLights(Dictionary<IntVector, Cell> cells)
-	{
-		Dictionary<IntVector, Cell> dictionary = new Dictionary<IntVector, Cell>();
-		foreach (KeyValuePair<IntVector, Cell> cell in cells)
-		{
-			Cell value = cell.Value;
-			value.lightValue = (byte)(((value.cube.UnIndentedSides & 0x3F) != 63) ? 255u : 0u);
-			dictionary.Add(cell.Key, value);
-		}
-		foreach (KeyValuePair<IntVector, Cell> item in dictionary)
-		{
-			cells[item.Key] = item.Value;
+			Object.Destroy(instance);
 		}
 	}
 
 	public void RebuildChunk(Vector3 scale)
 	{
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		if (UseAOShadows)
-		{
-			CalculateLights(cells);
-		}
 		MeshData meshData = new MeshData();
-		RebuildMesh(ref meshData, cells, scale);
-		meshData.SetToMesh(ref meshes[0].mesh, ref meshes[0].materials);
+		triangleCount = RebuildMesh(ref meshData, cells, scale);
+		meshData.SetToMesh(ref sharedMeshData.mesh, ref sharedMeshData.materials);
 		UpdateInstances();
 	}
 
-	public SharedMeshData GetMeshData(MeshSetting mipMesh)
+	public SharedMeshData GetMeshData()
 	{
-		return meshes[(int)mipMesh];
+		return sharedMeshData;
 	}
 
 	private void UpdateInstances()
 	{
-		//IL_0058: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0104: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0109: Unknown result type (might be due to invalid IL or missing references)
-		//IL_010f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_011d: Unknown result type (might be due to invalid IL or missing references)
 		List<int> list = new List<int>();
 		for (int i = 0; i < instances.Count; i++)
 		{
-			if ((Object)(object)instances[i] != (Object)null)
+			if (instances[i] != null)
 			{
 				MeshRenderer component = instances[i].GetComponent<MeshRenderer>();
-				((Renderer)component).sharedMaterials = meshes[0].materials;
-				MVGameController.Instance.WOCM.UpdateWorldBounds(((Renderer)component).bounds);
+				component.sharedMaterials = sharedMeshData.materials;
+				MVGameController.WOCM.UpdateWorldBounds(component.bounds);
 			}
 			else
 			{
@@ -266,9 +217,9 @@ public class CubeModelChunk
 		foreach (GameObject instance in instances)
 		{
 			BoxCollider component2 = instance.GetComponent<BoxCollider>();
-			if ((Object)(object)component2 != (Object)null)
+			if (component2 != null)
 			{
-				Bounds bounds = meshes[0].mesh.bounds;
+				Bounds bounds = sharedMeshData.mesh.bounds;
 				component2.size = bounds.size;
 				component2.center = bounds.center;
 			}
@@ -281,38 +232,29 @@ public class CubeModelChunk
 
 	public void SetInstanceDataRef(IntVector chunkPos, MVCubeModelBase cubeInstance)
 	{
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000c: Expected Obj, but got Unknown
-		//IL_0061: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0066: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0078: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c5: Unknown result type (might be due to invalid IL or missing references)
-		GameObject val = new GameObject(name);
-		MeshFilter val2 = val.AddComponent<MeshFilter>();
-		MeshRenderer val3 = val.AddComponent<MeshRenderer>();
-		val2.sharedMesh = meshes[0].mesh;
-		((Renderer)val3).sharedMaterials = meshes[0].materials;
-		BoxCollider component = val.GetComponent<BoxCollider>();
-		if ((Object)(object)component != (Object)null)
+		GameObject gameObject = new GameObject(name);
+		MeshFilter meshFilter = gameObject.AddComponent<MeshFilter>();
+		MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
+		meshFilter.sharedMesh = sharedMeshData.mesh;
+		meshRenderer.sharedMaterials = sharedMeshData.materials;
+		BoxCollider component = gameObject.GetComponent<BoxCollider>();
+		if (component != null)
 		{
-			Bounds bounds = val2.sharedMesh.bounds;
+			Bounds bounds = meshFilter.sharedMesh.bounds;
 			component.size = bounds.size;
 			component.center = bounds.center;
 		}
 		else
 		{
-			val.AddComponent<BoxCollider>();
+			gameObject.AddComponent<BoxCollider>();
 		}
-		val.transform.parent = cubeInstance.Transform;
-		val.transform.localPosition = Vector3.zero;
-		val.transform.localRotation = Quaternion.identity;
-		val.transform.localScale = Vector3.one;
-		val.layer = cubeInstance.GameObject.layer;
-		instances.Add(val);
-		cubeInstance.chunkInstances.Add(chunkPos, val);
+		gameObject.transform.parent = cubeInstance.Transform;
+		gameObject.transform.localPosition = Vector3.zero;
+		gameObject.transform.localRotation = Quaternion.identity;
+		gameObject.transform.localScale = Vector3.one;
+		gameObject.layer = cubeInstance.GameObject.layer;
+		instances.Add(gameObject);
+		cubeInstance.ChunkInstances.Add(chunkPos, gameObject);
 	}
 
 	private void SetCubeVisibilityWithNeighbors(IntVector pos)
@@ -427,42 +369,39 @@ public class CubeModelChunk
 
 	private static bool AllFaceCornersIsTouchingCubeBorder(Face face, ref Vector3[] faceIndices)
 	{
-		//IL_0090: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0095: Unknown result type (might be due to invalid IL or missing references)
-		int num = -1;
-		float num2 = 0.5f;
+		int index = -1;
+		float num = 0.5f;
 		switch (face)
 		{
 		case Face.Top:
-			num = 1;
-			num2 = 0.5f;
+			index = 1;
+			num = 0.5f;
 			break;
 		case Face.Bottom:
-			num = 1;
-			num2 = -0.5f;
+			index = 1;
+			num = -0.5f;
 			break;
 		case Face.Front:
-			num = 2;
-			num2 = -0.5f;
+			index = 2;
+			num = -0.5f;
 			break;
 		case Face.Back:
-			num = 2;
-			num2 = 0.5f;
+			index = 2;
+			num = 0.5f;
 			break;
 		case Face.Left:
-			num = 0;
-			num2 = -0.5f;
+			index = 0;
+			num = -0.5f;
 			break;
 		case Face.Right:
-			num = 0;
-			num2 = 0.5f;
+			index = 0;
+			num = 0.5f;
 			break;
 		}
 		Vector3[] array = faceIndices;
-		for (int i = 0; i < array.Length; i++)
+		foreach (Vector3 vector in array)
 		{
-			Vector3 val = array[i];
-			if (val[num] != num2)
+			if (vector[index] != num)
 			{
 				return false;
 			}
@@ -519,17 +458,9 @@ public class CubeModelChunk
 		}
 	}
 
-	private static void RebuildMesh(ref MeshData meshData, Dictionary<IntVector, Cell> cells, Vector3 scale, int power = 1)
+	private static int RebuildMesh(ref MeshData meshData, Dictionary<IntVector, Cell> cells, Vector3 scale)
 	{
-		//IL_0127: Unknown result type (might be due to invalid IL or missing references)
-		//IL_014c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0185: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00cc: Unknown result type (might be due to invalid IL or missing references)
-		meshData.vertices = new List<Vector3>();
-		meshData.uv = new List<Vector2>();
-		meshData.colors = new List<Color>();
+		MeshDataPool.Reset();
 		int num = 0;
 		meshData.materials = new List<Material>();
 		Dictionary<int, int> dictionary = new Dictionary<int, int>();
@@ -541,29 +472,18 @@ public class CubeModelChunk
 			}
 			int index = 0;
 			Cube.GetVisibleFaceVertices(cell.Value.cube, ref faceData, cell.Key, cells, ref index);
-			if (power != 1)
+			for (int i = 0; i < index; i++)
 			{
-				for (int i = 0; i < index; i++)
+				for (int j = 0; j < 4; j++)
 				{
-					for (int j = 0; j < faceData[i].faceVertices.Length; j++)
-					{
-						ref Vector3 reference = ref faceData[i].faceVertices[j];
-						reference *= (float)power;
-					}
+					MeshDataPool.AddVertex(faceData[i].faceVertices[j]);
+					MeshDataPool.AddColor(faceData[i].colors[j]);
 				}
-			}
-			for (int k = 0; k < index; k++)
-			{
-				for (int l = 0; l < 4; l++)
-				{
-					meshData.vertices.Add(faceData[k].faceVertices[l]);
-					meshData.colors.Add(faceData[k].colors[l]);
-				}
-				meshData.uv.AddRange(GetFaceUvs(faceData[k].faceVertices, faceData[k].face, scale));
-				byte material = CubeBase.GetMaterial(cell.Value.cube, faceData[k].face);
-				Material material2 = MVGameController.Instance.Game.MaterialRepository.GetMaterial(material).material;
+				MeshDataPool.AddUvRange(GetFaceUvs(faceData[i].faceVertices, faceData[i].face, scale));
+				byte material = CubeBase.GetMaterial(cell.Value.cube, faceData[i].face);
 				if (!dictionary.ContainsKey(material))
 				{
+					Material material2 = MVGameController.Game.MaterialRepository.GetMaterial(material).material;
 					meshData.materials.Add(material2);
 					meshData.subMeshTriangles.Add(new List<int>());
 					dictionary.Add(material, meshData.materials.Count - 1);
@@ -578,29 +498,15 @@ public class CubeModelChunk
 				num++;
 			}
 		}
+		return num * 2;
 	}
 
 	private static Vector2[] GetFaceUvs(Vector3[] faceVertices, Face face, Vector3 scale)
 	{
-		//IL_003a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0163: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0168: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0205: Unknown result type (might be due to invalid IL or missing references)
-		//IL_020a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0356: Unknown result type (might be due to invalid IL or missing references)
-		//IL_035b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_044b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0450: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0455: Unknown result type (might be due to invalid IL or missing references)
-		//IL_045a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_046c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0473: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0478: Unknown result type (might be due to invalid IL or missing references)
 		bookKeepingFloat = 0f;
 		if (scale.x != scale.y || scale.x != scale.z)
 		{
-			Debug.LogError((object)"algorithm does not support non uniform scale");
+			Debug.LogError("algorithm does not support non uniform scale");
 		}
 		uvOffsetVector = uvOffsetVector0;
 		switch (face)
@@ -677,10 +583,8 @@ public class CubeModelChunk
 		float num = 2f / scale[0];
 		for (int m = 0; m < 4; m++)
 		{
-			ref Vector2 reference = ref uvs[m];
-			reference += uvOffsetVector;
-			ref Vector2 reference2 = ref uvs[m];
-			reference2 /= num;
+			uvs[m] += uvOffsetVector;
+			uvs[m] /= num;
 		}
 		return uvs;
 	}

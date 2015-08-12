@@ -23,7 +23,7 @@ public class MVGUIAnimationToggles : UXViewScript
 
 	private void ToggleNextAnimation()
 	{
-		if (!((Object)(object)attachedAnimation == (Object)null))
+		if (!(attachedAnimation == null))
 		{
 			currentAnimationIndex++;
 			currentAnimationIndex %= animationsToToggle.Count;
@@ -38,13 +38,10 @@ public class MVGUIAnimationToggles : UXViewScript
 
 	public void AttachAnimation(BoneAnimation animation)
 	{
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0029: Expected Obj, but got Unknown
 		attachedAnimation = animation;
-		foreach (AnimationState item in ((Component)attachedAnimation).animation)
+		foreach (AnimationState item in attachedAnimation.GetComponent<Animation>())
 		{
-			AnimationState val = item;
-			val.wrapMode = (WrapMode)2;
+			item.wrapMode = WrapMode.Loop;
 		}
 	}
 

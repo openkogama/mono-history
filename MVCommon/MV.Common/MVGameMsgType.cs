@@ -8,5 +8,6 @@ public enum MVGameMsgType
 	AdminMsg,
 	CollectiblePickedUp,
 	AchievementUnlocked,
-	CheckpointReached
+	CheckpointReached,
+	Chat
 }

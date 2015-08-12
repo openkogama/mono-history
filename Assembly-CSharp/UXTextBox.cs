@@ -38,16 +38,13 @@ public class UXTextBox : UXTextInputElement
 		base.Start();
 		multiLine = true;
 		InitializeSlider();
-		UXMouseClickObject uXMouseClickObject = ((Component)this).gameObject.AddComponent<UXMouseClickObject>();
+		UXMouseClickObject uXMouseClickObject = gameObject.AddComponent<UXMouseClickObject>();
 		uXMouseClickObject.OnClick = (UXMouseClickObject.OnClickDelegate)Delegate.Combine(uXMouseClickObject.OnClick, new UXMouseClickObject.OnClickDelegate(OnClickOnLine));
 	}
 
 	private void InitializeSlider()
 	{
-		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002d: Unknown result type (might be due to invalid IL or missing references)
-		((Component)uiSlider).transform.localPosition = new Vector3(Width, Height / 2f, -0.5f) - Alignment;
+		uiSlider.transform.localPosition = new Vector3(Width, Height / 2f, -0.5f) - Alignment;
 		uiSlider.SetSize(uiSlider.Width, Height);
 		uiSlider.Initialize();
 		uiSlider.OnValueChangedIntermediate = Slide;
@@ -67,11 +64,6 @@ public class UXTextBox : UXTextInputElement
 
 	protected override Vector3 GetTextBasePosition()
 	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003d: Unknown result type (might be due to invalid IL or missing references)
 		return new Vector3(0f - Alignment.x + TEXT_INDENT, Height - Alignment.y - TEXT_INDENT / 2f, -0.01f);
 	}
 
@@ -84,11 +76,11 @@ public class UXTextBox : UXTextInputElement
 	protected override void HandleKeyInput()
 	{
 		base.HandleKeyInput();
-		if (Input.GetKeyUp((KeyCode)273))
+		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.ChatShiftLineUp))
 		{
 			ChangeLine(-1);
 		}
-		if (Input.GetKeyUp((KeyCode)274))
+		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.ChatShiftLineDown))
 		{
 			ChangeLine(1);
 		}
@@ -98,15 +90,10 @@ public class UXTextBox : UXTextInputElement
 
 	private void OnClickOnLine(UXMouseClickObject clickObject, Vector3 mousePositionWorld)
 	{
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0013: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0018: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c5: Unknown result type (might be due to invalid IL or missing references)
 		waitWithFocus = true;
-		Vector3 val = ((Component)_uiText).transform.InverseTransformPoint(mousePositionWorld);
-		int num = (int)(Mathf.Abs(val.y) / textLineHeight);
-		string[] array = _uiText.Text.Split(new char[1] { '\n' });
+		Vector3 vector = _uiText.transform.InverseTransformPoint(mousePositionWorld);
+		int num = (int)(Mathf.Abs(vector.y) / textLineHeight);
+		string[] array = _uiText.Text.Split('\n');
 		if (num >= array.Length)
 		{
 			num = array.Length - 1;
@@ -126,7 +113,7 @@ public class UXTextBox : UXTextInputElement
 		int num3 = 0;
 		if (x > 0f)
 		{
-			float x2 = val.x;
+			float x2 = vector.x;
 			float num4 = x2 / x;
 			if (num4 > 1f)
 			{
@@ -141,12 +128,8 @@ public class UXTextBox : UXTextInputElement
 
 	private void ChangeLine(int direction)
 	{
-		//IL_0072: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0077: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0062: Unknown result type (might be due to invalid IL or missing references)
 		int lineIndexInWrappedText = GetLineIndexInWrappedText(GetActualText(Text), out var cursorIndex);
-		string[] array = _uiText.Text.Split(new char[1] { '\n' });
+		string[] array = _uiText.Text.Split('\n');
 		if (lineIndexInWrappedText + direction < 0 || lineIndexInWrappedText + direction >= array.Length)
 		{
 			return;
@@ -165,13 +148,13 @@ public class UXTextBox : UXTextInputElement
 			{
 				num3 = 1f;
 			}
-			float num4 = (float)array[lineIndexInWrappedText + direction].Length * num3;
-			num2 = Mathf.RoundToInt(num4);
+			float f = (float)array[lineIndexInWrappedText + direction].Length * num3;
+			num2 = Mathf.RoundToInt(f);
 		}
 		lineIndexInWrappedText += direction;
-		int num5 = 0;
-		num5 = ((direction >= 0) ? (array[lineIndexInWrappedText - 1].Length - cursorIndex + num2) : (cursorIndex + (array[lineIndexInWrappedText].Length - num2)));
-		CursorIndex += direction * (num5 + 1);
+		int num4 = 0;
+		num4 = ((direction >= 0) ? (array[lineIndexInWrappedText - 1].Length - cursorIndex + num2) : (cursorIndex + (array[lineIndexInWrappedText].Length - num2)));
+		CursorIndex += direction * (num4 + 1);
 	}
 
 	private void FocusOnLine(int lineNumber)
@@ -194,7 +177,7 @@ public class UXTextBox : UXTextInputElement
 
 	private void UpdateSliderVisibility()
 	{
-		if ((Object)(object)uiSlider != (Object)null)
+		if (uiSlider != null)
 		{
 			uiSlider.SetVisible(Visible && HasFocus && TextLargerThanBox);
 		}
@@ -240,22 +223,17 @@ public class UXTextBox : UXTextInputElement
 
 	protected override Vector3 GetCursorPosition(string text)
 	{
-		//IL_0085: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0095: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a4: Unknown result type (might be due to invalid IL or missing references)
 		int lineIndexInWrappedText = GetLineIndexInWrappedText(text, out var cursorIndex);
-		string text2 = _uiText.Text.Split(new char[1] { '\n' })[lineIndexInWrappedText];
-		float num = 0f;
+		string text2 = _uiText.Text.Split('\n')[lineIndexInWrappedText];
+		float x = 0f;
 		if (text2.Length > 0 && cursorIndex > 0)
 		{
 			_uiText.Text = text2.Substring(0, cursorIndex);
-			num = _uiText.TextWidth;
+			x = _uiText.TextWidth;
 		}
 		_uiText.Text = text;
 		FocusOnLine(lineIndexInWrappedText);
-		return new Vector3(num, 0f - (float)(lineIndexInWrappedText + 1) * textLineHeight, -0.02f) + Vector3.up * textLineHeight / 2f;
+		return new Vector3(x, 0f - (float)(lineIndexInWrappedText + 1) * textLineHeight, -0.02f) + Vector3.up * textLineHeight / 2f;
 	}
 
 	private int GetLineIndexInWrappedText(string text)
@@ -266,7 +244,7 @@ public class UXTextBox : UXTextInputElement
 
 	private int GetLineIndexInWrappedText(string text, out int cursorIndex)
 	{
-		string[] array = text.Split(new char[1] { '\n' });
+		string[] array = text.Split('\n');
 		cursorIndex = CursorIndex;
 		int num = 0;
 		bool flag = false;
@@ -275,7 +253,7 @@ public class UXTextBox : UXTextInputElement
 			_uiText.Text = array[i];
 			if (_uiText.LineCount > 1)
 			{
-				string[] array2 = _uiText.Text.Split(new char[1] { '\n' });
+				string[] array2 = _uiText.Text.Split('\n');
 				for (int j = 0; j < array2.Length; j++)
 				{
 					if (cursorIndex - array2[j].Length > 0)
@@ -312,10 +290,6 @@ public class UXTextBox : UXTextInputElement
 
 	protected override Vector3 GetTextOffset(string text)
 	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0011: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0016: Unknown result type (might be due to invalid IL or missing references)
 		return GetTextBasePosition() + Vector3.up * slideTextOffset;
 	}
 
@@ -330,12 +304,6 @@ public class UXTextBox : UXTextInputElement
 
 	public override Rect GetBoundingBox()
 	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0033: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0038: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008e: Unknown result type (might be due to invalid IL or missing references)
 		Rect boundingBox = base.GetBoundingBox();
 		boundingBox.center += new Vector2(TEXT_INDENT * screen.Scale, TEXT_INDENT * screen.Scale);
 		boundingBox.width -= TEXT_INDENT * 2f * screen.Scale;

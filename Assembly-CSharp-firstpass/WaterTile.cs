@@ -14,39 +14,39 @@ public class WaterTile : MonoBehaviour
 
 	private void AcquireComponents()
 	{
-		if (!Object.op_Implicit((Object)(object)reflection))
+		if (!reflection)
 		{
-			if (Object.op_Implicit((Object)(object)((Component)this).transform.parent))
+			if ((bool)transform.parent)
 			{
-				reflection = ((Component)((Component)this).transform.parent).GetComponent<PlanarReflection>();
+				reflection = transform.parent.GetComponent<PlanarReflection>();
 			}
 			else
 			{
-				reflection = ((Component)((Component)this).transform).GetComponent<PlanarReflection>();
+				reflection = transform.GetComponent<PlanarReflection>();
 			}
 		}
-		if (!Object.op_Implicit((Object)(object)waterBase))
+		if (!waterBase)
 		{
-			if (Object.op_Implicit((Object)(object)((Component)this).transform.parent))
+			if ((bool)transform.parent)
 			{
-				waterBase = ((Component)((Component)this).transform.parent).GetComponent<WaterBase>();
+				waterBase = transform.parent.GetComponent<WaterBase>();
 			}
 			else
 			{
-				waterBase = ((Component)((Component)this).transform).GetComponent<WaterBase>();
+				waterBase = transform.GetComponent<WaterBase>();
 			}
 		}
 	}
 
 	public void OnWillRenderObject()
 	{
-		if (Object.op_Implicit((Object)(object)reflection))
+		if ((bool)reflection)
 		{
-			reflection.WaterTileBeingRendered(((Component)this).transform, Camera.current);
+			reflection.WaterTileBeingRendered(transform, Camera.current);
 		}
-		if (Object.op_Implicit((Object)(object)waterBase))
+		if ((bool)waterBase)
 		{
-			waterBase.WaterTileBeingRendered(((Component)this).transform, Camera.current);
+			waterBase.WaterTileBeingRendered(transform, Camera.current);
 		}
 	}
 }

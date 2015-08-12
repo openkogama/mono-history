@@ -5,5 +5,8 @@ public enum CameraType
 	JetPackCamera,
 	FreeRoam,
 	AvatarAccessory,
-	OrbitCamera
+	OrbitCamera,
+	Platformer,
+	LobbyState,
+	TransitionCamera
 }

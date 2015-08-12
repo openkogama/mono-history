@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
 using MV.WorldObject;
+using MV.WorldObject.RuntimeEvents;
 using UnityEngine;
 
 public class PickupItemCubeGun : PickupItemWithDelay
@@ -19,7 +21,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	public Transform chargeObject;
 
-	public float fireIntervalSecondary = 1.3f;
+	public ObscuredFloat fireIntervalSecondary = 1.3f;
 
 	public Bullet rocketPrefab;
 
@@ -43,7 +45,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	private bool waitingToFire;
 
-	private int currentAmmo = 10;
+	private ObscuredInt currentAmmo = 10;
 
 	private bool fireMain = true;
 
@@ -55,17 +57,17 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	public override int Quantity => currentAmmo;
 
-	protected override bool IsAmmoDepleted => currentAmmo <= 0;
+	protected override bool IsAmmoDepleted => (int)currentAmmo <= 0;
 
 	protected override void OnStart()
 	{
 		if (ShowCursors())
 		{
-			primaryCursor = Object.Instantiate((Object)(object)primaryCursor) as GUICellCursor;
-			secondaryCursor = Object.Instantiate((Object)(object)secondaryCursor) as GUICellCursor;
+			primaryCursor = UnityEngine.Object.Instantiate(primaryCursor);
+			secondaryCursor = UnityEngine.Object.Instantiate(secondaryCursor);
 			secondaryCursor.FadeOverride = FadeOverride.FadeAllOut;
 		}
-		((Component)chargeObject).gameObject.SetActiveRecursively(false);
+		chargeObject.gameObject.SetActive(value: false);
 		currentAmmo = ammo;
 	}
 
@@ -75,47 +77,33 @@ public class PickupItemCubeGun : PickupItemWithDelay
 		{
 			HandleCursors();
 		}
-		if (fireSecondary && (Object)(object)((Component)this).audio.clip != (Object)(object)chargeSound)
+		if (fireSecondary && GetComponent<AudioSource>().clip != chargeSound)
 		{
-			((Component)this).audio.clip = chargeSound;
-			((Component)this).audio.loop = true;
-			((Component)this).audio.Play();
+			GetComponent<AudioSource>().clip = chargeSound;
+			GetComponent<AudioSource>().loop = true;
+			GetComponent<AudioSource>().Play();
 		}
-		if (IsAmmoDepleted && ((Component)cubeBullet).renderer.enabled)
+		if (IsAmmoDepleted && cubeBullet.GetComponent<Renderer>().enabled)
 		{
-			((Component)cubeBullet).renderer.enabled = false;
+			cubeBullet.GetComponent<Renderer>().enabled = false;
 		}
-		else if (!IsAmmoDepleted && !((Component)cubeBullet).renderer.enabled)
+		else if (!IsAmmoDepleted && !cubeBullet.GetComponent<Renderer>().enabled)
 		{
-			((Component)cubeBullet).renderer.enabled = true;
+			cubeBullet.GetComponent<Renderer>().enabled = true;
 		}
 	}
 
 	private bool DoLineOfFireCheck(out VoxelHit hit)
 	{
-		//IL_0008: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0013: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0018: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0032: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0058: Unknown result type (might be due to invalid IL or missing references)
 		Ray ray = new Ray(owner.LookOrigin, owner.LookDirection);
-		LayerMask val = LayerMask.op_Implicit(1 << LayerMask.NameToLayer("Default"));
-		return CollisionDetection.MVHit(ray, out hit, range, new HashSet<int> { owner.WorldObjectOwner.Id }, LayerMask.op_Implicit(val));
+		LayerMask layerMask = 1 << LayerMask.NameToLayer("Default");
+		return CollisionDetection.MVHit(ray, out hit, range, new HashSet<int> { owner.WorldObjectOwner.Id }, layerMask);
 	}
 
 	private bool CanInsertCubeAtCubePos(IntVector cubePos)
 	{
-		//IL_0015: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0027: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002c: Unknown result type (might be due to invalid IL or missing references)
-		Vector3 val = SharedCubeFunctions.LocalToWorld(MVGameController.Instance.WOCM.GetSingletonWorldObject<MVCubeModelFineGrainedTerrain>().GameObject, cubePos);
-		Vector3 val2 = val - owner.LookOrigin;
-		if (val2.magnitude < minDistanceToCubeFire)
+		Vector3 vector = SharedCubeFunctions.LocalToWorld(MVGameController.WOCM.GetSingletonWorldObject<MVCubeModelFineGrainedTerrain>().GameObject, cubePos);
+		if ((vector - owner.LookOrigin).magnitude < minDistanceToCubeFire)
 		{
 			return false;
 		}
@@ -129,7 +117,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 			if (fireSecondary)
 			{
 				primaryCursor.FadeOverride = FadeOverride.FadeAllOut;
-				MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(hit.woId);
+				MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(hit.woId);
 				if (worldObjectClient is MVCubeModelFineGrainedTerrain)
 				{
 					if (hit.cubePos != secondaryCursor.LocalPos)
@@ -158,7 +146,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 				}
 				else if (cubePos != primaryCursor.LocalPos)
 				{
-					primaryCursor.SetCursorCube(cubePos, MVGameController.Instance.WOCM.GetSingletonWorldObject<MVCubeModelFineGrainedTerrain>().GameObject);
+					primaryCursor.SetCursorCube(cubePos, MVGameController.WOCM.GetSingletonWorldObject<MVCubeModelFineGrainedTerrain>().GameObject);
 					primaryCursor.FadeOverride = FadeOverride.FadeAllOut;
 					primaryCursor.FadeState = FadeState.FadeIn;
 				}
@@ -185,22 +173,16 @@ public class PickupItemCubeGun : PickupItemWithDelay
 		}
 	}
 
-	public override void OnStateChanged(Hashtable newState)
+	public override void OnStateChanged(Dictionary<object, object> newState)
 	{
 		currentAmmo = ammo;
-		Hashtable hashtable = (Hashtable)newState["itemData"];
-		material = (byte)hashtable["material"];
-		((Component)this).GetComponentInChildren<CubeBullet>().SetCubeMaterial(material);
+		Dictionary<object, object> dictionary = (Dictionary<object, object>)newState["itemData"];
+		material = (byte)dictionary["material"];
+		GetComponentInChildren<CubeBullet>().SetCubeMaterial(material);
 	}
 
 	protected override void OnFire(bool isLocal)
 	{
-		//IL_003a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b3: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d5: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0101: Unknown result type (might be due to invalid IL or missing references)
 		if (IsAmmoDepleted)
 		{
 			return;
@@ -214,37 +196,29 @@ public class PickupItemCubeGun : PickupItemWithDelay
 			}
 		}
 		Bullet bullet = Bullet.CreateBullet(rocketPrefab, muzzlePoint.position);
-		((Component)bullet).GetComponentInChildren<CubeBullet>().SetCubeMaterial(material);
+		bullet.GetComponentInChildren<CubeBullet>().SetCubeMaterial(material);
 		if (isLocal)
 		{
 			bullet.onHitLocal = (Bullet.OnHitDelegate)Delegate.Combine(bullet.onHitLocal, new Bullet.OnHitDelegate(HandleCubeHitLocal));
 		}
 		bullet.onHit = (Bullet.OnHitDelegate)Delegate.Combine(bullet.onHit, new Bullet.OnHitDelegate(HandleCubeHit));
 		bullet.Fire(lineOfFire: new Ray(owner.LookOrigin, owner.LookDirection), speed: owner.GetAbsolutProjectileSpeed(speed), range: range, ignoreWoIDs: owner.IgnoreWOIDs);
-		MVGameController.Instance.AudioManager.Play("cubeFire", firePrimary, muzzlePoint.position, 0.6f, SoundRangeDistance.Long);
-		currentAmmo--;
+		if (isLocal)
+		{
+			MVGameController.AudioManager.Play("cubeFire", firePrimary, Camera.main.transform.position + Camera.main.transform.forward, 0.4f, SoundRangeDistance.Long);
+		}
+		else
+		{
+			MVGameController.AudioManager.Play("cubeFire", firePrimary, muzzlePoint.position, 0.4f, SoundRangeDistance.Long);
+		}
+		currentAmmo = (int)currentAmmo - 1;
 	}
 
 	protected void OnFireSecondary(bool isLocal)
 	{
-		//IL_0030: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0040: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0111: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0116: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0086: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0123: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0128: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0143: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0148: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f7: Unknown result type (might be due to invalid IL or missing references)
-		((Component)this).audio.clip = releaseSound;
-		((Component)this).audio.loop = false;
-		((Component)this).audio.Play();
+		GetComponent<AudioSource>().clip = releaseSound;
+		GetComponent<AudioSource>().loop = false;
+		GetComponent<AudioSource>().Play();
 		Ray ray = new Ray(owner.LookOrigin, owner.LookDirection);
 		int num = -5 & ~(1 << LayerMask.NameToLayer("Player"));
 		num &= ~(1 << (LayerMask.NameToLayer("Logic") & 0x1F));
@@ -252,24 +226,39 @@ public class PickupItemCubeGun : PickupItemWithDelay
 		if (CollisionDetection.MVHit(ray, out var voxelHit, range, null, num))
 		{
 			point = voxelHit.point;
-			MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(voxelHit.woId);
-			if (worldObjectClient is MVCubeModelFineGrainedTerrain)
+			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(voxelHit.woId);
+			if (voxelHit.isCubeHit)
 			{
-				currentAmmo++;
-				if (isLocal)
+				float toughness = MVGameController.Game.MaterialRepository.GetMaterial(voxelHit.cube.FaceMaterials[0]).physicalProperties.toughness;
+				if (toughness != 0f)
 				{
-					MVCubeModelFineGrainedTerrain mVCubeModelFineGrainedTerrain = (MVCubeModelFineGrainedTerrain)worldObjectClient;
-					mVCubeModelFineGrainedTerrain.RemoveCube(voxelHit.cubePos);
-					mVCubeModelFineGrainedTerrain.HandleDelta();
+					currentAmmo = (int)currentAmmo + 1;
+					if (isLocal)
+					{
+						Debug.Log("Remove event");
+						MVGameController.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, float.PositiveInfinity);
+					}
 				}
-				MVGameController.Instance.AudioManager.Play("cube Destroyed", cubeDestroyedSound, point, 0.6f, SoundRangeDistance.Long);
+				if (toughness == 0f && worldObjectClient is MVCubeModelFineGrainedTerrain)
+				{
+					currentAmmo = (int)currentAmmo + 1;
+					if (isLocal)
+					{
+						MVCubeModelFineGrainedTerrain mVCubeModelFineGrainedTerrain = (MVCubeModelFineGrainedTerrain)worldObjectClient;
+						mVCubeModelFineGrainedTerrain.RemoveCube(voxelHit.cubePos);
+						mVCubeModelFineGrainedTerrain.HandleDelta();
+						Debug.Log("Remove as update cube model");
+					}
+					SharedWorldObjectGameplayFunctions.DustEfffect("ParticleFX/CubeDust", point, 1f);
+				}
+				GameSessionCounters.Decrement(GameSessionCounterType.CubeGunCubeDelta);
 			}
 		}
 		else
 		{
 			point = ray.GetPoint(range);
 		}
-		RailRay railRay = Object.Instantiate((Object)(object)railGunRayPrefab, muzzlePoint.position, Quaternion.identity) as RailRay;
+		RailRay railRay = UnityEngine.Object.Instantiate(railGunRayPrefab, muzzlePoint.position, Quaternion.identity) as RailRay;
 		railRay.target = point;
 		railRay.startColor = Color.yellow;
 	}
@@ -278,11 +267,11 @@ public class PickupItemCubeGun : PickupItemWithDelay
 	{
 		if (isFiring)
 		{
-			Debug.Log((object)"Got TriggerStart, but were firing");
+			Debug.Log("Got TriggerStart, but were firing");
 		}
 		else if (!waitingToFire)
 		{
-			((MonoBehaviour)this).StartCoroutine(DoAutoFire());
+			StartCoroutine(DoAutoFire());
 		}
 	}
 
@@ -300,23 +289,23 @@ public class PickupItemCubeGun : PickupItemWithDelay
 		isFiring = true;
 		fireMain = true;
 		fireSecondary = false;
-		if (Time.time - prevFireTime > fireInterval)
+		if (Time.time - prevFireTime > (float)fireInterval)
 		{
-			prevFireTime = Time.time - fireInterval;
+			prevFireTime = Time.time - (float)fireInterval;
 		}
 		while (isFiring)
 		{
 			float timeFiring = Time.time - prevFireTime;
 			bool prevFireSecondary = fireSecondary;
-			fireSecondary = timeFiring > fireIntervalSecondary;
+			fireSecondary = timeFiring > (float)fireIntervalSecondary;
 			fireMain = !fireSecondary;
 			if (fireSecondary && !prevFireSecondary)
 			{
-				((Component)chargeObject).gameObject.SetActiveRecursively(true);
+				chargeObject.gameObject.SetActive(value: true);
 			}
 			yield return 0;
 		}
-		while (Time.time - prevFireTime <= fireInterval)
+		while (Time.time - prevFireTime <= (float)fireInterval)
 		{
 			waitingToFire = true;
 			yield return 0;
@@ -330,7 +319,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 		{
 			OnFireSecondary(owner.IsLocal);
 			prevFireTime = Time.time;
-			((Component)chargeObject).gameObject.SetActiveRecursively(false);
+			chargeObject.gameObject.SetActive(value: false);
 		}
 		fireMain = false;
 		fireSecondary = false;
@@ -342,20 +331,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	private bool GetCubePosFromFineGrainedTerrain(VoxelHit voxelHit, float maxDistanceToEdge, ref IntVector pos)
 	{
-		//IL_0038: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0074: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0080: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0132: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0144: Unknown result type (might be due to invalid IL or missing references)
-		//IL_016b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0170: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0179: Unknown result type (might be due to invalid IL or missing references)
-		//IL_017e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_019c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01a1: Unknown result type (might be due to invalid IL or missing references)
-		MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(voxelHit.woId);
+		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(voxelHit.woId);
 		if (worldObjectClient is MVCubeModelFineGrainedTerrain)
 		{
 			Edge edge = Cube.GetEdge(worldObjectClient.GameObject, voxelHit.cube, voxelHit.face, voxelHit.point, voxelHit.cubePos);
@@ -379,13 +355,13 @@ public class PickupItemCubeGun : PickupItemWithDelay
 						Debug.DrawLine(edgeVerticesWorld2[0], edgeVerticesWorld2[1], Color.cyan, 10f);
 						int num = 0;
 						Vector3[] array = edgeVerticesWorld2;
-						foreach (Vector3 val in array)
+						foreach (Vector3 b in array)
 						{
-							if (Vector3.Distance(edgeVerticesWorld[0], val) < 0.01f)
+							if (Vector3.Distance(edgeVerticesWorld[0], b) < 0.01f)
 							{
 								num++;
 							}
-							if (Vector3.Distance(edgeVerticesWorld[1], val) < 0.01f)
+							if (Vector3.Distance(edgeVerticesWorld[1], b) < 0.01f)
 							{
 								num++;
 							}
@@ -409,27 +385,31 @@ public class PickupItemCubeGun : PickupItemWithDelay
 	private void HandleCubeHitLocal(VoxelHit voxelHit, Ray lineOfFire)
 	{
 		IntVector cubePos = GetCubePos(voxelHit);
-		MVCubeModelFineGrainedTerrain singletonWorldObject = MVGameController.Instance.WOCM.GetSingletonWorldObject<MVCubeModelFineGrainedTerrain>();
-		singletonWorldObject.AddCube(cubePos, new Cube(CubeDataPacker.CornersToByteArray(CubeBase.IdentityCorners), Cube.CreateMaterialArray(material)));
-		singletonWorldObject.HandleDelta();
+		float toughness = MVGameController.Game.MaterialRepository.GetMaterial(material).physicalProperties.toughness;
+		if (toughness == 0f)
+		{
+			MVCubeModelFineGrainedTerrain singletonWorldObject = MVGameController.WOCM.GetSingletonWorldObject<MVCubeModelFineGrainedTerrain>();
+			singletonWorldObject.AddCube(cubePos, new Cube(CubeDataPacker.CornersToByteArray(CubeBase.IdentityCorners), Cube.CreateMaterialArray(material)));
+			singletonWorldObject.HandleDelta();
+		}
+		else
+		{
+			MVGameController.Game.World.RuntimeEventManager.SendRuntimeEvent(new SingleCubeFineGrainedEvent(cubePos, material));
+		}
+		GameSessionCounters.Increment(GameSessionCounterType.CubeGunCubeDelta);
 	}
 
 	private void HandleCubeHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-		MVGameController.Instance.AudioManager.Play("cubeLanded", cubeLandedSound, voxelHit.point, 0.6f, SoundRangeDistance.Long);
+		MVGameController.AudioManager.Play("cubeLanded", cubeLandedSound, voxelHit.point, 0.6f, SoundRangeDistance.Long);
 	}
 
 	private IntVector GetCubePos(VoxelHit voxelHit)
 	{
-		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0038: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0042: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0047: Unknown result type (might be due to invalid IL or missing references)
 		IntVector pos = default;
 		if (!GetCubePosFromFineGrainedTerrain(voxelHit, 0.2f, ref pos))
 		{
-			return SharedCubeFunctions.WorldToLocal(MVGameController.Instance.WOCM.GetSingletonWorldObject<MVCubeModelFineGrainedTerrain>().GameObject, voxelHit.point + voxelHit.normal * 0.1f);
+			return SharedCubeFunctions.WorldToLocal(MVGameController.WOCM.GetSingletonWorldObject<MVCubeModelFineGrainedTerrain>().GameObject, voxelHit.point + voxelHit.normal * 0.1f);
 		}
 		return pos;
 	}

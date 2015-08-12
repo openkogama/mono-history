@@ -1,4 +1,5 @@
 using System;
+using MV.Common;
 using UnityEngine;
 
 public class MVGUISoundEmitterLine : UXLine
@@ -48,23 +49,19 @@ public class MVGUISoundEmitterLine : UXLine
 
 	public void BuildLine(StreamingAssetInfo assetInfo, bool unlocked)
 	{
-		//IL_0024: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0055: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005f: Expected Obj, but got Unknown
 		AssetInfo = assetInfo;
 		lineBG.SetSize(Width, Height);
 		lineBG.SetColor(Color.black, string.Empty);
-		((Renderer)((Component)unlockStatus).GetComponent<MeshRenderer>()).material = new Material((!unlocked) ? lockedMaterial : unlockedMaterial);
+		unlockStatus.GetComponent<MeshRenderer>().material = new Material((!unlocked) ? lockedMaterial : unlockedMaterial);
 		nameText.Text = assetInfo.Name;
 		InitializeClickListeners();
 		UXToggleIconButton uXToggleIconButton = playButton;
 		uXToggleIconButton.OnToggle = (UXToggleIconButton.OnToggleDelegate)Delegate.Combine(uXToggleIconButton.OnToggle, new UXToggleIconButton.OnToggleDelegate(OnPlayClick));
-		((Component)loadingCircle).gameObject.SetActiveRecursively(false);
+		loadingCircle.gameObject.SetActive(value: false);
 	}
 
 	public void SetSelected(bool selected)
 	{
-		//IL_0014: Unknown result type (might be due to invalid IL or missing references)
 		this.selected = selected;
 		if (selected)
 		{
@@ -78,8 +75,6 @@ public class MVGUISoundEmitterLine : UXLine
 
 	private void UpdateMouseOver()
 	{
-		//IL_0044: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0029: Unknown result type (might be due to invalid IL or missing references)
 		if (mouseOver)
 		{
 			lineBG.Visible = true;
@@ -100,18 +95,13 @@ public class MVGUISoundEmitterLine : UXLine
 
 	private void InitializeClickListeners()
 	{
-		//IL_0030: Unknown result type (might be due to invalid IL or missing references)
-		((Component)this).gameObject.AddComponent<BoxCollider>();
-		BoxCollider component = ((Component)this).gameObject.GetComponent<BoxCollider>();
+		gameObject.AddComponent<BoxCollider>();
+		BoxCollider component = gameObject.GetComponent<BoxCollider>();
 		component.size = new Vector3(Width - 5f, Height, 1f);
-		UXMouseClickObject uXMouseClickObject = ((Component)this).gameObject.AddComponent<UXMouseClickObject>();
+		UXMouseClickObject uXMouseClickObject = gameObject.AddComponent<UXMouseClickObject>();
 		uXMouseClickObject.OnMouseDown = (UXMouseClickObject.OnMouseDownDelegate)Delegate.Combine(uXMouseClickObject.OnMouseDown, (UXMouseClickObject.OnMouseDownDelegate)((UXMouseClickObject clickObject, Vector3 mousePos) =>
 		{
-			//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-			//IL_0009: Unknown result type (might be due to invalid IL or missing references)
-			Rect clippedBounds = GetClippedBounds();
-			if (clippedBounds.Contains(mousePos))
+			if (GetClippedBounds().Contains(mousePos))
 			{
 				mouseDown = true;
 			}
@@ -134,13 +124,12 @@ public class MVGUISoundEmitterLine : UXLine
 
 	public override void Update()
 	{
-		//IL_0034: Unknown result type (might be due to invalid IL or missing references)
 		base.Update();
 		UpdateMouseOver();
 		mouseOver = false;
 		if (Visible && loading)
 		{
-			((Component)loadingCircle).transform.Rotate(Vector3.forward, 500f * Time.deltaTime);
+			loadingCircle.transform.Rotate(Vector3.forward, 500f * Time.deltaTime);
 		}
 	}
 
@@ -153,10 +142,10 @@ public class MVGUISoundEmitterLine : UXLine
 				OnNodePreviewClick(this);
 			}
 			playButton.SetToggleState(toggle: false);
-			((Component)playButton).gameObject.SetActiveRecursively(false);
-			((Component)loadingCircle).gameObject.SetActiveRecursively(true);
+			playButton.gameObject.SetActive(value: false);
+			loadingCircle.gameObject.SetActive(value: true);
 			loading = true;
-			MVGameController.Instance.Game.AssetBundleMgr.RequestAssetBundle(AssetInfo.RequestPath, OnDoneLoading, autoRetry: false, highPriority: true);
+			AsyncWWWManager.WWWRequest(new StreamingAssetRequest(Urls.StreamingAssets + AssetInfo.RequestPath, OnDoneLoading));
 		}
 		else
 		{
@@ -168,11 +157,12 @@ public class MVGUISoundEmitterLine : UXLine
 		}
 	}
 
-	private void OnDoneLoading(AssetBundle loadedBundle, string assetBundleUrl)
+	private void OnDoneLoading(WWW loadedBundle)
 	{
-		MVGameController.Instance.Game.AssetBundleMgr.UnsubscribeBundleCallback(assetBundleUrl, OnDoneLoading);
-		((Component)loadingCircle).gameObject.SetActiveRecursively(false);
-		((Component)playButton).gameObject.SetActiveRecursively(((Component)this).gameObject.active);
+		Debug.Log("Done loading");
+		Debug.Log(loadedBundle.assetBundle);
+		loadingCircle.gameObject.SetActive(value: false);
+		playButton.gameObject.SetActive(gameObject.activeInHierarchy);
 		if (OnPlayNodePreview != null && PlayOnLoad)
 		{
 			OnPlayNodePreview(this);

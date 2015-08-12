@@ -1,8 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Localize;
 using MV.Common;
 using UnityEngine;
 
@@ -18,19 +16,11 @@ public class MVGUIAvatarAccessoryExpirationHandler : MonoBehaviour
 
 	private bool subscribedToAvatar;
 
-	private bool respawned;
+	private MVNetworkGame Game => MVGameController.Game;
 
-	private MVNetworkGame Game => MVGameController.Instance.Game;
+	private MVWorldObjectClientManager WOCM => MVGameController.WOCM;
 
-	private MVWorldObjectClientManager WOCM => MVGameController.Instance.WOCM;
-
-	private PlayController PlayController => MVGameController.Instance.PlayController;
-
-	private EditorController EditorController => MVGameController.Instance.EditorController;
-
-	private CharacterEditorController CharacterEditorController => MVGameController.Instance.CharacterEditorController;
-
-	private UXDialogFactory DialogFactory => UXUtils.FindGUIObjectOfType<UXDialogFactory>();
+	private UXDialogFactory DialogFactory => UXUtils.UXDialogFactory;
 
 	private void Start()
 	{
@@ -58,7 +48,7 @@ public class MVGUIAvatarAccessoryExpirationHandler : MonoBehaviour
 			WOCM.AvatarLocal.Respawned += AvatarController_Respawned;
 			subscribedToAvatar = true;
 		}
-		if (!((Object)(object)MVGameController.Instance == (Object)null) && expiringAccessories.Count != 0 && !(Time.time - lastDialogTime < dialogWaitDelay))
+		if (expiringAccessories.Count != 0 && !(Time.time - lastDialogTime < dialogWaitDelay))
 		{
 			ProcessOneFromExpiredQueue();
 		}
@@ -82,31 +72,23 @@ public class MVGUIAvatarAccessoryExpirationHandler : MonoBehaviour
 
 	private void AvatarController_Respawned(object source, EventArgs e)
 	{
-		respawned = true;
 		ProcessOneFromExpiredQueue();
-		respawned = false;
 	}
 
 	private bool CanShowPopup(InventoryExpirationInfo expirationInfo)
 	{
-		if (PlayController != null)
+		return MVGameController.GameMode switch
 		{
-			return CanShowExpirationPopup(PlayController, expirationInfo);
-		}
-		if (EditorController != null)
-		{
-			return CanShowExpirationPopup(EditorController, expirationInfo);
-		}
-		if (CharacterEditorController != null)
-		{
-			return CanShowExpirationPopup(CharacterEditorController, expirationInfo);
-		}
-		return false;
+			MVGameMode.Edit => CanShowExpirationPopup(MVGameController.EditorController, expirationInfo), 
+			MVGameMode.Play => CanShowExpirationPopup(MVGameController.PlayController, expirationInfo), 
+			MVGameMode.CharacterEditor => CanShowExpirationPopup(MVGameController.CharacterEditorController, expirationInfo), 
+			_ => throw new ArgumentOutOfRangeException(), 
+		};
 	}
 
-	private bool CanShowExpirationPopup(PlayController playController, InventoryExpirationInfo expirationInfo)
+	private bool CanShowExpirationPopup(PlayControllerBase playController, InventoryExpirationInfo expirationInfo)
 	{
-		if (!((Object)(object)DialogFactory.CurrentDialogBox == (Object)null) || playController.IsChatShown() || playController.IsMenuShown() || (!WOCM.AvatarLocal.IsDead && !respawned))
+		if (!(DialogFactory.CurrentDialogBox == null) || playController.IsMenuShown() || LockCursorManager.LockCursor)
 		{
 			return false;
 		}
@@ -122,7 +104,7 @@ public class MVGUIAvatarAccessoryExpirationHandler : MonoBehaviour
 
 	private bool CanShowExpirationPopup(EditorController playController, InventoryExpirationInfo expirationInfo)
 	{
-		if ((Object)(object)DialogFactory.CurrentDialogBox != (Object)null || playController.IsMenuShown())
+		if (DialogFactory.CurrentDialogBox != null || playController.IsMenuShown())
 		{
 			return false;
 		}
@@ -138,28 +120,28 @@ public class MVGUIAvatarAccessoryExpirationHandler : MonoBehaviour
 
 	private bool CanShowExpirationPopup(CharacterEditorController playController, InventoryExpirationInfo expirationInfo)
 	{
-		return (Object)(object)DialogFactory.CurrentDialogBox == (Object)null && !playController.IsMenuShown() && !playController.IsAvatarShopShown();
+		return DialogFactory.CurrentDialogBox == null && !playController.IsAvatarShopShown();
 	}
 
 	private void ShowExpirationPopup(InventoryExpirationInfo expirationInfo)
 	{
 		if (!expirationInfo.IsExpiredNotRenewed)
 		{
-			ProductInventoryInfo<StreamingAssetInfo> productInventoryInfo = Game.StreamingAssetInventory.Get(expirationInfo.InventoryID);
+			ProductInventoryInfo productInventoryInfo = Game.StreamingAssetInventory.Get(expirationInfo.InventoryID);
 			if (productInventoryInfo == null)
 			{
-				Debug.LogWarning((object)("Expired accessory " + expirationInfo.InventoryID + " that is not in inventory, remove from any body it is attached on"));
+				Debug.LogWarning("Expired accessory " + expirationInfo.InventoryID + " that is not in inventory, remove from any body it is attached on");
 				RemoveAccessoryFromPlayerBodies(expirationInfo.InventoryID);
 			}
 			else if (productInventoryInfo.ProductInfo.ShopInfo == null)
 			{
 				inventoryIDOfOpenExpirationDialog = expirationInfo.InventoryID;
-				DialogFactory.CreateCustomDialog("Prefabs/GUI/AvatarAccessory/AvatarAccessoryExpirationDialog", TextSlotIndex.ItemExpiredHeader, noButtons: true, stackDialog: true, canClose: false).SetOnResultCallback(OnExpirationPopupReturn).Show();
+				DialogFactory.CreateCustomDialog("Prefabs/GUI/AvatarAccessory/AvatarAccessoryExpirationDialog", TM._("Rent Period Expired"), noButtons: true, stackDialog: true, canClose: false).SetOnResultCallback(OnExpirationPopupReturn).Show();
 				(DialogFactory.CurrentDialogBox as MVGUIAvatarAccessoryExpirationDialog).BuildExpirationDialog(productInventoryInfo);
 			}
 			else
 			{
-				DialogFactory.CreateCustomDialog("Prefabs/GUI/Dialogs/AvatarAccessoryShopDialog", TextSlotIndex.Empty, noButtons: true, stackDialog: true, canClose: false).SetOnResultCallback(OnExpirationPopupReturn).SetValues(BuildDialogData(productInventoryInfo.ProductInfo))
+				DialogFactory.CreateCustomDialog("Prefabs/GUI/Dialogs/AvatarAccessoryShopDialog", string.Empty, noButtons: true, stackDialog: true, canClose: false).SetOnResultCallback(OnExpirationPopupReturn).SetValues(BuildDialogData(productInventoryInfo.ProductInfo))
 					.Show();
 				MVGUIAvatarAccessoryShopDialog mVGUIAvatarAccessoryShopDialog = (MVGUIAvatarAccessoryShopDialog)DialogFactory.CurrentDialogBox;
 				mVGUIAvatarAccessoryShopDialog.BuildShopDialogForRentRenewal(productInventoryInfo.ProductInfo, productInventoryInfo.InventoryID);
@@ -180,12 +162,11 @@ public class MVGUIAvatarAccessoryExpirationHandler : MonoBehaviour
 			text = streamingAssetInfo.Desc,
 			useWordWrap = true
 		});
-		Object val = Object.Instantiate(Resources.Load("Prefabs/GUI/ShopPreview/AvatarAccessoryShopPreview"));
-		MVGUIAvatarAccessoryShopPreview component = ((GameObject)((val is GameObject) ? val : null)).GetComponent<MVGUIAvatarAccessoryShopPreview>();
+		MVGUIAvatarAccessoryShopPreview component = (UnityEngine.Object.Instantiate(Resources.Load("Prefabs/GUI/ShopPreview/AvatarAccessoryShopPreview")) as GameObject).GetComponent<MVGUIAvatarAccessoryShopPreview>();
 		component.CreateNewViewItem(streamingAssetInfo);
 		dictionary.Add("AccessoryPreview", new ProductPreviewData
 		{
-			productPreview = ((Component)component).gameObject
+			productPreview = component.gameObject
 		});
 		return dictionary;
 	}
@@ -193,11 +174,11 @@ public class MVGUIAvatarAccessoryExpirationHandler : MonoBehaviour
 	private void OnExpirationPopupReturn(UXDialogBox dialogBox)
 	{
 		inventoryIDOfOpenExpirationDialog = -1;
-		Hashtable hashtable = (Hashtable)dialogBox.GetResult();
-		int num = (int)hashtable["oldInventoryID"];
+		Dictionary<object, object> dictionary = (Dictionary<object, object>)dialogBox.GetResult();
+		int num = (int)dictionary["oldInventoryID"];
 		if (dialogBox.DialogResult == UXDialogResult.Positive)
 		{
-			int num2 = (int)hashtable["newInventoryID"];
+			int num2 = (int)dictionary["newInventoryID"];
 			if (num != num2)
 			{
 				HandleExpireAvatarAccessory(num);
@@ -221,10 +202,10 @@ public class MVGUIAvatarAccessoryExpirationHandler : MonoBehaviour
 
 	private void HandleExpireAvatarAccessory(int inventoryID)
 	{
-		ProductInventoryInfo<StreamingAssetInfo> productInventoryInfo = Game.StreamingAssetInventory.Get(inventoryID);
+		ProductInventoryInfo productInventoryInfo = Game.StreamingAssetInventory.Get(inventoryID);
 		if (productInventoryInfo == null)
 		{
-			Debug.LogWarning((object)$"Item with inventoryID '{inventoryID}' was removed from inventory, but not from avatar");
+			Debug.LogWarning($"Item with inventoryID '{inventoryID}' was removed from inventory, but not from avatar");
 		}
 		else
 		{
@@ -235,9 +216,9 @@ public class MVGUIAvatarAccessoryExpirationHandler : MonoBehaviour
 	private int GetBodyIDOnEquippedItem(int inventoryID)
 	{
 		int result = 0;
-		if (MVGameController.Instance.Game.GameMode == MVGameMode.CharacterEditor)
+		if (MVGameController.GameMode == MVGameMode.CharacterEditor)
 		{
-			CharacterEditorController characterEditorController = MVGameController.Instance.IngameController as CharacterEditorController;
+			CharacterEditorController characterEditorController = MVGameController.IngameController as CharacterEditorController;
 			foreach (MVBody body in characterEditorController.Bodies)
 			{
 				MVBody mVBody = body;
@@ -250,16 +231,16 @@ public class MVGUIAvatarAccessoryExpirationHandler : MonoBehaviour
 		}
 		else
 		{
-			result = MVGameController.Instance.WOCM.AvatarLocal.Body.Id;
+			result = MVGameController.WOCM.AvatarLocal.Body.Id;
 		}
 		return result;
 	}
 
 	private void RemoveAccessoryFromPlayerBodies(int accessoryInventoryID)
 	{
-		if (MVGameController.Instance.Game.GameMode == MVGameMode.CharacterEditor)
+		if (MVGameController.GameMode == MVGameMode.CharacterEditor)
 		{
-			CharacterEditorController characterEditorController = MVGameController.Instance.IngameController as CharacterEditorController;
+			CharacterEditorController characterEditorController = MVGameController.IngameController as CharacterEditorController;
 			{
 				foreach (MVBody body2 in characterEditorController.Bodies)
 				{
@@ -272,7 +253,7 @@ public class MVGUIAvatarAccessoryExpirationHandler : MonoBehaviour
 				return;
 			}
 		}
-		MVBody body = MVGameController.Instance.WOCM.AvatarLocal.Body;
+		MVBody body = MVGameController.WOCM.AvatarLocal.Body;
 		if (body.HasAccessoryWithID(accessoryInventoryID))
 		{
 			Game.SetAvatarAccessorySlot(body.Id, accessoryInventoryID, AvatarAccessorySlot.Undefined, 0f);

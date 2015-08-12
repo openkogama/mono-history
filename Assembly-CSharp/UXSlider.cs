@@ -96,7 +96,7 @@ public class UXSlider : UXGUIElement, IUXContainer
 
 	public void Start()
 	{
-		inputDispatcher = UXUtils.FindGUIObjectOfType<UXInputDispatcher>();
+		inputDispatcher = UXUtils.UXInputDispatcher;
 		UXInputDispatcher uXInputDispatcher = inputDispatcher;
 		uXInputDispatcher.OnMouseButton = (UXInputDispatcher.OnMouseButtonDelegate)Delegate.Combine(uXInputDispatcher.OnMouseButton, new UXInputDispatcher.OnMouseButtonDelegate(OnMouseDown));
 		UXInputDispatcher uXInputDispatcher2 = inputDispatcher;
@@ -117,12 +117,9 @@ public class UXSlider : UXGUIElement, IUXContainer
 
 	private void CreateBar()
 	{
-		//IL_003e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0044: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0049: Unknown result type (might be due to invalid IL or missing references)
 		Bar = CreateBaseObject("SliderBar").AddComponent<UXSliderBar>();
-		((Component)Bar).transform.localPosition = new Vector3(Width / 2f, Height / 2f, 0f) - Alignment;
-		if ((Object)(object)_sliderBarMaterial != (Object)null)
+		Bar.transform.localPosition = new Vector3(Width / 2f, Height / 2f, 0f) - Alignment;
+		if (_sliderBarMaterial != null)
 		{
 			Bar.SetMaterial(_sliderBarMaterial);
 			Bar.uses9PatchMaterial = _sliderBarIs9Patch;
@@ -134,14 +131,8 @@ public class UXSlider : UXGUIElement, IUXContainer
 
 	private void CreateButton()
 	{
-		//IL_004a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0096: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0080: Unknown result type (might be due to invalid IL or missing references)
 		Button = CreateBaseObject("SliderButton").AddComponent<UXSliderButton>();
-		if ((Object)(object)_sliderMaterial != (Object)null)
+		if (_sliderMaterial != null)
 		{
 			Button.SetMaterial(_sliderMaterial);
 			Button.uses9PatchMaterial = _sliderIs9Patch;
@@ -158,7 +149,7 @@ public class UXSlider : UXGUIElement, IUXContainer
 			}
 		}
 		UpdateSliderSize();
-		UXMouseClickObject uXMouseClickObject = ((Component)Button).gameObject.AddComponent<UXMouseClickObject>();
+		UXMouseClickObject uXMouseClickObject = Button.gameObject.AddComponent<UXMouseClickObject>();
 		uXMouseClickObject.OnMouseDown = (UXMouseClickObject.OnMouseDownDelegate)Delegate.Combine(uXMouseClickObject.OnMouseDown, (UXMouseClickObject.OnMouseDownDelegate)((UXMouseClickObject click, Vector3 pos) =>
 		{
 			buttonPressed = true;
@@ -168,25 +159,22 @@ public class UXSlider : UXGUIElement, IUXContainer
 
 	private GameObject CreateBaseObject(string name)
 	{
-		//IL_0001: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0007: Expected Obj, but got Unknown
-		//IL_002e: Unknown result type (might be due to invalid IL or missing references)
-		GameObject val = new GameObject(name);
-		val.layer = LayerMask.NameToLayer("UXElement");
-		val.transform.parent = ((Component)this).transform;
-		val.transform.localScale = Vector3.one;
-		val.AddComponent<MeshRenderer>();
-		return val;
+		GameObject gameObject = new GameObject(name);
+		gameObject.layer = LayerMask.NameToLayer("UXElement");
+		gameObject.transform.parent = transform;
+		gameObject.transform.localScale = Vector3.one;
+		gameObject.AddComponent<MeshRenderer>();
+		return gameObject;
 	}
 
 	public override void SetVisible(bool visible)
 	{
 		base.SetVisible(visible);
-		if ((Object)(object)Bar != (Object)null)
+		if (Bar != null)
 		{
 			Bar.SetVisible(visible);
 		}
-		if ((Object)(object)Button != (Object)null)
+		if (Button != null)
 		{
 			Button.SetVisible(visible);
 		}
@@ -194,11 +182,8 @@ public class UXSlider : UXGUIElement, IUXContainer
 
 	public override void SetSize(float width, float height)
 	{
-		//IL_0030: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0036: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003b: Unknown result type (might be due to invalid IL or missing references)
 		base.SetSize(width, height);
-		((Component)Bar).transform.localPosition = new Vector3(Width / 2f, Height / 2f, 0f) - Alignment;
+		Bar.transform.localPosition = new Vector3(Width / 2f, Height / 2f, 0f) - Alignment;
 		Bar.SetSize(Width, Height);
 	}
 
@@ -210,10 +195,8 @@ public class UXSlider : UXGUIElement, IUXContainer
 
 	public void SetSliderSize(float width, float height)
 	{
-		//IL_0003: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0008: Unknown result type (might be due to invalid IL or missing references)
 		sliderSize = new Vector2(width, height);
-		if ((Object)(object)Button != (Object)null)
+		if (Button != null)
 		{
 			UpdateSliderSize();
 		}
@@ -221,7 +204,6 @@ public class UXSlider : UXGUIElement, IUXContainer
 
 	public void UpdateSliderSize()
 	{
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
 		Button.SetSize(sliderSize);
 		if (_value < _minValue)
 		{
@@ -238,64 +220,39 @@ public class UXSlider : UXGUIElement, IUXContainer
 
 	private void MoveSlider(Vector3 mousePositionWorld)
 	{
-		//IL_0026: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0036: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0037: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0042: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0047: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004c: Unknown result type (might be due to invalid IL or missing references)
 		isSliding = true;
 		startValue = _value - _minValue;
-		startSlide = ((Component)Button).transform.localPosition + ((Component)Button).transform.InverseTransformPoint(mousePositionWorld) + Alignment;
+		startSlide = Button.transform.localPosition + Button.transform.InverseTransformPoint(mousePositionWorld) + Alignment;
 	}
 
 	private void OnMouseDown(Vector3 mousePositionWorld)
 	{
-		//IL_001e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0024: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0025: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0027: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0052: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0054: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0059: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_012d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0143: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0149: Unknown result type (might be due to invalid IL or missing references)
-		//IL_014e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0153: Unknown result type (might be due to invalid IL or missing references)
-		if (!((Object)(object)this == (Object)null) && isSliding)
+		if (!(this == null) && isSliding)
 		{
-			Vector3 val = ((Component)this).transform.InverseTransformPoint(mousePositionWorld);
-			val += Alignment;
+			Vector3 vector = transform.InverseTransformPoint(mousePositionWorld);
+			vector += Alignment;
 			float num = Height;
 			float num2 = Width;
 			float num3 = 0f;
 			if (buttonPressed)
 			{
-				val -= startSlide;
+				vector -= startSlide;
 				num -= Button.Height;
 				num2 -= Button.Width;
 				num3 = startValue;
 			}
 			else
 			{
-				val.y = 0f - num + val.y;
+				vector.y = 0f - num + vector.y;
 			}
-			float num4 = ((!(num2 > num)) ? ((0f - val.y) / num) : (val.x / num2));
+			float num4 = ((!(num2 > num)) ? ((0f - vector.y) / num) : (vector.x / num2));
 			_intermediateValue = RoundToStep(Mathf.Clamp(num3 + _minValue + (_maxValue - _minValue) * num4, _minValue, _maxValue));
 			UpdateSliderPosition(_intermediateValue);
 			if (!buttonPressed)
 			{
 				buttonPressed = true;
 				startValue = _intermediateValue - _minValue;
-				startSlide = ((Component)Button).transform.localPosition + ((Component)Button).transform.InverseTransformPoint(mousePositionWorld) + Alignment;
+				startSlide = Button.transform.localPosition + Button.transform.InverseTransformPoint(mousePositionWorld) + Alignment;
 			}
 			if (OnValueChangedIntermediate != null)
 			{
@@ -321,10 +278,7 @@ public class UXSlider : UXGUIElement, IUXContainer
 
 	private void UpdateSliderPosition(float value)
 	{
-		//IL_00c6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00cc: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d1: Unknown result type (might be due to invalid IL or missing references)
-		if (!((Object)(object)this == (Object)null))
+		if (!(this == null))
 		{
 			if (!isInitialized)
 			{
@@ -341,7 +295,7 @@ public class UXSlider : UXGUIElement, IUXContainer
 			{
 				num3 *= 1f - num;
 			}
-			((Component)Button).transform.localPosition = new Vector3(num2 + Button.Width / 2f, num3 + Button.Height / 2f, -0.1f) - Alignment;
+			Button.transform.localPosition = new Vector3(num2 + Button.Width / 2f, num3 + Button.Height / 2f, -0.1f) - Alignment;
 		}
 	}
 

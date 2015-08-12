@@ -33,11 +33,6 @@ public class UXToggleIconButton : UXIconButton
 
 	protected override void Initialize()
 	{
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0011: Expected Obj, but got Unknown
-		//IL_0018: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0022: Expected Obj, but got Unknown
-		//IL_0030: Unknown result type (might be due to invalid IL or missing references)
 		materialOn = new Material(materialOn);
 		materialOff = new Material(materialOff);
 		base.Initialize();
@@ -48,18 +43,12 @@ public class UXToggleIconButton : UXIconButton
 
 	public override void SetAlpha(float alpha, string materialProperty = "_MainColor")
 	{
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0014: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0019: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0031: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003e: Unknown result type (might be due to invalid IL or missing references)
-		Color val = materialOn.GetColor(materialProperty);
-		Color val2 = materialOff.GetColor(materialProperty);
-		val.a = alpha;
-		val2.a = alpha;
-		materialOn.SetColor(materialProperty, val);
-		materialOff.SetColor(materialProperty, val2);
+		Color color = materialOn.GetColor(materialProperty);
+		Color color2 = materialOff.GetColor(materialProperty);
+		color.a = alpha;
+		color2.a = alpha;
+		materialOn.SetColor(materialProperty, color);
+		materialOff.SetColor(materialProperty, color2);
 		UpdateMaterial();
 	}
 
@@ -91,12 +80,12 @@ public class UXToggleIconButton : UXIconButton
 
 	private void UpdateMaterial()
 	{
-		((Component)this).renderer.material = ((!_toggleState) ? materialOff : materialOn);
-		UXMouseOverColorFade component = ((Component)this).GetComponent<UXMouseOverColorFade>();
-		if ((Object)(object)component != (Object)null)
+		GetComponent<Renderer>().material = ((!_toggleState) ? materialOff : materialOn);
+		UXMouseOverColorFade component = GetComponent<UXMouseOverColorFade>();
+		if (component != null)
 		{
 			component.materials.Clear();
-			component.materials.Add(((Component)this).renderer.material);
+			component.materials.Add(GetComponent<Renderer>().material);
 			component.UpdateMaterials();
 		}
 	}

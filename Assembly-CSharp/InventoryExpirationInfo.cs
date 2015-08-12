@@ -12,7 +12,7 @@ public class InventoryExpirationInfo
 
 	private ProductExpirationState expirationState;
 
-	private static MVNetworkGame Game => MVGameController.Instance.Game;
+	private static MVNetworkGame Game => MVGameController.Game;
 
 	public MVProductType ProductType { get; private set; }
 
@@ -36,7 +36,7 @@ public class InventoryExpirationInfo
 			{
 				if (expirationState == ProductExpirationState.ExpiredNotRenewed)
 				{
-					Debug.LogError((object)string.Concat(new object[5] { "Changing expiration state of ", InventoryID, " to ", value, " when already already expired permanently" }));
+					Debug.LogError(string.Concat("Changing expiration state of ", InventoryID, " to ", value, " when already already expired permanently"));
 				}
 				ProductExpirationState oldState = expirationState;
 				expirationState = value;
@@ -88,7 +88,7 @@ public class InventoryExpirationInfo
 
 	public override string ToString()
 	{
-		return string.Format("Product: {0}\nInventoryID: {1}\nPurchaseTime: {2}\nExpireSec: {3}\nExpirationState: {4}", new object[5] { ProductType, InventoryID, PurchaseTime, RentExpireSeconds, ExpirationState });
+		return $"Product: {ProductType}\nInventoryID: {InventoryID}\nPurchaseTime: {PurchaseTime}\nExpireSec: {RentExpireSeconds}\nExpirationState: {ExpirationState}";
 	}
 
 	public override bool Equals(object obj)
@@ -117,7 +117,7 @@ public class InventoryExpirationInfo
 	{
 		if (expirationState != ProductExpirationState.Expired && expirationState != ProductExpirationState.ExpiredNotRenewed && TimeBeforeExpire.Ticks <= 0)
 		{
-			Debug.LogWarning((object)("ExpInfo " + InventoryID + " expired"));
+			Debug.LogWarning("ExpInfo " + InventoryID + " expired");
 			ExpirationState = ProductExpirationState.Expired;
 		}
 	}

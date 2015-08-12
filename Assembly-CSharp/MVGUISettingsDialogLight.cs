@@ -1,11 +1,10 @@
 using System.Collections.Generic;
-using Localize;
 
 public class MVGUISettingsDialogLight : MVGUIDynamicSettingsDialog
 {
 	public MVGUISettingsDialogLight()
 	{
-		dialogFactory.CreateCustomDialog("Prefabs/GUI/Box Settings Dialogs/LightSettingsDialog", TextSlotIndex.Light).AddPositiveButton(TextSlotIndex.Ok).AddNegativeButton(TextSlotIndex.Cancel)
+		dialogFactory.CreateCustomDialog("Prefabs/GUI/Box Settings Dialogs/LightSettingsDialog", TM._("Light")).AddPositiveButton(TM._("Ok")).AddNegativeButton(TM._("Cancel"))
 			.SetOnResultCallback(OnDialogResult)
 			.SetOnIntermediateResultCallback(OnIntermediateResult)
 			.SetValues(BuildDialogData())

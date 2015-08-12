@@ -1,6 +1,8 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
+using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
+using MV.WorldObject;
 using UnityEngine;
 
 public class PickupItemShotgun : PickupItemWithDelay
@@ -13,7 +15,7 @@ public class PickupItemShotgun : PickupItemWithDelay
 
 	public ParticleSystem muzzleFlare;
 
-	public int ammo;
+	public ObscuredInt ammo;
 
 	public float spread = 0.1f;
 
@@ -27,50 +29,23 @@ public class PickupItemShotgun : PickupItemWithDelay
 
 	public override int Quantity => ammo;
 
-	protected override bool IsAmmoDepleted => ammo <= 0;
+	protected override bool IsAmmoDepleted => (int)ammo <= 0;
 
 	private void Start()
 	{
-		meshRenderers = ((Component)this).GetComponentsInChildren<MeshRenderer>();
+		meshRenderers = GetComponentsInChildren<MeshRenderer>();
 	}
 
-	public override void OnStateChanged(Hashtable newState)
+	public override void OnStateChanged(Dictionary<object, object> newState)
 	{
 		ammo = 24;
 	}
 
 	protected override void OnFire(bool isLocal)
 	{
-		//IL_0006: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0015: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0016: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
-		//IL_001c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0021: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0022: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
-		//IL_002d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_007d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0088: Unknown result type (might be due to invalid IL or missing references)
-		//IL_008d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0092: Unknown result type (might be due to invalid IL or missing references)
-		//IL_009d: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00a7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ad: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00bd: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00c7: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00ee: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01b2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0166: Unknown result type (might be due to invalid IL or missing references)
-		Quaternion val = Quaternion.LookRotation(owner.LookDirection, Vector3.up);
-		Vector3 val2 = val * Vector3.right;
-		Vector3 val3 = val * Vector3.up;
+		Quaternion quaternion = Quaternion.LookRotation(owner.LookDirection, Vector3.up);
+		Vector3 vector = quaternion * Vector3.right;
+		Vector3 vector2 = quaternion * Vector3.up;
 		float[] array = new float[5] { -1f, -1f, 0f, 1f, 1f };
 		float[] array2 = new float[5] { -1f, 1f, 0f, -1f, 1f };
 		muzzleFlare.Play();
@@ -78,7 +53,7 @@ public class PickupItemShotgun : PickupItemWithDelay
 		for (int i = 0; i < 5; i++)
 		{
 			ref Ray reference = ref array3[i];
-			reference = new Ray(owner.LookOrigin, owner.LookDirection + val2 * array[i] * spread + val3 * array2[i] * spread);
+			reference = new Ray(owner.LookOrigin, owner.LookDirection + vector * array[i] * spread + vector2 * array2[i] * spread);
 		}
 		for (int j = 0; j < 5; j++)
 		{
@@ -90,47 +65,41 @@ public class PickupItemShotgun : PickupItemWithDelay
 			}
 			bullet.Fire(owner.GetAbsolutProjectileSpeed(100f), 100f, array3[j], owner.IgnoreWOIDs);
 		}
-		ammo--;
-		MVGameController.Instance.AudioManager.Play("shotgun fire", ((Component)this).audio, muzzlePoint.position);
+		--ammo;
+		MVGameController.AudioManager.Play("shotgun fire", GetComponent<AudioSource>(), muzzlePoint.position);
+		if (isLocal)
+		{
+			MVGameController.AudioManager.Play("shotgun fire", GetComponent<AudioSource>(), Camera.main.transform.position + Camera.main.transform.forward);
+		}
+		else
+		{
+			MVGameController.AudioManager.Play("shotgun fire", GetComponent<AudioSource>(), muzzlePoint.position);
+		}
 		isFiring = false;
 	}
 
 	private void HandleHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
-		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0011: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0051: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0061: Unknown result type (might be due to invalid IL or missing references)
-		Quaternion val = Quaternion.FromToRotation(Vector3.up, voxelHit.normal);
-		MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(voxelHit.woId);
-		string text = ((!(worldObjectClient is MVAvatar)) ? "ParticleFX/Sparks" : "ParticleFX/Blood");
-		Object.Instantiate(Resources.Load(text), voxelHit.point, val);
+		Quaternion rotation = Quaternion.FromToRotation(Vector3.up, voxelHit.normal);
+		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(voxelHit.woId);
+		string path = ((!(worldObjectClient is MVAvatar)) ? "ParticleFX/Sparks" : "ParticleFX/Blood");
+		UnityEngine.Object.Instantiate(Resources.Load(path), voxelHit.point, rotation);
 		MeshDecal.Create(new MeshDecal.Hit(voxelHit.point, voxelHit.normal, 1f), hitDecalMaterial, null);
 	}
 
 	private void HandleDirectHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
-		//IL_004a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0055: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0068: Unknown result type (might be due to invalid IL or missing references)
-		int woIDHighestInHierarchyWithComponent = MVGameController.Instance.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
-		MVWorldObjectClient worldObjectClient = MVGameController.Instance.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
-		if (worldObjectClient == null)
+		Vector3 impulse = lineOfFire.direction * impulseStrength;
+		InteractionData interaction = ShotgunHitPackage.Create(impulse, hitDamage);
+		MVGameController.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, interaction.Damage);
+		int woIDHighestInHierarchyWithComponent = MVGameController.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
+		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
+		if (worldObjectClient != null)
 		{
-			return;
-		}
-		InteractionDataHandlerBase component = worldObjectClient.GameObject.GetComponent<InteractionDataHandlerBase>();
-		if (!((Object)(object)component == (Object)null))
-		{
-			Vector3 impulse = lineOfFire.direction * impulseStrength;
-			if ((Object)(object)component != (Object)null)
+			InteractionDataHandlerBase component = worldObjectClient.GameObject.GetComponent<InteractionDataHandlerBase>();
+			if (!(component == null) && component != null)
 			{
-				component.HandleInteraction(ShotgunHitPackage.Create(impulse, hitDamage), interactionIsLocal: false);
+				component.HandleInteraction(interaction, interactionIsLocal: false);
 			}
 		}
 	}

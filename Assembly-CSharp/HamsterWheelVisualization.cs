@@ -1,5 +1,5 @@
 using System;
-using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class HamsterWheelVisualization : VehicleVisualizationBase
@@ -51,8 +51,6 @@ public class HamsterWheelVisualization : VehicleVisualizationBase
 
 	public void Init(VehicleSeatManager vehicleSeatManager, float fullHealth, MVRuntimeDataVariableClampedFloat health, MVRuntimeDataVariable isMovingForward, MVRuntimeDataVariable isMovingBackwards, MVRuntimeDataVariable isGrounded, bool isInSpawner)
 	{
-		//IL_0137: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013c: Unknown result type (might be due to invalid IL or missing references)
 		base.isInSpawner = isInSpawner;
 		this.vehicleSeatManager = vehicleSeatManager;
 		vehicleSeatManager.OnSeatOccupiedChange = (VehicleSeatManager.OnSeatOccupiedChangeDelegate)Delegate.Combine(vehicleSeatManager.OnSeatOccupiedChange, new VehicleSeatManager.OnSeatOccupiedChangeDelegate(OnSeatOccupiedChange));
@@ -73,16 +71,16 @@ public class HamsterWheelVisualization : VehicleVisualizationBase
 		{
 			OnGroundedChange((bool)val);
 		}));
-		vehicleBlinker.Init(((Component)hamsterWheelVisualizationRoot).gameObject.GetComponentsInChildren<MeshFilter>());
+		vehicleBlinker.Init(hamsterWheelVisualizationRoot.gameObject.GetComponentsInChildren<MeshFilter>());
 		vehicleBlinker.Visible = true;
 		if (isInSpawner)
 		{
-			((Behaviour)this).enabled = false;
+			enabled = false;
 		}
-		blobShadow = ((Component)hamsterWheelVisualizationRoot).GetComponentInChildren<AvatarBlobShadowController>();
-		if ((Object)(object)blobShadow != (Object)null)
+		blobShadow = hamsterWheelVisualizationRoot.GetComponentInChildren<AvatarBlobShadowController>();
+		if (blobShadow != null)
 		{
-			((Behaviour)blobShadow).enabled = false;
+			blobShadow.enabled = false;
 		}
 		prevPosition = wheel.transform.position;
 		cullDistance = 100f;
@@ -93,29 +91,19 @@ public class HamsterWheelVisualization : VehicleVisualizationBase
 	{
 		if (vehicleSeatManager.OccupiedSeatsCount == 0)
 		{
-			if ((Object)(object)blobShadow != (Object)null)
+			if (blobShadow != null)
 			{
-				((Behaviour)blobShadow).enabled = false;
+				blobShadow.enabled = false;
 			}
 		}
-		else if ((Object)(object)blobShadow != (Object)null)
+		else if (blobShadow != null)
 		{
-			((Behaviour)blobShadow).enabled = true;
+			blobShadow.enabled = true;
 		}
 	}
 
 	private void Update()
 	{
-		//IL_0039: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0043: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0048: Unknown result type (might be due to invalid IL or missing references)
-		//IL_005b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0066: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0159: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01a2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00dc: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00e1: Unknown result type (might be due to invalid IL or missing references)
 		if (!isInSpawner)
 		{
 			HandleUnoccupiedVehicle();
@@ -124,15 +112,15 @@ public class HamsterWheelVisualization : VehicleVisualizationBase
 		{
 			slerper = null;
 		}
-		Vector3 val = Vector3.Cross(velocity.normalized, Vector3.up);
+		Vector3 axis = Vector3.Cross(velocity.normalized, Vector3.up);
 		float num = velocity.magnitude;
-		float num2 = Vector3.Dot(((Component)this).transform.forward, velocity.normalized);
+		float num2 = Vector3.Dot(transform.forward, velocity.normalized);
 		if (!vehicleIsUnoccupied)
 		{
 			bool flag = false;
 			if (speedState != SpeedState.Idle && ((num < spinSpeed && num > 0f - spinSpeed / 4f) || (speedState == SpeedState.Backwards && num2 > 0f) || (speedState == SpeedState.Forward && num2 < 0f)))
 			{
-				val = ((Component)this).transform.right;
+				axis = transform.right;
 				if (speedState == SpeedState.Forward)
 				{
 					num = 0f - spinSpeed;
@@ -156,24 +144,15 @@ public class HamsterWheelVisualization : VehicleVisualizationBase
 				audioSourceSqueal.Stop();
 			}
 		}
-		wheel.transform.RotateAround(val, (0f - num) * Time.deltaTime);
+		wheel.transform.Rotate(axis, (0f - num) * Time.deltaTime * 57.29578f, Space.World);
 		if (speedState == SpeedState.Idle && !vehicleIsUnoccupied)
 		{
-			vehicleSeatManager.seats[0].Owner.Body.Transform.parent.RotateAround(val, (0f - num) * Time.deltaTime);
+			vehicleSeatManager.seats[0].Owner.Body.Transform.parent.Rotate(axis, (0f - num) * Time.deltaTime * 57.29578f, Space.World);
 		}
 	}
 
 	private void FixedUpdate()
 	{
-		//IL_000b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0010: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0012: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0014: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0019: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0028: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004b: Unknown result type (might be due to invalid IL or missing references)
 		Vector3 position = wheel.transform.position;
 		velocity = (position - prevPosition) / Time.deltaTime;
 		float magnitude = velocity.magnitude;
@@ -207,14 +186,14 @@ public class HamsterWheelVisualization : VehicleVisualizationBase
 
 	private void OnEnable()
 	{
-		((Behaviour)vehicleBlinker).enabled = true;
+		vehicleBlinker.enabled = true;
 	}
 
 	private void OnDisable()
 	{
-		if ((Object)(object)vehicleBlinker != (Object)null)
+		if (vehicleBlinker != null)
 		{
-			((Behaviour)vehicleBlinker).enabled = false;
+			vehicleBlinker.enabled = false;
 		}
 	}
 
@@ -230,15 +209,15 @@ public class HamsterWheelVisualization : VehicleVisualizationBase
 	private void OnMovingForwardChange(bool value)
 	{
 		MVAvatar owner = vehicleSeatManager.seats[0].Owner;
-		int serverTimeInMilliSeconds = MVGameController.Instance.Game.ServerTimeInMilliSeconds;
+		int serverTimeInMilliSeconds = MVGameController.Game.ServerTimeInMilliSeconds;
 		if (value)
 		{
 			if (owner.Avatar.IsLocal)
 			{
-				Hashtable hashtable = new Hashtable();
-				hashtable.Add("state", "Walk");
-				hashtable.Add("timeStamp", serverTimeInMilliSeconds);
-				Hashtable value2 = hashtable;
+				Dictionary<object, object> dictionary = new Dictionary<object, object>();
+				dictionary.Add("state", "Walk");
+				dictionary.Add("timeStamp", serverTimeInMilliSeconds);
+				Dictionary<object, object> value2 = dictionary;
 				owner.Animation.Value = value2;
 			}
 			slerper = new AvatarRotationSlerper(vehicleSeatManager.seats[0].Owner.Body.Transform.parent, ref hamsterWheelVisualizationRoot);
@@ -248,10 +227,10 @@ public class HamsterWheelVisualization : VehicleVisualizationBase
 		{
 			if (owner.Avatar.IsLocal)
 			{
-				Hashtable hashtable = new Hashtable();
-				hashtable.Add("state", "Idle");
-				hashtable.Add("timeStamp", serverTimeInMilliSeconds);
-				Hashtable value3 = hashtable;
+				Dictionary<object, object> dictionary = new Dictionary<object, object>();
+				dictionary.Add("state", "Idle");
+				dictionary.Add("timeStamp", serverTimeInMilliSeconds);
+				Dictionary<object, object> value3 = dictionary;
 				owner.Animation.Value = value3;
 			}
 			speedState = SpeedState.Idle;
@@ -261,15 +240,15 @@ public class HamsterWheelVisualization : VehicleVisualizationBase
 	private void OnMovingBackwardsChange(bool value)
 	{
 		MVAvatar owner = vehicleSeatManager.seats[0].Owner;
-		int serverTimeInMilliSeconds = MVGameController.Instance.Game.ServerTimeInMilliSeconds;
+		int serverTimeInMilliSeconds = MVGameController.Game.ServerTimeInMilliSeconds;
 		if (value)
 		{
 			if (owner.Avatar.IsLocal)
 			{
-				Hashtable hashtable = new Hashtable();
-				hashtable.Add("state", "Walk");
-				hashtable.Add("timeStamp", serverTimeInMilliSeconds);
-				Hashtable value2 = hashtable;
+				Dictionary<object, object> dictionary = new Dictionary<object, object>();
+				dictionary.Add("state", "Walk");
+				dictionary.Add("timeStamp", serverTimeInMilliSeconds);
+				Dictionary<object, object> value2 = dictionary;
 				owner.Animation.Value = value2;
 			}
 			slerper = new AvatarRotationSlerper(vehicleSeatManager.seats[0].Owner.Body.Transform.parent, ref hamsterWheelVisualizationRoot);
@@ -279,10 +258,10 @@ public class HamsterWheelVisualization : VehicleVisualizationBase
 		{
 			if (owner.Avatar.IsLocal)
 			{
-				Hashtable hashtable = new Hashtable();
-				hashtable.Add("state", "Idle");
-				hashtable.Add("timeStamp", serverTimeInMilliSeconds);
-				Hashtable value3 = hashtable;
+				Dictionary<object, object> dictionary = new Dictionary<object, object>();
+				dictionary.Add("state", "Idle");
+				dictionary.Add("timeStamp", serverTimeInMilliSeconds);
+				Dictionary<object, object> value3 = dictionary;
 				owner.Animation.Value = value3;
 			}
 			speedState = SpeedState.Idle;

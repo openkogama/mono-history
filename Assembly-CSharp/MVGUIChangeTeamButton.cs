@@ -1,35 +1,32 @@
 using System;
-using Localize;
 using MV.WorldObject;
 using UnityEngine;
 
 public class MVGUIChangeTeamButton : MonoBehaviour
 {
+	public UXIconButton button;
+
 	public void Initialize()
 	{
-		UXIconButton component = ((Component)this).GetComponent<UXIconButton>();
-		component.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(component.OnClick, new UXBaseButton.OnClickDelegate(ShowTeamSelectDialog));
+		UXIconButton uXIconButton = button;
+		uXIconButton.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXIconButton.OnClick, new UXBaseButton.OnClickDelegate(ShowTeamSelectDialog));
 	}
 
 	public void ShowTeamSelectDialog()
 	{
-		if (MVGameController.Instance.Game.TeamManager.TeamCount() > 1)
+		if (MVGameController.Game.TeamManager.TeamCount() > 1)
 		{
-			UXUtils.FindGUIObjectOfType<UXDialogFactory>().CreateCustomDialog("Prefabs/GUI/TeamSelect/TeamSelectDialog", TextSlotIndex.Empty, noButtons: true, stackDialog: false, canClose: false).SetOnResultCallback(TeamSelectCallBack)
-				.Show();
-			return;
+			UXUtils.UXDialogFactory.CreateCustomDialog("Prefabs/GUI/TeamSelect/TeamSelectDialog", string.Empty, noButtons: true, stackDialog: false, canClose: false).SetOnResultCallback(TeamSelectCallBack).Show();
 		}
-		MVGameController.Instance.Game.SetTeam(MVTeam.None);
-		UXUtils.FindGUIObjectOfType<UXDialogFactory>().CreateDialog(TextSlotIndex.OneTeamWarning, TextSlotIndex.ChangeTeamMessage).Show();
+		else
+		{
+			UXUtils.UXDialogFactory.CreateDialog(TM._("Only one team in world."), TM._("Change Team")).Show();
+		}
 	}
 
 	private void TeamSelectCallBack(UXDialogBox dialog)
 	{
 		MVTeam team = (MVTeam)(int)dialog.GetResult();
-		MVGameController.Instance.Game.SetTeam(team);
-		if (MVGameController.Instance.PlayController != null)
-		{
-			MVGameController.Instance.WOCM.AvatarLocal.Respawn(suicide: true);
-		}
+		MVGameController.Game.SetTeam(team);
 	}
 }

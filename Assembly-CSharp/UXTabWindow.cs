@@ -24,9 +24,6 @@ public class UXTabWindow : UXWindow
 
 	public override void Awake()
 	{
-		//IL_00bc: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00dd: Unknown result type (might be due to invalid IL or missing references)
 		base.Awake();
 		float num = 0f;
 		for (int i = 0; i < _tabs.Count; i++)
@@ -44,21 +41,17 @@ public class UXTabWindow : UXWindow
 		}
 		SetSize(Width, Height);
 		AlignTabs();
-		Transform transform = ((Component)this).transform;
 		transform.localPosition += new Vector3(0f, (0f - _tabPaneHeight) / 2f, 0f);
 		SelectTab(0);
 	}
 
 	private void AlignTabs()
 	{
-		//IL_003f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0045: Unknown result type (might be due to invalid IL or missing references)
-		//IL_004a: Unknown result type (might be due to invalid IL or missing references)
 		float num = 0f;
 		for (int i = 0; i < _tabs.Count; i++)
 		{
 			UXTabPane uXTabPane = _tabs[i];
-			((Component)uXTabPane).transform.localPosition = new Vector3(num + uXTabPane.Width / 2f, Height - 0.5f, 0.1f) - Alignment;
+			uXTabPane.transform.localPosition = new Vector3(num + uXTabPane.Width / 2f, Height - 0.5f, 0.1f) - Alignment;
 			num += uXTabPane.Width + _tabPaneSpacing;
 		}
 	}
@@ -75,7 +68,7 @@ public class UXTabWindow : UXWindow
 	public void SelectTab(int tabId)
 	{
 		UXTabPane tab = GetTab(tabId);
-		if ((Object)(object)tab != (Object)null)
+		if (tab != null)
 		{
 			tab.FireOnClick();
 		}
@@ -88,7 +81,7 @@ public class UXTabWindow : UXWindow
 			tab2.Hide();
 		}
 		UXTabPane tab = GetTab(tabId);
-		if ((Object)(object)tab != (Object)null)
+		if (tab != null)
 		{
 			tab.Show();
 		}

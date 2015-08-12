@@ -8,9 +8,9 @@ internal class ESWaitForSelected : ESStateBase
 
 	public override void Enter(EditorStateMachine e)
 	{
-		Debug.Log((object)"wait for selected");
+		Debug.Log("wait for selected");
 		e.DeSelectAll();
-		isNewPrototype = e.Data.Contains("IsNewPrototype");
+		isNewPrototype = e.Data.ContainsKey("IsNewPrototype");
 	}
 
 	public override void Execute(EditorStateMachine e)

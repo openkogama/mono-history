@@ -1,11 +1,10 @@
 using System.Collections.Generic;
-using Localize;
 
 public class MVGUISettingsDialogTimeTrigger : MVGUIDynamicSettingsDialog
 {
 	public MVGUISettingsDialogTimeTrigger()
 	{
-		dialogFactory.CreateCustomDialog("Prefabs/GUI/Box Settings Dialogs/TimeTriggerSettingsDialog", TextSlotIndex.TimeTrigger).AddPositiveButton(TextSlotIndex.Ok).AddNegativeButton(TextSlotIndex.Cancel)
+		dialogFactory.CreateCustomDialog("Prefabs/GUI/Box Settings Dialogs/TimeTriggerSettingsDialog", TM._("Time Trigger")).AddPositiveButton(TM._("Ok")).AddNegativeButton(TM._("Cancel"))
 			.SetOnResultCallback(OnDialogResult)
 			.SetValues(BuildDialogData())
 			.Show();

@@ -15,42 +15,23 @@ internal class FaceCursor : ICursor
 
 	public FaceCursor()
 	{
-		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0016: Expected Obj, but got Unknown
-		//IL_004e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0058: Expected Obj, but got Unknown
-		//IL_0063: Unknown result type (might be due to invalid IL or missing references)
-		//IL_006d: Expected Obj, but got Unknown
-		//IL_0078: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0082: Expected Obj, but got Unknown
 		gameObject = new GameObject("Cursor");
 		gameObject.layer = LayerMask.NameToLayer("UIItems");
-		MeshRenderer val = gameObject.AddComponent<MeshRenderer>();
+		MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
 		gameObject.AddComponent<MeshFilter>();
 		materialEdge = (Material)Resources.Load("Materials/CursorMaterial");
 		materialCorner = (Material)Resources.Load("Materials/CursorMaterialCorner");
 		materialNone = (Material)Resources.Load("Materials/CursorMaterialNone");
-		((Renderer)val).material = materialEdge;
+		meshRenderer.material = materialEdge;
 	}
 
 	public void Remove()
 	{
-		Object.Destroy((Object)(object)gameObject);
+		Object.Destroy(gameObject);
 	}
 
 	public void UpdateCursor(CubePickingInfo info, GameObject cubeGameObject)
 	{
-		//IL_011b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0120: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0125: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0132: Unknown result type (might be due to invalid IL or missing references)
-		//IL_013e: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0143: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0144: Unknown result type (might be due to invalid IL or missing references)
-		//IL_014a: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0154: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0159: Unknown result type (might be due to invalid IL or missing references)
-		//IL_015e: Unknown result type (might be due to invalid IL or missing references)
 		Vector3[] faceVerticesWorld = Cube.GetFaceVerticesWorld(cubeGameObject, info.cube, info.pickedFace, info.iLocalPos);
 		List<int> list = new List<int>();
 		Mesh mesh = gameObject.GetComponent<MeshFilter>().mesh;
@@ -68,69 +49,48 @@ internal class FaceCursor : ICursor
 		mesh.RecalculateBounds();
 		if (info.pickedEdge == Edge.None)
 		{
-			((Renderer)gameObject.GetComponent<MeshRenderer>()).material = materialNone;
+			gameObject.GetComponent<MeshRenderer>().material = materialNone;
 		}
 		else if (info.pickedEdgeIndex0 || info.pickedEdgeIndex1)
 		{
-			((Renderer)gameObject.GetComponent<MeshRenderer>()).material = materialCorner;
+			gameObject.GetComponent<MeshRenderer>().material = materialCorner;
 		}
 		else
 		{
-			((Renderer)gameObject.GetComponent<MeshRenderer>()).material = materialEdge;
+			gameObject.GetComponent<MeshRenderer>().material = materialEdge;
 		}
-		Vector3 val = gameObject.transform.TransformPoint(mesh.vertices[0]);
-		Transform transform = gameObject.transform;
-		transform.position += faceVerticesWorld[0] - val + info.normal * 0.001f;
+		Vector3 vector = gameObject.transform.TransformPoint(mesh.vertices[0]);
+		gameObject.transform.position += faceVerticesWorld[0] - vector + info.normal * 0.001f;
 	}
 
 	private Vector2[] SetUVs(Edge edge, bool mirror)
 	{
-		//IL_0226: Unknown result type (might be due to invalid IL or missing references)
-		//IL_023b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0250: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0265: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003b: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00b8: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0135: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01b2: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0059: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00d6: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0153: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01d0: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0077: Unknown result type (might be due to invalid IL or missing references)
-		//IL_00f4: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0171: Unknown result type (might be due to invalid IL or missing references)
-		//IL_01ee: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0095: Unknown result type (might be due to invalid IL or missing references)
-		//IL_0112: Unknown result type (might be due to invalid IL or missing references)
-		//IL_018f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_020c: Unknown result type (might be due to invalid IL or missing references)
 		List<Vector2> list = new List<Vector2>();
 		switch (edge)
 		{
 		case Edge.Front:
-			list.Add(new Vector2((float)(mirror ? 1 : 0), 0f));
-			list.Add(new Vector2((float)((!mirror) ? 1 : 0), 0f));
-			list.Add(new Vector2((float)((!mirror) ? 1 : 0), 1f));
-			list.Add(new Vector2((float)(mirror ? 1 : 0), 1f));
+			list.Add(new Vector2(mirror ? 1 : 0, 0f));
+			list.Add(new Vector2((!mirror) ? 1 : 0, 0f));
+			list.Add(new Vector2((!mirror) ? 1 : 0, 1f));
+			list.Add(new Vector2(mirror ? 1 : 0, 1f));
 			break;
 		case Edge.Back:
-			list.Add(new Vector2((float)((!mirror) ? 1 : 0), 1f));
-			list.Add(new Vector2((float)(mirror ? 1 : 0), 1f));
-			list.Add(new Vector2((float)(mirror ? 1 : 0), 0f));
-			list.Add(new Vector2((float)((!mirror) ? 1 : 0), 0f));
+			list.Add(new Vector2((!mirror) ? 1 : 0, 1f));
+			list.Add(new Vector2(mirror ? 1 : 0, 1f));
+			list.Add(new Vector2(mirror ? 1 : 0, 0f));
+			list.Add(new Vector2((!mirror) ? 1 : 0, 0f));
 			break;
 		case Edge.Left:
-			list.Add(new Vector2((float)((!mirror) ? 1 : 0), 0f));
-			list.Add(new Vector2((float)((!mirror) ? 1 : 0), 1f));
-			list.Add(new Vector2((float)(mirror ? 1 : 0), 1f));
-			list.Add(new Vector2((float)(mirror ? 1 : 0), 0f));
+			list.Add(new Vector2((!mirror) ? 1 : 0, 0f));
+			list.Add(new Vector2((!mirror) ? 1 : 0, 1f));
+			list.Add(new Vector2(mirror ? 1 : 0, 1f));
+			list.Add(new Vector2(mirror ? 1 : 0, 0f));
 			break;
 		case Edge.Right:
-			list.Add(new Vector2((float)(mirror ? 1 : 0), 1f));
-			list.Add(new Vector2((float)(mirror ? 1 : 0), 0f));
-			list.Add(new Vector2((float)((!mirror) ? 1 : 0), 0f));
-			list.Add(new Vector2((float)((!mirror) ? 1 : 0), 1f));
+			list.Add(new Vector2(mirror ? 1 : 0, 1f));
+			list.Add(new Vector2(mirror ? 1 : 0, 0f));
+			list.Add(new Vector2((!mirror) ? 1 : 0, 0f));
+			list.Add(new Vector2((!mirror) ? 1 : 0, 1f));
 			break;
 		case Edge.None:
 			list.Add(new Vector2(0f, 0f));

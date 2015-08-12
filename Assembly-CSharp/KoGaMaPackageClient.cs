@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using MV.Common;
 using MV.WorldObject;
@@ -26,13 +25,13 @@ public class KoGaMaPackageClient
 		MVWorldObjectClient mVWorldObjectClient = worldObjects[worldObjectRoot];
 		GameObject gameObject = mVWorldObjectClient.GameObject;
 		mVWorldObjectClient.Destroy();
-		if ((Object)(object)gameObject != (Object)null)
+		if (gameObject != null)
 		{
-			Object.Destroy((Object)(object)gameObject);
+			Object.Destroy(gameObject);
 		}
 	}
 
-	public void HandleDeserializedData(Hashtable returnData, KogamaDataType dataType)
+	public void HandleDeserializedData(Dictionary<object, object> returnData, KogamaDataType dataType)
 	{
 		switch (dataType)
 		{
@@ -51,7 +50,7 @@ public class KoGaMaPackageClient
 		}
 	}
 
-	private void AddLink(Hashtable data)
+	private void AddLink(Dictionary<object, object> data)
 	{
 		Link link = new Link();
 		link.id = (int)data[LinkDataParameter.Id];
@@ -60,7 +59,7 @@ public class KoGaMaPackageClient
 		links.Add(link.id, link);
 	}
 
-	private void AddObjectLink(Hashtable data)
+	private void AddObjectLink(Dictionary<object, object> data)
 	{
 		ObjectLink objectLink = new ObjectLink();
 		objectLink.id = (int)data[ObjectLinkDataParameter.Id];
@@ -69,13 +68,13 @@ public class KoGaMaPackageClient
 		objectLinks.Add(objectLink.id, objectLink);
 	}
 
-	private void AddPrototype(Hashtable data)
+	private void AddPrototype(Dictionary<object, object> data)
 	{
 		RuntimePrototypeCubeModel runtimePrototypeCubeModel = new RuntimePrototypeCubeModel((int)data[PrototypeDataParameters.Id], (int)data[PrototypeDataParameters.AuthorProfileId], (float)data[PrototypeDataParameters.Scale], (byte[])data[PrototypeDataParameters.Data]);
 		prototypes.Add(runtimePrototypeCubeModel.PrototypeId, runtimePrototypeCubeModel);
 	}
 
-	private void AddWorldObject(Hashtable data)
+	private void AddWorldObject(Dictionary<object, object> data)
 	{
 		MVWorldObjectClient mVWorldObjectClient = WorldObjectFactory(data, worldObjects, prototypes);
 		worldObjects.Add(mVWorldObjectClient.Id, mVWorldObjectClient);
@@ -87,7 +86,7 @@ public class KoGaMaPackageClient
 		MVWorldObjectClient mVWorldObjectClient2 = koGaMaPackageClientDesendant.worldObjects[koGaMaPackageClientDesendant.worldObjectRoot];
 		if (mVWorldObjectClient2.WorldObjectType != mVWorldObjectClient.WorldObjectType)
 		{
-			Debug.LogError((object)$"Comparing packages with different worldObject types {mVWorldObjectClient.WorldObjectType} and {mVWorldObjectClient2.WorldObjectType}");
+			Debug.LogError($"Comparing packages with different worldObject types {mVWorldObjectClient.WorldObjectType} and {mVWorldObjectClient2.WorldObjectType}");
 			return 0f;
 		}
 		int matchingCubeCount = 0;
@@ -97,28 +96,24 @@ public class KoGaMaPackageClient
 		{
 			return 0f;
 		}
-		Debug.Log((object)$"InvestigatedCubeCount {investigatedCubeCount} MatchingCubeCount {matchingCubeCount} ");
+		Debug.Log($"InvestigatedCubeCount {investigatedCubeCount} MatchingCubeCount {matchingCubeCount} ");
 		return (float)matchingCubeCount / (float)investigatedCubeCount;
 	}
 
-	public static MVWorldObjectClient WorldObjectFactory(Hashtable worldObjectData, Dictionary<int, MVWorldObjectClient> worldObjects, Dictionary<int, RuntimePrototypeCubeModel> prototypes)
+	public static MVWorldObjectClient WorldObjectFactory(Dictionary<object, object> worldObjectData, Dictionary<int, MVWorldObjectClient> worldObjects, Dictionary<int, RuntimePrototypeCubeModel> prototypes)
 	{
 		WorldObjectType worldObjectType = (WorldObjectType)(int)worldObjectData[WorldObjectDataParameters.WorldObjectType];
 		if (worldObjectType == WorldObjectType.Avatar)
 		{
-			Debug.Log((object)("WorldObjectFactory got avatar with id " + (int)worldObjectData[WorldObjectDataParameters.Id]));
 		}
 		switch (worldObjectType)
 		{
 		case WorldObjectType.Avatar:
-		{
-			Hashtable hashtable3 = (Hashtable)worldObjectData[WorldObjectDataParameters.Data];
-			if ((int)hashtable3["actorNr"] == MVGameController.Instance.Game.LocalPlayer.ActorNr)
+			if ((int)worldObjectData[WorldObjectDataParameters.OwnerActorNumber] == MVGameController.Game.LocalPlayer.ActorNr)
 			{
 				return new MVAvatarLocal(worldObjectData, worldObjects);
 			}
 			return new MVAvatarRemote(worldObjectData, worldObjects);
-		}
 		case WorldObjectType.CubeModel:
 			return new MVCubeModelInstance(worldObjectData, worldObjects, prototypes);
 		case WorldObjectType.Skybox:
@@ -128,7 +123,7 @@ public class KoGaMaPackageClient
 		case WorldObjectType.LightPreset:
 			return new MVPointLightPreset(worldObjectData, worldObjects);
 		case WorldObjectType.SpawnPoint:
-			Debug.LogError((object)"Attempt to create abstract SpawnPoint. Is Server up-to-date? return ing blue spawn-point");
+			Debug.LogError("Attempt to create abstract SpawnPoint. Is Server up-to-date? return ing blue spawn-point");
 			return new MVSpawnPointBlue(worldObjectData, worldObjects);
 		case WorldObjectType.SpawnPointBlue:
 			return new MVSpawnPointBlue(worldObjectData, worldObjects);
@@ -193,6 +188,10 @@ public class KoGaMaPackageClient
 		case WorldObjectType.WaterPlanePreset:
 			return new MVWaterPlanePreset(worldObjectData, worldObjects);
 		case WorldObjectType.CollectibleItem:
+			if (MVGameController.GameSessionData.planetID == 2527584 && MVGameController.GameSessionData.region == "br")
+			{
+				return new MVCollectible(worldObjectData, worldObjects, "Prefabs/CollectibleObjectFanta");
+			}
 			return new MVCollectible(worldObjectData, worldObjects);
 		case WorldObjectType.MovingPlatformNode:
 			return new MVMovingPlatformNode(worldObjectData, worldObjects);
@@ -202,9 +201,9 @@ public class KoGaMaPackageClient
 			return new MVCheckpoint(worldObjectData, worldObjects);
 		case WorldObjectType.Blueprint:
 		{
-			Hashtable hashtable = (Hashtable)worldObjectData[WorldObjectDataParameters.Data];
-			Hashtable hashtable2 = (Hashtable)hashtable["BlueprintData"];
-			BlueprintType blueprintType = (BlueprintType)(byte)hashtable2[BlueprintData.ClientSideType.ToString()];
+			Dictionary<object, object> dictionary = (Dictionary<object, object>)worldObjectData[WorldObjectDataParameters.Data];
+			Dictionary<object, object> dictionary2 = (Dictionary<object, object>)dictionary["BlueprintData"];
+			BlueprintType blueprintType = (BlueprintType)(byte)dictionary2[BlueprintData.ClientSideType.ToString()];
 			switch (blueprintType)
 			{
 			case BlueprintType.Movable:
@@ -228,7 +227,7 @@ public class KoGaMaPackageClient
 			case BlueprintType.DragonHead:
 				return new MVDragonHead(worldObjectData, worldObjects);
 			default:
-				Debug.LogError((object)("WOCM trying to create unknown blueprint: " + blueprintType));
+				Debug.LogError("WOCM trying to create unknown blueprint: " + blueprintType);
 				return null;
 			}
 		}
@@ -244,10 +243,22 @@ public class KoGaMaPackageClient
 			return new MVRoundCube(worldObjectData, worldObjects);
 		case WorldObjectType.AdvancedGhost:
 			return new MVAdvancedGhost(worldObjectData, worldObjects);
+		case WorldObjectType.KillLimit:
+			return new MVKillLimit(worldObjectData, worldObjects);
+		case WorldObjectType.OculusKillLimit:
+			return new MVOculusKillLimit(worldObjectData, worldObjects);
 		case WorldObjectType.HamsterWheel:
 			return new MVHamsterWheel(worldObjectData, worldObjects);
+		case WorldObjectType.CameraSettings:
+			return new MVCameraSettings(worldObjectData, worldObjects);
+		case WorldObjectType.GravityCube:
+			return new MVGravityCube(worldObjectData, worldObjects);
+		case WorldObjectType.GameCoin:
+			return new MVGameCoin(worldObjectData, worldObjects);
+		case WorldObjectType.GameCoinChest:
+			return new MVGameCoinChest(worldObjectData, worldObjects);
 		default:
-			Debug.LogError((object)("WOCM trying to create unknown type: " + worldObjectType));
+			Debug.LogError("WOCM trying to create unknown type: " + worldObjectType);
 			return null;
 		}
 	}

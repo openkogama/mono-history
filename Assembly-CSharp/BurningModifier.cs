@@ -9,7 +9,7 @@ public class BurningModifier : AvatarModifier
 
 	protected override void OnDeactivated(Avatar target)
 	{
-		((MonoBehaviour)this).StartCoroutine(DoFadeAndDestroy());
+		StartCoroutine(DoFadeAndDestroy());
 	}
 
 	private IEnumerator DoFadeAndDestroy()
@@ -19,6 +19,6 @@ public class BurningModifier : AvatarModifier
 		{
 			yield return 0;
 		}
-		Object.Destroy((Object)(object)((Component)this).gameObject);
+		Object.Destroy(gameObject);
 	}
 }

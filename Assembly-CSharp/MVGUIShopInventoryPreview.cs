@@ -6,18 +6,16 @@ public class MVGUIShopInventoryPreview : MonoBehaviour
 
 	public void SetInventoryViewItem(InventoryViewItem inventoryViewItem)
 	{
-		//IL_002f: Unknown result type (might be due to invalid IL or missing references)
-		//IL_003f: Unknown result type (might be due to invalid IL or missing references)
 		this.inventoryViewItem = inventoryViewItem;
-		UXPlane uXPlane = Object.Instantiate((Object)(object)inventoryViewItem.ItemImagePlane) as UXPlane;
-		((Component)uXPlane).transform.parent = ((Component)this).transform;
-		((Component)uXPlane).transform.localScale = Vector3.one;
-		((Component)uXPlane).transform.localPosition = Vector3.zero;
+		UXPlane uXPlane = Object.Instantiate(inventoryViewItem.ItemImagePlane);
+		uXPlane.transform.parent = transform;
+		uXPlane.transform.localScale = Vector3.one;
+		uXPlane.transform.localPosition = Vector3.zero;
 	}
 
 	private void Update()
 	{
-		if ((Object)(object)inventoryViewItem != (Object)null)
+		if (inventoryViewItem != null)
 		{
 			inventoryViewItem.ObjectPreviewer.UpdateRotation();
 		}

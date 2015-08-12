@@ -16,11 +16,11 @@ public class KogamaAudioScript_Feet : MonoBehaviour
 		rightFootAudioSources = new AudioSource[feetClipsAndLevels.Length];
 		for (int i = 0; i < feetClipsAndLevels.Length; i++)
 		{
-			leftFootAudioSources[i] = ((Component)this).gameObject.AddComponent<AudioSource>();
+			leftFootAudioSources[i] = gameObject.AddComponent<AudioSource>();
 			leftFootAudioSources[i].clip = feetClipsAndLevels[i].leftClip;
 			leftFootAudioSources[i].playOnAwake = false;
-			rightFootAudioSources[i] = ((Component)this).gameObject.AddComponent<AudioSource>();
-			if ((Object)(object)feetClipsAndLevels[i].rightClip == (Object)null)
+			rightFootAudioSources[i] = gameObject.AddComponent<AudioSource>();
+			if (feetClipsAndLevels[i].rightClip == null)
 			{
 				rightFootAudioSources[i].clip = feetClipsAndLevels[i].leftClip;
 			}
@@ -34,7 +34,7 @@ public class KogamaAudioScript_Feet : MonoBehaviour
 
 	private void Update()
 	{
-		if (Input.GetKeyDown("1"))
+		if (MVInputWrapper.DebugGetKeyDown("1"))
 		{
 			PlayFeetSound();
 		}

@@ -5,9 +5,9 @@ using UnityEngine;
 
 public class MVGUIAvatarAccessorySlotManager : MonoBehaviour
 {
-	private UXGroup Group => ((Component)this).GetComponent<UXGroup>();
+	private UXGroup Group => GetComponent<UXGroup>();
 
-	private MVGUIAvatarAccessorySlot[] AccessorySlots => ((Component)this).GetComponentsInChildren<MVGUIAvatarAccessorySlot>();
+	private MVGUIAvatarAccessorySlot[] AccessorySlots => GetComponentsInChildren<MVGUIAvatarAccessorySlot>();
 
 	public void ShowSlots()
 	{
@@ -22,8 +22,8 @@ public class MVGUIAvatarAccessorySlotManager : MonoBehaviour
 
 	public void Initialize()
 	{
-		StreamingAssetInventory streamingAssetInventory = MVGameController.Instance.Game.StreamingAssetInventory;
-		streamingAssetInventory.OnProductInventoryChange = (ProductInventory<StreamingAssetInfo>.OnProductInventoryChangeDelegate)Delegate.Combine(streamingAssetInventory.OnProductInventoryChange, (ProductInventory<StreamingAssetInfo>.OnProductInventoryChangeDelegate)((ProductInventory<StreamingAssetInfo> inv) =>
+		StreamingAssetInventory streamingAssetInventory = MVGameController.Game.StreamingAssetInventory;
+		streamingAssetInventory.OnProductInventoryChange = (ProductInventory.OnProductInventoryChangeDelegate)Delegate.Combine(streamingAssetInventory.OnProductInventoryChange, (ProductInventory.OnProductInventoryChangeDelegate)((ProductInventory inv) =>
 		{
 			RefreshAvatarBodySlots();
 		}));
@@ -43,7 +43,7 @@ public class MVGUIAvatarAccessorySlotManager : MonoBehaviour
 		MVGUIAvatarAccessorySlot[] accessorySlots = AccessorySlots;
 		foreach (MVGUIAvatarAccessorySlot mVGUIAvatarAccessorySlot in accessorySlots)
 		{
-			bool validSlot = Enumerable.Contains(slots, mVGUIAvatarAccessorySlot.avatarAccessorySlot);
+			bool validSlot = slots.Contains(mVGUIAvatarAccessorySlot.avatarAccessorySlot);
 			mVGUIAvatarAccessorySlot.HightlightSlot(validSlot);
 		}
 	}

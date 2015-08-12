@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
-using Localize;
 using MV.Common;
 
 public class MVGUISettingsDialogSoundEmitter : MVGUIDynamicSettingsDialog
 {
 	public MVGUISettingsDialogSoundEmitter()
 	{
-		dialogFactory.CreateCustomDialog("Prefabs/GUI/Box Settings Dialogs/SoundEmitterSettingsDialog", TextSlotIndex.SoundEmitterBox, noButtons: true).SetOnResultCallback(OnDialogResult).SetOnIntermediateResultCallback(OnIntermediateResult)
+		dialogFactory.CreateCustomDialog("Prefabs/GUI/Box Settings Dialogs/SoundEmitterSettingsDialog", TM._("Sound Emitter"), noButtons: true).SetOnResultCallback(OnDialogResult).SetOnIntermediateResultCallback(OnIntermediateResult)
 			.SetValues(BuildDialogData())
 			.Show();
 		(dialogFactory.CurrentDialogBox as MVGUISoundEmitterSettingsBox).SetCurrentSound(wo.Data);

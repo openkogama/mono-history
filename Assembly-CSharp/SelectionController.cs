@@ -9,7 +9,7 @@ public class SelectionController : ISelectionController
 
 	private Stack<int> parentGroups = new Stack<int>();
 
-	private MVWorldObjectClientManager WOCM => MVGameController.Instance.WOCM;
+	private MVWorldObjectClientManager WOCM => MVGameController.WOCM;
 
 	public int ParentGroupID => parentGroups.Peek();
 
@@ -40,7 +40,7 @@ public class SelectionController : ISelectionController
 			}
 			if (0 < SelectedIDs.Count)
 			{
-				Debug.LogWarning((object)"Trying to access single selected even though multiple objects are selected");
+				Debug.LogWarning("Trying to access single selected even though multiple objects are selected");
 			}
 			return null;
 		}
@@ -108,20 +108,19 @@ public class SelectionController : ISelectionController
 
 	public MVWorldObjectClient SelectWO(int id, bool addToSelection = false, bool showVisuals = true)
 	{
-		//IL_0105: Unknown result type (might be due to invalid IL or missing references)
 		MVWorldObjectClient worldObjectClient = WOCM.GetWorldObjectClient(id);
 		if (!addToSelection)
 		{
 			DeSelectAllExcept(id);
 		}
-		if (worldObjectClient.OwnerActorNr != 0 && worldObjectClient.OwnerActorNr != MVGameController.Instance.Game.LocalPlayer.ActorNr)
+		if (worldObjectClient.OwnerActorNr != 0 && worldObjectClient.OwnerActorNr != MVGameController.Game.LocalPlayer.ActorNr)
 		{
-			Debug.LogWarning((object)("Trying to select WO " + id + " that is owned by another acotr"));
+			Debug.LogWarning("Trying to select WO " + id + " that is owned by another acotr");
 			return null;
 		}
 		if (!MVGroup.IsDescendant(ParentGroupID, id) && !worldObjectClient.HasInteractionFlag(InteractionFlags.DirectlySelectable))
 		{
-			Debug.LogWarning((object)("Trying to select WO " + id + " outside the parent group " + ParentGroupID));
+			Debug.LogWarning("Trying to select WO " + id + " outside the parent group " + ParentGroupID);
 			return null;
 		}
 		if (ParentGroupID != worldObjectClient.GroupId)
@@ -138,7 +137,7 @@ public class SelectionController : ISelectionController
 		{
 			worldObjectClient.Select();
 		}
-		Debug.Log((object)("Selected: " + worldObjectClient));
+		Debug.Log("Selected: " + worldObjectClient);
 		return worldObjectClient;
 	}
 
@@ -161,13 +160,13 @@ public class SelectionController : ISelectionController
 		MVWorldObjectClient worldObjectClient = WOCM.GetWorldObjectClient(hit.woId);
 		bool flag = (hit.interactionFlags & InteractionFlags.DirectlySelectable) == InteractionFlags.DirectlySelectable;
 		bool flag2 = (hit.interactionFlags & InteractionFlags.SelectionRequiresEditGroup) == InteractionFlags.SelectionRequiresEditGroup;
-		Debug.Log((object)string.Concat(new object[8] { "Select: [", worldObjectClient, "] ParentGroup id: ", ParentGroupID, " dirSelect: ", flag, " reqOpenGroup: ", flag2 }));
+		Debug.Log(string.Concat("Select: [", worldObjectClient, "] ParentGroup id: ", ParentGroupID, " dirSelect: ", flag, " reqOpenGroup: ", flag2));
 		if (flag2 || (!parentGroups.Contains(worldObjectClient.GroupId) && !flag))
 		{
 			int groupAbove = MVGroup.GetGroupAbove(ParentGroupID, worldObjectClient.Id, InteractionFlags.DirectlySelectable);
 			if (groupAbove == -1)
 			{
-				Debug.Log((object)"Could not find appropriate group Id");
+				Debug.Log("Could not find appropriate group Id");
 				return null;
 			}
 			return SelectWO(groupAbove, addToSelection, showVisuals);
@@ -235,7 +234,7 @@ public class SelectionController : ISelectionController
 			WOCM.UnsubscribeWODestroyedEvent(num, WOCM_WorldObjectDestroyedHandler);
 			return num;
 		}
-		Debug.LogWarning((object)"Trying to exit root group!");
+		Debug.LogWarning("Trying to exit root group!");
 		return parentGroups.Peek();
 	}
 
