@@ -2,8 +2,6 @@ using UnityEngine;
 
 public abstract class AIngameController
 {
-	private DevHotKeys devHotkeys = new DevHotKeys();
-
 	protected bool uiShown = true;
 
 	protected UXView currentView;
@@ -40,8 +38,7 @@ public abstract class AIngameController
 
 	public virtual void HandleInput()
 	{
-		devHotkeys.HandleInput();
-		if (AllowHotkeys && !MVInputWrapper.DebugGetKey(KeyCode.Alpha0))
+		if (AllowHotkeys)
 		{
 			HandleSharedHotKeys();
 		}

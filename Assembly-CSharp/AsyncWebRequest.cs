@@ -22,6 +22,8 @@ public abstract class AsyncWebRequest
 
 	private State state;
 
+	protected static bool useCaching = true;
+
 	protected WWW www;
 
 	protected bool isDone;

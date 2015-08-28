@@ -16,14 +16,11 @@ public class AvatarLevelUp : MonoBehaviour
 
 	public void Init(int ownerActorNr)
 	{
-		if (!LevelingManager.silentMode)
-		{
-			this.ownerActorNr = ownerActorNr;
-			MVPlayer mVPlayer = MVGameController.Game.Players[ownerActorNr];
-			mVPlayer.OnLevelChanged = (MVPlayer.OnLevelChangedDelegate)Delegate.Combine(mVPlayer.OnLevelChanged, new MVPlayer.OnLevelChangedDelegate(OnLevelChanged));
-			ScaleAnimation scaleAnimation = this.scaleAnimation;
-			scaleAnimation.OnScaleAnimationStopped = (ScaleAnimationBase.OnScaleAnimationStoppedDelegate)Delegate.Combine(scaleAnimation.OnScaleAnimationStopped, new ScaleAnimationBase.OnScaleAnimationStoppedDelegate(OnScaleAnimationStopped));
-		}
+		this.ownerActorNr = ownerActorNr;
+		MVPlayer mVPlayer = MVGameController.Game.Players[ownerActorNr];
+		mVPlayer.OnLevelChanged = (MVPlayer.OnLevelChangedDelegate)Delegate.Combine(mVPlayer.OnLevelChanged, new MVPlayer.OnLevelChangedDelegate(OnLevelChanged));
+		ScaleAnimation scaleAnimation = this.scaleAnimation;
+		scaleAnimation.OnScaleAnimationStopped = (ScaleAnimationBase.OnScaleAnimationStoppedDelegate)Delegate.Combine(scaleAnimation.OnScaleAnimationStopped, new ScaleAnimationBase.OnScaleAnimationStoppedDelegate(OnScaleAnimationStopped));
 	}
 
 	private void OnScaleAnimationStopped(float extraTime)

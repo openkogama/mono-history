@@ -1,12 +1,15 @@
 using MV.Common;
 using UnityEngine;
 
-[AddComponentMenu("KoGaMa/AvatarAccessories/Hat")]
 public class AvatarAccessoryHat : AvatarAccessory
 {
 	private Transform attachPosTfm;
 
+	private AccessoryHatSettings hatSettings;
+
 	public override bool HasAttachmentPoint => attachPosTfm != null;
+
+	public override AccessorySettings AccessorySettings => hatSettings;
 
 	public override Vector3 AttachmentPointWorldPos
 	{
@@ -22,6 +25,7 @@ public class AvatarAccessoryHat : AvatarAccessory
 
 	protected override void Awake()
 	{
+		hatSettings = GetComponent<AccessoryHatSettings>();
 		base.Awake();
 		Category = AvatarAccessoryCategory.Hat;
 		attachPosTfm = Transform.FindChildRecursively("HatAttachPoint");

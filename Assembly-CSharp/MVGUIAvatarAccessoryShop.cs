@@ -85,12 +85,12 @@ public class MVGUIAvatarAccessoryShop : MVGUIAvatarAccessoryBasicView
 		}
 		waitingToBeAttached = null;
 		ResetAttachedAvatarItem();
-		AvatarAccessorySlot defaultSlot = avatarAccessory.DefaultSlot;
+		AvatarAccessorySlot defaultSlot = avatarAccessory.AccessorySettings.DefaultSlot;
 		foreach (AvatarAccessory accessory in AvatarBody.GetAccessories(defaultSlot))
 		{
 			accessory.Visible = false;
 		}
-		AvatarBody.AttachAccessory(avatarAccessory, defaultSlot, avatarAccessory.DefaultOffset);
+		AvatarBody.AttachAccessory(avatarAccessory, defaultSlot, avatarAccessory.AccessorySettings.DefaultOffset);
 		previewViewItem = viewItem;
 		previewStreamingAssetInfo = streamingAssetInfo;
 		previewAvatarAccessory = avatarAccessory;

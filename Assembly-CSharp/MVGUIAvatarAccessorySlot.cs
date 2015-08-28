@@ -226,8 +226,8 @@ public class MVGUIAvatarAccessorySlot : UXPlane
 	{
 		MVNetworkGame game = Game;
 		game.OnSetAvatarAccessoryResponse = (Action<bool>)Delegate.Combine(game.OnSetAvatarAccessoryResponse, new Action<bool>(Game_OnSetAvatarAccessorySlotResponseEquipHandler));
-		Game.SetAvatarAccessorySlot(AvatarBody.Id, avatarAccessory.InventoryID, avatarAccessorySlot, avatarAccessory.DefaultOffset);
-		AvatarBody.AttachAccessory(avatarAccessory, avatarAccessorySlot, avatarAccessory.DefaultOffset);
+		Game.SetAvatarAccessorySlot(AvatarBody.Id, avatarAccessory.InventoryID, avatarAccessorySlot, avatarAccessory.AccessorySettings.DefaultOffset);
+		AvatarBody.AttachAccessory(avatarAccessory, avatarAccessorySlot, avatarAccessory.AccessorySettings.DefaultOffset);
 		unequipAvatarAccessoryButton.SetVisible(Visible);
 		occupiedIndicator.SetVisible(Visible);
 		InventoryIDOfItemInSlot = avatarAccessory.InventoryID;

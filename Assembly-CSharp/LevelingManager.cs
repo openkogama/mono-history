@@ -15,8 +15,6 @@ public static class LevelingManager
 
 	private static ObscuredInt playModeMinPlayers = 1;
 
-	public static bool silentMode = true;
-
 	public static OnlevelingInitializedDelegate OnLevelingInitialized;
 
 	public static OnPlayModeLevelingEnabledChangedDelegate OnPlayModeLevelingEnabledChanged;

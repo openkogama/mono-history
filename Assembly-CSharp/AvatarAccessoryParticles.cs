@@ -1,19 +1,19 @@
 using MV.Common;
 using UnityEngine;
 
-[AddComponentMenu("KoGaMa/AvatarAccessories/Particles")]
 public class AvatarAccessoryParticles : AvatarAccessory
 {
+	private Vector3 prevPosition;
+
+	private AccessoryParticlesSettings accessoryParticlesSettings;
+
 	public ParticleSystem RootParticleSystem;
 
-	public float EmitRateNormal = 4f;
-
-	public float EmitRateMoving = 10f;
-
-	private Vector3 prevPosition;
+	public override AccessorySettings AccessorySettings => accessoryParticlesSettings;
 
 	protected override void Awake()
 	{
+		accessoryParticlesSettings = GetComponent<AccessoryParticlesSettings>();
 		base.Awake();
 		Category = AvatarAccessoryCategory.Particles;
 		RootParticleSystem = GetComponentInChildren<ParticleSystem>();
@@ -39,12 +39,12 @@ public class AvatarAccessoryParticles : AvatarAccessory
 		base.Update();
 		if (prevPosition != Transform.position)
 		{
-			RootParticleSystem.emissionRate = EmitRateMoving;
+			RootParticleSystem.emissionRate = accessoryParticlesSettings.EmitRateMoving;
 			prevPosition = Transform.position;
 		}
 		else
 		{
-			RootParticleSystem.emissionRate = EmitRateNormal;
+			RootParticleSystem.emissionRate = accessoryParticlesSettings.EmitRateNormal;
 		}
 	}
 }

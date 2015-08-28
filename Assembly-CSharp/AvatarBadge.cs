@@ -18,19 +18,16 @@ public class AvatarBadge : MonoBehaviour
 
 	public void Initialize(int ownerActorId)
 	{
-		if (!LevelingManager.silentMode)
+		this.ownerActorId = ownerActorId;
+		ScaleAnimations scaleAnimations = scaleAnimation;
+		scaleAnimations.OnIntermediateScaleAnimationStopped = (ScaleAnimationBase.OnScaleAnimationStoppedDelegate)Delegate.Combine(scaleAnimations.OnIntermediateScaleAnimationStopped, new ScaleAnimationBase.OnScaleAnimationStoppedDelegate(ScaleAnimationIntermediateCallback));
+		if (LevelingManager.IsInitialized)
 		{
-			this.ownerActorId = ownerActorId;
-			ScaleAnimations scaleAnimations = scaleAnimation;
-			scaleAnimations.OnIntermediateScaleAnimationStopped = (ScaleAnimationBase.OnScaleAnimationStoppedDelegate)Delegate.Combine(scaleAnimations.OnIntermediateScaleAnimationStopped, new ScaleAnimationBase.OnScaleAnimationStoppedDelegate(ScaleAnimationIntermediateCallback));
-			if (LevelingManager.IsInitialized)
-			{
-				OnLevelingInitialized();
-			}
-			else
-			{
-				LevelingManager.OnLevelingInitialized = (LevelingManager.OnlevelingInitializedDelegate)Delegate.Combine(LevelingManager.OnLevelingInitialized, new LevelingManager.OnlevelingInitializedDelegate(OnLevelingInitialized));
-			}
+			OnLevelingInitialized();
+		}
+		else
+		{
+			LevelingManager.OnLevelingInitialized = (LevelingManager.OnlevelingInitializedDelegate)Delegate.Combine(LevelingManager.OnLevelingInitialized, new LevelingManager.OnlevelingInitializedDelegate(OnLevelingInitialized));
 		}
 	}
 

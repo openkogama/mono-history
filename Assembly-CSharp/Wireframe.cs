@@ -19,7 +19,7 @@ public class Wireframe : MonoBehaviour
 	{
 		meshRenderer = GetComponent<MeshRenderer>();
 		meshRenderer.enabled = false;
-		lineMaterial = new Material("Shader \"Lines/Colored Blended\" { SubShader { Pass { Blend SrcAlpha OneMinusSrcAlpha ZWrite Off Cull Front Fog { Mode Off } } } }");
+		lineMaterial = new Material(Shader.Find("WireframeShader"));
 		lineMaterial.hideFlags = HideFlags.HideAndDontSave;
 		lineMaterial.shader.hideFlags = HideFlags.HideAndDontSave;
 		linesArray = new List<Vector3>();

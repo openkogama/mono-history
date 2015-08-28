@@ -268,7 +268,7 @@ public class MVGUITouristPromotion : UXViewScript
 
 	private void GotoSignup()
 	{
-		if (LevelingManager.silentMode || !LevelingManager.IsInitialized)
+		if (!LevelingManager.IsInitialized)
 		{
 			BrowserComm.ToJavaScript.ExternalCall("gotoSignup");
 			BrowserComm.ExecuteBrowserRequest(MVGameController.GameSessionData.signupURL);

@@ -142,13 +142,16 @@ public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerS
 	private void OnApplicationQuit()
 	{
 		Debug.Log("On application quit");
-		if (Game != null && Game.Peer != null && Game.ConnState == MVConnState.Joined)
+		if (Game != null)
 		{
-			Game.Peer.Disconnect();
-		}
-		if (GameSessionData != null)
-		{
-			SessionLocatorPing.LeaveSession();
+			if (GameSessionData != null)
+			{
+				SessionLocatorPing.LeaveSession();
+			}
+			if (Game.Peer != null && Game.ConnState == MVConnState.Joined)
+			{
+				Game.Peer.Disconnect();
+			}
 		}
 		CleanUp();
 	}

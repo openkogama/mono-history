@@ -268,10 +268,7 @@ public class EditorController : AEditController
 			MVGameController.WOCM.MoveableController.ResetMoveables();
 			EditorStateMachine.Event = EditorEvent.ESWalkMode;
 			Hide();
-			if (!LevelingManager.silentMode)
-			{
-				UXUtils.FindGUIObjectOfType<MVGUIChatWindow>().AddLine(TM._("Leveling is disabled in edit play mode"), Color.red);
-			}
+			UXUtils.FindGUIObjectOfType<MVGUIChatWindow>().AddLine(TM._("Leveling is disabled in edit play mode"), Color.red);
 			MVTeam team = MVGameController.Game.LocalPlayer.Team;
 			MVTeamManager teamManager = MVGameController.Game.TeamManager;
 			if (!teamManager.IsTeamActive(team))

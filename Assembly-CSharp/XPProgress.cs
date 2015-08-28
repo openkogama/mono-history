@@ -25,7 +25,7 @@ public class XPProgress
 	{
 		xpProgressData.XpID = xpId;
 		xpProgressData.XP = xp;
-		if (OnXPProgressData != null && !LevelingManager.silentMode)
+		if (OnXPProgressData != null)
 		{
 			OnXPProgressData(xpProgressData);
 		}

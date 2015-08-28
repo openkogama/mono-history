@@ -12,8 +12,6 @@ public class MVNetworkReporter(MVWorldObjectClient owner) : MVNetworkObject(owne
 
 		private byte[] rotation = rotation;
 
-		private static float positionSqrMagDiffToll = 0.01f;
-
 		public bool Equals(SendTransformData other)
 		{
 			return other.position.Equals(position) && object.Equals(other.rotation, rotation);

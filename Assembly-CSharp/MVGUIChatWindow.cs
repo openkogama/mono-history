@@ -61,21 +61,17 @@ public class MVGUIChatWindow : UXViewScript
 
 	public void InitializeChat()
 	{
-		if (_isInitialized)
+		if (!_isInitialized)
 		{
-			return;
-		}
-		View.releaseFocusOnHide = true;
-		View.Hide();
-		MVNetworkGame game = MVGameController.Game;
-		game.OnReceivedGameMsg = (MVNetworkGame.OnReceivedGameMsgDelegate)Delegate.Combine(game.OnReceivedGameMsg, new MVNetworkGame.OnReceivedGameMsgDelegate(AddLine));
-		InitializeChatFunctions();
-		InitializeFocusHelpers();
-		UXSlider uXSlider = chatLog.UXSlider;
-		uXSlider.OnValueChangedIntermediate = (UXSlider.OnValueChangedIntermediateDelegate)Delegate.Combine(uXSlider.OnValueChangedIntermediate, new UXSlider.OnValueChangedIntermediateDelegate(OnSliderChange));
-		activatedTime = Time.time - 10f;
-		if (!LevelingManager.silentMode)
-		{
+			View.releaseFocusOnHide = true;
+			View.Hide();
+			MVNetworkGame game = MVGameController.Game;
+			game.OnReceivedGameMsg = (MVNetworkGame.OnReceivedGameMsgDelegate)Delegate.Combine(game.OnReceivedGameMsg, new MVNetworkGame.OnReceivedGameMsgDelegate(AddLine));
+			InitializeChatFunctions();
+			InitializeFocusHelpers();
+			UXSlider uXSlider = chatLog.UXSlider;
+			uXSlider.OnValueChangedIntermediate = (UXSlider.OnValueChangedIntermediateDelegate)Delegate.Combine(uXSlider.OnValueChangedIntermediate, new UXSlider.OnValueChangedIntermediateDelegate(OnSliderChange));
+			activatedTime = Time.time - 10f;
 			if (!LevelingManager.IsInitialized)
 			{
 				LevelingManager.OnLevelingInitialized = (LevelingManager.OnlevelingInitializedDelegate)Delegate.Combine(LevelingManager.OnLevelingInitialized, new LevelingManager.OnlevelingInitializedDelegate(OnLevelingInitialize));
@@ -84,9 +80,9 @@ public class MVGUIChatWindow : UXViewScript
 			{
 				OnLevelingInitialize();
 			}
+			CreateStatus();
+			_isInitialized = true;
 		}
-		CreateStatus();
-		_isInitialized = true;
 	}
 
 	public void KeepAlive()

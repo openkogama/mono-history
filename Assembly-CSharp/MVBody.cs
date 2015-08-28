@@ -295,9 +295,9 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 			Debug.LogError("Trying to attach accessory to an invalid slot " + (int)slot);
 			return false;
 		}
-		if (!acc.ValidSlots.Contains(slot))
+		if (!acc.AccessorySettings.ValidSlots.Contains(slot))
 		{
-			Debug.LogError(string.Concat("Trying to attach accessory in slot: ", slot, ", allowed: ", acc.ValidSlots.BuildString()));
+			Debug.LogError(string.Concat("Trying to attach accessory in slot: ", slot, ", allowed: ", acc.AccessorySettings.ValidSlots.BuildString()));
 			return false;
 		}
 		if (!accessoryMap.ContainsKey(acc.InventoryID))
@@ -347,7 +347,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		{
 			zero.y += acc.Offset;
 		}
-		if (acc is AvatarAccessoryHat && acc.AllignToBody)
+		if (acc is AvatarAccessoryHat && acc.AccessorySettings.AllignToBody)
 		{
 			MVCubeModelInstance bodyPart = GetBodyPart(slotBoneNameMap[slot]);
 			Bounds localBounds = bodyPart.GetLocalBounds(BoundsContext.Default);
@@ -885,7 +885,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		}
 		foreach (AvatarAccessory value in accessoryMap.Values)
 		{
-			if (value.AllignToBody)
+			if (value.AccessorySettings.AllignToBody)
 			{
 				value.Attached = false;
 				ApplyAccessoryOffset(value, value.Slot);

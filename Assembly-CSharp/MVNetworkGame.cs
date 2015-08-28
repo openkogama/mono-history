@@ -1895,7 +1895,6 @@ public class MVNetworkGame : IPhotonPeerListener
 		Urls.Init(apiUrl, streamingAssetsUrl);
 		Debug.Log("Load language");
 		TM.LoadLanguage(gameSessionData.language);
-		LevelingManager.silentMode = (bool)returnValues[176];
 		Debug.Log("Initialize leveling manager");
 		LevelingManager.Initialize(mVLocalPlayer.ProfileID);
 	}
@@ -2722,10 +2721,6 @@ public class MVNetworkGame : IPhotonPeerListener
 				}
 			}
 		}
-		if (Application.isEditor)
-		{
-			AddAssetBundleEditorPreviews();
-		}
 		StreamingAssetInventory.NotifyProductInventoryChange();
 		GotoNextJoinState();
 	}
@@ -2803,45 +2798,6 @@ public class MVNetworkGame : IPhotonPeerListener
 			}
 			ownedRequestedIDs.Remove(num);
 			Debug.Log("Fetched StreamingAssetInventoryItem: " + streamingAssetInfo.Name + " rentSilver " + productShopInfo.RentPriceSilver);
-		}
-	}
-
-	private void AddAssetBundleEditorPreviews()
-	{
-		if (!Application.isEditor)
-		{
-			return;
-		}
-		AssetBundleEditorTestSet instance = AssetBundleEditorTestSet.Instance;
-		if (!(instance == null))
-		{
-			int num = (StreamingAssetInfoMap.Keys.Any() ? StreamingAssetInfoMap.Keys.Max() : 0);
-			HashSet<int> iDs = StreamingAssetInventory.GetIDs();
-			int num2 = (iDs.Any() ? iDs.Max() : 0);
-			for (int i = 0; i < instance.bundleInfos.Count; i++)
-			{
-				AssetBundleInfo assetBundleInfo = instance.bundleInfos[i];
-				StreamingAssetInfo streamingAssetInfo = new StreamingAssetInfo();
-				streamingAssetInfo.ProductID = num + 1000 + i;
-				streamingAssetInfo.StreamedAssetType = assetBundleInfo.StreamingAssetInfo.StreamedAssetType;
-				streamingAssetInfo.CategoryID = assetBundleInfo.StreamingAssetInfo.CategoryID;
-				streamingAssetInfo.Name = assetBundleInfo.StreamingAssetInfo.Name;
-				streamingAssetInfo.Desc = assetBundleInfo.StreamingAssetInfo.Desc;
-				streamingAssetInfo.AssetPath = instance.bundleURIs[i];
-				StreamingAssetInfoMap.Add(streamingAssetInfo.ProductID, streamingAssetInfo);
-				ProductInventoryInfo invInfo = new ProductInventoryInfo(num2 + 1000 + i, streamingAssetInfo, DateTime.Now);
-				StreamingAssetInventory.Add(invInfo);
-				ProductShopInfo productShopInfo = new ProductShopInfo();
-				productShopInfo.IsBuyable = true;
-				productShopInfo.IsRentable = false;
-				productShopInfo.PriceGold = assetBundleInfo.StreamingAssetInfo.ShopInfo.PriceGold;
-				productShopInfo.PriceSilver = assetBundleInfo.StreamingAssetInfo.ShopInfo.PriceSilver;
-				productShopInfo.RentPriceGold = assetBundleInfo.StreamingAssetInfo.ShopInfo.RentPriceGold;
-				productShopInfo.RentPriceSilver = assetBundleInfo.StreamingAssetInfo.ShopInfo.RentPriceSilver;
-				productShopInfo.RentExpireSeconds = assetBundleInfo.StreamingAssetInfo.ShopInfo.RentExpireSeconds;
-				streamingAssetInfo.ShopInfo = productShopInfo;
-				StreamingAssetShopInventory.Add(streamingAssetInfo);
-			}
 		}
 	}
 

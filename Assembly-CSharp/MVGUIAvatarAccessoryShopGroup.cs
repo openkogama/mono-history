@@ -165,7 +165,7 @@ public class MVGUIAvatarAccessoryShopGroup : MVGUIAvatarAccessoryBaseGroup
 	private void AvatarAccessoryCreateHandler(AvatarAccessory avatarAccessory)
 	{
 		accessoryToBeEquipped = avatarAccessory;
-		AvatarAccessory avatarAccessory2 = AvatarBody.GetAccessories(avatarAccessory.DefaultSlot).FirstOrDefault();
+		AvatarAccessory avatarAccessory2 = AvatarBody.GetAccessories(avatarAccessory.AccessorySettings.DefaultSlot).FirstOrDefault();
 		if (avatarAccessory2 != null)
 		{
 			Unequip(avatarAccessory2);
@@ -202,8 +202,8 @@ public class MVGUIAvatarAccessoryShopGroup : MVGUIAvatarAccessoryBaseGroup
 		AvatarAccessory avatarAccessory = accessoryToBeEquipped;
 		MVNetworkGame game = Game;
 		game.OnSetAvatarAccessoryResponse = (Action<bool>)Delegate.Combine(game.OnSetAvatarAccessoryResponse, new Action<bool>(Game_OnSetAvatarAccessorySlotResponseEquipHandler));
-		Game.SetAvatarAccessorySlot(AvatarBody.Id, avatarAccessory.InventoryID, avatarAccessory.DefaultSlot, avatarAccessory.DefaultOffset);
-		AvatarBody.AttachAccessory(avatarAccessory, accessoryToBeEquipped.DefaultSlot, accessoryToBeEquipped.DefaultOffset);
+		Game.SetAvatarAccessorySlot(AvatarBody.Id, avatarAccessory.InventoryID, avatarAccessory.AccessorySettings.DefaultSlot, avatarAccessory.AccessorySettings.DefaultOffset);
+		AvatarBody.AttachAccessory(avatarAccessory, accessoryToBeEquipped.AccessorySettings.DefaultSlot, accessoryToBeEquipped.AccessorySettings.DefaultOffset);
 		avatarAccessoryController.AvatarAccessoryShop.gameObject.SetActive(value: true);
 	}
 

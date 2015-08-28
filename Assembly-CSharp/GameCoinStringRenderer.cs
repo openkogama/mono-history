@@ -63,7 +63,7 @@ public class GameCoinStringRenderer : MonoBehaviour
 	{
 		if (!stringMaterial)
 		{
-			stringMaterial = new Material("Shader \"Lines/Colored Blended\" {SubShader { Pass {     Blend One OneMinusSrcAlpha     ZWrite Off Cull Off Fog { Mode Off }     BindChannels {      Bind \"vertex\", vertex Bind \"color\", color }} } }");
+			stringMaterial = new Material(Shader.Find("GameCoinStringShader"));
 			stringMaterial.hideFlags = HideFlags.HideAndDontSave;
 			stringMaterial.shader.hideFlags = HideFlags.HideAndDontSave;
 		}

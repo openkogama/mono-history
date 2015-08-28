@@ -57,7 +57,7 @@ public class MVGUIAvatarAccessoryInventory : MVGUIAvatarAccessoryBasicView
 
 	private void OnStartDragAvatarAccessory(AvatarAccessoryInventoryViewItem viewItem)
 	{
-		avatarAccessorySlots.HighlightSlots(viewItem.AvatarAccessory.ValidSlots);
+		avatarAccessorySlots.HighlightSlots(viewItem.AvatarAccessory.AccessorySettings.ValidSlots);
 		avatarAccessorySlots.SetDragItem(viewItem);
 	}
 
@@ -71,7 +71,7 @@ public class MVGUIAvatarAccessoryInventory : MVGUIAvatarAccessoryBasicView
 	{
 		if (viewItem != null && viewItem.AvatarAccessory != null)
 		{
-			avatarAccessorySlots.HighlightSlots(viewItem.AvatarAccessory.ValidSlots);
+			avatarAccessorySlots.HighlightSlots(viewItem.AvatarAccessory.AccessorySettings.ValidSlots);
 		}
 		else
 		{

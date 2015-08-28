@@ -47,7 +47,7 @@ public class BodyData : MonoBehaviour
 	};
 
 	[SerializeField]
-	private ObscuredInt[] PartConstraintsMinCubes = new ObscuredInt[8] { 100, 50, 10, 10, 19, 3, 19, 3 };
+	private ObscuredInt[] PartConstraintsMinCubes = new ObscuredInt[8] { 20, 20, 3, 3, 3, 3, 3, 3 };
 
 	private Dictionary<string, int> partMap = new Dictionary<string, int>();
 

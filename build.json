@@ -1,9 +1,9 @@
 {
-    "id": "d151586e-3d66-4fde-aac7-7fc58762717e",
-    "version": "1.25.13.285",
-    "unityVersion": "5.1.1f1",
-    "timestamp": 1439992819,
-    "sha256": "c1b26a990d67f5fa620fd521a6cf470a7a4fbcda98a283a7b89526367c6e2668",
+    "id": "c0bad005-c72e-4fc5-bc94-ca906f179fc5",
+    "version": "1.25.13.292",
+    "unityVersion": "5.1.3f1",
+    "timestamp": 1440764386,
+    "sha256": "36035489dd0772c0084d7634ad740da41bdaa0b7a6a52b3407149da4cad29573",
     "assemblies": [
         "Assembly-CSharp-firstpass.dll",
         "Assembly-CSharp.dll",
@@ -12,7 +12,7 @@
         "MVWorldObject.dll",
         "Mono.Security.dll",
         "Photon3Unity3D.dll",
-        "SampleClassLibrary.dll",
+        "StreamingAssetEnums.dll",
         "System.Core.dll",
         "System.Xml.dll",
         "System.dll",

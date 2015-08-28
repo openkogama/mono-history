@@ -248,7 +248,7 @@ public class LineDrawManager : MonoBehaviour
 	{
 		if (!lineMaterial)
 		{
-			lineMaterial = new Material("Shader \"Lines/Colored Blended\" {SubShader { Pass {     Blend One OneMinusSrcAlpha     ZWrite Off Cull Off Fog { Mode Off }     BindChannels {      Bind \"vertex\", vertex Bind \"color\", color }} } }");
+			lineMaterial = new Material(Shader.Find("LineDrawShader"));
 			lineMaterial.hideFlags = HideFlags.HideAndDontSave;
 			lineMaterial.shader.hideFlags = HideFlags.HideAndDontSave;
 		}

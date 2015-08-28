@@ -10,16 +10,6 @@ public abstract class AvatarAccessory : MonoBehaviour
 
 	private static Dictionary<AvatarAccessoryParams, Action<AvatarAccessory>> paramsToCallbacksMap = new Dictionary<AvatarAccessoryParams, Action<AvatarAccessory>>();
 
-	public AvatarAccessorySlot[] ValidSlots;
-
-	public bool AllignToBody;
-
-	public float DefaultOffset;
-
-	public AvatarAccessorySlot DefaultSlot = AvatarAccessorySlot.Torso;
-
-	public bool ConstantWorldRotation;
-
 	private int _gameObjectID;
 
 	private Transform _transform;
@@ -34,9 +24,9 @@ public abstract class AvatarAccessory : MonoBehaviour
 
 	private Quaternion worldRotationOnAttach;
 
-	private static MVWorldObjectClientManager WOCM => MVGameController.WOCM;
-
 	private static MVNetworkGame Game => MVGameController.Game;
+
+	public abstract AccessorySettings AccessorySettings { get; }
 
 	public AvatarAccessoryCategory Category { get; protected set; }
 
@@ -123,7 +113,7 @@ public abstract class AvatarAccessory : MonoBehaviour
 
 	protected virtual void Update()
 	{
-		if (attached && ConstantWorldRotation)
+		if (attached && AccessorySettings.ConstantWorldRotation)
 		{
 			Transform.rotation = worldRotationOnAttach;
 		}
@@ -315,14 +305,29 @@ public abstract class AvatarAccessory : MonoBehaviour
 					}
 					Debug.LogError(text2);
 					action(null);
+					continue;
+				}
+				GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(www.assetBundle.mainAsset);
+				AccessorySettings component = gameObject.GetComponent<AccessorySettings>();
+				if (component == null)
+				{
+					throw new Exception("AvatarAccessory settings not found");
+				}
+				AvatarAccessory avatarAccessory = null;
+				if (component.GetType() == typeof(AccessoryHatSettings))
+				{
+					avatarAccessory = gameObject.AddComponent<AvatarAccessoryHat>();
 				}
 				else
 				{
-					GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(www.assetBundle.mainAsset);
-					AvatarAccessory component = gameObject.GetComponent<AvatarAccessory>();
-					component.InitAccessory(item, bundleName);
-					action(component);
+					if (component.GetType() != typeof(AccessoryParticlesSettings))
+					{
+						throw new Exception("Unknown settings");
+					}
+					avatarAccessory = gameObject.AddComponent<AvatarAccessoryParticles>();
 				}
+				avatarAccessory.InitAccessory(item, bundleName);
+				action(avatarAccessory);
 			}
 			paramsToCallbacksMap.TryGetValue(item, out value);
 			Delegate[] invocationList2 = value.GetInvocationList();
