@@ -12,6 +12,8 @@ public static class BadgeManager
 
 	private static int maxLevelBadge = 0;
 
+	private static string fromUnityArgument = "?Unity=1";
+
 	public static void Initialize(List<BadgeUrlData> badgeUrlDatas)
 	{
 		foreach (BadgeUrlData badgeUrlData in badgeUrlDatas)
@@ -53,6 +55,6 @@ public static class BadgeManager
 			Debug.LogWarning("Level exceeds defined badges. Using maxBadge");
 			level = maxLevelBadge;
 		}
-		AsyncWWWManager.WWWRequest(new CachedGetRequest(badgeUrls[level].URL, callback));
+		AsyncWWWManager.WWWRequest(new CachedGetRequest(badgeUrls[level].URL + fromUnityArgument, callback));
 	}
 }
