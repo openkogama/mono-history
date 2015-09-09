@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 namespace StatHat;
@@ -35,12 +36,22 @@ public static class Post
 
 		private void PostForm()
 		{
-			WWWForm wWWForm = new WWWForm();
+			byte[] postData = CreatePostData();
+			Dictionary<string, string> dictionary = new Dictionary<string, string>();
+			dictionary["Content-Type"] = "application/x-www-form-urlencoded";
+			WWW www = new WWW(BaseUrl + RelUrl, postData, dictionary);
+			AsyncWWWManager.WWWRequest(new CustomPostRequest(www, callback));
+		}
+
+		private byte[] CreatePostData()
+		{
+			string text = string.Empty;
 			foreach (string key in Parameters.Keys)
 			{
-				wWWForm.AddField(encodeUriComponent(key), encodeUriComponent(Parameters[key]));
+				string text2 = text;
+				text = text2 + encodeUriComponent(key) + "=" + encodeUriComponent(Parameters[key]) + "&";
 			}
-			AsyncWWWManager.WWWRequest(new PostRequest(BaseUrl + RelUrl, wWWForm, callback));
+			return Encoding.UTF8.GetBytes(text);
 		}
 
 		private string encodeUriComponent(string s)

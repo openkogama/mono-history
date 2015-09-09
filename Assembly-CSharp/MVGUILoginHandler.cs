@@ -9,9 +9,7 @@ public class MVGUILoginHandler : UXViewScript
 	{
 		Dev,
 		Test,
-		Local,
-		DevWebGL,
-		LocalWebGL
+		Local
 	}
 
 	public UXTextButton buildButton;
@@ -52,8 +50,6 @@ public class MVGUILoginHandler : UXViewScript
 			DevServerTarget.Local => "127.0.0.1:5055", 
 			DevServerTarget.Dev => "37.48.122.12:5055", 
 			DevServerTarget.Test => "37.48.122.14:5055", 
-			DevServerTarget.DevWebGL => "ws://37.48.122.12:9090", 
-			DevServerTarget.LocalWebGL => "ws://127.0.0.1:9090", 
 			_ => string.Empty, 
 		};
 	}

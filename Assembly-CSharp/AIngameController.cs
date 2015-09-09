@@ -22,7 +22,10 @@ public abstract class AIngameController
 		ResolveGUIElements();
 		UXUtils.FindGUIObjectOfType<MVGUIAvatarAccessoryExpirationHandler>().enabled = true;
 		MVGameController.Game.CameraController.Init();
-		MVGameController.TimeReward.Init();
+		if (!MVGameController.Game.IsTouristSession)
+		{
+			MVGameController.TimeReward.Init();
+		}
 		IsInitialized = true;
 	}
 

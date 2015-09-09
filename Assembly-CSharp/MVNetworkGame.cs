@@ -153,8 +153,6 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	private MVGameCoinManager gameCoinManager;
 
-	public readonly GameSessionData gameSessionData;
-
 	private int lastFrameServerTimeUpdate = -1;
 
 	private int lastFrameLocalTimeUpdate = -1;
@@ -251,7 +249,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			{
 				return false;
 			}
-			return gameSessionData.gameMode == MVGameMode.Play || (gameSessionData.gameMode == MVGameMode.Edit && EditorController.PlayInEditor);
+			return MVGameController.GameSessionData.gameMode == MVGameMode.Play || (MVGameController.GameSessionData.gameMode == MVGameMode.Edit && EditorController.PlayInEditor);
 		}
 	}
 
@@ -321,7 +319,7 @@ public class MVNetworkGame : IPhotonPeerListener
 	{
 		get
 		{
-			if (gameSessionData.gameMode == MVGameMode.CharacterEditor)
+			if (MVGameController.GameSessionData.gameMode == MVGameMode.CharacterEditor)
 			{
 				return IngameController as CharacterEditorController;
 			}
@@ -333,7 +331,7 @@ public class MVNetworkGame : IPhotonPeerListener
 	{
 		get
 		{
-			if (gameSessionData.gameMode == MVGameMode.Edit)
+			if (MVGameController.GameSessionData.gameMode == MVGameMode.Edit)
 			{
 				return IngameController as EditorController;
 			}
@@ -345,11 +343,11 @@ public class MVNetworkGame : IPhotonPeerListener
 	{
 		get
 		{
-			if (gameSessionData.gameMode == MVGameMode.Play)
+			if (MVGameController.GameSessionData.gameMode == MVGameMode.Play)
 			{
 				return IngameController as PlayControllerBase;
 			}
-			if (gameSessionData.gameMode == MVGameMode.Edit)
+			if (MVGameController.GameSessionData.gameMode == MVGameMode.Edit)
 			{
 				return ((EditorController)IngameController).PlayController;
 			}
@@ -358,7 +356,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		}
 	}
 
-	public bool IsTouristSession => gameSessionData.profileID <= 0;
+	public bool IsTouristSession => MVGameController.GameSessionData.profileID <= 0;
 
 	public MVLocalPlayer LocalPlayer
 	{
@@ -430,9 +428,8 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public event EventHandler<ReceivedItemFromQueryEventArgs> ReceivedItemFromQuery;
 
-	public MVNetworkGame(GameSessionData gameSessionData)
+	public MVNetworkGame()
 	{
-		this.gameSessionData = gameSessionData;
 		CreateInGameController();
 		peer = new PhotonPeer(this, ConnectionProtocol.Udp);
 		peer.DisconnectTimeout = 60000;
@@ -448,7 +445,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	private void CreateInGameController()
 	{
-		switch (gameSessionData.gameMode)
+		switch (MVGameController.GameSessionData.gameMode)
 		{
 		case MVGameMode.Play:
 			if (IsTouristSession)
@@ -551,7 +548,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		{
 			JoinState = MVJoinState.FetchingMaterials;
 			Dictionary<byte, object> dictionary3 = new Dictionary<byte, object>();
-			dictionary3.Add(11, gameSessionData.profileID);
+			dictionary3.Add(11, MVGameController.GameSessionData.profileID);
 			peer.OpCustom(46, dictionary3, sendReliable: true);
 			break;
 		}
@@ -564,7 +561,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			RequestDBQuery(DBQuery.RequestPlanetOwnershipTypes, new Dictionary<object, object>());
 			break;
 		case MVJoinState.FetchingOwnershipTypes:
-			if (gameSessionData.gameMode == MVGameMode.Edit)
+			if (MVGameController.GameSessionData.gameMode == MVGameMode.Edit)
 			{
 				JoinState = MVJoinState.FetchingStreamingAssetsAmbientAudio;
 			}
@@ -583,7 +580,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			RequestStreamingAssetInventory(StreamingAssetType.AvatarAccessory);
 			break;
 		case MVJoinState.FetchingStreamingAssetInventory:
-			if (gameSessionData.gameMode == MVGameMode.Edit)
+			if (MVGameController.GameSessionData.gameMode == MVGameMode.Edit)
 			{
 				JoinState = MVJoinState.FetchingInventory;
 				OnGetNextResultSetResponse = OnInventoryResultSetResponse;
@@ -591,7 +588,7 @@ public class MVNetworkGame : IPhotonPeerListener
 				dictionary2.Add((byte)0, LocalPlayer.ProfileID);
 				RequestLargeDBQuery(DBQuery.RequestInventory, dictionary2, 10);
 			}
-			else if (gameSessionData.gameMode == MVGameMode.CharacterEditor)
+			else if (MVGameController.GameSessionData.gameMode == MVGameMode.CharacterEditor)
 			{
 				JoinState = MVJoinState.FetchingAvatarShopInventory;
 				OnGetNextResultSetResponse = OnAvatarShopInventoryResultSetResponse;
@@ -604,7 +601,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			}
 			break;
 		case MVJoinState.FetchingInventory:
-			if (gameSessionData.gameMode == MVGameMode.Edit)
+			if (MVGameController.GameSessionData.gameMode == MVGameMode.Edit)
 			{
 				JoinState = MVJoinState.FetchingShopInventory;
 				OnGetNextResultSetResponse = OnShopInventoryResultSetResponse;
@@ -651,7 +648,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			break;
 		case MVJoinState.FetchingActiveAvatar:
 			JoinState = MVJoinState.Playing;
-			if (gameSessionData.gameMode == MVGameMode.CharacterEditor)
+			if (MVGameController.GameSessionData.gameMode == MVGameMode.CharacterEditor)
 			{
 				peer.OpCustom(61, new Dictionary<byte, object>(), sendReliable: true);
 			}
@@ -661,6 +658,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			}
 			break;
 		case MVJoinState.Playing:
+			StatHatWrapper.Value("JoinTime", Time.realtimeSinceStartup);
 			gameCoinManager.Reset(this);
 			break;
 		case MVJoinState.SelectingTeam:
@@ -675,7 +673,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		ConnState = MVConnState.Connecting;
 		try
 		{
-			return peer.Connect(gameSessionData.serverIP, "MVGameServer");
+			return peer.Connect(MVGameController.GameSessionData.serverIP, "MVGameServer");
 		}
 		catch (SecurityException ex)
 		{
@@ -707,7 +705,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		if (flag2 || StreamingAssetExpirationChecker.ContainsExpired())
 		{
 			lastDataFetchCheck++;
-			if (gameSessionData.gameMode != MVGameMode.CharacterEditor && body.AccessoriesLoaded)
+			if (MVGameController.GameSessionData.gameMode != MVGameMode.CharacterEditor && body.AccessoriesLoaded)
 			{
 				hashSet2 = body.GetAccessoryIDs();
 				hashSet.UnionWith(hashSet2);
@@ -766,7 +764,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public void PublishPlanet()
 	{
-		if (MVGameController.Game == null || JoinState != MVJoinState.Playing || gameSessionData.gameMode != MVGameMode.Edit)
+		if (MVGameController.Game == null || JoinState != MVJoinState.Playing || MVGameController.GameSessionData.gameMode != MVGameMode.Edit)
 		{
 			return;
 		}
@@ -791,7 +789,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		}
 		else
 		{
-			PublishPlanet(new byte[0], ImageType.Planet, MVGameController.Game.gameSessionData.planetID);
+			PublishPlanet(new byte[0], ImageType.Planet, MVGameController.GameSessionData.planetID);
 		}
 	}
 
@@ -819,7 +817,7 @@ public class MVNetworkGame : IPhotonPeerListener
 	{
 		GameObject gameObject = new GameObject("GenerateTexture");
 		GenerateTextureData generateTextureData = gameObject.AddComponent<GenerateTextureData>();
-		generateTextureData.GenerateTextureDataCameraView(callback, ImageType.Planet, MVGameController.Game.gameSessionData.planetID);
+		generateTextureData.GenerateTextureDataCameraView(callback, ImageType.Planet, MVGameController.GameSessionData.planetID);
 	}
 
 	public bool IsOperationPending(MVOperationCodes operationCode)
@@ -930,13 +928,14 @@ public class MVNetworkGame : IPhotonPeerListener
 		peer.OpCustom(19, dictionary, sendReliable: true);
 	}
 
-	public void SendClientLog(string logString, string stackTrace, LogType type, Dictionary<string, object> extraSentryData)
+	public void SendClientLog(string logString, string stackTrace, LogType type, Dictionary<string, object> extraSentryData, Dictionary<string, string> tags)
 	{
 		Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 		dictionary.Add(147, logString);
 		dictionary.Add(148, stackTrace);
 		dictionary.Add(149, (byte)type);
 		dictionary.Add(154, extraSentryData);
+		dictionary.Add(188, tags);
 		peer.OpCustom(73, dictionary, sendReliable: true);
 		peer.SendOutgoingCommands();
 	}
@@ -1405,18 +1404,20 @@ public class MVNetworkGame : IPhotonPeerListener
 	{
 		ConnState = MVConnState.Joining;
 		Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
-		Debug.Log("JoinGame " + MVGameController.Game.gameSessionData.planetID);
-		if (gameSessionData.gameMode == MVGameMode.CharacterEditor)
+		Debug.Log("JoinGame " + MVGameController.GameSessionData.planetID);
+		if (MVGameController.GameSessionData.gameMode == MVGameMode.CharacterEditor)
 		{
 			Debug.Log("Setting planetId to -1 as GameMode CharacterEditor is not using a planet");
 		}
-		dictionary.Add(byte.MaxValue, gameSessionData.planetName);
-		dictionary.Add(86, gameSessionData.planetID);
-		dictionary.Add(116, gameSessionData.gameMode);
-		dictionary.Add(155, gameSessionData.language);
-		dictionary.Add(168, gameSessionData.token);
-		dictionary.Add(172, gameSessionData.newToken);
-		dictionary.Add(173, gameSessionData.newPlanetName);
+		dictionary.Add(byte.MaxValue, MVGameController.GameSessionData.planetName);
+		dictionary.Add(86, MVGameController.GameSessionData.planetID);
+		dictionary.Add(116, MVGameController.GameSessionData.gameMode);
+		dictionary.Add(155, MVGameController.GameSessionData.language);
+		dictionary.Add(168, MVGameController.GameSessionData.token);
+		dictionary.Add(172, MVGameController.GameSessionData.newToken);
+		dictionary.Add(173, MVGameController.GameSessionData.newPlanetName);
+		BuildTarget buildTarget = BuildTarget.StandAlone;
+		dictionary.Add(189, buildTarget);
 		peer.OpCustom(byte.MaxValue, dictionary, sendReliable: true);
 	}
 
@@ -1876,7 +1877,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		int planetOwnershipTypeID = (int)returnValues[14];
 		LocalPlayerActorNumber = actorNumber;
 		Debug.Log("Username " + (string)returnValues[9]);
-		MVLocalPlayer mVLocalPlayer = ((!IsTouristSession) ? ((MVLocalPlayer)new MVLocalPlayerRegistered(actorNumber, gameSessionData.profileID, (string)returnValues[9], gameSessionData.language)) : ((MVLocalPlayer)new MVLocalPlayerTourist(actorNumber, gameSessionData.profileID, (string)returnValues[9], gameSessionData.language)));
+		MVLocalPlayer mVLocalPlayer = ((!IsTouristSession) ? ((MVLocalPlayer)new MVLocalPlayerRegistered(actorNumber, MVGameController.GameSessionData.profileID, (string)returnValues[9], MVGameController.GameSessionData.language)) : ((MVLocalPlayer)new MVLocalPlayerTourist(actorNumber, MVGameController.GameSessionData.profileID, (string)returnValues[9], MVGameController.GameSessionData.language)));
 		mVLocalPlayer.OnLevelChanged = (MVPlayer.OnLevelChangedDelegate)Delegate.Combine(mVLocalPlayer.OnLevelChanged, new MVPlayer.OnLevelChangedDelegate(LocalPlayerLevelChanged));
 		mVLocalPlayer.PlanetOwnershipTypeID = planetOwnershipTypeID;
 		AddPlayer(mVLocalPlayer);
@@ -1894,7 +1895,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		}
 		Urls.Init(apiUrl, streamingAssetsUrl);
 		Debug.Log("Load language");
-		TM.LoadLanguage(gameSessionData.language);
+		TM.LoadLanguage(MVGameController.GameSessionData.language);
 		Debug.Log("Initialize leveling manager");
 		LevelingManager.Initialize(mVLocalPlayer.ProfileID);
 	}
@@ -2473,7 +2474,7 @@ public class MVNetworkGame : IPhotonPeerListener
 	private void SelectTeamFromJoinFlow()
 	{
 		List<MVTeam> teamList = TeamManager.GetTeamList();
-		if (teamList.Count == 1 || gameSessionData.gameMode != MVGameMode.Play)
+		if (teamList.Count == 1 || MVGameController.GameSessionData.gameMode != MVGameMode.Play)
 		{
 			SetTeam(teamList[0]);
 		}
@@ -3146,13 +3147,13 @@ public class MVNetworkGame : IPhotonPeerListener
 			{
 				uXDialogFactory.Show();
 			}
-			if (!string.IsNullOrEmpty(gameSessionData.gamePublishedURL))
+			if (!string.IsNullOrEmpty(MVGameController.GameSessionData.gamePublishedURL))
 			{
 				WWWForm wWWForm = new WWWForm();
-				wWWForm.AddField("token", gameSessionData.token);
-				wWWForm.AddField("profile_id", gameSessionData.profileID);
-				wWWForm.AddField("planet_id", gameSessionData.planetID);
-				AsyncWWWManager.WWWRequest(new PostRequest(gameSessionData.gamePublishedURL, wWWForm, null));
+				wWWForm.AddField("token", MVGameController.GameSessionData.token);
+				wWWForm.AddField("profile_id", MVGameController.GameSessionData.profileID);
+				wWWForm.AddField("planet_id", MVGameController.GameSessionData.planetID);
+				AsyncWWWManager.WWWRequest(new PostRequest(MVGameController.GameSessionData.gamePublishedURL, wWWForm, null));
 			}
 			else
 			{
@@ -3340,7 +3341,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			if (returnCode == -1)
 			{
 				Debug.LogWarning("CloneWorldObjectTree failed. This should be handled in a general way!");
-				if (gameSessionData.gameMode == MVGameMode.Edit)
+				if (MVGameController.GameSessionData.gameMode == MVGameMode.Edit)
 				{
 					EditController.EditorStateMachine.Event = EditorEvent.ESTerrainEdit;
 				}
@@ -3470,7 +3471,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			if (returnCode == -1)
 			{
 				Debug.LogWarning("Add item to world returned -1. This means that a singleton wo is already present and thus the request was rejected. We need a way to handle server operations in consistent manner.");
-				if (gameSessionData.gameMode == MVGameMode.Edit)
+				if (MVGameController.GameSessionData.gameMode == MVGameMode.Edit)
 				{
 					EditController.EditorStateMachine.Event = EditorEvent.ESTerrainEdit;
 				}
@@ -3898,7 +3899,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	private void LoadModeGui()
 	{
-		switch (gameSessionData.gameMode)
+		switch (MVGameController.GameSessionData.gameMode)
 		{
 		case MVGameMode.Play:
 			LoadPlayModeBaseGUI();

@@ -23,6 +23,8 @@ public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerS
 
 	private static OverrideMaterials overrideMaterials;
 
+	private static GameSessionData gameSessionData;
+
 	[SerializeField]
 	private MVGUILoginHandler LoginForm;
 
@@ -51,9 +53,9 @@ public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerS
 
 	public static MVNetworkGame Game { get; private set; }
 
-	public static GameSessionData GameSessionData => Game.gameSessionData;
+	public static GameSessionData GameSessionData => gameSessionData;
 
-	public static MVGameMode GameMode => Game.gameSessionData.gameMode;
+	public static MVGameMode GameMode => gameSessionData.gameMode;
 
 	public static MVWorldObjectClientManager WOCM => Game.WorldObjectClientManager;
 
@@ -183,7 +185,9 @@ public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerS
 
 	public static void StartGame(GameSessionData gameSessionData)
 	{
-		Game = new MVNetworkGame(gameSessionData);
+		MVGameController.gameSessionData = gameSessionData;
+		StatHatWrapper.Count("MVGameControllerStartGame", 1);
+		Game = new MVNetworkGame();
 		if (!Game.Join())
 		{
 			Debug.LogError("Failed to connect");
@@ -195,7 +199,7 @@ public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerS
 		if (Game != null && OkToReAuth)
 		{
 			Game.Peer.Disconnect();
-			AsyncWWWManager.WWWRequest(new GetRequest(Game.gameSessionData.reauthURL, OnReceivedWebParametersFromHttpRequest));
+			AsyncWWWManager.WWWRequest(new GetRequest(gameSessionData.reauthURL, OnReceivedWebParametersFromHttpRequest));
 			return true;
 		}
 		return false;

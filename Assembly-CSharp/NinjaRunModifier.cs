@@ -3,13 +3,15 @@ using UnityEngine;
 
 public class NinjaRunModifier : AvatarModifier
 {
-	public ParticleSystem runParticles;
-
-	public TrailArc trailArcPrefab;
-
-	private TrailArc arcInstance;
+	public TrailRenderer trailRenderer;
 
 	private AudioSource soundEffect;
+
+	private Vector3 oldPosition;
+
+	private bool isDestroying;
+
+	private float minMagnitudeValue = 0.1f;
 
 	public override AvatarModifierPackageType ModifierType => AvatarModifierPackageType.NinjaRun;
 
@@ -17,14 +19,6 @@ public class NinjaRunModifier : AvatarModifier
 	{
 		soundEffect = GetComponent<AudioSource>();
 		owner = target;
-		arcInstance = Object.Instantiate(trailArcPrefab);
-		arcInstance.transform.parent = target.transform;
-		arcInstance.transform.localPosition = Vector3.zero + Vector3.forward * 3f;
-		arcInstance.transform.localRotation = Quaternion.identity;
-		arcInstance.maxPointsDrawn = 25;
-		arcInstance.pointsStored = 320;
-		arcInstance.faceCamera = false;
-		arcInstance.twist = true;
 	}
 
 	protected override void OnDeactivated(Avatar target)
@@ -34,28 +28,28 @@ public class NinjaRunModifier : AvatarModifier
 
 	private IEnumerator DoFadeAndDestroy()
 	{
-		arcInstance.emit = false;
-		arcInstance.transform.parent = null;
+		isDestroying = true;
+		soundEffect.volume = 0f;
+		trailRenderer.gameObject.transform.SetParent(null);
+		yield return new WaitForSeconds(trailRenderer.time);
+		Object.Destroy(trailRenderer.gameObject);
 		Object.Destroy(gameObject);
-		yield return 0;
 	}
 
-	private void Update()
+	private void FixedUpdate()
 	{
-		if (!MVInputWrapper.GetBooleanControl(KogamaControls.MoveForward))
+		if (!isDestroying && oldPosition != owner.transform.position)
 		{
-			soundEffect.volume = 0f;
-			arcInstance.lifetime = 0f;
-			if (arcInstance.maxPointsDrawn > 1)
+			float magnitude = (owner.transform.position - oldPosition).magnitude;
+			if (owner.IsLocal)
 			{
-				arcInstance.maxPointsDrawn--;
+				soundEffect.volume = ((!(magnitude > 1f)) ? magnitude : 1f);
 			}
-		}
-		else
-		{
-			soundEffect.volume = 1f;
-			arcInstance.lifetime = 1f;
-			arcInstance.maxPointsDrawn = 25;
+			else
+			{
+				soundEffect.volume = ((!(magnitude > minMagnitudeValue)) ? 0f : 0.5f);
+			}
+			oldPosition = owner.transform.position;
 		}
 	}
 }

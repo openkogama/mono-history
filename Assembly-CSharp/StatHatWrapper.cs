@@ -2,35 +2,29 @@ using StatHat;
 
 public static class StatHatWrapper
 {
-	private static bool useStatHatPost = true;
+	private static string btFormat = "{0}.u.standalone.{1}";
 
 	public static void Count(string key, int count)
 	{
-		if (useStatHatPost)
-		{
-			Post.EzCounter(MVGameController.GameSessionData.ezKey, $"{MVGameController.GameSessionData.region}.u.{key}", count);
-			return;
-		}
-		BrowserComm.ToJavaScript.ExternalCall("sendStatHatCount", key, count);
+		string stat = $"{MVGameController.GameSessionData.region}.u.{key}";
+		string stat2 = string.Format(btFormat, MVGameController.GameSessionData.region, key);
+		Post.EzCounter(MVGameController.GameSessionData.ezKey, stat, count);
+		Post.EzCounter(MVGameController.GameSessionData.ezKey, stat2, count);
 	}
 
 	public static void Value(string key, int value)
 	{
-		if (useStatHatPost)
-		{
-			Post.EzValue(MVGameController.GameSessionData.ezKey, $"{MVGameController.GameSessionData.region}.u.{key}", value);
-			return;
-		}
-		BrowserComm.ToJavaScript.ExternalCall("sendStatHatValue", key, value);
+		string stat = $"{MVGameController.GameSessionData.region}.u.{key}";
+		string stat2 = string.Format(btFormat, MVGameController.GameSessionData.region, key);
+		Post.EzValue(MVGameController.GameSessionData.ezKey, stat, value);
+		Post.EzValue(MVGameController.GameSessionData.ezKey, stat2, value);
 	}
 
 	public static void Value(string key, float value)
 	{
-		if (useStatHatPost)
-		{
-			Post.EzValue(MVGameController.GameSessionData.ezKey, $"{MVGameController.GameSessionData.region}.u.{key}", value);
-			return;
-		}
-		BrowserComm.ToJavaScript.ExternalCall("sendStatHatValue", key, value);
+		string stat = $"{MVGameController.GameSessionData.region}.u.{key}";
+		string stat2 = string.Format(btFormat, MVGameController.GameSessionData.region, key);
+		Post.EzValue(MVGameController.GameSessionData.ezKey, stat, value);
+		Post.EzValue(MVGameController.GameSessionData.ezKey, stat2, value);
 	}
 }

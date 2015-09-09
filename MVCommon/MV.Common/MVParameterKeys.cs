@@ -190,6 +190,8 @@ public enum MVParameterKeys : byte
 	PublishLevel = 185,
 	Price = 186,
 	AssetBundleRootUrlWebGL = 187,
+	ClientSentryTags = 188,
+	ClientBuildTarget = 189,
 	GameId = byte.MaxValue,
 	ActorNr = 254,
 	TargetActorNr = 253,

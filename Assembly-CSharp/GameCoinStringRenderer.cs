@@ -13,14 +13,14 @@ public class GameCoinStringRenderer : MonoBehaviour
 		public Color color;
 	}
 
-	private static Material stringMaterial;
+	[SerializeField]
+	private Material stringMaterial;
 
 	private Queue<PriceTagString> strings = new Queue<PriceTagString>();
 
 	public void Start()
 	{
 		enabled = true;
-		CreateStringMaterial();
 	}
 
 	public void AddString(Vector3 start, Vector3 end, Color color)
@@ -56,16 +56,6 @@ public class GameCoinStringRenderer : MonoBehaviour
 		catch (Exception ex)
 		{
 			Debug.LogWarning("Draw string exception: " + ex);
-		}
-	}
-
-	private static void CreateStringMaterial()
-	{
-		if (!stringMaterial)
-		{
-			stringMaterial = new Material(Shader.Find("GameCoinStringShader"));
-			stringMaterial.hideFlags = HideFlags.HideAndDontSave;
-			stringMaterial.shader.hideFlags = HideFlags.HideAndDontSave;
 		}
 	}
 }

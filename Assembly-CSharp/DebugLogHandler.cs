@@ -12,6 +12,8 @@ public static class DebugLogHandler
 
 	private static List<Action<string, string, LogType>> logHandlers = new List<Action<string, string, LogType>>();
 
+	private static int sampleErrorFrequency = 1000;
+
 	private static HashSet<string> ignoreLogStrings = new HashSet<string> { "Fullscreen mode can only be enabled in the web player after clicking on the content." };
 
 	public static void AddLogHandler(Action<string, string, LogType> logHandler)
@@ -41,12 +43,19 @@ public static class DebugLogHandler
 		}
 		if (MVClientSettings.IsDebugMode)
 		{
-			UXDialogFactory uXDialogFactory = UXUtils.UXDialogFactory;
-			uXDialogFactory.BuildDialog(stackTrace, type.ToString(), UXDialogType.Simple, noButtons: false, stackDialog: true).Show();
+			try
+			{
+				UXDialogFactory uXDialogFactory = UXUtils.UXDialogFactory;
+				uXDialogFactory.BuildDialog(stackTrace, type.ToString(), UXDialogType.Simple, noButtons: false, stackDialog: true).Show();
+			}
+			catch
+			{
+			}
 		}
-		if (MVClientSettings.EnableSentry)
+		bool flag = UnityEngine.Random.Range(0, sampleErrorFrequency + 1) == sampleErrorFrequency;
+		if (MVClientSettings.EnableSentry || flag)
 		{
-			MVGameController.Game.SendClientLog(logString, stackTrace, type, GetExtraSentryData());
+			MVGameController.Game.SendClientLog(logString, stackTrace, type, GetExtraSentryData(), GetTags());
 		}
 		logErrorHasBeenSendOnce = true;
 	}
@@ -83,6 +92,14 @@ public static class DebugLogHandler
 		dictionary.Add("RuntimePlatform", Application.platform.ToString());
 		dictionary.Add("SystemInfo", GetSystemInfo());
 		dictionary.Add("Log Context", GetLogContext());
+		return dictionary;
+	}
+
+	private static Dictionary<string, string> GetTags()
+	{
+		Dictionary<string, string> dictionary = new Dictionary<string, string>();
+		dictionary.Add("Version", MVGameController.VersionNumber.VersionString);
+		dictionary.Add("Source", "standalone");
 		return dictionary;
 	}
 

@@ -3,11 +3,36 @@ using UnityEngine;
 
 public class FpsCounter : MonoBehaviour
 {
+	private class FpsMetricCollector
+	{
+		private const float timeBeforeMetricCollectionInSeconds = 30f;
+
+		private readonly float startTime;
+
+		private bool fpsCollected;
+
+		public FpsMetricCollector()
+		{
+			startTime = Time.time;
+		}
+
+		public void Update(float fps)
+		{
+			if (!fpsCollected && Time.time - startTime > 30f)
+			{
+				StatHatWrapper.Value("FPS", fps);
+				fpsCollected = true;
+			}
+		}
+	}
+
 	private int idx;
 
 	private float[] frameTimes = new float[10];
 
 	public bool showFPS = true;
+
+	private FpsMetricCollector fpsMetricCollector;
 
 	private void Start()
 	{
@@ -21,6 +46,14 @@ public class FpsCounter : MonoBehaviour
 		if (Input.GetKey(KeyCode.Alpha8) && Input.GetKeyUp(KeyCode.Alpha9))
 		{
 			showFPS = !showFPS;
+		}
+		if (fpsMetricCollector == null && MVGameController.Game != null && MVGameController.Game.JoinState == MVJoinState.Playing)
+		{
+			fpsMetricCollector = new FpsMetricCollector();
+		}
+		if (fpsMetricCollector != null)
+		{
+			fpsMetricCollector.Update(frameTimes.Average());
 		}
 	}
 

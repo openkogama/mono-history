@@ -80,7 +80,7 @@ public abstract class AsyncWebRequest
 					www = Create();
 					return false;
 				}
-				Debug.LogWarning(www.error);
+				Debug.LogWarning($"{www.url}\n{www.error}");
 			}
 			isDone = true;
 			try

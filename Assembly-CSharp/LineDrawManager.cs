@@ -22,7 +22,8 @@ public class LineDrawManager : MonoBehaviour
 		}
 	}
 
-	private static Material lineMaterial;
+	[SerializeField]
+	private Material lineMaterial;
 
 	private static LineDrawManager instance;
 
@@ -53,7 +54,6 @@ public class LineDrawManager : MonoBehaviour
 
 	private void Start()
 	{
-		CreateLineMaterial();
 	}
 
 	private void OnPostRender()
@@ -242,15 +242,5 @@ public class LineDrawManager : MonoBehaviour
 	private void DrawLine(LinkLine linkLine)
 	{
 		DrawLine(linkLine.startPos, linkLine.endPos, linkLine.color);
-	}
-
-	private static void CreateLineMaterial()
-	{
-		if (!lineMaterial)
-		{
-			lineMaterial = new Material(Shader.Find("LineDrawShader"));
-			lineMaterial.hideFlags = HideFlags.HideAndDontSave;
-			lineMaterial.shader.hideFlags = HideFlags.HideAndDontSave;
-		}
 	}
 }

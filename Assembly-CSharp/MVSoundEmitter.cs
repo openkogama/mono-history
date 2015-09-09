@@ -172,7 +172,7 @@ public class MVSoundEmitter : MVLogicObject
 				string empty = string.Empty;
 				text += string.Format(arg2: (datum.Value == null) ? "null" : datum.Value.GetType().ToString(), format: "Key: {0}, ValueType: {1}, Value: {2}\n", arg0: datum.Key, arg1: datum.Value);
 			}
-			int planetID = MVGameController.Game.gameSessionData.planetID;
+			int planetID = MVGameController.GameSessionData.planetID;
 			string message = $"SoundEmitter error on planet: {planetID}. Data {text}. Exception {arg}";
 			Debug.LogError(message);
 		}

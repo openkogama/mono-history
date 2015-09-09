@@ -1,9 +1,9 @@
 using System;
 using UnityEngine;
 
+[AddComponentMenu("Image Effects/Skybox-based Fog")]
 [RequireComponent(typeof(Camera))]
 [ExecuteInEditMode]
-[AddComponentMenu("Image Effects/Skybox-based Fog")]
 public class PostprocessFog : MonoBehaviour
 {
 	public float startDistance = 200f;
