@@ -37,9 +37,13 @@ public abstract class AvatarModifier : MonoBehaviour
 		case AvatarModifierPackageType.NinjaRun:
 			empty = "Prefabs/AvatarModifiers/NinjaRunModifier";
 			break;
+		case AvatarModifierPackageType.Shrunken:
+			empty = "Prefabs/AvatarModifiers/ShrinkModifier";
+			break;
 		default:
 			return null;
 		}
+		Debug.Log(empty);
 		AvatarModifier component = (Object.Instantiate(Resources.Load(empty)) as GameObject).GetComponent<AvatarModifier>();
 		component.owner = owner;
 		return component;

@@ -107,6 +107,9 @@ public class MVGUIDialogBoxWrapper
 		case WorldObjectType.GameCoinChest:
 			new MVGUISettingsDialogGameCoinChest();
 			break;
+		case WorldObjectType.WindTurbine:
+			new GUISettingsDialogWindTurbine();
+			break;
 		default:
 			Debug.LogError("No settings dialog available for wo type " + wo.WorldObjectType);
 			break;

@@ -25,8 +25,8 @@ public class MVGUISpeedometer : UXViewScript
 			}
 			return;
 		}
-		float to = component.Velocity.magnitude * 3.6f;
-		curSpeed = Mathf.Lerp(curSpeed, to, Time.deltaTime);
+		float b = component.Velocity.magnitude * 3.6f;
+		curSpeed = Mathf.Lerp(curSpeed, b, Time.deltaTime);
 		if (curSpeed > 100f)
 		{
 			if (!View.isVisible)

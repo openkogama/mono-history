@@ -30,6 +30,7 @@ public class MVGUISettingsDialogRotator : MVGUISettingsDialog
 		{
 			sliderValue = mVRotator.AngularSpeed,
 			setMinMaxValue = true,
+			minValue = 0f,
 			maxValue = 5f
 		});
 		return dictionary;

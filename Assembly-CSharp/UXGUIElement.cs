@@ -106,11 +106,11 @@ public abstract class UXGUIElement : MonoBehaviour
 
 	public virtual Rect GetBoundingBox()
 	{
-		float left = (0f - ScreenAlignment.x) * transform.localScale.x;
-		float top = (0f - ScreenAlignment.y) * transform.localScale.y;
+		float x = (0f - ScreenAlignment.x) * transform.localScale.x;
+		float y = (0f - ScreenAlignment.y) * transform.localScale.y;
 		float width = ScreenSize.x * transform.localScale.x;
 		float height = ScreenSize.y * transform.localScale.y;
-		Rect result = new Rect(left, top, width, height);
+		Rect result = new Rect(x, y, width, height);
 		result.center += transform.position.xy();
 		return result;
 	}

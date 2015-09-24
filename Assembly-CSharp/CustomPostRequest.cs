@@ -1,18 +1,25 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CustomPostRequest : AsyncWebRequest
 {
-	private WWW wwwReturn;
+	private readonly string url = string.Empty;
 
-	public CustomPostRequest(WWW www, Action<WWW> callback)
+	private readonly byte[] postData;
+
+	private readonly Dictionary<string, string> headers;
+
+	public CustomPostRequest(string url, byte[] postData, Dictionary<string, string> headers, Action<WWW> callback)
 		: base(string.Empty, callback)
 	{
-		wwwReturn = www;
+		this.url = url;
+		this.postData = postData;
+		this.headers = headers;
 	}
 
 	protected override WWW Create()
 	{
-		return wwwReturn;
+		return new WWW(url, postData, headers);
 	}
 }

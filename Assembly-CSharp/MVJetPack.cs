@@ -117,7 +117,6 @@ public class MVJetPack : MVVehicleBase
 			vehicleMotor.LeaveMode = true;
 			vehicleUser.SetCharacterController(avatarController);
 			vehicleUser.ForceRotateAvatarToFiringDirection = false;
-			triggerHandler.enabled = false;
 			MVPickupOwner mVPickupOwner = avatarPickupOwner;
 			mVPickupOwner.onHandleFiring = (MVPickupOwner.OnHandleFiringDelegate)Delegate.Remove(mVPickupOwner.onHandleFiring, new MVPickupOwner.OnHandleFiringDelegate(OnFiring));
 		}
@@ -161,6 +160,7 @@ public class MVJetPack : MVVehicleBase
 			OverheatUpdate(thrust);
 			if (walkMode)
 			{
+				vehicleUser.RigidBody.AddImpulse(vehicleMotor.Impulses);
 				return movementMap;
 			}
 			Quaternion setQuaternion = Quaternion.identity;

@@ -770,20 +770,20 @@ public static class MathFunctions
 	{
 		eulerFrom.x = 0f;
 		eulerFrom.z = 0f;
-		Quaternion quaternion = Quaternion.Euler(eulerFrom);
+		Quaternion a = Quaternion.Euler(eulerFrom);
 		eulerFrom.y = eulerTo.y;
-		Quaternion to = Quaternion.Euler(eulerFrom);
-		return Quaternion.Slerp(quaternion, to, Time.deltaTime * speed);
+		Quaternion b = Quaternion.Euler(eulerFrom);
+		return Quaternion.Slerp(a, b, Time.deltaTime * speed);
 	}
 
 	public static Quaternion InertiaX(Vector3 eulerFrom, Vector3 eulerTo, float speed)
 	{
 		eulerFrom.y = 0f;
 		eulerFrom.z = 0f;
-		Quaternion quaternion = Quaternion.Euler(eulerFrom);
+		Quaternion a = Quaternion.Euler(eulerFrom);
 		eulerFrom.x = eulerTo.x;
-		Quaternion to = Quaternion.Euler(eulerFrom);
-		return Quaternion.Slerp(quaternion, to, Time.deltaTime * speed);
+		Quaternion b = Quaternion.Euler(eulerFrom);
+		return Quaternion.Slerp(a, b, Time.deltaTime * speed);
 	}
 
 	public static float Pow2(float val)

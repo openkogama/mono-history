@@ -164,7 +164,7 @@ public abstract class MVRigidBody : MVComponent
 
 	protected bool isPlayerControlled = true;
 
-	private List<Vector3> impulseVectors = new List<Vector3>();
+	protected List<Vector3> impulseVectors = new List<Vector3>();
 
 	public abstract bool Grounded { get; }
 
@@ -237,6 +237,21 @@ public abstract class MVRigidBody : MVComponent
 		zero *= 0.02f / interactableLocal.HandleModifierEffect(AvatarModifierEffect.Weight, weight);
 		impulseVectors.Clear();
 		return velocity + zero;
+	}
+
+	protected Vector3 GetPureImpulse()
+	{
+		Vector3 zero = Vector3.zero;
+		if (impulseVectors.Count == 0)
+		{
+			return zero;
+		}
+		foreach (Vector3 impulseVector in impulseVectors)
+		{
+			zero += impulseVector;
+		}
+		impulseVectors.Clear();
+		return zero;
 	}
 
 	protected static Vector3 VelocityDamping(Vector3 velocity, float defaultDampning, MVInteractableBase interactableLocal)

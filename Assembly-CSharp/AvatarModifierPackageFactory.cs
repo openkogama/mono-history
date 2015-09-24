@@ -14,10 +14,14 @@ public static class AvatarModifierPackageFactory
 		},
 		{
 			AvatarModifierPackageType.Mutant,
-			new AvatarModifierPackage(AvatarModifierPackageType.Mutant, AvatarModifierPackageAdditionPolicy.Renew, 20f, new AvatarModifierPackage.AvatarModifier[2]
+			new AvatarModifierPackage(AvatarModifierPackageType.Mutant, AvatarModifierPackageAdditionPolicy.Renew, 20f, new AvatarModifierPackage.AvatarModifier[6]
 			{
 				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.JumpPower, Const(1.5f)),
-				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.Speed, Const(1.25f))
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.Speed, Const(1.25f)),
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Override, AvatarModifierEffect.DisablePickups, Const(1f)),
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Override, AvatarModifierEffect.DisableVehicles, Const(1f)),
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Override, AvatarModifierEffect.PoisonImmune, Const(1f)),
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Override, AvatarModifierEffect.Invulnerable, Const(1f))
 			})
 		},
 		{
@@ -87,6 +91,29 @@ public static class AvatarModifierPackageFactory
 			{
 				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.Speed, Const(3f)),
 				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.ThrustFactor, Const(20f))
+			})
+		},
+		{
+			AvatarModifierPackageType.Shrunken,
+			new AvatarModifierPackage(AvatarModifierPackageType.Shrunken, AvatarModifierPackageAdditionPolicy.Renew, 99999f, new AvatarModifierPackage.AvatarModifier[3]
+			{
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.Speed, Const(0.25f)),
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Override, AvatarModifierEffect.Scale, Const(0.25f)),
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.JumpPower, Const(0.25f))
+			})
+		},
+		{
+			AvatarModifierPackageType.WindFriction,
+			new AvatarModifierPackage(AvatarModifierPackageType.WindFriction, AvatarModifierPackageAdditionPolicy.Renew, float.PositiveInfinity, new AvatarModifierPackage.AvatarModifier[1]
+			{
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Override, AvatarModifierEffect.VelocityDamping, Const(0.96f))
+			})
+		},
+		{
+			AvatarModifierPackageType.DisableVehiclePickup,
+			new AvatarModifierPackage(AvatarModifierPackageType.DisableVehiclePickup, AvatarModifierPackageAdditionPolicy.Renew, float.PositiveInfinity, new AvatarModifierPackage.AvatarModifier[1]
+			{
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Override, AvatarModifierEffect.DisablePickups, Const(1f))
 			})
 		}
 	};

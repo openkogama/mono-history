@@ -55,6 +55,8 @@ public class JetPackMotor : MVRigidBody
 
 	public override Vector3 Velocity => Controller.Velocity / Time.fixedDeltaTime;
 
+	public Vector3 Impulses => GetPureImpulse();
+
 	public Vector3 InputMoveDirection { get; set; }
 
 	public bool Thrust { get; set; }
@@ -237,9 +239,9 @@ public class JetPackMotor : MVRigidBody
 	{
 		float baseValue = runSpeed;
 		baseValue = interactable.HandleModifierEffect(AvatarModifierEffect.Speed, baseValue);
-		float to = InputMoveDirection.magnitude * baseValue;
+		float b = InputMoveDirection.magnitude * baseValue;
 		float t = speedSmoothing * Time.deltaTime;
-		speed = Mathf.Lerp(speed, to, t);
+		speed = Mathf.Lerp(speed, b, t);
 		if (InputMoveDirection.magnitude == 0f)
 		{
 			speed = 0f;

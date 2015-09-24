@@ -63,13 +63,14 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase
 		{
 			base.Leave();
 			owner.IsFiring.Value = false;
-			triggerHandler.enabled = false;
+			triggerHandler.Reset();
 		}
 
 		public override void Enter()
 		{
 			base.Enter();
 			triggerHandler.enabled = true;
+			triggerHandler.Reset();
 		}
 
 		public override MovementMap FixedUpdate(MovementMap movementMap)

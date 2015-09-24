@@ -70,6 +70,14 @@ public class MVPickupItemBase : MVLogicObject
 		{
 			AvatarItemType.MultiThrowingStar,
 			"Prefabs/Pickups/PickupItemMultiThrowingStar"
+		},
+		{
+			AvatarItemType.ShrinkGun,
+			"Prefabs/Pickups/PickupItemShrinkGun"
+		},
+		{
+			AvatarItemType.IceGun,
+			"Prefabs/Pickups/PickupItemIceGun"
 		}
 	};
 
@@ -175,13 +183,17 @@ public class MVPickupItemBase : MVLogicObject
 
 	private void DoPickup(int instigatorWOID)
 	{
-		MVEquipable component = MVGameController.WOCM.GetWorldObjectClient(instigatorWOID).GameObject.GetComponent<MVEquipable>();
-		if (component != null)
+		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(instigatorWOID);
+		if (worldObjectClient.GameObject.GetComponent<MVInteractableBase>().HandleModifierEffect(AvatarModifierEffect.DisablePickups, 0f) != 1f)
 		{
-			component.Equip(Type, ItemData, VariantID);
+			MVEquipable component = worldObjectClient.GameObject.GetComponent<MVEquipable>();
+			if (component != null)
+			{
+				component.Equip(Type, ItemData, VariantID);
+			}
+			MVGameController.Game.TriggerBoxEnter(Id, instigatorWOID);
+			canPickUp = false;
 		}
-		MVGameController.Game.TriggerBoxEnter(Id, instigatorWOID);
-		canPickUp = false;
 	}
 
 	private void triggerBoxEvents_TriggerExit(object sender, TriggerEventArgs e)

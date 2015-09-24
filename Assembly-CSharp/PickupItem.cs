@@ -43,6 +43,8 @@ public abstract class PickupItem : MonoBehaviour
 			AvatarItemType.DoubleSixShooter => "Prefabs/AvatarItems/AvatarItemDoubleSixShooter", 
 			AvatarItemType.ThrowingStar => "Prefabs/AvatarItems/AvatarItemThrowingStar", 
 			AvatarItemType.MultiThrowingStar => "Prefabs/AvatarItems/AvatarItemMultiThrowingStar", 
+			AvatarItemType.ShrinkGun => "Prefabs/AvatarItems/AvatarItemShrinkGun", 
+			AvatarItemType.IceGun => "Prefabs/AvatarItems/AvatarItemIceGun", 
 			_ => string.Empty, 
 		};
 	}

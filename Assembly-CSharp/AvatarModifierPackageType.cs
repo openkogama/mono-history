@@ -11,5 +11,8 @@ public enum AvatarModifierPackageType
 	FlamerBurn,
 	Underwater,
 	Frozen,
-	NinjaRun
+	NinjaRun,
+	Shrunken,
+	WindFriction,
+	DisableVehiclePickup
 }

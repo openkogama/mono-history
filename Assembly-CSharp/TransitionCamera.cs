@@ -61,21 +61,21 @@ public class TransitionCamera : MVCameraBase
 	{
 		eulerTo.x = 0f;
 		eulerTo.z = 0f;
-		Quaternion to = Quaternion.Euler(eulerTo);
+		Quaternion b = Quaternion.Euler(eulerTo);
 		eulerFrom.x = 0f;
 		eulerFrom.z = 0f;
-		Quaternion quaternion = Quaternion.Euler(eulerFrom);
-		return Quaternion.Slerp(quaternion, to, percentage);
+		Quaternion a = Quaternion.Euler(eulerFrom);
+		return Quaternion.Slerp(a, b, percentage);
 	}
 
 	private Quaternion RotateTowardsX(Vector3 eulerFrom, Vector3 eulerTo, float percentage)
 	{
 		eulerTo.y = 0f;
 		eulerTo.z = 0f;
-		Quaternion to = Quaternion.Euler(eulerTo);
+		Quaternion b = Quaternion.Euler(eulerTo);
 		eulerFrom.y = 0f;
 		eulerFrom.z = 0f;
-		Quaternion quaternion = Quaternion.Euler(eulerFrom);
-		return Quaternion.Slerp(quaternion, to, percentage);
+		Quaternion a = Quaternion.Euler(eulerFrom);
+		return Quaternion.Slerp(a, b, percentage);
 	}
 }

@@ -29,8 +29,14 @@ public static class AsyncWWWManager
 
 	private static Cache cache = new Cache();
 
+	private static bool dispose = false;
+
 	public static void WWWRequest(AsyncWebRequest asyncRequest)
 	{
+		if (dispose)
+		{
+			return;
+		}
 		if (asyncRequest is CachedGetRequest)
 		{
 			CachedGetRequest cachedGetRequest = (CachedGetRequest)asyncRequest;
@@ -44,6 +50,10 @@ public static class AsyncWWWManager
 
 	public static void Update()
 	{
+		if (dispose)
+		{
+			return;
+		}
 		while (activeRequest.Count < maxRequests && requests.Count > 0)
 		{
 			activeRequest.Add(requests.Dequeue());
@@ -60,5 +70,20 @@ public static class AsyncWWWManager
 		{
 			activeRequest.Remove(item2);
 		}
+	}
+
+	public static void Dispose()
+	{
+		dispose = true;
+		foreach (AsyncWebRequest item in activeRequest)
+		{
+			item.Dispose();
+		}
+		activeRequest.Clear();
+		foreach (AsyncWebRequest request in requests)
+		{
+			request.Dispose();
+		}
+		requests.Clear();
 	}
 }

@@ -226,12 +226,12 @@ public class MVSentryGun : MVLogicObject
 		{
 			gameObject.GetComponent<AudioSource>().Stop();
 		}
-		float to = ((woIdsBeamsMap.Count <= 0) ? 0.5f : 1f);
+		float b = ((woIdsBeamsMap.Count <= 0) ? 0.5f : 1f);
 		if (interactable.IsDead())
 		{
-			to = 0f;
+			b = 0f;
 		}
-		glowFactor = Mathf.Lerp(glowFactor, to, Time.deltaTime * 2.5f);
+		glowFactor = Mathf.Lerp(glowFactor, b, Time.deltaTime * 2.5f);
 		sentryGunScript.SetGlowFactor(glowFactor);
 	}
 

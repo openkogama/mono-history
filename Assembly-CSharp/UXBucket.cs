@@ -1,8 +1,8 @@
 using System;
 using UnityEngine;
 
-[RequireComponent(typeof(UXMouseOverColorFade))]
 [RequireComponent(typeof(UXDropObject))]
+[RequireComponent(typeof(UXMouseOverColorFade))]
 public class UXBucket : UXGUIElement
 {
 	public delegate void OnDropDelegate(GameObject droppedObject);

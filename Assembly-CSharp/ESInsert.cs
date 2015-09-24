@@ -99,8 +99,8 @@ internal class ESInsert : ESStateBase
 			rawPosition = insertPosition - pivotToOrigin;
 		}
 		laser.UpdatePosition(rawPosition);
-		Vector3 to = ComputeSnapPosition(e.SingleSelectedWO, insertPosition);
-		e.SingleSelectedWO.SyncPos = Vector3.Lerp(e.SingleSelectedWO.WorldPosition, to, Time.deltaTime * 20f);
+		Vector3 b = ComputeSnapPosition(e.SingleSelectedWO, insertPosition);
+		e.SingleSelectedWO.SyncPos = Vector3.Lerp(e.SingleSelectedWO.WorldPosition, b, Time.deltaTime * 20f);
 		e.SingleSelectedWO.Visible = false;
 		DrawObject(e.SingleSelectedWO.GameObject);
 		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
@@ -173,8 +173,8 @@ internal class ESInsert : ESStateBase
 		VoxelHit hit = default;
 		if (MVGameController.WOCM.Pick(ref hit, woIgnoreList))
 		{
-			Vector3 to = ComputeObjectOffset(wo, -hit.normal);
-			insertOffset = Vector3.Lerp(insertOffset, to, Time.deltaTime * 10f);
+			Vector3 b = ComputeObjectOffset(wo, -hit.normal);
+			insertOffset = Vector3.Lerp(insertOffset, b, Time.deltaTime * 10f);
 			position = hit.point - insertOffset;
 			rawPosition = hit.point;
 			normal = hit.normal;

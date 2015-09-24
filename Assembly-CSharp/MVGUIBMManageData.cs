@@ -102,7 +102,8 @@ public class MVGUIBMManageData : UXCustomDialogBox
 		Dictionary<string, DialogData> dictionary = new Dictionary<string, DialogData>();
 		dictionary.Add("ComboBox", new TextComboBoxData
 		{
-			items = names
+			items = names,
+			currentlySelectedIndex = 0
 		});
 		DialogFactory.CreateCustomDevelopmentDialog("Prefabs/GUI/Dev Tools/BlueprintManager/ManageData/BlueprintManagerAddData", "Add Data", noButtons: true, stackDialog: true).SetValues(dictionary).SetOnResultCallback(OnAddDataResponse)
 			.Show();

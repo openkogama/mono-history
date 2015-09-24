@@ -325,6 +325,17 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 		worldObjectLOD.UpdateLOD();
 	}
 
+	public void FixedUpdate()
+	{
+		foreach (MVWorldObjectClient value in worldObjects.Values)
+		{
+			if (value.State != MVWorldObjectState.Destroyed && value is MVLogicObject)
+			{
+				((MVLogicObject)value).FixedUpdate();
+			}
+		}
+	}
+
 	public void OnWorldObjectDestroyed(int woID)
 	{
 		if (woDestroyedEventSubscribers.TryGetValue(woID, out var value))

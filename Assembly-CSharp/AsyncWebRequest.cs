@@ -57,6 +57,14 @@ public abstract class AsyncWebRequest
 		return false;
 	}
 
+	public void Dispose()
+	{
+		if (www != null)
+		{
+			www.Dispose();
+		}
+	}
+
 	private void GotoRunState()
 	{
 		www = Create();

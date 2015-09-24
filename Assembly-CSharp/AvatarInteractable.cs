@@ -12,7 +12,7 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 
 	public override void TakeDamage(float amount, MVPlayer damageDealer, PlayerKilledByType damageType)
 	{
-		if (!IgnoreDamage(damageDealer) && MVGameController.Game.IsPlaying && !(bool)invulnerable.Value && !HasModifier(AvatarModifierPackageType.Mutant))
+		if (!IgnoreDamage(damageDealer) && MVGameController.Game.IsPlaying && !(bool)invulnerable.Value && HandleModifierEffect(AvatarModifierEffect.Invulnerable, 0f) != 1f)
 		{
 			float value = health.Value;
 			health.Value -= amount;
@@ -31,7 +31,7 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 		case AvatarModifierPackageType.None:
 			return;
 		case AvatarModifierPackageType.Poison:
-			if (HasModifier(AvatarModifierPackageType.Mutant))
+			if (HandleModifierEffect(AvatarModifierEffect.PoisonImmune, 0f) == 1f)
 			{
 				return;
 			}

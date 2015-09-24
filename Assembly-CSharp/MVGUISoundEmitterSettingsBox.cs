@@ -293,7 +293,8 @@ public class MVGUISoundEmitterSettingsBox : UXCustomDialogBox
 			{
 				categoryToAssets[categoryID2].Add(new SoundBite
 				{
-					assetInfo = assetInfo
+					assetInfo = assetInfo,
+					unlocked = false
 				});
 			}
 		}

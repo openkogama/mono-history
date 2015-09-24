@@ -52,6 +52,15 @@ public abstract class MVVehicleBase : MVBlueprintBase
 				onEnter();
 			}
 			List<MVRigidBody> list = GetLocalComponents<MVRigidBody>();
+			List<VehicleInteractable> list2 = GetLocalComponents<VehicleInteractable>();
+			if (list2.Count == 0)
+			{
+				Debug.LogWarning("Failed to get VehicleInteractable.");
+			}
+			if (list2.Count == 1)
+			{
+				list2[0].RemoveModifier(AvatarModifierPackageType.DisableVehiclePickup);
+			}
 			if (list.Count == 0)
 			{
 				Debug.LogWarning("Failed to get rigid bodies");
@@ -72,18 +81,27 @@ public abstract class MVVehicleBase : MVBlueprintBase
 			{
 				onLeave();
 			}
-			List<MVRigidBody> list = GetLocalComponents<MVRigidBody>();
+			List<VehicleInteractable> list = GetLocalComponents<VehicleInteractable>();
 			if (list.Count == 0)
+			{
+				Debug.LogWarning("Failed to get VehicleInteractable.");
+			}
+			if (list.Count == 1)
+			{
+				list[0].AddModifier(AvatarModifierPackageType.DisableVehiclePickup);
+			}
+			List<MVRigidBody> list2 = GetLocalComponents<MVRigidBody>();
+			if (list2.Count == 0)
 			{
 				Debug.LogWarning("Failed to get rigid bodies");
 			}
-			if (list.Count > 1)
+			if (list2.Count > 1)
 			{
 				Debug.LogWarning("More than 1 rigidBody. This is unexpected");
 			}
-			if (list.Count > 0)
+			if (list2.Count > 0)
 			{
-				list[0].IsPlayerControlled = false;
+				list2[0].IsPlayerControlled = false;
 			}
 		}
 
@@ -170,6 +188,7 @@ public abstract class MVVehicleBase : MVBlueprintBase
 	public void Enter(MVAvatar vehicleUser, int seatID)
 	{
 		int num = vehicleUser.OwnerActorNr;
+		vehicleUser.BeforeVehicleEntered();
 		bool flag = MVGameController.Game.LocalPlayer.ActorNr == num;
 		seatManager.AttachWorldObjectToSeat(num, flag, vehicleUser, seatID);
 		if (flag)

@@ -209,11 +209,11 @@ public class HoverCraftVisualization : VehicleVisualizationBase
 	{
 		Vector3 position = transform.position;
 		position.y = 0f;
-		Vector3 to = (position - prevWorldPosition) / Time.deltaTime;
-		moveSpeed = to.magnitude;
+		Vector3 b = (position - prevWorldPosition) / Time.deltaTime;
+		moveSpeed = b.magnitude;
 		float num = smoothMoveSpeed;
 		smoothMoveSpeed = Mathf.SmoothStep(smoothMoveSpeed, moveSpeed, Time.deltaTime * smoothMoveSpeedTime);
-		smoothVelocity = Vector3.Lerp(smoothVelocity, to, Time.deltaTime * smoothMoveSpeedTime);
+		smoothVelocity = Vector3.Lerp(smoothVelocity, b, Time.deltaTime * smoothMoveSpeedTime);
 		signedAcceleration = (smoothMoveSpeed - num) / Time.deltaTime;
 		prevWorldPosition = position;
 	}

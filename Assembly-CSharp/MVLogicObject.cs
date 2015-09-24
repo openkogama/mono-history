@@ -41,6 +41,10 @@ public abstract class MVLogicObject : MVWorldObjectClient
 		}
 	}
 
+	public virtual void FixedUpdate()
+	{
+	}
+
 	public override Bounds GetLocalBounds(BoundsContext boundsContext)
 	{
 		return localBounds;

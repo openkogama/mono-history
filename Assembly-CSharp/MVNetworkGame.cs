@@ -495,6 +495,22 @@ public class MVNetworkGame : IPhotonPeerListener
 		}
 	}
 
+	public void FixedUpdate()
+	{
+		try
+		{
+			FixedUpdateGame();
+		}
+		catch (Exception ex)
+		{
+			if (Application.isEditor)
+			{
+				throw;
+			}
+			Debug.LogError("Exception in FixedUpdate loop: " + ex.ToString());
+		}
+	}
+
 	public void Cleanup()
 	{
 		if (worldNetwork != null && worldNetwork.WorldObjectClientManagerNetwork != null)
@@ -516,6 +532,14 @@ public class MVNetworkGame : IPhotonPeerListener
 				gameCoinManager.Update(this);
 			}
 			networkGameStateListener.Update(this);
+		}
+	}
+
+	private void FixedUpdateGame()
+	{
+		if (peer != null && JoinState == MVJoinState.Playing)
+		{
+			worldNetwork.FixedUpdate();
 		}
 	}
 
@@ -547,9 +571,9 @@ public class MVNetworkGame : IPhotonPeerListener
 		case MVJoinState.FetchingCreditStatus:
 		{
 			JoinState = MVJoinState.FetchingMaterials;
-			Dictionary<byte, object> dictionary3 = new Dictionary<byte, object>();
-			dictionary3.Add(11, MVGameController.GameSessionData.profileID);
-			peer.OpCustom(46, dictionary3, sendReliable: true);
+			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
+			dictionary.Add(11, MVGameController.GameSessionData.profileID);
+			peer.OpCustom(46, dictionary, sendReliable: true);
 			break;
 		}
 		case MVJoinState.FetchingMaterials:
@@ -584,9 +608,9 @@ public class MVNetworkGame : IPhotonPeerListener
 			{
 				JoinState = MVJoinState.FetchingInventory;
 				OnGetNextResultSetResponse = OnInventoryResultSetResponse;
-				Dictionary<object, object> dictionary2 = new Dictionary<object, object>();
-				dictionary2.Add((byte)0, LocalPlayer.ProfileID);
-				RequestLargeDBQuery(DBQuery.RequestInventory, dictionary2, 10);
+				Dictionary<object, object> dictionary3 = new Dictionary<object, object>();
+				dictionary3.Add((byte)0, LocalPlayer.ProfileID);
+				RequestLargeDBQuery(DBQuery.RequestInventory, dictionary3, 10);
 			}
 			else if (MVGameController.GameSessionData.gameMode == MVGameMode.CharacterEditor)
 			{
@@ -605,9 +629,9 @@ public class MVNetworkGame : IPhotonPeerListener
 			{
 				JoinState = MVJoinState.FetchingShopInventory;
 				OnGetNextResultSetResponse = OnShopInventoryResultSetResponse;
-				Dictionary<object, object> dictionary = new Dictionary<object, object>();
-				dictionary.Add((byte)0, LocalPlayer.ProfileID);
-				RequestLargeDBQuery(DBQuery.RequestClientShopInventoryForPlayer, dictionary, 10);
+				Dictionary<object, object> dictionary2 = new Dictionary<object, object>();
+				dictionary2.Add((byte)0, LocalPlayer.ProfileID);
+				RequestLargeDBQuery(DBQuery.RequestClientShopInventoryForPlayer, dictionary2, 10);
 			}
 			else
 			{
@@ -659,6 +683,14 @@ public class MVNetworkGame : IPhotonPeerListener
 			break;
 		case MVJoinState.Playing:
 			StatHatWrapper.Value("JoinTime", Time.realtimeSinceStartup);
+			if (IsTouristSession)
+			{
+				StatHatWrapper.Count("SessionType.Tourist" + gameType, 1);
+			}
+			else
+			{
+				StatHatWrapper.Count("SessionType." + gameType, 1);
+			}
 			gameCoinManager.Reset(this);
 			break;
 		case MVJoinState.SelectingTeam:

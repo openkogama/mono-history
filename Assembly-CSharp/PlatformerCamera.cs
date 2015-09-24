@@ -83,12 +83,12 @@ public class PlatformerCamera : PlaymodeCamera
 		position.x += avatarLookAheadAddX;
 		Vector3 vector = position + new Vector3(0f, 0f, 0f - distanceToAvatar) + new Vector3(0f, height, 0f);
 		Vector3 normalized = (position - vector).normalized;
-		Vector3 to = position + normalized * (0f - curCamDist) + new Vector3(0f, height, 0f);
+		Vector3 b = position + normalized * (0f - curCamDist) + new Vector3(0f, height, 0f);
 		Vector3 position2 = transform.position;
 		position2.x = position.x;
-		Quaternion to2 = Quaternion.LookRotation(position - position2, Vector3.up);
-		transform.position = Vector3.Lerp(transform.position, to, num);
-		transform.rotation = Quaternion.Lerp(transform.rotation, to2, t);
+		Quaternion b2 = Quaternion.LookRotation(position - position2, Vector3.up);
+		transform.position = Vector3.Lerp(transform.position, b, num);
+		transform.rotation = Quaternion.Lerp(transform.rotation, b2, t);
 		if (avatarWorldCollision)
 		{
 			Vector3 avatarPos = GameDB.LocalAvatar.GameObject.transform.position + lookAtAvatarOffset;

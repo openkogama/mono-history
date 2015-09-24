@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using MV.Common;
+using UnityEngine;
 
 public class AvatarEquipable : MVEquipable
 {
@@ -15,6 +16,7 @@ public class AvatarEquipable : MVEquipable
 
 	public override void Equip(AvatarItemType type, Dictionary<object, object> itemData, int variantID = 0)
 	{
+		Debug.Log("Trying to equip type " + type);
 		switch (type)
 		{
 		case AvatarItemType.Health:
@@ -33,31 +35,28 @@ public class AvatarEquipable : MVEquipable
 			interactableLocal.AddModifier(AvatarModifierPackageType.NinjaRun);
 			return;
 		}
-		if (!interactableLocal.HasModifier(AvatarModifierPackageType.Mutant))
+		if (itemData != null)
 		{
-			if (itemData != null)
+			currentItem.Value = new Dictionary<object, object>
 			{
-				currentItem.Value = new Dictionary<object, object>
 				{
-					{
-						"type",
-						(int)type
-					},
-					{ "variantId", variantID },
-					{ "itemData", itemData }
-				};
-			}
-			else
+					"type",
+					(int)type
+				},
+				{ "variantId", variantID },
+				{ "itemData", itemData }
+			};
+		}
+		else
+		{
+			currentItem.Value = new Dictionary<object, object>
 			{
-				currentItem.Value = new Dictionary<object, object>
 				{
-					{
-						"type",
-						(int)type
-					},
-					{ "variantId", variantID }
-				};
-			}
+					"type",
+					(int)type
+				},
+				{ "variantId", variantID }
+			};
 		}
 	}
 

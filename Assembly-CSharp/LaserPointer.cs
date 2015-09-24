@@ -218,10 +218,10 @@ public class LaserPointer : PickupItem, ILaserPointer
 		if (owner.IsLocal && !lineRenderer.enabled)
 		{
 			Vector3 forward = cube.parent.position + cube.parent.forward * 10f - cube.position;
-			Quaternion to = Quaternion.LookRotation(forward, cube.parent.up);
-			Quaternion quaternion = Quaternion.LookRotation(cube.forward, cube.parent.up);
-			Quaternion quaternion2 = Quaternion.Slerp(quaternion, to, Time.deltaTime * 10f);
-			relativeTargetPosition = quaternion2 * Vector3.forward * Mathf.Lerp(relativeTargetPosition.magnitude, 10f, Time.deltaTime * 5f);
+			Quaternion b = Quaternion.LookRotation(forward, cube.parent.up);
+			Quaternion a = Quaternion.LookRotation(cube.forward, cube.parent.up);
+			Quaternion quaternion = Quaternion.Slerp(a, b, Time.deltaTime * 10f);
+			relativeTargetPosition = quaternion * Vector3.forward * Mathf.Lerp(relativeTargetPosition.magnitude, 10f, Time.deltaTime * 5f);
 		}
 		relativeCurrentTargetPosition = Vector3.Lerp(relativeCurrentTargetPosition, relativeTargetPosition, Time.deltaTime * 20f);
 	}

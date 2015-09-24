@@ -61,5 +61,15 @@ public enum AvatarItemType
 	Caspar12,
 	Caspar13,
 	Caspar14,
-	Caspar15
+	Caspar15,
+	ShrinkGun,
+	IceGun,
+	Thomas4,
+	Thomas5,
+	Thomas6,
+	Thomas7,
+	Thomas8,
+	Thomas9,
+	Thomas10,
+	Thomas11
 }

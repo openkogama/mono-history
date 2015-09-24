@@ -193,8 +193,8 @@ public class HoverCraftMotor : SimpleVehicleMotorBase
 
 	private bool CanRotate()
 	{
-		float to = 10f;
-		f = Mathf.Lerp(f, to, Time.deltaTime);
+		float b = 10f;
+		f = Mathf.Lerp(f, b, Time.deltaTime);
 		if (!started && Input.GetKey(KeyCode.D))
 		{
 			startTime = Time.fixedTime;

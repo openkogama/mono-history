@@ -181,6 +181,22 @@ public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerS
 
 	public void UpdateControllerFixedUpdate()
 	{
+		if (Game == null)
+		{
+			return;
+		}
+		try
+		{
+			FixedUpdateGame();
+		}
+		catch (Exception ex)
+		{
+			if (Application.isEditor)
+			{
+				throw;
+			}
+			Debug.LogError("Exception in FixedUpdate: " + ex.ToString());
+		}
 	}
 
 	public static void StartGame(GameSessionData gameSessionData)
@@ -335,6 +351,11 @@ public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerS
 		AudioEventHandler.Update();
 	}
 
+	private void FixedUpdateGame()
+	{
+		Game.FixedUpdate();
+	}
+
 	private void CleanUp()
 	{
 		try
@@ -345,6 +366,7 @@ public class MVGameController : MonoBehaviour, IInputHandler, IUpdatecontrollerS
 			UnityEngine.Object.Destroy(gameObject);
 			DeleteScreenPlayerPrefs();
 			GC.Collect();
+			AsyncWWWManager.Dispose();
 		}
 		catch (Exception ex)
 		{

@@ -257,6 +257,8 @@ public class KoGaMaPackageClient
 			return new MVGameCoin(worldObjectData, worldObjects);
 		case WorldObjectType.GameCoinChest:
 			return new MVGameCoinChest(worldObjectData, worldObjects);
+		case WorldObjectType.WindTurbine:
+			return new WindTurbine(worldObjectData, worldObjects);
 		default:
 			Debug.LogError("WOCM trying to create unknown type: " + worldObjectType);
 			return null;

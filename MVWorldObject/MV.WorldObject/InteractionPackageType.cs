@@ -16,5 +16,7 @@ public enum InteractionPackageType : byte
 	AdvancedGhostBodyRotateWeaponPackage = 12,
 	ProximityDamageAndImpulse = 13,
 	SixShooterHit = 14,
-	ThrowingStarHit = 15
+	ThrowingStarHit = 15,
+	ShrinkGunHit = 16,
+	IceGunHit = 17
 }

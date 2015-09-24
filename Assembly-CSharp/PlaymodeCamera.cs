@@ -203,10 +203,10 @@ public class PlaymodeCamera : MVPlaymodeCameraBase
 		num *= num;
 		Vector3 fromDirection = currentLookAt - transform.position;
 		Vector3 toDirection = lookAtPos - transform.position;
-		Quaternion to = Quaternion.FromToRotation(fromDirection, toDirection);
-		to = Quaternion.Slerp(Quaternion.identity, to, Time.deltaTime * followRotationSpeed * num);
+		Quaternion b = Quaternion.FromToRotation(fromDirection, toDirection);
+		b = Quaternion.Slerp(Quaternion.identity, b, Time.deltaTime * followRotationSpeed * num);
 		targetTransform.position = transform.position + shakeOffset;
-		targetTransform.rotation = to * transform.rotation;
+		targetTransform.rotation = b * transform.rotation;
 	}
 
 	private void UpdatePosition()

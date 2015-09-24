@@ -55,6 +55,10 @@ public class MVAvatar : MVGroup
 		avatar = gameObject.GetComponent<Avatar>();
 	}
 
+	public virtual void BeforeVehicleEntered()
+	{
+	}
+
 	public virtual void VehicleEntered()
 	{
 	}

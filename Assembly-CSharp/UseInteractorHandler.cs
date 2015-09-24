@@ -8,9 +8,12 @@ public class UseInteractorHandler : MVComponent
 
 	private Collider triggingCollider;
 
+	private MVInteractableBase avatarBase;
+
 	public void Init(Collider triggingCollider)
 	{
 		this.triggingCollider = triggingCollider;
+		avatarBase = gameObject.GetComponent<MVInteractableBase>();
 	}
 
 	public void AddUseInteractor(UseInteractor useInteractor)
@@ -65,7 +68,7 @@ public class UseInteractorHandler : MVComponent
 		{
 			flag = true;
 		}
-		if (flag)
+		if (flag && avatarBase.HandleModifierEffect(AvatarModifierEffect.DisableVehicles, 0f) == 0f)
 		{
 			ShowUseOption option = ShowUseOption.Normal;
 			List<UseInteractor> list = SortByDistance();

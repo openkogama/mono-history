@@ -97,6 +97,8 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 
 	public MVRigidBody RigidBody => avatarMotor;
 
+	public MVTriggerHandler TriggerHandler => triggerHandler;
+
 	public bool IsDead => state == AvatarState.Dead;
 
 	public bool IsEnteringVehicle => MVGameController.Game.PlayerController.IsEnteringVehicle;
@@ -267,7 +269,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		MVGameController.Game.CameraController.SetPlayModeCam();
 		RigidBody.Reset();
 		RigidBody.enabled = true;
-		triggerHandler.Reset();
 		triggerHandler.enabled = true;
 		if (networkObject == null || networkObject is MVNetworkListener)
 		{
@@ -277,6 +278,11 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		{
 			((MVNetworkReporter)networkObject).suspendTransformReporting = false;
 		}
+	}
+
+	public override void BeforeVehicleEntered()
+	{
+		triggerHandler.Reset();
 	}
 
 	public override void VehicleEntered()
@@ -330,7 +336,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 			{
 				LeaveVehicle();
 			}
-			else
+			else if (interactableLocal.HandleModifierEffect(AvatarModifierEffect.DisableVehicles, 0f) == 0f)
 			{
 				useInteractorHandler.Use();
 			}

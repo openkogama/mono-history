@@ -49,7 +49,8 @@ public class MVGUIBlueprintManagerOverview : UXCustomDialogBox
 				Dictionary<string, DialogData> dictionary = new Dictionary<string, DialogData>();
 				dictionary.Add("ComboBox", new TextComboBoxData
 				{
-					items = names
+					items = names,
+					currentlySelectedIndex = 0
 				});
 				DialogFactory.CreateDevelopmentDialog("Select Type", "Missing Type", UXDialogType.ComboBox, noButtons: false, stackDialog: true, canClose: false).SetOnResultCallback(OnSelectTypeResponse).SetValues(dictionary)
 					.Show();
@@ -76,7 +77,8 @@ public class MVGUIBlueprintManagerOverview : UXCustomDialogBox
 			Dictionary<string, DialogData> dictionary2 = new Dictionary<string, DialogData>();
 			dictionary2.Add("ComboBox", new TextComboBoxData
 			{
-				items = names2
+				items = names2,
+				currentlySelectedIndex = 0
 			});
 			DialogFactory.CreateDialog(TM._("Select Type"), TM._("Type"), UXDialogType.ComboBox, noButtons: false, stackDialog: true, canClose: false).SetOnResultCallback(OnSelectTypeResponse).SetValues(dictionary2)
 				.Show();

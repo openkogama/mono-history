@@ -39,8 +39,7 @@ public static class Post
 			byte[] postData = CreatePostData();
 			Dictionary<string, string> dictionary = new Dictionary<string, string>();
 			dictionary["Content-Type"] = "application/x-www-form-urlencoded";
-			WWW www = new WWW(BaseUrl + RelUrl, postData, dictionary);
-			AsyncWWWManager.WWWRequest(new CustomPostRequest(www, callback));
+			AsyncWWWManager.WWWRequest(new CustomPostRequest(BaseUrl + RelUrl, postData, dictionary, callback));
 		}
 
 		private byte[] CreatePostData()
