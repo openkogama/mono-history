@@ -1,11 +1,12 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class WindTurbine : MVLogicObject
 {
-	private const float maxWindStrength = 520f;
+	private const float maxWindStrength = 280f;
 
-	private const float maxWindAreaSize = 10f;
+	private const float maxWindAreaSize = 20f;
 
 	private const string prefabPath = "Prefabs/WindTurbineObject";
 
@@ -38,7 +39,7 @@ public class WindTurbine : MVLogicObject
 	{
 		windAreaSize = (float)Data["windSize"];
 		windPitch = (float)Data["windPitch"];
-		windStrength = windAreaSize / 10f * 520f;
+		windStrength = windAreaSize / 20f * 280f;
 		colliderObject = gameObject.transform.FindChild("Cube").gameObject;
 		windParticleSystem = gameObject.transform.FindChild("PushPad_prefab").FindChild("Wind").GetComponent<ParticleSystem>();
 		Rescale();
@@ -49,13 +50,18 @@ public class WindTurbine : MVLogicObject
 		triggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
 		affectedBodies = new Dictionary<int, MVRigidBody>();
 		isActive = true;
+		if (MVGameController.PlayController is PlayControllerEdit)
+		{
+			PlayControllerEdit playControllerEdit = MVGameController.PlayController as PlayControllerEdit;
+			playControllerEdit.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Combine(playControllerEdit.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
+		}
 	}
 
 	public override void OnDataUpdate()
 	{
 		windAreaSize = (float)Data["windSize"];
 		windPitch = (float)Data["windPitch"];
-		windStrength = windAreaSize / 10f * 520f;
+		windStrength = windAreaSize / 20f * 280f;
 		Rescale();
 		Rotate();
 	}
@@ -76,11 +82,7 @@ public class WindTurbine : MVLogicObject
 
 	public override Bounds GetLocalBounds(BoundsContext boundsContext)
 	{
-		if (boundsContext == BoundsContext.Preview)
-		{
-			return new Bounds(new Vector3(0f, 0f, 0f), new Vector3(2f, 2f, 1f));
-		}
-		return new Bounds(new Vector3(0f, 0f, windAreaSize / 2f), new Vector3(2f, 2f, windAreaSize + 1f));
+		return new Bounds(new Vector3(0f, 0f, 0f), new Vector3(2f, 2f, 1.5f));
 	}
 
 	protected override void OnUpdate()
@@ -102,7 +104,7 @@ public class WindTurbine : MVLogicObject
 			else if (!affectedBody.Value.IsMovementLocked)
 			{
 				Vector3 vector = gameObject.transform.InverseTransformPoint(affectedBody.Value.GetComponent<Collider>().bounds.center);
-				float num = Mathf.Max(1f - vector.z * vector.z / (windAreaSize * 8f), 0f);
+				float num = Mathf.Max(1f - vector.z * vector.z / (windAreaSize * 20f), 0f);
 				float num2 = Mathf.Max(1f - (vector.x * vector.x + vector.y * vector.y) / 3f, 0f);
 				float num3 = windStrength * (num * num2);
 				affectedBody.Value.AddImpulse(gameObject.transform.forward * num3, suspendImpactDamage: true);
@@ -128,6 +130,7 @@ public class WindTurbine : MVLogicObject
 		}
 		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(instigatorWOID);
 		MVRigidBody component = worldObjectClient.GameObject.GetComponent<MVRigidBody>();
+		Debug.Log("Added wind effect to " + instigatorWOID);
 		if (component != null && isActive)
 		{
 			MVInteractableBase component2 = worldObjectClient.GameObject.GetComponent<MVInteractableBase>();
@@ -141,8 +144,10 @@ public class WindTurbine : MVLogicObject
 
 	private void ExitWindZone(int instigatorWOID)
 	{
+		Debug.Log("Trying to remove wind effect from " + instigatorWOID);
 		if (affectedBodies.ContainsKey(instigatorWOID))
 		{
+			Debug.Log("Removed wind effect from " + instigatorWOID);
 			MVInteractableBase component = affectedBodies[instigatorWOID].GetComponent<MVInteractableBase>();
 			if (!(component == null))
 			{
@@ -160,7 +165,7 @@ public class WindTurbine : MVLogicObject
 		localScale = colliderObject.transform.localPosition;
 		localScale.z = windAreaSize / 2f + 0.5f;
 		colliderObject.transform.localPosition = localScale;
-		windParticleSystem.startLifetime = windAreaSize / 10f;
+		windParticleSystem.startLifetime = windAreaSize / 20f;
 		windParticleSystem.startSize = 0.1f;
 	}
 
@@ -187,5 +192,18 @@ public class WindTurbine : MVLogicObject
 	{
 		base.Initialize();
 		colliderObject.SetActive(value: false);
+	}
+
+	public void OnEditModeChange(EditModeChangeArgs arg)
+	{
+		Collider component = gameObject.transform.FindChild("EditCollider").GetComponent<Collider>();
+		Collider component2 = colliderObject.GetComponent<Collider>();
+		component.enabled = true;
+		component2.enabled = false;
+		if (arg.playInEditor)
+		{
+			component.enabled = false;
+			component2.enabled = true;
+		}
 	}
 }

@@ -1,5 +1,9 @@
+using System;
+
 public class PlayControllerEdit : PlayController
 {
+	public Action<EditModeChangeArgs> EditModeChange;
+
 	private bool playInEditor;
 
 	private MVGUIPlayButton playButton;
@@ -33,6 +37,10 @@ public class PlayControllerEdit : PlayController
 			LockCursorManager.LockCursor = true;
 			briefingWasShown = false;
 			ShowBriefing();
+		}
+		if (EditModeChange != null)
+		{
+			EditModeChange(new EditModeChangeArgs(playInEditor));
 		}
 	}
 
