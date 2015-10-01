@@ -631,6 +631,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		state = avatarState;
 		if (state == AvatarState.Hidden)
 		{
+			Debug.Log("ToHidden");
 			LockCursorManager.LockCursor = false;
 		}
 		switch (state)

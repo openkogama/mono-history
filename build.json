@@ -1,14 +1,13 @@
 {
-    "id": "c5a6f100-5db8-4d7f-aedc-15c9e079eb57",
+    "id": "b9d78b62-98cb-4f2f-8150-b541b3f6ad26",
     "version": "1.26.20.293",
-    "unityVersion": "5.2.0f3",
-    "timestamp": 1443453017,
-    "sha256": "f12bd8b39e75c78a109a14c1d39a031e09e5119f7e1bd70eda80feb931cc047e",
+    "unityVersion": "5.2.1f1",
+    "timestamp": 1443683732,
+    "sha256": "c0080caf716d05853b3cdc60b34c2eddda40cc080e958f3855b899713694d6a6",
     "assemblies": [
         "Assembly-CSharp-firstpass.dll",
         "Assembly-CSharp.dll",
         "Assembly-UnityScript-firstpass.dll",
-        "JsonFx.dll",
         "MVCommon.dll",
         "MVWorldObject.dll",
         "Mono.Security.dll",
