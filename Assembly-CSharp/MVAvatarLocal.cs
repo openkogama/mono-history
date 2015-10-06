@@ -49,22 +49,9 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 
 	private MVRigidBody vehicleRigidBody;
 
-	private AvatarFader avatarFader;
-
 	private string currAnim = string.Empty;
 
 	private bool CanReceivePackages => Time.time - respawnTime > respawnTimeOut && (byte)AvatarRuntimeDataState.Value == 1;
-
-	public float SetTransparency
-	{
-		set
-		{
-			if (avatarFader != null)
-			{
-				avatarFader.SetTransparency(value);
-			}
-		}
-	}
 
 	public bool IsSeated
 	{
@@ -189,6 +176,16 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		SetNetworkObject(local: true);
 	}
 
+	public float GetColliderRadius()
+	{
+		return avatarMotor.GetSizeState.ControllerRadius;
+	}
+
+	public float GetColliderCenter()
+	{
+		return avatarMotor.GetSizeState.ControllerCenterY;
+	}
+
 	public Vector3 GetAbsoluteVelocity()
 	{
 		if (vehicleRigidBody != null)
@@ -201,7 +198,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 	public override void Initialize()
 	{
 		base.Initialize();
-		avatarFader = new AvatarFader(Body.Transform);
 		avatarMotor = gameObject.AddComponent<AvatarMotor>();
 		triggerHandler = gameObject.AddComponent<MVTriggerHandler>();
 		AvatarInteractable avatarInteractable = gameObject.AddComponent<AvatarInteractable>();
@@ -219,6 +215,30 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		}
 		MVGameController.Game.PlayerController.Push(this);
 		InitializeCamera();
+		avatarMotor.GetSizeState.EquipSlapGunEvent += avatarEquipable.EquipSlapGun;
+		avatarMotor.GetSizeState.CameraScaleEvent += OnCameraScale;
+		avatarMotor.GetSizeState.UnEquipSlapGunEvent += OnUnequip;
+		avatarInteractable.ModifierPackages.OnUnequipItemEvent += OnUnequip;
+		avatarInteractable.ModifierPackages.OnDisableVehiclesEvent += OnDisableVehicles;
+	}
+
+	private void OnDisableVehicles(object sender, EventArgs args)
+	{
+		if (IsSeated)
+		{
+			LeaveVehicle();
+		}
+	}
+
+	public void OnUnequip(object sender, EventArgs e)
+	{
+		MVEquipable component = gameObject.GetComponent<MVEquipable>();
+		component.Unequip();
+	}
+
+	private void OnCameraScale(object sender, ScaleArgs args)
+	{
+		GameDB.GetPlaymodeCamera().ScaleCameraValues(args.scale);
 	}
 
 	protected override void AvatarStateChangedHandler(object a)
@@ -336,14 +356,14 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 			{
 				LeaveVehicle();
 			}
-			else if (interactableLocal.HandleModifierEffect(AvatarModifierEffect.DisableVehicles, 0f) == 0f)
+			else if (!interactableLocal.HasModifierEffect(AvatarModifierEffect.DisableVehicles))
 			{
 				useInteractorHandler.Use();
 			}
 		}
 		if (interactionMap.Drop)
 		{
-			gameObject.GetComponent<MVEquipable>().Equip(AvatarItemType.Hand, null);
+			gameObject.GetComponent<MVEquipable>().Equip(AvatarItemType.Hand, AvatarEquipableType.Weapon, null);
 		}
 		if (!IsSeated && avatarMotor.IsStuck())
 		{
@@ -631,7 +651,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		state = avatarState;
 		if (state == AvatarState.Hidden)
 		{
-			Debug.Log("ToHidden");
 			LockCursorManager.LockCursor = false;
 		}
 		switch (state)

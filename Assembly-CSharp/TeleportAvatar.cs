@@ -46,7 +46,7 @@ public class TeleportAvatar : MonoBehaviour
 		MVGameController.AudioManager.Play("Teleport avatar", leaveClip, avatar.WorldPosition, 0.4f, SoundRangeDistance.Short);
 		yield return StartCoroutine(DoForSeconds(teleportTime, (float t) =>
 		{
-			avatar.Scale = Vector3.one * (1f - BlockStep(t, 5f));
+			avatar.SetTransparency = 1f - BlockStep(t, 10f);
 		}));
 		avatar.WorldPosition = targetPosition;
 		avatar.SyncPos = targetPosition;
@@ -55,7 +55,7 @@ public class TeleportAvatar : MonoBehaviour
 		MVGameController.AudioManager.Play("Teleport avatar", arriveClip, avatar.WorldPosition, 0.4f, SoundRangeDistance.Short);
 		yield return StartCoroutine(DoForSeconds(teleportTime, (float t) =>
 		{
-			avatar.Scale = Vector3.one * BlockStep(t, 5f);
+			avatar.SetTransparency = BlockStep(t, 10f);
 		}));
 		if (rigidBody != null)
 		{

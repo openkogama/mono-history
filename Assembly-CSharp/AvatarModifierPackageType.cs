@@ -14,5 +14,6 @@ public enum AvatarModifierPackageType
 	NinjaRun,
 	Shrunken,
 	WindFriction,
-	DisableVehiclePickup
+	DisableVehiclePickup,
+	Enlarged
 }

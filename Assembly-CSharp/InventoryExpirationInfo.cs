@@ -127,12 +127,6 @@ public class InventoryExpirationInfo
 		this.purchaseTime = purchaseTime;
 		this.rentExpireSeconds = rentExpireSeconds;
 		ExpirationState = ProductExpirationState.Expiring;
-		rentExpireTime = purchaseTime.AddSeconds(rentExpireSeconds);
-		if (Renewed != null)
-		{
-			ProductRenewedEventArgs e = new ProductRenewedEventArgs(ProductType, InventoryID, expirationState, purchaseTime, rentExpireSeconds);
-			Renewed(this, e);
-		}
 	}
 
 	public void ExpirePermanently()

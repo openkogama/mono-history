@@ -148,6 +148,8 @@ public class PlaymodeCamera : MVPlaymodeCameraBase
 
 	protected Vector3 lookAtPos = Vector3.zero;
 
+	protected float lookAtScaleCorrection = 1f;
+
 	private SmoothLookAt smoothLookAt = new SmoothLookAt();
 
 	private Vector3 prevLookAtTransformPos = Vector3.zero;
@@ -158,6 +160,24 @@ public class PlaymodeCamera : MVPlaymodeCameraBase
 
 	public virtual void SetDefaultSettings()
 	{
+	}
+
+	public virtual void ScaleCameraValues(float scale)
+	{
+		SetDefaultSettings();
+		height *= scale;
+		distanceToAvatar *= scale;
+		cameraRadius *= scale;
+		lookAtOffset *= scale;
+		lookAtTransform.position *= scale;
+		if (scale < 1f)
+		{
+			lookAtScaleCorrection *= scale;
+		}
+		shoulderOffset *= scale;
+		targetDistanceStrength *= scale;
+		MVCameraController cameraController = MVGameController.Game.CameraController;
+		cameraController.gameObject.GetComponent<AvatarCameraFade>().SetScaleFadeDistance(scale);
 	}
 
 	private void Awake()
@@ -212,7 +232,7 @@ public class PlaymodeCamera : MVPlaymodeCameraBase
 	private void UpdatePosition()
 	{
 		transform.position += lookAtTransform.position - prevLookAtTransformPos;
-		float num = distance / distanceToAvatar;
+		float num = distance / distanceToAvatar * lookAtScaleCorrection;
 		Quaternion identity = Quaternion.identity;
 		identity.eulerAngles = new Vector3(0f, transform.rotation.eulerAngles.y, 0f);
 		lookAtPos = lookAtTransform.position + identity * (avatarHeadOffset + lookAtOffset * num);

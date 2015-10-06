@@ -95,11 +95,25 @@ public static class AvatarModifierPackageFactory
 		},
 		{
 			AvatarModifierPackageType.Shrunken,
-			new AvatarModifierPackage(AvatarModifierPackageType.Shrunken, AvatarModifierPackageAdditionPolicy.Renew, 99999f, new AvatarModifierPackage.AvatarModifier[3]
+			new AvatarModifierPackage(AvatarModifierPackageType.Shrunken, AvatarModifierPackageAdditionPolicy.Renew, 20f, new AvatarModifierPackage.AvatarModifier[7]
 			{
-				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.Speed, Const(0.25f)),
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.Speed, Const(0.4f)),
 				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Override, AvatarModifierEffect.Scale, Const(0.25f)),
-				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.JumpPower, Const(0.25f))
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.JumpPower, Const(0.6f)),
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.DamageMultiplier, Const(4f)),
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Override, AvatarModifierEffect.DisableWeapons, Const(1f)),
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Override, AvatarModifierEffect.DisableVehicles, Const(1f)),
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Override, AvatarModifierEffect.Weight, Const(0.25f))
+			}, new Dictionary<AvatarModifierPackageType, ModifierActions>
+			{
+				{
+					AvatarModifierPackageType.Shrunken,
+					ModifierActions.Renew
+				},
+				{
+					AvatarModifierPackageType.Enlarged,
+					ModifierActions.CancelOut
+				}
 			})
 		},
 		{
@@ -114,6 +128,29 @@ public static class AvatarModifierPackageFactory
 			new AvatarModifierPackage(AvatarModifierPackageType.DisableVehiclePickup, AvatarModifierPackageAdditionPolicy.Renew, float.PositiveInfinity, new AvatarModifierPackage.AvatarModifier[1]
 			{
 				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Override, AvatarModifierEffect.DisablePickups, Const(1f))
+			})
+		},
+		{
+			AvatarModifierPackageType.Enlarged,
+			new AvatarModifierPackage(AvatarModifierPackageType.Enlarged, AvatarModifierPackageAdditionPolicy.Renew, 20f, new AvatarModifierPackage.AvatarModifier[7]
+			{
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.Speed, Const(1.5f)),
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Override, AvatarModifierEffect.Scale, Const(2f)),
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.JumpPower, Const(2f)),
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.DamageMultiplier, Const(0.5f)),
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Override, AvatarModifierEffect.DisableWeapons, Const(1f)),
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Override, AvatarModifierEffect.DisableVehicles, Const(1f)),
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Override, AvatarModifierEffect.Weight, Const(2f))
+			}, new Dictionary<AvatarModifierPackageType, ModifierActions>
+			{
+				{
+					AvatarModifierPackageType.Shrunken,
+					ModifierActions.CancelOut
+				},
+				{
+					AvatarModifierPackageType.Enlarged,
+					ModifierActions.Renew
+				}
 			})
 		}
 	};

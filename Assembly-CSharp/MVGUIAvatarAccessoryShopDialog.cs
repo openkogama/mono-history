@@ -6,20 +6,6 @@ using UnityEngine;
 
 public class MVGUIAvatarAccessoryShopDialog : UXCustomDialogBox
 {
-	public UXGroup rentGroup;
-
-	public UXText rentGoldPriceText;
-
-	public UXGroup rentGoldGroup;
-
-	public UXText rentSilverPriceText;
-
-	public UXGroup rentSilverGroup;
-
-	public UXTextButton rentButton;
-
-	public UXText rentTimeText;
-
 	public UXGroup purchaseGroup;
 
 	public UXText purchaseGoldPriceText;
@@ -94,15 +80,13 @@ public class MVGUIAvatarAccessoryShopDialog : UXCustomDialogBox
 			accessoryNameHeaderExpired.SetVisible(renewingItem);
 			purchaseGoldPriceText.Text = ShopInfo.PriceGold.ToString();
 			purchaseSilverPriceText.Text = ShopInfo.PriceSilver.ToString();
-			rentGoldPriceText.Text = ShopInfo.RentPriceGold.ToString();
-			rentSilverPriceText.Text = ShopInfo.RentPriceSilver.ToString();
 			if (ShopInfo.IsBuyable)
 			{
 				if (ShopInfo.PriceGold == 0)
 				{
 					purchaseGoldGroup.SetAlpha(0.4f, string.Empty);
 				}
-				if (ShopInfo.RentPriceSilver == 0)
+				if (ShopInfo.PriceSilver == 0)
 				{
 					purchaseSilverGroup.SetAlpha(0.4f, string.Empty);
 				}
@@ -111,24 +95,7 @@ public class MVGUIAvatarAccessoryShopDialog : UXCustomDialogBox
 			{
 				purchaseGroup.SetAlpha(0.4f, string.Empty);
 			}
-			if (ShopInfo.IsRentable)
-			{
-				SetRentText(ShopInfo.RentExpireSeconds);
-				if (ShopInfo.RentPriceGold == 0)
-				{
-					rentGoldGroup.SetAlpha(0.4f, string.Empty);
-				}
-				if (ShopInfo.RentPriceSilver == 0)
-				{
-					rentSilverGroup.SetAlpha(0.4f, string.Empty);
-				}
-			}
-			else
-			{
-				rentGroup.SetAlpha(0.4f, string.Empty);
-			}
 			purchaseButton.GetComponent<Collider>().enabled = ShopInfo.IsBuyable;
-			rentButton.GetComponent<Collider>().enabled = ShopInfo.IsRentable;
 			removeButton.GetComponent<Collider>().enabled = renewingItem;
 			removeButton.SetVisible(renewingItem);
 		}
@@ -159,13 +126,11 @@ public class MVGUIAvatarAccessoryShopDialog : UXCustomDialogBox
 		}
 		ValueInsert valueInsert = new ValueInsert();
 		valueInsert.AddString($"{num:0.#}");
-		string text = TM.GetTextWithValues(empty, valueInsert);
+		string textWithValues = TM.GetTextWithValues(empty, valueInsert);
 		if (num == 1f)
 		{
-			text = text.Substring(0, text.Length - 1);
+			textWithValues = textWithValues.Substring(0, textWithValues.Length - 1);
 		}
-		rentTimeText.Text = text;
-		rentButton.Text = ((!renewingItem) ? TM._("Rent") : TM._("Extend"));
 	}
 
 	public override void OnShowDialog()
@@ -175,10 +140,8 @@ public class MVGUIAvatarAccessoryShopDialog : UXCustomDialogBox
 		{
 			UXTextButton uXTextButton = purchaseButton;
 			uXTextButton.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXTextButton.OnClick, new UXBaseButton.OnClickDelegate(OnPurchaseClick));
-			UXTextButton uXTextButton2 = rentButton;
-			uXTextButton2.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXTextButton2.OnClick, new UXBaseButton.OnClickDelegate(OnRentClick));
-			UXTextButton uXTextButton3 = removeButton;
-			uXTextButton3.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXTextButton3.OnClick, new UXBaseButton.OnClickDelegate(OnRemoveClick));
+			UXTextButton uXTextButton2 = removeButton;
+			uXTextButton2.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXTextButton2.OnClick, new UXBaseButton.OnClickDelegate(OnRemoveClick));
 			isInitialized = true;
 		}
 		waitText.SetVisible(visible: false);
@@ -193,52 +156,19 @@ public class MVGUIAvatarAccessoryShopDialog : UXCustomDialogBox
 	{
 		if (!streamingAssetInfo.IsEditorPreview)
 		{
-			TryPurchaseAvatarAccessory(ShopInfo.PriceGold, ShopInfo.PriceSilver, isRenting: false);
+			TryPurchaseAvatarAccessory(ShopInfo.PriceGold, ShopInfo.PriceSilver);
 		}
 	}
 
-	private void OnRentClick()
-	{
-		if (!streamingAssetInfo.IsEditorPreview)
-		{
-			TryPurchaseAvatarAccessory(ShopInfo.RentPriceGold, ShopInfo.RentPriceSilver, isRenting: true);
-		}
-	}
-
-	private void TryPurchaseAvatarAccessory(int priceGold, int priceSilver, bool isRenting)
+	private void TryPurchaseAvatarAccessory(int priceGold, int priceSilver)
 	{
 		this.priceGold = priceGold;
 		this.priceSilver = priceSilver;
-		this.isRenting = isRenting;
 		MVNetworkGame game = Game;
 		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Combine(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
-		if (isRenting)
-		{
-			if (renewingItem)
-			{
-				MVBody bodyOfEquippedItem = GetBodyOfEquippedItem(expiredInventoryID);
-				if (bodyOfEquippedItem != null)
-				{
-					Game.ExtendRentAvatarAccessory(streamingAssetInfo.ProductID, expiredInventoryID, bodyOfEquippedItem.Id, bodyOfEquippedItem.GetAvatarAccessorySlot(expiredInventoryID), 0f);
-				}
-				else
-				{
-					Game.ExtendRentAvatarAccessory(streamingAssetInfo.ProductID, expiredInventoryID);
-				}
-			}
-			else
-			{
-				Game.RentAvatarAccessory(streamingAssetInfo.ProductID);
-			}
-		}
-		else
-		{
-			Game.PurchaseAvatarAccessory(streamingAssetInfo.ProductID);
-		}
+		Game.PurchaseAvatarAccessory(streamingAssetInfo.ProductID);
 		purchaseButton.SetVisible(visible: false);
-		rentButton.SetVisible(visible: false);
 		removeButton.SetVisible(visible: false);
-		rentTimeText.SetVisible(visible: false);
 		waitText.SetVisible(visible: true);
 		if (DialogWindow.HasExitButton)
 		{
@@ -285,9 +215,7 @@ public class MVGUIAvatarAccessoryShopDialog : UXCustomDialogBox
 			return;
 		}
 		purchaseButton.SetVisible(visible: true);
-		rentButton.SetVisible(visible: true);
 		removeButton.SetVisible(visible: true);
-		rentTimeText.SetVisible(visible: true);
 		if (DialogWindow.HasExitButton)
 		{
 			DialogWindow.GetExitButton().SetVisible(visible: true);
@@ -302,11 +230,7 @@ public class MVGUIAvatarAccessoryShopDialog : UXCustomDialogBox
 		DateTime purchaseTime = new DateTime(ticks);
 		if (!Game.StreamingAssetInventory.Contains(purchasedInventoryID))
 		{
-			AddToInventory(purchasedInventoryID, purchaseTime, purchaseResponseData, isRenting);
-		}
-		if (isRenting)
-		{
-			UpdateExpirationInfo(purchasedInventoryID, purchaseTime, purchaseResponseData);
+			AddToInventory(purchasedInventoryID, purchaseTime, purchaseResponseData);
 		}
 		if (!renewingItem || !AvatarBody.HasAccessoryWithID(expiredInventoryID))
 		{
@@ -326,14 +250,14 @@ public class MVGUIAvatarAccessoryShopDialog : UXCustomDialogBox
 		}
 	}
 
-	private void AddToInventory(int invID, DateTime purchaseTime, Dictionary<object, object> purchaseResponse, bool isRenting)
+	private void AddToInventory(int invID, DateTime purchaseTime, Dictionary<object, object> purchaseResponse)
 	{
 		int productID = streamingAssetInfo.ProductID;
 		StreamingAssetInfo value = null;
 		Game.StreamingAssetInfoMap.TryGetValue(productID, out value);
 		if (value != null)
 		{
-			ProductInventoryInfo invInfo = new ProductInventoryInfo(invID, value, purchaseTime, isRenting);
+			ProductInventoryInfo invInfo = new ProductInventoryInfo(invID, value, purchaseTime);
 			Game.StreamingAssetInventory.Add(invInfo);
 			Game.StreamingAssetInventory.NotifyProductInventoryChange();
 		}

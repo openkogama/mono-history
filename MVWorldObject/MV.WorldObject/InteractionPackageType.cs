@@ -17,6 +17,7 @@ public enum InteractionPackageType : byte
 	ProximityDamageAndImpulse = 13,
 	SixShooterHit = 14,
 	ThrowingStarHit = 15,
-	ShrinkGunHit = 16,
-	IceGunHit = 17
+	MouseGunHit = 16,
+	GrowthGunHit = 17,
+	IceGunHit = 18
 }

@@ -68,7 +68,7 @@ public class UseInteractorHandler : MVComponent
 		{
 			flag = true;
 		}
-		if (flag && avatarBase.HandleModifierEffect(AvatarModifierEffect.DisableVehicles, 0f) == 0f)
+		if (flag && !avatarBase.HasModifierEffect(AvatarModifierEffect.DisableVehicles))
 		{
 			ShowUseOption option = ShowUseOption.Normal;
 			List<UseInteractor> list = SortByDistance();

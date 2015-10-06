@@ -10,6 +10,8 @@ public abstract class MVInteractableBase : MVComponent
 
 	public abstract void RemoveModifier(AvatarModifierPackageType type, int id = -1);
 
+	public abstract bool HasModifierEffect(AvatarModifierEffect avatarModifierEffect);
+
 	public abstract float HandleModifierEffect(AvatarModifierEffect avatarModifierEffect, float baseValue);
 
 	public abstract void ClearModifiers();

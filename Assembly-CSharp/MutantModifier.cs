@@ -5,9 +5,9 @@ public class MutantModifier : AvatarModifier
 {
 	public ParticleSystem fireParticles;
 
-	private float hitRadius = 0.7f;
-
 	private bool isDeactivating;
+
+	private static readonly int layerMask = 1 << LayerMask.NameToLayer("Player");
 
 	public override AvatarModifierPackageType ModifierType => AvatarModifierPackageType.Mutant;
 
@@ -43,7 +43,9 @@ public class MutantModifier : AvatarModifier
 		{
 			return;
 		}
-		Collider[] array = Physics.OverlapSphere(owner.transform.position, hitRadius, 1 << LayerMask.NameToLayer("Player"));
+		MVAvatarLocal mVAvatarLocal = (MVAvatarLocal)owner.mvAvatar;
+		float colliderRadius = mVAvatarLocal.GetColliderRadius();
+		Collider[] array = Physics.OverlapSphere(owner.transform.position, colliderRadius * 2f, layerMask);
 		Collider[] array2 = array;
 		foreach (Collider collider in array2)
 		{

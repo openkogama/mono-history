@@ -60,6 +60,11 @@ public class ClientSideNPCInteractable : MVInteractableBase
 		Debug.Log("Ignore remove modifier");
 	}
 
+	public override bool HasModifierEffect(AvatarModifierEffect type)
+	{
+		return false;
+	}
+
 	public override float HandleModifierEffect(AvatarModifierEffect avatarModifierEffect, float baseValue)
 	{
 		return baseValue;

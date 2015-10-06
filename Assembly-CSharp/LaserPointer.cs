@@ -159,7 +159,6 @@ public class LaserPointer : PickupItem, ILaserPointer
 
 	public override void OnUnequip()
 	{
-		cube.parent = transform;
 		cube.gameObject.SetActive(value: false);
 		gameObject.SetActive(value: false);
 		enabled = false;

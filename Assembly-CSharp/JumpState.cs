@@ -84,7 +84,7 @@ internal class JumpState
 		{
 			velocity += jumpDir * MVPhysics.Gravity * interactableLocal.HandleModifierEffect(AvatarModifierEffect.Density, density) * Time.deltaTime;
 		}
-		bool flag = waterProximity >= 1f && Time.time - lastStartTime >= 0.5f && inputJump;
+		bool flag = waterProximity >= Math.Min(1f, interactableLocal.HandleModifierEffect(AvatarModifierEffect.Scale, 1f) / 2f) && Time.time - lastStartTime >= 0.5f && inputJump;
 		bool flag2 = interactableLocal.HandleModifierEffect(AvatarModifierEffect.WallJump, 0f) > 0f;
 		if ((groundState.Grounded || flag2 || flag) && Time.time - lastStartTime > jumpTimeOut)
 		{

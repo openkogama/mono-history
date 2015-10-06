@@ -58,12 +58,16 @@ public static class AvatarPackages
 			new ThrowingStarHitPackage()
 		},
 		{
-			InteractionPackageType.ShrinkGunHit,
-			new ShrinkGunHitPackage()
+			InteractionPackageType.MouseGunHit,
+			new MouseGunHitPackage()
 		},
 		{
 			InteractionPackageType.IceGunHit,
 			new IceGunHitPackage()
+		},
+		{
+			InteractionPackageType.GrowthGunHit,
+			new GrowthGunHitPackage()
 		}
 	};
 }

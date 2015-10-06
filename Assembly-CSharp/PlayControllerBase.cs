@@ -95,7 +95,7 @@ public class PlayControllerBase : AIngameController
 			MVEquipable component = MVGameController.WOCM.AvatarLocal.GameObject.GetComponent<MVEquipable>();
 			if (component != null)
 			{
-				component.Equip(AvatarItemType.Hand, null);
+				component.Equip(AvatarItemType.Hand, AvatarEquipableType.Weapon, null);
 			}
 		}
 		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.ShowPlayerWindow))

@@ -71,6 +71,10 @@ public class PlatformerCamera : PlaymodeCamera
 		lookAtAvatarOffset = new Vector3(0f, tiltAdjust, 0f);
 	}
 
+	public override void ScaleCameraValues(float scale)
+	{
+	}
+
 	public override void UpdateCamera(MVCameraController camController, Transform targetTransform)
 	{
 		CalcCamDist();

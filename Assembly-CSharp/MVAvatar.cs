@@ -32,7 +32,20 @@ public class MVAvatar : MVGroup
 
 	protected AvatarPickupOwner avatarPickupOwner;
 
+	protected AvatarFader avatarFader;
+
 	public Vector3 CharacterControllerCenterOffset => characterControllerCenterOffset;
+
+	public float SetTransparency
+	{
+		set
+		{
+			if (avatarFader != null)
+			{
+				avatarFader.SetTransparency(value);
+			}
+		}
+	}
 
 	public MVBody Body => body;
 
@@ -101,6 +114,7 @@ public class MVAvatar : MVGroup
 	public override void Initialize()
 	{
 		base.Initialize();
+		avatarFader = new AvatarFader(Body.Transform);
 		gameObject.AddComponent<InteractionDataHandler>();
 		avatarPickupOwner = gameObject.AddComponent<AvatarPickupOwner>();
 		avatarPickupOwner.Init(CurrentItem, IsFiring, this, body);

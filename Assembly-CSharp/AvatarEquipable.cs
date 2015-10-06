@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
@@ -14,50 +15,71 @@ public class AvatarEquipable : MVEquipable
 		this.currentItem = currentItem;
 	}
 
-	public override void Equip(AvatarItemType type, Dictionary<object, object> itemData, int variantID = 0)
+	public override bool Equip(AvatarItemType type, AvatarEquipableType equipType, Dictionary<object, object> itemData, int variantID = 0)
 	{
-		Debug.Log("Trying to equip type " + type);
-		switch (type)
+		Debug.Log(string.Concat("Trying to equip type: ", type, ", as a: ", equipType));
+		if (equipType == AvatarEquipableType.Modifier)
 		{
-		case AvatarItemType.Health:
-			interactableLocal.RemoveModifier(AvatarModifierPackageType.Poison);
-			interactableLocal.RemoveModifier(AvatarModifierPackageType.Mutant);
-			interactableLocal.TakeDamage(-50f, null, PlayerKilledByType.None);
-			return;
-		case AvatarItemType.Mutant:
-			interactableLocal.RemoveModifier(AvatarModifierPackageType.NinjaRun);
-			interactableLocal.AddModifier(AvatarModifierPackageType.Mutant);
-			Unequip();
-			return;
-		case AvatarItemType.NinjaRun:
-			interactableLocal.RemoveModifier(AvatarModifierPackageType.Mutant);
-			interactableLocal.RemoveModifier(AvatarModifierPackageType.NinjaRun);
-			interactableLocal.AddModifier(AvatarModifierPackageType.NinjaRun);
-			return;
-		}
-		if (itemData != null)
-		{
-			currentItem.Value = new Dictionary<object, object>
+			switch (type)
 			{
-				{
-					"type",
-					(int)type
-				},
-				{ "variantId", variantID },
-				{ "itemData", itemData }
-			};
+			case AvatarItemType.Health:
+				interactableLocal.RemoveModifier(AvatarModifierPackageType.Poison);
+				interactableLocal.TakeDamage(-50f, null, PlayerKilledByType.None);
+				break;
+			case AvatarItemType.Mutant:
+				interactableLocal.RemoveModifier(AvatarModifierPackageType.NinjaRun);
+				interactableLocal.AddModifier(AvatarModifierPackageType.Mutant);
+				break;
+			case AvatarItemType.NinjaRun:
+				interactableLocal.RemoveModifier(AvatarModifierPackageType.Mutant);
+				interactableLocal.RemoveModifier(AvatarModifierPackageType.NinjaRun);
+				interactableLocal.AddModifier(AvatarModifierPackageType.NinjaRun);
+				break;
+			case AvatarItemType.MousePack:
+				interactableLocal.AddModifier(AvatarModifierPackageType.Shrunken);
+				break;
+			case AvatarItemType.GrowthPack:
+				interactableLocal.AddModifier(AvatarModifierPackageType.Enlarged);
+				break;
+			default:
+				Debug.LogError(string.Concat("AvatarItemType ", type, " does not exist in the switch case, it has not been accounted for yet! AvatarEquipable.cs"));
+				return false;
+			}
+			return true;
 		}
-		else
+		if (!interactableLocal.HasModifierEffect(AvatarModifierEffect.DisableWeapons))
 		{
-			currentItem.Value = new Dictionary<object, object>
+			if (itemData != null)
 			{
+				currentItem.Value = new Dictionary<object, object>
 				{
-					"type",
-					(int)type
-				},
-				{ "variantId", variantID }
-			};
+					{
+						"type",
+						(int)type
+					},
+					{ "variantId", variantID },
+					{ "itemData", itemData }
+				};
+			}
+			else
+			{
+				currentItem.Value = new Dictionary<object, object>
+				{
+					{
+						"type",
+						(int)type
+					},
+					{ "variantId", variantID }
+				};
+			}
+			return true;
 		}
+		return false;
+	}
+
+	public void EquipSlapGun(object sender, EventArgs e)
+	{
+		currentItem.Value = new Dictionary<object, object> { { "type", 65 } };
 	}
 
 	public override void Unequip()

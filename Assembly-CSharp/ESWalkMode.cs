@@ -38,7 +38,7 @@ internal class ESWalkMode : ESStateBase
 		MVEquipable component = MVGameController.WOCM.AvatarLocal.GameObject.GetComponent<MVEquipable>();
 		if (component != null)
 		{
-			component.Equip(AvatarItemType.LaserPointer, null);
+			component.Equip(AvatarItemType.LaserPointer, AvatarEquipableType.Weapon, null);
 		}
 		MVCameraController cameraController = MVGameController.Game.CameraController;
 		MVAvatarLocal avatarLocal = MVGameController.WOCM.AvatarLocal;

@@ -9,75 +9,87 @@ public class MVPickupItemBase : MVLogicObject
 
 	private GameCoinLogic gameCoinLogic;
 
-	private static Dictionary<AvatarItemType, string> pickupPrefabLUT = new Dictionary<AvatarItemType, string>
+	private static Dictionary<AvatarItemType, EquipableData> pickupPrefabLUT = new Dictionary<AvatarItemType, EquipableData>
 	{
 		{
 			AvatarItemType.CenterGun,
-			"Prefabs/Pickups/PickupItemCenterGun"
+			new EquipableData("Prefabs/Pickups/PickupItemCenterGun", AvatarEquipableType.Weapon)
 		},
 		{
 			AvatarItemType.ImpulseGun,
-			"Prefabs/Pickups/PickupItemImpulseGun"
+			new EquipableData("Prefabs/Pickups/PickupItemImpulseGun", AvatarEquipableType.Weapon)
 		},
 		{
 			AvatarItemType.Health,
-			"Prefabs/Pickups/PickupItemHealthPack"
+			new EquipableData("Prefabs/Pickups/PickupItemHealthPack", AvatarEquipableType.Modifier)
 		},
 		{
 			AvatarItemType.Bazooka,
-			"Prefabs/Pickups/PickupItemBazooka"
+			new EquipableData("Prefabs/Pickups/PickupItemBazooka", AvatarEquipableType.Weapon)
 		},
 		{
 			AvatarItemType.RailGun,
-			"Prefabs/Pickups/PickupItemRailGun"
+			new EquipableData("Prefabs/Pickups/PickupItemRailGun", AvatarEquipableType.Weapon)
 		},
 		{
 			AvatarItemType.Mutant,
-			"Prefabs/Pickups/PickupItemMutant"
+			new EquipableData("Prefabs/Pickups/PickupItemMutant", AvatarEquipableType.Modifier)
 		},
 		{
 			AvatarItemType.Sword,
-			"Prefabs/Pickups/PickupItemSword"
+			new EquipableData("Prefabs/Pickups/PickupItemSword", AvatarEquipableType.Weapon)
 		},
 		{
 			AvatarItemType.Shotgun,
-			"Prefabs/Pickups/PickupItemShotgun"
+			new EquipableData("Prefabs/Pickups/PickupItemShotgun", AvatarEquipableType.Weapon)
 		},
 		{
 			AvatarItemType.Flamethrower,
-			"Prefabs/Pickups/PickupItemFlamethrower"
+			new EquipableData("Prefabs/Pickups/PickupItemFlamethrower", AvatarEquipableType.Weapon)
 		},
 		{
 			AvatarItemType.CubeGun,
-			"Prefabs/Pickups/PickupItemCubeGun"
+			new EquipableData("Prefabs/Pickups/PickupItemCubeGun", AvatarEquipableType.Weapon)
 		},
 		{
 			AvatarItemType.NinjaRun,
-			"Prefabs/Pickups/PickupItemNinjaRun"
+			new EquipableData("Prefabs/Pickups/PickupItemNinjaRun", AvatarEquipableType.Modifier)
 		},
 		{
 			AvatarItemType.SixShooter,
-			"Prefabs/Pickups/PickupItemSixShooter"
+			new EquipableData("Prefabs/Pickups/PickupItemSixShooter", AvatarEquipableType.Weapon)
 		},
 		{
 			AvatarItemType.DoubleSixShooter,
-			"Prefabs/Pickups/PickupItemDoubleSixShooter"
+			new EquipableData("Prefabs/Pickups/PickupItemDoubleSixShooter", AvatarEquipableType.Weapon)
 		},
 		{
 			AvatarItemType.ThrowingStar,
-			"Prefabs/Pickups/PickupItemThrowingStar"
+			new EquipableData("Prefabs/Pickups/PickupItemThrowingStar", AvatarEquipableType.Weapon)
 		},
 		{
 			AvatarItemType.MultiThrowingStar,
-			"Prefabs/Pickups/PickupItemMultiThrowingStar"
+			new EquipableData("Prefabs/Pickups/PickupItemMultiThrowingStar", AvatarEquipableType.Weapon)
 		},
 		{
-			AvatarItemType.ShrinkGun,
-			"Prefabs/Pickups/PickupItemShrinkGun"
+			AvatarItemType.MouseGun,
+			new EquipableData("Prefabs/Pickups/PickupItemMouseGun", AvatarEquipableType.Weapon)
 		},
 		{
 			AvatarItemType.IceGun,
-			"Prefabs/Pickups/PickupItemIceGun"
+			new EquipableData("Prefabs/Pickups/PickupItemIceGun", AvatarEquipableType.Weapon)
+		},
+		{
+			AvatarItemType.GrowthGun,
+			new EquipableData("Prefabs/Pickups/PickupItemGrowthGun", AvatarEquipableType.Weapon)
+		},
+		{
+			AvatarItemType.MousePack,
+			new EquipableData("Prefabs/Pickups/PickupItemMousePack", AvatarEquipableType.Modifier)
+		},
+		{
+			AvatarItemType.GrowthPack,
+			new EquipableData("Prefabs/Pickups/PickupItemGrowthPack", AvatarEquipableType.Modifier)
 		}
 	};
 
@@ -130,9 +142,9 @@ public class MVPickupItemBase : MVLogicObject
 	private static string GetPickupPrefabName(Dictionary<object, object> data)
 	{
 		Dictionary<object, object> dictionary = (Dictionary<object, object>)data[WorldObjectDataParameters.Data];
-		string text = pickupPrefabLUT[(AvatarItemType)(int)dictionary["itemType"]];
+		string prefabPath = pickupPrefabLUT[(AvatarItemType)(int)dictionary["itemType"]].prefabPath;
 		int num = (dictionary.ContainsKey("variantId") ? ((int)dictionary["variantId"]) : 0);
-		return text + num;
+		return prefabPath + num;
 	}
 
 	public override void Destroy()
@@ -184,15 +196,14 @@ public class MVPickupItemBase : MVLogicObject
 	private void DoPickup(int instigatorWOID)
 	{
 		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(instigatorWOID);
-		if (worldObjectClient.GameObject.GetComponent<MVInteractableBase>().HandleModifierEffect(AvatarModifierEffect.DisablePickups, 0f) != 1f)
+		if (!worldObjectClient.GameObject.GetComponent<MVInteractableBase>().HasModifierEffect(AvatarModifierEffect.DisablePickups))
 		{
 			MVEquipable component = worldObjectClient.GameObject.GetComponent<MVEquipable>();
-			if (component != null)
+			if (component != null && component.Equip(Type, pickupPrefabLUT[Type].equipableType, ItemData, VariantID))
 			{
-				component.Equip(Type, ItemData, VariantID);
+				MVGameController.Game.TriggerBoxEnter(Id, instigatorWOID);
+				canPickUp = false;
 			}
-			MVGameController.Game.TriggerBoxEnter(Id, instigatorWOID);
-			canPickUp = false;
 		}
 	}
 

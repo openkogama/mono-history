@@ -5,13 +5,9 @@ using UnityEngine;
 
 public class MVGUIAvatarAccessoryExpirationDialog : UXCustomDialogBox
 {
-	public UXTextButton extendButton;
-
 	public UXTextButton removeButton;
 
 	public UXTextButton okButton;
-
-	public UXText expirationText;
 
 	public UXText itemNameText;
 
@@ -32,16 +28,14 @@ public class MVGUIAvatarAccessoryExpirationDialog : UXCustomDialogBox
 		base.OnShowDialog();
 		if (!_isInitialized)
 		{
-			UXTextButton uXTextButton = extendButton;
-			uXTextButton.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXTextButton.OnClick, new UXBaseButton.OnClickDelegate(OpenShopDialog));
-			UXTextButton uXTextButton2 = removeButton;
-			uXTextButton2.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXTextButton2.OnClick, (UXBaseButton.OnClickDelegate)(() =>
+			UXTextButton uXTextButton = removeButton;
+			uXTextButton.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXTextButton.OnClick, (UXBaseButton.OnClickDelegate)(() =>
 			{
 				OnNegativeClose();
 				DialogFactory.CloseDialog();
 			}));
-			UXTextButton uXTextButton3 = okButton;
-			uXTextButton3.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXTextButton3.OnClick, (UXBaseButton.OnClickDelegate)(() =>
+			UXTextButton uXTextButton2 = okButton;
+			uXTextButton2.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXTextButton2.OnClick, (UXBaseButton.OnClickDelegate)(() =>
 			{
 				OnNegativeClose();
 				DialogFactory.CloseDialog();
@@ -61,9 +55,7 @@ public class MVGUIAvatarAccessoryExpirationDialog : UXCustomDialogBox
 		}
 		else
 		{
-			expirationText.Text = TM._("Item can't be renewed and will now be removed.");
 			okButton.SetVisible(visible: true);
-			extendButton.SetVisible(visible: false);
 			removeButton.SetVisible(visible: false);
 		}
 		itemNameText.Text = streamingAssetInfo.Name;

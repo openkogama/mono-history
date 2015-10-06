@@ -1,7 +1,10 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class AvatarModifier : MonoBehaviour
 {
+	protected float timeStamp;
+
 	private bool isActivated;
 
 	protected Avatar owner;
@@ -38,7 +41,10 @@ public abstract class AvatarModifier : MonoBehaviour
 			empty = "Prefabs/AvatarModifiers/NinjaRunModifier";
 			break;
 		case AvatarModifierPackageType.Shrunken:
-			empty = "Prefabs/AvatarModifiers/ShrinkModifier";
+			empty = "Prefabs/AvatarModifiers/MouseModifier";
+			break;
+		case AvatarModifierPackageType.Enlarged:
+			empty = "Prefabs/AvatarModifiers/GrowthModifier";
 			break;
 		default:
 			return null;
@@ -47,6 +53,16 @@ public abstract class AvatarModifier : MonoBehaviour
 		AvatarModifier component = (Object.Instantiate(Resources.Load(empty)) as GameObject).GetComponent<AvatarModifier>();
 		component.owner = owner;
 		return component;
+	}
+
+	public virtual bool EvaluateShouldBeAdded(Dictionary<AvatarModifierPackageType, AvatarModifier> modifiers)
+	{
+		return true;
+	}
+
+	public virtual void ResetTimeStamp()
+	{
+		timeStamp = Time.time;
 	}
 
 	public void Activate(Avatar target)

@@ -23,6 +23,8 @@ public class AvatarMotor : MVRigidBody
 
 	private BounceState bounceState;
 
+	private SizeState sizeState;
+
 	private Quaternion platformerRotation = Quaternion.AngleAxis(90f, Vector3.up);
 
 	private float platformerRotationSpeed = 12.4f;
@@ -48,6 +50,8 @@ public class AvatarMotor : MVRigidBody
 	private readonly float lerpTime = 0.4f;
 
 	private MvCharacterController Controller => smoothCharacterController.Controller;
+
+	public SizeState GetSizeState => sizeState;
 
 	public override Vector3 Velocity => Controller.Velocity / Time.fixedDeltaTime;
 
@@ -85,6 +89,7 @@ public class AvatarMotor : MVRigidBody
 		movableMotorState = new MVMovableMotorState();
 		this.interactableLocal = interactableLocal;
 		bounceState = new BounceState(interactableLocal);
+		sizeState = new SizeState(interactableLocal, Controller);
 		this.jumpState = new JumpState(0.2f);
 		JumpState jumpState = this.jumpState;
 		jumpState.OnWallJump = (JumpState.OnWallJumpDelegate)Delegate.Combine(jumpState.OnWallJump, (JumpState.OnWallJumpDelegate)(() =>
@@ -97,13 +102,15 @@ public class AvatarMotor : MVRigidBody
 		MVGroundState mVGroundState = groundState;
 		mVGroundState.OnGroundChange = (Action<GroundChange>)Delegate.Combine(mVGroundState.OnGroundChange, new Action<GroundChange>(this.jumpState.UpdateJumpState));
 		MvCharacterController controller = Controller;
-		controller.OnControllerColliderHit = (Action<MVControllerColliderHit>)Delegate.Combine(controller.OnControllerColliderHit, new Action<MVControllerColliderHit>(interactableLocal.HandleMoveHit));
+		controller.OnControllerColliderHit = (Action<MVControllerColliderHit>)Delegate.Combine(controller.OnControllerColliderHit, new Action<MVControllerColliderHit>(sizeState.OnScalingWhileColliding));
 		MvCharacterController controller2 = Controller;
-		controller2.OnControllerColliderHit = (Action<MVControllerColliderHit>)Delegate.Combine(controller2.OnControllerColliderHit, new Action<MVControllerColliderHit>(this.jumpState.HandleMoveHit));
+		controller2.OnControllerColliderHit = (Action<MVControllerColliderHit>)Delegate.Combine(controller2.OnControllerColliderHit, new Action<MVControllerColliderHit>(interactableLocal.HandleMoveHit));
 		MvCharacterController controller3 = Controller;
-		controller3.OnControllerColliderHit = (Action<MVControllerColliderHit>)Delegate.Combine(controller3.OnControllerColliderHit, new Action<MVControllerColliderHit>(bounceState.HandleMoveHit));
+		controller3.OnControllerColliderHit = (Action<MVControllerColliderHit>)Delegate.Combine(controller3.OnControllerColliderHit, new Action<MVControllerColliderHit>(this.jumpState.HandleMoveHit));
 		MvCharacterController controller4 = Controller;
-		controller4.OnControllerColliderHit = (Action<MVControllerColliderHit>)Delegate.Combine(controller4.OnControllerColliderHit, new Action<MVControllerColliderHit>(impactState.HandleMoveHit));
+		controller4.OnControllerColliderHit = (Action<MVControllerColliderHit>)Delegate.Combine(controller4.OnControllerColliderHit, new Action<MVControllerColliderHit>(bounceState.HandleMoveHit));
+		MvCharacterController controller5 = Controller;
+		controller5.OnControllerColliderHit = (Action<MVControllerColliderHit>)Delegate.Combine(controller5.OnControllerColliderHit, new Action<MVControllerColliderHit>(impactState.HandleMoveHit));
 	}
 
 	public void OverrideCharacterController(SmoothCharacterController controller)
@@ -170,6 +177,7 @@ public class AvatarMotor : MVRigidBody
 		}
 		DealImpactDamage(velocityPrevFrame, prevVelocity);
 		HandleSoundEffects();
+		sizeState.UpdateScale();
 	}
 
 	public void UpdateVelocity()

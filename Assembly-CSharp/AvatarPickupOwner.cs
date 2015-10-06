@@ -34,7 +34,7 @@ public class AvatarPickupOwner : MVPickupOwner
 				MVEquipable component = GetComponent<MVEquipable>();
 				if (component != null)
 				{
-					component.Equip(AvatarItemType.LaserPointer, null);
+					component.Equip(AvatarItemType.LaserPointer, AvatarEquipableType.Weapon, null);
 				}
 			}
 			return laserPointer;

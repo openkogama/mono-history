@@ -48,7 +48,7 @@ public class MVGUILoginHandler : UXViewScript
 		return devTarget switch
 		{
 			DevServerTarget.Local => "127.0.0.1:5055", 
-			DevServerTarget.Dev => "95.211.162.200:5055", 
+			DevServerTarget.Dev => "37.48.122.12:5055", 
 			DevServerTarget.Test => "37.48.122.14:5055", 
 			_ => string.Empty, 
 		};

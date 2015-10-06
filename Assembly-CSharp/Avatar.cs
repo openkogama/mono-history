@@ -11,6 +11,8 @@ public class Avatar : MonoBehaviour
 
 	private Dictionary<AvatarModifierPackageType, AvatarModifier> modifiers = new Dictionary<AvatarModifierPackageType, AvatarModifier>();
 
+	private Dictionary<AvatarModifierPackageType, byte> currentModifierByteState = new Dictionary<AvatarModifierPackageType, byte>();
+
 	private static string _particlePrefab = "ParticleFX/XP";
 
 	[SerializeField]
@@ -89,8 +91,10 @@ public class Avatar : MonoBehaviour
 		}
 		foreach (AvatarModifierPackageType item2 in list)
 		{
+			Debug.Log("Expiring: " + item2);
 			modifiers[item2].Deactivate(this);
 			modifiers.Remove(item2);
+			currentModifierByteState.Remove(item2);
 		}
 		foreach (KeyValuePair<object, object> newModifier in newModifiers)
 		{
@@ -101,11 +105,24 @@ public class Avatar : MonoBehaviour
 				AvatarModifier avatarModifier = AvatarModifier.CreateFromType(avatarModifierPackageType, this);
 				if (avatarModifier != null)
 				{
+					if (!avatarModifier.EvaluateShouldBeAdded(modifiers))
+					{
+						UnityEngine.Object.Destroy(avatarModifier.gameObject);
+						continue;
+					}
+					Debug.Log("Adding: " + avatarModifierPackageType);
 					avatarModifier.transform.parent = transform;
 					avatarModifier.transform.localPosition = Vector3.zero;
 					modifiers.Add(avatarModifierPackageType, avatarModifier);
+					currentModifierByteState.Add(avatarModifierPackageType, (byte)newModifier.Value);
 					avatarModifier.Activate(this);
 				}
+			}
+			else if ((byte)newModifier.Value != currentModifierByteState[avatarModifierPackageType])
+			{
+				Debug.Log("Renewing: " + avatarModifierPackageType);
+				modifiers[avatarModifierPackageType].ResetTimeStamp();
+				currentModifierByteState[avatarModifierPackageType] = (byte)newModifier.Value;
 			}
 		}
 	}

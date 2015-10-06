@@ -31,6 +31,14 @@ public class MvCharacterController : MonoBehaviour
 
 	private bool sendCollisionData = true;
 
+	public Vector3 centerBase;
+
+	public Vector3 radiusBase;
+
+	private float offsetFactor = 0.1f;
+
+	private float offsetBase = 0.1f;
+
 	public HashSet<int> IgnoreWoIds;
 
 	public Action<MVControllerColliderHit> OnControllerColliderHit;
@@ -53,10 +61,19 @@ public class MvCharacterController : MonoBehaviour
 
 	public Vector3 Center => center;
 
+	public void SetScale(float scale)
+	{
+		center = centerBase * scale;
+		elipsoidRadius = new Vector3(radiusBase.x * scale, radiusBase.y * scale, radiusBase.z * scale);
+		offsetFactor = offsetBase * scale;
+	}
+
 	public void Init(float radius, float height, Vector3 center)
 	{
 		this.center = center;
 		elipsoidRadius = new Vector3(radius, height / 2f, radius);
+		centerBase = new Vector3(center.x, center.y, center.z);
+		radiusBase = new Vector3(elipsoidRadius.x, elipsoidRadius.y, elipsoidRadius.z);
 	}
 
 	public MvCharacterController CloneToGameObject(GameObject targetGameObject, GameObject seat)
@@ -93,11 +110,10 @@ public class MvCharacterController : MonoBehaviour
 	public bool TestWithOutSliding(float distance, Vector3 direction, Vector3 motion, out MVControllerColliderHit colliderHit)
 	{
 		colliderHit = default;
-		float num = 0.1f;
-		Vector3 radius = new Vector3(elipsoidRadius.x, elipsoidRadius.y - num, elipsoidRadius.z);
+		Vector3 radius = new Vector3(elipsoidRadius.x, elipsoidRadius.y - offsetFactor, elipsoidRadius.z);
 		direction.Normalize();
 		Vector3 vector = transform.position + center;
-		if (CollisionDetection.MVElipsoidCast(new Ray(vector, direction), radius, distance + num, out var voxelHit, IgnoreWoIds, layerMask))
+		if (CollisionDetection.MVElipsoidCast(new Ray(vector, direction), radius, distance + offsetFactor, out var voxelHit, IgnoreWoIds, layerMask))
 		{
 			MVCollisionFlags collisionFlags = MVCollisionFlags.None;
 			GetHitArea(vector, voxelHit.point, voxelHit.distance, elipsoidRadius, direction, ref collisionFlags);

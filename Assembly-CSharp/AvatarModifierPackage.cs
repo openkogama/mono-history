@@ -1,8 +1,9 @@
 using System;
+using System.Collections.Generic;
 using CodeStage.AntiCheat.ObscuredTypes;
 using UnityEngine;
 
-public struct AvatarModifierPackage(AvatarModifierPackageType avatarModifierPackageType, AvatarModifierPackageAdditionPolicy avatarModifierPackageAdditionPolicy, float duration, AvatarModifierPackage.AvatarModifier[] avatarModifiers)
+public struct AvatarModifierPackage(AvatarModifierPackageType avatarModifierPackageType, AvatarModifierPackageAdditionPolicy avatarModifierPackageAdditionPolicy, float duration, AvatarModifierPackage.AvatarModifier[] avatarModifiers, Dictionary<AvatarModifierPackageType, ModifierActions> actionsToTakeVsTypes = null)
 {
 	public struct AvatarModifier(AvatarModifierType avatarModifierType, AvatarModifierEffect avatarModifierEffect, Func<float> value)
 	{
@@ -18,6 +19,8 @@ public struct AvatarModifierPackage(AvatarModifierPackageType avatarModifierPack
 	public ObscuredFloat duration = duration;
 
 	public AvatarModifier[] avatarModifiers = avatarModifiers;
+
+	public Dictionary<AvatarModifierPackageType, ModifierActions> actionsToTakeVsTypes = actionsToTakeVsTypes;
 
 	private ObscuredFloat timeStamp = Time.time;
 

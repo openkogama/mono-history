@@ -35,6 +35,8 @@ public class PickupItemRailGun : PickupItem
 
 	public AudioClip releaseSound;
 
+	private AudioSource audioSource;
+
 	public AnimationCurve chargeCurve;
 
 	private bool isCharging;
@@ -81,6 +83,7 @@ public class PickupItemRailGun : PickupItem
 	{
 		meshRenderers = GetComponentsInChildren<MeshRenderer>();
 		currentAmmo = ammo;
+		audioSource = GetComponent<AudioSource>();
 	}
 
 	public override void OnStateChanged(Dictionary<object, object> newState)
@@ -95,7 +98,7 @@ public class PickupItemRailGun : PickupItem
 		while (isCharging && owner.CurrentItem == this)
 		{
 			float charge = chargeCurve.Evaluate(Time.time - chargeBeginTime);
-			GetComponent<AudioSource>().volume = charge * 0.2f;
+			audioSource.volume = charge * 0.2f;
 			if (owner.IsLocal)
 			{
 				Camera.main.fieldOfView = Mathf.Lerp(60f, 25f, charge);
@@ -128,9 +131,9 @@ public class PickupItemRailGun : PickupItem
 	{
 		if ((bool)chargeSound)
 		{
-			GetComponent<AudioSource>().clip = chargeSound;
-			GetComponent<AudioSource>().loop = true;
-			GetComponent<AudioSource>().Play();
+			audioSource.clip = chargeSound;
+			audioSource.loop = true;
+			audioSource.Play();
 		}
 		isCharging = true;
 		chargeBeginTime = Time.time;
@@ -146,16 +149,16 @@ public class PickupItemRailGun : PickupItem
 		float num = chargeCurve.Evaluate(Time.time - chargeBeginTime);
 		if (num < 1f)
 		{
-			GetComponent<AudioSource>().Stop();
-			GetComponent<AudioSource>().loop = false;
+			audioSource.Stop();
+			audioSource.loop = false;
 			isCharging = false;
 			return;
 		}
 		if ((bool)releaseSound)
 		{
-			GetComponent<AudioSource>().Stop();
-			GetComponent<AudioSource>().loop = false;
-			GetComponent<AudioSource>().PlayOneShot(releaseSound);
+			audioSource.Stop();
+			audioSource.loop = false;
+			audioSource.PlayOneShot(releaseSound);
 		}
 		missColor.a = 1f;
 		hitColor.a = missColor.a;

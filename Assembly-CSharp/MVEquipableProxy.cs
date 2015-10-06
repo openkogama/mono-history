@@ -11,10 +11,10 @@ public class MVEquipableProxy : MVEquipable
 		this.equipable = equipable;
 	}
 
-	public override void Equip(AvatarItemType type, Dictionary<object, object> itemData, int variantID = 0)
+	public override bool Equip(AvatarItemType type, AvatarEquipableType equipType, Dictionary<object, object> itemData, int variantID = 0)
 	{
 		Debug.Log("Equip");
-		equipable.Equip(type, itemData, variantID);
+		return equipable.Equip(type, equipType, itemData, variantID);
 	}
 
 	public override void Unequip()

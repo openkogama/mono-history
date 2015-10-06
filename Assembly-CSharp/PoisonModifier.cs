@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public class PoisonModifier : AvatarModifier
 {
 	public override AvatarModifierPackageType ModifierType => AvatarModifierPackageType.Poison;
@@ -8,5 +10,6 @@ public class PoisonModifier : AvatarModifier
 
 	protected override void OnDeactivated(Avatar target)
 	{
+		Object.Destroy(gameObject);
 	}
 }

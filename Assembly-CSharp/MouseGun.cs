@@ -4,17 +4,19 @@ using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 
-public class ShrinkGun : PickupItemWithDelay
+public class MouseGun : PickupItemWithDelay
 {
+	private static int layerMask = (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("Player"));
+
 	public float range = 300f;
 
 	public RailRay railGunRayPrefab;
 
-	public AudioClip hitSound;
+	public AudioClip shootSound;
 
-	public AudioClip missSound;
+	private AudioSource audioSource;
 
-	public ObscuredInt ammo;
+	public ObscuredInt ammo = 5;
 
 	public Color hitColor = new Color(0.2f, 0.3f, 0.9f);
 
@@ -24,39 +26,39 @@ public class ShrinkGun : PickupItemWithDelay
 
 	public override int Quantity => ammo;
 
-	public override AvatarItemType Type => AvatarItemType.ShrinkGun;
+	public override AvatarItemType Type => AvatarItemType.MouseGun;
 
 	protected override bool IsAmmoDepleted => (int)ammo <= 0;
 
-	public override void OnStateChanged(Dictionary<object, object> newState)
+	public void Start()
 	{
-		ammo = 13;
+		audioSource = gameObject.GetComponent<AudioSource>();
 	}
 
-	public override void TriggerBegin(int instigatorActorNr)
+	public override void OnStateChanged(Dictionary<object, object> newState)
 	{
-		Debug.Log("TriggerBegin");
-		--ammo;
+		ammo = 5;
+	}
+
+	protected override void OnFire(bool isLocal)
+	{
 		Ray ray = new Ray(owner.LookOrigin, owner.LookDirection);
 		bool flag = false;
-		int layerMask = (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("Player"));
+		audioSource.PlayOneShot(shootSound);
 		Vector3 point;
 		if (CollisionDetection.MVHit(ray, out var voxelHit, range, owner.IgnoreWOIDs, layerMask))
 		{
-			InteractionData interaction = ShrinkGunHitPackage.Create();
-			Debug.Log("Created shrinkgunhitpackage");
-			MVGameController.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, interaction.Damage);
+			InteractionData packageData = GetPackageData();
 			point = voxelHit.point;
 			int woIDHighestInHierarchyWithComponent = MVGameController.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
 			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
-			if (owner.IsLocal && worldObjectClient != null)
+			if (owner.IsLocal && worldObjectClient != null && worldObjectClient is MVAvatar)
 			{
 				InteractionDataHandlerBase component = worldObjectClient.GameObject.GetComponent<InteractionDataHandlerBase>();
 				if (component != null)
 				{
-					component.HandleInteraction(interaction, interactionIsLocal: false);
+					component.HandleInteraction(packageData, interactionIsLocal: false);
 				}
-				Debug.Log("handling shrink interaction package");
 			}
 			flag = true;
 		}
@@ -67,12 +69,23 @@ public class ShrinkGun : PickupItemWithDelay
 		RailRay railRay = Object.Instantiate(railGunRayPrefab, muzzlePoint.position, Quaternion.identity) as RailRay;
 		railRay.target = point;
 		railRay.startColor = ((!flag) ? missColor : hitColor);
+		ReduceAmmo();
+	}
+
+	protected virtual InteractionData GetPackageData()
+	{
+		return MouseGunHitPackage.Create();
+	}
+
+	private void ReduceAmmo()
+	{
+		--ammo;
 		if ((int)ammo <= 0)
 		{
-			MVEquipable component2 = owner.GetComponent<MVEquipable>();
-			if (component2 != null)
+			MVEquipable component = owner.GetComponent<MVEquipable>();
+			if (component != null)
 			{
-				component2.Unequip();
+				component.Unequip();
 			}
 		}
 	}

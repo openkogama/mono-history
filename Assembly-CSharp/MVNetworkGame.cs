@@ -2701,10 +2701,7 @@ public class MVNetworkGame : IPhotonPeerListener
 					productShopInfo.PriceGold = (int)dictionary2[(byte)76];
 					productShopInfo.PriceSilver = (int)dictionary2[(byte)77];
 					productShopInfo.IsBuyable = productShopInfo.PriceGold != 0 || productShopInfo.PriceSilver != 0;
-					productShopInfo.RentPriceGold = (int)dictionary2[(byte)79];
-					productShopInfo.RentPriceSilver = (int)dictionary2[(byte)78];
 					productShopInfo.RentExpireSeconds = (int)dictionary2[(byte)80];
-					productShopInfo.IsRentable = productShopInfo.RentPriceGold != 0 || productShopInfo.RentPriceSilver != 0;
 					streamingAssetInfo.ShopInfo = productShopInfo;
 				}
 				if (streamingAssetInfo.ShopInfo != null)
@@ -2812,10 +2809,7 @@ public class MVNetworkGame : IPhotonPeerListener
 				productShopInfo.PriceGold = (int)dictionary2[(byte)76];
 				productShopInfo.PriceSilver = (int)dictionary2[(byte)77];
 				productShopInfo.IsBuyable = productShopInfo.PriceGold != 0 || productShopInfo.PriceSilver != 0;
-				productShopInfo.RentPriceGold = (int)dictionary2[(byte)79];
-				productShopInfo.RentPriceSilver = (int)dictionary2[(byte)78];
 				productShopInfo.RentExpireSeconds = (int)dictionary2[(byte)80];
-				productShopInfo.IsRentable = productShopInfo.RentPriceGold != 0 || productShopInfo.RentPriceSilver != 0;
 				streamingAssetInfo.ShopInfo = productShopInfo;
 			}
 			if (streamingAssetInfo.ShopInfo != null && !StreamingAssetShopInventory.Contains(streamingAssetInfo.ProductID))
@@ -2830,7 +2824,6 @@ public class MVNetworkGame : IPhotonPeerListener
 				StreamingAssetInventory.Add(invInfo);
 			}
 			ownedRequestedIDs.Remove(num);
-			Debug.Log("Fetched StreamingAssetInventoryItem: " + streamingAssetInfo.Name + " rentSilver " + productShopInfo.RentPriceSilver);
 		}
 	}
 

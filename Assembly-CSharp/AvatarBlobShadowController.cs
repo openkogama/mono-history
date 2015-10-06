@@ -6,6 +6,8 @@ public class AvatarBlobShadowController : MonoBehaviour
 {
 	public Projector blobProjector;
 
+	private float baseScale = 1f;
+
 	private void Start()
 	{
 		MVQualitySettings.onQualityLevelChanged = (MVQualitySettings.OnQualityLevedChanged)Delegate.Combine(MVQualitySettings.onQualityLevelChanged, new MVQualitySettings.OnQualityLevedChanged(OnQualityLevelChanged));
@@ -25,6 +27,11 @@ public class AvatarBlobShadowController : MonoBehaviour
 	private void OnDestroy()
 	{
 		MVQualitySettings.onQualityLevelChanged = (MVQualitySettings.OnQualityLevedChanged)Delegate.Remove(MVQualitySettings.onQualityLevelChanged, new MVQualitySettings.OnQualityLevedChanged(OnQualityLevelChanged));
+	}
+
+	public void ScaleShadow(float scale)
+	{
+		blobProjector.orthographicSize = baseScale * scale;
 	}
 
 	private void OnQualityLevelChanged(int level)

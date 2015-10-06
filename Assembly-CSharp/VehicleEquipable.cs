@@ -14,19 +14,17 @@ public class VehicleEquipable : MVEquipable
 		this.currentItem = currentItem;
 	}
 
-	public override void Equip(AvatarItemType type, Dictionary<object, object> itemData, int variantID = 0)
+	public override bool Equip(AvatarItemType type, AvatarEquipableType equipType, Dictionary<object, object> itemData, int variantID = 0)
 	{
-		switch (type)
+		if (equipType == AvatarEquipableType.Modifier)
 		{
-		case AvatarItemType.Health:
-			interactableLocal.TakeDamage(-50f, null, PlayerKilledByType.None);
-			return;
-		case AvatarItemType.Mutant:
-			Debug.Log("Ignoring mutant on car pick up");
-			return;
-		case AvatarItemType.NinjaRun:
-			Debug.Log("Ignoring Ninjarun on car pickup");
-			return;
+			if (type == AvatarItemType.Health)
+			{
+				interactableLocal.TakeDamage(-50f, null, PlayerKilledByType.None);
+				return true;
+			}
+			Debug.Log(string.Concat("ignoring ", type, " on car pickup"));
+			return false;
 		}
 		if (itemData != null)
 		{
@@ -51,6 +49,7 @@ public class VehicleEquipable : MVEquipable
 				{ "variantId", variantID }
 			};
 		}
+		return true;
 	}
 
 	public override void Unequip()

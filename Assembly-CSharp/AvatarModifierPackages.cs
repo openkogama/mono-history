@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 public class AvatarModifierPackages
 {
@@ -8,6 +10,10 @@ public class AvatarModifierPackages
 	public OnModifierExpiredDelegate OnModifierExpired;
 
 	private List<AvatarModifierPackage> packages = new List<AvatarModifierPackage>();
+
+	public event EventHandler<EventArgs> OnUnequipItemEvent;
+
+	public event EventHandler<EventArgs> OnDisableVehiclesEvent;
 
 	public void Update()
 	{
@@ -66,15 +72,65 @@ public class AvatarModifierPackages
 
 	public void AddModifier(AvatarModifierPackageType modifierPackageType, int id = -1, AvatarModifierPackage.AvatarModifier[] additionalModifers = null)
 	{
-		if (modifierPackageType != AvatarModifierPackageType.None)
+		if (modifierPackageType == AvatarModifierPackageType.None)
 		{
-			AvatarModifierPackage package = AvatarModifierPackageFactory.GetPackage(modifierPackageType);
-			if (additionalModifers != null)
-			{
-				package.avatarModifiers = package.avatarModifiers.Union(additionalModifers).ToArray();
-			}
-			AddModifierPackage(package, id);
+			return;
 		}
+		AvatarModifierPackage package = AvatarModifierPackageFactory.GetPackage(modifierPackageType);
+		if (additionalModifers != null)
+		{
+			package.avatarModifiers = package.avatarModifiers.Union(additionalModifers).ToArray();
+		}
+		AddModifierPackage(package, id);
+		AvatarModifierPackage.AvatarModifier[] avatarModifiers = package.avatarModifiers;
+		for (int i = 0; i < avatarModifiers.Length; i++)
+		{
+			AvatarModifierPackage.AvatarModifier avatarModifier = avatarModifiers[i];
+			if ((avatarModifier.avatarModifierEffect == AvatarModifierEffect.DisablePickups || avatarModifier.avatarModifierEffect == AvatarModifierEffect.DisableWeapons) && OnUnequipItemEvent != null)
+			{
+				OnUnequipItemEvent(this, EventArgs.Empty);
+			}
+			if (avatarModifier.avatarModifierEffect == AvatarModifierEffect.DisableVehicles && OnDisableVehiclesEvent != null)
+			{
+				OnDisableVehiclesEvent(this, EventArgs.Empty);
+			}
+		}
+	}
+
+	public ModifierActions GetActionToTakeWithPackageType(AvatarModifierPackageType modifierPackageType)
+	{
+		foreach (AvatarModifierPackage package in packages)
+		{
+			if (package.actionsToTakeVsTypes == null)
+			{
+				continue;
+			}
+			foreach (AvatarModifierPackageType key in package.actionsToTakeVsTypes.Keys)
+			{
+				if (key == modifierPackageType)
+				{
+					return package.actionsToTakeVsTypes[key];
+				}
+			}
+		}
+		return ModifierActions.Add;
+	}
+
+	public AvatarModifierPackageType GetPackageToActWith(AvatarModifierPackageType modifierPackageType, ModifierActions action)
+	{
+		AvatarModifierPackage package = AvatarModifierPackageFactory.GetPackage(modifierPackageType);
+		if (package.actionsToTakeVsTypes != null)
+		{
+			foreach (AvatarModifierPackageType key in package.actionsToTakeVsTypes.Keys)
+			{
+				Debug.Log(string.Concat(key, ": ", package.actionsToTakeVsTypes[key]));
+				if (package.actionsToTakeVsTypes[key] == action)
+				{
+					return key;
+				}
+			}
+		}
+		return AvatarModifierPackageType.None;
 	}
 
 	private void RemoveModifierPackage(AvatarModifierPackage modifierPackage, int id)
@@ -130,6 +186,23 @@ public class AvatarModifierPackages
 			}
 		}
 		return num;
+	}
+
+	public bool HasModifierEffect(AvatarModifierEffect modifierEffect)
+	{
+		foreach (AvatarModifierPackage package in packages)
+		{
+			AvatarModifierPackage.AvatarModifier[] avatarModifiers = package.avatarModifiers;
+			for (int i = 0; i < avatarModifiers.Length; i++)
+			{
+				AvatarModifierPackage.AvatarModifier avatarModifier = avatarModifiers[i];
+				if (avatarModifier.avatarModifierEffect == modifierEffect)
+				{
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	public Dictionary<int, float> ComputeModifierEffectGroupedById(AvatarModifierEffect modifierEffect, float baseValue)

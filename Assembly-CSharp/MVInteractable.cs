@@ -12,6 +12,8 @@ public abstract class MVInteractable : MVInteractableBase
 
 	protected MVRuntimeDataVariableClampedFloat health;
 
+	public AvatarModifierPackages ModifierPackages => modifierPackages;
+
 	public void Init(MVRuntimeDataVariable runtimeDataModifiers, MVRuntimeDataVariableClampedFloat health)
 	{
 		this.runtimeDataModifiers = runtimeDataModifiers;
@@ -55,13 +57,42 @@ public abstract class MVInteractable : MVInteractableBase
 
 	public override void AddModifier(AvatarModifierPackageType type, int id = -1, AvatarModifierPackage.AvatarModifier[] additionalModifers = null)
 	{
-		modifierPackages.AddModifier(type, id, additionalModifers);
+		ModifierActions actionToTakeWithPackageType = modifierPackages.GetActionToTakeWithPackageType(type);
 		Dictionary<object, object> dictionary = new Dictionary<object, object>((Dictionary<object, object>)runtimeDataModifiers.Value);
 		string key = "_" + type;
-		if (!dictionary.ContainsKey(key))
+		switch (actionToTakeWithPackageType)
 		{
-			dictionary.Add(key, (byte)0);
-			runtimeDataModifiers.Value = dictionary;
+		case ModifierActions.Add:
+			if (!dictionary.ContainsKey(key))
+			{
+				modifierPackages.AddModifier(type, id, additionalModifers);
+				dictionary.Add(key, (byte)0);
+				runtimeDataModifiers.Value = dictionary;
+			}
+			break;
+		case ModifierActions.Renew:
+			if (dictionary.ContainsKey(key))
+			{
+				modifierPackages.AddModifier(type, id, additionalModifers);
+				byte b = (byte)((byte)dictionary[key] + 1);
+				dictionary[key] = b;
+				runtimeDataModifiers.Value = dictionary;
+			}
+			break;
+		case ModifierActions.Replace:
+			if (!dictionary.ContainsKey(key))
+			{
+				modifierPackages.AddModifier(type, id, additionalModifers);
+				AvatarModifierPackageType packageToActWith = modifierPackages.GetPackageToActWith(type, actionToTakeWithPackageType);
+				RemoveModifier(packageToActWith);
+				dictionary.Remove("_" + packageToActWith);
+				dictionary.Add(key, (byte)0);
+				runtimeDataModifiers.Value = dictionary;
+			}
+			break;
+		case ModifierActions.CancelOut:
+			RemoveModifier(modifierPackages.GetPackageToActWith(type, actionToTakeWithPackageType));
+			break;
 		}
 	}
 
@@ -76,7 +107,8 @@ public abstract class MVInteractable : MVInteractableBase
 		string key = "_" + type;
 		if (dictionary.ContainsKey(key))
 		{
-			dictionary.Remove(key);
+			bool flag = dictionary.Remove(key);
+			Debug.Log(flag);
 			runtimeDataModifiers.Value = dictionary;
 			modifierPackages.RemoveModifier(type, id);
 		}
@@ -85,6 +117,11 @@ public abstract class MVInteractable : MVInteractableBase
 	public override void ClearModifiers()
 	{
 		modifierPackages.ClearModifiers();
+	}
+
+	public override bool HasModifierEffect(AvatarModifierEffect avatarModifierEffect)
+	{
+		return modifierPackages.HasModifierEffect(avatarModifierEffect);
 	}
 
 	public override float HandleModifierEffect(AvatarModifierEffect avatarModifierEffect, float baseValue)
