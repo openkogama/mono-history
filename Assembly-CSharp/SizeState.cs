@@ -90,7 +90,10 @@ public class SizeState : MonoBehaviour
 		{
 			Vector3 position = FindValidMoveLocation(num);
 			controllerLocal.transform.position = position;
-			EquipSlapGunEvent(this, EventArgs.Empty);
+			if (interactableLocal.HasModifierEffect(AvatarModifierEffect.Scale))
+			{
+				EquipSlapGunEvent(this, EventArgs.Empty);
+			}
 		}
 		else if (UnEquipSlapGunEvent != null)
 		{

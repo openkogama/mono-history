@@ -239,21 +239,6 @@ public abstract class MVRigidBody : MVComponent
 		return velocity + zero;
 	}
 
-	protected Vector3 GetPureImpulse()
-	{
-		Vector3 zero = Vector3.zero;
-		if (impulseVectors.Count == 0)
-		{
-			return zero;
-		}
-		foreach (Vector3 impulseVector in impulseVectors)
-		{
-			zero += impulseVector;
-		}
-		impulseVectors.Clear();
-		return zero;
-	}
-
 	protected static Vector3 VelocityDamping(Vector3 velocity, float defaultDampning, MVInteractableBase interactableLocal)
 	{
 		float num = interactableLocal.HandleModifierEffect(AvatarModifierEffect.VelocityDamping, 1f);

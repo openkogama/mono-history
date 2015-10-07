@@ -17,11 +17,12 @@ public class GrowthModifier : MouseModifier
 
 	protected override void Scale()
 	{
+		audioSource.PlayOneShot(growSound);
 		owner.mvAvatar.Scale = Vector3.one;
-		StartCoroutine(DoForSeconds(timeToShrink, (float t) =>
+		StartCoroutine(DoForSeconds(timeToSize, (float t) =>
 		{
-			owner.mvAvatar.Scale = Vector3.one * (1f + BlockStep(t, 40f, 0f, sizeModifier)) + Vector3.one * (1f - Mathf.Sin(t * 14f));
-			if (t == timeToShrink)
+			owner.mvAvatar.Scale = Vector3.one * (1f + BlockStep(t, 40f, 0f, sizeModifier)) + Vector3.one * 0.25f * (1f - Mathf.Sin(t * sineStrength));
+			if (t == timeToSize)
 			{
 				owner.mvAvatar.Scale = Vector3.one * sizeModifier;
 			}
@@ -30,10 +31,12 @@ public class GrowthModifier : MouseModifier
 
 	protected override void UnScale()
 	{
-		StartCoroutine(DoForSeconds(timeToShrink, (float t) =>
+		audioSource.PlayOneShot(shrinkSound);
+		owner.mvAvatar.Scale = Vector3.one * sizeModifier;
+		StartCoroutine(DoForSeconds(timeToSize, (float t) =>
 		{
-			owner.mvAvatar.Scale = Vector3.one * (sizeModifier - BlockStep(t, 40f, 0f, sizeModifier - 1f)) + Vector3.one * (1f - Mathf.Sin(t * 14f));
-			if (t == timeToShrink)
+			owner.mvAvatar.Scale = Vector3.one * (sizeModifier - BlockStep(t, 40f, 0f, sizeModifier - 1f)) + Vector3.one * 0.25f * (1f - Mathf.Sin(t * sineStrength));
+			if (t == timeToSize)
 			{
 				owner.mvAvatar.Scale = Vector3.one;
 				Object.Destroy(gameObject);

@@ -55,7 +55,23 @@ public class JetPackMotor : MVRigidBody
 
 	public override Vector3 Velocity => Controller.Velocity / Time.fixedDeltaTime;
 
-	public Vector3 Impulses => GetPureImpulse();
+	public Vector3 Impulses
+	{
+		get
+		{
+			Vector3 zero = Vector3.zero;
+			if (impulseVectors.Count == 0)
+			{
+				return zero;
+			}
+			foreach (Vector3 impulseVector in impulseVectors)
+			{
+				zero += impulseVector;
+			}
+			impulseVectors.Clear();
+			return zero;
+		}
+	}
 
 	public Vector3 InputMoveDirection { get; set; }
 

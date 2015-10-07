@@ -77,6 +77,19 @@ public class AvatarEquipable : MVEquipable
 		return false;
 	}
 
+	public bool GetIsEquipped(AvatarItemType type)
+	{
+		Dictionary<object, object> dictionary = (Dictionary<object, object>)currentItem.Value;
+		foreach (object key in dictionary.Keys)
+		{
+			if ((string)key == "type" && (int)dictionary[(string)key] == (int)type)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public void EquipSlapGun(object sender, EventArgs e)
 	{
 		currentItem.Value = new Dictionary<object, object> { { "type", 65 } };

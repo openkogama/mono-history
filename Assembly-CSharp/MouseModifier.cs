@@ -6,7 +6,7 @@ public class MouseModifier : AvatarModifier
 {
 	protected delegate void ActionDelegate(float time);
 
-	protected float timeToShrink = 2f;
+	protected float timeToSize = 1.5f;
 
 	protected float sizeModifier = 0.25f;
 
@@ -14,7 +14,15 @@ public class MouseModifier : AvatarModifier
 
 	protected float unstableSpeed = 10f;
 
+	protected float sineStrength = 14f;
+
 	protected bool isDeactivating;
+
+	protected AudioSource audioSource;
+
+	public AudioClip growSound;
+
+	public AudioClip shrinkSound;
 
 	public override AvatarModifierPackageType ModifierType => AvatarModifierPackageType.Shrunken;
 
@@ -36,6 +44,7 @@ public class MouseModifier : AvatarModifier
 
 	protected override void OnActivated(Avatar target)
 	{
+		audioSource = gameObject.GetComponent<AudioSource>();
 		isDeactivating = false;
 		SetSizeModifier();
 		timeStamp = Time.time;
@@ -54,11 +63,12 @@ public class MouseModifier : AvatarModifier
 
 	protected virtual void Scale()
 	{
+		audioSource.PlayOneShot(shrinkSound);
 		owner.mvAvatar.Scale = Vector3.one;
-		StartCoroutine(DoForSeconds(timeToShrink, (float t) =>
+		StartCoroutine(DoForSeconds(timeToSize, (float t) =>
 		{
-			owner.mvAvatar.Scale = Vector3.one * (1f - BlockStep(t, 40f, 0f, 1f - sizeModifier)) + Vector3.one * sizeModifier * (1f - Mathf.Sin(t * 14f));
-			if (t == timeToShrink)
+			owner.mvAvatar.Scale = Vector3.one * (1f - BlockStep(t, 40f, 0f, 1f - sizeModifier)) + Vector3.one * sizeModifier * (1f - Mathf.Sin(t * sineStrength));
+			if (t == timeToSize)
 			{
 				owner.mvAvatar.Scale = Vector3.one * sizeModifier;
 			}
@@ -67,10 +77,12 @@ public class MouseModifier : AvatarModifier
 
 	protected virtual void UnScale()
 	{
-		StartCoroutine(DoForSeconds(timeToShrink, (float t) =>
+		audioSource.PlayOneShot(growSound);
+		owner.mvAvatar.Scale = Vector3.one * sizeModifier;
+		StartCoroutine(DoForSeconds(timeToSize, (float t) =>
 		{
-			owner.mvAvatar.Scale = Vector3.one * BlockStep(t, 40f, sizeModifier, 1f) + Vector3.one * sizeModifier * (1f - Mathf.Sin(t * 14f));
-			if (t == timeToShrink)
+			owner.mvAvatar.Scale = Vector3.one * BlockStep(t, 40f, sizeModifier, 1f) + Vector3.one * sizeModifier * (1f - Mathf.Sin(t * sineStrength));
+			if (t == timeToSize)
 			{
 				owner.mvAvatar.Scale = Vector3.one;
 				Object.Destroy(gameObject);
@@ -87,7 +99,7 @@ public class MouseModifier : AvatarModifier
 			t += Time.deltaTime;
 			yield return 0f;
 		}
-		body(timeToShrink);
+		body(timeToSize);
 	}
 
 	protected float BlockStep(float t, float steps, float clampMin, float clampMax)

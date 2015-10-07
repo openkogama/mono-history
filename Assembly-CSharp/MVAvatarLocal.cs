@@ -232,8 +232,11 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 
 	public void OnUnequip(object sender, EventArgs e)
 	{
-		MVEquipable component = gameObject.GetComponent<MVEquipable>();
-		component.Unequip();
+		AvatarEquipable avatarEquipable = gameObject.GetComponent<MVEquipable>() as AvatarEquipable;
+		if (!(interactableLocal.HandleModifierEffect(AvatarModifierEffect.Scale, 1f) > 1f) || !avatarEquipable.GetIsEquipped(AvatarItemType.SlapGun))
+		{
+			avatarEquipable.Unequip();
+		}
 	}
 
 	private void OnCameraScale(object sender, ScaleArgs args)
