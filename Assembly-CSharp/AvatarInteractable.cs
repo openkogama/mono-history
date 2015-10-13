@@ -27,7 +27,7 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 
 	public override void AddModifier(AvatarModifierPackageType type, int id = -1, AvatarModifierPackage.AvatarModifier[] additionalModifers = null)
 	{
-		if (type != AvatarModifierPackageType.None && MVGameController.Game.IsPlaying && !(bool)invulnerable.Value && (type != AvatarModifierPackageType.Poison || !HasModifierEffect(AvatarModifierEffect.PoisonImmune)))
+		if (type != AvatarModifierPackageType.None && MVGameController.Game.IsPlaying && (type != AvatarModifierPackageType.Poison || !HasModifierEffect(AvatarModifierEffect.PoisonImmune)))
 		{
 			base.AddModifier(type, id, additionalModifers);
 		}

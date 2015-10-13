@@ -73,13 +73,9 @@ public class SizeState : MonoBehaviour
 	public void OnScalingWhileColliding(MVControllerColliderHit hitData)
 	{
 		float num = interactableLocal.HandleModifierEffect(AvatarModifierEffect.Scale, 1f);
-		if (currentSize < num)
+		if (currentSize < num && hitData.slopeNormal != Vector3.up)
 		{
-			if (hitData.slopeNormal != Vector3.up)
-			{
-				MoveOutOfScalingCollision(hitData);
-			}
-			ScaleChanged();
+			MoveOutOfScalingCollision(hitData);
 		}
 	}
 

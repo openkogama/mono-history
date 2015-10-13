@@ -241,7 +241,14 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 
 	private void OnCameraScale(object sender, ScaleArgs args)
 	{
-		GameDB.GetPlaymodeCamera().ScaleCameraValues(args.scale);
+		if (args.scale > 1f)
+		{
+			GameDB.GetPlaymodeCamera().ScaleCameraValues(args.scale / 2f);
+		}
+		else
+		{
+			GameDB.GetPlaymodeCamera().ScaleCameraValues(args.scale);
+		}
 	}
 
 	protected override void AvatarStateChangedHandler(object a)

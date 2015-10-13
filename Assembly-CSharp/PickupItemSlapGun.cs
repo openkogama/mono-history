@@ -40,7 +40,6 @@ public class PickupItemSlapGun : PickupItemWithDelay
 
 	protected override void OnFire(bool isLocal)
 	{
-		Debug.Log("Slap!");
 		Ray lineOfFire = new Ray(muzzlePoint.position, owner.LookDirection);
 		audioSource.PlayOneShot(slapSounds[Random.Range(0, 2)]);
 		List<MVWorldObjectClient> list = SphereCastAgainstWorldObjects(lineOfFire);
@@ -69,6 +68,7 @@ public class PickupItemSlapGun : PickupItemWithDelay
 		List<VoxelHit> list2 = CollisionDetection.MVSphereCastAll(lineOfFire, 2f, maxRange, owner.IgnoreWOIDs, layerMask);
 		foreach (VoxelHit item in list2)
 		{
+			MVGameController.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(item, slapStrength);
 			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(item.woId);
 			if (worldObjectClient != null)
 			{
