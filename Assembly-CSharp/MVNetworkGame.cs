@@ -608,16 +608,15 @@ public class MVNetworkGame : IPhotonPeerListener
 			{
 				JoinState = MVJoinState.FetchingInventory;
 				OnGetNextResultSetResponse = OnInventoryResultSetResponse;
-				Dictionary<object, object> dictionary3 = new Dictionary<object, object>();
-				dictionary3.Add((byte)0, LocalPlayer.ProfileID);
-				RequestLargeDBQuery(DBQuery.RequestInventory, dictionary3, 10);
+				Dictionary<object, object> inData = new Dictionary<object, object>();
+				RequestLargeDBQuery(MVOperationCodes.LargeDBQueryInventory, DBQuery.RequestInventory, inData, 10);
 			}
 			else if (MVGameController.GameSessionData.gameMode == MVGameMode.CharacterEditor)
 			{
 				JoinState = MVJoinState.FetchingAvatarShopInventory;
 				OnGetNextResultSetResponse = OnAvatarShopInventoryResultSetResponse;
-				Dictionary<object, object> inData = new Dictionary<object, object>();
-				RequestLargeDBQuery(DBQuery.RequestAvatarShopInventory, inData, 25);
+				Dictionary<object, object> inData2 = new Dictionary<object, object>();
+				RequestLargeDBQuery(MVOperationCodes.LargeDBQueryAvatarShopInventory, DBQuery.RequestAvatarShopInventory, inData2, 25);
 			}
 			else
 			{
@@ -631,7 +630,7 @@ public class MVNetworkGame : IPhotonPeerListener
 				OnGetNextResultSetResponse = OnShopInventoryResultSetResponse;
 				Dictionary<object, object> dictionary2 = new Dictionary<object, object>();
 				dictionary2.Add((byte)0, LocalPlayer.ProfileID);
-				RequestLargeDBQuery(DBQuery.RequestClientShopInventoryForPlayer, dictionary2, 10);
+				RequestLargeDBQuery(MVOperationCodes.LargeDBQuery, DBQuery.RequestClientShopInventoryForPlayer, dictionary2, 10);
 			}
 			else
 			{
@@ -953,10 +952,10 @@ public class MVNetworkGame : IPhotonPeerListener
 		peer.OpCustom(18, dictionary, sendReliable: true);
 	}
 
-	public void UpdateInventorySlots()
+	public void UpdateInventorySlots(Dictionary<object, object> itemIdToSlotIndexTable)
 	{
 		Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
-		dictionary.Add(44, PlayerRepository.itemIDToInventorySlotIndex);
+		dictionary.Add(44, itemIdToSlotIndexTable);
 		peer.OpCustom(19, dictionary, sendReliable: true);
 	}
 
@@ -2949,13 +2948,13 @@ public class MVNetworkGame : IPhotonPeerListener
 		peer.OpCustom(67, dictionary, sendReliable: true);
 	}
 
-	public void RequestLargeDBQuery(DBQuery query, Dictionary<object, object> inData, int numRowsPerReturn)
+	public void RequestLargeDBQuery(MVOperationCodes operationCode, DBQuery query, Dictionary<object, object> inData, int numRowsPerReturn)
 	{
 		Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 		dictionary.Add(0, (byte)query);
 		dictionary.Add(2, inData);
 		dictionary.Add(6, numRowsPerReturn);
-		peer.OpCustom(2, dictionary, sendReliable: true);
+		peer.OpCustom((byte)operationCode, dictionary, sendReliable: true);
 	}
 
 	public void OnLargeDBQueryResponse(int largeDBQueryID)

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using MV.WorldObject;
 using UnityEngine;
@@ -127,20 +128,30 @@ public class MVGUIInventoryGroup : MonoBehaviour
 	{
 		MVItem mVItem = (MVItem)sourceItem.Object;
 		MVItem mVItem2 = (MVItem)destinationItem.Object;
-		if (mVItem != null && mVItem2 != null)
+		if (mVItem == null || mVItem2 == null)
 		{
-			MVGameController.Game.PlayerRepository.SwapItems(mVItem.itemID, mVItem2.itemID);
+			Debug.LogError("destination or source null");
+			return;
 		}
-		MVGameController.Game.UpdateInventorySlots();
+		MVGameController.Game.PlayerRepository.SwapItems(mVItem.itemID, mVItem2.itemID);
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add(mVItem.itemID, MVGameController.Game.PlayerRepository.itemIDToInventorySlotIndex[mVItem.itemID]);
+		dictionary.Add(mVItem2.itemID, MVGameController.Game.PlayerRepository.itemIDToInventorySlotIndex[mVItem2.itemID]);
+		MVGameController.Game.UpdateInventorySlots(dictionary);
 	}
 
 	private void OnMoveItem(IUXCollectionItem item, int destinationIndex)
 	{
-		if (item != null)
+		if (item == null)
 		{
-			MVGameController.Game.PlayerRepository.MoveItem((item.Object as MVItem).itemID, destinationIndex);
+			Debug.LogError("item is null");
+			return;
 		}
-		MVGameController.Game.UpdateInventorySlots();
+		MVItem mVItem = (MVItem)item.Object;
+		MVGameController.Game.PlayerRepository.MoveItem(mVItem.itemID, destinationIndex);
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add(mVItem.itemID, MVGameController.Game.PlayerRepository.itemIDToInventorySlotIndex[mVItem.itemID]);
+		MVGameController.Game.UpdateInventorySlots(dictionary);
 	}
 
 	private void OnItemSelection(IUXCollectionItem item)

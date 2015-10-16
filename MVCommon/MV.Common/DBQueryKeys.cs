@@ -140,5 +140,7 @@ public enum DBQueryKeys
 	Prices,
 	GameCoinBoost,
 	GameCoinBoostDelta,
-	GameCoinBoostDeltas
+	GameCoinBoostDeltas,
+	CategorySlotCount,
+	CategorySlotOffset
 }

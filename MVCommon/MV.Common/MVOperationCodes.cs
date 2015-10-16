@@ -86,6 +86,8 @@ public enum MVOperationCodes : byte
 	XPRewarded = 81,
 	Ban = 82,
 	GameCoinBooster = 83,
+	LargeDBQueryInventory = 84,
+	LargeDBQueryAvatarShopInventory = 85,
 	Join = byte.MaxValue,
 	Leave = 254,
 	RaiseEvent = 253,

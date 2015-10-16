@@ -192,6 +192,7 @@ public enum MVParameterKeys : byte
 	AssetBundleRootUrlWebGL = 187,
 	ClientSentryTags = 188,
 	ClientBuildTarget = 189,
+	ItemInventoryOffset = 190,
 	GameId = byte.MaxValue,
 	ActorNr = 254,
 	TargetActorNr = 253,

@@ -97,5 +97,7 @@ public enum DBQuery
 	RewardPlanetOwner,
 	TestQuery,
 	RequestGameTypeID,
-	RequestProtoPlanetID
+	RequestProtoPlanetID,
+	RequestDefaultInventory,
+	CreateDefaultItemInventory
 }
