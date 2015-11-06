@@ -6,7 +6,7 @@ public class MVGUIAggregateInventoryButton : UXViewScript
 
 	public void ShowInventory()
 	{
-		MVGameController.EditorController.ShowInventory();
+		MVGameControllerLegacyUI.EditorController.ShowInventory();
 	}
 
 	public override void OnShow()

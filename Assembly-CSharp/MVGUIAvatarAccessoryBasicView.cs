@@ -18,13 +18,13 @@ public abstract class MVGUIAvatarAccessoryBasicView : UXViewScript
 	{
 		get
 		{
-			if (MVGameController.CharacterEditorController != null)
+			if (MVGameControllerLegacyUI.CharacterEditorController != null)
 			{
-				return MVGameController.CharacterEditorController.CurrentBody;
+				return MVGameControllerLegacyUI.CharacterEditorController.CurrentBody;
 			}
 			try
 			{
-				return MVGameController.Game.LocalPlayer.Avatar.Body;
+				return MVGameControllerBase.Game.LocalPlayer.Avatar.Body;
 			}
 			catch (Exception)
 			{
@@ -52,9 +52,9 @@ public abstract class MVGUIAvatarAccessoryBasicView : UXViewScript
 			_isInitialized = true;
 		}
 		tabs.SelectTab(currentTab);
-		if (MVGameController.GameMode == MVGameMode.CharacterEditor)
+		if (MVGameControllerBase.GameMode == MVGameMode.CharacterEditor)
 		{
-			MVGameController.CharacterEditorController.EditorStateMachine.Event = EditorEvent.CEAvatarAccessory;
+			MVGameControllerLegacyUI.CharacterEditorController.EditorStateMachine.Event = EditorEvent.CEAvatarAccessory;
 		}
 	}
 
@@ -78,9 +78,9 @@ public abstract class MVGUIAvatarAccessoryBasicView : UXViewScript
 	{
 		base.OnHide();
 		tabs.GetTab(currentTab).Hide();
-		if (MVGameController.GameMode == MVGameMode.CharacterEditor && MVGameController.CharacterEditorController.EditorStateMachine != null)
+		if (MVGameControllerBase.GameMode == MVGameMode.CharacterEditor && MVGameControllerLegacyUI.CharacterEditorController.EditorStateMachine != null)
 		{
-			MVGameController.CharacterEditorController.EditorStateMachine.Event = EditorEvent.CERoam;
+			MVGameControllerLegacyUI.CharacterEditorController.EditorStateMachine.Event = EditorEvent.CERoam;
 		}
 	}
 

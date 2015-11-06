@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using MV.Common;
+using MV.WorldObject;
 using UnityEngine;
 
-public class PlayControllerBase : AIngameController
+public class PlayControllerBase : AIngameController, IPlayModeUI
 {
 	private bool showingIcon;
 
@@ -33,9 +34,23 @@ public class PlayControllerBase : AIngameController
 
 	protected bool briefingWasShown;
 
-	private MVNetworkGameStateListener GameStateListener => MVGameController.Game.NetworkGameStateListener;
+	private MVGUICrossHairLegacy guiCrossHairLegacy = new MVGUICrossHairLegacy();
+
+	private MVNetworkGameStateListener GameStateListener => MVGameControllerBase.Game.NetworkGameStateListener;
 
 	public override bool WindowShown => (currentView != null && currentView.isVisible) || menu.View.isVisible;
+
+	public bool InLobbyState
+	{
+		get
+		{
+			return !LockCursorManager.LockCursor;
+		}
+		set
+		{
+			LockCursorManager.LockCursor = !value;
+		}
+	}
 
 	protected override void ResolveGUIElements()
 	{
@@ -54,7 +69,7 @@ public class PlayControllerBase : AIngameController
 		gameMetersController = AIngameController.FindGUIObjectOfType<GameMetersController>(gameObject);
 	}
 
-	protected void Show()
+	protected virtual void Show()
 	{
 		gameInfo.View.Show();
 		bottomCenterToggles.View.Show();
@@ -92,7 +107,7 @@ public class PlayControllerBase : AIngameController
 		}
 		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.DropCurrentItem))
 		{
-			MVEquipable component = MVGameController.WOCM.AvatarLocal.GameObject.GetComponent<MVEquipable>();
+			MVEquipable component = MVGameControllerBase.WOCM.AvatarLocal.GameObject.GetComponent<MVEquipable>();
 			if (component != null)
 			{
 				component.Equip(AvatarItemType.Hand, AvatarEquipableType.Weapon, null);
@@ -106,7 +121,7 @@ public class PlayControllerBase : AIngameController
 		{
 			ShowPlayersWindow(show: true);
 		}
-		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.ShowChat) && (MVClientSettings.TouristChatAllowed || !MVGameController.Game.IsTouristSession))
+		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.ShowChat) && (MVClientSettings.TouristChatAllowed || !MVGameControllerBase.IsTouristSession))
 		{
 			chatController.ShowChat(takeControl: true, retainControlAfterMessageSend: false);
 		}
@@ -122,8 +137,12 @@ public class PlayControllerBase : AIngameController
 		resume.button.OnClick = () =>
 		{
 			LockCursorManager.LockCursor = true;
-			ShowBriefing();
-			Debug.Log("Briefing shown");
+			if (MVGameControllerBase.WOCM.AvatarLocal.AvatarRuntimeState == AvatarRuntimeState.Hidden)
+			{
+				ShowBriefing();
+				Debug.Log("Briefing shown");
+				MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Playing);
+			}
 		};
 		FocusChanged(LockCursorManager.HasFocusAndLockCursor);
 	}
@@ -150,7 +169,6 @@ public class PlayControllerBase : AIngameController
 		winningConditionDebriefingView.View.Hide();
 		ClearGameMsg();
 		gameMetersController.View.Hide();
-		MVGameController.Game.CameraController.PushCamera(CameraType.LobbyState);
 	}
 
 	protected virtual void HideLostFocusGUI()
@@ -162,7 +180,6 @@ public class PlayControllerBase : AIngameController
 		gameMetersController.View.Show();
 		winningConditionDebriefingView.View.Show();
 		winningConditionDebriefingView.group.SetVisible(visible: true);
-		MVGameController.Game.CameraController.RemoveCamera(CameraType.LobbyState);
 	}
 
 	public void ShowEUseIcon(ShowUseOption option = ShowUseOption.Normal)
@@ -183,12 +200,17 @@ public class PlayControllerBase : AIngameController
 		}
 	}
 
+	public IGUICrossHair GetCrossHair()
+	{
+		return guiCrossHairLegacy;
+	}
+
 	public bool IsMenuShown()
 	{
 		return menu.View.isVisible;
 	}
 
-	public void ShowPlayersWindow(bool show)
+	private void ShowPlayersWindow(bool show)
 	{
 		menu.ShowOnShortcut(show);
 	}
@@ -197,18 +219,44 @@ public class PlayControllerBase : AIngameController
 	{
 		base.Initialize();
 		GameStateListener.OnGameStateChanged += GameStateListener_OnGameStateChanged;
-		Show();
+		MVNetworkGame game = MVGameControllerBase.Game;
+		game.OnWinningCondition = (Action<IWinningCondition>)Delegate.Combine(game.OnWinningCondition, new Action<IWinningCondition>(OnWinningConditionReceived));
 		InitializeResumeButton();
+		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1 && MVGameControllerBase.GameMode == MVGameMode.Play)
+		{
+			ShowTeamSelectDialog();
+		}
 	}
 
-	public void ClearGameMsg()
+	public void ShowTeamSelectDialog()
+	{
+		Hide();
+		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
+		{
+			UXUtils.UXDialogFactory.CreateCustomDialog("Prefabs/GUI/TeamSelect/TeamSelectDialog", string.Empty, noButtons: true, stackDialog: false, canClose: false).SetOnResultCallback(TeamSelectCallBack).Show();
+		}
+		else
+		{
+			UXUtils.UXDialogFactory.CreateDialog(TM._("Only one team in world."), TM._("Change Team")).Show();
+		}
+	}
+
+	private void TeamSelectCallBack(UXDialogBox dialog)
+	{
+		Show();
+		MVTeam team = (MVTeam)(int)dialog.GetResult();
+		MVGameControllerBase.Game.SetTeam(team);
+		FocusChanged(hasFocus: false);
+	}
+
+	private void ClearGameMsg()
 	{
 		winningConditionBriefingView.Clear();
 	}
 
 	public void OnWinningConditionReceived(IWinningCondition winningCondition)
 	{
-		if (MVGameController.GameMode == MVGameMode.Play || (MVGameController.GameMode == MVGameMode.Edit && MVGameController.EditorController.PlayInEditor))
+		if (MVGameControllerBase.GameMode == MVGameMode.Play || (MVGameControllerBase.GameMode == MVGameMode.Edit && MVGameControllerLegacyUI.EditorController.PlayInEditor))
 		{
 			menu.View.Hide();
 			if (UXUtils.UXDialogFactory.CurrentDialogBox != null)
@@ -244,7 +292,7 @@ public class PlayControllerBase : AIngameController
 	{
 		winningConditionBriefingView.Clear();
 		List<IWinningCondition> winnerConditions = new List<IWinningCondition>();
-		MVGameController.Game.WinningConditionManager.Traverse((IWinningCondition winnerCondition) =>
+		MVGameControllerBase.Game.WinningConditionManager.Traverse((IWinningCondition winnerCondition) =>
 		{
 			if (winnerCondition.IsBriefingNode)
 			{
@@ -295,7 +343,7 @@ public class PlayControllerBase : AIngameController
 		if (!winningCondition.IsTeamMode)
 		{
 			List<ScoreActorEntry> list = winningCondition.HighScores.GenerateActorScores();
-			if (list.Count > 0 && list[0].actorNumber == MVGameController.Game.LocalPlayer.ActorNr)
+			if (list.Count > 0 && list[0].actorNumber == MVGameControllerBase.Game.LocalPlayer.ActorNr)
 			{
 				GameSessionCounters.Increment(GameSessionCounterType.GameWon);
 			}

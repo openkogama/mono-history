@@ -16,7 +16,7 @@ public abstract class MVWorldObject
 
 	internal bool inputState;
 
-	private MVWorldObjectState state;
+	private MVWorldObjectState state = MVWorldObjectState.Undefined;
 
 	internal List<Link> outputLinkRefs = new List<Link>();
 

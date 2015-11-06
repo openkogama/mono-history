@@ -19,8 +19,8 @@ public static class GameMessagesRepository
 		PlayerKilledMessage playerKilledMessage = ParsePlayerKilledMessage(package);
 		try
 		{
-			MVPlayer mVPlayer = MVGameController.Game.Players[playerKilledMessage.killerId];
-			MVPlayer mVPlayer2 = MVGameController.Game.Players[playerKilledMessage.playerId];
+			MVPlayer mVPlayer = MVGameControllerBase.Game.Players[playerKilledMessage.killerId];
+			MVPlayer mVPlayer2 = MVGameControllerBase.Game.Players[playerKilledMessage.playerId];
 			if (mVPlayer.IsAnonymous && mVPlayer2.IsAnonymous)
 			{
 				return false;
@@ -57,10 +57,10 @@ public static class GameMessagesRepository
 	private static string BuildLine(PlayerKilledMessage data)
 	{
 		string empty = string.Empty;
-		MVPlayer mVPlayer = MVGameController.Game.Players[data.killerId];
+		MVPlayer mVPlayer = MVGameControllerBase.Game.Players[data.killerId];
 		if (data.killerId != data.playerId)
 		{
-			MVPlayer mVPlayer2 = MVGameController.Game.Players[data.playerId];
+			MVPlayer mVPlayer2 = MVGameControllerBase.Game.Players[data.playerId];
 			string format = TM._("{0} killed {1} with {2}");
 			return string.Format(format, mVPlayer.Username, mVPlayer2.Username, LocalizedEnums._(data.weaponType));
 		}

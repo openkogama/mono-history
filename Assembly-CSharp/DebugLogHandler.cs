@@ -55,7 +55,7 @@ public static class DebugLogHandler
 		bool flag = UnityEngine.Random.Range(0, sampleErrorFrequency + 1) == sampleErrorFrequency;
 		if (MVClientSettings.EnableSentry || flag)
 		{
-			MVGameController.Game.SendClientLog(logString, stackTrace, type, GetExtraSentryData(), GetTags());
+			MVGameControllerBase.Game.SendClientLog(logString, stackTrace, type, GetExtraSentryData(), GetTags());
 		}
 		logErrorHasBeenSendOnce = true;
 	}
@@ -98,47 +98,47 @@ public static class DebugLogHandler
 	private static Dictionary<string, string> GetTags()
 	{
 		Dictionary<string, string> dictionary = new Dictionary<string, string>();
-		dictionary.Add("Version", MVGameController.VersionNumber.VersionString);
+		dictionary.Add("Version", MVGameControllerBase.VersionNumber.VersionString);
 		dictionary.Add("Source", "standalone");
 		return dictionary;
 	}
 
 	private static string GetIsTouristSession()
 	{
-		return MVGameController.Game.IsTouristSession.ToString();
+		return MVGameControllerBase.IsTouristSession.ToString();
 	}
 
 	private static string GetPlanetID()
 	{
-		return MVGameController.GameSessionData.planetID.ToString();
+		return MVGameControllerBase.GameSessionData.planetID.ToString();
 	}
 
 	private static string GetProfileID()
 	{
-		return MVGameController.GameSessionData.profileID.ToString();
+		return MVGameControllerBase.GameSessionData.profileID.ToString();
 	}
 
 	private static string GetGameMode()
 	{
-		return MVGameController.GameMode.ToString();
+		return MVGameControllerBase.GameMode.ToString();
 	}
 
 	private static string GetJoinState()
 	{
-		if (MVGameController.Game == null)
+		if (MVGameControllerBase.Game == null)
 		{
 			return "MVGameController.Game is null";
 		}
-		return MVGameController.Game.JoinState.ToString();
+		return MVGameControllerBase.JoinState.ToString();
 	}
 
 	private static string GetPlayersCount()
 	{
-		if (MVGameController.WOCM == null)
+		if (MVGameControllerBase.WOCM == null)
 		{
 			return "MVGameController.WOCM is null";
 		}
-		return MVGameController.Game.Players.Count.ToString();
+		return MVGameControllerBase.Game.Players.Count.ToString();
 	}
 
 	private static string GetSystemInfo()

@@ -82,10 +82,10 @@ public class MVCollectible : MVLogicObject
 	public override void Initialize()
 	{
 		base.Initialize();
-		AllCollectiblesCollectedClient allCollectiblesCollectedClient = MVGameController.Game.WinningConditionManager.GetSingletonWinnerConditionByType<AllCollectiblesCollectedClient>();
+		AllCollectiblesCollectedClient allCollectiblesCollectedClient = MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<AllCollectiblesCollectedClient>();
 		if (allCollectiblesCollectedClient == null)
 		{
-			allCollectiblesCollectedClient = MVGameController.Game.WinningConditionManager.CreateWinnerCondition<AllCollectiblesCollectedClient>(new object[0]);
+			allCollectiblesCollectedClient = MVGameControllerBase.Game.WinningConditionManager.CreateWinnerCondition<AllCollectiblesCollectedClient>(new object[0]);
 		}
 		allCollectiblesCollectedClient.SetLimit(allCollectiblesCollectedClient.Limit + 1);
 		initializedInWorld = true;
@@ -96,7 +96,7 @@ public class MVCollectible : MVLogicObject
 		base.Destroy();
 		if (initializedInWorld)
 		{
-			AllCollectiblesCollectedClient singletonWinnerConditionByType = MVGameController.Game.WinningConditionManager.GetSingletonWinnerConditionByType<AllCollectiblesCollectedClient>();
+			AllCollectiblesCollectedClient singletonWinnerConditionByType = MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<AllCollectiblesCollectedClient>();
 			if (singletonWinnerConditionByType == null)
 			{
 				throw new Exception("AllCollectiblesCollected not found.");
@@ -108,7 +108,7 @@ public class MVCollectible : MVLogicObject
 			singletonWinnerConditionByType.SetLimit(singletonWinnerConditionByType.Limit - 1);
 			if (singletonWinnerConditionByType.Limit == 0)
 			{
-				MVGameController.Game.WinningConditionManager.RemoveWinnerCondition(singletonWinnerConditionByType.ID);
+				MVGameControllerBase.Game.WinningConditionManager.RemoveWinnerCondition(singletonWinnerConditionByType.ID);
 			}
 		}
 	}
@@ -129,8 +129,8 @@ public class MVCollectible : MVLogicObject
 		{
 			return;
 		}
-		int num = MVGameController.WOCM.GetWorldObjectClient(e.instigatorWOID).OwnerActorNr;
-		bool flag = MVGameController.Game.LocalPlayer.ActorNr == num;
+		int num = MVGameControllerBase.WOCM.GetWorldObjectClient(e.instigatorWOID).OwnerActorNr;
+		bool flag = MVGameControllerBase.Game.LocalPlayer.ActorNr == num;
 		bool flag2 = num <= 0;
 		if ((flag && isVisible) || (!flag && !flag2))
 		{
@@ -144,7 +144,7 @@ public class MVCollectible : MVLogicObject
 
 	public virtual void OnPickup(int actorNr)
 	{
-		if (actorNr == MVGameController.Game.LocalPlayer.ActorNr)
+		if (actorNr == MVGameControllerBase.Game.LocalPlayer.ActorNr)
 		{
 			isVisible = false;
 			pickupItem.GreyOut();
@@ -193,7 +193,7 @@ public class MVCollectible : MVLogicObject
 	{
 		if (worldObjectEnableController.EnableState == EnableState.Enable && isVisible)
 		{
-			MVGameController.Game.TriggerBoxEnter(Id, e.instigatorWOID);
+			MVGameControllerBase.Game.TriggerBoxEnter(Id, e.instigatorWOID);
 		}
 	}
 }

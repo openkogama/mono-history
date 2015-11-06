@@ -3,17 +3,13 @@ using UnityEngine;
 
 public class ModelCursor
 {
-	private IndentArea indentArea;
+	protected FaceCursor faceCursor;
 
-	private FaceCursor faceCursor;
-
-	private CellCursor errorCursor;
+	protected CellCursor errorCursor;
 
 	private float addCubeLaserOnTime = 0.2f;
 
-	public IndentArea IndentArea => indentArea;
-
-	public bool CursorVisible
+	public virtual bool CursorVisible
 	{
 		get
 		{
@@ -23,20 +19,12 @@ public class ModelCursor
 		{
 			faceCursor.GameObject.SetActive(value);
 			errorCursor.Active = value;
-			indentArea.GameObject.SetActive(value);
 		}
 	}
 
-	public ModelCursor()
+	public ModelCursor(Vector3[] cubeCorners)
 	{
-		indentArea = new IndentArea();
-		faceCursor = new FaceCursor();
-		errorCursor = new CellCursor(1, 0.03f, "Materials/CellCursorErrorMaterial", 1f);
-	}
-
-	public void SetIndentAreaSize(float size)
-	{
-		indentArea.Size = size;
+		errorCursor = new CellCursor(1, 0.03f, "Materials/CellCursorErrorMaterial", 1f, cubeCorners);
 	}
 
 	private void HandleLaserMovingEdge(CubePickingInfo movingEdgeCube, GameObject targetGameObject)
@@ -68,53 +56,31 @@ public class ModelCursor
 		{
 			vector2 += (vector - vector2) * 0.2f;
 		}
-		MVGameController.WOCM.AvatarLocal.LaserPointer.UpdatePosition(vector2);
+		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.UpdatePosition(vector2);
 	}
 
-	private void HandleLaser(CubePickingInfo movingEdgeCube, CubePickingInfo selectedCube, GameObject targetGameObject, BuildState buildState, bool addCube)
+	protected void HandleLaser(CubePickingInfo movingEdgeCube, CubePickingInfo selectedCube, GameObject targetGameObject, BuildState buildState, bool addCube)
 	{
 		if (buildState == BuildState.PaintCubes)
 		{
 			Vector3 hit = default;
-			MVGameController.EditController.WorldEditorDrawPlane.Pick(ref hit);
-			MVGameController.WOCM.AvatarLocal.LaserPointer.ActivateLaserForDuration(addCubeLaserOnTime);
-			MVGameController.WOCM.AvatarLocal.LaserPointer.UpdatePosition(hit);
+			MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController.Pick(ref hit);
+			MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ActivateLaserForDuration(addCubeLaserOnTime);
+			MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.UpdatePosition(hit);
 		}
 		else if (movingEdgeCube != null)
 		{
 			HandleLaserMovingEdge(movingEdgeCube, targetGameObject);
-			MVGameController.WOCM.AvatarLocal.LaserPointer.ActivateLaserForDuration(addCubeLaserOnTime);
+			MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ActivateLaserForDuration(addCubeLaserOnTime);
 		}
 		else if (addCube)
 		{
-			MVGameController.WOCM.AvatarLocal.LaserPointer.ActivateLaserForDuration(addCubeLaserOnTime);
+			MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ActivateLaserForDuration(addCubeLaserOnTime);
 		}
 		else if (selectedCube != null)
 		{
-			MVGameController.WOCM.AvatarLocal.LaserPointer.UpdatePosition(selectedCube.point);
+			MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.UpdatePosition(selectedCube.point);
 		}
-	}
-
-	public void UpdateCursor(CubePickingInfo movingEdgeCube, CubePickingInfo selectedCube, GameObject targetGameObject, BuildState buildState, bool addCube)
-	{
-		if (movingEdgeCube != null)
-		{
-			indentArea.UpdateIndentArea(movingEdgeCube, targetGameObject);
-			faceCursor.GameObject.SetActive(value: true);
-			faceCursor.UpdateCursor(movingEdgeCube, targetGameObject);
-		}
-		else if (selectedCube != null)
-		{
-			faceCursor.GameObject.SetActive(value: true);
-			faceCursor.UpdateCursor(selectedCube, targetGameObject);
-		}
-		else
-		{
-			faceCursor.GameObject.SetActive(value: false);
-			indentArea.GameObject.SetActive(value: false);
-		}
-		errorCursor.UpdateCursor();
-		HandleLaser(movingEdgeCube, selectedCube, targetGameObject, buildState, addCube);
 	}
 
 	public void SetErrorCursor(IntVector iPos, GameObject targetGameObject)
@@ -122,9 +88,8 @@ public class ModelCursor
 		errorCursor.SetCursor(iPos, targetGameObject);
 	}
 
-	public void Remove()
+	public virtual void Remove()
 	{
-		indentArea.Remove();
 		faceCursor.Remove();
 		errorCursor.Remove();
 	}

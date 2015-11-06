@@ -32,18 +32,22 @@ public class PickupItemSword : PickupItemWithDelay
 
 	public override int Quantity => 0;
 
+	public override void UpdateWithDirection(Vector3 dir)
+	{
+	}
+
 	protected override void OnFire(bool isLocal)
 	{
 		swordAnim.Play();
 		isFiring = false;
-		MVGameController.AudioManager.Play("sword swing", GetComponent<AudioSource>(), muzzlePoint.position);
+		MVGameControllerBase.AudioManager.Play("sword swing", GetComponent<AudioSource>(), muzzlePoint.position);
 		if (isLocal)
 		{
-			MVGameController.AudioManager.Play("sword swing", GetComponent<AudioSource>(), Camera.main.transform.position + Camera.main.transform.forward);
+			MVGameControllerBase.AudioManager.Play("sword swing", GetComponent<AudioSource>(), Camera.main.transform.position + Camera.main.transform.forward);
 		}
 		else
 		{
-			MVGameController.AudioManager.Play("sword swing", GetComponent<AudioSource>(), muzzlePoint.position);
+			MVGameControllerBase.AudioManager.Play("sword swing", GetComponent<AudioSource>(), muzzlePoint.position);
 		}
 		if (isLocal)
 		{
@@ -105,10 +109,10 @@ public class PickupItemSword : PickupItemWithDelay
 		Debug.DrawLine(ray.origin, ray.origin + ray.direction * 3f, Color.red, 10f);
 		if (CollisionDetection.MVHit(ray, out var voxelHit, 3f, new HashSet<int>(), 1 << LayerMask.NameToLayer("Default")))
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(voxelHit.woId);
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
 			if (worldObjectClient.WorldObjectType == WorldObjectType.CubeModelPrototypeTerrain || worldObjectClient.WorldObjectType == WorldObjectType.CubeModelTerrainFineGrained)
 			{
-				MVGameController.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, 20f);
+				MVGameControllerBase.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, 20f);
 			}
 		}
 	}

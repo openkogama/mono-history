@@ -24,15 +24,15 @@ public class SharedWorldObjectGameplayFunctions
 					if (local)
 					{
 						Debug.Log("Doing local destruction");
-						if (MVGameController.Game.World.RuntimeEventManager != null)
+						if (MVGameControllerBase.Game.World.RuntimeEventManager != null)
 						{
-							MVGameController.Game.World.RuntimeEventManager.ExecuteRuntimeEventLocal(explosionEvent);
+							MVGameControllerBase.Game.World.RuntimeEventManager.ExecuteRuntimeEventLocal(explosionEvent);
 						}
 					}
 					else
 					{
 						Debug.Log("Sending destuction to all");
-						MVGameController.Game.World.RuntimeEventManager.SendRuntimeEvent(explosionEvent);
+						MVGameControllerBase.Game.World.RuntimeEventManager.SendRuntimeEvent(explosionEvent);
 					}
 				}
 				float num = Vector3.Distance(collider.GetComponent<Collider>().ClosestPointOnBounds(position), position);

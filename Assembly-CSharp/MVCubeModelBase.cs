@@ -142,7 +142,7 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel, ICubeModelCollid
 	{
 		if (prototypeCubeModel.InstancesCount > 1)
 		{
-			MVGameController.Game.World.WorldInventory.RequestWoMakeUniquePrototype(id);
+			MVGameControllerBase.Game.World.WorldInventory.RequestWoMakeUniquePrototype(id);
 		}
 	}
 
@@ -157,6 +157,7 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel, ICubeModelCollid
 
 	public void AddCube(IntVector pos, CubeBase cube)
 	{
+		Debug.Log("AddCube");
 		MakeUnique();
 		if (prototypeCubeModel.AddCube(pos, (Cube)cube))
 		{

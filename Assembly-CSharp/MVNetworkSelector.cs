@@ -7,7 +7,7 @@ public class MVNetworkSelector
 
 	private Queue<int> pendingRequestedOwnershipIds = new Queue<int>();
 
-	private static MVWorldObjectClientManager WOCM => MVGameController.WOCM;
+	private static MVWorldObjectClientManager WOCM => MVGameControllerBase.WOCM;
 
 	public MVNetworkSelector(EditorStateMachine esm)
 	{
@@ -71,7 +71,7 @@ public class MVNetworkSelector
 	private static bool OwnershipTest(int id)
 	{
 		MVWorldObjectClient worldObjectClient = WOCM.GetWorldObjectClient(id);
-		if (worldObjectClient != null && worldObjectClient.OwnerActorNr != 0 && worldObjectClient.OwnerActorNr != MVGameController.Game.LocalPlayer.ActorNr)
+		if (worldObjectClient != null && worldObjectClient.OwnerActorNr != 0 && worldObjectClient.OwnerActorNr != MVGameControllerBase.Game.LocalPlayer.ActorNr)
 		{
 			return false;
 		}
@@ -81,17 +81,17 @@ public class MVNetworkSelector
 	private void RequestOwnership(int id)
 	{
 		MVWorldObjectClient worldObjectClient = WOCM.GetWorldObjectClient(id);
-		if ((worldObjectClient == null || worldObjectClient.OwnerActorNr != MVGameController.Game.LocalPlayer.ActorNr) && WOCM.GetWorldObjectClient(id).OwnerActorNr == 0)
+		if ((worldObjectClient == null || worldObjectClient.OwnerActorNr != MVGameControllerBase.Game.LocalPlayer.ActorNr) && WOCM.GetWorldObjectClient(id).OwnerActorNr == 0)
 		{
 			pendingRequestedOwnershipIds.Enqueue(id);
-			MVGameController.Game.TransferOwnership(id, MVGameController.Game.LocalPlayer.ActorNr, null);
+			MVGameControllerBase.Game.TransferOwnership(id, MVGameControllerBase.Game.LocalPlayer.ActorNr, null);
 		}
 	}
 
 	private static void RequestReleaseOwnership(int id)
 	{
 		MVWorldObjectClient worldObjectClient = WOCM.GetWorldObjectClient(id);
-		MVGameController.Game.TransferOwnership(id, 0, worldObjectClient.Transform);
+		MVGameControllerBase.Game.TransferOwnership(id, 0, worldObjectClient.Transform);
 	}
 
 	private void Instance_OnWorldObjectTransferOwnershipResponse(object sender, OnTransferOwnershipResponseEventArgs e)

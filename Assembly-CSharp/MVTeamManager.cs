@@ -71,7 +71,7 @@ public class MVTeamManager
 		{
 			return 0;
 		}
-		return MVGameController.Game.GameStatCounterManager.GetTeamCount(gameStatCounterType, team);
+		return MVGameControllerBase.Game.GameStatCounterManager.GetTeamCount(gameStatCounterType, team);
 	}
 
 	public int TeamCount()
@@ -102,12 +102,12 @@ public class MVTeamManager
 
 	public List<MVPlayer> GetPlayersInTeam(MVTeam team)
 	{
-		return MVGameController.Game.Players.Values.Where((MVPlayer player) => player.Team == team).ToList();
+		return MVGameControllerBase.Game.Players.Values.Where((MVPlayer player) => player.Team == team).ToList();
 	}
 
 	public MVTeam GetTeamFromActorNr(int actorNumber)
 	{
-		return MVGameController.Game.Players[actorNumber].Team;
+		return MVGameControllerBase.Game.Players[actorNumber].Team;
 	}
 
 	public int GetNoOfPlayersInTeam(MVTeam team)

@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class MVGUIDrawplaneControls : UXViewScript
 {
+	private bool first = true;
+
 	public float FullScreenScale = 1f;
 
 	public float WindowedScale = 0.6f;
@@ -20,10 +22,6 @@ public class MVGUIDrawplaneControls : UXViewScript
 	public UXToggleIconButton switchZ;
 
 	public UXText altitudeText;
-
-	private AEditController editController;
-
-	private bool first = true;
 
 	public override void OnInitialize()
 	{
@@ -78,10 +76,9 @@ public class MVGUIDrawplaneControls : UXViewScript
 		base.OnShow();
 		if (first)
 		{
-			editController = MVGameController.EditController;
-			CubeModelingController cubeModelingController = editController.CubeModelingController;
-			cubeModelingController.OnDrawplaneAltitudeChanged = (CubeModelingController.OnWorkPlaneAltitudeChangedDelegate)Delegate.Combine(cubeModelingController.OnDrawplaneAltitudeChanged, new CubeModelingController.OnWorkPlaneAltitudeChangedDelegate(UpdateAltitudeText));
-			UpdateAltitudeText(editController.WorldEditorDrawPlane.Altitude);
+			DrawPlaneController drawPlaneController = MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController;
+			drawPlaneController.OnDrawplaneAltitudeChanged = (DrawPlaneController.OnWorkPlaneAltitudeChangedDelegate)Delegate.Combine(drawPlaneController.OnDrawplaneAltitudeChanged, new DrawPlaneController.OnWorkPlaneAltitudeChangedDelegate(UpdateAltitudeText));
+			UpdateAltitudeText(MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController.Altitude);
 			first = false;
 		}
 	}
@@ -97,12 +94,12 @@ public class MVGUIDrawplaneControls : UXViewScript
 		switchY.SetToggleState(toggle: false);
 		switchZ.SetToggleState(toggle: false);
 		toggle.SetToggleState(toggle: true);
-		editController.WorldEditorDrawPlane.Orientation = axis;
+		MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController.Orientation = axis;
 	}
 
 	private void MoveDrawPlane(int dir)
 	{
-		editController.WorldEditorDrawPlane.MoveDrawPlane(dir);
+		MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController.MoveDrawPlane(dir);
 	}
 
 	private void UpdateAltitudeText(int altitude)

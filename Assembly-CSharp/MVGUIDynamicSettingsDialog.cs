@@ -14,7 +14,7 @@ public class MVGUIDynamicSettingsDialog : MVGUISettingsDialog
 		if (dialog.DialogResult == UXDialogResult.Positive)
 		{
 			Dictionary<object, object> woData = (Dictionary<object, object>)dialog.GetResult();
-			MVGameController.Game.UpdateWorldObjectDataPartial(wo.Id, woData);
+			MVGameControllerBase.Game.UpdateWorldObjectDataPartial(wo.Id, woData);
 		}
 		else
 		{

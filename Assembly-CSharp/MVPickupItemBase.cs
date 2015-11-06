@@ -156,6 +156,13 @@ public class MVPickupItemBase : MVLogicObject
 		}
 	}
 
+	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
+	{
+		Vector3 one = Vector3.one;
+		one *= 2f;
+		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, one);
+	}
+
 	public override void InitializeInventory()
 	{
 		base.InitializeInventory();
@@ -181,7 +188,7 @@ public class MVPickupItemBase : MVLogicObject
 		pickupMesh.transform.Rotate(Vector3.up, 68f * Time.deltaTime);
 		if (gameCoinLogic.PurchaseAmount > 0 && triggerBoxEvents.IsInTrigger && gameCoinLogic.ShowUseGUI())
 		{
-			DoPickup(MVGameController.WOCM.AvatarLocal.Id);
+			DoPickup(MVGameControllerBase.WOCM.AvatarLocal.Id);
 		}
 	}
 
@@ -195,13 +202,13 @@ public class MVPickupItemBase : MVLogicObject
 
 	private void DoPickup(int instigatorWOID)
 	{
-		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(instigatorWOID);
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(instigatorWOID);
 		if (!worldObjectClient.GameObject.GetComponent<MVInteractableBase>().HasModifierEffect(AvatarModifierEffect.DisablePickups))
 		{
 			MVEquipable component = worldObjectClient.GameObject.GetComponent<MVEquipable>();
 			if (component != null && component.Equip(Type, pickupPrefabLUT[Type].equipableType, ItemData, VariantID))
 			{
-				MVGameController.Game.TriggerBoxEnter(Id, instigatorWOID);
+				MVGameControllerBase.Game.TriggerBoxEnter(Id, instigatorWOID);
 				canPickUp = false;
 			}
 		}
@@ -209,7 +216,7 @@ public class MVPickupItemBase : MVLogicObject
 
 	private void triggerBoxEvents_TriggerExit(object sender, TriggerEventArgs e)
 	{
-		MVGameController.Game.TriggerBoxExit(Id, e.instigatorWOID);
+		MVGameControllerBase.Game.TriggerBoxExit(Id, e.instigatorWOID);
 	}
 
 	public void HandleStateChange(PickupItemState state)

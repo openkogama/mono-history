@@ -1,15 +1,10 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 internal class ESTranslate : ESStateBase
 {
 	private const float _mouseSensitivity = 0.05f;
-
-	private const bool _moveWithAvatar = true;
-
-	private const float minInitialDistance = 2.5f;
-
-	private const float _moveWithSmallestGridSizeThres = 25f;
 
 	private float gridSize;
 
@@ -33,15 +28,17 @@ internal class ESTranslate : ESStateBase
 
 	private bool fixedToYPlane = true;
 
-	private bool lockY;
+	private TranslateMode translateMode;
 
 	private HashSet<int> woIds;
+
+	private bool moveWithAvatar;
 
 	private ILaserPointer laser;
 
 	public override void Enter(EditorStateMachine e)
 	{
-		if (MVGameController.EditorController.IsGridSnap())
+		if (MVGameControllerLegacyUI.EditorController.IsGridSnap())
 		{
 			gridSize = 1f;
 		}
@@ -49,11 +46,8 @@ internal class ESTranslate : ESStateBase
 		{
 			gridSize = 0.0625f;
 		}
-		lockY = false;
-		if (e.Data.ContainsKey("yOnlyTranslate"))
-		{
-			lockY = true;
-		}
+		translateMode = (TranslateMode)(int)e.Data["translateMode"];
+		moveWithAvatar = (bool)e.Data["moveWithAvatar"];
 		float hitDistance = 0f;
 		initialDistance = 0f;
 		if (GetInitialAvatarMoveObjectHitDistance(e, ref hitDistance))
@@ -74,12 +68,12 @@ internal class ESTranslate : ESStateBase
 			e.PopState();
 			return;
 		}
-		laser = MVGameController.WOCM.AvatarLocal.LaserPointer;
+		laser = MVGameControllerBase.WOCM.AvatarLocal.LaserPointer;
 		laser.ChangeState(LaserPointerState.Transforming);
 		laser.LaserActive = true;
 		foreach (int selectedID in e.SelectedIDs)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(selectedID);
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(selectedID);
 			targets.Add(worldObjectClient);
 			translateDatas.Add(new TranslateData(worldObjectClient, gridSize));
 		}
@@ -88,11 +82,11 @@ internal class ESTranslate : ESStateBase
 		woIds = new HashSet<int>();
 		foreach (TranslateData translateData in translateDatas)
 		{
-			MVGameController.WOCM.GetAllWoIds(translateData.wo.Id, woIds);
+			MVGameControllerBase.WOCM.GetAllWoIds(translateData.wo.Id, woIds);
 			SharedCubeFunctions.SetLayerRecursively(translateData.wo.Transform, select: true);
 		}
 		Cursor.visible = false;
-		originPrevFrame = MVGameController.WOCM.AvatarLocal.GameObject.transform.position;
+		originPrevFrame = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position;
 		UXUtils.UXInputDispatcher.BlockGUIInput = true;
 	}
 
@@ -110,11 +104,14 @@ internal class ESTranslate : ESStateBase
 			{
 				recalcLocalDirCamToObjects = true;
 			}
-			Vector3 vector = MVGameController.WOCM.AvatarLocal.GameObject.transform.position - originPrevFrame;
-			originPrevFrame = MVGameController.WOCM.AvatarLocal.GameObject.transform.position;
+			Vector3 vector = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position - originPrevFrame;
+			originPrevFrame = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position;
 			for (int i = 0; i < translateDatas.Count; i++)
 			{
-				translateDatas[i].ungridifiedPosition += vector;
+				if (moveWithAvatar)
+				{
+					translateDatas[i].ungridifiedPosition += vector;
+				}
 				if (MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelectAlt))
 				{
 					RotateWithCamera(e, i);
@@ -199,23 +196,12 @@ internal class ESTranslate : ESStateBase
 		UXUtils.UXInputDispatcher.BlockGUIInput = false;
 	}
 
-	private bool GetInitialCamMoveObjectHitDistance(EditorStateMachine e, ref float hitDistance)
-	{
-		VoxelHit hit = default;
-		if (MVGameController.WOCM.Pick(ref hit) && hit.woId != -1)
-		{
-			hitDistance = (hit.point - e.CameraController.transform.position).magnitude;
-			return true;
-		}
-		return false;
-	}
-
 	private bool GetInitialAvatarMoveObjectHitDistance(EditorStateMachine e, ref float hitDistance)
 	{
 		VoxelHit hit = default;
-		if (MVGameController.WOCM.Pick(ref hit) && hit.woId != -1 && e.SelectedIDs.Contains(hit.woId))
+		if (MVGameControllerLegacyUI.Pick(ref hit) && hit.woId != -1 && e.SelectedIDs.Contains(hit.woId))
 		{
-			hitDistance = (hit.point - MVGameController.WOCM.AvatarLocal.GameObject.transform.position).magnitude;
+			hitDistance = (hit.point - MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position).magnitude;
 			return true;
 		}
 		return false;
@@ -225,7 +211,7 @@ internal class ESTranslate : ESStateBase
 	{
 		float num = 0f;
 		int num2 = 0;
-		Vector3 position = MVGameController.WOCM.AvatarLocal.GameObject.transform.position;
+		Vector3 position = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position;
 		foreach (MVWorldObjectClient selectedWO in e.SelectedWOs)
 		{
 			num += (selectedWO.WorldPosition - position).magnitude;
@@ -254,11 +240,11 @@ internal class ESTranslate : ESStateBase
 			matrix4x = Matrix4x4.Inverse(matrix4x);
 			for (int i = 0; i < translateDatas.Count; i++)
 			{
-				translateDatas[i].localDirCamToObject = matrix4x.MultiplyVector((translateDatas[i].wo.WorldPosition - MVGameController.WOCM.AvatarLocal.GameObject.transform.position).normalized);
+				translateDatas[i].localDirCamToObject = matrix4x.MultiplyVector((translateDatas[i].wo.WorldPosition - MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position).normalized);
 			}
 			recalcLocalDirCamToObjects = false;
 		}
-		float magnitude = (translateDatas[targetIndex].wo.WorldPosition - MVGameController.WOCM.AvatarLocal.GameObject.transform.position).magnitude;
+		float magnitude = (translateDatas[targetIndex].wo.WorldPosition - MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position).magnitude;
 		Matrix4x4 matrix4x2 = default;
 		if (!fixedToYPlane)
 		{
@@ -273,7 +259,7 @@ internal class ESTranslate : ESStateBase
 			matrix4x2 = Matrix4x4.TRS(Vector3.zero, identity2, Vector3.one);
 		}
 		Vector3 vector = matrix4x2.MultiplyVector(translateDatas[targetIndex].localDirCamToObject);
-		translateDatas[targetIndex].ungridifiedPosition = MVGameController.WOCM.AvatarLocal.GameObject.transform.position + vector * magnitude;
+		translateDatas[targetIndex].ungridifiedPosition = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position + vector * magnitude;
 	}
 
 	private Vector3 GetDeltaMouse(EditorStateMachine e)
@@ -283,7 +269,12 @@ internal class ESTranslate : ESStateBase
 		v.Normalize();
 		float y = MathFunctions.SignedAngle(Vector3.forward, v, Vector3.up) * 57.29578f;
 		Quaternion quaternion = Quaternion.Euler(0f, y, 0f);
-		Vector3 vector = ((!lockY) ? new Vector3(MVInputWrapper.GetAxisRaw("Mouse X") * initialDistance * 0.05f, 0f, MVInputWrapper.GetAxisRaw("Mouse Y") * initialDistance * 0.05f) : new Vector3(0f, MVInputWrapper.GetAxisRaw("Mouse Y") * initialDistance * 0.05f, 0f));
-		return quaternion * vector;
+		return quaternion * translateMode switch
+		{
+			TranslateMode.Y => new Vector3(0f, MVInputWrapper.GetAxisRaw("Mouse Y") * initialDistance * 0.05f, 0f), 
+			TranslateMode.XZ => new Vector3(MVInputWrapper.GetAxisRaw("Mouse X") * initialDistance * 0.05f, 0f, MVInputWrapper.GetAxisRaw("Mouse Y") * initialDistance * 0.05f), 
+			TranslateMode.XY => new Vector3(MVInputWrapper.GetAxisRaw("Mouse X") * initialDistance * 0.05f, MVInputWrapper.GetAxisRaw("Mouse Y") * initialDistance * 0.05f, 0f), 
+			_ => throw new Exception("Failed to set translate mode"), 
+		};
 	}
 }

@@ -37,24 +37,24 @@ public class MVTriggerBox : MVLogicObject
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		MVGameController.Game.TriggerBoxEnter(Id, e.instigatorWOID);
+		MVGameControllerBase.Game.TriggerBoxEnter(Id, e.instigatorWOID);
 	}
 
 	private void triggerBoxEvents_TriggerExit(object sender, TriggerEventArgs e)
 	{
-		MVGameController.Game.TriggerBoxExit(Id, e.instigatorWOID);
+		MVGameControllerBase.Game.TriggerBoxExit(Id, e.instigatorWOID);
 	}
 
 	public void OnEnter(MVPlayer player)
 	{
-		if (player != MVGameController.Game.LocalPlayer)
+		if (player != MVGameControllerBase.Game.LocalPlayer)
 		{
 		}
 	}
 
 	public void OnExit(MVPlayer player)
 	{
-		if (player != MVGameController.Game.LocalPlayer)
+		if (player != MVGameControllerBase.Game.LocalPlayer)
 		{
 		}
 	}

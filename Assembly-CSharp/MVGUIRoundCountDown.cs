@@ -8,9 +8,9 @@ public class MVGUIRoundCountDown : MonoBehaviour
 
 	private void Update()
 	{
-		if (MVGameController.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.PrepareRound)
+		if (MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.PrepareRound)
 		{
-			timeCounter.Text = (Mathf.Ceil(MVGameController.Game.NetworkGameStateListener.TimeLeftMS / 1000) + 1f).ToString();
+			timeCounter.Text = (Mathf.Ceil(MVGameControllerBase.Game.NetworkGameStateListener.TimeLeftMS / 1000) + 1f).ToString();
 		}
 	}
 }

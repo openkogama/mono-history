@@ -35,7 +35,7 @@ public class MVSentryGunBlueprint : MVBlueprintBase
 		if (dictionary2 == null)
 		{
 			Debug.LogWarning("MVSentryGunBlueprint does not have any children. Removing it");
-			MVGameController.WOCM.UnregisterWorldObject(id);
+			MVGameControllerBase.WOCM.UnregisterWorldObject(id);
 			return;
 		}
 		editableCubes = (MVCubeModelBase)GetChild("editableCubeModel");
@@ -70,7 +70,7 @@ public class MVSentryGunBlueprint : MVBlueprintBase
 
 	public override bool OnEnterObject(EditorStateMachine e)
 	{
-		MVGameController.Game.CameraController.CurCamera.FocusOnObject(this);
+		MVGameControllerBase.CameraController.CurCamera.FocusOnObject(this);
 		e.SelectWO(EditableCubesWO.Id, addToSelection: false);
 		e.Event = EditorEvent.EditCubes;
 		return true;

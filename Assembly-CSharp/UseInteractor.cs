@@ -32,7 +32,7 @@ public class UseInteractor
 
 	private UseInteractorHandler GetUseInteractorHandler(int woID)
 	{
-		return MVGameController.WOCM.GetWorldObjectClient(woID)?.GameObject.GetComponent<UseInteractorHandler>();
+		return MVGameControllerBase.WOCM.GetWorldObjectClient(woID)?.GameObject.GetComponent<UseInteractorHandler>();
 	}
 
 	public void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)

@@ -43,7 +43,7 @@ public class TeleportAvatar : MonoBehaviour
 			rigidBody.IsMovementLocked = true;
 			rigidBody.Reset();
 		}
-		MVGameController.AudioManager.Play("Teleport avatar", leaveClip, avatar.WorldPosition, 0.4f, SoundRangeDistance.Short);
+		MVGameControllerBase.AudioManager.Play("Teleport avatar", leaveClip, avatar.WorldPosition, 0.4f, SoundRangeDistance.Short);
 		yield return StartCoroutine(DoForSeconds(teleportTime, (float t) =>
 		{
 			avatar.SetTransparency = 1f - BlockStep(t, 10f);
@@ -52,7 +52,7 @@ public class TeleportAvatar : MonoBehaviour
 		avatar.SyncPos = targetPosition;
 		transform.position = targetPosition;
 		rigidBody.Reset();
-		MVGameController.AudioManager.Play("Teleport avatar", arriveClip, avatar.WorldPosition, 0.4f, SoundRangeDistance.Short);
+		MVGameControllerBase.AudioManager.Play("Teleport avatar", arriveClip, avatar.WorldPosition, 0.4f, SoundRangeDistance.Short);
 		yield return StartCoroutine(DoForSeconds(teleportTime, (float t) =>
 		{
 			avatar.SetTransparency = BlockStep(t, 10f);

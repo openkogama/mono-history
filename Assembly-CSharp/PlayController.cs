@@ -36,6 +36,12 @@ public class PlayController : PlayControllerBase
 		avatarAccessoryController.CloseAvatarAccessoryView();
 	}
 
+	protected override void Show()
+	{
+		base.Show();
+		avatarAccessoryController.AvatarAccessoryButtons.View.Show();
+	}
+
 	protected override void ShowLostFocusGUI()
 	{
 		base.ShowLostFocusGUI();

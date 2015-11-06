@@ -13,19 +13,19 @@ public abstract class MVPickupOwner : MVComponent
 
 	private const float _updateLineOfFireInterval = 0.5f;
 
-	public OnEquipItemDelegate onEquipItem;
-
-	public OnUnequipItemDelegate onUnequipItem;
-
-	public OnHandleFiringDelegate onHandleFiring;
-
-	protected PickupItem currentItem;
-
 	private Vector3 lookOrigin = Vector3.one;
 
 	private Vector3 lookDirection = Vector3.one;
 
 	private float prevUpdateLineOfFireTime = Time.time;
+
+	protected PickupItem currentItem;
+
+	public OnEquipItemDelegate onEquipItem;
+
+	public OnUnequipItemDelegate onUnequipItem;
+
+	public OnHandleFiringDelegate onHandleFiring;
 
 	public PickupItem CurrentItem => currentItem;
 
@@ -51,10 +51,52 @@ public abstract class MVPickupOwner : MVComponent
 
 	public virtual HashSet<int> IgnoreWOIDs => worldObjectParent.WorldIDsRecursive;
 
+	protected abstract void Equip(AvatarItemType type, int variantId);
+
+	protected abstract void Unequip();
+
 	public float GetAbsolutProjectileSpeed(float projectileSpeed)
 	{
 		float magnitude = (lookDirection - lookDirection.normalized).magnitude;
 		return projectileSpeed + magnitude;
+	}
+
+	public void HandleFire(bool inputFire, MVRuntimeDataVariable isFiringRuntimeVariable)
+	{
+		SetLineOfFireLocal();
+		bool flag = (bool)CurrentItem && CurrentItem.CanFire() && inputFire;
+		if ((bool)isFiringRuntimeVariable.Value != flag)
+		{
+			isFiringRuntimeVariable.Value = flag;
+		}
+		if (flag && Time.time - prevUpdateLineOfFireTime > 0.5f)
+		{
+			MVGameControllerBase.Game.UpdateLineOfFire(worldObjectParent.Id, lookDirection, lookOrigin);
+			prevUpdateLineOfFireTime = Time.time;
+		}
+	}
+
+	public void SetLineOfFire(Vector3 lookOrigin, Vector3 lookDirection)
+	{
+		this.lookOrigin = lookOrigin;
+		this.lookDirection = lookDirection;
+		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer && CurrentItem != null)
+		{
+			CurrentItem.UpdateWithDirection(lookDirection);
+		}
+	}
+
+	protected void Init(MVRuntimeDataVariable currentItemRuntimeVariable, MVRuntimeDataVariable isFiringRuntimeVariable)
+	{
+		currentItemRuntimeVariable.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(currentItemRuntimeVariable.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object item) =>
+		{
+			UpdateCurrentItem((Dictionary<object, object>)item);
+		}));
+		UpdateCurrentItem((Dictionary<object, object>)currentItemRuntimeVariable.Value);
+		isFiringRuntimeVariable.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(isFiringRuntimeVariable.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object value) =>
+		{
+			HandleFiring((bool)value);
+		}));
 	}
 
 	private Vector3 GetLookDirectionWithAddedVelocityMagnitude(Vector3 lookDirection)
@@ -72,51 +114,23 @@ public abstract class MVPickupOwner : MVComponent
 		return enabledMonoBehaviourHighestInHierarchy.Velocity.magnitude * num * lookDirection + lookDirection;
 	}
 
-	protected abstract void Equip(AvatarItemType type, int variantId);
-
-	protected abstract void Unequip();
-
-	protected void Init(MVRuntimeDataVariable currentItemRuntimeVariable, MVRuntimeDataVariable isFiringRuntimeVariable)
-	{
-		currentItemRuntimeVariable.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(currentItemRuntimeVariable.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object item) =>
-		{
-			UpdateCurrentItem((Dictionary<object, object>)item);
-		}));
-		UpdateCurrentItem((Dictionary<object, object>)currentItemRuntimeVariable.Value);
-		isFiringRuntimeVariable.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(isFiringRuntimeVariable.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object value) =>
-		{
-			HandleFiring((bool)value);
-		}));
-	}
-
-	public void HandleFire(bool inputFire, MVRuntimeDataVariable isFiringRuntimeVariable)
-	{
-		SetLineOfFireLocal();
-		bool flag = (bool)CurrentItem && CurrentItem.CanFire() && inputFire;
-		if ((bool)isFiringRuntimeVariable.Value != flag)
-		{
-			isFiringRuntimeVariable.Value = flag;
-		}
-		if (flag && Time.time - prevUpdateLineOfFireTime > 0.5f)
-		{
-			MVGameController.Game.UpdateLineOfFire(worldObjectParent.Id, lookDirection, lookOrigin);
-			prevUpdateLineOfFireTime = Time.time;
-		}
-	}
-
 	private void SetLineOfFireLocal()
 	{
-		MVCameraBase curCamera = MVGameController.Game.CameraController.CurCamera;
-		Vector3 fireDirection = curCamera.FireDirection;
-		Vector3 fireOrigin = curCamera.FireOrigin;
-		fireDirection = GetLookDirectionWithAddedVelocityMagnitude(fireDirection);
-		SetLineOfFire(fireOrigin, fireDirection);
-	}
-
-	public void SetLineOfFire(Vector3 lookOrigin, Vector3 lookDirection)
-	{
-		this.lookOrigin = lookOrigin;
-		this.lookDirection = lookDirection;
+		Vector3 origin;
+		Vector3 vector;
+		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
+		{
+			origin = MVGameControllerBase.WOCM.AvatarLocal.LookAtPos;
+			MVGameControllerBase.IPlayModeUI.GetCrossHair().Origin = origin;
+			vector = MVGameControllerBase.IPlayModeUI.GetCrossHair().Direction;
+		}
+		else
+		{
+			vector = MVGameControllerBase.CameraController.FireDirection;
+			origin = MVGameControllerBase.CameraController.FireOrigin;
+		}
+		vector = GetLookDirectionWithAddedVelocityMagnitude(vector.normalized);
+		SetLineOfFire(origin, vector);
 	}
 
 	private void UpdateCurrentItem(Dictionary<object, object> newState)

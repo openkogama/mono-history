@@ -29,12 +29,11 @@ public class AvatarAccessoryCamera : MVCameraBase
 
 	public override void Enter(MVCameraController camController)
 	{
-		base.Enter(camController);
 		angle = (float)Math.PI;
 		lookAtOffset = 2f * Vector3.up;
 	}
 
-	public override void HandleInput(MVCameraController cameraController)
+	public void HandleInput(MVCameraController cameraController)
 	{
 		angleVelocity = 0f;
 		if (MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelectAlt))
@@ -54,12 +53,13 @@ public class AvatarAccessoryCamera : MVCameraBase
 
 	public override void UpdateCamera(MVCameraController camController, Transform targetTransform)
 	{
+		HandleInput(camController);
 		angle += angleVelocity * Time.deltaTime;
 		angle %= (float)Math.PI * 2f;
 		Vector2 vector = new Vector2(Mathf.Sin(angle), Mathf.Cos(angle)).normalized * rotationRadius;
 		Vector3 position = avatarBodyCenter + new Vector3(vector.x, 0f, vector.y) - lookAtOffset;
-		MVGameController.WOCM.AvatarLocal.GameObject.transform.position = position;
-		transform.position = MVGameController.WOCM.AvatarLocal.GameObject.transform.position + lookAtOffset;
+		MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position = position;
+		transform.position = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position + lookAtOffset;
 		Vector2 vector2 = new Vector2(Mathf.Sin(angle + cameraLookAtAngleOffset), Mathf.Cos(angle + cameraLookAtAngleOffset)).normalized * rotationRadius;
 		transform.LookAt(new Vector3(vector2.x, 0f, vector2.y) + avatarBodyCenter);
 		base.UpdateCamera(camController, targetTransform);

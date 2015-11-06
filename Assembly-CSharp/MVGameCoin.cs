@@ -52,30 +52,30 @@ public class MVGameCoin : MVLogicObject
 			Debug.LogError("A TriggerBoxEvents object is missing in PickupItem type: " + GetType().Name);
 		}
 		SetVisible();
-		MVGameController.Game.GameCoinManager.ReportPickupChangeInEditor();
+		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
 	}
 
 	public override MVWorldObjectClient Clone(int ownerActorNumber, int cloneGroupId, CloneBookkeeping cloneBookkeeping, Dictionary<int, MVWorldObjectClient> worldObjects, Dictionary<int, RuntimePrototypeCubeModel> prototypes)
 	{
-		MVGameController.Game.GameCoinManager.ReportPickupChangeInEditor();
+		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
 		return base.Clone(ownerActorNumber, cloneGroupId, cloneBookkeeping, worldObjects, prototypes);
 	}
 
 	public override MVWorldObject DeepCopy()
 	{
-		MVGameController.Game.GameCoinManager.ReportPickupChangeInEditor();
+		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
 		return base.DeepCopy();
 	}
 
 	public override void Initialize()
 	{
-		MVGameController.Game.GameCoinManager.ReportPickupChangeInEditor();
+		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
 		base.Initialize();
 	}
 
 	public override void Destroy()
 	{
-		MVGameController.Game.GameCoinManager.ReportPickupChangeInEditor();
+		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
 		base.Destroy();
 	}
 
@@ -91,7 +91,7 @@ public class MVGameCoin : MVLogicObject
 
 	public virtual void OnPickup(int actorNr)
 	{
-		if (actorNr == MVGameController.Game.LocalPlayer.ActorNr && state == GameCoinClientState.Visible)
+		if (actorNr == MVGameControllerBase.Game.LocalPlayer.ActorNr && state == GameCoinClientState.Visible)
 		{
 			Debug.Log("GameCoin OnPickup");
 			isVisible = false;
@@ -103,7 +103,7 @@ public class MVGameCoin : MVLogicObject
 				gameObject.GetComponent<AudioSource>().Play();
 			}
 			particles.Play();
-			MVGameController.Game.GameCoinManager.GameCoinCollect();
+			MVGameControllerBase.Game.GameCoinManager.GameCoinCollect();
 		}
 	}
 
@@ -139,7 +139,7 @@ public class MVGameCoin : MVLogicObject
 	{
 		if (state == GameCoinClientState.Visible)
 		{
-			OnPickup(MVGameController.WOCM.GetWorldObjectClient(e.instigatorWOID).OwnerActorNr);
+			OnPickup(MVGameControllerBase.WOCM.GetWorldObjectClient(e.instigatorWOID).OwnerActorNr);
 		}
 	}
 }

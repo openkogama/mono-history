@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityStandardAssets.CrossPlatformInput;
 
 internal static class MVInputWrapper
 {
@@ -18,9 +19,14 @@ internal static class MVInputWrapper
 
 	private static DateTime latestMouseMoveTime = DateTime.Now;
 
-	private static IKogamaInputMap inputMap;
+	private static IKogamaInputMap inputMap = null;
 
 	public static DateTime LatestMouseMoveTime => latestMouseMoveTime;
+
+	public static void SetInputMap(IKogamaInputMap inputMap)
+	{
+		MVInputWrapper.inputMap = inputMap;
+	}
 
 	public static void Update()
 	{
@@ -38,30 +44,26 @@ internal static class MVInputWrapper
 
 	public static bool GetBooleanControl(KogamaControls control, bool forceKeyUse = false, int index = -1)
 	{
-		return GetBooleanControl(control, Input.GetKey, forceKeyUse, index);
+		return GetBooleanControl(control, KeyState.Pressed, forceKeyUse, index);
 	}
 
 	public static bool GetBooleanControlDown(KogamaControls control, bool forceKeyUse = false, int index = -1)
 	{
-		return GetBooleanControl(control, Input.GetKeyDown, forceKeyUse, index);
+		return GetBooleanControl(control, KeyState.Down, forceKeyUse, index);
 	}
 
 	public static bool GetBooleanControlUp(KogamaControls control, bool forceKeyUse = false, int index = -1)
 	{
-		return GetBooleanControl(control, Input.GetKeyUp, forceKeyUse, index);
+		return GetBooleanControl(control, KeyState.Up, forceKeyUse, index);
 	}
 
-	private static bool GetBooleanControl(KogamaControls control, Func<KeyCode, bool> inputFun, bool forceKeyUse, int index = -1)
+	private static bool GetBooleanControl(KogamaControls control, KeyState keyState, bool forceKeyUse, int index = -1)
 	{
 		if (!forceKeyUse && ignoreAllKeys && control != KogamaControls.PointerSelect && control != KogamaControls.PointerSelectAlt)
 		{
 			return false;
 		}
-		if (inputMap == null)
-		{
-			inputMap = new LocalizedKeyboardMapping();
-		}
-		return inputMap.GetBooleanControl(control, inputFun, index);
+		return inputMap.GetBooleanControl(control, keyState, index);
 	}
 
 	public static bool InputCharActive(KeyCode key)
@@ -120,7 +122,7 @@ internal static class MVInputWrapper
 		{
 			return 0f;
 		}
-		return Input.GetAxis(axis);
+		return CrossPlatformInputManager.GetAxis(axis);
 	}
 
 	public static float GetAxisRaw(string axis)
@@ -129,6 +131,6 @@ internal static class MVInputWrapper
 		{
 			return 0f;
 		}
-		return Input.GetAxisRaw(axis);
+		return CrossPlatformInputManager.GetAxisRaw(axis);
 	}
 }

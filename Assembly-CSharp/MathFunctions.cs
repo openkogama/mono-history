@@ -650,11 +650,17 @@ public static class MathFunctions
 		{
 			return false;
 		}
-		intersection.x = lineStart.x + num * (lineEnd.x - lineStart.x);
-		intersection.y = lineStart.y + num * (lineEnd.y - lineStart.y);
-		intersection.z = lineStart.z + num * (lineEnd.z - lineStart.z);
+		intersection = lineStart + num * (lineEnd - lineStart);
 		distance = (point - intersection).magnitude;
 		return true;
+	}
+
+	public static void DistancePointLine(Vector3 point, Vector3 lineStart, Vector3 lineEnd, out float distance, out Vector3 intersection, out float u)
+	{
+		float magnitude = (lineEnd - lineStart).magnitude;
+		u = ((point.x - lineStart.x) * (lineEnd.x - lineStart.x) + (point.y - lineStart.y) * (lineEnd.y - lineStart.y) + (point.z - lineStart.z) * (lineEnd.z - lineStart.z)) / (magnitude * magnitude);
+		intersection = lineStart + u * (lineEnd - lineStart);
+		distance = (point - intersection).magnitude;
 	}
 
 	public static Vector3 GetNormal(Vector3 pa, Vector3 pb, Vector3 pc)

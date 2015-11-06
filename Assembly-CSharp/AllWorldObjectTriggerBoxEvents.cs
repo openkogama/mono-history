@@ -10,7 +10,7 @@ public class AllWorldObjectTriggerBoxEvents : MonoBehaviour
 
 	private void OnTriggerEnter(Collider other)
 	{
-		if (MVGameController.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.Round)
+		if (MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.Round)
 		{
 			MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(other.gameObject.transform);
 			if (mVObject != null && TriggerEnter != null)

@@ -10,13 +10,9 @@ internal class ESCubeEdit : ESStateBase
 
 	private MVCubeModelBase targetCubeModel;
 
-	private JetPackMode jetPackMode;
-
 	private MVGUIEditModel guiEditModel;
 
 	private bool exitButtonWasPressed;
-
-	private MVWorldObjectClientManager WOCM => MVGameController.WOCM;
 
 	public override void Enter(EditorStateMachine e)
 	{
@@ -55,20 +51,14 @@ internal class ESCubeEdit : ESStateBase
 		}
 		if (!e.ParentGroupIsRoot)
 		{
-			SharedCubeFunctions.SetLayerRecursively(MVGameController.WOCM.GetWorldObjectClient(e.ParentGroupID).Transform, select: false);
+			SharedCubeFunctions.SetLayerRecursively(MVGameControllerBase.WOCM.GetWorldObjectClient(e.ParentGroupID).Transform, select: false);
 		}
 		SharedCubeFunctions.SetLayerRecursively(targetCubeModel.Transform, select: true);
-		e.CameraController.GetComponent<GrayscaleEffect>().enabled = true;
-		e.CameraController.SecondaryCameraActive = true;
-		MVGameController.EditorController.CubeModelingController.DrawPlaneToModel(targetCubeModel.GameObject);
-		if (jetPackMode == null)
-		{
-			jetPackMode = WOCM.AvatarLocal.AvatarModes.JetPackMode;
-		}
-		jetPackMode.YMovementSpeedScale = Mathf.Min(1f, 2f * targetCubeModel.Scale.x);
-		jetPackMode.XZMovementSpeedScale = Mathf.Min(1f, 2f * targetCubeModel.Scale.x);
+		((ICubeModelingEditMode)MVGameControllerLegacyUI.IngameController).DrawPlaneController.DrawPlaneToModel(targetCubeModel.GameObject);
 		e.CubeModelingStateMachine.StartEdit(targetCubeModel, constraint);
-		MVGameController.EditorController.EnterCubeModelEdit();
+		MVGameControllerLegacyUI.EditorController.EnterCubeModelEdit(targetCubeModel.Scale.x);
+		MVGameControllerBase.CameraController.CurCamera.FocusOnObject(targetCubeModel);
+		e.CameraController.BlueModeEnabled = true;
 	}
 
 	public override void Execute(EditorStateMachine e)
@@ -109,21 +99,19 @@ internal class ESCubeEdit : ESStateBase
 		Debug.Log("ESCubeEdit exit");
 		if (targetCubeModel.GameObject == null)
 		{
-			MVGameController.EditController.CubeModelingController.CreateDrawPlane();
-			e.CameraController.GetComponent<GrayscaleEffect>().enabled = false;
-			e.CameraController.SecondaryCameraActive = false;
+			((ICubeModelingEditMode)MVGameControllerLegacyUI.IngameController).DrawPlaneController.CreateDrawPlane();
+			e.CameraController.BlueModeEnabled = false;
 		}
 		else
 		{
-			MVGameController.EditController.CubeModelingController.ReturnDrawPlaneToLandscape();
 			if (targetCubeModel.HasInteractionFlag(InteractionFlags.IsPreview))
 			{
 				targetCubeModel.AddPreviewBox();
 			}
 			SharedCubeFunctions.SetLayerRecursively(targetCubeModel.Transform, select: false);
-			e.CameraController.GetComponent<GrayscaleEffect>().enabled = false;
-			e.CameraController.SecondaryCameraActive = false;
+			e.CameraController.BlueModeEnabled = false;
 		}
+		((ICubeModelingEditMode)MVGameControllerLegacyUI.IngameController).DrawPlaneController.ReturnDrawPlaneToLandscape();
 		if (constraintVisualizer != null)
 		{
 			UnityEngine.Object.Destroy(constraintVisualizer.gameObject);
@@ -135,21 +123,20 @@ internal class ESCubeEdit : ESStateBase
 		constraint = null;
 		guiEditModel.View.Hide();
 		guiEditModel.exitButton.OnClick = null;
-		MVGameController.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.Idle);
+		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.Idle);
 		if (e.SelectedIDs.Count == 0)
 		{
 			DeTintCurrent();
 		}
-		jetPackMode.YMovementSpeedScale = 1f;
-		jetPackMode.XZMovementSpeedScale = 1f;
+		((MVAvatarLocal.JetPackMode)MVGameControllerBase.WOCM.AvatarLocal.CurrentMode).ModifySpeed(1f, 1f);
 		e.CubeModelingStateMachine.RemoveCursors();
 		e.CubeModelingStateMachine.EndEdit();
-		MVGameController.EditorController.LeaveCubeModelEdit();
+		MVGameControllerLegacyUI.EditorController.LeaveCubeModelEdit();
 	}
 
 	private void HandleUnavailableMaterial(EditorStateMachine e)
 	{
-		MVMaterial material = MVGameController.Game.MaterialRepository.GetMaterial(e.CubeModelingStateMachine.CurrentMaterialId);
+		MVMaterial material = MVGameControllerBase.Game.MaterialRepository.GetMaterial(e.CubeModelingStateMachine.CurrentMaterialId);
 		if (!material.IsAvailable)
 		{
 			Debug.LogWarning("Handle if default material is not available!");

@@ -25,7 +25,7 @@ public class MVGUIAvatarSlotButton : MonoBehaviour
 
 	private bool _scaleButton;
 
-	private CharacterEditorController CEController => MVGameController.CharacterEditorController;
+	private CharacterEditorController CEController => MVGameControllerLegacyUI.CharacterEditorController;
 
 	private List<MVBody> AvatarBodies => AvatarSelectionAnimator.Instance.Bodies;
 

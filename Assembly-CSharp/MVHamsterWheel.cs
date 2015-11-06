@@ -21,7 +21,7 @@ public class MVHamsterWheel(Dictionary<object, object> data, Dictionary<int, MVW
 			(Owner as MVHamsterWheel).IsMovingBackwards.Value = false;
 		}
 
-		public override MovementMap FixedUpdate(MovementMap movementMap)
+		public override IInputToPlayerMovement FixedUpdate(IInputToPlayerMovement movementMap)
 		{
 			HamsterWheelMotor hamsterWheelMotor = vehicleMotor as HamsterWheelMotor;
 			MVHamsterWheel mVHamsterWheel = Owner as MVHamsterWheel;
@@ -135,12 +135,12 @@ public class MVHamsterWheel(Dictionary<object, object> data, Dictionary<int, MVW
 		smoothCharacterController.Controller.IgnoreWoIds = WorldIDsRecursive;
 		HamsterWheelMotor hamsterWheelMotor = gameObject.AddComponent<HamsterWheelMotor>();
 		MVCameraBase camera = seatManager.seats[seatID].Camera;
-		if (!(camera is VehicleCamera))
+		if (!(camera is IVehicleCamera))
 		{
 			Debug.LogError("Expected camera type is VehicleCamera.");
 			return null;
 		}
-		hamsterWheelMotor.VehicleCamera = (VehicleCamera)camera;
+		hamsterWheelMotor.VehicleCamera = (IVehicleCamera)camera;
 		return new LocalObjectsHamsterWheel(this, smoothCharacterController, hamsterWheelMotor);
 	}
 }

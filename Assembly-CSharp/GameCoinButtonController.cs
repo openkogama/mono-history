@@ -21,21 +21,21 @@ public class GameCoinButtonController : UXViewScript
 		{
 			CreatePurchaseDialog();
 		};
-		MVGameCoinManager gameCoinManager = MVGameController.Game.GameCoinManager;
+		MVGameCoinManager gameCoinManager = MVGameControllerBase.Game.GameCoinManager;
 		gameCoinManager.BoostStateChanged = (Action<int, bool>)Delegate.Combine(gameCoinManager.BoostStateChanged, new Action<int, bool>(OnBoostingChanged));
 	}
 
 	public override void OnShow()
 	{
 		base.OnShow();
-		OnBoostingChanged(MVGameController.Game.GameCoinManager.BoostLeft, MVGameController.Game.GameCoinManager.BoostEnabled);
+		OnBoostingChanged(MVGameControllerBase.Game.GameCoinManager.BoostLeft, MVGameControllerBase.Game.GameCoinManager.BoostEnabled);
 	}
 
 	private void Update()
 	{
 		if (boostLeftText.Visible)
 		{
-			TimeSpan timeSpan = new TimeSpan(0, 0, 0, 0, MVGameController.Game.GameCoinManager.BoostLeft);
+			TimeSpan timeSpan = new TimeSpan(0, 0, 0, 0, MVGameControllerBase.Game.GameCoinManager.BoostLeft);
 			string text = $"{timeSpan.Minutes:00}:{timeSpan.Seconds:00}";
 			boostLeftText.Text = text;
 		}
@@ -43,14 +43,14 @@ public class GameCoinButtonController : UXViewScript
 
 	private void HandleOnToggle(bool boost)
 	{
-		if (!MVGameController.Game.GameCoinManager.Active && boost)
+		if (!MVGameControllerBase.Game.GameCoinManager.Active && boost)
 		{
 			startStopBoostButton.SetToggleState(toggle: false);
 			UXUtils.UXDialogFactory.BuildDialog("To use game coin boost go to a game where game coins are used", "No game coins", UXDialogType.Simple, noButtons: true, stackDialog: true).Show();
 		}
 		else
 		{
-			MVGameController.Game.SetGameCoinBoostState(boost);
+			MVGameControllerBase.Game.SetGameCoinBoostState(boost);
 		}
 	}
 
@@ -61,7 +61,7 @@ public class GameCoinButtonController : UXViewScript
 		mVGUIGameCoinBoostShopDialog.OnTryPurchaseProduct = () =>
 		{
 			Debug.Log("Trying to purchase");
-			MVGameController.Game.PurchaseGameCoinBooster();
+			MVGameControllerBase.Game.PurchaseGameCoinBooster();
 		};
 	}
 
@@ -95,7 +95,7 @@ public class GameCoinButtonController : UXViewScript
 		{
 			Dictionary<object, object> dictionary = (Dictionary<object, object>)dialogBox.GetResult();
 			int boostLeft = (int)dictionary[(byte)180];
-			MVGameController.Game.GameCoinManager.OnGameBoostChanged(boostLeft, boostEnabled: false);
+			MVGameControllerBase.Game.GameCoinManager.OnGameBoostChanged(boostLeft, boostEnabled: false);
 		}
 	}
 }

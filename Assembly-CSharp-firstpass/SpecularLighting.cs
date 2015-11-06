@@ -1,7 +1,7 @@
 using UnityEngine;
 
-[RequireComponent(typeof(WaterBase))]
 [ExecuteInEditMode]
+[RequireComponent(typeof(WaterBase))]
 public class SpecularLighting : MonoBehaviour
 {
 	public Transform specularLight;

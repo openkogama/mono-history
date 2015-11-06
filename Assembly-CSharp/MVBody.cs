@@ -83,7 +83,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 
 	private Vector3 modelScale = Vector3.zero;
 
-	private MVNetworkGame Game => MVGameController.Game;
+	private MVNetworkGame Game => MVGameControllerBase.Game;
 
 	public BoneAnimation Animation => animation;
 
@@ -321,7 +321,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 			Debug.Log("Attached accessory");
 			acc.Transform.SetLayerRecursively(gameObject.layer);
 			acc.Visible = Visible;
-			bool flag = MVGameController.GameMode != MVGameMode.CharacterEditor || attachedAvatar == null;
+			bool flag = MVGameControllerBase.GameMode != MVGameMode.CharacterEditor || attachedAvatar == null;
 			ProductInventoryInfo productInventoryInfo = Game.StreamingAssetInventory.Get(acc.InventoryID);
 			if (flag && productInventoryInfo != null)
 			{
@@ -729,7 +729,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		{
 			return true;
 		}
-		if (MVGameController.GameMode != MVGameMode.CharacterEditor)
+		if (MVGameControllerBase.GameMode != MVGameMode.CharacterEditor)
 		{
 			return false;
 		}

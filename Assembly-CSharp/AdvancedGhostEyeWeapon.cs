@@ -13,7 +13,7 @@ public class AdvancedGhostEyeWeapon : AdvancedGhostTriggerBase
 		timeoutMap.Update();
 		foreach (int attackTarget in attackTargets)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(attackTarget);
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(attackTarget);
 			if (worldObjectClient == null || timeoutMap.Contains(worldObjectClient.Id))
 			{
 				continue;

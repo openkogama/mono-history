@@ -21,10 +21,10 @@ public abstract class AIngameController
 		chatController = new ChatController();
 		ResolveGUIElements();
 		UXUtils.FindGUIObjectOfType<MVGUIAvatarAccessoryExpirationHandler>().enabled = true;
-		MVGameController.Game.CameraController.Init();
-		if (!MVGameController.Game.IsTouristSession)
+		MVGameControllerBase.CameraController.Init();
+		if (!MVGameControllerBase.IsTouristSession)
 		{
-			MVGameController.TimeReward.Init();
+			MVGameControllerBase.TimeReward.Init();
 		}
 		IsInitialized = true;
 	}
@@ -59,7 +59,7 @@ public abstract class AIngameController
 		}
 		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.TogglePlayerParticles))
 		{
-			MVBody body = MVGameController.WOCM.AvatarLocal.Body;
+			MVBody body = MVGameControllerBase.WOCM.AvatarLocal.Body;
 			body.AccessoryParticlesVisible = !body.AccessoryParticlesVisible;
 		}
 	}
@@ -83,16 +83,9 @@ public abstract class AIngameController
 		uXScreen.Fullscreen = !uXScreen.Fullscreen;
 	}
 
-	public virtual void RespawnAvatar()
+	public void RespawnAvatar()
 	{
-		if (MVGameController.Game.IsPlaying)
-		{
-			MVGameController.WOCM.AvatarLocal.Suicide();
-		}
-		else
-		{
-			MVGameController.WOCM.AvatarLocal.Respawn(toHiddenState: false);
-		}
+		MVGameControllerBase.WOCM.AvatarLocal.Respawn();
 	}
 
 	public void ShowSingleWindow(UXView view)

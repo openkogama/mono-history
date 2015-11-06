@@ -19,14 +19,14 @@ public class SessionLocatorPing : IUpdatecontrollerSubscriber
 		if (waitForTicks.TimeIsUp && !pingSend)
 		{
 			pingSend = true;
-			AsyncWWWManager.WWWRequest(new GetRequest(MVGameController.GameSessionData.pingURL, WWWCallBack));
+			AsyncWWWManager.WWWRequest(new GetRequest(MVGameControllerBase.GameSessionData.pingURL, WWWCallBack));
 		}
 	}
 
 	public static void LeaveSession()
 	{
 		Debug.Log("LeaveSession");
-		AsyncWWWManager.WWWRequest(new GetRequest(MVGameController.GameSessionData.disconnectURL, null));
+		AsyncWWWManager.WWWRequest(new GetRequest(MVGameControllerBase.GameSessionData.disconnectURL, null));
 	}
 
 	private void WWWCallBack(WWW result)
@@ -54,7 +54,7 @@ public class SessionLocatorPing : IUpdatecontrollerSubscriber
 			Debug.LogError("Error in session locator error callback " + ex.Message);
 		}
 		Debug.Log("Quiting from session locator error callback");
-		MVGameController.ApplicationQuit(new QuitConnectionError());
+		MVGameControllerBase.ApplicationQuit(new QuitConnectionError());
 	}
 
 	public void UpdateControllerFixedUpdate()

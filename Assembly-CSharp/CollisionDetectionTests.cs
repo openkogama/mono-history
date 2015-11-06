@@ -90,7 +90,7 @@ public static class CollisionDetectionTests
 		localToWorldMatrix = sphere.transform.localToWorldMatrix;
 		if (MVSweptElipsoidCheck.MVElipsoidCast(ray, vector, sphere.transform.rotation, distance, out voxelHit))
 		{
-			MVGameController.GizmoDrawer.AddSphere(ray.origin + ray.direction * voxelHit.distance, num, Color.blue, clear: true);
+			MVGameControllerBase.GizmoDrawer.AddSphere(ray.origin + ray.direction * voxelHit.distance, num, Color.blue, clear: true);
 			sphere.transform.position = ray.origin + ray.direction * voxelHit.distance;
 			Debug.DrawLine(voxelHit.point, voxelHit.point + voxelHit.normal, Color.yellow);
 			Debug.DrawLine(voxelHit.point, voxelHit.point + Vector3.right * 0.3f, Color.yellow);
@@ -123,7 +123,7 @@ public static class CollisionDetectionTests
 			List<MVOverlapResult> list = MVElipsoidOverlapCheck.ElipsoidOverlapCheckSector(ray.origin, sphere.transform, bounds);
 			foreach (MVOverlapResult item in list)
 			{
-				ICubeModelCollider cubeModelCollider = (ICubeModelCollider)MVGameController.WOCM.GetWorldObjectClient(item.woId);
+				ICubeModelCollider cubeModelCollider = (ICubeModelCollider)MVGameControllerBase.WOCM.GetWorldObjectClient(item.woId);
 				IntVector[] localCubePos = item.localCubePos;
 				foreach (IntVector intVector in localCubePos)
 				{
@@ -155,7 +155,7 @@ public static class CollisionDetectionTests
 			List<MVOverlapResult> list = MVElipsoidOverlapCheck.ElipsoidOverlapCheckSector(vector, ray.origin, sphere.transform.rotation);
 			foreach (MVOverlapResult item in list)
 			{
-				ICubeModelCollider cubeModelCollider = (ICubeModelCollider)MVGameController.WOCM.GetWorldObjectClient(item.woId);
+				ICubeModelCollider cubeModelCollider = (ICubeModelCollider)MVGameControllerBase.WOCM.GetWorldObjectClient(item.woId);
 				IntVector[] localCubePos = item.localCubePos;
 				foreach (IntVector intVector in localCubePos)
 				{
@@ -182,12 +182,12 @@ public static class CollisionDetectionTests
 		sphere.transform.position = ray.origin;
 		if (MVSweptElipsoidCheck.MVElipsoidCast(ray, vector, sphere.transform.rotation, distance, out voxelHit))
 		{
-			MVGameController.GizmoDrawer.AddSphere(ray.origin, num, Color.red, clear: true);
+			MVGameControllerBase.GizmoDrawer.AddSphere(ray.origin, num, Color.red, clear: true);
 			Debug.DrawLine(voxelHit.point, voxelHit.point + voxelHit.normal, Color.yellow);
 		}
 		else
 		{
-			MVGameController.GizmoDrawer.AddSphere(ray.origin, num, Color.white, clear: true);
+			MVGameControllerBase.GizmoDrawer.AddSphere(ray.origin, num, Color.white, clear: true);
 		}
 	}
 
@@ -203,7 +203,7 @@ public static class CollisionDetectionTests
 		radius.y *= 2f;
 		if (MVSweptElipsoidCheck.MVElipsoidCast(ray, radius, Quaternion.identity, distance, out voxelHit))
 		{
-			MVGameController.GizmoDrawer.AddSphere(ray.origin + ray.direction * voxelHit.distance, num, Color.red, clear: true);
+			MVGameControllerBase.GizmoDrawer.AddSphere(ray.origin + ray.direction * voxelHit.distance, num, Color.red, clear: true);
 			Debug.DrawLine(voxelHit.point, voxelHit.point + voxelHit.normal, Color.yellow);
 			Debug.DrawLine(voxelHit.point, voxelHit.point + Vector3.right * 0.3f, Color.yellow);
 			Vector3 intersection = default;

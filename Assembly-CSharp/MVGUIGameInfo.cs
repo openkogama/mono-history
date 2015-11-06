@@ -46,11 +46,11 @@ public class MVGUIGameInfo : UXViewScript
 
 	private void InitializePlayersText()
 	{
-		MVNetworkGame game = MVGameController.Game;
+		MVNetworkGame game = MVGameControllerBase.Game;
 		game.onPlayerListChanged = (MVNetworkGame.OnPlayerListChangedDelegate)Delegate.Combine(game.onPlayerListChanged, new MVNetworkGame.OnPlayerListChangedDelegate(UpdateGameInfoText));
-		MVTeamManager teamManager = MVGameController.Game.TeamManager;
+		MVTeamManager teamManager = MVGameControllerBase.Game.TeamManager;
 		teamManager.OnTeamsUpdated = (MVTeamManager.OnTeamsUpdatedDelegate)Delegate.Combine(teamManager.OnTeamsUpdated, new MVTeamManager.OnTeamsUpdatedDelegate(UpdateGameInfoText));
-		MVNetworkGame game2 = MVGameController.Game;
+		MVNetworkGame game2 = MVGameControllerBase.Game;
 		game2.OnReceivedGameMsg = (MVNetworkGame.OnReceivedGameMsgDelegate)Delegate.Combine(game2.OnReceivedGameMsg, new MVNetworkGame.OnReceivedGameMsgDelegate(PlayScaleAnimation));
 		scaleAnimationBase.OnScaleAnimationStopped = (float x) =>
 		{
@@ -77,17 +77,17 @@ public class MVGUIGameInfo : UXViewScript
 
 	private void UpdatePlayersText()
 	{
-		playersText.Text = MVGameController.Game.Players.Count.ToString();
+		playersText.Text = MVGameControllerBase.Game.Players.Count.ToString();
 	}
 
 	private void UpdateTeamText()
 	{
-		if (MVGameController.Game.TeamManager.TeamCount() == 1)
+		if (MVGameControllerBase.Game.TeamManager.TeamCount() == 1)
 		{
 			teamIcon.ChangeMaterial(neutralTeamMaterial);
 			return;
 		}
-		switch (MVGameController.Game.LocalPlayer.Team)
+		switch (MVGameControllerBase.Game.LocalPlayer.Team)
 		{
 		case MVTeam.Blue:
 			teamIcon.ChangeMaterial(blueTeamMaterial);

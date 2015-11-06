@@ -9,7 +9,7 @@ public class GameMeterHealth : GameMeterBase
 
 	private void Update()
 	{
-		MVAvatar avatar = MVGameController.Game.LocalPlayer.Avatar;
+		MVAvatar avatar = MVGameControllerBase.Game.LocalPlayer.Avatar;
 		if (avatar != null)
 		{
 			MeterActive = true;

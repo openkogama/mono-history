@@ -10,6 +10,8 @@ public class MVAvatarRemote : MVAvatar
 
 	private CapsuleCollider triggerCollider;
 
+	private AvatarRemoteMovementCalculator avatarRemoteMovementCalculator;
+
 	private float impulseMagnitudeFactor = 0.6f;
 
 	private float velocityMinMagnitude = 1500f;
@@ -21,6 +23,8 @@ public class MVAvatarRemote : MVAvatar
 	private float prevHitTime = Time.time - 2f;
 
 	private float cullDistance = 145f;
+
+	public override Vector3 Velocity => avatarRemoteMovementCalculator.VelocityEstimate;
 
 	public MVAvatarRemote(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, worldObjects)
@@ -37,6 +41,7 @@ public class MVAvatarRemote : MVAvatar
 		InitializeHealth();
 		triggerCollider = CreateTriggerCollider();
 		AvatarStateChangedHandler(AvatarRuntimeDataState.Value);
+		avatarRemoteMovementCalculator = gameObject.AddComponent<AvatarRemoteMovementCalculator>();
 	}
 
 	private void InitializeHealth()
@@ -72,7 +77,7 @@ public class MVAvatarRemote : MVAvatar
 		{
 			return;
 		}
-		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(e.instigatorWOID);
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(e.instigatorWOID);
 		if (!(worldObjectClient is MVVehicleBase))
 		{
 			return;

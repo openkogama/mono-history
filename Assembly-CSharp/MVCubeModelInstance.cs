@@ -13,8 +13,8 @@ public class MVCubeModelInstance : MVCubeModelBase
 	public MVCubeModelInstance(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects, Dictionary<int, RuntimePrototypeCubeModel> prototypes)
 		: base(data, worldObjects, prototypes)
 	{
-		interactionFlags |= InteractionFlags.Selectable | InteractionFlags.HasCubeModel | InteractionFlags.CanRotateY | InteractionFlags.CanEdit | InteractionFlags.CanClone;
-		if (MVGameController.Game.LocalPlayer.ProfileID == PrototypeCubeModel.AuthorProfileID && (interactionFlags & InteractionFlags.CanAddToInventory) != 0)
+		interactionFlags |= InteractionFlags.Selectable | InteractionFlags.HasCubeModel | InteractionFlags.CanRotateY | InteractionFlags.CanEdit | InteractionFlags.CanClone | InteractionFlags.TranslatbleXZ2D;
+		if (MVGameControllerBase.Game.LocalPlayer.ProfileID == PrototypeCubeModel.AuthorProfileID && (interactionFlags & InteractionFlags.CanAddToInventory) != 0)
 		{
 			interactionFlags |= InteractionFlags.CanAddToInventory;
 		}
@@ -106,7 +106,7 @@ public class MVCubeModelInstance : MVCubeModelBase
 	private Vector3[] GetCorners(Bounds bounds)
 	{
 		float num = 0f;
-		num = ((MVGameController.GameMode != MVGameMode.Edit || !MVGameController.EditorController.IsGridSnap()) ? 0.0625f : 1f);
+		num = ((MVGameControllerBase.GameMode != MVGameMode.Edit || !MVGameControllerBase.IEditModeUI.IsGridSnap()) ? 0.0625f : 1f);
 		Vector3 vector = Vector3.one * 0.5f;
 		Vector3 vector2 = bounds.min + vector;
 		Vector3 vector3 = bounds.max + vector;
@@ -134,7 +134,6 @@ public class MVCubeModelInstance : MVCubeModelBase
 
 	public override bool OnEnterObject(EditorStateMachine e)
 	{
-		MVGameController.Game.CameraController.CurCamera.FocusOnObject(this);
 		e.Event = EditorEvent.EditCubes;
 		return true;
 	}

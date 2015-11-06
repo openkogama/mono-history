@@ -14,7 +14,7 @@ public class MVComponent : MonoBehaviour
 			{
 				Debug.LogError("worldObjectParent already set " + worldObjectParent);
 			}
-			worldObjectParent = MVGameController.WOCM.GetWorldObjectByGoId(gameObject.GetInstanceID());
+			worldObjectParent = MVGameControllerBase.WOCM.GetWorldObjectByGoId(gameObject.GetInstanceID());
 			if (worldObjectParent == null)
 			{
 				Debug.LogError("wo not found on gameObject");

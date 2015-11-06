@@ -45,7 +45,7 @@ public static class SharedCollisionFunctions
 		voxelHit.normal = hit.normal;
 		voxelHit.woId = woId;
 		voxelHit.isCubeHit = false;
-		voxelHit.interactionFlags = MVGameController.WOCM.GetWorldObjectClient(woId).InteractionFlags;
+		voxelHit.interactionFlags = MVGameControllerBase.WOCM.GetWorldObjectClient(woId).InteractionFlags;
 	}
 
 	public static void SetToVoxelHit(ref VoxelHit voxelHit0, ref VoxelHit voxelHit1)

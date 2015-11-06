@@ -34,13 +34,13 @@ public class PerformanceTest : MonoBehaviour
 
 	private void Start()
 	{
-		serverStartTime = MVGameController.Game.Peer.ServerTimeInMilliSeconds;
+		serverStartTime = MVGameControllerBase.Game.Peer.ServerTimeInMilliSeconds;
 		Debug.Log("Performance Test Starting");
 	}
 
 	private void FixedUpdate()
 	{
-		int num = MVGameController.Game.Peer.ServerTimeInMilliSeconds - serverStartTime;
+		int num = MVGameControllerBase.Game.Peer.ServerTimeInMilliSeconds - serverStartTime;
 		clientTime += Time.fixedDeltaTime;
 		debuglogInterval++;
 		if (debuglogInterval > 59)

@@ -46,19 +46,19 @@ public class MVGUIAvatarAccessoryShopDialog : UXCustomDialogBox
 
 	private StreamingAssetInfo streamingAssetInfo;
 
-	private MVNetworkGame Game => MVGameController.Game;
+	private MVNetworkGame Game => MVGameControllerBase.Game;
 
-	private CharacterEditorController CEController => MVGameController.CharacterEditorController;
+	private CharacterEditorController CEController => MVGameControllerLegacyUI.CharacterEditorController;
 
 	private MVBody AvatarBody
 	{
 		get
 		{
-			if (MVGameController.GameMode == MVGameMode.CharacterEditor)
+			if (MVGameControllerBase.GameMode == MVGameMode.CharacterEditor)
 			{
 				return CEController.CurrentBody;
 			}
-			return MVGameController.WOCM.AvatarLocal.Body;
+			return MVGameControllerBase.WOCM.AvatarLocal.Body;
 		}
 	}
 
@@ -179,9 +179,9 @@ public class MVGUIAvatarAccessoryShopDialog : UXCustomDialogBox
 	private MVBody GetBodyOfEquippedItem(int inventoryID)
 	{
 		int num = 0;
-		if (MVGameController.GameMode == MVGameMode.CharacterEditor)
+		if (MVGameControllerBase.GameMode == MVGameMode.CharacterEditor)
 		{
-			CharacterEditorController characterEditorController = MVGameController.IngameController as CharacterEditorController;
+			CharacterEditorController characterEditorController = MVGameControllerLegacyUI.IngameController as CharacterEditorController;
 			foreach (MVBody body in characterEditorController.Bodies)
 			{
 				MVBody mVBody = body;
@@ -194,11 +194,11 @@ public class MVGUIAvatarAccessoryShopDialog : UXCustomDialogBox
 		}
 		else
 		{
-			num = MVGameController.WOCM.AvatarLocal.Body.Id;
+			num = MVGameControllerBase.WOCM.AvatarLocal.Body.Id;
 		}
 		if (num != 0)
 		{
-			return MVGameController.WOCM.GetWorldObjectClient(num) as MVBody;
+			return MVGameControllerBase.WOCM.GetWorldObjectClient(num) as MVBody;
 		}
 		return null;
 	}

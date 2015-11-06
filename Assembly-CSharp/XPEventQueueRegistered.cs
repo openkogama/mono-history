@@ -41,8 +41,8 @@ public class XPEventQueueRegistered : XPEventQueue
 			sortedDictionary.Add("profile_id", profileID.ToString());
 			sortedDictionary.Add("xp_type_id", xpData.XPId.ToString());
 			sortedDictionary.Add("timestamp", Environment.TickCount.ToString());
-			sortedDictionary.Add("token", MVGameController.GameSessionData.token);
-			string mD5Hash = Encryption.GetMD5Hash(sortedDictionary, MVGameController.Game.XpKey);
+			sortedDictionary.Add("token", MVGameControllerBase.GameSessionData.token);
+			string mD5Hash = Encryption.GetMD5Hash(sortedDictionary, MVGameControllerBase.Game.XpKey);
 			sortedDictionary.Add("signature", mD5Hash);
 			WWWForm wWWForm = new WWWForm();
 			foreach (KeyValuePair<string, string> item in sortedDictionary)

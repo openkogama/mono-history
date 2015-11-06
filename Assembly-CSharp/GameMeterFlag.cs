@@ -8,7 +8,7 @@ public class GameMeterFlag : GameMeterBase
 	{
 		if (!(Application.loadedLevelName == "GUIDevScene"))
 		{
-			FlagReachedClient singletonWinnerConditionByType = MVGameController.Game.WinningConditionManager.GetSingletonWinnerConditionByType<FlagReachedClient>();
+			FlagReachedClient singletonWinnerConditionByType = MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<FlagReachedClient>();
 			if (singletonWinnerConditionByType != null)
 			{
 				MeterActive = true;

@@ -2,7 +2,7 @@ public interface ILocalObject
 {
 	int Id { get; }
 
-	InteractionInput Update(InteractionInput movementMap);
+	InputToInGameAction Update(InputToInGameAction movementMap);
 
-	MovementMap FixedUpdate(MovementMap movementMap);
+	IInputToPlayerMovement FixedUpdate(IInputToPlayerMovement movementMap);
 }

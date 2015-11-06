@@ -118,7 +118,7 @@ public class MVGUIDialogBoxWrapper
 
 	private bool CreateBluprintDialog()
 	{
-		MVWorldObjectClient settingsDialogSelectionWO = MVGameController.EditorController.GetSettingsDialogSelectionWO();
+		MVWorldObjectClient settingsDialogSelectionWO = MVGameControllerLegacyUI.EditorController.GetSettingsDialogSelectionWO();
 		Dictionary<object, object> dictionary = (Dictionary<object, object>)settingsDialogSelectionWO.Data["BlueprintData"];
 		switch ((BlueprintType)(byte)dictionary[BlueprintData.ClientSideType.ToString()])
 		{

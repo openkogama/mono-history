@@ -18,10 +18,10 @@ public class MVMovableMotorState
 				result = true;
 			}
 			MVMovable value = null;
-			MVGameController.WOCM.MoveableController.CubeModelMovableMap.TryGetValue(groundHit.hit.woId, out value);
+			MVGameControllerBase.WOCM.MoveableController.CubeModelMovableMap.TryGetValue(groundHit.hit.woId, out value);
 			if (value != null)
 			{
-				movableVelocityVector = MVGameController.WOCM.MoveableController.GetVel(value.GameObjectID, controller.gameObject.transform.position);
+				movableVelocityVector = MVGameControllerBase.WOCM.MoveableController.GetVel(value.GameObjectID, controller.gameObject.transform.position);
 				if (movableVelocityVector.y > 0f)
 				{
 					movableVelocityVector.y -= num;
@@ -43,7 +43,7 @@ public class MVMovableMotorState
 		foreach (MVOverlapResult item in overlappingObjects)
 		{
 			MVMovable value = null;
-			MVGameController.WOCM.MoveableController.CubeModelMovableMap.TryGetValue(item.woId, out value);
+			MVGameControllerBase.WOCM.MoveableController.CubeModelMovableMap.TryGetValue(item.woId, out value);
 			if (value == null)
 			{
 				continue;
@@ -52,8 +52,8 @@ public class MVMovableMotorState
 			Vector3 zero = Vector3.zero;
 			Vector3 zero2 = Vector3.zero;
 			float num = 0f;
-			zero = MVGameController.WOCM.MoveableController.GetVel(value.GameObjectID, position) / Time.fixedDeltaTime;
-			MVGameController.WOCM.MoveableController.UpdateSingleMoveableInChain(value.GameObjectID, -1f);
+			zero = MVGameControllerBase.WOCM.MoveableController.GetVel(value.GameObjectID, position) / Time.fixedDeltaTime;
+			MVGameControllerBase.WOCM.MoveableController.UpdateSingleMoveableInChain(value.GameObjectID, -1f);
 			IntVector[] localCubePos = item.localCubePos;
 			foreach (IntVector iVector in localCubePos)
 			{
@@ -66,10 +66,10 @@ public class MVMovableMotorState
 				zero2 /= num;
 			}
 			controller.Move(zero, sendCollisionData: false);
-			MVGameController.WOCM.MoveableController.UpdateSingleMoveableInChain(value.GameObjectID, 1f);
+			MVGameControllerBase.WOCM.MoveableController.UpdateSingleMoveableInChain(value.GameObjectID, 1f);
 			if (controller.CheckOverLap())
 			{
-				MVGameController.WOCM.MoveableController.UpdateSingleMoveableInChain(value.GameObjectID, -1f);
+				MVGameControllerBase.WOCM.MoveableController.UpdateSingleMoveableInChain(value.GameObjectID, -1f);
 				controller.Move(position - controller.gameObject.transform.position, sendCollisionData: false);
 				Vector3 motion = zero2;
 				motion.y = 0f;
@@ -79,7 +79,7 @@ public class MVMovableMotorState
 					motion *= tolerance;
 				}
 				controller.Move(motion, sendCollisionData: false);
-				MVGameController.WOCM.MoveableController.UpdateSingleMoveableInChain(value.GameObjectID, 1f);
+				MVGameControllerBase.WOCM.MoveableController.UpdateSingleMoveableInChain(value.GameObjectID, 1f);
 			}
 			controller.Move(position - controller.gameObject.transform.position);
 		}

@@ -42,7 +42,7 @@ public class HamsterWheelMotor : SimpleVehicleMotorBase
 
 	private MVInteractableBase interactable;
 
-	public VehicleCamera VehicleCamera { private get; set; }
+	public IVehicleCamera VehicleCamera { private get; set; }
 
 	public override bool Grounded => groundState.Grounded;
 
@@ -104,7 +104,7 @@ public class HamsterWheelMotor : SimpleVehicleMotorBase
 
 	private Vector3 GetVehicleVelocity(Vector3 velocity, Vector3 baseVelocity)
 	{
-		return GameDB.GameType switch
+		return MVGameControllerBase.Game.GameType switch
 		{
 			MVGameType.Classic => GetVehicleVelocityClassicCam(velocity, baseVelocity), 
 			MVGameType.Platformer => GetVehicleVelocityPlatformerCam(velocity, baseVelocity), 
@@ -116,7 +116,10 @@ public class HamsterWheelMotor : SimpleVehicleMotorBase
 	{
 		float num = interactable.HandleModifierEffect(AvatarModifierEffect.Speed, maxSpeed);
 		velocity -= (velocity - 0.98f * velocity) * (Time.fixedDeltaTime / 0.02f);
-		Controller.transform.Rotate(Vector3.up, Time.fixedDeltaTime * angularSpeed * DirectInputMoveMap.x * Mathf.Abs(MVInputWrapper.GetAxis("Horizontal")) * 57.29578f, Space.World);
+		if (HandleInput)
+		{
+			Controller.transform.Rotate(Vector3.up, Time.fixedDeltaTime * angularSpeed * DirectInputMoveMap.x * Mathf.Abs(MVInputWrapper.GetAxis("Horizontal")) * 57.29578f, Space.World);
+		}
 		if (Mathf.Abs(DirectInputMoveMap.z) > 0f || (double)Mathf.Abs(DirectInputMoveMap.x) > 0.0)
 		{
 			Quaternion quaternion = Quaternion.Euler(0f, VehicleCamera.RotationAroundY, 0f);
@@ -238,13 +241,13 @@ public class HamsterWheelMotor : SimpleVehicleMotorBase
 	private void Move(Vector3 velocity, Vector3 basevelocity)
 	{
 		Vector3 motion = (velocity + basevelocity) * Time.deltaTime;
-		collisionFlags = Controller.Move(motion);
+		Controller.Move(motion);
 		groundState.Update(Controller, velocity);
 	}
 
 	private float WaterProximity()
 	{
-		WaterPlaneManager waterPlaneManager = MVGameController.WOCM.WaterPlaneManager;
+		WaterPlaneManager waterPlaneManager = MVGameControllerBase.WaterPlaneManager;
 		return waterPlaneManager.ComputeAvatarWaterProximity(gameObject.transform.position + Vector3.up * waterOffset);
 	}
 

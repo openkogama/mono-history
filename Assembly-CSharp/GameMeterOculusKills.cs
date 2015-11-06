@@ -4,7 +4,7 @@ public class GameMeterOculusKills : GameMeterKillsBase
 
 	private void Update()
 	{
-		OculusKillLimitClient singletonWinnerConditionByType = MVGameController.Game.WinningConditionManager.GetSingletonWinnerConditionByType<OculusKillLimitClient>();
+		OculusKillLimitClient singletonWinnerConditionByType = MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<OculusKillLimitClient>();
 		if (singletonWinnerConditionByType != null)
 		{
 			MeterActive = true;

@@ -35,7 +35,7 @@ public class FriendList
 
 	public void AddFriend(int friendID, int profileID, int friendProfileID, FriendStatus status)
 	{
-		if (profileID == MVGameController.Game.LocalPlayer.ProfileID)
+		if (profileID == MVGameControllerBase.Game.LocalPlayer.ProfileID)
 		{
 			if (!friends.ContainsKey(friendID))
 			{
@@ -43,7 +43,7 @@ public class FriendList
 				friends.Add(friendID, value);
 			}
 		}
-		else if (friendProfileID == MVGameController.Game.LocalPlayer.ProfileID && !pending.ContainsKey(friendID))
+		else if (friendProfileID == MVGameControllerBase.Game.LocalPlayer.ProfileID && !pending.ContainsKey(friendID))
 		{
 			Friend value2 = new Friend(friendID, profileID, status);
 			pending.Add(friendID, value2);
@@ -56,7 +56,7 @@ public class FriendList
 
 	public void UpdateFriend(int friendID, int profileID, FriendStatus status)
 	{
-		if (profileID == MVGameController.Game.LocalPlayer.ProfileID)
+		if (profileID == MVGameControllerBase.Game.LocalPlayer.ProfileID)
 		{
 			if (friends.ContainsKey(friendID))
 			{
@@ -79,7 +79,7 @@ public class FriendList
 			RemoveFromPendingByProfileID(profileID);
 			if (status != FriendStatus.Deleted)
 			{
-				AddFriend(friendID, MVGameController.Game.LocalPlayer.ProfileID, profileID, status);
+				AddFriend(friendID, MVGameControllerBase.Game.LocalPlayer.ProfileID, profileID, status);
 			}
 		}
 		if (OnFriendListUpdated != null)
@@ -110,7 +110,7 @@ public class FriendList
 	public Dictionary<int, MVPlayer> GetOnlineFriends()
 	{
 		Dictionary<int, MVPlayer> dictionary = new Dictionary<int, MVPlayer>();
-		foreach (KeyValuePair<int, MVPlayer> player in MVGameController.Game.Players)
+		foreach (KeyValuePair<int, MVPlayer> player in MVGameControllerBase.Game.Players)
 		{
 			if (IsFriend(player.Value.ProfileID))
 			{

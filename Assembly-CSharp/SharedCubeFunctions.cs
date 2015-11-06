@@ -622,7 +622,7 @@ internal static class SharedCubeFunctions
 		return num / 3f;
 	}
 
-	private static float ScaleFactor(GameObject gameObject, Face face)
+	public static float ScaleFactor(GameObject gameObject, Face face)
 	{
 		switch (face)
 		{
@@ -692,7 +692,7 @@ internal static class SharedCubeFunctions
 		return outOfBoundState;
 	}
 
-	private static void GetVertices(CubePickingInfo info, GameObject gameObject)
+	public static void GetVertices(CubePickingInfo info, GameObject gameObject)
 	{
 		if (info.pickedEdge == Edge.None)
 		{

@@ -126,15 +126,15 @@ public class BrowserComm : MonoBehaviour
 
 	public void CreatePlanetScreenshot()
 	{
-		if (MVGameController.Game.JoinState == MVJoinState.Playing && MVGameController.GameMode == MVGameMode.Edit)
+		if (MVGameControllerBase.JoinState == MVJoinState.Playing && MVGameControllerBase.GameMode == MVGameMode.Edit)
 		{
-			MVGameController.Game.UploadGameScreenShot();
+			MVGameControllerBase.Game.UploadGameScreenShot();
 		}
 	}
 
 	public void PublishPlanetFromWeb()
 	{
-		MVGameController.Game.PublishPlanet();
+		MVGameControllerBase.Game.PublishPlanet();
 	}
 
 	public void GiveBrowserInfo(string browserinfo)

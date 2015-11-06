@@ -62,7 +62,7 @@ public static class AwayMonitor
 		else if (timeSpan > idleKickTimeSpan && state != State.InActive15Min)
 		{
 			UXUtils.FindGUIObjectOfType<MVGUIChatWindow>().AddLine("Kicked. Idle for 15 min.", Color.red);
-			MVGameController.ApplicationQuit(new QuitIdle());
+			MVGameControllerBase.ApplicationQuit(new QuitIdle());
 			state = State.InActive15Min;
 		}
 	}

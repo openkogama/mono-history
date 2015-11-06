@@ -121,7 +121,7 @@ public class MVJetPack : MVVehicleBase
 			mVPickupOwner.onHandleFiring = (MVPickupOwner.OnHandleFiringDelegate)Delegate.Remove(mVPickupOwner.onHandleFiring, new MVPickupOwner.OnHandleFiringDelegate(OnFiring));
 		}
 
-		public override InteractionInput Update(InteractionInput interactionInput)
+		public override InputToInGameAction Update(InputToInGameAction interactionInput)
 		{
 			if (!walkMode)
 			{
@@ -136,7 +136,7 @@ public class MVJetPack : MVVehicleBase
 			leaveMode = false;
 			vehicleMotor.LeaveMode = false;
 			triggerHandler.enabled = true;
-			if (GameDB.GameType == MVGameType.Platformer)
+			if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
 			{
 				vehicleUser.ForceRotateAvatarToFiringDirection = false;
 			}
@@ -148,7 +148,7 @@ public class MVJetPack : MVVehicleBase
 			mVPickupOwner.onHandleFiring = (MVPickupOwner.OnHandleFiringDelegate)Delegate.Combine(mVPickupOwner.onHandleFiring, new MVPickupOwner.OnHandleFiringDelegate(OnFiring));
 		}
 
-		public override MovementMap FixedUpdate(MovementMap movementMap)
+		public override IInputToPlayerMovement FixedUpdate(IInputToPlayerMovement movementMap)
 		{
 			movementMap = HandleWalkMode(movementMap);
 			bool thrust = false;
@@ -264,7 +264,7 @@ public class MVJetPack : MVVehicleBase
 			return Quaternion.LookRotation(lookDirection);
 		}
 
-		public MovementMap HandleWalkMode(MovementMap movementMap)
+		public IInputToPlayerMovement HandleWalkMode(IInputToPlayerMovement movementMap)
 		{
 			if (movementMap == null)
 			{

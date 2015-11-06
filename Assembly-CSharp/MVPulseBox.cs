@@ -43,7 +43,7 @@ public class MVPulseBox : MVLogicObject
 		{
 			int num = (int)((float)Data["intervalOn"] * 1000f);
 			int num2 = (int)((float)Data["intervalOff"] * 1000f);
-			int num3 = Math.Abs(MVGameController.Game.Peer.ServerTimeInMilliSeconds) % (num + num2);
+			int num3 = Math.Abs(MVGameControllerBase.Game.Peer.ServerTimeInMilliSeconds) % (num + num2);
 			if (num3 > num)
 			{
 				SetOutput(output: false);

@@ -14,21 +14,21 @@ public class MVGUIMarketPlaceActionDialog : UXCustomDialogBox
 
 	public void SellItem(int itemID, string name, string description, int silverPrice)
 	{
-		MVNetworkGame game = MVGameController.Game;
+		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnMarketPlaceActionComplete = (MVNetworkGame.OnMarketPlaceActionCompleteDelegate)Delegate.Combine(game.OnMarketPlaceActionComplete, new MVNetworkGame.OnMarketPlaceActionCompleteDelegate(OnAddToMarketplaceReturn));
-		MVGameController.Game.RequestAddItemToMarketPlace(itemID, name, description, silverPrice);
+		MVGameControllerBase.Game.RequestAddItemToMarketPlace(itemID, name, description, silverPrice);
 	}
 
 	public void RemoveItem(int itemID)
 	{
-		MVNetworkGame game = MVGameController.Game;
+		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnMarketPlaceActionComplete = (MVNetworkGame.OnMarketPlaceActionCompleteDelegate)Delegate.Combine(game.OnMarketPlaceActionComplete, new MVNetworkGame.OnMarketPlaceActionCompleteDelegate(OnAddToMarketplaceReturn));
-		MVGameController.Game.RequestRemoveItemFromMarketPlace(itemID);
+		MVGameControllerBase.Game.RequestRemoveItemFromMarketPlace(itemID);
 	}
 
 	private void OnAddToMarketplaceReturn(bool success)
 	{
-		MVNetworkGame game = MVGameController.Game;
+		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnMarketPlaceActionComplete = (MVNetworkGame.OnMarketPlaceActionCompleteDelegate)Delegate.Remove(game.OnMarketPlaceActionComplete, new MVNetworkGame.OnMarketPlaceActionCompleteDelegate(OnAddToMarketplaceReturn));
 		if (success)
 		{

@@ -73,13 +73,18 @@ public class MVGroundState
 			groundHit.impactVelocity = Vector3.zero;
 			groundNormal = groundHit.slopeNormal;
 			gradientDirection = controller.GetGradientDirection(groundHit.hit);
-			gradientAngle = controller.GetGradientAngle(gradientDirection);
-			groundMaterial = MVGameController.Game.MaterialRepository.GetMaterial(CubeBase.GetMaterial(groundHit.hit.cube, groundHit.hit.face));
+			gradientAngle = GetGradientAngle(gradientDirection);
+			groundMaterial = MVGameControllerBase.Game.MaterialRepository.GetMaterial(CubeBase.GetMaterial(groundHit.hit.cube, groundHit.hit.face));
 		}
 		else
 		{
-			groundMaterial = MVGameController.Game.MaterialRepository.InAirMaterial;
+			groundMaterial = MVGameControllerBase.Game.MaterialRepository.InAirMaterial;
 		}
+	}
+
+	private static float GetGradientAngle(Vector3 gradientDirection)
+	{
+		return Vector3.Angle(Vector3.up, gradientDirection) - 90f;
 	}
 
 	private void UpdateGroundChange()

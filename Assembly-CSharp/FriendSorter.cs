@@ -10,7 +10,7 @@ public class FriendSorter : IComparer<PlayerData>
 
 	private int PlayerValue(PlayerData data)
 	{
-		if (data.player == MVGameController.Game.LocalPlayer)
+		if (data.player == MVGameControllerBase.Game.LocalPlayer)
 		{
 			return 2;
 		}

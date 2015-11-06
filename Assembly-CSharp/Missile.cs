@@ -47,9 +47,9 @@ public class Missile : MonoBehaviour
 			IntVector[] localCubePos = item.localCubePos;
 			foreach (IntVector pos in localCubePos)
 			{
-				((MVCubeModelBase)MVGameController.WOCM.GetWorldObjectClient(item.woId)).RemoveCube(pos);
+				((MVCubeModelBase)MVGameControllerBase.WOCM.GetWorldObjectClient(item.woId)).RemoveCube(pos);
 			}
-			((MVCubeModelBase)MVGameController.WOCM.GetWorldObjectClient(item.woId)).HandleDelta();
+			((MVCubeModelBase)MVGameControllerBase.WOCM.GetWorldObjectClient(item.woId)).HandleDelta();
 		}
 	}
 }

@@ -45,15 +45,15 @@ public class MVGameModeChangeNotifier : IUpdatecontrollerSubscriber
 
 	private UpdateCondition GetPresentState()
 	{
-		if (MVGameController.GameMode == MVGameMode.Edit && MVGameController.Game.IsPlaying)
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit && MVGameControllerBase.Game.IsPlaying)
 		{
 			return UpdateCondition.EDITOR_PLAYMODE;
 		}
-		if (MVGameController.GameMode == MVGameMode.Edit)
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
 		{
 			return UpdateCondition.EDITOR;
 		}
-		if (MVGameController.GameMode == MVGameMode.Play)
+		if (MVGameControllerBase.GameMode == MVGameMode.Play)
 		{
 			return UpdateCondition.INGAME;
 		}

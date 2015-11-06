@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-internal class FaceCursor : ICursor
+public class FaceCursor : ICursor
 {
 	private Material materialCorner;
 
@@ -13,15 +13,15 @@ internal class FaceCursor : ICursor
 
 	public GameObject GameObject => gameObject;
 
-	public FaceCursor()
+	public FaceCursor(string materialEdgePath, string materialCornerPath, string materialNonePath)
 	{
 		gameObject = new GameObject("Cursor");
 		gameObject.layer = LayerMask.NameToLayer("UIItems");
 		MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
 		gameObject.AddComponent<MeshFilter>();
-		materialEdge = (Material)Resources.Load("Materials/CursorMaterial");
-		materialCorner = (Material)Resources.Load("Materials/CursorMaterialCorner");
-		materialNone = (Material)Resources.Load("Materials/CursorMaterialNone");
+		materialEdge = (Material)Resources.Load(materialEdgePath);
+		materialCorner = (Material)Resources.Load(materialCornerPath);
+		materialNone = (Material)Resources.Load(materialNonePath);
 		meshRenderer.material = materialEdge;
 	}
 

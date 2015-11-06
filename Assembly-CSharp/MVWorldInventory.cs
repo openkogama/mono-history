@@ -101,7 +101,7 @@ public class MVWorldInventory
 	{
 		if (pendingRuntimePrototypes.ContainsKey(woId))
 		{
-			MVCubeModelInstance mVCubeModelInstance = (MVCubeModelInstance)MVGameController.WOCM.GetWorldObjectClient(woId);
+			MVCubeModelInstance mVCubeModelInstance = (MVCubeModelInstance)MVGameControllerBase.WOCM.GetWorldObjectClient(woId);
 			if (mVCubeModelInstance != null)
 			{
 				if (runtimePrototypes.ContainsKey(pendingRuntimePrototypes[woId].prevPrototypeId))
@@ -135,7 +135,7 @@ public class MVWorldInventory
 			{
 				runtimePrototypes.Add(worldInventoryId, pendingRuntimePrototypes[woId].pendingRuntimePrototype);
 				pendingRuntimePrototypes[woId].pendingRuntimePrototype.PrototypeState = PrototypeState.Registered;
-				MVCubeModelInstance mVCubeModelInstance = (MVCubeModelInstance)MVGameController.WOCM.GetWorldObjectClient(woId);
+				MVCubeModelInstance mVCubeModelInstance = (MVCubeModelInstance)MVGameControllerBase.WOCM.GetWorldObjectClient(woId);
 				mVCubeModelInstance.Data["protoTypeID"] = worldInventoryId;
 			}
 			else
@@ -146,7 +146,7 @@ public class MVWorldInventory
 		}
 		else
 		{
-			MVCubeModelInstance mVCubeModelInstance2 = (MVCubeModelInstance)MVGameController.WOCM.GetWorldObjectClient(woId);
+			MVCubeModelInstance mVCubeModelInstance2 = (MVCubeModelInstance)MVGameControllerBase.WOCM.GetWorldObjectClient(woId);
 			int pid = mVCubeModelInstance2.Pid;
 			RuntimePrototypeCubeModel runtimePrototypeCubeModel = runtimePrototypes[pid].CloneGeometry();
 			runtimePrototypeCubeModel.PrototypeId = worldInventoryId;
@@ -161,7 +161,7 @@ public class MVWorldInventory
 
 	public void RequestWoMakeUniquePrototype(int woId)
 	{
-		MVCubeModelInstance mVCubeModelInstance = (MVCubeModelInstance)MVGameController.WOCM.GetWorldObjectClient(woId);
+		MVCubeModelInstance mVCubeModelInstance = (MVCubeModelInstance)MVGameControllerBase.WOCM.GetWorldObjectClient(woId);
 		if (runtimePrototypes[mVCubeModelInstance.Pid].InstancesCount == 1)
 		{
 			Debug.LogError("The cubemodel is allready unique");
@@ -173,12 +173,12 @@ public class MVWorldInventory
 			return;
 		}
 		ReplaceWithPendingRuntimePrototype(woId);
-		MVGameController.Game.RequestWoUniquePrototype(woId);
+		MVGameControllerBase.Game.RequestWoUniquePrototype(woId);
 	}
 
 	private void ReplaceWithPendingRuntimePrototype(int woId)
 	{
-		MVCubeModelInstance mVCubeModelInstance = (MVCubeModelInstance)MVGameController.WOCM.GetWorldObjectClient(woId);
+		MVCubeModelInstance mVCubeModelInstance = (MVCubeModelInstance)MVGameControllerBase.WOCM.GetWorldObjectClient(woId);
 		RuntimePrototypeCubeModel prototypeCubeModel = mVCubeModelInstance.PrototypeCubeModel;
 		RuntimePrototypeCubeModel runtimePrototypeCubeModel = CreatePendingPrototype(mVCubeModelInstance.Pid);
 		prototypeCubeModel.DeltaCubes.Clear();

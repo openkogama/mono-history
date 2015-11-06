@@ -24,7 +24,7 @@ public class AvatarScreenShooter : MonoBehaviour
 			return;
 		}
 		this.callback = callback;
-		EditorStateMachine editorStateMachine = MVGameController.CharacterEditorController.EditorStateMachine;
+		EditorStateMachine editorStateMachine = MVGameControllerLegacyUI.CharacterEditorController.EditorStateMachine;
 		if (editorStateMachine.ParentGroup is MVBody mVBody)
 		{
 			bodyCloneGO = UnityEngine.Object.Instantiate(mVBody.GameObject);

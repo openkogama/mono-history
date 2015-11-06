@@ -19,14 +19,14 @@ public class MVKillLimit : MVLogicObject
 	public override void Initialize()
 	{
 		base.Initialize();
-		MVGameController.Game.WinningConditionManager.CreateWinnerCondition<KillLimitClient>(new object[1] { KillLimit });
+		MVGameControllerBase.Game.WinningConditionManager.CreateWinnerCondition<KillLimitClient>(new object[1] { KillLimit });
 		initializedInWorld = true;
 	}
 
 	public override void OnDataUpdate()
 	{
 		base.OnDataUpdate();
-		KillLimitClient singletonWinnerConditionByType = MVGameController.Game.WinningConditionManager.GetSingletonWinnerConditionByType<KillLimitClient>();
+		KillLimitClient singletonWinnerConditionByType = MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<KillLimitClient>();
 		if (singletonWinnerConditionByType == null)
 		{
 			throw new Exception("Couldn't find killLimitClient winning condition.");
@@ -44,12 +44,12 @@ public class MVKillLimit : MVLogicObject
 		base.Destroy();
 		if (initializedInWorld)
 		{
-			KillLimitClient singletonWinnerConditionByType = MVGameController.Game.WinningConditionManager.GetSingletonWinnerConditionByType<KillLimitClient>();
+			KillLimitClient singletonWinnerConditionByType = MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<KillLimitClient>();
 			if (singletonWinnerConditionByType == null)
 			{
 				throw new Exception("Couldn't find killLimitClient winning condition.");
 			}
-			MVGameController.Game.WinningConditionManager.RemoveWinnerCondition(singletonWinnerConditionByType.ID);
+			MVGameControllerBase.Game.WinningConditionManager.RemoveWinnerCondition(singletonWinnerConditionByType.ID);
 		}
 	}
 }

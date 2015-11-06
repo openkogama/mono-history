@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MV.Common;
 using UnityEngine;
 
 public class WindTurbine : MVLogicObject
@@ -50,11 +51,16 @@ public class WindTurbine : MVLogicObject
 		triggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
 		affectedBodies = new Dictionary<int, MVRigidBody>();
 		isActive = true;
-		if (MVGameController.PlayController is PlayControllerEdit)
+	}
+
+	public override void Initialize()
+	{
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
 		{
-			PlayControllerEdit playControllerEdit = MVGameController.PlayController as PlayControllerEdit;
-			playControllerEdit.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Combine(playControllerEdit.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
+			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
+			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Combine(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
 		}
+		OnDataUpdate();
 	}
 
 	public override void OnDataUpdate()
@@ -128,9 +134,8 @@ public class WindTurbine : MVLogicObject
 		{
 			return;
 		}
-		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(instigatorWOID);
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(instigatorWOID);
 		MVRigidBody component = worldObjectClient.GameObject.GetComponent<MVRigidBody>();
-		Debug.Log("Added wind effect to " + instigatorWOID);
 		if (component != null && isActive)
 		{
 			MVInteractableBase component2 = worldObjectClient.GameObject.GetComponent<MVInteractableBase>();
@@ -144,10 +149,8 @@ public class WindTurbine : MVLogicObject
 
 	private void ExitWindZone(int instigatorWOID)
 	{
-		Debug.Log("Trying to remove wind effect from " + instigatorWOID);
 		if (affectedBodies.ContainsKey(instigatorWOID))
 		{
-			Debug.Log("Removed wind effect from " + instigatorWOID);
 			MVInteractableBase component = affectedBodies[instigatorWOID].GetComponent<MVInteractableBase>();
 			if (!(component == null))
 			{
@@ -182,16 +185,20 @@ public class WindTurbine : MVLogicObject
 		windParticleSystem.enableEmission = state;
 	}
 
-	public override void Initialize()
-	{
-		base.Initialize();
-		OnDataUpdate();
-	}
-
 	public override void InitializeInventory()
 	{
 		base.Initialize();
 		colliderObject.SetActive(value: false);
+	}
+
+	public override void Destroy()
+	{
+		base.Destroy();
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit && MVGameControllerBase.IEditModeUI != null && MVGameControllerBase.IEditModeUI.EditModeChange != null)
+		{
+			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
+			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Remove(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
+		}
 	}
 
 	public void OnEditModeChange(EditModeChangeArgs arg)

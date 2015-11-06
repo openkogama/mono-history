@@ -17,7 +17,7 @@ public class MVGUISettingsDialogToggleBox : MVGUISettingsDialog
 			bool flag = (bool)dialog.GetResult();
 			Dictionary<object, object> dictionary = new Dictionary<object, object>(wo.Data);
 			dictionary["once"] = flag;
-			MVGameController.Game.UpdateWorldObjectDataPartial(wo.Id, dictionary);
+			MVGameControllerBase.Game.UpdateWorldObjectDataPartial(wo.Id, dictionary);
 		}
 	}
 

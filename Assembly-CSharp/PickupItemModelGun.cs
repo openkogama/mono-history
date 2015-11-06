@@ -101,7 +101,7 @@ public class PickupItemModelGun : PickupItemWithDelay
 
 	private bool CanInsertCubeAtCubePos(IntVector cubePos)
 	{
-		Vector3 vector = SharedCubeFunctions.LocalToWorld(MVGameController.WOCM.GetSingletonWorldObject<MVCubeModelFineGrainedTerrain>().GameObject, cubePos);
+		Vector3 vector = SharedCubeFunctions.LocalToWorld(MVGameControllerBase.WOCM.GetSingletonWorldObject<MVCubeModelFineGrainedTerrain>().GameObject, cubePos);
 		if ((vector - owner.LookOrigin).magnitude < minDistanceToCubeFire)
 		{
 			return false;
@@ -116,7 +116,7 @@ public class PickupItemModelGun : PickupItemWithDelay
 			if (fireSecondary)
 			{
 				primaryCursor.FadeOverride = FadeOverride.FadeAllOut;
-				MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(hit.woId);
+				MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(hit.woId);
 				if (worldObjectClient is MVCubeModelFineGrainedTerrain)
 				{
 					if (hit.cubePos != secondaryCursor.LocalPos)
@@ -145,7 +145,7 @@ public class PickupItemModelGun : PickupItemWithDelay
 				}
 				else if (cubePos != primaryCursor.LocalPos)
 				{
-					primaryCursor.SetCursorCube(cubePos, MVGameController.WOCM.GetSingletonWorldObject<MVCubeModelFineGrainedTerrain>().GameObject);
+					primaryCursor.SetCursorCube(cubePos, MVGameControllerBase.WOCM.GetSingletonWorldObject<MVCubeModelFineGrainedTerrain>().GameObject);
 					primaryCursor.FadeOverride = FadeOverride.FadeAllOut;
 					primaryCursor.FadeState = FadeState.FadeIn;
 				}
@@ -202,7 +202,7 @@ public class PickupItemModelGun : PickupItemWithDelay
 		}
 		bullet.onHit = (Bullet.OnHitDelegate)Delegate.Combine(bullet.onHit, new Bullet.OnHitDelegate(HandleCubeHit));
 		bullet.Fire(lineOfFire: new Ray(owner.LookOrigin, owner.LookDirection), speed: owner.GetAbsolutProjectileSpeed(speed), range: range, ignoreWoIDs: owner.IgnoreWOIDs);
-		MVGameController.AudioManager.Play("cubeFire", firePrimary, muzzlePoint.position, 0.6f, SoundRangeDistance.Long);
+		MVGameControllerBase.AudioManager.Play("cubeFire", firePrimary, muzzlePoint.position, 0.6f, SoundRangeDistance.Long);
 		currentAmmo--;
 	}
 
@@ -218,15 +218,15 @@ public class PickupItemModelGun : PickupItemWithDelay
 		if (CollisionDetection.MVHit(ray, out var voxelHit, range, null, num))
 		{
 			point = voxelHit.point;
-			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(voxelHit.woId);
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
 			if (worldObjectClient is MVCubeModelFineGrainedTerrain)
 			{
 				currentAmmo++;
 				if (isLocal)
 				{
-					MVGameController.Game.World.RuntimeEventManager.SendRuntimeEvent(new SingleCubeFineGrainedEvent(voxelHit.cubePos));
+					MVGameControllerBase.Game.World.RuntimeEventManager.SendRuntimeEvent(new SingleCubeFineGrainedEvent(voxelHit.cubePos));
 				}
-				MVGameController.AudioManager.Play("cube Destroyed", cubeDestroyedSound, point, 0.6f, SoundRangeDistance.Long);
+				MVGameControllerBase.AudioManager.Play("cube Destroyed", cubeDestroyedSound, point, 0.6f, SoundRangeDistance.Long);
 			}
 		}
 		else
@@ -306,7 +306,7 @@ public class PickupItemModelGun : PickupItemWithDelay
 
 	private bool GetCubePosFromFineGrainedTerrain(VoxelHit voxelHit, float maxDistanceToEdge, ref IntVector pos)
 	{
-		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(voxelHit.woId);
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
 		if (worldObjectClient is MVCubeModelFineGrainedTerrain)
 		{
 			Edge edge = Cube.GetEdge(worldObjectClient.GameObject, voxelHit.cube, voxelHit.face, voxelHit.point, voxelHit.cubePos);
@@ -360,12 +360,12 @@ public class PickupItemModelGun : PickupItemWithDelay
 	private void HandleCubeHitLocal(VoxelHit voxelHit, Ray lineOfFire)
 	{
 		IntVector cubePos = GetCubePos(voxelHit);
-		MVGameController.Game.World.RuntimeEventManager.SendRuntimeEvent(new SingleCubeFineGrainedEvent(cubePos, material));
+		MVGameControllerBase.Game.World.RuntimeEventManager.SendRuntimeEvent(new SingleCubeFineGrainedEvent(cubePos, material));
 	}
 
 	private void HandleCubeHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
-		MVGameController.AudioManager.Play("cubeLanded", cubeLandedSound, voxelHit.point, 0.6f, SoundRangeDistance.Long);
+		MVGameControllerBase.AudioManager.Play("cubeLanded", cubeLandedSound, voxelHit.point, 0.6f, SoundRangeDistance.Long);
 	}
 
 	private IntVector GetCubePos(VoxelHit voxelHit)
@@ -373,7 +373,7 @@ public class PickupItemModelGun : PickupItemWithDelay
 		IntVector pos = default;
 		if (!GetCubePosFromFineGrainedTerrain(voxelHit, 0.2f, ref pos))
 		{
-			return SharedCubeFunctions.WorldToLocal(MVGameController.WOCM.GetSingletonWorldObject<MVCubeModelFineGrainedTerrain>().GameObject, voxelHit.point + voxelHit.normal * 0.1f);
+			return SharedCubeFunctions.WorldToLocal(MVGameControllerBase.WOCM.GetSingletonWorldObject<MVCubeModelFineGrainedTerrain>().GameObject, voxelHit.point + voxelHit.normal * 0.1f);
 		}
 		return pos;
 	}

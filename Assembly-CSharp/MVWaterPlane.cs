@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class MVWaterPlane : MVLogicObject
@@ -42,21 +41,6 @@ public class MVWaterPlane : MVLogicObject
 	public override void CheckCanInsert(MVGUIInventoryGroup.CanInsertDelegate canInsert)
 	{
 		canInsert(canInsert: true);
-	}
-
-	private void OnOverwriteDialogResult(UXDialogBox dialog, MVGUIInventoryGroup.CanInsertDelegate canInsert)
-	{
-		if (dialog.DialogResult == UXDialogResult.Positive)
-		{
-			HashSet<MVWorldObjectClient> hashSet = new HashSet<MVWorldObjectClient>();
-			hashSet.Add(waterManager.WaterPlanes.First());
-			MVGameController.EditorController.Delete(hashSet);
-			canInsert(canInsert: true);
-		}
-		else
-		{
-			canInsert(canInsert: false);
-		}
 	}
 
 	public override void Initialize()

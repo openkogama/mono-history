@@ -233,7 +233,7 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 		public bool TryGetCurrentTarget(out MVWorldObjectClient worldObjectClient)
 		{
-			worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(currentWoID);
+			worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(currentWoID);
 			if (worldObjectClient == null)
 			{
 				return false;

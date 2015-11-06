@@ -1,10 +1,16 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using MV.Common;
 using UnityEngine;
 
-public class CharacterEditorController : AEditController
+public class CharacterEditorController : AIngameController, ICubeModelingEditMode
 {
 	public delegate void OnAvatarBodiesUpdatedDelegate(bool purchased);
+
+	private CubeModelingController cubeModelingController;
+
+	private readonly DrawPlaneController drawPlaneController = new DrawPlaneController();
 
 	private MVGUIResetAvatar resetAvatarButton;
 
@@ -22,7 +28,13 @@ public class CharacterEditorController : AEditController
 
 	public OnAvatarBodiesUpdatedDelegate OnAvatarBodiesUpdated;
 
-	private MVWorldObjectClientManager WOCM => MVGameController.WOCM;
+	private MVWorldObjectClientManager WOCM => MVGameControllerBase.WOCM;
+
+	public CubeModelingController CubeModelingController => cubeModelingController;
+
+	public DrawPlaneController DrawPlaneController => drawPlaneController;
+
+	public EditorStateMachine EditorStateMachine { get; protected set; }
 
 	public MVGUIAnimationToggles AnimationToggles { get; private set; }
 
@@ -56,9 +68,13 @@ public class CharacterEditorController : AEditController
 
 	public override void Initialize()
 	{
+		Debug.Log("CharacterEditorController Initialize");
+		EditorStateMachine = new EditorStateMachine();
 		base.Initialize();
+		MVNetworkGame game = MVGameControllerBase.Game;
+		game.OnActiveAvatar = (Action<int>)Delegate.Combine(game.OnActiveAvatar, new Action<int>(SetActiveAvatar));
 		animator = AvatarSelectionAnimator.Instance;
-		MVGameController.Game.CameraController.RenderLogic(renderLogic: false);
+		MVGameControllerBase.CameraController.RenderLogic(renderLogic: false);
 		IOrderedEnumerable<MVWorldObjectClient> orderedEnumerable = from s in WOCM.GetWorldObjectClientsWhere((MVWorldObjectClient wo) => wo is MVBody mVBody3 && mVBody3.AttachedAvatar == null)
 			orderby s.Id
 			select s;
@@ -81,12 +97,13 @@ public class CharacterEditorController : AEditController
 			item2.WorldPosition = animator.hidePos;
 			item2.WorldRotation = animator.bodySpawnPoint.WorldRotation;
 		}
-		MVAvatarLocal avatarLocal = MVGameController.WOCM.AvatarLocal;
+		MVAvatarLocal avatarLocal = MVGameControllerBase.WOCM.AvatarLocal;
 		avatarLocal.WorldPosition = mVSpawnPointBlue.WorldPosition - Vector3.up;
 		avatarLocal.WorldRotation = mVSpawnPointBlue.WorldRotation;
 		Debug.Log("BodyWOID " + mVBody2.Id);
 		UpdateSellButton(mVBody2.Id);
-		MVGameController.WOCM.AvatarLocal.AvatarMode = MVGameController.WOCM.AvatarLocal.AvatarModes.JetPackMode;
+		Debug.Log("Setting avatar mode");
+		MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Edit);
 		AvatarSlotButtonView.InitializeAvatarSlotButtonView();
 		EditorStateMachine.EnterGroup(mVBody2);
 		EditorStateMachine.Event = EditorEvent.CERoam;
@@ -95,18 +112,19 @@ public class CharacterEditorController : AEditController
 	public override void Update()
 	{
 		base.Update();
-		cubeModelingController.Update();
+		drawPlaneController.Update();
 	}
 
 	public override void HandleInput()
 	{
 		base.HandleInput();
+		EditorStateMachine.Update();
 		cubeModelingController.HandleInput();
 	}
 
 	private void UpdateSellButton(int woBodyId)
 	{
-		if (!MVGameController.Game.AvatarMetaDataWoMap.TryGetValue(woBodyId, out var avatarMetaData))
+		if (!MVGameControllerBase.Game.AvatarMetaDataWoMap.TryGetValue(woBodyId, out var avatarMetaData))
 		{
 			Debug.LogError("Could not find woID");
 			return;
@@ -122,8 +140,10 @@ public class CharacterEditorController : AEditController
 		GameObject gameObject = mVGUIAvatarEditor.gameObject;
 		cubeModelingController = new CubeModelingController(this, EditorStateMachine.CubeModelingStateMachine);
 		cubeModelingController.ResolveCubeTools(gameObject);
+		drawPlaneController.ResolveCubeTools(gameObject);
 		cubeModelingController.CubeTools.paintCubeButton.Toggle();
-		cubeModelingController.HideEditorTools();
+		cubeModelingController.HideCubeTools();
+		drawPlaneController.HideDrawPlane();
 		cubeModelingController.HideCurrentSelectedMaterial();
 		AnimationToggles = AIngameController.FindGUIObjectOfType<MVGUIAnimationToggles>(gameObject);
 		AvatarSell = AIngameController.FindGUIObjectOfType<MVGUIAvatarSellcs>(gameObject);
@@ -182,7 +202,8 @@ public class CharacterEditorController : AEditController
 
 	public void HideEditorTools()
 	{
-		cubeModelingController.HideEditorTools();
+		cubeModelingController.HideCubeTools();
+		drawPlaneController.HideDrawPlane();
 		cubeModelingController.HideCurrentSelectedMaterial();
 	}
 
@@ -190,7 +211,7 @@ public class CharacterEditorController : AEditController
 	{
 		if (EditorStateMachine.CurEvent == EditorEvent.CEEditBody)
 		{
-			cubeModelingController.ToggleDrawPlane();
+			drawPlaneController.ToggleDrawPlane();
 		}
 	}
 
@@ -271,7 +292,7 @@ public class CharacterEditorController : AEditController
 		mVBody.ShadowVisible = false;
 		mVBody.WorldPosition = animator.hidePos;
 		mVBody.WorldRotation = animator.displayRotation;
-		MVGameController.Game.AvatarMetaDataWoMap.ResetAvatar(animator.Bodies[bodiesMarkedForDelete[0]].Id, WoID);
+		MVGameControllerBase.Game.AvatarMetaDataWoMap.ResetAvatar(animator.Bodies[bodiesMarkedForDelete[0]].Id, WoID);
 		animator.Bodies[bodiesMarkedForDelete[0]] = mVBody;
 		EditorStateMachine.EnterGroup(mVBody);
 		EditorStateMachine.Event = EditorEvent.CERoam;
@@ -298,6 +319,6 @@ public class CharacterEditorController : AEditController
 		EditorStateMachine.EnterGroup(animator.Bodies[newIndex]);
 		EditorStateMachine.Event = EditorEvent.CERoam;
 		UpdateSellButton(animator.Bodies[newIndex].Id);
-		MVGameController.Game.SetActiveAvatar(animator.Bodies[newIndex].Id);
+		MVGameControllerBase.Game.SetActiveAvatar(animator.Bodies[newIndex].Id);
 	}
 }

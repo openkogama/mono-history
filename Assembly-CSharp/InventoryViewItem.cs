@@ -84,7 +84,7 @@ public class InventoryViewItem : MVGUIBasicViewItem
 
 	private void OnOpenItemActionDialog()
 	{
-		MVGameController.EditController.HideCurrentWindow();
+		MVGameControllerLegacyUI.IngameController.HideCurrentWindow();
 		UXDialogFactory uXDialogFactory = UXUtils.UXDialogFactory;
 		uXDialogFactory.CreateCustomDialog("Prefabs/GUI/Item Action/ItemActionDialog", string.Empty, noButtons: true).SetOnResultCallback(OnCloseItemActionDialog);
 		(uXDialogFactory.CurrentlyBuildingDialogBox as MVGUIItemActionDialog).SetMVItem(Item.Object as MVItem);
@@ -93,7 +93,7 @@ public class InventoryViewItem : MVGUIBasicViewItem
 
 	private void OnCloseItemActionDialog(UXDialogBox dialogBox)
 	{
-		MVGameController.EditorController.ShowInventory();
+		MVGameControllerLegacyUI.EditorController.ShowInventory();
 	}
 
 	public override void OnMouseSlotOver(int slotIndex, int visiblePage)

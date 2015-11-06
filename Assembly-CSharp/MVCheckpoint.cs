@@ -11,6 +11,8 @@ public class MVCheckpoint : MVLogicObject
 
 	private GameCoinLogic gameCoinLogic;
 
+	public override Vector3 WorldPivot => transform.position;
+
 	public MVCheckpoint(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, "Prefabs/CheckpointObject", worldObjects)
 	{
@@ -23,7 +25,10 @@ public class MVCheckpoint : MVLogicObject
 
 	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
 	{
-		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, Vector3.one * 2f);
+		Vector3 vector = Vector3.one * 2f;
+		vector.z = 1f;
+		vector.x = 1f;
+		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, vector);
 	}
 
 	protected override void OnUpdate()
@@ -58,12 +63,12 @@ public class MVCheckpoint : MVLogicObject
 
 	private bool CanReachCheckpoint()
 	{
-		return MVGameController.Game.LocalPlayer.GetCheckpoint() == null || MVGameController.Game.LocalPlayer.GetCheckpoint().Id != Id;
+		return MVGameControllerBase.Game.LocalPlayer.GetCheckpoint() == null || MVGameControllerBase.Game.LocalPlayer.GetCheckpoint().Id != Id;
 	}
 
 	private void DoReachCheckpoint()
 	{
-		MVGameController.Game.LocalPlayer.SetCheckpoint(id);
+		MVGameControllerBase.Game.LocalPlayer.SetCheckpoint(id);
 		if (animation != null)
 		{
 			animation.Play("CheckpointReach");

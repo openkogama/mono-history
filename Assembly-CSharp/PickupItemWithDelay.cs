@@ -10,8 +10,6 @@ public abstract class PickupItemWithDelay : PickupItem
 
 	public Color crossHairCanFire = Color.green;
 
-	public Transform muzzlePoint;
-
 	[SerializeField]
 	protected ObscuredFloat fireInterval = 1f;
 
@@ -75,6 +73,7 @@ public abstract class PickupItemWithDelay : PickupItem
 			{
 				lastFireTime = Time.time;
 				OnFire(owner.IsLocal);
+				firedThisFrame = true;
 			}
 			if (IsAmmoDepleted)
 			{

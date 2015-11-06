@@ -9,16 +9,16 @@ public class SprayCursor
 
 	private float addCubeLaserOnTime = 0.2f;
 
-	public SprayCursor()
+	public SprayCursor(Vector3[] cubeCorners)
 	{
-		sprayCursor = new CellCursor(1, 0.03f, "Materials/CellCursorMaterial", 1f);
+		sprayCursor = new CellCursor(1, 0.03f, "Materials/CellCursorMaterial", 1f, cubeCorners);
 	}
 
 	public void UpdateCursor(CubePickingInfo selectedCube, MVCubeModelBase targetCubeModel, bool addCube)
 	{
 		if (addCube)
 		{
-			MVGameController.WOCM.AvatarLocal.LaserPointer.ActivateLaserForDuration(addCubeLaserOnTime);
+			MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ActivateLaserForDuration(addCubeLaserOnTime);
 			addCubeTime = Time.time;
 		}
 		if (selectedCube != null)
@@ -29,7 +29,7 @@ public class SprayCursor
 			if (Time.time - addCubeTime < addCubeLaserOnTime)
 			{
 			}
-			MVGameController.WOCM.AvatarLocal.LaserPointer.UpdatePosition(selectedCube.point);
+			MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.UpdatePosition(selectedCube.point);
 		}
 		else
 		{

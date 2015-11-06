@@ -31,7 +31,7 @@ public class MVGUIPlayersWindow : MonoBehaviour
 	{
 		UXView viewParent = ViewParent;
 		viewParent.OnShow = (UXView.OnShowDelegate)Delegate.Combine(viewParent.OnShow, new UXView.OnShowDelegate(OnShow));
-		MVNetworkGame game = MVGameController.Game;
+		MVNetworkGame game = MVGameControllerBase.Game;
 		game.onPlayerListChanged = (MVNetworkGame.OnPlayerListChangedDelegate)Delegate.Combine(game.onPlayerListChanged, (MVNetworkGame.OnPlayerListChangedDelegate)(() =>
 		{
 			if (ViewParent.isVisible)
@@ -39,7 +39,7 @@ public class MVGUIPlayersWindow : MonoBehaviour
 				UpdatePlayerList();
 			}
 		}));
-		FriendList friends = MVGameController.Game.Friends;
+		FriendList friends = MVGameControllerBase.Game.Friends;
 		friends.OnFriendListUpdated = (FriendList.OnFriendListUpdatedDelegate)Delegate.Combine(friends.OnFriendListUpdated, (FriendList.OnFriendListUpdatedDelegate)(() =>
 		{
 			if (ViewParent.isVisible)
@@ -47,7 +47,7 @@ public class MVGUIPlayersWindow : MonoBehaviour
 				UpdatePlayerList();
 			}
 		}));
-		MVTeamManager teamManager = MVGameController.Game.TeamManager;
+		MVTeamManager teamManager = MVGameControllerBase.Game.TeamManager;
 		teamManager.OnTeamsUpdated = (MVTeamManager.OnTeamsUpdatedDelegate)Delegate.Combine(teamManager.OnTeamsUpdated, (MVTeamManager.OnTeamsUpdatedDelegate)(() =>
 		{
 			if (ViewParent.isVisible)
@@ -77,7 +77,7 @@ public class MVGUIPlayersWindow : MonoBehaviour
 	private void BuildTeamLists()
 	{
 		RemoveAllTeamLists();
-		List<MVTeam> teamList = MVGameController.Game.TeamManager.GetTeamList();
+		List<MVTeam> teamList = MVGameControllerBase.Game.TeamManager.GetTeamList();
 		NoOfTeams = teamList.Count;
 		if (NoOfTeams > 1 && ShowTeams())
 		{
@@ -114,7 +114,7 @@ public class MVGUIPlayersWindow : MonoBehaviour
 
 	private bool ShowTeams()
 	{
-		return MVGameController.GameMode == MVGameMode.Play || (MVGameController.EditorController != null && MVGameController.EditorController.PlayInEditor);
+		return MVGameControllerBase.GameMode == MVGameMode.Play || (MVGameControllerLegacyUI.EditorController != null && MVGameControllerLegacyUI.EditorController.PlayInEditor);
 	}
 
 	private void AddTeamList(MVTeam team)
@@ -187,7 +187,7 @@ public class MVGUIPlayersWindow : MonoBehaviour
 	private void ClearLines(MVGUITeamList playersList)
 	{
 		List<MVGUIPlayerLine> list = new List<MVGUIPlayerLine>();
-		List<MVPlayer> list2 = MVGameController.Game.Players.Values.ToList();
+		List<MVPlayer> list2 = MVGameControllerBase.Game.Players.Values.ToList();
 		foreach (MVGUIPlayerLine line in playersList.GetLines())
 		{
 			if (!list2.Contains(line.GetPlayer()))
@@ -206,9 +206,9 @@ public class MVGUIPlayersWindow : MonoBehaviour
 	{
 		Dictionary<MVTeam, List<PlayerData>> dictionary = new Dictionary<MVTeam, List<PlayerData>>();
 		MVGUIPlayerLine original = ((NoOfTeams != 1) ? smallPlayerLinePrefab : playerLinePrefab);
-		foreach (MVPlayer value in MVGameController.Game.Players.Values)
+		foreach (MVPlayer value in MVGameControllerBase.Game.Players.Values)
 		{
-			PlayerData playerData = new PlayerData(value, MVGameController.Game.Friends.GetFriendByProfileID(value.ProfileID));
+			PlayerData playerData = new PlayerData(value, MVGameControllerBase.Game.Friends.GetFriendByProfileID(value.ProfileID));
 			MVTeam team = value.Team;
 			if (teamToPlayerlist.ContainsKey(team))
 			{

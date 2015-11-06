@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MV.Common;
 using UnityEngine;
 
 public class MVAvatar : MVGroup
@@ -34,6 +35,19 @@ public class MVAvatar : MVGroup
 
 	protected AvatarFader avatarFader;
 
+	public AvatarRuntimeState AvatarRuntimeState
+	{
+		get
+		{
+			return (AvatarRuntimeState)(byte)AvatarRuntimeDataState.Value;
+		}
+		protected set
+		{
+			Debug.Log("AvatarRuntimeState " + value);
+			AvatarRuntimeDataState.Value = (byte)value;
+		}
+	}
+
 	public Vector3 CharacterControllerCenterOffset => characterControllerCenterOffset;
 
 	public float SetTransparency
@@ -51,10 +65,18 @@ public class MVAvatar : MVGroup
 
 	public Avatar Avatar => avatar;
 
+	public virtual Vector3 Velocity
+	{
+		get
+		{
+			throw new Exception("not implemented");
+		}
+	}
+
 	public MVAvatar(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, prefabPath, worldObjects)
 	{
-		isLocal = OwnerActorNr == MVGameController.Game.LocalPlayer.ActorNr;
+		isLocal = OwnerActorNr == MVGameControllerBase.Game.LocalPlayer.ActorNr;
 		interactionFlags = InteractionFlags.None;
 		PlayInteractionType = PlayInteractionType.HandlesHits;
 		Health = RuntimeDataVariables.NewClampedFloat("health", 0.2f, writeThrough: false, 0f, 100f);
@@ -121,7 +143,7 @@ public class MVAvatar : MVGroup
 		avatarPickupOwner.IsLocal = isLocal;
 		avatar.Initialize(this, isLocal);
 		InitializeModifiers();
-		MVGameController.Game.Players.TryGetValue(OwnerActorNr, out var value);
+		MVGameControllerBase.Game.Players.TryGetValue(OwnerActorNr, out var value);
 		if (value != null)
 		{
 			value.Avatar = this;
@@ -167,7 +189,7 @@ public class MVAvatar : MVGroup
 	public override void TransferChild(int id)
 	{
 		base.TransferChild(id);
-		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(id);
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(id);
 		if (worldObjectClient is MVBody newBody)
 		{
 			AttachBody(newBody);

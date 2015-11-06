@@ -11,14 +11,14 @@ public class StreamingAssetRequest : CachedGetRequest
 	protected override WWW Create()
 	{
 		WWW wWW;
-		if (MVGameController.VersionStreamingAssets >= 0)
+		if (MVGameControllerBase.VersionStreamingAssets >= 0)
 		{
-			wWW = (AsyncWebRequest.useCaching ? WWW.LoadFromCacheOrDownload(path + "?version=" + MVGameController.VersionStreamingAssets, MVGameController.VersionStreamingAssets) : new WWW(path + "?version=" + MVGameController.VersionStreamingAssets));
+			wWW = (AsyncWebRequest.useCaching ? WWW.LoadFromCacheOrDownload(path + "?version=" + MVGameControllerBase.VersionStreamingAssets, MVGameControllerBase.VersionStreamingAssets) : new WWW(path + "?version=" + MVGameControllerBase.VersionStreamingAssets));
 		}
 		else
 		{
 			Debug.LogError("Streaming assets version must be >= 0 to enable WWW.LoadFromCacheOrDownload. Using non-cached approach");
-			wWW = new WWW(path + "?version=" + MVGameController.VersionStreamingAssets);
+			wWW = new WWW(path + "?version=" + MVGameControllerBase.VersionStreamingAssets);
 		}
 		if (wWW == null)
 		{

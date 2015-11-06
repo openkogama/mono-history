@@ -16,14 +16,14 @@ public class MVLocalPlayerRegistered : MVLocalPlayer
 		base.InitializeLeveling(initialLevelData);
 		XPEventQueue xPEventQueue = xpEventQueue;
 		xPEventQueue.OnXPProgressData = (XPProgress.OnXPProgressDataDelegate)Delegate.Combine(xPEventQueue.OnXPProgressData, new XPProgress.OnXPProgressDataDelegate(OnXPProgressDataChangeRegistered));
-		MVGameController.Game.LocalPlayerLevelChanged(Level);
+		MVGameControllerBase.Game.LocalPlayerLevelChanged(Level);
 	}
 
 	private void OnXPProgressDataChangeRegistered(XPProgressData xpProgress)
 	{
 		if (xpProgress.XPLimitExceeded)
 		{
-			if (!MVGameController.LevelingTestMode)
+			if (!MVGameControllerBase.LevelingTestMode)
 			{
 				AsyncWWWManager.WWWRequest(new GetRequest(Urls.Level + ProfileID, LevelCallback));
 			}

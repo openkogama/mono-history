@@ -10,6 +10,6 @@ public abstract class MVGUISettingsDialog
 		{
 			dialogFactory = UXUtils.UXDialogFactory;
 		}
-		wo = MVGameController.EditorController.GetSettingsDialogSelectionWO();
+		wo = MVGameControllerLegacyUI.EditorController.GetSettingsDialogSelectionWO();
 	}
 }

@@ -22,7 +22,7 @@ public class MVMovingPlatformGroup : MVBlueprintBase
 
 	private bool initializeFailed;
 
-	private MVWorldObjectClientManager WOCM => MVGameController.WOCM;
+	private MVWorldObjectClientManager WOCM => MVGameControllerBase.WOCM;
 
 	public MVMovingPlatform Platform => platform;
 

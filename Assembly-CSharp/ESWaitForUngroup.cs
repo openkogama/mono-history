@@ -31,9 +31,9 @@ internal class ESWaitForUngroup : ESStateBase
 		lockId = e.SingleSelectedWO.Id;
 		parentGroupId = e.SingleSelectedWO.GroupId;
 		state = WaitForGroupsState.WaitingForLock;
-		MVWorldObjectClientManager wOCM = MVGameController.WOCM;
+		MVWorldObjectClientManager wOCM = MVGameControllerBase.WOCM;
 		wOCM.OnHierarchyLockedResponse = (EventHandler<OnHierarchyLockedEventArgs>)Delegate.Combine(wOCM.OnHierarchyLockedResponse, new EventHandler<OnHierarchyLockedEventArgs>(WOCM_OnHierarchyLockedResponse));
-		MVGameController.Game.LockHierarchy(lockId, lockHierarchy: true);
+		MVGameControllerBase.Game.LockHierarchy(lockId, lockHierarchy: true);
 	}
 
 	public override void Execute(EditorStateMachine e)
@@ -52,16 +52,16 @@ internal class ESWaitForUngroup : ESStateBase
 			{
 				responseReceived = false;
 				e.DeSelectAll();
-				MVWorldObjectClientManager wOCM = MVGameController.WOCM;
+				MVWorldObjectClientManager wOCM = MVGameControllerBase.WOCM;
 				wOCM.OnUngroupResponse = (EventHandler<OnUngroupResponseEventArgs>)Delegate.Combine(wOCM.OnUngroupResponse, new EventHandler<OnUngroupResponseEventArgs>(WOCM_OnUngroupResponse));
-				MVGameController.Game.Ungroup(lockId);
+				MVGameControllerBase.Game.Ungroup(lockId);
 				state = WaitForGroupsState.WaitingForUngroup;
 			}
 			break;
 		case WaitForGroupsState.WaitingForUngroup:
 			if (responseReceived)
 			{
-				if (MVGameController.WOCM.GetWorldObjectClient(parentGroupId).Id != MVGameController.WOCM.RootGroup.Id)
+				if (MVGameControllerBase.WOCM.GetWorldObjectClient(parentGroupId).Id != MVGameControllerBase.WOCM.RootGroup.Id)
 				{
 					e.SelectWO(parentGroupId, addToSelection: false);
 					e.LockState = false;
@@ -81,7 +81,7 @@ internal class ESWaitForUngroup : ESStateBase
 	private void WOCM_OnUngroupResponse(object sender, OnUngroupResponseEventArgs e)
 	{
 		responseReceived = true;
-		MVWorldObjectClientManager wOCM = MVGameController.WOCM;
+		MVWorldObjectClientManager wOCM = MVGameControllerBase.WOCM;
 		wOCM.OnUngroupResponse = (EventHandler<OnUngroupResponseEventArgs>)Delegate.Remove(wOCM.OnUngroupResponse, new EventHandler<OnUngroupResponseEventArgs>(WOCM_OnUngroupResponse));
 	}
 
@@ -91,12 +91,12 @@ internal class ESWaitForUngroup : ESStateBase
 		if (e.success)
 		{
 			responseReceived = true;
-			MVWorldObjectClientManager wOCM = MVGameController.WOCM;
+			MVWorldObjectClientManager wOCM = MVGameControllerBase.WOCM;
 			wOCM.OnHierarchyLockedResponse = (EventHandler<OnHierarchyLockedEventArgs>)Delegate.Remove(wOCM.OnHierarchyLockedResponse, new EventHandler<OnHierarchyLockedEventArgs>(WOCM_OnHierarchyLockedResponse));
 		}
 		else
 		{
-			MVGameController.Game.LockHierarchy(lockId, lockHierarchy: false);
+			MVGameControllerBase.Game.LockHierarchy(lockId, lockHierarchy: false);
 			abort = true;
 		}
 	}

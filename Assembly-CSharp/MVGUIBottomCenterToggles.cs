@@ -17,6 +17,6 @@ public class MVGUIBottomCenterToggles : UXViewScript
 
 	private void Update()
 	{
-		changeTeamButton.button.SetVisible(MVGameController.Game.TeamManager.TeamCount() > 1);
+		changeTeamButton.button.SetVisible(MVGameControllerBase.Game.TeamManager.TeamCount() > 1);
 	}
 }

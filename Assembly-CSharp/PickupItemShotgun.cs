@@ -66,14 +66,14 @@ public class PickupItemShotgun : PickupItemWithDelay
 			bullet.Fire(owner.GetAbsolutProjectileSpeed(100f), 100f, array3[j], owner.IgnoreWOIDs);
 		}
 		--ammo;
-		MVGameController.AudioManager.Play("shotgun fire", GetComponent<AudioSource>(), muzzlePoint.position);
+		MVGameControllerBase.AudioManager.Play("shotgun fire", GetComponent<AudioSource>(), muzzlePoint.position);
 		if (isLocal)
 		{
-			MVGameController.AudioManager.Play("shotgun fire", GetComponent<AudioSource>(), Camera.main.transform.position + Camera.main.transform.forward);
+			MVGameControllerBase.AudioManager.Play("shotgun fire", GetComponent<AudioSource>(), Camera.main.transform.position + Camera.main.transform.forward);
 		}
 		else
 		{
-			MVGameController.AudioManager.Play("shotgun fire", GetComponent<AudioSource>(), muzzlePoint.position);
+			MVGameControllerBase.AudioManager.Play("shotgun fire", GetComponent<AudioSource>(), muzzlePoint.position);
 		}
 		isFiring = false;
 	}
@@ -81,7 +81,7 @@ public class PickupItemShotgun : PickupItemWithDelay
 	private void HandleHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
 		Quaternion rotation = Quaternion.FromToRotation(Vector3.up, voxelHit.normal);
-		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(voxelHit.woId);
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
 		string path = ((!(worldObjectClient is MVAvatar)) ? "ParticleFX/Sparks" : "ParticleFX/Blood");
 		UnityEngine.Object.Instantiate(Resources.Load(path), voxelHit.point, rotation);
 		MeshDecal.Create(new MeshDecal.Hit(voxelHit.point, voxelHit.normal, 1f), hitDecalMaterial, null);
@@ -91,9 +91,9 @@ public class PickupItemShotgun : PickupItemWithDelay
 	{
 		Vector3 impulse = lineOfFire.direction * impulseStrength;
 		InteractionData interaction = ShotgunHitPackage.Create(impulse, hitDamage);
-		MVGameController.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, interaction.Damage);
-		int woIDHighestInHierarchyWithComponent = MVGameController.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
-		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
+		MVGameControllerBase.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, interaction.Damage);
+		int woIDHighestInHierarchyWithComponent = MVGameControllerBase.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
 		if (worldObjectClient != null)
 		{
 			InteractionDataHandlerBase component = worldObjectClient.GameObject.GetComponent<InteractionDataHandlerBase>();

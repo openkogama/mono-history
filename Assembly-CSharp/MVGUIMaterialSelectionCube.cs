@@ -36,7 +36,7 @@ public class MVGUIMaterialSelectionCube : UXGUIElement
 		set
 		{
 			_materialId = value;
-			mvMaterial = MVGameController.Game.MaterialRepository.GetMaterial((byte)_materialId);
+			mvMaterial = MVGameControllerBase.Game.MaterialRepository.GetMaterial((byte)_materialId);
 			ChildCube.GetComponent<Renderer>().material = mvMaterial.material;
 			originalMaterial = mvMaterial.material;
 			AddToolTip(mvMaterial.name);

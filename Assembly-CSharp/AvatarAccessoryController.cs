@@ -21,11 +21,11 @@ public class AvatarAccessoryController : MonoBehaviour
 	private void OpenAvatarAccessoryView(UXView view)
 	{
 		Debug.Log("OpenAvatarAccessoryView");
-		MVGameController.IngameController.ShowSingleWindow(view);
+		MVGameControllerLegacyUI.IngameController.ShowSingleWindow(view);
 	}
 
 	public void CloseAvatarAccessoryView()
 	{
-		MVGameController.IngameController.HideCurrentWindow();
+		MVGameControllerLegacyUI.IngameController.HideCurrentWindow();
 	}
 }

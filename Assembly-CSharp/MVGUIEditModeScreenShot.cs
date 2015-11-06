@@ -18,7 +18,7 @@ public class MVGUIEditModeScreenShot : UXViewScript
 
 	private void TakeScreenShot()
 	{
-		MVGameController.Game.UploadGameScreenShot();
+		MVGameControllerBase.Game.UploadGameScreenShot();
 		if (screenshotSound != null)
 		{
 			screenshotSound.Play();

@@ -19,7 +19,7 @@ public abstract class MVSpawnPoint : MVLogicObject
 
 	public override bool Delete(MVWorldObjectClientManager worldObjectClientManager, ref string errorText)
 	{
-		int num = MVGameController.WOCM.GetWorldObjectsByType(WorldObjectType.SpawnPointBlue).Count + MVGameController.WOCM.GetWorldObjectsByType(WorldObjectType.SpawnPointRed).Count + MVGameController.WOCM.GetWorldObjectsByType(WorldObjectType.SpawnPointGreen).Count + MVGameController.WOCM.GetWorldObjectsByType(WorldObjectType.SpawnPointYellow).Count;
+		int num = MVGameControllerBase.WOCM.GetWorldObjectsByType(WorldObjectType.SpawnPointBlue).Count + MVGameControllerBase.WOCM.GetWorldObjectsByType(WorldObjectType.SpawnPointRed).Count + MVGameControllerBase.WOCM.GetWorldObjectsByType(WorldObjectType.SpawnPointGreen).Count + MVGameControllerBase.WOCM.GetWorldObjectsByType(WorldObjectType.SpawnPointYellow).Count;
 		if (num <= 1)
 		{
 			errorText = TM._("You cannot delete the last spawn-point.\nAll Projects must have at least one");

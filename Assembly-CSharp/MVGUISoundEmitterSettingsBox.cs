@@ -54,7 +54,7 @@ public class MVGUISoundEmitterSettingsBox : UXCustomDialogBox
 
 	private bool isInitialized;
 
-	private MVNetworkGame Game => MVGameController.Game;
+	private MVNetworkGame Game => MVGameControllerBase.Game;
 
 	private bool Preview
 	{
@@ -331,7 +331,7 @@ public class MVGUISoundEmitterSettingsBox : UXCustomDialogBox
 			mVGUIProductShopDialog.SetPrice(PreviewLine.AssetInfo.ShopInfo.PriceGold, PreviewLine.AssetInfo.ShopInfo.PriceSilver);
 			mVGUIProductShopDialog.OnTryPurchaseProduct = () =>
 			{
-				MVGameController.Game.PurchaseStreamingAsset(StreamingAssetType.AmbientAudio, PreviewLine.AssetInfo.ProductID);
+				MVGameControllerBase.Game.PurchaseStreamingAsset(StreamingAssetType.AmbientAudio, PreviewLine.AssetInfo.ProductID);
 			};
 		}
 		FireIntermediateResult();

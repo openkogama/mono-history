@@ -7,8 +7,6 @@ using UnityEngine;
 
 public class PickupItemRailGun : PickupItem
 {
-	public Transform muzzlePoint;
-
 	public ParticleSystem chargeParticles;
 
 	public float range = 300f;
@@ -36,6 +34,8 @@ public class PickupItemRailGun : PickupItem
 	public AudioClip releaseSound;
 
 	private AudioSource audioSource;
+
+	private float toFieldOfView;
 
 	public AnimationCurve chargeCurve;
 
@@ -84,6 +84,14 @@ public class PickupItemRailGun : PickupItem
 		meshRenderers = GetComponentsInChildren<MeshRenderer>();
 		currentAmmo = ammo;
 		audioSource = GetComponent<AudioSource>();
+		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
+		{
+			toFieldOfView = 95f;
+		}
+		else
+		{
+			toFieldOfView = 25f;
+		}
 	}
 
 	public override void OnStateChanged(Dictionary<object, object> newState)
@@ -101,7 +109,7 @@ public class PickupItemRailGun : PickupItem
 			audioSource.volume = charge * 0.2f;
 			if (owner.IsLocal)
 			{
-				Camera.main.fieldOfView = Mathf.Lerp(60f, 25f, charge);
+				Camera.main.fieldOfView = Mathf.Lerp(60f, toFieldOfView, charge);
 			}
 			chargeParticles.time = charge;
 			if (charge >= 1f)
@@ -184,10 +192,10 @@ public class PickupItemRailGun : PickupItem
 		if (CollisionDetection.MVHit(ray, out var voxelHit, range, owner.IgnoreWOIDs, layerMask))
 		{
 			InteractionData interaction = RailgunHitPackage.Create();
-			MVGameController.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, interaction.Damage);
+			MVGameControllerBase.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, interaction.Damage);
 			point = voxelHit.point;
-			int woIDHighestInHierarchyWithComponent = MVGameController.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
-			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
+			int woIDHighestInHierarchyWithComponent = MVGameControllerBase.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
 			if (owner.IsLocal && worldObjectClient != null)
 			{
 				InteractionDataHandlerBase component = worldObjectClient.GameObject.GetComponent<InteractionDataHandlerBase>();

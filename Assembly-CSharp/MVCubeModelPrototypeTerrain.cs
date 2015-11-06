@@ -14,7 +14,7 @@ public class MVCubeModelPrototypeTerrain : MVCubeModelBase
 		: base(data, worldObjects, prototypes)
 	{
 		interactionFlags = InteractionFlags.IsTerrain;
-		MVGameController.WOCM.UpdateWorldBounds(SharedCubeFunctions.GetAxisAlignedBoundsRecursively(gameObject.transform).Value);
+		MVGameControllerBase.WOCM.UpdateWorldBounds(SharedCubeFunctions.GetAxisAlignedBoundsRecursively(gameObject.transform).Value);
 		terrainLODComponent = new TerrainLODComponent(prototypeCubeModel, chunkInstances, new DynamicLODDistance(1f, 600f, 20000), Scale.x, debug: false);
 	}
 

@@ -35,12 +35,12 @@ internal class ESWaitForGroup : ESStateBase
 		}
 		lockList = new List<int>();
 		state = WaitForGroupsState.WaitingForLock;
-		MVWorldObjectClientManager wOCM = MVGameController.WOCM;
+		MVWorldObjectClientManager wOCM = MVGameControllerBase.WOCM;
 		wOCM.OnHierarchyLockedResponse = (EventHandler<OnHierarchyLockedEventArgs>)Delegate.Combine(wOCM.OnHierarchyLockedResponse, new EventHandler<OnHierarchyLockedEventArgs>(WOCM_OnHierarchyLockedResponse));
 		foreach (int selectedID in e.SelectedIDs)
 		{
 			lockList.Add(selectedID);
-			MVGameController.Game.LockHierarchy(selectedID, lockHierarchy: true);
+			MVGameControllerBase.Game.LockHierarchy(selectedID, lockHierarchy: true);
 		}
 		lockCount = lockList.Count;
 	}
@@ -70,14 +70,14 @@ internal class ESWaitForGroup : ESStateBase
 			{
 				break;
 			}
-			MVWorldObjectClientManager wOCM = MVGameController.WOCM;
+			MVWorldObjectClientManager wOCM = MVGameControllerBase.WOCM;
 			wOCM.OnTransferWosResponse = (EventHandler<OnTransferWosResponseEventArgs>)Delegate.Combine(wOCM.OnTransferWosResponse, new EventHandler<OnTransferWosResponseEventArgs>(WOCM_OnTransferWosResponse));
-			MVGameController.Game.TransferWorldObjectsToGroup(createGroupId, lockList.ToArray());
+			MVGameControllerBase.Game.TransferWorldObjectsToGroup(createGroupId, lockList.ToArray());
 			foreach (int @lock in lockList)
 			{
-				MVGameController.Game.LockHierarchy(@lock, lockHierarchy: false);
+				MVGameControllerBase.Game.LockHierarchy(@lock, lockHierarchy: false);
 			}
-			MVGameController.Game.TransferOwnership(createGroupId, 0, null);
+			MVGameControllerBase.Game.TransferOwnership(createGroupId, 0, null);
 			state = WaitForGroupsState.WaitingForTransferWos;
 			responseReceived = false;
 			break;
@@ -96,7 +96,7 @@ internal class ESWaitForGroup : ESStateBase
 	private void WOCM_OnTransferWosResponse(object sender, OnTransferWosResponseEventArgs e)
 	{
 		responseReceived = true;
-		MVWorldObjectClientManager wOCM = MVGameController.WOCM;
+		MVWorldObjectClientManager wOCM = MVGameControllerBase.WOCM;
 		wOCM.OnTransferWosResponse = (EventHandler<OnTransferWosResponseEventArgs>)Delegate.Remove(wOCM.OnTransferWosResponse, new EventHandler<OnTransferWosResponseEventArgs>(WOCM_OnTransferWosResponse));
 	}
 
@@ -108,18 +108,18 @@ internal class ESWaitForGroup : ESStateBase
 			list.Add(selectedWO.Transform);
 		}
 		Vector3 worldCenter = SharedCubeFunctions.GetWorldCenter(list);
-		World world = MVGameController.Game.World;
+		World world = MVGameControllerBase.Game.World;
 		world.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Combine(world.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(WOCM_InitializedGameQueryData));
-		MVGameController.Game.RequestBuiltInItem(BuiltInItem.Group, e.ParentGroupID, new Dictionary<object, object>(), worldCenter, Quaternion.identity, Vector3.one, localOwner: true, transferOwnershipToServerOnLeave: true);
+		MVGameControllerBase.Game.RequestBuiltInItem(BuiltInItem.Group, e.ParentGroupID, new Dictionary<object, object>(), worldCenter, Quaternion.identity, Vector3.one, localOwner: true, transferOwnershipToServerOnLeave: true);
 	}
 
 	private void WOCM_InitializedGameQueryData(object sender, InitializedGameQueryDataEventArgs e)
 	{
-		if (MVGameController.Game.LocalPlayerActorNumber == e.InstigatorActorNumber)
+		if (MVGameControllerBase.Game.LocalPlayerActorNumber == e.InstigatorActorNumber)
 		{
 			responseReceived = true;
 			createGroupId = e.RootWO.Id;
-			World world = MVGameController.Game.World;
+			World world = MVGameControllerBase.Game.World;
 			world.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Remove(world.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(WOCM_InitializedGameQueryData));
 			Debug.Log("Received group");
 		}
@@ -134,17 +134,17 @@ internal class ESWaitForGroup : ESStateBase
 			if (lockCount == 0)
 			{
 				responseReceived = true;
-				MVWorldObjectClientManager wOCM = MVGameController.WOCM;
+				MVWorldObjectClientManager wOCM = MVGameControllerBase.WOCM;
 				wOCM.OnHierarchyLockedResponse = (EventHandler<OnHierarchyLockedEventArgs>)Delegate.Remove(wOCM.OnHierarchyLockedResponse, new EventHandler<OnHierarchyLockedEventArgs>(WOCM_OnHierarchyLockedResponse));
 			}
 			return;
 		}
 		foreach (int @lock in lockList)
 		{
-			MVGameController.Game.LockHierarchy(@lock, lockHierarchy: false);
+			MVGameControllerBase.Game.LockHierarchy(@lock, lockHierarchy: false);
 		}
 		abort = true;
-		MVWorldObjectClientManager wOCM2 = MVGameController.WOCM;
+		MVWorldObjectClientManager wOCM2 = MVGameControllerBase.WOCM;
 		wOCM2.OnHierarchyLockedResponse = (EventHandler<OnHierarchyLockedEventArgs>)Delegate.Remove(wOCM2.OnHierarchyLockedResponse, new EventHandler<OnHierarchyLockedEventArgs>(WOCM_OnHierarchyLockedResponse));
 	}
 

@@ -34,7 +34,7 @@ public class MVGUIAddToInventoryDevDialog : UXCustomDialogBox
 
 	private bool _isInitialized;
 
-	private MVWorldObjectClientManager WOCM => MVGameController.WOCM;
+	private MVWorldObjectClientManager WOCM => MVGameControllerBase.WOCM;
 
 	public override void OnShowDialog()
 	{
@@ -61,7 +61,7 @@ public class MVGUIAddToInventoryDevDialog : UXCustomDialogBox
 				}
 			}));
 			InitializeWoIDStep();
-			itemTypeComboBox.Add(MVGameController.Game.ItemCategories.GetNames());
+			itemTypeComboBox.Add(MVGameControllerBase.Game.ItemCategories.GetNames());
 			_isInitialized = true;
 		}
 		itemTypeComboBox.Close();
@@ -243,7 +243,7 @@ public class MVGUIAddToInventoryDevDialog : UXCustomDialogBox
 		dictionary.Add("name", nameTextField.Text);
 		dictionary.Add("woId", int.Parse(woIdTextField.Text));
 		string text = (string)itemTypeComboBox.CurrentlySelectedItem.GetValue();
-		dictionary.Add("itemCategory", MVGameController.Game.ItemCategories.NameToID(text));
+		dictionary.Add("itemCategory", MVGameControllerBase.Game.ItemCategories.NameToID(text));
 		dictionary.Add("overWrite", overwriteToggle.ToggleState);
 		return dictionary;
 	}

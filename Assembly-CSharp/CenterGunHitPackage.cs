@@ -21,7 +21,7 @@ public class CenterGunHitPackage : InteractionPackage
 		{
 			component.TakeDamage(interactionStruct.Damage, shooter, PlayerKilledByType.CenterGun);
 		}
-		MVWorldObjectClient worldObjectClient2 = MVGameController.WOCM.GetWorldObjectClient(shooter.Avatar.Id);
+		MVWorldObjectClient worldObjectClient2 = MVGameControllerBase.WOCM.GetWorldObjectClient(shooter.Avatar.Id);
 		if (worldObjectClient2 != null)
 		{
 			Vector3 normalized = (worldObjectClient.GetTargetPosition() - worldObjectClient2.WorldPosition).normalized;

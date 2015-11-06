@@ -9,7 +9,7 @@ public class GameMeterRoundTime : GameMeterBase
 
 	private void Update()
 	{
-		MVRoundCube singletonWorldObject = MVGameController.WOCM.GetSingletonWorldObject<MVRoundCube>();
+		MVRoundCube singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVRoundCube>();
 		if (singletonWorldObject != null)
 		{
 			MeterActive = true;
@@ -29,7 +29,7 @@ public class GameMeterRoundTime : GameMeterBase
 
 	private int GetTimeLeft(MVRoundCube roundCube)
 	{
-		int num = roundCube.DurationInMilliseconds - (MVGameController.Game.ServerTimeInMilliSeconds - MVGameController.Game.NetworkGameStateListener.StartTime);
+		int num = roundCube.DurationInMilliseconds - (MVGameControllerBase.Game.ServerTimeInMilliSeconds - MVGameControllerBase.Game.NetworkGameStateListener.StartTime);
 		if (num < 0)
 		{
 			num = 0;

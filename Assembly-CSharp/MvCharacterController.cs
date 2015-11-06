@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MvCharacterController : MonoBehaviour
+public abstract class MvCharacterController : MonoBehaviour
 {
 	private struct NoCollisionData(Vector3 pos, bool val)
 	{
@@ -19,37 +19,33 @@ public class MvCharacterController : MonoBehaviour
 
 	private const float unitScale = 1f;
 
-	private const float veryCloseDistance = 0.005f;
+	protected const float veryCloseDistance = 0.005f;
+
+	private static int maxRecursions = 15;
+
+	private static float collisionMaxAngle = 89.95f;
 
 	private static readonly int layerMask = -5 & ~(1 << LayerMask.NameToLayer("Player")) & ~(1 << LayerMask.NameToLayer("Logic"));
 
-	private Vector3 center;
+	protected Vector3 center;
 
-	private float stepOffset;
-
-	private Vector3 elipsoidRadius;
+	protected Vector3 elipsoidRadius;
 
 	private bool sendCollisionData = true;
 
-	public Vector3 centerBase;
-
-	public Vector3 radiusBase;
+	protected int collisionRecursionDepth;
 
 	private float offsetFactor = 0.1f;
 
 	private float offsetBase = 0.1f;
 
+	public Vector3 centerBase;
+
+	public Vector3 radiusBase;
+
 	public HashSet<int> IgnoreWoIds;
 
 	public Action<MVControllerColliderHit> OnControllerColliderHit;
-
-	private static int collisionRecursionDepth;
-
-	private float sides = 0.9f;
-
-	private static float collisionMaxAngle = 89.95f;
-
-	private static float collisionAdjustedAngle = 60f;
 
 	public bool IsGrounded { get; set; }
 
@@ -61,12 +57,15 @@ public class MvCharacterController : MonoBehaviour
 
 	public Vector3 Center => center;
 
-	public void SetScale(float scale)
-	{
-		center = centerBase * scale;
-		elipsoidRadius = new Vector3(radiusBase.x * scale, radiusBase.y * scale, radiusBase.z * scale);
-		offsetFactor = offsetBase * scale;
-	}
+	public abstract MvCharacterController CloneToGameObject(GameObject targetGameObject, GameObject seat);
+
+	public abstract void Move(Vector3 motion);
+
+	protected abstract Vector3 GetNextVelocity(Vector3 ePoint, Vector3 eNewBasePoint, Vector3 eDestinationPoint, ref Vector3 slidePlaneNormal);
+
+	protected abstract bool NoOverlapPosition(Vector3 R3Position, Vector3 R3Direction, ref Vector3 offset);
+
+	protected abstract Vector3 RecalcDirectionMoveAway(Vector3 ePos, Vector3 eDir, float distance, Vector3 ePoint);
 
 	public void Init(float radius, float height, Vector3 center)
 	{
@@ -76,52 +75,18 @@ public class MvCharacterController : MonoBehaviour
 		radiusBase = new Vector3(elipsoidRadius.x, elipsoidRadius.y, elipsoidRadius.z);
 	}
 
-	public MvCharacterController CloneToGameObject(GameObject targetGameObject, GameObject seat)
+	public void SetScale(float scale)
 	{
-		MvCharacterController mvCharacterController = targetGameObject.AddComponent<MvCharacterController>();
-		mvCharacterController.Init(Radius, elipsoidRadius.y * 2f, seat.transform.localPosition);
-		return mvCharacterController;
+		center = centerBase * scale;
+		elipsoidRadius = new Vector3(radiusBase.x * scale, radiusBase.y * scale, radiusBase.z * scale);
+		offsetFactor = offsetBase * scale;
 	}
 
-	public MVCollisionFlags Move(Vector3 motion, bool sendCollisionData)
+	public void Move(Vector3 motion, bool sendCollisionData)
 	{
 		this.sendCollisionData = sendCollisionData;
-		MVCollisionFlags result = Move(motion);
+		Move(motion);
 		this.sendCollisionData = true;
-		return result;
-	}
-
-	public MVCollisionFlags Move(Vector3 motion)
-	{
-		Vector3 R3Vel = motion;
-		Vector3 vector = CollideAndSlide(ref R3Vel, transform.position + center);
-		transform.position = vector - center;
-		return MVCollisionFlags.None;
-	}
-
-	public bool TestWithOutSliding(float distance, Vector3 direction, Vector3 motion, bool sendCollisionData, out MVControllerColliderHit colliderHit)
-	{
-		this.sendCollisionData = sendCollisionData;
-		bool result = TestWithOutSliding(distance, direction, motion, out colliderHit);
-		this.sendCollisionData = true;
-		return result;
-	}
-
-	public bool TestWithOutSliding(float distance, Vector3 direction, Vector3 motion, out MVControllerColliderHit colliderHit)
-	{
-		colliderHit = default;
-		Vector3 radius = new Vector3(elipsoidRadius.x, elipsoidRadius.y - offsetFactor, elipsoidRadius.z);
-		direction.Normalize();
-		Vector3 vector = transform.position + center;
-		if (CollisionDetection.MVElipsoidCast(new Ray(vector, direction), radius, distance + offsetFactor, out var voxelHit, IgnoreWoIds, layerMask))
-		{
-			MVCollisionFlags collisionFlags = MVCollisionFlags.None;
-			GetHitArea(vector, voxelHit.point, voxelHit.distance, elipsoidRadius, direction, ref collisionFlags);
-			colliderHit = new MVControllerColliderHit(voxelHit, vector, radius, motion, testWithOutMoving: true, collisionFlags);
-			SendCharacterCollision(colliderHit);
-			return true;
-		}
-		return false;
 	}
 
 	public bool CheckOverLap()
@@ -132,11 +97,6 @@ public class MvCharacterController : MonoBehaviour
 	public List<MVOverlapResult> GetOverlappingObjects()
 	{
 		return OverlappingObjects(transform.position + center);
-	}
-
-	public float GetGradientAngle(Vector3 gradientDirection)
-	{
-		return Vector3.Angle(Vector3.up, gradientDirection) - 90f;
 	}
 
 	public Vector3 GetGradientDirection(VoxelHit elipsoidHit)
@@ -158,44 +118,28 @@ public class MvCharacterController : MonoBehaviour
 		return -MathFunctions.MultiplyVector(vec2, elipsoidRadius).normalized;
 	}
 
-	private Vector3 CollideAndSlide(ref Vector3 R3Vel, Vector3 R3Position)
+	public bool TestWithOutSliding(float distance, Vector3 direction, Vector3 motion, out MVControllerColliderHit colliderHit)
 	{
-		if (R3Vel.sqrMagnitude == 0f)
+		colliderHit = default;
+		Vector3 radius = new Vector3(elipsoidRadius.x, elipsoidRadius.y - offsetFactor, elipsoidRadius.z);
+		direction.Normalize();
+		Vector3 vector = transform.position + center;
+		if (CollisionDetection.MVElipsoidCast(new Ray(vector, direction), radius, distance + offsetFactor, out var voxelHit, IgnoreWoIds, layerMask))
 		{
-			Velocity = Vector3.zero;
-			return R3Position;
+			colliderHit = new MVControllerColliderHit(voxelHit, vector, radius, motion, testWithOutMoving: true);
+			SendCharacterCollision(colliderHit);
+			return true;
 		}
-		bool foundValidPosition = true;
-		Vector3 ePos = MathFunctions.DivideVector(R3Position, elipsoidRadius);
-		Vector3 eVel = MathFunctions.DivideVector(R3Vel, elipsoidRadius);
-		Vector3 vec = ePos;
-		Vector3 vector = default;
-		collisionRecursionDepth = 0;
-		vector = CollideWithWorld(ref ePos, ref eVel, ref foundValidPosition);
-		Vector3 r3Position = MathFunctions.MultiplyVector(vector, elipsoidRadius);
-		bool flag = OverlapCheckCollision(r3Position);
-		Vector3 offset = Vector3.zero;
-		if (flag && NoOverlapPosition(r3Position, R3Vel, ref offset))
-		{
-			flag = false;
-		}
-		if (foundValidPosition && !flag)
-		{
-			vec = vector;
-		}
-		Vector3 vector2 = MathFunctions.MultiplyVector(vec, elipsoidRadius);
-		vector2 += offset;
-		R3Position += offset;
-		Vector3 velocity = vector2 - R3Position;
-		Velocity = velocity;
-		return vector2;
+		return false;
 	}
 
-	private Vector3 CollideWithWorld(ref Vector3 ePos, ref Vector3 eVel, ref bool foundValidPosition)
+	protected abstract Vector3 CollideAndSlide(Vector3 R3Vel, Vector3 R3Position);
+
+	protected Vector3 CollideWithWorld(ref Vector3 ePos, ref Vector3 eVel, ref bool foundValidPosition)
 	{
-		if (collisionRecursionDepth > 15)
+		if (collisionRecursionDepth > maxRecursions)
 		{
-			NoCollisionData noCollisionData = HandleNoCollision(ePos, eVel, adjustVerticalOnly: false);
+			NoCollisionData noCollisionData = HandleNoCollision(ePos, eVel, adjustVerticalOnly: true);
 			if (noCollisionData.Valid)
 			{
 				return noCollisionData.Position;
@@ -207,7 +151,7 @@ public class MvCharacterController : MonoBehaviour
 		Vector3 vector2 = MathFunctions.MultiplyVector(eVel, elipsoidRadius);
 		if (!CollisionDetection.MVElipsoidCast(new Ray(vector, vector2.normalized), elipsoidRadius, vector2.magnitude, out var voxelHit, IgnoreWoIds, layerMask))
 		{
-			NoCollisionData noCollisionData2 = HandleNoCollision(ePos, eVel, adjustVerticalOnly: false);
+			NoCollisionData noCollisionData2 = HandleNoCollision(ePos, eVel, adjustVerticalOnly: true);
 			if (noCollisionData2.Valid)
 			{
 				return noCollisionData2.Position;
@@ -226,8 +170,6 @@ public class MvCharacterController : MonoBehaviour
 		}
 		Vector3 eDestinationPoint = ePos + eVel;
 		Vector3 vector3 = ePos;
-		MVCollisionFlags collisionFlags = MVCollisionFlags.None;
-		GetHitArea(vector, voxelHit.point, voxelHit.distance, elipsoidRadius, vector2.normalized, ref collisionFlags);
 		Vector3 vector4 = eVel;
 		float moveBackDistance = GetMoveBackDistance(ePos, eVel, num, ePoint);
 		vector4 = vector4.normalized;
@@ -239,7 +181,7 @@ public class MvCharacterController : MonoBehaviour
 			Vector3 eVel3 = GetNextVelocity(ePoint, vector3, eDestinationPoint, ref slidePlaneNormal);
 			if (voxelHit.isCubeHit)
 			{
-				SendCharacterCollision(new MVControllerColliderHit(voxelHit, vector, elipsoidRadius, vector2, testWithOutMoving: false, collisionFlags));
+				SendCharacterCollision(new MVControllerColliderHit(voxelHit, vector, elipsoidRadius, vector2, testWithOutMoving: false));
 			}
 			collisionRecursionDepth++;
 			return CollideWithWorld(ref vector3, ref eVel3, ref foundValidPosition);
@@ -250,19 +192,7 @@ public class MvCharacterController : MonoBehaviour
 		return CollideWithWorld(ref ePos, ref eVel4, ref foundValidPosition);
 	}
 
-	private bool HitIsEdge(VoxelHit elipsoidHit, Vector3 R3Pos, Vector3 R3Velocity)
-	{
-		Vector3 vector = R3Velocity.normalized * elipsoidHit.distance + R3Pos;
-		Vector3 normalized = (vector - elipsoidHit.point).normalized;
-		Vector3 normalized2 = MathFunctions.DivideVector(MathFunctions.DivideVector(normalized, elipsoidRadius), elipsoidRadius).normalized;
-		if (Vector3.Dot(normalized2, elipsoidHit.normal) < 0.98f)
-		{
-			return true;
-		}
-		return false;
-	}
-
-	public void SendCharacterCollision(MVControllerColliderHit controllerColliderHit)
+	private void SendCharacterCollision(MVControllerColliderHit controllerColliderHit)
 	{
 		if (sendCollisionData)
 		{
@@ -278,51 +208,6 @@ public class MvCharacterController : MonoBehaviour
 	private static float DistanceESpaceToR3Space(float eDistance, Vector3 eDir, Vector3 R3Radius)
 	{
 		return MathFunctions.MultiplyVector(eDir.normalized * eDistance, R3Radius).magnitude;
-	}
-
-	private bool HandleStepOffset(VoxelHit elipsoidHit, Vector3 R3Pos, Vector3 R3Velocity, Vector3 ePoint, Vector3 eNewBasePoint, Vector3 eVelocity, ref Vector3 offset)
-	{
-		if (!HitIsEdge(elipsoidHit, R3Pos, R3Velocity))
-		{
-			return false;
-		}
-		eVelocity.Normalize();
-		eVelocity.y = 0f;
-		if (eVelocity.magnitude < 0.5f)
-		{
-			return false;
-		}
-		Vector3 normalized = eVelocity.normalized;
-		Vector3 rhs = ePoint - eNewBasePoint;
-		rhs.y = 0f;
-		rhs.Normalize();
-		float num = (ePoint.y - (eNewBasePoint.y - 1f)) * elipsoidRadius.y / 2f;
-		if (num >= stepOffset)
-		{
-			return false;
-		}
-		if (Vector3.Dot(normalized, rhs) <= 0.2f)
-		{
-			return false;
-		}
-		if (num < stepOffset && Vector3.Dot(normalized, rhs) > 0.2f)
-		{
-			float num2 = num / (elipsoidRadius.y / 2f);
-			float num3 = MVPhysics.CalculateJumpVerticalSpeed(num2 + 0.1f);
-			offset = Vector3.up * num3 * Time.deltaTime;
-			return true;
-		}
-		return false;
-	}
-
-	private static Vector3 GetNextVelocity(Vector3 ePoint, Vector3 eNewBasePoint, Vector3 eDestinationPoint, ref Vector3 slidePlaneNormal)
-	{
-		slidePlaneNormal = eNewBasePoint - ePoint;
-		slidePlaneNormal.Normalize();
-		Plane plane = new Plane(slidePlaneNormal, ePoint);
-		double num = MathFunctions.SignedDistanceTo(plane, ePoint, eDestinationPoint);
-		Vector3 vector = eDestinationPoint - (float)num * slidePlaneNormal;
-		return vector - ePoint;
 	}
 
 	private static float GetMoveBackDistance(Vector3 ePos, Vector3 eDir, float distance, Vector3 ePoint)
@@ -344,76 +229,8 @@ public class MvCharacterController : MonoBehaviour
 
 	private static float GetCollisionAngle(Vector3 ePos, Vector3 eDir, float distance, Vector3 ePoint)
 	{
-		return Vector3.Angle(eDir, GetNormal(ePos, eDir, distance, ePoint));
-	}
-
-	private static Vector3 RecalcDirection(Vector3 ePos, Vector3 eDir, float distance, Vector3 ePoint)
-	{
-		eDir.Normalize();
-		Vector3 vector = ePos + eDir * distance;
-		Vector3 normalized = (ePoint - vector).normalized;
-		Vector3 vector2 = Vector3.Cross(eDir, normalized);
-		vector2.Normalize();
-		Vector3 vector3 = Vector3.Cross(vector2, eDir);
-		vector3.Normalize();
-		Quaternion quaternion = Quaternion.AngleAxis(90f - collisionAdjustedAngle, -vector2);
-		Vector3 vector4 = quaternion * vector3;
-		Vector3 vector5 = vector + vector4;
-		float angle = Vector3.Angle(vector5 - ePos, ePoint - ePos);
-		Quaternion quaternion2 = Quaternion.AngleAxis(angle, vector2);
-		return quaternion2 * eDir.normalized;
-	}
-
-	private static Vector3 RecalcDirectionMoveAway(Vector3 ePos, Vector3 eDir, float distance, Vector3 ePoint)
-	{
-		eDir.Normalize();
-		Vector3 vector = ePos + eDir * distance;
-		Vector3 normalized = (vector - ePoint).normalized;
-		Vector3 vector2 = vector + normalized * 0.005f;
-		return (vector2 - ePos).normalized;
-	}
-
-	private void GetHitArea(Vector3 rPos, Vector3 rHit, float rDistance, Vector3 radius, Vector3 rDirection, ref MVCollisionFlags collisionFlags)
-	{
-		Vector3 vec = rHit - rDirection * rDistance - rPos;
-		Vector3 vector = MathFunctions.DivideVector(vec, radius);
-		if (Mathf.Abs(vector.x) < Mathf.Epsilon && Mathf.Abs(vector.z) < Mathf.Epsilon)
-		{
-			if (vector.y > 0f)
-			{
-				collisionFlags |= MVCollisionFlags.Above;
-			}
-			else
-			{
-				collisionFlags |= MVCollisionFlags.Below;
-			}
-			return;
-		}
-		if (Mathf.Abs(vector.y) < Mathf.Epsilon)
-		{
-			collisionFlags |= MVCollisionFlags.Sides;
-			return;
-		}
-		Vector3 rhs = vector;
-		rhs.y = 0f;
-		rhs.Normalize();
-		vector.Normalize();
-		float num = Vector3.Dot(vector, rhs);
-		if (1f - num > sides)
-		{
-			if (vector.y > 0f)
-			{
-				collisionFlags |= MVCollisionFlags.Above;
-			}
-			else
-			{
-				collisionFlags |= MVCollisionFlags.Below;
-			}
-		}
-		else
-		{
-			collisionFlags |= MVCollisionFlags.Sides;
-		}
+		Vector3 normal = GetNormal(ePos, eDir, distance, ePoint);
+		return Vector3.Angle(eDir, normal);
 	}
 
 	private NoCollisionData HandleNoCollision(Vector3 ePos, Vector3 eVel, bool adjustVerticalOnly)
@@ -448,7 +265,7 @@ public class MvCharacterController : MonoBehaviour
 		return result;
 	}
 
-	private Vector3 GetNormalizedVector(Vector3 InpVec)
+	private static Vector3 GetNormalizedVector(Vector3 InpVec)
 	{
 		Vector3 normalized = InpVec.normalized;
 		if (normalized.sqrMagnitude == 0f)
@@ -458,66 +275,7 @@ public class MvCharacterController : MonoBehaviour
 		return normalized;
 	}
 
-	private bool NoOverlapPosition(Vector3 R3Position, Vector3 R3Direction, ref Vector3 offset)
-	{
-		R3Direction.Normalize();
-		float num = Mathf.Sqrt(2f);
-		float num2 = Vector3.Dot(R3Direction, Vector3.up);
-		float num3 = 0.99f;
-		Vector3 lhs = Vector3.up;
-		if (num2 > num3 || num2 < 0f - num3)
-		{
-			lhs = Vector3.right;
-		}
-		Vector3 normalized = Vector3.Cross(lhs, R3Direction).normalized;
-		Vector3 normalized2 = Vector3.Cross(normalized, R3Direction).normalized;
-		normalized *= 0.005f;
-		normalized2 *= 0.005f;
-		offset = normalized;
-		if (!OverlapCheckCollision(R3Position + offset))
-		{
-			return true;
-		}
-		offset = -normalized;
-		if (!OverlapCheckCollision(R3Position + offset))
-		{
-			return true;
-		}
-		offset = normalized2;
-		if (!OverlapCheckCollision(R3Position + offset))
-		{
-			return true;
-		}
-		offset = -normalized2;
-		if (!OverlapCheckCollision(R3Position + offset))
-		{
-			return true;
-		}
-		offset = (normalized + normalized2) / num;
-		if (!OverlapCheckCollision(R3Position + offset))
-		{
-			return true;
-		}
-		offset = -offset;
-		if (!OverlapCheckCollision(R3Position + offset))
-		{
-			return true;
-		}
-		offset = (normalized - normalized2) / num;
-		if (!OverlapCheckCollision(R3Position + offset))
-		{
-			return true;
-		}
-		offset = -offset;
-		if (!OverlapCheckCollision(R3Position + offset))
-		{
-			return true;
-		}
-		offset = Vector3.zero;
-		return false;
-	}
-
-	private bool OverlapCheckCollision(Vector3 R3Position)
+	protected bool OverlapCheckCollision(Vector3 R3Position)
 	{
 		Vector3 radius = elipsoidRadius;
 		if (MVElipsoidOverlapCheck.ElipsoidOverlapCheckBool(radius, R3Position, Quaternion.identity, layerMask, IgnoreWoIds))

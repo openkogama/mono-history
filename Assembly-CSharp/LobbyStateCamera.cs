@@ -15,24 +15,20 @@ public class LobbyStateCamera : MVCameraBase
 
 	public override void Enter(MVCameraController camController)
 	{
-		ignoreAvatarId = new HashSet<int> { MVGameController.WOCM.AvatarLocal.Id };
-		if ((byte)MVGameController.WOCM.AvatarLocal.AvatarRuntimeDataState.Value == 0)
-		{
-			transform.rotation = MVGameController.WOCM.AvatarLocal.Transform.rotation;
-		}
-		else
-		{
-			transform.rotation = camController.transform.rotation;
-		}
+		ignoreAvatarId = new HashSet<int> { MVGameControllerBase.WOCM.AvatarLocal.Id };
 		camController.StartTransitionCam(0.5f);
-		base.Enter(camController);
+	}
+
+	public void SetRotation(Quaternion rotation)
+	{
+		transform.rotation = rotation;
 	}
 
 	public override void UpdateCamera(MVCameraController camController, Transform targetTransform)
 	{
 		Vector3 lookAtPosition = GetLookAtPosition();
 		transform.position = lookAtPosition + transform.rotation * offset;
-		if ((byte)MVGameController.WOCM.AvatarLocal.AvatarRuntimeDataState.Value != 0)
+		if ((byte)MVGameControllerBase.WOCM.AvatarLocal.AvatarRuntimeDataState.Value != 0)
 		{
 			transform.position = PositionAfterCollision(transform.position, lookAtPosition);
 		}
@@ -69,12 +65,11 @@ public class LobbyStateCamera : MVCameraBase
 
 	private Vector3 GetLookAtPosition()
 	{
-		return MVGameController.WOCM.AvatarLocal.Transform.position + new Vector3(0f, height, 0f);
+		return MVGameControllerBase.WOCM.AvatarLocal.Transform.position + new Vector3(0f, height, 0f);
 	}
 
 	public override void Exit(MVCameraController camController)
 	{
 		camController.StartTransitionCam(0.5f);
-		base.Exit(camController);
 	}
 }

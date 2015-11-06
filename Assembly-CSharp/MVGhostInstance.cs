@@ -55,7 +55,7 @@ public class MVGhostInstance : MVWorldObjectClient, IGameStateControllerSubscrib
 			{
 				distance = value;
 				Data["Distance"] = value;
-				MVGameController.Game.UpdateWorldObjectDataPartial(Id, "Data\\Distance", value);
+				MVGameControllerBase.Game.UpdateWorldObjectDataPartial(Id, "Data\\Distance", value);
 				rangeVis.Radius = distance;
 			}
 		}
@@ -73,7 +73,7 @@ public class MVGhostInstance : MVWorldObjectClient, IGameStateControllerSubscrib
 			{
 				speed = value;
 				Data["Speed"] = value;
-				MVGameController.Game.UpdateWorldObjectDataPartial(Id, "Data\\Speed", value);
+				MVGameControllerBase.Game.UpdateWorldObjectDataPartial(Id, "Data\\Speed", value);
 			}
 		}
 	}
@@ -112,7 +112,7 @@ public class MVGhostInstance : MVWorldObjectClient, IGameStateControllerSubscrib
 		UpdateController.AddFixedUpdateObject(this, UpdatePriority.PRE_UPDATEBUCKET_20, 10);
 		UpdateController.AddUpdateObject(this, UpdatePriority.PRE_UPDATEBUCKET_20, 10);
 		InitializeCommon();
-		MVGameController.Game.GameStateController.AddUpdateObject(this);
+		MVGameControllerBase.Game.GameStateController.AddUpdateObject(this);
 	}
 
 	public override void InitializeInventory()
@@ -217,7 +217,7 @@ public class MVGhostInstance : MVWorldObjectClient, IGameStateControllerSubscrib
 	public override void Destroy()
 	{
 		UpdateController.RemoveObject(this);
-		MVGameController.Game.GameStateController.RemoveObject(this);
+		MVGameControllerBase.Game.GameStateController.RemoveObject(this);
 		base.Destroy();
 	}
 
@@ -228,7 +228,7 @@ public class MVGhostInstance : MVWorldObjectClient, IGameStateControllerSubscrib
 
 	public void UpdateControllerFixedUpdate()
 	{
-		MVWorldObjectClient mVWorldObjectClient = (from a in MVGameController.WOCM.GetWorldObjectsByType(WorldObjectType.Avatar)
+		MVWorldObjectClient mVWorldObjectClient = (from a in MVGameControllerBase.WOCM.GetWorldObjectsByType(WorldObjectType.Avatar)
 			orderby (a.WorldPosition - WorldPosition).sqrMagnitude
 			select a).FirstOrDefault();
 		MoveGhost(mVWorldObjectClient);
@@ -277,7 +277,7 @@ public class MVGhostInstance : MVWorldObjectClient, IGameStateControllerSubscrib
 
 	private Vector3 GetTargetPos(bool patrolling)
 	{
-		float time = MVGameController.WOCM.MoveableController.time;
+		float time = MVGameControllerBase.WOCM.MoveableController.time;
 		return Vector3.up + WorldPosition + Quaternion.AngleAxis(time * 10f * GetSpeed(patrolling) / distance, Vector3.up) * (Vector3.forward * distance * Mathf.Sin(time * GetSpeed(patrolling) / (distance * 10f)));
 	}
 
@@ -294,7 +294,7 @@ public class MVGhostInstance : MVWorldObjectClient, IGameStateControllerSubscrib
 		case GameEffect.INSTANT_DEATH:
 			if (IsTouchingAvatar(TargetAvatar))
 			{
-				interactionHandler.HandleInteraction(ProximityDamageAndImpulse.Create(MVGameController.WOCM.AvatarLocal.Health.Value, Vector3.zero, PlayerKilledByType.Ghost), interactionIsLocal: true);
+				interactionHandler.HandleInteraction(ProximityDamageAndImpulse.Create(MVGameControllerBase.WOCM.AvatarLocal.Health.Value, Vector3.zero, PlayerKilledByType.Ghost), interactionIsLocal: true);
 			}
 			break;
 		}

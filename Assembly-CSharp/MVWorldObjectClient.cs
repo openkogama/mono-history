@@ -388,7 +388,7 @@ public class MVWorldObjectClient : MVWorldObject
 
 	private void SetupBusinessLogic()
 	{
-		if (MVGameController.Game.ItemBusinessLogic.CanAddItemToInventory(itemId))
+		if (MVGameControllerBase.Game.ItemBusinessLogic.CanAddItemToInventory(itemId))
 		{
 			interactionFlags |= InteractionFlags.CanAddToInventory;
 		}
@@ -466,7 +466,7 @@ public class MVWorldObjectClient : MVWorldObject
 		case PlayInteractionType.ParentHandlesHits:
 			if (GroupId != -1)
 			{
-				MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(GroupId);
+				MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(GroupId);
 				return worldObjectClient.GetHitInteractionHandlingWO();
 			}
 			Debug.LogWarning("WorldObject has ParentHandlesHits, but no parent group!", gameObject);
@@ -502,9 +502,9 @@ public class MVWorldObjectClient : MVWorldObject
 		dictionary[WorldObjectDataParameters.PreviewOwnerProfileId] = PreviewOwnerProfileId;
 		MVWorldObjectClient mVWorldObjectClient = KoGaMaPackageClient.WorldObjectFactory(dictionary, worldObjects, prototypes);
 		cloneBookkeeping.worldObjectIdsMaps.Add(id, mVWorldObjectClient.id);
-		mVWorldObjectClient.SetNetworkObject(MVGameController.Game.LocalPlayerActorNumber == ownerActorNumber);
+		mVWorldObjectClient.SetNetworkObject(MVGameControllerBase.Game.LocalPlayerActorNumber == ownerActorNumber);
 		mVWorldObjectClient.State = MVWorldObjectState.Synced;
-		MVGameController.Game.AddCloneToWorldObjects(mVWorldObjectClient);
+		MVGameControllerBase.Game.AddCloneToWorldObjects(mVWorldObjectClient);
 		GetLinksForClone(cloneBookkeeping.linkIds);
 		GetObjectLinksForClone(cloneBookkeeping.objectLinkIds);
 		cloneBookkeeping.cloneIdIncrement++;
@@ -596,7 +596,7 @@ public class MVWorldObjectClient : MVWorldObject
 
 	public void SendPackage(Dictionary<object, object> package)
 	{
-		MVGameController.Game.WorldObjectRPC(id, package);
+		MVGameControllerBase.Game.WorldObjectRPC(id, package);
 	}
 
 	public virtual void ReceivePackage(MVPlayer p, Dictionary<object, object> package)
@@ -759,7 +759,7 @@ public class MVWorldObjectClient : MVWorldObject
 
 	private bool DoesScreenPointHitCollider(Vector3 point, Collider collider)
 	{
-		Ray ray = MVGameController.Game.CameraController.GetComponent<Camera>().ScreenPointToRay(point);
+		Ray ray = MVGameControllerBase.CameraController.MainCamera.ScreenPointToRay(point);
 		RaycastHit[] array = Physics.RaycastAll(ray);
 		if (array.Length > 0)
 		{

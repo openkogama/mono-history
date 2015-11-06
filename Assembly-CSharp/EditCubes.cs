@@ -29,9 +29,7 @@ internal class EditCubes : CubeModelTool
 
 	private Cube prevCubeState;
 
-	private ModelCursor modelCursor;
-
-	private WorldEditorDrawPlane DrawPlane => MVGameController.EditController.WorldEditorDrawPlane;
+	private ModelCursor3D modelCursor;
 
 	public override bool CursorVisible
 	{
@@ -49,8 +47,8 @@ internal class EditCubes : CubeModelTool
 	{
 		delta = 0f;
 		deltaAccum = 0f;
-		modelCursor = new ModelCursor();
-		MVGameController.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.EditingCube);
+		modelCursor = new ModelCursor3D(e.CubeCorners);
+		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.EditingCube);
 		waitForMouseUp = MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect);
 	}
 
@@ -112,12 +110,12 @@ internal class EditCubes : CubeModelTool
 					break;
 				}
 			}
-			else if (MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelect) && DrawPlane.Active)
+			else if (MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelect) && MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController.IsDrawPlaneActive)
 			{
 				currentInternalState = BuildState.PaintCubes;
 				break;
 			}
-			if (MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect) && Time.time - prevMouseUpTime > mouseUpTimeBeforeMoveEdge && GotoMultiChangeCubes(e))
+			if (MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect) && Time.time - prevMouseUpTime > mouseUpTimeBeforeMoveEdge && GotoMultiChangeCubes())
 			{
 				prevMaterial = e.CurrentMaterialId;
 				byte material = CubeBase.GetMaterial(prevSelectedCube.cube, prevSelectedCube.pickedFace);
@@ -131,10 +129,10 @@ internal class EditCubes : CubeModelTool
 		case BuildState.PaintCubes:
 			if (!MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
 			{
-				if (DrawPlane.GetCubePosOnDrawplane(e.TargetCubeModel.GameObject, out var intVectorHitPos) && e.CanAddCubeAt(intVectorHitPos))
+				if (MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController.GetCubePosOnDrawplane(e.TargetCubeModel.GameObject, out var intVectorHitPosition) && e.CanAddCubeAt(intVectorHitPosition))
 				{
-					e.HandleAudio(intVectorHitPos, AudioActions.CubeAdded);
-					e.TargetCubeModel.AddCube(intVectorHitPos, new Cube(CubeDataPacker.CornersToByteArray(CubeBase.IdentityCorners), Cube.CreateMaterialArray(e.CurrentMaterialId)));
+					e.HandleAudio(intVectorHitPosition, AudioActions.CubeAdded);
+					e.TargetCubeModel.AddCube(intVectorHitPosition, new Cube(CubeDataPacker.CornersToByteArray(CubeBase.IdentityCorners), Cube.CreateMaterialArray(e.CurrentMaterialId)));
 				}
 			}
 			else
@@ -351,7 +349,7 @@ internal class EditCubes : CubeModelTool
 		}
 		HideCursor();
 		Cursor.visible = true;
-		MVGameController.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.Idle);
+		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.Idle);
 	}
 
 	public override void HideCursor()
@@ -359,7 +357,7 @@ internal class EditCubes : CubeModelTool
 		modelCursor.Remove();
 	}
 
-	private bool GotoMultiChangeCubes(CubeModelingStateMachine e)
+	private bool GotoMultiChangeCubes()
 	{
 		if (prevSelectedCube != null)
 		{
@@ -373,7 +371,7 @@ internal class EditCubes : CubeModelTool
 		return false;
 	}
 
-	private IntVector GetCubePosNeighborOppositeFace(IntVector localPos, Face face)
+	private static IntVector GetCubePosNeighborOppositeFace(IntVector localPos, Face face)
 	{
 		IntVector result = new IntVector(localPos.x, localPos.y, localPos.z);
 		Vector3 faceAxis = Cube.GetFaceAxis(face);
@@ -388,7 +386,7 @@ internal class EditCubes : CubeModelTool
 		if (e.SelectedCube != null && movingEdgeCube == null)
 		{
 			Vector3 vector = SharedCubeFunctions.LocalToWorld(e.TargetCubeModel.GameObject, e.SelectedCube.iLocalPos);
-			if ((MVGameController.Game.CameraController.transform.position - vector).magnitude > detailEditModeMaxDistance * e.TargetCubeModel.Scale.y)
+			if ((MVGameControllerBase.CameraController.transform.position - vector).magnitude > detailEditModeMaxDistance * e.TargetCubeModel.Scale.y)
 			{
 				mouseSensitivity = 1.325f;
 				modelCursor.SetIndentAreaSize(1f);

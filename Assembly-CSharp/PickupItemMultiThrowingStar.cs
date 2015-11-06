@@ -7,6 +7,8 @@ using UnityEngine;
 
 public class PickupItemMultiThrowingStar : PickupItemWithDelay
 {
+	private Vector3 shootingAngleAxis = Vector3.up;
+
 	public ObscuredInt ammo;
 
 	public Material hitDecalMaterial;
@@ -60,6 +62,15 @@ public class PickupItemMultiThrowingStar : PickupItemWithDelay
 		}
 	}
 
+	public override void OnEquip()
+	{
+		base.OnEquip();
+		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
+		{
+			shootingAngleAxis = Vector3.forward;
+		}
+	}
+
 	protected override void OnFire(bool isLocal)
 	{
 		StartCoroutine(DoFire(isLocal));
@@ -76,7 +87,7 @@ public class PickupItemMultiThrowingStar : PickupItemWithDelay
 			{
 				r = 0f;
 			}
-			Ray lineOfFire = new Ray(direction: Quaternion.AngleAxis(((float)i - (float)numStars / 2f + r) * spread, Vector3.up) * owner.LookDirection, origin: owner.LookOrigin);
+			Ray lineOfFire = new Ray(direction: Quaternion.AngleAxis(((float)i - (float)numStars / 2f + r) * spread, shootingAngleAxis) * owner.LookDirection, origin: owner.LookOrigin);
 			p.onHit = (BulletThrowingStar.OnHitDelegate)Delegate.Combine(p.onHit, new BulletThrowingStar.OnHitDelegate(HandleHit));
 			if (isLocal)
 			{
@@ -85,11 +96,11 @@ public class PickupItemMultiThrowingStar : PickupItemWithDelay
 			p.Fire(owner.GetAbsolutProjectileSpeed(bulletSpeed), bulletRangeStraight, lineOfFire, owner.IgnoreWOIDs, bulletRangeFall, bulletFallRate);
 			if (isLocal)
 			{
-				MVGameController.AudioManager.Play("projectile fire", fireSoundClip, Camera.main.transform.position + Camera.main.transform.forward, 0.5f, SoundRangeDistance.Long);
+				MVGameControllerBase.AudioManager.Play("projectile fire", fireSoundClip, Camera.main.transform.position + Camera.main.transform.forward, 0.5f, SoundRangeDistance.Long);
 			}
 			else
 			{
-				MVGameController.AudioManager.Play("projectile fire", fireSoundClip, muzzlePoint.position, 0.5f, SoundRangeDistance.Long);
+				MVGameControllerBase.AudioManager.Play("projectile fire", fireSoundClip, muzzlePoint.position, 0.5f, SoundRangeDistance.Long);
 			}
 			--ammo;
 			while (Time.time < fireTime + fireDelay)
@@ -111,15 +122,15 @@ public class PickupItemMultiThrowingStar : PickupItemWithDelay
 	private void HandleHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
 		Quaternion rotation = Quaternion.FromToRotation(Vector3.up, voxelHit.normal);
-		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(voxelHit.woId);
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
 		string path = ((!(worldObjectClient is MVAvatar)) ? "ParticleFX/SparksThrowingStar" : "ParticleFX/BloodThrowingStar");
 		UnityEngine.Object.Instantiate(Resources.Load(path), voxelHit.point, rotation);
 	}
 
 	private void HandleDirectHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
-		int woIDHighestInHierarchyWithComponent = MVGameController.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
-		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
+		int woIDHighestInHierarchyWithComponent = MVGameControllerBase.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
 		if (worldObjectClient != null)
 		{
 			float num = Vector3.Distance(voxelHit.point, owner.transform.position);

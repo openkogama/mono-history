@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 
@@ -30,11 +31,11 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 		{
 			value.Reset();
 		}
-		if (MVGameController.Game.IsPlaying)
+		if (MVGameControllerBase.Game.IsPlaying)
 		{
-			MVGameController.Game.LocalPlayer.ResetCheckpoint();
-			MVGameController.Game.GameCoinManager.Reset(MVGameController.Game);
-			AvatarLocal.Respawn(toHiddenState: true);
+			MVGameControllerBase.Game.LocalPlayer.ResetCheckpoint();
+			MVGameControllerBase.Game.GameCoinManager.Reset(MVGameControllerBase.Game);
+			AvatarLocal.SetMode(AvatarRuntimeState.Hidden);
 		}
 		if (OnResetWorldDone != null)
 		{
@@ -188,7 +189,7 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 		}
 		if (lockObject)
 		{
-			SetOwnerRecursively(id, MVGameController.Game.LocalPlayerActorNumber);
+			SetOwnerRecursively(id, MVGameControllerBase.Game.LocalPlayerActorNumber);
 		}
 		else
 		{

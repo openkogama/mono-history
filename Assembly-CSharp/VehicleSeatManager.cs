@@ -114,7 +114,7 @@ public class VehicleSeatManager : MonoBehaviour
 			if (!seat.IsOccupied && seat.SeatType == SeatType.Driver)
 			{
 				Debug.Log("Trying to do seat operation " + woOwner);
-				if (MVGameController.Game.PlayerController.AttachWorldObjectToSeat(woOwner.Id, userWoId, seat))
+				if (MVGameControllerBase.Game.PlayerController.AttachWorldObjectToSeat(woOwner.Id, userWoId, seat))
 				{
 					Debug.Log("Succesfully send AttachWorldObjectToSeat");
 					return true;
@@ -133,7 +133,7 @@ public class VehicleSeatManager : MonoBehaviour
 			return;
 		}
 		bool flag = instigatorActorNr == woOwner.OwnerActorNr;
-		bool flag2 = woOwner.OwnerActorNr == MVGameController.Game.LocalPlayer.ActorNr;
+		bool flag2 = woOwner.OwnerActorNr == MVGameControllerBase.Game.LocalPlayer.ActorNr;
 		if (!flag && flag2)
 		{
 			if (!(woOwner.NetworkObject is MVNetworkReporter))
@@ -211,7 +211,7 @@ public class VehicleSeatManager : MonoBehaviour
 		VehicleSeatBase vehicleSeatBase = seats[index];
 		vehicleUser.GameObject.transform.localPosition = vehicleSeatBase.transform.localPosition - vehicleUser.CharacterControllerCenterOffset;
 		vehicleUser.GameObject.transform.localRotation = vehicleSeatBase.transform.localRotation;
-		MVGameController.WOCM.RootGroup.TransferChild(vehicleUser.Id);
+		MVGameControllerBase.WOCM.RootGroup.TransferChild(vehicleUser.Id);
 		vehicleUser.RunTimeData.SetObscuredType("seat", (ObscuredInt)(-1));
 		if (vehicleUser.GetType() == typeof(MVAvatarLocal))
 		{

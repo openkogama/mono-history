@@ -59,8 +59,8 @@ public class LineDrawManager : MonoBehaviour
 	private void OnPostRender()
 	{
 		DrawEnqueuedLines();
-		Camera component = MVGameController.Game.CameraController.GetComponent<Camera>();
-		if (!(component != null))
+		Camera mainCamera = MVGameControllerBase.CameraController.MainCamera;
+		if (!(mainCamera != null))
 		{
 			return;
 		}
@@ -71,28 +71,28 @@ public class LineDrawManager : MonoBehaviour
 			Color color = new Color(0f, 0f, 1f, 1f);
 			if (tempLink.outputWOID > 0)
 			{
-				zero = MVGameController.WOCM.GetWorldObjectClient(tempLink.outputWOID).GetOutputConnectorPos();
+				zero = MVGameControllerBase.WOCM.GetWorldObjectClient(tempLink.outputWOID).GetOutputConnectorPos();
 				color = new Color(0f, 0f, 1f, 1f);
 			}
 			else
 			{
-				zero = component.ScreenToWorldPoint(new Vector3(MVInputWrapper.GetPointerPosition().x, MVInputWrapper.GetPointerPosition().y, component.nearClipPlane));
+				zero = mainCamera.ScreenToWorldPoint(new Vector3(MVInputWrapper.GetPointerPosition().x, MVInputWrapper.GetPointerPosition().y, mainCamera.nearClipPlane));
 			}
 			if (tempLink.inputWOID > 0)
 			{
-				zero2 = MVGameController.WOCM.GetWorldObjectClient(tempLink.inputWOID).GetInputConnectorPos();
+				zero2 = MVGameControllerBase.WOCM.GetWorldObjectClient(tempLink.inputWOID).GetInputConnectorPos();
 				color = new Color(1f, 0f, 0f, 1f);
 			}
 			else
 			{
-				zero2 = component.ScreenToWorldPoint(new Vector3(MVInputWrapper.GetPointerPosition().x, MVInputWrapper.GetPointerPosition().y, component.nearClipPlane));
+				zero2 = mainCamera.ScreenToWorldPoint(new Vector3(MVInputWrapper.GetPointerPosition().x, MVInputWrapper.GetPointerPosition().y, mainCamera.nearClipPlane));
 			}
 			DrawLine(zero, zero2, color);
 		}
 		if (tempObjectLink != null)
 		{
-			Vector3 objectConnectorPos = MVGameController.WOCM.GetWorldObjectClient(tempObjectLink.objectConnectorWOID).GetObjectConnectorPos();
-			Vector3 to = component.ScreenToWorldPoint(new Vector3(MVInputWrapper.GetPointerPosition().x, MVInputWrapper.GetPointerPosition().y, component.nearClipPlane));
+			Vector3 objectConnectorPos = MVGameControllerBase.WOCM.GetWorldObjectClient(tempObjectLink.objectConnectorWOID).GetObjectConnectorPos();
+			Vector3 to = mainCamera.ScreenToWorldPoint(new Vector3(MVInputWrapper.GetPointerPosition().x, MVInputWrapper.GetPointerPosition().y, mainCamera.nearClipPlane));
 			Color color2 = new Color(1f, 1f, 0f, 1f);
 			DrawLine(objectConnectorPos, to, color2);
 		}
@@ -123,10 +123,10 @@ public class LineDrawManager : MonoBehaviour
 
 	public void ShowLink(Link link, GameObject linkGameObject)
 	{
-		if (MVGameController.GameMode == MVGameMode.Edit)
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
 		{
-			Vector3 outputConnectorPos = MVGameController.WOCM.GetWorldObjectClient(link.outputWOID).GetOutputConnectorPos();
-			Vector3 inputConnectorPos = MVGameController.WOCM.GetWorldObjectClient(link.inputWOID).GetInputConnectorPos();
+			Vector3 outputConnectorPos = MVGameControllerBase.WOCM.GetWorldObjectClient(link.outputWOID).GetOutputConnectorPos();
+			Vector3 inputConnectorPos = MVGameControllerBase.WOCM.GetWorldObjectClient(link.inputWOID).GetInputConnectorPos();
 			LineRenderer componentInChildren = linkGameObject.GetComponentInChildren<LineRenderer>();
 			componentInChildren.SetPosition(0, outputConnectorPos);
 			componentInChildren.SetPosition(1, inputConnectorPos);
@@ -154,13 +154,13 @@ public class LineDrawManager : MonoBehaviour
 
 	public void ShowObjectLink(ObjectLink objectLink, GameObject objectLinkGameObject)
 	{
-		if (MVGameController.GameMode == MVGameMode.Edit)
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
 		{
-			Vector3 objectConnectorPos = MVGameController.WOCM.GetWorldObjectClient(objectLink.objectConnectorWOID).GetObjectConnectorPos();
-			Vector3 vector = MVGameController.WOCM.GetWorldObjectClient(objectLink.objectWOID).WorldPosition;
-			if (MVGameController.WOCM.GetWorldObjectClient(objectLink.objectWOID) is MVCubeModelBase)
+			Vector3 objectConnectorPos = MVGameControllerBase.WOCM.GetWorldObjectClient(objectLink.objectConnectorWOID).GetObjectConnectorPos();
+			Vector3 vector = MVGameControllerBase.WOCM.GetWorldObjectClient(objectLink.objectWOID).WorldPosition;
+			if (MVGameControllerBase.WOCM.GetWorldObjectClient(objectLink.objectWOID) is MVCubeModelBase)
 			{
-				vector = (MVGameController.WOCM.GetWorldObjectClient(objectLink.objectWOID) as MVCubeModelBase).GetWorldCenterPos();
+				vector = (MVGameControllerBase.WOCM.GetWorldObjectClient(objectLink.objectWOID) as MVCubeModelBase).GetWorldCenterPos();
 			}
 			LineRenderer componentInChildren = objectLinkGameObject.GetComponentInChildren<LineRenderer>();
 			componentInChildren.SetPosition(0, objectConnectorPos);
@@ -179,16 +179,16 @@ public class LineDrawManager : MonoBehaviour
 
 	public void DrawPendingLink(Link link)
 	{
-		Vector3 outputConnectorPos = MVGameController.WOCM.GetWorldObjectClient(link.outputWOID).GetOutputConnectorPos();
-		Vector3 inputConnectorPos = MVGameController.WOCM.GetWorldObjectClient(link.inputWOID).GetInputConnectorPos();
+		Vector3 outputConnectorPos = MVGameControllerBase.WOCM.GetWorldObjectClient(link.outputWOID).GetOutputConnectorPos();
+		Vector3 inputConnectorPos = MVGameControllerBase.WOCM.GetWorldObjectClient(link.inputWOID).GetInputConnectorPos();
 		Color color = new Color(0f, 1f, 0f, 1f);
 		linkLines.Enqueue(new LinkLine(outputConnectorPos, inputConnectorPos, color));
 	}
 
 	public void DrawPendingObjectLink(ObjectLink objectLink)
 	{
-		Vector3 objectConnectorPos = MVGameController.WOCM.GetWorldObjectClient(objectLink.objectConnectorWOID).GetObjectConnectorPos();
-		Vector3 worldPosition = MVGameController.WOCM.GetWorldObjectClient(objectLink.objectWOID).WorldPosition;
+		Vector3 objectConnectorPos = MVGameControllerBase.WOCM.GetWorldObjectClient(objectLink.objectConnectorWOID).GetObjectConnectorPos();
+		Vector3 worldPosition = MVGameControllerBase.WOCM.GetWorldObjectClient(objectLink.objectWOID).WorldPosition;
 		Color color = new Color(1f, 1f, 0f, 1f);
 		linkLines.Enqueue(new LinkLine(objectConnectorPos, worldPosition, color));
 	}
@@ -205,16 +205,16 @@ public class LineDrawManager : MonoBehaviour
 
 	private void DrawLine(Vector3 from, Vector3 to, Color color)
 	{
-		if (MVGameController.GameMode != MVGameMode.Edit)
+		if (MVGameControllerBase.GameMode != MVGameMode.Edit)
 		{
 			return;
 		}
 		try
 		{
-			if (MVGameController.Game.CameraController != null)
+			if (MVGameControllerBase.CameraController != null)
 			{
-				Camera component = MVGameController.Game.CameraController.GetComponent<Camera>();
-				if (component != null && (component.cullingMask & (1 << LayerMask.NameToLayer("Logic"))) != 0)
+				Camera mainCamera = MVGameControllerBase.CameraController.MainCamera;
+				if (mainCamera != null && (mainCamera.cullingMask & (1 << LayerMask.NameToLayer("Logic"))) != 0)
 				{
 					lineMaterial.SetPass(0);
 					GL.Begin(1);

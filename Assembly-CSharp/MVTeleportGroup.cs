@@ -26,7 +26,7 @@ public class MVTeleportGroup : MVBlueprintBase
 		if (dictionary2 == null)
 		{
 			Debug.LogWarning("TeleportGroup does not have any children. Removing it");
-			MVGameController.WOCM.UnregisterWorldObject(id);
+			MVGameControllerBase.WOCM.UnregisterWorldObject(id);
 			return;
 		}
 		teleporter1 = RetrieveTeleporter(dictionary2, "teleporter1");
@@ -62,7 +62,7 @@ public class MVTeleportGroup : MVBlueprintBase
 	{
 		if (table.ContainsKey(id))
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient((int)table[id]);
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient((int)table[id]);
 			if (worldObjectClient == null || !(worldObjectClient is MVTeleporter))
 			{
 				return null;

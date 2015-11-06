@@ -1,7 +1,7 @@
 using UnityEngine;
 
-[AddComponentMenu("Detonator/Sound")]
 [RequireComponent(typeof(Detonator))]
+[AddComponentMenu("Detonator/Sound")]
 public class DetonatorSound : DetonatorComponent
 {
 	public AudioClip[] nearSounds;

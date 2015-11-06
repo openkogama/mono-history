@@ -46,20 +46,12 @@ public struct IntVector : IEquatable<IntVector>
 
 	public override bool Equals(object obj)
 	{
-		if (obj is IntVector)
-		{
-			return Equals((IntVector)obj);
-		}
-		return false;
+		return obj is IntVector && Equals((IntVector)obj);
 	}
 
 	public bool Equals(IntVector iV)
 	{
-		if (x == iV.x && y == iV.y)
-		{
-			return z == iV.z;
-		}
-		return false;
+		return x == iV.x && y == iV.y && z == iV.z;
 	}
 
 	public override int GetHashCode()

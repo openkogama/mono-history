@@ -62,7 +62,7 @@ public class MVGUIPlayerLine : UXLine
 		{
 			playersText.Color = Color.green;
 		}
-		if (player.IsAnonymous && player != MVGameController.Game.LocalPlayer)
+		if (player.IsAnonymous && player != MVGameControllerBase.Game.LocalPlayer)
 		{
 			playersText.Color = Color.gray;
 		}
@@ -106,7 +106,7 @@ public class MVGUIPlayerLine : UXLine
 			try
 			{
 				ValidateFriendRequest();
-				MVGameController.Game.RequestFriendShipByID(player.ProfileID);
+				MVGameControllerBase.Game.RequestFriendShipByID(player.ProfileID);
 			}
 			catch (Exception ex)
 			{
@@ -120,7 +120,7 @@ public class MVGUIPlayerLine : UXLine
 			try
 			{
 				ValidateFriendRequest();
-				MVGameController.Game.RequestAcceptFriendShip(friend.friendID);
+				MVGameControllerBase.Game.RequestAcceptFriendShip(friend.friendID);
 			}
 			catch (Exception ex)
 			{
@@ -131,15 +131,15 @@ public class MVGUIPlayerLine : UXLine
 		UXIconButton uXIconButton3 = cancelButton;
 		uXIconButton3.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXIconButton3.OnClick, (UXBaseButton.OnClickDelegate)(() =>
 		{
-			MVGameController.Game.RequestRejectFriendShip(friend.friendID);
+			MVGameControllerBase.Game.RequestRejectFriendShip(friend.friendID);
 		}));
 	}
 
 	private void ValidateFriendRequest()
 	{
-		int level = MVGameController.Game.LocalPlayer.Level;
+		int level = MVGameControllerBase.Game.LocalPlayer.Level;
 		int friendsLimit = BadgeManager.GetFriendsLimit(level);
-		int count = MVGameController.Game.Friends.Friends.Count;
+		int count = MVGameControllerBase.Game.Friends.Friends.Count;
 		if (count < friendsLimit)
 		{
 			return;
@@ -156,17 +156,17 @@ public class MVGUIPlayerLine : UXLine
 		showRequestButton = false;
 		showCancelButton = false;
 		showPendingButton = false;
-		if (player.IsAnonymous || MVGameController.Game.LocalPlayer.IsAnonymous)
+		if (player.IsAnonymous || MVGameControllerBase.Game.LocalPlayer.IsAnonymous)
 		{
 			return;
 		}
-		if (friend == null && player != MVGameController.Game.LocalPlayer)
+		if (friend == null && player != MVGameControllerBase.Game.LocalPlayer)
 		{
 			showRequestButton = true;
 		}
 		else if (friend != null && friend.status == FriendStatus.Pending)
 		{
-			if (MVGameController.Game.Friends.Friends.ContainsValue(friend))
+			if (MVGameControllerBase.Game.Friends.Friends.ContainsValue(friend))
 			{
 				showPendingButton = true;
 			}

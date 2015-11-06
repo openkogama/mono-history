@@ -87,7 +87,7 @@ public class RuntimeEventManager
 	{
 		if (HandleEvent(explosion))
 		{
-			MVGameController.Game.SendRuntimeEventOperation(explosion);
+			MVGameControllerBase.Game.SendRuntimeEventOperation(explosion);
 		}
 	}
 
@@ -98,11 +98,11 @@ public class RuntimeEventManager
 
 	public bool SendRemoveOneFineGrainedCube(VoxelHit voxelHit, float damage)
 	{
-		if (!(MVGameController.WOCM.GetWorldObjectClient(voxelHit.woId) is MVCubeModelBase))
+		if (!(MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId) is MVCubeModelBase))
 		{
 			return false;
 		}
-		MVCubeModelBase mVCubeModelBase = (MVCubeModelBase)MVGameController.WOCM.GetWorldObjectClient(voxelHit.woId);
+		MVCubeModelBase mVCubeModelBase = (MVCubeModelBase)MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
 		CubeBase cubeBase = mVCubeModelBase.GetCubeBase(voxelHit.cubePos);
 		if (cubeBase == null)
 		{
@@ -119,7 +119,7 @@ public class RuntimeEventManager
 			position = CubeMathFunctions.WorldPosToFineGrainedLocalPos(voxelHit.point, voxelHit.normal);
 		}
 		damage = localAccumulatedCubeDamages.AddDamageToCube(damage, position);
-		CubeDamageState cubeDamageState = RemoveCubes.RemoveOneCube.CanRemoveCube(cubeBase, damage, MVGameController.Game.MaterialRepository.GetMaterialPhysicalProperties);
+		CubeDamageState cubeDamageState = RemoveCubes.RemoveOneCube.CanRemoveCube(cubeBase, damage, MVGameControllerBase.Game.MaterialRepository.GetMaterialPhysicalProperties);
 		switch (cubeDamageState)
 		{
 		case CubeDamageState.NoDamage:
@@ -144,7 +144,7 @@ public class RuntimeEventManager
 			{
 				singleCubeFineGrainedEvent.OverrideRuntimeType(RuntimeEventType.FineGrainedSingleCubeRemovedAddedFineGrainedCube);
 			}
-			MVGameController.Game.SendRuntimeEventOperation(singleCubeFineGrainedEvent);
+			MVGameControllerBase.Game.SendRuntimeEventOperation(singleCubeFineGrainedEvent);
 		}
 	}
 
@@ -178,7 +178,7 @@ public class RuntimeEventManager
 	protected bool HandleEvent(ExplosionEvent explosion)
 	{
 		ExplosionEvent.ExplosionValues explosionValuesStruct = explosion.ExplosionValuesStruct;
-		bool flag = RemoveCubes.RemoveCubesWithinRadius.HandleRemoveCubes(cubeModelPrototypeTerrain, explosionValuesStruct.Radius, explosion.Position, explosionValuesStruct.CenterDamage, explosionValuesStruct.DamageFallOffType, cubeModelFineGrainedTerrain, MVGameController.Game.MaterialRepository.GetMaterialPhysicalProperties);
+		bool flag = RemoveCubes.RemoveCubesWithinRadius.HandleRemoveCubes(cubeModelPrototypeTerrain, explosionValuesStruct.Radius, explosion.Position, explosionValuesStruct.CenterDamage, explosionValuesStruct.DamageFallOffType, cubeModelFineGrainedTerrain, MVGameControllerBase.Game.MaterialRepository.GetMaterialPhysicalProperties);
 		if (flag && doEffects)
 		{
 			SharedWorldObjectGameplayFunctions.DustEfffect("ParticleFX/CubeDust", CubeMathFunctions.FineGrainedLocalPosToWorldPos(explosion.Position), Mathf.Max(1.5f, explosionValuesStruct.Radius));

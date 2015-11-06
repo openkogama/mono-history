@@ -8,6 +8,7 @@ internal class CubeModelingTransitionTable : StateTransitionTable
 		table.Add(CubeModelingEvent.DeleteCubes, new DeleteCubes());
 		table.Add(CubeModelingEvent.PaintCubes, new PaintCubes());
 		table.Add(CubeModelingEvent.SprayCubes, new SprayCubes());
+		table.Add(CubeModelingEvent.EditCubes2D, new EditCubes2D());
 		foreach (KeyValuePair<object, IState> item in table)
 		{
 			CubeModelTool cubeModelTool = (CubeModelTool)item.Value;

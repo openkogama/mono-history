@@ -30,7 +30,11 @@ public class SkyboxManager : MonoBehaviour
 
 	public Color brightAmbient = new Color(1f, 1f, 1f, 1f);
 
+	[SerializeField]
 	private Light mainLight;
+
+	[SerializeField]
+	private Camera targetCamera;
 
 	private Color targetColor;
 
@@ -52,16 +56,8 @@ public class SkyboxManager : MonoBehaviour
 
 	private void Start()
 	{
-		MVGameController.OnPostGameInit = (MVGameController.OnPostGameInitDelegate)Delegate.Combine(MVGameController.OnPostGameInit, (MVGameController.OnPostGameInitDelegate)(() =>
+		MVGameControllerBase.OnPostGameInit = (MVGameControllerBase.OnPostGameInitDelegate)Delegate.Combine(MVGameControllerBase.OnPostGameInit, (MVGameControllerBase.OnPostGameInitDelegate)(() =>
 		{
-			if (!mainLight)
-			{
-				GameObject gameObject = GameObject.Find("Main Directional Light");
-				if ((bool)gameObject)
-				{
-					mainLight = gameObject.GetComponent<Light>();
-				}
-			}
 			ComputeSkyboxSettings(out targetColor, out targetSunAngle, out targetFogDensity);
 			SetColor(targetColor, targetSunAngle, targetFogDensity);
 			initialized = true;
@@ -119,14 +115,8 @@ public class SkyboxManager : MonoBehaviour
 		RenderSettings.fogColor = color;
 		RenderSettings.fogDensity = fogDensity;
 		RenderSettings.ambientLight = num * color2;
-		if ((bool)Camera.main)
-		{
-			Camera.main.backgroundColor = color;
-		}
-		if ((bool)mainLight)
-		{
-			mainLight.transform.rotation = Quaternion.Euler(sunAngle, 45f, 0f);
-		}
+		targetCamera.backgroundColor = color;
+		mainLight.transform.rotation = Quaternion.Euler(sunAngle, 45f, 0f);
 		if (OnSkyboxColorChanged != null)
 		{
 			OnSkyboxColorChanged(currentColor);

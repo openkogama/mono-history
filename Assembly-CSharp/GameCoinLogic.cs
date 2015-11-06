@@ -57,7 +57,7 @@ public class GameCoinLogic
 		{
 			int num = purchaseAmount;
 			purchaseAmount = (int)data["gameCoinAmount"];
-			MVGameController.Game.GameCoinManager.ReportPurchaseAmountInEditor(purchaseAmount - num);
+			MVGameControllerBase.Game.GameCoinManager.ReportPurchaseAmountInEditor(purchaseAmount - num);
 			if (purchaseAmount > 0 && displayObject == null)
 			{
 				CreateDisplayObject();
@@ -75,7 +75,7 @@ public class GameCoinLogic
 
 	public bool CanUse()
 	{
-		if (MVGameController.Game.GameCoinManager.GameCoinAmount >= purchaseAmount)
+		if (MVGameControllerBase.Game.GameCoinManager.GameCoinAmount >= purchaseAmount)
 		{
 			return true;
 		}
@@ -86,15 +86,15 @@ public class GameCoinLogic
 	{
 		if (CanUse())
 		{
-			MVGameController.PlayController.ShowEUseIcon(ShowUseOption.GameCoinsEnough);
-			if (MVInputWrapper.GetBooleanControlDown(KogamaControls.Use) && MVGameController.Game.GameCoinManager.Consume(this))
+			MVGameControllerBase.IPlayModeUI.ShowEUseIcon(ShowUseOption.GameCoinsEnough);
+			if (MVInputWrapper.GetBooleanControlDown(KogamaControls.Use) && MVGameControllerBase.Game.GameCoinManager.Consume(this))
 			{
 				return true;
 			}
 		}
 		else
 		{
-			MVGameController.PlayController.ShowEUseIcon(ShowUseOption.GameCoinsInsufficient);
+			MVGameControllerBase.IPlayModeUI.ShowEUseIcon(ShowUseOption.GameCoinsInsufficient);
 		}
 		return false;
 	}
@@ -108,7 +108,7 @@ public class GameCoinLogic
 		if (data.ContainsKey("gameCoinAmount"))
 		{
 			Debug.Log("Removing purchase amount: " + purchaseAmount);
-			MVGameController.Game.GameCoinManager.ReportPurchaseAmountInEditor(-purchaseAmount);
+			MVGameControllerBase.Game.GameCoinManager.ReportPurchaseAmountInEditor(-purchaseAmount);
 		}
 	}
 }

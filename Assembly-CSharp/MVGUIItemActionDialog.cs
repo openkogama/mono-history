@@ -26,7 +26,7 @@ public class MVGUIItemActionDialog : UXCustomDialogBox
 		}
 		if (mvItem.itemCategoryID != 1)
 		{
-			int num = MVGameController.Game.PlayerRepository.CountItemsWithOriginalID(mvItem.originalItemID);
+			int num = MVGameControllerBase.Game.PlayerRepository.CountItemsWithOriginalID(mvItem.originalItemID);
 			tabWindow.GetTab(2).SetVisible(num > 1);
 		}
 		if (_isInitialized)

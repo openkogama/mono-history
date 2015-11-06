@@ -12,7 +12,7 @@ public class MVSoundEmitter : MVLogicObject
 
 	private AudioSource currentSrc;
 
-	private MVNetworkGame Game => MVGameController.Game;
+	private MVNetworkGame Game => MVGameControllerBase.Game;
 
 	public override bool HasInputConnector => true;
 
@@ -30,7 +30,7 @@ public class MVSoundEmitter : MVLogicObject
 		if (!Data.ContainsKey("url") || Data["url"].ToString().StartsWith("file://"))
 		{
 			StreamingAssetInfo streamingAssetInfo = null;
-			foreach (StreamingAssetInfo value in MVGameController.Game.StreamingAssetInfoMap.Values)
+			foreach (StreamingAssetInfo value in MVGameControllerBase.Game.StreamingAssetInfoMap.Values)
 			{
 				if (value.StreamedAssetType == StreamingAssetType.AmbientAudio && value.ShopInfo.PriceGold == 0)
 				{
@@ -172,7 +172,7 @@ public class MVSoundEmitter : MVLogicObject
 				string empty = string.Empty;
 				text += string.Format(arg2: (datum.Value == null) ? "null" : datum.Value.GetType().ToString(), format: "Key: {0}, ValueType: {1}, Value: {2}\n", arg0: datum.Key, arg1: datum.Value);
 			}
-			int planetID = MVGameController.GameSessionData.planetID;
+			int planetID = MVGameControllerBase.GameSessionData.planetID;
 			string message = $"SoundEmitter error on planet: {planetID}. Data {text}. Exception {arg}";
 			Debug.LogError(message);
 		}

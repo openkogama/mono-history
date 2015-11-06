@@ -75,7 +75,7 @@ public class MVGUITouristPromotion : UXViewScript
 		{
 			if (TouristPromotionAllowed)
 			{
-				if (!isDead && MVGameController.WOCM.AvatarLocal.IsDead)
+				if (!isDead && MVGameControllerBase.WOCM.AvatarLocal.IsDead)
 				{
 					isDead = true;
 					deaths++;
@@ -85,7 +85,7 @@ public class MVGUITouristPromotion : UXViewScript
 						deathConditionTriggered = false;
 					}
 				}
-				else if (isDead && !MVGameController.WOCM.AvatarLocal.IsDead)
+				else if (isDead && !MVGameControllerBase.WOCM.AvatarLocal.IsDead)
 				{
 					isDead = false;
 				}
@@ -193,13 +193,13 @@ public class MVGUITouristPromotion : UXViewScript
 	[SerializeField]
 	private FadeTransition fadeTransition;
 
-	private static bool TouristPromotionAllowed => MVGameController.Game.IsTouristSession && MVGameController.Game.IsPlaying && MVGameController.Game.JoinState == MVJoinState.Playing;
+	private static bool TouristPromotionAllowed => MVGameControllerBase.IsTouristSession && MVGameControllerBase.Game.IsPlaying && MVGameControllerBase.JoinState == MVJoinState.Playing;
 
 	public void Start()
 	{
 		guiChatWindow = UXUtils.FindGUIObjectOfType<MVGUIChatWindow>();
 		showPromotionBookkeeping = new ShowPromotionBookkeeping(devMode);
-		if (devMode || (MVGameController.Game.IsTouristSession && MVClientSettings.ShowTouristPromotion))
+		if (devMode || (MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion))
 		{
 			promotionDataManager = new PromotionDataManager();
 			ResolveGUIElements();
@@ -252,13 +252,13 @@ public class MVGUITouristPromotion : UXViewScript
 			showPromotionBookkeeping.Continue();
 			guiChatWindow.CreateHelpTxt();
 			LockCursorManager.LockCursor = true;
-			MVGameController.PlayController.ShowBriefing();
+			MVGameControllerLegacyUI.PlayController.ShowBriefing();
 		}));
 		UXBaseButton uXBaseButton2 = buttonLogin;
 		uXBaseButton2.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXBaseButton2.OnClick, (UXBaseButton.OnClickDelegate)(() =>
 		{
 			BrowserComm.ToJavaScript.ExternalCall("gotoLogin");
-			BrowserComm.ExecuteBrowserRequest(MVGameController.GameSessionData.loginURL);
+			BrowserComm.ExecuteBrowserRequest(MVGameControllerBase.GameSessionData.loginURL);
 		}));
 		UXBaseButton uXBaseButton3 = buttonSignup;
 		uXBaseButton3.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(uXBaseButton3.OnClick, new UXBaseButton.OnClickDelegate(GotoSignup));
@@ -271,15 +271,15 @@ public class MVGUITouristPromotion : UXViewScript
 		if (!LevelingManager.IsInitialized)
 		{
 			BrowserComm.ToJavaScript.ExternalCall("gotoSignup");
-			BrowserComm.ExecuteBrowserRequest(MVGameController.GameSessionData.signupURL);
+			BrowserComm.ExecuteBrowserRequest(MVGameControllerBase.GameSessionData.signupURL);
 			return;
 		}
 		SortedDictionary<string, string> sortedDictionary = new SortedDictionary<string, string>();
-		int xP = MVGameController.Game.LocalPlayer.XPProgressData.XP;
+		int xP = MVGameControllerBase.Game.LocalPlayer.XPProgressData.XP;
 		sortedDictionary.Add("xp", xP.ToString());
-		string mD5Hash = Encryption.GetMD5Hash(sortedDictionary, MVGameController.Game.XpKey);
+		string mD5Hash = Encryption.GetMD5Hash(sortedDictionary, MVGameControllerBase.Game.XpKey);
 		BrowserComm.ToJavaScript.ExternalCall("gotoSignupWithXP", xP, mD5Hash);
-		BrowserComm.ExecuteBrowserRequest(MVGameController.GameSessionData.signupURL);
+		BrowserComm.ExecuteBrowserRequest(MVGameControllerBase.GameSessionData.signupURL);
 	}
 
 	private void ResolveClickwall()

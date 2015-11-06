@@ -5,7 +5,7 @@ namespace MV.WorldObject;
 
 public class CubeBase
 {
-	protected byte unIndentedSides;
+	protected byte unIndentedSides = 0;
 
 	protected static byte[] identityByteCorners = new byte[8] { 20, 120, 124, 24, 4, 104, 100, 0 };
 
@@ -138,7 +138,7 @@ public class CubeBase
 
 	public static bool operator ==(CubeBase a, CubeBase b)
 	{
-		if (object.ReferenceEquals(a, b))
+		if ((object)a == b)
 		{
 			return true;
 		}
@@ -252,77 +252,41 @@ public class CubeBase
 		switch (face)
 		{
 		case Face.Top:
-		{
-			ref Vector3 reference21 = ref faceVertices[0];
-			reference21 = corners[0];
-			ref Vector3 reference22 = ref faceVertices[1];
-			reference22 = corners[1];
-			ref Vector3 reference23 = ref faceVertices[2];
-			reference23 = corners[2];
-			ref Vector3 reference24 = ref faceVertices[3];
-			reference24 = corners[3];
+			faceVertices[0] = corners[0];
+			faceVertices[1] = corners[1];
+			faceVertices[2] = corners[2];
+			faceVertices[3] = corners[3];
 			break;
-		}
 		case Face.Bottom:
-		{
-			ref Vector3 reference17 = ref faceVertices[0];
-			reference17 = corners[4];
-			ref Vector3 reference18 = ref faceVertices[1];
-			reference18 = corners[5];
-			ref Vector3 reference19 = ref faceVertices[2];
-			reference19 = corners[6];
-			ref Vector3 reference20 = ref faceVertices[3];
-			reference20 = corners[7];
+			faceVertices[0] = corners[4];
+			faceVertices[1] = corners[5];
+			faceVertices[2] = corners[6];
+			faceVertices[3] = corners[7];
 			break;
-		}
 		case Face.Back:
-		{
-			ref Vector3 reference13 = ref faceVertices[0];
-			reference13 = corners[5];
-			ref Vector3 reference14 = ref faceVertices[1];
-			reference14 = corners[4];
-			ref Vector3 reference15 = ref faceVertices[2];
-			reference15 = corners[3];
-			ref Vector3 reference16 = ref faceVertices[3];
-			reference16 = corners[2];
+			faceVertices[0] = corners[5];
+			faceVertices[1] = corners[4];
+			faceVertices[2] = corners[3];
+			faceVertices[3] = corners[2];
 			break;
-		}
 		case Face.Front:
-		{
-			ref Vector3 reference9 = ref faceVertices[0];
-			reference9 = corners[7];
-			ref Vector3 reference10 = ref faceVertices[1];
-			reference10 = corners[6];
-			ref Vector3 reference11 = ref faceVertices[2];
-			reference11 = corners[1];
-			ref Vector3 reference12 = ref faceVertices[3];
-			reference12 = corners[0];
+			faceVertices[0] = corners[7];
+			faceVertices[1] = corners[6];
+			faceVertices[2] = corners[1];
+			faceVertices[3] = corners[0];
 			break;
-		}
 		case Face.Left:
-		{
-			ref Vector3 reference5 = ref faceVertices[0];
-			reference5 = corners[4];
-			ref Vector3 reference6 = ref faceVertices[1];
-			reference6 = corners[7];
-			ref Vector3 reference7 = ref faceVertices[2];
-			reference7 = corners[0];
-			ref Vector3 reference8 = ref faceVertices[3];
-			reference8 = corners[3];
+			faceVertices[0] = corners[4];
+			faceVertices[1] = corners[7];
+			faceVertices[2] = corners[0];
+			faceVertices[3] = corners[3];
 			break;
-		}
 		case Face.Right:
-		{
-			ref Vector3 reference = ref faceVertices[0];
-			reference = corners[6];
-			ref Vector3 reference2 = ref faceVertices[1];
-			reference2 = corners[5];
-			ref Vector3 reference3 = ref faceVertices[2];
-			reference3 = corners[2];
-			ref Vector3 reference4 = ref faceVertices[3];
-			reference4 = corners[1];
+			faceVertices[0] = corners[6];
+			faceVertices[1] = corners[5];
+			faceVertices[2] = corners[2];
+			faceVertices[3] = corners[1];
 			break;
-		}
 		}
 	}
 }

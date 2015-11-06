@@ -5,6 +5,8 @@ internal class ESTerrainEdit : ESStateBase
 {
 	private MVCubeModelPrototypeTerrain terrain;
 
+	private bool drawPlaneIsActive;
+
 	public override void Enter(EditorStateMachine e)
 	{
 		MVMaterialRepository.AllowDestructibleMaterialSelection = true;
@@ -12,8 +14,12 @@ internal class ESTerrainEdit : ESStateBase
 		{
 			e.DeSelectAll();
 		}
-		terrain = MVGameController.WOCM.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>();
+		terrain = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>();
 		e.CubeModelingStateMachine.StartEdit(terrain);
+		if (drawPlaneIsActive != MVGameControllerLegacyUI.EditorController.DrawPlaneController.IsDrawPlaneActive)
+		{
+			MVGameControllerLegacyUI.EditorController.ToggleDrawPlane();
+		}
 		tintedWo = null;
 	}
 
@@ -21,7 +27,7 @@ internal class ESTerrainEdit : ESStateBase
 	{
 		base.Execute(e);
 		VoxelHit hit = default;
-		bool flag = MVGameController.WOCM.Pick(ref hit);
+		bool flag = MVGameControllerLegacyUI.Pick(ref hit);
 		if (flag && (hit.woId == terrain.Id || hit.woId == -1))
 		{
 			flag = false;
@@ -38,21 +44,21 @@ internal class ESTerrainEdit : ESStateBase
 				return;
 			}
 			e.CubeModelingStateMachine.Update();
-			if (hit.woId != terrain.Id)
+			if (hit.woId != 0 && hit.woId != terrain.Id)
 			{
 				e.CubeModelingStateMachine.CursorVisible = false;
 			}
-			if (!MVGameController.EditorController.IsLogicRendered() || !MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelectAlt))
+			if (!MVGameControllerLegacyUI.EditorController.IsLogicRendered() || !MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelectAlt))
 			{
 				return;
 			}
 			VoxelHit hit2 = default;
 			float num = float.PositiveInfinity;
-			if (MVGameController.WOCM.Pick(ref hit2))
+			if (MVGameControllerLegacyUI.Pick(ref hit2))
 			{
 				num = hit2.distance;
 			}
-			Ray ray = e.CameraController.GetComponent<Camera>().ScreenPointToRay(MVInputWrapper.GetPointerPosition());
+			Ray ray = MVGameControllerBase.CameraController.MainCamera.ScreenPointToRay(MVInputWrapper.GetPointerPosition());
 			int layerMask = 1 << LayerMask.NameToLayer("Logic");
 			Physics.Raycast(ray, out var hitInfo, float.PositiveInfinity, layerMask);
 			if (hitInfo.collider != null)
@@ -70,15 +76,15 @@ internal class ESTerrainEdit : ESStateBase
 	{
 		if ((MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect) || MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelect)) && targetHit.woId != -1)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(targetHit.woId);
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(targetHit.woId);
 			if (worldObjectClient != null && (worldObjectClient.WorldObjectType == WorldObjectType.CubeModelTerrainFineGrained || worldObjectClient.WorldObjectType == WorldObjectType.CubeModelPrototypeTerrain))
 			{
-				MVCubeModelPrototypeTerrain singletonWorldObject = MVGameController.WOCM.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>();
-				MVCubeModelFineGrainedTerrain singletonWorldObject2 = MVGameController.WOCM.GetSingletonWorldObject<MVCubeModelFineGrainedTerrain>();
+				MVCubeModelPrototypeTerrain singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>();
+				MVCubeModelFineGrainedTerrain singletonWorldObject2 = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVCubeModelFineGrainedTerrain>();
 				if (singletonWorldObject.RequiresResetToEdit || singletonWorldObject2.RequiresResetToEdit)
 				{
-					MVGameController.Game.World.RuntimeEventManager.ResetTerrain();
-					MVGameController.Game.RequestResetTerrain();
+					MVGameControllerBase.Game.World.RuntimeEventManager.ResetTerrain();
+					MVGameControllerBase.Game.RequestResetTerrain();
 					return true;
 				}
 			}
@@ -89,7 +95,7 @@ internal class ESTerrainEdit : ESStateBase
 	public override void Exit(EditorStateMachine e)
 	{
 		MVMaterialRepository.AllowDestructibleMaterialSelection = false;
-		MVGameController.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.Idle);
+		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.Idle);
 		if (e.SelectedIDs.Count == 0)
 		{
 			DeTintCurrent();
@@ -97,5 +103,6 @@ internal class ESTerrainEdit : ESStateBase
 		e.CubeModelingStateMachine.RemoveCursors();
 		e.CubeModelingStateMachine.EndEdit();
 		terrain = null;
+		drawPlaneIsActive = MVGameControllerLegacyUI.EditorController.DrawPlaneController.IsDrawPlaneActive;
 	}
 }

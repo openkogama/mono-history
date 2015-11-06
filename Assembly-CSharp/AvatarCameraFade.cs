@@ -2,17 +2,15 @@ using UnityEngine;
 
 public class AvatarCameraFade : MonoBehaviour
 {
-	public Transform cameraTfm;
+	private Vector3 camMoveTowardsOffset = Vector3.zero;
+
+	private float fadeStartDistance = 4f;
+
+	private float fadeEndDistance = 2f;
 
 	public float fadeStartBase = 4f;
 
 	public float fadeEndBase = 2f;
-
-	public float fadeStartDistance = 4f;
-
-	public float fadeEndDistance = 2f;
-
-	private Transform avatarTfm;
 
 	public void SetScaleFadeDistance(float scale)
 	{
@@ -24,21 +22,19 @@ public class AvatarCameraFade : MonoBehaviour
 
 	private void Update()
 	{
-		if (avatarTfm == null)
-		{
-			if (MVGameController.WOCM.AvatarLocal == null)
-			{
-				return;
-			}
-			MVBody body = MVGameController.WOCM.AvatarLocal.Body;
-			if (body == null)
-			{
-				return;
-			}
-			avatarTfm = body.GameObject.transform;
-		}
-		float num = Vector3.Distance(avatarTfm.position, cameraTfm.position);
+		MVBody body = MVGameControllerBase.WOCM.AvatarLocal.Body;
+		Transform transform = body.GameObject.transform;
+		Vector3 a = transform.position + camMoveTowardsOffset;
+		Vector3 position = base.transform.position;
+		float num = Vector3.Distance(a, position);
 		float setTransparency = Mathf.Clamp01((num - fadeEndDistance) / (fadeStartDistance - fadeEndDistance));
-		MVGameController.WOCM.AvatarLocal.SetTransparency = setTransparency;
+		MVGameControllerBase.WOCM.AvatarLocal.SetTransparency = setTransparency;
+	}
+
+	public void Setup(Vector3 camMoveTowardsOffset, float fadeStartDistance, float fadeEndDistance)
+	{
+		this.camMoveTowardsOffset = camMoveTowardsOffset;
+		this.fadeStartDistance = fadeStartDistance;
+		this.fadeEndDistance = fadeEndDistance;
 	}
 }

@@ -11,11 +11,11 @@ public class GameMeterCollectibles : GameMeterBase
 	{
 		if (!(Application.loadedLevelName == "GUIDevScene"))
 		{
-			AllCollectiblesCollectedClient singletonWinnerConditionByType = MVGameController.Game.WinningConditionManager.GetSingletonWinnerConditionByType<AllCollectiblesCollectedClient>();
+			AllCollectiblesCollectedClient singletonWinnerConditionByType = MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<AllCollectiblesCollectedClient>();
 			if (singletonWinnerConditionByType != null)
 			{
 				MeterActive = true;
-				string text = MVGameController.Game.LocalPlayer.GetGameStat(GameStatCounterType.Collectible) + "/" + singletonWinnerConditionByType.Limit;
+				string text = MVGameControllerBase.Game.LocalPlayer.GetGameStat(GameStatCounterType.Collectible) + "/" + singletonWinnerConditionByType.Limit;
 				score.Text = text;
 			}
 			else

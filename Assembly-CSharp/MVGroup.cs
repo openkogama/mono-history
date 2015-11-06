@@ -171,8 +171,8 @@ public class MVGroup : MVWorldObjectClient
 
 	public virtual void TransferChild(int id)
 	{
-		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(id);
-		MVGroup mVGroup = (MVGroup)MVGameController.WOCM.GetWorldObjectClient(worldObjectClient.GroupId);
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(id);
+		MVGroup mVGroup = (MVGroup)MVGameControllerBase.WOCM.GetWorldObjectClient(worldObjectClient.GroupId);
 		mVGroup.RemoveChild(id);
 		worldObjectClient.Transform.parent = transform;
 		worldObjectClient.GroupId = base.id;
@@ -209,7 +209,7 @@ public class MVGroup : MVWorldObjectClient
 	{
 		do
 		{
-			leafId = MVGameController.WOCM.GetWorldObjectClient(leafId).GroupId;
+			leafId = MVGameControllerBase.WOCM.GetWorldObjectClient(leafId).GroupId;
 			if (leafId == -1)
 			{
 				return false;
@@ -224,14 +224,14 @@ public class MVGroup : MVWorldObjectClient
 		int result = leaf;
 		while (true)
 		{
-			int num = MVGameController.WOCM.GetWorldObjectClient(result).GroupId;
+			int num = MVGameControllerBase.WOCM.GetWorldObjectClient(result).GroupId;
 			if (num == -1)
 			{
 				return -1;
 			}
 			if (returnParentIfHasFlags != InteractionFlags.None)
 			{
-				MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(num);
+				MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(num);
 				if (worldObjectClient.HasInteractionFlag(returnParentIfHasFlags))
 				{
 					return num;
@@ -248,7 +248,7 @@ public class MVGroup : MVWorldObjectClient
 
 	public static int GetParentBelow(int parentId, int childId)
 	{
-		MVWorldObjectClientManager wOCM = MVGameController.WOCM;
+		MVWorldObjectClientManager wOCM = MVGameControllerBase.WOCM;
 		MVWorldObjectClient worldObjectClient = wOCM.GetWorldObjectClient(childId);
 		MVWorldObjectClient worldObjectClient2 = wOCM.GetWorldObjectClient(parentId);
 		if (worldObjectClient == null)
@@ -273,18 +273,17 @@ public class MVGroup : MVWorldObjectClient
 		{
 			return child.Id;
 		}
-		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(child.GroupId);
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(child.GroupId);
 		return GetParentBelow(parent, worldObjectClient);
 	}
 
 	public override bool OnEnterObject(EditorStateMachine e)
 	{
-		MVGameController.Game.CameraController.CurCamera.FocusOnObject(this);
+		MVGameControllerBase.CameraController.CurCamera.FocusOnObject(this);
 		Debug.Log("*** Entering group: " + ToString());
 		e.EnterGroup(this);
 		SharedCubeFunctions.SetLayerRecursively(e.ParentGroup.Transform, select: true);
-		e.CameraController.SecondaryCameraActive = true;
-		e.CameraController.GetComponent<GrayscaleEffect>().enabled = true;
+		e.CameraController.BlueModeEnabled = true;
 		e.Event = EditorEvent.ObjectSelected;
 		return true;
 	}

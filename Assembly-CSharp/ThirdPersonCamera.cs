@@ -1,31 +1,64 @@
 using System.Collections.Generic;
+using MV.Common;
 using UnityEngine;
 
-public class ThirdPersonCamera : PlaymodeCamera
+public class ThirdPersonCamera : PlaymodeCamera, ICameraSettings
 {
+	private float baseDistanceSettings = 5f;
+
 	public override CameraType CameraType => CameraType.ThirdPerson;
 
-	public override void HandleInput(MVCameraController cameraController)
+	public override void Awake()
 	{
-		base.HandleInput(cameraController);
-		UpdateTargetRotation();
+		base.Awake();
+		MVCameraController.RegisterCameraWithSettings(MVGameType.Classic, this);
 	}
 
-	public override void SetDefaultSettings()
+	public override void UpdateCamera(MVCameraController camController, Transform targetTransform)
 	{
-		distanceToAvatar = 5f;
+		UpdateTargetRotation();
+		base.UpdateCamera(camController, targetTransform);
+	}
+
+	public void UpdateFromCameraSettings(Dictionary<object, object> data)
+	{
+		distanceToAvatar = (float)data["distanceToAvatar"];
+		baseDistanceSettings = (float)data["distanceToAvatar"];
+	}
+
+	public void SetDefaultSettings()
+	{
+		baseDistanceSettings = 5f;
+		distanceToAvatar = baseDistanceSettings;
+	}
+
+	public void ScaleCameraValues(float scale)
+	{
+		ResetScaleValues();
+		height *= scale;
+		distanceToAvatar *= scale;
+		cameraRadius *= scale;
+		lookAtOffset *= scale;
+		lookAtTransform.position *= scale;
+		if (scale < 1f)
+		{
+			lookAtScaleCorrection *= scale;
+		}
+		shoulderOffset *= scale;
+		targetDistanceStrength *= scale;
+		MVGameControllerBase.CameraController.AvatarCameraFade.SetScaleFadeDistance(scale);
+	}
+
+	private void ResetScaleValues()
+	{
+		distanceToAvatar = baseDistanceSettings;
 		height = 1.5f;
 		cameraRadius = 0.3f;
-		lookAtTransform = MVGameController.WOCM.AvatarLocal.GameObject.transform;
+		lookAtTransform = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform;
 		lookAtOffset = new Vector3(0f, 2.5f, 0f);
 		lookAtScaleCorrection = 1f;
 		shoulderOffset = new Vector3(1.5f, 0f, -0.2f);
 		targetDistanceStrength = 2f;
-	}
-
-	public override void UpdateFromCameraSettings(Dictionary<object, object> data)
-	{
-		distanceToAvatar = (float)data["distanceToAvatar"];
 	}
 
 	private void UpdateTargetRotation()
@@ -33,7 +66,7 @@ public class ThirdPersonCamera : PlaymodeCamera
 		Vector3 eulerAngles = targetRot.EulerAngles;
 		float num = 0f - eulerAngles.x;
 		float num2 = eulerAngles.y;
-		autoRotate = Cursor.lockState == CursorLockMode.Locked;
+		autoRotate = !MVGameControllerBase.IPlayModeUI.InLobbyState;
 		if (autoRotate && (ignoreInputTypes & IgnoreInputTypes.MouseMovement) == 0)
 		{
 			num2 += MVInputWrapper.GetAxis("Mouse X") * mouseSensitivity;

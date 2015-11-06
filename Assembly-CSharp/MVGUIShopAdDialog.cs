@@ -28,9 +28,7 @@ public class MVGUIShopAdDialog : MVGUIAdDialog
 
 	private bool _initialized;
 
-	public ShopRepository shopRepository => MVGameController.Game.ShopRepository;
-
-	private AEditController EditController => MVGameController.EditController;
+	public ShopRepository shopRepository => MVGameControllerBase.Game.ShopRepository;
 
 	public override bool CanShow()
 	{
@@ -74,7 +72,7 @@ public class MVGUIShopAdDialog : MVGUIAdDialog
 
 	private void FindAllowedItemTypes()
 	{
-		MVGUIAggregateInventory shopInventory = MVGameController.EditorController.GetShopInventory();
+		MVGUIAggregateInventory shopInventory = MVGameControllerLegacyUI.EditorController.GetShopInventory();
 		foreach (MVGUIShopInventoryGroup inventoryGroup in shopInventory.inventoryGroups)
 		{
 			allowedItemTypes.AddRange(inventoryGroup.allowedCategoriesTypes);
@@ -95,7 +93,7 @@ public class MVGUIShopAdDialog : MVGUIAdDialog
 		mVGUIProductShopDialog.SetPrice(adItem.priceGold, adItem.priceSilver);
 		mVGUIProductShopDialog.OnTryPurchaseProduct = () =>
 		{
-			MVGameController.Game.UnlockClientShopInventoryItem(adItem.itemID);
+			MVGameControllerBase.Game.UnlockClientShopInventoryItem(adItem.itemID);
 		};
 	}
 
@@ -118,7 +116,7 @@ public class MVGUIShopAdDialog : MVGUIAdDialog
 
 	private void InsertPreviewItem()
 	{
-		MVGameController.EditorController.EditorWorldObjectCreation.OnAddItemFromInventory(adItem, isPreviewItem: true);
+		MVGameControllerLegacyUI.EditorController.EditorWorldObjectCreation.OnAddItemFromInventory(adItem, isPreviewItem: true);
 	}
 
 	private void OnPurchaseDialogResult(UXDialogBox dialogBox)
@@ -132,11 +130,11 @@ public class MVGUIShopAdDialog : MVGUIAdDialog
 				return;
 			}
 			int num = (int)dictionary[(byte)22];
-			MVGameController.Game.PlayerRepository.PlayerInventory.Add(adItem.itemID, adItem);
-			MVGameController.Game.PlayerRepository.itemIDToInventorySlotIndex.Add(adItem.itemID, num);
-			MVGameController.Game.PlayerRepository.NotifyRepositoryChange();
-			MVGameController.Game.ShopRepository.RemoveItem(adItem.itemID);
-			MVGameController.Game.ShopRepository.ReorganizeItemsByItemType(notifyOfChange: true);
+			MVGameControllerBase.Game.PlayerRepository.PlayerInventory.Add(adItem.itemID, adItem);
+			MVGameControllerBase.Game.PlayerRepository.itemIDToInventorySlotIndex.Add(adItem.itemID, num);
+			MVGameControllerBase.Game.PlayerRepository.NotifyRepositoryChange();
+			MVGameControllerBase.Game.ShopRepository.RemoveItem(adItem.itemID);
+			MVGameControllerBase.Game.ShopRepository.ReorganizeItemsByItemType(notifyOfChange: true);
 		}
 		DialogFactory.CloseDialog();
 	}

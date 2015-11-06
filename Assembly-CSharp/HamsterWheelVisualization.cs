@@ -209,7 +209,7 @@ public class HamsterWheelVisualization : VehicleVisualizationBase
 	private void OnMovingForwardChange(bool value)
 	{
 		MVAvatar owner = vehicleSeatManager.seats[0].Owner;
-		int serverTimeInMilliSeconds = MVGameController.Game.ServerTimeInMilliSeconds;
+		int serverTimeInMilliSeconds = MVGameControllerBase.Game.ServerTimeInMilliSeconds;
 		if (value)
 		{
 			if (owner.Avatar.IsLocal)
@@ -240,7 +240,7 @@ public class HamsterWheelVisualization : VehicleVisualizationBase
 	private void OnMovingBackwardsChange(bool value)
 	{
 		MVAvatar owner = vehicleSeatManager.seats[0].Owner;
-		int serverTimeInMilliSeconds = MVGameController.Game.ServerTimeInMilliSeconds;
+		int serverTimeInMilliSeconds = MVGameControllerBase.Game.ServerTimeInMilliSeconds;
 		if (value)
 		{
 			if (owner.Avatar.IsLocal)

@@ -21,9 +21,9 @@ public class MVRoundCube : MVLogicObject
 	public override void Initialize()
 	{
 		base.Initialize();
-		MVWorldObjectClientManager wOCM = MVGameController.WOCM;
+		MVWorldObjectClientManager wOCM = MVGameControllerBase.WOCM;
 		wOCM.OnResetWorldDone = (EventHandler<EventArgs>)Delegate.Combine(wOCM.OnResetWorldDone, new EventHandler<EventArgs>(OnResetWorldDone));
-		MVGameController.Game.WinningConditionManager.CreateWinnerCondition<TimeLimitClient>(new object[1] { WinningCondition });
+		MVGameControllerBase.Game.WinningConditionManager.CreateWinnerCondition<TimeLimitClient>(new object[1] { WinningCondition });
 		initializedInWorld = true;
 	}
 
@@ -37,20 +37,20 @@ public class MVRoundCube : MVLogicObject
 		base.Destroy();
 		if (initializedInWorld)
 		{
-			MVWorldObjectClientManager wOCM = MVGameController.WOCM;
+			MVWorldObjectClientManager wOCM = MVGameControllerBase.WOCM;
 			wOCM.OnResetWorldDone = (EventHandler<EventArgs>)Delegate.Remove(wOCM.OnResetWorldDone, new EventHandler<EventArgs>(OnResetWorldDone));
-			TimeLimitClient singletonWinnerConditionByType = MVGameController.Game.WinningConditionManager.GetSingletonWinnerConditionByType<TimeLimitClient>();
+			TimeLimitClient singletonWinnerConditionByType = MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<TimeLimitClient>();
 			if (singletonWinnerConditionByType == null)
 			{
 				throw new Exception("Couldn't find TimeLimit winning condition.");
 			}
-			MVGameController.Game.WinningConditionManager.RemoveWinnerCondition(singletonWinnerConditionByType.ID);
+			MVGameControllerBase.Game.WinningConditionManager.RemoveWinnerCondition(singletonWinnerConditionByType.ID);
 		}
 	}
 
 	private void OnResetWorldDone(object sender, EventArgs e)
 	{
-		TimeLimitClient singletonWinnerConditionByType = MVGameController.Game.WinningConditionManager.GetSingletonWinnerConditionByType<TimeLimitClient>();
+		TimeLimitClient singletonWinnerConditionByType = MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<TimeLimitClient>();
 		if (singletonWinnerConditionByType == null)
 		{
 			throw new Exception("Couldn't find TimeLimit winning condition.");

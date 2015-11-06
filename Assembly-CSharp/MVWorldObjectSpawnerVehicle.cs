@@ -26,6 +26,13 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 		gameCoinLogic = new GameCoinLogic(gameObject, Data, displayObjectOffset);
 	}
 
+	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
+	{
+		Vector3 localScale = gameObject.transform.localScale;
+		localScale.y = 2f;
+		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, localScale);
+	}
+
 	public override void OnDataUpdate()
 	{
 		base.OnDataUpdate();
@@ -59,7 +66,7 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 		{
 			Debug.LogError("hiddenShader not found");
 		}
-		pickupItemObjectScript.pickupObject = MVGameController.WOCM.GetWorldObjectClient(spawnWorldObjectID).GameObject;
+		pickupItemObjectScript.pickupObject = MVGameControllerBase.WOCM.GetWorldObjectClient(spawnWorldObjectID).GameObject;
 		pickupItemObjectScript.InitializeOriginalMaterials();
 	}
 
@@ -91,7 +98,7 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 			groundAura.SetActive(value: true);
 			break;
 		case SpawnState.Taken:
-			if (MVGameController.Game.IsPlaying)
+			if (MVGameControllerBase.Game.IsPlaying)
 			{
 				pickupItemObjectScript.GreyOut();
 			}
@@ -125,7 +132,7 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 
 	public override void Select(Color color)
 	{
-		MVGameController.WOCM.GetWorldObjectClient(SpawnWorldObjectID)?.Select(color);
+		MVGameControllerBase.WOCM.GetWorldObjectClient(SpawnWorldObjectID)?.Select(color);
 	}
 
 	protected override bool Use(int userWoID)
@@ -135,7 +142,7 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 		{
 			return false;
 		}
-		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(spawnWorldObjectID);
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(spawnWorldObjectID);
 		if (worldObjectClient == null)
 		{
 			Debug.LogError("SpawnWorldObject is null");
@@ -159,10 +166,10 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 			return false;
 		}
 		Debug.Log("Trying to spawn vehicle spawner ID is " + Id);
-		if (MVGameController.Game.PlayerController.SpawnVehicleWithDriver(Id, userWoID, driverSeat))
+		if (MVGameControllerBase.Game.PlayerController.SpawnVehicleWithDriver(Id, userWoID, driverSeat))
 		{
 			Debug.Log("Succesfully send spawn vehicle");
-			MVGameController.Game.GameCoinManager.Consume(gameCoinLogic);
+			MVGameControllerBase.Game.GameCoinManager.Consume(gameCoinLogic);
 			return true;
 		}
 		return true;
@@ -170,7 +177,7 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 
 	public override bool OnEnterObject(EditorStateMachine e)
 	{
-		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(spawnWorldObjectID);
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(spawnWorldObjectID);
 		if (spawnStateWrapper.SpawnState == SpawnState.Taken)
 		{
 			pickupItemObjectScript.GreyIn();
@@ -180,7 +187,7 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 
 	public override bool OnExitObject(EditorStateMachine e)
 	{
-		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(spawnWorldObjectID);
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(spawnWorldObjectID);
 		return worldObjectClient.OnExitObject(e);
 	}
 

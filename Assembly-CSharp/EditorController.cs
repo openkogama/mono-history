@@ -1,41 +1,58 @@
 using System;
 using System.Collections.Generic;
+using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 
-public class EditorController : AEditController
+public abstract class EditorController : AIngameController, IEditModeUI, IPlayModeUI, ICubeModelingEditMode
 {
-	private PlayControllerEdit playController = new PlayControllerEdit();
+	protected CubeModelingController cubeModelingController;
 
-	private bool _isInEditMode;
+	protected PlayControllerEdit playController = new PlayControllerEdit();
 
-	private MVGUIPublishButton publish;
+	protected bool _isInEditMode;
 
-	private MVGUIPlayButton playButton;
+	protected MVGUIPublishButton publish;
 
-	private MVGUIAggregateInventory aggregateInventory;
+	protected MVGUIPlayButton playButton;
 
-	private MVGUIShopView shopView;
+	protected MVGUIAggregateInventory aggregateInventory;
 
-	private MVGUINewModelDialog newModelWindow;
+	protected MVGUIShopView shopView;
 
-	private MVGUIEditorTools editorTools;
+	protected MVGUINewModelDialog newModelWindow;
 
-	private MVGUIEditorToggles editorToggles;
+	protected MVGUIEditorTools editorTools;
 
-	private MVGUIMenu menu;
+	protected MVGUIEditorToggles editorToggles;
 
-	private MVGUIGameInfo gameInfo;
+	protected MVGUIMenu menu;
 
-	private MVGUIDrawplane drawplaneToggle;
+	protected MVGUIGameInfo gameInfo;
 
-	private MVGUIFullscreenToggle fullscreenToggle;
+	protected MVGUIDrawplane drawplaneToggle;
 
-	private MVGUIMuteToggle muteToggle;
+	protected MVGUIFullscreenToggle fullscreenToggle;
 
-	private MVGUIEditModeScreenShot screenShot;
+	protected MVGUIMuteToggle muteToggle;
 
-	private MVGUILevel level;
+	protected MVGUIEditModeScreenShot screenShot;
+
+	protected MVGUILevel level;
+
+	private Action<EditModeChangeArgs> editModeChange;
+
+	public Action<EditModeChangeArgs> EditModeChange
+	{
+		get
+		{
+			return editModeChange;
+		}
+		set
+		{
+			editModeChange = value;
+		}
+	}
 
 	public bool PlayInEditor { get; private set; }
 
@@ -44,6 +61,24 @@ public class EditorController : AEditController
 	public override bool WindowShown => (currentView != null && currentView.isVisible) || menu.View.isVisible;
 
 	public EditorWorldObjectCreation EditorWorldObjectCreation { get; private set; }
+
+	public CubeModelingController CubeModelingController => cubeModelingController;
+
+	public EditorStateMachine EditorStateMachine { get; protected set; }
+
+	public abstract DrawPlaneController DrawPlaneController { get; }
+
+	public bool InLobbyState
+	{
+		get
+		{
+			return playController.InLobbyState && PlayInEditor;
+		}
+		set
+		{
+			playController.InLobbyState = value;
+		}
+	}
 
 	protected override void ResolveGUIElements()
 	{
@@ -69,6 +104,9 @@ public class EditorController : AEditController
 
 	public override void Initialize()
 	{
+		EditorStateMachine = new EditorStateMachine();
+		MVNetworkGame game = MVGameControllerBase.Game;
+		game.OnItemAddedToWorld = (Action<bool>)Delegate.Combine(game.OnItemAddedToWorld, new Action<bool>(OnItemAddedToWorld));
 		base.Initialize();
 		EditorWorldObjectCreation = new EditorWorldObjectCreation(EditorStateMachine);
 		EditorStateMachine.Event = EditorEvent.ESTerrainEdit;
@@ -85,7 +123,7 @@ public class EditorController : AEditController
 	public override void Update()
 	{
 		base.Update();
-		cubeModelingController.Update();
+		DrawPlaneController.Update();
 	}
 
 	public override void HandleInput()
@@ -93,9 +131,14 @@ public class EditorController : AEditController
 		if (!PlayInEditor)
 		{
 			base.HandleInput();
+			EditorStateMachine.Update();
 		}
 		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.Respawn))
 		{
+			if (_isInEditMode)
+			{
+				return;
+			}
 			RespawnAvatar();
 		}
 		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.ToggleLogicRendering))
@@ -129,21 +172,25 @@ public class EditorController : AEditController
 		{
 			ShowNewModelWindow();
 		}
+		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.ToggleDrawPlane))
+		{
+			ToggleDrawPlane();
+		}
 		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.FocusOnSelectedModel))
 		{
-			MVWorldObjectClient singleSelectedWO = MVGameController.EditController.EditorStateMachine.SingleSelectedWO;
+			MVWorldObjectClient singleSelectedWO = EditorStateMachine.SingleSelectedWO;
 			if (singleSelectedWO != null)
 			{
-				MVGameController.Game.CameraController.CurCamera.FocusOnObject(singleSelectedWO);
+				MVGameControllerBase.CameraController.CurCamera.FocusOnObject(singleSelectedWO);
 			}
 		}
 		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.ShowPlayerWindow))
 		{
-			MVGameController.EditorController.ShowPlayersWindow(show: false);
+			ShowPlayersWindow(show: false);
 		}
 		else if (MVInputWrapper.GetBooleanControlDown(KogamaControls.ShowPlayerWindow))
 		{
-			MVGameController.EditorController.ShowPlayersWindow(show: true);
+			ShowPlayersWindow(show: true);
 		}
 	}
 
@@ -156,7 +203,7 @@ public class EditorController : AEditController
 	{
 		Action<byte[]> callback = (byte[] imageData) =>
 		{
-			MVGameController.Game.AddWorldObjectToInventory(wo.Id, imageData);
+			MVGameControllerBase.Game.AddWorldObjectToInventory(wo.Id, imageData);
 		};
 		Coroutines.StartCoroutine(ImageGenerator.CreateTextureFromData(wo, callback));
 	}
@@ -168,7 +215,7 @@ public class EditorController : AEditController
 		foreach (MVWorldObjectClient item in list)
 		{
 			string errorText = string.Empty;
-			if (!item.Delete(MVGameController.WOCM, ref errorText))
+			if (!item.Delete(MVGameControllerBase.WOCM, ref errorText))
 			{
 				UXUtils.UXDialogFactory.CreateDialog(errorText, string.Empty).Show();
 				return false;
@@ -187,8 +234,9 @@ public class EditorController : AEditController
 		menu.ShowOnShortcut(show);
 	}
 
-	public void EnterCubeModelEdit()
+	public virtual void EnterCubeModelEdit(float scale)
 	{
+		((MVAvatarLocal.JetPackMode)MVGameControllerBase.WOCM.AvatarLocal.CurrentMode).ModifySpeed(Mathf.Min(1f, 2f * scale), Mathf.Min(1f, 2f * scale));
 		Hide();
 		drawplaneToggle.View.Show();
 		cubeModelingController.ShowEditorTools();
@@ -196,11 +244,7 @@ public class EditorController : AEditController
 		_isInEditMode = true;
 	}
 
-	public void LeaveCubeModelEdit()
-	{
-		Show();
-		_isInEditMode = false;
-	}
+	public abstract void LeaveCubeModelEdit();
 
 	public void ShowInventory()
 	{
@@ -245,7 +289,7 @@ public class EditorController : AEditController
 		{
 			return null;
 		}
-		return MVGameController.WOCM.GetWorldObjectClient(woID);
+		return MVGameControllerBase.WOCM.GetWorldObjectClient(woID);
 	}
 
 	public MVWorldObjectClient GetSettingsDialogSelectionWO()
@@ -255,7 +299,16 @@ public class EditorController : AEditController
 		{
 			return null;
 		}
-		return MVGameController.WOCM.GetWorldObjectClient(settingsDialogSelectionWOID);
+		return MVGameControllerBase.WOCM.GetWorldObjectClient(settingsDialogSelectionWOID);
+	}
+
+	private void OnItemAddedToWorld(bool success)
+	{
+		if (!success)
+		{
+			Debug.LogWarning("Add item to world returned -1. This means that a singleton wo is already present and thus the request was rejected. We need a way to handle server operations in consistent manner.");
+			EditorStateMachine.Event = EditorEvent.ESTerrainEdit;
+		}
 	}
 
 	private void SetPlayInEditorMode(bool playInEditor)
@@ -263,28 +316,42 @@ public class EditorController : AEditController
 		PlayInEditor = playInEditor;
 		if (playInEditor)
 		{
-			MVGameController.WOCM.RootGroup.PlayModeInitialize();
-			MVGameController.WOCM.AvatarLocal.AvatarMode = MVGameController.WOCM.AvatarLocal.AvatarModes.WalkMode;
-			MVGameController.WOCM.MoveableController.ResetMoveables();
+			MVGameControllerBase.WOCM.RootGroup.PlayModeInitialize();
 			EditorStateMachine.Event = EditorEvent.ESWalkMode;
+			MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Playing);
+			MVGameControllerBase.WOCM.MoveableController.ResetMoveables();
 			Hide();
 			UXUtils.FindGUIObjectOfType<MVGUIChatWindow>().AddLine(TM._("Leveling is disabled in edit play mode"), Color.red);
-			MVTeam team = MVGameController.Game.LocalPlayer.Team;
-			MVTeamManager teamManager = MVGameController.Game.TeamManager;
+			MVTeam team = MVGameControllerBase.Game.LocalPlayer.Team;
+			MVTeamManager teamManager = MVGameControllerBase.Game.TeamManager;
 			if (!teamManager.IsTeamActive(team))
 			{
 				List<MVTeam> teamList = teamManager.GetTeamList();
-				MVGameController.Game.SetTeam(teamList[0]);
+				MVGameControllerBase.Game.SetTeam(teamList[0]);
 			}
 		}
 		else
 		{
+			if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
+			{
+				MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Edit);
+			}
+			else if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
+			{
+				MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Edit2D);
+				((MVAvatarLocal.EditorAvatarMode2D)MVGameControllerBase.WOCM.AvatarLocal.CurrentMode).ResetToZPos();
+				MVGameControllerBase.CameraController.StartTransitionCam(0.5f);
+			}
 			SetupEditMode();
 			Show();
 		}
 		playButton.playButton.ToggleState = playInEditor;
 		menu.playersWindow.UpdateTeamLists();
 		playController.PlayFromEdit(playInEditor);
+		if (EditModeChange != null)
+		{
+			EditModeChange(new EditModeChangeArgs(playInEditor));
+		}
 	}
 
 	private void TogglePlayInEditor()
@@ -294,9 +361,8 @@ public class EditorController : AEditController
 
 	private void SetupEditMode()
 	{
-		MVGameController.WOCM.AvatarLocal.AvatarMode = MVGameController.WOCM.AvatarLocal.AvatarModes.JetPackMode;
-		MVGameController.WOCM.MoveableController.ResetMoveables();
-		MVGameController.WOCM.RootGroup.PlayModeInitialize();
+		MVGameControllerBase.WOCM.MoveableController.ResetMoveables();
+		MVGameControllerBase.WOCM.RootGroup.PlayModeInitialize();
 	}
 
 	private void ShowNewModelWindow()
@@ -315,16 +381,18 @@ public class EditorController : AEditController
 		}
 	}
 
+	public void HideEditorTools()
+	{
+		cubeModelingController.HideCubeTools();
+		DrawPlaneController.HideDrawPlane();
+	}
+
 	private void ToggleGridSnap()
 	{
 		editorToggles.gridSnapToggle.Toggle();
 	}
 
-	private void ToggleDrawPlane()
-	{
-		cubeModelingController.ToggleDrawPlane();
-		drawplaneToggle.drawplaneToggle.SetToggleState(cubeModelingController.WorldEditorDrawPlane.Active);
-	}
+	public abstract void ToggleDrawPlane();
 
 	private void InitializeNewModelUI()
 	{
@@ -353,25 +421,7 @@ public class EditorController : AEditController
 		uXToggleIconButton.OnToggle = (UXToggleIconButton.OnToggleDelegate)Delegate.Combine(uXToggleIconButton.OnToggle, new UXToggleIconButton.OnToggleDelegate(SetPlayInEditorMode));
 	}
 
-	private void Show()
-	{
-		drawplaneToggle.View.Show();
-		cubeModelingController.ShowCurrentSelectedMaterial();
-		cubeModelingController.ShowEditorTools();
-		editorToggles.View.Show();
-		editorTools.View.Show();
-		shopView.View.Show();
-		publish.View.Show();
-		playButton.View.Show();
-		fullscreenToggle.View.Show();
-		muteToggle.View.Show();
-		if (MVGameController.Game.LocalPlayer.PlanetOwnershipTypeID == 2)
-		{
-			screenShot.View.Show();
-		}
-		gameInfo.View.Show();
-		level.View.Show();
-	}
+	protected abstract void Show();
 
 	private void Hide()
 	{
@@ -381,7 +431,8 @@ public class EditorController : AEditController
 		}
 		drawplaneToggle.View.Hide();
 		cubeModelingController.HideCurrentSelectedMaterial();
-		cubeModelingController.HideEditorTools();
+		cubeModelingController.HideCubeTools();
+		DrawPlaneController.HideDrawPlane();
 		editorTools.View.Hide();
 		editorToggles.View.Hide();
 		shopView.View.Hide();
@@ -392,5 +443,20 @@ public class EditorController : AEditController
 		gameInfo.View.Hide();
 		level.View.Hide();
 		screenShot.View.Hide();
+	}
+
+	public void ShowEUseIcon(ShowUseOption option)
+	{
+		playController.ShowEUseIcon(option);
+	}
+
+	public void HideEUseIcon()
+	{
+		playController.HideEUseIcon();
+	}
+
+	public IGUICrossHair GetCrossHair()
+	{
+		return playController.GetCrossHair();
 	}
 }

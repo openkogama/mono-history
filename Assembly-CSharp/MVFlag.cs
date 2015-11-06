@@ -16,6 +16,8 @@ public class MVFlag : MVLogicObject
 
 	private Vector3 gameCoinDisplayObjectOffset = new Vector3(0f, 2.5f, 0f);
 
+	public override Vector3 WorldPivot => transform.position;
+
 	public MVFlag(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, "Prefabs/FlagObject", worldObjects)
 	{
@@ -27,15 +29,18 @@ public class MVFlag : MVLogicObject
 
 	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
 	{
-		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, Vector3.one * 2f);
+		Vector3 vector = Vector3.one * 2f;
+		vector.z = 1f;
+		vector.x = 1f;
+		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, vector);
 	}
 
 	public override void Initialize()
 	{
 		base.Initialize();
-		if (MVGameController.Game.WinningConditionManager.GetSingletonWinnerConditionByType<FlagReachedClient>() == null)
+		if (MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<FlagReachedClient>() == null)
 		{
-			MVGameController.Game.WinningConditionManager.CreateWinnerCondition<FlagReachedClient>(new object[0]);
+			MVGameControllerBase.Game.WinningConditionManager.CreateWinnerCondition<FlagReachedClient>(new object[0]);
 		}
 		initializedInWorld = true;
 		worldObjectEnableController = gameObject.GetComponentInChildren<WorldObjectEnableController>();
@@ -66,7 +71,7 @@ public class MVFlag : MVLogicObject
 
 	private void DoCaptureFlag()
 	{
-		MVGameController.Game.ReportCaptureFlag();
+		MVGameControllerBase.Game.ReportCaptureFlag();
 	}
 
 	public override void Destroy()
@@ -74,14 +79,14 @@ public class MVFlag : MVLogicObject
 		triggerBoxEvents.TriggerEnter -= triggerBoxEvents_TriggerEnter;
 		gameCoinLogic.OnDestroy(Data);
 		base.Destroy();
-		if (initializedInWorld && MVGameController.Game.World.WorldObjectClientManager.GetWorldObjectsByType(WorldObjectType).Count == 0)
+		if (initializedInWorld && MVGameControllerBase.Game.World.WorldObjectClientManager.GetWorldObjectsByType(WorldObjectType).Count == 0)
 		{
-			FlagReachedClient singletonWinnerConditionByType = MVGameController.Game.WinningConditionManager.GetSingletonWinnerConditionByType<FlagReachedClient>();
+			FlagReachedClient singletonWinnerConditionByType = MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<FlagReachedClient>();
 			if (singletonWinnerConditionByType == null)
 			{
 				throw new Exception("Could not find FlagReached singleton");
 			}
-			MVGameController.Game.WinningConditionManager.RemoveWinnerCondition(singletonWinnerConditionByType.ID);
+			MVGameControllerBase.Game.WinningConditionManager.RemoveWinnerCondition(singletonWinnerConditionByType.ID);
 		}
 	}
 }

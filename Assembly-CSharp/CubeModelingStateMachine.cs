@@ -1,4 +1,5 @@
 using CodeStage.AntiCheat.ObscuredTypes;
+using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 
@@ -6,17 +7,57 @@ public class CubeModelingStateMachine : FSMEntity
 {
 	public delegate void OnCurrentMaterialChangeDelegate(byte currentMaterialId, Material currentMaterial);
 
+	private static Vector3[] zDepth1Cube = new Vector3[8]
+	{
+		new Vector3(-0.5f, 0.5f, 0.25f),
+		new Vector3(0.5f, 0.5f, 0.25f),
+		new Vector3(0.5f, 0.5f, 0.5f),
+		new Vector3(-0.5f, 0.5f, 0.5f),
+		new Vector3(-0.5f, -0.5f, 0.5f),
+		new Vector3(0.5f, -0.5f, 0.5f),
+		new Vector3(0.5f, -0.5f, 0.25f),
+		new Vector3(-0.5f, -0.5f, 0.25f)
+	};
+
+	private static byte[] zDepth1CubeByteCorners = CubeDataPacker.CornersToByteArray(zDepth1Cube);
+
 	private ObscuredByte currentMaterialId = (byte)0;
 
 	private Material currentMaterial;
+
+	private MVCubeModelBase targetCubeModel;
+
+	private IModelingConstraint constraint;
 
 	public OnCurrentMaterialChangeDelegate OnCurrentMaterialChange;
 
 	public bool useLasers = true;
 
-	private MVCubeModelBase targetCubeModel;
+	private bool editMode2d;
 
-	private IModelingConstraint constraint;
+	public Vector3[] CubeCorners
+	{
+		get
+		{
+			if (editMode2d)
+			{
+				return zDepth1Cube;
+			}
+			return CubeBase.IdentityCorners;
+		}
+	}
+
+	public byte[] ByteCubeCorners
+	{
+		get
+		{
+			if (editMode2d)
+			{
+				return zDepth1CubeByteCorners;
+			}
+			return CubeBase.IdentityByteCorners;
+		}
+	}
 
 	public byte CurrentMaterialId
 	{
@@ -34,7 +75,7 @@ public class CubeModelingStateMachine : FSMEntity
 		}
 	}
 
-	public Material CurrentMaterial => MVGameController.Game.MaterialRepository.GetMaterial(currentMaterialId).material;
+	public Material CurrentMaterial => MVGameControllerBase.Game.MaterialRepository.GetMaterial(currentMaterialId).material;
 
 	public CubePickingInfo SelectedCube { get; set; }
 
@@ -67,6 +108,19 @@ public class CubeModelingStateMachine : FSMEntity
 		this.targetCubeModel = targetCubeModel;
 		this.constraint = constraint;
 		this.targetCubeModel.BeingEdited = true;
+		editMode2d = false;
+		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer && targetCubeModel is MVCubeModelPrototypeTerrain)
+		{
+			editMode2d = true;
+		}
+		if (editMode2d && (int)curEvent == 0)
+		{
+			curEvent = CubeModelingEvent.EditCubes2D;
+		}
+		if (!editMode2d && (int)curEvent == 4)
+		{
+			curEvent = CubeModelingEvent.EditCubes;
+		}
 		Event = curEvent;
 	}
 
@@ -94,7 +148,7 @@ public class CubeModelingStateMachine : FSMEntity
 		if (SharedCubeFunctions.GetPickingInfo(targetCubeModel, ref info))
 		{
 			Vector3 hit = Vector3.zero;
-			if (MVGameController.EditController.WorldEditorDrawPlane.Pick(ref hit))
+			if (MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController.Pick(ref hit))
 			{
 				float magnitude = (hit - Camera.main.transform.position).magnitude;
 				float magnitude2 = (info.point - Camera.main.transform.position).magnitude;

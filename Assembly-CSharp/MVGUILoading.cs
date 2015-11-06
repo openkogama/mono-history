@@ -28,15 +28,15 @@ public class MVGUILoading : UXViewScript
 
 	public void Update()
 	{
-		if (MVGameController.Game == null)
+		if (MVGameControllerBase.Game == null)
 		{
 			return;
 		}
-		if (MVGameController.Game.JoinState == MVJoinState.Playing && View.isVisible)
+		if (MVGameControllerBase.JoinState == MVJoinState.Playing && View.isVisible)
 		{
 			View.Hide();
 		}
-		else if (MVGameController.Game.JoinState != MVJoinState.Playing && !View.isVisible)
+		else if (MVGameControllerBase.JoinState != MVJoinState.Playing && !View.isVisible)
 		{
 			View.Show();
 		}

@@ -29,9 +29,9 @@ public class PathHelper
 			break;
 		case MoverPattern.PingPong:
 		{
-			for (int num2 = waypoints.Length - 1; num2 > 0; num2--)
+			for (int j = waypoints.Length - 1; j > 0; j--)
 			{
-				num += Vector3.Distance(waypoints[num2], waypoints[num2 - 1]);
+				num += Vector3.Distance(waypoints[j], waypoints[j - 1]);
 			}
 			break;
 		}
@@ -64,7 +64,7 @@ public class PathHelper
 				break;
 			}
 		}
-		if (flag && flag2 && oldWayPoint == 0 && num4 == waypoints.Length - 1)
+		if ((flag & flag2) && oldWayPoint == 0 && num4 == waypoints.Length - 1)
 		{
 			shouldStop = true;
 			vector = waypoints[0];
@@ -111,20 +111,20 @@ public class PathHelper
 				break;
 			}
 		}
-		if (flag && flag2 && oldWayPoint == 0 && num4 == 1)
+		if ((flag & flag2) && oldWayPoint == 0 && num4 == 1)
 		{
 			shouldStop = true;
 			vector = waypoints[0];
 		}
 		if (!flag2)
 		{
-			for (int num5 = waypoints.Length - 1; num5 > 0; num5--)
+			for (int j = waypoints.Length - 1; j > 0; j--)
 			{
-				num3 += Vector3.Distance(waypoints[num5 - 1], waypoints[num5]);
+				num3 += Vector3.Distance(waypoints[j - 1], waypoints[j]);
 				if (num3 > num2)
 				{
-					oldWayPoint = num5;
-					newWayPoint = num5 - 1;
+					oldWayPoint = j;
+					newWayPoint = j - 1;
 					break;
 				}
 			}
@@ -134,14 +134,14 @@ public class PathHelper
 			shouldStop = true;
 			vector = waypoints[waypoints.Length - 1];
 		}
-		float num6 = num3 - num2;
-		float num7 = Vector3.Distance(waypoints[newWayPoint], waypoints[oldWayPoint]);
-		float t = (num7 - num6) / num7;
+		float num5 = num3 - num2;
+		float num6 = Vector3.Distance(waypoints[newWayPoint], waypoints[oldWayPoint]);
+		float t = (num6 - num5) / num6;
 		if (shouldStop)
 		{
-			float num8 = Vector3.Distance(position, Vector3.Lerp(waypoints[oldWayPoint], waypoints[newWayPoint], t));
-			float num9 = Vector3.Distance(position, vector);
-			pathTime -= (num8 - num9) / num;
+			float num7 = Vector3.Distance(position, Vector3.Lerp(waypoints[oldWayPoint], waypoints[newWayPoint], t));
+			float num8 = Vector3.Distance(position, vector);
+			pathTime -= (num7 - num8) / num;
 			return vector;
 		}
 		return Vector3.Lerp(waypoints[oldWayPoint], waypoints[newWayPoint], t);

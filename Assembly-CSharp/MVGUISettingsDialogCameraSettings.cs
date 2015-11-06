@@ -5,7 +5,7 @@ public class MVGUISettingsDialogCameraSettings : MVGUIDynamicSettingsDialog
 {
 	public MVGUISettingsDialogCameraSettings()
 	{
-		if (GameDB.GameType == MVGameType.Classic)
+		if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
 		{
 			dialogFactory.CreateCustomDialog("Prefabs/GUI/Box Settings Dialogs/CameraSettingsDialogClassic", TM._("Camera Settings")).AddPositiveButton(TM._("Ok")).AddNegativeButton(TM._("Cancel"))
 				.SetOnResultCallback(OnDialogResult)
@@ -13,7 +13,7 @@ public class MVGUISettingsDialogCameraSettings : MVGUIDynamicSettingsDialog
 				.SetValues(BuildDialogData())
 				.Show();
 		}
-		else if (GameDB.GameType == MVGameType.Platformer)
+		else if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
 		{
 			dialogFactory.CreateCustomDialog("Prefabs/GUI/Box Settings Dialogs/CameraSettingsDialogPlatformer", TM._("Camera Settings")).AddPositiveButton(TM._("Ok")).AddNegativeButton(TM._("Cancel"))
 				.SetOnResultCallback(OnDialogResult)
@@ -26,30 +26,18 @@ public class MVGUISettingsDialogCameraSettings : MVGUIDynamicSettingsDialog
 	private Dictionary<string, DialogData> BuildDialogData()
 	{
 		Dictionary<string, DialogData> dictionary = new Dictionary<string, DialogData>();
-		if (GameDB.GameType == MVGameType.Classic)
+		if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
 		{
 			dictionary.Add("DistanceToAvatarSlider", new SliderData
 			{
 				sliderValue = (float)wo.Data["distanceToAvatar"]
 			});
 		}
-		else if (GameDB.GameType == MVGameType.Platformer)
+		else if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
 		{
-			dictionary.Add("HeightSlider", new SliderData
-			{
-				sliderValue = (float)wo.Data["height"]
-			});
 			dictionary.Add("DistanceToAvatarSlider", new SliderData
 			{
 				sliderValue = (float)wo.Data["distanceToAvatar"]
-			});
-			dictionary.Add("SmoothnessSlider", new SliderData
-			{
-				sliderValue = (float)wo.Data["smoothness"]
-			});
-			dictionary.Add("SpeedDistanceModifierSlider", new SliderData
-			{
-				sliderValue = (float)wo.Data["speedDistanceModifier"]
 			});
 		}
 		return dictionary;

@@ -37,9 +37,9 @@ internal class ESAddObjectLink : ESStateBase
 			return;
 		}
 		VoxelHit hit = default;
-		if (MVGameController.WOCM.Pick(ref hit) && hit.woId != -1)
+		if (MVGameControllerLegacyUI.Pick(ref hit) && hit.woId != -1)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(hit.woId);
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(hit.woId);
 			if (worldObjectClient != null && wo.Id != hit.woId && !wo.ObjectLinkRefs.Exists((ObjectLink o) => o.objectWOID == hit.woId) && wo.ValidateObjectLinkTarget(worldObjectClient))
 			{
 				tempLink.objectWOID = hit.woId;
@@ -47,7 +47,7 @@ internal class ESAddObjectLink : ESStateBase
 			}
 		}
 		e.DeSelectAll();
-		if (e.ParentGroupID == MVGameController.WOCM.RootGroup.Id)
+		if (e.ParentGroupID == MVGameControllerBase.WOCM.RootGroup.Id)
 		{
 			e.Event = EditorEvent.ESTerrainEdit;
 		}
@@ -64,7 +64,7 @@ internal class ESAddObjectLink : ESStateBase
 
 	private bool DoAddLink()
 	{
-		MVGameController.Game.AddObjectLink(tempLink);
+		MVGameControllerBase.Game.AddObjectLink(tempLink);
 		return true;
 	}
 }

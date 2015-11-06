@@ -4,7 +4,7 @@ public class GameMeterKills : GameMeterKillsBase
 
 	private void Update()
 	{
-		KillLimitClient singletonWinnerConditionByType = MVGameController.Game.WinningConditionManager.GetSingletonWinnerConditionByType<KillLimitClient>();
+		KillLimitClient singletonWinnerConditionByType = MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<KillLimitClient>();
 		if (singletonWinnerConditionByType != null)
 		{
 			MeterActive = true;

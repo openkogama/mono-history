@@ -150,16 +150,16 @@ public class JetPackMotor : MVRigidBody
 
 	public void FixedUpdateFunction(Quaternion setQuaternion, bool shouldSetRotation)
 	{
-		waterProximity = MVGameController.WOCM.WaterPlaneManager.ComputeAvatarWaterProximity(Controller.gameObject.transform.position);
+		waterProximity = MVGameControllerBase.WaterPlaneManager.ComputeAvatarWaterProximity(Controller.gameObject.transform.position);
 		if (IsMovementLocked)
 		{
 			return;
 		}
-		if (shouldSetRotation && GameDB.GameType == MVGameType.Classic)
+		if (shouldSetRotation && MVGameControllerBase.Game.GameType == MVGameType.Classic)
 		{
 			Controller.transform.rotation = setQuaternion;
 		}
-		else if (GameDB.GameType == MVGameType.Platformer)
+		else if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
 		{
 			if (InputMoveDirection.sqrMagnitude > 0f)
 			{
@@ -233,7 +233,7 @@ public class JetPackMotor : MVRigidBody
 	private GroundChange Move(Vector3 velocity, Vector3 basevelocity)
 	{
 		Vector3 motion = (velocity + basevelocity) * Time.deltaTime;
-		collisionFlags = Controller.Move(motion);
+		Controller.Move(motion);
 		groundState.Update(Controller, velocity);
 		return GroundChange.UnChanged;
 	}

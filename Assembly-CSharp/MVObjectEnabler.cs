@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using MV.Common;
 using MV.WorldObject;
 
 public class MVObjectEnabler : MVLogicObject
@@ -80,20 +79,20 @@ public class MVObjectEnabler : MVLogicObject
 	private void ShowObjects(bool visible)
 	{
 		bool flag = visible;
-		if (MVGameController.GameMode == MVGameMode.Edit && (MVGameController.EditController == null || !MVGameController.EditorController.PlayInEditor))
+		if (!MVGameControllerBase.Game.IsPlaying)
 		{
 			flag = true;
 		}
 		foreach (ObjectLink objectLinkRef in ObjectLinkRefs)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(objectLinkRef.objectWOID);
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(objectLinkRef.objectWOID);
 			if (worldObjectClient is MVCubeModelBase)
 			{
 				(worldObjectClient as MVCubeModelBase).Enable(flag);
 			}
 			else
 			{
-				MVGameController.WOCM.GetWorldObjectClient(objectLinkRef.objectWOID).Visible = flag;
+				MVGameControllerBase.WOCM.GetWorldObjectClient(objectLinkRef.objectWOID).Visible = flag;
 			}
 		}
 	}

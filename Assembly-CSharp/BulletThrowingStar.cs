@@ -130,8 +130,8 @@ public class BulletThrowingStar : MonoBehaviour
 		if (hasHit)
 		{
 			bool hasHitStaticStructure = true;
-			int woID = MVGameController.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
-			MVWorldObjectClient wo = MVGameController.WOCM.GetWorldObjectClient(woID);
+			int woID = MVGameControllerBase.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
+			MVWorldObjectClient wo = MVGameControllerBase.WOCM.GetWorldObjectClient(woID);
 			if (wo != null)
 			{
 				InteractionDataHandlerBase interactionHandler = wo.GameObject.GetComponent<InteractionDataHandlerBase>();
@@ -172,7 +172,7 @@ public class BulletThrowingStar : MonoBehaviour
 		layerMask = (int)layerMask & ~(1 << (LayerMask.NameToLayer("Logic") & 0x1F));
 		if (CollisionDetection.MVHit(ray, out voxelHit, distance, ignoreWoIDs, layerMask))
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(voxelHit.woId);
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
 			if (worldObjectClient.PlayInteractionType == PlayInteractionType.Solid)
 			{
 				return true;

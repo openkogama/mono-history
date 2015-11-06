@@ -1,9 +1,9 @@
 {
-    "id": "f0dc7f04-63a0-4aac-a3bc-bbae1095c959",
-    "version": "1.27.0.335",
-    "unityVersion": "5.2.1f1",
-    "timestamp": 1444998361,
-    "sha256": "55c62944f2ab572aacea0fc1f23ca11a8a215805577941305841fda5788aa760",
+    "id": "98fe3c1b-58a2-463a-bc40-c77523655985",
+    "version": "1.29.0.371",
+    "unityVersion": "5.2.2f1",
+    "timestamp": 1446817158,
+    "sha256": "f0a52fb0d5a4e001f6cb4af2e4bbe1c8f7189ef9fd12d9207217506c3d5b09d6",
     "assemblies": [
         "Assembly-CSharp-firstpass.dll",
         "Assembly-CSharp.dll",
@@ -14,7 +14,6 @@
         "Photon3Unity3D.dll",
         "StreamingAssetEnums.dll",
         "System.Core.dll",
-        "System.Xml.dll",
         "System.dll",
         "UnityEngine.Networking.dll",
         "UnityEngine.UI.dll",

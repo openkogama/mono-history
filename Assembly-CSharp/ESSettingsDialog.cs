@@ -20,16 +20,16 @@ internal class ESSettingsDialog : ESStateBase
 			if (Vector3.SqrMagnitude(MVInputWrapper.GetPointerPosition() - downPosition) < 0.64f)
 			{
 				VoxelHit hit = default;
-				if (MVGameController.WOCM.Pick(ref hit) && (hit.interactionFlags & InteractionFlags.IsTerrain) == 0)
+				if (MVGameControllerLegacyUI.Pick(ref hit) && (hit.interactionFlags & InteractionFlags.IsTerrain) == 0)
 				{
 					if (e.SingleSelectedWO.Id != hit.woId)
 					{
-						MVGUIDialogBoxWrapper.Instance.ShowSettingsDialog(MVGameController.WOCM.GetWorldObjectClient(hit.woId));
+						MVGUIDialogBoxWrapper.Instance.ShowSettingsDialog(MVGameControllerBase.WOCM.GetWorldObjectClient(hit.woId));
 						e.SelectWO(hit.woId, addToSelection: false);
 					}
 					else
 					{
-						MVGUIDialogBoxWrapper.Instance.ShowSettingsDialog(MVGameController.WOCM.GetWorldObjectClient(e.SingleSelectedWO.Id));
+						MVGUIDialogBoxWrapper.Instance.ShowSettingsDialog(MVGameControllerBase.WOCM.GetWorldObjectClient(e.SingleSelectedWO.Id));
 					}
 				}
 			}

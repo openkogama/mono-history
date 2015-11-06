@@ -31,7 +31,7 @@ public class UseInteractorHandler : MVComponent
 		List<int> list = new List<int>();
 		foreach (KeyValuePair<int, UseInteractor> useInteractor in useInteractors)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(useInteractor.Key);
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(useInteractor.Key);
 			if (worldObjectClient == null || useInteractor.Value == null)
 			{
 				list.Add(useInteractor.Key);
@@ -74,23 +74,23 @@ public class UseInteractorHandler : MVComponent
 			List<UseInteractor> list = SortByDistance();
 			if (list.Count > 0)
 			{
-				MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(list[0].WoOwnerId);
+				MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(list[0].WoOwnerId);
 				if (worldObjectClient is MVWorldObjectSpawnerVehicle && (worldObjectClient as MVWorldObjectSpawnerVehicle).GameCoinLogic.PurchaseAmount > 0)
 				{
 					option = ((worldObjectClient as MVWorldObjectSpawnerVehicle).GameCoinLogic.CanUse() ? ShowUseOption.GameCoinsEnough : ShowUseOption.GameCoinsInsufficient);
 				}
 			}
-			MVGameController.PlayController.ShowEUseIcon(option);
+			MVGameControllerBase.IPlayModeUI.ShowEUseIcon(option);
 		}
 		else
 		{
-			MVGameController.PlayController.HideEUseIcon();
+			MVGameControllerBase.IPlayModeUI.HideEUseIcon();
 		}
 	}
 
 	private bool IsInFront(Collider triggerCollider)
 	{
-		Transform transform = MVGameController.Game.CameraController.transform;
+		Transform transform = MVGameControllerBase.CameraController.transform;
 		Vector3 lhs = transform.rotation * Vector3.forward;
 		Vector3 normalized = (triggerCollider.bounds.center - transform.position).normalized;
 		if (Vector3.Dot(lhs, normalized) > 0f)

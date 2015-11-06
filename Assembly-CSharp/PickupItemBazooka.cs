@@ -48,6 +48,7 @@ public class PickupItemBazooka : PickupItemWithDelay
 
 	protected override void OnFire(bool isLocal)
 	{
+		Debug.Log("Firing isLocal " + Time.frameCount);
 		Bullet bullet = Bullet.CreateBullet(rocketPrefab, muzzlePoint.position);
 		bullet.onHit = (Bullet.OnHitDelegate)Delegate.Combine(bullet.onHit, new Bullet.OnHitDelegate(HandleRocketHit));
 		if (isLocal)
@@ -55,14 +56,14 @@ public class PickupItemBazooka : PickupItemWithDelay
 			bullet.onHitLocal = (Bullet.OnHitDelegate)Delegate.Combine(bullet.onHitLocal, new Bullet.OnHitDelegate(HandleRocketHitLocal));
 		}
 		bullet.Fire(lineOfFire: new Ray(owner.LookOrigin, owner.LookDirection), speed: owner.GetAbsolutProjectileSpeed(rocketSpeed), range: rocketRange, ignoreWoIDs: owner.IgnoreWOIDs);
-		MVGameController.AudioManager.Play("rocket fired", GetComponent<AudioSource>(), muzzlePoint.position);
+		MVGameControllerBase.AudioManager.Play("rocket fired", GetComponent<AudioSource>(), muzzlePoint.position);
 		if (isLocal)
 		{
-			MVGameController.AudioManager.Play("rocket fired", GetComponent<AudioSource>(), Camera.main.transform.position + Camera.main.transform.forward);
+			MVGameControllerBase.AudioManager.Play("rocket fired", GetComponent<AudioSource>(), Camera.main.transform.position + Camera.main.transform.forward);
 		}
 		else
 		{
-			MVGameController.AudioManager.Play("rocket fired", GetComponent<AudioSource>(), muzzlePoint.position);
+			MVGameControllerBase.AudioManager.Play("rocket fired", GetComponent<AudioSource>(), muzzlePoint.position);
 		}
 		currentAmmo = (int)currentAmmo - 1;
 	}
@@ -80,7 +81,7 @@ public class PickupItemBazooka : PickupItemWithDelay
 				if (mVObject.WorldObjectType == WorldObjectType.CubeModelPrototypeTerrain)
 				{
 					ExplosionEvent explosion = new ExplosionEvent(RuntimeEventType.Bazooka, voxelHit.point, voxelHit.normal);
-					MVGameController.Game.World.RuntimeEventManager.SendRuntimeEvent(explosion);
+					MVGameControllerBase.Game.World.RuntimeEventManager.SendRuntimeEvent(explosion);
 				}
 				InteractionDataHandlerBase component = mVObject.GameObject.GetComponent<InteractionDataHandlerBase>();
 				if (component != null)
@@ -100,7 +101,7 @@ public class PickupItemBazooka : PickupItemWithDelay
 
 	private void HandleRocketHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
-		MVGameController.AudioManager.Play("rocket hit", rocketHitSound, voxelHit.point, 0.4f, SoundRangeDistance.Long);
+		MVGameControllerBase.AudioManager.Play("rocket hit", rocketHitSound, voxelHit.point, 0.4f, SoundRangeDistance.Long);
 		UnityEngine.Object.Instantiate(Resources.Load("ParticleFX/Explosion"), voxelHit.point, Quaternion.identity);
 	}
 }

@@ -17,11 +17,11 @@ public class CellCursor : ICursor
 		}
 	}
 
-	public CellCursor(int cursorCubeCount, float diagonalWidth, string material, float fadeOutTime)
+	public CellCursor(int cursorCubeCount, float diagonalWidth, string material, float fadeOutTime, Vector3[] cubeCorners)
 	{
 		for (int i = 0; i < cursorCubeCount; i++)
 		{
-			cursorCubes.Add(new CellCursorCubeLineMesh(diagonalWidth, material, fadeOutTime));
+			cursorCubes.Add(new CellCursorCubeLineMesh(diagonalWidth, material, fadeOutTime, cubeCorners));
 		}
 	}
 

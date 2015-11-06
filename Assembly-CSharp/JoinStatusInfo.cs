@@ -11,12 +11,12 @@ public class JoinStatusInfo : MonoBehaviour
 
 	private void Update()
 	{
-		if (MVGameController.Game == null)
+		if (MVGameControllerBase.Game == null)
 		{
 			return;
 		}
-		MVConnState connState = MVGameController.Game.ConnState;
-		MVJoinState joinState = MVGameController.Game.JoinState;
+		MVConnState connState = MVGameControllerBase.Game.ConnState;
+		MVJoinState joinState = MVGameControllerBase.JoinState;
 		if (connState != prevConnState)
 		{
 			prevConnState = connState;
@@ -29,7 +29,7 @@ public class JoinStatusInfo : MonoBehaviour
 			guiChatWindow.AddLine(TM._("Game") + ": " + LocalizedEnums._(joinState), Color.grey);
 			if (joinState == MVJoinState.Playing)
 			{
-				guiChatWindow.AddLine("\n\n" + MVGameController.VersionNumber.ToString() + "\n\n", Color.grey);
+				guiChatWindow.AddLine("\n\n" + MVGameControllerBase.VersionNumber.ToString() + "\n\n", Color.grey);
 			}
 		}
 		if (joinState != MVJoinState.Playing)

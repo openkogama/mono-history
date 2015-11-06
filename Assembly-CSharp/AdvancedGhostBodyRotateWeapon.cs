@@ -63,7 +63,7 @@ public class AdvancedGhostBodyRotateWeapon : MonoBehaviour
 			int[] attackTargets = ghostTrigger.AttackTargets;
 			foreach (int id in attackTargets)
 			{
-				MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(id);
+				MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(id);
 				if (worldObjectClient == null)
 				{
 					continue;

@@ -9,7 +9,7 @@ public class MVGUIShopInventoryGroup : MVGUIInventoryGroup
 
 	protected override void InitializeCollectionView()
 	{
-		repositoryCollection = new ShopRepositoryCollection(MVGameController.Game.ShopRepository, allowedCategoriesTypes);
+		repositoryCollection = new ShopRepositoryCollection(MVGameControllerBase.Game.ShopRepository, allowedCategoriesTypes);
 		collectionView.Initialize();
 		collectionView.InstansiateViewItem = InstansiateViewItem;
 		UXCollectionView uXCollectionView = collectionView;
@@ -21,7 +21,7 @@ public class MVGUIShopInventoryGroup : MVGUIInventoryGroup
 	public override void InitializeAfterReset()
 	{
 		CreatePreviewItemRoot();
-		repositoryCollection = new ShopRepositoryCollection(MVGameController.Game.ShopRepository, allowedCategoriesTypes);
+		repositoryCollection = new ShopRepositoryCollection(MVGameControllerBase.Game.ShopRepository, allowedCategoriesTypes);
 		collectionView.Collection = repositoryCollection;
 	}
 
@@ -41,7 +41,7 @@ public class MVGUIShopInventoryGroup : MVGUIInventoryGroup
 		mVGUIProductShopDialog.SetPrice(_purchaseItem.priceGold, _purchaseItem.priceSilver);
 		mVGUIProductShopDialog.OnTryPurchaseProduct = () =>
 		{
-			MVGameController.Game.UnlockClientShopInventoryItem(_purchaseItem.itemID);
+			MVGameControllerBase.Game.UnlockClientShopInventoryItem(_purchaseItem.itemID);
 		};
 	}
 
@@ -69,7 +69,7 @@ public class MVGUIShopInventoryGroup : MVGUIInventoryGroup
 
 	private void InsertPreviewItem(MVItem item)
 	{
-		MVGameController.EditorController.EditorWorldObjectCreation.OnAddItemFromInventory(item, isPreviewItem: true);
+		MVGameControllerLegacyUI.EditorController.EditorWorldObjectCreation.OnAddItemFromInventory(item, isPreviewItem: true);
 		if (NotifyItemSelection != null)
 		{
 			NotifyItemSelection();
@@ -87,12 +87,12 @@ public class MVGUIShopInventoryGroup : MVGUIInventoryGroup
 				return;
 			}
 			int num = (int)dictionary[(byte)22];
-			MVGameController.Game.PlayerRepository.PlayerInventory.Add(_purchaseItem.itemID, _purchaseItem);
-			MVGameController.Game.PlayerRepository.itemIDToInventorySlotIndex.Add(_purchaseItem.itemID, num);
-			MVGameController.Game.ItemBusinessLogic.AddItem(_purchaseItem);
-			MVGameController.Game.PlayerRepository.NotifyRepositoryChange();
-			MVGameController.Game.ShopRepository.RemoveItem(_purchaseItem.itemID);
-			MVGameController.Game.ShopRepository.ReorganizeItemsByItemType(notifyOfChange: true);
+			MVGameControllerBase.Game.PlayerRepository.PlayerInventory.Add(_purchaseItem.itemID, _purchaseItem);
+			MVGameControllerBase.Game.PlayerRepository.itemIDToInventorySlotIndex.Add(_purchaseItem.itemID, num);
+			MVGameControllerBase.Game.ItemBusinessLogic.AddItem(_purchaseItem);
+			MVGameControllerBase.Game.PlayerRepository.NotifyRepositoryChange();
+			MVGameControllerBase.Game.ShopRepository.RemoveItem(_purchaseItem.itemID);
+			MVGameControllerBase.Game.ShopRepository.ReorganizeItemsByItemType(notifyOfChange: true);
 		}
 		collectionView.gameObject.SetActive(value: true);
 	}

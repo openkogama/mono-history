@@ -34,19 +34,19 @@ public class MVGUIAvatarAccessorySlot : UXPlane
 
 	private ProductInventoryInfo waitingToBeEquipped;
 
-	private MVNetworkGame Game => MVGameController.Game;
+	private MVNetworkGame Game => MVGameControllerBase.Game;
 
-	private CharacterEditorController CEController => MVGameController.CharacterEditorController;
+	private CharacterEditorController CEController => MVGameControllerLegacyUI.CharacterEditorController;
 
 	private MVBody AvatarBody
 	{
 		get
 		{
-			if (MVGameController.GameMode == MVGameMode.CharacterEditor)
+			if (MVGameControllerBase.GameMode == MVGameMode.CharacterEditor)
 			{
 				return CEController.CurrentBody;
 			}
-			return MVGameController.WOCM.AvatarLocal.Body;
+			return MVGameControllerBase.WOCM.AvatarLocal.Body;
 		}
 	}
 

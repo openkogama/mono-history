@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 
@@ -9,7 +10,7 @@ public class MVGUIAvatarShopInventory : MVGUIInventoryGroup
 
 	protected override void InitializeCollectionView()
 	{
-		repositoryCollection = new ShopRepositoryCollection(MVGameController.Game.AvatarShopRepository, new int[0]);
+		repositoryCollection = new ShopRepositoryCollection(MVGameControllerBase.Game.AvatarShopRepository, new int[0]);
 		collectionView.InstansiateViewItem = InstansiateViewItem;
 		UXCollectionView uXCollectionView = collectionView;
 		uXCollectionView.OnItemSelection = (UXCollectionView.OnBasicItemEventDelegate)Delegate.Combine(uXCollectionView.OnItemSelection, new UXCollectionView.OnBasicItemEventDelegate(OnItemSelection));
@@ -21,7 +22,7 @@ public class MVGUIAvatarShopInventory : MVGUIInventoryGroup
 	public override void InitializeAfterReset()
 	{
 		CreatePreviewItemRoot();
-		repositoryCollection = new ShopRepositoryCollection(MVGameController.Game.AvatarShopRepository, new int[0]);
+		repositoryCollection = new ShopRepositoryCollection(MVGameControllerBase.Game.AvatarShopRepository, new int[0]);
 		collectionView.Collection = repositoryCollection;
 	}
 
@@ -40,8 +41,42 @@ public class MVGUIAvatarShopInventory : MVGUIInventoryGroup
 		mVGUIProductShopDialog.SetPrice(_purchaseItem.priceGold, _purchaseItem.priceSilver);
 		mVGUIProductShopDialog.OnTryPurchaseProduct = () =>
 		{
-			MVGameController.Game.PurchaseAvatar(_purchaseItem.itemID);
+			MVNetworkGame game = MVGameControllerBase.Game;
+			game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Combine(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(OnProductPurchaseAvatarResponse));
+			World world = MVGameControllerBase.Game.World;
+			world.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Combine(world.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(InitializedPurchasedAvatar));
+			MVGameControllerBase.Game.PurchaseAvatar(_purchaseItem.itemID);
 		};
+	}
+
+	private void InitializedPurchasedAvatar(object sender, InitializedGameQueryDataEventArgs e)
+	{
+		World world = MVGameControllerBase.Game.World;
+		world.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Remove(world.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(InitializedPurchasedAvatar));
+		if (e.RootWO != null)
+		{
+			Debug.Log("Purchased avatar has been added to world. WorldObjectId is: " + e.RootWO);
+			MVGameControllerLegacyUI.CharacterEditorController.AddNewAvatar(e.RootWO.Id);
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(e.RootWO.Id);
+			GameObject bodyCloneGO = UnityEngine.Object.Instantiate(worldObjectClient.GameObject);
+			Action<Texture2D> screenShotDataTexHandler = (Texture2D pngData) =>
+			{
+				MVGameControllerBase.Game.UploadScreenshot(pngData.EncodeToPNG(), ImageType.Avatar, MVGameControllerBase.Game.LocalPlayer.ProfileID);
+			};
+			AvatarScreenshotGenerator.Generate(bodyCloneGO, screenShotDataTexHandler);
+		}
+	}
+
+	private void OnProductPurchaseAvatarResponse(int returnCode, Dictionary<object, object> purchaseResponseData)
+	{
+		MVNetworkGame game = MVGameControllerBase.Game;
+		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Remove(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(OnProductPurchaseAvatarResponse));
+		Debug.Log("Avatar purchase response: " + (MVPurchaseReturnCode)returnCode);
+		if (returnCode != 0)
+		{
+			World world = MVGameControllerBase.Game.World;
+			world.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Remove(world.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(InitializedPurchasedAvatar));
+		}
 	}
 
 	private Dictionary<string, DialogData> BuildDialogData(MVItem item, int slotIndex)
@@ -65,7 +100,7 @@ public class MVGUIAvatarShopInventory : MVGUIInventoryGroup
 	{
 		if (dialogBox.DialogResult == UXDialogResult.Positive)
 		{
-			MVGameController.CharacterEditorController.AvatarShop.View.Hide();
+			MVGameControllerLegacyUI.CharacterEditorController.AvatarShop.View.Hide();
 		}
 		_purchaseItem = null;
 	}

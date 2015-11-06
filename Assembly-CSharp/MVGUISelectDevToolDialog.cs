@@ -73,7 +73,7 @@ public class MVGUISelectDevToolDialog : UXCustomDialogBox
 		int woId = (int)dictionary["woId"];
 		int itemCategory = (int)dictionary["itemCategory"];
 		bool overWrite = (bool)dictionary["overWrite"];
-		string message = $"Add with following data?:\n\nItemTypeName: {name}\nID: {woId}\nItemCategory: {MVGameController.Game.ItemCategories.IDToName(itemCategory)}\nOverWrite: {overWrite}";
+		string message = $"Add with following data?:\n\nItemTypeName: {name}\nID: {woId}\nItemCategory: {MVGameControllerBase.Game.ItemCategories.IDToName(itemCategory)}\nOverWrite: {overWrite}";
 		DialogFactory.CreateDevelopmentDialog(message, "Notice", UXDialogType.Simple, noButtons: false, stackDialog: false, canClose: false).AddPositiveButton(TM._("Yes")).AddNegativeButton(TM._("No"))
 			.SetOnResultCallback((UXDialogBox dialog) =>
 			{
@@ -82,9 +82,9 @@ public class MVGUISelectDevToolDialog : UXCustomDialogBox
 					Debug.Log($"Adding to INV with name: {name} - id: {woId} - itemType: {itemCategory} - overWrite: {overWrite}");
 					Action<byte[]> callback = (byte[] imageData) =>
 					{
-						MVGameController.Game.AddWorldObjectToInventorDev(woId, imageData, name, itemCategory, overWrite);
+						MVGameControllerBase.Game.AddWorldObjectToInventorDev(woId, imageData, name, itemCategory, overWrite);
 					};
-					Coroutines.StartCoroutine(ImageGenerator.CreateTextureFromData(MVGameController.WOCM.GetWorldObjectClient(woId), callback));
+					Coroutines.StartCoroutine(ImageGenerator.CreateTextureFromData(MVGameControllerBase.WOCM.GetWorldObjectClient(woId), callback));
 				}
 			})
 			.Show();
@@ -109,8 +109,8 @@ public class MVGUISelectDevToolDialog : UXCustomDialogBox
 			{
 				if (dialog.DialogResult == UXDialogResult.Positive)
 				{
-					HashSet<MVWorldObjectClient> deleteSet = new HashSet<MVWorldObjectClient> { MVGameController.WOCM.GetWorldObjectClient(woId) };
-					MVGameController.EditorController.Delete(deleteSet);
+					HashSet<MVWorldObjectClient> deleteSet = new HashSet<MVWorldObjectClient> { MVGameControllerBase.WOCM.GetWorldObjectClient(woId) };
+					MVGameControllerLegacyUI.EditorController.Delete(deleteSet);
 				}
 			})
 			.Show();

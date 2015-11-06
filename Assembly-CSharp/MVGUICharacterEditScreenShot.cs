@@ -10,7 +10,7 @@ public class MVGUICharacterEditScreenShot : UXViewScript
 
 	private AudioBankSound screenshotSound;
 
-	private MVNetworkGame Game => MVGameController.Game;
+	private MVNetworkGame Game => MVGameControllerBase.Game;
 
 	public override void OnInitialize()
 	{
@@ -30,7 +30,7 @@ public class MVGUICharacterEditScreenShot : UXViewScript
 		{
 			screenshotSound.Play();
 		}
-		int profileID = MVGameController.Game.LocalPlayer.ProfileID;
+		int profileID = MVGameControllerBase.Game.LocalPlayer.ProfileID;
 		if (Game.UploadScreenshot(screenshotTex.EncodeToPNG(), ImageType.Avatar, profileID))
 		{
 			Game.ScreenshotUploaded += MVNetworGame_ScreenshotUploadedHandler;
@@ -39,7 +39,7 @@ public class MVGUICharacterEditScreenShot : UXViewScript
 
 	private void MVNetworGame_ScreenshotUploadedHandler(object sender, ScreenshotUploadedEventArgs e)
 	{
-		MVGameController.Game.ScreenshotUploaded -= MVNetworGame_ScreenshotUploadedHandler;
+		MVGameControllerBase.Game.ScreenshotUploaded -= MVNetworGame_ScreenshotUploadedHandler;
 		if (e.Uploaded)
 		{
 			UXUtils.UXDialogFactory.CreateDialog(TM._("Screenshot Taken!"), string.Empty).Show();

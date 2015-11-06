@@ -683,8 +683,7 @@ public static class CubeDataPacker
 		Vector3[] array = new Vector3[8];
 		for (int i = 0; i < 8; i++)
 		{
-			ref Vector3 reference = ref array[i];
-			reference = ByteToVector3(byteArray[i]);
+			array[i] = ByteToVector3(byteArray[i]);
 		}
 		return array;
 	}

@@ -59,7 +59,7 @@ public class MVRuntimeDataVariables
 	{
 		if (owner.NetworkObject != null && owner.NetworkObject is MVNetworkReporter)
 		{
-			(owner.NetworkObject as MVNetworkReporter).SyncRunTimeDataVariables(MVGameController.Game);
+			(owner.NetworkObject as MVNetworkReporter).SyncRunTimeDataVariables(MVGameControllerBase.Game);
 		}
 	}
 }

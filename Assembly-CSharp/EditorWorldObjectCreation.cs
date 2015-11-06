@@ -11,7 +11,7 @@ public class EditorWorldObjectCreation
 	public EditorWorldObjectCreation(EditorStateMachine esm)
 	{
 		this.esm = esm;
-		World world = MVGameController.Game.World;
+		World world = MVGameControllerBase.Game.World;
 		world.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Combine(world.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(WOCM_InitializedGameQueryData));
 	}
 
@@ -23,14 +23,18 @@ public class EditorWorldObjectCreation
 			esm.Data.Add("goToInsert", null);
 		}
 		esm.Event = EditorEvent.ESWaitForClone;
-		MVWorldObjectClientManager wOCM = MVGameController.WOCM;
+		MVWorldObjectClientManager wOCM = MVGameControllerBase.WOCM;
 		wOCM.CloneWorldObjectTreeResponse = (EventHandler<CloneWorldObjectTreeResponseEventArgs>)Delegate.Combine(wOCM.CloneWorldObjectTreeResponse, new EventHandler<CloneWorldObjectTreeResponseEventArgs>(CloneWorldObjectTreeResponseHandler));
-		MVGameController.WOCM.CloneWorldObjectTree(original, localOwner: false, setAsPreviewItem, cloneToRoot);
+		MVGameControllerBase.WOCM.CloneWorldObjectTree(original, localOwner: false, setAsPreviewItem, cloneToRoot);
 	}
 
 	private void CloneWorldObjectTreeResponseHandler(object sender, CloneWorldObjectTreeResponseEventArgs e)
 	{
-		MVWorldObjectClientManager wOCM = MVGameController.WOCM;
+		if (!e.Success && MVGameControllerBase.GameSessionData.gameMode == MVGameMode.Edit)
+		{
+			MVGameControllerLegacyUI.EditorController.EditorStateMachine.Event = EditorEvent.ESTerrainEdit;
+		}
+		MVWorldObjectClientManager wOCM = MVGameControllerBase.WOCM;
 		wOCM.CloneWorldObjectTreeResponse = (EventHandler<CloneWorldObjectTreeResponseEventArgs>)Delegate.Remove(wOCM.CloneWorldObjectTreeResponse, new EventHandler<CloneWorldObjectTreeResponseEventArgs>(CloneWorldObjectTreeResponseHandler));
 		esm.SelectWO(e.RootId, addToSelection: false);
 	}
@@ -41,7 +45,7 @@ public class EditorWorldObjectCreation
 		{
 			if (value.IsSingletonObject())
 			{
-				List<MVWorldObjectClient> worldObjectsByType = MVGameController.WOCM.GetWorldObjectsByType(value.WorldObjectType);
+				List<MVWorldObjectClient> worldObjectsByType = MVGameControllerBase.WOCM.GetWorldObjectsByType(value.WorldObjectType);
 				if (worldObjectsByType.Count > 0)
 				{
 					return false;
@@ -61,33 +65,51 @@ public class EditorWorldObjectCreation
 			koGaMaPackageFromItem.Destroy();
 			return;
 		}
-		if (!MVGameController.EditorController.IsLogicRendered())
+		if (!MVGameControllerLegacyUI.EditorController.IsLogicRendered())
 		{
-			MVGameController.EditorController.ToggleLogicRendering();
+			MVGameControllerLegacyUI.EditorController.ToggleLogicRendering();
 		}
 		while (!esm.ParentGroupIsRoot && esm.ParentGroup.HasInteractionFlag(InteractionFlags.CantAddChildren))
 		{
 			esm.ExitGroup();
 		}
 		int worldObjectId = -1;
-		if (MVGameController.WOCM.GetUnmodifiedWorldObject(koGaMaPackageFromItem, ref worldObjectId))
+		if (MVGameControllerBase.WOCM.GetUnmodifiedWorldObject(koGaMaPackageFromItem, ref worldObjectId))
 		{
 			Debug.Log("Found wo for cloning");
-			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(worldObjectId);
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(worldObjectId);
 			CloneHierarchy(worldObjectClient, cloneToRoot: false, isPreviewItem, goToInsert: true);
 		}
 		else
 		{
 			Debug.Log("Creating new wo");
 			esm.Event = EditorEvent.ESWaitForSelect;
-			Quaternion identity = Quaternion.identity;
-			if (GameDB.GameType == MVGameType.Platformer && item.itemCategoryID == 8)
+			Quaternion rotation = Quaternion.identity;
+			if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
 			{
-				identity *= Quaternion.AngleAxis(90f, Vector3.up);
+				WorldObjectType worldObjectType = koGaMaPackageFromItem.worldObjects[koGaMaPackageFromItem.worldObjectRoot].WorldObjectType;
+				rotation = HandlePlatformerRotationSpecialCases(item.itemCategoryID, worldObjectType);
 			}
-			MVGameController.Game.AddItemToWorld(item.itemID, esm.ParentGroupID, Vector3.up * 10f, identity, Vector3.one, localOwner: false, transferOwnershipToServerOnLeave: true, isPreviewItem);
+			MVGameControllerBase.Game.AddItemToWorld(item.itemID, esm.ParentGroupID, Vector3.up * 10f, rotation, Vector3.one, localOwner: false, transferOwnershipToServerOnLeave: true, isPreviewItem);
 		}
 		koGaMaPackageFromItem.Destroy();
+	}
+
+	private Quaternion HandlePlatformerRotationSpecialCases(int itemCategory, WorldObjectType worldObjectType)
+	{
+		switch (worldObjectType)
+		{
+		case WorldObjectType.GameCoinChest:
+			return Quaternion.AngleAxis(-90f, Vector3.up);
+		case WorldObjectType.AdvancedGhost:
+			return Quaternion.identity;
+		default:
+			if (itemCategory == 8)
+			{
+				return Quaternion.AngleAxis(90f, Vector3.up);
+			}
+			return Quaternion.identity;
+		}
 	}
 
 	public void OnAddNewPrototype(string name, float scale)
@@ -100,15 +122,15 @@ public class EditorWorldObjectCreation
 		Dictionary<object, object> dictionary = new Dictionary<object, object>();
 		dictionary.Add((byte)1, scale);
 		dictionary.Add((byte)2, esm.CubeModelingStateMachine.CurrentMaterialId);
-		dictionary.Add((byte)3, MVGameController.Game.LocalPlayer.ProfileID);
+		dictionary.Add((byte)3, MVGameControllerBase.Game.LocalPlayer.ProfileID);
 		Dictionary<object, object> customData = dictionary;
 		esm.Data["IsNewPrototype"] = true;
-		MVGameController.Game.RequestBuiltInItem(BuiltInItem.CubeModel, MVGameController.WOCM.RootGroup.Id, customData, Vector3.up * 10f, Quaternion.identity, Vector3.one * scale, localOwner: false, transferOwnershipToServerOnLeave: true);
+		MVGameControllerBase.Game.RequestBuiltInItem(BuiltInItem.CubeModel, MVGameControllerBase.WOCM.RootGroup.Id, customData, Vector3.up * 10f, Quaternion.identity, Vector3.one * scale, localOwner: false, transferOwnershipToServerOnLeave: true);
 	}
 
 	private void WOCM_InitializedGameQueryData(object sender, InitializedGameQueryDataEventArgs e)
 	{
-		if (MVGameController.Game.LocalPlayerActorNumber == e.InstigatorActorNumber && esm.CurEvent == EditorEvent.ESWaitForSelect)
+		if (MVGameControllerBase.Game.LocalPlayerActorNumber == e.InstigatorActorNumber && esm.CurEvent == EditorEvent.ESWaitForSelect)
 		{
 			esm.SelectWO(e.RootWO.Id, addToSelection: false);
 		}

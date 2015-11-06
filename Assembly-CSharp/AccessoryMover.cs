@@ -19,7 +19,7 @@ public class AccessoryMover
 		public AccessoryOffsetMouseWrapper(SelectionHelperAvatarAccessory selectionHelperAvatarAccessory)
 		{
 			this.selectionHelperAvatarAccessory = selectionHelperAvatarAccessory;
-			body = (MVBody)MVGameController.WOCM.GetWorldObjectClient(selectionHelperAvatarAccessory.AvatarBodyWoID);
+			body = (MVBody)MVGameControllerBase.WOCM.GetWorldObjectClient(selectionHelperAvatarAccessory.AvatarBodyWoID);
 			startTime = Time.time;
 		}
 
@@ -39,7 +39,7 @@ public class AccessoryMover
 
 		public void SetOffset()
 		{
-			MVGameController.Game.UpdateAvatarAccessoryOffset(selectionHelperAvatarAccessory.AvatarBodyWoID, selectionHelperAvatarAccessory.Slot, selectionHelperAvatarAccessory.AvatarAccessory.Offset);
+			MVGameControllerBase.Game.UpdateAvatarAccessoryOffset(selectionHelperAvatarAccessory.AvatarBodyWoID, selectionHelperAvatarAccessory.Slot, selectionHelperAvatarAccessory.AvatarAccessory.Offset);
 		}
 	}
 

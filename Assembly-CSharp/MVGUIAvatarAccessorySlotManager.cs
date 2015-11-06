@@ -22,7 +22,7 @@ public class MVGUIAvatarAccessorySlotManager : MonoBehaviour
 
 	public void Initialize()
 	{
-		StreamingAssetInventory streamingAssetInventory = MVGameController.Game.StreamingAssetInventory;
+		StreamingAssetInventory streamingAssetInventory = MVGameControllerBase.Game.StreamingAssetInventory;
 		streamingAssetInventory.OnProductInventoryChange = (ProductInventory.OnProductInventoryChangeDelegate)Delegate.Combine(streamingAssetInventory.OnProductInventoryChange, (ProductInventory.OnProductInventoryChangeDelegate)((ProductInventory inv) =>
 		{
 			RefreshAvatarBodySlots();

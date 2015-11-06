@@ -18,7 +18,7 @@ public class MVGUIShopView : UXViewScript
 
 	public void ShowInventory()
 	{
-		MVGameController.EditorController.ShowShopInventory();
+		MVGameControllerLegacyUI.EditorController.ShowShopInventory();
 	}
 
 	public override void OnShow()

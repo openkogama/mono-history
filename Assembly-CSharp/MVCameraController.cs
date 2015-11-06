@@ -61,11 +61,6 @@ public class MVCameraController : MonoBehaviour
 			}
 		}
 
-		public void HandleInput(MVCameraController cameraController)
-		{
-			CurCamera.HandleInput(cameraController);
-		}
-
 		private void EnterCamera(MVCameraBase newCamera, MVCameraController cameraController)
 		{
 			for (int num = activeCameras.Count - 1; num >= 0; num--)
@@ -123,6 +118,9 @@ public class MVCameraController : MonoBehaviour
 		}
 	}
 
+	[SerializeField]
+	private GrayscaleEffect greyScaleEffect;
+
 	private CameraStack cameraStack;
 
 	[SerializeField]
@@ -136,23 +134,43 @@ public class MVCameraController : MonoBehaviour
 
 	private bool isLogicRendered;
 
+	[SerializeField]
+	private AvatarCameraFade avatarCameraFade;
+
+	private static Dictionary<MVGameType, ICameraSettings> cameraSettings = new Dictionary<MVGameType, ICameraSettings>();
+
 	public Shader transparentMultiplyColor;
 
-	private static float baseVolume;
+	[SerializeField]
+	private Camera mainCamera;
 
-	private static bool mute;
+	private bool blueModeEnabled;
+
+	private static float baseVolume = 0f;
+
+	private static bool mute = false;
 
 	public static Action<bool> OnMuteChange;
 
-	public bool SecondaryCameraActive
+	public AvatarCameraFade AvatarCameraFade => avatarCameraFade;
+
+	public Camera MainCamera => mainCamera;
+
+	public Vector3 FireDirection => transform.forward;
+
+	public Vector3 FireOrigin => transform.position + transform.forward * CurCamera.cameraRadius;
+
+	public bool BlueModeEnabled
 	{
 		get
 		{
-			return secondaryCamera.gameObject.activeInHierarchy;
+			return blueModeEnabled;
 		}
 		set
 		{
+			blueModeEnabled = value;
 			secondaryCamera.gameObject.SetActive(value);
+			greyScaleEffect.enabled = value;
 		}
 	}
 
@@ -185,12 +203,10 @@ public class MVCameraController : MonoBehaviour
 			mute = value;
 			if (mute)
 			{
-				Debug.Log("Sound off " + baseVolume);
 				AudioListener.volume = 0f;
 			}
 			else
 			{
-				Debug.Log("Sound on " + baseVolume);
 				AudioListener.volume = baseVolume;
 			}
 			if (OnMuteChange != null)
@@ -206,11 +222,11 @@ public class MVCameraController : MonoBehaviour
 	{
 		if (renderLogic)
 		{
-			GetComponent<Camera>().cullingMask |= 1 << LayerMask.NameToLayer("Logic");
+			MainCamera.cullingMask |= 1 << LayerMask.NameToLayer("Logic");
 		}
 		else
 		{
-			GetComponent<Camera>().cullingMask &= ~(1 << LayerMask.NameToLayer("Logic"));
+			MainCamera.cullingMask &= ~(1 << LayerMask.NameToLayer("Logic"));
 		}
 		isLogicRendered = renderLogic;
 	}
@@ -222,26 +238,33 @@ public class MVCameraController : MonoBehaviour
 
 	private void Awake()
 	{
-		MVGameController.Game.CameraController = this;
 		cameraStack = new CameraStack(cameraBases, this);
 		baseVolume = AudioListener.volume;
-		Debug.Log(baseVolume);
 		Mute = false;
 	}
 
 	public void Init()
 	{
-		gameObject.GetComponent<Camera>().cullingMask = ~((1 << LayerMask.NameToLayer("UXElement")) | (1 << LayerMask.NameToLayer("Preview")) | ((1 << LayerMask.NameToLayer("Hidden")) | (1 << LayerMask.NameToLayer("UXElementSecondary"))));
-		Camera component = MVGameController.Game.CameraController.GetComponent<Camera>();
-		if (MVGameController.GameMode == MVGameMode.Play && (component.cullingMask & LayerMask.NameToLayer("Logic")) == LayerMask.NameToLayer("Logic"))
+		MainCamera.cullingMask = ~((1 << LayerMask.NameToLayer("UXElement")) | (1 << LayerMask.NameToLayer("Preview")) | ((1 << LayerMask.NameToLayer("Hidden")) | (1 << LayerMask.NameToLayer("UXElementSecondary"))));
+		if (MVGameControllerBase.GameMode == MVGameMode.Play && (MainCamera.cullingMask & LayerMask.NameToLayer("Logic")) == LayerMask.NameToLayer("Logic"))
 		{
-			gameObject.GetComponent<Camera>().cullingMask -= 1 << LayerMask.NameToLayer("Logic");
+			MainCamera.cullingMask -= 1 << LayerMask.NameToLayer("Logic");
 		}
+	}
+
+	public static void RegisterCameraWithSettings(MVGameType gameType, ICameraSettings cameraSettings)
+	{
+		MVCameraController.cameraSettings.Add(gameType, cameraSettings);
+	}
+
+	public static ICameraSettings GetSettings(MVGameType gameType)
+	{
+		return cameraSettings[gameType];
 	}
 
 	public void Respawn()
 	{
-		cameraStack.CurCamera.Respawn();
+		cameraStack.CurCamera.Reset();
 	}
 
 	public void IgnoreInputTypes(IgnoreInputTypes inputTypes)
@@ -254,7 +277,7 @@ public class MVCameraController : MonoBehaviour
 
 	public void SetPlayModeCam()
 	{
-		switch (GameDB.GameType)
+		switch (MVGameControllerBase.Game.GameType)
 		{
 		case MVGameType.Classic:
 			cameraStack.SetCamera(CameraType.ThirdPerson, this);
@@ -267,11 +290,13 @@ public class MVCameraController : MonoBehaviour
 
 	public void SetCamera(CameraType cameraType)
 	{
+		Debug.Log("Camera set ");
 		cameraStack.SetCamera(cameraType, this);
 	}
 
 	public void SetCamera(MVCameraBase cameraBase)
 	{
+		Debug.Log("Camera set ");
 		cameraStack.SetCamera(cameraBase, this);
 	}
 
@@ -302,11 +327,6 @@ public class MVCameraController : MonoBehaviour
 
 	public void UpdateCamera()
 	{
-		cameraStack.HandleInput(this);
 		cameraStack.UpdateCamera(this);
-	}
-
-	public void HandleInput()
-	{
 	}
 }

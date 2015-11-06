@@ -81,4 +81,9 @@ public class GameSessionData
 			planetID = -1;
 		}
 	}
+
+	public override string ToString()
+	{
+		return $"serverIP {serverIP}. profileID {profileID}. planetID {planetID}. gameMode {gameMode}. language {language}. embedded {embedded}. token {token}. newToken {newToken}. newPlanetName {newPlanetName}. planetName {planetName}.";
+	}
 }

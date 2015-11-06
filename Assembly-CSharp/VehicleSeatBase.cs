@@ -3,21 +3,29 @@ using UnityEngine;
 
 public class VehicleSeatBase : MonoBehaviour
 {
+	private int seatID = -1;
+
+	private MVAvatar owner;
+
+	private MVCameraBase seatCamera;
+
+	[SerializeField]
+	private MVCameraBase AndroidCamera;
+
+	[SerializeField]
+	private MVCameraBase DesktopCamera;
+
+	public Transform AvatarAttachPoint;
+
 	public SeatType SeatType;
 
 	public bool UnequipVehicleUser;
 
-	public MVCameraBase Camera;
-
-	public Transform AvatarAttachPoint;
-
-	private MVAvatar owner;
-
-	private int seatID = -1;
-
 	public bool IsOccupied { get; set; }
 
 	public MVAvatar Owner => owner;
+
+	public MVCameraBase Camera => seatCamera;
 
 	public int SeatID
 	{
@@ -38,42 +46,47 @@ public class VehicleSeatBase : MonoBehaviour
 		}
 	}
 
+	private void Awake()
+	{
+		seatCamera = DesktopCamera;
+	}
+
 	public void SetCamera()
 	{
-		if (Camera == null)
+		if (seatCamera == null)
 		{
 			Debug.LogWarning("Camera is null");
 			return;
 		}
-		switch (GameDB.GameType)
+		switch (MVGameControllerBase.Game.GameType)
 		{
 		case MVGameType.Classic:
-			MVGameController.Game.CameraController.PushCamera(Camera);
+			MVGameControllerBase.CameraController.PushCamera(seatCamera);
 			break;
 		case MVGameType.Platformer:
 			break;
 		default:
-			MVGameController.Game.CameraController.PushCamera(Camera);
+			MVGameControllerBase.CameraController.PushCamera(seatCamera);
 			break;
 		}
 	}
 
 	public virtual void RemoveCamera()
 	{
-		if (Camera == null)
+		if (seatCamera == null)
 		{
 			Debug.LogWarning("Camera is null");
 			return;
 		}
-		switch (GameDB.GameType)
+		switch (MVGameControllerBase.Game.GameType)
 		{
 		case MVGameType.Classic:
-			MVGameController.Game.CameraController.RemoveCamera(Camera);
+			MVGameControllerBase.CameraController.RemoveCamera(seatCamera);
 			break;
 		case MVGameType.Platformer:
 			break;
 		default:
-			MVGameController.Game.CameraController.RemoveCamera(Camera);
+			MVGameControllerBase.CameraController.RemoveCamera(seatCamera);
 			break;
 		}
 	}

@@ -10,9 +10,9 @@ public class MvAvatarMetaData
 
 	public readonly int priceGold = -1;
 
-	public readonly bool isOnMarketPlace;
+	public readonly bool isOnMarketPlace = false;
 
-	public readonly bool canBeSoldOnMarketPlace;
+	public readonly bool canBeSoldOnMarketPlace = false;
 
 	public MvAvatarMetaData(int avatarID, string name, int priceSilver, int priceGold, bool isOnMarketPlace, bool canBeSoldOnMarketPlace)
 	{

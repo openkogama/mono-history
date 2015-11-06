@@ -60,11 +60,11 @@ public class PickupItemThrowingStar : PickupItemWithDelay
 		--ammo;
 		if (isLocal)
 		{
-			MVGameController.AudioManager.Play("projectile fire", fireSoundClip, Camera.main.transform.position + Camera.main.transform.forward, 0.5f, SoundRangeDistance.Long);
+			MVGameControllerBase.AudioManager.Play("projectile fire", fireSoundClip, Camera.main.transform.position + Camera.main.transform.forward, 0.5f, SoundRangeDistance.Long);
 		}
 		else
 		{
-			MVGameController.AudioManager.Play("projectile fire", fireSoundClip, muzzlePoint.position, 0.5f, SoundRangeDistance.Long);
+			MVGameControllerBase.AudioManager.Play("projectile fire", fireSoundClip, muzzlePoint.position, 0.5f, SoundRangeDistance.Long);
 		}
 		isFiring = false;
 	}
@@ -72,15 +72,15 @@ public class PickupItemThrowingStar : PickupItemWithDelay
 	private void HandleHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
 		Quaternion rotation = Quaternion.FromToRotation(Vector3.up, voxelHit.normal);
-		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(voxelHit.woId);
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
 		string path = ((!(worldObjectClient is MVAvatar)) ? "ParticleFX/SparksThrowingStar" : "ParticleFX/BloodThrowingStar");
 		UnityEngine.Object.Instantiate(Resources.Load(path), voxelHit.point, rotation);
 	}
 
 	private void HandleDirectHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
-		int woIDHighestInHierarchyWithComponent = MVGameController.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
-		MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
+		int woIDHighestInHierarchyWithComponent = MVGameControllerBase.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
 		if (worldObjectClient != null)
 		{
 			float num = Vector3.Distance(voxelHit.point, owner.transform.position);

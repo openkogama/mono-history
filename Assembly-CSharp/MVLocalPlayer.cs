@@ -22,7 +22,7 @@ public abstract class MVLocalPlayer : MVPlayer
 
 	public void AddXp(string xpType, MVGameMode gameMode)
 	{
-		if (LevelingManager.LevelingEnabled && MVGameController.GameMode == gameMode)
+		if (LevelingManager.LevelingEnabled && MVGameControllerBase.GameMode == gameMode)
 		{
 			Debug.Log("Adding xp");
 			xpEventQueue.AddXp(xpType);

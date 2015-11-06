@@ -4,7 +4,7 @@ using MV.Common;
 
 public class StreamingAssetInventory : ProductInventory
 {
-	private static MVWorldObjectClientManager WOCM => MVGameController.WOCM;
+	private static MVWorldObjectClientManager WOCM => MVGameControllerBase.WOCM;
 
 	public StreamingAssetInventory(InventoryExpirationChecker expirationChecker)
 		: base(expirationChecker)

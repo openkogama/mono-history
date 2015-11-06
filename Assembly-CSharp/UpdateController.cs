@@ -150,19 +150,19 @@ public static class UpdateController
 	{
 		int num = 0;
 		num++;
-		if (MVGameController.IngameController == null)
+		if (!MVGameControllerBase.IsInitialized)
 		{
 			return num;
 		}
-		if (MVGameController.GameMode == MVGameMode.Edit)
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
 		{
 			num += 4;
 		}
-		if (MVGameController.GameMode == MVGameMode.Edit && (MVGameController.IngameController as EditorController).PlayInEditor)
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit && MVGameControllerBase.Game.IsPlaying)
 		{
 			num += 8;
 		}
-		if (MVGameController.GameMode == MVGameMode.Play)
+		if (MVGameControllerBase.GameMode == MVGameMode.Play)
 		{
 			num += 2;
 		}

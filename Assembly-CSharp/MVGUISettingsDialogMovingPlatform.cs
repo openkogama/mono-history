@@ -22,9 +22,9 @@ public class MVGUISettingsDialogMovingPlatform : MVGUISettingsDialog
 			float num2 = num;
 			Vector3 vec = normalized * num2;
 			string keyPath = "BlueprintData\\Velocity";
-			MVGameController.Game.UpdateWorldObjectDataPartial(platform.Id, keyPath, vec.ToSerializeString());
+			MVGameControllerBase.Game.UpdateWorldObjectDataPartial(platform.Id, keyPath, vec.ToSerializeString());
 		}
-		MVGameController.EditorController.EditorStateMachine.DeSelectAll();
+		MVGameControllerLegacyUI.EditorController.EditorStateMachine.DeSelectAll();
 	}
 
 	private Dictionary<string, DialogData> BuildDialogData()

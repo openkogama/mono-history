@@ -14,11 +14,11 @@ public class MVGUIEditorToggles : UXViewScript
 	{
 		get
 		{
-			return MVGameController.Game.CameraController.IsLogicRendered;
+			return MVGameControllerBase.CameraController.IsLogicRendered;
 		}
 		set
 		{
-			if (value != MVGameController.Game.CameraController.IsLogicRendered)
+			if (value != MVGameControllerBase.CameraController.IsLogicRendered)
 			{
 				ToggleLogicRendering();
 			}
@@ -43,8 +43,8 @@ public class MVGUIEditorToggles : UXViewScript
 
 	public void ToggleLogicRendering()
 	{
-		bool flag = !MVGameController.Game.CameraController.IsLogicRendered;
-		MVGameController.Game.CameraController.RenderLogic(flag);
+		bool flag = !MVGameControllerBase.CameraController.IsLogicRendered;
+		MVGameControllerBase.CameraController.RenderLogic(flag);
 		logicRenderingToggle.SetToggleState(flag);
 	}
 }

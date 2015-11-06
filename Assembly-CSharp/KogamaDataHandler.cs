@@ -36,7 +36,7 @@ public static class KogamaDataHandler
 	{
 		if (WaitForTicksLocal.Diff(timeSinceService) > maxDeserializeTimeBeforeService)
 		{
-			MVGameController.Game.Service();
+			MVGameControllerBase.Game.Service();
 			timeSinceService = WaitForTicksLocal.GetEnvironmentTick(0);
 		}
 	}

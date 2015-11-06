@@ -42,7 +42,7 @@ public class WorldEditorDrawPlane : MonoBehaviour
 		}
 	}
 
-	public bool IsOnLandscape => _targetGameObject == MVGameController.WOCM.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>().GameObject;
+	public bool IsOnLandscape => _targetGameObject == MVGameControllerBase.WOCM.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>().GameObject;
 
 	public Vector3 Pos
 	{
@@ -123,6 +123,12 @@ public class WorldEditorDrawPlane : MonoBehaviour
 		_cachedPos = Pos;
 	}
 
+	public void ReturnDrawPlaneToLandscape()
+	{
+		TargetGameObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>().GameObject;
+		RestorePos();
+	}
+
 	public void RestorePos()
 	{
 		Pos = _cachedPos;
@@ -189,7 +195,7 @@ public class WorldEditorDrawPlane : MonoBehaviour
 	{
 		Vector3 forward = Camera.main.transform.forward;
 		Vector3 vector = new Vector3((!(forward.x > 0.1f)) ? (-5f) : 5f, (!(forward.y > 0.1f)) ? (-5f) : 5f, (!(forward.z > 0f)) ? (-7f) : 5f);
-		SetToGridAlignedPos(MVGameController.WOCM.AvatarLocal.GameObject.transform.position + vector);
+		SetToGridAlignedPos(MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position + vector);
 	}
 
 	public void SetToGridAlignedPos(Vector3 pos)
@@ -227,7 +233,6 @@ public class WorldEditorDrawPlane : MonoBehaviour
 
 	public void UpdateDrawPlane()
 	{
-		CheckInput();
 		Vector3 hit = Vector3.zero;
 		if (Pick(ref hit))
 		{
@@ -245,7 +250,7 @@ public class WorldEditorDrawPlane : MonoBehaviour
 
 	private void FollowAvatar()
 	{
-		Vector3 vector = transform.InverseTransformPoint(MVGameController.Game.CameraController.transform.position);
+		Vector3 vector = transform.InverseTransformPoint(MVGameControllerBase.CameraController.transform.position);
 		vector = MathFunctions.RoundVector(vector, 0);
 		vector.y = 0f;
 		DrawPlaneVisualization.transform.localPosition = vector;
@@ -256,25 +261,19 @@ public class WorldEditorDrawPlane : MonoBehaviour
 		return transform.localRotation * Vector3.up;
 	}
 
-	public void CheckInput()
+	public void MoveDrawPlane(int dir)
 	{
-		if (MVInputWrapper.GetBooleanControl(KogamaControls.MoveDrawPlaneDown))
+		Debug.Log("Moving drawplane");
+		if (Time.time - lastMovePlaneDelta > 0.1f)
 		{
-			MoveDrawPlane(-1);
-		}
-		if (MVInputWrapper.GetBooleanControl(KogamaControls.MoveDrawPlaneUp))
-		{
-			MoveDrawPlane(1);
+			Pos += transform.localRotation * Vector3.up * dir;
+			lastMovePlaneDelta = Time.time;
 		}
 	}
 
-	public void MoveDrawPlane(int dir)
+	public void SetDrawPlaneHeight(float height)
 	{
-		if (Time.time - lastMovePlaneDelta > 0.1f)
-		{
-			Pos += transform.localRotation * ((dir != 1) ? Vector3.down : Vector3.up);
-			lastMovePlaneDelta = Time.time;
-		}
+		Pos = transform.localRotation * Vector3.up * height;
 	}
 
 	public bool Pick(ref Vector3 hit)
@@ -299,7 +298,7 @@ public class WorldEditorDrawPlane : MonoBehaviour
 
 	private Vector3 GetCubePlaceOffset()
 	{
-		Vector3 vector = transform.InverseTransformPoint(MVGameController.Game.CameraController.transform.position);
+		Vector3 vector = transform.InverseTransformPoint(MVGameControllerBase.CameraController.transform.position);
 		Vector3 offsetVector = GetOffsetVector();
 		return offsetVector * ((vector.y > 0f) ? 1 : (-1));
 	}

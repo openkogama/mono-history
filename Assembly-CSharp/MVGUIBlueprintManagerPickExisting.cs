@@ -20,7 +20,7 @@ public class MVGUIBlueprintManagerPickExisting : UXCustomDialogBox
 
 	private bool _isInitialized;
 
-	private MVWorldObjectClientManager WOCM => MVGameController.WOCM;
+	private MVWorldObjectClientManager WOCM => MVGameControllerBase.WOCM;
 
 	public override void OnShowDialog()
 	{

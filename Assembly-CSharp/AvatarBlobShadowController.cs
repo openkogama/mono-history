@@ -1,4 +1,5 @@
 using System;
+using MV.Common;
 using UnityEngine;
 
 [RequireComponent(typeof(Projector))]
@@ -12,6 +13,10 @@ public class AvatarBlobShadowController : MonoBehaviour
 	{
 		MVQualitySettings.onQualityLevelChanged = (MVQualitySettings.OnQualityLevedChanged)Delegate.Combine(MVQualitySettings.onQualityLevelChanged, new MVQualitySettings.OnQualityLevedChanged(OnQualityLevelChanged));
 		OnQualityLevelChanged(MVQualitySettings.CurrentLevel);
+		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
+		{
+			blobProjector.enabled = false;
+		}
 	}
 
 	private void OnEnable()
@@ -36,14 +41,17 @@ public class AvatarBlobShadowController : MonoBehaviour
 
 	private void OnQualityLevelChanged(int level)
 	{
-		switch (level)
+		if (MVGameControllerBase.Game.GameType != MVGameType.Platformer)
 		{
-		case 0:
-			blobProjector.enabled = true;
-			break;
-		case 1:
-			blobProjector.enabled = false;
-			break;
+			switch (level)
+			{
+			case 0:
+				blobProjector.enabled = true;
+				break;
+			case 1:
+				blobProjector.enabled = false;
+				break;
+			}
 		}
 	}
 }

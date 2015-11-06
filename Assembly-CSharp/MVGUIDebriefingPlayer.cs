@@ -22,7 +22,7 @@ public class MVGUIDebriefingPlayer : MVGUIDebriefing
 
 	public void Init(int id)
 	{
-		if (MVGameController.Game.Players.TryGetValue(id, out var value))
+		if (MVGameControllerBase.Game.Players.TryGetValue(id, out var value))
 		{
 			GameObject gameObject = value.Avatar.Body.CopyByValue();
 			meshRenderers = gameObject.GetComponentsInChildren<MeshRenderer>();

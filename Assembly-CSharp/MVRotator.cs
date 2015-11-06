@@ -8,7 +8,7 @@ public class MVRotator : MVMovable
 
 	private static HashSet<MVRotator> selectedRotators = new HashSet<MVRotator>();
 
-	private MVWorldObjectClientManager WOCM => MVGameController.WOCM;
+	private MVWorldObjectClientManager WOCM => MVGameControllerBase.WOCM;
 
 	public Vector3 InitAngularVelocity => initAngularVelocity;
 

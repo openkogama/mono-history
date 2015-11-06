@@ -83,9 +83,9 @@ public static class GameSessionCounterRules
 
 		private void WallJump(GameSessionCounterType gameSessionCounterType, int count)
 		{
-			if (wallJumpCount <= 0 || !((prevPos - MVGameController.Game.LocalPlayer.Avatar.Transform.position).magnitude < minJumpDistance))
+			if (wallJumpCount <= 0 || !((prevPos - MVGameControllerBase.Game.LocalPlayer.Avatar.Transform.position).magnitude < minJumpDistance))
 			{
-				prevPos = MVGameController.Game.LocalPlayer.Avatar.Transform.position;
+				prevPos = MVGameControllerBase.Game.LocalPlayer.Avatar.Transform.position;
 				wallJumpCount++;
 				if (wallJumpCount >= 5)
 				{
@@ -189,10 +189,10 @@ public static class GameSessionCounterRules
 	public static void OnCounterTypeChanged(object sender, OnCounterTypeChangedArgs e)
 	{
 		GameStatCounterType counterType = e.counterType;
-		if (counterType == GameStatCounterType.Kill && e.actorNumber == MVGameController.Game.LocalPlayer.ActorNr && e.actorNumber != e.otherID)
+		if (counterType == GameStatCounterType.Kill && e.actorNumber == MVGameControllerBase.Game.LocalPlayer.ActorNr && e.actorNumber != e.otherID)
 		{
 			GameSessionCounters.Increment(GameSessionCounterType.Kill);
-			if (MVGameController.Game.Players.ContainsKey(e.otherID) && MVGameController.Game.Players[e.otherID].Team != MVGameController.Game.Players[e.actorNumber].Team)
+			if (MVGameControllerBase.Game.Players.ContainsKey(e.otherID) && MVGameControllerBase.Game.Players[e.otherID].Team != MVGameControllerBase.Game.Players[e.actorNumber].Team)
 			{
 				GameSessionCounters.Increment(GameSessionCounterType.KillOnOtherTeam);
 			}

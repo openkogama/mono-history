@@ -49,7 +49,7 @@ public class MVGhost : MVBlueprintBase, IUpdatecontrollerSubscriber
 			{
 				distance = value;
 				blueprintData["Distance"] = value;
-				MVGameController.Game.UpdateWorldObjectDataPartial(Id, "BlueprintData\\Distance", value);
+				MVGameControllerBase.Game.UpdateWorldObjectDataPartial(Id, "BlueprintData\\Distance", value);
 				rangeVis.Radius = distance;
 			}
 		}
@@ -67,7 +67,7 @@ public class MVGhost : MVBlueprintBase, IUpdatecontrollerSubscriber
 			{
 				speed = value;
 				blueprintData["Speed"] = value;
-				MVGameController.Game.UpdateWorldObjectDataPartial(Id, "BlueprintData\\Speed", value);
+				MVGameControllerBase.Game.UpdateWorldObjectDataPartial(Id, "BlueprintData\\Speed", value);
 			}
 		}
 	}
@@ -180,7 +180,7 @@ public class MVGhost : MVBlueprintBase, IUpdatecontrollerSubscriber
 
 	public void UpdateControllerFixedUpdate()
 	{
-		MVWorldObjectClient mVWorldObjectClient = (from a in MVGameController.WOCM.GetWorldObjectsByType(WorldObjectType.Avatar)
+		MVWorldObjectClient mVWorldObjectClient = (from a in MVGameControllerBase.WOCM.GetWorldObjectsByType(WorldObjectType.Avatar)
 			orderby (a.WorldPosition - WorldPosition).sqrMagnitude
 			select a).FirstOrDefault();
 		MoveGhost(mVWorldObjectClient);
@@ -198,7 +198,7 @@ public class MVGhost : MVBlueprintBase, IUpdatecontrollerSubscriber
 		Vector3 vector = TargetAvatar.WorldPosition;
 		if ((vector - WorldPosition).sqrMagnitude > Distance * Distance)
 		{
-			float time = MVGameController.WOCM.MoveableController.time;
+			float time = MVGameControllerBase.WOCM.MoveableController.time;
 			vector = WorldPosition + Quaternion.AngleAxis(time * 10f * GetSpeed(flag) / distance, Vector3.up) * (Vector3.forward * distance * Mathf.Sin(time * GetSpeed(flag) / (distance * 10f)));
 			flag = true;
 		}
@@ -241,7 +241,7 @@ public class MVGhost : MVBlueprintBase, IUpdatecontrollerSubscriber
 		case GameEffect.INSTANT_DEATH:
 			if (IsTouchingAvatar(TargetAvatar))
 			{
-				interactionHandler.HandleInteraction(ProximityDamageAndImpulse.Create(MVGameController.WOCM.AvatarLocal.Health.Value, Vector3.zero, PlayerKilledByType.Ghost), interactionIsLocal: true);
+				interactionHandler.HandleInteraction(ProximityDamageAndImpulse.Create(MVGameControllerBase.WOCM.AvatarLocal.Health.Value, Vector3.zero, PlayerKilledByType.Ghost), interactionIsLocal: true);
 			}
 			break;
 		}

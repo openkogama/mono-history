@@ -6,11 +6,11 @@ public class AvatarAccessoryControllerPlayMode : AvatarAccessoryController
 	{
 		get
 		{
-			return MVGameController.WOCM.AvatarLocal.Body.AccessoryMoveOverride;
+			return MVGameControllerBase.WOCM.AvatarLocal.Body.AccessoryMoveOverride;
 		}
 		set
 		{
-			MVGameController.WOCM.AvatarLocal.Body.AccessoryMoveOverride = value;
+			MVGameControllerBase.WOCM.AvatarLocal.Body.AccessoryMoveOverride = value;
 		}
 	}
 

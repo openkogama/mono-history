@@ -21,7 +21,6 @@ public class DefaultContractResolver : IContractResolver
 	private static readonly IList<JsonConverter> BuiltInConverters = new List<JsonConverter>
 	{
 		new KeyValuePairConverter(),
-		new XmlNodeConverter(),
 		new BsonObjectIdConverter()
 	};
 

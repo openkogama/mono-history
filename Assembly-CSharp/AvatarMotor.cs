@@ -25,17 +25,11 @@ public class AvatarMotor : MVRigidBody
 
 	private SizeState sizeState;
 
-	private Quaternion platformerRotation = Quaternion.AngleAxis(90f, Vector3.up);
-
-	private float platformerRotationSpeed = 12.4f;
-
 	private SmoothCharacterController smoothCharacterController;
 
 	private ImpactState impactState = new ImpactState(RuntimeEventType.AvatarImpact75, RuntimeEventType.AvatarImpact50, RuntimeEventType.AvatarImpact25);
 
 	private MVMovableMotorState movableMotorState;
-
-	private float waterProximity;
 
 	private AvatarInteractable interactableLocal;
 
@@ -55,15 +49,7 @@ public class AvatarMotor : MVRigidBody
 
 	public override Vector3 Velocity => Controller.Velocity / Time.fixedDeltaTime;
 
-	public Vector3 InputMoveDirection { get; set; }
-
-	public bool InputJump { get; set; }
-
-	public bool InputRun { get; set; }
-
 	public override bool Grounded => groundState.Grounded;
-
-	public float WaterProximity => waterProximity;
 
 	public override bool IsMovementLocked { get; set; }
 
@@ -90,6 +76,7 @@ public class AvatarMotor : MVRigidBody
 		this.interactableLocal = interactableLocal;
 		bounceState = new BounceState(interactableLocal);
 		sizeState = new SizeState(interactableLocal, Controller);
+		Debug.Log("Is size state null " + sizeState == null);
 		this.jumpState = new JumpState(0.2f);
 		JumpState jumpState = this.jumpState;
 		jumpState.OnWallJump = (JumpState.OnWallJumpDelegate)Delegate.Combine(jumpState.OnWallJump, (JumpState.OnWallJumpDelegate)(() =>
@@ -126,58 +113,37 @@ public class AvatarMotor : MVRigidBody
 		smoothCharacterController.Reset();
 	}
 
-	public void OverrideDirection(Vector3 dir)
-	{
-		Controller.transform.forward = dir;
-	}
-
 	public void UpdateFunction()
 	{
 		smoothCharacterController.SmoothMove();
 	}
 
-	public void FixedUpdateFunction(Quaternion setQuaternion, bool shouldSetRotation)
+	public void FixedUpdateFunction(IMotorAPI motorApi)
 	{
-		waterProximity = MVGameController.WOCM.WaterPlaneManager.ComputeAvatarWaterProximity(Controller.gameObject.transform.position);
-		if (IsMovementLocked)
+		if (!IsMovementLocked)
 		{
-			return;
-		}
-		if (shouldSetRotation)
-		{
-			if (GameDB.GameType == MVGameType.Classic)
+			Controller.transform.rotation = motorApi.Rotation;
+			Vector3 prevVelocity = velocityPrevFrame;
+			Vector3 velocity = velocityPrevFrame;
+			bool flag = movableMotorState.Move(velocity, Controller, Controller.Radius, groundState, out var movableVelocityVector);
+			velocity = GetVelocity(velocity, movableVelocityVector, motorApi.Jump, motorApi.Direction);
+			if (flag)
 			{
-				Controller.transform.rotation = setQuaternion;
+				Move(velocity, Vector3.zero);
 			}
-			else if (GameDB.GameType == MVGameType.Platformer)
+			else
 			{
-				platformerRotation = setQuaternion;
+				Move(velocity, movableVelocityVector);
 			}
+			UpdateVelocity();
+			if (!flag)
+			{
+				velocityPrevFrame -= movableVelocityVector;
+			}
+			DealImpactDamage(velocityPrevFrame, prevVelocity);
+			HandleSoundEffects(motorApi.Jump);
+			sizeState.UpdateScale();
 		}
-		if (GameDB.GameType == MVGameType.Platformer)
-		{
-			Controller.transform.rotation = Quaternion.Lerp(Controller.transform.rotation, platformerRotation, platformerRotationSpeed * Time.fixedDeltaTime);
-		}
-		Vector3 prevVelocity = velocityPrevFrame;
-		Vector3 velocity = velocityPrevFrame;
-		bool flag = movableMotorState.Move(velocity, Controller, Controller.Radius, groundState, out var movableVelocityVector);
-		velocity = GetVelocity(velocity, movableVelocityVector);
-		if (flag)
-		{
-			Move(velocity, Vector3.zero);
-		}
-		else
-		{
-			Move(velocity, movableVelocityVector);
-		}
-		UpdateVelocity();
-		if (!flag)
-		{
-			velocityPrevFrame -= movableVelocityVector;
-		}
-		DealImpactDamage(velocityPrevFrame, prevVelocity);
-		HandleSoundEffects();
-		sizeState.UpdateScale();
 	}
 
 	public void UpdateVelocity()
@@ -185,29 +151,29 @@ public class AvatarMotor : MVRigidBody
 		velocityPrevFrame = Controller.Velocity / Time.fixedDeltaTime;
 	}
 
-	private void HandleSoundEffects()
+	private void HandleSoundEffects(bool inputJump)
 	{
-		if (bounceState.Bounced && InputJump && OnActiveBounce != null)
+		if (bounceState.Bounced && inputJump && OnActiveBounce != null)
 		{
 			OnActiveBounce();
 		}
 	}
 
-	private Vector3 GetVelocity(Vector3 velocity, Vector3 movableVelocity)
+	private Vector3 GetVelocity(Vector3 velocity, Vector3 movableVelocity, bool inputJump, Vector3 inputDirection)
 	{
 		if (groundState.Grounded)
 		{
 			velocity = groundState.ApplySlidingVelocity(velocity, density, interactableLocal);
 			velocity -= velocity * MathFunctions.Pow2(interactableLocal.HandleModifierEffect(AvatarModifierEffect.Friction, groundState.GroundMaterial.physicalProperties.friction)) * Time.fixedDeltaTime;
-			velocity = ApplyInputVelocityChangeGrounded(velocity);
+			velocity = ApplyInputVelocityChangeGrounded(velocity, inputDirection);
 		}
 		else
 		{
-			velocity = ApplyInputVelocityChange(velocity);
+			velocity = ApplyInputVelocityChange(velocity, inputDirection);
 			velocity = ApplyGravity(velocity, velocityPrevFrame, interactableLocal);
 		}
 		velocity = bounceState.ApplyBounceVelocity(velocity);
-		velocity = jumpState.ApplyJumping(interactableLocal, groundState, density, WaterProximity, InputJump, velocity, movableVelocity);
+		velocity = jumpState.ApplyJumping(interactableLocal, groundState, density, MVGameControllerBase.WaterPlaneManager.ComputeAvatarWaterProximity(Controller.gameObject.transform.position), inputJump, velocity, movableVelocity);
 		velocity = GetImpulse(velocity, interactableLocal);
 		velocity = MVRigidBody.VelocityDamping(velocity, 1f, interactableLocal);
 		return velocity;
@@ -225,14 +191,14 @@ public class AvatarMotor : MVRigidBody
 	private void Move(Vector3 velocity, Vector3 movableVelocity)
 	{
 		Vector3 motion = (velocity + movableVelocity) * Time.fixedDeltaTime;
-		collisionFlags = Controller.Move(motion);
+		Controller.Move(motion);
 		groundState.Update(Controller, velocity);
 	}
 
-	private Vector3 ApplyInputVelocityChangeGrounded(Vector3 velocity)
+	private Vector3 ApplyInputVelocityChangeGrounded(Vector3 velocity, Vector3 inputDirection)
 	{
-		speed = GetSpeedGrounded(speed);
-		Vector3 hVelocity = InputMoveDirection * speed;
+		speed = GetSpeedGrounded(speed, inputDirection);
+		Vector3 hVelocity = inputDirection * speed;
 		hVelocity = MVRigidBody.AdjustGroundVelocityToNormal(hVelocity, groundState.GroundNormal);
 		Vector3 vector = hVelocity - velocity;
 		vector *= MathFunctions.Pow2(interactableLocal.HandleModifierEffect(AvatarModifierEffect.Friction, groundState.GroundMaterial.physicalProperties.friction)) * Time.fixedDeltaTime / 0.02f;
@@ -244,10 +210,10 @@ public class AvatarMotor : MVRigidBody
 		return velocity;
 	}
 
-	private Vector3 ApplyInputVelocityChange(Vector3 velocity)
+	private Vector3 ApplyInputVelocityChange(Vector3 velocity, Vector3 inputDirection)
 	{
-		speed = GetSpeed(speed);
-		Vector3 vector = InputMoveDirection * speed;
+		speed = GetSpeed(speed, inputDirection);
+		Vector3 vector = inputDirection * speed;
 		if (vector.magnitude == 0f)
 		{
 			return velocity;
@@ -267,14 +233,14 @@ public class AvatarMotor : MVRigidBody
 		return velocity;
 	}
 
-	private float GetSpeedGrounded(float currentSpeed)
+	private float GetSpeedGrounded(float currentSpeed, Vector3 inputDirection)
 	{
-		float num = GetSpeed(currentSpeed);
+		float num = GetSpeed(currentSpeed, inputDirection);
 		float time = Mathf.Asin(velocityPrevFrame.normalized.y) * 57.29578f;
 		return num * slopeSpeedMultiplier.Evaluate(time);
 	}
 
-	private float GetSpeed(float currentSpeed)
+	private float GetSpeed(float currentSpeed, Vector3 inputDirection)
 	{
 		float baseValue = walkSpeed;
 		baseValue = interactableLocal.HandleModifierEffect(AvatarModifierEffect.Speed, baseValue);
@@ -283,7 +249,7 @@ public class AvatarMotor : MVRigidBody
 		{
 			currentLerp = lerpTime;
 		}
-		if (InputMoveDirection.magnitude == 0f)
+		if (inputDirection.magnitude == 0f)
 		{
 			currentLerp = 0f;
 		}

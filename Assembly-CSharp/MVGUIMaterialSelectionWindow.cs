@@ -108,7 +108,7 @@ public class MVGUIMaterialSelectionWindow : UXViewScript
 		gameObject.transform.localPosition = -GetPageSize() / 2f;
 		gameObject.transform.localScale = Vector3.one;
 		_pageRoot = gameObject.transform;
-		_totalMaterialCount = MVGameController.Game.MaterialRepository.MaterialCount;
+		_totalMaterialCount = MVGameControllerBase.Game.MaterialRepository.MaterialCount;
 		_pages = new List<UXGroup>();
 		int num = _totalMaterialCount / MaxCubesPerPage;
 		if (_totalMaterialCount % MaxCubesPerPage != 0)
@@ -238,7 +238,7 @@ public class MVGUIMaterialSelectionWindow : UXViewScript
 	public void OnMaterialSelectionHandler(MVGUIMaterialSelectionCube cube)
 	{
 		byte b = (byte)cube.MaterialId;
-		MVMaterial material = MVGameController.Game.MaterialRepository.GetMaterial(b);
+		MVMaterial material = MVGameControllerBase.Game.MaterialRepository.GetMaterial(b);
 		if (material.isUnlocked)
 		{
 			SetSelectedMaterial(b);
@@ -268,7 +268,7 @@ public class MVGUIMaterialSelectionWindow : UXViewScript
 		mVGUIProductShopDialog.SetPrice(mvMaterial.unlockPriceGold, mvMaterial.unlockPriceSilver);
 		mVGUIProductShopDialog.OnTryPurchaseProduct = () =>
 		{
-			MVGameController.Game.UnlockMaterial(cube.MaterialId);
+			MVGameControllerBase.Game.UnlockMaterial(cube.MaterialId);
 		};
 		View.Hide();
 	}
@@ -298,7 +298,7 @@ public class MVGUIMaterialSelectionWindow : UXViewScript
 		View.Show();
 		if (dialogBox.DialogResult == UXDialogResult.Positive)
 		{
-			MVGameController.Game.MaterialRepository.SetMaterialUnlocked(_purchaseCube.MaterialId, unlocked: true);
+			MVGameControllerBase.Game.MaterialRepository.SetMaterialUnlocked(_purchaseCube.MaterialId, unlocked: true);
 			_purchaseCube.StartKeyAnimation();
 			SetSelectedMaterial(_purchaseCube.MaterialId);
 			if (OnMaterialSelection != null)

@@ -7,8 +7,6 @@ using UnityEngine;
 [RequireComponent(typeof(AudioSource))]
 public class PickupItemImpulseGun : PickupItem
 {
-	public Transform muzzlePoint;
-
 	public Transform chargeObject;
 
 	public float hitImpulse = 2400f;
@@ -136,7 +134,7 @@ public class PickupItemImpulseGun : PickupItem
 			float num2 = recoilMagnitude / Mathf.Max(num * 0.5f, 1f);
 			if (impulseMagnitude > 2500f)
 			{
-				MVGameController.Game.World.RuntimeEventManager.SendRuntimeEvent(new ExplosionEvent(RuntimeEventType.Bazooka, vector));
+				MVGameControllerBase.Game.World.RuntimeEventManager.SendRuntimeEvent(new ExplosionEvent(RuntimeEventType.Bazooka, vector));
 			}
 			Vector3 impulse2 = -lineOfFire.direction * num2;
 			MVRigidBody component2 = owner.GetComponent<MVRigidBody>();
@@ -157,7 +155,7 @@ public class PickupItemImpulseGun : PickupItem
 		List<VoxelHit> list2 = CollisionDetection.MVSphereCastAll(lineOfFire, radius, maxRange, owner.IgnoreWOIDs, 1 << LayerMask.NameToLayer("Player"));
 		foreach (VoxelHit item in list2)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(item.woId);
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(item.woId);
 			if (worldObjectClient != null)
 			{
 				list.Add(worldObjectClient);

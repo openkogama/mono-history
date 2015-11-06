@@ -35,9 +35,9 @@ public class MVGUIBlueprintManagerOverview : UXCustomDialogBox
 	public void SetWoid(int woId)
 	{
 		this.woId = woId;
-		if (woId != -1 && MVGameController.WOCM.GetWorldObjectClient(woId).Data.ContainsKey(BLUEPRINT_DATA_KEY))
+		if (woId != -1 && MVGameControllerBase.WOCM.GetWorldObjectClient(woId).Data.ContainsKey(BLUEPRINT_DATA_KEY))
 		{
-			blueprintWorldObject = MVGameController.WOCM.GetWorldObjectClient(woId);
+			blueprintWorldObject = MVGameControllerBase.WOCM.GetWorldObjectClient(woId);
 			blueprintData = (Dictionary<object, object>)blueprintWorldObject.Data[BLUEPRINT_DATA_KEY];
 			if (blueprintData.ContainsKey(TYPE_KEY))
 			{
@@ -193,15 +193,15 @@ public class MVGUIBlueprintManagerOverview : UXCustomDialogBox
 			{
 				data[BLUEPRINT_DATA_KEY] = blueprintData;
 			}
-			MVGameController.Game.UpdateWorldObjectData(blueprintWorldObject.Id, data);
+			MVGameControllerBase.Game.UpdateWorldObjectData(blueprintWorldObject.Id, data);
 		}
 		else
 		{
 			Dictionary<object, object> dictionary = new Dictionary<object, object>();
 			dictionary.Add(BLUEPRINT_DATA_KEY, blueprintData);
 			Dictionary<object, object> value = dictionary;
-			MVGameController.EditController.EditorStateMachine.Data.Add("woData", value);
-			MVGameController.EditController.EditorStateMachine.PushState(EditorEvent.ESBlueprintCreator);
+			MVGameControllerLegacyUI.EditorController.EditorStateMachine.Data.Add("woData", value);
+			MVGameControllerLegacyUI.EditorController.EditorStateMachine.PushState(EditorEvent.ESBlueprintCreator);
 		}
 		OnPositiveClose();
 		DialogFactory.CloseDialog();

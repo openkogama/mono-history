@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class MVPlaymodeCameraBase : MVCameraBase
+public abstract class MVPlaymodeCameraBase : MVCameraBase
 {
 	private float shakeStrength;
 

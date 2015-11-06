@@ -21,7 +21,7 @@ public class MVGUIPressurePlateSettingsBox : MVGUISettingsDialog
 				dictionary.Add("hide", false);
 			}
 			dictionary["hide"] = flag;
-			MVGameController.Game.UpdateWorldObjectDataPartial(wo.Id, dictionary);
+			MVGameControllerBase.Game.UpdateWorldObjectDataPartial(wo.Id, dictionary);
 		}
 	}
 

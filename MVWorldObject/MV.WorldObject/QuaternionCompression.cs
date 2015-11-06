@@ -16,7 +16,7 @@ public static class QuaternionCompression
 	public static void Test()
 	{
 		byte[] eulerAnglesByteRange = ToBytes(default);
-		ToQuaternion(eulerAnglesByteRange);
+		Quaternion quaternion = ToQuaternion(eulerAnglesByteRange);
 	}
 
 	public static byte[] ToBytes(Quaternion quaternion)

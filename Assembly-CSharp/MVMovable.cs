@@ -107,7 +107,7 @@ public class MVMovable : MVBlueprintBase
 	{
 		base.Initialize();
 		InitializeCommon();
-		MVGameController.WOCM.MoveableController.AddMovable(this, isInventoryPreviewMovable: false);
+		MVGameControllerBase.WOCM.MoveableController.AddMovable(this, isInventoryPreviewMovable: false);
 		movableVisualization = gameObject.AddComponent<MovableVisualization>();
 		movableVisualization.Init(cubeModel);
 		cubeModel.ReactsToLODChanges = false;
@@ -125,7 +125,7 @@ public class MVMovable : MVBlueprintBase
 	{
 		base.InitializeInventory();
 		InitializeCommon();
-		MVGameController.WOCM.MoveableController.AddMovable(this, isInventoryPreviewMovable: true);
+		MVGameControllerBase.WOCM.MoveableController.AddMovable(this, isInventoryPreviewMovable: true);
 	}
 
 	private void InitializeCommon()
@@ -152,7 +152,7 @@ public class MVMovable : MVBlueprintBase
 			blueprintData["Distance"] = distance;
 			if (syncServer)
 			{
-				MVGameController.Game.UpdateWorldObjectDataPartial(Id, GetParamPath("Distance"), distance);
+				MVGameControllerBase.Game.UpdateWorldObjectDataPartial(Id, GetParamPath("Distance"), distance);
 			}
 		}
 		RecalcTimeToEnd();
@@ -166,7 +166,7 @@ public class MVMovable : MVBlueprintBase
 			blueprintData["Rotation"] = orgRotation.eulerAngles.ToSerializeString();
 			if (syncServer)
 			{
-				MVGameController.Game.UpdateWorldObjectDataPartial(Id, GetParamPath("Rotation"), orgRotation);
+				MVGameControllerBase.Game.UpdateWorldObjectDataPartial(Id, GetParamPath("Rotation"), orgRotation);
 			}
 		}
 	}
@@ -179,7 +179,7 @@ public class MVMovable : MVBlueprintBase
 			blueprintData["Velocity"] = velocity.ToSerializeString();
 			if (syncServer)
 			{
-				MVGameController.Game.UpdateWorldObjectDataPartial(Id, GetParamPath("Velocity"), velocity);
+				MVGameControllerBase.Game.UpdateWorldObjectDataPartial(Id, GetParamPath("Velocity"), velocity);
 			}
 		}
 		RecalcTimeToEnd();
@@ -193,7 +193,7 @@ public class MVMovable : MVBlueprintBase
 			blueprintData["AngularDirection"] = angularDirection.ToSerializeString();
 			if (syncServer)
 			{
-				MVGameController.Game.UpdateWorldObjectDataPartial(Id, GetParamPath("AngularDirection"), angularDirection);
+				MVGameControllerBase.Game.UpdateWorldObjectDataPartial(Id, GetParamPath("AngularDirection"), angularDirection);
 			}
 		}
 	}
@@ -206,7 +206,7 @@ public class MVMovable : MVBlueprintBase
 			blueprintData["AngularSpeed"] = angularSpeed;
 			if (syncServer)
 			{
-				MVGameController.Game.UpdateWorldObjectDataPartial(Id, GetParamPath("AngularSpeed"), angularSpeed);
+				MVGameControllerBase.Game.UpdateWorldObjectDataPartial(Id, GetParamPath("AngularSpeed"), angularSpeed);
 			}
 		}
 	}
@@ -218,7 +218,7 @@ public class MVMovable : MVBlueprintBase
 			MVMovable mVMovable = null;
 			if (parentMoverID != -1)
 			{
-				mVMovable = MVGameController.WOCM.MoveableController.MoveControllers.Where((KeyValuePair<int, MVMovable> x) => x.Value.Id == parentMoverID).FirstOrDefault().Value;
+				mVMovable = MVGameControllerBase.WOCM.MoveableController.MoveControllers.Where((KeyValuePair<int, MVMovable> x) => x.Value.Id == parentMoverID).FirstOrDefault().Value;
 				if (mVMovable == null)
 				{
 					Debug.LogError("Couldn't find parent " + parentMoverID);
@@ -241,7 +241,7 @@ public class MVMovable : MVBlueprintBase
 			blueprintData["ParentMoverID"] = parentMoverID;
 			if (syncServer)
 			{
-				MVGameController.Game.UpdateWorldObjectDataPartial(Id, GetParamPath("ParentMoverID"), parentMoverID);
+				MVGameControllerBase.Game.UpdateWorldObjectDataPartial(Id, GetParamPath("ParentMoverID"), parentMoverID);
 			}
 		}
 	}
@@ -250,7 +250,7 @@ public class MVMovable : MVBlueprintBase
 	{
 		Dictionary<object, object> dictionary = new Dictionary<object, object>();
 		dictionary["BlueprintData"] = blueprintData;
-		MVGameController.Game.UpdateWorldObjectDataPartial(Id, dictionary);
+		MVGameControllerBase.Game.UpdateWorldObjectDataPartial(Id, dictionary);
 	}
 
 	private void ReadWOData()
@@ -289,7 +289,7 @@ public class MVMovable : MVBlueprintBase
 				{
 					break;
 				}
-				MVMovable value = MVGameController.WOCM.MoveableController.MoveControllers.Where((KeyValuePair<int, MVMovable> x) => x.Value.Id == newParentMoverID).FirstOrDefault().Value;
+				MVMovable value = MVGameControllerBase.WOCM.MoveableController.MoveControllers.Where((KeyValuePair<int, MVMovable> x) => x.Value.Id == newParentMoverID).FirstOrDefault().Value;
 				if (value == null)
 				{
 					Debug.LogError("Couldn't find parent " + empty);
@@ -360,7 +360,7 @@ public class MVMovable : MVBlueprintBase
 		{
 			return;
 		}
-		float num = MVGameController.WOCM.MoveableController.time;
+		float num = MVGameControllerBase.WOCM.MoveableController.time;
 		if (pausedMovement)
 		{
 			linearTime = fraction * timeToEnd;
@@ -402,7 +402,7 @@ public class MVMovable : MVBlueprintBase
 			}
 			if (directionFactor > 0f)
 			{
-				MVGameController.WOCM.MoveableController.Velocities[GameObjectID] = direction * WorldVelocity * directionFactor * Time.fixedDeltaTime;
+				MVGameControllerBase.WOCM.MoveableController.Velocities[GameObjectID] = direction * WorldVelocity * directionFactor * Time.fixedDeltaTime;
 			}
 		}
 		else
@@ -448,13 +448,13 @@ public class MVMovable : MVBlueprintBase
 
 	public override void Destroy()
 	{
-		MVGameController.WOCM.MoveableController.RemoveMovable(this);
+		MVGameControllerBase.WOCM.MoveableController.RemoveMovable(this);
 		base.Destroy();
 	}
 
 	public override bool OnEnterObject(EditorStateMachine e)
 	{
-		MVGameController.Game.CameraController.CurCamera.FocusOnObject(CubeModel);
+		MVGameControllerBase.CameraController.CurCamera.FocusOnObject(CubeModel);
 		e.EnterGroup(this);
 		e.SelectWO(CubeModelID, addToSelection: false);
 		e.Event = EditorEvent.EditCubes;

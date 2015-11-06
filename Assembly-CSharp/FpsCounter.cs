@@ -47,7 +47,7 @@ public class FpsCounter : MonoBehaviour
 		{
 			showFPS = !showFPS;
 		}
-		if (fpsMetricCollector == null && MVGameController.Game != null && MVGameController.Game.JoinState == MVJoinState.Playing)
+		if (fpsMetricCollector == null && MVGameControllerBase.JoinState == MVJoinState.Playing)
 		{
 			fpsMetricCollector = new FpsMetricCollector();
 		}

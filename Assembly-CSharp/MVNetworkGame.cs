@@ -59,7 +59,7 @@ public class MVNetworkGame : IPhotonPeerListener
 				OnGetGameBatch(queryId, gameDataQuery);
 				if (queryDataLeft)
 				{
-					MVGameController.Game.RequestGetNextGameBatch(queryId);
+					MVGameControllerBase.Game.RequestGetNextGameBatch(queryId);
 				}
 			}
 			else
@@ -91,16 +91,16 @@ public class MVNetworkGame : IPhotonPeerListener
 			switch (gameDataQuery.QueryType)
 			{
 			case QueryType.GameWorld:
-				MVGameController.Game.worldNetwork.CreateGameWorldFromQueryData(gameDataQuery.GetBytePacker(), gameDataQuery.InstigatorActorNumber);
+				MVGameControllerBase.Game.worldNetwork.CreateGameWorldFromQueryData(gameDataQuery.GetBytePacker(), gameDataQuery.InstigatorActorNumber);
 				break;
 			case QueryType.AddToGameWorld:
-				MVGameController.Game.worldNetwork.AddGameQueryDataToGameWorld(gameDataQuery.GetBytePacker(), gameDataQuery.InstigatorActorNumber);
+				MVGameControllerBase.Game.worldNetwork.AddGameQueryDataToGameWorld(gameDataQuery.GetBytePacker(), gameDataQuery.InstigatorActorNumber);
 				break;
 			case QueryType.Item:
-				if (MVGameController.Game.ReceivedItemFromQuery != null)
+				if (MVGameControllerBase.Game.ReceivedItemFromQuery != null)
 				{
 					ReceivedItemFromQueryEventArgs e = new ReceivedItemFromQueryEventArgs(gameDataQuery.GetBytePacker(), gameDataQuery.InstigatorActorNumber);
-					MVGameController.Game.ReceivedItemFromQuery(this, e);
+					MVGameControllerBase.Game.ReceivedItemFromQuery(this, e);
 				}
 				break;
 			}
@@ -132,8 +132,6 @@ public class MVNetworkGame : IPhotonPeerListener
 	private PhotonPeer peer;
 
 	private MVConnState connState;
-
-	private MVJoinState _joinState = MVJoinState.Joining;
 
 	private MVGameType gameType;
 
@@ -167,6 +165,12 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public Action<int, Dictionary<object, object>> PurchaseProductResponseHandler;
 
+	public Action<IWinningCondition> OnWinningCondition;
+
+	public Action<int> OnActiveAvatar;
+
+	public Action<bool> OnItemAddedToWorld;
+
 	public Action<bool> OnSetAvatarAccessoryResponse;
 
 	public OnPlayerListChangedDelegate onPlayerListChanged;
@@ -190,8 +194,6 @@ public class MVNetworkGame : IPhotonPeerListener
 	private HashSet<int> ownedRequestFailedIDs = new HashSet<int>();
 
 	private HashSet<int> expiredStreamingAssetIDs = new HashSet<int>();
-
-	private bool avatarResetPending;
 
 	private MVLocalObjectController playerController;
 
@@ -241,29 +243,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		}
 	}
 
-	public bool IsPlaying
-	{
-		get
-		{
-			if (JoinState != MVJoinState.Playing)
-			{
-				return false;
-			}
-			return MVGameController.GameSessionData.gameMode == MVGameMode.Play || (MVGameController.GameSessionData.gameMode == MVGameMode.Edit && EditorController.PlayInEditor);
-		}
-	}
-
-	public MVJoinState JoinState
-	{
-		get
-		{
-			return _joinState;
-		}
-		private set
-		{
-			_joinState = value;
-		}
-	}
+	public bool IsPlaying => MVGameControllerBase.IsPlaying;
 
 	public MVNetworkGameStateListener NetworkGameStateListener => networkGameStateListener;
 
@@ -311,53 +291,6 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public InventoryExpirationChecker StreamingAssetExpirationChecker { get; private set; }
 
-	public AIngameController IngameController { get; private set; }
-
-	public AEditController EditController => IngameController as AEditController;
-
-	public CharacterEditorController CharacterEditorController
-	{
-		get
-		{
-			if (MVGameController.GameSessionData.gameMode == MVGameMode.CharacterEditor)
-			{
-				return IngameController as CharacterEditorController;
-			}
-			return null;
-		}
-	}
-
-	public EditorController EditorController
-	{
-		get
-		{
-			if (MVGameController.GameSessionData.gameMode == MVGameMode.Edit)
-			{
-				return IngameController as EditorController;
-			}
-			return null;
-		}
-	}
-
-	public PlayControllerBase PlayController
-	{
-		get
-		{
-			if (MVGameController.GameSessionData.gameMode == MVGameMode.Play)
-			{
-				return IngameController as PlayControllerBase;
-			}
-			if (MVGameController.GameSessionData.gameMode == MVGameMode.Edit)
-			{
-				return ((EditorController)IngameController).PlayController;
-			}
-			Debug.LogError("PlayController does not exist");
-			return null;
-		}
-	}
-
-	public bool IsTouristSession => MVGameController.GameSessionData.profileID <= 0;
-
 	public MVLocalPlayer LocalPlayer
 	{
 		get
@@ -396,8 +329,6 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public MVGameModeChangeNotifier GameStateController { get; private set; }
 
-	public MVCameraController CameraController { get; set; }
-
 	public FriendList Friends => friends;
 
 	public MVLocalObjectController PlayerController => playerController;
@@ -430,7 +361,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public MVNetworkGame()
 	{
-		CreateInGameController();
+		MVGameControllerBase.JoinState = MVJoinState.Joining;
 		peer = new PhotonPeer(this, ConnectionProtocol.Udp);
 		peer.DisconnectTimeout = 60000;
 		peer.DebugOut = DebugLevel.WARNING;
@@ -443,32 +374,9 @@ public class MVNetworkGame : IPhotonPeerListener
 		StreamingAssetInventory = new StreamingAssetInventory(StreamingAssetExpirationChecker);
 	}
 
-	private void CreateInGameController()
-	{
-		switch (MVGameController.GameSessionData.gameMode)
-		{
-		case MVGameMode.Play:
-			if (IsTouristSession)
-			{
-				IngameController = new PlayControllerTourist();
-			}
-			else
-			{
-				IngameController = new PlayController();
-			}
-			break;
-		case MVGameMode.Edit:
-			IngameController = new EditorController();
-			break;
-		case MVGameMode.CharacterEditor:
-			IngameController = new CharacterEditorController();
-			break;
-		}
-	}
-
 	private void networkGameStateListener_OnGameStateChanged(object sender, GameStateChangeEventArgs e)
 	{
-		if (JoinState == MVJoinState.Playing)
+		if (MVGameControllerBase.JoinState == MVJoinState.Playing)
 		{
 			MVGameStateType currentGameState = networkGameStateListener.CurrentGameState;
 			if (currentGameState == MVGameStateType.Round)
@@ -517,7 +425,6 @@ public class MVNetworkGame : IPhotonPeerListener
 		{
 			worldNetwork.WorldObjectClientManagerNetwork.Cleanup();
 		}
-		IngameController = null;
 	}
 
 	private void UpdateGame()
@@ -525,7 +432,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		if (peer != null)
 		{
 			Service();
-			if (JoinState == MVJoinState.Playing)
+			if (MVGameControllerBase.JoinState == MVJoinState.Playing)
 			{
 				CheckStreamingAsssetExpiration();
 				worldNetwork.Update(this);
@@ -537,7 +444,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	private void FixedUpdateGame()
 	{
-		if (peer != null && JoinState == MVJoinState.Playing)
+		if (peer != null && MVGameControllerBase.JoinState == MVJoinState.Playing)
 		{
 			worldNetwork.FixedUpdate();
 		}
@@ -553,67 +460,68 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	private void GotoNextJoinState()
 	{
-		switch (JoinState)
+		switch (MVGameControllerBase.JoinState)
 		{
 		case MVJoinState.Joining:
+			MVGameControllerBase.InitializeInGameController();
 			Debug.Log("Profile ID " + LocalPlayer.Username);
-			JoinState = MVJoinState.LoadGUI;
+			MVGameControllerBase.JoinState = MVJoinState.LoadGUI;
 			LoadModeGui();
 			break;
 		case MVJoinState.LoadGUI:
-			JoinState = MVJoinState.SynchronizingGameTime;
+			MVGameControllerBase.JoinState = MVJoinState.SynchronizingGameTime;
 			GetCreditStatus();
 			break;
 		case MVJoinState.SynchronizingGameTime:
 			peer.OpCustom(64, new Dictionary<byte, object>(), sendReliable: true);
-			JoinState = MVJoinState.FetchingCreditStatus;
+			MVGameControllerBase.JoinState = MVJoinState.FetchingCreditStatus;
 			break;
 		case MVJoinState.FetchingCreditStatus:
 		{
-			JoinState = MVJoinState.FetchingMaterials;
+			MVGameControllerBase.JoinState = MVJoinState.FetchingMaterials;
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
-			dictionary.Add(11, MVGameController.GameSessionData.profileID);
+			dictionary.Add(11, MVGameControllerBase.GameSessionData.profileID);
 			peer.OpCustom(46, dictionary, sendReliable: true);
 			break;
 		}
 		case MVJoinState.FetchingMaterials:
-			JoinState = MVJoinState.FetchingItemTypes;
+			MVGameControllerBase.JoinState = MVJoinState.FetchingItemTypes;
 			RequestDBQuery(DBQuery.RequestItemCategories, new Dictionary<object, object>());
 			break;
 		case MVJoinState.FetchingItemTypes:
-			JoinState = MVJoinState.FetchingOwnershipTypes;
+			MVGameControllerBase.JoinState = MVJoinState.FetchingOwnershipTypes;
 			RequestDBQuery(DBQuery.RequestPlanetOwnershipTypes, new Dictionary<object, object>());
 			break;
 		case MVJoinState.FetchingOwnershipTypes:
-			if (MVGameController.GameSessionData.gameMode == MVGameMode.Edit)
+			if (MVGameControllerBase.GameSessionData.gameMode == MVGameMode.Edit)
 			{
-				JoinState = MVJoinState.FetchingStreamingAssetsAmbientAudio;
+				MVGameControllerBase.JoinState = MVJoinState.FetchingStreamingAssetsAmbientAudio;
 			}
 			else
 			{
-				JoinState = MVJoinState.FetchingStreamingAssets;
+				MVGameControllerBase.JoinState = MVJoinState.FetchingStreamingAssets;
 			}
 			RequestStreamingAssetList(StreamingAssetType.AmbientAudio, StreamingAssetType.AvatarAccessory);
 			break;
 		case MVJoinState.FetchingStreamingAssetsAmbientAudio:
-			JoinState = MVJoinState.FetchingStreamingAssets;
+			MVGameControllerBase.JoinState = MVJoinState.FetchingStreamingAssets;
 			RequestStreamingAssetInventory(StreamingAssetType.AmbientAudio);
 			break;
 		case MVJoinState.FetchingStreamingAssets:
-			JoinState = MVJoinState.FetchingStreamingAssetInventory;
+			MVGameControllerBase.JoinState = MVJoinState.FetchingStreamingAssetInventory;
 			RequestStreamingAssetInventory(StreamingAssetType.AvatarAccessory);
 			break;
 		case MVJoinState.FetchingStreamingAssetInventory:
-			if (MVGameController.GameSessionData.gameMode == MVGameMode.Edit)
+			if (MVGameControllerBase.GameSessionData.gameMode == MVGameMode.Edit)
 			{
-				JoinState = MVJoinState.FetchingInventory;
+				MVGameControllerBase.JoinState = MVJoinState.FetchingInventory;
 				OnGetNextResultSetResponse = OnInventoryResultSetResponse;
 				Dictionary<object, object> inData = new Dictionary<object, object>();
 				RequestLargeDBQuery(MVOperationCodes.LargeDBQueryInventory, DBQuery.RequestInventory, inData, 10);
 			}
-			else if (MVGameController.GameSessionData.gameMode == MVGameMode.CharacterEditor)
+			else if (MVGameControllerBase.GameSessionData.gameMode == MVGameMode.CharacterEditor)
 			{
-				JoinState = MVJoinState.FetchingAvatarShopInventory;
+				MVGameControllerBase.JoinState = MVJoinState.FetchingAvatarShopInventory;
 				OnGetNextResultSetResponse = OnAvatarShopInventoryResultSetResponse;
 				Dictionary<object, object> inData2 = new Dictionary<object, object>();
 				RequestLargeDBQuery(MVOperationCodes.LargeDBQueryAvatarShopInventory, DBQuery.RequestAvatarShopInventory, inData2, 25);
@@ -624,9 +532,9 @@ public class MVNetworkGame : IPhotonPeerListener
 			}
 			break;
 		case MVJoinState.FetchingInventory:
-			if (MVGameController.GameSessionData.gameMode == MVGameMode.Edit)
+			if (MVGameControllerBase.GameSessionData.gameMode == MVGameMode.Edit)
 			{
-				JoinState = MVJoinState.FetchingShopInventory;
+				MVGameControllerBase.JoinState = MVJoinState.FetchingShopInventory;
 				OnGetNextResultSetResponse = OnShopInventoryResultSetResponse;
 				Dictionary<object, object> dictionary2 = new Dictionary<object, object>();
 				dictionary2.Add((byte)0, LocalPlayer.ProfileID);
@@ -638,40 +546,36 @@ public class MVNetworkGame : IPhotonPeerListener
 			}
 			break;
 		case MVJoinState.FetchingAvatarShopInventory:
-			JoinState = MVJoinState.InitializeAvatarEdit;
+			MVGameControllerBase.JoinState = MVJoinState.InitializeAvatarEdit;
 			peer.OpCustom(77, new Dictionary<byte, object>(), sendReliable: true);
 			break;
 		case MVJoinState.InitializeAvatarEdit:
 			FetchGameSnapshot();
 			break;
 		case MVJoinState.FetchingShopInventory:
-			JoinState = MVJoinState.FetchingBuiltInItems;
+			MVGameControllerBase.JoinState = MVJoinState.FetchingBuiltInItems;
 			peer.OpCustom(63, new Dictionary<byte, object>(), sendReliable: true);
 			break;
 		case MVJoinState.FetchingBuiltInItems:
 			FetchGameSnapshot();
 			break;
 		case MVJoinState.FetchingGameSnapShot:
-			JoinState = MVJoinState.FetchingFriends;
+			MVGameControllerBase.JoinState = MVJoinState.FetchingFriends;
 			peer.OpCustom(20, new Dictionary<byte, object>(), sendReliable: true);
 			break;
 		case MVJoinState.FetchingFriends:
-			JoinState = MVJoinState.SettingTeam;
-			SelectTeamFromJoinFlow();
-			break;
-		case MVJoinState.SettingTeam:
-			JoinState = MVJoinState.SettingActorReady;
-			WorldObjectClientManager.AvatarLocal.Respawn(toHiddenState: true);
-			CameraController.GetCamera<JetPackCamera>().SetCameraToAvatarEulerHack();
+			MVGameControllerBase.JoinState = MVJoinState.SettingActorReady;
 			SetActorReady();
 			break;
+		case MVJoinState.SettingTeam:
+			break;
 		case MVJoinState.SettingActorReady:
-			JoinState = MVJoinState.FetchingActiveAvatar;
+			MVGameControllerBase.JoinState = MVJoinState.FetchingActiveAvatar;
 			GotoNextJoinState();
 			break;
 		case MVJoinState.FetchingActiveAvatar:
-			JoinState = MVJoinState.Playing;
-			if (MVGameController.GameSessionData.gameMode == MVGameMode.CharacterEditor)
+			MVGameControllerBase.JoinState = MVJoinState.Playing;
+			if (MVGameControllerBase.GameSessionData.gameMode == MVGameMode.CharacterEditor)
 			{
 				peer.OpCustom(61, new Dictionary<byte, object>(), sendReliable: true);
 			}
@@ -682,7 +586,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			break;
 		case MVJoinState.Playing:
 			StatHatWrapper.Value("JoinTime", Time.realtimeSinceStartup);
-			if (IsTouristSession)
+			if (MVGameControllerBase.IsTouristSession)
 			{
 				StatHatWrapper.Count("SessionType.Tourist" + gameType, 1);
 			}
@@ -704,7 +608,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		ConnState = MVConnState.Connecting;
 		try
 		{
-			return peer.Connect(MVGameController.GameSessionData.serverIP, "MVGameServer");
+			return peer.Connect(MVGameControllerBase.GameSessionData.serverIP, "MVGameServer");
 		}
 		catch (SecurityException ex)
 		{
@@ -736,7 +640,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		if (flag2 || StreamingAssetExpirationChecker.ContainsExpired())
 		{
 			lastDataFetchCheck++;
-			if (MVGameController.GameSessionData.gameMode != MVGameMode.CharacterEditor && body.AccessoriesLoaded)
+			if (MVGameControllerBase.GameSessionData.gameMode != MVGameMode.CharacterEditor && body.AccessoriesLoaded)
 			{
 				hashSet2 = body.GetAccessoryIDs();
 				hashSet.UnionWith(hashSet2);
@@ -789,13 +693,13 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	private void FetchGameSnapshot()
 	{
-		JoinState = MVJoinState.FetchingGameSnapShot;
+		MVGameControllerBase.JoinState = MVJoinState.FetchingGameSnapShot;
 		peer.OpCustom(69, new Dictionary<byte, object>(), sendReliable: true);
 	}
 
 	public void PublishPlanet()
 	{
-		if (MVGameController.Game == null || JoinState != MVJoinState.Playing || MVGameController.GameSessionData.gameMode != MVGameMode.Edit)
+		if (MVGameControllerBase.Game == null || MVGameControllerBase.JoinState != MVJoinState.Playing || MVGameControllerBase.GameSessionData.gameMode != MVGameMode.Edit)
 		{
 			return;
 		}
@@ -820,13 +724,13 @@ public class MVNetworkGame : IPhotonPeerListener
 		}
 		else
 		{
-			PublishPlanet(new byte[0], ImageType.Planet, MVGameController.GameSessionData.planetID);
+			PublishPlanet(new byte[0], ImageType.Planet, MVGameControllerBase.GameSessionData.planetID);
 		}
 	}
 
 	public void UploadGameScreenShot()
 	{
-		if (MVGameController.Game.LocalPlayer.PlanetOwnershipTypeID != 2)
+		if (MVGameControllerBase.Game.LocalPlayer.PlanetOwnershipTypeID != 2)
 		{
 			Debug.LogWarning("No screen shot when not planet owner");
 		}
@@ -848,7 +752,7 @@ public class MVNetworkGame : IPhotonPeerListener
 	{
 		GameObject gameObject = new GameObject("GenerateTexture");
 		GenerateTextureData generateTextureData = gameObject.AddComponent<GenerateTextureData>();
-		generateTextureData.GenerateTextureDataCameraView(callback, ImageType.Planet, MVGameController.GameSessionData.planetID);
+		generateTextureData.GenerateTextureDataCameraView(callback, ImageType.Planet, MVGameControllerBase.GameSessionData.planetID);
 	}
 
 	public bool IsOperationPending(MVOperationCodes operationCode)
@@ -858,7 +762,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	private bool PublishPlanet(byte[] pngImageAsByteArray, ImageType image, int imageId)
 	{
-		MVGameController.Game.MaterialRepository.Validate();
+		MVGameControllerBase.Game.MaterialRepository.Validate();
 		Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 		dictionary.Add(62, pngImageAsByteArray);
 		return operationResponsePendingManager.AddOperationCodeToPending(MVOperationCodes.PublishPlanet, dictionary);
@@ -883,7 +787,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public void Ban(CheatType cheatType)
 	{
-		if (!IsTouristSession)
+		if (!MVGameControllerBase.IsTouristSession)
 		{
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(179, (byte)cheatType);
@@ -925,7 +829,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public void AddWorldObjectToInventory(int worldObjectID, byte[] itemTextureData)
 	{
-		MVGameController.Game.MaterialRepository.Validate();
+		MVGameControllerBase.Game.MaterialRepository.Validate();
 		Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 		dictionary.Add(20, worldObjectID);
 		dictionary.Add(42, itemTextureData);
@@ -1190,7 +1094,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public void UpdateWorldObject(int id, Vector3 position, byte[] rotation, TransformPackageType packageType)
 	{
-		if (JoinState == MVJoinState.Playing)
+		if (MVGameControllerBase.JoinState == MVJoinState.Playing)
 		{
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(20, id);
@@ -1220,7 +1124,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public void UpdateNetworkInput(int id, NetworkInputActionCodes actionCode, NetworkInputKeyCodes keyCode)
 	{
-		if (JoinState == MVJoinState.Playing)
+		if (MVGameControllerBase.JoinState == MVJoinState.Playing)
 		{
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(20, id);
@@ -1435,18 +1339,18 @@ public class MVNetworkGame : IPhotonPeerListener
 	{
 		ConnState = MVConnState.Joining;
 		Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
-		Debug.Log("JoinGame " + MVGameController.GameSessionData.planetID);
-		if (MVGameController.GameSessionData.gameMode == MVGameMode.CharacterEditor)
+		Debug.Log("JoinGame " + MVGameControllerBase.GameSessionData.planetID);
+		if (MVGameControllerBase.GameSessionData.gameMode == MVGameMode.CharacterEditor)
 		{
 			Debug.Log("Setting planetId to -1 as GameMode CharacterEditor is not using a planet");
 		}
-		dictionary.Add(byte.MaxValue, MVGameController.GameSessionData.planetName);
-		dictionary.Add(86, MVGameController.GameSessionData.planetID);
-		dictionary.Add(116, MVGameController.GameSessionData.gameMode);
-		dictionary.Add(155, MVGameController.GameSessionData.language);
-		dictionary.Add(168, MVGameController.GameSessionData.token);
-		dictionary.Add(172, MVGameController.GameSessionData.newToken);
-		dictionary.Add(173, MVGameController.GameSessionData.newPlanetName);
+		dictionary.Add(byte.MaxValue, MVGameControllerBase.GameSessionData.planetName);
+		dictionary.Add(86, MVGameControllerBase.GameSessionData.planetID);
+		dictionary.Add(116, MVGameControllerBase.GameSessionData.gameMode);
+		dictionary.Add(155, MVGameControllerBase.GameSessionData.language);
+		dictionary.Add(168, MVGameControllerBase.GameSessionData.token);
+		dictionary.Add(172, MVGameControllerBase.GameSessionData.newToken);
+		dictionary.Add(173, MVGameControllerBase.GameSessionData.newPlanetName);
 		BuildTarget buildTarget = BuildTarget.StandAlone;
 		dictionary.Add(189, buildTarget);
 		peer.OpCustom(byte.MaxValue, dictionary, sendReliable: true);
@@ -1502,7 +1406,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public void TriggerBoxEnter(int triggerBoxOwnerId, int triggerInstigatorId)
 	{
-		if (JoinState == MVJoinState.Playing)
+		if (MVGameControllerBase.JoinState == MVJoinState.Playing)
 		{
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(20, new int[2] { triggerBoxOwnerId, triggerInstigatorId });
@@ -1512,7 +1416,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public void TriggerBoxExit(int triggerBoxOwnerId, int triggerInstigatorId)
 	{
-		if (JoinState == MVJoinState.Playing)
+		if (MVGameControllerBase.JoinState == MVJoinState.Playing)
 		{
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(20, new int[2] { triggerBoxOwnerId, triggerInstigatorId });
@@ -1522,7 +1426,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public bool UploadScreenshot(byte[] textureData, ImageType imageType, int imageId)
 	{
-		MVGameController.Game.MaterialRepository.Validate();
+		MVGameControllerBase.Game.MaterialRepository.Validate();
 		Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 		dictionary.Add(118, textureData);
 		dictionary.Add(119, imageId);
@@ -1580,9 +1484,6 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public void PurchaseAvatar(int avatarId)
 	{
-		PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Combine(PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(OnProductPurchaseAvatarResponse));
-		WorldNetwork worldNetwork = this.worldNetwork;
-		worldNetwork.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Combine(worldNetwork.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(InitializedPurchasedAvatar));
 		Dictionary<object, object> dictionary = new Dictionary<object, object>();
 		dictionary.Add((byte)126, avatarId);
 		PurchaseProduct(MVProductType.Avatar, dictionary);
@@ -1694,17 +1595,6 @@ public class MVNetworkGame : IPhotonPeerListener
 		RentProduct(MVProductType.StreamingAsset, dictionary);
 	}
 
-	private void OnProductPurchaseAvatarResponse(int returnCode, Dictionary<object, object> purchaseResponseData)
-	{
-		PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Remove(PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(OnProductPurchaseAvatarResponse));
-		Debug.Log("Avatar purchase response: " + (MVPurchaseReturnCode)returnCode);
-		if (returnCode != 0)
-		{
-			WorldNetwork worldNetwork = this.worldNetwork;
-			worldNetwork.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Remove(worldNetwork.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(InitializedPurchasedAvatar));
-		}
-	}
-
 	private void ExpireProduct(MVProductType productTypeID, int productInventoryID, Dictionary<object, object> expireProductData)
 	{
 		Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
@@ -1769,48 +1659,10 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public void ResetAvatar(int AvatarID)
 	{
-		if (avatarResetPending)
-		{
-			Debug.LogWarning("Avatar reset is pending");
-			return;
-		}
-		avatarResetPending = true;
-		WorldNetwork worldNetwork = this.worldNetwork;
-		worldNetwork.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Combine(worldNetwork.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(InitializedResetAvatar));
 		Debug.Log("Reset ActiveAvatar  called");
 		Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 		dictionary.Add(126, AvatarID);
 		peer.OpCustom(60, dictionary, sendReliable: true);
-	}
-
-	private void InitializedResetAvatar(object sender, InitializedGameQueryDataEventArgs e)
-	{
-		WorldNetwork worldNetwork = this.worldNetwork;
-		worldNetwork.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Remove(worldNetwork.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(InitializedResetAvatar));
-		avatarResetPending = false;
-		if (e.RootWO != null)
-		{
-			Debug.Log("Reset avatar has been added to world. WorldObjectId is: " + e.RootWO);
-			(IngameController as CharacterEditorController).SubstituteAvatar(e.RootWO.Id);
-		}
-	}
-
-	private void InitializedPurchasedAvatar(object sender, InitializedGameQueryDataEventArgs e)
-	{
-		WorldNetwork worldNetwork = this.worldNetwork;
-		worldNetwork.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Remove(worldNetwork.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(InitializedPurchasedAvatar));
-		if (e.RootWO != null)
-		{
-			Debug.Log("Purchased avatar has been added to world. WorldObjectId is: " + e.RootWO);
-			(IngameController as CharacterEditorController).AddNewAvatar(e.RootWO.Id);
-			MVWorldObjectClient worldObjectClient = WorldObjectClientManager.GetWorldObjectClient(e.RootWO.Id);
-			GameObject bodyCloneGO = UnityEngine.Object.Instantiate(worldObjectClient.GameObject);
-			Action<Texture2D> screenShotDataTexHandler = (Texture2D pngData) =>
-			{
-				UploadScreenshot(pngData.EncodeToPNG(), ImageType.Avatar, LocalPlayer.ProfileID);
-			};
-			AvatarScreenshotGenerator.Generate(bodyCloneGO, screenShotDataTexHandler);
-		}
 	}
 
 	public void SetActiveAvatar(int AvatarID)
@@ -1893,31 +1745,29 @@ public class MVNetworkGame : IPhotonPeerListener
 	{
 		Dictionary<object, object> prices = (Dictionary<object, object>)returnValues[183];
 		PricesManager.Init(prices);
-		Debug.Log("GameCoinBoost left " + (int)returnValues[180]);
 		gameCoinManager = new MVGameCoinManager((int)returnValues[180]);
 		MarketPlaceLevel = (int)returnValues[182];
 		PublishLevel = (int)returnValues[185];
 		XpKey = SecurityHelper.Decrypt((string)returnValues[178]);
 		sessionTime = new SessionTime();
-		if (!MVGameController.UsingDevSessionData)
+		if (!MVGameControllerBase.UsingDevSessionData)
 		{
 			new SessionLocatorPing();
 		}
+		gameType = (MVGameType)(int)returnValues[171];
 		InitializeManagers();
 		int actorNumber = (int)returnValues[254];
 		int planetOwnershipTypeID = (int)returnValues[14];
 		LocalPlayerActorNumber = actorNumber;
 		Debug.Log("Username " + (string)returnValues[9]);
-		MVLocalPlayer mVLocalPlayer = ((!IsTouristSession) ? ((MVLocalPlayer)new MVLocalPlayerRegistered(actorNumber, MVGameController.GameSessionData.profileID, (string)returnValues[9], MVGameController.GameSessionData.language)) : ((MVLocalPlayer)new MVLocalPlayerTourist(actorNumber, MVGameController.GameSessionData.profileID, (string)returnValues[9], MVGameController.GameSessionData.language)));
+		MVLocalPlayer mVLocalPlayer = ((!MVGameControllerBase.IsTouristSession) ? ((MVLocalPlayer)new MVLocalPlayerRegistered(actorNumber, MVGameControllerBase.GameSessionData.profileID, (string)returnValues[9], MVGameControllerBase.GameSessionData.language)) : ((MVLocalPlayer)new MVLocalPlayerTourist(actorNumber, MVGameControllerBase.GameSessionData.profileID, (string)returnValues[9], MVGameControllerBase.GameSessionData.language)));
 		mVLocalPlayer.OnLevelChanged = (MVPlayer.OnLevelChangedDelegate)Delegate.Combine(mVLocalPlayer.OnLevelChanged, new MVPlayer.OnLevelChangedDelegate(LocalPlayerLevelChanged));
 		mVLocalPlayer.PlanetOwnershipTypeID = planetOwnershipTypeID;
+		mVLocalPlayer.Team = (MVTeam)(int)returnValues[89];
 		AddPlayer(mVLocalPlayer);
 		MVClientSettings.ClientSettingFlags = (ClientSettingFlags)(int)returnValues[169];
 		isPublished = (bool)returnValues[81];
-		gameType = (MVGameType)(int)returnValues[171];
-		Debug.Log("GAME-TYPE = " + gameType);
-		Debug.Log("Loading level joined");
-		MVGameController.LevelLoader.LoadLevel("Joined", LoadMode.Overwrite, OnJoinedLevelLoaded);
+		GotoNextJoinState();
 		string apiUrl = (string)returnValues[175];
 		string streamingAssetsUrl = (string)returnValues[104];
 		if (Application.isEditor)
@@ -1925,16 +1775,14 @@ public class MVNetworkGame : IPhotonPeerListener
 			streamingAssetsUrl = (string)returnValues[104];
 		}
 		Urls.Init(apiUrl, streamingAssetsUrl);
-		Debug.Log("Load language");
-		TM.LoadLanguage(MVGameController.GameSessionData.language);
-		Debug.Log("Initialize leveling manager");
+		TM.LoadLanguage(MVGameControllerBase.GameSessionData.language);
 		LevelingManager.Initialize(mVLocalPlayer.ProfileID);
 	}
 
 	private void InitializeManagers()
 	{
 		worldNetwork = new WorldNetwork();
-		playerController = new MVLocalObjectController(worldNetwork.WorldObjectClientManagerNetwork);
+		playerController = new MVLocalObjectController(worldNetwork.WorldObjectClientManagerNetwork, gameType);
 		materialRepository = new MVMaterialRepository();
 		playerRepository = new PlayerRepository();
 		shopRepository = new ShopRepository();
@@ -1949,7 +1797,6 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public void OnJoinedLevelLoaded()
 	{
-		Debug.Log("LevelLoaded");
 		GotoNextJoinState();
 	}
 
@@ -1981,7 +1828,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		{
 			throw new Exception("Default material is invalid");
 		}
-		MVGameController.RegisterOverrideMaterials();
+		MVGameControllerBase.RegisterOverrideMaterials();
 		GotoNextJoinState();
 	}
 
@@ -2001,8 +1848,6 @@ public class MVNetworkGame : IPhotonPeerListener
 					string userName = (string)(userList[key] as Dictionary<byte, object>)[9];
 					int level = (int)(userList[key] as Dictionary<byte, object>)[170];
 					string regionCode = (string)(userList[key] as Dictionary<byte, object>)[155];
-					Dictionary<byte, object> dictionary = userList[key] as Dictionary<byte, object>;
-					Debug.Log("testing " + dictionary);
 					MVPlayer mVPlayer = new MVPlayer(key, profileID, userName, level, regionCode);
 					mVPlayer.Team = (MVTeam)team;
 					AddPlayer(mVPlayer);
@@ -2065,9 +1910,9 @@ public class MVNetworkGame : IPhotonPeerListener
 		{
 			Debug.LogError("RootGroup is not found!");
 		}
-		if (MVGameController.OnPostGameInit != null)
+		if (MVGameControllerBase.OnPostGameInit != null)
 		{
-			MVGameController.OnPostGameInit();
+			MVGameControllerBase.OnPostGameInit();
 		}
 		GotoNextJoinState();
 	}
@@ -2204,7 +2049,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	private void OnUpdateWorldObjectEvent(EventData photonEvent)
 	{
-		if (JoinState != MVJoinState.Playing)
+		if (MVGameControllerBase.JoinState != MVJoinState.Playing)
 		{
 			return;
 		}
@@ -2237,7 +2082,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	private void OnWorldObjectRPCEvent(EventData photonEvent)
 	{
-		if (JoinState == MVJoinState.Playing)
+		if (MVGameControllerBase.JoinState == MVJoinState.Playing)
 		{
 			int id = (int)photonEvent[20];
 			if (WorldObjectClientManager.GetWorldObjectClient(id) == null)
@@ -2492,20 +2337,21 @@ public class MVNetworkGame : IPhotonPeerListener
 		if (Players.ContainsKey(player.ActorNr))
 		{
 			Debug.LogWarning("Duplicate player " + player.Username + " " + player.ActorNr);
-			return;
 		}
-		Debug.Log("Adding player " + player.Username + " " + player.ActorNr);
-		Players.Add(player.ActorNr, player);
-		if (onPlayerListChanged != null)
+		else
 		{
-			onPlayerListChanged();
+			Players.Add(player.ActorNr, player);
+			if (onPlayerListChanged != null)
+			{
+				onPlayerListChanged();
+			}
 		}
 	}
 
 	private void SelectTeamFromJoinFlow()
 	{
 		List<MVTeam> teamList = TeamManager.GetTeamList();
-		if (teamList.Count == 1 || MVGameController.GameSessionData.gameMode != MVGameMode.Play)
+		if (teamList.Count == 1 || MVGameControllerBase.GameSessionData.gameMode != MVGameMode.Play)
 		{
 			SetTeam(teamList[0]);
 		}
@@ -2523,7 +2369,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public void ResetPlayer()
 	{
-		MVGameController.WOCM.AvatarLocal.Respawn(toHiddenState: true);
+		MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Hidden);
 		worldNetwork.WorldObjectClientManagerNetwork.ResetLocalWorldObject();
 		gameCoinManager.Reset(this);
 		LocalPlayer.ResetCheckpoint();
@@ -2616,7 +2462,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	private void OnPostWinnerReportEvent()
 	{
-		IWinningCondition winningCondition = null;
+		IWinningCondition obj = null;
 		if (winningConditionManager.WinningConditionFound)
 		{
 			List<IWinningCondition> forfilledWinningConditions = winningConditionManager.GetForfilledWinningConditions();
@@ -2630,13 +2476,16 @@ public class MVNetworkGame : IPhotonPeerListener
 				Debug.LogError("Only 1 winning condition currently supported");
 				return;
 			}
-			winningCondition = forfilledWinningConditions[0];
+			obj = forfilledWinningConditions[0];
 		}
 		else
 		{
 			Debug.LogError("Did not find winner condition");
 		}
-		PlayController.OnWinningConditionReceived(winningCondition);
+		if (OnWinningCondition != null)
+		{
+			OnWinningCondition(obj);
+		}
 	}
 
 	private void OnCollectiblePickedUp(EventData photonEvent)
@@ -2833,7 +2682,10 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	private void OnGetActiveAvatarResponse(int returnCode, int woid)
 	{
-		(IngameController as CharacterEditorController).SetActiveAvatar(woid);
+		if (OnActiveAvatar != null)
+		{
+			OnActiveAvatar(woid);
+		}
 		GotoNextJoinState();
 	}
 
@@ -2847,11 +2699,11 @@ public class MVNetworkGame : IPhotonPeerListener
 		GameStatCounterManager.RemoveStatsFromActor(actorNr);
 		if (LocalPlayer.ActorNr == actorNr)
 		{
-			if (MVGameController.Game.IsPlaying)
+			if (MVGameControllerBase.Game.IsPlaying)
 			{
-				MVGameController.Game.ResetPlayer();
+				MVGameControllerBase.Game.ResetPlayer();
 			}
-			if (JoinState == MVJoinState.SettingTeam)
+			if (MVGameControllerBase.JoinState == MVJoinState.SettingTeam)
 			{
 				GotoNextJoinState();
 			}
@@ -2893,7 +2745,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		{
 			Debug.LogError("OnDBQueryResponse: outData is null");
 		}
-		else if (JoinState == MVJoinState.FetchingItemTypes)
+		else if (MVGameControllerBase.JoinState == MVJoinState.FetchingItemTypes)
 		{
 			Dictionary<string, int> dictionary = new Dictionary<string, int>();
 			foreach (object key in outData.Keys)
@@ -2902,14 +2754,14 @@ public class MVNetworkGame : IPhotonPeerListener
 			}
 			itemCategories = new ItemCategories(dictionary);
 		}
-		else if (JoinState == MVJoinState.FetchingOwnershipTypes)
+		else if (MVGameControllerBase.JoinState == MVJoinState.FetchingOwnershipTypes)
 		{
 			foreach (object key2 in outData.Keys)
 			{
 				PlayerRepository.PlanetOwnershipTypes.Add((int)key2, (string)outData[(int)key2]);
 			}
 		}
-		if (JoinState != MVJoinState.Playing)
+		if (MVGameControllerBase.JoinState != MVJoinState.Playing)
 		{
 			GotoNextJoinState();
 		}
@@ -2917,8 +2769,8 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public void OnDBQueryFailed(DBReasonCode reason)
 	{
-		Debug.Log("DBQuery failed during GameState '" + JoinState.ToString() + "'. Reason: " + reason);
-		if (JoinState != MVJoinState.Playing)
+		Debug.Log("DBQuery failed during GameState '" + MVGameControllerBase.JoinState.ToString() + "'. Reason: " + reason);
+		if (MVGameControllerBase.JoinState != MVJoinState.Playing)
 		{
 			GotoNextJoinState();
 		}
@@ -3136,14 +2988,14 @@ public class MVNetworkGame : IPhotonPeerListener
 				OnJoinResponse(parameters);
 				break;
 			case -12:
-				if (MVGameController.TryReauth())
+				if (MVGameControllerBase.TryReauth())
 				{
 					break;
 				}
 				goto default;
 			default:
 				Debug.Log("Quiting from join because of of ping not ok and out of reauth");
-				MVGameController.ApplicationQuit(new QuitConnectionError());
+				MVGameControllerBase.ApplicationQuit(new QuitConnectionError());
 				break;
 			}
 			break;
@@ -3171,13 +3023,13 @@ public class MVNetworkGame : IPhotonPeerListener
 			{
 				uXDialogFactory.Show();
 			}
-			if (!string.IsNullOrEmpty(MVGameController.GameSessionData.gamePublishedURL))
+			if (!string.IsNullOrEmpty(MVGameControllerBase.GameSessionData.gamePublishedURL))
 			{
 				WWWForm wWWForm = new WWWForm();
-				wWWForm.AddField("token", MVGameController.GameSessionData.token);
-				wWWForm.AddField("profile_id", MVGameController.GameSessionData.profileID);
-				wWWForm.AddField("planet_id", MVGameController.GameSessionData.planetID);
-				AsyncWWWManager.WWWRequest(new PostRequest(MVGameController.GameSessionData.gamePublishedURL, wWWForm, null));
+				wWWForm.AddField("token", MVGameControllerBase.GameSessionData.token);
+				wWWForm.AddField("profile_id", MVGameControllerBase.GameSessionData.profileID);
+				wWWForm.AddField("planet_id", MVGameControllerBase.GameSessionData.planetID);
+				AsyncWWWManager.WWWRequest(new PostRequest(MVGameControllerBase.GameSessionData.gamePublishedURL, wWWForm, null));
 			}
 			else
 			{
@@ -3186,13 +3038,13 @@ public class MVNetworkGame : IPhotonPeerListener
 			break;
 		}
 		case MVOperationCodes.SetActorReady:
-			if (JoinState == MVJoinState.SettingActorReady)
+			if (MVGameControllerBase.JoinState == MVJoinState.SettingActorReady)
 			{
 				GotoNextJoinState();
 			}
 			else
 			{
-				Debug.LogError("SetActorReady returned, but we're not in SettingActorReadyState, but in " + JoinState);
+				Debug.LogError("SetActorReady returned, but we're not in SettingActorReadyState, but in " + MVGameControllerBase.JoinState);
 			}
 			break;
 		case MVOperationCodes.GetBuiltInItemBusinessData:
@@ -3362,21 +3214,6 @@ public class MVNetworkGame : IPhotonPeerListener
 			break;
 		case MVOperationCodes.CloneWorldObjectTree:
 		{
-			if (returnCode == -1)
-			{
-				Debug.LogWarning("CloneWorldObjectTree failed. This should be handled in a general way!");
-				if (MVGameController.GameSessionData.gameMode == MVGameMode.Edit)
-				{
-					EditController.EditorStateMachine.Event = EditorEvent.ESTerrainEdit;
-				}
-				break;
-			}
-			foreach (KeyValuePair<byte, object> item in parameters)
-			{
-				Debug.Log("key " + item.Key);
-				Debug.Log("key " + item.Value);
-			}
-			Debug.Log(string.Empty);
 			int num4 = (int)parameters[20];
 			Debug.Log("rootID " + num4);
 			this.worldNetwork.WorldObjectClientManagerNetwork.OnCloneWorldObjectTreeResponse(returnCode == 0, num4);
@@ -3474,7 +3311,6 @@ public class MVNetworkGame : IPhotonPeerListener
 			int startTime = (int)parameters[65];
 			int duration = (int)parameters[64];
 			MVGameStateReason reason = (MVGameStateReason)(int)parameters[66];
-			Debug.Log((int)parameters[157]);
 			byte[] stats = (byte[])parameters[159];
 			gameStatCounterManager.SetStats(stats);
 			gameStatCounterManager.OnCounterTypeChanged += GameSessionCounterRules.OnCounterTypeChanged;
@@ -3492,13 +3328,9 @@ public class MVNetworkGame : IPhotonPeerListener
 			PlayerController.HandleAttachWorldObjectToSeat(returnCode == 0);
 			break;
 		case MVOperationCodes.AddItemToWorld:
-			if (returnCode == -1)
+			if (OnItemAddedToWorld != null)
 			{
-				Debug.LogWarning("Add item to world returned -1. This means that a singleton wo is already present and thus the request was rejected. We need a way to handle server operations in consistent manner.");
-				if (MVGameController.GameSessionData.gameMode == MVGameMode.Edit)
-				{
-					EditController.EditorStateMachine.Event = EditorEvent.ESTerrainEdit;
-				}
+				OnItemAddedToWorld(returnCode == -1);
 			}
 			break;
 		case MVOperationCodes.InitializeAvatarEdit:
@@ -3561,7 +3393,7 @@ public class MVNetworkGame : IPhotonPeerListener
 					Dictionary<object, object> dictionary2 = new Dictionary<object, object>();
 					dictionary2[(byte)0] = num4;
 					dictionary2[(byte)3] = mVPlayer.Username;
-					dictionary2[(byte)6] = MVGameController.Game.Friends.IsFriend(mVPlayer.ProfileID);
+					dictionary2[(byte)6] = MVGameControllerBase.Game.Friends.IsFriend(mVPlayer.ProfileID);
 					OnReceivedGameMsg(MVGameMsgType.UserLeft, dictionary2);
 				}
 			}
@@ -3923,40 +3755,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	private void LoadModeGui()
 	{
-		switch (MVGameController.GameSessionData.gameMode)
-		{
-		case MVGameMode.Play:
-			LoadPlayModeBaseGUI();
-			break;
-		case MVGameMode.Edit:
-			MVGameController.LevelLoader.LoadLevel("EditModeGUI", LoadMode.Additive, LoadPlayModeBaseGUI);
-			break;
-		case MVGameMode.CharacterEditor:
-			MVGameController.LevelLoader.LoadLevel("AvatarEditModeGUI", LoadMode.Additive, GotoNextJoinState);
-			break;
-		}
-	}
-
-	private void LoadPlayModeBaseGUI()
-	{
-		if (IsTouristSession)
-		{
-			MVGameController.LevelLoader.LoadLevel("PlayModeBaseGUI", LoadMode.Additive, LoadPlayModeTourist);
-		}
-		else
-		{
-			MVGameController.LevelLoader.LoadLevel("PlayModeBaseGUI", LoadMode.Additive, LoadPlayModeGUI);
-		}
-	}
-
-	private void LoadPlayModeGUI()
-	{
-		MVGameController.LevelLoader.LoadLevel("PlayModeGUI", LoadMode.Additive, GotoNextJoinState);
-	}
-
-	private void LoadPlayModeTourist()
-	{
-		MVGameController.LevelLoader.LoadLevel("PlayModeTouristGUI", LoadMode.Additive, GotoNextJoinState);
+		MVGameControllerBase.LevelLoader.LoadScenes(MVGameControllerBase.GameMode, gameType, MVGameControllerBase.IsTouristSession, GotoNextJoinState);
 	}
 
 	public void OnStatusChanged(StatusCode returnCode)
@@ -3983,7 +3782,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			if (ConnState != MVConnState.DisconnectedByUser)
 			{
 				ConnState = MVConnState.Disconnected;
-				MVGameController.ApplicationQuit(new QuitConnectionError());
+				MVGameControllerBase.ApplicationQuit(new QuitConnectionError());
 			}
 			break;
 		default:
@@ -4000,7 +3799,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			if (debug.Contains("Exiting receive thread (inside loop) due to error"))
 			{
 				Debug.LogError("Leave hack. Fix this!!");
-				MVGameController.ApplicationQuit(new QuitConnectionError());
+				MVGameControllerBase.ApplicationQuit(new QuitConnectionError());
 			}
 		}
 		Debug.Log(debug);

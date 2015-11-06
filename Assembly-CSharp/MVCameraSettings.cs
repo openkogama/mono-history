@@ -23,8 +23,8 @@ public class MVCameraSettings : MVLogicObject
 
 	public override void OnDataUpdate()
 	{
-		PlaymodeCamera playmodeCamera = GameDB.GetPlaymodeCamera();
-		playmodeCamera.UpdateFromCameraSettings(Data);
+		ICameraSettings settings = MVCameraController.GetSettings(MVGameControllerBase.Game.GameType);
+		settings.UpdateFromCameraSettings(Data);
 	}
 
 	public override bool IsSingletonObject()
@@ -34,8 +34,8 @@ public class MVCameraSettings : MVLogicObject
 
 	public override void Destroy()
 	{
-		PlaymodeCamera playmodeCamera = GameDB.GetPlaymodeCamera();
-		playmodeCamera.SetDefaultSettings();
+		ICameraSettings settings = MVCameraController.GetSettings(MVGameControllerBase.Game.GameType);
+		settings.SetDefaultSettings();
 		base.Destroy();
 	}
 }

@@ -3,12 +3,12 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyProduct("MVCommon")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2011")]
 [assembly: AssemblyTitle("MVCommon")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Microsoft")]
+[assembly: AssemblyProduct("MVCommon")]
+[assembly: AssemblyCopyright("Copyright © Microsoft 2011")]
 [assembly: AssemblyTrademark("")]
 [assembly: ComVisible(false)]
 [assembly: Guid("0e585335-9dd1-49f8-9c43-0cd3515877fe")]

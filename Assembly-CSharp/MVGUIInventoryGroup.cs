@@ -52,7 +52,7 @@ public class MVGUIInventoryGroup : MonoBehaviour
 
 	protected virtual void InitializeCollectionView()
 	{
-		repositoryCollection = new PlayerRepositoryCollection(MVGameController.Game.PlayerRepository, allowedCategoriesTypes);
+		repositoryCollection = new PlayerRepositoryCollection(MVGameControllerBase.Game.PlayerRepository, allowedCategoriesTypes);
 		collectionView.Initialize();
 		collectionView.InstansiateViewItem = InstansiateViewItem;
 		UXCollectionView uXCollectionView = collectionView;
@@ -120,7 +120,7 @@ public class MVGUIInventoryGroup : MonoBehaviour
 	public virtual void InitializeAfterReset()
 	{
 		CreatePreviewItemRoot();
-		repositoryCollection = new PlayerRepositoryCollection(MVGameController.Game.PlayerRepository, allowedCategoriesTypes);
+		repositoryCollection = new PlayerRepositoryCollection(MVGameControllerBase.Game.PlayerRepository, allowedCategoriesTypes);
 		collectionView.Collection = repositoryCollection;
 	}
 
@@ -133,11 +133,16 @@ public class MVGUIInventoryGroup : MonoBehaviour
 			Debug.LogError("destination or source null");
 			return;
 		}
-		MVGameController.Game.PlayerRepository.SwapItems(mVItem.itemID, mVItem2.itemID);
+		if (mVItem2.itemID == mVItem.itemID)
+		{
+			Debug.LogWarning("Source and destination item are the same. This is cause by dragging the item slightly but without moving it to the next slot");
+			return;
+		}
+		MVGameControllerBase.Game.PlayerRepository.SwapItems(mVItem.itemID, mVItem2.itemID);
 		Dictionary<object, object> dictionary = new Dictionary<object, object>();
-		dictionary.Add(mVItem.itemID, MVGameController.Game.PlayerRepository.itemIDToInventorySlotIndex[mVItem.itemID]);
-		dictionary.Add(mVItem2.itemID, MVGameController.Game.PlayerRepository.itemIDToInventorySlotIndex[mVItem2.itemID]);
-		MVGameController.Game.UpdateInventorySlots(dictionary);
+		dictionary.Add(mVItem.itemID, MVGameControllerBase.Game.PlayerRepository.itemIDToInventorySlotIndex[mVItem.itemID]);
+		dictionary.Add(mVItem2.itemID, MVGameControllerBase.Game.PlayerRepository.itemIDToInventorySlotIndex[mVItem2.itemID]);
+		MVGameControllerBase.Game.UpdateInventorySlots(dictionary);
 	}
 
 	private void OnMoveItem(IUXCollectionItem item, int destinationIndex)
@@ -148,10 +153,10 @@ public class MVGUIInventoryGroup : MonoBehaviour
 			return;
 		}
 		MVItem mVItem = (MVItem)item.Object;
-		MVGameController.Game.PlayerRepository.MoveItem(mVItem.itemID, destinationIndex);
+		MVGameControllerBase.Game.PlayerRepository.MoveItem(mVItem.itemID, destinationIndex);
 		Dictionary<object, object> dictionary = new Dictionary<object, object>();
-		dictionary.Add(mVItem.itemID, MVGameController.Game.PlayerRepository.itemIDToInventorySlotIndex[mVItem.itemID]);
-		MVGameController.Game.UpdateInventorySlots(dictionary);
+		dictionary.Add(mVItem.itemID, MVGameControllerBase.Game.PlayerRepository.itemIDToInventorySlotIndex[mVItem.itemID]);
+		MVGameControllerBase.Game.UpdateInventorySlots(dictionary);
 	}
 
 	private void OnItemSelection(IUXCollectionItem item)
@@ -165,7 +170,7 @@ public class MVGUIInventoryGroup : MonoBehaviour
 	{
 		if (canInsert)
 		{
-			MVGameController.EditorController.EditorWorldObjectCreation.OnAddItemFromInventory(_insertItem, isPreviewItem: false);
+			MVGameControllerLegacyUI.EditorController.EditorWorldObjectCreation.OnAddItemFromInventory(_insertItem, isPreviewItem: false);
 			if (NotifyItemSelection != null)
 			{
 				NotifyItemSelection();

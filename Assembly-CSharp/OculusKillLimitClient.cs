@@ -9,7 +9,7 @@ public class OculusKillLimitClient : OculusKillLimit, IWinningConditionBriefing
 
 	public void GetBriefing(MVGUIWinningConditionBriefingView winningConditionBriefingView)
 	{
-		if (MVGameController.WOCM.GetWorldObjectsByType(WorldObjectType.AdvancedGhost).Count > 0)
+		if (MVGameControllerBase.WOCM.GetWorldObjectsByType(WorldObjectType.AdvancedGhost).Count > 0)
 		{
 			winningConditionBriefingView.AddBriefing("Oculus", Limit);
 		}

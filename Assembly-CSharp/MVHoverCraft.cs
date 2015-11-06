@@ -99,12 +99,12 @@ public class MVHoverCraft : MVSimpleOneSeatVehicle
 		smoothCharacterController.Controller.IgnoreWoIds = WorldIDsRecursive;
 		HoverCraftMotor hoverCraftMotor = gameObject.AddComponent<HoverCraftMotor>();
 		MVCameraBase camera = seatManager.seats[seatID].Camera;
-		if (!(camera is VehicleCamera))
+		if (!(camera is IVehicleCamera))
 		{
 			Debug.LogError("Expected camera type is VehicleCamera.");
 			return null;
 		}
-		hoverCraftMotor.VehicleCamera = (VehicleCamera)camera;
+		hoverCraftMotor.VehicleCamera = (IVehicleCamera)camera;
 		return new LocalObjectsHoverCraft(this, smoothCharacterController, hoverCraftMotor);
 	}
 }

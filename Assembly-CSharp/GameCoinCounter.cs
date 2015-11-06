@@ -40,11 +40,11 @@ public class GameCoinCounter : GameMeterBase
 
 	private void Start()
 	{
-		MVGameCoinManager gameCoinManager = MVGameController.Game.GameCoinManager;
+		MVGameCoinManager gameCoinManager = MVGameControllerBase.Game.GameCoinManager;
 		gameCoinManager.OnActivationChange = (MVGameCoinManager.OnActivationChangeDelegate)Delegate.Combine(gameCoinManager.OnActivationChange, new MVGameCoinManager.OnActivationChangeDelegate(OnActivationChange));
-		MVGameCoinManager gameCoinManager2 = MVGameController.Game.GameCoinManager;
+		MVGameCoinManager gameCoinManager2 = MVGameControllerBase.Game.GameCoinManager;
 		gameCoinManager2.OnGameCoinAmountChange = (MVGameCoinManager.OnGameCoinAmountChangeDelegate)Delegate.Combine(gameCoinManager2.OnGameCoinAmountChange, new MVGameCoinManager.OnGameCoinAmountChangeDelegate(OnGameCoinAmountChange));
-		OnActivationChange(MVGameController.Game.GameCoinManager.Active);
+		OnActivationChange(MVGameControllerBase.Game.GameCoinManager.Active);
 		rollingNumberCounter.Initialize();
 		rollingNumberCounter.UseOverlay = false;
 	}

@@ -11,6 +11,8 @@ public class AirCraftCamera : MVPlaymodeCameraBase
 
 	private Vector3 lookAtToCamDir = Vector3.zero;
 
+	public override CameraType CameraType => CameraType.AirCraftCamera;
+
 	public override void Enter(MVCameraController camController)
 	{
 		base.Enter(camController);

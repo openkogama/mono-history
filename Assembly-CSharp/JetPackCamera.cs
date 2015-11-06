@@ -43,16 +43,11 @@ public class JetPackCamera : MVCameraBase
 
 	private float rotationSmoothTime = 0.1f;
 
-	public override CameraType CameraType => CameraType.JetPackCamera;
-
-	public Vector3 ComputeAvatarPositionFromTransform(Transform t)
-	{
-		return t.position - Vector3.up * 2f;
-	}
+	public override CameraType CameraType => CameraType.EditorCamera;
 
 	public override void Enter(MVCameraController camController)
 	{
-		lookAtTransform = MVGameController.WOCM.AvatarLocal.GameObject.transform;
+		lookAtTransform = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform;
 		lookAtOffset = 2f * Vector3.up;
 		transform.position = lookAtTransform.position + lookAtOffset;
 		xAxis = (xAxisTarget = camController.transform.eulerAngles.x);
@@ -60,11 +55,14 @@ public class JetPackCamera : MVCameraBase
 		ResetRotationToTargetTransform(camController);
 	}
 
-	public void SetCameraToAvatarEulerHack()
+	public override void Reset()
 	{
-		transform.eulerAngles = MVGameController.WOCM.AvatarLocal.GameObject.transform.eulerAngles;
-		xAxis = (xAxisTarget = transform.eulerAngles.x);
-		yAxis = (yAxisTarget = transform.eulerAngles.y);
+		base.Reset();
+		Vector3 eulerAngles = transform.eulerAngles;
+		eulerAngles.y = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.eulerAngles.y;
+		yAxis = (yAxisTarget = eulerAngles.y);
+		xAxis = (xAxisTarget = eulerAngles.x);
+		transform.eulerAngles = eulerAngles;
 	}
 
 	private void ResetRotationToTargetTransform(MVCameraController camController)
@@ -73,7 +71,7 @@ public class JetPackCamera : MVCameraBase
 		transform.eulerAngles = eulerAngles;
 	}
 
-	public override void HandleInput(MVCameraController cameraController)
+	public void HandleInput(MVCameraController cameraController)
 	{
 		if (MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelectAlt) && (ignoreInputTypes & IgnoreInputTypes.MouseMovement) == 0)
 		{
@@ -90,6 +88,7 @@ public class JetPackCamera : MVCameraBase
 
 	public override void UpdateCamera(MVCameraController camController, Transform targetTransform)
 	{
+		HandleInput(camController);
 		xAxis = Mathf.SmoothDampAngle(xAxis, xAxisTarget, ref xAxisVelocity, rotationSmoothTime);
 		yAxis = Mathf.SmoothDampAngle(yAxis, yAxisTarget, ref yAxisVelocity, rotationSmoothTime);
 		transform.rotation = Quaternion.Euler(xAxis, yAxis, 0f);
@@ -112,11 +111,12 @@ public class JetPackCamera : MVCameraBase
 
 	public override void FocusOnObject(MVWorldObjectClient wo)
 	{
+		Debug.Log("Focus on object");
 		float num = wo.ComputeObjectRadius();
 		float num2 = Camera.main.fieldOfView * 0.5f * 0.8f;
 		float a = num / Mathf.Tan(num2 * ((float)Math.PI / 180f));
 		a = Mathf.Max(a, 4f);
-		Transform transform = MVGameController.WOCM.AvatarLocal.GameObject.transform;
+		Transform transform = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform;
 		Vector3 worldCenter = SharedCubeFunctions.GetWorldCenter(wo.GameObject.transform);
 		Vector3 vector = worldCenter - transform.position;
 		transform.position += vector.normalized * (vector.magnitude - a);
@@ -125,6 +125,6 @@ public class JetPackCamera : MVCameraBase
 		xAxis = (xAxisTarget = NormalizeAngle(base.transform.eulerAngles.x));
 		yAxis = (yAxisTarget = base.transform.eulerAngles.y);
 		xAxisVelocity = (yAxisVelocity = 0f);
-		MVGameController.Game.CameraController.StartTransitionCam(2f, soft: true);
+		MVGameControllerBase.CameraController.StartTransitionCam(2f, soft: true);
 	}
 }

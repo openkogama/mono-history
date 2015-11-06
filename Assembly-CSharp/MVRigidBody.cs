@@ -42,7 +42,7 @@ public abstract class MVRigidBody : MVComponent
 
 			private bool HandleFineGrained()
 			{
-				MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(overlapResult.woId);
+				MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(overlapResult.woId);
 				if (worldObjectClient is MVCubeModelFineGrainedTerrain)
 				{
 					MVCubeModelFineGrainedTerrain mVCubeModelFineGrainedTerrain = (MVCubeModelFineGrainedTerrain)worldObjectClient;
@@ -52,10 +52,10 @@ public abstract class MVRigidBody : MVComponent
 						Cube cube = mVCubeModelFineGrainedTerrain.GetCube(intVector);
 						if (!(cube == null))
 						{
-							float toughness = MVGameController.Game.MaterialRepository.GetMaterial(cube.FaceMaterials[0]).physicalProperties.toughness;
+							float toughness = MVGameControllerBase.Game.MaterialRepository.GetMaterial(cube.FaceMaterials[0]).physicalProperties.toughness;
 							if (toughness != 0f)
 							{
-								MVGameController.Game.World.RuntimeEventManager.SendRuntimeEvent(new SingleCubeFineGrainedEvent(intVector));
+								MVGameControllerBase.Game.World.RuntimeEventManager.SendRuntimeEvent(new SingleCubeFineGrainedEvent(intVector));
 								mVCubeModelFineGrainedTerrain.RemoveCubeNetworkUpdate(intVector);
 							}
 							else
@@ -155,8 +155,6 @@ public abstract class MVRigidBody : MVComponent
 	}
 
 	protected MVGroundState groundState = new MVGroundState();
-
-	protected MVCollisionFlags collisionFlags;
 
 	protected float weight = 1f;
 

@@ -20,7 +20,7 @@ public class MVGUIDeltaRewardCreator : UXGroup
 
 	private void OnLevelingInitialized()
 	{
-		MVLocalPlayer localPlayer = MVGameController.Game.LocalPlayer;
+		MVLocalPlayer localPlayer = MVGameControllerBase.Game.LocalPlayer;
 		localPlayer.OnXPProgressData = (XPProgress.OnXPProgressDataDelegate)Delegate.Combine(localPlayer.OnXPProgressData, new XPProgress.OnXPProgressDataDelegate(OnXPProgressData));
 	}
 

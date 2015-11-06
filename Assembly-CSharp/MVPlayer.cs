@@ -1,5 +1,4 @@
 using MV.WorldObject;
-using UnityEngine;
 
 public class MVPlayer
 {
@@ -85,12 +84,11 @@ public class MVPlayer
 		: this(actorNumber, profileID, userName, regionCode)
 	{
 		Level = level;
-		Debug.Log("Level " + Level);
 	}
 
 	public void SetCheckpoint(int woid)
 	{
-		if (MVGameController.WOCM.IsType(woid, WorldObjectType.CheckPoint))
+		if (MVGameControllerBase.WOCM.IsType(woid, WorldObjectType.CheckPoint))
 		{
 			checkpointWOID = woid;
 		}
@@ -102,9 +100,9 @@ public class MVPlayer
 		{
 			return null;
 		}
-		if (MVGameController.WOCM.IsType(checkpointWOID, WorldObjectType.CheckPoint))
+		if (MVGameControllerBase.WOCM.IsType(checkpointWOID, WorldObjectType.CheckPoint))
 		{
-			return MVGameController.WOCM.GetWorldObjectClient(checkpointWOID) as MVCheckpoint;
+			return MVGameControllerBase.WOCM.GetWorldObjectClient(checkpointWOID) as MVCheckpoint;
 		}
 		checkpointWOID = -1;
 		return null;
@@ -117,6 +115,6 @@ public class MVPlayer
 
 	public int GetGameStat(GameStatCounterType gameStatCounterType)
 	{
-		return MVGameController.Game.GameStatCounterManager.GetActorCount(gameStatCounterType, team, ActorNr);
+		return MVGameControllerBase.Game.GameStatCounterManager.GetActorCount(gameStatCounterType, team, ActorNr);
 	}
 }

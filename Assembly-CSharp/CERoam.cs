@@ -13,21 +13,17 @@ public class CERoam : ESStateBase
 
 	private bool enterEditNextFrame;
 
-	private JetPackMode jetPackMode;
-
 	private AccessoryMover accessoryMover;
 
 	private bool didExit;
 
-	private MVWorldObjectClientManager WOCM => MVGameController.WOCM;
+	private MVWorldObjectClientManager WOCM => MVGameControllerBase.WOCM;
 
-	private AEditController EditController => MVGameController.EditController;
-
-	private CharacterEditorController CharacterEditorController => MVGameController.CharacterEditorController;
+	private CharacterEditorController CharacterEditorController => MVGameControllerLegacyUI.CharacterEditorController;
 
 	public CERoam()
 	{
-		if (MVGameController.GameMode == MVGameMode.CharacterEditor)
+		if (MVGameControllerBase.GameMode == MVGameMode.CharacterEditor)
 		{
 			accessoryMover = new AccessoryMover();
 		}
@@ -37,12 +33,11 @@ public class CERoam : ESStateBase
 	{
 		didExit = false;
 		exitButtonWasPressed = false;
-		EditController.CubeModelingController.HideEditorTools();
+		CharacterEditorController.HideEditorTools();
 		esm.CubeModelingStateMachine.RemoveCursors();
 		tintedWo = null;
 		SharedCubeFunctions.SetLayerRecursively(esm.ParentGroup.Transform, select: true);
-		esm.CameraController.GetComponent<GrayscaleEffect>().enabled = true;
-		esm.CameraController.SecondaryCameraActive = true;
+		esm.CameraController.BlueModeEnabled = true;
 		if (esm.ParentGroup is MVBody)
 		{
 			if (guiEditModel != null)
@@ -50,21 +45,15 @@ public class CERoam : ESStateBase
 				guiEditModel.View.Hide();
 			}
 			MVBody mVBody = esm.ParentGroup as MVBody;
-			Vector3 centerPos = CharacterEditorController.CenterPos;
-			float radius = 10f;
-			if (jetPackMode == null)
-			{
-				jetPackMode = WOCM.AvatarLocal.AvatarModes.JetPackMode;
-			}
-			jetPackMode.SetMoveConstraint(centerPos, radius);
-			jetPackMode.YMovementSpeedScale = 0.25f;
-			jetPackMode.XZMovementSpeedScale = 0.8f;
+			MVAvatarLocal.JetPackMode jetPackMode = (MVAvatarLocal.JetPackMode)MVGameControllerBase.WOCM.AvatarLocal.CurrentMode;
+			jetPackMode.SetMoveConstraint(CharacterEditorController.CenterPos, 10f);
+			jetPackMode.ModifySpeed(0.8f, 0.25f);
 			CharacterEditorController.ShowAnimationToggles();
 			CharacterEditorController.ShowAvatarTools();
 			CharacterEditorController.AnimationToggles.AttachAnimation(mVBody.Animation);
 			CharacterEditorController.AnimationToggles.ToggleAnimation("Idle");
-			MVGameController.Game.CameraController.SetCamera(CameraType.JetPackCamera);
-			MVGameController.Game.CameraController.CurCamera.FocusOnObject(esm.ParentGroup);
+			MVGameControllerBase.CameraController.SetCamera(CameraType.EditorCamera);
+			MVGameControllerBase.CameraController.CurCamera.FocusOnObject(esm.ParentGroup);
 		}
 		else
 		{
@@ -110,8 +99,7 @@ public class CERoam : ESStateBase
 	{
 		DeTintCurrent();
 		CharacterEditorController.AnimationToggles.DetachAnimation();
-		jetPackMode.YMovementSpeedScale = 1f;
-		jetPackMode.XZMovementSpeedScale = 1f;
+		((MVAvatarLocal.JetPackMode)MVGameControllerBase.WOCM.AvatarLocal.CurrentMode).ModifySpeed(1f, 1f);
 		didExit = true;
 		accessoryMover.MVGUIAvatarAccessoryMoveIcon.SetVisible(visible: false);
 	}
@@ -128,7 +116,7 @@ public class CERoam : ESStateBase
 		}
 		VoxelHit hit = default;
 		int layerMask = -5 & ~(1 << LayerMask.NameToLayer("Hidden"));
-		if (WOCM.Pick(ref hit, new HashSet<int>(), layerMask) && hit.woId != -1)
+		if (MVGameControllerLegacyUI.Pick(ref hit, new HashSet<int>(), layerMask) && hit.woId != -1)
 		{
 			if (MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect) && downWorldObjectID == hit.woId)
 			{
@@ -167,8 +155,7 @@ public class CERoam : ESStateBase
 				MVGroup mVGroup = (MVGroup)esm.SingleSelectedWO;
 				esm.EnterGroup(mVGroup);
 				SharedCubeFunctions.SetLayerRecursively(mVGroup.Transform, select: true);
-				esm.CameraController.GetComponent<GrayscaleEffect>().enabled = true;
-				esm.CameraController.SecondaryCameraActive = true;
+				esm.CameraController.BlueModeEnabled = true;
 				esm.Event = EditorEvent.CERoam;
 				return true;
 			}

@@ -129,13 +129,13 @@ public abstract class MVWorldObjectClientManager
 
 		public void UpdateLOD()
 		{
-			if (!(MVGameController.Game.CameraController != null))
+			if (!(MVGameControllerBase.CameraController != null))
 			{
 				return;
 			}
 			worldObjectClientManager.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>().ChangeLODTerrain();
 			worldObjectClientManager.GetSingletonWorldObject<MVCubeModelFineGrainedTerrain>().ChangeLODTerrain();
-			Vector3 position = MVGameController.Game.CameraController.GetComponent<Camera>().transform.position;
+			Vector3 position = MVGameControllerBase.CameraController.MainCamera.transform.position;
 			float num = 1000f;
 			int num2 = Mathf.Max(1, Mathf.RoundToInt(num * Time.deltaTime));
 			for (int i = 0; i < num2; i++)
@@ -192,8 +192,6 @@ public abstract class MVWorldObjectClientManager
 	public Bounds WorldBounds => worldBounds;
 
 	public MVAvatarLocal AvatarLocal { get; set; }
-
-	public WaterPlaneManager WaterPlaneManager { get; set; }
 
 	public MVGroup RootGroup
 	{
@@ -336,7 +334,7 @@ public abstract class MVWorldObjectClientManager
 	public int GetWoIDWithLocalOwnerHighestInHierarchy(int woID)
 	{
 		int result = -1;
-		int actorNr = MVGameController.Game.LocalPlayer.ActorNr;
+		int actorNr = MVGameControllerBase.Game.LocalPlayer.ActorNr;
 		do
 		{
 			MVWorldObjectClient worldObjectClient = GetWorldObjectClient(woID);
@@ -381,7 +379,7 @@ public abstract class MVWorldObjectClientManager
 			if (value.GroupId == rootGroupId && value.ItemId == mVWorldObjectClient.ItemId && value.WorldObjectType == mVWorldObjectClient.WorldObjectType)
 			{
 				int insertedByProfileId = 0;
-				if (value.CompareWithKoGaMaPackage(mVWorldObjectClient, koGaMaPackageClient, ref insertedByProfileId) && insertedByProfileId == MVGameController.Game.LocalPlayer.ProfileID)
+				if (value.CompareWithKoGaMaPackage(mVWorldObjectClient, koGaMaPackageClient, ref insertedByProfileId) && insertedByProfileId == MVGameControllerBase.Game.LocalPlayer.ProfileID)
 				{
 					Debug.Log("InsertedByProfileID " + insertedByProfileId);
 					worldObjectId = value.Id;
@@ -419,7 +417,7 @@ public abstract class MVWorldObjectClientManager
 
 	public static MVWorldObjectClient GetMVObject(Transform t)
 	{
-		MVWorldObjectClient worldObjectByGoId = MVGameController.WOCM.GetWorldObjectByGoId(t.gameObject.GetInstanceID());
+		MVWorldObjectClient worldObjectByGoId = MVGameControllerBase.WOCM.GetWorldObjectByGoId(t.gameObject.GetInstanceID());
 		if (worldObjectByGoId != null)
 		{
 			return worldObjectByGoId;
@@ -431,56 +429,22 @@ public abstract class MVWorldObjectClientManager
 		return null;
 	}
 
-	public bool Pick(ref VoxelHit hit, HashSet<int> ignoreWoIds = null, int layerMask = -5)
-	{
-		Ray ray = Camera.main.ScreenPointToRay(new Vector3(MVInputWrapper.GetPointerPosition().x, MVInputWrapper.GetPointerPosition().y));
-		float num = 0f;
-		bool flag = false;
-		if (MVGameController.EditController != null && MVGameController.EditController.CubeModelingController.IsDrawPlaneActive)
-		{
-			Vector3 hit2 = Vector3.zero;
-			if (MVGameController.EditController.WorldEditorDrawPlane.Pick(ref hit2))
-			{
-				num = (hit2 - ray.origin).magnitude;
-				flag = true;
-			}
-		}
-		List<VoxelHit> list = CollisionDetection.MVHitAll(ray, float.PositiveInfinity, ignoreWoIds, layerMask);
-		if (list.Count == 0)
-		{
-			return false;
-		}
-		float num2 = float.PositiveInfinity;
-		bool result = false;
-		foreach (VoxelHit item in list)
-		{
-			if ((item.distance < num || !flag) && item.transform.gameObject.activeInHierarchy && (item.transform.gameObject.layer != LayerMask.NameToLayer("Logic") || MVGameController.Game.CameraController.IsLogicRendered || IsHitPickup(item)))
-			{
-				float num3 = Vector3.Distance(ray.origin, item.point);
-				if (num3 < num2)
-				{
-					num2 = num3;
-					hit = item;
-					result = true;
-				}
-			}
-		}
-		return result;
-	}
-
-	private bool IsHitPickup(VoxelHit hit)
-	{
-		Transform parent = hit.transform.parent;
-		return parent.GetComponent<GreyOutObjectScript>() != null;
-	}
-
 	public MVSpawnPoint GetValidSpawnPoint()
 	{
-		List<MVWorldObjectClient> list = ((MVGameController.Game.TeamManager.TeamCount() <= 1) ? GetWorldObjectsByType(GetSpawnPointTypeForNoneTeam()) : GetWorldObjectsByType(GetSpawnPointTypeForTeam(MVGameController.Game.LocalPlayer.Team)));
-		if (list.Count > 0)
+		List<MVWorldObjectClient> worldObjectsByType;
+		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
 		{
-			int index = UnityEngine.Random.Range(0, list.Count);
-			return (MVSpawnPoint)list[index];
+			Debug.Log(MVGameControllerBase.Game.LocalPlayer.Team);
+			worldObjectsByType = GetWorldObjectsByType(GetSpawnPointTypeForTeam(MVGameControllerBase.Game.LocalPlayer.Team));
+		}
+		else
+		{
+			worldObjectsByType = GetWorldObjectsByType(GetSpawnPointTypeForNoneTeam());
+		}
+		if (worldObjectsByType.Count > 0)
+		{
+			int index = UnityEngine.Random.Range(0, worldObjectsByType.Count);
+			return (MVSpawnPoint)worldObjectsByType[index];
 		}
 		Debug.LogError("No valid SpawnPoint on planet...");
 		return null;
@@ -579,12 +543,12 @@ public abstract class MVWorldObjectClientManager
 			Debug.LogWarning("trying to unregister none existing worldobject");
 			return false;
 		}
-		MVGameController.Game.UnregisterWorldObject(worldObjectId);
+		MVGameControllerBase.Game.UnregisterWorldObject(worldObjectId);
 		return true;
 	}
 
 	public void CloneWorldObjectTree(MVWorldObjectClient root, bool localOwner, bool setAsPreviewItem, bool cloneToRootGroup)
 	{
-		MVGameController.Game.CloneWorldObjectTree(root, localOwner, setAsPreviewItem, cloneToRootGroup);
+		MVGameControllerBase.Game.CloneWorldObjectTree(root, localOwner, setAsPreviewItem, cloneToRootGroup);
 	}
 }

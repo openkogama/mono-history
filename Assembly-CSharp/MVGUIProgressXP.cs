@@ -26,9 +26,9 @@ public class MVGUIProgressXP : MonoBehaviour
 
 	private void OnLevelingInitialized()
 	{
-		MVLocalPlayer localPlayer = MVGameController.Game.LocalPlayer;
+		MVLocalPlayer localPlayer = MVGameControllerBase.Game.LocalPlayer;
 		localPlayer.OnXPProgressData = (XPProgress.OnXPProgressDataDelegate)Delegate.Combine(localPlayer.OnXPProgressData, new XPProgress.OnXPProgressDataDelegate(UpdateProgress));
-		UpdateProgress(MVGameController.Game.LocalPlayer.XPProgressData);
+		UpdateProgress(MVGameControllerBase.Game.LocalPlayer.XPProgressData);
 	}
 
 	private void UpdateProgress(XPProgressData xpProgress)

@@ -56,7 +56,7 @@ public class RuntimePrototypeCubeModel
 					logger.Log("pendingDeltaCubes.Count " + pendingDeltaCubes.Count);
 					if (pendingDeltaCubes.Count > 0)
 					{
-						MVGameController.Game.UpdatePrototype(prototypeId, pendingDeltaCubes.ToArray());
+						MVGameControllerBase.Game.UpdatePrototype(prototypeId, pendingDeltaCubes.ToArray());
 						pendingDeltaCubes.Clear();
 					}
 				}
@@ -278,6 +278,7 @@ public class RuntimePrototypeCubeModel
 
 	public void UnIndentCubeFace(IntVector localPos, Face face, Cube cube)
 	{
+		Debug.Log("UnIndentCubeFace");
 		if (cube != null)
 		{
 			Cube.UnIndentFace(cube, face);
@@ -393,8 +394,8 @@ public class RuntimePrototypeCubeModel
 		DecodeBytePacker(bp, this);
 		foreach (int instance in instances)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(instance);
-			if (worldObjectClient.OwnerActorNr != 0 && worldObjectClient.OwnerActorNr != MVGameController.Game.LocalPlayerActorNumber)
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(instance);
+			if (worldObjectClient.OwnerActorNr != 0 && worldObjectClient.OwnerActorNr != MVGameControllerBase.Game.LocalPlayerActorNumber)
 			{
 				worldObjectClient.Select(Color.blue);
 			}
@@ -425,7 +426,7 @@ public class RuntimePrototypeCubeModel
 			{
 				if (prototypeState == PrototypeState.Registered)
 				{
-					MVGameController.Game.UpdatePrototype(prototypeId, array);
+					MVGameControllerBase.Game.UpdatePrototype(prototypeId, array);
 				}
 				else if (prototypeState == PrototypeState.Pending)
 				{
@@ -456,7 +457,7 @@ public class RuntimePrototypeCubeModel
 	{
 		foreach (int instance in instances)
 		{
-			SetInstanceDataRef(chunkPos, (MVCubeModelBase)MVGameController.WOCM.GetWorldObjectClient(instance));
+			SetInstanceDataRef(chunkPos, (MVCubeModelBase)MVGameControllerBase.WOCM.GetWorldObjectClient(instance));
 		}
 	}
 
@@ -464,7 +465,7 @@ public class RuntimePrototypeCubeModel
 	{
 		foreach (int instance in instances)
 		{
-			MVCubeModelBase mVCubeModelBase = (MVCubeModelBase)MVGameController.WOCM.GetWorldObjectClient(instance);
+			MVCubeModelBase mVCubeModelBase = (MVCubeModelBase)MVGameControllerBase.WOCM.GetWorldObjectClient(instance);
 			UnityEngine.Object.Destroy(mVCubeModelBase.ChunkInstances.GetChunk(chunkPos));
 			mVCubeModelBase.ChunkInstances.Remove(chunkPos);
 		}
@@ -543,7 +544,7 @@ public class RuntimePrototypeCubeModel
 			dirtyChunks.Add(chunkPos);
 			if (this.meshGeneratePriority == MeshGeneratePriority.None)
 			{
-				MVGameController.Game.World.WorldInventory.AddRuntimePrototypeToDirty(this);
+				MVGameControllerBase.Game.World.WorldInventory.AddRuntimePrototypeToDirty(this);
 			}
 			if (meshGeneratePriority > this.meshGeneratePriority)
 			{

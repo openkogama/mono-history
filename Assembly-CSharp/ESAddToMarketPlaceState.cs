@@ -21,13 +21,13 @@ internal class ESAddToMarketPlaceState : ESStateBase
 	public override void Enter(EditorStateMachine e)
 	{
 		int num = (int)e.Data["ItemID"];
-		if (!MVGameController.Game.PlayerRepository.PlayerInventory.TryGetValue(num, out var value))
+		if (!MVGameControllerBase.Game.PlayerRepository.PlayerInventory.TryGetValue(num, out var value))
 		{
 			Debug.LogError("Item not found");
 			e.PopState();
 			return;
 		}
-		if (value.authorProfileID == MVGameController.Game.LocalPlayer.ProfileID)
+		if (value.authorProfileID == MVGameControllerBase.Game.LocalPlayer.ProfileID)
 		{
 			Debug.Log("Is already authorprofile. Skip to pricing, description and naming");
 			e.PopState();
@@ -41,8 +41,8 @@ internal class ESAddToMarketPlaceState : ESStateBase
 		}
 		inventoryItemData = new BytePacker(value.data);
 		internalState = AddToMarketPlaceInternalState.WaitingForMarketPlaceItem;
-		MVGameController.Game.ReceivedItemFromQuery += WOCM_ReceivedItemFromQuery;
-		MVGameController.Game.RequestMarketPlaceItem(num);
+		MVGameControllerBase.Game.ReceivedItemFromQuery += WOCM_ReceivedItemFromQuery;
+		MVGameControllerBase.Game.RequestMarketPlaceItem(num);
 	}
 
 	public override void Execute(EditorStateMachine e)
@@ -82,7 +82,7 @@ internal class ESAddToMarketPlaceState : ESStateBase
 
 	private void WOCM_ReceivedItemFromQuery(object sender, ReceivedItemFromQueryEventArgs e)
 	{
-		MVGameController.Game.ReceivedItemFromQuery -= WOCM_ReceivedItemFromQuery;
+		MVGameControllerBase.Game.ReceivedItemFromQuery -= WOCM_ReceivedItemFromQuery;
 		marketPlaceItemData = e.KoGaMaData;
 	}
 

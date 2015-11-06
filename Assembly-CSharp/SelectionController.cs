@@ -9,7 +9,7 @@ public class SelectionController : ISelectionController
 
 	private Stack<int> parentGroups = new Stack<int>();
 
-	private MVWorldObjectClientManager WOCM => MVGameController.WOCM;
+	private MVWorldObjectClientManager WOCM => MVGameControllerBase.WOCM;
 
 	public int ParentGroupID => parentGroups.Peek();
 
@@ -113,7 +113,7 @@ public class SelectionController : ISelectionController
 		{
 			DeSelectAllExcept(id);
 		}
-		if (worldObjectClient.OwnerActorNr != 0 && worldObjectClient.OwnerActorNr != MVGameController.Game.LocalPlayer.ActorNr)
+		if (worldObjectClient.OwnerActorNr != 0 && worldObjectClient.OwnerActorNr != MVGameControllerBase.Game.LocalPlayer.ActorNr)
 		{
 			Debug.LogWarning("Trying to select WO " + id + " that is owned by another acotr");
 			return null;
@@ -144,7 +144,7 @@ public class SelectionController : ISelectionController
 	public MVWorldObjectClient Select(bool addToSelection = false, bool showVisuals = true, int layerMask = -5)
 	{
 		VoxelHit hit = default;
-		if (!WOCM.Pick(ref hit, null, layerMask))
+		if (!MVGameControllerLegacyUI.Pick(ref hit, null, layerMask))
 		{
 			return null;
 		}

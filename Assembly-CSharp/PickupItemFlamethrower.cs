@@ -8,8 +8,6 @@ public class PickupItemFlamethrower : PickupItem
 {
 	private const bool DEAL_DAMAGE_REMOTELY = true;
 
-	public Transform muzzlePoint;
-
 	public ParticleSystem flameParticles;
 
 	public Transform hitZoneCenter;

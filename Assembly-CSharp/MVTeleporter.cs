@@ -69,9 +69,9 @@ public class MVTeleporter : MVLogicObject
 	protected override void OnUpdate()
 	{
 		base.OnUpdate();
-		if (gameCoinLogic.PurchaseAmount > 0 && triggerBoxEvents.IsInTrigger && !avatarIgnoreList.Contains(MVGameController.WOCM.AvatarLocal) && gameCoinLogic.ShowUseGUI())
+		if (gameCoinLogic.PurchaseAmount > 0 && triggerBoxEvents.IsInTrigger && !avatarIgnoreList.Contains(MVGameControllerBase.WOCM.AvatarLocal) && gameCoinLogic.ShowUseGUI())
 		{
-			DoTeleport(MVGameController.WOCM.AvatarLocal.Id);
+			DoTeleport(MVGameControllerBase.WOCM.AvatarLocal.Id);
 		}
 	}
 
@@ -87,8 +87,9 @@ public class MVTeleporter : MVLogicObject
 
 	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
 	{
-		Vector3 vector = new Vector3(Mathf.Round(position.x / gridSize), Mathf.Round(position.y / gridSize), Mathf.Round(position.z / gridSize));
-		return vector * gridSize;
+		Vector3 closestGridPoint = base.GetClosestGridPoint(gridSize, position);
+		closestGridPoint.y = Mathf.Round(position.y / gridSize) * gridSize;
+		return closestGridPoint;
 	}
 
 	public override void OnInputLinkChanged()
@@ -115,11 +116,11 @@ public class MVTeleporter : MVLogicObject
 	private void DoTeleport(int instigatorWOID)
 	{
 		MVTeleporter mVTeleporter = target;
-		if (!(MVGameController.WOCM.GetWorldObjectClient(instigatorWOID) is MVAvatarLocal))
+		if (!(MVGameControllerBase.WOCM.GetWorldObjectClient(instigatorWOID) is MVAvatarLocal))
 		{
 			return;
 		}
-		MVAvatarLocal mVAvatarLocal = MVGameController.WOCM.GetWorldObjectClient(instigatorWOID) as MVAvatarLocal;
+		MVAvatarLocal mVAvatarLocal = MVGameControllerBase.WOCM.GetWorldObjectClient(instigatorWOID) as MVAvatarLocal;
 		if (!mVAvatarLocal.IsEnteringVehicle)
 		{
 			if (mVAvatarLocal.IsSeated)
@@ -139,9 +140,9 @@ public class MVTeleporter : MVLogicObject
 
 	private void triggerBoxEvents_TriggerExit(object sender, TriggerEventArgs e)
 	{
-		if (MVGameController.WOCM.GetWorldObjectClient(e.instigatorWOID) is MVAvatarLocal)
+		if (MVGameControllerBase.WOCM.GetWorldObjectClient(e.instigatorWOID) is MVAvatarLocal)
 		{
-			MVAvatarLocal avatarLocal = MVGameController.WOCM.AvatarLocal;
+			MVAvatarLocal avatarLocal = MVGameControllerBase.WOCM.AvatarLocal;
 			if (e.instigatorWOID == avatarLocal.Id)
 			{
 				avatarIgnoreList.Remove(avatarLocal);

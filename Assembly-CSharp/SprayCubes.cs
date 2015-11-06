@@ -7,12 +7,10 @@ internal class SprayCubes : CubeModelTool
 
 	private CubePickingInfo cubeNotToBeSprayed;
 
-	private WorldEditorDrawPlane DrawPlane => MVGameController.EditController.WorldEditorDrawPlane;
-
 	public override void Enter(CubeModelingStateMachine e)
 	{
-		sprayCursor = new SprayCursor();
-		MVGameController.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.SprayCubes);
+		sprayCursor = new SprayCursor(e.CubeCorners);
+		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.SprayCubes);
 		waitForMouseUp = MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect);
 	}
 
@@ -39,10 +37,10 @@ internal class SprayCubes : CubeModelTool
 			else
 			{
 				Vector3 hit = default;
-				if (DrawPlane.Active && DrawPlane.Pick(ref hit) && DrawPlane.GetCubePosOnDrawplane(e.TargetCubeModel.GameObject, out var intVectorHitPos) && e.CanAddCubeAt(intVectorHitPos))
+				if (MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController.IsDrawPlaneActive && MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController.Pick(ref hit) && MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController.GetCubePosOnDrawplane(e.TargetCubeModel.GameObject, out var intVectorHitPosition) && e.CanAddCubeAt(intVectorHitPosition))
 				{
-					e.HandleAudio(intVectorHitPos, AudioActions.CubeAdded);
-					e.TargetCubeModel.AddCube(intVectorHitPos, new Cube(CubeDataPacker.CornersToByteArray(CubeBase.IdentityCorners), Cube.CreateMaterialArray(e.CurrentMaterialId)));
+					e.HandleAudio(intVectorHitPosition, AudioActions.CubeAdded);
+					e.TargetCubeModel.AddCube(intVectorHitPosition, new Cube(CubeDataPacker.CornersToByteArray(CubeBase.IdentityCorners), Cube.CreateMaterialArray(e.CurrentMaterialId)));
 					addCube = true;
 				}
 				cubeNotToBeSprayed = null;
@@ -58,7 +56,7 @@ internal class SprayCubes : CubeModelTool
 	public override void Exit(CubeModelingStateMachine e)
 	{
 		HideCursor();
-		MVGameController.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.Idle);
+		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.Idle);
 	}
 
 	public override void HideCursor()

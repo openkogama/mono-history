@@ -27,8 +27,8 @@ public abstract class MVInteractable : MVInteractableBase
 
 	protected bool IgnoreDamage(MVPlayer damageDealer)
 	{
-		MVTeam teamFromActorNr = MVGameController.Game.TeamManager.GetTeamFromActorNr(worldObjectParent.OwnerActorNr);
-		if (MVGameController.Game.TeamManager.TeamCount() > 1 && damageDealer != null && teamFromActorNr == damageDealer.Team && MVGameController.Game.LocalPlayer.ActorNr != damageDealer.ActorNr)
+		MVTeam teamFromActorNr = MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(worldObjectParent.OwnerActorNr);
+		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1 && damageDealer != null && teamFromActorNr == damageDealer.Team && MVGameControllerBase.Game.LocalPlayer.ActorNr != damageDealer.ActorNr)
 		{
 			return true;
 		}
@@ -45,7 +45,7 @@ public abstract class MVInteractable : MVInteractableBase
 			float num = item.Value * Time.deltaTime;
 			if (num != 0f)
 			{
-				TakeDamage(num, MVGameController.Game.Players[key], PlayerKilledByType.FlameThrower);
+				TakeDamage(num, MVGameControllerBase.Game.Players[key], PlayerKilledByType.FlameThrower);
 			}
 		}
 		float num2 = HandleModifierEffect(AvatarModifierEffect.EnvironmentDamagePrSec, 0f) * Time.deltaTime;

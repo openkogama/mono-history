@@ -1,12 +1,13 @@
 using UnityEngine;
 
-public class VehicleCamera : PlaymodeCamera
+public class VehicleCamera : PlaymodeCamera, IVehicleCamera
 {
 	private float rotationAroundY;
 
 	private Transform originalTransformParent;
 
-	public Transform LookAtTransform;
+	[SerializeField]
+	private Transform LookAtTransform;
 
 	public float RotationAroundY
 	{
@@ -20,24 +21,18 @@ public class VehicleCamera : PlaymodeCamera
 		}
 	}
 
-	public float GetSignedAnglePitch
+	public override CameraType CameraType => CameraType.VehicleCamera;
+
+	public override void Reset()
 	{
-		get
-		{
-			Quaternion rotation = transform.rotation;
-			Vector3 normal = rotation * Vector3.right;
-			Vector3 eulerAngles = rotation.eulerAngles;
-			eulerAngles.x = 0f;
-			Vector3 v = Quaternion.Euler(eulerAngles) * Vector3.forward;
-			Vector3 v2 = rotation * Vector3.forward;
-			return MathFunctions.SignedAngle(v2, v, normal);
-		}
+		base.Reset();
+		rotationAroundY = 0f;
 	}
 
-	public override void Respawn()
+	public override void UpdateCamera(MVCameraController camController, Transform targetTransform)
 	{
-		base.Respawn();
-		rotationAroundY = 0f;
+		UpdateTargetRotation();
+		base.UpdateCamera(camController, targetTransform);
 	}
 
 	public override void Enter(MVCameraController cameraController)
@@ -55,18 +50,12 @@ public class VehicleCamera : PlaymodeCamera
 		transform.parent = originalTransformParent;
 	}
 
-	public override void HandleInput(MVCameraController cameraController)
-	{
-		base.HandleInput(cameraController);
-		UpdateTargetRotation();
-	}
-
 	private void UpdateTargetRotation()
 	{
 		Vector3 eulerAngles = targetRot.EulerAngles;
 		float num = 0f - eulerAngles.x;
 		float y = eulerAngles.y;
-		autoRotate = Cursor.lockState == CursorLockMode.Locked;
+		autoRotate = !MVGameControllerBase.IPlayModeUI.InLobbyState;
 		if (autoRotate && (ignoreInputTypes & IgnoreInputTypes.MouseMovement) == 0)
 		{
 			rotationAroundY += MVInputWrapper.GetAxis("Mouse X") * mouseSensitivity;

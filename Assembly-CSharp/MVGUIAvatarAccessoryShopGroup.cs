@@ -18,17 +18,17 @@ public class MVGUIAvatarAccessoryShopGroup : MVGUIAvatarAccessoryBaseGroup
 
 	private AvatarAccessoryController avatarAccessoryController;
 
-	private CharacterEditorController CEController => MVGameController.CharacterEditorController;
+	private CharacterEditorController CEController => MVGameControllerLegacyUI.CharacterEditorController;
 
 	private MVBody AvatarBody
 	{
 		get
 		{
-			if (MVGameController.GameMode == MVGameMode.CharacterEditor)
+			if (MVGameControllerBase.GameMode == MVGameMode.CharacterEditor)
 			{
 				return CEController.CurrentBody;
 			}
-			return MVGameController.WOCM.AvatarLocal.Body;
+			return MVGameControllerBase.WOCM.AvatarLocal.Body;
 		}
 	}
 

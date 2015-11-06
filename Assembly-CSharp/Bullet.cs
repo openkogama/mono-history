@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using MV.Common;
 using UnityEngine;
 
 public class Bullet : MonoBehaviour
@@ -52,7 +53,6 @@ public class Bullet : MonoBehaviour
 		{
 			GetComponent<ParticleSystem>().Play();
 		}
-		Debug.DrawLine(lineOfFire.origin, targetPos, Color.red);
 		VoxelHit voxelHit = default;
 		while (inAir)
 		{
@@ -63,10 +63,17 @@ public class Bullet : MonoBehaviour
 			}
 			transform.position = Vector3.Lerp(startPos, targetPos, interpTime);
 			Vector3 collidePos = Vector3.Lerp(lineOfFire.origin, targetPos, interpTime);
-			if (interpTime > 0f && DoCollisionCheck(collidePos, out voxelHit))
+			if (interpTime >= 0f)
 			{
-				inAir = false;
-				hasHit = true;
+				if (DoCollisionCheck(collidePos, out voxelHit))
+				{
+					inAir = false;
+					hasHit = true;
+				}
+			}
+			else
+			{
+				Debug.Log("Skipped 1");
 			}
 			yield return 0;
 		}
@@ -114,7 +121,7 @@ public class Bullet : MonoBehaviour
 		layerMask = (int)layerMask & ~(1 << (LayerMask.NameToLayer("Logic") & 0x1F));
 		if (CollisionDetection.MVHit(ray, out voxelHit, distance, ignoreWoIDs, layerMask))
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(voxelHit.woId);
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
 			if (worldObjectClient.PlayInteractionType == PlayInteractionType.Solid)
 			{
 				return true;
@@ -132,7 +139,7 @@ public class Bullet : MonoBehaviour
 
 	public Vector3 FindTargetPos(float maxRange)
 	{
-		if (GameDB.IsClassicGame)
+		if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
 		{
 			LayerMask layerMask = -5;
 			layerMask = (int)layerMask & ~(1 << (LayerMask.NameToLayer("Logic") & 0x1F));

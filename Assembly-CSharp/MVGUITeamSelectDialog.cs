@@ -27,7 +27,7 @@ public class MVGUITeamSelectDialog : UXCustomDialogBox
 
 	private void BuildTeamLists()
 	{
-		List<MVTeam> teamList = MVGameController.Game.TeamManager.GetTeamList();
+		List<MVTeam> teamList = MVGameControllerBase.Game.TeamManager.GetTeamList();
 		NoOfTeams = teamList.Count;
 		if (NoOfTeams == 1)
 		{

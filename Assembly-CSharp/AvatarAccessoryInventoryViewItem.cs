@@ -4,7 +4,7 @@ public class AvatarAccessoryInventoryViewItem : AvatarAccessoryBasicViewItem
 {
 	private MVGUIAvatarAccessoryRentTimer avatarAccessoryRentTimer;
 
-	protected MVNetworkGame Game => MVGameController.Game;
+	protected MVNetworkGame Game => MVGameControllerBase.Game;
 
 	public int InventoryID { get; private set; }
 

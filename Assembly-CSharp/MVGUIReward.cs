@@ -20,7 +20,7 @@ public class MVGUIReward : UXViewScript
 	public override void Awake()
 	{
 		base.Awake();
-		MVGameController.TimeReward.RewardStateChanged += TimeReward_RewardStateChanged;
+		MVGameControllerBase.TimeReward.RewardStateChanged += TimeReward_RewardStateChanged;
 	}
 
 	private void TimeReward_RewardStateChanged(object sender, RewardStateDataEventArgs e)

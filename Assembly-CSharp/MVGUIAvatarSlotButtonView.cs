@@ -22,7 +22,7 @@ public class MVGUIAvatarSlotButtonView : UXViewScript
 
 	private Queue<MVGUIAvatarSlotButton> _takePictureQueue = new Queue<MVGUIAvatarSlotButton>();
 
-	private CharacterEditorController CEController => MVGameController.CharacterEditorController;
+	private CharacterEditorController CEController => MVGameControllerLegacyUI.CharacterEditorController;
 
 	private List<MVBody> AvatarBodies => AvatarSelectionAnimator.Instance.Bodies;
 
@@ -34,7 +34,7 @@ public class MVGUIAvatarSlotButtonView : UXViewScript
 		SlotButtonRoot.localScale = Vector3.one;
 		SlotButtonRoot.localRotation = Quaternion.identity;
 		selectionCursor.SetVisible(visible: true);
-		CharacterEditorController characterEditorController = MVGameController.CharacterEditorController;
+		CharacterEditorController characterEditorController = MVGameControllerLegacyUI.CharacterEditorController;
 		characterEditorController.OnAvatarBodiesUpdated = (CharacterEditorController.OnAvatarBodiesUpdatedDelegate)Delegate.Combine(characterEditorController.OnAvatarBodiesUpdated, new CharacterEditorController.OnAvatarBodiesUpdatedDelegate(UpdateAvatarSlotButtons));
 		UpdateAvatarSlotButtons();
 		UXIconButton uXIconButton = addAvatarButton;

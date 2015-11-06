@@ -12,11 +12,11 @@ public class MVGUISpeedometer : UXViewScript
 
 	private void Update()
 	{
-		if (MVGameController.WOCM == null || MVGameController.Game.PlayerController.CurrentWorldObject == null)
+		if (MVGameControllerBase.WOCM == null || MVGameControllerBase.Game.PlayerController.CurrentWorldObject == null)
 		{
 			return;
 		}
-		MVRigidBody component = MVGameController.Game.PlayerController.CurrentWorldObject.GameObject.GetComponent<MVRigidBody>();
+		MVRigidBody component = MVGameControllerBase.Game.PlayerController.CurrentWorldObject.GameObject.GetComponent<MVRigidBody>();
 		if (component == null)
 		{
 			if (View.isVisible)

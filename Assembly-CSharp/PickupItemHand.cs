@@ -27,10 +27,10 @@ public class PickupItemHand : PickupItemWithDelay
 		Debug.DrawLine(ray.origin, ray.origin + ray.direction * 2f, Color.red, 10f);
 		if (CollisionDetection.MVHit(ray, out var voxelHit, 2f, new HashSet<int>(), 1 << LayerMask.NameToLayer("Default")))
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(voxelHit.woId);
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
 			if (worldObjectClient.WorldObjectType == WorldObjectType.CubeModelPrototypeTerrain || worldObjectClient.WorldObjectType == WorldObjectType.CubeModelTerrainFineGrained)
 			{
-				MVGameController.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, 20f);
+				MVGameControllerBase.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, 20f);
 			}
 		}
 	}

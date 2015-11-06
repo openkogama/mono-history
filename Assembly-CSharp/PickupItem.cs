@@ -4,9 +4,19 @@ using UnityEngine;
 
 public abstract class PickupItem : MonoBehaviour
 {
+	protected bool firedThisFrame;
+
 	public MVPickupOwner owner;
 
+	[SerializeField]
+	protected Transform muzzlePoint;
+
+	[SerializeField]
+	protected Transform center;
+
 	protected MeshRenderer[] meshRenderers = new MeshRenderer[0];
+
+	public Vector3 Origin => center.position;
 
 	public virtual int Quantity => 0;
 
@@ -14,12 +24,7 @@ public abstract class PickupItem : MonoBehaviour
 
 	public virtual float ChargeState => 0f;
 
-	public virtual bool ActivateGunModeOnEquip => GameDB.GameType switch
-	{
-		MVGameType.Classic => true, 
-		MVGameType.Platformer => false, 
-		_ => true, 
-	};
+	public virtual bool ActivateGunModeOnEquip => true;
 
 	public abstract AvatarItemType Type { get; }
 
@@ -51,11 +56,6 @@ public abstract class PickupItem : MonoBehaviour
 		};
 	}
 
-	public virtual MeshRenderer[] GetMeshRenderers()
-	{
-		return meshRenderers;
-	}
-
 	public virtual bool CanFire()
 	{
 		return true;
@@ -79,5 +79,26 @@ public abstract class PickupItem : MonoBehaviour
 
 	public virtual void OnUnequip()
 	{
+	}
+
+	public virtual void UpdateWithDirection(Vector3 dir)
+	{
+		dir.Normalize();
+		Vector3 vector = transform.rotation * Vector3.forward;
+		Debug.DrawLine(center.position, center.position + vector, Color.red);
+		Debug.DrawLine(center.position, center.position + dir, Color.blue);
+		Vector3 vector2 = Vector3.Cross(Vector3.up, vector);
+		vector2.Normalize();
+		Debug.DrawLine(center.position, center.position + vector2, Color.green);
+		float num = MathFunctions.SignedAngle(dir, vector, -vector2);
+		Quaternion localRotation = Quaternion.Euler(num * 57.29578f, 0f, 0f);
+		center.localRotation = localRotation;
+	}
+
+	public bool GetAndResetFiredThisFrame()
+	{
+		bool result = firedThisFrame;
+		firedThisFrame = false;
+		return result;
 	}
 }

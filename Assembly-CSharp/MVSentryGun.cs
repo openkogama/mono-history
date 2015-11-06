@@ -159,7 +159,7 @@ public class MVSentryGun : MVLogicObject
 		}
 		if ((InputState || InputLinkRefs.Count == 0) && !interactable.IsDead())
 		{
-			if (intervalWithRandomSeed.Update() && MVGameController.Game.IsPlaying)
+			if (intervalWithRandomSeed.Update() && MVGameControllerBase.Game.IsPlaying)
 			{
 				HashSet<int> hashSet = new HashSet<int>();
 				Collider[] array = Physics.OverlapSphere(gameObject.transform.position, laserRange, 1 << LayerMask.NameToLayer("Player"));
@@ -177,7 +177,7 @@ public class MVSentryGun : MVLogicObject
 					{
 						continue;
 					}
-					mVObject = MVGameController.WOCM.GetWorldObjectClient(num);
+					mVObject = MVGameControllerBase.WOCM.GetWorldObjectClient(num);
 					Vector3 targetPosition = mVObject.GetTargetPosition();
 					Ray ray = new Ray(gameObject.transform.position, (targetPosition - gameObject.transform.position).normalized);
 					if (HitsTarget(ray, num) && !hashSet.Contains(num))
@@ -214,7 +214,7 @@ public class MVSentryGun : MVLogicObject
 		DoFrameDelete();
 		foreach (KeyValuePair<int, SentryGunBeam> item3 in woIdsBeamsMap)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(item3.Key);
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(item3.Key);
 			Collider componentInChildren = worldObjectClient.GameObject.GetComponentInChildren<Collider>();
 			item3.Value.SetBeamPositions(gameObject.transform.position, componentInChildren.bounds.center);
 		}
@@ -240,7 +240,7 @@ public class MVSentryGun : MVLogicObject
 		List<int> list = new List<int>();
 		foreach (KeyValuePair<int, SentryGunBeam> item in woIdsBeamsMap)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(item.Key);
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(item.Key);
 			if (worldObjectClient == null || item.Value == null)
 			{
 				list.Add(item.Key);

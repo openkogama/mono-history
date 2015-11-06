@@ -57,7 +57,14 @@ public class MVGameCoinChest : MVLogicObject
 			Debug.LogError("A TriggerBoxEvents object is missing in PickupItem type: " + GetType().Name);
 		}
 		interactionFlags |= InteractionFlags.HasSettings;
-		MVGameController.Game.GameCoinManager.ReportPickupChangeInEditor();
+		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
+	}
+
+	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
+	{
+		Vector3 one = Vector3.one;
+		one *= 2f;
+		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, one);
 	}
 
 	public override void InitializeInventory()
@@ -76,7 +83,7 @@ public class MVGameCoinChest : MVLogicObject
 				gameObject.GetComponent<AudioSource>().Play();
 			}
 			particles.Play();
-			MVGameController.Game.GameCoinManager.GameCoinChestCollect((int)Data["gameCoinAmount"]);
+			MVGameControllerBase.Game.GameCoinManager.GameCoinChestCollect((int)Data["gameCoinAmount"]);
 			state = GameCoinChestClientState.Open;
 		}
 	}
@@ -133,25 +140,25 @@ public class MVGameCoinChest : MVLogicObject
 
 	public override MVWorldObjectClient Clone(int ownerActorNumber, int cloneGroupId, CloneBookkeeping cloneBookkeeping, Dictionary<int, MVWorldObjectClient> worldObjects, Dictionary<int, RuntimePrototypeCubeModel> prototypes)
 	{
-		MVGameController.Game.GameCoinManager.ReportPickupChangeInEditor();
+		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
 		return base.Clone(ownerActorNumber, cloneGroupId, cloneBookkeeping, worldObjects, prototypes);
 	}
 
 	public override MVWorldObject DeepCopy()
 	{
-		MVGameController.Game.GameCoinManager.ReportPickupChangeInEditor();
+		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
 		return base.DeepCopy();
 	}
 
 	public override void Initialize()
 	{
-		MVGameController.Game.GameCoinManager.ReportPickupChangeInEditor();
+		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
 		base.Initialize();
 	}
 
 	public override void Destroy()
 	{
-		MVGameController.Game.GameCoinManager.ReportPickupChangeInEditor();
+		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
 		base.Destroy();
 	}
 }

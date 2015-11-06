@@ -6,7 +6,7 @@ public class MVGUIAvatarAccessoryButtons : UXViewScript
 
 	public UXIconButton avatarAccessoryShopButton;
 
-	public CharacterEditorController CEController => MVGameController.CharacterEditorController;
+	public CharacterEditorController CEController => MVGameControllerLegacyUI.CharacterEditorController;
 
 	public override void OnInitialize()
 	{

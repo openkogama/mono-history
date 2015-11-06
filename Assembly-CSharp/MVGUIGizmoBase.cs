@@ -48,7 +48,7 @@ public abstract class MVGUIGizmoBase : MonoBehaviour
 	protected virtual void InitializeGizmo()
 	{
 		uxCamera = UXUtils.UXCamera;
-		mainCamera = MVGameController.Game.CameraController.GetComponent<Camera>();
+		mainCamera = MVGameControllerBase.CameraController.MainCamera;
 	}
 
 	protected void UpdatePosition()

@@ -24,7 +24,7 @@ public abstract class AvatarAccessory : MonoBehaviour
 
 	private Quaternion worldRotationOnAttach;
 
-	private static MVNetworkGame Game => MVGameController.Game;
+	private static MVNetworkGame Game => MVGameControllerBase.Game;
 
 	public abstract AccessorySettings AccessorySettings { get; }
 

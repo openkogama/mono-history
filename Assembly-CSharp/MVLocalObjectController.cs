@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using MV.Common;
 using UnityEngine;
 
 public class MVLocalObjectController : IUpdatecontrollerSubscriber
@@ -19,7 +21,7 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 
 		public AttachState(int worldObjectID)
 		{
-			MVNetworkObject networkObject = MVGameController.WOCM.GetWorldObjectClient(worldObjectID).NetworkObject;
+			MVNetworkObject networkObject = MVGameControllerBase.WOCM.GetWorldObjectClient(worldObjectID).NetworkObject;
 			if (networkObject is MVNetworkReporter)
 			{
 				((MVNetworkReporter)networkObject).suspendTransformReporting = true;
@@ -30,7 +32,7 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 
 		public void HandleAttachFailed()
 		{
-			MVNetworkObject networkObject = MVGameController.WOCM.GetWorldObjectClient(woID).NetworkObject;
+			MVNetworkObject networkObject = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).NetworkObject;
 			if (networkObject is MVNetworkReporter && transformDataWasSuspended)
 			{
 				((MVNetworkReporter)networkObject).suspendTransformReporting = false;
@@ -69,13 +71,13 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 		}
 	}
 
+	private const int maxLoclControlledObjects = 4;
+
 	public const float TimeBeforeUnregister = 30f;
 
-	private int maxLoclControlledObjects = 4;
+	private readonly IInputToPlayerMovement movementMap;
 
-	private MovementMap movementMap = new MovementMap();
-
-	private InteractionInput interactionInput = new InteractionInput();
+	private InputToInGameAction interactionInput = new InputToInGameAction();
 
 	private IAttachInterface attachState;
 
@@ -119,7 +121,7 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 				return null;
 			}
 			int id = localControlledStack.Peek().Id;
-			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(id);
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(id);
 			if (worldObjectClient == null)
 			{
 				Debug.LogError("wo does not exist");
@@ -128,11 +130,26 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 		}
 	}
 
-	public MVLocalObjectController(MVWorldObjectClientManagerNetwork worldObjectClientManagerNetwork)
+	public MVLocalObjectController(MVWorldObjectClientManagerNetwork worldObjectClientManagerNetwork, MVGameType gameType)
 	{
 		UpdateController.AddUpdateObject(this, UpdatePriority.PRE_UPDATEBUCKET_10);
 		UpdateController.AddFixedUpdateObject(this, UpdatePriority.PRE_UPDATEBUCKET_10);
 		this.worldObjectClientManagerNetwork = worldObjectClientManagerNetwork;
+		movementMap = CreateInputToPlayerMovement(MVGameControllerBase.GameMode, gameType);
+	}
+
+	private static IInputToPlayerMovement CreateInputToPlayerMovement(MVGameMode gameMode, MVGameType gameType)
+	{
+		if (gameMode == MVGameMode.CharacterEditor)
+		{
+			return new InputToPlayerMovementAvatarEdit();
+		}
+		return gameType switch
+		{
+			MVGameType.Classic => (IInputToPlayerMovement)new InputToPlayerMovement(), 
+			MVGameType.Platformer => new InputToPlayerMovement(), 
+			_ => throw new Exception("gametype not supported: " + gameType), 
+		};
 	}
 
 	public void Push(ILocalObject localObject)
@@ -142,7 +159,7 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 
 	public void UpdateControllerUpdate()
 	{
-		if (MVGameController.Game.JoinState == MVJoinState.Playing)
+		if (MVGameControllerBase.JoinState == MVJoinState.Playing)
 		{
 			UpdateLocalControlledObjects();
 			UpdateDismountedPlayerControlledObjects();
@@ -151,7 +168,7 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 
 	public void UpdateControllerFixedUpdate()
 	{
-		if (MVGameController.Game.JoinState == MVJoinState.Playing)
+		if (MVGameControllerBase.JoinState == MVJoinState.Playing)
 		{
 			FixedUpdateLocalControlledObjects();
 			FixedUpdateDismountedPlayerControlledObjects();
@@ -177,7 +194,7 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 		}
 		attachState = new DetachState();
 		Debug.Log("Detaching from vehicle");
-		MVGameController.Game.DetachWorldObjectFromVehicle(worldObjectID);
+		MVGameControllerBase.Game.DetachWorldObjectFromVehicle(worldObjectID);
 		vehicleID = localObject.Id;
 		return true;
 	}
@@ -212,15 +229,15 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 			return false;
 		}
 		attachState = new AttachState(worldObjectID);
-		MVGameController.Game.AttachWorldObjectToSeat(seatOwnerWoID, worldObjectID, seatBase);
+		MVGameControllerBase.Game.AttachWorldObjectToSeat(seatOwnerWoID, worldObjectID, seatBase);
 		return true;
 	}
 
 	public bool SpawnVehicleWithDriver(int worldObjectSpawnerVehicleID, int worldObjectID, VehicleSeatBase seatBase)
 	{
-		if (LocalControlledWorldObjects.Count >= maxLoclControlledObjects)
+		if (LocalControlledWorldObjects.Count >= 4)
 		{
-			Debug.LogWarning("Can't have more active Client Controlled WorldObjects. Count is " + LocalControlledWorldObjects.Count + " max is " + maxLoclControlledObjects);
+			Debug.LogWarning("Can't have more active Client Controlled WorldObjects. Count is " + LocalControlledWorldObjects.Count + " max is " + 4);
 			return false;
 		}
 		if (attachState != null)
@@ -229,7 +246,7 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 			return false;
 		}
 		attachState = new AttachState(worldObjectID);
-		MVGameController.Game.SpawnVehicleWithDriver(worldObjectSpawnerVehicleID, worldObjectID, seatBase);
+		MVGameControllerBase.Game.SpawnVehicleWithDriver(worldObjectSpawnerVehicleID, worldObjectID, seatBase);
 		return true;
 	}
 
@@ -285,7 +302,7 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 		}
 		foreach (int item in list)
 		{
-			MVGameController.WOCM.UnregisterWorldObject(item);
+			MVGameControllerBase.WOCM.UnregisterWorldObject(item);
 			dismountedLocalControlledObjects.Remove(item);
 		}
 	}
@@ -299,7 +316,7 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 			ILocalObject[] array2 = array;
 			foreach (ILocalObject localObject in array2)
 			{
-				movementMap = localObject.FixedUpdate(movementMap);
+				localObject.FixedUpdate(movementMap);
 			}
 		}
 	}

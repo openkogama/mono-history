@@ -23,18 +23,18 @@ public class PostprocessFog : MonoBehaviour
 		GameObject gameObject = new GameObject("Transparent Camera");
 		gameObject.transform.parent = transform;
 		transparentCam = gameObject.AddComponent<Camera>();
-		transparentCam.CopyFrom(GetComponent<Camera>());
+		transparentCam.CopyFrom(MVGameControllerBase.CameraController.MainCamera);
 		transparentCam.depth = 10f;
 		transparentCam.depthTextureMode = DepthTextureMode.None;
 		transparentCam.clearFlags = CameraClearFlags.Nothing;
 		transparentCam.cullingMask = 1 << LayerMask.NameToLayer("Logic");
-		GetComponent<Camera>().cullingMask &= ~(1 << LayerMask.NameToLayer("Logic"));
+		MVGameControllerBase.CameraController.MainCamera.cullingMask &= ~(1 << LayerMask.NameToLayer("Logic"));
 	}
 
 	private void OnEnable()
 	{
 		RenderSettings.fog = false;
-		GetComponent<Camera>().depthTextureMode |= DepthTextureMode.Depth;
+		MVGameControllerBase.CameraController.MainCamera.depthTextureMode |= DepthTextureMode.Depth;
 	}
 
 	private void OnDisable()
@@ -43,29 +43,29 @@ public class PostprocessFog : MonoBehaviour
 		RenderSettings.fogColor = GetComponent<Camera>().backgroundColor;
 		RenderSettings.fogStartDistance = startDistance;
 		RenderSettings.fogEndDistance = GetComponent<Camera>().farClipPlane;
-		GetComponent<Camera>().depthTextureMode = DepthTextureMode.None;
+		MVGameControllerBase.CameraController.MainCamera.depthTextureMode = DepthTextureMode.None;
 	}
 
 	private void OnRenderImage(RenderTexture source, RenderTexture destination)
 	{
 		fogMaterial = CreateMaterial(fogShader, fogMaterial, checkShaderSupport: false);
-		float nearClipPlane = GetComponent<Camera>().nearClipPlane;
-		float farClipPlane = GetComponent<Camera>().farClipPlane;
+		float nearClipPlane = MVGameControllerBase.CameraController.MainCamera.nearClipPlane;
+		float farClipPlane = MVGameControllerBase.CameraController.MainCamera.farClipPlane;
 		Matrix4x4 identity = Matrix4x4.identity;
-		float num = GetComponent<Camera>().fieldOfView * 0.5f;
-		Vector3 vector = GetComponent<Camera>().transform.right * nearClipPlane * Mathf.Tan(num * ((float)Math.PI / 180f)) * GetComponent<Camera>().aspect;
-		Vector3 vector2 = GetComponent<Camera>().transform.up * nearClipPlane * Mathf.Tan(num * ((float)Math.PI / 180f));
-		Vector3 vector3 = GetComponent<Camera>().transform.forward * nearClipPlane - vector + vector2;
+		float num = MVGameControllerBase.CameraController.MainCamera.fieldOfView * 0.5f;
+		Vector3 vector = MVGameControllerBase.CameraController.MainCamera.transform.right * nearClipPlane * Mathf.Tan(num * ((float)Math.PI / 180f)) * GetComponent<Camera>().aspect;
+		Vector3 vector2 = MVGameControllerBase.CameraController.MainCamera.transform.up * nearClipPlane * Mathf.Tan(num * ((float)Math.PI / 180f));
+		Vector3 vector3 = MVGameControllerBase.CameraController.MainCamera.transform.forward * nearClipPlane - vector + vector2;
 		float num2 = vector3.magnitude * farClipPlane / nearClipPlane;
 		vector3.Normalize();
 		vector3 *= num2;
-		Vector3 vector4 = GetComponent<Camera>().transform.forward * nearClipPlane + vector + vector2;
+		Vector3 vector4 = MVGameControllerBase.CameraController.MainCamera.transform.forward * nearClipPlane + vector + vector2;
 		vector4.Normalize();
 		vector4 *= num2;
-		Vector3 vector5 = GetComponent<Camera>().transform.forward * nearClipPlane + vector - vector2;
+		Vector3 vector5 = MVGameControllerBase.CameraController.MainCamera.transform.forward * nearClipPlane + vector - vector2;
 		vector5.Normalize();
 		vector5 *= num2;
-		Vector3 vector6 = GetComponent<Camera>().transform.forward * nearClipPlane - vector - vector2;
+		Vector3 vector6 = MVGameControllerBase.CameraController.MainCamera.transform.forward * nearClipPlane - vector - vector2;
 		vector6.Normalize();
 		vector6 *= num2;
 		identity.SetRow(0, vector3);

@@ -1,20 +1,21 @@
 using System;
 using System.Collections.Generic;
+using MV.Common;
 using UnityEngine;
 
-public class SizeState : MonoBehaviour
+public class SizeState
 {
+	private const float scalePercent = 0.1f;
+
 	private static readonly int layerMask = -5 & ~(1 << LayerMask.NameToLayer("Player")) & ~(1 << LayerMask.NameToLayer("Logic"));
 
-	private MVInteractable interactableLocal;
+	private readonly MVInteractable interactableLocal;
 
-	private MvCharacterController controllerLocal;
+	private readonly MvCharacterController controllerLocal;
 
 	private float currentSize = 1f;
 
-	private float scalePercent = 0.1f;
-
-	private List<Vector3> RelativePositions = new List<Vector3>
+	private static List<Vector3> relativePositions = new List<Vector3>
 	{
 		new Vector3(0f, 0f, 0f),
 		new Vector3(0f, 1f, 0f),
@@ -45,6 +46,19 @@ public class SizeState : MonoBehaviour
 		new Vector3(1f, 1f, 1f)
 	};
 
+	private static List<Vector3> relativePositionsPlatformer = new List<Vector3>
+	{
+		new Vector3(0f, 0f, 0f),
+		new Vector3(0f, 1f, 0f),
+		new Vector3(0f, -1f, 0f),
+		new Vector3(1f, 0f, 0f),
+		new Vector3(-1f, 0f, 0f),
+		new Vector3(1f, 1f, 0f),
+		new Vector3(1f, -1f, 0f),
+		new Vector3(-1f, 1f, 0f),
+		new Vector3(-1f, -1f, 0f)
+	};
+
 	public float ControllerRadius => controllerLocal.Radius;
 
 	public float ControllerCenterY => controllerLocal.Center.y;
@@ -57,6 +71,10 @@ public class SizeState : MonoBehaviour
 
 	public SizeState(MVInteractable interactable, MvCharacterController controller)
 	{
+		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
+		{
+			relativePositions = relativePositionsPlatformer;
+		}
 		interactableLocal = interactable;
 		controllerLocal = controller;
 	}
@@ -105,14 +123,14 @@ public class SizeState : MonoBehaviour
 
 	private Vector3 FindValidMoveLocation(float scale)
 	{
-		float num = scale * scalePercent;
+		float num = scale * 0.1f;
 		float num2 = currentSize;
 		Vector3 position = controllerLocal.transform.position;
 		while (num2 < scale)
 		{
 			num2 += num;
 			bool flag = false;
-			foreach (Vector3 relativePosition in RelativePositions)
+			foreach (Vector3 relativePosition in relativePositions)
 			{
 				Vector3 vector = relativePosition * num2;
 				if (GetIsValidScaledPosition(vector, num2))

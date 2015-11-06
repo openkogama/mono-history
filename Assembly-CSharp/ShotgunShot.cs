@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(MeshRenderer))]
 [RequireComponent(typeof(MeshFilter))]
+[RequireComponent(typeof(MeshRenderer))]
 public class ShotgunShot : MonoBehaviour
 {
 	private struct Hit
@@ -100,7 +100,7 @@ public class ShotgunShot : MonoBehaviour
 			hit.position = voxelHit.point;
 			hit.normal = voxelHit.normal;
 			hit.distance = Vector3.Distance(ray.origin, hit.position);
-			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(voxelHit.woId);
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
 			avatarWasHit = true;
 			if (onDirectHit != null)
 			{

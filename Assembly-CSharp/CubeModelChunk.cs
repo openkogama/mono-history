@@ -203,7 +203,7 @@ public class CubeModelChunk
 			{
 				MeshRenderer component = instances[i].GetComponent<MeshRenderer>();
 				component.sharedMaterials = sharedMeshData.materials;
-				MVGameController.WOCM.UpdateWorldBounds(component.bounds);
+				MVGameControllerBase.WOCM.UpdateWorldBounds(component.bounds);
 			}
 			else
 			{
@@ -483,7 +483,7 @@ public class CubeModelChunk
 				byte material = CubeBase.GetMaterial(cell.Value.cube, faceData[i].face);
 				if (!dictionary.ContainsKey(material))
 				{
-					Material material2 = MVGameController.Game.MaterialRepository.GetMaterial(material).material;
+					Material material2 = MVGameControllerBase.Game.MaterialRepository.GetMaterial(material).material;
 					meshData.materials.Add(material2);
 					meshData.subMeshTriangles.Add(new List<int>());
 					dictionary.Add(material, meshData.materials.Count - 1);

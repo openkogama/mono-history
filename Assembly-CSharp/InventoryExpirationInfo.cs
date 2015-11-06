@@ -12,7 +12,7 @@ public class InventoryExpirationInfo
 
 	private ProductExpirationState expirationState;
 
-	private static MVNetworkGame Game => MVGameController.Game;
+	private static MVNetworkGame Game => MVGameControllerBase.Game;
 
 	public MVProductType ProductType { get; private set; }
 

@@ -159,8 +159,8 @@ public class MVGameCoinManager
 
 	private void Evaluate()
 	{
-		int count = MVGameController.WOCM.GetWorldObjectsByType(WorldObjectType.GameCoin).Count;
-		int count2 = MVGameController.WOCM.GetWorldObjectsByType(WorldObjectType.GameCoinChest).Count;
+		int count = MVGameControllerBase.WOCM.GetWorldObjectsByType(WorldObjectType.GameCoin).Count;
+		int count2 = MVGameControllerBase.WOCM.GetWorldObjectsByType(WorldObjectType.GameCoinChest).Count;
 		if ((int)totalPurchaseAmount <= 0 && count <= 0 && count2 <= 0)
 		{
 			HandleActivationChange(active: false);

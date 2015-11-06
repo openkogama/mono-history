@@ -1,5 +1,7 @@
+#define DEBUG
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace MV.WorldObject;
@@ -77,9 +79,12 @@ public class BytePacker
 			throw new ArgumentException("The stream is larger than its max capacity: " + int.MaxValue);
 		}
 		_buffer = new List<byte>(count);
-		for (int i = index; i < count; i++)
+		int num = index;
+		while (num < count)
 		{
-			_buffer.Add(buffer[i - index]);
+			_buffer.Add(buffer[num - index]);
+			int num2 = num + 1;
+			num = num2;
 		}
 	}
 
@@ -119,6 +124,7 @@ public class BytePacker
 
 	public void Write(byte value)
 	{
+		Debug.Assert(_position <= _buffer.Count);
 		if (_position + 1 > int.MaxValue)
 		{
 			throw new ArgumentException("The stream is larger than its max capacity: " + int.MaxValue);
@@ -256,6 +262,7 @@ public class BytePacker
 
 	public byte ReadByte()
 	{
+		Debug.Assert(_position <= _buffer.Count);
 		if (_position == _buffer.Count)
 		{
 			throw new EndOfStreamException("The end of the stream is reached.");
@@ -265,6 +272,7 @@ public class BytePacker
 
 	public byte[] ReadBytes(int count)
 	{
+		Debug.Assert(_position <= _buffer.Count);
 		if (_position + count > _buffer.Count)
 		{
 			throw new EndOfStreamException("The number of bytes to read exceeds the stream's length.");
@@ -285,6 +293,7 @@ public class BytePacker
 
 	public ushort ReadUInt16()
 	{
+		Debug.Assert(_position <= _buffer.Count);
 		if (_position + 2 > _buffer.Count)
 		{
 			throw new EndOfStreamException("The end of the stream is reached.");
@@ -306,6 +315,7 @@ public class BytePacker
 
 	public int ReadInt32()
 	{
+		Debug.Assert(_position <= _buffer.Count);
 		if (_position + 4 > _buffer.Count)
 		{
 			throw new EndOfStreamException("The end of the stream is reached.");
@@ -318,6 +328,7 @@ public class BytePacker
 
 	public ulong ReadUInt64()
 	{
+		Debug.Assert(_position <= _buffer.Count);
 		if (_position + 8 > _buffer.Count)
 		{
 			throw new EndOfStreamException("The end of the stream is reached.");

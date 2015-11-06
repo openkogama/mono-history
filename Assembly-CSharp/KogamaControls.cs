@@ -4,8 +4,6 @@ public enum KogamaControls
 	MoveLeft,
 	MoveRight,
 	MoveBackwards,
-	MoveUp,
-	MoveDown,
 	AlternateCameraControls,
 	PointerSelect,
 	PointerSelectAlt,
@@ -35,7 +33,6 @@ public enum KogamaControls
 	CreateNewModel,
 	ToggleDrawPlane,
 	Fire,
-	Run,
 	Jump,
 	DrawAudioBox,
 	ChatSendLine,
@@ -44,5 +41,12 @@ public enum KogamaControls
 	ChangeFocus,
 	ChangeChangeFocusDirection,
 	ToggleHD,
-	LobbyMenu
+	LobbyMenu,
+	EditMoveUp,
+	EditMoveDown,
+	EditMoveForward,
+	EditMoveLeft,
+	EditMoveRight,
+	EditMoveBackwards,
+	EditMoveFast
 }

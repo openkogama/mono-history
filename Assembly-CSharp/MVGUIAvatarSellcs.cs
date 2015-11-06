@@ -58,12 +58,12 @@ public class MVGUIAvatarSellcs : UXViewScript
 	private void ShowSellMenu()
 	{
 		Debug.Log("Show sell menu");
-		if (MVGameController.Game.LocalPlayer.Level < MVGameController.Game.MarketPlaceLevel)
+		if (MVGameControllerBase.Game.LocalPlayer.Level < MVGameControllerBase.Game.MarketPlaceLevel)
 		{
-			UXUtils.UXDialogFactory.CreateDialog(TM._("You can not add to marketplace before reaching level: ") + MVGameController.Game.MarketPlaceLevel, string.Empty, UXDialogType.Simple, noButtons: true, stackDialog: true).Show();
+			UXUtils.UXDialogFactory.CreateDialog(TM._("You can not add to marketplace before reaching level: ") + MVGameControllerBase.Game.MarketPlaceLevel, string.Empty, UXDialogType.Simple, noButtons: true, stackDialog: true).Show();
 			return;
 		}
-		MVGameController.Game.AvatarMetaDataWoMap.TryGetValue(woID, out avatarMetaData);
+		MVGameControllerBase.Game.AvatarMetaDataWoMap.TryGetValue(woID, out avatarMetaData);
 		sellAvatarDialog.SetAvatarMetaData(woID, avatarMetaData);
 		sellAvatarDialog.View.Show();
 	}

@@ -105,9 +105,9 @@ public abstract class MVVehicleBase : MVBlueprintBase
 			}
 		}
 
-		public abstract InteractionInput Update(InteractionInput interactionInput);
+		public abstract InputToInGameAction Update(InputToInGameAction interactionInput);
 
-		public abstract MovementMap FixedUpdate(MovementMap movementMap);
+		public abstract IInputToPlayerMovement FixedUpdate(IInputToPlayerMovement movementMap);
 
 		protected void OnHealthChange(object v)
 		{
@@ -129,7 +129,7 @@ public abstract class MVVehicleBase : MVBlueprintBase
 			{
 				localAvatar.LeaveVehicle();
 			}
-			MVGameController.Game.PlayerController.OverrideRemoveTimeForDismountedWorldObject(Id, timeBeforeUnregisterAfterDeath);
+			MVGameControllerBase.Game.PlayerController.OverrideRemoveTimeForDismountedWorldObject(Id, timeBeforeUnregisterAfterDeath);
 			Owner.IsVehicleDead.Value = true;
 		}
 	}
@@ -189,7 +189,7 @@ public abstract class MVVehicleBase : MVBlueprintBase
 	{
 		int num = vehicleUser.OwnerActorNr;
 		vehicleUser.BeforeVehicleEntered();
-		bool flag = MVGameController.Game.LocalPlayer.ActorNr == num;
+		bool flag = MVGameControllerBase.Game.LocalPlayer.ActorNr == num;
 		seatManager.AttachWorldObjectToSeat(num, flag, vehicleUser, seatID);
 		if (flag)
 		{
@@ -197,7 +197,7 @@ public abstract class MVVehicleBase : MVBlueprintBase
 			{
 				localObjects = CreateLocalObjects(seatID, (MVAvatarLocal)vehicleUser);
 			}
-			MVGameController.Game.PlayerController.Push(localObjects);
+			MVGameControllerBase.Game.PlayerController.Push(localObjects);
 			((MVAvatarLocal)vehicleUser).SetAnimation("Idle");
 			localObjects.Enter();
 		}

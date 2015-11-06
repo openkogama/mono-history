@@ -1,9 +1,5 @@
-using System;
-
 public class PlayControllerEdit : PlayController
 {
-	public Action<EditModeChangeArgs> EditModeChange;
-
 	private bool playInEditor;
 
 	private MVGUIPlayButton playButton;
@@ -25,10 +21,10 @@ public class PlayControllerEdit : PlayController
 			MVInputWrapper.ignoreAllKeys = false;
 			MVInputWrapper.ignoreInGameInput = false;
 			chatController.CanAutoHide = true;
-			MVGameController.WOCM.AvatarLocal.Body.AccessoryMoveOverride = false;
-			if (MVGameController.Game.GameCoinManager.BoostEnabled)
+			MVGameControllerBase.WOCM.AvatarLocal.Body.AccessoryMoveOverride = false;
+			if (MVGameControllerBase.Game.GameCoinManager.BoostEnabled)
 			{
-				MVGameController.Game.SetGameCoinBoostState(gameCoinBoosterEnabled: false);
+				MVGameControllerBase.Game.SetGameCoinBoostState(gameCoinBoosterEnabled: false);
 			}
 		}
 		else
@@ -37,10 +33,6 @@ public class PlayControllerEdit : PlayController
 			LockCursorManager.LockCursor = true;
 			briefingWasShown = false;
 			ShowBriefing();
-		}
-		if (EditModeChange != null)
-		{
-			EditModeChange(new EditModeChangeArgs(playInEditor));
 		}
 	}
 

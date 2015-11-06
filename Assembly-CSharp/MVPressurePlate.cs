@@ -28,6 +28,8 @@ public class MVPressurePlate : MVLogicObject
 
 	public override Vector3 OutputConnectorOffset => new Vector3(2f, 0.25f, 0f);
 
+	public override Vector3 WorldPivot => SharedCubeFunctions.GetWorldCenter(transform) + transform.rotation * (0.5f * Vector3.left);
+
 	public MVPressurePlate(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, "Prefabs/PressurePlateObject", worldObjects)
 	{
@@ -43,7 +45,9 @@ public class MVPressurePlate : MVLogicObject
 
 	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
 	{
-		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, Vector3.one * 2f);
+		Vector3 one = Vector3.one;
+		one *= 2f;
+		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, one);
 	}
 
 	protected override void OnUpdate()
@@ -62,13 +66,13 @@ public class MVPressurePlate : MVLogicObject
 		{
 			if (gameCoinLogic.ShowUseGUI())
 			{
-				DoEnter(MVGameController.WOCM.AvatarLocal.Id);
+				DoEnter(MVGameControllerBase.WOCM.AvatarLocal.Id);
 				didEnterWithGameCoins = true;
 			}
 		}
 		else if (!triggerBoxEvents.IsInTrigger && didEnterWithGameCoins)
 		{
-			DoExit(MVGameController.WOCM.AvatarLocal.Id);
+			DoExit(MVGameControllerBase.WOCM.AvatarLocal.Id);
 			didEnterWithGameCoins = false;
 		}
 	}
@@ -95,7 +99,7 @@ public class MVPressurePlate : MVLogicObject
 	{
 		if (gameCoinLogic.PurchaseAmount <= 0)
 		{
-			int woIDWithLocalOwnerHighestInHierarchy = MVGameController.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(e.instigatorWOID);
+			int woIDWithLocalOwnerHighestInHierarchy = MVGameControllerBase.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(e.instigatorWOID);
 			if (woIDWithLocalOwnerHighestInHierarchy == -1)
 			{
 				Debug.LogError("Pressure plate entered by object which is not owned locally");
@@ -110,7 +114,7 @@ public class MVPressurePlate : MVLogicObject
 	{
 		if (gameCoinLogic.PurchaseAmount <= 0)
 		{
-			int woIDWithLocalOwnerHighestInHierarchy = MVGameController.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(e.instigatorWOID);
+			int woIDWithLocalOwnerHighestInHierarchy = MVGameControllerBase.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(e.instigatorWOID);
 			if (woIDWithLocalOwnerHighestInHierarchy == -1)
 			{
 				Debug.LogError("Pressure plated exited by object which is not owned locally. This might be ok?");
@@ -124,24 +128,24 @@ public class MVPressurePlate : MVLogicObject
 
 	private void DoEnter(int instigatorWOID)
 	{
-		MVGameController.Game.TriggerBoxEnter(Id, instigatorWOID);
+		MVGameControllerBase.Game.TriggerBoxEnter(Id, instigatorWOID);
 	}
 
 	private void DoExit(int instigatorWOID)
 	{
-		MVGameController.Game.TriggerBoxExit(Id, instigatorWOID);
+		MVGameControllerBase.Game.TriggerBoxExit(Id, instigatorWOID);
 	}
 
 	public void OnEnter(MVPlayer player)
 	{
-		if (player != MVGameController.Game.LocalPlayer)
+		if (player != MVGameControllerBase.Game.LocalPlayer)
 		{
 		}
 	}
 
 	public void OnExit(MVPlayer player)
 	{
-		if (player != MVGameController.Game.LocalPlayer)
+		if (player != MVGameControllerBase.Game.LocalPlayer)
 		{
 		}
 	}

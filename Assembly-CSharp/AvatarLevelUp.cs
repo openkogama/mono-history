@@ -17,7 +17,7 @@ public class AvatarLevelUp : MonoBehaviour
 	public void Init(int ownerActorNr)
 	{
 		this.ownerActorNr = ownerActorNr;
-		MVPlayer mVPlayer = MVGameController.Game.Players[ownerActorNr];
+		MVPlayer mVPlayer = MVGameControllerBase.Game.Players[ownerActorNr];
 		mVPlayer.OnLevelChanged = (MVPlayer.OnLevelChangedDelegate)Delegate.Combine(mVPlayer.OnLevelChanged, new MVPlayer.OnLevelChangedDelegate(OnLevelChanged));
 		ScaleAnimation scaleAnimation = this.scaleAnimation;
 		scaleAnimation.OnScaleAnimationStopped = (ScaleAnimationBase.OnScaleAnimationStoppedDelegate)Delegate.Combine(scaleAnimation.OnScaleAnimationStopped, new ScaleAnimationBase.OnScaleAnimationStoppedDelegate(OnScaleAnimationStopped));
@@ -40,9 +40,9 @@ public class AvatarLevelUp : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		if (MVGameController.Game.Players.ContainsKey(ownerActorNr))
+		if (MVGameControllerBase.Game.Players.ContainsKey(ownerActorNr))
 		{
-			MVPlayer mVPlayer = MVGameController.Game.Players[ownerActorNr];
+			MVPlayer mVPlayer = MVGameControllerBase.Game.Players[ownerActorNr];
 			mVPlayer.OnLevelChanged = (MVPlayer.OnLevelChangedDelegate)Delegate.Remove(mVPlayer.OnLevelChanged, new MVPlayer.OnLevelChangedDelegate(OnLevelChanged));
 		}
 		if (this.scaleAnimation != null)

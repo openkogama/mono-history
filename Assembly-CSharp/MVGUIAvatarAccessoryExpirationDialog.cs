@@ -21,7 +21,7 @@ public class MVGUIAvatarAccessoryExpirationDialog : UXCustomDialogBox
 
 	private bool _isInitialized;
 
-	private MVNetworkGame Game => MVGameController.Game;
+	private MVNetworkGame Game => MVGameControllerBase.Game;
 
 	public override void OnShowDialog()
 	{

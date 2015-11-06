@@ -56,7 +56,7 @@ public class Avatar : MonoBehaviour
 		if (isLocal)
 		{
 			UnityEngine.Object.Destroy(avatarBadge.gameObject);
-			MVLocalPlayer localPlayer = MVGameController.Game.LocalPlayer;
+			MVLocalPlayer localPlayer = MVGameControllerBase.Game.LocalPlayer;
 			localPlayer.OnXPProgressData = (XPProgress.OnXPProgressDataDelegate)Delegate.Combine(localPlayer.OnXPProgressData, new XPProgress.OnXPProgressDataDelegate(OnXpProgress));
 		}
 		else
@@ -129,11 +129,11 @@ public class Avatar : MonoBehaviour
 
 	public void UpdateNameTag()
 	{
-		avatarName.text = MVGameController.Game.Players[mvAvatar.OwnerActorNr].Username;
+		avatarName.text = MVGameControllerBase.Game.Players[mvAvatar.OwnerActorNr].Username;
 		Color color = Color.white;
-		if (MVGameController.Game.TeamManager.TeamCount() > 1)
+		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
 		{
-			switch (MVGameController.Game.Players[mvAvatar.OwnerActorNr].Team)
+			switch (MVGameControllerBase.Game.Players[mvAvatar.OwnerActorNr].Team)
 			{
 			case MVTeam.Blue:
 				color = Color.blue;

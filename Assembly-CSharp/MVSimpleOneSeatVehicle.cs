@@ -35,13 +35,10 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase
 			pickupOwner = vehicleBase.GameObject.GetComponent<VehiclePickupOwner>();
 			pickupOwner.IsLocal = true;
 			onDestroy = (Action)Delegate.Combine(onDestroy, new Action(pickupOwner.OnLocalObjectsDestroyed));
-			if (GameDB.IsClassicGame)
-			{
-				pickupGUI = new PickupGUI(pickupOwner);
-				onDestroy = (Action)Delegate.Combine(onDestroy, new Action(pickupGUI.Destroy));
-				onEnter = (Action)Delegate.Combine(onEnter, new Action(pickupGUI.Enter));
-				onLeave = (Action)Delegate.Combine(onLeave, new Action(pickupGUI.Leave));
-			}
+			pickupGUI = new PickupGUI(pickupOwner);
+			onDestroy = (Action)Delegate.Combine(onDestroy, new Action(pickupGUI.Destroy));
+			onEnter = (Action)Delegate.Combine(onEnter, new Action(pickupGUI.Enter));
+			onLeave = (Action)Delegate.Combine(onLeave, new Action(pickupGUI.Leave));
 			triggerHandler = gameObject.AddComponent<MVTriggerHandler>();
 			localComponents.Add(vehicleInteractable);
 			localComponents.Add(smoothController);
@@ -73,7 +70,7 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase
 			triggerHandler.Reset();
 		}
 
-		public override MovementMap FixedUpdate(MovementMap movementMap)
+		public override IInputToPlayerMovement FixedUpdate(IInputToPlayerMovement movementMap)
 		{
 			if (movementMap != null)
 			{
@@ -89,7 +86,7 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase
 			return movementMap;
 		}
 
-		public override InteractionInput Update(InteractionInput interactionInput)
+		public override InputToInGameAction Update(InputToInGameAction interactionInput)
 		{
 			vehicleMotor.UpdateFunction();
 			if (interactionInput == null)
@@ -97,10 +94,7 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase
 				return null;
 			}
 			pickupOwner.HandleFire(interactionInput.Fire, owner.IsFiring);
-			if (GameDB.IsClassicGame)
-			{
-				pickupGUI.Update();
-			}
+			pickupGUI.Update();
 			interactionInput.Fire = false;
 			if (interactionInput.Drop)
 			{
@@ -110,6 +104,7 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase
 			{
 				Debug.Log("Vehicle is stuck");
 			}
+			interactionInput.IgnorePickupOwner = true;
 			return interactionInput;
 		}
 	}

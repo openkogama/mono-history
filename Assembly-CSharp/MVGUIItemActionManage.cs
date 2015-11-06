@@ -22,7 +22,7 @@ public class MVGUIItemActionManage : MVGUIItemAction
 	{
 		if (dialogBox.DialogResult == UXDialogResult.Positive)
 		{
-			MVGameController.Game.RemoveItemFromInventory(item.itemID);
+			MVGameControllerBase.Game.RemoveItemFromInventory(item.itemID);
 			FireOnActionCompleted();
 		}
 	}

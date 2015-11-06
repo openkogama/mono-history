@@ -57,7 +57,7 @@ public class MVGUIItemActionReselling : MVGUIItemAction
 
 	private UXDialogFactory dialogFactory;
 
-	private bool UserIsAuthor => item.authorProfileID == MVGameController.Game.LocalPlayer.ProfileID;
+	private bool UserIsAuthor => item.authorProfileID == MVGameControllerBase.Game.LocalPlayer.ProfileID;
 
 	private bool ItemOnMarketplace => item.shopInventoryID != 0;
 
@@ -137,13 +137,13 @@ public class MVGUIItemActionReselling : MVGUIItemAction
 		doingCompare = true;
 		compareSlider.SetVisible(visible: false);
 		loadingGroup.SetVisible(ActionGroup.Visible);
-		MVGameController.Game.ReceivedItemFromQuery += OnLoadMarketPlaceItem;
-		MVGameController.Game.RequestMarketPlaceItem(item.itemID);
+		MVGameControllerBase.Game.ReceivedItemFromQuery += OnLoadMarketPlaceItem;
+		MVGameControllerBase.Game.RequestMarketPlaceItem(item.itemID);
 	}
 
 	private void OnLoadMarketPlaceItem(object sender, ReceivedItemFromQueryEventArgs e)
 	{
-		MVGameController.Game.ReceivedItemFromQuery -= OnLoadMarketPlaceItem;
+		MVGameControllerBase.Game.ReceivedItemFromQuery -= OnLoadMarketPlaceItem;
 		BytePacker koGaMaData = e.KoGaMaData;
 		KoGaMaPackageClient koGaMaPackageClient = new KoGaMaPackageClient(new BytePacker(item.data), readRuntimeValues: false);
 		KoGaMaPackageClient koGaMaPackageClient2 = new KoGaMaPackageClient(koGaMaData, readRuntimeValues: false);
@@ -170,7 +170,7 @@ public class MVGUIItemActionReselling : MVGUIItemAction
 
 	private void OnDestroy()
 	{
-		MVGameController.Game.ReceivedItemFromQuery -= OnLoadMarketPlaceItem;
+		MVGameControllerBase.Game.ReceivedItemFromQuery -= OnLoadMarketPlaceItem;
 	}
 
 	private void Update()
@@ -217,9 +217,9 @@ public class MVGUIItemActionReselling : MVGUIItemAction
 
 	private void SellItem()
 	{
-		if (MVGameController.Game.LocalPlayer.Level < MVGameController.Game.MarketPlaceLevel)
+		if (MVGameControllerBase.Game.LocalPlayer.Level < MVGameControllerBase.Game.MarketPlaceLevel)
 		{
-			dialogFactory.CreateDialog(TM._("You can not add to marketplace before reaching level: ") + MVGameController.Game.MarketPlaceLevel, string.Empty, UXDialogType.Simple, noButtons: true, stackDialog: true).Show();
+			dialogFactory.CreateDialog(TM._("You can not add to marketplace before reaching level: ") + MVGameControllerBase.Game.MarketPlaceLevel, string.Empty, UXDialogType.Simple, noButtons: true, stackDialog: true).Show();
 			return;
 		}
 		string text = nameTextField.Text;
@@ -236,8 +236,8 @@ public class MVGUIItemActionReselling : MVGUIItemAction
 		string txt;
 		if (dialogBox.DialogResult == UXDialogResult.Positive)
 		{
-			MVGameController.Game.ItemBusinessLogic.GetItem(item.itemID).shopInventoryID = 0;
-			MVGameController.Game.PlayerRepository.PlayerInventory[item.itemID].shopInventoryID = 0;
+			MVGameControllerBase.Game.ItemBusinessLogic.GetItem(item.itemID).shopInventoryID = 0;
+			MVGameControllerBase.Game.PlayerRepository.PlayerInventory[item.itemID].shopInventoryID = 0;
 			txt = TM._("Removed '{0}' from marketplace.");
 		}
 		else
@@ -258,8 +258,8 @@ public class MVGUIItemActionReselling : MVGUIItemAction
 			item.name = text;
 			item.description = text2;
 			item.priceSilver = priceSilver;
-			item.authorProfileID = MVGameController.Game.LocalPlayer.ProfileID;
-			MVGameController.Game.ItemBusinessLogic.GetItem(item.itemID).name = text;
+			item.authorProfileID = MVGameControllerBase.Game.LocalPlayer.ProfileID;
+			MVGameControllerBase.Game.ItemBusinessLogic.GetItem(item.itemID).name = text;
 			txt = ((!itemUpdate) ? TM._("'{0}' is now on the marketplace.") : TM._("'{0}' updated on marketplace."));
 		}
 		else

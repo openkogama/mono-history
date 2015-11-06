@@ -16,9 +16,9 @@ public class MVGUIAvatarAccessoryExpirationHandler : MonoBehaviour
 
 	private bool subscribedToAvatar;
 
-	private MVNetworkGame Game => MVGameController.Game;
+	private MVNetworkGame Game => MVGameControllerBase.Game;
 
-	private MVWorldObjectClientManager WOCM => MVGameController.WOCM;
+	private MVWorldObjectClientManager WOCM => MVGameControllerBase.WOCM;
 
 	private UXDialogFactory DialogFactory => UXUtils.UXDialogFactory;
 
@@ -43,7 +43,7 @@ public class MVGUIAvatarAccessoryExpirationHandler : MonoBehaviour
 
 	private void Update()
 	{
-		if (!subscribedToAvatar && Game.JoinState == MVJoinState.Playing)
+		if (!subscribedToAvatar && MVGameControllerBase.JoinState == MVJoinState.Playing)
 		{
 			WOCM.AvatarLocal.Respawned += AvatarController_Respawned;
 			subscribedToAvatar = true;
@@ -77,11 +77,11 @@ public class MVGUIAvatarAccessoryExpirationHandler : MonoBehaviour
 
 	private bool CanShowPopup(InventoryExpirationInfo expirationInfo)
 	{
-		return MVGameController.GameMode switch
+		return MVGameControllerBase.GameMode switch
 		{
-			MVGameMode.Edit => CanShowExpirationPopup(MVGameController.EditorController, expirationInfo), 
-			MVGameMode.Play => CanShowExpirationPopup(MVGameController.PlayController, expirationInfo), 
-			MVGameMode.CharacterEditor => CanShowExpirationPopup(MVGameController.CharacterEditorController, expirationInfo), 
+			MVGameMode.Edit => CanShowExpirationPopup(MVGameControllerLegacyUI.EditorController, expirationInfo), 
+			MVGameMode.Play => CanShowExpirationPopup(MVGameControllerLegacyUI.PlayController, expirationInfo), 
+			MVGameMode.CharacterEditor => CanShowExpirationPopup(MVGameControllerLegacyUI.CharacterEditorController, expirationInfo), 
 			_ => throw new ArgumentOutOfRangeException(), 
 		};
 	}
@@ -216,9 +216,9 @@ public class MVGUIAvatarAccessoryExpirationHandler : MonoBehaviour
 	private int GetBodyIDOnEquippedItem(int inventoryID)
 	{
 		int result = 0;
-		if (MVGameController.GameMode == MVGameMode.CharacterEditor)
+		if (MVGameControllerBase.GameMode == MVGameMode.CharacterEditor)
 		{
-			CharacterEditorController characterEditorController = MVGameController.IngameController as CharacterEditorController;
+			CharacterEditorController characterEditorController = MVGameControllerLegacyUI.IngameController as CharacterEditorController;
 			foreach (MVBody body in characterEditorController.Bodies)
 			{
 				MVBody mVBody = body;
@@ -231,16 +231,16 @@ public class MVGUIAvatarAccessoryExpirationHandler : MonoBehaviour
 		}
 		else
 		{
-			result = MVGameController.WOCM.AvatarLocal.Body.Id;
+			result = MVGameControllerBase.WOCM.AvatarLocal.Body.Id;
 		}
 		return result;
 	}
 
 	private void RemoveAccessoryFromPlayerBodies(int accessoryInventoryID)
 	{
-		if (MVGameController.GameMode == MVGameMode.CharacterEditor)
+		if (MVGameControllerBase.GameMode == MVGameMode.CharacterEditor)
 		{
-			CharacterEditorController characterEditorController = MVGameController.IngameController as CharacterEditorController;
+			CharacterEditorController characterEditorController = MVGameControllerLegacyUI.IngameController as CharacterEditorController;
 			{
 				foreach (MVBody body2 in characterEditorController.Bodies)
 				{
@@ -253,7 +253,7 @@ public class MVGUIAvatarAccessoryExpirationHandler : MonoBehaviour
 				return;
 			}
 		}
-		MVBody body = MVGameController.WOCM.AvatarLocal.Body;
+		MVBody body = MVGameControllerBase.WOCM.AvatarLocal.Body;
 		if (body.HasAccessoryWithID(accessoryInventoryID))
 		{
 			Game.SetAvatarAccessorySlot(body.Id, accessoryInventoryID, AvatarAccessorySlot.Undefined, 0f);

@@ -34,7 +34,7 @@ internal class ESInsert : ESStateBase
 
 	public override void Enter(EditorStateMachine e)
 	{
-		laser = MVGameController.WOCM.AvatarLocal.LaserPointer;
+		laser = MVGameControllerBase.WOCM.AvatarLocal.LaserPointer;
 		laser.ChangeState(LaserPointerState.Inserting);
 		laser.LaserActive = true;
 		if (!previewMaterial)
@@ -107,7 +107,7 @@ internal class ESInsert : ESStateBase
 		{
 			if (isNewPrototype)
 			{
-				MVGameController.Game.CameraController.CurCamera.FocusOnObject(e.SingleSelectedWO);
+				MVGameControllerBase.CameraController.CurCamera.FocusOnObject(e.SingleSelectedWO);
 				e.Event = EditorEvent.EditCubes;
 			}
 			else
@@ -152,12 +152,12 @@ internal class ESInsert : ESStateBase
 
 	private bool DrawPlanePick(MVWorldObjectClient wo, ref Vector3 position, ref Vector3 rawPosition, ref Vector3 normal)
 	{
-		if (MVGameController.EditController.CubeModelingController.IsDrawPlaneActive)
+		if (MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController.IsDrawPlaneActive)
 		{
 			Vector3 hit = Vector3.zero;
-			if (MVGameController.EditController.WorldEditorDrawPlane.Pick(ref hit))
+			if (MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController.Pick(ref hit))
 			{
-				Vector3 vector = ((!(MVGameController.EditController.WorldEditorDrawPlane.Pos.y < MVGameController.WOCM.AvatarLocal.GameObject.transform.position.y)) ? Vector3.up : (-Vector3.up));
+				Vector3 vector = ((!(MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController.Pos.y < MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position.y)) ? Vector3.up : (-Vector3.up));
 				Vector3 vector2 = ComputeObjectOffset(wo, vector);
 				position = hit - vector2;
 				rawPosition = hit;
@@ -171,7 +171,7 @@ internal class ESInsert : ESStateBase
 	private bool WorldPick(MVWorldObjectClient wo, ref Vector3 position, ref Vector3 rawPosition, ref Vector3 normal)
 	{
 		VoxelHit hit = default;
-		if (MVGameController.WOCM.Pick(ref hit, woIgnoreList))
+		if (MVGameControllerLegacyUI.Pick(ref hit, woIgnoreList))
 		{
 			Vector3 b = ComputeObjectOffset(wo, -hit.normal);
 			insertOffset = Vector3.Lerp(insertOffset, b, Time.deltaTime * 10f);
@@ -185,7 +185,7 @@ internal class ESInsert : ESStateBase
 
 	private Vector3 ComputeSnapPosition(MVWorldObjectClient wo, Vector3 originalPos)
 	{
-		float gridSize = ((!MVGameController.EditorController.IsGridSnap()) ? 0.0625f : 1f);
+		float gridSize = ((!MVGameControllerLegacyUI.EditorController.IsGridSnap()) ? 0.0625f : 1f);
 		return wo.GetClosestGridPoint(gridSize, originalPos);
 	}
 

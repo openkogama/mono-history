@@ -1,3 +1,4 @@
+using MV.Common;
 using UnityEngine;
 
 public class SmoothCharacterController : MonoBehaviour
@@ -14,7 +15,14 @@ public class SmoothCharacterController : MonoBehaviour
 		gameObject.transform.parent = worldObjectRoot.transform.parent;
 		gameObject.transform.position = worldObjectRoot.transform.position;
 		gameObject.transform.rotation = worldObjectRoot.transform.rotation;
-		controller = gameObject.AddComponent<MvCharacterController>();
+		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
+		{
+			controller = gameObject.AddComponent<MVCharacterController2D>();
+		}
+		else
+		{
+			controller = gameObject.AddComponent<MVCharacterController3D>();
+		}
 		smoothPhysicsMovement = base.gameObject.AddComponent<SmoothPhysicsMovement>();
 		smoothPhysicsMovement.Init(controller.transform);
 	}

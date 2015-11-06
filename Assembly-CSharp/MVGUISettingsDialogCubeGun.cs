@@ -12,9 +12,9 @@ public class MVGUISettingsDialogCubeGun
 	public MVGUISettingsDialogCubeGun()
 	{
 		MVMaterialRepository.AllowDestructibleMaterialSelection = true;
-		currentMaterial = MVGameController.EditorController.EditorStateMachine.CubeModelingStateMachine.CurrentMaterialId;
-		wo = MVGameController.EditorController.GetSettingsDialogSelectionWO();
-		materialSelection = MVGameController.EditorController.ShowMaterialChangeWindow();
+		currentMaterial = MVGameControllerLegacyUI.EditorController.EditorStateMachine.CubeModelingStateMachine.CurrentMaterialId;
+		wo = MVGameControllerLegacyUI.EditorController.GetSettingsDialogSelectionWO();
+		materialSelection = MVGameControllerLegacyUI.EditorController.ShowMaterialChangeWindow();
 		MVGUIMaterialSelectionWindow mVGUIMaterialSelectionWindow = materialSelection;
 		mVGUIMaterialSelectionWindow.OnMaterialSelection = (MVGUIMaterialSelectionWindow.OnMaterialSelectionDelegate)Delegate.Combine(mVGUIMaterialSelectionWindow.OnMaterialSelection, new MVGUIMaterialSelectionWindow.OnMaterialSelectionDelegate(SetCubeGunMaterial));
 		UXView view = materialSelection.View;
@@ -23,10 +23,10 @@ public class MVGUISettingsDialogCubeGun
 
 	private void SetCubeGunMaterial(byte materialId)
 	{
-		MVGameController.EditorController.EditorStateMachine.CubeModelingStateMachine.CurrentMaterialId = currentMaterial;
+		MVGameControllerLegacyUI.EditorController.EditorStateMachine.CubeModelingStateMachine.CurrentMaterialId = currentMaterial;
 		Dictionary<object, object> data = wo.Data;
 		((Dictionary<object, object>)data["itemData"])["material"] = materialId;
-		MVGameController.Game.UpdateWorldObjectDataPartial(wo.Id, data);
+		MVGameControllerBase.Game.UpdateWorldObjectDataPartial(wo.Id, data);
 		MVGUIMaterialSelectionWindow mVGUIMaterialSelectionWindow = materialSelection;
 		mVGUIMaterialSelectionWindow.OnMaterialSelection = (MVGUIMaterialSelectionWindow.OnMaterialSelectionDelegate)Delegate.Remove(mVGUIMaterialSelectionWindow.OnMaterialSelection, new MVGUIMaterialSelectionWindow.OnMaterialSelectionDelegate(SetCubeGunMaterial));
 		UXView view = materialSelection.View;

@@ -41,6 +41,6 @@ public class MVGUISignupButton : MonoBehaviour
 	private void DoExternalCall()
 	{
 		BrowserComm.ToJavaScript.ExternalCall("gotoSignup");
-		BrowserComm.ExecuteBrowserRequest(MVGameController.GameSessionData.signupURL);
+		BrowserComm.ExecuteBrowserRequest(MVGameControllerBase.GameSessionData.signupURL);
 	}
 }

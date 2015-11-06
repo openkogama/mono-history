@@ -111,7 +111,7 @@ public class MVGUIProductShopDialog : UXCustomDialogBox
 	{
 		if (OnTryPurchaseProduct != null)
 		{
-			MVNetworkGame game = MVGameController.Game;
+			MVNetworkGame game = MVGameControllerBase.Game;
 			game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Combine(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
 			OnTryPurchaseProduct();
 			purchaseButton.gameObject.SetActive(value: false);
@@ -122,7 +122,7 @@ public class MVGUIProductShopDialog : UXCustomDialogBox
 
 	private void ProductPurchaseResponseHandler(int returnCode, Dictionary<object, object> purchaseResponseData)
 	{
-		MVNetworkGame game = MVGameController.Game;
+		MVNetworkGame game = MVGameControllerBase.Game;
 		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Remove(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
 		if (returnCode == 0)
 		{
@@ -171,7 +171,7 @@ public class MVGUIProductShopDialog : UXCustomDialogBox
 		if (dialog.DialogResult == UXDialogResult.Positive)
 		{
 			BrowserComm.ToJavaScript.ExternalCall("gotoConvertToSilver");
-			BrowserComm.ExecuteBrowserRequest(MVGameController.GameSessionData.convertToSilverURL);
+			BrowserComm.ExecuteBrowserRequest(MVGameControllerBase.GameSessionData.convertToSilverURL);
 		}
 	}
 
@@ -180,7 +180,7 @@ public class MVGUIProductShopDialog : UXCustomDialogBox
 		if (dialog.DialogResult == UXDialogResult.Positive)
 		{
 			BrowserComm.ToJavaScript.ExternalCall("gotoPurchaseGold");
-			BrowserComm.ExecuteBrowserRequest(MVGameController.GameSessionData.purchaseGoldURL);
+			BrowserComm.ExecuteBrowserRequest(MVGameControllerBase.GameSessionData.purchaseGoldURL);
 		}
 	}
 }

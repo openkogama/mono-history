@@ -4,7 +4,7 @@ public class MVAvatar
 {
 	private readonly int woID = -1;
 
-	private readonly MvAvatarMetaData avatarMetaData;
+	private readonly MvAvatarMetaData avatarMetaData = null;
 
 	public MvAvatarMetaData AvatarMetaData => avatarMetaData;
 

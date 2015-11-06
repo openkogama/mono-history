@@ -1,10 +1,15 @@
 using System;
 using System.Collections.Generic;
+using MV.Common;
 using UnityEngine;
 
 [RequireComponent(typeof(Animation))]
 public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 {
+	private float walkMinSpeed = 0.7f;
+
+	private float assumedWalkMaxSpeed = 8f;
+
 	private static readonly int REMOTE_ANIM_SPEEDUP = 20;
 
 	private MVAvatar mvAvatar;
@@ -25,6 +30,9 @@ public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 
 	private int playStartFrame;
 
+	[SerializeField]
+	private Animation avatarAnimation;
+
 	public EventHandler<AnimationChangedEventArgs> AnimationChanged = delegate
 	{
 	};
@@ -35,9 +43,9 @@ public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 
 	private void Start()
 	{
-		if (!GetComponent<Animation>().isPlaying)
+		if (!avatarAnimation.isPlaying)
 		{
-			GetComponent<Animation>().Play("Idle", PlayMode.StopAll);
+			avatarAnimation.Play("Idle", PlayMode.StopAll);
 		}
 	}
 
@@ -49,16 +57,16 @@ public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 		}
 		if (mvAvatar.Avatar.IsLocal)
 		{
-			if (GameDB.LocalAvatar.RigidBody.Grounded && !GameDB.LocalAvatar.IsInVehicle)
+			if (MVGameControllerBase.WOCM.AvatarLocal.RigidBody.Grounded && !MVGameControllerBase.WOCM.AvatarLocal.IsInVehicle)
 			{
 				GetComponent<AudioSource>().pitch = GetFootstepPitch();
-				MVGameController.AudioManager.Play("Footstep", GetComponent<AudioSource>(), Camera.main.transform.position + Camera.main.transform.forward);
+				MVGameControllerBase.AudioManager.Play("Footstep", GetComponent<AudioSource>(), Camera.main.transform.position + Camera.main.transform.forward);
 			}
 		}
 		else
 		{
 			GetComponent<AudioSource>().pitch = GetFootstepPitch();
-			MVGameController.AudioManager.Play("Footstep", GetComponent<AudioSource>(), mvAvatar.Body.Transform.position);
+			MVGameControllerBase.AudioManager.Play("Footstep", GetComponent<AudioSource>(), mvAvatar.Body.Transform.position);
 		}
 	}
 
@@ -81,7 +89,7 @@ public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 
 	public void Detach()
 	{
-		GetComponent<Animation>().Stop();
+		avatarAnimation.Stop();
 		MVRuntimeDataVariable animation = mvAvatar.Animation;
 		animation.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Remove(animation.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AnimationChangeHandler));
 		if (woListener != null)
@@ -114,18 +122,18 @@ public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 		{
 			if (currentAnim.State == "Jump")
 			{
-				GetComponent<Animation>().Rewind("Jump");
-				GetComponent<Animation>().Play(currentAnim.State, PlayMode.StopAll);
+				avatarAnimation.Rewind("Jump");
+				avatarAnimation.Play(currentAnim.State, PlayMode.StopAll);
 			}
 			else
 			{
-				GetComponent<Animation>().CrossFade(currentAnim.State, 0.3f, PlayMode.StopAll);
+				avatarAnimation.CrossFade(currentAnim.State, 0.3f, PlayMode.StopAll);
 			}
 			float num = 0f;
 			if (woListener != null && currentAnim.TimeStamp < woListener.DelayedTime)
 			{
-				num = 0.001f * (float)(woListener.DelayedTime - currentAnim.TimeStamp) / GetComponent<Animation>()[currentAnim.State].length;
-				GetComponent<Animation>()[currentAnim.State].time = num;
+				num = 0.001f * (float)(woListener.DelayedTime - currentAnim.TimeStamp) / avatarAnimation[currentAnim.State].length;
+				avatarAnimation[currentAnim.State].time = num;
 			}
 			if (prevAnim != null && AnimationClipStopped != null)
 			{
@@ -187,51 +195,49 @@ public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 	public void Play(string animationName)
 	{
 		playingAnimations.Add(animationName);
-		GetComponent<Animation>()[animationName].speed = 1f;
-		GetComponent<Animation>()[animationName].time = 0f;
-		GetComponent<Animation>().Play(animationName, PlayMode.StopAll);
+		avatarAnimation[animationName].speed = 1f;
+		avatarAnimation[animationName].time = 0f;
+		avatarAnimation.Play(animationName, PlayMode.StopAll);
 	}
 
 	public void PlayAndPauseAt(string animationName, float time)
 	{
 		playingAnimations.Add(animationName);
-		GetComponent<Animation>().Play(animationName, PlayMode.StopAll);
-		GetComponent<Animation>()[animationName].time = time;
-		GetComponent<Animation>()[animationName].speed = 0f;
+		avatarAnimation.Play(animationName, PlayMode.StopAll);
+		avatarAnimation[animationName].time = time;
+		avatarAnimation[animationName].speed = 0f;
 		pauseNextFrame = true;
 		playStartFrame = Time.frameCount;
-		GetComponent<Animation>().Sample();
-	}
-
-	public void CrossFade(string animationName, float fadeTime)
-	{
-		playingAnimations.Add(animationName);
-		GetComponent<Animation>().CrossFade(animationName, fadeTime, PlayMode.StopAll);
+		avatarAnimation.Sample();
 	}
 
 	public void Stop()
 	{
-		GetComponent<Animation>().Stop();
+		avatarAnimation.Stop();
 	}
 
 	public bool IsPlaying(string animationName)
 	{
-		return GetComponent<Animation>().IsPlaying(animationName);
+		return avatarAnimation.IsPlaying(animationName);
 	}
 
 	private void Update()
 	{
 		if (pauseNextFrame && Time.frameCount == playStartFrame + 1)
 		{
-			GetComponent<Animation>().Stop();
-			foreach (AnimationState item in GetComponent<Animation>())
+			avatarAnimation.Stop();
+			foreach (AnimationState item in avatarAnimation)
 			{
 				item.speed = 1f;
 			}
 			pauseNextFrame = false;
 		}
-		foreach (AnimationState item2 in GetComponent<Animation>())
+		foreach (AnimationState item2 in avatarAnimation)
 		{
+			if (item2.name == "Walk" && item2.enabled && MVGameControllerBase.GameMode != MVGameMode.CharacterEditor)
+			{
+				item2.speed = Mathf.Clamp(mvAvatar.Velocity.magnitude / assumedWalkMaxSpeed, walkMinSpeed, 1f);
+			}
 			if (playingAnimations.Contains(item2.name) && !item2.enabled)
 			{
 				playingAnimations.Remove(item2.name);

@@ -72,7 +72,7 @@ public class HoverCraftMotor : SimpleVehicleMotorBase
 
 	private float jumpForce = 4f;
 
-	public VehicleCamera VehicleCamera { private get; set; }
+	public IVehicleCamera VehicleCamera { private get; set; }
 
 	public override Vector3 Velocity => velocityPrevFrame;
 
@@ -138,7 +138,7 @@ public class HoverCraftMotor : SimpleVehicleMotorBase
 	private void Move(Vector3 velocity, Vector3 basevelocity)
 	{
 		Vector3 motion = (velocity + basevelocity) * Time.deltaTime;
-		collisionFlags = Controller.Move(motion);
+		Controller.Move(motion);
 		groundState.Update(Controller, velocity);
 	}
 
@@ -167,7 +167,7 @@ public class HoverCraftMotor : SimpleVehicleMotorBase
 
 	private float WaterProximity()
 	{
-		WaterPlaneManager waterPlaneManager = MVGameController.WOCM.WaterPlaneManager;
+		WaterPlaneManager waterPlaneManager = MVGameControllerBase.WaterPlaneManager;
 		return waterPlaneManager.ComputeAvatarWaterProximity(gameObject.transform.position + Vector3.up * waterOffset);
 	}
 
@@ -183,7 +183,7 @@ public class HoverCraftMotor : SimpleVehicleMotorBase
 
 	private Vector3 GetVehicleInputVelocity(Vector3 velocity)
 	{
-		return GameDB.GameType switch
+		return MVGameControllerBase.Game.GameType switch
 		{
 			MVGameType.Classic => GetVehicleInputVelocityClassicCam(velocity), 
 			MVGameType.Platformer => GetVehicleInputVelocityPlatformerCam(velocity), 
@@ -210,7 +210,10 @@ public class HoverCraftMotor : SimpleVehicleMotorBase
 	private Vector3 GetVehicleInputVelocityClassicCam(Vector3 velocity)
 	{
 		velocity = HoverCraftFrictionXZ(velocity);
-		Controller.transform.Rotate(Vector3.up, 57.29578f * Time.fixedDeltaTime * angularSpeed * DirectInputMoveMap.x * Mathf.Abs(MVInputWrapper.GetAxis("Horizontal")), Space.World);
+		if (HandleInput)
+		{
+			Controller.transform.Rotate(Vector3.up, 57.29578f * Time.fixedDeltaTime * angularSpeed * DirectInputMoveMap.x * Mathf.Abs(MVInputWrapper.GetAxis("Horizontal")), Space.World);
+		}
 		if (Mathf.Abs(DirectInputMoveMap.z) > 0f || (double)Mathf.Abs(DirectInputMoveMap.x) > 0.0)
 		{
 			Quaternion quaternion = Quaternion.Euler(0f, VehicleCamera.RotationAroundY, 0f);

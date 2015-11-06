@@ -55,9 +55,9 @@ public class TimeReward : IUpdatecontrollerSubscriber
 
 		public RequestRewardData()
 		{
-			GameSessionData gameSessionData = MVGameController.GameSessionData;
+			GameSessionData gameSessionData = MVGameControllerBase.GameSessionData;
 			string text = $"?profile_id={gameSessionData.profileID}&planet_id={gameSessionData.planetID}&token={gameSessionData.token}";
-			AsyncWWWManager.WWWRequest(new GetRequest(MVGameController.GameSessionData.gameRewardDataURL + text, OnRewardData));
+			AsyncWWWManager.WWWRequest(new GetRequest(MVGameControllerBase.GameSessionData.gameRewardDataURL + text, OnRewardData));
 		}
 
 		private void TestExternalCallBack(string function, Action<Dictionary<string, object>> action)
@@ -134,7 +134,7 @@ public class TimeReward : IUpdatecontrollerSubscriber
 	{
 		public RequestReward()
 		{
-			GameSessionData gameSessionData = MVGameController.GameSessionData;
+			GameSessionData gameSessionData = MVGameControllerBase.GameSessionData;
 			WWWForm wWWForm = new WWWForm();
 			wWWForm.AddField("token", gameSessionData.token);
 			wWWForm.AddField("profile_id", gameSessionData.profileID);
@@ -163,7 +163,7 @@ public class TimeReward : IUpdatecontrollerSubscriber
 	public void Init()
 	{
 		UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
-		if (!MVGameController.UsingDevSessionData)
+		if (!MVGameControllerBase.UsingDevSessionData)
 		{
 			rewardStateBase = new RequestRewardData();
 		}

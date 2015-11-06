@@ -109,7 +109,7 @@ public class KoGaMaPackageClient
 		switch (worldObjectType)
 		{
 		case WorldObjectType.Avatar:
-			if ((int)worldObjectData[WorldObjectDataParameters.OwnerActorNumber] == MVGameController.Game.LocalPlayer.ActorNr)
+			if ((int)worldObjectData[WorldObjectDataParameters.OwnerActorNumber] == MVGameControllerBase.Game.LocalPlayer.ActorNr)
 			{
 				return new MVAvatarLocal(worldObjectData, worldObjects);
 			}
@@ -188,7 +188,7 @@ public class KoGaMaPackageClient
 		case WorldObjectType.WaterPlanePreset:
 			return new MVWaterPlanePreset(worldObjectData, worldObjects);
 		case WorldObjectType.CollectibleItem:
-			if (MVGameController.GameSessionData.planetID == 2527584 && MVGameController.GameSessionData.region == "br")
+			if (MVGameControllerBase.GameSessionData.planetID == 2527584 && MVGameControllerBase.GameSessionData.region == "br")
 			{
 				return new MVCollectible(worldObjectData, worldObjects, "Prefabs/CollectibleObjectFanta");
 			}
@@ -222,10 +222,6 @@ public class KoGaMaPackageClient
 				return new MVRotator(worldObjectData, worldObjects);
 			case BlueprintType.Ghost:
 				return new MVGhost(worldObjectData, worldObjects);
-			case BlueprintType.Dragon:
-				return new MVDragon(worldObjectData, worldObjects);
-			case BlueprintType.DragonHead:
-				return new MVDragonHead(worldObjectData, worldObjects);
 			default:
 				Debug.LogError("WOCM trying to create unknown blueprint: " + blueprintType);
 				return null;
@@ -233,8 +229,6 @@ public class KoGaMaPackageClient
 		}
 		case WorldObjectType.HoverCraft:
 			return new MVHoverCraft(worldObjectData, worldObjects);
-		case WorldObjectType.MonoPlane:
-			return new MVMonoPlane(worldObjectData, worldObjects);
 		case WorldObjectType.JetPack:
 			return new MVJetPack(worldObjectData, worldObjects);
 		case WorldObjectType.WorldObjectSpawnerVehicle:

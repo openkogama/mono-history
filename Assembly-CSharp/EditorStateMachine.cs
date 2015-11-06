@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using MV.Common;
+using UnityEngine;
 
 public class EditorStateMachine : FSMEntity
 {
@@ -8,7 +10,7 @@ public class EditorStateMachine : FSMEntity
 
 	private MVCameraController weCamera;
 
-	private CubeModelingStateMachine editModel = new CubeModelingStateMachine();
+	private CubeModelingStateMachine cubeModelingStateMachine = new CubeModelingStateMachine();
 
 	private SelectionController selectionController;
 
@@ -18,7 +20,7 @@ public class EditorStateMachine : FSMEntity
 
 	public bool GridMode { get; set; }
 
-	public CubeModelingStateMachine CubeModelingStateMachine => editModel;
+	public CubeModelingStateMachine CubeModelingStateMachine => cubeModelingStateMachine;
 
 	public EditorEvent CurEvent => (EditorEvent)(int)curEvent;
 
@@ -38,14 +40,36 @@ public class EditorStateMachine : FSMEntity
 
 	public MVGroup ParentGroup => selectionController.ParentGroup;
 
-	public bool ParentGroupIsRoot => selectionController.ParentGroupID == MVGameController.WOCM.RootGroup.Id;
+	public bool ParentGroupIsRoot => selectionController.ParentGroupID == MVGameControllerBase.WOCM.RootGroup.Id;
 
 	public EditorStateMachine()
 	{
-		transitionTable = new EditorStateTransitionTable();
+		if (MVGameControllerBase.GameMode == MVGameMode.CharacterEditor)
+		{
+			transitionTable = new CEEditorStateTransitionTable();
+		}
+		else if (MVGameControllerBase.GameMode == MVGameMode.Edit)
+		{
+			if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
+			{
+				transitionTable = new EditorStateTransitionTable3D();
+			}
+			else if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
+			{
+				transitionTable = new EditorStateTransitionTable2D();
+			}
+			else
+			{
+				Debug.LogError("Failed to create transition table");
+			}
+		}
+		else
+		{
+			Debug.LogError("Failed to create transition table");
+		}
 		networkSelector = new MVNetworkSelector(this);
 		selectionController = new SelectionController();
-		weCamera = MVGameController.Game.CameraController;
+		weCamera = MVGameControllerBase.CameraController;
 		GridMode = true;
 	}
 

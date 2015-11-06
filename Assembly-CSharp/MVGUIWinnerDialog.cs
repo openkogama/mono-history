@@ -37,9 +37,9 @@ public class MVGUIWinnerDialog : UXCustomDialogBox
 
 	private GameStatCounterType gameStatCounterType;
 
-	private MVNetworkGameStateListener GameStateListener => MVGameController.Game.NetworkGameStateListener;
+	private MVNetworkGameStateListener GameStateListener => MVGameControllerBase.Game.NetworkGameStateListener;
 
-	private MVWorldObjectClientManager WOCM => MVGameController.WOCM;
+	private MVWorldObjectClientManager WOCM => MVGameControllerBase.WOCM;
 
 	public void BuildWinnerDialog(HighScores report)
 	{
@@ -165,7 +165,7 @@ public class MVGUIWinnerDialog : UXCustomDialogBox
 
 	public string GetPodiumNameFromScoreActorEntry(ScoreActorEntry scoreActorEntry)
 	{
-		MVPlayer mVPlayer = MVGameController.Game.Players[scoreActorEntry.actorNumber];
+		MVPlayer mVPlayer = MVGameControllerBase.Game.Players[scoreActorEntry.actorNumber];
 		return mVPlayer.Username;
 	}
 

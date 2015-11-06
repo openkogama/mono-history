@@ -10,7 +10,7 @@ public class WaitForTicks
 	{
 		get
 		{
-			uint num = (uint)(MVGameController.Game.ServerTimeInMilliSeconds - startTicks);
+			uint num = (uint)(MVGameControllerBase.Game.ServerTimeInMilliSeconds - startTicks);
 			return num >= maxTicks;
 		}
 	}
@@ -23,16 +23,16 @@ public class WaitForTicks
 			throw new ArgumentOutOfRangeException("milliseconds", milliseconds, "Cannot wait for more than Int32.MaxValue milliseconds");
 		}
 		maxTicks = (uint)num;
-		startTicks = MVGameController.Game.ServerTimeInMilliSeconds;
+		startTicks = MVGameControllerBase.Game.ServerTimeInMilliSeconds;
 	}
 
 	public static int GetEnvironmentTick(int deltaMilliseconds)
 	{
-		return MVGameController.Game.ServerTimeInMilliSeconds + deltaMilliseconds;
+		return MVGameControllerBase.Game.ServerTimeInMilliSeconds + deltaMilliseconds;
 	}
 
 	public static int Diff(int startTicks)
 	{
-		return MVGameController.Game.ServerTimeInMilliSeconds - startTicks;
+		return MVGameControllerBase.Game.ServerTimeInMilliSeconds - startTicks;
 	}
 }

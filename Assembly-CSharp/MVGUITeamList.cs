@@ -38,8 +38,8 @@ public class MVGUITeamList : UXScrollableBox
 	public void InitializeTeamList(MVTeam team)
 	{
 		this.team = team;
-		teamManager = MVGameController.Game.TeamManager;
-		MVNetworkGame game = MVGameController.Game;
+		teamManager = MVGameControllerBase.Game.TeamManager;
+		MVNetworkGame game = MVGameControllerBase.Game;
 		game.onPlayerListChanged = (MVNetworkGame.OnPlayerListChangedDelegate)Delegate.Combine(game.onPlayerListChanged, new MVNetworkGame.OnPlayerListChangedDelegate(UpdatePlayerNumber));
 		UpdatePlayerNumber();
 		ColorizeHeader();

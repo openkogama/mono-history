@@ -14,10 +14,10 @@ public abstract class GameMeterKillsBase : GameMeterBase
 
 	private static int GetCount(GameStatCounterType gameStatCounterType)
 	{
-		if (MVGameController.Game.TeamManager.TeamCount() > 1)
+		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
 		{
-			return MVGameController.Game.GameStatCounterManager.GetTeamCount(gameStatCounterType, MVGameController.Game.LocalPlayer.Team);
+			return MVGameControllerBase.Game.GameStatCounterManager.GetTeamCount(gameStatCounterType, MVGameControllerBase.Game.LocalPlayer.Team);
 		}
-		return MVGameController.Game.LocalPlayer.GetGameStat(gameStatCounterType);
+		return MVGameControllerBase.Game.LocalPlayer.GetGameStat(gameStatCounterType);
 	}
 }

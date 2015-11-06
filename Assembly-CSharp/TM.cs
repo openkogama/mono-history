@@ -93,7 +93,6 @@ public class TM : MonoBehaviour
 		GetInstance();
 		if (filename == null || filename.Replace('_', '-') == cultureName)
 		{
-			Debug.Log("[TextManager] loading default language.");
 			catalog = null;
 			SetLanguageLoadingDone();
 		}
@@ -106,7 +105,7 @@ public class TM : MonoBehaviour
 	private static void TryGetTextAsset(string fileName)
 	{
 		TM.fileName = fileName;
-		string text = baseResourcesPath + fileName + ".txt?" + MVGameController.VersionGuid;
+		string text = baseResourcesPath + fileName + ".txt?" + MVGameControllerBase.VersionGuid;
 		AsyncWWWManager.WWWRequest(new GetRequest(Urls.StreamingAssets + text, StreamingAssetCallback));
 	}
 

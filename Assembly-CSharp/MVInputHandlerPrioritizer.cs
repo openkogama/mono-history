@@ -5,6 +5,14 @@ public class MVInputHandlerPrioritizer : MonoBehaviour
 {
 	private List<IInputHandler> inputHandlers = new List<IInputHandler>();
 
+	[SerializeField]
+	private MVGameControllerLegacyUI gameController;
+
+	private void Awake()
+	{
+		Register(gameController);
+	}
+
 	public void Register(IInputHandler inputHandler)
 	{
 		inputHandlers.Add(inputHandler);
@@ -20,6 +28,10 @@ public class MVInputHandlerPrioritizer : MonoBehaviour
 	{
 		try
 		{
+			if (MVGameControllerBase.JoinState != MVJoinState.Playing)
+			{
+				return;
+			}
 			for (int i = 0; i < inputHandlers.Count; i++)
 			{
 				IInputHandler inputHandler = inputHandlers[i];

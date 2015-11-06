@@ -128,11 +128,11 @@ public class MVGUIWinningConditionDebriefingView : UXViewScript
 
 	private IEnumerator WaitForFadeOut()
 	{
-		while (MVGameController.Game.NetworkGameStateListener.CurrentGameState != MVGameStateType.PrepareRound)
+		while (MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState != MVGameStateType.PrepareRound)
 		{
 			yield return 0;
 		}
-		while ((float)MVGameController.Game.NetworkGameStateListener.TimeLeftMS / 1000f - fadeTime > 0f)
+		while ((float)MVGameControllerBase.Game.NetworkGameStateListener.TimeLeftMS / 1000f - fadeTime > 0f)
 		{
 			yield return 0;
 		}

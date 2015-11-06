@@ -17,9 +17,9 @@ public class MVGUISettingsDialogRotator : MVGUISettingsDialog
 			float num = (float)dialog.GetResult();
 			MVRotator mVRotator = wo as MVRotator;
 			string keyPath = "BlueprintData\\AngularSpeed";
-			MVGameController.Game.UpdateWorldObjectDataPartial(mVRotator.Id, keyPath, num);
+			MVGameControllerBase.Game.UpdateWorldObjectDataPartial(mVRotator.Id, keyPath, num);
 		}
-		MVGameController.EditorController.EditorStateMachine.DeSelectAll();
+		MVGameControllerLegacyUI.EditorController.EditorStateMachine.DeSelectAll();
 	}
 
 	private Dictionary<string, DialogData> BuildDialogData()

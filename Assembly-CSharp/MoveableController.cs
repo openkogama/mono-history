@@ -65,7 +65,7 @@ public class MoveableController : IUpdatecontrollerSubscriber
 
 	public void SyncTimeToServer()
 	{
-		int serverTimeInMilliSeconds = MVGameController.Game.Peer.ServerTimeInMilliSeconds;
+		int serverTimeInMilliSeconds = MVGameControllerBase.Game.Peer.ServerTimeInMilliSeconds;
 		uint num = 0u;
 		num = (uint)((serverTimeInMilliSeconds >= 0) ? serverTimeInMilliSeconds : (int.MaxValue + serverTimeInMilliSeconds + int.MaxValue));
 		time = (float)num / 1000f;

@@ -33,8 +33,8 @@ public class AvatarBadge : MonoBehaviour
 
 	private void OnLevelingInitialized()
 	{
-		UpdateBadge(MVGameController.Game.Players[ownerActorId].Level);
-		MVPlayer mVPlayer = MVGameController.Game.Players[ownerActorId];
+		UpdateBadge(MVGameControllerBase.Game.Players[ownerActorId].Level);
+		MVPlayer mVPlayer = MVGameControllerBase.Game.Players[ownerActorId];
 		mVPlayer.OnLevelChanged = (MVPlayer.OnLevelChangedDelegate)Delegate.Combine(mVPlayer.OnLevelChanged, new MVPlayer.OnLevelChangedDelegate(UpdateBadge));
 	}
 
@@ -46,9 +46,9 @@ public class AvatarBadge : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		if (MVGameController.Game.Players.ContainsKey(ownerActorId))
+		if (MVGameControllerBase.Game.Players.ContainsKey(ownerActorId))
 		{
-			MVPlayer mVPlayer = MVGameController.Game.Players[ownerActorId];
+			MVPlayer mVPlayer = MVGameControllerBase.Game.Players[ownerActorId];
 			mVPlayer.OnLevelChanged = (MVPlayer.OnLevelChangedDelegate)Delegate.Remove(mVPlayer.OnLevelChanged, new MVPlayer.OnLevelChangedDelegate(UpdateBadge));
 		}
 		if (scaleAnimation != null)

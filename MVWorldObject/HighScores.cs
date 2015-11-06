@@ -8,11 +8,11 @@ public class HighScores
 
 	public readonly Dictionary<MVTeam, HighScore> highScores = new Dictionary<MVTeam, HighScore>();
 
-	public readonly GameStatCounterType gameStatCounterType;
+	public readonly GameStatCounterType gameStatCounterType = GameStatCounterType.None;
 
-	public readonly bool presentAsTeamScore;
+	public readonly bool presentAsTeamScore = false;
 
-	public readonly WinningConditionPresentStyle winningConditionPresentStyle;
+	public readonly WinningConditionPresentStyle winningConditionPresentStyle = WinningConditionPresentStyle.NoWinner;
 
 	public HighScores(GameStatCounterType gameStatCounterType, Dictionary<MVTeam, TeamCounter> teamCounters, bool presentAsTeamScore, WinningConditionPresentStyle winningConditionPresentStyle, bool byAscending)
 	{

@@ -68,8 +68,8 @@ public class PickupItemSlapGun : PickupItemWithDelay
 		List<VoxelHit> list2 = CollisionDetection.MVSphereCastAll(lineOfFire, 2f, maxRange, owner.IgnoreWOIDs, layerMask);
 		foreach (VoxelHit item in list2)
 		{
-			MVGameController.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(item, slapStrength);
-			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(item.woId);
+			MVGameControllerBase.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(item, slapStrength);
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(item.woId);
 			if (worldObjectClient != null)
 			{
 				list.Add(worldObjectClient);

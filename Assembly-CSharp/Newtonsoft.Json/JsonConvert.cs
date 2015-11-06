@@ -2,8 +2,6 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using System.Xml;
-using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json;
@@ -528,43 +526,5 @@ public static class JsonConvert
 		{
 			throw new JsonSerializationException("Additional text found in JSON string after finishing deserializing object.");
 		}
-	}
-
-	public static string SerializeXmlNode(XmlNode node)
-	{
-		return SerializeXmlNode(node, Formatting.None);
-	}
-
-	public static string SerializeXmlNode(XmlNode node, Formatting formatting)
-	{
-		XmlNodeConverter xmlNodeConverter = new XmlNodeConverter();
-		return SerializeObject(node, formatting, xmlNodeConverter);
-	}
-
-	public static string SerializeXmlNode(XmlNode node, Formatting formatting, bool omitRootObject)
-	{
-		XmlNodeConverter xmlNodeConverter = new XmlNodeConverter();
-		xmlNodeConverter.OmitRootObject = omitRootObject;
-		XmlNodeConverter xmlNodeConverter2 = xmlNodeConverter;
-		return SerializeObject(node, formatting, xmlNodeConverter2);
-	}
-
-	public static XmlDocument DeserializeXmlNode(string value)
-	{
-		return DeserializeXmlNode(value, null);
-	}
-
-	public static XmlDocument DeserializeXmlNode(string value, string deserializeRootElementName)
-	{
-		return DeserializeXmlNode(value, deserializeRootElementName, writeArrayAttribute: false);
-	}
-
-	public static XmlDocument DeserializeXmlNode(string value, string deserializeRootElementName, bool writeArrayAttribute)
-	{
-		XmlNodeConverter xmlNodeConverter = new XmlNodeConverter();
-		xmlNodeConverter.DeserializeRootElementName = deserializeRootElementName;
-		xmlNodeConverter.WriteArrayAttribute = writeArrayAttribute;
-		XmlNodeConverter xmlNodeConverter2 = xmlNodeConverter;
-		return (XmlDocument)DeserializeObject(value, typeof(XmlDocument), xmlNodeConverter2);
 	}
 }

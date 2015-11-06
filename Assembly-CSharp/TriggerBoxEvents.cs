@@ -19,7 +19,7 @@ public class TriggerBoxEvents : MonoBehaviour
 	public void OnMVTriggerEnter(Collider other)
 	{
 		MVWorldObjectClient validWorldObject = GetValidWorldObject(other);
-		if (validWorldObject != null && MVGameController.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.Round)
+		if (validWorldObject != null && MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.Round)
 		{
 			isInTrigger = true;
 			if (TriggerEnterOverride != null)
@@ -57,16 +57,16 @@ public class TriggerBoxEvents : MonoBehaviour
 		{
 			return null;
 		}
-		int woIDHighestInHierarchyWithComponent = MVGameController.WOCM.GetWoIDHighestInHierarchyWithComponent<Rigidbody>(mVWorldObjectClient.Id);
+		int woIDHighestInHierarchyWithComponent = MVGameControllerBase.WOCM.GetWoIDHighestInHierarchyWithComponent<Rigidbody>(mVWorldObjectClient.Id);
 		if (woIDHighestInHierarchyWithComponent == -1)
 		{
 			return null;
 		}
 		if (woIDHighestInHierarchyWithComponent != mVWorldObjectClient.Id)
 		{
-			mVWorldObjectClient = MVGameController.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
+			mVWorldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
 		}
-		if (mVWorldObjectClient.OwnerActorNr != MVGameController.Game.LocalPlayer.ActorNr)
+		if (mVWorldObjectClient.OwnerActorNr != MVGameControllerBase.Game.LocalPlayer.ActorNr)
 		{
 			return null;
 		}

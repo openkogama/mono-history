@@ -6,7 +6,7 @@ public class MVGUIPublishButton : UXViewScript
 	{
 		publishButton.OnClick = () =>
 		{
-			if (MVGameController.Game.LocalPlayer.PlanetOwnershipTypeID == 2)
+			if (MVGameControllerBase.Game.LocalPlayer.PlanetOwnershipTypeID == 2)
 			{
 				UXUtils.UXDialogFactory.CreateCustomDialog("Prefabs/GUI/Dialogs/PublishDialog", TM._("Publish Your Game")).AddPositiveButton(TM._("Yes")).AddNegativeButton(TM._("No"))
 					.SetOnResultCallback(PublishButtonOnClick)
@@ -23,7 +23,7 @@ public class MVGUIPublishButton : UXViewScript
 	{
 		if (dialog.DialogResult == UXDialogResult.Positive)
 		{
-			MVGameController.Game.PublishPlanet();
+			MVGameControllerBase.Game.PublishPlanet();
 		}
 	}
 }

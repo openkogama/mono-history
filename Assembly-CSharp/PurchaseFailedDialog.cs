@@ -41,7 +41,7 @@ public static class PurchaseFailedDialog
 		if (dialog.DialogResult == UXDialogResult.Positive)
 		{
 			BrowserComm.ToJavaScript.ExternalCall("gotoPurchaseGold");
-			BrowserComm.ExecuteBrowserRequest(MVGameController.GameSessionData.purchaseGoldURL);
+			BrowserComm.ExecuteBrowserRequest(MVGameControllerBase.GameSessionData.purchaseGoldURL);
 		}
 	}
 }

@@ -116,7 +116,6 @@ public class WaterPlaneManager : MonoBehaviour
 		water.gameObject.SetActive(value: false);
 		lowPassFilter = Camera.main.GetComponent<AudioLowPassFilter>();
 		reverbFilter = Camera.main.GetComponent<AudioReverbFilter>();
-		MVGameController.WOCM.WaterPlaneManager = this;
 	}
 
 	private void OnEnable()
@@ -165,7 +164,7 @@ public class WaterPlaneManager : MonoBehaviour
 			lowPassFilter.enabled = false;
 			reverbFilter.enabled = false;
 		}
-		MVAvatarLocal avatarLocal = MVGameController.WOCM.AvatarLocal;
+		MVAvatarLocal avatarLocal = MVGameControllerBase.WOCM.AvatarLocal;
 		if (avatarLocal == null)
 		{
 			return;
@@ -218,13 +217,13 @@ public class WaterPlaneManager : MonoBehaviour
 
 	private float UnderwaterJumpPowerModifierCallback()
 	{
-		float num = ComputeAvatarWaterProximity(MVGameController.WOCM.AvatarLocal.GameObject.transform.position);
+		float num = ComputeAvatarWaterProximity(MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position);
 		return (!((double)num > 0.7)) ? 1f : 2f;
 	}
 
 	private float UnderwaterModifierCallback()
 	{
-		float num = 1f - ComputeAvatarWaterProximity(MVGameController.WOCM.AvatarLocal.GameObject.transform.position);
+		float num = 1f - ComputeAvatarWaterProximity(MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position);
 		return num * 0.3f + 0.7f;
 	}
 

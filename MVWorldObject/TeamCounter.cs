@@ -5,7 +5,7 @@ public class TeamCounter
 {
 	private Dictionary<int, ActorCounter> actorCounters = new Dictionary<int, ActorCounter>();
 
-	private int teamCount;
+	private int teamCount = 0;
 
 	public int TeamCount => teamCount;
 

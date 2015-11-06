@@ -10,7 +10,7 @@ public class ESStateBase : IState
 
 	private ILogger logger;
 
-	private MVWorldObjectClientManager WOCM => MVGameController.WOCM;
+	private MVWorldObjectClientManager WOCM => MVGameControllerBase.WOCM;
 
 	private EditorEvent StateType => stateType;
 
@@ -26,7 +26,7 @@ public class ESStateBase : IState
 
 	public virtual void Enter(EditorStateMachine esm)
 	{
-		logger.Log("Enter");
+		logger.Log("Enter " + stateType);
 	}
 
 	public virtual void Execute(EditorStateMachine e)
@@ -39,6 +39,7 @@ public class ESStateBase : IState
 
 	public void Enter(FSMEntity e)
 	{
+		Debug.Log("Enter " + stateType);
 		Enter((EditorStateMachine)e);
 	}
 
@@ -64,7 +65,7 @@ public class ESStateBase : IState
 	protected void TintObjectsOnMouseOver(EditorStateMachine e)
 	{
 		VoxelHit hit = default;
-		bool pickSuccess = MVGameController.WOCM.Pick(ref hit);
+		bool pickSuccess = MVGameControllerLegacyUI.Pick(ref hit);
 		TintObjectsOnMouseOver(e, pickSuccess, hit);
 	}
 

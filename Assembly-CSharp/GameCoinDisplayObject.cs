@@ -56,9 +56,9 @@ public class GameCoinDisplayObject : MonoBehaviour
 		{
 			stringRenderer.AddString(objectRoot.transform.position, stringAttachPoint.position, Color.white);
 		}
-		if (MVGameController.WOCM.AvatarLocal != null)
+		if (MVGameControllerBase.WOCM.AvatarLocal != null)
 		{
-			ChangeLOD((transform.position - MVGameController.WOCM.AvatarLocal.Transform.position).magnitude);
+			ChangeLOD((transform.position - MVGameControllerBase.WOCM.AvatarLocal.Transform.position).magnitude);
 		}
 	}
 

@@ -13,7 +13,7 @@ public class ProductInventory
 
 	protected InventoryExpirationChecker expirationChecker;
 
-	private static MVWorldObjectClientManager WOCM => MVGameController.WOCM;
+	private static MVWorldObjectClientManager WOCM => MVGameControllerBase.WOCM;
 
 	public int Count => Inventory.Count;
 

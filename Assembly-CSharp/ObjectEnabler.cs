@@ -58,7 +58,7 @@ public class ObjectEnabler : MonoBehaviour
 		}
 		foreach (ObjectLink objectLinkRef in woObjectEnabler.ObjectLinkRefs)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(objectLinkRef.objectWOID);
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(objectLinkRef.objectWOID);
 			if (worldObjectClient is MVCubeModelInstance)
 			{
 				MVCubeModelInstance mVCubeModelInstance = worldObjectClient as MVCubeModelInstance;

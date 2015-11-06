@@ -65,7 +65,7 @@ public class MVGUIChatWindow : UXViewScript
 		{
 			View.releaseFocusOnHide = true;
 			View.Hide();
-			MVNetworkGame game = MVGameController.Game;
+			MVNetworkGame game = MVGameControllerBase.Game;
 			game.OnReceivedGameMsg = (MVNetworkGame.OnReceivedGameMsgDelegate)Delegate.Combine(game.OnReceivedGameMsg, new MVNetworkGame.OnReceivedGameMsgDelegate(AddLine));
 			InitializeChatFunctions();
 			InitializeFocusHelpers();
@@ -115,7 +115,7 @@ public class MVGUIChatWindow : UXViewScript
 
 	private void CreateHelpKey()
 	{
-		if (MVGameController.GameMode != MVGameMode.CharacterEditor && !MVGameController.Game.IsTouristSession)
+		if (MVGameControllerBase.GameMode != MVGameMode.CharacterEditor && !MVGameControllerBase.IsTouristSession)
 		{
 			string format = TM._("Type {0} for help\nPress <Enter> or <T> to chat");
 			AddLine(string.Format(format, helpString), Color.grey);
@@ -125,7 +125,7 @@ public class MVGUIChatWindow : UXViewScript
 	public void CreateHelpTxt()
 	{
 		string line = TM._("<M> Menu\n<H> Toggle HD Mode");
-		switch (MVGameController.GameMode)
+		switch (MVGameControllerBase.GameMode)
 		{
 		case MVGameMode.CharacterEditor:
 			break;
@@ -150,12 +150,12 @@ public class MVGUIChatWindow : UXViewScript
 
 	private void CreateUsersOfLanguageStatus()
 	{
-		Dictionary<int, MVPlayer> onlineFriends = MVGameController.Game.Friends.GetOnlineFriends();
-		string regionCode = MVGameController.Game.LocalPlayer.RegionCode;
+		Dictionary<int, MVPlayer> onlineFriends = MVGameControllerBase.Game.Friends.GetOnlineFriends();
+		string regionCode = MVGameControllerBase.Game.LocalPlayer.RegionCode;
 		bool flag = false;
-		foreach (KeyValuePair<int, MVPlayer> player in MVGameController.Game.Players)
+		foreach (KeyValuePair<int, MVPlayer> player in MVGameControllerBase.Game.Players)
 		{
-			if (player.Value.RegionCode == regionCode && !onlineFriends.ContainsKey(player.Key) && player.Value.ActorNr != MVGameController.Game.LocalPlayer.ActorNr)
+			if (player.Value.RegionCode == regionCode && !onlineFriends.ContainsKey(player.Key) && player.Value.ActorNr != MVGameControllerBase.Game.LocalPlayer.ActorNr)
 			{
 				if (!flag)
 				{
@@ -169,7 +169,7 @@ public class MVGUIChatWindow : UXViewScript
 
 	private void CreateFriendsStatus()
 	{
-		Dictionary<int, MVPlayer> onlineFriends = MVGameController.Game.Friends.GetOnlineFriends();
+		Dictionary<int, MVPlayer> onlineFriends = MVGameControllerBase.Game.Friends.GetOnlineFriends();
 		if (onlineFriends.Count <= 0)
 		{
 			return;
@@ -215,6 +215,18 @@ public class MVGUIChatWindow : UXViewScript
 
 	private void Update()
 	{
+		if (MVGameControllerBase.JoinState == MVJoinState.Playing)
+		{
+			HandleHotKeys();
+		}
+		if (Time.time - activatedTime > 10f && canAutoHide && !chatField.HasFocus && View.isVisible && fadeTransition.GuiFadeState != GuiFadeState.FadeOut)
+		{
+			fadeTransition.FadeOut(OnFadedOut);
+		}
+	}
+
+	private void HandleHotKeys()
+	{
 		if (_enterDown && MVInputWrapper.GetBooleanControlUp(KogamaControls.ChatSendLine, forceKeyUse: true) && chatField.HasFocus)
 		{
 			chatButton.FireOnClick();
@@ -222,10 +234,6 @@ public class MVGUIChatWindow : UXViewScript
 		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.ChatSendLine, forceKeyUse: true) && chatField.HasFocus)
 		{
 			_enterDown = true;
-		}
-		if (Time.time - activatedTime > 10f && canAutoHide && !chatField.HasFocus && View.isVisible && fadeTransition.GuiFadeState != GuiFadeState.FadeOut)
-		{
-			fadeTransition.FadeOut(OnFadedOut);
 		}
 	}
 
@@ -248,12 +256,12 @@ public class MVGUIChatWindow : UXViewScript
 
 	private void OnLevelingInitialize()
 	{
-		if (MVGameController.GameMode == MVGameMode.Play)
+		if (MVGameControllerBase.GameMode == MVGameMode.Play)
 		{
 			OnPlayModeLevelingEnabledChanged(LevelingManager.LevelingEnabled);
 			LevelingManager.OnPlayModeLevelingEnabledChanged = (LevelingManager.OnPlayModeLevelingEnabledChangedDelegate)Delegate.Combine(LevelingManager.OnPlayModeLevelingEnabledChanged, new LevelingManager.OnPlayModeLevelingEnabledChangedDelegate(OnPlayModeLevelingEnabledChanged));
 		}
-		MVLocalPlayer localPlayer = MVGameController.Game.LocalPlayer;
+		MVLocalPlayer localPlayer = MVGameControllerBase.Game.LocalPlayer;
 		localPlayer.OnXPProgressData = (XPProgress.OnXPProgressDataDelegate)Delegate.Combine(localPlayer.OnXPProgressData, new XPProgress.OnXPProgressDataDelegate(OnXPProgressData));
 	}
 
@@ -266,12 +274,12 @@ public class MVGUIChatWindow : UXViewScript
 	{
 		if (activated)
 		{
-			string line = TM._("Leveling activated! Players in game: ") + MVGameController.Game.Players.Count;
+			string line = TM._("Leveling activated! Players in game: ") + MVGameControllerBase.Game.Players.Count;
 			AddLine(line, Color.green);
 		}
 		else
 		{
-			string line = TM._("Leveling deactivated! Players in game: ") + MVGameController.Game.Players.Count;
+			string line = TM._("Leveling deactivated! Players in game: ") + MVGameControllerBase.Game.Players.Count;
 			AddLine(line, Color.red);
 		}
 	}
@@ -291,8 +299,8 @@ public class MVGUIChatWindow : UXViewScript
 		{
 			MVGUIChatWindowLine mVGUIChatWindowLine2 = UnityEngine.Object.Instantiate(chatLinePrefab);
 			int key = (int)message[(byte)0];
-			MVPlayer mVPlayer = MVGameController.Game.Players[key];
-			if (MVGameController.Game.Friends.IsFriend(mVPlayer.ProfileID))
+			MVPlayer mVPlayer = MVGameControllerBase.Game.Players[key];
+			if (MVGameControllerBase.Game.Friends.IsFriend(mVPlayer.ProfileID))
 			{
 				if (msgType == MVGameMsgType.UserJoined)
 				{
@@ -337,9 +345,9 @@ public class MVGUIChatWindow : UXViewScript
 	{
 		string arg = (string)data[(byte)5];
 		int key = (int)data[(byte)0];
-		MVPlayer mVPlayer = MVGameController.Game.Players[key];
+		MVPlayer mVPlayer = MVGameControllerBase.Game.Players[key];
 		arg = $"[{mVPlayer.Username}]: {arg}";
-		if (MVGameController.Game.Friends.IsFriend(mVPlayer.ProfileID))
+		if (MVGameControllerBase.Game.Friends.IsFriend(mVPlayer.ProfileID))
 		{
 			GUIAudioBank.Instance.GetSound("toggle_on").Play();
 			AddLine(arg, friendColor);
@@ -352,7 +360,7 @@ public class MVGUIChatWindow : UXViewScript
 
 	private void AddXPLine(byte xpId, int actorNumber)
 	{
-		string username = MVGameController.Game.Players[actorNumber].Username;
+		string username = MVGameControllerBase.Game.Players[actorNumber].Username;
 		string xPText = XPManager.GetXPText(xpId);
 		string line = string.Format("{0} {1} {2}", username, TM._("got"), xPText);
 		AddLine(line, Color.yellow);
@@ -376,7 +384,7 @@ public class MVGUIChatWindow : UXViewScript
 			}
 			activatedTime = Time.time;
 			_enterDown = false;
-			if (chatField.Text != helpString && !MVGameController.Game.IsTouristSession)
+			if (chatField.Text != helpString && !MVGameControllerBase.IsTouristSession)
 			{
 				SendChatMessage(chatField.Text);
 			}
@@ -397,11 +405,11 @@ public class MVGUIChatWindow : UXViewScript
 				Debug.LogWarning("ChatMsg too long. Truncated to 256 chars!");
 				chatMsg = chatMsg.Substring(0, 256);
 			}
-			MVGameController.Game.PostGameMsg(MVGameMsgType.Chat, new Dictionary<object, object>
+			MVGameControllerBase.Game.PostGameMsg(MVGameMsgType.Chat, new Dictionary<object, object>
 			{
 				{
 					(byte)0,
-					MVGameController.Game.LocalPlayer.ActorNr
+					MVGameControllerBase.Game.LocalPlayer.ActorNr
 				},
 				{
 					(byte)5,

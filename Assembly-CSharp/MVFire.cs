@@ -39,11 +39,11 @@ public class MVFire : MVLogicObject
 		{
 			return;
 		}
-		HashSet<int> localControlledWorldObjects = MVGameController.Game.PlayerController.LocalControlledWorldObjects;
+		HashSet<int> localControlledWorldObjects = MVGameControllerBase.Game.PlayerController.LocalControlledWorldObjects;
 		Vector3 vector = transform.position;
 		foreach (int item in localControlledWorldObjects)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameController.WOCM.GetWorldObjectClient(item);
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(item);
 			if (worldObjectClient == null)
 			{
 				continue;

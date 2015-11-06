@@ -1,4 +1,5 @@
 using System;
+using MV.Common;
 using UnityEngine;
 
 public class CubeModelingController
@@ -9,19 +10,13 @@ public class CubeModelingController
 
 	public delegate void OnTogglePaintCubesDelegate(bool active);
 
-	public delegate void OnWorkPlaneAltitudeChangedDelegate(int altitude);
-
 	public OnToggleEditCubesDelegate OnToggleEditCubes;
 
 	public OnToggleDeleteCubesDelegate OnToggleDeleteCubes;
 
 	public OnTogglePaintCubesDelegate OnTogglePaintCubes;
 
-	public OnWorkPlaneAltitudeChangedDelegate OnDrawplaneAltitudeChanged;
-
 	protected MVGUIMaterialSelectionWindow materialSelectionWindow;
-
-	protected MVGUIDrawplaneControls workplaneArrows;
 
 	protected MVGUICurrentSelectedMaterialCube currentSelectedMaterialCube;
 
@@ -30,10 +25,6 @@ public class CubeModelingController
 	private readonly CubeModelingStateMachine cubeModelingStateMachine;
 
 	public MVGUICubeTools CubeTools { get; private set; }
-
-	public WorldEditorDrawPlane WorldEditorDrawPlane { get; private set; }
-
-	public bool IsDrawPlaneActive => WorldEditorDrawPlane.Active;
 
 	public CubeModelingController(AIngameController ingameController, CubeModelingStateMachine cubeModelingStateMachine)
 	{
@@ -45,20 +36,10 @@ public class CubeModelingController
 	{
 		CubeTools = AIngameController.FindGUIObjectOfType<MVGUICubeTools>(gui);
 		materialSelectionWindow = AIngameController.FindGUIObjectOfType<MVGUIMaterialSelectionWindow>(gui);
-		workplaneArrows = AIngameController.FindGUIObjectOfType<MVGUIDrawplaneControls>(gui);
 		currentSelectedMaterialCube = AIngameController.FindGUIObjectOfType<MVGUICurrentSelectedMaterialCube>(gui);
 		InitializeSelectMaterialUI();
 		InitializeCubeToolsUI();
 		CubeTools.View.Show();
-		CreateDrawPlane();
-	}
-
-	public void Update()
-	{
-		if (WorldEditorDrawPlane != null && WorldEditorDrawPlane.Active)
-		{
-			WorldEditorDrawPlane.UpdateDrawPlane();
-		}
 	}
 
 	public void HandleInput()
@@ -66,10 +47,6 @@ public class CubeModelingController
 		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.ChangeMaterial))
 		{
 			ShowMaterialChangeWindow();
-		}
-		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.ToggleDrawPlane))
-		{
-			ToggleDrawPlane();
 		}
 		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.ActivateEditCubeTool))
 		{
@@ -82,18 +59,6 @@ public class CubeModelingController
 		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.ActivetaPaintCubeTool))
 		{
 			CubeTools.paintCubeButton.Toggle();
-		}
-	}
-
-	public void CreateDrawPlane()
-	{
-		if (!(WorldEditorDrawPlane != null))
-		{
-			WorldEditorDrawPlane = (UnityEngine.Object.Instantiate(Resources.Load("Prefabs/GUI/DrawPlane")) as GameObject).GetComponent<WorldEditorDrawPlane>();
-			WorldEditorDrawPlane.TargetGameObject = MVGameController.WOCM.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>().GameObject;
-			WorldEditorDrawPlane.Active = false;
-			WorldEditorDrawPlane worldEditorDrawPlane = WorldEditorDrawPlane;
-			worldEditorDrawPlane.OnAltitudeChanged = (WorldEditorDrawPlane.AltitudeChangedDelegate)Delegate.Combine(worldEditorDrawPlane.OnAltitudeChanged, new WorldEditorDrawPlane.AltitudeChangedDelegate(NotifyAltitudeUpdate));
 		}
 	}
 
@@ -134,7 +99,7 @@ public class CubeModelingController
 		cubeModelingStateMachine.OnCurrentMaterialChange = (CubeModelingStateMachine.OnCurrentMaterialChangeDelegate)Delegate.Combine(cubeModelingStateMachine.OnCurrentMaterialChange, (CubeModelingStateMachine.OnCurrentMaterialChangeDelegate)((byte materialId, Material material) =>
 		{
 			currentSelectedMaterialCube.CurrentMaterial = material;
-			MVGameController.WOCM.AvatarLocal.LaserPointer.CurrentCubeMaterial = materialId;
+			MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.CurrentCubeMaterial = materialId;
 		}));
 		materialSelectionWindow.OnMaterialSelection = (byte materialId) =>
 		{
@@ -164,7 +129,14 @@ public class CubeModelingController
 
 	public void ToggleEditCubes()
 	{
-		SetCubeModelingTool(CubeModelingEvent.EditCubes);
+		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer && cubeModelingStateMachine.TargetCubeModel is MVCubeModelPrototypeTerrain)
+		{
+			SetCubeModelingTool(CubeModelingEvent.EditCubes2D);
+		}
+		else
+		{
+			SetCubeModelingTool(CubeModelingEvent.EditCubes);
+		}
 	}
 
 	public void ToggleDeleteCubes()
@@ -182,51 +154,9 @@ public class CubeModelingController
 		SetCubeModelingTool(CubeModelingEvent.SprayCubes);
 	}
 
-	public void DrawPlaneToModel(GameObject gameObject)
-	{
-		WorldEditorDrawPlane.CachePos();
-		WorldEditorDrawPlane.TargetGameObject = gameObject;
-		WorldEditorDrawPlane.SetToTargetGameObjectZero();
-	}
-
-	private void NotifyAltitudeUpdate(int altitude)
-	{
-		if (OnDrawplaneAltitudeChanged != null)
-		{
-			OnDrawplaneAltitudeChanged(altitude);
-		}
-	}
-
-	public void ToggleDrawPlane()
-	{
-		if (!(WorldEditorDrawPlane == null))
-		{
-			if (WorldEditorDrawPlane.IsOnLandscape)
-			{
-				WorldEditorDrawPlane.SetToCameraPos();
-			}
-			else
-			{
-				WorldEditorDrawPlane.SetToTargetGameObjectZero();
-			}
-			WorldEditorDrawPlane.Active = !WorldEditorDrawPlane.Active;
-			workplaneArrows.View.SetVisible(WorldEditorDrawPlane.Active);
-		}
-	}
-
-	public void ReturnDrawPlaneToLandscape()
-	{
-		WorldEditorDrawPlane.TargetGameObject = MVGameController.WOCM.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>().GameObject;
-		WorldEditorDrawPlane.RestorePos();
-	}
-
-	public void HideEditorTools()
+	public void HideCubeTools()
 	{
 		CubeTools.View.Hide();
-		if (WorldEditorDrawPlane.Active)
-		{
-			ToggleDrawPlane();
-		}
 	}
 
 	public void ShowCurrentSelectedMaterial()

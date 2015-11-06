@@ -46,7 +46,7 @@ public class MVGUIGameCoinBoostShopDialog : UXCustomDialogBox
 	{
 		if (OnTryPurchaseProduct != null)
 		{
-			MVNetworkGame game = MVGameController.Game;
+			MVNetworkGame game = MVGameControllerBase.Game;
 			game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Combine(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
 			OnTryPurchaseProduct();
 			purchase.gameObject.SetActive(value: false);
@@ -62,7 +62,7 @@ public class MVGUIGameCoinBoostShopDialog : UXCustomDialogBox
 
 	private void ProductPurchaseResponseHandler(int returnCode, Dictionary<object, object> purchaseResponseData)
 	{
-		MVNetworkGame game = MVGameController.Game;
+		MVNetworkGame game = MVGameControllerBase.Game;
 		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Remove(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
 		if (returnCode == 0)
 		{

@@ -32,7 +32,7 @@ public class MVGUICubeModel : MVGUIInventoryGroup
 			if (item != null)
 			{
 				int itemID = (item.Object as MVItem).itemID;
-				MVGameController.Game.RemoveItemFromInventory(itemID);
+				MVGameControllerBase.Game.RemoveItemFromInventory(itemID);
 			}
 		}
 	}

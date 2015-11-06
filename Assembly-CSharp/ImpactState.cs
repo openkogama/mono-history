@@ -64,7 +64,7 @@ public class ImpactState
 			{
 				MVControllerColliderHit colliderHit = GetColliderHit(moveHits);
 				ExplosionEvent explosion = new ExplosionEvent(runtimeEventType, colliderHit.hit.point, colliderHit.hit.normal);
-				MVGameController.Game.World.RuntimeEventManager.SendRuntimeEvent(explosion);
+				MVGameControllerBase.Game.World.RuntimeEventManager.SendRuntimeEvent(explosion);
 			}
 		}
 

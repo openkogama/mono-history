@@ -59,11 +59,11 @@ public static class LevelingManager
 			{
 				return false;
 			}
-			if (MVGameController.GameMode == MVGameMode.Edit || MVGameController.GameMode == MVGameMode.CharacterEditor)
+			if (MVGameControllerBase.GameMode == MVGameMode.Edit || MVGameControllerBase.GameMode == MVGameMode.CharacterEditor)
 			{
 				return true;
 			}
-			if (MVGameController.GameMode == MVGameMode.Play && MVGameController.Game.Players.Count >= (int)playModeMinPlayers)
+			if (MVGameControllerBase.GameMode == MVGameMode.Play && MVGameControllerBase.Game.Players.Count >= (int)playModeMinPlayers)
 			{
 				return true;
 			}
@@ -73,27 +73,26 @@ public static class LevelingManager
 
 	public static void Initialize(int profileID)
 	{
-		if (MVGameController.LevelingTestMode)
+		if (MVGameControllerBase.LevelingTestMode)
 		{
 			Test();
 		}
 		else
 		{
-			Debug.Log(Urls.InitialData + profileID);
 			AsyncWWWManager.WWWRequest(new GetRequest(Urls.InitialData + profileID, OnInitialData));
 		}
-		MVNetworkGame game = MVGameController.Game;
+		MVNetworkGame game = MVGameControllerBase.Game;
 		game.onPlayerListChanged = (MVNetworkGame.OnPlayerListChangedDelegate)Delegate.Combine(game.onPlayerListChanged, new MVNetworkGame.OnPlayerListChangedDelegate(OnPlayerListChanged));
 	}
 
 	public static void AddXPToLocalPlayer(string xpType, MVGameMode gameMode)
 	{
-		MVGameController.Game.LocalPlayer.AddXp(xpType, gameMode);
+		MVGameControllerBase.Game.LocalPlayer.AddXp(xpType, gameMode);
 	}
 
 	private static void OnPlayerListChanged()
 	{
-		if ((bool)playModeLevelingEnabled != LevelingEnabled && MVGameController.GameMode == MVGameMode.Play)
+		if ((bool)playModeLevelingEnabled != LevelingEnabled && MVGameControllerBase.GameMode == MVGameMode.Play)
 		{
 			playModeLevelingEnabled = LevelingEnabled;
 			if (OnPlayModeLevelingEnabledChanged != null)
@@ -119,7 +118,7 @@ public static class LevelingManager
 	{
 		BadgeManager.Initialize(initialLevelData.BadgeUrlData);
 		XPManager.Initialize(initialLevelData.XPManagerData);
-		MVGameController.Game.LocalPlayer.InitializeLeveling(initialLevelData);
+		MVGameControllerBase.Game.LocalPlayer.InitializeLeveling(initialLevelData);
 		IsInitialized = true;
 		if (OnLevelingInitialized != null)
 		{

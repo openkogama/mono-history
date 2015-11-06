@@ -44,12 +44,12 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 		advancedGhostBehaviour.Init(mVCubeModelBase, advancedGhostMotor, interactable.IsDead, id);
 		editableCubeModelWrapper = new AdvancedGhostCubeModelWrapper(mVCubeModelBase, advancedGhostBehaviour.GhostVisualization.transform);
 		advancedGhostMotor.Init(advancedGhostBehaviour.gameObject, interactable);
-		if (MVGameController.GameMode == MVGameMode.Edit)
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
 		{
 			SetupEditorIcon(mVCubeModelBase);
 		}
 		Hide();
-		MVGameController.Game.GameStateController.AddUpdateObject(this);
+		MVGameControllerBase.Game.GameStateController.AddUpdateObject(this);
 		OnDataUpdate();
 	}
 
@@ -127,7 +127,7 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 
 	public override void Destroy()
 	{
-		MVGameController.Game.GameStateController.RemoveObject(this);
+		MVGameControllerBase.Game.GameStateController.RemoveObject(this);
 		base.Destroy();
 	}
 
@@ -149,7 +149,7 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 
 	private void HandleGameCounting(float amount, MVPlayer damageDealer, PlayerKilledByType damageType)
 	{
-		if (damageDealer.ActorNr == MVGameController.Game.LocalPlayer.ActorNr && (damageDealer.Avatar.Transform.position - advancedGhostBehaviour.transform.position).magnitude < 10f)
+		if (damageDealer.ActorNr == MVGameControllerBase.Game.LocalPlayer.ActorNr && (damageDealer.Avatar.Transform.position - advancedGhostBehaviour.transform.position).magnitude < 10f)
 		{
 			GameSessionCounters.Increment(GameSessionCounterType.OculusKilledByLocalPlayerInCloseCombat);
 			Debug.Log("Close combat");
@@ -167,7 +167,7 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 		advancedGhostBehaviour.LOD = distance / cullDistance;
 		if (!visible && distance < cullDistance)
 		{
-			SetGameMode(MVGameController.Game.IsPlaying);
+			SetGameMode(MVGameControllerBase.Game.IsPlaying);
 			visible = true;
 		}
 		else if (visible && distance >= cullDistance)

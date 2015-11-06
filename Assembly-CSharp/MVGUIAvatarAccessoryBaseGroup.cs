@@ -12,7 +12,7 @@ public abstract class MVGUIAvatarAccessoryBaseGroup : MonoBehaviour
 
 	protected UXGroup Group => gameObject.GetComponent<UXGroup>();
 
-	protected MVNetworkGame Game => MVGameController.Game;
+	protected MVNetworkGame Game => MVGameControllerBase.Game;
 
 	public virtual void Initialize(AvatarAccessoryController avatarAccessoryController)
 	{

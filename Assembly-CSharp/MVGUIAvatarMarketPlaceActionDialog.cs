@@ -14,21 +14,21 @@ public class MVGUIAvatarMarketPlaceActionDialog : UXCustomDialogBox
 
 	public void SellAvatar(int woID, int priceSilver, string name, byte[] imageData)
 	{
-		MVNetworkGame game = MVGameController.Game;
+		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnMarketPlaceActionComplete = (MVNetworkGame.OnMarketPlaceActionCompleteDelegate)Delegate.Combine(game.OnMarketPlaceActionComplete, new MVNetworkGame.OnMarketPlaceActionCompleteDelegate(OnAddToMarketplaceReturn));
-		MVGameController.Game.AddAvatarToAvatarShopInventory(woID, priceSilver, name, imageData);
+		MVGameControllerBase.Game.AddAvatarToAvatarShopInventory(woID, priceSilver, name, imageData);
 	}
 
 	public void DeleteAvatar(int avatarID)
 	{
-		MVNetworkGame game = MVGameController.Game;
+		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnMarketPlaceActionComplete = (MVNetworkGame.OnMarketPlaceActionCompleteDelegate)Delegate.Combine(game.OnMarketPlaceActionComplete, new MVNetworkGame.OnMarketPlaceActionCompleteDelegate(OnAddToMarketplaceReturn));
-		MVGameController.Game.DeleteAvatarFromShopInventory(avatarID);
+		MVGameControllerBase.Game.DeleteAvatarFromShopInventory(avatarID);
 	}
 
 	private void OnAddToMarketplaceReturn(bool success)
 	{
-		MVNetworkGame game = MVGameController.Game;
+		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnMarketPlaceActionComplete = (MVNetworkGame.OnMarketPlaceActionCompleteDelegate)Delegate.Remove(game.OnMarketPlaceActionComplete, new MVNetworkGame.OnMarketPlaceActionCompleteDelegate(OnAddToMarketplaceReturn));
 		if (success)
 		{

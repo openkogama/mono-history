@@ -55,13 +55,13 @@ public class OptimizedPerception
 
 	private bool GetValidTarget(int woID, out MVWorldObjectClient wo)
 	{
-		if (!MVGameController.WOCM.Contains(woID))
+		if (!MVGameControllerBase.WOCM.Contains(woID))
 		{
 			Debug.Log("Does not contain woid " + woID);
 			wo = null;
 			return false;
 		}
-		wo = MVGameController.WOCM.GetWorldObjectClient(woID);
+		wo = MVGameControllerBase.WOCM.GetWorldObjectClient(woID);
 		if (!wo.GameObject.GetComponent<InteractionDataHandlerBase>().enabled)
 		{
 			return false;

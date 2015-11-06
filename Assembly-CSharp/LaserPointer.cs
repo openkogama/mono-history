@@ -239,7 +239,7 @@ public class LaserPointer : PickupItem, ILaserPointer
 
 	private void ApplyMaterialForState()
 	{
-		currentCubeMaterial = MVGameController.Game.MaterialRepository.GetMaterial(currentCubeMaterialId).material;
+		currentCubeMaterial = MVGameControllerBase.Game.MaterialRepository.GetMaterial(currentCubeMaterialId).material;
 		switch (state)
 		{
 		case LaserPointerState.Idle:

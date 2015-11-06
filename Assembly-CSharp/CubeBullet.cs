@@ -9,6 +9,6 @@ public class CubeBullet : MonoBehaviour
 
 	public void SetCubeMaterial(byte id)
 	{
-		GetComponent<Renderer>().sharedMaterial = MVGameController.Game.MaterialRepository.GetMaterial(id).material;
+		GetComponent<Renderer>().sharedMaterial = MVGameControllerBase.Game.MaterialRepository.GetMaterial(id).material;
 	}
 }

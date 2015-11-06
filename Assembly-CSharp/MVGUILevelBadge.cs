@@ -29,8 +29,8 @@ public class MVGUILevelBadge : MonoBehaviour
 
 	private void OnLevelingInitialized()
 	{
-		UpdateBadge(MVGameController.Game.LocalPlayer.Level);
-		MVLocalPlayer localPlayer = MVGameController.Game.LocalPlayer;
+		UpdateBadge(MVGameControllerBase.Game.LocalPlayer.Level);
+		MVLocalPlayer localPlayer = MVGameControllerBase.Game.LocalPlayer;
 		localPlayer.OnLevelChanged = (MVPlayer.OnLevelChangedDelegate)Delegate.Combine(localPlayer.OnLevelChanged, new MVPlayer.OnLevelChangedDelegate(UpdateBadge));
 	}
 
