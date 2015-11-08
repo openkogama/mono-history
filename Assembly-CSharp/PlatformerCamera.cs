@@ -14,7 +14,7 @@ public class PlatformerCamera : MVCameraBase, ICameraSettings
 
 	private float distanceToAvatar = 20f;
 
-	private float lerpSpeed = 10f;
+	private float lerpSpeed = 5.5f;
 
 	public override CameraType CameraType => CameraType.Platformer;
 
@@ -45,9 +45,7 @@ public class PlatformerCamera : MVCameraBase, ICameraSettings
 	public override void UpdateCamera(MVCameraController camController, Transform targetTransform)
 	{
 		transform.eulerAngles = new Vector3(rotOffset, 0f, 0f);
-		((MVGUICrossHairLegacy)MVGameControllerBase.IPlayModeUI.GetCrossHair()).UpdateCrosshairPosition();
-		currentOffset = Vector3.Lerp(currentOffset, transform.rotation * MVGameControllerBase.IPlayModeUI.GetCrossHair().Direction, lerpSpeed * Time.deltaTime);
-		transform.position = MVGameControllerBase.IPlayModeUI.GetCrossHair().Origin - transform.rotation * Vector3.forward * distanceToAvatar + currentOffset;
+		transform.position = MVGameControllerBase.WOCM.AvatarLocal.LookAtPos - transform.rotation * Vector3.forward * distanceToAvatar;
 		base.UpdateCamera(camController, targetTransform);
 	}
 }

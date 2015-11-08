@@ -4,7 +4,7 @@ using UnityEngine;
 
 internal class ESTranslate : ESStateBase
 {
-	private const float _mouseSensitivity = 0.05f;
+	private const float _mouseSensitivity = 0.005f;
 
 	private float gridSize;
 
@@ -271,9 +271,9 @@ internal class ESTranslate : ESStateBase
 		Quaternion quaternion = Quaternion.Euler(0f, y, 0f);
 		return quaternion * translateMode switch
 		{
-			TranslateMode.Y => new Vector3(0f, MVInputWrapper.GetAxisRaw("Mouse Y") * initialDistance * 0.05f, 0f), 
-			TranslateMode.XZ => new Vector3(MVInputWrapper.GetAxisRaw("Mouse X") * initialDistance * 0.05f, 0f, MVInputWrapper.GetAxisRaw("Mouse Y") * initialDistance * 0.05f), 
-			TranslateMode.XY => new Vector3(MVInputWrapper.GetAxisRaw("Mouse X") * initialDistance * 0.05f, MVInputWrapper.GetAxisRaw("Mouse Y") * initialDistance * 0.05f, 0f), 
+			TranslateMode.Y => new Vector3(0f, MVInputWrapper.GetAxisRaw("Mouse Y") * initialDistance * 0.005f, 0f), 
+			TranslateMode.XZ => new Vector3(MVInputWrapper.GetAxisRaw("Mouse X") * initialDistance * 0.005f, 0f, MVInputWrapper.GetAxisRaw("Mouse Y") * initialDistance * 0.005f), 
+			TranslateMode.XY => new Vector3(MVInputWrapper.GetAxisRaw("Mouse X") * initialDistance * 0.005f, MVInputWrapper.GetAxisRaw("Mouse Y") * initialDistance * 0.005f, 0f), 
 			_ => throw new Exception("Failed to set translate mode"), 
 		};
 	}

@@ -30,7 +30,7 @@ public class PlayControllerBase : AIngameController, IPlayModeUI
 
 	protected MVGUIMenu menu;
 
-	protected LockCursorManager lockCursorManager;
+	protected ILockCursorManager lockCursorManager;
 
 	protected bool briefingWasShown;
 
@@ -44,11 +44,18 @@ public class PlayControllerBase : AIngameController, IPlayModeUI
 	{
 		get
 		{
-			return !LockCursorManager.LockCursor;
+			if (lockCursorManager == null)
+			{
+				return true;
+			}
+			return !lockCursorManager.LockCursor;
 		}
 		set
 		{
-			LockCursorManager.LockCursor = !value;
+			if (lockCursorManager != null)
+			{
+				lockCursorManager.LockCursor = !value;
+			}
 		}
 	}
 
@@ -63,7 +70,14 @@ public class PlayControllerBase : AIngameController, IPlayModeUI
 		menu = AIngameController.FindGUIObjectOfType<MVGUIMenu>(gameObject);
 		level = AIngameController.FindGUIObjectOfType<MVGUILevel>(gameObject);
 		resume = AIngameController.FindGUIObjectOfType<MVGUIResume>(gameObject);
-		lockCursorManager = AIngameController.FindGUIObjectOfType<LockCursorManager>(gameObject);
+		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
+		{
+			lockCursorManager = AIngameController.FindGUIObjectOfType<LockCursorManagerPlatformer>(gameObject);
+		}
+		else
+		{
+			lockCursorManager = AIngameController.FindGUIObjectOfType<LockCursorManager>(gameObject);
+		}
 		fullscreenToggle = AIngameController.FindGUIObjectOfType<MVGUIFullscreenToggle>(gameObject);
 		muteToggle = AIngameController.FindGUIObjectOfType<MVGUIMuteToggle>(gameObject);
 		gameMetersController = AIngameController.FindGUIObjectOfType<GameMetersController>(gameObject);
@@ -127,16 +141,17 @@ public class PlayControllerBase : AIngameController, IPlayModeUI
 		}
 		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.LobbyMenu))
 		{
-			LockCursorManager.LockCursor = false;
+			lockCursorManager.LockCursor = false;
 		}
 	}
 
 	private void InitializeResumeButton()
 	{
-		LockCursorManager.OnCursorLockChanged = (Action<bool>)Delegate.Combine(LockCursorManager.OnCursorLockChanged, new Action<bool>(FocusChanged));
+		ILockCursorManager lockCursorManager = this.lockCursorManager;
+		lockCursorManager.OnCursorLockChanged = (Action<bool>)Delegate.Combine(lockCursorManager.OnCursorLockChanged, new Action<bool>(FocusChanged));
 		resume.button.OnClick = () =>
 		{
-			LockCursorManager.LockCursor = true;
+			this.lockCursorManager.LockCursor = true;
 			if (MVGameControllerBase.WOCM.AvatarLocal.AvatarRuntimeState == AvatarRuntimeState.Hidden)
 			{
 				ShowBriefing();
@@ -144,7 +159,7 @@ public class PlayControllerBase : AIngameController, IPlayModeUI
 				MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Playing);
 			}
 		};
-		FocusChanged(LockCursorManager.HasFocusAndLockCursor);
+		FocusChanged(this.lockCursorManager.HasFocusAndLockCursor);
 	}
 
 	protected virtual void FocusChanged(bool hasFocus)
@@ -284,7 +299,7 @@ public class PlayControllerBase : AIngameController, IPlayModeUI
 		if (winningCondition is IWinningConditionBriefing)
 		{
 			((IWinningConditionBriefing)winningCondition).GetDebriefing(winningConditionDebriefingView);
-			winningConditionDebriefingView.group.SetVisible(LockCursorManager.LockCursor);
+			winningConditionDebriefingView.group.SetVisible(lockCursorManager.LockCursor);
 		}
 	}
 
@@ -331,7 +346,7 @@ public class PlayControllerBase : AIngameController, IPlayModeUI
 			break;
 		case MVGameStateType.Round:
 			winningConditionDebriefingView.Clear();
-			LockCursorManager.LockCursor = false;
+			lockCursorManager.LockCursor = false;
 			break;
 		case MVGameStateType.RoundEnded:
 			break;

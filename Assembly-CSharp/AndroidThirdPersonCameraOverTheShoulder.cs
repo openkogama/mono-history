@@ -11,9 +11,9 @@ public class AndroidThirdPersonCameraOverTheShoulder : MVCameraBase
 
 	private Transform lookAtTransform;
 
-	private float pitchSensitivity = 2f;
+	private float pitchSensitivity = 0.2f;
 
-	private float yawSensitivity = 2f;
+	private float yawSensitivity = 0.2f;
 
 	private readonly CameraCollision cameraCollision = new CameraCollision();
 

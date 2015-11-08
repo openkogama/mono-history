@@ -251,7 +251,7 @@ public class MVGUITouristPromotion : UXViewScript
 			Debug.Log("Continue");
 			showPromotionBookkeeping.Continue();
 			guiChatWindow.CreateHelpTxt();
-			LockCursorManager.LockCursor = true;
+			MVGameControllerBase.IPlayModeUI.InLobbyState = false;
 			MVGameControllerLegacyUI.PlayController.ShowBriefing();
 		}));
 		UXBaseButton uXBaseButton2 = buttonLogin;

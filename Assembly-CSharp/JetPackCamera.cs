@@ -75,7 +75,7 @@ public class JetPackCamera : MVCameraBase
 	{
 		if (MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelectAlt) && (ignoreInputTypes & IgnoreInputTypes.MouseMovement) == 0)
 		{
-			float num = 30f;
+			float num = 3f;
 			Vector3 vector = new Vector3(MVInputWrapper.GetAxisRaw("Mouse X") * num, MVInputWrapper.GetAxisRaw("Mouse Y") * num, 0f);
 			float num2 = Camera.main.fieldOfView / (float)Screen.height;
 			yAxisTarget += vector.x * num2;

@@ -1,12 +1,14 @@
+using System;
+using MV.Common;
 using UnityEngine;
 
 public class MVGUICrossHairLegacy : IGUICrossHair
 {
-	private Aiming2DCameraDesktop aiming2DCamera = new Aiming2DCameraDesktop();
-
 	private MVGUICrossHair guiCrossHair;
 
-	private Vector3 origin;
+	private Vector3 crossHairPosition = new Vector3(0f, 0f);
+
+	private Vector3 avatarPlanePosition = Vector3.zero;
 
 	private Vector3 direction = Vector3.right;
 
@@ -25,19 +27,21 @@ public class MVGUICrossHairLegacy : IGUICrossHair
 	{
 		get
 		{
-			return origin;
+			throw new Exception("not implemented");
 		}
 		set
 		{
-			origin = value;
+			throw new Exception("not implemented");
 		}
 	}
+
+	public Vector3 AvatarPlanePosition => avatarPlanePosition;
 
 	public bool Visible
 	{
 		get
 		{
-			if (!guiCrossHair.group)
+			if (!guiCrossHair.group.Visible)
 			{
 				return false;
 			}
@@ -54,18 +58,17 @@ public class MVGUICrossHairLegacy : IGUICrossHair
 
 	public bool FiredThisFrame { get; private set; }
 
-	public Vector3 ScreenPos
-	{
-		get
-		{
-			Camera component = UXUtils.UXCamera.GetComponent<Camera>();
-			return component.WorldToScreenPoint(guiCrossHair.transform.position);
-		}
-	}
-
 	public MVGUICrossHairLegacy()
 	{
-		guiCrossHair = (Object.Instantiate(Resources.Load("Prefabs/GUI/CrossHair")) as GameObject).GetComponent<MVGUICrossHair>();
+		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
+		{
+			guiCrossHair = (UnityEngine.Object.Instantiate(Resources.Load("Prefabs/GUI/CrossHairPlatformer")) as GameObject).GetComponent<MVGUICrossHair>();
+			UXUtils.AddSubTree(guiCrossHair.transform);
+		}
+		else
+		{
+			guiCrossHair = (UnityEngine.Object.Instantiate(Resources.Load("Prefabs/GUI/CrossHair")) as GameObject).GetComponent<MVGUICrossHair>();
+		}
 	}
 
 	public void UpdateCrossHair(int ammo, Color color, float chargeState, bool firedThisFrame)
@@ -94,38 +97,37 @@ public class MVGUICrossHairLegacy : IGUICrossHair
 		}
 	}
 
-	public void UpdateCrosshairPosition()
+	public void HandleInput()
 	{
-		float scale = MVGameControllerBase.CameraController.GetCamera<PlatformerCamera>().Scale;
-		aiming2DCamera.Scale = scale;
-		aiming2DCamera.UpdateFireDirection(origin);
-		Vector3 vector = AimPositionOnCameraPlane(origin, aiming2DCamera.Direction);
-		direction = CrossHairDirectionOnAvatarPlane(vector);
-		SetPosition(vector);
-	}
-
-	private Vector3 CrossHairDirectionOnAvatarPlane(Vector3 crossHairOnCameraPlane)
-	{
-		Plane plane = new Plane(Vector3.back, origin);
-		Ray ray = new Ray(MVGameControllerBase.CameraController.MainCamera.transform.position, crossHairOnCameraPlane - MVGameControllerBase.CameraController.MainCamera.transform.position);
-		if (plane.Raycast(ray, out var enter))
-		{
-			return ray.GetPoint(enter) - origin;
-		}
-		Debug.LogWarning("This happens when going from hidden lobby state to playing");
-		return Vector3.zero;
-	}
-
-	private Vector3 AimPositionOnCameraPlane(Vector3 origin, Vector3 inputDirection)
-	{
-		Vector3 vector = MVGameControllerBase.CameraController.MainCamera.transform.rotation * inputDirection;
-		return vector + origin;
-	}
-
-	private void SetPosition(Vector3 position)
-	{
-		Vector3 position2 = MVGameControllerBase.CameraController.MainCamera.WorldToScreenPoint(position);
+		crossHairPosition = Input.mousePosition;
 		Camera component = UXUtils.UXCamera.GetComponent<Camera>();
-		guiCrossHair.transform.position = component.ScreenToWorldPoint(position2);
+		Ray ray = MVGameControllerBase.CameraController.MainCamera.ScreenPointToRay(crossHairPosition);
+		if (new Plane(Vector3.back, MVGameControllerBase.WOCM.AvatarLocal.LookAtPos).Raycast(ray, out var enter))
+		{
+			avatarPlanePosition = ray.GetPoint(enter);
+		}
+		crossHairPosition = component.ScreenToWorldPoint(crossHairPosition);
+		crossHairPosition.z = 0f;
+	}
+
+	private Vector3 ConstrainToScreen(Vector3 screenPosPosition)
+	{
+		if (screenPosPosition.x < 0f)
+		{
+			screenPosPosition.x = 0f;
+		}
+		if (screenPosPosition.y < 0f)
+		{
+			screenPosPosition.y = 0f;
+		}
+		if (screenPosPosition.x > (float)Screen.width)
+		{
+			screenPosPosition.x = Screen.width;
+		}
+		if (screenPosPosition.y > (float)Screen.height)
+		{
+			screenPosPosition.y = Screen.height;
+		}
+		return screenPosPosition;
 	}
 }

@@ -29,7 +29,7 @@ public class AccessoryMover
 			{
 				didMoveAccessory = true;
 				float offset = selectionHelperAvatarAccessory.AvatarAccessory.Offset;
-				offset += MVInputWrapper.GetAxis("Mouse Y") * 0.1f;
+				offset += MVInputWrapper.GetAxis("Mouse Y") * 0.01f;
 				selectionHelperAvatarAccessory.AvatarAccessory.Offset = Mathf.Clamp(offset, -0.8f, 0.2f);
 				body.ApplyAccessoryOffset(selectionHelperAvatarAccessory.AvatarAccessory, selectionHelperAvatarAccessory.Slot);
 				return true;

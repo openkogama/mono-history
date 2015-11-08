@@ -88,7 +88,7 @@ public class MVGUIAvatarAccessoryExpirationHandler : MonoBehaviour
 
 	private bool CanShowExpirationPopup(PlayControllerBase playController, InventoryExpirationInfo expirationInfo)
 	{
-		if (!(DialogFactory.CurrentDialogBox == null) || playController.IsMenuShown() || LockCursorManager.LockCursor)
+		if (!(DialogFactory.CurrentDialogBox == null) || playController.IsMenuShown() || Cursor.lockState == CursorLockMode.Locked)
 		{
 			return false;
 		}

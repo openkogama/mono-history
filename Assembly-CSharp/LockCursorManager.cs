@@ -1,17 +1,29 @@
 using System;
 using UnityEngine;
 
-public class LockCursorManager : MonoBehaviour
+public class LockCursorManager : MonoBehaviour, ILockCursorManager
 {
-	private static bool hasFocus = true;
+	private bool hasFocus = true;
 
-	private static bool wantsCursorLock;
+	private bool wantsCursorLock;
 
-	private static bool prevCursorLock;
+	private bool prevCursorLock;
 
-	public static Action<bool> OnCursorLockChanged;
+	private Action<bool> onCursorLockChanged;
 
-	public static bool LockCursor
+	public Action<bool> OnCursorLockChanged
+	{
+		get
+		{
+			return onCursorLockChanged;
+		}
+		set
+		{
+			onCursorLockChanged = value;
+		}
+	}
+
+	public bool LockCursor
 	{
 		get
 		{
@@ -23,7 +35,7 @@ public class LockCursorManager : MonoBehaviour
 		}
 	}
 
-	public static bool HasFocusAndLockCursor => hasFocus && Cursor.lockState == CursorLockMode.Locked;
+	public bool HasFocusAndLockCursor => hasFocus && Cursor.lockState == CursorLockMode.Locked;
 
 	private void LateUpdate()
 	{

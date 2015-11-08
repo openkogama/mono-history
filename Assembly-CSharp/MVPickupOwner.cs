@@ -116,21 +116,22 @@ public abstract class MVPickupOwner : MVComponent
 
 	private void SetLineOfFireLocal()
 	{
-		Vector3 origin;
 		Vector3 vector;
+		Vector3 vector2;
 		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
 		{
-			origin = MVGameControllerBase.WOCM.AvatarLocal.LookAtPos;
-			MVGameControllerBase.IPlayModeUI.GetCrossHair().Origin = origin;
-			vector = MVGameControllerBase.IPlayModeUI.GetCrossHair().Direction;
+			MVGUICrossHairLegacy mVGUICrossHairLegacy = (MVGUICrossHairLegacy)MVGameControllerBase.IPlayModeUI.GetCrossHair();
+			mVGUICrossHairLegacy.HandleInput();
+			vector = ((!(CurrentItem == null)) ? CurrentItem.Origin : MVGameControllerBase.WOCM.AvatarLocal.LookAtPos);
+			vector2 = mVGUICrossHairLegacy.AvatarPlanePosition - vector;
 		}
 		else
 		{
-			vector = MVGameControllerBase.CameraController.FireDirection;
-			origin = MVGameControllerBase.CameraController.FireOrigin;
+			vector2 = MVGameControllerBase.CameraController.FireDirection;
+			vector = MVGameControllerBase.CameraController.FireOrigin;
 		}
-		vector = GetLookDirectionWithAddedVelocityMagnitude(vector.normalized);
-		SetLineOfFire(origin, vector);
+		vector2 = GetLookDirectionWithAddedVelocityMagnitude(vector2.normalized);
+		SetLineOfFire(vector, vector2);
 	}
 
 	private void UpdateCurrentItem(Dictionary<object, object> newState)

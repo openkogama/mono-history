@@ -17,7 +17,7 @@ public class PlayControllerEdit : PlayController
 		if (!playInEditor)
 		{
 			Hide();
-			LockCursorManager.LockCursor = false;
+			lockCursorManager.LockCursor = false;
 			MVInputWrapper.ignoreAllKeys = false;
 			MVInputWrapper.ignoreInGameInput = false;
 			chatController.CanAutoHide = true;
@@ -30,7 +30,7 @@ public class PlayControllerEdit : PlayController
 		else
 		{
 			Show();
-			LockCursorManager.LockCursor = true;
+			lockCursorManager.LockCursor = true;
 			briefingWasShown = false;
 			ShowBriefing();
 		}

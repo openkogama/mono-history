@@ -11,7 +11,7 @@ public class AvatarAccessoryCamera : MVCameraBase
 
 	public float cameraHeightOffset = 2f;
 
-	public float mouseSensitivity = 10f;
+	public float mouseSensitivity = 1f;
 
 	private Vector3 lookAtOffset;
 

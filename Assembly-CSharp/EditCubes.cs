@@ -13,7 +13,7 @@ internal class EditCubes : CubeModelTool
 
 	private float mouseSensitivity;
 
-	private float mouseSensitivityExtrude = 20.2f;
+	private float mouseSensitivityExtrude = 2.02f;
 
 	private float mouseUpTimeBeforeMoveEdge = 0.3f;
 
@@ -388,12 +388,12 @@ internal class EditCubes : CubeModelTool
 			Vector3 vector = SharedCubeFunctions.LocalToWorld(e.TargetCubeModel.GameObject, e.SelectedCube.iLocalPos);
 			if ((MVGameControllerBase.CameraController.transform.position - vector).magnitude > detailEditModeMaxDistance * e.TargetCubeModel.Scale.y)
 			{
-				mouseSensitivity = 1.325f;
+				mouseSensitivity = 0.1325f;
 				modelCursor.SetIndentAreaSize(1f);
 			}
 			else
 			{
-				mouseSensitivity = 0.225f;
+				mouseSensitivity = 0.0225f;
 				modelCursor.SetIndentAreaSize(0.5f);
 			}
 		}

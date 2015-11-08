@@ -108,7 +108,7 @@ public abstract class PlaymodeCamera : MVPlaymodeCameraBase
 
 	public float height = 1.5f;
 
-	public float mouseSensitivity = 2.5f;
+	public float mouseSensitivity = 0.25f;
 
 	public float aroundYInertiaMouseControlled = 0.5f;
 

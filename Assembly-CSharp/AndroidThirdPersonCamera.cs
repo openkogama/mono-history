@@ -5,9 +5,9 @@ using UnityStandardAssets.CrossPlatformInput;
 
 public class AndroidThirdPersonCamera : MVCameraBase, ICameraSettings
 {
-	private const float pitchSensitivity = 1.5f;
+	private const float pitchSensitivity = 0.15f;
 
-	private const float yawSensitivity = 3f;
+	private const float yawSensitivity = 0.3f;
 
 	private const float basePitch = 10f;
 
@@ -142,8 +142,8 @@ public class AndroidThirdPersonCamera : MVCameraBase, ICameraSettings
 		{
 			fallBehindPitch.SetCameraRotatePos(transform.position);
 		}
-		num += MVInputWrapper.GetAxisRaw("Mouse X") * 3f;
-		x += MVInputWrapper.GetAxisRaw("Mouse Y") * 1.5f;
+		num += MVInputWrapper.GetAxisRaw("Mouse X") * 0.3f;
+		x += MVInputWrapper.GetAxisRaw("Mouse Y") * 0.15f;
 		x = MathFunctions.NormalizeAngle(x);
 		if (x > 180f)
 		{
