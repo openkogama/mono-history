@@ -3,7 +3,7 @@ using MV.WorldObject;
 
 public class OnCounterTypeChangedArgs : EventArgs
 {
-	public readonly int count = 0;
+	public readonly int count;
 
 	public readonly GameStatCounterType counterType;
 

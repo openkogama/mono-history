@@ -62,10 +62,20 @@ public class MVGUISellAvatarDialog : UXViewScript
 	{
 		Debug.Log("SellClick");
 		int num = Convert.ToInt32(priceTextField.Text);
-		if (num > 0 && avatarName.Text != string.Empty)
+		if (IsSelectedBodyValid() && num > 0 && avatarName.Text != string.Empty)
 		{
 			avatarScreenShooter.TakeScreenShot(ScreenShotCallback, ignoreAccessories: true);
 		}
+	}
+
+	private bool IsSelectedBodyValid()
+	{
+		MVBody mVBody = (MVBody)MVGameControllerLegacyUI.CharacterEditorController.EditorStateMachine.ParentGroup;
+		if (!MVGameControllerBase.Game.AvatarMetaDataWoMap.TryGetValue(mVBody.Id, out var mvAvatarMetaData))
+		{
+			return false;
+		}
+		return mvAvatarMetaData.canBeSoldOnMarketPlace;
 	}
 
 	private void ScreenShotCallback(Texture2D screenshotTex)

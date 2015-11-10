@@ -66,7 +66,7 @@ public static class SphereOverlapTest
 						}
 						flag4 = true;
 					}
-					if (!flag & flag3)
+					if (!flag && flag3)
 					{
 						if (flag2)
 						{
@@ -114,7 +114,7 @@ public static class SphereOverlapTest
 		{
 			return OverlapState.OnEdge;
 		}
-		if ((!prevCubeIsWithinRadius & cubeIsWithinRadius) && intVector.x == 1)
+		if (!prevCubeIsWithinRadius && cubeIsWithinRadius && intVector.x == 1)
 		{
 			return OverlapState.OnEdgeLeftUp;
 		}
@@ -126,7 +126,7 @@ public static class SphereOverlapTest
 		{
 			return OverlapState.OnEdgeRightDown;
 		}
-		if ((!prevCubeIsWithinRadius & cubeIsWithinRadius) && intVector.x == -1)
+		if (!prevCubeIsWithinRadius && cubeIsWithinRadius && intVector.x == -1)
 		{
 			return OverlapState.OnEdgeLeftDown;
 		}

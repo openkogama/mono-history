@@ -128,7 +128,7 @@ public class MVPrototype
 	public static byte[] GetPrototypeData(Dictionary<IntVector, byte[]> cubeDict)
 	{
 		BytePacker bytePacker = new BytePacker();
-		int value = 0;
+		int num = 0;
 		bytePacker.Write(cubeDict.Count);
 		foreach (KeyValuePair<IntVector, byte[]> item in cubeDict)
 		{
@@ -138,11 +138,11 @@ public class MVPrototype
 				bytePacker.Write(item.Key.y);
 				bytePacker.Write(item.Key.z);
 				bytePacker.Write(item.Value);
-				value++;
+				num++;
 			}
 		}
 		bytePacker.Position = 0;
-		bytePacker.Write(value);
+		bytePacker.Write(num);
 		return bytePacker.ToArray();
 	}
 

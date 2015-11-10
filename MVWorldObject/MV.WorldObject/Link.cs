@@ -8,7 +8,7 @@ public class Link
 
 	public int inputWOID = -1;
 
-	public bool isSet = false;
+	public bool isSet;
 
 	public Link(int id, int outputWOID, int inputWOID, bool isSet)
 	{

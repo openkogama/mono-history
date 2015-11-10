@@ -86,7 +86,7 @@ public class PickupItemRailGun : PickupItem
 		audioSource = GetComponent<AudioSource>();
 		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
 		{
-			toFieldOfView = 95f;
+			toFieldOfView = 60f;
 		}
 		else
 		{

@@ -41,18 +41,11 @@ public class MVGUICrossHairLegacy : IGUICrossHair
 	{
 		get
 		{
-			if (!guiCrossHair.group.Visible)
-			{
-				return false;
-			}
 			return guiCrossHair.group.Visible;
 		}
 		set
 		{
-			if ((bool)guiCrossHair.group)
-			{
-				guiCrossHair.group.SetVisible(value);
-			}
+			guiCrossHair.group.SetVisible(value);
 		}
 	}
 
@@ -64,6 +57,7 @@ public class MVGUICrossHairLegacy : IGUICrossHair
 		{
 			guiCrossHair = (UnityEngine.Object.Instantiate(Resources.Load("Prefabs/GUI/CrossHairPlatformer")) as GameObject).GetComponent<MVGUICrossHair>();
 			UXUtils.AddSubTree(guiCrossHair.transform);
+			UXUtils.FindGUIObjectOfType<LockCursorManagerPlatformer>().GUICrossHairLegacy = this;
 		}
 		else
 		{

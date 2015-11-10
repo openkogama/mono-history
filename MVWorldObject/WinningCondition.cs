@@ -2,7 +2,7 @@ using System;
 
 public abstract class WinningCondition : IWinningCondition
 {
-	private bool forfilled = false;
+	private bool forfilled;
 
 	private readonly int id;
 
@@ -10,7 +10,7 @@ public abstract class WinningCondition : IWinningCondition
 
 	private OnCounterTypeChangedArgs instigatorCounterTypeChangedEvent;
 
-	private readonly GameStatCounterType gameStatCounterType = GameStatCounterType.None;
+	private readonly GameStatCounterType gameStatCounterType;
 
 	protected WinningConditionPresentStyle winningConditionPresentStyle;
 

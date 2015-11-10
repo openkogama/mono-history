@@ -44,18 +44,25 @@ public class PlayControllerBase : AIngameController, IPlayModeUI
 	{
 		get
 		{
-			if (lockCursorManager == null)
-			{
-				return true;
-			}
 			return !lockCursorManager.LockCursor;
 		}
 		set
 		{
-			if (lockCursorManager != null)
-			{
-				lockCursorManager.LockCursor = !value;
-			}
+			lockCursorManager.LockCursor = !value;
+		}
+	}
+
+	public PlayControllerBase()
+	{
+		Debug.Log("PlayControllerBase created");
+		GameObject gameObject = UXUtils.FindGUIObjectOfType<MVGUIRoot>().gameObject;
+		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
+		{
+			lockCursorManager = AIngameController.FindGUIObjectOfType<LockCursorManagerPlatformer>(gameObject);
+		}
+		else
+		{
+			lockCursorManager = AIngameController.FindGUIObjectOfType<LockCursorManager>(gameObject);
 		}
 	}
 
@@ -70,14 +77,6 @@ public class PlayControllerBase : AIngameController, IPlayModeUI
 		menu = AIngameController.FindGUIObjectOfType<MVGUIMenu>(gameObject);
 		level = AIngameController.FindGUIObjectOfType<MVGUILevel>(gameObject);
 		resume = AIngameController.FindGUIObjectOfType<MVGUIResume>(gameObject);
-		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-		{
-			lockCursorManager = AIngameController.FindGUIObjectOfType<LockCursorManagerPlatformer>(gameObject);
-		}
-		else
-		{
-			lockCursorManager = AIngameController.FindGUIObjectOfType<LockCursorManager>(gameObject);
-		}
 		fullscreenToggle = AIngameController.FindGUIObjectOfType<MVGUIFullscreenToggle>(gameObject);
 		muteToggle = AIngameController.FindGUIObjectOfType<MVGUIMuteToggle>(gameObject);
 		gameMetersController = AIngameController.FindGUIObjectOfType<GameMetersController>(gameObject);
@@ -177,6 +176,7 @@ public class PlayControllerBase : AIngameController, IPlayModeUI
 
 	protected virtual void ShowLostFocusGUI()
 	{
+		gameInfo.View.Show();
 		resume.View.Show();
 		bottomCenterToggles.View.Show();
 		fullscreenToggle.View.Show();

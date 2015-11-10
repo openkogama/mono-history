@@ -113,15 +113,15 @@ public class JetPackCamera : MVCameraBase
 	{
 		Debug.Log("Focus on object");
 		float num = wo.ComputeObjectRadius();
-		float num2 = Camera.main.fieldOfView * 0.5f * 0.8f;
+		float num2 = Camera.main.fieldOfView * 0.5f * 0.6f;
 		float a = num / Mathf.Tan(num2 * ((float)Math.PI / 180f));
 		a = Mathf.Max(a, 4f);
 		Transform transform = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform;
-		Vector3 worldCenter = SharedCubeFunctions.GetWorldCenter(wo.GameObject.transform);
-		Vector3 vector = worldCenter - transform.position;
+		Vector3 position = wo.GameObject.transform.position;
+		Vector3 vector = position - transform.position;
 		transform.position += vector.normalized * (vector.magnitude - a);
 		base.transform.position = transform.position + lookAtOffset;
-		base.transform.LookAt(worldCenter);
+		base.transform.LookAt(position);
 		xAxis = (xAxisTarget = NormalizeAngle(base.transform.eulerAngles.x));
 		yAxis = (yAxisTarget = base.transform.eulerAngles.y);
 		xAxisVelocity = (yAxisVelocity = 0f);

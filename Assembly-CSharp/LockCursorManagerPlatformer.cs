@@ -7,7 +7,12 @@ public class LockCursorManagerPlatformer : MonoBehaviour, ILockCursorManager
 
 	private bool wantsCursorLock;
 
+	private bool crosshairVisible;
+
 	private Action<bool> onCursorLockChanged;
+
+	[SerializeField]
+	private Texture2D crosshairCursor;
 
 	private bool prevCursorLock;
 
@@ -22,6 +27,8 @@ public class LockCursorManagerPlatformer : MonoBehaviour, ILockCursorManager
 			onCursorLockChanged = value;
 		}
 	}
+
+	public MVGUICrossHairLegacy GUICrossHairLegacy { private get; set; }
 
 	public bool LockCursor
 	{
@@ -44,11 +51,29 @@ public class LockCursorManagerPlatformer : MonoBehaviour, ILockCursorManager
 			hasFocus = true;
 		}
 		HandleCursorLock();
+		if (GUICrossHairLegacy != null && crosshairVisible != GUICrossHairLegacy.Visible)
+		{
+			crosshairVisible = GUICrossHairLegacy.Visible;
+			if (crosshairVisible)
+			{
+				Debug.Log("Set cursor to crosshair");
+				Cursor.SetCursor(crosshairCursor, new Vector2(16f, 16f), CursorMode.Auto);
+			}
+			else
+			{
+				Debug.Log("Set to default");
+				Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+			}
+		}
 	}
 
 	private void OnApplicationFocus(bool focus)
 	{
 		hasFocus = focus;
+		if (!focus)
+		{
+			wantsCursorLock = false;
+		}
 	}
 
 	private void HandleCursorLock()

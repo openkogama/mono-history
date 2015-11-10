@@ -36,7 +36,7 @@ public class WinningConditionManager
 
 	private readonly WinningConditionOr winnerConditionsRoot;
 
-	private int winnerConditionIDCounter = 0;
+	private int winnerConditionIDCounter;
 
 	private GameStatCounterManager gameCounterManager;
 
@@ -128,7 +128,8 @@ public class WinningConditionManager
 		{
 			throw new Exception($"Singleton count of type:{typeof(T)} is: {winnerConditionsByType.Count}");
 		}
-		if (!winnerConditionsByType[0].IsSingleton)
+		T val = winnerConditionsByType[0];
+		if (!val.IsSingleton)
 		{
 			throw new Exception($"Type is not singleton:{typeof(T)}");
 		}

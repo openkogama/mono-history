@@ -50,6 +50,11 @@ internal class ESInsert2D : ESStateBase
 		base.Execute(e);
 		Vector3 rawPosition = Vector3.zero;
 		Vector3 normal = Vector3.up;
+		if (!MVGameControllerLegacyUI.EditorController.DrawPlaneController.IsDrawPlaneActive)
+		{
+			DrawPlaneController2D drawPlaneController2D = (DrawPlaneController2D)MVGameControllerLegacyUI.EditorController.DrawPlaneController;
+			drawPlaneController2D.SetToTerrain(active: true);
+		}
 		if (DrawPlanePick(ref rawPosition, ref normal))
 		{
 			insertCursor.transform.position = rawPosition;
