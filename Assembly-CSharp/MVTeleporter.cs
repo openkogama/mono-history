@@ -5,6 +5,8 @@ public class MVTeleporter : MVLogicObject
 {
 	private const string prefabPath = "Prefabs/TelePorterObject";
 
+	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
+
 	private TriggerBoxEvents triggerBoxEvents;
 
 	private List<MVAvatar> avatarIgnoreList = new List<MVAvatar>();
@@ -15,7 +17,7 @@ public class MVTeleporter : MVLogicObject
 
 	private MVTeleporter target;
 
-	private GameCoinLogic gameCoinLogic;
+	private UseInteractor useInteractor;
 
 	private Vector3 gameCoinDisplayObjectOffset = new Vector3(0f, 1.5f, 0f);
 
@@ -51,28 +53,35 @@ public class MVTeleporter : MVLogicObject
 		teleportParticles = gameObject.GetComponentInChildren<ParticleSystem>();
 		interactionFlags &= ~InteractionFlags.CanClone;
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
-		gameCoinLogic = new GameCoinLogic(gameObject, Data, gameCoinDisplayObjectOffset);
+		interactionFlags |= InteractionFlags.CanUseLevel;
+		interactionFlags |= InteractionFlags.CanUseStars;
+		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.GetComponent<Collider>(), DoTeleport);
+		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, gameCoinDisplayObjectOffset, hasUseButtonWhenFree: false);
+		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(gameObject, hasUseButtonWhenFree: false);
+		StarRequirement useRequirement3 = new StarRequirement(gameObject, hasUseButtonWhenFree: false);
+		useInteractor.AddRequirement(useRequirement2);
+		useInteractor.AddRequirement(useRequirement);
+		useInteractor.AddRequirement(useRequirement3);
+		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
+		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
 	}
 
 	public override void OnDataUpdate()
 	{
 		base.OnDataUpdate();
-		gameCoinLogic.OnDataUpdate(Data);
+		useInteractor.UpdateData(Data);
 	}
 
 	public override void Initialize()
 	{
 		base.Initialize();
+		useInteractor.UpdateData(Data);
 		OnInputLinkChanged();
 	}
 
 	protected override void OnUpdate()
 	{
 		base.OnUpdate();
-		if (gameCoinLogic.PurchaseAmount > 0 && triggerBoxEvents.IsInTrigger && !avatarIgnoreList.Contains(MVGameControllerBase.WOCM.AvatarLocal) && gameCoinLogic.ShowUseGUI())
-		{
-			DoTeleport(MVGameControllerBase.WOCM.AvatarLocal.Id);
-		}
 	}
 
 	public override bool Delete(MVWorldObjectClientManager worldObjectClientManager, ref string errorText)
@@ -107,35 +116,37 @@ public class MVTeleporter : MVLogicObject
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		if ((InputLinkRefs.Count == 0 || InputState) && gameCoinLogic.PurchaseAmount <= 0)
+		if ((InputLinkRefs.Count == 0 || InputState) && (useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0)
 		{
 			DoTeleport(e.instigatorWOID);
 		}
 	}
 
-	private void DoTeleport(int instigatorWOID)
+	private bool DoTeleport(int instigatorWOID)
 	{
 		MVTeleporter mVTeleporter = target;
 		if (!(MVGameControllerBase.WOCM.GetWorldObjectClient(instigatorWOID) is MVAvatarLocal))
 		{
-			return;
+			return false;
 		}
-		MVAvatarLocal mVAvatarLocal = MVGameControllerBase.WOCM.GetWorldObjectClient(instigatorWOID) as MVAvatarLocal;
-		if (!mVAvatarLocal.IsEnteringVehicle)
+		MVAvatarLocal avatarLocal = MVGameControllerBase.WOCM.AvatarLocal;
+		if (avatarLocal.IsEnteringVehicle)
 		{
-			if (mVAvatarLocal.IsSeated)
-			{
-				mVAvatarLocal.LeaveVehicle();
-			}
-			if (!avatarIgnoreList.Contains(mVAvatarLocal))
-			{
-				TeleportAvatar teleportAvatar = Object.Instantiate(teleportAvatarPrefab, transform.position, Quaternion.identity) as TeleportAvatar;
-				teleportAvatar.avatar = mVAvatarLocal;
-				teleportAvatar.targetPosition = target.WorldPosition;
-				teleportAvatar.originPosition = transform.position;
-				mVTeleporter.avatarIgnoreList.Add(mVAvatarLocal);
-			}
+			return false;
 		}
+		if (avatarLocal.IsSeated)
+		{
+			avatarLocal.LeaveVehicle();
+		}
+		if (!avatarIgnoreList.Contains(avatarLocal))
+		{
+			TeleportAvatar teleportAvatar = Object.Instantiate(teleportAvatarPrefab, transform.position, Quaternion.identity) as TeleportAvatar;
+			teleportAvatar.avatar = avatarLocal;
+			teleportAvatar.targetPosition = target.WorldPosition;
+			teleportAvatar.originPosition = transform.position;
+			mVTeleporter.avatarIgnoreList.Add(avatarLocal);
+		}
+		return true;
 	}
 
 	private void triggerBoxEvents_TriggerExit(object sender, TriggerEventArgs e)
@@ -154,10 +165,7 @@ public class MVTeleporter : MVLogicObject
 	{
 		if (!isDestroyed)
 		{
-			if (gameCoinLogic != null)
-			{
-				gameCoinLogic.OnDestroy(Data);
-			}
+			useInteractor.OnDestroy(Data);
 			base.Destroy();
 			isDestroyed = true;
 		}

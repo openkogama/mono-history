@@ -4,11 +4,13 @@ using UnityEngine;
 
 public abstract class MVWorldObjectSpawner(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects) : MVBlueprintBase(data, worldObjects)
 {
-	private UseInteractor useInteractor;
+	protected UseInteractor useInteractor;
 
 	protected SpawnStateWrapper spawnStateWrapper;
 
 	protected int spawnWorldObjectID = -1;
+
+	protected TriggerBoxEvents triggerBoxEvents;
 
 	public override void Initialize()
 	{
@@ -22,15 +24,11 @@ public abstract class MVWorldObjectSpawner(Dictionary<object, object> data, Dict
 			return;
 		}
 		spawnWorldObjectID = (int)childIdMap["spawnWorldObjectID"];
-		TriggerBoxEvents componentInChildren = gameObject.GetComponentInChildren<TriggerBoxEvents>();
-		if (componentInChildren == null)
+		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
+		if (triggerBoxEvents == null)
 		{
 			Debug.LogWarning("Did not find triggerBoxEvents");
-			return;
 		}
-		useInteractor = new UseInteractor(Id, reset: true, componentInChildren.GetComponent<Collider>(), Use);
-		componentInChildren.TriggerEnterOverride += useInteractor.triggerBoxEvents_TriggerEnter;
-		componentInChildren.TriggerExitOverride += useInteractor.triggerBoxEvents_TriggerExit;
 	}
 
 	public override void Destroy()
@@ -64,6 +62,8 @@ public abstract class MVWorldObjectSpawner(Dictionary<object, object> data, Dict
 			break;
 		}
 	}
+
+	protected abstract bool CheckCanUse(MVInteractableBase userWoID);
 
 	protected abstract bool Use(int userWoID);
 }

@@ -5,9 +5,9 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 {
 	private GameObject groundAura;
 
-	private GreyOutObjectScript pickupItemObjectScript;
+	private bool initFlag;
 
-	private GameCoinLogic gameCoinLogic;
+	private GreyOutObjectScript pickupItemObjectScript;
 
 	private Vector3 displayObjectOffset = new Vector3(0f, 1.8f, 0f);
 
@@ -17,13 +17,10 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 
 	public int SpawnWorldObjectID => spawnWorldObjectID;
 
-	public GameCoinLogic GameCoinLogic => gameCoinLogic;
-
 	public MVWorldObjectSpawnerVehicle(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, worldObjects)
 	{
 		previewLayerMask |= LayerFlags.Player;
-		gameCoinLogic = new GameCoinLogic(gameObject, Data, displayObjectOffset);
 	}
 
 	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
@@ -36,14 +33,14 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 	public override void OnDataUpdate()
 	{
 		base.OnDataUpdate();
-		gameCoinLogic.OnDataUpdate(Data);
+		useInteractor.UpdateData(Data);
 	}
 
 	public override void Destroy()
 	{
-		if (gameCoinLogic != null)
+		if (initFlag)
 		{
-			gameCoinLogic.OnDestroy(Data);
+			useInteractor.OnDestroy(Data);
 		}
 		base.Destroy();
 	}
@@ -56,10 +53,20 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 			return;
 		}
 		base.Initialize();
+		useInteractor = new UseInteractor(Id, gameObject, reset: true, triggerBoxEvents.GetComponent<Collider>(), Use, CheckCanUse);
+		triggerBoxEvents.TriggerEnterOverride += useInteractor.triggerBoxEvents_TriggerEnter;
+		triggerBoxEvents.TriggerExitOverride += useInteractor.triggerBoxEvents_TriggerExit;
+		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, displayObjectOffset);
+		useInteractor.AddRequirement(useRequirement);
+		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(gameObject);
+		useInteractor.AddRequirement(useRequirement2);
+		useInteractor.UpdateData(Data);
 		MVVehicleBase mVVehicleBase = (MVVehicleBase)GetChild(spawnWorldObjectID);
 		InitializeCommon();
 		interactionFlags |= mVVehicleBase.InteractionFlags;
 		interactionFlags |= InteractionFlags.DirectlySelectable;
+		interactionFlags |= InteractionFlags.CanUseLevel;
+		interactionFlags |= InteractionFlags.CanUseGameCoins;
 		pickupItemObjectScript = gameObject.AddComponent<GreyOutObjectScript>();
 		pickupItemObjectScript.hiddenShader = Shader.Find("Custom/Pickup Unavailable");
 		if (pickupItemObjectScript.hiddenShader == null)
@@ -68,6 +75,7 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 		}
 		pickupItemObjectScript.pickupObject = MVGameControllerBase.WOCM.GetWorldObjectClient(spawnWorldObjectID).GameObject;
 		pickupItemObjectScript.InitializeOriginalMaterials();
+		initFlag = true;
 	}
 
 	public override void InitializeInventory()
@@ -135,6 +143,19 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 		MVGameControllerBase.WOCM.GetWorldObjectClient(SpawnWorldObjectID)?.Select(color);
 	}
 
+	protected override bool CheckCanUse(MVInteractableBase avatarInteractable)
+	{
+		if (spawnStateWrapper.SpawnState == SpawnState.Taken)
+		{
+			return false;
+		}
+		if (avatarInteractable.HasModifierEffect(AvatarModifierEffect.DisableVehicles))
+		{
+			return false;
+		}
+		return true;
+	}
+
 	protected override bool Use(int userWoID)
 	{
 		Debug.Log("SpawnObjectID " + spawnWorldObjectID);
@@ -146,11 +167,6 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 		if (worldObjectClient == null)
 		{
 			Debug.LogError("SpawnWorldObject is null");
-			return false;
-		}
-		if (!gameCoinLogic.CanUse())
-		{
-			Debug.Log("Need " + gameCoinLogic.PurchaseAmount + " GameCoins to use this vehicle");
 			return false;
 		}
 		VehicleSeatManager component = worldObjectClient.GameObject.GetComponent<VehicleSeatManager>();
@@ -169,10 +185,9 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 		if (MVGameControllerBase.Game.PlayerController.SpawnVehicleWithDriver(Id, userWoID, driverSeat))
 		{
 			Debug.Log("Succesfully send spawn vehicle");
-			MVGameControllerBase.Game.GameCoinManager.Consume(gameCoinLogic);
 			return true;
 		}
-		return true;
+		return false;
 	}
 
 	public override bool OnEnterObject(EditorStateMachine e)
@@ -199,16 +214,9 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 			return false;
 		}
 		MVWorldObjectSpawnerVehicle mVWorldObjectSpawnerVehicle = (MVWorldObjectSpawnerVehicle)wo;
-		if (mVWorldObjectSpawnerVehicle.Data.ContainsKey("gameCoinAmount"))
+		if (Data.ContainsKey("gameCoinAmount") || Data.ContainsKey("starAmount") || Data.ContainsKey("levelAmount"))
 		{
-			if (!Data.ContainsKey("gameCoinAmount"))
-			{
-				return false;
-			}
-			if (Data["gameCoinAmount"] != mVWorldObjectSpawnerVehicle.Data["gameCointAmount"])
-			{
-				return false;
-			}
+			return false;
 		}
 		MVWorldObjectClient child = mVWorldObjectSpawnerVehicle.GetChild("spawnWorldObjectID");
 		if (child == null)

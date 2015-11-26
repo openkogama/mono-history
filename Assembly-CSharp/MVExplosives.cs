@@ -17,13 +17,21 @@ public class MVExplosives(Dictionary<object, object> data, Dictionary<int, MVWor
 
 	private AudioLogicCube audioLC;
 
+	private bool isInitialized;
+
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => false;
 
+	public override void Initialize()
+	{
+		base.Initialize();
+		isInitialized = true;
+	}
+
 	public override void OnInputStateChanged()
 	{
-		if (InputState)
+		if (InputState && isInitialized)
 		{
 			Explode();
 		}

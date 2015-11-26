@@ -43,7 +43,6 @@ public class MVAvatar : MVGroup
 		}
 		protected set
 		{
-			Debug.Log("AvatarRuntimeState " + value);
 			AvatarRuntimeDataState.Value = (byte)value;
 		}
 	}

@@ -10,27 +10,15 @@ public class GameCoinDisplayObject : MonoBehaviour
 
 	public Transform stringAttachPoint;
 
-	private float rotSpeed = 10f;
-
 	private float visibilityDistance = 25f;
 
 	private float scaleTime = 1f;
 
 	private bool visible;
 
-	private GameObject objectRoot;
-
 	private GameCoinStringRenderer stringRenderer;
 
 	private int amount;
-
-	public GameObject ObjectRoot
-	{
-		set
-		{
-			objectRoot = value;
-		}
-	}
 
 	public void Start()
 	{
@@ -38,24 +26,11 @@ public class GameCoinDisplayObject : MonoBehaviour
 		textMesh1.GetComponent<Renderer>().enabled = false;
 		textMesh2.GetComponent<Renderer>().enabled = false;
 		visible = false;
-		stringRenderer = (GameCoinStringRenderer)Object.FindObjectsOfType(typeof(GameCoinStringRenderer))[0];
-		if (stringRenderer == null)
-		{
-			Debug.LogError("GameCOinStringRenderer not found in scene!");
-		}
 		transform.localScale = Vector3.zero;
 	}
 
 	public void Update()
 	{
-		if (visible)
-		{
-			transform.Rotate(Vector3.up, rotSpeed * Time.deltaTime);
-		}
-		if (transform.localScale.x > 0.8f)
-		{
-			stringRenderer.AddString(objectRoot.transform.position, stringAttachPoint.position, Color.white);
-		}
 		if (MVGameControllerBase.WOCM.AvatarLocal != null)
 		{
 			ChangeLOD((transform.position - MVGameControllerBase.WOCM.AvatarLocal.Transform.position).magnitude);
@@ -79,7 +54,6 @@ public class GameCoinDisplayObject : MonoBehaviour
 		Object.Destroy(textMesh1);
 		Object.Destroy(textMesh2);
 		Object.Destroy(coinMesh);
-		Object.Destroy(this);
 	}
 
 	public void ChangeLOD(float distance)

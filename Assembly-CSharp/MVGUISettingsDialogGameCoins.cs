@@ -14,13 +14,14 @@ public class MVGUISettingsDialogGameCoins : MVGUIDynamicSettingsDialog
 	private Dictionary<string, DialogData> BuildDialogData()
 	{
 		Dictionary<string, DialogData> dictionary = new Dictionary<string, DialogData>();
-		if (!wo.Data.ContainsKey("gameCoinAmount"))
+		int num = 0;
+		if (wo.Data.ContainsKey("gameCoinAmount"))
 		{
-			wo.Data.Add("gameCoinAmount", 0);
+			num = (int)wo.Data["gameCoinAmount"];
 		}
 		dictionary.Add("GameCoinsSlider", new SliderData
 		{
-			sliderValue = (int)wo.Data["gameCoinAmount"]
+			sliderValue = num
 		});
 		return dictionary;
 	}

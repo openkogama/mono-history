@@ -23,9 +23,19 @@ public class MVGUIDialogBoxWrapper
 	{
 	}
 
+	public void ShowStarsDialog(MVWorldObjectClient wo)
+	{
+		new GUISettingsDialogStars();
+	}
+
 	public void ShowGameCoinsDialog(MVWorldObjectClient wo)
 	{
 		new MVGUISettingsDialogGameCoins();
+	}
+
+	public void ShowLevelsDialog(MVWorldObjectClient wo)
+	{
+		new MVGUISettingsDialogLevels();
 	}
 
 	public void ShowSettingsDialog(MVWorldObjectClient wo)
@@ -109,6 +119,12 @@ public class MVGUIDialogBoxWrapper
 			break;
 		case WorldObjectType.WindTurbine:
 			new GUISettingsDialogWindTurbine();
+			break;
+		case WorldObjectType.ShootableButton:
+			new GUISettingsDialogShootableButton();
+			break;
+		case WorldObjectType.UseLever:
+			new GUISettingsDialogUseLever();
 			break;
 		default:
 			Debug.LogError("No settings dialog available for wo type " + wo.WorldObjectType);

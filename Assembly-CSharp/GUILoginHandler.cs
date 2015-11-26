@@ -58,7 +58,6 @@ public class GUILoginHandler : MonoBehaviour
 		serverIp.text = GetIPFromDevServerTarget((DevServerTarget)num);
 		SetupProfileID();
 		SetupPlanetID();
-		Debug.Log("Awake");
 	}
 
 	private void SetupServerDropdown(int savedChoice)

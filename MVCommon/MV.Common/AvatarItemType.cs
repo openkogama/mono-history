@@ -63,7 +63,7 @@ public enum AvatarItemType
 	Caspar14,
 	Caspar15,
 	MouseGun,
-	IceGun,
+	Thomas3,
 	GrowthGun,
 	MousePack,
 	GrowthPack,

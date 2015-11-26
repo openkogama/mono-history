@@ -30,6 +30,9 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	[SerializeField]
 	private MVCameraController cameraController;
 
+	[SerializeField]
+	public PrefabFactory prefabFactory;
+
 	private static MVGameControllerBase instance;
 
 	protected static bool isInitialized;
@@ -50,6 +53,8 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	public static IPlayModeUI IPlayModeUI => playModeUI;
 
 	public static IEditModeUI IEditModeUI => editModeUI;
+
+	public static PrefabFactory PrefabFactory => instance.prefabFactory;
 
 	private static bool OkToReAuth
 	{

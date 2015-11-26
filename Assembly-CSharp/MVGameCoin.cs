@@ -22,6 +22,8 @@ public class MVGameCoin : MVLogicObject
 
 	private ObjectParticleEmitterScript particles;
 
+	private UseInteractor useInteractor;
+
 	private GameCoinClientState state;
 
 	private bool isVisible = true;
@@ -31,6 +33,10 @@ public class MVGameCoin : MVLogicObject
 	private float reshowingStateDuration = 0.5f;
 
 	private float pickedUpTime;
+
+	private TriggerBoxEvents triggerBoxEvents;
+
+	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
 	public override bool HasInputConnector => false;
 
@@ -42,17 +48,29 @@ public class MVGameCoin : MVLogicObject
 		pickupItem = gameObject.GetComponent<GreyOutObjectScript>();
 		pickupMesh = pickupItem.pickupObject;
 		particles = gameObject.GetComponent<ObjectParticleEmitterScript>();
-		TriggerBoxEvents componentInChildren = gameObject.GetComponentInChildren<TriggerBoxEvents>();
-		if (componentInChildren != null)
+		interactionFlags |= InteractionFlags.CanUseLevel;
+		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
+		if (triggerBoxEvents != null)
 		{
-			componentInChildren.TriggerEnter += triggerBoxEvents_TriggerEnter;
+			triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		}
 		else
 		{
 			Debug.LogError("A TriggerBoxEvents object is missing in PickupItem type: " + GetType().Name);
 		}
+		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.GetComponent<Collider>(), OnPickup, IsCoinTakeable);
+		LevelBasedUseRequirement useRequirement = new LevelBasedUseRequirement(gameObject, hasUseButtonWhenFree: false);
+		useInteractor.AddRequirement(useRequirement);
+		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
+		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
 		SetVisible();
 		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
+	}
+
+	public override void OnDataUpdate()
+	{
+		useInteractor.UpdateData(Data);
+		base.OnDataUpdate();
 	}
 
 	public override MVWorldObjectClient Clone(int ownerActorNumber, int cloneGroupId, CloneBookkeeping cloneBookkeeping, Dictionary<int, MVWorldObjectClient> worldObjects, Dictionary<int, RuntimePrototypeCubeModel> prototypes)
@@ -69,6 +87,7 @@ public class MVGameCoin : MVLogicObject
 
 	public override void Initialize()
 	{
+		useInteractor.UpdateData(Data);
 		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
 		base.Initialize();
 	}
@@ -76,6 +95,7 @@ public class MVGameCoin : MVLogicObject
 	public override void Destroy()
 	{
 		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
+		useInteractor.OnDestroy(Data);
 		base.Destroy();
 	}
 
@@ -89,11 +109,10 @@ public class MVGameCoin : MVLogicObject
 		state = GameCoinClientState.Visible;
 	}
 
-	public virtual void OnPickup(int actorNr)
+	public virtual bool OnPickup(int instigatorID)
 	{
-		if (actorNr == MVGameControllerBase.Game.LocalPlayer.ActorNr && state == GameCoinClientState.Visible)
+		if (instigatorID == MVGameControllerBase.WOCM.AvatarLocal.Id && state == GameCoinClientState.Visible)
 		{
-			Debug.Log("GameCoin OnPickup");
 			isVisible = false;
 			pickupItem.GreyOut();
 			state = GameCoinClientState.PickedUp;
@@ -104,7 +123,18 @@ public class MVGameCoin : MVLogicObject
 			}
 			particles.Play();
 			MVGameControllerBase.Game.GameCoinManager.GameCoinCollect();
+			return true;
 		}
+		return false;
+	}
+
+	public bool IsCoinTakeable(MVInteractableBase avatarInteractable)
+	{
+		if (state != GameCoinClientState.Visible)
+		{
+			return false;
+		}
+		return true;
 	}
 
 	public override void Reset()
@@ -137,9 +167,9 @@ public class MVGameCoin : MVLogicObject
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		if (state == GameCoinClientState.Visible)
+		if ((useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0)
 		{
-			OnPickup(MVGameControllerBase.WOCM.GetWorldObjectClient(e.instigatorWOID).OwnerActorNr);
+			OnPickup(MVGameControllerBase.WOCM.GetWorldObjectClient(e.instigatorWOID).Id);
 		}
 	}
 }

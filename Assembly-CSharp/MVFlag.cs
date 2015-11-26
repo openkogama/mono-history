@@ -12,9 +12,11 @@ public class MVFlag : MVLogicObject
 
 	private WorldObjectEnableController worldObjectEnableController;
 
-	private GameCoinLogic gameCoinLogic;
+	private UseInteractor useInteractor;
 
 	private Vector3 gameCoinDisplayObjectOffset = new Vector3(0f, 2.5f, 0f);
+
+	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
 	public override Vector3 WorldPivot => transform.position;
 
@@ -24,7 +26,11 @@ public class MVFlag : MVLogicObject
 		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
 		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
-		gameCoinLogic = new GameCoinLogic(gameObject, Data, gameCoinDisplayObjectOffset);
+		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.GetComponent<Collider>(), DoCaptureFlag);
+		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
+		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
+		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, gameCoinDisplayObjectOffset, hasUseButtonWhenFree: false);
+		useInteractor.AddRequirement(useRequirement);
 	}
 
 	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
@@ -43,41 +49,43 @@ public class MVFlag : MVLogicObject
 			MVGameControllerBase.Game.WinningConditionManager.CreateWinnerCondition<FlagReachedClient>(new object[0]);
 		}
 		initializedInWorld = true;
+		useInteractor.UpdateData(Data);
 		worldObjectEnableController = gameObject.GetComponentInChildren<WorldObjectEnableController>();
 	}
 
 	public override void OnDataUpdate()
 	{
 		base.OnDataUpdate();
-		gameCoinLogic.OnDataUpdate(Data);
+		useInteractor.UpdateData(Data);
 	}
 
 	protected override void OnUpdate()
 	{
 		base.OnUpdate();
-		if (triggerBoxEvents.IsInTrigger && gameCoinLogic.PurchaseAmount > 0 && worldObjectEnableController.EnableState == EnableState.Enable && gameCoinLogic.ShowUseGUI())
+		if (triggerBoxEvents.IsInTrigger && (useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0 && worldObjectEnableController.EnableState == EnableState.Enable)
 		{
-			DoCaptureFlag();
+			DoCaptureFlag(MVGameControllerBase.WOCM.AvatarLocal.Id);
 		}
 	}
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		if (worldObjectEnableController.EnableState == EnableState.Enable && gameCoinLogic.PurchaseAmount <= 0)
+		if (worldObjectEnableController.EnableState == EnableState.Enable && (useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0)
 		{
-			DoCaptureFlag();
+			DoCaptureFlag(MVGameControllerBase.WOCM.AvatarLocal.Id);
 		}
 	}
 
-	private void DoCaptureFlag()
+	private bool DoCaptureFlag(int instigator)
 	{
 		MVGameControllerBase.Game.ReportCaptureFlag();
+		return true;
 	}
 
 	public override void Destroy()
 	{
 		triggerBoxEvents.TriggerEnter -= triggerBoxEvents_TriggerEnter;
-		gameCoinLogic.OnDestroy(Data);
+		useInteractor.OnDestroy(Data);
 		base.Destroy();
 		if (initializedInWorld && MVGameControllerBase.Game.World.WorldObjectClientManager.GetWorldObjectsByType(WorldObjectType).Count == 0)
 		{

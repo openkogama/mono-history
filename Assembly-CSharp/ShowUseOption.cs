@@ -1,6 +1,16 @@
-public enum ShowUseOption
+using System;
+
+[Flags]
+public enum ShowUseOption : short
 {
-	Normal,
-	GameCoinsEnough,
-	GameCoinsInsufficient
+	Normal = 0,
+	UsingGameCoins = 1,
+	GameCoinsEnough = 2,
+	GameCoinsInsufficient = 4,
+	UsingLevels = 8,
+	LevelEnough = 0x10,
+	LevelInsufficient = 0x20,
+	UsingStars = 0x40,
+	StarsEnough = 0x80,
+	StarsInsufficient = 0x100
 }

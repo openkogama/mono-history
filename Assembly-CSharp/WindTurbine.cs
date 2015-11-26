@@ -136,7 +136,7 @@ public class WindTurbine : MVLogicObject
 		}
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(instigatorWOID);
 		MVRigidBody component = worldObjectClient.GameObject.GetComponent<MVRigidBody>();
-		if (component != null && isActive)
+		if (component != null)
 		{
 			MVInteractableBase component2 = worldObjectClient.GameObject.GetComponent<MVInteractableBase>();
 			if (!(component2 == null))
@@ -193,12 +193,9 @@ public class WindTurbine : MVLogicObject
 
 	public override void Destroy()
 	{
+		IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
+		iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Remove(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
 		base.Destroy();
-		if (MVGameControllerBase.GameMode == MVGameMode.Edit && MVGameControllerBase.IEditModeUI != null && MVGameControllerBase.IEditModeUI.EditModeChange != null)
-		{
-			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
-			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Remove(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
-		}
 	}
 
 	public void OnEditModeChange(EditModeChangeArgs arg)

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CodeStage.AntiCheat.ObscuredTypes;
 using MV.WorldObject;
 using UnityEngine;
 
@@ -16,9 +17,9 @@ public class MVPressurePlate : MVLogicObject
 
 	private float speed = 1.8f;
 
-	private GameCoinLogic gameCoinLogic;
+	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
-	private bool didEnterWithGameCoins;
+	private UseInteractor useInteractor;
 
 	private Vector3 gameCoinDisplayObjectOffset = new Vector3(0f, 0.9f, 0f);
 
@@ -35,12 +36,22 @@ public class MVPressurePlate : MVLogicObject
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
+		interactionFlags |= InteractionFlags.CanUseLevel;
+		interactionFlags |= InteractionFlags.CanUseStars;
 		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
 		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		triggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
 		plateModel = gameObject.GetComponentInChildren<Animation>().gameObject;
 		SetVisibility();
-		gameCoinLogic = new GameCoinLogic(gameObject, Data, gameCoinDisplayObjectOffset);
+		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.GetComponent<Collider>(), DoEnter);
+		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
+		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
+		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, gameCoinDisplayObjectOffset, hasUseButtonWhenFree: false);
+		useInteractor.AddRequirement(useRequirement);
+		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(gameObject, hasUseButtonWhenFree: false);
+		useInteractor.AddRequirement(useRequirement2);
+		StarRequirement useRequirement3 = new StarRequirement(gameObject, hasUseButtonWhenFree: false);
+		useInteractor.AddRequirement(useRequirement3);
 	}
 
 	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
@@ -48,6 +59,27 @@ public class MVPressurePlate : MVLogicObject
 		Vector3 one = Vector3.one;
 		one *= 2f;
 		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, one);
+	}
+
+	public override void Initialize()
+	{
+		base.Initialize();
+		useInteractor.UpdateData(Data);
+		if (RunTimeData.ContainsObscuredKey("instigator"))
+		{
+			ObscuredInt obscuredInt = (ObscuredInt)RunTimeData.GetObscuredType("instigator");
+			if ((int)obscuredInt != 0)
+			{
+				MVGameControllerBase.Game.TriggerBoxEnter(Id, obscuredInt);
+			}
+		}
+		SetVisibility();
+	}
+
+	public override void OnDataUpdate()
+	{
+		useInteractor.UpdateData(Data);
+		SetVisibility();
 	}
 
 	protected override void OnUpdate()
@@ -62,31 +94,6 @@ public class MVPressurePlate : MVLogicObject
 			float num2 = Mathf.Min(speed * Time.smoothDeltaTime, 0f - plateModel.transform.localPosition.y);
 			plateModel.transform.localPosition = new Vector3(plateModel.transform.localPosition.x, plateModel.transform.localPosition.y + num2, plateModel.transform.localPosition.z);
 		}
-		if (triggerBoxEvents.IsInTrigger && gameCoinLogic.PurchaseAmount > 0 && !didEnterWithGameCoins)
-		{
-			if (gameCoinLogic.ShowUseGUI())
-			{
-				DoEnter(MVGameControllerBase.WOCM.AvatarLocal.Id);
-				didEnterWithGameCoins = true;
-			}
-		}
-		else if (!triggerBoxEvents.IsInTrigger && didEnterWithGameCoins)
-		{
-			DoExit(MVGameControllerBase.WOCM.AvatarLocal.Id);
-			didEnterWithGameCoins = false;
-		}
-	}
-
-	public override void OnDataUpdate()
-	{
-		gameCoinLogic.OnDataUpdate(Data);
-		SetVisibility();
-	}
-
-	public override void Initialize()
-	{
-		base.Initialize();
-		SetVisibility();
 	}
 
 	public override void InitializeInventory()
@@ -97,7 +104,7 @@ public class MVPressurePlate : MVLogicObject
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		if (gameCoinLogic.PurchaseAmount <= 0)
+		if ((useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0)
 		{
 			int woIDWithLocalOwnerHighestInHierarchy = MVGameControllerBase.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(e.instigatorWOID);
 			if (woIDWithLocalOwnerHighestInHierarchy == -1)
@@ -112,42 +119,26 @@ public class MVPressurePlate : MVLogicObject
 
 	private void triggerBoxEvents_TriggerExit(object sender, TriggerEventArgs e)
 	{
-		if (gameCoinLogic.PurchaseAmount <= 0)
+		int woIDWithLocalOwnerHighestInHierarchy = MVGameControllerBase.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(e.instigatorWOID);
+		if (woIDWithLocalOwnerHighestInHierarchy == -1)
 		{
-			int woIDWithLocalOwnerHighestInHierarchy = MVGameControllerBase.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(e.instigatorWOID);
-			if (woIDWithLocalOwnerHighestInHierarchy == -1)
-			{
-				Debug.LogError("Pressure plated exited by object which is not owned locally. This might be ok?");
-			}
-			else
-			{
-				DoExit(woIDWithLocalOwnerHighestInHierarchy);
-			}
+			Debug.LogError("Pressure plated exited by object which is not owned locally. This might be ok?");
+		}
+		else
+		{
+			DoExit(woIDWithLocalOwnerHighestInHierarchy);
 		}
 	}
 
-	private void DoEnter(int instigatorWOID)
+	private bool DoEnter(int instigatorWOID)
 	{
 		MVGameControllerBase.Game.TriggerBoxEnter(Id, instigatorWOID);
+		return true;
 	}
 
 	private void DoExit(int instigatorWOID)
 	{
 		MVGameControllerBase.Game.TriggerBoxExit(Id, instigatorWOID);
-	}
-
-	public void OnEnter(MVPlayer player)
-	{
-		if (player != MVGameControllerBase.Game.LocalPlayer)
-		{
-		}
-	}
-
-	public void OnExit(MVPlayer player)
-	{
-		if (player != MVGameControllerBase.Game.LocalPlayer)
-		{
-		}
 	}
 
 	public void OnStayBegin(int actorNr)
@@ -172,8 +163,13 @@ public class MVPressurePlate : MVLogicObject
 	{
 		triggerBoxEvents.TriggerEnter -= triggerBoxEvents_TriggerEnter;
 		triggerBoxEvents.TriggerExit -= triggerBoxEvents_TriggerExit;
-		gameCoinLogic.OnDestroy(Data);
+		useInteractor.OnDestroy(Data);
 		base.Destroy();
+	}
+
+	public override Bounds GetLocalBounds(BoundsContext boundsContext)
+	{
+		return new Bounds(Vector3.zero, new Vector3(2.5f, 0.4f, 2.5f));
 	}
 
 	private bool IsVisible()

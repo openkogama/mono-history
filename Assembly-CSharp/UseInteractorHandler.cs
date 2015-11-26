@@ -10,6 +10,8 @@ public class UseInteractorHandler : MVComponent
 
 	private MVInteractableBase avatarBase;
 
+	private static readonly UseGUIResult useGui = UseGUIResult.NoUseButton | UseGUIResult.NoCost | UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
+
 	public void Init(Collider triggingCollider)
 	{
 		this.triggingCollider = triggingCollider;
@@ -18,12 +20,12 @@ public class UseInteractorHandler : MVComponent
 
 	public void AddUseInteractor(UseInteractor useInteractor)
 	{
-		useInteractors.Add(useInteractor.WoOwnerId, useInteractor);
+		useInteractors.Add(useInteractor.WoOwnerID, useInteractor);
 	}
 
 	public void RemoveUseInteractor(UseInteractor useInteractor)
 	{
-		useInteractors.Remove(useInteractor.WoOwnerId);
+		useInteractors.Remove(useInteractor.WoOwnerID);
 	}
 
 	private void UpdateInteractorsWOID()
@@ -37,13 +39,13 @@ public class UseInteractorHandler : MVComponent
 				list.Add(useInteractor.Key);
 				continue;
 			}
-			if (useInteractor.Value.TrigggerCollider == null)
+			if (useInteractor.Value.TriggerCollider == null)
 			{
 				list.Add(useInteractor.Key);
 				continue;
 			}
-			Collider trigggerCollider = useInteractor.Value.TrigggerCollider;
-			if (!trigggerCollider.bounds.Intersects(triggingCollider.bounds))
+			Collider triggerCollider = useInteractor.Value.TriggerCollider;
+			if (!triggerCollider.bounds.Intersects(triggingCollider.bounds))
 			{
 				Debug.Log("Removing due to bounds not intersecting");
 				list.Add(useInteractor.Key);
@@ -64,28 +66,26 @@ public class UseInteractorHandler : MVComponent
 	private void UpdateUseVisuals()
 	{
 		bool flag = false;
+		ShowUseOption option = ShowUseOption.Normal;
+		int level = 0;
 		if (useInteractors.Count > 0)
 		{
-			flag = true;
-		}
-		if (flag && !avatarBase.HasModifierEffect(AvatarModifierEffect.DisableVehicles))
-		{
-			ShowUseOption option = ShowUseOption.Normal;
-			List<UseInteractor> list = SortByDistance();
-			if (list.Count > 0)
+			UseInteractor useInteractor = SortByDistance()[0];
+			if (useInteractor.GetInteractorCanBeUsed(avatarBase))
 			{
-				MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(list[0].WoOwnerId);
-				if (worldObjectClient is MVWorldObjectSpawnerVehicle && (worldObjectClient as MVWorldObjectSpawnerVehicle).GameCoinLogic.PurchaseAmount > 0)
+				option = useInteractor.GetGUIShowOptions();
+				if ((useInteractor.EvaluateRequirementsUsability() & useGui) > UseGUIResult.NoUseButton)
 				{
-					option = ((worldObjectClient as MVWorldObjectSpawnerVehicle).GameCoinLogic.CanUse() ? ShowUseOption.GameCoinsEnough : ShowUseOption.GameCoinsInsufficient);
+					flag = true;
+					level = useInteractor.WoOwnerID;
 				}
 			}
-			MVGameControllerBase.IPlayModeUI.ShowEUseIcon(option);
 		}
-		else
+		if (flag)
 		{
-			MVGameControllerBase.IPlayModeUI.HideEUseIcon();
+			MVGameControllerBase.IPlayModeUI.ShowEUseIcon(option, level);
 		}
+		MVGameControllerBase.IPlayModeUI.HideEUseIcon();
 	}
 
 	private bool IsInFront(Collider triggerCollider)
@@ -104,7 +104,7 @@ public class UseInteractorHandler : MVComponent
 	{
 		List<UseInteractor> source = useInteractors.Values.ToList();
 		Vector3 triggingColliderPosition = triggingCollider.GetComponent<Collider>().bounds.center;
-		return source.OrderBy((UseInteractor a) => (a.TrigggerCollider.transform.position - triggingColliderPosition).sqrMagnitude).ToList();
+		return source.OrderBy((UseInteractor a) => (a.TriggerCollider.transform.position - triggingColliderPosition).magnitude).ToList();
 	}
 
 	public bool Use()
@@ -118,8 +118,9 @@ public class UseInteractorHandler : MVComponent
 		List<UseInteractor> list = SortByDistance();
 		foreach (UseInteractor item in list)
 		{
-			if (item.Use(worldObjectParent.Id))
+			if (item.GetInteractorCanBeUsed(avatarBase) && item.Use(worldObjectParent.Id))
 			{
+				item.PayUseCost();
 				useInteractor = item;
 				break;
 			}

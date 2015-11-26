@@ -62,10 +62,6 @@ public static class AvatarPackages
 			new MouseGunHitPackage()
 		},
 		{
-			InteractionPackageType.IceGunHit,
-			new IceGunHitPackage()
-		},
-		{
 			InteractionPackageType.GrowthGunHit,
 			new GrowthGunHitPackage()
 		}

@@ -7,7 +7,9 @@ public class MVPickupItemBase : MVLogicObject
 {
 	private bool canPickUp = true;
 
-	private GameCoinLogic gameCoinLogic;
+	private UseInteractor useInteractor;
+
+	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
 	private static Dictionary<AvatarItemType, EquipableData> pickupPrefabLUT = new Dictionary<AvatarItemType, EquipableData>
 	{
@@ -76,10 +78,6 @@ public class MVPickupItemBase : MVLogicObject
 			new EquipableData("Prefabs/Pickups/PickupItemMouseGun", AvatarEquipableType.Weapon)
 		},
 		{
-			AvatarItemType.IceGun,
-			new EquipableData("Prefabs/Pickups/PickupItemIceGun", AvatarEquipableType.Weapon)
-		},
-		{
 			AvatarItemType.GrowthGun,
 			new EquipableData("Prefabs/Pickups/PickupItemGrowthGun", AvatarEquipableType.Weapon)
 		},
@@ -122,20 +120,20 @@ public class MVPickupItemBase : MVLogicObject
 	public MVPickupItemBase(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, GetPickupPrefabName(data), worldObjects)
 	{
+		interactionFlags |= InteractionFlags.CanUseGameCoins;
+		interactionFlags |= InteractionFlags.CanUseLevel;
 		pickupItem = gameObject.GetComponent<GreyOutObjectScript>();
 		pickupMesh = pickupItem.pickupObject;
 		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
-		if (triggerBoxEvents != null)
-		{
-			triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
-			triggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
-		}
-		else
-		{
-			Debug.LogError("A TriggerBoxEvents object is missing in PickupItem type: " + GetType().Name);
-		}
-		interactionFlags |= InteractionFlags.CanUseGameCoins;
-		gameCoinLogic = new GameCoinLogic(gameObject, Data);
+		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
+		triggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
+		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.GetComponent<Collider>(), DoPickup, CheckCanUse);
+		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, hasUseButtonWhenFree: false);
+		useInteractor.AddRequirement(useRequirement);
+		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(gameObject, hasUseButtonWhenFree: false);
+		useInteractor.AddRequirement(useRequirement2);
+		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
+		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
 		OnDataUpdate();
 	}
 
@@ -147,13 +145,19 @@ public class MVPickupItemBase : MVLogicObject
 		return prefabPath + num;
 	}
 
+	public override void Initialize()
+	{
+		useInteractor.UpdateData(Data);
+		base.Initialize();
+	}
+
 	public override void Destroy()
 	{
-		base.Destroy();
-		if (gameCoinLogic != null)
+		if (useInteractor != null)
 		{
-			gameCoinLogic.OnDestroy(Data);
+			useInteractor.OnDestroy(Data);
 		}
+		base.Destroy();
 	}
 
 	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
@@ -180,38 +184,50 @@ public class MVPickupItemBase : MVLogicObject
 		{
 			pickupItemType = (AvatarItemType)(int)Data["itemType"];
 		}
-		gameCoinLogic.OnDataUpdate(Data);
+		useInteractor.UpdateData(Data);
 	}
 
 	protected override void OnUpdate()
 	{
 		pickupMesh.transform.Rotate(Vector3.up, 68f * Time.deltaTime);
-		if (gameCoinLogic.PurchaseAmount > 0 && triggerBoxEvents.IsInTrigger && gameCoinLogic.ShowUseGUI())
-		{
-			DoPickup(MVGameControllerBase.WOCM.AvatarLocal.Id);
-		}
 	}
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		if (e.instigatorWOID != -1 && canPickUp && gameCoinLogic.PurchaseAmount <= 0)
+		if (e.instigatorWOID != -1 && canPickUp && (useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0)
 		{
 			DoPickup(e.instigatorWOID);
 		}
 	}
 
-	private void DoPickup(int instigatorWOID)
+	private bool CheckCanUse(MVInteractableBase avatarInteractable)
+	{
+		if (avatarInteractable.HasModifierEffect(AvatarModifierEffect.DisablePickups))
+		{
+			return false;
+		}
+		if (!canPickUp)
+		{
+			return false;
+		}
+		return true;
+	}
+
+	private bool DoPickup(int instigatorWOID)
 	{
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(instigatorWOID);
-		if (!worldObjectClient.GameObject.GetComponent<MVInteractableBase>().HasModifierEffect(AvatarModifierEffect.DisablePickups))
+		if (worldObjectClient.GameObject.GetComponent<MVInteractableBase>().HasModifierEffect(AvatarModifierEffect.DisablePickups))
 		{
-			MVEquipable component = worldObjectClient.GameObject.GetComponent<MVEquipable>();
-			if (component != null && component.Equip(Type, pickupPrefabLUT[Type].equipableType, ItemData, VariantID))
-			{
-				MVGameControllerBase.Game.TriggerBoxEnter(Id, instigatorWOID);
-				canPickUp = false;
-			}
+			return false;
 		}
+		MVEquipable component = worldObjectClient.GameObject.GetComponent<MVEquipable>();
+		if (component != null && component.Equip(Type, pickupPrefabLUT[Type].equipableType, ItemData, VariantID))
+		{
+			MVGameControllerBase.Game.TriggerBoxEnter(Id, instigatorWOID);
+			canPickUp = false;
+			return true;
+		}
+		return false;
 	}
 
 	private void triggerBoxEvents_TriggerExit(object sender, TriggerEventArgs e)

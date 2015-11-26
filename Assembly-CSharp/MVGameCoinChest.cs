@@ -17,7 +17,13 @@ public class MVGameCoinChest : MVLogicObject
 
 	private GameCoinChestModelSelector modelSelector;
 
+	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
+
 	private GameCoinChestClientState state;
+
+	private UseInteractor useInteractor;
+
+	private TriggerBoxEvents triggerBoxEvents;
 
 	public override bool HasInputConnector => false;
 
@@ -47,16 +53,22 @@ public class MVGameCoinChest : MVLogicObject
 	{
 		particles = gameObject.GetComponent<ObjectParticleEmitterScript>();
 		modelSelector = gameObject.GetComponent<GameCoinChestModelSelector>();
-		TriggerBoxEvents componentInChildren = gameObject.GetComponentInChildren<TriggerBoxEvents>();
-		if (componentInChildren != null)
+		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
+		if (triggerBoxEvents != null)
 		{
-			componentInChildren.TriggerEnter += triggerBoxEvents_TriggerEnter;
+			triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		}
 		else
 		{
 			Debug.LogError("A TriggerBoxEvents object is missing in PickupItem type: " + GetType().Name);
 		}
+		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.GetComponent<Collider>(), OpenChest, IsUsable);
+		LevelBasedUseRequirement useRequirement = new LevelBasedUseRequirement(gameObject, hasUseButtonWhenFree: false);
+		useInteractor.AddRequirement(useRequirement);
+		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
+		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
 		interactionFlags |= InteractionFlags.HasSettings;
+		interactionFlags |= InteractionFlags.CanUseLevel;
 		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
 	}
 
@@ -67,8 +79,15 @@ public class MVGameCoinChest : MVLogicObject
 		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, one);
 	}
 
+	public override void OnDataUpdate()
+	{
+		useInteractor.UpdateData(Data);
+		base.OnDataUpdate();
+	}
+
 	public override void InitializeInventory()
 	{
+		useInteractor.UpdateData(Data);
 		base.InitializeInventory();
 		modelSelector.Close();
 	}
@@ -77,21 +96,35 @@ public class MVGameCoinChest : MVLogicObject
 	{
 		if (state == GameCoinChestClientState.Opening)
 		{
-			modelSelector.Open();
-			if ((bool)gameObject.GetComponent<AudioSource>())
-			{
-				gameObject.GetComponent<AudioSource>().Play();
-			}
-			particles.Play();
-			MVGameControllerBase.Game.GameCoinManager.GameCoinChestCollect((int)Data["gameCoinAmount"]);
-			state = GameCoinChestClientState.Open;
+			OpenChest(MVGameControllerBase.WOCM.AvatarLocal.Id);
 		}
+	}
+
+	public bool IsUsable(MVInteractableBase avatarInteractable)
+	{
+		if (state != GameCoinChestClientState.Closed)
+		{
+			return false;
+		}
+		return true;
+	}
+
+	private bool OpenChest(int instigatorID)
+	{
+		modelSelector.Open();
+		if ((bool)gameObject.GetComponent<AudioSource>())
+		{
+			gameObject.GetComponent<AudioSource>().Play();
+		}
+		particles.Play();
+		MVGameControllerBase.Game.GameCoinManager.GameCoinChestCollect((int)Data["gameCoinAmount"]);
+		state = GameCoinChestClientState.Open;
+		return true;
 	}
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		Debug.Log("GameCoinChest trigger-enter");
-		if (state == GameCoinChestClientState.Closed)
+		if (state == GameCoinChestClientState.Closed && (useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0)
 		{
 			state = GameCoinChestClientState.Opening;
 		}
@@ -159,6 +192,7 @@ public class MVGameCoinChest : MVLogicObject
 	public override void Destroy()
 	{
 		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
+		useInteractor.OnDestroy(Data);
 		base.Destroy();
 	}
 }

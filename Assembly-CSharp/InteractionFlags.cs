@@ -25,5 +25,7 @@ public enum InteractionFlags
 	IsUsable = 0x40000,
 	CantAddChildren = 0x80000,
 	CanUseGameCoins = 0x100000,
-	TranslatbleXZ2D = 0x200000
+	CanUseLevel = 0x200000,
+	CanUseStars = 0x400000,
+	TranslatbleXZ2D = 0x800000
 }

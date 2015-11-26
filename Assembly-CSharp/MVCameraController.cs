@@ -290,13 +290,11 @@ public class MVCameraController : MonoBehaviour
 
 	public void SetCamera(CameraType cameraType)
 	{
-		Debug.Log("Camera set ");
 		cameraStack.SetCamera(cameraType, this);
 	}
 
 	public void SetCamera(MVCameraBase cameraBase)
 	{
-		Debug.Log("Camera set ");
 		cameraStack.SetCamera(cameraBase, this);
 	}
 

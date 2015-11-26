@@ -20,7 +20,7 @@ public class HamsterWheelMotor : SimpleVehicleMotorBase
 
 	private float minSpeed = -10f;
 
-	private float angularSpeed = 0.14f;
+	private float angularSpeed = 1.4f;
 
 	private float recalibrateCameraFactor = 1.05f;
 

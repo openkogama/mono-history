@@ -9,7 +9,9 @@ public class MVCheckpoint : MVLogicObject
 
 	private Animation animation;
 
-	private GameCoinLogic gameCoinLogic;
+	private UseInteractor useInteractor;
+
+	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
 	public override Vector3 WorldPivot => transform.position;
 
@@ -20,7 +22,14 @@ public class MVCheckpoint : MVLogicObject
 		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		animation = gameObject.GetComponentInChildren<Animation>();
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
-		gameCoinLogic = new GameCoinLogic(gameObject, Data);
+		interactionFlags |= InteractionFlags.CanUseLevel;
+		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.GetComponent<Collider>(), DoReachCheckpoint);
+		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
+		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
+		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, hasUseButtonWhenFree: false);
+		useInteractor.AddRequirement(useRequirement);
+		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(gameObject, hasUseButtonWhenFree: false);
+		useInteractor.AddRequirement(useRequirement2);
 	}
 
 	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
@@ -31,33 +40,39 @@ public class MVCheckpoint : MVLogicObject
 		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, vector);
 	}
 
+	public override void Initialize()
+	{
+		base.Initialize();
+		useInteractor.UpdateData(Data);
+	}
+
 	protected override void OnUpdate()
 	{
 		base.OnUpdate();
-		if (triggerBoxEvents.IsInTrigger && CanReachCheckpoint() && gameCoinLogic.PurchaseAmount > 0 && gameCoinLogic.ShowUseGUI())
+		if (triggerBoxEvents.IsInTrigger && CanReachCheckpoint() && (useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0)
 		{
-			DoReachCheckpoint();
+			DoReachCheckpoint(MVGameControllerBase.WOCM.AvatarLocal.Id);
 		}
 	}
 
 	public override void OnDataUpdate()
 	{
-		gameCoinLogic.OnDataUpdate(Data);
+		useInteractor.UpdateData(Data);
 		base.OnDataUpdate();
 	}
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		if (CanReachCheckpoint() && gameCoinLogic.PurchaseAmount <= 0)
+		if ((useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0 && CanReachCheckpoint())
 		{
-			DoReachCheckpoint();
+			DoReachCheckpoint(MVGameControllerBase.WOCM.AvatarLocal.Id);
 		}
 	}
 
 	public override void Destroy()
 	{
 		triggerBoxEvents.TriggerEnter -= triggerBoxEvents_TriggerEnter;
-		gameCoinLogic.OnDestroy(Data);
+		useInteractor.OnDestroy(Data);
 		base.Destroy();
 	}
 
@@ -66,12 +81,13 @@ public class MVCheckpoint : MVLogicObject
 		return MVGameControllerBase.Game.LocalPlayer.GetCheckpoint() == null || MVGameControllerBase.Game.LocalPlayer.GetCheckpoint().Id != Id;
 	}
 
-	private void DoReachCheckpoint()
+	private bool DoReachCheckpoint(int instigatorId)
 	{
 		MVGameControllerBase.Game.LocalPlayer.SetCheckpoint(id);
 		if (animation != null)
 		{
 			animation.Play("CheckpointReach");
 		}
+		return true;
 	}
 }

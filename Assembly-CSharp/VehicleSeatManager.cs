@@ -78,7 +78,7 @@ public class VehicleSeatManager : MonoBehaviour
 			seats[i].SeatID = i;
 		}
 		woOwner = wo;
-		useInteractor = new UseInteractor(woOwner.Id, reset: true, triggerBoxEvents.GetComponent<Collider>(), Use);
+		useInteractor = new UseInteractor(woOwner.Id, gameObject, reset: true, triggerBoxEvents.GetComponent<Collider>(), Use, CheckCanUse);
 		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
 		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
 		foreach (MVWorldObjectClient child in wo.Children)
@@ -101,6 +101,22 @@ public class VehicleSeatManager : MonoBehaviour
 			Debug.Log("Found avatar child with seat ID " + num);
 			SetToSeatTransform((MVAvatar)child, num);
 		}
+	}
+
+	private bool CheckCanUse(MVInteractableBase avatarInteractable)
+	{
+		if (avatarInteractable.HasModifierEffect(AvatarModifierEffect.DisableVehicles))
+		{
+			return false;
+		}
+		foreach (VehicleSeatBase seat in seats)
+		{
+			if (!seat.IsOccupied)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public bool Use(int userWoId)

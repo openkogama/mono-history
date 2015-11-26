@@ -1,0 +1,161 @@
+using System;
+using System.Collections.Generic;
+using CodeStage.AntiCheat.ObscuredTypes;
+using MV.Common;
+using MV.WorldObject;
+using UnityEngine;
+
+public class ShootableButton : MVLogicObject
+{
+	private const string prefabPath = "Prefabs/ShootableButtonObject";
+
+	private LogicInteractable interactable;
+
+	private Collider targetCollider;
+
+	private Collider pushCollider;
+
+	private GreyOutObjectScript activatedScript;
+
+	public override Vector3 WorldPivot => transform.position;
+
+	public override bool HasInputConnector => false;
+
+	public override bool HasOutputConnector => true;
+
+	public override Vector3 OutputConnectorOffset => new Vector3(1.6f, 0f, 0f);
+
+	public ShootableButton(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
+		: base(data, "Prefabs/ShootableButtonObject", worldObjects)
+	{
+		interactionFlags |= InteractionFlags.HasSettings;
+		PlayInteractionType = PlayInteractionType.HandlesHits;
+		pushCollider = gameObject.transform.FindChild("EditCube").GetComponent<Collider>();
+		activatedScript = gameObject.GetComponent<GreyOutObjectScript>();
+	}
+
+	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
+	{
+		Vector3 one = Vector3.one;
+		one *= 1.5f;
+		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, one);
+	}
+
+	public override void Initialize()
+	{
+		base.Initialize();
+		interactable = gameObject.AddComponent<LogicInteractable>();
+		gameObject.AddComponent<InteractionDataHandler>();
+		interactable.OnDamageEvent += Activate;
+		if (MVGameControllerBase.IEditModeUI != null)
+		{
+			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
+			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Combine(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
+		}
+		Collider component = gameObject.transform.FindChild("TargetCollider").GetComponent<Collider>();
+		Collider component2 = gameObject.transform.FindChild("2DCollider").GetComponent<Collider>();
+		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
+		{
+			component.enabled = false;
+			targetCollider = component2;
+			transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, 90f, transform.localEulerAngles.z);
+		}
+		else
+		{
+			component2.enabled = false;
+			targetCollider = component;
+		}
+		if (RunTimeData.ContainsObscuredKey("isActivated") && (bool)(ObscuredBool)RunTimeData.GetObscuredType("isActivated"))
+		{
+			OnActivated();
+		}
+	}
+
+	public override void InitializeInventory()
+	{
+		base.InitializeInventory();
+		gameObject.transform.FindChild("EditCube").gameObject.SetActive(value: false);
+	}
+
+	public override void Reset()
+	{
+		MVGameControllerBase.Game.TriggerBoxExit(Id, MVGameControllerBase.WOCM.AvatarLocal.Id);
+	}
+
+	public override Bounds GetLocalBounds(BoundsContext boundsContext)
+	{
+		return new Bounds(Vector3.zero, new Vector3(2.001f, 2.001f, 0.701f));
+	}
+
+	public override void OnDataUpdate()
+	{
+		base.OnDataUpdate();
+	}
+
+	public void Activate(object sender, TakeDamageEventArgs e)
+	{
+		int triggerInstigatorId = 0;
+		if (e.damageSource != null)
+		{
+			triggerInstigatorId = e.damageSource.Avatar.Id;
+		}
+		MVGameControllerBase.Game.TriggerBoxEnter(Id, triggerInstigatorId);
+	}
+
+	public void OnActivated()
+	{
+		foreach (Link outputLinkRef in OutputLinkRefs)
+		{
+			outputLinkRef.isSet = true;
+		}
+		targetCollider.enabled = false;
+		activatedScript.GreyOut();
+	}
+
+	public void OnDeactivated()
+	{
+		foreach (Link outputLinkRef in OutputLinkRefs)
+		{
+			outputLinkRef.isSet = false;
+		}
+		targetCollider.enabled = true;
+		activatedScript.GreyIn();
+	}
+
+	public override void Destroy()
+	{
+		if (MVGameControllerBase.IEditModeUI != null)
+		{
+			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
+			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Remove(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
+		}
+		base.Destroy();
+	}
+
+	private void SetVisibility()
+	{
+		Renderer componentInChildren = GameObject.GetComponentInChildren<Renderer>();
+		componentInChildren.enabled = !disabledByLod;
+	}
+
+	public override void ChangeLOD(float distance)
+	{
+		bool flag = disabledByLod;
+		base.ChangeLOD(distance);
+		if (flag != disabledByLod)
+		{
+			SetVisibility();
+		}
+	}
+
+	public void OnEditModeChange(EditModeChangeArgs arg)
+	{
+		pushCollider.enabled = true;
+		targetCollider.enabled = false;
+		if (arg.playInEditor)
+		{
+			pushCollider.enabled = false;
+			targetCollider.enabled = true;
+		}
+	}
+}

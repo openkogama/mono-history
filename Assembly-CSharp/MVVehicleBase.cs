@@ -168,6 +168,7 @@ public abstract class MVVehicleBase : MVBlueprintBase
 		}
 		LayerUtil.SetLayerRecursively(transform, "Default", "Player");
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
+		interactionFlags |= InteractionFlags.CanUseLevel;
 	}
 
 	public void LeaveLocal()

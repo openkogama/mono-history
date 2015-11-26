@@ -110,6 +110,7 @@ public class WorldNetwork : World
 		link.id = (int)data[LinkDataParameter.Id];
 		link.outputWOID = (int)data[LinkDataParameter.OutputWOID];
 		link.inputWOID = (int)data[LinkDataParameter.InputWOID];
+		link.isSet = (bool)data[LinkDataParameter.IsSet];
 		AddLink(link);
 	}
 
@@ -349,20 +350,6 @@ public class WorldNetwork : World
 		{
 			ObjectLink objectLink = objectLinks.DequeuePendingObjectLink();
 			objectLink.id = linkID;
-			AddObjectLink(objectLink);
-		}
-		else
-		{
-			objectLinks.DequeuePendingObjectLink();
-		}
-	}
-
-	public void HandleAddObjectObjectLinkResponse(bool success, int objectLinkID)
-	{
-		if (success)
-		{
-			ObjectLink objectLink = objectLinks.DequeuePendingObjectLink();
-			objectLink.id = objectLinkID;
 			AddObjectLink(objectLink);
 		}
 		else

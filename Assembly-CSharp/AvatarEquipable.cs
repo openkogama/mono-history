@@ -17,7 +17,6 @@ public class AvatarEquipable : MVEquipable
 
 	public override bool Equip(AvatarItemType type, AvatarEquipableType equipType, Dictionary<object, object> itemData, int variantID = 0)
 	{
-		Debug.Log(string.Concat("Trying to equip type: ", type, ", as a: ", equipType));
 		if (equipType == AvatarEquipableType.Modifier)
 		{
 			switch (type)

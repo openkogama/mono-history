@@ -464,7 +464,6 @@ public class MVNetworkGame : IPhotonPeerListener
 		{
 		case MVJoinState.Joining:
 			MVGameControllerBase.InitializeInGameController();
-			Debug.Log("Profile ID " + LocalPlayer.Username);
 			MVGameControllerBase.JoinState = MVJoinState.LoadGUI;
 			LoadModeGui();
 			break;
@@ -1339,7 +1338,6 @@ public class MVNetworkGame : IPhotonPeerListener
 	{
 		ConnState = MVConnState.Joining;
 		Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
-		Debug.Log("JoinGame " + MVGameControllerBase.GameSessionData.planetID);
 		if (MVGameControllerBase.GameSessionData.gameMode == MVGameMode.CharacterEditor)
 		{
 			Debug.Log("Setting planetId to -1 as GameMode CharacterEditor is not using a planet");
@@ -1759,7 +1757,6 @@ public class MVNetworkGame : IPhotonPeerListener
 		int actorNumber = (int)returnValues[254];
 		int planetOwnershipTypeID = (int)returnValues[14];
 		LocalPlayerActorNumber = actorNumber;
-		Debug.Log("Username " + (string)returnValues[9]);
 		MVLocalPlayer mVLocalPlayer = ((!MVGameControllerBase.IsTouristSession) ? ((MVLocalPlayer)new MVLocalPlayerRegistered(actorNumber, MVGameControllerBase.GameSessionData.profileID, (string)returnValues[9], MVGameControllerBase.GameSessionData.language)) : ((MVLocalPlayer)new MVLocalPlayerTourist(actorNumber, MVGameControllerBase.GameSessionData.profileID, (string)returnValues[9], MVGameControllerBase.GameSessionData.language)));
 		mVLocalPlayer.OnLevelChanged = (MVPlayer.OnLevelChangedDelegate)Delegate.Combine(mVLocalPlayer.OnLevelChanged, new MVPlayer.OnLevelChangedDelegate(LocalPlayerLevelChanged));
 		mVLocalPlayer.PlanetOwnershipTypeID = planetOwnershipTypeID;
@@ -1853,12 +1850,9 @@ public class MVNetworkGame : IPhotonPeerListener
 					AddPlayer(mVPlayer);
 				}
 			}
+			return;
 		}
-		else
-		{
-			Debug.LogError("UserList is null");
-		}
-		Debug.Log(text);
+		Debug.LogError("UserList is null");
 	}
 
 	private void OnGetBuiltInItemBusinessData(Dictionary<byte, object> returnValues)
@@ -2225,19 +2219,30 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	private void OnTriggerBoxStayBegin(int worldObjectID, int actorNr)
 	{
-		if (WorldObjectClientManager.GetWorldObjectClient(worldObjectID) == null)
+		MVWorldObjectClient worldObjectClient = WorldObjectClientManager.GetWorldObjectClient(worldObjectID);
+		if (worldObjectClient == null)
 		{
 			Debug.LogError("OnTriggerBoxStayBegin received, but worldObjectID: " + worldObjectID + " does not exist");
 		}
-		else if (WorldObjectClientManager.GetWorldObjectClient(worldObjectID) is MVTriggerBox)
+		else if (worldObjectClient is MVTriggerBox)
 		{
-			MVTriggerBox mVTriggerBox = (MVTriggerBox)WorldObjectClientManager.GetWorldObjectClient(worldObjectID);
+			MVTriggerBox mVTriggerBox = (MVTriggerBox)worldObjectClient;
 			mVTriggerBox.OnStayBegin(actorNr);
 		}
-		else if (WorldObjectClientManager.GetWorldObjectClient(worldObjectID) is MVPressurePlate)
+		else if (worldObjectClient is MVPressurePlate)
 		{
-			MVPressurePlate mVPressurePlate = (MVPressurePlate)WorldObjectClientManager.GetWorldObjectClient(worldObjectID);
+			MVPressurePlate mVPressurePlate = (MVPressurePlate)worldObjectClient;
 			mVPressurePlate.OnStayBegin(actorNr);
+		}
+		else if (worldObjectClient is ShootableButton)
+		{
+			ShootableButton shootableButton = (ShootableButton)worldObjectClient;
+			shootableButton.OnActivated();
+		}
+		else if (worldObjectClient is UseLever)
+		{
+			UseLever useLever = (UseLever)worldObjectClient;
+			useLever.SetLinks(linkFlag: true);
 		}
 		else
 		{
@@ -2247,19 +2252,30 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	private void OnTriggerBoxStayEnd(int worldObjectID)
 	{
-		if (WorldObjectClientManager.GetWorldObjectClient(worldObjectID) == null)
+		MVWorldObjectClient worldObjectClient = WorldObjectClientManager.GetWorldObjectClient(worldObjectID);
+		if (worldObjectClient == null)
 		{
 			Debug.LogError("OnTriggerBoxStayEnd received, but worldObjectID: " + worldObjectID + " does not exist");
 		}
-		else if (WorldObjectClientManager.GetWorldObjectClient(worldObjectID) is MVTriggerBox)
+		else if (worldObjectClient is MVTriggerBox)
 		{
-			MVTriggerBox mVTriggerBox = (MVTriggerBox)WorldObjectClientManager.GetWorldObjectClient(worldObjectID);
+			MVTriggerBox mVTriggerBox = (MVTriggerBox)worldObjectClient;
 			mVTriggerBox.OnStayEnd();
 		}
-		else if (WorldObjectClientManager.GetWorldObjectClient(worldObjectID) is MVPressurePlate)
+		else if (worldObjectClient is MVPressurePlate)
 		{
-			MVPressurePlate mVPressurePlate = (MVPressurePlate)WorldObjectClientManager.GetWorldObjectClient(worldObjectID);
+			MVPressurePlate mVPressurePlate = (MVPressurePlate)worldObjectClient;
 			mVPressurePlate.OnStayEnd();
+		}
+		else if (worldObjectClient is ShootableButton)
+		{
+			ShootableButton shootableButton = (ShootableButton)worldObjectClient;
+			shootableButton.OnDeactivated();
+		}
+		else if (worldObjectClient is UseLever)
+		{
+			UseLever useLever = (UseLever)worldObjectClient;
+			useLever.SetLinks(linkFlag: false);
 		}
 		else
 		{

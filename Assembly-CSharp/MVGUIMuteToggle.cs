@@ -9,7 +9,6 @@ public class MVGUIMuteToggle : UXViewScript
 	public override void OnInitialize()
 	{
 		base.OnInitialize();
-		Debug.Log("Mute " + MVCameraController.Mute);
 		muteButton.SetToggleState(MVCameraController.Mute);
 		UXToggleIconButton uXToggleIconButton = muteButton;
 		uXToggleIconButton.OnToggle = (UXToggleIconButton.OnToggleDelegate)Delegate.Combine(uXToggleIconButton.OnToggle, new UXToggleIconButton.OnToggleDelegate(HandleOnToggle));

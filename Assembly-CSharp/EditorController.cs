@@ -445,9 +445,9 @@ public abstract class EditorController : AIngameController, IEditModeUI, IPlayMo
 		screenShot.View.Hide();
 	}
 
-	public void ShowEUseIcon(ShowUseOption option)
+	public void ShowEUseIcon(ShowUseOption option, int woID = 0)
 	{
-		playController.ShowEUseIcon(option);
+		playController.ShowEUseIcon(option, woID);
 	}
 
 	public void HideEUseIcon()

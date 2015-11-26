@@ -76,7 +76,6 @@ public class AvatarMotor : MVRigidBody
 		this.interactableLocal = interactableLocal;
 		bounceState = new BounceState(interactableLocal);
 		sizeState = new SizeState(interactableLocal, Controller);
-		Debug.Log("Is size state null " + sizeState == null);
 		this.jumpState = new JumpState(0.2f);
 		JumpState jumpState = this.jumpState;
 		jumpState.OnWallJump = (JumpState.OnWallJumpDelegate)Delegate.Combine(jumpState.OnWallJump, (JumpState.OnWallJumpDelegate)(() =>

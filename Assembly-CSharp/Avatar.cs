@@ -91,7 +91,6 @@ public class Avatar : MonoBehaviour
 		}
 		foreach (AvatarModifierPackageType item2 in list)
 		{
-			Debug.Log("Expiring: " + item2);
 			modifiers[item2].Deactivate(this);
 			modifiers.Remove(item2);
 			currentModifierByteState.Remove(item2);
@@ -110,7 +109,6 @@ public class Avatar : MonoBehaviour
 						UnityEngine.Object.Destroy(avatarModifier.gameObject);
 						continue;
 					}
-					Debug.Log("Adding: " + avatarModifierPackageType);
 					avatarModifier.transform.parent = transform;
 					avatarModifier.transform.localPosition = Vector3.zero;
 					modifiers.Add(avatarModifierPackageType, avatarModifier);
@@ -120,7 +118,6 @@ public class Avatar : MonoBehaviour
 			}
 			else if ((byte)newModifier.Value != currentModifierByteState[avatarModifierPackageType])
 			{
-				Debug.Log("Renewing: " + avatarModifierPackageType);
 				modifiers[avatarModifierPackageType].ResetTimeStamp();
 				currentModifierByteState[avatarModifierPackageType] = (byte)newModifier.Value;
 			}

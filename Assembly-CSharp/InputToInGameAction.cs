@@ -42,17 +42,20 @@ public class InputToInGameAction
 		fire = false;
 		drop = false;
 		ignorePickupOwner = false;
-		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.Use))
+		if (MVGameControllerBase.IPlayModeUI == null || !MVGameControllerBase.IPlayModeUI.InLobbyState)
 		{
-			use = true;
-		}
-		if (MVInputWrapper.GetBooleanControl(KogamaControls.Fire) || MVInputWrapper.GetBooleanControlDown(KogamaControls.Fire))
-		{
-			fire = true;
-		}
-		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.DropCurrentItem))
-		{
-			drop = true;
+			if (MVInputWrapper.GetBooleanControlUp(KogamaControls.Use))
+			{
+				use = true;
+			}
+			if (MVInputWrapper.GetBooleanControl(KogamaControls.Fire) || MVInputWrapper.GetBooleanControlDown(KogamaControls.Fire))
+			{
+				fire = true;
+			}
+			if (MVInputWrapper.GetBooleanControlUp(KogamaControls.DropCurrentItem))
+			{
+				drop = true;
+			}
 		}
 	}
 }

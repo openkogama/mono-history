@@ -37,8 +37,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 
 		public void SetMode(AvatarRuntimeState mode)
 		{
-			Debug.Log("Deactivating: " + mvAvatar.AvatarRuntimeState);
-			Debug.Log("Activating: " + mode);
 			AvatarRuntimeState avatarRuntimeState = mvAvatar.AvatarRuntimeState;
 			avatarModes[avatarRuntimeState].DeActivate(mode);
 			mvAvatar.AvatarRuntimeState = mode;
@@ -368,9 +366,9 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 				return;
 			}
 			mvAvatar.Body.Visible = false;
-			MVGameControllerBase.CameraController.SetCamera(CameraType.EditorCamera);
 			mvAvatar.ResetAvatar();
 			SetToEditMode();
+			MVGameControllerBase.CameraController.SetCamera(CameraType.EditorCamera);
 			mvAvatar.gameObject.GetComponent<Collider>().enabled = false;
 		}
 
@@ -657,7 +655,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 				{
 					mvAvatar.LeaveVehicle();
 				}
-				else if (!mvAvatar.interactableLocal.HasModifierEffect(AvatarModifierEffect.DisableVehicles))
+				else
 				{
 					mvAvatar.useInteractorHandler.Use();
 				}
@@ -1148,7 +1146,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 
 	private void SetTransform(Vector3 position, Quaternion rotation)
 	{
-		Debug.Log("Set to spawn point");
 		GameObject.transform.position = position;
 		GameObject.transform.rotation = rotation;
 		avatarMotor.Reset();

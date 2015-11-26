@@ -110,7 +110,7 @@ public class PlayModeController : ModeControllerBase, IPlayModeUI
 		MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Playing);
 	}
 
-	public void ShowEUseIcon(ShowUseOption option)
+	public void ShowEUseIcon(ShowUseOption option, int levelRequirement = 0)
 	{
 		use.gameObject.SetActive(value: true);
 	}

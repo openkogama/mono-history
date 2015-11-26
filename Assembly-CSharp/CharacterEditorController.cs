@@ -12,6 +12,8 @@ public class CharacterEditorController : AIngameController, ICubeModelingEditMod
 
 	private readonly DrawPlaneController drawPlaneController = new DrawPlaneController();
 
+	private MVGUIDrawplane drawplaneToggle;
+
 	private MVGUIResetAvatar resetAvatarButton;
 
 	private MVGUIFullscreenToggle fullscreenToggle;
@@ -120,6 +122,10 @@ public class CharacterEditorController : AIngameController, ICubeModelingEditMod
 		base.HandleInput();
 		EditorStateMachine.Update();
 		cubeModelingController.HandleInput();
+		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.ToggleDrawPlane))
+		{
+			ToggleDrawPlane();
+		}
 	}
 
 	private void UpdateSellButton(int woBodyId)
@@ -154,6 +160,12 @@ public class CharacterEditorController : AIngameController, ICubeModelingEditMod
 		fullscreenToggle = AIngameController.FindGUIObjectOfType<MVGUIFullscreenToggle>(gameObject);
 		muteToggle = AIngameController.FindGUIObjectOfType<MVGUIMuteToggle>(gameObject);
 		resetAvatarButton = AIngameController.FindGUIObjectOfType<MVGUIResetAvatar>(gameObject);
+		drawplaneToggle = AIngameController.FindGUIObjectOfType<MVGUIDrawplane>(gameObject);
+		UXToggleIconButton uXToggleIconButton = drawplaneToggle.drawplaneToggle;
+		uXToggleIconButton.OnToggle = (UXToggleIconButton.OnToggleDelegate)Delegate.Combine(uXToggleIconButton.OnToggle, (UXToggleIconButton.OnToggleDelegate)((bool active) =>
+		{
+			ToggleDrawPlane();
+		}));
 	}
 
 	public void ShowAnimationToggles()
@@ -196,12 +208,14 @@ public class CharacterEditorController : AIngameController, ICubeModelingEditMod
 
 	public void ShowEditorTools()
 	{
+		drawplaneToggle.View.Show();
 		cubeModelingController.ShowEditorTools();
 		cubeModelingController.ShowCurrentSelectedMaterial();
 	}
 
 	public void HideEditorTools()
 	{
+		drawplaneToggle.View.Hide();
 		cubeModelingController.HideCubeTools();
 		drawPlaneController.HideDrawPlane();
 		cubeModelingController.HideCurrentSelectedMaterial();

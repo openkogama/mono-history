@@ -54,7 +54,6 @@ public class PlayControllerBase : AIngameController, IPlayModeUI
 
 	public PlayControllerBase()
 	{
-		Debug.Log("PlayControllerBase created");
 		GameObject gameObject = UXUtils.FindGUIObjectOfType<MVGUIRoot>().gameObject;
 		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
 		{
@@ -197,11 +196,11 @@ public class PlayControllerBase : AIngameController, IPlayModeUI
 		winningConditionDebriefingView.group.SetVisible(visible: true);
 	}
 
-	public void ShowEUseIcon(ShowUseOption option = ShowUseOption.Normal)
+	public void ShowEUseIcon(ShowUseOption option = ShowUseOption.Normal, int woID = 0)
 	{
 		if (!showingIcon)
 		{
-			pressEToUsePrompt.Show(option);
+			pressEToUsePrompt.Show(option, woID);
 			showingIcon = true;
 		}
 	}

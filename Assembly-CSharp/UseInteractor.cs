@@ -1,33 +1,53 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class UseInteractor
 {
 	private Func<int, bool> useFunction;
 
-	private int woOwnerId;
+	private Func<MVInteractableBase, bool> checkCanUseFunction;
 
 	private Collider triggerCollider;
 
 	private bool reset;
 
+	private int woOwnerID;
+
+	private UseInteratorVisualization useInteractorVisuals;
+
 	public bool Reset => reset;
 
-	public int WoOwnerId => woOwnerId;
+	public Collider TriggerCollider => triggerCollider;
 
-	public Collider TrigggerCollider => triggerCollider;
+	public int WoOwnerID => woOwnerID;
 
-	public UseInteractor(int woOwnerId, bool reset, Collider triggerCollider, Func<int, bool> useFunction)
+	public UseInteractor(int woOwnerID, GameObject owner, bool reset, Collider triggerCollider, Func<int, bool> useFunction, Func<MVInteractableBase, bool> checkCanUseFunction = null)
 	{
-		this.woOwnerId = woOwnerId;
+		useInteractorVisuals = owner.AddComponent<UseInteratorVisualization>();
+		this.woOwnerID = woOwnerID;
 		this.useFunction = useFunction;
 		this.triggerCollider = triggerCollider;
 		this.reset = reset;
+		this.checkCanUseFunction = checkCanUseFunction;
+	}
+
+	public bool GetInteractorCanBeUsed(MVInteractableBase avatarInteractable)
+	{
+		if (checkCanUseFunction != null)
+		{
+			return checkCanUseFunction(avatarInteractable);
+		}
+		return true;
 	}
 
 	public bool Use(int userWoID)
 	{
-		return useFunction(userWoID);
+		if ((EvaluateRequirementsUsability() & UseGUIResult.CannotAfford) != UseGUIResult.CannotAfford)
+		{
+			return useFunction(userWoID);
+		}
+		return false;
 	}
 
 	private UseInteractorHandler GetUseInteractorHandler(int woID)
@@ -51,5 +71,35 @@ public class UseInteractor
 		{
 			useInteractorHandler.RemoveUseInteractor(this);
 		}
+	}
+
+	public void UpdateData(Dictionary<object, object> data)
+	{
+		useInteractorVisuals.UpdateData(data, woOwnerID);
+	}
+
+	public void AddRequirement(UseRequirement useRequirement)
+	{
+		useInteractorVisuals.AddUseRequirement(useRequirement);
+	}
+
+	public UseGUIResult EvaluateRequirementsUsability()
+	{
+		return useInteractorVisuals.EvaluateUsability();
+	}
+
+	public ShowUseOption GetGUIShowOptions()
+	{
+		return useInteractorVisuals.GetShowOptions();
+	}
+
+	public void PayUseCost()
+	{
+		useInteractorVisuals.PayUseCost();
+	}
+
+	public void OnDestroy(Dictionary<object, object> data)
+	{
+		useInteractorVisuals.DestroyRequirementObjects(data);
 	}
 }

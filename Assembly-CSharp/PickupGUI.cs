@@ -86,6 +86,5 @@ public class PickupGUI
 		canBeVisible = false;
 		UpdateCrossHairVisibility();
 		ShowEquipableUI = false;
-		Debug.Log("Unequip");
 	}
 }

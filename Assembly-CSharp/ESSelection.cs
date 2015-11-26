@@ -97,11 +97,27 @@ internal class ESSelection : ESStateBase
 
 	private void ShowContextMenuGizmo()
 	{
+		if (selectedWorldObject.HasInteractionFlag(InteractionFlags.CanUseStars))
+		{
+			rightClickGizmo.AddButton(TM._("Stars"), () =>
+			{
+				MVGUIDialogBoxWrapper.Instance.ShowStarsDialog(selectedWorldObject);
+				rightClickGizmoSelect = false;
+			});
+		}
 		if (selectedWorldObject.HasInteractionFlag(InteractionFlags.CanUseGameCoins))
 		{
 			rightClickGizmo.AddButton(TM._("Game Coins"), () =>
 			{
 				MVGUIDialogBoxWrapper.Instance.ShowGameCoinsDialog(selectedWorldObject);
+				rightClickGizmoSelect = false;
+			});
+		}
+		if (selectedWorldObject.HasInteractionFlag(InteractionFlags.CanUseLevel))
+		{
+			rightClickGizmo.AddButton(TM._("Levels"), () =>
+			{
+				MVGUIDialogBoxWrapper.Instance.ShowLevelsDialog(selectedWorldObject);
 				rightClickGizmoSelect = false;
 			});
 		}

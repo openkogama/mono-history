@@ -11,16 +11,20 @@ internal class ESWaitForClone : ESStateBase
 
 	public override void Enter(EditorStateMachine e)
 	{
-		if (e.SingleSelectedWO != null)
+		if (e.Data.ContainsKey("goToInsert"))
+		{
+			goToInsert = true;
+		}
+		else
+		{
+			goToInsert = false;
+		}
+		if (e.SingleSelectedWO != null && !goToInsert)
 		{
 			pos = e.SingleSelectedWO.WorldPosition;
 			rot = e.SingleSelectedWO.WorldRotation;
 		}
 		e.DeSelectAll();
-		if (e.Data.ContainsKey("goToInsert"))
-		{
-			goToInsert = true;
-		}
 	}
 
 	public override void Execute(EditorStateMachine e)
