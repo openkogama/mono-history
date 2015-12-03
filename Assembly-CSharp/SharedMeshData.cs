@@ -4,11 +4,11 @@ public struct SharedMeshData(Mesh mesh)
 {
 	public Mesh mesh = mesh;
 
-	public Material[] materials = new Material[0];
+	public Material material = null;
 
-	public void SetToMesh(ref Mesh mesh, ref Material[] materials)
+	public void SetToMesh(ref Mesh mesh, ref Material material)
 	{
 		mesh = this.mesh;
-		materials = this.materials;
+		material = this.material;
 	}
 }

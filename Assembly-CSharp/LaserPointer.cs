@@ -239,11 +239,13 @@ public class LaserPointer : PickupItem, ILaserPointer
 
 	private void ApplyMaterialForState()
 	{
-		currentCubeMaterial = MVGameControllerBase.Game.MaterialRepository.GetMaterial(currentCubeMaterialId).material;
+		currentCubeMaterial = MVGameControllerBase.MaterialLoader.CubeModelMaterial;
+		MVMaterial material = MVGameControllerBase.Game.MaterialRepository.GetMaterial(currentCubeMaterialId);
 		switch (state)
 		{
 		case LaserPointerState.Idle:
 			cube.GetComponent<Renderer>().sharedMaterial = currentCubeMaterial;
+			cube.GetComponent<MeshFilter>().sharedMesh = material.mesh;
 			break;
 		case LaserPointerState.Inserting:
 			cube.GetComponent<Renderer>().sharedMaterial = insertingMaterial;
@@ -251,6 +253,7 @@ public class LaserPointer : PickupItem, ILaserPointer
 			break;
 		case LaserPointerState.EditingCube:
 			cube.GetComponent<Renderer>().sharedMaterial = currentCubeMaterial;
+			cube.GetComponent<MeshFilter>().sharedMesh = material.mesh;
 			beamColor = beamEditColor;
 			break;
 		case LaserPointerState.Transforming:
@@ -263,10 +266,12 @@ public class LaserPointer : PickupItem, ILaserPointer
 			break;
 		case LaserPointerState.PaintCubes:
 			cube.GetComponent<Renderer>().sharedMaterial = currentCubeMaterial;
+			cube.GetComponent<MeshFilter>().sharedMesh = material.mesh;
 			beamColor = beamEditColor;
 			break;
 		case LaserPointerState.SprayCubes:
 			cube.GetComponent<Renderer>().sharedMaterial = currentCubeMaterial;
+			cube.GetComponent<MeshFilter>().sharedMesh = material.mesh;
 			beamColor = beamEditColor;
 			break;
 		}

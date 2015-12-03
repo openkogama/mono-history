@@ -209,7 +209,8 @@ public static class MVSweptElipsoidCheck
 			minBounds = default,
 			maxBounds = default
 		};
-		SharedCollisionFunctions.GetVoxelBounds(ref collisionState.minBounds, ref collisionState.maxBounds, chunk.GetComponent<MeshFilter>().sharedMesh.bounds);
+		BoxCollider component = chunk.GetComponent<BoxCollider>();
+		SharedCollisionFunctions.GetVoxelBounds(localSpaceBounds: new Bounds(component.center, component.size), min: ref collisionState.minBounds, max: ref collisionState.maxBounds);
 		collisionState.localHitPoint = collisionData.transform.InverseTransformPoint(collisionData.point);
 		collisionState.localNormal = collisionData.transform.InverseTransformDirection(collisionData.normal);
 		collisionState.localDirection = collisionData.transform.InverseTransformDirection(ray.direction);

@@ -98,7 +98,7 @@ public class CubeModelingController
 		CubeModelingStateMachine cubeModelingStateMachine = this.cubeModelingStateMachine;
 		cubeModelingStateMachine.OnCurrentMaterialChange = (CubeModelingStateMachine.OnCurrentMaterialChangeDelegate)Delegate.Combine(cubeModelingStateMachine.OnCurrentMaterialChange, (CubeModelingStateMachine.OnCurrentMaterialChangeDelegate)((byte materialId, Material material) =>
 		{
-			currentSelectedMaterialCube.CurrentMaterial = material;
+			currentSelectedMaterialCube.CurrentMaterial = materialId;
 			MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.CurrentCubeMaterial = materialId;
 		}));
 		materialSelectionWindow.OnMaterialSelection = (byte materialId) =>

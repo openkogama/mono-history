@@ -21,11 +21,15 @@ public class CubeModelChunk
 
 	private SharedMeshData sharedMeshData = default;
 
+	private Bounds meshBounds = default;
+
 	private string name;
 
 	private int cubeCount;
 
 	private int triangleCount;
+
+	private int activeInstances;
 
 	private Dictionary<IntVector, Cell> cells = new Dictionary<IntVector, Cell>();
 
@@ -47,9 +51,19 @@ public class CubeModelChunk
 
 	private static Vector2 uvOffsetVector1 = new Vector2(-0.5f, 0.5f);
 
-	private static float bookKeepingFloat = 0f;
-
 	public int TriangleCount => triangleCount;
+
+	public int ActiveInstances
+	{
+		get
+		{
+			return activeInstances;
+		}
+		set
+		{
+			activeInstances = value;
+		}
+	}
 
 	public int CubeCount => cubeCount;
 
@@ -184,14 +198,53 @@ public class CubeModelChunk
 	public void RebuildChunk(Vector3 scale)
 	{
 		MeshData meshData = new MeshData();
-		triangleCount = RebuildMesh(ref meshData, cells, scale);
-		meshData.SetToMesh(ref sharedMeshData.mesh, ref sharedMeshData.materials);
+		triangleCount = RebuildMesh(cells, scale);
+		meshData.SetToMesh(ref sharedMeshData.mesh, ref sharedMeshData.material);
+		GetMeshBounds(ref meshBounds, cells, scale);
 		UpdateInstances();
 	}
 
 	public SharedMeshData GetMeshData()
 	{
 		return sharedMeshData;
+	}
+
+	private void EvaluateReferenceCount(int oldReferenceCount, int newReferenceCount)
+	{
+		if (oldReferenceCount == 0 && newReferenceCount > 0 && MeshPool.Instance.GotFreeMesh)
+		{
+			RebuildChunk(Vector3.one * 4f);
+			RestoreSharedMeshOnInstances();
+			Debug.Log("Loading mesh");
+		}
+		else if (oldReferenceCount > 0 && newReferenceCount == 0)
+		{
+			RevokeSharedMeshOnInstances();
+			Debug.Log("Unloading mesh");
+		}
+	}
+
+	private void RevokeSharedMeshOnInstances()
+	{
+		foreach (GameObject instance in instances)
+		{
+			MeshFilter component = instance.GetComponent<MeshFilter>();
+			component.sharedMesh = null;
+			MeshRenderer component2 = instance.GetComponent<MeshRenderer>();
+			component2.sharedMaterial = null;
+			component2.enabled = false;
+		}
+	}
+
+	private void RestoreSharedMeshOnInstances()
+	{
+		foreach (GameObject instance in instances)
+		{
+			MeshFilter component = instance.GetComponent<MeshFilter>();
+			component.sharedMesh = sharedMeshData.mesh;
+			MeshRenderer component2 = instance.GetComponent<MeshRenderer>();
+			component2.sharedMaterial = sharedMeshData.material;
+		}
 	}
 
 	private void UpdateInstances()
@@ -202,8 +255,8 @@ public class CubeModelChunk
 			if (instances[i] != null)
 			{
 				MeshRenderer component = instances[i].GetComponent<MeshRenderer>();
-				component.sharedMaterials = sharedMeshData.materials;
-				MVGameControllerBase.WOCM.UpdateWorldBounds(component.bounds);
+				component.sharedMaterial = sharedMeshData.material;
+				MVGameControllerBase.WOCM.UpdateWorldBounds(meshBounds);
 			}
 			else
 			{
@@ -216,17 +269,13 @@ public class CubeModelChunk
 		}
 		foreach (GameObject instance in instances)
 		{
-			BoxCollider component2 = instance.GetComponent<BoxCollider>();
-			if (component2 != null)
+			BoxCollider boxCollider = instance.GetComponent<BoxCollider>();
+			if (boxCollider == null)
 			{
-				Bounds bounds = sharedMeshData.mesh.bounds;
-				component2.size = bounds.size;
-				component2.center = bounds.center;
+				boxCollider = instance.AddComponent<BoxCollider>();
 			}
-			else
-			{
-				instance.AddComponent<BoxCollider>();
-			}
+			boxCollider.size = meshBounds.size;
+			boxCollider.center = meshBounds.center;
 		}
 	}
 
@@ -236,18 +285,14 @@ public class CubeModelChunk
 		MeshFilter meshFilter = gameObject.AddComponent<MeshFilter>();
 		MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
 		meshFilter.sharedMesh = sharedMeshData.mesh;
-		meshRenderer.sharedMaterials = sharedMeshData.materials;
-		BoxCollider component = gameObject.GetComponent<BoxCollider>();
-		if (component != null)
+		meshRenderer.sharedMaterial = sharedMeshData.material;
+		BoxCollider boxCollider = gameObject.GetComponent<BoxCollider>();
+		if (boxCollider == null)
 		{
-			Bounds bounds = meshFilter.sharedMesh.bounds;
-			component.size = bounds.size;
-			component.center = bounds.center;
+			boxCollider = gameObject.AddComponent<BoxCollider>();
 		}
-		else
-		{
-			gameObject.AddComponent<BoxCollider>();
-		}
+		boxCollider.size = meshBounds.size;
+		boxCollider.center = meshBounds.center;
 		gameObject.transform.parent = cubeInstance.Transform;
 		gameObject.transform.localPosition = Vector3.zero;
 		gameObject.transform.localRotation = Quaternion.identity;
@@ -458,12 +503,38 @@ public class CubeModelChunk
 		}
 	}
 
-	private static int RebuildMesh(ref MeshData meshData, Dictionary<IntVector, Cell> cells, Vector3 scale)
+	private static void GetMeshBounds(ref Bounds bounds, Dictionary<IntVector, Cell> cells, Vector3 scale)
+	{
+		Vector3 min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+		Vector3 max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+		foreach (KeyValuePair<IntVector, Cell> cell in cells)
+		{
+			if (cell.Value.cube.HiddenSides != 63)
+			{
+				Vector3 vector = Vector3.one / 2f;
+				Vector3 vector2 = cell.Key.ToVector3() + -vector;
+				Vector3 vector3 = cell.Key.ToVector3() + vector;
+				min.x = ((!(vector2.x < min.x)) ? min.x : vector2.x);
+				min.y = ((!(vector2.y < min.y)) ? min.y : vector2.y);
+				min.z = ((!(vector2.z < min.z)) ? min.z : vector2.z);
+				max.x = ((!(vector3.x < max.x)) ? vector3.x : max.x);
+				max.y = ((!(vector3.y < max.y)) ? vector3.y : max.y);
+				max.z = ((!(vector3.z < max.z)) ? vector3.z : max.z);
+				min.x = ((!(vector3.x < min.x)) ? min.x : vector3.x);
+				min.y = ((!(vector3.y < min.y)) ? min.y : vector3.y);
+				min.z = ((!(vector3.z < min.z)) ? min.z : vector3.z);
+				max.x = ((!(vector2.x < max.x)) ? vector2.x : max.x);
+				max.y = ((!(vector2.y < max.y)) ? vector2.y : max.y);
+				max.z = ((!(vector2.z < max.z)) ? vector2.z : max.z);
+			}
+		}
+		bounds.SetMinMax(min, max);
+	}
+
+	private static int RebuildMesh(Dictionary<IntVector, Cell> cells, Vector3 scale)
 	{
 		MeshDataPool.Reset();
 		int num = 0;
-		meshData.materials = new List<Material>();
-		Dictionary<int, int> dictionary = new Dictionary<int, int>();
 		foreach (KeyValuePair<IntVector, Cell> cell in cells)
 		{
 			if (cell.Value.cube.HiddenSides == 63)
@@ -474,27 +545,26 @@ public class CubeModelChunk
 			Cube.GetVisibleFaceVertices(cell.Value.cube, ref faceData, cell.Key, cells, ref index);
 			for (int i = 0; i < index; i++)
 			{
+				int num2 = CubeBase.GetMaterial(cell.Value.cube, faceData[i].face);
+				if (num2 < 0 || num2 > 60)
+				{
+					num2 = 60;
+				}
 				for (int j = 0; j < 4; j++)
 				{
+					faceData[i].colors[j].g = TextureAtlas.UV[num2].position.x;
+					faceData[i].colors[j].b = TextureAtlas.UV[num2].position.y;
 					MeshDataPool.AddVertex(faceData[i].faceVertices[j]);
 					MeshDataPool.AddColor(faceData[i].colors[j]);
 				}
 				MeshDataPool.AddUvRange(GetFaceUvs(faceData[i].faceVertices, faceData[i].face, scale));
-				byte material = CubeBase.GetMaterial(cell.Value.cube, faceData[i].face);
-				if (!dictionary.ContainsKey(material))
-				{
-					Material material2 = MVGameControllerBase.Game.MaterialRepository.GetMaterial(material).material;
-					meshData.materials.Add(material2);
-					meshData.subMeshTriangles.Add(new List<int>());
-					dictionary.Add(material, meshData.materials.Count - 1);
-				}
-				int index2 = dictionary[material];
-				meshData.subMeshTriangles[index2].Add(num * 4);
-				meshData.subMeshTriangles[index2].Add(num * 4 + 3);
-				meshData.subMeshTriangles[index2].Add(num * 4 + 2);
-				meshData.subMeshTriangles[index2].Add(num * 4 + 2);
-				meshData.subMeshTriangles[index2].Add(num * 4 + 1);
-				meshData.subMeshTriangles[index2].Add(num * 4);
+				int num3 = num * 4;
+				MeshDataPool.AddIndex(num3);
+				MeshDataPool.AddIndex(num3 + 3);
+				MeshDataPool.AddIndex(num3 + 2);
+				MeshDataPool.AddIndex(num3 + 2);
+				MeshDataPool.AddIndex(num3 + 1);
+				MeshDataPool.AddIndex(num3);
 				num++;
 			}
 		}
@@ -503,7 +573,6 @@ public class CubeModelChunk
 
 	private static Vector2[] GetFaceUvs(Vector3[] faceVertices, Face face, Vector3 scale)
 	{
-		bookKeepingFloat = 0f;
 		if (scale.x != scale.y || scale.x != scale.z)
 		{
 			Debug.LogError("algorithm does not support non uniform scale");
@@ -512,80 +581,54 @@ public class CubeModelChunk
 		switch (face)
 		{
 		case Face.Top:
-			MathFunctions.Vector3ToVector2(ref faceVertices[0], ref uvs[0], 1);
-			MathFunctions.Vector3ToVector2(ref faceVertices[1], ref uvs[1], 1);
-			MathFunctions.Vector3ToVector2(ref faceVertices[2], ref uvs[2], 1);
-			MathFunctions.Vector3ToVector2(ref faceVertices[3], ref uvs[3], 1);
+			uvs[0].Set(faceVertices[0].x, faceVertices[0].z);
+			uvs[1].Set(faceVertices[1].x, faceVertices[1].z);
+			uvs[2].Set(faceVertices[2].x, faceVertices[2].z);
+			uvs[3].Set(faceVertices[3].x, faceVertices[3].z);
 			break;
 		case Face.Bottom:
-		{
-			MathFunctions.Vector3ToVector2(ref faceVertices[0], ref uvs[0], 1);
-			MathFunctions.Vector3ToVector2(ref faceVertices[1], ref uvs[1], 1);
-			MathFunctions.Vector3ToVector2(ref faceVertices[2], ref uvs[2], 1);
-			MathFunctions.Vector3ToVector2(ref faceVertices[3], ref uvs[3], 1);
-			for (int l = 0; l < 4; l++)
-			{
-				uvs[l].x = 0f - uvs[l].x;
-			}
+			uvs[0].Set(0f - faceVertices[0].x, faceVertices[0].z);
+			uvs[1].Set(0f - faceVertices[1].x, faceVertices[1].z);
+			uvs[2].Set(0f - faceVertices[2].x, faceVertices[2].z);
+			uvs[3].Set(0f - faceVertices[3].x, faceVertices[3].z);
 			uvOffsetVector = uvOffsetVector1;
 			break;
-		}
 		case Face.Back:
-		{
-			MathFunctions.Vector3ToVector2(ref faceVertices[0], ref uvs[0], 2);
-			MathFunctions.Vector3ToVector2(ref faceVertices[1], ref uvs[1], 2);
-			MathFunctions.Vector3ToVector2(ref faceVertices[2], ref uvs[2], 2);
-			MathFunctions.Vector3ToVector2(ref faceVertices[3], ref uvs[3], 2);
-			for (int j = 0; j < 4; j++)
-			{
-				uvs[j].x = 0f - uvs[j].x;
-			}
+			uvs[0].Set(0f - faceVertices[0].x, faceVertices[0].y);
+			uvs[1].Set(0f - faceVertices[1].x, faceVertices[1].y);
+			uvs[2].Set(0f - faceVertices[2].x, faceVertices[2].y);
+			uvs[3].Set(0f - faceVertices[3].x, faceVertices[3].y);
 			uvOffsetVector = uvOffsetVector1;
 			break;
-		}
 		case Face.Front:
-			MathFunctions.Vector3ToVector2(ref faceVertices[0], ref uvs[0], 2);
-			MathFunctions.Vector3ToVector2(ref faceVertices[1], ref uvs[1], 2);
-			MathFunctions.Vector3ToVector2(ref faceVertices[2], ref uvs[2], 2);
-			MathFunctions.Vector3ToVector2(ref faceVertices[3], ref uvs[3], 2);
+			uvs[0].Set(faceVertices[0].x, faceVertices[0].y);
+			uvs[1].Set(faceVertices[1].x, faceVertices[1].y);
+			uvs[2].Set(faceVertices[2].x, faceVertices[2].y);
+			uvs[3].Set(faceVertices[3].x, faceVertices[3].y);
 			break;
 		case Face.Left:
-		{
-			MathFunctions.Vector3ToVector2(ref faceVertices[0], ref uvs[0], 0);
-			MathFunctions.Vector3ToVector2(ref faceVertices[1], ref uvs[1], 0);
-			MathFunctions.Vector3ToVector2(ref faceVertices[2], ref uvs[2], 0);
-			MathFunctions.Vector3ToVector2(ref faceVertices[3], ref uvs[3], 0);
-			for (int k = 0; k < 4; k++)
-			{
-				bookKeepingFloat = uvs[k].x;
-				uvs[k].x = uvs[k].y;
-				uvs[k].y = bookKeepingFloat;
-				uvs[k].x = 0f - uvs[k].x;
-			}
+			uvs[0].Set(0f - faceVertices[0].z, faceVertices[0].y);
+			uvs[1].Set(0f - faceVertices[1].z, faceVertices[1].y);
+			uvs[2].Set(0f - faceVertices[2].z, faceVertices[2].y);
+			uvs[3].Set(0f - faceVertices[3].z, faceVertices[3].y);
 			uvOffsetVector = uvOffsetVector1;
 			break;
-		}
 		case Face.Right:
-		{
-			MathFunctions.Vector3ToVector2(ref faceVertices[0], ref uvs[0], 0);
-			MathFunctions.Vector3ToVector2(ref faceVertices[1], ref uvs[1], 0);
-			MathFunctions.Vector3ToVector2(ref faceVertices[2], ref uvs[2], 0);
-			MathFunctions.Vector3ToVector2(ref faceVertices[3], ref uvs[3], 0);
-			for (int i = 0; i < 4; i++)
-			{
-				bookKeepingFloat = uvs[i].x;
-				uvs[i].x = uvs[i].y;
-				uvs[i].y = bookKeepingFloat;
-			}
+			uvs[0].Set(faceVertices[0].z, faceVertices[0].y);
+			uvs[1].Set(faceVertices[1].z, faceVertices[1].y);
+			uvs[2].Set(faceVertices[2].z, faceVertices[2].y);
+			uvs[3].Set(faceVertices[3].z, faceVertices[3].y);
 			break;
 		}
-		}
 		float num = 2f / scale[0];
-		for (int m = 0; m < 4; m++)
-		{
-			uvs[m] += uvOffsetVector;
-			uvs[m] /= num;
-		}
+		uvs[0] += uvOffsetVector;
+		uvs[1] += uvOffsetVector;
+		uvs[2] += uvOffsetVector;
+		uvs[3] += uvOffsetVector;
+		uvs[0] /= num;
+		uvs[1] /= num;
+		uvs[2] /= num;
+		uvs[3] /= num;
 		return uvs;
 	}
 }

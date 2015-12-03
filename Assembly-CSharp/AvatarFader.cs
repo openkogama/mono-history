@@ -20,8 +20,8 @@ public class AvatarFader
 	public AvatarFader(Transform transform)
 	{
 		this.transform = transform;
-		normalShader = Shader.Find("Custom/AvatarShader");
-		fadeShader = Shader.Find("Custom/AvatarShader transparent");
+		normalShader = MVGameControllerBase.MaterialLoader.AvatarShader;
+		fadeShader = MVGameControllerBase.MaterialLoader.AvatarTransparentShader;
 		normalShaders["Particles/Alpha Blended Premultiply Write Alpha"] = Shader.Find("Particles/Alpha Blended Premultiply Write Alpha");
 		fadeShaders["Particles/Alpha Blended Premultiply Write Alpha"] = Shader.Find("Particles/Alpha Blended Premultiply Write Alpha");
 		normalShaders["Particles/Alpha Blended Write Alpha"] = Shader.Find("Particles/Alpha Blended Write Alpha");

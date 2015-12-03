@@ -48,10 +48,12 @@ public class MVCubeModelInstance : MVCubeModelBase
 			if (distance > num && isVisible)
 			{
 				SetLod(enabled: false);
+				prototypeCubeModel.RemoveReferenceFromAllChunks();
 			}
 			if (distance <= num && !isVisible)
 			{
 				SetLod(enabled: true);
+				prototypeCubeModel.AddReferenceToAllChunks();
 			}
 		}
 	}
@@ -67,6 +69,7 @@ public class MVCubeModelInstance : MVCubeModelBase
 
 	public override void Destroy()
 	{
+		prototypeCubeModel.RemoveReferenceFromAllChunks();
 		prototypeCubeModel.RemoveInstance(id);
 		base.Destroy();
 	}
@@ -85,9 +88,9 @@ public class MVCubeModelInstance : MVCubeModelBase
 			GameObject gameObject = CreateBox("SelectionBox", 1.001f);
 			selectionBox = gameObject.AddComponent<SelectionBox>();
 		}
-		Bounds meshBounds = GetMeshBounds();
-		selectionBox.transform.localPosition = meshBounds.center;
-		selectionBox.FadeIn(0.2f, "Materials/SelectBoxMaterial", GetCorners(meshBounds));
+		Bounds bounds = GetBounds();
+		selectionBox.transform.localPosition = bounds.center;
+		selectionBox.FadeIn(0.2f, "Materials/SelectBoxMaterial", GetCorners(bounds));
 	}
 
 	public override void AddPreviewBox()
@@ -98,9 +101,9 @@ public class MVCubeModelInstance : MVCubeModelBase
 			GameObject gameObject = CreateBox("PreviewBox", 1.005f);
 			previewBox = gameObject.AddComponent<PreviewBox>();
 		}
-		Bounds meshBounds = GetMeshBounds();
-		previewBox.transform.localPosition = meshBounds.center;
-		previewBox.Show("Materials/PreviewBoxMaterial", GetCorners(meshBounds));
+		Bounds bounds = GetBounds();
+		previewBox.transform.localPosition = bounds.center;
+		previewBox.Show("Materials/PreviewBoxMaterial", GetCorners(bounds));
 	}
 
 	private Vector3[] GetCorners(Bounds bounds)

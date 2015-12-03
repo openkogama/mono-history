@@ -15,7 +15,8 @@ internal class BoxCast : MonoBehaviour
 		transform.rotation = boxCastObject.transform.rotation;
 		transform.localScale = boxCastObject.transform.localScale;
 		boxCollider = gameObject.AddComponent<BoxCollider>();
-		Bounds bounds = boxCastObject.GetComponent<MeshFilter>().sharedMesh.bounds;
+		BoxCollider component = boxCastObject.GetComponent<BoxCollider>();
+		Bounds bounds = new Bounds(component.center, component.size);
 		boxCollider.size = bounds.size;
 		boxCollider.center = bounds.center;
 		body = gameObject.AddComponent<Rigidbody>();

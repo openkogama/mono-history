@@ -154,7 +154,9 @@ public static class MVElipsoidOverlapCheck
 		IntVector target2 = CubeMathFunctions.LocalPosToLocalIntVector(localElipsoidBounds.max);
 		IntVector min = default;
 		IntVector max = default;
-		SharedCollisionFunctions.GetVoxelBounds(ref min, ref max, chunk.GetComponent<MeshFilter>().sharedMesh.bounds);
+		BoxCollider component = chunk.GetComponent<BoxCollider>();
+		Bounds localSpaceBounds = new Bounds(component.center, component.size);
+		SharedCollisionFunctions.GetVoxelBounds(ref min, ref max, localSpaceBounds);
 		MathFunctions.ClampIntVector(ref target, min, max);
 		MathFunctions.ClampIntVector(ref target2, min, max);
 		bool flag = false;

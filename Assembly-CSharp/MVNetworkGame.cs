@@ -1812,14 +1812,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			int priceSilver = (int)dictionary[(byte)58];
 			bool isUnlocked = (bool)dictionary[(byte)59];
 			float[] physicalProperties = (float[])dictionary[(byte)115];
-			if (text.Length == 0)
-			{
-				MaterialRepository.AddMaterial(name, description, path, (MaterialSound)materialSound, (AvatarModifierPackageType)modifierPackageType, priceGold, priceSilver, isUnlocked, physicalProperties);
-			}
-			else
-			{
-				MaterialRepository.AddMaterial(name, description, path, (MaterialSound)materialSound, (AvatarModifierPackageType)modifierPackageType, priceGold, priceSilver, isUnlocked, physicalProperties, Type.GetType(text));
-			}
+			MaterialRepository.AddMaterial(name, description, path, (MaterialSound)materialSound, (AvatarModifierPackageType)modifierPackageType, priceGold, priceSilver, isUnlocked, physicalProperties);
 		}
 		if (MaterialRepository.GetMaterial(21).IsDestructible || !MaterialRepository.GetMaterial(21).isUnlocked)
 		{

@@ -1,8 +1,8 @@
 using System;
 using UnityEngine;
 
-[AddComponentMenu("Image Effects/Skybox-based Fog")]
 [ExecuteInEditMode]
+[AddComponentMenu("Image Effects/Skybox-based Fog")]
 [RequireComponent(typeof(Camera))]
 public class PostprocessFog : MonoBehaviour
 {

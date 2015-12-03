@@ -75,7 +75,7 @@ public class CubeModelingStateMachine : FSMEntity
 		}
 	}
 
-	public Material CurrentMaterial => MVGameControllerBase.Game.MaterialRepository.GetMaterial(currentMaterialId).material;
+	public Material CurrentMaterial => MVGameControllerBase.MaterialLoader.CubeModelMaterial;
 
 	public CubePickingInfo SelectedCube { get; set; }
 

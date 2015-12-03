@@ -5,6 +5,8 @@ public static class MeshDataPool
 {
 	private static int maxVertices = 786432;
 
+	private static int maxIndices = 1179648;
+
 	private static int vertexPos = 0;
 
 	private static readonly Vector3[] vertices = new Vector3[maxVertices];
@@ -16,6 +18,10 @@ public static class MeshDataPool
 	private static int colorPos = 0;
 
 	private static readonly Color[] colors = new Color[maxVertices];
+
+	private static int indicesPos = 0;
+
+	private static readonly int[] indices = new int[maxIndices];
 
 	public static void AddVertex(Vector3 vertex)
 	{
@@ -64,8 +70,21 @@ public static class MeshDataPool
 		return array;
 	}
 
+	public static void AddIndex(int index)
+	{
+		indices[indicesPos] = index;
+		indicesPos++;
+	}
+
+	public static int[] GetIndices()
+	{
+		int[] array = new int[indicesPos];
+		Array.Copy(indices, array, indicesPos);
+		return array;
+	}
+
 	public static void Reset()
 	{
-		vertexPos = (uvPos = (colorPos = 0));
+		vertexPos = (uvPos = (colorPos = (indicesPos = 0)));
 	}
 }

@@ -204,7 +204,9 @@ public static class MVRaycast
 		IntVector target = CubeMathFunctions.LocalPosToLocalIntVector(vector);
 		IntVector min = default;
 		IntVector max = default;
-		SharedCollisionFunctions.GetVoxelBounds(ref min, ref max, chunk.GetComponent<MeshFilter>().sharedMesh.bounds);
+		BoxCollider component = chunk.GetComponent<BoxCollider>();
+		Bounds localSpaceBounds = new Bounds(component.center, component.size);
+		SharedCollisionFunctions.GetVoxelBounds(ref min, ref max, localSpaceBounds);
 		MathFunctions.ClampIntVector(ref target, min, max);
 		int num2 = Math.Sign(intersectRay.direction.x);
 		int num3 = Math.Sign(intersectRay.direction.y);

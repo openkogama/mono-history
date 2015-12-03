@@ -1,11 +1,10 @@
-using System;
 using CodeStage.AntiCheat.ObscuredTypes;
 using MV.WorldObject;
 using UnityEngine;
 
 public class MVMaterial
 {
-	public Material material;
+	public Mesh mesh;
 
 	public string name;
 
@@ -57,9 +56,10 @@ public class MVMaterial
 	{
 	}
 
-	public MVMaterial(string name, string description, Material material, PhysicalProperties physicalProperties, MaterialSound materialSound, AvatarModifierPackageType modifierPackageType, int priceGold, int priceSilver, bool isUnlocked)
-		: this(material, physicalProperties, materialSound, modifierPackageType)
+	public MVMaterial(int materialId, string name, string description, PhysicalProperties physicalProperties, MaterialSound materialSound, AvatarModifierPackageType modifierPackageType, int priceGold, int priceSilver, bool isUnlocked)
+		: this(physicalProperties, materialSound, modifierPackageType)
 	{
+		GenerateCube(materialId);
 		unlockPriceGold = priceGold;
 		unlockPriceSilver = priceSilver;
 		this.isUnlocked = isUnlocked;
@@ -67,21 +67,89 @@ public class MVMaterial
 		this.description = description;
 	}
 
-	public MVMaterial(Material material, PhysicalProperties physicalProperties, MaterialSound materialSound, AvatarModifierPackageType modifierPackageType)
+	public MVMaterial(PhysicalProperties physicalProperties, MaterialSound materialSound, AvatarModifierPackageType modifierPackageType)
 	{
-		this.material = material;
 		this.physicalProperties = physicalProperties;
 		this.materialSound = materialSound;
 		this.modifierPackageType = modifierPackageType;
-		textureHashCode = TextureHash.CreateHashCode(material.mainTexture);
 	}
 
 	public void Validate()
 	{
-		string text = TextureHash.CreateHashCode(material.mainTexture);
-		if (textureHashCode != (ObscuredString)text)
+	}
+
+	private void GenerateCube(int materialId)
+	{
+		mesh = new Mesh();
+		MeshDataPool.Reset();
+		Rect rect = TextureAtlas.UV[materialId];
+		int num = 0;
+		for (int i = 0; i < 6; i++)
 		{
-			throw new Exception("Material texture has been tampered with");
+			num += 4;
+			AddVertices(i);
+			MeshDataPool.AddIndex(num - 4);
+			MeshDataPool.AddIndex(num - 3);
+			MeshDataPool.AddIndex(num - 2);
+			MeshDataPool.AddIndex(num - 3);
+			MeshDataPool.AddIndex(num - 1);
+			MeshDataPool.AddIndex(num - 2);
+			MeshDataPool.AddUv(new Vector2(0f, 0f));
+			MeshDataPool.AddUv(new Vector2(1f, 0f));
+			MeshDataPool.AddUv(new Vector2(0f, 1f));
+			MeshDataPool.AddUv(new Vector2(1f, 1f));
+			for (int j = 0; j < 4; j++)
+			{
+				MeshDataPool.AddColor(new Color(1f, rect.x, rect.y));
+			}
+		}
+		mesh.vertices = MeshDataPool.GetVertices();
+		mesh.uv = MeshDataPool.GetUvs();
+		mesh.triangles = MeshDataPool.GetIndices();
+		mesh.colors = MeshDataPool.GetColors();
+		mesh.RecalculateNormals();
+	}
+
+	private void AddVertices(int direction)
+	{
+		switch (direction)
+		{
+		case 0:
+			MeshDataPool.AddVertex(new Vector3(-0.5f, 0.5f, -0.5f));
+			MeshDataPool.AddVertex(new Vector3(0.5f, 0.5f, -0.5f));
+			MeshDataPool.AddVertex(new Vector3(-0.5f, -0.5f, -0.5f));
+			MeshDataPool.AddVertex(new Vector3(0.5f, -0.5f, -0.5f));
+			break;
+		case 1:
+			MeshDataPool.AddVertex(new Vector3(0.5f, 0.5f, 0.5f));
+			MeshDataPool.AddVertex(new Vector3(-0.5f, 0.5f, 0.5f));
+			MeshDataPool.AddVertex(new Vector3(0.5f, -0.5f, 0.5f));
+			MeshDataPool.AddVertex(new Vector3(-0.5f, -0.5f, 0.5f));
+			break;
+		case 2:
+			MeshDataPool.AddVertex(new Vector3(-0.5f, 0.5f, 0.5f));
+			MeshDataPool.AddVertex(new Vector3(-0.5f, 0.5f, -0.5f));
+			MeshDataPool.AddVertex(new Vector3(-0.5f, -0.5f, 0.5f));
+			MeshDataPool.AddVertex(new Vector3(-0.5f, -0.5f, -0.5f));
+			break;
+		case 3:
+			MeshDataPool.AddVertex(new Vector3(0.5f, 0.5f, -0.5f));
+			MeshDataPool.AddVertex(new Vector3(0.5f, 0.5f, 0.5f));
+			MeshDataPool.AddVertex(new Vector3(0.5f, -0.5f, -0.5f));
+			MeshDataPool.AddVertex(new Vector3(0.5f, -0.5f, 0.5f));
+			break;
+		case 4:
+			MeshDataPool.AddVertex(new Vector3(-0.5f, 0.5f, 0.5f));
+			MeshDataPool.AddVertex(new Vector3(0.5f, 0.5f, 0.5f));
+			MeshDataPool.AddVertex(new Vector3(-0.5f, 0.5f, -0.5f));
+			MeshDataPool.AddVertex(new Vector3(0.5f, 0.5f, -0.5f));
+			break;
+		case 5:
+			MeshDataPool.AddVertex(new Vector3(0.5f, -0.5f, 0.5f));
+			MeshDataPool.AddVertex(new Vector3(-0.5f, -0.5f, 0.5f));
+			MeshDataPool.AddVertex(new Vector3(0.5f, -0.5f, -0.5f));
+			MeshDataPool.AddVertex(new Vector3(-0.5f, -0.5f, -0.5f));
+			break;
 		}
 	}
 }

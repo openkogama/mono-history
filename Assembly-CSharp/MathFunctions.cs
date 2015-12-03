@@ -306,6 +306,27 @@ public static class MathFunctions
 		}
 	}
 
+	public static float PackVector2IntoFloat(Vector2 toPack, bool div = false)
+	{
+		if (div)
+		{
+			toPack.x /= 2f;
+			toPack.y /= 2f;
+		}
+		toPack.x = Mathf.Floor(toPack.x * 4095f);
+		toPack.y = Mathf.Floor(toPack.y * 4095f);
+		return toPack.y * 4096f + toPack.x;
+	}
+
+	public static Vector2 UnpackFloatIntoVector2(float input)
+	{
+		int num = (int)input;
+		Vector2 vector = default;
+		vector.x = num % 4096;
+		vector.y = Mathf.Floor(num / 4096);
+		return vector / 4095f;
+	}
+
 	public static Vector3 GetMinVector(Vector3 min0, Vector3 min1)
 	{
 		Vector3 result = default;

@@ -175,6 +175,7 @@ public class PlayControllerBase : AIngameController, IPlayModeUI
 
 	protected virtual void ShowLostFocusGUI()
 	{
+		level.View.Show();
 		gameInfo.View.Show();
 		resume.View.Show();
 		bottomCenterToggles.View.Show();

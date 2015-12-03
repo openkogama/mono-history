@@ -23,9 +23,8 @@ public class MVMaterialRepository
 
 	public MVMaterialRepository()
 	{
-		Material material = (Material)Resources.Load("Cube/Materials/notexture");
-		noMaterial = new MVMaterial(material, physicalPropertiesDefault, MaterialSound.None, AvatarModifierPackageType.None);
-		inAirMaterial = new MVMaterial(material, MVPhysics.airPhysicalProperties, MaterialSound.None, AvatarModifierPackageType.None);
+		noMaterial = new MVMaterial(physicalPropertiesDefault, MaterialSound.None, AvatarModifierPackageType.None);
+		inAirMaterial = new MVMaterial(MVPhysics.airPhysicalProperties, MaterialSound.None, AvatarModifierPackageType.None);
 	}
 
 	public void SetMaterialPrice(int materialID, int materialUnlockPriceGold, int materialUnlockPriceSilver)
@@ -61,20 +60,11 @@ public class MVMaterialRepository
 
 	public void AddMaterial(string name, string description, string path, MaterialSound materialSound, AvatarModifierPackageType modifierPackageType, int priceGold, int priceSilver, bool isUnlocked, float[] physicalProperties, Type materialAnimatorType = null)
 	{
-		Material material = (Material)Resources.Load(path);
-		if (materialAnimatorType != null)
-		{
-			CreateMaterialAnimator(material, materialAnimatorType);
-		}
-		materials.Add(new MVMaterial(name, description, material, new PhysicalProperties(physicalProperties[0], physicalProperties[1], physicalProperties[2], physicalProperties[3], physicalProperties[4]), materialSound, modifierPackageType, priceGold, priceSilver, isUnlocked));
+		materials.Add(new MVMaterial(materials.Count, name, description, new PhysicalProperties(physicalProperties[0], physicalProperties[1], physicalProperties[2], physicalProperties[3], physicalProperties[4]), materialSound, modifierPackageType, priceGold, priceSilver, isUnlocked));
 	}
 
 	private void CreateMaterialAnimator(Material material, Type materialAnimatorType)
 	{
-		GameObject gameObject = new GameObject($"Material Animator ({materialAnimatorType.Name}).");
-		UnityEngine.Object.DontDestroyOnLoad(gameObject);
-		MaterialAnimator materialAnimator = gameObject.AddComponent(materialAnimatorType) as MaterialAnimator;
-		materialAnimator.TargetMaterial = material;
 	}
 
 	public MVMaterial GetMaterial(byte materialId)

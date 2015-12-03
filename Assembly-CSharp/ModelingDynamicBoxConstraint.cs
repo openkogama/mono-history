@@ -28,27 +28,27 @@ public class ModelingDynamicBoxConstraint : ModelingBoxConstraint
 		{
 			return false;
 		}
-		Bounds meshBounds = cubeModel.GetMeshBounds();
+		Bounds bounds = cubeModel.GetBounds();
 		Vector3 vector2 = new Vector3((float)pos.x - 0.5f, (float)pos.y - 0.5f, (float)pos.z - 0.5f);
 		Vector3 vector3 = new Vector3((float)pos.x + 0.5f, (float)pos.y + 0.5f, (float)pos.z + 0.5f);
 		for (int i = 0; i < 3; i++)
 		{
-			if (vector2[i] < meshBounds.min[i])
+			if (vector2[i] < bounds.min[i])
 			{
-				Vector3 min = meshBounds.min;
+				Vector3 min = bounds.min;
 				min[i] = vector2[i];
-				meshBounds.SetMinMax(min, meshBounds.max);
+				bounds.SetMinMax(min, bounds.max);
 			}
-			if (vector3[i] > meshBounds.max[i])
+			if (vector3[i] > bounds.max[i])
 			{
-				Vector3 max = meshBounds.max;
+				Vector3 max = bounds.max;
 				max[i] = vector3[i];
-				meshBounds.SetMinMax(meshBounds.min, max);
+				bounds.SetMinMax(bounds.min, max);
 			}
 		}
 		IntVector min2 = default;
 		IntVector max2 = default;
-		SharedCollisionFunctions.GetVoxelBounds(ref min2, ref max2, meshBounds);
+		SharedCollisionFunctions.GetVoxelBounds(ref min2, ref max2, bounds);
 		IntVector intVector = max2 - min2 + new IntVector(1, 1, 1);
 		if (intVector.x <= (short)Size.x && intVector.y <= (short)Size.y && intVector.z <= (short)Size.z)
 		{
@@ -74,7 +74,7 @@ public class ModelingDynamicBoxConstraint : ModelingBoxConstraint
 
 	private Vector3 CalcConstraintBoxCenter(MVCubeModelBase model)
 	{
-		Vector3 v = model.GetMeshBounds().center;
+		Vector3 v = model.GetBounds().center;
 		for (int i = 0; i < 3; i++)
 		{
 			if (SharedCubeFunctions.CubeConstraintVector3[i] % 2f == 0f)
@@ -87,7 +87,7 @@ public class ModelingDynamicBoxConstraint : ModelingBoxConstraint
 			}
 			IntVector min = default;
 			IntVector max = default;
-			SharedCollisionFunctions.GetVoxelBounds(ref min, ref max, model.GetMeshBounds());
+			SharedCollisionFunctions.GetVoxelBounds(ref min, ref max, model.GetBounds());
 			if ((max - min + new IntVector(1, 1, 1))[i] == (int)SharedCubeFunctions.CubeConstraintVector3[i])
 			{
 				int num = min[i] + (max[i] - min[i]) / 2;

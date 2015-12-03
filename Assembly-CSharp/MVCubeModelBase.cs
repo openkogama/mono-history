@@ -142,7 +142,9 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel, ICubeModelCollid
 	{
 		if (prototypeCubeModel.InstancesCount > 1)
 		{
+			prototypeCubeModel.RemoveReferenceFromAllChunks();
 			MVGameControllerBase.Game.World.WorldInventory.RequestWoMakeUniquePrototype(id);
+			prototypeCubeModel.AddReferenceToAllChunks();
 		}
 	}
 
@@ -157,7 +159,6 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel, ICubeModelCollid
 
 	public void AddCube(IntVector pos, CubeBase cube)
 	{
-		Debug.Log("AddCube");
 		MakeUnique();
 		if (prototypeCubeModel.AddCube(pos, (Cube)cube))
 		{
@@ -212,6 +213,37 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel, ICubeModelCollid
 		prototypeCubeModel.CubePosToChunkPos(ref pos);
 	}
 
+	public Bounds GetBounds()
+	{
+		Bounds result = default;
+		if (chunkInstances.Count == 0)
+		{
+			return result;
+		}
+		Vector3 min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+		Vector3 max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+		foreach (KeyValuePair<IntVector, GameObject> item in (IEnumerable)chunkInstances)
+		{
+			BoxCollider component = item.Value.GetComponent<BoxCollider>();
+			Vector3 vector = component.size / 2f;
+			Vector3 vector2 = component.center - vector;
+			Vector3 vector3 = component.center + vector;
+			for (int i = 0; i < 3; i++)
+			{
+				if (vector2[i] < min[i])
+				{
+					min[i] = vector2[i];
+				}
+				if (vector3[i] > max[i])
+				{
+					max[i] = vector3[i];
+				}
+			}
+		}
+		result.SetMinMax(min, max);
+		return result;
+	}
+
 	public Bounds GetMeshBounds()
 	{
 		if (chunkInstances.Count == 0)
@@ -250,12 +282,12 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel, ICubeModelCollid
 
 	public override Bounds GetLocalBounds(BoundsContext boundsContext)
 	{
-		return GetMeshBounds();
+		return GetBounds();
 	}
 
 	public Vector3 GetWorldCenterPos()
 	{
-		return transform.TransformPoint(GetMeshBounds().center);
+		return transform.TransformPoint(GetBounds().center);
 	}
 
 	public void Enable(bool active)

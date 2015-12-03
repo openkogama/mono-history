@@ -237,7 +237,7 @@ public class RuntimePrototypeCubeModel
 			MeshRenderer meshRenderer = gameObject2.AddComponent<MeshRenderer>();
 			MeshFilter meshFilter = gameObject2.AddComponent<MeshFilter>();
 			meshFilter.sharedMesh = chunk.Value.GetMeshData().mesh;
-			meshRenderer.sharedMaterials = chunk.Value.GetMeshData().materials;
+			meshRenderer.sharedMaterial = chunk.Value.GetMeshData().material;
 			gameObject2.transform.parent = gameObject.transform;
 			gameObject2.transform.position = Vector3.zero;
 			gameObject2.transform.rotation = Quaternion.identity;
@@ -364,7 +364,7 @@ public class RuntimePrototypeCubeModel
 	{
 		foreach (KeyValuePair<IntVector, CubeModelChunk> chunk in chunks)
 		{
-			cm.GetChunkInstance(chunk.Key).GetComponent<Renderer>().sharedMaterials = chunk.Value.GetMeshData().materials;
+			cm.GetChunkInstance(chunk.Key).GetComponent<Renderer>().sharedMaterial = chunk.Value.GetMeshData().material;
 		}
 	}
 
@@ -573,6 +573,37 @@ public class RuntimePrototypeCubeModel
 		cubePos.x -= (short)(chunkSize * intVector.x);
 		cubePos.y -= (short)(chunkSize * intVector.y);
 		cubePos.z -= (short)(chunkSize * intVector.z);
+	}
+
+	public void AddRefenceToChunk(ref IntVector chunkPosition)
+	{
+		chunks[chunkPosition].ActiveInstances++;
+	}
+
+	public void RemoveRefenceFromChunk(ref IntVector chunkPosition)
+	{
+		chunks[chunkPosition].ActiveInstances--;
+	}
+
+	public int GetRefenceCountFromChunk(ref IntVector chunkPosition)
+	{
+		return chunks[chunkPosition].ActiveInstances;
+	}
+
+	public void AddReferenceToAllChunks()
+	{
+		foreach (KeyValuePair<IntVector, CubeModelChunk> chunk in chunks)
+		{
+			chunk.Value.ActiveInstances++;
+		}
+	}
+
+	public void RemoveReferenceFromAllChunks()
+	{
+		foreach (KeyValuePair<IntVector, CubeModelChunk> chunk in chunks)
+		{
+			chunk.Value.ActiveInstances--;
+		}
 	}
 
 	public bool CompareGeometry(RuntimePrototypeCubeModel rpcm)

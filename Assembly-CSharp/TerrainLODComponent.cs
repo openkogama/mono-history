@@ -96,7 +96,7 @@ public class TerrainLODComponent
 			if (chunkInstances.TryGetValue(value.localPos, out var gameObject))
 			{
 				float num3 = Vector3.Distance(LODBookkeeping[currentLODPosition].worldPos, position);
-				ChangeLODChunk(gameObject, num3, dynamicLodDistance.CurrentRadius);
+				ChangeLODChunk(gameObject, ref value.localPos, num3, dynamicLodDistance.CurrentRadius);
 				if (num3 < dynamicLodDistance.maxRadius)
 				{
 					triangleCounter.Add(value.localPos);
@@ -135,15 +135,17 @@ public class TerrainLODComponent
 		LODBookkeeping.Add(new MVTerrainLOD(localPos, scale * (float)prototypeCubeModel.ChunkSize * new Vector3(localPos.x, localPos.y, localPos.z)));
 	}
 
-	private void ChangeLODChunk(GameObject chunk, float distance, float renderDistance)
+	private void ChangeLODChunk(GameObject chunk, ref IntVector chunkPosition, float distance, float renderDistance)
 	{
 		if (distance > renderDistance && chunk.GetComponent<Renderer>().enabled)
 		{
 			chunk.GetComponent<Renderer>().enabled = false;
+			prototypeCubeModel.RemoveRefenceFromChunk(ref chunkPosition);
 		}
 		if (distance < renderDistance && !chunk.GetComponent<Renderer>().enabled)
 		{
 			chunk.GetComponent<Renderer>().enabled = true;
+			prototypeCubeModel.AddRefenceToChunk(ref chunkPosition);
 		}
 	}
 }

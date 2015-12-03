@@ -6,15 +6,11 @@ public class PlatformerCamera : MVCameraBase, ICameraSettings
 {
 	private const float distanceToAvatarOffset = 10f;
 
-	private Vector3 currentOffset = Vector3.zero;
-
 	private float rotOffset = 10f;
 
 	private float baseDistanceToAvatar = 20f;
 
 	private float distanceToAvatar = 20f;
-
-	private float lerpSpeed = 5.5f;
 
 	public override CameraType CameraType => CameraType.Platformer;
 

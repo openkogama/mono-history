@@ -33,6 +33,9 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	[SerializeField]
 	public PrefabFactory prefabFactory;
 
+	[SerializeField]
+	private MaterialLoader materialLoader;
+
 	private static MVGameControllerBase instance;
 
 	protected static bool isInitialized;
@@ -112,6 +115,18 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	protected abstract bool IsPlayingInternal { get; }
 
 	public static bool IsPlaying => instance.IsPlayingInternal;
+
+	public static MaterialLoader MaterialLoader
+	{
+		get
+		{
+			if (instance.materialLoader == null)
+			{
+				throw new NullReferenceException();
+			}
+			return instance.materialLoader;
+		}
+	}
 
 	public static MVCameraController CameraController
 	{

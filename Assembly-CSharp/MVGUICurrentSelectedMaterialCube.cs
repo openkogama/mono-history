@@ -9,16 +9,18 @@ public class MVGUICurrentSelectedMaterialCube : UXViewScript
 
 	private MeshRenderer[] meshRenderers;
 
+	private MeshFilter[] meshFilters;
+
 	private UXMouseClickObject materialSelectionActivationClickObject;
 
-	public Material CurrentMaterial
+	public byte CurrentMaterial
 	{
 		set
 		{
-			MeshRenderer[] array = meshRenderers;
-			foreach (MeshRenderer meshRenderer in array)
+			MeshFilter[] array = meshFilters;
+			foreach (MeshFilter meshFilter in array)
 			{
-				meshRenderer.material = value;
+				meshFilter.sharedMesh = MVGameControllerBase.Game.MaterialRepository.GetMaterial(value).mesh;
 			}
 		}
 	}
@@ -27,7 +29,13 @@ public class MVGUICurrentSelectedMaterialCube : UXViewScript
 	{
 		base.Awake();
 		meshRenderers = GetComponentsInChildren<MeshRenderer>(includeInactive: true);
+		meshFilters = GetComponentsInChildren<MeshFilter>(includeInactive: true);
 		materialSelectionActivationClickObject = GetComponentInChildren<UXMouseClickObject>();
+		MeshRenderer[] array = meshRenderers;
+		foreach (MeshRenderer meshRenderer in array)
+		{
+			meshRenderer.sharedMaterial = MVGameControllerBase.MaterialLoader.CubeModelMaterial;
+		}
 		UXMouseClickObject uXMouseClickObject = materialSelectionActivationClickObject;
 		uXMouseClickObject.OnMouseDown = (UXMouseClickObject.OnMouseDownDelegate)Delegate.Combine(uXMouseClickObject.OnMouseDown, (UXMouseClickObject.OnMouseDownDelegate)((UXMouseClickObject clickObject, Vector3 mousePositionWorld) => true));
 		UXMouseClickObject uXMouseClickObject2 = materialSelectionActivationClickObject;
