@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class MVTeleporter : MVLogicObject
 {
-	private const string prefabPath = "Prefabs/TelePorterObject";
-
 	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
 	private TriggerBoxEvents triggerBoxEvents;
@@ -44,9 +42,9 @@ public class MVTeleporter : MVLogicObject
 	}
 
 	public MVTeleporter(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/TelePorterObject", worldObjects)
+		: base(data, PrefabPool.Instance.MVTeleporterPrefab, worldObjects)
 	{
-		teleportAvatarPrefab = Resources.Load("Prefabs/Logic/TeleportAvatar", typeof(TeleportAvatar)) as TeleportAvatar;
+		teleportAvatarPrefab = PrefabPool.Instance.TeleportAvatarPrefab.GetComponent<TeleportAvatar>();
 		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
 		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		triggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;

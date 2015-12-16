@@ -12,8 +12,6 @@ public class MVCollectible : MVLogicObject
 		Invisible
 	}
 
-	private const string prefabPath = "Prefabs/CollectibleObject";
-
 	private float rotationSpeed = 0.6f;
 
 	private GameObject pickupMesh;
@@ -41,13 +39,13 @@ public class MVCollectible : MVLogicObject
 	public override bool HasOutputConnector => false;
 
 	public MVCollectible(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/CollectibleObject", worldObjects)
+		: base(data, PrefabPool.Instance.MVCollectiblePrefab, worldObjects)
 	{
 		Create();
 	}
 
-	public MVCollectible(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects, string overridePrefabPath)
-		: base(data, overridePrefabPath, worldObjects)
+	public MVCollectible(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects, GameObject overridePrefab)
+		: base(data, overridePrefab, worldObjects)
 	{
 		Create();
 	}

@@ -100,7 +100,6 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 
 	public void OnRemoveWorldObjectDataPartialEvent(int worldObjectID, Dictionary<object, object> worldObjectDataToRemove)
 	{
-		Debug.Log(worldObjectDataToRemove.BuildStringRecursive("Remove wo " + worldObjectID + " data partial event"));
 		if (!worldObjects.ContainsKey(worldObjectID))
 		{
 			Debug.LogError("Attempt to remove data from WorldObjectData on unknown WorldObject " + worldObjectID);

@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class MVPointLight : MVLogicObject
 {
-	private const string prefabPath = "Prefabs/DefaultPointLight";
-
 	private GameObject lightObject;
 
 	private Light lightComponent;
@@ -14,7 +12,7 @@ public class MVPointLight : MVLogicObject
 	public override bool HasOutputConnector => false;
 
 	public MVPointLight(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/DefaultPointLight", worldObjects)
+		: base(data, PrefabPool.Instance.MVPointLightPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
 		lightComponent = gameObject.GetComponent<Light>();

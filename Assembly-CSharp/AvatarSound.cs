@@ -14,7 +14,7 @@ public class AvatarSound : MonoBehaviour
 
 	private AudioClip nextSoundToPlay;
 
-	private IAudioManager audioManager;
+	private AudioManager audioManager;
 
 	public void Start()
 	{

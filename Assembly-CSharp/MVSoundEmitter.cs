@@ -6,8 +6,6 @@ using UnityEngine;
 
 public class MVSoundEmitter : MVLogicObject
 {
-	private const string prefabPath = "Prefabs/SoundEmitterObject";
-
 	private string currentUrl = string.Empty;
 
 	private AudioSource currentSrc;
@@ -19,7 +17,7 @@ public class MVSoundEmitter : MVLogicObject
 	public override bool HasOutputConnector => false;
 
 	public MVSoundEmitter(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/SoundEmitterObject", worldObjects)
+		: base(data, PrefabPool.Instance.MVSoundEmitterPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
 	}

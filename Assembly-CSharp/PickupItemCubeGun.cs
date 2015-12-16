@@ -249,7 +249,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 						mVCubeModelFineGrainedTerrain.HandleDelta();
 						Debug.Log("Remove as update cube model");
 					}
-					SharedWorldObjectGameplayFunctions.DustEfffect("ParticleFX/CubeDust", point, 1f);
+					SharedWorldObjectGameplayFunctions.DustEfffect(PrefabPool.Instance.ParticleCubeDust, point, 1f);
 				}
 				GameSessionCounters.Decrement(GameSessionCounterType.CubeGunCubeDelta);
 			}

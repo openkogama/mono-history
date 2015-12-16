@@ -73,8 +73,8 @@ public class PickupItemThrowingStar : PickupItemWithDelay
 	{
 		Quaternion rotation = Quaternion.FromToRotation(Vector3.up, voxelHit.normal);
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
-		string path = ((!(worldObjectClient is MVAvatar)) ? "ParticleFX/SparksThrowingStar" : "ParticleFX/BloodThrowingStar");
-		UnityEngine.Object.Instantiate(Resources.Load(path), voxelHit.point, rotation);
+		GameObject original = ((!(worldObjectClient is MVAvatar)) ? PrefabPool.Instance.ParticleSparksThrowingStar : PrefabPool.Instance.ParticleBlooxThrowingStar);
+		UnityEngine.Object.Instantiate(original, voxelHit.point, rotation);
 	}
 
 	private void HandleDirectHit(VoxelHit voxelHit, Ray lineOfFire)

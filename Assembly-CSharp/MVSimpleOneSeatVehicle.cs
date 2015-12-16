@@ -119,7 +119,7 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase
 
 	protected EditableCubeModelWrapper editableCubeModelWrapper;
 
-	protected MVSimpleOneSeatVehicle(Dictionary<object, object> data, string _vehiclePrefab, Dictionary<int, MVWorldObjectClient> worldObjects)
+	protected MVSimpleOneSeatVehicle(Dictionary<object, object> data, GameObject _vehiclePrefab, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, _vehiclePrefab, worldObjects)
 	{
 	}

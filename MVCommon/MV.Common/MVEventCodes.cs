@@ -65,6 +65,7 @@ public enum MVEventCodes : byte
 	LevelChanged = 60,
 	XPRewarded = 61,
 	GameBoostEvent = 62,
+	CountingCubeUpdateEvent = 63,
 	Join = byte.MaxValue,
 	Leave = 254,
 	PropertiesChanged = 253

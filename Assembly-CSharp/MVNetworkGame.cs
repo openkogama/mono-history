@@ -1807,7 +1807,6 @@ public class MVNetworkGame : IPhotonPeerListener
 			string path = (string)dictionary[(byte)53];
 			int materialSound = (int)dictionary[(byte)54];
 			int modifierPackageType = (int)dictionary[(byte)55];
-			string text = (string)dictionary[(byte)56];
 			int priceGold = (int)dictionary[(byte)57];
 			int priceSilver = (int)dictionary[(byte)58];
 			bool isUnlocked = (bool)dictionary[(byte)59];
@@ -2241,6 +2240,18 @@ public class MVNetworkGame : IPhotonPeerListener
 		{
 			Debug.LogError("OnTriggerBoxStayBegin received, but worldObjectID: " + worldObjectID + " is not a triggerbox or a togglebox");
 		}
+	}
+
+	private void OnCountingCubeUpdate(int currentValue, int worldObjectID)
+	{
+		MVWorldObjectClient worldObjectClient = WorldObjectClientManager.GetWorldObjectClient(worldObjectID);
+		if (worldObjectClient == null)
+		{
+			Debug.LogError("OnCountingCubeUpdate received, but worldObjectID: " + worldObjectID + " does not exist");
+			return;
+		}
+		MVCountingCube mVCountingCube = (MVCountingCube)worldObjectClient;
+		mVCountingCube.UpdateCurrentValue(currentValue);
 	}
 
 	private void OnTriggerBoxStayEnd(int worldObjectID)
@@ -3438,16 +3449,16 @@ public class MVNetworkGame : IPhotonPeerListener
 			break;
 		case 4:
 		{
-			int worldObjectID9 = (int)photonEvent[20];
+			int worldObjectID10 = (int)photonEvent[20];
 			Dictionary<object, object> worldObjectData = (Dictionary<object, object>)photonEvent[16];
-			worldNetwork.WorldObjectClientManagerNetwork.OnUpdateWorldObjectDataPartialEvent(worldObjectID9, worldObjectData);
+			worldNetwork.WorldObjectClientManagerNetwork.OnUpdateWorldObjectDataPartialEvent(worldObjectID10, worldObjectData);
 			break;
 		}
 		case 5:
 		{
-			int worldObjectID8 = (int)photonEvent[20];
+			int worldObjectID9 = (int)photonEvent[20];
 			Dictionary<object, object> worldObjectDataToRemove = (Dictionary<object, object>)photonEvent[17];
-			worldNetwork.WorldObjectClientManagerNetwork.OnRemoveWorldObjectDataPartialEvent(worldObjectID8, worldObjectDataToRemove);
+			worldNetwork.WorldObjectClientManagerNetwork.OnRemoveWorldObjectDataPartialEvent(worldObjectID9, worldObjectDataToRemove);
 			break;
 		}
 		case 31:
@@ -3480,12 +3491,12 @@ public class MVNetworkGame : IPhotonPeerListener
 			string itemName = (string)photonEvent[40];
 			byte[] itemData = (byte[])photonEvent[41];
 			int slotIndex = (int)photonEvent[43];
-			int worldObjectID7 = (int)photonEvent[20];
+			int worldObjectID8 = (int)photonEvent[20];
 			bool isResellable = (bool)photonEvent[139];
 			int authorProfileId = (int)photonEvent[138];
 			int originalItemID = (int)photonEvent[140];
 			int priceGold = (int)photonEvent[68];
-			OnAddItemToInventoryEvent(actorNr4, itemID, itemCategoryID, itemTypeID, itemName, itemData, slotIndex, worldObjectID7, isResellable, authorProfileId, originalItemID, priceGold);
+			OnAddItemToInventoryEvent(actorNr4, itemID, itemCategoryID, itemTypeID, itemName, itemData, slotIndex, worldObjectID8, isResellable, authorProfileId, originalItemID, priceGold);
 			break;
 		}
 		case 16:
@@ -3510,29 +3521,36 @@ public class MVNetworkGame : IPhotonPeerListener
 		}
 		case 19:
 		{
-			int worldObjectID6 = (int)photonEvent[20];
+			int worldObjectID7 = (int)photonEvent[20];
 			int actorNr3 = (int)photonEvent[254];
-			OnTriggerBoxEnterEvent(actorNr3, worldObjectID6);
+			OnTriggerBoxEnterEvent(actorNr3, worldObjectID7);
 			break;
 		}
 		case 20:
 		{
-			int worldObjectID5 = (int)photonEvent[20];
+			int worldObjectID6 = (int)photonEvent[20];
 			int actorNr2 = (int)photonEvent[254];
-			OnTriggerBoxExitEvent(actorNr2, worldObjectID5);
+			OnTriggerBoxExitEvent(actorNr2, worldObjectID6);
 			break;
 		}
 		case 21:
 		{
-			int worldObjectID4 = (int)photonEvent[20];
+			int worldObjectID5 = (int)photonEvent[20];
 			int actorNr = (int)photonEvent[254];
-			OnTriggerBoxStayBegin(worldObjectID4, actorNr);
+			OnTriggerBoxStayBegin(worldObjectID5, actorNr);
 			break;
 		}
 		case 22:
 		{
+			int worldObjectID4 = (int)photonEvent[20];
+			OnTriggerBoxStayEnd(worldObjectID4);
+			break;
+		}
+		case 63:
+		{
+			int currentValue = (int)photonEvent[191];
 			int worldObjectID3 = (int)photonEvent[20];
-			OnTriggerBoxStayEnd(worldObjectID3);
+			OnCountingCubeUpdate(currentValue, worldObjectID3);
 			break;
 		}
 		case 23:

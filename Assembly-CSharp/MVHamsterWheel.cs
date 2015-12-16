@@ -5,7 +5,7 @@ using MV.WorldObject;
 using MV.WorldObject.RuntimeEvents;
 using UnityEngine;
 
-public class MVHamsterWheel(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects) : MVSimpleOneSeatVehicle(data, "Prefabs/Blueprints/Vehicles/HamsterWheel", worldObjects)
+public class MVHamsterWheel(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects) : MVSimpleOneSeatVehicle(data, PrefabPool.Instance.MVHamsterWheelPrefab, worldObjects)
 {
 	protected class LocalObjectsHamsterWheel : LocalObjectsSimpleVehicle
 	{
@@ -114,11 +114,11 @@ public class MVHamsterWheel(Dictionary<object, object> data, Dictionary<int, MVW
 			Vector3 vector = Vector3.down + gameObject.transform.rotation * Vector3.forward;
 			if (localObjects == null)
 			{
-				SharedWorldObjectGameplayFunctions.Explosion.Explode("ParticleFX/Explosion", gameObject.transform.position + vector, deathExplosionDamageValue, deathExplosionRadius, deathExplosionImpulse, local: true, null, worldIDsRecursive);
+				SharedWorldObjectGameplayFunctions.Explosion.Explode(PrefabPool.Instance.ParticleExplosion, gameObject.transform.position + vector, deathExplosionDamageValue, deathExplosionRadius, deathExplosionImpulse, local: true, null, worldIDsRecursive);
 				return;
 			}
 			ExplosionEvent explosionEvent = new ExplosionEvent(RuntimeEventType.Bazooka, gameObject.transform.position + vector);
-			SharedWorldObjectGameplayFunctions.Explosion.Explode("ParticleFX/Explosion", gameObject.transform.position + vector, deathExplosionDamageValue, deathExplosionRadius, deathExplosionImpulse, local: false, explosionEvent, worldIDsRecursive);
+			SharedWorldObjectGameplayFunctions.Explosion.Explode(PrefabPool.Instance.ParticleExplosion, gameObject.transform.position + vector, deathExplosionDamageValue, deathExplosionRadius, deathExplosionImpulse, local: false, explosionEvent, worldIDsRecursive);
 		}
 	}
 

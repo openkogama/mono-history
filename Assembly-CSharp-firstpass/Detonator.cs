@@ -45,38 +45,6 @@ public class Detonator : MonoBehaviour
 
 	private Component[] components;
 
-	private DetonatorFireball _fireball;
-
-	private DetonatorSparks _sparks;
-
-	private DetonatorShockwave _shockwave;
-
-	private DetonatorSmoke _smoke;
-
-	private DetonatorGlow _glow;
-
-	private DetonatorLight _light;
-
-	private DetonatorForce _force;
-
-	private DetonatorHeatwave _heatwave;
-
-	public bool autoCreateFireball = true;
-
-	public bool autoCreateSparks = true;
-
-	public bool autoCreateShockwave = true;
-
-	public bool autoCreateSmoke = true;
-
-	public bool autoCreateGlow = true;
-
-	public bool autoCreateLight = true;
-
-	public bool autoCreateForce = true;
-
-	public bool autoCreateHeatwave;
-
 	private float _lastExplosionTime = 1000f;
 
 	private bool _firstComponentUpdate = true;
@@ -101,122 +69,7 @@ public class Detonator : MonoBehaviour
 
 	private void Awake()
 	{
-		FillDefaultMaterials();
 		components = GetComponents(typeof(DetonatorComponent));
-		Component[] array = components;
-		for (int i = 0; i < array.Length; i++)
-		{
-			DetonatorComponent detonatorComponent = (DetonatorComponent)array[i];
-			if (detonatorComponent is DetonatorFireball)
-			{
-				_fireball = detonatorComponent as DetonatorFireball;
-			}
-			if (detonatorComponent is DetonatorSparks)
-			{
-				_sparks = detonatorComponent as DetonatorSparks;
-			}
-			if (detonatorComponent is DetonatorShockwave)
-			{
-				_shockwave = detonatorComponent as DetonatorShockwave;
-			}
-			if (detonatorComponent is DetonatorSmoke)
-			{
-				_smoke = detonatorComponent as DetonatorSmoke;
-			}
-			if (detonatorComponent is DetonatorGlow)
-			{
-				_glow = detonatorComponent as DetonatorGlow;
-			}
-			if (detonatorComponent is DetonatorLight)
-			{
-				_light = detonatorComponent as DetonatorLight;
-			}
-			if (detonatorComponent is DetonatorForce)
-			{
-				_force = detonatorComponent as DetonatorForce;
-			}
-			if (detonatorComponent is DetonatorHeatwave)
-			{
-				_heatwave = detonatorComponent as DetonatorHeatwave;
-			}
-		}
-		if (!_fireball && autoCreateFireball)
-		{
-			_fireball = gameObject.AddComponent<DetonatorFireball>();
-			_fireball.Reset();
-		}
-		if (!_smoke && autoCreateSmoke)
-		{
-			_smoke = gameObject.AddComponent<DetonatorSmoke>();
-			_smoke.Reset();
-		}
-		if (!_sparks && autoCreateSparks)
-		{
-			_sparks = gameObject.AddComponent<DetonatorSparks>();
-			_sparks.Reset();
-		}
-		if (!_shockwave && autoCreateShockwave)
-		{
-			_shockwave = gameObject.AddComponent<DetonatorShockwave>();
-			_shockwave.Reset();
-		}
-		if (!_glow && autoCreateGlow)
-		{
-			_glow = gameObject.AddComponent<DetonatorGlow>();
-			_glow.Reset();
-		}
-		if (!_light && autoCreateLight)
-		{
-			_light = gameObject.AddComponent<DetonatorLight>();
-			_light.Reset();
-		}
-		if (!_force && autoCreateForce)
-		{
-			_force = gameObject.AddComponent<DetonatorForce>();
-			_force.Reset();
-		}
-		if (!_heatwave && autoCreateHeatwave && SystemInfo.supportsImageEffects)
-		{
-			_heatwave = gameObject.AddComponent<DetonatorHeatwave>();
-			_heatwave.Reset();
-		}
-		components = GetComponents(typeof(DetonatorComponent));
-	}
-
-	private void FillDefaultMaterials()
-	{
-		if (!fireballAMaterial)
-		{
-			fireballAMaterial = DefaultFireballAMaterial();
-		}
-		if (!fireballBMaterial)
-		{
-			fireballBMaterial = DefaultFireballBMaterial();
-		}
-		if (!smokeAMaterial)
-		{
-			smokeAMaterial = DefaultSmokeAMaterial();
-		}
-		if (!smokeBMaterial)
-		{
-			smokeBMaterial = DefaultSmokeBMaterial();
-		}
-		if (!shockwaveMaterial)
-		{
-			shockwaveMaterial = DefaultShockwaveMaterial();
-		}
-		if (!sparksMaterial)
-		{
-			sparksMaterial = DefaultSparksMaterial();
-		}
-		if (!glowMaterial)
-		{
-			glowMaterial = DefaultGlowMaterial();
-		}
-		if (!heatwaveMaterial)
-		{
-			heatwaveMaterial = DefaultHeatwaveMaterial();
-		}
 	}
 
 	private void Start()
@@ -286,7 +139,6 @@ public class Detonator : MonoBehaviour
 		size = 10f;
 		color = _baseColor;
 		duration = _baseDuration;
-		FillDefaultMaterials();
 	}
 
 	public static Material DefaultFireballAMaterial()

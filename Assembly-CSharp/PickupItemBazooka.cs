@@ -102,6 +102,6 @@ public class PickupItemBazooka : PickupItemWithDelay
 	private void HandleRocketHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
 		MVGameControllerBase.AudioManager.Play("rocket hit", rocketHitSound, voxelHit.point, 0.4f, SoundRangeDistance.Long);
-		UnityEngine.Object.Instantiate(Resources.Load("ParticleFX/Explosion"), voxelHit.point, Quaternion.identity);
+		UnityEngine.Object.Instantiate(PrefabPool.Instance.ParticleExplosion, voxelHit.point, Quaternion.identity);
 	}
 }

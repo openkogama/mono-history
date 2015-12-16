@@ -2,14 +2,12 @@ using System.Collections.Generic;
 
 public class MVGravityCube : MVLogicObject
 {
-	private const string prefabPath = "Prefabs/GravityCubeObject";
-
 	public override bool HasInputConnector => false;
 
 	public override bool HasOutputConnector => false;
 
 	public MVGravityCube(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/GravityCubeObject", worldObjects)
+		: base(data, PrefabPool.Instance.MVGravityCubePrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
 	}

@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class MVFlag : MVLogicObject
 {
-	private const string prefabPath = "Prefabs/FlagObject";
-
 	private TriggerBoxEvents triggerBoxEvents;
 
 	private bool initializedInWorld;
@@ -21,7 +19,7 @@ public class MVFlag : MVLogicObject
 	public override Vector3 WorldPivot => transform.position;
 
 	public MVFlag(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/FlagObject", worldObjects)
+		: base(data, PrefabPool.Instance.MVFlagPrefab, worldObjects)
 	{
 		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
 		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;

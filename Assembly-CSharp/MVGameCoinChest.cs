@@ -11,8 +11,6 @@ public class MVGameCoinChest : MVLogicObject
 		Open
 	}
 
-	private const string prefabPath = "Prefabs/GameCoinChestObject";
-
 	private ObjectParticleEmitterScript particles;
 
 	private GameCoinChestModelSelector modelSelector;
@@ -49,7 +47,7 @@ public class MVGameCoinChest : MVLogicObject
 	}
 
 	public MVGameCoinChest(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/GameCoinChestObject", worldObjects)
+		: base(data, PrefabPool.Instance.MVGameCoinChestPrefab, worldObjects)
 	{
 		particles = gameObject.GetComponent<ObjectParticleEmitterScript>();
 		modelSelector = gameObject.GetComponent<GameCoinChestModelSelector>();

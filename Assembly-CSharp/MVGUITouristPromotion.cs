@@ -43,6 +43,7 @@ public class MVGUITouristPromotion : UXViewScript
 		private bool ShowPromotion()
 		{
 			showTouristPromotion |= DeadShowCondition();
+			showTouristPromotion |= GameEnteredCondition();
 			showTouristPromotion |= showTouristPromotion;
 			showTouristPromotion |= devMode;
 			bool flag = ContinuedClicked();
@@ -251,7 +252,6 @@ public class MVGUITouristPromotion : UXViewScript
 			Debug.Log("Continue");
 			showPromotionBookkeeping.Continue();
 			guiChatWindow.CreateHelpTxt();
-			MVGameControllerBase.IPlayModeUI.InLobbyState = false;
 			MVGameControllerLegacyUI.PlayController.ShowBriefing();
 		}));
 		UXBaseButton uXBaseButton2 = buttonLogin;

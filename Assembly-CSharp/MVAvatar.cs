@@ -27,8 +27,6 @@ public class MVAvatar : MVGroup
 
 	private bool isLocal;
 
-	private static string prefabPath = "Prefabs/Avatar/Avatar";
-
 	private MVBody body;
 
 	protected AvatarPickupOwner avatarPickupOwner;
@@ -73,7 +71,7 @@ public class MVAvatar : MVGroup
 	}
 
 	public MVAvatar(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, prefabPath, worldObjects)
+		: base(data, PrefabPool.Instance.MVAvatarPrefab, worldObjects)
 	{
 		isLocal = OwnerActorNr == MVGameControllerBase.Game.LocalPlayer.ActorNr;
 		interactionFlags = InteractionFlags.None;

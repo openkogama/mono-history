@@ -22,33 +22,40 @@ public class BodyData : MonoBehaviour
 		new Vector3(-1f, -1.5f, 0f)
 	};
 
-	private ObscuredFloat[][] PartConstraintsBoxMin = new ObscuredFloat[8][]
-	{
-		new ObscuredFloat[3] { -4f, 7f, -2f },
-		new ObscuredFloat[3] { -4f, 2f, -2f },
-		new ObscuredFloat[3] { -2f, 1f, -3f },
-		new ObscuredFloat[3] { -2f, 1f, -3f },
-		new ObscuredFloat[3] { -1f, 0f, -1f },
-		new ObscuredFloat[3] { -1f, 0f, -1f },
-		new ObscuredFloat[3] { -1f, 0f, -1f },
-		new ObscuredFloat[3] { -1f, 0f, -2f }
-	};
+	private ObscuredFloat[][] PartConstraintsBoxMin;
 
-	private ObscuredFloat[][] PartConstraintsBoxMax = new ObscuredFloat[8][]
-	{
-		new ObscuredFloat[3] { 3f, 14f, 5f },
-		new ObscuredFloat[3] { 3f, 8f, 5f },
-		new ObscuredFloat[3] { 1f, 7f, -2f },
-		new ObscuredFloat[3] { 1f, 7f, -2f },
-		new ObscuredFloat[3] { 3f, 2f, 2f },
-		new ObscuredFloat[3] { 2f, 1f, 2f },
-		new ObscuredFloat[3] { 3f, 2f, 2f },
-		new ObscuredFloat[3] { 2f, 1f, 1f }
-	};
+	private ObscuredFloat[][] PartConstraintsBoxMax;
 
-	private ObscuredInt[] PartConstraintsMinCubes = new ObscuredInt[8] { 20, 20, 3, 3, 3, 3, 3, 3 };
+	private ObscuredInt[] PartConstraintsMinCubes;
 
 	private Dictionary<string, int> partMap = new Dictionary<string, int>();
+
+	private void InitVariables()
+	{
+		PartConstraintsBoxMin = new ObscuredFloat[8][]
+		{
+			new ObscuredFloat[3] { -4f, 7f, -2f },
+			new ObscuredFloat[3] { -4f, 2f, -2f },
+			new ObscuredFloat[3] { -2f, 1f, -3f },
+			new ObscuredFloat[3] { -2f, 1f, -3f },
+			new ObscuredFloat[3] { -1f, 0f, -1f },
+			new ObscuredFloat[3] { -1f, 0f, -1f },
+			new ObscuredFloat[3] { -1f, 0f, -1f },
+			new ObscuredFloat[3] { -1f, 0f, -2f }
+		};
+		PartConstraintsBoxMax = new ObscuredFloat[8][]
+		{
+			new ObscuredFloat[3] { 3f, 14f, 5f },
+			new ObscuredFloat[3] { 3f, 8f, 5f },
+			new ObscuredFloat[3] { 1f, 7f, -2f },
+			new ObscuredFloat[3] { 1f, 7f, -2f },
+			new ObscuredFloat[3] { 3f, 2f, 2f },
+			new ObscuredFloat[3] { 2f, 1f, 2f },
+			new ObscuredFloat[3] { 3f, 2f, 2f },
+			new ObscuredFloat[3] { 2f, 1f, 1f }
+		};
+		PartConstraintsMinCubes = new ObscuredInt[8] { 20, 20, 3, 3, 3, 3, 3, 3 };
+	}
 
 	private void Awake()
 	{

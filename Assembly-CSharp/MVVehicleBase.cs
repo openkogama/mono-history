@@ -146,7 +146,7 @@ public abstract class MVVehicleBase : MVBlueprintBase
 
 	public virtual bool IsInSpawner { get; private set; }
 
-	protected MVVehicleBase(Dictionary<object, object> data, string vehiclePrefab, Dictionary<int, MVWorldObjectClient> worldObjects)
+	protected MVVehicleBase(Dictionary<object, object> data, GameObject vehiclePrefab, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, vehiclePrefab, worldObjects)
 	{
 	}

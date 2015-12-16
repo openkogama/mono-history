@@ -87,7 +87,7 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 	private void InitializeCommon()
 	{
 		MVVehicleBase mVVehicleBase = (MVVehicleBase)GetChild("spawnWorldObjectID");
-		groundAura = (GameObject)Object.Instantiate(Resources.Load("ParticleFX/CFX_GroundAura"), Vector3.zero, Quaternion.identity);
+		groundAura = (GameObject)Object.Instantiate(PrefabPool.Instance.ParticleCFX_GroundAura, Vector3.zero, Quaternion.identity);
 		groundAura.transform.parent = gameObject.transform;
 		groundAura.transform.localPosition = Vector3.zero + Vector3.up * (0f - mVVehicleBase.GetLocalBounds(BoundsContext.BoxVisualization).extents.y) * 0.9f;
 		groundAura.transform.rotation = Quaternion.identity;

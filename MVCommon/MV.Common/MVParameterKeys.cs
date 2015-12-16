@@ -193,6 +193,7 @@ public enum MVParameterKeys : byte
 	ClientSentryTags = 188,
 	ClientBuildTarget = 189,
 	ItemInventoryOffset = 190,
+	CountingCubeCurrentValue = 191,
 	GameId = byte.MaxValue,
 	ActorNr = 254,
 	TargetActorNr = 253,

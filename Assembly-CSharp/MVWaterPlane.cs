@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class MVWaterPlane : MVLogicObject
 {
-	private const string prefabPath = "Prefabs/Logic/WaterPlane";
-
 	protected WaterPlaneManager waterManager;
 
 	private Bounds localBounds;
@@ -14,7 +12,7 @@ public class MVWaterPlane : MVLogicObject
 	public override bool HasOutputConnector => false;
 
 	public MVWaterPlane(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/Logic/WaterPlane", worldObjects)
+		: base(data, PrefabPool.Instance.MVWaterPlanePrefab, worldObjects)
 	{
 		gameObject.GetComponent<Renderer>().material = new Material(gameObject.GetComponent<Renderer>().material);
 		interactionFlags |= InteractionFlags.HasSettings;

@@ -3,8 +3,6 @@ using MV.WorldObject;
 
 public class MVObjectEnabler : MVLogicObject
 {
-	private const string prefabPath = "Prefabs/Logic/ObjectEnabler";
-
 	private ObjectEnabler goObjectEnabler;
 
 	private bool showingOutline = true;
@@ -18,7 +16,7 @@ public class MVObjectEnabler : MVLogicObject
 	public bool ShowingOutline => showingOutline;
 
 	public MVObjectEnabler(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/Logic/ObjectEnabler", worldObjects)
+		: base(data, PrefabPool.Instance.MVObjectEnablerPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
 		goObjectEnabler = GameObject.GetComponentInChildren<ObjectEnabler>();

@@ -3,14 +3,12 @@ using System.Collections.Generic;
 
 public class MVKillLimit : MVLogicObject
 {
-	private const string prefabPath = "Prefabs/KillLimitCubeObject";
-
 	private bool initializedInWorld;
 
 	private int KillLimit => (int)Data["killLimit"];
 
 	public MVKillLimit(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/KillLimitCubeObject", worldObjects)
+		: base(data, PrefabPool.Instance.MVKillLimitPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
 		interactionFlags &= ~InteractionFlags.CanClone;

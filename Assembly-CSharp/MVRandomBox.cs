@@ -3,14 +3,12 @@ using MV.WorldObject;
 
 public class MVRandomBox : MVLogicObject
 {
-	private const string prefabPath = "Prefabs/RandomBoxObject";
-
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => true;
 
 	public MVRandomBox(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/RandomBoxObject", worldObjects)
+		: base(data, PrefabPool.Instance.MVRandomBoxPrefab, worldObjects)
 	{
 	}
 

@@ -3,8 +3,6 @@ using MV.WorldObject;
 
 public class MVToggleBox : MVLogicObject
 {
-	private const string prefabPath = "Prefabs/ToggleBoxObject";
-
 	private bool currentOutputState;
 
 	public override bool HasInputConnector => true;
@@ -12,7 +10,7 @@ public class MVToggleBox : MVLogicObject
 	public override bool HasOutputConnector => true;
 
 	public MVToggleBox(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/ToggleBoxObject", worldObjects)
+		: base(data, PrefabPool.Instance.MVToggleBoxPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
 	}

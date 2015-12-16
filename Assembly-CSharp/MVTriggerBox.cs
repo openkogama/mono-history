@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class MVTriggerBox : MVLogicObject
 {
-	private const string prefabPath = "Prefabs/TriggerBoxObject";
-
 	private TriggerBoxEvents triggerBoxEvents;
 
 	private GameObject audioGO;
@@ -19,7 +17,7 @@ public class MVTriggerBox : MVLogicObject
 	public override Vector3 OutputConnectorOffset => new Vector3(2f, 0f, 0f);
 
 	public MVTriggerBox(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/TriggerBoxObject", worldObjects)
+		: base(data, PrefabPool.Instance.MVTriggerBoxPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
 		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();

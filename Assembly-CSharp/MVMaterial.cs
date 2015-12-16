@@ -1,4 +1,3 @@
-using CodeStage.AntiCheat.ObscuredTypes;
 using MV.WorldObject;
 using UnityEngine;
 
@@ -21,8 +20,6 @@ public class MVMaterial
 	public int unlockPriceSilver;
 
 	public bool isUnlocked;
-
-	private ObscuredString textureHashCode = string.Empty;
 
 	public bool IsAvailable
 	{

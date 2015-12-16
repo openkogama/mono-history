@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class MVTextMsg : MVLogicObject
 {
-	private const string prefabPath = "Prefabs/TextMsgObject";
-
 	private bool textVisible = true;
 
 	private Bounds localBounds;
@@ -16,7 +14,7 @@ public class MVTextMsg : MVLogicObject
 	public override bool HasOutputConnector => false;
 
 	public MVTextMsg(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/TextMsgObject", worldObjects)
+		: base(data, PrefabPool.Instance.MVTextMsgPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
 		localBounds = ComputeLocalBounds(gameObject.transform.position, new MeshRenderer[1] { gameObject.GetComponent<MeshRenderer>() });

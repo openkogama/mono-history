@@ -51,36 +51,19 @@ public class SharedWorldObjectGameplayFunctions
 			}
 		}
 
-		public static void Explode(string particleResource, Vector3 position, float damageValue, float damageRadius, float shockwaveAcceleration, bool local, ExplosionEvent explosionEvent)
+		public static void Explode(GameObject particlePrefab, Vector3 position, float damageValue, float damageRadius, float shockwaveAcceleration, bool local, ExplosionEvent explosionEvent, HashSet<int> ignoreIDs)
 		{
-			Explode(particleResource, position, damageValue, damageRadius, shockwaveAcceleration, local, explosionEvent, new HashSet<int>());
-		}
-
-		public static void Explode(string particleResource, Vector3 position, float damageValue, float damageRadius, float shockwaveAcceleration, bool local, ExplosionEvent explosionEvent, HashSet<int> ignoreIDs)
-		{
-			GameObject gameObject = (GameObject)Object.Instantiate(Resources.Load(particleResource), position, Quaternion.identity);
+			GameObject gameObject = Object.Instantiate(particlePrefab, position, Quaternion.identity) as GameObject;
 			Detonator component = gameObject.GetComponent<Detonator>();
-			if (component == null)
-			{
-				Debug.LogError("Detonator script not found on prefab");
-				return;
-			}
 			component.size = damageRadius;
 			ApplyProximityDamage(position, damageValue, damageRadius, shockwaveAcceleration, local, explosionEvent, ignoreIDs);
 		}
 	}
 
-	public static void DustEfffect(string particleResource, Vector3 position, float radius)
+	public static void DustEfffect(GameObject particlePrefab, Vector3 position, float radius)
 	{
-		GameObject gameObject = (GameObject)Object.Instantiate(Resources.Load(particleResource), position, Quaternion.identity);
+		GameObject gameObject = Object.Instantiate(particlePrefab, position, Quaternion.identity) as GameObject;
 		Detonator component = gameObject.GetComponent<Detonator>();
-		if (component == null)
-		{
-			Debug.LogError("Detonator script not found on prefab");
-		}
-		else
-		{
-			component.size = radius;
-		}
+		component.size = radius;
 	}
 }

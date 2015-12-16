@@ -4,8 +4,6 @@ using MV.WorldObject;
 
 public class MVPulseBox : MVLogicObject
 {
-	private const string prefabPath = "Prefabs/PulseBoxObject";
-
 	private bool currentlyHot;
 
 	public override bool HasInputConnector => true;
@@ -13,7 +11,7 @@ public class MVPulseBox : MVLogicObject
 	public override bool HasOutputConnector => true;
 
 	public MVPulseBox(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/PulseBoxObject", worldObjects)
+		: base(data, PrefabPool.Instance.MVPulseBoxPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
 	}

@@ -13,8 +13,6 @@ public class MVGhost : MVBlueprintBase, IUpdatecontrollerSubscriber
 		INSTANT_DEATH
 	}
 
-	private const string prefabPath = "Prefabs/GhostObject";
-
 	private SphereVolumeIndicator rangeVis;
 
 	private float distance = 10f;
@@ -73,7 +71,7 @@ public class MVGhost : MVBlueprintBase, IUpdatecontrollerSubscriber
 	}
 
 	public MVGhost(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/GhostObject", worldObjects)
+		: base(data, PrefabPool.Instance.MVGhostPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.CanClone;
 	}

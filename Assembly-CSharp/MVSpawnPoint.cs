@@ -4,8 +4,8 @@ using UnityEngine;
 
 public abstract class MVSpawnPoint : MVLogicObject
 {
-	public MVSpawnPoint(Dictionary<object, object> data, string prefabPath, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, prefabPath, worldObjects)
+	public MVSpawnPoint(Dictionary<object, object> data, GameObject prefabObject, Dictionary<int, MVWorldObjectClient> worldObjects)
+		: base(data, prefabObject, worldObjects)
 	{
 		interactionFlags = InteractionFlags.Selectable | InteractionFlags.CanRotateY;
 	}

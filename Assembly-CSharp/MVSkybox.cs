@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class MVSkybox : MVLogicObject
 {
-	private const string prefabPath = "Prefabs/Logic/Skybox";
-
 	protected SkyboxManager skybox;
 
 	protected Color skyboxColor = SkyboxManager.defaultColor;
@@ -36,7 +34,7 @@ public class MVSkybox : MVLogicObject
 	}
 
 	public MVSkybox(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/Logic/Skybox", worldObjects)
+		: base(data, PrefabPool.Instance.MVSkyboxPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
 		skybox = Object.FindObjectOfType(typeof(SkyboxManager)) as SkyboxManager;

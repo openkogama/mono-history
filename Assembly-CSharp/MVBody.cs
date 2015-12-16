@@ -13,8 +13,6 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		public float Offset;
 	}
 
-	private static string prefabPath = "Prefabs/Avatar/skeleton7";
-
 	private Dictionary<object, object> accessoryData;
 
 	private BoneAnimation animation;
@@ -188,7 +186,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 	public event EventHandler<EventArgs> AccessoriesChanged;
 
 	public MVBody(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, prefabPath, worldObjects)
+		: base(data, PrefabPool.Instance.MVBodyPrefab, worldObjects)
 	{
 		MVWorldObjectClient value = null;
 		if (worldObjects.TryGetValue(groupId, out value))

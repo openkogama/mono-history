@@ -7,8 +7,6 @@ using UnityEngine;
 
 public class UseLever : MVLogicObject
 {
-	private const string prefabPath = "Prefabs/UseLeverObject";
-
 	private bool isActivated;
 
 	private Collider leverCollider;
@@ -34,7 +32,7 @@ public class UseLever : MVLogicObject
 	public override Vector3 OutputConnectorOffset => new Vector3(2.2f, 0f, 0f);
 
 	public UseLever(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/UseLeverObject", worldObjects)
+		: base(data, PrefabPool.Instance.UseLeverPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
 		interactionFlags |= InteractionFlags.CanUseGameCoins;

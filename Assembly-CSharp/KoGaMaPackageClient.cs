@@ -161,6 +161,8 @@ public class KoGaMaPackageClient
 			return new MVFire(worldObjectData, worldObjects);
 		case WorldObjectType.Smoke:
 			return new MVSmoke(worldObjectData, worldObjects);
+		case WorldObjectType.CountingCube:
+			return new MVCountingCube(worldObjectData, worldObjects);
 		case WorldObjectType.TimeTrigger:
 			return new MVTimeTrigger(worldObjectData, worldObjects);
 		case WorldObjectType.Teleporter:
@@ -190,7 +192,7 @@ public class KoGaMaPackageClient
 		case WorldObjectType.CollectibleItem:
 			if (MVGameControllerBase.GameSessionData.planetID == 2527584 && MVGameControllerBase.GameSessionData.region == "br")
 			{
-				return new MVCollectible(worldObjectData, worldObjects, "Prefabs/CollectibleObjectFanta");
+				return new MVCollectible(worldObjectData, worldObjects, PrefabPool.Instance.MVCollectibleFantaPrefab);
 			}
 			return new MVCollectible(worldObjectData, worldObjects);
 		case WorldObjectType.MovingPlatformNode:

@@ -2,14 +2,12 @@ using System.Collections.Generic;
 
 public class TestLogicCube : MVLogicObject
 {
-	private const string prefabPath = "Prefabs/TestLogicCubeObject";
-
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => true;
 
 	public TestLogicCube(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/TestLogicCubeObject", worldObjects)
+		: base(data, PrefabPool.Instance.TestLogicCubePrefab, worldObjects)
 	{
 	}
 

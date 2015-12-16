@@ -125,7 +125,7 @@ public class RuntimeEventManager
 		case CubeDamageState.NoDamage:
 			return false;
 		case CubeDamageState.ReceivedDamage:
-			SharedWorldObjectGameplayFunctions.DustEfffect("ParticleFX/CubeDust", voxelHit.point, 1f);
+			SharedWorldObjectGameplayFunctions.DustEfffect(PrefabPool.Instance.ParticleCubeDust, voxelHit.point, 1f);
 			break;
 		}
 		if (cubeDamageState == CubeDamageState.Destroyed)
@@ -170,7 +170,7 @@ public class RuntimeEventManager
 		}
 		else if (singleCubeFineGrainedEvent.RuntimeEventType == RuntimeEventType.FineGrainedSingleCubeRemove && RemoveCubes.RemoveOneCube.HandleRemoveOneCube(singleCubeFineGrainedEvent.Position, cubeModelPrototypeTerrain, cubeModelFineGrainedTerrain) && doEffects)
 		{
-			SharedWorldObjectGameplayFunctions.DustEfffect("ParticleFX/CubeDustDestroyed", CubeMathFunctions.FineGrainedLocalPosToWorldPos(singleCubeFineGrainedEvent.Position), 1f);
+			SharedWorldObjectGameplayFunctions.DustEfffect(PrefabPool.Instance.ParticleCubeDustDestroyed, CubeMathFunctions.FineGrainedLocalPosToWorldPos(singleCubeFineGrainedEvent.Position), 1f);
 		}
 		return true;
 	}
@@ -181,7 +181,7 @@ public class RuntimeEventManager
 		bool flag = RemoveCubes.RemoveCubesWithinRadius.HandleRemoveCubes(cubeModelPrototypeTerrain, explosionValuesStruct.Radius, explosion.Position, explosionValuesStruct.CenterDamage, explosionValuesStruct.DamageFallOffType, cubeModelFineGrainedTerrain, MVGameControllerBase.Game.MaterialRepository.GetMaterialPhysicalProperties);
 		if (flag && doEffects)
 		{
-			SharedWorldObjectGameplayFunctions.DustEfffect("ParticleFX/CubeDust", CubeMathFunctions.FineGrainedLocalPosToWorldPos(explosion.Position), Mathf.Max(1.5f, explosionValuesStruct.Radius));
+			SharedWorldObjectGameplayFunctions.DustEfffect(PrefabPool.Instance.ParticleCubeDust, CubeMathFunctions.FineGrainedLocalPosToWorldPos(explosion.Position), Mathf.Max(1.5f, explosionValuesStruct.Radius));
 		}
 		return flag;
 	}

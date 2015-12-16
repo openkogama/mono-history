@@ -94,8 +94,8 @@ public class PickupItemDoubleSixShooter : PickupItemWithDelay
 	{
 		Quaternion rotation = Quaternion.FromToRotation(Vector3.up, voxelHit.normal);
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
-		string path = ((!(worldObjectClient is MVAvatar)) ? "ParticleFX/SparksSixShooter" : "ParticleFX/BloodSixShooter");
-		UnityEngine.Object.Instantiate(Resources.Load(path), voxelHit.point, rotation);
+		GameObject original = ((!(worldObjectClient is MVAvatar)) ? PrefabPool.Instance.ParticleSparksSixShooter : PrefabPool.Instance.ParticleBloodSixShooter);
+		UnityEngine.Object.Instantiate(original, voxelHit.point, rotation);
 		MeshDecal.Create(new MeshDecal.Hit(voxelHit.point, voxelHit.normal, 1f), hitDecalMaterial, null);
 	}
 

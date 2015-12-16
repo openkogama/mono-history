@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class MVMovingPlatformGroup : MVBlueprintBase
 {
-	private const string prefabPath = "Prefabs/Blueprints/MovingPlatformGroup";
-
 	private LineRenderer lineRenderer;
 
 	private Dictionary<object, object> nodeMap;
@@ -40,7 +38,7 @@ public class MVMovingPlatformGroup : MVBlueprintBase
 	}
 
 	public MVMovingPlatformGroup(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/Blueprints/MovingPlatformGroup", worldObjects)
+		: base(data, PrefabPool.Instance.MVMovingPlatformGroupPrefab, worldObjects)
 	{
 		nextNodeMap = (Dictionary<object, object>)blueprintData["NextNodeMap"];
 		lineRenderer = GameObject.GetComponentInChildren<LineRenderer>();

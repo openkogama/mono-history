@@ -36,6 +36,9 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	[SerializeField]
 	private MaterialLoader materialLoader;
 
+	[SerializeField]
+	private PrefabPool prefabPool;
+
 	private static MVGameControllerBase instance;
 
 	protected static bool isInitialized;
@@ -86,7 +89,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	public static MVWorldObjectClientManager WOCM => Game.WorldObjectClientManager;
 
-	public static IAudioManager AudioManager { get; private set; }
+	public static AudioManager AudioManager { get; private set; }
 
 	public static BrowserComm BrowserComm { get; set; }
 
@@ -172,6 +175,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	private void Start()
 	{
+		UnityEngine.Object.Instantiate(prefabPool);
 		customBuildSettings = Resources.Load("Prefabs/CustomBuildSettings", typeof(CustomBuildSettings)) as CustomBuildSettings;
 		bool developmentMode = Application.isEditor || customBuildSettings.ShowLogin;
 		InitStandAlone(developmentMode);

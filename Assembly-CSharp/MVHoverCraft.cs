@@ -27,8 +27,6 @@ public class MVHoverCraft : MVSimpleOneSeatVehicle
 		}
 	}
 
-	private const string _vehiclePrefab = "Prefabs/Blueprints/Vehicles/HoverCraft";
-
 	private float deathExplosionDamageValue = 40f;
 
 	private float deathExplosionRadius = 10f;
@@ -38,7 +36,7 @@ public class MVHoverCraft : MVSimpleOneSeatVehicle
 	public override bool IsDead => (bool)IsVehicleDead.Value;
 
 	public MVHoverCraft(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/Blueprints/Vehicles/HoverCraft", worldObjects)
+		: base(data, PrefabPool.Instance.MVHoverCraftPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.CanEdit;
 	}
@@ -74,11 +72,11 @@ public class MVHoverCraft : MVSimpleOneSeatVehicle
 			Vector3 vector = Vector3.down + gameObject.transform.rotation * Vector3.forward;
 			if (localObjects == null)
 			{
-				SharedWorldObjectGameplayFunctions.Explosion.Explode("ParticleFX/Explosion", gameObject.transform.position + vector, deathExplosionDamageValue, deathExplosionRadius, deathExplosionImpulse, local: true, null, worldIDsRecursive);
+				SharedWorldObjectGameplayFunctions.Explosion.Explode(PrefabPool.Instance.ParticleExplosion, gameObject.transform.position + vector, deathExplosionDamageValue, deathExplosionRadius, deathExplosionImpulse, local: true, null, worldIDsRecursive);
 				return;
 			}
 			ExplosionEvent explosionEvent = new ExplosionEvent(RuntimeEventType.Bazooka, gameObject.transform.position + vector);
-			SharedWorldObjectGameplayFunctions.Explosion.Explode("ParticleFX/Explosion", gameObject.transform.position + vector, deathExplosionDamageValue, deathExplosionRadius, deathExplosionImpulse, local: false, explosionEvent, worldIDsRecursive);
+			SharedWorldObjectGameplayFunctions.Explosion.Explode(PrefabPool.Instance.ParticleExplosion, gameObject.transform.position + vector, deathExplosionDamageValue, deathExplosionRadius, deathExplosionImpulse, local: false, explosionEvent, worldIDsRecursive);
 		}
 	}
 

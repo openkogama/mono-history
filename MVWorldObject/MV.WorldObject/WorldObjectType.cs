@@ -67,6 +67,7 @@ public enum WorldObjectType
 	HamsterWheel = 62,
 	KillLimit = 63,
 	OculusKillLimit = 64,
+	CountingCube = 65,
 	Jakob4 = 118,
 	Jakob5 = 119,
 	Jakob6 = 120,

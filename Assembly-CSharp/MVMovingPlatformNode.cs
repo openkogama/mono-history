@@ -3,14 +3,12 @@ using UnityEngine;
 
 public class MVMovingPlatformNode : MVWorldObjectClient
 {
-	private const string prefabPath = "Prefabs/Blueprints/MovingPlatformNode";
-
 	public MVMovingPlatformNode Previous { get; set; }
 
 	public MVMovingPlatformNode Next { get; set; }
 
 	public MVMovingPlatformNode(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/Blueprints/MovingPlatformNode", worldObjects)
+		: base(data, PrefabPool.Instance.MVMovingPlatformNodePrefab, worldObjects)
 	{
 		interactionFlags &= ~(InteractionFlags.CanRotateX | InteractionFlags.CanRotateY | InteractionFlags.CanRotateZ);
 		interactionFlags |= InteractionFlags.Selectable | InteractionFlags.DirectlySelectable;

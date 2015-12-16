@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class MVTimeTrigger : MVLogicObject
 {
-	private const string prefabPath = "Prefabs/TimeTriggerObject";
-
 	private GameObject audioGO;
 
 	public override bool HasInputConnector => true;
@@ -13,7 +11,7 @@ public class MVTimeTrigger : MVLogicObject
 	public override bool HasOutputConnector => true;
 
 	public MVTimeTrigger(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/TimeTriggerObject", worldObjects)
+		: base(data, PrefabPool.Instance.MVTimeTriggerPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
 		audioGO = (GameObject)Object.Instantiate(Resources.Load("Audio/AudioPrefabs/TimeTriggerSound"), Vector3.zero, Quaternion.identity);

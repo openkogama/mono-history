@@ -13,8 +13,6 @@ public class MVGhostInstance : MVWorldObjectClient, IGameStateControllerSubscrib
 		INSTANT_DEATH
 	}
 
-	private const string prefabPath = "Prefabs/GhostObject";
-
 	private SphereVolumeIndicator rangeVis;
 
 	private float distance = 10f;
@@ -79,7 +77,7 @@ public class MVGhostInstance : MVWorldObjectClient, IGameStateControllerSubscrib
 	}
 
 	public MVGhostInstance(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/GhostObject", worldObjects)
+		: base(data, PrefabPool.Instance.MVGhostInstancePrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.Selectable | InteractionFlags.CanClone;
 		ReadWOData();

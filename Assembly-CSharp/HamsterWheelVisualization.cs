@@ -45,9 +45,14 @@ public class HamsterWheelVisualization : VehicleVisualizationBase
 
 	private bool vehicleIsUnoccupied;
 
-	private float unoccupiedTime = Time.time;
+	private float unoccupiedTime;
 
 	private float vehicleAboutToBeRemovedTime = 3f;
+
+	private void Awake()
+	{
+		unoccupiedTime = Time.time;
+	}
 
 	public void Init(VehicleSeatManager vehicleSeatManager, float fullHealth, MVRuntimeDataVariableClampedFloat health, MVRuntimeDataVariable isMovingForward, MVRuntimeDataVariable isMovingBackwards, MVRuntimeDataVariable isGrounded, bool isInSpawner)
 	{

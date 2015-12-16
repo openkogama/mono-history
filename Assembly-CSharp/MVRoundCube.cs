@@ -3,8 +3,6 @@ using System.Collections.Generic;
 
 public class MVRoundCube : MVLogicObject
 {
-	private const string prefabPath = "Prefabs/RoundCubeObject";
-
 	private bool initializedInWorld;
 
 	private GameStatCounterType WinningCondition => (GameStatCounterType)(int)Data["winningCondition"];
@@ -12,7 +10,7 @@ public class MVRoundCube : MVLogicObject
 	public int DurationInMilliseconds => (int)Data["interval"] * 1000;
 
 	public MVRoundCube(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/RoundCubeObject", worldObjects)
+		: base(data, PrefabPool.Instance.MVRoundCubePrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
 		interactionFlags &= ~InteractionFlags.CanClone;

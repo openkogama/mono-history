@@ -3,10 +3,8 @@ using MV.Common;
 using MV.WorldObject.RuntimeEvents;
 using UnityEngine;
 
-public class MVExplosives(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects) : MVLogicObject(data, "Prefabs/ExplosivesObject", worldObjects)
+public class MVExplosives(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects) : MVLogicObject(data, PrefabPool.Instance.MVExplosivesPrefab, worldObjects)
 {
-	private const string prefabPath = "Prefabs/ExplosivesObject";
-
 	private float damageRadius = 10f;
 
 	private float damageValue = 150f;
@@ -40,6 +38,6 @@ public class MVExplosives(Dictionary<object, object> data, Dictionary<int, MVWor
 	public void Explode()
 	{
 		ExplosionEvent explosionEvent = new ExplosionEvent(RuntimeEventType.Bazooka, gameObject.transform.position);
-		SharedWorldObjectGameplayFunctions.Explosion.Explode("ParticleFX/Explosion", gameObject.transform.position, damageValue, damageRadius, shockwaveAcceleration, local: true, explosionEvent, new HashSet<int>());
+		SharedWorldObjectGameplayFunctions.Explosion.Explode(PrefabPool.Instance.ParticleExplosion, gameObject.transform.position, damageValue, damageRadius, shockwaveAcceleration, local: true, explosionEvent, new HashSet<int>());
 	}
 }

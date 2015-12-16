@@ -27,7 +27,7 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 	public override Vector3 WorldPivot => transform.position;
 
 	public MVAdvancedGhost(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/AdvancedGhost/AdvancedGhost", worldObjects)
+		: base(data, PrefabPool.Instance.MVAdvancedGhostPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.Selectable | InteractionFlags.CanRotateY | InteractionFlags.CanEdit | InteractionFlags.CanClone | InteractionFlags.HasSettings;
 	}
@@ -143,7 +143,7 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 		{
 			HandleGameCounting(amount, damageDealer, damageType);
 			HashSet<int> worldIDsRecursive = WorldIDsRecursive;
-			SharedWorldObjectGameplayFunctions.Explosion.Explode("ParticleFX/Explosion", advancedGhostBehaviour.GhostVisualization.transform.position, deathExplosionDamageValue, deathExplosionRadius, deathExplosionImpulse, local: true, null, worldIDsRecursive);
+			SharedWorldObjectGameplayFunctions.Explosion.Explode(PrefabPool.Instance.ParticleExplosion, advancedGhostBehaviour.GhostVisualization.transform.position, deathExplosionDamageValue, deathExplosionRadius, deathExplosionImpulse, local: true, null, worldIDsRecursive);
 		}
 	}
 

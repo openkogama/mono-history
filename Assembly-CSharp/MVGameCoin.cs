@@ -12,8 +12,6 @@ public class MVGameCoin : MVLogicObject
 		Invisible
 	}
 
-	private const string prefabPath = "Prefabs/GameCoinObject";
-
 	private float rotationSpeed = 0.9f;
 
 	private GameObject pickupMesh;
@@ -43,7 +41,7 @@ public class MVGameCoin : MVLogicObject
 	public override bool HasOutputConnector => false;
 
 	public MVGameCoin(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/GameCoinObject", worldObjects)
+		: base(data, PrefabPool.Instance.MVGameCoinPrefab, worldObjects)
 	{
 		pickupItem = gameObject.GetComponent<GreyOutObjectScript>();
 		pickupMesh = pickupItem.pickupObject;

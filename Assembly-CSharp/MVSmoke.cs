@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class MVSmoke : MVLogicObject
 {
-	private const string prefabPath = "Prefabs/SmokeObject";
-
 	private GameObject particleGO;
 
 	public override bool HasInputConnector => true;
@@ -12,9 +10,9 @@ public class MVSmoke : MVLogicObject
 	public override bool HasOutputConnector => false;
 
 	public MVSmoke(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/SmokeObject", worldObjects)
+		: base(data, PrefabPool.Instance.MVSmokePrefab, worldObjects)
 	{
-		particleGO = (GameObject)Object.Instantiate(Resources.Load("ParticleFX/FluffySmoke"), gameObject.transform.position, Quaternion.identity);
+		particleGO = (GameObject)Object.Instantiate(PrefabPool.Instance.ParticleFluffySmoke, gameObject.transform.position, Quaternion.identity);
 		particleGO.transform.parent = gameObject.transform;
 		ToggleEmitter(toggle: false);
 	}

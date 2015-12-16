@@ -44,7 +44,7 @@ public class HoverCraftVisualization : VehicleVisualizationBase
 
 	private bool vehicleIsUnoccupied;
 
-	private float unoccupiedTime = Time.time;
+	private float unoccupiedTime;
 
 	private float vehicleAboutToBeRemovedTime = 3f;
 
@@ -71,6 +71,11 @@ public class HoverCraftVisualization : VehicleVisualizationBase
 	private Vector3 smoothVelocity = Vector3.zero;
 
 	private float minVolume = 0.03f;
+
+	private void Awake()
+	{
+		unoccupiedTime = Time.time;
+	}
 
 	public void Init(Transform hoverCraftHull, VehicleSeatManager vehicleSeatManager, float maxHealth, MVRuntimeDataVariableClampedFloat health, bool isInSpawner)
 	{

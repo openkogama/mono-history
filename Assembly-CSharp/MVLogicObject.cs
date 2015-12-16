@@ -11,8 +11,8 @@ public abstract class MVLogicObject : MVWorldObjectClient
 
 	protected float cullDistance = 145f;
 
-	protected MVLogicObject(Dictionary<object, object> data, string prefabPath, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, prefabPath, worldObjects)
+	protected MVLogicObject(Dictionary<object, object> data, GameObject prefabObject, Dictionary<int, MVWorldObjectClient> worldObjects)
+		: base(data, prefabObject, worldObjects)
 	{
 		interactionFlags = InteractionFlags.Selectable | InteractionFlags.CanRotateY | InteractionFlags.CanClone | InteractionFlags.CanResetLogic;
 		PlayInteractionType = PlayInteractionType.ExcludeFromInteraction;

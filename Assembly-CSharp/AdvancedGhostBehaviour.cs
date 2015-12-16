@@ -459,7 +459,7 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 	private Func<bool> isDead;
 
-	private ObscuredFloat speed = 10f;
+	private ObscuredFloat speed;
 
 	private float radius = 10f;
 
@@ -506,6 +506,11 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 		{
 			lod = value;
 		}
+	}
+
+	private void Awake()
+	{
+		speed = 10f;
 	}
 
 	public void Init(MVCubeModelBase body, AdvancedGhostMotor advancedGhostMotor, Func<bool> isDead, int woID)

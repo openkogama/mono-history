@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class MVCheckpoint : MVLogicObject
 {
-	private const string prefabPath = "Prefabs/CheckpointObject";
-
 	private TriggerBoxEvents triggerBoxEvents;
 
 	private Animation animation;
@@ -16,7 +14,7 @@ public class MVCheckpoint : MVLogicObject
 	public override Vector3 WorldPivot => transform.position;
 
 	public MVCheckpoint(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/CheckpointObject", worldObjects)
+		: base(data, PrefabPool.Instance.MVCheckpointPrefab, worldObjects)
 	{
 		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
 		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;

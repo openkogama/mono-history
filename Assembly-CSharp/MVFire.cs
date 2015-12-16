@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class MVFire : MVLogicObject
 {
-	private const string prefabPath = "Prefabs/FireObject";
-
 	private GameObject particleGO;
 
 	private GameObject audioGO;
@@ -21,9 +19,9 @@ public class MVFire : MVLogicObject
 	public override bool HasOutputConnector => false;
 
 	public MVFire(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/FireObject", worldObjects)
+		: base(data, PrefabPool.Instance.MVFirePrefab, worldObjects)
 	{
-		particleGO = (GameObject)Object.Instantiate(Resources.Load("ParticleFX/Fire1"), gameObject.transform.position, Quaternion.identity);
+		particleGO = (GameObject)Object.Instantiate(PrefabPool.Instance.ParticleFire1, gameObject.transform.position, Quaternion.identity);
 		particleGO.transform.parent = gameObject.transform;
 		ParticleEmitter[] componentsInChildren = particleGO.GetComponentsInChildren<ParticleEmitter>();
 		foreach (ParticleEmitter particleEmitter in componentsInChildren)

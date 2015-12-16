@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class MVTeleportGroup : MVBlueprintBase
 {
-	private const string prefabPath = "Prefabs/Blueprints/TeleportGroup";
-
 	private MVTeleporter teleporter1;
 
 	private MVTeleporter teleporter2;
@@ -14,7 +12,7 @@ public class MVTeleportGroup : MVBlueprintBase
 	public MVTeleporter Teleporter2 => teleporter2;
 
 	public MVTeleportGroup(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/Blueprints/TeleportGroup", worldObjects)
+		: base(data, PrefabPool.Instance.MVTeleportGroupPrefab, worldObjects)
 	{
 	}
 

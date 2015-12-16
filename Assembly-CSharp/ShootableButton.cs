@@ -7,8 +7,6 @@ using UnityEngine;
 
 public class ShootableButton : MVLogicObject
 {
-	private const string prefabPath = "Prefabs/ShootableButtonObject";
-
 	private LogicInteractable interactable;
 
 	private Collider targetCollider;
@@ -26,7 +24,7 @@ public class ShootableButton : MVLogicObject
 	public override Vector3 OutputConnectorOffset => new Vector3(1.6f, 0f, 0f);
 
 	public ShootableButton(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/ShootableButtonObject", worldObjects)
+		: base(data, PrefabPool.Instance.ShootableButtonPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
 		PlayInteractionType = PlayInteractionType.HandlesHits;

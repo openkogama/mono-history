@@ -9,8 +9,6 @@ public class WindTurbine : MVLogicObject
 
 	private const float maxWindAreaSize = 20f;
 
-	private const string prefabPath = "Prefabs/WindTurbineObject";
-
 	private TriggerBoxEvents triggerBoxEvents;
 
 	private Dictionary<int, MVRigidBody> affectedBodies;
@@ -36,7 +34,7 @@ public class WindTurbine : MVLogicObject
 	public override bool HasOutputConnector => false;
 
 	public WindTurbine(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/WindTurbineObject", worldObjects)
+		: base(data, PrefabPool.Instance.WindTurbinePrefab, worldObjects)
 	{
 		windAreaSize = (float)Data["windSize"];
 		windPitch = (float)Data["windPitch"];

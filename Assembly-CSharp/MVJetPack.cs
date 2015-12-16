@@ -303,15 +303,15 @@ public class MVJetPack : MVVehicleBase
 
 	private JetPackType jetPackType;
 
-	private static readonly Dictionary<JetPackType, string> jetPackTypes = new Dictionary<JetPackType, string>
+	private static readonly Dictionary<JetPackType, GameObject> jetPackTypes = new Dictionary<JetPackType, GameObject>
 	{
 		{
 			JetPackType.JetPack,
-			"Prefabs/Blueprints/Vehicles/JetPack"
+			PrefabPool.Instance.MVJetPackPrefab
 		},
 		{
 			JetPackType.JetPackDeluxe,
-			"Prefabs/Blueprints/Vehicles/JetPackDeluxe"
+			PrefabPool.Instance.MVJetPackDeluxePrefab
 		}
 	};
 
@@ -407,11 +407,11 @@ public class MVJetPack : MVVehicleBase
 			Vector3 vector = gameObject.transform.rotation * Vector3.back;
 			if (localObjects == null)
 			{
-				SharedWorldObjectGameplayFunctions.Explosion.Explode("ParticleFX/Explosion", gameObject.transform.position + vector, 10f, 5f, 1000f, local: true, null, worldIDsRecursive);
+				SharedWorldObjectGameplayFunctions.Explosion.Explode(PrefabPool.Instance.ParticleExplosion, gameObject.transform.position + vector, 10f, 5f, 1000f, local: true, null, worldIDsRecursive);
 				return;
 			}
 			ExplosionEvent explosionEvent = new ExplosionEvent(RuntimeEventType.Bazooka, gameObject.transform.position + vector);
-			SharedWorldObjectGameplayFunctions.Explosion.Explode("ParticleFX/Explosion", gameObject.transform.position + vector, 10f, 5f, 1000f, local: false, explosionEvent, worldIDsRecursive);
+			SharedWorldObjectGameplayFunctions.Explosion.Explode(PrefabPool.Instance.ParticleExplosion, gameObject.transform.position + vector, 10f, 5f, 1000f, local: false, explosionEvent, worldIDsRecursive);
 		}
 	}
 
@@ -425,7 +425,7 @@ public class MVJetPack : MVVehicleBase
 		return (JetPackType)(byte)dictionary["jetPackType"];
 	}
 
-	private static string GetPickupPrefabName(Dictionary<object, object> data)
+	private static GameObject GetPickupPrefabName(Dictionary<object, object> data)
 	{
 		return jetPackTypes[GetJetPackType(data)];
 	}

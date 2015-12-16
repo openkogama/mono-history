@@ -6,8 +6,6 @@ using UnityEngine;
 
 public class MVSentryGun : MVLogicObject
 {
-	private const string prefabPath = "Prefabs/Logic/SentryGunObject";
-
 	private static readonly Dictionary<SentryGunBeamType, string> prefabMap = new Dictionary<SentryGunBeamType, string>
 	{
 		{
@@ -53,7 +51,7 @@ public class MVSentryGun : MVLogicObject
 	public SentryGunBeamType BeamType => beamType;
 
 	public MVSentryGun(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/Logic/SentryGunObject", worldObjects)
+		: base(data, PrefabPool.Instance.MVSentryGunPrefab, worldObjects)
 	{
 		sentryGunScript = gameObject.GetComponentInChildren<SentryGunScript>();
 		sentryGunScript.SetLaserRange(laserRange);

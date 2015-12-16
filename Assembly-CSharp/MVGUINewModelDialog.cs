@@ -55,15 +55,18 @@ public class MVGUINewModelDialog : UXViewScript
 		{
 			MVGameControllerLegacyUI.EditorController.EditorStateMachine.CubeModelingStateMachine.CurrentMaterialId = 21;
 		}
-		SetMaterial(MVGameControllerLegacyUI.EditorController.EditorStateMachine.CubeModelingStateMachine.CurrentMaterial);
+		SetMaterial(MVGameControllerLegacyUI.EditorController.EditorStateMachine.CubeModelingStateMachine.CurrentMaterial, MVGameControllerBase.Game.MaterialRepository.GetMaterial(MVGameControllerLegacyUI.EditorController.EditorStateMachine.CubeModelingStateMachine.CurrentMaterialId));
 		UXFullscreenColliderBox.Instance.AddBlockingObject(this);
 	}
 
-	private void SetMaterial(Material material)
+	private void SetMaterial(Material material, MVMaterial mvMaterial)
 	{
-		smallCube.GetComponent<Renderer>().material = material;
-		mediumCube.GetComponent<Renderer>().material = material;
-		largeCube.GetComponent<Renderer>().material = material;
+		smallCube.GetComponent<Renderer>().sharedMaterial = material;
+		mediumCube.GetComponent<Renderer>().sharedMaterial = material;
+		largeCube.GetComponent<Renderer>().sharedMaterial = material;
+		smallCube.GetComponent<MeshFilter>().sharedMesh = mvMaterial.mesh;
+		mediumCube.GetComponent<MeshFilter>().sharedMesh = mvMaterial.mesh;
+		largeCube.GetComponent<MeshFilter>().sharedMesh = mvMaterial.mesh;
 	}
 
 	private void CreateAndHide(float size)

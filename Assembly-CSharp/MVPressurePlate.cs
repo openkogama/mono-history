@@ -5,8 +5,6 @@ using UnityEngine;
 
 public class MVPressurePlate : MVLogicObject
 {
-	private const string prefabPath = "Prefabs/PressurePlateObject";
-
 	private TriggerBoxEvents triggerBoxEvents;
 
 	private GameObject plateModel;
@@ -32,7 +30,7 @@ public class MVPressurePlate : MVLogicObject
 	public override Vector3 WorldPivot => SharedCubeFunctions.GetWorldCenter(transform) + transform.rotation * (0.5f * Vector3.left);
 
 	public MVPressurePlate(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/PressurePlateObject", worldObjects)
+		: base(data, PrefabPool.Instance.MVPressurePlatePrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
 		interactionFlags |= InteractionFlags.CanUseGameCoins;

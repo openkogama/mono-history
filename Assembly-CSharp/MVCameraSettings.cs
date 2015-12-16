@@ -2,14 +2,12 @@ using System.Collections.Generic;
 
 public class MVCameraSettings : MVLogicObject
 {
-	private const string prefabPath = "Prefabs/CameraSettingsObject";
-
 	public override bool HasInputConnector => false;
 
 	public override bool HasOutputConnector => false;
 
 	public MVCameraSettings(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, "Prefabs/CameraSettingsObject", worldObjects)
+		: base(data, PrefabPool.Instance.MVCameraSettingsPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
 		interactionFlags &= ~InteractionFlags.CanClone;

@@ -120,6 +120,9 @@ public class MVGUIDialogBoxWrapper
 		case WorldObjectType.WindTurbine:
 			new GUISettingsDialogWindTurbine();
 			break;
+		case WorldObjectType.CountingCube:
+			new MVGUISettingsDialogCountingCube();
+			break;
 		case WorldObjectType.ShootableButton:
 			new GUISettingsDialogShootableButton();
 			break;

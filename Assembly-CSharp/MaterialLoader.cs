@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class MaterialLoader : MonoBehaviour
 {
@@ -55,7 +56,35 @@ public class MaterialLoader : MonoBehaviour
 
 	public void Start()
 	{
-		bool flag = (SystemInfo.graphicsShaderLevel >= 30 && !SystemInfo.graphicsDeviceVersion.Contains("ES 2.0")) || SystemInfo.graphicsDeviceVersion.Contains("WebGL");
+		bool flag = SystemInfo.graphicsShaderLevel >= 30;
+		if (Application.platform == RuntimePlatform.WebGLPlayer)
+		{
+			flag = false;
+			if (SystemInfo.operatingSystem.Contains("Windows") && (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES2 || SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3))
+			{
+				flag = true;
+			}
+			else if (SystemInfo.graphicsDeviceVersion.Contains("Chromium"))
+			{
+				flag = true;
+			}
+		}
+		else if (Application.platform == RuntimePlatform.Android)
+		{
+			flag = false;
+			if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3)
+			{
+				flag = true;
+			}
+		}
+		if (cubeModelMaterialHigh.shader.isSupported)
+		{
+			Debug.Log("high mat supported");
+		}
+		else
+		{
+			Debug.Log("high mat not supported");
+		}
 		if (cubeModelMaterialHigh == null || cubeModelMaterialLow == null)
 		{
 			throw new NullReferenceException();
@@ -68,6 +97,8 @@ public class MaterialLoader : MonoBehaviour
 		{
 			throw new NullReferenceException();
 		}
+		Debug.Log(SystemInfo.graphicsShaderLevel);
+		Debug.Log(SystemInfo.graphicsDeviceVersion);
 		cubeModelMaterial = cubeModelMaterialLow;
 		avatarMaterial = avatarMaterialLow;
 		avatarTransparentMaterial = avatarTransparentMaterialLow;
