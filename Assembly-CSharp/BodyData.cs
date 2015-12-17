@@ -59,6 +59,7 @@ public class BodyData : MonoBehaviour
 
 	private void Awake()
 	{
+		InitVariables();
 		for (int i = 0; i < PartNames.Length; i++)
 		{
 			partMap.Add(PartNames[i], i);
@@ -82,6 +83,9 @@ public class BodyData : MonoBehaviour
 
 	public Vector3 GetPartConstraintMin(string part)
 	{
+		Debug.Log(part);
+		Debug.Log(partMap[part]);
+		Debug.Log(PartConstraintsBoxMin[partMap[part]]);
 		return GetVectorFromObscuredFloatArray(PartConstraintsBoxMin[partMap[part]]);
 	}
 
