@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using Assets.CodeStage.AntiCheatToolkit.Scripts.ObscuredTypes;
 using CodeStage.AntiCheat.Detectors;
 using UnityEngine;
 
@@ -8,7 +9,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes;
 [Serializable]
 public sealed class ObscuredString
 {
-	private static string cryptoKey = UnityEngine.Random.Range(0, 9999).ToString();
+	private static string cryptoKey = RandonGen.RandomInt(0, 9999).ToString();
 
 	[SerializeField]
 	private string currentCryptoKey;

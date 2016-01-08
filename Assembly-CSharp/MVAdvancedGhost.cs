@@ -55,7 +55,7 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 
 	private void SetupEditorIcon(MVCubeModelBase cubeModelBody)
 	{
-		advancedGhostIcon = Object.Instantiate(Resources.Load("Prefabs/AdvancedGhost/GhostEditorIcon", typeof(AdvancedGhostIcon))) as AdvancedGhostIcon;
+		advancedGhostIcon = Object.Instantiate(PrefabPool.Instance.GhostEditorIconObject);
 		advancedGhostIcon.transform.parent = transform;
 		advancedGhostIcon.transform.localPosition = Vector3.zero;
 		advancedGhostIcon.transform.localRotation = Quaternion.identity;

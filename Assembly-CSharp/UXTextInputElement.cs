@@ -185,7 +185,7 @@ public abstract class UXTextInputElement : UXGUIElement, IInputHandler, IUXConta
 
 	protected virtual void CreateText()
 	{
-		_uiText = (UnityEngine.Object.Instantiate(Resources.Load("Prefabs/UX/Text")) as GameObject).GetComponent<UXText>();
+		_uiText = UnityEngine.Object.Instantiate(PrefabPool.Instance.UXTextObject).GetComponent<UXText>();
 		_uiText.transform.parent = transform;
 		_uiText.transform.localScale = Vector3.one * _textScale;
 		_uiText.transform.localPosition = GetTextBasePosition();

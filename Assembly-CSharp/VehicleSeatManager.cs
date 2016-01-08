@@ -221,7 +221,6 @@ public class VehicleSeatManager : MonoBehaviour
 
 	public void DetachFromSeat(MVAvatar vehicleUser)
 	{
-		Debug.Log("DetachFromSeat");
 		int index = (ObscuredInt)vehicleUser.RunTimeData.GetObscuredType("seat");
 		vehicleUser.GameObject.transform.parent = woOwner.GameObject.transform;
 		VehicleSeatBase vehicleSeatBase = seats[index];

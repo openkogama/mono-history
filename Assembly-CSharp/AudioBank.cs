@@ -27,9 +27,9 @@ public class AudioBank
 
 	private AudioSource audioSource;
 
-	private string audioResourcesPath;
-
 	private Dictionary<string, AudioBankSoundImpl> sounds = new Dictionary<string, AudioBankSoundImpl>();
+
+	private string audioResourcesPath;
 
 	public AudioBank(string audioResourcesPath)
 	{

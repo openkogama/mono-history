@@ -185,6 +185,7 @@ public class CharacterEditorController : AIngameController, ICubeModelingEditMod
 		CharacterEditScreenshot.View.Show();
 		AvatarSlotButtonView.View.Show();
 		avatarAccessoryController.AvatarAccessoryButtons.View.Show();
+		avatarAccessoryController.AvatarAcessoryShopButton.View.Show();
 		fullscreenToggle.View.Show();
 		muteToggle.View.Show();
 	}
@@ -195,6 +196,7 @@ public class CharacterEditorController : AIngameController, ICubeModelingEditMod
 		CharacterEditScreenshot.View.Hide();
 		AvatarSlotButtonView.View.Hide();
 		avatarAccessoryController.AvatarAccessoryButtons.View.Hide();
+		avatarAccessoryController.AvatarAcessoryShopButton.View.Hide();
 		resetAvatarButton.View.Hide();
 		AvatarShop.View.Hide();
 		fullscreenToggle.View.Hide();

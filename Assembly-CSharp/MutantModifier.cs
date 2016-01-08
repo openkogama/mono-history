@@ -7,9 +7,14 @@ public class MutantModifier : AvatarModifier
 
 	private bool isDeactivating;
 
-	private static readonly int layerMask = 1 << LayerMask.NameToLayer("Player");
+	private int layerMask;
 
 	public override AvatarModifierPackageType ModifierType => AvatarModifierPackageType.Mutant;
+
+	private void Awake()
+	{
+		layerMask = 1 << LayerMask.NameToLayer("Player");
+	}
 
 	protected override void OnActivated(Avatar target)
 	{

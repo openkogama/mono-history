@@ -32,6 +32,7 @@ public class PlayController : PlayControllerBase
 	{
 		base.Hide();
 		gameCoinsController.View.Hide();
+		avatarAccessoryController.AvatarAcessoryShopButton.View.Hide();
 		avatarAccessoryController.AvatarAccessoryButtons.View.Hide();
 		avatarAccessoryController.CloseAvatarAccessoryView();
 	}
@@ -50,6 +51,7 @@ public class PlayController : PlayControllerBase
 		chatController.CanAutoHide = false;
 		avatarAccessoryController.AccessoryMoveOverride = true;
 		gameCoinsController.View.Show();
+		avatarAccessoryController.AvatarAcessoryShopButton.View.Show();
 	}
 
 	protected override void HideLostFocusGUI()
@@ -61,5 +63,6 @@ public class PlayController : PlayControllerBase
 		chatController.ShowChat(takeControl: false, retainControlAfterMessageSend: false);
 		chatController.CanAutoHide = true;
 		gameCoinsController.View.Hide();
+		avatarAccessoryController.AvatarAcessoryShopButton.View.Hide();
 	}
 }

@@ -87,7 +87,7 @@ public class MVGhost : MVBlueprintBase, IUpdatecontrollerSubscriber
 		ghostBody = gameObject.transform;
 		ghostBody.parent = base.gameObject.transform;
 		ghostBody.localPosition = Vector3.zero;
-		rangeVis = UnityEngine.Object.Instantiate(Resources.Load("Prefabs/Effects/RangeVisualization", typeof(SphereVolumeIndicator))) as SphereVolumeIndicator;
+		rangeVis = UnityEngine.Object.Instantiate(PrefabPool.Instance.RangeVisualizationObject);
 		rangeVis.transform.parent = base.gameObject.transform;
 		rangeVis.transform.localPosition = Vector3.zero;
 		rangeVis.Radius = distance;

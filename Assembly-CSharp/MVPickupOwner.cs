@@ -182,17 +182,10 @@ public abstract class MVPickupOwner : MVComponent
 
 	protected PickupItem CreateAvatarItem(AvatarItemType type, int variantId)
 	{
-		string prefabNameForAvatarItemType = PickupItem.GetPrefabNameForAvatarItemType(type);
-		if (prefabNameForAvatarItemType.Length == 0)
-		{
-			Debug.LogWarning("Trying to equip an un-implemented item type!");
-			return null;
-		}
-		prefabNameForAvatarItemType += variantId;
-		GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(Resources.Load(prefabNameForAvatarItemType));
+		GameObject gameObject = PickupItem.InstantiateAvatarItemType(type);
 		if (gameObject == null)
 		{
-			Debug.LogWarning("Cannot equip item with prefabName: " + prefabNameForAvatarItemType + ", since prefab was not found");
+			Debug.LogWarning(string.Concat("Cannot equip avatarItemType: ", type, ", since prefab was not found"));
 			return null;
 		}
 		PickupItem component = gameObject.GetComponent<PickupItem>();

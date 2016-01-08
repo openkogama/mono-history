@@ -66,7 +66,7 @@ public class GameCoinLogic : UseRequirement
 
 	private void CreateDisplayObject()
 	{
-		displayGO = Object.Instantiate(MVGameControllerBase.PrefabFactory.GameCoinDisplayPrefab.gameObject);
+		displayGO = Object.Instantiate(PrefabPool.Instance.GameCoinDisplayPrefab.gameObject);
 		displayGO.transform.parent = displayObjectRoot.transform;
 		displayGO.transform.localPosition = displayObjectOffset;
 		displayObject = displayGO.GetComponent<GameCoinDisplayObject>();
@@ -117,7 +117,6 @@ public class GameCoinLogic : UseRequirement
 		}
 		if (data.ContainsKey("gameCoinAmount"))
 		{
-			Debug.Log("Removing purchase amount: " + purchaseAmount);
 			MVGameControllerBase.Game.GameCoinManager.ReportPurchaseAmountInEditor(-purchaseAmount);
 		}
 	}

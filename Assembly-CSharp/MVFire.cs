@@ -91,7 +91,6 @@ public class MVFire : MVLogicObject
 
 	public override void OnInputStateChanged()
 	{
-		Debug.Log("InputState " + InputState);
 		if (InputState)
 		{
 			ToggleEmitter(toggle: true);

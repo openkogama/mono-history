@@ -86,9 +86,9 @@ public class MVGhostInstance : MVWorldObjectClient, IGameStateControllerSubscrib
 		UnityEngine.Object.Destroy(_ghostInstance.GetComponent<Collider>());
 		_ghostInstance.transform.parent = base.gameObject.transform;
 		_ghostInstance.transform.localPosition = Vector3.zero;
-		Material sharedMaterial = Resources.Load("Materials/GhostMaterialMarker", typeof(Material)) as Material;
+		Material ghostMarkerMaterial = PrefabPool.Instance.GhostMarkerMaterial;
 		_ghostMarker = base.gameObject.transform.FindChild("Ghost").gameObject;
-		_ghostMarker.GetComponentInChildren<MeshRenderer>().sharedMaterial = sharedMaterial;
+		_ghostMarker.GetComponentInChildren<MeshRenderer>().sharedMaterial = ghostMarkerMaterial;
 		GameObject gameObject = new GameObject(_ghostInstance.name + " physics");
 		gameObject.transform.parent = _ghostInstance.transform.parent;
 		gameObject.transform.position = _ghostInstance.transform.position;
@@ -103,7 +103,7 @@ public class MVGhostInstance : MVWorldObjectClient, IGameStateControllerSubscrib
 	public override void Initialize()
 	{
 		base.Initialize();
-		rangeVis = UnityEngine.Object.Instantiate(Resources.Load("Prefabs/Effects/RangeVisualization", typeof(SphereVolumeIndicator))) as SphereVolumeIndicator;
+		rangeVis = UnityEngine.Object.Instantiate(PrefabPool.Instance.RangeVisualizationObject);
 		rangeVis.transform.parent = gameObject.transform;
 		rangeVis.transform.localPosition = Vector3.zero;
 		rangeVis.Radius = distance;

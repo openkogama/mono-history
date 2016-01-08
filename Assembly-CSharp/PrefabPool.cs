@@ -167,8 +167,37 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public GameObject TeleportAvatarPrefab;
 
+	[Space(20f)]
 	[SerializeField]
+	[Header("Game")]
+	public Material GhostMarkerMaterial;
+
+	[SerializeField]
+	public GameObject TimeTriggerSoundObject;
+
+	[SerializeField]
+	public GameObject TriggerBoxSoundObject;
+
+	[SerializeField]
+	public Material ObjectHiddenMaterial;
+
+	[SerializeField]
+	public SentryGunBeam IceBeamObject;
+
+	[SerializeField]
+	public SentryGunBeam FireBeamObject;
+
+	[SerializeField]
+	public StarDisplayObject StarDisplayPrefab;
+
+	[SerializeField]
+	public LevelDisplayCube LevelDisplayPrefab;
+
+	[SerializeField]
+	public GameCoinDisplayObject GameCoinDisplayPrefab;
+
 	[Header("Pick up")]
+	[SerializeField]
 	[Space(20f)]
 	public GameObject AvatarCenterGunPrefab;
 
@@ -226,8 +255,61 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public GameObject AvatarGrowthPackPrefab;
 
+	[Header("Avatar item pick up")]
+	[Space(20f)]
 	[SerializeField]
+	public GameObject AvatarItemCenterGun;
+
+	public GameObject AvatarItemImpulseGun;
+
+	public GameObject AvatarItemLaserPointer;
+
+	public GameObject AvatarItemBazooka;
+
+	public GameObject AvatarItemHand;
+
+	public GameObject AvatarItemRailGun;
+
+	public GameObject AvatarItemSword;
+
+	public GameObject AvatarItemShotgun;
+
+	public GameObject AvatarItemFlamethrower;
+
+	public GameObject AvatarItemCubeGun;
+
+	public GameObject AvatarItemSixShooter;
+
+	public GameObject AvatarItemDoubleSixShooter;
+
+	public GameObject AvatarItemThrowingStar;
+
+	public GameObject AvatarItemMultiThrowingStar;
+
+	public GameObject AvatarItemGrowthGun;
+
+	public GameObject AvatarItemMouseGun;
+
+	public GameObject AvatarItemSlapGun;
+
+	[Header("Avatar modifier")]
+	[Space(20f)]
+	public AvatarModifier BurningModifier;
+
+	public AvatarModifier MutantModifier;
+
+	public AvatarModifier PoisonModifier;
+
+	public AvatarModifier FrozenModifier;
+
+	public AvatarModifier NinjaRunModifier;
+
+	public AvatarModifier MouseModifier;
+
+	public AvatarModifier GrowthModifier;
+
 	[Header("Particles")]
+	[SerializeField]
 	[Space(20f)]
 	public GameObject ParticleBlood;
 
@@ -291,8 +373,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public GameObject ParticleXP;
 
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
 	[Header("Logic object prefabs")]
 	public GameObject LogicInputConnectorPrefab;
 
@@ -301,6 +383,164 @@ public class PrefabPool : MonoBehaviour
 
 	[SerializeField]
 	public GameObject LogicObjectConnectorPrefab;
+
+	[SerializeField]
+	public GameObject LinkObject;
+
+	[SerializeField]
+	public GameObject ObjectLinkObject;
+
+	[SerializeField]
+	public Material LogicCubeConnectorRedMaterial;
+
+	[SerializeField]
+	public Material LogicCubeConnectorRedSelectedMaterial;
+
+	[SerializeField]
+	public Material LogicCubeConnectorBlueMaterial;
+
+	[SerializeField]
+	public Material LogicCubeConnectorBlueSelectedMaterial;
+
+	[Space(20f)]
+	[SerializeField]
+	[Header("Audio Bank Sounds")]
+	public AudioClip ButtonClickAudio;
+
+	[SerializeField]
+	public AudioClip HoverAudio;
+
+	[SerializeField]
+	public AudioClip ScreenShotAudio;
+
+	[SerializeField]
+	public AudioClip TextFieldCharDeleteAudio;
+
+	[SerializeField]
+	public AudioClip TextFieldCharEntryAudio;
+
+	[SerializeField]
+	public AudioClip ToggleOffAudio;
+
+	[SerializeField]
+	public AudioClip ToggleOnAudio;
+
+	[SerializeField]
+	public AudioClip InventoryCloseAudio;
+
+	[SerializeField]
+	public AudioClip InventoryOpenAudio;
+
+	[SerializeField]
+	public AudioClip MenuClickAudio;
+
+	[SerializeField]
+	public AudioClip MenuHoverAudio;
+
+	[SerializeField]
+	public AudioClip MenuNextAudio;
+
+	[SerializeField]
+	public AudioClip MenuPopupCloseAudio;
+
+	[SerializeField]
+	public AudioClip MenuPopupOpenAudio;
+
+	[SerializeField]
+	public AudioClip MenuPrevAudio;
+
+	[SerializeField]
+	public AudioClip MenuPulldownCloseAudio;
+
+	[SerializeField]
+	public AudioClip MenuPulldownOpenAudio;
+
+	[SerializeField]
+	public AudioClip ModelDeleteAudio;
+
+	[SerializeField]
+	public AudioClip StaticMenuCloseAudio;
+
+	[SerializeField]
+	public AudioClip StaticMenuOpenAudio;
+
+	[SerializeField]
+	[Space(20f)]
+	[Header("GUI")]
+	public GameObject AvatarAccessoryMoveIcon;
+
+	[SerializeField]
+	public GameObject DrawPlaneObject;
+
+	[SerializeField]
+	public Material ModelConstraintsMaterial;
+
+	[SerializeField]
+	[Header("UX")]
+	[Space(20f)]
+	public GameObject UXTextObject;
+
+	[SerializeField]
+	public GameObject SimpleTextComboBoxItemObject;
+
+	[SerializeField]
+	public Material MouseOverMaterial;
+
+	[SerializeField]
+	public Material ListMenuDividerMaterial;
+
+	[Space(20f)]
+	[SerializeField]
+	[Header("Editor")]
+	public Material CellCursorErrorMaterial;
+
+	[SerializeField]
+	public Material CellCursorMaterial;
+
+	[SerializeField]
+	public Material ModelCubeSpaceMaterial;
+
+	[SerializeField]
+	public Material Cursor2dEdgeMaterial;
+
+	[SerializeField]
+	public Material Cursor2dCornerMaterial;
+
+	[SerializeField]
+	public Material CursorMaterial;
+
+	[SerializeField]
+	public Material CursorCornerMaterial;
+
+	[SerializeField]
+	public Material CursorNoneMaterial;
+
+	[SerializeField]
+	public Material InsertPreviewMaterial;
+
+	[SerializeField]
+	public GameObject SelectionGizmoObject;
+
+	[SerializeField]
+	public GameObject RightClickGizmoObject;
+
+	[SerializeField]
+	public GameObject ItemShopPreviewObject;
+
+	[SerializeField]
+	public Material PreviewBoxMaterial;
+
+	[SerializeField]
+	public Material SelectBoxMaterial;
+
+	[SerializeField]
+	public SphereVolumeIndicator RangeVisualizationObject;
+
+	[SerializeField]
+	public AdvancedGhostIcon GhostEditorIconObject;
+
+	[SerializeField]
+	public Material IndentMaterial;
 
 	public static PrefabPool Instance => instance;
 

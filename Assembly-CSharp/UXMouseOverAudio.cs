@@ -6,8 +6,6 @@ public class UXMouseOverAudio : MonoBehaviour
 {
 	private AudioBankSound sound;
 
-	public string soundId = "menu_hover";
-
 	private void Awake()
 	{
 		sound = GUIAudioBank.Instance.GetSound("hover");

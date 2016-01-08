@@ -7,8 +7,6 @@ public class CenterGunHitPackage : InteractionPackage
 {
 	private float impulseStrength = 700f;
 
-	private string particleHitResource = "ParticleFX/Blood";
-
 	public static InteractionData Create()
 	{
 		return new InteractionData(InteractionPackageType.CenterGun);
@@ -46,7 +44,7 @@ public class CenterGunHitPackage : InteractionPackage
 			}
 			Vector3 position = vector + Vector3.up + worldObjectClient.GetTargetPosition();
 			Quaternion rotation = Quaternion.FromToRotation(Vector3.up, normalized);
-			UnityEngine.Object.Instantiate(Resources.Load(particleHitResource), position, rotation);
+			UnityEngine.Object.Instantiate(PrefabPool.Instance.ParticleBlood, position, rotation);
 		}
 	}
 }

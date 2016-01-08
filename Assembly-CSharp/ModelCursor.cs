@@ -24,7 +24,7 @@ public class ModelCursor
 
 	public ModelCursor(Vector3[] cubeCorners)
 	{
-		errorCursor = new CellCursor(1, 0.03f, "Materials/CellCursorErrorMaterial", 1f, cubeCorners);
+		errorCursor = new CellCursor(1, 0.03f, PrefabPool.Instance.CellCursorErrorMaterial, 1f, cubeCorners);
 	}
 
 	private void HandleLaserMovingEdge(CubePickingInfo movingEdgeCube, GameObject targetGameObject)

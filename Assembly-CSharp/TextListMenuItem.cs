@@ -16,7 +16,7 @@ public class TextListMenuItem : ListMenuItem
 	protected override void Initialize()
 	{
 		base.Initialize();
-		textObject = (Object.Instantiate(Resources.Load("Prefabs/UX/Text")) as GameObject).GetComponent<UXText>();
+		textObject = Object.Instantiate(PrefabPool.Instance.UXTextObject).GetComponent<UXText>();
 		textObject.transform.parent = transform;
 		textObject.transform.localPosition = Vector3.zero;
 		textObject.transform.localScale = new Vector3(textScale, textScale, textScale);

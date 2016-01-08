@@ -78,7 +78,7 @@ public class Links
 		}
 		links.Add(link.id, link);
 		linkGraph.AddLink(link.outputWOID, link.inputWOID);
-		GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("Prefabs/LinkObject"));
+		GameObject gameObject = UnityEngine.Object.Instantiate(PrefabPool.Instance.LinkObject);
 		gameObject.GetComponentInChildren<LinkObjectScript>().linkID = link.id;
 		linkObjects.Add(link.id, gameObject);
 		outputWo.AddOutputLink(link);

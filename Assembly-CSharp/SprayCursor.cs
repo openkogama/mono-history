@@ -11,7 +11,7 @@ public class SprayCursor
 
 	public SprayCursor(Vector3[] cubeCorners)
 	{
-		sprayCursor = new CellCursor(1, 0.03f, "Materials/CellCursorMaterial", 1f, cubeCorners);
+		sprayCursor = new CellCursor(1, 0.03f, PrefabPool.Instance.CellCursorMaterial, 1f, cubeCorners);
 	}
 
 	public void UpdateCursor(CubePickingInfo selectedCube, MVCubeModelBase targetCubeModel, bool addCube)

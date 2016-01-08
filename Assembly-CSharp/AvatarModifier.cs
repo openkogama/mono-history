@@ -19,40 +19,38 @@ public abstract class AvatarModifier : MonoBehaviour
 
 	public static AvatarModifier CreateFromType(AvatarModifierPackageType type, Avatar owner)
 	{
-		string empty = string.Empty;
+		AvatarModifier avatarModifier;
 		switch (type)
 		{
 		case AvatarModifierPackageType.Fire:
-			empty = "Prefabs/AvatarModifiers/BurningModifier";
+			avatarModifier = Object.Instantiate(PrefabPool.Instance.BurningModifier);
 			break;
 		case AvatarModifierPackageType.FlamerBurn:
-			empty = "Prefabs/AvatarModifiers/BurningModifier";
+			avatarModifier = Object.Instantiate(PrefabPool.Instance.BurningModifier);
 			break;
 		case AvatarModifierPackageType.Mutant:
-			empty = "Prefabs/AvatarModifiers/MutantModifier";
+			avatarModifier = Object.Instantiate(PrefabPool.Instance.MutantModifier);
 			break;
 		case AvatarModifierPackageType.Poison:
-			empty = "Prefabs/AvatarModifiers/PoisonModifier";
+			avatarModifier = Object.Instantiate(PrefabPool.Instance.PoisonModifier);
 			break;
 		case AvatarModifierPackageType.Frozen:
-			empty = "Prefabs/AvatarModifiers/FrozenModifier";
+			avatarModifier = Object.Instantiate(PrefabPool.Instance.FrozenModifier);
 			break;
 		case AvatarModifierPackageType.NinjaRun:
-			empty = "Prefabs/AvatarModifiers/NinjaRunModifier";
+			avatarModifier = Object.Instantiate(PrefabPool.Instance.NinjaRunModifier);
 			break;
 		case AvatarModifierPackageType.Shrunken:
-			empty = "Prefabs/AvatarModifiers/MouseModifier";
+			avatarModifier = Object.Instantiate(PrefabPool.Instance.MouseModifier);
 			break;
 		case AvatarModifierPackageType.Enlarged:
-			empty = "Prefabs/AvatarModifiers/GrowthModifier";
+			avatarModifier = Object.Instantiate(PrefabPool.Instance.GrowthModifier);
 			break;
 		default:
 			return null;
 		}
-		Debug.Log(empty);
-		AvatarModifier component = (Object.Instantiate(Resources.Load(empty)) as GameObject).GetComponent<AvatarModifier>();
-		component.owner = owner;
-		return component;
+		avatarModifier.owner = owner;
+		return avatarModifier;
 	}
 
 	public virtual bool EvaluateShouldBeAdded(Dictionary<AvatarModifierPackageType, AvatarModifier> modifiers)

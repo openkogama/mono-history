@@ -743,7 +743,7 @@ public class MVWorldObjectClient : MVWorldObject
 			Renderer componentInChildren = inputConnectorObject.GetComponentInChildren<Collider>().GetComponentInChildren<Renderer>();
 			if (!(componentInChildren == null))
 			{
-				componentInChildren.material = (state ? ((Material)Resources.Load("Materials/LogicCubeConnectorRedSelected")) : ((Material)Resources.Load("Materials/LogicCubeConnectorRed")));
+				componentInChildren.material = (state ? PrefabPool.Instance.LogicCubeConnectorRedSelectedMaterial : PrefabPool.Instance.LogicCubeConnectorRedMaterial);
 			}
 		}
 		else if (selectedConnector == SelectedConnector.Output)
@@ -751,7 +751,7 @@ public class MVWorldObjectClient : MVWorldObject
 			Renderer componentInChildren2 = outputConnectorObject.GetComponentInChildren<Collider>().GetComponentInChildren<Renderer>();
 			if (!(componentInChildren2 == null))
 			{
-				componentInChildren2.material = (state ? ((Material)Resources.Load("Materials/LogicCubeConnectorBlueSelected")) : ((Material)Resources.Load("Materials/LogicCubeConnectorBlue")));
+				componentInChildren2.material = (state ? PrefabPool.Instance.LogicCubeConnectorBlueSelectedMaterial : PrefabPool.Instance.LogicCubeConnectorBlueMaterial);
 			}
 		}
 	}
@@ -823,7 +823,7 @@ public class MVWorldObjectClient : MVWorldObject
 			GameObject gameObject = CreateBox("PreviewBox", 1.005f);
 			previewBox = gameObject.AddComponent<PreviewBox>();
 		}
-		previewBox.Show("Materials/PreviewBoxMaterial", GetBoundsCornersLocal(BoundsContext.BoxVisualization));
+		previewBox.Show(PrefabPool.Instance.PreviewBoxMaterial, GetBoundsCornersLocal(BoundsContext.BoxVisualization));
 	}
 
 	public virtual void AddSelectionBox()
@@ -834,7 +834,7 @@ public class MVWorldObjectClient : MVWorldObject
 			GameObject gameObject = CreateBox("SelectionBox", 1.001f);
 			selectionBox = gameObject.AddComponent<SelectionBox>();
 		}
-		selectionBox.FadeIn(0.2f, "Materials/SelectBoxMaterial", GetBoundsCornersLocal(BoundsContext.BoxVisualization));
+		selectionBox.FadeIn(0.2f, PrefabPool.Instance.SelectBoxMaterial, GetBoundsCornersLocal(BoundsContext.BoxVisualization));
 	}
 
 	protected GameObject CreateBox(string name, float scale)

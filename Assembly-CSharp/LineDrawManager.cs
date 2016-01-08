@@ -107,7 +107,7 @@ public class LineDrawManager : MonoBehaviour
 			{
 				UnityEngine.Object.Destroy(tempLinkObject);
 			}
-			tempLinkObject = (GameObject)UnityEngine.Object.Instantiate(Resources.Load("Prefabs/LinkObject"));
+			tempLinkObject = UnityEngine.Object.Instantiate(PrefabPool.Instance.LinkObject);
 		}
 		else if (tempLinkObject != null)
 		{

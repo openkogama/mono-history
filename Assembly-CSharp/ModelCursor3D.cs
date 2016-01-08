@@ -23,7 +23,7 @@ public class ModelCursor3D : ModelCursor
 		: base(cubeCorners)
 	{
 		indentArea = new IndentArea();
-		faceCursor = new FaceCursor("Materials/CursorMaterial", "Materials/CursorMaterialCorner", "Materials/CursorMaterialNone");
+		faceCursor = new FaceCursor(PrefabPool.Instance.CursorMaterial, PrefabPool.Instance.CursorCornerMaterial, PrefabPool.Instance.CursorNoneMaterial);
 	}
 
 	public void SetIndentAreaSize(float size)

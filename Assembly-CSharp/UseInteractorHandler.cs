@@ -47,7 +47,6 @@ public class UseInteractorHandler : MVComponent
 			Collider triggerCollider = useInteractor.Value.TriggerCollider;
 			if (!triggerCollider.bounds.Intersects(triggingCollider.bounds))
 			{
-				Debug.Log("Removing due to bounds not intersecting");
 				list.Add(useInteractor.Key);
 			}
 		}

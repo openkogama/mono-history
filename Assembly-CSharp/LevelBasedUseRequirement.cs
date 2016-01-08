@@ -73,7 +73,7 @@ public class LevelBasedUseRequirement : UseRequirement
 
 	private void CreateDisplayObject()
 	{
-		go = Object.Instantiate(MVGameControllerBase.PrefabFactory.LevelDisplayPrefab.gameObject);
+		go = Object.Instantiate(PrefabPool.Instance.LevelDisplayPrefab.gameObject);
 		go.transform.parent = displayObjectRoot.transform;
 		go.transform.localPosition = displayObjectOffset;
 		displayObject = go.GetComponent<LevelDisplayCube>();

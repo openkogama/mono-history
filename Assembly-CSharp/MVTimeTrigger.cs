@@ -14,7 +14,7 @@ public class MVTimeTrigger : MVLogicObject
 		: base(data, PrefabPool.Instance.MVTimeTriggerPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
-		audioGO = (GameObject)Object.Instantiate(Resources.Load("Audio/AudioPrefabs/TimeTriggerSound"), Vector3.zero, Quaternion.identity);
+		audioGO = (GameObject)Object.Instantiate(PrefabPool.Instance.TimeTriggerSoundObject, Vector3.zero, Quaternion.identity);
 		audioGO.transform.parent = gameObject.transform;
 	}
 

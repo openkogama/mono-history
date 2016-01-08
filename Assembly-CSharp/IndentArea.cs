@@ -27,7 +27,7 @@ public class IndentArea : ICursor
 		gameObject.layer = LayerMask.NameToLayer("UIItems");
 		MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
 		gameObject.AddComponent<MeshFilter>();
-		materialNone = (Material)Resources.Load("Materials/IndentMaterial");
+		materialNone = PrefabPool.Instance.IndentMaterial;
 		meshRenderer.material = materialNone;
 	}
 

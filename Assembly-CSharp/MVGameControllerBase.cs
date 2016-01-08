@@ -31,9 +31,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	private MVCameraController cameraController;
 
 	[SerializeField]
-	public PrefabFactory prefabFactory;
-
-	[SerializeField]
 	private MaterialLoader materialLoader;
 
 	[SerializeField]
@@ -59,8 +56,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	public static IPlayModeUI IPlayModeUI => playModeUI;
 
 	public static IEditModeUI IEditModeUI => editModeUI;
-
-	public static PrefabFactory PrefabFactory => instance.prefabFactory;
 
 	private static bool OkToReAuth
 	{
@@ -158,6 +153,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	private void Awake()
 	{
 		instance = this;
+		UnityEngine.Object.Instantiate(prefabPool);
 		GizmoDrawer = GetComponent<GizmoDrawer>();
 		LevelLoader = GetComponent<LevelLoader>();
 		AudioManager = GetComponent<AudioManager>();
@@ -175,7 +171,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	private void Start()
 	{
-		UnityEngine.Object.Instantiate(prefabPool);
 		customBuildSettings = Resources.Load("Prefabs/CustomBuildSettings", typeof(CustomBuildSettings)) as CustomBuildSettings;
 		bool developmentMode = Application.isEditor || customBuildSettings.ShowLogin;
 		InitStandAlone(developmentMode);

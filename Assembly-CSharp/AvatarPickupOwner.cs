@@ -51,12 +51,11 @@ public class AvatarPickupOwner : MVPickupOwner
 
 	private void InitLaser()
 	{
-		LaserPointer original = Resources.Load(PickupItem.GetPrefabNameForAvatarItemType(AvatarItemType.LaserPointer), typeof(LaserPointer)) as LaserPointer;
-		LaserPointer laserPointer = Object.Instantiate(original);
-		laserPointer.gameObject.SetActive(value: false);
-		laserPointer.owner = this;
-		this.laserPointer = laserPointer;
-		laserPointerAvatarItem = laserPointer;
+		LaserPointer component = PickupItem.InstantiateAvatarItemType(AvatarItemType.LaserPointer).GetComponent<LaserPointer>();
+		component.gameObject.SetActive(value: false);
+		component.owner = this;
+		laserPointer = component;
+		laserPointerAvatarItem = component;
 	}
 
 	protected override void Equip(AvatarItemType type, int variantId)

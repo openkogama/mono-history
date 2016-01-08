@@ -7,14 +7,14 @@ public class PreviewBox : MonoBehaviour
 		gameObject.layer = LayerMask.NameToLayer("UIItems");
 	}
 
-	public void Show(string material, Vector3[] corners)
+	public void Show(Material material, Vector3[] corners)
 	{
 		MeshRenderer meshRenderer = gameObject.GetComponent<MeshRenderer>();
 		if (meshRenderer == null)
 		{
 			meshRenderer = gameObject.AddComponent<MeshRenderer>();
 		}
-		meshRenderer.material = (Material)Resources.Load(material);
+		meshRenderer.material = material;
 		MeshFilter meshFilter = gameObject.GetComponent<MeshFilter>();
 		if (meshFilter == null)
 		{

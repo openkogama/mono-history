@@ -67,7 +67,7 @@ public class SelectionBox : MonoBehaviour
 		}
 	}
 
-	public void FadeIn(float fadeInTime, string material, Vector3[] corners)
+	public void FadeIn(float fadeInTime, Material material, Vector3[] corners)
 	{
 		isFadingOut = false;
 		isFadingIn = true;
@@ -83,7 +83,7 @@ public class SelectionBox : MonoBehaviour
 		{
 			a = currentAlpha;
 		}
-		meshRenderer.material = (Material)Resources.Load(material);
+		meshRenderer.material = material;
 		MeshFilter meshFilter = gameObject.GetComponent<MeshFilter>();
 		if (meshFilter == null)
 		{

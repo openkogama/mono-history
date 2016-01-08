@@ -5,7 +5,7 @@ public class ModelCursor2d : ModelCursor
 	public ModelCursor2d(Vector3[] cubeCorners)
 		: base(cubeCorners)
 	{
-		faceCursor = new FaceCursor("Materials/CursorMaterial2dEdge", "Materials/CursorMaterial2dCorner", "Materials/CursorMaterialNone");
+		faceCursor = new FaceCursor(PrefabPool.Instance.Cursor2dEdgeMaterial, PrefabPool.Instance.Cursor2dCornerMaterial, PrefabPool.Instance.CursorNoneMaterial);
 	}
 
 	public void UpdateCursor(CubePickingInfo movingEdgeCube, CubePickingInfo selectedCube, GameObject targetGameObject, BuildState buildState, bool addCube)

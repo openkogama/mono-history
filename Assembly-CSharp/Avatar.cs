@@ -13,8 +13,6 @@ public class Avatar : MonoBehaviour
 
 	private Dictionary<AvatarModifierPackageType, byte> currentModifierByteState = new Dictionary<AvatarModifierPackageType, byte>();
 
-	private static string _particlePrefab = "ParticleFX/XP";
-
 	[SerializeField]
 	private AvatarBadge avatarBadge;
 
@@ -68,7 +66,7 @@ public class Avatar : MonoBehaviour
 
 	private void OnXpProgress(XPProgressData xpProgressData)
 	{
-		ParticleSystem component = (UnityEngine.Object.Instantiate(Resources.Load(_particlePrefab)) as GameObject).GetComponent<ParticleSystem>();
+		ParticleSystem component = UnityEngine.Object.Instantiate(PrefabPool.Instance.ParticleXP).GetComponent<ParticleSystem>();
 		component.transform.parent = transform;
 		component.transform.localPosition = Vector3.up;
 		component.transform.localRotation = Quaternion.identity;

@@ -50,7 +50,7 @@ public class UXAdvancedTextBuilder : MonoBehaviour
 		Debug.Log("Build texts");
 		if (textPrefab == null)
 		{
-			textPrefab = Resources.Load("Prefabs/UX/Text", typeof(UXText)) as UXText;
+			textPrefab = PrefabPool.Instance.UXTextObject.GetComponent<UXText>();
 		}
 		List<UXText> list = new List<UXText>();
 		float num = 0f;

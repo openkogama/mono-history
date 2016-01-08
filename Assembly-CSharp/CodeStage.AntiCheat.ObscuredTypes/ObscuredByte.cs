@@ -1,13 +1,13 @@
 using System;
+using Assets.CodeStage.AntiCheatToolkit.Scripts.ObscuredTypes;
 using CodeStage.AntiCheat.Detectors;
-using UnityEngine;
 
 namespace CodeStage.AntiCheat.ObscuredTypes;
 
 [Serializable]
 public struct ObscuredByte : IFormattable, IEquatable<ObscuredByte>
 {
-	private static byte cryptoKey = (byte)UnityEngine.Random.Range(0, 255);
+	private static byte cryptoKey = (byte)RandonGen.RandomInt(0, 255);
 
 	private byte currentCryptoKey;
 

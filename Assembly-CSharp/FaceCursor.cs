@@ -13,15 +13,15 @@ public class FaceCursor : ICursor
 
 	public GameObject GameObject => gameObject;
 
-	public FaceCursor(string materialEdgePath, string materialCornerPath, string materialNonePath)
+	public FaceCursor(Material materialEdgePath, Material materialCornerPath, Material materialNonePath)
 	{
 		gameObject = new GameObject("Cursor");
 		gameObject.layer = LayerMask.NameToLayer("UIItems");
 		MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
 		gameObject.AddComponent<MeshFilter>();
-		materialEdge = (Material)Resources.Load(materialEdgePath);
-		materialCorner = (Material)Resources.Load(materialCornerPath);
-		materialNone = (Material)Resources.Load(materialNonePath);
+		materialEdge = materialEdgePath;
+		materialCorner = materialCornerPath;
+		materialNone = materialNonePath;
 		meshRenderer.material = materialEdge;
 	}
 

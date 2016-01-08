@@ -45,7 +45,7 @@ public class UXTextButton : UXBaseButton
 	protected override void Initialize()
 	{
 		base.Initialize();
-		uiText = (Object.Instantiate(Resources.Load("Prefabs/UX/Text")) as GameObject).GetComponent<UXText>();
+		uiText = Object.Instantiate(Resources.Load("Prefabs/UX/Text") as GameObject).GetComponent<UXText>();
 		uiText.transform.parent = transform;
 		uiText.transform.localPosition = new Vector3(Width / 2f, Height / 2f, -0.01f) - Alignment;
 		uiText.transform.localScale = Vector3.one;

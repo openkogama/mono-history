@@ -6,15 +6,15 @@ using UnityEngine;
 
 public class MVSentryGun : MVLogicObject
 {
-	private static readonly Dictionary<SentryGunBeamType, string> prefabMap = new Dictionary<SentryGunBeamType, string>
+	private static readonly Dictionary<SentryGunBeamType, SentryGunBeam> prefabMap = new Dictionary<SentryGunBeamType, SentryGunBeam>
 	{
 		{
 			SentryGunBeamType.IceBeam,
-			"Prefabs/LaserBeam"
+			PrefabPool.Instance.IceBeamObject
 		},
 		{
 			SentryGunBeamType.FireBeam,
-			"Prefabs/SentryGunFireBeam"
+			PrefabPool.Instance.FireBeamObject
 		}
 	};
 
@@ -78,9 +78,9 @@ public class MVSentryGun : MVLogicObject
 
 	public void InitializeCommon()
 	{
-		foreach (KeyValuePair<SentryGunBeamType, string> item in prefabMap)
+		foreach (KeyValuePair<SentryGunBeamType, SentryGunBeam> item in prefabMap)
 		{
-			prefabs[item.Key] = Resources.Load(item.Value, typeof(SentryGunBeam)) as SentryGunBeam;
+			prefabs[item.Key] = item.Value;
 		}
 		if (Data.ContainsKey("beamType"))
 		{

@@ -96,7 +96,7 @@ public class ObjectLinks
 			return false;
 		}
 		objectLinks.Add(objectLink.id, objectLink);
-		GameObject gameObject = (GameObject)Object.Instantiate(Resources.Load("Prefabs/ObjectLinkObject"));
+		GameObject gameObject = Object.Instantiate(PrefabPool.Instance.ObjectLinkObject);
 		gameObject.GetComponentInChildren<LinkObjectScript>().linkID = objectLink.id;
 		gameObject.GetComponentInChildren<LinkObjectScript>().isObjectLink = true;
 		objectLinkObjects.Add(objectLink.id, gameObject);

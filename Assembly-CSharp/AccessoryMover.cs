@@ -51,7 +51,7 @@ public class AccessoryMover
 
 	public AccessoryMover()
 	{
-		GameObject gameObject = Object.Instantiate(Resources.Load("Prefabs/GUI/AvatarAccessory/AvatarAccessoryMoveIcon")) as GameObject;
+		GameObject gameObject = Object.Instantiate(PrefabPool.Instance.AvatarAccessoryMoveIcon);
 		gameObject.transform.localPosition = Vector3.zero;
 		avatarAccessoryMoveIcon = gameObject.GetComponent<MVGUIAvatarAccessoryMoveIcon>();
 		avatarAccessoryMoveIcon.SetVisible(visible: false);

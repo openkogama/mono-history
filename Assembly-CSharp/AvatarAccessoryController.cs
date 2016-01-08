@@ -8,6 +8,8 @@ public class AvatarAccessoryController : MonoBehaviour
 
 	public MVGUIAvatarAccessoryInventory AvatarAccessoryInventory;
 
+	public MVGUIAvatarAccessoryShopButtonController AvatarAcessoryShopButton;
+
 	public void OpenAvatarAccessoryInventory()
 	{
 		OpenAvatarAccessoryView(AvatarAccessoryInventory.View);

@@ -36,8 +36,8 @@ public class ObjectEnabler : MonoBehaviour
 
 	private void Awake()
 	{
-		Material original = Resources.Load("Materials/ObjectHidden", typeof(Material)) as Material;
-		blah = Object.Instantiate(original);
+		Material objectHiddenMaterial = PrefabPool.Instance.ObjectHiddenMaterial;
+		blah = Object.Instantiate(objectHiddenMaterial);
 	}
 
 	private void OnDestroy()

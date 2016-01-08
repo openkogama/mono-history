@@ -18,7 +18,7 @@ public class ListMenu : MonoBehaviour
 	public void Awake()
 	{
 		MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
-		meshRenderer.material = (Material)Resources.Load("Materials/UX/ListMenu/MouseOver");
+		meshRenderer.material = PrefabPool.Instance.MouseOverMaterial;
 		gameObject.AddComponent<MeshFilter>();
 		itemRoot = new GameObject("MenuItemRoot");
 		itemRoot.transform.parent = transform;

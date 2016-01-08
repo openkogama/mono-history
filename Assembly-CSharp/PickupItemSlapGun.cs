@@ -12,7 +12,7 @@ public class PickupItemSlapGun : PickupItemWithDelay
 
 	private AudioSource audioSource;
 
-	private static readonly int layerMask = (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("Player"));
+	private int layerMask;
 
 	public ImpulseRay impulseRayPrefab;
 
@@ -31,6 +31,11 @@ public class PickupItemSlapGun : PickupItemWithDelay
 	public override bool ActivateGunModeOnEquip => false;
 
 	public override int Quantity => 0;
+
+	private void Awake()
+	{
+		layerMask = (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("Player"));
+	}
 
 	private void Start()
 	{

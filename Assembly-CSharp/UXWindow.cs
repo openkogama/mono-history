@@ -94,7 +94,7 @@ public class UXWindow : UXGUIElement, IUXContainer
 	private void BuildHeaderText()
 	{
 		headerText = TM._(headerText);
-		uiHeaderText = (UnityEngine.Object.Instantiate(Resources.Load("Prefabs/UX/Text")) as GameObject).GetComponent<UXText>();
+		uiHeaderText = UnityEngine.Object.Instantiate(PrefabPool.Instance.UXTextObject).GetComponent<UXText>();
 		uiHeaderText.gameObject.name = "HeaderText";
 		uiHeaderText.transform.parent = transform;
 		uiHeaderText.transform.localScale = Vector3.one;

@@ -10,7 +10,7 @@ public class DeleteCursor
 
 	public DeleteCursor(Vector3[] cubeCorners)
 	{
-		deleteCursor = new CellCursor(1, 0.03f, "Materials/CellCursorErrorMaterial", 1f, cubeCorners);
+		deleteCursor = new CellCursor(1, 0.03f, PrefabPool.Instance.CellCursorErrorMaterial, 1f, cubeCorners);
 	}
 
 	public void UpdateCursor(CubePickingInfo selectedCube, MVCubeModelBase targetCubeModel, bool deletedCube)

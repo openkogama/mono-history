@@ -20,7 +20,7 @@ public class CellCursorCubeLineMesh
 
 	public GameObject GameObject => gameObject;
 
-	public CellCursorCubeLineMesh(float diagonalWidth, string material, float fadeOutTime, Vector3[] cubeCorners)
+	public CellCursorCubeLineMesh(float diagonalWidth, Material material, float fadeOutTime, Vector3[] cubeCorners)
 	{
 		this.fadeOutTime = fadeOutTime;
 		gameObject = new GameObject("CellCursorCubeLineMesh");
@@ -29,7 +29,7 @@ public class CellCursorCubeLineMesh
 		meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
 		meshRenderer.receiveShadows = false;
 		MeshFilter meshFilter = gameObject.AddComponent<MeshFilter>();
-		meshRenderer.material = (Material)Resources.Load(material);
+		meshRenderer.material = material;
 		baseAlpha = meshRenderer.material.GetColor("_Color").a;
 		SharedCubeFunctions.AddCubeMeshCubeLines(meshFilter.mesh, cubeCorners, diagonalWidth);
 	}

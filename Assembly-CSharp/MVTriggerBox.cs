@@ -23,7 +23,7 @@ public class MVTriggerBox : MVLogicObject
 		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
 		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		triggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
-		audioGO = (GameObject)Object.Instantiate(Resources.Load("Audio/AudioPrefabs/TriggerBoxSound"), Vector3.zero, Quaternion.identity);
+		audioGO = (GameObject)Object.Instantiate(PrefabPool.Instance.TriggerBoxSoundObject, Vector3.zero, Quaternion.identity);
 		audioGO.transform.parent = gameObject.transform;
 		audioLC = audioGO.GetComponentInChildren<AudioLogicCube>();
 	}

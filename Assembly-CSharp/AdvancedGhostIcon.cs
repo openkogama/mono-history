@@ -50,7 +50,7 @@ public class AdvancedGhostIcon : MonoBehaviour
 
 	private void AddSphereVolumeIndicator()
 	{
-		sphereVolumeIndicator = Object.Instantiate(Resources.Load("Prefabs/Effects/RangeVisualization", typeof(SphereVolumeIndicator))) as SphereVolumeIndicator;
+		sphereVolumeIndicator = Object.Instantiate(PrefabPool.Instance.RangeVisualizationObject);
 		sphereVolumeIndicator.transform.parent = gameObject.transform;
 		sphereVolumeIndicator.transform.localPosition = Vector3.zero;
 		sphereVolumeIndicator.transform.localRotation = Quaternion.identity;

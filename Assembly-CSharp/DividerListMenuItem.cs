@@ -5,7 +5,7 @@ public class DividerListMenuItem : ListMenuItem
 	protected override void Initialize()
 	{
 		MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
-		meshRenderer.material = (Material)Resources.Load("Materials/UX/ListMenu/Divider");
+		meshRenderer.material = PrefabPool.Instance.ListMenuDividerMaterial;
 		MeshFilter meshFilter = gameObject.AddComponent<MeshFilter>();
 		UXUtils.BuildPlaneMesh(meshFilter.mesh, width, GetHeight(), "ListMenuDividerMesh");
 	}

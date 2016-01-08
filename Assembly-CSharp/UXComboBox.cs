@@ -140,7 +140,7 @@ public class UXComboBox : UXGUIElement, IUXContainer
 
 	public void Add(string text)
 	{
-		SimpleTextComboBoxItem component = (UnityEngine.Object.Instantiate(Resources.Load("Prefabs/GUI/ComboBox/SimpleTextComboBoxItem")) as GameObject).GetComponent<SimpleTextComboBoxItem>();
+		SimpleTextComboBoxItem component = UnityEngine.Object.Instantiate(PrefabPool.Instance.SimpleTextComboBoxItemObject).GetComponent<SimpleTextComboBoxItem>();
 		component.SetSize(new Vector2(Width + SliderOffset.x, 2f));
 		component.name = text;
 		component.CreateItem(text);

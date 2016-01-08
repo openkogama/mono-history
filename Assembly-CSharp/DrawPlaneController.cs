@@ -50,7 +50,7 @@ public class DrawPlaneController
 	{
 		if (!(this.worldEditorDrawPlane != null))
 		{
-			this.worldEditorDrawPlane = (UnityEngine.Object.Instantiate(Resources.Load("Prefabs/GUI/DrawPlane")) as GameObject).GetComponent<WorldEditorDrawPlane>();
+			this.worldEditorDrawPlane = UnityEngine.Object.Instantiate(PrefabPool.Instance.DrawPlaneObject).GetComponent<WorldEditorDrawPlane>();
 			this.worldEditorDrawPlane.TargetGameObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>().GameObject;
 			this.worldEditorDrawPlane.Active = false;
 			WorldEditorDrawPlane worldEditorDrawPlane = this.worldEditorDrawPlane;

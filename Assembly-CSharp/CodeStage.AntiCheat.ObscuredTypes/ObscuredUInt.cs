@@ -1,13 +1,13 @@
 using System;
+using Assets.CodeStage.AntiCheatToolkit.Scripts.ObscuredTypes;
 using CodeStage.AntiCheat.Detectors;
-using UnityEngine;
 
 namespace CodeStage.AntiCheat.ObscuredTypes;
 
 [Serializable]
 public struct ObscuredUInt : IFormattable, IEquatable<ObscuredUInt>
 {
-	private static uint cryptoKey = (uint)UnityEngine.Random.Range(0, int.MaxValue);
+	private static uint cryptoKey = (uint)RandonGen.RandomInt(0, int.MaxValue);
 
 	private uint currentCryptoKey;
 

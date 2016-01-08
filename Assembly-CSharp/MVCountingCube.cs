@@ -9,6 +9,8 @@ public class MVCountingCube : MVLogicObject
 
 	private Vector3 ObjectSize = new Vector3(2f, 1.2f, 0.35f);
 
+	private AudioSource audioSource;
+
 	private MVCountingCubeDigits DigitManager;
 
 	private int currentValue;
@@ -40,6 +42,7 @@ public class MVCountingCube : MVLogicObject
 		}
 		interactionFlags |= InteractionFlags.HasSettings;
 		DigitManager = transform.GetComponent<MVCountingCubeDigits>();
+		audioSource = transform.GetComponent<AudioSource>();
 		SetText();
 	}
 
@@ -54,6 +57,15 @@ public class MVCountingCube : MVLogicObject
 		this.currentValue = currentValue;
 		SetText();
 		SetOutgoing(currentValue == 0);
+	}
+
+	public override void OnInputStateChanged()
+	{
+		base.OnInputStateChanged();
+		if (InputState)
+		{
+			PlaySound();
+		}
 	}
 
 	public override Bounds GetLocalBounds(BoundsContext boundsContext)
@@ -79,12 +91,17 @@ public class MVCountingCube : MVLogicObject
 
 	public override void Reset()
 	{
-		currentValue = startingValue;
-		SetText();
+		UpdateCurrentValue(startingValue);
+		PlaySound();
 	}
 
 	private void SetText()
 	{
 		DigitManager.Number = currentValue;
+	}
+
+	private void PlaySound()
+	{
+		audioSource.Play();
 	}
 }

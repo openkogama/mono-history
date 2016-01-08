@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
+using Assets.CodeStage.AntiCheatToolkit.Scripts.ObscuredTypes;
 using CodeStage.AntiCheat.Detectors;
-using UnityEngine;
 
 namespace CodeStage.AntiCheat.ObscuredTypes;
 
@@ -69,7 +69,7 @@ public struct ObscuredDecimal : IFormattable, IEquatable<ObscuredDecimal>
 		public byte b16;
 	}
 
-	private static long cryptoKey = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+	private static long cryptoKey = RandonGen.RandomInt(int.MinValue, int.MaxValue);
 
 	private long currentCryptoKey;
 

@@ -1,13 +1,13 @@
 using System;
+using Assets.CodeStage.AntiCheatToolkit.Scripts.ObscuredTypes;
 using CodeStage.AntiCheat.Detectors;
-using UnityEngine;
 
 namespace CodeStage.AntiCheat.ObscuredTypes;
 
 [Serializable]
 public struct ObscuredUShort : IFormattable, IEquatable<ObscuredUShort>
 {
-	private static ushort cryptoKey = (ushort)UnityEngine.Random.Range(0, 32767);
+	private static ushort cryptoKey = (ushort)RandonGen.RandomInt(0, 32767);
 
 	private ushort currentCryptoKey;
 

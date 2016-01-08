@@ -17,7 +17,7 @@ public class CellCursor : ICursor
 		}
 	}
 
-	public CellCursor(int cursorCubeCount, float diagonalWidth, string material, float fadeOutTime, Vector3[] cubeCorners)
+	public CellCursor(int cursorCubeCount, float diagonalWidth, Material material, float fadeOutTime, Vector3[] cubeCorners)
 	{
 		for (int i = 0; i < cursorCubeCount; i++)
 		{

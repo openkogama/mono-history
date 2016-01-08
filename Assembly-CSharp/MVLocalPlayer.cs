@@ -1,5 +1,4 @@
 using MV.Common;
-using UnityEngine;
 
 public abstract class MVLocalPlayer : MVPlayer
 {
@@ -24,7 +23,6 @@ public abstract class MVLocalPlayer : MVPlayer
 	{
 		if (LevelingManager.LevelingEnabled && MVGameControllerBase.GameMode == gameMode)
 		{
-			Debug.Log("Adding xp");
 			xpEventQueue.AddXp(xpType);
 		}
 	}

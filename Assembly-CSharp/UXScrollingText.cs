@@ -42,7 +42,7 @@ public class UXScrollingText : UXGUIElement, IUXContainer
 	{
 		if (UXUtils.FindGUIObjectOfType<UXTextSizeCalculator>().IsInitialized)
 		{
-			uiText = (Object.Instantiate(Resources.Load("Prefabs/UX/Text")) as GameObject).GetComponent<UXText>();
+			uiText = Object.Instantiate(PrefabPool.Instance.UXTextObject).GetComponent<UXText>();
 			uiText.transform.parent = transform;
 			uiText.transform.localPosition = new Vector3(0f - Alignment.x, 0f, 0f);
 			uiText.transform.localScale = Vector3.one;

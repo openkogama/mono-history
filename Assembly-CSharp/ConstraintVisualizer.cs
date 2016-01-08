@@ -63,7 +63,7 @@ public class ConstraintVisualizer : MonoBehaviour
 	{
 		MeshFilter meshFilter = gameObject.AddComponent<MeshFilter>();
 		MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
-		meshRenderer.material = (Material)Resources.Load("Materials/ModelConstraints");
+		meshRenderer.material = PrefabPool.Instance.ModelConstraintsMaterial;
 		List<int> list = new List<int>();
 		List<Vector2> list2 = new List<Vector2>();
 		Mesh mesh = meshFilter.mesh;

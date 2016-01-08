@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using Assets.CodeStage.AntiCheatToolkit.Scripts.ObscuredTypes;
 using CodeStage.AntiCheat.Detectors;
 using UnityEngine;
 
@@ -30,7 +31,7 @@ public struct ObscuredFloat : IFormattable, IEquatable<ObscuredFloat>
 		public byte b4;
 	}
 
-	private static int cryptoKey = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+	private static int cryptoKey = RandonGen.RandomInt(int.MinValue, int.MaxValue);
 
 	[SerializeField]
 	private int currentCryptoKey;

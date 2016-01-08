@@ -98,7 +98,7 @@ public class StarRequirement : UseRequirement
 
 	private void CreateDisplayObject()
 	{
-		displayGO = Object.Instantiate(MVGameControllerBase.PrefabFactory.StarDisplayPrefab.gameObject);
+		displayGO = Object.Instantiate(PrefabPool.Instance.StarDisplayPrefab.gameObject);
 		displayGO.transform.parent = displayObjectRoot.transform;
 		displayGO.transform.localPosition = displayObjectOffset;
 		displayObject = displayGO.GetComponent<StarDisplayObject>();

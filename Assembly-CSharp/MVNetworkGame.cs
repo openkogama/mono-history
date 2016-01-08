@@ -3383,27 +3383,27 @@ public class MVNetworkGame : IPhotonPeerListener
 		case byte.MaxValue:
 		{
 			int profileID3 = (int)photonEvent[11];
-			int num6 = (int)photonEvent[254];
+			int num5 = (int)photonEvent[254];
 			string userName = (string)photonEvent[9];
 			string regionCode = (string)photonEvent[155];
-			if (num6 == LocalPlayerActorNumber)
+			if (num5 == LocalPlayerActorNumber)
 			{
 				Debug.LogError("Received join event for localPlayerActorNumber");
 				break;
 			}
-			MVPlayer player = new MVPlayer(num6, profileID3, userName, regionCode);
+			MVPlayer player = new MVPlayer(num5, profileID3, userName, regionCode);
 			AddPlayer(player);
 			break;
 		}
 		case 254:
 		{
-			int num4 = (int)photonEvent[254];
-			if (num4 != LocalPlayer.ActorNr)
+			int num3 = (int)photonEvent[254];
+			if (num3 != LocalPlayer.ActorNr)
 			{
-				MVPlayer mVPlayer = Players[num4];
-				Debug.Log("Removed actor " + num4);
-				Players.Remove(num4);
-				gameStatCounterManager.RemoveStatsFromActor(num4);
+				MVPlayer mVPlayer = Players[num3];
+				Debug.Log("Removed actor " + num3);
+				Players.Remove(num3);
+				gameStatCounterManager.RemoveStatsFromActor(num3);
 				if (onPlayerListChanged != null)
 				{
 					onPlayerListChanged();
@@ -3411,7 +3411,7 @@ public class MVNetworkGame : IPhotonPeerListener
 				if (OnReceivedGameMsg != null)
 				{
 					Dictionary<object, object> dictionary2 = new Dictionary<object, object>();
-					dictionary2[(byte)0] = num4;
+					dictionary2[(byte)0] = num3;
 					dictionary2[(byte)3] = mVPlayer.Username;
 					dictionary2[(byte)6] = MVGameControllerBase.Game.Friends.IsFriend(mVPlayer.ProfileID);
 					OnReceivedGameMsg(MVGameMsgType.UserLeft, dictionary2);
@@ -3568,10 +3568,10 @@ public class MVNetworkGame : IPhotonPeerListener
 			break;
 		case 253:
 		{
-			int num5 = (int)photonEvent[253];
+			int num4 = (int)photonEvent[253];
 			Dictionary<object, object> dictionary4 = (Dictionary<object, object>)photonEvent[251];
-			Debug.Log("ACTOR-NR: " + num5);
-			Debug.Log(Players[num5].Username);
+			Debug.Log("ACTOR-NR: " + num4);
+			Debug.Log(Players[num4].Username);
 			{
 				foreach (string key in dictionary4.Keys)
 				{
@@ -3645,9 +3645,8 @@ public class MVNetworkGame : IPhotonPeerListener
 		}
 		case 52:
 		{
-			int num3 = (int)photonEvent[20];
-			Debug.Log("WorldObjectID " + num3);
-			MVWorldObjectClient worldObjectClient2 = WorldObjectClientManager.GetWorldObjectClient(num3);
+			int id2 = (int)photonEvent[20];
+			MVWorldObjectClient worldObjectClient2 = WorldObjectClientManager.GetWorldObjectClient(id2);
 			if (worldObjectClient2 != null && worldObjectClient2 is MVAvatar)
 			{
 				((MVAvatar)worldObjectClient2).OnLeaveVehicle();

@@ -28,7 +28,7 @@ internal class ESInsert2D : ESStateBase
 		insertCursor = Object.FindObjectOfType(typeof(InsertCursor)) as InsertCursor;
 		if (!previewMaterial)
 		{
-			previewMaterial = Resources.Load("Materials/InsertPreviewMaterial") as Material;
+			previewMaterial = PrefabPool.Instance.InsertPreviewMaterial;
 		}
 		Cursor.visible = false;
 		if (!e.NetworkSelector.RequestOwnership(e.SelectedIDs))

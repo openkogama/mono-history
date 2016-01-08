@@ -107,8 +107,7 @@ public abstract class MVInteractable : MVInteractableBase
 		string key = "_" + type;
 		if (dictionary.ContainsKey(key))
 		{
-			bool flag = dictionary.Remove(key);
-			Debug.Log(flag);
+			dictionary.Remove(key);
 			runtimeDataModifiers.Value = dictionary;
 			modifierPackages.RemoveModifier(type, id);
 		}

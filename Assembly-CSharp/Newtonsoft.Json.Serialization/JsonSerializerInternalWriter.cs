@@ -468,8 +468,8 @@ internal class JsonSerializerInternalWriter : JsonSerializerInternalBase
 		return flag3;
 	}
 
-	[SecuritySafeCritical]
 	[SuppressMessage("Microsoft.Portability", "CA1903:UseOnlyApiFromTargetedFramework", MessageId = "System.Security.SecuritySafeCriticalAttribute")]
+	[SecuritySafeCritical]
 	private void SerializeISerializable(JsonWriter writer, ISerializable value, JsonISerializableContract contract)
 	{
 		contract.InvokeOnSerializing(value, Serializer.Context);

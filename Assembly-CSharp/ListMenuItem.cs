@@ -49,7 +49,7 @@ public abstract class ListMenuItem : MonoBehaviour
 		mouseOverObject.transform.localScale = Vector3.one;
 		mouseOverObject.transform.localRotation = Quaternion.identity;
 		MeshRenderer meshRenderer = mouseOverObject.AddComponent<MeshRenderer>();
-		meshRenderer.material = (Material)Resources.Load("Materials/UX/ListMenu/MouseOver");
+		meshRenderer.material = PrefabPool.Instance.MouseOverMaterial;
 		MeshFilter meshFilter = mouseOverObject.AddComponent<MeshFilter>();
 		UXUtils.BuildPlaneMesh(meshFilter.mesh, width, GetHeight(), "MenuItemMouseOverMesh");
 	}

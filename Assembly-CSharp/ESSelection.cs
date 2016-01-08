@@ -63,7 +63,7 @@ internal class ESSelection : ESStateBase
 
 	private void InitializeSelectionGizmo()
 	{
-		GameObject gameObject = UnityEngine.Object.Instantiate(Resources.Load("Prefabs/GUI/Gizmos/SelectionGizmo")) as GameObject;
+		GameObject gameObject = UnityEngine.Object.Instantiate(PrefabPool.Instance.SelectionGizmoObject);
 		gameObject.transform.localPosition = Vector3.zero;
 		translateGizmo = gameObject.GetComponent<MVGUISelectionGizmo>();
 		MVGUISelectionGizmo mVGUISelectionGizmo = translateGizmo;
@@ -85,7 +85,7 @@ internal class ESSelection : ESStateBase
 
 	private void InitializeRightClickMenuGizmo()
 	{
-		GameObject gameObject = UnityEngine.Object.Instantiate(Resources.Load("Prefabs/GUI/Gizmos/RightClickGizmo")) as GameObject;
+		GameObject gameObject = UnityEngine.Object.Instantiate(PrefabPool.Instance.RightClickGizmoObject);
 		gameObject.transform.localPosition = Vector3.zero;
 		rightClickGizmo = gameObject.GetComponent<MVGUIRightClickGizmo>();
 	}
@@ -213,7 +213,7 @@ internal class ESSelection : ESStateBase
 			text = item.name,
 			useWordWrap = true
 		});
-		MVGUIItemShopPreview component = (UnityEngine.Object.Instantiate(Resources.Load("Prefabs/GUI/ShopPreview/ItemShopPreview")) as GameObject).GetComponent<MVGUIItemShopPreview>();
+		MVGUIItemShopPreview component = UnityEngine.Object.Instantiate(PrefabPool.Instance.ItemShopPreviewObject).GetComponent<MVGUIItemShopPreview>();
 		component.BuildItemShopPreview(item, 12f, 12f);
 		dictionary.Add("ProductPreview", new ProductPreviewData
 		{

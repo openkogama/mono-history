@@ -54,7 +54,7 @@ public class UXTabPane : UXGUIElement
 	public void BuildTab(float headerHeight, int tabId)
 	{
 		_tabId = tabId;
-		uiHeaderText = (UnityEngine.Object.Instantiate(Resources.Load("Prefabs/UX/Text")) as GameObject).GetComponent<UXText>();
+		uiHeaderText = UnityEngine.Object.Instantiate(PrefabPool.Instance.UXTextObject).GetComponent<UXText>();
 		uiHeaderText.transform.parent = transform;
 		uiHeaderText.transform.localScale = new Vector3(_headerTextScale, _headerTextScale, _headerTextScale);
 		Height = headerHeight;

@@ -39,7 +39,7 @@ internal class ESInsert : ESStateBase
 		laser.LaserActive = true;
 		if (!previewMaterial)
 		{
-			previewMaterial = Resources.Load("Materials/InsertPreviewMaterial") as Material;
+			previewMaterial = PrefabPool.Instance.InsertPreviewMaterial;
 		}
 		float num = e.SingleSelectedWO.ComputeObjectRadius();
 		float num2 = Camera.main.fieldOfView * 0.5f * 0.8f;

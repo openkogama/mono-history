@@ -23,7 +23,6 @@ public class SharedWorldObjectGameplayFunctions
 				{
 					if (local)
 					{
-						Debug.Log("Doing local destruction");
 						if (MVGameControllerBase.Game.World.RuntimeEventManager != null)
 						{
 							MVGameControllerBase.Game.World.RuntimeEventManager.ExecuteRuntimeEventLocal(explosionEvent);
@@ -31,7 +30,6 @@ public class SharedWorldObjectGameplayFunctions
 					}
 					else
 					{
-						Debug.Log("Sending destuction to all");
 						MVGameControllerBase.Game.World.RuntimeEventManager.SendRuntimeEvent(explosionEvent);
 					}
 				}

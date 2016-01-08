@@ -23,7 +23,7 @@ public class CellCursorCubeMesh
 		gameObject.layer = LayerMask.NameToLayer("UIItems");
 		MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
 		MeshFilter meshFilter = gameObject.AddComponent<MeshFilter>();
-		meshRenderer.material = (Material)Resources.Load("Materials/ModelCubeSpace");
+		meshRenderer.material = PrefabPool.Instance.ModelCubeSpaceMaterial;
 		SharedCubeFunctions.AddCubeMesh(meshFilter.mesh, CubeBase.IdentityCorners, insideOut: true);
 	}
 

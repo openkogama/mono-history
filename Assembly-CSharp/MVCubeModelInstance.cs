@@ -90,7 +90,7 @@ public class MVCubeModelInstance : MVCubeModelBase
 		}
 		Bounds bounds = GetBounds();
 		selectionBox.transform.localPosition = bounds.center;
-		selectionBox.FadeIn(0.2f, "Materials/SelectBoxMaterial", GetCorners(bounds));
+		selectionBox.FadeIn(0.2f, PrefabPool.Instance.SelectBoxMaterial, GetCorners(bounds));
 	}
 
 	public override void AddPreviewBox()
@@ -103,7 +103,7 @@ public class MVCubeModelInstance : MVCubeModelBase
 		}
 		Bounds bounds = GetBounds();
 		previewBox.transform.localPosition = bounds.center;
-		previewBox.Show("Materials/PreviewBoxMaterial", GetCorners(bounds));
+		previewBox.Show(PrefabPool.Instance.PreviewBoxMaterial, GetCorners(bounds));
 	}
 
 	private Vector3[] GetCorners(Bounds bounds)

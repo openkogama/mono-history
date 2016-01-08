@@ -27,7 +27,7 @@ public class SimpleTextComboBoxItem : UXComboBoxItem
 
 	public override GameObject CreateClone()
 	{
-		SimpleTextComboBoxItem component = (Object.Instantiate(Resources.Load("Prefabs/GUI/ComboBox/SimpleTextComboBoxItem")) as GameObject).GetComponent<SimpleTextComboBoxItem>();
+		SimpleTextComboBoxItem component = Object.Instantiate(PrefabPool.Instance.SimpleTextComboBoxItemObject).GetComponent<SimpleTextComboBoxItem>();
 		component.SetSize(new Vector2(Width - 2f, 2f));
 		component.CreateItem(text);
 		return component.gameObject;

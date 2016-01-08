@@ -30,28 +30,28 @@ public abstract class PickupItem : MonoBehaviour
 
 	public int VariantID { get; set; }
 
-	public static string GetPrefabNameForAvatarItemType(AvatarItemType type)
+	public static GameObject InstantiateAvatarItemType(AvatarItemType type)
 	{
 		return type switch
 		{
-			AvatarItemType.CenterGun => "Prefabs/AvatarItems/AvatarItemCenterGun", 
-			AvatarItemType.ImpulseGun => "Prefabs/AvatarItems/AvatarItemImpulseGun", 
-			AvatarItemType.LaserPointer => "Prefabs/AvatarItems/AvatarItemLaserPointer", 
-			AvatarItemType.Bazooka => "Prefabs/AvatarItems/AvatarItemBazooka", 
-			AvatarItemType.Hand => "Prefabs/AvatarItems/AvatarItemHand", 
-			AvatarItemType.RailGun => "Prefabs/AvatarItems/AvatarItemRailGun", 
-			AvatarItemType.Sword => "Prefabs/AvatarItems/AvatarItemSword", 
-			AvatarItemType.Shotgun => "Prefabs/AvatarItems/AvatarItemShotgun", 
-			AvatarItemType.Flamethrower => "Prefabs/AvatarItems/AvatarItemFlamethrower", 
-			AvatarItemType.CubeGun => "Prefabs/AvatarItems/AvatarItemCubeGun", 
-			AvatarItemType.SixShooter => "Prefabs/AvatarItems/AvatarItemSixShooter", 
-			AvatarItemType.DoubleSixShooter => "Prefabs/AvatarItems/AvatarItemDoubleSixShooter", 
-			AvatarItemType.ThrowingStar => "Prefabs/AvatarItems/AvatarItemThrowingStar", 
-			AvatarItemType.MultiThrowingStar => "Prefabs/AvatarItems/AvatarItemMultiThrowingStar", 
-			AvatarItemType.GrowthGun => "Prefabs/AvatarItems/AvatarItemGrowthGun", 
-			AvatarItemType.MouseGun => "Prefabs/AvatarItems/AvatarItemMouseGun", 
-			AvatarItemType.SlapGun => "Prefabs/AvatarItems/AvatarItemSlapGun", 
-			_ => string.Empty, 
+			AvatarItemType.CenterGun => Object.Instantiate(PrefabPool.Instance.AvatarItemCenterGun), 
+			AvatarItemType.ImpulseGun => Object.Instantiate(PrefabPool.Instance.AvatarItemImpulseGun), 
+			AvatarItemType.LaserPointer => Object.Instantiate(PrefabPool.Instance.AvatarItemLaserPointer), 
+			AvatarItemType.Bazooka => Object.Instantiate(PrefabPool.Instance.AvatarItemBazooka), 
+			AvatarItemType.Hand => Object.Instantiate(PrefabPool.Instance.AvatarItemHand), 
+			AvatarItemType.RailGun => Object.Instantiate(PrefabPool.Instance.AvatarItemRailGun), 
+			AvatarItemType.Sword => Object.Instantiate(PrefabPool.Instance.AvatarItemSword), 
+			AvatarItemType.Shotgun => Object.Instantiate(PrefabPool.Instance.AvatarItemShotgun), 
+			AvatarItemType.Flamethrower => Object.Instantiate(PrefabPool.Instance.AvatarItemFlamethrower), 
+			AvatarItemType.CubeGun => Object.Instantiate(PrefabPool.Instance.AvatarItemCubeGun), 
+			AvatarItemType.SixShooter => Object.Instantiate(PrefabPool.Instance.AvatarItemSixShooter), 
+			AvatarItemType.DoubleSixShooter => Object.Instantiate(PrefabPool.Instance.AvatarItemDoubleSixShooter), 
+			AvatarItemType.ThrowingStar => Object.Instantiate(PrefabPool.Instance.AvatarItemThrowingStar), 
+			AvatarItemType.MultiThrowingStar => Object.Instantiate(PrefabPool.Instance.AvatarItemMultiThrowingStar), 
+			AvatarItemType.GrowthGun => Object.Instantiate(PrefabPool.Instance.AvatarItemGrowthGun), 
+			AvatarItemType.MouseGun => Object.Instantiate(PrefabPool.Instance.AvatarItemMouseGun), 
+			AvatarItemType.SlapGun => Object.Instantiate(PrefabPool.Instance.AvatarItemSlapGun), 
+			_ => null, 
 		};
 	}
 

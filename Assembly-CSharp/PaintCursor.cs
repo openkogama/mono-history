@@ -6,7 +6,7 @@ public class PaintCursor
 
 	public PaintCursor(Vector3[] cubeCorners)
 	{
-		paintCursor = new CellCursor(1, 0.03f, "Materials/CellCursorMaterial", 1f, cubeCorners);
+		paintCursor = new CellCursor(1, 0.03f, PrefabPool.Instance.CellCursorMaterial, 1f, cubeCorners);
 	}
 
 	public void UpdateCursor(CubePickingInfo selectedCube, MVCubeModelBase targetCubeModel, bool isPainting)

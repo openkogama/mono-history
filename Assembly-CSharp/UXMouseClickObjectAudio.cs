@@ -6,8 +6,6 @@ public class UXMouseClickObjectAudio : MonoBehaviour
 {
 	private AudioBankSound clickSound;
 
-	public string soundId = "menu_click";
-
 	private void Awake()
 	{
 		clickSound = GUIAudioBank.Instance.GetSound("buttonClick");
