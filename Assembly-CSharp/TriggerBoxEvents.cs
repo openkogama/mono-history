@@ -6,6 +6,20 @@ public class TriggerBoxEvents : MonoBehaviour
 {
 	private bool isInTrigger;
 
+	private Collider cachedCollider;
+
+	public Collider Collider
+	{
+		get
+		{
+			if (!cachedCollider)
+			{
+				cachedCollider = GetComponent<Collider>();
+			}
+			return cachedCollider;
+		}
+	}
+
 	public bool IsInTrigger => isInTrigger;
 
 	public event EventHandler<TriggerEventArgs> TriggerEnterOverride;

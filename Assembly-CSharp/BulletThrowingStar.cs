@@ -16,6 +16,15 @@ public class BulletThrowingStar : MonoBehaviour
 
 	private Ray lineOfFire;
 
+	[SerializeField]
+	private ParticleSystem pSystem;
+
+	[SerializeField]
+	private AudioSource aSource;
+
+	[SerializeField]
+	private MeshRenderer[] meshRenderers;
+
 	private float fallRate;
 
 	private float rotationSpeedXMin = 20f;
@@ -29,6 +38,10 @@ public class BulletThrowingStar : MonoBehaviour
 	private void Awake()
 	{
 		enabled = false;
+	}
+
+	private void Start()
+	{
 	}
 
 	public static BulletThrowingStar CreateBullet(BulletThrowingStar prefab, Vector3 pos)
@@ -58,19 +71,19 @@ public class BulletThrowingStar : MonoBehaviour
 		transform.rotation = Quaternion.LookRotation((targetPosStraight - startPos).normalized);
 		Vector3 advanceDir = transform.forward;
 		transform.position = startPos;
-		if ((bool)GetComponent<ParticleSystem>())
+		if ((bool)pSystem)
 		{
-			GetComponent<ParticleSystem>().Play();
+			pSystem.Play();
 		}
 		VoxelHit voxelHit = default;
 		float totalDistTravelled = 0f;
 		Vector3 downForce = Vector3.zero;
 		float rotX = Random.Range(rotationSpeedXMin, rotationSpeedXMax);
 		float rotZ = Random.Range(rotationSpeedZMin, rotationSpeedZMax);
-		if (GetComponent<AudioSource>() != null)
+		if (aSource != null)
 		{
-			GetComponent<AudioSource>().loop = true;
-			GetComponent<AudioSource>().Play();
+			aSource.loop = true;
+			aSource.Play();
 		}
 		while (inAir)
 		{
@@ -101,9 +114,9 @@ public class BulletThrowingStar : MonoBehaviour
 			}
 			yield return 0;
 		}
-		if (GetComponent<AudioSource>() != null && GetComponent<AudioSource>().isPlaying)
+		if (aSource != null && aSource.isPlaying)
 		{
-			GetComponent<AudioSource>().Stop();
+			aSource.Stop();
 		}
 		if (hasHit)
 		{
@@ -118,15 +131,14 @@ public class BulletThrowingStar : MonoBehaviour
 		}
 		float coolOffStartTime = Time.time;
 		float coolOffDuration = 3.5f;
-		if ((bool)GetComponent<ParticleSystem>())
+		if ((bool)pSystem)
 		{
-			GetComponent<ParticleSystem>().Stop();
-			while (GetComponent<ParticleSystem>().IsAlive())
+			pSystem.Stop();
+			while (pSystem.IsAlive())
 			{
 				yield return 0;
 			}
 		}
-		MeshRenderer[] renderers = GetComponentsInChildren<MeshRenderer>();
 		if (hasHit)
 		{
 			bool hasHitStaticStructure = true;
@@ -134,13 +146,13 @@ public class BulletThrowingStar : MonoBehaviour
 			MVWorldObjectClient wo = MVGameControllerBase.WOCM.GetWorldObjectClient(woID);
 			if (wo != null)
 			{
-				InteractionDataHandlerBase interactionHandler = wo.GameObject.GetComponent<InteractionDataHandlerBase>();
+				InteractionDataHandlerBase interactionHandler = wo.InteractionDataHandlerBase;
 				hasHitStaticStructure = interactionHandler == null;
 			}
 			while (coolOffStartTime + coolOffDuration > Time.time && hasHitStaticStructure)
 			{
 				float t = (Time.time - coolOffStartTime) / coolOffDuration;
-				MeshRenderer[] array = renderers;
+				MeshRenderer[] array = meshRenderers;
 				foreach (MeshRenderer r in array)
 				{
 					Material[] materials = r.materials;
@@ -152,7 +164,7 @@ public class BulletThrowingStar : MonoBehaviour
 				yield return 0;
 			}
 		}
-		MeshRenderer[] array2 = renderers;
+		MeshRenderer[] array2 = meshRenderers;
 		foreach (MeshRenderer r2 in array2)
 		{
 			r2.enabled = false;

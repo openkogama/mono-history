@@ -15,6 +15,8 @@ public class PickupItemCenterGun : PickupItemWithDelay
 
 	public AudioClip bulletHitSound;
 
+	private AudioSource audioSource;
+
 	public override AvatarItemType Type => AvatarItemType.CenterGun;
 
 	public override int Quantity => ammo;
@@ -24,6 +26,11 @@ public class PickupItemCenterGun : PickupItemWithDelay
 	public override void OnStateChanged(Dictionary<object, object> newState)
 	{
 		ammo = 100;
+	}
+
+	protected override void OnStart()
+	{
+		audioSource = GetComponent<AudioSource>();
 	}
 
 	protected override void OnFire(bool isLocal)
@@ -37,14 +44,14 @@ public class PickupItemCenterGun : PickupItemWithDelay
 		}
 		bullet.Fire(owner.GetAbsolutProjectileSpeed(70f), 100f, lineOfFire, owner.IgnoreWOIDs);
 		--ammo;
-		MVGameControllerBase.AudioManager.Play("projectile fire", GetComponent<AudioSource>(), muzzlePoint.position);
+		MVGameControllerBase.AudioManager.Play("projectile fire", audioSource, muzzlePoint.position);
 		if (isLocal)
 		{
-			MVGameControllerBase.AudioManager.Play("projectile fire", GetComponent<AudioSource>(), Camera.main.transform.position + Camera.main.transform.forward);
+			MVGameControllerBase.AudioManager.Play("projectile fire", audioSource, Camera.main.transform.position + Camera.main.transform.forward);
 		}
 		else
 		{
-			MVGameControllerBase.AudioManager.Play("projectile fire", GetComponent<AudioSource>(), muzzlePoint.position);
+			MVGameControllerBase.AudioManager.Play("projectile fire", audioSource, muzzlePoint.position);
 		}
 		isFiring = false;
 	}
@@ -66,10 +73,10 @@ public class PickupItemCenterGun : PickupItemWithDelay
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
 		if (worldObjectClient != null)
 		{
-			InteractionDataHandlerBase component = worldObjectClient.GameObject.GetComponent<InteractionDataHandlerBase>();
-			if (component != null)
+			InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
+			if (interactionDataHandlerBase != null)
 			{
-				component.HandleInteraction(interaction, interactionIsLocal: false);
+				interactionDataHandlerBase.HandleInteraction(interaction, interactionIsLocal: false);
 			}
 		}
 	}

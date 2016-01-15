@@ -19,6 +19,12 @@ public abstract class UXGUIElement : MonoBehaviour
 
 	protected UXScreen screen;
 
+	protected Renderer mRenderer;
+
+	private Rect boundingRect;
+
+	private static List<Rect> g_clipRects = new List<Rect>(32);
+
 	public Vector3 Alignment { get; private set; }
 
 	public Vector3 Size => new Vector3(Width, Height, 0f);
@@ -29,38 +35,44 @@ public abstract class UXGUIElement : MonoBehaviour
 
 	public virtual void Awake()
 	{
+		mRenderer = GetComponent<Renderer>();
+		if (mRenderer == null)
+		{
+			mRenderer = gameObject.AddComponent<MeshRenderer>();
+		}
 		screen = UXUtils.UXScreen;
+		boundingRect = default;
 		Alignment = new Vector3(UXEnums.GetRatio(horizontalAlign) * Width, UXEnums.GetRatio(verticalAlign) * Height, 0f);
 	}
 
 	public virtual void SetMaterial(Material material)
 	{
-		if (GetComponent<Renderer>() == null)
+		if (mRenderer == null)
 		{
-			gameObject.AddComponent<MeshRenderer>();
+			mRenderer = gameObject.GetComponent<MeshRenderer>();
 		}
-		GetComponent<Renderer>().material = new Material(material);
+		mRenderer.material = new Material(material);
 	}
 
 	public virtual void SetAlpha(float alpha, string materialProperty = "")
 	{
-		Color color = GetComponent<Renderer>().material.GetColor("_MainColor");
+		Color color = mRenderer.material.GetColor("_MainColor");
 		color.a = alpha;
-		GetComponent<Renderer>().material.SetColor("_MainColor", color);
+		mRenderer.material.SetColor("_MainColor", color);
 	}
 
 	public virtual void SetVisible(bool visible)
 	{
 		Visible = visible;
 		Renderer[] componentsInChildren = GetComponentsInChildren<Renderer>(includeInactive: true);
-		foreach (Renderer renderer in componentsInChildren)
-		{
-			renderer.enabled = Visible;
-		}
 		Collider[] componentsInChildren2 = GetComponentsInChildren<Collider>(includeInactive: true);
-		foreach (Collider collider in componentsInChildren2)
+		for (int i = 0; i < componentsInChildren.Length; i++)
 		{
-			collider.enabled = Visible;
+			componentsInChildren[i].enabled = Visible;
+		}
+		for (int j = 0; j < componentsInChildren2.Length; j++)
+		{
+			componentsInChildren2[j].enabled = Visible;
 		}
 	}
 
@@ -86,17 +98,22 @@ public abstract class UXGUIElement : MonoBehaviour
 	public virtual void Update()
 	{
 		Rect clippedBounds = GetClippedBounds();
-		if (GetComponent<Renderer>() != null)
+		if (mRenderer != null)
 		{
-			GetComponent<Renderer>().material.SetVector("_ClipRect", new Vector4(clippedBounds.xMin, clippedBounds.yMin, clippedBounds.xMax, clippedBounds.yMax));
+			mRenderer.material.SetVector("_ClipRect", new Vector4(clippedBounds.xMin, clippedBounds.yMin, clippedBounds.xMax, clippedBounds.yMax));
 		}
 	}
 
 	protected virtual void BuildMesh(Mesh mesh)
 	{
+		mRenderer = gameObject.GetComponent<MeshRenderer>();
+		if (mRenderer == null)
+		{
+			mRenderer = gameObject.AddComponent<MeshRenderer>();
+		}
 		if (uses9PatchMaterial)
 		{
-			UXUtils.Build9PatchPlaneMesh(mesh, Alignment, GetComponent<Renderer>().material.mainTexture, Width, Height, gameObject.name + "9Patch");
+			UXUtils.Build9PatchPlaneMesh(mesh, Alignment, mRenderer.material.mainTexture, Width, Height, gameObject.name + "9Patch");
 		}
 		else
 		{
@@ -106,17 +123,20 @@ public abstract class UXGUIElement : MonoBehaviour
 
 	public virtual Rect GetBoundingBox()
 	{
-		float x = (0f - ScreenAlignment.x) * transform.localScale.x;
-		float y = (0f - ScreenAlignment.y) * transform.localScale.y;
-		float width = ScreenSize.x * transform.localScale.x;
-		float height = ScreenSize.y * transform.localScale.y;
-		Rect result = new Rect(x, y, width, height);
-		result.center += transform.position.xy();
-		return result;
+		Vector3 localScale = transform.localScale;
+		Vector3 position = transform.position;
+		float x = (0f - ScreenAlignment.x) * localScale.x;
+		float y = (0f - ScreenAlignment.y) * localScale.y;
+		float width = ScreenSize.x * localScale.x;
+		float height = ScreenSize.y * localScale.y;
+		boundingRect.Set(x, y, width, height);
+		boundingRect.center += position.xy();
+		return boundingRect;
 	}
 
 	protected Rect GetClippedBounds()
 	{
+		g_clipRects.Clear();
 		if (!Visible)
 		{
 			return new Rect(0f, 0f, 0f, 0f);
@@ -125,47 +145,56 @@ public abstract class UXGUIElement : MonoBehaviour
 		{
 			return Rect.MinMaxRect(-1000f, -1000f, 1000f, 1000f);
 		}
-		List<Rect> clipRects = new List<Rect>();
 		if (transform.parent != null)
 		{
-			GetClippedBoundsRecursive(transform.parent.gameObject, ref clipRects);
+			UXGUIElement[] someElements = transform.parent.GetComponentsInParent<UXGUIElement>();
+			GetClippedBoundsNonRecursive(ref someElements, ref g_clipRects);
 		}
 		Rect result = Rect.MinMaxRect(-1000f, -1000f, 1000f, 1000f);
-		foreach (Rect item in clipRects)
+		foreach (Rect g_clipRect in g_clipRects)
 		{
-			if (item.xMin > result.xMin)
+			if (g_clipRect.xMin > result.xMin)
 			{
-				result.xMin = item.xMin;
+				result.xMin = g_clipRect.xMin;
 			}
-			if (item.xMax < result.xMax)
+			if (g_clipRect.xMax < result.xMax)
 			{
-				result.xMax = item.xMax;
+				result.xMax = g_clipRect.xMax;
 			}
-			if (item.yMin > result.yMin)
+			if (g_clipRect.yMin > result.yMin)
 			{
-				result.yMin = item.yMin;
+				result.yMin = g_clipRect.yMin;
 			}
-			if (item.yMax < result.yMax)
+			if (g_clipRect.yMax < result.yMax)
 			{
-				result.yMax = item.yMax;
+				result.yMax = g_clipRect.yMax;
 			}
 		}
 		return result;
 	}
 
-	private void GetClippedBoundsRecursive(GameObject current, ref List<Rect> clipRects)
+	private void GetClippedBoundsNonRecursive(ref UXGUIElement[] someElements, ref List<Rect> clipRects)
 	{
-		if (!(current == null))
+		for (int i = 0; i < someElements.Length; i++)
 		{
-			UXGUIElement component = current.GetComponent<UXGUIElement>();
-			if (component != null && component is IUXContainer)
+			if (someElements[i] is IUXContainer)
 			{
-				clipRects.Add(component.GetBoundingBox());
+				clipRects.Add(someElements[i].GetBoundingBox());
 			}
-			if (current.transform.parent != null)
-			{
-				GetClippedBoundsRecursive(current.transform.parent.gameObject, ref clipRects);
-			}
+		}
+	}
+
+	private void GetClippedBoundsRecursive(Transform current, ref List<Rect> clipRects)
+	{
+		UXGUIElement component = current.GetComponent<UXGUIElement>();
+		if (component != null && component is IUXContainer)
+		{
+			clipRects.Add(component.GetBoundingBox());
+		}
+		Transform parent = current.parent;
+		if (parent != null)
+		{
+			GetClippedBoundsRecursive(parent, ref clipRects);
 		}
 	}
 }

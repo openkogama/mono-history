@@ -21,7 +21,7 @@ public class MVCheckpoint : MVLogicObject
 		animation = gameObject.GetComponentInChildren<Animation>();
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
 		interactionFlags |= InteractionFlags.CanUseLevel;
-		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.GetComponent<Collider>(), DoReachCheckpoint);
+		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.Collider, DoReachCheckpoint);
 		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
 		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
 		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, hasUseButtonWhenFree: false);
@@ -70,6 +70,8 @@ public class MVCheckpoint : MVLogicObject
 	public override void Destroy()
 	{
 		triggerBoxEvents.TriggerEnter -= triggerBoxEvents_TriggerEnter;
+		triggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
+		triggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
 		useInteractor.OnDestroy(Data);
 		base.Destroy();
 	}

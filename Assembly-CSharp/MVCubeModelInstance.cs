@@ -60,9 +60,9 @@ public class MVCubeModelInstance : MVCubeModelBase
 
 	private void SetLod(bool enabled)
 	{
-		foreach (KeyValuePair<IntVector, GameObject> item in (IEnumerable)chunkInstances)
+		foreach (KeyValuePair<IntVector, ChunkInstances.ChunkInstanceVariables> item in (IEnumerable)chunkInstances)
 		{
-			item.Value.GetComponent<Renderer>().enabled = enabled;
+			item.Value.renderer.enabled = enabled;
 		}
 		isVisible = enabled;
 	}
@@ -130,7 +130,7 @@ public class MVCubeModelInstance : MVCubeModelBase
 		Selected = false;
 	}
 
-	public GameObject GetChunkInstance(IntVector chunkPos)
+	public ChunkInstances.ChunkInstanceVariables GetChunkInstance(IntVector chunkPos)
 	{
 		return chunkInstances.GetChunk(chunkPos);
 	}

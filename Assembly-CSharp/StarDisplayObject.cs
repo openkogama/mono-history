@@ -10,11 +10,50 @@ public class StarDisplayObject : MonoBehaviour
 
 	private Renderer starRenderer;
 
+	private Renderer frontRenderer;
+
+	private Renderer backRenderer;
+
 	private float visibilityDistance = 25f;
+
+	public Renderer StarRenderer
+	{
+		get
+		{
+			if (starRenderer == null)
+			{
+				starRenderer = GetComponent<Renderer>();
+			}
+			return starRenderer;
+		}
+	}
+
+	public Renderer FrontRenderer
+	{
+		get
+		{
+			if (frontRenderer == null)
+			{
+				frontRenderer = frontText.GetComponent<Renderer>();
+			}
+			return frontRenderer;
+		}
+	}
+
+	public Renderer BackRenderer
+	{
+		get
+		{
+			if (backRenderer == null)
+			{
+				backRenderer = backText.GetComponent<Renderer>();
+			}
+			return backRenderer;
+		}
+	}
 
 	public void Initialize()
 	{
-		starRenderer = GetComponent<Renderer>();
 	}
 
 	private void Update()
@@ -51,15 +90,15 @@ public class StarDisplayObject : MonoBehaviour
 
 	private void Show()
 	{
-		starRenderer.enabled = true;
-		frontText.GetComponent<Renderer>().enabled = true;
-		backText.GetComponent<Renderer>().enabled = true;
+		StarRenderer.enabled = true;
+		FrontRenderer.enabled = true;
+		BackRenderer.enabled = true;
 	}
 
 	private void Hide()
 	{
-		starRenderer.enabled = false;
-		frontText.GetComponent<Renderer>().enabled = false;
-		backText.GetComponent<Renderer>().enabled = false;
+		StarRenderer.enabled = false;
+		FrontRenderer.enabled = false;
+		BackRenderer.enabled = false;
 	}
 }

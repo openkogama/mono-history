@@ -7,16 +7,38 @@ public class AvatarAccessoryParticles : AvatarAccessory
 
 	private AccessoryParticlesSettings accessoryParticlesSettings;
 
-	public ParticleSystem RootParticleSystem;
+	private ParticleSystem rootParticleSystem;
 
-	public override AccessorySettings AccessorySettings => accessoryParticlesSettings;
+	public AccessoryParticlesSettings AccessoryParticlesSettings
+	{
+		get
+		{
+			if (accessoryParticlesSettings == null)
+			{
+				accessoryParticlesSettings = GetComponent<AccessoryParticlesSettings>();
+			}
+			return accessoryParticlesSettings;
+		}
+	}
+
+	public ParticleSystem RootParticleSystem
+	{
+		get
+		{
+			if (rootParticleSystem == null)
+			{
+				rootParticleSystem = GetComponentInChildren<ParticleSystem>();
+			}
+			return rootParticleSystem;
+		}
+	}
+
+	public override AccessorySettings AccessorySettings => AccessoryParticlesSettings;
 
 	protected override void Awake()
 	{
-		accessoryParticlesSettings = GetComponent<AccessoryParticlesSettings>();
 		base.Awake();
 		Category = AvatarAccessoryCategory.Particles;
-		RootParticleSystem = GetComponentInChildren<ParticleSystem>();
 	}
 
 	protected override void Start()
@@ -39,12 +61,12 @@ public class AvatarAccessoryParticles : AvatarAccessory
 		base.Update();
 		if (prevPosition != Transform.position)
 		{
-			RootParticleSystem.emissionRate = accessoryParticlesSettings.EmitRateMoving;
+			RootParticleSystem.emissionRate = AccessoryParticlesSettings.EmitRateMoving;
 			prevPosition = Transform.position;
 		}
 		else
 		{
-			RootParticleSystem.emissionRate = accessoryParticlesSettings.EmitRateNormal;
+			RootParticleSystem.emissionRate = AccessoryParticlesSettings.EmitRateNormal;
 		}
 	}
 }

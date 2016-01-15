@@ -18,6 +18,7 @@ public class MouseModifier : AvatarModifier
 
 	protected bool isDeactivating;
 
+	[SerializeField]
 	protected AudioSource audioSource;
 
 	public AudioClip growSound;
@@ -44,7 +45,6 @@ public class MouseModifier : AvatarModifier
 
 	protected override void OnActivated(Avatar target)
 	{
-		audioSource = gameObject.GetComponent<AudioSource>();
 		isDeactivating = false;
 		SetSizeModifier();
 		timeStamp = Time.time;

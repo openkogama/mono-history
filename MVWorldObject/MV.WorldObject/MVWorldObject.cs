@@ -348,10 +348,6 @@ public abstract class MVWorldObject
 
 	public bool AddObjectLink(ObjectLink link)
 	{
-		if (!HasObjectConnector)
-		{
-			return false;
-		}
 		if (GetIndexOfObjectLink(link) != -1)
 		{
 			return false;
@@ -396,31 +392,26 @@ public abstract class MVWorldObject
 
 	public bool RemoveObjectLink(ObjectLink link)
 	{
-		if (!HasObjectConnector)
-		{
-			return false;
-		}
 		int indexOfObjectLink = GetIndexOfObjectLink(link);
 		if (indexOfObjectLink == -1)
 		{
 			return false;
 		}
-		OnObjectLinkChanged();
 		objectLinkRefs.RemoveAt(indexOfObjectLink);
+		OnObjectLinkChanged();
 		return true;
 	}
 
 	private int GetIndexOfObjectLink(ObjectLink link)
 	{
-		int num = -1;
 		for (int i = 0; i < objectLinkRefs.Count; i++)
 		{
-			if (objectLinkRefs[i].objectWOID == link.objectWOID && num == -1)
+			if (objectLinkRefs[i].objectConnectorWOID == link.objectConnectorWOID && objectLinkRefs[i].objectWOID == link.objectWOID)
 			{
-				num = i;
+				return i;
 			}
 		}
-		return num;
+		return -1;
 	}
 
 	public bool ValidateLink(Link link)

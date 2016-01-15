@@ -23,7 +23,29 @@ public class PluralFormsCalculator
 		{
 			return 0L;
 		}
+		RecursiveTracer tracer = new RecursiveTracer();
+		tracer.Text.AppendFormat("Expression: {0}", expression);
+		tracer.Text.AppendLine();
+		tracer.Text.AppendFormat("Evaluate: {0}", n);
+		tracer.Text.AppendLine();
+		tracer.Text.AppendLine();
 		long num = plural.Evaluate(n);
+		PluralFormsNode.IterateNodes(plural, (PluralFormsNode node) =>
+		{
+			tracer.Text.AppendFormat("{0}: ", tracer.Level++);
+			tracer.Indent();
+			if (node.Tracer != null)
+			{
+				tracer.Text.AppendLine(node.Tracer.Text.ToString());
+			}
+		}, (PluralFormsNode node) =>
+		{
+			tracer.Level--;
+		});
+		if (traceToFile)
+		{
+			tracer.SaveToFile("Evaluations.txt");
+		}
 		if (num < 0 || num > nplurals)
 		{
 			return 0L;

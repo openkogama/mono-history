@@ -18,9 +18,9 @@ public class AdvancedGhostCubeModelWrapper : EditableCubeModelWrapper
 		SetToTransformParent();
 		SetConstraints(new IntVector(-11, -4, -11), new IntVector(11, 4, 11), 180);
 		cubeModelBase.ReactsToLODChanges = false;
-		foreach (KeyValuePair<IntVector, GameObject> item in (IEnumerable)cubeModelBase.ChunkInstances)
+		foreach (KeyValuePair<IntVector, ChunkInstances.ChunkInstanceVariables> item in (IEnumerable)cubeModelBase.ChunkInstances)
 		{
-			item.Value.GetComponent<Renderer>().enabled = true;
+			item.Value.renderer.enabled = true;
 		}
 	}
 

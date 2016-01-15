@@ -22,6 +22,8 @@ public class MVGameCoin : MVLogicObject
 
 	private UseInteractor useInteractor;
 
+	private AudioSource audioSource;
+
 	private GameCoinClientState state;
 
 	private bool isVisible = true;
@@ -46,6 +48,7 @@ public class MVGameCoin : MVLogicObject
 		pickupItem = gameObject.GetComponent<GreyOutObjectScript>();
 		pickupMesh = pickupItem.pickupObject;
 		particles = gameObject.GetComponent<ObjectParticleEmitterScript>();
+		audioSource = gameObject.GetComponent<AudioSource>();
 		interactionFlags |= InteractionFlags.CanUseLevel;
 		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
 		if (triggerBoxEvents != null)
@@ -56,7 +59,7 @@ public class MVGameCoin : MVLogicObject
 		{
 			Debug.LogError("A TriggerBoxEvents object is missing in PickupItem type: " + GetType().Name);
 		}
-		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.GetComponent<Collider>(), OnPickup, IsCoinTakeable);
+		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.Collider, OnPickup, IsCoinTakeable);
 		LevelBasedUseRequirement useRequirement = new LevelBasedUseRequirement(gameObject, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement);
 		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
@@ -93,6 +96,8 @@ public class MVGameCoin : MVLogicObject
 	public override void Destroy()
 	{
 		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
+		triggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
+		triggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
 		useInteractor.OnDestroy(Data);
 		base.Destroy();
 	}
@@ -115,9 +120,9 @@ public class MVGameCoin : MVLogicObject
 			pickupItem.GreyOut();
 			state = GameCoinClientState.PickedUp;
 			pickedUpTime = Time.realtimeSinceStartup;
-			if ((bool)gameObject.GetComponent<AudioSource>())
+			if ((bool)audioSource)
 			{
-				gameObject.GetComponent<AudioSource>().Play();
+				audioSource.Play();
 			}
 			particles.Play();
 			MVGameControllerBase.Game.GameCoinManager.GameCoinCollect();

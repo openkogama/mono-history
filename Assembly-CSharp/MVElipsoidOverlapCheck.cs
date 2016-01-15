@@ -98,7 +98,7 @@ public static class MVElipsoidOverlapCheck
 		for (int j = 0; j < array.Length; j++)
 		{
 			MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(array[j].transform);
-			if (!SharedCollisionFunctions.IgnoreCollision(mVObject, ignoreWoIds) && ElipsoidOverlapCheckOnWo(radius, position, rotation, array[j].transform.gameObject, mVObject, out var elipsoidOverlapResult))
+			if (!SharedCollisionFunctions.IgnoreCollision(mVObject, ignoreWoIds) && ElipsoidOverlapCheckOnWo(radius, position, rotation, array[j] as BoxCollider, mVObject, out var elipsoidOverlapResult))
 			{
 				elipsoidOverlapResult.woId = mVObject.Id;
 				list.Add(elipsoidOverlapResult);
@@ -111,7 +111,7 @@ public static class MVElipsoidOverlapCheck
 		return list;
 	}
 
-	private static bool ElipsoidOverlapCheckOnWo(Vector3 radius, Vector3 position, Quaternion rotation, GameObject chunk, MVWorldObjectClient wo, out MVOverlapResult elipsoidOverlapResult)
+	private static bool ElipsoidOverlapCheckOnWo(Vector3 radius, Vector3 position, Quaternion rotation, BoxCollider chunk, MVWorldObjectClient wo, out MVOverlapResult elipsoidOverlapResult)
 	{
 		elipsoidOverlapResult = default;
 		if (wo is ICubeModelCollider)
@@ -147,15 +147,14 @@ public static class MVElipsoidOverlapCheck
 		return false;
 	}
 
-	private static bool ScanElipsoidBounds(Bounds localElipsoidBounds, GameObject chunk, ICubeModelCollider cmb, ref MVOverlapResult elipsoidOverlapResult)
+	private static bool ScanElipsoidBounds(Bounds localElipsoidBounds, BoxCollider chunk, ICubeModelCollider cmb, ref MVOverlapResult elipsoidOverlapResult)
 	{
 		cachedIntVectors.Clear();
 		IntVector target = CubeMathFunctions.LocalPosToLocalIntVector(localElipsoidBounds.min);
 		IntVector target2 = CubeMathFunctions.LocalPosToLocalIntVector(localElipsoidBounds.max);
 		IntVector min = default;
 		IntVector max = default;
-		BoxCollider component = chunk.GetComponent<BoxCollider>();
-		Bounds localSpaceBounds = new Bounds(component.center, component.size);
+		Bounds localSpaceBounds = new Bounds(chunk.center, chunk.size);
 		SharedCollisionFunctions.GetVoxelBounds(ref min, ref max, localSpaceBounds);
 		MathFunctions.ClampIntVector(ref target, min, max);
 		MathFunctions.ClampIntVector(ref target2, min, max);

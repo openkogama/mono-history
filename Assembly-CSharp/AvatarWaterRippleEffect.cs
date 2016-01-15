@@ -19,6 +19,18 @@ public class AvatarWaterRippleEffect : MonoBehaviour
 
 	private float lastRippleTime;
 
+	public Avatar Avatar
+	{
+		get
+		{
+			if (avatar == null)
+			{
+				avatar = GetComponent<Avatar>();
+			}
+			return avatar;
+		}
+	}
+
 	private IEnumerator DoSurfaceWaterRipples(Transform avatarTfm)
 	{
 		spawningRipples = true;
@@ -39,7 +51,6 @@ public class AvatarWaterRippleEffect : MonoBehaviour
 
 	private void Start()
 	{
-		avatar = GetComponent<Avatar>();
 		waterPlane = Object.FindObjectOfType(typeof(WaterPlaneManager)) as WaterPlaneManager;
 	}
 
@@ -47,10 +58,10 @@ public class AvatarWaterRippleEffect : MonoBehaviour
 	{
 		if (waterPlane.IsActive)
 		{
-			float num = waterPlane.ComputeAvatarWaterProximity(avatar.transform.position);
+			float num = waterPlane.ComputeAvatarWaterProximity(Avatar.transform.position);
 			if (((previousAvatarWaterProximity <= 0f && num > 0f) || (previousAvatarWaterProximity >= 1f && num < 1f)) && !spawningRipples)
 			{
-				StartCoroutine(DoSurfaceWaterRipples(avatar.transform));
+				StartCoroutine(DoSurfaceWaterRipples(Avatar.transform));
 			}
 			previousAvatarWaterProximity = num;
 		}

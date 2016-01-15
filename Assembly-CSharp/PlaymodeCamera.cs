@@ -256,7 +256,11 @@ public abstract class PlaymodeCamera : MVPlaymodeCameraBase
 				Debug.Log(voxelHit.distance);
 				Debug.Log(distance);
 			}
-			float num3 = Mathf.Sqrt(cameraRadius * cameraRadius - num2 * num2);
+			float num3 = 0f;
+			if (cameraRadius > num2)
+			{
+				num3 = Mathf.Sqrt(cameraRadius * cameraRadius - num2 * num2);
+			}
 			float num4 = distance;
 			transform.position = intersection - ray.direction * num3;
 			distance = (vector - transform.position).magnitude;

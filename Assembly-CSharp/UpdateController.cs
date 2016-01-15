@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using MV.Common;
 using UnityEngine;
 
 public static class UpdateController
 {
-	[NotNull]
 	private static readonly List<PriorityData>[] updateBuckets = new List<PriorityData>[5]
 	{
 		new List<PriorityData>(),
@@ -16,7 +14,6 @@ public static class UpdateController
 		new List<PriorityData>()
 	};
 
-	[NotNull]
 	private static readonly List<PriorityData>[] fixedUpdateBuckets = new List<PriorityData>[5]
 	{
 		new List<PriorityData>(),

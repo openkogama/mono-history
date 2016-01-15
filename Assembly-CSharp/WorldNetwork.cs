@@ -120,6 +120,7 @@ public class WorldNetwork : World
 		objectLink.id = (int)data[ObjectLinkDataParameter.Id];
 		objectLink.objectConnectorWOID = (int)data[ObjectLinkDataParameter.ObjectLinkConnectorWOID];
 		objectLink.objectWOID = (int)data[ObjectLinkDataParameter.ObjectWOID];
+		objectLink.isSet = (bool)data[ObjectLinkDataParameter.IsSet];
 		AddObjectLink(objectLink);
 	}
 
@@ -175,7 +176,7 @@ public class WorldNetwork : World
 			{
 				int objectWOID = cloneBookkeeping.worldObjectIdsMaps[objectLinks.GetObjectLink(objectLinkId).objectWOID];
 				int objectConnectorWOID = cloneBookkeeping.worldObjectIdsMaps[objectLinks.GetObjectLink(objectLinkId).objectConnectorWOID];
-				ObjectLink objectLink = new ObjectLink(cloneBookkeeping.cloneObjectLinkIdIncrement, objectConnectorWOID, objectWOID);
+				ObjectLink objectLink = new ObjectLink(cloneBookkeeping.cloneObjectLinkIdIncrement, objectConnectorWOID, objectWOID, objectLinks.GetObjectLink(objectLinkId).isSet);
 				AddObjectLink(objectLink);
 				cloneBookkeeping.cloneObjectLinkIdIncrement++;
 			}
@@ -318,7 +319,8 @@ public class WorldNetwork : World
 		}
 		ObjectLink objectLink = objectLinks.GetObjectLink(objectLinkID);
 		MVWorldObjectClient worldObjectClient = worldObjectClientManager.GetWorldObjectClient(objectLink.objectConnectorWOID);
-		objectLinks.RemoveObjectLink(objectLink, worldObjectClient);
+		MVWorldObjectClient worldObjectClient2 = worldObjectClientManager.GetWorldObjectClient(objectLink.objectWOID);
+		objectLinks.RemoveObjectLink(objectLink, worldObjectClient, worldObjectClient2);
 	}
 
 	public bool AddPendingObjectLink(ObjectLink objectLink)
@@ -340,7 +342,8 @@ public class WorldNetwork : World
 		}
 		ObjectLink objectLink = objectLinks.GetObjectLink(objectLinkID);
 		MVWorldObjectClient worldObjectClient = worldObjectClientManager.GetWorldObjectClient(objectLink.objectConnectorWOID);
-		objectLinks.RemovePendingObjectLink(objectLink, worldObjectClient);
+		MVWorldObjectClient worldObjectClient2 = worldObjectClientManager.GetWorldObjectClient(objectLink.objectWOID);
+		objectLinks.RemovePendingObjectLink(objectLink, worldObjectClient, worldObjectClient2);
 		return true;
 	}
 

@@ -10,6 +10,8 @@ public class SphereVolumeIndicator : MonoBehaviour
 
 	private ParticleSystem.Particle[] particles;
 
+	private ParticleSystem pSystem;
+
 	public float Radius
 	{
 		get
@@ -25,8 +27,9 @@ public class SphereVolumeIndicator : MonoBehaviour
 
 	private void Awake()
 	{
-		GetComponent<ParticleSystem>().loop = false;
-		GetComponent<ParticleSystem>().playOnAwake = false;
+		pSystem = GetComponent<ParticleSystem>();
+		pSystem.loop = false;
+		pSystem.playOnAwake = false;
 	}
 
 	private void Start()
@@ -62,6 +65,6 @@ public class SphereVolumeIndicator : MonoBehaviour
 			particles[num + j].position = new Vector3(num4, 0f, num3);
 			particles[2 * num + j].position = new Vector3(0f, num4, num3);
 		}
-		GetComponent<ParticleSystem>().SetParticles(particles, particles.Length);
+		pSystem.SetParticles(particles, particles.Length);
 	}
 }

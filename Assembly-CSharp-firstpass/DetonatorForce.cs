@@ -1,7 +1,7 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Detonator))]
 [AddComponentMenu("Detonator/Force")]
+[RequireComponent(typeof(Detonator))]
 public class DetonatorForce : DetonatorComponent
 {
 	private float _baseRadius = 50f;
@@ -63,11 +63,16 @@ public class DetonatorForce : DetonatorComponent
 			Collider[] colliders = _colliders;
 			foreach (Collider collider in colliders)
 			{
-				if (!collider || !collider.GetComponent<Rigidbody>())
+				if (!collider)
 				{
 					continue;
 				}
-				collider.GetComponent<Rigidbody>().AddExplosionForce(power * size, _explosionPosition, radius * size, 4f * MyDetonator().upwardsBias * size);
+				Rigidbody component = collider.GetComponent<Rigidbody>();
+				if (!component)
+				{
+					continue;
+				}
+				component.AddExplosionForce(power * size, _explosionPosition, radius * size, 4f * MyDetonator().upwardsBias * size);
 				SendMessage("OnDetonatorForceHit", null, SendMessageOptions.DontRequireReceiver);
 				if ((bool)fireObject)
 				{
@@ -78,9 +83,10 @@ public class DetonatorForce : DetonatorComponent
 					_tempFireObject = Object.Instantiate(fireObject, transform.position, transform.rotation) as GameObject;
 					_tempFireObject.transform.parent = collider.transform;
 					_tempFireObject.transform.localPosition = new Vector3(0f, 0f, 0f);
-					if ((bool)_tempFireObject.GetComponent<ParticleEmitter>())
+					ParticleEmitter component2 = _tempFireObject.GetComponent<ParticleEmitter>();
+					if ((bool)component2)
 					{
-						_tempFireObject.GetComponent<ParticleEmitter>().emit = true;
+						component2.emit = true;
 						Object.Destroy(_tempFireObject, fireObjectLife);
 					}
 				}

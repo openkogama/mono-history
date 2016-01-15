@@ -17,6 +17,8 @@ public class MeshDecal : MonoBehaviour
 
 	private float currentTime;
 
+	private MeshRenderer meshRenderer;
+
 	public static MeshDecal Create(Hit hit, Material decalMaterial, Transform parent)
 	{
 		return Create(new Hit[1] { hit }, decalMaterial, parent);
@@ -27,8 +29,9 @@ public class MeshDecal : MonoBehaviour
 		GameObject gameObject = new GameObject("Decal");
 		MeshDecal meshDecal = gameObject.AddComponent<MeshDecal>();
 		MeshFilter component = gameObject.GetComponent<MeshFilter>();
+		meshDecal.meshRenderer = gameObject.GetComponent<MeshRenderer>();
 		meshDecal.GenerateMesh(hits, component.mesh);
-		meshDecal.GetComponent<Renderer>().material = decalMaterial;
+		meshDecal.meshRenderer.material = decalMaterial;
 		meshDecal.transform.parent = parent;
 		return meshDecal;
 	}
@@ -40,9 +43,9 @@ public class MeshDecal : MonoBehaviour
 		{
 			Object.Destroy(gameObject);
 		}
-		Color color = GetComponent<Renderer>().material.color;
+		Color color = meshRenderer.material.color;
 		color.r = (color.g = (color.b = (color.a = currentTime / timeout)));
-		GetComponent<Renderer>().material.color = color;
+		meshRenderer.material.color = color;
 	}
 
 	private void GenerateMesh(Hit[] hits, Mesh m, float maxDistance = 50f)

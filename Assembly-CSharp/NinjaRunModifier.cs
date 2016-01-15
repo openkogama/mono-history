@@ -13,11 +13,22 @@ public class NinjaRunModifier : AvatarModifier
 
 	private float minMagnitudeValue = 0.1f;
 
+	public AudioSource SoundEffect
+	{
+		get
+		{
+			if (soundEffect == null)
+			{
+				soundEffect = GetComponent<AudioSource>();
+			}
+			return soundEffect;
+		}
+	}
+
 	public override AvatarModifierPackageType ModifierType => AvatarModifierPackageType.NinjaRun;
 
 	protected override void OnActivated(Avatar target)
 	{
-		soundEffect = GetComponent<AudioSource>();
 		owner = target;
 	}
 
@@ -29,7 +40,7 @@ public class NinjaRunModifier : AvatarModifier
 	private IEnumerator DoFadeAndDestroy()
 	{
 		isDestroying = true;
-		soundEffect.volume = 0f;
+		SoundEffect.volume = 0f;
 		trailRenderer.gameObject.transform.SetParent(null);
 		yield return new WaitForSeconds(trailRenderer.time);
 		Object.Destroy(trailRenderer.gameObject);
@@ -43,11 +54,11 @@ public class NinjaRunModifier : AvatarModifier
 			float magnitude = (owner.transform.position - oldPosition).magnitude;
 			if (owner.IsLocal)
 			{
-				soundEffect.volume = ((!(magnitude > 1f)) ? magnitude : 1f);
+				SoundEffect.volume = ((!(magnitude > 1f)) ? magnitude : 1f);
 			}
 			else
 			{
-				soundEffect.volume = ((!(magnitude > minMagnitudeValue)) ? 0f : 0.5f);
+				SoundEffect.volume = ((!(magnitude > minMagnitudeValue)) ? 0f : 0.5f);
 			}
 			oldPosition = owner.transform.position;
 		}

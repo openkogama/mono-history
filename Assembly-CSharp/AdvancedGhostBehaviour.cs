@@ -242,7 +242,7 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 			{
 				return false;
 			}
-			if (!worldObjectClient.GameObject.GetComponent<InteractionDataHandlerBase>().enabled)
+			if (!worldObjectClient.InteractionDataHandlerBase.enabled)
 			{
 				return false;
 			}

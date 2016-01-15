@@ -195,35 +195,4 @@ public class UXView : MonoBehaviour
 	{
 		SetVisible(!isVisible);
 	}
-
-	public void OnDrawGizmosSelected()
-	{
-		Gizmos.color = Color.white;
-		Matrix4x4 localToWorldMatrix = transform.localToWorldMatrix;
-		float num;
-		if (horizontalAnchor != UXHorizontal.Left)
-		{
-			num = ((horizontalAnchor != UXHorizontal.Center) ? (-1f) : 0f);
-		}
-		else
-		{
-			num = 1f;
-		}
-		float num2;
-		if (verticalAnchor != UXVertical.Top)
-		{
-			num2 = ((verticalAnchor != UXVertical.Middle) ? 1f : 0f);
-		}
-		else
-		{
-			num2 = -1f;
-		}
-		float num3 = 1f;
-		Vector3 vector = localToWorldMatrix.MultiplyPoint(num3 * new Vector3(0f, num2 + 1f, 0f));
-		Vector3 to = localToWorldMatrix.MultiplyPoint(num3 * new Vector3(0f, num2 - 1f, 0f));
-		Vector3 vector2 = localToWorldMatrix.MultiplyPoint(num3 * new Vector3(num - 1f, 0f, 0f));
-		Vector3 to2 = localToWorldMatrix.MultiplyPoint(num3 * new Vector3(num + 1f, 0f, 0f));
-		Gizmos.DrawLine(vector, to);
-		Gizmos.DrawLine(vector2, to2);
-	}
 }

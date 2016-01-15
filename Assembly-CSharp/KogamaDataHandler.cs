@@ -17,7 +17,7 @@ public static class KogamaDataHandler
 		GetPrototypeData(bp, callBack);
 		int worldObjectData = GetWorldObjectData(bp, callBack, readRuntimeData);
 		GetLinks(bp, callBack, readRuntimeData);
-		GetObjectLinks(bp, callBack);
+		GetObjectLinks(bp, callBack, readRuntimeData);
 		return worldObjectData;
 	}
 
@@ -69,12 +69,12 @@ public static class KogamaDataHandler
 		}
 	}
 
-	private static void GetObjectLinks(BytePacker bp, DataCallBack callBack)
+	private static void GetObjectLinks(BytePacker bp, DataCallBack callBack, bool readRuntimeData)
 	{
 		int num = bp.ReadInt32();
 		for (int i = 0; i < num; i++)
 		{
-			Dictionary<object, object> dataParameters = KogamaDataHandlerWrapper.GetDataParameters(serializeVersion, bp, KogamaDataType.ObjectLinks, readRuntimeData: false);
+			Dictionary<object, object> dataParameters = KogamaDataHandlerWrapper.GetDataParameters(serializeVersion, bp, KogamaDataType.ObjectLinks, readRuntimeData);
 			callBack(dataParameters, KogamaDataType.ObjectLinks);
 			HandleService();
 		}

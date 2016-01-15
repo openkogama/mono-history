@@ -16,8 +16,6 @@ public class HoverCraftVisualization : VehicleVisualizationBase
 
 	public AudioSource moving;
 
-	private Vector3 HoverOffset = Vector3.zero;
-
 	public float HoverPeriod = 0.8f;
 
 	public float HoverAmplitude = 0.2f;
@@ -28,7 +26,15 @@ public class HoverCraftVisualization : VehicleVisualizationBase
 
 	public float rollMax = 30f;
 
+	public float pitchMax = 30f;
+
+	public float pitchSpeedTime = 10f;
+
+	public float pitchFactor = 20f;
+
 	public float damageParticleFactor = 10f;
+
+	private Vector3 HoverOffset = Vector3.zero;
 
 	private float angleDiff;
 
@@ -38,10 +44,6 @@ public class HoverCraftVisualization : VehicleVisualizationBase
 
 	private float prevHealth;
 
-	private VehicleSeatManager vehicleSeatManager;
-
-	private Vector3 localHoverCraftHullRootBasePosition;
-
 	private bool vehicleIsUnoccupied;
 
 	private float unoccupiedTime;
@@ -50,17 +52,15 @@ public class HoverCraftVisualization : VehicleVisualizationBase
 
 	private Vector3 prevWorldPosition;
 
+	private float minVolume = 0.03f;
+
 	private float smoothMoveSpeed;
 
 	private float smoothPitchFactor;
 
-	public float pitchMax = 30f;
-
-	public float pitchSpeedTime = 10f;
-
-	public float pitchFactor = 20f;
-
 	private float smoothMoveSpeedTime = 5f;
+
+	private Vector3 smoothVelocity = Vector3.zero;
 
 	private float moveSpeed;
 
@@ -68,9 +68,11 @@ public class HoverCraftVisualization : VehicleVisualizationBase
 
 	private float signedAcceleration;
 
-	private Vector3 smoothVelocity = Vector3.zero;
+	private VehicleSeatManager vehicleSeatManager;
 
-	private float minVolume = 0.03f;
+	private Vector3 localHoverCraftHullRootBasePosition;
+
+	private ParticleSystem fireSystem;
 
 	private void Awake()
 	{
@@ -102,6 +104,10 @@ public class HoverCraftVisualization : VehicleVisualizationBase
 		{
 			enabled = false;
 		}
+		if (fire != null)
+		{
+			fireSystem = fire.GetComponent<ParticleSystem>();
+		}
 	}
 
 	private void OnEnable()
@@ -132,9 +138,9 @@ public class HoverCraftVisualization : VehicleVisualizationBase
 				thruster.gameObject.SetActive(value: false);
 			}
 		}
-		if (fire != null)
+		if (fireSystem != null)
 		{
-			fire.GetComponent<ParticleSystem>().Clear();
+			fireSystem.Clear();
 		}
 	}
 
@@ -143,12 +149,12 @@ public class HoverCraftVisualization : VehicleVisualizationBase
 		if (newHealth < maxHealth && !ellipsoidParticleEmitter.emit)
 		{
 			ellipsoidParticleEmitter.emit = true;
-			fire.GetComponent<ParticleSystem>().enableEmission = true;
+			fireSystem.enableEmission = true;
 		}
 		if (newHealth == maxHealth && ellipsoidParticleEmitter.emit)
 		{
 			ellipsoidParticleEmitter.emit = false;
-			fire.GetComponent<ParticleSystem>().enableEmission = false;
+			fireSystem.enableEmission = false;
 			return;
 		}
 		if (prevHealth > newHealth)
@@ -158,8 +164,8 @@ public class HoverCraftVisualization : VehicleVisualizationBase
 		float num = (1f - newHealth / maxHealth) * damageParticleFactor;
 		ellipsoidParticleEmitter.minSize = num;
 		ellipsoidParticleEmitter.maxSize = num;
-		fire.GetComponent<ParticleSystem>().startSize = num * 0.3f;
 		prevHealth = newHealth;
+		fireSystem.startSize = num * 0.3f;
 	}
 
 	private void Update()

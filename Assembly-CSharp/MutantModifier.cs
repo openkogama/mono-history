@@ -57,10 +57,10 @@ public class MutantModifier : AvatarModifier
 			Avatar component = collider.GetComponent<Avatar>();
 			if (!(component == owner) && !(component == null))
 			{
-				InteractionDataHandlerBase component2 = component.gameObject.GetComponent<InteractionDataHandlerBase>();
-				if (component2 != null)
+				InteractionDataHandlerBase interactionDataHandlerBase = component.InteractionDataHandlerBase;
+				if (interactionDataHandlerBase != null)
 				{
-					component2.HandleInteraction(MutantHitPackage.Create(), interactionIsLocal: false);
+					interactionDataHandlerBase.HandleInteraction(MutantHitPackage.Create(), interactionIsLocal: false);
 				}
 			}
 		}

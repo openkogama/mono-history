@@ -13,6 +13,10 @@ public class Avatar : MonoBehaviour
 
 	private Dictionary<AvatarModifierPackageType, byte> currentModifierByteState = new Dictionary<AvatarModifierPackageType, byte>();
 
+	private InteractionDataHandlerBase interactionDataHandler;
+
+	private Collider avatarCollider;
+
 	[SerializeField]
 	private AvatarBadge avatarBadge;
 
@@ -28,6 +32,10 @@ public class Avatar : MonoBehaviour
 	private bool nameTagLabelVisible;
 
 	public bool IsLocal => isLocal;
+
+	public InteractionDataHandlerBase InteractionDataHandlerBase => interactionDataHandler;
+
+	public Collider Collider => avatarCollider;
 
 	public bool NameTagLabelVisible
 	{
@@ -51,6 +59,8 @@ public class Avatar : MonoBehaviour
 	{
 		this.mvAvatar = mvAvatar;
 		this.isLocal = isLocal;
+		interactionDataHandler = GetComponent<InteractionDataHandlerBase>();
+		avatarCollider = GetComponent<Collider>();
 		if (isLocal)
 		{
 			UnityEngine.Object.Destroy(avatarBadge.gameObject);

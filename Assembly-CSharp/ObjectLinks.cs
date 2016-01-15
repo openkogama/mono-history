@@ -39,14 +39,14 @@ public class ObjectLinks
 		return objectLinks.ContainsKey(objectLinkID);
 	}
 
-	public void RemovePendingObjectLink(ObjectLink link, MVWorldObjectClient objectConnectorWo)
+	public void RemovePendingObjectLink(ObjectLink link, MVWorldObjectClient objectConnectorWo, MVWorldObjectClient objectWo)
 	{
 		if (!objectLinks.ContainsKey(link.id))
 		{
 			Debug.LogError("Attempt to RemovePending ObjectLink, but link not registered");
 			return;
 		}
-		RemoveObjectLink(link, objectConnectorWo);
+		RemoveObjectLink(link, objectConnectorWo, objectWo);
 		pendingRemoveObjectLinkQueue.Enqueue(link);
 	}
 
@@ -55,7 +55,7 @@ public class ObjectLinks
 		pendingObjectLinkQueue.Enqueue(link);
 	}
 
-	public bool RemoveObjectLink(ObjectLink link, MVWorldObjectClient objectConnectorWo)
+	public bool RemoveObjectLink(ObjectLink link, MVWorldObjectClient objectConnectorWo, MVWorldObjectClient objectWo)
 	{
 		if (!objectLinks.ContainsKey(link.id))
 		{
@@ -66,6 +66,7 @@ public class ObjectLinks
 		Object.Destroy(objectLinkObjects[link.id]);
 		objectLinkObjects.Remove(link.id);
 		objectConnectorWo.RemoveObjectLink(link);
+		objectWo.RemoveObjectLink(link);
 		return true;
 	}
 
@@ -101,6 +102,7 @@ public class ObjectLinks
 		gameObject.GetComponentInChildren<LinkObjectScript>().isObjectLink = true;
 		objectLinkObjects.Add(objectLink.id, gameObject);
 		objectConnectorWo.AddObjectLink(objectLink);
+		objectWo.AddObjectLink(objectLink);
 		return true;
 	}
 

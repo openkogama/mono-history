@@ -184,8 +184,6 @@ public abstract class MVVehicleBase : MVBlueprintBase
 		}
 	}
 
-	protected abstract LocalObjectsBase CreateLocalObjects(int seatID, MVAvatarLocal vehicleUser);
-
 	public void Enter(MVAvatar vehicleUser, int seatID)
 	{
 		int num = vehicleUser.OwnerActorNr;
@@ -210,6 +208,8 @@ public abstract class MVVehicleBase : MVBlueprintBase
 		vehicleUser.VehicleEntered();
 		VehicleEntered(vehicleUser, seatID);
 	}
+
+	protected abstract LocalObjectsBase CreateLocalObjects(int seatID, MVAvatarLocal vehicleUser);
 
 	protected virtual void VehicleEntered(MVAvatar vehicleUser, int seatID)
 	{

@@ -21,16 +21,27 @@ public class MVCountingCubeDigit : MonoBehaviour
 		}
 	}
 
+	public MeshRenderer MeshRenderer
+	{
+		get
+		{
+			if (meshRenderer == null)
+			{
+				meshRenderer = GetComponent<MeshRenderer>();
+			}
+			return meshRenderer;
+		}
+	}
+
 	private void Awake()
 	{
-		meshRenderer = GetComponent<MeshRenderer>();
-		meshRenderer.material = new Material(CountingCubeDigitMaterial);
+		MeshRenderer.material = new Material(CountingCubeDigitMaterial);
 	}
 
 	private void SetMaterialOffset()
 	{
-		Vector2 mainTextureOffset = meshRenderer.material.mainTextureOffset;
+		Vector2 mainTextureOffset = MeshRenderer.material.mainTextureOffset;
 		mainTextureOffset.y = 0f - (float)Number / 10f;
-		meshRenderer.material.mainTextureOffset = mainTextureOffset;
+		MeshRenderer.material.mainTextureOffset = mainTextureOffset;
 	}
 }

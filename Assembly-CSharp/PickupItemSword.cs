@@ -24,6 +24,8 @@ public class PickupItemSword : PickupItemWithDelay
 
 	public Transform MuzzlePointHitTerrain;
 
+	private AudioSource audioSource;
+
 	private bool checkingOverlaps;
 
 	public override AvatarItemType Type => AvatarItemType.Sword;
@@ -36,18 +38,23 @@ public class PickupItemSword : PickupItemWithDelay
 	{
 	}
 
+	protected override void OnStart()
+	{
+		audioSource = GetComponent<AudioSource>();
+	}
+
 	protected override void OnFire(bool isLocal)
 	{
 		swordAnim.Play();
 		isFiring = false;
-		MVGameControllerBase.AudioManager.Play("sword swing", GetComponent<AudioSource>(), muzzlePoint.position);
+		MVGameControllerBase.AudioManager.Play("sword swing", audioSource, muzzlePoint.position);
 		if (isLocal)
 		{
-			MVGameControllerBase.AudioManager.Play("sword swing", GetComponent<AudioSource>(), Camera.main.transform.position + Camera.main.transform.forward);
+			MVGameControllerBase.AudioManager.Play("sword swing", audioSource, Camera.main.transform.position + Camera.main.transform.forward);
 		}
 		else
 		{
-			MVGameControllerBase.AudioManager.Play("sword swing", GetComponent<AudioSource>(), muzzlePoint.position);
+			MVGameControllerBase.AudioManager.Play("sword swing", audioSource, muzzlePoint.position);
 		}
 		if (isLocal)
 		{
@@ -80,7 +87,7 @@ public class PickupItemSword : PickupItemWithDelay
 		{
 			if (wo2.Id != owner.WorldObjectOwner.Id)
 			{
-				InteractionDataHandlerBase interactionHandler = wo2.GameObject.GetComponent<InteractionDataHandlerBase>();
+				InteractionDataHandlerBase interactionHandler = wo2.InteractionDataHandlerBase;
 				if (interactionHandler != null)
 				{
 					hitOpponent = true;
@@ -131,10 +138,5 @@ public class PickupItemSword : PickupItemWithDelay
 		{
 			checkingOverlaps = false;
 		}
-	}
-
-	private void OnDrawGizmos()
-	{
-		Gizmos.DrawWireSphere(muzzlePoint.position, pushRadius);
 	}
 }

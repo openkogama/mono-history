@@ -34,9 +34,13 @@ public class MVSentryGun : MVLogicObject
 
 	private Dictionary<int, SentryGunBeam> woIdsBeamsMap = new Dictionary<int, SentryGunBeam>();
 
+	private List<int> deleteList = new List<int>(8);
+
 	private float glowFactor = 0.5f;
 
 	private SentryGunBeamType beamType = SentryGunBeamType.IceBeam;
+
+	private AudioSource audioSource;
 
 	private bool wasDead;
 
@@ -66,6 +70,7 @@ public class MVSentryGun : MVLogicObject
 		interactable.Init(ReceiveDamage);
 		InitializeCommon();
 		gameObject.AddComponent<ClientSideNPCInteractionHandler>();
+		audioSource = gameObject.GetComponent<AudioSource>();
 		wasDead = interactable.IsDead();
 		UpdateSentryState();
 	}
@@ -86,8 +91,8 @@ public class MVSentryGun : MVLogicObject
 		{
 			beamType = (SentryGunBeamType)(byte)Data["beamType"];
 		}
-		sentryGunScript.SetSentryGunBeamType(beamType);
 		sentryGunScript.Initialize();
+		sentryGunScript.SetSentryGunBeamType(beamType);
 		if (beamType == SentryGunBeamType.FireBeam)
 		{
 			interactionType = InteractionPackageType.SentryTowerFire;
@@ -170,8 +175,8 @@ public class MVSentryGun : MVLogicObject
 						continue;
 					}
 					int num = mVObject.Id;
-					InteractionDataHandlerBase component = mVObject.GameObject.GetComponent<InteractionDataHandlerBase>();
-					if (component == null || !component.CanHandle(interactionType, interactionIsLocal: true))
+					InteractionDataHandlerBase interactionDataHandlerBase = mVObject.InteractionDataHandlerBase;
+					if (interactionDataHandlerBase == null || !interactionDataHandlerBase.CanHandle(interactionType, interactionIsLocal: true))
 					{
 						continue;
 					}
@@ -190,7 +195,7 @@ public class MVSentryGun : MVLogicObject
 							value = SentryGunBeam.Create(prefabs[beamType], beamType, this);
 							woIdsBeamsMap.Add(mVObject.Id, value);
 						}
-						ApplyDamage(mVObject, component);
+						ApplyDamage(mVObject, interactionDataHandlerBase);
 						hashSet.Add(mVObject.Id);
 					}
 				}
@@ -216,13 +221,13 @@ public class MVSentryGun : MVLogicObject
 			Collider componentInChildren = worldObjectClient.GameObject.GetComponentInChildren<Collider>();
 			item3.Value.SetBeamPositions(gameObject.transform.position, componentInChildren.bounds.center);
 		}
-		if (woIdsBeamsMap.Count > 0 && !gameObject.GetComponent<AudioSource>().isPlaying)
+		if (woIdsBeamsMap.Count > 0 && !audioSource.isPlaying)
 		{
-			gameObject.GetComponent<AudioSource>().Play();
+			audioSource.Play();
 		}
-		if (woIdsBeamsMap.Count == 0 && gameObject.GetComponent<AudioSource>().isPlaying)
+		if (woIdsBeamsMap.Count == 0 && audioSource.isPlaying)
 		{
-			gameObject.GetComponent<AudioSource>().Stop();
+			audioSource.Stop();
 		}
 		float b = ((woIdsBeamsMap.Count <= 0) ? 0.5f : 1f);
 		if (interactable.IsDead())
@@ -235,25 +240,26 @@ public class MVSentryGun : MVLogicObject
 
 	private void DoFrameDelete()
 	{
-		List<int> list = new List<int>();
 		foreach (KeyValuePair<int, SentryGunBeam> item in woIdsBeamsMap)
 		{
 			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(item.Key);
 			if (worldObjectClient == null || item.Value == null)
 			{
-				list.Add(item.Key);
+				deleteList.Add(item.Key);
 				continue;
 			}
-			Vector3 a = worldObjectClient.GameObject.GetComponentInChildren<Collider>().ClosestPointOnBounds(gameObject.transform.position);
+			Vector3 a = worldObjectClient.Collider.ClosestPointOnBounds(gameObject.transform.position);
 			if (Vector3.Distance(a, gameObject.transform.position) > laserRange)
 			{
-				list.Add(item.Key);
+				deleteList.Add(item.Key);
 			}
 		}
-		foreach (int item2 in list)
+		int count = deleteList.Count;
+		for (int i = 0; i < count; i++)
 		{
-			woIdsBeamsMap.Remove(item2);
+			woIdsBeamsMap.Remove(deleteList[i]);
 		}
+		deleteList.Clear();
 	}
 
 	private bool HitsTarget(Ray ray, int woID)

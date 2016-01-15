@@ -5,21 +5,35 @@ public class MVWaterPlane : MVLogicObject
 {
 	protected WaterPlaneManager waterManager;
 
+	private MeshRenderer meshRenderer;
+
 	private Bounds localBounds;
 
 	public override bool HasInputConnector => false;
 
 	public override bool HasOutputConnector => false;
 
+	public MeshRenderer MeshRenderer
+	{
+		get
+		{
+			if (meshRenderer == null)
+			{
+				meshRenderer = gameObject.GetComponent<MeshRenderer>();
+			}
+			return meshRenderer;
+		}
+	}
+
 	public MVWaterPlane(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVWaterPlanePrefab, worldObjects)
 	{
-		gameObject.GetComponent<Renderer>().material = new Material(gameObject.GetComponent<Renderer>().material);
-		interactionFlags |= InteractionFlags.HasSettings;
-		localBounds = gameObject.GetComponent<MeshRenderer>().bounds;
+		MeshRenderer.material = new Material(MeshRenderer.material);
+		localBounds = MeshRenderer.bounds;
 		localBounds.center -= gameObject.transform.position;
 		gameObject.transform.localScale = Vector3.one;
 		waterManager = Object.FindObjectOfType(typeof(WaterPlaneManager)) as WaterPlaneManager;
+		interactionFlags |= InteractionFlags.HasSettings;
 	}
 
 	public override bool IsSingletonObject()
@@ -58,7 +72,7 @@ public class MVWaterPlane : MVLogicObject
 		{
 			float[] array = (float[])Data["waterColor"];
 			waterManager.WaterColor = new Color(array[0], array[1], array[2], 0.8f);
-			gameObject.GetComponent<Renderer>().material.SetColor("_MaskedColor", new Color(array[0], array[1], array[2]));
+			MeshRenderer.material.SetColor("_MaskedColor", new Color(array[0], array[1], array[2]));
 		}
 	}
 

@@ -2,6 +2,10 @@ using UnityEngine;
 
 public class SelectionBox : MonoBehaviour
 {
+	private MeshRenderer meshRenderer;
+
+	private MeshFilter meshFilter;
+
 	private float fadeOutTime = 10f;
 
 	private float fadeOutBeginTime;
@@ -21,6 +25,8 @@ public class SelectionBox : MonoBehaviour
 	private void Start()
 	{
 		gameObject.layer = LayerMask.NameToLayer("UIItems");
+		meshRenderer = gameObject.GetComponent<MeshRenderer>();
+		meshFilter = gameObject.GetComponent<MeshFilter>();
 	}
 
 	public void Init(IModelingConstraint constraint, string layer = "UIItems")
@@ -39,10 +45,10 @@ public class SelectionBox : MonoBehaviour
 			float num = (fadeOutTime - (Time.time - fadeOutBeginTime)) / fadeOutTime * baseAlpha;
 			if (currentAlpha > num)
 			{
-				Color color = gameObject.GetComponent<Renderer>().material.GetColor("_Color");
+				Color color = GetComponent<Renderer>().material.GetColor("_Color");
 				color.a = num;
 				currentAlpha = num;
-				gameObject.GetComponent<Renderer>().material.SetColor("_Color", color);
+				GetComponent<Renderer>().material.SetColor("_Color", color);
 			}
 		}
 		else if (isFadingIn)
@@ -59,10 +65,10 @@ public class SelectionBox : MonoBehaviour
 			}
 			if (currentAlpha < num2)
 			{
-				Color color2 = gameObject.GetComponent<Renderer>().material.GetColor("_Color");
+				Color color2 = GetComponent<Renderer>().material.GetColor("_Color");
 				color2.a = num2;
 				currentAlpha = num2;
-				gameObject.GetComponent<Renderer>().material.SetColor("_Color", color2);
+				GetComponent<Renderer>().material.SetColor("_Color", color2);
 			}
 		}
 	}
@@ -73,7 +79,6 @@ public class SelectionBox : MonoBehaviour
 		isFadingIn = true;
 		this.fadeInTime = fadeInTime;
 		fadeInBeginTime = Time.time;
-		MeshRenderer meshRenderer = gameObject.GetComponent<MeshRenderer>();
 		float a = 0f;
 		if (meshRenderer == null)
 		{
@@ -84,7 +89,6 @@ public class SelectionBox : MonoBehaviour
 			a = currentAlpha;
 		}
 		meshRenderer.material = material;
-		MeshFilter meshFilter = gameObject.GetComponent<MeshFilter>();
 		if (meshFilter == null)
 		{
 			meshFilter = gameObject.AddComponent<MeshFilter>();

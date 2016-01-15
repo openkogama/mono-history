@@ -32,12 +32,12 @@ public class SimpleVehicleHealthChangeVisualization : MonoBehaviour
 		if (newHealth < maxHealth && !ellipsoidParticleEmitter.emit)
 		{
 			ellipsoidParticleEmitter.emit = true;
-			fire.GetComponent<ParticleSystem>().enableEmission = true;
+			fire.enableEmission = true;
 		}
 		if (newHealth == maxHealth && ellipsoidParticleEmitter.emit)
 		{
 			ellipsoidParticleEmitter.emit = false;
-			fire.GetComponent<ParticleSystem>().enableEmission = false;
+			fire.enableEmission = false;
 			return;
 		}
 		if (prevHealth > newHealth)
@@ -47,7 +47,7 @@ public class SimpleVehicleHealthChangeVisualization : MonoBehaviour
 		float num = (1f - newHealth / maxHealth) * damageParticleFactor;
 		ellipsoidParticleEmitter.minSize = num;
 		ellipsoidParticleEmitter.maxSize = num;
-		fire.GetComponent<ParticleSystem>().startSize = num * 0.3f;
+		fire.startSize = num * 0.3f;
 		prevHealth = newHealth;
 	}
 }

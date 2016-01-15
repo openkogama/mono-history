@@ -96,13 +96,13 @@ public class PickupItemSixShooter : PickupItemWithDelay
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
 		if (worldObjectClient != null)
 		{
-			InteractionDataHandlerBase component = worldObjectClient.GameObject.GetComponent<InteractionDataHandlerBase>();
-			if (component != null)
+			InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
+			if (interactionDataHandlerBase != null)
 			{
 				Vector3 value = voxelHit.point - owner.transform.position;
 				value = Vector3.Normalize(value);
 				InteractionData interaction = SixShooterHitPackage.Create(value * hitImpact, damage);
-				component.HandleInteraction(interaction, interactionIsLocal: false);
+				interactionDataHandlerBase.HandleInteraction(interaction, interactionIsLocal: false);
 			}
 		}
 	}

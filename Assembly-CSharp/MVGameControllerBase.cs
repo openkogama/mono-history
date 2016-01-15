@@ -25,6 +25,8 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	private static GameSessionData gameSessionData;
 
+	private static LoadStats loadStats;
+
 	private static MVJoinState _joinState;
 
 	[SerializeField]
@@ -79,6 +81,8 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	public static MVNetworkGame Game { get; private set; }
 
 	public static GameSessionData GameSessionData => gameSessionData;
+
+	public static LoadStats LoadStats => loadStats;
 
 	public static MVGameMode GameMode => gameSessionData.gameMode;
 
@@ -152,6 +156,8 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	private void Awake()
 	{
+		loadStats = new LoadStats();
+		loadStats.GameStartTime = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
 		instance = this;
 		UnityEngine.Object.Instantiate(prefabPool);
 		GizmoDrawer = GetComponent<GizmoDrawer>();
@@ -333,6 +339,18 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		}
 	}
 
+	private void ReceivedLoadStatsCallback(bool ok, string data)
+	{
+		if (!ok)
+		{
+			Debug.LogWarning("Failed to get load stats data");
+			return;
+		}
+		LoadStats loadStats = JsonConvert.DeserializeObject<LoadStats>(data);
+		MVGameControllerBase.loadStats.DOMReady = loadStats.DOMReady;
+		MVGameControllerBase.loadStats.PluginInit = loadStats.PluginInit;
+	}
+
 	protected virtual void InitWebPlayer(bool developmentMode)
 	{
 		BrowserComm.enableExternalCall = !developmentMode;
@@ -343,6 +361,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		}
 		BrowserComm.ToJavaScript.GetBrowserVersion();
 		BrowserComm.ToJavaScript.ExternalCall("sendPlayerParams", ReceivedWebParamsCallback);
+		BrowserComm.ToJavaScript.ExternalCall("sendLoadStats", ReceivedLoadStatsCallback);
 	}
 
 	protected virtual void InitStandAlone(bool developmentMode)

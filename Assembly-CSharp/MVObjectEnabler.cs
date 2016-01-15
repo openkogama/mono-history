@@ -77,20 +77,21 @@ public class MVObjectEnabler : MVLogicObject
 	private void ShowObjects(bool visible)
 	{
 		bool flag = visible;
-		if (!MVGameControllerBase.Game.IsPlaying)
+		if (!MVGameControllerBase.Game.IsPlaying && MVGameControllerBase.JoinState == MVJoinState.Playing)
 		{
 			flag = true;
 		}
 		foreach (ObjectLink objectLinkRef in ObjectLinkRefs)
 		{
+			objectLinkRef.isSet = flag;
 			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(objectLinkRef.objectWOID);
 			if (worldObjectClient is MVCubeModelBase)
 			{
-				(worldObjectClient as MVCubeModelBase).Enable(flag);
+				(worldObjectClient as MVCubeModelBase).ObjectLinkChanged(flag);
 			}
 			else
 			{
-				MVGameControllerBase.WOCM.GetWorldObjectClient(objectLinkRef.objectWOID).Visible = flag;
+				worldObjectClient.Visible = flag;
 			}
 		}
 	}

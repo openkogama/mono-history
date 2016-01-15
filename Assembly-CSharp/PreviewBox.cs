@@ -2,20 +2,24 @@ using UnityEngine;
 
 public class PreviewBox : MonoBehaviour
 {
+	private MeshRenderer meshRenderer;
+
+	private MeshFilter meshFilter;
+
 	private void Start()
 	{
 		gameObject.layer = LayerMask.NameToLayer("UIItems");
+		meshRenderer = gameObject.GetComponent<MeshRenderer>();
+		meshFilter = gameObject.GetComponent<MeshFilter>();
 	}
 
 	public void Show(Material material, Vector3[] corners)
 	{
-		MeshRenderer meshRenderer = gameObject.GetComponent<MeshRenderer>();
 		if (meshRenderer == null)
 		{
 			meshRenderer = gameObject.AddComponent<MeshRenderer>();
 		}
 		meshRenderer.material = material;
-		MeshFilter meshFilter = gameObject.GetComponent<MeshFilter>();
 		if (meshFilter == null)
 		{
 			meshFilter = gameObject.AddComponent<MeshFilter>();

@@ -28,6 +28,8 @@ public class PickupItemFlamethrower : PickupItem
 
 	private float flamerMinimumBurnTime = 0.5f;
 
+	private AudioSource audioSource;
+
 	public override AvatarItemType Type => AvatarItemType.Flamethrower;
 
 	public override int Quantity => Mathf.RoundToInt(currentFuel);
@@ -40,12 +42,8 @@ public class PickupItemFlamethrower : PickupItem
 	private void Start()
 	{
 		meshRenderers = GetComponentsInChildren<MeshRenderer>();
+		audioSource = GetComponent<AudioSource>();
 		currentFuel = fuelAmount;
-	}
-
-	private void OnDrawGizmos()
-	{
-		Gizmos.DrawWireSphere(hitZoneCenter.transform.position, hitRadius);
 	}
 
 	public override void OnStateChanged(Dictionary<object, object> newState)
@@ -94,7 +92,7 @@ public class PickupItemFlamethrower : PickupItem
 			yield return 0;
 		}
 		flameParticles.enableEmission = false;
-		GetComponent<AudioSource>().Stop();
+		audioSource.Stop();
 	}
 
 	public override void TriggerBegin(int instigatorActorNr)
@@ -107,7 +105,7 @@ public class PickupItemFlamethrower : PickupItem
 		}
 		flamerStartTime = Time.time;
 		flameParticles.enableEmission = true;
-		GetComponent<AudioSource>().Play();
+		audioSource.Play();
 		flameParticles.Play();
 		isFlaming = true;
 		StartCoroutine(DoFlaming());
@@ -144,10 +142,10 @@ public class PickupItemFlamethrower : PickupItem
 			MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(item.transform);
 			if (mVObject != null)
 			{
-				InteractionDataHandlerBase component = mVObject.GameObject.GetComponent<InteractionDataHandlerBase>();
-				if (component != null)
+				InteractionDataHandlerBase interactionDataHandlerBase = mVObject.InteractionDataHandlerBase;
+				if (interactionDataHandlerBase != null)
 				{
-					list.Add(component);
+					list.Add(interactionDataHandlerBase);
 				}
 			}
 		}

@@ -68,19 +68,19 @@ public class AdvancedGhostBodyRotateWeapon : MonoBehaviour
 				{
 					continue;
 				}
-				InteractionDataHandlerBase component = worldObjectClient.GameObject.GetComponent<InteractionDataHandlerBase>();
+				InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
 				if (timeoutMap.Contains(worldObjectClient.Id))
 				{
 					continue;
 				}
-				if (component == null)
+				if (interactionDataHandlerBase == null)
 				{
 					Debug.LogError("WorldObject does not have interactionHandler");
 					continue;
 				}
 				Vector3 vector = (worldObjectClient.GetTargetPosition() - gameObject.transform.position).normalized * impulseStrength;
 				InteractionData interaction = AdvancedGhostBodyRotateWeaponPackage.Create(damage * factor, vector * factor);
-				if (component.HandleInteraction(interaction, interactionIsLocal: true))
+				if (interactionDataHandlerBase.HandleInteraction(interaction, interactionIsLocal: true))
 				{
 					timeoutMap.Add(worldObjectClient.Id);
 					weaponHitSound.Play();

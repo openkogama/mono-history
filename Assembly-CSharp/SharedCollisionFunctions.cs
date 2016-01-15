@@ -11,10 +11,9 @@ public static class SharedCollisionFunctions
 	{
 		physicsCollisionWrapper.Clear();
 		Array.Sort(hits, (RaycastHit hit0, RaycastHit hit1) => hit0.distance.CompareTo(hit1.distance));
-		for (int num = 0; num < overlapResult.Length; num++)
+		foreach (Collider collider in overlapResult)
 		{
-			Collider component = overlapResult[num].GetComponent<Collider>();
-			physicsCollisionWrapper.Add(component, origin);
+			physicsCollisionWrapper.Add(collider, origin);
 		}
 		for (int num2 = 0; num2 < hits.Length; num2++)
 		{

@@ -20,7 +20,11 @@ public class MVWorldObjectClient : MVWorldObject
 
 	protected GameObject gameObject;
 
+	protected Collider collider;
+
 	protected Transform transform;
+
+	protected InteractionDataHandlerBase interactionDataHandlerBase;
 
 	protected MVNetworkObject networkObject;
 
@@ -273,7 +277,21 @@ public class MVWorldObjectClient : MVWorldObject
 
 	public GameObject GameObject => gameObject;
 
+	public Collider Collider => collider;
+
 	public Transform Transform => transform;
+
+	public InteractionDataHandlerBase InteractionDataHandlerBase
+	{
+		get
+		{
+			if (interactionDataHandlerBase == null)
+			{
+				interactionDataHandlerBase = gameObject.GetComponent<InteractionDataHandlerBase>();
+			}
+			return interactionDataHandlerBase;
+		}
+	}
 
 	public MVNetworkObject NetworkObject
 	{
@@ -358,6 +376,7 @@ public class MVWorldObjectClient : MVWorldObject
 	{
 		gameObject = InstantiatePrefab(prefabObject);
 		transform = gameObject.transform;
+		collider = gameObject.GetComponent<Collider>();
 		CreateWorldObject(data, worldObjects);
 	}
 
@@ -366,6 +385,7 @@ public class MVWorldObjectClient : MVWorldObject
 		gameObject = new GameObject();
 		goId = gameObject.GetInstanceID();
 		transform = gameObject.transform;
+		collider = gameObject.GetComponent<Collider>();
 		CreateWorldObject(data, worldObjects);
 	}
 

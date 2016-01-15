@@ -25,6 +25,8 @@ public class UXText : UXGUIElement
 
 	private TextWrapper textWrapper;
 
+	private MeshRenderer meshRenderer;
+
 	private UXTextSizeCalculator textSizeCalculator;
 
 	private UXFontManager fontManager;
@@ -207,9 +209,9 @@ public class UXText : UXGUIElement
 		TextMesh textMesh = gameObject.AddComponent<TextMesh>();
 		textMesh.font = fontManager.GetFont(textSize);
 		textMesh.lineSpacing = 0.8f;
-		MeshRenderer component = gameObject.GetComponent<MeshRenderer>();
-		component.material = new Material(fontManager.GetFontMaterial(textSize));
-		component.material.SetColor("_Color", color);
+		meshRenderer = gameObject.GetComponent<MeshRenderer>();
+		meshRenderer.material = new Material(fontManager.GetFontMaterial(textSize));
+		meshRenderer.material.SetColor("_Color", color);
 		textMeshes.Add(textMesh);
 	}
 

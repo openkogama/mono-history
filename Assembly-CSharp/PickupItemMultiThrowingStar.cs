@@ -136,12 +136,12 @@ public class PickupItemMultiThrowingStar : PickupItemWithDelay
 			float num = Vector3.Distance(voxelHit.point, owner.transform.position);
 			float time = num / bulletRangeStraight;
 			float damage = damageFalloff.Evaluate(time) * rangeDamage + baseDamage;
-			InteractionDataHandlerBase component = worldObjectClient.GameObject.GetComponent<InteractionDataHandlerBase>();
-			if (component != null)
+			InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
+			if (interactionDataHandlerBase != null)
 			{
 				Vector3 value = voxelHit.point - owner.transform.position;
 				value = Vector3.Normalize(value);
-				component.HandleInteraction(MultiThrowingStarHitPackage.Create(Vector3.zero, damage), interactionIsLocal: false);
+				interactionDataHandlerBase.HandleInteraction(MultiThrowingStarHitPackage.Create(Vector3.zero, damage), interactionIsLocal: false);
 			}
 		}
 	}

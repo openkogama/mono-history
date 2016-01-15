@@ -22,27 +22,34 @@ public class SentryGunScript : MonoBehaviour
 
 	public GameObject smokeEffect;
 
+	public Transform healthPivot;
+
 	private Color color;
 
 	private Mesh sentryMesh;
 
-	private float damageBlinkTimeoutTime;
+	private AudioSource audioSource;
 
-	public Transform healthPivot;
+	private ParticleEmitter smokeEffectEmitter;
+
+	private Renderer glowPlaneRenderer;
+
+	private float damageBlinkTimeoutTime;
 
 	public bool SmokeEnabled
 	{
 		set
 		{
-			smokeEffect.GetComponent<ParticleEmitter>().emit = value;
+			smokeEffectEmitter.emit = value;
 		}
 	}
 
 	public void Initialize()
 	{
-		color = sentryRenderer.material.GetColor("_Color");
-		glowPlane.GetComponent<Renderer>().material.SetColor("_TintColor", color);
 		sentryMesh = sentryRenderer.GetComponent<MeshFilter>().mesh;
+		audioSource = gameObject.GetComponent<AudioSource>();
+		smokeEffectEmitter = smokeEffect.GetComponent<ParticleEmitter>();
+		glowPlaneRenderer = glowPlane.GetComponent<Renderer>();
 	}
 
 	public void Explode()
@@ -66,7 +73,7 @@ public class SentryGunScript : MonoBehaviour
 	{
 		sentryRenderer.material.SetFloat("_GlowFactor", glow);
 		color.a = glow;
-		glowPlane.GetComponent<Renderer>().material.SetColor("_TintColor", color);
+		glowPlaneRenderer.material.SetColor("_TintColor", color);
 	}
 
 	public void UpdateAnimation()
@@ -96,6 +103,8 @@ public class SentryGunScript : MonoBehaviour
 			sentryRenderer.sharedMaterial = materialIceBeam;
 			break;
 		}
+		color = sentryRenderer.sharedMaterial.GetColor("_Color");
+		glowPlaneRenderer.material.SetColor("_TintColor", color);
 	}
 
 	private void SetSound(SentryGunBeamType beamType)
@@ -103,10 +112,10 @@ public class SentryGunScript : MonoBehaviour
 		switch (beamType)
 		{
 		case SentryGunBeamType.FireBeam:
-			gameObject.GetComponent<AudioSource>().clip = audioClipFireBeam;
+			audioSource.clip = audioClipFireBeam;
 			break;
 		case SentryGunBeamType.IceBeam:
-			gameObject.GetComponent<AudioSource>().clip = audioClipIceBeam;
+			audioSource.clip = audioClipIceBeam;
 			break;
 		}
 	}

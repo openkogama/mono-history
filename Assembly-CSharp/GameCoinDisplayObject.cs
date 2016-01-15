@@ -16,15 +16,57 @@ public class GameCoinDisplayObject : MonoBehaviour
 
 	private bool visible;
 
+	private Renderer textMeshRenderer1;
+
+	private Renderer textMeshRenderer2;
+
+	private Renderer coinMeshRenderer;
+
 	private GameCoinStringRenderer stringRenderer;
 
 	private int amount;
 
+	public Renderer TextMeshRenderer1
+	{
+		get
+		{
+			if (textMeshRenderer1 == null)
+			{
+				textMeshRenderer1 = textMesh1.GetComponent<Renderer>();
+			}
+			return textMeshRenderer1;
+		}
+	}
+
+	public Renderer TextMeshRenderer2
+	{
+		get
+		{
+			if (textMeshRenderer2 == null)
+			{
+				textMeshRenderer2 = textMesh2.GetComponent<Renderer>();
+			}
+			return textMeshRenderer2;
+		}
+	}
+
+	public Renderer CoinMeshRenderer
+	{
+		get
+		{
+			if (coinMeshRenderer == null)
+			{
+				coinMeshRenderer = coinMesh.GetComponent<Renderer>();
+			}
+			return coinMeshRenderer;
+		}
+	}
+
 	public void Start()
 	{
-		coinMesh.GetComponent<Renderer>().enabled = false;
-		textMesh1.GetComponent<Renderer>().enabled = false;
-		textMesh2.GetComponent<Renderer>().enabled = false;
+		CoinMeshRenderer.enabled = false;
+		TextMeshRenderer1.enabled = false;
+		TextMeshRenderer2.enabled = false;
 		visible = false;
 		transform.localScale = Vector3.zero;
 	}
@@ -77,9 +119,9 @@ public class GameCoinDisplayObject : MonoBehaviour
 		{
 			SetScale(t);
 		}));
-		textMesh1.GetComponent<Renderer>().enabled = true;
-		textMesh2.GetComponent<Renderer>().enabled = true;
-		coinMesh.GetComponent<Renderer>().enabled = true;
+		TextMeshRenderer1.enabled = true;
+		TextMeshRenderer2.enabled = true;
+		CoinMeshRenderer.enabled = true;
 		visible = true;
 	}
 
@@ -97,9 +139,9 @@ public class GameCoinDisplayObject : MonoBehaviour
 		transform.localScale = new Vector3(value, value, value);
 		if (value <= 0f && !visible)
 		{
-			textMesh1.GetComponent<Renderer>().enabled = false;
-			textMesh2.GetComponent<Renderer>().enabled = false;
-			coinMesh.GetComponent<Renderer>().enabled = false;
+			TextMeshRenderer1.enabled = false;
+			TextMeshRenderer2.enabled = false;
+			CoinMeshRenderer.enabled = false;
 		}
 	}
 }

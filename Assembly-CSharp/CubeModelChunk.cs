@@ -299,7 +299,14 @@ public class CubeModelChunk
 		gameObject.transform.localScale = Vector3.one;
 		gameObject.layer = cubeInstance.GameObject.layer;
 		instances.Add(gameObject);
-		cubeInstance.ChunkInstances.Add(chunkPos, gameObject);
+		ChunkInstances.ChunkInstanceVariables gameObject2 = new ChunkInstances.ChunkInstanceVariables
+		{
+			gameObject = gameObject,
+			collider = boxCollider,
+			filter = meshFilter,
+			renderer = meshRenderer
+		};
+		cubeInstance.ChunkInstances.Add(chunkPos, gameObject2);
 	}
 
 	private void SetCubeVisibilityWithNeighbors(IntVector pos)

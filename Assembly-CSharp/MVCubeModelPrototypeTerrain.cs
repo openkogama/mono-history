@@ -37,7 +37,7 @@ public class MVCubeModelPrototypeTerrain : MVCubeModelBase
 	{
 	}
 
-	public GameObject GetChunkInstance(IntVector chunkPos)
+	public ChunkInstances.ChunkInstanceVariables GetChunkInstance(IntVector chunkPos)
 	{
 		return chunkInstances.GetChunk(chunkPos);
 	}

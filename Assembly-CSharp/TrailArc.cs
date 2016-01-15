@@ -51,6 +51,8 @@ public class TrailArc : MonoBehaviour
 
 	private GameObject trail;
 
+	private Renderer mRenderer;
+
 	private Mesh mesh;
 
 	private Material trailMaterial;
@@ -103,12 +105,12 @@ public class TrailArc : MonoBehaviour
 		trail.transform.position = Vector3.zero;
 		trail.transform.rotation = Quaternion.identity;
 		trail.transform.localScale = Vector3.one;
-		MeshFilter meshFilter = (MeshFilter)trail.AddComponent(typeof(MeshFilter));
+		MeshFilter meshFilter = trail.AddComponent<MeshFilter>();
+		mRenderer = trail.AddComponent<MeshRenderer>();
 		mesh = meshFilter.mesh;
-		trail.AddComponent(typeof(MeshRenderer));
 		trailMaterial = new Material(material);
 		fadeOutRatio = trailMaterial.GetColor("_TintColor").a;
-		trail.GetComponent<Renderer>().material = trailMaterial;
+		mRenderer.material = trailMaterial;
 	}
 
 	private void printPoints()
@@ -281,10 +283,10 @@ public class TrailArc : MonoBehaviour
 			}
 			if (displayCnt < 2 || maxPointsDrawn == 1)
 			{
-				trail.GetComponent<Renderer>().enabled = false;
+				mRenderer.enabled = false;
 				return;
 			}
-			trail.GetComponent<Renderer>().enabled = true;
+			mRenderer.enabled = true;
 			lifeTimeRatio = 1f / lifetime;
 			int num2 = displayCnt;
 			if (num2 > maxPointsDrawn && maxPointsDrawn > 0)

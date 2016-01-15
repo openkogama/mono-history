@@ -153,13 +153,13 @@ public class MVAvatar : MVGroup
 	{
 		if ((byte)a == 0)
 		{
-			gameObject.GetComponent<Collider>().enabled = false;
-			gameObject.GetComponent<InteractionDataHandlerBase>().enabled = false;
+			avatar.Collider.enabled = false;
+			avatar.InteractionDataHandlerBase.enabled = false;
 		}
 		else
 		{
-			gameObject.GetComponent<Collider>().enabled = true;
-			gameObject.GetComponent<InteractionDataHandlerBase>().enabled = true;
+			avatar.Collider.enabled = true;
+			avatar.InteractionDataHandlerBase.enabled = true;
 		}
 	}
 

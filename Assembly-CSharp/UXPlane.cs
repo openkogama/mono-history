@@ -13,13 +13,15 @@ public class UXPlane : UXGUIElement, IUXContainer
 	public override void SetVisible(bool visible)
 	{
 		Visible = visible;
-		if (GetComponent<Collider>() != null)
+		Collider component = GetComponent<Collider>();
+		if (component != null)
 		{
-			GetComponent<Collider>().enabled = visible;
+			component.enabled = visible;
 		}
-		if (GetComponent<Renderer>() != null)
+		Renderer component2 = GetComponent<Renderer>();
+		if (component2 != null)
 		{
-			GetComponent<Renderer>().enabled = visible;
+			component2.enabled = visible;
 		}
 	}
 

@@ -39,6 +39,7 @@ public static class CollisionDetectionTests
 
 	private static void RaycastTest()
 	{
+		Debug.Log("test1");
 		Ray ray = Camera.main.ScreenPointToRay(new Vector3(MVInputWrapper.GetPointerPosition().x, MVInputWrapper.GetPointerPosition().y));
 		float distance = 400f;
 		if (MVRaycast.MVHit(ray, out var voxelHit, distance))
@@ -50,6 +51,7 @@ public static class CollisionDetectionTests
 
 	private static void ElipsoidAllTest()
 	{
+		Debug.Log("test2");
 		Ray ray = Camera.main.ScreenPointToRay(new Vector3(MVInputWrapper.GetPointerPosition().x, MVInputWrapper.GetPointerPosition().y));
 		float num = 0.5f;
 		Vector3 radius = Vector3.one * num;
@@ -61,6 +63,7 @@ public static class CollisionDetectionTests
 
 	private static void ElipsoidStressTest(int iterations)
 	{
+		Debug.Log("test3");
 		Ray ray = Camera.main.ScreenPointToRay(new Vector3(MVInputWrapper.GetPointerPosition().x, MVInputWrapper.GetPointerPosition().y));
 		float num = 0.5f;
 		Vector3 radius = Vector3.one * num;
@@ -75,6 +78,7 @@ public static class CollisionDetectionTests
 
 	private static void ElipsoidTest()
 	{
+		Debug.Log("test4");
 		Ray ray = Camera.main.ScreenPointToRay(new Vector3(MVInputWrapper.GetPointerPosition().x, MVInputWrapper.GetPointerPosition().y));
 		rayPrev.origin = ray.origin;
 		rayPrev.direction = ray.direction;
@@ -105,6 +109,7 @@ public static class CollisionDetectionTests
 
 	private static void ElipsoidOverlapCheckTestTransform()
 	{
+		Debug.Log("test5");
 		float num = 0.5f;
 		Vector3 position = new Vector3((float)Screen.width / 2f, (float)Screen.height / 2f);
 		Ray ray = Camera.main.ScreenPointToRay(position);
@@ -139,6 +144,7 @@ public static class CollisionDetectionTests
 
 	private static void ElipsoidOverlapCheckTest()
 	{
+		Debug.Log("test6");
 		float num = 0.5f;
 		Vector3 position = new Vector3((float)Screen.width / 2f, (float)Screen.height / 2f);
 		Ray ray = Camera.main.ScreenPointToRay(position);
@@ -171,6 +177,7 @@ public static class CollisionDetectionTests
 
 	private static void ElipsoidFalsePositiveTest()
 	{
+		Debug.Log("test7");
 		VoxelHit voxelHit = default;
 		float num = 0.5f;
 		float distance = 300f;
@@ -193,6 +200,7 @@ public static class CollisionDetectionTests
 
 	private static void ElipsoidDownTest()
 	{
+		Debug.Log("test8");
 		Ray ray = Camera.main.ScreenPointToRay(new Vector3(MVInputWrapper.GetPointerPosition().x, MVInputWrapper.GetPointerPosition().y));
 		rayPrev.origin = ray.origin;
 		rayPrev.direction = ray.direction;

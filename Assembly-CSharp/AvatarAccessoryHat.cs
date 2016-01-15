@@ -9,7 +9,19 @@ public class AvatarAccessoryHat : AvatarAccessory
 
 	public override bool HasAttachmentPoint => attachPosTfm != null;
 
-	public override AccessorySettings AccessorySettings => hatSettings;
+	public AccessoryHatSettings HatSettings
+	{
+		get
+		{
+			if (hatSettings == null)
+			{
+				hatSettings = GetComponent<AccessoryHatSettings>();
+			}
+			return hatSettings;
+		}
+	}
+
+	public override AccessorySettings AccessorySettings => HatSettings;
 
 	public override Vector3 AttachmentPointWorldPos
 	{
@@ -25,7 +37,6 @@ public class AvatarAccessoryHat : AvatarAccessory
 
 	protected override void Awake()
 	{
-		hatSettings = GetComponent<AccessoryHatSettings>();
 		base.Awake();
 		Category = AvatarAccessoryCategory.Hat;
 		attachPosTfm = Transform.FindChildRecursively("HatAttachPoint");

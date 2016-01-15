@@ -20,6 +20,8 @@ public class MVCollectible : MVLogicObject
 
 	private ObjectParticleEmitterScript particles;
 
+	private AudioSource audioSource;
+
 	private WorldObjectEnableController worldObjectEnableController;
 
 	private CollectibleClientState state;
@@ -55,6 +57,7 @@ public class MVCollectible : MVLogicObject
 		pickupItem = gameObject.GetComponent<GreyOutObjectScript>();
 		pickupMesh = pickupItem.pickupObject;
 		particles = gameObject.GetComponent<ObjectParticleEmitterScript>();
+		audioSource = gameObject.GetComponent<AudioSource>();
 		worldObjectEnableController = gameObject.GetComponentInChildren<WorldObjectEnableController>();
 		TriggerBoxEvents componentInChildren = gameObject.GetComponentInChildren<TriggerBoxEvents>();
 		if (componentInChildren != null)
@@ -132,9 +135,9 @@ public class MVCollectible : MVLogicObject
 		bool flag2 = num <= 0;
 		if ((flag && isVisible) || (!flag && !flag2))
 		{
-			if ((bool)gameObject.GetComponent<AudioSource>())
+			if ((bool)audioSource)
 			{
-				gameObject.GetComponent<AudioSource>().Play();
+				audioSource.Play();
 			}
 			particles.Play();
 		}

@@ -182,10 +182,10 @@ public class MVGhost : MVBlueprintBase, IUpdatecontrollerSubscriber
 			orderby (a.WorldPosition - WorldPosition).sqrMagnitude
 			select a).FirstOrDefault();
 		MoveGhost(mVWorldObjectClient);
-		InteractionDataHandlerBase component = mVWorldObjectClient.GameObject.GetComponent<InteractionDataHandlerBase>();
-		if (component != null && mVWorldObjectClient is MVAvatarLocal)
+		InteractionDataHandlerBase interactionDataHandlerBase = mVWorldObjectClient.InteractionDataHandlerBase;
+		if (interactionDataHandlerBase != null && mVWorldObjectClient is MVAvatarLocal)
 		{
-			ApplyGameEffect((MVAvatarLocal)mVWorldObjectClient, component);
+			ApplyGameEffect((MVAvatarLocal)mVWorldObjectClient, interactionDataHandlerBase);
 		}
 		UpdateVisualEffects(IsTouchingAvatar(mVWorldObjectClient));
 	}

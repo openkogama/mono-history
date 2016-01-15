@@ -9,6 +9,8 @@ public class MVTextMsg : MVLogicObject
 
 	private TextMesh textMesh;
 
+	private Renderer textMeshRenderer;
+
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => false;
@@ -19,6 +21,7 @@ public class MVTextMsg : MVLogicObject
 		interactionFlags |= InteractionFlags.HasSettings;
 		localBounds = ComputeLocalBounds(gameObject.transform.position, new MeshRenderer[1] { gameObject.GetComponent<MeshRenderer>() });
 		textMesh = gameObject.GetComponentInChildren<TextMesh>();
+		textMeshRenderer = textMesh.GetComponent<Renderer>();
 	}
 
 	public override Bounds GetLocalBounds(BoundsContext boundsContext)
@@ -32,7 +35,7 @@ public class MVTextMsg : MVLogicObject
 		OnDataUpdate();
 		if (InputLinkRefs.Count == 0)
 		{
-			textMesh.GetComponent<Renderer>().enabled = true;
+			textMeshRenderer.enabled = true;
 		}
 	}
 
@@ -47,7 +50,7 @@ public class MVTextMsg : MVLogicObject
 	{
 		if (InputLinkRefs.Count == 0)
 		{
-			textMesh.GetComponent<Renderer>().enabled = true;
+			textMeshRenderer.enabled = true;
 		}
 		else
 		{
@@ -59,12 +62,12 @@ public class MVTextMsg : MVLogicObject
 	{
 		if (InputState)
 		{
-			textMesh.GetComponent<Renderer>().enabled = true;
+			textMeshRenderer.enabled = true;
 			textVisible = true;
 		}
 		else
 		{
-			textMesh.GetComponent<Renderer>().enabled = false;
+			textMeshRenderer.enabled = false;
 			textVisible = false;
 		}
 	}
@@ -92,7 +95,7 @@ public class MVTextMsg : MVLogicObject
 		base.ChangeLOD(distance);
 		if (flag != disabledByLod)
 		{
-			textMesh.GetComponent<Renderer>().enabled = textVisible && !disabledByLod;
+			textMeshRenderer.enabled = textVisible && !disabledByLod;
 		}
 	}
 }

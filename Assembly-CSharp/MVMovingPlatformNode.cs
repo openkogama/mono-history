@@ -22,7 +22,7 @@ public class MVMovingPlatformNode : MVWorldObjectClient
 
 	public override Bounds GetLocalBounds(BoundsContext boundsContext)
 	{
-		Bounds bounds = GameObject.GetComponent<Collider>().bounds;
+		Bounds bounds = Collider.bounds;
 		bounds.center = Vector3.zero;
 		return bounds;
 	}

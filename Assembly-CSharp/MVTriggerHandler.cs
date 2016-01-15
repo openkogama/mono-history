@@ -11,6 +11,18 @@ public class MVTriggerHandler : MonoBehaviour
 
 	private bool fixedUpdatedWasExecuted;
 
+	public Collider TriggingCollider
+	{
+		get
+		{
+			if (triggingCollider == null)
+			{
+				triggingCollider = GetComponent<Collider>();
+			}
+			return triggingCollider;
+		}
+	}
+
 	private void OnTriggerStay(Collider other)
 	{
 		if (!enabled)
@@ -58,13 +70,13 @@ public class MVTriggerHandler : MonoBehaviour
 		}
 		foreach (int item in list)
 		{
-			triggerBoxEvents[item].OnMVTriggerExit(triggingCollider);
+			triggerBoxEvents[item].OnMVTriggerExit(TriggingCollider);
 			triggerBoxEvents.Remove(item);
 		}
 		foreach (int item2 in list2)
 		{
 			triggerBoxEvents.Add(item2, newTriggerBoxEvents[item2]);
-			triggerBoxEvents[item2].OnMVTriggerEnter(triggingCollider);
+			triggerBoxEvents[item2].OnMVTriggerEnter(TriggingCollider);
 		}
 		newTriggerBoxEvents.Clear();
 	}
@@ -73,7 +85,7 @@ public class MVTriggerHandler : MonoBehaviour
 	{
 		foreach (KeyValuePair<int, TriggerBoxEvents> triggerBoxEvent in triggerBoxEvents)
 		{
-			triggerBoxEvent.Value.OnMVTriggerExit(triggingCollider);
+			triggerBoxEvent.Value.OnMVTriggerExit(TriggingCollider);
 		}
 		newTriggerBoxEvents.Clear();
 		triggerBoxEvents.Clear();
@@ -91,13 +103,9 @@ public class MVTriggerHandler : MonoBehaviour
 
 	private void Start()
 	{
-		if (GetComponent<Collider>() == null)
+		if (TriggingCollider == null)
 		{
 			Debug.LogError("Did not find collider");
-		}
-		else
-		{
-			triggingCollider = GetComponent<Collider>();
 		}
 	}
 }

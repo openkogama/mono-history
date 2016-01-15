@@ -28,6 +28,8 @@ public class PickupItemBazooka : PickupItemWithDelay
 
 	public AudioClip rocketHitSound;
 
+	private AudioSource aSource;
+
 	private ObscuredInt currentAmmo = 10;
 
 	public override AvatarItemType Type => AvatarItemType.Bazooka;
@@ -39,6 +41,7 @@ public class PickupItemBazooka : PickupItemWithDelay
 	protected override void OnStart()
 	{
 		currentAmmo = ammo;
+		aSource = GetComponent<AudioSource>();
 	}
 
 	public override void OnStateChanged(Dictionary<object, object> newState)
@@ -56,14 +59,14 @@ public class PickupItemBazooka : PickupItemWithDelay
 			bullet.onHitLocal = (Bullet.OnHitDelegate)Delegate.Combine(bullet.onHitLocal, new Bullet.OnHitDelegate(HandleRocketHitLocal));
 		}
 		bullet.Fire(lineOfFire: new Ray(owner.LookOrigin, owner.LookDirection), speed: owner.GetAbsolutProjectileSpeed(rocketSpeed), range: rocketRange, ignoreWoIDs: owner.IgnoreWOIDs);
-		MVGameControllerBase.AudioManager.Play("rocket fired", GetComponent<AudioSource>(), muzzlePoint.position);
+		MVGameControllerBase.AudioManager.Play("rocket fired", aSource, muzzlePoint.position);
 		if (isLocal)
 		{
-			MVGameControllerBase.AudioManager.Play("rocket fired", GetComponent<AudioSource>(), Camera.main.transform.position + Camera.main.transform.forward);
+			MVGameControllerBase.AudioManager.Play("rocket fired", aSource, Camera.main.transform.position + Camera.main.transform.forward);
 		}
 		else
 		{
-			MVGameControllerBase.AudioManager.Play("rocket fired", GetComponent<AudioSource>(), muzzlePoint.position);
+			MVGameControllerBase.AudioManager.Play("rocket fired", aSource, muzzlePoint.position);
 		}
 		currentAmmo = (int)currentAmmo - 1;
 	}
@@ -83,8 +86,8 @@ public class PickupItemBazooka : PickupItemWithDelay
 					ExplosionEvent explosion = new ExplosionEvent(RuntimeEventType.Bazooka, voxelHit.point, voxelHit.normal);
 					MVGameControllerBase.Game.World.RuntimeEventManager.SendRuntimeEvent(explosion);
 				}
-				InteractionDataHandlerBase component = mVObject.GameObject.GetComponent<InteractionDataHandlerBase>();
-				if (component != null)
+				InteractionDataHandlerBase interactionDataHandlerBase = mVObject.InteractionDataHandlerBase;
+				if (interactionDataHandlerBase != null)
 				{
 					float time = Vector3.Distance(voxelHit.point, collider.transform.position) / blastRadius;
 					float damage = damageFalloff.Evaluate(time) * baseDamage;
@@ -92,7 +95,7 @@ public class PickupItemBazooka : PickupItemWithDelay
 					normalized.y += 0.1f;
 					normalized.Normalize();
 					Vector3 impulse = normalized * baseImpulse * impulseFalloff.Evaluate(time);
-					component.HandleInteraction(ProximityDamageAndImpulse.Create(damage, impulse, PlayerKilledByType.BazookaGun), interactionIsLocal: false);
+					interactionDataHandlerBase.HandleInteraction(ProximityDamageAndImpulse.Create(damage, impulse, PlayerKilledByType.BazookaGun), interactionIsLocal: false);
 					hashSet.Add(mVObject.Id);
 				}
 			}

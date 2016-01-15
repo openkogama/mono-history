@@ -91,6 +91,10 @@ public class MVNetworkSelector
 	private static void RequestReleaseOwnership(int id)
 	{
 		MVWorldObjectClient worldObjectClient = WOCM.GetWorldObjectClient(id);
+		if (worldObjectClient.NetworkObject is MVNetworkReporter)
+		{
+			((MVNetworkReporter)worldObjectClient.NetworkObject).suspendTransformReporting = true;
+		}
 		MVGameControllerBase.Game.TransferOwnership(id, 0, worldObjectClient.Transform);
 	}
 

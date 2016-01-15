@@ -59,7 +59,7 @@ public abstract class MVInteractable : MVInteractableBase
 	{
 		ModifierActions actionToTakeWithPackageType = modifierPackages.GetActionToTakeWithPackageType(type);
 		Dictionary<object, object> dictionary = new Dictionary<object, object>((Dictionary<object, object>)runtimeDataModifiers.Value);
-		string key = "_" + type;
+		string key = AvatarModifierPackage.AvatarModifierPackageTypeLookupTable[(int)type];
 		switch (actionToTakeWithPackageType)
 		{
 		case ModifierActions.Add:

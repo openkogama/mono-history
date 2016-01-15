@@ -16,6 +16,8 @@ public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 
 	private MVNetworkListener woListener;
 
+	private AudioSource audioSource;
+
 	private Queue<AnimationData> animationQueue = new Queue<AnimationData>();
 
 	private AnimationData prevAnim;
@@ -41,6 +43,18 @@ public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 	{
 	};
 
+	public AudioSource AudioSource
+	{
+		get
+		{
+			if (audioSource == null)
+			{
+				audioSource = GetComponent<AudioSource>();
+			}
+			return audioSource;
+		}
+	}
+
 	private void Start()
 	{
 		if (!avatarAnimation.isPlaying)
@@ -59,14 +73,14 @@ public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 		{
 			if (MVGameControllerBase.WOCM.AvatarLocal.RigidBody.Grounded && !MVGameControllerBase.WOCM.AvatarLocal.IsInVehicle)
 			{
-				GetComponent<AudioSource>().pitch = GetFootstepPitch();
-				MVGameControllerBase.AudioManager.Play("Footstep", GetComponent<AudioSource>(), Camera.main.transform.position + Camera.main.transform.forward);
+				AudioSource.pitch = GetFootstepPitch();
+				MVGameControllerBase.AudioManager.Play("Footstep", AudioSource, Camera.main.transform.position + Camera.main.transform.forward);
 			}
 		}
 		else
 		{
-			GetComponent<AudioSource>().pitch = GetFootstepPitch();
-			MVGameControllerBase.AudioManager.Play("Footstep", GetComponent<AudioSource>(), mvAvatar.Body.Transform.position);
+			AudioSource.pitch = GetFootstepPitch();
+			MVGameControllerBase.AudioManager.Play("Footstep", AudioSource, mvAvatar.Body.Transform.position);
 		}
 	}
 

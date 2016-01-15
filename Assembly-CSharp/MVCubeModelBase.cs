@@ -68,9 +68,9 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel, ICubeModelCollid
 		{
 			MeshFilter[] array = new MeshFilter[chunkInstances.Count];
 			int num = 0;
-			foreach (KeyValuePair<IntVector, GameObject> item in (IEnumerable)chunkInstances)
+			foreach (KeyValuePair<IntVector, ChunkInstances.ChunkInstanceVariables> item in (IEnumerable)chunkInstances)
 			{
-				array[num] = item.Value.GetComponent<MeshFilter>();
+				array[num] = item.Value.filter;
 				num++;
 			}
 			return array;
@@ -222,12 +222,12 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel, ICubeModelCollid
 		}
 		Vector3 min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
 		Vector3 max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
-		foreach (KeyValuePair<IntVector, GameObject> item in (IEnumerable)chunkInstances)
+		foreach (KeyValuePair<IntVector, ChunkInstances.ChunkInstanceVariables> item in (IEnumerable)chunkInstances)
 		{
-			BoxCollider component = item.Value.GetComponent<BoxCollider>();
-			Vector3 vector = component.size / 2f;
-			Vector3 vector2 = component.center - vector;
-			Vector3 vector3 = component.center + vector;
+			BoxCollider boxCollider = item.Value.collider;
+			Vector3 vector = boxCollider.size / 2f;
+			Vector3 vector2 = boxCollider.center - vector;
+			Vector3 vector3 = boxCollider.center + vector;
 			for (int i = 0; i < 3; i++)
 			{
 				if (vector2[i] < min[i])
@@ -252,27 +252,27 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel, ICubeModelCollid
 		}
 		Bounds result = default;
 		bool flag = true;
-		foreach (KeyValuePair<IntVector, GameObject> item in (IEnumerable)chunkInstances)
+		foreach (KeyValuePair<IntVector, ChunkInstances.ChunkInstanceVariables> item in (IEnumerable)chunkInstances)
 		{
-			MeshFilter component = item.Value.GetComponent<MeshFilter>();
+			MeshFilter filter = item.Value.filter;
 			if (flag)
 			{
-				result = component.sharedMesh.bounds;
+				result = filter.sharedMesh.bounds;
 				flag = false;
 				continue;
 			}
 			for (int i = 0; i < 3; i++)
 			{
-				if (component.sharedMesh.bounds.min[i] < result.min[i])
+				if (filter.sharedMesh.bounds.min[i] < result.min[i])
 				{
 					Vector3 min = result.min;
-					min[i] = component.sharedMesh.bounds.min[i];
+					min[i] = filter.sharedMesh.bounds.min[i];
 					result.SetMinMax(min, result.max);
 				}
-				if (component.sharedMesh.bounds.max[i] > result.max[i])
+				if (filter.sharedMesh.bounds.max[i] > result.max[i])
 				{
 					Vector3 max = result.max;
-					max[i] = component.sharedMesh.bounds.max[i];
+					max[i] = filter.sharedMesh.bounds.max[i];
 					result.SetMinMax(result.min, max);
 				}
 			}
@@ -290,11 +290,20 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel, ICubeModelCollid
 		return transform.TransformPoint(GetBounds().center);
 	}
 
-	public void Enable(bool active)
+	public void ObjectLinkChanged(bool visible)
 	{
-		foreach (KeyValuePair<IntVector, GameObject> item in (IEnumerable)chunkInstances)
+		bool active = visible;
+		foreach (ObjectLink objectLinkRef in ObjectLinkRefs)
 		{
-			item.Value.SetActive(active);
+			if (objectLinkRef.isSet)
+			{
+				active = true;
+				break;
+			}
+		}
+		foreach (KeyValuePair<IntVector, ChunkInstances.ChunkInstanceVariables> item in (IEnumerable)chunkInstances)
+		{
+			item.Value.gameObject.SetActive(active);
 		}
 	}
 

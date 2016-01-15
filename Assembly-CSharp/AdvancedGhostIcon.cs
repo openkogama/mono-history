@@ -31,9 +31,9 @@ public class AdvancedGhostIcon : MonoBehaviour
 		{
 			Object.Destroy(item.gameObject);
 		}
-		foreach (KeyValuePair<IntVector, GameObject> item2 in (IEnumerable)body.ChunkInstances)
+		foreach (KeyValuePair<IntVector, ChunkInstances.ChunkInstanceVariables> item2 in (IEnumerable)body.ChunkInstances)
 		{
-			GameObject gameObject = Object.Instantiate(item2.Value);
+			GameObject gameObject = Object.Instantiate(item2.Value.gameObject);
 			gameObject.transform.parent = GhostBody.transform;
 			gameObject.transform.localPosition = Vector3.zero;
 			gameObject.transform.localRotation = Quaternion.identity;

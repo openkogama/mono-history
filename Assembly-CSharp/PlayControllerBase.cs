@@ -58,10 +58,12 @@ public class PlayControllerBase : AIngameController, IPlayModeUI
 		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
 		{
 			lockCursorManager = AIngameController.FindGUIObjectOfType<LockCursorManagerPlatformer>(gameObject);
+			((LockCursorManagerPlatformer)lockCursorManager).gameObject.SetActive(value: true);
 		}
 		else
 		{
 			lockCursorManager = AIngameController.FindGUIObjectOfType<LockCursorManager>(gameObject);
+			((LockCursorManager)lockCursorManager).gameObject.SetActive(value: true);
 		}
 	}
 
@@ -147,17 +149,20 @@ public class PlayControllerBase : AIngameController, IPlayModeUI
 	{
 		ILockCursorManager lockCursorManager = this.lockCursorManager;
 		lockCursorManager.OnCursorLockChanged = (Action<bool>)Delegate.Combine(lockCursorManager.OnCursorLockChanged, new Action<bool>(FocusChanged));
-		resume.button.OnClick = () =>
-		{
-			this.lockCursorManager.LockCursor = true;
-			if (MVGameControllerBase.WOCM.AvatarLocal.AvatarRuntimeState == AvatarRuntimeState.Hidden)
-			{
-				ShowBriefing();
-				Debug.Log("Briefing shown");
-				MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Playing);
-			}
-		};
+		UXBaseButton button = resume.button;
+		button.OnClick = (UXBaseButton.OnClickDelegate)Delegate.Combine(button.OnClick, new UXBaseButton.OnClickDelegate(Resume));
 		FocusChanged(this.lockCursorManager.HasFocusAndLockCursor);
+	}
+
+	private void Resume()
+	{
+		lockCursorManager.LockCursor = true;
+		if (MVGameControllerBase.WOCM.AvatarLocal.AvatarRuntimeState == AvatarRuntimeState.Hidden)
+		{
+			ShowBriefing();
+			Debug.Log("Briefing shown");
+			MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Playing);
+		}
 	}
 
 	protected virtual void FocusChanged(bool hasFocus)

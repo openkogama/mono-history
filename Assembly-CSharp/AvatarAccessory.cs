@@ -42,9 +42,41 @@ public abstract class AvatarAccessory : MonoBehaviour
 
 	public int GameObjectID => _gameObjectID;
 
-	public Transform Transform => _transform;
+	public Transform Transform
+	{
+		get
+		{
+			if (_transform == null)
+			{
+				_transform = transform;
+			}
+			return _transform;
+		}
+	}
 
-	public Collider[] Colliders => _colliders;
+	public Collider[] Colliders
+	{
+		get
+		{
+			if (_colliders == null)
+			{
+				_colliders = GetComponentsInChildren<Collider>();
+			}
+			return _colliders;
+		}
+	}
+
+	public Renderer[] Renderers
+	{
+		get
+		{
+			if (_renderers == null)
+			{
+				_renderers = GetComponentsInChildren<Renderer>();
+			}
+			return _renderers;
+		}
+	}
 
 	public bool Visible
 	{
@@ -56,7 +88,7 @@ public abstract class AvatarAccessory : MonoBehaviour
 		{
 			if (_visible != value)
 			{
-				Renderer[] renderers = _renderers;
+				Renderer[] renderers = Renderers;
 				foreach (Renderer renderer in renderers)
 				{
 					renderer.enabled = value;
@@ -92,15 +124,12 @@ public abstract class AvatarAccessory : MonoBehaviour
 	protected virtual void Awake()
 	{
 		_gameObjectID = gameObject.GetInstanceID();
-		_transform = transform;
-		_colliders = GetComponentsInChildren<Collider>();
-		Collider[] colliders = _colliders;
+		Collider[] colliders = Colliders;
 		foreach (Collider collider in colliders)
 		{
 			collider.enabled = false;
 		}
-		_renderers = GetComponentsInChildren<Renderer>();
-		Renderer[] renderers = _renderers;
+		Renderer[] renderers = Renderers;
 		foreach (Renderer renderer in renderers)
 		{
 			renderer.enabled = _visible;
@@ -141,7 +170,7 @@ public abstract class AvatarAccessory : MonoBehaviour
 	{
 		Bounds result = default;
 		bool flag = true;
-		Renderer[] renderers = _renderers;
+		Renderer[] renderers = Renderers;
 		foreach (Renderer renderer in renderers)
 		{
 			if (flag)

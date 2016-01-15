@@ -102,7 +102,7 @@ public class UseInteractorHandler : MVComponent
 	private List<UseInteractor> SortByDistance()
 	{
 		List<UseInteractor> source = useInteractors.Values.ToList();
-		Vector3 triggingColliderPosition = triggingCollider.GetComponent<Collider>().bounds.center;
+		Vector3 triggingColliderPosition = triggingCollider.bounds.center;
 		return source.OrderBy((UseInteractor a) => (a.TriggerCollider.transform.position - triggingColliderPosition).magnitude).ToList();
 	}
 

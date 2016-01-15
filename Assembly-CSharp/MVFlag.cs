@@ -24,7 +24,7 @@ public class MVFlag : MVLogicObject
 		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
 		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
-		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.GetComponent<Collider>(), DoCaptureFlag);
+		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.Collider, DoCaptureFlag);
 		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
 		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
 		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, gameCoinDisplayObjectOffset, hasUseButtonWhenFree: false);
@@ -60,10 +60,6 @@ public class MVFlag : MVLogicObject
 	protected override void OnUpdate()
 	{
 		base.OnUpdate();
-		if (triggerBoxEvents.IsInTrigger && (useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0 && worldObjectEnableController.EnableState == EnableState.Enable)
-		{
-			DoCaptureFlag(MVGameControllerBase.WOCM.AvatarLocal.Id);
-		}
 	}
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
@@ -83,6 +79,8 @@ public class MVFlag : MVLogicObject
 	public override void Destroy()
 	{
 		triggerBoxEvents.TriggerEnter -= triggerBoxEvents_TriggerEnter;
+		triggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
+		triggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
 		useInteractor.OnDestroy(Data);
 		base.Destroy();
 		if (initializedInWorld && MVGameControllerBase.Game.World.WorldObjectClientManager.GetWorldObjectsByType(WorldObjectType).Count == 0)

@@ -60,10 +60,10 @@ public class MouseGun : PickupItemWithDelay
 			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
 			if (owner.IsLocal && worldObjectClient != null && worldObjectClient is MVAvatar)
 			{
-				InteractionDataHandlerBase component = worldObjectClient.GameObject.GetComponent<InteractionDataHandlerBase>();
-				if (component != null)
+				InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
+				if (interactionDataHandlerBase != null)
 				{
-					component.HandleInteraction(packageData, interactionIsLocal: false);
+					interactionDataHandlerBase.HandleInteraction(packageData, interactionIsLocal: false);
 				}
 			}
 			flag = true;

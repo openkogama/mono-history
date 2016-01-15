@@ -36,14 +36,14 @@ public class SharedWorldObjectGameplayFunctions
 				float num = Vector3.Distance(collider.GetComponent<Collider>().ClosestPointOnBounds(position), position);
 				if (num <= damageRadius)
 				{
-					InteractionDataHandlerBase component = mVObject.GameObject.GetComponent<InteractionDataHandlerBase>();
-					if (!(component == null))
+					InteractionDataHandlerBase interactionDataHandlerBase = mVObject.InteractionDataHandlerBase;
+					if (!(interactionDataHandlerBase == null))
 					{
 						float num2 = 1f - num / damageRadius;
 						float damage = damageValue * num2;
 						Vector3 impulse = (mVObject.GameObject.transform.position - position).normalized * num2 * shockwaveAcceleration;
 						InteractionData interaction = ProximityDamageAndImpulse.Create(damage, impulse, PlayerKilledByType.Explosive);
-						component.HandleInteraction(interaction, local);
+						interactionDataHandlerBase.HandleInteraction(interaction, local);
 					}
 				}
 			}

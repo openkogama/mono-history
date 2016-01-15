@@ -73,6 +73,10 @@ public static class BytePackerFunctionsVersion11
 			bytePacker.Write(value3.id);
 			bytePacker.Write(value3.objectConnectorWOID);
 			bytePacker.Write(value3.objectWOID);
+			if (writeRuntimeData)
+			{
+				bytePacker.Write(value3.isSet);
+			}
 		}
 		return bytePacker;
 	}
@@ -211,7 +215,7 @@ public static class BytePackerFunctionsVersion11
 			KogamaDataType.Prototypes => GetPrototypeDataParameters(bp), 
 			KogamaDataType.WorldObjects => GetWorldObjectDataParameters(bp, readRuntimeData), 
 			KogamaDataType.Links => GetLinkDataParameters(bp, readRuntimeData), 
-			KogamaDataType.ObjectLinks => GetObjectLinkDataParameters(bp), 
+			KogamaDataType.ObjectLinks => GetObjectLinkDataParameters(bp, readRuntimeData), 
 			_ => null, 
 		};
 	}
@@ -297,7 +301,7 @@ public static class BytePackerFunctionsVersion11
 		return dictionary2;
 	}
 
-	private static Dictionary<object, object> GetObjectLinkDataParameters(BytePacker bp)
+	private static Dictionary<object, object> GetObjectLinkDataParameters(BytePacker bp, bool readRuntimeData)
 	{
 		int num = bp.ReadInt32();
 		int num2 = bp.ReadInt32();
@@ -306,7 +310,13 @@ public static class BytePackerFunctionsVersion11
 		dictionary.Add(ObjectLinkDataParameter.Id, num);
 		dictionary.Add(ObjectLinkDataParameter.ObjectLinkConnectorWOID, num2);
 		dictionary.Add(ObjectLinkDataParameter.ObjectWOID, num3);
-		return dictionary;
+		Dictionary<object, object> dictionary2 = dictionary;
+		if (readRuntimeData)
+		{
+			bool flag = bp.ReadBoolean();
+			dictionary2.Add(ObjectLinkDataParameter.IsSet, flag);
+		}
+		return dictionary2;
 	}
 
 	private static void GetHashTableFromBytePacker(BytePacker bp, Dictionary<object, object> data, int numNameValuePairs)

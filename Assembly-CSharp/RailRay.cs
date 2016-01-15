@@ -15,10 +15,32 @@ public class RailRay : MonoBehaviour
 
 	private ParticleSystem particles;
 
+	public LineRenderer RayRenderer
+	{
+		get
+		{
+			if (rayRenderer == null)
+			{
+				rayRenderer = GetComponent<LineRenderer>();
+			}
+			return rayRenderer;
+		}
+	}
+
+	public ParticleSystem Particles
+	{
+		get
+		{
+			if (particles == null)
+			{
+				particles = GetComponentInChildren<ParticleSystem>();
+			}
+			return particles;
+		}
+	}
+
 	private void Start()
 	{
-		rayRenderer = GetComponent<LineRenderer>();
-		particles = GetComponentInChildren<ParticleSystem>();
 		StartCoroutine(DoShowRay(target));
 	}
 
@@ -27,18 +49,18 @@ public class RailRay : MonoBehaviour
 		Color endColor = new Color(0.1f, 0.1f, 0.1f, 0f);
 		Vector3 origin = transform.position;
 		transform.position = target;
-		rayRenderer.SetVertexCount(2);
-		rayRenderer.SetPosition(1, origin);
-		rayRenderer.SetPosition(0, hit);
+		RayRenderer.SetVertexCount(2);
+		RayRenderer.SetPosition(1, origin);
+		RayRenderer.SetPosition(0, hit);
 		float time = 1.2f;
 		float t = 0f;
 		while (t < time)
 		{
-			rayRenderer.material.SetColor("_TintColor", Color.Lerp(startColor, endColor, t / time));
+			RayRenderer.material.SetColor("_TintColor", Color.Lerp(startColor, endColor, t / time));
 			t += Time.deltaTime;
 			yield return 0;
 		}
-		while (particles.isPlaying)
+		while (Particles.isPlaying)
 		{
 			yield return 0;
 		}

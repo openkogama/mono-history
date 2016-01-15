@@ -154,7 +154,7 @@ public static class MVSweptElipsoidCheck
 			elipsoidSpaceToWorld = Matrix4x4.TRS(Vector3.zero, rotation, radius);
 			worldToElipsoidSpace = elipsoidSpaceToWorld.inverse;
 			GetBoundRays(ray, (ICubeModelCollider)wo);
-			if (LayerScan(ref voxelHit, radius, maxRadius, collisionData[i].transform.gameObject, distance, (ICubeModelCollider)wo, collisionData[i], ray, raysGetBoundRays))
+			if (LayerScan(ref voxelHit, radius, maxRadius, (BoxCollider)collisionData[i].collider, distance, (ICubeModelCollider)wo, collisionData[i], ray, raysGetBoundRays))
 			{
 				if (handleObjectsInsideBoxCollider)
 				{
@@ -187,7 +187,7 @@ public static class MVSweptElipsoidCheck
 					break;
 				}
 				VoxelHit vh = default;
-				if (LayerScan(ref vh, radius, maxRadius, collisionData[i].transform.gameObject, distance, (ICubeModelCollider)mVObject, collisionData[i], ray, boundRays) && voxelHit.distance > vh.distance)
+				if (LayerScan(ref vh, radius, maxRadius, (BoxCollider)collisionData[i].collider, distance, (ICubeModelCollider)mVObject, collisionData[i], ray, boundRays) && voxelHit.distance > vh.distance)
 				{
 					SharedCollisionFunctions.SetToVoxelHit(ref voxelHit, ref vh);
 				}
@@ -200,7 +200,7 @@ public static class MVSweptElipsoidCheck
 		}
 	}
 
-	private static bool LayerScan(ref VoxelHit vh, Vector3 radius, float maxRadius, GameObject chunk, float distance, ICubeModelCollider wo, PhysicsCollisionData collisionData, Ray ray, Ray[] boundRays)
+	private static bool LayerScan(ref VoxelHit vh, Vector3 radius, float maxRadius, BoxCollider chunk, float distance, ICubeModelCollider wo, PhysicsCollisionData collisionData, Ray ray, Ray[] boundRays)
 	{
 		CollisionState collisionState = new CollisionState
 		{
@@ -209,8 +209,7 @@ public static class MVSweptElipsoidCheck
 			minBounds = default,
 			maxBounds = default
 		};
-		BoxCollider component = chunk.GetComponent<BoxCollider>();
-		SharedCollisionFunctions.GetVoxelBounds(localSpaceBounds: new Bounds(component.center, component.size), min: ref collisionState.minBounds, max: ref collisionState.maxBounds);
+		SharedCollisionFunctions.GetVoxelBounds(localSpaceBounds: new Bounds(chunk.center, chunk.size), min: ref collisionState.minBounds, max: ref collisionState.maxBounds);
 		collisionState.localHitPoint = collisionData.transform.InverseTransformPoint(collisionData.point);
 		collisionState.localNormal = collisionData.transform.InverseTransformDirection(collisionData.normal);
 		collisionState.localDirection = collisionData.transform.InverseTransformDirection(ray.direction);

@@ -77,14 +77,14 @@ public class MovableVisualization : MonoBehaviour, IUpdatecontrollerSubscriber
 		gameObject.transform.localPosition = cmb.Transform.position;
 		gameObject.transform.localRotation = cmb.Transform.rotation;
 		gameObject.transform.localScale = cmb.Transform.localScale;
-		foreach (KeyValuePair<IntVector, GameObject> item in (IEnumerable)cmb.ChunkInstances)
+		foreach (KeyValuePair<IntVector, ChunkInstances.ChunkInstanceVariables> item in (IEnumerable)cmb.ChunkInstances)
 		{
-			GameObject value = item.Value;
-			GameObject gameObject2 = UnityEngine.Object.Instantiate(value);
-			gameObject2.transform.parent = gameObject.transform;
-			gameObject2.transform.localPosition = value.transform.localPosition;
-			gameObject2.transform.localRotation = value.transform.localRotation;
-			gameObject2.transform.localScale = value.transform.localScale;
+			GameObject gameObject2 = item.Value.gameObject;
+			GameObject gameObject3 = UnityEngine.Object.Instantiate(gameObject2);
+			gameObject3.transform.parent = gameObject.transform;
+			gameObject3.transform.localPosition = gameObject2.transform.localPosition;
+			gameObject3.transform.localRotation = gameObject2.transform.localRotation;
+			gameObject3.transform.localScale = gameObject2.transform.localScale;
 		}
 		RemoveAllComponentsInChildrenExclude(new Type[2]
 		{

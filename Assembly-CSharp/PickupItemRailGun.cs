@@ -35,6 +35,8 @@ public class PickupItemRailGun : PickupItem
 
 	private AudioSource audioSource;
 
+	private Renderer chargeParticlesRenderer;
+
 	private float toFieldOfView;
 
 	public AnimationCurve chargeCurve;
@@ -84,6 +86,7 @@ public class PickupItemRailGun : PickupItem
 		meshRenderers = GetComponentsInChildren<MeshRenderer>();
 		currentAmmo = ammo;
 		audioSource = GetComponent<AudioSource>();
+		chargeParticlesRenderer = chargeParticles.GetComponent<Renderer>();
 		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
 		{
 			toFieldOfView = 60f;
@@ -102,7 +105,7 @@ public class PickupItemRailGun : PickupItem
 	private IEnumerator DoChargingAnimation()
 	{
 		chargeParticles.Play();
-		Material m = chargeParticles.GetComponent<Renderer>().sharedMaterial;
+		Material m = chargeParticlesRenderer.sharedMaterial;
 		while (isCharging && owner.CurrentItem == this)
 		{
 			float charge = chargeCurve.Evaluate(Time.time - chargeBeginTime);
@@ -114,11 +117,11 @@ public class PickupItemRailGun : PickupItem
 			chargeParticles.time = charge;
 			if (charge >= 1f)
 			{
-				chargeParticles.GetComponent<Renderer>().material.SetColor("_TintColor", new Color(1f, 0.4f, 0.1f, 1f));
+				chargeParticlesRenderer.material.SetColor("_TintColor", new Color(1f, 0.4f, 0.1f, 1f));
 			}
 			yield return 0;
 		}
-		chargeParticles.GetComponent<Renderer>().sharedMaterial = m;
+		chargeParticlesRenderer.sharedMaterial = m;
 		chargeParticles.Stop();
 		if (owner.IsLocal)
 		{
@@ -198,10 +201,10 @@ public class PickupItemRailGun : PickupItem
 			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
 			if (owner.IsLocal && worldObjectClient != null)
 			{
-				InteractionDataHandlerBase component = worldObjectClient.GameObject.GetComponent<InteractionDataHandlerBase>();
-				if (component != null)
+				InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
+				if (interactionDataHandlerBase != null)
 				{
-					component.HandleInteraction(interaction, interactionIsLocal: false);
+					interactionDataHandlerBase.HandleInteraction(interaction, interactionIsLocal: false);
 				}
 			}
 			flag = true;

@@ -53,7 +53,7 @@ public class MVTeleporter : MVLogicObject
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
 		interactionFlags |= InteractionFlags.CanUseLevel;
 		interactionFlags |= InteractionFlags.CanUseStars;
-		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.GetComponent<Collider>(), DoTeleport);
+		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.Collider, DoTeleport);
 		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, gameCoinDisplayObjectOffset, hasUseButtonWhenFree: false);
 		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(gameObject, hasUseButtonWhenFree: false);
 		StarRequirement useRequirement3 = new StarRequirement(gameObject, hasUseButtonWhenFree: false);
@@ -163,6 +163,8 @@ public class MVTeleporter : MVLogicObject
 	{
 		if (!isDestroyed)
 		{
+			triggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
+			triggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
 			useInteractor.OnDestroy(Data);
 			base.Destroy();
 			isDestroyed = true;

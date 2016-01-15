@@ -1,7 +1,7 @@
 using UnityEngine;
 
-[ExecuteInEditMode]
 [RequireComponent(typeof(WaterBase))]
+[ExecuteInEditMode]
 public class SpecularLighting : MonoBehaviour
 {
 	public Transform specularLight;
@@ -10,14 +10,14 @@ public class SpecularLighting : MonoBehaviour
 
 	public void Start()
 	{
-		waterBase = (WaterBase)gameObject.GetComponent(typeof(WaterBase));
+		waterBase = GetComponent<WaterBase>();
 	}
 
 	public void Update()
 	{
 		if (!waterBase)
 		{
-			waterBase = (WaterBase)gameObject.GetComponent(typeof(WaterBase));
+			waterBase = GetComponent<WaterBase>();
 		}
 		if ((bool)specularLight && (bool)waterBase.sharedMaterial)
 		{

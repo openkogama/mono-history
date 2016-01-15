@@ -8,6 +8,8 @@ public class MVFire : MVLogicObject
 
 	private GameObject audioGO;
 
+	private AudioSource audioSource;
+
 	private float ignoreDistanceSqr = 100f;
 
 	private float damageRadius = 2.5f;
@@ -28,7 +30,8 @@ public class MVFire : MVLogicObject
 		{
 			particleEmitter.emit = false;
 		}
-		gameObject.GetComponent<AudioSource>().pitch = 1f + Random.Range(-0.2f, 0.2f);
+		audioSource = gameObject.GetComponent<AudioSource>();
+		audioSource.pitch = 1f + Random.Range(-0.2f, 0.2f);
 	}
 
 	protected override void OnUpdate()
@@ -46,13 +49,13 @@ public class MVFire : MVLogicObject
 			{
 				continue;
 			}
-			InteractionDataHandlerBase component = worldObjectClient.GameObject.GetComponent<InteractionDataHandlerBase>();
-			if (!(component == null) && !((worldObjectClient.WorldPosition - vector).sqrMagnitude > ignoreDistanceSqr))
+			InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
+			if (!(interactionDataHandlerBase == null) && !((worldObjectClient.WorldPosition - vector).sqrMagnitude > ignoreDistanceSqr))
 			{
 				float num = damageRadius;
-				if (worldObjectClient.GameObject.GetComponent<Collider>() != null)
+				if (worldObjectClient.Collider != null)
 				{
-					Vector3 a = worldObjectClient.GameObject.GetComponent<Collider>().ClosestPointOnBounds(vector);
+					Vector3 a = worldObjectClient.Collider.ClosestPointOnBounds(vector);
 					num = Vector3.Distance(a, vector);
 				}
 				else
@@ -62,7 +65,7 @@ public class MVFire : MVLogicObject
 				if (num <= damageRadius)
 				{
 					float damage = Time.deltaTime * damageValue * (1f - num / damageRadius);
-					component.HandleInteraction(ProximityDamageAndImpulse.Create(damage, Vector3.zero, PlayerKilledByType.Fire), interactionIsLocal: true);
+					interactionDataHandlerBase.HandleInteraction(ProximityDamageAndImpulse.Create(damage, Vector3.zero, PlayerKilledByType.Fire), interactionIsLocal: true);
 				}
 			}
 		}
@@ -110,11 +113,11 @@ public class MVFire : MVLogicObject
 		}
 		if (toggle)
 		{
-			gameObject.GetComponent<AudioSource>().Play();
+			audioSource.Play();
 		}
 		else
 		{
-			gameObject.GetComponent<AudioSource>().Stop();
+			audioSource.Stop();
 		}
 	}
 }

@@ -1,7 +1,7 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Detonator))]
 [AddComponentMenu("Detonator/Light")]
+[RequireComponent(typeof(Detonator))]
 public class DetonatorLight : DetonatorComponent
 {
 	private float _baseIntensity = 1f;

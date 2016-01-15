@@ -185,7 +185,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 			MVGameControllerBase.CameraController.SetCamera(CameraType.EditorCamera2D);
 			mvAvatar.ResetAvatar();
 			SetToEditMode();
-			mvAvatar.gameObject.GetComponent<Collider>().enabled = false;
+			mvAvatar.Collider.enabled = false;
 		}
 
 		public override void DeActivate(AvatarRuntimeState toMode)
@@ -369,7 +369,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 			mvAvatar.ResetAvatar();
 			SetToEditMode();
 			MVGameControllerBase.CameraController.SetCamera(CameraType.EditorCamera);
-			mvAvatar.gameObject.GetComponent<Collider>().enabled = false;
+			mvAvatar.Collider.enabled = false;
 		}
 
 		public override void DeActivate(AvatarRuntimeState toMode)
@@ -616,7 +616,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 			mvAvatar.triggerHandler.enabled = true;
 			mvAvatar.avatarEquipable.Unequip();
 			mvAvatar.ResetAvatar();
-			mvAvatar.gameObject.GetComponent<Collider>().enabled = true;
+			mvAvatar.Collider.enabled = true;
 			mvAvatar.SetAnimation("Idle");
 			avatarInputController.Rotation = mvAvatar.transform.rotation;
 			if (mvAvatar.Body != null)
@@ -904,7 +904,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		if (MVGameControllerBase.GameMode != MVGameMode.CharacterEditor)
 		{
 			useInteractorHandler = gameObject.AddComponent<UseInteractorHandler>();
-			useInteractorHandler.Init(gameObject.GetComponent<Collider>());
+			useInteractorHandler.Init(Collider);
 		}
 		MVGameControllerBase.Game.PlayerController.Push(this);
 		avatarMotor.GetSizeState.EquipSlapGunEvent += avatarEquipable.EquipSlapGun;

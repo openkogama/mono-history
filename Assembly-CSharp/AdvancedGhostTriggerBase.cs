@@ -37,8 +37,8 @@ public class AdvancedGhostTriggerBase : MonoBehaviour
 			return false;
 		}
 		MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(collider.transform);
-		InteractionDataHandlerBase component = mVObject.GameObject.GetComponent<InteractionDataHandlerBase>();
-		if (component == null)
+		InteractionDataHandlerBase interactionDataHandlerBase = mVObject.InteractionDataHandlerBase;
+		if (interactionDataHandlerBase == null)
 		{
 			return false;
 		}

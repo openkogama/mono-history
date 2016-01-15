@@ -343,9 +343,9 @@ public class RuntimePrototypeCubeModel
 
 	public void CreateInstance(MVCubeModelBase cm)
 	{
-		foreach (KeyValuePair<IntVector, GameObject> item in (IEnumerable)cm.ChunkInstances)
+		foreach (KeyValuePair<IntVector, ChunkInstances.ChunkInstanceVariables> item in (IEnumerable)cm.ChunkInstances)
 		{
-			UnityEngine.Object.Destroy(item.Value);
+			UnityEngine.Object.Destroy(item.Value.gameObject);
 		}
 		cm.ChunkInstances.Clear();
 		foreach (KeyValuePair<IntVector, CubeModelChunk> chunk in chunks)
@@ -364,7 +364,7 @@ public class RuntimePrototypeCubeModel
 	{
 		foreach (KeyValuePair<IntVector, CubeModelChunk> chunk in chunks)
 		{
-			cm.GetChunkInstance(chunk.Key).GetComponent<Renderer>().sharedMaterial = chunk.Value.GetMeshData().material;
+			cm.GetChunkInstance(chunk.Key).renderer.sharedMaterial = chunk.Value.GetMeshData().material;
 		}
 	}
 
@@ -466,7 +466,7 @@ public class RuntimePrototypeCubeModel
 		foreach (int instance in instances)
 		{
 			MVCubeModelBase mVCubeModelBase = (MVCubeModelBase)MVGameControllerBase.WOCM.GetWorldObjectClient(instance);
-			UnityEngine.Object.Destroy(mVCubeModelBase.ChunkInstances.GetChunk(chunkPos));
+			UnityEngine.Object.Destroy(mVCubeModelBase.ChunkInstances.GetChunk(chunkPos).gameObject);
 			mVCubeModelBase.ChunkInstances.Remove(chunkPos);
 		}
 	}

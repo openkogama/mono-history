@@ -11,9 +11,20 @@ public class ImpulseRay : MonoBehaviour
 
 	private MeshRenderer rayRenderer;
 
+	public MeshRenderer RayRenderer
+	{
+		get
+		{
+			if (rayRenderer == null)
+			{
+				rayRenderer = GetComponentInChildren<MeshRenderer>();
+			}
+			return rayRenderer;
+		}
+	}
+
 	private void Start()
 	{
-		rayRenderer = GetComponentInChildren<MeshRenderer>();
 		StartCoroutine(DoShowRay(target));
 	}
 
@@ -29,7 +40,7 @@ public class ImpulseRay : MonoBehaviour
 			Quaternion rayRotation = Quaternion.LookRotation(ray.normalized, up);
 			transform.rotation = rayRotation;
 			transform.localScale = new Vector3(radius, radius, ray.magnitude * t / time);
-			rayRenderer.material.SetColor("_TintColor", Color.Lerp(startColor, endColor, t / time));
+			RayRenderer.material.SetColor("_TintColor", Color.Lerp(startColor, endColor, t / time));
 			t += Time.deltaTime;
 			yield return 0;
 		}

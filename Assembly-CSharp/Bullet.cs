@@ -17,6 +17,12 @@ public class Bullet : MonoBehaviour
 
 	private Ray lineOfFire;
 
+	[SerializeField]
+	private ParticleSystem pSystem;
+
+	[SerializeField]
+	private MeshRenderer[] meshRenderers;
+
 	private void Awake()
 	{
 		enabled = false;
@@ -49,9 +55,9 @@ public class Bullet : MonoBehaviour
 		float range = Vector3.Distance(targetPos, lineOfFire.origin);
 		float airTime = range / speed;
 		transform.position = startPos;
-		if ((bool)GetComponent<ParticleSystem>())
+		if ((bool)pSystem)
 		{
-			GetComponent<ParticleSystem>().Play();
+			pSystem.Play();
 		}
 		VoxelHit voxelHit = default;
 		while (inAir)
@@ -92,16 +98,15 @@ public class Bullet : MonoBehaviour
 				onHitLocal(voxelHit, lineOfFire);
 			}
 		}
-		MeshRenderer[] renderers = GetComponentsInChildren<MeshRenderer>();
-		MeshRenderer[] array = renderers;
+		MeshRenderer[] array = meshRenderers;
 		foreach (MeshRenderer r in array)
 		{
 			r.enabled = false;
 		}
-		if ((bool)GetComponent<ParticleSystem>())
+		if ((bool)pSystem)
 		{
-			GetComponent<ParticleSystem>().Stop();
-			while (GetComponent<ParticleSystem>().IsAlive())
+			pSystem.Stop();
+			while (pSystem.IsAlive())
 			{
 				yield return 0;
 			}

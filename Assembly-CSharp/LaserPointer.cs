@@ -53,9 +53,37 @@ public class LaserPointer : PickupItem, ILaserPointer
 
 	private float currentLaserAlpha;
 
+	private Renderer cubeRenderer;
+
+	private MeshFilter cubeMeshFilter;
+
 	private float lastSyncTime;
 
 	private Dictionary<object, object> syncBuffer = new Dictionary<object, object>();
+
+	public Renderer CubeRenderer
+	{
+		get
+		{
+			if (cubeRenderer == null)
+			{
+				cubeRenderer = cube.GetComponent<Renderer>();
+			}
+			return cubeRenderer;
+		}
+	}
+
+	public MeshFilter CubeMeshFilter
+	{
+		get
+		{
+			if (cubeMeshFilter == null)
+			{
+				cubeMeshFilter = cube.GetComponent<MeshFilter>();
+			}
+			return cubeMeshFilter;
+		}
+	}
 
 	public bool LaserActive { get; set; }
 
@@ -79,7 +107,7 @@ public class LaserPointer : PickupItem, ILaserPointer
 
 	public void SetLaserCubeVisible(bool visible)
 	{
-		cube.GetComponent<Renderer>().enabled = visible;
+		CubeRenderer.enabled = visible;
 	}
 
 	public void ChangeState(LaserPointerState newState)
@@ -244,34 +272,34 @@ public class LaserPointer : PickupItem, ILaserPointer
 		switch (state)
 		{
 		case LaserPointerState.Idle:
-			cube.GetComponent<Renderer>().sharedMaterial = currentCubeMaterial;
-			cube.GetComponent<MeshFilter>().sharedMesh = material.mesh;
+			CubeRenderer.sharedMaterial = currentCubeMaterial;
+			CubeMeshFilter.sharedMesh = material.mesh;
 			break;
 		case LaserPointerState.Inserting:
-			cube.GetComponent<Renderer>().sharedMaterial = insertingMaterial;
+			CubeRenderer.sharedMaterial = insertingMaterial;
 			beamColor = beamObjectColor;
 			break;
 		case LaserPointerState.EditingCube:
-			cube.GetComponent<Renderer>().sharedMaterial = currentCubeMaterial;
-			cube.GetComponent<MeshFilter>().sharedMesh = material.mesh;
+			CubeRenderer.sharedMaterial = currentCubeMaterial;
+			CubeMeshFilter.sharedMesh = material.mesh;
 			beamColor = beamEditColor;
 			break;
 		case LaserPointerState.Transforming:
-			cube.GetComponent<Renderer>().sharedMaterial = transformingMaterial;
+			CubeRenderer.sharedMaterial = transformingMaterial;
 			beamColor = beamObjectColor;
 			break;
 		case LaserPointerState.DeletingCubes:
-			cube.GetComponent<Renderer>().sharedMaterial = deleteMaterial;
+			CubeRenderer.sharedMaterial = deleteMaterial;
 			beamColor = beamDeleteColor;
 			break;
 		case LaserPointerState.PaintCubes:
-			cube.GetComponent<Renderer>().sharedMaterial = currentCubeMaterial;
-			cube.GetComponent<MeshFilter>().sharedMesh = material.mesh;
+			CubeRenderer.sharedMaterial = currentCubeMaterial;
+			CubeMeshFilter.sharedMesh = material.mesh;
 			beamColor = beamEditColor;
 			break;
 		case LaserPointerState.SprayCubes:
-			cube.GetComponent<Renderer>().sharedMaterial = currentCubeMaterial;
-			cube.GetComponent<MeshFilter>().sharedMesh = material.mesh;
+			CubeRenderer.sharedMaterial = currentCubeMaterial;
+			CubeMeshFilter.sharedMesh = material.mesh;
 			beamColor = beamEditColor;
 			break;
 		}

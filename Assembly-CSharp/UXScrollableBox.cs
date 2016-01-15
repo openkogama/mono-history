@@ -210,9 +210,10 @@ public class UXScrollableBox : UXGUIElement, IUXContainer
 
 	private void CalcLinePositions(UXLine line, float lineHeight)
 	{
-		line.gameObject.transform.parent = boxItemsOffset;
-		line.gameObject.transform.localPosition = new Vector3(GetLineInsert(line), 0f - lineHeight - line.GetLineSize().y / 2f, -0.01f);
-		line.gameObject.transform.localScale = Vector3.one;
+		Transform transform = line.transform;
+		transform.parent = boxItemsOffset;
+		transform.localPosition = new Vector3(GetLineInsert(line), 0f - lineHeight - line.GetLineSize().y / 2f, -0.01f);
+		transform.localScale = Vector3.one;
 	}
 
 	public void AddLine(UXLine line)

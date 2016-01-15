@@ -5,8 +5,6 @@ public class AudioOnOffComponent : MonoBehaviour
 {
 	public GameObject audioSourcePrefab;
 
-	protected AudioSource onOffAudioSource;
-
 	public bool loop;
 
 	public StartLoop startLoop;
@@ -21,9 +19,11 @@ public class AudioOnOffComponent : MonoBehaviour
 
 	public float onMaxVol = 0.9f;
 
+	public float fadeSpeed = 0.5f;
+
 	private float fadeNum = 1f;
 
-	public float fadeSpeed = 0.5f;
+	protected AudioSource onOffAudioSource;
 
 	private void Awake()
 	{

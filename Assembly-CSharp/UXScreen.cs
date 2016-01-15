@@ -144,16 +144,4 @@ public class UXScreen : MonoBehaviour
 			OnResize();
 		}
 	}
-
-	public void OnDrawGizmosSelected()
-	{
-		Gizmos.color = Color.yellow;
-		Gizmos.DrawLine(positions[0, 0], positions[2, 0]);
-		Gizmos.DrawLine(positions[0, 0], positions[0, 2]);
-		Gizmos.DrawLine(positions[0, 2], positions[2, 2]);
-		Gizmos.DrawLine(positions[2, 0], positions[2, 2]);
-		Gizmos.color = 0.8f * Color.yellow;
-		Gizmos.DrawLine(positions[1, 0], positions[1, 2]);
-		Gizmos.DrawLine(positions[0, 1], positions[2, 1]);
-	}
 }

@@ -65,7 +65,7 @@ public class TerrainLODComponent
 		this.dynamicLodDistance = dynamicLodDistance;
 		this.scale = scale;
 		this.debug = debug;
-		foreach (KeyValuePair<IntVector, GameObject> item in (IEnumerable)chunkInstances)
+		foreach (KeyValuePair<IntVector, ChunkInstances.ChunkInstanceVariables> item in (IEnumerable)chunkInstances)
 		{
 			IntVector key = item.Key;
 			AddToLOD(key);
@@ -135,16 +135,16 @@ public class TerrainLODComponent
 		LODBookkeeping.Add(new MVTerrainLOD(localPos, scale * (float)prototypeCubeModel.ChunkSize * new Vector3(localPos.x, localPos.y, localPos.z)));
 	}
 
-	private void ChangeLODChunk(GameObject chunk, ref IntVector chunkPosition, float distance, float renderDistance)
+	private void ChangeLODChunk(ChunkInstances.ChunkInstanceVariables chunk, ref IntVector chunkPosition, float distance, float renderDistance)
 	{
-		if (distance > renderDistance && chunk.GetComponent<Renderer>().enabled)
+		if (distance > renderDistance && chunk.renderer.enabled)
 		{
-			chunk.GetComponent<Renderer>().enabled = false;
+			chunk.renderer.enabled = false;
 			prototypeCubeModel.RemoveRefenceFromChunk(ref chunkPosition);
 		}
-		if (distance < renderDistance && !chunk.GetComponent<Renderer>().enabled)
+		if (distance < renderDistance && !chunk.renderer.enabled)
 		{
-			chunk.GetComponent<Renderer>().enabled = true;
+			chunk.renderer.enabled = true;
 			prototypeCubeModel.AddRefenceToChunk(ref chunkPosition);
 		}
 	}

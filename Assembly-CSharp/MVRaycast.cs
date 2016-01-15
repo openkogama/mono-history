@@ -25,15 +25,15 @@ public static class MVRaycast
 		{
 			ChunkInstances chunkInstances = ((ICubeModelCollider)wo).ChunkInstances;
 			List<Collider> list2 = new List<Collider>();
-			foreach (KeyValuePair<IntVector, GameObject> item in (IEnumerable)chunkInstances)
+			foreach (KeyValuePair<IntVector, ChunkInstances.ChunkInstanceVariables> item in (IEnumerable)chunkInstances)
 			{
-				if (item.Value.transform.GetComponent<Collider>().Raycast(ray, out var hitInfo, distance))
+				if (item.Value.collider.Raycast(ray, out var hitInfo, distance))
 				{
 					list.Add(hitInfo);
 				}
-				else if (item.Value.transform.GetComponent<Collider>().bounds.Contains(ray.origin))
+				else if (item.Value.collider.bounds.Contains(ray.origin))
 				{
-					list2.Add(item.Value.transform.GetComponent<Collider>());
+					list2.Add(item.Value.collider);
 				}
 			}
 			PhysicsCollisionDatasWrapper physicsCollisionData = SharedCollisionFunctions.GetPhysicsCollisionData(list2.ToArray(), list.ToArray(), ray.origin);
@@ -47,14 +47,14 @@ public static class MVRaycast
 		}
 		else
 		{
-			if (wo.GameObject.transform.GetComponent<Collider>() == null)
+			if (wo.Collider == null)
 			{
 				Debug.LogWarning("No collider on wo of type " + wo.GetType());
 				Debug.LogWarning("Maybe a recursive check of the children is needed");
 				return false;
 			}
 			Debug.LogWarning("Remember to test positive infinity!");
-			if (wo.GameObject.transform.GetComponent<Collider>().Raycast(ray, out var hitInfo2, distance))
+			if (wo.Collider.Raycast(ray, out var hitInfo2, distance))
 			{
 				PhysicsCollisionData physicsCollisionData2 = new PhysicsCollisionData();
 				physicsCollisionData2.Set(hitInfo2);

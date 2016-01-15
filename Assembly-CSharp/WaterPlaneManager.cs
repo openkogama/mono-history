@@ -17,6 +17,8 @@ public class WaterPlaneManager : MonoBehaviour
 
 	private bool audioHD;
 
+	private Renderer underwaterPlaneRenderer;
+
 	private List<MVWaterPlane> waterPlanes = new List<MVWaterPlane>();
 
 	private SkyboxManager skyboxManager;
@@ -31,11 +33,11 @@ public class WaterPlaneManager : MonoBehaviour
 	{
 		get
 		{
-			return water.GetComponent<Renderer>().material.GetColor("_HorizonColor");
+			return water.Renderer.material.GetColor("_HorizonColor");
 		}
 		set
 		{
-			water.GetComponent<Renderer>().material.SetColor("_HorizonColor", value);
+			water.Renderer.material.SetColor("_HorizonColor", value);
 		}
 	}
 
@@ -43,12 +45,12 @@ public class WaterPlaneManager : MonoBehaviour
 	{
 		get
 		{
-			return water.GetComponent<Renderer>().material.GetColor("_RefrColor");
+			return water.Renderer.material.GetColor("_RefrColor");
 		}
 		set
 		{
-			underwaterPlane.GetComponent<Renderer>().material.SetColor("_Color", value);
-			water.GetComponent<Renderer>().material.SetColor("_RefrColor", value);
+			underwaterPlaneRenderer.material.SetColor("_Color", value);
+			water.Renderer.material.SetColor("_RefrColor", value);
 		}
 	}
 
@@ -113,6 +115,7 @@ public class WaterPlaneManager : MonoBehaviour
 		SkyboxManager skyboxManager = this.skyboxManager;
 		skyboxManager.OnSkyboxColorChanged = (SkyboxManager.SkyboxColorChangedDelegate)Delegate.Combine(skyboxManager.OnSkyboxColorChanged, new SkyboxManager.SkyboxColorChangedDelegate(HandleSkyboxColorChanged));
 		underwaterPlane.gameObject.SetActive(value: false);
+		underwaterPlaneRenderer = underwaterPlane.GetComponent<Renderer>();
 		water.gameObject.SetActive(value: false);
 		lowPassFilter = Camera.main.GetComponent<AudioLowPassFilter>();
 		reverbFilter = Camera.main.GetComponent<AudioReverbFilter>();
@@ -142,10 +145,10 @@ public class WaterPlaneManager : MonoBehaviour
 			return;
 		}
 		bool flag = Camera.main.transform.position.y < transform.position.y;
-		underwaterPlane.GetComponent<Renderer>().enabled = flag;
-		if (underwaterPlane.GetComponent<Renderer>().enabled)
+		underwaterPlaneRenderer.enabled = flag;
+		if (underwaterPlaneRenderer.enabled)
 		{
-			underwaterPlane.GetComponent<Renderer>().material.SetFloat("_WaterY", transform.position.y);
+			underwaterPlaneRenderer.material.SetFloat("_WaterY", transform.position.y);
 		}
 		if (lowPassFilter == null)
 		{
@@ -174,8 +177,8 @@ public class WaterPlaneManager : MonoBehaviour
 		water.transform.position = position;
 		bool flag2 = avatarLocal.GameObject.transform.position.y < transform.position.y;
 		MVInteractableBase component = avatarLocal.GameObject.GetComponent<MVInteractableBase>();
-		InteractionDataHandlerBase component2 = avatarLocal.GameObject.GetComponent<InteractionDataHandlerBase>();
-		if (!component2.enabled || component == null)
+		InteractionDataHandlerBase interactionDataHandlerBase = avatarLocal.InteractionDataHandlerBase;
+		if (!interactionDataHandlerBase.enabled || component == null)
 		{
 			return;
 		}

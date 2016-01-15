@@ -31,6 +31,8 @@ public class PickupItemImpulseGun : PickupItem
 
 	public AnimationCurve chargeCurve;
 
+	private AudioSource audioSource;
+
 	private bool isCharging;
 
 	private float chargeBeginTime;
@@ -55,6 +57,7 @@ public class PickupItemImpulseGun : PickupItem
 	{
 		chargeObject.gameObject.SetActive(value: false);
 		meshRenderers = GetComponentsInChildren<MeshRenderer>();
+		audioSource = GetComponent<AudioSource>();
 	}
 
 	private IEnumerator DoChargingAnimation()
@@ -63,7 +66,7 @@ public class PickupItemImpulseGun : PickupItem
 		while (isCharging)
 		{
 			float scale = chargeCurve.Evaluate(Time.time - chargeBeginTime);
-			GetComponent<AudioSource>().volume = scale;
+			audioSource.volume = scale;
 			float size = Random.Range(0.1f, 0.3f);
 			transform.localScale = new Vector3(size, size, size) * scale + Vector3.one;
 			chargeObject.localScale = Vector3.one * (scale + size * 0.5f);
@@ -77,9 +80,9 @@ public class PickupItemImpulseGun : PickupItem
 	{
 		if ((bool)chargeSound)
 		{
-			GetComponent<AudioSource>().clip = chargeSound;
-			GetComponent<AudioSource>().loop = true;
-			GetComponent<AudioSource>().Play();
+			audioSource.clip = chargeSound;
+			audioSource.loop = true;
+			audioSource.Play();
 		}
 		isCharging = true;
 		chargeBeginTime = Time.time;
@@ -92,10 +95,10 @@ public class PickupItemImpulseGun : PickupItem
 		{
 			if ((bool)releaseSound)
 			{
-				GetComponent<AudioSource>().Stop();
-				GetComponent<AudioSource>().loop = false;
-				GetComponent<AudioSource>().volume = Mathf.Min(0.6f, GetComponent<AudioSource>().volume);
-				GetComponent<AudioSource>().PlayOneShot(releaseSound);
+				audioSource.Stop();
+				audioSource.loop = false;
+				audioSource.volume = Mathf.Min(0.6f, audioSource.volume);
+				audioSource.PlayOneShot(releaseSound);
 			}
 			float num = chargeCurve.Evaluate(Time.time - chargeBeginTime);
 			missColor.a = num;
@@ -118,10 +121,10 @@ public class PickupItemImpulseGun : PickupItem
 				foreach (MVWorldObjectClient item in list)
 				{
 					Vector3 impulse = ComputeImpulseDirection(lineOfFire) * impulseMagnitude;
-					InteractionDataHandlerBase component = item.GameObject.GetComponent<InteractionDataHandlerBase>();
-					if (component != null)
+					InteractionDataHandlerBase interactionDataHandlerBase = item.InteractionDataHandlerBase;
+					if (interactionDataHandlerBase != null)
 					{
-						component.HandleInteraction(ImpulseHitPackage.Create(impulse), interactionIsLocal: false);
+						interactionDataHandlerBase.HandleInteraction(ImpulseHitPackage.Create(impulse), interactionIsLocal: false);
 					}
 				}
 			}
@@ -137,10 +140,10 @@ public class PickupItemImpulseGun : PickupItem
 				MVGameControllerBase.Game.World.RuntimeEventManager.SendRuntimeEvent(new ExplosionEvent(RuntimeEventType.Bazooka, vector));
 			}
 			Vector3 impulse2 = -lineOfFire.direction * num2;
-			MVRigidBody component2 = owner.GetComponent<MVRigidBody>();
-			if (component2 != null)
+			MVRigidBody component = owner.GetComponent<MVRigidBody>();
+			if (component != null)
 			{
-				component2.AddImpulse(impulse2, suspendImpactDamage: true);
+				component.AddImpulse(impulse2, suspendImpactDamage: true);
 			}
 		}
 		ImpulseRay impulseRay = Object.Instantiate(impulseRayPrefab, muzzlePoint.position, Quaternion.identity) as ImpulseRay;

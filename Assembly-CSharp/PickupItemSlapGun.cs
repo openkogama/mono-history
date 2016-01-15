@@ -53,10 +53,10 @@ public class PickupItemSlapGun : PickupItemWithDelay
 			foreach (MVWorldObjectClient item in list)
 			{
 				Vector3 impulse = ComputeImpulseDirection(lineOfFire) * slapStrength;
-				InteractionDataHandlerBase component = item.GameObject.GetComponent<InteractionDataHandlerBase>();
-				if (component != null)
+				InteractionDataHandlerBase interactionDataHandlerBase = item.InteractionDataHandlerBase;
+				if (interactionDataHandlerBase != null)
 				{
-					component.HandleInteraction(ImpulseHitPackage.Create(impulse), interactionIsLocal: false);
+					interactionDataHandlerBase.HandleInteraction(ImpulseHitPackage.Create(impulse), interactionIsLocal: false);
 				}
 			}
 		}

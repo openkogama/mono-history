@@ -8,11 +8,14 @@ public class ObjectLink
 
 	public int objectWOID = -1;
 
-	public ObjectLink(int id, int objectConnectorWOID, int objectWOID)
+	public bool isSet = true;
+
+	public ObjectLink(int id, int objectConnectorWOID, int objectWOID, bool isSet)
 	{
 		this.id = id;
 		this.objectConnectorWOID = objectConnectorWOID;
 		this.objectWOID = objectWOID;
+		this.isSet = isSet;
 	}
 
 	public ObjectLink()

@@ -9,6 +9,8 @@ public class MVPickupItemBase : MVLogicObject
 
 	private UseInteractor useInteractor;
 
+	private AudioSource audioSource;
+
 	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
 	private static Dictionary<AvatarItemType, EquipableData> pickupPrefabLUT = new Dictionary<AvatarItemType, EquipableData>
@@ -125,9 +127,10 @@ public class MVPickupItemBase : MVLogicObject
 		pickupItem = gameObject.GetComponent<GreyOutObjectScript>();
 		pickupMesh = pickupItem.pickupObject;
 		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
+		audioSource = gameObject.GetComponent<AudioSource>();
 		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		triggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
-		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.GetComponent<Collider>(), DoPickup, CheckCanUse);
+		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.Collider, DoPickup, CheckCanUse);
 		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement);
 		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(gameObject, hasUseButtonWhenFree: false);
@@ -151,10 +154,9 @@ public class MVPickupItemBase : MVLogicObject
 
 	public override void Destroy()
 	{
-		if (useInteractor != null)
-		{
-			useInteractor.OnDestroy(Data);
-		}
+		triggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
+		triggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
+		useInteractor.OnDestroy(Data);
 		base.Destroy();
 	}
 
@@ -240,16 +242,16 @@ public class MVPickupItemBase : MVLogicObject
 		case PickupItemState.Listening:
 			canPickUp = true;
 			pickupItem.GreyIn();
-			triggerBoxEvents.GetComponent<Collider>().enabled = true;
+			triggerBoxEvents.Collider.enabled = true;
 			break;
 		case PickupItemState.Pickup:
 			pickupItem.GreyOut();
-			if ((bool)gameObject.GetComponent<AudioSource>())
+			if ((bool)audioSource)
 			{
-				gameObject.GetComponent<AudioSource>().Play();
+				audioSource.Play();
 			}
 			canPickUp = false;
-			triggerBoxEvents.GetComponent<Collider>().enabled = false;
+			triggerBoxEvents.Collider.enabled = false;
 			break;
 		case PickupItemState.Counting:
 			break;

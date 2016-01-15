@@ -51,6 +51,8 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	private bool fireSecondary;
 
+	private AudioSource audioSource;
+
 	public CubeBullet cubeBullet;
 
 	public override AvatarItemType Type => AvatarItemType.CubeGun;
@@ -69,6 +71,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 		}
 		chargeObject.gameObject.SetActive(value: false);
 		currentAmmo = ammo;
+		audioSource = GetComponent<AudioSource>();
 	}
 
 	private void Update()
@@ -77,19 +80,19 @@ public class PickupItemCubeGun : PickupItemWithDelay
 		{
 			HandleCursors();
 		}
-		if (fireSecondary && GetComponent<AudioSource>().clip != chargeSound)
+		if (fireSecondary && audioSource.clip != chargeSound)
 		{
-			GetComponent<AudioSource>().clip = chargeSound;
-			GetComponent<AudioSource>().loop = true;
-			GetComponent<AudioSource>().Play();
+			audioSource.clip = chargeSound;
+			audioSource.loop = true;
+			audioSource.Play();
 		}
-		if (IsAmmoDepleted && cubeBullet.GetComponent<Renderer>().enabled)
+		if (IsAmmoDepleted && cubeBullet.MeshRenderer.enabled)
 		{
-			cubeBullet.GetComponent<Renderer>().enabled = false;
+			cubeBullet.MeshRenderer.enabled = false;
 		}
-		else if (!IsAmmoDepleted && !cubeBullet.GetComponent<Renderer>().enabled)
+		else if (!IsAmmoDepleted && !cubeBullet.MeshRenderer.enabled)
 		{
-			cubeBullet.GetComponent<Renderer>().enabled = true;
+			cubeBullet.MeshRenderer.enabled = true;
 		}
 	}
 
@@ -216,9 +219,9 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	protected void OnFireSecondary(bool isLocal)
 	{
-		GetComponent<AudioSource>().clip = releaseSound;
-		GetComponent<AudioSource>().loop = false;
-		GetComponent<AudioSource>().Play();
+		audioSource.clip = releaseSound;
+		audioSource.loop = false;
+		audioSource.Play();
 		Ray ray = new Ray(owner.LookOrigin, owner.LookDirection);
 		int num = -5 & ~(1 << LayerMask.NameToLayer("Player"));
 		num &= ~(1 << (LayerMask.NameToLayer("Logic") & 0x1F));

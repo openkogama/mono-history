@@ -47,8 +47,6 @@ public class MVQualitySettings : MonoBehaviour
 
 	private static LodData[][] lodSettings = new LodData[6][] { lodSettingsFastest, lodSettingsFast, lodSettingsSimple, lodSettingsGood, lodSettingsBeautiful, lodSettingsFantastic };
 
-	public PostprocessFog postprocessFogEffect;
-
 	public static OnQualityLevedChanged onQualityLevelChanged;
 
 	public static LodData[] CurrentLodData => lodSettings[QualitySettings.GetQualityLevel()];
@@ -74,7 +72,6 @@ public class MVQualitySettings : MonoBehaviour
 
 	private void QualityChanged(int level)
 	{
-		postprocessFogEffect = UnityEngine.Object.FindObjectOfType(typeof(PostprocessFog)) as PostprocessFog;
 		switch (level)
 		{
 		}

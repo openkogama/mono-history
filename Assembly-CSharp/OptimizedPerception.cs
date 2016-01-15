@@ -3,11 +3,15 @@ using UnityEngine;
 
 public class OptimizedPerception
 {
-	private HashSet<int> potentialTargets = new HashSet<int>();
-
 	private Vector3 position;
 
 	private float radius;
+
+	private HashSet<int> potentialTargets = new HashSet<int>();
+
+	private HashSet<int> removeSet = new HashSet<int>();
+
+	private List<MVWorldObjectClient> targets = new List<MVWorldObjectClient>(16);
 
 	public void Update(Vector3 position, float radius)
 	{
@@ -33,24 +37,24 @@ public class OptimizedPerception
 
 	public List<MVWorldObjectClient> GetTargets()
 	{
-		HashSet<int> hashSet = new HashSet<int>();
-		List<MVWorldObjectClient> list = new List<MVWorldObjectClient>();
+		removeSet.Clear();
+		targets.Clear();
 		foreach (int potentialTarget in potentialTargets)
 		{
 			if (!GetValidTarget(potentialTarget, out var wo))
 			{
-				hashSet.Add(potentialTarget);
+				removeSet.Add(potentialTarget);
 			}
 			else
 			{
-				list.Add(wo);
+				targets.Add(wo);
 			}
 		}
-		foreach (int item in hashSet)
+		foreach (int item in removeSet)
 		{
 			potentialTargets.Remove(item);
 		}
-		return list;
+		return targets;
 	}
 
 	private bool GetValidTarget(int woID, out MVWorldObjectClient wo)
@@ -62,7 +66,7 @@ public class OptimizedPerception
 			return false;
 		}
 		wo = MVGameControllerBase.WOCM.GetWorldObjectClient(woID);
-		if (!wo.GameObject.GetComponent<InteractionDataHandlerBase>().enabled)
+		if (!wo.InteractionDataHandlerBase.enabled)
 		{
 			return false;
 		}
@@ -80,8 +84,8 @@ public class OptimizedPerception
 			if (mVObject != null)
 			{
 				int id = mVObject.Id;
-				InteractionDataHandlerBase component = mVObject.GameObject.GetComponent<InteractionDataHandlerBase>();
-				if (!(component == null) && component.enabled)
+				InteractionDataHandlerBase interactionDataHandlerBase = mVObject.InteractionDataHandlerBase;
+				if (!(interactionDataHandlerBase == null) && interactionDataHandlerBase.enabled)
 				{
 					potentialTargets.Add(id);
 				}

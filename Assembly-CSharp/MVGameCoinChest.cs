@@ -11,17 +11,19 @@ public class MVGameCoinChest : MVLogicObject
 		Open
 	}
 
-	private ObjectParticleEmitterScript particles;
-
-	private GameCoinChestModelSelector modelSelector;
-
 	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
 	private GameCoinChestClientState state;
 
+	private ObjectParticleEmitterScript particles;
+
+	private GameCoinChestModelSelector modelSelector;
+
 	private UseInteractor useInteractor;
 
 	private TriggerBoxEvents triggerBoxEvents;
+
+	private AudioSource audioSource;
 
 	public override bool HasInputConnector => false;
 
@@ -52,6 +54,7 @@ public class MVGameCoinChest : MVLogicObject
 		particles = gameObject.GetComponent<ObjectParticleEmitterScript>();
 		modelSelector = gameObject.GetComponent<GameCoinChestModelSelector>();
 		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
+		audioSource = gameObject.GetComponent<AudioSource>();
 		if (triggerBoxEvents != null)
 		{
 			triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
@@ -60,7 +63,7 @@ public class MVGameCoinChest : MVLogicObject
 		{
 			Debug.LogError("A TriggerBoxEvents object is missing in PickupItem type: " + GetType().Name);
 		}
-		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.GetComponent<Collider>(), OpenChest, IsUsable);
+		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.Collider, OpenChest, IsUsable);
 		LevelBasedUseRequirement useRequirement = new LevelBasedUseRequirement(gameObject, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement);
 		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
@@ -110,9 +113,9 @@ public class MVGameCoinChest : MVLogicObject
 	private bool OpenChest(int instigatorID)
 	{
 		modelSelector.Open();
-		if ((bool)gameObject.GetComponent<AudioSource>())
+		if ((bool)audioSource)
 		{
-			gameObject.GetComponent<AudioSource>().Play();
+			audioSource.Play();
 		}
 		particles.Play();
 		MVGameControllerBase.Game.GameCoinManager.GameCoinChestCollect((int)Data["gameCoinAmount"]);
@@ -190,6 +193,8 @@ public class MVGameCoinChest : MVLogicObject
 	public override void Destroy()
 	{
 		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
+		triggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
+		triggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
 		useInteractor.OnDestroy(Data);
 		base.Destroy();
 	}

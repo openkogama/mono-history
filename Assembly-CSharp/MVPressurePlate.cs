@@ -41,7 +41,7 @@ public class MVPressurePlate : MVLogicObject
 		triggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
 		plateModel = gameObject.GetComponentInChildren<Animation>().gameObject;
 		SetVisibility();
-		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.GetComponent<Collider>(), DoEnter);
+		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.Collider, DoEnter);
 		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
 		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
 		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, gameCoinDisplayObjectOffset, hasUseButtonWhenFree: false);
@@ -161,6 +161,8 @@ public class MVPressurePlate : MVLogicObject
 	{
 		triggerBoxEvents.TriggerEnter -= triggerBoxEvents_TriggerEnter;
 		triggerBoxEvents.TriggerExit -= triggerBoxEvents_TriggerExit;
+		triggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
+		triggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
 		useInteractor.OnDestroy(Data);
 		base.Destroy();
 	}

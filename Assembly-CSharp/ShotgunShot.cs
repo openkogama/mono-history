@@ -27,6 +27,12 @@ public class ShotgunShot : MonoBehaviour
 
 	public float fadeTimeSeconds = 5f;
 
+	private MeshRenderer meshRenderer;
+
+	private MeshFilter meshFilter;
+
+	private AudioSource aSource;
+
 	private Ray[] linesOfFire;
 
 	private float maxRange = 50f;
@@ -49,6 +55,9 @@ public class ShotgunShot : MonoBehaviour
 
 	private IEnumerator Start()
 	{
+		meshFilter = GetComponent<MeshFilter>();
+		meshRenderer = GetComponent<MeshRenderer>();
+		aSource = GetComponent<AudioSource>();
 		List<Hit> hits = new List<Hit>();
 		for (int i = 0; i < linesOfFire.Length; i++)
 		{
@@ -60,10 +69,10 @@ public class ShotgunShot : MonoBehaviour
 			}
 			if (success && onHit != null)
 			{
-				onHit(hit.position, hit.normal, avatarWasHit, GetComponent<AudioSource>());
+				onHit(hit.position, hit.normal, avatarWasHit, aSource);
 			}
 		}
-		GenerateMesh(m: GetComponent<MeshFilter>().mesh, hits: hits.ToArray());
+		GenerateMesh(m: meshFilter.mesh, hits: hits.ToArray());
 		yield return StartCoroutine(DoFadeAndDestroy(lines: GenerateLines(hits.ToArray(), ownerPosition, rayPrefab), time: fadeTimeSeconds));
 	}
 
@@ -72,14 +81,14 @@ public class ShotgunShot : MonoBehaviour
 		float initialTime = time;
 		while (time > 0f)
 		{
-			Color c = GetComponent<Renderer>().material.color;
+			Color c = meshRenderer.material.color;
 			c.r = (c.g = (c.b = (c.a = 1f - time / initialTime)));
-			GetComponent<Renderer>().material.color = c;
+			meshRenderer.material.color = c;
 			foreach (LineRenderer line in lines)
 			{
-				Color linec = line.GetComponent<Renderer>().material.GetColor("_TintColor");
+				Color linec = line.material.GetColor("_TintColor");
 				linec.a = Mathf.Clamp01(linec.a - Time.deltaTime);
-				line.GetComponent<Renderer>().material.SetColor("_TintColor", linec);
+				line.material.SetColor("_TintColor", linec);
 			}
 			time -= Time.deltaTime;
 			yield return 0;

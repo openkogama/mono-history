@@ -28,6 +28,12 @@ public struct AvatarModifierPackage(AvatarModifierPackageType avatarModifierPack
 
 	private AvatarModifierPackageAdditionPolicy avatarModifierPackageAdditionPolicy = avatarModifierPackageAdditionPolicy;
 
+	public static string[] AvatarModifierPackageTypeLookupTable = new string[16]
+	{
+		"_None", "_Fire", "_Mutant", "_Sticky", "_Poison", "_WallJump", "_InstantDeath", "_NoFriction", "_FlamerBurn", "_Underwater",
+		"_Frozen", "_NinjaRun", "_Shrunken", "_WindFriction", "_DisableVehiclePickup", "_Enlarged"
+	};
+
 	public AvatarModifierPackageType AvatarModifierPackageType => avatarModifierPackageType;
 
 	public AvatarModifierPackageAdditionPolicy AvatarModifierPackageAdditionPolicy => avatarModifierPackageAdditionPolicy;

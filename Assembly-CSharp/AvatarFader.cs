@@ -36,6 +36,10 @@ public class AvatarFader
 		fadeShaders["Particles/Multiply Write Alpha"] = Shader.Find("Particles/Multiply Write Alpha");
 		normalShaders["Custom/Laser Beam Additive"] = Shader.Find("Custom/Laser Beam Additive");
 		fadeShaders["Custom/Laser Beam Additive"] = Shader.Find("Custom/Laser Beam Additive");
+		normalShaders["Diffuse with vertex colors transparent"] = Shader.Find("Diffuse with vertex colors");
+		fadeShaders["Diffuse with vertex colors"] = Shader.Find("Diffuse with vertex colors transparent");
+		normalShaders["Legacy Shaders/Diffuse"] = Shader.Find("Legacy Shaders/Diffuse");
+		fadeShaders["Legacy Shaders/Diffuse"] = Shader.Find("Diffuse with vertex colors transparent");
 	}
 
 	public void SetTransparency(float fadeFactor)

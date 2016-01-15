@@ -25,7 +25,7 @@ public class PlanarReflection : MonoBehaviour
 
 	public void Start()
 	{
-		sharedMaterial = ((WaterBase)gameObject.GetComponent(typeof(WaterBase))).sharedMaterial;
+		sharedMaterial = GetComponent<WaterBase>().sharedMaterial;
 	}
 
 	private Camera CreateReflectionCameraFor(Camera cam)
@@ -36,9 +36,9 @@ public class PlanarReflection : MonoBehaviour
 		{
 			gameObject = new GameObject(text, typeof(Camera));
 		}
-		if (!gameObject.GetComponent(typeof(Camera)))
+		if (!gameObject.GetComponent<Camera>())
 		{
-			gameObject.AddComponent(typeof(Camera));
+			gameObject.AddComponent<Camera>();
 		}
 		Camera component = gameObject.GetComponent<Camera>();
 		component.backgroundColor = clearColor;

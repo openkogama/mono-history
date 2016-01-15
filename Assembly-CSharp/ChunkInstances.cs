@@ -6,7 +6,18 @@ using UnityEngine;
 
 public class ChunkInstances : IEnumerator, IEnumerable
 {
-	private Dictionary<IntVector, GameObject> chunkInstances = new Dictionary<IntVector, GameObject>();
+	public struct ChunkInstanceVariables
+	{
+		public GameObject gameObject;
+
+		public BoxCollider collider;
+
+		public MeshRenderer renderer;
+
+		public MeshFilter filter;
+	}
+
+	private Dictionary<IntVector, ChunkInstanceVariables> chunkInstances = new Dictionary<IntVector, ChunkInstanceVariables>();
 
 	public int Count => chunkInstances.Count;
 
@@ -19,7 +30,7 @@ public class ChunkInstances : IEnumerator, IEnumerable
 		return chunkInstances.GetEnumerator();
 	}
 
-	public void Add(IntVector intVector, GameObject gameObject)
+	public void Add(IntVector intVector, ChunkInstanceVariables gameObject)
 	{
 		chunkInstances.Add(intVector, gameObject);
 		if (Changed != null)
@@ -42,12 +53,12 @@ public class ChunkInstances : IEnumerator, IEnumerable
 		return chunkInstances.ContainsKey(intVector);
 	}
 
-	public bool TryGetValue(IntVector intVector, out GameObject gameObject)
+	public bool TryGetValue(IntVector intVector, out ChunkInstanceVariables gameObject)
 	{
 		return chunkInstances.TryGetValue(intVector, out gameObject);
 	}
 
-	public GameObject GetChunk(IntVector intVector)
+	public ChunkInstanceVariables GetChunk(IntVector intVector)
 	{
 		return chunkInstances[intVector];
 	}

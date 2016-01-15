@@ -78,7 +78,7 @@ public class VehicleSeatManager : MonoBehaviour
 			seats[i].SeatID = i;
 		}
 		woOwner = wo;
-		useInteractor = new UseInteractor(woOwner.Id, gameObject, reset: true, triggerBoxEvents.GetComponent<Collider>(), Use, CheckCanUse);
+		useInteractor = new UseInteractor(woOwner.Id, gameObject, reset: true, triggerBoxEvents.Collider, Use, CheckCanUse);
 		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
 		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
 		foreach (MVWorldObjectClient child in wo.Children)
@@ -207,15 +207,15 @@ public class VehicleSeatManager : MonoBehaviour
 	{
 		if (isDead || enterVehicleDisabled)
 		{
-			triggerBoxEvents.GetComponent<Collider>().enabled = false;
+			triggerBoxEvents.Collider.enabled = false;
 		}
 		else if (occupiedSeatCount == seats.Count)
 		{
-			triggerBoxEvents.GetComponent<Collider>().enabled = false;
+			triggerBoxEvents.Collider.enabled = false;
 		}
 		else
 		{
-			triggerBoxEvents.GetComponent<Collider>().enabled = true;
+			triggerBoxEvents.Collider.enabled = true;
 		}
 	}
 

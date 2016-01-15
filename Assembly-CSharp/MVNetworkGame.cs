@@ -478,9 +478,9 @@ public class MVNetworkGame : IPhotonPeerListener
 		case MVJoinState.FetchingCreditStatus:
 		{
 			MVGameControllerBase.JoinState = MVJoinState.FetchingMaterials;
-			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
-			dictionary.Add(11, MVGameControllerBase.GameSessionData.profileID);
-			peer.OpCustom(46, dictionary, sendReliable: true);
+			Dictionary<byte, object> dictionary2 = new Dictionary<byte, object>();
+			dictionary2.Add(11, MVGameControllerBase.GameSessionData.profileID);
+			peer.OpCustom(46, dictionary2, sendReliable: true);
 			break;
 		}
 		case MVJoinState.FetchingMaterials:
@@ -535,9 +535,9 @@ public class MVNetworkGame : IPhotonPeerListener
 			{
 				MVGameControllerBase.JoinState = MVJoinState.FetchingShopInventory;
 				OnGetNextResultSetResponse = OnShopInventoryResultSetResponse;
-				Dictionary<object, object> dictionary2 = new Dictionary<object, object>();
-				dictionary2.Add((byte)0, LocalPlayer.ProfileID);
-				RequestLargeDBQuery(MVOperationCodes.LargeDBQuery, DBQuery.RequestClientShopInventoryForPlayer, dictionary2, 10);
+				Dictionary<object, object> dictionary = new Dictionary<object, object>();
+				dictionary.Add((byte)0, LocalPlayer.ProfileID);
+				RequestLargeDBQuery(MVOperationCodes.LargeDBQuery, DBQuery.RequestClientShopInventoryForPlayer, dictionary, 10);
 			}
 			else
 			{
@@ -584,7 +584,29 @@ public class MVNetworkGame : IPhotonPeerListener
 			}
 			break;
 		case MVJoinState.Playing:
-			StatHatWrapper.Value("JoinTime", Time.realtimeSinceStartup);
+		{
+			double totalMilliseconds = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+			if (MVGameControllerBase.LoadStats.DOMReady > 0.0)
+			{
+				float num = (float)(totalMilliseconds - MVGameControllerBase.LoadStats.DOMReady) / 1000f;
+				Debug.Log("CompleteJoinTime " + num);
+				StatHatWrapper.Value("CompleteJoinTime", num);
+				StatHatWrapper.Value("CompleteJoinTime." + MVGameControllerBase.GameMode, num);
+			}
+			if (MVGameControllerBase.LoadStats.PluginInit > 0.0)
+			{
+				float num2 = (float)(totalMilliseconds - MVGameControllerBase.LoadStats.PluginInit) / 1000f;
+				Debug.Log("JoinAndInitializationTime " + num2);
+				StatHatWrapper.Value("JoinAndInitializationTime", num2);
+				StatHatWrapper.Value("JoinAndInitializationTime." + MVGameControllerBase.GameMode, num2);
+			}
+			if (MVGameControllerBase.LoadStats.GameStartTime > 0.0)
+			{
+				float num3 = (float)(totalMilliseconds - MVGameControllerBase.LoadStats.GameStartTime) / 1000f;
+				Debug.Log("JoinTime " + num3);
+				StatHatWrapper.Value("JoinTime", num3);
+				StatHatWrapper.Value("JoinTime." + MVGameControllerBase.GameMode, num3);
+			}
 			if (MVGameControllerBase.IsTouristSession)
 			{
 				StatHatWrapper.Count("SessionType.Tourist" + gameType, 1);
@@ -595,6 +617,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			}
 			gameCoinManager.Reset(this);
 			break;
+		}
 		case MVJoinState.SelectingTeam:
 		case MVJoinState.CreatingAvatar:
 		case MVJoinState.Leaving:
@@ -2040,24 +2063,25 @@ public class MVNetworkGame : IPhotonPeerListener
 			return;
 		}
 		int id = (int)photonEvent[20];
-		if (WorldObjectClientManager.GetWorldObjectClient(id) == null)
+		MVWorldObjectClient worldObjectClient = WorldObjectClientManager.GetWorldObjectClient(id);
+		if (worldObjectClient == null)
 		{
 			Debug.LogError("Attempt to update world object, but object not registered in world");
 		}
-		else if (WorldObjectClientManager.GetWorldObjectClient(id).State != MVWorldObjectState.Destroyed)
+		else if (worldObjectClient.State != MVWorldObjectState.Destroyed)
 		{
 			NetworkTransformPackage networkTransformPackage = new NetworkTransformPackage();
 			networkTransformPackage.position = new Vector3((float)photonEvent[22], (float)photonEvent[23], (float)photonEvent[24]);
 			networkTransformPackage.rotation = QuaternionCompression.ToQuaternion((byte[])photonEvent[158]);
 			networkTransformPackage.timestamp = (int)photonEvent[33];
 			networkTransformPackage.packageType = (TransformPackageType)(byte)photonEvent[34];
-			if (WorldObjectClientManager.GetWorldObjectClient(id).NetworkObject != null && WorldObjectClientManager.GetWorldObjectClient(id).NetworkObject.GetType() == typeof(MVNetworkListener))
+			if (worldObjectClient.NetworkObject != null && worldObjectClient.NetworkObject.GetType() == typeof(MVNetworkListener))
 			{
-				(WorldObjectClientManager.GetWorldObjectClient(id).NetworkObject as MVNetworkListener).AddTransformPackage(networkTransformPackage);
+				(worldObjectClient.NetworkObject as MVNetworkListener).AddTransformPackage(networkTransformPackage);
 			}
-			else if (WorldObjectClientManager.GetWorldObjectClient(id).NetworkObject != null)
+			else if (worldObjectClient.NetworkObject != null)
 			{
-				Debug.LogWarning(string.Concat("worldObjectClientManager.WorldObjects[worldObjectID].NetworkObject is ", WorldObjectClientManager.GetWorldObjectClient(id).NetworkObject.GetType(), " this is probably due to ownership switching of vehicle"));
+				Debug.LogWarning(string.Concat("worldObjectClientManager.WorldObjects[worldObjectID].NetworkObject is ", worldObjectClient.NetworkObject.GetType(), " this is probably due to ownership switching of vehicle"));
 			}
 		}
 		else

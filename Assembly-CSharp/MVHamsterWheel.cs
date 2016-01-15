@@ -59,8 +59,6 @@ public class MVHamsterWheel(Dictionary<object, object> data, Dictionary<int, MVW
 		}
 	}
 
-	private const string _vehiclePrefab = "Prefabs/Blueprints/Vehicles/HamsterWheel";
-
 	private float deathExplosionDamageValue = 40f;
 
 	private float deathExplosionRadius = 10f;

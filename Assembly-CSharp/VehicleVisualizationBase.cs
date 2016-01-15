@@ -3,15 +3,15 @@ using UnityEngine;
 
 public class VehicleVisualizationBase : MonoBehaviour
 {
+	public List<GameObject> lodGameObjects = new List<GameObject>();
+
 	protected float disableVisualizationDistance = 40f;
 
 	protected float cullDistance = 145f;
 
-	private bool disabledByLod;
-
 	protected bool isInSpawner;
 
-	public List<GameObject> lodGameObjects = new List<GameObject>();
+	private bool disabledByLod;
 
 	public virtual void ChangeLOD(float distance)
 	{

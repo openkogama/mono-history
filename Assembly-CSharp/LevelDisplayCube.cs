@@ -10,10 +10,21 @@ public class LevelDisplayCube : MonoBehaviour
 
 	private bool visible;
 
+	public Renderer[] Renderers
+	{
+		get
+		{
+			if (renderers == null)
+			{
+				renderers = gameObject.GetComponentsInChildren<Renderer>();
+			}
+			return renderers;
+		}
+	}
+
 	public void Initialize()
 	{
-		renderers = gameObject.GetComponentsInChildren<Renderer>();
-		Renderer[] array = renderers;
+		Renderer[] array = Renderers;
 		foreach (Renderer renderer in array)
 		{
 			renderer.material.mainTexture = null;
@@ -51,7 +62,7 @@ public class LevelDisplayCube : MonoBehaviour
 
 	private void StreamingAssetCallback(WWW www)
 	{
-		Renderer[] array = renderers;
+		Renderer[] array = Renderers;
 		foreach (Renderer renderer in array)
 		{
 			if (!(renderer == null))
@@ -67,7 +78,7 @@ public class LevelDisplayCube : MonoBehaviour
 
 	public void Destroy()
 	{
-		Renderer[] array = renderers;
+		Renderer[] array = Renderers;
 		foreach (Renderer renderer in array)
 		{
 			if (renderer.material.mainTexture != null)
@@ -75,9 +86,9 @@ public class LevelDisplayCube : MonoBehaviour
 				Object.Destroy(renderer.material.mainTexture);
 			}
 		}
-		for (int j = 0; j < renderers.Length; j++)
+		for (int j = 0; j < Renderers.Length; j++)
 		{
-			Object.Destroy(renderers[j].gameObject);
+			Object.Destroy(Renderers[j].gameObject);
 		}
 		Object.Destroy(cube);
 	}
@@ -85,18 +96,18 @@ public class LevelDisplayCube : MonoBehaviour
 	public void Show()
 	{
 		visible = true;
-		for (int i = 0; i < renderers.Length; i++)
+		for (int i = 0; i < Renderers.Length; i++)
 		{
-			renderers[i].enabled = true;
+			Renderers[i].enabled = true;
 		}
 	}
 
 	public void Hide()
 	{
 		visible = false;
-		for (int i = 0; i < renderers.Length; i++)
+		for (int i = 0; i < Renderers.Length; i++)
 		{
-			renderers[i].enabled = false;
+			Renderers[i].enabled = false;
 		}
 	}
 }

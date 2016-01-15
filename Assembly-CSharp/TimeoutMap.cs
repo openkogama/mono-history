@@ -7,6 +7,8 @@ public class TimeoutMap
 
 	private Dictionary<int, float> weaponTimeOutMap = new Dictionary<int, float>();
 
+	private HashSet<int> removeSet = new HashSet<int>();
+
 	public TimeoutMap(float timeOut)
 	{
 		this.timeOut = timeOut;
@@ -14,15 +16,15 @@ public class TimeoutMap
 
 	public void Update()
 	{
-		HashSet<int> hashSet = new HashSet<int>();
+		removeSet.Clear();
 		foreach (KeyValuePair<int, float> item in weaponTimeOutMap)
 		{
 			if (item.Value + timeOut <= Time.time)
 			{
-				hashSet.Add(item.Key);
+				removeSet.Add(item.Key);
 			}
 		}
-		foreach (int item2 in hashSet)
+		foreach (int item2 in removeSet)
 		{
 			weaponTimeOutMap.Remove(item2);
 		}

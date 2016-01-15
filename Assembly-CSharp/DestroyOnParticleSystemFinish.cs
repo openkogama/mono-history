@@ -6,8 +6,9 @@ public class DestroyOnParticleSystemFinish : MonoBehaviour
 {
 	private IEnumerator Start()
 	{
-		yield return new WaitForSeconds(GetComponent<ParticleSystem>().duration);
-		while (GetComponent<ParticleSystem>().IsAlive(withChildren: true))
+		ParticleSystem system = GetComponent<ParticleSystem>();
+		yield return new WaitForSeconds(system.duration);
+		while (system.IsAlive(withChildren: true))
 		{
 			yield return 0;
 		}

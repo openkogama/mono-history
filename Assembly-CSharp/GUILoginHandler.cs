@@ -8,9 +8,9 @@ public class GUILoginHandler : MonoBehaviour
 {
 	public enum DevServerTarget
 	{
+		Local,
 		Dev,
-		Test,
-		Local
+		Test
 	}
 
 	[SerializeField]

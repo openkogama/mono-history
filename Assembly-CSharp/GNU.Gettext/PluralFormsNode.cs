@@ -59,6 +59,10 @@ internal class PluralFormsNode
 
 	public long Evaluate(long n)
 	{
+		if (Tracer != null)
+		{
+			Tracer.Text.AppendFormat("{0}: (n = {1}): ", token.TokenType, n);
+		}
 		long num = -1L;
 		long num2 = -1L;
 		long num3 = -1L;
@@ -66,59 +70,82 @@ internal class PluralFormsNode
 		switch (token.TokenType)
 		{
 		case PluralFormsToken.Type.Number:
-			return token.Number;
+			num4 = token.Number;
+			break;
 		case PluralFormsToken.Type.N:
-			return n;
+			num4 = n;
+			break;
 		case PluralFormsToken.Type.Equal:
 			num = nodes[0].Evaluate(n);
 			num2 = nodes[1].Evaluate(n);
-			return (num == num2) ? 1 : 0;
+			num4 = ((num == num2) ? 1 : 0);
+			break;
 		case PluralFormsToken.Type.NotEqual:
 			num = nodes[0].Evaluate(n);
 			num2 = nodes[1].Evaluate(n);
-			return (num != num2) ? 1 : 0;
+			num4 = ((num != num2) ? 1 : 0);
+			break;
 		case PluralFormsToken.Type.Greater:
 			num = nodes[0].Evaluate(n);
 			num2 = nodes[1].Evaluate(n);
-			return (num > num2) ? 1 : 0;
+			num4 = ((num > num2) ? 1 : 0);
+			break;
 		case PluralFormsToken.Type.GreaterOrEqual:
 			num = nodes[0].Evaluate(n);
 			num2 = nodes[1].Evaluate(n);
-			return (num >= num2) ? 1 : 0;
+			num4 = ((num >= num2) ? 1 : 0);
+			break;
 		case PluralFormsToken.Type.Less:
 			num = nodes[0].Evaluate(n);
 			num2 = nodes[1].Evaluate(n);
-			return (num < num2) ? 1 : 0;
+			num4 = ((num < num2) ? 1 : 0);
+			break;
 		case PluralFormsToken.Type.LessOrEqual:
 			num = nodes[0].Evaluate(n);
 			num2 = nodes[1].Evaluate(n);
-			return (num <= num2) ? 1 : 0;
+			num4 = ((num <= num2) ? 1 : 0);
+			break;
 		case PluralFormsToken.Type.Reminder:
 		{
 			long num5 = nodes[1].Evaluate(n);
 			if (num5 != 0L)
 			{
 				num = nodes[0].Evaluate(n);
-				return num % num5;
+				num4 = num % num5;
 			}
-			return 0L;
+			else
+			{
+				num4 = 0L;
+			}
+			Tracer.Text.AppendFormat("n0 % number = {0} % {1} = {2} | ", num, num5, num4);
+			break;
 		}
 		case PluralFormsToken.Type.LogicalAnd:
 			num = nodes[0].Evaluate(n);
 			num2 = nodes[1].Evaluate(n);
-			return (num != 0L && num2 != 0L) ? 1 : 0;
+			num4 = ((num != 0L && num2 != 0L) ? 1 : 0);
+			break;
 		case PluralFormsToken.Type.LogicalOr:
 			num = nodes[0].Evaluate(n);
 			num2 = nodes[1].Evaluate(n);
-			return (num != 0L || num2 != 0L) ? 1 : 0;
+			num4 = ((num != 0L || num2 != 0L) ? 1 : 0);
+			break;
 		case PluralFormsToken.Type.Question:
 			num = nodes[0].Evaluate(n);
 			num2 = nodes[1].Evaluate(n);
 			num3 = nodes[2].Evaluate(n);
-			return (num == 0L) ? num3 : num2;
+			num4 = ((num == 0L) ? num3 : num2);
+			break;
 		default:
-			return 0L;
+			num4 = 0L;
+			break;
 		}
+		if (Tracer != null)
+		{
+			Tracer.Text.AppendFormat("{0}{1}{2} result = {3}", (num == -1) ? string.Empty : ("n0 = " + num + ", "), (num2 == -1) ? string.Empty : (", n1 = " + num2 + ", "), (num3 == -1) ? string.Empty : (", n2 = " + num3 + ", "), num4);
+			Tracer.Level--;
+		}
+		return num4;
 	}
 
 	public override string ToString()

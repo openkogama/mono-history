@@ -16,29 +16,54 @@ public class AvatarSound : MonoBehaviour
 
 	private AudioManager audioManager;
 
+	private AudioSource audioSource;
+
+	public AudioManager AudioManager
+	{
+		get
+		{
+			if (audioManager == null)
+			{
+				audioManager = Object.FindObjectOfType<AudioManager>();
+			}
+			return audioManager;
+		}
+	}
+
+	public AudioSource AudioSource
+	{
+		get
+		{
+			if (audioSource == null)
+			{
+				audioSource = GetComponent<AudioSource>();
+			}
+			return audioSource;
+		}
+	}
+
 	public void Start()
 	{
-		audioManager = Object.FindObjectOfType(typeof(AudioManager)) as AudioManager;
 	}
 
 	private void Update()
 	{
-		if (nextSoundToPlay != null && !GetComponent<AudioSource>().isPlaying)
+		if (nextSoundToPlay != null && !AudioSource.isPlaying)
 		{
-			GetComponent<AudioSource>().clip = nextSoundToPlay;
-			GetComponent<AudioSource>().Play();
+			AudioSource.clip = nextSoundToPlay;
+			AudioSource.Play();
 			nextSoundToPlay = null;
 		}
 	}
 
 	public void HandleWallJump()
 	{
-		audioManager.Play("Parkeur jump", soundTouchParkeur, transform.position, 0.5f, SoundRangeDistance.Short);
+		AudioManager.Play("Parkeur jump", soundTouchParkeur, transform.position, 0.5f, SoundRangeDistance.Short);
 	}
 
 	public void HandleActiveBounce()
 	{
-		audioManager.Play("Bounchy jump", soundTouchBouncy, transform.position, 0.5f, SoundRangeDistance.Short);
+		AudioManager.Play("Bounchy jump", soundTouchBouncy, transform.position, 0.5f, SoundRangeDistance.Short);
 	}
 
 	private void HandleOnAvatarAnimationTick(string animation, int pose)
