@@ -94,8 +94,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	public static TimeReward TimeReward => timeReward;
 
-	public static GizmoDrawer GizmoDrawer { get; private set; }
-
 	public static LevelLoader LevelLoader { get; private set; }
 
 	public static VersionNumber VersionNumber { get; private set; }
@@ -160,7 +158,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		loadStats.GameStartTime = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
 		instance = this;
 		UnityEngine.Object.Instantiate(prefabPool);
-		GizmoDrawer = GetComponent<GizmoDrawer>();
 		LevelLoader = GetComponent<LevelLoader>();
 		AudioManager = GetComponent<AudioManager>();
 		BrowserComm = GetComponentInChildren<BrowserComm>();

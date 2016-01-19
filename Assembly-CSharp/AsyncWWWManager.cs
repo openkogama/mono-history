@@ -27,8 +27,6 @@ public static class AsyncWWWManager
 
 	private static HashSet<AsyncWebRequest> activeRequest = new HashSet<AsyncWebRequest>();
 
-	private static HashSet<AsyncWebRequest> doneRequests = new HashSet<AsyncWebRequest>();
-
 	private static Cache cache = new Cache();
 
 	private static bool dispose = false;
@@ -60,18 +58,18 @@ public static class AsyncWWWManager
 		{
 			activeRequest.Add(requests.Dequeue());
 		}
+		HashSet<AsyncWebRequest> hashSet = new HashSet<AsyncWebRequest>();
 		foreach (AsyncWebRequest item in activeRequest)
 		{
 			if (item.Update())
 			{
-				doneRequests.Add(item);
+				hashSet.Add(item);
 			}
 		}
-		foreach (AsyncWebRequest doneRequest in doneRequests)
+		foreach (AsyncWebRequest item2 in hashSet)
 		{
-			activeRequest.Remove(doneRequest);
+			activeRequest.Remove(item2);
 		}
-		doneRequests.Clear();
 	}
 
 	public static void Dispose()

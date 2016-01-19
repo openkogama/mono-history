@@ -6,11 +6,7 @@ public abstract class UXBaseButton : UXGUIElement
 {
 	public delegate void OnClickDelegate();
 
-	public delegate void OnMouseDownDelegate();
-
 	public OnClickDelegate OnClick;
-
-	public OnMouseDownDelegate OnMouseDown;
 
 	public bool buttonEnabled = true;
 
@@ -36,14 +32,7 @@ public abstract class UXBaseButton : UXGUIElement
 			gameObject.AddComponent<BoxCollider>();
 		}
 		UXMouseClickObject component = GetComponent<UXMouseClickObject>();
-		component.OnMouseDown = (UXMouseClickObject.OnMouseDownDelegate)Delegate.Combine(component.OnMouseDown, (UXMouseClickObject.OnMouseDownDelegate)((UXMouseClickObject clickObject, Vector3 mousePositionWorld) =>
-		{
-			if (OnMouseDown != null)
-			{
-				OnMouseDown();
-			}
-			return !clickThrough;
-		}));
+		component.OnMouseDown = (UXMouseClickObject.OnMouseDownDelegate)Delegate.Combine(component.OnMouseDown, (UXMouseClickObject.OnMouseDownDelegate)((UXMouseClickObject clickObject, Vector3 mousePositionWorld) => !clickThrough));
 		component.OnClick = (UXMouseClickObject.OnClickDelegate)Delegate.Combine(component.OnClick, (UXMouseClickObject.OnClickDelegate)((UXMouseClickObject clickObject, Vector3 mousePositionWorld) =>
 		{
 			click = true;

@@ -19,8 +19,6 @@ public abstract class UXGUIElement : MonoBehaviour
 
 	protected UXScreen screen;
 
-	protected Renderer mRenderer;
-
 	private Rect boundingRect;
 
 	private static List<Rect> g_clipRects = new List<Rect>(32);
@@ -35,11 +33,6 @@ public abstract class UXGUIElement : MonoBehaviour
 
 	public virtual void Awake()
 	{
-		mRenderer = GetComponent<Renderer>();
-		if (mRenderer == null)
-		{
-			mRenderer = gameObject.AddComponent<MeshRenderer>();
-		}
 		screen = UXUtils.UXScreen;
 		boundingRect = default;
 		Alignment = new Vector3(UXEnums.GetRatio(horizontalAlign) * Width, UXEnums.GetRatio(verticalAlign) * Height, 0f);
@@ -47,18 +40,20 @@ public abstract class UXGUIElement : MonoBehaviour
 
 	public virtual void SetMaterial(Material material)
 	{
-		if (mRenderer == null)
+		Renderer renderer = GetComponent<Renderer>();
+		if (renderer == null)
 		{
-			mRenderer = gameObject.GetComponent<MeshRenderer>();
+			renderer = gameObject.AddComponent<MeshRenderer>();
 		}
-		mRenderer.material = new Material(material);
+		renderer.material = new Material(material);
 	}
 
 	public virtual void SetAlpha(float alpha, string materialProperty = "")
 	{
-		Color color = mRenderer.material.GetColor("_MainColor");
+		Renderer component = GetComponent<Renderer>();
+		Color color = component.material.GetColor("_MainColor");
 		color.a = alpha;
-		mRenderer.material.SetColor("_MainColor", color);
+		component.material.SetColor("_MainColor", color);
 	}
 
 	public virtual void SetVisible(bool visible)
@@ -98,22 +93,18 @@ public abstract class UXGUIElement : MonoBehaviour
 	public virtual void Update()
 	{
 		Rect clippedBounds = GetClippedBounds();
-		if (mRenderer != null)
+		Renderer component = GetComponent<Renderer>();
+		if (component != null)
 		{
-			mRenderer.material.SetVector("_ClipRect", new Vector4(clippedBounds.xMin, clippedBounds.yMin, clippedBounds.xMax, clippedBounds.yMax));
+			component.material.SetVector("_ClipRect", new Vector4(clippedBounds.xMin, clippedBounds.yMin, clippedBounds.xMax, clippedBounds.yMax));
 		}
 	}
 
 	protected virtual void BuildMesh(Mesh mesh)
 	{
-		mRenderer = gameObject.GetComponent<MeshRenderer>();
-		if (mRenderer == null)
-		{
-			mRenderer = gameObject.AddComponent<MeshRenderer>();
-		}
 		if (uses9PatchMaterial)
 		{
-			UXUtils.Build9PatchPlaneMesh(mesh, Alignment, mRenderer.material.mainTexture, Width, Height, gameObject.name + "9Patch");
+			UXUtils.Build9PatchPlaneMesh(mesh, Alignment, GetComponent<Renderer>().material.mainTexture, Width, Height, gameObject.name + "9Patch");
 		}
 		else
 		{

@@ -2,8 +2,6 @@ using UnityEngine;
 
 public class ESStateBase : IState
 {
-	private bool debug;
-
 	protected EditorEvent stateType;
 
 	protected MVWorldObjectClient tintedWo;
@@ -71,17 +69,6 @@ public class ESStateBase : IState
 
 	protected void TintObjectsOnMouseOver(EditorStateMachine e, bool pickSuccess, VoxelHit hit)
 	{
-		if (tintedWo != null && debug)
-		{
-			MeshFilter componentInChildren = tintedWo.GameObject.GetComponentInChildren<MeshFilter>();
-			if (componentInChildren != null)
-			{
-				Vector3 position = tintedWo.Transform.TransformPoint(componentInChildren.sharedMesh.bounds.center);
-				CollisionDetectionTests.sphere.transform.localScale = MathFunctions.MultiplyVector(componentInChildren.sharedMesh.bounds.size / 2f, tintedWo.Scale);
-				CollisionDetectionTests.sphere.transform.position = position;
-				CollisionDetectionTests.sphere.transform.rotation = tintedWo.WorldRotation;
-			}
-		}
 		if (tintedWo != null && e.IsSelected(tintedWo.Id))
 		{
 			tintedWo = null;

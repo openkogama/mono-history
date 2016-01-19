@@ -1,8 +1,6 @@
-#define TRACE
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 using UnityEngine;
@@ -326,7 +324,7 @@ public class Catalog : IEnumerable, IEnumerable<CatalogEntry>
 		}
 		catch (Exception)
 		{
-			UnityEngine.Debug.Log($"Cannot detect charset of file '{fileName}'. Using default charset '{charsetInfoFinder.Charset}'");
+			Debug.Log($"Cannot detect charset of file '{fileName}'. Using default charset '{charsetInfoFinder.Charset}'");
 		}
 		LoadParser loadParser = new LoadParser(this, text, GetEncoding(Charset));
 		if (!loadParser.Parse(text))
@@ -518,11 +516,7 @@ public class Catalog : IEnumerable, IEnumerable<CatalogEntry>
 
 	public void AddItem(CatalogEntry data)
 	{
-		if (FindItem(data) != null)
-		{
-			Trace.TraceWarning("Duplicate message id '{0}' (context '{1}') in po file, ignoring it to achieve validity", data.String, (!data.HasContext) ? string.Empty : data.Context);
-		}
-		else
+		if (FindItem(data) == null)
 		{
 			entriesDict.Add(data.Key, data);
 			entriesList.Add(data);
