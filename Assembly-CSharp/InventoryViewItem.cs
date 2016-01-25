@@ -55,7 +55,11 @@ public class InventoryViewItem : MVGUIBasicViewItem
 		Material material = new Material(ItemPreviewMaterial);
 		material.hideFlags = HideFlags.HideAndDontSave;
 		material.mainTexture = ObjectPreviewer.PreviewTexture;
-		MeshRenderer meshRenderer = ItemImagePlane.gameObject.AddComponent<MeshRenderer>();
+		MeshRenderer meshRenderer = ItemImagePlane.gameObject.GetComponent<MeshRenderer>();
+		if (meshRenderer == null)
+		{
+			meshRenderer = ItemImagePlane.gameObject.AddComponent<MeshRenderer>();
+		}
 		meshRenderer.material = material;
 		OnInventoryViewItemBuilt();
 	}

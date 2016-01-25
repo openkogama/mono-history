@@ -102,8 +102,8 @@ public abstract class MvCharacterController : MonoBehaviour
 	public Vector3 GetGradientDirection(VoxelHit elipsoidHit)
 	{
 		Vector3 vec = transform.position + center + Vector3.down * elipsoidHit.distance;
-		Vector3 vector = MathFunctions.DivideVector(elipsoidHit.point, elipsoidRadius);
-		Vector3 vector2 = MathFunctions.DivideVector(vec, elipsoidRadius);
+		Vector3 vector = MathFunctions.DivideVector(ref elipsoidHit.point, ref elipsoidRadius);
+		Vector3 vector2 = MathFunctions.DivideVector(ref vec, ref elipsoidRadius);
 		Vector3 normalized = (vector2 - vector).normalized;
 		if (normalized.y == 0f)
 		{
@@ -115,7 +115,7 @@ public abstract class MvCharacterController : MonoBehaviour
 		}
 		Vector3 rhs = Vector3.Cross(Vector3.up, normalized);
 		Vector3 vec2 = Vector3.Cross(normalized, rhs);
-		return -MathFunctions.MultiplyVector(vec2, elipsoidRadius).normalized;
+		return -MathFunctions.MultiplyVector(ref vec2, ref elipsoidRadius).normalized;
 	}
 
 	public bool TestWithOutSliding(float distance, Vector3 direction, Vector3 motion, out MVControllerColliderHit colliderHit)
@@ -147,8 +147,8 @@ public abstract class MvCharacterController : MonoBehaviour
 			foundValidPosition = false;
 			return ePos;
 		}
-		Vector3 vector = MathFunctions.MultiplyVector(ePos, elipsoidRadius);
-		Vector3 vector2 = MathFunctions.MultiplyVector(eVel, elipsoidRadius);
+		Vector3 vector = MathFunctions.MultiplyVector(ref ePos, ref elipsoidRadius);
+		Vector3 vector2 = MathFunctions.MultiplyVector(ref eVel, ref elipsoidRadius);
 		if (!CollisionDetection.MVElipsoidCast(new Ray(vector, vector2.normalized), elipsoidRadius, vector2.magnitude, out var voxelHit, IgnoreWoIds, layerMask))
 		{
 			NoCollisionData noCollisionData2 = HandleNoCollision(ePos, eVel, adjustVerticalOnly: true);
@@ -159,7 +159,7 @@ public abstract class MvCharacterController : MonoBehaviour
 			return ePos;
 		}
 		float num = DistanceR3SpaceToESpace(voxelHit.distance, vector2, elipsoidRadius);
-		Vector3 ePoint = MathFunctions.DivideVector(voxelHit.point, elipsoidRadius);
+		Vector3 ePoint = MathFunctions.DivideVector(ref voxelHit.point, ref elipsoidRadius);
 		float collisionAngle = GetCollisionAngle(ePos, eVel, num, ePoint);
 		if (collisionAngle > collisionMaxAngle && num != 0f)
 		{
@@ -202,12 +202,20 @@ public abstract class MvCharacterController : MonoBehaviour
 
 	private static float DistanceR3SpaceToESpace(float distance, Vector3 R3Dir, Vector3 R3Radius)
 	{
-		return MathFunctions.DivideVector(R3Dir.normalized * distance, R3Radius).magnitude;
+		Vector3 vec = R3Dir.normalized;
+		vec.x *= distance;
+		vec.y *= distance;
+		vec.z *= distance;
+		return MathFunctions.DivideVector(ref vec, ref R3Radius).magnitude;
 	}
 
 	private static float DistanceESpaceToR3Space(float eDistance, Vector3 eDir, Vector3 R3Radius)
 	{
-		return MathFunctions.MultiplyVector(eDir.normalized * eDistance, R3Radius).magnitude;
+		Vector3 vec = eDir.normalized;
+		vec.x *= eDistance;
+		vec.y *= eDistance;
+		vec.z *= eDistance;
+		return MathFunctions.MultiplyVector(ref vec, ref R3Radius).magnitude;
 	}
 
 	private static float GetMoveBackDistance(Vector3 ePos, Vector3 eDir, float distance, Vector3 ePoint)
@@ -235,21 +243,21 @@ public abstract class MvCharacterController : MonoBehaviour
 
 	private NoCollisionData HandleNoCollision(Vector3 ePos, Vector3 eVel, bool adjustVerticalOnly)
 	{
-		Vector3 vector = MathFunctions.MultiplyVector(ePos, elipsoidRadius);
-		Vector3 vector2 = MathFunctions.MultiplyVector(eVel, elipsoidRadius);
+		Vector3 vector = MathFunctions.MultiplyVector(ref ePos, ref elipsoidRadius);
+		Vector3 vector2 = MathFunctions.MultiplyVector(ref eVel, ref elipsoidRadius);
 		Vector3 normalizedVector = GetNormalizedVector(vector2);
 		Vector3 normalizedVector2 = GetNormalizedVector(eVel);
 		NoCollisionData result = new NoCollisionData(ePos + eVel, val: true);
 		float distance = DistanceESpaceToR3Space(0.005f, Vector3.down, elipsoidRadius);
 		bool flag = CollisionDetection.MVElipsoidCast(new Ray(vector + vector2, Vector3.down), elipsoidRadius, distance, out var voxelHit, IgnoreWoIds, layerMask);
-		Vector3 vector3 = eVel;
+		Vector3 vec = eVel;
 		if (flag)
 		{
 			float num = DistanceR3SpaceToESpace(voxelHit.distance, Vector3.down, elipsoidRadius);
 			result = ((!CollisionDetection.MVElipsoidCast(new Ray(vector + vector2, Vector3.up), elipsoidRadius, distance, out voxelHit, IgnoreWoIds, layerMask)) ? new NoCollisionData(ePos + eVel + (0.005f - num) * Vector3.up, val: true) : new NoCollisionData(ePos + eVel + (0.005f - num) * Vector3.up, val: false));
-			vector3 = result.Position - ePos;
-			normalizedVector2 = GetNormalizedVector(vector3);
-			vector2 = MathFunctions.MultiplyVector(vector3, elipsoidRadius);
+			vec = result.Position - ePos;
+			normalizedVector2 = GetNormalizedVector(vec);
+			vector2 = MathFunctions.MultiplyVector(ref vec, ref elipsoidRadius);
 			normalizedVector = GetNormalizedVector(vector2);
 		}
 		if (!adjustVerticalOnly)
@@ -258,8 +266,8 @@ public abstract class MvCharacterController : MonoBehaviour
 			if (CollisionDetection.MVElipsoidCast(new Ray(vector, normalizedVector), elipsoidRadius, num2 + vector2.magnitude, out var voxelHit2, IgnoreWoIds, layerMask))
 			{
 				float num3 = DistanceR3SpaceToESpace(voxelHit2.distance, normalizedVector, elipsoidRadius);
-				float num4 = vector3.magnitude + 0.005f - num3;
-				result = new NoCollisionData(ePos + normalizedVector2 * (vector3.magnitude - num4), val: true);
+				float num4 = vec.magnitude + 0.005f - num3;
+				result = new NoCollisionData(ePos + normalizedVector2 * (vec.magnitude - num4), val: true);
 			}
 		}
 		return result;

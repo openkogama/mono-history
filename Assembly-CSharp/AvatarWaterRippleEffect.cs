@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 public class AvatarWaterRippleEffect : MonoBehaviour
@@ -11,13 +10,13 @@ public class AvatarWaterRippleEffect : MonoBehaviour
 
 	private Avatar avatar;
 
+	private ParticleSystem ripple;
+
 	private float previousAvatarWaterProximity;
 
-	private bool spawningRipples;
-
-	private Vector3 lastRipplePosition = Vector3.zero;
-
 	private float lastRippleTime;
+
+	private Vector3 lastRipplePosition;
 
 	public Avatar Avatar
 	{
@@ -31,39 +30,35 @@ public class AvatarWaterRippleEffect : MonoBehaviour
 		}
 	}
 
-	private IEnumerator DoSurfaceWaterRipples(Transform avatarTfm)
-	{
-		spawningRipples = true;
-		while (waterPlane.IsActive && avatarTfm.position.y + avatarHeight > waterPlane.transform.position.y && avatarTfm.position.y <= waterPlane.transform.position.y)
-		{
-			Vector3 p = avatarTfm.position;
-			p.y = waterPlane.transform.position.y + 0.01f;
-			if (Vector3.Distance(lastRipplePosition, p) > 1.5f || lastRippleTime + 1.2f < Time.time)
-			{
-				Object.Instantiate(avatarSplashPrefab, p, Quaternion.identity);
-				lastRipplePosition = p;
-				lastRippleTime = Time.time;
-			}
-			yield return null;
-		}
-		spawningRipples = false;
-	}
-
 	private void Start()
 	{
 		waterPlane = Object.FindObjectOfType(typeof(WaterPlaneManager)) as WaterPlaneManager;
+		ripple = Object.Instantiate(avatarSplashPrefab, Vector3.zero, Quaternion.identity) as ParticleSystem;
 	}
 
 	private void Update()
 	{
-		if (waterPlane.IsActive)
+		if (!waterPlane.IsActive)
 		{
-			float num = waterPlane.ComputeAvatarWaterProximity(Avatar.transform.position);
-			if (((previousAvatarWaterProximity <= 0f && num > 0f) || (previousAvatarWaterProximity >= 1f && num < 1f)) && !spawningRipples)
-			{
-				StartCoroutine(DoSurfaceWaterRipples(Avatar.transform));
-			}
+			return;
+		}
+		Vector3 position = Avatar.transform.position;
+		Vector3 position2 = waterPlane.transform.position;
+		lastRippleTime += Time.deltaTime;
+		float num = waterPlane.ComputeAvatarWaterProximity(position);
+		if ((previousAvatarWaterProximity <= 0f && num > 0f) || (previousAvatarWaterProximity >= 1f && num < 1f))
+		{
 			previousAvatarWaterProximity = num;
+		}
+		if (position.y + avatarHeight > position2.y && position.y <= position2.y)
+		{
+			position.y = position2.y;
+			if (lastRippleTime > 1.2f || Vector3.Distance(lastRipplePosition, position) > 1.5f)
+			{
+				ripple.Emit(position, default, ripple.startSize, ripple.startLifetime, Color.white);
+				lastRipplePosition = position;
+				lastRippleTime = 0f;
+			}
 		}
 	}
 }

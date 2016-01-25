@@ -167,9 +167,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public GameObject TeleportAvatarPrefab;
 
-	[SerializeField]
 	[Header("Game")]
 	[Space(20f)]
+	[SerializeField]
 	public Material GhostMarkerMaterial;
 
 	[SerializeField]
@@ -196,9 +196,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public GameCoinDisplayObject GameCoinDisplayPrefab;
 
+	[Header("Pick up")]
 	[Space(20f)]
 	[SerializeField]
-	[Header("Pick up")]
 	public GameObject AvatarCenterGunPrefab;
 
 	[SerializeField]
@@ -255,9 +255,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public GameObject AvatarGrowthPackPrefab;
 
-	[SerializeField]
-	[Space(20f)]
 	[Header("Avatar item pick up")]
+	[Space(20f)]
+	[SerializeField]
 	public GameObject AvatarItemCenterGun;
 
 	public GameObject AvatarItemImpulseGun;
@@ -292,8 +292,8 @@ public class PrefabPool : MonoBehaviour
 
 	public GameObject AvatarItemSlapGun;
 
-	[Header("Avatar modifier")]
 	[Space(20f)]
+	[Header("Avatar modifier")]
 	public AvatarModifier BurningModifier;
 
 	public AvatarModifier MutantModifier;
@@ -308,9 +308,9 @@ public class PrefabPool : MonoBehaviour
 
 	public AvatarModifier GrowthModifier;
 
-	[Header("Particles")]
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
+	[Header("Particles")]
 	public GameObject ParticleBlood;
 
 	[SerializeField]
@@ -373,9 +373,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public GameObject ParticleXP;
 
+	[Space(20f)]
 	[Header("Logic object prefabs")]
 	[SerializeField]
-	[Space(20f)]
 	public GameObject LogicInputConnectorPrefab;
 
 	[SerializeField]
@@ -402,9 +402,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public Material LogicCubeConnectorBlueSelectedMaterial;
 
-	[Header("Audio Bank Sounds")]
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
+	[Header("Audio Bank Sounds")]
 	public AudioClip ButtonClickAudio;
 
 	[SerializeField]
@@ -464,9 +464,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public AudioClip StaticMenuOpenAudio;
 
-	[Header("GUI")]
 	[Space(20f)]
 	[SerializeField]
+	[Header("GUI")]
 	public GameObject AvatarAccessoryMoveIcon;
 
 	[SerializeField]
@@ -475,9 +475,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public Material ModelConstraintsMaterial;
 
+	[SerializeField]
 	[Space(20f)]
 	[Header("UX")]
-	[SerializeField]
 	public GameObject UXTextObject;
 
 	[SerializeField]

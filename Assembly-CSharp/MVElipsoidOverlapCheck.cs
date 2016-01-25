@@ -76,8 +76,15 @@ public static class MVElipsoidOverlapCheck
 
 	private static List<MVOverlapResult> ElipsoidOverlapCheck(Vector3 position, Transform transform, Bounds localBounds, HashSet<int> ignoreWoIds, int layerMask = -5)
 	{
+		Vector3 vec = new Vector3
+		{
+			x = localBounds.size.x * 0.5f,
+			y = localBounds.size.y * 0.5f,
+			z = localBounds.size.z * 0.5f
+		};
+		Vector3 vec2 = transform.localScale;
 		Vector3 vector = transform.TransformPoint(localBounds.center);
-		Vector3 radius = MathFunctions.MultiplyVector(localBounds.size / 2f, transform.localScale);
+		Vector3 radius = MathFunctions.MultiplyVector(ref vec, ref vec2);
 		Vector3 vector2 = vector - transform.position;
 		position += vector2;
 		return ElipsoidOverlapCheck(radius, position, transform.rotation, ignoreWoIds, layerMask);
@@ -123,7 +130,14 @@ public static class MVElipsoidOverlapCheck
 			worldToElipsoidSpace = elipsoidSpaceToWorld.inverse;
 			localToElipsoidSpace = worldToElipsoidSpace * localToWorld;
 			localElipsoidPosition = worldToLocal.MultiplyPoint(position);
-			Vector3 vector = MathFunctions.MultiplyVector(Vector3.one * 0.8660254f, wo.Scale);
+			Vector3 vec = new Vector3
+			{
+				x = 0.8660254f,
+				y = 0.8660254f,
+				z = 0.8660254f
+			};
+			Vector3 vec2 = wo.Scale;
+			Vector3 vector = MathFunctions.MultiplyVector(ref vec, ref vec2);
 			radiusExtendedElipsoidSpaceToWorld = Matrix4x4.TRS(position, rotation, radius + vector);
 			worldToRadiusExtendedElipsoidSpace = radiusExtendedElipsoidSpaceToWorld.inverse;
 			localToRadiusExtendedElipsoidSpace = worldToRadiusExtendedElipsoidSpace * localToWorld;
@@ -215,18 +229,24 @@ public static class MVElipsoidOverlapCheck
 		CubeBase.GetCorners(cube, ref cachedCorners);
 		for (int i = 0; i < cachedCorners.Length; i++)
 		{
-			cachedCorners[i] += localPos;
+			cachedCorners[i].x += localPos.x;
+			cachedCorners[i].y += localPos.y;
+			cachedCorners[i].z += localPos.z;
 		}
+		Vector3 p = default;
+		Vector3 p2 = default;
 		FaceFlags[] faceFlagsArray = CubeBase.FaceFlagsArray;
 		foreach (FaceFlags faceFlag in faceFlagsArray)
 		{
 			CubeBase.GetFace(ref cachedCorners, ref cachedFace, CubeBase.FaceFlagToFace(faceFlag));
-			Vector3 p = default;
-			if (MathFunctions.LineFacet(localElipsoidPosition, localElipsoidPosition + Vector3.right * 4f, cachedFace[0], cachedFace[3], cachedFace[2], ref p))
+			p2.x = localElipsoidPosition.x + 4f;
+			p2.y = localElipsoidPosition.y;
+			p2.z = localElipsoidPosition.z;
+			if (MathFunctions.LineFacet(localElipsoidPosition, p2, cachedFace[0], cachedFace[3], cachedFace[2], ref p))
 			{
 				num++;
 			}
-			if (MathFunctions.LineFacet(localElipsoidPosition, localElipsoidPosition + Vector3.right * 4f, cachedFace[2], cachedFace[1], cachedFace[0], ref p))
+			if (MathFunctions.LineFacet(localElipsoidPosition, p2, cachedFace[2], cachedFace[1], cachedFace[0], ref p))
 			{
 				num++;
 			}

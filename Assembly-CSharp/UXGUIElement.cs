@@ -19,6 +19,8 @@ public abstract class UXGUIElement : MonoBehaviour
 
 	protected UXScreen screen;
 
+	protected Renderer mRenderer;
+
 	private Rect boundingRect;
 
 	private static List<Rect> g_clipRects = new List<Rect>(32);
@@ -31,6 +33,18 @@ public abstract class UXGUIElement : MonoBehaviour
 
 	public Vector3 ScreenSize => Size * screen.Scale;
 
+	public Renderer Renderer
+	{
+		get
+		{
+			if (mRenderer == null)
+			{
+				mRenderer = GetComponent<Renderer>();
+			}
+			return mRenderer;
+		}
+	}
+
 	public virtual void Awake()
 	{
 		screen = UXUtils.UXScreen;
@@ -40,20 +54,18 @@ public abstract class UXGUIElement : MonoBehaviour
 
 	public virtual void SetMaterial(Material material)
 	{
-		Renderer renderer = GetComponent<Renderer>();
-		if (renderer == null)
+		if (Renderer == null)
 		{
-			renderer = gameObject.AddComponent<MeshRenderer>();
+			mRenderer = gameObject.AddComponent<MeshRenderer>();
 		}
-		renderer.material = new Material(material);
+		mRenderer.material = new Material(material);
 	}
 
 	public virtual void SetAlpha(float alpha, string materialProperty = "")
 	{
-		Renderer component = GetComponent<Renderer>();
-		Color color = component.material.GetColor("_MainColor");
+		Color color = Renderer.material.GetColor("_MainColor");
 		color.a = alpha;
-		component.material.SetColor("_MainColor", color);
+		Renderer.material.SetColor("_MainColor", color);
 	}
 
 	public virtual void SetVisible(bool visible)
@@ -93,10 +105,9 @@ public abstract class UXGUIElement : MonoBehaviour
 	public virtual void Update()
 	{
 		Rect clippedBounds = GetClippedBounds();
-		Renderer component = GetComponent<Renderer>();
-		if (component != null)
+		if (mRenderer != null)
 		{
-			component.material.SetVector("_ClipRect", new Vector4(clippedBounds.xMin, clippedBounds.yMin, clippedBounds.xMax, clippedBounds.yMax));
+			mRenderer.material.SetVector("_ClipRect", new Vector4(clippedBounds.xMin, clippedBounds.yMin, clippedBounds.xMax, clippedBounds.yMax));
 		}
 	}
 
@@ -104,7 +115,7 @@ public abstract class UXGUIElement : MonoBehaviour
 	{
 		if (uses9PatchMaterial)
 		{
-			UXUtils.Build9PatchPlaneMesh(mesh, Alignment, GetComponent<Renderer>().material.mainTexture, Width, Height, gameObject.name + "9Patch");
+			UXUtils.Build9PatchPlaneMesh(mesh, Alignment, Renderer.material.mainTexture, Width, Height, gameObject.name + "9Patch");
 		}
 		else
 		{
@@ -166,11 +177,13 @@ public abstract class UXGUIElement : MonoBehaviour
 
 	private void GetClippedBoundsNonRecursive(ref UXGUIElement[] someElements, ref List<Rect> clipRects)
 	{
-		for (int i = 0; i < someElements.Length; i++)
+		int num = someElements.Length;
+		for (int i = 0; i < num; i++)
 		{
-			if (someElements[i] is IUXContainer)
+			UXGUIElement uXGUIElement = someElements[i];
+			if (uXGUIElement is IUXContainer)
 			{
-				clipRects.Add(someElements[i].GetBoundingBox());
+				clipRects.Add(uXGUIElement.GetBoundingBox());
 			}
 		}
 	}

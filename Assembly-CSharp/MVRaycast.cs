@@ -17,26 +17,32 @@ public static class MVRaycast
 
 	private static HashSet<int> foundWos = new HashSet<int>();
 
+	private static List<VoxelHit> voxelHits = new List<VoxelHit>();
+
+	private static List<RaycastHit> sortedHits = new List<RaycastHit>();
+
+	private static List<Collider> colliderList = new List<Collider>();
+
 	public static bool MVHit(Ray ray, MVWorldObjectClient wo, out VoxelHit voxelHit, float distance = float.PositiveInfinity)
 	{
 		voxelHit = default;
-		List<RaycastHit> list = new List<RaycastHit>();
+		sortedHits.Clear();
 		if (wo is ICubeModelCollider)
 		{
 			ChunkInstances chunkInstances = ((ICubeModelCollider)wo).ChunkInstances;
-			List<Collider> list2 = new List<Collider>();
+			colliderList.Clear();
 			foreach (KeyValuePair<IntVector, ChunkInstances.ChunkInstanceVariables> item in (IEnumerable)chunkInstances)
 			{
 				if (item.Value.collider.Raycast(ray, out var hitInfo, distance))
 				{
-					list.Add(hitInfo);
+					sortedHits.Add(hitInfo);
 				}
 				else if (item.Value.collider.bounds.Contains(ray.origin))
 				{
-					list2.Add(item.Value.collider);
+					colliderList.Add(item.Value.collider);
 				}
 			}
-			PhysicsCollisionDatasWrapper physicsCollisionData = SharedCollisionFunctions.GetPhysicsCollisionData(list2.ToArray(), list.ToArray(), ray.origin);
+			PhysicsCollisionDatasWrapper physicsCollisionData = SharedCollisionFunctions.GetPhysicsCollisionData(colliderList.ToArray(), sortedHits.ToArray(), ray.origin);
 			for (int i = 0; i < physicsCollisionData.Length; i++)
 			{
 				if (HitDetectOnWo(ray, i, wo, physicsCollisionData, handleObjectsInsideBoxCollider: false, out voxelHit, null, distance))
@@ -89,9 +95,10 @@ public static class MVRaycast
 
 	private static List<VoxelHit> MVHit(Ray ray, bool all, float distance, int layerMask, HashSet<int> ignoreWoIds)
 	{
+		voxelHits.Clear();
 		if (ray.direction.sqrMagnitude == 0f)
 		{
-			return new List<VoxelHit>();
+			return voxelHits;
 		}
 		if (all)
 		{
@@ -100,21 +107,20 @@ public static class MVRaycast
 		RaycastHit[] source = Physics.RaycastAll(ray, distance, layerMask);
 		Collider[] overlapResult = Physics.OverlapSphere(ray.origin, 0f, layerMask);
 		PhysicsCollisionDatasWrapper physicsCollisionData = SharedCollisionFunctions.GetPhysicsCollisionData(overlapResult, source.ToArray(), ray.origin);
-		List<VoxelHit> list = new List<VoxelHit>();
 		for (int i = 0; i < physicsCollisionData.Length; i++)
 		{
 			MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(physicsCollisionData[i].transform);
 			if (!SharedCollisionFunctions.IgnoreCollision(mVObject, ignoreWoIds) && (!all || !foundWos.Contains(mVObject.Id)) && HitDetectOnWo(ray, i, mVObject, physicsCollisionData, !all, out var voxelHit, ignoreWoIds, distance))
 			{
-				list.Add(voxelHit);
+				voxelHits.Add(voxelHit);
 				foundWos.Add(mVObject.Id);
 				if (!all)
 				{
-					return list;
+					return voxelHits;
 				}
 			}
 		}
-		return list;
+		return voxelHits;
 	}
 
 	private static bool HitDetectOnWo(Ray ray, int i, MVWorldObjectClient wo, PhysicsCollisionDatasWrapper collisionData, bool handleObjectsInsideBoxCollider, out VoxelHit voxelHit, HashSet<int> ignoreWoIds, float distance = float.PositiveInfinity)
@@ -192,15 +198,34 @@ public static class MVRaycast
 
 	private static bool GetCellOnRay(Ray ray, ref VoxelHit vHit, GameObject chunk, ICubeModelCollider cmb, Vector3 hitPoint, float distance, Vector3 scale)
 	{
-		intersectRay.direction = chunk.transform.InverseTransformDirection(ray.direction);
-		intersectRay.origin = chunk.transform.InverseTransformPoint(ray.origin);
+		Transform transform = chunk.transform;
+		intersectRay.direction = transform.InverseTransformDirection(ray.direction);
+		intersectRay.origin = transform.InverseTransformPoint(ray.origin);
 		float num = distance;
+		Vector3 vec = default;
 		if (distance != float.PositiveInfinity)
 		{
-			num = MathFunctions.DivideVector(distance * intersectRay.direction, scale).magnitude;
+			vec.x = intersectRay.direction.x * distance;
+			vec.y = intersectRay.direction.y * distance;
+			vec.z = intersectRay.direction.z * distance;
+			num = MathFunctions.DivideVector(ref vec, ref scale).magnitude;
 		}
-		float magnitude = MathFunctions.DivideVector((ray.origin - hitPoint).magnitude * intersectRay.direction, scale).magnitude;
-		Vector3 vector = intersectRay.origin + intersectRay.direction * magnitude;
+		float magnitude = new Vector3
+		{
+			x = ray.origin.x - hitPoint.x,
+			y = ray.origin.y - hitPoint.y,
+			z = ray.origin.z - hitPoint.z
+		}.magnitude;
+		vec.x = intersectRay.direction.x * magnitude;
+		vec.y = intersectRay.direction.y * magnitude;
+		vec.z = intersectRay.direction.z * magnitude;
+		float magnitude2 = MathFunctions.DivideVector(ref vec, ref scale).magnitude;
+		Vector3 vector = new Vector3
+		{
+			x = intersectRay.origin.x + intersectRay.direction.x * magnitude2,
+			y = intersectRay.origin.y + intersectRay.direction.y * magnitude2,
+			z = intersectRay.origin.z + intersectRay.direction.z * magnitude2
+		};
 		IntVector target = CubeMathFunctions.LocalPosToLocalIntVector(vector);
 		IntVector min = default;
 		IntVector max = default;
@@ -247,7 +272,7 @@ public static class MVRaycast
 			Cube cube = cmb.GetCube(target);
 			if (cube != null && GetHitPoint(ray, cube, ref vHit, target, vector, scale, num) && Vector3.Dot(vHit.point - ray.origin, ray.direction) > 0f)
 			{
-				vHit.normal = chunk.transform.TransformDirection(vHit.normal);
+				vHit.normal = transform.TransformDirection(vHit.normal);
 				vHit.cubePos = target;
 				vHit.cube = cube;
 				return true;
@@ -308,7 +333,13 @@ public static class MVRaycast
 					{
 						return false;
 					}
-					vHit.distance = MathFunctions.MultiplyVector(distance * intersectRay.direction, scale).magnitude;
+					Vector3 vec = new Vector3
+					{
+						x = intersectRay.direction.x * distance,
+						y = intersectRay.direction.y * distance,
+						z = intersectRay.direction.z * distance
+					};
+					vHit.distance = MathFunctions.MultiplyVector(ref vec, ref scale).magnitude;
 					vHit.point = ray.origin + ray.direction * vHit.distance;
 					vHit.face = faceIdentityFromLocalDir;
 					vHit.normal = Cube.GetFaceAxis(vHit.face);
@@ -339,7 +370,13 @@ public static class MVRaycast
 						{
 							return false;
 						}
-						vHit.distance = MathFunctions.MultiplyVector(magnitude * intersectRay.direction, scale).magnitude;
+						Vector3 vec2 = new Vector3
+						{
+							x = intersectRay.direction.x * magnitude,
+							y = intersectRay.direction.y * magnitude,
+							z = intersectRay.direction.z * magnitude
+						};
+						vHit.distance = MathFunctions.MultiplyVector(ref vec2, ref scale).magnitude;
 						vHit.point = ray.origin + ray.direction * vHit.distance;
 						vHit.face = face;
 						return true;

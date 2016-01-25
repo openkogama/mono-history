@@ -6,6 +6,8 @@ public class UseInteractorHandler : MVComponent
 {
 	private Dictionary<int, UseInteractor> useInteractors = new Dictionary<int, UseInteractor>();
 
+	private List<int> removeList = new List<int>();
+
 	private Collider triggingCollider;
 
 	private MVInteractableBase avatarBase;
@@ -30,29 +32,29 @@ public class UseInteractorHandler : MVComponent
 
 	private void UpdateInteractorsWOID()
 	{
-		List<int> list = new List<int>();
+		removeList.Clear();
 		foreach (KeyValuePair<int, UseInteractor> useInteractor in useInteractors)
 		{
 			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(useInteractor.Key);
 			if (worldObjectClient == null || useInteractor.Value == null)
 			{
-				list.Add(useInteractor.Key);
+				removeList.Add(useInteractor.Key);
 				continue;
 			}
 			if (useInteractor.Value.TriggerCollider == null)
 			{
-				list.Add(useInteractor.Key);
+				removeList.Add(useInteractor.Key);
 				continue;
 			}
 			Collider triggerCollider = useInteractor.Value.TriggerCollider;
 			if (!triggerCollider.bounds.Intersects(triggingCollider.bounds))
 			{
-				list.Add(useInteractor.Key);
+				removeList.Add(useInteractor.Key);
 			}
 		}
-		foreach (int item in list)
+		foreach (int remove in removeList)
 		{
-			useInteractors.Remove(item);
+			useInteractors.Remove(remove);
 		}
 	}
 
@@ -84,7 +86,10 @@ public class UseInteractorHandler : MVComponent
 		{
 			MVGameControllerBase.IPlayModeUI.ShowEUseIcon(option, level);
 		}
-		MVGameControllerBase.IPlayModeUI.HideEUseIcon();
+		else
+		{
+			MVGameControllerBase.IPlayModeUI.HideEUseIcon();
+		}
 	}
 
 	private bool IsInFront(Collider triggerCollider)

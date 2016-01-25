@@ -28,6 +28,8 @@ public static class MVSweptElipsoidCheck
 
 	private static HashSet<int> foundWos = new HashSet<int>();
 
+	private static List<VoxelHit> voxelHits = new List<VoxelHit>();
+
 	private static Vector3[] cachedCornersElipsoidSpace = new Vector3[8];
 
 	private static Vector3[] cachedFaceElipsoidSpace = new Vector3[4];
@@ -101,8 +103,15 @@ public static class MVSweptElipsoidCheck
 
 	private static List<VoxelHit> MVElipsoidCast(Ray ray, Transform transform, Bounds localBounds, bool all, float distance, HashSet<int> ignoreWoIds, int layerMask = -5)
 	{
+		Vector3 vec = new Vector3
+		{
+			x = localBounds.size.x * 0.5f,
+			y = localBounds.size.y * 0.5f,
+			z = localBounds.size.z * 0.5f
+		};
+		Vector3 vec2 = transform.localScale;
 		Vector3 vector = transform.TransformPoint(localBounds.center);
-		Vector3 radius = MathFunctions.MultiplyVector(localBounds.size / 2f, transform.localScale);
+		Vector3 radius = MathFunctions.MultiplyVector(ref vec, ref vec2);
 		Vector3 vector2 = vector - transform.position;
 		ray.origin += vector2;
 		return MVElipsoidCast(ray, radius, transform.rotation, distance, all, ignoreWoIds, layerMask);
@@ -110,10 +119,10 @@ public static class MVSweptElipsoidCheck
 
 	private static List<VoxelHit> MVElipsoidCast(Ray ray, Vector3 radius, Quaternion rotation, float distance, bool all, HashSet<int> ignoreWoIds, int layerMask = -5)
 	{
-		List<VoxelHit> list = new List<VoxelHit>();
+		voxelHits.Clear();
 		if (ray.direction == Vector3.zero)
 		{
-			return list;
+			return voxelHits;
 		}
 		if (all)
 		{
@@ -135,15 +144,15 @@ public static class MVSweptElipsoidCheck
 			MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(physicsCollisionData[j].transform);
 			if (!SharedCollisionFunctions.IgnoreCollision(mVObject, ignoreWoIds) && (!all || !foundWos.Contains(mVObject.Id)) && SphereHitDetectOnWo(ray, radius, rotation, num, distance, j, mVObject, physicsCollisionData, !all, out var voxelHit, ignoreWoIds))
 			{
-				list.Add(voxelHit);
+				voxelHits.Add(voxelHit);
 				foundWos.Add(mVObject.Id);
 				if (!all)
 				{
-					return list;
+					return voxelHits;
 				}
 			}
 		}
-		return list;
+		return voxelHits;
 	}
 
 	private static bool SphereHitDetectOnWo(Ray ray, Vector3 radius, Quaternion rotation, float maxRadius, float distance, int i, MVWorldObjectClient wo, PhysicsCollisionDatasWrapper collisionData, bool handleObjectsInsideBoxCollider, out VoxelHit voxelHit, HashSet<int> ignoreWoIds)
@@ -215,8 +224,11 @@ public static class MVSweptElipsoidCheck
 		collisionState.localDirection = collisionData.transform.InverseTransformDirection(ray.direction);
 		collisionState.localToElipsoidSpace = worldToElipsoidSpace * chunk.transform.localToWorldMatrix;
 		collisionState.cmb = wo;
-		Vector3 vec = Vector3.one.normalized * maxRadius;
-		collisionState.scaledMaxRadius = MathFunctions.DivideVector(vec, collisionState.cmb.Scale).magnitude;
+		Vector3 vector = Vector3.one.normalized * maxRadius;
+		vector.x /= collisionState.cmb.Scale.x;
+		vector.y /= collisionState.cmb.Scale.y;
+		vector.z /= collisionState.cmb.Scale.z;
+		collisionState.scaledMaxRadius = vector.magnitude;
 		collisionState.origin = ray.origin;
 		collisionState.direction = ray.direction;
 		float num = 0f;
@@ -480,7 +492,7 @@ public static class MVSweptElipsoidCheck
 	private static bool HandleTriangleTest(Vector3 p1, Vector3 p2, Vector3 p3, ref VoxelHit currentVoxelHit, float distance, Face face, Cube cube, Vector3 radiusVec, IntVector pos, CollisionState collisionState)
 	{
 		vhCached.distance = float.PositiveInfinity;
-		bool flag = TriangleCheck.CheckTriangle(p1, p2, p3, collisionState.elipsoidSpaceOrigin, collisionState.elipsoidSpaceDirection, collisionState.elipsoidSpaceDistance, ref vhCached);
+		bool flag = TriangleCheck.CheckTriangle(ref p1, ref p2, ref p3, ref collisionState.elipsoidSpaceOrigin, ref collisionState.elipsoidSpaceDirection, collisionState.elipsoidSpaceDistance, ref vhCached);
 		if (flag && vhCached.distance > collisionState.elipsoidSpaceDistance)
 		{
 			Debug.Log("this is wrong");
@@ -691,16 +703,16 @@ public static class MVSweptElipsoidCheck
 
 	private static Vector3 GetMaxAngleLocalAxisVector(Ray ray, ICubeModelCollider cmb)
 	{
-		Vector3 result = Vector3.zero;
-		Vector3 zero = Vector3.zero;
+		Vector3 result = new Vector3(0f, 0f, 0f);
+		Vector3 vector = new Vector3(0f, 0f, 0f);
 		float num = 1f;
 		for (int i = 0; i < 3; i++)
 		{
-			zero = cmb.WorldRotation * testVectorGetMaxAngleLocalAxisVector[i];
-			float num2 = Mathf.Abs(Vector3.Dot(ray.direction, zero.normalized));
+			vector = cmb.WorldRotation * testVectorGetMaxAngleLocalAxisVector[i];
+			float num2 = Mathf.Abs(Vector3.Dot(ray.direction, vector.normalized));
 			if (num2 < num)
 			{
-				result = zero;
+				result = vector;
 				num = num2;
 			}
 		}

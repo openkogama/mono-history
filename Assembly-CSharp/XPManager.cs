@@ -39,7 +39,6 @@ public static class XPManager
 
 	private static string GetXPStringById(byte xpId)
 	{
-		Debug.LogWarning("Consider to optimize this");
 		foreach (KeyValuePair<string, XPData> xpData in xpDatas)
 		{
 			if (xpData.Value.XPId == xpId)

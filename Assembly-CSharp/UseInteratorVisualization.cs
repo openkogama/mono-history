@@ -18,9 +18,9 @@ public class UseInteratorVisualization : MonoBehaviour
 			return;
 		}
 		int num = 0;
-		foreach (UseRequirement useRequirement in useRequirements)
+		for (int i = 0; i < useRequirements.Count; i++)
 		{
-			if (useRequirement.IsActive())
+			if (useRequirements[i].IsActive())
 			{
 				num++;
 			}
@@ -36,11 +36,11 @@ public class UseInteratorVisualization : MonoBehaviour
 		{
 			distanceFromPivot = 0.01f;
 		}
-		foreach (UseRequirement useRequirement2 in useRequirements)
+		for (int j = 0; j < useRequirements.Count; j++)
 		{
-			if (useRequirement2.IsActive())
+			if (useRequirements[j].IsActive())
 			{
-				useRequirement2.CalculatePosAroundPivot(pivot, num3 + rotation, distanceFromPivot);
+				useRequirements[j].CalculatePosAroundPivot(pivot, num3 + rotation, distanceFromPivot);
 				num3 += num2;
 			}
 		}
@@ -67,9 +67,9 @@ public class UseInteratorVisualization : MonoBehaviour
 			return UseGUIResult.NoCost;
 		}
 		UseGUIResult useGUIResult = (UseGUIResult)0;
-		foreach (UseRequirement useRequirement in useRequirements)
+		for (int i = 0; i < useRequirements.Count; i++)
 		{
-			useGUIResult |= useRequirement.GetCanUseGUIResult();
+			useGUIResult |= useRequirements[i].GetCanUseGUIResult();
 		}
 		return useGUIResult;
 	}
@@ -81,18 +81,18 @@ public class UseInteratorVisualization : MonoBehaviour
 			return ShowUseOption.Normal;
 		}
 		ShowUseOption showUseOption = ShowUseOption.Normal;
-		foreach (UseRequirement useRequirement in useRequirements)
+		for (int i = 0; i < useRequirements.Count; i++)
 		{
-			showUseOption |= useRequirement.GetShowOption();
+			showUseOption |= useRequirements[i].GetShowOption();
 		}
 		return showUseOption;
 	}
 
 	public void PayUseCost()
 	{
-		foreach (UseRequirement useRequirement in useRequirements)
+		for (int i = 0; i < useRequirements.Count; i++)
 		{
-			useRequirement.PayUseCost();
+			useRequirements[i].PayUseCost();
 		}
 	}
 

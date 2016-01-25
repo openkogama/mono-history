@@ -306,25 +306,9 @@ public static class MathFunctions
 		}
 	}
 
-	public static float PackVector2IntoFloat(Vector2 toPack, bool div = false)
+	public static float DotProduct(ref Vector3 a, ref Vector3 b)
 	{
-		if (div)
-		{
-			toPack.x /= 2f;
-			toPack.y /= 2f;
-		}
-		toPack.x = Mathf.Floor(toPack.x * 4095f);
-		toPack.y = Mathf.Floor(toPack.y * 4095f);
-		return toPack.y * 4096f + toPack.x;
-	}
-
-	public static Vector2 UnpackFloatIntoVector2(float input)
-	{
-		int num = (int)input;
-		Vector2 vector = default;
-		vector.x = num % 4096;
-		vector.y = Mathf.Floor(num / 4096);
-		return vector / 4095f;
+		return a.x * b.x + a.y * b.y + a.z * b.z;
 	}
 
 	public static Vector3 GetMinVector(Vector3 min0, Vector3 min1)
@@ -361,14 +345,14 @@ public static class MathFunctions
 		return result;
 	}
 
-	public static void DebugLogVector(Vector3 vector)
-	{
-		Debug.Log("x " + vector.x + " y " + vector.y + " z " + vector.z);
-	}
-
-	public static double SignedDistanceTo(Plane plane, Vector3 planeOrigin, Vector3 point)
+	public static double SignedDistanceTo(ref Plane plane, ref Vector3 planeOrigin, ref Vector3 point)
 	{
 		return Vector3.Dot(plane.normal, point) + (0f - (plane.normal.x * planeOrigin.x + plane.normal.y * planeOrigin.y + plane.normal.z * planeOrigin.z));
+	}
+
+	public static double SignedDistanceTo(ref Vector3 planeNormal, ref Vector3 planeOrigin, ref Vector3 point)
+	{
+		return Vector3.Dot(planeNormal, point) + (0f - (planeNormal.x * planeOrigin.x + planeNormal.y * planeOrigin.y + planeNormal.z * planeOrigin.z));
 	}
 
 	public static void ClampIntVector(ref IntVector target, IntVector min, IntVector max)
@@ -379,12 +363,12 @@ public static class MathFunctions
 		}
 	}
 
-	public static Vector3 MultiplyVector(Vector3 vec0, Vector3 vec1)
+	public static Vector3 MultiplyVector(ref Vector3 vec0, ref Vector3 vec1)
 	{
 		return new Vector3(vec0.x * vec1.x, vec0.y * vec1.y, vec0.z * vec1.z);
 	}
 
-	public static Vector3 DivideVector(Vector3 vec0, Vector3 vec1)
+	public static Vector3 DivideVector(ref Vector3 vec0, ref Vector3 vec1)
 	{
 		return new Vector3(vec0.x / vec1.x, vec0.y / vec1.y, vec0.z / vec1.z);
 	}

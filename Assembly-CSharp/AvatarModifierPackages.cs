@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 public class AvatarModifierPackages
 {
@@ -123,7 +122,6 @@ public class AvatarModifierPackages
 		{
 			foreach (AvatarModifierPackageType key in package.actionsToTakeVsTypes.Keys)
 			{
-				Debug.Log(string.Concat(key, ": ", package.actionsToTakeVsTypes[key]));
 				if (package.actionsToTakeVsTypes[key] == action)
 				{
 					return key;

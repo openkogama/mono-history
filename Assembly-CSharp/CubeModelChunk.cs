@@ -17,7 +17,7 @@ public class CubeModelChunk
 
 	private IntVector chunkPos;
 
-	private List<GameObject> instances = new List<GameObject>();
+	private List<ChunkInstances.ChunkInstanceVariables> instances = new List<ChunkInstances.ChunkInstanceVariables>();
 
 	private SharedMeshData sharedMeshData = default;
 
@@ -189,9 +189,9 @@ public class CubeModelChunk
 
 	public void Destroy()
 	{
-		foreach (GameObject instance in instances)
+		foreach (ChunkInstances.ChunkInstanceVariables instance in instances)
 		{
-			Object.Destroy(instance);
+			Object.Destroy(instance.gameObject);
 		}
 	}
 
@@ -226,24 +226,20 @@ public class CubeModelChunk
 
 	private void RevokeSharedMeshOnInstances()
 	{
-		foreach (GameObject instance in instances)
+		foreach (ChunkInstances.ChunkInstanceVariables instance in instances)
 		{
-			MeshFilter component = instance.GetComponent<MeshFilter>();
-			component.sharedMesh = null;
-			MeshRenderer component2 = instance.GetComponent<MeshRenderer>();
-			component2.sharedMaterial = null;
-			component2.enabled = false;
+			instance.filter.sharedMesh = null;
+			instance.renderer.sharedMaterial = null;
+			instance.renderer.enabled = false;
 		}
 	}
 
 	private void RestoreSharedMeshOnInstances()
 	{
-		foreach (GameObject instance in instances)
+		foreach (ChunkInstances.ChunkInstanceVariables instance in instances)
 		{
-			MeshFilter component = instance.GetComponent<MeshFilter>();
-			component.sharedMesh = sharedMeshData.mesh;
-			MeshRenderer component2 = instance.GetComponent<MeshRenderer>();
-			component2.sharedMaterial = sharedMeshData.material;
+			instance.filter.sharedMesh = sharedMeshData.mesh;
+			instance.renderer.sharedMaterial = sharedMeshData.material;
 		}
 	}
 
@@ -252,10 +248,9 @@ public class CubeModelChunk
 		List<int> list = new List<int>();
 		for (int i = 0; i < instances.Count; i++)
 		{
-			if (instances[i] != null)
+			if (instances[i].gameObject != null)
 			{
-				MeshRenderer component = instances[i].GetComponent<MeshRenderer>();
-				component.sharedMaterial = sharedMeshData.material;
+				instances[i].renderer.sharedMaterial = sharedMeshData.material;
 				MVGameControllerBase.WOCM.UpdateWorldBounds(meshBounds);
 			}
 			else
@@ -267,15 +262,16 @@ public class CubeModelChunk
 		{
 			instances.RemoveAt(item);
 		}
-		foreach (GameObject instance in instances)
+		for (int j = 0; j < instances.Count; j++)
 		{
-			BoxCollider boxCollider = instance.GetComponent<BoxCollider>();
-			if (boxCollider == null)
+			ChunkInstances.ChunkInstanceVariables value = instances[j];
+			if (value.collider == null)
 			{
-				boxCollider = instance.AddComponent<BoxCollider>();
+				value.collider = value.gameObject.AddComponent<BoxCollider>();
 			}
-			boxCollider.size = meshBounds.size;
-			boxCollider.center = meshBounds.center;
+			value.collider.size = meshBounds.size;
+			value.collider.center = meshBounds.center;
+			instances[j] = value;
 		}
 	}
 
@@ -298,15 +294,15 @@ public class CubeModelChunk
 		gameObject.transform.localRotation = Quaternion.identity;
 		gameObject.transform.localScale = Vector3.one;
 		gameObject.layer = cubeInstance.GameObject.layer;
-		instances.Add(gameObject);
-		ChunkInstances.ChunkInstanceVariables gameObject2 = new ChunkInstances.ChunkInstanceVariables
+		ChunkInstances.ChunkInstanceVariables chunkInstanceVariables = new ChunkInstances.ChunkInstanceVariables
 		{
 			gameObject = gameObject,
 			collider = boxCollider,
 			filter = meshFilter,
 			renderer = meshRenderer
 		};
-		cubeInstance.ChunkInstances.Add(chunkPos, gameObject2);
+		instances.Add(chunkInstanceVariables);
+		cubeInstance.ChunkInstances.Add(chunkPos, chunkInstanceVariables);
 	}
 
 	private void SetCubeVisibilityWithNeighbors(IntVector pos)

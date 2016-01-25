@@ -158,7 +158,6 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 
 	protected override bool Use(int userWoID)
 	{
-		Debug.Log("SpawnObjectID " + spawnWorldObjectID);
 		if (spawnStateWrapper.SpawnState == SpawnState.Taken)
 		{
 			return false;
@@ -181,10 +180,8 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 			Debug.LogError("No driver seat");
 			return false;
 		}
-		Debug.Log("Trying to spawn vehicle spawner ID is " + Id);
 		if (MVGameControllerBase.Game.PlayerController.SpawnVehicleWithDriver(Id, userWoID, driverSeat))
 		{
-			Debug.Log("Succesfully send spawn vehicle");
 			return true;
 		}
 		return false;

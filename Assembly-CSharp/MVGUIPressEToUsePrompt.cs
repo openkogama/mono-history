@@ -7,7 +7,9 @@ public class MVGUIPressEToUsePrompt : UXViewScript
 
 	private const float posY = 13f;
 
-	public float fadeTime = 1f;
+	public float inFadeTime = 0.2f;
+
+	public float outFadeTime = 1f;
 
 	public UXPlane originalEBG;
 
@@ -219,7 +221,7 @@ public class MVGUIPressEToUsePrompt : UXViewScript
 	public override void OnShow()
 	{
 		StopAllCoroutines();
-		StartCoroutine(pTween.To(fadeTime, 0f, 1f, (float t) =>
+		StartCoroutine(pTween.To(inFadeTime, 0f, 1f, (float t) =>
 		{
 			uxPlaneEButton.SetAlpha(t, string.Empty);
 			uxPlaneLevel.SetAlpha(t, string.Empty);
@@ -242,7 +244,7 @@ public class MVGUIPressEToUsePrompt : UXViewScript
 	public override void OnHide()
 	{
 		StopAllCoroutines();
-		StartCoroutine(pTween.To(fadeTime, 1f, 0f, (float t) =>
+		StartCoroutine(pTween.To(outFadeTime, 1f, 0f, (float t) =>
 		{
 			uxPlaneEButton.SetAlpha(t, string.Empty);
 			uxPlaneLevel.SetAlpha(t, string.Empty);

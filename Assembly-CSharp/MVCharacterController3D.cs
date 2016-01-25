@@ -23,37 +23,48 @@ public class MVCharacterController3D : MvCharacterController
 			return R3Position;
 		}
 		bool foundValidPosition = true;
-		Vector3 ePos = MathFunctions.DivideVector(R3Position, elipsoidRadius);
-		Vector3 eVel = MathFunctions.DivideVector(R3Vel, elipsoidRadius);
+		Vector3 ePos = MathFunctions.DivideVector(ref R3Position, ref elipsoidRadius);
+		Vector3 eVel = MathFunctions.DivideVector(ref R3Vel, ref elipsoidRadius);
 		Vector3 vec = ePos;
 		Vector3 vector = default;
 		collisionRecursionDepth = 0;
 		vector = CollideWithWorld(ref ePos, ref eVel, ref foundValidPosition);
-		Vector3 r3Position = MathFunctions.MultiplyVector(vector, elipsoidRadius);
+		Vector3 r3Position = MathFunctions.MultiplyVector(ref vector, ref elipsoidRadius);
 		bool flag = OverlapCheckCollision(r3Position);
-		Vector3 offset = Vector3.zero;
+		Vector3 offset = new Vector3(0f, 0f, 0f);
 		if (flag && NoOverlapPosition(r3Position, R3Vel, ref offset))
 		{
 			flag = false;
 		}
 		if (foundValidPosition && !flag)
 		{
-			vec = vector;
+			vec.x = vector.x;
+			vec.y = vector.y;
+			vec.z = vector.z;
 		}
-		Vector3 vector2 = MathFunctions.MultiplyVector(vec, elipsoidRadius);
-		vector2 += offset;
-		R3Position += offset;
-		Vector3 velocity = vector2 - R3Position;
-		Velocity = velocity;
-		return vector2;
+		Vector3 result = MathFunctions.MultiplyVector(ref vec, ref elipsoidRadius);
+		result.x += offset.x;
+		result.y += offset.y;
+		result.z += offset.z;
+		R3Position.x += offset.x;
+		R3Position.y += offset.y;
+		R3Position.z += offset.z;
+		Velocity = new Vector3
+		{
+			x = result.x - R3Position.x,
+			y = result.y - R3Position.y,
+			z = result.z - R3Position.z
+		};
+		return result;
 	}
 
 	protected override Vector3 GetNextVelocity(Vector3 ePoint, Vector3 eNewBasePoint, Vector3 eDestinationPoint, ref Vector3 slidePlaneNormal)
 	{
+		Vector3 planeOrigin = ePoint;
 		slidePlaneNormal = eNewBasePoint - ePoint;
 		slidePlaneNormal.Normalize();
-		Plane plane = new Plane(slidePlaneNormal, ePoint);
-		double num = MathFunctions.SignedDistanceTo(plane, ePoint, eDestinationPoint);
+		Plane plane = new Plane(slidePlaneNormal, planeOrigin);
+		double num = MathFunctions.SignedDistanceTo(ref plane, ref planeOrigin, ref eDestinationPoint);
 		Vector3 vector = eDestinationPoint - (float)num * slidePlaneNormal;
 		return vector - ePoint;
 	}

@@ -32,7 +32,6 @@ public class ClientSideNPCInteractable : MVInteractableBase
 			{
 				num = (float)RuntimeVariablesRepository.GetRuntimeVariables(worldObjectParent.WorldObjectType)["health"];
 				worldObjectParent.RunTimeData.SetObscuredType("deathTime", (ObscuredInt)WaitForTicks.GetEnvironmentTick(0));
-				Debug.Log("TakeDamageKilled");
 			}
 			takeDamageCallback(amount, damageDealer, damageType);
 			worldObjectParent.RunTimeData.SetObscuredType("health", (ObscuredFloat)num);

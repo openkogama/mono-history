@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
@@ -23,6 +22,20 @@ public class Bullet : MonoBehaviour
 	[SerializeField]
 	private MeshRenderer[] meshRenderers;
 
+	private bool hit;
+
+	private bool hasCleaned;
+
+	private float currentAirTime;
+
+	private float maxAirTime;
+
+	private Vector3 startPosition;
+
+	private Vector3 targetPosition;
+
+	private Transform localTransform;
+
 	private void Awake()
 	{
 		enabled = false;
@@ -40,78 +53,71 @@ public class Bullet : MonoBehaviour
 			this.lineOfFire = lineOfFire;
 			this.ignoreWoIDs = ignoreWoIDs;
 			isFired = true;
-			StartCoroutine(DoFire(speed, range));
+			DoFire(speed, range);
+			enabled = true;
 		}
 	}
 
-	private IEnumerator DoFire(float speed, float maxRange)
+	private void Update()
 	{
-		bool inAir = true;
-		bool hasHit = false;
-		float startTime = Time.time;
-		Vector3 startPos = gameObject.transform.position;
-		Vector3 targetPos = FindTargetPos(maxRange);
-		transform.rotation = Quaternion.LookRotation((startPos - targetPos).normalized);
-		float range = Vector3.Distance(targetPos, lineOfFire.origin);
-		float airTime = range / speed;
-		transform.position = startPos;
+		currentAirTime += Time.deltaTime;
+		if (!hit && currentAirTime <= maxAirTime)
+		{
+			float num = currentAirTime / maxAirTime;
+			localTransform.position = Vector3.Lerp(startPosition, targetPosition, num);
+			Vector3 pos = Vector3.Lerp(lineOfFire.origin, targetPosition, num);
+			if (num >= 0f && DoCollisionCheck(pos, out var voxelHit))
+			{
+				hit = true;
+				if (onHit != null)
+				{
+					onHit(voxelHit, lineOfFire);
+				}
+				if (onHitLocal != null)
+				{
+					onHitLocal(voxelHit, lineOfFire);
+				}
+			}
+			return;
+		}
+		if (!hasCleaned)
+		{
+			MeshRenderer[] array = meshRenderers;
+			foreach (MeshRenderer meshRenderer in array)
+			{
+				meshRenderer.enabled = false;
+			}
+			if ((bool)pSystem)
+			{
+				pSystem.Stop();
+			}
+			hasCleaned = true;
+		}
+		if ((bool)pSystem)
+		{
+			if (!pSystem.IsAlive())
+			{
+				Object.Destroy(gameObject);
+			}
+		}
+		else
+		{
+			Object.Destroy(gameObject);
+		}
+	}
+
+	private void DoFire(float speed, float maxRange)
+	{
+		localTransform = GetComponent<Transform>();
+		startPosition = localTransform.position;
+		targetPosition = FindTargetPos(maxRange);
+		localTransform.localRotation = Quaternion.LookRotation((startPosition - targetPosition).normalized);
+		float num = Vector3.Distance(targetPosition, lineOfFire.origin);
+		maxAirTime = num / speed;
 		if ((bool)pSystem)
 		{
 			pSystem.Play();
 		}
-		VoxelHit voxelHit = default;
-		while (inAir)
-		{
-			float interpTime = (Time.time - startTime) / airTime;
-			if (interpTime >= 1f)
-			{
-				inAir = false;
-			}
-			transform.position = Vector3.Lerp(startPos, targetPos, interpTime);
-			Vector3 collidePos = Vector3.Lerp(lineOfFire.origin, targetPos, interpTime);
-			if (interpTime >= 0f)
-			{
-				if (DoCollisionCheck(collidePos, out voxelHit))
-				{
-					inAir = false;
-					hasHit = true;
-				}
-			}
-			else
-			{
-				Debug.Log("Skipped 1");
-			}
-			yield return 0;
-		}
-		if (!hasHit)
-		{
-			voxelHit.point = targetPos;
-		}
-		if (hasHit)
-		{
-			if (onHit != null)
-			{
-				onHit(voxelHit, lineOfFire);
-			}
-			if (onHitLocal != null)
-			{
-				onHitLocal(voxelHit, lineOfFire);
-			}
-		}
-		MeshRenderer[] array = meshRenderers;
-		foreach (MeshRenderer r in array)
-		{
-			r.enabled = false;
-		}
-		if ((bool)pSystem)
-		{
-			pSystem.Stop();
-			while (pSystem.IsAlive())
-			{
-				yield return 0;
-			}
-		}
-		Object.Destroy(gameObject);
 	}
 
 	private bool DoCollisionCheck(Vector3 pos, out VoxelHit voxelHit)

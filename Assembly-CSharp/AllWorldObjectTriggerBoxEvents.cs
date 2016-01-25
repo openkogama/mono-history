@@ -23,13 +23,9 @@ public class AllWorldObjectTriggerBoxEvents : MonoBehaviour
 	private void OnTriggerExit(Collider other)
 	{
 		MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(other.gameObject.transform);
-		if (mVObject != null)
+		if (mVObject != null && TriggerExit != null)
 		{
-			Debug.Log("OnTriggerExit wo: " + mVObject);
-			if (TriggerExit != null)
-			{
-				TriggerExit(this, new TriggerEventArgs(mVObject.Id));
-			}
+			TriggerExit(this, new TriggerEventArgs(mVObject.Id));
 		}
 	}
 }

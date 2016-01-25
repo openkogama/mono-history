@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 public class SentryGunBeam : MonoBehaviour
@@ -26,6 +25,19 @@ public class SentryGunBeam : MonoBehaviour
 	{
 	}
 
+	private void Update()
+	{
+		if (deleteTimer > 0f)
+		{
+			OnUpdate();
+			deleteTimer -= Time.deltaTime;
+		}
+		else
+		{
+			Object.Destroy(gameObject);
+		}
+	}
+
 	public void RefreshTime()
 	{
 		deleteTimer = 1f;
@@ -38,16 +50,5 @@ public class SentryGunBeam : MonoBehaviour
 		EndPosition = end;
 		lineRenderer.SetPosition(0, start);
 		lineRenderer.SetPosition(1, end);
-	}
-
-	private IEnumerator Start()
-	{
-		while (deleteTimer > 0f)
-		{
-			OnUpdate();
-			deleteTimer -= Time.deltaTime;
-			yield return null;
-		}
-		Object.Destroy(gameObject);
 	}
 }

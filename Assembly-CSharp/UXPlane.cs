@@ -8,20 +8,20 @@ public class UXPlane : UXGUIElement, IUXContainer
 	[SerializeField]
 	private Color _color = Color.white;
 
+	private Collider mCollider;
+
 	public string materialProperty = "_MainColor";
 
 	public override void SetVisible(bool visible)
 	{
 		Visible = visible;
-		Collider component = GetComponent<Collider>();
-		if (component != null)
+		if (mCollider != null)
 		{
-			component.enabled = visible;
+			mCollider.enabled = visible;
 		}
-		Renderer component2 = GetComponent<Renderer>();
-		if (component2 != null)
+		if (Renderer != null)
 		{
-			component2.enabled = visible;
+			mRenderer.enabled = visible;
 		}
 	}
 
@@ -32,7 +32,10 @@ public class UXPlane : UXGUIElement, IUXContainer
 			colorProperty = materialProperty;
 		}
 		_color = color;
-		GetComponent<Renderer>().material.SetColor(colorProperty, color);
+		if (Renderer != null)
+		{
+			mRenderer.material.SetColor(colorProperty, color);
+		}
 	}
 
 	public override void SetAlpha(float alpha, string colorProperty = "")
@@ -41,7 +44,10 @@ public class UXPlane : UXGUIElement, IUXContainer
 		{
 			colorProperty = materialProperty;
 		}
-		_color = GetComponent<Renderer>().material.GetColor(colorProperty);
+		if (Renderer != null)
+		{
+			_color = mRenderer.material.GetColor(colorProperty);
+		}
 		_color.a = alpha;
 		SetColor(_color, colorProperty);
 	}
@@ -50,6 +56,7 @@ public class UXPlane : UXGUIElement, IUXContainer
 	{
 		base.Awake();
 		BuildMesh(UXUtils.AddComponentIfNotExists<MeshFilter>(gameObject).mesh);
+		mCollider = GetComponent<Collider>();
 		if (_applyColorOnAwake)
 		{
 			SetColor(_color, materialProperty);
@@ -60,5 +67,6 @@ public class UXPlane : UXGUIElement, IUXContainer
 	{
 		base.SetSize(width, height);
 		BuildMesh(UXUtils.AddComponentIfNotExists<MeshFilter>(gameObject).mesh);
+		mCollider = GetComponent<Collider>();
 	}
 }
