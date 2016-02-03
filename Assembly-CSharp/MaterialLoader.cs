@@ -56,35 +56,20 @@ public class MaterialLoader : MonoBehaviour
 
 	public void Start()
 	{
-		bool flag = SystemInfo.graphicsShaderLevel >= 30;
-		if (Application.platform == RuntimePlatform.WebGLPlayer)
+		bool flag = false;
+		if (SystemInfo.graphicsShaderLevel >= 30 && (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Direct3D9 || SystemInfo.graphicsDeviceType == GraphicsDeviceType.Direct3D12 || SystemInfo.graphicsDeviceType == GraphicsDeviceType.Direct3D11))
+		{
+			flag = true;
+		}
+		if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3)
+		{
+			flag = true;
+		}
+		if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES2 || SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGL2 || SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLCore)
 		{
 			flag = false;
-			if (SystemInfo.operatingSystem.Contains("Windows") && (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES2 || SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3))
-			{
-				flag = true;
-			}
-			else if (SystemInfo.graphicsDeviceVersion.Contains("Chromium"))
-			{
-				flag = true;
-			}
 		}
-		else if (Application.platform == RuntimePlatform.Android)
-		{
-			flag = false;
-			if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES3)
-			{
-				flag = true;
-			}
-		}
-		if (cubeModelMaterialHigh.shader.isSupported)
-		{
-			Debug.Log("high mat supported");
-		}
-		else
-		{
-			Debug.Log("high mat not supported");
-		}
+		Debug.Log("Using Shader Model " + ((!flag) ? "2" : "3"));
 		if (cubeModelMaterialHigh == null || cubeModelMaterialLow == null)
 		{
 			throw new NullReferenceException();
@@ -97,6 +82,8 @@ public class MaterialLoader : MonoBehaviour
 		{
 			throw new NullReferenceException();
 		}
+		Debug.Log(SystemInfo.graphicsDeviceName);
+		Debug.Log(SystemInfo.graphicsDeviceType);
 		Debug.Log(SystemInfo.graphicsShaderLevel);
 		Debug.Log(SystemInfo.graphicsDeviceVersion);
 		cubeModelMaterial = cubeModelMaterialLow;

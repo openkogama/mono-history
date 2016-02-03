@@ -53,7 +53,7 @@ public class MVGUIAvatarAccessoryShop : MVGUIAvatarAccessoryBasicView
 		}
 		foreach (AvatarAccessory accessory in AvatarBody.GetAccessories())
 		{
-			accessory.Visible = true;
+			accessory.Visible = AvatarBody.Visible;
 		}
 	}
 

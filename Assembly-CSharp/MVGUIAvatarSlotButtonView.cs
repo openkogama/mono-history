@@ -82,6 +82,7 @@ public class MVGUIAvatarSlotButtonView : UXViewScript
 			MVGUIAvatarSlotButton mVGUIAvatarSlotButton = _takePictureQueue.Dequeue();
 			mVGUIAvatarSlotButton.OnFinishedUpdating = TakeNextPicture;
 			mVGUIAvatarSlotButton.UpdateAvatarPicture();
+			UpdateSlotVisibility();
 		}
 	}
 

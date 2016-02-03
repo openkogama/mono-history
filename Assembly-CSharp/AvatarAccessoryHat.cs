@@ -7,6 +7,8 @@ public class AvatarAccessoryHat : AvatarAccessory
 
 	private AccessoryHatSettings hatSettings;
 
+	private static readonly Shader accessoryShader = Shader.Find("Diffuse with vertex colors");
+
 	public override bool HasAttachmentPoint => attachPosTfm != null;
 
 	public AccessoryHatSettings HatSettings
@@ -40,5 +42,10 @@ public class AvatarAccessoryHat : AvatarAccessory
 		base.Awake();
 		Category = AvatarAccessoryCategory.Hat;
 		attachPosTfm = Transform.FindChildRecursively("HatAttachPoint");
+		Renderer[] renderers = Renderers;
+		foreach (Renderer renderer in renderers)
+		{
+			renderer.material.shader = accessoryShader;
+		}
 	}
 }

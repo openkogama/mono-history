@@ -89,11 +89,14 @@ public class AudioManager : MonoBehaviour
 			activeSounds.Add(sound);
 			sound.go.SetActive(value: true);
 			sound.go.name = "Sound (" + name + ")";
+			sound.go.transform.localPosition = position;
 			sound.audio.clip = audioSource.clip;
 			sound.audio.volume = audioSource.volume;
 			sound.audio.pitch = audioSource.pitch;
 			sound.audio.minDistance = audioSource.minDistance;
 			sound.audio.maxDistance = audioSource.maxDistance;
+			sound.audio.spread = audioSource.spread;
+			sound.audio.spatialBlend = audioSource.spatialBlend;
 			sound.audio.Play();
 			return sound;
 		}

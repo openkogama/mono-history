@@ -57,6 +57,7 @@ public class UXPlane : UXGUIElement, IUXContainer
 		base.Awake();
 		BuildMesh(UXUtils.AddComponentIfNotExists<MeshFilter>(gameObject).mesh);
 		mCollider = GetComponent<Collider>();
+		mRenderer = GetComponent<MeshRenderer>();
 		if (_applyColorOnAwake)
 		{
 			SetColor(_color, materialProperty);
@@ -68,5 +69,6 @@ public class UXPlane : UXGUIElement, IUXContainer
 		base.SetSize(width, height);
 		BuildMesh(UXUtils.AddComponentIfNotExists<MeshFilter>(gameObject).mesh);
 		mCollider = GetComponent<Collider>();
+		mRenderer = GetComponent<MeshRenderer>();
 	}
 }

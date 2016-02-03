@@ -70,6 +70,7 @@ public class MVGUIAvatarPictureTaker : MonoBehaviour
 		RenderTexture.active = renderTexture;
 		pictureTexture.ReadPixels(new Rect(0f, 0f, renderTexture.width, renderTexture.height), 0, 0);
 		pictureTexture.Apply();
+		pictureCamera.targetTexture = null;
 		RenderTexture.active = null;
 		Object.DestroyImmediate(renderTexture);
 		Object.DestroyImmediate(gameObject);
