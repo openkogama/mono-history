@@ -17,7 +17,14 @@ public static class SharedCollisionFunctions
 		}
 		for (int num2 = 0; num2 < hits.Length; num2++)
 		{
-			physicsCollisionWrapper.Add(hits[num2]);
+			if (hits[num2].distance == 0f)
+			{
+				physicsCollisionWrapper.Add(hits[num2].collider, origin);
+			}
+			else
+			{
+				physicsCollisionWrapper.Add(hits[num2]);
+			}
 		}
 		return physicsCollisionWrapper;
 	}

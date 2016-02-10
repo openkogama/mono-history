@@ -104,4 +104,13 @@ public class MVCountingCube : MVLogicObject
 	{
 		audioSource.Play();
 	}
+
+	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
+	{
+		Vector3 vector = default;
+		vector.x *= 2f;
+		vector.y = 1.1f;
+		vector.z = 0.3f;
+		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, vector);
+	}
 }

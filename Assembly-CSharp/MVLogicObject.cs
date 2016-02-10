@@ -124,4 +124,11 @@ public abstract class MVLogicObject : MVWorldObjectClient
 		}
 		return result;
 	}
+
+	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
+	{
+		Vector3 one = Vector3.one;
+		one *= 1f;
+		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, one);
+	}
 }

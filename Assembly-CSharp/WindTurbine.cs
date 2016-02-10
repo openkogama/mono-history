@@ -187,6 +187,8 @@ public class WindTurbine : MVLogicObject
 	{
 		base.Initialize();
 		colliderObject.SetActive(value: false);
+		windParticleSystem.gameObject.SetActive(value: false);
+		inputConnectorObject.SetActive(value: false);
 	}
 
 	public override void Destroy()
@@ -207,5 +209,12 @@ public class WindTurbine : MVLogicObject
 			component.enabled = false;
 			component2.enabled = true;
 		}
+	}
+
+	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
+	{
+		Vector3 one = Vector3.one;
+		one *= 2f;
+		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, one);
 	}
 }

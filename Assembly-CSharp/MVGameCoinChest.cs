@@ -73,13 +73,6 @@ public class MVGameCoinChest : MVLogicObject
 		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
 	}
 
-	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
-	{
-		Vector3 one = Vector3.one;
-		one *= 2f;
-		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, one);
-	}
-
 	public override void OnDataUpdate()
 	{
 		useInteractor.UpdateData(Data);
@@ -197,5 +190,12 @@ public class MVGameCoinChest : MVLogicObject
 		triggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
 		useInteractor.OnDestroy(Data);
 		base.Destroy();
+	}
+
+	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
+	{
+		Vector3 one = Vector3.one;
+		one *= 2.6f;
+		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, one);
 	}
 }

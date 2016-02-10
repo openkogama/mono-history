@@ -35,7 +35,7 @@ public class MVTextMsg : MVLogicObject
 		OnDataUpdate();
 		if (InputLinkRefs.Count == 0)
 		{
-			textMeshRenderer.enabled = true;
+			textMeshRenderer.enabled = (textVisible = true);
 		}
 	}
 
@@ -50,7 +50,7 @@ public class MVTextMsg : MVLogicObject
 	{
 		if (InputLinkRefs.Count == 0)
 		{
-			textMeshRenderer.enabled = true;
+			textMeshRenderer.enabled = (textVisible = true);
 		}
 		else
 		{
@@ -60,16 +60,7 @@ public class MVTextMsg : MVLogicObject
 
 	public override void OnInputStateChanged()
 	{
-		if (InputState)
-		{
-			textMeshRenderer.enabled = true;
-			textVisible = true;
-		}
-		else
-		{
-			textMeshRenderer.enabled = false;
-			textVisible = false;
-		}
+		textMeshRenderer.enabled = (textVisible = InputState);
 	}
 
 	public override void OnDataUpdate()

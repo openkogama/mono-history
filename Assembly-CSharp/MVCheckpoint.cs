@@ -44,15 +44,6 @@ public class MVCheckpoint : MVLogicObject
 		useInteractor.UpdateData(Data);
 	}
 
-	protected override void OnUpdate()
-	{
-		base.OnUpdate();
-		if (triggerBoxEvents.IsInTrigger && CanReachCheckpoint() && (useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0)
-		{
-			DoReachCheckpoint(MVGameControllerBase.WOCM.AvatarLocal.Id);
-		}
-	}
-
 	public override void OnDataUpdate()
 	{
 		useInteractor.UpdateData(Data);
@@ -61,7 +52,7 @@ public class MVCheckpoint : MVLogicObject
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		if ((useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0 && CanReachCheckpoint())
+		if ((useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0)
 		{
 			DoReachCheckpoint(MVGameControllerBase.WOCM.AvatarLocal.Id);
 		}
@@ -76,18 +67,17 @@ public class MVCheckpoint : MVLogicObject
 		base.Destroy();
 	}
 
-	private bool CanReachCheckpoint()
-	{
-		return MVGameControllerBase.Game.LocalPlayer.GetCheckpoint() == null || MVGameControllerBase.Game.LocalPlayer.GetCheckpoint().Id != Id;
-	}
-
 	private bool DoReachCheckpoint(int instigatorId)
 	{
-		MVGameControllerBase.Game.LocalPlayer.SetCheckpoint(id);
-		if (animation != null)
+		if (MVGameControllerBase.Game.LocalPlayer.GetCheckpoint() == null || MVGameControllerBase.Game.LocalPlayer.GetCheckpoint().Id != Id)
 		{
-			animation.Play("CheckpointReach");
+			MVGameControllerBase.Game.LocalPlayer.SetCheckpoint(id);
+			if (animation != null)
+			{
+				animation.Play("CheckpointReach");
+			}
+			return true;
 		}
-		return true;
+		return false;
 	}
 }
