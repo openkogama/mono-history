@@ -63,6 +63,7 @@ public class ShootableButton : MVLogicObject
 			component2.enabled = false;
 			targetCollider = component;
 		}
+		collider = targetCollider;
 		if (RunTimeData.ContainsObscuredKey("isActivated") && (bool)(ObscuredBool)RunTimeData.GetObscuredType("isActivated"))
 		{
 			OnActivated();

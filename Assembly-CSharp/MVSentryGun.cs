@@ -248,6 +248,11 @@ public class MVSentryGun : MVLogicObject
 				deleteList.Add(item.Key);
 				continue;
 			}
+			if (worldObjectClient.Collider == null)
+			{
+				deleteList.Add(item.Key);
+				continue;
+			}
 			Vector3 a = worldObjectClient.Collider.ClosestPointOnBounds(gameObject.transform.position);
 			if (Vector3.Distance(a, gameObject.transform.position) > laserRange)
 			{
