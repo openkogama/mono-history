@@ -196,9 +196,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public GameCoinDisplayObject GameCoinDisplayPrefab;
 
-	[Header("Pick up")]
 	[Space(20f)]
 	[SerializeField]
+	[Header("Pick up")]
 	public GameObject AvatarCenterGunPrefab;
 
 	[SerializeField]
@@ -255,9 +255,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public GameObject AvatarGrowthPackPrefab;
 
-	[Header("Avatar item pick up")]
 	[Space(20f)]
 	[SerializeField]
+	[Header("Avatar item pick up")]
 	public GameObject AvatarItemCenterGun;
 
 	public GameObject AvatarItemImpulseGun;
@@ -292,8 +292,8 @@ public class PrefabPool : MonoBehaviour
 
 	public GameObject AvatarItemSlapGun;
 
-	[Space(20f)]
 	[Header("Avatar modifier")]
+	[Space(20f)]
 	public AvatarModifier BurningModifier;
 
 	public AvatarModifier MutantModifier;
@@ -308,9 +308,9 @@ public class PrefabPool : MonoBehaviour
 
 	public AvatarModifier GrowthModifier;
 
-	[Space(20f)]
 	[SerializeField]
 	[Header("Particles")]
+	[Space(20f)]
 	public GameObject ParticleBlood;
 
 	[SerializeField]
@@ -402,9 +402,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public Material LogicCubeConnectorBlueSelectedMaterial;
 
+	[Header("Audio Bank Sounds")]
 	[SerializeField]
 	[Space(20f)]
-	[Header("Audio Bank Sounds")]
 	public AudioClip ButtonClickAudio;
 
 	[SerializeField]
@@ -464,9 +464,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public AudioClip StaticMenuOpenAudio;
 
+	[Header("GUI")]
 	[Space(20f)]
 	[SerializeField]
-	[Header("GUI")]
 	public GameObject AvatarAccessoryMoveIcon;
 
 	[SerializeField]
@@ -476,8 +476,8 @@ public class PrefabPool : MonoBehaviour
 	public Material ModelConstraintsMaterial;
 
 	[SerializeField]
-	[Space(20f)]
 	[Header("UX")]
+	[Space(20f)]
 	public GameObject UXTextObject;
 
 	[SerializeField]
@@ -489,9 +489,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public Material ListMenuDividerMaterial;
 
+	[SerializeField]
 	[Header("Editor")]
 	[Space(20f)]
-	[SerializeField]
 	public Material CellCursorErrorMaterial;
 
 	[SerializeField]
