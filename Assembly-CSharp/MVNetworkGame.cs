@@ -2826,6 +2826,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		case MVOperationCodes.SetActorReady:
 		{
 			MVGameControllerBase.JoinState = MVJoinState.Playing;
+			StatHatWrapper.Count(MVJoinState.Playing.ToString(), 1);
 			double totalMilliseconds = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
 			if (MVGameControllerBase.LoadStats.DOMReady > 0.0)
 			{

@@ -4,8 +4,8 @@ public class PrefabPool : MonoBehaviour
 {
 	private static PrefabPool instance;
 
-	[Header("World Objects")]
 	[SerializeField]
+	[Header("World Objects")]
 	public GameObject MVFirePrefab;
 
 	[SerializeField]
@@ -196,8 +196,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public GameCoinDisplayObject GameCoinDisplayPrefab;
 
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
 	[Header("Pick up")]
 	public GameObject AvatarCenterGunPrefab;
 
@@ -255,9 +255,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public GameObject AvatarGrowthPackPrefab;
 
-	[Space(20f)]
-	[SerializeField]
 	[Header("Avatar item pick up")]
+	[SerializeField]
+	[Space(20f)]
 	public GameObject AvatarItemCenterGun;
 
 	public GameObject AvatarItemImpulseGun;
@@ -292,8 +292,8 @@ public class PrefabPool : MonoBehaviour
 
 	public GameObject AvatarItemSlapGun;
 
-	[Header("Avatar modifier")]
 	[Space(20f)]
+	[Header("Avatar modifier")]
 	public AvatarModifier BurningModifier;
 
 	public AvatarModifier MutantModifier;
@@ -309,8 +309,8 @@ public class PrefabPool : MonoBehaviour
 	public AvatarModifier GrowthModifier;
 
 	[SerializeField]
-	[Header("Particles")]
 	[Space(20f)]
+	[Header("Particles")]
 	public GameObject ParticleBlood;
 
 	[SerializeField]
@@ -373,9 +373,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public GameObject ParticleXP;
 
+	[SerializeField]
 	[Space(20f)]
 	[Header("Logic object prefabs")]
-	[SerializeField]
 	public GameObject LogicInputConnectorPrefab;
 
 	[SerializeField]
@@ -464,8 +464,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public AudioClip StaticMenuOpenAudio;
 
-	[Header("GUI")]
 	[Space(20f)]
+	[Header("GUI")]
 	[SerializeField]
 	public GameObject AvatarAccessoryMoveIcon;
 
@@ -490,8 +490,8 @@ public class PrefabPool : MonoBehaviour
 	public Material ListMenuDividerMaterial;
 
 	[SerializeField]
-	[Header("Editor")]
 	[Space(20f)]
+	[Header("Editor")]
 	public Material CellCursorErrorMaterial;
 
 	[SerializeField]
