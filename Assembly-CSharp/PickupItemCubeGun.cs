@@ -51,6 +51,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	private bool fireSecondary;
 
+	[SerializeField]
 	private AudioSource audioSource;
 
 	public CubeBullet cubeBullet;
@@ -61,7 +62,12 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	protected override bool IsAmmoDepleted => (int)currentAmmo <= 0;
 
-	protected override void OnStart()
+	private void Awake()
+	{
+		currentAmmo = ammo;
+	}
+
+	private void Start()
 	{
 		if (ShowCursors())
 		{
@@ -69,9 +75,6 @@ public class PickupItemCubeGun : PickupItemWithDelay
 			secondaryCursor = UnityEngine.Object.Instantiate(secondaryCursor);
 			secondaryCursor.FadeOverride = FadeOverride.FadeAllOut;
 		}
-		chargeObject.gameObject.SetActive(value: false);
-		currentAmmo = ammo;
-		audioSource = GetComponent<AudioSource>();
 	}
 
 	private void Update()
@@ -280,6 +283,10 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	private bool ShowCursors()
 	{
+		if (owner == null)
+		{
+			return false;
+		}
 		if (owner.IsLocal && owner.WorldObjectOwner is MVAvatarLocal)
 		{
 			return true;

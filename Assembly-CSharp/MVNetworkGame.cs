@@ -1479,6 +1479,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public void SetAvatarAccessorySlot(int avatarBodyWoID, int accessoryInventoryID, AvatarAccessorySlot slot, float slotOffset)
 	{
+		Debug.Log("Set accessory slot");
 		Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 		dictionary[126] = avatarBodyWoID;
 		dictionary[111] = accessoryInventoryID;
@@ -2583,6 +2584,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public void RequestMarketPlaceItem(int itemID)
 	{
+		Debug.Log("MVOperationCodes.GetMarketPlaceItem");
 		Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 		dictionary.Add(38, itemID);
 		peer.OpCustom(62, dictionary, sendReliable: true);
@@ -3197,6 +3199,13 @@ public class MVNetworkGame : IPhotonPeerListener
 		WorldNetwork worldNetwork = this.worldNetwork;
 		worldNetwork.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Remove(worldNetwork.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(OnGameCreated));
 		Debug.Log("Game created");
+		Debug.Log("Frame count " + Time.frameCount);
+		Coroutines.StartCoroutine(WaitForFrames.Frames(1, UncacheEventsFromJoin));
+	}
+
+	private void UncacheEventsFromJoin()
+	{
+		Debug.Log("Frame count " + Time.frameCount);
 		cacheEvents = false;
 		while (cachedEvents.Count > 0)
 		{
@@ -3603,6 +3612,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	private void OnLevelChanged(int actorNr, int level)
 	{
+		Debug.Log("MVNetworkGame.OnLevelChanged");
 		if (players.ContainsKey(actorNr))
 		{
 			players[actorNr].Level = level;

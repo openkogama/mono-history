@@ -14,6 +14,7 @@ public abstract class PickupItem : MonoBehaviour
 	[SerializeField]
 	protected Transform center;
 
+	[SerializeField]
 	protected MeshRenderer[] meshRenderers = new MeshRenderer[0];
 
 	public Vector3 Origin => center.position;

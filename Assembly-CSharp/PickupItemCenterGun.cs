@@ -7,6 +7,9 @@ using UnityEngine;
 
 public class PickupItemCenterGun : PickupItemWithDelay
 {
+	[SerializeField]
+	private AudioSource audioSource;
+
 	public ObscuredInt ammo;
 
 	public Material hitDecalMaterial;
@@ -15,22 +18,15 @@ public class PickupItemCenterGun : PickupItemWithDelay
 
 	public AudioClip bulletHitSound;
 
-	private AudioSource audioSource;
+	protected override bool IsAmmoDepleted => (int)ammo <= 0;
 
 	public override AvatarItemType Type => AvatarItemType.CenterGun;
 
 	public override int Quantity => ammo;
 
-	protected override bool IsAmmoDepleted => (int)ammo <= 0;
-
 	public override void OnStateChanged(Dictionary<object, object> newState)
 	{
 		ammo = 100;
-	}
-
-	protected override void OnStart()
-	{
-		audioSource = GetComponent<AudioSource>();
 	}
 
 	protected override void OnFire(bool isLocal)

@@ -33,8 +33,10 @@ public class PickupItemRailGun : PickupItem
 
 	public AudioClip releaseSound;
 
+	[SerializeField]
 	private AudioSource audioSource;
 
+	[SerializeField]
 	private Renderer chargeParticlesRenderer;
 
 	private float toFieldOfView;
@@ -81,12 +83,9 @@ public class PickupItemRailGun : PickupItem
 		}
 	}
 
-	private void Start()
+	private void Awake()
 	{
-		meshRenderers = GetComponentsInChildren<MeshRenderer>();
 		currentAmmo = ammo;
-		audioSource = GetComponent<AudioSource>();
-		chargeParticlesRenderer = chargeParticles.GetComponent<Renderer>();
 		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
 		{
 			toFieldOfView = 60f;

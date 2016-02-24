@@ -40,10 +40,6 @@ public class BulletThrowingStar : MonoBehaviour
 		enabled = false;
 	}
 
-	private void Start()
-	{
-	}
-
 	public static BulletThrowingStar CreateBullet(BulletThrowingStar prefab, Vector3 pos)
 	{
 		return Object.Instantiate(prefab, pos, Quaternion.identity) as BulletThrowingStar;

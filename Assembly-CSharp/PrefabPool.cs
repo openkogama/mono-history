@@ -167,9 +167,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public GameObject TeleportAvatarPrefab;
 
-	[Header("Game")]
 	[Space(20f)]
 	[SerializeField]
+	[Header("Game")]
 	public Material GhostMarkerMaterial;
 
 	[SerializeField]
@@ -196,8 +196,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public GameCoinDisplayObject GameCoinDisplayPrefab;
 
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
 	[Header("Pick up")]
 	public GameObject AvatarCenterGunPrefab;
 
@@ -256,8 +256,8 @@ public class PrefabPool : MonoBehaviour
 	public GameObject AvatarGrowthPackPrefab;
 
 	[Header("Avatar item pick up")]
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
 	public GameObject AvatarItemCenterGun;
 
 	public GameObject AvatarItemImpulseGun;
@@ -464,9 +464,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public AudioClip StaticMenuOpenAudio;
 
-	[Space(20f)]
 	[Header("GUI")]
 	[SerializeField]
+	[Space(20f)]
 	public GameObject AvatarAccessoryMoveIcon;
 
 	[SerializeField]
@@ -475,9 +475,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public Material ModelConstraintsMaterial;
 
-	[SerializeField]
-	[Header("UX")]
 	[Space(20f)]
+	[Header("UX")]
+	[SerializeField]
 	public GameObject UXTextObject;
 
 	[SerializeField]
@@ -489,9 +489,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public Material ListMenuDividerMaterial;
 
-	[SerializeField]
-	[Space(20f)]
 	[Header("Editor")]
+	[Space(20f)]
+	[SerializeField]
 	public Material CellCursorErrorMaterial;
 
 	[SerializeField]
