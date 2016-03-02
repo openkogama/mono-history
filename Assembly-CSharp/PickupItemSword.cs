@@ -6,6 +6,9 @@ using UnityEngine;
 
 public class PickupItemSword : PickupItemWithDelay
 {
+	[SerializeField]
+	private AudioSource audioSource;
+
 	public Animation swordAnim;
 
 	public GameObject bloodParticlesPrefab;
@@ -24,8 +27,6 @@ public class PickupItemSword : PickupItemWithDelay
 
 	public Transform MuzzlePointHitTerrain;
 
-	private AudioSource audioSource;
-
 	private bool checkingOverlaps;
 
 	public override AvatarItemType Type => AvatarItemType.Sword;
@@ -36,11 +37,6 @@ public class PickupItemSword : PickupItemWithDelay
 
 	public override void UpdateWithDirection(Vector3 dir)
 	{
-	}
-
-	protected override void OnStart()
-	{
-		audioSource = GetComponent<AudioSource>();
 	}
 
 	protected override void OnFire(bool isLocal)

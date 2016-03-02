@@ -20,6 +20,7 @@ internal class ESAddToMarketPlaceState : ESStateBase
 
 	public override void Enter(EditorStateMachine e)
 	{
+		Debug.Log("ESAddToMarketPlaceState");
 		int num = (int)e.Data["ItemID"];
 		if (!MVGameControllerBase.Game.PlayerRepository.PlayerInventory.TryGetValue(num, out var value))
 		{

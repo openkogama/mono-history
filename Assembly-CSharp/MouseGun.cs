@@ -14,6 +14,7 @@ public class MouseGun : PickupItemWithDelay
 
 	public AudioClip shootSound;
 
+	[SerializeField]
 	private AudioSource audioSource;
 
 	public ObscuredInt ammo = 5;
@@ -33,11 +34,6 @@ public class MouseGun : PickupItemWithDelay
 	private void Awake()
 	{
 		layerMask = (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("Player"));
-	}
-
-	public void Start()
-	{
-		audioSource = gameObject.GetComponent<AudioSource>();
 	}
 
 	public override void OnStateChanged(Dictionary<object, object> newState)

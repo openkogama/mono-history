@@ -4,25 +4,21 @@ using UnityEngine;
 
 public class PickupItemSlapGun : PickupItemWithDelay
 {
+	private int layerMask;
+
+	[SerializeField]
+	private AudioSource audioSource;
+
+	[SerializeField]
+	private AudioClip[] slapSounds;
+
 	public ParticleSystem hitParticles;
 
 	public float maxRange = 50f;
 
 	public float slapStrength = 500f;
 
-	private AudioSource audioSource;
-
-	private int layerMask;
-
 	public ImpulseRay impulseRayPrefab;
-
-	public AudioClip slapSound1;
-
-	public AudioClip slapSound2;
-
-	public AudioClip slapSound3;
-
-	private AudioClip[] slapSounds;
 
 	public Color slapColor = new Color(128f, 128f, 128f, 128f);
 
@@ -35,12 +31,6 @@ public class PickupItemSlapGun : PickupItemWithDelay
 	private void Awake()
 	{
 		layerMask = (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("Player"));
-	}
-
-	private void Start()
-	{
-		audioSource = GetComponent<AudioSource>();
-		slapSounds = new AudioClip[3] { slapSound1, slapSound2, slapSound3 };
 	}
 
 	protected override void OnFire(bool isLocal)

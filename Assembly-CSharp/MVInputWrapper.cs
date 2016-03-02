@@ -63,6 +63,10 @@ internal static class MVInputWrapper
 		{
 			return false;
 		}
+		if (inputMap == null)
+		{
+			return false;
+		}
 		return inputMap.GetBooleanControl(control, keyState, index);
 	}
 
