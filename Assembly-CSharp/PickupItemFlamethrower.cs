@@ -28,7 +28,6 @@ public class PickupItemFlamethrower : PickupItem
 
 	private float flamerMinimumBurnTime = 0.5f;
 
-	[SerializeField]
 	private AudioSource audioSource;
 
 	public override AvatarItemType Type => AvatarItemType.Flamethrower;
@@ -40,8 +39,10 @@ public class PickupItemFlamethrower : PickupItem
 		return isFlaming || flamerStartTime + flamerMinimumBurnTime >= Time.time;
 	}
 
-	private void Awake()
+	private void Start()
 	{
+		meshRenderers = GetComponentsInChildren<MeshRenderer>();
+		audioSource = GetComponent<AudioSource>();
 		currentFuel = fuelAmount;
 	}
 

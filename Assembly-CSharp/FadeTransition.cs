@@ -31,6 +31,7 @@ public class FadeTransition : MonoBehaviour
 	{
 		if (uxElements == null || uxElements.Length == 0)
 		{
+			Debug.Log("Get components in children");
 			uxElements = GetComponentsInChildren<UXGUIElement>(includeInactive: true);
 		}
 	}

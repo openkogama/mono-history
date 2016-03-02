@@ -1,9 +1,8 @@
-using MV.Common;
 using UnityEngine;
 
 public class JoinStatusInfo : MonoBehaviour
 {
-	private MVOperationCodes prevGameState = MVOperationCodes.Join;
+	private MVJoinState prevGameState;
 
 	private MVConnState prevConnState;
 
@@ -17,27 +16,23 @@ public class JoinStatusInfo : MonoBehaviour
 			return;
 		}
 		MVConnState connState = MVGameControllerBase.Game.ConnState;
+		MVJoinState joinState = MVGameControllerBase.JoinState;
 		if (connState != prevConnState)
 		{
 			prevConnState = connState;
 			guiChatWindow.AddLine(TM._("Connection") + ": " + LocalizedEnums._(connState), Color.grey);
 		}
-		while (JoinUIUpdater.joinOperations.Count > 0)
+		if (joinState != prevGameState)
 		{
-			MVOperationCodes mVOperationCodes = JoinUIUpdater.joinOperations.Dequeue();
-			if (mVOperationCodes != prevGameState)
+			StatHatWrapper.Count(joinState.ToString(), 1);
+			prevGameState = joinState;
+			guiChatWindow.AddLine(TM._("Game") + ": " + LocalizedEnums._(joinState), Color.grey);
+			if (joinState == MVJoinState.Playing)
 			{
-				StatHatWrapper.Count(mVOperationCodes.ToString(), 1);
-				prevGameState = mVOperationCodes;
-				guiChatWindow.AddLine(TM._("Game") + ": " + LocalizedEnums._(mVOperationCodes), Color.grey);
-				if (MVGameControllerBase.JoinState == MVJoinState.Playing)
-				{
-					guiChatWindow.AddLine("\n\n" + MVGameControllerBase.VersionNumber.ToString() + "\n\n", Color.grey);
-					Object.Destroy(this);
-				}
+				guiChatWindow.AddLine("\n\n" + MVGameControllerBase.VersionNumber.ToString() + "\n\n", Color.grey);
 			}
 		}
-		if (MVGameControllerBase.JoinState != MVJoinState.Playing)
+		if (joinState != MVJoinState.Playing)
 		{
 			guiChatWindow.KeepAlive();
 		}

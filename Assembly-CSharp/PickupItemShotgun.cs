@@ -25,7 +25,6 @@ public class PickupItemShotgun : PickupItemWithDelay
 
 	public float maxRange = 50f;
 
-	[SerializeField]
 	private AudioSource audioSource;
 
 	public override AvatarItemType Type => AvatarItemType.Shotgun;
@@ -33,6 +32,12 @@ public class PickupItemShotgun : PickupItemWithDelay
 	public override int Quantity => ammo;
 
 	protected override bool IsAmmoDepleted => (int)ammo <= 0;
+
+	private void Start()
+	{
+		meshRenderers = GetComponentsInChildren<MeshRenderer>();
+		audioSource = GetComponent<AudioSource>();
+	}
 
 	public override void OnStateChanged(Dictionary<object, object> newState)
 	{

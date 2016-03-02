@@ -31,7 +31,6 @@ public class PickupItemImpulseGun : PickupItem
 
 	public AnimationCurve chargeCurve;
 
-	[SerializeField]
 	private AudioSource audioSource;
 
 	private bool isCharging;
@@ -52,6 +51,13 @@ public class PickupItemImpulseGun : PickupItem
 			}
 			return chargeCurve.Evaluate(Time.time - chargeBeginTime);
 		}
+	}
+
+	private void Start()
+	{
+		chargeObject.gameObject.SetActive(value: false);
+		meshRenderers = GetComponentsInChildren<MeshRenderer>();
+		audioSource = GetComponent<AudioSource>();
 	}
 
 	private IEnumerator DoChargingAnimation()

@@ -45,32 +45,32 @@ public class CellTraverser
 		stepY = Math.Sign(intersectRay.direction.y);
 		stepZ = Math.Sign(intersectRay.direction.z);
 		Vector3 vector = new Vector3((int)voxelPos.x + ((stepX > 0) ? 1 : 0), (int)voxelPos.y + ((stepY > 0) ? 1 : 0), (int)voxelPos.z + ((stepZ > 0) ? 1 : 0));
-		tMax = new Vector3((vector.x - (intersectRay.origin.x + 0.5f)) / intersectRay.direction.x, (vector.y - (intersectRay.origin.y + 0.5f)) / intersectRay.direction.y, (vector.z - (intersectRay.origin.z + 0.5f)) / intersectRay.direction.z);
-		if (float.IsNaN(tMax.x) || float.IsNegativeInfinity(tMax.x))
+		tMax = new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
+		if (intersectRay.direction.x != 0f)
 		{
-			tMax.x = float.PositiveInfinity;
+			tMax.x = (vector.x - (intersectRay.origin.x + 0.5f)) / intersectRay.direction.x;
 		}
-		if (float.IsNaN(tMax.y) || float.IsNegativeInfinity(tMax.y))
+		if (intersectRay.direction.y != 0f)
 		{
-			tMax.y = float.PositiveInfinity;
+			tMax.y = (vector.y - (intersectRay.origin.y + 0.5f)) / intersectRay.direction.y;
 		}
-		if (float.IsNaN(tMax.z) || float.IsNegativeInfinity(tMax.z))
+		if (intersectRay.direction.z != 0f)
 		{
-			tMax.z = float.PositiveInfinity;
+			tMax.z = (vector.z - (intersectRay.origin.z + 0.5f)) / intersectRay.direction.z;
 		}
 		initialtMax = new Vector3(tMax.x, tMax.y, tMax.z);
-		tDelta = new Vector3((float)stepX / intersectRay.direction.x, (float)stepY / intersectRay.direction.y, (float)stepZ / intersectRay.direction.z);
-		if (float.IsNaN(tDelta.x))
+		tDelta = new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
+		if (intersectRay.direction.x != 0f)
 		{
-			tDelta.x = float.PositiveInfinity;
+			tDelta.x = (float)stepX / intersectRay.direction.x;
 		}
-		if (float.IsNaN(tDelta.y))
+		if (intersectRay.direction.y != 0f)
 		{
-			tDelta.y = float.PositiveInfinity;
+			tDelta.y = (float)stepY / intersectRay.direction.y;
 		}
-		if (float.IsNaN(tDelta.z))
+		if (intersectRay.direction.z != 0f)
 		{
-			tDelta.z = float.PositiveInfinity;
+			tDelta.z = (float)stepZ / intersectRay.direction.z;
 		}
 	}
 

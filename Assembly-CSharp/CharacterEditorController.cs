@@ -30,8 +30,6 @@ public class CharacterEditorController : AIngameController, ICubeModelingEditMod
 
 	public OnAvatarBodiesUpdatedDelegate OnAvatarBodiesUpdated;
 
-	private int firstTimeActiveAvatar = -1;
-
 	private MVWorldObjectClientManager WOCM => MVGameControllerBase.WOCM;
 
 	public CubeModelingController CubeModelingController => cubeModelingController;
@@ -69,19 +67,6 @@ public class CharacterEditorController : AIngameController, ICubeModelingEditMod
 	}
 
 	public Vector3 CenterPos => animator.displayPos;
-
-	public CharacterEditorController()
-	{
-		MVNetworkGame game = MVGameControllerBase.Game;
-		game.OnActiveAvatar = (Action<int>)Delegate.Combine(game.OnActiveAvatar, new Action<int>(FirstTimeSetActiveAvatar));
-	}
-
-	private void FirstTimeSetActiveAvatar(int activeAvatar)
-	{
-		firstTimeActiveAvatar = activeAvatar;
-		MVNetworkGame game = MVGameControllerBase.Game;
-		game.OnActiveAvatar = (Action<int>)Delegate.Remove(game.OnActiveAvatar, new Action<int>(FirstTimeSetActiveAvatar));
-	}
 
 	public override void Initialize()
 	{
@@ -124,10 +109,6 @@ public class CharacterEditorController : AIngameController, ICubeModelingEditMod
 		AvatarSlotButtonView.InitializeAvatarSlotButtonView();
 		EditorStateMachine.EnterGroup(mVBody2);
 		EditorStateMachine.Event = EditorEvent.CERoam;
-		if (firstTimeActiveAvatar != -1)
-		{
-			SetActiveAvatar(firstTimeActiveAvatar);
-		}
 	}
 
 	public override void Update()
@@ -290,7 +271,6 @@ public class CharacterEditorController : AIngameController, ICubeModelingEditMod
 
 	public void SetActiveAvatar(int woid)
 	{
-		Debug.Log("SetActiveAvatar");
 		if (animator.Bodies[bodyindex].Id != woid)
 		{
 			int oldIndex = bodyindex;

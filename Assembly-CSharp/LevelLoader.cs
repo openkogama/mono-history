@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
@@ -76,8 +77,29 @@ public class LevelLoader : MonoBehaviour
 		string[] array = scenesForModeMap[mode];
 		for (int i = 0; i < array.Length; i++)
 		{
-			Application.LoadLevelAdditive(array[i]);
+			StartCoroutine(WaitForLevel(array[i], LoadMode.Additive));
 		}
 		callback();
+	}
+
+	private IEnumerator WaitForLevel(string levelName, LoadMode loadMode)
+	{
+		while (!Application.CanStreamedLevelBeLoaded(levelName))
+		{
+			yield return null;
+		}
+		AsyncOperation asyncOperation;
+		switch (loadMode)
+		{
+		default:
+			yield break;
+		case LoadMode.Overwrite:
+			asyncOperation = Application.LoadLevelAsync(levelName);
+			break;
+		case LoadMode.Additive:
+			asyncOperation = Application.LoadLevelAdditiveAsync(levelName);
+			break;
+		}
+		yield return asyncOperation;
 	}
 }

@@ -18,12 +18,10 @@ public class MVGUILevelBadge : MonoBehaviour
 	{
 		if (LevelingManager.IsInitialized)
 		{
-			Debug.Log("LevelingManager.IsInitialized");
 			OnLevelingInitialized();
 		}
 		else
 		{
-			Debug.Log("!LevelingManager.IsInitialized, waiting for ");
 			LevelingManager.OnLevelingInitialized = (LevelingManager.OnlevelingInitializedDelegate)Delegate.Combine(LevelingManager.OnLevelingInitialized, new LevelingManager.OnlevelingInitializedDelegate(OnLevelingInitialized));
 		}
 		moveAnimation.SubscribeToKeyFrame(outOfScreenKeyFrame, KeyFrameCallback);
@@ -31,7 +29,6 @@ public class MVGUILevelBadge : MonoBehaviour
 
 	private void OnLevelingInitialized()
 	{
-		Debug.Log("OnLevelingInitialized");
 		UpdateBadge(MVGameControllerBase.Game.LocalPlayer.Level);
 		MVLocalPlayer localPlayer = MVGameControllerBase.Game.LocalPlayer;
 		localPlayer.OnLevelChanged = (MVPlayer.OnLevelChangedDelegate)Delegate.Combine(localPlayer.OnLevelChanged, new MVPlayer.OnLevelChangedDelegate(UpdateBadge));

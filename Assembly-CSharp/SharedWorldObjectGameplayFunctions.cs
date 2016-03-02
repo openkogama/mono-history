@@ -52,8 +52,8 @@ public class SharedWorldObjectGameplayFunctions
 		public static void Explode(GameObject particlePrefab, Vector3 position, float damageValue, float damageRadius, float shockwaveAcceleration, bool local, ExplosionEvent explosionEvent, HashSet<int> ignoreIDs)
 		{
 			GameObject gameObject = Object.Instantiate(particlePrefab, position, Quaternion.identity) as GameObject;
-			Detonator component = gameObject.GetComponent<Detonator>();
-			component.size = damageRadius;
+			ParticleSystem component = gameObject.GetComponent<ParticleSystem>();
+			component.startSize = damageRadius;
 			ApplyProximityDamage(position, damageValue, damageRadius, shockwaveAcceleration, local, explosionEvent, ignoreIDs);
 		}
 	}
@@ -61,7 +61,7 @@ public class SharedWorldObjectGameplayFunctions
 	public static void DustEfffect(GameObject particlePrefab, Vector3 position, float radius)
 	{
 		GameObject gameObject = Object.Instantiate(particlePrefab, position, Quaternion.identity) as GameObject;
-		Detonator component = gameObject.GetComponent<Detonator>();
-		component.size = radius;
+		ParticleSystem component = gameObject.GetComponent<ParticleSystem>();
+		component.startSize = radius;
 	}
 }

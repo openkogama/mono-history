@@ -32,31 +32,37 @@ public static class LocalizedEnums
 	{
 		private static EnumLocalizeBookkeeping enumLocalizeBookkeeping = new EnumLocalizeBookkeeping(Init);
 
-		public static string Get(MVOperationCodes enumVal)
+		public static string Get(MVJoinState enumVal)
 		{
 			return enumLocalizeBookkeeping.GetLocalizedString((int)enumVal);
 		}
 
 		private static void Init(Dictionary<int, string> map)
 		{
-			map.Add(255, TM._("Joining"));
-			map.Add(61, TM._("Synchronizing Game Time"));
-			map.Add(59, TM._("Fetching Credit Status"));
-			map.Add(43, TM._("Fetching Materials"));
-			map.Add(84, TM._("Fetching Item Types"));
-			map.Add(85, TM._("Fetching Ownership Types"));
-			map.Add(87, TM._("Fetching Inventory"));
-			map.Add(60, TM._("Fetching BuiltIn Items"));
-			map.Add(88, TM._("Fetching Shop Inventory"));
-			map.Add(82, TM._("Fetching Avatar Shop Inventory"));
-			map.Add(86, TM._("Fetching Game Snapshot"));
-			map.Add(66, TM._("Creating Game Snapshot"));
-			map.Add(17, TM._("Fetching Friends"));
-			map.Add(49, TM._("Fetching Streaming Assets"));
-			map.Add(50, TM._("Fetching Streaming Asset Inventory"));
-			map.Add(0, TM._("Setting Actor Ready"));
-			map.Add(56, TM._("Fetching Active Avatar"));
-			map.Add(74, TM._("Initialize Avatar Edit"));
+			map.Add(1, TM._("Joining"));
+			map.Add(3, TM._("Synchronizing Game Time"));
+			map.Add(4, TM._("Fetching Credit Status"));
+			map.Add(5, TM._("Fetching Materials"));
+			map.Add(6, TM._("Fetching Item Types"));
+			map.Add(7, TM._("Fetching Ownership Types"));
+			map.Add(8, TM._("Fetching Inventory"));
+			map.Add(9, TM._("Fetching BuiltIn Items"));
+			map.Add(10, TM._("Fetching Shop Inventory"));
+			map.Add(11, TM._("Fetching Avatar Shop Inventory"));
+			map.Add(12, TM._("Fetching Game Snapshot"));
+			map.Add(13, TM._("Fetching Friends"));
+			map.Add(14, TM._("Selecting Team"));
+			map.Add(15, TM._("Setting Team"));
+			map.Add(16, TM._("Fetching Streaming Assets"));
+			map.Add(18, TM._("Fetching Streaming Asset Inventory"));
+			map.Add(19, TM._("Creating Avatar"));
+			map.Add(20, TM._("Setting Actor Ready"));
+			map.Add(21, TM._("Playing"));
+			map.Add(22, TM._("Leaving"));
+			map.Add(23, TM._("Fetching Active Avatar"));
+			map.Add(24, TM._("Initialize Avatar Edit"));
+			map.Add(17, TM._("Fetching Streaming Asset ambient audio Inventory"));
+			map.Add(2, TM._("Loading UI"));
 		}
 	}
 
@@ -99,7 +105,7 @@ public static class LocalizedEnums
 		return MVConnStateLS.Get(enumVal);
 	}
 
-	public static string _(MVOperationCodes enumVal)
+	public static string _(MVJoinState enumVal)
 	{
 		return MVJoinStateLS.Get(enumVal);
 	}

@@ -37,6 +37,16 @@ public abstract class PickupItemWithDelay : PickupItem
 	{
 	}
 
+	protected virtual void OnStart()
+	{
+	}
+
+	private void Start()
+	{
+		meshRenderers = GetComponentsInChildren<MeshRenderer>();
+		OnStart();
+	}
+
 	public override void TriggerBegin(int instigatorActorNr)
 	{
 		if (isFiring)

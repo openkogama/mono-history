@@ -20,6 +20,7 @@ public class RuntimeEventManagerNetwork : RuntimeEventManager
 			RuntimeEvent runtimeEvent = RuntimeEvent.Create(bytePacker);
 			HandleRuntimeEvent(runtimeEvent);
 		}
+		Debug.Log($"NumRuntimeEvents: {num}, Time: {Time.realtimeSinceStartup - realtimeSinceStartup}");
 		doEffects = true;
 	}
 

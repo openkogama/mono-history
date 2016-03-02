@@ -79,6 +79,7 @@ public class MVSentryGun : MVLogicObject
 	{
 		base.InitializeInventory();
 		InitializeCommon();
+		sentryGunScript.glowPlane.gameObject.SetActive(value: false);
 	}
 
 	public void InitializeCommon()

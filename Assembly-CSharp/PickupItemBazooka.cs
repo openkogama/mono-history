@@ -28,7 +28,6 @@ public class PickupItemBazooka : PickupItemWithDelay
 
 	public AudioClip rocketHitSound;
 
-	[SerializeField]
 	private AudioSource aSource;
 
 	private ObscuredInt currentAmmo = 10;
@@ -39,9 +38,10 @@ public class PickupItemBazooka : PickupItemWithDelay
 
 	protected override bool IsAmmoDepleted => (int)currentAmmo <= 0;
 
-	private void Awake()
+	protected override void OnStart()
 	{
 		currentAmmo = ammo;
+		aSource = GetComponent<AudioSource>();
 	}
 
 	public override void OnStateChanged(Dictionary<object, object> newState)

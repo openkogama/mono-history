@@ -58,6 +58,18 @@ public class PickupItemModelGun : PickupItemWithDelay
 
 	protected override bool IsAmmoDepleted => currentAmmo <= 0;
 
+	protected override void OnStart()
+	{
+		if (ShowCursors())
+		{
+			primaryCursor = UnityEngine.Object.Instantiate(primaryCursor);
+			secondaryCursor = UnityEngine.Object.Instantiate(secondaryCursor);
+			secondaryCursor.FadeOverride = FadeOverride.FadeAllOut;
+		}
+		chargeObject.gameObject.SetActive(value: false);
+		currentAmmo = ammo;
+	}
+
 	private void Update()
 	{
 		if (ShowCursors())

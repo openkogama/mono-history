@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class MVSmoke : MVLogicObject
 {
+	private ParticleSystem particleSystem;
+
 	private GameObject particleGO;
 
 	public override bool HasInputConnector => true;
@@ -14,6 +16,7 @@ public class MVSmoke : MVLogicObject
 	{
 		particleGO = (GameObject)Object.Instantiate(PrefabPool.Instance.ParticleFluffySmoke, gameObject.transform.position, Quaternion.identity);
 		particleGO.transform.parent = gameObject.transform;
+		particleSystem = particleGO.GetComponent<ParticleSystem>();
 		ToggleEmitter(toggle: false);
 	}
 
@@ -52,10 +55,6 @@ public class MVSmoke : MVLogicObject
 
 	private void ToggleEmitter(bool toggle)
 	{
-		ParticleEmitter[] componentsInChildren = particleGO.GetComponentsInChildren<ParticleEmitter>();
-		foreach (ParticleEmitter particleEmitter in componentsInChildren)
-		{
-			particleEmitter.emit = toggle;
-		}
+		particleSystem.enableEmission = toggle;
 	}
 }
