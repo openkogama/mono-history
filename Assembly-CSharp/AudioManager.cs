@@ -69,9 +69,17 @@ public class AudioManager : MonoBehaviour
 			activeSounds.Add(sound);
 			sound.go.SetActive(value: true);
 			sound.go.name = "Sound (" + name + ")";
-			sound.go.transform.position = position;
+			sound.go.transform.localPosition = position;
 			sound.audio.clip = clip;
 			sound.audio.volume = volume;
+			sound.audio.priority = 128;
+			sound.audio.pitch = 1f;
+			sound.audio.panStereo = 0f;
+			sound.audio.spatialBlend = 1f;
+			sound.audio.reverbZoneMix = 1f;
+			sound.audio.dopplerLevel = 0.13f;
+			sound.audio.spread = 0f;
+			sound.audio.rolloffMode = AudioRolloffMode.Linear;
 			sound.audio.minDistance = GetMinDistanceFromRange(range);
 			sound.audio.maxDistance = GetMaxDistanceFromRange(range);
 			sound.audio.Play();
@@ -93,10 +101,16 @@ public class AudioManager : MonoBehaviour
 			sound.audio.clip = audioSource.clip;
 			sound.audio.volume = audioSource.volume;
 			sound.audio.pitch = audioSource.pitch;
+			sound.audio.priority = audioSource.priority;
+			sound.audio.pitch = audioSource.pitch;
+			sound.audio.panStereo = audioSource.panStereo;
+			sound.audio.spatialBlend = audioSource.spatialBlend;
+			sound.audio.reverbZoneMix = audioSource.reverbZoneMix;
+			sound.audio.dopplerLevel = audioSource.dopplerLevel;
+			sound.audio.spread = audioSource.spread;
+			sound.audio.rolloffMode = audioSource.rolloffMode;
 			sound.audio.minDistance = audioSource.minDistance;
 			sound.audio.maxDistance = audioSource.maxDistance;
-			sound.audio.spread = audioSource.spread;
-			sound.audio.spatialBlend = audioSource.spatialBlend;
 			sound.audio.Play();
 			return sound;
 		}

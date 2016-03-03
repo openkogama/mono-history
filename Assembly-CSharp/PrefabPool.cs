@@ -4,8 +4,8 @@ public class PrefabPool : MonoBehaviour
 {
 	private static PrefabPool instance;
 
-	[Header("World Objects")]
 	[SerializeField]
+	[Header("World Objects")]
 	public GameObject MVFirePrefab;
 
 	[SerializeField]
@@ -167,9 +167,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public GameObject TeleportAvatarPrefab;
 
-	[SerializeField]
-	[Space(20f)]
 	[Header("Game")]
+	[Space(20f)]
+	[SerializeField]
 	public Material GhostMarkerMaterial;
 
 	[SerializeField]
@@ -256,8 +256,8 @@ public class PrefabPool : MonoBehaviour
 	public GameObject AvatarGrowthPackPrefab;
 
 	[SerializeField]
-	[Header("Avatar item pick up")]
 	[Space(20f)]
+	[Header("Avatar item pick up")]
 	public GameObject AvatarItemCenterGun;
 
 	public GameObject AvatarItemImpulseGun;
@@ -292,8 +292,8 @@ public class PrefabPool : MonoBehaviour
 
 	public GameObject AvatarItemSlapGun;
 
-	[Space(20f)]
 	[Header("Avatar modifier")]
+	[Space(20f)]
 	public AvatarModifier BurningModifier;
 
 	public AvatarModifier MutantModifier;
@@ -308,9 +308,9 @@ public class PrefabPool : MonoBehaviour
 
 	public AvatarModifier GrowthModifier;
 
-	[Space(20f)]
-	[Header("Particles")]
 	[SerializeField]
+	[Header("Particles")]
+	[Space(20f)]
 	public GameObject ParticleBlood;
 
 	[SerializeField]
@@ -373,9 +373,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public GameObject ParticleXP;
 
+	[SerializeField]
 	[Space(20f)]
 	[Header("Logic object prefabs")]
-	[SerializeField]
 	public GameObject LogicInputConnectorPrefab;
 
 	[SerializeField]
@@ -402,9 +402,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public Material LogicCubeConnectorBlueSelectedMaterial;
 
-	[Header("Audio Bank Sounds")]
 	[Space(20f)]
 	[SerializeField]
+	[Header("Audio Bank Sounds")]
 	public AudioClip ButtonClickAudio;
 
 	[SerializeField]
@@ -475,9 +475,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public Material ModelConstraintsMaterial;
 
+	[Header("UX")]
 	[SerializeField]
 	[Space(20f)]
-	[Header("UX")]
 	public GameObject UXTextObject;
 
 	[SerializeField]
@@ -489,9 +489,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public Material ListMenuDividerMaterial;
 
+	[Space(20f)]
 	[SerializeField]
 	[Header("Editor")]
-	[Space(20f)]
 	public Material CellCursorErrorMaterial;
 
 	[SerializeField]

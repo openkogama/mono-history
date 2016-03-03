@@ -3,13 +3,16 @@ using MV.Common;
 
 public static class JoinUIUpdater
 {
-	public static Queue<MVEventCodes> joinOperations = new Queue<MVEventCodes>();
+	public static Queue<MVEventCodes> JoinEventCodes = new Queue<MVEventCodes>();
 
-	public static void UpdateJoinStateForUI(MVEventCodes opCode)
+	private static MVEventCodes latestJoinEvent = MVEventCodes.GetDBTimeTicks;
+
+	public static void UpdateJoinStateForUI(MVEventCodes eventCode)
 	{
-		if (MVGameControllerBase.JoinState != MVJoinState.Playing)
+		if (latestJoinEvent != MVEventCodes.SetActorReady)
 		{
-			joinOperations.Enqueue(opCode);
+			JoinEventCodes.Enqueue(eventCode);
+			latestJoinEvent = eventCode;
 		}
 	}
 }

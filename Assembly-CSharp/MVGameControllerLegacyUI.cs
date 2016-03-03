@@ -155,6 +155,7 @@ public class MVGameControllerLegacyUI : MVGameControllerBase, IInputHandler
 			}
 			IngameController.Initialize();
 			Initialize();
+			LevelingManager.Initialize(MVGameControllerBase.Game.LocalPlayer.ProfileID);
 		}
 		IngameController.Update();
 	}

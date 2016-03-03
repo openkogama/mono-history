@@ -22,9 +22,9 @@ public class JoinStatusInfo : MonoBehaviour
 			prevConnState = connState;
 			guiChatWindow.AddLine(TM._("Connection") + ": " + LocalizedEnums._(connState), Color.grey);
 		}
-		while (JoinUIUpdater.joinOperations.Count > 0)
+		while (JoinUIUpdater.JoinEventCodes.Count > 0)
 		{
-			MVEventCodes mVEventCodes = JoinUIUpdater.joinOperations.Dequeue();
+			MVEventCodes mVEventCodes = JoinUIUpdater.JoinEventCodes.Dequeue();
 			if (mVEventCodes != prevGameState)
 			{
 				StatHatWrapper.Count(mVEventCodes.ToString(), 1);
