@@ -46,6 +46,10 @@ public class AvatarBadge : MonoBehaviour
 
 	private void OnDestroy()
 	{
+		if (!LevelingManager.IsInitialized)
+		{
+			LevelingManager.OnLevelingInitialized = (LevelingManager.OnlevelingInitializedDelegate)Delegate.Remove(LevelingManager.OnLevelingInitialized, new LevelingManager.OnlevelingInitializedDelegate(OnLevelingInitialized));
+		}
 		if (MVGameControllerBase.Game.Players.ContainsKey(ownerActorId))
 		{
 			MVPlayer mVPlayer = MVGameControllerBase.Game.Players[ownerActorId];
