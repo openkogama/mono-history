@@ -72,11 +72,11 @@ public class PickupItemBazooka : PickupItemWithDelay
 
 	private void HandleRocketHitLocal(VoxelHit voxelHit, Ray lineOfFire)
 	{
-		Collider[] array = Physics.OverlapSphere(voxelHit.point, blastRadius);
+		int num = Physics.OverlapSphereNonAlloc(voxelHit.point, blastRadius, CollisionDetectionGlobalBuffers.colliderBuffer);
 		HashSet<int> hashSet = new HashSet<int>();
-		Collider[] array2 = array;
-		foreach (Collider collider in array2)
+		for (int i = 0; i < num; i++)
 		{
+			Collider collider = CollisionDetectionGlobalBuffers.colliderBuffer[i];
 			MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(collider.transform);
 			if (mVObject != null && !hashSet.Contains(mVObject.Id))
 			{

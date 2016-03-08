@@ -76,11 +76,10 @@ public class OptimizedPerception
 	private void UpdatePotentialTargets()
 	{
 		potentialTargets.Clear();
-		Collider[] array = Physics.OverlapSphere(position, radius, 1 << LayerMask.NameToLayer("Player"));
-		Collider[] array2 = array;
-		foreach (Collider collider in array2)
+		int num = Physics.OverlapSphereNonAlloc(position, radius, CollisionDetectionGlobalBuffers.colliderBuffer, 1 << LayerMask.NameToLayer("Player"));
+		for (int i = 0; i < num; i++)
 		{
-			MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(collider.transform);
+			MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(CollisionDetectionGlobalBuffers.colliderBuffer[i].transform);
 			if (mVObject != null)
 			{
 				int id = mVObject.Id;

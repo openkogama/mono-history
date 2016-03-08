@@ -166,25 +166,24 @@ public class MVSentryGun : MVLogicObject
 			if (intervalWithRandomSeed.Update() && MVGameControllerBase.Game.IsPlaying)
 			{
 				HashSet<int> hashSet = new HashSet<int>();
-				Collider[] array = Physics.OverlapSphere(gameObject.transform.position, laserRange, 1 << LayerMask.NameToLayer("Player"));
-				Collider[] array2 = array;
-				foreach (Collider collider in array2)
+				int num = Physics.OverlapSphereNonAlloc(gameObject.transform.position, laserRange, CollisionDetectionGlobalBuffers.colliderBuffer, 1 << LayerMask.NameToLayer("Player"));
+				for (int i = 0; i < num; i++)
 				{
-					MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(collider.transform);
+					MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(CollisionDetectionGlobalBuffers.colliderBuffer[i].transform);
 					if (mVObject == null)
 					{
 						continue;
 					}
-					int num = mVObject.Id;
+					int num2 = mVObject.Id;
 					InteractionDataHandlerBase interactionDataHandlerBase = mVObject.InteractionDataHandlerBase;
 					if (interactionDataHandlerBase == null || !interactionDataHandlerBase.CanHandle(interactionType, interactionIsLocal: true))
 					{
 						continue;
 					}
-					mVObject = MVGameControllerBase.WOCM.GetWorldObjectClient(num);
+					mVObject = MVGameControllerBase.WOCM.GetWorldObjectClient(num2);
 					Vector3 targetPosition = mVObject.GetTargetPosition();
 					Ray ray = new Ray(gameObject.transform.position, (targetPosition - gameObject.transform.position).normalized);
-					if (HitsTarget(ray, num) && !hashSet.Contains(num))
+					if (HitsTarget(ray, num2) && !hashSet.Contains(num2))
 					{
 						if (woIdsBeamsMap.TryGetValue(mVObject.Id, out var value) && value != null)
 						{

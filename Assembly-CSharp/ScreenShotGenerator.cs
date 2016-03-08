@@ -139,7 +139,6 @@ public class ScreenShotGenerator : MonoBehaviour
 		}
 		shotCamera.targetTexture = null;
 		RenderTexture.active = null;
-		UnityEngine.Object.DestroyImmediate(genRenderTexture);
 		if (clonedObject)
 		{
 			UnityEngine.Object.Destroy(targetObject);
@@ -149,6 +148,7 @@ public class ScreenShotGenerator : MonoBehaviour
 			UnityEngine.Object.Destroy(genTexture);
 		}
 		UnityEngine.Object.Destroy(gameObject);
+		UnityEngine.Object.Destroy(genRenderTexture);
 	}
 
 	private void InitCamera(int width, int height)

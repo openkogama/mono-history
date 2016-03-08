@@ -101,11 +101,12 @@ public static class MVElipsoidOverlapCheck
 				num = radius[i];
 			}
 		}
-		Collider[] array = Physics.OverlapSphere(position, num, layerMask);
-		for (int j = 0; j < array.Length; j++)
+		int num2 = Physics.OverlapSphereNonAlloc(position, num, CollisionDetectionGlobalBuffers.colliderBuffer, layerMask);
+		for (int j = 0; j < num2; j++)
 		{
-			MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(array[j].transform);
-			if (!SharedCollisionFunctions.IgnoreCollision(mVObject, ignoreWoIds) && ElipsoidOverlapCheckOnWo(radius, position, rotation, array[j] as BoxCollider, mVObject, out var elipsoidOverlapResult))
+			Collider collider = CollisionDetectionGlobalBuffers.colliderBuffer[j];
+			MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(collider.transform);
+			if (!SharedCollisionFunctions.IgnoreCollision(mVObject, ignoreWoIds) && ElipsoidOverlapCheckOnWo(radius, position, rotation, collider as BoxCollider, mVObject, out var elipsoidOverlapResult))
 			{
 				elipsoidOverlapResult.woId = mVObject.Id;
 				list.Add(elipsoidOverlapResult);

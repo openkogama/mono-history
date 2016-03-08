@@ -4,8 +4,8 @@ public class PrefabPool : MonoBehaviour
 {
 	private static PrefabPool instance;
 
-	[SerializeField]
 	[Header("World Objects")]
+	[SerializeField]
 	public GameObject MVFirePrefab;
 
 	[SerializeField]
@@ -167,9 +167,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public GameObject TeleportAvatarPrefab;
 
+	[SerializeField]
 	[Header("Game")]
 	[Space(20f)]
-	[SerializeField]
 	public Material GhostMarkerMaterial;
 
 	[SerializeField]
@@ -197,8 +197,8 @@ public class PrefabPool : MonoBehaviour
 	public GameCoinDisplayObject GameCoinDisplayPrefab;
 
 	[Header("Pick up")]
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
 	public GameObject AvatarCenterGunPrefab;
 
 	[SerializeField]
@@ -255,9 +255,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public GameObject AvatarGrowthPackPrefab;
 
-	[SerializeField]
-	[Space(20f)]
 	[Header("Avatar item pick up")]
+	[Space(20f)]
+	[SerializeField]
 	public GameObject AvatarItemCenterGun;
 
 	public GameObject AvatarItemImpulseGun;
@@ -292,8 +292,8 @@ public class PrefabPool : MonoBehaviour
 
 	public GameObject AvatarItemSlapGun;
 
-	[Header("Avatar modifier")]
 	[Space(20f)]
+	[Header("Avatar modifier")]
 	public AvatarModifier BurningModifier;
 
 	public AvatarModifier MutantModifier;
@@ -308,8 +308,8 @@ public class PrefabPool : MonoBehaviour
 
 	public AvatarModifier GrowthModifier;
 
-	[SerializeField]
 	[Header("Particles")]
+	[SerializeField]
 	[Space(20f)]
 	public GameObject ParticleBlood;
 
@@ -373,9 +373,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public GameObject ParticleXP;
 
+	[Header("Logic object prefabs")]
 	[SerializeField]
 	[Space(20f)]
-	[Header("Logic object prefabs")]
 	public GameObject LogicInputConnectorPrefab;
 
 	[SerializeField]
@@ -403,8 +403,8 @@ public class PrefabPool : MonoBehaviour
 	public Material LogicCubeConnectorBlueSelectedMaterial;
 
 	[Space(20f)]
-	[SerializeField]
 	[Header("Audio Bank Sounds")]
+	[SerializeField]
 	public AudioClip ButtonClickAudio;
 
 	[SerializeField]
@@ -475,9 +475,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public Material ModelConstraintsMaterial;
 
-	[Header("UX")]
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
+	[Header("UX")]
 	public GameObject UXTextObject;
 
 	[SerializeField]

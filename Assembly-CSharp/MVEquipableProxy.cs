@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using MV.Common;
-using UnityEngine;
 
 public class MVEquipableProxy : MVEquipable
 {
@@ -13,7 +12,6 @@ public class MVEquipableProxy : MVEquipable
 
 	public override bool Equip(AvatarItemType type, AvatarEquipableType equipType, Dictionary<object, object> itemData, int variantID = 0)
 	{
-		Debug.Log("Equip");
 		return equipable.Equip(type, equipType, itemData, variantID);
 	}
 

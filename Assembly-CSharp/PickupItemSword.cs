@@ -63,11 +63,10 @@ public class PickupItemSword : PickupItemWithDelay
 		HashSet<MVWorldObjectClient> hitWos = new HashSet<MVWorldObjectClient>();
 		while (checkingOverlaps)
 		{
-			Collider[] hits = Physics.OverlapSphere(muzzlePoint.position, pushRadius);
-			Collider[] array = hits;
-			foreach (Collider h in array)
+			int numOverlaps = Physics.OverlapSphereNonAlloc(muzzlePoint.position, pushRadius, CollisionDetectionGlobalBuffers.colliderBuffer);
+			for (int i = 0; i < numOverlaps; i++)
 			{
-				MVWorldObjectClient wo = MVWorldObjectClientManager.GetMVObject(h.transform);
+				MVWorldObjectClient wo = MVWorldObjectClientManager.GetMVObject(CollisionDetectionGlobalBuffers.colliderBuffer[i].transform);
 				if (wo != null && !owner.IgnoreWOIDs.Contains(wo.Id))
 				{
 					hitWos.Add(wo);

@@ -4,17 +4,13 @@ using UnityEngine;
 
 public class MVFire : MVLogicObject
 {
-	private GameObject particleGO;
+	private const float damageValue = 100f;
 
-	private GameObject audioGO;
+	private const float damageRadius = 2.5f;
 
-	private AudioSource audioSource;
+	private List<MVWorldObjectClient> woList = new List<MVWorldObjectClient>();
 
-	private float ignoreDistanceSqr = 100f;
-
-	private float damageRadius = 2.5f;
-
-	private float damageValue = 100f;
+	private FireObject fireObject;
 
 	public override bool HasInputConnector => true;
 
@@ -23,15 +19,10 @@ public class MVFire : MVLogicObject
 	public MVFire(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVFirePrefab, worldObjects)
 	{
-		particleGO = (GameObject)Object.Instantiate(PrefabPool.Instance.ParticleFire1, gameObject.transform.position, Quaternion.identity);
-		particleGO.transform.parent = gameObject.transform;
-		ParticleEmitter[] componentsInChildren = particleGO.GetComponentsInChildren<ParticleEmitter>();
-		foreach (ParticleEmitter particleEmitter in componentsInChildren)
-		{
-			particleEmitter.emit = false;
-		}
-		audioSource = gameObject.GetComponent<AudioSource>();
-		audioSource.pitch = 1f + Random.Range(-0.2f, 0.2f);
+		fireObject = gameObject.GetComponent<FireObject>();
+		fireObject.AudioSource.pitch = 1f + Random.Range(-0.2f, 0.2f);
+		fireObject.TriggerBoxEvents.TriggerEnter += TriggerAreaEnter;
+		fireObject.TriggerBoxEvents.TriggerExit += TriggerAreaExit;
 	}
 
 	protected override void OnUpdate()
@@ -40,33 +31,19 @@ public class MVFire : MVLogicObject
 		{
 			return;
 		}
-		HashSet<int> localControlledWorldObjects = MVGameControllerBase.Game.PlayerController.LocalControlledWorldObjects;
-		Vector3 vector = transform.position;
-		foreach (int item in localControlledWorldObjects)
+		for (int i = 0; i < woList.Count; i++)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(item);
-			if (worldObjectClient == null)
+			MVWorldObjectClient mVWorldObjectClient = woList[i];
+			InteractionDataHandlerBase interactionDataHandlerBase = mVWorldObjectClient.InteractionDataHandlerBase;
+			if (!(interactionDataHandlerBase == null))
 			{
-				continue;
-			}
-			InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
-			if (!(interactionDataHandlerBase == null) && !((worldObjectClient.WorldPosition - vector).sqrMagnitude > ignoreDistanceSqr))
-			{
-				float num = damageRadius;
-				if (worldObjectClient.Collider != null)
+				float num = Vector3.Distance(mVWorldObjectClient.WorldPosition, WorldPosition);
+				if (mVWorldObjectClient.Collider != null)
 				{
-					Vector3 a = worldObjectClient.Collider.ClosestPointOnBounds(vector);
-					num = Vector3.Distance(a, vector);
+					num = Vector3.Distance(mVWorldObjectClient.Collider.ClosestPointOnBounds(WorldPosition), WorldPosition);
 				}
-				else
-				{
-					Vector3.Distance(worldObjectClient.GameObject.transform.position, vector);
-				}
-				if (num <= damageRadius)
-				{
-					float damage = Time.deltaTime * damageValue * (1f - num / damageRadius);
-					interactionDataHandlerBase.HandleInteraction(ProximityDamageAndImpulse.Create(damage, Vector3.zero, PlayerKilledByType.Fire), interactionIsLocal: true);
-				}
+				float damage = Time.deltaTime * 100f * (1f - num / 2.5f);
+				interactionDataHandlerBase.HandleInteraction(ProximityDamageAndImpulse.Create(damage, Vector3.zero, PlayerKilledByType.Fire), interactionIsLocal: true);
 			}
 		}
 	}
@@ -74,17 +51,22 @@ public class MVFire : MVLogicObject
 	public override void Initialize()
 	{
 		base.Initialize();
-		if (InputLinkRefs.Count == 0)
-		{
-			ToggleEmitter(toggle: true);
-		}
+		OnInputLinkChanged();
+	}
+
+	public override void InitializeInventory()
+	{
+		base.InitializeInventory();
+		ParticleSystem.EmissionModule emission = fireObject.ParticleSystem.emission;
+		emission.enabled = false;
+		fireObject.enabled = false;
 	}
 
 	public override void OnInputLinkChanged()
 	{
 		if (InputLinkRefs.Count == 0)
 		{
-			ToggleEmitter(toggle: true);
+			ToggleEmitter(activeFlag: true);
 		}
 		else
 		{
@@ -94,30 +76,35 @@ public class MVFire : MVLogicObject
 
 	public override void OnInputStateChanged()
 	{
-		if (InputState)
+		ToggleEmitter(InputState);
+	}
+
+	private void ToggleEmitter(bool activeFlag)
+	{
+		ParticleSystem.EmissionModule emission = fireObject.ParticleSystem.emission;
+		emission.enabled = activeFlag;
+		if (activeFlag)
 		{
-			ToggleEmitter(toggle: true);
+			fireObject.AudioSource.Play();
 		}
 		else
 		{
-			ToggleEmitter(toggle: false);
+			fireObject.AudioSource.Stop();
 		}
 	}
 
-	private void ToggleEmitter(bool toggle)
+	private void TriggerAreaEnter(object sender, TriggerEventArgs e)
 	{
-		ParticleEmitter[] componentsInChildren = particleGO.GetComponentsInChildren<ParticleEmitter>();
-		foreach (ParticleEmitter particleEmitter in componentsInChildren)
-		{
-			particleEmitter.emit = toggle;
-		}
-		if (toggle)
-		{
-			audioSource.Play();
-		}
-		else
-		{
-			audioSource.Stop();
-		}
+		woList.Add(MVGameControllerBase.WOCM.GetWorldObjectClient(e.instigatorWOID));
+	}
+
+	private void TriggerAreaExit(object sender, TriggerEventArgs e)
+	{
+		woList.Remove(MVGameControllerBase.WOCM.GetWorldObjectClient(e.instigatorWOID));
+	}
+
+	public override Bounds GetLocalBounds(BoundsContext boundsContext)
+	{
+		return new Bounds(new Vector3(0f, 0f, 0f), new Vector3(1f, 1f, 1f));
 	}
 }

@@ -779,16 +779,12 @@ public class MVWorldObjectClient : MVWorldObject
 	private bool DoesScreenPointHitCollider(Vector3 point, Collider collider)
 	{
 		Ray ray = MVGameControllerBase.CameraController.MainCamera.ScreenPointToRay(point);
-		RaycastHit[] array = Physics.RaycastAll(ray);
-		if (array.Length > 0)
+		int num = Physics.RaycastNonAlloc(ray, CollisionDetectionGlobalBuffers.rayHitBuffer);
+		for (int i = 0; i < num; i++)
 		{
-			RaycastHit[] array2 = array;
-			foreach (RaycastHit raycastHit in array2)
+			if (CollisionDetectionGlobalBuffers.rayHitBuffer[i].collider == collider)
 			{
-				if (raycastHit.collider == collider)
-				{
-					return true;
-				}
+				return true;
 			}
 		}
 		return false;

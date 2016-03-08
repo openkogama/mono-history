@@ -136,9 +136,9 @@ public static class MVSweptElipsoidCheck
 				num = radius[i];
 			}
 		}
-		Collider[] overlapResult = Physics.OverlapSphere(ray.origin, num, layerMask);
-		RaycastHit[] hits = Physics.SphereCastAll(ray, num, distance, layerMask);
-		PhysicsCollisionDatasWrapper physicsCollisionData = SharedCollisionFunctions.GetPhysicsCollisionData(overlapResult, hits, ray.origin);
+		int overlapAmount = Physics.OverlapSphereNonAlloc(ray.origin, num, CollisionDetectionGlobalBuffers.colliderBuffer, layerMask);
+		int hitAmount = Physics.SphereCastNonAlloc(ray, num, CollisionDetectionGlobalBuffers.rayHitBuffer, distance, layerMask);
+		PhysicsCollisionDatasWrapper physicsCollisionData = SharedCollisionFunctions.GetPhysicsCollisionData(overlapAmount, CollisionDetectionGlobalBuffers.colliderBuffer, hitAmount, CollisionDetectionGlobalBuffers.rayHitBuffer, ray.origin);
 		for (int j = 0; j < physicsCollisionData.Length; j++)
 		{
 			MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(physicsCollisionData[j].transform);

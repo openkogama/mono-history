@@ -93,6 +93,7 @@ public class MVJetPack : MVVehicleBase
 			vehicleMotor = jetPackMotor;
 			owner = vehicleBase;
 			this.vehicleUser = vehicleUser;
+			owner.interactionDataHandlerBase = vehicleUser.InteractionDataHandlerBase;
 		}
 
 		private void OnFiring(bool isFiring)
@@ -117,6 +118,7 @@ public class MVJetPack : MVVehicleBase
 			vehicleMotor.LeaveMode = true;
 			vehicleUser.SetCharacterController(avatarController);
 			vehicleUser.ForceRotateAvatarToFiringDirection = false;
+			owner.interactionDataHandlerBase = null;
 			MVPickupOwner mVPickupOwner = avatarPickupOwner;
 			mVPickupOwner.onHandleFiring = (MVPickupOwner.OnHandleFiringDelegate)Delegate.Remove(mVPickupOwner.onHandleFiring, new MVPickupOwner.OnHandleFiringDelegate(OnFiring));
 		}

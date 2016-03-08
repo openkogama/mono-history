@@ -5,6 +5,8 @@ using UnityEngine;
 
 public static class SharedCollisionFunctions
 {
+	private static RaycastHitComparer rayHitComparer = new RaycastHitComparer();
+
 	private static PhysicsCollisionDatasWrapper physicsCollisionWrapper = new PhysicsCollisionDatasWrapper();
 
 	public static PhysicsCollisionDatasWrapper GetPhysicsCollisionData(Collider[] overlapResult, RaycastHit[] hits, Vector3 origin)
@@ -24,6 +26,29 @@ public static class SharedCollisionFunctions
 			else
 			{
 				physicsCollisionWrapper.Add(hits[num2]);
+			}
+		}
+		return physicsCollisionWrapper;
+	}
+
+	public static PhysicsCollisionDatasWrapper GetPhysicsCollisionData(int overlapAmount, Collider[] overlapResult, int hitAmount, RaycastHit[] hits, Vector3 origin)
+	{
+		physicsCollisionWrapper.Clear();
+		Array.Sort(hits, 0, hitAmount, rayHitComparer);
+		for (int i = 0; i < overlapAmount; i++)
+		{
+			Collider collider = overlapResult[i];
+			physicsCollisionWrapper.Add(collider, origin);
+		}
+		for (int j = 0; j < hitAmount; j++)
+		{
+			if (hits[j].distance == 0f)
+			{
+				physicsCollisionWrapper.Add(hits[j].collider, origin);
+			}
+			else
+			{
+				physicsCollisionWrapper.Add(hits[j]);
 			}
 		}
 		return physicsCollisionWrapper;

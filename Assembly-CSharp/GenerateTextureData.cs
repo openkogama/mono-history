@@ -51,6 +51,7 @@ public class GenerateTextureData : MonoBehaviour
 		screenshotTexture.Apply();
 		byte[] bytes = screenshotTexture.EncodeToPNG();
 		textureDataCallback((byte[])bytes.Clone(), imageType, imageId);
+		screenshotCam.targetTexture = null;
 		RenderTexture.active = null;
 		UnityEngine.Object.Destroy(screenshotCamObject);
 		UnityEngine.Object.Destroy(gameObject);

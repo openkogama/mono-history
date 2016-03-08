@@ -10,10 +10,10 @@ public class SharedWorldObjectGameplayFunctions
 	{
 		private static void ApplyProximityDamage(Vector3 position, float damageValue, float damageRadius, float shockwaveAcceleration, bool local, ExplosionEvent explosionEvent, HashSet<int> ignoreIDs)
 		{
-			Collider[] array = Physics.OverlapSphere(position, damageRadius);
-			Collider[] array2 = array;
-			foreach (Collider collider in array2)
+			int num = Physics.OverlapSphereNonAlloc(position, damageRadius, CollisionDetectionGlobalBuffers.colliderBuffer);
+			for (int i = 0; i < num; i++)
 			{
+				Collider collider = CollisionDetectionGlobalBuffers.colliderBuffer[i];
 				MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(collider.transform);
 				if (mVObject == null || ignoreIDs.Contains(mVObject.Id))
 				{
@@ -33,15 +33,15 @@ public class SharedWorldObjectGameplayFunctions
 						MVGameControllerBase.Game.World.RuntimeEventManager.SendRuntimeEvent(explosionEvent);
 					}
 				}
-				float num = Vector3.Distance(collider.GetComponent<Collider>().ClosestPointOnBounds(position), position);
-				if (num <= damageRadius)
+				float num2 = Vector3.Distance(collider.ClosestPointOnBounds(position), position);
+				if (num2 <= damageRadius)
 				{
 					InteractionDataHandlerBase interactionDataHandlerBase = mVObject.InteractionDataHandlerBase;
 					if (!(interactionDataHandlerBase == null))
 					{
-						float num2 = 1f - num / damageRadius;
-						float damage = damageValue * num2;
-						Vector3 impulse = (mVObject.GameObject.transform.position - position).normalized * num2 * shockwaveAcceleration;
+						float num3 = 1f - num2 / damageRadius;
+						float damage = damageValue * num3;
+						Vector3 impulse = (mVObject.GameObject.transform.position - position).normalized * num3 * shockwaveAcceleration;
 						InteractionData interaction = ProximityDamageAndImpulse.Create(damage, impulse, PlayerKilledByType.Explosive);
 						interactionDataHandlerBase.HandleInteraction(interaction, local);
 					}

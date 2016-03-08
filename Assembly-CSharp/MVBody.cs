@@ -316,7 +316,6 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 			{
 				collider.enabled = false;
 			}
-			Debug.Log("Attached accessory");
 			acc.Transform.SetLayerRecursively(gameObject.layer);
 			acc.Visible = Visible;
 			bool flag = MVGameControllerBase.GameMode != MVGameMode.CharacterEditor || attachedAvatar == null;
@@ -409,7 +408,6 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 
 	public void Detach()
 	{
-		Debug.Log("Detaching body " + id);
 		animation.Detach();
 		if (blinker != null)
 		{
@@ -420,7 +418,6 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 
 	public IEnumerable<AvatarAccessory> GetAccessories(AvatarAccessorySlot slot)
 	{
-		Debug.Log("IEnumerable<AvatarAccessory> GetAccessories(AvatarAccessorySlot slot)");
 		return accessoryMap.Values.Where((AvatarAccessory a) => a.Slot == slot);
 	}
 
@@ -436,7 +433,6 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 
 	public int GetAccessoryID(AvatarAccessorySlot slot)
 	{
-		Debug.Log("int GetAccessoryID(AvatarAccessorySlot slot)");
 		if (!AnyAccessoryInSlot(slot))
 		{
 			return -1;
@@ -468,7 +464,6 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		{
 			return accessoryMap[inventoryID].Slot;
 		}
-		Debug.LogError("Accessory with inventory ID " + inventoryID + " is not attached");
 		return AvatarAccessorySlot.Undefined;
 	}
 
@@ -497,7 +492,6 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 
 	public void DestroyAccessory(AvatarAccessory acc, bool calledFromDestroy = false)
 	{
-		Debug.Log("Destroying accessories");
 		DetachAccessory(acc, calledFromDestroy);
 		UnityEngine.Object.Destroy(acc.gameObject);
 	}
@@ -547,13 +541,11 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 			Material[] sharedMaterials = meshRenderer.sharedMaterials;
 			foreach (Material material in sharedMaterials)
 			{
-				if (material == null)
+				if (!(material == null))
 				{
-					Debug.Log("MeshRendererer.GameObjectName " + meshRenderer.gameObject.name);
-					continue;
+					Material item = new Material(material);
+					list.Add(item);
 				}
-				Material item = new Material(material);
-				list.Add(item);
 			}
 			meshRenderer.materials = list.ToArray();
 		}
@@ -679,7 +671,6 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		}
 		if (0 < list.Count)
 		{
-			Debug.Log("Body " + id + " removing accessories missing in bpData: " + list.BuildString(eachEntryNewLine: false));
 			list.ForEach((AvatarAccessory a) =>
 			{
 				DestroyAccessory(a);
@@ -694,7 +685,6 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		{
 			if (AccessoryShouldBeSelecable(item.Value))
 			{
-				Debug.Log("Trying to make accessory selectable");
 				MakeAccessorySelectable(item.Value, item.Value.Slot);
 			}
 		}
@@ -704,14 +694,6 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 	{
 		if (!(accessory == null))
 		{
-			if (accessory.ExpirationInfo != null)
-			{
-				Debug.Log("Body " + id + " loaded acccessory: " + accessory.InventoryID + " expiring at " + accessory.ExpirationInfo.RentExpireTime);
-			}
-			else
-			{
-				Debug.Log("Body " + id + " loaded acccessory: " + accessory.InventoryID + " NOT expiring");
-			}
 			AvatatAccessoryPos avatatAccessoryPos = pendingAccessoryPositions[accessory.InventoryID];
 			pendingAccessoryPositions.Remove(accessory.InventoryID);
 			if (AttachAccessory(accessory, avatatAccessoryPos.Slot, avatatAccessoryPos.Offset) && AccessoryShouldBeSelecable(accessory))

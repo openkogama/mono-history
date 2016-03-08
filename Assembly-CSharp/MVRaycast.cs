@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using MV.WorldObject;
 using UnityEngine;
 
@@ -104,9 +103,9 @@ public static class MVRaycast
 		{
 			foundWos.Clear();
 		}
-		RaycastHit[] source = Physics.RaycastAll(ray, distance, layerMask);
-		Collider[] overlapResult = Physics.OverlapSphere(ray.origin, 0f, layerMask);
-		PhysicsCollisionDatasWrapper physicsCollisionData = SharedCollisionFunctions.GetPhysicsCollisionData(overlapResult, source.ToArray(), ray.origin);
+		int hitAmount = Physics.RaycastNonAlloc(ray, CollisionDetectionGlobalBuffers.rayHitBuffer, distance, layerMask);
+		int overlapAmount = Physics.OverlapSphereNonAlloc(ray.origin, 0f, CollisionDetectionGlobalBuffers.colliderBuffer, layerMask);
+		PhysicsCollisionDatasWrapper physicsCollisionData = SharedCollisionFunctions.GetPhysicsCollisionData(overlapAmount, CollisionDetectionGlobalBuffers.colliderBuffer, hitAmount, CollisionDetectionGlobalBuffers.rayHitBuffer, ray.origin);
 		for (int i = 0; i < physicsCollisionData.Length; i++)
 		{
 			MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(physicsCollisionData[i].transform);

@@ -50,11 +50,10 @@ public class MutantModifier : AvatarModifier
 		}
 		MVAvatarLocal mVAvatarLocal = (MVAvatarLocal)owner.mvAvatar;
 		float colliderRadius = mVAvatarLocal.GetColliderRadius();
-		Collider[] array = Physics.OverlapSphere(owner.transform.position, colliderRadius * 2f, layerMask);
-		Collider[] array2 = array;
-		foreach (Collider collider in array2)
+		int num = Physics.OverlapSphereNonAlloc(owner.transform.position, colliderRadius * 2f, CollisionDetectionGlobalBuffers.colliderBuffer, layerMask);
+		for (int i = 0; i < num; i++)
 		{
-			Avatar component = collider.GetComponent<Avatar>();
+			Avatar component = CollisionDetectionGlobalBuffers.colliderBuffer[i].GetComponent<Avatar>();
 			if (!(component == owner) && !(component == null))
 			{
 				InteractionDataHandlerBase interactionDataHandlerBase = component.InteractionDataHandlerBase;

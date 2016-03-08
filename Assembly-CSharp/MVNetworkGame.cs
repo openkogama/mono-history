@@ -1089,12 +1089,12 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public List<CommonOverlapArg> GetWOIdsWithinRadius(float radius, Vector3 worldPos)
 	{
-		Collider[] array = Physics.OverlapSphere(worldPos, radius);
+		int num = Physics.OverlapSphereNonAlloc(worldPos, radius, CollisionDetectionGlobalBuffers.colliderBuffer);
 		List<CommonOverlapArg> list = new List<CommonOverlapArg>();
 		HashSet<int> hashSet = new HashSet<int>();
-		for (int i = 0; i < array.Length; i++)
+		for (int i = 0; i < num; i++)
 		{
-			MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(array[i].transform);
+			MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(CollisionDetectionGlobalBuffers.colliderBuffer[i].transform);
 			if (mVObject is MVCubeModelBase)
 			{
 				CommonOverlapArg item = new CommonOverlapArg(mVObject);
