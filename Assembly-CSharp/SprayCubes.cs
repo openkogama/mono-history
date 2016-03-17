@@ -37,7 +37,7 @@ internal class SprayCubes : CubeModelTool
 			else
 			{
 				Vector3 hit = default;
-				if (MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController.IsDrawPlaneActive && MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController.Pick(ref hit) && MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController.GetCubePosOnDrawplane(e.TargetCubeModel.GameObject, out var intVectorHitPosition) && e.CanAddCubeAt(intVectorHitPosition))
+				if (DrawPlane.IsDrawPlaneActive && DrawPlane.Pick(ref hit) && DrawPlane.GetCubePosOnDrawplane(e.TargetCubeModel.GameObject, out var intVectorHitPosition) && e.CanAddCubeAt(intVectorHitPosition))
 				{
 					e.HandleAudio(intVectorHitPosition, AudioActions.CubeAdded);
 					e.TargetCubeModel.AddCube(intVectorHitPosition, new Cube(CubeDataPacker.CornersToByteArray(CubeBase.IdentityCorners), Cube.CreateMaterialArray(e.CurrentMaterialId)));

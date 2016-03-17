@@ -87,7 +87,7 @@ internal class EditCubes2D : CubeModelTool
 					break;
 				}
 			}
-			else if (MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelect) && MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController.IsDrawPlaneActive)
+			else if (MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelect) && DrawPlane.IsDrawPlaneActive)
 			{
 				currentInternalState = BuildState.PaintCubes;
 				break;
@@ -106,7 +106,7 @@ internal class EditCubes2D : CubeModelTool
 		case BuildState.PaintCubes:
 			if (!MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
 			{
-				if (!MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController.GetCubePosOnDrawplane(e.TargetCubeModel.GameObject, out var intVectorHitPosition) || !e.CanAddCubeAt(intVectorHitPosition))
+				if (!DrawPlane.GetCubePosOnDrawplane(e.TargetCubeModel.GameObject, out var intVectorHitPosition) || !e.CanAddCubeAt(intVectorHitPosition))
 				{
 					break;
 				}

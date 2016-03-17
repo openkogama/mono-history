@@ -84,7 +84,7 @@ public class PickupGUI
 	private void OnUnequipItem(PickupItem item)
 	{
 		canBeVisible = false;
-		UpdateCrossHairVisibility();
+		crossHair.Visible = false;
 		ShowEquipableUI = false;
 	}
 }

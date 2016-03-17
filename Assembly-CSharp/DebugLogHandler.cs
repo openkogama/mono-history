@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MV.Common;
 using UnityEngine;
 
 public static class DebugLogHandler
@@ -45,8 +46,7 @@ public static class DebugLogHandler
 		{
 			try
 			{
-				UXDialogFactory uXDialogFactory = UXUtils.UXDialogFactory;
-				uXDialogFactory.BuildDialog(stackTrace, type.ToString(), UXDialogType.Simple, noButtons: false, stackDialog: true).Show();
+				MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, type.ToString() + ": " + stackTrace);
 			}
 			catch
 			{

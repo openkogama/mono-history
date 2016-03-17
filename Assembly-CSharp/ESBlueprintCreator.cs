@@ -123,7 +123,7 @@ internal class ESBlueprintCreator : ESStateBase
 	{
 		List<MVWorldObjectClient> woList = lockList.Select((int woId) => MVGameControllerBase.WOCM.GetWorldObjectClient(woId)).ToList();
 		Bounds bounds = MVGroup.ComputeBoundsForWOs(woList, BoundsContext.Default);
-		float gridSize = ((!MVGameControllerLegacyUI.EditorController.IsGridSnap()) ? 0.0625f : 1f);
+		float gridSize = ((!MVGameControllerBase.IEditModeUI.IsGridSnap()) ? 0.0625f : 1f);
 		Vector3 closestGridPoint = SharedCubeFunctions.GetClosestGridPoint(bounds.center, Quaternion.identity, gridSize, Vector3.one);
 		World world = MVGameControllerBase.Game.World;
 		world.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Remove(world.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(WOCM_InitializedGameQueryData));

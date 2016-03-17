@@ -64,9 +64,11 @@ public class ModelCursor
 		if (buildState == BuildState.PaintCubes)
 		{
 			Vector3 hit = default;
-			MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController.Pick(ref hit);
-			MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ActivateLaserForDuration(addCubeLaserOnTime);
-			MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.UpdatePosition(hit);
+			if (DrawPlane.Pick(ref hit))
+			{
+				MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ActivateLaserForDuration(addCubeLaserOnTime);
+				MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.UpdatePosition(hit);
+			}
 		}
 		else if (movingEdgeCube != null)
 		{

@@ -1,0 +1,221 @@
+using System;
+using MV.Common;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.Events;
+
+public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IEventSystemHandler, ILeaveEditPlayModeHandler, IActivateUIElement
+{
+	private ILockCursorManager lockCursorManager;
+
+	[SerializeField]
+	private UIStack uiStack;
+
+	[SerializeField]
+	private TeamMenu teamMenu;
+
+	[SerializeField]
+	private DesktopInGameGUIController inGameController;
+
+	[SerializeField]
+	private RectTransform lobbyState;
+
+	[SerializeField]
+	private RectTransform playerListButton;
+
+	[SerializeField]
+	private GameObject stackBottom;
+
+	[SerializeField]
+	private ChatControllerUGUI chatController;
+
+	[SerializeField]
+	private AccessoryShopController accessoryShopController;
+
+	[SerializeField]
+	private LevelBadge levelBadge;
+
+	public UnityAction OnLeaveEditPlayMode;
+
+	public ILockCursorManager LockCursorManager => lockCursorManager;
+
+	public bool InLobbyState
+	{
+		get
+		{
+			return !lockCursorManager.LockCursor;
+		}
+		set
+		{
+			lockCursorManager.LockCursor = !value;
+		}
+	}
+
+	private void Awake()
+	{
+		uiStack.Push(stackBottom);
+		CreateGUI();
+		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
+		{
+			lockCursorManager = gameObject.AddComponent<LockCursorManager2DMode>();
+		}
+		else
+		{
+			lockCursorManager = gameObject.AddComponent<LockCursorManager3DMode>();
+		}
+		MVGameControllerDesktop.RegisterPlayModeController(this);
+	}
+
+	private void Start()
+	{
+		RegisterHotkeys();
+	}
+
+	private void Update()
+	{
+		HandleFpsShortcut();
+		HandleInput();
+	}
+
+	private void HandleInput()
+	{
+		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.LobbyMenu))
+		{
+			lockCursorManager.LockCursor = false;
+		}
+		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.ToggleHD) && uiStack.IsStackEmpty())
+		{
+			ToggleHD();
+		}
+		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.ToggleFullScreen))
+		{
+			ToggleFullscreen();
+		}
+		if (MVGameControllerBase.IEditModeUI != null && MVInputWrapper.GetBooleanControlUp(KogamaControls.ToggleLogicRendering))
+		{
+			ToggleLogicVisibility();
+		}
+		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.TogglePlayerParticles))
+		{
+			MVBody body = MVGameControllerBase.WOCM.AvatarLocal.Body;
+			body.AccessoryParticlesVisible = !body.AccessoryParticlesVisible;
+		}
+	}
+
+	private void RegisterHotkeys()
+	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IShortcutKeyRegister x, BaseEventData y) =>
+		{
+			x.RegisterShortcutKey(KogamaControls.Respawn, KeyState.Up, Respawn);
+		});
+	}
+
+	private void Respawn()
+	{
+		if (MVGameControllerBase.WOCM.AvatarLocal != null)
+		{
+			MVGameControllerBase.WOCM.AvatarLocal.Respawn();
+		}
+	}
+
+	public override void Initialize()
+	{
+		base.Initialize();
+		lobbyState = UnityEngine.Object.Instantiate(lobbyState);
+		lobbyState.SetParent(stackBottom.transform, worldPositionStays: false);
+		if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
+		{
+			MVInputWrapper.SetInputMap(new DesktopPlayMode());
+		}
+		else if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
+		{
+			MVInputWrapper.SetInputMap(new Desktop2DPlayMode());
+		}
+		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1 && MVGameControllerBase.GameMode == MVGameMode.Play)
+		{
+			TeamMenu newTeamMenu = UnityEngine.Object.Instantiate(teamMenu);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
+			{
+				handler.PopGroups(UIGroupFlags.InventoryUI | UIGroupFlags.InventoryUISubMenu);
+			});
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(newTeamMenu.gameObject, UIPushOption.Blocking | UIPushOption.HideAll, null, UIGroupFlags.InventoryUI);
+			});
+		}
+		accessoryShopController.Initialize();
+		chatController.Initialize();
+		playerListButton.gameObject.SetActive(value: true);
+		MVGameControllerBase.WOCM.AvatarLocal.Body.AccessoryMoveOverride = true;
+		ILockCursorManager lockCursorManager = this.lockCursorManager;
+		lockCursorManager.OnCursorLockChanged = (Action<bool>)Delegate.Combine(lockCursorManager.OnCursorLockChanged, new Action<bool>(LobbyStateChange));
+	}
+
+	private void ToggleLogicVisibility()
+	{
+		MVGameControllerBase.CameraController.IsLogicRendered = !MVGameControllerBase.CameraController.IsLogicRendered;
+	}
+
+	private void ToggleHD()
+	{
+		int currentLevel = ((MVQualitySettings.CurrentLevel == 0) ? 1 : 0);
+		MVQualitySettings.CurrentLevel = currentLevel;
+	}
+
+	private void ToggleFullscreen()
+	{
+		FullScreenController.FullScreen = !FullScreenController.FullScreen;
+	}
+
+	private void CreateGUI()
+	{
+		chatController = UnityEngine.Object.Instantiate(chatController);
+		chatController.transform.SetParent(stackBottom.transform, worldPositionStays: false);
+		chatController.SubscribeToMessages();
+		inGameController = UnityEngine.Object.Instantiate(inGameController);
+		inGameController.Initialize();
+		inGameController.transform.SetParent(stackBottom.transform, worldPositionStays: false);
+		playerListButton = UnityEngine.Object.Instantiate(playerListButton);
+		playerListButton.transform.SetParent(stackBottom.transform, worldPositionStays: false);
+		levelBadge = UnityEngine.Object.Instantiate(levelBadge);
+		levelBadge.transform.SetParent(stackBottom.transform, worldPositionStays: false);
+	}
+
+	private void LobbyStateChange(bool cursorLocked)
+	{
+		lobbyState.gameObject.SetActive(!cursorLocked);
+		inGameController.gameObject.SetActive(cursorLocked);
+		chatController.OnLobbyStateChange(cursorLocked);
+	}
+
+	public void ShowEUseIcon(ShowUseOption option, int woID = 0)
+	{
+		inGameController.ShowEUseIcon(option, woID);
+	}
+
+	public void HideEUseIcon()
+	{
+		inGameController.HideEUseIcon();
+	}
+
+	public IGUICrossHair GetCrossHair()
+	{
+		return inGameController.GetCrossHair();
+	}
+
+	public void Activate(ActivateUIElement element)
+	{
+		if (element == ActivateUIElement.AvatarAccessoryShop)
+		{
+			accessoryShopController.Activate(UIPushOption.HideAll);
+		}
+	}
+
+	public void LeaveEditPlayMode()
+	{
+		if (OnLeaveEditPlayMode != null)
+		{
+			OnLeaveEditPlayMode();
+		}
+	}
+}

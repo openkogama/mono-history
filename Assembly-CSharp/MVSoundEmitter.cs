@@ -19,7 +19,7 @@ public class MVSoundEmitter : MVLogicObject
 	public MVSoundEmitter(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVSoundEmitterPrefab, worldObjects)
 	{
-		interactionFlags |= InteractionFlags.HasSettings;
+		interactionFlags |= InteractionFlags.HasSettings | InteractionFlags.Sounds;
 	}
 
 	public override void Initialize()

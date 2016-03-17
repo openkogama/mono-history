@@ -6,5 +6,6 @@ public enum MVTeam
 	Red,
 	Green,
 	Yellow,
-	Server
+	Server,
+	None
 }

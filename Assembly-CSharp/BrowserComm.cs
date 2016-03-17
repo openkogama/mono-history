@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using MV.Common;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -19,26 +18,26 @@ public class BrowserComm : MonoBehaviour
 		{
 			if (callbackId == -1)
 			{
-				UnityEngine.Debug.LogError("package does not contain callbackId");
+				Debug.LogError("package does not contain callbackId");
 				return false;
 			}
 			if (string.IsNullOrEmpty(data) && string.IsNullOrEmpty(error))
 			{
-				UnityEngine.Debug.LogError("package does not contain data or error");
+				Debug.LogError("package does not contain data or error");
 				return false;
 			}
 			if (!string.IsNullOrEmpty(data) && !string.IsNullOrEmpty(error))
 			{
-				UnityEngine.Debug.LogError("package contains both data and error. These are mutually exclusive");
+				Debug.LogError("package contains both data and error. These are mutually exclusive");
 			}
 			if (!string.IsNullOrEmpty(error))
 			{
-				UnityEngine.Debug.LogError("JavaScript externalCall error: " + error);
+				Debug.LogError("JavaScript externalCall error: " + error);
 				return false;
 			}
 			if (string.IsNullOrEmpty(data))
 			{
-				UnityEngine.Debug.LogError("package does not contain data");
+				Debug.LogError("package does not contain data");
 				return false;
 			}
 			return true;
@@ -120,7 +119,7 @@ public class BrowserComm : MonoBehaviour
 	{
 		if (enableBrowserRequest)
 		{
-			Process.Start(browserRequest);
+			Application.OpenURL(browserRequest);
 		}
 	}
 
@@ -134,7 +133,8 @@ public class BrowserComm : MonoBehaviour
 
 	public void PublishPlanetFromWeb()
 	{
-		MVGameControllerBase.Game.PublishPlanet();
+		string errorText = string.Empty;
+		MVGameControllerBase.Game.PublishPlanet(ref errorText);
 	}
 
 	public void GiveBrowserInfo(string browserinfo)
@@ -149,7 +149,7 @@ public class BrowserComm : MonoBehaviour
 		JsonReturnData jsonReturnData = JsonConvert.DeserializeObject<JsonReturnData>(jsonData);
 		if (!callbacks.ContainsKey(jsonReturnData.callbackId))
 		{
-			UnityEngine.Debug.LogWarning("No callback function with callbackId " + jsonReturnData.callbackId);
+			Debug.LogWarning("No callback function with callbackId " + jsonReturnData.callbackId);
 			return;
 		}
 		Callback callback = callbacks[jsonReturnData.callbackId];
@@ -166,6 +166,6 @@ public class BrowserComm : MonoBehaviour
 
 	public void Exit()
 	{
-		UnityEngine.Debug.LogWarning("This does nothing remove from web");
+		Debug.LogWarning("This does nothing remove from web");
 	}
 }

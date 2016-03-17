@@ -34,6 +34,7 @@ public class MVWaterPlane : MVLogicObject
 		gameObject.transform.localScale = Vector3.one;
 		waterManager = Object.FindObjectOfType(typeof(WaterPlaneManager)) as WaterPlaneManager;
 		interactionFlags |= InteractionFlags.HasSettings;
+		interactionFlags &= ~InteractionFlags.CanClone;
 	}
 
 	public override bool IsSingletonObject()
@@ -48,11 +49,6 @@ public class MVWaterPlane : MVLogicObject
 	public override Bounds GetLocalBounds(BoundsContext boundsContext)
 	{
 		return localBounds;
-	}
-
-	public override void CheckCanInsert(MVGUIInventoryGroup.CanInsertDelegate canInsert)
-	{
-		canInsert(canInsert: true);
 	}
 
 	public override void Initialize()

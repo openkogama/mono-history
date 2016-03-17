@@ -5,8 +5,6 @@ internal class ESTerrainEdit : ESStateBase
 {
 	private MVCubeModelPrototypeTerrain terrain;
 
-	private bool drawPlaneIsActive;
-
 	public override void Enter(EditorStateMachine e)
 	{
 		MVMaterialRepository.AllowDestructibleMaterialSelection = true;
@@ -16,10 +14,6 @@ internal class ESTerrainEdit : ESStateBase
 		}
 		terrain = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>();
 		e.CubeModelingStateMachine.StartEdit(terrain);
-		if (drawPlaneIsActive != MVGameControllerLegacyUI.EditorController.DrawPlaneController.IsDrawPlaneActive)
-		{
-			MVGameControllerLegacyUI.EditorController.ToggleDrawPlane();
-		}
 		tintedWo = null;
 	}
 
@@ -27,7 +21,7 @@ internal class ESTerrainEdit : ESStateBase
 	{
 		base.Execute(e);
 		VoxelHit hit = default;
-		bool flag = MVGameControllerLegacyUI.Pick(ref hit);
+		bool flag = EditModeObjectPicker.Pick(ref hit);
 		if (flag && (hit.woId == terrain.Id || hit.woId == -1))
 		{
 			flag = false;
@@ -48,13 +42,13 @@ internal class ESTerrainEdit : ESStateBase
 			{
 				e.CubeModelingStateMachine.CursorVisible = false;
 			}
-			if (!MVGameControllerLegacyUI.EditorController.IsLogicRendered() || !MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelectAlt))
+			if (!MVGameControllerBase.CameraController.IsLogicRendered || !MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelectAlt))
 			{
 				return;
 			}
 			VoxelHit hit2 = default;
 			float num = float.PositiveInfinity;
-			if (MVGameControllerLegacyUI.Pick(ref hit2))
+			if (EditModeObjectPicker.Pick(ref hit2))
 			{
 				num = hit2.distance;
 			}
@@ -103,6 +97,5 @@ internal class ESTerrainEdit : ESStateBase
 		e.CubeModelingStateMachine.RemoveCursors();
 		e.CubeModelingStateMachine.EndEdit();
 		terrain = null;
-		drawPlaneIsActive = MVGameControllerLegacyUI.EditorController.DrawPlaneController.IsDrawPlaneActive;
 	}
 }

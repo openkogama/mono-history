@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class LevelLoader : MonoBehaviour
 {
@@ -9,27 +10,27 @@ public class LevelLoader : MonoBehaviour
 	{
 		{
 			ScenesForMode.PlayMode,
-			new string[2] { "PlayModeBaseGUI", "PlayModeGUI" }
+			new string[1] { "DesktopPlayModeGUI" }
 		},
 		{
 			ScenesForMode.PlayMode2D,
-			new string[2] { "PlayModeBaseGUI", "PlayModeGUI" }
+			new string[1] { "DesktopPlayModeGUI" }
 		},
 		{
 			ScenesForMode.PlayModeTourist,
-			new string[2] { "PlayModeBaseGUI", "PlayModeTouristGUI" }
+			new string[1] { "DesktopPlayModeGUI" }
 		},
 		{
 			ScenesForMode.PlayModeTourist2D,
-			new string[2] { "PlayModeBaseGUI", "PlayModeTouristGUI" }
+			new string[1] { "DesktopPlayModeGUI" }
 		},
 		{
 			ScenesForMode.EditMode,
-			new string[3] { "EditModeGUI", "PlayModeBaseGUI", "PlayModeGUI" }
+			new string[2] { "DesktopEditModeGUI", "DesktopPlayModeGUI" }
 		},
 		{
 			ScenesForMode.AvatarEditMode,
-			new string[1] { "AvatarEditModeGUI" }
+			new string[1] { "DesktopAvatarEditModeGUI" }
 		}
 	};
 
@@ -76,7 +77,7 @@ public class LevelLoader : MonoBehaviour
 		string[] array = scenesForModeMap[mode];
 		for (int i = 0; i < array.Length; i++)
 		{
-			Application.LoadLevelAdditive(array[i]);
+			SceneManager.LoadScene(array[i], LoadSceneMode.Additive);
 		}
 		callback();
 	}

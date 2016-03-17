@@ -5,13 +5,13 @@ public class AllCollectiblesCollectedClient : AllCollectiblesCollected, IWinning
 	{
 	}
 
-	public void GetBriefing(MVGUIWinningConditionBriefingView winningConditionBriefingView)
+	public void GetBriefing(IBriefing winningConditionBriefingView)
 	{
-		winningConditionBriefingView.AddBriefing("Collectible", Limit);
+		winningConditionBriefingView.AddBriefing(WinningConditionType.Collectible, Limit);
 	}
 
-	public void GetDebriefing(MVGUIWinningConditionDebriefingView winningConditionDebriefingView)
+	public void GetDebriefing(IDebriefing winningConditionDebriefingView)
 	{
-		winningConditionDebriefingView.SetupDebriefing("Collectible", HighScores, IsTeamMode);
+		winningConditionDebriefingView.SetupDebriefing(WinningConditionType.Collectible, HighScores, IsTeamMode);
 	}
 }

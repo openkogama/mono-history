@@ -5,13 +5,13 @@ public class KillLimitClient : KillLimit, IWinningConditionBriefing
 	{
 	}
 
-	public void GetBriefing(MVGUIWinningConditionBriefingView winningConditionBriefingView)
+	public void GetBriefing(IBriefing winningConditionBriefingView)
 	{
-		winningConditionBriefingView.AddBriefing("Kill", Limit);
+		winningConditionBriefingView.AddBriefing(WinningConditionType.Kill, Limit);
 	}
 
-	public void GetDebriefing(MVGUIWinningConditionDebriefingView winningConditionDebriefingView)
+	public void GetDebriefing(IDebriefing winningConditionDebriefingView)
 	{
-		winningConditionDebriefingView.SetupDebriefing("Kill", HighScores, IsTeamMode);
+		winningConditionDebriefingView.SetupDebriefing(WinningConditionType.Kill, HighScores, IsTeamMode);
 	}
 }

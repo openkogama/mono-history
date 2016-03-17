@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using UnityEngine;
 
 public class AvatarScreenShooter : MonoBehaviour
@@ -15,19 +14,21 @@ public class AvatarScreenShooter : MonoBehaviour
 
 	public Rect previewPosition = new Rect(220f, 208f, 200f, 200f);
 
-	private Action<Texture2D> callback;
+	private Action<Texture2D, string> callback;
 
-	public void TakeScreenShot(Action<Texture2D> callback, bool ignoreAccessories = false)
+	private string successMessage;
+
+	public void TakeScreenShot(Action<Texture2D, string> callback, MVBody body, bool ignoreAccessories = false, string successMessage = "Screenshot taken successfully!")
 	{
 		if (isMakingScreenShot)
 		{
 			return;
 		}
 		this.callback = callback;
-		EditorStateMachine editorStateMachine = MVGameControllerLegacyUI.CharacterEditorController.EditorStateMachine;
-		if (editorStateMachine.ParentGroup is MVBody mVBody)
+		this.successMessage = successMessage;
+		if (body != null)
 		{
-			bodyCloneGO = UnityEngine.Object.Instantiate(mVBody.GameObject);
+			bodyCloneGO = UnityEngine.Object.Instantiate(body.GameObject);
 			if (ignoreAccessories)
 			{
 				AvatarAccessory[] componentsInChildren = bodyCloneGO.GetComponentsInChildren<AvatarAccessory>();
@@ -47,21 +48,6 @@ public class AvatarScreenShooter : MonoBehaviour
 		UnityEngine.Object.Destroy(bodyCloneGO);
 		bodyCloneGO = null;
 		isMakingScreenShot = false;
-		callback(screenshotTex);
-	}
-
-	private void ShowScreenShot(Texture2D screenshotTex)
-	{
-	}
-
-	private void WriteToDisk(byte[] pngData)
-	{
-		string path = "C:\\dev\\Screenshots\\test.png";
-		FileStream fileStream = File.Create(path);
-		if (fileStream != null)
-		{
-			fileStream.Write(pngData, 0, pngData.Length);
-			fileStream.Close();
-		}
+		callback(screenshotTex, successMessage);
 	}
 }

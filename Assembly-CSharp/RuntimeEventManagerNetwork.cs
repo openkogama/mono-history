@@ -1,7 +1,6 @@
 using MV.Common;
 using MV.WorldObject;
 using MV.WorldObject.RuntimeEvents;
-using UnityEngine;
 
 public class RuntimeEventManagerNetwork : RuntimeEventManager
 {
@@ -14,7 +13,6 @@ public class RuntimeEventManagerNetwork : RuntimeEventManager
 	public void DeserializeRuntimeEvents(BytePacker bytePacker)
 	{
 		int num = bytePacker.ReadInt32();
-		float realtimeSinceStartup = Time.realtimeSinceStartup;
 		for (int i = 0; i < num; i++)
 		{
 			RuntimeEvent runtimeEvent = RuntimeEvent.Create(bytePacker);

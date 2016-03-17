@@ -9,5 +9,6 @@ public enum MVGameMsgType
 	CollectiblePickedUp,
 	AchievementUnlocked,
 	CheckpointReached,
-	Chat
+	Chat,
+	JoinFlowStatus
 }

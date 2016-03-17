@@ -32,12 +32,14 @@ public class SimpleVehicleHealthChangeVisualization : MonoBehaviour
 		if (newHealth < maxHealth && !ellipsoidParticleEmitter.emit)
 		{
 			ellipsoidParticleEmitter.emit = true;
-			fire.enableEmission = true;
+			ParticleSystem.EmissionModule emission = fire.emission;
+			emission.enabled = true;
 		}
 		if (newHealth == maxHealth && ellipsoidParticleEmitter.emit)
 		{
 			ellipsoidParticleEmitter.emit = false;
-			fire.enableEmission = false;
+			ParticleSystem.EmissionModule emission2 = fire.emission;
+			emission2.enabled = false;
 			return;
 		}
 		if (prevHealth > newHealth)

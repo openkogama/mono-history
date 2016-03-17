@@ -18,8 +18,6 @@ public class SentryGunScript : MonoBehaviour
 
 	public Material blinkDamageMaterial;
 
-	public GameObject explosionEffectPrefab;
-
 	public GameObject smokeEffect;
 
 	public Transform healthPivot;
@@ -54,7 +52,7 @@ public class SentryGunScript : MonoBehaviour
 
 	public void Explode()
 	{
-		Object.Instantiate(explosionEffectPrefab, transform.position, transform.rotation);
+		Object.Instantiate(PrefabPool.Instance.ParticleExplosion, transform.position, transform.rotation);
 	}
 
 	public void BlinkDamage()

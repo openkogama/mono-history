@@ -144,7 +144,7 @@ public class SelectionController : ISelectionController
 	public MVWorldObjectClient Select(bool addToSelection = false, bool showVisuals = true, int layerMask = -5)
 	{
 		VoxelHit hit = default;
-		if (!MVGameControllerLegacyUI.Pick(ref hit, null, layerMask))
+		if (!EditModeObjectPicker.Pick(ref hit, null, layerMask))
 		{
 			return null;
 		}

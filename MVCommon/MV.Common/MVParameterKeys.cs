@@ -189,7 +189,7 @@ public enum MVParameterKeys : byte
 	GameCoinBoosterEnabled = 184,
 	PublishLevel = 185,
 	Price = 186,
-	AssetBundleRootUrlWebGL = 187,
+	AssetBundleRootUrlDefault = 187,
 	ClientSentryTags = 188,
 	ClientBuildTarget = 189,
 	ItemInventoryOffset = 190,

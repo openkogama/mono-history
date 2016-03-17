@@ -81,7 +81,10 @@ public class Avatar : MonoBehaviour
 		component.transform.localPosition = Vector3.up;
 		component.transform.localRotation = Quaternion.identity;
 		component.transform.localScale = Vector3.one;
-		component.emissionRate = xpProgressData.XPDelta;
+		ParticleSystem.EmissionModule emission = component.emission;
+		ParticleSystem.MinMaxCurve rate = emission.rate;
+		rate.constantMax = xpProgressData.XPDelta;
+		emission.rate = rate;
 		component.Play();
 	}
 

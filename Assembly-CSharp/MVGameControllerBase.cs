@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 using MV.Common;
@@ -7,13 +8,15 @@ using UnityEngine;
 
 public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSubscriber
 {
+	public delegate void OnReceivedGameMsgDelegate(MVGameMsgType type, Dictionary<object, object> gameMsgData);
+
 	public delegate void OnPostGameInitDelegate();
 
 	private static bool quitHasBeenCalled;
 
 	private static int reAuthTestTries = 3;
 
-	private static CustomBuildSettings customBuildSettings;
+	protected static CustomBuildSettings customBuildSettings;
 
 	private static TimeReward timeReward;
 
@@ -33,10 +36,13 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	private MVCameraController cameraController;
 
 	[SerializeField]
+	private Styles styles;
+
+	[SerializeField]
 	private MaterialLoader materialLoader;
 
 	[SerializeField]
-	private PrefabPool prefabPool;
+	protected PrefabPool prefabPool;
 
 	private static MVGameControllerBase instance;
 
@@ -45,6 +51,8 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	protected static IPlayModeUI playModeUI;
 
 	protected static IEditModeUI editModeUI;
+
+	public static OnReceivedGameMsgDelegate OnReceivedGameMsg;
 
 	public static OnPostGameInitDelegate OnPostGameInit;
 
@@ -152,8 +160,25 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		}
 	}
 
+	public static void PostGameMsg(MVGameMsgType gameMsgType, Dictionary<object, object> gameMsgData)
+	{
+		if (OnReceivedGameMsg != null)
+		{
+			OnReceivedGameMsg(gameMsgType, gameMsgData);
+		}
+	}
+
+	public static void PostGameMsg(MVGameMsgType gameMsgType, string message)
+	{
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add((byte)5, message);
+		PostGameMsg(gameMsgType, dictionary);
+	}
+
 	private void Awake()
 	{
+		styles = UnityEngine.Object.Instantiate(styles);
+		styles.transform.parent = transform;
 		loadStats = new LoadStats();
 		loadStats.GameStartTime = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
 		instance = this;
@@ -172,13 +197,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		Application.runInBackground = true;
 	}
 
-	private void Start()
-	{
-		customBuildSettings = Resources.Load("Prefabs/CustomBuildSettings", typeof(CustomBuildSettings)) as CustomBuildSettings;
-		bool developmentMode = Application.isEditor || customBuildSettings.ShowLogin;
-		InitStandAlone(developmentMode);
-	}
-
 	private void Update()
 	{
 		UpdateController.Update();
@@ -189,7 +207,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		UpdateController.FixedUpdate();
 	}
 
-	private void LateUpdate()
+	protected virtual void LateUpdate()
 	{
 		if (isInitialized)
 		{
@@ -261,7 +279,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		MVGameControllerBase.gameSessionData = gameSessionData;
 	}
 
-	private void StartGame()
+	protected void StartGame()
 	{
 		StatHatWrapper.Count("MVGameControllerStartGame", 1);
 		Game = new MVNetworkGame();
@@ -269,13 +287,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		{
 			Debug.LogError("Failed to connect");
 		}
-	}
-
-	protected abstract void CreateInGameController();
-
-	public static void InitializeInGameController()
-	{
-		instance.CreateInGameController();
 	}
 
 	public static bool TryReauth()
@@ -400,7 +411,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		SetWindowPos(FindWindow(null, "KoGaMa"), 0, x, y, resX, resY, (resX * resY == 0) ? 1 : 0);
 	}
 
-	private void OnReceivedWebParametersFromHttpRequest(WWW www)
+	protected void OnReceivedWebParametersFromHttpRequest(WWW www)
 	{
 		string text = www.text;
 		Debug.Log(text);

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityStandardAssets.CrossPlatformInput;
 
 public class AccessoryMover
 {
@@ -29,7 +30,7 @@ public class AccessoryMover
 			{
 				didMoveAccessory = true;
 				float offset = selectionHelperAvatarAccessory.AvatarAccessory.Offset;
-				offset += MVInputWrapper.GetAxis("Mouse Y") * 0.01f;
+				offset += CrossPlatformInputManager.GetAxis("Mouse Y") * 0.01f;
 				selectionHelperAvatarAccessory.AvatarAccessory.Offset = Mathf.Clamp(offset, -0.8f, 0.2f);
 				body.ApplyAccessoryOffset(selectionHelperAvatarAccessory.AvatarAccessory, selectionHelperAvatarAccessory.Slot);
 				return true;
@@ -45,16 +46,19 @@ public class AccessoryMover
 
 	private AccessoryOffsetMouseWrapper accessoryOffsetMouseWrapper;
 
-	private MVGUIAvatarAccessoryMoveIcon avatarAccessoryMoveIcon;
+	private bool cursorSetToCustomTexture;
 
-	public MVGUIAvatarAccessoryMoveIcon MVGUIAvatarAccessoryMoveIcon => avatarAccessoryMoveIcon;
+	private Texture2D image;
 
-	public AccessoryMover()
+	public void Destroy()
 	{
-		GameObject gameObject = Object.Instantiate(PrefabPool.Instance.AvatarAccessoryMoveIcon);
-		gameObject.transform.localPosition = Vector3.zero;
-		avatarAccessoryMoveIcon = gameObject.GetComponent<MVGUIAvatarAccessoryMoveIcon>();
-		avatarAccessoryMoveIcon.SetVisible(visible: false);
+		Cursor.SetCursor(null, new Vector2(0f, 0f), CursorMode.Auto);
+		accessoryOffsetMouseWrapper = null;
+	}
+
+	public void Activate()
+	{
+		image = PrefabPool.Instance.AvatarAccessoryMoveIcon;
 	}
 
 	public bool MoveAccessory()
@@ -75,22 +79,34 @@ public class AccessoryMover
 			return result;
 		}
 		SelectionHelperAvatarAccessory selectionHelperAvatarAccessory = null;
-		if (PickSelectionHelperAvatarAccessory(out selectionHelperAvatarAccessory, out var raycastHit) && accessoryOffsetMouseWrapper == null && selectionHelperAvatarAccessory != null)
+		if (PickSelectionHelperAvatarAccessory(out selectionHelperAvatarAccessory, out var _) && selectionHelperAvatarAccessory != null)
 		{
-			avatarAccessoryMoveIcon.SetVisible(visible: true);
-			avatarAccessoryMoveIcon.WorldPosition = raycastHit.point;
-		}
-		else
-		{
-			avatarAccessoryMoveIcon.SetVisible(visible: false);
-		}
-		if (MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect) && accessoryOffsetMouseWrapper == null)
-		{
-			if (!(selectionHelperAvatarAccessory != null))
+			if (!cursorSetToCustomTexture)
 			{
-				return false;
+				Cursor.SetCursor(image, new Vector2(32f, 32f), CursorMode.Auto);
+				cursorSetToCustomTexture = true;
 			}
-			accessoryOffsetMouseWrapper = new AccessoryOffsetMouseWrapper(selectionHelperAvatarAccessory);
+		}
+		else if (cursorSetToCustomTexture)
+		{
+			cursorSetToCustomTexture = false;
+			Cursor.SetCursor(null, new Vector2(0f, 0f), CursorMode.Auto);
+		}
+		if (MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect))
+		{
+			if (accessoryOffsetMouseWrapper == null)
+			{
+				if (!(selectionHelperAvatarAccessory != null))
+				{
+					return false;
+				}
+				accessoryOffsetMouseWrapper = new AccessoryOffsetMouseWrapper(selectionHelperAvatarAccessory);
+			}
+			else if (!cursorSetToCustomTexture)
+			{
+				Cursor.SetCursor(image, new Vector2(32f, 32f), CursorMode.Auto);
+				cursorSetToCustomTexture = true;
+			}
 		}
 		if (accessoryOffsetMouseWrapper != null && accessoryOffsetMouseWrapper.Update())
 		{

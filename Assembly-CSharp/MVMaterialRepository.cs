@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
@@ -58,13 +57,9 @@ public class MVMaterialRepository
 		return false;
 	}
 
-	public void AddMaterial(string name, string description, string path, MaterialSound materialSound, AvatarModifierPackageType modifierPackageType, int priceGold, int priceSilver, bool isUnlocked, float[] physicalProperties, Type materialAnimatorType = null)
+	public void AddMaterial(string name, string description, string path, MaterialSound materialSound, AvatarModifierPackageType modifierPackageType, int priceGold, int priceSilver, bool isUnlocked, float[] physicalProperties, MaterialButtonTextureGenerator materialButtonTextureGenerator)
 	{
-		materials.Add(new MVMaterial(materials.Count, name, description, new PhysicalProperties(physicalProperties[0], physicalProperties[1], physicalProperties[2], physicalProperties[3], physicalProperties[4]), materialSound, modifierPackageType, priceGold, priceSilver, isUnlocked));
-	}
-
-	private void CreateMaterialAnimator(Material material, Type materialAnimatorType)
-	{
+		materials.Add(new MVMaterial(materials.Count, name, description, new PhysicalProperties(physicalProperties[0], physicalProperties[1], physicalProperties[2], physicalProperties[3], physicalProperties[4]), materialSound, modifierPackageType, priceGold, priceSilver, isUnlocked, materialButtonTextureGenerator));
 	}
 
 	public MVMaterial GetMaterial(byte materialId)

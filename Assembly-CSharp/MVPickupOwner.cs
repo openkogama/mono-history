@@ -120,10 +120,8 @@ public abstract class MVPickupOwner : MVComponent
 		Vector3 vector2;
 		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
 		{
-			MVGUICrossHairLegacy mVGUICrossHairLegacy = (MVGUICrossHairLegacy)MVGameControllerBase.IPlayModeUI.GetCrossHair();
-			mVGUICrossHairLegacy.HandleInput();
 			vector = ((!(CurrentItem == null)) ? CurrentItem.Origin : MVGameControllerBase.WOCM.AvatarLocal.LookAtPos);
-			vector2 = mVGUICrossHairLegacy.AvatarPlanePosition - vector;
+			vector2 = GetAvatarPlanePosition() - vector;
 		}
 		else
 		{
@@ -132,6 +130,16 @@ public abstract class MVPickupOwner : MVComponent
 		}
 		vector2 = GetLookDirectionWithAddedVelocityMagnitude(vector2.normalized);
 		SetLineOfFire(vector, vector2);
+	}
+
+	private Vector3 GetAvatarPlanePosition()
+	{
+		Ray ray = MVGameControllerBase.CameraController.MainCamera.ScreenPointToRay(Input.mousePosition);
+		if (new Plane(Vector3.back, MVGameControllerBase.WOCM.AvatarLocal.LookAtPos).Raycast(ray, out var enter))
+		{
+			return ray.GetPoint(enter);
+		}
+		return Vector3.zero;
 	}
 
 	private void UpdateCurrentItem(Dictionary<object, object> newState)

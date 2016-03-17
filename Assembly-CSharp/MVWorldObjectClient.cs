@@ -826,11 +826,6 @@ public class MVWorldObjectClient : MVWorldObject
 		Selected = false;
 	}
 
-	public virtual void CheckCanInsert(MVGUIInventoryGroup.CanInsertDelegate canInsert)
-	{
-		canInsert?.Invoke(canInsert: true);
-	}
-
 	public virtual void AddPreviewBox()
 	{
 		PreviewBox previewBox = this.gameObject.GetComponentInChildren<PreviewBox>();

@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class AvatarBadge : MonoBehaviour
 {
@@ -78,7 +79,7 @@ public class AvatarBadge : MonoBehaviour
 
 	private void ScaleAnimationIntermediateCallback(float extraTime)
 	{
-		if (Application.loadedLevelName != "GUIDevScene")
+		if (SceneManager.GetActiveScene().name != "GUIDevScene")
 		{
 			badgeRenderer.material.mainTexture = texture;
 			texture = null;

@@ -1127,7 +1127,8 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 	private void ResetAvatar()
 	{
 		triggerHandler.enabled = true;
-		if (!MVGameControllerBase.Game.TeamManager.IsTeamActive(MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(OwnerActorNr)))
+		int localPlayerActorNumber = MVGameControllerBase.Game.LocalPlayerActorNumber;
+		if (!MVGameControllerBase.Game.TeamManager.IsTeamActive(MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(localPlayerActorNumber)))
 		{
 			List<MVTeam> teamList = MVGameControllerBase.Game.TeamManager.GetTeamList();
 			MVGameControllerBase.Game.SetTeam(teamList[0]);

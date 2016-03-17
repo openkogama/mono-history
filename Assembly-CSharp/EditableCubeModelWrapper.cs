@@ -1,4 +1,5 @@
 using MV.WorldObject;
+using UnityEngine;
 
 public class EditableCubeModelWrapper
 {
@@ -20,6 +21,7 @@ public class EditableCubeModelWrapper
 
 	public virtual bool OnEnterObject(EditorStateMachine e)
 	{
+		Debug.Log(e);
 		MVGameControllerBase.CameraController.CurCamera.FocusOnObject(cubeModelBase);
 		e.SelectWO(cubeModelBase.Id, addToSelection: false);
 		e.Event = EditorEvent.EditCubes;

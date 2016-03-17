@@ -340,14 +340,7 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 	{
 		if (woDestroyedEventSubscribers.TryGetValue(woID, out var value))
 		{
-			Delegate[] invocationList = value.GetInvocationList();
-			for (int i = 0; i < invocationList.Length; i++)
-			{
-				Action<object, WorldObjectDestroyedEventArgs> action = (Action<object, WorldObjectDestroyedEventArgs>)invocationList[i];
-				WorldObjectDestroyedEventArgs arg = new WorldObjectDestroyedEventArgs(woID);
-				action(this, arg);
-				value = (Action<object, WorldObjectDestroyedEventArgs>)Delegate.Remove(value, action);
-			}
+			value(this, new WorldObjectDestroyedEventArgs(woID));
 			woDestroyedEventSubscribers.Remove(woID);
 		}
 	}

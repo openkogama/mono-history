@@ -60,7 +60,7 @@ public class PickupItemSword : PickupItemWithDelay
 	private IEnumerator DoOverlapCheck()
 	{
 		checkingOverlaps = true;
-		HashSet<MVWorldObjectClient> hitWos = new HashSet<MVWorldObjectClient>();
+		HashSet<int> hitWos = new HashSet<int>();
 		while (checkingOverlaps)
 		{
 			int numOverlaps = Physics.OverlapSphereNonAlloc(muzzlePoint.position, pushRadius, CollisionDetectionGlobalBuffers.colliderBuffer);
@@ -69,7 +69,7 @@ public class PickupItemSword : PickupItemWithDelay
 				MVWorldObjectClient wo = MVWorldObjectClientManager.GetMVObject(CollisionDetectionGlobalBuffers.colliderBuffer[i].transform);
 				if (wo != null && !owner.IgnoreWOIDs.Contains(wo.Id))
 				{
-					hitWos.Add(wo);
+					hitWos.Add(wo.Id);
 				}
 			}
 			yield return 0;
@@ -78,9 +78,14 @@ public class PickupItemSword : PickupItemWithDelay
 		dir.y = 0.02f;
 		dir.Normalize();
 		bool hitOpponent = false;
-		foreach (MVWorldObjectClient wo2 in hitWos)
+		foreach (int woId in hitWos)
 		{
-			if (wo2.Id != owner.WorldObjectOwner.Id)
+			if (woId == owner.WorldObjectOwner.Id)
+			{
+				continue;
+			}
+			MVWorldObjectClient wo2 = MVGameControllerBase.WOCM.GetWorldObjectClient(woId);
+			if (wo2 != null)
 			{
 				InteractionDataHandlerBase interactionHandler = wo2.InteractionDataHandlerBase;
 				if (interactionHandler != null)

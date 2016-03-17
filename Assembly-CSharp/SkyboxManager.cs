@@ -62,7 +62,6 @@ public class SkyboxManager : MonoBehaviour
 			SetColor(targetColor, targetSunAngle, targetFogDensity);
 			initialized = true;
 		}));
-		UnityEngine.Object.DontDestroyOnLoad(gameObject);
 	}
 
 	private IEnumerator DoAnimate()

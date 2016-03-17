@@ -8,17 +8,22 @@ public class MVItemBusinessLogic
 
 	public void AddItem(MVItem item)
 	{
-		if (items.ContainsKey(item.itemID))
+		AddItemWithNoData(item.itemID, item.resellable, item.itemCategoryID, item.itemTypeID, item.name);
+	}
+
+	public void AddItemWithNoData(int itemID, bool resellable, int itemCategoryID, int itemTypeID, string name)
+	{
+		if (items.ContainsKey(itemID))
 		{
 			Debug.LogWarning("Item already added to business logic. Will be overwritten!");
 			return;
 		}
 		MVItem mVItem = new MVItem();
-		mVItem.itemID = item.itemID;
-		mVItem.resellable = item.resellable;
-		mVItem.itemCategoryID = item.itemCategoryID;
-		mVItem.itemTypeID = item.itemTypeID;
-		mVItem.name = item.name;
+		mVItem.itemID = itemID;
+		mVItem.resellable = resellable;
+		mVItem.itemCategoryID = itemCategoryID;
+		mVItem.itemTypeID = itemTypeID;
+		mVItem.name = name;
 		items[mVItem.itemID] = mVItem;
 	}
 

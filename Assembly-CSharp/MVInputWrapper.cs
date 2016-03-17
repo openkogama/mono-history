@@ -5,9 +5,11 @@ using UnityStandardAssets.CrossPlatformInput;
 
 internal static class MVInputWrapper
 {
-	public static bool ignoreInGameInput = false;
+	private static int inputSuppressedFrame = 0;
 
-	public static bool ignoreAllKeys = false;
+	private static int inputInGameInputSuppressedFrame = 0;
+
+	private static int suppressShortcutKeysFrame = 0;
 
 	public static bool hasLostFocus = false;
 
@@ -19,7 +21,55 @@ internal static class MVInputWrapper
 
 	private static DateTime latestMouseMoveTime = DateTime.Now;
 
-	private static IKogamaInputMap inputMap = null;
+	private static IKogamaInputMap inputMap = new DesktopDefaultKeyboardMapping();
+
+	public static bool IsInputSuppressed
+	{
+		get
+		{
+			if (Mathf.Abs(Time.frameCount - inputSuppressedFrame) < 2)
+			{
+				return true;
+			}
+			return false;
+		}
+		set
+		{
+			inputSuppressedFrame = Time.frameCount;
+		}
+	}
+
+	public static bool IsShortcutKeysSuppressed
+	{
+		get
+		{
+			if (Mathf.Abs(Time.frameCount - suppressShortcutKeysFrame) < 2)
+			{
+				return true;
+			}
+			return false;
+		}
+		set
+		{
+			suppressShortcutKeysFrame = Time.frameCount;
+		}
+	}
+
+	public static bool IsInGameInputSuppressed
+	{
+		get
+		{
+			if (Mathf.Abs(Time.frameCount - inputInGameInputSuppressedFrame) < 2)
+			{
+				return true;
+			}
+			return false;
+		}
+		set
+		{
+			inputInGameInputSuppressedFrame = Time.frameCount;
+		}
+	}
 
 	public static DateTime LatestMouseMoveTime => latestMouseMoveTime;
 
@@ -35,6 +85,7 @@ internal static class MVInputWrapper
 			prevMousePos = Input.mousePosition;
 			latestMouseMoveTime = DateTime.Now;
 		}
+		Debug.Log("Update");
 	}
 
 	public static void Reset()
@@ -59,7 +110,7 @@ internal static class MVInputWrapper
 
 	private static bool GetBooleanControl(KogamaControls control, KeyState keyState, bool forceKeyUse, int index = -1)
 	{
-		if (!forceKeyUse && ignoreAllKeys && control != KogamaControls.PointerSelect && control != KogamaControls.PointerSelectAlt)
+		if (!forceKeyUse && IsInputSuppressed && control != KogamaControls.PointerSelect && control != KogamaControls.PointerSelectAlt)
 		{
 			return false;
 		}
@@ -122,7 +173,7 @@ internal static class MVInputWrapper
 
 	public static float GetAxis(string axis)
 	{
-		if (ignoreAllKeys)
+		if (IsInputSuppressed || IsInGameInputSuppressed)
 		{
 			return 0f;
 		}
@@ -131,7 +182,7 @@ internal static class MVInputWrapper
 
 	public static float GetAxisRaw(string axis)
 	{
-		if (ignoreAllKeys)
+		if (IsInputSuppressed || IsInGameInputSuppressed)
 		{
 			return 0f;
 		}

@@ -1,0 +1,134 @@
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using MV.Common;
+using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.UI;
+
+public class SendMessageControl : MonoBehaviour
+{
+	private string helpString = "/h";
+
+	[SerializeField]
+	private InputField inputField;
+
+	private Regex whiteSpaceCheck;
+
+	public UnityAction<bool> DoSend;
+
+	public UnityAction SpamWarning;
+
+	[SerializeField]
+	private float intervalForMessages = 5f;
+
+	[SerializeField]
+	private int maxMessagesPerInterval = 5;
+
+	private int frameCountSent;
+
+	private List<float> spamList = new List<float>();
+
+	private void Awake()
+	{
+		whiteSpaceCheck = new Regex("\\S");
+	}
+
+	public void Send()
+	{
+		if (frameCountSent == Time.frameCount)
+		{
+			return;
+		}
+		frameCountSent = Time.frameCount;
+		string text = inputField.text;
+		text = Regex.Replace(text, "\\r\\n?|\\n", string.Empty);
+		inputField.text = string.Empty;
+		if (whiteSpaceCheck.Match(text).Length <= 0)
+		{
+			if (DoSend != null)
+			{
+				DoSend(arg0: false);
+			}
+			return;
+		}
+		for (int i = 0; i < spamList.Count; i++)
+		{
+			if (Time.timeSinceLevelLoad - spamList[i] > intervalForMessages)
+			{
+				spamList.Remove(spamList[i]);
+			}
+		}
+		if (spamList.Count > maxMessagesPerInterval)
+		{
+			if (SpamWarning != null)
+			{
+				SpamWarning();
+			}
+		}
+		else
+		{
+			spamList.Add(Time.timeSinceLevelLoad);
+			SendChatMessage(text);
+		}
+	}
+
+	public void OnInputFieldChange()
+	{
+		string text = inputField.text;
+		if (text.IndexOf("\n") >= 0)
+		{
+			Send();
+		}
+	}
+
+	private void SendChatMessage(string chatMsg)
+	{
+		if (!(chatMsg == string.Empty))
+		{
+			if (chatMsg.Length > 256)
+			{
+				chatMsg = chatMsg.Substring(0, 256);
+			}
+			if (chatMsg == helpString)
+			{
+				MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, CreateHelpTxt());
+			}
+			else
+			{
+				MVGameControllerBase.Game.PostGameMsg(MVGameMsgType.Chat, new Dictionary<object, object>
+				{
+					{
+						(byte)0,
+						MVGameControllerBase.Game.LocalPlayer.ActorNr
+					},
+					{
+						(byte)5,
+						chatMsg
+					}
+				});
+			}
+			if (DoSend != null)
+			{
+				DoSend(arg0: false);
+			}
+		}
+	}
+
+	public string CreateHelpTxt()
+	{
+		string text = TM._("<M> Menu\n<H> Toggle HD Mode");
+		switch (MVGameControllerBase.GameMode)
+		{
+		case MVGameMode.CharacterEditor:
+			return string.Empty;
+		case MVGameMode.Edit:
+			text += TM._("\n\n<PgDown> Move Workplane Down\n<PgUp> Move Workplane Up\n<TAB> Show Players\n<P> Play Mode\n<P> Edit Mode\n<1> Edit Cube\n<2> Delete Cube\n<3> Paint Cube\n<G> Toggle Grid Snap Size\n");
+			text += TM._("<F> Toggle Workplane\n<H> Toggle Vanity Item\n<L> Toggle Show Logic Cubes\n<R> Change Cube Material\n<I> Open Inventory\n<N> Create New Model\n<V> Focus on selected object");
+			break;
+		case MVGameMode.Play:
+			text += TM._("\n\n<WASD> Move\n<Space> Jump\n<K> Respawn\n<Left Mouse> Fire Weapon\n<Q> Drop currently equipped weapon");
+			break;
+		}
+		return text;
+	}
+}

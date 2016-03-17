@@ -7,16 +7,16 @@ public class OculusKillLimitClient : OculusKillLimit, IWinningConditionBriefing
 	{
 	}
 
-	public void GetBriefing(MVGUIWinningConditionBriefingView winningConditionBriefingView)
+	public void GetBriefing(IBriefing winningConditionBriefingView)
 	{
 		if (MVGameControllerBase.WOCM.GetWorldObjectsByType(WorldObjectType.AdvancedGhost).Count > 0)
 		{
-			winningConditionBriefingView.AddBriefing("Oculus", Limit);
+			winningConditionBriefingView.AddBriefing(WinningConditionType.Oculus, Limit);
 		}
 	}
 
-	public void GetDebriefing(MVGUIWinningConditionDebriefingView winningConditionDebriefingView)
+	public void GetDebriefing(IDebriefing winningConditionDebriefingView)
 	{
-		winningConditionDebriefingView.SetupDebriefing("Oculus", HighScores, IsTeamMode);
+		winningConditionDebriefingView.SetupDebriefing(WinningConditionType.Oculus, HighScores, IsTeamMode);
 	}
 }

@@ -5,13 +5,13 @@ public class FlagReachedClient : FlagReached, IWinningConditionBriefing
 	{
 	}
 
-	public void GetBriefing(MVGUIWinningConditionBriefingView winningConditionBriefingView)
+	public void GetBriefing(IBriefing winningConditionBriefingView)
 	{
-		winningConditionBriefingView.AddBriefing("Flag");
+		winningConditionBriefingView.AddBriefing(WinningConditionType.Flag);
 	}
 
-	public void GetDebriefing(MVGUIWinningConditionDebriefingView winningConditionDebriefingView)
+	public void GetDebriefing(IDebriefing winningConditionDebriefingView)
 	{
-		winningConditionDebriefingView.SetupDebriefing("Flag", HighScores, IsTeamMode);
+		winningConditionDebriefingView.SetupDebriefing(WinningConditionType.Flag, HighScores, IsTeamMode);
 	}
 }

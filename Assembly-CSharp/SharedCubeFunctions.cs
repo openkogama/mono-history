@@ -718,24 +718,6 @@ internal static class SharedCubeFunctions
 		}
 	}
 
-	public static bool GetPickingInfo(MVCubeModelBase cr, ref CubePickingInfo info)
-	{
-		Ray ray = Camera.main.ScreenPointToRay(MVInputWrapper.GetPointerPosition());
-		VoxelHit voxelHit = default;
-		if (CollisionDetection.MVHit(ray, cr, out voxelHit))
-		{
-			info.cube = Cube.Clone(voxelHit.cube);
-			info.iLocalPos = voxelHit.cubePos;
-			info.pickedFace = voxelHit.face;
-			info.point = voxelHit.point;
-			info.normal = voxelHit.normal;
-			info.pickedEdge = Cube.GetEdge(cr.GameObject, info.cube, info.pickedFace, voxelHit.point, info.iLocalPos);
-			GetVertices(info, cr.GameObject);
-			return true;
-		}
-		return false;
-	}
-
 	public static Bounds? GetAxisAlignedBoundsRecursively(List<MVWorldObjectClient> wos)
 	{
 		List<Transform> list = new List<Transform>();

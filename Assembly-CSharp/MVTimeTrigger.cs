@@ -1,11 +1,8 @@
 using System.Collections.Generic;
 using MV.WorldObject;
-using UnityEngine;
 
 public class MVTimeTrigger : MVLogicObject
 {
-	private GameObject audioGO;
-
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => true;
@@ -14,8 +11,6 @@ public class MVTimeTrigger : MVLogicObject
 		: base(data, PrefabPool.Instance.MVTimeTriggerPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
-		audioGO = (GameObject)Object.Instantiate(PrefabPool.Instance.TimeTriggerSoundObject, Vector3.zero, Quaternion.identity);
-		audioGO.transform.parent = gameObject.transform;
 	}
 
 	public override void OnInputStateChanged()

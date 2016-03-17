@@ -1,0 +1,150 @@
+using System;
+using System.Collections.Generic;
+using MV.WorldObject;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.Events;
+
+public class EditModeClientShopController : MonoBehaviour, IEventSystemHandler, IPurchaseClientShopItem, IOpenClientShop
+{
+	[SerializeField]
+	private InventoryController inventoryControllerPrefab;
+
+	[SerializeField]
+	private int numberOfSlotsPrPage;
+
+	[SerializeField]
+	private EditModeClientShopItem previewItemPrefab;
+
+	private Transform previewRootTransform;
+
+	private InventoryController inventoryController;
+
+	private int selectedTab = 1;
+
+	private readonly Dictionary<int, TabState> tabs = new Dictionary<int, TabState>();
+
+	private readonly Dictionary<int, string> tabsNonLocalized = new Dictionary<int, string>();
+
+	private readonly List<MVWorldObjectClient> previewedObjects = new List<MVWorldObjectClient>();
+
+	private ClientShopRepository repository;
+
+	private EditModeRepositoryController repositoryController;
+
+	public void Initialize(EditModeRepositoryController repositoryController)
+	{
+		this.repositoryController = repositoryController;
+		repository = MVGameControllerBase.IEditModeUI.ClientShopRepository;
+		selectedTab = 1;
+		int num = 1;
+		foreach (int key in repository.categories.Keys)
+		{
+			tabsNonLocalized[num] = repository.categories[key];
+			tabs[num] = new TabState(TM._(repository.categories[key]), numberOfSlotsPrPage);
+			tabs[num].highestSlotIndex = Math.Max(repository.CategoryItemCount(key) - 1, 1);
+			num++;
+		}
+	}
+
+	public void Activate(UIPushOption pushOption)
+	{
+		if (this.inventoryController != null)
+		{
+			return;
+		}
+		this.inventoryController = UnityEngine.Object.Instantiate(inventoryControllerPrefab);
+		InventoryController inventoryController = this.inventoryController;
+		inventoryController.OnTabSelected = (UnityAction<int>)Delegate.Combine(inventoryController.OnTabSelected, new UnityAction<int>(TabSelected));
+		InventoryController inventoryController2 = this.inventoryController;
+		inventoryController2.OnPageTurned = (UnityAction<int>)Delegate.Combine(inventoryController2.OnPageTurned, new UnityAction<int>(PageTurned));
+		this.inventoryController.Initialize(numberOfSlotsPrPage);
+		foreach (KeyValuePair<int, TabState> tab in tabs)
+		{
+			this.inventoryController.AddTab(tab.Key, tab.Value.name);
+		}
+		UpdateContent();
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
+		{
+			handler.PopGroups(UIGroupFlags.InventoryUI | UIGroupFlags.InventoryUISubMenu);
+		});
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Push(this.inventoryController.gameObject, pushOption, OnPop, UIGroupFlags.InventoryUI);
+		});
+	}
+
+	private void OnPop()
+	{
+		if (previewRootTransform != null)
+		{
+			UnityEngine.Object.Destroy(previewRootTransform.gameObject);
+		}
+		previewRootTransform = null;
+		for (int i = 0; i < previewedObjects.Count; i++)
+		{
+			previewedObjects[i].Destroy();
+		}
+		previewedObjects.Clear();
+	}
+
+	private void TabSelected(int tab)
+	{
+		if (tab != selectedTab)
+		{
+			selectedTab = tab;
+			UpdateContent();
+		}
+	}
+
+	private void PageTurned(int dir)
+	{
+		if (tabs[selectedTab].UpdatePage(dir))
+		{
+			UpdateContent();
+		}
+	}
+
+	private void UpdateContent()
+	{
+		if (previewRootTransform != null)
+		{
+			UnityEngine.Object.Destroy(previewRootTransform.gameObject);
+		}
+		previewRootTransform = new GameObject("Preview Root - ClientShopInventory").transform;
+		for (int i = 0; i < previewedObjects.Count; i++)
+		{
+			previewedObjects[i].Destroy();
+		}
+		previewedObjects.Clear();
+		inventoryController.Clear();
+		inventoryController.SelectTab(selectedTab, tabs[selectedTab].currentPage, tabs[selectedTab].MaxPages);
+		List<ShopItem> itemsInCategory = repository.GetItemsInCategory(tabsNonLocalized[selectedTab]);
+		for (int j = 0; j < itemsInCategory.Count; j++)
+		{
+			if (tabs[selectedTab].SlotIndexIsInRange(itemsInCategory[j].slotPosition))
+			{
+				EditModeClientShopItem editModeClientShopItem = UnityEngine.Object.Instantiate(previewItemPrefab);
+				MVWorldObjectClient worldObjectFromItemData = GetWorldObjectFromItemData(itemsInCategory[j]);
+				previewedObjects.Add(worldObjectFromItemData);
+				editModeClientShopItem.Initialize(previewRootTransform, itemsInCategory[j], worldObjectFromItemData);
+				inventoryController.AddObject(editModeClientShopItem.gameObject, itemsInCategory[j].slotPosition % numberOfSlotsPrPage);
+			}
+		}
+	}
+
+	private static MVWorldObjectClient GetWorldObjectFromItemData(ShopItem item)
+	{
+		byte[] data = item.data;
+		BytePacker koGaMaData = new BytePacker(data);
+		KoGaMaPackageClient koGaMaPackageClient = new KoGaMaPackageClient(koGaMaData, readRuntimeValues: false);
+		MVWorldObjectClient mVWorldObjectClient = koGaMaPackageClient.worldObjects[koGaMaPackageClient.worldObjectRoot];
+		mVWorldObjectClient.InitializeInventory();
+		return mVWorldObjectClient;
+	}
+
+	public void PurchaseItem(ShopItem item)
+	{
+		repositoryController.PurchaseClientShopItem(item, UpdateContent);
+	}
+}

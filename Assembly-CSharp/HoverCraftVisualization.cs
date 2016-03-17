@@ -115,7 +115,8 @@ public class HoverCraftVisualization : VehicleVisualizationBase
 		vehicleBlinker.enabled = true;
 		foreach (ParticleSystem thruster in thrusters)
 		{
-			thruster.enableEmission = true;
+			ParticleSystem.EmissionModule emission = thruster.emission;
+			emission.enabled = true;
 			thruster.gameObject.SetActive(value: true);
 		}
 		smoothMoveSpeed = 0f;
@@ -133,7 +134,8 @@ public class HoverCraftVisualization : VehicleVisualizationBase
 		{
 			if (!(thruster == null))
 			{
-				thruster.enableEmission = false;
+				ParticleSystem.EmissionModule emission = thruster.emission;
+				emission.enabled = false;
 				thruster.Clear();
 				thruster.gameObject.SetActive(value: false);
 			}
@@ -149,12 +151,14 @@ public class HoverCraftVisualization : VehicleVisualizationBase
 		if (newHealth < maxHealth && !ellipsoidParticleEmitter.emit)
 		{
 			ellipsoidParticleEmitter.emit = true;
-			fireSystem.enableEmission = true;
+			ParticleSystem.EmissionModule emission = fireSystem.emission;
+			emission.enabled = true;
 		}
 		if (newHealth == maxHealth && ellipsoidParticleEmitter.emit)
 		{
 			ellipsoidParticleEmitter.emit = false;
-			fireSystem.enableEmission = false;
+			ParticleSystem.EmissionModule emission2 = fireSystem.emission;
+			emission2.enabled = false;
 			return;
 		}
 		if (prevHealth > newHealth)

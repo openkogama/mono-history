@@ -21,6 +21,8 @@ public class MVMaterial
 
 	public bool isUnlocked;
 
+	public Texture2D buttonTexture;
+
 	public bool IsAvailable
 	{
 		get
@@ -53,10 +55,14 @@ public class MVMaterial
 	{
 	}
 
-	public MVMaterial(int materialId, string name, string description, PhysicalProperties physicalProperties, MaterialSound materialSound, AvatarModifierPackageType modifierPackageType, int priceGold, int priceSilver, bool isUnlocked)
+	public MVMaterial(int materialId, string name, string description, PhysicalProperties physicalProperties, MaterialSound materialSound, AvatarModifierPackageType modifierPackageType, int priceGold, int priceSilver, bool isUnlocked, MaterialButtonTextureGenerator materialButtonTextureGenerator)
 		: this(physicalProperties, materialSound, modifierPackageType)
 	{
 		GenerateCube(materialId);
+		if (materialButtonTextureGenerator != null)
+		{
+			buttonTexture = materialButtonTextureGenerator.TakePicture(mesh);
+		}
 		unlockPriceGold = priceGold;
 		unlockPriceSilver = priceSilver;
 		this.isUnlocked = isUnlocked;

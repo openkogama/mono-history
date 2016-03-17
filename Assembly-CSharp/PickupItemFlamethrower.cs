@@ -90,7 +90,8 @@ public class PickupItemFlamethrower : PickupItem
 			}
 			yield return 0;
 		}
-		flameParticles.enableEmission = false;
+		ParticleSystem.EmissionModule em = flameParticles.emission;
+		em.enabled = false;
 		audioSource.Stop();
 	}
 
@@ -103,7 +104,8 @@ public class PickupItemFlamethrower : PickupItem
 			return;
 		}
 		flamerStartTime = Time.time;
-		flameParticles.enableEmission = true;
+		ParticleSystem.EmissionModule emission = flameParticles.emission;
+		emission.enabled = true;
 		audioSource.Play();
 		flameParticles.Play();
 		isFlaming = true;

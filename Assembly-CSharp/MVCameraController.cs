@@ -188,7 +188,17 @@ public class MVCameraController : MonoBehaviour
 
 	public Camera TertiaryCamera => tertiaryCamera.GetComponent<Camera>();
 
-	public bool IsLogicRendered => isLogicRendered;
+	public bool IsLogicRendered
+	{
+		get
+		{
+			return isLogicRendered;
+		}
+		set
+		{
+			RenderLogic(value);
+		}
+	}
 
 	public MVCameraBase CurCamera => cameraStack.CurCamera;
 
@@ -218,7 +228,7 @@ public class MVCameraController : MonoBehaviour
 
 	public event EventHandler<OnIgnoreInputTypesArgs> onIgnoreInputTypes;
 
-	public void RenderLogic(bool renderLogic)
+	private void RenderLogic(bool renderLogic)
 	{
 		if (renderLogic)
 		{

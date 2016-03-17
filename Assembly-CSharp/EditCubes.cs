@@ -50,6 +50,7 @@ internal class EditCubes : CubeModelTool
 		modelCursor = new ModelCursor3D(e.CubeCorners);
 		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.EditingCube);
 		waitForMouseUp = MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect);
+		currentInternalState = BuildState.MainState;
 	}
 
 	public override void Execute(CubeModelingStateMachine e)
@@ -110,7 +111,7 @@ internal class EditCubes : CubeModelTool
 					break;
 				}
 			}
-			else if (MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelect) && MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController.IsDrawPlaneActive)
+			else if (MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelect) && DrawPlane.IsDrawPlaneActive)
 			{
 				currentInternalState = BuildState.PaintCubes;
 				break;
@@ -129,7 +130,7 @@ internal class EditCubes : CubeModelTool
 		case BuildState.PaintCubes:
 			if (!MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
 			{
-				if (MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController.GetCubePosOnDrawplane(e.TargetCubeModel.GameObject, out var intVectorHitPosition) && e.CanAddCubeAt(intVectorHitPosition))
+				if (DrawPlane.GetCubePosOnDrawplane(e.TargetCubeModel.GameObject, out var intVectorHitPosition) && e.CanAddCubeAt(intVectorHitPosition))
 				{
 					e.HandleAudio(intVectorHitPosition, AudioActions.CubeAdded);
 					e.TargetCubeModel.AddCube(intVectorHitPosition, new Cube(CubeDataPacker.CornersToByteArray(CubeBase.IdentityCorners), Cube.CreateMaterialArray(e.CurrentMaterialId)));

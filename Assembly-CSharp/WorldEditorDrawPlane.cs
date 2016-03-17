@@ -1,5 +1,6 @@
 using MV.WorldObject;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class WorldEditorDrawPlane : MonoBehaviour
 {
@@ -20,6 +21,8 @@ public class WorldEditorDrawPlane : MonoBehaviour
 	private bool isActive = true;
 
 	private int _altitude;
+
+	private DrawPlaneAxis drawPlaneAxis;
 
 	private float lastMovePlaneDelta;
 
@@ -91,6 +94,10 @@ public class WorldEditorDrawPlane : MonoBehaviour
 
 	public DrawPlaneAxis Orientation
 	{
+		get
+		{
+			return drawPlaneAxis;
+		}
 		set
 		{
 			switch (value)
@@ -115,6 +122,7 @@ public class WorldEditorDrawPlane : MonoBehaviour
 			}
 			UpdateEditorPlanePosition();
 			UpdateAltitude();
+			drawPlaneAxis = value;
 		}
 	}
 
@@ -231,7 +239,7 @@ public class WorldEditorDrawPlane : MonoBehaviour
 		Altitude = (int)(transform.localPosition.x + transform.localPosition.y + transform.localPosition.z - 0.5f);
 	}
 
-	public void UpdateDrawPlane()
+	private void Update()
 	{
 		Vector3 hit = Vector3.zero;
 		if (Pick(ref hit))
@@ -284,6 +292,10 @@ public class WorldEditorDrawPlane : MonoBehaviour
 
 	private bool RayCast(Ray ray, ref Vector3 hit, bool ignoreActiveFlag)
 	{
+		if (EventSystem.current.IsPointerOverGameObject())
+		{
+			return false;
+		}
 		if (!isActive && !ignoreActiveFlag)
 		{
 			return false;

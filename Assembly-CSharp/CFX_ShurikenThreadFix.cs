@@ -11,7 +11,8 @@ public class CFX_ShurikenThreadFix : MonoBehaviour
 		ParticleSystem[] array = systems;
 		foreach (ParticleSystem particleSystem in array)
 		{
-			particleSystem.enableEmission = false;
+			ParticleSystem.EmissionModule emission = particleSystem.emission;
+			emission.enabled = false;
 		}
 		StartCoroutine("WaitFrame");
 	}
@@ -22,7 +23,8 @@ public class CFX_ShurikenThreadFix : MonoBehaviour
 		ParticleSystem[] array = systems;
 		foreach (ParticleSystem ps in array)
 		{
-			ps.enableEmission = true;
+			ParticleSystem.EmissionModule em = ps.emission;
+			em.enabled = true;
 			ps.Play(withChildren: true);
 		}
 	}

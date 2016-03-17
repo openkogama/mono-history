@@ -24,7 +24,7 @@ public static class Encryption
 
 	private static string GetMD5Hash(string s)
 	{
-		using MD5 mD = MD5.Create();
+		using MD5 mD = new MD5CryptoServiceProvider();
 		byte[] array = mD.ComputeHash(Encoding.UTF8.GetBytes(s));
 		StringBuilder stringBuilder = new StringBuilder();
 		for (int i = 0; i < array.Length; i++)

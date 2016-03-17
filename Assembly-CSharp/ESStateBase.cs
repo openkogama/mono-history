@@ -63,7 +63,7 @@ public class ESStateBase : IState
 	protected void TintObjectsOnMouseOver(EditorStateMachine e)
 	{
 		VoxelHit hit = default;
-		bool pickSuccess = MVGameControllerLegacyUI.Pick(ref hit);
+		bool pickSuccess = EditModeObjectPicker.Pick(ref hit);
 		TintObjectsOnMouseOver(e, pickSuccess, hit);
 	}
 

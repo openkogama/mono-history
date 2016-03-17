@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using Util;
 
 public static class ImageGenerator
 {
@@ -9,7 +8,6 @@ public static class ImageGenerator
 	{
 		int textureSize = 512;
 		Texture2D previewTexture = new Texture2D(textureSize, textureSize, TextureFormat.RGB24, mipmap: false);
-		TexturePreviewer.Instance.tex = previewTexture;
 		GameObject previewRoot = new GameObject("Item Preview");
 		MVComponent[] mvComponents = wo.GameObject.GetComponentsInChildren<MVComponent>();
 		MVComponent[] array = mvComponents;

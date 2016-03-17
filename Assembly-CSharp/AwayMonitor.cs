@@ -1,5 +1,5 @@
 using System;
-using UnityEngine;
+using MV.Common;
 
 public static class AwayMonitor
 {
@@ -56,12 +56,12 @@ public static class AwayMonitor
 		}
 		else if (timeSpan > warningTimeSpan && state != State.InActive10Min)
 		{
-			UXUtils.FindGUIObjectOfType<MVGUIChatWindow>().AddLine("Idle. You will be kicked in 5 min.", Color.red);
+			MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, "Idle.You will be kicked in 5 min.");
 			state = State.InActive10Min;
 		}
 		else if (timeSpan > idleKickTimeSpan && state != State.InActive15Min)
 		{
-			UXUtils.FindGUIObjectOfType<MVGUIChatWindow>().AddLine("Kicked. Idle for 15 min.", Color.red);
+			MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, "Kicked. Idle for 15 min.");
 			MVGameControllerBase.ApplicationQuit(new QuitIdle());
 			state = State.InActive15Min;
 		}

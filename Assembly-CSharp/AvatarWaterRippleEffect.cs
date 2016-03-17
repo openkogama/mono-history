@@ -55,7 +55,15 @@ public class AvatarWaterRippleEffect : MonoBehaviour
 			position.y = position2.y;
 			if (lastRippleTime > 1.2f || Vector3.Distance(lastRipplePosition, position) > 1.5f)
 			{
-				ripple.Emit(position, default, ripple.startSize, ripple.startLifetime, Color.white);
+				ParticleSystem.EmitParams emitParams = new ParticleSystem.EmitParams
+				{
+					position = position,
+					velocity = default,
+					startSize = ripple.startSize,
+					startLifetime = ripple.startLifetime,
+					startColor = Color.white
+				};
+				ripple.Emit(emitParams, 1);
 				lastRipplePosition = position;
 				lastRippleTime = 0f;
 			}

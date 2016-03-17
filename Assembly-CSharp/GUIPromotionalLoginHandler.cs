@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GUIPromotionalLoginHandler : MonoBehaviour
 {
@@ -34,6 +35,6 @@ public class GUIPromotionalLoginHandler : MonoBehaviour
 		MVGameControllerBase.SetGameSessionData(message);
 		gameObject.SetActive(value: false);
 		Debug.Log(message);
-		Application.LoadLevel("BaseLegacyUI");
+		SceneManager.LoadScene("BaseLegacyUI");
 	}
 }

@@ -38,7 +38,7 @@ internal class ESTranslate : ESStateBase
 
 	public override void Enter(EditorStateMachine e)
 	{
-		if (MVGameControllerLegacyUI.EditorController.IsGridSnap())
+		if (MVGameControllerBase.IEditModeUI.IsGridSnap())
 		{
 			gridSize = 1f;
 		}
@@ -87,7 +87,6 @@ internal class ESTranslate : ESStateBase
 		}
 		Cursor.visible = false;
 		originPrevFrame = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position;
-		UXUtils.UXInputDispatcher.BlockGUIInput = true;
 	}
 
 	public override void Execute(EditorStateMachine e)
@@ -193,13 +192,13 @@ internal class ESTranslate : ESStateBase
 		}
 		Cursor.visible = true;
 		e.NetworkSelector.RequestReleaseOwnership(e.SelectedIDs);
-		UXUtils.UXInputDispatcher.BlockGUIInput = false;
+		e.Data.Add("FromTranslateState", true);
 	}
 
 	private bool GetInitialAvatarMoveObjectHitDistance(EditorStateMachine e, ref float hitDistance)
 	{
 		VoxelHit hit = default;
-		if (MVGameControllerLegacyUI.Pick(ref hit) && hit.woId != -1 && e.SelectedIDs.Contains(hit.woId))
+		if (EditModeObjectPicker.Pick(ref hit) && hit.woId != -1 && e.SelectedIDs.Contains(hit.woId))
 		{
 			hitDistance = (hit.point - MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position).magnitude;
 			return true;

@@ -1,13 +1,12 @@
 internal class EditorStateTransitionTable3D : EditorStateTransitionTableBase
 {
-	public EditorStateTransitionTable3D()
+	public EditorStateTransitionTable3D(ContextMenuController contextMenuController, GizmoController gizmoController)
 	{
 		table.Add(EditorEvent.EditCubes, new ESCubeEdit());
 		table.Add(EditorEvent.Rotating, new ESRotating());
-		table.Add(EditorEvent.ObjectSelected, new ESSelection());
+		table.Add(EditorEvent.ObjectSelected, new ESSelection(contextMenuController, gizmoController));
 		table.Add(EditorEvent.ESTerrainEdit, new ESTerrainEdit());
 		table.Add(EditorEvent.ESWaitForSelect, new ESWaitForSelected());
-		table.Add(EditorEvent.ESSettingsMenu, new ESSettingsDialog());
 		table.Add(EditorEvent.ESWaitForGroup, new ESWaitForGroup());
 		table.Add(EditorEvent.ESWaitForUngroup, new ESWaitForUngroup());
 		table.Add(EditorEvent.ESTranslate, new ESTranslate());

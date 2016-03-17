@@ -55,6 +55,7 @@ public class MVSmoke : MVLogicObject
 
 	private void ToggleEmitter(bool toggle)
 	{
-		particleSystem.enableEmission = toggle;
+		ParticleSystem.EmissionModule emission = particleSystem.emission;
+		emission.enabled = toggle;
 	}
 }

@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MV.Common;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class FriendList
 {
@@ -9,9 +11,13 @@ public class FriendList
 
 	public OnFriendListUpdatedDelegate OnFriendListUpdated;
 
+	public UnityAction OnFriendRequestReceived;
+
 	private Dictionary<int, Friend> friends = new Dictionary<int, Friend>();
 
 	private Dictionary<int, Friend> pending = new Dictionary<int, Friend>();
+
+	private List<int> pendingNotifications = new List<int>();
 
 	public Dictionary<int, Friend> Friends => friends;
 
@@ -33,6 +39,25 @@ public class FriendList
 		}
 	}
 
+	public FriendList()
+	{
+		MVNetworkGame game = MVGameControllerBase.Game;
+		game.OnFinishedLoadingPlayers = (UnityAction)Delegate.Combine(game.OnFinishedLoadingPlayers, new UnityAction(OnPlayersLoaded));
+	}
+
+	private void OnPlayersLoaded()
+	{
+		MVNetworkGame game = MVGameControllerBase.Game;
+		game.OnFinishedLoadingPlayers = (UnityAction)Delegate.Remove(game.OnFinishedLoadingPlayers, new UnityAction(OnPlayersLoaded));
+		foreach (MVPlayer value in MVGameControllerBase.Game.Players.Values)
+		{
+			if (pendingNotifications.Contains(value.ProfileID) && OnFriendRequestReceived != null)
+			{
+				OnFriendRequestReceived();
+			}
+		}
+	}
+
 	public void AddFriend(int friendID, int profileID, int friendProfileID, FriendStatus status)
 	{
 		if (profileID == MVGameControllerBase.Game.LocalPlayer.ProfileID)
@@ -47,6 +72,14 @@ public class FriendList
 		{
 			Friend value2 = new Friend(friendID, profileID, status);
 			pending.Add(friendID, value2);
+			pendingNotifications.Add(profileID);
+			foreach (MVPlayer value3 in MVGameControllerBase.Game.Players.Values)
+			{
+				if (value3.ProfileID == profileID && OnFriendRequestReceived != null)
+				{
+					OnFriendRequestReceived();
+				}
+			}
 		}
 		if (OnFriendListUpdated != null)
 		{

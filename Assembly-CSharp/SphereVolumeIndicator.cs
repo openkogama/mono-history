@@ -50,9 +50,9 @@ public class SphereVolumeIndicator : MonoBehaviour
 			particles[i].lifetime = UnityEngine.Random.Range(1f, 2f);
 			particles[i].velocity = Vector3.zero;
 			particles[i].startLifetime = 2f;
-			particles[i].size = 0.25f;
+			particles[i].startSize = 0.25f;
 			particles[i].rotation = 0f;
-			particles[i].color = Color.white;
+			particles[i].startColor = Color.white;
 			particles[i].angularVelocity = 0f;
 			particles[i].randomSeed = 0u;
 		}

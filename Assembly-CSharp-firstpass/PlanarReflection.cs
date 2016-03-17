@@ -115,6 +115,16 @@ public class PlanarReflection : MonoBehaviour
 		Shader.DisableKeyword("WATER_REFLECTIVE");
 	}
 
+	private void OnDestroy()
+	{
+		if (reflectionCamera.targetTexture != null)
+		{
+			RenderTexture targetTexture = reflectionCamera.targetTexture;
+			reflectionCamera.targetTexture = null;
+			targetTexture.Release();
+		}
+	}
+
 	private void RenderReflectionFor(Camera cam, Camera reflectCamera)
 	{
 		if (!reflectCamera || ((bool)sharedMaterial && !sharedMaterial.HasProperty(reflectionSampler)))

@@ -61,12 +61,18 @@ public class AvatarAccessoryParticles : AvatarAccessory
 		base.Update();
 		if (prevPosition != Transform.position)
 		{
-			RootParticleSystem.emissionRate = AccessoryParticlesSettings.EmitRateMoving;
+			ParticleSystem.EmissionModule emission = RootParticleSystem.emission;
+			ParticleSystem.MinMaxCurve rate = emission.rate;
+			rate.constantMax = AccessoryParticlesSettings.EmitRateMoving;
+			emission.rate = rate;
 			prevPosition = Transform.position;
 		}
 		else
 		{
-			RootParticleSystem.emissionRate = AccessoryParticlesSettings.EmitRateNormal;
+			ParticleSystem.EmissionModule emission2 = RootParticleSystem.emission;
+			ParticleSystem.MinMaxCurve rate2 = emission2.rate;
+			rate2.constantMax = AccessoryParticlesSettings.EmitRateNormal;
+			emission2.rate = rate2;
 		}
 	}
 }

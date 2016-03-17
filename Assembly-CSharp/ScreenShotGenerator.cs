@@ -126,6 +126,7 @@ public class ScreenShotGenerator : MonoBehaviour
 
 	private void GenerateTexture()
 	{
+		Debug.Log("Generate screen shot");
 		RenderTexture.active = genRenderTexture;
 		genTexture.ReadPixels(new Rect(0f, 0f, 512f, 512f), 0, 0);
 		genTexture.Apply();

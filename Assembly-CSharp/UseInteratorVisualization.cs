@@ -5,11 +5,16 @@ public class UseInteratorVisualization : MonoBehaviour
 {
 	private List<UseRequirement> useRequirements = new List<UseRequirement>();
 
-	private readonly Vector3 pivot = new Vector3(0f, 2.5f, 0f);
+	private Vector3 pivot = new Vector3(0f, 2.5f, 0f);
 
 	private float rotation = 100f;
 
 	private float baseDist = 1.3f;
+
+	public void Initialize(float yOffset)
+	{
+		pivot.y = yOffset;
+	}
 
 	private void Update()
 	{

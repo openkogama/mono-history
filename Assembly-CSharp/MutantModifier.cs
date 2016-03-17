@@ -33,7 +33,8 @@ public class MutantModifier : AvatarModifier
 
 	private IEnumerator DoFadeAndDestroy()
 	{
-		fireParticles.enableEmission = false;
+		ParticleSystem.EmissionModule em = fireParticles.emission;
+		em.enabled = false;
 		fireParticles.loop = false;
 		while (fireParticles.particleCount > 0)
 		{

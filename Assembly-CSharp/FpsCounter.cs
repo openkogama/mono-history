@@ -1,5 +1,6 @@
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class FpsCounter : MonoBehaviour
 {
@@ -28,6 +29,8 @@ public class FpsCounter : MonoBehaviour
 		}
 	}
 
+	public static float Fps;
+
 	private int idx;
 
 	private float[] frameTimes = new float[10];
@@ -43,6 +46,7 @@ public class FpsCounter : MonoBehaviour
 	{
 		frameTimes[idx] = 1f / Time.deltaTime;
 		idx = (idx + 1) % frameTimes.Length;
+		Fps = frameTimes.Average();
 		if (MVGameControllerBase.JoinState == MVJoinState.Playing)
 		{
 			if (metricsCollector == null)
@@ -51,8 +55,27 @@ public class FpsCounter : MonoBehaviour
 			}
 			if (!metricsCollector.IsFPSCollected && metricsCollector.IsTimeForCollect)
 			{
-				metricsCollector.CollectFPSMetric(frameTimes.Average());
+				metricsCollector.CollectFPSMetric(Fps);
 			}
+		}
+	}
+}
+public class FPSCounter : MonoBehaviour
+{
+	[SerializeField]
+	private Text fpsText;
+
+	private float frameUpdateRate = 0.5f;
+
+	private float currTime;
+
+	private void Update()
+	{
+		currTime += Time.deltaTime;
+		if (currTime > frameUpdateRate)
+		{
+			fpsText.text = FpsCounter.Fps.ToString("F0");
+			currTime = 0f;
 		}
 	}
 }

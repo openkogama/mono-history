@@ -6,10 +6,6 @@ public class MVTriggerBox : MVLogicObject
 {
 	private TriggerBoxEvents triggerBoxEvents;
 
-	private GameObject audioGO;
-
-	private AudioLogicCube audioLC;
-
 	public override bool HasInputConnector => false;
 
 	public override bool HasOutputConnector => true;
@@ -23,9 +19,6 @@ public class MVTriggerBox : MVLogicObject
 		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
 		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		triggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
-		audioGO = (GameObject)Object.Instantiate(PrefabPool.Instance.TriggerBoxSoundObject, Vector3.zero, Quaternion.identity);
-		audioGO.transform.parent = gameObject.transform;
-		audioLC = audioGO.GetComponentInChildren<AudioLogicCube>();
 	}
 
 	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
@@ -63,7 +56,6 @@ public class MVTriggerBox : MVLogicObject
 		{
 			outputLinkRef.isSet = true;
 		}
-		audioLC.Play(on: true);
 	}
 
 	public void OnStayEnd()
@@ -72,7 +64,6 @@ public class MVTriggerBox : MVLogicObject
 		{
 			outputLinkRef.isSet = false;
 		}
-		audioLC.Play(on: false);
 	}
 
 	public override void Destroy()

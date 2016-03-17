@@ -30,7 +30,7 @@ public class OverrideMaterial : MonoBehaviour
 
 	public void Register()
 	{
-		MVGameControllerBase.Game.MaterialRepository.AddMaterial(materialName, description, path, materialSound, modifierPackageType, priceGold, priceSilver, isUnlocked, new float[5] { friction, bouncyness, softness, staticFriction, toughness });
+		MVGameControllerBase.Game.MaterialRepository.AddMaterial(materialName, description, path, materialSound, modifierPackageType, priceGold, priceSilver, isUnlocked, new float[5] { friction, bouncyness, softness, staticFriction, toughness }, null);
 	}
 
 	public override string ToString()

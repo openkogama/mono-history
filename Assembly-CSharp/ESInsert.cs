@@ -45,7 +45,7 @@ internal class ESInsert : ESStateBase
 		float num2 = Camera.main.fieldOfView * 0.5f * 0.8f;
 		distanceInFreeSpace = Mathf.Max(5f, num / Mathf.Tan(num2 * ((float)Math.PI / 180f)));
 		Debug.Log("Insert free distance = " + distanceInFreeSpace);
-		insertCursor = UnityEngine.Object.FindObjectOfType(typeof(InsertCursor)) as InsertCursor;
+		insertCursor = UnityEngine.Object.Instantiate(PrefabPool.Instance.InsertCursor);
 		insertOffset = Vector3.zero;
 		insertPosition = Camera.main.transform.position + Camera.main.transform.forward * distanceInFreeSpace;
 		Cursor.visible = false;
@@ -63,7 +63,7 @@ internal class ESInsert : ESStateBase
 		previewMeshes = e.SingleSelectedWO.GameObject.GetComponentsInChildren<MeshFilter>();
 		isNewPrototype = e.Data.ContainsKey("IsNewPrototype");
 		woIgnoreList = ((!(e.SingleSelectedWO is MVGroup)) ? new HashSet<int> { e.SingleSelectedWO.Id } : (e.SingleSelectedWO as MVGroup).GetHierarchyWorldObjectIDs());
-		UXUtils.UXInputDispatcher.BlockGUIInput = true;
+		Debug.LogWarning("Block button pressing when dragging object");
 	}
 
 	public override void Execute(EditorStateMachine e)
@@ -121,6 +121,7 @@ internal class ESInsert : ESStateBase
 	{
 		Cursor.visible = true;
 		insertCursor.enabled = false;
+		UnityEngine.Object.Destroy(insertCursor.gameObject);
 		laser.ChangeState(LaserPointerState.Idle);
 		laser.LaserActive = false;
 		e.SingleSelectedWO.Visible = true;
@@ -128,7 +129,6 @@ internal class ESInsert : ESStateBase
 		e.SingleSelectedWO.GameObject.transform.position = position;
 		e.SingleSelectedWO.SyncPos = e.SingleSelectedWO.WorldPosition;
 		e.NetworkSelector.RequestReleaseOwnership(e.SelectedIDs);
-		UXUtils.UXInputDispatcher.BlockGUIInput = false;
 	}
 
 	private Vector3 ComputeObjectOffset(MVWorldObjectClient wo, Vector3 surfaceNormal)
@@ -152,12 +152,12 @@ internal class ESInsert : ESStateBase
 
 	private bool DrawPlanePick(MVWorldObjectClient wo, ref Vector3 position, ref Vector3 rawPosition, ref Vector3 normal)
 	{
-		if (MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController.IsDrawPlaneActive)
+		if (DrawPlane.IsDrawPlaneActive)
 		{
 			Vector3 hit = Vector3.zero;
-			if (MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController.Pick(ref hit))
+			if (DrawPlane.Pick(ref hit))
 			{
-				Vector3 vector = ((!(MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController.Pos.y < MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position.y)) ? Vector3.up : (-Vector3.up));
+				Vector3 vector = ((!(DrawPlane.Pos.y < MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position.y)) ? Vector3.up : (-Vector3.up));
 				Vector3 vector2 = ComputeObjectOffset(wo, vector);
 				position = hit - vector2;
 				rawPosition = hit;
@@ -171,7 +171,7 @@ internal class ESInsert : ESStateBase
 	private bool WorldPick(MVWorldObjectClient wo, ref Vector3 position, ref Vector3 rawPosition, ref Vector3 normal)
 	{
 		VoxelHit hit = default;
-		if (MVGameControllerLegacyUI.Pick(ref hit, woIgnoreList))
+		if (EditModeObjectPicker.Pick(ref hit, woIgnoreList))
 		{
 			Vector3 b = ComputeObjectOffset(wo, -hit.normal);
 			insertOffset = Vector3.Lerp(insertOffset, b, Time.deltaTime * 10f);
@@ -185,7 +185,7 @@ internal class ESInsert : ESStateBase
 
 	private Vector3 ComputeSnapPosition(MVWorldObjectClient wo, Vector3 originalPos)
 	{
-		float gridSize = ((!MVGameControllerLegacyUI.EditorController.IsGridSnap()) ? 0.0625f : 1f);
+		float gridSize = ((!MVGameControllerBase.IEditModeUI.IsGridSnap()) ? 0.0625f : 1f);
 		return wo.GetClosestGridPoint(gridSize, originalPos);
 	}
 

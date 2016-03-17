@@ -17,7 +17,7 @@ public class InputToPlayerMovementAndroid : IInputToPlayerMovement
 
 	public void HandleInputState(bool fromFrameUpdate)
 	{
-		if (MVGameControllerBase.IPlayModeUI.InLobbyState || MVInputWrapper.ignoreInGameInput)
+		if (MVGameControllerBase.IPlayModeUI.InLobbyState || MVInputWrapper.IsInGameInputSuppressed)
 		{
 			return;
 		}

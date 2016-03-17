@@ -25,7 +25,7 @@ internal class ESInsert2D : ESStateBase
 		laser = MVGameControllerBase.WOCM.AvatarLocal.LaserPointer;
 		laser.ChangeState(LaserPointerState.Inserting);
 		laser.LaserActive = true;
-		insertCursor = Object.FindObjectOfType(typeof(InsertCursor)) as InsertCursor;
+		insertCursor = Object.Instantiate(PrefabPool.Instance.InsertCursor);
 		if (!previewMaterial)
 		{
 			previewMaterial = PrefabPool.Instance.InsertPreviewMaterial;
@@ -41,7 +41,6 @@ internal class ESInsert2D : ESStateBase
 		e.SingleSelectedWO.Visible = false;
 		previewMeshes = e.SingleSelectedWO.GameObject.GetComponentsInChildren<MeshFilter>();
 		isNewPrototype = e.Data.ContainsKey("IsNewPrototype");
-		UXUtils.UXInputDispatcher.BlockGUIInput = true;
 	}
 
 	public override void Execute(EditorStateMachine e)
@@ -50,10 +49,9 @@ internal class ESInsert2D : ESStateBase
 		base.Execute(e);
 		Vector3 rawPosition = Vector3.zero;
 		Vector3 normal = Vector3.up;
-		if (!MVGameControllerLegacyUI.EditorController.DrawPlaneController.IsDrawPlaneActive)
+		if (!DrawPlane.IsDrawPlaneActive)
 		{
-			DrawPlaneController2D drawPlaneController2D = (DrawPlaneController2D)MVGameControllerLegacyUI.EditorController.DrawPlaneController;
-			drawPlaneController2D.SetToTerrain(active: true);
+			DrawPlane.SetToTerrain(active: true);
 		}
 		if (DrawPlanePick(ref rawPosition, ref normal))
 		{
@@ -75,17 +73,15 @@ internal class ESInsert2D : ESStateBase
 
 	private void SetupDrawPlane()
 	{
-		DrawPlaneController2D drawPlaneController2D = (DrawPlaneController2D)MVGameControllerLegacyUI.EditorController.DrawPlaneController;
-		drawPlaneIsActive = drawPlaneController2D.IsDrawPlaneActive;
-		drawPlaneController2D.SetToTerrain(active: true);
+		drawPlaneIsActive = DrawPlane.IsDrawPlaneActive;
+		DrawPlane.SetToTerrain(active: true);
 	}
 
 	private void ResetDrawPlane()
 	{
-		DrawPlaneController2D drawPlaneController2D = (DrawPlaneController2D)MVGameControllerLegacyUI.EditorController.DrawPlaneController;
-		if (drawPlaneIsActive != drawPlaneController2D.IsDrawPlaneActive)
+		if (drawPlaneIsActive != DrawPlane.IsDrawPlaneActive)
 		{
-			drawPlaneController2D.ToggleDrawPlane();
+			DrawPlane.ToggleDrawPlane();
 		}
 	}
 
@@ -110,22 +106,22 @@ internal class ESInsert2D : ESStateBase
 		ResetDrawPlane();
 		Cursor.visible = true;
 		insertCursor.enabled = false;
+		Object.Destroy(insertCursor);
 		laser.ChangeState(LaserPointerState.Idle);
 		laser.LaserActive = false;
 		e.SingleSelectedWO.Visible = true;
 		e.NetworkSelector.RequestReleaseOwnership(e.SelectedIDs);
-		UXUtils.UXInputDispatcher.BlockGUIInput = false;
 		((MVAvatarLocal.EditorAvatarMode2D)MVGameControllerBase.WOCM.AvatarLocal.CurrentMode).DisableBehindDrawPlaneMode();
 	}
 
 	private static bool DrawPlanePick(ref Vector3 rawPosition, ref Vector3 normal)
 	{
-		if (MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController.IsDrawPlaneActive)
+		if (DrawPlane.IsDrawPlaneActive)
 		{
 			Vector3 hit = Vector3.zero;
-			if (MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController.Pick(ref hit))
+			if (DrawPlane.Pick(ref hit))
 			{
-				Vector3 vector = ((!(MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController.Pos.y < MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position.y)) ? Vector3.up : (-Vector3.up));
+				Vector3 vector = ((!(DrawPlane.Pos.y < MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position.y)) ? Vector3.up : (-Vector3.up));
 				rawPosition = hit;
 				normal = -vector;
 				return true;
@@ -136,7 +132,7 @@ internal class ESInsert2D : ESStateBase
 
 	private static Vector3 ComputeSnapPosition(MVWorldObjectClient wo, Vector3 originalPos)
 	{
-		float gridSize = ((!MVGameControllerLegacyUI.EditorController.IsGridSnap()) ? 0.0625f : 1f);
+		float gridSize = ((!MVGameControllerBase.IEditModeUI.IsGridSnap()) ? 0.0625f : 1f);
 		return wo.GetClosestGridPoint(gridSize, originalPos);
 	}
 

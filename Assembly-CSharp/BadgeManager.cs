@@ -16,7 +16,6 @@ public static class BadgeManager
 
 	public static void Initialize(List<BadgeUrlData> badgeUrlDatas)
 	{
-		Debug.Log("BadgeManager Initialize");
 		foreach (BadgeUrlData badgeUrlData in badgeUrlDatas)
 		{
 			if (badgeUrlData.Level > maxLevelBadge)

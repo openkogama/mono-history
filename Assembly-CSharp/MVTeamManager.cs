@@ -8,7 +8,25 @@ public class MVTeamManager
 {
 	public delegate void OnTeamsUpdatedDelegate();
 
-	private MVTeamData[] teamData = new MVTeamData[4];
+	private Dictionary<MVTeam, bool> teamActiveBools = new Dictionary<MVTeam, bool>
+	{
+		{
+			MVTeam.Blue,
+			false
+		},
+		{
+			MVTeam.Red,
+			false
+		},
+		{
+			MVTeam.Green,
+			false
+		},
+		{
+			MVTeam.Yellow,
+			false
+		}
+	};
 
 	public OnTeamsUpdatedDelegate OnTeamsUpdated;
 
@@ -16,12 +34,19 @@ public class MVTeamManager
 
 	public event EventHandler<TeamEventArgs> OnTeamRemoved;
 
-	public MVTeamManager()
+	public List<TeamData> GetTeamDatas(GameStatCounterType gameStatCounterType)
 	{
-		for (int i = 0; i < 4; i++)
+		List<TeamData> list = new List<TeamData>();
+		foreach (KeyValuePair<MVTeam, bool> teamActiveBool in teamActiveBools)
 		{
-			teamData[i] = new MVTeamData();
+			if (teamActiveBool.Value)
+			{
+				int score = GetScore(teamActiveBool.Key, gameStatCounterType);
+				int noOfPlayersInTeam = GetNoOfPlayersInTeam(teamActiveBool.Key);
+				list.Add(new TeamData(teamActiveBool.Key, noOfPlayersInTeam, score));
+			}
 		}
+		return list;
 	}
 
 	public void AddTeam(MVTeam team)
@@ -31,7 +56,7 @@ public class MVTeamManager
 			Debug.LogError("Attempt to AddTeam of type Server");
 			return;
 		}
-		teamData[(int)team].active = true;
+		teamActiveBools[team] = true;
 		if (OnTeamsUpdated != null)
 		{
 			OnTeamsUpdated();
@@ -49,7 +74,7 @@ public class MVTeamManager
 			Debug.LogError("Attempt to RemoveTeam of type Server");
 			return;
 		}
-		teamData[(int)team].active = false;
+		teamActiveBools[team] = false;
 		if (OnTeamsUpdated != null)
 		{
 			OnTeamsUpdated();
@@ -62,12 +87,12 @@ public class MVTeamManager
 
 	public bool IsTeamActive(MVTeam team)
 	{
-		return teamData[(int)team].active;
+		return teamActiveBools[team];
 	}
 
 	public int GetScore(MVTeam team, GameStatCounterType gameStatCounterType)
 	{
-		if (!teamData[(int)team].active)
+		if (!teamActiveBools[team])
 		{
 			return 0;
 		}
@@ -77,9 +102,9 @@ public class MVTeamManager
 	public int TeamCount()
 	{
 		int num = 0;
-		for (int i = 0; i < 4; i++)
+		foreach (KeyValuePair<MVTeam, bool> teamActiveBool in teamActiveBools)
 		{
-			if (teamData[i].active)
+			if (teamActiveBool.Value)
 			{
 				num++;
 			}
@@ -90,11 +115,11 @@ public class MVTeamManager
 	public List<MVTeam> GetTeamList()
 	{
 		List<MVTeam> list = new List<MVTeam>();
-		for (int i = 0; i < 4; i++)
+		foreach (KeyValuePair<MVTeam, bool> teamActiveBool in teamActiveBools)
 		{
-			if (teamData[i].active)
+			if (teamActiveBool.Value)
 			{
-				list.Add((MVTeam)(int)Enum.ToObject(typeof(MVTeam), i));
+				list.Add(teamActiveBool.Key);
 			}
 		}
 		return list;

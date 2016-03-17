@@ -142,5 +142,6 @@ public enum DBQueryKeys
 	GameCoinBoostDelta,
 	GameCoinBoostDeltas,
 	CategorySlotCount,
-	CategorySlotOffset
+	CategorySlotOffset,
+	IsDefaultInvItem
 }

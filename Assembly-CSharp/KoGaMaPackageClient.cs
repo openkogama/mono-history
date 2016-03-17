@@ -143,8 +143,6 @@ public class KoGaMaPackageClient
 			return new MVSoundEmitter(worldObjectData, worldObjects);
 		case WorldObjectType.Flag:
 			return new MVFlag(worldObjectData, worldObjects);
-		case WorldObjectType.TestLogicCube:
-			return new TestLogicCube(worldObjectData, worldObjects);
 		case WorldObjectType.Battery:
 			return new MVBattery(worldObjectData, worldObjects);
 		case WorldObjectType.ToggleBox:

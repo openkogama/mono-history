@@ -2,6 +2,7 @@ using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class CubeModelingStateMachine : FSMEntity
 {
@@ -32,6 +33,8 @@ public class CubeModelingStateMachine : FSMEntity
 	public OnCurrentMaterialChangeDelegate OnCurrentMaterialChange;
 
 	public bool useLasers = true;
+
+	private GameObject gameObject;
 
 	private bool editMode2d;
 
@@ -68,10 +71,10 @@ public class CubeModelingStateMachine : FSMEntity
 		set
 		{
 			currentMaterialId = value;
-			if (OnCurrentMaterialChange != null)
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IHandleMaterial x, BaseEventData y) =>
 			{
-				OnCurrentMaterialChange(currentMaterialId, CurrentMaterial);
-			}
+				x.OnMaterialChanged(currentMaterialId);
+			});
 		}
 	}
 
@@ -93,8 +96,9 @@ public class CubeModelingStateMachine : FSMEntity
 		}
 	}
 
-	public CubeModelingStateMachine()
+	public CubeModelingStateMachine(GameObject gameObject)
 	{
+		this.gameObject = gameObject;
 		transitionTable = new CubeModelingTransitionTable();
 		Event = CubeModelingEvent.EditCubes;
 	}
@@ -145,10 +149,10 @@ public class CubeModelingStateMachine : FSMEntity
 	public CubePickingInfo DoPicking()
 	{
 		CubePickingInfo info = new CubePickingInfo();
-		if (SharedCubeFunctions.GetPickingInfo(targetCubeModel, ref info))
+		if (EditModeObjectPicker.GetPickingInfo(targetCubeModel, ref info))
 		{
 			Vector3 hit = Vector3.zero;
-			if (MVGameControllerLegacyUI.CubeModelingEditMode.DrawPlaneController.Pick(ref hit))
+			if (DrawPlane.Pick(ref hit))
 			{
 				float magnitude = (hit - Camera.main.transform.position).magnitude;
 				float magnitude2 = (info.point - Camera.main.transform.position).magnitude;

@@ -49,7 +49,7 @@ public class InputToPlayerMovementAvatarEdit : IInputToPlayerMovement
 	{
 		MovementMapFlags movementMapFlags = MovementMapFlags.None;
 		movementMapState = MovementMapFlags.None;
-		if (!MVInputWrapper.ignoreInGameInput)
+		if (!MVInputWrapper.IsInGameInputSuppressed)
 		{
 			if (MVInputWrapper.GetBooleanControl(KogamaControls.MoveForward))
 			{

@@ -496,9 +496,25 @@ public abstract class MVWorldObjectClientManager
 
 	public void UnsubscribeWODestroyedEvent(int woID, Action<object, WorldObjectDestroyedEventArgs> woDestroyedEventHandler)
 	{
-		if (woDestroyedEventSubscribers.TryGetValue(woID, out var value))
+		if (!woDestroyedEventSubscribers.TryGetValue(woID, out var value))
 		{
-			value = (Action<object, WorldObjectDestroyedEventArgs>)Delegate.Remove(value, woDestroyedEventHandler);
+			return;
+		}
+		if (value == null)
+		{
+			woDestroyedEventSubscribers.Remove(woID);
+			return;
+		}
+		value = (Action<object, WorldObjectDestroyedEventArgs>)Delegate.Remove(value, woDestroyedEventHandler);
+		if (value != null)
+		{
+			Debug.Log("Unsubscribed but with subscribers left");
+			woDestroyedEventSubscribers[woID] = value;
+		}
+		else
+		{
+			Debug.Log("Null");
+			woDestroyedEventSubscribers.Remove(woID);
 		}
 	}
 

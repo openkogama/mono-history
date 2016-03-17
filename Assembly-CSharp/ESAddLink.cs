@@ -43,7 +43,7 @@ internal class ESAddLink : ESStateBase
 			return;
 		}
 		VoxelHit hit = default;
-		if (MVGameControllerLegacyUI.Pick(ref hit) && hit.woId != -1)
+		if (EditModeObjectPicker.Pick(ref hit) && hit.woId != -1)
 		{
 			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(hit.woId);
 			if (worldObjectClient != null)

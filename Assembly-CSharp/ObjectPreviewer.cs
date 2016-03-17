@@ -26,6 +26,8 @@ public class ObjectPreviewer : MonoBehaviour
 
 	public RenderTexture PreviewTexture => previewTexture;
 
+	public GameObject PreviewGameObject => previewGameObject;
+
 	private ObjectPreviewer()
 	{
 	}
@@ -50,7 +52,9 @@ public class ObjectPreviewer : MonoBehaviour
 		gameObject.transform.parent = previewItemsRoot;
 		gameObject.name = $"Preview_{name}_RenderCam";
 		gameObject.layer = LayerMask.NameToLayer("Preview");
-		objectPreviewer.previewTexture = new RenderTexture(textureWidth, textureHeight, 16);
+		objectPreviewer.previewTexture = new RenderTexture(textureWidth, textureHeight, 16, RenderTextureFormat.ARGB32);
+		objectPreviewer.previewTexture.name = name;
+		objectPreviewer.previewTexture.antiAliasing = 2;
 		objectPreviewer.previewTexture.filterMode = FilterMode.Bilinear;
 		objectPreviewer.previewTexture.hideFlags = HideFlags.DontSave;
 		objectPreviewer.previewCam = gameObject.AddComponent<Camera>();
@@ -162,7 +166,9 @@ public class ObjectPreviewer : MonoBehaviour
 	{
 		if (previewCam != null)
 		{
+			RenderTexture targetTexture = previewCam.targetTexture;
 			previewCam.targetTexture = null;
+			targetTexture.Release();
 		}
 		if (this != null)
 		{

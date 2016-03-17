@@ -180,7 +180,8 @@ public class WindTurbine : MVLogicObject
 	private void ToggleTurbine(bool state)
 	{
 		isActive = state;
-		windParticleSystem.enableEmission = state;
+		ParticleSystem.EmissionModule emission = windParticleSystem.emission;
+		emission.enabled = state;
 	}
 
 	public override void InitializeInventory()

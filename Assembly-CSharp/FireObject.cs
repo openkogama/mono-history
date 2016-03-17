@@ -6,17 +6,17 @@ public class FireObject : MonoBehaviour
 	private TriggerBoxEvents triggerBoxEvents;
 
 	[SerializeField]
-	private ParticleSystem particleSystem;
+	private AudioSource audioSource;
 
 	[SerializeField]
-	private AudioSource audioSource;
+	private ParticleSystem fireParticleSystem;
 
 	[SerializeField]
 	private GameObject rangeVisualizationRenderer;
 
 	public TriggerBoxEvents TriggerBoxEvents => triggerBoxEvents;
 
-	public ParticleSystem ParticleSystem => particleSystem;
+	public ParticleSystem ParticleSystem => fireParticleSystem;
 
 	public AudioSource AudioSource => audioSource;
 

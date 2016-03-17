@@ -7,4 +7,6 @@ public interface ILockCursorManager
 	bool LockCursor { get; set; }
 
 	bool HasFocusAndLockCursor { get; }
+
+	bool UnLockCursorOverride { set; }
 }

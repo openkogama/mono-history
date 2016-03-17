@@ -7,31 +7,31 @@ public class TimeLimitClient : TimeLimit, IWinningConditionBriefing
 	{
 	}
 
-	public void GetBriefing(MVGUIWinningConditionBriefingView winningConditionBriefingView)
+	public void GetBriefing(IBriefing winningConditionBriefingView)
 	{
 		switch (CounterType)
 		{
 		case GameStatCounterType.YUp:
-			winningConditionBriefingView.AddBriefing("Highest");
+			winningConditionBriefingView.AddBriefing(WinningConditionType.Highest);
 			break;
 		case GameStatCounterType.YDown:
-			winningConditionBriefingView.AddBriefing("Lowest");
+			winningConditionBriefingView.AddBriefing(WinningConditionType.Lowest);
 			break;
 		}
 	}
 
-	public void GetDebriefing(MVGUIWinningConditionDebriefingView winningConditionDebriefingView)
+	public void GetDebriefing(IDebriefing winningConditionDebriefingView)
 	{
 		switch (CounterType)
 		{
 		case GameStatCounterType.YUp:
-			winningConditionDebriefingView.SetupDebriefing("Highest", HighScores, IsTeamMode);
+			winningConditionDebriefingView.SetupDebriefing(WinningConditionType.Highest, HighScores, IsTeamMode);
 			break;
 		case GameStatCounterType.YDown:
-			winningConditionDebriefingView.SetupDebriefing("Lowest", HighScores, IsTeamMode);
+			winningConditionDebriefingView.SetupDebriefing(WinningConditionType.Lowest, HighScores, IsTeamMode);
 			break;
 		default:
-			winningConditionDebriefingView.SetupDebriefing("Time", HighScores, IsTeamMode);
+			winningConditionDebriefingView.SetupDebriefing(WinningConditionType.Time, HighScores, IsTeamMode);
 			break;
 		}
 	}

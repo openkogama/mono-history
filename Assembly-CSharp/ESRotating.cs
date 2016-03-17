@@ -115,7 +115,7 @@ internal class ESRotating : ESStateBase
 	private void DoGridSnapping()
 	{
 		float num = 0f;
-		num = ((!MVGameControllerLegacyUI.EditorController.IsGridSnap()) ? 0.0625f : 1f);
+		num = ((!MVGameControllerBase.IEditModeUI.IsGridSnap()) ? 0.0625f : 1f);
 		foreach (MVWorldObjectClient target in targets)
 		{
 			target.SyncPos = target.GetClosestGridPoint(num, target.WorldPosition);

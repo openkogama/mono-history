@@ -27,7 +27,7 @@ public class AndroidThirdPersonCamera : MVCameraBase, ICameraSettings
 	private Transform lookAtTransform;
 
 	[SerializeField]
-	private float distanceToAvatar = 5f;
+	private float distanceToAvatarBase = 5f;
 
 	[SerializeField]
 	private float minimumY = -60f;
@@ -36,31 +36,50 @@ public class AndroidThirdPersonCamera : MVCameraBase, ICameraSettings
 	private float maximumY = 60f;
 
 	[SerializeField]
-	private Vector3 lookAtOffset = new Vector3(0f, 2.5f, 0f);
+	private Vector3 lookAtOffsetBase = new Vector3(0f, 2.5f, 0f);
 
 	[SerializeField]
 	private CameraShake cameraShake;
+
+	private float currentDistanceToAvatar;
+
+	private float desiredDistanceToAvatar;
+
+	private Vector3 lookAtOffset;
 
 	public override CameraType CameraType => CameraType.ThirdPerson;
 
 	public override void Awake()
 	{
 		MVCameraController.RegisterCameraWithSettings(MVGameType.Classic, this);
+		lookAtOffset = lookAtOffsetBase;
+		currentDistanceToAvatar = distanceToAvatarBase;
+		desiredDistanceToAvatar = distanceToAvatarBase;
 	}
 
 	public void SetDefaultSettings()
 	{
-		distanceToAvatar = 5f;
+		distanceToAvatarBase = 5f;
+		desiredDistanceToAvatar = distanceToAvatarBase;
+	}
+
+	private void ResetScaledValues()
+	{
+		desiredDistanceToAvatar = distanceToAvatarBase;
+		lookAtOffset = lookAtOffsetBase;
 	}
 
 	public void ScaleCameraValues(float scale)
 	{
-		Debug.LogWarning("Implement scale stuff");
+		ResetScaledValues();
+		desiredDistanceToAvatar *= scale;
+		lookAtOffset *= scale;
 	}
 
 	public void UpdateFromCameraSettings(Dictionary<object, object> data)
 	{
-		distanceToAvatar = (float)data["distanceToAvatar"];
+		distanceToAvatarBase = (float)data["distanceToAvatar"];
+		desiredDistanceToAvatar = distanceToAvatarBase;
 	}
 
 	public override void Enter(MVCameraController cameraController)
@@ -87,6 +106,7 @@ public class AndroidThirdPersonCamera : MVCameraBase, ICameraSettings
 			MVGameControllerBase.CameraController.StartTransitionCam(0.3f);
 			return;
 		}
+		LerpCurrentDistanceToDesiredDistance();
 		if (InputActive)
 		{
 			HandleSlide();
@@ -98,9 +118,24 @@ public class AndroidThirdPersonCamera : MVCameraBase, ICameraSettings
 		targetTransform.rotation = transform.rotation * Quaternion.Euler(-10f, 0f, 0f);
 	}
 
+	private void LerpCurrentDistanceToDesiredDistance()
+	{
+		float num = desiredDistanceToAvatar - currentDistanceToAvatar;
+		float num2 = 0f;
+		if (desiredDistanceToAvatar > currentDistanceToAvatar)
+		{
+			num2 = Mathf.Min(4f * Time.deltaTime, num);
+		}
+		else if (desiredDistanceToAvatar < currentDistanceToAvatar)
+		{
+			num2 = 0f - Mathf.Min(4f * Time.deltaTime, Mathf.Abs(num));
+		}
+		currentDistanceToAvatar += num2;
+	}
+
 	private void HandleSlide()
 	{
-		if (CrossPlatformInputManager.GetAxis("Vertical") < 0f && cameraCollision.CollideWithSliding(out var newCameraPosition, cameraRadius, distanceToAvatar, lookAtTransform.position + lookAtOffset, transform.position, ignoreAvatarId))
+		if (CrossPlatformInputManager.GetAxis("Vertical") < 0f && cameraCollision.CollideWithSliding(out var newCameraPosition, cameraRadius, currentDistanceToAvatar, lookAtTransform.position + lookAtOffset, transform.position, ignoreAvatarId))
 		{
 			transform.position = newCameraPosition;
 		}
@@ -109,7 +144,7 @@ public class AndroidThirdPersonCamera : MVCameraBase, ICameraSettings
 	private void HandleCollision()
 	{
 		Vector3 targetPosition = lookAtTransform.position + lookAtOffset;
-		if (cameraCollision.Collide(out var newPos, cameraRadius, distanceToAvatar, targetPosition, transform.position, ignoreAvatarId))
+		if (cameraCollision.Collide(out var newPos, cameraRadius, currentDistanceToAvatar, targetPosition, transform.position, ignoreAvatarId))
 		{
 			transform.position = newPos;
 		}
@@ -120,7 +155,7 @@ public class AndroidThirdPersonCamera : MVCameraBase, ICameraSettings
 	{
 		Vector3 vector = transform.rotation * -Vector3.forward;
 		vector.Normalize();
-		vector *= distanceToAvatar;
+		vector *= currentDistanceToAvatar;
 		transform.position = lookAtTransform.position + lookAtOffset + vector;
 	}
 

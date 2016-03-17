@@ -149,22 +149,22 @@ public class Water : MonoBehaviour
 	{
 		if ((bool)m_ReflectionTexture)
 		{
-			UnityEngine.Object.DestroyImmediate(m_ReflectionTexture);
+			m_ReflectionTexture.Release();
 			m_ReflectionTexture = null;
 		}
 		if ((bool)m_RefractionTexture)
 		{
-			UnityEngine.Object.DestroyImmediate(m_RefractionTexture);
+			m_RefractionTexture.Release();
 			m_RefractionTexture = null;
 		}
 		foreach (KeyValuePair<object, object> reflectionCamera in m_ReflectionCameras)
 		{
-			UnityEngine.Object.DestroyImmediate(((Camera)reflectionCamera.Value).gameObject);
+			UnityEngine.Object.Destroy(((Camera)reflectionCamera.Value).gameObject);
 		}
 		m_ReflectionCameras.Clear();
 		foreach (KeyValuePair<object, object> refractionCamera in m_RefractionCameras)
 		{
-			UnityEngine.Object.DestroyImmediate(((Camera)refractionCamera.Value).gameObject);
+			UnityEngine.Object.Destroy(((Camera)refractionCamera.Value).gameObject);
 		}
 		m_RefractionCameras.Clear();
 	}

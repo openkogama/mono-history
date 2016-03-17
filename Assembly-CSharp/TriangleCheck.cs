@@ -67,35 +67,6 @@ public static class TriangleCheck
 		return false;
 	}
 
-	private static bool CheckPointInTriangle(Vector3 point, Vector3 a, Vector3 b, Vector3 c)
-	{
-		float num = 0f;
-		Vector3 a2 = default;
-		Vector3 b2 = default;
-		Vector3 b3 = default;
-		a2.x = point.x - a.x;
-		a2.y = point.y - a.y;
-		a2.z = point.z - a.z;
-		b2.x = point.x - b.x;
-		b2.y = point.y - b.y;
-		b2.z = point.z - b.z;
-		b3.x = point.x - c.x;
-		b3.y = point.y - c.y;
-		b3.z = point.z - c.z;
-		a2.Normalize();
-		b2.Normalize();
-		b3.Normalize();
-		num += (float)Math.Acos(MathFunctions.DotProduct(ref a2, ref b2));
-		num += (float)Math.Acos(MathFunctions.DotProduct(ref b2, ref b3));
-		num += (float)Math.Acos(MathFunctions.DotProduct(ref b3, ref a2));
-		bool flag = !float.IsInfinity(num);
-		if ((double)Mathf.Abs(num - (float)Math.PI * 2f) <= 0.005 && flag)
-		{
-			return true;
-		}
-		return false;
-	}
-
 	private static bool IsFrontFacingTo(ref Plane plane, ref Vector3 direction)
 	{
 		Vector3 a = plane.normal;

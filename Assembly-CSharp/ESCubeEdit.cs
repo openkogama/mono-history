@@ -1,6 +1,7 @@
-using System;
+using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 internal class ESCubeEdit : ESStateBase
 {
@@ -10,37 +11,32 @@ internal class ESCubeEdit : ESStateBase
 
 	private MVCubeModelBase targetCubeModel;
 
-	private MVGUIEditModel guiEditModel;
-
-	private bool exitButtonWasPressed;
+	private bool exiting;
 
 	public override void Enter(EditorStateMachine e)
 	{
 		Debug.Log("ESCubeEdit enter");
 		HandleUnavailableMaterial(e);
-		exitButtonWasPressed = false;
+		exiting = false;
 		if (e.SingleSelectedWO == null)
 		{
 			Debug.LogError("ESCubeEdit must not be entered with no selected WorldObject");
 			e.PopState();
 			return;
 		}
+		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
+		{
+			MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Edit);
+		}
+		((MVAvatarLocal.JetPackMode)MVGameControllerBase.WOCM.AvatarLocal.CurrentMode).ModifySpeed(Mathf.Min(1f, 2f * e.SingleSelectedWO.Scale.x), Mathf.Min(1f, 2f * e.SingleSelectedWO.Scale.x));
+		DrawPlane.HideDrawPlane();
+		ExecuteEvents.ExecuteHierarchy(e.GameObject, null, (IHandleCubeModelEdit handler, BaseEventData data) =>
+		{
+			handler.Open(Exit);
+		});
 		tintedWo = null;
-		exitButtonWasPressed = false;
 		targetCubeModel = (MVCubeModelBase)e.SingleSelectedWO;
 		e.DeSelectAll();
-		guiEditModel = UXUtils.FindGUIObjectOfType<MVGUIEditModel>();
-		guiEditModel.View.Show();
-		guiEditModel.exitButton.OnClick = () =>
-		{
-			exitButtonWasPressed = true;
-		};
-		guiEditModel.exitText.OnClick = (UXMouseClickObject clickObject, Vector3 mousePositionWorld) =>
-		{
-			exitButtonWasPressed = true;
-		};
-		UXMouseClickObject exitText = guiEditModel.exitText;
-		exitText.OnMouseDown = (UXMouseClickObject.OnMouseDownDelegate)Delegate.Combine(exitText.OnMouseDown, (UXMouseClickObject.OnMouseDownDelegate)((UXMouseClickObject clickObject, Vector3 mousePositionWorld) => true));
 		constraint = targetCubeModel.ModelingConstraintBuilder();
 		GameObject gameObject = new GameObject("ConstrainVisualizer");
 		constraintVisualizer = gameObject.AddComponent<ConstraintVisualizer>();
@@ -54,9 +50,8 @@ internal class ESCubeEdit : ESStateBase
 			SharedCubeFunctions.SetLayerRecursively(MVGameControllerBase.WOCM.GetWorldObjectClient(e.ParentGroupID).Transform, select: false);
 		}
 		SharedCubeFunctions.SetLayerRecursively(targetCubeModel.Transform, select: true);
-		((ICubeModelingEditMode)MVGameControllerLegacyUI.IngameController).DrawPlaneController.DrawPlaneToModel(targetCubeModel.GameObject);
+		DrawPlane.DrawPlaneToModel(targetCubeModel.GameObject);
 		e.CubeModelingStateMachine.StartEdit(targetCubeModel, constraint);
-		MVGameControllerLegacyUI.EditorController.EnterCubeModelEdit(targetCubeModel.Scale.x);
 		MVGameControllerBase.CameraController.CurCamera.FocusOnObject(targetCubeModel);
 		e.CameraController.BlueModeEnabled = true;
 	}
@@ -64,42 +59,52 @@ internal class ESCubeEdit : ESStateBase
 	public override void Execute(EditorStateMachine e)
 	{
 		base.Execute(e);
-		if (exitButtonWasPressed || targetCubeModel == null || targetCubeModel.State == MVWorldObjectState.Destroyed)
+		exiting = exiting || targetCubeModel == null || targetCubeModel.State == MVWorldObjectState.Destroyed;
+		if (exiting)
 		{
 			Debug.Log("Exit cube edit, parentGroup: " + e.ParentGroup);
 			if (e.ParentGroupIsRoot)
 			{
 				Debug.Log("Parent group is root!");
 				e.Event = EditorEvent.ESTerrainEdit;
-				return;
 			}
-			if (e.ParentGroup == null)
+			else if (e.ParentGroup != null)
+			{
+				MVGroup mVGroup = e.ParentGroup;
+				while (!mVGroup.OnExitObject(e) && mVGroup.Group != null)
+				{
+					Debug.Log("Looping up tree");
+					mVGroup = mVGroup.Group;
+				}
+			}
+			else
 			{
 				Debug.LogError("ParentGroup was null");
 				e.ExitGroupToRoot();
-				return;
-			}
-			MVGroup mVGroup = e.ParentGroup;
-			while (!mVGroup.OnExitObject(e) && mVGroup.Group != null)
-			{
-				Debug.Log("Looping up tree");
-				mVGroup = mVGroup.Group;
 			}
 		}
-		e.CubeModelingStateMachine.Update();
-		if (!targetCubeModel.ContainsCubes)
+		else
 		{
-			Debug.LogWarning("This prototype is empty and should be deleted");
-			e.Event = EditorEvent.ESTerrainEdit;
+			e.CubeModelingStateMachine.Update();
+			if (!targetCubeModel.ContainsCubes)
+			{
+				Debug.LogWarning("This prototype is empty and should be deleted");
+				e.Event = EditorEvent.ESTerrainEdit;
+			}
 		}
 	}
 
 	public override void Exit(EditorStateMachine e)
 	{
 		Debug.Log("ESCubeEdit exit");
+		DrawPlane.HideDrawPlane();
+		ExecuteEvents.ExecuteHierarchy(e.GameObject, null, (IUIStack handler, BaseEventData data) =>
+		{
+			handler.PopToBottom();
+		});
 		if (targetCubeModel.GameObject == null)
 		{
-			((ICubeModelingEditMode)MVGameControllerLegacyUI.IngameController).DrawPlaneController.CreateDrawPlane();
+			Debug.LogWarning("Implement: Create drawplane");
 			e.CameraController.BlueModeEnabled = false;
 		}
 		else
@@ -111,27 +116,34 @@ internal class ESCubeEdit : ESStateBase
 			SharedCubeFunctions.SetLayerRecursively(targetCubeModel.Transform, select: false);
 			e.CameraController.BlueModeEnabled = false;
 		}
-		((ICubeModelingEditMode)MVGameControllerLegacyUI.IngameController).DrawPlaneController.ReturnDrawPlaneToLandscape();
+		DrawPlane.ReturnDrawPlaneToLandscape();
 		if (constraintVisualizer != null)
 		{
-			UnityEngine.Object.Destroy(constraintVisualizer.gameObject);
+			Object.Destroy(constraintVisualizer.gameObject);
 		}
 		if (constraint is ModelingDynamicBoxConstraint modelingDynamicBoxConstraint)
 		{
 			modelingDynamicBoxConstraint.DetachFromCubeModel();
 		}
 		constraint = null;
-		guiEditModel.View.Hide();
-		guiEditModel.exitButton.OnClick = null;
 		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.Idle);
 		if (e.SelectedIDs.Count == 0)
 		{
 			DeTintCurrent();
 		}
-		((MVAvatarLocal.JetPackMode)MVGameControllerBase.WOCM.AvatarLocal.CurrentMode).ModifySpeed(1f, 1f);
 		e.CubeModelingStateMachine.RemoveCursors();
 		e.CubeModelingStateMachine.EndEdit();
-		MVGameControllerLegacyUI.EditorController.LeaveCubeModelEdit();
+		((MVAvatarLocal.JetPackMode)MVGameControllerBase.WOCM.AvatarLocal.CurrentMode).ModifySpeed(1f, 1f);
+		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
+		{
+			MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Edit2D);
+			DrawPlane.SetToTerrain(active: true);
+		}
+	}
+
+	private void Exit()
+	{
+		exiting = true;
 	}
 
 	private void HandleUnavailableMaterial(EditorStateMachine e)

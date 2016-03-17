@@ -6,13 +6,15 @@ public class EditorStateMachine : FSMEntity
 {
 	public const float sqrEpsilon = 0.64f;
 
-	private MVNetworkSelector networkSelector;
+	private SelectionController selectionController;
 
 	private MVCameraController weCamera;
 
-	private CubeModelingStateMachine cubeModelingStateMachine = new CubeModelingStateMachine();
+	private CubeModelingStateMachine cubeModelingStateMachine;
 
-	private SelectionController selectionController;
+	private MVNetworkSelector networkSelector;
+
+	private GameObject gameObject;
 
 	public MVNetworkSelector NetworkSelector => networkSelector;
 
@@ -42,35 +44,35 @@ public class EditorStateMachine : FSMEntity
 
 	public bool ParentGroupIsRoot => selectionController.ParentGroupID == MVGameControllerBase.WOCM.RootGroup.Id;
 
-	public EditorStateMachine()
+	public GameObject GameObject => gameObject;
+
+	private EditorStateMachine(GameObject gameObject)
 	{
-		if (MVGameControllerBase.GameMode == MVGameMode.CharacterEditor)
-		{
-			transitionTable = new CEEditorStateTransitionTable();
-		}
-		else if (MVGameControllerBase.GameMode == MVGameMode.Edit)
-		{
-			if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
-			{
-				transitionTable = new EditorStateTransitionTable3D();
-			}
-			else if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-			{
-				transitionTable = new EditorStateTransitionTable2D();
-			}
-			else
-			{
-				Debug.LogError("Failed to create transition table");
-			}
-		}
-		else
-		{
-			Debug.LogError("Failed to create transition table");
-		}
+		this.gameObject = gameObject;
+		cubeModelingStateMachine = new CubeModelingStateMachine(gameObject);
 		networkSelector = new MVNetworkSelector(this);
 		selectionController = new SelectionController();
 		weCamera = MVGameControllerBase.CameraController;
 		GridMode = true;
+	}
+
+	public EditorStateMachine(GameObject gameObject, Vector3 avatarEditModeCenterPos)
+		: this(gameObject)
+	{
+		transitionTable = new CEEditorStateTransitionTableUUI(avatarEditModeCenterPos);
+	}
+
+	public EditorStateMachine(GameObject gameObject, ContextMenuController contextMenuController, GizmoController gizmoController)
+		: this(gameObject)
+	{
+		if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
+		{
+			transitionTable = new EditorStateTransitionTable3D(contextMenuController, gizmoController);
+		}
+		else if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
+		{
+			transitionTable = new EditorStateTransitionTable2D(contextMenuController, gizmoController);
+		}
 	}
 
 	public void EnterGroup(MVGroup group)

@@ -28,7 +28,7 @@ public class AvatarInputControllerAndroid : IMotorAPI, IAvatarInputController
 
 	public AvatarInputControllerAndroid()
 	{
-		settings = Resources.Load("Prefabs/Avatar/AvatarInputControllerAndroidSettings", typeof(AvatarInputControllerAndroidSettings)) as AvatarInputControllerAndroidSettings;
+		settings = Object.Instantiate(PrefabPool.Instance.AvatarInputControllerAndroidSettings);
 	}
 
 	public void HandleDead()
