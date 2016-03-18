@@ -15,15 +15,9 @@ public class MVGameCoinChest : MVLogicObject
 
 	private GameCoinChestClientState state;
 
-	private ObjectParticleEmitterScript particles;
-
-	private GameCoinChestModelSelector modelSelector;
-
 	private UseInteractor useInteractor;
 
-	private TriggerBoxEvents triggerBoxEvents;
-
-	private AudioSource audioSource;
+	private MVGameCoinChestObject chestObject;
 
 	public override bool HasInputConnector => false;
 
@@ -33,17 +27,17 @@ public class MVGameCoinChest : MVLogicObject
 	{
 		get
 		{
-			return modelSelector.IsVisible();
+			return chestObject.ModelSelector.IsVisible();
 		}
 		set
 		{
 			if (state == GameCoinChestClientState.Closed)
 			{
-				modelSelector.Close();
+				chestObject.ModelSelector.Close();
 			}
 			else
 			{
-				modelSelector.Open();
+				chestObject.ModelSelector.Open();
 			}
 		}
 	}
@@ -51,23 +45,20 @@ public class MVGameCoinChest : MVLogicObject
 	public MVGameCoinChest(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVGameCoinChestPrefab, worldObjects)
 	{
-		particles = gameObject.GetComponent<ObjectParticleEmitterScript>();
-		modelSelector = gameObject.GetComponent<GameCoinChestModelSelector>();
-		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
-		audioSource = gameObject.GetComponent<AudioSource>();
-		if (triggerBoxEvents != null)
+		chestObject = (MVGameCoinChestObject)component;
+		if (chestObject.TriggerBoxEvents != null)
 		{
-			triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
+			chestObject.TriggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		}
 		else
 		{
 			Debug.LogError("A TriggerBoxEvents object is missing in PickupItem type: " + GetType().Name);
 		}
-		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.Collider, OpenChest, IsUsable);
+		useInteractor = new UseInteractor(Id, gameObject, reset: false, chestObject.TriggerBoxEvents.Collider, OpenChest, IsUsable);
 		LevelBasedUseRequirement useRequirement = new LevelBasedUseRequirement(gameObject, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement);
-		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
-		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
+		chestObject.TriggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
+		chestObject.TriggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
 		interactionFlags |= InteractionFlags.HasSettings;
 		interactionFlags |= InteractionFlags.CanUseLevel;
 		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
@@ -83,7 +74,7 @@ public class MVGameCoinChest : MVLogicObject
 	{
 		useInteractor.UpdateData(Data);
 		base.InitializeInventory();
-		modelSelector.Close();
+		chestObject.ModelSelector.Close();
 	}
 
 	protected override void OnUpdate()
@@ -105,12 +96,12 @@ public class MVGameCoinChest : MVLogicObject
 
 	private bool OpenChest(int instigatorID)
 	{
-		modelSelector.Open();
-		if ((bool)audioSource)
+		chestObject.ModelSelector.Open();
+		if ((bool)chestObject.AudioSource)
 		{
-			audioSource.Play();
+			chestObject.AudioSource.Play();
 		}
-		particles.Play();
+		chestObject.Particles.Play();
 		MVGameControllerBase.Game.GameCoinManager.GameCoinChestCollect((int)Data["gameCoinAmount"]);
 		state = GameCoinChestClientState.Open;
 		return true;
@@ -134,7 +125,7 @@ public class MVGameCoinChest : MVLogicObject
 	{
 		if (state == GameCoinChestClientState.Open || state == GameCoinChestClientState.Opening)
 		{
-			modelSelector.Close();
+			chestObject.ModelSelector.Close();
 			state = GameCoinChestClientState.Closed;
 		}
 	}
@@ -146,21 +137,21 @@ public class MVGameCoinChest : MVLogicObject
 			disabledByLod = false;
 			if (state == GameCoinChestClientState.Closed)
 			{
-				modelSelector.Close();
+				chestObject.ModelSelector.Close();
 			}
 			else
 			{
-				modelSelector.Open();
+				chestObject.ModelSelector.Open();
 			}
 		}
 		else if (!disabledByLod && distance >= cullDistance)
 		{
 			disabledByLod = true;
-			Renderer[] componentsInChildren = gameObject.GetComponentsInChildren<Renderer>();
-			Renderer[] array = componentsInChildren;
-			foreach (Renderer renderer in array)
+			MeshRenderer[] meshRenderers = component.MeshRenderers;
+			MeshRenderer[] array = meshRenderers;
+			foreach (MeshRenderer meshRenderer in array)
 			{
-				renderer.enabled = false;
+				meshRenderer.enabled = false;
 			}
 		}
 	}
@@ -186,8 +177,8 @@ public class MVGameCoinChest : MVLogicObject
 	public override void Destroy()
 	{
 		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
-		triggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
-		triggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
+		chestObject.TriggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
+		chestObject.TriggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
 		useInteractor.OnDestroy(Data);
 		base.Destroy();
 	}

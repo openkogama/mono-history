@@ -5,13 +5,11 @@ public class MVTeleporter : MVLogicObject
 {
 	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
-	private TriggerBoxEvents triggerBoxEvents;
-
 	private List<MVAvatar> avatarIgnoreList = new List<MVAvatar>();
 
-	private TeleportAvatar teleportAvatarPrefab;
+	private MVTeleporterObject teleportObject;
 
-	private ParticleSystem teleportParticles;
+	private TeleportAvatar teleportAvatarPrefab;
 
 	private MVTeleporter target;
 
@@ -44,24 +42,23 @@ public class MVTeleporter : MVLogicObject
 	public MVTeleporter(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVTeleporterPrefab, worldObjects)
 	{
-		teleportAvatarPrefab = PrefabPool.Instance.TeleportAvatarPrefab.GetComponent<TeleportAvatar>();
-		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
-		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
-		triggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
-		teleportParticles = gameObject.GetComponentInChildren<ParticleSystem>();
+		teleportObject = (MVTeleporterObject)component;
+		teleportAvatarPrefab = PrefabPool.Instance.TeleportAvatarPrefab;
+		teleportObject.TriggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
+		teleportObject.TriggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
 		interactionFlags &= ~InteractionFlags.CanClone;
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
 		interactionFlags |= InteractionFlags.CanUseLevel;
 		interactionFlags |= InteractionFlags.CanUseStars;
-		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.Collider, DoTeleport);
+		useInteractor = new UseInteractor(Id, gameObject, reset: false, teleportObject.TriggerBoxEvents.Collider, DoTeleport);
 		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, gameCoinDisplayObjectOffset, hasUseButtonWhenFree: false);
 		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(gameObject, hasUseButtonWhenFree: false);
 		StarRequirement useRequirement3 = new StarRequirement(gameObject, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement2);
 		useInteractor.AddRequirement(useRequirement);
 		useInteractor.AddRequirement(useRequirement3);
-		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
-		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
+		teleportObject.TriggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
+		teleportObject.TriggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
 	}
 
 	public override void OnDataUpdate()
@@ -109,7 +106,7 @@ public class MVTeleporter : MVLogicObject
 	{
 		base.OnInputStateChanged();
 		bool flag = InputLinkRefs.Count == 0 || InputState;
-		teleportParticles.startColor = ((!flag) ? new Color(1f, 0.5f, 0f) : new Color(0f, 0.5f, 1f));
+		teleportObject.ParticleSystem.startColor = ((!flag) ? new Color(1f, 0.5f, 0f) : new Color(0f, 0.5f, 1f));
 	}
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
@@ -163,8 +160,8 @@ public class MVTeleporter : MVLogicObject
 	{
 		if (!isDestroyed)
 		{
-			triggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
-			triggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
+			teleportObject.TriggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
+			teleportObject.TriggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
 			useInteractor.OnDestroy(Data);
 			base.Destroy();
 			isDestroyed = true;

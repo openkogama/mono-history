@@ -6,10 +6,10 @@ public class PrefabPool : MonoBehaviour
 
 	[Header("World Objects")]
 	[SerializeField]
-	public GameObject MVFirePrefab;
+	public ObjectPrefab MVFirePrefab;
 
 	[SerializeField]
-	public GameObject MVAndPrefab;
+	public ObjectPrefab MVAndPrefab;
 
 	[SerializeField]
 	public GameObject MVAvatarPrefab;
@@ -33,94 +33,94 @@ public class PrefabPool : MonoBehaviour
 	public GameObject MVJetPackDeluxePrefab;
 
 	[SerializeField]
-	public GameObject MVBatteryPrefab;
+	public ObjectPrefab MVBatteryPrefab;
 
 	[SerializeField]
-	public GameObject MVCameraSettingsPrefab;
+	public ObjectPrefab MVCameraSettingsPrefab;
 
 	[SerializeField]
-	public GameObject MVCollectiblePrefab;
+	public MVCollectibleObject MVCollectiblePrefab;
 
 	[SerializeField]
-	public GameObject MVCollectibleFantaPrefab;
+	public MVCollectibleObject MVCollectibleFantaPrefab;
 
 	[SerializeField]
-	public GameObject MVCheckpointPrefab;
+	public ObjectPrefab MVCheckpointPrefab;
 
 	[SerializeField]
-	public GameObject MVExplosivesPrefab;
+	public ObjectPrefab MVExplosivesPrefab;
 
 	[SerializeField]
-	public GameObject MVFlagPrefab;
+	public ObjectPrefab MVFlagPrefab;
 
 	[SerializeField]
-	public GameObject MVGameCoinChestPrefab;
+	public ObjectPrefab MVGameCoinChestPrefab;
 
 	[SerializeField]
-	public GameObject MVGameCoinPrefab;
+	public MVGameCoinObject MVGameCoinPrefab;
 
 	[SerializeField]
 	public GameObject MVGhostPrefab;
 
 	[SerializeField]
-	public GameObject MVGoalPrefab;
+	public ObjectPrefab MVGoalPrefab;
 
 	[SerializeField]
 	public GameObject MVGhostInstancePrefab;
 
 	[SerializeField]
-	public GameObject MVGravityCubePrefab;
+	public ObjectPrefab MVGravityCubePrefab;
 
 	[SerializeField]
-	public GameObject MVNegatePrefab;
+	public ObjectPrefab MVNegatePrefab;
 
 	[SerializeField]
-	public GameObject MVPointLightPrefab;
+	public MVPointLightObject MVPointLightPrefab;
 
 	[SerializeField]
-	public GameObject MVPressurePlatePrefab;
+	public MVPressurePlateObject MVPressurePlatePrefab;
 
 	[SerializeField]
-	public GameObject MVPulseBoxPrefab;
+	public ObjectPrefab MVPulseBoxPrefab;
 
 	[SerializeField]
-	public GameObject MVRandomBoxPrefab;
+	public ObjectPrefab MVRandomBoxPrefab;
 
 	[SerializeField]
-	public GameObject MVRoundCubePrefab;
+	public ObjectPrefab MVRoundCubePrefab;
 
 	[SerializeField]
-	public GameObject MVSkyboxPrefab;
+	public ObjectPrefab MVSkyboxPrefab;
 
 	[SerializeField]
-	public GameObject MVSmokePrefab;
+	public ObjectPrefab MVSmokePrefab;
 
 	[SerializeField]
-	public GameObject MVSoundEmitterPrefab;
+	public ObjectPrefab MVSoundEmitterPrefab;
 
 	[SerializeField]
-	public GameObject MVSpawnPointBluePrefab;
+	public ObjectPrefab MVSpawnPointBluePrefab;
 
 	[SerializeField]
-	public GameObject MVSpawnPointGreenPrefab;
+	public ObjectPrefab MVSpawnPointGreenPrefab;
 
 	[SerializeField]
-	public GameObject MVSpawnPointRedPrefab;
+	public ObjectPrefab MVSpawnPointRedPrefab;
 
 	[SerializeField]
-	public GameObject MVSpawnPointYellowPrefab;
+	public ObjectPrefab MVSpawnPointYellowPrefab;
 
 	[SerializeField]
-	public GameObject MVTextMsgPrefab;
+	public MVTextMsgObject MVTextMsgPrefab;
 
 	[SerializeField]
-	public GameObject MVTimeTriggerPrefab;
+	public ObjectPrefab MVTimeTriggerPrefab;
 
 	[SerializeField]
-	public GameObject MVToggleBoxPrefab;
+	public ObjectPrefab MVToggleBoxPrefab;
 
 	[SerializeField]
-	public GameObject MVTriggerBoxPrefab;
+	public MVTriggerBoxObject MVTriggerBoxPrefab;
 
 	[SerializeField]
 	public GameObject MVMovingPlatformGroupPrefab;
@@ -129,44 +129,44 @@ public class PrefabPool : MonoBehaviour
 	public GameObject MVMovingPlatformNodePrefab;
 
 	[SerializeField]
-	public GameObject MVObjectEnablerPrefab;
+	public MVObjectEnablerObject MVObjectEnablerPrefab;
 
 	[SerializeField]
-	public GameObject MVKillLimitPrefab;
+	public ObjectPrefab MVKillLimitPrefab;
 
 	[SerializeField]
-	public GameObject MVOculusKillLimitPrefab;
+	public ObjectPrefab MVOculusKillLimitPrefab;
 
 	[SerializeField]
-	public GameObject MVSentryGunPrefab;
+	public MVSentryGunObject MVSentryGunPrefab;
 
 	[SerializeField]
-	public GameObject ShootableButtonPrefab;
+	public ShootableButtonObject ShootableButtonPrefab;
 
 	[SerializeField]
 	public GameObject MVTeleportGroupPrefab;
 
 	[SerializeField]
-	public GameObject MVTeleporterPrefab;
+	public MVTeleporterObject MVTeleporterPrefab;
 
 	[SerializeField]
-	public GameObject UseLeverPrefab;
+	public UseLeverObject UseLeverPrefab;
 
 	[SerializeField]
-	public GameObject MVWaterPlanePrefab;
+	public ObjectPrefab MVWaterPlanePrefab;
 
 	[SerializeField]
-	public GameObject WindTurbinePrefab;
+	public WindTurbineObject WindTurbinePrefab;
 
 	[SerializeField]
-	public GameObject MVCountingCube;
+	public MVCountingCubeObject MVCountingCube;
 
 	[SerializeField]
-	public GameObject TeleportAvatarPrefab;
+	public TeleportAvatar TeleportAvatarPrefab;
 
-	[Header("Game")]
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
+	[Header("Game")]
 	public Material GhostMarkerMaterial;
 
 	[SerializeField]
@@ -187,64 +187,67 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public GameCoinDisplayObject GameCoinDisplayPrefab;
 
+	[SerializeField]
+	public CubeModelChunkPrefab CubeModelChunkPrefab;
+
 	[Space(20f)]
 	[SerializeField]
 	[Header("Pick up")]
-	public GameObject AvatarCenterGunPrefab;
+	public MVPickupItemBaseObject AvatarCenterGunPrefab;
 
 	[SerializeField]
-	public GameObject AvatarImpulseGunPrefab;
+	public MVPickupItemBaseObject AvatarImpulseGunPrefab;
 
 	[SerializeField]
-	public GameObject AvatarHealthPrefab;
+	public MVPickupItemBaseObject AvatarHealthPrefab;
 
 	[SerializeField]
-	public GameObject AvatarBazookaPrefab;
+	public MVPickupItemBaseObject AvatarBazookaPrefab;
 
 	[SerializeField]
-	public GameObject AvatarRailGunPrefab;
+	public MVPickupItemBaseObject AvatarRailGunPrefab;
 
 	[SerializeField]
-	public GameObject AvatarMutantPrefab;
+	public MVPickupItemBaseObject AvatarMutantPrefab;
 
 	[SerializeField]
-	public GameObject AvatarSwordPrefab;
+	public MVPickupItemBaseObject AvatarSwordPrefab;
 
 	[SerializeField]
-	public GameObject AvatarShotgunPrefab;
+	public MVPickupItemBaseObject AvatarShotgunPrefab;
 
 	[SerializeField]
-	public GameObject AvatarFlamethrowerPrefab;
+	public MVPickupItemBaseObject AvatarFlamethrowerPrefab;
 
 	[SerializeField]
-	public GameObject AvatarCubeGunPrefab;
+	public MVPickupItemBaseObject AvatarCubeGunPrefab;
 
 	[SerializeField]
-	public GameObject AvatarNinjaRunPrefab;
+	public MVPickupItemBaseObject AvatarNinjaRunPrefab;
 
 	[SerializeField]
-	public GameObject AvatarSixShooterPrefab;
+	public MVPickupItemBaseObject AvatarSixShooterPrefab;
 
 	[SerializeField]
-	public GameObject AvatarDoubleSixShooterPrefab;
+	public MVPickupItemBaseObject AvatarDoubleSixShooterPrefab;
 
 	[SerializeField]
-	public GameObject AvatarThrowingStarPrefab;
+	public MVPickupItemBaseObject AvatarThrowingStarPrefab;
 
 	[SerializeField]
-	public GameObject AvatarMultiThrowingStarPrefab;
+	public MVPickupItemBaseObject AvatarMultiThrowingStarPrefab;
 
 	[SerializeField]
-	public GameObject AvatarMouseGunPrefab;
+	public MVPickupItemBaseObject AvatarMouseGunPrefab;
 
 	[SerializeField]
-	public GameObject AvatarGrowthGunPrefab;
+	public MVPickupItemBaseObject AvatarGrowthGunPrefab;
 
 	[SerializeField]
-	public GameObject AvatarMousePackPrefab;
+	public MVPickupItemBaseObject AvatarMousePackPrefab;
 
 	[SerializeField]
-	public GameObject AvatarGrowthPackPrefab;
+	public MVPickupItemBaseObject AvatarGrowthPackPrefab;
 
 	[Space(20f)]
 	[SerializeField]
@@ -283,8 +286,8 @@ public class PrefabPool : MonoBehaviour
 
 	public GameObject AvatarItemSlapGun;
 
-	[Header("Avatar modifier")]
 	[Space(20f)]
+	[Header("Avatar modifier")]
 	public AvatarModifier BurningModifier;
 
 	public AvatarModifier MutantModifier;
@@ -299,8 +302,8 @@ public class PrefabPool : MonoBehaviour
 
 	public AvatarModifier GrowthModifier;
 
-	[Space(20f)]
 	[Header("Particles")]
+	[Space(20f)]
 	[SerializeField]
 	public GameObject ParticleBlood;
 
@@ -332,7 +335,7 @@ public class PrefabPool : MonoBehaviour
 	public GameObject ParticleFire1;
 
 	[SerializeField]
-	public GameObject ParticleFluffySmoke;
+	public ParticleSystem ParticleFluffySmoke;
 
 	[SerializeField]
 	public GameObject ParticleFluffySmokeLarge;
@@ -365,8 +368,8 @@ public class PrefabPool : MonoBehaviour
 	public GameObject ParticleXP;
 
 	[SerializeField]
-	[Space(20f)]
 	[Header("Logic object prefabs")]
+	[Space(20f)]
 	public GameObject LogicInputConnectorPrefab;
 
 	[SerializeField]
@@ -394,8 +397,8 @@ public class PrefabPool : MonoBehaviour
 	public Material LogicCubeConnectorBlueSelectedMaterial;
 
 	[Header("GUI")]
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
 	public Texture2D AvatarAccessoryMoveIcon;
 
 	[SerializeField]
@@ -404,9 +407,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public Material ModelConstraintsMaterial;
 
-	[Space(20f)]
-	[SerializeField]
 	[Header("UGUI")]
+	[SerializeField]
+	[Space(20f)]
 	public AvatarInputControllerAndroidSettings AvatarInputControllerAndroidSettings;
 
 	[SerializeField]

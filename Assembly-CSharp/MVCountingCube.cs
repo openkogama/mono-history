@@ -9,9 +9,7 @@ public class MVCountingCube : MVLogicObject
 
 	private Vector3 ObjectSize = new Vector3(2f, 1.2f, 0.35f);
 
-	private AudioSource audioSource;
-
-	private MVCountingCubeDigits DigitManager;
+	private MVCountingCubeObject cubeObject;
 
 	private int currentValue;
 
@@ -28,6 +26,7 @@ public class MVCountingCube : MVLogicObject
 	public MVCountingCube(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVCountingCube, worldObjects)
 	{
+		cubeObject = (MVCountingCubeObject)component;
 		if (Data.ContainsKey("startingValue"))
 		{
 			startingValue = (int)Data["startingValue"];
@@ -41,8 +40,6 @@ public class MVCountingCube : MVLogicObject
 			currentValue = (int)Data["startingValue"];
 		}
 		interactionFlags |= InteractionFlags.HasSettings;
-		DigitManager = transform.GetComponent<MVCountingCubeDigits>();
-		audioSource = transform.GetComponent<AudioSource>();
 		SetText();
 	}
 
@@ -97,12 +94,12 @@ public class MVCountingCube : MVLogicObject
 
 	private void SetText()
 	{
-		DigitManager.Number = currentValue;
+		cubeObject.DigitManager.Number = currentValue;
 	}
 
 	private void PlaySound()
 	{
-		audioSource.Play();
+		cubeObject.AudioSource.Play();
 	}
 
 	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)

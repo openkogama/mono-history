@@ -35,11 +35,6 @@ public class SendMessageControl : MonoBehaviour
 
 	public void Send()
 	{
-		if (frameCountSent == Time.frameCount)
-		{
-			return;
-		}
-		frameCountSent = Time.frameCount;
 		string text = inputField.text;
 		text = Regex.Replace(text, "\\r\\n?|\\n", string.Empty);
 		inputField.text = string.Empty;
@@ -77,7 +72,12 @@ public class SendMessageControl : MonoBehaviour
 		string text = inputField.text;
 		if (text.IndexOf("\n") >= 0)
 		{
+			frameCountSent = Time.frameCount;
 			Send();
+		}
+		else if (frameCountSent == Time.frameCount)
+		{
+			inputField.text = string.Empty;
 		}
 	}
 

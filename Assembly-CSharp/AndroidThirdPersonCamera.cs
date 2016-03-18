@@ -9,7 +9,7 @@ public class AndroidThirdPersonCamera : MVCameraBase, ICameraSettings
 
 	private const float yawSensitivity = 0.3f;
 
-	private const float basePitch = 10f;
+	private const float basePitch = 20f;
 
 	private const float localPitch = -10f;
 
@@ -93,7 +93,7 @@ public class AndroidThirdPersonCamera : MVCameraBase, ICameraSettings
 
 	public override void Reset()
 	{
-		Vector3 euler = new Vector3(10f, lookAtTransform.transform.rotation.eulerAngles.y, 0f);
+		Vector3 euler = new Vector3(20f, lookAtTransform.transform.rotation.eulerAngles.y, 0f);
 		transform.rotation = Quaternion.Euler(euler);
 		HandlePos();
 	}
@@ -166,7 +166,6 @@ public class AndroidThirdPersonCamera : MVCameraBase, ICameraSettings
 		vector.y = 0f;
 		Quaternion quaternion = Quaternion.LookRotation(vector.normalized, Vector3.up);
 		transform.rotation = quaternion * mouseRot;
-		transform.rotation = fallBehindPitch.Update(transform.rotation, transform.position, 10f);
 	}
 
 	private Quaternion GetMouseRot()

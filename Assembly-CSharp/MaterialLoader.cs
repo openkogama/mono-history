@@ -34,6 +34,15 @@ public class MaterialLoader : MonoBehaviour
 	[SerializeField]
 	private Shader avatarTransparentLow;
 
+	[SerializeField]
+	private Shader pickupItemShader;
+
+	[SerializeField]
+	private Shader wireframeShader;
+
+	[SerializeField]
+	private Shader defaultDiffuseShader;
+
 	private Material cubeModelMaterial;
 
 	private Material avatarMaterial;
@@ -53,6 +62,12 @@ public class MaterialLoader : MonoBehaviour
 	public Shader AvatarShader => avatarShader;
 
 	public Shader AvatarTransparentShader => avatarTransparentShader;
+
+	public Shader PickupItemShader => pickupItemShader;
+
+	public Shader WireframeShader => wireframeShader;
+
+	public Shader DefaultDiffuseShader => defaultDiffuseShader;
 
 	public void Start()
 	{

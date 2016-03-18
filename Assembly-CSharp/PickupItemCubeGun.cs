@@ -23,7 +23,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	public ObscuredFloat fireIntervalSecondary = 1.3f;
 
-	public Bullet rocketPrefab;
+	public CubeGunBulletObject rocketPrefab;
 
 	public GUICellCursor primaryCursor;
 
@@ -184,7 +184,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 		currentAmmo = ammo;
 		Dictionary<object, object> dictionary = (Dictionary<object, object>)newState["itemData"];
 		material = (byte)dictionary["material"];
-		GetComponentInChildren<CubeBullet>().SetCubeMaterial(material);
+		cubeBullet.SetCubeMaterial(material);
 	}
 
 	protected override void OnFire(bool isLocal)
@@ -201,14 +201,17 @@ public class PickupItemCubeGun : PickupItemWithDelay
 				return;
 			}
 		}
-		Bullet bullet = Bullet.CreateBullet(rocketPrefab, muzzlePoint.position);
-		bullet.GetComponentInChildren<CubeBullet>().SetCubeMaterial(material);
+		CubeGunBulletObject cubeGunBulletObject = UnityEngine.Object.Instantiate(rocketPrefab, muzzlePoint.position, Quaternion.identity) as CubeGunBulletObject;
+		cubeGunBulletObject.CubeBullet.SetCubeMaterial(material);
 		if (isLocal)
 		{
+			Bullet bullet = cubeGunBulletObject.Bullet;
 			bullet.onHitLocal = (Bullet.OnHitDelegate)Delegate.Combine(bullet.onHitLocal, new Bullet.OnHitDelegate(HandleCubeHitLocal));
 		}
-		bullet.onHit = (Bullet.OnHitDelegate)Delegate.Combine(bullet.onHit, new Bullet.OnHitDelegate(HandleCubeHit));
-		bullet.Fire(lineOfFire: new Ray(owner.LookOrigin, owner.LookDirection), speed: owner.GetAbsolutProjectileSpeed(speed), range: range, ignoreWoIDs: owner.IgnoreWOIDs);
+		Bullet bullet2 = cubeGunBulletObject.Bullet;
+		bullet2.onHit = (Bullet.OnHitDelegate)Delegate.Combine(bullet2.onHit, new Bullet.OnHitDelegate(HandleCubeHit));
+		Ray lineOfFire = new Ray(owner.LookOrigin, owner.LookDirection);
+		cubeGunBulletObject.Bullet.Fire(owner.GetAbsolutProjectileSpeed(speed), range, lineOfFire, owner.IgnoreWOIDs);
 		if (isLocal)
 		{
 			MVGameControllerBase.AudioManager.Play("cubeFire", firePrimary, Camera.main.transform.position + Camera.main.transform.forward, 0.4f, SoundRangeDistance.Long);

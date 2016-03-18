@@ -2,11 +2,14 @@ using UnityEngine;
 
 public class TeleportAnimator : MonoBehaviour
 {
+	[SerializeField]
+	private Renderer teleportRenderer;
+
 	private Material _material;
 
 	private void Awake()
 	{
-		_material = GetComponent<Renderer>().material;
+		_material = teleportRenderer.material;
 	}
 
 	private void Update()

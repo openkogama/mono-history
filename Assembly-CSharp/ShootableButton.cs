@@ -11,9 +11,7 @@ public class ShootableButton : MVLogicObject
 
 	private Collider targetCollider;
 
-	private Collider pushCollider;
-
-	private GreyOutObjectScript activatedScript;
+	private ShootableButtonObject buttonObject;
 
 	public override Vector3 WorldPivot => transform.position;
 
@@ -28,8 +26,7 @@ public class ShootableButton : MVLogicObject
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
 		PlayInteractionType = PlayInteractionType.HandlesHits;
-		pushCollider = gameObject.transform.FindChild("EditCube").GetComponent<Collider>();
-		activatedScript = gameObject.GetComponent<GreyOutObjectScript>();
+		buttonObject = (ShootableButtonObject)component;
 	}
 
 	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
@@ -50,18 +47,16 @@ public class ShootableButton : MVLogicObject
 			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
 			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Combine(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
 		}
-		Collider component = gameObject.transform.FindChild("TargetCollider").GetComponent<Collider>();
-		Collider component2 = gameObject.transform.FindChild("2DCollider").GetComponent<Collider>();
 		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
 		{
-			component.enabled = false;
-			targetCollider = component2;
+			buttonObject.TargetCollider3D.enabled = false;
+			targetCollider = buttonObject.TargetCollider2D;
 			transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, 90f, transform.localEulerAngles.z);
 		}
 		else
 		{
-			component2.enabled = false;
-			targetCollider = component;
+			buttonObject.TargetCollider2D.enabled = false;
+			targetCollider = buttonObject.TargetCollider3D;
 		}
 		collider = targetCollider;
 		if (RunTimeData.ContainsObscuredKey("isActivated") && (bool)(ObscuredBool)RunTimeData.GetObscuredType("isActivated"))
@@ -108,7 +103,7 @@ public class ShootableButton : MVLogicObject
 			outputLinkRef.isSet = true;
 		}
 		targetCollider.enabled = false;
-		activatedScript.GreyOut();
+		buttonObject.GreyOutObject.GreyOut();
 	}
 
 	public void OnDeactivated()
@@ -118,7 +113,7 @@ public class ShootableButton : MVLogicObject
 			outputLinkRef.isSet = false;
 		}
 		targetCollider.enabled = true;
-		activatedScript.GreyIn();
+		buttonObject.GreyOutObject.GreyIn();
 	}
 
 	public override void Destroy()
@@ -149,11 +144,11 @@ public class ShootableButton : MVLogicObject
 
 	public void OnEditModeChange(EditModeChangeArgs arg)
 	{
-		pushCollider.enabled = true;
+		buttonObject.EditCollider.enabled = true;
 		targetCollider.enabled = false;
 		if (arg.playInEditor)
 		{
-			pushCollider.enabled = false;
+			buttonObject.EditCollider.enabled = false;
 			targetCollider.enabled = true;
 		}
 	}

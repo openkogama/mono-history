@@ -11,33 +11,15 @@ public class RailRay : MonoBehaviour
 
 	public AnimationCurve implosionFade;
 
+	[SerializeField]
 	private LineRenderer rayRenderer;
 
+	[SerializeField]
 	private ParticleSystem particles;
 
-	public LineRenderer RayRenderer
-	{
-		get
-		{
-			if (rayRenderer == null)
-			{
-				rayRenderer = GetComponent<LineRenderer>();
-			}
-			return rayRenderer;
-		}
-	}
+	public LineRenderer RayRenderer => rayRenderer;
 
-	public ParticleSystem Particles
-	{
-		get
-		{
-			if (particles == null)
-			{
-				particles = GetComponentInChildren<ParticleSystem>();
-			}
-			return particles;
-		}
-	}
+	public ParticleSystem Particles => particles;
 
 	private void Start()
 	{

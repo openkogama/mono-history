@@ -198,7 +198,7 @@ public class ChatControllerUGUI : MonoBehaviour
 		currentlyInLobbyState = !cursorLocked;
 		UpdateFadeTime();
 		shouldUpdateFade = cursorLocked;
-		ChatFocusChanged(!cursorLocked);
+		ChatFocusChanged(enterChatMode: false);
 		bool flag = !MVGameControllerBase.IsTouristSession && !cursorLocked;
 		inputAreaRoot.gameObject.SetActive(flag);
 		inputAreaDeactivated.gameObject.SetActive(!flag);

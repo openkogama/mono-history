@@ -10,5 +10,6 @@ public enum CameraType
 	OverTheShoulder = 8,
 	EditorCamera2D = 9,
 	VehicleCamera = 10,
-	AirCraftCamera = 11
+	AirCraftCamera = 11,
+	AvatarEditModeCamera = 12
 }

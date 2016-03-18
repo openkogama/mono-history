@@ -67,7 +67,7 @@ public class AvatarBadge : MonoBehaviour
 	{
 		if (www != null && www.texture != null)
 		{
-			badgeRenderer.gameObject.layer = LayerMask.NameToLayer("Default");
+			badgeRenderer.gameObject.layer = LayerMask.NameToLayer("UIItems");
 			texture = www.texture;
 			scaleAnimation.Play();
 		}

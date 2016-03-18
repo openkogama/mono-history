@@ -69,6 +69,12 @@ public class GUICellCursor : MonoBehaviour
 
 	private FadeState fadeState;
 
+	[SerializeField]
+	private MeshRenderer meshRenderer;
+
+	[SerializeField]
+	private MeshFilter meshFilter;
+
 	public float PrevCursorSetTime => prevCursorSetTime;
 
 	public IntVector LocalPos => pos;
@@ -122,35 +128,28 @@ public class GUICellCursor : MonoBehaviour
 	private void Awake()
 	{
 		gameObject.layer = LayerMask.NameToLayer("UIItems");
-		MeshRenderer component = gameObject.GetComponent<MeshRenderer>();
-		MeshFilter component2 = gameObject.GetComponent<MeshFilter>();
-		if (component == null && component2 == null)
+		meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
+		meshRenderer.receiveShadows = false;
+		meshRenderer.material = material;
+		baseAlpha = meshRenderer.material.GetColor("_Color").a;
+		currentAlpha = baseAlpha;
+		Vector3[] array = new Vector3[CubeBase.IdentityCorners.Length];
+		for (int i = 0; i < CubeBase.IdentityCorners.Length; i++)
 		{
-			component = gameObject.AddComponent<MeshRenderer>();
-			component2 = gameObject.AddComponent<MeshFilter>();
-			component.shadowCastingMode = ShadowCastingMode.Off;
-			component.receiveShadows = false;
-			component.material = material;
-			baseAlpha = component.material.GetColor("_Color").a;
-			currentAlpha = baseAlpha;
-			Vector3[] array = new Vector3[CubeBase.IdentityCorners.Length];
-			for (int i = 0; i < CubeBase.IdentityCorners.Length; i++)
-			{
-				ref Vector3 reference = ref array[i];
-				reference = CubeBase.IdentityCorners[i] * scale;
-			}
-			if (lineMesh)
-			{
-				SharedCubeFunctions.AddCubeMeshCubeLines(component2.mesh, array, lineWidth);
-			}
-			if (cubeMesh)
-			{
-				SharedCubeFunctions.AddCubeMesh(component2.mesh, array, insideOut: false);
-			}
-			if (invertedCubeMesh)
-			{
-				SharedCubeFunctions.AddCubeMesh(component2.mesh, array, insideOut: true);
-			}
+			ref Vector3 reference = ref array[i];
+			reference = CubeBase.IdentityCorners[i] * scale;
+		}
+		if (lineMesh)
+		{
+			SharedCubeFunctions.AddCubeMeshCubeLines(meshFilter.mesh, array, lineWidth);
+		}
+		if (cubeMesh)
+		{
+			SharedCubeFunctions.AddCubeMesh(meshFilter.mesh, array, insideOut: false);
+		}
+		if (invertedCubeMesh)
+		{
+			SharedCubeFunctions.AddCubeMesh(meshFilter.mesh, array, insideOut: true);
 		}
 	}
 
@@ -169,7 +168,7 @@ public class GUICellCursor : MonoBehaviour
 
 	private void SetMaterialOpacity(float alphaValue)
 	{
-		Material[] materials = gameObject.GetComponent<Renderer>().materials;
+		Material[] materials = meshRenderer.materials;
 		foreach (Material material in materials)
 		{
 			material.hideFlags = HideFlags.DontSave;

@@ -1115,32 +1115,35 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	private void OnRequestFriendshipResponse(int returnCode)
 	{
-		string message = string.Empty;
+		string text = string.Empty;
 		switch (returnCode)
 		{
 		case -1:
-			message = "Undefined fail during friend request";
+			text = "Undefined fail during friend request";
 			break;
 		case -2:
-			message = "User does not exist";
+			text = "User does not exist";
 			break;
 		case -3:
-			message = "You already have a pending request with that user";
+			text = "You already have a pending request with that user";
 			break;
 		case -4:
-			message = "You are already friends with that user";
+			text = "You are already friends with that user";
 			break;
 		case -5:
-			message = "You have blocked that user";
+			text = "You have blocked that user";
 			break;
 		case -6:
-			message = "User has sent you request! Accept?";
+			text = "User has sent you request! Accept?";
 			break;
 		case -7:
-			message = "That user has blocked you";
+			text = "That user has blocked you";
 			break;
 		}
-		MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, message);
+		if (text != string.Empty)
+		{
+			MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, text);
+		}
 	}
 
 	public void RequestAcceptFriendShip(int friendID)

@@ -7,9 +7,7 @@ public class MVTextMsg : MVLogicObject
 
 	private Bounds localBounds;
 
-	private TextMesh textMesh;
-
-	private Renderer textMeshRenderer;
+	private MVTextMsgObject msgObject;
 
 	public override bool HasInputConnector => true;
 
@@ -19,9 +17,8 @@ public class MVTextMsg : MVLogicObject
 		: base(data, PrefabPool.Instance.MVTextMsgPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
-		localBounds = ComputeLocalBounds(gameObject.transform.position, new MeshRenderer[1] { gameObject.GetComponent<MeshRenderer>() });
-		textMesh = gameObject.GetComponentInChildren<TextMesh>();
-		textMeshRenderer = textMesh.GetComponent<Renderer>();
+		msgObject = (MVTextMsgObject)component;
+		localBounds = ComputeLocalBounds(gameObject.transform.position, msgObject.MeshRenderers);
 	}
 
 	public override Bounds GetLocalBounds(BoundsContext boundsContext)
@@ -35,7 +32,7 @@ public class MVTextMsg : MVLogicObject
 		OnDataUpdate();
 		if (InputLinkRefs.Count == 0)
 		{
-			textMeshRenderer.enabled = (textVisible = true);
+			msgObject.TextMeshRenderer.enabled = (textVisible = true);
 		}
 	}
 
@@ -50,7 +47,7 @@ public class MVTextMsg : MVLogicObject
 	{
 		if (InputLinkRefs.Count == 0)
 		{
-			textMeshRenderer.enabled = (textVisible = true);
+			msgObject.TextMeshRenderer.enabled = (textVisible = true);
 		}
 		else
 		{
@@ -60,23 +57,23 @@ public class MVTextMsg : MVLogicObject
 
 	public override void OnInputStateChanged()
 	{
-		textMeshRenderer.enabled = (textVisible = InputState);
+		msgObject.TextMeshRenderer.enabled = (textVisible = InputState);
 	}
 
 	public override void OnDataUpdate()
 	{
 		if (Data.ContainsKey("text"))
 		{
-			textMesh.text = (string)Data["text"];
+			msgObject.TextMesh.text = (string)Data["text"];
 		}
 		if (Data.ContainsKey("textSize"))
 		{
 			float num = (float)Data["textSize"];
-			textMesh.transform.localScale = new Vector3(num, num, num);
+			msgObject.TextMesh.transform.localScale = new Vector3(num, num, num);
 		}
 		else
 		{
-			textMesh.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
+			msgObject.TextMesh.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
 		}
 	}
 
@@ -86,7 +83,7 @@ public class MVTextMsg : MVLogicObject
 		base.ChangeLOD(distance);
 		if (flag != disabledByLod)
 		{
-			textMeshRenderer.enabled = textVisible && !disabledByLod;
+			msgObject.TextMeshRenderer.enabled = textVisible && !disabledByLod;
 		}
 	}
 }

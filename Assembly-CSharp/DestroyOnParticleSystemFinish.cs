@@ -1,17 +1,13 @@
-using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(ParticleSystem))]
 public class DestroyOnParticleSystemFinish : MonoBehaviour
 {
-	private IEnumerator Start()
+	[SerializeField]
+	private ParticleSystem system;
+
+	private void Start()
 	{
-		ParticleSystem system = GetComponent<ParticleSystem>();
-		yield return new WaitForSeconds(system.duration);
-		while (system.IsAlive(withChildren: true))
-		{
-			yield return 0;
-		}
-		Object.Destroy(gameObject);
+		Object.Destroy(gameObject, system.duration + system.startLifetime);
 	}
 }

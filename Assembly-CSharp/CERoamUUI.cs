@@ -40,8 +40,8 @@ public class CERoamUUI : ESStateBase
 			{
 				x.Set("Idle");
 			});
-			MVGameControllerBase.CameraController.SetCamera(CameraType.EditorCamera);
-			MVGameControllerBase.CameraController.CurCamera.FocusOnObject(esm.ParentGroup);
+			MVGameControllerBase.CameraController.SetCamera(CameraType.AvatarEditModeCamera);
+			((AvatarEditModeCamera)MVGameControllerBase.CameraController.CurCamera).FocusOnPosition(esm.ParentGroup.Transform.position + Vector3.up);
 		}
 		else
 		{

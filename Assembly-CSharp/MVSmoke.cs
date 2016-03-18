@@ -5,8 +5,6 @@ public class MVSmoke : MVLogicObject
 {
 	private ParticleSystem particleSystem;
 
-	private GameObject particleGO;
-
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => false;
@@ -14,9 +12,8 @@ public class MVSmoke : MVLogicObject
 	public MVSmoke(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVSmokePrefab, worldObjects)
 	{
-		particleGO = (GameObject)Object.Instantiate(PrefabPool.Instance.ParticleFluffySmoke, gameObject.transform.position, Quaternion.identity);
-		particleGO.transform.parent = gameObject.transform;
-		particleSystem = particleGO.GetComponent<ParticleSystem>();
+		particleSystem = Object.Instantiate(PrefabPool.Instance.ParticleFluffySmoke, gameObject.transform.position, Quaternion.identity) as ParticleSystem;
+		particleSystem.transform.parent = gameObject.transform;
 		ToggleEmitter(toggle: false);
 	}
 

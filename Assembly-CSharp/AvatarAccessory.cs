@@ -298,11 +298,11 @@ public abstract class AvatarAccessory : MonoBehaviour
 		MapParamsToCallback(par, accessoryCreatedCallback);
 		if (MapAssetPathToParams(par))
 		{
-			AsyncWWWManager.WWWRequest(new StreamingAssetRequest(Urls.StreamingAssets + par.AssetReqPath, LoadedAccessoryAsset));
+			AsyncWWWManager.WWWRequest(new StreamingAssetRequestTempHack(Urls.StreamingAssets + par.AssetReqPath, LoadedAccessoryAsset));
 		}
 	}
 
-	private static void LoadedAccessoryAsset(WWW www)
+	private static void LoadedAccessoryAsset(WWW www, UnityEngine.Object mainAsset)
 	{
 		string text = www.url.TrimStart(Urls.StreamingAssets.ToCharArray());
 		text = text.Split('?')[0];
@@ -321,14 +321,11 @@ public abstract class AvatarAccessory : MonoBehaviour
 			for (int i = 0; i < array.Length; i++)
 			{
 				Action<AvatarAccessory> action = (Action<AvatarAccessory>)array[i];
-				if (www == null || www.assetBundle == null || www.assetBundle.mainAsset == null)
+				if (www == null || www.assetBundle == null)
 				{
+					Debug.Log("Got to here ");
 					string text2 = "Failed to create accessory from bundle " + www.url;
 					if (www != null && www.assetBundle == null)
-					{
-						text2 += ". Bundle has no main asset";
-					}
-					else if (www != null && www.assetBundle.mainAsset == null)
 					{
 						text2 += ". Bundle has no main asset";
 					}
@@ -336,7 +333,7 @@ public abstract class AvatarAccessory : MonoBehaviour
 					action(null);
 					continue;
 				}
-				GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(www.assetBundle.mainAsset);
+				GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(mainAsset);
 				AccessorySettings component = gameObject.GetComponent<AccessorySettings>();
 				if (component == null)
 				{
@@ -380,7 +377,7 @@ public abstract class AvatarAccessory : MonoBehaviour
 		}
 		else
 		{
-			LoadedAccessoryAsset(www);
+			LoadedAccessoryAsset(www, mainAsset);
 		}
 	}
 }

@@ -3,7 +3,7 @@ using UnityEngine;
 
 public abstract class AsyncWebRequest
 {
-	private enum State
+	protected enum State
 	{
 		Created,
 		Running,
@@ -14,13 +14,13 @@ public abstract class AsyncWebRequest
 
 	protected readonly string path;
 
-	private int retries = 3;
+	protected int retries = 3;
 
-	private float currentTimeout;
+	protected float currentTimeout;
 
-	private float retryTime = Time.realtimeSinceStartup;
+	protected float retryTime = Time.realtimeSinceStartup;
 
-	private State state;
+	protected State state;
 
 	protected static bool useCaching = true;
 
@@ -71,7 +71,7 @@ public abstract class AsyncWebRequest
 		state = State.Running;
 	}
 
-	private bool UpdateRunningState()
+	protected virtual bool UpdateRunningState()
 	{
 		bool flag = www.isDone;
 		if (flag)

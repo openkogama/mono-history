@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using MV.WorldObject;
 using UnityEngine;
 
@@ -11,17 +10,14 @@ public abstract class MVLogicObject : MVWorldObjectClient
 
 	protected float cullDistance = 145f;
 
-	protected MVLogicObject(Dictionary<object, object> data, GameObject prefabObject, Dictionary<int, MVWorldObjectClient> worldObjects)
+	protected MVLogicObject(Dictionary<object, object> data, ObjectPrefab prefabObject, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, prefabObject, worldObjects)
 	{
 		interactionFlags = InteractionFlags.Selectable | InteractionFlags.CanRotateY | InteractionFlags.CanClone | InteractionFlags.CanResetLogic;
 		PlayInteractionType = PlayInteractionType.ExcludeFromInteraction;
 		gameObject.layer = LayerMask.NameToLayer("Logic");
 		previewLayerMask |= LayerFlags.Logic;
-		MeshRenderer[] meshRenderers = (from r in gameObject.GetComponentsInChildren<MeshRenderer>()
-			where r.name != "ioConnectorCube" && r.name != "ioConnectorSphere"
-			select r).ToArray();
-		localBounds = ComputeLocalBounds(gameObject.transform.position, meshRenderers);
+		localBounds = ComputeLocalBounds(gameObject.transform.position, component.MeshRenderers);
 	}
 
 	protected virtual void OnUpdate()
@@ -71,12 +67,18 @@ public abstract class MVLogicObject : MVWorldObjectClient
 	public override void InitializeInventory()
 	{
 		base.InitializeInventory();
-		(from r in GameObject.GetComponentsInChildren<MeshRenderer>()
-			where r.name == "ioConnectorCube" || r.name == "ioConnectorSphere"
-			select r).ToList().ForEach((MeshRenderer r) =>
+		if (HasInputConnector)
 		{
-			r.gameObject.SetActive(value: false);
-		});
+			inputConnectorObject.SetActive(value: false);
+		}
+		if (HasObjectConnector)
+		{
+			objectConnectorObject.SetActive(value: false);
+		}
+		if (HasOutputConnector)
+		{
+			outputConnectorObject.SetActive(value: false);
+		}
 	}
 
 	public override void ChangeLOD(float distance)
@@ -84,21 +86,19 @@ public abstract class MVLogicObject : MVWorldObjectClient
 		if (disabledByLod && distance < cullDistance)
 		{
 			disabledByLod = false;
-			Renderer[] componentsInChildren = gameObject.GetComponentsInChildren<Renderer>();
-			Renderer[] array = componentsInChildren;
-			foreach (Renderer renderer in array)
+			MeshRenderer[] meshRenderers = component.MeshRenderers;
+			for (int i = 0; i < meshRenderers.Length; i++)
 			{
-				renderer.enabled = true;
+				meshRenderers[i].enabled = true;
 			}
 		}
 		else if (!disabledByLod && distance >= cullDistance)
 		{
 			disabledByLod = true;
-			Renderer[] componentsInChildren2 = gameObject.GetComponentsInChildren<Renderer>();
-			Renderer[] array2 = componentsInChildren2;
-			foreach (Renderer renderer2 in array2)
+			MeshRenderer[] meshRenderers2 = component.MeshRenderers;
+			for (int j = 0; j < meshRenderers2.Length; j++)
 			{
-				renderer2.enabled = false;
+				meshRenderers2[j].enabled = false;
 			}
 		}
 	}

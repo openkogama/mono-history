@@ -2,13 +2,14 @@ using UnityEngine;
 
 public class GameCoinDisplayObject : MonoBehaviour
 {
-	public TextMesh textMesh1;
+	[SerializeField]
+	private TextMesh textMesh1;
 
-	public TextMesh textMesh2;
+	[SerializeField]
+	private TextMesh textMesh2;
 
-	public GameObject coinMesh;
-
-	public Transform stringAttachPoint;
+	[SerializeField]
+	private GameObject coinMesh;
 
 	private float visibilityDistance = 25f;
 
@@ -16,57 +17,24 @@ public class GameCoinDisplayObject : MonoBehaviour
 
 	private bool visible;
 
+	[SerializeField]
 	private Renderer textMeshRenderer1;
 
+	[SerializeField]
 	private Renderer textMeshRenderer2;
 
+	[SerializeField]
 	private Renderer coinMeshRenderer;
 
 	private GameCoinStringRenderer stringRenderer;
 
 	private int amount;
 
-	public Renderer TextMeshRenderer1
-	{
-		get
-		{
-			if (textMeshRenderer1 == null)
-			{
-				textMeshRenderer1 = textMesh1.GetComponent<Renderer>();
-			}
-			return textMeshRenderer1;
-		}
-	}
-
-	public Renderer TextMeshRenderer2
-	{
-		get
-		{
-			if (textMeshRenderer2 == null)
-			{
-				textMeshRenderer2 = textMesh2.GetComponent<Renderer>();
-			}
-			return textMeshRenderer2;
-		}
-	}
-
-	public Renderer CoinMeshRenderer
-	{
-		get
-		{
-			if (coinMeshRenderer == null)
-			{
-				coinMeshRenderer = coinMesh.GetComponent<Renderer>();
-			}
-			return coinMeshRenderer;
-		}
-	}
-
 	public void Start()
 	{
-		CoinMeshRenderer.enabled = false;
-		TextMeshRenderer1.enabled = false;
-		TextMeshRenderer2.enabled = false;
+		coinMeshRenderer.enabled = false;
+		textMeshRenderer1.enabled = false;
+		textMeshRenderer2.enabled = false;
 		visible = false;
 		transform.localScale = Vector3.zero;
 	}
@@ -119,9 +87,9 @@ public class GameCoinDisplayObject : MonoBehaviour
 		{
 			SetScale(t);
 		}));
-		TextMeshRenderer1.enabled = true;
-		TextMeshRenderer2.enabled = true;
-		CoinMeshRenderer.enabled = true;
+		textMeshRenderer1.enabled = true;
+		textMeshRenderer2.enabled = true;
+		coinMeshRenderer.enabled = true;
 		visible = true;
 	}
 
@@ -139,9 +107,9 @@ public class GameCoinDisplayObject : MonoBehaviour
 		transform.localScale = new Vector3(value, value, value);
 		if (value <= 0f && !visible)
 		{
-			TextMeshRenderer1.enabled = false;
-			TextMeshRenderer2.enabled = false;
-			CoinMeshRenderer.enabled = false;
+			textMeshRenderer1.enabled = false;
+			textMeshRenderer2.enabled = false;
+			coinMeshRenderer.enabled = false;
 		}
 	}
 }

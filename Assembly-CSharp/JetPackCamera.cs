@@ -27,19 +27,19 @@ public class JetPackCamera : MVCameraBase
 
 	private Transform lookAtTransform;
 
-	private Vector3 lookAtOffset;
+	protected Vector3 lookAtOffset;
 
-	private float xAxisTarget;
+	protected float xAxisTarget;
 
-	private float yAxisTarget;
+	protected float yAxisTarget;
 
-	private float xAxis;
+	protected float xAxis;
 
-	private float yAxis;
+	protected float yAxis;
 
-	private float yAxisVelocity;
+	protected float yAxisVelocity;
 
-	private float xAxisVelocity;
+	protected float xAxisVelocity;
 
 	private float rotationSmoothTime = 0.1f;
 
@@ -96,7 +96,7 @@ public class JetPackCamera : MVCameraBase
 		base.UpdateCamera(camController, targetTransform);
 	}
 
-	private static float NormalizeAngle(float angle)
+	protected static float NormalizeAngle(float angle)
 	{
 		while (angle < -180f)
 		{

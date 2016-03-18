@@ -51,6 +51,8 @@ public class GameSessionData
 
 	public string gameRewardDataURL = string.Empty;
 
+	public LoadLogoType loadedLogo = LoadLogoType.Poki;
+
 	public GameSessionData()
 	{
 	}

@@ -1,5 +1,6 @@
 using MV.Common;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class DesktopInGameGUIController : MonoBehaviour
 {
@@ -22,6 +23,11 @@ public class DesktopInGameGUIController : MonoBehaviour
 	[SerializeField]
 	private GameObject touristLogo;
 
+	[SerializeField]
+	private RawImage logo;
+
+	private readonly string logoPath = "Logos/Logo_{0}.png";
+
 	public void Initialize()
 	{
 		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
@@ -36,6 +42,28 @@ public class DesktopInGameGUIController : MonoBehaviour
 		if (MVGameControllerBase.IsTouristSession)
 		{
 			touristLogo.SetActive(value: true);
+		}
+		LoadLogoType loadLogoType = LoadLogoType.None;
+		switch (loadLogoType)
+		{
+		case LoadLogoType.None:
+			logo.gameObject.SetActive(value: false);
+			Debug.Log("No logo loaded: Playing from kogama.");
+			break;
+		case LoadLogoType.Poki:
+		{
+			string path = Urls.StreamingAssets + string.Format(logoPath, loadLogoType.ToString());
+			AsyncWWWManager.WWWRequest(new CachedGetRequest(path, StreamingAssetCallback));
+			break;
+		}
+		}
+	}
+
+	private void StreamingAssetCallback(WWW www)
+	{
+		if (www != null && www.texture != null)
+		{
+			logo.texture = www.texture;
 		}
 	}
 

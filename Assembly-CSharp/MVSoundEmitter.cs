@@ -83,7 +83,7 @@ public class MVSoundEmitter : MVLogicObject
 			StreamingAssetInfo streamingAssetInfo = Game.StreamingAssetInfoMap.Values.FirstOrDefault((StreamingAssetInfo sai) => sai.AssetPath == currentUrl);
 			if (streamingAssetInfo != null)
 			{
-				AsyncWWWManager.WWWRequest(new StreamingAssetRequest(Urls.StreamingAssets + streamingAssetInfo.RequestPath, StreamingAssetCallback));
+				AsyncWWWManager.WWWRequest(new StreamingAssetRequestTempHack(Urls.StreamingAssets + streamingAssetInfo.RequestPath, StreamingAssetCallback));
 			}
 			else
 			{
@@ -96,18 +96,18 @@ public class MVSoundEmitter : MVLogicObject
 		}
 	}
 
-	public void StreamingAssetCallback(WWW www)
+	public void StreamingAssetCallback(WWW www, UnityEngine.Object mainAsset)
 	{
 		try
 		{
 			Validate(www);
 			StopAndDestroySound();
-			GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(www.assetBundle.mainAsset);
-			AudioSource component = gameObject.GetComponent<AudioSource>();
-			component.transform.parent = transform;
-			component.transform.position = transform.position;
-			Data["loop"] = component.loop;
-			UpdateSound(component);
+			GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(mainAsset);
+			AudioSource audioSource = gameObject.GetComponent<AudioSource>();
+			audioSource.transform.parent = transform;
+			audioSource.transform.position = transform.position;
+			Data["loop"] = audioSource.loop;
+			UpdateSound(audioSource);
 		}
 		catch (Exception ex)
 		{

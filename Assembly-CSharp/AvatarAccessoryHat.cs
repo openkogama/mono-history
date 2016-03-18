@@ -7,7 +7,8 @@ public class AvatarAccessoryHat : AvatarAccessory
 
 	private AccessoryHatSettings hatSettings;
 
-	private static readonly Shader accessoryShader = Shader.Find("Diffuse with vertex colors");
+	[SerializeField]
+	private Shader accessoryShader = MVGameControllerBase.MaterialLoader.DefaultDiffuseShader;
 
 	public override bool HasAttachmentPoint => attachPosTfm != null;
 

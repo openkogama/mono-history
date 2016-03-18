@@ -12,6 +12,8 @@ public class MVFlag : MVLogicObject
 
 	private UseInteractor useInteractor;
 
+	private Vector3 gameCoinDisplayObjectOffset = new Vector3(0f, 2.5f, 0f);
+
 	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
 	public override Vector3 WorldPivot => transform.position;
@@ -22,10 +24,10 @@ public class MVFlag : MVLogicObject
 		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
 		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
-		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.Collider, DoCaptureFlag, null, 3f);
+		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.Collider, DoCaptureFlag);
 		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
 		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
-		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, hasUseButtonWhenFree: false);
+		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, gameCoinDisplayObjectOffset, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement);
 	}
 

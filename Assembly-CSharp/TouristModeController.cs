@@ -38,7 +38,6 @@ public class TouristModeController : MonoBehaviour
 		private bool ShowPromotion()
 		{
 			showTouristPromotion |= DeadShowCondition();
-			showTouristPromotion |= GameEnteredCondition();
 			showTouristPromotion |= showTouristPromotion;
 			bool flag = ContinuedClicked();
 			showTouristPromotion = showTouristPromotion && !flag;
@@ -102,6 +101,8 @@ public class TouristModeController : MonoBehaviour
 		private List<Texture> promotionDatas = new List<Texture>();
 
 		private int currentSlideIndex;
+
+		public bool PromotionDataReady => promotionDatas.Count > 0;
 
 		public Texture NextPromotionData
 		{
@@ -176,7 +177,7 @@ public class TouristModeController : MonoBehaviour
 
 	private void Update()
 	{
-		if (showPromotionBookkeeping.Show)
+		if (showPromotionBookkeeping.Show && promotionDataManager.PromotionDataReady)
 		{
 			TouristPromotion promotion = UnityEngine.Object.Instantiate(touristPromotionPrefab);
 			SetToPromotionData(promotion);

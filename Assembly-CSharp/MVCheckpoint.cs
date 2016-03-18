@@ -3,9 +3,7 @@ using UnityEngine;
 
 public class MVCheckpoint : MVLogicObject
 {
-	private TriggerBoxEvents triggerBoxEvents;
-
-	private Animation animation;
+	private MVCheckpointObject checkpointObject;
 
 	private UseInteractor useInteractor;
 
@@ -16,14 +14,13 @@ public class MVCheckpoint : MVLogicObject
 	public MVCheckpoint(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVCheckpointPrefab, worldObjects)
 	{
-		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
-		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
-		animation = gameObject.GetComponentInChildren<Animation>();
+		checkpointObject = (MVCheckpointObject)component;
+		checkpointObject.TriggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
 		interactionFlags |= InteractionFlags.CanUseLevel;
-		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.Collider, DoReachCheckpoint);
-		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
-		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
+		useInteractor = new UseInteractor(Id, gameObject, reset: false, checkpointObject.TriggerBoxEvents.Collider, DoReachCheckpoint);
+		checkpointObject.TriggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
+		checkpointObject.TriggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
 		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement);
 		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(gameObject, hasUseButtonWhenFree: false);
@@ -60,9 +57,9 @@ public class MVCheckpoint : MVLogicObject
 
 	public override void Destroy()
 	{
-		triggerBoxEvents.TriggerEnter -= triggerBoxEvents_TriggerEnter;
-		triggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
-		triggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
+		checkpointObject.TriggerBoxEvents.TriggerEnter -= triggerBoxEvents_TriggerEnter;
+		checkpointObject.TriggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
+		checkpointObject.TriggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
 		useInteractor.OnDestroy(Data);
 		base.Destroy();
 	}
@@ -72,9 +69,9 @@ public class MVCheckpoint : MVLogicObject
 		if (MVGameControllerBase.Game.LocalPlayer.GetCheckpoint() == null || MVGameControllerBase.Game.LocalPlayer.GetCheckpoint().Id != Id)
 		{
 			MVGameControllerBase.Game.LocalPlayer.SetCheckpoint(id);
-			if (animation != null)
+			if (checkpointObject.Animation != null)
 			{
-				animation.Play("CheckpointReach");
+				checkpointObject.Animation.Play("CheckpointReach");
 			}
 			return true;
 		}

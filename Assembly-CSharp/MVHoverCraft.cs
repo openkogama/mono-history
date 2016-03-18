@@ -51,9 +51,9 @@ public class MVHoverCraft : MVSimpleOneSeatVehicle
 		MVRuntimeDataVariable isVehicleDead = IsVehicleDead;
 		isVehicleDead.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(isVehicleDead.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnIsDeadChange));
 		MVCubeModelBase mVCubeModelBase = (MVCubeModelBase)GetChild("HoverCraftHull");
-		HoverCraftVisualization component = gameObject.GetComponent<HoverCraftVisualization>();
-		component.Init(mVCubeModelBase.GameObject.transform, seatManager, (float)RuntimeVariablesRepository.GetRuntimeVariables(WorldObjectType)["health"], Health, IsInSpawner);
-		visualization = component;
+		HoverCraftVisualization hoverCraftVisualization = gameObject.GetComponent<HoverCraftVisualization>();
+		hoverCraftVisualization.Init(mVCubeModelBase.GameObject.transform, seatManager, (float)RuntimeVariablesRepository.GetRuntimeVariables(WorldObjectType)["health"], Health, IsInSpawner);
+		visualization = hoverCraftVisualization;
 		editableCubeModelWrapper = new EditableCubeModelWrapper(mVCubeModelBase, new IntVector(-16, -2, -5), new IntVector(2, 5, 6), 50);
 	}
 

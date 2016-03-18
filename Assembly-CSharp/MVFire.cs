@@ -19,7 +19,7 @@ public class MVFire : MVLogicObject
 	public MVFire(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVFirePrefab, worldObjects)
 	{
-		fireObject = gameObject.GetComponent<FireObject>();
+		fireObject = (FireObject)component;
 		fireObject.AudioSource.pitch = 1f + Random.Range(-0.2f, 0.2f);
 		fireObject.TriggerBoxEvents.TriggerEnter += TriggerAreaEnter;
 		fireObject.TriggerBoxEvents.TriggerExit += TriggerAreaExit;

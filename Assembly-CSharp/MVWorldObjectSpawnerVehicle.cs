@@ -68,7 +68,7 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 		interactionFlags |= InteractionFlags.CanUseLevel;
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
 		pickupItemObjectScript = gameObject.AddComponent<GreyOutObjectScript>();
-		pickupItemObjectScript.hiddenShader = Shader.Find("Custom/Pickup Unavailable");
+		pickupItemObjectScript.hiddenShader = MVGameControllerBase.MaterialLoader.PickupItemShader;
 		if (pickupItemObjectScript.hiddenShader == null)
 		{
 			Debug.LogError("hiddenShader not found");
@@ -168,13 +168,13 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 			Debug.LogError("SpawnWorldObject is null");
 			return false;
 		}
-		VehicleSeatManager component = worldObjectClient.GameObject.GetComponent<VehicleSeatManager>();
-		if (component == null)
+		VehicleSeatManager vehicleSeatManager = worldObjectClient.GameObject.GetComponent<VehicleSeatManager>();
+		if (vehicleSeatManager == null)
 		{
 			Debug.LogError("No vehicleSeatManager");
 			return false;
 		}
-		VehicleSeatBase driverSeat = component.DriverSeat;
+		VehicleSeatBase driverSeat = vehicleSeatManager.DriverSeat;
 		if (driverSeat == null)
 		{
 			Debug.LogError("No driver seat");

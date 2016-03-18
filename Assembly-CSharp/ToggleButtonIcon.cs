@@ -1,8 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(Button))]
 [RequireComponent(typeof(Image))]
+[RequireComponent(typeof(Button))]
 public class ToggleButtonIcon : MonoBehaviour
 {
 	public Sprite onIcon;

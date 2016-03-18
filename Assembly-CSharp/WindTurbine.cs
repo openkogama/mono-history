@@ -9,8 +9,6 @@ public class WindTurbine : MVLogicObject
 
 	private const float maxWindAreaSize = 20f;
 
-	private TriggerBoxEvents triggerBoxEvents;
-
 	private Dictionary<int, MVRigidBody> affectedBodies;
 
 	private bool isActive;
@@ -21,9 +19,7 @@ public class WindTurbine : MVLogicObject
 
 	private float windPitch;
 
-	private GameObject colliderObject;
-
-	private ParticleSystem windParticleSystem;
+	private WindTurbineObject windTurbineObject;
 
 	public override Vector3 WorldPivot => transform.position;
 
@@ -36,17 +32,15 @@ public class WindTurbine : MVLogicObject
 	public WindTurbine(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.WindTurbinePrefab, worldObjects)
 	{
+		windTurbineObject = (WindTurbineObject)component;
 		windAreaSize = (float)Data["windSize"];
 		windPitch = (float)Data["windPitch"];
 		windStrength = windAreaSize / 20f * 280f;
-		colliderObject = gameObject.transform.FindChild("Cube").gameObject;
-		windParticleSystem = gameObject.transform.FindChild("PushPad_prefab").FindChild("Wind").GetComponent<ParticleSystem>();
 		Rescale();
 		Rotate();
 		interactionFlags |= InteractionFlags.HasSettings;
-		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
-		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
-		triggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
+		windTurbineObject.TriggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
+		windTurbineObject.TriggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
 		affectedBodies = new Dictionary<int, MVRigidBody>();
 		isActive = true;
 	}
@@ -133,14 +127,14 @@ public class WindTurbine : MVLogicObject
 			return;
 		}
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(instigatorWOID);
-		MVRigidBody component = worldObjectClient.GameObject.GetComponent<MVRigidBody>();
-		if (component != null)
+		MVRigidBody mVRigidBody = worldObjectClient.GameObject.GetComponent<MVRigidBody>();
+		if (mVRigidBody != null)
 		{
-			MVInteractableBase component2 = worldObjectClient.GameObject.GetComponent<MVInteractableBase>();
-			if (!(component2 == null))
+			MVInteractableBase mVInteractableBase = worldObjectClient.GameObject.GetComponent<MVInteractableBase>();
+			if (!(mVInteractableBase == null))
 			{
-				component2.AddModifier(AvatarModifierPackageType.WindFriction);
-				affectedBodies[instigatorWOID] = component;
+				mVInteractableBase.AddModifier(AvatarModifierPackageType.WindFriction);
+				affectedBodies[instigatorWOID] = mVRigidBody;
 			}
 		}
 	}
@@ -149,10 +143,10 @@ public class WindTurbine : MVLogicObject
 	{
 		if (affectedBodies.ContainsKey(instigatorWOID))
 		{
-			MVInteractableBase component = affectedBodies[instigatorWOID].GetComponent<MVInteractableBase>();
-			if (!(component == null))
+			MVInteractableBase mVInteractableBase = affectedBodies[instigatorWOID].GetComponent<MVInteractableBase>();
+			if (!(mVInteractableBase == null))
 			{
-				component.RemoveModifier(AvatarModifierPackageType.WindFriction);
+				mVInteractableBase.RemoveModifier(AvatarModifierPackageType.WindFriction);
 				affectedBodies.Remove(instigatorWOID);
 			}
 		}
@@ -160,14 +154,14 @@ public class WindTurbine : MVLogicObject
 
 	private void Rescale()
 	{
-		Vector3 localScale = colliderObject.transform.localScale;
+		Vector3 localScale = windTurbineObject.AreaColliderTransform.localScale;
 		localScale.z = windAreaSize;
-		colliderObject.transform.localScale = localScale;
-		localScale = colliderObject.transform.localPosition;
+		windTurbineObject.AreaColliderTransform.localScale = localScale;
+		localScale = windTurbineObject.AreaColliderTransform.localPosition;
 		localScale.z = windAreaSize / 2f + 0.5f;
-		colliderObject.transform.localPosition = localScale;
-		windParticleSystem.startLifetime = windAreaSize / 20f;
-		windParticleSystem.startSize = 0.1f;
+		windTurbineObject.AreaColliderTransform.localPosition = localScale;
+		windTurbineObject.WindParticleSystem.startLifetime = windAreaSize / 20f;
+		windTurbineObject.WindParticleSystem.startSize = 0.1f;
 	}
 
 	private void Rotate()
@@ -180,15 +174,15 @@ public class WindTurbine : MVLogicObject
 	private void ToggleTurbine(bool state)
 	{
 		isActive = state;
-		ParticleSystem.EmissionModule emission = windParticleSystem.emission;
+		ParticleSystem.EmissionModule emission = windTurbineObject.WindParticleSystem.emission;
 		emission.enabled = state;
 	}
 
 	public override void InitializeInventory()
 	{
 		base.Initialize();
-		colliderObject.SetActive(value: false);
-		windParticleSystem.gameObject.SetActive(value: false);
+		windTurbineObject.AreaColliderTransform.gameObject.SetActive(value: false);
+		windTurbineObject.WindParticleSystem.gameObject.SetActive(value: false);
 		inputConnectorObject.SetActive(value: false);
 	}
 
@@ -201,14 +195,12 @@ public class WindTurbine : MVLogicObject
 
 	public void OnEditModeChange(EditModeChangeArgs arg)
 	{
-		Collider component = gameObject.transform.FindChild("EditCollider").GetComponent<Collider>();
-		Collider component2 = colliderObject.GetComponent<Collider>();
-		component.enabled = true;
-		component2.enabled = false;
+		windTurbineObject.EditorCollider.enabled = true;
+		windTurbineObject.AreaCollider.enabled = false;
 		if (arg.playInEditor)
 		{
-			component.enabled = false;
-			component2.enabled = true;
+			windTurbineObject.EditorCollider.enabled = false;
+			windTurbineObject.AreaCollider.enabled = true;
 		}
 	}
 

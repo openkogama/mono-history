@@ -8,17 +8,17 @@ public class Offset2DCameraInDirection
 
 		private const float offsetSpeedY = 15f;
 
-		private const float offsetMagnitudeX = 7.5f;
+		private const float offsetMagnitudeX = 1.5f;
 
-		private const float offsetMagnitudeY = 2.5f;
+		private const float offsetMagnitudeY = 1.5f;
 
 		public float OffsetSpeedX => 10f * Scale;
 
 		public float OffsetSpeedY => 15f * Scale;
 
-		public float OffsetMagnitudeX => 7.5f * Scale;
+		public float OffsetMagnitudeX => 1.5f * Scale;
 
-		public float OffsetMagnitudeY => 2.5f * Scale;
+		public float OffsetMagnitudeY => 1.5f * Scale;
 
 		public float Scale { get; set; }
 	}

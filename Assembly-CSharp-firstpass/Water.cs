@@ -40,28 +40,18 @@ public class Water : MonoBehaviour
 
 	private static bool s_InsideWater;
 
+	[SerializeField]
 	private Renderer meshRenderer;
 
-	public Renderer Renderer
-	{
-		get
-		{
-			if (meshRenderer == null)
-			{
-				meshRenderer = GetComponent<Renderer>();
-			}
-			return meshRenderer;
-		}
-	}
+	public Renderer Renderer => meshRenderer;
 
 	private void Start()
 	{
-		meshRenderer = GetComponent<Renderer>();
 	}
 
 	public void OnWillRenderObject()
 	{
-		if (!enabled || !Renderer || !Renderer.sharedMaterial || !Renderer.enabled)
+		if (!enabled || !meshRenderer || !meshRenderer.sharedMaterial || !meshRenderer.enabled)
 		{
 			return;
 		}
@@ -91,9 +81,8 @@ public class Water : MonoBehaviour
 				Vector3 position3 = reflectionMat.MultiplyPoint(position2);
 				reflectionCamera.worldToCameraMatrix = current.worldToCameraMatrix * reflectionMat;
 				Vector4 clipPlane = CameraSpacePlane(reflectionCamera, position, up, 1f);
-				Matrix4x4 projection = current.projectionMatrix;
-				CalculateObliqueMatrix(ref projection, clipPlane);
-				reflectionCamera.projectionMatrix = projection;
+				Matrix4x4 projectionMatrix = current.CalculateObliqueMatrix(clipPlane);
+				reflectionCamera.projectionMatrix = projectionMatrix;
 				reflectionCamera.cullingMask = -17 & m_ReflectLayers.value;
 				reflectionCamera.targetTexture = m_ReflectionTexture;
 				GL.invertCulling = true;
@@ -103,21 +92,21 @@ public class Water : MonoBehaviour
 				reflectionCamera.Render();
 				reflectionCamera.transform.position = position2;
 				GL.invertCulling = false;
-				Renderer.sharedMaterial.SetTexture("_ReflectionTex", m_ReflectionTexture);
+				meshRenderer.sharedMaterial.SetTexture("_ReflectionTex", m_ReflectionTexture);
 			}
 			if (waterMode >= WaterMode.Refractive)
 			{
 				refractionCamera.worldToCameraMatrix = current.worldToCameraMatrix;
 				Vector4 clipPlane2 = CameraSpacePlane(refractionCamera, position, up, -1f);
-				Matrix4x4 projection2 = current.projectionMatrix;
-				CalculateObliqueMatrix(ref projection2, clipPlane2);
-				refractionCamera.projectionMatrix = projection2;
+				Matrix4x4 projection = current.projectionMatrix;
+				CalculateObliqueMatrix(ref projection, clipPlane2);
+				refractionCamera.projectionMatrix = projection;
 				refractionCamera.cullingMask = -17 & m_RefractLayers.value;
 				refractionCamera.targetTexture = m_RefractionTexture;
 				refractionCamera.transform.position = current.transform.position;
 				refractionCamera.transform.rotation = current.transform.rotation;
 				refractionCamera.Render();
-				Renderer.sharedMaterial.SetTexture("_RefractionTex", m_RefractionTexture);
+				meshRenderer.sharedMaterial.SetTexture("_RefractionTex", m_RefractionTexture);
 			}
 			if (m_DisablePixelLights)
 			{
@@ -143,6 +132,15 @@ public class Water : MonoBehaviour
 			}
 			s_InsideWater = false;
 		}
+	}
+
+	private bool IsNanCheck(Vector3 v)
+	{
+		if (float.IsNaN(v.x) || float.IsNaN(v.y) || float.IsNaN(v.z))
+		{
+			return true;
+		}
+		return false;
 	}
 
 	private void OnDisable()
@@ -171,9 +169,9 @@ public class Water : MonoBehaviour
 
 	private void Update()
 	{
-		if ((bool)Renderer)
+		if ((bool)meshRenderer)
 		{
-			Material sharedMaterial = Renderer.sharedMaterial;
+			Material sharedMaterial = meshRenderer.sharedMaterial;
 			if ((bool)sharedMaterial)
 			{
 				Vector4 vector = sharedMaterial.GetVector("WaveSpeed");
@@ -183,7 +181,7 @@ public class Water : MonoBehaviour
 				Vector4 vector3 = new Vector4((float)Math.IEEERemainder((double)(vector.x * vector2.x) * num2, 1.0), (float)Math.IEEERemainder((double)(vector.y * vector2.y) * num2, 1.0), (float)Math.IEEERemainder((double)(vector.z * vector2.z) * num2, 1.0), (float)Math.IEEERemainder((double)(vector.w * vector2.w) * num2, 1.0));
 				sharedMaterial.SetVector("_WaveOffset", vector3);
 				sharedMaterial.SetVector("_WaveScale4", vector2);
-				Vector3 size = Renderer.bounds.size;
+				Vector3 size = meshRenderer.bounds.size;
 				Matrix4x4 matrix = Matrix4x4.TRS(s: new Vector3(size.x * vector2.x, size.z * vector2.y, 1f), pos: new Vector3(vector3.x, vector3.y, 0f), q: Quaternion.identity);
 				sharedMaterial.SetMatrix("_WaveMatrix", matrix);
 				matrix = Matrix4x4.TRS(s: new Vector3(size.x * vector2.z, size.z * vector2.w, 1f), pos: new Vector3(vector3.z, vector3.w, 0f), q: Quaternion.identity);
@@ -296,11 +294,11 @@ public class Water : MonoBehaviour
 
 	private WaterMode FindHardwareWaterSupport()
 	{
-		if (!SystemInfo.supportsRenderTextures || !Renderer)
+		if (!SystemInfo.supportsRenderTextures || !meshRenderer)
 		{
 			return WaterMode.Simple;
 		}
-		Material sharedMaterial = Renderer.sharedMaterial;
+		Material sharedMaterial = meshRenderer.sharedMaterial;
 		if (!sharedMaterial)
 		{
 			return WaterMode.Simple;

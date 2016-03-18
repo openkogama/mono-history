@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class FireObject : MonoBehaviour
+public class FireObject : ObjectPrefab
 {
 	[SerializeField]
 	private TriggerBoxEvents triggerBoxEvents;

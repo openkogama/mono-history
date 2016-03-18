@@ -1,45 +1,65 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AvatarFader
+public class AvatarFader : MonoBehaviour
 {
-	private readonly Shader normalShader;
+	[Serializable]
+	public struct ShaderFaderInstruction
+	{
+		public string originShader;
 
-	private readonly Shader fadeShader;
+		public Shader replacingShader;
+	}
 
-	private readonly Dictionary<string, Shader> normalShaders = new Dictionary<string, Shader>();
+	private Shader normalShader;
 
-	private readonly Dictionary<string, Shader> fadeShaders = new Dictionary<string, Shader>();
+	private Shader fadeShader;
+
+	[SerializeField]
+	private ShaderFaderInstruction[] normalShaders;
+
+	[SerializeField]
+	private ShaderFaderInstruction[] fadeShaders;
+
+	private Transform bodyTransform;
+
+	private Dictionary<string, Shader> normalShadersDictionary;
+
+	private Dictionary<string, Shader> fadeShadersDictionary;
 
 	private Renderer[] avatarRenders = new Renderer[0];
 
 	private bool fading;
 
-	private Transform transform;
-
-	public AvatarFader(Transform transform)
+	public Transform BodyTransform
 	{
-		this.transform = transform;
+		get
+		{
+			return bodyTransform;
+		}
+		set
+		{
+			bodyTransform = value;
+		}
+	}
+
+	private void Awake()
+	{
 		normalShader = MVGameControllerBase.MaterialLoader.AvatarShader;
 		fadeShader = MVGameControllerBase.MaterialLoader.AvatarTransparentShader;
-		normalShaders["Particles/Alpha Blended Premultiply Write Alpha"] = Shader.Find("Particles/Alpha Blended Premultiply Write Alpha");
-		fadeShaders["Particles/Alpha Blended Premultiply Write Alpha"] = Shader.Find("Particles/Alpha Blended Premultiply Write Alpha");
-		normalShaders["Particles/Alpha Blended Write Alpha"] = Shader.Find("Particles/Alpha Blended Write Alpha");
-		fadeShaders["Particles/Alpha Blended Write Alpha"] = Shader.Find("Particles/Alpha Blended Write Alpha");
-		normalShaders["Particles/Additive"] = Shader.Find("Particles/Additive");
-		fadeShaders["Particles/Additive"] = Shader.Find("Particles/Additive");
-		normalShaders["Particles/Additive Write Alpha"] = Shader.Find("Particles/Additive Write Alpha");
-		fadeShaders["Particles/Additive Write Alpha"] = Shader.Find("Particles/Additive Write Alpha");
-		normalShaders["Particles/Additive (Soft) Write Alpha"] = Shader.Find("Particles/Additive (Soft) Write Alpha");
-		fadeShaders["Particles/Additive (Soft) Write Alpha"] = Shader.Find("Particles/Additive (Soft) Write Alpha");
-		normalShaders["Particles/Multiply Write Alpha"] = Shader.Find("Particles/Multiply Write Alpha");
-		fadeShaders["Particles/Multiply Write Alpha"] = Shader.Find("Particles/Multiply Write Alpha");
-		normalShaders["Custom/Laser Beam Additive"] = Shader.Find("Custom/Laser Beam Additive");
-		fadeShaders["Custom/Laser Beam Additive"] = Shader.Find("Custom/Laser Beam Additive");
-		normalShaders["Diffuse with vertex colors transparent"] = Shader.Find("Diffuse with vertex colors");
-		fadeShaders["Diffuse with vertex colors"] = Shader.Find("Diffuse with vertex colors transparent");
-		normalShaders["Legacy Shaders/Diffuse"] = Shader.Find("Legacy Shaders/Diffuse");
-		fadeShaders["Legacy Shaders/Diffuse"] = Shader.Find("Diffuse with vertex colors transparent");
+		normalShadersDictionary = new Dictionary<string, Shader>(normalShaders.Length);
+		fadeShadersDictionary = new Dictionary<string, Shader>(fadeShaders.Length);
+		int num = normalShaders.Length;
+		for (int i = 0; i < num; i++)
+		{
+			normalShadersDictionary.Add(normalShaders[i].originShader, normalShaders[i].replacingShader);
+		}
+		num = fadeShaders.Length;
+		for (int j = 0; j < num; j++)
+		{
+			fadeShadersDictionary.Add(fadeShaders[j].originShader, fadeShaders[j].replacingShader);
+		}
 	}
 
 	public void SetTransparency(float fadeFactor)
@@ -81,9 +101,9 @@ public class AvatarFader
 	private Shader GetShader(Shader currShader, bool fading)
 	{
 		Shader value = null;
-		if (normalShaders.ContainsKey(currShader.name) || fadeShaders.ContainsKey(currShader.name))
+		if (normalShadersDictionary.ContainsKey(currShader.name) || fadeShadersDictionary.ContainsKey(currShader.name))
 		{
-			Dictionary<string, Shader> dictionary = ((!fading) ? normalShaders : fadeShaders);
+			Dictionary<string, Shader> dictionary = ((!fading) ? normalShadersDictionary : fadeShadersDictionary);
 			dictionary.TryGetValue(currShader.name, out value);
 			value = value ?? currShader;
 		}

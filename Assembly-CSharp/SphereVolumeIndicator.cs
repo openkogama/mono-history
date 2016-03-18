@@ -10,6 +10,7 @@ public class SphereVolumeIndicator : MonoBehaviour
 
 	private ParticleSystem.Particle[] particles;
 
+	[SerializeField]
 	private ParticleSystem pSystem;
 
 	public float Radius
@@ -27,7 +28,6 @@ public class SphereVolumeIndicator : MonoBehaviour
 
 	private void Awake()
 	{
-		pSystem = GetComponent<ParticleSystem>();
 		pSystem.loop = false;
 		pSystem.playOnAwake = false;
 	}

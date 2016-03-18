@@ -29,6 +29,9 @@ public class Avatar : MonoBehaviour
 	[SerializeField]
 	private Transform nameTagLabel;
 
+	[SerializeField]
+	private AvatarFader avatarFader;
+
 	private bool nameTagLabelVisible;
 
 	public bool IsLocal => isLocal;
@@ -36,6 +39,8 @@ public class Avatar : MonoBehaviour
 	public InteractionDataHandlerBase InteractionDataHandlerBase => interactionDataHandler;
 
 	public Collider Collider => avatarCollider;
+
+	public AvatarFader AvatarFader => avatarFader;
 
 	public bool NameTagLabelVisible
 	{
@@ -58,6 +63,7 @@ public class Avatar : MonoBehaviour
 	public void Initialize(MVAvatar mvAvatar, bool isLocal)
 	{
 		this.mvAvatar = mvAvatar;
+		avatarFader.BodyTransform = mvAvatar.Body.Transform;
 		this.isLocal = isLocal;
 		interactionDataHandler = GetComponent<InteractionDataHandlerBase>();
 		avatarCollider = GetComponent<Collider>();

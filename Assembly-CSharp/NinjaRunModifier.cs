@@ -5,6 +5,7 @@ public class NinjaRunModifier : AvatarModifier
 {
 	public TrailRenderer trailRenderer;
 
+	[SerializeField]
 	private AudioSource soundEffect;
 
 	private Vector3 oldPosition;
@@ -12,18 +13,6 @@ public class NinjaRunModifier : AvatarModifier
 	private bool isDestroying;
 
 	private float minMagnitudeValue = 0.1f;
-
-	public AudioSource SoundEffect
-	{
-		get
-		{
-			if (soundEffect == null)
-			{
-				soundEffect = GetComponent<AudioSource>();
-			}
-			return soundEffect;
-		}
-	}
 
 	public override AvatarModifierPackageType ModifierType => AvatarModifierPackageType.NinjaRun;
 
@@ -40,7 +29,7 @@ public class NinjaRunModifier : AvatarModifier
 	private IEnumerator DoFadeAndDestroy()
 	{
 		isDestroying = true;
-		SoundEffect.volume = 0f;
+		soundEffect.volume = 0f;
 		trailRenderer.gameObject.transform.SetParent(null);
 		yield return new WaitForSeconds(trailRenderer.time);
 		Object.Destroy(trailRenderer.gameObject);
@@ -54,11 +43,11 @@ public class NinjaRunModifier : AvatarModifier
 			float magnitude = (owner.transform.position - oldPosition).magnitude;
 			if (owner.IsLocal)
 			{
-				SoundEffect.volume = ((!(magnitude > 1f)) ? magnitude : 1f);
+				soundEffect.volume = ((!(magnitude > 1f)) ? magnitude : 1f);
 			}
 			else
 			{
-				SoundEffect.volume = ((!(magnitude > minMagnitudeValue)) ? 0f : 0.5f);
+				soundEffect.volume = ((!(magnitude > minMagnitudeValue)) ? 0f : 0.5f);
 			}
 			oldPosition = owner.transform.position;
 		}
