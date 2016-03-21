@@ -3402,6 +3402,9 @@ public class MVNetworkGame : IPhotonPeerListener
 			gameCoinManager.OnGameBoostChanged(boostLeft, boostEnabled);
 			break;
 		}
+		case 81:
+			SyncronizePing();
+			break;
 		default:
 			Debug.LogError("Unknown event: " + (MVEventCodes)code);
 			break;
@@ -3450,6 +3453,11 @@ public class MVNetworkGame : IPhotonPeerListener
 	private void Syncronize()
 	{
 		peer.OpCustom(69, new Dictionary<byte, object>(), sendReliable: true);
+	}
+
+	private void SyncronizePing()
+	{
+		peer.OpCustom(70, new Dictionary<byte, object>(), sendReliable: true);
 	}
 
 	public void OnStatusChanged(StatusCode returnCode)

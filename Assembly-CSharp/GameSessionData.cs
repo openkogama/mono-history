@@ -51,7 +51,25 @@ public class GameSessionData
 
 	public string gameRewardDataURL = string.Empty;
 
-	public LoadLogoType loadedLogo = LoadLogoType.Poki;
+	public string referrer = string.Empty;
+
+	private Dictionary<string, LoadLogoType> referralToLogoMap = new Dictionary<string, LoadLogoType> { 
+	{
+		"gsm",
+		LoadLogoType.Poki
+	} };
+
+	public LoadLogoType LoadLogoType
+	{
+		get
+		{
+			if (referralToLogoMap.ContainsKey(referrer))
+			{
+				return referralToLogoMap[referrer];
+			}
+			return LoadLogoType.None;
+		}
+	}
 
 	public GameSessionData()
 	{

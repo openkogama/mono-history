@@ -323,7 +323,6 @@ public abstract class AvatarAccessory : MonoBehaviour
 				Action<AvatarAccessory> action = (Action<AvatarAccessory>)array[i];
 				if (www == null || www.assetBundle == null)
 				{
-					Debug.Log("Got to here ");
 					string text2 = "Failed to create accessory from bundle " + www.url;
 					if (www != null && www.assetBundle == null)
 					{

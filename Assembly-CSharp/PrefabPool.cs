@@ -164,9 +164,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public TeleportAvatar TeleportAvatarPrefab;
 
+	[Header("Game")]
 	[Space(20f)]
 	[SerializeField]
-	[Header("Game")]
 	public Material GhostMarkerMaterial;
 
 	[SerializeField]
@@ -190,9 +190,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	public CubeModelChunkPrefab CubeModelChunkPrefab;
 
+	[Header("Pick up")]
 	[Space(20f)]
 	[SerializeField]
-	[Header("Pick up")]
 	public MVPickupItemBaseObject AvatarCenterGunPrefab;
 
 	[SerializeField]

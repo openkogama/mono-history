@@ -29,6 +29,8 @@ public class AccessoryInventoryViewItem : MonoBehaviour
 
 	private ObjectPreviewer objectPreviewer;
 
+	private bool wasDestroyed;
+
 	public void Initialize(StreamingAssetInfo streamingAssetInfo, ProductInventoryInfo productInventoryInfo, Transform rootTransform)
 	{
 		this.rootTransform = rootTransform;
@@ -85,9 +87,14 @@ public class AccessoryInventoryViewItem : MonoBehaviour
 		}
 	}
 
+	private void OnDestroy()
+	{
+		wasDestroyed = true;
+	}
+
 	private void AccessoryCreatedCallback(AvatarAccessory avatarAccessory)
 	{
-		if (gameObject == null)
+		if (wasDestroyed)
 		{
 			Debug.LogWarning("Subscribing game object destroyed. Currently the accessory system does not support removal of callback when view item is destroyed.");
 			return;

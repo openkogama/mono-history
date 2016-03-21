@@ -72,6 +72,7 @@ public enum MVOperationCodes : byte
 	Ban = 67,
 	GameCoinBooster = 68,
 	Syncronize = 69,
+	SyncronizePing = 70,
 	Join = byte.MaxValue,
 	Leave = 254,
 	RaiseEvent = 253,

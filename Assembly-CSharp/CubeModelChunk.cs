@@ -258,9 +258,9 @@ public class CubeModelChunk
 				list.Add(i);
 			}
 		}
-		foreach (int item in list)
+		for (int num = list.Count - 1; num >= 0; num--)
 		{
-			instances.RemoveAt(item);
+			instances.RemoveAt(list[num]);
 		}
 		for (int j = 0; j < instances.Count; j++)
 		{

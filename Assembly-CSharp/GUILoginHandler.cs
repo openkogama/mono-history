@@ -141,6 +141,7 @@ public class GUILoginHandler : MonoBehaviour
 	{
 		gameSessionData["gameMode"] = gameMode;
 		gameSessionData["language"] = "en_US";
+		gameSessionData["referrer"] = "gsm";
 		GameSessionData message = new GameSessionData(gameSessionData);
 		MVGameControllerBase.SetGameSessionData(message);
 		gameObject.SetActive(value: false);

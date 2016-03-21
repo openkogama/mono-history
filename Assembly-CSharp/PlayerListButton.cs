@@ -60,7 +60,6 @@ public class PlayerListButton : MonoBehaviour
 
 	private void UpdateButton()
 	{
-		Debug.Log("Update button");
 		UpdatePlayersCount();
 		UpdateTeamColor();
 	}

@@ -83,6 +83,7 @@ public enum MVEventCodes : byte
 	LargeDBQueryAvatarShopInventory = 78,
 	InitializeAvatarEdit = 79,
 	GetActiveAvatar = 80,
+	SyncronizePing = 81,
 	Join = byte.MaxValue,
 	Leave = 254,
 	PropertiesChanged = 253

@@ -33,7 +33,7 @@ public class StreamingAssetRequestTempHack : CachedGetRequest
 				Debug.LogWarning($"{www.url}\n{www.error}");
 			}
 			isDone = true;
-			if (mainAsset == null)
+			if (mainAsset == null && string.IsNullOrEmpty(www.error))
 			{
 				mainAsset = www.assetBundle.mainAsset;
 			}
