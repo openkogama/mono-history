@@ -5,12 +5,12 @@ public class StreamingAssetRequestTempHack : CachedGetRequest
 {
 	private UnityEngine.Object mainAsset;
 
-	private new Action<WWW, UnityEngine.Object> callback;
+	private Action<WWW, UnityEngine.Object> callbackTemp;
 
-	public StreamingAssetRequestTempHack(string path, Action<WWW, UnityEngine.Object> callback)
+	public StreamingAssetRequestTempHack(string path, Action<WWW, UnityEngine.Object> callbackTemp)
 		: base(path, null)
 	{
-		this.callback = callback;
+		this.callbackTemp = callbackTemp;
 	}
 
 	protected override bool UpdateRunningState()
@@ -39,9 +39,9 @@ public class StreamingAssetRequestTempHack : CachedGetRequest
 			}
 			try
 			{
-				if (callback != null)
+				if (callbackTemp != null)
 				{
-					callback(www, mainAsset);
+					callbackTemp(www, mainAsset);
 				}
 			}
 			catch (Exception message)
@@ -50,7 +50,7 @@ public class StreamingAssetRequestTempHack : CachedGetRequest
 			}
 			finally
 			{
-				callback = null;
+				callbackTemp = null;
 			}
 		}
 		return flag;
@@ -60,10 +60,10 @@ public class StreamingAssetRequestTempHack : CachedGetRequest
 	{
 		if (cache.TryGet(path, out var cachedGetRequest))
 		{
-			if (callback != null)
+			if (callbackTemp != null)
 			{
 				StreamingAssetRequestTempHack streamingAssetRequestTempHack = (StreamingAssetRequestTempHack)cachedGetRequest;
-				streamingAssetRequestTempHack.AddToCallback(callback);
+				streamingAssetRequestTempHack.AddToCallback(callbackTemp);
 			}
 			return true;
 		}
@@ -79,7 +79,7 @@ public class StreamingAssetRequestTempHack : CachedGetRequest
 		}
 		else
 		{
-			callback = (Action<WWW, UnityEngine.Object>)Delegate.Combine(callback, callbackOther);
+			callbackTemp = (Action<WWW, UnityEngine.Object>)Delegate.Combine(callbackTemp, callbackOther);
 		}
 	}
 

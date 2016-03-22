@@ -65,9 +65,6 @@ public class ChatControllerUGUI : MonoBehaviour
 	private Color systemMessageColor;
 
 	[SerializeField]
-	private Color adminMessageColor = Color.red;
-
-	[SerializeField]
 	private Color killMessageColor;
 
 	[SerializeField]

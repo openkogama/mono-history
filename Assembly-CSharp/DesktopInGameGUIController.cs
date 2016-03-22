@@ -71,6 +71,15 @@ public class DesktopInGameGUIController : MonoBehaviour
 			texture2D.SetPixels32(www.texture.GetPixels32());
 			texture2D.Apply();
 			logo.sprite = Sprite.Create(texture2D, new Rect(0f, 0f, texture2D.width, texture2D.height), new Vector2(0.5f, 0.5f));
+			Debug.Log("referrer logo set from callback with string: " + MVGameControllerBase.GameSessionData.referrer);
+		}
+		else
+		{
+			if (!string.IsNullOrEmpty(www.error))
+			{
+				Debug.LogWarning("Streaming asset callback failed for referral logo: " + www.error);
+			}
+			Debug.LogWarning("Streaming asset callback: www is null - " + (www == null) + ", www.texture is null - " + (www.texture == null));
 		}
 	}
 

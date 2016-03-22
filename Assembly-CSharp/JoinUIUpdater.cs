@@ -9,7 +9,7 @@ public static class JoinUIUpdater
 
 	public static void UpdateJoinStateForUI(MVEventCodes eventCode)
 	{
-		if (eventCode != MVEventCodes.SyncronizePing && latestJoinEvent != MVEventCodes.SetActorReady)
+		if (eventCode != MVEventCodes.SyncronizePing && (latestJoinEvent != MVEventCodes.GameSnapshotData || eventCode == MVEventCodes.SetActorReady))
 		{
 			JoinEventCodes.Enqueue(eventCode);
 			latestJoinEvent = eventCode;

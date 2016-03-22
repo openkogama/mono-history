@@ -369,7 +369,7 @@ public class MVNetworkGame : IPhotonPeerListener
 	{
 		MVGameControllerBase.JoinState = MVJoinState.Joining;
 		peer = new PhotonPeer(this, ConnectionProtocol.Udp);
-		peer.DisconnectTimeout = 60000;
+		peer.DisconnectTimeout = 20000;
 		peer.DebugOut = DebugLevel.WARNING;
 		operationResponsePendingManager = new OperationResponsePendingManager(peer);
 		networkGameStateListener = new MVNetworkGameStateListener();
@@ -2923,14 +2923,14 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public void OnEvent(EventData photonEvent)
 	{
-		if (MVGameControllerBase.JoinState != MVJoinState.Playing)
-		{
-			JoinUIUpdater.UpdateJoinStateForUI((MVEventCodes)photonEvent.Code);
-		}
 		if (cacheEvents)
 		{
 			cachedEvents.Enqueue(photonEvent);
 			return;
+		}
+		if (MVGameControllerBase.JoinState != MVJoinState.Playing)
+		{
+			JoinUIUpdater.UpdateJoinStateForUI((MVEventCodes)photonEvent.Code);
 		}
 		byte code = photonEvent.Code;
 		switch (code)
@@ -3463,6 +3463,10 @@ public class MVNetworkGame : IPhotonPeerListener
 	public void OnStatusChanged(StatusCode returnCode)
 	{
 		Debug.Log("PeerStatusCallback():" + returnCode);
+		if (returnCode != StatusCode.Connect && returnCode != StatusCode.Disconnect && returnCode != StatusCode.QueueIncomingReliableWarning && returnCode != StatusCode.QueueIncomingUnreliableWarning && returnCode != StatusCode.QueueOutgoingAcksWarning && returnCode != StatusCode.QueueOutgoingReliableWarning && returnCode != StatusCode.QueueOutgoingUnreliableWarning && returnCode != StatusCode.QueueSentWarning)
+		{
+			StatHatWrapper.Count("StatusCode." + returnCode, 1);
+		}
 		switch (returnCode)
 		{
 		case StatusCode.Connect:
