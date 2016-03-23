@@ -23,7 +23,17 @@ public static class AsyncWWWManager
 
 	public static readonly float[] RetryTimeouts = new float[3] { 30f, 20f, 10f };
 
-	private static Queue<AsyncWebRequest> requests = new Queue<AsyncWebRequest>();
+	private static Dictionary<WWWRequestPriority, Queue<AsyncWebRequest>> requests = new Dictionary<WWWRequestPriority, Queue<AsyncWebRequest>>
+	{
+		{
+			WWWRequestPriority.WaitUntilSyncronizingIsDone,
+			new Queue<AsyncWebRequest>()
+		},
+		{
+			WWWRequestPriority.ExecuteWhileSyncronizing,
+			new Queue<AsyncWebRequest>()
+		}
+	};
 
 	private static HashSet<AsyncWebRequest> activeRequest = new HashSet<AsyncWebRequest>();
 
@@ -47,7 +57,15 @@ public static class AsyncWWWManager
 				return;
 			}
 		}
-		requests.Enqueue(asyncRequest);
+		requests[asyncRequest.requestPriority].Enqueue(asyncRequest);
+	}
+
+	private static void AddRequestsToActiveRequests(Queue<AsyncWebRequest> requestQueue)
+	{
+		while (activeRequest.Count < maxRequests && requestQueue.Count > 0)
+		{
+			activeRequest.Add(requestQueue.Dequeue());
+		}
 	}
 
 	public static void Update()
@@ -56,9 +74,10 @@ public static class AsyncWWWManager
 		{
 			return;
 		}
-		while (activeRequest.Count < maxRequests && requests.Count > 0)
+		AddRequestsToActiveRequests(requests[WWWRequestPriority.ExecuteWhileSyncronizing]);
+		if (MVGameControllerBase.JoinState == MVJoinState.Playing)
 		{
-			activeRequest.Add(requests.Dequeue());
+			AddRequestsToActiveRequests(requests[WWWRequestPriority.WaitUntilSyncronizingIsDone]);
 		}
 		foreach (AsyncWebRequest item in activeRequest)
 		{
@@ -82,9 +101,12 @@ public static class AsyncWWWManager
 			item.Dispose();
 		}
 		activeRequest.Clear();
-		foreach (AsyncWebRequest request in requests)
+		foreach (KeyValuePair<WWWRequestPriority, Queue<AsyncWebRequest>> request in requests)
 		{
-			request.Dispose();
+			foreach (AsyncWebRequest item2 in request.Value)
+			{
+				item2.Dispose();
+			}
 		}
 		requests.Clear();
 	}

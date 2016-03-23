@@ -294,7 +294,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		if (Game != null && OkToReAuth)
 		{
 			Game.Peer.Disconnect();
-			AsyncWWWManager.WWWRequest(new GetRequest(gameSessionData.reauthURL, instance.OnReceivedWebParametersFromHttpRequest));
+			AsyncWWWManager.WWWRequest(new GetRequest(gameSessionData.reauthURL, instance.OnReceivedWebParametersFromHttpRequest, WWWRequestPriority.ExecuteWhileSyncronizing));
 			return true;
 		}
 		return false;
@@ -397,7 +397,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		byte[] bytes = Convert.FromBase64String(text);
 		string text3 = Encoding.UTF8.GetString(bytes);
 		Debug.Log(text3);
-		AsyncWWWManager.WWWRequest(new GetRequest(text3, OnReceivedWebParametersFromHttpRequest));
+		AsyncWWWManager.WWWRequest(new GetRequest(text3, OnReceivedWebParametersFromHttpRequest, WWWRequestPriority.ExecuteWhileSyncronizing));
 	}
 
 	[DllImport("user32.dll")]

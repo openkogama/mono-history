@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class StreamingAssetRequest : CachedGetRequest
 {
-	public StreamingAssetRequest(string path, Action<WWW> callback)
-		: base(path, callback)
+	public StreamingAssetRequest(string path, Action<WWW> callback, WWWRequestPriority requestPriority)
+		: base(path, callback, requestPriority)
 	{
 	}
 

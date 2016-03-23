@@ -55,6 +55,6 @@ public static class BadgeManager
 			Debug.LogWarning("Level exceeds defined badges. Using maxBadge");
 			level = maxLevelBadge;
 		}
-		AsyncWWWManager.WWWRequest(new CachedGetRequest(badgeUrls[level].URL + fromUnityArgument, callback));
+		AsyncWWWManager.WWWRequest(new CachedGetRequest(badgeUrls[level].URL + fromUnityArgument, callback, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 	}
 }

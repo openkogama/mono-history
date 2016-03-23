@@ -7,8 +7,8 @@ public class StreamingAssetRequestTempHack : CachedGetRequest
 
 	private Action<WWW, UnityEngine.Object> callbackTemp;
 
-	public StreamingAssetRequestTempHack(string path, Action<WWW, UnityEngine.Object> callbackTemp)
-		: base(path, null)
+	public StreamingAssetRequestTempHack(string path, Action<WWW, UnityEngine.Object> callbackTemp, WWWRequestPriority requestPriority)
+		: base(path, null, requestPriority)
 	{
 		this.callbackTemp = callbackTemp;
 	}

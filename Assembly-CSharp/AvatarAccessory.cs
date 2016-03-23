@@ -298,7 +298,7 @@ public abstract class AvatarAccessory : MonoBehaviour
 		MapParamsToCallback(par, accessoryCreatedCallback);
 		if (MapAssetPathToParams(par))
 		{
-			AsyncWWWManager.WWWRequest(new StreamingAssetRequestTempHack(Urls.StreamingAssets + par.AssetReqPath, LoadedAccessoryAsset));
+			AsyncWWWManager.WWWRequest(new StreamingAssetRequestTempHack(Urls.StreamingAssets + par.AssetReqPath, LoadedAccessoryAsset, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 		}
 	}
 

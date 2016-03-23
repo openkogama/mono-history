@@ -106,7 +106,7 @@ public class TM : MonoBehaviour
 	{
 		TM.fileName = fileName;
 		string text = baseResourcesPath + fileName + ".txt?" + MVGameControllerBase.VersionGuid;
-		AsyncWWWManager.WWWRequest(new GetRequest(Urls.StreamingAssets + text, StreamingAssetCallback));
+		AsyncWWWManager.WWWRequest(new GetRequest(Urls.StreamingAssets + text, StreamingAssetCallback, WWWRequestPriority.ExecuteWhileSyncronizing));
 	}
 
 	private static void StreamingAssetCallback(WWW www)

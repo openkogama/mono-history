@@ -83,7 +83,7 @@ public class MVSoundEmitter : MVLogicObject
 			StreamingAssetInfo streamingAssetInfo = Game.StreamingAssetInfoMap.Values.FirstOrDefault((StreamingAssetInfo sai) => sai.AssetPath == currentUrl);
 			if (streamingAssetInfo != null)
 			{
-				AsyncWWWManager.WWWRequest(new StreamingAssetRequestTempHack(Urls.StreamingAssets + streamingAssetInfo.RequestPath, StreamingAssetCallback));
+				AsyncWWWManager.WWWRequest(new StreamingAssetRequestTempHack(Urls.StreamingAssets + streamingAssetInfo.RequestPath, StreamingAssetCallback, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 			}
 			else
 			{

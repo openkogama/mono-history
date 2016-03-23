@@ -10,8 +10,8 @@ public class CustomPostRequest : AsyncWebRequest
 
 	private readonly Dictionary<string, string> headers;
 
-	public CustomPostRequest(string url, byte[] postData, Dictionary<string, string> headers, Action<WWW> callback)
-		: base(string.Empty, callback)
+	public CustomPostRequest(string url, byte[] postData, Dictionary<string, string> headers, Action<WWW> callback, WWWRequestPriority requestPriority)
+		: base(string.Empty, callback, requestPriority)
 	{
 		this.url = url;
 		this.postData = postData;

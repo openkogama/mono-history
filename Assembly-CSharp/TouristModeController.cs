@@ -128,7 +128,7 @@ public class TouristModeController : MonoBehaviour
 		{
 			try
 			{
-				AsyncWWWManager.WWWRequest(new CachedGetRequest(Urls.StreamingAssets + GetPath(promotionDatas.Count + 1), StreamingAssetCallback));
+				AsyncWWWManager.WWWRequest(new CachedGetRequest(Urls.StreamingAssets + GetPath(promotionDatas.Count + 1), StreamingAssetCallback, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 			}
 			catch (Exception ex)
 			{

@@ -28,8 +28,11 @@ public abstract class AsyncWebRequest
 
 	protected bool isDone;
 
-	protected AsyncWebRequest(string path, Action<WWW> callback)
+	public readonly WWWRequestPriority requestPriority;
+
+	protected AsyncWebRequest(string path, Action<WWW> callback, WWWRequestPriority requestPriority)
 	{
+		this.requestPriority = requestPriority;
 		this.path = path;
 		this.callback = callback;
 	}

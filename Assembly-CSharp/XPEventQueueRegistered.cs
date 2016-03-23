@@ -49,7 +49,7 @@ public class XPEventQueueRegistered : XPEventQueue
 			{
 				wWWForm.AddField(item.Key, item.Value);
 			}
-			AsyncWWWManager.WWWRequest(new PostRequest(Urls.UpdateXP, wWWForm, XPUpdateCallback));
+			AsyncWWWManager.WWWRequest(new PostRequest(Urls.UpdateXP, wWWForm, XPUpdateCallback, WWWRequestPriority.ExecuteWhileSyncronizing));
 		}
 		else
 		{

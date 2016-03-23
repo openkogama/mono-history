@@ -117,6 +117,8 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public const int numInventoryItemsPerBatch = 10;
 
+	private const float serviceCallInterval = 0.05f;
+
 	private const float ExpirationStateCheckPeriod = 1f;
 
 	private const float ExpirationDataFetchCheckPeriod = 15f;
@@ -184,6 +186,8 @@ public class MVNetworkGame : IPhotonPeerListener
 	public OnReceivedXPDelegate OnReceivedXP;
 
 	public OnMarketPlaceActionCompleteDelegate OnMarketPlaceActionComplete;
+
+	private float prevServiceCallTime;
 
 	private float lastExpirationStateCheck;
 
@@ -369,7 +373,7 @@ public class MVNetworkGame : IPhotonPeerListener
 	{
 		MVGameControllerBase.JoinState = MVJoinState.Joining;
 		peer = new PhotonPeer(this, ConnectionProtocol.Udp);
-		peer.DisconnectTimeout = 20000;
+		peer.DisconnectTimeout = 30000;
 		peer.DebugOut = DebugLevel.WARNING;
 		operationResponsePendingManager = new OperationResponsePendingManager(peer);
 		networkGameStateListener = new MVNetworkGameStateListener();
@@ -458,9 +462,10 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public void Service()
 	{
-		if (peer != null)
+		if (peer != null && Time.time - prevServiceCallTime >= 0.05f)
 		{
 			peer.Service();
+			prevServiceCallTime = Time.time;
 		}
 	}
 
@@ -2651,7 +2656,7 @@ public class MVNetworkGame : IPhotonPeerListener
 				wWWForm.AddField("token", MVGameControllerBase.GameSessionData.token);
 				wWWForm.AddField("profile_id", MVGameControllerBase.GameSessionData.profileID);
 				wWWForm.AddField("planet_id", MVGameControllerBase.GameSessionData.planetID);
-				AsyncWWWManager.WWWRequest(new PostRequest(MVGameControllerBase.GameSessionData.gamePublishedURL, wWWForm, null));
+				AsyncWWWManager.WWWRequest(new PostRequest(MVGameControllerBase.GameSessionData.gamePublishedURL, wWWForm, null, WWWRequestPriority.ExecuteWhileSyncronizing));
 			}
 			else
 			{

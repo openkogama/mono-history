@@ -51,7 +51,7 @@ public class DesktopInGameGUIController : MonoBehaviour
 			if (loadLogoType != LoadLogoType.None)
 			{
 				string path = Urls.StreamingAssets + logoToPathMap[loadLogoType];
-				AsyncWWWManager.WWWRequest(new CachedGetRequest(path, StreamingAssetCallback));
+				AsyncWWWManager.WWWRequest(new CachedGetRequest(path, StreamingAssetCallback, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 			}
 		}
 	}

@@ -19,14 +19,14 @@ public class SessionLocatorPing : IUpdatecontrollerSubscriber
 		if (waitForTicks.TimeIsUp && !pingSend)
 		{
 			pingSend = true;
-			AsyncWWWManager.WWWRequest(new GetRequest(MVGameControllerBase.GameSessionData.pingURL, WWWCallBack));
+			AsyncWWWManager.WWWRequest(new GetRequest(MVGameControllerBase.GameSessionData.pingURL, WWWCallBack, WWWRequestPriority.ExecuteWhileSyncronizing));
 		}
 	}
 
 	public static void LeaveSession()
 	{
 		Debug.Log("LeaveSession");
-		AsyncWWWManager.WWWRequest(new GetRequest(MVGameControllerBase.GameSessionData.disconnectURL, null));
+		AsyncWWWManager.WWWRequest(new GetRequest(MVGameControllerBase.GameSessionData.disconnectURL, null, WWWRequestPriority.ExecuteWhileSyncronizing));
 	}
 
 	private void WWWCallBack(WWW result)

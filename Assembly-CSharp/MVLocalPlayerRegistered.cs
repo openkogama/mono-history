@@ -25,7 +25,7 @@ public class MVLocalPlayerRegistered : MVLocalPlayer
 		{
 			if (!MVGameControllerBase.LevelingTestMode)
 			{
-				AsyncWWWManager.WWWRequest(new GetRequest(Urls.Level + ProfileID, LevelCallback));
+				AsyncWWWManager.WWWRequest(new GetRequest(Urls.Level + ProfileID, LevelCallback, WWWRequestPriority.ExecuteWhileSyncronizing));
 			}
 			else
 			{

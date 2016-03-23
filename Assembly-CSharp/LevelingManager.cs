@@ -79,7 +79,7 @@ public static class LevelingManager
 		}
 		else
 		{
-			AsyncWWWManager.WWWRequest(new GetRequest(Urls.InitialData + profileID, OnInitialData));
+			AsyncWWWManager.WWWRequest(new GetRequest(Urls.InitialData + profileID, OnInitialData, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 		}
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.onPlayerListChanged = (MVNetworkGame.OnPlayerListChangedDelegate)Delegate.Combine(game.onPlayerListChanged, new MVNetworkGame.OnPlayerListChangedDelegate(OnPlayerListChanged));

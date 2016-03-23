@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class CachedGetRequest : GetRequest
 {
-	public CachedGetRequest(string path, Action<WWW> callback)
-		: base(path, callback)
+	public CachedGetRequest(string path, Action<WWW> callback, WWWRequestPriority requestPriority)
+		: base(path, callback, requestPriority)
 	{
 	}
 
