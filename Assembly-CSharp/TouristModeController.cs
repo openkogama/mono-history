@@ -163,15 +163,26 @@ public class TouristModeController : MonoBehaviour
 
 	private ShowPromotionBookkeeping showPromotionBookkeeping;
 
+	private bool touristPromotionActive;
+
 	[SerializeField]
 	private TouristPromotion touristPromotionPrefab;
 
 	public void Awake()
 	{
-		showPromotionBookkeeping = new ShowPromotionBookkeeping();
-		if (MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion)
+		touristPromotionActive = MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion;
+		if (touristPromotionActive)
 		{
+			showPromotionBookkeeping = new ShowPromotionBookkeeping();
 			promotionDataManager = new PromotionDataManager();
+		}
+	}
+
+	private void Start()
+	{
+		if (!touristPromotionActive)
+		{
+			UnityEngine.Object.Destroy(this);
 		}
 	}
 
