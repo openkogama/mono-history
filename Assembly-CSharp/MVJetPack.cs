@@ -336,9 +336,9 @@ public class MVJetPack : MVVehicleBase
 		isVehicleDead.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(isVehicleDead.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnIsDeadChange));
 		MVCubeModelBase mVCubeModelBase = (MVCubeModelBase)GetChild("JetPackCubeModel");
 		editableCubeModelWrapper = new EditableCubeModelWrapper(mVCubeModelBase, new IntVector(jetPackParameters.lowerCubeConstraint[0], jetPackParameters.lowerCubeConstraint[1], jetPackParameters.lowerCubeConstraint[2]), new IntVector(jetPackParameters.upperCubeConstraint[0], jetPackParameters.upperCubeConstraint[1], jetPackParameters.upperCubeConstraint[2]), jetPackParameters.minNumberOfCubes);
-		JetPackVisualization jetPackVisualization = gameObject.GetComponent<JetPackVisualization>();
-		jetPackVisualization.Init(IsInSpawner, mVCubeModelBase.GameObject.transform, JetMode);
-		visualization = jetPackVisualization;
+		JetPackVisualization component = gameObject.GetComponent<JetPackVisualization>();
+		component.Init(IsInSpawner, mVCubeModelBase.GameObject.transform, JetMode);
+		visualization = component;
 		if (!IsInSpawner)
 		{
 			InteractionDataHandler interactionDataHandler = mVCubeModelBase.GameObject.AddComponent<InteractionDataHandler>();
@@ -376,15 +376,15 @@ public class MVJetPack : MVVehicleBase
 	{
 		base.VehicleEntered(vehicleUser, seatID);
 		seatManager.EnterVehicleDisabled = true;
-		AvatarPickupOwner avatarPickupOwner = vehicleUser.GameObject.GetComponent<AvatarPickupOwner>();
-		if (avatarPickupOwner == null)
+		AvatarPickupOwner component = vehicleUser.GameObject.GetComponent<AvatarPickupOwner>();
+		if (component == null)
 		{
 			Debug.LogError("Failed to get avatarPickupOwner");
 			return;
 		}
 		HashSet<int> worldIDsRecursive = WorldIDsRecursive;
-		worldIDsRecursive.ExceptWith(avatarPickupOwner.IgnoreWOIDs);
-		avatarPickupOwner.AdditionalIgnoreWOIDS = worldIDsRecursive;
+		worldIDsRecursive.ExceptWith(component.IgnoreWOIDs);
+		component.AdditionalIgnoreWOIDS = worldIDsRecursive;
 	}
 
 	protected override LocalObjectsBase CreateLocalObjects(int seatID, MVAvatarLocal vehicleUser)

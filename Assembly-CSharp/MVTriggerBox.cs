@@ -16,7 +16,7 @@ public class MVTriggerBox : MVLogicObject
 		: base(data, PrefabPool.Instance.MVTriggerBoxPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
-		triggerBoxEvents = ((MVTriggerBoxObject)component).TriggerBoxEvents;
+		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
 		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		triggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
 	}

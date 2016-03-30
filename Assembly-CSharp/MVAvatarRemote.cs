@@ -82,12 +82,12 @@ public class MVAvatarRemote : MVAvatar
 		{
 			return;
 		}
-		MVRigidBody mVRigidBody = worldObjectClient.GameObject.GetComponent<MVRigidBody>();
-		if (!(mVRigidBody != null))
+		MVRigidBody component = worldObjectClient.GameObject.GetComponent<MVRigidBody>();
+		if (!(component != null))
 		{
 			return;
 		}
-		Vector3 velocity = mVRigidBody.Velocity;
+		Vector3 velocity = component.Velocity;
 		velocity /= Time.deltaTime;
 		if (!(velocity.magnitude < minVelocity))
 		{
@@ -98,11 +98,11 @@ public class MVAvatarRemote : MVAvatar
 			velocity.y = 1f;
 			velocity.Normalize();
 			velocity *= num;
-			InteractionDataHandlerBase interactionDataHandlerBase = gameObject.GetComponent<InteractionDataHandlerBase>();
-			if (interactionDataHandlerBase != null)
+			InteractionDataHandlerBase component2 = gameObject.GetComponent<InteractionDataHandlerBase>();
+			if (component2 != null)
 			{
 				Debug.Log("Applying impulse " + velocity);
-				interactionDataHandlerBase.HandleInteraction(ImpulseHitPackage.Create(velocity), interactionIsLocal: false);
+				component2.HandleInteraction(ImpulseHitPackage.Create(velocity), interactionIsLocal: false);
 				prevHitTime = Time.time;
 			}
 		}

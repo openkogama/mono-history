@@ -2901,11 +2901,17 @@ public class MVNetworkGame : IPhotonPeerListener
 		if (!dataLeft)
 		{
 			cacheEvents = true;
-			WorldNetwork worldNetwork = this.worldNetwork;
-			worldNetwork.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Combine(worldNetwork.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(OnGameCreated));
-			this.worldNetwork.CreateGameWorldFromQueryData(gameDataQuery.GetBytePacker(), gameDataQuery.InstigatorActorNumber);
-			gameDataQuery = null;
+			StatHatWrapper.Count("GameSnapshotDataReceived", 1);
+			Coroutines.StartCoroutine(WaitForFrames.Frames(3, CreateGame));
 		}
+	}
+
+	private void CreateGame()
+	{
+		WorldNetwork worldNetwork = this.worldNetwork;
+		worldNetwork.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Combine(worldNetwork.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(OnGameCreated));
+		this.worldNetwork.CreateGameWorldFromQueryData(gameDataQuery.GetBytePacker(), gameDataQuery.InstigatorActorNumber);
+		gameDataQuery = null;
 	}
 
 	private void OnGameCreated(object sender, InitializedGameQueryDataEventArgs initializedGameQueryDataEventArgs)

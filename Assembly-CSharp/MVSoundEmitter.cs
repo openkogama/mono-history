@@ -103,11 +103,11 @@ public class MVSoundEmitter : MVLogicObject
 			Validate(www);
 			StopAndDestroySound();
 			GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(mainAsset);
-			AudioSource audioSource = gameObject.GetComponent<AudioSource>();
-			audioSource.transform.parent = transform;
-			audioSource.transform.position = transform.position;
-			Data["loop"] = audioSource.loop;
-			UpdateSound(audioSource);
+			AudioSource component = gameObject.GetComponent<AudioSource>();
+			component.transform.parent = transform;
+			component.transform.position = transform.position;
+			Data["loop"] = component.loop;
+			UpdateSound(component);
 		}
 		catch (Exception ex)
 		{

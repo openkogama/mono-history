@@ -38,7 +38,9 @@ public class MVSentryGun : MVLogicObject
 
 	private SentryGunBeamType beamType = SentryGunBeamType.IceBeam;
 
-	private MVSentryGunObject gunObject;
+	private AudioSource aSource;
+
+	private SentryGunScript sentryGunScript;
 
 	private bool wasDead;
 
@@ -55,8 +57,9 @@ public class MVSentryGun : MVLogicObject
 	public MVSentryGun(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVSentryGunPrefab, worldObjects)
 	{
-		gunObject = (MVSentryGunObject)component;
-		gunObject.SentryGunScript.SetLaserRange(laserRange);
+		sentryGunScript = gameObject.GetComponentInChildren<SentryGunScript>();
+		aSource = gameObject.GetComponent<AudioSource>();
+		sentryGunScript.SetLaserRange(laserRange);
 		RaycastIgnoreWorldObjectIds = new HashSet<int> { id };
 		PlayInteractionType = PlayInteractionType.HandlesHits;
 	}
@@ -76,7 +79,7 @@ public class MVSentryGun : MVLogicObject
 	{
 		base.InitializeInventory();
 		InitializeCommon();
-		gunObject.SentryGunScript.glowPlane.gameObject.SetActive(value: false);
+		sentryGunScript.glowPlane.gameObject.SetActive(value: false);
 	}
 
 	public void InitializeCommon()
@@ -89,8 +92,8 @@ public class MVSentryGun : MVLogicObject
 		{
 			beamType = (SentryGunBeamType)(byte)Data["beamType"];
 		}
-		gunObject.SentryGunScript.Initialize();
-		gunObject.SentryGunScript.SetSentryGunBeamType(beamType);
+		sentryGunScript.Initialize();
+		sentryGunScript.SetSentryGunBeamType(beamType);
 		if (beamType == SentryGunBeamType.FireBeam)
 		{
 			interactionType = InteractionPackageType.SentryTowerFire;
@@ -105,8 +108,8 @@ public class MVSentryGun : MVLogicObject
 	{
 		if (interactable.IsDead())
 		{
-			gunObject.SentryGunScript.Explode();
-			gunObject.SentryGunScript.SmokeEnabled = true;
+			sentryGunScript.Explode();
+			sentryGunScript.SmokeEnabled = true;
 			wasDead = true;
 		}
 		UpdateSentryState();
@@ -114,14 +117,14 @@ public class MVSentryGun : MVLogicObject
 
 	private void UpdateSentryState()
 	{
-		gunObject.SentryGunScript.BlinkDamage();
+		sentryGunScript.BlinkDamage();
 		if (interactable.IsDead())
 		{
-			gunObject.SentryGunScript.SetHealth(0f);
+			sentryGunScript.SetHealth(0f);
 			return;
 		}
-		gunObject.SentryGunScript.SmokeEnabled = false;
-		gunObject.SentryGunScript.SetHealth((ObscuredFloat)RunTimeData.GetObscuredType("health"));
+		sentryGunScript.SmokeEnabled = false;
+		sentryGunScript.SetHealth((ObscuredFloat)RunTimeData.GetObscuredType("health"));
 	}
 
 	public override void Select(Color color)
@@ -209,7 +212,7 @@ public class MVSentryGun : MVLogicObject
 					woIdsBeamsMap.Remove(item2);
 				}
 			}
-			gunObject.SentryGunScript.UpdateAnimation();
+			sentryGunScript.UpdateAnimation();
 		}
 		DoFrameDelete();
 		foreach (KeyValuePair<int, SentryGunBeam> item3 in woIdsBeamsMap)
@@ -218,13 +221,13 @@ public class MVSentryGun : MVLogicObject
 			Collider componentInChildren = worldObjectClient.GameObject.GetComponentInChildren<Collider>();
 			item3.Value.SetBeamPositions(gameObject.transform.position, componentInChildren.bounds.center);
 		}
-		if (woIdsBeamsMap.Count > 0 && !gunObject.AudioSource.isPlaying)
+		if (woIdsBeamsMap.Count > 0 && !aSource.isPlaying)
 		{
-			gunObject.AudioSource.Play();
+			aSource.Play();
 		}
-		if (woIdsBeamsMap.Count == 0 && gunObject.AudioSource.isPlaying)
+		if (woIdsBeamsMap.Count == 0 && aSource.isPlaying)
 		{
-			gunObject.AudioSource.Stop();
+			aSource.Stop();
 		}
 		float b = ((woIdsBeamsMap.Count <= 0) ? 0.5f : 1f);
 		if (interactable.IsDead())
@@ -232,7 +235,7 @@ public class MVSentryGun : MVLogicObject
 			b = 0f;
 		}
 		glowFactor = Mathf.Lerp(glowFactor, b, Time.deltaTime * 2.5f);
-		gunObject.SentryGunScript.SetGlowFactor(glowFactor);
+		sentryGunScript.SetGlowFactor(glowFactor);
 	}
 
 	private void DoFrameDelete()

@@ -14,10 +14,11 @@ public class MVWaterPlane : MVLogicObject
 	public MVWaterPlane(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVWaterPlanePrefab, worldObjects)
 	{
-		Component.MeshRenderers[0].material = new Material(Component.MeshRenderers[0].material);
-		localBounds = Component.MeshRenderers[0].bounds;
-		localBounds.center -= gameObject.transform.position;
-		gameObject.transform.localScale = Vector3.one;
+		MeshRenderer componentInChildren = gameObject.GetComponentInChildren<MeshRenderer>();
+		componentInChildren.material = new Material(componentInChildren.material);
+		localBounds = componentInChildren.bounds;
+		localBounds.center -= transform.position;
+		transform.localScale = Vector3.one;
 		waterManager = Object.FindObjectOfType(typeof(WaterPlaneManager)) as WaterPlaneManager;
 		interactionFlags |= InteractionFlags.HasSettings;
 		interactionFlags &= ~InteractionFlags.CanClone;
@@ -54,7 +55,7 @@ public class MVWaterPlane : MVLogicObject
 		{
 			float[] array = (float[])Data["waterColor"];
 			waterManager.WaterColor = new Color(array[0], array[1], array[2], 0.8f);
-			Component.MeshRenderers[0].material.SetColor("_MaskedColor", new Color(array[0], array[1], array[2]));
+			gameObject.GetComponentInChildren<MeshRenderer>().material.SetColor("_MaskedColor", new Color(array[0], array[1], array[2]));
 		}
 	}
 

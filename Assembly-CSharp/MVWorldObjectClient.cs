@@ -28,8 +28,6 @@ public class MVWorldObjectClient : MVWorldObject
 
 	protected MVNetworkObject networkObject;
 
-	protected ObjectPrefab component;
-
 	private bool reactsToLODChanges = true;
 
 	private MVGroup group;
@@ -279,8 +277,6 @@ public class MVWorldObjectClient : MVWorldObject
 
 	public GameObject GameObject => gameObject;
 
-	public ObjectPrefab Component => component;
-
 	public Collider Collider => collider;
 
 	public Transform Transform => transform;
@@ -384,15 +380,6 @@ public class MVWorldObjectClient : MVWorldObject
 		CreateWorldObject(data, worldObjects);
 	}
 
-	public MVWorldObjectClient(Dictionary<object, object> data, ObjectPrefab prefabObject, Dictionary<int, MVWorldObjectClient> worldObjects)
-	{
-		component = InstantiatePrefab(prefabObject);
-		gameObject = component.gameObject;
-		collider = component.Collider;
-		transform = gameObject.transform;
-		CreateWorldObject(data, worldObjects);
-	}
-
 	public MVWorldObjectClient(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 	{
 		gameObject = new GameObject();
@@ -411,17 +398,6 @@ public class MVWorldObjectClient : MVWorldObject
 		GameObject gameObject = UnityEngine.Object.Instantiate(prefabObject);
 		goId = gameObject.GetInstanceID();
 		return gameObject;
-	}
-
-	protected ObjectPrefab InstantiatePrefab(ObjectPrefab prefabObject)
-	{
-		if (prefabObject == null)
-		{
-			Debug.LogError("Prefab object is null.");
-		}
-		ObjectPrefab objectPrefab = UnityEngine.Object.Instantiate(prefabObject);
-		goId = objectPrefab.gameObject.GetInstanceID();
-		return objectPrefab;
 	}
 
 	public bool HasInteractionFlag(InteractionFlags flag)

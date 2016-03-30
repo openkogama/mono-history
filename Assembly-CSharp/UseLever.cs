@@ -9,7 +9,15 @@ public class UseLever : MVLogicObject
 {
 	private bool isActivated;
 
-	private UseLeverObject useLeverObject;
+	private UseInteractor useInteractor;
+
+	private TriggerBoxEvents triggerBoxEvents;
+
+	private Transform plateButtonTransform;
+
+	private Collider editCollider;
+
+	private Collider leverCollider;
 
 	private float minY = -0.25f;
 
@@ -30,16 +38,20 @@ public class UseLever : MVLogicObject
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
 		interactionFlags |= InteractionFlags.CanUseLevel;
 		interactionFlags |= InteractionFlags.CanUseStars;
-		useLeverObject = (UseLeverObject)component;
-		useLeverObject.UseInteractor = new UseInteractor(Id, gameObject, reset: false, useLeverObject.LeverCollider, Use);
-		useLeverObject.TriggerBoxEvents.TriggerEnter += useLeverObject.UseInteractor.triggerBoxEvents_TriggerEnter;
-		useLeverObject.TriggerBoxEvents.TriggerExit += useLeverObject.UseInteractor.triggerBoxEvents_TriggerExit;
+		Transform transform = base.transform.FindChild("LeverUseCube");
+		leverCollider = transform.GetComponent<Collider>();
+		editCollider = base.transform.FindChild("EditCube").GetComponent<Collider>();
+		plateButtonTransform = gameObject.transform.FindChildRecursively("Switch");
+		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
+		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.Collider, Use);
+		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
+		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
 		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, new Vector3(0.5f, 1f, 0f));
-		useLeverObject.UseInteractor.AddRequirement(useRequirement);
+		useInteractor.AddRequirement(useRequirement);
 		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(gameObject);
-		useLeverObject.UseInteractor.AddRequirement(useRequirement2);
+		useInteractor.AddRequirement(useRequirement2);
 		StarRequirement useRequirement3 = new StarRequirement(gameObject);
-		useLeverObject.UseInteractor.AddRequirement(useRequirement3);
+		useInteractor.AddRequirement(useRequirement3);
 	}
 
 	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
@@ -70,22 +82,22 @@ public class UseLever : MVLogicObject
 		{
 			transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, 180f, transform.localEulerAngles.z);
 		}
-		useLeverObject.UseInteractor.UpdateData(Data);
+		useInteractor.UpdateData(Data);
 		SetLinks(isActivated);
 	}
 
 	protected override void OnUpdate()
 	{
 		base.OnUpdate();
-		if (isActivated && useLeverObject.PlateButtonTransform.localPosition.z > minY)
+		if (isActivated && plateButtonTransform.localPosition.z > minY)
 		{
-			float num = Mathf.Min(speed * Time.smoothDeltaTime, useLeverObject.PlateButtonTransform.localPosition.z - minY);
-			useLeverObject.PlateButtonTransform.localPosition = new Vector3(useLeverObject.PlateButtonTransform.localPosition.x, useLeverObject.PlateButtonTransform.localPosition.y, useLeverObject.PlateButtonTransform.localPosition.z - num);
+			float num = Mathf.Min(speed * Time.smoothDeltaTime, plateButtonTransform.localPosition.z - minY);
+			plateButtonTransform.localPosition = new Vector3(plateButtonTransform.localPosition.x, plateButtonTransform.localPosition.y, plateButtonTransform.localPosition.z - num);
 		}
-		else if (!isActivated && useLeverObject.PlateButtonTransform.localPosition.z < 0f)
+		else if (!isActivated && plateButtonTransform.localPosition.z < 0f)
 		{
-			float num2 = Mathf.Min(speed * Time.smoothDeltaTime, 0f - useLeverObject.PlateButtonTransform.localPosition.z);
-			useLeverObject.PlateButtonTransform.localPosition = new Vector3(useLeverObject.PlateButtonTransform.localPosition.x, useLeverObject.PlateButtonTransform.localPosition.y, useLeverObject.PlateButtonTransform.localPosition.z + num2);
+			float num2 = Mathf.Min(speed * Time.smoothDeltaTime, 0f - plateButtonTransform.localPosition.z);
+			plateButtonTransform.localPosition = new Vector3(plateButtonTransform.localPosition.x, plateButtonTransform.localPosition.y, plateButtonTransform.localPosition.z + num2);
 		}
 	}
 
@@ -115,7 +127,7 @@ public class UseLever : MVLogicObject
 	public override void InitializeInventory()
 	{
 		base.InitializeInventory();
-		useLeverObject.EditCollider.gameObject.SetActive(value: false);
+		editCollider.gameObject.SetActive(value: false);
 	}
 
 	public override Bounds GetLocalBounds(BoundsContext boundsContext)
@@ -131,7 +143,7 @@ public class UseLever : MVLogicObject
 	public override void OnDataUpdate()
 	{
 		isActivated = (bool)Data["beginActivated"];
-		useLeverObject.UseInteractor.UpdateData(Data);
+		useInteractor.UpdateData(Data);
 		MVAvatarLocal avatarLocal = MVGameControllerBase.WOCM.AvatarLocal;
 		if (avatarLocal != null)
 		{
@@ -153,9 +165,9 @@ public class UseLever : MVLogicObject
 			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
 			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Remove(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
 		}
-		useLeverObject.TriggerBoxEvents.TriggerEnter -= useLeverObject.UseInteractor.triggerBoxEvents_TriggerEnter;
-		useLeverObject.TriggerBoxEvents.TriggerExit -= useLeverObject.UseInteractor.triggerBoxEvents_TriggerExit;
-		useLeverObject.UseInteractor.OnDestroy(Data);
+		triggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
+		triggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
+		useInteractor.OnDestroy(Data);
 		base.Destroy();
 	}
 
@@ -167,21 +179,21 @@ public class UseLever : MVLogicObject
 
 	public void OnEditModeChange(EditModeChangeArgs arg)
 	{
-		useLeverObject.EditCollider.enabled = true;
-		useLeverObject.LeverCollider.enabled = false;
+		editCollider.enabled = true;
+		leverCollider.enabled = false;
 		if (arg.playInEditor)
 		{
-			useLeverObject.EditCollider.enabled = false;
-			useLeverObject.LeverCollider.enabled = true;
+			editCollider.enabled = false;
+			leverCollider.enabled = true;
 		}
 	}
 
 	private void SetVisibility()
 	{
-		MeshRenderer[] meshRenderers = useLeverObject.MeshRenderers;
-		for (int i = 0; i < meshRenderers.Length; i++)
+		MeshRenderer[] componentsInChildren = gameObject.GetComponentsInChildren<MeshRenderer>();
+		for (int i = 0; i < componentsInChildren.Length; i++)
 		{
-			meshRenderers[i].enabled = !disabledByLod;
+			componentsInChildren[i].enabled = !disabledByLod;
 		}
 	}
 

@@ -16,8 +16,6 @@ public class MVCollectible : MVLogicObject
 
 	private CollectibleClientState state;
 
-	private MVCollectibleObject collectibleObject;
-
 	private bool isVisible = true;
 
 	private float pickedUpStateDuration = 0.8f;
@@ -25,6 +23,20 @@ public class MVCollectible : MVLogicObject
 	private float reshowingStateDuration = 0.5f;
 
 	private float pickedUpTime;
+
+	private TriggerBoxEvents triggerBoxEvents;
+
+	private AllWorldObjectTriggerBoxEvents allWorldObjectTriggerBoxEvents;
+
+	private AudioSource aSource;
+
+	private WorldObjectEnableController worldObjectEnableController;
+
+	private Transform pickupMesh;
+
+	private ObjectParticleEmitterScript particles;
+
+	private GreyOutObjectScript pickupItem;
 
 	private bool initializedInWorld;
 
@@ -38,7 +50,7 @@ public class MVCollectible : MVLogicObject
 		Create();
 	}
 
-	public MVCollectible(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects, ObjectPrefab overridePrefab)
+	public MVCollectible(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects, GameObject overridePrefab)
 		: base(data, overridePrefab, worldObjects)
 	{
 		Create();
@@ -46,18 +58,24 @@ public class MVCollectible : MVLogicObject
 
 	private void Create()
 	{
-		collectibleObject = (MVCollectibleObject)component;
-		if (collectibleObject.TriggerBoxEvents != null)
+		pickupItem = gameObject.GetComponent<GreyOutObjectScript>();
+		pickupMesh = pickupItem.pickupObject.transform;
+		particles = gameObject.GetComponent<ObjectParticleEmitterScript>();
+		aSource = gameObject.GetComponent<AudioSource>();
+		worldObjectEnableController = gameObject.GetComponentInChildren<WorldObjectEnableController>();
+		allWorldObjectTriggerBoxEvents = gameObject.GetComponentInChildren<AllWorldObjectTriggerBoxEvents>();
+		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
+		if (triggerBoxEvents != null)
 		{
-			collectibleObject.TriggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
+			triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		}
 		else
 		{
 			Debug.LogError("A TriggerBoxEvents object is missing in PickupItem type: " + GetType().Name);
 		}
-		if (collectibleObject.AllWorldObjectTriggerBoxEvents != null)
+		if (allWorldObjectTriggerBoxEvents != null)
 		{
-			collectibleObject.AllWorldObjectTriggerBoxEvents.TriggerEnter += allWorldObjectTriggerBoxEvents_TriggerEnter;
+			allWorldObjectTriggerBoxEvents.TriggerEnter += allWorldObjectTriggerBoxEvents_TriggerEnter;
 		}
 		else
 		{
@@ -104,7 +122,7 @@ public class MVCollectible : MVLogicObject
 	{
 		if (!isVisible)
 		{
-			collectibleObject.PickupItem.GreyIn();
+			pickupItem.GreyIn();
 			isVisible = true;
 		}
 		state = CollectibleClientState.Visible;
@@ -112,7 +130,7 @@ public class MVCollectible : MVLogicObject
 
 	private void allWorldObjectTriggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		if (collectibleObject.WorldObjectEnableController.EnableState != EnableState.Enable)
+		if (worldObjectEnableController.EnableState != EnableState.Enable)
 		{
 			return;
 		}
@@ -121,11 +139,11 @@ public class MVCollectible : MVLogicObject
 		bool flag2 = num <= 0;
 		if ((flag && isVisible) || (!flag && !flag2))
 		{
-			if ((bool)collectibleObject.AudioSource)
+			if ((bool)aSource)
 			{
-				collectibleObject.AudioSource.Play();
+				aSource.Play();
 			}
-			collectibleObject.Particles.Play();
+			particles.Play();
 		}
 	}
 
@@ -134,7 +152,7 @@ public class MVCollectible : MVLogicObject
 		if (actorNr == MVGameControllerBase.Game.LocalPlayer.ActorNr)
 		{
 			isVisible = false;
-			collectibleObject.PickupItem.GreyOut();
+			pickupItem.GreyOut();
 			state = CollectibleClientState.PickedUp;
 			pickedUpTime = Time.realtimeSinceStartup;
 		}
@@ -150,8 +168,8 @@ public class MVCollectible : MVLogicObject
 		if (state == CollectibleClientState.Visible || state == CollectibleClientState.Invisible)
 		{
 			float num = 0.35f + Mathf.Sin(Time.realtimeSinceStartup * 3f) * 0.05f;
-			collectibleObject.PickupMesh.transform.localScale = new Vector3(num, num, num);
-			collectibleObject.PickupMesh.transform.Rotate(Vector3.up, Time.deltaTime * rotationSpeed * 57.29578f, Space.Self);
+			pickupMesh.localScale = new Vector3(num, num, num);
+			pickupMesh.Rotate(Vector3.up, Time.deltaTime * rotationSpeed * 57.29578f, Space.Self);
 		}
 		else if (state == CollectibleClientState.PickedUp)
 		{
@@ -161,7 +179,7 @@ public class MVCollectible : MVLogicObject
 				return;
 			}
 			float num2 = 0f;
-			collectibleObject.PickupMesh.transform.localScale = new Vector3(num2, num2, num2);
+			pickupMesh.localScale = new Vector3(num2, num2, num2);
 		}
 		else if (state == CollectibleClientState.ReShowing)
 		{
@@ -172,13 +190,13 @@ public class MVCollectible : MVLogicObject
 				return;
 			}
 			float num4 = 0.6f * (Time.realtimeSinceStartup - num3);
-			collectibleObject.PickupMesh.transform.localScale = new Vector3(num4, num4, num4);
+			pickupMesh.localScale = new Vector3(num4, num4, num4);
 		}
 	}
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		if (collectibleObject.WorldObjectEnableController.EnableState == EnableState.Enable && isVisible)
+		if (worldObjectEnableController.EnableState == EnableState.Enable && isVisible)
 		{
 			MVGameControllerBase.Game.TriggerBoxEnter(Id, e.instigatorWOID);
 		}

@@ -5,8 +5,6 @@ using UnityEngine;
 
 public class MVPressurePlate : MVLogicObject
 {
-	private MVPressurePlateObject plateObject;
-
 	private bool isDown;
 
 	private float minY = -0.249f;
@@ -19,6 +17,10 @@ public class MVPressurePlate : MVLogicObject
 
 	private Vector3 gameCoinDisplayObjectOffset = new Vector3(0f, 0.9f, 0f);
 
+	private TriggerBoxEvents triggerBoxEvents;
+
+	private Transform plateModel;
+
 	public override bool HasInputConnector => false;
 
 	public override bool HasOutputConnector => true;
@@ -30,17 +32,18 @@ public class MVPressurePlate : MVLogicObject
 	public MVPressurePlate(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVPressurePlatePrefab, worldObjects)
 	{
-		plateObject = (MVPressurePlateObject)component;
+		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
+		plateModel = gameObject.GetComponentInChildren<Animation>().transform;
 		interactionFlags |= InteractionFlags.HasSettings;
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
 		interactionFlags |= InteractionFlags.CanUseLevel;
 		interactionFlags |= InteractionFlags.CanUseStars;
-		plateObject.TriggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
-		plateObject.TriggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
+		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
+		triggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
 		SetVisibility();
-		useInteractor = new UseInteractor(Id, gameObject, reset: false, plateObject.TriggerBoxEvents.Collider, DoEnter);
-		plateObject.TriggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
-		plateObject.TriggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
+		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.Collider, DoEnter);
+		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
+		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
 		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, gameCoinDisplayObjectOffset, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement);
 		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(gameObject, hasUseButtonWhenFree: false);
@@ -79,15 +82,15 @@ public class MVPressurePlate : MVLogicObject
 
 	protected override void OnUpdate()
 	{
-		if (isDown && plateObject.PlateModelTranform.localPosition.y > minY)
+		if (isDown && plateModel.localPosition.y > minY)
 		{
-			float num = Mathf.Min(speed * Time.smoothDeltaTime, plateObject.PlateModelTranform.localPosition.y - minY);
-			plateObject.PlateModelTranform.localPosition = new Vector3(plateObject.PlateModelTranform.localPosition.x, plateObject.PlateModelTranform.localPosition.y - num, plateObject.PlateModelTranform.localPosition.z);
+			float num = Mathf.Min(speed * Time.smoothDeltaTime, plateModel.localPosition.y - minY);
+			plateModel.localPosition = new Vector3(plateModel.localPosition.x, plateModel.localPosition.y - num, plateModel.localPosition.z);
 		}
-		else if (!isDown && plateObject.PlateModelTranform.localPosition.y < 0f)
+		else if (!isDown && plateModel.localPosition.y < 0f)
 		{
-			float num2 = Mathf.Min(speed * Time.smoothDeltaTime, 0f - plateObject.PlateModelTranform.localPosition.y);
-			plateObject.PlateModelTranform.localPosition = new Vector3(plateObject.PlateModelTranform.localPosition.x, plateObject.PlateModelTranform.localPosition.y + num2, plateObject.PlateModelTranform.localPosition.z);
+			float num2 = Mathf.Min(speed * Time.smoothDeltaTime, 0f - plateModel.localPosition.y);
+			plateModel.localPosition = new Vector3(plateModel.localPosition.x, plateModel.localPosition.y + num2, plateModel.localPosition.z);
 		}
 	}
 
@@ -156,10 +159,10 @@ public class MVPressurePlate : MVLogicObject
 
 	public override void Destroy()
 	{
-		plateObject.TriggerBoxEvents.TriggerEnter -= triggerBoxEvents_TriggerEnter;
-		plateObject.TriggerBoxEvents.TriggerExit -= triggerBoxEvents_TriggerExit;
-		plateObject.TriggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
-		plateObject.TriggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
+		triggerBoxEvents.TriggerEnter -= triggerBoxEvents_TriggerEnter;
+		triggerBoxEvents.TriggerExit -= triggerBoxEvents_TriggerExit;
+		triggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
+		triggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
 		useInteractor.OnDestroy(Data);
 		base.Destroy();
 	}
@@ -180,10 +183,10 @@ public class MVPressurePlate : MVLogicObject
 
 	private void SetVisibility()
 	{
-		MeshRenderer[] meshRenderers = plateObject.MeshRenderers;
-		for (int i = 0; i < meshRenderers.Length; i++)
+		MeshRenderer[] componentsInChildren = gameObject.GetComponentsInChildren<MeshRenderer>();
+		for (int i = 0; i < componentsInChildren.Length; i++)
 		{
-			meshRenderers[i].enabled = IsVisible() && !disabledByLod;
+			componentsInChildren[i].enabled = IsVisible() && !disabledByLod;
 		}
 	}
 

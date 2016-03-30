@@ -102,21 +102,21 @@ public class MVAvatar : MVGroup
 			Debug.LogError("Trying to leave vehicle but Group is not vehicleBase " + GetType());
 			return;
 		}
-		VehicleSeatManager vehicleSeatManager = Group.GameObject.GetComponent<VehicleSeatManager>();
-		if (vehicleSeatManager == null)
+		VehicleSeatManager component = Group.GameObject.GetComponent<VehicleSeatManager>();
+		if (component == null)
 		{
 			Debug.LogError("Did not find seatmanager. Cannot detach");
 			return;
 		}
-		vehicleSeatManager.DetachFromSeat(this);
-		AvatarPickupOwner avatarPickupOwner = gameObject.GetComponent<AvatarPickupOwner>();
-		if (avatarPickupOwner == null)
+		component.DetachFromSeat(this);
+		AvatarPickupOwner component2 = gameObject.GetComponent<AvatarPickupOwner>();
+		if (component2 == null)
 		{
 			Debug.LogError("Could not find AvatarPickupOwner");
 		}
 		else
 		{
-			avatarPickupOwner.AdditionalIgnoreWOIDS = null;
+			component2.AdditionalIgnoreWOIDS = null;
 		}
 	}
 

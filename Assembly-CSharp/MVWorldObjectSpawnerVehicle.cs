@@ -168,13 +168,13 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 			Debug.LogError("SpawnWorldObject is null");
 			return false;
 		}
-		VehicleSeatManager vehicleSeatManager = worldObjectClient.GameObject.GetComponent<VehicleSeatManager>();
-		if (vehicleSeatManager == null)
+		VehicleSeatManager component = worldObjectClient.GameObject.GetComponent<VehicleSeatManager>();
+		if (component == null)
 		{
 			Debug.LogError("No vehicleSeatManager");
 			return false;
 		}
-		VehicleSeatBase driverSeat = vehicleSeatManager.DriverSeat;
+		VehicleSeatBase driverSeat = component.DriverSeat;
 		if (driverSeat == null)
 		{
 			Debug.LogError("No driver seat");

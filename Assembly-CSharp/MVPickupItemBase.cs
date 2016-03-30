@@ -95,9 +95,13 @@ public class MVPickupItemBase : MVLogicObject
 
 	private UseInteractor useInteractor;
 
-	private GameObject pickupMesh;
+	private TriggerBoxEvents triggerBoxEvents;
 
-	private MVPickupItemBaseObject baseObject;
+	private Transform pickupMesh;
+
+	private GreyOutObjectScript pickupItem;
+
+	private AudioSource aSource;
 
 	public AvatarItemType Type => pickupItemType;
 
@@ -118,23 +122,25 @@ public class MVPickupItemBase : MVLogicObject
 	public MVPickupItemBase(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, GetPickupPrefabName(data), worldObjects)
 	{
-		baseObject = (MVPickupItemBaseObject)component;
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
 		interactionFlags |= InteractionFlags.CanUseLevel;
-		pickupMesh = baseObject.PickupItem.pickupObject;
-		baseObject.TriggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
-		baseObject.TriggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
-		useInteractor = new UseInteractor(Id, gameObject, reset: false, baseObject.TriggerBoxEvents.Collider, DoPickup, CheckCanUse);
+		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
+		aSource = gameObject.GetComponent<AudioSource>();
+		pickupItem = gameObject.GetComponent<GreyOutObjectScript>();
+		pickupMesh = pickupItem.pickupObject.transform;
+		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
+		triggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
+		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.Collider, DoPickup, CheckCanUse);
 		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement);
 		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(gameObject, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement2);
-		baseObject.TriggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
-		baseObject.TriggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
+		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
+		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
 		OnDataUpdate();
 	}
 
-	private static ObjectPrefab GetPickupPrefabName(Dictionary<object, object> data)
+	private static GameObject GetPickupPrefabName(Dictionary<object, object> data)
 	{
 		Dictionary<object, object> dictionary = (Dictionary<object, object>)data[WorldObjectDataParameters.Data];
 		return pickupPrefabLUT[(AvatarItemType)(int)dictionary["itemType"]].prefabObject;
@@ -148,8 +154,8 @@ public class MVPickupItemBase : MVLogicObject
 
 	public override void Destroy()
 	{
-		baseObject.TriggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
-		baseObject.TriggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
+		triggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
+		triggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
 		useInteractor.OnDestroy(Data);
 		base.Destroy();
 	}
@@ -214,8 +220,8 @@ public class MVPickupItemBase : MVLogicObject
 		{
 			return false;
 		}
-		MVEquipable mVEquipable = worldObjectClient.GameObject.GetComponent<MVEquipable>();
-		if (mVEquipable != null && mVEquipable.Equip(Type, pickupPrefabLUT[Type].equipableType, ItemData, VariantID))
+		MVEquipable component = worldObjectClient.GameObject.GetComponent<MVEquipable>();
+		if (component != null && component.Equip(Type, pickupPrefabLUT[Type].equipableType, ItemData, VariantID))
 		{
 			MVGameControllerBase.Game.TriggerBoxEnter(Id, instigatorWOID);
 			canPickUp = false;
@@ -235,17 +241,17 @@ public class MVPickupItemBase : MVLogicObject
 		{
 		case PickupItemState.Listening:
 			canPickUp = true;
-			baseObject.PickupItem.GreyIn();
-			baseObject.TriggerBoxEvents.Collider.enabled = true;
+			pickupItem.GreyIn();
+			triggerBoxEvents.Collider.enabled = true;
 			break;
 		case PickupItemState.Pickup:
-			baseObject.PickupItem.GreyOut();
-			if ((bool)baseObject.AudioSource)
+			pickupItem.GreyOut();
+			if ((bool)aSource)
 			{
-				baseObject.AudioSource.Play();
+				aSource.Play();
 			}
 			canPickUp = false;
-			baseObject.TriggerBoxEvents.Collider.enabled = false;
+			triggerBoxEvents.Collider.enabled = false;
 			break;
 		case PickupItemState.Counting:
 			break;

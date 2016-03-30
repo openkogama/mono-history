@@ -265,6 +265,10 @@ public class CubeModelChunk
 		for (int j = 0; j < instances.Count; j++)
 		{
 			ChunkInstances.ChunkInstanceVariables value = instances[j];
+			if (value.collider == null)
+			{
+				value.collider = value.gameObject.AddComponent<BoxCollider>();
+			}
 			value.collider.size = meshBounds.size;
 			value.collider.center = meshBounds.center;
 			instances[j] = value;
@@ -273,23 +277,26 @@ public class CubeModelChunk
 
 	public void SetInstanceDataRef(IntVector chunkPos, MVCubeModelBase cubeInstance)
 	{
-		CubeModelChunkPrefab cubeModelChunkPrefab = Object.Instantiate(PrefabPool.Instance.CubeModelChunkPrefab);
-		cubeModelChunkPrefab.gameObject.name = name;
-		cubeModelChunkPrefab.MeshFilter.sharedMesh = sharedMeshData.mesh;
-		cubeModelChunkPrefab.MeshRenderer.sharedMaterial = sharedMeshData.material;
-		cubeModelChunkPrefab.BoxCollider.size = meshBounds.size;
-		cubeModelChunkPrefab.BoxCollider.center = meshBounds.center;
-		cubeModelChunkPrefab.transform.parent = cubeInstance.Transform;
-		cubeModelChunkPrefab.transform.localPosition = Vector3.zero;
-		cubeModelChunkPrefab.transform.localRotation = Quaternion.identity;
-		cubeModelChunkPrefab.transform.localScale = Vector3.one;
-		cubeModelChunkPrefab.gameObject.layer = cubeInstance.GameObject.layer;
+		GameObject gameObject = new GameObject(name, typeof(MeshFilter), typeof(MeshRenderer), typeof(BoxCollider));
+		MeshFilter component = gameObject.GetComponent<MeshFilter>();
+		MeshRenderer component2 = gameObject.GetComponent<MeshRenderer>();
+		BoxCollider component3 = gameObject.GetComponent<BoxCollider>();
+		Transform transform = gameObject.transform;
+		component.sharedMesh = sharedMeshData.mesh;
+		component2.sharedMaterial = sharedMeshData.material;
+		component3.size = meshBounds.size;
+		component3.center = meshBounds.center;
+		transform.parent = cubeInstance.Transform;
+		transform.localPosition = Vector3.zero;
+		transform.localRotation = Quaternion.identity;
+		transform.localScale = Vector3.one;
+		gameObject.layer = cubeInstance.GameObject.layer;
 		ChunkInstances.ChunkInstanceVariables chunkInstanceVariables = new ChunkInstances.ChunkInstanceVariables
 		{
-			gameObject = cubeModelChunkPrefab.gameObject,
-			collider = cubeModelChunkPrefab.BoxCollider,
-			filter = cubeModelChunkPrefab.MeshFilter,
-			renderer = cubeModelChunkPrefab.MeshRenderer
+			gameObject = gameObject,
+			collider = component3,
+			filter = component,
+			renderer = component2
 		};
 		instances.Add(chunkInstanceVariables);
 		cubeInstance.ChunkInstances.Add(chunkPos, chunkInstanceVariables);
