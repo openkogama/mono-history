@@ -55,7 +55,7 @@ public class PickupItemShotgun : PickupItemWithDelay
 		}
 		for (int j = 0; j < 5; j++)
 		{
-			Bullet bullet = Bullet.CreateBullet(bulletPrefab, muzzlePoint.position);
+			Bullet bullet = Bullet.CreateBullet(PoolEnums.ShotgunBullet, muzzlePoint.position);
 			bullet.onHit = (Bullet.OnHitDelegate)Delegate.Combine(bullet.onHit, new Bullet.OnHitDelegate(HandleHit));
 			if (isLocal)
 			{

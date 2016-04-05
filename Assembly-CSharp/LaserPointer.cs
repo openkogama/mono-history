@@ -53,37 +53,19 @@ public class LaserPointer : PickupItem, ILaserPointer
 
 	private float currentLaserAlpha;
 
+	[SerializeField]
 	private Renderer cubeRenderer;
 
+	[SerializeField]
 	private MeshFilter cubeMeshFilter;
 
 	private float lastSyncTime;
 
 	private Dictionary<object, object> syncBuffer = new Dictionary<object, object>();
 
-	public Renderer CubeRenderer
-	{
-		get
-		{
-			if (cubeRenderer == null)
-			{
-				cubeRenderer = cube.GetComponent<Renderer>();
-			}
-			return cubeRenderer;
-		}
-	}
+	public Renderer CubeRenderer => cubeRenderer;
 
-	public MeshFilter CubeMeshFilter
-	{
-		get
-		{
-			if (cubeMeshFilter == null)
-			{
-				cubeMeshFilter = cube.GetComponent<MeshFilter>();
-			}
-			return cubeMeshFilter;
-		}
-	}
+	public MeshFilter CubeMeshFilter => cubeMeshFilter;
 
 	public bool LaserActive { get; set; }
 

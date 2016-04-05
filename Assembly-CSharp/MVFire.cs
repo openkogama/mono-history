@@ -10,11 +10,7 @@ public class MVFire : MVLogicObject
 
 	private List<MVWorldObjectClient> woList = new List<MVWorldObjectClient>();
 
-	private AudioSource aSource;
-
-	private TriggerBoxEvents triggerBoxEvents;
-
-	private ParticleSystem particleSystem;
+	private FireObject fireObject;
 
 	public override bool HasInputConnector => true;
 
@@ -23,12 +19,10 @@ public class MVFire : MVLogicObject
 	public MVFire(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVFirePrefab, worldObjects)
 	{
-		aSource = gameObject.GetComponent<AudioSource>();
-		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
-		particleSystem = gameObject.GetComponentInChildren<ParticleSystem>();
-		aSource.pitch = 1f + Random.Range(-0.2f, 0.2f);
-		triggerBoxEvents.TriggerEnter += TriggerAreaEnter;
-		triggerBoxEvents.TriggerExit += TriggerAreaExit;
+		fireObject = (FireObject)component;
+		fireObject.AudioSource.pitch = 1f + Random.Range(-0.2f, 0.2f);
+		fireObject.TriggerBoxEvents.TriggerEnter += TriggerAreaEnter;
+		fireObject.TriggerBoxEvents.TriggerExit += TriggerAreaExit;
 	}
 
 	protected override void OnUpdate()
@@ -63,8 +57,9 @@ public class MVFire : MVLogicObject
 	public override void InitializeInventory()
 	{
 		base.InitializeInventory();
-		ParticleSystem.EmissionModule emission = particleSystem.emission;
+		ParticleSystem.EmissionModule emission = fireObject.ParticleSystem.emission;
 		emission.enabled = false;
+		fireObject.enabled = false;
 	}
 
 	public override void OnInputLinkChanged()
@@ -86,15 +81,15 @@ public class MVFire : MVLogicObject
 
 	private void ToggleEmitter(bool activeFlag)
 	{
-		ParticleSystem.EmissionModule emission = particleSystem.emission;
+		ParticleSystem.EmissionModule emission = fireObject.ParticleSystem.emission;
 		emission.enabled = activeFlag;
 		if (activeFlag)
 		{
-			aSource.Play();
+			fireObject.AudioSource.Play();
 		}
 		else
 		{
-			aSource.Stop();
+			fireObject.AudioSource.Stop();
 		}
 	}
 

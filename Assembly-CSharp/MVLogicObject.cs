@@ -10,14 +10,14 @@ public abstract class MVLogicObject : MVWorldObjectClient
 
 	protected float cullDistance = 145f;
 
-	protected MVLogicObject(Dictionary<object, object> data, GameObject prefabObject, Dictionary<int, MVWorldObjectClient> worldObjects)
+	protected MVLogicObject(Dictionary<object, object> data, ObjectPrefab prefabObject, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, prefabObject, worldObjects)
 	{
 		interactionFlags = InteractionFlags.Selectable | InteractionFlags.CanRotateY | InteractionFlags.CanClone | InteractionFlags.CanResetLogic;
 		PlayInteractionType = PlayInteractionType.ExcludeFromInteraction;
 		gameObject.layer = LayerMask.NameToLayer("Logic");
 		previewLayerMask |= LayerFlags.Logic;
-		localBounds = ComputeLocalBounds(gameObject.transform.position, gameObject.GetComponentsInChildren<MeshRenderer>());
+		localBounds = ComputeLocalBounds(gameObject.transform.position, component.MeshRenderers);
 	}
 
 	protected virtual void OnUpdate()
@@ -86,19 +86,19 @@ public abstract class MVLogicObject : MVWorldObjectClient
 		if (disabledByLod && distance < cullDistance)
 		{
 			disabledByLod = false;
-			MeshRenderer[] componentsInChildren = gameObject.GetComponentsInChildren<MeshRenderer>();
-			for (int i = 0; i < componentsInChildren.Length; i++)
+			MeshRenderer[] meshRenderers = component.MeshRenderers;
+			for (int i = 0; i < meshRenderers.Length; i++)
 			{
-				componentsInChildren[i].enabled = true;
+				meshRenderers[i].enabled = true;
 			}
 		}
 		else if (!disabledByLod && distance >= cullDistance)
 		{
 			disabledByLod = true;
-			MeshRenderer[] componentsInChildren2 = gameObject.GetComponentsInChildren<MeshRenderer>();
-			for (int j = 0; j < componentsInChildren2.Length; j++)
+			MeshRenderer[] meshRenderers2 = component.MeshRenderers;
+			for (int j = 0; j < meshRenderers2.Length; j++)
 			{
-				componentsInChildren2[j].enabled = false;
+				meshRenderers2[j].enabled = false;
 			}
 		}
 	}

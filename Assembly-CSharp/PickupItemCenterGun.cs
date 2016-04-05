@@ -31,7 +31,7 @@ public class PickupItemCenterGun : PickupItemWithDelay
 
 	protected override void OnFire(bool isLocal)
 	{
-		Bullet bullet = Bullet.CreateBullet(bulletPrefab, muzzlePoint.position);
+		Bullet bullet = Bullet.CreateBullet(PoolEnums.CenterGunBullet, muzzlePoint.position);
 		Ray lineOfFire = new Ray(owner.LookOrigin, owner.LookDirection);
 		bullet.onHit = (Bullet.OnHitDelegate)Delegate.Combine(bullet.onHit, new Bullet.OnHitDelegate(HandleHit));
 		if (isLocal)

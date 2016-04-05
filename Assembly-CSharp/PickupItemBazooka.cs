@@ -51,7 +51,7 @@ public class PickupItemBazooka : PickupItemWithDelay
 
 	protected override void OnFire(bool isLocal)
 	{
-		Bullet bullet = Bullet.CreateBullet(rocketPrefab, muzzlePoint.position);
+		Bullet bullet = Bullet.CreateBullet(PoolEnums.BazookaBullet, muzzlePoint.position);
 		bullet.onHit = (Bullet.OnHitDelegate)Delegate.Combine(bullet.onHit, new Bullet.OnHitDelegate(HandleRocketHit));
 		if (isLocal)
 		{

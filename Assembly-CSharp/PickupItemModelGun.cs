@@ -182,7 +182,7 @@ public class PickupItemModelGun : PickupItemWithDelay
 				return;
 			}
 		}
-		Bullet bullet = Bullet.CreateBullet(rocketPrefab, muzzlePoint.position);
+		Bullet bullet = Bullet.CreateBullet(PoolEnums.CubeGunBullet, muzzlePoint.position);
 		bullet.GetComponentInChildren<CubeBullet>().SetCubeMaterial(material);
 		if (isLocal)
 		{

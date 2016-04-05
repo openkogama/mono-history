@@ -212,8 +212,10 @@ public class PickupItemRailGun : PickupItem
 		{
 			point = ray.GetPoint(range);
 		}
-		RailRay railRay = Object.Instantiate(railGunRayPrefab, muzzlePoint.position, Quaternion.identity) as RailRay;
+		RailRay railRay = PrefabPool.Instance.EnumPoolManager.Instantiate<RailRay>(PoolEnums.RailGunRay);
 		railRay.target = point;
 		railRay.startColor = ((!flag) ? missColor : hitColor);
+		railRay.transform.localPosition = muzzlePoint.position;
+		railRay.Reset();
 	}
 }

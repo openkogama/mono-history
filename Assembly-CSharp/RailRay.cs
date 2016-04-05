@@ -17,13 +17,66 @@ public class RailRay : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem particles;
 
+	[SerializeField]
+	private PoolEnums railEnumType;
+
+	private Vector3 origin;
+
+	private Vector3 hit;
+
+	private Color endColor = new Color(0.1f, 0.1f, 0.1f, 0f);
+
+	private float time = 1.2f;
+
+	private float elapsed;
+
 	public LineRenderer RayRenderer => rayRenderer;
 
-	public ParticleSystem Particles => particles;
-
-	private void Start()
+	public ParticleSystem Particles
 	{
-		StartCoroutine(DoShowRay(target));
+		get
+		{
+			return particles;
+		}
+		set
+		{
+			particles = value;
+		}
+	}
+
+	private void Awake()
+	{
+		hit = target;
+		elapsed = 0f;
+		RayRenderer.SetVertexCount(2);
+		RayRenderer.SetPosition(1, transform.localPosition);
+		RayRenderer.SetPosition(0, hit);
+		RayRenderer.material.SetColor("_TintColor", startColor);
+		transform.localPosition = target;
+	}
+
+	public void Reset()
+	{
+		hit = target;
+		elapsed = 0f;
+		RayRenderer.SetVertexCount(2);
+		RayRenderer.SetPosition(1, transform.localPosition);
+		RayRenderer.SetPosition(0, hit);
+		RayRenderer.material.SetColor("_TintColor", startColor);
+		transform.localPosition = target;
+	}
+
+	private void Update()
+	{
+		if (elapsed < time)
+		{
+			RayRenderer.material.SetColor("_TintColor", Color.Lerp(startColor, endColor, elapsed / time));
+			elapsed += Time.deltaTime;
+		}
+		else if (!Particles.isPlaying)
+		{
+			PrefabPool.Instance.EnumPoolManager.Return(this, railEnumType);
+		}
 	}
 
 	private IEnumerator DoShowRay(Vector3 hit)
@@ -46,6 +99,6 @@ public class RailRay : MonoBehaviour
 		{
 			yield return 0;
 		}
-		Object.Destroy(gameObject);
+		PrefabPool.Instance.EnumPoolManager.Return(this, railEnumType);
 	}
 }

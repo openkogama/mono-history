@@ -10,17 +10,23 @@ public class Bullet : MonoBehaviour
 
 	public OnHitDelegate onHitLocal;
 
-	private HashSet<int> ignoreWoIDs;
+	private HashSet<int> ignoreWoIDs = new HashSet<int>();
 
 	private bool isFired;
 
 	private Ray lineOfFire;
 
 	[SerializeField]
+	private TrailRenderer trailRenderer;
+
+	[SerializeField]
 	private ParticleSystem pSystem;
 
 	[SerializeField]
 	private MeshRenderer[] meshRenderers;
+
+	[SerializeField]
+	private MeshFilter meshFilter;
 
 	private bool hit;
 
@@ -36,14 +42,70 @@ public class Bullet : MonoBehaviour
 
 	private Transform localTransform;
 
+	private PoolEnums initiatedPoolType;
+
+	private MonoBehaviour pooledObjectReference;
+
+	public PoolEnums InitiatedPoolType
+	{
+		get
+		{
+			return initiatedPoolType;
+		}
+		set
+		{
+			initiatedPoolType = value;
+		}
+	}
+
+	public MonoBehaviour PooledObjectReference
+	{
+		get
+		{
+			return pooledObjectReference;
+		}
+		set
+		{
+			pooledObjectReference = value;
+		}
+	}
+
 	private void Awake()
 	{
 		enabled = false;
 	}
 
-	public static Bullet CreateBullet(Bullet prefab, Vector3 pos)
+	public static Bullet CreateBullet(PoolEnums bulletType, Vector3 pos)
 	{
-		return Object.Instantiate(prefab, pos, Quaternion.identity) as Bullet;
+		Bullet bullet = PrefabPool.Instance.EnumPoolManager.Instantiate<Bullet>(bulletType);
+		bullet.onHit = null;
+		bullet.onHitLocal = null;
+		bullet.ignoreWoIDs.Clear();
+		bullet.transform.localPosition = pos;
+		bullet.isFired = false;
+		bullet.hit = false;
+		bullet.hasCleaned = false;
+		bullet.currentAirTime = 0f;
+		bullet.maxAirTime = 0f;
+		bullet.initiatedPoolType = bulletType;
+		return bullet;
+	}
+
+	public void ResetBullet()
+	{
+		onHit = null;
+		onHitLocal = null;
+		ignoreWoIDs.Clear();
+		isFired = false;
+		hit = false;
+		hasCleaned = false;
+		currentAirTime = 0f;
+		maxAirTime = 0f;
+	}
+
+	public void ReturnToPool(PoolEnums bulletType)
+	{
+		PrefabPool.Instance.EnumPoolManager.Return(pooledObjectReference, bulletType);
 	}
 
 	public void Fire(float speed, float range, Ray lineOfFire, HashSet<int> ignoreWoIDs)
@@ -55,6 +117,15 @@ public class Bullet : MonoBehaviour
 			isFired = true;
 			DoFire(speed, range);
 			enabled = true;
+			if (pooledObjectReference == null)
+			{
+				pooledObjectReference = this;
+			}
+			MeshRenderer[] array = meshRenderers;
+			foreach (MeshRenderer meshRenderer in array)
+			{
+				meshRenderer.enabled = true;
+			}
 		}
 	}
 
@@ -97,12 +168,12 @@ public class Bullet : MonoBehaviour
 		{
 			if (!pSystem.IsAlive())
 			{
-				Object.Destroy(gameObject);
+				ReturnToPool(initiatedPoolType);
 			}
 		}
 		else
 		{
-			Object.Destroy(gameObject);
+			ReturnToPool(initiatedPoolType);
 		}
 	}
 
@@ -114,6 +185,10 @@ public class Bullet : MonoBehaviour
 		localTransform.localRotation = Quaternion.LookRotation((startPosition - targetPosition).normalized);
 		float num = Vector3.Distance(targetPosition, lineOfFire.origin);
 		maxAirTime = num / speed;
+		if ((bool)trailRenderer)
+		{
+			trailRenderer.Clear();
+		}
 		if ((bool)pSystem)
 		{
 			pSystem.Play();

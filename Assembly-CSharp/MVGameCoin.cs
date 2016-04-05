@@ -14,7 +14,9 @@ public class MVGameCoin : MVLogicObject
 
 	private float rotationSpeed = 0.9f;
 
-	private Transform pickupMesh;
+	private GameObject pickupMesh;
+
+	private MVGameCoinObject pickupObject;
 
 	private UseInteractor useInteractor;
 
@@ -30,14 +32,6 @@ public class MVGameCoin : MVLogicObject
 
 	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
-	private GreyOutObjectScript pickupItem;
-
-	private ObjectParticleEmitterScript particles;
-
-	private AudioSource aSource;
-
-	private TriggerBoxEvents triggerBoxEvents;
-
 	public override bool HasInputConnector => false;
 
 	public override bool HasOutputConnector => false;
@@ -45,25 +39,22 @@ public class MVGameCoin : MVLogicObject
 	public MVGameCoin(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVGameCoinPrefab, worldObjects)
 	{
-		pickupItem = gameObject.GetComponent<GreyOutObjectScript>();
-		pickupMesh = pickupItem.pickupObject.transform;
-		particles = gameObject.GetComponent<ObjectParticleEmitterScript>();
-		aSource = gameObject.GetComponent<AudioSource>();
-		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
+		pickupObject = (MVGameCoinObject)component;
+		pickupMesh = pickupObject.PickupItem.pickupObject;
 		interactionFlags |= InteractionFlags.CanUseLevel;
-		if (triggerBoxEvents != null)
+		if (pickupObject.TriggerBoxEvents != null)
 		{
-			triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
+			pickupObject.TriggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		}
 		else
 		{
 			Debug.LogError("A TriggerBoxEvents object is missing in PickupItem type: " + GetType().Name);
 		}
-		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.Collider, OnPickup, IsCoinTakeable);
+		useInteractor = new UseInteractor(Id, gameObject, reset: false, pickupObject.TriggerBoxEvents.Collider, OnPickup, IsCoinTakeable);
 		LevelBasedUseRequirement useRequirement = new LevelBasedUseRequirement(gameObject, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement);
-		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
-		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
+		pickupObject.TriggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
+		pickupObject.TriggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
 		SetVisible();
 		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
 	}
@@ -96,8 +87,8 @@ public class MVGameCoin : MVLogicObject
 	public override void Destroy()
 	{
 		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
-		triggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
-		triggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
+		pickupObject.TriggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
+		pickupObject.TriggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
 		useInteractor.OnDestroy(Data);
 		base.Destroy();
 	}
@@ -106,7 +97,7 @@ public class MVGameCoin : MVLogicObject
 	{
 		if (!isVisible)
 		{
-			pickupItem.GreyIn();
+			pickupObject.PickupItem.GreyIn();
 			isVisible = true;
 		}
 		state = GameCoinClientState.Visible;
@@ -117,14 +108,14 @@ public class MVGameCoin : MVLogicObject
 		if (instigatorID == MVGameControllerBase.WOCM.AvatarLocal.Id && state == GameCoinClientState.Visible)
 		{
 			isVisible = false;
-			pickupItem.GreyOut();
+			pickupObject.PickupItem.GreyOut();
 			state = GameCoinClientState.PickedUp;
 			pickedUpTime = Time.realtimeSinceStartup;
-			if ((bool)aSource)
+			if ((bool)pickupObject.AudioSource)
 			{
-				aSource.Play();
+				pickupObject.AudioSource.Play();
 			}
-			particles.Play();
+			pickupObject.Particles.Play();
 			MVGameControllerBase.Game.GameCoinManager.GameCoinCollect();
 			return true;
 		}

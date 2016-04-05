@@ -24,12 +24,16 @@ public class SentryGunScript : MonoBehaviour
 
 	private Color color;
 
+	[SerializeField]
 	private Mesh sentryMesh;
 
+	[SerializeField]
 	private AudioSource audioSource;
 
+	[SerializeField]
 	private ParticleEmitter smokeEffectEmitter;
 
+	[SerializeField]
 	private Renderer glowPlaneRenderer;
 
 	private float damageBlinkTimeoutTime;
@@ -44,10 +48,6 @@ public class SentryGunScript : MonoBehaviour
 
 	public void Initialize()
 	{
-		sentryMesh = sentryRenderer.GetComponent<MeshFilter>().mesh;
-		audioSource = gameObject.GetComponent<AudioSource>();
-		smokeEffectEmitter = smokeEffect.GetComponent<ParticleEmitter>();
-		glowPlaneRenderer = glowPlane.GetComponent<Renderer>();
 	}
 
 	public void Explode()

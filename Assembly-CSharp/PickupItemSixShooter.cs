@@ -50,7 +50,7 @@ public class PickupItemSixShooter : PickupItemWithDelay
 
 	protected override void OnFire(bool isLocal)
 	{
-		Bullet bullet = Bullet.CreateBullet(bulletPrefab, muzzlePoint.position);
+		Bullet bullet = Bullet.CreateBullet(PoolEnums.SixShooterBullet, muzzlePoint.position);
 		animComponent.Play("RevolverRecoil");
 		Ray lineOfFire = new Ray(owner.LookOrigin, owner.LookDirection);
 		bullet.onHit = (Bullet.OnHitDelegate)Delegate.Combine(bullet.onHit, new Bullet.OnHitDelegate(HandleHit));

@@ -9,19 +9,10 @@ public class ImpulseRay : MonoBehaviour
 
 	public Color startColor;
 
+	[SerializeField]
 	private MeshRenderer rayRenderer;
 
-	public MeshRenderer RayRenderer
-	{
-		get
-		{
-			if (rayRenderer == null)
-			{
-				rayRenderer = GetComponentInChildren<MeshRenderer>();
-			}
-			return rayRenderer;
-		}
-	}
+	public MeshRenderer RayRenderer => rayRenderer;
 
 	private void Start()
 	{

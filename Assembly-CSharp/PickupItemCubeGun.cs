@@ -201,7 +201,11 @@ public class PickupItemCubeGun : PickupItemWithDelay
 				return;
 			}
 		}
-		CubeGunBulletObject cubeGunBulletObject = UnityEngine.Object.Instantiate(rocketPrefab, muzzlePoint.position, Quaternion.identity) as CubeGunBulletObject;
+		CubeGunBulletObject cubeGunBulletObject = PrefabPool.Instance.EnumPoolManager.Instantiate<CubeGunBulletObject>(PoolEnums.CubeGunBullet);
+		cubeGunBulletObject.Bullet.ResetBullet();
+		cubeGunBulletObject.Bullet.InitiatedPoolType = PoolEnums.CubeGunBullet;
+		cubeGunBulletObject.transform.localPosition = muzzlePoint.position;
+		cubeGunBulletObject.transform.localRotation = Quaternion.identity;
 		cubeGunBulletObject.CubeBullet.SetCubeMaterial(material);
 		if (isLocal)
 		{
@@ -210,6 +214,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 		}
 		Bullet bullet2 = cubeGunBulletObject.Bullet;
 		bullet2.onHit = (Bullet.OnHitDelegate)Delegate.Combine(bullet2.onHit, new Bullet.OnHitDelegate(HandleCubeHit));
+		cubeGunBulletObject.Bullet.PooledObjectReference = cubeGunBulletObject;
 		Ray lineOfFire = new Ray(owner.LookOrigin, owner.LookDirection);
 		cubeGunBulletObject.Bullet.Fire(owner.GetAbsolutProjectileSpeed(speed), range, lineOfFire, owner.IgnoreWOIDs);
 		if (isLocal)
@@ -267,9 +272,10 @@ public class PickupItemCubeGun : PickupItemWithDelay
 		{
 			point = ray.GetPoint(range);
 		}
-		RailRay railRay = UnityEngine.Object.Instantiate(railGunRayPrefab, muzzlePoint.position, Quaternion.identity) as RailRay;
+		RailRay railRay = PrefabPool.Instance.EnumPoolManager.Instantiate<RailRay>(PoolEnums.CubeGunRay);
 		railRay.target = point;
-		railRay.startColor = Color.yellow;
+		railRay.transform.localPosition = muzzlePoint.position;
+		railRay.Reset();
 	}
 
 	public override void TriggerBegin(int instigatorActorNr)

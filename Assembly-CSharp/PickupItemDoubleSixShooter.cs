@@ -54,7 +54,7 @@ public class PickupItemDoubleSixShooter : PickupItemWithDelay
 	protected override void OnFire(bool isLocal)
 	{
 		Bullet bullet = null;
-		bullet = (((int)ammo % 2 != 0) ? Bullet.CreateBullet(bulletPrefab, muzzlePoint2.position) : Bullet.CreateBullet(bulletPrefab, muzzlePoint.position));
+		bullet = (((int)ammo % 2 != 0) ? Bullet.CreateBullet(PoolEnums.SixShooterBullet, muzzlePoint2.position) : Bullet.CreateBullet(PoolEnums.SixShooterBullet, muzzlePoint.position));
 		if ((int)ammo % 2 == 0)
 		{
 			UnityEngine.Object.Instantiate(fireEmitter, muzzlePoint.position, Quaternion.identity);

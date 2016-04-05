@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,11 +9,14 @@ public class BulletThrowingStar : MonoBehaviour
 
 	public OnHitDelegate onHitLocal;
 
-	private HashSet<int> ignoreWoIDs;
+	private HashSet<int> ignoreWoIDs = new HashSet<int>();
 
 	private bool isFired;
 
 	private Ray lineOfFire;
+
+	[SerializeField]
+	private TrailRenderer trailRenderer;
 
 	[SerializeField]
 	private ParticleSystem pSystem;
@@ -24,6 +26,9 @@ public class BulletThrowingStar : MonoBehaviour
 
 	[SerializeField]
 	private MeshRenderer[] meshRenderers;
+
+	[SerializeField]
+	private MeshFilter meshFilter;
 
 	private float fallRate;
 
@@ -35,14 +40,61 @@ public class BulletThrowingStar : MonoBehaviour
 
 	private float rotationSpeedZMax = 8f;
 
+	private bool inAir;
+
+	private bool isFalling;
+
+	private bool hasHit;
+
+	private bool hasHitStatic;
+
+	private float speed;
+
+	private float rangeStraight;
+
+	private float rangeFall;
+
+	private float downwardForce;
+
+	private bool hasNotified;
+
+	private float totalDistTravelled;
+
+	private VoxelHit voxelHit = default;
+
+	private Vector3 airRotation = default;
+
+	private Vector3 direction;
+
+	private Transform tfrm;
+
+	private float coolOffStartTime;
+
+	private float coolOffDuration = 3.5f;
+
+	private PoolEnums initiatedPoolEnum;
+
 	private void Awake()
 	{
+		tfrm = transform;
 		enabled = false;
 	}
 
-	public static BulletThrowingStar CreateBullet(BulletThrowingStar prefab, Vector3 pos)
+	public static BulletThrowingStar CreateBullet(PoolEnums poolEnum, Vector3 pos)
 	{
-		return Object.Instantiate(prefab, pos, Quaternion.identity) as BulletThrowingStar;
+		BulletThrowingStar bulletThrowingStar = PrefabPool.Instance.EnumPoolManager.Instantiate<BulletThrowingStar>(poolEnum);
+		bulletThrowingStar.transform.localPosition = pos;
+		bulletThrowingStar.ignoreWoIDs.Clear();
+		bulletThrowingStar.isFired = false;
+		bulletThrowingStar.fallRate = 0f;
+		bulletThrowingStar.rotationSpeedXMin = 20f;
+		bulletThrowingStar.rotationSpeedXMax = 30f;
+		bulletThrowingStar.rotationSpeedZMin = 2f;
+		bulletThrowingStar.rotationSpeedZMax = 8f;
+		bulletThrowingStar.onHitLocal = null;
+		bulletThrowingStar.onHit = null;
+		bulletThrowingStar.initiatedPoolEnum = poolEnum;
+		return bulletThrowingStar;
 	}
 
 	public void Fire(float speed, float rangeStraight, Ray lineOfFire, HashSet<int> ignoreWoIDs, float rangeFall, float fallRate)
@@ -53,69 +105,86 @@ public class BulletThrowingStar : MonoBehaviour
 			this.fallRate = fallRate;
 			this.ignoreWoIDs = ignoreWoIDs;
 			isFired = true;
-			StartCoroutine(DoFire(speed, rangeStraight, rangeFall));
+			this.rangeFall = rangeFall;
+			this.fallRate = fallRate;
+			this.rangeStraight = rangeStraight;
+			this.speed = speed;
+			inAir = true;
+			isFalling = false;
+			hasHit = false;
+			hasHitStatic = false;
+			hasNotified = false;
+			downwardForce = 0f;
+			totalDistTravelled = 0f;
+			coolOffStartTime = 0f;
+			Vector3 localPosition = tfrm.localPosition;
+			Vector3 vector = FindTargetPos(rangeStraight);
+			tfrm.localRotation = Quaternion.LookRotation((vector - localPosition).normalized);
+			tfrm.localPosition = localPosition;
+			if ((bool)pSystem)
+			{
+				pSystem.Play();
+			}
+			if ((bool)aSource)
+			{
+				aSource.loop = true;
+				aSource.Play();
+			}
+			direction = tfrm.forward;
+			airRotation = new Vector3(Random.Range(rotationSpeedXMin, rotationSpeedXMax), 0f, Random.Range(rotationSpeedZMin, rotationSpeedZMax));
+			enabled = true;
 		}
 	}
 
-	private IEnumerator DoFire(float speed, float rangeStraight, float rangeFall)
+	private void Update()
 	{
-		bool inAir = true;
-		bool isFalling = false;
-		bool hasHit = false;
-		Vector3 startPos = gameObject.transform.position;
-		Vector3 targetPosStraight = FindTargetPos(rangeStraight);
-		transform.rotation = Quaternion.LookRotation((targetPosStraight - startPos).normalized);
-		Vector3 advanceDir = transform.forward;
-		transform.position = startPos;
-		if ((bool)pSystem)
+		if (inAir)
 		{
-			pSystem.Play();
-		}
-		VoxelHit voxelHit = default;
-		float totalDistTravelled = 0f;
-		Vector3 downForce = Vector3.zero;
-		float rotX = Random.Range(rotationSpeedXMin, rotationSpeedXMax);
-		float rotZ = Random.Range(rotationSpeedZMin, rotationSpeedZMax);
-		if (aSource != null)
-		{
-			aSource.loop = true;
-			aSource.Play();
-		}
-		while (inAir)
-		{
-			transform.Rotate(new Vector3(rotX * Time.deltaTime * speed, 0f, rotZ * Time.deltaTime * speed));
+			tfrm.Rotate(airRotation * Time.deltaTime * speed);
 			if (totalDistTravelled > rangeStraight && !isFalling)
 			{
 				isFalling = true;
 			}
-			Vector3 advanceStep = advanceDir * speed * Time.deltaTime;
+			Vector3 vector = direction * speed * Time.deltaTime;
 			if (isFalling)
 			{
-				downForce += new Vector3(0f, (0f - fallRate) * speed * speed * Time.deltaTime * Time.deltaTime, 0f);
-				advanceStep += downForce;
+				downwardForce += (0f - fallRate) * speed * speed * Time.deltaTime * Time.deltaTime;
+				vector.y += downwardForce;
 			}
-			Vector3 targetPos = transform.position + advanceStep;
-			if (DoCollisionCheck(transform.position, advanceStep.magnitude, (targetPos - transform.position).normalized, out voxelHit))
+			Vector3 vector2 = tfrm.localPosition + vector;
+			Vector3 vector3 = vector2 - tfrm.localPosition;
+			Vector3 normalized = vector3.normalized;
+			if (DoCollisionCheck(tfrm.localPosition, vector.magnitude, normalized, out voxelHit))
 			{
-				targetPos = voxelHit.point;
+				vector2 = voxelHit.point;
 				inAir = false;
 				hasHit = true;
 			}
-			Debug.DrawLine(transform.position, targetPos + (targetPos - transform.position).normalized * 10f, Color.red);
-			totalDistTravelled += (targetPos - transform.position).magnitude;
-			transform.position = targetPos;
+			Debug.DrawLine(tfrm.localPosition, vector2 + normalized * 10f, Color.red);
+			totalDistTravelled += vector3.magnitude;
+			tfrm.localPosition = vector2;
 			if (totalDistTravelled > rangeStraight + rangeFall)
 			{
 				inAir = false;
 			}
-			yield return 0;
+			return;
 		}
-		if (aSource != null && aSource.isPlaying)
+		bool flag = true;
+		if ((bool)aSource && aSource.isPlaying)
 		{
 			aSource.Stop();
 		}
-		if (hasHit)
+		if ((bool)pSystem)
 		{
+			pSystem.Stop();
+			if (pSystem.IsAlive())
+			{
+				flag = false;
+			}
+		}
+		if (hasHit && !hasNotified)
+		{
+			hasNotified = true;
 			if (onHit != null)
 			{
 				onHit(voxelHit, lineOfFire);
@@ -124,48 +193,36 @@ public class BulletThrowingStar : MonoBehaviour
 			{
 				onHitLocal(voxelHit, lineOfFire);
 			}
-		}
-		float coolOffStartTime = Time.time;
-		float coolOffDuration = 3.5f;
-		if ((bool)pSystem)
-		{
-			pSystem.Stop();
-			while (pSystem.IsAlive())
+			if (!hasHitStatic)
 			{
-				yield return 0;
-			}
-		}
-		if (hasHit)
-		{
-			bool hasHitStaticStructure = true;
-			int woID = MVGameControllerBase.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
-			MVWorldObjectClient wo = MVGameControllerBase.WOCM.GetWorldObjectClient(woID);
-			if (wo != null)
-			{
-				InteractionDataHandlerBase interactionHandler = wo.InteractionDataHandlerBase;
-				hasHitStaticStructure = interactionHandler == null;
-			}
-			while (coolOffStartTime + coolOffDuration > Time.time && hasHitStaticStructure)
-			{
-				float t = (Time.time - coolOffStartTime) / coolOffDuration;
-				MeshRenderer[] array = meshRenderers;
-				foreach (MeshRenderer r in array)
+				hasHitStatic = true;
+				coolOffStartTime = Time.time;
+				int woIDHighestInHierarchyWithComponent = MVGameControllerBase.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
+				MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
+				if (worldObjectClient != null)
 				{
-					Material[] materials = r.materials;
-					foreach (Material m in materials)
-					{
-						m.color = new Color(m.color.r, m.color.g, m.color.b, 1f - t);
-					}
+					hasHitStatic = worldObjectClient.InteractionDataHandlerBase == null;
 				}
-				yield return 0;
 			}
 		}
-		MeshRenderer[] array2 = meshRenderers;
-		foreach (MeshRenderer r2 in array2)
+		if (coolOffStartTime + coolOffDuration > Time.time && hasHitStatic)
 		{
-			r2.enabled = false;
+			flag = false;
+			float num = (Time.time - coolOffStartTime) / coolOffDuration;
+			MeshRenderer[] array = meshRenderers;
+			foreach (MeshRenderer meshRenderer in array)
+			{
+				Material[] materials = meshRenderer.materials;
+				foreach (Material material in materials)
+				{
+					material.color = new Color(material.color.r, material.color.g, material.color.b, 1f - num);
+				}
+			}
 		}
-		Object.Destroy(gameObject);
+		if (flag)
+		{
+			PrefabPool.Instance.EnumPoolManager.Return(this, initiatedPoolEnum);
+		}
 	}
 
 	private bool DoCollisionCheck(Vector3 pos, float dist, Vector3 dir, out VoxelHit voxelHit)

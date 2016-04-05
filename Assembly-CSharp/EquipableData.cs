@@ -1,8 +1,6 @@
-using UnityEngine;
-
-public struct EquipableData(GameObject obj, AvatarEquipableType equipType)
+public struct EquipableData(ObjectPrefab obj, AvatarEquipableType equipType)
 {
-	public GameObject prefabObject = obj;
+	public ObjectPrefab prefabObject = obj;
 
 	public AvatarEquipableType equipableType = equipType;
 }

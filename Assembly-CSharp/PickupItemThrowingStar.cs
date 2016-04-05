@@ -49,7 +49,7 @@ public class PickupItemThrowingStar : PickupItemWithDelay
 
 	protected override void OnFire(bool isLocal)
 	{
-		BulletThrowingStar bulletThrowingStar = BulletThrowingStar.CreateBullet(bulletPrefab, muzzlePoint.position);
+		BulletThrowingStar bulletThrowingStar = BulletThrowingStar.CreateBullet(PoolEnums.ThrowingStarBullet, muzzlePoint.position);
 		Ray lineOfFire = new Ray(owner.LookOrigin, owner.LookDirection);
 		bulletThrowingStar.onHit = (BulletThrowingStar.OnHitDelegate)Delegate.Combine(bulletThrowingStar.onHit, new BulletThrowingStar.OnHitDelegate(HandleHit));
 		if (isLocal)

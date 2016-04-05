@@ -68,9 +68,11 @@ public class MouseGun : PickupItemWithDelay
 		{
 			point = ray.GetPoint(range);
 		}
-		RailRay railRay = Object.Instantiate(railGunRayPrefab, muzzlePoint.position, Quaternion.identity) as RailRay;
+		RailRay railRay = PrefabPool.Instance.EnumPoolManager.Instantiate<RailRay>(PoolEnums.RailGunRay);
+		railRay.transform.localPosition = muzzlePoint.position;
 		railRay.target = point;
 		railRay.startColor = ((!flag) ? missColor : hitColor);
+		railRay.Reset();
 		ReduceAmmo();
 	}
 

@@ -19,7 +19,7 @@ public class MVObjectEnabler : MVLogicObject
 		: base(data, PrefabPool.Instance.MVObjectEnablerPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
-		goObjectEnabler = gameObject.GetComponent<ObjectEnabler>();
+		goObjectEnabler = ((MVObjectEnablerObject)component).ObjectEnabler;
 		goObjectEnabler.woObjectEnabler = this;
 		OnDataUpdate();
 	}

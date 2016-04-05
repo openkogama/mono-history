@@ -2,467 +2,808 @@ using UnityEngine;
 
 public class PrefabPool : MonoBehaviour
 {
+	[SerializeField]
+	private EnumPoolManager enumPoolManager;
+
 	private static PrefabPool instance;
 
+	[SerializeField]
 	[Header("World Objects")]
-	[SerializeField]
-	public GameObject MVFirePrefab;
+	private ObjectPrefab mvFirePrefab;
 
 	[SerializeField]
-	public GameObject MVAndPrefab;
+	private ObjectPrefab mvAndPrefab;
 
 	[SerializeField]
-	public GameObject MVAvatarPrefab;
+	private GameObject mvAvatarPrefab;
 
 	[SerializeField]
-	public GameObject MVAdvancedGhostPrefab;
+	private GameObject mvAdvancedGhostPrefab;
 
 	[SerializeField]
-	public GameObject MVBodyPrefab;
+	private GameObject mvBodyPrefab;
 
 	[SerializeField]
-	public GameObject MVHamsterWheelPrefab;
+	private GameObject mvHamsterWheelPrefab;
 
 	[SerializeField]
-	public GameObject MVHoverCraftPrefab;
+	private GameObject mvHoverCraftPrefab;
 
 	[SerializeField]
-	public GameObject MVJetPackPrefab;
+	private GameObject mvJetPackPrefab;
 
 	[SerializeField]
-	public GameObject MVJetPackDeluxePrefab;
+	private GameObject mvJetPackDeluxePrefab;
 
 	[SerializeField]
-	public GameObject MVBatteryPrefab;
+	private ObjectPrefab mvBatteryPrefab;
 
 	[SerializeField]
-	public GameObject MVCameraSettingsPrefab;
+	private ObjectPrefab mvCameraSettingsPrefab;
 
 	[SerializeField]
-	public GameObject MVCollectiblePrefab;
+	private MVCollectibleObject mvCollectiblePrefab;
 
 	[SerializeField]
-	public GameObject MVCollectibleFantaPrefab;
+	private MVCollectibleObject mvCollectibleFantaPrefab;
 
 	[SerializeField]
-	public GameObject MVCheckpointPrefab;
+	private ObjectPrefab mvCheckpointPrefab;
 
 	[SerializeField]
-	public GameObject MVExplosivesPrefab;
+	private ObjectPrefab mvExplosivesPrefab;
 
 	[SerializeField]
-	public GameObject MVFlagPrefab;
+	private ObjectPrefab mvFlagPrefab;
 
 	[SerializeField]
-	public GameObject MVGameCoinChestPrefab;
+	private ObjectPrefab mvGameCoinChestPrefab;
 
 	[SerializeField]
-	public GameObject MVGameCoinPrefab;
+	private MVGameCoinObject mvGameCoinPrefab;
 
 	[SerializeField]
-	public GameObject MVGhostPrefab;
+	private GameObject mvGhostPrefab;
 
 	[SerializeField]
-	public GameObject MVGoalPrefab;
+	private ObjectPrefab mvGoalPrefab;
 
 	[SerializeField]
-	public GameObject MVGhostInstancePrefab;
+	private GameObject mvGhostInstancePrefab;
 
 	[SerializeField]
-	public GameObject MVGravityCubePrefab;
+	private ObjectPrefab mvGravityCubePrefab;
 
 	[SerializeField]
-	public GameObject MVNegatePrefab;
+	private ObjectPrefab mvNegatePrefab;
 
 	[SerializeField]
-	public GameObject MVPointLightPrefab;
+	private MVPointLightObject mvPointLightPrefab;
 
 	[SerializeField]
-	public GameObject MVPressurePlatePrefab;
+	private MVPressurePlateObject mvPressurePlatePrefab;
 
 	[SerializeField]
-	public GameObject MVPulseBoxPrefab;
+	private ObjectPrefab mvPulseBoxPrefab;
 
 	[SerializeField]
-	public GameObject MVRandomBoxPrefab;
+	private ObjectPrefab mvRandomBoxPrefab;
 
 	[SerializeField]
-	public GameObject MVRoundCubePrefab;
+	private ObjectPrefab mvRoundCubePrefab;
 
 	[SerializeField]
-	public GameObject MVSkyboxPrefab;
+	private ObjectPrefab mvSkyboxPrefab;
 
 	[SerializeField]
-	public GameObject MVSmokePrefab;
+	private ObjectPrefab mvSmokePrefab;
 
 	[SerializeField]
-	public GameObject MVSoundEmitterPrefab;
+	private ObjectPrefab mvSoundEmitterPrefab;
 
 	[SerializeField]
-	public GameObject MVSpawnPointBluePrefab;
+	private ObjectPrefab mvSpawnPointBluePrefab;
 
 	[SerializeField]
-	public GameObject MVSpawnPointGreenPrefab;
+	private ObjectPrefab mvSpawnPointGreenPrefab;
 
 	[SerializeField]
-	public GameObject MVSpawnPointRedPrefab;
+	private ObjectPrefab mvSpawnPointRedPrefab;
 
 	[SerializeField]
-	public GameObject MVSpawnPointYellowPrefab;
+	private ObjectPrefab mvSpawnPointYellowPrefab;
 
 	[SerializeField]
-	public GameObject MVTextMsgPrefab;
+	private MVTextMsgObject mvTextMsgPrefab;
 
 	[SerializeField]
-	public GameObject MVTimeTriggerPrefab;
+	private ObjectPrefab mvTimeTriggerPrefab;
 
 	[SerializeField]
-	public GameObject MVToggleBoxPrefab;
+	private ObjectPrefab mvToggleBoxPrefab;
 
 	[SerializeField]
-	public GameObject MVTriggerBoxPrefab;
+	private MVTriggerBoxObject mvTriggerBoxPrefab;
 
 	[SerializeField]
-	public GameObject MVMovingPlatformGroupPrefab;
+	private GameObject mvMovingPlatformGroupPrefab;
 
 	[SerializeField]
-	public GameObject MVMovingPlatformNodePrefab;
+	private GameObject mvMovingPlatformNodePrefab;
 
 	[SerializeField]
-	public GameObject MVObjectEnablerPrefab;
+	private MVObjectEnablerObject mvObjectEnablerPrefab;
 
 	[SerializeField]
-	public GameObject MVKillLimitPrefab;
+	private ObjectPrefab mvKillLimitPrefab;
 
 	[SerializeField]
-	public GameObject MVOculusKillLimitPrefab;
+	private ObjectPrefab mvOculusKillLimitPrefab;
 
 	[SerializeField]
-	public GameObject MVSentryGunPrefab;
+	private MVSentryGunObject mvSentryGunPrefab;
 
 	[SerializeField]
-	public GameObject ShootableButtonPrefab;
+	private ShootableButtonObject shootableButtonPrefab;
 
 	[SerializeField]
-	public GameObject MVTeleportGroupPrefab;
+	private GameObject mvTeleportGroupPrefab;
 
 	[SerializeField]
-	public GameObject MVTeleporterPrefab;
+	private MVTeleporterObject mvTeleporterPrefab;
 
 	[SerializeField]
-	public GameObject UseLeverPrefab;
+	private UseLeverObject useLeverPrefab;
 
 	[SerializeField]
-	public GameObject MVWaterPlanePrefab;
+	private ObjectPrefab mvWaterPlanePrefab;
 
 	[SerializeField]
-	public GameObject WindTurbinePrefab;
+	private WindTurbineObject windTurbinePrefab;
 
 	[SerializeField]
-	public GameObject MVCountingCube;
+	private MVCountingCubeObject mvCountingCubePrefab;
 
 	[SerializeField]
-	public TeleportAvatar TeleportAvatarPrefab;
+	private TeleportAvatar teleportAvatarPrefab;
 
+	[SerializeField]
 	[Header("Game")]
+	[Space(20f)]
+	private Material ghostMarkerMaterial;
+
+	[SerializeField]
+	private Material objectHiddenMaterial;
+
+	[SerializeField]
+	private SentryGunBeam iceBeamObject;
+
+	[SerializeField]
+	private SentryGunBeam fireBeamObject;
+
+	[SerializeField]
+	private StarDisplayObject starDisplayPrefab;
+
+	[SerializeField]
+	private LevelDisplayCube levelDisplayPrefab;
+
+	[SerializeField]
+	private GameCoinDisplayObject gameCoinDisplayPrefab;
+
+	[SerializeField]
+	private CubeModelChunkPrefab cubeModelChunkPrefab;
+
 	[SerializeField]
 	[Space(20f)]
-	public Material GhostMarkerMaterial;
-
-	[SerializeField]
-	public Material ObjectHiddenMaterial;
-
-	[SerializeField]
-	public SentryGunBeam IceBeamObject;
-
-	[SerializeField]
-	public SentryGunBeam FireBeamObject;
-
-	[SerializeField]
-	public StarDisplayObject StarDisplayPrefab;
-
-	[SerializeField]
-	public LevelDisplayCube LevelDisplayPrefab;
-
-	[SerializeField]
-	public GameCoinDisplayObject GameCoinDisplayPrefab;
-
 	[Header("Pick up")]
-	[Space(20f)]
-	[SerializeField]
-	public GameObject AvatarCenterGunPrefab;
+	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
 	[SerializeField]
-	public GameObject AvatarImpulseGunPrefab;
+	private MVPickupItemBaseObject avatarImpulseGunPrefab;
 
 	[SerializeField]
-	public GameObject AvatarHealthPrefab;
+	private MVPickupItemBaseObject avatarHealthPrefab;
 
 	[SerializeField]
-	public GameObject AvatarBazookaPrefab;
+	private MVPickupItemBaseObject avatarBazookaPrefab;
 
 	[SerializeField]
-	public GameObject AvatarRailGunPrefab;
+	private MVPickupItemBaseObject avatarRailGunPrefab;
 
 	[SerializeField]
-	public GameObject AvatarMutantPrefab;
+	private MVPickupItemBaseObject avatarMutantPrefab;
 
 	[SerializeField]
-	public GameObject AvatarSwordPrefab;
+	private MVPickupItemBaseObject avatarSwordPrefab;
 
 	[SerializeField]
-	public GameObject AvatarShotgunPrefab;
+	private MVPickupItemBaseObject avatarShotgunPrefab;
 
 	[SerializeField]
-	public GameObject AvatarFlamethrowerPrefab;
+	private MVPickupItemBaseObject avatarFlamethrowerPrefab;
 
 	[SerializeField]
-	public GameObject AvatarCubeGunPrefab;
+	private MVPickupItemBaseObject avatarCubeGunPrefab;
 
 	[SerializeField]
-	public GameObject AvatarNinjaRunPrefab;
+	private MVPickupItemBaseObject avatarNinjaRunPrefab;
 
 	[SerializeField]
-	public GameObject AvatarSixShooterPrefab;
+	private MVPickupItemBaseObject avatarSixShooterPrefab;
 
 	[SerializeField]
-	public GameObject AvatarDoubleSixShooterPrefab;
+	private MVPickupItemBaseObject avatarDoubleSixShooterPrefab;
 
 	[SerializeField]
-	public GameObject AvatarThrowingStarPrefab;
+	private MVPickupItemBaseObject avatarThrowingStarPrefab;
 
 	[SerializeField]
-	public GameObject AvatarMultiThrowingStarPrefab;
+	private MVPickupItemBaseObject avatarMultiThrowingStarPrefab;
 
 	[SerializeField]
-	public GameObject AvatarMouseGunPrefab;
+	private MVPickupItemBaseObject avatarMouseGunPrefab;
 
 	[SerializeField]
-	public GameObject AvatarGrowthGunPrefab;
+	private MVPickupItemBaseObject avatarGrowthGunPrefab;
 
 	[SerializeField]
-	public GameObject AvatarMousePackPrefab;
+	private MVPickupItemBaseObject avatarMousePackPrefab;
 
 	[SerializeField]
-	public GameObject AvatarGrowthPackPrefab;
+	private MVPickupItemBaseObject avatarGrowthPackPrefab;
 
-	[Space(20f)]
 	[Header("Avatar item pick up")]
+	[Space(20f)]
 	[SerializeField]
-	public GameObject AvatarItemCenterGun;
+	private GameObject avatarItemCenterGun;
 
-	public GameObject AvatarItemImpulseGun;
+	[SerializeField]
+	private GameObject avatarItemImpulseGun;
 
-	public GameObject AvatarItemLaserPointer;
+	[SerializeField]
+	private GameObject avatarItemLaserPointer;
 
-	public GameObject AvatarItemBazooka;
+	[SerializeField]
+	private GameObject avatarItemBazooka;
 
-	public GameObject AvatarItemHand;
+	[SerializeField]
+	private GameObject avatarItemHand;
 
-	public GameObject AvatarItemRailGun;
+	[SerializeField]
+	private GameObject avatarItemRailGun;
 
-	public GameObject AvatarItemSword;
+	[SerializeField]
+	private GameObject avatarItemSword;
 
-	public GameObject AvatarItemShotgun;
+	[SerializeField]
+	private GameObject avatarItemShotgun;
 
-	public GameObject AvatarItemFlamethrower;
+	[SerializeField]
+	private GameObject avatarItemFlamethrower;
 
-	public GameObject AvatarItemCubeGun;
+	[SerializeField]
+	private GameObject avatarItemCubeGun;
 
-	public GameObject AvatarItemSixShooter;
+	[SerializeField]
+	private GameObject avatarItemSixShooter;
 
-	public GameObject AvatarItemDoubleSixShooter;
+	[SerializeField]
+	private GameObject avatarItemDoubleSixShooter;
 
-	public GameObject AvatarItemThrowingStar;
+	[SerializeField]
+	private GameObject avatarItemThrowingStar;
 
-	public GameObject AvatarItemMultiThrowingStar;
+	[SerializeField]
+	private GameObject avatarItemMultiThrowingStar;
 
-	public GameObject AvatarItemGrowthGun;
+	[SerializeField]
+	private GameObject avatarItemGrowthGun;
 
-	public GameObject AvatarItemMouseGun;
+	[SerializeField]
+	private GameObject avatarItemMouseGun;
 
-	public GameObject AvatarItemSlapGun;
+	[SerializeField]
+	private GameObject avatarItemSlapGun;
 
+	[SerializeField]
 	[Space(20f)]
 	[Header("Avatar modifier")]
-	public AvatarModifier BurningModifier;
+	private AvatarModifier burningModifier;
 
-	public AvatarModifier MutantModifier;
+	[SerializeField]
+	private AvatarModifier mutantModifier;
 
-	public AvatarModifier PoisonModifier;
+	[SerializeField]
+	private AvatarModifier poisonModifier;
 
-	public AvatarModifier FrozenModifier;
+	[SerializeField]
+	private AvatarModifier frozenModifier;
 
-	public AvatarModifier NinjaRunModifier;
+	[SerializeField]
+	private AvatarModifier ninjaRunModifier;
 
-	public AvatarModifier MouseModifier;
+	[SerializeField]
+	private AvatarModifier mouseModifier;
 
-	public AvatarModifier GrowthModifier;
+	[SerializeField]
+	private AvatarModifier growthModifier;
 
+	[Space(20f)]
+	[SerializeField]
 	[Header("Particles")]
+	private GameObject particleBlood;
+
+	[SerializeField]
+	private GameObject particleBloodSixShooter;
+
+	[SerializeField]
+	private GameObject particleBlooxThrowingStar;
+
+	[SerializeField]
+	private GameObject particleCFX_GroundAura;
+
+	[SerializeField]
+	private ParticleSystem particleCubeDust;
+
+	[SerializeField]
+	private ParticleSystem particleCubeDustDestroyed;
+
+	[SerializeField]
+	private GameObject particleDetailedSmoke;
+
+	[SerializeField]
+	private GameObject particleDustStorm;
+
+	[SerializeField]
+	private ParticleSystem particleExplosion;
+
+	[SerializeField]
+	private GameObject particleFire1;
+
+	[SerializeField]
+	private ParticleSystem particleFluffySmoke;
+
+	[SerializeField]
+	private GameObject particleFluffySmokeLarge;
+
+	[SerializeField]
+	private GameObject particleGhostDeath;
+
+	[SerializeField]
+	private GameObject particleGunSmoke;
+
+	[SerializeField]
+	private GameObject particleJetPackParticles;
+
+	[SerializeField]
+	private GameObject particleSmallExplosion;
+
+	[SerializeField]
+	private GameObject particleSmokeTrail;
+
+	[SerializeField]
+	private GameObject particleSparks;
+
+	[SerializeField]
+	private GameObject particleSparksSixShooter;
+
+	[SerializeField]
+	private GameObject particleSparksThrowingStar;
+
+	[SerializeField]
+	private ParticleSystem particleXP;
+
 	[SerializeField]
 	[Space(20f)]
-	public GameObject ParticleBlood;
-
-	[SerializeField]
-	public GameObject ParticleBloodSixShooter;
-
-	[SerializeField]
-	public GameObject ParticleBlooxThrowingStar;
-
-	[SerializeField]
-	public GameObject ParticleCFX_GroundAura;
-
-	[SerializeField]
-	public GameObject ParticleCubeDust;
-
-	[SerializeField]
-	public GameObject ParticleCubeDustDestroyed;
-
-	[SerializeField]
-	public GameObject ParticleDetailedSmoke;
-
-	[SerializeField]
-	public GameObject ParticleDustStorm;
-
-	[SerializeField]
-	public GameObject ParticleExplosion;
-
-	[SerializeField]
-	public GameObject ParticleFire1;
-
-	[SerializeField]
-	public ParticleSystem ParticleFluffySmoke;
-
-	[SerializeField]
-	public GameObject ParticleFluffySmokeLarge;
-
-	[SerializeField]
-	public GameObject ParticleGhostDeath;
-
-	[SerializeField]
-	public GameObject ParticleGunSmoke;
-
-	[SerializeField]
-	public GameObject ParticleJetPackParticles;
-
-	[SerializeField]
-	public GameObject ParticleSmallExplosion;
-
-	[SerializeField]
-	public GameObject ParticleSmokeTrail;
-
-	[SerializeField]
-	public GameObject ParticleSparks;
-
-	[SerializeField]
-	public GameObject ParticleSparksSixShooter;
-
-	[SerializeField]
-	public GameObject ParticleSparksThrowingStar;
-
-	[SerializeField]
-	public GameObject ParticleXP;
-
-	[SerializeField]
 	[Header("Logic object prefabs")]
-	[Space(20f)]
-	public GameObject LogicInputConnectorPrefab;
+	private GameObject logicInputConnectorPrefab;
 
 	[SerializeField]
-	public GameObject LogicOutputConnectorPrefab;
+	private GameObject logicOutputConnectorPrefab;
 
 	[SerializeField]
-	public GameObject LogicObjectConnectorPrefab;
+	private GameObject logicObjectConnectorPrefab;
 
 	[SerializeField]
-	public GameObject LinkObject;
+	private GameObject linkObject;
 
 	[SerializeField]
-	public GameObject ObjectLinkObject;
+	private GameObject objectLinkObject;
 
 	[SerializeField]
-	public Material LogicCubeConnectorRedMaterial;
+	private Material logicCubeConnectorRedMaterial;
 
 	[SerializeField]
-	public Material LogicCubeConnectorRedSelectedMaterial;
+	private Material logicCubeConnectorRedSelectedMaterial;
 
 	[SerializeField]
-	public Material LogicCubeConnectorBlueMaterial;
+	private Material logicCubeConnectorBlueMaterial;
 
 	[SerializeField]
-	public Material LogicCubeConnectorBlueSelectedMaterial;
+	private Material logicCubeConnectorBlueSelectedMaterial;
 
-	[SerializeField]
-	[Space(20f)]
 	[Header("GUI")]
-	public Texture2D AvatarAccessoryMoveIcon;
-
 	[SerializeField]
-	public GameObject DrawPlaneObject;
-
-	[SerializeField]
-	public Material ModelConstraintsMaterial;
-
 	[Space(20f)]
+	private Texture2D avatarAccessoryMoveIcon;
+
 	[SerializeField]
+	private GameObject drawPlaneObject;
+
+	[SerializeField]
+	private Material modelConstraintsMaterial;
+
 	[Header("UGUI")]
-	public AvatarInputControllerAndroidSettings AvatarInputControllerAndroidSettings;
-
-	[SerializeField]
-	public Texture2D crosshairCursor;
-
-	[SerializeField]
-	public MaterialButtonTextureGenerator MaterialButtonTextureGenerator;
-
-	[SerializeField]
-	public InsertCursor InsertCursor;
-
 	[Space(20f)]
+	[SerializeField]
+	private AvatarInputControllerAndroidSettings avatarInputControllerAndroidSettings;
+
+	[SerializeField]
+	private Texture2D crosshairCursor;
+
+	[SerializeField]
+	private MaterialButtonTextureGenerator materialButtonTextureGenerator;
+
+	[SerializeField]
+	private InsertCursor insertCursor;
+
 	[SerializeField]
 	[Header("Editor")]
-	public Material CellCursorErrorMaterial;
+	[Space(20f)]
+	private Material cellCursorErrorMaterial;
 
 	[SerializeField]
-	public Material CellCursorMaterial;
+	private Material cellCursorMaterial;
 
 	[SerializeField]
-	public Material ModelCubeSpaceMaterial;
+	private Material modelCubeSpaceMaterial;
 
 	[SerializeField]
-	public Material Cursor2dEdgeMaterial;
+	private Material cursor2dEdgeMaterial;
 
 	[SerializeField]
-	public Material Cursor2dCornerMaterial;
+	private Material cursor2dCornerMaterial;
 
 	[SerializeField]
-	public Material CursorMaterial;
+	private Material cursorMaterial;
 
 	[SerializeField]
-	public Material CursorCornerMaterial;
+	private Material cursorCornerMaterial;
 
 	[SerializeField]
-	public Material CursorNoneMaterial;
+	private Material cursorNoneMaterial;
 
 	[SerializeField]
-	public Material InsertPreviewMaterial;
+	private Material insertPreviewMaterial;
 
 	[SerializeField]
-	public Material PreviewBoxMaterial;
+	private Material previewBoxMaterial;
 
 	[SerializeField]
-	public Material SelectBoxMaterial;
+	private Material selectBoxMaterial;
 
 	[SerializeField]
-	public SphereVolumeIndicator RangeVisualizationObject;
+	private SphereVolumeIndicator rangeVisualizationObject;
 
 	[SerializeField]
-	public AdvancedGhostIcon GhostEditorIconObject;
+	private AdvancedGhostIcon ghostEditorIconObject;
 
 	[SerializeField]
-	public Material IndentMaterial;
+	private Material indentMaterial;
+
+	public EnumPoolManager EnumPoolManager => enumPoolManager;
 
 	public static PrefabPool Instance => instance;
+
+	public ObjectPrefab MVFirePrefab => mvFirePrefab;
+
+	public ObjectPrefab MVAndPrefab => mvAndPrefab;
+
+	public GameObject MVAvatarPrefab => mvAvatarPrefab;
+
+	public GameObject MVAdvancedGhostPrefab => mvAdvancedGhostPrefab;
+
+	public GameObject MVBodyPrefab => mvBodyPrefab;
+
+	public GameObject MVHamsterWheelPrefab => mvHamsterWheelPrefab;
+
+	public GameObject MVHoverCraftPrefab => mvHoverCraftPrefab;
+
+	public GameObject MVJetPackPrefab => mvJetPackPrefab;
+
+	public GameObject MVJetPackDeluxePrefab => mvJetPackDeluxePrefab;
+
+	public ObjectPrefab MVBatteryPrefab => mvBatteryPrefab;
+
+	public ObjectPrefab MVCameraSettingsPrefab => mvCameraSettingsPrefab;
+
+	public MVCollectibleObject MVCollectiblePrefab => mvCollectiblePrefab;
+
+	public MVCollectibleObject MVCollectibleFantaPrefab => mvCollectibleFantaPrefab;
+
+	public ObjectPrefab MVCheckpointPrefab => mvCheckpointPrefab;
+
+	public ObjectPrefab MVExplosivesPrefab => mvExplosivesPrefab;
+
+	public ObjectPrefab MVFlagPrefab => mvFlagPrefab;
+
+	public ObjectPrefab MVGameCoinChestPrefab => mvGameCoinChestPrefab;
+
+	public MVGameCoinObject MVGameCoinPrefab => mvGameCoinPrefab;
+
+	public GameObject MVGhostPrefab => mvGhostPrefab;
+
+	public ObjectPrefab MVGoalPrefab => mvGoalPrefab;
+
+	public GameObject MVGhostInstancePrefab => mvGhostInstancePrefab;
+
+	public ObjectPrefab MVGravityCubePrefab => mvGravityCubePrefab;
+
+	public ObjectPrefab MVNegatePrefab => mvNegatePrefab;
+
+	public MVPointLightObject MVPointLightPrefab => mvPointLightPrefab;
+
+	public MVPressurePlateObject MVPressurePlatePrefab => mvPressurePlatePrefab;
+
+	public ObjectPrefab MVPulseBoxPrefab => mvPulseBoxPrefab;
+
+	public ObjectPrefab MVRandomBoxPrefab => mvRandomBoxPrefab;
+
+	public ObjectPrefab MVRoundCubePrefab => mvRoundCubePrefab;
+
+	public ObjectPrefab MVSkyboxPrefab => mvSkyboxPrefab;
+
+	public ObjectPrefab MVSmokePrefab => mvSmokePrefab;
+
+	public ObjectPrefab MVSoundEmitterPrefab => mvSoundEmitterPrefab;
+
+	public ObjectPrefab MVSpawnPointBluePrefab => mvSpawnPointBluePrefab;
+
+	public ObjectPrefab MVSpawnPointGreenPrefab => mvSpawnPointGreenPrefab;
+
+	public ObjectPrefab MVSpawnPointRedPrefab => mvSpawnPointRedPrefab;
+
+	public ObjectPrefab MVSpawnPointYellowPrefab => mvSpawnPointYellowPrefab;
+
+	public MVTextMsgObject MVTextMsgPrefab => mvTextMsgPrefab;
+
+	public ObjectPrefab MVTimeTriggerPrefab => mvTimeTriggerPrefab;
+
+	public ObjectPrefab MVToggleBoxPrefab => mvToggleBoxPrefab;
+
+	public MVTriggerBoxObject MVTriggerBoxPrefab => mvTriggerBoxPrefab;
+
+	public GameObject MVMovingPlatformGroupPrefab => mvMovingPlatformGroupPrefab;
+
+	public GameObject MVMovingPlatformNodePrefab => mvMovingPlatformNodePrefab;
+
+	public MVObjectEnablerObject MVObjectEnablerPrefab => mvObjectEnablerPrefab;
+
+	public ObjectPrefab MVKillLimitPrefab => mvKillLimitPrefab;
+
+	public ObjectPrefab MVOculusKillLimitPrefab => mvOculusKillLimitPrefab;
+
+	public MVSentryGunObject MVSentryGunPrefab => mvSentryGunPrefab;
+
+	public ShootableButtonObject ShootableButtonPrefab => shootableButtonPrefab;
+
+	public GameObject MVTeleportGroupPrefab => mvTeleportGroupPrefab;
+
+	public MVTeleporterObject MVTeleporterPrefab => mvTeleporterPrefab;
+
+	public UseLeverObject UseLeverPrefab => useLeverPrefab;
+
+	public ObjectPrefab MVWaterPlanePrefab => mvWaterPlanePrefab;
+
+	public WindTurbineObject WindTurbinePrefab => windTurbinePrefab;
+
+	public MVCountingCubeObject MVCountingCubePrefab => mvCountingCubePrefab;
+
+	public TeleportAvatar TeleportAvatarPrefab => teleportAvatarPrefab;
+
+	public Material GhostMarkerMaterial => ghostMarkerMaterial;
+
+	public Material ObjectHiddenMaterial => objectHiddenMaterial;
+
+	public SentryGunBeam IceBeamObject => iceBeamObject;
+
+	public SentryGunBeam FireBeamObject => fireBeamObject;
+
+	public StarDisplayObject StarDisplayPrefab => starDisplayPrefab;
+
+	public LevelDisplayCube LevelDisplayPrefab => levelDisplayPrefab;
+
+	public GameCoinDisplayObject GameCoinDisplayPrefab => gameCoinDisplayPrefab;
+
+	public CubeModelChunkPrefab CubeModelChunkPrefab => cubeModelChunkPrefab;
+
+	public MVPickupItemBaseObject AvatarCenterGunPrefab => avatarCenterGunPrefab;
+
+	public MVPickupItemBaseObject AvatarImpulseGunPrefab => avatarImpulseGunPrefab;
+
+	public MVPickupItemBaseObject AvatarHealthPrefab => avatarHealthPrefab;
+
+	public MVPickupItemBaseObject AvatarBazookaPrefab => avatarBazookaPrefab;
+
+	public MVPickupItemBaseObject AvatarRailGunPrefab => avatarRailGunPrefab;
+
+	public MVPickupItemBaseObject AvatarMutantPrefab => avatarMutantPrefab;
+
+	public MVPickupItemBaseObject AvatarShotgunPrefab => avatarShotgunPrefab;
+
+	public MVPickupItemBaseObject AvatarSwordPrefab => avatarSwordPrefab;
+
+	public MVPickupItemBaseObject AvatarFlamethrowerPrefab => avatarFlamethrowerPrefab;
+
+	public MVPickupItemBaseObject AvatarCubeGunPrefab => avatarCubeGunPrefab;
+
+	public MVPickupItemBaseObject AvatarNinjaRunPrefab => avatarNinjaRunPrefab;
+
+	public MVPickupItemBaseObject AvatarSixShooterPrefab => avatarSixShooterPrefab;
+
+	public MVPickupItemBaseObject AvatarDoubleSixShooterPrefab => avatarDoubleSixShooterPrefab;
+
+	public MVPickupItemBaseObject AvatarThrowingStarPrefab => avatarThrowingStarPrefab;
+
+	public MVPickupItemBaseObject AvatarMultiThrowingStarPrefab => avatarMultiThrowingStarPrefab;
+
+	public MVPickupItemBaseObject AvatarMouseGunPrefab => avatarMouseGunPrefab;
+
+	public MVPickupItemBaseObject AvatarGrowthGunPrefab => avatarGrowthGunPrefab;
+
+	public MVPickupItemBaseObject AvatarMousePackPrefab => avatarMousePackPrefab;
+
+	public MVPickupItemBaseObject AvatarGrowthPackPrefab => avatarGrowthPackPrefab;
+
+	public GameObject AvatarItemCenterGun => avatarItemCenterGun;
+
+	public GameObject AvatarItemImpulseGun => avatarItemImpulseGun;
+
+	public GameObject AvatarItemLaserPointer => avatarItemLaserPointer;
+
+	public GameObject AvatarItemBazooka => avatarItemBazooka;
+
+	public GameObject AvatarItemHand => avatarItemHand;
+
+	public GameObject AvatarItemRailGun => avatarItemRailGun;
+
+	public GameObject AvatarItemSword => avatarItemSword;
+
+	public GameObject AvatarItemShotgun => avatarItemShotgun;
+
+	public GameObject AvatarItemFlamethrower => avatarItemFlamethrower;
+
+	public GameObject AvatarItemCubeGun => avatarItemCubeGun;
+
+	public GameObject AvatarItemSixShooter => avatarItemSixShooter;
+
+	public GameObject AvatarItemDoubleSixShooter => avatarItemDoubleSixShooter;
+
+	public GameObject AvatarItemThrowingStar => avatarItemThrowingStar;
+
+	public GameObject AvatarItemMultiThrowingStar => avatarItemMultiThrowingStar;
+
+	public GameObject AvatarItemGrowthGun => avatarItemGrowthGun;
+
+	public GameObject AvatarItemMouseGun => avatarItemMouseGun;
+
+	public GameObject AvatarItemSlapGun => avatarItemSlapGun;
+
+	public AvatarModifier BurningModifier => burningModifier;
+
+	public AvatarModifier MutantModifier => mutantModifier;
+
+	public AvatarModifier PoisonModifier => poisonModifier;
+
+	public AvatarModifier FrozenModifier => frozenModifier;
+
+	public AvatarModifier NinjaRunModifier => ninjaRunModifier;
+
+	public AvatarModifier MouseModifier => mouseModifier;
+
+	public AvatarModifier GrowthModifier => growthModifier;
+
+	public GameObject ParticleBlood => particleBlood;
+
+	public GameObject ParticleBloodSixShooter => particleBloodSixShooter;
+
+	public GameObject ParticleBlooxThrowingStar => particleBlooxThrowingStar;
+
+	public GameObject ParticleCFX_GroundAura => particleCFX_GroundAura;
+
+	public ParticleSystem ParticleCubeDust => particleCubeDust;
+
+	public ParticleSystem ParticleCubeDustDestroyed => particleCubeDustDestroyed;
+
+	public GameObject ParticleDetailedSmoke => particleDetailedSmoke;
+
+	public GameObject ParticleDustStorm => particleDustStorm;
+
+	public ParticleSystem ParticleExplosion => particleExplosion;
+
+	public GameObject ParticleFire1 => particleFire1;
+
+	public ParticleSystem ParticleFluffySmoke => particleFluffySmoke;
+
+	public GameObject ParticleFluffySmokeLarge => particleFluffySmokeLarge;
+
+	public GameObject ParticleGhostDeath => particleGhostDeath;
+
+	public GameObject ParticleGunSmoke => particleGunSmoke;
+
+	public GameObject ParticleJetPackParticles => particleJetPackParticles;
+
+	public GameObject ParticleSmallExplosion => particleSmallExplosion;
+
+	public GameObject ParticleSmokeTrail => particleSmokeTrail;
+
+	public GameObject ParticleSparks => particleSparks;
+
+	public GameObject ParticleSparksSixShooter => particleSparksSixShooter;
+
+	public GameObject ParticleSparksThrowingStar => particleSparksThrowingStar;
+
+	public ParticleSystem ParticleXP => particleXP;
+
+	public GameObject LogicInputConnectorPrefab => logicInputConnectorPrefab;
+
+	public GameObject LogicOutputConnectorPrefab => logicOutputConnectorPrefab;
+
+	public GameObject LogicObjectConnectorPrefab => logicObjectConnectorPrefab;
+
+	public GameObject LinkObject => linkObject;
+
+	public GameObject ObjectLinkObject => objectLinkObject;
+
+	public Material LogicCubeConnectorRedMaterial => logicCubeConnectorRedMaterial;
+
+	public Material LogicCubeConnectorRedSelectedMaterial => logicCubeConnectorRedSelectedMaterial;
+
+	public Material LogicCubeConnectorBlueMaterial => logicCubeConnectorBlueMaterial;
+
+	public Material LogicCubeConnectorBlueSelectedMaterial => logicCubeConnectorBlueSelectedMaterial;
+
+	public Texture2D AvatarAccessoryMoveIcon => avatarAccessoryMoveIcon;
+
+	public GameObject DrawPlaneObject => drawPlaneObject;
+
+	public Material ModelConstraintsMaterial => modelConstraintsMaterial;
+
+	public AvatarInputControllerAndroidSettings AvatarInputControllerAndroidSettings => avatarInputControllerAndroidSettings;
+
+	public Texture2D CrosshairCursor => crosshairCursor;
+
+	public MaterialButtonTextureGenerator MaterialButtonTextureGenerator => materialButtonTextureGenerator;
+
+	public InsertCursor InsertCursor => insertCursor;
+
+	public Material CellCursorErrorMaterial => cellCursorErrorMaterial;
+
+	public Material CellCursorMaterial => cellCursorMaterial;
+
+	public Material ModelCubeSpaceMaterial => modelCubeSpaceMaterial;
+
+	public Material Cursor2dEdgeMaterial => cursor2dEdgeMaterial;
+
+	public Material Cursor2dCornerMaterial => cursor2dCornerMaterial;
+
+	public Material CursorMaterial => cursorMaterial;
+
+	public Material CursorCornerMaterial => cursorCornerMaterial;
+
+	public Material CursorNoneMaterial => cursorNoneMaterial;
+
+	public Material InsertPreviewMaterial => insertPreviewMaterial;
+
+	public Material PreviewBoxMaterial => previewBoxMaterial;
+
+	public Material SelectBoxMaterial => selectBoxMaterial;
+
+	public SphereVolumeIndicator RangeVisualizationObject => rangeVisualizationObject;
+
+	public AdvancedGhostIcon GhostEditorIconObject => ghostEditorIconObject;
+
+	public Material IndentMaterial => indentMaterial;
 
 	private void Awake()
 	{

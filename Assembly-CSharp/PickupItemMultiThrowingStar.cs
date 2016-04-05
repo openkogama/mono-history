@@ -81,7 +81,7 @@ public class PickupItemMultiThrowingStar : PickupItemWithDelay
 		for (int i = 0; i < numStars; i++)
 		{
 			float fireTime = Time.time;
-			BulletThrowingStar p = BulletThrowingStar.CreateBullet(bulletPrefab, muzzlePoint.position);
+			BulletThrowingStar p = BulletThrowingStar.CreateBullet(PoolEnums.MultiThrowingStarBullet, muzzlePoint.position);
 			float r = UnityEngine.Random.Range(0f - randomDirection, randomDirection);
 			if (i == 2)
 			{

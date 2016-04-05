@@ -66,7 +66,7 @@ public class LockCursorManager2DMode : MonoBehaviour, ILockCursorManager
 		bool flag = MVGameControllerBase.IPlayModeUI.GetCrossHair().Visible && !MVGameControllerBase.IPlayModeUI.InLobbyState;
 		if (flag && !showingCrosshairCursor)
 		{
-			Cursor.SetCursor(PrefabPool.Instance.crosshairCursor, new Vector2(16f, 16f), CursorMode.Auto);
+			Cursor.SetCursor(PrefabPool.Instance.CrosshairCursor, new Vector2(16f, 16f), CursorMode.Auto);
 			showingCrosshairCursor = true;
 		}
 		else if (!flag && showingCrosshairCursor)

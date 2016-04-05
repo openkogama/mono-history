@@ -72,8 +72,6 @@ public class HoverCraftVisualization : VehicleVisualizationBase
 
 	private Vector3 localHoverCraftHullRootBasePosition;
 
-	private ParticleSystem fireSystem;
-
 	private void Awake()
 	{
 		unoccupiedTime = Time.time;
@@ -103,10 +101,6 @@ public class HoverCraftVisualization : VehicleVisualizationBase
 		if (isInSpawner)
 		{
 			enabled = false;
-		}
-		if (fire != null)
-		{
-			fireSystem = fire.GetComponent<ParticleSystem>();
 		}
 	}
 
@@ -140,9 +134,9 @@ public class HoverCraftVisualization : VehicleVisualizationBase
 				thruster.gameObject.SetActive(value: false);
 			}
 		}
-		if (fireSystem != null)
+		if (fire != null)
 		{
-			fireSystem.Clear();
+			fire.Clear();
 		}
 	}
 
@@ -151,13 +145,13 @@ public class HoverCraftVisualization : VehicleVisualizationBase
 		if (newHealth < maxHealth && !ellipsoidParticleEmitter.emit)
 		{
 			ellipsoidParticleEmitter.emit = true;
-			ParticleSystem.EmissionModule emission = fireSystem.emission;
+			ParticleSystem.EmissionModule emission = fire.emission;
 			emission.enabled = true;
 		}
 		if (newHealth == maxHealth && ellipsoidParticleEmitter.emit)
 		{
 			ellipsoidParticleEmitter.emit = false;
-			ParticleSystem.EmissionModule emission2 = fireSystem.emission;
+			ParticleSystem.EmissionModule emission2 = fire.emission;
 			emission2.enabled = false;
 			return;
 		}
@@ -169,7 +163,7 @@ public class HoverCraftVisualization : VehicleVisualizationBase
 		ellipsoidParticleEmitter.minSize = num;
 		ellipsoidParticleEmitter.maxSize = num;
 		prevHealth = newHealth;
-		fireSystem.startSize = num * 0.3f;
+		fire.startSize = num * 0.3f;
 	}
 
 	private void Update()
