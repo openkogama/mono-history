@@ -53,6 +53,8 @@ public class GameSessionData
 
 	public string referrer = string.Empty;
 
+	public bool detailedStats;
+
 	private Dictionary<string, LoadLogoType> referralToLogoMap = new Dictionary<string, LoadLogoType> { 
 	{
 		"gsm",
