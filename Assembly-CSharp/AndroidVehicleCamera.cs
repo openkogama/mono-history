@@ -34,6 +34,9 @@ public class AndroidVehicleCamera : MVCameraBase, IVehicleCamera
 	[SerializeField]
 	private float maximumY;
 
+	[SerializeField]
+	private float initialYRotation = 20f;
+
 	public float RotationAroundY
 	{
 		get
@@ -58,6 +61,10 @@ public class AndroidVehicleCamera : MVCameraBase, IVehicleCamera
 		originalTransformParent = transform.parent;
 		transform.parent = null;
 		ignoreAvatarId = new HashSet<int> { MVGameControllerBase.WOCM.AvatarLocal.Id };
+		targetRotation.SetTargetRotation(initialYRotation, 0f);
+		Quaternion rotation = transform.rotation;
+		rotation.eulerAngles = targetRotation.EulerAngles;
+		transform.rotation = rotation;
 	}
 
 	public override void UpdateCamera(MVCameraController camController, Transform targetTransform)

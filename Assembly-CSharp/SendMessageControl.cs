@@ -37,6 +37,7 @@ public class SendMessageControl : MonoBehaviour
 	{
 		string text = inputField.text;
 		text = Regex.Replace(text, "\\r\\n?|\\n", string.Empty);
+		SanitizeMessage(ref text, "size");
 		inputField.text = string.Empty;
 		if (whiteSpaceCheck.Match(text).Length <= 0)
 		{
@@ -130,5 +131,33 @@ public class SendMessageControl : MonoBehaviour
 			break;
 		}
 		return text;
+	}
+
+	private void SanitizeMessage(ref string message, string tagToSanitize)
+	{
+		bool flag = false;
+		char[] array = message.ToLower().ToCharArray();
+		int num = 0;
+		int num2 = 0;
+		for (int i = 0; i < array.Length; i++)
+		{
+			if (array[i] == '<' && !flag)
+			{
+				num = i;
+				flag = true;
+			}
+			if (array[i] == '>' && flag)
+			{
+				num2 = i + 1;
+				flag = false;
+				string text = new string(array, num, num2 - num);
+				if (array[num + 1] != ' ' && text.Contains(tagToSanitize))
+				{
+					message = message.Remove(num, num2 - num);
+					array = message.ToLower().ToCharArray();
+					i -= num2 - num;
+				}
+			}
+		}
 	}
 }

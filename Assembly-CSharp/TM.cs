@@ -88,9 +88,10 @@ public class TM : MonoBehaviour
 		return toArrayString.Split('{', '}');
 	}
 
-	public static void LoadLanguage(string filename)
+	public static void LoadLanguage(string languageName)
 	{
 		GetInstance();
+		string filename = GetFilename(languageName);
 		if (filename == null || filename.Replace('_', '-') == cultureName)
 		{
 			catalog = null;
@@ -100,6 +101,23 @@ public class TM : MonoBehaviour
 		{
 			TryGetTextAsset(filename);
 		}
+	}
+
+	private static string GetFilename(string languageName)
+	{
+		if (languageName == null)
+		{
+			return null;
+		}
+		if (languageName == "en_GB")
+		{
+			return "en_US";
+		}
+		if (languageName == "es")
+		{
+			return "es_ES";
+		}
+		return languageName;
 	}
 
 	private static void TryGetTextAsset(string fileName)

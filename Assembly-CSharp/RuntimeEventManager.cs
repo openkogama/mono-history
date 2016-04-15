@@ -168,7 +168,7 @@ public class RuntimeEventManager
 		{
 			cubeModelFineGrainedTerrain.AddCubeNetworkUpdate(singleCubeFineGrainedEvent.Position, new CubeBase(singleCubeFineGrainedEvent.Material));
 		}
-		else if (singleCubeFineGrainedEvent.RuntimeEventType == RuntimeEventType.FineGrainedSingleCubeRemove && RemoveCubes.RemoveOneCube.HandleRemoveOneCube(singleCubeFineGrainedEvent.Position, cubeModelPrototypeTerrain, cubeModelFineGrainedTerrain) && doEffects)
+		else if ((singleCubeFineGrainedEvent.RuntimeEventType == RuntimeEventType.FineGrainedSingleCubeRemove || singleCubeFineGrainedEvent.RuntimeEventType == RuntimeEventType.FineGrainedSingleCubeRemovedAddedFineGrainedCube) && RemoveCubes.RemoveOneCube.HandleRemoveOneCube(singleCubeFineGrainedEvent.Position, cubeModelPrototypeTerrain, cubeModelFineGrainedTerrain) && doEffects)
 		{
 			SharedWorldObjectGameplayFunctions.DustEfffect(PrefabPool.Instance.ParticleCubeDustDestroyed, CubeMathFunctions.FineGrainedLocalPosToWorldPos(singleCubeFineGrainedEvent.Position), 1f);
 		}

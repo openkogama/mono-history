@@ -294,7 +294,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		if (Game != null && OkToReAuth)
 		{
 			Game.Peer.Disconnect();
-			AsyncWWWManager.WWWRequest(new GetRequest(gameSessionData.reauthURL, instance.OnReceivedWebParametersFromHttpRequest, WWWRequestPriority.ExecuteWhileSyncronizing));
+			AsyncWWWManager.WWWRequest(new GetRequest(gameSessionData.reauthURL, instance.OnReceivedReAuthWebParametersFromHttpRequest, WWWRequestPriority.ExecuteWhileSyncronizing));
 			return true;
 		}
 		return false;
@@ -413,6 +413,13 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	public static void SetPosition(int x, int y, int resX = 0, int resY = 0)
 	{
 		SetWindowPos(FindWindow(null, "KoGaMa"), 0, x, y, resX, resY, (resX * resY == 0) ? 1 : 0);
+	}
+
+	protected void OnReceivedReAuthWebParametersFromHttpRequest(WWW www)
+	{
+		string text = www.text;
+		Debug.Log("Reauth webParameters " + text);
+		ReceivedWebParamsCallback(ok: true, text);
 	}
 
 	protected void OnReceivedWebParametersFromHttpRequest(WWW www)

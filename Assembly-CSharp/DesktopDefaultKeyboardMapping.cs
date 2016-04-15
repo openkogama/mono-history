@@ -30,10 +30,6 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap
 				new KeyCode[1] { KeyCode.Mouse1 }
 			},
 			{
-				KogamaControls.EnterObject,
-				new KeyCode[1] { KeyCode.Return }
-			},
-			{
 				KogamaControls.DeleteObject,
 				new KeyCode[1] { KeyCode.Delete }
 			},

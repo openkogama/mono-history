@@ -16,11 +16,10 @@ public class Desktop2DPlayMode : DesktopDefaultKeyboardMapping
 			KeyCode.D,
 			KeyCode.RightArrow
 		});
-		keyMapping.Add(KogamaControls.Jump, new KeyCode[3]
+		keyMapping.Add(KogamaControls.Jump, new KeyCode[2]
 		{
 			KeyCode.UpArrow,
-			KeyCode.Space,
-			KeyCode.W
+			KeyCode.Space
 		});
 		keyMapping.Add(KogamaControls.Fire, new KeyCode[3]
 		{

@@ -13,7 +13,7 @@ public static class DebugLogHandler
 
 	private static List<Action<string, string, LogType>> logHandlers = new List<Action<string, string, LogType>>();
 
-	private static int sampleErrorFrequency = 1000;
+	private static int sampleErrorFrequency = 500;
 
 	private static HashSet<string> ignoreLogStrings = new HashSet<string> { "Fullscreen mode can only be enabled in the web player after clicking on the content." };
 

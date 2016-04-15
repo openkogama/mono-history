@@ -103,14 +103,7 @@ internal class ESSelection : ESStateBase
 		{
 			return;
 		}
-		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.EnterObject))
-		{
-			if (e.SingleSelectedWO != null && EnterObject(e, e.SingleSelectedWO))
-			{
-				return;
-			}
-		}
-		else if (MVInputWrapper.GetBooleanControlDown(KogamaControls.DeleteObject))
+		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.DeleteObject))
 		{
 			if (e.SingleSelectedWO == null)
 			{

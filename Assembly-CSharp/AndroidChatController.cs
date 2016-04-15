@@ -147,10 +147,25 @@ public class AndroidChatController : MonoBehaviour
 		case MVGameMsgType.Chat:
 			AddChatLine(message);
 			break;
+		case MVGameMsgType.AdminMsg:
+			AddAdminMessage(message);
+			break;
 		default:
 			Debug.Log("GameMsg of type " + msgType.ToString() + " received...");
 			break;
 		}
+	}
+
+	private void AddAdminMessage(Dictionary<object, object> data)
+	{
+		string msg = (string)data[(byte)5];
+		AddAdminMessage(msg);
+	}
+
+	private void AddAdminMessage(string msg)
+	{
+		msg = string.Format(joinStatusMessageFormat, Styles.ColorToHex(systemMessageColor), msg);
+		AddLine(msg);
 	}
 
 	private void JoinMessage(Dictionary<object, object> data)
