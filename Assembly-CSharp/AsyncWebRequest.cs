@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class AsyncWebRequest
@@ -88,6 +89,11 @@ public abstract class AsyncWebRequest
 					currentTimeout = AsyncWWWManager.RetryTimeouts[retries];
 					state = State.Waiting;
 					Debug.Log(www.error + " " + www.url + " " + Time.frameCount + " " + AsyncWWWManager.RetryTimeouts[retries]);
+					Debug.Log("Response headers");
+					foreach (KeyValuePair<string, string> responseHeader in www.responseHeaders)
+					{
+						Debug.LogFormat("{0} {1}", responseHeader.Key, responseHeader.Value);
+					}
 					www = Create();
 					return false;
 				}

@@ -46,7 +46,7 @@ public static class DebugLogHandler
 		{
 			try
 			{
-				MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, type.ToString() + ": " + stackTrace);
+				MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, logString + ": " + stackTrace);
 			}
 			catch
 			{

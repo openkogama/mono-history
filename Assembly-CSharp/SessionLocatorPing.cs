@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SessionLocatorPing : IUpdatecontrollerSubscriber
@@ -33,27 +34,35 @@ public class SessionLocatorPing : IUpdatecontrollerSubscriber
 	{
 		if (!string.IsNullOrEmpty(result.error))
 		{
-			Debug.Log("Ping failed url: " + result.url);
-			ErrorCallback(result.error);
+			ErrorCallback(result);
+			return;
 		}
-		else
-		{
-			waitForTicks = new WaitForTicks(pingIntervalInMilliSeconds);
-			pingSend = false;
-		}
+		waitForTicks = new WaitForTicks(pingIntervalInMilliSeconds);
+		pingSend = false;
 	}
 
-	private void ErrorCallback(string errorString)
+	private void ErrorCallback(WWW result)
 	{
 		try
 		{
-			Debug.LogError(errorString);
+			Debug.Log("Ping failed url: " + result.url);
+			Debug.Log("Response headers");
+			foreach (KeyValuePair<string, string> responseHeader in result.responseHeaders)
+			{
+				Debug.LogFormat("{0} {1}", responseHeader.Key, responseHeader.Value);
+			}
+			Debug.LogError("Ping failed");
 		}
 		catch (Exception ex)
 		{
 			Debug.LogError("Error in session locator error callback " + ex.Message);
 		}
 		Debug.Log("Quiting from session locator error callback");
+		Coroutines.StartCoroutine(WaitForFrames.Frames(5, DoApplicationQuit));
+	}
+
+	private void DoApplicationQuit()
+	{
 		MVGameControllerBase.ApplicationQuit(new QuitConnectionError());
 	}
 
