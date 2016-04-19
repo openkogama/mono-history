@@ -8,7 +8,7 @@ public class TouristModeController : MonoBehaviour
 {
 	private class ShowPromotionBookkeeping
 	{
-		private const int deathShowFrequence = 3;
+		private const int deathShowFrequence = 1;
 
 		private bool isDead;
 
@@ -73,7 +73,7 @@ public class TouristModeController : MonoBehaviour
 				{
 					isDead = true;
 					deaths++;
-					if (deaths % 3 == 0)
+					if (deaths % 1 == 0)
 					{
 						deathTime = Time.time;
 						deathConditionTriggered = false;
