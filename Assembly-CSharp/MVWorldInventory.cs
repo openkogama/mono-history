@@ -173,7 +173,7 @@ public class MVWorldInventory
 			return;
 		}
 		ReplaceWithPendingRuntimePrototype(woId);
-		MVGameControllerBase.Game.RequestWoUniquePrototype(woId);
+		MVGameControllerBase.OperationRequests.RequestWoUniquePrototype(woId);
 	}
 
 	private void ReplaceWithPendingRuntimePrototype(int woId)

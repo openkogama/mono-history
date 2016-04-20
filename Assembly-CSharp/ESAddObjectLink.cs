@@ -64,7 +64,7 @@ internal class ESAddObjectLink : ESStateBase
 
 	private bool DoAddLink()
 	{
-		MVGameControllerBase.Game.AddObjectLink(tempLink);
+		MVGameControllerBase.OperationRequests.AddObjectLink(tempLink);
 		return true;
 	}
 }

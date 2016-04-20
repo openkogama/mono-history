@@ -61,7 +61,7 @@ public class GameCoinMenuController : MonoBehaviour
 			});
 			return;
 		}
-		MVGameControllerBase.Game.SetGameCoinBoostState(flag);
+		MVGameControllerBase.OperationRequests.SetGameCoinBoostState(flag);
 		if (flag)
 		{
 			boostIndicator.sprite = pauseImage;

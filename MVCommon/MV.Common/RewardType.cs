@@ -1,7 +1,8 @@
 namespace MV.Common;
 
-public enum RewardType : byte
+public enum RewardType
 {
-	Silver = 1,
-	Gold
+	XPReward = 1,
+	TestReward,
+	GoldReward
 }

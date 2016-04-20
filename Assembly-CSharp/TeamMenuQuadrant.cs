@@ -33,7 +33,7 @@ public class TeamMenuQuadrant : MonoBehaviour
 
 	public void TeamSelected()
 	{
-		MVGameControllerBase.Game.SetTeam(teamData.team);
+		MVGameControllerBase.OperationRequests.SetTeam(teamData.team);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Pop();

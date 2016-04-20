@@ -78,7 +78,7 @@ internal class ESTerrainEdit : ESStateBase
 				if (singletonWorldObject.RequiresResetToEdit || singletonWorldObject2.RequiresResetToEdit)
 				{
 					MVGameControllerBase.Game.World.RuntimeEventManager.ResetTerrain();
-					MVGameControllerBase.Game.RequestResetTerrain();
+					MVGameControllerBase.OperationRequests.RequestResetTerrain();
 					return true;
 				}
 			}

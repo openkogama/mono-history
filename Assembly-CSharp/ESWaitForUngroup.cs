@@ -33,7 +33,7 @@ internal class ESWaitForUngroup : ESStateBase
 		state = WaitForGroupsState.WaitingForLock;
 		MVWorldObjectClientManager wOCM = MVGameControllerBase.WOCM;
 		wOCM.OnHierarchyLockedResponse = (EventHandler<OnHierarchyLockedEventArgs>)Delegate.Combine(wOCM.OnHierarchyLockedResponse, new EventHandler<OnHierarchyLockedEventArgs>(WOCM_OnHierarchyLockedResponse));
-		MVGameControllerBase.Game.LockHierarchy(lockId, lockHierarchy: true);
+		MVGameControllerBase.OperationRequests.LockHierarchy(lockId, lockHierarchy: true);
 	}
 
 	public override void Execute(EditorStateMachine e)
@@ -54,7 +54,7 @@ internal class ESWaitForUngroup : ESStateBase
 				e.DeSelectAll();
 				MVWorldObjectClientManager wOCM = MVGameControllerBase.WOCM;
 				wOCM.OnUngroupResponse = (EventHandler<OnUngroupResponseEventArgs>)Delegate.Combine(wOCM.OnUngroupResponse, new EventHandler<OnUngroupResponseEventArgs>(WOCM_OnUngroupResponse));
-				MVGameControllerBase.Game.Ungroup(lockId);
+				MVGameControllerBase.OperationRequests.Ungroup(lockId);
 				state = WaitForGroupsState.WaitingForUngroup;
 			}
 			break;
@@ -96,7 +96,7 @@ internal class ESWaitForUngroup : ESStateBase
 		}
 		else
 		{
-			MVGameControllerBase.Game.LockHierarchy(lockId, lockHierarchy: false);
+			MVGameControllerBase.OperationRequests.LockHierarchy(lockId, lockHierarchy: false);
 			abort = true;
 		}
 	}

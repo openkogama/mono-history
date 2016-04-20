@@ -40,7 +40,7 @@ public class AccessoryAttacher
 
 	private void Unequip(AvatarAccessory avatarAccessory)
 	{
-		MVGameControllerBase.Game.SetAvatarAccessorySlot(avatarBody.Id, avatarAccessory.InventoryID, AvatarAccessorySlot.Undefined, 0f);
+		MVGameControllerBase.OperationRequests.SetAvatarAccessorySlot(avatarBody.Id, avatarAccessory.InventoryID, AvatarAccessorySlot.Undefined, 0f);
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnSetAvatarAccessoryResponse = (Action<bool>)Delegate.Combine(game.OnSetAvatarAccessoryResponse, new Action<bool>(Game_OnSetAvatarAccessorySlotResponseUnequipHandler));
 	}
@@ -63,7 +63,7 @@ public class AccessoryAttacher
 		AvatarAccessory avatarAccessory = accessoryToBeEquipped;
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnSetAvatarAccessoryResponse = (Action<bool>)Delegate.Combine(game.OnSetAvatarAccessoryResponse, new Action<bool>(Game_OnSetAvatarAccessorySlotResponseEquipHandler));
-		MVGameControllerBase.Game.SetAvatarAccessorySlot(avatarBody.Id, avatarAccessory.InventoryID, avatarAccessory.AccessorySettings.DefaultSlot, avatarAccessory.AccessorySettings.DefaultOffset);
+		MVGameControllerBase.OperationRequests.SetAvatarAccessorySlot(avatarBody.Id, avatarAccessory.InventoryID, avatarAccessory.AccessorySettings.DefaultSlot, avatarAccessory.AccessorySettings.DefaultOffset);
 		avatarBody.AttachAccessory(avatarAccessory, accessoryToBeEquipped.AccessorySettings.DefaultSlot, accessoryToBeEquipped.AccessorySettings.DefaultOffset);
 	}
 

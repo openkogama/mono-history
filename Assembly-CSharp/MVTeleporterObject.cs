@@ -6,11 +6,11 @@ public class MVTeleporterObject : ObjectPrefab
 	private TriggerBoxEvents triggerBoxEvents;
 
 	[SerializeField]
-	private ParticleSystem particleSystem;
+	private ParticleSystem objParticleSystem;
 
 	public TriggerBoxEvents TriggerBoxEvents => triggerBoxEvents;
 
-	public ParticleSystem ParticleSystem => particleSystem;
+	public ParticleSystem ParticleSystem => objParticleSystem;
 
 	protected override void OnValidate()
 	{

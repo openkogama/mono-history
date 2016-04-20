@@ -58,7 +58,7 @@ internal class ESBlueprintCreator : ESStateBase
 		foreach (int value2 in dictionary2.Values)
 		{
 			lockList.Add(value2);
-			MVGameControllerBase.Game.LockHierarchy(value2, lockHierarchy: true);
+			MVGameControllerBase.OperationRequests.LockHierarchy(value2, lockHierarchy: true);
 		}
 		lockCount = lockList.Count;
 	}
@@ -92,12 +92,12 @@ internal class ESBlueprintCreator : ESStateBase
 			wOCM.OnTransferWosResponse = (EventHandler<OnTransferWosResponseEventArgs>)Delegate.Remove(wOCM.OnTransferWosResponse, new EventHandler<OnTransferWosResponseEventArgs>(WOCM_OnTransferWosResponse));
 			MVWorldObjectClientManager wOCM2 = MVGameControllerBase.WOCM;
 			wOCM2.OnTransferWosResponse = (EventHandler<OnTransferWosResponseEventArgs>)Delegate.Combine(wOCM2.OnTransferWosResponse, new EventHandler<OnTransferWosResponseEventArgs>(WOCM_OnTransferWosResponse));
-			MVGameControllerBase.Game.TransferWorldObjectsToGroup(createGroupId, lockList.ToArray());
+			MVGameControllerBase.OperationRequests.TransferWorldObjectsToGroup(createGroupId, lockList.ToArray());
 			foreach (int @lock in lockList)
 			{
-				MVGameControllerBase.Game.LockHierarchy(@lock, lockHierarchy: false);
+				MVGameControllerBase.OperationRequests.LockHierarchy(@lock, lockHierarchy: false);
 			}
-			MVGameControllerBase.Game.TransferOwnership(createGroupId, 0, null);
+			MVGameControllerBase.OperationRequests.TransferOwnership(createGroupId, 0, null);
 			state = WaitForGroupsState.WaitingForTransferWos;
 			responseReceived = false;
 			break;
@@ -129,7 +129,7 @@ internal class ESBlueprintCreator : ESStateBase
 		world.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Remove(world.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(WOCM_InitializedGameQueryData));
 		World world2 = MVGameControllerBase.Game.World;
 		world2.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Combine(world2.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(WOCM_InitializedGameQueryData));
-		MVGameControllerBase.Game.RegisterWorldObject(worldObjectTypeToBeCreated, e.ParentGroupID, woData, closestGridPoint, Quaternion.identity, Vector3.one, localOwner: true, transferOwnershipToServerOnLeave: true);
+		MVGameControllerBase.OperationRequests.RegisterWorldObject(worldObjectTypeToBeCreated, e.ParentGroupID, woData, closestGridPoint, Quaternion.identity, Vector3.one, localOwner: true, transferOwnershipToServerOnLeave: true);
 	}
 
 	private void WOCM_InitializedGameQueryData(object sender, InitializedGameQueryDataEventArgs e)
@@ -160,7 +160,7 @@ internal class ESBlueprintCreator : ESStateBase
 		}
 		foreach (int @lock in lockList)
 		{
-			MVGameControllerBase.Game.LockHierarchy(@lock, lockHierarchy: false);
+			MVGameControllerBase.OperationRequests.LockHierarchy(@lock, lockHierarchy: false);
 		}
 		abort = true;
 		MVWorldObjectClientManager wOCM2 = MVGameControllerBase.WOCM;

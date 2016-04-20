@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class LevelDisplayCube : MonoBehaviour
 {
@@ -49,7 +50,7 @@ public class LevelDisplayCube : MonoBehaviour
 		{
 			if (!waitingForBadgeTexture)
 			{
-				LevelingManager.OnLevelingInitialized = (LevelingManager.OnlevelingInitializedDelegate)Delegate.Combine(LevelingManager.OnLevelingInitialized, (LevelingManager.OnlevelingInitializedDelegate)(() =>
+				LevelingManager.OnLevelingInitialized = (UnityAction)Delegate.Combine(LevelingManager.OnLevelingInitialized, (UnityAction)(() =>
 				{
 					BadgeManager.GetBadgeTexture(levelAmount, StreamingAssetCallback);
 					waitingForBadgeTexture = false;

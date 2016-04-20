@@ -40,7 +40,7 @@ internal class ESWaitForGroup : ESStateBase
 		foreach (int selectedID in e.SelectedIDs)
 		{
 			lockList.Add(selectedID);
-			MVGameControllerBase.Game.LockHierarchy(selectedID, lockHierarchy: true);
+			MVGameControllerBase.OperationRequests.LockHierarchy(selectedID, lockHierarchy: true);
 		}
 		lockCount = lockList.Count;
 	}
@@ -72,12 +72,12 @@ internal class ESWaitForGroup : ESStateBase
 			}
 			MVWorldObjectClientManager wOCM = MVGameControllerBase.WOCM;
 			wOCM.OnTransferWosResponse = (EventHandler<OnTransferWosResponseEventArgs>)Delegate.Combine(wOCM.OnTransferWosResponse, new EventHandler<OnTransferWosResponseEventArgs>(WOCM_OnTransferWosResponse));
-			MVGameControllerBase.Game.TransferWorldObjectsToGroup(createGroupId, lockList.ToArray());
+			MVGameControllerBase.OperationRequests.TransferWorldObjectsToGroup(createGroupId, lockList.ToArray());
 			foreach (int @lock in lockList)
 			{
-				MVGameControllerBase.Game.LockHierarchy(@lock, lockHierarchy: false);
+				MVGameControllerBase.OperationRequests.LockHierarchy(@lock, lockHierarchy: false);
 			}
-			MVGameControllerBase.Game.TransferOwnership(createGroupId, 0, null);
+			MVGameControllerBase.OperationRequests.TransferOwnership(createGroupId, 0, null);
 			state = WaitForGroupsState.WaitingForTransferWos;
 			responseReceived = false;
 			break;
@@ -110,7 +110,7 @@ internal class ESWaitForGroup : ESStateBase
 		Vector3 worldCenter = SharedCubeFunctions.GetWorldCenter(list);
 		World world = MVGameControllerBase.Game.World;
 		world.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Combine(world.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(WOCM_InitializedGameQueryData));
-		MVGameControllerBase.Game.RequestBuiltInItem(BuiltInItem.Group, e.ParentGroupID, new Dictionary<object, object>(), worldCenter, Quaternion.identity, Vector3.one, localOwner: true, transferOwnershipToServerOnLeave: true);
+		MVGameControllerBase.OperationRequests.RequestBuiltInItem(BuiltInItem.Group, e.ParentGroupID, new Dictionary<object, object>(), worldCenter, Quaternion.identity, Vector3.one, localOwner: true, transferOwnershipToServerOnLeave: true);
 	}
 
 	private void WOCM_InitializedGameQueryData(object sender, InitializedGameQueryDataEventArgs e)
@@ -141,7 +141,7 @@ internal class ESWaitForGroup : ESStateBase
 		}
 		foreach (int @lock in lockList)
 		{
-			MVGameControllerBase.Game.LockHierarchy(@lock, lockHierarchy: false);
+			MVGameControllerBase.OperationRequests.LockHierarchy(@lock, lockHierarchy: false);
 		}
 		abort = true;
 		MVWorldObjectClientManager wOCM2 = MVGameControllerBase.WOCM;

@@ -47,7 +47,7 @@ public class MVGhost : MVBlueprintBase, IUpdatecontrollerSubscriber
 			{
 				distance = value;
 				blueprintData["Distance"] = value;
-				MVGameControllerBase.Game.UpdateWorldObjectDataPartial(Id, "BlueprintData\\Distance", value);
+				MVGameControllerBase.OperationRequests.UpdateWorldObjectDataPartial(Id, "BlueprintData\\Distance", value);
 				rangeVis.Radius = distance;
 			}
 		}
@@ -65,7 +65,7 @@ public class MVGhost : MVBlueprintBase, IUpdatecontrollerSubscriber
 			{
 				speed = value;
 				blueprintData["Speed"] = value;
-				MVGameControllerBase.Game.UpdateWorldObjectDataPartial(Id, "BlueprintData\\Speed", value);
+				MVGameControllerBase.OperationRequests.UpdateWorldObjectDataPartial(Id, "BlueprintData\\Speed", value);
 			}
 		}
 	}

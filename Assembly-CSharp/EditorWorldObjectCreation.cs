@@ -62,7 +62,7 @@ public class EditorWorldObjectCreation : MonoBehaviour, ICloneHandler, IAddItemF
 				WorldObjectType worldObjectType = koGaMaPackageFromItem.worldObjects[koGaMaPackageFromItem.worldObjectRoot].WorldObjectType;
 				rotation = HandlePlatformerRotationSpecialCases(item.itemCategoryID, worldObjectType);
 			}
-			MVGameControllerBase.Game.AddItemToWorld(item.itemID, esm.ParentGroupID, Vector3.up * 10f, rotation, Vector3.one, localOwner: false, transferOwnershipToServerOnLeave: true, isPreviewItem: false);
+			MVGameControllerBase.OperationRequests.AddItemToWorld(item.itemID, esm.ParentGroupID, Vector3.up * 10f, rotation, Vector3.one, localOwner: false, transferOwnershipToServerOnLeave: true, isPreviewItem: false);
 		}
 		koGaMaPackageFromItem.Destroy();
 	}
@@ -90,7 +90,7 @@ public class EditorWorldObjectCreation : MonoBehaviour, ICloneHandler, IAddItemF
 		dictionary.Add((byte)3, MVGameControllerBase.Game.LocalPlayer.ProfileID);
 		Dictionary<object, object> customData = dictionary;
 		esm.Data["IsNewPrototype"] = true;
-		MVGameControllerBase.Game.RequestBuiltInItem(BuiltInItem.CubeModel, MVGameControllerBase.WOCM.RootGroup.Id, customData, Vector3.up * 10f, Quaternion.identity, Vector3.one * scale, localOwner: false, transferOwnershipToServerOnLeave: true);
+		MVGameControllerBase.OperationRequests.RequestBuiltInItem(BuiltInItem.CubeModel, MVGameControllerBase.WOCM.RootGroup.Id, customData, Vector3.up * 10f, Quaternion.identity, Vector3.one * scale, localOwner: false, transferOwnershipToServerOnLeave: true);
 	}
 
 	private void CloneWorldObjectTreeResponseHandler(object sender, CloneWorldObjectTreeResponseEventArgs e)

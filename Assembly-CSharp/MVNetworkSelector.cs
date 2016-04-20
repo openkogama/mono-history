@@ -84,7 +84,7 @@ public class MVNetworkSelector
 		if ((worldObjectClient == null || worldObjectClient.OwnerActorNr != MVGameControllerBase.Game.LocalPlayer.ActorNr) && WOCM.GetWorldObjectClient(id).OwnerActorNr == 0)
 		{
 			pendingRequestedOwnershipIds.Enqueue(id);
-			MVGameControllerBase.Game.TransferOwnership(id, MVGameControllerBase.Game.LocalPlayer.ActorNr, null);
+			MVGameControllerBase.OperationRequests.TransferOwnership(id, MVGameControllerBase.Game.LocalPlayer.ActorNr, null);
 		}
 	}
 
@@ -95,7 +95,7 @@ public class MVNetworkSelector
 		{
 			((MVNetworkReporter)worldObjectClient.NetworkObject).suspendTransformReporting = true;
 		}
-		MVGameControllerBase.Game.TransferOwnership(id, 0, worldObjectClient.Transform);
+		MVGameControllerBase.OperationRequests.TransferOwnership(id, 0, worldObjectClient.Transform);
 	}
 
 	private void Instance_OnWorldObjectTransferOwnershipResponse(object sender, OnTransferOwnershipResponseEventArgs e)

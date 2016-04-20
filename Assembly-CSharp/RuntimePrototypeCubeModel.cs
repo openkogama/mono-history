@@ -56,7 +56,7 @@ public class RuntimePrototypeCubeModel
 					logger.Log("pendingDeltaCubes.Count " + pendingDeltaCubes.Count);
 					if (pendingDeltaCubes.Count > 0)
 					{
-						MVGameControllerBase.Game.UpdatePrototype(prototypeId, pendingDeltaCubes.ToArray());
+						MVGameControllerBase.OperationRequests.UpdatePrototype(prototypeId, pendingDeltaCubes.ToArray());
 						pendingDeltaCubes.Clear();
 					}
 				}
@@ -426,7 +426,7 @@ public class RuntimePrototypeCubeModel
 			{
 				if (prototypeState == PrototypeState.Registered)
 				{
-					MVGameControllerBase.Game.UpdatePrototype(prototypeId, array);
+					MVGameControllerBase.OperationRequests.UpdatePrototype(prototypeId, array);
 				}
 				else if (prototypeState == PrototypeState.Pending)
 				{

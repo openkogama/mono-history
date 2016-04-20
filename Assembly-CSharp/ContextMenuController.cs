@@ -98,11 +98,11 @@ public class ContextMenuController : MonoBehaviour, IEventSystemHandler, IHandle
 	{
 		if (isObjectLink)
 		{
-			MVGameControllerBase.Game.RemoveObjectLink(linkID);
+			MVGameControllerBase.OperationRequests.RemoveObjectLink(linkID);
 		}
 		else
 		{
-			MVGameControllerBase.Game.RemoveLink(linkID);
+			MVGameControllerBase.OperationRequests.RemoveLink(linkID);
 		}
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
 		{
@@ -166,7 +166,7 @@ public class ContextMenuController : MonoBehaviour, IEventSystemHandler, IHandle
 		{
 			handler.PopGroups(UIGroupFlags.GameObjectUI);
 		});
-		MVGameControllerBase.Game.ResetLogicChunk(woID);
+		MVGameControllerBase.OperationRequests.ResetLogicChunk(woID);
 	}
 
 	private void ShowClientShopInventory()
@@ -196,7 +196,7 @@ public class ContextMenuController : MonoBehaviour, IEventSystemHandler, IHandle
 		{
 			PlayerInventoryRepository playerInventoryRepository = MVGameControllerBase.IEditModeUI.PlayerInventoryRepository;
 			playerInventoryRepository.OnInventoryChanged = (Action)Delegate.Combine(playerInventoryRepository.OnInventoryChanged, new Action(OnFinishedAddingItem));
-			MVGameControllerBase.Game.AddWorldObjectToInventory(wo.Id, imageData);
+			MVGameControllerBase.OperationRequests.AddWorldObjectToInventory(wo.Id, imageData);
 		};
 		StartCoroutine(ImageGenerator.CreateTextureFromData(wo, callback));
 	}
@@ -209,10 +209,7 @@ public class ContextMenuController : MonoBehaviour, IEventSystemHandler, IHandle
 		{
 			handler.Pop();
 		});
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
-		{
-			x.Create("Finished adding object to inventory.", string.Empty);
-		});
+		NotificationController.PushNotification(TM._("Finished adding object to inventory."));
 	}
 
 	private void Delete()

@@ -1,8 +1,7 @@
-using System;
-using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
 
 public class TouristModeController : MonoBehaviour
 {
@@ -98,64 +97,34 @@ public class TouristModeController : MonoBehaviour
 	{
 		private string baseAssetString = "Promotion/Promotion_{0}.png";
 
-		private List<Texture> promotionDatas = new List<Texture>();
+		private static int promotionIndex = 5;
 
-		private int currentSlideIndex;
+		private static readonly int promotionCount = 5;
 
-		public bool PromotionDataReady => promotionDatas.Count > 0;
+		private UnityAction<Texture> OnTextureReadyCallback;
 
-		public Texture NextPromotionData
+		public void GetTextureDataToSet(UnityAction<Texture> OnTextureReady)
 		{
-			get
-			{
-				if (promotionDatas.Count == 0)
-				{
-					Debug.LogWarning("PromotionDatas.Count == 0");
-					return null;
-				}
-				Texture result = promotionDatas[currentSlideIndex % promotionDatas.Count];
-				currentSlideIndex++;
-				return result;
-			}
+			OnTextureReadyCallback = OnTextureReady;
+			AsyncWWWManager.WWWRequest(new CachedGetRequest(Urls.StreamingAssets + GetPath(promotionIndex % promotionCount + 1), StreamingTextureLoaded, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 		}
 
-		public PromotionDataManager()
+		private void StreamingTextureLoaded(WWW www)
 		{
-			DownloadSlide();
-		}
-
-		private void DownloadSlide()
-		{
-			try
+			if (string.IsNullOrEmpty(www.error))
 			{
-				AsyncWWWManager.WWWRequest(new CachedGetRequest(Urls.StreamingAssets + GetPath(promotionDatas.Count + 1), StreamingAssetCallback, WWWRequestPriority.WaitUntilSyncronizingIsDone));
+				promotionIndex++;
+				OnTextureReadyCallback(www.texture);
 			}
-			catch (Exception ex)
+			else
 			{
-				Debug.LogError("ex: " + ex.Message);
+				Debug.LogError("Tourist promotion 'StreamingTextureLoaded' failed : " + www.error);
 			}
 		}
 
 		private string GetPath(int i)
 		{
 			return string.Format(baseAssetString, i.ToString("D2"));
-		}
-
-		private void StreamingAssetCallback(WWW www)
-		{
-			if (www.error != null)
-			{
-				Debug.LogWarning("www.error != null: " + www.error);
-			}
-			else if (www.texture != null)
-			{
-				promotionDatas.Add(www.texture);
-				DownloadSlide();
-			}
-			else
-			{
-				Debug.Log("Failed " + www.url);
-			}
 		}
 	}
 
@@ -182,37 +151,26 @@ public class TouristModeController : MonoBehaviour
 	{
 		if (!touristPromotionActive)
 		{
-			UnityEngine.Object.Destroy(this);
+			Object.Destroy(this);
 		}
 	}
 
 	private void Update()
 	{
-		if (showPromotionBookkeeping.Show && promotionDataManager.PromotionDataReady)
+		if (showPromotionBookkeeping.Show)
 		{
-			TouristPromotion promotion = UnityEngine.Object.Instantiate(touristPromotionPrefab);
-			SetToPromotionData(promotion);
+			promotionDataManager.GetTextureDataToSet(SetPromotionTexture);
 			showPromotionBookkeeping.Continue();
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-			{
-				x.Push(promotion.gameObject, UIPushOption.Blocking);
-			});
 		}
 	}
 
-	private void SetToPromotionData(TouristPromotion promotion)
+	private void SetPromotionTexture(Texture promotionTexture)
 	{
-		if (promotionDataManager != null)
+		TouristPromotion promotion = Object.Instantiate(touristPromotionPrefab);
+		promotion.SetPromotionTexture(promotionTexture);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			Texture nextPromotionData = promotionDataManager.NextPromotionData;
-			if (nextPromotionData == null)
-			{
-				Debug.LogWarning("PromotionData is null");
-			}
-			else
-			{
-				promotion.SetPromotionTexture(nextPromotionData);
-			}
-		}
+			x.Push(promotion.gameObject, UIPushOption.Blocking);
+		});
 	}
 }

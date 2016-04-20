@@ -137,7 +137,7 @@ public class MVAvatarRemote : MVAvatar
 		}
 	}
 
-	protected override void AttachBody(MVBody newBody)
+	public override void AttachBody(MVBody newBody)
 	{
 		base.AttachBody(newBody);
 		newBody.Visible = true;

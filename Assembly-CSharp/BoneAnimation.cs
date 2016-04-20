@@ -91,6 +91,7 @@ public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 
 	public void Attach(MVAvatar mvAvatar, bool isLocal)
 	{
+		Debug.Log("Attach " + gameObject.name);
 		this.mvAvatar = mvAvatar;
 		MVRuntimeDataVariable animation = this.mvAvatar.Animation;
 		animation.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(animation.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AnimationChangeHandler));
@@ -103,6 +104,7 @@ public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 
 	public void Detach()
 	{
+		Debug.Log("Detach " + gameObject.name);
 		avatarAnimation.Stop();
 		MVRuntimeDataVariable animation = mvAvatar.Animation;
 		animation.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Remove(animation.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AnimationChangeHandler));
@@ -110,7 +112,8 @@ public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 		{
 			woListener.RmoveNetorkUpdateListener(this);
 		}
-		nextAnim = null;
+		animationQueue.Clear();
+		prevAnim = (currentAnim = (nextAnim = null));
 	}
 
 	private void AnimationChangeHandler(object animData)

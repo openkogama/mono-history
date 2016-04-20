@@ -233,6 +233,10 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap
 					KeyCode.S,
 					KeyCode.DownArrow
 				}
+			},
+			{
+				KogamaControls.NotificationAcceptFriendshipRequest,
+				new KeyCode[1] { KeyCode.R }
 			}
 		};
 	}

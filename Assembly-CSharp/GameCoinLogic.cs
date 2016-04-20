@@ -96,7 +96,7 @@ public class GameCoinLogic : UseRequirement
 			{
 				Dictionary<object, object> dictionary = new Dictionary<object, object>();
 				dictionary.Add("gameCoinAmount", 0);
-				MVGameControllerBase.Game.RemoveWorldObjectDataPartial(ownerID, dictionary);
+				MVGameControllerBase.OperationRequests.RemoveWorldObjectDataPartial(ownerID, dictionary);
 				if (displayObject != null)
 				{
 					DestroyDisplayObject();

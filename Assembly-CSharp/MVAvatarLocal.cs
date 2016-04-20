@@ -703,13 +703,13 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		private void HandleStuck()
 		{
 			mvAvatar.Die();
-			MVGameControllerBase.Game.PostGameMsg(MVGameMsgType.AvatarKilled, GameMessages.MakePlayerKilledMessage(MVGameControllerBase.Game.LocalPlayerActorNumber, MVGameControllerBase.Game.LocalPlayerActorNumber, PlayerKilledByType.Crushed));
+			MVGameControllerBase.OperationRequests.PostGameMsg(MVGameMsgType.AvatarKilled, GameMessages.MakePlayerKilledMessage(MVGameControllerBase.Game.LocalPlayerActorNumber, MVGameControllerBase.Game.LocalPlayerActorNumber, PlayerKilledByType.Crushed));
 		}
 
 		private void DieByFalling()
 		{
 			mvAvatar.Health.Value = 0f;
-			MVGameControllerBase.Game.PostGameMsg(MVGameMsgType.AvatarKilled, GameMessages.MakePlayerKilledMessage(MVGameControllerBase.Game.LocalPlayerActorNumber, MVGameControllerBase.Game.LocalPlayerActorNumber, PlayerKilledByType.FallOffWorld));
+			MVGameControllerBase.OperationRequests.PostGameMsg(MVGameMsgType.AvatarKilled, GameMessages.MakePlayerKilledMessage(MVGameControllerBase.Game.LocalPlayerActorNumber, MVGameControllerBase.Game.LocalPlayerActorNumber, PlayerKilledByType.FallOffWorld));
 		}
 
 		private void UpdateInvulnerable()
@@ -1098,7 +1098,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		MVCameraController.GetSettings(MVGameControllerBase.Game.GameType).ScaleCameraValues(args.scale);
 	}
 
-	protected override void AttachBody(MVBody newBody)
+	public override void AttachBody(MVBody newBody)
 	{
 		base.AttachBody(newBody);
 		if (!MVGameControllerBase.Game.IsPlaying)
@@ -1109,10 +1109,10 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		{
 			newBody.Visible = true;
 		}
-		MVGameControllerBase.Game.TransferOwnership(newBody.Id, 0, null);
+		MVGameControllerBase.OperationRequests.TransferOwnership(newBody.Id, 0, null);
 		foreach (MVWorldObjectClient child in newBody.Children)
 		{
-			MVGameControllerBase.Game.TransferOwnership(child.Id, 0, null);
+			MVGameControllerBase.OperationRequests.TransferOwnership(child.Id, 0, null);
 		}
 	}
 
@@ -1131,7 +1131,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		if (!MVGameControllerBase.Game.TeamManager.IsTeamActive(MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(localPlayerActorNumber)))
 		{
 			List<MVTeam> teamList = MVGameControllerBase.Game.TeamManager.GetTeamList();
-			MVGameControllerBase.Game.SetTeam(teamList[0]);
+			MVGameControllerBase.OperationRequests.SetTeam(teamList[0]);
 		}
 		SetAnimation("Idle");
 		Health.Value = 100f;

@@ -96,7 +96,7 @@ public class SendMessageControl : MonoBehaviour
 			}
 			else
 			{
-				MVGameControllerBase.Game.PostGameMsg(MVGameMsgType.Chat, new Dictionary<object, object>
+				MVGameControllerBase.OperationRequests.PostGameMsg(MVGameMsgType.Chat, new Dictionary<object, object>
 				{
 					{
 						(byte)0,

@@ -36,7 +36,7 @@ public class ItemInventoryDeleteTab : ManageItemPage
 		});
 		if (affirmative)
 		{
-			MVGameControllerBase.Game.RemoveItemFromInventory(previewedItem.itemID);
+			MVGameControllerBase.OperationRequests.RemoveItemFromInventory(previewedItem.itemID);
 			MVGameControllerBase.IEditModeUI.PlayerInventoryRepository.RemoveItem(previewedItem);
 			string text = itemName.text;
 			if (itemName.text == string.Empty)

@@ -55,7 +55,7 @@ public static class DebugLogHandler
 		bool flag = UnityEngine.Random.Range(0, sampleErrorFrequency + 1) == sampleErrorFrequency;
 		if (MVClientSettings.EnableSentry || flag)
 		{
-			MVGameControllerBase.Game.SendClientLog(logString, stackTrace, type, GetExtraSentryData(), GetTags());
+			MVGameControllerBase.OperationRequests.SendClientLog(logString, stackTrace, type, GetExtraSentryData(), GetTags());
 		}
 		logErrorHasBeenSendOnce = true;
 	}
