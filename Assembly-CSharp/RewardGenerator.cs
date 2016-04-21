@@ -22,6 +22,9 @@ public class RewardGenerator : RewardButtonBase
 	[SerializeField]
 	private Image SpinnyBackground;
 
+	[SerializeField]
+	private Sprite errorSprite;
+
 	private float maxTime;
 
 	private bool rewardAvailable;
@@ -45,8 +48,11 @@ public class RewardGenerator : RewardButtonBase
 				OnRewardCollected();
 				return;
 			}
-			OffersManager.OnActorOffer = (UnityAction)Delegate.Combine(OffersManager.OnActorOffer, new UnityAction(OfferReady));
-			OffersManager.RequestOffer();
+			if (OffersManager.OnActorOffer != null)
+			{
+				NotificationController.PushNotification(TM._("There was an issue, please wait a moment and try again."), errorSprite, 3);
+			}
+			OffersManager.RequestOffer(OfferReady);
 		}
 		else
 		{
@@ -61,8 +67,7 @@ public class RewardGenerator : RewardButtonBase
 
 	private void OnPurchaseSpinsPop()
 	{
-		OffersManager.OnActorOffer = (UnityAction)Delegate.Combine(OffersManager.OnActorOffer, new UnityAction(OfferReady));
-		OffersManager.RequestOffer();
+		OffersManager.RequestOffer(OfferReady);
 	}
 
 	private void OfferReady()
@@ -82,6 +87,7 @@ public class RewardGenerator : RewardButtonBase
 	private void RewardCountChanged()
 	{
 		rewardAvailable = RewardManager.NumberOfPendingRewards > 0;
+		gameObject.SetActive(RewardManager.CountDownTimeInMS > 0 || rewardAvailable);
 	}
 
 	private void OnRewardCollected()
@@ -92,13 +98,12 @@ public class RewardGenerator : RewardButtonBase
 		{
 			x.Push(rewardMinigame.gameObject, UIPushOption.Blocking, null, UIGroupFlags.GameObjectUI);
 		});
-		gameObject.SetActive(RewardManager.CountDownTimeInMS > 0);
 	}
 
 	private void Update()
 	{
 		float num = RewardManager.CountDownTimeInMS;
-		if (RewardManager.NumberOfPendingRewards > 0)
+		if (rewardAvailable)
 		{
 			rewardTimer.text = TM._("Claim!");
 			SpinnyBackground.gameObject.SetActive(value: true);

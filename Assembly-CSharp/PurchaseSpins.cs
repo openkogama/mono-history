@@ -42,7 +42,7 @@ public class PurchaseSpins : MonoBehaviour
 	{
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 		{
-			x.Create(string.Format(TM._("Are you sure you wish to purchase {0} spin for {1} gold?"), numOfSpins, RewardManager.SpinPrice * numOfSpins), OnConfirmedPurchase, TM._("Purchase popups?"));
+			x.Create(string.Format(TM._("Are you sure you wish to purchase {0} spins for {1} gold?"), numOfSpins, RewardManager.SpinPrice * numOfSpins), OnConfirmedPurchase, TM._("Confirm Purchase"));
 		});
 	}
 

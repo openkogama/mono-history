@@ -9,8 +9,9 @@ public static class OffersManager
 
 	public static IActorOfferClient CurrentOffer { get; private set; }
 
-	public static void RequestOffer()
+	public static void RequestOffer(UnityAction OnOffer)
 	{
+		OnActorOffer = OnOffer;
 		MVGameControllerBase.OperationRequests.GetOffer();
 	}
 
