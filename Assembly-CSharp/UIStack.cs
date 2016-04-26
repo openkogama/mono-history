@@ -47,6 +47,7 @@ public class UIStack : MonoBehaviour, IEventSystemHandler, IUIStack
 		}
 		if (Application.isEditor)
 		{
+			Debug.Log("Push " + gameObject.name);
 			UIStackDebugElement uIStackDebugElement = gameObject.AddComponent<UIStackDebugElement>();
 			uIStackDebugElement.Initialize(pushOption, group);
 		}
@@ -112,6 +113,7 @@ public class UIStack : MonoBehaviour, IEventSystemHandler, IUIStack
 		if (stackableUiElements.Count != 0)
 		{
 			StackElement stackElement = stackableUiElements[stackableUiElements.Count - 1];
+			Debug.Log("UpdateStack " + stackElement.name);
 			stackElement.gameObject.SetActive(value: true);
 			SetStackVisible();
 			UpdateBlocking();

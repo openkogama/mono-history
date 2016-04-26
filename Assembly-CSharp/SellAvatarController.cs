@@ -51,7 +51,7 @@ public class SellAvatarController : MonoBehaviour
 		});
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnMarketPlaceActionComplete = (MVNetworkGame.OnMarketPlaceActionCompleteDelegate)Delegate.Combine(game.OnMarketPlaceActionComplete, new MVNetworkGame.OnMarketPlaceActionCompleteDelegate(OnAddToMarketplace));
-		MVGameControllerBase.OperationRequests.AddAvatarToAvatarShopInventory(woID, 0, nameField.text, texture.EncodeToPNG());
+		MVGameControllerBase.Game.AddAvatarToAvatarShopInventory(woID, 0, nameField.text, texture.EncodeToPNG());
 	}
 
 	private void OnAddToMarketplace(bool added)
@@ -102,7 +102,7 @@ public class SellAvatarController : MonoBehaviour
 		});
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnMarketPlaceActionComplete = (MVNetworkGame.OnMarketPlaceActionCompleteDelegate)Delegate.Combine(game.OnMarketPlaceActionComplete, new MVNetworkGame.OnMarketPlaceActionCompleteDelegate(OnRemoveFromMarketplace));
-		MVGameControllerBase.OperationRequests.DeleteAvatarFromShopInventory(woID);
+		MVGameControllerBase.Game.DeleteAvatarFromShopInventory(woID);
 	}
 
 	private void OnRemoveFromMarketplace(bool added)

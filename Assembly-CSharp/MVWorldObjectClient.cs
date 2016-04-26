@@ -639,7 +639,7 @@ public class MVWorldObjectClient : MVWorldObject
 
 	public void SendPackage(Dictionary<object, object> package)
 	{
-		MVGameControllerBase.OperationRequests.WorldObjectRPC(id, package);
+		MVGameControllerBase.Game.WorldObjectRPC(id, package);
 	}
 
 	public virtual void ReceivePackage(MVPlayer p, Dictionary<object, object> package)

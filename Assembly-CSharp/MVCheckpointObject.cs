@@ -6,11 +6,11 @@ public class MVCheckpointObject : ObjectPrefab
 	private TriggerBoxEvents triggerBoxEvents;
 
 	[SerializeField]
-	private Animation objAnimation;
+	private Animation animation;
 
 	public TriggerBoxEvents TriggerBoxEvents => triggerBoxEvents;
 
-	public Animation Animation => objAnimation;
+	public Animation Animation => animation;
 
 	protected override void OnValidate()
 	{

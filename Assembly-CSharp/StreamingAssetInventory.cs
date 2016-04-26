@@ -11,12 +11,6 @@ public class StreamingAssetInventory : ProductInventory
 	{
 	}
 
-	protected override void OnAdded(ProductInventoryInfo invInfo)
-	{
-		base.OnAdded(invInfo);
-		AsyncWWWManager.WWWRequest(new StreamingAssetRequestTempHack(Urls.StreamingAssets + invInfo.ProductInfo.RequestPath, null, WWWRequestPriority.WaitUntilSyncronizingIsDone));
-	}
-
 	public IEnumerable<ProductInventoryInfo> Get(StreamingAssetType type)
 	{
 		return Inventory.Values.Where((ProductInventoryInfo invInfo) =>

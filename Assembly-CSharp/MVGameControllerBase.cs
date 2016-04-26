@@ -10,8 +10,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 {
 	public delegate void OnReceivedGameMsgDelegate(MVGameMsgType type, Dictionary<object, object> gameMsgData);
 
-	public delegate void OnReceivedNotificationEventDelegate(NotificationType type, Dictionary<object, object> data);
-
 	public delegate void OnPostGameInitDelegate();
 
 	private static bool quitHasBeenCalled;
@@ -56,8 +54,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	public static OnReceivedGameMsgDelegate OnReceivedGameMsg;
 
-	public static OnReceivedNotificationEventDelegate OnReceivedNotification;
-
 	public static OnPostGameInitDelegate OnPostGameInit;
 
 	public static bool LevelingTestMode;
@@ -91,8 +87,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	public static bool UsingDevSessionData => customBuildSettings.ShowLogin || Application.isEditor;
 
 	public static MVNetworkGame Game { get; private set; }
-
-	public static MVNetworkGame.OperationRequests OperationRequests => Game.OperationRequestSender;
 
 	public static GameSessionData GameSessionData => gameSessionData;
 
@@ -300,7 +294,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		if (Game != null && OkToReAuth)
 		{
 			Game.Peer.Disconnect();
-			AsyncWWWManager.WWWRequest(new GetRequest(gameSessionData.reauthURL, instance.OnReceivedReAuthWebParametersFromHttpRequest, WWWRequestPriority.ExecuteWhileSyncronizing));
+			AsyncWWWManager.WWWRequest(new GetRequest(gameSessionData.reauthURL, instance.OnReceivedReAuthWebParametersFromHttpRequest, WWWRequestPriority.ExecuteIgnoreAllConstraints));
 			return true;
 		}
 		return false;
@@ -407,7 +401,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		byte[] bytes = Convert.FromBase64String(text);
 		string text3 = Encoding.UTF8.GetString(bytes);
 		Debug.Log(text3);
-		AsyncWWWManager.WWWRequest(new GetRequest(text3, OnReceivedWebParametersFromHttpRequest, WWWRequestPriority.ExecuteWhileSyncronizing));
+		AsyncWWWManager.WWWRequest(new GetRequest(text3, OnReceivedWebParametersFromHttpRequest, WWWRequestPriority.ExecuteIgnoreAllConstraints));
 	}
 
 	[DllImport("user32.dll")]
@@ -457,6 +451,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	protected void Initialize()
 	{
 		isInitialized = true;
+		materialLoader.Initialize();
 	}
 
 	protected virtual void CleanUp()

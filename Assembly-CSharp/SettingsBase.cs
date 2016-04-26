@@ -28,7 +28,7 @@ public class SettingsBase : MonoBehaviour
 			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woID);
 			if (worldObjectClient != null && result.Count != 0)
 			{
-				MVGameControllerBase.OperationRequests.UpdateWorldObjectDataPartial(woID, result);
+				MVGameControllerBase.Game.UpdateWorldObjectDataPartial(woID, result);
 			}
 		}
 	}

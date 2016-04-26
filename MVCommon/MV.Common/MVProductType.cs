@@ -8,6 +8,5 @@ public enum MVProductType
 	Item,
 	Avatar,
 	RespawnNow,
-	GameCoinBooster,
-	MysteryBoxSpins
+	GameCoinBooster
 }

@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityStandardAssets.CrossPlatformInput;
 
 public class AccessoryMover
@@ -41,7 +40,7 @@ public class AccessoryMover
 
 		public void SetOffset()
 		{
-			MVGameControllerBase.OperationRequests.UpdateAvatarAccessoryOffset(selectionHelperAvatarAccessory.AvatarBodyWoID, selectionHelperAvatarAccessory.Slot, selectionHelperAvatarAccessory.AvatarAccessory.Offset);
+			MVGameControllerBase.Game.UpdateAvatarAccessoryOffset(selectionHelperAvatarAccessory.AvatarBodyWoID, selectionHelperAvatarAccessory.Slot, selectionHelperAvatarAccessory.AvatarAccessory.Offset);
 		}
 	}
 
@@ -64,10 +63,6 @@ public class AccessoryMover
 
 	public bool MoveAccessory()
 	{
-		if (EventSystem.current.IsPointerOverGameObject(-1))
-		{
-			return false;
-		}
 		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
 		{
 			if (accessoryOffsetMouseWrapper == null)

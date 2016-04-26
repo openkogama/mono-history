@@ -1,5 +1,6 @@
 public enum WWWRequestPriority
 {
 	WaitUntilSyncronizingIsDone,
-	ExecuteWhileSyncronizing
+	ExecuteWhileSyncronizing,
+	ExecuteIgnoreAllConstraints
 }

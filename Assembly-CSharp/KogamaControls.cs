@@ -48,6 +48,5 @@ public enum KogamaControls
 	EditMoveLeft,
 	EditMoveRight,
 	EditMoveBackwards,
-	EditMoveFast,
-	NotificationAcceptFriendshipRequest
+	EditMoveFast
 }

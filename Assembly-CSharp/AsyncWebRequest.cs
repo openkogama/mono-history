@@ -23,13 +23,13 @@ public abstract class AsyncWebRequest
 
 	protected State state;
 
-	protected static bool useCaching = true;
-
 	protected WWW www;
 
 	protected bool isDone;
 
 	public readonly WWWRequestPriority requestPriority;
+
+	protected static bool UseCaching => true;
 
 	protected AsyncWebRequest(string path, Action<WWW> callback, WWWRequestPriority requestPriority)
 	{

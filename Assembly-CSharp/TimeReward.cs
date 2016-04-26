@@ -58,7 +58,6 @@ public class TimeReward : IUpdatecontrollerSubscriber
 			GameSessionData gameSessionData = MVGameControllerBase.GameSessionData;
 			string text = $"?profile_id={gameSessionData.profileID}&planet_id={gameSessionData.planetID}&token={gameSessionData.token}";
 			AsyncWWWManager.WWWRequest(new GetRequest(MVGameControllerBase.GameSessionData.gameRewardDataURL + text, OnRewardData, WWWRequestPriority.WaitUntilSyncronizingIsDone));
-			Debug.Log("MVGameControllerBase.GameSessionData.gameRewardDataURL + args: " + MVGameControllerBase.GameSessionData.gameRewardDataURL + text);
 		}
 
 		private void TestExternalCallBack(string function, Action<Dictionary<string, object>> action)
@@ -93,21 +92,17 @@ public class TimeReward : IUpdatecontrollerSubscriber
 
 		private void OnRewardData(WWW www)
 		{
-			Debug.Log("www.error: " + www.error);
 			if (!string.IsNullOrEmpty(www.error))
 			{
 				Debug.LogError(www.error);
 				return;
 			}
 			RewardData rewardData = JsonConvert.DeserializeObject<RewardData>(www.text);
-			Debug.Log("www.text: " + www.text);
-			Debug.Log("!rewardData.rewardEnabled: " + !rewardData.rewardEnabled);
 			if (!rewardData.rewardEnabled)
 			{
 				requestedRewardDataStatus = RequestRewardDataStatus.Denied;
 				return;
 			}
-			Debug.Log("!rewardData.timeInSeconds: " + rewardData.timeInSeconds);
 			rewardCountdown = new RewardCountdown(rewardData.timeInSeconds, rewardData.gold, rewardData.silver);
 			requestedRewardDataStatus = RequestRewardDataStatus.Accepted;
 		}
@@ -144,8 +139,7 @@ public class TimeReward : IUpdatecontrollerSubscriber
 			wWWForm.AddField("token", gameSessionData.token);
 			wWWForm.AddField("profile_id", gameSessionData.profileID);
 			wWWForm.AddField("planet_id", gameSessionData.planetID);
-			AsyncWWWManager.WWWRequest(new PostRequest(gameSessionData.gameRewardURL, wWWForm, null, WWWRequestPriority.ExecuteWhileSyncronizing));
-			Debug.Log("s.gameRewardURL: " + gameSessionData.gameRewardURL);
+			AsyncWWWManager.WWWRequest(new PostRequest(gameSessionData.gameRewardURL, wWWForm, null, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 		}
 
 		public override RewardStateBase Update()
@@ -169,7 +163,6 @@ public class TimeReward : IUpdatecontrollerSubscriber
 	public void Init()
 	{
 		UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
-		Debug.Log("!MVGameControllerBase.UsingDevSessionData: " + !MVGameControllerBase.UsingDevSessionData);
 		if (!MVGameControllerBase.UsingDevSessionData)
 		{
 			rewardStateBase = new RequestRewardData();

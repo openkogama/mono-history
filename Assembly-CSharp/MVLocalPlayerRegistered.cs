@@ -16,7 +16,7 @@ public class MVLocalPlayerRegistered : MVLocalPlayer
 		base.InitializeLeveling(initialLevelData);
 		XPEventQueue xPEventQueue = xpEventQueue;
 		xPEventQueue.OnXPProgressData = (XPProgress.OnXPProgressDataDelegate)Delegate.Combine(xPEventQueue.OnXPProgressData, new XPProgress.OnXPProgressDataDelegate(OnXPProgressDataChangeRegistered));
-		OnLevelChangedLocalReceivedLevelData(Level);
+		MVGameControllerBase.Game.LocalPlayerLevelChanged(Level);
 	}
 
 	private void OnXPProgressDataChangeRegistered(XPProgressData xpProgress)
@@ -41,12 +41,5 @@ public class MVLocalPlayerRegistered : MVLocalPlayer
 	private void LevelCallback(WWW result)
 	{
 		Level = JsonConvert.DeserializeObject<int>(result.text);
-	}
-
-	private void OnLevelChangedLocalReceivedLevelData(int level)
-	{
-		Debug.Log("OnLevelChangedLocalReceivedLevelData");
-		OnLevelChangedLocal(level);
-		MVGameControllerBase.OperationRequests.JoinNotification();
 	}
 }

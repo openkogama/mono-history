@@ -28,12 +28,12 @@ public class MVTriggerBox : MVLogicObject
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, e.instigatorWOID);
+		MVGameControllerBase.Game.TriggerBoxEnter(Id, e.instigatorWOID);
 	}
 
 	private void triggerBoxEvents_TriggerExit(object sender, TriggerEventArgs e)
 	{
-		MVGameControllerBase.OperationRequests.TriggerBoxExit(Id, e.instigatorWOID);
+		MVGameControllerBase.Game.TriggerBoxExit(Id, e.instigatorWOID);
 	}
 
 	public void OnEnter(MVPlayer player)

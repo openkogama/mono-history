@@ -32,6 +32,10 @@ public static class AsyncWWWManager
 		{
 			WWWRequestPriority.ExecuteWhileSyncronizing,
 			new Queue<AsyncWebRequest>()
+		},
+		{
+			WWWRequestPriority.ExecuteIgnoreAllConstraints,
+			new Queue<AsyncWebRequest>()
 		}
 	};
 
@@ -60,9 +64,9 @@ public static class AsyncWWWManager
 		requests[asyncRequest.requestPriority].Enqueue(asyncRequest);
 	}
 
-	private static void AddRequestsToActiveRequests(Queue<AsyncWebRequest> requestQueue)
+	private static void AddRequestsToActiveRequests(Queue<AsyncWebRequest> requestQueue, int maxRequestForQueue)
 	{
-		while (activeRequest.Count < maxRequests && requestQueue.Count > 0)
+		while (activeRequest.Count < maxRequestForQueue && requestQueue.Count > 0)
 		{
 			activeRequest.Add(requestQueue.Dequeue());
 		}
@@ -74,10 +78,11 @@ public static class AsyncWWWManager
 		{
 			return;
 		}
-		AddRequestsToActiveRequests(requests[WWWRequestPriority.ExecuteWhileSyncronizing]);
+		AddRequestsToActiveRequests(requests[WWWRequestPriority.ExecuteIgnoreAllConstraints], int.MaxValue);
+		AddRequestsToActiveRequests(requests[WWWRequestPriority.ExecuteWhileSyncronizing], maxRequests);
 		if (MVGameControllerBase.JoinState == MVJoinState.Playing)
 		{
-			AddRequestsToActiveRequests(requests[WWWRequestPriority.WaitUntilSyncronizingIsDone]);
+			AddRequestsToActiveRequests(requests[WWWRequestPriority.WaitUntilSyncronizingIsDone], maxRequests);
 		}
 		foreach (AsyncWebRequest item in activeRequest)
 		{

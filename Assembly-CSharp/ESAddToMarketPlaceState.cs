@@ -43,7 +43,7 @@ internal class ESAddToMarketPlaceState : ESStateBase
 		inventoryItemData = new BytePacker(value.data);
 		internalState = AddToMarketPlaceInternalState.WaitingForMarketPlaceItem;
 		MVGameControllerBase.Game.ReceivedItemFromQuery += WOCM_ReceivedItemFromQuery;
-		MVGameControllerBase.OperationRequests.RequestMarketPlaceItem(num);
+		MVGameControllerBase.Game.RequestMarketPlaceItem(num);
 	}
 
 	public override void Execute(EditorStateMachine e)

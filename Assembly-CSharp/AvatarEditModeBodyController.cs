@@ -82,7 +82,7 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 	{
 		World world = MVGameControllerBase.Game.World;
 		world.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Combine(world.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(ResetCallback));
-		MVGameControllerBase.OperationRequests.ResetAvatar(CurrentBody.Id);
+		MVGameControllerBase.Game.ResetAvatar(CurrentBody.Id);
 	}
 
 	private void ResetCallback(object sender, InitializedGameQueryDataEventArgs e)
@@ -102,7 +102,7 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 		{
 			x.SetState(EditorEvent.CERoamUUI);
 		});
-		MVGameControllerBase.OperationRequests.SetActiveAvatar(id);
+		MVGameControllerBase.Game.SetActiveAvatar(id);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Pop();
@@ -186,7 +186,7 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Combine(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(OnProductPurchaseAvatarResponse));
 		World world = MVGameControllerBase.Game.World;
 		world.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Combine(world.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(InitializedPurchasedAvatar));
-		MVGameControllerBase.OperationRequests.PurchaseAvatar(item.itemID);
+		MVGameControllerBase.Game.PurchaseAvatar(item.itemID);
 	}
 
 	private void OnProductPurchaseAvatarResponse(int returnCode, Dictionary<object, object> purchaseResponseData)
@@ -231,7 +231,7 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 		int num = bodies.Count - 1;
 		SetCurrentBody(num);
 		GenerateIconForBody(num);
-		MVGameControllerBase.OperationRequests.SetActiveAvatar(e.RootWO.Id);
+		MVGameControllerBase.Game.SetActiveAvatar(e.RootWO.Id);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Pop();
@@ -252,7 +252,7 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 	{
 		currentActionSuccessMessage = successMessage;
 		int profileID = MVGameControllerBase.Game.LocalPlayer.ProfileID;
-		if (MVGameControllerBase.OperationRequests.UploadScreenshot(screenshotTex.EncodeToPNG(), ImageType.Avatar, profileID))
+		if (MVGameControllerBase.Game.UploadScreenshot(screenshotTex.EncodeToPNG(), ImageType.Avatar, profileID))
 		{
 			MVGameControllerBase.Game.ScreenshotUploaded += MVNetworGame_ScreenshotUploadedHandler;
 			return;

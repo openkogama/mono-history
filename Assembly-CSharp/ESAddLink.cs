@@ -76,7 +76,7 @@ internal class ESAddLink : ESStateBase
 
 	private bool DoAddLink()
 	{
-		if (!MVGameControllerBase.OperationRequests.AddLink(tempLink))
+		if (!MVGameControllerBase.Game.AddLink(tempLink))
 		{
 			return false;
 		}

@@ -37,7 +37,7 @@ public class RotatorSettings : MonoBehaviour, IEventSystemHandler, IHandleSettin
 	{
 		if (key != null)
 		{
-			MVGameControllerBase.OperationRequests.UpdateWorldObjectDataPartial(woID, key, Convert.ToSingle(value));
+			MVGameControllerBase.Game.UpdateWorldObjectDataPartial(woID, key, Convert.ToSingle(value));
 		}
 	}
 }

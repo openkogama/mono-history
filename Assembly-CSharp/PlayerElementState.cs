@@ -80,7 +80,7 @@ public class PlayerElementState : MonoBehaviour
 				Debug.Log("Request friendship");
 				ValidateFriendRequest();
 				string errorText = string.Empty;
-				if (!MVGameControllerBase.OperationRequests.RequestFriendShipByID(player.ProfileID, ref errorText))
+				if (!MVGameControllerBase.Game.RequestFriendShipByID(player.ProfileID, ref errorText))
 				{
 					ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 					{
@@ -99,7 +99,7 @@ public class PlayerElementState : MonoBehaviour
 			try
 			{
 				ValidateFriendRequest();
-				MVGameControllerBase.OperationRequests.RequestAcceptFriendShip(friend.friendID);
+				MVGameControllerBase.Game.RequestAcceptFriendShip(friend.friendID);
 			}
 			catch (Exception ex)
 			{
@@ -109,11 +109,11 @@ public class PlayerElementState : MonoBehaviour
 		});
 		cancel.onClick.AddListener(() =>
 		{
-			MVGameControllerBase.OperationRequests.RequestRejectFriendShip(friend.friendID);
+			MVGameControllerBase.Game.RequestRejectFriendShip(friend.friendID);
 		});
 		pendingFriendship.onClick.AddListener(() =>
 		{
-			MVGameControllerBase.OperationRequests.RequestRejectFriendShip(friend.friendID);
+			MVGameControllerBase.Game.RequestRejectFriendShip(friend.friendID);
 		});
 	}
 
@@ -129,8 +129,6 @@ public class PlayerElementState : MonoBehaviour
 		int num = level + 1;
 		int friendsLimit2 = BadgeManager.GetFriendsLimit(num);
 		string format = TM._("You can only have {0} friends at level {1}. Get to level {2} and you can have {3} friends.");
-		format = string.Format(format, friendsLimit, level, num, friendsLimit2);
-		MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, TM._("Your friendlist is full"));
-		throw new Exception(format);
+		throw new Exception(string.Format(format, friendsLimit, level, num, friendsLimit2));
 	}
 }

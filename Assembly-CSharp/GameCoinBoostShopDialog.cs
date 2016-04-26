@@ -32,7 +32,7 @@ public class GameCoinBoostShopDialog : MonoBehaviour
 	{
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Combine(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
-		MVGameControllerBase.OperationRequests.PurchaseGameCoinBooster();
+		MVGameControllerBase.Game.PurchaseGameCoinBooster();
 		purchase.gameObject.SetActive(value: false);
 		waitOverLay.SetActive(value: true);
 	}

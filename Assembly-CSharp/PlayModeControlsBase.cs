@@ -4,6 +4,12 @@ public abstract class PlayModeControlsBase : MonoBehaviour
 {
 	private bool showingEquipableUI;
 
+	private bool testForLowFPS = true;
+
+	private bool finishedTestingFPS;
+
+	private WaitForTicks waitForMs;
+
 	[SerializeField]
 	private RectTransform use;
 

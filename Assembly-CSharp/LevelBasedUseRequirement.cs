@@ -65,7 +65,7 @@ public class LevelBasedUseRequirement : UseRequirement
 			{
 				Dictionary<object, object> dictionary = new Dictionary<object, object>();
 				dictionary.Add("levelAmount", 0);
-				MVGameControllerBase.OperationRequests.RemoveWorldObjectDataPartial(ownerID, dictionary);
+				MVGameControllerBase.Game.RemoveWorldObjectDataPartial(ownerID, dictionary);
 				Object.Destroy(displayObject.gameObject);
 			}
 		}

@@ -217,7 +217,7 @@ public class MVPickupItemBase : MVLogicObject
 		MVEquipable mVEquipable = worldObjectClient.GameObject.GetComponent<MVEquipable>();
 		if (mVEquipable != null && mVEquipable.Equip(Type, pickupPrefabLUT[Type].equipableType, ItemData, VariantID))
 		{
-			MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, instigatorWOID);
+			MVGameControllerBase.Game.TriggerBoxEnter(Id, instigatorWOID);
 			canPickUp = false;
 			return true;
 		}
@@ -226,7 +226,7 @@ public class MVPickupItemBase : MVLogicObject
 
 	private void triggerBoxEvents_TriggerExit(object sender, TriggerEventArgs e)
 	{
-		MVGameControllerBase.OperationRequests.TriggerBoxExit(Id, e.instigatorWOID);
+		MVGameControllerBase.Game.TriggerBoxExit(Id, e.instigatorWOID);
 	}
 
 	public void HandleStateChange(PickupItemState state)

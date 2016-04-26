@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
@@ -11,16 +10,9 @@ public static class DebugLogHandler
 
 	private static int maxLogContextQueueCount = 15;
 
-	private static List<Action<string, string, LogType>> logHandlers = new List<Action<string, string, LogType>>();
-
-	private static int sampleErrorFrequency = 500;
+	private static int sampleErrorFrequency = 100;
 
 	private static HashSet<string> ignoreLogStrings = new HashSet<string> { "Fullscreen mode can only be enabled in the web player after clicking on the content." };
-
-	public static void AddLogHandler(Action<string, string, LogType> logHandler)
-	{
-		logHandlers.Add(logHandler);
-	}
 
 	public static void Init()
 	{
@@ -29,14 +21,11 @@ public static class DebugLogHandler
 
 	private static void HandleLog(string logString, string stackTrace, LogType type)
 	{
-		foreach (Action<string, string, LogType> logHandler in logHandlers)
-		{
-			logHandler(logString, stackTrace, type);
-		}
 		if (logErrorHasBeenSendOnce)
 		{
 			return;
 		}
+		logErrorHasBeenSendOnce = true;
 		if (type == LogType.Warning || type == LogType.Log || IsIgnored(logString))
 		{
 			AddLogToLogContext(logString, type);
@@ -52,12 +41,11 @@ public static class DebugLogHandler
 			{
 			}
 		}
-		bool flag = UnityEngine.Random.Range(0, sampleErrorFrequency + 1) == sampleErrorFrequency;
+		bool flag = Random.Range(0, sampleErrorFrequency + 1) == sampleErrorFrequency;
 		if (MVClientSettings.EnableSentry || flag)
 		{
-			MVGameControllerBase.OperationRequests.SendClientLog(logString, stackTrace, type, GetExtraSentryData(), GetTags());
+			MVGameControllerBase.Game.SendClientLog(logString, stackTrace, type, GetExtraSentryData(), GetTags());
 		}
-		logErrorHasBeenSendOnce = true;
 	}
 
 	private static bool IsIgnored(string logString)
@@ -99,6 +87,7 @@ public static class DebugLogHandler
 	{
 		Dictionary<string, string> dictionary = new Dictionary<string, string>();
 		dictionary.Add("Version", MVGameControllerBase.VersionNumber.VersionString);
+		dictionary.Add("JoinState", MVGameControllerBase.JoinState.ToString());
 		dictionary.Add("Source", "standalone");
 		return dictionary;
 	}

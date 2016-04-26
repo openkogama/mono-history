@@ -59,30 +59,26 @@ public class AvatarCapture : MonoBehaviour
 		List<MVPlayer> list = (from o in MVGameControllerBase.Game.TeamManager.GetPlayersInTeam(scoreTeamEntries[0].team)
 			orderby o.GetGameStat(counterType)
 			select o).ToList();
-		for (int num = 0; num < list.Count; num++)
-		{
-			list[num].Avatar.ChangeLOD(0f);
-		}
 		int count = list.Count;
 		List<Vector3> positions = new List<Vector3>();
-		float num2 = CreateTriangleFormation(ref positions, count, 1, 0f, 0f);
+		float num = CreateTriangleFormation(ref positions, count, 1, 0f, 0f);
 		positions.Reverse();
 		List<RenderTextureTargetDef> list2 = new List<RenderTextureTargetDef>();
+		for (int num2 = 0; num2 < count; num2++)
+		{
+			list2.Add(new RenderTextureTargetDef(list[num2].Avatar.GameObject.transform));
+		}
 		for (int num3 = 0; num3 < count; num3++)
 		{
-			list2.Add(new RenderTextureTargetDef(list[num3].Avatar.GameObject.transform));
-		}
-		for (int num4 = 0; num4 < count; num4++)
-		{
-			currentTargetWinner = list2[num4];
-			GameObject gameObject = list[num4].Avatar.GameObject;
+			currentTargetWinner = list2[num3];
+			GameObject gameObject = list[num3].Avatar.GameObject;
 			renderCam.transform.position = gameObject.transform.position;
-			renderCam.transform.position += gameObject.transform.right * offset.x + gameObject.transform.right * (0f - positions[num4].x);
-			renderCam.transform.position += gameObject.transform.forward * (offset.z + num2 / 2f) + gameObject.transform.forward * (0f - positions[num4].z);
-			renderCam.transform.position += gameObject.transform.up * (offset.y + num2 / 3f) + gameObject.transform.up * positions[num4].y;
-			float num5 = Random.Range(-35f, 35f);
-			renderCam.transform.position = RotatePointAroundPivot(renderCam.transform.position, gameObject.transform.position, new Vector3(0f, num5, 0f));
-			renderCam.transform.rotation = Quaternion.AngleAxis(gameObject.transform.rotation.eulerAngles.y + 180f + num5, Vector3.up);
+			renderCam.transform.position += gameObject.transform.right * offset.x + gameObject.transform.right * (0f - positions[num3].x);
+			renderCam.transform.position += gameObject.transform.forward * (offset.z + num / 2f) + gameObject.transform.forward * (0f - positions[num3].z);
+			renderCam.transform.position += gameObject.transform.up * (offset.y + num / 3f) + gameObject.transform.up * positions[num3].y;
+			float num4 = Random.Range(-35f, 35f);
+			renderCam.transform.position = RotatePointAroundPivot(renderCam.transform.position, gameObject.transform.position, new Vector3(0f, num4, 0f));
+			renderCam.transform.rotation = Quaternion.AngleAxis(gameObject.transform.rotation.eulerAngles.y + 180f + num4, Vector3.up);
 			renderCam.Render();
 		}
 	}

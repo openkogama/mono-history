@@ -63,7 +63,7 @@ public class ItemSellTab : ManageItemPage
 		else
 		{
 			MVGameControllerBase.Game.ReceivedItemFromQuery += OnLoadMarketPlaceItem;
-			MVGameControllerBase.OperationRequests.RequestMarketPlaceItem(item.itemID);
+			MVGameControllerBase.Game.RequestMarketPlaceItem(item.itemID);
 		}
 	}
 
@@ -88,7 +88,7 @@ public class ItemSellTab : ManageItemPage
 		{
 			MVNetworkGame game = MVGameControllerBase.Game;
 			game.OnMarketPlaceActionComplete = (MVNetworkGame.OnMarketPlaceActionCompleteDelegate)Delegate.Combine(game.OnMarketPlaceActionComplete, new MVNetworkGame.OnMarketPlaceActionCompleteDelegate(OnAddToMarketplaceReturn));
-			MVGameControllerBase.OperationRequests.RequestAddItemToMarketPlace(previewItem.itemID, itemName.text, description.text, 0);
+			MVGameControllerBase.Game.RequestAddItemToMarketPlace(previewItem.itemID, itemName.text, description.text, 0);
 		}
 	}
 
@@ -96,7 +96,7 @@ public class ItemSellTab : ManageItemPage
 	{
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnMarketPlaceActionComplete = (MVNetworkGame.OnMarketPlaceActionCompleteDelegate)Delegate.Combine(game.OnMarketPlaceActionComplete, new MVNetworkGame.OnMarketPlaceActionCompleteDelegate(OnRemoveFromMarketplace));
-		MVGameControllerBase.OperationRequests.RequestRemoveItemFromMarketPlace(previewItem.itemID);
+		MVGameControllerBase.Game.RequestRemoveItemFromMarketPlace(previewItem.itemID);
 	}
 
 	private void OnRemoveFromMarketplace(bool success)

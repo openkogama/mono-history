@@ -18,7 +18,7 @@ internal class ESWalkMode : ESStateBase
 		if (!teamManager.IsTeamActive(team))
 		{
 			List<MVTeam> teamList = teamManager.GetTeamList();
-			MVGameControllerBase.OperationRequests.SetTeam(teamList[0]);
+			MVGameControllerBase.Game.SetTeam(teamList[0]);
 		}
 		MVGameControllerDesktop.LockCursorManager.LockCursor = true;
 		MVGameControllerBase.WOCM.AvatarLocal.Body.AccessoryMoveOverride = true;
@@ -48,7 +48,7 @@ internal class ESWalkMode : ESStateBase
 		MVGameControllerBase.WOCM.AvatarLocal.Body.AccessoryMoveOverride = false;
 		if (MVGameControllerBase.Game.GameCoinManager.BoostEnabled)
 		{
-			MVGameControllerBase.OperationRequests.SetGameCoinBoostState(gameCoinBoosterEnabled: false);
+			MVGameControllerBase.Game.SetGameCoinBoostState(gameCoinBoosterEnabled: false);
 		}
 		Cursor.visible = true;
 	}

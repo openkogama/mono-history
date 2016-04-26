@@ -15,9 +15,6 @@ public class DesktopCubeModelingController : MonoBehaviour
 	[SerializeField]
 	private AudioSource screenShotSound;
 
-	[SerializeField]
-	private Sprite errorSprite;
-
 	public void Initialize(CubeModelingStateMachine cubeModelingStateMachine)
 	{
 		desktopCubeModelingController.Initialize(cubeModelingStateMachine);
@@ -40,7 +37,10 @@ public class DesktopCubeModelingController : MonoBehaviour
 		}
 		else
 		{
-			NotificationController.PushNotification(TM._("You must be the owner in order to publish game!"), errorSprite, 3);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+			{
+				x.Create(TM._("You must be the owner in order to publish game!"), string.Empty);
+			});
 		}
 	}
 
@@ -58,7 +58,7 @@ public class DesktopCubeModelingController : MonoBehaviour
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnPublishedPlanet = (UnityAction<string>)Delegate.Combine(game.OnPublishedPlanet, new UnityAction<string>(OnPublishPlanetFinished));
 		string errorText = string.Empty;
-		if (!MVGameControllerBase.OperationRequests.PublishPlanet(ref errorText))
+		if (!MVGameControllerBase.Game.PublishPlanet(ref errorText))
 		{
 			MVNetworkGame game2 = MVGameControllerBase.Game;
 			game2.OnPublishedPlanet = (UnityAction<string>)Delegate.Remove(game2.OnPublishedPlanet, new UnityAction<string>(OnPublishPlanetFinished));
@@ -81,7 +81,10 @@ public class DesktopCubeModelingController : MonoBehaviour
 		{
 			x.Pop();
 		});
-		NotificationController.PushNotification(completionMessage);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+		{
+			x.Create(completionMessage, string.Empty);
+		});
 	}
 
 	public void TakeScreenshot()
@@ -93,11 +96,14 @@ public class DesktopCubeModelingController : MonoBehaviour
 				x.Create();
 			});
 			MVGameControllerBase.Game.ScreenshotUploaded += OnScreenShotUploaded;
-			MVGameControllerBase.OperationRequests.UploadGameScreenShot();
+			MVGameControllerBase.Game.UploadGameScreenShot();
 		}
 		else
 		{
-			NotificationController.PushNotification(TM._("You must be the owner in order to take a screenshot!"), errorSprite, 3);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+			{
+				x.Create(TM._("You must be the owner in order to take a screenshot!"), string.Empty);
+			});
 		}
 	}
 

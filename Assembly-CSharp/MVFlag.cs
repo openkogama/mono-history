@@ -72,7 +72,7 @@ public class MVFlag : MVLogicObject
 
 	private bool DoCaptureFlag(int instigator)
 	{
-		MVGameControllerBase.OperationRequests.ReportCaptureFlag();
+		MVGameControllerBase.Game.ReportCaptureFlag();
 		return true;
 	}
 

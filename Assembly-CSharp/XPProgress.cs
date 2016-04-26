@@ -2,7 +2,6 @@ using System;
 using MV.Common;
 using Newtonsoft.Json;
 using UnityEngine;
-using UnityEngine.Events;
 
 public class XPProgress
 {
@@ -19,7 +18,7 @@ public class XPProgress
 	public XPProgress(MVLocalPlayer player, InitialLevelData initialLevelData)
 	{
 		xpProgressData = new XPProgressData(initialLevelData.XP, initialLevelData.XPLevelLimits);
-		player.OnLevelChanged = (UnityAction<int>)Delegate.Combine(player.OnLevelChanged, new UnityAction<int>(UpdateLevel));
+		player.OnLevelChanged = (MVPlayer.OnLevelChangedDelegate)Delegate.Combine(player.OnLevelChanged, new MVPlayer.OnLevelChangedDelegate(UpdateLevel));
 	}
 
 	public void Update(int xp, byte xpId)

@@ -94,11 +94,11 @@ public class UseLever : MVLogicObject
 		isActivated = !isActivated;
 		if (isActivated)
 		{
-			MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, userWoID);
+			MVGameControllerBase.Game.TriggerBoxEnter(Id, userWoID);
 		}
 		else
 		{
-			MVGameControllerBase.OperationRequests.TriggerBoxExit(Id, userWoID);
+			MVGameControllerBase.Game.TriggerBoxExit(Id, userWoID);
 		}
 		return true;
 	}
@@ -137,11 +137,11 @@ public class UseLever : MVLogicObject
 		{
 			if (isActivated)
 			{
-				MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, avatarLocal.Id);
+				MVGameControllerBase.Game.TriggerBoxEnter(Id, avatarLocal.Id);
 			}
 			else
 			{
-				MVGameControllerBase.OperationRequests.TriggerBoxExit(Id, avatarLocal.Id);
+				MVGameControllerBase.Game.TriggerBoxExit(Id, avatarLocal.Id);
 			}
 		}
 	}

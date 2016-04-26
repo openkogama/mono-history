@@ -22,7 +22,7 @@ public class AccessoryUnEquip : MonoBehaviour
 	public void UnEquip()
 	{
 		int accessoryID = AvatarBody.GetAccessoryID(avatarAccessorySlot);
-		MVGameControllerBase.OperationRequests.SetAvatarAccessorySlot(AvatarBody.Id, accessoryID, AvatarAccessorySlot.Undefined, 0f);
+		MVGameControllerBase.Game.SetAvatarAccessorySlot(AvatarBody.Id, accessoryID, AvatarAccessorySlot.Undefined, 0f);
 	}
 
 	private void OnDestroy()

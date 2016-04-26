@@ -180,7 +180,7 @@ public class MVCollectible : MVLogicObject
 	{
 		if (collectibleObject.WorldObjectEnableController.EnableState == EnableState.Enable && isVisible)
 		{
-			MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, e.instigatorWOID);
+			MVGameControllerBase.Game.TriggerBoxEnter(Id, e.instigatorWOID);
 		}
 	}
 

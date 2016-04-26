@@ -110,10 +110,6 @@ public class PlayerLists : MonoBehaviour
 			}
 			dictionary.Add(team, playerList);
 		}
-		if (teams.Count <= 0)
-		{
-			return;
-		}
 		Dictionary<MVTeam, List<MVPlayer>> sortedTeamLists = GetSortedTeamLists(players, teams);
 		foreach (KeyValuePair<MVTeam, List<MVPlayer>> item in sortedTeamLists)
 		{

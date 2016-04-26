@@ -1,17 +1,16 @@
 using MV.WorldObject;
-using UnityEngine.Events;
 
 public class MVPlayer
 {
+	public delegate void OnLevelChangedDelegate(int level);
+
 	private int checkpointWOID = -1;
 
 	protected int level = 1;
 
 	private MVTeam team;
 
-	public UnityAction<int> OnLevelChanged;
-
-	public UnityAction OnCheckpointReached;
+	public OnLevelChangedDelegate OnLevelChanged;
 
 	private MVAvatar _avatar;
 
@@ -92,11 +91,6 @@ public class MVPlayer
 		if (MVGameControllerBase.WOCM.IsType(woid, WorldObjectType.CheckPoint))
 		{
 			checkpointWOID = woid;
-			if (OnCheckpointReached != null)
-			{
-				OnCheckpointReached();
-			}
-			NotificationController.PushNotification(TM._("Reached new checkpoint!"));
 		}
 	}
 

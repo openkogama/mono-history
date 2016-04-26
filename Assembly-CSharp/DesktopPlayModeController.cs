@@ -24,9 +24,6 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IEvent
 	private RectTransform playerListButton;
 
 	[SerializeField]
-	private RectTransform notificationsManager;
-
-	[SerializeField]
 	private GameObject stackBottom;
 
 	[SerializeField]
@@ -38,12 +35,7 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IEvent
 	[SerializeField]
 	private LevelBadge levelBadge;
 
-	[SerializeField]
-	private Sprite mysteryBoxIcon;
-
 	public UnityAction OnLeaveEditPlayMode;
-
-	private bool rewardReady;
 
 	public ILockCursorManager LockCursorManager => lockCursorManager;
 
@@ -83,23 +75,6 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IEvent
 	{
 		HandleFpsShortcut();
 		HandleInput();
-		HandleMysteryBoxNotification();
-	}
-
-	private void HandleMysteryBoxNotification()
-	{
-		if (RewardManager.NumberOfPendingRewards > 0)
-		{
-			if (!rewardReady)
-			{
-				rewardReady = true;
-				NotificationController.PushNotification(TM._("Spin Available!"), 1f, mysteryBoxIcon, 3);
-			}
-		}
-		else
-		{
-			rewardReady = false;
-		}
 	}
 
 	private void HandleInput()
@@ -204,8 +179,6 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IEvent
 		playerListButton.transform.SetParent(stackBottom.transform, worldPositionStays: false);
 		levelBadge = UnityEngine.Object.Instantiate(levelBadge);
 		levelBadge.transform.SetParent(stackBottom.transform, worldPositionStays: false);
-		notificationsManager = UnityEngine.Object.Instantiate(notificationsManager);
-		notificationsManager.transform.SetParent(stackBottom.transform, worldPositionStays: false);
 	}
 
 	private void LobbyStateChange(bool cursorLocked)

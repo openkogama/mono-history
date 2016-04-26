@@ -71,7 +71,7 @@ public abstract class MVPickupOwner : MVComponent
 		}
 		if (flag && Time.time - prevUpdateLineOfFireTime > 0.5f)
 		{
-			MVGameControllerBase.OperationRequests.UpdateLineOfFire(worldObjectParent.Id, lookDirection, lookOrigin);
+			MVGameControllerBase.Game.UpdateLineOfFire(worldObjectParent.Id, lookDirection, lookOrigin);
 			prevUpdateLineOfFireTime = Time.time;
 		}
 	}

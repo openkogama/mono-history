@@ -110,11 +110,9 @@ public class AndroidChatController : MonoBehaviour
 		{
 		case ChatConsoleMode.ChatLobbyMode:
 		case ChatConsoleMode.ChatPlayMode:
-			enterChatButton.SetScrollingEnabled(scrollEnabled: true);
 			inputAreaRoot.gameObject.SetActive(!MVGameControllerBase.IsTouristSession);
 			break;
 		case ChatConsoleMode.PlayMode:
-			enterChatButton.SetScrollingEnabled(scrollEnabled: false);
 			inputAreaRoot.gameObject.SetActive(value: false);
 			break;
 		}

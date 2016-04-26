@@ -52,7 +52,7 @@ public class AccessoryInventoryViewItem : MonoBehaviour
 			{
 				x.Push(purchasePopup.gameObject, UIPushOption.Blocking, OnPurchasePopupPop);
 			});
-			purchasePopup.Initialize(streamingAssetInfo, image.texture);
+			purchasePopup.Initialize(streamingAssetInfo, image);
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IPreviewAccessoryShopItem x, BaseEventData y) =>
 			{
 				x.PreviewAccessoryShopItem(streamingAssetInfo);

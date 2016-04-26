@@ -46,7 +46,7 @@ public class AvatarSelectionController : MonoBehaviour, IEventSystemHandler, IAv
 	{
 		CurrentlySelectedSlotIndex = slotIndex;
 		avatarBodyController.SetCurrentBody(slotIndex);
-		MVGameControllerBase.OperationRequests.SetActiveAvatar(avatarBodyController.CurrentBody.Id);
+		MVGameControllerBase.Game.SetActiveAvatar(avatarBodyController.CurrentBody.Id);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAvatarSetBodyGroup x, BaseEventData y) =>
 		{
 			x.SetBodyGroup(avatarBodyController.CurrentBody);

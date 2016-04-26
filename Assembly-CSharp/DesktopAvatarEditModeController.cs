@@ -106,6 +106,7 @@ public class DesktopAvatarEditModeController : ModeControllerBase, ISetEditState
 
 	public void Set(ActiveEditStateUI activeUIElements)
 	{
+		Debug.Log("ActiveUIElements " + activeUIElements);
 		if ((activeUIElements & ActiveEditStateUI.CubeModelTools) > ActiveEditStateUI.None)
 		{
 			Debug.Log("Activate cube model gui");

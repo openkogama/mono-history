@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using MV.WorldObject;
 using UnityEngine;
 
-internal class ESBlueprintCreator : ESStateBase
+internal class ESBodyCreator : ESStateBase
 {
 	private enum WaitForGroupsState
 	{
@@ -12,8 +11,6 @@ internal class ESBlueprintCreator : ESStateBase
 		WaitingForGroup,
 		WaitingForTransferWos
 	}
-
-	public static WorldObjectType worldObjectTypeToBeCreated = WorldObjectType.Blueprint;
 
 	private bool abort;
 
@@ -41,24 +38,14 @@ internal class ESBlueprintCreator : ESStateBase
 			e.PopState();
 			return;
 		}
-		foreach (int value in dictionary2.Values)
-		{
-			if (MVGameControllerBase.WOCM.GetWorldObjectClient(value) == null)
-			{
-				Debug.Log("Trying to add a blueprint with non-existant child-id " + value + ". Aborting");
-				e.LockState = false;
-				e.PopState();
-				return;
-			}
-		}
 		lockList = new List<int>();
 		state = WaitForGroupsState.WaitingForLock;
 		MVWorldObjectClientManager wOCM = MVGameControllerBase.WOCM;
 		wOCM.OnHierarchyLockedResponse = (EventHandler<OnHierarchyLockedEventArgs>)Delegate.Combine(wOCM.OnHierarchyLockedResponse, new EventHandler<OnHierarchyLockedEventArgs>(WOCM_OnHierarchyLockedResponse));
-		foreach (int value2 in dictionary2.Values)
+		foreach (int value in dictionary2.Values)
 		{
-			lockList.Add(value2);
-			MVGameControllerBase.Game.LockHierarchy(value2, lockHierarchy: true);
+			lockList.Add(value);
+			MVGameControllerBase.Game.LockHierarchy(value, lockHierarchy: true);
 		}
 		lockCount = lockList.Count;
 	}
@@ -89,9 +76,7 @@ internal class ESBlueprintCreator : ESStateBase
 				break;
 			}
 			MVWorldObjectClientManager wOCM = MVGameControllerBase.WOCM;
-			wOCM.OnTransferWosResponse = (EventHandler<OnTransferWosResponseEventArgs>)Delegate.Remove(wOCM.OnTransferWosResponse, new EventHandler<OnTransferWosResponseEventArgs>(WOCM_OnTransferWosResponse));
-			MVWorldObjectClientManager wOCM2 = MVGameControllerBase.WOCM;
-			wOCM2.OnTransferWosResponse = (EventHandler<OnTransferWosResponseEventArgs>)Delegate.Combine(wOCM2.OnTransferWosResponse, new EventHandler<OnTransferWosResponseEventArgs>(WOCM_OnTransferWosResponse));
+			wOCM.OnTransferWosResponse = (EventHandler<OnTransferWosResponseEventArgs>)Delegate.Combine(wOCM.OnTransferWosResponse, new EventHandler<OnTransferWosResponseEventArgs>(WOCM_OnTransferWosResponse));
 			MVGameControllerBase.Game.TransferWorldObjectsToGroup(createGroupId, lockList.ToArray());
 			foreach (int @lock in lockList)
 			{
@@ -119,17 +104,19 @@ internal class ESBlueprintCreator : ESStateBase
 		wOCM.OnTransferWosResponse = (EventHandler<OnTransferWosResponseEventArgs>)Delegate.Remove(wOCM.OnTransferWosResponse, new EventHandler<OnTransferWosResponseEventArgs>(WOCM_OnTransferWosResponse));
 	}
 
-	private void CreateGroup(EditorStateMachine e)
+	private void WOCM_OnTransferWosToAvatarResponse(object sender, OnTransferWosResponseEventArgs e)
 	{
-		List<MVWorldObjectClient> woList = lockList.Select((int woId) => MVGameControllerBase.WOCM.GetWorldObjectClient(woId)).ToList();
-		Bounds bounds = MVGroup.ComputeBoundsForWOs(woList, BoundsContext.Default);
-		float gridSize = ((!MVGameControllerBase.IEditModeUI.IsGridSnap()) ? 0.0625f : 1f);
-		Vector3 closestGridPoint = SharedCubeFunctions.GetClosestGridPoint(bounds.center, Quaternion.identity, gridSize, Vector3.one);
+		responseReceived = true;
+		MVWorldObjectClientManager wOCM = MVGameControllerBase.WOCM;
+		wOCM.OnTransferWosResponse = (EventHandler<OnTransferWosResponseEventArgs>)Delegate.Remove(wOCM.OnTransferWosResponse, new EventHandler<OnTransferWosResponseEventArgs>(WOCM_OnTransferWosToAvatarResponse));
+	}
+
+	public void CreateGroup(EditorStateMachine e)
+	{
 		World world = MVGameControllerBase.Game.World;
-		world.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Remove(world.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(WOCM_InitializedGameQueryData));
-		World world2 = MVGameControllerBase.Game.World;
-		world2.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Combine(world2.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(WOCM_InitializedGameQueryData));
-		MVGameControllerBase.Game.RegisterWorldObject(worldObjectTypeToBeCreated, e.ParentGroupID, woData, closestGridPoint, Quaternion.identity, Vector3.one, localOwner: true, transferOwnershipToServerOnLeave: true);
+		world.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Combine(world.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(WOCM_InitializedGameQueryData));
+		int id = MVGameControllerBase.WOCM.RootGroup.Id;
+		MVGameControllerBase.Game.RegisterWorldObject(WorldObjectType.Blueprint, id, woData, new Vector3(-6f, 12f, -4f), Quaternion.identity, Vector3.one, localOwner: true, transferOwnershipToServerOnLeave: true);
 	}
 
 	private void WOCM_InitializedGameQueryData(object sender, InitializedGameQueryDataEventArgs e)

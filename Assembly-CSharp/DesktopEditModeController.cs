@@ -57,7 +57,7 @@ public class DesktopEditModeController : ModeControllerBase, IEditModeUI, ISetEd
 	private CreateCubeModelController createCubeModelController;
 
 	[SerializeField]
-	private RectTransform notificationsManager;
+	private DevController devControllerPrefab;
 
 	public bool IsInPlayInEditMode => isInPlayInEditMode;
 
@@ -147,8 +147,6 @@ public class DesktopEditModeController : ModeControllerBase, IEditModeUI, ISetEd
 		desktopPlayModeController.Initialize();
 		MVGameControllerBase.WOCM.AvatarLocal.Body.AccessoryMoveOverride = false;
 		MVGameControllerBase.WOCM.RootGroup.PlayModeInitialize();
-		notificationsManager = UnityEngine.Object.Instantiate(notificationsManager);
-		notificationsManager.transform.SetParent(stackBottom.transform, worldPositionStays: false);
 	}
 
 	public void SetState(EditorEvent editorEvent)

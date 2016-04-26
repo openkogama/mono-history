@@ -9,22 +9,12 @@ public class ConsoleDragAndTapHandler : MonoBehaviour, IBeginDragHandler, IEndDr
 
 	private bool dragging;
 
-	private bool scrollingEnabled = true;
-
 	[SerializeField]
 	private ScrollRect scrollRect;
 
-	public void SetScrollingEnabled(bool scrollEnabled)
-	{
-		scrollingEnabled = scrollEnabled;
-	}
-
 	public void OnDrag(PointerEventData eventData)
 	{
-		if (scrollingEnabled)
-		{
-			scrollRect.OnDrag(eventData);
-		}
+		scrollRect.OnDrag(eventData);
 	}
 
 	public void OnBeginDrag(PointerEventData eventData)

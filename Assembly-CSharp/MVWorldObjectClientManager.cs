@@ -550,12 +550,12 @@ public abstract class MVWorldObjectClientManager
 			Debug.LogWarning("trying to unregister none existing worldobject");
 			return false;
 		}
-		MVGameControllerBase.OperationRequests.UnregisterWorldObject(worldObjectId);
+		MVGameControllerBase.Game.UnregisterWorldObject(worldObjectId);
 		return true;
 	}
 
 	public void CloneWorldObjectTree(MVWorldObjectClient root, bool localOwner, bool setAsPreviewItem, bool cloneToRootGroup)
 	{
-		MVGameControllerBase.OperationRequests.CloneWorldObjectTree(root, localOwner, setAsPreviewItem, cloneToRootGroup);
+		MVGameControllerBase.Game.CloneWorldObjectTree(root, localOwner, setAsPreviewItem, cloneToRootGroup);
 	}
 }

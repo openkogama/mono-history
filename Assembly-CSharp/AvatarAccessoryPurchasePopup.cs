@@ -21,9 +21,9 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 	[SerializeField]
 	private GameObject waitOverLay;
 
-	public void Initialize(StreamingAssetInfo streamingAssetInfo, Texture previewImage)
+	public void Initialize(StreamingAssetInfo streamingAssetInfo, RawImage previewImage)
 	{
-		preview.texture = previewImage;
+		preview.texture = previewImage.texture;
 		this.streamingAssetInfo = streamingAssetInfo;
 		accessoryName.text = streamingAssetInfo.Name;
 		goldPrice.text = streamingAssetInfo.ShopInfo.PriceGold.ToString();
@@ -34,7 +34,7 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 		waitOverLay.SetActive(value: true);
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Combine(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
-		MVGameControllerBase.OperationRequests.PurchaseAvatarAccessory(streamingAssetInfo.ProductID);
+		MVGameControllerBase.Game.PurchaseAvatarAccessory(streamingAssetInfo.ProductID);
 	}
 
 	private void ProductPurchaseResponseHandler(int returnCode, Dictionary<object, object> purchaseResponseData)

@@ -87,7 +87,7 @@ public class RuntimeEventManager
 	{
 		if (HandleEvent(explosion))
 		{
-			MVGameControllerBase.OperationRequests.SendRuntimeEventOperation(explosion);
+			MVGameControllerBase.Game.SendRuntimeEventOperation(explosion);
 		}
 	}
 
@@ -144,7 +144,7 @@ public class RuntimeEventManager
 			{
 				singleCubeFineGrainedEvent.OverrideRuntimeType(RuntimeEventType.FineGrainedSingleCubeRemovedAddedFineGrainedCube);
 			}
-			MVGameControllerBase.OperationRequests.SendRuntimeEventOperation(singleCubeFineGrainedEvent);
+			MVGameControllerBase.Game.SendRuntimeEventOperation(singleCubeFineGrainedEvent);
 		}
 	}
 

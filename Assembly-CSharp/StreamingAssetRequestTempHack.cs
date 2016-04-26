@@ -88,7 +88,7 @@ public class StreamingAssetRequestTempHack : CachedGetRequest
 		WWW wWW;
 		if (MVGameControllerBase.VersionStreamingAssets >= 0)
 		{
-			wWW = (AsyncWebRequest.useCaching ? WWW.LoadFromCacheOrDownload(path + "?version=" + MVGameControllerBase.VersionStreamingAssets, MVGameControllerBase.VersionStreamingAssets) : new WWW(path + "?version=" + MVGameControllerBase.VersionStreamingAssets));
+			wWW = ((!AsyncWebRequest.UseCaching) ? new WWW(path + "?version=" + MVGameControllerBase.VersionStreamingAssets) : WWW.LoadFromCacheOrDownload(path + "?version=" + MVGameControllerBase.VersionStreamingAssets, MVGameControllerBase.VersionStreamingAssets));
 		}
 		else
 		{

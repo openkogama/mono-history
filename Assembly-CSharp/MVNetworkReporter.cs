@@ -78,7 +78,7 @@ public class MVNetworkReporter(MVWorldObjectClient owner) : MVNetworkObject(owne
 			stopPackageSent = false;
 		}
 		prevSendTransformData = sendTransformData;
-		MVGameControllerBase.OperationRequests.UpdateWorldObject(WorldObject.Id, WorldObject.Position, rotation, packageType);
+		game.UpdateWorldObject(WorldObject.Id, WorldObject.Position, rotation, packageType);
 		WorldObject.State = MVWorldObjectState.Synced;
 		lastUpdateTimestamp = game.ServerTimeInMilliSeconds;
 	}
@@ -88,7 +88,7 @@ public class MVNetworkReporter(MVWorldObjectClient owner) : MVNetworkObject(owne
 		Dictionary<object, object> dictionary = WorldObject.RuntimeDataVariables.Send();
 		if (dictionary.Count > 0)
 		{
-			MVGameControllerBase.OperationRequests.UpdateWorldObjectRunTimeData(WorldObject.Id, dictionary);
+			game.UpdateWorldObjectRunTimeData(WorldObject.Id, dictionary);
 		}
 	}
 }

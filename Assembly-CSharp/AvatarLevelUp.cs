@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.Events;
 
 public class AvatarLevelUp : MonoBehaviour
 {
@@ -19,7 +18,7 @@ public class AvatarLevelUp : MonoBehaviour
 	{
 		this.ownerActorNr = ownerActorNr;
 		MVPlayer mVPlayer = MVGameControllerBase.Game.Players[ownerActorNr];
-		mVPlayer.OnLevelChanged = (UnityAction<int>)Delegate.Combine(mVPlayer.OnLevelChanged, new UnityAction<int>(OnLevelChanged));
+		mVPlayer.OnLevelChanged = (MVPlayer.OnLevelChangedDelegate)Delegate.Combine(mVPlayer.OnLevelChanged, new MVPlayer.OnLevelChangedDelegate(OnLevelChanged));
 		ScaleAnimation scaleAnimation = this.scaleAnimation;
 		scaleAnimation.OnScaleAnimationStopped = (ScaleAnimationBase.OnScaleAnimationStoppedDelegate)Delegate.Combine(scaleAnimation.OnScaleAnimationStopped, new ScaleAnimationBase.OnScaleAnimationStoppedDelegate(OnScaleAnimationStopped));
 	}
@@ -44,7 +43,7 @@ public class AvatarLevelUp : MonoBehaviour
 		if (MVGameControllerBase.Game != null && MVGameControllerBase.Game.Players.ContainsKey(ownerActorNr))
 		{
 			MVPlayer mVPlayer = MVGameControllerBase.Game.Players[ownerActorNr];
-			mVPlayer.OnLevelChanged = (UnityAction<int>)Delegate.Remove(mVPlayer.OnLevelChanged, new UnityAction<int>(OnLevelChanged));
+			mVPlayer.OnLevelChanged = (MVPlayer.OnLevelChangedDelegate)Delegate.Remove(mVPlayer.OnLevelChanged, new MVPlayer.OnLevelChangedDelegate(OnLevelChanged));
 		}
 		if (this.scaleAnimation != null)
 		{

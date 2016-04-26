@@ -65,7 +65,7 @@ public class MVPressurePlate : MVLogicObject
 			ObscuredInt obscuredInt = (ObscuredInt)RunTimeData.GetObscuredType("instigator");
 			if ((int)obscuredInt != 0)
 			{
-				MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, obscuredInt);
+				MVGameControllerBase.Game.TriggerBoxEnter(Id, obscuredInt);
 			}
 		}
 		SetVisibility();
@@ -127,13 +127,13 @@ public class MVPressurePlate : MVLogicObject
 
 	private bool DoEnter(int instigatorWOID)
 	{
-		MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, instigatorWOID);
+		MVGameControllerBase.Game.TriggerBoxEnter(Id, instigatorWOID);
 		return true;
 	}
 
 	private void DoExit(int instigatorWOID)
 	{
-		MVGameControllerBase.OperationRequests.TriggerBoxExit(Id, instigatorWOID);
+		MVGameControllerBase.Game.TriggerBoxExit(Id, instigatorWOID);
 	}
 
 	public void OnStayBegin(int actorNr)

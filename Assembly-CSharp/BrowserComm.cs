@@ -127,14 +127,14 @@ public class BrowserComm : MonoBehaviour
 	{
 		if (MVGameControllerBase.JoinState == MVJoinState.Playing && MVGameControllerBase.GameMode == MVGameMode.Edit)
 		{
-			MVGameControllerBase.OperationRequests.UploadGameScreenShot();
+			MVGameControllerBase.Game.UploadGameScreenShot();
 		}
 	}
 
 	public void PublishPlanetFromWeb()
 	{
 		string errorText = string.Empty;
-		MVGameControllerBase.OperationRequests.PublishPlanet(ref errorText);
+		MVGameControllerBase.Game.PublishPlanet(ref errorText);
 	}
 
 	public void GiveBrowserInfo(string browserinfo)
