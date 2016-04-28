@@ -137,7 +137,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 			{
 				accessoryParticlesVisible = value;
 				UpdateVisibility();
-				Game.UpdateWorldObjectDataPartial(Id, "ParticlesVisible", value);
+				MVGameControllerBase.OperationRequests.UpdateWorldObjectDataPartial(Id, "ParticlesVisible", value);
 			}
 		}
 	}
@@ -235,7 +235,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 				return;
 			}
 			string keyPath = "BlueprintData\\" + BlueprintData.AvatarAccessoryData.ToString("d") + "\\" + invID + "\\" + AvatarAccessoryData.AssetPath.ToString("d");
-			Game.UpdateWorldObjectDataPartial(Id, keyPath, assetPath);
+			MVGameControllerBase.OperationRequests.UpdateWorldObjectDataPartial(Id, keyPath, assetPath);
 		}
 	}
 
@@ -331,7 +331,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 			}
 			return true;
 		}
-		Debug.LogError("Trying to add accessory " + acc.InventoryID + " second time!");
+		Debug.LogError("Trying to add accessory a second time!");
 		return false;
 	}
 
@@ -761,7 +761,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		dictionary[AvatarAccessoryData.AssetPath.ToString("d")] = invInfo.ProductInfo.AssetPath;
 		dictionary[AvatarAccessoryData.PurchaseTimeTicks.ToString("d")] = invInfo.PurchaseTime.Ticks;
 		dictionary[AvatarAccessoryData.RentExpireSeconds.ToString("d")] = (invInfo.IsRented ? invInfo.ProductInfo.ShopInfo.RentExpireSeconds : 0);
-		Game.UpdateWorldObjectDataPartial(Id, "BlueprintData\\" + BlueprintData.AvatarAccessoryData.ToString("d") + "\\" + acc.InventoryID, dictionary);
+		MVGameControllerBase.OperationRequests.UpdateWorldObjectDataPartial(Id, "BlueprintData\\" + BlueprintData.AvatarAccessoryData.ToString("d") + "\\" + acc.InventoryID, dictionary);
 	}
 
 	private void RemoveFromBPData(AvatarAccessory acc)
@@ -775,7 +775,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		if (dictionary != null && dictionary.ContainsKey(acc.InventoryID.ToString()))
 		{
 			dictionary.Remove(acc.InventoryID.ToString());
-			Game.RemoveWorldObjectDataPartial(Id, "BlueprintData\\" + BlueprintData.AvatarAccessoryData.ToString("d") + "\\" + acc.InventoryID);
+			MVGameControllerBase.OperationRequests.RemoveWorldObjectDataPartial(Id, "BlueprintData\\" + BlueprintData.AvatarAccessoryData.ToString("d") + "\\" + acc.InventoryID);
 		}
 	}
 

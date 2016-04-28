@@ -10,6 +10,8 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 {
 	public delegate void OnReceivedGameMsgDelegate(MVGameMsgType type, Dictionary<object, object> gameMsgData);
 
+	public delegate void OnReceivedNotificationEventDelegate(NotificationType type, Dictionary<object, object> data);
+
 	public delegate void OnPostGameInitDelegate();
 
 	private static bool quitHasBeenCalled;
@@ -54,6 +56,8 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	public static OnReceivedGameMsgDelegate OnReceivedGameMsg;
 
+	public static OnReceivedNotificationEventDelegate OnReceivedNotification;
+
 	public static OnPostGameInitDelegate OnPostGameInit;
 
 	public static bool LevelingTestMode;
@@ -87,6 +91,8 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	public static bool UsingDevSessionData => customBuildSettings.ShowLogin || Application.isEditor;
 
 	public static MVNetworkGame Game { get; private set; }
+
+	public static MVNetworkGame.OperationRequests OperationRequests => Game.OperationRequestSender;
 
 	public static GameSessionData GameSessionData => gameSessionData;
 

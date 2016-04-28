@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GrowthModifier : MouseModifier
+public class GrowthModifier : SizeModifier
 {
 	public override AvatarModifierPackageType ModifierType => AvatarModifierPackageType.Enlarged;
 

@@ -55,7 +55,6 @@ public class PlayerLists : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		Debug.Log("OnDestroy PlayerLists");
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.onPlayerListChanged = (MVNetworkGame.OnPlayerListChangedDelegate)Delegate.Remove(game.onPlayerListChanged, new MVNetworkGame.OnPlayerListChangedDelegate(ReCreate));
 		FriendList friends = MVGameControllerBase.Game.Friends;
@@ -109,6 +108,10 @@ public class PlayerLists : MonoBehaviour
 				playerList.Initialize(team, MVGameControllerBase.Game.TeamManager.GetScore(team, GameStatCounterType.Kill));
 			}
 			dictionary.Add(team, playerList);
+		}
+		if (teams.Count <= 0)
+		{
+			return;
 		}
 		Dictionary<MVTeam, List<MVPlayer>> sortedTeamLists = GetSortedTeamLists(players, teams);
 		foreach (KeyValuePair<MVTeam, List<MVPlayer>> item in sortedTeamLists)

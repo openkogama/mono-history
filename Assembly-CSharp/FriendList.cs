@@ -9,7 +9,11 @@ public class FriendList
 {
 	public delegate void OnFriendListUpdatedDelegate();
 
+	public delegate void OnFriendRequestUpdated(Friend friend);
+
 	public OnFriendListUpdatedDelegate OnFriendListUpdated;
+
+	public OnFriendRequestUpdated OnFriendRequestAccepted;
 
 	public UnityAction OnFriendRequestReceived;
 
@@ -99,7 +103,15 @@ public class FriendList
 				}
 				else
 				{
+					if (OnFriendRequestAccepted != null)
+					{
+						OnFriendRequestAccepted(friends[friendID]);
+					}
 					friends[friendID].status = status;
+					Dictionary<object, object> dictionary = new Dictionary<object, object>();
+					dictionary.Add((byte)10, friends[friendID]);
+					Dictionary<object, object> data = dictionary;
+					NotificationController.OnNotificationReceived(NotificationType.FriendRequestAccepted, data);
 				}
 			}
 			else

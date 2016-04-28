@@ -111,7 +111,6 @@ public class JetPackCamera : MVCameraBase
 
 	public override void FocusOnObject(MVWorldObjectClient wo)
 	{
-		Debug.Log("Focus on object");
 		float num = wo.ComputeObjectRadius();
 		float num2 = Camera.main.fieldOfView * 0.5f * 0.6f;
 		float a = num / Mathf.Tan(num2 * ((float)Math.PI / 180f));

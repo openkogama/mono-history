@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 public class AvatarBadge : MonoBehaviour
@@ -28,7 +29,7 @@ public class AvatarBadge : MonoBehaviour
 		}
 		else
 		{
-			LevelingManager.OnLevelingInitialized = (LevelingManager.OnlevelingInitializedDelegate)Delegate.Combine(LevelingManager.OnLevelingInitialized, new LevelingManager.OnlevelingInitializedDelegate(OnLevelingInitialized));
+			LevelingManager.OnLevelingInitialized = (UnityAction)Delegate.Combine(LevelingManager.OnLevelingInitialized, new UnityAction(OnLevelingInitialized));
 		}
 	}
 
@@ -36,7 +37,7 @@ public class AvatarBadge : MonoBehaviour
 	{
 		UpdateBadge(MVGameControllerBase.Game.Players[ownerActorId].Level);
 		MVPlayer mVPlayer = MVGameControllerBase.Game.Players[ownerActorId];
-		mVPlayer.OnLevelChanged = (MVPlayer.OnLevelChangedDelegate)Delegate.Combine(mVPlayer.OnLevelChanged, new MVPlayer.OnLevelChangedDelegate(UpdateBadge));
+		mVPlayer.OnLevelChanged = (UnityAction<int>)Delegate.Combine(mVPlayer.OnLevelChanged, new UnityAction<int>(UpdateBadge));
 	}
 
 	private void UpdateBadge(int level)
@@ -49,12 +50,12 @@ public class AvatarBadge : MonoBehaviour
 	{
 		if (!LevelingManager.IsInitialized)
 		{
-			LevelingManager.OnLevelingInitialized = (LevelingManager.OnlevelingInitializedDelegate)Delegate.Remove(LevelingManager.OnLevelingInitialized, new LevelingManager.OnlevelingInitializedDelegate(OnLevelingInitialized));
+			LevelingManager.OnLevelingInitialized = (UnityAction)Delegate.Remove(LevelingManager.OnLevelingInitialized, new UnityAction(OnLevelingInitialized));
 		}
 		if (MVGameControllerBase.Game.Players.ContainsKey(ownerActorId))
 		{
 			MVPlayer mVPlayer = MVGameControllerBase.Game.Players[ownerActorId];
-			mVPlayer.OnLevelChanged = (MVPlayer.OnLevelChangedDelegate)Delegate.Remove(mVPlayer.OnLevelChanged, new MVPlayer.OnLevelChangedDelegate(UpdateBadge));
+			mVPlayer.OnLevelChanged = (UnityAction<int>)Delegate.Remove(mVPlayer.OnLevelChanged, new UnityAction<int>(UpdateBadge));
 		}
 		if (scaleAnimation != null)
 		{

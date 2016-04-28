@@ -90,7 +90,7 @@ public class StarRequirement : UseRequirement
 			{
 				Dictionary<object, object> dictionary = new Dictionary<object, object>();
 				dictionary.Add("starAmount", 0);
-				MVGameControllerBase.Game.RemoveWorldObjectDataPartial(ownerID, dictionary);
+				MVGameControllerBase.OperationRequests.RemoveWorldObjectDataPartial(ownerID, dictionary);
 				Object.Destroy(displayObject.gameObject);
 			}
 		}

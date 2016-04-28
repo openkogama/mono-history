@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class LevelBadge : MonoBehaviour
@@ -20,7 +21,7 @@ public class LevelBadge : MonoBehaviour
 		}
 		else
 		{
-			LevelingManager.OnLevelingInitialized = (LevelingManager.OnlevelingInitializedDelegate)Delegate.Combine(LevelingManager.OnLevelingInitialized, new LevelingManager.OnlevelingInitializedDelegate(OnLevelingInitialized));
+			LevelingManager.OnLevelingInitialized = (UnityAction)Delegate.Combine(LevelingManager.OnLevelingInitialized, new UnityAction(OnLevelingInitialized));
 		}
 	}
 
@@ -28,7 +29,7 @@ public class LevelBadge : MonoBehaviour
 	{
 		UpdateBadge(MVGameControllerBase.Game.LocalPlayer.Level);
 		MVLocalPlayer localPlayer = MVGameControllerBase.Game.LocalPlayer;
-		localPlayer.OnLevelChanged = (MVPlayer.OnLevelChangedDelegate)Delegate.Combine(localPlayer.OnLevelChanged, new MVPlayer.OnLevelChangedDelegate(UpdateBadge));
+		localPlayer.OnLevelChanged = (UnityAction<int>)Delegate.Combine(localPlayer.OnLevelChanged, new UnityAction<int>(UpdateBadge));
 		UpdateProgress(MVGameControllerBase.Game.LocalPlayer.XPProgressData);
 		MVLocalPlayer localPlayer2 = MVGameControllerBase.Game.LocalPlayer;
 		localPlayer2.OnXPProgressData = (XPProgress.OnXPProgressDataDelegate)Delegate.Combine(localPlayer2.OnXPProgressData, new XPProgress.OnXPProgressDataDelegate(UpdateProgress));

@@ -210,13 +210,10 @@ public class ChatControllerUGUI : MonoBehaviour
 			AddJoinFlowStatusLine(message);
 			break;
 		case MVGameMsgType.AvatarKilled:
-			AddKillMessage(message);
 			break;
 		case MVGameMsgType.UserJoined:
-			JoinMessage(message);
 			break;
 		case MVGameMsgType.UserLeft:
-			LeaveMessage(message);
 			break;
 		case MVGameMsgType.CollectiblePickedUp:
 			Debug.LogWarning("Not showing CollectiblePickedUp line");

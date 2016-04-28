@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class LevelRequirementPanel : MonoBehaviour
@@ -16,7 +17,7 @@ public class LevelRequirementPanel : MonoBehaviour
 		desiredLevel = level;
 		if (!LevelingManager.IsInitialized)
 		{
-			LevelingManager.OnLevelingInitialized = (LevelingManager.OnlevelingInitializedDelegate)Delegate.Combine(LevelingManager.OnLevelingInitialized, new LevelingManager.OnlevelingInitializedDelegate(OnLevelingIsReady));
+			LevelingManager.OnLevelingInitialized = (UnityAction)Delegate.Combine(LevelingManager.OnLevelingInitialized, new UnityAction(OnLevelingIsReady));
 		}
 		else
 		{
@@ -26,7 +27,7 @@ public class LevelRequirementPanel : MonoBehaviour
 
 	private void OnLevelingIsReady()
 	{
-		LevelingManager.OnLevelingInitialized = (LevelingManager.OnlevelingInitializedDelegate)Delegate.Remove(LevelingManager.OnLevelingInitialized, new LevelingManager.OnlevelingInitializedDelegate(OnLevelingIsReady));
+		LevelingManager.OnLevelingInitialized = (UnityAction)Delegate.Remove(LevelingManager.OnLevelingInitialized, new UnityAction(OnLevelingIsReady));
 		SetLevelBadge();
 	}
 

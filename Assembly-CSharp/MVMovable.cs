@@ -152,7 +152,7 @@ public class MVMovable : MVBlueprintBase
 			blueprintData["Distance"] = distance;
 			if (syncServer)
 			{
-				MVGameControllerBase.Game.UpdateWorldObjectDataPartial(Id, GetParamPath("Distance"), distance);
+				MVGameControllerBase.OperationRequests.UpdateWorldObjectDataPartial(Id, GetParamPath("Distance"), distance);
 			}
 		}
 		RecalcTimeToEnd();
@@ -166,7 +166,7 @@ public class MVMovable : MVBlueprintBase
 			blueprintData["Rotation"] = orgRotation.eulerAngles.ToSerializeString();
 			if (syncServer)
 			{
-				MVGameControllerBase.Game.UpdateWorldObjectDataPartial(Id, GetParamPath("Rotation"), orgRotation);
+				MVGameControllerBase.OperationRequests.UpdateWorldObjectDataPartial(Id, GetParamPath("Rotation"), orgRotation);
 			}
 		}
 	}
@@ -179,7 +179,7 @@ public class MVMovable : MVBlueprintBase
 			blueprintData["Velocity"] = velocity.ToSerializeString();
 			if (syncServer)
 			{
-				MVGameControllerBase.Game.UpdateWorldObjectDataPartial(Id, GetParamPath("Velocity"), velocity);
+				MVGameControllerBase.OperationRequests.UpdateWorldObjectDataPartial(Id, GetParamPath("Velocity"), velocity);
 			}
 		}
 		RecalcTimeToEnd();
@@ -193,7 +193,7 @@ public class MVMovable : MVBlueprintBase
 			blueprintData["AngularDirection"] = angularDirection.ToSerializeString();
 			if (syncServer)
 			{
-				MVGameControllerBase.Game.UpdateWorldObjectDataPartial(Id, GetParamPath("AngularDirection"), angularDirection);
+				MVGameControllerBase.OperationRequests.UpdateWorldObjectDataPartial(Id, GetParamPath("AngularDirection"), angularDirection);
 			}
 		}
 	}
@@ -206,7 +206,7 @@ public class MVMovable : MVBlueprintBase
 			blueprintData["AngularSpeed"] = angularSpeed;
 			if (syncServer)
 			{
-				MVGameControllerBase.Game.UpdateWorldObjectDataPartial(Id, GetParamPath("AngularSpeed"), angularSpeed);
+				MVGameControllerBase.OperationRequests.UpdateWorldObjectDataPartial(Id, GetParamPath("AngularSpeed"), angularSpeed);
 			}
 		}
 	}
@@ -241,7 +241,7 @@ public class MVMovable : MVBlueprintBase
 			blueprintData["ParentMoverID"] = parentMoverID;
 			if (syncServer)
 			{
-				MVGameControllerBase.Game.UpdateWorldObjectDataPartial(Id, GetParamPath("ParentMoverID"), parentMoverID);
+				MVGameControllerBase.OperationRequests.UpdateWorldObjectDataPartial(Id, GetParamPath("ParentMoverID"), parentMoverID);
 			}
 		}
 	}
@@ -250,7 +250,7 @@ public class MVMovable : MVBlueprintBase
 	{
 		Dictionary<object, object> dictionary = new Dictionary<object, object>();
 		dictionary["BlueprintData"] = blueprintData;
-		MVGameControllerBase.Game.UpdateWorldObjectDataPartial(Id, dictionary);
+		MVGameControllerBase.OperationRequests.UpdateWorldObjectDataPartial(Id, dictionary);
 	}
 
 	private void ReadWOData()

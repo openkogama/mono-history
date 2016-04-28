@@ -22,7 +22,7 @@ public class EditModeRepositoryController : MonoBehaviour
 		currentlyBuyingItem = item;
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Combine(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
-		MVGameControllerBase.Game.UnlockClientShopInventoryItem(item.itemID);
+		MVGameControllerBase.OperationRequests.UnlockClientShopInventoryItem(item.itemID);
 	}
 
 	public void ProductPurchaseResponseHandler(int returnCode, Dictionary<object, object> data)

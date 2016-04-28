@@ -230,7 +230,7 @@ public class PlayerInventoryController : MonoBehaviour, IEventSystemHandler, IPl
 			inventoryItem.slotPosition = to;
 			Dictionary<object, object> dictionary = new Dictionary<object, object>();
 			dictionary.Add(inventoryItem.itemID, to);
-			MVGameControllerBase.Game.UpdateInventorySlots(dictionary);
+			MVGameControllerBase.OperationRequests.UpdateInventorySlots(dictionary);
 		}
 		else if (inventoryItem2.isDefaultInvItem)
 		{
@@ -243,7 +243,7 @@ public class PlayerInventoryController : MonoBehaviour, IEventSystemHandler, IPl
 			Dictionary<object, object> dictionary2 = new Dictionary<object, object>();
 			dictionary2.Add(inventoryItem.itemID, to);
 			dictionary2.Add(inventoryItem2.itemID, from);
-			MVGameControllerBase.Game.UpdateInventorySlots(dictionary2);
+			MVGameControllerBase.OperationRequests.UpdateInventorySlots(dictionary2);
 		}
 	}
 

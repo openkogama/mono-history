@@ -194,7 +194,7 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 		}
 		attachState = new DetachState();
 		Debug.Log("Detaching from vehicle");
-		MVGameControllerBase.Game.DetachWorldObjectFromVehicle(worldObjectID);
+		MVGameControllerBase.OperationRequests.DetachWorldObjectFromVehicle(worldObjectID);
 		vehicleID = localObject.Id;
 		return true;
 	}
@@ -229,7 +229,7 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 			return false;
 		}
 		attachState = new AttachState(worldObjectID);
-		MVGameControllerBase.Game.AttachWorldObjectToSeat(seatOwnerWoID, worldObjectID, seatBase);
+		MVGameControllerBase.OperationRequests.AttachWorldObjectToSeat(seatOwnerWoID, worldObjectID, seatBase);
 		return true;
 	}
 
@@ -246,7 +246,7 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 			return false;
 		}
 		attachState = new AttachState(worldObjectID);
-		MVGameControllerBase.Game.SpawnVehicleWithDriver(worldObjectSpawnerVehicleID, worldObjectID, seatBase);
+		MVGameControllerBase.OperationRequests.SpawnVehicleWithDriver(worldObjectSpawnerVehicleID, worldObjectID, seatBase);
 		return true;
 	}
 

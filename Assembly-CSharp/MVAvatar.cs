@@ -170,6 +170,11 @@ public class MVAvatar : MVGroup
 	public override void AddChild(MVWorldObjectClient child)
 	{
 		base.AddChild(child);
+		Debug.Log("new body child " + child);
+		if (body != null)
+		{
+			body.Detach();
+		}
 		if (child is MVBody mVBody)
 		{
 			body = mVBody;
@@ -180,6 +185,7 @@ public class MVAvatar : MVGroup
 	public override void TransferChild(int id)
 	{
 		base.TransferChild(id);
+		Debug.Log("Transfer child");
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(id);
 		if (worldObjectClient is MVBody newBody)
 		{
@@ -187,18 +193,21 @@ public class MVAvatar : MVGroup
 		}
 	}
 
-	protected virtual void AttachBody(MVBody newBody)
+	public virtual void AttachBody(MVBody newBody)
 	{
 		if (body != null)
 		{
 			body.Detach();
 		}
-		if (newBody != null)
+		if (newBody == null)
 		{
-			newBody.Position = new Vector3(0f, 0.03f, 0f);
-			newBody.Rotation = Quaternion.identity;
-			newBody.Attach(this, isLocal);
-			body = newBody;
+			Debug.Log("newBody == null");
+			return;
 		}
+		Debug.Log("Created avatar fader");
+		newBody.Position = new Vector3(0f, 0.03f, 0f);
+		newBody.Rotation = Quaternion.identity;
+		newBody.Attach(this, isLocal);
+		body = newBody;
 	}
 }

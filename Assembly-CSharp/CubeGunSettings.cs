@@ -28,7 +28,7 @@ public class CubeGunSettings : MonoBehaviour
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woID);
 		Dictionary<object, object> data = worldObjectClient.Data;
 		((Dictionary<object, object>)data["itemData"])["material"] = materialId;
-		MVGameControllerBase.Game.UpdateWorldObjectDataPartial(worldObjectClient.Id, data);
+		MVGameControllerBase.OperationRequests.UpdateWorldObjectDataPartial(worldObjectClient.Id, data);
 		Destroy();
 	}
 

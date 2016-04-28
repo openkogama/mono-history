@@ -53,7 +53,7 @@ public class MVGhostInstance : MVWorldObjectClient, IGameStateControllerSubscrib
 			{
 				distance = value;
 				Data["Distance"] = value;
-				MVGameControllerBase.Game.UpdateWorldObjectDataPartial(Id, "Data\\Distance", value);
+				MVGameControllerBase.OperationRequests.UpdateWorldObjectDataPartial(Id, "Data\\Distance", value);
 				rangeVis.Radius = distance;
 			}
 		}
@@ -71,7 +71,7 @@ public class MVGhostInstance : MVWorldObjectClient, IGameStateControllerSubscrib
 			{
 				speed = value;
 				Data["Speed"] = value;
-				MVGameControllerBase.Game.UpdateWorldObjectDataPartial(Id, "Data\\Speed", value);
+				MVGameControllerBase.OperationRequests.UpdateWorldObjectDataPartial(Id, "Data\\Speed", value);
 			}
 		}
 	}

@@ -4,20 +4,15 @@ using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
 using Newtonsoft.Json;
 using UnityEngine;
+using UnityEngine.Events;
 
 public static class LevelingManager
 {
-	public delegate void OnlevelingInitializedDelegate();
-
-	public delegate void OnPlayModeLevelingEnabledChangedDelegate(bool enabled);
-
 	private static ObscuredBool playModeLevelingEnabled;
 
 	private static ObscuredInt playModeMinPlayers = 1;
 
-	public static OnlevelingInitializedDelegate OnLevelingInitialized;
-
-	public static OnPlayModeLevelingEnabledChangedDelegate OnPlayModeLevelingEnabledChanged;
+	public static UnityAction OnLevelingInitialized;
 
 	public static Dictionary<int, XPLevelLimits> TestLevelToLimits = new Dictionary<int, XPLevelLimits>
 	{
@@ -95,10 +90,8 @@ public static class LevelingManager
 		if ((bool)playModeLevelingEnabled != LevelingEnabled && MVGameControllerBase.GameMode == MVGameMode.Play)
 		{
 			playModeLevelingEnabled = LevelingEnabled;
-			if (OnPlayModeLevelingEnabledChanged != null)
-			{
-				OnPlayModeLevelingEnabledChanged(playModeLevelingEnabled);
-			}
+			string text = ((!playModeLevelingEnabled) ? (TM._("Leveling deactivated! Players in game: ") + MVGameControllerBase.Game.Players.Count) : (TM._("Leveling activated! Players in game: ") + MVGameControllerBase.Game.Players.Count));
+			NotificationController.PushNotification(text);
 		}
 	}
 

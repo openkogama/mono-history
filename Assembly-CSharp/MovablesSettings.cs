@@ -42,7 +42,7 @@ public class MovablesSettings : MonoBehaviour, IEventSystemHandler, IHandleSetti
 			Vector3 normalized = platform.Velocity.normalized;
 			float num2 = num;
 			Vector3 vec = normalized * num2;
-			MVGameControllerBase.Game.UpdateWorldObjectDataPartial(platform.Id, key, vec.ToSerializeString());
+			MVGameControllerBase.OperationRequests.UpdateWorldObjectDataPartial(platform.Id, key, vec.ToSerializeString());
 		}
 	}
 }

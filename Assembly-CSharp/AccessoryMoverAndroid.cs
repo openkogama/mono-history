@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class AccessoryMoverAndroid : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IEventSystemHandler
+public class AccessoryMoverAndroid : MonoBehaviour
 {
 	private class AccessoryOffsetMouseWrapper
 	{
@@ -30,7 +30,7 @@ public class AccessoryMoverAndroid : MonoBehaviour, IPointerDownHandler, IPointe
 
 		public void SetOffset()
 		{
-			MVGameControllerBase.Game.UpdateAvatarAccessoryOffset(selectionHelperAvatarAccessory.AvatarBodyWoID, selectionHelperAvatarAccessory.Slot, selectionHelperAvatarAccessory.AvatarAccessory.Offset);
+			MVGameControllerBase.OperationRequests.UpdateAvatarAccessoryOffset(selectionHelperAvatarAccessory.AvatarBodyWoID, selectionHelperAvatarAccessory.Slot, selectionHelperAvatarAccessory.AvatarAccessory.Offset);
 		}
 	}
 
@@ -44,6 +44,20 @@ public class AccessoryMoverAndroid : MonoBehaviour, IPointerDownHandler, IPointe
 
 	private void Update()
 	{
+		if (EventSystem.current.IsPointerOverGameObject(-1))
+		{
+			return;
+		}
+		if (Input.GetMouseButtonDown(0))
+		{
+			SelectionHelperAvatarAccessory selectionHelperAvatarAccessory = null;
+			PickSelectionHelperAvatarAccessory(out selectionHelperAvatarAccessory, out var _);
+			if (accessoryOffsetMouseWrapper == null && selectionHelperAvatarAccessory != null)
+			{
+				accessoryOffsetMouseWrapper = new AccessoryOffsetMouseWrapper(selectionHelperAvatarAccessory);
+			}
+			dragging = true;
+		}
 		if (dragging)
 		{
 			moveOffset = Input.mousePosition.y - prevMouseY;
@@ -53,16 +67,10 @@ public class AccessoryMoverAndroid : MonoBehaviour, IPointerDownHandler, IPointe
 		{
 			accessoryOffsetMouseWrapper.Update(moveOffset);
 		}
-	}
-
-	public void SetActive(bool isActive)
-	{
-		enabled = isActive;
-		MVGameControllerBase.WOCM.AvatarLocal.Body.AccessoryMoveOverride = isActive;
-	}
-
-	public void OnPointerUp(PointerEventData eventData)
-	{
+		if (!Input.GetMouseButtonUp(0))
+		{
+			return;
+		}
 		dragging = false;
 		if (accessoryOffsetMouseWrapper != null)
 		{
@@ -74,15 +82,10 @@ public class AccessoryMoverAndroid : MonoBehaviour, IPointerDownHandler, IPointe
 		}
 	}
 
-	public void OnPointerDown(PointerEventData eventData)
+	public void SetActive(bool isActive)
 	{
-		SelectionHelperAvatarAccessory selectionHelperAvatarAccessory = null;
-		PickSelectionHelperAvatarAccessory(out selectionHelperAvatarAccessory, out var _);
-		if (accessoryOffsetMouseWrapper == null && selectionHelperAvatarAccessory != null)
-		{
-			accessoryOffsetMouseWrapper = new AccessoryOffsetMouseWrapper(selectionHelperAvatarAccessory);
-		}
-		dragging = true;
+		enabled = isActive;
+		MVGameControllerBase.WOCM.AvatarLocal.Body.AccessoryMoveOverride = isActive;
 	}
 
 	private void PickSelectionHelperAvatarAccessory(out SelectionHelperAvatarAccessory selectionHelperAvatarAccessory, out RaycastHit raycastHit)

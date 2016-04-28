@@ -73,7 +73,7 @@ public class ShootableButton : MVLogicObject
 
 	public override void Reset()
 	{
-		MVGameControllerBase.Game.TriggerBoxExit(Id, MVGameControllerBase.WOCM.AvatarLocal.Id);
+		MVGameControllerBase.OperationRequests.TriggerBoxExit(Id, MVGameControllerBase.WOCM.AvatarLocal.Id);
 	}
 
 	public override Bounds GetLocalBounds(BoundsContext boundsContext)
@@ -93,7 +93,7 @@ public class ShootableButton : MVLogicObject
 		{
 			triggerInstigatorId = e.damageSource.Avatar.Id;
 		}
-		MVGameControllerBase.Game.TriggerBoxEnter(Id, triggerInstigatorId);
+		MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, triggerInstigatorId);
 	}
 
 	public void OnActivated()
