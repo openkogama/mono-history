@@ -23,7 +23,6 @@ internal class ESWalkMode : ESStateBase
 		MVGameControllerDesktop.LockCursorManager.LockCursor = true;
 		MVGameControllerBase.WOCM.AvatarLocal.Body.AccessoryMoveOverride = true;
 		DrawPlane.HideDrawPlane();
-		Debug.LogWarning("ShowBriefing()");
 	}
 
 	public override void Execute(EditorStateMachine e)
