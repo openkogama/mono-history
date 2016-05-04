@@ -48,31 +48,7 @@ public class NotificationObjectPool : MonoBehaviour
 
 	private Notification CreateTempPanel(NotificationType type)
 	{
-		Notification notification = null;
-		switch (type)
-		{
-		case NotificationType.Kill:
-			notification = Object.Instantiate(Elements.First((NotificationObjectPoolElement x) => x.Prefab.Type == NotificationType.Kill).Prefab);
-			break;
-		case NotificationType.FriendRequest:
-			notification = Object.Instantiate(Elements.First((NotificationObjectPoolElement x) => x.Prefab.Type == NotificationType.FriendRequest).Prefab);
-			break;
-		case NotificationType.PlayerJoined:
-			notification = Object.Instantiate(Elements.First((NotificationObjectPoolElement x) => x.Prefab.Type == NotificationType.PlayerJoined).Prefab);
-			break;
-		case NotificationType.PlayerLeft:
-			notification = Object.Instantiate(Elements.First((NotificationObjectPoolElement x) => x.Prefab.Type == NotificationType.PlayerLeft).Prefab);
-			break;
-		case NotificationType.XP:
-			notification = Object.Instantiate(Elements.First((NotificationObjectPoolElement x) => x.Prefab.Type == NotificationType.XP).Prefab);
-			break;
-		case NotificationType.ModalNotification:
-			notification = Object.Instantiate(Elements.First((NotificationObjectPoolElement x) => x.Prefab.Type == NotificationType.ModalNotification).Prefab);
-			break;
-		case NotificationType.LevelUp:
-			notification = Object.Instantiate(Elements.First((NotificationObjectPoolElement x) => x.Prefab.Type == NotificationType.LevelUp).Prefab);
-			break;
-		}
+		Notification notification = Object.Instantiate(Elements.First((NotificationObjectPoolElement x) => x.Prefab.Type == type).Prefab);
 		if (notification == null)
 		{
 			Debug.LogError("Couldn't find notification type " + type);

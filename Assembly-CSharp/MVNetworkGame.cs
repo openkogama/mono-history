@@ -60,16 +60,16 @@ public class MVNetworkGame : IPhotonPeerListener
 			case byte.MaxValue:
 			{
 				int profileID = (int)photonEvent[11];
-				int num5 = (int)photonEvent[254];
+				int num6 = (int)photonEvent[254];
 				string userName = (string)photonEvent[9];
 				string regionCode = (string)photonEvent[155];
 				MVTeam team2 = (MVTeam)(int)photonEvent[89];
-				if (num5 == networkGame.LocalPlayerActorNumber)
+				if (num6 == networkGame.LocalPlayerActorNumber)
 				{
 					Debug.LogError("Received join event for localPlayerActorNumber");
 					break;
 				}
-				MVPlayer mVPlayer = new MVPlayer(num5, profileID, userName, regionCode);
+				MVPlayer mVPlayer = new MVPlayer(num6, profileID, userName, regionCode);
 				mVPlayer.Team = team2;
 				networkGame.AddPlayer(mVPlayer);
 				break;
@@ -128,7 +128,7 @@ public class MVNetworkGame : IPhotonPeerListener
 				double totalMilliseconds = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
 				if (MVGameControllerBase.LoadStats.DOMReady > 0.0)
 				{
-					float num = (float)(totalMilliseconds - MVGameControllerBase.LoadStats.DOMReady) / 1000f;
+					float num = (float)(totalMilliseconds - MVGameControllerBase.LoadStats.DOMReady);
 					Debug.Log("CompleteJoinTime " + num);
 					if (num > 0f)
 					{
@@ -138,7 +138,7 @@ public class MVNetworkGame : IPhotonPeerListener
 				}
 				if (MVGameControllerBase.LoadStats.PluginInit > 0.0)
 				{
-					float num2 = (float)(totalMilliseconds - MVGameControllerBase.LoadStats.PluginInit) / 1000f;
+					float num2 = (float)(totalMilliseconds - MVGameControllerBase.LoadStats.PluginInit);
 					Debug.Log("JoinAndInitializationTime " + num2);
 					if (num2 > 0f)
 					{
@@ -148,9 +148,12 @@ public class MVNetworkGame : IPhotonPeerListener
 				}
 				if (MVGameControllerBase.LoadStats.GameStartTime > 0.0)
 				{
-					float value2 = (float)(totalMilliseconds - MVGameControllerBase.LoadStats.GameStartTime) / 1000f;
-					StatHatWrapper.Value("JoinTime", value2);
-					StatHatWrapper.Value("JoinTime." + MVGameControllerBase.GameMode, value2);
+					float num3 = (float)(totalMilliseconds - MVGameControllerBase.LoadStats.GameStartTime);
+					if (num3 > 0f)
+					{
+						StatHatWrapper.Value("JoinTime", num3);
+						StatHatWrapper.Value("JoinTime." + MVGameControllerBase.GameMode, num3);
+					}
 				}
 				if (MVGameControllerBase.IsTouristSession)
 				{
@@ -192,17 +195,17 @@ public class MVNetworkGame : IPhotonPeerListener
 				break;
 			case 254:
 			{
-				int num7 = (int)photonEvent[254];
-				if (num7 != networkGame.LocalPlayer.ActorNr)
+				int num8 = (int)photonEvent[254];
+				if (num8 != networkGame.LocalPlayer.ActorNr)
 				{
-					MVPlayer mVPlayer2 = networkGame.Players[num7];
+					MVPlayer mVPlayer2 = networkGame.Players[num8];
 					Dictionary<object, object> dictionary5 = new Dictionary<object, object>();
-					dictionary5[(byte)0] = num7;
+					dictionary5[(byte)0] = num8;
 					dictionary5[(byte)3] = mVPlayer2.Username;
 					dictionary5[(byte)6] = MVGameControllerBase.Game.Friends.IsFriend(mVPlayer2.ProfileID);
 					MVGameControllerBase.PostGameMsg(MVGameMsgType.UserLeft, dictionary5);
-					networkGame.Players.Remove(num7);
-					networkGame.gameStatCounterManager.RemoveStatsFromActor(num7);
+					networkGame.Players.Remove(num8);
+					networkGame.gameStatCounterManager.RemoveStatsFromActor(num8);
 					if (networkGame.onPlayerListChanged != null)
 					{
 						networkGame.onPlayerListChanged();
@@ -347,10 +350,10 @@ public class MVNetworkGame : IPhotonPeerListener
 				break;
 			case 253:
 			{
-				int num6 = (int)photonEvent[253];
+				int num7 = (int)photonEvent[253];
 				Dictionary<object, object> dictionary4 = (Dictionary<object, object>)photonEvent[251];
-				Debug.Log("ACTOR-NR: " + num6);
-				Debug.Log(networkGame.Players[num6].Username);
+				Debug.Log("ACTOR-NR: " + num7);
+				Debug.Log(networkGame.Players[num7].Username);
 				{
 					foreach (string key in dictionary4.Keys)
 					{
@@ -436,28 +439,28 @@ public class MVNetworkGame : IPhotonPeerListener
 				int worldObjectID = (int)dictionary2[(byte)0];
 				MVWorldObjectSpawnerVehicle mVWorldObjectSpawnerVehicle = (MVWorldObjectSpawnerVehicle)networkGame.WorldObjectClientManager.GetWorldObjectClient(id);
 				int spawnWorldObjectID = mVWorldObjectSpawnerVehicle.SpawnWorldObjectID;
-				int num4 = (int)dictionary2[(byte)3];
+				int num5 = (int)dictionary2[(byte)3];
 				int ownerActorNumber = (int)photonEvent[254];
 				int cloneLinkId = (int)photonEvent[56];
 				int cloneObjectLinkId = (int)photonEvent[92];
 				int takeTime = (int)photonEvent[33];
-				networkGame.worldNetwork.OnCloneWorldObjectTreeEvent(ownerActorNumber, 0, cloneToRootGroup: true, spawnWorldObjectID, num4, cloneLinkId, cloneObjectLinkId);
-				MVWorldObjectClient worldObjectClient = networkGame.WorldObjectClientManager.GetWorldObjectClient(num4);
+				networkGame.worldNetwork.OnCloneWorldObjectTreeEvent(ownerActorNumber, 0, cloneToRootGroup: true, spawnWorldObjectID, num5, cloneLinkId, cloneObjectLinkId);
+				MVWorldObjectClient worldObjectClient = networkGame.WorldObjectClientManager.GetWorldObjectClient(num5);
 				MVWorldObjectClient.CallBackDelegate callBack = (MVWorldObjectClient wo) =>
 				{
 					wo.InteractionFlags = InteractionFlags.None;
 				};
 				worldObjectClient.TraverseRecursiveTail(callBack);
-				networkGame.PlayerController.OnAttachWorldObjectToSeat((int)photonEvent[254], num4, worldObjectID, (byte)photonEvent[142]);
+				networkGame.PlayerController.OnAttachWorldObjectToSeat((int)photonEvent[254], num5, worldObjectID, (byte)photonEvent[142]);
 				mVWorldObjectSpawnerVehicle.Take(takeTime);
 				break;
 			}
 			case 53:
 			{
-				int num3 = (int)photonEvent[144];
+				int num4 = (int)photonEvent[144];
 				RewardReason rewardReason = (RewardReason)(byte)photonEvent[146];
 				RewardType rewardType = (RewardType)(int)photonEvent[145];
-				Debug.Log($"Amount {num3}, rewardReason {rewardReason}, rewardType {rewardType} ");
+				Debug.Log($"Amount {num4}, rewardReason {rewardReason}, rewardType {rewardType} ");
 				BrowserComm.ToJavaScript.ExternalCall("refreshCredentials");
 				break;
 			}
@@ -1141,7 +1144,21 @@ public class MVNetworkGame : IPhotonPeerListener
 			dictionary2.Add(200, NotificationType.PlayerJoined);
 			dictionary2.Add(201, value);
 			Dictionary<byte, object> customOpParameters = dictionary2;
-			Debug.Log("Sending join notification");
+			peer.OpCustom(78, customOpParameters, sendReliable: true);
+		}
+
+		public void WonRareReward(IActorRewardClient reward, int rewardAmount)
+		{
+			Dictionary<object, object> dictionary = new Dictionary<object, object>();
+			dictionary.Add((byte)9, MVGameControllerBase.Game.LocalPlayer.ActorNr);
+			dictionary.Add((byte)11, (byte)reward.RewardRarity);
+			dictionary.Add((byte)5, reward.RewardType);
+			dictionary.Add((byte)4, rewardAmount);
+			Dictionary<object, object> value = dictionary;
+			Dictionary<byte, object> dictionary2 = new Dictionary<byte, object>();
+			dictionary2.Add(200, NotificationType.WonRareSpinReward);
+			dictionary2.Add(201, value);
+			Dictionary<byte, object> customOpParameters = dictionary2;
 			peer.OpCustom(78, customOpParameters, sendReliable: true);
 		}
 
@@ -1953,6 +1970,8 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	private class StatusChangedHandling
 	{
+		private bool registeredFatalStatusCodeInStatHat;
+
 		private MVNetworkGame networkGame;
 
 		public StatusChangedHandling(MVNetworkGame networkGame)
@@ -1963,9 +1982,10 @@ public class MVNetworkGame : IPhotonPeerListener
 		public void OnStatusChanged(StatusCode returnCode)
 		{
 			Debug.Log("PeerStatusCallback():" + returnCode);
-			if (returnCode != StatusCode.Connect && returnCode != StatusCode.Disconnect && returnCode != StatusCode.QueueIncomingReliableWarning && returnCode != StatusCode.QueueIncomingUnreliableWarning && returnCode != StatusCode.QueueOutgoingAcksWarning && returnCode != StatusCode.QueueOutgoingReliableWarning && returnCode != StatusCode.QueueOutgoingUnreliableWarning && returnCode != StatusCode.QueueSentWarning)
+			if (returnCode != StatusCode.Connect && returnCode != StatusCode.Disconnect && returnCode != StatusCode.QueueIncomingReliableWarning && returnCode != StatusCode.QueueIncomingUnreliableWarning && returnCode != StatusCode.QueueOutgoingAcksWarning && returnCode != StatusCode.QueueOutgoingReliableWarning && returnCode != StatusCode.QueueOutgoingUnreliableWarning && returnCode != StatusCode.QueueSentWarning && !registeredFatalStatusCodeInStatHat)
 			{
 				StatHatWrapper.Count("StatusCode." + returnCode, 1);
+				registeredFatalStatusCodeInStatHat = true;
 			}
 			switch (returnCode)
 			{

@@ -281,6 +281,25 @@ public class RewardMinigame : MonoBehaviour
 		rewardObject.transform.SetParent(winningRewardObjectRoot, worldPositionStays: false);
 		rewardObject.transform.position = rewardObjects[winningIndex].transform.position;
 		rewardObject.SelectReward(targetPreviewTransform, OnFinishedPreviewingReward, Reset);
+		if ((int)RewardManager.CurrentReward.RewardRarity >= 2)
+		{
+			PublishRareRewardNotification();
+		}
+	}
+
+	private void PublishRareRewardNotification()
+	{
+		MVGameControllerBase.OperationRequests.WonRareReward(RewardManager.CurrentReward, GetRewardAmount(RewardManager.CurrentReward));
+	}
+
+	private int GetRewardAmount(IActorRewardClient reward)
+	{
+		return reward.RewardType switch
+		{
+			RewardType.GoldReward => ((ActorGoldRewardClient)reward).goldAmount, 
+			RewardType.XPReward => ((ActorXPRewardClient)reward).xpAmount, 
+			_ => 0, 
+		};
 	}
 
 	private void OnFinishedPreviewingReward()

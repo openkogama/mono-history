@@ -12,5 +12,6 @@ public enum NotificationDataType : byte
 	DeadPlayer,
 	WeaponType,
 	ActorNr,
-	Object
+	Object,
+	Rarity
 }
