@@ -68,7 +68,7 @@ public abstract class Notification : MonoBehaviour
 				pool.Return(this);
 			}
 		}
-		else if (timeSinceStart >= Lifetime - 1f)
+		else if (timeSinceStart >= Lifetime - 0.2f)
 		{
 			Target = Offset;
 		}

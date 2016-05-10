@@ -20,7 +20,14 @@ public class RewardSpinVisualization : MonoBehaviour
 	[SerializeField]
 	private float spinDuration;
 
+	[SerializeField]
+	private float animationSpeed;
+
 	private bool rotating;
+
+	private bool animating = true;
+
+	private bool initialized;
 
 	private float spin;
 
@@ -28,15 +35,28 @@ public class RewardSpinVisualization : MonoBehaviour
 
 	private float curveDelta;
 
-	private Vector3 startPos;
+	[SerializeField]
+	private Vector2 hidingPosition;
+
+	private Vector2 targetPosition;
+
+	private Vector2 startPos;
+
+	private Vector2 currPosition;
 
 	private UnityAction OnFinishedSpinning;
 
-	public void Initialize()
+	private UnityAction OnFinishedAnimating;
+
+	private float animationTimer;
+
+	public void Initialize(UnityAction OnInitialized)
 	{
+		OnFinishedAnimating = OnInitialized;
 		SetSpinsLeftText(RewardManager.NumberOfPendingRewards);
 		RewardManager.NumberOfPendingRewardsChanged = (UnityAction)Delegate.Combine(RewardManager.NumberOfPendingRewardsChanged, new UnityAction(UpdateRewardCount));
 		startPos = contentMoverHandle.anchoredPosition;
+		targetPosition = startPos;
 	}
 
 	private void UpdateRewardCount()
@@ -56,9 +76,23 @@ public class RewardSpinVisualization : MonoBehaviour
 		rotating = true;
 	}
 
-	public void ResetPosition()
+	public void AnimateHiding(UnityAction OnFinished)
 	{
-		contentMoverHandle.anchoredPosition = startPos;
+		currPosition = contentMoverHandle.anchoredPosition;
+		targetPosition = currPosition + hidingPosition;
+		animating = true;
+		OnFinishedAnimating = OnFinished;
+		animationTimer = 0f;
+	}
+
+	public void AnimateShowing(UnityAction OnFinished)
+	{
+		contentMoverHandle.anchoredPosition = startPos + hidingPosition;
+		targetPosition = startPos;
+		currPosition = contentMoverHandle.anchoredPosition;
+		animating = true;
+		OnFinishedAnimating = OnFinished;
+		animationTimer = 0f;
 	}
 
 	private void Update()
@@ -67,14 +101,33 @@ public class RewardSpinVisualization : MonoBehaviour
 		{
 			spin += Time.deltaTime;
 			curveDelta = spinSpeedDeltaCurve.Evaluate(spin / spinDuration);
-			Vector3 vector = startPos;
-			vector.x = curveDelta * targetPos;
-			contentMoverHandle.anchoredPosition = vector;
+			Vector2 anchoredPosition = startPos;
+			anchoredPosition.x = curveDelta * targetPos;
+			contentMoverHandle.anchoredPosition = anchoredPosition;
 			if (spin >= spinDuration)
 			{
 				rotating = false;
 				OnFinishedSpinning();
 			}
+		}
+		if (animating)
+		{
+			HandleTransition();
+		}
+	}
+
+	private void HandleTransition()
+	{
+		animationTimer += Time.deltaTime * animationSpeed;
+		if (initialized)
+		{
+			contentMoverHandle.anchoredPosition = Vector2.Lerp(currPosition, targetPosition, animationTimer);
+		}
+		if (contentMoverHandle.anchoredPosition == targetPosition)
+		{
+			animating = false;
+			OnFinishedAnimating();
+			initialized = true;
 		}
 	}
 

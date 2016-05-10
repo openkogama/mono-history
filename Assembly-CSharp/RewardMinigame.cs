@@ -81,6 +81,10 @@ public class RewardMinigame : MonoBehaviour
 
 	private bool waitingForSpinFromServer;
 
+	private bool instantiatedContent;
+
+	private readonly List<int> indicesToRemove = new List<int>();
+
 	private List<IActorRewardClient> rewards;
 
 	private float targetAlphaForCanvasGroup = 1f;
@@ -91,7 +95,7 @@ public class RewardMinigame : MonoBehaviour
 	{
 		RewardManager.NumberOfPendingRewardsChanged = (UnityAction)Delegate.Combine(RewardManager.NumberOfPendingRewardsChanged, new UnityAction(UpdateRewardCount));
 		PrepareForSpin();
-		rewardSpinVisualization.Initialize();
+		rewardSpinVisualization.Initialize(OnSpinReady);
 	}
 
 	private void UpdateRewardCount()
@@ -108,7 +112,6 @@ public class RewardMinigame : MonoBehaviour
 	{
 		if (!spinReady)
 		{
-			rewardSpinVisualization.ResetPosition();
 			winningIndex = baseWinningIndex;
 			if (!RewardManager.IsInitialized)
 			{
@@ -124,8 +127,11 @@ public class RewardMinigame : MonoBehaviour
 	private void OnRewardsReady()
 	{
 		rewards = RewardManager.GetPossibleRewards();
-		MapSerializedLists();
-		NormalizeProbability();
+		if (!instantiatedContent)
+		{
+			MapSerializedLists();
+			NormalizeProbability();
+		}
 		CreateLayoutGroupRewards();
 		if (RewardManager.NumberOfPendingRewards == 0)
 		{
@@ -140,8 +146,17 @@ public class RewardMinigame : MonoBehaviour
 	private void WinningIndexReady()
 	{
 		winningIndex += amountOfSpinLoops * (extraItemsAfterWinningIndex + winningIndex);
+		if (instantiatedContent)
+		{
+			rewardSpinVisualization.AnimateShowing(OnSpinReady);
+		}
 		SetWinningItem();
 		mask.enabled = true;
+		instantiatedContent = true;
+	}
+
+	private void OnSpinReady()
+	{
 		spinReady = true;
 		spinButton.interactable = true;
 		continueButton.interactable = true;
@@ -206,29 +221,61 @@ public class RewardMinigame : MonoBehaviour
 			{
 				UnityEngine.Random.Range(0f, maxPercent);
 			}
-			float num3 = UnityEngine.Random.Range(0f, maxPercent);
-			for (int k = 0; k < sortedRarityGroupList.Count; k++)
-			{
-				RewardRarityGroupDef rewardRarity = sortedRarityGroupList[k];
-				if (num3 <= rewardRarity.normalizedProbability)
-				{
-					RewardObject rewardObject = UnityEngine.Object.Instantiate(rewardRarity.rewardDef.rewardPrefabType);
-					rewardObject.transform.SetParent(rewardContentGroup.transform, worldPositionStays: false);
-					rewardObjects.Add(rewardObject);
-					rewardObject.Initialize(rewardRarity);
-					break;
-				}
-			}
+			CreateRewardObjects(i);
 		}
-		for (int l = 0; l < amountOfSpinLoops; l++)
+		for (int k = 0; k < amountOfSpinLoops; k++)
 		{
-			for (int m = 0; m < num; m++)
+			for (int l = 0; l < num; l++)
 			{
-				RewardObject rewardObject2 = UnityEngine.Object.Instantiate(rewardObjects[m]);
-				rewardObject2.transform.SetParent(rewardContentGroup.transform, worldPositionStays: false);
-				rewardObjects.Add(rewardObject2);
+				if (instantiatedContent)
+				{
+					rewardObjects[num + l].Initialize(rewardObjects[l].RewardRarity);
+					continue;
+				}
+				RewardObject rewardObject = UnityEngine.Object.Instantiate(rewardObjects[l]);
+				rewardObject.transform.SetParent(rewardContentGroup.transform, worldPositionStays: false);
+				rewardObjects.Add(rewardObject);
 			}
 		}
+		RemoveExtraIndices();
+	}
+
+	private void CreateRewardObjects(int index)
+	{
+		float num = UnityEngine.Random.Range(0f, maxPercent);
+		for (int i = 0; i < sortedRarityGroupList.Count; i++)
+		{
+			RewardRarityGroupDef rewardRarity = sortedRarityGroupList[i];
+			if (!(num <= rewardRarity.normalizedProbability))
+			{
+				continue;
+			}
+			if (instantiatedContent && rewardObjects[index].GetType() == rewardRarity.rewardDef.rewardPrefabType.GetType())
+			{
+				rewardObjects[index].Initialize(rewardRarity);
+				break;
+			}
+			if (instantiatedContent)
+			{
+				UnityEngine.Object.Destroy(rewardObjects[index].gameObject);
+				indicesToRemove.Add(index);
+			}
+			RewardObject rewardObject = UnityEngine.Object.Instantiate(rewardRarity.rewardDef.rewardPrefabType);
+			rewardObject.transform.SetParent(rewardContentGroup.transform, worldPositionStays: false);
+			rewardObject.transform.SetSiblingIndex(index);
+			rewardObjects.Add(rewardObject);
+			rewardObject.Initialize(rewardRarity);
+			break;
+		}
+	}
+
+	private void RemoveExtraIndices()
+	{
+		for (int i = 0; i < indicesToRemove.Count; i++)
+		{
+			rewardObjects.RemoveAt(i);
+		}
+		indicesToRemove.Clear();
 	}
 
 	public void StartContentRotation()
@@ -308,6 +355,7 @@ public class RewardMinigame : MonoBehaviour
 		winningRewardObjectRoot.gameObject.SetActive(value: false);
 		targetAlphaForCanvasGroup = 1f;
 		UnityEngine.Object.Destroy(winningRewardObjectRoot.GetChild(0).gameObject);
+		rewardSpinVisualization.AnimateHiding(PrepareForSpin);
 		if (RewardManager.NumberOfPendingRewards == 0)
 		{
 			spinReady = false;
@@ -335,8 +383,6 @@ public class RewardMinigame : MonoBehaviour
 	private void Reset()
 	{
 		spinReady = false;
-		ClearObjects();
-		PrepareForSpin();
 	}
 
 	private void ClearObjects()
@@ -350,5 +396,7 @@ public class RewardMinigame : MonoBehaviour
 	{
 		RewardManager.NumberOfPendingRewardsChanged = (UnityAction)Delegate.Remove(RewardManager.NumberOfPendingRewardsChanged, new UnityAction(UpdateRewardCount));
 		ClearObjects();
+		rewardObjects.Clear();
+		rewardSpinVisualization.Clear();
 	}
 }

@@ -6,12 +6,6 @@ using UnityEngine.UI;
 public class KillNotification : Notification
 {
 	[SerializeField]
-	private RectTransform LocalPlayerFrame;
-
-	[SerializeField]
-	private RectTransform FriendPlayerFrame;
-
-	[SerializeField]
 	private Text Label;
 
 	[SerializeField]
@@ -23,14 +17,6 @@ public class KillNotification : Notification
 		MVPlayer mVPlayer = MVGameControllerBase.Game.Players[(int)data[(byte)6]];
 		MVPlayer mVPlayer2 = MVGameControllerBase.Game.Players[(int)data[(byte)7]];
 		Label.text = string.Format(GetText(data), mVPlayer2.Username, mVPlayer.Username);
-		if (MVGameControllerBase.Game.LocalPlayer.ProfileID == mVPlayer2.ProfileID || MVGameControllerBase.Game.LocalPlayer.ProfileID == mVPlayer.ProfileID)
-		{
-			NotificationIncludesLocalPlayer();
-		}
-		if (MVGameControllerBase.Game.Friends.IsFriend(mVPlayer2.ProfileID) || MVGameControllerBase.Game.Friends.IsFriend(mVPlayer.ProfileID))
-		{
-			NotificationIncludesFriend();
-		}
 	}
 
 	private string GetText(Dictionary<object, object> data)
@@ -54,17 +40,5 @@ public class KillNotification : Notification
 			PlayerKilledByType.Suicide => TM._("{0} grew tired of life :("), 
 			_ => TM._("{1} murdered {0}"), 
 		};
-	}
-
-	private void NotificationIncludesFriend()
-	{
-		Lifetime = 8f;
-		FriendPlayerFrame.gameObject.SetActive(value: true);
-	}
-
-	private void NotificationIncludesLocalPlayer()
-	{
-		Lifetime = 8f;
-		LocalPlayerFrame.gameObject.SetActive(value: true);
 	}
 }

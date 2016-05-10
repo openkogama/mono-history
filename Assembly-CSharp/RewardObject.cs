@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using RewardGeneration;
 using UnityEngine;
 using UnityEngine.Events;
@@ -20,6 +21,9 @@ public class RewardObject : MonoBehaviour
 	[SerializeField]
 	private Button rewardClaimButton;
 
+	[SerializeField]
+	protected string textFormat;
+
 	private UnityAction OnFinishedCallback;
 
 	private UnityAction OnEarlyResetCallback;
@@ -32,7 +36,12 @@ public class RewardObject : MonoBehaviour
 
 	private Vector2 targetSize;
 
+	[SerializeField]
+	protected List<Sprite> imagesOrderedByRarity = new List<Sprite>();
+
 	public string Text => amountText.text;
+
+	public RewardRarityGroupDef RewardRarity { get; private set; }
 
 	public RectTransform CachedTransform
 	{
@@ -48,8 +57,9 @@ public class RewardObject : MonoBehaviour
 
 	public virtual void Initialize(RewardRarityGroupDef rewardRarity)
 	{
+		RewardRarity = rewardRarity;
 		amountText.text = FormatRewardText(rewardRarity);
-		rarityDisplay.color = rewardRarity.rarityColor;
+		rarityDisplay.sprite = imagesOrderedByRarity[(int)rewardRarity.rarity];
 	}
 
 	protected virtual string FormatRewardText(RewardRarityGroupDef rewardGroup)

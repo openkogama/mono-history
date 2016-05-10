@@ -53,7 +53,7 @@ public class DesktopLobbyStateController : MonoBehaviour
 		playReward.gameObject.SetActive(value: false);
 		bool active = MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion;
 		touristRegisterButton.SetActive(active);
-		rewardTransform.gameObject.SetActive(MVGameControllerBase.IEditModeUI == null && !isTouristSession);
+		rewardTransform.gameObject.SetActive(MVGameControllerBase.IEditModeUI == null && !isTouristSession && MVGameControllerBase.GameMode == MVGameMode.Play);
 		gameCoinBoosterButton.SetActive(!isTouristSession);
 		avatarAccessoriesButton.SetActive(!isTouristSession);
 		touristRewardPreview.SetActive(isTouristSession);
