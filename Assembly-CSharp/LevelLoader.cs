@@ -34,6 +34,10 @@ public class LevelLoader : MonoBehaviour
 		}
 	};
 
+	private List<AsyncOperation> pendingScenes = new List<AsyncOperation>();
+
+	private Action callback;
+
 	public void LoadScenes(MVGameMode gameMode, MVGameType gameType, bool tourist, Action callback)
 	{
 		switch (gameMode)
@@ -74,15 +78,31 @@ public class LevelLoader : MonoBehaviour
 
 	private void LoadScenes(ScenesForMode mode, Action callback)
 	{
+		this.callback = callback;
 		string[] array = scenesForModeMap[mode];
 		for (int i = 0; i < array.Length; i++)
 		{
-			SceneManager.LoadScene(array[i], LoadSceneMode.Additive);
+			pendingScenes.Add(SceneManager.LoadSceneAsync(array[i], LoadSceneMode.Additive));
 		}
-		callback();
-		Coroutines.StartCoroutine(WaitForFrames.Frames(3, () =>
+	}
+
+	private void Update()
+	{
+		for (int num = pendingScenes.Count - 1; num >= 0; num--)
 		{
-			BrowserComm.ToJavaScript.ExternalCall("readyForAd");
-		}));
+			if (pendingScenes[num].isDone)
+			{
+				pendingScenes.RemoveAt(num);
+			}
+		}
+		if (pendingScenes.Count <= 0 && callback != null)
+		{
+			callback();
+			callback = null;
+			StartCoroutine(WaitForFrames.Frames(3, () =>
+			{
+				BrowserComm.ToJavaScript.ExternalCall("readyForAd");
+			}));
+		}
 	}
 }

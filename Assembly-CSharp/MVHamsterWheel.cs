@@ -92,6 +92,7 @@ public class MVHamsterWheel(Dictionary<object, object> data, Dictionary<int, MVW
 		MVRuntimeDataVariable isVehicleDead = IsVehicleDead;
 		isVehicleDead.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(isVehicleDead.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnIsDeadChange));
 		HamsterWheelVisualization hamsterWheelVisualization = gameObject.GetComponent<HamsterWheelVisualization>();
+		hamsterWheelVisualization.gameObject.SetActive(value: true);
 		hamsterWheelVisualization.Init(seatManager, (float)RuntimeVariablesRepository.GetRuntimeVariables(WorldObjectType)["health"], Health, IsMovingForward, IsMovingBackwards, IsGrounded, IsInSpawner);
 		visualization = hamsterWheelVisualization;
 	}

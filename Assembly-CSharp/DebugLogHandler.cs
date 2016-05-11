@@ -25,12 +25,12 @@ public static class DebugLogHandler
 		{
 			return;
 		}
-		logErrorHasBeenSendOnce = true;
 		if (type == LogType.Warning || type == LogType.Log || IsIgnored(logString))
 		{
 			AddLogToLogContext(logString, type);
 			return;
 		}
+		logErrorHasBeenSendOnce = true;
 		if (MVClientSettings.IsDebugMode)
 		{
 			try
