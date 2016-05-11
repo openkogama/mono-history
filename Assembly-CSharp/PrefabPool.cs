@@ -193,8 +193,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private CubeModelChunkPrefab cubeModelChunkPrefab;
 
-	[SerializeField]
 	[Header("Pick up")]
+	[SerializeField]
 	[Space(20f)]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
@@ -252,9 +252,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private MVPickupItemBaseObject avatarGrowthPackPrefab;
 
+	[Header("Avatar item pick up")]
 	[Space(20f)]
 	[SerializeField]
-	[Header("Avatar item pick up")]
 	private GameObject avatarItemCenterGun;
 
 	[SerializeField]
@@ -305,9 +305,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject avatarItemSlapGun;
 
+	[Header("Avatar modifier")]
 	[SerializeField]
 	[Space(20f)]
-	[Header("Avatar modifier")]
 	private AvatarModifier burningModifier;
 
 	[SerializeField]
@@ -328,9 +328,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private AvatarModifier growthModifier;
 
-	[SerializeField]
-	[Space(20f)]
 	[Header("Particles")]
+	[Space(20f)]
+	[SerializeField]
 	private GameObject particleBlood;
 
 	[SerializeField]
@@ -393,9 +393,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem particleXP;
 
-	[Space(20f)]
 	[SerializeField]
 	[Header("Logic object prefabs")]
+	[Space(20f)]
 	private GameObject logicInputConnectorPrefab;
 
 	[SerializeField]
@@ -422,8 +422,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material logicCubeConnectorBlueSelectedMaterial;
 
-	[Header("GUI")]
 	[Space(20f)]
+	[Header("GUI")]
 	[SerializeField]
 	private Texture2D avatarAccessoryMoveIcon;
 
@@ -447,9 +447,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private InsertCursor insertCursor;
 
+	[Header("Editor")]
 	[Space(20f)]
 	[SerializeField]
-	[Header("Editor")]
 	private Material cellCursorErrorMaterial;
 
 	[SerializeField]

@@ -80,5 +80,9 @@ public class LevelLoader : MonoBehaviour
 			SceneManager.LoadScene(array[i], LoadSceneMode.Additive);
 		}
 		callback();
+		Coroutines.StartCoroutine(WaitForFrames.Frames(3, () =>
+		{
+			BrowserComm.ToJavaScript.ExternalCall("readyForAd");
+		}));
 	}
 }
