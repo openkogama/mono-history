@@ -17,7 +17,7 @@ public class KoGaMaPackageClient
 
 	public KoGaMaPackageClient(BytePacker koGaMaData, bool readRuntimeValues)
 	{
-		worldObjectRoot = KogamaDataHandler.GetKoGaMaData(koGaMaData, HandleDeserializedData, readRuntimeValues);
+		worldObjectRoot = KoGaMaDataHandler.GetKoGaMaData(koGaMaData, HandleDeserializedData, readRuntimeValues);
 	}
 
 	public void Destroy()

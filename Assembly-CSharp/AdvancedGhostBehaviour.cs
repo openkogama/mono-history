@@ -557,28 +557,22 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 	private void Update()
 	{
-		if (perception == null)
+		if (perception != null)
 		{
-			Debug.LogWarning("This is neccessary because of image generation");
-			return;
-		}
-		perception.Update();
-		networkedValues.Update();
-		UpdateBehaviourState();
-		advancedGhostMotor.FrameUpdate();
-		if (respawn)
-		{
-			DoRespawn();
+			perception.Update();
+			networkedValues.Update();
+			UpdateBehaviourState();
+			advancedGhostMotor.FrameUpdate();
+			if (respawn)
+			{
+				DoRespawn();
+			}
 		}
 	}
 
 	private void FixedUpdate()
 	{
-		if (advancedGhostMotor == null)
-		{
-			Debug.LogWarning("This is neccessary because of image generation");
-		}
-		else
+		if (!(advancedGhostMotor == null))
 		{
 			UpdatePositionAndRotation();
 		}

@@ -1,12 +1,17 @@
 using System.Collections;
 using UnityEngine;
 
-internal class Coroutines
+public class Coroutines : MonoBehaviour
 {
-	public static void StartCoroutine(IEnumerator coroutine)
+	private static Coroutines instance;
+
+	private void Awake()
 	{
-		GameObject gameObject = new GameObject("Coroutine Worker");
-		CoroutineWorker coroutineWorker = gameObject.AddComponent<CoroutineWorker>();
-		coroutineWorker.RunCoroutineAndDestroy(coroutine);
+		instance = this;
+	}
+
+	public static void Start(IEnumerator coroutine)
+	{
+		instance.StartCoroutine(coroutine);
 	}
 }

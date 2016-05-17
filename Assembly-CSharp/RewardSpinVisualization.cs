@@ -107,7 +107,10 @@ public class RewardSpinVisualization : MonoBehaviour
 			if (spin >= spinDuration)
 			{
 				rotating = false;
-				OnFinishedSpinning();
+				if (OnFinishedSpinning != null)
+				{
+					OnFinishedSpinning();
+				}
 			}
 		}
 		if (animating)
@@ -126,7 +129,10 @@ public class RewardSpinVisualization : MonoBehaviour
 		if (contentMoverHandle.anchoredPosition == targetPosition)
 		{
 			animating = false;
-			OnFinishedAnimating();
+			if (OnFinishedAnimating != null)
+			{
+				OnFinishedAnimating();
+			}
 			initialized = true;
 		}
 	}
@@ -138,6 +144,8 @@ public class RewardSpinVisualization : MonoBehaviour
 
 	public void Clear()
 	{
+		OnFinishedSpinning = null;
+		OnFinishedAnimating = null;
 		int childCount = contentPosition.childCount;
 		for (int num = childCount - 1; num >= 0; num--)
 		{

@@ -555,6 +555,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 	{
 		AttachCubes();
 		GetAccessoriesFromBPData();
+		Animation.enabled = true;
 	}
 
 	private void GetComponents()
