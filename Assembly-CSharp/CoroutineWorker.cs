@@ -6,7 +6,6 @@ internal class CoroutineWorker : MonoBehaviour
 	public void RunCoroutineAndDestroy(IEnumerator coroutine)
 	{
 		StartCoroutine(coroutine);
-		Debug.Log("RunCoroutineAndDestroy");
 	}
 
 	public IEnumerator Run(IEnumerator coroutine)

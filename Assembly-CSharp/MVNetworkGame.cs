@@ -3610,7 +3610,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		{
 			eventHandling.CacheEvents = true;
 			StatHatWrapper.Count("GameSnapshotDataReceived", 1);
-			Coroutines.Start(WaitForFrames.Frames(3, CreateGame));
+			Coroutines.StartCoroutine(WaitForFrames.Frames(3, CreateGame));
 		}
 	}
 
@@ -3627,7 +3627,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		WorldNetwork worldNetwork = this.worldNetwork;
 		worldNetwork.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Remove(worldNetwork.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(OnGameCreated));
 		Debug.Log("Game created");
-		Coroutines.Start(WaitForFrames.Frames(1, eventHandling.UncacheEventsFromJoin));
+		Coroutines.StartCoroutine(WaitForFrames.Frames(1, eventHandling.UncacheEventsFromJoin));
 	}
 
 	private void OnSwitchAvatar(EventData eventData)

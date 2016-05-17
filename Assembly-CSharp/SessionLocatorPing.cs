@@ -58,7 +58,7 @@ public class SessionLocatorPing : IUpdatecontrollerSubscriber
 			Debug.LogError("Error in session locator error callback " + ex.Message);
 		}
 		Debug.Log("Quiting from session locator error callback");
-		Coroutines.Start(WaitForFrames.Frames(5, DoApplicationQuit));
+		Coroutines.StartCoroutine(WaitForFrames.Frames(5, DoApplicationQuit));
 	}
 
 	private void DoApplicationQuit()

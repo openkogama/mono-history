@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using MV.WorldObject;
-using UnityEngine.Events;
 
 public abstract class ARepository
 {
@@ -60,7 +59,7 @@ public abstract class ARepository
 
 	public static void GetWorldObjectTypeFromMVItemData(byte[] data, OnWorldObjectTypeExtracted onWorldObjectExtracted)
 	{
-		UnityAction<Dictionary<object, object>, KogamaDataType> callBack = (Dictionary<object, object> returnData, KogamaDataType dataType) =>
+		KogamaDataHandler.DataCallBack callBack = (Dictionary<object, object> returnData, KogamaDataType dataType) =>
 		{
 			KogamaDataType kogamaDataType = dataType;
 			if (kogamaDataType == KogamaDataType.WorldObjects && returnData.ContainsKey(WorldObjectDataParameters.WorldObjectType))
@@ -73,6 +72,6 @@ public abstract class ARepository
 			}
 		};
 		BytePacker bp = new BytePacker(data);
-		KoGaMaDataHandler.GetKoGaMaData(bp, callBack, readRuntimeData: false);
+		KogamaDataHandler.GetKoGaMaData(bp, callBack, readRuntimeData: false);
 	}
 }

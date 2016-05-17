@@ -305,9 +305,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject avatarItemSlapGun;
 
-	[Space(20f)]
 	[Header("Avatar modifier")]
 	[SerializeField]
+	[Space(20f)]
 	private AvatarModifier burningModifier;
 
 	[SerializeField]
@@ -394,8 +394,8 @@ public class PrefabPool : MonoBehaviour
 	private ParticleSystem particleXP;
 
 	[SerializeField]
-	[Space(20f)]
 	[Header("Logic object prefabs")]
+	[Space(20f)]
 	private GameObject logicInputConnectorPrefab;
 
 	[SerializeField]
@@ -422,8 +422,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material logicCubeConnectorBlueSelectedMaterial;
 
-	[Header("GUI")]
 	[Space(20f)]
+	[Header("GUI")]
 	[SerializeField]
 	private Texture2D avatarAccessoryMoveIcon;
 
@@ -433,9 +433,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material modelConstraintsMaterial;
 
+	[SerializeField]
 	[Header("UGUI")]
 	[Space(20f)]
-	[SerializeField]
 	private AvatarInputControllerAndroidSettings avatarInputControllerAndroidSettings;
 
 	[SerializeField]

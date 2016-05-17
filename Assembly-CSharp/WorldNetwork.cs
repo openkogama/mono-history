@@ -34,19 +34,10 @@ public class WorldNetwork : World
 
 	public void CreateGameWorldFromQueryData(BytePacker queryData, int instigatorActorNumber)
 	{
-		KoGaMaDataHandler.GetKoGaMaDataAsync(queryData, HandleDeserializedWorldData, readRuntimeData: true, (int rootId) =>
-		{
-			OnGameDataDeserialized(queryData, instigatorActorNumber, rootId);
-		});
-	}
-
-	private void OnGameDataDeserialized(BytePacker queryData, int instigatorActorNumber, int rootId)
-	{
-		MVWorldObjectClient worldObjectClient = worldObjectClientManager.GetWorldObjectClient(rootId);
-		worldObjectClient?.Initialize();
+		MVWorldObjectClient root = InitializeQueryData(queryData);
 		ConstructRuntimeEventManager();
 		DeserializeRuntimeEvents(queryData);
-		CreateQueryEvent(worldObjectClient, instigatorActorNumber);
+		CreateQueryEvent(root, instigatorActorNumber);
 	}
 
 	private void ConstructRuntimeEventManager()
@@ -64,7 +55,7 @@ public class WorldNetwork : World
 
 	private MVWorldObjectClient InitializeQueryData(BytePacker queryData)
 	{
-		int koGaMaData = KoGaMaDataHandler.GetKoGaMaData(queryData, HandleDeserializedWorldData, readRuntimeData: true);
+		int koGaMaData = KogamaDataHandler.GetKoGaMaData(queryData, HandleDeserializedWorldData, readRuntimeData: true);
 		MVWorldObjectClient worldObjectClient = worldObjectClientManager.GetWorldObjectClient(koGaMaData);
 		worldObjectClient?.Initialize();
 		return worldObjectClient;
