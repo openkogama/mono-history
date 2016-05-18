@@ -14,7 +14,7 @@ public class ChatControllerUGUI : MonoBehaviour
 
 	private const string joinStatusMessageFormat = "<color=#{0}>{1}</color>";
 
-	private const string chatMessageFromFriend = "<color=#{0}><b>[{1}]: </b></color><color=#{2}>{3}</color>";
+	private const string chatMessageFromFriend = "<color=#{0}>[{1}]: </color><color=#{2}>{3}</color>";
 
 	private const string chatMessageFormat = "<color=#{0}>[{1}]: </color><color=#{2}>{3}</color>";
 
@@ -310,7 +310,7 @@ public class ChatControllerUGUI : MonoBehaviour
 		string format = "<color=#{0}>[{1}]: </color><color=#{2}>{3}</color>";
 		if (flag)
 		{
-			format = "<color=#{0}><b>[{1}]: </b></color><color=#{2}>{3}</color>";
+			format = "<color=#{0}>[{1}]: </color><color=#{2}>{3}</color>";
 			teamColor = friendNameColor;
 		}
 		string text2 = string.Format(format, Styles.ColorToHex(teamColor), mVPlayer.Username, Styles.ColorToHex(chatMessageColor), text);

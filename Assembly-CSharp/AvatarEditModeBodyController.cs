@@ -161,7 +161,7 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 		{
 			x.Push(popup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.Popup);
 		});
-		screenShooter.TakeScreenShot(ScreenShotCallback, CurrentBody, ignoreAccessories: false, "Screenshot taken successfully");
+		screenShooter.TakeScreenShot(ScreenShotCallback, CurrentBody, ignoreAccessories: false, TM._("Screenshot taken successfully"));
 	}
 
 	public void TakeScreenshotForPurchasedAvatar()
@@ -171,7 +171,7 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 		{
 			x.Push(popup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.Popup);
 		});
-		screenShooter.TakeScreenShot(ScreenShotCallback, CurrentBody, ignoreAccessories: false, "New avatar purchased!");
+		screenShooter.TakeScreenShot(ScreenShotCallback, CurrentBody, ignoreAccessories: false, TM._("New avatar purchased!"));
 	}
 
 	public void PurchaseAvatar(AvatarRepositoryItem item)
