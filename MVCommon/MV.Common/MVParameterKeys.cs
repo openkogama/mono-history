@@ -204,6 +204,7 @@ public enum MVParameterKeys : byte
 	OfferData = 199,
 	NotificationType = 200,
 	NotificationData = 201,
+	SentryUrl = 202,
 	GameId = byte.MaxValue,
 	ActorNr = 254,
 	TargetActorNr = 253,

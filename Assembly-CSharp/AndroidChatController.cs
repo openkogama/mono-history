@@ -130,30 +130,22 @@ public class AndroidChatController : MonoBehaviour
 			AddJoinFlowStatusLine(message);
 			break;
 		case MVGameMsgType.AvatarKilled:
-			AddKillMessage(message);
 			break;
 		case MVGameMsgType.UserJoined:
-			JoinMessage(message);
 			break;
 		case MVGameMsgType.UserLeft:
-			LeaveMessage(message);
 			break;
 		case MVGameMsgType.CollectiblePickedUp:
-			Debug.LogWarning("Not showing CollectiblePickedUp line");
 			break;
 		case MVGameMsgType.AchievementUnlocked:
 			break;
 		case MVGameMsgType.CheckpointReached:
-			Debug.LogWarning("Not showing CheckpointReached line");
 			break;
 		case MVGameMsgType.Chat:
 			AddChatLine(message);
 			break;
 		case MVGameMsgType.AdminMsg:
 			AddAdminMessage(message);
-			break;
-		default:
-			Debug.Log("GameMsg of type " + msgType.ToString() + " received...");
 			break;
 		}
 	}

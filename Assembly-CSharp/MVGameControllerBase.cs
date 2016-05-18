@@ -14,6 +14,8 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	public delegate void OnPostGameInitDelegate();
 
+	private static bool disconnectIsOk;
+
 	private static bool quitHasBeenCalled;
 
 	private static int reAuthTestTries = 3;
@@ -66,6 +68,8 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	private WaterPlaneManager waterPlanetManager;
 
 	public static bool IsInitialized => isInitialized;
+
+	public static bool DisconnectIsOk => disconnectIsOk;
 
 	public static IPlayModeUI IPlayModeUI => playModeUI;
 
@@ -183,6 +187,11 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	private void Awake()
 	{
+		DebugLogHandler.Init();
+		if (!DebugLogHandler.IsSampling)
+		{
+			Debug.logger.filterLogType = LogType.Warning;
+		}
 		styles = UnityEngine.Object.Instantiate(styles);
 		styles.transform.parent = transform;
 		loadStats = new LoadStats();
@@ -194,7 +203,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		BrowserComm = GetComponentInChildren<BrowserComm>();
 		overrideMaterials = GetComponentInChildren<OverrideMaterials>();
 		timeReward = new TimeReward();
-		DebugLogHandler.Init();
 		CheatHandling.Init();
 		AudioEventHandler.Init();
 		InitVersion();
@@ -206,6 +214,22 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	private void Update()
 	{
 		UpdateController.Update();
+		HandleDebugShortCuts();
+	}
+
+	private void HandleDebugShortCuts()
+	{
+		if (Input.GetKey(KeyCode.Alpha7) && Input.GetKeyUp(KeyCode.Alpha9))
+		{
+			if (Debug.logger.filterLogType == LogType.Warning)
+			{
+				Debug.logger.filterLogType = LogType.Log;
+			}
+			else if (Debug.logger.filterLogType == LogType.Log)
+			{
+				Debug.logger.filterLogType = LogType.Warning;
+			}
+		}
 	}
 
 	private void FixedUpdate()
@@ -225,6 +249,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	private void OnApplicationQuit()
 	{
 		Debug.Log("On application quit");
+		disconnectIsOk = true;
 		if (Game != null)
 		{
 			if (GameSessionData != null)
@@ -287,6 +312,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	protected void StartGame()
 	{
+		disconnectIsOk = false;
 		StatHatWrapper.Count("MVGameControllerStartGame", 1);
 		Game = new MVNetworkGame();
 		if (!Game.Join())
@@ -299,6 +325,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	{
 		if (Game != null && OkToReAuth)
 		{
+			disconnectIsOk = true;
 			Game.Peer.Disconnect();
 			AsyncWWWManager.WWWRequest(new GetRequest(gameSessionData.reauthURL, instance.OnReceivedReAuthWebParametersFromHttpRequest, WWWRequestPriority.ExecuteIgnoreAllConstraints));
 			return true;
@@ -387,6 +414,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		DeleteScreenPlayerPrefs();
 		BrowserComm.enableBrowserRequest = !developmentMode;
 		SetPosition(0, 0, Screen.width, Screen.height);
+		Application.targetFrameRate = 60;
 		if (developmentMode)
 		{
 			StartGame();
@@ -441,6 +469,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		if (JoinState == MVJoinState.Playing)
 		{
 			UpdateInternal();
+			AwayMonitor.Update();
 		}
 		AudioEventHandler.Update();
 	}

@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using MV.Common;
+using SharpRaven;
+using SharpRaven.Data;
 using UnityEngine;
 
 public static class DebugLogHandler
@@ -12,40 +14,77 @@ public static class DebugLogHandler
 
 	private static int sampleErrorFrequency = 100;
 
+	private static RavenClient ravenClient = null;
+
+	private static bool isSampling = false;
+
 	private static HashSet<string> ignoreLogStrings = new HashSet<string> { "Fullscreen mode can only be enabled in the web player after clicking on the content." };
+
+	public static bool IsSampling => isSampling;
+
+	public static RavenClient RavenClient => ravenClient;
+
+	public static void SetupSentryClient(string sentryUrl)
+	{
+		ravenClient = new RavenClient(sentryUrl);
+	}
 
 	public static void Init()
 	{
+		isSampling = Random.Range(0, sampleErrorFrequency + 1) == sampleErrorFrequency;
 		Application.logMessageReceived += HandleLog;
+	}
+
+	public static void ForceExtraErrorReport()
+	{
+		logErrorHasBeenSendOnce = false;
 	}
 
 	private static void HandleLog(string logString, string stackTrace, LogType type)
 	{
-		if (logErrorHasBeenSendOnce)
-		{
-			return;
-		}
 		if (type == LogType.Warning || type == LogType.Log || IsIgnored(logString))
 		{
 			AddLogToLogContext(logString, type);
-			return;
 		}
-		logErrorHasBeenSendOnce = true;
-		if (MVClientSettings.IsDebugMode)
+		else
 		{
-			try
+			if (logErrorHasBeenSendOnce)
 			{
-				MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, logString + ": " + stackTrace);
+				return;
 			}
-			catch
+			logErrorHasBeenSendOnce = true;
+			if (MVClientSettings.IsDebugMode)
 			{
+				try
+				{
+					MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, logString + ": " + stackTrace);
+				}
+				catch
+				{
+				}
+			}
+			if (MVClientSettings.EnableSentry || isSampling)
+			{
+				if (ravenClient != null)
+				{
+					ravenClient.CaptureMessage(logString + "\n" + stackTrace, UnityLogTypeToRavenLevel(type), GetTags(), GetExtraSentryData());
+				}
+				else
+				{
+					MVGameControllerBase.OperationRequests.SendClientLog(logString, stackTrace, type, GetExtraSentryData(), GetTags());
+				}
 			}
 		}
-		bool flag = Random.Range(0, sampleErrorFrequency + 1) == sampleErrorFrequency;
-		if (MVClientSettings.EnableSentry || flag)
+	}
+
+	private static ErrorLevel UnityLogTypeToRavenLevel(LogType logType)
+	{
+		return logType switch
 		{
-			MVGameControllerBase.OperationRequests.SendClientLog(logString, stackTrace, type, GetExtraSentryData(), GetTags());
-		}
+			LogType.Log => ErrorLevel.info, 
+			LogType.Warning => ErrorLevel.warning, 
+			_ => ErrorLevel.error, 
+		};
 	}
 
 	private static bool IsIgnored(string logString)

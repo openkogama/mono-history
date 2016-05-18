@@ -1,8 +1,36 @@
 using System;
+using MV.Common;
 using UnityEngine;
 
 public class LockCursorManager3DMode : MonoBehaviour, ILockCursorManager
 {
+	private class LockCursorStatCollector
+	{
+		private bool requestedCursorLog;
+
+		private bool gotCursorLog;
+
+		public void RequestedCursorLock(bool wantsCursorLog)
+		{
+			if (MVGameControllerBase.GameMode == MVGameMode.Play && wantsCursorLog && !requestedCursorLog)
+			{
+				Debug.Log("RequestedCursorLog");
+				StatHatWrapper.Count("RequestedCursorLog", 1);
+				requestedCursorLog = true;
+			}
+		}
+
+		public void GotCursorLock(bool cursorIsLocked)
+		{
+			if (MVGameControllerBase.GameMode == MVGameMode.Play && cursorIsLocked && !gotCursorLog && requestedCursorLog)
+			{
+				Debug.Log("Got cursor lock");
+				StatHatWrapper.Count("GotCursorLock", 1);
+				gotCursorLog = true;
+			}
+		}
+	}
+
 	private class OverrideCursorUnLockState
 	{
 		private int activeFrame;
@@ -34,6 +62,8 @@ public class LockCursorManager3DMode : MonoBehaviour, ILockCursorManager
 			Active = true;
 		}
 	}
+
+	private LockCursorStatCollector lockCursorStatCollector = new LockCursorStatCollector();
 
 	private bool hasFocus = true;
 
@@ -70,6 +100,7 @@ public class LockCursorManager3DMode : MonoBehaviour, ILockCursorManager
 		set
 		{
 			wantsCursorLock = value;
+			lockCursorStatCollector.RequestedCursorLock(wantsCursorLock);
 		}
 	}
 
@@ -109,16 +140,15 @@ public class LockCursorManager3DMode : MonoBehaviour, ILockCursorManager
 				Cursor.lockState = overrideCursorUnLockState.cursorLockModeBeforeOverride;
 				overrideCursorUnLockState = null;
 			}
+			return;
 		}
-		else
+		if (Screen.fullScreen)
 		{
-			if (Screen.fullScreen)
-			{
-				hasFocus = true;
-			}
-			HandleCursorLock();
-			Cursor.visible = Cursor.lockState != CursorLockMode.Locked;
+			hasFocus = true;
 		}
+		HandleCursorLock();
+		Cursor.visible = Cursor.lockState != CursorLockMode.Locked;
+		lockCursorStatCollector.GotCursorLock(Cursor.lockState == CursorLockMode.Locked);
 	}
 
 	private void OnDisable()
