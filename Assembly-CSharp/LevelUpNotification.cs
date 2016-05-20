@@ -10,9 +10,10 @@ public class LevelUpNotification : Notification
 	[SerializeField]
 	private Image Icon;
 
+	protected override NotificationLifetime Lifetime => NotificationLifetime.High;
+
 	public override void Initialize(Dictionary<object, object> data)
 	{
-		Lifetime = 8f;
 		if (LevelingManager.IsInitialized)
 		{
 			int level = (int)data[(byte)4];

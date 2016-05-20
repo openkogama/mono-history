@@ -11,5 +11,6 @@ public enum NotificationType
 	ModalNotification,
 	FriendRequestAccepted,
 	LevelUp,
-	WonRareSpinReward
+	WonRareSpinReward,
+	Requirement
 }

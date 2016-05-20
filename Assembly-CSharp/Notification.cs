@@ -35,7 +35,7 @@ public abstract class Notification : MonoBehaviour
 
 	public NotificationObjectPool pool { get; set; }
 
-	protected virtual float Lifetime { get; set; }
+	protected virtual NotificationLifetime Lifetime { get; set; }
 
 	public event NotificationDelegate OnNotificationClosedEnd;
 
@@ -44,16 +44,16 @@ public abstract class Notification : MonoBehaviour
 		ContentBase.anchoredPosition = Offset;
 		Target = Vector2.zero;
 		timeSinceStart = 0f;
-		if (Lifetime <= 0f)
+		if (Lifetime == 0)
 		{
-			Lifetime = 5f;
+			Lifetime = NotificationLifetime.Low;
 		}
 	}
 
 	private void Update()
 	{
 		timeSinceStart += Time.deltaTime;
-		if (timeSinceStart >= Lifetime)
+		if (timeSinceStart >= (float)Lifetime)
 		{
 			if (OnNotificationClosedEnd != null)
 			{
@@ -68,7 +68,7 @@ public abstract class Notification : MonoBehaviour
 				pool.Return(this);
 			}
 		}
-		else if (timeSinceStart >= Lifetime - 0.2f)
+		else if (timeSinceStart >= (float)Lifetime - 0.2f)
 		{
 			Target = Offset;
 		}
@@ -77,6 +77,11 @@ public abstract class Notification : MonoBehaviour
 
 	protected void Close()
 	{
-		timeSinceStart = Lifetime - 1f;
+		timeSinceStart = (float)(Lifetime - 1);
+		OnClose();
+	}
+
+	protected virtual void OnClose()
+	{
 	}
 }

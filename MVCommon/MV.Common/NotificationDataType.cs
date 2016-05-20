@@ -13,5 +13,6 @@ public enum NotificationDataType : byte
 	WeaponType,
 	ActorNr,
 	Object,
-	Rarity
+	Rarity,
+	RegionCode
 }

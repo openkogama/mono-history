@@ -28,19 +28,19 @@ public class PlayerNotification : Notification
 		if (player.Level >= 25)
 		{
 			PrestigiousPlayerFrame.gameObject.SetActive(value: true);
-			Lifetime = 6f;
+			Lifetime = NotificationLifetime.High;
 		}
 		else
 		{
 			PrestigiousPlayerFrame.gameObject.SetActive(value: false);
-			Lifetime = 3f;
+			Lifetime = NotificationLifetime.Low;
 		}
 		Friend friendByProfileID = MVGameControllerBase.Game.Friends.GetFriendByProfileID(player.ProfileID);
 		if (friendByProfileID != null && friendByProfileID.status == FriendStatus.Accepted)
 		{
 			PrestigiousPlayerFrame.gameObject.SetActive(value: false);
 			FriendPlayerFrame.gameObject.SetActive(value: true);
-			Lifetime = 6f;
+			Lifetime = NotificationLifetime.High;
 		}
 		if (LevelingManager.IsInitialized)
 		{

@@ -14,6 +14,8 @@ public class FriendRequestNotification : Notification
 
 	private Friend requester;
 
+	protected override NotificationLifetime Lifetime => NotificationLifetime.High;
+
 	private void Awake()
 	{
 		acceptFriendship.onClick.AddListener(AcceptFriendship);

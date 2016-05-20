@@ -14,7 +14,7 @@ public class RareRewardNotification : Notification
 	[SerializeField]
 	private Text text;
 
-	protected override float Lifetime => 10f;
+	protected override NotificationLifetime Lifetime => NotificationLifetime.High;
 
 	public override void Initialize(Dictionary<object, object> data)
 	{

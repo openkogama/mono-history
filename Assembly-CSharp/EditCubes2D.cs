@@ -51,6 +51,7 @@ internal class EditCubes2D : CubeModelTool
 		modelCursor = new ModelCursor2d(e.CubeCorners);
 		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.EditingCube);
 		waitForMouseUp = MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect);
+		currentInternalState = BuildState.MainState;
 	}
 
 	public override void Execute(CubeModelingStateMachine e)

@@ -1154,14 +1154,18 @@ public class MVNetworkGame : IPhotonPeerListener
 
 		public void JoinNotification()
 		{
-			Dictionary<object, object> dictionary = new Dictionary<object, object>();
-			dictionary.Add((byte)9, MVGameControllerBase.Game.LocalPlayer.ActorNr);
-			Dictionary<object, object> value = dictionary;
-			Dictionary<byte, object> dictionary2 = new Dictionary<byte, object>();
-			dictionary2.Add(200, NotificationType.PlayerJoined);
-			dictionary2.Add(201, value);
-			Dictionary<byte, object> customOpParameters = dictionary2;
-			peer.OpCustom(78, customOpParameters, sendReliable: true);
+			if (!MVGameControllerBase.Game.LocalPlayer.IsAnonymous)
+			{
+				Dictionary<object, object> dictionary = new Dictionary<object, object>();
+				dictionary.Add((byte)9, MVGameControllerBase.Game.LocalPlayer.ActorNr);
+				dictionary.Add((byte)12, MVGameControllerBase.Game.LocalPlayer.RegionCode);
+				Dictionary<object, object> value = dictionary;
+				Dictionary<byte, object> dictionary2 = new Dictionary<byte, object>();
+				dictionary2.Add(200, NotificationType.PlayerJoined);
+				dictionary2.Add(201, value);
+				Dictionary<byte, object> customOpParameters = dictionary2;
+				peer.OpCustom(78, customOpParameters, sendReliable: true);
+			}
 		}
 
 		public void WonRareReward(IActorRewardClient reward, int rewardAmount)

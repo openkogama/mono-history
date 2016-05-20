@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MV.Common;
 using UnityEngine;
 
 public class UseInteractor
@@ -47,6 +48,13 @@ public class UseInteractor
 		if ((EvaluateRequirementsUsability() & UseGUIResult.CannotAfford) != UseGUIResult.CannotAfford)
 		{
 			return useFunction(userWoID);
+		}
+		if ((EvaluateRequirementsUsability() & UseGUIResult.CannotAfford) == UseGUIResult.CannotAfford)
+		{
+			Dictionary<object, object> dictionary = new Dictionary<object, object>();
+			dictionary.Add((byte)10, woOwnerID);
+			Dictionary<object, object> data = dictionary;
+			NotificationController.OnNotificationReceived(NotificationType.Requirement, data);
 		}
 		return false;
 	}

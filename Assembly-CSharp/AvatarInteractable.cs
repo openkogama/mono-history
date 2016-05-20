@@ -3,6 +3,13 @@ using MV.Common;
 
 public class AvatarInteractable : MVInteractable, IMoveHitHandler
 {
+	private HashSet<PlayerKilledByType> KillNotificationBlacklist = new HashSet<PlayerKilledByType>
+	{
+		PlayerKilledByType.Environmental,
+		PlayerKilledByType.Crushed,
+		PlayerKilledByType.FallOffWorld
+	};
+
 	private MVRuntimeDataVariable invulnerable;
 
 	public void Init(MVRuntimeDataVariable runtimeDataModifiers, MVRuntimeDataVariable invulnerable, MVRuntimeDataVariableClampedFloat health)
@@ -13,15 +20,19 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 
 	public override void TakeDamage(float amount, MVPlayer damageDealer, PlayerKilledByType damageType)
 	{
-		if (!IgnoreDamage(damageDealer) && MVGameControllerBase.Game.IsPlaying && !(bool)invulnerable.Value && !HasModifierEffect(AvatarModifierEffect.Invulnerable))
+		if (IgnoreDamage(damageDealer) || !MVGameControllerBase.Game.IsPlaying || (bool)invulnerable.Value || HasModifierEffect(AvatarModifierEffect.Invulnerable))
 		{
-			amount *= HandleModifierEffect(AvatarModifierEffect.DamageMultiplier, 1f);
-			float value = health.Value;
-			health.Value -= amount;
-			if (health.Value <= 0f && value > 0f)
+			return;
+		}
+		amount *= HandleModifierEffect(AvatarModifierEffect.DamageMultiplier, 1f);
+		float value = health.Value;
+		health.Value -= amount;
+		if (health.Value <= 0f && value > 0f)
+		{
+			int num = damageDealer?.ActorNr ?? MVGameControllerBase.Game.LocalPlayerActorNumber;
+			MVGameControllerBase.OperationRequests.PostGameMsg(MVGameMsgType.AvatarKilled, GameMessages.MakePlayerKilledMessage(MVGameControllerBase.Game.LocalPlayerActorNumber, num, damageType));
+			if (!KillNotificationBlacklist.Contains(damageType))
 			{
-				int num = damageDealer?.ActorNr ?? MVGameControllerBase.Game.LocalPlayerActorNumber;
-				MVGameControllerBase.OperationRequests.PostGameMsg(MVGameMsgType.AvatarKilled, GameMessages.MakePlayerKilledMessage(MVGameControllerBase.Game.LocalPlayerActorNumber, num, damageType));
 				Dictionary<object, object> dictionary = new Dictionary<object, object>();
 				dictionary.Add((byte)7, MVGameControllerBase.Game.LocalPlayerActorNumber);
 				dictionary.Add((byte)6, num);
