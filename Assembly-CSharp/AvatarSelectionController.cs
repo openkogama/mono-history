@@ -1,8 +1,11 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class AvatarSelectionController : MonoBehaviour, IEventSystemHandler, IAvatarSlotClicked
 {
+	private static int currSelectedSlot = -1;
+
 	[SerializeField]
 	private AvatarSelectionSlot avatarSelectionSlotPrefab;
 
@@ -14,7 +17,24 @@ public class AvatarSelectionController : MonoBehaviour, IEventSystemHandler, IAv
 
 	private AvatarEditModeBodyController avatarBodyController;
 
-	public static int CurrentlySelectedSlotIndex { get; set; }
+	private static readonly Dictionary<int, AvatarSelectionSlot> avatarSlots = new Dictionary<int, AvatarSelectionSlot>();
+
+	public static int CurrentlySelectedSlotIndex
+	{
+		get
+		{
+			return currSelectedSlot;
+		}
+		set
+		{
+			if (currSelectedSlot != -1)
+			{
+				avatarSlots[currSelectedSlot].ToggleActive(active: false);
+				avatarSlots[value].ToggleActive(active: true);
+			}
+			currSelectedSlot = value;
+		}
+	}
 
 	public void Initialize(AvatarEditModeBodyController bodyController)
 	{
@@ -44,22 +64,33 @@ public class AvatarSelectionController : MonoBehaviour, IEventSystemHandler, IAv
 
 	public void AvatarSlotClicked(int slotIndex)
 	{
-		CurrentlySelectedSlotIndex = slotIndex;
-		avatarBodyController.SetCurrentBody(slotIndex);
-		MVGameControllerBase.OperationRequests.SetActiveAvatar(avatarBodyController.CurrentBody.Id);
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAvatarSetBodyGroup x, BaseEventData y) =>
+		if (slotIndex != currSelectedSlot)
 		{
-			x.SetBodyGroup(avatarBodyController.CurrentBody);
-		});
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (ISetEditState x, BaseEventData y) =>
-		{
-			x.SetState(EditorEvent.CERoamUUI);
-		});
-		for (int num = 0; num < avatarSelectionContentRoot.childCount; num++)
-		{
-			Object.Destroy(avatarSelectionContentRoot.GetChild(num).gameObject);
+			int num = currSelectedSlot;
+			CurrentlySelectedSlotIndex = slotIndex;
+			avatarBodyController.SetCurrentBody(slotIndex);
+			MVGameControllerBase.OperationRequests.SetActiveAvatar(avatarBodyController.CurrentBody.Id);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAvatarSetBodyGroup x, BaseEventData y) =>
+			{
+				x.SetBodyGroup(avatarBodyController.CurrentBody);
+			});
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (ISetEditState x, BaseEventData y) =>
+			{
+				x.SetState(EditorEvent.CERoamUUI);
+			});
+			Object.Destroy(avatarSlots[num].gameObject);
+			avatarSlots[num] = null;
+			avatarBodyController.CaptureScreenshotForBody(num, OnPicUpdateForPrevAvatar);
 		}
-		avatarBodyController.CaptureScreenshotsForAllAvatars(OnPictureTakenCallback);
+	}
+
+	private void OnPicUpdateForPrevAvatar(int index, Texture2D image)
+	{
+		AvatarSelectionSlot avatarSelectionSlot = Object.Instantiate(avatarSelectionSlotPrefab);
+		avatarSelectionSlot.BuildAvatarSelectionSlot(index, image);
+		avatarSelectionSlot.transform.SetParent(avatarSelectionContentRoot, worldPositionStays: false);
+		avatarSelectionSlot.transform.SetSiblingIndex(index);
+		avatarSlots[index] = avatarSelectionSlot;
 	}
 
 	public void SellCurrentAvatar()
@@ -95,9 +126,11 @@ public class AvatarSelectionController : MonoBehaviour, IEventSystemHandler, IAv
 		AvatarSelectionSlot avatarSelectionSlot = Object.Instantiate(avatarSelectionSlotPrefab);
 		avatarSelectionSlot.BuildAvatarSelectionSlot(index, image);
 		avatarSelectionSlot.transform.SetParent(avatarSelectionContentRoot, worldPositionStays: false);
+		avatarSelectionSlot.transform.SetSiblingIndex(index);
+		avatarSlots[index] = avatarSelectionSlot;
 		if (index == CurrentlySelectedSlotIndex)
 		{
-			avatarSelectionSlot.ToggleActive();
+			avatarSelectionSlot.ToggleActive(active: true);
 		}
 	}
 }

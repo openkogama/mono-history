@@ -1,5 +1,6 @@
 using System;
 using MV.Common;
+using UnityEngine;
 
 public static class AwayMonitor
 {
@@ -22,6 +23,10 @@ public static class AwayMonitor
 
 	private static bool idleKickEnabled = true;
 
+	private static Vector3 prevMousePos = default;
+
+	private static DateTime latestMouseMoveTime = DateTime.Now;
+
 	public static bool IdleKickEnabled
 	{
 		get
@@ -34,9 +39,12 @@ public static class AwayMonitor
 		}
 	}
 
+	public static DateTime LatestMouseMoveTime => latestMouseMoveTime;
+
 	public static void Update()
 	{
-		if (DateTime.Now - MVInputWrapper.LatestMouseMoveTime < awayCheckFrequency && DateTime.Now - latestResetAFKTime > awayCheckFrequency)
+		UpdateMouse();
+		if (DateTime.Now - LatestMouseMoveTime < awayCheckFrequency && DateTime.Now - latestResetAFKTime > awayCheckFrequency)
 		{
 			BrowserComm.ToJavaScript.ExternalCall("resetAFKtimer");
 			latestResetAFKTime = DateTime.Now;
@@ -47,9 +55,18 @@ public static class AwayMonitor
 		}
 	}
 
+	private static void UpdateMouse()
+	{
+		if (Input.mousePosition != prevMousePos || MVInputWrapper.GetAxisRaw("Mouse ScrollWheel") > Mathf.Epsilon || MVInputWrapper.GetAxisRaw("Mouse X") > Mathf.Epsilon || MVInputWrapper.GetAxisRaw("Mouse Y") > Mathf.Epsilon)
+		{
+			prevMousePos = Input.mousePosition;
+			latestMouseMoveTime = DateTime.Now;
+		}
+	}
+
 	private static void HandleIdle()
 	{
-		TimeSpan timeSpan = DateTime.Now - MVInputWrapper.LatestMouseMoveTime;
+		TimeSpan timeSpan = DateTime.Now - LatestMouseMoveTime;
 		if (timeSpan < warningTimeSpan)
 		{
 			state = State.Active;

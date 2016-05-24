@@ -72,7 +72,6 @@ public class MVGameCoinChest : MVLogicObject
 
 	public override void InitializeInventory()
 	{
-		useInteractor.UpdateData(Data);
 		base.InitializeInventory();
 		chestObject.ModelSelector.Close();
 	}
@@ -170,6 +169,7 @@ public class MVGameCoinChest : MVLogicObject
 
 	public override void Initialize()
 	{
+		useInteractor.UpdateData(Data);
 		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
 		base.Initialize();
 	}

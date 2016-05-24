@@ -94,9 +94,9 @@ public class AccessoryInventoryViewItem : MonoBehaviour
 
 	private void AccessoryCreatedCallback(AvatarAccessory avatarAccessory)
 	{
-		if (wasDestroyed)
+		if (wasDestroyed || rootTransform == null)
 		{
-			Debug.LogWarning("Subscribing game object destroyed. Currently the accessory system does not support removal of callback when view item is destroyed.");
+			Object.Destroy(avatarAccessory.gameObject);
 			return;
 		}
 		image.enabled = true;

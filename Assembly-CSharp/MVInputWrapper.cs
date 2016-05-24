@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityStandardAssets.CrossPlatformInput;
@@ -16,10 +15,6 @@ internal static class MVInputWrapper
 	private static float prevMouseUpTime;
 
 	private static Dictionary<string, bool> usedAxes = new Dictionary<string, bool>();
-
-	private static Vector3 prevMousePos = default;
-
-	private static DateTime latestMouseMoveTime = DateTime.Now;
 
 	private static IKogamaInputMap inputMap = new DesktopDefaultKeyboardMapping();
 
@@ -71,21 +66,9 @@ internal static class MVInputWrapper
 		}
 	}
 
-	public static DateTime LatestMouseMoveTime => latestMouseMoveTime;
-
 	public static void SetInputMap(IKogamaInputMap inputMap)
 	{
 		MVInputWrapper.inputMap = inputMap;
-	}
-
-	public static void Update()
-	{
-		if (Input.mousePosition != prevMousePos || GetAxisRaw("Mouse ScrollWheel") > Mathf.Epsilon || GetAxisRaw("Mouse X") > Mathf.Epsilon || GetAxisRaw("Mouse Y") > Mathf.Epsilon)
-		{
-			prevMousePos = Input.mousePosition;
-			latestMouseMoveTime = DateTime.Now;
-		}
-		Debug.Log("Update");
 	}
 
 	public static void Reset()

@@ -10,32 +10,35 @@ public class AvatarPictureTakerUGUI : MonoBehaviour
 
 	private BoneAnimation _boneAnimation;
 
-	private LayerFlags _layersToRender;
+	private bool isCurrentAvatarBody;
 
 	[SerializeField]
 	private Camera pictureCamera;
 
-	private Vector3 pictureLocation = new Vector3(20f, 1000f, 0f);
-
-	public void TakePicture(MVWorldObjectClient avatar, int avatarIndex, Action<int, Texture2D> OnPictureTaken)
+	public void TakePicture(MVWorldObjectClient avatar, int avatarIndex, Action<int, Texture2D> OnPictureTaken, bool isCurrentBody)
 	{
-		_layersToRender = avatar.PreviewLayerMask | LayerFlags.Hidden;
-		GameObject original = avatar.GameObject;
-		_avatarCloneGO = (GameObject)UnityEngine.Object.Instantiate(original, pictureLocation, Quaternion.identity);
-		AvatarAccessoryParticles[] componentsInChildren = _avatarCloneGO.GetComponentsInChildren<AvatarAccessoryParticles>();
-		foreach (AvatarAccessoryParticles avatarAccessoryParticles in componentsInChildren)
+		isCurrentAvatarBody = isCurrentBody;
+		_avatarCloneGO = avatar.GameObject;
+		if (!isCurrentBody)
 		{
-			avatarAccessoryParticles.RootParticleSystem.Simulate(1f, withChildren: true);
+			AvatarAccessoryParticles[] componentsInChildren = _avatarCloneGO.GetComponentsInChildren<AvatarAccessoryParticles>();
+			foreach (AvatarAccessoryParticles avatarAccessoryParticles in componentsInChildren)
+			{
+				avatarAccessoryParticles.RootParticleSystem.Simulate(1f, withChildren: true);
+			}
 		}
-		_avatarCloneGO.transform.SetLayerRecursively(LayerUtil.GetLayerNumber(LayerFlags.Hidden));
-		_boneAnimation = _avatarCloneGO.GetComponent<BoneAnimation>();
-		_boneAnimation.PlayAndPauseAt("Idle", 0.01f);
+		if (!isCurrentBody)
+		{
+			_boneAnimation = _avatarCloneGO.GetComponent<BoneAnimation>();
+			_boneAnimation.PlayAndPauseAt("Idle", 0.01f);
+		}
+		pictureCamera.cullingMask = 540928;
 		pictureCamera.aspect = 1f;
 		pictureCamera.enabled = true;
-		RenderTexture renderTexture = new RenderTexture(previewResolution, previewResolution, 16);
-		renderTexture.filterMode = FilterMode.Bilinear;
-		renderTexture.hideFlags = HideFlags.DontSave;
-		pictureCamera.targetTexture = renderTexture;
+		RenderTexture temporary = RenderTexture.GetTemporary(previewResolution, previewResolution, 16);
+		temporary.filterMode = FilterMode.Bilinear;
+		temporary.hideFlags = HideFlags.DontSave;
+		pictureCamera.targetTexture = temporary;
 		Vector3 localPosition = transform.localPosition;
 		Quaternion localRotation = transform.localRotation;
 		transform.parent = _avatarCloneGO.transform;
@@ -48,32 +51,43 @@ public class AvatarPictureTakerUGUI : MonoBehaviour
 		pictureCamera.Render();
 		pictureCamera.enabled = false;
 		Texture2D texture2D = new Texture2D(previewResolution, previewResolution, TextureFormat.ARGB32, mipmap: false);
-		RenderTexture.active = renderTexture;
-		texture2D.ReadPixels(new Rect(0f, 0f, renderTexture.width, renderTexture.height), 0, 0);
+		RenderTexture.active = temporary;
+		texture2D.ReadPixels(new Rect(0f, 0f, temporary.width, temporary.height), 0, 0);
 		texture2D.Apply();
-		RenderTexture.active = null;
-		renderTexture = null;
+		temporary = null;
+		CleanupRenderTex();
 		transform.parent = null;
 		transform.position = localPosition;
 		transform.rotation = localRotation;
-		UnityEngine.Object.Destroy(_avatarCloneGO);
 		OnPictureTaken?.Invoke(avatarIndex, texture2D);
 	}
 
 	private void OnPreCull()
 	{
-		LayerUtil.SetLayerRecursively(_avatarCloneGO.transform, (int)_layersToRender, LayerUtil.GetLayerNumber(LayerFlags.Preview));
+		SharedCubeFunctions.SetLayerRecursively(_avatarCloneGO.transform, select: true);
+		_avatarCloneGO.GetComponentsInChildren<MeshRenderer>(includeInactive: true).ToList().ForEach((MeshRenderer mr) =>
+		{
+			mr.enabled = true;
+		});
 	}
 
 	private void OnPostRender()
 	{
-		LayerUtil.SetLayerRecursively(_avatarCloneGO.transform, 8192, LayerUtil.GetLayerNumber(LayerFlags.Hidden));
+		if (!isCurrentAvatarBody)
+		{
+			_avatarCloneGO.GetComponentsInChildren<MeshRenderer>(includeInactive: true).ToList().ForEach((MeshRenderer mr) =>
+			{
+				mr.enabled = false;
+			});
+			SharedCubeFunctions.SetLayerRecursively(_avatarCloneGO.transform, select: false);
+		}
 	}
 
-	private void OnDestroy()
+	private void CleanupRenderTex()
 	{
-		RenderTexture targetTexture = pictureCamera.targetTexture;
 		pictureCamera.targetTexture = null;
-		targetTexture.Release();
+		RenderTexture active = RenderTexture.active;
+		RenderTexture.active = null;
+		RenderTexture.ReleaseTemporary(active);
 	}
 }

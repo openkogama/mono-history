@@ -65,11 +65,13 @@ public class SellAvatarController : MonoBehaviour
 		string text;
 		if (added)
 		{
-			text = ((!metaData.isOnMarketPlace) ? "Avatar is now on the marketplace." : "Avatar updated on marketplace.");
+			text = ((!metaData.isOnMarketPlace) ? TM._("Avatar is now on the marketplace.") : TM._("Avatar updated on marketplace."));
+			removeButton.gameObject.SetActive(value: true);
+			sellButtonText.text = TM._("Update");
 		}
 		else
 		{
-			text = ((!metaData.isOnMarketPlace) ? "Failed to put Avatar on the marketplace." : "Failed to update Avatar.");
+			text = ((!metaData.isOnMarketPlace) ? TM._("Failed to put Avatar on the marketplace.") : TM._("Failed to update Avatar."));
 		}
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 		{
@@ -117,6 +119,8 @@ public class SellAvatarController : MonoBehaviour
 		if (added)
 		{
 			text = TM._("Avatar removed from marketplace.");
+			removeButton.gameObject.SetActive(value: false);
+			sellButtonText.text = TM._("Sell");
 		}
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 		{

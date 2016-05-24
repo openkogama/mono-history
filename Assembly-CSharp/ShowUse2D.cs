@@ -95,9 +95,25 @@ public class ShowUse2D : ShowUse
 
 	public override void CalculateUseGraphics(ShowUseOption useOption, int woID = 0)
 	{
+		HideRequirements();
 		if (useOption != ShowUseOption.Normal)
 		{
-			HideRequirements();
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woID);
+			if ((useOption & ShowUseOption.UsingLevels) == ShowUseOption.UsingLevels)
+			{
+				int level = (int)worldObjectClient.Data["levelAmount"];
+				ShowLevelRequirement(useOption, level);
+			}
+			if ((useOption & ShowUseOption.UsingGameCoins) == ShowUseOption.UsingGameCoins)
+			{
+				int coins = (int)worldObjectClient.Data["gameCoinAmount"];
+				ShowGameCoinRequirement(useOption, coins);
+			}
+			if ((useOption & ShowUseOption.UsingStars) == ShowUseOption.UsingStars)
+			{
+				int stars = (int)worldObjectClient.Data["starAmount"];
+				ShowStarRequirement(useOption, stars);
+			}
 			if (((ShowUseOption.GameCoinsInsufficient | ShowUseOption.LevelInsufficient | ShowUseOption.StarsInsufficient) & useOption) == 0)
 			{
 				eButton.sprite = canUse;

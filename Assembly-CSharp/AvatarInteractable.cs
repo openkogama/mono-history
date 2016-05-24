@@ -7,7 +7,8 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 	{
 		PlayerKilledByType.Environmental,
 		PlayerKilledByType.Crushed,
-		PlayerKilledByType.FallOffWorld
+		PlayerKilledByType.FallOffWorld,
+		PlayerKilledByType.Impact
 	};
 
 	private MVRuntimeDataVariable invulnerable;

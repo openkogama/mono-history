@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class PurchaseSoundManager : MonoBehaviour
+public class PurchaseSoundManager : MonoBehaviour, IEventSystemHandler, IPurchaseSoundManager
 {
 	[SerializeField]
 	private AudioSource purchaseSound;
+
+	private bool surpressSound;
 
 	private void Start()
 	{
@@ -15,9 +18,23 @@ public class PurchaseSoundManager : MonoBehaviour
 
 	private void ProductPurchaseResponseHandler(int returnCode, Dictionary<object, object> purchaseResponseData)
 	{
-		if (returnCode == 0)
+		if (surpressSound)
+		{
+			surpressSound = false;
+		}
+		else if (returnCode == 0 && !surpressSound)
 		{
 			purchaseSound.Play();
 		}
+	}
+
+	public void SurpressSoundOnce()
+	{
+		surpressSound = true;
+	}
+
+	public void PlayPurchaseSound()
+	{
+		purchaseSound.Play();
 	}
 }

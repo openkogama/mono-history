@@ -10,7 +10,7 @@ public class AvatarSelectionSlot : MonoBehaviour
 	[SerializeField]
 	private RectTransform selectionOutline;
 
-	private int bodyIndex = -1;
+	public int BodyIndex { get; private set; }
 
 	private void Awake()
 	{
@@ -19,7 +19,7 @@ public class AvatarSelectionSlot : MonoBehaviour
 
 	public void BuildAvatarSelectionSlot(int index, Texture2D texture)
 	{
-		bodyIndex = index;
+		BodyIndex = index;
 		image.texture = texture;
 	}
 
@@ -27,12 +27,12 @@ public class AvatarSelectionSlot : MonoBehaviour
 	{
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAvatarSlotClicked x, BaseEventData y) =>
 		{
-			x.AvatarSlotClicked(bodyIndex);
+			x.AvatarSlotClicked(BodyIndex);
 		});
 	}
 
-	public void ToggleActive()
+	public void ToggleActive(bool active)
 	{
-		selectionOutline.gameObject.SetActive(value: true);
+		selectionOutline.gameObject.SetActive(active);
 	}
 }

@@ -23,6 +23,8 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 
 	private string currentActionSuccessMessage;
 
+	private bool playingPurchaseSoundAfterScreenshot;
+
 	[SerializeField]
 	public AvatarPictureTakerUGUI pictureTaker;
 
@@ -138,6 +140,12 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 		CurrentBody.WorldPosition = displayPos;
 		CurrentBody.WorldRotation = displayRotation;
 		CurrentBody.Visible = true;
+		SharedCubeFunctions.SetLayerRecursively(CurrentBody.Transform, select: true);
+	}
+
+	public void CaptureScreenshotForBody(int index, Action<int, Texture2D> OnPictureTaken)
+	{
+		pictureTaker.TakePicture(bodies[index], index, OnPictureTaken, isCurrentBody: false);
 	}
 
 	public void CaptureScreenshotsForAllAvatars(Action<int, Texture2D> OnPictureTaken)
@@ -151,7 +159,7 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 
 	private void GenerateIconForBody(int index)
 	{
-		pictureTaker.TakePicture(bodies[index], index, Picture2DTakenCallback);
+		pictureTaker.TakePicture(bodies[index], index, Picture2DTakenCallback, bodies[index] == CurrentBody);
 	}
 
 	public void TakeScreenshotForProfile()
@@ -171,6 +179,7 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 		{
 			x.Push(popup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.Popup);
 		});
+		playingPurchaseSoundAfterScreenshot = true;
 		screenShooter.TakeScreenShot(ScreenShotCallback, CurrentBody, ignoreAccessories: false, TM._("New avatar purchased!"));
 	}
 
@@ -181,6 +190,10 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Push(popup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.Popup);
+		});
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IPurchaseSoundManager x, BaseEventData y) =>
+		{
+			x.SurpressSoundOnce();
 		});
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Combine(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(OnProductPurchaseAvatarResponse));
@@ -193,15 +206,15 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 	{
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Remove(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(OnProductPurchaseAvatarResponse));
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Pop();
+		});
 		Debug.Log("Avatar purchase response: " + (MVPurchaseReturnCode)returnCode);
 		if (returnCode != 0)
 		{
 			World world = MVGameControllerBase.Game.World;
 			world.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Remove(world.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(InitializedPurchasedAvatar));
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-			{
-				x.Pop();
-			});
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 			{
 				x.Create((MVPurchaseReturnCode)returnCode, purchasingItem.priceGold, 0);
@@ -229,13 +242,10 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 		}
 		bodies.Add(mVBody);
 		int num = bodies.Count - 1;
-		SetCurrentBody(num);
 		GenerateIconForBody(num);
+		SetCurrentBody(num);
+		AvatarSelectionController.CurrentlySelectedSlotIndex = num;
 		MVGameControllerBase.OperationRequests.SetActiveAvatar(e.RootWO.Id);
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-		{
-			x.Pop();
-		});
 		TakeScreenshotForPurchasedAvatar();
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAvatarSetBodyGroup x, BaseEventData y) =>
 		{
@@ -279,6 +289,14 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 		NotificationPopup popup = UnityEngine.Object.Instantiate(notificationPopup);
 		if (e.Uploaded)
 		{
+			if (playingPurchaseSoundAfterScreenshot)
+			{
+				playingPurchaseSoundAfterScreenshot = false;
+				ExecuteEvents.ExecuteHierarchy(gameObject, null, (IPurchaseSoundManager x, BaseEventData y) =>
+				{
+					x.PlayPurchaseSound();
+				});
+			}
 			popup.Initialize(currentActionSuccessMessage, "Success!");
 		}
 		else
