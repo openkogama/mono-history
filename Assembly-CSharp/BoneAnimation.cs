@@ -43,6 +43,8 @@ public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 	{
 	};
 
+	private float speed = 1f;
+
 	public AudioSource AudioSource
 	{
 		get
@@ -130,6 +132,19 @@ public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 		{
 			animationQueue.Enqueue(new AnimationData(state, timeStamp));
 			ComputeRemoteAnimation();
+		}
+	}
+
+	public void ComputeBlendAnimation(Dictionary<object, object> animData)
+	{
+		string state = (string)animData["state"];
+		int timeStamp = (int)animData["timeStamp"];
+		currentAnim = new AnimationData(state, timeStamp);
+		if (prevAnim == null || (prevAnim != null && currentAnim.State != prevAnim.State))
+		{
+			avatarAnimation.CrossFade(currentAnim.State, 0.3f, PlayMode.StopAll);
+			prevAnim = currentAnim;
+			currentAnim = null;
 		}
 	}
 
@@ -228,6 +243,11 @@ public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 		avatarAnimation.Sample();
 	}
 
+	public float GetAnimationTime(string animation)
+	{
+		return avatarAnimation[animation].length;
+	}
+
 	public void Stop()
 	{
 		avatarAnimation.Stop();
@@ -251,9 +271,17 @@ public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 		}
 		foreach (AnimationState item2 in avatarAnimation)
 		{
-			if (item2.name == "Walk" && item2.enabled && MVGameControllerBase.GameMode != MVGameMode.CharacterEditor)
+			if (item2.name == "Walk" && item2.enabled)
 			{
-				item2.speed = Mathf.Clamp(mvAvatar.Velocity.magnitude / assumedWalkMaxSpeed, walkMinSpeed, 1f);
+				speed = 1f;
+				if (mvAvatar != null)
+				{
+					speed = mvAvatar.Velocity.magnitude;
+				}
+				if (MVGameControllerBase.GameMode != MVGameMode.CharacterEditor)
+				{
+					item2.speed = Mathf.Clamp(speed / assumedWalkMaxSpeed, walkMinSpeed, 1f);
+				}
 			}
 			if (playingAnimations.Contains(item2.name) && !item2.enabled)
 			{

@@ -1,5 +1,6 @@
 using System;
 using MV.Common;
+using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
@@ -12,6 +13,9 @@ public class RewardGenerator : RewardButtonBase
 
 	[SerializeField]
 	private AccessoryAdCreator accessoryAdCreator;
+
+	[SerializeField]
+	private OfferAvatarPopup avatarAdPrefab;
 
 	[SerializeField]
 	private RewardMinigame rewardMinigamePrefab;
@@ -73,12 +77,36 @@ public class RewardGenerator : RewardButtonBase
 		switch (currentOffer.ActorOfferType)
 		{
 		case ActorOfferType.Accessory:
-			accessoryAdCreator.Initialize(OnRewardCollected, currentOffer as ActorOfferAccessory);
+			accessoryAdCreator.CreateOffer(OnRewardCollected, currentOffer as ActorOfferAccessory);
+			break;
+		case ActorOfferType.Avatar:
+			CreateActorOffer(currentOffer);
 			break;
 		case ActorOfferType.Unavailable:
 			OnRewardCollected();
 			break;
 		}
+	}
+
+	private void CreateActorOffer(IActorOfferClient offer)
+	{
+		MVWorldObjectClient worldObjectFromItemData = GetWorldObjectFromItemData(((ActorOfferAvatar)offer).avatarData);
+		Debug.Log(offer);
+		OfferAvatarPopup avatarOffer = UnityEngine.Object.Instantiate(avatarAdPrefab);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Push(avatarOffer.gameObject, UIPushOption.Blocking, OnRewardCollected, UIGroupFlags.Popup);
+		});
+		avatarOffer.CreateOffer((ActorOfferAvatar)offer, worldObjectFromItemData);
+	}
+
+	private static MVWorldObjectClient GetWorldObjectFromItemData(byte[] data)
+	{
+		BytePacker koGaMaData = new BytePacker(data);
+		KoGaMaPackageClient koGaMaPackageClient = new KoGaMaPackageClient(koGaMaData, readRuntimeValues: false);
+		MVWorldObjectClient mVWorldObjectClient = koGaMaPackageClient.worldObjects[koGaMaPackageClient.worldObjectRoot];
+		mVWorldObjectClient.InitializeInventory();
+		return mVWorldObjectClient;
 	}
 
 	private void OfferPrepared()

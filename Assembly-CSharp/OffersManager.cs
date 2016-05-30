@@ -39,6 +39,7 @@ public static class OffersManager
 		{
 			ActorOfferType.Accessory => (IActorOfferClient)JsonConvert.DeserializeObject<ActorOfferAccessory>(jsonData), 
 			ActorOfferType.Unavailable => JsonConvert.DeserializeObject<ActorOfferUnavailable>(jsonData), 
+			ActorOfferType.Avatar => JsonConvert.DeserializeObject<ActorOfferAvatar>(jsonData), 
 			_ => throw new Exception("Unknown offer type"), 
 		};
 	}

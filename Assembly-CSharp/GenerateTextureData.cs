@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using MV.Common;
 using UnityEngine;
 
 public class GenerateTextureData : MonoBehaviour
@@ -9,7 +8,7 @@ public class GenerateTextureData : MonoBehaviour
 
 	public static bool IsCreatingScreenShot => isCreatingScreenShot;
 
-	public void GenerateTextureDataCameraView(Func<byte[], ImageType, int, bool> callback, ImageType imageType, int imageId)
+	public void GenerateTextureDataCameraView(Action<byte[]> callback)
 	{
 		if (isCreatingScreenShot)
 		{
@@ -18,11 +17,11 @@ public class GenerateTextureData : MonoBehaviour
 		}
 		else
 		{
-			StartCoroutine(GenerateTexture(callback, imageType, imageId));
+			StartCoroutine(GenerateTexture(callback));
 		}
 	}
 
-	private IEnumerator GenerateTexture(Func<byte[], ImageType, int, bool> textureDataCallback, ImageType imageType, int imageId)
+	private IEnumerator GenerateTexture(Action<byte[]> textureDataCallback)
 	{
 		isCreatingScreenShot = true;
 		int width = 600;
@@ -50,7 +49,7 @@ public class GenerateTextureData : MonoBehaviour
 		screenshotTexture.ReadPixels(new Rect(0f, 0f, width, height), 0, 0);
 		screenshotTexture.Apply();
 		byte[] bytes = screenshotTexture.EncodeToPNG();
-		textureDataCallback((byte[])bytes.Clone(), imageType, imageId);
+		textureDataCallback((byte[])bytes.Clone());
 		screenshotCam.targetTexture = null;
 		RenderTexture.active = null;
 		UnityEngine.Object.Destroy(screenshotCamObject);

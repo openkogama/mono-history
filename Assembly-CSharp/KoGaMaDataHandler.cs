@@ -7,7 +7,7 @@ public static class KoGaMaDataHandler
 {
 	private class AsyncBookkeeping
 	{
-		private static float workTime = 0.1f;
+		private static float workTime = 1f;
 
 		private float workStartTime;
 

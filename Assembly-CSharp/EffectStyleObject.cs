@@ -2,8 +2,8 @@ using Gamestrap;
 using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(GradientEffect))]
 [RequireComponent(typeof(ShadowEffect))]
+[RequireComponent(typeof(GradientEffect))]
 [RequireComponent(typeof(Graphic))]
 [RequireComponent(typeof(Outline))]
 public class EffectStyleObject : MonoBehaviour

@@ -261,26 +261,13 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 	private void ScreenShotCallback(Texture2D screenshotTex, string successMessage)
 	{
 		currentActionSuccessMessage = successMessage;
-		int profileID = MVGameControllerBase.Game.LocalPlayer.ProfileID;
-		if (MVGameControllerBase.OperationRequests.UploadScreenshot(screenshotTex.EncodeToPNG(), ImageType.Avatar, profileID))
-		{
-			MVGameControllerBase.Game.ScreenshotUploaded += MVNetworGame_ScreenshotUploadedHandler;
-			return;
-		}
-		NotificationPopup popup = UnityEngine.Object.Instantiate(notificationPopup);
-		popup.Initialize("There was a server communication problem. Try again!", "Action failed!");
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-		{
-			x.Pop();
-		});
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-		{
-			x.Push(popup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.Popup);
-		});
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (ISetEditState x, BaseEventData y) =>
-		{
-			x.SetState(EditorEvent.CERoamUUI);
-		});
+		DataUploadManager.UploadData(screenshotTex.EncodeToPNG(), UploadedImageData);
+	}
+
+	private void UploadedImageData()
+	{
+		MVGameControllerBase.Game.ScreenshotUploaded += MVNetworGame_ScreenshotUploadedHandler;
+		MVGameControllerBase.OperationRequests.UploadScreenshot(ImageType.Avatar);
 	}
 
 	private void MVNetworGame_ScreenshotUploadedHandler(object sender, ScreenshotUploadedEventArgs e)

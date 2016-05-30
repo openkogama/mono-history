@@ -64,7 +64,7 @@ public enum MVParameterKeys : byte
 	EventCaching = 59,
 	Links = 60,
 	Lock = 61,
-	PlanetTextureData = 62,
+	UploadPlanetTextureData = 62,
 	GameStateType = 63,
 	GameStateDuration = 64,
 	GameStateStartTime = 65,

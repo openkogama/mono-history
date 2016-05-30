@@ -100,5 +100,8 @@ public enum DBQuery
 	RequestGameTypeID,
 	RequestProtoPlanetID,
 	RequestDefaultInventory,
-	CreateDefaultItemInventory
+	CreateDefaultItemInventory,
+	GetMostLikedAvatars,
+	GetAvatarRevisionData,
+	GetAvatarMetaData
 }

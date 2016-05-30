@@ -191,14 +191,22 @@ public class ContextMenuController : MonoBehaviour, IEventSystemHandler, IHandle
 		{
 			x.Create();
 		});
-		MVWorldObjectClient wo = MVGameControllerBase.WOCM.GetWorldObjectClient(woID);
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woID);
 		Action<byte[]> callback = (byte[] imageData) =>
 		{
-			PlayerInventoryRepository playerInventoryRepository = MVGameControllerBase.IEditModeUI.PlayerInventoryRepository;
-			playerInventoryRepository.OnInventoryChanged = (Action)Delegate.Combine(playerInventoryRepository.OnInventoryChanged, new Action(OnFinishedAddingItem));
-			MVGameControllerBase.OperationRequests.AddWorldObjectToInventory(wo.Id, imageData);
+			DataUploadManager.UploadData(imageData, () =>
+			{
+				ItemImageUploaded(woID);
+			});
 		};
-		StartCoroutine(ImageGenerator.CreateTextureFromData(wo, callback));
+		StartCoroutine(ImageGenerator.CreateTextureFromData(worldObjectClient, callback));
+	}
+
+	private void ItemImageUploaded(int woId)
+	{
+		PlayerInventoryRepository playerInventoryRepository = MVGameControllerBase.IEditModeUI.PlayerInventoryRepository;
+		playerInventoryRepository.OnInventoryChanged = (Action)Delegate.Combine(playerInventoryRepository.OnInventoryChanged, new Action(OnFinishedAddingItem));
+		MVGameControllerBase.OperationRequests.AddWorldObjectToInventory(woId);
 	}
 
 	private void OnFinishedAddingItem()

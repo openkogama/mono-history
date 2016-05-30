@@ -23,6 +23,18 @@ public class AvatarPreviewer : MonoBehaviour
 
 	public GameObject PreviewGameObject { get; private set; }
 
+	public void FaceGameObject(GameObject go)
+	{
+		previewCam.transform.LookAt(go.transform);
+	}
+
+	public void OverrideCameraForPreviewer(Vector3 cameraAngle, Vector3 cameraOffset)
+	{
+		Transform transform = previewCam.transform;
+		transform.rotation = Quaternion.Euler(cameraAngle);
+		transform.position = cameraOffset;
+	}
+
 	public void Initialize(int textureWidth, int textureHeight, CameraClearFlags clearFlags, LayerFlags layersToRender, Vector3 cameraOffset, Transform previewItemsRoot, Vector3 previewPosition, string name, MVWorldObjectClient wo, GameObject woGameObjectCopy)
 	{
 		this.layersToRender = layersToRender | LayerFlags.Hidden;

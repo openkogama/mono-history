@@ -672,6 +672,14 @@ public class MVNetworkGame : IPhotonPeerListener
 			operationResponsePendingManager = new OperationResponsePendingManager(peer);
 		}
 
+		public void UploadData(int id, byte[] uploadData)
+		{
+			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
+			dictionary.Add(192, id);
+			dictionary.Add(245, uploadData);
+			peer.OpCustom(78, dictionary, sendReliable: true);
+		}
+
 		public void TryRemovePendingOperation(MVOperationCodes operationCode)
 		{
 			operationResponsePendingManager.TryRemovePendingOperation(operationCode);
@@ -752,13 +760,32 @@ public class MVNetworkGame : IPhotonPeerListener
 					errorText = TM._("You are already publishing planet, please wait.");
 					return false;
 				}
-				GeneratePlanetScreenShot(PublishPlanet);
+				GeneratePlanetScreenShot(HandlePublishAndScreenShotData);
 			}
 			else
 			{
-				PublishPlanet(new byte[0], ImageType.Planet, MVGameControllerBase.GameSessionData.planetID);
+				PublishPlanet(newImagePending: false);
 			}
 			return true;
+		}
+
+		private void HandlePublishAndScreenShotData(byte[] screenshot)
+		{
+			DataUploadManager.UploadData(screenshot, () =>
+			{
+				PublishPlanet(newImagePending: true);
+			});
+		}
+
+		private bool PublishPlanet(bool newImagePending)
+		{
+			if (newImagePending)
+			{
+				MVGameControllerBase.Game.MaterialRepository.Validate();
+			}
+			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
+			dictionary.Add(62, newImagePending);
+			return operationResponsePendingManager.AddOperationCodeToPending(MVOperationCodes.PublishPlanet, dictionary);
 		}
 
 		public void UploadGameScreenShot()
@@ -771,14 +798,18 @@ public class MVNetworkGame : IPhotonPeerListener
 			{
 				Debug.LogWarning("Texture is already being generated. Aborting UploadGameScreenShot");
 			}
-			else if (IsOperationPending(MVOperationCodes.UploadScreenshot))
-			{
-				Debug.LogWarning("UploadScreenshot operation is pending. Aborting UploadGameScreenShot");
-			}
 			else
 			{
-				GeneratePlanetScreenShot(UploadScreenshot);
+				GeneratePlanetScreenShot(HandleUploadScreenShotData);
 			}
+		}
+
+		private void HandleUploadScreenShotData(byte[] screenshot)
+		{
+			DataUploadManager.UploadData(screenshot, () =>
+			{
+				UploadScreenshot(ImageType.Planet);
+			});
 		}
 
 		public bool IsOperationPending(MVOperationCodes operationCode)
@@ -933,7 +964,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			dictionary.Add(200, type);
 			dictionary.Add(201, notificationData);
 			Dictionary<byte, object> customOpParameters = dictionary;
-			peer.OpCustom(78, customOpParameters, sendReliable: true);
+			peer.OpCustom(79, customOpParameters, sendReliable: true);
 		}
 
 		public void LockHierarchy(int worldObjectID, bool lockHierarchy)
@@ -1136,14 +1167,6 @@ public class MVNetworkGame : IPhotonPeerListener
 			peer.OpCustom(1, dictionary, sendReliable: true);
 		}
 
-		private bool PublishPlanet(byte[] pngImageAsByteArray, ImageType image, int imageId)
-		{
-			MVGameControllerBase.Game.MaterialRepository.Validate();
-			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
-			dictionary.Add(62, pngImageAsByteArray);
-			return operationResponsePendingManager.AddOperationCodeToPending(MVOperationCodes.PublishPlanet, dictionary);
-		}
-
 		public void LocalPlayerLevelChanged(int level)
 		{
 			Debug.Log("LocalPlayerLevelChanged");
@@ -1164,7 +1187,7 @@ public class MVNetworkGame : IPhotonPeerListener
 				dictionary2.Add(200, NotificationType.PlayerJoined);
 				dictionary2.Add(201, value);
 				Dictionary<byte, object> customOpParameters = dictionary2;
-				peer.OpCustom(78, customOpParameters, sendReliable: true);
+				peer.OpCustom(79, customOpParameters, sendReliable: true);
 			}
 		}
 
@@ -1180,7 +1203,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			dictionary2.Add(200, NotificationType.WonRareSpinReward);
 			dictionary2.Add(201, value);
 			Dictionary<byte, object> customOpParameters = dictionary2;
-			peer.OpCustom(78, customOpParameters, sendReliable: true);
+			peer.OpCustom(79, customOpParameters, sendReliable: true);
 		}
 
 		public void Ban(CheatType cheatType)
@@ -1218,14 +1241,12 @@ public class MVNetworkGame : IPhotonPeerListener
 			peer.OpCustom(9, dictionary, sendReliable: true);
 		}
 
-		public void AddWorldObjectToInventory(int worldObjectID, byte[] itemTextureData)
+		public void AddWorldObjectToInventory(int worldObjectID)
 		{
 			MVGameControllerBase.Game.MaterialRepository.Validate();
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(20, worldObjectID);
-			dictionary.Add(42, itemTextureData);
 			peer.OpCustom(48, dictionary, sendReliable: true);
-			peer.SendOutgoingCommands();
 		}
 
 		public void RemoveItemFromInventory(int itemID)
@@ -1360,14 +1381,13 @@ public class MVNetworkGame : IPhotonPeerListener
 			peer.OpCustom(56, attachWorldObjectToSeatData, sendReliable: true);
 		}
 
-		public void AddAvatarToAvatarShopInventory(int worldObjectId, int priceSilver, string name, byte[] imageData)
+		public void AddAvatarToAvatarShopInventory(int worldObjectId, int priceSilver, string name)
 		{
 			networkGame.MaterialRepository.Validate();
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(20, worldObjectId);
 			dictionary.Add(131, priceSilver);
 			dictionary.Add(167, name);
-			dictionary.Add(118, imageData);
 			peer.OpCustom(63, dictionary, sendReliable: true);
 		}
 
@@ -1601,12 +1621,10 @@ public class MVNetworkGame : IPhotonPeerListener
 			}
 		}
 
-		public bool UploadScreenshot(byte[] textureData, ImageType imageType, int imageId)
+		public bool UploadScreenshot(ImageType imageType)
 		{
 			MVGameControllerBase.Game.MaterialRepository.Validate();
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
-			dictionary.Add(118, textureData);
-			dictionary.Add(119, imageId);
 			dictionary.Add(117, (byte)imageType);
 			return operationResponsePendingManager.AddOperationCodeToPending(MVOperationCodes.UploadScreenshot, dictionary);
 		}
@@ -1990,6 +2008,9 @@ public class MVNetworkGame : IPhotonPeerListener
 				OffersManager.UpdateCurrentOffer(actorOfferType, jsonData);
 				break;
 			}
+			case MVOperationCodes.UploadBytes:
+				DataUploadManager.OnUploadBytes();
+				break;
 			default:
 				Debug.LogWarning("Unhandled operation code " + opCode);
 				break;
@@ -2063,8 +2084,6 @@ public class MVNetworkGame : IPhotonPeerListener
 	public delegate void OnMarketPlaceActionCompleteDelegate(bool success);
 
 	private const string appName = "MVGameServer";
-
-	public const int numInventoryItemsPerBatch = 10;
 
 	private const float serviceCallInterval = 0.05f;
 
@@ -2516,11 +2535,11 @@ public class MVNetworkGame : IPhotonPeerListener
 		expiredStreamingAssetIDs.Remove(e.InvetoryID);
 	}
 
-	private static void GeneratePlanetScreenShot(Func<byte[], ImageType, int, bool> callback)
+	private static void GeneratePlanetScreenShot(Action<byte[]> callback)
 	{
 		GameObject gameObject = new GameObject("GenerateTexture");
 		GenerateTextureData generateTextureData = gameObject.AddComponent<GenerateTextureData>();
-		generateTextureData.GenerateTextureDataCameraView(callback, ImageType.Planet, MVGameControllerBase.GameSessionData.planetID);
+		generateTextureData.GenerateTextureDataCameraView(callback);
 	}
 
 	public void OnUnregisterWorldObjectResponse(int worldObjectID)
