@@ -3697,6 +3697,10 @@ public class MVNetworkGame : IPhotonPeerListener
 		if (MVGameControllerBase.Game.LocalPlayer.ActorNr == num3)
 		{
 			MVGameControllerBase.WOCM.AvatarLocal.SetMode(MVGameControllerBase.WOCM.AvatarLocal.AvatarRuntimeState);
+			if (MVGameControllerBase.GameMode == MVGameMode.Play)
+			{
+				MVGameControllerBase.WOCM.AvatarLocal.Body.AccessoryMoveOverride = true;
+			}
 		}
 	}
 

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class AvatarPickupOwner : MVPickupOwner
 {
-	private MVBody body;
+	private MVAvatar mvAvatar;
 
 	private ILaserPointer laserPointer;
 
@@ -41,11 +41,11 @@ public class AvatarPickupOwner : MVPickupOwner
 		}
 	}
 
-	public void Init(MVRuntimeDataVariable currentItemRuntimeDataVariable, MVRuntimeDataVariable isFiringRuntimeDataVariable, MVAvatar mvAvatar, MVBody body)
+	public void Init(MVRuntimeDataVariable currentItemRuntimeDataVariable, MVRuntimeDataVariable isFiringRuntimeDataVariable, MVAvatar mvAvatar)
 	{
 		InitLaser();
+		this.mvAvatar = mvAvatar;
 		Init(currentItemRuntimeDataVariable, isFiringRuntimeDataVariable);
-		this.body = body;
 		mvAvatar.ScaleChanged += OnAvatarScaleChanged;
 	}
 
@@ -71,9 +71,9 @@ public class AvatarPickupOwner : MVPickupOwner
 		{
 			pickupItem = CreateAvatarItem(type, variantId);
 		}
-		if (body != null)
+		if (mvAvatar.Body != null)
 		{
-			pickupItem.transform.parent = body.BodyData.GetPartBone("Torso");
+			pickupItem.transform.parent = mvAvatar.Body.BodyData.GetPartBone("Torso");
 			pickupItem.transform.localPosition = new Vector3(0f, 0.25f, 0f);
 			pickupItem.transform.localRotation = Quaternion.identity;
 		}

@@ -130,7 +130,7 @@ public class MVAvatar : MVGroup
 		base.Initialize();
 		gameObject.AddComponent<InteractionDataHandler>();
 		avatarPickupOwner = gameObject.AddComponent<AvatarPickupOwner>();
-		avatarPickupOwner.Init(CurrentItem, IsFiring, this, body);
+		avatarPickupOwner.Init(CurrentItem, IsFiring, this);
 		avatarPickupOwner.IsLocal = isLocal;
 		avatar.Initialize(this, isLocal);
 		InitializeModifiers();

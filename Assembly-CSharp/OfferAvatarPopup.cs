@@ -54,7 +54,7 @@ public class OfferAvatarPopup : MonoBehaviour
 		offerCreator.text = string.Format(offerCreator.text, offer.creatorName);
 		dropShadow = UnityEngine.Object.Instantiate(dropShadow);
 		screenShooter = UnityEngine.Object.Instantiate(screenShooter);
-		screenShooter.Initialize(1024, 1024, CameraClearFlags.Color, wo.PreviewLayerMask, new Vector3(0f, 0f, 0f), null, new Vector3(0f, 0f, 0f), offer.name, wo, wo.GameObject);
+		screenShooter.Initialize(2048, 2048, CameraClearFlags.Color, wo.PreviewLayerMask, new Vector3(0f, 0f, 0f), null, new Vector3(0f, 0f, 0f), offer.name, wo, wo.GameObject);
 		screenShooter.OverrideCameraForPreviewer(new Vector3(0f, 336.024f, 0f), new Vector3(1.284f, 0.893f, -3.221f));
 		dropShadow.transform.position = Vector3.zero;
 		dropShadow.SetLayerRecursively(LayerUtil.GetLayerNumber(LayerFlags.Preview));
@@ -105,14 +105,13 @@ public class OfferAvatarPopup : MonoBehaviour
 
 	public void OnPurchaseOffer()
 	{
-		MVNetworkGame game = MVGameControllerBase.Game;
-		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Combine(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
-		OffersManager.ClaimOffer();
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 		{
 			x.Create();
 		});
-		b.Animation.Stop();
+		MVNetworkGame game = MVGameControllerBase.Game;
+		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Combine(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
+		OffersManager.ClaimOffer();
 	}
 
 	public void OnClose()
@@ -131,7 +130,9 @@ public class OfferAvatarPopup : MonoBehaviour
 		{
 			x.Pop();
 		});
-		if (returnCode == 0)
+		switch ((MVPurchaseReturnCode)returnCode)
+		{
+		case MVPurchaseReturnCode.Success:
 		{
 			UnityEngine.Object.Destroy(dropShadow);
 			Dictionary<object, object> dictionary = new Dictionary<object, object>();
@@ -144,13 +145,20 @@ public class OfferAvatarPopup : MonoBehaviour
 			{
 				x.Push(popup.gameObject, UIPushOption.Blocking | UIPushOption.HideAll, OnCelebrationClosed, UIGroupFlags.Popup);
 			});
+			break;
 		}
-		else
-		{
+		case MVPurchaseReturnCode.InsufficientFunds:
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 			{
 				x.Create((MVPurchaseReturnCode)returnCode, int.Parse(price.text), 0);
 			});
+			break;
+		default:
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+			{
+				x.Create(TM._("An unexpected error occured, try again later."), "Error!");
+			});
+			break;
 		}
 	}
 
