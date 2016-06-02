@@ -1,7 +1,6 @@
 using System;
 using MV.Common;
 using UnityEngine;
-using UnityStandardAssets.CrossPlatformInput;
 
 public static class AwayMonitor
 {
@@ -28,8 +27,6 @@ public static class AwayMonitor
 
 	private static DateTime latestMouseMoveTime = DateTime.Now;
 
-	private static bool allAxisAvailable;
-
 	public static bool IdleKickEnabled
 	{
 		get
@@ -46,14 +43,12 @@ public static class AwayMonitor
 
 	public static void Update()
 	{
-		if (allAxisAvailable)
-		{
-			UpdateMouse();
-		}
-		else if (CrossPlatformInputManager.AxisExists("Mouse ScrollWheel") && CrossPlatformInputManager.AxisExists("Mouse X") && CrossPlatformInputManager.AxisExists("Mouse Y"))
-		{
-			allAxisAvailable = true;
-		}
+		UpdateMouse();
+		UpdateIdle();
+	}
+
+	private static void UpdateIdle()
+	{
 		if (DateTime.Now - LatestMouseMoveTime < awayCheckFrequency && DateTime.Now - latestResetAFKTime > awayCheckFrequency)
 		{
 			BrowserComm.ToJavaScript.ExternalCall("resetAFKtimer");
