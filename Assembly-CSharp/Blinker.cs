@@ -41,4 +41,9 @@ public class Blinker
 			}
 		}
 	}
+
+	public void DestroyBlinkerMaterial()
+	{
+		Object.Destroy(blinkMaterial);
+	}
 }

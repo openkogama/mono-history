@@ -21,7 +21,7 @@ public abstract class MvCharacterController : MonoBehaviour
 
 	protected const float veryCloseDistance = 0.005f;
 
-	private static int maxRecursions = 15;
+	private static int maxRecursions = 7;
 
 	private static float collisionMaxAngle = 89.95f;
 

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IEventSystemHandler, ILeaveEditPlayModeHandler, IActivateUIElement
+public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanvasController, IEventSystemHandler, ILeaveEditPlayModeHandler, IActivateUIElement
 {
 	private ILockCursorManager lockCursorManager;
 
@@ -40,6 +40,9 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IEvent
 
 	[SerializeField]
 	private Sprite mysteryBoxIcon;
+
+	[SerializeField]
+	private Canvas canvas;
 
 	public UnityAction OnLeaveEditPlayMode;
 
@@ -235,5 +238,10 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IEvent
 		{
 			OnLeaveEditPlayMode();
 		}
+	}
+
+	public void SetPixelPerfect(bool pixelPerfect)
+	{
+		canvas.pixelPerfect = pixelPerfect;
 	}
 }

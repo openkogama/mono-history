@@ -63,6 +63,10 @@ internal class ESInsert : ESStateBase
 		previewMeshes = e.SingleSelectedWO.GameObject.GetComponentsInChildren<MeshFilter>();
 		isNewPrototype = e.Data.ContainsKey("IsNewPrototype");
 		woIgnoreList = ((!(e.SingleSelectedWO is MVGroup)) ? new HashSet<int> { e.SingleSelectedWO.Id } : (e.SingleSelectedWO as MVGroup).GetHierarchyWorldObjectIDs());
+		if (e.SingleSelectedWO.GameObject.layer == LayerUtil.GetLayerNumber(LayerFlags.Logic))
+		{
+			MVGameControllerBase.CameraController.IsLogicRendered = true;
+		}
 		Debug.LogWarning("Block button pressing when dragging object");
 	}
 

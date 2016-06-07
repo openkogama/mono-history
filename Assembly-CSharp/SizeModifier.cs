@@ -9,7 +9,7 @@ public abstract class SizeModifier : AvatarModifier
 
 	protected float sizeModifier = 0.25f;
 
-	protected float sizeUnstableAfterSeconds = 15f;
+	protected float sizeUnstableAfterSeconds = 28f;
 
 	protected float unstableSpeed = 10f;
 

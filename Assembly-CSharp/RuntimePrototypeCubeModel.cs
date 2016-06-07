@@ -635,4 +635,12 @@ public class RuntimePrototypeCubeModel
 			chunk.Value.CompareGeometry(value, ref matchingCubeCount, ref investigatedCubeCount, visibleCubesOnly);
 		}
 	}
+
+	public void Destroy()
+	{
+		foreach (KeyValuePair<IntVector, CubeModelChunk> chunk in Chunks)
+		{
+			chunk.Value.Destroy();
+		}
+	}
 }

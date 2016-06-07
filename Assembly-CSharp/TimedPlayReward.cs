@@ -14,6 +14,8 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 
 		public int silver;
 
+		public int xp;
+
 		public override string ToString()
 		{
 			return $"rewardEnabled {rewardEnabled}. timeInSeconds {timeInSeconds}. gold {gold}. silver {silver}.";
@@ -36,6 +38,10 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 
 	public bool rewardAvailable { get; private set; }
 
+	private int rewardXP { get; set; }
+
+	private int rewardGold { get; set; }
+
 	public void Initialize()
 	{
 		if (!MVGameControllerBase.UsingDevSessionData)
@@ -56,7 +62,7 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 
 	public void RewardClicked()
 	{
-		NotificationController.PushNotification(TM._("Thank you for playing this NEW game!"), notificationImage);
+		NotificationController.PushNotification(TM._("Thank you for playing this NEW game! Received " + rewardXP + " XP and " + rewardGold + " gold!"), notificationImage);
 		claimRewardBtn.interactable = false;
 		timerText.text = string.Empty;
 		GameSessionData gameSessionData = MVGameControllerBase.GameSessionData;
@@ -80,6 +86,8 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 			return;
 		}
 		RewardData rewardData = JsonConvert.DeserializeObject<RewardData>(www.text);
+		rewardXP = rewardData.xp;
+		rewardGold = rewardData.gold;
 		rewardAvailable = rewardData.rewardEnabled;
 		claimRewardBtn.gameObject.SetActive(rewardAvailable);
 		if (!rewardAvailable)

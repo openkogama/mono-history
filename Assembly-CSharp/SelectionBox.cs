@@ -88,6 +88,7 @@ public class SelectionBox : MonoBehaviour
 		{
 			a = currentAlpha;
 		}
+		Object.Destroy(meshRenderer.material);
 		meshRenderer.material = material;
 		if (meshFilter == null)
 		{
@@ -108,5 +109,10 @@ public class SelectionBox : MonoBehaviour
 		this.fadeOutTime = fadeOutTime;
 		isFadingOut = true;
 		fadeOutBeginTime = Time.time;
+	}
+
+	private void OnDestroy()
+	{
+		Object.Destroy(meshRenderer.material);
 	}
 }

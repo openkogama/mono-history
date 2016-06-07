@@ -21,9 +21,6 @@ public class OfferAccessoryPopup : MonoBehaviour
 	[SerializeField]
 	private Text extraSpinText;
 
-	[SerializeField]
-	private GameObject waitOverLay;
-
 	private AccessoryAttacher accessoryAttacher = new AccessoryAttacher();
 
 	private int purchasedInventoryID;
@@ -39,7 +36,10 @@ public class OfferAccessoryPopup : MonoBehaviour
 
 	public void Purchase()
 	{
-		waitOverLay.SetActive(value: true);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+		{
+			x.Create();
+		});
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Combine(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
 		OffersManager.ClaimOffer();
@@ -49,7 +49,10 @@ public class OfferAccessoryPopup : MonoBehaviour
 	{
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Remove(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
-		waitOverLay.SetActive(value: false);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Pop();
+		});
 		if (returnCode == 0)
 		{
 			HandleSuccessfulPurchase(purchaseResponseData);
@@ -113,7 +116,6 @@ public class OfferAccessoryPopup : MonoBehaviour
 
 	public void Pop()
 	{
-		waitOverLay.SetActive(value: false);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Pop();

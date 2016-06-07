@@ -249,7 +249,6 @@ public class AndroidChatController : MonoBehaviour
 	{
 		Text text = lines.Dequeue();
 		lines.Enqueue(text);
-		text.transform.SetParent(null, worldPositionStays: false);
 		text.transform.SetParent(contentPanel, worldPositionStays: false);
 		text.transform.SetAsLastSibling();
 		return text;

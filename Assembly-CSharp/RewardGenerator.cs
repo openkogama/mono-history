@@ -93,11 +93,11 @@ public class RewardGenerator : RewardButtonBase
 		MVWorldObjectClient worldObjectFromItemData = GetWorldObjectFromItemData(((ActorOfferAvatar)offer).avatarData);
 		Debug.Log(offer);
 		OfferAvatarPopup avatarOffer = UnityEngine.Object.Instantiate(avatarAdPrefab);
+		avatarOffer.CreateOffer((ActorOfferAvatar)offer, worldObjectFromItemData);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Push(avatarOffer.gameObject, UIPushOption.Blocking, OnRewardCollected, UIGroupFlags.Popup);
 		});
-		avatarOffer.CreateOffer((ActorOfferAvatar)offer, worldObjectFromItemData);
 	}
 
 	private static MVWorldObjectClient GetWorldObjectFromItemData(byte[] data)
@@ -123,7 +123,6 @@ public class RewardGenerator : RewardButtonBase
 	private void OnRewardCollected()
 	{
 		RewardMinigame rewardMinigame = UnityEngine.Object.Instantiate(rewardMinigamePrefab);
-		rewardMinigame.Initialize();
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Push(rewardMinigame.gameObject, UIPushOption.Blocking, RewardCountChanged, UIGroupFlags.GameObjectUI);

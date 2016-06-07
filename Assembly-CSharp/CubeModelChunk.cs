@@ -193,6 +193,7 @@ public class CubeModelChunk
 		{
 			Object.Destroy(instance.gameObject);
 		}
+		sharedMeshData.Destroy();
 	}
 
 	public void RebuildChunk(Vector3 scale)

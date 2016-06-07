@@ -62,6 +62,7 @@ public class AvatarBadge : MonoBehaviour
 			ScaleAnimations scaleAnimations = scaleAnimation;
 			scaleAnimations.OnIntermediateScaleAnimationStopped = (ScaleAnimationBase.OnScaleAnimationStoppedDelegate)Delegate.Remove(scaleAnimations.OnIntermediateScaleAnimationStopped, new ScaleAnimationBase.OnScaleAnimationStoppedDelegate(ScaleAnimationIntermediateCallback));
 		}
+		UnityEngine.Object.Destroy(badgeRenderer.material);
 	}
 
 	private void StreamingAssetCallback(WWW www)

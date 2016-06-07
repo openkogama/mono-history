@@ -93,6 +93,13 @@ public class MVWorldInventory
 
 	public void RemovePrototype(int id)
 	{
+		if (!runtimePrototypes.ContainsKey(id))
+		{
+			Debug.LogError("Failed to remove runtime prototype as id does not exist");
+			return;
+		}
+		RuntimePrototypeCubeModel runtimePrototypeCubeModel = runtimePrototypes[id];
+		runtimePrototypeCubeModel.Destroy();
 		runtimePrototypes.Remove(id);
 		NotifyWorldInventoryChange();
 	}

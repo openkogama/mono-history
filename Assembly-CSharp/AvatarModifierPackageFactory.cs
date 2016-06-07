@@ -95,7 +95,7 @@ public static class AvatarModifierPackageFactory
 		},
 		{
 			AvatarModifierPackageType.Shrunken,
-			new AvatarModifierPackage(AvatarModifierPackageType.Shrunken, AvatarModifierPackageAdditionPolicy.Renew, 20f, new AvatarModifierPackage.AvatarModifier[7]
+			new AvatarModifierPackage(AvatarModifierPackageType.Shrunken, AvatarModifierPackageAdditionPolicy.Renew, 35f, new AvatarModifierPackage.AvatarModifier[7]
 			{
 				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.Speed, Const(0.4f)),
 				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Override, AvatarModifierEffect.Scale, Const(0.25f)),
@@ -132,7 +132,7 @@ public static class AvatarModifierPackageFactory
 		},
 		{
 			AvatarModifierPackageType.Enlarged,
-			new AvatarModifierPackage(AvatarModifierPackageType.Enlarged, AvatarModifierPackageAdditionPolicy.Renew, 20f, new AvatarModifierPackage.AvatarModifier[7]
+			new AvatarModifierPackage(AvatarModifierPackageType.Enlarged, AvatarModifierPackageAdditionPolicy.Renew, 35f, new AvatarModifierPackage.AvatarModifier[7]
 			{
 				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.Speed, Const(1.5f)),
 				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Override, AvatarModifierEffect.Scale, Const(2f)),

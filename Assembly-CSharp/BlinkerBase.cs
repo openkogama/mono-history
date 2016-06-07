@@ -5,8 +5,6 @@ public class BlinkerBase : MonoBehaviour
 {
 	public Material blinkMaterial;
 
-	private Material blinkMaterialInstance;
-
 	protected bool visible;
 
 	protected MeshFilter[] meshFilters;
@@ -64,6 +62,14 @@ public class BlinkerBase : MonoBehaviour
 					value.Draw(meshFilter.mesh, tfm);
 				}
 			}
+		}
+	}
+
+	private void OnDestroy()
+	{
+		foreach (Blinker value in blinkers.Values)
+		{
+			value.DestroyBlinkerMaterial();
 		}
 	}
 }

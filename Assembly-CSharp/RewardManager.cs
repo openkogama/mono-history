@@ -72,6 +72,11 @@ public static class RewardManager
 		MVGameControllerBase.OperationRequests.GetRewardIndex();
 	}
 
+	public static void UnsubscribeFromGetReward()
+	{
+		OnGetRewardCallback = null;
+	}
+
 	public static void ClaimReward(UnityAction claimRewardCallback)
 	{
 		OnClaimRewardCallback = claimRewardCallback;

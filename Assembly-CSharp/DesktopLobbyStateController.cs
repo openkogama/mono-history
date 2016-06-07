@@ -50,22 +50,23 @@ public class DesktopLobbyStateController : MonoBehaviour
 	private void Start()
 	{
 		bool isTouristSession = MVGameControllerBase.IsTouristSession;
+		bool flag = MVGameControllerBase.IEditModeUI == null && !isTouristSession && MVGameControllerBase.GameMode == MVGameMode.Play;
 		playReward.gameObject.SetActive(value: false);
 		bool active = MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion;
 		touristRegisterButton.SetActive(active);
-		rewardTransform.gameObject.SetActive(MVGameControllerBase.IEditModeUI == null && !isTouristSession && MVGameControllerBase.GameMode == MVGameMode.Play);
+		rewardTransform.gameObject.SetActive(flag);
 		gameCoinBoosterButton.SetActive(!isTouristSession);
 		avatarAccessoriesButton.SetActive(!isTouristSession);
 		touristRewardPreview.SetActive(isTouristSession);
-		if (!isTouristSession)
+		if (flag)
 		{
 			playReward.Initialize();
-		}
-		RewardManager.NumberOfPendingRewardsChanged = (UnityAction)Delegate.Combine(RewardManager.NumberOfPendingRewardsChanged, new UnityAction(RewardChanged));
-		RewardManager.TimerUpdated = (UnityAction)Delegate.Combine(RewardManager.TimerUpdated, new UnityAction(RewardChanged));
-		if (RewardManager.TimerInitiated)
-		{
-			RewardChanged();
+			RewardManager.NumberOfPendingRewardsChanged = (UnityAction)Delegate.Combine(RewardManager.NumberOfPendingRewardsChanged, new UnityAction(RewardChanged));
+			RewardManager.TimerUpdated = (UnityAction)Delegate.Combine(RewardManager.TimerUpdated, new UnityAction(RewardChanged));
+			if (RewardManager.TimerInitiated)
+			{
+				RewardChanged();
+			}
 		}
 	}
 

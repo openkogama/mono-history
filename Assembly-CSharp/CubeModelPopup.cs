@@ -19,7 +19,7 @@ public class CubeModelPopup : MonoBehaviour
 	{
 		materialID = currentMaterialId;
 		MVMaterial material = MVGameControllerBase.Game.MaterialRepository.GetMaterial(currentMaterialId);
-		if (material.IsDestructible)
+		if (material.IsDestructible || !material.isUnlocked)
 		{
 			material = MVGameControllerBase.Game.MaterialRepository.GetMaterial(21);
 			materialID = 21;

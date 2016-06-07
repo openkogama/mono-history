@@ -1,6 +1,7 @@
 using System;
 using MV.Common;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
 public class AccessoryUnEquip : MonoBehaviour
@@ -21,8 +22,24 @@ public class AccessoryUnEquip : MonoBehaviour
 
 	public void UnEquip()
 	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+		{
+			x.Create();
+		});
 		int accessoryID = AvatarBody.GetAccessoryID(avatarAccessorySlot);
 		MVGameControllerBase.OperationRequests.SetAvatarAccessorySlot(AvatarBody.Id, accessoryID, AvatarAccessorySlot.Undefined, 0f);
+		MVNetworkGame game = MVGameControllerBase.Game;
+		game.OnSetAvatarAccessoryResponse = (Action<bool>)Delegate.Combine(game.OnSetAvatarAccessoryResponse, new Action<bool>(OnUnequipPop));
+	}
+
+	private void OnUnequipPop(bool setSlotSuccess)
+	{
+		MVNetworkGame game = MVGameControllerBase.Game;
+		game.OnSetAvatarAccessoryResponse = (Action<bool>)Delegate.Remove(game.OnSetAvatarAccessoryResponse, new Action<bool>(OnUnequipPop));
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Pop();
+		});
 	}
 
 	private void OnDestroy()

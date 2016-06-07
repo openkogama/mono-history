@@ -7,8 +7,8 @@ public class PrefabPool : MonoBehaviour
 
 	private static PrefabPool instance;
 
-	[SerializeField]
 	[Header("World Objects")]
+	[SerializeField]
 	private ObjectPrefab mvFirePrefab;
 
 	[SerializeField]
@@ -167,9 +167,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private TeleportAvatar teleportAvatarPrefab;
 
-	[Header("Game")]
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
+	[Header("Game")]
 	private Material ghostMarkerMaterial;
 
 	[SerializeField]
@@ -193,9 +193,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private CubeModelChunkPrefab cubeModelChunkPrefab;
 
+	[Space(20f)]
 	[SerializeField]
 	[Header("Pick up")]
-	[Space(20f)]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
 	[SerializeField]
@@ -252,8 +252,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private MVPickupItemBaseObject avatarGrowthPackPrefab;
 
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
 	[Header("Avatar item pick up")]
 	private GameObject avatarItemCenterGun;
 
@@ -305,9 +305,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject avatarItemSlapGun;
 
-	[Header("Avatar modifier")]
 	[Space(20f)]
 	[SerializeField]
+	[Header("Avatar modifier")]
 	private AvatarModifier burningModifier;
 
 	[SerializeField]
@@ -329,8 +329,8 @@ public class PrefabPool : MonoBehaviour
 	private AvatarModifier growthModifier;
 
 	[Header("Particles")]
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
 	private GameObject particleBlood;
 
 	[SerializeField]
@@ -433,9 +433,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material modelConstraintsMaterial;
 
-	[SerializeField]
-	[Header("UGUI")]
 	[Space(20f)]
+	[Header("UGUI")]
+	[SerializeField]
 	private AvatarInputControllerAndroidSettings avatarInputControllerAndroidSettings;
 
 	[SerializeField]
@@ -447,8 +447,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private InsertCursor insertCursor;
 
-	[Space(20f)]
 	[Header("Editor")]
+	[Space(20f)]
 	[SerializeField]
 	private Material cellCursorErrorMaterial;
 

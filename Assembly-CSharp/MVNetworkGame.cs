@@ -2059,13 +2059,17 @@ public class MVNetworkGame : IPhotonPeerListener
 			case StatusCode.SendError:
 			case StatusCode.ExceptionOnReceive:
 			case StatusCode.TimeoutDisconnect:
+			case StatusCode.DisconnectByServer:
 			case StatusCode.DisconnectByServerUserLimit:
 			case StatusCode.DisconnectByServerLogic:
 				Debug.Log("Disconnected bacause: " + returnCode);
 				if (networkGame.ConnState != MVConnState.DisconnectedByUser)
 				{
 					networkGame.ConnState = MVConnState.Disconnected;
-					MVGameControllerBase.ApplicationQuit(new QuitConnectionError());
+					Coroutines.Start(WaitForFrames.Frames(5, () =>
+					{
+						MVGameControllerBase.ApplicationQuit(new QuitConnectionError());
+					}));
 				}
 				break;
 			default:

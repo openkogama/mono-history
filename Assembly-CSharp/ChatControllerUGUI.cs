@@ -338,7 +338,6 @@ public class ChatControllerUGUI : MonoBehaviour
 		Text text = UnityEngine.Object.Instantiate(consoleLinePrefab);
 		lines.Enqueue(text);
 		text.transform.SetParent(contentPanel, worldPositionStays: false);
-		text.transform.SetAsLastSibling();
 		return text;
 	}
 

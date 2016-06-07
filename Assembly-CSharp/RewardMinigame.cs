@@ -91,11 +91,14 @@ public class RewardMinigame : MonoBehaviour
 
 	private float maxPercent;
 
-	public void Initialize()
+	public void Start()
 	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (ICanvasController x, BaseEventData y) =>
+		{
+			x.SetPixelPerfect(pixelPerfect: false);
+		});
 		RewardManager.NumberOfPendingRewardsChanged = (UnityAction)Delegate.Combine(RewardManager.NumberOfPendingRewardsChanged, new UnityAction(UpdateRewardCount));
 		PrepareForSpin();
-		rewardSpinVisualization.Initialize(OnSpinReady);
 	}
 
 	private void UpdateRewardCount()
@@ -145,12 +148,15 @@ public class RewardMinigame : MonoBehaviour
 
 	private void WinningIndexReady()
 	{
-		winningIndex += amountOfSpinLoops * (extraItemsAfterWinningIndex + winningIndex);
+		SetWinningItem();
 		if (instantiatedContent)
 		{
 			rewardSpinVisualization.AnimateShowing(OnSpinReady);
 		}
-		SetWinningItem();
+		else
+		{
+			rewardSpinVisualization.Initialize(OnSpinReady);
+		}
 		mask.enabled = true;
 		instantiatedContent = true;
 	}
@@ -165,6 +171,7 @@ public class RewardMinigame : MonoBehaviour
 	private void SetWinningItem()
 	{
 		IActorRewardClient currentReward = RewardManager.CurrentReward;
+		winningIndex = baseWinningIndex + amountOfSpinLoops * (extraItemsAfterWinningIndex + baseWinningIndex);
 		RewardObject rewardObject = UnityEngine.Object.Instantiate(rarityDefMap[currentReward.RewardType].rewardPrefabType);
 		rewardObject.transform.SetParent(rewardContentGroup.transform, worldPositionStays: false);
 		rewardObject.transform.SetSiblingIndex(winningIndex);
@@ -282,6 +289,7 @@ public class RewardMinigame : MonoBehaviour
 	{
 		if (spinReady)
 		{
+			spinReady = false;
 			buyMoreSpins.gameObject.SetActive(value: false);
 			spinButton.interactable = false;
 			continueButton.interactable = false;
@@ -394,7 +402,12 @@ public class RewardMinigame : MonoBehaviour
 
 	private void OnDestroy()
 	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (ICanvasController x, BaseEventData y) =>
+		{
+			x.SetPixelPerfect(pixelPerfect: true);
+		});
 		RewardManager.NumberOfPendingRewardsChanged = (UnityAction)Delegate.Remove(RewardManager.NumberOfPendingRewardsChanged, new UnityAction(UpdateRewardCount));
+		RewardManager.UnsubscribeFromGetReward();
 		ClearObjects();
 		rewardObjects.Clear();
 		rewardSpinVisualization.Clear();

@@ -37,7 +37,7 @@ public class TimeTriggerSettings : MonoBehaviour, IEventSystemHandler, IHandleSe
 		}
 		float value = Convert.ToSingle(dictionary2["duration"]);
 		float value2 = Convert.ToSingle(dictionary2["time"]);
-		durationSlider.Initialize("duration", value, 0f, 20f);
+		durationSlider.Initialize("duration", value, 0.1f, 20f);
 		durationInputField.Initialize("duration", value);
 		delaySlider.Initialize("time", value2, 0f, 20f);
 		delayInputField.Initialize("time", value2);

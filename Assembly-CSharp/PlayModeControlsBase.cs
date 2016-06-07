@@ -4,12 +4,6 @@ public abstract class PlayModeControlsBase : MonoBehaviour
 {
 	private bool showingEquipableUI;
 
-	private bool testForLowFPS = true;
-
-	private bool finishedTestingFPS;
-
-	private WaitForTicks waitForMs;
-
 	[SerializeField]
 	private RectTransform use;
 
@@ -25,12 +19,16 @@ public abstract class PlayModeControlsBase : MonoBehaviour
 	[SerializeField]
 	private CrossHair crossHair;
 
+	[SerializeField]
+	private GameObject crossHairGO;
+
 	private void Update()
 	{
 		if (PickupGUI.ShowEquipableUI != showingEquipableUI)
 		{
 			fire.gameObject.SetActive(PickupGUI.ShowEquipableUI);
 			dropWeapon.gameObject.SetActive(PickupGUI.ShowEquipableUI);
+			crossHairGO.SetActive(PickupGUI.ShowEquipableUI);
 			showingEquipableUI = PickupGUI.ShowEquipableUI;
 		}
 		if (MVGameControllerBase.WOCM.AvatarLocal.IsSeated != leaveVehicle.gameObject.activeInHierarchy)

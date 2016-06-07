@@ -21,9 +21,9 @@ public class RareRewardNotification : Notification
 		base.Initialize(data);
 		RewardRarity rewardRarity = (RewardRarity)(byte)data[(byte)11];
 		MVPlayer mVPlayer = MVGameControllerBase.Game.Players[(int)data[(byte)9]];
-		string text = TypeToText((RewardType)(int)data[(byte)5]);
+		string arg = TypeToText((RewardType)(int)data[(byte)5]);
 		int num = (int)data[(byte)4];
-		this.text.text = mVPlayer.Username + " won " + num + text + " from spins!";
+		text.text = string.Format(TM._("{0} won {1}{2} from spins!"), mVPlayer.Username, num, arg);
 		switch (rewardRarity)
 		{
 		case RewardRarity.Epic:
@@ -41,10 +41,10 @@ public class RareRewardNotification : Notification
 	{
 		return type switch
 		{
-			RewardType.GoldReward => " gold", 
+			RewardType.GoldReward => TM._(" gold"), 
 			RewardType.TestReward => " test", 
-			RewardType.XPReward => " xp", 
-			_ => "ERROR", 
+			RewardType.XPReward => TM._(" xp"), 
+			_ => TM._("ERROR"), 
 		};
 	}
 }

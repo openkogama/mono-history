@@ -14,6 +14,18 @@ public class MaterialsControllerEditMode : MaterialsController, IEventSystemHand
 	[SerializeField]
 	private DesktopCubeModelingController desktopCubeModelingControllerEditCubeModelPrefab;
 
+	private byte prevMaterial;
+
+	public static byte targetMaterial;
+
+	private void OnEnable()
+	{
+		if (prevMaterial != targetMaterial)
+		{
+			OnMaterialChanged(targetMaterial);
+		}
+	}
+
 	public override Transform SetActive()
 	{
 		Transform transform = base.SetActive();
@@ -44,6 +56,7 @@ public class MaterialsControllerEditMode : MaterialsController, IEventSystemHand
 
 	public override void OnMaterialChanged(byte id)
 	{
+		prevMaterial = id;
 		base.OnMaterialChanged(id);
 		if (desktopCubeModelingControllerEditMode != null)
 		{

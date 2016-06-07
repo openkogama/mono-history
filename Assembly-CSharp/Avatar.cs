@@ -175,4 +175,9 @@ public class Avatar : MonoBehaviour
 	{
 		mvAvatar.Body.StopBlinking(type);
 	}
+
+	private void OnDestroy()
+	{
+		UnityEngine.Object.Destroy(avatarName.GetComponent<Renderer>().material);
+	}
 }

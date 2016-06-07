@@ -25,7 +25,7 @@ public class FriendRequestNotification : Notification
 	{
 		base.Initialize(data);
 		string text = (string)data[(byte)1];
-		label.text = text + " sent you a friend request!";
+		label.text = text + TM._(" sent you a friend request!");
 	}
 
 	public void RegisterFriendshipRequest(Friend friend)

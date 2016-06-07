@@ -5,23 +5,74 @@ public class PlayerJoinedNotification : PlayerNotification
 {
 	private Dictionary<string, string> Country = new Dictionary<string, string>
 	{
-		{ "da_DK", "Denmark" },
-		{ "de_DE", "Germany" },
-		{ "en_US", "The United States" },
-		{ "en_GB", "The United Kingdom" },
-		{ "es_ES", "Spain" },
-		{ "fi", "Finland" },
-		{ "fr_FR", "France" },
-		{ "id_ID", "Indonesia" },
-		{ "it_IT", "Italy" },
-		{ "nb_NO", "Norway" },
-		{ "nl_NL", "The Netherlands" },
-		{ "pl_PL", "Poland" },
-		{ "pt_BR", "Brazil" },
-		{ "ru_RU", "Russia" },
-		{ "sv_SE", "Sweden" },
-		{ "tr_TR", "Turkey" },
-		{ "pt", "Portuguese" }
+		{
+			"da_DK",
+			TM._("Denmark")
+		},
+		{
+			"de_DE",
+			TM._("Germany")
+		},
+		{
+			"en_US",
+			TM._("The United States")
+		},
+		{
+			"en_GB",
+			TM._("The United Kingdom")
+		},
+		{
+			"es_ES",
+			TM._("Spain")
+		},
+		{
+			"fi",
+			TM._("Finland")
+		},
+		{
+			"fr_FR",
+			TM._("France")
+		},
+		{
+			"id_ID",
+			TM._("Indonesia")
+		},
+		{
+			"it_IT",
+			TM._("Italy")
+		},
+		{
+			"nb_NO",
+			TM._("Norway")
+		},
+		{
+			"nl_NL",
+			TM._("The Netherlands")
+		},
+		{
+			"pl_PL",
+			TM._("Poland")
+		},
+		{
+			"pt_BR",
+			TM._("Brazil")
+		},
+		{
+			"ru_RU",
+			TM._("Russia")
+		},
+		{
+			"sv_SE",
+			TM._("Sweden")
+		},
+		{
+			"tr_TR",
+			TM._("Turkey")
+		},
+		{
+			"pt",
+			TM._("Portugal")
+		}
 	};
 
 	public override void Initialize(Dictionary<object, object> data)

@@ -11,4 +11,9 @@ public struct SharedMeshData(Mesh mesh)
 		mesh = this.mesh;
 		material = this.material;
 	}
+
+	public void Destroy()
+	{
+		Object.Destroy(mesh);
+	}
 }

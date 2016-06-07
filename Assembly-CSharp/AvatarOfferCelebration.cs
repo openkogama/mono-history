@@ -63,12 +63,12 @@ public class AvatarOfferCelebration : MonoBehaviour
 			if (timer >= 1f)
 			{
 				doSpin = false;
-				Vector3 position = screenShooter.previewCam.transform.forward * 5f;
-				position.y += 2f;
 				Dictionary<object, object> dictionary = new Dictionary<object, object>();
 				dictionary["state"] = "Jump";
 				dictionary["timeStamp"] = MVGameControllerBase.Game.ServerTimeInMilliSeconds;
 				body.Animation.ComputeBlendAnimation(dictionary);
+				Vector3 position = screenShooter.previewCam.transform.forward * 5f;
+				position.y += 2f;
 				Object.Instantiate(celebratoryParticles, position, Quaternion.identity);
 				return;
 			}

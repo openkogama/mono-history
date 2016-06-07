@@ -61,7 +61,7 @@ public class PurchaseSpins : MonoBehaviour
 			NotificationPopup notification = UnityEngine.Object.Instantiate(notificationPopupPrefab);
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 			{
-				x.Push(notification.gameObject, UIPushOption.Blocking, OnFinishedPurchase, UIGroupFlags.Popup);
+				x.Push(notification.gameObject, UIPushOption.Blocking, OnConfirmed, UIGroupFlags.Popup);
 			});
 			notification.Initialize(string.Format(TM._("Successfully purchased {0} extra spins for {1}!"), numOfSpins, RewardManager.SpinPrice * numOfSpins), TM._("Success!"));
 		}
@@ -76,11 +76,5 @@ public class PurchaseSpins : MonoBehaviour
 				x.Create((MVPurchaseReturnCode)returnCode, RewardManager.SpinPrice * numOfSpins, 0);
 			});
 		}
-	}
-
-	private void OnFinishedPurchase()
-	{
-		OnConfirmed();
-		OnConfirmed = null;
 	}
 }

@@ -44,6 +44,8 @@ public class RewardSpinVisualization : MonoBehaviour
 
 	private Vector2 currPosition;
 
+	private Vector2 position;
+
 	private UnityAction OnFinishedSpinning;
 
 	private UnityAction OnFinishedAnimating;
@@ -70,8 +72,8 @@ public class RewardSpinVisualization : MonoBehaviour
 		targetPos = targetPosition;
 		spin = 0f;
 		curveDelta = 0f;
-		rotating = true;
 		contentMoverHandle.anchoredPosition = startPos;
+		position = startPos;
 		OnFinishedSpinning = OnSpinFinished;
 		rotating = true;
 	}
@@ -101,9 +103,8 @@ public class RewardSpinVisualization : MonoBehaviour
 		{
 			spin += Time.deltaTime;
 			curveDelta = spinSpeedDeltaCurve.Evaluate(spin / spinDuration);
-			Vector2 anchoredPosition = startPos;
-			anchoredPosition.x = curveDelta * targetPos;
-			contentMoverHandle.anchoredPosition = anchoredPosition;
+			position.x = curveDelta * targetPos;
+			contentMoverHandle.anchoredPosition = position;
 			if (spin >= spinDuration)
 			{
 				rotating = false;

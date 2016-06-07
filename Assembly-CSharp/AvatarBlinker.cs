@@ -21,6 +21,7 @@ public class AvatarBlinker : BlinkerBase
 
 	private void Awake()
 	{
+		Debug.Log("Avatar awake " + gameObject.name);
 		blinkers = new Dictionary<BlinkType, Blinker>
 		{
 			{
@@ -48,6 +49,7 @@ public class AvatarBlinker : BlinkerBase
 
 	public void Attach(MVAvatar mvAvatar)
 	{
+		Debug.Log("Attaching new blinker");
 		this.mvAvatar = mvAvatar;
 		MVRuntimeDataVariableClampedFloat health = mvAvatar.Health;
 		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(HealthChangeHandler));

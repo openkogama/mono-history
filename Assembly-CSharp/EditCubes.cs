@@ -340,6 +340,7 @@ internal class EditCubes : CubeModelTool
 		{
 			currentInternalState = BuildState.MainState;
 			e.CurrentMaterialId = prevMaterial;
+			MaterialsControllerEditMode.targetMaterial = prevMaterial;
 			if (movingEdgeCube != null)
 			{
 				movingEdgeCube.cube.Corners = CubeBase.IdentityCorners;

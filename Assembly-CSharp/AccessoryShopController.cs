@@ -282,12 +282,20 @@ public class AccessoryShopController : MonoBehaviour, IEventSystemHandler, IInve
 			attachingReady = false;
 			accessoryAttacher.AttachAccessory(currentlyAttachingID, body, AttacherFinished);
 			UpdateContent();
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+			{
+				x.Create();
+			});
 		}
 	}
 
 	private void AttacherFinished()
 	{
 		attachingReady = true;
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Pop();
+		});
 	}
 
 	private void Update()
