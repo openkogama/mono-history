@@ -35,7 +35,7 @@ public class DesktopCubeModelingController : MonoBehaviour
 		{
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 			{
-				x.Create("Are you sure you wish to publish your game?", PublishCallback, "Publish Game?");
+				x.Create(TM._("Are you sure you wish to publish your game?"), PublishCallback, TM._("Publish Game?"));
 			});
 		}
 		else
@@ -68,7 +68,7 @@ public class DesktopCubeModelingController : MonoBehaviour
 			});
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 			{
-				x.Create(errorText, "Error: ");
+				x.Create(errorText, TM._("Error: "));
 			});
 		}
 	}

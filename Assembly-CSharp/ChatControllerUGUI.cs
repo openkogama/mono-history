@@ -127,7 +127,7 @@ public class ChatControllerUGUI : MonoBehaviour
 
 	private void Update()
 	{
-		if (inputField.isFocused)
+		if (inputField.isFocused || MVGameControllerBase.JoinState != MVJoinState.Playing)
 		{
 			UpdateFadeTime();
 		}

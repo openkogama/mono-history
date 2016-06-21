@@ -165,7 +165,8 @@ public class WinningConditionDebriefingAndroid : MonoBehaviour, IDebriefing
 			UnityEngine.Object.Destroy(captureCamera.gameObject);
 		}
 		captureCamera = UnityEngine.Object.Instantiate(captureCameraPrefab);
-		captureCamera.CaptureMVPlayerGroup(scoreTeamEntries, CameraClearFlags.Depth, counterType);
+		captureCamera.CapturePlayersInTeam(scoreTeamEntries, CameraClearFlags.Depth, counterType);
+		debriefing.SetWinnerImage(captureCamera.RenderCam.targetTexture);
 		StartCoroutine(ShowDebriefingCoroutine());
 	}
 
@@ -178,8 +179,17 @@ public class WinningConditionDebriefingAndroid : MonoBehaviour, IDebriefing
 	private void SetupDebriefingNoWinner()
 	{
 		Clear();
+		if (captureCamera != null)
+		{
+			UnityEngine.Object.Destroy(captureCamera.gameObject);
+		}
+		captureCamera = UnityEngine.Object.Instantiate(captureCameraPrefab);
+		captureCamera.CaptureAllPlayersInGame(CameraClearFlags.Depth);
 		debriefing = UnityEngine.Object.Instantiate(noWinnerPrefab);
 		debriefing.transform.SetParent(group.gameObject.transform, worldPositionStays: false);
+		debriefing.SetWinnerText(TM._("Time's Up!"));
+		debriefing.SetWinningConditionSprite(currentWinningConditions[WinningConditionType.Time]);
+		debriefing.SetWinnerImage(captureCamera.RenderCam.targetTexture);
 		StartCoroutine(ShowDebriefingCoroutine());
 	}
 
@@ -259,6 +269,7 @@ public class WinningConditionDebriefingAndroid : MonoBehaviour, IDebriefing
 			}
 			captureCamera = UnityEngine.Object.Instantiate(captureCameraPrefab);
 			captureCamera.CaptureGO(value.Avatar.GameObject, CameraClearFlags.Color);
+			debriefing.SetWinnerImage(captureCamera.RenderCam.targetTexture);
 		}
 		else
 		{

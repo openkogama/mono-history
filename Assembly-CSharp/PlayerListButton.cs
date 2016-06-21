@@ -29,7 +29,14 @@ public class PlayerListButton : MonoBehaviour
 		teamManager.OnTeamsUpdated = (MVTeamManager.OnTeamsUpdatedDelegate)Delegate.Combine(teamManager.OnTeamsUpdated, new MVTeamManager.OnTeamsUpdatedDelegate(UpdateButton));
 		FriendList friends = MVGameControllerBase.Game.Friends;
 		friends.OnFriendRequestReceived = (UnityAction)Delegate.Combine(friends.OnFriendRequestReceived, new UnityAction(ViewNotification));
+		FriendList friends2 = MVGameControllerBase.Game.Friends;
+		friends2.OnPendingCountChanged = (UnityAction<int>)Delegate.Combine(friends2.OnPendingCountChanged, new UnityAction<int>(PendingCountChanged));
 		UpdateButton();
+	}
+
+	private void PendingCountChanged(int pending)
+	{
+		notification.gameObject.SetActive(pending > 0);
 	}
 
 	private void ViewNotification()

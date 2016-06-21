@@ -1,22 +1,11 @@
 using UnityEngine;
 
-public class LoadingCubeAndroid : MonoBehaviour
+public class LoadingCube : MonoBehaviour
 {
 	private bool visible = true;
 
-	private bool cameraSetupDone;
-
 	[SerializeField]
 	private GameObject cube;
-
-	[SerializeField]
-	private Color backgroundColor;
-
-	[SerializeField]
-	private LayerMask layerMask;
-
-	[SerializeField]
-	private Camera loadingScreenCamera;
 
 	private void Start()
 	{
@@ -31,13 +20,6 @@ public class LoadingCubeAndroid : MonoBehaviour
 			{
 				visible = false;
 				SelfDestruct();
-			}
-			if (MVGameControllerBase.JoinState == MVJoinState.Joining && !cameraSetupDone)
-			{
-				Debug.LogError("pause");
-				loadingScreenCamera.backgroundColor = backgroundColor;
-				loadingScreenCamera.cullingMask = layerMask;
-				cameraSetupDone = true;
 			}
 			cube.transform.Rotate(Vector3.forward, -60f * Time.deltaTime);
 		}

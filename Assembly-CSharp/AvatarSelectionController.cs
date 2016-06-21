@@ -15,6 +15,9 @@ public class AvatarSelectionController : MonoBehaviour, IEventSystemHandler, IAv
 	[SerializeField]
 	private SellAvatarController sellAvatarPrefab;
 
+	[SerializeField]
+	private GameObject publishAvatarGO;
+
 	private AvatarEditModeBodyController avatarBodyController;
 
 	private static readonly Dictionary<int, AvatarSelectionSlot> avatarSlots = new Dictionary<int, AvatarSelectionSlot>();
@@ -39,6 +42,7 @@ public class AvatarSelectionController : MonoBehaviour, IEventSystemHandler, IAv
 	public void Initialize(AvatarEditModeBodyController bodyController)
 	{
 		avatarBodyController = bodyController;
+		avatarBodyController.SetPublishAvatarGO(publishAvatarGO);
 		avatarBodyController.CaptureScreenshotsForAllAvatars(OnPictureTakenCallback);
 	}
 

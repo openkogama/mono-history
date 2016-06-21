@@ -18,19 +18,9 @@ public class StreamingAssetRequestTempHack : CachedGetRequest
 		bool flag = www.isDone;
 		if (flag)
 		{
-			if (www.error != null)
+			if (!ReadyToDoCallback())
 			{
-				if (retries > 0)
-				{
-					retries--;
-					retryTime = Time.time;
-					currentTimeout = AsyncWWWManager.RetryTimeouts[retries];
-					state = State.Waiting;
-					Debug.Log(www.error + " " + www.url + " " + Time.frameCount + " " + AsyncWWWManager.RetryTimeouts[retries]);
-					www = Create();
-					return false;
-				}
-				Debug.LogWarning($"{www.url}\n{www.error}");
+				return false;
 			}
 			isDone = true;
 			if (mainAsset == null && string.IsNullOrEmpty(www.error))

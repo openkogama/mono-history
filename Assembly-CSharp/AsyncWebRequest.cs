@@ -80,24 +80,9 @@ public abstract class AsyncWebRequest
 		bool flag = www.isDone;
 		if (flag)
 		{
-			if (www.error != null)
+			if (!ReadyToDoCallback())
 			{
-				if (retries > 0)
-				{
-					retries--;
-					retryTime = Time.time;
-					currentTimeout = AsyncWWWManager.RetryTimeouts[retries];
-					state = State.Waiting;
-					Debug.Log(www.error + " " + www.url + " " + Time.frameCount + " " + AsyncWWWManager.RetryTimeouts[retries]);
-					Debug.Log("Response headers");
-					foreach (KeyValuePair<string, string> responseHeader in www.responseHeaders)
-					{
-						Debug.LogFormat("{0} {1}", responseHeader.Key, responseHeader.Value);
-					}
-					www = Create();
-					return false;
-				}
-				Debug.LogWarning($"{www.url}\n{www.error}");
+				return false;
 			}
 			isDone = true;
 			try
@@ -117,6 +102,39 @@ public abstract class AsyncWebRequest
 			}
 		}
 		return flag;
+	}
+
+	protected bool ReadyToDoCallback()
+	{
+		if (www.error != null)
+		{
+			bool flag = true;
+			if (int.TryParse(www.error[0].ToString(), out var result))
+			{
+				Debug.Log("errorCodeFirstVal " + result);
+				if (result == 4)
+				{
+					flag = false;
+				}
+			}
+			if (retries > 0 && flag)
+			{
+				retries--;
+				retryTime = Time.time;
+				currentTimeout = AsyncWWWManager.RetryTimeouts[retries];
+				state = State.Waiting;
+				Debug.Log(www.error + " " + www.url + " " + Time.frameCount + " " + AsyncWWWManager.RetryTimeouts[retries]);
+				Debug.Log("Response headers");
+				foreach (KeyValuePair<string, string> responseHeader in www.responseHeaders)
+				{
+					Debug.LogFormat("{0} {1}", responseHeader.Key, responseHeader.Value);
+				}
+				www = Create();
+				return false;
+			}
+			Debug.LogWarning($"{www.url}\n{www.error}");
+		}
+		return true;
 	}
 
 	private bool IsWaitingStateDone()

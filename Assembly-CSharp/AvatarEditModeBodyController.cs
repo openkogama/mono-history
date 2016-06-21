@@ -43,6 +43,8 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 
 	public Action<int, Texture2D> Picture2DTakenCallback;
 
+	private GameObject publishAvatarBtn;
+
 	public MVBody CurrentBody => bodies[currentBodyIndex];
 
 	public Vector3 DisplayPos => displayPos;
@@ -78,6 +80,12 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 			item3.WorldPosition = hidePos;
 			item3.WorldRotation = bodySpawnPoint.WorldRotation;
 		}
+	}
+
+	public void SetPublishAvatarGO(GameObject publishAvatarGO)
+	{
+		publishAvatarBtn = publishAvatarGO;
+		SetPublishAvatarButtonActive();
 	}
 
 	public void ResetCurrentBody()
@@ -141,6 +149,19 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 		CurrentBody.WorldRotation = displayRotation;
 		CurrentBody.Visible = true;
 		SharedCubeFunctions.SetLayerRecursively(CurrentBody.Transform, select: true);
+		SetPublishAvatarButtonActive();
+	}
+
+	private void SetPublishAvatarButtonActive()
+	{
+		if (!(publishAvatarBtn == null))
+		{
+			MVGameControllerBase.Game.AvatarMetaDataWoMap.TryGetValue(CurrentBody.Id, out var avatarMetaData);
+			if (avatarMetaData != null)
+			{
+				publishAvatarBtn.SetActive(avatarMetaData.canBeSoldOnMarketPlace);
+			}
+		}
 	}
 
 	public void CaptureScreenshotForBody(int index, Action<int, Texture2D> OnPictureTaken)

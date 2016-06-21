@@ -7,8 +7,8 @@ public class PrefabPool : MonoBehaviour
 
 	private static PrefabPool instance;
 
-	[Header("World Objects")]
 	[SerializeField]
+	[Header("World Objects")]
 	private ObjectPrefab mvFirePrefab;
 
 	[SerializeField]
@@ -167,9 +167,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private TeleportAvatar teleportAvatarPrefab;
 
-	[SerializeField]
 	[Space(20f)]
 	[Header("Game")]
+	[SerializeField]
 	private Material ghostMarkerMaterial;
 
 	[SerializeField]
@@ -305,9 +305,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject avatarItemSlapGun;
 
-	[Space(20f)]
 	[SerializeField]
 	[Header("Avatar modifier")]
+	[Space(20f)]
 	private AvatarModifier burningModifier;
 
 	[SerializeField]
@@ -328,9 +328,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private AvatarModifier growthModifier;
 
-	[Header("Particles")]
 	[Space(20f)]
 	[SerializeField]
+	[Header("Particles")]
 	private GameObject particleBlood;
 
 	[SerializeField]
@@ -393,9 +393,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem particleXP;
 
-	[Space(20f)]
 	[SerializeField]
 	[Header("Logic object prefabs")]
+	[Space(20f)]
 	private GameObject logicInputConnectorPrefab;
 
 	[SerializeField]
@@ -433,9 +433,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material modelConstraintsMaterial;
 
+	[SerializeField]
 	[Space(20f)]
 	[Header("UGUI")]
-	[SerializeField]
 	private AvatarInputControllerAndroidSettings avatarInputControllerAndroidSettings;
 
 	[SerializeField]

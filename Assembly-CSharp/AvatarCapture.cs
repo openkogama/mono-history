@@ -49,46 +49,82 @@ public class AvatarCapture : MonoBehaviour
 
 	private RenderTextureTargetDef currentTargetWinner;
 
-	public void CaptureMVPlayerGroup(List<ScoreTeamEntry> scoreTeamEntries, CameraClearFlags flags, GameStatCounterType counterType)
+	public Camera RenderCam
 	{
-		RenderTexture active = RenderTexture.active;
-		RenderTexture.active = renderCam.targetTexture;
-		GL.Clear(clearDepth: true, clearColor: true, new Color(0f, 0f, 0f, 0f));
-		RenderTexture.active = active;
+		get
+		{
+			return renderCam;
+		}
+		private set
+		{
+			renderCam = value;
+		}
+	}
+
+	public void CaptureAllPlayersInGame(CameraClearFlags flags)
+	{
+		RenderTexture temporary = RenderTexture.GetTemporary(512, 512, 16, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, 1);
+		temporary.wrapMode = TextureWrapMode.Clamp;
+		temporary.filterMode = FilterMode.Bilinear;
+		renderCam.targetTexture = temporary;
 		renderCam.clearFlags = flags;
-		List<MVPlayer> list = (from o in MVGameControllerBase.Game.TeamManager.GetPlayersInTeam(scoreTeamEntries[0].team)
+		List<MVPlayer> list = new List<MVPlayer>();
+		foreach (MVPlayer value in MVGameControllerBase.Game.Players.Values)
+		{
+			list.Add(value);
+		}
+		CapturePlayerGroup(list);
+	}
+
+	public void CapturePlayersInTeam(List<ScoreTeamEntry> scoreTeamEntries, CameraClearFlags flags, GameStatCounterType counterType)
+	{
+		RenderTexture temporary = RenderTexture.GetTemporary(512, 512, 16, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, 1);
+		temporary.wrapMode = TextureWrapMode.Clamp;
+		temporary.filterMode = FilterMode.Bilinear;
+		renderCam.targetTexture = temporary;
+		renderCam.clearFlags = flags;
+		List<MVPlayer> sortedList = (from o in MVGameControllerBase.Game.TeamManager.GetPlayersInTeam(scoreTeamEntries[0].team)
 			orderby o.GetGameStat(counterType)
 			select o).ToList();
-		for (int num = 0; num < list.Count; num++)
+		CapturePlayerGroup(sortedList);
+	}
+
+	private void CapturePlayerGroup(List<MVPlayer> sortedList)
+	{
+		for (int i = 0; i < sortedList.Count; i++)
 		{
-			list[num].Avatar.ChangeLOD(0f);
+			sortedList[i].Avatar.ChangeLOD(0f);
 		}
-		int count = list.Count;
+		int count = sortedList.Count;
 		List<Vector3> positions = new List<Vector3>();
-		float num2 = CreateTriangleFormation(ref positions, count, 1, 0f, 0f);
+		float num = CreateTriangleFormation(ref positions, count, 1, 0f, 0f);
 		positions.Reverse();
-		List<RenderTextureTargetDef> list2 = new List<RenderTextureTargetDef>();
-		for (int num3 = 0; num3 < count; num3++)
+		List<RenderTextureTargetDef> list = new List<RenderTextureTargetDef>();
+		for (int j = 0; j < count; j++)
 		{
-			list2.Add(new RenderTextureTargetDef(list[num3].Avatar.GameObject.transform));
+			list.Add(new RenderTextureTargetDef(sortedList[j].Avatar.GameObject.transform));
 		}
-		for (int num4 = 0; num4 < count; num4++)
+		for (int k = 0; k < count; k++)
 		{
-			currentTargetWinner = list2[num4];
-			GameObject gameObject = list[num4].Avatar.GameObject;
+			currentTargetWinner = list[k];
+			GameObject gameObject = sortedList[k].Avatar.GameObject;
 			renderCam.transform.position = gameObject.transform.position;
-			renderCam.transform.position += gameObject.transform.right * offset.x + gameObject.transform.right * (0f - positions[num4].x);
-			renderCam.transform.position += gameObject.transform.forward * (offset.z + num2 / 2f) + gameObject.transform.forward * (0f - positions[num4].z);
-			renderCam.transform.position += gameObject.transform.up * (offset.y + num2 / 3f) + gameObject.transform.up * positions[num4].y;
-			float num5 = Random.Range(-35f, 35f);
-			renderCam.transform.position = RotatePointAroundPivot(renderCam.transform.position, gameObject.transform.position, new Vector3(0f, num5, 0f));
-			renderCam.transform.rotation = Quaternion.AngleAxis(gameObject.transform.rotation.eulerAngles.y + 180f + num5, Vector3.up);
+			renderCam.transform.position += gameObject.transform.right * offset.x + gameObject.transform.right * (0f - positions[k].x);
+			renderCam.transform.position += gameObject.transform.forward * (offset.z + num / 2f) + gameObject.transform.forward * (0f - positions[k].z);
+			renderCam.transform.position += gameObject.transform.up * (offset.y + num / 3f) + gameObject.transform.up * positions[k].y;
+			float num2 = Random.Range(-35f, 35f);
+			renderCam.transform.position = RotatePointAroundPivot(renderCam.transform.position, gameObject.transform.position, new Vector3(0f, num2, 0f));
+			renderCam.transform.rotation = Quaternion.AngleAxis(gameObject.transform.rotation.eulerAngles.y + 180f + num2, Vector3.up);
 			renderCam.Render();
 		}
 	}
 
 	public void CaptureGO(GameObject avatarObject, CameraClearFlags flags)
 	{
+		RenderTexture temporary = RenderTexture.GetTemporary(512, 512, 16, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, 1);
+		temporary.wrapMode = TextureWrapMode.Clamp;
+		temporary.filterMode = FilterMode.Bilinear;
+		renderCam.targetTexture = temporary;
 		renderCam.clearFlags = flags;
 		currentTargetWinner = new RenderTextureTargetDef(avatarObject.transform);
 		renderCam.transform.position = currentTargetWinner.transform.position + currentTargetWinner.transform.forward * offset.z + currentTargetWinner.transform.up * offset.y;
@@ -127,9 +163,8 @@ public class AvatarCapture : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		RenderTexture targetTexture = renderCam.targetTexture;
+		RenderTexture.ReleaseTemporary(renderCam.targetTexture);
 		renderCam.targetTexture = null;
-		targetTexture.Release();
 	}
 
 	private void OnPreCull()

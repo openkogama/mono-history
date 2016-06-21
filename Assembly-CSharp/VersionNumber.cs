@@ -14,10 +14,26 @@ public class VersionNumber : MonoBehaviour
 
 	public int versionStreamingAssets;
 
+	[SerializeField]
+	private TextAsset versionText;
+
 	public string VersionString => versionMajor + "." + versionMinor + "." + versionMicro + "." + versionBuild;
+
+	public int VersionCode => int.Parse(versionText.text);
+
+	public void Initialize()
+	{
+		Start();
+	}
 
 	private void Start()
 	{
+		string text = versionText.text;
+		Debug.Log(text);
+		versionMajor = int.Parse(text.Substring(0, 1));
+		versionMinor = int.Parse(text.Substring(1, 2));
+		versionMicro = int.Parse(text.Substring(3, 3));
+		Debug.Log(Application.bundleIdentifier);
 		Debug.Log("ClientBuild: " + VersionString);
 	}
 

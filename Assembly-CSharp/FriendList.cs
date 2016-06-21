@@ -17,6 +17,8 @@ public class FriendList
 
 	public UnityAction OnFriendRequestReceived;
 
+	public UnityAction<int> OnPendingCountChanged;
+
 	private Dictionary<int, Friend> friends = new Dictionary<int, Friend>();
 
 	private Dictionary<int, Friend> pending = new Dictionary<int, Friend>();
@@ -124,6 +126,11 @@ public class FriendList
 			RemoveFromPendingByProfileID(profileID);
 			if (status != FriendStatus.Deleted)
 			{
+				if (OnPendingCountChanged != null)
+				{
+					OnPendingCountChanged(GetOnlineFriends().Count);
+				}
+				NotificationController.PushNotification(string.Format(TM._("Accepted friend request from {0}."), MVGameControllerBase.Game.LocalPlayer.Username), null, 3);
 				AddFriend(friendID, MVGameControllerBase.Game.LocalPlayer.ProfileID, profileID, status);
 			}
 		}

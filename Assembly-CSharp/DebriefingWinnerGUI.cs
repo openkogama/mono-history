@@ -24,9 +24,9 @@ public class DebriefingWinnerGUI : MonoBehaviour
 	[SerializeField]
 	private RawImage winnerImage;
 
-	public void SetWinnerImage(RawImage image)
+	public void SetWinnerImage(RenderTexture image)
 	{
-		winnerImage.texture = image.mainTexture;
+		winnerImage.texture = image;
 	}
 
 	public void SetWinningConditionSprite(Sprite sprite)

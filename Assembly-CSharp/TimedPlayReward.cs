@@ -1,5 +1,6 @@
 using Newtonsoft.Json;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
@@ -62,6 +63,14 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 
 	public void RewardClicked()
 	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IOfferController x, BaseEventData y) =>
+		{
+			x.RequestShowOffer(OnFinishedViewingAd);
+		});
+	}
+
+	private void OnFinishedViewingAd()
+	{
 		NotificationController.PushNotification(TM._("Thank you for playing this NEW game! Received " + rewardXP + " XP and " + rewardGold + " gold!"), notificationImage);
 		claimRewardBtn.interactable = false;
 		timerText.text = string.Empty;
@@ -92,7 +101,7 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 		claimRewardBtn.gameObject.SetActive(rewardAvailable);
 		if (!rewardAvailable)
 		{
-			Debug.LogWarning("rewardData.rewardEnabled = false, reward not gatherable");
+			Debug.Log("no gold reward available");
 		}
 		else
 		{

@@ -2,6 +2,8 @@ using System.Collections.Generic;
 
 public class MVCameraSettings : MVLogicObject
 {
+	private bool isPreview;
+
 	public override bool HasInputConnector => false;
 
 	public override bool HasOutputConnector => false;
@@ -19,6 +21,12 @@ public class MVCameraSettings : MVLogicObject
 		OnDataUpdate();
 	}
 
+	public override void InitializeInventory()
+	{
+		base.InitializeInventory();
+		isPreview = true;
+	}
+
 	public override void OnDataUpdate()
 	{
 		ICameraSettings settings = MVCameraController.GetSettings(MVGameControllerBase.Game.GameType);
@@ -32,8 +40,11 @@ public class MVCameraSettings : MVLogicObject
 
 	public override void Destroy()
 	{
-		ICameraSettings settings = MVCameraController.GetSettings(MVGameControllerBase.Game.GameType);
-		settings.SetDefaultSettings();
+		if (!isPreview)
+		{
+			ICameraSettings settings = MVCameraController.GetSettings(MVGameControllerBase.Game.GameType);
+			settings.SetDefaultSettings();
+		}
 		base.Destroy();
 	}
 }

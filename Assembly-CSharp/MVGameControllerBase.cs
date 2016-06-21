@@ -8,6 +8,27 @@ using UnityEngine;
 
 public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSubscriber
 {
+	protected class VersionData
+	{
+		public int minVersion { get; set; }
+
+		public int version { get; set; }
+
+		public bool ForceUpdate(int clientVersion)
+		{
+			if (clientVersion < minVersion)
+			{
+				return true;
+			}
+			return false;
+		}
+
+		public override string ToString()
+		{
+			return $"version {version}. minVersion {minVersion}.";
+		}
+	}
+
 	public delegate void OnReceivedGameMsgDelegate(MVGameMsgType type, Dictionary<object, object> gameMsgData);
 
 	public delegate void OnReceivedNotificationEventDelegate(NotificationType type, Dictionary<object, object> data);
@@ -47,6 +68,9 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	[SerializeField]
 	protected PrefabPool prefabPool;
+
+	[SerializeField]
+	private TextAsset version;
 
 	private static MVGameControllerBase instance;
 
@@ -187,6 +211,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	private void Awake()
 	{
+		Debug.Log(version.text);
 		DebugLogHandler.Init();
 		if (!DebugLogHandler.IsSampling)
 		{
@@ -224,9 +249,11 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 			if (Debug.logger.filterLogType == LogType.Warning)
 			{
 				Debug.logger.filterLogType = LogType.Log;
+				Debug.Log("Enabling logging!");
 			}
 			else if (Debug.logger.filterLogType == LogType.Log)
 			{
+				Debug.Log("Disabling logging!");
 				Debug.logger.filterLogType = LogType.Warning;
 			}
 		}

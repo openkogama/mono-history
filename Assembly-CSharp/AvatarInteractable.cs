@@ -38,8 +38,9 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 				dictionary.Add((byte)7, MVGameControllerBase.Game.LocalPlayerActorNumber);
 				dictionary.Add((byte)6, num);
 				dictionary.Add((byte)8, damageType);
-				Dictionary<object, object> notificationData = dictionary;
-				MVGameControllerBase.OperationRequests.PostNotificationOperation(NotificationType.Kill, notificationData);
+				Dictionary<object, object> dictionary2 = dictionary;
+				NotificationController.OnNotificationReceived(NotificationType.Kill, dictionary2);
+				MVGameControllerBase.OperationRequests.PostNotificationOperation(NotificationType.Kill, dictionary2);
 			}
 		}
 	}

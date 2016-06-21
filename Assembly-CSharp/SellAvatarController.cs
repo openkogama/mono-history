@@ -26,7 +26,7 @@ public class SellAvatarController : MonoBehaviour
 
 	public void Initialize(int woID, MVBody currentBody)
 	{
-		MVGameControllerBase.Game.AvatarMetaDataWoMap.TryGetValue(currentBody.Id, out var avatarMetaData);
+		MVGameControllerBase.Game.AvatarMetaDataWoMap.TryGetValue(woID, out var avatarMetaData);
 		body = currentBody;
 		metaData = avatarMetaData;
 		this.woID = woID;
