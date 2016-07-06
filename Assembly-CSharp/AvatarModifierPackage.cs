@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using CodeStage.AntiCheat.ObscuredTypes;
 using UnityEngine;
 
-public struct AvatarModifierPackage(AvatarModifierPackageType avatarModifierPackageType, AvatarModifierPackageAdditionPolicy avatarModifierPackageAdditionPolicy, float duration, AvatarModifierPackage.AvatarModifier[] avatarModifiers, Dictionary<AvatarModifierPackageType, ModifierActions> actionsToTakeVsTypes = null)
+public struct AvatarModifierPackage(AvatarModifierPackageType avatarModifierPackageType, AvatarModifierPackageAdditionPolicy avatarModifierPackageAdditionPolicy, float duration, AvatarModifierPackage.AvatarModifier[] avatarModifiers, Dictionary<AvatarModifierPackageType, ModifierActions> actionsToTakeVsTypes = null, bool persist = false)
 {
 	public struct AvatarModifier(AvatarModifierType avatarModifierType, AvatarModifierEffect avatarModifierEffect, Func<float> value)
 	{
@@ -24,14 +24,16 @@ public struct AvatarModifierPackage(AvatarModifierPackageType avatarModifierPack
 
 	private ObscuredFloat timeStamp = Time.time;
 
+	public bool persistant = persist;
+
 	private AvatarModifierPackageType avatarModifierPackageType = avatarModifierPackageType;
 
 	private AvatarModifierPackageAdditionPolicy avatarModifierPackageAdditionPolicy = avatarModifierPackageAdditionPolicy;
 
-	public static string[] AvatarModifierPackageTypeLookupTable = new string[16]
+	public static string[] AvatarModifierPackageTypeLookupTable = new string[17]
 	{
 		"_None", "_Fire", "_Mutant", "_Sticky", "_Poison", "_WallJump", "_InstantDeath", "_NoFriction", "_FlamerBurn", "_Underwater",
-		"_Frozen", "_NinjaRun", "_Shrunken", "_WindFriction", "_DisableVehiclePickup", "_Enlarged"
+		"_Frozen", "_NinjaRun", "_Shrunken", "_WindFriction", "_DisableVehiclePickup", "_Enlarged", "_Shielded"
 	};
 
 	public AvatarModifierPackageType AvatarModifierPackageType => avatarModifierPackageType;

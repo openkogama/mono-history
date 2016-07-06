@@ -7,8 +7,8 @@ public class PrefabPool : MonoBehaviour
 
 	private static PrefabPool instance;
 
-	[SerializeField]
 	[Header("World Objects")]
+	[SerializeField]
 	private ObjectPrefab mvFirePrefab;
 
 	[SerializeField]
@@ -167,9 +167,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private TeleportAvatar teleportAvatarPrefab;
 
-	[Space(20f)]
-	[Header("Game")]
 	[SerializeField]
+	[Header("Game")]
+	[Space(20f)]
 	private Material ghostMarkerMaterial;
 
 	[SerializeField]
@@ -193,9 +193,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private CubeModelChunkPrefab cubeModelChunkPrefab;
 
-	[Space(20f)]
-	[SerializeField]
 	[Header("Pick up")]
+	[SerializeField]
+	[Space(20f)]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
 	[SerializeField]
@@ -253,8 +253,8 @@ public class PrefabPool : MonoBehaviour
 	private MVPickupItemBaseObject avatarGrowthPackPrefab;
 
 	[SerializeField]
-	[Space(20f)]
 	[Header("Avatar item pick up")]
+	[Space(20f)]
 	private GameObject avatarItemCenterGun;
 
 	[SerializeField]
@@ -305,9 +305,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject avatarItemSlapGun;
 
-	[SerializeField]
 	[Header("Avatar modifier")]
 	[Space(20f)]
+	[SerializeField]
 	private AvatarModifier burningModifier;
 
 	[SerializeField]
@@ -327,6 +327,9 @@ public class PrefabPool : MonoBehaviour
 
 	[SerializeField]
 	private AvatarModifier growthModifier;
+
+	[SerializeField]
+	private AvatarModifier shieldModifier;
 
 	[Space(20f)]
 	[SerializeField]
@@ -393,9 +396,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem particleXP;
 
-	[SerializeField]
 	[Header("Logic object prefabs")]
 	[Space(20f)]
+	[SerializeField]
 	private GameObject logicInputConnectorPrefab;
 
 	[SerializeField]
@@ -422,9 +425,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material logicCubeConnectorBlueSelectedMaterial;
 
-	[Header("GUI")]
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
+	[Header("GUI")]
 	private Texture2D avatarAccessoryMoveIcon;
 
 	[SerializeField]
@@ -447,9 +450,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private InsertCursor insertCursor;
 
+	[SerializeField]
 	[Header("Editor")]
 	[Space(20f)]
-	[SerializeField]
 	private Material cellCursorErrorMaterial;
 
 	[SerializeField]
@@ -702,6 +705,8 @@ public class PrefabPool : MonoBehaviour
 	public AvatarModifier MouseModifier => mouseModifier;
 
 	public AvatarModifier GrowthModifier => growthModifier;
+
+	public AvatarModifier ShieldModifier => shieldModifier;
 
 	public GameObject ParticleBlood => particleBlood;
 

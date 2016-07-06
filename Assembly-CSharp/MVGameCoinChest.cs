@@ -134,6 +134,12 @@ public class MVGameCoinChest : MVLogicObject
 		if (disabledByLod && distance < cullDistance)
 		{
 			disabledByLod = false;
+			MeshRenderer[] meshRenderers = component.MeshRenderers;
+			MeshRenderer[] array = meshRenderers;
+			foreach (MeshRenderer meshRenderer in array)
+			{
+				meshRenderer.enabled = true;
+			}
 			if (state == GameCoinChestClientState.Closed)
 			{
 				chestObject.ModelSelector.Close();
@@ -146,11 +152,11 @@ public class MVGameCoinChest : MVLogicObject
 		else if (!disabledByLod && distance >= cullDistance)
 		{
 			disabledByLod = true;
-			MeshRenderer[] meshRenderers = component.MeshRenderers;
-			MeshRenderer[] array = meshRenderers;
-			foreach (MeshRenderer meshRenderer in array)
+			MeshRenderer[] meshRenderers2 = component.MeshRenderers;
+			MeshRenderer[] array2 = meshRenderers2;
+			foreach (MeshRenderer meshRenderer2 in array2)
 			{
-				meshRenderer.enabled = false;
+				meshRenderer2.enabled = false;
 			}
 		}
 	}

@@ -46,6 +46,9 @@ public abstract class AvatarModifier : MonoBehaviour
 		case AvatarModifierPackageType.Enlarged:
 			avatarModifier = Object.Instantiate(PrefabPool.Instance.GrowthModifier);
 			break;
+		case AvatarModifierPackageType.Shielded:
+			avatarModifier = Object.Instantiate(PrefabPool.Instance.ShieldModifier);
+			break;
 		default:
 			return null;
 		}

@@ -9,5 +9,6 @@ public enum ClientSettingFlags
 	TouristChatAllowed = 1,
 	ShowErrorPopupClient = 2,
 	EnableClientSentry = 4,
-	ShowTouristPromotion = 8
+	ShowTouristPromotion = 8,
+	ShowTouristAd = 0x10
 }

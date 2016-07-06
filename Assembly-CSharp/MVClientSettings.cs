@@ -11,4 +11,6 @@ public static class MVClientSettings
 	public static bool EnableSentry => (ClientSettingFlags & ClientSettingFlags.EnableClientSentry) == ClientSettingFlags.EnableClientSentry;
 
 	public static bool ShowTouristPromotion => (ClientSettingFlags & ClientSettingFlags.ShowTouristPromotion) == ClientSettingFlags.ShowTouristPromotion;
+
+	public static bool ShowTouristAd => false;
 }

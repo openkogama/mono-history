@@ -32,6 +32,9 @@ public class DesktopLobbyStateController : MonoBehaviour
 	[SerializeField]
 	private TimedPlayReward playReward;
 
+	[SerializeField]
+	private AdOfferGold adOfferGold;
+
 	private readonly AccessoryMover accessoryMover = new AccessoryMover();
 
 	private Vector3 rewardButtonTarget = Vector3.zero;

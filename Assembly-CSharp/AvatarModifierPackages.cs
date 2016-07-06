@@ -33,12 +33,15 @@ public class AvatarModifierPackages
 	{
 		foreach (AvatarModifierPackage package in packages)
 		{
-			if (OnModifierExpired != null)
+			if (!package.persistant)
 			{
-				OnModifierExpired(package);
+				if (OnModifierExpired != null)
+				{
+					OnModifierExpired(package);
+				}
+				packages.Remove(package);
 			}
 		}
-		packages.Clear();
 	}
 
 	public bool HasModifier(AvatarModifierPackageType type)

@@ -109,6 +109,13 @@ public class TouristModeController : MonoBehaviour
 			AsyncWWWManager.WWWRequest(new CachedGetRequest(Urls.StreamingAssets + GetPath(promotionIndex % promotionCount + 1), StreamingTextureLoaded, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 		}
 
+		public void GetRandomTextureData(UnityAction<Texture> OnTextureReady)
+		{
+			OnTextureReadyCallback = OnTextureReady;
+			int num = promotionIndex % promotionCount;
+			AsyncWWWManager.WWWRequest(new CachedGetRequest(Urls.StreamingAssets + GetPath(Random.Range(num, num + promotionCount) + 1), StreamingTextureLoaded, WWWRequestPriority.WaitUntilSyncronizingIsDone));
+		}
+
 		private void StreamingTextureLoaded(WWW www)
 		{
 			if (string.IsNullOrEmpty(www.error))
@@ -137,13 +144,19 @@ public class TouristModeController : MonoBehaviour
 	[SerializeField]
 	private TouristPromotion touristPromotionPrefab;
 
+	[SerializeField]
+	private TouristPromotion touristPromotionWithAdPrefab;
+
+	private TouristPromotion promotion;
+
 	public void Awake()
 	{
-		touristPromotionActive = MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion;
+		touristPromotionActive = MVGameControllerBase.IsTouristSession && (MVClientSettings.ShowTouristPromotion || MVClientSettings.ShowTouristAd);
 		if (touristPromotionActive)
 		{
-			showPromotionBookkeeping = new ShowPromotionBookkeeping();
 			promotionDataManager = new PromotionDataManager();
+			showPromotionBookkeeping = new ShowPromotionBookkeeping();
+			enabled = !MVClientSettings.ShowTouristAd;
 		}
 	}
 
@@ -159,18 +172,35 @@ public class TouristModeController : MonoBehaviour
 	{
 		if (showPromotionBookkeeping.Show)
 		{
+			PushPromotionSlide(touristPromotionPrefab);
 			promotionDataManager.GetTextureDataToSet(SetPromotionTexture);
 			showPromotionBookkeeping.Continue();
 		}
 	}
 
-	private void SetPromotionTexture(Texture promotionTexture)
+	private void PushPromotionSlide(TouristPromotion prefab)
 	{
-		TouristPromotion promotion = Object.Instantiate(touristPromotionPrefab);
-		promotion.SetPromotionTexture(promotionTexture);
+		promotion = Object.Instantiate(prefab);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Push(promotion.gameObject, UIPushOption.Blocking);
 		});
+	}
+
+	public void ShowAnyPromotionSlide()
+	{
+		PushPromotionSlide(touristPromotionPrefab);
+		promotionDataManager.GetTextureDataToSet(SetPromotionTexture);
+	}
+
+	public void ShowAdPromotionSlide()
+	{
+		PushPromotionSlide(touristPromotionWithAdPrefab);
+		promotionDataManager.GetTextureDataToSet(SetPromotionTexture);
+	}
+
+	private void SetPromotionTexture(Texture promotionTexture)
+	{
+		promotion.SetPromotionTexture(promotionTexture);
 	}
 }

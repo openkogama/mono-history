@@ -124,6 +124,13 @@ public static class AvatarModifierPackageFactory
 			})
 		},
 		{
+			AvatarModifierPackageType.Shielded,
+			new AvatarModifierPackage(AvatarModifierPackageType.Shielded, AvatarModifierPackageAdditionPolicy.Renew, float.PositiveInfinity, new AvatarModifierPackage.AvatarModifier[1]
+			{
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Override, AvatarModifierEffect.DamageMultiplier, Const(0.5f))
+			}, null, persist: true)
+		},
+		{
 			AvatarModifierPackageType.DisableVehiclePickup,
 			new AvatarModifierPackage(AvatarModifierPackageType.DisableVehiclePickup, AvatarModifierPackageAdditionPolicy.Renew, float.PositiveInfinity, new AvatarModifierPackage.AvatarModifier[1]
 			{

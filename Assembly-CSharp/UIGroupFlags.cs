@@ -9,5 +9,6 @@ public enum UIGroupFlags
 	InventoryUI = 4,
 	InventoryUISubMenu = 8,
 	GameObjectUISubMenu = 0x10,
-	Popup = 0x20
+	Popup = 0x20,
+	Effect = 0x40
 }

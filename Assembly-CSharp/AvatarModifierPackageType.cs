@@ -15,5 +15,6 @@ public enum AvatarModifierPackageType
 	Shrunken,
 	WindFriction,
 	DisableVehiclePickup,
-	Enlarged
+	Enlarged,
+	Shielded
 }

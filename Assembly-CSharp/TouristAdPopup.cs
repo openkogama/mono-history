@@ -1,52 +1,20 @@
-using System.Collections;
 using System.Collections.Generic;
 using MV.WorldObject.Security;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
-public class TouristPromotion : MonoBehaviour
+public class TouristAdPopup : MonoBehaviour
 {
-	[SerializeField]
-	private Button promotionWallButton;
-
-	[SerializeField]
-	private RawImage buttonRawImage;
-
-	[SerializeField]
-	private CanvasGroup canvasGroup;
-
-	[SerializeField]
-	private GameObject pleaseWaitOverlay;
-
-	public void SetPromotionTexture(Texture tex)
+	public void OnViewAdClicked()
 	{
-		buttonRawImage.texture = tex;
-		pleaseWaitOverlay.SetActive(value: false);
-	}
-
-	public void SkipCallback()
-	{
-		StartCoroutine(FadeOutAndPopPromotion());
-	}
-
-	private IEnumerator FadeOutAndPopPromotion()
-	{
-		yield return StartCoroutine(pTween.To(0.5f, 1f, 0f, (float t) =>
+		NotificationController.PushNotification("Please register to remove death-ads! Q('-'Q)");
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			canvasGroup.alpha = t;
-			if (t == 0f)
-			{
-				gameObject.SetActive(value: false);
-				ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-				{
-					x.Pop();
-				});
-			}
-		}));
+			x.Pop();
+		});
 	}
 
-	public void SignupCallback()
+	public void OnRegisterClicked()
 	{
 		if (!LevelingManager.IsInitialized)
 		{
@@ -62,7 +30,7 @@ public class TouristPromotion : MonoBehaviour
 		BrowserComm.ExecuteBrowserRequest(MVGameControllerBase.GameSessionData.signupURL);
 	}
 
-	public void LoginCallback()
+	public void OnLoginClicked()
 	{
 		BrowserComm.ToJavaScript.ExternalCall("gotoLogin");
 		BrowserComm.ExecuteBrowserRequest(MVGameControllerBase.GameSessionData.loginURL);

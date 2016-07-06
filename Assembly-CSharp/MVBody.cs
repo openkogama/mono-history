@@ -744,7 +744,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		}
 	}
 
-	private Transform GetSlotTransform(AvatarAccessorySlot slot)
+	public Transform GetSlotTransform(AvatarAccessorySlot slot)
 	{
 		if (slot == AvatarAccessorySlot.WholeBody)
 		{

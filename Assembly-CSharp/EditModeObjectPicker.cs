@@ -41,7 +41,7 @@ public static class EditModeObjectPicker
 		bool result = false;
 		foreach (VoxelHit item in list)
 		{
-			if ((item.distance < num || !flag) && item.transform.gameObject.activeInHierarchy && (item.transform.gameObject.layer != LayerMask.NameToLayer("Logic") || MVGameControllerBase.CameraController.IsLogicRendered || IsHitPickup(item)))
+			if ((item.distance < num || !flag) && item.transform.gameObject.activeInHierarchy)
 			{
 				float num3 = Vector3.Distance(ray.origin, item.point);
 				if (num3 < num2)

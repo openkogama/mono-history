@@ -44,6 +44,12 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 	[SerializeField]
 	private Canvas canvas;
 
+	[SerializeField]
+	private TouristAdController touristAdController;
+
+	[SerializeField]
+	private TouristModeController touristModeController;
+
 	public UnityAction OnLeaveEditPlayMode;
 
 	private bool rewardReady;
@@ -164,7 +170,7 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 			});
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 			{
-				x.Push(newTeamMenu.gameObject, UIPushOption.Blocking | UIPushOption.HideAll, null, UIGroupFlags.InventoryUI);
+				x.Push(newTeamMenu.gameObject, UIPushOption.Blocking, null, UIGroupFlags.InventoryUI);
 			});
 		}
 		accessoryShopController.Initialize();
@@ -200,6 +206,9 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 		levelBadge.transform.SetParent(stackBottom.transform, worldPositionStays: false);
 		notificationsManager = UnityEngine.Object.Instantiate(notificationsManager);
 		notificationsManager.transform.SetParent(stackBottom.transform, worldPositionStays: false);
+		touristAdController = UnityEngine.Object.Instantiate(touristAdController);
+		touristAdController.transform.SetParent(stackBottom.transform, worldPositionStays: false);
+		touristAdController.Initialize(touristModeController);
 	}
 
 	private void LobbyStateChange(bool cursorLocked)
