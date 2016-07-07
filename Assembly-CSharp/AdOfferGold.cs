@@ -26,11 +26,15 @@ public class AdOfferGold : MonoBehaviour
 		}
 	}
 
-	private void OnShownGoldAd(bool shouldReward)
+	public static void OnShownGoldAd(bool shouldReward)
 	{
-		AdRequestHandler.GetGoldAdAvailable(RewardAvailable);
-		if (!shouldReward)
+		if (shouldReward)
 		{
+			BrowserComm.ToJavaScript.ExternalCall("refreshCredentials");
+			NotificationController.PushNotification(TM._("Thank you for watching! Enjoy your gold!"));
+			ParticleSystem particleSystem = Object.Instantiate(PrefabPool.Instance.GoldExplosion);
+			particleSystem.transform.parent = MVGameControllerBase.WOCM.AvatarLocal.Transform;
+			particleSystem.transform.localPosition = new Vector3(0f, 1f, 0f);
 		}
 	}
 }
