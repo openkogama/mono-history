@@ -1,6 +1,7 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public abstract class ModeControllerBase : MonoBehaviour
+public abstract class ModeControllerBase : MonoBehaviour, IToggleFps, IEventSystemHandler
 {
 	[SerializeField]
 	private GameObject fpsCounterPrefab;
@@ -10,22 +11,24 @@ public abstract class ModeControllerBase : MonoBehaviour
 	public virtual void Initialize()
 	{
 		MVGameControllerBase.CameraController.Init();
-		if (MVGameControllerBase.IsTouristSession)
+	}
+
+	public void ToggleFps()
+	{
+		if (fpsCounter != null)
 		{
+			Object.Destroy(fpsCounter);
+			return;
 		}
+		fpsCounter = Object.Instantiate(fpsCounterPrefab);
+		fpsCounter.transform.SetParent(transform, worldPositionStays: false);
 	}
 
 	protected void HandleFpsShortcut()
 	{
 		if (Input.GetKey(KeyCode.Alpha8) && Input.GetKeyUp(KeyCode.Alpha9))
 		{
-			if (fpsCounter != null)
-			{
-				Object.Destroy(fpsCounter);
-				return;
-			}
-			fpsCounter = Object.Instantiate(fpsCounterPrefab);
-			fpsCounter.transform.SetParent(transform, worldPositionStays: false);
+			ToggleFps();
 		}
 	}
 }

@@ -2,12 +2,19 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using MV.Common;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class SendMessageControl : MonoBehaviour
 {
 	private string helpString = "/h";
+
+	private string fps = "/f";
+
+	private string resolution = "/r";
+
+	private string lowerResolution = "/rl";
 
 	[SerializeField]
 	private InputField inputField;
@@ -84,34 +91,46 @@ public class SendMessageControl : MonoBehaviour
 
 	private void SendChatMessage(string chatMsg)
 	{
-		if (!(chatMsg == string.Empty))
+		if (chatMsg == string.Empty)
 		{
-			if (chatMsg.Length > 256)
+			return;
+		}
+		if (chatMsg.Length > 256)
+		{
+			chatMsg = chatMsg.Substring(0, 256);
+		}
+		if (chatMsg == helpString)
+		{
+			MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, CreateHelpTxt());
+		}
+		else if (chatMsg == fps)
+		{
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IToggleFps x, BaseEventData y) =>
 			{
-				chatMsg = chatMsg.Substring(0, 256);
-			}
-			if (chatMsg == helpString)
+				x.ToggleFps();
+			});
+		}
+		else if (chatMsg == resolution)
+		{
+			MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, $"{Screen.width} x {Screen.height}");
+		}
+		else
+		{
+			MVGameControllerBase.OperationRequests.PostGameMsg(MVGameMsgType.Chat, new Dictionary<object, object>
 			{
-				MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, CreateHelpTxt());
-			}
-			else
-			{
-				MVGameControllerBase.OperationRequests.PostGameMsg(MVGameMsgType.Chat, new Dictionary<object, object>
 				{
-					{
-						(byte)0,
-						MVGameControllerBase.Game.LocalPlayer.ActorNr
-					},
-					{
-						(byte)5,
-						chatMsg
-					}
-				});
-			}
-			if (DoSend != null)
-			{
-				DoSend(arg0: false);
-			}
+					(byte)0,
+					MVGameControllerBase.Game.LocalPlayer.ActorNr
+				},
+				{
+					(byte)5,
+					chatMsg
+				}
+			});
+		}
+		if (DoSend != null)
+		{
+			DoSend(arg0: false);
 		}
 	}
 

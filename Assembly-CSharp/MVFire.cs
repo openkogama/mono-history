@@ -42,8 +42,9 @@ public class MVFire : MVLogicObject
 				{
 					num = Vector3.Distance(mVWorldObjectClient.Collider.ClosestPointOnBounds(WorldPosition), WorldPosition);
 				}
-				float damage = Time.deltaTime * 100f * (1f - num / 2.5f);
-				interactionDataHandlerBase.HandleInteraction(ProximityDamageAndImpulse.Create(damage, Vector3.zero, PlayerKilledByType.Fire), interactionIsLocal: true);
+				float value = Time.deltaTime * 100f * (1f - num / 2.5f);
+				value = Mathf.Clamp(value, 0f, 100f);
+				interactionDataHandlerBase.HandleInteraction(ProximityDamageAndImpulse.Create(value, Vector3.zero, PlayerKilledByType.Fire), interactionIsLocal: true);
 			}
 		}
 	}

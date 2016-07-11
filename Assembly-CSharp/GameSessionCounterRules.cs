@@ -163,6 +163,8 @@ public static class GameSessionCounterRules
 
 	private static List<IRule> rules = new List<IRule>();
 
+	private static bool cubeGunCubeAdded100Rewarded = false;
+
 	public static void AddRules(Dictionary<GameSessionCounterType, GameSessionCounters.GameSessionCounter> sessionCounters)
 	{
 		GameSessionCounters.GameSessionCounter gameSessionCounter = sessionCounters[GameSessionCounterType.CubeGunCubeDelta];
@@ -249,9 +251,10 @@ public static class GameSessionCounterRules
 
 	private static void CubeGunCubeAdded100(GameSessionCounterType gameSessionCounterType, int count)
 	{
-		if (count % 100 == 0)
+		if (!cubeGunCubeAdded100Rewarded && count != 0 && count % 100 == 0)
 		{
 			LevelingManager.AddXPToLocalPlayer("CubeGunCubeAdded100", MVGameMode.Play);
+			cubeGunCubeAdded100Rewarded = true;
 		}
 	}
 }

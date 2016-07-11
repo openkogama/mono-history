@@ -9,6 +9,8 @@ public class GameMeterAndroidCollectible : GameMeterAndroidBase
 	[SerializeField]
 	private Text collectibleText;
 
+	private int prevValue;
+
 	public override GameMeterType GameMeterType => GameMeterType.Collectibles;
 
 	private void Start()
@@ -25,7 +27,13 @@ public class GameMeterAndroidCollectible : GameMeterAndroidBase
 			{
 				Show();
 			}
-			string text = MVGameControllerBase.Game.LocalPlayer.GetGameStat(GameStatCounterType.Collectible) + "/" + singletonWinnerConditionByType.Limit;
+			int gameStat = MVGameControllerBase.Game.LocalPlayer.GetGameStat(GameStatCounterType.Collectible);
+			if (prevValue != gameStat && gameStat != 0)
+			{
+				prevValue = gameStat;
+				NotificationController.PushNotification(string.Format(TM._("Collected star! {0}/{1}"), gameStat, singletonWinnerConditionByType.Limit));
+			}
+			string text = gameStat + "/" + singletonWinnerConditionByType.Limit;
 			collectibleText.text = text;
 		}
 		else

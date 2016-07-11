@@ -113,6 +113,8 @@ public abstract class MVWorldObjectClientManager
 			public MVWorldObjectClient currentWorldObject = null;
 		}
 
+		private const float distanceMultiplierHack = 1f;
+
 		private WorldObjectsIdsLodBookkeeping worldObjectsIdsLodBookkeeping = new WorldObjectsIdsLodBookkeeping(new List<int>());
 
 		private MVWorldObjectClientManager worldObjectClientManager;
@@ -146,7 +148,7 @@ public abstract class MVWorldObjectClientManager
 				}
 				if (worldObjectClientManager.worldObjects.TryGetValue(worldObjectsIdsLodBookkeeping.worldObjectsIdsLod[worldObjectsIdsLodBookkeeping.currentPosition], out worldObjectsIdsLodBookkeeping.currentWorldObject))
 				{
-					worldObjectsIdsLodBookkeeping.currentWorldObject.ChangeLOD(Vector3.Distance(worldObjectsIdsLodBookkeeping.currentWorldObject.WorldPosition, position));
+					worldObjectsIdsLodBookkeeping.currentWorldObject.ChangeLOD(Vector3.Distance(worldObjectsIdsLodBookkeeping.currentWorldObject.WorldPosition, position) * 1f);
 				}
 				else
 				{

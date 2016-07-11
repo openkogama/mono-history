@@ -3,5 +3,5 @@ using UnityEngine;
 public class AvatarInputControllerAndroidSettings : MonoBehaviour
 {
 	[SerializeField]
-	public AnimationCurve directionBiasForward;
+	public AnimationCurve dotEvaluator;
 }

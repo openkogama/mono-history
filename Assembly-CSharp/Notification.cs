@@ -15,7 +15,7 @@ public abstract class Notification : MonoBehaviour
 
 	private bool selfDestroy = true;
 
-	private Vector2 Offset = new Vector2(-250f, 0f);
+	private readonly Vector2 Offset = new Vector2(-250f, 0f);
 
 	private Vector2 Target;
 

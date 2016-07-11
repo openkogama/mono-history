@@ -4,6 +4,90 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
+	private class CollisionBullet
+	{
+		public enum State
+		{
+			Moving,
+			Hit,
+			OutOfRange
+		}
+
+		private readonly float speed;
+
+		private readonly float range;
+
+		private float distanceTraveled;
+
+		private Vector3 currentPos;
+
+		private Vector3 prevPos;
+
+		private Ray ray;
+
+		private readonly HashSet<int> ignoreWoIDs;
+
+		public CollisionBullet(float range, float speed, Vector3 origin, Vector3 direction, HashSet<int> ignoreWoIDs)
+		{
+			currentPos = origin;
+			prevPos = origin;
+			ray.direction = direction;
+			this.range = range;
+			this.speed = speed;
+			this.ignoreWoIDs = ignoreWoIDs;
+		}
+
+		public State Update(out VoxelHit voxelHit)
+		{
+			State result = State.Moving;
+			prevPos = currentPos;
+			float num = speed * Time.deltaTime;
+			distanceTraveled += num;
+			if (distanceTraveled > range)
+			{
+				float num2 = distanceTraveled - range;
+				num -= num2;
+				result = State.OutOfRange;
+			}
+			currentPos = ray.direction * num + prevPos;
+			if (DoCollisionCheck(out voxelHit))
+			{
+				result = State.Hit;
+			}
+			return result;
+		}
+
+		private bool DoCollisionCheck(out VoxelHit voxelHit)
+		{
+			ray.origin = prevPos;
+			return DoBulletCollision(ray, out voxelHit, speed * Time.deltaTime, ignoreWoIDs);
+		}
+
+		private static bool DoBulletCollision(Ray ray, out VoxelHit voxelHit, float distance, HashSet<int> ignoreWoIDs)
+		{
+			LayerMask layerMask = -5;
+			layerMask = (int)layerMask & ~(1 << (LayerMask.NameToLayer("Logic") & 0x1F));
+			if (CollisionDetection.MVHit(ray, out voxelHit, distance, ignoreWoIDs, layerMask))
+			{
+				Debug.DrawLine(voxelHit.point, voxelHit.point + Vector3.up, Color.green, 10f);
+				Debug.DrawLine(voxelHit.point, voxelHit.point + Vector3.right, Color.green, 10f);
+				MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
+				if (worldObjectClient.PlayInteractionType == PlayInteractionType.Solid)
+				{
+					return true;
+				}
+				MVWorldObjectClient hitInteractionHandlingWO = worldObjectClient.GetHitInteractionHandlingWO();
+				if (hitInteractionHandlingWO == null)
+				{
+					return false;
+				}
+				voxelHit.woId = hitInteractionHandlingWO.Id;
+				return true;
+			}
+			return false;
+		}
+	}
+
 	public delegate void OnHitDelegate(VoxelHit hit, Ray lineOfFire);
 
 	public OnHitDelegate onHit;
@@ -45,6 +129,10 @@ public class Bullet : MonoBehaviour
 	private PoolEnums initiatedPoolType;
 
 	private MonoBehaviour pooledObjectReference;
+
+	private Vector3 prevColliderPos = Vector3.zero;
+
+	private CollisionBullet collisionBullet;
 
 	public PoolEnums InitiatedPoolType
 	{
@@ -113,6 +201,7 @@ public class Bullet : MonoBehaviour
 		if (!isFired)
 		{
 			this.lineOfFire = lineOfFire;
+			prevColliderPos = lineOfFire.origin;
 			this.ignoreWoIDs = ignoreWoIDs;
 			isFired = true;
 			DoFire(speed, range);
@@ -131,32 +220,43 @@ public class Bullet : MonoBehaviour
 
 	private void Update()
 	{
+		CollisionBullet.State state = collisionBullet.Update(out var voxelHit);
+		if (state == CollisionBullet.State.Hit)
+		{
+			hit = true;
+			if (onHit != null)
+			{
+				onHit(voxelHit, lineOfFire);
+			}
+			if (onHitLocal != null)
+			{
+				onHitLocal(voxelHit, lineOfFire);
+			}
+		}
 		currentAirTime += Time.deltaTime;
 		if (!hit && currentAirTime <= maxAirTime)
 		{
-			float num = currentAirTime / maxAirTime;
-			localTransform.position = Vector3.Lerp(startPosition, targetPosition, num);
-			Vector3 pos = Vector3.Lerp(lineOfFire.origin, targetPosition, num);
-			if (num >= 0f && DoCollisionCheck(pos, out var voxelHit))
-			{
-				hit = true;
-				if (onHit != null)
-				{
-					onHit(voxelHit, lineOfFire);
-				}
-				if (onHitLocal != null)
-				{
-					onHitLocal(voxelHit, lineOfFire);
-				}
-			}
-			return;
+			float t = currentAirTime / maxAirTime;
+			localTransform.position = Vector3.Lerp(startPosition, targetPosition, t);
 		}
-		if (!hasCleaned)
+		else
 		{
 			MeshRenderer[] array = meshRenderers;
 			foreach (MeshRenderer meshRenderer in array)
 			{
 				meshRenderer.enabled = false;
+			}
+		}
+		if (state != CollisionBullet.State.Hit && state != CollisionBullet.State.OutOfRange)
+		{
+			return;
+		}
+		if (!hasCleaned)
+		{
+			MeshRenderer[] array2 = meshRenderers;
+			foreach (MeshRenderer meshRenderer2 in array2)
+			{
+				meshRenderer2.enabled = false;
 			}
 			if ((bool)pSystem)
 			{
@@ -179,6 +279,7 @@ public class Bullet : MonoBehaviour
 
 	private void DoFire(float speed, float maxRange)
 	{
+		collisionBullet = new CollisionBullet(maxRange, speed, lineOfFire.origin, lineOfFire.direction, ignoreWoIDs);
 		localTransform = GetComponent<Transform>();
 		startPosition = localTransform.position;
 		targetPosition = FindTargetPos(maxRange);
@@ -193,34 +294,6 @@ public class Bullet : MonoBehaviour
 		{
 			pSystem.Play();
 		}
-	}
-
-	private bool DoCollisionCheck(Vector3 pos, out VoxelHit voxelHit)
-	{
-		Ray ray = new Ray(pos, lineOfFire.direction);
-		return DoBulletCollision(ray, out voxelHit, 2f, ignoreWoIDs);
-	}
-
-	private static bool DoBulletCollision(Ray ray, out VoxelHit voxelHit, float distance, HashSet<int> ignoreWoIDs)
-	{
-		LayerMask layerMask = -5;
-		layerMask = (int)layerMask & ~(1 << (LayerMask.NameToLayer("Logic") & 0x1F));
-		if (CollisionDetection.MVHit(ray, out voxelHit, distance, ignoreWoIDs, layerMask))
-		{
-			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
-			if (worldObjectClient.PlayInteractionType == PlayInteractionType.Solid)
-			{
-				return true;
-			}
-			MVWorldObjectClient hitInteractionHandlingWO = worldObjectClient.GetHitInteractionHandlingWO();
-			if (hitInteractionHandlingWO == null)
-			{
-				return false;
-			}
-			voxelHit.woId = hitInteractionHandlingWO.Id;
-			return true;
-		}
-		return false;
 	}
 
 	public Vector3 FindTargetPos(float maxRange)

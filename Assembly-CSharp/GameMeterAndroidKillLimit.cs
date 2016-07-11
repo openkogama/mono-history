@@ -2,6 +2,8 @@ public class GameMeterAndroidKillLimit : GameMeterAndroidKillBase
 {
 	private KillLimitClient killClient;
 
+	private int prevValue;
+
 	public override GameMeterType GameMeterType => GameMeterType.Kills;
 
 	private void Start()
@@ -18,6 +20,12 @@ public class GameMeterAndroidKillLimit : GameMeterAndroidKillBase
 			if (!gameObject.activeSelf)
 			{
 				Show();
+			}
+			int gameStat = MVGameControllerBase.Game.LocalPlayer.GetGameStat(GameStatCounterType.Kill);
+			if (prevValue != gameStat && gameStat != 0)
+			{
+				prevValue = gameStat;
+				NotificationController.PushNotification(string.Format(TM._("Killed enemy! {0}/{1}"), gameStat, killClient.Limit));
 			}
 		}
 		else

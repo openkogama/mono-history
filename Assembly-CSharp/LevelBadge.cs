@@ -11,6 +11,9 @@ public class LevelBadge : MonoBehaviour
 	[SerializeField]
 	private ProgressBarAndroid xpBar;
 
+	[SerializeField]
+	private PlayerStatusPopup playerStatusPopup;
+
 	private void Awake()
 	{
 		levelBadge.enabled = false;
@@ -23,6 +26,10 @@ public class LevelBadge : MonoBehaviour
 		{
 			LevelingManager.OnLevelingInitialized = (UnityAction)Delegate.Combine(LevelingManager.OnLevelingInitialized, new UnityAction(OnLevelingInitialized));
 		}
+	}
+
+	public void OnClick()
+	{
 	}
 
 	private void OnLevelingInitialized()

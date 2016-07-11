@@ -113,7 +113,11 @@ public class WinningConditionDebriefingAndroid : MonoBehaviour, IDebriefing
 			{
 				if (value.ActorNr == scoreActorEntries[0].actorNumber)
 				{
-					num = value.GetGameStat(counterType);
+					int gameStat = value.GetGameStat(counterType);
+					if (gameStat > num)
+					{
+						num = gameStat;
+					}
 				}
 			}
 		}
@@ -154,7 +158,11 @@ public class WinningConditionDebriefingAndroid : MonoBehaviour, IDebriefing
 			{
 				if (value.Team == scoreTeamEntries[0].team)
 				{
-					num = value.GetGameStat(counterType);
+					int gameStat = value.GetGameStat(counterType);
+					if (gameStat > num)
+					{
+						num = gameStat;
+					}
 				}
 			}
 		}
@@ -173,7 +181,6 @@ public class WinningConditionDebriefingAndroid : MonoBehaviour, IDebriefing
 	private void OnDisable()
 	{
 		Clear();
-		StopAllCoroutines();
 	}
 
 	private void SetupDebriefingNoWinner()

@@ -15,6 +15,12 @@ public class LobbyStateController : MonoBehaviour
 	private float rewardButtonLerpSpeed = 5f;
 
 	[SerializeField]
+	private GameObject touristRegisterButton;
+
+	[SerializeField]
+	private GameObject accessoryShop;
+
+	[SerializeField]
 	private RewardGenerator rewardGenerator;
 
 	[SerializeField]
@@ -36,8 +42,10 @@ public class LobbyStateController : MonoBehaviour
 		playReward.transform.localScale = rewardHiddenSize;
 		bool isTouristSession = MVGameControllerBase.IsTouristSession;
 		touristRewardPreview.SetActive(isTouristSession);
+		touristRegisterButton.SetActive(isTouristSession);
 		if (!isTouristSession)
 		{
+			accessoryShop.SetActive(value: true);
 			playReward.Initialize();
 			RewardManager.NumberOfPendingRewardsChanged = (UnityAction)Delegate.Combine(RewardManager.NumberOfPendingRewardsChanged, new UnityAction(RewardChanged));
 			RewardManager.TimerUpdated = (UnityAction)Delegate.Combine(RewardManager.TimerUpdated, new UnityAction(RewardChanged));

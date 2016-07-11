@@ -213,10 +213,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	{
 		Debug.Log(version.text);
 		DebugLogHandler.Init();
-		if (!DebugLogHandler.IsSampling)
-		{
-			Debug.logger.filterLogType = LogType.Warning;
-		}
 		styles = UnityEngine.Object.Instantiate(styles);
 		styles.transform.parent = transform;
 		loadStats = new LoadStats();

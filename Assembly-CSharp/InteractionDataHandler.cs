@@ -13,6 +13,7 @@ public class InteractionDataHandler : InteractionDataHandlerBase
 
 	public override bool HandleInteraction(InteractionData interaction, bool interactionIsLocal)
 	{
+		MVGameControllerBase.CameraController.PlayPlingSound();
 		if (interactionIsLocal)
 		{
 			worldObjectParent.ReceiveInteractionPackage(interaction, null);

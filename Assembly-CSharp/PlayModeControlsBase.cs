@@ -1,6 +1,7 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public abstract class PlayModeControlsBase : MonoBehaviour
+public abstract class PlayModeControlsBase : MonoBehaviour, IEventSystemHandler, ILowerResolution
 {
 	private bool showingEquipableUI;
 
@@ -17,10 +18,19 @@ public abstract class PlayModeControlsBase : MonoBehaviour
 	private RectTransform leaveVehicle;
 
 	[SerializeField]
-	private CrossHair crossHair;
+	private CrossHairAndroid crossHair;
 
 	[SerializeField]
 	private GameObject crossHairGO;
+
+	public void LowerResolution()
+	{
+		int num = Screen.width / 2;
+		if (num >= 800)
+		{
+			Screen.SetResolution(num, Screen.height / 2, fullscreen: true);
+		}
+	}
 
 	private void Update()
 	{

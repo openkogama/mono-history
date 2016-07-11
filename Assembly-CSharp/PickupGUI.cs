@@ -27,11 +27,10 @@ public class PickupGUI
 		{
 			int num = 0;
 			num = pickupOwner.CurrentItem.Quantity;
-			Color magenta = Color.magenta;
-			magenta = pickupOwner.CurrentItem.CrossHairColor;
+			Color crossHairColor = pickupOwner.CurrentItem.CrossHairColor;
 			float chargeState = pickupOwner.CurrentItem.ChargeState;
 			bool andResetFiredThisFrame = pickupOwner.CurrentItem.GetAndResetFiredThisFrame();
-			crossHair.UpdateCrossHair(num, magenta, chargeState, andResetFiredThisFrame);
+			crossHair.UpdateCrossHair(num, crossHairColor, chargeState, andResetFiredThisFrame);
 			UpdateCrossHairVisibility();
 		}
 	}

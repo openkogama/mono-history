@@ -18,6 +18,7 @@ public class ClientSideNPCInteractionHandler : InteractionDataHandlerBase
 		{
 			return false;
 		}
+		MVGameControllerBase.CameraController.PlayPlingSound();
 		worldObjectParent.SendPackage(new Dictionary<object, object> { 
 		{
 			(byte)0,

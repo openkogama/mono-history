@@ -14,6 +14,14 @@ public class ConsoleDragAndTapHandler : MonoBehaviour, IBeginDragHandler, IEndDr
 	[SerializeField]
 	private ScrollRect scrollRect;
 
+	public void OnChatModeClick()
+	{
+		if (OnClick != null)
+		{
+			OnClick();
+		}
+	}
+
 	public void SetScrollingEnabled(bool scrollEnabled)
 	{
 		scrollingEnabled = scrollEnabled;

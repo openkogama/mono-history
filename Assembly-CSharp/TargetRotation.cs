@@ -25,7 +25,6 @@ public class TargetRotation : MonoBehaviour
 	{
 		Vector3 vector = from.eulerAngles;
 		float x = Mathf.LerpAngle(vector.x, eulerAngles.x, Time.deltaTime * lerpSpeedX);
-		vector.y = ClampDegreeDiff(vector.y, eulerAngles.y, 70f);
 		float y = Mathf.LerpAngle(vector.y, eulerAngles.y, Time.deltaTime * lerpSpeedY);
 		return Quaternion.Euler(x, y, 0f);
 	}

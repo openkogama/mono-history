@@ -5,8 +5,6 @@ using UnityEngine.UI;
 
 public class DesktopInGameGUIController : MonoBehaviour
 {
-	private bool showingEquipableUI;
-
 	[SerializeField]
 	private ShowUse2D use2DPrefab;
 
@@ -80,14 +78,6 @@ public class DesktopInGameGUIController : MonoBehaviour
 				Debug.LogWarning("Streaming asset callback failed for referral logo: " + www.error);
 			}
 			Debug.LogWarning("Streaming asset callback: www is null - " + (www == null) + ", www.texture is null - " + (www.texture == null));
-		}
-	}
-
-	private void Update()
-	{
-		if (PickupGUI.ShowEquipableUI != showingEquipableUI)
-		{
-			showingEquipableUI = PickupGUI.ShowEquipableUI;
 		}
 	}
 

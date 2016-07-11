@@ -28,6 +28,8 @@ public class VersionNumber : MonoBehaviour
 
 	private void Start()
 	{
+		LogType filterLogType = Debug.logger.filterLogType;
+		Debug.logger.filterLogType = LogType.Log;
 		string text = versionText.text;
 		Debug.Log(text);
 		versionMajor = int.Parse(text.Substring(0, 1));
@@ -35,6 +37,7 @@ public class VersionNumber : MonoBehaviour
 		versionMicro = int.Parse(text.Substring(3, 3));
 		Debug.Log(Application.bundleIdentifier);
 		Debug.Log("ClientBuild: " + VersionString);
+		Debug.logger.filterLogType = filterLogType;
 	}
 
 	public override string ToString()

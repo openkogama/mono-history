@@ -58,6 +58,21 @@ public class WinningConditionBriefingAndroid : MonoBehaviour, IBriefing
 		case WinningConditionType.Lowest:
 			additionalInformation = TM._("Reach lowest altitude");
 			break;
+		case WinningConditionType.Collectible:
+			additionalInformation = TM._("Collect coins");
+			break;
+		case WinningConditionType.Flag:
+			additionalInformation = TM._("Reach the flag");
+			break;
+		case WinningConditionType.Kill:
+			additionalInformation = TM._("Eliminate other players");
+			break;
+		case WinningConditionType.Oculus:
+			additionalInformation = TM._("Eliminate Oculi");
+			break;
+		case WinningConditionType.Time:
+			additionalInformation = TM._("Wait for the timer to end");
+			break;
 		}
 		winningConditionAndroid.SetAdditionalInformation(additionalInformation);
 		winningConditionAndroid.transform.SetParent(offsetTransform, worldPositionStays: false);
@@ -77,6 +92,21 @@ public class WinningConditionBriefingAndroid : MonoBehaviour, IBriefing
 			break;
 		case WinningConditionType.Lowest:
 			additionalInformation = TM._("Reach lowest altitude");
+			break;
+		case WinningConditionType.Collectible:
+			additionalInformation = TM._("Collect coins");
+			break;
+		case WinningConditionType.Flag:
+			additionalInformation = TM._("Reach the flag");
+			break;
+		case WinningConditionType.Kill:
+			additionalInformation = TM._("Eliminate other players");
+			break;
+		case WinningConditionType.Oculus:
+			additionalInformation = TM._("Eliminate Oculi");
+			break;
+		case WinningConditionType.Time:
+			additionalInformation = TM._("Wait for the timer to end");
 			break;
 		}
 		winningConditionAndroid.SetAdditionalInformation(additionalInformation);

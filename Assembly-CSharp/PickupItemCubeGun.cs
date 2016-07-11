@@ -189,7 +189,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	protected override void OnFire(bool isLocal)
 	{
-		if (IsAmmoDepleted)
+		if (fireSecondary || IsAmmoDepleted)
 		{
 			return;
 		}
@@ -230,6 +230,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	protected void OnFireSecondary(bool isLocal)
 	{
+		Debug.Log("OnFireSecondary " + Time.frameCount);
 		audioSource.clip = releaseSound;
 		audioSource.loop = false;
 		audioSource.Play();

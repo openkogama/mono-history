@@ -144,6 +144,9 @@ public class MVCameraController : MonoBehaviour
 	[SerializeField]
 	private Camera mainCamera;
 
+	[SerializeField]
+	private AudioSource plingSound;
+
 	private bool blueModeEnabled;
 
 	private static float baseVolume = 0f;
@@ -227,6 +230,11 @@ public class MVCameraController : MonoBehaviour
 	}
 
 	public event EventHandler<OnIgnoreInputTypesArgs> onIgnoreInputTypes;
+
+	public void PlayPlingSound()
+	{
+		plingSound.Play();
+	}
 
 	private void RenderLogic(bool renderLogic)
 	{

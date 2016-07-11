@@ -34,10 +34,13 @@ public class AndroidChatController : MonoBehaviour
 	private ScrollRect scrollRect;
 
 	[SerializeField]
-	private InputField inputField;
+	private RectTransform inputAreaRoot;
 
 	[SerializeField]
-	private RectTransform inputAreaRoot;
+	private RectTransform expandChat;
+
+	[SerializeField]
+	private RectTransform minimizeChat;
 
 	[SerializeField]
 	private Text consoleLinePrefab;
@@ -112,10 +115,14 @@ public class AndroidChatController : MonoBehaviour
 		case ChatConsoleMode.ChatPlayMode:
 			enterChatButton.SetScrollingEnabled(scrollEnabled: true);
 			inputAreaRoot.gameObject.SetActive(!MVGameControllerBase.IsTouristSession);
+			minimizeChat.gameObject.SetActive(value: true);
+			expandChat.gameObject.SetActive(value: false);
 			break;
 		case ChatConsoleMode.PlayMode:
 			enterChatButton.SetScrollingEnabled(scrollEnabled: false);
 			inputAreaRoot.gameObject.SetActive(value: false);
+			minimizeChat.gameObject.SetActive(value: false);
+			expandChat.gameObject.SetActive(value: true);
 			break;
 		}
 		chatConsoleModes.Set(chatConsoleMode, ref rectTransform);

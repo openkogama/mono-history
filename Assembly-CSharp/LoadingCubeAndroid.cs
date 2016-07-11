@@ -34,7 +34,6 @@ public class LoadingCubeAndroid : MonoBehaviour
 			}
 			if (MVGameControllerBase.JoinState == MVJoinState.Joining && !cameraSetupDone)
 			{
-				Debug.LogError("pause");
 				loadingScreenCamera.backgroundColor = backgroundColor;
 				loadingScreenCamera.cullingMask = layerMask;
 				cameraSetupDone = true;
