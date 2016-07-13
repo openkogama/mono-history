@@ -125,7 +125,10 @@ public class MVCollectible : MVLogicObject
 			{
 				collectibleObject.AudioSource.Play();
 			}
-			collectibleObject.Particles.Play();
+			if (!disabledByLod)
+			{
+				collectibleObject.Particles.Play();
+			}
 		}
 	}
 
@@ -150,18 +153,26 @@ public class MVCollectible : MVLogicObject
 		if (state == CollectibleClientState.Visible || state == CollectibleClientState.Invisible)
 		{
 			float num = 0.35f + Mathf.Sin(Time.realtimeSinceStartup * 3f) * 0.05f;
-			collectibleObject.PickupMesh.transform.localScale = new Vector3(num, num, num);
-			collectibleObject.PickupMesh.transform.Rotate(Vector3.up, Time.deltaTime * rotationSpeed * 57.29578f, Space.Self);
+			if (!disabledByLod)
+			{
+				collectibleObject.PickupMesh.transform.localScale = new Vector3(num, num, num);
+				collectibleObject.PickupMesh.transform.Rotate(Vector3.up, Time.deltaTime * rotationSpeed * 57.29578f, Space.Self);
+			}
 		}
 		else if (state == CollectibleClientState.PickedUp)
 		{
 			if (Time.realtimeSinceStartup - pickedUpTime > pickedUpStateDuration)
 			{
 				state = CollectibleClientState.ReShowing;
-				return;
 			}
-			float num2 = 0f;
-			collectibleObject.PickupMesh.transform.localScale = new Vector3(num2, num2, num2);
+			else if (!disabledByLod)
+			{
+				float num2 = 0f;
+				if (collectibleObject.PickupMesh.transform.localScale.x > 0.001f)
+				{
+					collectibleObject.PickupMesh.transform.localScale = new Vector3(num2, num2, num2);
+				}
+			}
 		}
 		else if (state == CollectibleClientState.ReShowing)
 		{
@@ -169,10 +180,12 @@ public class MVCollectible : MVLogicObject
 			if (Time.realtimeSinceStartup - num3 > reshowingStateDuration)
 			{
 				state = CollectibleClientState.Invisible;
-				return;
 			}
-			float num4 = 0.6f * (Time.realtimeSinceStartup - num3);
-			collectibleObject.PickupMesh.transform.localScale = new Vector3(num4, num4, num4);
+			else if (!disabledByLod)
+			{
+				float num4 = 0.6f * (Time.realtimeSinceStartup - num3);
+				collectibleObject.PickupMesh.transform.localScale = new Vector3(num4, num4, num4);
+			}
 		}
 	}
 

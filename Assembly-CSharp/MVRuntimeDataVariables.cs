@@ -57,9 +57,9 @@ public class MVRuntimeDataVariables
 
 	public void OnWriteThrough(object value)
 	{
-		if (owner.NetworkObject != null && owner.NetworkObject is MVNetworkReporter)
+		if (MVGameControllerBase.Game.RuntimeVariableNetworkManager.ContainsRuntimeVariables(owner.Id))
 		{
-			(owner.NetworkObject as MVNetworkReporter).SyncRunTimeDataVariables(MVGameControllerBase.Game);
+			MVGameControllerBase.Game.RuntimeVariableNetworkManager.SendRuntimeData(owner);
 		}
 	}
 }

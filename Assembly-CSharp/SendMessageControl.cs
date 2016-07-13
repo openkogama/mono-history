@@ -16,6 +16,8 @@ public class SendMessageControl : MonoBehaviour
 
 	private string lowerResolution = "/rl";
 
+	private string removeUI = "/ru";
+
 	[SerializeField]
 	private InputField inputField;
 
@@ -113,6 +115,14 @@ public class SendMessageControl : MonoBehaviour
 		else if (chatMsg == resolution)
 		{
 			MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, $"{Screen.width} x {Screen.height}");
+		}
+		else if (chatMsg == "/c")
+		{
+			StaticBatchingUtilityWrapper.Combine();
+		}
+		else if (chatMsg == removeUI)
+		{
+			GetComponentInParent<Canvas>().gameObject.SetActive(value: false);
 		}
 		else
 		{

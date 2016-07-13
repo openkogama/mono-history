@@ -19,12 +19,12 @@ public class MeshDecal : MonoBehaviour
 
 	private MeshRenderer meshRenderer;
 
-	public static MeshDecal Create(Hit hit, Material decalMaterial, Transform parent)
+	public static void Create(Hit hit, Material decalMaterial, Transform parent)
 	{
-		return Create(new Hit[1] { hit }, decalMaterial, parent);
+		Create(new Hit[1] { hit }, decalMaterial, parent);
 	}
 
-	public static MeshDecal Create(Hit[] hits, Material decalMaterial, Transform parent)
+	public static void Create(Hit[] hits, Material decalMaterial, Transform parent)
 	{
 		GameObject gameObject = new GameObject("Decal");
 		MeshDecal meshDecal = gameObject.AddComponent<MeshDecal>();
@@ -33,7 +33,13 @@ public class MeshDecal : MonoBehaviour
 		meshDecal.GenerateMesh(hits, component.mesh);
 		meshDecal.meshRenderer.material = decalMaterial;
 		meshDecal.transform.parent = parent;
-		return meshDecal;
+	}
+
+	private void Start()
+	{
+		Color color = meshRenderer.material.color;
+		color.r = (color.g = (color.b = (color.a = 1f)));
+		meshRenderer.material.color = color;
 	}
 
 	private void Update()

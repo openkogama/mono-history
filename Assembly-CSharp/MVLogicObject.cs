@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
 
-public abstract class MVLogicObject : MVWorldObjectClient
+public abstract class MVLogicObject : MVWorldObjectClient, IUpdatecontrollerSubscriber
 {
 	protected bool disabledByLod;
 
@@ -18,6 +18,7 @@ public abstract class MVLogicObject : MVWorldObjectClient
 		gameObject.layer = LayerMask.NameToLayer("Logic");
 		previewLayerMask |= LayerFlags.Logic;
 		localBounds = ComputeLocalBounds(gameObject.transform.position, component.MeshRenderers);
+		UpdateController.AddUpdateObject(this, UpdatePriority.PRE_UPDATEBUCKET_20);
 	}
 
 	protected virtual void OnUpdate()
@@ -28,17 +29,18 @@ public abstract class MVLogicObject : MVWorldObjectClient
 	{
 	}
 
-	public void Update()
+	public override void Destroy()
+	{
+		UpdateController.RemoveUpdateObject(this);
+	}
+
+	public virtual void UpdateControllerUpdate()
 	{
 		OnUpdate();
 		if (HasInputConnector)
 		{
 			SharedLinkFunctions.EvaluateLinks(this);
 		}
-	}
-
-	public virtual void FixedUpdate()
-	{
 	}
 
 	public override Bounds GetLocalBounds(BoundsContext boundsContext)
@@ -130,5 +132,9 @@ public abstract class MVLogicObject : MVWorldObjectClient
 		Vector3 one = Vector3.one;
 		one *= 1f;
 		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, one);
+	}
+
+	public virtual void UpdateControllerFixedUpdate()
+	{
 	}
 }

@@ -52,6 +52,7 @@ public class WindTurbine : MVLogicObject
 			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
 			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Combine(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
 		}
+		UpdateController.AddFixedUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
 		OnDataUpdate();
 	}
 
@@ -83,11 +84,7 @@ public class WindTurbine : MVLogicObject
 		return new Bounds(new Vector3(0f, 0f, 0f), new Vector3(2f, 2f, 1.5f));
 	}
 
-	protected override void OnUpdate()
-	{
-	}
-
-	public override void FixedUpdate()
+	public override void UpdateControllerFixedUpdate()
 	{
 		if (!isActive)
 		{
@@ -190,6 +187,7 @@ public class WindTurbine : MVLogicObject
 	{
 		IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
 		iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Remove(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
+		UpdateController.RemoveFixedUpdateObject(this);
 		base.Destroy();
 	}
 

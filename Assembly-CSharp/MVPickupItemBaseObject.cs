@@ -23,4 +23,9 @@ public class MVPickupItemBaseObject : ObjectPrefab
 		triggerBoxEvents = GetComponentInChildren<TriggerBoxEvents>();
 		audioSource = GetComponent<AudioSource>();
 	}
+
+	private void Update()
+	{
+		pickupItem.pickupObject.transform.Rotate(Vector3.up, 68f * Time.deltaTime);
+	}
 }

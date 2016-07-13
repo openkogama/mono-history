@@ -11,50 +11,55 @@ public class GameMeterAndroidCollectible : GameMeterAndroidBase
 
 	private int prevValue;
 
+	private AllCollectiblesCollectedClient collectedClient;
+
 	public override GameMeterType GameMeterType => GameMeterType.Collectibles;
 
 	private void Start()
 	{
-		UpdateShowGameMeter();
+		SetGameMeterVisibility();
 	}
 
-	public override void UpdateShowGameMeter()
+	public override void SetGameMeterVisibility()
 	{
-		AllCollectiblesCollectedClient singletonWinnerConditionByType = MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<AllCollectiblesCollectedClient>();
-		if (singletonWinnerConditionByType != null)
+		collectedClient = MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<AllCollectiblesCollectedClient>();
+		if (collectedClient != null)
 		{
 			if (!gameObject.activeSelf)
 			{
 				Show();
 			}
-			int gameStat = MVGameControllerBase.Game.LocalPlayer.GetGameStat(GameStatCounterType.Collectible);
-			if (prevValue != gameStat && gameStat != 0)
-			{
-				prevValue = gameStat;
-				NotificationController.PushNotification(string.Format(TM._("Collected star! {0}/{1}"), gameStat, singletonWinnerConditionByType.Limit));
-			}
-			string text = gameStat + "/" + singletonWinnerConditionByType.Limit;
-			collectibleText.text = text;
+			UpdateValue();
 		}
 		else
 		{
 			Hide();
-			collectibleText.text = string.Empty;
+		}
+	}
+
+	public override void UpdateValue()
+	{
+		if (collectedClient != null)
+		{
+			int gameStat = MVGameControllerBase.Game.LocalPlayer.GetGameStat(GameStatCounterType.Collectible);
+			if (prevValue != gameStat && gameStat != 0)
+			{
+				prevValue = gameStat;
+				NotificationController.PushNotification(string.Format(TM._("Collected star! {0}/{1}"), gameStat, collectedClient.Limit));
+			}
+			string text = gameStat + "/" + collectedClient.Limit;
+			collectibleText.text = text;
 		}
 	}
 
 	private void Hide()
 	{
 		gameObject.SetActive(value: false);
-		collectibleBar.CrossFadeAlpha(inActiveAlpha, 0.5f, ignoreTimeScale: false);
-		collectibleText.CrossFadeAlpha(inActiveAlpha, 0.5f, ignoreTimeScale: false);
 	}
 
 	private void Show()
 	{
 		gameObject.SetActive(value: true);
-		collectibleBar.CrossFadeAlpha(1f, 0.5f, ignoreTimeScale: false);
-		collectibleText.CrossFadeAlpha(1f, 0.5f, ignoreTimeScale: false);
 	}
 
 	public override void SetShowGameMeter(bool show)

@@ -115,7 +115,10 @@ public class MVGameCoin : MVLogicObject
 			{
 				pickupObject.AudioSource.Play();
 			}
-			pickupObject.Particles.Play();
+			if (!disabledByLod)
+			{
+				pickupObject.Particles.Play();
+			}
 			MVGameControllerBase.Game.GameCoinManager.GameCoinCollect();
 			return true;
 		}
@@ -140,7 +143,10 @@ public class MVGameCoin : MVLogicObject
 	{
 		if (state == GameCoinClientState.Visible || state == GameCoinClientState.Invisible)
 		{
-			pickupMesh.transform.Rotate(Vector3.up, Time.deltaTime * rotationSpeed * 57.29578f);
+			if (!disabledByLod)
+			{
+				pickupMesh.transform.Rotate(Vector3.up, Time.deltaTime * rotationSpeed * 57.29578f);
+			}
 		}
 		else if (state == GameCoinClientState.PickedUp)
 		{

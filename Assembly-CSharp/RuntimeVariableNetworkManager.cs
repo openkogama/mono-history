@@ -1,0 +1,70 @@
+using System;
+using System.Collections.Generic;
+using MV.WorldObject;
+using UnityEngine;
+
+public class RuntimeVariableNetworkManager
+{
+	private HashSet<int> runtimeDataVariables = new HashSet<int>();
+
+	private List<int> removeList = new List<int>();
+
+	public void AddRuntimeDataVariables(int woID)
+	{
+		if (runtimeDataVariables.Contains(woID))
+		{
+			throw new Exception("RuntimeDataVariables allready exists");
+		}
+		runtimeDataVariables.Add(woID);
+	}
+
+	public bool ContainsRuntimeVariables(int woID)
+	{
+		return runtimeDataVariables.Contains(woID);
+	}
+
+	public void RemoveRuntimeDataVariables(int woID)
+	{
+		if (!runtimeDataVariables.Contains(woID))
+		{
+			throw new Exception("wo Id not found");
+		}
+		runtimeDataVariables.Remove(woID);
+	}
+
+	public void SendRuntimeData()
+	{
+		foreach (int runtimeDataVariable in runtimeDataVariables)
+		{
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(runtimeDataVariable);
+			if (SendRuntimeData(worldObjectClient))
+			{
+				removeList.Add(runtimeDataVariable);
+			}
+		}
+		foreach (int remove in removeList)
+		{
+			runtimeDataVariables.Remove(remove);
+		}
+		removeList.Clear();
+	}
+
+	public bool SendRuntimeData(MVWorldObjectClient wo)
+	{
+		if (wo == null)
+		{
+			Debug.LogError("Attempt to update world object, but object not registered in world");
+			return true;
+		}
+		if (wo.State != MVWorldObjectState.Destroyed)
+		{
+			Dictionary<object, object> dictionary = wo.RuntimeDataVariables.Send();
+			if (dictionary.Count > 0)
+			{
+				MVGameControllerBase.OperationRequests.UpdateWorldObjectRunTimeData(wo.Id, dictionary);
+			}
+			return false;
+		}
+		return true;
+	}
+}

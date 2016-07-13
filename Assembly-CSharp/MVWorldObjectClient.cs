@@ -26,8 +26,6 @@ public class MVWorldObjectClient : MVWorldObject
 
 	protected InteractionDataHandlerBase interactionDataHandlerBase;
 
-	protected MVNetworkObject networkObject;
-
 	protected ObjectPrefab component;
 
 	private bool reactsToLODChanges = true;
@@ -297,18 +295,6 @@ public class MVWorldObjectClient : MVWorldObject
 		}
 	}
 
-	public MVNetworkObject NetworkObject
-	{
-		get
-		{
-			return networkObject;
-		}
-		set
-		{
-			networkObject = value;
-		}
-	}
-
 	public SelectedConnector SelectedConnector => selectedConnector;
 
 	public virtual Vector3 InputConnectorOffset => new Vector3(-1f, 0f, 0f);
@@ -563,16 +549,10 @@ public class MVWorldObjectClient : MVWorldObject
 
 	public void SetNetworkObject(bool local)
 	{
-		if (GetType() != typeof(MVCubeModelFineGrainedTerrain) && GetType() != typeof(MVCubeModelPrototypeTerrain))
+		if (GetType() != typeof(MVCubeModelFineGrainedTerrain) && GetType() != typeof(MVCubeModelPrototypeTerrain) && local)
 		{
-			if (local)
-			{
-				networkObject = new MVNetworkReporter(this);
-			}
-			else
-			{
-				networkObject = new MVNetworkListener(this);
-			}
+			MVGameControllerBase.Game.TransformNetworkManager.AddReporter(id, new MVNetworkReporter(this));
+			MVGameControllerBase.Game.RuntimeVariableNetworkManager.AddRuntimeDataVariables(id);
 		}
 	}
 
@@ -918,14 +898,6 @@ public class MVWorldObjectClient : MVWorldObject
 		if (gameObject != null)
 		{
 			gameObject.SetActive(value: true);
-		}
-	}
-
-	public void ClearTransformQueue()
-	{
-		if (NetworkObject != null && NetworkObject.GetType() == typeof(MVNetworkListener))
-		{
-			(NetworkObject as MVNetworkListener).ClearTransformQueue();
 		}
 	}
 

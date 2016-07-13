@@ -18,17 +18,17 @@ public class GameMeterAndroidGameCoin : GameMeterAndroidBase
 		gameCoinManager.OnActivationChange = (MVGameCoinManager.OnActivationChangeDelegate)Delegate.Combine(gameCoinManager.OnActivationChange, new MVGameCoinManager.OnActivationChangeDelegate(OnActivationChange));
 		MVGameCoinManager gameCoinManager2 = MVGameControllerBase.Game.GameCoinManager;
 		gameCoinManager2.OnGameCoinAmountChange = (MVGameCoinManager.OnGameCoinAmountChangeDelegate)Delegate.Combine(gameCoinManager2.OnGameCoinAmountChange, new MVGameCoinManager.OnGameCoinAmountChangeDelegate(OnGameCoinAmountChange));
-		OnActivationChange(MVGameControllerBase.Game.GameCoinManager.Active);
 	}
 
-	public override void UpdateShowGameMeter()
+	public override void SetGameMeterVisibility()
 	{
+		OnActivationChange(MVGameControllerBase.Game.GameCoinManager.Active);
 	}
 
 	public void OnActivationChange(bool wantToShow)
 	{
 		MeterActive = wantToShow;
-		if (MeterActive)
+		if (wantToShow)
 		{
 			Show();
 		}
@@ -36,6 +36,10 @@ public class GameMeterAndroidGameCoin : GameMeterAndroidBase
 		{
 			Hide();
 		}
+	}
+
+	public override void UpdateValue()
+	{
 	}
 
 	public void OnGameCoinAmountChange(int amount)
@@ -52,12 +56,10 @@ public class GameMeterAndroidGameCoin : GameMeterAndroidBase
 	private void Show()
 	{
 		gameObject.SetActive(value: true);
-		gameCoinBar.CrossFadeAlpha(1f, 0.5f, ignoreTimeScale: false);
 	}
 
 	private void Hide()
 	{
 		gameObject.SetActive(value: false);
-		gameCoinBar.CrossFadeAlpha(inActiveAlpha, 0.5f, ignoreTimeScale: false);
 	}
 }

@@ -34,8 +34,4 @@ public class ButtonHandler : MonoBehaviour
 	{
 		CrossPlatformInputManager.SetAxisNegative(Name);
 	}
-
-	public void Update()
-	{
-	}
 }

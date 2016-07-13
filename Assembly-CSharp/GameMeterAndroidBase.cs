@@ -23,5 +23,7 @@ public abstract class GameMeterAndroidBase : MonoBehaviour
 
 	public abstract void SetShowGameMeter(bool show);
 
-	public abstract void UpdateShowGameMeter();
+	public abstract void UpdateValue();
+
+	public abstract void SetGameMeterVisibility();
 }

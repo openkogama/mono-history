@@ -8,29 +8,37 @@ public class GameMeterAndroidOculus : GameMeterAndroidKillBase
 
 	private void Start()
 	{
-		UpdateShowGameMeter();
+		SetGameMeterVisibility();
 	}
 
-	public override void UpdateShowGameMeter()
+	public override void SetGameMeterVisibility()
 	{
 		oculusClient = MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<OculusKillLimitClient>();
 		if (oculusClient != null)
 		{
-			SetCount(GameStatCounterType.OculusKill, oculusClient.Limit);
 			if (!gameObject.activeSelf)
 			{
 				Show();
 			}
+			UpdateValue();
+		}
+		else
+		{
+			Hide();
+		}
+	}
+
+	public override void UpdateValue()
+	{
+		if (oculusClient != null)
+		{
+			SetCount(GameStatCounterType.OculusKill, oculusClient.Limit);
 			int gameStat = MVGameControllerBase.Game.LocalPlayer.GetGameStat(GameStatCounterType.OculusKill);
 			if (prevValue != gameStat && gameStat != 0)
 			{
 				prevValue = gameStat;
 				NotificationController.PushNotification(string.Format(TM._("Destroyed oculus! {0}/{1}"), gameStat, oculusClient.Limit));
 			}
-		}
-		else
-		{
-			Hide();
 		}
 	}
 }

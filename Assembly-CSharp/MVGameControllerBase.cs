@@ -213,6 +213,10 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	{
 		Debug.Log(version.text);
 		DebugLogHandler.Init();
+		if (!DebugLogHandler.IsSampling && !Debug.isDebugBuild)
+		{
+			Debug.logger.filterLogType = LogType.Warning;
+		}
 		styles = UnityEngine.Object.Instantiate(styles);
 		styles.transform.parent = transform;
 		loadStats = new LoadStats();
@@ -310,22 +314,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	public void UpdateControllerFixedUpdate()
 	{
-		if (Game == null)
-		{
-			return;
-		}
-		try
-		{
-			FixedUpdateGame();
-		}
-		catch (Exception ex)
-		{
-			if (Application.isEditor)
-			{
-				throw;
-			}
-			Debug.LogError("Exception in FixedUpdate: " + ex.ToString());
-		}
 	}
 
 	public static void SetGameSessionData(GameSessionData gameSessionData)
@@ -495,11 +483,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 			AwayMonitor.Update();
 		}
 		AudioEventHandler.Update();
-	}
-
-	private void FixedUpdateGame()
-	{
-		Game.FixedUpdate();
 	}
 
 	protected virtual void UpdateInternal()

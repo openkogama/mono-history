@@ -74,11 +74,6 @@ public class MVTeleporter : MVLogicObject
 		OnInputLinkChanged();
 	}
 
-	protected override void OnUpdate()
-	{
-		base.OnUpdate();
-	}
-
 	public override bool Delete(MVWorldObjectClientManager worldObjectClientManager, ref string errorText)
 	{
 		return worldObjectClientManager.GetWorldObjectClient(groupId)?.Delete(worldObjectClientManager, ref errorText) ?? false;

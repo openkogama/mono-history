@@ -42,6 +42,7 @@ public class SmoothCharacterController : MonoBehaviour
 	{
 		Object.Destroy(controller.gameObject);
 		controller = null;
+		Object.Destroy(smoothPhysicsMovement);
 	}
 
 	public SmoothCharacterController Clone(GameObject targetGameObject, GameObject seat)

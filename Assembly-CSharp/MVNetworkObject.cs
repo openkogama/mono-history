@@ -1,10 +1,8 @@
 public abstract class MVNetworkObject
 {
-	protected const int broadcastInterval = 200;
-
-	protected const int clientDelay = 200;
-
 	private MVWorldObjectClient worldObject;
+
+	public abstract bool RemoveFromUpdate { get; }
 
 	public MVWorldObjectClient WorldObject => worldObject;
 

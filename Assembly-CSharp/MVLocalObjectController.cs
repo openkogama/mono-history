@@ -21,10 +21,10 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 
 		public AttachState(int worldObjectID)
 		{
-			MVNetworkObject networkObject = MVGameControllerBase.WOCM.GetWorldObjectClient(worldObjectID).NetworkObject;
-			if (networkObject is MVNetworkReporter)
+			MVNetworkObject networkObject = MVGameControllerBase.Game.TransformNetworkManager.GetNetworkObject(worldObjectID);
+			if (networkObject != null && networkObject is MVNetworkReporter)
 			{
-				((MVNetworkReporter)networkObject).suspendTransformReporting = true;
+				MVGameControllerBase.Game.TransformNetworkManager.RemoveNetworkObject(worldObjectID);
 				transformDataWasSuspended = true;
 			}
 			woID = worldObjectID;
@@ -32,10 +32,10 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 
 		public void HandleAttachFailed()
 		{
-			MVNetworkObject networkObject = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).NetworkObject;
-			if (networkObject is MVNetworkReporter && transformDataWasSuspended)
+			MVNetworkObject networkObject = MVGameControllerBase.Game.TransformNetworkManager.GetNetworkObject(woID);
+			if (networkObject == null && transformDataWasSuspended)
 			{
-				((MVNetworkReporter)networkObject).suspendTransformReporting = false;
+				MVGameControllerBase.Game.TransformNetworkManager.AddReporter(woID, new MVNetworkReporter(MVGameControllerBase.WOCM.GetWorldObjectClient(woID)));
 			}
 		}
 

@@ -57,11 +57,6 @@ public class MVFlag : MVLogicObject
 		useInteractor.UpdateData(Data);
 	}
 
-	protected override void OnUpdate()
-	{
-		base.OnUpdate();
-	}
-
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
 		if (worldObjectEnableController.EnableState == EnableState.Enable && (useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0)

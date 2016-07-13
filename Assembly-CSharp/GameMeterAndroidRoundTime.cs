@@ -15,10 +15,10 @@ public class GameMeterAndroidRoundTime : GameMeterAndroidBase
 
 	private void Start()
 	{
-		UpdateShowGameMeter();
+		SetGameMeterVisibility();
 	}
 
-	public override void UpdateShowGameMeter()
+	public override void SetGameMeterVisibility()
 	{
 		roundCube = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVRoundCube>();
 		if (roundCube != null)
@@ -41,6 +41,25 @@ public class GameMeterAndroidRoundTime : GameMeterAndroidBase
 		}
 	}
 
+	public override void UpdateValue()
+	{
+	}
+
+	private void Update()
+	{
+		if (roundCube == null)
+		{
+			Hide();
+			return;
+		}
+		int timeLeft = GetTimeLeft(roundCube);
+		if (timeLeft > 0)
+		{
+			int num = (int)((float)timeLeft / 1000f) + 1;
+			roundTime.text = $"{num / 60:00}:{num % 60:00}";
+		}
+	}
+
 	public override void SetShowGameMeter(bool show)
 	{
 		roundTimeBar.enabled = show;
@@ -50,15 +69,11 @@ public class GameMeterAndroidRoundTime : GameMeterAndroidBase
 	private void Hide()
 	{
 		gameObject.SetActive(value: false);
-		roundTimeBar.CrossFadeAlpha(inActiveAlpha, 0.5f, ignoreTimeScale: false);
-		roundTime.CrossFadeAlpha(inActiveAlpha, 0.5f, ignoreTimeScale: false);
 	}
 
 	private void Show()
 	{
 		gameObject.SetActive(value: true);
-		roundTimeBar.CrossFadeAlpha(1f, 0.5f, ignoreTimeScale: false);
-		roundTime.CrossFadeAlpha(1f, 0.5f, ignoreTimeScale: false);
 	}
 
 	private int GetTimeLeft(MVRoundCube roundCube)

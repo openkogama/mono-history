@@ -95,8 +95,6 @@ public class MVPickupItemBase : MVLogicObject
 
 	private UseInteractor useInteractor;
 
-	private GameObject pickupMesh;
-
 	private MVPickupItemBaseObject baseObject;
 
 	public AvatarItemType Type => pickupItemType;
@@ -121,7 +119,6 @@ public class MVPickupItemBase : MVLogicObject
 		baseObject = (MVPickupItemBaseObject)component;
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
 		interactionFlags |= InteractionFlags.CanUseLevel;
-		pickupMesh = baseObject.PickupItem.pickupObject;
 		baseObject.TriggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		baseObject.TriggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
 		useInteractor = new UseInteractor(Id, gameObject, reset: false, baseObject.TriggerBoxEvents.Collider, DoPickup, CheckCanUse);
@@ -138,6 +135,19 @@ public class MVPickupItemBase : MVLogicObject
 	{
 		Dictionary<object, object> dictionary = (Dictionary<object, object>)data[WorldObjectDataParameters.Data];
 		return pickupPrefabLUT[(AvatarItemType)(int)dictionary["itemType"]].prefabObject;
+	}
+
+	public override void ChangeLOD(float distance)
+	{
+		base.ChangeLOD(distance);
+		if (disabledByLod && baseObject.enabled)
+		{
+			baseObject.enabled = false;
+		}
+		else if (!disabledByLod && !baseObject.enabled)
+		{
+			baseObject.enabled = true;
+		}
 	}
 
 	public override void Initialize()
@@ -179,11 +189,6 @@ public class MVPickupItemBase : MVLogicObject
 			pickupItemType = (AvatarItemType)(int)Data["itemType"];
 		}
 		useInteractor.UpdateData(Data);
-	}
-
-	protected override void OnUpdate()
-	{
-		pickupMesh.transform.Rotate(Vector3.up, 68f * Time.deltaTime);
 	}
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)

@@ -59,7 +59,7 @@ public class WinningConditionBriefingAndroid : MonoBehaviour, IBriefing
 			additionalInformation = TM._("Reach lowest altitude");
 			break;
 		case WinningConditionType.Collectible:
-			additionalInformation = TM._("Collect coins");
+			additionalInformation = TM._("Collect stars");
 			break;
 		case WinningConditionType.Flag:
 			additionalInformation = TM._("Reach the flag");
@@ -94,7 +94,7 @@ public class WinningConditionBriefingAndroid : MonoBehaviour, IBriefing
 			additionalInformation = TM._("Reach lowest altitude");
 			break;
 		case WinningConditionType.Collectible:
-			additionalInformation = TM._("Collect coins");
+			additionalInformation = TM._("Collect stars");
 			break;
 		case WinningConditionType.Flag:
 			additionalInformation = TM._("Reach the flag");

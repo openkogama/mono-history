@@ -27,11 +27,6 @@ public class WorldNetwork : World
 		objectLinks.Update();
 	}
 
-	public void FixedUpdate()
-	{
-		worldObjectClientManager.FixedUpdate();
-	}
-
 	public void CreateGameWorldFromQueryData(BytePacker queryData, int instigatorActorNumber)
 	{
 		KoGaMaDataHandler.GetKoGaMaDataAsync(queryData, HandleDeserializedWorldData, readRuntimeData: true, (int rootId) =>

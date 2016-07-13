@@ -1,7 +1,6 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
 
-public abstract class PlayModeControlsBase : MonoBehaviour, IEventSystemHandler, ILowerResolution
+public abstract class PlayModeControlsBase : MonoBehaviour
 {
 	private bool showingEquipableUI;
 
@@ -22,15 +21,6 @@ public abstract class PlayModeControlsBase : MonoBehaviour, IEventSystemHandler,
 
 	[SerializeField]
 	private GameObject crossHairGO;
-
-	public void LowerResolution()
-	{
-		int num = Screen.width / 2;
-		if (num >= 800)
-		{
-			Screen.SetResolution(num, Screen.height / 2, fullscreen: true);
-		}
-	}
 
 	private void Update()
 	{

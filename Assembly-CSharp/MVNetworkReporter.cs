@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
@@ -14,7 +13,7 @@ public class MVNetworkReporter(MVWorldObjectClient owner) : MVNetworkObject(owne
 
 		public bool Equals(SendTransformData other)
 		{
-			return other.position.Equals(position) && object.Equals(other.rotation, rotation);
+			return other.position == position && other.rotation[0] == rotation[0] && other.rotation[1] == rotation[1] && other.rotation[2] == rotation[2];
 		}
 
 		public override bool Equals(object obj)
@@ -54,10 +53,11 @@ public class MVNetworkReporter(MVWorldObjectClient owner) : MVNetworkObject(owne
 
 	private bool stopPackageSent;
 
+	public override bool RemoveFromUpdate => false;
+
 	public override void Update(MVNetworkGame game)
 	{
-		SyncRunTimeDataVariables(game);
-		if (suspendTransformReporting || !(Mathf.Abs(game.ServerTimeInMilliSeconds - lastUpdateTimestamp) > 200f))
+		if (!(Mathf.Abs(game.ServerTimeInMilliSeconds - lastUpdateTimestamp) > 200f))
 		{
 			return;
 		}
@@ -81,14 +81,5 @@ public class MVNetworkReporter(MVWorldObjectClient owner) : MVNetworkObject(owne
 		MVGameControllerBase.OperationRequests.UpdateWorldObject(WorldObject.Id, WorldObject.Position, rotation, packageType);
 		WorldObject.State = MVWorldObjectState.Synced;
 		lastUpdateTimestamp = game.ServerTimeInMilliSeconds;
-	}
-
-	public void SyncRunTimeDataVariables(MVNetworkGame game)
-	{
-		Dictionary<object, object> dictionary = WorldObject.RuntimeDataVariables.Send();
-		if (dictionary.Count > 0)
-		{
-			MVGameControllerBase.OperationRequests.UpdateWorldObjectRunTimeData(WorldObject.Id, dictionary);
-		}
 	}
 }

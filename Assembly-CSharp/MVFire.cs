@@ -49,6 +49,19 @@ public class MVFire : MVLogicObject
 		}
 	}
 
+	public override void ChangeLOD(float distance)
+	{
+		base.ChangeLOD(distance);
+		if (disabledByLod && fireObject.ParticleSystem.gameObject.activeSelf)
+		{
+			fireObject.ParticleSystem.gameObject.SetActive(value: false);
+		}
+		else if (!disabledByLod && !fireObject.ParticleSystem.gameObject.activeSelf)
+		{
+			fireObject.ParticleSystem.gameObject.SetActive(value: true);
+		}
+	}
+
 	public override void Initialize()
 	{
 		base.Initialize();

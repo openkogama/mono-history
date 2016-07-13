@@ -958,14 +958,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		RigidBody.Reset();
 		RigidBody.enabled = true;
 		triggerHandler.enabled = true;
-		if (networkObject == null || networkObject is MVNetworkListener)
-		{
-			Debug.LogError("NetworkObject null or listener on detach. Should be reporter");
-		}
-		else
-		{
-			((MVNetworkReporter)networkObject).suspendTransformReporting = false;
-		}
+		MVGameControllerBase.Game.TransformNetworkManager.AddReporter(id, new MVNetworkReporter(this));
 	}
 
 	public override void BeforeVehicleEntered()

@@ -152,30 +152,35 @@ public class VehicleSeatManager : MonoBehaviour
 		bool flag2 = woOwner.OwnerActorNr == MVGameControllerBase.Game.LocalPlayer.ActorNr;
 		if (!flag && flag2)
 		{
-			if (!(woOwner.NetworkObject is MVNetworkReporter))
+			MVNetworkObject networkObject = MVGameControllerBase.Game.TransformNetworkManager.GetNetworkObject(woOwner.Id);
+			if (networkObject == null || !(networkObject is MVNetworkReporter))
 			{
 				Debug.LogError("Expected reporter when vehicle is local");
 				return;
 			}
 			Debug.Log("Getting rid of reporter as vehicle is stolen by other user");
-			woOwner.NetworkObject = new MVNetworkListener(woOwner);
+			MVGameControllerBase.Game.TransformNetworkManager.RemoveNetworkObject(woOwner.Id);
+			MVGameControllerBase.Game.RuntimeVariableNetworkManager.RemoveRuntimeDataVariables(woOwner.Id);
 		}
 		if (vehicleSeatBase.SeatType == SeatType.Driver)
 		{
 			if (instigatorIsLocal && !flag)
 			{
-				if (woOwner.NetworkObject is MVNetworkReporter)
+				MVNetworkObject networkObject2 = MVGameControllerBase.Game.TransformNetworkManager.GetNetworkObject(woOwner.Id);
+				if (networkObject2 != null && networkObject2 is MVNetworkReporter)
 				{
 					Debug.LogError("Network reporter already set");
 					return;
 				}
-				((MVNetworkListener)woOwner.NetworkObject).SetOwnerTransformToMostResentPackage();
-				woOwner.NetworkObject = new MVNetworkReporter(woOwner);
+				((MVNetworkListener)networkObject2).SetOwnerTransformToMostResentPackage();
+				MVGameControllerBase.Game.TransformNetworkManager.RemoveNetworkObject(woOwner.Id);
+				MVGameControllerBase.Game.TransformNetworkManager.AddReporter(woOwner.Id, new MVNetworkReporter(woOwner));
+				MVGameControllerBase.Game.RuntimeVariableNetworkManager.AddRuntimeDataVariables(woOwner.Id);
 			}
 			woOwner.OwnerActorNr = instigatorActorNr;
 		}
 		woOwner.TransferChild(vehicleUser.Id);
-		vehicleUser.ClearTransformQueue();
+		MVGameControllerBase.Game.TransformNetworkManager.RemoveNetworkObject(vehicleUser.Id);
 		vehicleUser.RunTimeData.SetObscuredType("seat", (ObscuredInt)vehicleSeatID);
 		SetToSeatTransform(vehicleUser, vehicleSeatID);
 		if (instigatorIsLocal)

@@ -16,6 +16,8 @@ public class StarDisplayObject : MonoBehaviour
 
 	private float visibilityDistance = 25f;
 
+	private bool visible;
+
 	public Renderer StarRenderer
 	{
 		get
@@ -80,9 +82,12 @@ public class StarDisplayObject : MonoBehaviour
 	{
 		if (distance <= visibilityDistance)
 		{
-			Show();
+			if (!visible)
+			{
+				Show();
+			}
 		}
-		else
+		else if (visible)
 		{
 			Hide();
 		}

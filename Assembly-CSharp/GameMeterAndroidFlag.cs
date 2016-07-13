@@ -10,10 +10,10 @@ public class GameMeterAndroidFlag : GameMeterAndroidBase
 
 	private void Start()
 	{
-		UpdateShowGameMeter();
+		SetGameMeterVisibility();
 	}
 
-	public override void UpdateShowGameMeter()
+	public override void SetGameMeterVisibility()
 	{
 		FlagReachedClient singletonWinnerConditionByType = MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<FlagReachedClient>();
 		if (singletonWinnerConditionByType != null)
@@ -29,6 +29,10 @@ public class GameMeterAndroidFlag : GameMeterAndroidBase
 		}
 	}
 
+	public override void UpdateValue()
+	{
+	}
+
 	public override void SetShowGameMeter(bool show)
 	{
 		flagBar.enabled = show;
@@ -37,12 +41,10 @@ public class GameMeterAndroidFlag : GameMeterAndroidBase
 	private void Hide()
 	{
 		gameObject.SetActive(value: false);
-		flagBar.CrossFadeAlpha(inActiveAlpha, 0.5f, ignoreTimeScale: false);
 	}
 
 	private void Show()
 	{
 		gameObject.SetActive(value: true);
-		flagBar.CrossFadeAlpha(1f, 0.5f, ignoreTimeScale: false);
 	}
 }

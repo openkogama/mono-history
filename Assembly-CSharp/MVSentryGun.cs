@@ -209,9 +209,16 @@ public class MVSentryGun : MVLogicObject
 					woIdsBeamsMap.Remove(item2);
 				}
 			}
-			gunObject.SentryGunScript.UpdateAnimation();
+			if (!disabledByLod)
+			{
+				gunObject.SentryGunScript.UpdateAnimation();
+			}
 		}
 		DoFrameDelete();
+		if (disabledByLod)
+		{
+			return;
+		}
 		foreach (KeyValuePair<int, SentryGunBeam> item3 in woIdsBeamsMap)
 		{
 			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(item3.Key);

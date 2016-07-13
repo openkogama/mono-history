@@ -4,7 +4,7 @@ using MV.Common;
 using UnityEngine;
 
 [RequireComponent(typeof(Animation))]
-public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
+public class BoneAnimation : MonoBehaviour
 {
 	private float walkMinSpeed = 0.7f;
 
@@ -13,8 +13,6 @@ public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 	private static readonly int REMOTE_ANIM_SPEEDUP = 20;
 
 	private MVAvatar mvAvatar;
-
-	private MVNetworkListener woListener;
 
 	private AudioSource audioSource;
 
@@ -97,11 +95,6 @@ public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 		this.mvAvatar = mvAvatar;
 		MVRuntimeDataVariable animation = this.mvAvatar.Animation;
 		animation.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(animation.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AnimationChangeHandler));
-		if (!isLocal)
-		{
-			woListener = mvAvatar.NetworkObject as MVNetworkListener;
-			woListener.AddNetorkUpdateListener(this);
-		}
 	}
 
 	public void Detach()
@@ -110,10 +103,6 @@ public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 		avatarAnimation.Stop();
 		MVRuntimeDataVariable animation = mvAvatar.Animation;
 		animation.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Remove(animation.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AnimationChangeHandler));
-		if (woListener != null)
-		{
-			woListener.RmoveNetorkUpdateListener(this);
-		}
 		animationQueue.Clear();
 		prevAnim = (currentAnim = (nextAnim = null));
 	}
@@ -162,9 +151,9 @@ public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 				avatarAnimation.CrossFade(currentAnim.State, 0.3f, PlayMode.StopAll);
 			}
 			float num = 0f;
-			if (woListener != null && currentAnim.TimeStamp < woListener.DelayedTime)
+			if (currentAnim.TimeStamp < TransformNetworkManager.DelayedTime)
 			{
-				num = 0.001f * (float)(woListener.DelayedTime - currentAnim.TimeStamp) / avatarAnimation[currentAnim.State].length;
+				num = 0.001f * (float)(TransformNetworkManager.DelayedTime - currentAnim.TimeStamp) / avatarAnimation[currentAnim.State].length;
 				avatarAnimation[currentAnim.State].time = num;
 			}
 			if (prevAnim != null && AnimationClipStopped != null)
@@ -184,11 +173,7 @@ public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 
 	private void ComputeRemoteAnimation()
 	{
-		if (woListener == null)
-		{
-			return;
-		}
-		int num = woListener.DelayedTime + REMOTE_ANIM_SPEEDUP;
+		int num = TransformNetworkManager.DelayedTime + REMOTE_ANIM_SPEEDUP;
 		if (0 < animationQueue.Count)
 		{
 			if (nextAnim == null)
@@ -214,12 +199,7 @@ public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 		ComputeAnimation();
 	}
 
-	private void NetworkListenerUpdatedHandler(MVNetworkObject sender)
-	{
-		ComputeRemoteAnimation();
-	}
-
-	public void OnNetworkUpdated()
+	public void RemoteUpdate()
 	{
 		ComputeRemoteAnimation();
 	}
@@ -260,6 +240,10 @@ public class BoneAnimation : MonoBehaviour, INetworkUpdateListener
 
 	private void Update()
 	{
+		if (mvAvatar is MVAvatarRemote)
+		{
+			RemoteUpdate();
+		}
 		if (pauseNextFrame && Time.frameCount == playStartFrame + 1)
 		{
 			avatarAnimation.Stop();

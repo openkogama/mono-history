@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public class MVQualitySettings : MonoBehaviour
@@ -8,6 +7,8 @@ public class MVQualitySettings : MonoBehaviour
 	public const int QualitySD = 0;
 
 	public const int QualityHD = 1;
+
+	public const int QualitySDAndroid = 2;
 
 	private static LodData[] lodSettingsFastest = new LodData[2]
 	{
@@ -70,26 +71,8 @@ public class MVQualitySettings : MonoBehaviour
 		}
 	}
 
-	private void QualityChanged(int level)
-	{
-		switch (level)
-		{
-		}
-	}
-
-	private void OnEnable()
-	{
-		onQualityLevelChanged = (OnQualityLevedChanged)Delegate.Combine(onQualityLevelChanged, new OnQualityLevedChanged(QualityChanged));
-	}
-
-	private void OnDisable()
-	{
-		onQualityLevelChanged = (OnQualityLevedChanged)Delegate.Remove(onQualityLevelChanged, new OnQualityLevedChanged(QualityChanged));
-	}
-
 	public void Start()
 	{
 		CurrentLevel = 0;
-		QualityChanged(CurrentLevel);
 	}
 }

@@ -44,6 +44,8 @@ public class WinningConditionManager
 
 	public event EventHandler<EventArgs> OnWinningConditionChanged;
 
+	public event EventHandler<EventArgs> OnWinningConditionCountChanged;
+
 	public WinningConditionManager(GameStatCounterManager gameCounterManager)
 	{
 		this.gameCounterManager = gameCounterManager;
@@ -91,12 +93,20 @@ public class WinningConditionManager
 		}
 		singletonWinnerConditionByType = CreateInstance<T>(parent, args);
 		AddWinnerConditionToNode(parent, singletonWinnerConditionByType);
+		if (OnWinningConditionCountChanged != null)
+		{
+			OnWinningConditionCountChanged(this, new EventArgs());
+		}
 		return singletonWinnerConditionByType;
 	}
 
 	public void RemoveWinnerCondition(int id)
 	{
 		winnerConditionsRoot.RemoveWinnerCondition(id);
+		if (OnWinningConditionCountChanged != null)
+		{
+			OnWinningConditionCountChanged(this, new EventArgs());
+		}
 	}
 
 	public List<T> GetWinnerConditionsByType<T>() where T : WinningCondition

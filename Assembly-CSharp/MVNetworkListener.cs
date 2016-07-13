@@ -1,17 +1,12 @@
 using System.Collections.Generic;
 using MV.Common;
-using MV.WorldObject;
 using UnityEngine;
 
 public class MVNetworkListener : MVNetworkObject
 {
-	private int delayedTime;
-
 	private HashSet<INetworkUpdateListener> updateListenerList = new HashSet<INetworkUpdateListener>();
 
-	private Queue<NetworkTransformPackage> transformQueue;
-
-	private Queue<NetworkInputPackage> inputQueue;
+	private Queue<NetworkTransformPackage> transformQueue = new Queue<NetworkTransformPackage>();
 
 	private NetworkTransformPackage currentPackage;
 
@@ -19,13 +14,21 @@ public class MVNetworkListener : MVNetworkObject
 
 	private bool transformReportingHasStopped;
 
-	public int DelayedTime => delayedTime;
+	private bool stopListening;
+
+	public override bool RemoveFromUpdate => stopListening;
 
 	public MVNetworkListener(MVWorldObjectClient owner)
 		: base(owner)
 	{
-		transformQueue = new Queue<NetworkTransformPackage>();
-		inputQueue = new Queue<NetworkInputPackage>();
+		NetworkTransformPackage item = new NetworkTransformPackage
+		{
+			packageType = TransformPackageType.Interpolate,
+			timestamp = MVGameControllerBase.Game.ServerTimeInMilliSeconds - 200,
+			position = owner.Position,
+			rotation = owner.Rotation
+		};
+		transformQueue.Enqueue(item);
 	}
 
 	public void SetOwnerTransformToMostResentPackage()
@@ -50,27 +53,11 @@ public class MVNetworkListener : MVNetworkObject
 		}
 	}
 
-	public void ClearTransformQueue()
-	{
-		currentPackage = null;
-		nextPackage = null;
-		transformQueue.Clear();
-	}
-
 	public void AddTransformPackage(NetworkTransformPackage p)
 	{
 		transformQueue.Enqueue(p);
 		transformReportingHasStopped = false;
-	}
-
-	public void AddNetworkInputPackage(NetworkInputPackage p)
-	{
-		inputQueue.Enqueue(p);
-	}
-
-	public void AddNetorkUpdateListener(INetworkUpdateListener listener)
-	{
-		updateListenerList.Add(listener);
+		stopListening = false;
 	}
 
 	public void RmoveNetorkUpdateListener(INetworkUpdateListener listener)
@@ -80,21 +67,11 @@ public class MVNetworkListener : MVNetworkObject
 
 	public override void Update(MVNetworkGame game)
 	{
-		delayedTime = game.ServerTimeInMilliSeconds - 200 - 200 - 200;
-		UpdateTransform(game, delayedTime);
-		UpdateInput(game, delayedTime);
-		foreach (INetworkUpdateListener updateListener in updateListenerList)
-		{
-			updateListener.OnNetworkUpdated();
-		}
+		UpdateTransform(game, TransformNetworkManager.DelayedTime);
 	}
 
 	private void UpdateTransform(MVNetworkGame game, int delayedTime)
 	{
-		if (WorldObject.State == MVWorldObjectState.Destroyed)
-		{
-			return;
-		}
 		if (!transformReportingHasStopped)
 		{
 			if (currentPackage == null && transformQueue.Count > 0)
@@ -155,6 +132,7 @@ public class MVNetworkListener : MVNetworkObject
 				WorldObject.Rotation = nextPackage.rotation;
 				currentPackage = null;
 				nextPackage = null;
+				stopListening = true;
 			}
 			else
 			{
@@ -166,15 +144,6 @@ public class MVNetworkListener : MVNetworkObject
 		{
 			WorldObject.Position = currentPackage.position;
 			WorldObject.Rotation = currentPackage.rotation;
-		}
-	}
-
-	private void UpdateInput(MVNetworkGame game, int delayedTime)
-	{
-		while (inputQueue.Count > 0 && inputQueue.Peek().timestamp <= delayedTime)
-		{
-			NetworkInputPackage networkInputPackage = inputQueue.Dequeue();
-			WorldObject.HandleInput(networkInputPackage.actionCode, networkInputPackage.keyCode);
 		}
 	}
 

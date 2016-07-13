@@ -16,7 +16,11 @@ public class GameMeterAndroidKillBase : GameMeterAndroidBase
 		killsText.text = string.Empty;
 	}
 
-	public override void UpdateShowGameMeter()
+	public override void SetGameMeterVisibility()
+	{
+	}
+
+	public override void UpdateValue()
 	{
 	}
 
@@ -45,14 +49,10 @@ public class GameMeterAndroidKillBase : GameMeterAndroidBase
 	protected void Hide()
 	{
 		gameObject.SetActive(value: false);
-		killsBar.CrossFadeAlpha(inActiveAlpha, 0.5f, ignoreTimeScale: false);
-		killsText.CrossFadeAlpha(inActiveAlpha, 0.5f, ignoreTimeScale: false);
 	}
 
 	protected void Show()
 	{
 		gameObject.SetActive(value: true);
-		killsBar.CrossFadeAlpha(1f, 0.5f, ignoreTimeScale: false);
-		killsText.CrossFadeAlpha(1f, 0.5f, ignoreTimeScale: false);
 	}
 }

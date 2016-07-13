@@ -9,44 +9,51 @@ public class UseInteratorVisualization : MonoBehaviour
 
 	private float rotation = 100f;
 
-	private float baseDist = 1.3f;
+	private readonly float baseDist = 1.3f;
+
+	private float dist = 0.01f;
+
+	private float spacing = 120f;
+
+	private int active;
 
 	public void Initialize(float yOffset)
 	{
 		pivot.y = yOffset;
+		CalculateSpacing();
 	}
 
-	private void Update()
+	private void CalculateSpacing()
 	{
-		if (useRequirements.Count == 0)
-		{
-			return;
-		}
-		int num = 0;
+		active = 0;
+		dist = baseDist;
 		for (int i = 0; i < useRequirements.Count; i++)
 		{
 			if (useRequirements[i].IsActive())
 			{
-				num++;
+				active++;
 			}
 		}
-		if (num == 0)
+		if (active == 1)
 		{
-			return;
+			dist = 0.01f;
 		}
-		float num2 = 360 / num;
-		float num3 = 0f;
-		float distanceFromPivot = baseDist;
-		if (num == 1)
+		if (active != 0)
 		{
-			distanceFromPivot = 0.01f;
+			spacing = 360 / active;
 		}
-		for (int j = 0; j < useRequirements.Count; j++)
+		enabled = active != 0;
+	}
+
+	private void Update()
+	{
+		float num = 0f;
+		for (int i = 0; i < useRequirements.Count; i++)
 		{
-			if (useRequirements[j].IsActive())
+			if (useRequirements[i].IsActive())
 			{
-				useRequirements[j].CalculatePosAroundPivot(pivot, num3 + rotation, distanceFromPivot);
-				num3 += num2;
+				useRequirements[i].CalculatePosAroundPivot(pivot, num + rotation, dist);
+				num += spacing;
 			}
 		}
 		rotation += Time.deltaTime * 20f;
@@ -58,11 +65,13 @@ public class UseInteratorVisualization : MonoBehaviour
 		{
 			useRequirement.OnDataUpdate(data, ownerID);
 		}
+		CalculateSpacing();
 	}
 
 	public void AddUseRequirement(UseRequirement useRequirement)
 	{
 		useRequirements.Add(useRequirement);
+		CalculateSpacing();
 	}
 
 	public UseGUIResult EvaluateUsability()
