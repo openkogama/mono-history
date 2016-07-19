@@ -233,7 +233,6 @@ public class MVCameraController : MonoBehaviour
 
 	public void PlayPlingSound()
 	{
-		plingSound.Play();
 	}
 
 	private void RenderLogic(bool renderLogic)

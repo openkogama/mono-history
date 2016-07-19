@@ -172,8 +172,11 @@ public class VehicleSeatManager : MonoBehaviour
 					Debug.LogError("Network reporter already set");
 					return;
 				}
-				((MVNetworkListener)networkObject2).SetOwnerTransformToMostResentPackage();
-				MVGameControllerBase.Game.TransformNetworkManager.RemoveNetworkObject(woOwner.Id);
+				if (networkObject2 != null)
+				{
+					((MVNetworkListener)networkObject2).SetOwnerTransformToMostResentPackage();
+					MVGameControllerBase.Game.TransformNetworkManager.RemoveNetworkObject(woOwner.Id);
+				}
 				MVGameControllerBase.Game.TransformNetworkManager.AddReporter(woOwner.Id, new MVNetworkReporter(woOwner));
 				MVGameControllerBase.Game.RuntimeVariableNetworkManager.AddRuntimeDataVariables(woOwner.Id);
 			}

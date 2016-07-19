@@ -18,7 +18,6 @@ public abstract class MVLogicObject : MVWorldObjectClient, IUpdatecontrollerSubs
 		gameObject.layer = LayerMask.NameToLayer("Logic");
 		previewLayerMask |= LayerFlags.Logic;
 		localBounds = ComputeLocalBounds(gameObject.transform.position, component.MeshRenderers);
-		UpdateController.AddUpdateObject(this, UpdatePriority.PRE_UPDATEBUCKET_20);
 	}
 
 	protected virtual void OnUpdate()
@@ -62,6 +61,7 @@ public abstract class MVLogicObject : MVWorldObjectClient, IUpdatecontrollerSubs
 	public override void Initialize()
 	{
 		base.Initialize();
+		UpdateController.AddUpdateObject(this, UpdatePriority.PRE_UPDATEBUCKET_20);
 		SharedLinkFunctions.EvaluateLinks(this);
 		SharedLinkFunctions.UpdateOutputLinks(this);
 	}

@@ -98,6 +98,7 @@ public class StarDisplayObject : MonoBehaviour
 		StarRenderer.enabled = true;
 		FrontRenderer.enabled = true;
 		BackRenderer.enabled = true;
+		visible = true;
 	}
 
 	private void Hide()
@@ -105,5 +106,6 @@ public class StarDisplayObject : MonoBehaviour
 		StarRenderer.enabled = false;
 		FrontRenderer.enabled = false;
 		BackRenderer.enabled = false;
+		visible = false;
 	}
 }

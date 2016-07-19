@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 {
-	private List<int> deleteList = new List<int>();
+	private HashSet<int> deleteList = new HashSet<int>();
 
 	public void Cleanup()
 	{
@@ -162,7 +162,15 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 		if (success)
 		{
 			worldObjects[id].OwnerActorNr = ownerActorNr;
-			if (ownerActorNr != 0)
+			if (ownerActorNr == 0)
+			{
+				MVNetworkObject networkObject = MVGameControllerBase.Game.TransformNetworkManager.GetNetworkObject(id);
+				if (networkObject is MVNetworkReporter)
+				{
+					MVGameControllerBase.Game.TransformNetworkManager.RemoveNetworkObject(id);
+				}
+			}
+			else
 			{
 				MVGameControllerBase.Game.TransformNetworkManager.AddReporter(id, new MVNetworkReporter(worldObjects[id]));
 			}

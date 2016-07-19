@@ -115,6 +115,8 @@ public abstract class MVWorldObjectClientManager
 
 		private const float distanceMultiplierHack = 1f;
 
+		private const float updatesPerSecond = 1000f;
+
 		private WorldObjectsIdsLodBookkeeping worldObjectsIdsLodBookkeeping = new WorldObjectsIdsLodBookkeeping(new List<int>());
 
 		private MVWorldObjectClientManager worldObjectClientManager;
@@ -138,9 +140,8 @@ public abstract class MVWorldObjectClientManager
 			worldObjectClientManager.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>().ChangeLODTerrain();
 			worldObjectClientManager.GetSingletonWorldObject<MVCubeModelFineGrainedTerrain>().ChangeLODTerrain();
 			Vector3 position = MVGameControllerBase.CameraController.MainCamera.transform.position;
-			float num = 1000f;
-			int num2 = Mathf.Max(1, Mathf.RoundToInt(num * Time.deltaTime));
-			for (int i = 0; i < num2; i++)
+			int num = Mathf.Max(1, Mathf.RoundToInt(1000f * Time.deltaTime));
+			for (int i = 0; i < num; i++)
 			{
 				if (worldObjectsIdsLodBookkeeping.currentPosition >= worldObjectsIdsLodBookkeeping.worldObjectsIdsLod.Count)
 				{

@@ -130,8 +130,6 @@ public class Bullet : MonoBehaviour
 
 	private MonoBehaviour pooledObjectReference;
 
-	private Vector3 prevColliderPos = Vector3.zero;
-
 	private CollisionBullet collisionBullet;
 
 	public PoolEnums InitiatedPoolType
@@ -201,7 +199,6 @@ public class Bullet : MonoBehaviour
 		if (!isFired)
 		{
 			this.lineOfFire = lineOfFire;
-			prevColliderPos = lineOfFire.origin;
 			this.ignoreWoIDs = ignoreWoIDs;
 			isFired = true;
 			DoFire(speed, range);

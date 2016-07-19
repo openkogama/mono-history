@@ -45,9 +45,13 @@ public class MVTextMsg : MVLogicObject
 
 	public override void OnInputLinkChanged()
 	{
+		textVisible = true;
 		if (InputLinkRefs.Count == 0)
 		{
-			msgObject.TextMeshRenderer.enabled = (textVisible = true);
+			if (textVisible && !disabledByLod && !msgObject.TextMeshRenderer.enabled)
+			{
+				msgObject.TextMeshRenderer.enabled = (textVisible = true);
+			}
 		}
 		else
 		{
@@ -57,7 +61,11 @@ public class MVTextMsg : MVLogicObject
 
 	public override void OnInputStateChanged()
 	{
-		msgObject.TextMeshRenderer.enabled = (textVisible = InputState);
+		textVisible = InputState;
+		if (!disabledByLod && msgObject.TextMeshRenderer.enabled != textVisible)
+		{
+			msgObject.TextMeshRenderer.enabled = textVisible;
+		}
 	}
 
 	public override void OnDataUpdate()
@@ -79,11 +87,14 @@ public class MVTextMsg : MVLogicObject
 
 	public override void ChangeLOD(float distance)
 	{
-		bool flag = disabledByLod;
 		base.ChangeLOD(distance);
-		if (flag != disabledByLod)
+		if (msgObject.TextMeshRenderer.enabled && disabledByLod)
 		{
-			msgObject.TextMeshRenderer.enabled = textVisible && !disabledByLod;
+			msgObject.TextMeshRenderer.enabled = false;
+		}
+		else if (textVisible && !disabledByLod && !msgObject.TextMeshRenderer.enabled)
+		{
+			msgObject.TextMeshRenderer.enabled = true;
 		}
 	}
 }

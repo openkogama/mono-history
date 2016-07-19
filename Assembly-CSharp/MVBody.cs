@@ -329,6 +329,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 			{
 				AccessoriesChanged(this, EventArgs.Empty);
 			}
+			acc.gameObject.AddComponent<FadeableObject>();
 			return true;
 		}
 		Debug.LogError("Trying to add accessory a second time!");

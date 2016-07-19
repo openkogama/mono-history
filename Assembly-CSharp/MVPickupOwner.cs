@@ -180,6 +180,7 @@ public abstract class MVPickupOwner : MVComponent
 	protected void SetAvatarItemAsCurrent(PickupItem avatarItem)
 	{
 		avatarItem.owner = this;
+		gameObject.AddComponent<FadeableObject>();
 		if (currentItem != avatarItem)
 		{
 			Unequip();

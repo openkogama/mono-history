@@ -1,13 +1,16 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class AvatarFader : MonoBehaviour
+public class AvatarFader : MonoBehaviour, IEventSystemHandler, IFadeParent
 {
 	[Serializable]
 	public struct ShaderFaderInstruction
 	{
 		public string originShader;
+
+		public Shader originalShader;
 
 		public Shader replacingShader;
 	}
@@ -28,9 +31,17 @@ public class AvatarFader : MonoBehaviour
 
 	private Dictionary<string, Shader> fadeShadersDictionary;
 
-	private Renderer[] avatarRenders = new Renderer[0];
+	private string colorProperty = "_Color";
+
+	private string tintProperty = "_TintColor";
+
+	private List<Material> avatarMaterials = new List<Material>();
 
 	private bool fading;
+
+	private bool changedShaders;
+
+	private bool prevFading;
 
 	public Transform BodyTransform
 	{
@@ -44,7 +55,7 @@ public class AvatarFader : MonoBehaviour
 		}
 	}
 
-	private void Awake()
+	private void Start()
 	{
 		normalShader = MVGameControllerBase.MaterialLoader.AvatarShader;
 		fadeShader = MVGameControllerBase.MaterialLoader.AvatarTransparentShader;
@@ -60,6 +71,15 @@ public class AvatarFader : MonoBehaviour
 		{
 			fadeShadersDictionary.Add(fadeShaders[j].originShader, fadeShaders[j].replacingShader);
 		}
+		Renderer[] componentsInChildren = transform.GetComponentsInChildren<Renderer>();
+		for (int k = 0; k < componentsInChildren.Length; k++)
+		{
+			Material[] materials = componentsInChildren[k].materials;
+			for (int l = 0; l < materials.Length; l++)
+			{
+				avatarMaterials.Add(materials[l]);
+			}
+		}
 	}
 
 	public void SetTransparency(float fadeFactor)
@@ -69,48 +89,72 @@ public class AvatarFader : MonoBehaviour
 			return;
 		}
 		fading = fadeFactor < 1f;
-		avatarRenders = transform.GetComponentsInChildren<Renderer>();
-		Renderer[] array = avatarRenders;
-		foreach (Renderer renderer in array)
+		if (fadeFactor == 1f)
 		{
-			if (renderer.name == "ChargeSphere")
+			prevFading = false;
+			changedShaders = false;
+		}
+		for (int i = 0; i < avatarMaterials.Count; i++)
+		{
+			if (avatarMaterials[i] == null)
 			{
+				avatarMaterials.RemoveAt(i);
+				i--;
 				continue;
 			}
-			Material[] materials = renderer.materials;
-			foreach (Material material in materials)
+			if (!prevFading)
 			{
-				Shader shader = GetShader(material.shader, fading);
-				material.shader = shader;
-				if (material.HasProperty("_Color"))
-				{
-					Color color = material.color;
-					color.a = fadeFactor;
-					material.color = color;
-				}
-				else if (material.HasProperty("_TintColor"))
-				{
-					Color color2 = material.GetColor("_TintColor");
-					color2.a = fadeFactor;
-					material.SetColor("_TintColor", color2);
-				}
+				Shader shader = GetShader(avatarMaterials[i].shader, fading);
+				avatarMaterials[i].shader = shader;
 			}
+			if (avatarMaterials[i].HasProperty(colorProperty))
+			{
+				Color color = avatarMaterials[i].color;
+				color.a = fadeFactor;
+				avatarMaterials[i].color = color;
+			}
+			else if (avatarMaterials[i].HasProperty(tintProperty))
+			{
+				Color color2 = avatarMaterials[i].GetColor(tintProperty);
+				color2.a = fadeFactor;
+				avatarMaterials[i].SetColor(tintProperty, color2);
+			}
+		}
+		if (changedShaders)
+		{
+			prevFading = true;
 		}
 	}
 
 	private Shader GetShader(Shader currShader, bool fading)
 	{
 		Shader value = null;
-		if (normalShadersDictionary.ContainsKey(currShader.name) || fadeShadersDictionary.ContainsKey(currShader.name))
+		if (fading)
 		{
-			Dictionary<string, Shader> dictionary = ((!fading) ? normalShadersDictionary : fadeShadersDictionary);
-			dictionary.TryGetValue(currShader.name, out value);
+			changedShaders = true;
+			if (!fadeShadersDictionary.TryGetValue(currShader.name, out value))
+			{
+				value = value ?? currShader;
+			}
+		}
+		else if (!normalShadersDictionary.TryGetValue(currShader.name, out value))
+		{
 			value = value ?? currShader;
 		}
-		else if (value == null)
+		if (value == null)
 		{
 			value = ((!fading) ? normalShader : fadeShader);
 		}
 		return value;
+	}
+
+	public void AddFadeMaterial(Material addRenderer)
+	{
+		avatarMaterials.Add(addRenderer);
+	}
+
+	public void RemoveFadeMaterial(Material removeMaterial)
+	{
+		avatarMaterials.Remove(removeMaterial);
 	}
 }

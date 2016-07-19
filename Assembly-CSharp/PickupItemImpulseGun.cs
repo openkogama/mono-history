@@ -105,12 +105,10 @@ public class PickupItemImpulseGun : PickupItem
 	private void Fire(int avatarId, float impulseMagnitude, float recoilMagnitude)
 	{
 		Ray lineOfFire = new Ray(owner.LookOrigin, owner.LookDirection);
-		bool flag = false;
-		List<MVWorldObjectClient> list = SphereCastAgainstWorldObjects(lineOfFire);
-		if (list.Count > 0)
+		if (owner.IsLocal)
 		{
-			flag = true;
-			if (owner.IsLocal)
+			List<MVWorldObjectClient> list = SphereCastAgainstWorldObjects(lineOfFire);
+			if (list.Count > 0)
 			{
 				foreach (MVWorldObjectClient item in list)
 				{
@@ -143,7 +141,7 @@ public class PickupItemImpulseGun : PickupItem
 		ImpulseRay impulseRay = Object.Instantiate(impulseRayPrefab, muzzlePoint.position, Quaternion.identity) as ImpulseRay;
 		impulseRay.target = vector;
 		impulseRay.radius = radius;
-		impulseRay.startColor = ((!flag) ? missColor : hitColor);
+		impulseRay.startColor = missColor;
 	}
 
 	private List<MVWorldObjectClient> SphereCastAgainstWorldObjects(Ray lineOfFire)

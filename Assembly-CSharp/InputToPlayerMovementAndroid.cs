@@ -11,8 +11,6 @@ public class InputToPlayerMovementAndroid : IInputToPlayerMovement
 
 	private Vector3 direction = Vector3.zero;
 
-	private bool jumpControlMode;
-
 	public Vector3 Direction => direction;
 
 	public bool Jump => jump || jumpFrameUpdate || jumpFixedUpdate;
@@ -36,10 +34,6 @@ public class InputToPlayerMovementAndroid : IInputToPlayerMovement
 			{
 				jumpFixedUpdate = true;
 			}
-		}
-		else
-		{
-			jumpControlMode = false;
 		}
 		if (!fromFrameUpdate)
 		{
