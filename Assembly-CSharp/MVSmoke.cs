@@ -24,6 +24,7 @@ public class MVSmoke : MVLogicObject
 		{
 			ToggleEmitter(toggle: true);
 		}
+		SetupCulling(particleSystem.gameObject);
 	}
 
 	public override void OnInputLinkChanged()

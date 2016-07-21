@@ -50,6 +50,19 @@ public class MVTeleporter : MVLogicObject
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
 		interactionFlags |= InteractionFlags.CanUseLevel;
 		interactionFlags |= InteractionFlags.CanUseStars;
+	}
+
+	public override void Initialize()
+	{
+		SetupUseInteractor();
+		base.Initialize();
+		useInteractor.UpdateData(Data);
+		OnInputLinkChanged();
+		SetupCulling(teleportObject.visualRoot);
+	}
+
+	private void SetupUseInteractor()
+	{
 		useInteractor = new UseInteractor(Id, gameObject, reset: false, teleportObject.TriggerBoxEvents.Collider, DoTeleport);
 		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, gameCoinDisplayObjectOffset, hasUseButtonWhenFree: false);
 		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(gameObject, hasUseButtonWhenFree: false);
@@ -65,13 +78,6 @@ public class MVTeleporter : MVLogicObject
 	{
 		base.OnDataUpdate();
 		useInteractor.UpdateData(Data);
-	}
-
-	public override void Initialize()
-	{
-		base.Initialize();
-		useInteractor.UpdateData(Data);
-		OnInputLinkChanged();
 	}
 
 	public override bool Delete(MVWorldObjectClientManager worldObjectClientManager, ref string errorText)
@@ -155,9 +161,13 @@ public class MVTeleporter : MVLogicObject
 	{
 		if (!isDestroyed)
 		{
-			teleportObject.TriggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
-			teleportObject.TriggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
-			useInteractor.OnDestroy(Data);
+			if (useInteractor != null)
+			{
+				teleportObject.TriggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
+				teleportObject.TriggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
+				useInteractor.OnDestroy(Data);
+				useInteractor = null;
+			}
 			base.Destroy();
 			isDestroyed = true;
 		}

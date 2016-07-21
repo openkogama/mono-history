@@ -54,14 +54,27 @@ public class MVGameCoinChest : MVLogicObject
 		{
 			Debug.LogError("A TriggerBoxEvents object is missing in PickupItem type: " + GetType().Name);
 		}
+		interactionFlags |= InteractionFlags.HasSettings;
+		interactionFlags |= InteractionFlags.CanUseLevel;
+		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
+	}
+
+	public override void Initialize()
+	{
+		SetupUseInteractor();
+		useInteractor.UpdateData(Data);
+		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
+		base.Initialize();
+		SetupCulling(chestObject.VisualObject);
+	}
+
+	private void SetupUseInteractor()
+	{
 		useInteractor = new UseInteractor(Id, gameObject, reset: false, chestObject.TriggerBoxEvents.Collider, OpenChest, IsUsable);
 		LevelBasedUseRequirement useRequirement = new LevelBasedUseRequirement(gameObject, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement);
 		chestObject.TriggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
 		chestObject.TriggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
-		interactionFlags |= InteractionFlags.HasSettings;
-		interactionFlags |= InteractionFlags.CanUseLevel;
-		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
 	}
 
 	public override void OnDataUpdate()
@@ -129,38 +142,6 @@ public class MVGameCoinChest : MVLogicObject
 		}
 	}
 
-	public override void ChangeLOD(float distance)
-	{
-		if (disabledByLod && distance < cullDistance)
-		{
-			disabledByLod = false;
-			MeshRenderer[] meshRenderers = component.MeshRenderers;
-			MeshRenderer[] array = meshRenderers;
-			foreach (MeshRenderer meshRenderer in array)
-			{
-				meshRenderer.enabled = true;
-			}
-			if (state == GameCoinChestClientState.Closed)
-			{
-				chestObject.ModelSelector.Close();
-			}
-			else
-			{
-				chestObject.ModelSelector.Open();
-			}
-		}
-		else if (!disabledByLod && distance >= cullDistance)
-		{
-			disabledByLod = true;
-			MeshRenderer[] meshRenderers2 = component.MeshRenderers;
-			MeshRenderer[] array2 = meshRenderers2;
-			foreach (MeshRenderer meshRenderer2 in array2)
-			{
-				meshRenderer2.enabled = false;
-			}
-		}
-	}
-
 	public override MVWorldObjectClient Clone(int ownerActorNumber, int cloneGroupId, CloneBookkeeping cloneBookkeeping, Dictionary<int, MVWorldObjectClient> worldObjects, Dictionary<int, RuntimePrototypeCubeModel> prototypes)
 	{
 		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
@@ -173,19 +154,16 @@ public class MVGameCoinChest : MVLogicObject
 		return base.DeepCopy();
 	}
 
-	public override void Initialize()
-	{
-		useInteractor.UpdateData(Data);
-		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
-		base.Initialize();
-	}
-
 	public override void Destroy()
 	{
 		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
-		chestObject.TriggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
-		chestObject.TriggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
-		useInteractor.OnDestroy(Data);
+		if (useInteractor != null)
+		{
+			chestObject.TriggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
+			chestObject.TriggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
+			useInteractor.OnDestroy(Data);
+			useInteractor = null;
+		}
 		base.Destroy();
 	}
 

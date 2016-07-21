@@ -4,6 +4,7 @@ using System.Linq;
 using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class MVGhostInstance : MVWorldObjectClient, IGameStateControllerSubscriber, IUpdatecontrollerSubscriber
 {
@@ -11,6 +12,12 @@ public class MVGhostInstance : MVWorldObjectClient, IGameStateControllerSubscrib
 	{
 		DAMAGE_OVER_TIME,
 		INSTANT_DEATH
+	}
+
+	private enum GhostMode
+	{
+		MarkerActive,
+		InstanceActive
 	}
 
 	private SphereVolumeIndicator rangeVis;
@@ -40,6 +47,14 @@ public class MVGhostInstance : MVWorldObjectClient, IGameStateControllerSubscrib
 	private GameObject _ghostMarker;
 
 	private Bounds localBounds;
+
+	private CullingSubscriberBase cullingSubscriberBase;
+
+	private bool isLODVisible;
+
+	private GhostMode ghostMode;
+
+	private Vector3 lodSphereOffset = Vector3.up;
 
 	public float Distance
 	{
@@ -94,8 +109,6 @@ public class MVGhostInstance : MVWorldObjectClient, IGameStateControllerSubscrib
 		gameObject.transform.position = _ghostInstance.transform.position;
 		gameObject.transform.rotation = _ghostInstance.transform.rotation;
 		moveTarget = gameObject.transform;
-		smoothPhysicsMovement = _ghostInstance.AddComponent<SmoothPhysicsMovement>();
-		smoothPhysicsMovement.Init(moveTarget);
 		previewLayerMask |= LayerFlags.Logic;
 		UnityEngine.Object.Destroy(base.gameObject.GetComponent<ParticleSystem>());
 	}
@@ -110,7 +123,35 @@ public class MVGhostInstance : MVWorldObjectClient, IGameStateControllerSubscrib
 		UpdateController.AddFixedUpdateObject(this, UpdatePriority.PRE_UPDATEBUCKET_20, 10);
 		UpdateController.AddUpdateObject(this, UpdatePriority.PRE_UPDATEBUCKET_20, 10);
 		InitializeCommon();
+		smoothPhysicsMovement = _ghostInstance.AddComponent<SmoothPhysicsMovement>();
+		smoothPhysicsMovement.Init(moveTarget, cullingSubscriberBase);
 		MVGameControllerBase.Game.GameStateController.AddUpdateObject(this);
+		SetupCulling();
+	}
+
+	private void SetupCulling()
+	{
+		cullingSubscriberBase = new CullingSubscriberBase(1.7f, WorldPosition + lodSphereOffset, OnStateChange);
+		PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
+	}
+
+	private void OnPositionChanged(MVWorldObjectClient wo, PositionChangedEventArgs positionChangedEventArgs)
+	{
+		if (ghostMode == GhostMode.MarkerActive)
+		{
+			UpdateMarkerPosition(positionChangedEventArgs.NewPos);
+		}
+	}
+
+	private void UpdateMarkerPosition(Vector3 newPos)
+	{
+		cullingSubscriberBase.Position = newPos + lodSphereOffset;
+	}
+
+	private void OnStateChange(CullingGroupEvent cullingGroupEvent)
+	{
+		isLODVisible = CullingApiWrapper.Visible(cullingGroupEvent, cullingSubscriberBase.DistanceBandIndex);
+		UpGhosts();
 	}
 
 	public override void InitializeInventory()
@@ -201,15 +242,38 @@ public class MVGhostInstance : MVWorldObjectClient, IGameStateControllerSubscrib
 	{
 		if (condition == UpdateCondition.EDITOR)
 		{
-			_ghostMarker.SetActive(value: true);
-			_ghostInstance.SetActive(value: false);
+			ghostMode = GhostMode.MarkerActive;
+		}
+		else
+		{
+			smoothPhysicsMovement.Reset();
+			moveTarget.position = GetTargetPos(patrolling: true);
+			_ghostInstance.transform.position = moveTarget.position;
+			ghostMode = GhostMode.InstanceActive;
+		}
+		UpGhosts();
+	}
+
+	private void UpGhosts()
+	{
+		_ghostInstance.SetActive(value: false);
+		_ghostMarker.SetActive(value: false);
+		if (!isLODVisible)
+		{
 			return;
 		}
-		smoothPhysicsMovement.Reset();
-		moveTarget.position = GetTargetPos(patrolling: true);
-		_ghostInstance.transform.position = moveTarget.position;
-		_ghostMarker.SetActive(value: false);
-		_ghostInstance.SetActive(value: true);
+		if (ghostMode == GhostMode.InstanceActive)
+		{
+			if (!_ghostInstance.activeSelf)
+			{
+				_ghostInstance.SetActive(value: true);
+			}
+		}
+		else if (ghostMode == GhostMode.MarkerActive && !_ghostMarker.activeSelf)
+		{
+			_ghostMarker.SetActive(value: true);
+			UpdateMarkerPosition(WorldPosition);
+		}
 	}
 
 	public override void Destroy()
@@ -217,11 +281,19 @@ public class MVGhostInstance : MVWorldObjectClient, IGameStateControllerSubscrib
 		UpdateController.RemoveObject(this);
 		MVGameControllerBase.Game.GameStateController.RemoveObject(this);
 		base.Destroy();
+		if (cullingSubscriberBase != null)
+		{
+			cullingSubscriberBase.Destroy();
+			cullingSubscriberBase = null;
+		}
 	}
 
 	public void UpdateControllerUpdate()
 	{
 		smoothPhysicsMovement.SmoothMove();
+		if (ghostMode != GhostMode.InstanceActive)
+		{
+		}
 	}
 
 	public void UpdateControllerFixedUpdate()

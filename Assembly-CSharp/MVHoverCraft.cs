@@ -33,6 +33,8 @@ public class MVHoverCraft : MVSimpleOneSeatVehicle
 
 	private float deathExplosionImpulse = 2000f;
 
+	private CullingSubscriberDynamic cullingSubscriberDynamic;
+
 	public override bool IsDead => (bool)IsVehicleDead.Value;
 
 	public MVHoverCraft(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
@@ -44,25 +46,37 @@ public class MVHoverCraft : MVSimpleOneSeatVehicle
 	public override void Initialize()
 	{
 		base.Initialize();
+		MVCubeModelInstance mVCubeModelInstance = (MVCubeModelInstance)GetChild("HoverCraftHull");
+		HoverCraftVisualization componentInChildren = gameObject.GetComponentInChildren<HoverCraftVisualization>();
+		componentInChildren.gameObject.SetActive(value: true);
 		if (!IsInSpawner)
 		{
 			gameObject.AddComponent<InteractionDataHandler>();
+			cullingSubscriberDynamic = new CullingSubscriberDynamic(4f, 3, componentInChildren.gameObject);
+			mVCubeModelInstance.Visible = true;
+			componentInChildren.enabled = true;
 		}
 		MVRuntimeDataVariable isVehicleDead = IsVehicleDead;
 		isVehicleDead.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(isVehicleDead.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnIsDeadChange));
-		MVCubeModelBase mVCubeModelBase = (MVCubeModelBase)GetChild("HoverCraftHull");
-		HoverCraftVisualization hoverCraftVisualization = gameObject.GetComponent<HoverCraftVisualization>();
-		hoverCraftVisualization.gameObject.SetActive(value: true);
-		hoverCraftVisualization.Init(mVCubeModelBase.GameObject.transform, seatManager, (float)RuntimeVariablesRepository.GetRuntimeVariables(WorldObjectType)["health"], Health, IsInSpawner);
-		visualization = hoverCraftVisualization;
-		editableCubeModelWrapper = new EditableCubeModelWrapper(mVCubeModelBase, new IntVector(-16, -2, -5), new IntVector(2, 5, 6), 50);
+		componentInChildren.Init(mVCubeModelInstance.GameObject.transform, seatManager, (float)RuntimeVariablesRepository.GetRuntimeVariables(WorldObjectType)["health"], Health, IsInSpawner);
+		visualization = componentInChildren;
+		editableCubeModelWrapper = new EditableCubeModelWrapper(mVCubeModelInstance, new IntVector(-16, -2, -5), new IntVector(2, 5, 6), 50);
 	}
 
 	public override void InitializeInventory()
 	{
 		base.InitializeInventory();
-		visualization = gameObject.GetComponent<HoverCraftVisualization>();
+		visualization = gameObject.GetComponentInChildren<HoverCraftVisualization>();
 		visualization.enabled = false;
+	}
+
+	public override void Destroy()
+	{
+		if (cullingSubscriberDynamic != null)
+		{
+			cullingSubscriberDynamic.Destroy();
+			cullingSubscriberDynamic = null;
+		}
 	}
 
 	private void OnIsDeadChange(object isDead)
@@ -93,7 +107,7 @@ public class MVHoverCraft : MVSimpleOneSeatVehicle
 	protected override LocalObjectsBase CreateLocalObjects(int seatID, MVAvatarLocal vehicleUser)
 	{
 		SmoothCharacterController smoothCharacterController = gameObject.AddComponent<SmoothCharacterController>();
-		smoothCharacterController.Init(gameObject);
+		smoothCharacterController.Init(gameObject, null);
 		smoothCharacterController.Controller.Init(1.3f, 2f, Vector3.up * 0.3f);
 		smoothCharacterController.Controller.IgnoreWoIds = WorldIDsRecursive;
 		HoverCraftMotor hoverCraftMotor = gameObject.AddComponent<HoverCraftMotor>();

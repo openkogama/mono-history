@@ -19,6 +19,8 @@ public class StarRequirement : UseRequirement
 
 	public int StarAmount => starAmount;
 
+	public override GameObject GameObject => displayGO.gameObject;
+
 	public StarRequirement(GameObject root, bool hasUseButtonWhenFree = true)
 	{
 		hasUseWhenFree = hasUseButtonWhenFree;

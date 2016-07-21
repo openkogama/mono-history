@@ -17,6 +17,9 @@ public class UseLeverObject : ObjectPrefab
 	[SerializeField]
 	private Transform plateButtonTransform;
 
+	[SerializeField]
+	private GameObject visualRoot;
+
 	public Collider LeverCollider => leverCollider;
 
 	public Collider EditCollider => editCollider;
@@ -36,6 +39,8 @@ public class UseLeverObject : ObjectPrefab
 	public TriggerBoxEvents TriggerBoxEvents => triggerBoxEvents;
 
 	public Transform PlateButtonTransform => plateButtonTransform;
+
+	public GameObject VisualRoot => visualRoot;
 
 	protected override void OnValidate()
 	{

@@ -1,10 +1,22 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class AdvancedGhostIcon : MonoBehaviour
 {
+	private const float advancedGhostBodyMaxRadius = 4f;
+
+	private const int ghostIconDistanceBand = 3;
+
+	private bool visible;
+
+	private bool wantsVisible;
+
+	private CullingSubscriberBase cullingSubscriberBase;
+
 	private SphereVolumeIndicator sphereVolumeIndicator;
 
 	public GhostBody GhostBody;
@@ -17,11 +29,55 @@ public class AdvancedGhostIcon : MonoBehaviour
 		}
 	}
 
-	public void Init(MVCubeModelBase body)
+	public void Init(MVAdvancedGhost advancedGhost, MVCubeModelBase body, bool enabledCulling)
 	{
 		AddSphereVolumeIndicator();
-		body.Changed += body_Changed;
+		body.Changed = (Action<CubeModelChangedEventArgs>)Delegate.Combine(body.Changed, new Action<CubeModelChangedEventArgs>(body_Changed));
 		CloneCubeMeshes(body);
+		if (enabledCulling)
+		{
+			SetupCulling(advancedGhost);
+			return;
+		}
+		visible = true;
+		wantsVisible = true;
+	}
+
+	public void SetGameMode(bool isPlayMode)
+	{
+		wantsVisible = !isPlayMode;
+		SetVisibility();
+	}
+
+	private void SetVisibility()
+	{
+		gameObject.SetActive(wantsVisible && visible);
+	}
+
+	private void SetupCulling(MVAdvancedGhost advancedGhost)
+	{
+		cullingSubscriberBase = new CullingSubscriberBase(4f, transform.position, OnStateChange);
+		advancedGhost.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(advancedGhost.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(AdvancedGhostOnPositionChanged));
+	}
+
+	private void AdvancedGhostOnPositionChanged(object sender, PositionChangedEventArgs positionChangedEventArgs)
+	{
+		cullingSubscriberBase.Position = positionChangedEventArgs.NewPos;
+	}
+
+	private void OnDestroy()
+	{
+		if (cullingSubscriberBase != null)
+		{
+			cullingSubscriberBase.Destroy();
+			cullingSubscriberBase = null;
+		}
+	}
+
+	private void OnStateChange(CullingGroupEvent cullingGroupEvent)
+	{
+		visible = CullingApiWrapper.Visible(cullingGroupEvent, 3);
+		SetVisibility();
 	}
 
 	private void CloneCubeMeshes(MVCubeModelBase body)
@@ -29,11 +85,11 @@ public class AdvancedGhostIcon : MonoBehaviour
 		GhostBody.transform.localScale = Vector3.one;
 		foreach (Transform item in GhostBody.transform)
 		{
-			Object.Destroy(item.gameObject);
+			UnityEngine.Object.Destroy(item.gameObject);
 		}
 		foreach (KeyValuePair<IntVector, ChunkInstances.ChunkInstanceVariables> item2 in (IEnumerable)body.ChunkInstances)
 		{
-			GameObject gameObject = Object.Instantiate(item2.Value.gameObject);
+			GameObject gameObject = UnityEngine.Object.Instantiate(item2.Value.gameObject);
 			gameObject.transform.parent = GhostBody.transform;
 			gameObject.transform.localPosition = Vector3.zero;
 			gameObject.transform.localRotation = Quaternion.identity;
@@ -43,14 +99,14 @@ public class AdvancedGhostIcon : MonoBehaviour
 		GhostBody.transform.localScale = body.Transform.localScale;
 	}
 
-	private void body_Changed(object sender, CubeModelChangedEventArgs e)
+	private void body_Changed(CubeModelChangedEventArgs e)
 	{
-		CloneCubeMeshes((MVCubeModelBase)sender);
+		CloneCubeMeshes(e.Sender);
 	}
 
 	private void AddSphereVolumeIndicator()
 	{
-		sphereVolumeIndicator = Object.Instantiate(PrefabPool.Instance.RangeVisualizationObject);
+		sphereVolumeIndicator = UnityEngine.Object.Instantiate(PrefabPool.Instance.RangeVisualizationObject);
 		sphereVolumeIndicator.transform.parent = gameObject.transform;
 		sphereVolumeIndicator.transform.localPosition = Vector3.zero;
 		sphereVolumeIndicator.transform.localRotation = Quaternion.identity;

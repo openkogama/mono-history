@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class MVMovingPlatformGroup : MVBlueprintBase
 {
@@ -19,8 +20,6 @@ public class MVMovingPlatformGroup : MVBlueprintBase
 	private MVMovingPlatform platform;
 
 	private bool initializeFailed;
-
-	private MVWorldObjectClientManager WOCM => MVGameControllerBase.WOCM;
 
 	public MVMovingPlatform Platform => platform;
 
@@ -52,10 +51,10 @@ public class MVMovingPlatformGroup : MVBlueprintBase
 		InitializeCommon();
 		foreach (MVMovingPlatformNode value in nodeIdToWoMap.Values)
 		{
-			value.PositionChanged += WorldObjectClient_PositionChangedHandler;
-			value.SelectedChanged += WorldObjectClient_SelectedChangedHandler;
+			value.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(value.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(WorldObjectClient_PositionChangedHandler));
+			value.SelectedChanged = (UnityAction<MVWorldObjectClient, SelectedEventArgs>)Delegate.Combine(value.SelectedChanged, new UnityAction<MVWorldObjectClient, SelectedEventArgs>(WorldObjectClient_SelectedChangedHandler));
 		}
-		RotationChanged += WorldObjectClient_RotationChangedHandler;
+		RotationChanged = (UnityAction<MVWorldObjectClient, RotationChangedEventArgs>)Delegate.Combine(RotationChanged, new UnityAction<MVWorldObjectClient, RotationChangedEventArgs>(WorldObjectClient_RotationChangedHandler));
 		interactionFlags |= InteractionFlags.DontPushGroupToSelectionStack;
 		if (!HasInteractionFlag(InteractionFlags.IsPreview))
 		{
@@ -110,7 +109,7 @@ public class MVMovingPlatformGroup : MVBlueprintBase
 		if (platform != null)
 		{
 			platform.MoveBetweenNodes(startNode, startNode.Next);
-			ScaleChanged += WorldObjectClient_ScaleChangedHandler;
+			ScaleChanged = (UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>)Delegate.Combine(ScaleChanged, new UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>(WorldObjectClient_ScaleChangedHandler));
 			UpdateLine();
 		}
 		else

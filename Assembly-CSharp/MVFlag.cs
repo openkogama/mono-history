@@ -24,11 +24,6 @@ public class MVFlag : MVLogicObject
 		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
 		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
-		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.Collider, DoCaptureFlag);
-		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
-		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
-		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, gameCoinDisplayObjectOffset, hasUseButtonWhenFree: false);
-		useInteractor.AddRequirement(useRequirement);
 	}
 
 	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
@@ -41,6 +36,7 @@ public class MVFlag : MVLogicObject
 
 	public override void Initialize()
 	{
+		SetupUseInteractor();
 		base.Initialize();
 		if (MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<FlagReachedClient>() == null)
 		{
@@ -49,6 +45,16 @@ public class MVFlag : MVLogicObject
 		initializedInWorld = true;
 		useInteractor.UpdateData(Data);
 		worldObjectEnableController = gameObject.GetComponentInChildren<WorldObjectEnableController>();
+		SetupCulling(((MVTriggerBoxObject)component).VisualObject);
+	}
+
+	private void SetupUseInteractor()
+	{
+		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.Collider, DoCaptureFlag);
+		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
+		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
+		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, gameCoinDisplayObjectOffset, hasUseButtonWhenFree: false);
+		useInteractor.AddRequirement(useRequirement);
 	}
 
 	public override void OnDataUpdate()
@@ -74,9 +80,13 @@ public class MVFlag : MVLogicObject
 	public override void Destroy()
 	{
 		triggerBoxEvents.TriggerEnter -= triggerBoxEvents_TriggerEnter;
-		triggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
-		triggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
-		useInteractor.OnDestroy(Data);
+		if (useInteractor != null)
+		{
+			triggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
+			triggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
+			useInteractor.OnDestroy(Data);
+			useInteractor = null;
+		}
 		base.Destroy();
 		if (initializedInWorld && MVGameControllerBase.Game.World.WorldObjectClientManager.GetWorldObjectsByType(WorldObjectType).Count == 0)
 		{

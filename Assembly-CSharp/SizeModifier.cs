@@ -67,6 +67,10 @@ public abstract class SizeModifier : AvatarModifier
 
 	protected IEnumerator DoForSeconds(float duration, ActionDelegate body)
 	{
+		if (!gameObject.activeInHierarchy)
+		{
+			body(timeToSize);
+		}
 		float t = 0f;
 		while (t < duration)
 		{

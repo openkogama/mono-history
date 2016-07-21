@@ -9,7 +9,14 @@ public class BurningModifier : AvatarModifier
 
 	protected override void OnDeactivated(Avatar target)
 	{
-		StartCoroutine(DoFadeAndDestroy());
+		if (gameObject.activeInHierarchy)
+		{
+			StartCoroutine(DoFadeAndDestroy());
+		}
+		else
+		{
+			Object.Destroy(gameObject);
+		}
 	}
 
 	private IEnumerator DoFadeAndDestroy()

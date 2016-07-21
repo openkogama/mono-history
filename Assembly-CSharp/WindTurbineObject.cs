@@ -3,6 +3,9 @@ using UnityEngine;
 public class WindTurbineObject : ObjectPrefab
 {
 	[SerializeField]
+	private GameObject visualObject;
+
+	[SerializeField]
 	private Transform areaColliderTransform;
 
 	[SerializeField]
@@ -16,6 +19,8 @@ public class WindTurbineObject : ObjectPrefab
 
 	[SerializeField]
 	private TriggerBoxEvents triggerBoxEvents;
+
+	public GameObject VisualObject => visualObject;
 
 	public Transform AreaColliderTransform => areaColliderTransform;
 

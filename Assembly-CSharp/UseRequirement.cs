@@ -3,6 +3,8 @@ using UnityEngine;
 
 public abstract class UseRequirement
 {
+	public abstract GameObject GameObject { get; }
+
 	public abstract UseGUIResult GetCanUseGUIResult();
 
 	public abstract void PayUseCost();

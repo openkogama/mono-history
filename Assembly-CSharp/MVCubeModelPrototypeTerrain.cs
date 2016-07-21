@@ -6,7 +6,7 @@ public class MVCubeModelPrototypeTerrain : MVCubeModelBase
 {
 	private Dictionary<IntVector, CubeBase> removedCubes = new Dictionary<IntVector, CubeBase>();
 
-	private TerrainLODComponent terrainLODComponent;
+	private CullingTerrainManager cullingTerrainManager;
 
 	public bool RequiresResetToEdit => removedCubes.Count > 0;
 
@@ -15,12 +15,12 @@ public class MVCubeModelPrototypeTerrain : MVCubeModelBase
 	{
 		interactionFlags = InteractionFlags.IsTerrain;
 		MVGameControllerBase.WOCM.UpdateWorldBounds(SharedCubeFunctions.GetAxisAlignedBoundsRecursively(gameObject.transform).Value);
-		terrainLODComponent = new TerrainLODComponent(prototypeCubeModel, chunkInstances, new DynamicLODDistance(1f, 600f, 20000), Scale.x, debug: false);
 	}
 
-	public void ChangeLODTerrain()
+	public override void Initialize()
 	{
-		terrainLODComponent.ChangeLODTerrain();
+		base.Initialize();
+		cullingTerrainManager = new CullingTerrainManager(chunkInstances, this);
 	}
 
 	public override void Destroy()

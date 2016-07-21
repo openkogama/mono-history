@@ -1,14 +1,16 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class MVCubeModelInstance : MVCubeModelBase
 {
-	private bool isVisible;
+	protected CullingSubscriberBase cullingSubscriberBase;
 
-	private int lodDistance = 300;
+	private Vector3 positionOffset = Vector3.zero;
 
 	public MVCubeModelInstance(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects, Dictionary<int, RuntimePrototypeCubeModel> prototypes)
 		: base(data, worldObjects, prototypes)
@@ -22,6 +24,52 @@ public class MVCubeModelInstance : MVCubeModelBase
 		{
 			interactionFlags &= ~InteractionFlags.CanAddToInventory;
 		}
+	}
+
+	public override void Initialize()
+	{
+		base.Initialize();
+		if (groupId == MVGameControllerBase.Game.WorldObjectClientManager.RootGroup.Id)
+		{
+			EnableCulling();
+		}
+	}
+
+	public void EnableCulling()
+	{
+		cullingSubscriberBase = SetupCulling(OnStateChanged);
+	}
+
+	public CullingSubscriberBase SetupCulling(UnityAction<CullingGroupEvent> onStateChanged)
+	{
+		cullingSubscriberBase = new CullingSubscriberBase(onStateChanged);
+		SetCullSphereToMeshBounds();
+		PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
+		RotationChanged = (UnityAction<MVWorldObjectClient, RotationChangedEventArgs>)Delegate.Combine(RotationChanged, new UnityAction<MVWorldObjectClient, RotationChangedEventArgs>(OnRotationChanged));
+		Changed = (Action<CubeModelChangedEventArgs>)Delegate.Combine(Changed, new Action<CubeModelChangedEventArgs>(OnChanged));
+		return cullingSubscriberBase;
+	}
+
+	private void OnRotationChanged(MVWorldObjectClient wo, RotationChangedEventArgs rotationChangedEventArgs)
+	{
+		SetCullSphereToMeshBounds();
+	}
+
+	private void OnChanged(CubeModelChangedEventArgs cubeModelChangedEventArgs)
+	{
+		SetCullSphereToMeshBounds();
+	}
+
+	private void OnPositionChanged(MVWorldObjectClient wo, PositionChangedEventArgs positionChangedEventArgs)
+	{
+		cullingSubscriberBase.Position = positionChangedEventArgs.NewPos - positionOffset;
+	}
+
+	private void SetCullSphereToMeshBounds()
+	{
+		Bounds meshRenderBounds = GetMeshRenderBounds();
+		cullingSubscriberBase.Setup(meshRenderBounds.extents.magnitude, meshRenderBounds.center);
+		positionOffset = WorldPosition - meshRenderBounds.center;
 	}
 
 	public override bool CompareWithKoGaMaPackage(MVWorldObjectClient wo, KoGaMaPackageClient koGaMaPackageClient, ref int insertedByProfileId)
@@ -40,21 +88,28 @@ public class MVCubeModelInstance : MVCubeModelBase
 		}
 	}
 
-	public override void ChangeLOD(float distance)
+	public void OnStateChanged(CullingGroupEvent cullingGroupEvent)
 	{
-		if (ReactsToLODChanges)
+		bool isVisible = IsLodVisible(cullingGroupEvent);
+		ChangeLODVisible(isVisible);
+	}
+
+	public bool IsLodVisible(CullingGroupEvent cullingGroupEvent)
+	{
+		return CullingApiWrapper.Visible(cullingGroupEvent, cullingSubscriberBase.DistanceBandIndex);
+	}
+
+	public void ChangeLODVisible(bool isVisible)
+	{
+		if (!isVisible)
 		{
-			float num = (float)lodDistance * Scale.x;
-			if (distance > num && isVisible)
-			{
-				SetLod(enabled: false);
-				prototypeCubeModel.RemoveReferenceFromAllChunks();
-			}
-			if (distance <= num && !isVisible)
-			{
-				SetLod(enabled: true);
-				prototypeCubeModel.AddReferenceToAllChunks();
-			}
+			prototypeCubeModel.RemoveReferenceFromAllChunks();
+			SetLod(enabled: false);
+		}
+		else
+		{
+			prototypeCubeModel.AddReferenceToAllChunks();
+			SetLod(enabled: true);
 		}
 	}
 
@@ -64,13 +119,17 @@ public class MVCubeModelInstance : MVCubeModelBase
 		{
 			item.Value.renderer.enabled = enabled;
 		}
-		isVisible = enabled;
 	}
 
 	public override void Destroy()
 	{
 		prototypeCubeModel.RemoveReferenceFromAllChunks();
 		prototypeCubeModel.RemoveInstance(id);
+		if (cullingSubscriberBase != null)
+		{
+			cullingSubscriberBase.Destroy();
+			cullingSubscriberBase = null;
+		}
 		base.Destroy();
 	}
 

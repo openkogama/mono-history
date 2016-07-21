@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class TeleportGroup : MonoBehaviour
 {
@@ -9,9 +11,12 @@ public class TeleportGroup : MonoBehaviour
 	public void Initialize(MVTeleportGroup owner)
 	{
 		worldObject = owner;
-		worldObject.Teleporter1.PositionChanged += PositionChanged;
-		worldObject.Teleporter2.PositionChanged += PositionChanged;
-		worldObject.PositionChanged += PositionChanged;
+		MVTeleporter teleporter = worldObject.Teleporter1;
+		teleporter.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(teleporter.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(PositionChanged));
+		MVTeleporter teleporter2 = worldObject.Teleporter2;
+		teleporter2.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(teleporter2.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(PositionChanged));
+		MVTeleportGroup mVTeleportGroup = worldObject;
+		mVTeleportGroup.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(mVTeleportGroup.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(PositionChanged));
 		lineRenderer.SetPosition(0, worldObject.Teleporter1.WorldPosition);
 		lineRenderer.SetPosition(1, worldObject.Teleporter2.WorldPosition);
 	}
@@ -20,8 +25,10 @@ public class TeleportGroup : MonoBehaviour
 	{
 		if (worldObject != null)
 		{
-			worldObject.Teleporter1.PositionChanged -= PositionChanged;
-			worldObject.Teleporter2.PositionChanged -= PositionChanged;
+			MVTeleporter teleporter = worldObject.Teleporter1;
+			teleporter.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Remove(teleporter.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(PositionChanged));
+			MVTeleporter teleporter2 = worldObject.Teleporter2;
+			teleporter2.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Remove(teleporter2.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(PositionChanged));
 		}
 	}
 

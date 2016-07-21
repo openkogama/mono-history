@@ -23,6 +23,9 @@ public class MVCollectibleObject : ObjectPrefab
 	[SerializeField]
 	private AllWorldObjectTriggerBoxEvents allWorldObjectTriggerBoxEvents;
 
+	[SerializeField]
+	private CollectibleEffects collectibleEffects;
+
 	public GreyOutObjectScript PickupItem => pickupItem;
 
 	public GameObject PickupMesh => pickupMesh;
@@ -36,6 +39,8 @@ public class MVCollectibleObject : ObjectPrefab
 	public TriggerBoxEvents TriggerBoxEvents => triggerBoxEvents;
 
 	public AllWorldObjectTriggerBoxEvents AllWorldObjectTriggerBoxEvents => allWorldObjectTriggerBoxEvents;
+
+	public CollectibleEffects CollectibleEffects => collectibleEffects;
 
 	protected override void OnValidate()
 	{

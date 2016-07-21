@@ -14,8 +14,6 @@ public class MVGameCoin : MVLogicObject
 
 	private float rotationSpeed = 0.9f;
 
-	private GameObject pickupMesh;
-
 	private MVGameCoinObject pickupObject;
 
 	private UseInteractor useInteractor;
@@ -40,7 +38,6 @@ public class MVGameCoin : MVLogicObject
 		: base(data, PrefabPool.Instance.MVGameCoinPrefab, worldObjects)
 	{
 		pickupObject = (MVGameCoinObject)component;
-		pickupMesh = pickupObject.PickupItem.pickupObject;
 		interactionFlags |= InteractionFlags.CanUseLevel;
 		if (pickupObject.TriggerBoxEvents != null)
 		{
@@ -50,13 +47,26 @@ public class MVGameCoin : MVLogicObject
 		{
 			Debug.LogError("A TriggerBoxEvents object is missing in PickupItem type: " + GetType().Name);
 		}
+		SetVisible();
+		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
+	}
+
+	public override void Initialize()
+	{
+		SetupUserInteractor();
+		useInteractor.UpdateData(Data);
+		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
+		base.Initialize();
+		SetupCulling(pickupObject.VisualObject);
+	}
+
+	private void SetupUserInteractor()
+	{
 		useInteractor = new UseInteractor(Id, gameObject, reset: false, pickupObject.TriggerBoxEvents.Collider, OnPickup, IsCoinTakeable);
 		LevelBasedUseRequirement useRequirement = new LevelBasedUseRequirement(gameObject, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement);
 		pickupObject.TriggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
 		pickupObject.TriggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
-		SetVisible();
-		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
 	}
 
 	public override void OnDataUpdate()
@@ -77,19 +87,16 @@ public class MVGameCoin : MVLogicObject
 		return base.DeepCopy();
 	}
 
-	public override void Initialize()
-	{
-		useInteractor.UpdateData(Data);
-		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
-		base.Initialize();
-	}
-
 	public override void Destroy()
 	{
 		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
-		pickupObject.TriggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
-		pickupObject.TriggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
-		useInteractor.OnDestroy(Data);
+		if (useInteractor != null)
+		{
+			pickupObject.TriggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
+			pickupObject.TriggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
+			useInteractor.OnDestroy(Data);
+			useInteractor = null;
+		}
 		base.Destroy();
 	}
 
@@ -115,10 +122,7 @@ public class MVGameCoin : MVLogicObject
 			{
 				pickupObject.AudioSource.Play();
 			}
-			if (!disabledByLod)
-			{
-				pickupObject.Particles.Play();
-			}
+			pickupObject.Particles.Play();
 			MVGameControllerBase.Game.GameCoinManager.GameCoinCollect();
 			return true;
 		}
@@ -143,13 +147,17 @@ public class MVGameCoin : MVLogicObject
 	{
 		if (state == GameCoinClientState.Visible || state == GameCoinClientState.Invisible)
 		{
-			if (!disabledByLod)
+			if (!pickupObject.RotateLocal.enabled)
 			{
-				pickupMesh.transform.Rotate(Vector3.up, Time.deltaTime * rotationSpeed * 57.29578f);
+				pickupObject.RotateLocal.enabled = true;
 			}
 		}
 		else if (state == GameCoinClientState.PickedUp)
 		{
+			if (pickupObject.RotateLocal.enabled)
+			{
+				pickupObject.RotateLocal.enabled = false;
+			}
 			if (Time.realtimeSinceStartup - pickedUpTime > pickedUpStateDuration)
 			{
 				state = GameCoinClientState.ReShowing;
@@ -157,6 +165,10 @@ public class MVGameCoin : MVLogicObject
 		}
 		else if (state == GameCoinClientState.ReShowing)
 		{
+			if (pickupObject.RotateLocal.enabled)
+			{
+				pickupObject.RotateLocal.enabled = false;
+			}
 			float num = pickedUpTime + pickedUpStateDuration;
 			if (Time.realtimeSinceStartup - num > reshowingStateDuration)
 			{

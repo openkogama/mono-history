@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
@@ -24,11 +25,11 @@ public class AdvancedGhostBodyRotateWeapon : MonoBehaviour
 	public void Init(AudioSource weaponHitSound, MVCubeModelBase body)
 	{
 		this.weaponHitSound = weaponHitSound;
-		body.Changed += body_Changed;
+		body.Changed = (Action<CubeModelChangedEventArgs>)Delegate.Combine(body.Changed, new Action<CubeModelChangedEventArgs>(body_Changed));
 		SetupWeaponCollision();
 	}
 
-	private void body_Changed(object sender, CubeModelChangedEventArgs e)
+	private void body_Changed(CubeModelChangedEventArgs e)
 	{
 		SetupWeaponCollision();
 	}

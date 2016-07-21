@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class AvatarPickupOwner : MVPickupOwner
 {
@@ -46,7 +48,7 @@ public class AvatarPickupOwner : MVPickupOwner
 		InitLaser();
 		this.mvAvatar = mvAvatar;
 		Init(currentItemRuntimeDataVariable, isFiringRuntimeDataVariable);
-		mvAvatar.ScaleChanged += OnAvatarScaleChanged;
+		mvAvatar.ScaleChanged = (UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>)Delegate.Combine(mvAvatar.ScaleChanged, new UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>(OnAvatarScaleChanged));
 	}
 
 	private void InitLaser()
@@ -96,7 +98,7 @@ public class AvatarPickupOwner : MVPickupOwner
 			currentItem.OnUnequip();
 			if (currentItem.Type != AvatarItemType.LaserPointer)
 			{
-				Object.Destroy(currentItem.gameObject);
+				UnityEngine.Object.Destroy(currentItem.gameObject);
 			}
 			currentItem = null;
 			if (onUnequipItem != null)

@@ -5,6 +5,8 @@ public class BulletThrowingStar : MonoBehaviour
 {
 	public delegate void OnHitDelegate(VoxelHit hit, Ray lineOfFire);
 
+	private CullingSubscriberBase cullingSubscriberBase;
+
 	public OnHitDelegate onHit;
 
 	public OnHitDelegate onHitLocal;
@@ -133,6 +135,27 @@ public class BulletThrowingStar : MonoBehaviour
 			direction = tfrm.forward;
 			airRotation = new Vector3(Random.Range(rotationSpeedXMin, rotationSpeedXMax), 0f, Random.Range(rotationSpeedZMin, rotationSpeedZMax));
 			enabled = true;
+			cullingSubscriberBase = new CullingSubscriberBase(1f, transform.position, OnStateChanged);
+			cullingSubscriberBase.DistanceBandIndex = 5;
+		}
+	}
+
+	private void OnStateChanged(CullingGroupEvent cullingGroupEvent)
+	{
+		bool flag = CullingApiWrapper.Visible(cullingGroupEvent, cullingSubscriberBase.DistanceBandIndex);
+		MeshRenderer[] array = meshRenderers;
+		foreach (MeshRenderer meshRenderer in array)
+		{
+			meshRenderer.enabled = flag;
+		}
+		if (trailRenderer != null)
+		{
+			trailRenderer.enabled = flag;
+		}
+		if (pSystem != null)
+		{
+			ParticleSystem.EmissionModule emission = pSystem.emission;
+			emission.enabled = flag;
 		}
 	}
 
@@ -167,6 +190,7 @@ public class BulletThrowingStar : MonoBehaviour
 			{
 				inAir = false;
 			}
+			cullingSubscriberBase.Position = transform.position;
 			return;
 		}
 		bool flag = true;
@@ -221,6 +245,8 @@ public class BulletThrowingStar : MonoBehaviour
 		}
 		if (flag)
 		{
+			cullingSubscriberBase.Destroy();
+			cullingSubscriberBase = null;
 			PrefabPool.Instance.EnumPoolManager.Return(this, initiatedPoolEnum);
 		}
 	}

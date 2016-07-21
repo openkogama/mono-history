@@ -29,6 +29,8 @@ public class MVTextMsg : MVLogicObject
 	public override void Initialize()
 	{
 		base.Initialize();
+		SetupCulling(msgObject.gameObject);
+		cullingSubscriberBase.Radius = msgObject.TextMeshRenderer.bounds.extents.magnitude;
 		OnDataUpdate();
 		if (InputLinkRefs.Count == 0)
 		{
@@ -82,6 +84,10 @@ public class MVTextMsg : MVLogicObject
 		else
 		{
 			msgObject.TextMesh.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
+		}
+		if (cullingSubscriberBase != null)
+		{
+			cullingSubscriberBase.Radius = msgObject.TextMeshRenderer.bounds.extents.magnitude;
 		}
 	}
 

@@ -67,7 +67,7 @@ public class AvatarMotor : MVRigidBody
 	{
 		Init();
 		smoothCharacterController = gameObject.AddComponent<SmoothCharacterController>();
-		smoothCharacterController.Init(gameObject);
+		smoothCharacterController.Init(gameObject, null);
 		Controller.Init(0.45f, 1.9f, centerOffset);
 		HashSet<int> worldIDsRecursive = worldObjectParent.WorldIDsRecursive;
 		Controller.IgnoreWoIds = worldIDsRecursive;

@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using MV.WorldObject;
-using UnityEngine;
 
 public class MVCubeModelFineGrainedTerrain : MVCubeModelBase
 {
-	private TerrainLODComponent terrainLODComponent;
+	private CullingTerrainManager cullingTerrainManager;
 
 	public bool RequiresResetToEdit => prototypeCubeModel.CubeCount > 0;
 
@@ -12,12 +11,12 @@ public class MVCubeModelFineGrainedTerrain : MVCubeModelBase
 		: base(data, worldObjects, prototypes)
 	{
 		interactionFlags = InteractionFlags.None;
-		terrainLODComponent = new TerrainLODComponent(prototypeCubeModel, chunkInstances, new DynamicLODDistance(1f, 300f, 1500), Scale.x, debug: false);
 	}
 
-	public void ChangeLODTerrain()
+	public override void Initialize()
 	{
-		terrainLODComponent.ChangeLODTerrain();
+		base.Initialize();
+		cullingTerrainManager = new CullingTerrainManager(chunkInstances, this);
 	}
 
 	public override void Destroy()
@@ -26,13 +25,10 @@ public class MVCubeModelFineGrainedTerrain : MVCubeModelBase
 		base.Destroy();
 	}
 
-	public override void Select(Color color)
-	{
-	}
-
 	public override void Reset()
 	{
 		PrototypeCubeModel.RemoveAllCubesLocal();
+		cullingTerrainManager.Clear();
 	}
 
 	public override void RemoveCubeNetworkUpdate(IntVector pos)

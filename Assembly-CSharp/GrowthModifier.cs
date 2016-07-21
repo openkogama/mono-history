@@ -17,8 +17,13 @@ public class GrowthModifier : SizeModifier
 
 	protected override void Scale()
 	{
-		audioSource.PlayOneShot(growSound);
 		owner.mvAvatar.Scale = Vector3.one;
+		if (!owner.gameObject.activeInHierarchy)
+		{
+			owner.mvAvatar.Scale = Vector3.one * sizeModifier;
+			return;
+		}
+		audioSource.PlayOneShot(growSound);
 		StartCoroutine(DoForSeconds(timeToSize, (float t) =>
 		{
 			owner.mvAvatar.Scale = Vector3.one * (1f + BlockStep(t, 40f, 0f, sizeModifier)) + Vector3.one * 0.25f * (1f - Mathf.Sin(t * sineStrength));
@@ -31,17 +36,27 @@ public class GrowthModifier : SizeModifier
 
 	protected override void UnScale()
 	{
-		audioSource.PlayOneShot(shrinkSound);
 		owner.mvAvatar.Scale = Vector3.one * sizeModifier;
+		if (!owner.gameObject.activeInHierarchy)
+		{
+			Destroy();
+			return;
+		}
+		audioSource.PlayOneShot(shrinkSound);
 		StartCoroutine(DoForSeconds(timeToSize, (float t) =>
 		{
 			owner.mvAvatar.Scale = Vector3.one * (sizeModifier - BlockStep(t, 40f, 0f, sizeModifier - 1f)) + Vector3.one * 0.25f * (1f - Mathf.Sin(t * sineStrength));
 			if (t == timeToSize)
 			{
-				owner.mvAvatar.Scale = Vector3.one;
-				Object.Destroy(gameObject);
+				Destroy();
 			}
 		}));
+	}
+
+	private void Destroy()
+	{
+		owner.mvAvatar.Scale = Vector3.one;
+		Object.Destroy(gameObject);
 	}
 
 	private void Update()

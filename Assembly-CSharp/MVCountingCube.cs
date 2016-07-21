@@ -43,6 +43,12 @@ public class MVCountingCube : MVLogicObject
 		SetText();
 	}
 
+	public override void Initialize()
+	{
+		base.Initialize();
+		SetupCulling(cubeObject.VisualObject);
+	}
+
 	public override void OnDataUpdate()
 	{
 		startingValue = (currentValue = (int)Data["startingValue"]);

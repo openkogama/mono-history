@@ -9,7 +9,7 @@ public class SmoothCharacterController : MonoBehaviour
 
 	public MvCharacterController Controller => controller;
 
-	public void Init(GameObject worldObjectRoot)
+	public void Init(GameObject worldObjectRoot, CullingSubscriberBase cullingSubscriberBase)
 	{
 		GameObject gameObject = new GameObject(worldObjectRoot.name + " physics controller");
 		gameObject.transform.parent = worldObjectRoot.transform.parent;
@@ -24,7 +24,7 @@ public class SmoothCharacterController : MonoBehaviour
 			controller = gameObject.AddComponent<MVCharacterController3D>();
 		}
 		smoothPhysicsMovement = base.gameObject.AddComponent<SmoothPhysicsMovement>();
-		smoothPhysicsMovement.Init(controller.transform);
+		smoothPhysicsMovement.Init(controller.transform, cullingSubscriberBase);
 	}
 
 	public void Reset()
@@ -45,10 +45,10 @@ public class SmoothCharacterController : MonoBehaviour
 		Object.Destroy(smoothPhysicsMovement);
 	}
 
-	public SmoothCharacterController Clone(GameObject targetGameObject, GameObject seat)
+	public SmoothCharacterController Clone(GameObject targetGameObject, GameObject seat, CullingSubscriberBase cullingSubscriberBase)
 	{
 		SmoothCharacterController smoothCharacterController = targetGameObject.AddComponent<SmoothCharacterController>();
-		smoothCharacterController.Init(targetGameObject);
+		smoothCharacterController.Init(targetGameObject, cullingSubscriberBase);
 		smoothCharacterController.Controller.Init(Controller.Radius, Controller.Height, seat.transform.localPosition);
 		return smoothCharacterController;
 	}

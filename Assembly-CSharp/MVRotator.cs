@@ -1,9 +1,13 @@
+using System;
 using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class MVRotator : MVMovable
 {
+	protected CullingSubscriberBase cullingSubscriberBase;
+
 	private Vector3 initAngularVelocity;
 
 	private static HashSet<MVRotator> selectedRotators = new HashSet<MVRotator>();
@@ -32,7 +36,7 @@ public class MVRotator : MVMovable
 		{
 			if (item != this)
 			{
-				item.SelectedChanged += WorldObjectClient_SelectedChangedHandler;
+				item.SelectedChanged = (UnityAction<MVWorldObjectClient, SelectedEventArgs>)Delegate.Combine(item.SelectedChanged, new UnityAction<MVWorldObjectClient, SelectedEventArgs>(WorldObjectClient_SelectedChangedHandler));
 			}
 		}
 		WOCM.SubscribeWOCreatedEvent(typeof(MVRotator), WOCM_WorldObjectCreatedHandler);
@@ -53,6 +57,39 @@ public class MVRotator : MVMovable
 			CubeModel.PreviewOwnerProfileId = PreviewOwnerProfileId;
 			CubeModel.InteractionFlags |= InteractionFlags.IsPreview;
 		}
+		SetupCulling();
+	}
+
+	private void SetupCulling()
+	{
+		cullingSubscriberBase = new CullingSubscriberBase(OnStateChanged);
+		SetupCullingSphere();
+		MVCubeModelInstance mVCubeModelInstance = CubeModel;
+		mVCubeModelInstance.Changed = (Action<CubeModelChangedEventArgs>)Delegate.Combine(mVCubeModelInstance.Changed, new Action<CubeModelChangedEventArgs>(Changed));
+		PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
+	}
+
+	private void OnPositionChanged(object sender, PositionChangedEventArgs positionChangedEventArgs)
+	{
+		cullingSubscriberBase.Position = Position;
+	}
+
+	private void SetupCullingSphere()
+	{
+		Bounds meshRenderBounds = CubeModel.GetMeshRenderBounds();
+		float radius = (Position - meshRenderBounds.center).magnitude + meshRenderBounds.extents.magnitude;
+		cullingSubscriberBase.Setup(radius, Position);
+	}
+
+	private void Changed(CubeModelChangedEventArgs cubeModelChangedEventArgs)
+	{
+		SetupCullingSphere();
+	}
+
+	private void OnStateChanged(CullingGroupEvent cullingGroupEvent)
+	{
+		bool visible = CullingApiWrapper.Visible(cullingGroupEvent, cullingSubscriberBase.DistanceBandIndex);
+		SetVisible(visible);
 	}
 
 	protected override void OnSelectedChanged(bool selected)
@@ -89,7 +126,8 @@ public class MVRotator : MVMovable
 
 	private void WOCM_WorldObjectCreatedHandler(object sender, WorldObjectCreatedEventArgs e)
 	{
-		e.WorldObject.SelectedChanged += WorldObjectClient_SelectedChangedHandler;
+		MVWorldObjectClient worldObject = e.WorldObject;
+		worldObject.SelectedChanged = (UnityAction<MVWorldObjectClient, SelectedEventArgs>)Delegate.Combine(worldObject.SelectedChanged, new UnityAction<MVWorldObjectClient, SelectedEventArgs>(WorldObjectClient_SelectedChangedHandler));
 	}
 
 	public override Bounds GetLocalBounds(BoundsContext boundsContext)
@@ -110,10 +148,15 @@ public class MVRotator : MVMovable
 		List<MVWorldObjectClient> blueprintWorldObjectsByType = WOCM.GetBlueprintWorldObjectsByType(typeof(MVRotator));
 		foreach (MVWorldObjectClient item in blueprintWorldObjectsByType)
 		{
-			item.SelectedChanged -= WorldObjectClient_SelectedChangedHandler;
+			item.SelectedChanged = (UnityAction<MVWorldObjectClient, SelectedEventArgs>)Delegate.Remove(item.SelectedChanged, new UnityAction<MVWorldObjectClient, SelectedEventArgs>(WorldObjectClient_SelectedChangedHandler));
 		}
 		WOCM.UnsubscribeWOCreatedEvent(typeof(MVRotator), WOCM_WorldObjectCreatedHandler);
 		base.Destroy();
+		if (cullingSubscriberBase != null)
+		{
+			cullingSubscriberBase.Destroy();
+			cullingSubscriberBase = null;
+		}
 	}
 
 	public override void SetWorldObjectToPurchased()

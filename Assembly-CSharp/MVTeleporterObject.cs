@@ -8,6 +8,8 @@ public class MVTeleporterObject : ObjectPrefab
 	[SerializeField]
 	private ParticleSystem objParticleSystem;
 
+	public GameObject visualRoot;
+
 	public TriggerBoxEvents TriggerBoxEvents => triggerBoxEvents;
 
 	public ParticleSystem ParticleSystem => objParticleSystem;

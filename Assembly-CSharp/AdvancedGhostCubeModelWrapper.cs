@@ -11,7 +11,7 @@ public class AdvancedGhostCubeModelWrapper : EditableCubeModelWrapper
 
 	public bool CubeModelIsBeingEdited => cubeModelIsBeingEdited;
 
-	public AdvancedGhostCubeModelWrapper(MVCubeModelBase cubeModelBase, Transform transformParent)
+	public AdvancedGhostCubeModelWrapper(MVCubeModelInstance cubeModelBase, Transform transformParent)
 		: base(cubeModelBase)
 	{
 		this.transformParent = transformParent;

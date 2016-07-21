@@ -14,6 +14,12 @@ public class MVGameCoinObject : ObjectPrefab
 	[SerializeField]
 	private ObjectParticleEmitterScript particles;
 
+	[SerializeField]
+	private GameObject visualObject;
+
+	[SerializeField]
+	private RotateLocal rotateLocal;
+
 	public TriggerBoxEvents TriggerBoxEvents => triggerBoxEvents;
 
 	public AudioSource AudioSource => audioSource;
@@ -21,6 +27,10 @@ public class MVGameCoinObject : ObjectPrefab
 	public GreyOutObjectScript PickupItem => pickupItem;
 
 	public ObjectParticleEmitterScript Particles => particles;
+
+	public RotateLocal RotateLocal => rotateLocal;
+
+	public GameObject VisualObject => visualObject;
 
 	protected override void OnValidate()
 	{

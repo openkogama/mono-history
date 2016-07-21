@@ -445,6 +445,20 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 		}
 	}
 
+	private const float advancedGhostBodyMaxRadius = 4f;
+
+	private const int behaviourOnlyDistanceBand = 3;
+
+	private const int allEnbleDistanceBand = 2;
+
+	private CullingSubscriberBase cullingSubscriberBase;
+
+	private bool behaviourOnlyEnabled;
+
+	private bool allVisible;
+
+	private bool wantsVisible;
+
 	private IGhostBehaviourState currentState;
 
 	private AdvancedGhostMotor advancedGhostMotor;
@@ -477,8 +491,6 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 	public AdvancedGhostVisualizaton GhostVisualization;
 
-	private float lod;
-
 	private float lodPercentageForRotationUpdate = 0.5f;
 
 	private float RoamRadius => radius + perceptionRadius;
@@ -500,13 +512,7 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 		}
 	}
 
-	public float LOD
-	{
-		set
-		{
-			lod = value;
-		}
-	}
+	public CullingSubscriberBase CullingSubscriberBase => cullingSubscriberBase;
 
 	private void Awake()
 	{
@@ -524,6 +530,34 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 		this.isDead = isDead;
 		InitBody(body);
 		SetInitialState();
+		SetupCulling();
+	}
+
+	private void SetupCulling()
+	{
+		cullingSubscriberBase = new CullingSubscriberBase(4f, transform.position, OnStateChange);
+	}
+
+	private void OnStateChange(CullingGroupEvent cullingGroupEvent)
+	{
+		allVisible = false;
+		behaviourOnlyEnabled = false;
+		allVisible = CullingApiWrapper.Visible(cullingGroupEvent, 2);
+		behaviourOnlyEnabled = CullingApiWrapper.Visible(cullingGroupEvent, 3);
+		if (cullingGroupEvent.currentDistance <= 3)
+		{
+			behaviourOnlyEnabled = true;
+		}
+		SetVisible();
+	}
+
+	private void OnDestroy()
+	{
+		if (cullingSubscriberBase != null)
+		{
+			cullingSubscriberBase.Destroy();
+			cullingSubscriberBase = null;
+		}
 	}
 
 	private void InitBody(MVCubeModelBase body)
@@ -534,13 +568,25 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 		weapon.Init(GhostVisualization.weaponHitSound, body);
 	}
 
+	private void SetVisible()
+	{
+		GhostVisualization.gameObject.SetActive(allVisible && wantsVisible);
+		gameObject.SetActive(behaviourOnlyEnabled && wantsVisible);
+	}
+
 	public void SetGameMode(bool isPlayMode)
 	{
 		if (isPlayMode)
 		{
 			SetInitialState();
 			perception.Reset();
+			wantsVisible = true;
 		}
+		else
+		{
+			wantsVisible = false;
+		}
+		SetVisible();
 	}
 
 	public void Reset()
@@ -608,7 +654,7 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 		Vector3 moveVector = GetMoveVector(nextPosition);
 		advancedGhostMotor.MoveDirection = moveVector;
 		advancedGhostMotor.FixedUpdateFunction();
-		if (lod < lodPercentageForRotationUpdate)
+		if (GhostVisualization.gameObject.activeInHierarchy)
 		{
 			advancedGhostMotor.FixedUpdateRotation();
 		}

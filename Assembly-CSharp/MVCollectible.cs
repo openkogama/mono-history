@@ -12,8 +12,6 @@ public class MVCollectible : MVLogicObject
 		Invisible
 	}
 
-	private float rotationSpeed = 0.6f;
-
 	private CollectibleClientState state;
 
 	private MVCollectibleObject collectibleObject;
@@ -76,6 +74,7 @@ public class MVCollectible : MVLogicObject
 		}
 		allCollectiblesCollectedClient.SetLimit(allCollectiblesCollectedClient.Limit + 1);
 		initializedInWorld = true;
+		SetupCulling(collectibleObject.PickupMesh);
 	}
 
 	public override void Destroy()
@@ -108,6 +107,7 @@ public class MVCollectible : MVLogicObject
 			isVisible = true;
 		}
 		state = CollectibleClientState.Visible;
+		collectibleObject.CollectibleEffects.SetState(state);
 	}
 
 	private void allWorldObjectTriggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
@@ -139,6 +139,7 @@ public class MVCollectible : MVLogicObject
 			isVisible = false;
 			collectibleObject.PickupItem.GreyOut();
 			state = CollectibleClientState.PickedUp;
+			collectibleObject.CollectibleEffects.SetState(state);
 			pickedUpTime = Time.realtimeSinceStartup;
 		}
 	}
@@ -152,39 +153,23 @@ public class MVCollectible : MVLogicObject
 	{
 		if (state == CollectibleClientState.Visible || state == CollectibleClientState.Invisible)
 		{
-			float num = 0.35f + Mathf.Sin(Time.realtimeSinceStartup * 3f) * 0.05f;
-			if (!disabledByLod)
-			{
-				collectibleObject.PickupMesh.transform.localScale = new Vector3(num, num, num);
-				collectibleObject.PickupMesh.transform.Rotate(Vector3.up, Time.deltaTime * rotationSpeed * 57.29578f, Space.Self);
-			}
+			return;
 		}
-		else if (state == CollectibleClientState.PickedUp)
+		if (state == CollectibleClientState.PickedUp)
 		{
 			if (Time.realtimeSinceStartup - pickedUpTime > pickedUpStateDuration)
 			{
 				state = CollectibleClientState.ReShowing;
-			}
-			else if (!disabledByLod)
-			{
-				float num2 = 0f;
-				if (collectibleObject.PickupMesh.transform.localScale.x > 0.001f)
-				{
-					collectibleObject.PickupMesh.transform.localScale = new Vector3(num2, num2, num2);
-				}
+				collectibleObject.CollectibleEffects.SetState(state);
 			}
 		}
 		else if (state == CollectibleClientState.ReShowing)
 		{
-			float num3 = pickedUpTime + pickedUpStateDuration;
-			if (Time.realtimeSinceStartup - num3 > reshowingStateDuration)
+			float num = pickedUpTime + pickedUpStateDuration;
+			if (Time.realtimeSinceStartup - num > reshowingStateDuration)
 			{
 				state = CollectibleClientState.Invisible;
-			}
-			else if (!disabledByLod)
-			{
-				float num4 = 0.6f * (Time.realtimeSinceStartup - num3);
-				collectibleObject.PickupMesh.transform.localScale = new Vector3(num4, num4, num4);
+				collectibleObject.CollectibleEffects.SetState(state);
 			}
 		}
 	}

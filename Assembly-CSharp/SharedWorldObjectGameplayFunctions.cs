@@ -51,15 +51,34 @@ public class SharedWorldObjectGameplayFunctions
 
 		public static void Explode(ParticleSystem particlePrefab, Vector3 position, float damageValue, float damageRadius, float shockwaveAcceleration, bool local, ExplosionEvent explosionEvent, HashSet<int> ignoreIDs)
 		{
-			ParticleSystem particleSystem = Object.Instantiate(particlePrefab, position, Quaternion.identity) as ParticleSystem;
-			particleSystem.startSize = damageRadius;
+			if (DoParticleEffect(position))
+			{
+				ParticleSystem particleSystem = Object.Instantiate(particlePrefab, position, Quaternion.identity) as ParticleSystem;
+				particleSystem.startSize = damageRadius;
+			}
 			ApplyProximityDamage(position, damageValue, damageRadius, shockwaveAcceleration, local, explosionEvent, ignoreIDs);
 		}
 	}
 
+	private static bool DoParticleEffect(Vector3 position)
+	{
+		Vector3 rhs = position - MVGameControllerBase.CameraController.MainCamera.transform.position;
+		float sqrMagnitude = rhs.sqrMagnitude;
+		rhs.Normalize();
+		float num = Vector3.Dot(MVGameControllerBase.CameraController.MainCamera.transform.rotation * Vector3.forward, rhs);
+		if (num > 0f && sqrMagnitude < MVGameControllerBase.CameraController.MainCamera.farClipPlane * MVGameControllerBase.CameraController.MainCamera.farClipPlane)
+		{
+			return true;
+		}
+		return false;
+	}
+
 	public static void DustEfffect(ParticleSystem particlePrefab, Vector3 position, float radius)
 	{
-		ParticleSystem particleSystem = Object.Instantiate(particlePrefab, position, Quaternion.identity) as ParticleSystem;
-		particleSystem.startSize = radius;
+		if (DoParticleEffect(position))
+		{
+			ParticleSystem particleSystem = Object.Instantiate(particlePrefab, position, Quaternion.identity) as ParticleSystem;
+			particleSystem.startSize = radius;
+		}
 	}
 }

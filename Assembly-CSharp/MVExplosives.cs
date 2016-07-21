@@ -25,6 +25,7 @@ public class MVExplosives(Dictionary<object, object> data, Dictionary<int, MVWor
 	{
 		base.Initialize();
 		isInitialized = true;
+		SetupCulling(((MVExplosivesObject)component).VisualObject);
 	}
 
 	public override void OnInputStateChanged()

@@ -63,6 +63,7 @@ public class ShootableButton : MVLogicObject
 		{
 			OnActivated();
 		}
+		SetupCulling(buttonObject.VisualRoot);
 	}
 
 	public override void InitializeInventory()

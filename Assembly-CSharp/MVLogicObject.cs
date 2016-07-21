@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
+using UnityEngine.Events;
 
 public abstract class MVLogicObject : MVWorldObjectClient, IUpdatecontrollerSubscriber
 {
@@ -8,7 +10,9 @@ public abstract class MVLogicObject : MVWorldObjectClient, IUpdatecontrollerSubs
 
 	private Bounds localBounds = new Bounds(Vector3.zero, Vector3.one);
 
-	protected float cullDistance = 145f;
+	protected CullingSubscriberBase cullingSubscriberBase;
+
+	private GameObject lodGameObject;
 
 	protected MVLogicObject(Dictionary<object, object> data, ObjectPrefab prefabObject, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, prefabObject, worldObjects)
@@ -28,9 +32,41 @@ public abstract class MVLogicObject : MVWorldObjectClient, IUpdatecontrollerSubs
 	{
 	}
 
+	public override void Initialize()
+	{
+		base.Initialize();
+		UpdateController.AddUpdateObject(this, UpdatePriority.PRE_UPDATEBUCKET_20);
+		SharedLinkFunctions.EvaluateLinks(this);
+		SharedLinkFunctions.UpdateOutputLinks(this);
+	}
+
+	protected CullingSubscriberBase SetupCulling(GameObject lodGameObject)
+	{
+		this.lodGameObject = lodGameObject;
+		PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
+		cullingSubscriberBase = new CullingSubscriberBase(2f, WorldPosition, OnStateChanged);
+		return cullingSubscriberBase;
+	}
+
+	private void OnPositionChanged(MVWorldObjectClient arg0, PositionChangedEventArgs positionChangedEventArgs)
+	{
+		cullingSubscriberBase.Position = positionChangedEventArgs.NewPos;
+	}
+
+	protected virtual void OnStateChanged(CullingGroupEvent cullingGroupEvent)
+	{
+		bool active = CullingApiWrapper.Visible(cullingGroupEvent, cullingSubscriberBase.DistanceBandIndex);
+		lodGameObject.SetActive(active);
+	}
+
 	public override void Destroy()
 	{
 		UpdateController.RemoveUpdateObject(this);
+		if (cullingSubscriberBase != null)
+		{
+			cullingSubscriberBase.Destroy();
+			cullingSubscriberBase = null;
+		}
 	}
 
 	public virtual void UpdateControllerUpdate()
@@ -58,14 +94,6 @@ public abstract class MVLogicObject : MVWorldObjectClient, IUpdatecontrollerSubs
 		selectedConnector = SelectedConnector.None;
 	}
 
-	public override void Initialize()
-	{
-		base.Initialize();
-		UpdateController.AddUpdateObject(this, UpdatePriority.PRE_UPDATEBUCKET_20);
-		SharedLinkFunctions.EvaluateLinks(this);
-		SharedLinkFunctions.UpdateOutputLinks(this);
-	}
-
 	public override void InitializeInventory()
 	{
 		base.InitializeInventory();
@@ -80,28 +108,6 @@ public abstract class MVLogicObject : MVWorldObjectClient, IUpdatecontrollerSubs
 		if (HasOutputConnector)
 		{
 			outputConnectorObject.SetActive(value: false);
-		}
-	}
-
-	public override void ChangeLOD(float distance)
-	{
-		if (disabledByLod && distance < cullDistance)
-		{
-			disabledByLod = false;
-			MeshRenderer[] meshRenderers = component.MeshRenderers;
-			for (int i = 0; i < meshRenderers.Length; i++)
-			{
-				meshRenderers[i].enabled = true;
-			}
-		}
-		else if (!disabledByLod && distance >= cullDistance)
-		{
-			disabledByLod = true;
-			MeshRenderer[] meshRenderers2 = component.MeshRenderers;
-			for (int j = 0; j < meshRenderers2.Length; j++)
-			{
-				meshRenderers2[j].enabled = false;
-			}
 		}
 	}
 

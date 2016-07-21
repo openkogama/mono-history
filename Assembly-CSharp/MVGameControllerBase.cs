@@ -242,6 +242,11 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		HandleDebugShortCuts();
 	}
 
+	private void OnDrawGizmos()
+	{
+		CullingApiWrapper.DebugVisualize();
+	}
+
 	private void HandleDebugShortCuts()
 	{
 		if (Input.GetKey(KeyCode.Alpha7) && Input.GetKeyUp(KeyCode.Alpha9))
@@ -289,6 +294,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 			}
 		}
 		CleanUp();
+		CullingApiWrapper.Destroy();
 	}
 
 	public void UpdateControllerUpdate()

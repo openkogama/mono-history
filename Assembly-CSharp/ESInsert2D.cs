@@ -38,7 +38,7 @@ internal class ESInsert2D : ESStateBase
 		}
 		Vector3 worldPivot = e.SingleSelectedWO.WorldPivot;
 		pivotToOrigin = e.SingleSelectedWO.WorldPosition - worldPivot;
-		e.SingleSelectedWO.Visible = false;
+		e.SingleSelectedWO.GameObject.SetActive(value: false);
 		previewMeshes = e.SingleSelectedWO.GameObject.GetComponentsInChildren<MeshFilter>();
 		isNewPrototype = e.Data.ContainsKey("IsNewPrototype");
 	}
@@ -66,7 +66,6 @@ internal class ESInsert2D : ESStateBase
 		laser.UpdatePosition(rawPosition);
 		insertPosition = rawPosition + pivotToOrigin + Vector3.back * 0.5f;
 		e.SingleSelectedWO.SyncPos = ComputeSnapPosition(e.SingleSelectedWO, insertPosition);
-		e.SingleSelectedWO.Visible = false;
 		DrawObject();
 		HandleInput(e);
 	}
@@ -109,7 +108,7 @@ internal class ESInsert2D : ESStateBase
 		Object.Destroy(insertCursor);
 		laser.ChangeState(LaserPointerState.Idle);
 		laser.LaserActive = false;
-		e.SingleSelectedWO.Visible = true;
+		e.SingleSelectedWO.GameObject.SetActive(value: true);
 		e.NetworkSelector.RequestReleaseOwnership(e.SelectedIDs);
 		((MVAvatarLocal.EditorAvatarMode2D)MVGameControllerBase.WOCM.AvatarLocal.CurrentMode).DisableBehindDrawPlaneMode();
 	}

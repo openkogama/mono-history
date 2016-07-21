@@ -70,14 +70,14 @@ public class MVJetPack : MVVehicleBase
 				Debug.LogError("Failed to get component. Cant create LocalObjects for JetPack");
 				return;
 			}
-			SmoothCharacterController smoothCharacterController = avatarController.Clone(vehicleBase.GameObject, seat.gameObject);
+			SmoothCharacterController smoothCharacterController = avatarController.Clone(vehicleBase.GameObject, seat.gameObject, null);
 			vehicleUser.SetCharacterController(smoothCharacterController);
 			thrustTimeOverheatThreshold = jetPackTypeParameters.thrustTimeOverheatThreshold;
 			coolDownFactor = jetPackTypeParameters.coolDownFactor;
 			MVRuntimeDataVariableClampedFloat health = vehicleBase.Health;
 			health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnHealthChange));
 			GameObject gameObject = vehicleBase.GameObject;
-			jetPackVisualization = gameObject.GetComponent<JetPackVisualization>();
+			jetPackVisualization = gameObject.GetComponentInChildren<JetPackVisualization>();
 			VehicleInteractable vehicleInteractable = gameObject.AddComponent<VehicleInteractable>();
 			vehicleInteractable.Init(vehicleBase.Modifiers, vehicleBase.Health);
 			JetPackMotor jetPackMotor = gameObject.AddComponent<JetPackMotor>();
@@ -293,6 +293,8 @@ public class MVJetPack : MVVehicleBase
 		}
 	}
 
+	private CullingSubscriberDynamic cullingSubscriberDynamic;
+
 	private EditableCubeModelWrapper editableCubeModelWrapper;
 
 	public MVRuntimeDataVariableClampedFloat Health;
@@ -334,22 +336,24 @@ public class MVJetPack : MVVehicleBase
 		JetMode = RuntimeDataVariables.New("jetMode", 1f, writeThrough: false);
 		MVRuntimeDataVariable isVehicleDead = IsVehicleDead;
 		isVehicleDead.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(isVehicleDead.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnIsDeadChange));
-		MVCubeModelBase mVCubeModelBase = (MVCubeModelBase)GetChild("JetPackCubeModel");
-		editableCubeModelWrapper = new EditableCubeModelWrapper(mVCubeModelBase, new IntVector(jetPackParameters.lowerCubeConstraint[0], jetPackParameters.lowerCubeConstraint[1], jetPackParameters.lowerCubeConstraint[2]), new IntVector(jetPackParameters.upperCubeConstraint[0], jetPackParameters.upperCubeConstraint[1], jetPackParameters.upperCubeConstraint[2]), jetPackParameters.minNumberOfCubes);
-		JetPackVisualization jetPackVisualization = gameObject.GetComponent<JetPackVisualization>();
-		jetPackVisualization.Init(IsInSpawner, mVCubeModelBase.GameObject.transform, JetMode);
-		visualization = jetPackVisualization;
+		MVCubeModelInstance mVCubeModelInstance = (MVCubeModelInstance)GetChild("JetPackCubeModel");
+		editableCubeModelWrapper = new EditableCubeModelWrapper(mVCubeModelInstance, new IntVector(jetPackParameters.lowerCubeConstraint[0], jetPackParameters.lowerCubeConstraint[1], jetPackParameters.lowerCubeConstraint[2]), new IntVector(jetPackParameters.upperCubeConstraint[0], jetPackParameters.upperCubeConstraint[1], jetPackParameters.upperCubeConstraint[2]), jetPackParameters.minNumberOfCubes);
+		JetPackVisualization componentInChildren = gameObject.GetComponentInChildren<JetPackVisualization>();
+		componentInChildren.Init(IsInSpawner, mVCubeModelInstance.GameObject.transform, JetMode);
+		visualization = componentInChildren;
 		if (!IsInSpawner)
 		{
-			InteractionDataHandler interactionDataHandler = mVCubeModelBase.GameObject.AddComponent<InteractionDataHandler>();
+			InteractionDataHandler interactionDataHandler = mVCubeModelInstance.GameObject.AddComponent<InteractionDataHandler>();
 			interactionDataHandler.WorldObjectParent = this;
+			mVCubeModelInstance.Visible = true;
+			cullingSubscriberDynamic = new CullingSubscriberDynamic(4f, 3, gameObject);
 		}
 	}
 
 	public override void InitializeInventory()
 	{
 		base.InitializeInventory();
-		gameObject.GetComponent<JetPackVisualization>().EnableThruster(enable: true);
+		gameObject.GetComponentInChildren<JetPackVisualization>().EnableThruster(enable: true);
 	}
 
 	public override bool OnEnterObject(EditorStateMachine e)
@@ -360,6 +364,15 @@ public class MVJetPack : MVVehicleBase
 	public override bool OnExitObject(EditorStateMachine e)
 	{
 		return editableCubeModelWrapper.OnExitObject(e);
+	}
+
+	public override void Destroy()
+	{
+		if (cullingSubscriberDynamic != null)
+		{
+			cullingSubscriberDynamic.Destroy();
+			cullingSubscriberDynamic = null;
+		}
 	}
 
 	public override bool CompareWithKoGaMaPackage(MVWorldObjectClient wo, KoGaMaPackageClient koGaMaPackageClient, ref int insertedByProfileId)

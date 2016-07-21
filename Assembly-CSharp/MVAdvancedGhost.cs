@@ -20,10 +20,6 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 
 	private float deathExplosionImpulse = 1000f;
 
-	private bool visible;
-
-	private float cullDistance = 100f;
-
 	public override Vector3 WorldPivot => transform.position;
 
 	public MVAdvancedGhost(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
@@ -35,31 +31,30 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 	public override void Initialize()
 	{
 		base.Initialize();
-		MVCubeModelBase mVCubeModelBase = (MVCubeModelBase)GetChild("BodyCubeModel");
+		MVCubeModelInstance mVCubeModelInstance = (MVCubeModelInstance)GetChild("BodyCubeModel");
 		GameObject.AddComponent<ClientSideNPCInteractionHandler>();
 		interactable = GameObject.AddComponent<ClientSideNPCInteractable>();
 		interactable.Init(ReceiveDamage);
 		AdvancedGhostMotor advancedGhostMotor = GameObject.AddComponent<AdvancedGhostMotor>();
 		advancedGhostBehaviour = GameObject.GetComponentInChildren<AdvancedGhostBehaviour>();
-		advancedGhostBehaviour.Init(mVCubeModelBase, advancedGhostMotor, interactable.IsDead, id);
-		editableCubeModelWrapper = new AdvancedGhostCubeModelWrapper(mVCubeModelBase, advancedGhostBehaviour.GhostVisualization.transform);
-		advancedGhostMotor.Init(advancedGhostBehaviour.gameObject, interactable);
+		advancedGhostBehaviour.Init(mVCubeModelInstance, advancedGhostMotor, interactable.IsDead, id);
+		editableCubeModelWrapper = new AdvancedGhostCubeModelWrapper(mVCubeModelInstance, advancedGhostBehaviour.GhostVisualization.transform);
+		advancedGhostMotor.Init(advancedGhostBehaviour.gameObject, interactable, advancedGhostBehaviour.CullingSubscriberBase);
 		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
 		{
-			SetupEditorIcon(mVCubeModelBase);
+			SetupEditorIcon(mVCubeModelInstance, enableCulling: true);
 		}
-		Hide();
 		MVGameControllerBase.Game.GameStateController.AddUpdateObject(this);
 		OnDataUpdate();
 	}
 
-	private void SetupEditorIcon(MVCubeModelBase cubeModelBody)
+	private void SetupEditorIcon(MVCubeModelBase cubeModelBody, bool enableCulling)
 	{
 		advancedGhostIcon = Object.Instantiate(PrefabPool.Instance.GhostEditorIconObject);
 		advancedGhostIcon.transform.parent = transform;
 		advancedGhostIcon.transform.localPosition = Vector3.zero;
 		advancedGhostIcon.transform.localRotation = Quaternion.identity;
-		advancedGhostIcon.Init(cubeModelBody);
+		advancedGhostIcon.Init(this, cubeModelBody, enableCulling);
 	}
 
 	public override void InitializeInventory()
@@ -67,7 +62,7 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 		base.InitializeInventory();
 		advancedGhostBehaviour = GameObject.GetComponentInChildren<AdvancedGhostBehaviour>();
 		MVCubeModelBase mVCubeModelBase = (MVCubeModelBase)GetChild("BodyCubeModel");
-		SetupEditorIcon(mVCubeModelBase);
+		SetupEditorIcon(mVCubeModelBase, enableCulling: false);
 		mVCubeModelBase.GameObject.SetActive(value: false);
 		advancedGhostIcon.gameObject.SetLayerRecursively(LayerMask.NameToLayer("Default"));
 		SetGameMode(isPlayMode: false);
@@ -75,25 +70,16 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 
 	private void SetGameMode(bool isPlayMode)
 	{
-		if (isPlayMode)
+		if (advancedGhostIcon != null)
 		{
-			advancedGhostBehaviour.gameObject.SetActive(value: true);
-			if (advancedGhostIcon != null)
-			{
-				advancedGhostIcon.gameObject.SetActive(value: false);
-			}
-			advancedGhostBehaviour.SetGameMode(isPlayMode);
-			if (editableCubeModelWrapper.CubeModelIsBeingEdited)
-			{
-				Debug.LogWarning("Todo: Fix this hack. This is simply because OnExitObject is not called if user enters playmode while editing cube model");
-				editableCubeModelWrapper.ExitEdit();
-				editableCubeModelWrapper.CubeModel.GameObject.SetActive(value: true);
-			}
+			advancedGhostIcon.SetGameMode(isPlayMode);
 		}
-		else
+		advancedGhostBehaviour.SetGameMode(isPlayMode);
+		if (isPlayMode && editableCubeModelWrapper.CubeModelIsBeingEdited)
 		{
-			advancedGhostBehaviour.gameObject.SetActive(value: false);
-			advancedGhostIcon.gameObject.SetActive(value: true);
+			Debug.LogWarning("Todo: Fix this hack. This is simply because OnExitObject is not called if user enters playmode while editing cube model");
+			editableCubeModelWrapper.ExitEdit();
+			editableCubeModelWrapper.CubeModel.GameObject.SetActive(value: true);
 		}
 	}
 
@@ -162,35 +148,6 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 		advancedGhostBehaviour.Reset();
 	}
 
-	public override void ChangeLOD(float distance)
-	{
-		advancedGhostBehaviour.LOD = distance / cullDistance;
-		if (!visible && distance < cullDistance)
-		{
-			SetGameMode(MVGameControllerBase.Game.IsPlaying);
-			visible = true;
-		}
-		else if (visible && distance >= cullDistance)
-		{
-			Hide();
-		}
-	}
-
-	private void Hide()
-	{
-		SetVisible(visible: false);
-		visible = false;
-	}
-
-	private void SetVisible(bool visible)
-	{
-		advancedGhostBehaviour.gameObject.SetActive(visible);
-		if (advancedGhostIcon != null)
-		{
-			advancedGhostIcon.gameObject.SetActive(visible);
-		}
-	}
-
 	public override void OnDataUpdate()
 	{
 		advancedGhostBehaviour.Speed = (float)Data["Speed"];
@@ -203,16 +160,13 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 
 	public void GameStateChanged(UpdateCondition condition)
 	{
-		if (visible)
+		if (condition == UpdateCondition.EDITOR)
 		{
-			if (condition == UpdateCondition.EDITOR)
-			{
-				SetGameMode(isPlayMode: false);
-			}
-			else
-			{
-				SetGameMode(isPlayMode: true);
-			}
+			SetGameMode(isPlayMode: false);
+		}
+		else
+		{
+			SetGameMode(isPlayMode: true);
 		}
 	}
 }

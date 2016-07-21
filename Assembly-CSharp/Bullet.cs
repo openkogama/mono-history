@@ -126,6 +126,8 @@ public class Bullet : MonoBehaviour
 
 	private Transform localTransform;
 
+	private CullingSubscriberBase cullingSubscriberBase;
+
 	private PoolEnums initiatedPoolType;
 
 	private MonoBehaviour pooledObjectReference;
@@ -191,6 +193,8 @@ public class Bullet : MonoBehaviour
 
 	public void ReturnToPool(PoolEnums bulletType)
 	{
+		cullingSubscriberBase.Destroy();
+		cullingSubscriberBase = null;
 		PrefabPool.Instance.EnumPoolManager.Return(pooledObjectReference, bulletType);
 	}
 
@@ -207,11 +211,27 @@ public class Bullet : MonoBehaviour
 			{
 				pooledObjectReference = this;
 			}
-			MeshRenderer[] array = meshRenderers;
-			foreach (MeshRenderer meshRenderer in array)
-			{
-				meshRenderer.enabled = true;
-			}
+			cullingSubscriberBase = new CullingSubscriberBase(1f, transform.position, OnStateChanged);
+			cullingSubscriberBase.DistanceBandIndex = 5;
+		}
+	}
+
+	private void OnStateChanged(CullingGroupEvent cullingGroupEvent)
+	{
+		bool flag = CullingApiWrapper.Visible(cullingGroupEvent, cullingSubscriberBase.DistanceBandIndex);
+		MeshRenderer[] array = meshRenderers;
+		foreach (MeshRenderer meshRenderer in array)
+		{
+			meshRenderer.enabled = flag;
+		}
+		if (trailRenderer != null)
+		{
+			trailRenderer.enabled = flag;
+		}
+		if (pSystem != null)
+		{
+			ParticleSystem.EmissionModule emission = pSystem.emission;
+			emission.enabled = flag;
 		}
 	}
 
@@ -244,7 +264,8 @@ public class Bullet : MonoBehaviour
 				meshRenderer.enabled = false;
 			}
 		}
-		if (state != CollisionBullet.State.Hit && state != CollisionBullet.State.OutOfRange)
+		cullingSubscriberBase.Position = transform.position;
+		if (state != CollisionBullet.State.Hit && state != CollisionBullet.State.OutOfRange && !hasCleaned)
 		{
 			return;
 		}

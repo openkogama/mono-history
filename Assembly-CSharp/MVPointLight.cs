@@ -33,6 +33,7 @@ public class MVPointLight : MVLogicObject
 		{
 			OnInputStateChanged();
 		}
+		SetupCulling(gameObject);
 	}
 
 	public override void OnInputLinkChanged()

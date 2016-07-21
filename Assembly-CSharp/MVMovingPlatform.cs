@@ -43,6 +43,13 @@ public class MVMovingPlatform : MVMovable
 		CubeModel.ModelingConstraintBuilder = () => new ModelingBoxCountConstraint(CubeModel, min, max, 1);
 		CubeModel.InteractionFlags &= ~InteractionFlags.DirectlySelectable;
 		CubeModel.BeingEditedChanged += MVCubeModelBase_BeingEditedChanged;
+		CubeModel.SetupCulling(OnStateChanged);
+	}
+
+	public void OnStateChanged(CullingGroupEvent cullingGroupEvent)
+	{
+		bool visible = CubeModel.IsLodVisible(cullingGroupEvent);
+		SetVisible(visible);
 	}
 
 	public void MoveBetweenNodes(MVMovingPlatformNode start, MVMovingPlatformNode end)

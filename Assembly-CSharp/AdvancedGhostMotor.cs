@@ -43,7 +43,7 @@ public class AdvancedGhostMotor : MVRigidBody
 	{
 	}
 
-	public void Init(GameObject ghostBehaviour, MVInteractableBase interactable)
+	public void Init(GameObject ghostBehaviour, MVInteractableBase interactable, CullingSubscriberBase cullingSubscriberBase)
 	{
 		weight = 0.7f;
 		this.interactable = interactable;
@@ -54,7 +54,7 @@ public class AdvancedGhostMotor : MVRigidBody
 		gameObject.transform.rotation = ghostBehaviour.transform.rotation;
 		targetTransform = gameObject.transform;
 		smoothPhysicsMovement = ghostBehaviour.AddComponent<SmoothPhysicsMovement>();
-		smoothPhysicsMovement.Init(targetTransform);
+		smoothPhysicsMovement.Init(targetTransform, cullingSubscriberBase);
 	}
 
 	public void FixedUpdateFunction()

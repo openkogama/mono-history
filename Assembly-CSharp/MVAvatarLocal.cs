@@ -912,6 +912,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		avatarMotor.GetSizeState.UnEquipSlapGunEvent += OnUnequip;
 		avatarInteractable.ModifierPackages.OnUnequipItemEvent += OnUnequip;
 		avatarInteractable.ModifierPackages.OnDisableVehiclesEvent += OnDisableVehicles;
+		CullingApiWrapper.SetDistanceReferencePoint(transform);
 	}
 
 	public void SetMode(AvatarRuntimeState localMode)

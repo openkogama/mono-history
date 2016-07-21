@@ -72,6 +72,7 @@ public class UseLever : MVLogicObject
 		}
 		useLeverObject.UseInteractor.UpdateData(Data);
 		SetLinks(isActivated);
+		SetupCulling(useLeverObject.VisualRoot);
 	}
 
 	protected override void OnUpdate()

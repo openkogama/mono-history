@@ -1,3 +1,4 @@
+using System;
 using MV.WorldObject;
 using UnityEngine;
 
@@ -11,14 +12,16 @@ public class ModelingDynamicBoxConstraint : ModelingBoxConstraint
 		: base(constraintSize)
 	{
 		this.cubeModel = cubeModel;
-		this.cubeModel.Changed += CubeModel_Changed;
+		MVCubeModelBase mVCubeModelBase = this.cubeModel;
+		mVCubeModelBase.Changed = (Action<CubeModelChangedEventArgs>)Delegate.Combine(mVCubeModelBase.Changed, new Action<CubeModelChangedEventArgs>(CubeModel_Changed));
 		Size = new ObscuredIntVector(constraintSize);
 		Center = CalcConstraintBoxCenter(cubeModel);
 	}
 
 	public void DetachFromCubeModel()
 	{
-		cubeModel.Changed -= CubeModel_Changed;
+		MVCubeModelBase mVCubeModelBase = cubeModel;
+		mVCubeModelBase.Changed = (Action<CubeModelChangedEventArgs>)Delegate.Remove(mVCubeModelBase.Changed, new Action<CubeModelChangedEventArgs>(CubeModel_Changed));
 	}
 
 	public override bool CanAddCubeAt(IntVector pos)
@@ -67,7 +70,7 @@ public class ModelingDynamicBoxConstraint : ModelingBoxConstraint
 		return true;
 	}
 
-	private void CubeModel_Changed(object sender, CubeModelChangedEventArgs e)
+	private void CubeModel_Changed(CubeModelChangedEventArgs e)
 	{
 		Center = CalcConstraintBoxCenter(cubeModel);
 	}

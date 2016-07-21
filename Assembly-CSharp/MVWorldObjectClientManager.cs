@@ -128,35 +128,10 @@ public abstract class MVWorldObjectClientManager
 
 		public void AddWorldObjectToLOD(int woID)
 		{
-			worldObjectsIdsLodBookkeeping.worldObjectsIdsLod.Add(woID);
 		}
 
 		public void UpdateLOD()
 		{
-			if (!(MVGameControllerBase.CameraController != null))
-			{
-				return;
-			}
-			worldObjectClientManager.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>().ChangeLODTerrain();
-			worldObjectClientManager.GetSingletonWorldObject<MVCubeModelFineGrainedTerrain>().ChangeLODTerrain();
-			Vector3 position = MVGameControllerBase.CameraController.MainCamera.transform.position;
-			int num = Mathf.Max(1, Mathf.RoundToInt(1000f * Time.deltaTime));
-			for (int i = 0; i < num; i++)
-			{
-				if (worldObjectsIdsLodBookkeeping.currentPosition >= worldObjectsIdsLodBookkeeping.worldObjectsIdsLod.Count)
-				{
-					worldObjectsIdsLodBookkeeping.currentPosition = 0;
-				}
-				if (worldObjectClientManager.worldObjects.TryGetValue(worldObjectsIdsLodBookkeeping.worldObjectsIdsLod[worldObjectsIdsLodBookkeeping.currentPosition], out worldObjectsIdsLodBookkeeping.currentWorldObject))
-				{
-					worldObjectsIdsLodBookkeeping.currentWorldObject.ChangeLOD(Vector3.Distance(worldObjectsIdsLodBookkeeping.currentWorldObject.WorldPosition, position) * 1f);
-				}
-				else
-				{
-					worldObjectsIdsLodBookkeeping.worldObjectsIdsLod.RemoveAt(worldObjectsIdsLodBookkeeping.currentPosition);
-				}
-				worldObjectsIdsLodBookkeeping.currentPosition++;
-			}
 		}
 	}
 
@@ -195,6 +170,8 @@ public abstract class MVWorldObjectClientManager
 	public Bounds WorldBounds => worldBounds;
 
 	public MVAvatarLocal AvatarLocal { get; set; }
+
+	public int Count => worldObjects.Count;
 
 	public MVGroup RootGroup
 	{

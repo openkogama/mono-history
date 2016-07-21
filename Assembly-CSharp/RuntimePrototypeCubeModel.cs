@@ -33,6 +33,10 @@ public class RuntimePrototypeCubeModel
 
 	private HashSet<int> instances = new HashSet<int>();
 
+	public Action<HashSet<IntVector>> DirtyChunksRegenerated;
+
+	public Action<IntVector> OnChunkRebuilt;
+
 	public MeshGeneratePriority MeshGeneratePriority => meshGeneratePriority;
 
 	public int ChunkSize => chunkSize;
@@ -111,10 +115,6 @@ public class RuntimePrototypeCubeModel
 
 	public bool ContainsCubes => CubeCount != 0;
 
-	public event EventHandler DirtyChunksRegenerated = delegate
-	{
-	};
-
 	private RuntimePrototypeCubeModel()
 	{
 	}
@@ -188,13 +188,15 @@ public class RuntimePrototypeCubeModel
 
 	public bool MeshGenerateDirtyChunksAll(ref int meshUpdates)
 	{
+		HashSet<IntVector> hashSet = new HashSet<IntVector>();
 		foreach (IntVector dirtyChunk in dirtyChunks)
 		{
+			hashSet.Add(dirtyChunk);
 			RebuildChunk(dirtyChunk, scale * Vector3.one);
 			meshUpdates--;
 		}
 		dirtyChunks.Clear();
-		return MeshGenerateStatus();
+		return MeshGenerateStatus(hashSet);
 	}
 
 	public bool MeshGenerateDirtyChunks(ref int meshUpdates)
@@ -214,12 +216,12 @@ public class RuntimePrototypeCubeModel
 		{
 			dirtyChunks.Remove(item);
 		}
-		return MeshGenerateStatus();
+		return MeshGenerateStatus(hashSet);
 	}
 
-	private bool MeshGenerateStatus()
+	private bool MeshGenerateStatus(HashSet<IntVector> generatedChunks)
 	{
-		DirtyChunksRegenerated(this, EventArgs.Empty);
+		DirtyChunksRegenerated(generatedChunks);
 		if (dirtyChunks.Count == 0)
 		{
 			meshGeneratePriority = MeshGeneratePriority.None;
@@ -392,6 +394,10 @@ public class RuntimePrototypeCubeModel
 	public void UpdatePrototype(BytePacker bp)
 	{
 		DecodeBytePacker(bp, this);
+		if (MVGameControllerBase.IsPlaying)
+		{
+			return;
+		}
 		foreach (int instance in instances)
 		{
 			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(instance);
@@ -442,6 +448,14 @@ public class RuntimePrototypeCubeModel
 		{
 			CubeModelChunk cubeModelChunk = chunks[chunkPos];
 			cubeModelChunk.RebuildChunk(scale);
+			if (OnChunkRebuilt != null)
+			{
+				OnChunkRebuilt(chunkPos);
+			}
+		}
+		else
+		{
+			Debug.Log("Chunk not contained!");
 		}
 	}
 

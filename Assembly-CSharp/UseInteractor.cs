@@ -26,7 +26,7 @@ public class UseInteractor
 	public UseInteractor(int woOwnerID, GameObject owner, bool reset, Collider triggerCollider, Func<int, bool> useFunction, Func<MVInteractableBase, bool> checkCanUseFunction = null, float yOffset = 2.5f)
 	{
 		useInteractorVisuals = owner.AddComponent<UseInteratorVisualization>();
-		useInteractorVisuals.Initialize(yOffset);
+		useInteractorVisuals.Initialize(yOffset, woOwnerID);
 		this.woOwnerID = woOwnerID;
 		this.useFunction = useFunction;
 		this.triggerCollider = triggerCollider;

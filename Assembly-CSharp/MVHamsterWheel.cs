@@ -59,6 +59,8 @@ public class MVHamsterWheel(Dictionary<object, object> data, Dictionary<int, MVW
 		}
 	}
 
+	private CullingSubscriberDynamic cullingSubscriberDynamic;
+
 	private float deathExplosionDamageValue = 40f;
 
 	private float deathExplosionRadius = 10f;
@@ -84,24 +86,35 @@ public class MVHamsterWheel(Dictionary<object, object> data, Dictionary<int, MVW
 		IsMovingForward = RuntimeDataVariables.New("isMovingForward", 2f, writeThrough: false);
 		IsMovingBackwards = RuntimeDataVariables.New("isMovingBackwards", 2f, writeThrough: false);
 		IsGrounded = RuntimeDataVariables.New("isGrounded", 2f, writeThrough: false);
+		HamsterWheelVisualization componentInChildren = gameObject.GetComponentInChildren<HamsterWheelVisualization>();
 		base.Initialize();
 		if (!IsInSpawner)
 		{
 			gameObject.AddComponent<InteractionDataHandler>();
+			cullingSubscriberDynamic = new CullingSubscriberDynamic(4f, 3, componentInChildren.gameObject);
+			componentInChildren.enabled = true;
 		}
 		MVRuntimeDataVariable isVehicleDead = IsVehicleDead;
 		isVehicleDead.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(isVehicleDead.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnIsDeadChange));
-		HamsterWheelVisualization hamsterWheelVisualization = gameObject.GetComponent<HamsterWheelVisualization>();
-		hamsterWheelVisualization.gameObject.SetActive(value: true);
-		hamsterWheelVisualization.Init(seatManager, (float)RuntimeVariablesRepository.GetRuntimeVariables(WorldObjectType)["health"], Health, IsMovingForward, IsMovingBackwards, IsGrounded, IsInSpawner);
-		visualization = hamsterWheelVisualization;
+		componentInChildren.gameObject.SetActive(value: true);
+		componentInChildren.Init(seatManager, (float)RuntimeVariablesRepository.GetRuntimeVariables(WorldObjectType)["health"], Health, IsMovingForward, IsMovingBackwards, IsGrounded, IsInSpawner);
+		visualization = componentInChildren;
 	}
 
 	public override void InitializeInventory()
 	{
 		base.InitializeInventory();
-		visualization = gameObject.GetComponent<HamsterWheelVisualization>();
+		visualization = gameObject.GetComponentInChildren<HamsterWheelVisualization>();
 		visualization.enabled = false;
+	}
+
+	public override void Destroy()
+	{
+		if (cullingSubscriberDynamic != null)
+		{
+			cullingSubscriberDynamic.Destroy();
+			cullingSubscriberDynamic = null;
+		}
 	}
 
 	private void OnIsDeadChange(object isDead)
@@ -129,7 +142,7 @@ public class MVHamsterWheel(Dictionary<object, object> data, Dictionary<int, MVW
 	protected override LocalObjectsBase CreateLocalObjects(int seatID, MVAvatarLocal vehicleUser)
 	{
 		SmoothCharacterController smoothCharacterController = gameObject.AddComponent<SmoothCharacterController>();
-		smoothCharacterController.Init(gameObject);
+		smoothCharacterController.Init(gameObject, null);
 		smoothCharacterController.Controller.Init(1.5f, 3f, Vector3.up * 0.5f);
 		smoothCharacterController.Controller.IgnoreWoIds = WorldIDsRecursive;
 		HamsterWheelMotor hamsterWheelMotor = gameObject.AddComponent<HamsterWheelMotor>();

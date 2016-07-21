@@ -1,12 +1,22 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using MV.WorldObject;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class MVWorldObjectClient : MVWorldObject
 {
 	public new delegate void CallBackDelegate(MVWorldObjectClient woc);
+
+	public UnityAction<MVWorldObjectClient, PositionChangedEventArgs> PositionChanged;
+
+	public UnityAction<MVWorldObjectClient, RotationChangedEventArgs> RotationChanged;
+
+	public UnityAction<MVWorldObjectClient, ScaleChangedEventArgs> ScaleChanged;
+
+	public UnityAction<MVWorldObjectClient, SelectedEventArgs> SelectedChanged;
+
+	public UnityAction<MVWorldObjectClient> ObjectDestroyed;
 
 	protected bool isCastingShadows;
 
@@ -56,13 +66,8 @@ public class MVWorldObjectClient : MVWorldObject
 		}
 		set
 		{
-			Vector3 vector = transform.position;
 			transform.localPosition = value;
-			Vector3 vector2 = transform.position;
-			if (vector != vector2 && PositionChanged != null)
-			{
-				PositionChanged(this, new PositionChangedEventArgs(vector, vector2));
-			}
+			PositionChangedNotify();
 		}
 	}
 
@@ -74,12 +79,10 @@ public class MVWorldObjectClient : MVWorldObject
 		}
 		set
 		{
-			Quaternion quaternion = transform.rotation;
 			transform.localRotation = value;
-			Quaternion quaternion2 = transform.rotation;
-			if (quaternion != quaternion2 && RotationChanged != null)
+			if (RotationChanged != null)
 			{
-				RotationChanged(this, new RotationChangedEventArgs(quaternion, quaternion2));
+				RotationChanged(this, new RotationChangedEventArgs(transform.rotation));
 			}
 		}
 	}
@@ -92,12 +95,10 @@ public class MVWorldObjectClient : MVWorldObject
 		}
 		set
 		{
-			Quaternion quaternion = transform.rotation;
 			transform.localEulerAngles = value;
-			Quaternion quaternion2 = transform.rotation;
-			if (quaternion != quaternion2 && RotationChanged != null)
+			if (RotationChanged != null)
 			{
-				RotationChanged(this, new RotationChangedEventArgs(quaternion, quaternion2));
+				RotationChanged(this, new RotationChangedEventArgs(transform.rotation));
 			}
 		}
 	}
@@ -110,16 +111,15 @@ public class MVWorldObjectClient : MVWorldObject
 		}
 		set
 		{
-			Vector3 localScale = transform.localScale;
 			transform.localScale = value;
-			if (localScale != value && ScaleChanged != null)
+			if (ScaleChanged != null)
 			{
-				ScaleChanged(this, new ScaleChangedEventArgs(localScale, value));
+				ScaleChanged(this, new ScaleChangedEventArgs(value));
 			}
 		}
 	}
 
-	public new Vector3 WorldPosition
+	public new virtual Vector3 WorldPosition
 	{
 		get
 		{
@@ -127,12 +127,8 @@ public class MVWorldObjectClient : MVWorldObject
 		}
 		set
 		{
-			Vector3 vector = transform.position;
 			transform.position = value;
-			if (vector != value && PositionChanged != null)
-			{
-				PositionChanged(this, new PositionChangedEventArgs(vector, value));
-			}
+			PositionChangedNotify();
 		}
 	}
 
@@ -144,11 +140,10 @@ public class MVWorldObjectClient : MVWorldObject
 		}
 		set
 		{
-			Quaternion quaternion = transform.rotation;
 			transform.rotation = value;
-			if (quaternion != value && RotationChanged != null)
+			if (RotationChanged != null)
 			{
-				RotationChanged(this, new RotationChangedEventArgs(quaternion, value));
+				RotationChanged(this, new RotationChangedEventArgs(value));
 			}
 		}
 	}
@@ -161,12 +156,10 @@ public class MVWorldObjectClient : MVWorldObject
 		}
 		set
 		{
-			Quaternion quaternion = transform.rotation;
 			transform.eulerAngles = value;
-			Quaternion quaternion2 = transform.rotation;
-			if (quaternion != quaternion2 && RotationChanged != null)
+			if (RotationChanged != null)
 			{
-				RotationChanged(this, new RotationChangedEventArgs(quaternion, quaternion2));
+				RotationChanged(this, new RotationChangedEventArgs(transform.rotation));
 			}
 		}
 	}
@@ -352,16 +345,6 @@ public class MVWorldObjectClient : MVWorldObject
 		}
 	}
 
-	public event EventHandler<PositionChangedEventArgs> PositionChanged;
-
-	public event EventHandler<RotationChangedEventArgs> RotationChanged;
-
-	public event EventHandler<ScaleChangedEventArgs> ScaleChanged;
-
-	public event EventHandler<SelectedEventArgs> SelectedChanged;
-
-	public event EventHandler ObjectDestroyed;
-
 	public MVWorldObjectClient(Dictionary<object, object> data, GameObject prefabObject, Dictionary<int, MVWorldObjectClient> worldObjects)
 	{
 		gameObject = InstantiatePrefab(prefabObject);
@@ -388,13 +371,21 @@ public class MVWorldObjectClient : MVWorldObject
 		CreateWorldObject(data, worldObjects);
 	}
 
+	public virtual void PositionChangedNotify()
+	{
+		if (PositionChanged != null)
+		{
+			PositionChanged(this, new PositionChangedEventArgs(transform.position));
+		}
+	}
+
 	protected GameObject InstantiatePrefab(GameObject prefabObject)
 	{
 		if (prefabObject == null)
 		{
 			Debug.LogError("Prefab object is null.");
 		}
-		GameObject gameObject = UnityEngine.Object.Instantiate(prefabObject);
+		GameObject gameObject = Object.Instantiate(prefabObject);
 		goId = gameObject.GetInstanceID();
 		return gameObject;
 	}
@@ -405,7 +396,7 @@ public class MVWorldObjectClient : MVWorldObject
 		{
 			Debug.LogError("Prefab object is null.");
 		}
-		ObjectPrefab objectPrefab = UnityEngine.Object.Instantiate(prefabObject);
+		ObjectPrefab objectPrefab = Object.Instantiate(prefabObject);
 		goId = objectPrefab.gameObject.GetInstanceID();
 		return objectPrefab;
 	}
@@ -435,21 +426,21 @@ public class MVWorldObjectClient : MVWorldObject
 			Debug.LogError("Nan position detected");
 			vector = Vector3.zero;
 		}
-		Position = vector;
+		transform.localPosition = vector;
 		Quaternion quaternion = (Quaternion)data[WorldObjectDataParameters.Rotation];
 		if (MathFunctions.QuaternionIsNan(quaternion))
 		{
 			Debug.LogError("Nan rotation detected");
 			quaternion = Quaternion.identity;
 		}
-		Rotation = quaternion;
+		transform.localRotation = quaternion;
 		Vector3 vector2 = (Vector3)data[WorldObjectDataParameters.Scale];
 		if (MathFunctions.VectorIsNan(vector2))
 		{
 			Debug.LogError("Nan scale detected");
 			vector2 = Vector3.one;
 		}
-		Scale = vector2;
+		transform.localScale = vector2;
 		Data = (Dictionary<object, object>)data[WorldObjectDataParameters.Data];
 		if (data.ContainsKey(WorldObjectDataParameters.RuntimeData))
 		{
@@ -577,11 +568,11 @@ public class MVWorldObjectClient : MVWorldObject
 	{
 		if (gameObject != null)
 		{
-			UnityEngine.Object.Destroy(gameObject);
+			Object.Destroy(gameObject);
 		}
 		if (ObjectDestroyed != null)
 		{
-			ObjectDestroyed(this, new EventArgs());
+			ObjectDestroyed(this);
 		}
 	}
 
@@ -646,17 +637,17 @@ public class MVWorldObjectClient : MVWorldObject
 	{
 		if (HasInputConnector)
 		{
-			inputConnectorObject = UnityEngine.Object.Instantiate(PrefabPool.Instance.LogicInputConnectorPrefab, gameObject.transform.position + InputConnectorOffset, Quaternion.identity) as GameObject;
+			inputConnectorObject = Object.Instantiate(PrefabPool.Instance.LogicInputConnectorPrefab, gameObject.transform.position + InputConnectorOffset, Quaternion.identity) as GameObject;
 			inputConnectorObject.transform.parent = gameObject.transform;
 		}
 		if (HasOutputConnector)
 		{
-			outputConnectorObject = UnityEngine.Object.Instantiate(PrefabPool.Instance.LogicOutputConnectorPrefab, gameObject.transform.position + OutputConnectorOffset, Quaternion.identity) as GameObject;
+			outputConnectorObject = Object.Instantiate(PrefabPool.Instance.LogicOutputConnectorPrefab, gameObject.transform.position + OutputConnectorOffset, Quaternion.identity) as GameObject;
 			outputConnectorObject.transform.parent = gameObject.transform;
 		}
 		if (HasObjectConnector)
 		{
-			objectConnectorObject = UnityEngine.Object.Instantiate(PrefabPool.Instance.LogicObjectConnectorPrefab, gameObject.transform.position + ObjectConnectorOffset, ObjectConnectorRotation) as GameObject;
+			objectConnectorObject = Object.Instantiate(PrefabPool.Instance.LogicObjectConnectorPrefab, gameObject.transform.position + ObjectConnectorOffset, ObjectConnectorRotation) as GameObject;
 			objectConnectorObject.transform.parent = gameObject.transform;
 		}
 	}
@@ -939,7 +930,7 @@ public class MVWorldObjectClient : MVWorldObject
 		Quaternion quaternion2 = transform.rotation;
 		if (quaternion != quaternion2 && RotationChanged != null)
 		{
-			RotationChanged(this, new RotationChangedEventArgs(quaternion, quaternion2));
+			RotationChanged(this, new RotationChangedEventArgs(quaternion2));
 		}
 	}
 }

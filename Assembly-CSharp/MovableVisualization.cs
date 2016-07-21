@@ -22,8 +22,6 @@ public class MovableVisualization : MonoBehaviour, IUpdatecontrollerSubscriber
 		}
 	}
 
-	private const int lodDistance = 300;
-
 	private MVCubeModelBase cmb;
 
 	private GameObject cmbClone;
@@ -60,12 +58,16 @@ public class MovableVisualization : MonoBehaviour, IUpdatecontrollerSubscriber
 	public void Init(MVCubeModelBase cmb)
 	{
 		this.cmb = cmb;
-		this.cmb.Changed += cmb_Changed;
+		MVCubeModelBase mVCubeModelBase = this.cmb;
+		mVCubeModelBase.Changed = (Action<CubeModelChangedEventArgs>)Delegate.Combine(mVCubeModelBase.Changed, new Action<CubeModelChangedEventArgs>(cmb_Changed));
 		cmbClone = CreateMeshClone(cmb);
+		Debug.Log(cmb.WorldPosition);
 		UpdateController.AddFixedUpdateObject(this, UpdatePriority.POST_UPDATEBUCKET_20);
+		transform.position = cmb.WorldPosition;
+		transform.rotation = cmb.WorldRotation;
 	}
 
-	private void cmb_Changed(object sender, CubeModelChangedEventArgs e)
+	private void cmb_Changed(CubeModelChangedEventArgs e)
 	{
 		isDirty = true;
 	}
@@ -74,8 +76,8 @@ public class MovableVisualization : MonoBehaviour, IUpdatecontrollerSubscriber
 	{
 		GameObject gameObject = new GameObject(cmb.GameObject.name + " clone");
 		gameObject.transform.parent = cmb.Transform.parent;
-		gameObject.transform.localPosition = cmb.Transform.position;
-		gameObject.transform.localRotation = cmb.Transform.rotation;
+		gameObject.transform.localPosition = cmb.Transform.localPosition;
+		gameObject.transform.localRotation = cmb.Transform.localRotation;
 		gameObject.transform.localScale = cmb.Transform.localScale;
 		foreach (KeyValuePair<IntVector, ChunkInstances.ChunkInstanceVariables> item in (IEnumerable)cmb.ChunkInstances)
 		{
@@ -119,14 +121,13 @@ public class MovableVisualization : MonoBehaviour, IUpdatecontrollerSubscriber
 		}
 	}
 
-	public void ChangeLOD(float distance)
+	public void ChangeLOD(bool newVisible)
 	{
-		float num = 300f * cmbClone.transform.localScale.x;
-		if (distance > num && isVisible)
+		if (!newVisible && isVisible)
 		{
-			SetMeshRenderers(enable: false, cmbClone);
+			SetMeshRenderers(newVisible, cmbClone);
 		}
-		if (distance <= num && !isVisible && canBeVisible)
+		if (newVisible && !isVisible && canBeVisible)
 		{
 			SetMeshRenderers(enable: true, cmbClone);
 		}

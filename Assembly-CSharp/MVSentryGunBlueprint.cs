@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MVSentryGunBlueprint : MVBlueprintBase
 {
-	private MVCubeModelBase editableCubes;
+	private MVCubeModelInstance editableCubes;
 
 	private MVSentryGun gun;
 
@@ -20,6 +20,7 @@ public class MVSentryGunBlueprint : MVBlueprintBase
 	{
 		base.Initialize();
 		InitializeCommon();
+		editableCubes.EnableCulling();
 	}
 
 	public override void InitializeInventory()
@@ -38,7 +39,7 @@ public class MVSentryGunBlueprint : MVBlueprintBase
 			MVGameControllerBase.WOCM.UnregisterWorldObject(id);
 			return;
 		}
-		editableCubes = (MVCubeModelBase)GetChild("editableCubeModel");
+		editableCubes = (MVCubeModelInstance)GetChild("editableCubeModel");
 		gun = (MVSentryGun)GetChild("sentryGun");
 		if (editableCubes == null)
 		{

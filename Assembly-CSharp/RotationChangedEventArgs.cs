@@ -7,9 +7,8 @@ public class RotationChangedEventArgs : EventArgs
 
 	public readonly Quaternion NewRotation;
 
-	public RotationChangedEventArgs(Quaternion oldRotation, Quaternion newRotation)
+	public RotationChangedEventArgs(Quaternion newRotation)
 	{
-		OldRotation = oldRotation;
 		NewRotation = newRotation;
 	}
 }

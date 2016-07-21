@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class MVGroup : MVWorldObjectClient
 {
@@ -134,6 +136,35 @@ public class MVGroup : MVWorldObjectClient
 		foreach (MVWorldObjectClient value in children.Values)
 		{
 			value.Initialize();
+		}
+		if (groupId != -1 && groupId != MVGameControllerBase.WOCM.RootGroup.Id)
+		{
+			SetupTranformation();
+		}
+	}
+
+	private void SetupTranformation()
+	{
+		MVGroup mVGroup = Group;
+		mVGroup.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(mVGroup.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
+	}
+
+	private void OnPositionChanged(MVWorldObjectClient wo, PositionChangedEventArgs positionChangedEventArgs)
+	{
+		PositionChangedNotify();
+	}
+
+	public override void PositionChangedNotify()
+	{
+		if (Id == MVGameControllerBase.WOCM.RootGroup.Id)
+		{
+			Debug.LogError("root group cannot notify as this will cause massive spike");
+			return;
+		}
+		base.PositionChangedNotify();
+		foreach (KeyValuePair<int, MVWorldObjectClient> child in children)
+		{
+			child.Value.PositionChangedNotify();
 		}
 	}
 

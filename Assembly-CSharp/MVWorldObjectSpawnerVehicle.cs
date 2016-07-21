@@ -1,8 +1,14 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 {
+	private CullingSubscriberBase cullingSubscriberBase;
+
+	private GameObject lodGameObject;
+
 	private GameObject groundAura;
 
 	private bool initFlag;
@@ -43,6 +49,11 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 			useInteractor.OnDestroy(Data);
 		}
 		base.Destroy();
+		if (cullingSubscriberBase != null)
+		{
+			cullingSubscriberBase.Destroy();
+			cullingSubscriberBase = null;
+		}
 	}
 
 	public override void Initialize()
@@ -62,6 +73,7 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 		useInteractor.AddRequirement(useRequirement2);
 		useInteractor.UpdateData(Data);
 		MVVehicleBase mVVehicleBase = (MVVehicleBase)GetChild(spawnWorldObjectID);
+		lodGameObject = mVVehicleBase.Visualization.gameObject;
 		InitializeCommon();
 		interactionFlags |= mVVehicleBase.InteractionFlags;
 		interactionFlags |= InteractionFlags.DirectlySelectable;
@@ -76,6 +88,25 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 		pickupItemObjectScript.pickupObject = MVGameControllerBase.WOCM.GetWorldObjectClient(spawnWorldObjectID).GameObject;
 		pickupItemObjectScript.InitializeOriginalMaterials();
 		initFlag = true;
+		SetupCulling();
+	}
+
+	protected void SetupCulling()
+	{
+		PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
+		cullingSubscriberBase = new CullingSubscriberBase(2.5f, WorldPosition, OnStateChanged);
+	}
+
+	private void OnPositionChanged(MVWorldObjectClient arg0, PositionChangedEventArgs positionChangedEventArgs)
+	{
+		cullingSubscriberBase.Position = positionChangedEventArgs.NewPos;
+	}
+
+	protected virtual void OnStateChanged(CullingGroupEvent cullingGroupEvent)
+	{
+		bool active = CullingApiWrapper.Visible(cullingGroupEvent, cullingSubscriberBase.DistanceBandIndex);
+		lodGameObject.SetActive(active);
+		groundAura.SetActive(active);
 	}
 
 	public override void InitializeInventory()
@@ -87,7 +118,7 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 	private void InitializeCommon()
 	{
 		MVVehicleBase mVVehicleBase = (MVVehicleBase)GetChild("spawnWorldObjectID");
-		groundAura = (GameObject)Object.Instantiate(PrefabPool.Instance.ParticleCFX_GroundAura, Vector3.zero, Quaternion.identity);
+		groundAura = (GameObject)UnityEngine.Object.Instantiate(PrefabPool.Instance.ParticleCFX_GroundAura, Vector3.zero, Quaternion.identity);
 		groundAura.transform.parent = gameObject.transform;
 		groundAura.transform.localPosition = Vector3.zero + Vector3.up * (0f - mVVehicleBase.GetLocalBounds(BoundsContext.BoxVisualization).extents.y) * 0.9f;
 		groundAura.transform.rotation = Quaternion.identity;

@@ -3,17 +3,17 @@ using UnityEngine;
 
 public class EditableCubeModelWrapper
 {
-	private MVCubeModelBase cubeModelBase;
+	private MVCubeModelInstance cubeModelBase;
 
-	public MVCubeModelBase CubeModel => cubeModelBase;
+	public MVCubeModelInstance CubeModel => cubeModelBase;
 
-	public EditableCubeModelWrapper(MVCubeModelBase cubeModelBase)
+	public EditableCubeModelWrapper(MVCubeModelInstance cubeModelBase)
 	{
 		this.cubeModelBase = cubeModelBase;
 		cubeModelBase.InteractionFlags |= InteractionFlags.SelectionRequiresEditGroup;
 	}
 
-	public EditableCubeModelWrapper(MVCubeModelBase cubeModelBase, IntVector min, IntVector max, int minCubeCount)
+	public EditableCubeModelWrapper(MVCubeModelInstance cubeModelBase, IntVector min, IntVector max, int minCubeCount)
 		: this(cubeModelBase)
 	{
 		SetConstraints(min, max, minCubeCount);

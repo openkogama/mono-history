@@ -54,6 +54,7 @@ public class WindTurbine : MVLogicObject
 		}
 		UpdateController.AddFixedUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
 		OnDataUpdate();
+		SetupCulling(windTurbineObject.VisualObject).Radius = 4f;
 	}
 
 	public override void OnDataUpdate()

@@ -115,10 +115,9 @@ public class MVMovable : MVBlueprintBase
 		Visible = true;
 	}
 
-	public override void ChangeLOD(float distance)
+	protected void SetVisible(bool newVisible)
 	{
-		base.ChangeLOD(distance);
-		movableVisualization.ChangeLOD(distance);
+		movableVisualization.ChangeLOD(newVisible);
 	}
 
 	public override void InitializeInventory()

@@ -17,6 +17,8 @@ public class LevelBasedUseRequirement : UseRequirement
 
 	private GameObject go;
 
+	public override GameObject GameObject => displayObject.gameObject;
+
 	public LevelBasedUseRequirement(GameObject root, bool hasUseButtonWhenFree = true)
 	{
 		hasUseWhenFree = hasUseButtonWhenFree;

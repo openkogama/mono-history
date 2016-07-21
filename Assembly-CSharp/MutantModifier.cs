@@ -28,7 +28,14 @@ public class MutantModifier : AvatarModifier
 	{
 		target.StopBlinking(BlinkType.Poison);
 		isDeactivating = true;
-		StartCoroutine(DoFadeAndDestroy());
+		if (gameObject.activeInHierarchy)
+		{
+			StartCoroutine(DoFadeAndDestroy());
+		}
+		else
+		{
+			Object.Destroy(gameObject);
+		}
 	}
 
 	private IEnumerator DoFadeAndDestroy()

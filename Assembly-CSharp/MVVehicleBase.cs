@@ -146,6 +146,8 @@ public abstract class MVVehicleBase : MVBlueprintBase
 
 	public virtual bool IsInSpawner { get; private set; }
 
+	public VehicleVisualizationBase Visualization => visualization;
+
 	protected MVVehicleBase(Dictionary<object, object> data, GameObject vehiclePrefab, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, vehiclePrefab, worldObjects)
 	{
@@ -174,14 +176,6 @@ public abstract class MVVehicleBase : MVBlueprintBase
 	public void LeaveLocal()
 	{
 		localObjects.Leave();
-	}
-
-	public override void ChangeLOD(float distance)
-	{
-		if (visualization != null)
-		{
-			visualization.ChangeLOD(distance);
-		}
 	}
 
 	public void Enter(MVAvatar vehicleUser, int seatID)

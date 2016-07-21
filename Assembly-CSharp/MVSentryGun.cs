@@ -1,11 +1,15 @@
+using System;
 using System.Collections.Generic;
 using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class MVSentryGun : MVLogicObject
 {
+	private const float cullingRadius = 2f;
+
 	private static readonly Dictionary<SentryGunBeamType, SentryGunBeam> prefabMap = new Dictionary<SentryGunBeamType, SentryGunBeam>
 	{
 		{
@@ -40,6 +44,8 @@ public class MVSentryGun : MVLogicObject
 
 	private MVSentryGunObject gunObject;
 
+	private new CullingSubscriberBase cullingSubscriberBase;
+
 	private bool wasDead;
 
 	public override bool HasInputConnector => true;
@@ -70,6 +76,34 @@ public class MVSentryGun : MVLogicObject
 		gameObject.AddComponent<ClientSideNPCInteractionHandler>();
 		wasDead = interactable.IsDead();
 		UpdateSentryState();
+		PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
+		cullingSubscriberBase = new CullingSubscriberBase(2f, WorldPosition, OnStateChange);
+	}
+
+	private void OnPositionChanged(MVWorldObjectClient wo, PositionChangedEventArgs positionChangedEventArgs)
+	{
+		cullingSubscriberBase.Position = positionChangedEventArgs.NewPos;
+	}
+
+	private void OnStateChange(CullingGroupEvent cullingGroupEvent)
+	{
+		bool flag = CullingApiWrapper.Visible(cullingGroupEvent, cullingSubscriberBase.DistanceBandIndex);
+		if (cullingGroupEvent.currentDistance <= 2)
+		{
+			flag = true;
+		}
+		gameObject.SetActive(flag);
+		disabledByLod = !flag;
+	}
+
+	public override void Destroy()
+	{
+		base.Destroy();
+		if (cullingSubscriberBase != null)
+		{
+			cullingSubscriberBase.Destroy();
+			cullingSubscriberBase = null;
+		}
 	}
 
 	public override void InitializeInventory()

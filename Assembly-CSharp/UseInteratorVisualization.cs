@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class UseInteratorVisualization : MonoBehaviour
 {
@@ -17,10 +19,66 @@ public class UseInteratorVisualization : MonoBehaviour
 
 	private int active;
 
-	public void Initialize(float yOffset)
+	private CullingSubscriberBase cullingSubscriberBase;
+
+	private bool hasUseRequirement;
+
+	private int woId;
+
+	public void Initialize(float yOffset, int woId)
 	{
+		this.woId = woId;
 		pivot.y = yOffset;
 		CalculateSpacing();
+		enabled = false;
+	}
+
+	private void SetupCulling(int woId)
+	{
+		cullingSubscriberBase = new CullingSubscriberBase(OnStateChanged);
+		cullingSubscriberBase.Radius = 2f;
+		cullingSubscriberBase.DistanceBandIndex = 1;
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woId);
+		worldObjectClient.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(worldObjectClient.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
+		UpdatePosition(worldObjectClient.WorldPosition);
+	}
+
+	private void OnStateChanged(CullingGroupEvent cullingGroupEvent)
+	{
+		bool flag = CullingApiWrapper.Visible(cullingGroupEvent, cullingSubscriberBase.DistanceBandIndex);
+		foreach (UseRequirement useRequirement in useRequirements)
+		{
+			if (useRequirement.IsActive())
+			{
+				useRequirement.GameObject.SetActive(flag);
+			}
+		}
+		enabled = flag;
+	}
+
+	private void OnPositionChanged(MVWorldObjectClient arg0, PositionChangedEventArgs positionChangedEventArgs)
+	{
+		UpdatePosition(positionChangedEventArgs.NewPos);
+	}
+
+	private void UpdatePosition(Vector3 pos)
+	{
+		cullingSubscriberBase.Position = pos + pivot;
+	}
+
+	private void OnDestroy()
+	{
+		RemoveCulling();
+	}
+
+	private void RemoveCulling()
+	{
+		if (cullingSubscriberBase != null)
+		{
+			cullingSubscriberBase.Destroy();
+			cullingSubscriberBase = null;
+		}
+		enabled = false;
 	}
 
 	private void CalculateSpacing()
@@ -42,7 +100,8 @@ public class UseInteratorVisualization : MonoBehaviour
 		{
 			spacing = 360 / active;
 		}
-		enabled = active != 0;
+		hasUseRequirement = active != 0;
+		CheckCullingSetup();
 	}
 
 	private void Update()
@@ -66,6 +125,18 @@ public class UseInteratorVisualization : MonoBehaviour
 			useRequirement.OnDataUpdate(data, ownerID);
 		}
 		CalculateSpacing();
+	}
+
+	private void CheckCullingSetup()
+	{
+		if (hasUseRequirement && cullingSubscriberBase == null)
+		{
+			SetupCulling(woId);
+		}
+		else if (!hasUseRequirement && cullingSubscriberBase != null)
+		{
+			RemoveCulling();
+		}
 	}
 
 	public void AddUseRequirement(UseRequirement useRequirement)

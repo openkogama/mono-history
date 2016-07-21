@@ -14,6 +14,10 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel, ICubeModelCollid
 
 	private Queue<CubeModelChangedEventArgs> changedEventArgsQueue = new Queue<CubeModelChangedEventArgs>();
 
+	public Action<CubeModelChangedEventArgs> Changed;
+
+	public Action<HashSet<IntVector>> ChunksChanged;
+
 	public ChunkInstances ChunkInstances => chunkInstances;
 
 	public RuntimePrototypeCubeModel PrototypeCubeModel
@@ -26,9 +30,11 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel, ICubeModelCollid
 		{
 			if (prototypeCubeModel != value)
 			{
-				prototypeCubeModel.DirtyChunksRegenerated -= DirtyChunksRegeneratedHandler;
+				RuntimePrototypeCubeModel runtimePrototypeCubeModel = prototypeCubeModel;
+				runtimePrototypeCubeModel.DirtyChunksRegenerated = (Action<HashSet<IntVector>>)Delegate.Remove(runtimePrototypeCubeModel.DirtyChunksRegenerated, new Action<HashSet<IntVector>>(DirtyChunksRegeneratedHandler));
 				prototypeCubeModel = value;
-				prototypeCubeModel.DirtyChunksRegenerated += DirtyChunksRegeneratedHandler;
+				RuntimePrototypeCubeModel runtimePrototypeCubeModel2 = prototypeCubeModel;
+				runtimePrototypeCubeModel2.DirtyChunksRegenerated = (Action<HashSet<IntVector>>)Delegate.Combine(runtimePrototypeCubeModel2.DirtyChunksRegenerated, new Action<HashSet<IntVector>>(DirtyChunksRegeneratedHandler));
 			}
 		}
 	}
@@ -77,8 +83,6 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel, ICubeModelCollid
 		}
 	}
 
-	public event EventHandler<CubeModelChangedEventArgs> Changed;
-
 	public event EventHandler<EditStateEventArgs> BeingEditedChanged;
 
 	public MVCubeModelBase(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects, Dictionary<int, RuntimePrototypeCubeModel> prototypes)
@@ -87,7 +91,8 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel, ICubeModelCollid
 		int key = (int)Data["protoTypeID"];
 		prototypeCubeModel = prototypes[key];
 		prototypeCubeModel.CreateInstance(this);
-		prototypeCubeModel.DirtyChunksRegenerated += DirtyChunksRegeneratedHandler;
+		RuntimePrototypeCubeModel runtimePrototypeCubeModel = prototypeCubeModel;
+		runtimePrototypeCubeModel.DirtyChunksRegenerated = (Action<HashSet<IntVector>>)Delegate.Combine(runtimePrototypeCubeModel.DirtyChunksRegenerated, new Action<HashSet<IntVector>>(DirtyChunksRegeneratedHandler));
 		gameObject.transform.localScale = Vector3.one * prototypes[key].Scale;
 		Scale = Vector3.one * prototypes[key].Scale;
 		ModelingConstraintBuilder = () => new ModelingDynamicBoxConstraint(this, SharedCubeFunctions.CubeConstraint);
@@ -153,7 +158,7 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel, ICubeModelCollid
 		MakeUnique();
 		if (prototypeCubeModel.RemoveCube(pos))
 		{
-			changedEventArgsQueue.Enqueue(new CubeModelChangedEventArgs(CubeAction.Deleted, pos));
+			changedEventArgsQueue.Enqueue(new CubeModelChangedEventArgs(CubeAction.Deleted, pos, this));
 		}
 	}
 
@@ -162,7 +167,7 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel, ICubeModelCollid
 		MakeUnique();
 		if (prototypeCubeModel.AddCube(pos, (Cube)cube))
 		{
-			changedEventArgsQueue.Enqueue(new CubeModelChangedEventArgs(CubeAction.Added, pos));
+			changedEventArgsQueue.Enqueue(new CubeModelChangedEventArgs(CubeAction.Added, pos, this));
 		}
 	}
 
@@ -176,7 +181,7 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel, ICubeModelCollid
 	{
 		MakeUnique();
 		prototypeCubeModel.ReplaceCube(iVector, materialId);
-		changedEventArgsQueue.Enqueue(new CubeModelChangedEventArgs(CubeAction.FaceChanged, iVector));
+		changedEventArgsQueue.Enqueue(new CubeModelChangedEventArgs(CubeAction.FaceChanged, iVector, this));
 	}
 
 	public void CornersChangedDone(IntVector iVector, Cube cube)
@@ -280,6 +285,42 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel, ICubeModelCollid
 		return result;
 	}
 
+	public Bounds GetMeshRenderBounds()
+	{
+		if (chunkInstances.Count == 0)
+		{
+			return default;
+		}
+		Bounds result = default;
+		bool flag = true;
+		foreach (KeyValuePair<IntVector, ChunkInstances.ChunkInstanceVariables> item in (IEnumerable)chunkInstances)
+		{
+			MeshRenderer renderer = item.Value.renderer;
+			if (flag)
+			{
+				result = renderer.bounds;
+				flag = false;
+				continue;
+			}
+			for (int i = 0; i < 3; i++)
+			{
+				if (renderer.bounds.min[i] < result.min[i])
+				{
+					Vector3 min = result.min;
+					min[i] = renderer.bounds.min[i];
+					result.SetMinMax(min, result.max);
+				}
+				if (renderer.bounds.max[i] > result.max[i])
+				{
+					Vector3 max = result.max;
+					max[i] = renderer.bounds.max[i];
+					result.SetMinMax(result.min, max);
+				}
+			}
+		}
+		return result;
+	}
+
 	public override Bounds GetLocalBounds(BoundsContext boundsContext)
 	{
 		return GetBounds();
@@ -307,15 +348,19 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel, ICubeModelCollid
 		}
 	}
 
-	private void DirtyChunksRegeneratedHandler(object sender, EventArgs args)
+	protected virtual void DirtyChunksRegeneratedHandler(HashSet<IntVector> chunksChanged)
 	{
 		while (0 < changedEventArgsQueue.Count)
 		{
-			CubeModelChangedEventArgs e = changedEventArgsQueue.Dequeue();
+			CubeModelChangedEventArgs obj = changedEventArgsQueue.Dequeue();
 			if (Changed != null)
 			{
-				Changed(this, e);
+				Changed(obj);
 			}
+		}
+		if (ChunksChanged != null)
+		{
+			ChunksChanged(chunksChanged);
 		}
 	}
 }

@@ -59,7 +59,6 @@ internal class ESInsert : ESStateBase
 		Ray ray = Camera.main.ScreenPointToRay(new Vector3(MVInputWrapper.GetPointerPosition().x, MVInputWrapper.GetPointerPosition().y));
 		Vector3 worldPosition = ComputeSnapPosition(e.SingleSelectedWO, ray.GetPoint(distanceInFreeSpace) + pivotToOrigin);
 		e.SingleSelectedWO.WorldPosition = worldPosition;
-		e.SingleSelectedWO.Visible = false;
 		previewMeshes = e.SingleSelectedWO.GameObject.GetComponentsInChildren<MeshFilter>();
 		isNewPrototype = e.Data.ContainsKey("IsNewPrototype");
 		woIgnoreList = ((!(e.SingleSelectedWO is MVGroup)) ? new HashSet<int> { e.SingleSelectedWO.Id } : (e.SingleSelectedWO as MVGroup).GetHierarchyWorldObjectIDs());
@@ -68,6 +67,7 @@ internal class ESInsert : ESStateBase
 			MVGameControllerBase.CameraController.IsLogicRendered = true;
 		}
 		Debug.LogWarning("Block button pressing when dragging object");
+		e.SingleSelectedWO.GameObject.SetActive(value: false);
 	}
 
 	public override void Execute(EditorStateMachine e)
@@ -105,7 +105,6 @@ internal class ESInsert : ESStateBase
 		laser.UpdatePosition(rawPosition);
 		Vector3 b = ComputeSnapPosition(e.SingleSelectedWO, insertPosition);
 		e.SingleSelectedWO.SyncPos = Vector3.Lerp(e.SingleSelectedWO.WorldPosition, b, Time.deltaTime * 20f);
-		e.SingleSelectedWO.Visible = false;
 		DrawObject(e.SingleSelectedWO.GameObject);
 		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
 		{
@@ -128,11 +127,11 @@ internal class ESInsert : ESStateBase
 		UnityEngine.Object.Destroy(insertCursor.gameObject);
 		laser.ChangeState(LaserPointerState.Idle);
 		laser.LaserActive = false;
-		e.SingleSelectedWO.Visible = true;
 		Vector3 position = ComputeSnapPosition(e.SingleSelectedWO, insertPosition);
 		e.SingleSelectedWO.GameObject.transform.position = position;
 		e.SingleSelectedWO.SyncPos = e.SingleSelectedWO.WorldPosition;
 		e.NetworkSelector.RequestReleaseOwnership(e.SelectedIDs);
+		e.SingleSelectedWO.GameObject.SetActive(value: true);
 	}
 
 	private Vector3 ComputeObjectOffset(MVWorldObjectClient wo, Vector3 surfaceNormal)

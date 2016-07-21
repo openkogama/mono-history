@@ -19,6 +19,8 @@ public class GameCoinLogic : UseRequirement
 
 	public int PurchaseAmount => purchaseAmount;
 
+	public override GameObject GameObject => displayObject.gameObject;
+
 	public GameCoinLogic(GameObject root, bool hasUseButtonWhenFree = true)
 	{
 		hasUseWhenFree = hasUseButtonWhenFree;

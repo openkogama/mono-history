@@ -6,6 +6,8 @@ public class MVAvatarRemote : MVAvatar
 {
 	private const float hitTimeOut = 2f;
 
+	private CullingSubscriberDynamic cullingSubscriberDynamic;
+
 	private HealthBar healthBar;
 
 	private CapsuleCollider triggerCollider;
@@ -21,8 +23,6 @@ public class MVAvatarRemote : MVAvatar
 	private float minVelocity = 700f;
 
 	private float prevHitTime = Time.time - 2f;
-
-	private float cullDistance = 145f;
 
 	public override Vector3 Velocity => avatarRemoteMovementCalculator.VelocityEstimate;
 
@@ -42,6 +42,16 @@ public class MVAvatarRemote : MVAvatar
 		triggerCollider = CreateTriggerCollider();
 		AvatarStateChangedHandler(AvatarRuntimeDataState.Value);
 		avatarRemoteMovementCalculator = gameObject.AddComponent<AvatarRemoteMovementCalculator>();
+		cullingSubscriberDynamic = new CullingSubscriberDynamic(3.5f, 3, gameObject);
+	}
+
+	public override void Destroy()
+	{
+		if (cullingSubscriberDynamic != null)
+		{
+			cullingSubscriberDynamic.Destroy();
+			cullingSubscriberDynamic = null;
+		}
 	}
 
 	private void InitializeHealth()
@@ -105,18 +115,6 @@ public class MVAvatarRemote : MVAvatar
 				interactionDataHandlerBase.HandleInteraction(ImpulseHitPackage.Create(velocity), interactionIsLocal: false);
 				prevHitTime = Time.time;
 			}
-		}
-	}
-
-	public override void ChangeLOD(float distance)
-	{
-		if (!Body.Visible && distance < cullDistance && (byte)AvatarRuntimeDataState.Value != 0)
-		{
-			Body.Visible = true;
-		}
-		else if (Body.Visible && distance >= cullDistance)
-		{
-			Body.Visible = false;
 		}
 	}
 

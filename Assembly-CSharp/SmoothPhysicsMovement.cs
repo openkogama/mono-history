@@ -21,15 +21,22 @@ public class SmoothPhysicsMovement : MonoBehaviour
 
 	private Queue<Package> packages = new Queue<Package>();
 
+	private CullingSubscriberBase cullingSubscriberBase;
+
 	private Package next;
 
 	private Package current;
 
 	private Transform targetTransform;
 
-	public void Init(Transform targetTransform)
+	public void Init(Transform targetTransform, CullingSubscriberBase cullingSubscriberBase)
 	{
 		this.targetTransform = targetTransform;
+		this.cullingSubscriberBase = cullingSubscriberBase;
+		if (cullingSubscriberBase == null)
+		{
+			Debug.LogWarning("Remember to add culling subscriber");
+		}
 	}
 
 	public void SmoothMove()
@@ -54,6 +61,10 @@ public class SmoothPhysicsMovement : MonoBehaviour
 			num2 = (num - current.time) / Time.fixedDeltaTime;
 			transform.localPosition = Vector3.Lerp(current.position, next.position, num2);
 			transform.localRotation = Quaternion.Slerp(current.rotation, next.rotation, num2);
+			if (cullingSubscriberBase != null)
+			{
+				cullingSubscriberBase.Position = transform.position;
+			}
 		}
 	}
 

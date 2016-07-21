@@ -121,14 +121,6 @@ public class MVPickupItemBase : MVLogicObject
 		interactionFlags |= InteractionFlags.CanUseLevel;
 		baseObject.TriggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		baseObject.TriggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
-		useInteractor = new UseInteractor(Id, gameObject, reset: false, baseObject.TriggerBoxEvents.Collider, DoPickup, CheckCanUse);
-		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, hasUseButtonWhenFree: false);
-		useInteractor.AddRequirement(useRequirement);
-		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(gameObject, hasUseButtonWhenFree: false);
-		useInteractor.AddRequirement(useRequirement2);
-		baseObject.TriggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
-		baseObject.TriggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
-		OnDataUpdate();
 	}
 
 	private static ObjectPrefab GetPickupPrefabName(Dictionary<object, object> data)
@@ -137,30 +129,36 @@ public class MVPickupItemBase : MVLogicObject
 		return pickupPrefabLUT[(AvatarItemType)(int)dictionary["itemType"]].prefabObject;
 	}
 
-	public override void ChangeLOD(float distance)
+	private void SetupUseInteractor()
 	{
-		base.ChangeLOD(distance);
-		if (disabledByLod && baseObject.enabled)
-		{
-			baseObject.enabled = false;
-		}
-		else if (!disabledByLod && !baseObject.enabled)
-		{
-			baseObject.enabled = true;
-		}
+		useInteractor = new UseInteractor(Id, gameObject, reset: false, baseObject.TriggerBoxEvents.Collider, DoPickup, CheckCanUse);
+		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, hasUseButtonWhenFree: false);
+		useInteractor.AddRequirement(useRequirement);
+		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(gameObject, hasUseButtonWhenFree: false);
+		useInteractor.AddRequirement(useRequirement2);
+		baseObject.TriggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
+		baseObject.TriggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
 	}
 
 	public override void Initialize()
 	{
+		SetupUseInteractor();
+		OnDataUpdate();
 		useInteractor.UpdateData(Data);
 		base.Initialize();
+		baseObject.PickupItem.pickupObject.AddComponent<RotateLocal>().rotationSpeed = 68f;
+		SetupCulling(baseObject.PickupItem.pickupObject);
 	}
 
 	public override void Destroy()
 	{
-		baseObject.TriggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
-		baseObject.TriggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
-		useInteractor.OnDestroy(Data);
+		if (useInteractor != null)
+		{
+			baseObject.TriggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
+			baseObject.TriggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
+			useInteractor.OnDestroy(Data);
+			useInteractor = null;
+		}
 		base.Destroy();
 	}
 

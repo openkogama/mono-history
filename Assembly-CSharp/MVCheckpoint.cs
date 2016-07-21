@@ -18,13 +18,6 @@ public class MVCheckpoint : MVLogicObject
 		checkpointObject.TriggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
 		interactionFlags |= InteractionFlags.CanUseLevel;
-		useInteractor = new UseInteractor(Id, gameObject, reset: false, checkpointObject.TriggerBoxEvents.Collider, DoReachCheckpoint);
-		checkpointObject.TriggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
-		checkpointObject.TriggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
-		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, hasUseButtonWhenFree: false);
-		useInteractor.AddRequirement(useRequirement);
-		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(gameObject, hasUseButtonWhenFree: false);
-		useInteractor.AddRequirement(useRequirement2);
 	}
 
 	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
@@ -37,8 +30,21 @@ public class MVCheckpoint : MVLogicObject
 
 	public override void Initialize()
 	{
+		SetupUseInteractor();
 		base.Initialize();
 		useInteractor.UpdateData(Data);
+		SetupCulling(checkpointObject.VisualObject);
+	}
+
+	private void SetupUseInteractor()
+	{
+		useInteractor = new UseInteractor(Id, gameObject, reset: false, checkpointObject.TriggerBoxEvents.Collider, DoReachCheckpoint);
+		checkpointObject.TriggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
+		checkpointObject.TriggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
+		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, hasUseButtonWhenFree: false);
+		useInteractor.AddRequirement(useRequirement);
+		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(gameObject, hasUseButtonWhenFree: false);
+		useInteractor.AddRequirement(useRequirement2);
 	}
 
 	public override void OnDataUpdate()
@@ -58,9 +64,13 @@ public class MVCheckpoint : MVLogicObject
 	public override void Destroy()
 	{
 		checkpointObject.TriggerBoxEvents.TriggerEnter -= triggerBoxEvents_TriggerEnter;
-		checkpointObject.TriggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
-		checkpointObject.TriggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
-		useInteractor.OnDestroy(Data);
+		if (useInteractor != null)
+		{
+			checkpointObject.TriggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;
+			checkpointObject.TriggerBoxEvents.TriggerExit -= useInteractor.triggerBoxEvents_TriggerExit;
+			useInteractor.OnDestroy(Data);
+			useInteractor = null;
+		}
 		base.Destroy();
 	}
 

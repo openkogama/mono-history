@@ -188,10 +188,6 @@ public class KoGaMaPackageClient
 		case WorldObjectType.WaterPlanePreset:
 			return new MVWaterPlanePreset(worldObjectData, worldObjects);
 		case WorldObjectType.CollectibleItem:
-			if (MVGameControllerBase.GameSessionData.planetID == 2527584 && MVGameControllerBase.GameSessionData.region == "br")
-			{
-				return new MVCollectible(worldObjectData, worldObjects, PrefabPool.Instance.MVCollectibleFantaPrefab);
-			}
 			return new MVCollectible(worldObjectData, worldObjects);
 		case WorldObjectType.MovingPlatformNode:
 			return new MVMovingPlatformNode(worldObjectData, worldObjects);
