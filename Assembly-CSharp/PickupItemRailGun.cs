@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
@@ -101,28 +100,41 @@ public class PickupItemRailGun : PickupItem
 		currentAmmo = ammo;
 	}
 
-	private IEnumerator DoChargingAnimation()
+	private void DoChargingAnimation()
 	{
-		chargeParticles.Play();
-		Material m = chargeParticlesRenderer.sharedMaterial;
-		while (isCharging && owner.CurrentItem == this)
-		{
-			float charge = chargeCurve.Evaluate(Time.time - chargeBeginTime);
-			audioSource.volume = charge * 0.2f;
-			if (owner.IsLocal)
-			{
-				Camera.main.fieldOfView = Mathf.Lerp(60f, toFieldOfView, charge);
-			}
-			chargeParticles.time = charge;
-			if (charge >= 1f)
-			{
-				chargeParticlesRenderer.material.SetColor("_TintColor", new Color(1f, 0.4f, 0.1f, 1f));
-			}
-			yield return 0;
-		}
-		chargeParticlesRenderer.sharedMaterial = m;
-		chargeParticles.Stop();
+		float num = chargeCurve.Evaluate(Time.time - chargeBeginTime);
+		audioSource.volume = num * 0.2f;
 		if (owner.IsLocal)
+		{
+			Camera.main.fieldOfView = Mathf.Lerp(60f, toFieldOfView, num);
+		}
+		chargeParticles.time = num;
+	}
+
+	private void Update()
+	{
+		if (isCharging)
+		{
+			if (!audioSource.isPlaying)
+			{
+				audioSource.Play();
+			}
+			if (!chargeParticles.isPlaying)
+			{
+				chargeParticles.Play();
+			}
+			DoChargingAnimation();
+			return;
+		}
+		if (chargeParticles.isPlaying)
+		{
+			chargeParticles.Stop();
+		}
+		if (audioSource.isPlaying)
+		{
+			audioSource.Stop();
+		}
+		if (Camera.main.fieldOfView != 60f)
 		{
 			Camera.main.fieldOfView = 60f;
 		}
@@ -133,6 +145,7 @@ public class PickupItemRailGun : PickupItem
 		base.OnUnequip();
 		if (owner.IsLocal)
 		{
+			isCharging = false;
 			Camera.main.fieldOfView = 60f;
 		}
 	}
@@ -143,11 +156,9 @@ public class PickupItemRailGun : PickupItem
 		{
 			audioSource.clip = chargeSound;
 			audioSource.loop = true;
-			audioSource.Play();
 		}
 		isCharging = true;
 		chargeBeginTime = Time.time;
-		StartCoroutine(DoChargingAnimation());
 	}
 
 	public override void TriggerEnd()
@@ -168,7 +179,10 @@ public class PickupItemRailGun : PickupItem
 		{
 			audioSource.Stop();
 			audioSource.loop = false;
-			audioSource.PlayOneShot(releaseSound);
+			if (gameObject.activeInHierarchy)
+			{
+				audioSource.PlayOneShot(releaseSound);
+			}
 		}
 		missColor.a = 1f;
 		hitColor.a = missColor.a;

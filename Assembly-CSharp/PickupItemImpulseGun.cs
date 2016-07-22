@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using MV.Common;
 using MV.WorldObject.RuntimeEvents;
@@ -54,20 +53,13 @@ public class PickupItemImpulseGun : PickupItem
 		}
 	}
 
-	private IEnumerator DoChargingAnimation()
+	private void DoChargingAnimation()
 	{
-		chargeObject.gameObject.SetActive(value: true);
-		while (isCharging)
-		{
-			float scale = chargeCurve.Evaluate(Time.time - chargeBeginTime);
-			audioSource.volume = scale;
-			float size = Random.Range(0.1f, 0.3f);
-			transform.localScale = new Vector3(size, size, size) * scale + Vector3.one;
-			chargeObject.localScale = Vector3.one * (scale + size * 0.5f);
-			yield return 0;
-		}
-		chargeObject.gameObject.SetActive(value: false);
-		transform.localScale = Vector3.one;
+		float num = chargeCurve.Evaluate(Time.time - chargeBeginTime);
+		audioSource.volume = num;
+		float num2 = Random.Range(0.1f, 0.3f);
+		transform.localScale = new Vector3(num2, num2, num2) * num + Vector3.one;
+		chargeObject.localScale = Vector3.one * (num + num2 * 0.5f);
 	}
 
 	public override void TriggerBegin(int instigatorActorNr)
@@ -76,11 +68,30 @@ public class PickupItemImpulseGun : PickupItem
 		{
 			audioSource.clip = chargeSound;
 			audioSource.loop = true;
-			audioSource.Play();
 		}
 		isCharging = true;
 		chargeBeginTime = Time.time;
-		StartCoroutine(DoChargingAnimation());
+	}
+
+	private void Update()
+	{
+		if (isCharging)
+		{
+			if (!chargeObject.gameObject.activeInHierarchy)
+			{
+				chargeObject.gameObject.SetActive(value: true);
+			}
+			DoChargingAnimation();
+			if (!audioSource.isPlaying)
+			{
+				audioSource.Play();
+			}
+		}
+		else if (chargeObject.gameObject.activeInHierarchy)
+		{
+			chargeObject.gameObject.SetActive(value: false);
+			transform.localScale = Vector3.one;
+		}
 	}
 
 	public override void TriggerEnd()

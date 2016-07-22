@@ -6,6 +6,8 @@ public static class CullingApiWrapper
 {
 	public const int dynamicObjectsDistanceBand = 3;
 
+	public const int overrideDynamicObjectsDistanceBand = 2;
+
 	public const int npcDistanceBandOverride = 2;
 
 	private static CullingGroup cullingGroup;

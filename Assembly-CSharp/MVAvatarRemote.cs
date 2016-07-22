@@ -42,11 +42,12 @@ public class MVAvatarRemote : MVAvatar
 		triggerCollider = CreateTriggerCollider();
 		AvatarStateChangedHandler(AvatarRuntimeDataState.Value);
 		avatarRemoteMovementCalculator = gameObject.AddComponent<AvatarRemoteMovementCalculator>();
-		cullingSubscriberDynamic = new CullingSubscriberDynamic(3.5f, 3, gameObject);
+		cullingSubscriberDynamic = new CullingSubscriberDynamic(3.5f, 3, 2, gameObject);
 	}
 
 	public override void Destroy()
 	{
+		base.Destroy();
 		if (cullingSubscriberDynamic != null)
 		{
 			cullingSubscriberDynamic.Destroy();

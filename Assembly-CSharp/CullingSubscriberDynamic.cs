@@ -4,13 +4,15 @@ public class CullingSubscriberDynamic : ICullingSubscriber, IUpdatecontrollerSub
 {
 	private int cullingBandIndex;
 
+	private int overrideDistanceBandIndex = -1;
+
 	private GameObject gameObject;
 
 	private Transform transform;
 
 	public int CullingIndex { get; set; }
 
-	public CullingSubscriberDynamic(float radius, int cullingBandIndex, GameObject gameObject)
+	public CullingSubscriberDynamic(float radius, int cullingBandIndex, int overrideDistanceBandIndex, GameObject gameObject)
 	{
 		this.cullingBandIndex = cullingBandIndex;
 		this.gameObject = gameObject;
@@ -24,6 +26,10 @@ public class CullingSubscriberDynamic : ICullingSubscriber, IUpdatecontrollerSub
 	public void OnStateChanged(CullingGroupEvent cullingGroupEvent)
 	{
 		bool active = CullingApiWrapper.Visible(cullingGroupEvent, cullingBandIndex);
+		if (overrideDistanceBandIndex != -1 && cullingGroupEvent.currentDistance <= overrideDistanceBandIndex)
+		{
+			active = true;
+		}
 		gameObject.SetActive(active);
 	}
 

@@ -61,7 +61,6 @@ public class MovableVisualization : MonoBehaviour, IUpdatecontrollerSubscriber
 		MVCubeModelBase mVCubeModelBase = this.cmb;
 		mVCubeModelBase.Changed = (Action<CubeModelChangedEventArgs>)Delegate.Combine(mVCubeModelBase.Changed, new Action<CubeModelChangedEventArgs>(cmb_Changed));
 		cmbClone = CreateMeshClone(cmb);
-		Debug.Log(cmb.WorldPosition);
 		UpdateController.AddFixedUpdateObject(this, UpdatePriority.POST_UPDATEBUCKET_20);
 		transform.position = cmb.WorldPosition;
 		transform.rotation = cmb.WorldRotation;

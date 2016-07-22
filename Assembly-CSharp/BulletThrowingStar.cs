@@ -101,42 +101,56 @@ public class BulletThrowingStar : MonoBehaviour
 
 	public void Fire(float speed, float rangeStraight, Ray lineOfFire, HashSet<int> ignoreWoIDs, float rangeFall, float fallRate)
 	{
-		if (!isFired)
+		if (isFired)
 		{
-			this.lineOfFire = lineOfFire;
-			this.fallRate = fallRate;
-			this.ignoreWoIDs = ignoreWoIDs;
-			isFired = true;
-			this.rangeFall = rangeFall;
-			this.fallRate = fallRate;
-			this.rangeStraight = rangeStraight;
-			this.speed = speed;
-			inAir = true;
-			isFalling = false;
-			hasHit = false;
-			hasHitStatic = false;
-			hasNotified = false;
-			downwardForce = 0f;
-			totalDistTravelled = 0f;
-			coolOffStartTime = 0f;
-			Vector3 localPosition = tfrm.localPosition;
-			Vector3 vector = FindTargetPos(rangeStraight);
-			tfrm.localRotation = Quaternion.LookRotation((vector - localPosition).normalized);
-			tfrm.localPosition = localPosition;
-			if ((bool)pSystem)
+			return;
+		}
+		this.lineOfFire = lineOfFire;
+		this.fallRate = fallRate;
+		this.ignoreWoIDs = ignoreWoIDs;
+		isFired = true;
+		this.rangeFall = rangeFall;
+		this.fallRate = fallRate;
+		this.rangeStraight = rangeStraight;
+		this.speed = speed;
+		inAir = true;
+		isFalling = false;
+		hasHit = false;
+		hasHitStatic = false;
+		hasNotified = false;
+		downwardForce = 0f;
+		totalDistTravelled = 0f;
+		coolOffStartTime = 0f;
+		Vector3 localPosition = tfrm.localPosition;
+		Vector3 vector = FindTargetPos(rangeStraight);
+		tfrm.localRotation = Quaternion.LookRotation((vector - localPosition).normalized);
+		tfrm.localPosition = localPosition;
+		if ((bool)pSystem)
+		{
+			pSystem.Play();
+		}
+		if ((bool)aSource)
+		{
+			aSource.loop = true;
+			aSource.Play();
+		}
+		direction = tfrm.forward;
+		airRotation = new Vector3(Random.Range(rotationSpeedXMin, rotationSpeedXMax), 0f, Random.Range(rotationSpeedZMin, rotationSpeedZMax));
+		enabled = true;
+		cullingSubscriberBase = new CullingSubscriberBase(1f, transform.position, OnStateChanged);
+		cullingSubscriberBase.DistanceBandIndex = 5;
+		MeshRenderer[] array = meshRenderers;
+		foreach (MeshRenderer meshRenderer in array)
+		{
+			Material[] materials = meshRenderer.materials;
+			foreach (Material material in materials)
 			{
-				pSystem.Play();
+				material.color = new Color(material.color.r, material.color.g, material.color.b, 1f);
 			}
-			if ((bool)aSource)
-			{
-				aSource.loop = true;
-				aSource.Play();
-			}
-			direction = tfrm.forward;
-			airRotation = new Vector3(Random.Range(rotationSpeedXMin, rotationSpeedXMax), 0f, Random.Range(rotationSpeedZMin, rotationSpeedZMax));
-			enabled = true;
-			cullingSubscriberBase = new CullingSubscriberBase(1f, transform.position, OnStateChanged);
-			cullingSubscriberBase.DistanceBandIndex = 5;
+		}
+		if (trailRenderer != null)
+		{
+			trailRenderer.enabled = true;
 		}
 	}
 

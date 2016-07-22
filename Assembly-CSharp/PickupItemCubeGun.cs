@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
@@ -287,7 +286,27 @@ public class PickupItemCubeGun : PickupItemWithDelay
 		}
 		else if (!waitingToFire)
 		{
-			StartCoroutine(DoAutoFire());
+			StartFire();
+		}
+	}
+
+	public override void TriggerEnd()
+	{
+		Execute();
+		fireMain = false;
+		fireSecondary = false;
+		waitingToFire = false;
+		isFiring = false;
+	}
+
+	private void StartFire()
+	{
+		isFiring = true;
+		fireMain = true;
+		fireSecondary = false;
+		if (Time.time - prevFireTime > (float)fireInterval)
+		{
+			prevFireTime = Time.time - (float)fireInterval;
 		}
 	}
 
@@ -304,31 +323,34 @@ public class PickupItemCubeGun : PickupItemWithDelay
 		return false;
 	}
 
-	private IEnumerator DoAutoFire()
+	public override void UpdateControllerUpdate()
 	{
-		isFiring = true;
-		fireMain = true;
-		fireSecondary = false;
-		if (Time.time - prevFireTime > (float)fireInterval)
+		if (isFiring)
 		{
-			prevFireTime = Time.time - (float)fireInterval;
+			DoAutoFire();
 		}
-		while (isFiring)
+	}
+
+	private void DoAutoFire()
+	{
+		float num = Time.time - prevFireTime;
+		bool flag = fireSecondary;
+		fireSecondary = num > (float)fireIntervalSecondary;
+		fireMain = !fireSecondary;
+		Debug.Log("fireMain " + fireMain);
+		Debug.Log("fireSecondary " + fireSecondary);
+		if (fireSecondary && !flag)
 		{
-			float timeFiring = Time.time - prevFireTime;
-			bool prevFireSecondary = fireSecondary;
-			fireSecondary = timeFiring > (float)fireIntervalSecondary;
-			fireMain = !fireSecondary;
-			if (fireSecondary && !prevFireSecondary)
-			{
-				chargeObject.gameObject.SetActive(value: true);
-			}
-			yield return 0;
+			chargeObject.gameObject.SetActive(value: true);
 		}
-		while (Time.time - prevFireTime <= (float)fireInterval)
+	}
+
+	private void Execute()
+	{
+		if (Time.time - prevFireTime <= (float)fireInterval)
 		{
 			waitingToFire = true;
-			yield return 0;
+			return;
 		}
 		if (fireMain)
 		{
@@ -340,12 +362,6 @@ public class PickupItemCubeGun : PickupItemWithDelay
 			OnFireSecondary(owner.IsLocal);
 			prevFireTime = Time.time;
 			chargeObject.gameObject.SetActive(value: false);
-		}
-		fireMain = false;
-		fireSecondary = false;
-		waitingToFire = false;
-		if (!IsAmmoDepleted)
-		{
 		}
 	}
 

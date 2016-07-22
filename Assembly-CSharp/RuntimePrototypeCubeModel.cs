@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 
@@ -394,7 +395,7 @@ public class RuntimePrototypeCubeModel
 	public void UpdatePrototype(BytePacker bp)
 	{
 		DecodeBytePacker(bp, this);
-		if (MVGameControllerBase.IsPlaying)
+		if (MVGameControllerBase.GameSessionData.gameMode == MVGameMode.Play)
 		{
 			return;
 		}

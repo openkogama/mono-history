@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
@@ -47,6 +46,12 @@ public class PickupItemMultiThrowingStar : PickupItemWithDelay
 
 	public float fireDelay = 0.1f;
 
+	private bool isLocal;
+
+	private int throwingStarsFired;
+
+	private float fireTime;
+
 	public override AvatarItemType Type => AvatarItemType.MultiThrowingStar;
 
 	public override int Quantity => ammo;
@@ -73,48 +78,74 @@ public class PickupItemMultiThrowingStar : PickupItemWithDelay
 
 	protected override void OnFire(bool isLocal)
 	{
-		StartCoroutine(DoFire(isLocal));
+		this.isLocal = isLocal;
+		StartFire();
 	}
 
-	private IEnumerator DoFire(bool isLocal)
+	public override void UpdateControllerUpdate()
 	{
-		for (int i = 0; i < numStars; i++)
+		base.UpdateControllerUpdate();
+		if (isFiring)
 		{
-			float fireTime = Time.time;
-			BulletThrowingStar p = BulletThrowingStar.CreateBullet(PoolEnums.MultiThrowingStarBullet, muzzlePoint.position);
-			float r = UnityEngine.Random.Range(0f - randomDirection, randomDirection);
-			if (i == 2)
-			{
-				r = 0f;
-			}
-			Ray lineOfFire = new Ray(direction: Quaternion.AngleAxis(((float)i - (float)numStars / 2f + r) * spread, shootingAngleAxis) * owner.LookDirection, origin: owner.LookOrigin);
-			p.onHit = (BulletThrowingStar.OnHitDelegate)Delegate.Combine(p.onHit, new BulletThrowingStar.OnHitDelegate(HandleHit));
-			if (isLocal)
-			{
-				p.onHitLocal = HandleDirectHit;
-			}
-			p.Fire(owner.GetAbsolutProjectileSpeed(bulletSpeed), bulletRangeStraight, lineOfFire, owner.IgnoreWOIDs, bulletRangeFall, bulletFallRate);
-			if (isLocal)
-			{
-				MVGameControllerBase.AudioManager.Play("projectile fire", fireSoundClip, Camera.main.transform.position + Camera.main.transform.forward, 0.5f, SoundRangeDistance.Long);
-			}
-			else
-			{
-				MVGameControllerBase.AudioManager.Play("projectile fire", fireSoundClip, muzzlePoint.position, 0.5f, SoundRangeDistance.Long);
-			}
-			--ammo;
-			while (Time.time < fireTime + fireDelay)
-			{
-				yield return 0;
-			}
+			DoFire(isLocal);
 		}
-		isFiring = false;
+	}
+
+	public override void TriggerEnd()
+	{
+	}
+
+	private void StartFire()
+	{
+		isFiring = true;
+		throwingStarsFired = 0;
+		fireTime = Time.time;
+	}
+
+	private void FireThrowingStar(bool isLocal)
+	{
+		BulletThrowingStar bulletThrowingStar = BulletThrowingStar.CreateBullet(PoolEnums.MultiThrowingStarBullet, muzzlePoint.position);
+		float num = UnityEngine.Random.Range(0f - randomDirection, randomDirection);
+		if (throwingStarsFired == 2)
+		{
+			num = 0f;
+		}
+		Vector3 direction = Quaternion.AngleAxis(((float)throwingStarsFired - (float)numStars / 2f + num) * spread, shootingAngleAxis) * owner.LookDirection;
+		Ray lineOfFire = new Ray(owner.LookOrigin, direction);
+		bulletThrowingStar.onHit = (BulletThrowingStar.OnHitDelegate)Delegate.Combine(bulletThrowingStar.onHit, new BulletThrowingStar.OnHitDelegate(HandleHit));
+		if (isLocal)
+		{
+			bulletThrowingStar.onHitLocal = HandleDirectHit;
+		}
+		bulletThrowingStar.Fire(owner.GetAbsolutProjectileSpeed(bulletSpeed), bulletRangeStraight, lineOfFire, owner.IgnoreWOIDs, bulletRangeFall, bulletFallRate);
+		if (isLocal)
+		{
+			MVGameControllerBase.AudioManager.Play("projectile fire", fireSoundClip, Camera.main.transform.position + Camera.main.transform.forward, 0.5f, SoundRangeDistance.Long);
+		}
+		else
+		{
+			MVGameControllerBase.AudioManager.Play("projectile fire", fireSoundClip, muzzlePoint.position, 0.5f, SoundRangeDistance.Long);
+		}
+		throwingStarsFired++;
+		--ammo;
+		if (throwingStarsFired >= numStars)
+		{
+			isFiring = false;
+		}
+	}
+
+	private void DoFire(bool isLocal)
+	{
+		if (throwingStarsFired < numStars && Time.time >= fireTime + fireDelay)
+		{
+			FireThrowingStar(isLocal);
+		}
 		if ((int)ammo <= 0)
 		{
-			MVEquipable equipable = owner.WorldObjectOwner.GameObject.GetComponent<MVEquipable>();
-			if (equipable != null)
+			MVEquipable component = owner.WorldObjectOwner.GameObject.GetComponent<MVEquipable>();
+			if (component != null)
 			{
-				equipable.Unequip();
+				component.Unequip();
 			}
 		}
 	}

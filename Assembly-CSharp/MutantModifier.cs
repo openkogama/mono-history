@@ -20,7 +20,6 @@ public class MutantModifier : AvatarModifier
 	{
 		target.StartBlinking(BlinkType.Poison, float.PositiveInfinity);
 		owner = target;
-		fireParticles.Play();
 		isDeactivating = false;
 	}
 
@@ -52,6 +51,10 @@ public class MutantModifier : AvatarModifier
 
 	private void Update()
 	{
+		if (!fireParticles.isPlaying && !isDeactivating)
+		{
+			fireParticles.Play();
+		}
 		if (!owner.IsLocal || isDeactivating)
 		{
 			return;

@@ -346,7 +346,7 @@ public class MVJetPack : MVVehicleBase
 			InteractionDataHandler interactionDataHandler = mVCubeModelInstance.GameObject.AddComponent<InteractionDataHandler>();
 			interactionDataHandler.WorldObjectParent = this;
 			mVCubeModelInstance.Visible = true;
-			cullingSubscriberDynamic = new CullingSubscriberDynamic(4f, 3, gameObject);
+			cullingSubscriberDynamic = new CullingSubscriberDynamic(4f, 3, 2, gameObject);
 		}
 	}
 
@@ -368,6 +368,7 @@ public class MVJetPack : MVVehicleBase
 
 	public override void Destroy()
 	{
+		base.Destroy();
 		if (cullingSubscriberDynamic != null)
 		{
 			cullingSubscriberDynamic.Destroy();

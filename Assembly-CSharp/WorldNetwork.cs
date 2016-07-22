@@ -29,6 +29,7 @@ public class WorldNetwork : World
 
 	public void CreateGameWorldFromQueryData(BytePacker queryData, int instigatorActorNumber)
 	{
+		CullingApiWrapper.Init(10000, MVGameControllerBase.CameraController.MainCamera, CullingApiWrapper.baseDistance, MVGameControllerBase.CameraController.MainCamera.transform);
 		KoGaMaDataHandler.GetKoGaMaDataAsync(queryData, HandleDeserializedWorldData, readRuntimeData: true, (int rootId) =>
 		{
 			OnGameDataDeserialized(queryData, instigatorActorNumber, rootId);
@@ -38,7 +39,6 @@ public class WorldNetwork : World
 	private void OnGameDataDeserialized(BytePacker queryData, int instigatorActorNumber, int rootId)
 	{
 		MVWorldObjectClient worldObjectClient = worldObjectClientManager.GetWorldObjectClient(rootId);
-		CullingApiWrapper.Init(worldObjectClientManager.Count, MVGameControllerBase.CameraController.MainCamera, CullingApiWrapper.baseDistance, MVGameControllerBase.CameraController.MainCamera.transform);
 		worldObjectClient?.Initialize();
 		ConstructRuntimeEventManager();
 		DeserializeRuntimeEvents(queryData);

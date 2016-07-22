@@ -91,7 +91,7 @@ public class MVHamsterWheel(Dictionary<object, object> data, Dictionary<int, MVW
 		if (!IsInSpawner)
 		{
 			gameObject.AddComponent<InteractionDataHandler>();
-			cullingSubscriberDynamic = new CullingSubscriberDynamic(4f, 3, componentInChildren.gameObject);
+			cullingSubscriberDynamic = new CullingSubscriberDynamic(4f, 3, 2, componentInChildren.gameObject);
 			componentInChildren.enabled = true;
 		}
 		MVRuntimeDataVariable isVehicleDead = IsVehicleDead;
@@ -110,6 +110,7 @@ public class MVHamsterWheel(Dictionary<object, object> data, Dictionary<int, MVW
 
 	public override void Destroy()
 	{
+		base.Destroy();
 		if (cullingSubscriberDynamic != null)
 		{
 			cullingSubscriberDynamic.Destroy();

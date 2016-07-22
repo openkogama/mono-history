@@ -52,7 +52,7 @@ public class MVHoverCraft : MVSimpleOneSeatVehicle
 		if (!IsInSpawner)
 		{
 			gameObject.AddComponent<InteractionDataHandler>();
-			cullingSubscriberDynamic = new CullingSubscriberDynamic(4f, 3, componentInChildren.gameObject);
+			cullingSubscriberDynamic = new CullingSubscriberDynamic(4f, 3, 2, componentInChildren.gameObject);
 			mVCubeModelInstance.Visible = true;
 			componentInChildren.enabled = true;
 		}
@@ -72,6 +72,7 @@ public class MVHoverCraft : MVSimpleOneSeatVehicle
 
 	public override void Destroy()
 	{
+		base.Destroy();
 		if (cullingSubscriberDynamic != null)
 		{
 			cullingSubscriberDynamic.Destroy();

@@ -1,8 +1,7 @@
-using System.Collections;
 using CodeStage.AntiCheat.ObscuredTypes;
 using UnityEngine;
 
-public abstract class PickupItemWithDelay : PickupItem
+public abstract class PickupItemWithDelay : PickupItem, IUpdatecontrollerSubscriber
 {
 	public Color crossHairCannotFireLow = Color.red;
 
@@ -45,7 +44,7 @@ public abstract class PickupItemWithDelay : PickupItem
 		}
 		else
 		{
-			StartCoroutine(DoAutoFire());
+			isFiring = true;
 		}
 	}
 
@@ -54,28 +53,46 @@ public abstract class PickupItemWithDelay : PickupItem
 		isFiring = false;
 	}
 
-	private IEnumerator DoAutoFire()
+	public override void OnEquip()
 	{
-		isFiring = true;
-		while (isFiring)
+		base.OnEquip();
+		UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
+	}
+
+	private void Fire()
+	{
+		if (!IsAmmoDepleted && Time.time - lastFireTime > (float)fireInterval)
 		{
-			if (!IsAmmoDepleted && Time.time - lastFireTime > (float)fireInterval)
-			{
-				lastFireTime = Time.time;
-				OnFire(owner.IsLocal);
-				firedThisFrame = true;
-			}
-			if (IsAmmoDepleted)
-			{
-				MVEquipable equipable = owner.WorldObjectOwner.GameObject.GetComponent<MVEquipable>();
-				if (equipable != null)
-				{
-					equipable.Unequip();
-				}
-				isFiring = false;
-				break;
-			}
-			yield return 0;
+			lastFireTime = Time.time;
+			OnFire(owner.IsLocal);
+			firedThisFrame = true;
 		}
+		if (IsAmmoDepleted)
+		{
+			MVEquipable component = owner.WorldObjectOwner.GameObject.GetComponent<MVEquipable>();
+			if (component != null)
+			{
+				component.Unequip();
+			}
+			isFiring = false;
+		}
+	}
+
+	protected virtual void OnDestroy()
+	{
+		Debug.Log("OnDestroy");
+		UpdateController.RemoveUpdateObject(this);
+	}
+
+	public virtual void UpdateControllerUpdate()
+	{
+		if (isFiring)
+		{
+			Fire();
+		}
+	}
+
+	public void UpdateControllerFixedUpdate()
+	{
 	}
 }

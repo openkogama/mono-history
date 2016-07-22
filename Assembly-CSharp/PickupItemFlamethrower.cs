@@ -54,7 +54,7 @@ public class PickupItemFlamethrower : PickupItem
 	{
 		while (IsStillFlaming() && currentFuel > 0f)
 		{
-			Fire(owner.WorldObjectOwner.Id);
+			Fire();
 			yield return new WaitForSeconds(0.2f);
 		}
 	}
@@ -81,18 +81,18 @@ public class PickupItemFlamethrower : PickupItem
 			}
 			if (currentFuel < 0f)
 			{
-				MVEquipable equipable = owner.WorldObjectOwner.GameObject.GetComponent<MVEquipable>();
-				if (equipable != null)
+				if (owner.IsLocal)
 				{
-					equipable.Unequip();
+					MVEquipable equipable = owner.WorldObjectOwner.GameObject.GetComponent<MVEquipable>();
+					if (equipable != null)
+					{
+						equipable.Unequip();
+					}
 				}
-				yield break;
+				break;
 			}
 			yield return 0;
 		}
-		ParticleSystem.EmissionModule em = flameParticles.emission;
-		em.enabled = false;
-		audioSource.Stop();
 	}
 
 	public override void TriggerBegin(int instigatorActorNr)
@@ -106,25 +106,44 @@ public class PickupItemFlamethrower : PickupItem
 		flamerStartTime = Time.time;
 		ParticleSystem.EmissionModule emission = flameParticles.emission;
 		emission.enabled = true;
-		audioSource.Play();
-		flameParticles.Play();
 		isFlaming = true;
-		StartCoroutine(DoFlaming());
-		StartCoroutine(DoFuelBurn());
+		if (owner.IsLocal)
+		{
+			StartCoroutine(DoFlaming());
+			StartCoroutine(DoFuelBurn());
+		}
 	}
 
 	public override void TriggerEnd()
 	{
 		isFlaming = false;
+		ParticleSystem.EmissionModule emission = flameParticles.emission;
+		emission.enabled = false;
+		audioSource.Stop();
 	}
 
-	private void Fire(int avatarId)
+	private void Update()
 	{
-		List<InteractionDataHandlerBase> list = SphereOverlapAgainsWos();
-		if (!owner.IsLocal || list.Count <= 0)
+		if (isFlaming)
+		{
+			if (!audioSource.isPlaying)
+			{
+				audioSource.Play();
+			}
+			if (!flameParticles.isPlaying)
+			{
+				flameParticles.Play();
+			}
+		}
+	}
+
+	private void Fire()
+	{
+		if (!owner.IsLocal)
 		{
 			return;
 		}
+		List<InteractionDataHandlerBase> list = SphereOverlapAgainsWos();
 		foreach (InteractionDataHandlerBase item in list)
 		{
 			item.HandleInteraction(FlamethrowerHitPackage.Create(), interactionIsLocal: false);

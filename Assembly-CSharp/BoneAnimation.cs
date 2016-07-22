@@ -41,6 +41,8 @@ public class BoneAnimation : MonoBehaviour
 	{
 	};
 
+	private bool firstTimeEnabled = true;
+
 	private float speed = 1f;
 
 	public AudioSource AudioSource
@@ -55,11 +57,12 @@ public class BoneAnimation : MonoBehaviour
 		}
 	}
 
-	private void Start()
+	private void OnEnable()
 	{
-		if (!avatarAnimation.isPlaying)
+		if (firstTimeEnabled)
 		{
-			avatarAnimation.Play("Idle", PlayMode.StopAll);
+			PlayAndPauseAt("Idle", 0.3f);
+			firstTimeEnabled = false;
 		}
 	}
 

@@ -41,6 +41,11 @@ public class CullingTerrainManager
 	{
 		foreach (IntVector item in chunksChanged)
 		{
+			if (!terrainCullingSubscriberBases.ContainsKey(item))
+			{
+				Debug.LogWarning("Changed chunk does not yet exist");
+				continue;
+			}
 			terrainCullingSubscriberBases[item].Setup(chunkInstances.GetChunk(item).renderer.bounds);
 			terrainCullingSubscriberBases[item].HandleChange();
 		}
