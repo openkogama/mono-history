@@ -97,14 +97,16 @@ public class PickupItemFlamethrower : PickupItem
 
 	public override void TriggerBegin(int instigatorActorNr)
 	{
+		ParticleSystem.EmissionModule emission = flameParticles.emission;
 		if (IsStillFlaming())
 		{
 			isFlaming = true;
 			flamerStartTime = Time.time;
+			emission.enabled = true;
+			isFlaming = true;
 			return;
 		}
 		flamerStartTime = Time.time;
-		ParticleSystem.EmissionModule emission = flameParticles.emission;
 		emission.enabled = true;
 		isFlaming = true;
 		if (owner.IsLocal)

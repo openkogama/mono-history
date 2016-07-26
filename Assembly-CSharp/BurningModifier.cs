@@ -7,15 +7,27 @@ public class BurningModifier : AvatarModifier
 
 	public override AvatarModifierPackageType ModifierType => AvatarModifierPackageType.Fire;
 
+	protected override void OnActivated(Avatar target)
+	{
+		Debug.Log("Activated");
+		if (!gameObject.activeInHierarchy)
+		{
+			fireParticles.Stop();
+		}
+	}
+
 	protected override void OnDeactivated(Avatar target)
 	{
+		Debug.Log("Disabled");
 		if (gameObject.activeInHierarchy)
 		{
+			transform.parent = null;
 			StartCoroutine(DoFadeAndDestroy());
 		}
 		else
 		{
-			Object.Destroy(gameObject);
+			fireParticles.Stop();
+			Destroy();
 		}
 	}
 
@@ -26,6 +38,12 @@ public class BurningModifier : AvatarModifier
 		{
 			yield return 0;
 		}
+		Destroy();
+	}
+
+	private void Destroy()
+	{
+		StopAllCoroutines();
 		Object.Destroy(gameObject);
 	}
 }

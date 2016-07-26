@@ -12,8 +12,6 @@ public class MVGameCoin : MVLogicObject
 		Invisible
 	}
 
-	private float rotationSpeed = 0.9f;
-
 	private MVGameCoinObject pickupObject;
 
 	private UseInteractor useInteractor;

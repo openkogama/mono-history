@@ -117,13 +117,8 @@ public abstract class MVWorldObjectClientManager
 
 		private const float updatesPerSecond = 1000f;
 
-		private WorldObjectsIdsLodBookkeeping worldObjectsIdsLodBookkeeping = new WorldObjectsIdsLodBookkeeping(new List<int>());
-
-		private MVWorldObjectClientManager worldObjectClientManager;
-
 		public WorldObjectLOD(MVWorldObjectClientManager worldObjectClientManager)
 		{
-			this.worldObjectClientManager = worldObjectClientManager;
 		}
 
 		public void AddWorldObjectToLOD(int woID)

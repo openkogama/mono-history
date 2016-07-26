@@ -130,7 +130,16 @@ public class FriendList
 				{
 					OnPendingCountChanged(GetOnlineFriends().Count);
 				}
-				NotificationController.PushNotification(string.Format(TM._("Accepted friend request from {0}."), MVGameControllerBase.Game.LocalPlayer.Username), null, 3);
+				MVPlayer mVPlayer = null;
+				foreach (MVPlayer value in MVGameControllerBase.Game.Players.Values)
+				{
+					if (profileID == value.ProfileID)
+					{
+						mVPlayer = value;
+						break;
+					}
+				}
+				NotificationController.PushNotification(string.Format(TM._("Accepted friend request from {0}."), mVPlayer.Username), null, 3);
 				AddFriend(friendID, MVGameControllerBase.Game.LocalPlayer.ProfileID, profileID, status);
 			}
 		}

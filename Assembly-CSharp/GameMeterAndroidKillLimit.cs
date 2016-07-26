@@ -1,3 +1,5 @@
+using System;
+
 public class GameMeterAndroidKillLimit : GameMeterAndroidKillBase
 {
 	private KillLimitClient killClient;
@@ -9,6 +11,17 @@ public class GameMeterAndroidKillLimit : GameMeterAndroidKillBase
 	private void Start()
 	{
 		SetGameMeterVisibility();
+		MVGameControllerBase.Game.WinningConditionManager.OnWinningConditionReset += OnVictoryConditionMet;
+	}
+
+	private void OnVictoryConditionMet(object sender, EventArgs args)
+	{
+		UpdateValue();
+	}
+
+	private void OnDestroy()
+	{
+		MVGameControllerBase.Game.WinningConditionManager.OnWinningConditionReset -= OnVictoryConditionMet;
 	}
 
 	public override void SetGameMeterVisibility()

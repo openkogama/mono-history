@@ -244,10 +244,12 @@ public class Bullet : MonoBehaviour
 			if (onHit != null)
 			{
 				onHit(voxelHit, lineOfFire);
+				onHit = null;
 			}
 			if (onHitLocal != null)
 			{
 				onHitLocal(voxelHit, lineOfFire);
+				onHitLocal = null;
 			}
 		}
 		currentAirTime += Time.deltaTime;

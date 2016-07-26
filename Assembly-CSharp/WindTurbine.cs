@@ -47,6 +47,7 @@ public class WindTurbine : MVLogicObject
 
 	public override void Initialize()
 	{
+		base.Initialize();
 		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
 		{
 			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
@@ -186,8 +187,11 @@ public class WindTurbine : MVLogicObject
 
 	public override void Destroy()
 	{
-		IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
-		iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Remove(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
+		{
+			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
+			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Remove(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
+		}
 		UpdateController.RemoveFixedUpdateObject(this);
 		base.Destroy();
 	}

@@ -46,6 +46,8 @@ public class PickupItemRailGun : PickupItem
 
 	private float chargeBeginTime;
 
+	private bool releaseSoundPlaying;
+
 	private ObscuredInt currentAmmo = 10;
 
 	public override AvatarItemType Type => AvatarItemType.RailGun;
@@ -132,7 +134,14 @@ public class PickupItemRailGun : PickupItem
 		}
 		if (audioSource.isPlaying)
 		{
-			audioSource.Stop();
+			if (!releaseSoundPlaying)
+			{
+				audioSource.Stop();
+			}
+		}
+		else
+		{
+			releaseSoundPlaying = false;
 		}
 		if (Camera.main.fieldOfView != 60f)
 		{
@@ -182,6 +191,7 @@ public class PickupItemRailGun : PickupItem
 			if (gameObject.activeInHierarchy)
 			{
 				audioSource.PlayOneShot(releaseSound);
+				releaseSoundPlaying = true;
 			}
 		}
 		missColor.a = 1f;

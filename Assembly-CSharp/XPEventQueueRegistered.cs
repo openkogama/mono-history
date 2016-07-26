@@ -28,9 +28,32 @@ public class XPEventQueueRegistered : XPEventQueue
 
 	private void XPUpdateCallback(WWW result)
 	{
-		XPUpdateData xPUpdateData = JsonConvert.DeserializeObject<XPUpdateData>(result.text);
-		Debug.Log(xPUpdateData);
-		xpProgress.Update(xPUpdateData.XP, (byte)xPUpdateData.XPTypeID);
+		if (ValidateXPCallback(result))
+		{
+			XPUpdateData xPUpdateData = JsonConvert.DeserializeObject<XPUpdateData>(result.text);
+			Debug.Log(xPUpdateData);
+			xpProgress.Update(xPUpdateData.XP, (byte)xPUpdateData.XPTypeID);
+		}
+	}
+
+	private bool ValidateXPCallback(WWW result)
+	{
+		if (this == null)
+		{
+			Debug.LogError("callback to null object.");
+			return false;
+		}
+		if (result == null)
+		{
+			Debug.LogError("XPUpdateCallback www is null.");
+			return false;
+		}
+		if (!string.IsNullOrEmpty(result.error))
+		{
+			Debug.LogError(result.error);
+			return false;
+		}
+		return true;
 	}
 
 	protected override void RequestXp(XPData xpData)

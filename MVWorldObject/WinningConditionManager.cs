@@ -44,6 +44,8 @@ public class WinningConditionManager
 
 	public event EventHandler<EventArgs> OnWinningConditionChanged;
 
+	public event EventHandler<EventArgs> OnWinningConditionReset;
+
 	public event EventHandler<EventArgs> OnWinningConditionCountChanged;
 
 	public WinningConditionManager(GameStatCounterManager gameCounterManager)
@@ -67,6 +69,10 @@ public class WinningConditionManager
 			return false;
 		});
 		gameCounterManager.Clear();
+		if (OnWinningConditionReset != null)
+		{
+			OnWinningConditionReset(this, EventArgs.Empty);
+		}
 	}
 
 	public void Traverse(Func<IWinningCondition, bool> callBack)

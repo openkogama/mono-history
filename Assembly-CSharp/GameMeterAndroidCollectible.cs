@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,6 +19,17 @@ public class GameMeterAndroidCollectible : GameMeterAndroidBase
 	private void Start()
 	{
 		SetGameMeterVisibility();
+		MVGameControllerBase.Game.WinningConditionManager.OnWinningConditionReset += OnVictoryConditionMet;
+	}
+
+	private void OnVictoryConditionMet(object sender, EventArgs args)
+	{
+		UpdateValue();
+	}
+
+	private void OnDestroy()
+	{
+		MVGameControllerBase.Game.WinningConditionManager.OnWinningConditionReset -= OnVictoryConditionMet;
 	}
 
 	public override void SetGameMeterVisibility()
