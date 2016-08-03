@@ -33,10 +33,6 @@ public class SmoothPhysicsMovement : MonoBehaviour
 	{
 		this.targetTransform = targetTransform;
 		this.cullingSubscriberBase = cullingSubscriberBase;
-		if (cullingSubscriberBase == null)
-		{
-			Debug.LogWarning("Remember to add culling subscriber");
-		}
 	}
 
 	public void SmoothMove()

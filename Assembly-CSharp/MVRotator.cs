@@ -64,6 +64,7 @@ public class MVRotator : MVMovable
 	{
 		cullingSubscriberBase = new CullingSubscriberBase(OnStateChanged);
 		SetupCullingSphere();
+		cullingSubscriberBase.DistanceBandIndex = 4;
 		MVCubeModelInstance mVCubeModelInstance = CubeModel;
 		mVCubeModelInstance.Changed = (Action<CubeModelChangedEventArgs>)Delegate.Combine(mVCubeModelInstance.Changed, new Action<CubeModelChangedEventArgs>(Changed));
 		PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));

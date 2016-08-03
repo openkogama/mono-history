@@ -9,7 +9,7 @@ public class AdvancedGhostIcon : MonoBehaviour
 {
 	private const float advancedGhostBodyMaxRadius = 4f;
 
-	private const int ghostIconDistanceBand = 3;
+	private const int ghostIconDistanceBand = 4;
 
 	private bool visible;
 
@@ -57,6 +57,7 @@ public class AdvancedGhostIcon : MonoBehaviour
 	private void SetupCulling(MVAdvancedGhost advancedGhost)
 	{
 		cullingSubscriberBase = new CullingSubscriberBase(4f, transform.position, OnStateChange);
+		cullingSubscriberBase.DistanceBandIndex = 4;
 		advancedGhost.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(advancedGhost.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(AdvancedGhostOnPositionChanged));
 	}
 
@@ -76,7 +77,7 @@ public class AdvancedGhostIcon : MonoBehaviour
 
 	private void OnStateChange(CullingGroupEvent cullingGroupEvent)
 	{
-		visible = CullingApiWrapper.Visible(cullingGroupEvent, 3);
+		visible = CullingApiWrapper.Visible(cullingGroupEvent, 4);
 		SetVisibility();
 	}
 

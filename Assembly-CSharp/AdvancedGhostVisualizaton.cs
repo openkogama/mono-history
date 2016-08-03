@@ -125,8 +125,11 @@ public class AdvancedGhostVisualizaton : MonoBehaviour
 
 	public void ReceivedDamage()
 	{
-		receiveDamage.Play();
-		blinker.StartBlinking(BlinkType.Damage, 1.3f);
+		if (gameObject.activeInHierarchy)
+		{
+			receiveDamage.Play();
+			blinker.StartBlinking(BlinkType.Damage, 1.3f);
+		}
 	}
 
 	public void PlayEffect(Effect effect, float duration)

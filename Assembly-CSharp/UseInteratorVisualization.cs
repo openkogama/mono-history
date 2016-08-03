@@ -37,7 +37,7 @@ public class UseInteratorVisualization : MonoBehaviour
 	{
 		cullingSubscriberBase = new CullingSubscriberBase(OnStateChanged);
 		cullingSubscriberBase.Radius = 2f;
-		cullingSubscriberBase.DistanceBandIndex = 1;
+		cullingSubscriberBase.DistanceBandIndex = 2;
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woId);
 		worldObjectClient.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(worldObjectClient.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
 		UpdatePosition(worldObjectClient.WorldPosition);
@@ -75,8 +75,6 @@ public class UseInteratorVisualization : MonoBehaviour
 	{
 		if (cullingSubscriberBase != null)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woId);
-			worldObjectClient.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Remove(worldObjectClient.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
 			cullingSubscriberBase.Destroy();
 			cullingSubscriberBase = null;
 		}

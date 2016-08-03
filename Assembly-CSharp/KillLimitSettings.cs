@@ -35,7 +35,6 @@ public class KillLimitSettings : MonoBehaviour, IEventSystemHandler, IHandleSett
 	public void OnSettingChanged(string key, object value)
 	{
 		int num = Convert.ToInt32(value);
-		Debug.Log("Received value " + num);
 		settingsBase.OnSettingChanged(key, num);
 	}
 }

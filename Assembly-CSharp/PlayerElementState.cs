@@ -33,7 +33,6 @@ public class PlayerElementState : MonoBehaviour
 
 	public void Initialize(MVPlayer player, Friend friend)
 	{
-		Debug.LogWarning("Remember to hook up errors to console");
 		SetupButtons(player, friend);
 		SetButtonVisibility(player, friend);
 	}

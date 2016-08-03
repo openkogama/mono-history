@@ -4,11 +4,11 @@ using UnityEngine;
 
 public static class CullingApiWrapper
 {
-	public const int dynamicObjectsDistanceBand = 3;
+	public const int dynamicObjectsDistanceBand = 4;
 
-	public const int overrideDynamicObjectsDistanceBand = 2;
+	public const int overrideDynamicObjectsDistanceBand = 3;
 
-	public const int npcDistanceBandOverride = 2;
+	public const int npcDistanceBandOverride = 3;
 
 	private static CullingGroup cullingGroup;
 
@@ -24,7 +24,7 @@ public static class CullingApiWrapper
 
 	public static float baseDistance = 2.5f;
 
-	private static float[] sizes = new float[7] { 0.2f, 0.6f, 3f, 6f, 10f, 16f, 24f };
+	private static float[] sizes = new float[7] { 0.2f, 0.7f, 2f, 4f, 8f, 12f, 20f };
 
 	public static int NumBoundSpheres => numBoundingSpheres;
 

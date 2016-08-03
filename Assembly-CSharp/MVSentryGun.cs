@@ -78,6 +78,7 @@ public class MVSentryGun : MVLogicObject
 		UpdateSentryState();
 		PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
 		cullingSubscriberBase = new CullingSubscriberBase(2f, WorldPosition, OnStateChange);
+		cullingSubscriberBase.DistanceBandIndex = 4;
 	}
 
 	private void OnPositionChanged(MVWorldObjectClient wo, PositionChangedEventArgs positionChangedEventArgs)
@@ -88,7 +89,7 @@ public class MVSentryGun : MVLogicObject
 	private void OnStateChange(CullingGroupEvent cullingGroupEvent)
 	{
 		bool flag = CullingApiWrapper.Visible(cullingGroupEvent, cullingSubscriberBase.DistanceBandIndex);
-		if (cullingGroupEvent.currentDistance <= 2)
+		if (cullingGroupEvent.currentDistance <= 3)
 		{
 			flag = true;
 		}

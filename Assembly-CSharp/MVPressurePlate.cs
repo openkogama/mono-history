@@ -69,6 +69,7 @@ public class MVPressurePlate : MVLogicObject
 			}
 		}
 		SetVisibility();
+		SetupCulling(plateObject.gameObject);
 	}
 
 	public override void OnDataUpdate()

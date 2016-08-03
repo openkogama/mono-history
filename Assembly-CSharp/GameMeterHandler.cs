@@ -15,6 +15,24 @@ public class GameMeterHandler : MonoBehaviour
 		}
 		MVGameControllerBase.Game.GameStatCounterManager.OnCounterTypeChanged += CounterChanged;
 		MVGameControllerBase.Game.WinningConditionManager.OnWinningConditionCountChanged += ConditionCountChanged;
+		MVNetworkGame game = MVGameControllerBase.Game;
+		game.onPlayerListChanged = (MVNetworkGame.OnPlayerListChangedDelegate)Delegate.Combine(game.onPlayerListChanged, new MVNetworkGame.OnPlayerListChangedDelegate(UpdateValue));
+	}
+
+	private void OnDestroy()
+	{
+		MVGameControllerBase.Game.GameStatCounterManager.OnCounterTypeChanged -= CounterChanged;
+		MVGameControllerBase.Game.WinningConditionManager.OnWinningConditionCountChanged -= ConditionCountChanged;
+		MVNetworkGame game = MVGameControllerBase.Game;
+		game.onPlayerListChanged = (MVNetworkGame.OnPlayerListChangedDelegate)Delegate.Remove(game.onPlayerListChanged, new MVNetworkGame.OnPlayerListChangedDelegate(UpdateValue));
+	}
+
+	private void UpdateValue()
+	{
+		for (int i = 0; i < gameMeters.Count; i++)
+		{
+			gameMeters[i].UpdateValue();
+		}
 	}
 
 	private void ConditionCountChanged(object sender, EventArgs args)
@@ -27,12 +45,9 @@ public class GameMeterHandler : MonoBehaviour
 
 	private void CounterChanged(object sender, OnCounterTypeChangedArgs args)
 	{
-		if (args.actorNumber == MVGameControllerBase.WOCM.AvatarLocal.OwnerActorNr)
+		if (MVGameControllerBase.Game.GameStatCounterManager.ActiveTeams.Count > 1 || args.actorNumber == MVGameControllerBase.WOCM.AvatarLocal.OwnerActorNr)
 		{
-			for (int i = 0; i < gameMeters.Count; i++)
-			{
-				gameMeters[i].UpdateValue();
-			}
+			UpdateValue();
 		}
 	}
 }

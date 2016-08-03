@@ -123,15 +123,16 @@ public class MVGhostInstance : MVWorldObjectClient, IGameStateControllerSubscrib
 		UpdateController.AddFixedUpdateObject(this, UpdatePriority.PRE_UPDATEBUCKET_20, 10);
 		UpdateController.AddUpdateObject(this, UpdatePriority.PRE_UPDATEBUCKET_20, 10);
 		InitializeCommon();
+		SetupCulling();
 		smoothPhysicsMovement = _ghostInstance.AddComponent<SmoothPhysicsMovement>();
 		smoothPhysicsMovement.Init(moveTarget, cullingSubscriberBase);
 		MVGameControllerBase.Game.GameStateController.AddUpdateObject(this);
-		SetupCulling();
 	}
 
 	private void SetupCulling()
 	{
-		cullingSubscriberBase = new CullingSubscriberBase(1.7f, WorldPosition + lodSphereOffset, OnStateChange);
+		cullingSubscriberBase = new CullingSubscriberBase(3.4f, WorldPosition + lodSphereOffset, OnStateChange);
+		cullingSubscriberBase.DistanceBandIndex = 4;
 		PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
 	}
 
