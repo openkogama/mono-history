@@ -65,6 +65,7 @@ public class JetPackVisualization : VehicleVisualizationBase
 			moving.enabled = true;
 			vehicleBlinker.Init(JetPackRoot.gameObject.GetComponentsInChildren<MeshFilter>());
 			vehicleBlinker.Visible = true;
+			enabled = true;
 		}
 		prevWorldPosition = transform.position;
 	}

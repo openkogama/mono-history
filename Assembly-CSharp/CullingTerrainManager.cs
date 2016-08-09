@@ -53,7 +53,7 @@ public class CullingTerrainManager
 
 	private void CreateCullingSubscriber(IntVector chunkPos, ChunkInstances.ChunkInstanceVariables chunk)
 	{
-		Bounds bounds = chunk.renderer.bounds;
+		Bounds bounds = chunk.collider.bounds;
 		CullingSubscriberTerrainChunk value = new CullingSubscriberTerrainChunk(cubeModelBase, chunkPos, bounds);
 		terrainCullingSubscriberBases.Add(chunkPos, value);
 	}

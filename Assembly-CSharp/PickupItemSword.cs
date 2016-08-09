@@ -43,7 +43,6 @@ public class PickupItemSword : PickupItemWithDelay
 	{
 		swordAnim.Play();
 		isFiring = false;
-		MVGameControllerBase.AudioManager.Play("sword swing", audioSource, muzzlePoint.position);
 		if (isLocal)
 		{
 			MVGameControllerBase.AudioManager.Play("sword swing", audioSource, Camera.main.transform.position + Camera.main.transform.forward);

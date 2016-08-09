@@ -113,15 +113,15 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 
 	private void HandleInput()
 	{
-		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.LobbyMenu))
+		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.LobbyMenu))
 		{
 			lockCursorManager.LockCursor = false;
 		}
-		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.ToggleHD) && uiStack.IsStackEmpty())
+		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.ToggleHD) && uiStack.IsStackEmpty())
 		{
 			ToggleHD();
 		}
-		if (MVGameControllerBase.IEditModeUI != null && MVInputWrapper.GetBooleanControlUp(KogamaControls.ToggleLogicRendering))
+		if (MVGameControllerBase.IEditModeUI != null && MVInputWrapper.GetBooleanControlDown(KogamaControls.ToggleLogicRendering))
 		{
 			ToggleLogicVisibility();
 		}
@@ -136,7 +136,7 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 	{
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IShortcutKeyRegister x, BaseEventData y) =>
 		{
-			x.RegisterShortcutKey(KogamaControls.Respawn, KeyState.Up, Respawn);
+			x.RegisterShortcutKey(KogamaControls.Respawn, KeyState.Down, Respawn);
 		});
 	}
 

@@ -3308,11 +3308,12 @@ public class MVNetworkGame : IPhotonPeerListener
 	{
 		int actorNr = (int)photonEvent[254];
 		int id = (int)photonEvent[20];
-		if (WorldObjectClientManager.GetWorldObjectClient(id) != null)
+		MVWorldObjectClient worldObjectClient = WorldObjectClientManager.GetWorldObjectClient(id);
+		if (worldObjectClient != null)
 		{
-			if (WorldObjectClientManager.GetWorldObjectClient(id) is MVCollectible)
+			if (worldObjectClient is MVCollectible)
 			{
-				(WorldObjectClientManager.GetWorldObjectClient(id) as MVCollectible).OnPickup(actorNr);
+				(worldObjectClient as MVCollectible).OnPickup(actorNr);
 			}
 			else
 			{

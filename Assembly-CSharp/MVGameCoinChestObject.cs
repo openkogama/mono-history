@@ -17,6 +17,8 @@ public class MVGameCoinChestObject : ObjectPrefab
 	[SerializeField]
 	private GameObject visualObject;
 
+	public GameObject useInteractionRotator;
+
 	public ObjectParticleEmitterScript Particles => particles;
 
 	public GameCoinChestModelSelector ModelSelector => modelSelector;

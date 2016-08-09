@@ -31,14 +31,14 @@ public class UseLever : MVLogicObject
 		interactionFlags |= InteractionFlags.CanUseLevel;
 		interactionFlags |= InteractionFlags.CanUseStars;
 		useLeverObject = (UseLeverObject)component;
-		useLeverObject.UseInteractor = new UseInteractor(Id, gameObject, reset: false, useLeverObject.LeverCollider, Use);
+		useLeverObject.UseInteractor = new UseInteractor(Id, useLeverObject.useInteractionRotator, reset: false, useLeverObject.LeverCollider, Use);
 		useLeverObject.TriggerBoxEvents.TriggerEnter += useLeverObject.UseInteractor.triggerBoxEvents_TriggerEnter;
 		useLeverObject.TriggerBoxEvents.TriggerExit += useLeverObject.UseInteractor.triggerBoxEvents_TriggerExit;
-		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, new Vector3(0.5f, 1f, 0f));
+		GameCoinLogic useRequirement = new GameCoinLogic(useLeverObject.useInteractionRotator, new Vector3(0.5f, 1f, 0f));
 		useLeverObject.UseInteractor.AddRequirement(useRequirement);
-		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(gameObject);
+		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(useLeverObject.useInteractionRotator);
 		useLeverObject.UseInteractor.AddRequirement(useRequirement2);
-		StarRequirement useRequirement3 = new StarRequirement(gameObject);
+		StarRequirement useRequirement3 = new StarRequirement(useLeverObject.useInteractionRotator);
 		useLeverObject.UseInteractor.AddRequirement(useRequirement3);
 	}
 

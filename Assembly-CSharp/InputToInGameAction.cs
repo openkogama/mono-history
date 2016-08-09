@@ -44,7 +44,7 @@ public class InputToInGameAction
 		ignorePickupOwner = false;
 		if (MVGameControllerBase.IPlayModeUI == null || !MVGameControllerBase.IPlayModeUI.InLobbyState)
 		{
-			if (MVInputWrapper.GetBooleanControlUp(KogamaControls.Use))
+			if (MVInputWrapper.GetBooleanControlDown(KogamaControls.Use))
 			{
 				use = true;
 			}
@@ -52,7 +52,7 @@ public class InputToInGameAction
 			{
 				fire = true;
 			}
-			if (MVInputWrapper.GetBooleanControlUp(KogamaControls.DropCurrentItem))
+			if (MVInputWrapper.GetBooleanControlDown(KogamaControls.DropCurrentItem))
 			{
 				drop = true;
 			}

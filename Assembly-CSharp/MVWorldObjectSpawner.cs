@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using CodeStage.AntiCheat.ObscuredTypes;
 using UnityEngine;
 
-public abstract class MVWorldObjectSpawner(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects) : MVBlueprintBase(data, worldObjects)
+public abstract class MVWorldObjectSpawner : MVBlueprintBase
 {
 	protected UseInteractor useInteractor;
 
@@ -11,6 +11,16 @@ public abstract class MVWorldObjectSpawner(Dictionary<object, object> data, Dict
 	protected int spawnWorldObjectID = -1;
 
 	protected TriggerBoxEvents triggerBoxEvents;
+
+	protected MVWorldObjectSpawner(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
+		: base(data, worldObjects)
+	{
+	}
+
+	protected MVWorldObjectSpawner(Dictionary<object, object> data, ObjectPrefab prefabObject, Dictionary<int, MVWorldObjectClient> worldObjects)
+		: base(data, prefabObject, worldObjects)
+	{
+	}
 
 	public override void Initialize()
 	{

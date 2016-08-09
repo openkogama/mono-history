@@ -16,11 +16,14 @@ public class MVFlag : MVLogicObject
 
 	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
+	private MVTriggerBoxObject flagObject;
+
 	public override Vector3 WorldPivot => transform.position;
 
 	public MVFlag(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVFlagPrefab, worldObjects)
 	{
+		flagObject = (MVTriggerBoxObject)component;
 		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
 		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
@@ -45,15 +48,15 @@ public class MVFlag : MVLogicObject
 		initializedInWorld = true;
 		useInteractor.UpdateData(Data);
 		worldObjectEnableController = gameObject.GetComponentInChildren<WorldObjectEnableController>();
-		SetupCulling(((MVTriggerBoxObject)component).VisualObject);
+		SetupCulling(flagObject.VisualObject);
 	}
 
 	private void SetupUseInteractor()
 	{
-		useInteractor = new UseInteractor(Id, gameObject, reset: false, triggerBoxEvents.Collider, DoCaptureFlag);
+		useInteractor = new UseInteractor(Id, flagObject.useInteractionRotator, reset: false, triggerBoxEvents.Collider, DoCaptureFlag);
 		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
 		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
-		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, gameCoinDisplayObjectOffset, hasUseButtonWhenFree: false);
+		GameCoinLogic useRequirement = new GameCoinLogic(flagObject.useInteractionRotator, gameCoinDisplayObjectOffset, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement);
 	}
 

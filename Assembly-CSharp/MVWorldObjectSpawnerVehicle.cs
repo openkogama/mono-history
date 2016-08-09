@@ -17,6 +17,8 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 
 	private Vector3 displayObjectOffset = new Vector3(0f, 1.8f, 0f);
 
+	private SpawnerObject spawnerObject;
+
 	protected float cullDistance = 145f;
 
 	protected bool disabledByLod;
@@ -24,9 +26,10 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 	public int SpawnWorldObjectID => spawnWorldObjectID;
 
 	public MVWorldObjectSpawnerVehicle(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, worldObjects)
+		: base(data, PrefabPool.Instance.SpawnerObjectPrefab, worldObjects)
 	{
 		previewLayerMask |= LayerFlags.Player;
+		spawnerObject = (SpawnerObject)component;
 	}
 
 	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
@@ -64,15 +67,15 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 			return;
 		}
 		base.Initialize();
-		useInteractor = new UseInteractor(Id, gameObject, reset: true, triggerBoxEvents.Collider, Use, CheckCanUse);
+		MVVehicleBase mVVehicleBase = (MVVehicleBase)GetChild(spawnWorldObjectID);
+		useInteractor = new UseInteractor(Id, spawnerObject.UseInteractorRotator, reset: true, triggerBoxEvents.Collider, Use, CheckCanUse);
 		triggerBoxEvents.TriggerEnterOverride += useInteractor.triggerBoxEvents_TriggerEnter;
 		triggerBoxEvents.TriggerExitOverride += useInteractor.triggerBoxEvents_TriggerExit;
-		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, displayObjectOffset);
+		GameCoinLogic useRequirement = new GameCoinLogic(spawnerObject.UseInteractorRotator, displayObjectOffset);
 		useInteractor.AddRequirement(useRequirement);
-		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(gameObject);
+		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(spawnerObject.UseInteractorRotator);
 		useInteractor.AddRequirement(useRequirement2);
 		useInteractor.UpdateData(Data);
-		MVVehicleBase mVVehicleBase = (MVVehicleBase)GetChild(spawnWorldObjectID);
 		lodGameObject = mVVehicleBase.Visualization.gameObject;
 		InitializeCommon();
 		interactionFlags |= mVVehicleBase.InteractionFlags;

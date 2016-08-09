@@ -24,7 +24,7 @@ public static class CullingApiWrapper
 
 	public static float baseDistance = 2.5f;
 
-	private static float[] sizes = new float[7] { 0.2f, 0.7f, 2f, 4f, 8f, 12f, 20f };
+	private static float[] sizes = new float[7] { 0.05f, 1f, 2f, 4f, 8f, 20f, 28f };
 
 	public static int NumBoundSpheres => numBoundingSpheres;
 

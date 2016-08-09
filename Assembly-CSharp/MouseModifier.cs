@@ -53,6 +53,20 @@ public class MouseModifier : SizeModifier
 		}));
 	}
 
+	private void OnDisable()
+	{
+		StopAllCoroutines();
+		if (isDeactivating)
+		{
+			owner.mvAvatar.Scale = Vector3.one;
+			Destroy();
+		}
+		else
+		{
+			owner.mvAvatar.Scale = Vector3.one * sizeModifier;
+		}
+	}
+
 	private void Destroy()
 	{
 		owner.mvAvatar.Scale = Vector3.one;

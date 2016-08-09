@@ -8,6 +8,8 @@ public class MVPressurePlateObject : ObjectPrefab
 	[SerializeField]
 	private Transform plateModelTransform;
 
+	public GameObject useInteractionRotator;
+
 	public TriggerBoxEvents TriggerBoxEvents => triggerBoxEvents;
 
 	public Transform PlateModelTranform => plateModelTransform;

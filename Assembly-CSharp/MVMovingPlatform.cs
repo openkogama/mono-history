@@ -44,6 +44,7 @@ public class MVMovingPlatform : MVMovable
 		CubeModel.InteractionFlags &= ~InteractionFlags.DirectlySelectable;
 		CubeModel.BeingEditedChanged += MVCubeModelBase_BeingEditedChanged;
 		CubeModel.SetupCulling(OnStateChanged);
+		CubeModel.SetCullDistanceBand(2);
 	}
 
 	public void OnStateChanged(CullingGroupEvent cullingGroupEvent)

@@ -20,6 +20,8 @@ public class UseLeverObject : ObjectPrefab
 	[SerializeField]
 	private GameObject visualRoot;
 
+	public GameObject useInteractionRotator;
+
 	public Collider LeverCollider => leverCollider;
 
 	public Collider EditCollider => editCollider;

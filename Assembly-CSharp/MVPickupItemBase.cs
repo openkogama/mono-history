@@ -131,10 +131,10 @@ public class MVPickupItemBase : MVLogicObject
 
 	private void SetupUseInteractor()
 	{
-		useInteractor = new UseInteractor(Id, gameObject, reset: false, baseObject.TriggerBoxEvents.Collider, DoPickup, CheckCanUse);
-		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, hasUseButtonWhenFree: false);
+		useInteractor = new UseInteractor(Id, baseObject.useInteractionRotator, reset: false, baseObject.TriggerBoxEvents.Collider, DoPickup, CheckCanUse);
+		GameCoinLogic useRequirement = new GameCoinLogic(baseObject.useInteractionRotator, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement);
-		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(gameObject, hasUseButtonWhenFree: false);
+		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(baseObject.useInteractionRotator, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement2);
 		baseObject.TriggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
 		baseObject.TriggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;

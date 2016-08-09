@@ -4,13 +4,9 @@ using UnityEngine.Events;
 
 public class LevelDisplayCube : MonoBehaviour
 {
-	private static readonly float visibilityDistance = 25f;
-
 	public GameObject cube;
 
 	private Renderer[] renderers;
-
-	private bool visible;
 
 	private bool waitingForBadgeTexture;
 
@@ -32,15 +28,6 @@ public class LevelDisplayCube : MonoBehaviour
 		foreach (Renderer renderer in array)
 		{
 			renderer.material.mainTexture = null;
-		}
-		Hide();
-	}
-
-	private void Update()
-	{
-		if (MVGameControllerBase.WOCM.AvatarLocal != null)
-		{
-			ChangeLOD((transform.position - MVGameControllerBase.WOCM.AvatarLocal.Transform.position).magnitude);
 		}
 	}
 
@@ -64,23 +51,12 @@ public class LevelDisplayCube : MonoBehaviour
 		}
 	}
 
-	public void ChangeLOD(float distance)
-	{
-		if (distance <= visibilityDistance)
-		{
-			if (!visible)
-			{
-				Show();
-			}
-		}
-		else if (visible)
-		{
-			Hide();
-		}
-	}
-
 	private void StreamingAssetCallback(WWW www)
 	{
+		if (!string.IsNullOrEmpty(www.error))
+		{
+			return;
+		}
 		Renderer[] array = Renderers;
 		foreach (Renderer renderer in array)
 		{
@@ -112,21 +88,8 @@ public class LevelDisplayCube : MonoBehaviour
 		UnityEngine.Object.Destroy(cube);
 	}
 
-	public void Show()
+	public void SetScale(Vector3 size)
 	{
-		visible = true;
-		for (int i = 0; i < Renderers.Length; i++)
-		{
-			Renderers[i].enabled = true;
-		}
-	}
-
-	public void Hide()
-	{
-		visible = false;
-		for (int i = 0; i < Renderers.Length; i++)
-		{
-			Renderers[i].enabled = false;
-		}
+		transform.localScale = size;
 	}
 }

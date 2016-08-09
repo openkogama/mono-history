@@ -229,7 +229,6 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	protected void OnFireSecondary(bool isLocal)
 	{
-		Debug.Log("OnFireSecondary " + Time.frameCount);
 		audioSource.clip = releaseSound;
 		audioSource.loop = false;
 		audioSource.Play();
@@ -249,7 +248,6 @@ public class PickupItemCubeGun : PickupItemWithDelay
 					currentAmmo = (int)currentAmmo + 1;
 					if (isLocal)
 					{
-						Debug.Log("Remove event");
 						MVGameControllerBase.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, float.PositiveInfinity);
 					}
 				}
@@ -261,7 +259,6 @@ public class PickupItemCubeGun : PickupItemWithDelay
 						MVCubeModelFineGrainedTerrain mVCubeModelFineGrainedTerrain = (MVCubeModelFineGrainedTerrain)worldObjectClient;
 						mVCubeModelFineGrainedTerrain.RemoveCube(voxelHit.cubePos);
 						mVCubeModelFineGrainedTerrain.HandleDelta();
-						Debug.Log("Remove as update cube model");
 					}
 					SharedWorldObjectGameplayFunctions.DustEfffect(PrefabPool.Instance.ParticleCubeDust, point, 1f);
 				}
@@ -280,11 +277,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	public override void TriggerBegin(int instigatorActorNr)
 	{
-		if (isFiring)
-		{
-			Debug.Log("Got TriggerStart, but were firing");
-		}
-		else if (!waitingToFire)
+		if (!isFiring && !waitingToFire)
 		{
 			StartFire();
 		}
@@ -337,8 +330,6 @@ public class PickupItemCubeGun : PickupItemWithDelay
 		bool flag = fireSecondary;
 		fireSecondary = num > (float)fireIntervalSecondary;
 		fireMain = !fireSecondary;
-		Debug.Log("fireMain " + fireMain);
-		Debug.Log("fireSecondary " + fireSecondary);
 		if (fireSecondary && !flag)
 		{
 			chargeObject.gameObject.SetActive(value: true);
@@ -388,7 +379,6 @@ public class PickupItemCubeGun : PickupItemWithDelay
 							continue;
 						}
 						Vector3[] edgeVerticesWorld2 = Cube.GetEdgeVerticesWorld(worldObjectClient.GameObject, voxelHit.cube, (Face)value, (Edge)value2, voxelHit.cubePos);
-						Debug.DrawLine(edgeVerticesWorld2[0], edgeVerticesWorld2[1], Color.cyan, 10f);
 						int num = 0;
 						Vector3[] array = edgeVerticesWorld2;
 						foreach (Vector3 b in array)

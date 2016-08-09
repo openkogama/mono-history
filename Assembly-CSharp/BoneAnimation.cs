@@ -41,8 +41,6 @@ public class BoneAnimation : MonoBehaviour
 	{
 	};
 
-	private bool firstTimeEnabled = true;
-
 	private float speed = 1f;
 
 	public AudioSource AudioSource
@@ -54,15 +52,6 @@ public class BoneAnimation : MonoBehaviour
 				audioSource = GetComponent<AudioSource>();
 			}
 			return audioSource;
-		}
-	}
-
-	private void OnEnable()
-	{
-		if (firstTimeEnabled)
-		{
-			PlayAndPauseAt("Idle", 0.3f);
-			firstTimeEnabled = false;
 		}
 	}
 

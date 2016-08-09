@@ -37,6 +37,9 @@ public class AndroidVehicleCamera : MVCameraBase, IVehicleCamera
 	[SerializeField]
 	private float initialYRotation = 20f;
 
+	[SerializeField]
+	private float localPitch = -20f;
+
 	public float RotationAroundY
 	{
 		get
@@ -73,7 +76,7 @@ public class AndroidVehicleCamera : MVCameraBase, IVehicleCamera
 		HandlePos();
 		HandleCollision();
 		targetTransform.position = cameraShake.Shake(transform.position, MVGameControllerBase.WOCM.AvatarLocal.Velocity.magnitude);
-		targetTransform.rotation = transform.rotation;
+		targetTransform.rotation = transform.rotation * Quaternion.Euler(localPitch, 0f, 0f);
 	}
 
 	public override void Exit(MVCameraController camController)

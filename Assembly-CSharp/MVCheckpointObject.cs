@@ -11,6 +11,8 @@ public class MVCheckpointObject : ObjectPrefab
 	[SerializeField]
 	private Animation objAnimation;
 
+	public GameObject useInteractionRotator;
+
 	public TriggerBoxEvents TriggerBoxEvents => triggerBoxEvents;
 
 	public Animation Animation => objAnimation;

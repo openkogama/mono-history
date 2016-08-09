@@ -167,9 +167,12 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private TeleportAvatar teleportAvatarPrefab;
 
+	[SerializeField]
+	private SpawnerObject spawnerObject;
+
+	[Header("Game")]
 	[Space(20f)]
 	[SerializeField]
-	[Header("Game")]
 	private Material ghostMarkerMaterial;
 
 	[SerializeField]
@@ -253,8 +256,8 @@ public class PrefabPool : MonoBehaviour
 	private MVPickupItemBaseObject avatarGrowthPackPrefab;
 
 	[Header("Avatar item pick up")]
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
 	private GameObject avatarItemCenterGun;
 
 	[SerializeField]
@@ -306,8 +309,8 @@ public class PrefabPool : MonoBehaviour
 	private GameObject avatarItemSlapGun;
 
 	[Header("Avatar modifier")]
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
 	private AvatarModifier burningModifier;
 
 	[SerializeField]
@@ -331,9 +334,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private AvatarModifier shieldModifier;
 
+	[Header("Particles")]
 	[Space(20f)]
 	[SerializeField]
-	[Header("Particles")]
 	private GameObject particleBlood;
 
 	[SerializeField]
@@ -399,8 +402,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem goldExplosion;
 
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
 	[Header("Logic object prefabs")]
 	private GameObject logicInputConnectorPrefab;
 
@@ -439,9 +442,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material modelConstraintsMaterial;
 
+	[Header("UGUI")]
 	[SerializeField]
 	[Space(20f)]
-	[Header("UGUI")]
 	private AvatarInputControllerAndroidSettings avatarInputControllerAndroidSettings;
 
 	[SerializeField]
@@ -453,9 +456,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private InsertCursor insertCursor;
 
+	[SerializeField]
 	[Header("Editor")]
 	[Space(20f)]
-	[SerializeField]
 	private Material cellCursorErrorMaterial;
 
 	[SerializeField]
@@ -606,6 +609,8 @@ public class PrefabPool : MonoBehaviour
 	public MVCountingCubeObject MVCountingCubePrefab => mvCountingCubePrefab;
 
 	public TeleportAvatar TeleportAvatarPrefab => teleportAvatarPrefab;
+
+	public SpawnerObject SpawnerObjectPrefab => spawnerObject;
 
 	public Material GhostMarkerMaterial => ghostMarkerMaterial;
 

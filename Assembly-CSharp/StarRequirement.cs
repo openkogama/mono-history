@@ -98,13 +98,17 @@ public class StarRequirement : UseRequirement
 		}
 	}
 
+	public override void SetScale(Vector3 scale)
+	{
+		displayObject.SetScale(scale / 2f);
+	}
+
 	private void CreateDisplayObject()
 	{
 		displayGO = Object.Instantiate(PrefabPool.Instance.StarDisplayPrefab.gameObject);
 		displayGO.transform.parent = displayObjectRoot.transform;
 		displayGO.transform.localPosition = displayObjectOffset;
 		displayObject = displayGO.GetComponent<StarDisplayObject>();
-		displayObject.Initialize();
 	}
 
 	public override void DestroyRequirement(Dictionary<object, object> data)

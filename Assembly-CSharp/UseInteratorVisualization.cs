@@ -5,11 +5,11 @@ using UnityEngine.Events;
 
 public class UseInteratorVisualization : MonoBehaviour
 {
+	private const float scaleTime = 1f;
+
 	private List<UseRequirement> useRequirements = new List<UseRequirement>();
 
 	private Vector3 pivot = new Vector3(0f, 2.5f, 0f);
-
-	private float rotation = 100f;
 
 	private readonly float baseDist = 1.3f;
 
@@ -25,6 +25,8 @@ public class UseInteratorVisualization : MonoBehaviour
 
 	private int woId;
 
+	private bool visible;
+
 	public void Initialize(float yOffset, int woId)
 	{
 		this.woId = woId;
@@ -37,7 +39,7 @@ public class UseInteratorVisualization : MonoBehaviour
 	{
 		cullingSubscriberBase = new CullingSubscriberBase(OnStateChanged);
 		cullingSubscriberBase.Radius = 2f;
-		cullingSubscriberBase.DistanceBandIndex = 2;
+		cullingSubscriberBase.DistanceBandIndex = 1;
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woId);
 		worldObjectClient.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(worldObjectClient.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
 		UpdatePosition(worldObjectClient.WorldPosition);
@@ -101,21 +103,107 @@ public class UseInteratorVisualization : MonoBehaviour
 			spacing = 360 / active;
 		}
 		hasUseRequirement = active != 0;
+		float num = 0f;
+		for (int j = 0; j < useRequirements.Count; j++)
+		{
+			if (useRequirements[j].IsActive())
+			{
+				useRequirements[j].CalculatePosAroundPivot(pivot, num, dist);
+				num += spacing;
+			}
+		}
 		CheckCullingSetup();
+		if (!hasUseRequirement)
+		{
+			enabled = false;
+		}
+		else
+		{
+			enabled = true;
+		}
 	}
 
 	private void Update()
 	{
-		float num = 0f;
+		transform.Rotate(Vector3.up, Time.deltaTime * 20f);
+		if (MVGameControllerBase.WOCM.AvatarLocal != null)
+		{
+			ChangeLOD((transform.position - MVGameControllerBase.WOCM.AvatarLocal.Transform.position).magnitude);
+		}
+	}
+
+	private void ChangeLOD(float distance)
+	{
+		if (distance < 25f)
+		{
+			if (!visible)
+			{
+				Show();
+			}
+		}
+		else if (visible)
+		{
+			Hide();
+		}
+	}
+
+	public void Show()
+	{
+		StopAllCoroutines();
+		StartCoroutine(pTween.To(1f, 0f, 1f, (float t) =>
+		{
+			Vector3 scale = new Vector3(t, t, t);
+			for (int i = 0; i < useRequirements.Count; i++)
+			{
+				if (useRequirements[i].IsActive())
+				{
+					useRequirements[i].SetScale(scale);
+				}
+			}
+		}));
+		visible = true;
+	}
+
+	public void Hide()
+	{
+		StopAllCoroutines();
+		StartCoroutine(pTween.To(1f, 1f, 0f, (float t) =>
+		{
+			Vector3 scale = new Vector3(t, t, t);
+			for (int i = 0; i < useRequirements.Count; i++)
+			{
+				if (useRequirements[i].IsActive())
+				{
+					useRequirements[i].SetScale(scale);
+				}
+			}
+		}));
+		visible = false;
+	}
+
+	private void OnDisable()
+	{
+		Vector3 scale = new Vector3(0f, 0f, 0f);
 		for (int i = 0; i < useRequirements.Count; i++)
 		{
 			if (useRequirements[i].IsActive())
 			{
-				useRequirements[i].CalculatePosAroundPivot(pivot, num + rotation, dist);
-				num += spacing;
+				useRequirements[i].SetScale(scale);
 			}
 		}
-		rotation += Time.deltaTime * 20f;
+	}
+
+	private void OnEnable()
+	{
+		Vector3 scale = new Vector3(0f, 0f, 0f);
+		for (int i = 0; i < useRequirements.Count; i++)
+		{
+			if (useRequirements[i].IsActive())
+			{
+				useRequirements[i].SetScale(scale);
+			}
+		}
+		Show();
 	}
 
 	public void UpdateData(Dictionary<object, object> data, int ownerID)

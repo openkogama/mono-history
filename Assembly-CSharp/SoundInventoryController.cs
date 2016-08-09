@@ -52,7 +52,7 @@ public class SoundInventoryController : MonoBehaviour, IEventSystemHandler, IHan
 			int key = categoryToNameCombinations[item.ProductInfo.CategoryName];
 			if (!tabs.ContainsKey(key))
 			{
-				TabState value = new TabState(TM._(item.ProductInfo.CategoryName), numberOfSlotsPrPage);
+				TabState value = new TabState(item.ProductInfo.CategoryName, numberOfSlotsPrPage);
 				tabs.Add(item.ProductInfo.CategoryID, value);
 			}
 			if (!categoryToAssets.ContainsKey(key))
@@ -73,7 +73,7 @@ public class SoundInventoryController : MonoBehaviour, IEventSystemHandler, IHan
 			int key2 = categoryToNameCombinations[assetInfo.CategoryName];
 			if (!tabs.ContainsKey(categoryToNameCombinations[assetInfo.CategoryName]))
 			{
-				TabState value2 = new TabState(TM._(assetInfo.CategoryName), numberOfSlotsPrPage);
+				TabState value2 = new TabState(assetInfo.CategoryName, numberOfSlotsPrPage);
 				tabs.Add(assetInfo.CategoryID, value2);
 			}
 			if (!categoryToAssets.ContainsKey(key2))

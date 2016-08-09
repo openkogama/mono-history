@@ -60,7 +60,6 @@ public class LevelBasedUseRequirement : UseRequirement
 			}
 			if (levelAmount > 0)
 			{
-				displayObject.Show();
 				displayObject.SetAmount(levelAmount);
 			}
 			if (levelAmount == 0)
@@ -71,6 +70,11 @@ public class LevelBasedUseRequirement : UseRequirement
 				Object.Destroy(displayObject.gameObject);
 			}
 		}
+	}
+
+	public override void SetScale(Vector3 scale)
+	{
+		displayObject.SetScale(scale / 2f);
 	}
 
 	private void CreateDisplayObject()

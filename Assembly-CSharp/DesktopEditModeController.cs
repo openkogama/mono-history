@@ -98,7 +98,7 @@ public class DesktopEditModeController : ModeControllerBase, IEditModeUI, ISetEd
 		{
 			editorStateMachine.Update();
 		}
-		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.ToggleHD) && uiStack.IsStackEmpty())
+		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.ToggleHD) && uiStack.IsStackEmpty())
 		{
 			ToggleHD();
 		}

@@ -12,6 +12,8 @@ public class AvatarCameraFade : MonoBehaviour
 
 	public float fadeEndBase = 2f;
 
+	private float prevDist = -1f;
+
 	public void SetScaleFadeDistance(float scale)
 	{
 		fadeEndDistance = fadeEndBase;
@@ -24,8 +26,12 @@ public class AvatarCameraFade : MonoBehaviour
 	{
 		Vector3 a = MVGameControllerBase.WOCM.AvatarLocal.Body.Transform.position + camMoveTowardsOffset;
 		float num = Vector3.Distance(a, transform.position);
-		float setTransparency = Mathf.Clamp01((num - fadeEndDistance) / (fadeStartDistance - fadeEndDistance));
-		MVGameControllerBase.WOCM.AvatarLocal.SetTransparency = setTransparency;
+		if (num != prevDist)
+		{
+			prevDist = num;
+			float setTransparency = Mathf.Clamp01((num - fadeEndDistance) / (fadeStartDistance - fadeEndDistance));
+			MVGameControllerBase.WOCM.AvatarLocal.SetTransparency = setTransparency;
+		}
 	}
 
 	public void Setup(Vector3 camMoveTowardsOffset, float fadeStartDistance, float fadeEndDistance)

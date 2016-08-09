@@ -18,6 +18,8 @@ public class SendMessageControl : MonoBehaviour
 
 	private string removeUI = "/ru";
 
+	private string enableHD = "/hd";
+
 	[SerializeField]
 	private InputField inputField;
 
@@ -116,6 +118,10 @@ public class SendMessageControl : MonoBehaviour
 		{
 			MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, $"{Screen.width} x {Screen.height}");
 		}
+		else if (chatMsg == enableHD)
+		{
+			ToggleHD();
+		}
 		else if (chatMsg == "/c")
 		{
 			StaticBatchingUtilityWrapper.Combine();
@@ -144,9 +150,15 @@ public class SendMessageControl : MonoBehaviour
 		}
 	}
 
+	private void ToggleHD()
+	{
+		int currentLevel = ((MVQualitySettings.CurrentLevel == 0) ? 1 : 0);
+		MVQualitySettings.CurrentLevel = currentLevel;
+	}
+
 	public string CreateHelpTxt()
 	{
-		string text = TM._("<M> Menu\n<H> Toggle HD Mode");
+		string text = TM._("<M> Menu");
 		switch (MVGameControllerBase.GameMode)
 		{
 		case MVGameMode.CharacterEditor:
@@ -159,7 +171,7 @@ public class SendMessageControl : MonoBehaviour
 			text += TM._("\n\n<WASD> Move\n<Space> Jump\n<K> Respawn\n<Left Mouse> Fire Weapon\n<Q> Drop currently equipped weapon");
 			break;
 		}
-		return text;
+		return text + TM._("\n\nChat Commands\nFPS Counter: " + fps + "\nSee Resolution: " + resolution + "\nHD Mode: " + enableHD + "\n");
 	}
 
 	private void SanitizeMessage(ref string message, string tagToSanitize)

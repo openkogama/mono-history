@@ -44,8 +44,6 @@ public class MVSentryGun : MVLogicObject
 
 	private MVSentryGunObject gunObject;
 
-	private new CullingSubscriberBase cullingSubscriberBase;
-
 	private bool wasDead;
 
 	public override bool HasInputConnector => true;

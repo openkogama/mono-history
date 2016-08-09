@@ -68,10 +68,10 @@ public class GameCoinLogic : UseRequirement
 
 	private void CreateDisplayObject()
 	{
-		displayGO = Object.Instantiate(PrefabPool.Instance.GameCoinDisplayPrefab.gameObject);
+		displayObject = Object.Instantiate(PrefabPool.Instance.GameCoinDisplayPrefab);
+		displayGO = displayObject.gameObject;
 		displayGO.transform.parent = displayObjectRoot.transform;
 		displayGO.transform.localPosition = displayObjectOffset;
-		displayObject = displayGO.GetComponent<GameCoinDisplayObject>();
 	}
 
 	private void DestroyDisplayObject()
@@ -81,6 +81,11 @@ public class GameCoinLogic : UseRequirement
 			displayObject.Destroy();
 			Object.Destroy(displayGO);
 		}
+	}
+
+	public override void SetScale(Vector3 scale)
+	{
+		displayObject.SetScale(scale);
 	}
 
 	private void SetAmount(Dictionary<object, object> data, int ownerID)

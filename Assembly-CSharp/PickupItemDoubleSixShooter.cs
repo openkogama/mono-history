@@ -94,8 +94,10 @@ public class PickupItemDoubleSixShooter : PickupItemWithDelay
 	{
 		Quaternion rotation = Quaternion.FromToRotation(Vector3.up, voxelHit.normal);
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
-		GameObject original = ((!(worldObjectClient is MVAvatar)) ? PrefabPool.Instance.ParticleSparksSixShooter : PrefabPool.Instance.ParticleBloodSixShooter);
-		UnityEngine.Object.Instantiate(original, voxelHit.point, rotation);
+		HitParticle hitParticle = ((!(worldObjectClient is MVAvatar)) ? PrefabPool.Instance.EnumPoolManager.Instantiate<HitParticle>(PoolEnums.SixShooterSparks) : PrefabPool.Instance.EnumPoolManager.Instantiate<HitParticle>(PoolEnums.SixShooterBlood));
+		hitParticle.transform.position = voxelHit.point;
+		hitParticle.transform.rotation = rotation;
+		hitParticle.Initialize();
 		MeshDecal.Create(new MeshDecal.Hit(voxelHit.point, voxelHit.normal, 1f), hitDecalMaterial, null);
 	}
 

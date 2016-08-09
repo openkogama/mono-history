@@ -22,4 +22,6 @@ public abstract class UseRequirement
 	public abstract bool IsActive();
 
 	public abstract void CalculatePosAroundPivot(Vector3 pivot, float spacingAngle, float distanceFromPivot);
+
+	public abstract void SetScale(Vector3 scale);
 }

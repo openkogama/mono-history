@@ -6,7 +6,7 @@ public class EnumPoolManager : MonoBehaviour
 	[SerializeField]
 	private List<Pool> pool;
 
-	private Pool[] lookupTable = new Pool[10];
+	private Pool[] lookupTable = new Pool[16];
 
 	private void Awake()
 	{

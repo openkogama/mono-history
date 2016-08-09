@@ -16,6 +16,12 @@ public class MVBlueprintBase : MVGroup
 		MapDataToFields();
 	}
 
+	public MVBlueprintBase(Dictionary<object, object> data, ObjectPrefab prefabObject, Dictionary<int, MVWorldObjectClient> worldObjects)
+		: base(data, prefabObject, worldObjects)
+	{
+		MapDataToFields();
+	}
+
 	public MVBlueprintBase(Dictionary<object, object> data, GameObject prefabObject, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, prefabObject, worldObjects)
 	{

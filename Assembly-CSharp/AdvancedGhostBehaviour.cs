@@ -449,8 +449,6 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 	private const int behaviourOnlyDistanceBand = 3;
 
-	private const int allEnbleDistanceBand = 2;
-
 	private CullingSubscriberBase cullingSubscriberBase;
 
 	private bool behaviourOnlyEnabled;
@@ -490,8 +488,6 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 	private AdvancedGhostBodyRotateWeapon weapon;
 
 	public AdvancedGhostVisualizaton GhostVisualization;
-
-	private float lodPercentageForRotationUpdate = 0.5f;
 
 	private float RoamRadius => radius + perceptionRadius;
 
@@ -543,7 +539,7 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 	{
 		allVisible = false;
 		behaviourOnlyEnabled = false;
-		allVisible = CullingApiWrapper.Visible(cullingGroupEvent, 2);
+		allVisible = CullingApiWrapper.Visible(cullingGroupEvent, cullingSubscriberBase.DistanceBandIndex);
 		behaviourOnlyEnabled = CullingApiWrapper.Visible(cullingGroupEvent, 3);
 		if (cullingGroupEvent.currentDistance <= 3)
 		{

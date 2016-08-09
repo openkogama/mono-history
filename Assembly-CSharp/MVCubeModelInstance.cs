@@ -35,19 +35,23 @@ public class MVCubeModelInstance : MVCubeModelBase
 		}
 	}
 
-	public void EnableCulling()
+	public void SetCullDistanceBand(int distanceBandIndex)
 	{
-		cullingSubscriberBase = SetupCulling(OnStateChanged);
+		cullingSubscriberBase.DistanceBandIndex = distanceBandIndex;
 	}
 
-	public CullingSubscriberBase SetupCulling(UnityAction<CullingGroupEvent> onStateChanged)
+	public void EnableCulling()
+	{
+		SetupCulling(OnStateChanged);
+	}
+
+	public void SetupCulling(UnityAction<CullingGroupEvent> onStateChanged)
 	{
 		cullingSubscriberBase = new CullingSubscriberBase(onStateChanged);
 		SetCullSphereToMeshBounds();
 		PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
 		RotationChanged = (UnityAction<MVWorldObjectClient, RotationChangedEventArgs>)Delegate.Combine(RotationChanged, new UnityAction<MVWorldObjectClient, RotationChangedEventArgs>(OnRotationChanged));
 		Changed = (Action<CubeModelChangedEventArgs>)Delegate.Combine(Changed, new Action<CubeModelChangedEventArgs>(OnChanged));
-		return cullingSubscriberBase;
 	}
 
 	private void OnRotationChanged(MVWorldObjectClient wo, RotationChangedEventArgs rotationChangedEventArgs)
@@ -67,9 +71,9 @@ public class MVCubeModelInstance : MVCubeModelBase
 
 	private void SetCullSphereToMeshBounds()
 	{
-		Bounds meshRenderBounds = GetMeshRenderBounds();
-		cullingSubscriberBase.Setup(meshRenderBounds.extents.magnitude, meshRenderBounds.center);
-		positionOffset = WorldPosition - meshRenderBounds.center;
+		Bounds worldBounds = GetWorldBounds();
+		cullingSubscriberBase.Setup(worldBounds.extents.magnitude, worldBounds.center);
+		positionOffset = WorldPosition - worldBounds.center;
 	}
 
 	public override bool CompareWithKoGaMaPackage(MVWorldObjectClient wo, KoGaMaPackageClient koGaMaPackageClient, ref int insertedByProfileId)

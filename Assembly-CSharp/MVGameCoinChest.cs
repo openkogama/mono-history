@@ -70,8 +70,8 @@ public class MVGameCoinChest : MVLogicObject
 
 	private void SetupUseInteractor()
 	{
-		useInteractor = new UseInteractor(Id, gameObject, reset: false, chestObject.TriggerBoxEvents.Collider, OpenChest, IsUsable);
-		LevelBasedUseRequirement useRequirement = new LevelBasedUseRequirement(gameObject, hasUseButtonWhenFree: false);
+		useInteractor = new UseInteractor(Id, chestObject.useInteractionRotator, reset: false, chestObject.TriggerBoxEvents.Collider, OpenChest, IsUsable);
+		LevelBasedUseRequirement useRequirement = new LevelBasedUseRequirement(chestObject.useInteractionRotator, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement);
 		chestObject.TriggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
 		chestObject.TriggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;

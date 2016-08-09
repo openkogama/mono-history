@@ -10,5 +10,11 @@ public enum PoolEnums
 	CubeGunRay,
 	RailGunRay,
 	ImpulseGunRay,
+	NormalBulletSparks,
+	SixShooterSparks,
+	NinjaStarSparks,
+	NormalBulletBlood,
+	SixShooterBlood,
+	NinjaStarBlood,
 	LENGTH
 }

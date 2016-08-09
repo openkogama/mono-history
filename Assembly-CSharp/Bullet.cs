@@ -193,6 +193,7 @@ public class Bullet : MonoBehaviour
 
 	public void ReturnToPool(PoolEnums bulletType)
 	{
+		ResetBullet();
 		cullingSubscriberBase.Destroy();
 		cullingSubscriberBase = null;
 		PrefabPool.Instance.EnumPoolManager.Return(pooledObjectReference, bulletType);

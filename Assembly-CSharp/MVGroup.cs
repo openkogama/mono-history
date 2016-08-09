@@ -26,6 +26,12 @@ public class MVGroup : MVWorldObjectClient
 		CreateGroup();
 	}
 
+	public MVGroup(Dictionary<object, object> data, ObjectPrefab prefabObject, Dictionary<int, MVWorldObjectClient> worldObjects)
+		: base(data, prefabObject, worldObjects)
+	{
+		CreateGroup();
+	}
+
 	public MVGroup(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, worldObjects)
 	{

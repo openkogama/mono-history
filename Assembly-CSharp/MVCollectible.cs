@@ -9,7 +9,8 @@ public class MVCollectible : MVLogicObject
 		Visible,
 		PickedUp,
 		ReShowing,
-		Invisible
+		Invisible,
+		PickingUp
 	}
 
 	private CollectibleClientState state;
@@ -134,7 +135,7 @@ public class MVCollectible : MVLogicObject
 
 	public virtual void OnPickup(int actorNr)
 	{
-		if (actorNr == MVGameControllerBase.Game.LocalPlayer.ActorNr)
+		if (actorNr == MVGameControllerBase.Game.LocalPlayer.ActorNr && state == CollectibleClientState.PickingUp)
 		{
 			isVisible = false;
 			collectibleObject.PickupItem.GreyOut();
@@ -176,8 +177,9 @@ public class MVCollectible : MVLogicObject
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		if (collectibleObject.WorldObjectEnableController.EnableState == EnableState.Enable && isVisible)
+		if (collectibleObject.WorldObjectEnableController.EnableState == EnableState.Enable && isVisible && state != CollectibleClientState.PickingUp && state != CollectibleClientState.PickedUp)
 		{
+			state = CollectibleClientState.PickingUp;
 			MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, e.instigatorWOID);
 		}
 	}

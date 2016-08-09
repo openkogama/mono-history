@@ -1,8 +1,23 @@
 using System.Collections.Generic;
+using MV.Common;
 using MV.WorldObject;
 
 public class InteractionDataHandler : InteractionDataHandlerBase
 {
+	private readonly HashSet<PlayerKilledByType> disregardPlingList = new HashSet<PlayerKilledByType>
+	{
+		PlayerKilledByType.Ghost,
+		PlayerKilledByType.None,
+		PlayerKilledByType.Suicide,
+		PlayerKilledByType.AdvancedGhost,
+		PlayerKilledByType.Environmental,
+		PlayerKilledByType.Explosive,
+		PlayerKilledByType.Impact,
+		PlayerKilledByType.Fire,
+		PlayerKilledByType.FallOffWorld,
+		PlayerKilledByType.Crushed
+	};
+
 	public MVWorldObjectClient WorldObjectParent
 	{
 		set
@@ -13,7 +28,10 @@ public class InteractionDataHandler : InteractionDataHandlerBase
 
 	public override bool HandleInteraction(InteractionData interaction, bool interactionIsLocal)
 	{
-		MVGameControllerBase.CameraController.PlayPlingSound();
+		if (!disregardPlingList.Contains(interaction.PlayerKilledByType))
+		{
+			MVGameControllerBase.CameraController.PlayPlingSound();
+		}
 		if (interactionIsLocal)
 		{
 			worldObjectParent.ReceiveInteractionPackage(interaction, null);

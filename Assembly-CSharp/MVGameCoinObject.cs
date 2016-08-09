@@ -20,6 +20,8 @@ public class MVGameCoinObject : ObjectPrefab
 	[SerializeField]
 	private RotateLocal rotateLocal;
 
+	public GameObject useInteractionRotator;
+
 	public TriggerBoxEvents TriggerBoxEvents => triggerBoxEvents;
 
 	public AudioSource AudioSource => audioSource;

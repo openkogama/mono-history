@@ -5,9 +5,13 @@ using UnityEngine.UI;
 
 public class ConsoleDragAndTapHandler : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler, IPointerDownHandler, IPointerUpHandler, IEventSystemHandler
 {
+	private const float minDragDurationForClick = 0.2f;
+
 	public UnityAction OnClick;
 
 	private bool dragging;
+
+	private float dragStart;
 
 	private bool scrollingEnabled = true;
 
@@ -38,12 +42,17 @@ public class ConsoleDragAndTapHandler : MonoBehaviour, IBeginDragHandler, IEndDr
 	public void OnBeginDrag(PointerEventData eventData)
 	{
 		dragging = true;
+		dragStart = Time.time;
 		scrollRect.OnBeginDrag(eventData);
 	}
 
 	public void OnEndDrag(PointerEventData eventData)
 	{
 		dragging = false;
+		if (Time.time - dragStart < 0.2f)
+		{
+			OnChatModeClick();
+		}
 		scrollRect.OnEndDrag(eventData);
 	}
 
@@ -53,9 +62,9 @@ public class ConsoleDragAndTapHandler : MonoBehaviour, IBeginDragHandler, IEndDr
 
 	public void OnPointerUp(PointerEventData eventData)
 	{
-		if (!dragging && OnClick != null)
+		if (!dragging)
 		{
-			OnClick();
+			OnChatModeClick();
 		}
 	}
 }

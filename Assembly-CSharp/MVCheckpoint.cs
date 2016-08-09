@@ -38,12 +38,12 @@ public class MVCheckpoint : MVLogicObject
 
 	private void SetupUseInteractor()
 	{
-		useInteractor = new UseInteractor(Id, gameObject, reset: false, checkpointObject.TriggerBoxEvents.Collider, DoReachCheckpoint);
+		useInteractor = new UseInteractor(Id, checkpointObject.useInteractionRotator, reset: false, checkpointObject.TriggerBoxEvents.Collider, DoReachCheckpoint);
 		checkpointObject.TriggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
 		checkpointObject.TriggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
-		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, hasUseButtonWhenFree: false);
+		GameCoinLogic useRequirement = new GameCoinLogic(checkpointObject.useInteractionRotator, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement);
-		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(gameObject, hasUseButtonWhenFree: false);
+		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(checkpointObject.useInteractionRotator, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement2);
 	}
 

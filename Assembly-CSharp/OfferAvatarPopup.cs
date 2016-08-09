@@ -107,11 +107,22 @@ public class OfferAvatarPopup : MonoBehaviour
 	{
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 		{
-			x.Create();
+			x.Create(TM._("Are you sure you wish to purchase avatar?"), OnConfirmation, string.Empty);
 		});
-		MVNetworkGame game = MVGameControllerBase.Game;
-		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Combine(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
-		OffersManager.ClaimOffer();
+	}
+
+	private void OnConfirmation(bool confirm, ConfirmationPopup popup)
+	{
+		if (confirm)
+		{
+			MVNetworkGame game = MVGameControllerBase.Game;
+			game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Combine(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
+			OffersManager.ClaimOffer();
+		}
+		else
+		{
+			OnClose();
+		}
 	}
 
 	public void OnClose()

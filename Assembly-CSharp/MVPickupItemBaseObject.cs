@@ -11,6 +11,8 @@ public class MVPickupItemBaseObject : ObjectPrefab
 	[SerializeField]
 	private GreyOutObjectScript pickupItem;
 
+	public GameObject useInteractionRotator;
+
 	public TriggerBoxEvents TriggerBoxEvents => triggerBoxEvents;
 
 	public AudioSource AudioSource => audioSource;

@@ -218,6 +218,34 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel, ICubeModelCollid
 		prototypeCubeModel.CubePosToChunkPos(ref pos);
 	}
 
+	public Bounds GetWorldBounds()
+	{
+		Bounds result = default;
+		if (chunkInstances.Count == 0)
+		{
+			return result;
+		}
+		Vector3 min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+		Vector3 max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+		foreach (KeyValuePair<IntVector, ChunkInstances.ChunkInstanceVariables> item in (IEnumerable)chunkInstances)
+		{
+			Bounds bounds = item.Value.collider.bounds;
+			for (int i = 0; i < 3; i++)
+			{
+				if (bounds.min[i] < min[i])
+				{
+					min[i] = bounds.min[i];
+				}
+				if (bounds.max[i] > max[i])
+				{
+					max[i] = bounds.max[i];
+				}
+			}
+		}
+		result.SetMinMax(min, max);
+		return result;
+	}
+
 	public Bounds GetBounds()
 	{
 		Bounds result = default;
@@ -246,78 +274,6 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel, ICubeModelCollid
 			}
 		}
 		result.SetMinMax(min, max);
-		return result;
-	}
-
-	public Bounds GetMeshBounds()
-	{
-		if (chunkInstances.Count == 0)
-		{
-			return default;
-		}
-		Bounds result = default;
-		bool flag = true;
-		foreach (KeyValuePair<IntVector, ChunkInstances.ChunkInstanceVariables> item in (IEnumerable)chunkInstances)
-		{
-			MeshFilter filter = item.Value.filter;
-			if (flag)
-			{
-				result = filter.sharedMesh.bounds;
-				flag = false;
-				continue;
-			}
-			for (int i = 0; i < 3; i++)
-			{
-				if (filter.sharedMesh.bounds.min[i] < result.min[i])
-				{
-					Vector3 min = result.min;
-					min[i] = filter.sharedMesh.bounds.min[i];
-					result.SetMinMax(min, result.max);
-				}
-				if (filter.sharedMesh.bounds.max[i] > result.max[i])
-				{
-					Vector3 max = result.max;
-					max[i] = filter.sharedMesh.bounds.max[i];
-					result.SetMinMax(result.min, max);
-				}
-			}
-		}
-		return result;
-	}
-
-	public Bounds GetMeshRenderBounds()
-	{
-		if (chunkInstances.Count == 0)
-		{
-			return default;
-		}
-		Bounds result = default;
-		bool flag = true;
-		foreach (KeyValuePair<IntVector, ChunkInstances.ChunkInstanceVariables> item in (IEnumerable)chunkInstances)
-		{
-			MeshRenderer renderer = item.Value.renderer;
-			if (flag)
-			{
-				result = renderer.bounds;
-				flag = false;
-				continue;
-			}
-			for (int i = 0; i < 3; i++)
-			{
-				if (renderer.bounds.min[i] < result.min[i])
-				{
-					Vector3 min = result.min;
-					min[i] = renderer.bounds.min[i];
-					result.SetMinMax(min, result.max);
-				}
-				if (renderer.bounds.max[i] > result.max[i])
-				{
-					Vector3 max = result.max;
-					max[i] = renderer.bounds.max[i];
-					result.SetMinMax(result.min, max);
-				}
-			}
-		}
 		return result;
 	}
 

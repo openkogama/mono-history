@@ -38,14 +38,14 @@ public class MVPressurePlate : MVLogicObject
 		plateObject.TriggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		plateObject.TriggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
 		SetVisibility();
-		useInteractor = new UseInteractor(Id, gameObject, reset: false, plateObject.TriggerBoxEvents.Collider, DoEnter);
+		useInteractor = new UseInteractor(Id, plateObject.useInteractionRotator, reset: false, plateObject.TriggerBoxEvents.Collider, DoEnter);
 		plateObject.TriggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
 		plateObject.TriggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
-		GameCoinLogic useRequirement = new GameCoinLogic(gameObject, gameCoinDisplayObjectOffset, hasUseButtonWhenFree: false);
+		GameCoinLogic useRequirement = new GameCoinLogic(plateObject.useInteractionRotator, gameCoinDisplayObjectOffset, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement);
-		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(gameObject, hasUseButtonWhenFree: false);
+		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(plateObject.useInteractionRotator, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement2);
-		StarRequirement useRequirement3 = new StarRequirement(gameObject, hasUseButtonWhenFree: false);
+		StarRequirement useRequirement3 = new StarRequirement(plateObject.useInteractionRotator, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement3);
 	}
 

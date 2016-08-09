@@ -58,7 +58,6 @@ public class PickupItemBazooka : PickupItemWithDelay
 			bullet.onHitLocal = (Bullet.OnHitDelegate)Delegate.Combine(bullet.onHitLocal, new Bullet.OnHitDelegate(HandleRocketHitLocal));
 		}
 		bullet.Fire(lineOfFire: new Ray(owner.LookOrigin, owner.LookDirection), speed: owner.GetAbsolutProjectileSpeed(rocketSpeed), range: rocketRange, ignoreWoIDs: owner.IgnoreWOIDs);
-		MVGameControllerBase.AudioManager.Play("rocket fired", aSource, muzzlePoint.position);
 		if (isLocal)
 		{
 			MVGameControllerBase.AudioManager.Play("rocket fired", aSource, Camera.main.transform.position + Camera.main.transform.forward);

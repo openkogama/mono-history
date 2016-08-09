@@ -10,6 +10,8 @@ public class MVTeleporterObject : ObjectPrefab
 
 	public GameObject visualRoot;
 
+	public GameObject useInteractionRotator;
+
 	public TriggerBoxEvents TriggerBoxEvents => triggerBoxEvents;
 
 	public ParticleSystem ParticleSystem => objParticleSystem;

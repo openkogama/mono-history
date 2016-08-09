@@ -159,8 +159,12 @@ public class AndroidChatController : MonoBehaviour
 
 	private void AddAdminMessage(Dictionary<object, object> data)
 	{
-		string msg = (string)data[(byte)5];
-		AddAdminMessage(msg);
+		string text = (string)data[(byte)5];
+		if (text.Length > 512)
+		{
+			text = text.Substring(0, 1024);
+		}
+		AddAdminMessage(text);
 	}
 
 	private void AddAdminMessage(string msg)
