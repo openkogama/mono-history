@@ -132,7 +132,7 @@ public class MVGhostInstance : MVWorldObjectClient, IGameStateControllerSubscrib
 	private void SetupCulling()
 	{
 		cullingSubscriberBase = new CullingSubscriberBase(3.4f, WorldPosition + lodSphereOffset, OnStateChange);
-		cullingSubscriberBase.DistanceBandIndex = 4;
+		cullingSubscriberBase.DistanceBandIndex = 3;
 		PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
 	}
 

@@ -29,7 +29,10 @@ public class GameMeterAndroidCollectible : GameMeterAndroidBase
 
 	private void OnDestroy()
 	{
-		MVGameControllerBase.Game.WinningConditionManager.OnWinningConditionReset -= OnVictoryConditionMet;
+		if (MVGameControllerBase.Game != null)
+		{
+			MVGameControllerBase.Game.WinningConditionManager.OnWinningConditionReset -= OnVictoryConditionMet;
+		}
 	}
 
 	public override void SetGameMeterVisibility()

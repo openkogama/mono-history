@@ -17,13 +17,13 @@ public class MVPointLight : MVLogicObject
 		interactionFlags |= InteractionFlags.HasSettings;
 		lightComponent = gameObject.GetComponent<Light>();
 		lightComponent.enabled = false;
-		OnDataUpdate();
 		gameObject.transform.localScale = Vector3.one;
 	}
 
 	public override void Initialize()
 	{
 		base.Initialize();
+		SetupCulling(gameObject);
 		OnDataUpdate();
 		if (InputLinkRefs.Count == 0)
 		{
@@ -33,7 +33,6 @@ public class MVPointLight : MVLogicObject
 		{
 			OnInputStateChanged();
 		}
-		SetupCulling(gameObject);
 	}
 
 	public override void OnInputLinkChanged()
@@ -66,10 +65,11 @@ public class MVPointLight : MVLogicObject
 		{
 			float[] array = (float[])Data["color"];
 			float intensity = (float)Data["intensity"];
-			float range = (float)Data["range"];
+			float num = (float)Data["range"];
 			lightComponent.color = new Color(array[0], array[1], array[2]);
-			lightComponent.range = range;
+			lightComponent.range = num;
 			lightComponent.intensity = intensity;
+			cullingSubscriberBase.Radius = num;
 		}
 		else
 		{

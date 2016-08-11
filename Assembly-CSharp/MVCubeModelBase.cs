@@ -229,6 +229,11 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel, ICubeModelCollid
 		Vector3 max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
 		foreach (KeyValuePair<IntVector, ChunkInstances.ChunkInstanceVariables> item in (IEnumerable)chunkInstances)
 		{
+			bool activeSelf = item.Value.gameObject.activeSelf;
+			if (!activeSelf)
+			{
+				item.Value.gameObject.SetActive(value: true);
+			}
 			Bounds bounds = item.Value.collider.bounds;
 			for (int i = 0; i < 3; i++)
 			{
@@ -240,6 +245,10 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel, ICubeModelCollid
 				{
 					max[i] = bounds.max[i];
 				}
+			}
+			if (!activeSelf)
+			{
+				item.Value.gameObject.SetActive(value: false);
 			}
 		}
 		result.SetMinMax(min, max);

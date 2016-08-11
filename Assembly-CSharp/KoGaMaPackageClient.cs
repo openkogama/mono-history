@@ -103,9 +103,6 @@ public class KoGaMaPackageClient
 	public static MVWorldObjectClient WorldObjectFactory(Dictionary<object, object> worldObjectData, Dictionary<int, MVWorldObjectClient> worldObjects, Dictionary<int, RuntimePrototypeCubeModel> prototypes)
 	{
 		WorldObjectType worldObjectType = (WorldObjectType)(int)worldObjectData[WorldObjectDataParameters.WorldObjectType];
-		if (worldObjectType == WorldObjectType.Avatar)
-		{
-		}
 		switch (worldObjectType)
 		{
 		case WorldObjectType.Avatar:

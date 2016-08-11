@@ -532,7 +532,7 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 	private void SetupCulling()
 	{
 		cullingSubscriberBase = new CullingSubscriberBase(4f, transform.position, OnStateChange);
-		cullingSubscriberBase.DistanceBandIndex = 4;
+		cullingSubscriberBase.DistanceBandIndex = 3;
 	}
 
 	private void OnStateChange(CullingGroupEvent cullingGroupEvent)

@@ -93,6 +93,7 @@ public class PickupItemMultiThrowingStar : PickupItemWithDelay
 
 	public override void TriggerEnd()
 	{
+		isFiring = true;
 	}
 
 	private void StartFire()

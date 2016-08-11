@@ -21,10 +21,13 @@ public class GameMeterHandler : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		MVGameControllerBase.Game.GameStatCounterManager.OnCounterTypeChanged -= CounterChanged;
-		MVGameControllerBase.Game.WinningConditionManager.OnWinningConditionCountChanged -= ConditionCountChanged;
-		MVNetworkGame game = MVGameControllerBase.Game;
-		game.onPlayerListChanged = (MVNetworkGame.OnPlayerListChangedDelegate)Delegate.Remove(game.onPlayerListChanged, new MVNetworkGame.OnPlayerListChangedDelegate(UpdateValue));
+		if (MVGameControllerBase.Game != null)
+		{
+			MVGameControllerBase.Game.GameStatCounterManager.OnCounterTypeChanged -= CounterChanged;
+			MVGameControllerBase.Game.WinningConditionManager.OnWinningConditionCountChanged -= ConditionCountChanged;
+			MVNetworkGame game = MVGameControllerBase.Game;
+			game.onPlayerListChanged = (MVNetworkGame.OnPlayerListChangedDelegate)Delegate.Remove(game.onPlayerListChanged, new MVNetworkGame.OnPlayerListChangedDelegate(UpdateValue));
+		}
 	}
 
 	private void UpdateValue()

@@ -12,14 +12,20 @@ public class GameMeterAndroidHealth : GameMeterAndroidBase
 
 	private MVAvatar avatarLocal;
 
+	private bool initialized;
+
 	public override GameMeterType GameMeterType => GameMeterType.Health;
 
 	public override void SetGameMeterVisibility()
 	{
-		avatarLocal = MVGameControllerBase.Game.LocalPlayer.Avatar;
-		MVRuntimeDataVariableClampedFloat health = avatarLocal.Health;
-		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnProgressUpdate));
-		enabled = true;
+		if (!initialized)
+		{
+			avatarLocal = MVGameControllerBase.Game.LocalPlayer.Avatar;
+			MVRuntimeDataVariableClampedFloat health = avatarLocal.Health;
+			health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnProgressUpdate));
+			enabled = true;
+			initialized = true;
+		}
 	}
 
 	public override void UpdateValue()

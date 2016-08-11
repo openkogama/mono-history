@@ -191,11 +191,6 @@ public class BoneAnimation : MonoBehaviour
 		ComputeAnimation();
 	}
 
-	public void RemoteUpdate()
-	{
-		ComputeRemoteAnimation();
-	}
-
 	public void Play(string animationName)
 	{
 		playingAnimations.Add(animationName);
@@ -234,7 +229,7 @@ public class BoneAnimation : MonoBehaviour
 	{
 		if (mvAvatar is MVAvatarRemote)
 		{
-			RemoteUpdate();
+			ComputeRemoteAnimation();
 		}
 		if (pauseNextFrame && Time.frameCount == playStartFrame + 1)
 		{

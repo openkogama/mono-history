@@ -58,7 +58,7 @@ public class MVTeleporter : MVLogicObject
 		base.Initialize();
 		useInteractor.UpdateData(Data);
 		OnInputLinkChanged();
-		SetupCulling(teleportObject.visualRoot);
+		SetupCulling(teleportObject.visualRoot).Radius = 4f;
 	}
 
 	private void SetupUseInteractor()

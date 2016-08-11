@@ -98,6 +98,7 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 	{
 		PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
 		cullingSubscriberBase = new CullingSubscriberBase(2.5f, WorldPosition, OnStateChanged);
+		cullingSubscriberBase.DistanceBandIndex = 2;
 	}
 
 	private void OnPositionChanged(MVWorldObjectClient arg0, PositionChangedEventArgs positionChangedEventArgs)

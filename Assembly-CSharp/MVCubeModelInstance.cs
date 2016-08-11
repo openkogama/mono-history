@@ -51,7 +51,7 @@ public class MVCubeModelInstance : MVCubeModelBase
 		SetCullSphereToMeshBounds();
 		PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
 		RotationChanged = (UnityAction<MVWorldObjectClient, RotationChangedEventArgs>)Delegate.Combine(RotationChanged, new UnityAction<MVWorldObjectClient, RotationChangedEventArgs>(OnRotationChanged));
-		Changed = (Action<CubeModelChangedEventArgs>)Delegate.Combine(Changed, new Action<CubeModelChangedEventArgs>(OnChanged));
+		ChunksChanged = (Action<HashSet<IntVector>>)Delegate.Combine(ChunksChanged, new Action<HashSet<IntVector>>(OnChanged));
 	}
 
 	private void OnRotationChanged(MVWorldObjectClient wo, RotationChangedEventArgs rotationChangedEventArgs)
@@ -59,7 +59,7 @@ public class MVCubeModelInstance : MVCubeModelBase
 		SetCullSphereToMeshBounds();
 	}
 
-	private void OnChanged(CubeModelChangedEventArgs cubeModelChangedEventArgs)
+	private void OnChanged(HashSet<IntVector> chunks)
 	{
 		SetCullSphereToMeshBounds();
 	}

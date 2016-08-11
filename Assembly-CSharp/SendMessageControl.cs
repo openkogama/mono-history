@@ -158,20 +158,21 @@ public class SendMessageControl : MonoBehaviour
 
 	public string CreateHelpTxt()
 	{
-		string text = TM._("<M> Menu");
+		string empty = string.Empty;
+		empty += TM._("<M> Menu");
 		switch (MVGameControllerBase.GameMode)
 		{
 		case MVGameMode.CharacterEditor:
 			return string.Empty;
 		case MVGameMode.Edit:
-			text += TM._("\n\n<PgDown> Move Workplane Down\n<PgUp> Move Workplane Up\n<TAB> Show Players\n<P> Play Mode\n<P> Edit Mode\n<1> Edit Cube\n<2> Delete Cube\n<3> Paint Cube\n<G> Toggle Grid Snap Size\n");
-			text += TM._("<F> Toggle Workplane\n<H> Toggle Vanity Item\n<L> Toggle Show Logic Cubes\n<R> Change Cube Material\n<I> Open Inventory\n<N> Create New Model\n<V> Focus on selected object");
+			empty += TM._("\n\n<PgDown> Move Workplane Down\n<PgUp> Move Workplane Up\n<TAB> Show Players\n<P> Play Mode\n<P> Edit Mode\n<1> Edit Cube\n<2> Delete Cube\n<3> Paint Cube\n<G> Toggle Grid Snap Size\n");
+			empty += TM._("<F> Toggle Workplane\n<H> Toggle Vanity Item\n<L> Toggle Show Logic Cubes\n<R> Change Cube Material\n<I> Open Inventory\n<N> Create New Model\n<V> Focus on selected object");
 			break;
 		case MVGameMode.Play:
-			text += TM._("\n\n<WASD> Move\n<Space> Jump\n<K> Respawn\n<Left Mouse> Fire Weapon\n<Q> Drop currently equipped weapon");
+			empty += TM._("\n\n<WASD> Move\n<Space> Jump\n<K> Respawn\n<Left Mouse> Fire Weapon\n<Q> Drop currently equipped weapon");
 			break;
 		}
-		return text + TM._("\n\nChat Commands\nFPS Counter: " + fps + "\nSee Resolution: " + resolution + "\nHD Mode: " + enableHD + "\n");
+		return empty + TM._("\n\nChat Commands\nFPS Counter: " + fps + "\nSee Resolution: " + resolution + "\nHD Mode: " + enableHD + "\n");
 	}
 
 	private void SanitizeMessage(ref string message, string tagToSanitize)

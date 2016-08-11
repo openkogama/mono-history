@@ -4,9 +4,9 @@ using UnityEngine;
 
 public static class CullingApiWrapper
 {
-	public const int dynamicObjectsDistanceBand = 4;
+	public const int dynamicObjectsDistanceBand = 3;
 
-	public const int overrideDynamicObjectsDistanceBand = 3;
+	public const int overrideDynamicObjectsDistanceBand = 2;
 
 	public const int npcDistanceBandOverride = 3;
 

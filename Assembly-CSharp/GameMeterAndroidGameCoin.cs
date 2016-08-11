@@ -25,6 +25,17 @@ public class GameMeterAndroidGameCoin : GameMeterAndroidBase
 		OnActivationChange(MVGameControllerBase.Game.GameCoinManager.Active);
 	}
 
+	private void OnDestroy()
+	{
+		if (MVGameControllerBase.Game != null)
+		{
+			MVGameCoinManager gameCoinManager = MVGameControllerBase.Game.GameCoinManager;
+			gameCoinManager.OnActivationChange = (MVGameCoinManager.OnActivationChangeDelegate)Delegate.Remove(gameCoinManager.OnActivationChange, new MVGameCoinManager.OnActivationChangeDelegate(OnActivationChange));
+			MVGameCoinManager gameCoinManager2 = MVGameControllerBase.Game.GameCoinManager;
+			gameCoinManager2.OnGameCoinAmountChange = (MVGameCoinManager.OnGameCoinAmountChangeDelegate)Delegate.Remove(gameCoinManager2.OnGameCoinAmountChange, new MVGameCoinManager.OnGameCoinAmountChangeDelegate(OnGameCoinAmountChange));
+		}
+	}
+
 	public void OnActivationChange(bool wantToShow)
 	{
 		MeterActive = wantToShow;

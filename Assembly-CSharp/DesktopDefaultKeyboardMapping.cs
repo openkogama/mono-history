@@ -68,6 +68,10 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap
 				new KeyCode[1] { KeyCode.O }
 			},
 			{
+				KogamaControls.ToggleHD,
+				new KeyCode[1] { KeyCode.H }
+			},
+			{
 				KogamaControls.ShowChat,
 				new KeyCode[2]
 				{

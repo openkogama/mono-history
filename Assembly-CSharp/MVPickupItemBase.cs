@@ -148,6 +148,7 @@ public class MVPickupItemBase : MVLogicObject
 		base.Initialize();
 		baseObject.PickupItem.pickupObject.AddComponent<RotateLocal>().rotationSpeed = 68f;
 		SetupCulling(baseObject.PickupItem.pickupObject);
+		cullingSubscriberBase.DistanceBandIndex = 2;
 	}
 
 	public override void Destroy()

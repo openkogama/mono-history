@@ -21,7 +21,7 @@ public static class QuaternionCompression
 
 	public static byte[] ToBytes(Quaternion quaternion)
 	{
-		Vector3 vector = ToEuler(quaternion);
+		Vector3 vector = NormalizeAngles(ToEuler(quaternion));
 		Vector3 vector2 = vector * degreesToByteFactor;
 		return new byte[3]
 		{
@@ -87,5 +87,26 @@ public static class QuaternionCompression
 		float y = (float)(num5 * num6 * num8 + num4 * num7 * num9);
 		float z = (float)(num4 * num7 * num8 - num5 * num6 * num9);
 		return new Quaternion(x, y, z, w);
+	}
+
+	private static Vector3 NormalizeAngles(Vector3 angles)
+	{
+		angles.x = NormalizeAngle(angles.x);
+		angles.y = NormalizeAngle(angles.y);
+		angles.z = NormalizeAngle(angles.z);
+		return angles;
+	}
+
+	private static float NormalizeAngle(float angle)
+	{
+		while (angle > 360f)
+		{
+			angle -= 360f;
+		}
+		while (angle < 0f)
+		{
+			angle += 360f;
+		}
+		return angle;
 	}
 }

@@ -68,6 +68,10 @@ public class PickupItemImpulseGun : PickupItem
 		{
 			audioSource.clip = chargeSound;
 			audioSource.loop = true;
+			if (audioSource.isPlaying)
+			{
+				audioSource.Play();
+			}
 		}
 		isCharging = true;
 		chargeBeginTime = Time.time;
