@@ -27,6 +27,16 @@ public static class AwayMonitor
 
 	private static DateTime latestMouseMoveTime = DateTime.Now;
 
+	private static readonly string mouseX = "Mouse X";
+
+	private static readonly string mouseY = "Mouse Y";
+
+	private static readonly string scroll = "Mouse ScrollWheel";
+
+	private static readonly string platformerLeft = "MoveLeft";
+
+	private static readonly string platformerRight = "MoveRight";
+
 	public static bool IdleKickEnabled
 	{
 		get
@@ -62,7 +72,7 @@ public static class AwayMonitor
 
 	private static void UpdateMouse()
 	{
-		if (Input.mousePosition != prevMousePos || MVInputWrapper.GetAxisRaw("Mouse ScrollWheel") > Mathf.Epsilon || MVInputWrapper.GetAxisRaw("Mouse X") > Mathf.Epsilon || MVInputWrapper.GetAxisRaw("Mouse Y") > Mathf.Epsilon)
+		if (Input.mousePosition != prevMousePos || MVInputWrapper.GetAxisRaw(scroll) > Mathf.Epsilon || MVInputWrapper.GetAxisRaw(mouseX) > Mathf.Epsilon || MVInputWrapper.GetAxisRaw(mouseY) > Mathf.Epsilon)
 		{
 			prevMousePos = Input.mousePosition;
 			latestMouseMoveTime = DateTime.Now;

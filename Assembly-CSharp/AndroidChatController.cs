@@ -81,6 +81,7 @@ public class AndroidChatController : MonoBehaviour
 		enterChatButton.gameObject.SetActive(value: true);
 		chatConsoleModes.Set(ChatConsoleMode.ChatLobbyMode, ref rectTransform);
 		inputAreaRoot.gameObject.SetActive(!MVGameControllerBase.IsTouristSession);
+		SetMode(ChatConsoleMode.ChatLobbyMode);
 	}
 
 	public void OnChatModeTapped()
@@ -105,6 +106,10 @@ public class AndroidChatController : MonoBehaviour
 		{
 			SetMode(ChatConsoleMode.ChatLobbyMode);
 		}
+		else
+		{
+			SetMode(ChatConsoleMode.ChatLobbyMode);
+		}
 	}
 
 	private void SetMode(ChatConsoleMode chatConsoleMode)
@@ -112,6 +117,11 @@ public class AndroidChatController : MonoBehaviour
 		switch (chatConsoleMode)
 		{
 		case ChatConsoleMode.ChatLobbyMode:
+			enterChatButton.SetScrollingEnabled(scrollEnabled: true);
+			inputAreaRoot.gameObject.SetActive(!MVGameControllerBase.IsTouristSession);
+			minimizeChat.gameObject.SetActive(value: false);
+			expandChat.gameObject.SetActive(value: false);
+			break;
 		case ChatConsoleMode.ChatPlayMode:
 			enterChatButton.SetScrollingEnabled(scrollEnabled: true);
 			inputAreaRoot.gameObject.SetActive(!MVGameControllerBase.IsTouristSession);

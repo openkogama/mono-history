@@ -2679,7 +2679,6 @@ public class MVNetworkGame : IPhotonPeerListener
 	private void OnJoinResponse(Dictionary<byte, object> returnValues)
 	{
 		DebugLogHandler.SetupSentryClient((string)returnValues[202]);
-		AndroidAdManager.Initialize(MVGameControllerBase.GameSessionData.profileID, string.Empty);
 		Dictionary<object, object> prices = (Dictionary<object, object>)returnValues[183];
 		PricesManager.Init(prices);
 		gameCoinManager = new MVGameCoinManager((int)returnValues[180]);

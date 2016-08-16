@@ -170,9 +170,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private SpawnerObject spawnerObject;
 
+	[SerializeField]
 	[Header("Game")]
 	[Space(20f)]
-	[SerializeField]
 	private Material ghostMarkerMaterial;
 
 	[SerializeField]
@@ -196,9 +196,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private CubeModelChunkPrefab cubeModelChunkPrefab;
 
-	[SerializeField]
-	[Space(20f)]
 	[Header("Pick up")]
+	[Space(20f)]
+	[SerializeField]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
 	[SerializeField]
@@ -309,8 +309,8 @@ public class PrefabPool : MonoBehaviour
 	private GameObject avatarItemSlapGun;
 
 	[Header("Avatar modifier")]
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
 	private AvatarModifier burningModifier;
 
 	[SerializeField]
@@ -334,8 +334,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private AvatarModifier shieldModifier;
 
-	[Header("Particles")]
 	[Space(20f)]
+	[Header("Particles")]
 	[SerializeField]
 	private GameObject particleBlood;
 
@@ -402,9 +402,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem goldExplosion;
 
-	[SerializeField]
-	[Space(20f)]
 	[Header("Logic object prefabs")]
+	[Space(20f)]
+	[SerializeField]
 	private GameObject logicInputConnectorPrefab;
 
 	[SerializeField]
@@ -431,9 +431,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material logicCubeConnectorBlueSelectedMaterial;
 
+	[Header("GUI")]
 	[Space(20f)]
 	[SerializeField]
-	[Header("GUI")]
 	private Texture2D avatarAccessoryMoveIcon;
 
 	[SerializeField]
@@ -442,9 +442,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material modelConstraintsMaterial;
 
-	[Header("UGUI")]
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
+	[Header("UGUI")]
 	private AvatarInputControllerAndroidSettings avatarInputControllerAndroidSettings;
 
 	[SerializeField]
@@ -456,9 +456,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private InsertCursor insertCursor;
 
-	[SerializeField]
 	[Header("Editor")]
 	[Space(20f)]
+	[SerializeField]
 	private Material cellCursorErrorMaterial;
 
 	[SerializeField]

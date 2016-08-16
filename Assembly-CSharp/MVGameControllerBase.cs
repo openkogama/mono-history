@@ -280,7 +280,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	private void OnApplicationQuit()
 	{
-		Debug.Log("On application quit");
+		Debug.LogError("On application quit");
 		disconnectIsOk = true;
 		if (Game != null)
 		{

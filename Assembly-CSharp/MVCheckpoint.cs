@@ -9,6 +9,8 @@ public class MVCheckpoint : MVLogicObject
 
 	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
+	private bool playingAnimation;
+
 	public override Vector3 WorldPivot => transform.position;
 
 	public MVCheckpoint(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
@@ -26,6 +28,19 @@ public class MVCheckpoint : MVLogicObject
 		vector.z = 1f;
 		vector.x = 1f;
 		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, vector);
+	}
+
+	protected override void OnUpdate()
+	{
+		base.OnUpdate();
+		if (playingAnimation && !checkpointObject.VisualObject.activeInHierarchy)
+		{
+			checkpointObject.Animation.Rewind();
+			checkpointObject.Animation.Play();
+			checkpointObject.Animation.Sample();
+			checkpointObject.Animation.Stop();
+			playingAnimation = false;
+		}
 	}
 
 	public override void Initialize()
@@ -82,6 +97,7 @@ public class MVCheckpoint : MVLogicObject
 			if (checkpointObject.Animation != null)
 			{
 				checkpointObject.Animation.Play("CheckpointReach");
+				playingAnimation = true;
 			}
 			return true;
 		}

@@ -146,7 +146,6 @@ public static class CullingApiWrapper
 		for (int i = 0; i < sizes.Length; i++)
 		{
 			array[i] = sizes[i] / sizes[0] * newBaseDistance;
-			Debug.Log(array[i]);
 		}
 		return array;
 	}

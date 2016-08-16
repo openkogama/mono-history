@@ -74,7 +74,7 @@ public class PickupGUI
 			canBeVisible = true;
 			UpdateCrossHairVisibility();
 		}
-		if (item.Type != AvatarItemType.Hand)
+		if (item.Type != AvatarItemType.Hand && item.Type != AvatarItemType.SlapGun)
 		{
 			ShowEquipableUI = true;
 		}
