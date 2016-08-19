@@ -23,6 +23,9 @@ public class ColorStyleObject : MonoBehaviour
 
 	private void OnValidate()
 	{
-		Styles.SetStyle(graphic, imageStyle);
+		if (!Application.isPlaying)
+		{
+			Styles.SetStyle(graphic, imageStyle);
+		}
 	}
 }

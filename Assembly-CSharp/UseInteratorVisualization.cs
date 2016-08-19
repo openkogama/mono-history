@@ -77,6 +77,8 @@ public class UseInteratorVisualization : MonoBehaviour
 	{
 		if (cullingSubscriberBase != null)
 		{
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woId);
+			worldObjectClient.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Remove(worldObjectClient.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
 			cullingSubscriberBase.Destroy();
 			cullingSubscriberBase = null;
 		}

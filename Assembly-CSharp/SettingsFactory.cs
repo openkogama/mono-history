@@ -294,7 +294,7 @@ public class SettingsFactory : MonoBehaviour
 
 	private void OnValidate()
 	{
-		if (previewSettingsPopup)
+		if (!Application.isPlaying && previewSettingsPopup)
 		{
 			CreateSettingsDialog(-1, worldObjectType);
 		}

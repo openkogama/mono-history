@@ -1,5 +1,4 @@
 using System;
-using MV.Common;
 using UnityEngine;
 
 public class PickupGUI
@@ -10,7 +9,7 @@ public class PickupGUI
 
 	private bool canBeVisible;
 
-	public static bool ShowEquipableUI { get; private set; }
+	public static PickupGUIFlags ShowEquipableUI { get; private set; }
 
 	public PickupGUI(MVPickupOwner pickupOwner)
 	{
@@ -64,7 +63,7 @@ public class PickupGUI
 	{
 		canBeVisible = false;
 		UpdateCrossHairVisibility();
-		ShowEquipableUI = false;
+		ShowEquipableUI = PickupGUIFlags.None;
 	}
 
 	private void OnEquipItem(PickupItem item)
@@ -73,10 +72,15 @@ public class PickupGUI
 		{
 			canBeVisible = true;
 			UpdateCrossHairVisibility();
+			ShowEquipableUI |= PickupGUIFlags.ShowCrosshair;
 		}
-		if (item.Type != AvatarItemType.Hand && item.Type != AvatarItemType.SlapGun)
+		if (item.CanFire())
 		{
-			ShowEquipableUI = true;
+			ShowEquipableUI |= PickupGUIFlags.CanFire;
+		}
+		if (item.CanUnequip)
+		{
+			ShowEquipableUI |= PickupGUIFlags.CanUnequip;
 		}
 	}
 
@@ -84,6 +88,6 @@ public class PickupGUI
 	{
 		canBeVisible = false;
 		crossHair.Visible = false;
-		ShowEquipableUI = false;
+		ShowEquipableUI = PickupGUIFlags.None;
 	}
 }

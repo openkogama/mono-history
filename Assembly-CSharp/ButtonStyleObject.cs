@@ -29,6 +29,9 @@ public class ButtonStyleObject : MonoBehaviour
 
 	private void OnValidate()
 	{
-		Styles.SetStyle(button, buttonStyle, colorStyle, SoundStyle.NoSound);
+		if (!Application.isPlaying)
+		{
+			Styles.SetStyle(button, buttonStyle, colorStyle, SoundStyle.NoSound);
+		}
 	}
 }

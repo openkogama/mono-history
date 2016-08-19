@@ -41,13 +41,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	private static int reAuthTestTries = 3;
 
-	protected static CustomBuildSettings customBuildSettings;
-
 	private static TimeReward timeReward;
-
-	private static string versionGuid;
-
-	private static int versionStreamingAssets = -1;
 
 	private static OverrideMaterials overrideMaterials;
 
@@ -56,6 +50,9 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	private static LoadStats loadStats;
 
 	private static MVJoinState _joinState;
+
+	[SerializeField]
+	protected KoGaMaSettingsContainer koGaMaSettings;
 
 	[SerializeField]
 	private MVCameraController cameraController;
@@ -68,9 +65,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	[SerializeField]
 	protected PrefabPool prefabPool;
-
-	[SerializeField]
-	private TextAsset version;
 
 	private static MVGameControllerBase instance;
 
@@ -112,11 +106,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		}
 	}
 
-	public static string VersionGuid => versionGuid;
-
-	public static int VersionStreamingAssets => versionStreamingAssets;
-
-	public static bool UsingDevSessionData => customBuildSettings.ShowLogin || Application.isEditor;
+	public static bool UsingDevSessionData => instance.koGaMaSettings.ShowDebugLogin || Application.isEditor;
 
 	public static MVNetworkGame Game { get; private set; }
 
@@ -138,7 +128,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	public static LevelLoader LevelLoader { get; private set; }
 
-	public static VersionNumber VersionNumber { get; private set; }
+	public static KoGaMaSettingsContainer KoGaMaSettings => instance.koGaMaSettings;
 
 	public static bool IsTouristSession => GameSessionData.profileID <= 0;
 
@@ -211,7 +201,11 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	private void Awake()
 	{
-		Debug.Log(version.text);
+		instance = this;
+		Debug.Log(KoGaMaSettings.VersionString);
+		Debug.Log("Branch " + KoGaMaSettings.BranchName);
+		Debug.Log("Latest commit message " + koGaMaSettings.LatestCommitMessage);
+		Debug.Log("Build time " + koGaMaSettings.BuildTime);
 		DebugLogHandler.Init();
 		if (!DebugLogHandler.IsSampling && !Debug.isDebugBuild)
 		{
@@ -221,7 +215,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		styles.transform.parent = transform;
 		loadStats = new LoadStats();
 		loadStats.GameStartTime = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
-		instance = this;
 		UnityEngine.Object.Instantiate(prefabPool);
 		LevelLoader = GetComponent<LevelLoader>();
 		AudioManager = GetComponent<AudioManager>();
@@ -230,7 +223,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		timeReward = new TimeReward();
 		CheatHandling.Init();
 		AudioEventHandler.Init();
-		InitVersion();
 		InitUpdateController();
 		UnityEngine.Object.DontDestroyOnLoad(gameObject);
 		Application.runInBackground = true;
@@ -280,7 +272,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	private void OnApplicationQuit()
 	{
-		Debug.LogError("On application quit");
+		Debug.Log("On application quit");
 		disconnectIsOk = true;
 		if (Game != null)
 		{
@@ -356,10 +348,12 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		if (!quitHasBeenCalled)
 		{
 			quitHasBeenCalled = true;
-			applicationQuitObject?.OnQuit();
+			instance.HandleApplicationQuit(applicationQuitObject);
 			Application.Quit();
 		}
 	}
+
+	public abstract void HandleApplicationQuit(QuitBaseCallback quitBaseCallback);
 
 	public static void RegisterOverrideMaterials()
 	{
@@ -367,15 +361,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		{
 			overrideMaterials.Register();
 		}
-	}
-
-	private void InitVersion()
-	{
-		GameObject gameObject = UnityEngine.Object.Instantiate(Resources.Load("Prefabs/Version Number")) as GameObject;
-		gameObject.transform.parent = transform;
-		VersionNumber = gameObject.GetComponent<VersionNumber>();
-		versionGuid = VersionNumber.versionGuid;
-		versionStreamingAssets = VersionNumber.versionStreamingAssets;
 	}
 
 	private void InitUpdateController()

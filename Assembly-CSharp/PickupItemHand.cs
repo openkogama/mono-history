@@ -15,7 +15,14 @@ public class PickupItemHand : PickupItemWithDelay
 
 	public override bool ActivateGunModeOnEquip => false;
 
+	public override bool CanUnequip => false;
+
 	public override int Quantity => 0;
+
+	public override bool CanFire()
+	{
+		return false;
+	}
 
 	protected override void OnFire(bool isLocal)
 	{

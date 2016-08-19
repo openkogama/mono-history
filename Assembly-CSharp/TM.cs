@@ -123,7 +123,7 @@ public class TM : MonoBehaviour
 	private static void TryGetTextAsset(string fileName)
 	{
 		TM.fileName = fileName;
-		string text = baseResourcesPath + fileName + ".txt?" + MVGameControllerBase.VersionGuid;
+		string text = baseResourcesPath + fileName + ".txt?" + MVGameControllerBase.KoGaMaSettings.VersionGuid;
 		AsyncWWWManager.WWWRequest(new GetRequest(Urls.StreamingAssets + text, StreamingAssetCallback, WWWRequestPriority.ExecuteWhileSyncronizing));
 	}
 

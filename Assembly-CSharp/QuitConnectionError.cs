@@ -2,7 +2,9 @@ using UnityEngine;
 
 public class QuitConnectionError : QuitBaseCallback
 {
-	public void OnQuit()
+	public readonly bool gotoDisconnectPage;
+
+	public QuitConnectionError()
 	{
 		if (MVGameControllerBase.Game == null)
 		{
@@ -11,9 +13,19 @@ public class QuitConnectionError : QuitBaseCallback
 		else if (MVGameControllerBase.Game.ConnState == MVConnState.DisconnectedByUser)
 		{
 			Debug.LogWarning("Not going to disconnect page as disconnect was by user");
-			return;
 		}
-		BrowserComm.ToJavaScript.ExternalCall("gotoDisconnectedPage");
-		BrowserComm.ExecuteBrowserRequest(MVGameControllerBase.GameSessionData.disconnectedURL);
+		else
+		{
+			gotoDisconnectPage = true;
+		}
+	}
+
+	public void OnQuit()
+	{
+		if (gotoDisconnectPage)
+		{
+			BrowserComm.ToJavaScript.ExternalCall("gotoDisconnectedPage");
+			BrowserComm.ExecuteBrowserRequest(MVGameControllerBase.GameSessionData.disconnectedURL);
+		}
 	}
 }

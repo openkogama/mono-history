@@ -50,7 +50,10 @@ public abstract class ToggleStatHandlerBase : MonoBehaviour
 
 	private void OnValidate()
 	{
-		UpdateToggleState();
+		if (!Application.isPlaying)
+		{
+			UpdateToggleState();
+		}
 	}
 
 	public void Toggle()

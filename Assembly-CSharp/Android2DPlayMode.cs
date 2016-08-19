@@ -45,24 +45,45 @@ public class Android2DPlayMode : IKogamaInputMap
 		}
 	};
 
+	private Dictionary<KogamaControls, KeyCode> KeyCodeMapping = new Dictionary<KogamaControls, KeyCode> { 
+	{
+		KogamaControls.Escape,
+		KeyCode.Escape
+	} };
+
 	public bool GetBooleanControl(KogamaControls control, KeyState keyState, int index = -1)
 	{
-		if (!ButtonMapping.Keys.Contains(control))
+		if (ButtonMapping.Keys.Contains(control))
 		{
-			Debug.LogWarning("Not implemented on mobile " + control);
+			string[] array = ButtonMapping[control];
+			foreach (string name in array)
+			{
+				switch (keyState)
+				{
+				case KeyState.Pressed:
+					return CrossPlatformInputManager.GetButton(name);
+				case KeyState.Down:
+					return CrossPlatformInputManager.GetButtonDown(name);
+				case KeyState.Up:
+					return CrossPlatformInputManager.GetButtonUp(name);
+				}
+			}
 		}
-		string[] array = ButtonMapping[control];
-		foreach (string name in array)
+		else if (KeyCodeMapping.Keys.Contains(control))
 		{
 			switch (keyState)
 			{
 			case KeyState.Pressed:
-				return CrossPlatformInputManager.GetButton(name);
+				return Input.GetKey(KeyCodeMapping[control]);
 			case KeyState.Down:
-				return CrossPlatformInputManager.GetButtonDown(name);
+				return Input.GetKeyDown(KeyCodeMapping[control]);
 			case KeyState.Up:
-				return CrossPlatformInputManager.GetButtonUp(name);
+				return Input.GetKeyUp(KeyCodeMapping[control]);
 			}
+		}
+		else
+		{
+			Debug.LogWarning("Not implemented on mobile " + control);
 		}
 		return false;
 	}

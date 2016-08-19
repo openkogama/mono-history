@@ -77,6 +77,11 @@ public class MaterialLoader : MonoBehaviour
 
 	public void Start()
 	{
+		cubeModelMaterialHigh = UnityEngine.Object.Instantiate(cubeModelMaterialHigh);
+		cubeModelMaterialLow = UnityEngine.Object.Instantiate(cubeModelMaterialLow);
+		avatarMaterialHigh = UnityEngine.Object.Instantiate(avatarMaterialHigh);
+		avatarMaterialLow = UnityEngine.Object.Instantiate(avatarMaterialLow);
+		avatarTransparentMaterialHigh = UnityEngine.Object.Instantiate(avatarTransparentMaterialHigh);
 		SetMainTexture(lowResMaterials);
 		SetupMaterials();
 		MeshPool.Instance.MaxAmtMeshes = 100;

@@ -48,13 +48,13 @@ public class InputToInGameAction
 			{
 				use = true;
 			}
-			if (MVInputWrapper.GetBooleanControl(KogamaControls.Fire) || MVInputWrapper.GetBooleanControlDown(KogamaControls.Fire))
-			{
-				fire = true;
-			}
 			if (MVInputWrapper.GetBooleanControlDown(KogamaControls.DropCurrentItem))
 			{
 				drop = true;
+			}
+			if (MVInputWrapper.GetBooleanControl(KogamaControls.Fire) || MVInputWrapper.GetBooleanControlDown(KogamaControls.Fire))
+			{
+				fire = true;
 			}
 		}
 	}

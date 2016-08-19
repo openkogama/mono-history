@@ -24,6 +24,8 @@ public class PickupItemSlapGun : PickupItemWithDelay
 
 	public override AvatarItemType Type => AvatarItemType.SlapGun;
 
+	public override bool CanUnequip => false;
+
 	public override bool ActivateGunModeOnEquip => false;
 
 	public override int Quantity => 0;

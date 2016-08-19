@@ -16,13 +16,9 @@ public class TouristPromotion : MonoBehaviour
 	[SerializeField]
 	private CanvasGroup canvasGroup;
 
-	[SerializeField]
-	private GameObject pleaseWaitOverlay;
-
 	public void SetPromotionTexture(Texture tex)
 	{
 		buttonRawImage.texture = tex;
-		pleaseWaitOverlay.SetActive(value: false);
 	}
 
 	public void SkipCallback()

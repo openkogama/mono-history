@@ -42,6 +42,7 @@ public enum KogamaControls
 	ChangeChangeFocusDirection,
 	ToggleHD,
 	LobbyMenu,
+	Escape,
 	EditMoveUp,
 	EditMoveDown,
 	EditMoveForward,

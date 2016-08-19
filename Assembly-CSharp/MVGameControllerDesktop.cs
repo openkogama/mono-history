@@ -29,8 +29,7 @@ public class MVGameControllerDesktop : MVGameControllerBase
 	private void Start()
 	{
 		Object.DontDestroyOnLoad(eventSystem);
-		MVGameControllerBase.customBuildSettings = Resources.Load("Prefabs/CustomBuildSettings", typeof(CustomBuildSettings)) as CustomBuildSettings;
-		bool developmentMode = Application.isEditor || MVGameControllerBase.customBuildSettings.ShowLogin;
+		bool developmentMode = Application.isEditor || koGaMaSettings.ShowDebugLogin;
 		InitStandAlone(developmentMode);
 		FullScreenController.FullScreen = false;
 		Screen.SetResolution(940, 482, fullscreen: false);
@@ -70,11 +69,17 @@ public class MVGameControllerDesktop : MVGameControllerBase
 			modeController.Initialize();
 			LevelingManager.Initialize(MVGameControllerBase.Game.LocalPlayer.ProfileID);
 		}
+		BackButtonManager.Update();
 	}
 
 	protected override void LateUpdate()
 	{
 		base.LateUpdate();
 		FullScreenController.LateUpdate();
+	}
+
+	public override void HandleApplicationQuit(QuitBaseCallback quitBaseCallback)
+	{
+		quitBaseCallback?.OnQuit();
 	}
 }

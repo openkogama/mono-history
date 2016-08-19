@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
@@ -35,24 +34,26 @@ public class FriendRequestNotification : Notification
 
 	public void AcceptFriendship()
 	{
-		ValidateFriendRequest();
-		MVGameControllerBase.OperationRequests.RequestAcceptFriendShip(requester.friendID);
+		if (ValidateFriendRequest())
+		{
+			MVGameControllerBase.OperationRequests.RequestAcceptFriendShip(requester.friendID);
+		}
 		Close();
 	}
 
-	private void ValidateFriendRequest()
+	private bool ValidateFriendRequest()
 	{
 		int level = MVGameControllerBase.Game.LocalPlayer.Level;
 		int friendsLimit = BadgeManager.GetFriendsLimit(level);
 		int count = MVGameControllerBase.Game.Friends.Friends.Count;
 		if (count < friendsLimit)
 		{
-			return;
+			return true;
 		}
-		int num = level + 1;
-		int friendsLimit2 = BadgeManager.GetFriendsLimit(num);
-		string format = TM._("You can only have {0} friends at level {1}. Get to level {2} and you can have {3} friends.");
+		int level2 = level + 1;
+		int friendsLimit2 = BadgeManager.GetFriendsLimit(level2);
+		string text = TM._("You can only have {0} friends at level {1}. Get to level {2} and you can have {3} friends.");
 		MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, TM._("Your friendlist is full"));
-		throw new Exception(string.Format(format, friendsLimit, level, num, friendsLimit2));
+		return false;
 	}
 }

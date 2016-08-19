@@ -25,7 +25,7 @@ public abstract class TextStyleBase : MonoBehaviour
 
 	private void OnValidate()
 	{
-		if (!(text == null))
+		if (!Application.isPlaying && !(text == null))
 		{
 			Styles.SetStyle(text, textStyle, colorStyle);
 		}

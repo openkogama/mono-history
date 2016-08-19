@@ -2,7 +2,7 @@ using UnityEngine;
 
 public abstract class PlayModeControlsBase : MonoBehaviour
 {
-	private bool showingEquipableUI;
+	private PickupGUIFlags showingEquipableUI;
 
 	[SerializeField]
 	private RectTransform use;
@@ -26,9 +26,9 @@ public abstract class PlayModeControlsBase : MonoBehaviour
 	{
 		if (PickupGUI.ShowEquipableUI != showingEquipableUI)
 		{
-			fire.gameObject.SetActive(PickupGUI.ShowEquipableUI);
-			dropWeapon.gameObject.SetActive(PickupGUI.ShowEquipableUI);
-			crossHairGO.SetActive(PickupGUI.ShowEquipableUI);
+			fire.gameObject.SetActive((PickupGUI.ShowEquipableUI & PickupGUIFlags.CanFire) != 0);
+			dropWeapon.gameObject.SetActive((PickupGUI.ShowEquipableUI & PickupGUIFlags.CanUnequip) != 0);
+			crossHairGO.SetActive((PickupGUI.ShowEquipableUI & PickupGUIFlags.ShowCrosshair) != 0);
 			showingEquipableUI = PickupGUI.ShowEquipableUI;
 		}
 		if (MVGameControllerBase.WOCM.AvatarLocal.IsSeated != leaveVehicle.gameObject.activeInHierarchy)

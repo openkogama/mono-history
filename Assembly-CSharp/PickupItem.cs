@@ -27,6 +27,8 @@ public abstract class PickupItem : MonoBehaviour
 
 	public virtual bool ActivateGunModeOnEquip => true;
 
+	public virtual bool CanUnequip => true;
+
 	public abstract AvatarItemType Type { get; }
 
 	public int VariantID { get; set; }

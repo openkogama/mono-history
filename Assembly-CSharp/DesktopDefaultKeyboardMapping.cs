@@ -195,6 +195,10 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap
 				}
 			},
 			{
+				KogamaControls.Escape,
+				new KeyCode[1] { KeyCode.Escape }
+			},
+			{
 				KogamaControls.EditMoveFast,
 				new KeyCode[2]
 				{

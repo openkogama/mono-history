@@ -125,7 +125,7 @@ public static class DebugLogHandler
 	private static Dictionary<string, string> GetTags()
 	{
 		Dictionary<string, string> dictionary = new Dictionary<string, string>();
-		dictionary.Add("Version", MVGameControllerBase.VersionNumber.VersionString);
+		dictionary.Add("Version", MVGameControllerBase.KoGaMaSettings.VersionString);
 		dictionary.Add("JoinState", MVGameControllerBase.JoinState.ToString());
 		dictionary.Add("Source", "standalone");
 		return dictionary;

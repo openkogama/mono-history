@@ -152,8 +152,11 @@ public static class CullingApiWrapper
 
 	public static void Destroy()
 	{
-		cullingGroup.Dispose();
-		cullingGroup = null;
+		if (cullingGroup != null)
+		{
+			cullingGroup.Dispose();
+			cullingGroup = null;
+		}
 	}
 
 	public static void DebugCullingEvent(CullingGroupEvent cullingGroupEvent)

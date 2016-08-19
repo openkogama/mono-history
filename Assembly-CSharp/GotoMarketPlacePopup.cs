@@ -5,8 +5,7 @@ public class GotoMarketPlacePopup : MonoBehaviour
 {
 	public void GoToMarketPlace()
 	{
-		BrowserComm.ExecuteBrowserRequest(AndroidUrls.MarketPlaceUrl + "&dateNow=" + DateTime.Now.ToFileTime());
-		MVGameControllerBase.ApplicationQuit(null);
+		MVGameControllerBase.ApplicationQuit(new QuitBrowserRequest(AndroidUrls.MarketPlaceUrl + "&dateNow=" + DateTime.Now.ToFileTime()));
 		Debug.Log("Goto marketplace");
 	}
 }
