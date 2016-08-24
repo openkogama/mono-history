@@ -33,14 +33,6 @@ public class BoneAnimation : MonoBehaviour
 	[SerializeField]
 	private Animation avatarAnimation;
 
-	public EventHandler<AnimationChangedEventArgs> AnimationChanged = delegate
-	{
-	};
-
-	public EventHandler<AnimationClipStoppedEventArgs> AnimationClipStopped = delegate
-	{
-	};
-
 	private float speed = 1f;
 
 	public AudioSource AudioSource
@@ -129,6 +121,12 @@ public class BoneAnimation : MonoBehaviour
 		}
 	}
 
+	private void OnEnable()
+	{
+		currentAnim = prevAnim;
+		prevAnim = null;
+	}
+
 	private void ComputeAnimation()
 	{
 		if (currentAnim != null && (prevAnim == null || (prevAnim != null && currentAnim.State != prevAnim.State)))
@@ -147,16 +145,6 @@ public class BoneAnimation : MonoBehaviour
 			{
 				num = 0.001f * (float)(TransformNetworkManager.DelayedTime - currentAnim.TimeStamp) / avatarAnimation[currentAnim.State].length;
 				avatarAnimation[currentAnim.State].time = num;
-			}
-			if (prevAnim != null && AnimationClipStopped != null)
-			{
-				AnimationClipStoppedEventArgs e = new AnimationClipStoppedEventArgs(prevAnim.State);
-				AnimationClipStopped(this, e);
-			}
-			if (AnimationChanged != null)
-			{
-				AnimationChangedEventArgs e2 = new AnimationChangedEventArgs(currentAnim.State);
-				AnimationChanged(this, e2);
 			}
 			prevAnim = currentAnim;
 			currentAnim = null;
@@ -257,11 +245,6 @@ public class BoneAnimation : MonoBehaviour
 			if (playingAnimations.Contains(item2.name) && !item2.enabled)
 			{
 				playingAnimations.Remove(item2.name);
-				if (AnimationClipStopped != null)
-				{
-					AnimationClipStoppedEventArgs e = new AnimationClipStoppedEventArgs(item2.name);
-					AnimationClipStopped(this, e);
-				}
 			}
 		}
 	}

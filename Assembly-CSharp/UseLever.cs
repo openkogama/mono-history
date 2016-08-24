@@ -31,7 +31,7 @@ public class UseLever : MVLogicObject
 		interactionFlags |= InteractionFlags.CanUseLevel;
 		interactionFlags |= InteractionFlags.CanUseStars;
 		useLeverObject = (UseLeverObject)component;
-		useLeverObject.UseInteractor = new UseInteractor(Id, useLeverObject.useInteractionRotator, reset: false, useLeverObject.LeverCollider, Use);
+		useLeverObject.UseInteractor = new UseInteractor(this, useLeverObject.useInteractionRotator, reset: false, useLeverObject.LeverCollider, Use);
 		useLeverObject.TriggerBoxEvents.TriggerEnter += useLeverObject.UseInteractor.triggerBoxEvents_TriggerEnter;
 		useLeverObject.TriggerBoxEvents.TriggerExit += useLeverObject.UseInteractor.triggerBoxEvents_TriggerExit;
 		GameCoinLogic useRequirement = new GameCoinLogic(useLeverObject.useInteractionRotator, new Vector3(0.5f, 1f, 0f));

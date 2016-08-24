@@ -32,6 +32,9 @@ public class Avatar : MonoBehaviour
 	[SerializeField]
 	private AvatarFader avatarFader;
 
+	[SerializeField]
+	private GameObject mobileIcon;
+
 	private bool nameTagLabelVisible;
 
 	public bool IsLocal => isLocal;
@@ -58,6 +61,11 @@ public class Avatar : MonoBehaviour
 				renderer.enabled = nameTagLabelVisible;
 			}
 		}
+	}
+
+	public void ShowMobileIcon()
+	{
+		mobileIcon.SetActive(value: true);
 	}
 
 	public void Initialize(MVAvatar mvAvatar, bool isLocal)

@@ -68,7 +68,7 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 		}
 		base.Initialize();
 		MVVehicleBase mVVehicleBase = (MVVehicleBase)GetChild(spawnWorldObjectID);
-		useInteractor = new UseInteractor(Id, spawnerObject.UseInteractorRotator, reset: true, triggerBoxEvents.Collider, Use, CheckCanUse);
+		useInteractor = new UseInteractor(this, spawnerObject.UseInteractorRotator, reset: true, triggerBoxEvents.Collider, Use, CheckCanUse);
 		triggerBoxEvents.TriggerEnterOverride += useInteractor.triggerBoxEvents_TriggerEnter;
 		triggerBoxEvents.TriggerExitOverride += useInteractor.triggerBoxEvents_TriggerExit;
 		GameCoinLogic useRequirement = new GameCoinLogic(spawnerObject.UseInteractorRotator, displayObjectOffset);

@@ -23,26 +23,26 @@ public class UseInteratorVisualization : MonoBehaviour
 
 	private bool hasUseRequirement;
 
-	private int woId;
-
 	private bool visible;
 
-	public void Initialize(float yOffset, int woId)
+	private MVWorldObjectClient wo;
+
+	public void Initialize(float yOffset, MVWorldObjectClient wo)
 	{
-		this.woId = woId;
+		this.wo = wo;
 		pivot.y = yOffset;
 		CalculateSpacing();
 		enabled = false;
 	}
 
-	private void SetupCulling(int woId)
+	private void SetupCulling()
 	{
 		cullingSubscriberBase = new CullingSubscriberBase(OnStateChanged);
 		cullingSubscriberBase.Radius = 2f;
 		cullingSubscriberBase.DistanceBandIndex = 1;
-		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woId);
-		worldObjectClient.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(worldObjectClient.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
-		UpdatePosition(worldObjectClient.WorldPosition);
+		MVWorldObjectClient mVWorldObjectClient = wo;
+		mVWorldObjectClient.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(mVWorldObjectClient.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
+		UpdatePosition(wo.WorldPosition);
 	}
 
 	private void OnStateChanged(CullingGroupEvent cullingGroupEvent)
@@ -77,8 +77,8 @@ public class UseInteratorVisualization : MonoBehaviour
 	{
 		if (cullingSubscriberBase != null)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woId);
-			worldObjectClient.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Remove(worldObjectClient.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
+			MVWorldObjectClient mVWorldObjectClient = wo;
+			mVWorldObjectClient.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Remove(mVWorldObjectClient.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
 			cullingSubscriberBase.Destroy();
 			cullingSubscriberBase = null;
 		}
@@ -221,7 +221,7 @@ public class UseInteratorVisualization : MonoBehaviour
 	{
 		if (hasUseRequirement && cullingSubscriberBase == null)
 		{
-			SetupCulling(woId);
+			SetupCulling();
 		}
 		else if (!hasUseRequirement && cullingSubscriberBase != null)
 		{

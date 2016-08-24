@@ -170,9 +170,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private SpawnerObject spawnerObject;
 
+	[Header("Game")]
 	[Space(20f)]
 	[SerializeField]
-	[Header("Game")]
 	private Material ghostMarkerMaterial;
 
 	[SerializeField]
@@ -196,9 +196,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private CubeModelChunkPrefab cubeModelChunkPrefab;
 
-	[SerializeField]
-	[Space(20f)]
 	[Header("Pick up")]
+	[Space(20f)]
+	[SerializeField]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
 	[SerializeField]
@@ -255,9 +255,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private MVPickupItemBaseObject avatarGrowthPackPrefab;
 
-	[SerializeField]
 	[Space(20f)]
 	[Header("Avatar item pick up")]
+	[SerializeField]
 	private GameObject avatarItemCenterGun;
 
 	[SerializeField]
@@ -308,9 +308,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject avatarItemSlapGun;
 
+	[SerializeField]
 	[Space(20f)]
 	[Header("Avatar modifier")]
-	[SerializeField]
 	private AvatarModifier burningModifier;
 
 	[SerializeField]
@@ -402,8 +402,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem goldExplosion;
 
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
 	[Header("Logic object prefabs")]
 	private GameObject logicInputConnectorPrefab;
 
@@ -431,9 +431,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material logicCubeConnectorBlueSelectedMaterial;
 
+	[SerializeField]
 	[Header("GUI")]
 	[Space(20f)]
-	[SerializeField]
 	private Texture2D avatarAccessoryMoveIcon;
 
 	[SerializeField]
@@ -442,9 +442,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material modelConstraintsMaterial;
 
+	[Header("UGUI")]
 	[Space(20f)]
 	[SerializeField]
-	[Header("UGUI")]
 	private AvatarInputControllerAndroidSettings avatarInputControllerAndroidSettings;
 
 	[SerializeField]
@@ -456,8 +456,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private InsertCursor insertCursor;
 
-	[Header("Editor")]
 	[Space(20f)]
+	[Header("Editor")]
 	[SerializeField]
 	private Material cellCursorErrorMaterial;
 

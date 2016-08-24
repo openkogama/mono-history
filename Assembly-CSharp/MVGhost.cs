@@ -167,11 +167,6 @@ public class MVGhost : MVBlueprintBase, IUpdatecontrollerSubscriber
 		ReadWOData();
 	}
 
-	public override void Destroy()
-	{
-		base.Destroy();
-	}
-
 	public void UpdateControllerUpdate()
 	{
 	}

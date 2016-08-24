@@ -33,10 +33,6 @@ public static class AwayMonitor
 
 	private static readonly string scroll = "Mouse ScrollWheel";
 
-	private static readonly string platformerLeft = "MoveLeft";
-
-	private static readonly string platformerRight = "MoveRight";
-
 	public static bool IdleKickEnabled
 	{
 		get

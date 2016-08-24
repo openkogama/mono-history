@@ -60,7 +60,7 @@ public class MVGameCoin : MVLogicObject
 
 	private void SetupUserInteractor()
 	{
-		useInteractor = new UseInteractor(Id, pickupObject.useInteractionRotator, reset: false, pickupObject.TriggerBoxEvents.Collider, OnPickup, IsCoinTakeable);
+		useInteractor = new UseInteractor(this, pickupObject.useInteractionRotator, reset: false, pickupObject.TriggerBoxEvents.Collider, OnPickup, IsCoinTakeable);
 		LevelBasedUseRequirement useRequirement = new LevelBasedUseRequirement(pickupObject.useInteractionRotator, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement);
 		pickupObject.TriggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;

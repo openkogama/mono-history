@@ -50,9 +50,6 @@ public class FriendRequestNotification : Notification
 		{
 			return true;
 		}
-		int level2 = level + 1;
-		int friendsLimit2 = BadgeManager.GetFriendsLimit(level2);
-		string text = TM._("You can only have {0} friends at level {1}. Get to level {2} and you can have {3} friends.");
 		MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, TM._("Your friendlist is full"));
 		return false;
 	}

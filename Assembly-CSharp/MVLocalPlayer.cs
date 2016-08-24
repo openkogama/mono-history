@@ -14,7 +14,7 @@ public abstract class MVLocalPlayer : MVPlayer
 	public XPProgressData XPProgressData => xpEventQueue.XPProgressData;
 
 	public MVLocalPlayer(int actorNumber, int profileID, string userName, string regionCode)
-		: base(actorNumber, profileID, userName, regionCode)
+		: base(actorNumber, profileID, userName, regionCode, MVGameControllerBase.BuildTarget)
 	{
 		OnLevelChanged = (UnityAction<int>)Delegate.Combine(OnLevelChanged, new UnityAction<int>(OnLevelChangedLocal));
 	}

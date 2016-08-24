@@ -53,7 +53,7 @@ public class MVFlag : MVLogicObject
 
 	private void SetupUseInteractor()
 	{
-		useInteractor = new UseInteractor(Id, flagObject.useInteractionRotator, reset: false, triggerBoxEvents.Collider, DoCaptureFlag);
+		useInteractor = new UseInteractor(this, flagObject.useInteractionRotator, reset: false, triggerBoxEvents.Collider, DoCaptureFlag);
 		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
 		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
 		GameCoinLogic useRequirement = new GameCoinLogic(flagObject.useInteractionRotator, gameCoinDisplayObjectOffset, hasUseButtonWhenFree: false);

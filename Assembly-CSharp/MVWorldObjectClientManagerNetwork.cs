@@ -286,18 +286,17 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 
 	public void SetState(int id, MVWorldObjectState state)
 	{
+		if (GetWorldObjectClient(id) is MVGroup)
+		{
+			foreach (MVWorldObjectClient child in ((MVGroup)GetWorldObjectClient(id)).Children)
+			{
+				SetState(child.Id, state);
+			}
+		}
 		GetWorldObjectClient(id).State = state;
 		if (state == MVWorldObjectState.Destroyed)
 		{
 			deleteList.Add(id);
-		}
-		if (!(GetWorldObjectClient(id) is MVGroup))
-		{
-			return;
-		}
-		foreach (MVWorldObjectClient child in ((MVGroup)GetWorldObjectClient(id)).Children)
-		{
-			SetState(child.Id, state);
 		}
 	}
 
@@ -313,10 +312,29 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 		{
 			MVWorldObjectClient worldObjectClient = GetWorldObjectClient(delete);
 			worldObjectMapping.RemoveWorldObjectFromTypeSet(worldObjectClient);
+			OnUnregisterCleanUpLinks(worldObjectClient);
+			OnWorldObjectDestroyed(worldObjectClient.Id);
 			worldObjectClient.Destroy();
 			worldObjects.Remove(worldObjectClient.Id);
 		}
 		deleteList.Clear();
+	}
+
+	private void OnUnregisterCleanUpLinks(MVWorldObjectClient wo)
+	{
+		List<Link> list = new List<Link>();
+		foreach (Link inputLinkRef in wo.InputLinkRefs)
+		{
+			list.Add(inputLinkRef);
+		}
+		foreach (Link outputLinkRef in wo.OutputLinkRefs)
+		{
+			list.Add(outputLinkRef);
+		}
+		foreach (Link item in list)
+		{
+			MVGameControllerBase.Game.World.RemoveLink(item.id);
+		}
 	}
 
 	public void OnWorldObjectDestroyed(int woID)

@@ -194,31 +194,8 @@ public class WorldNetwork : World
 		{
 			return false;
 		}
-		MVWorldObjectClient worldObjectClient = worldObjectClientManager.GetWorldObjectClient(id);
-		OnUnregisterCleanUpLinks(worldObjectClient);
-		worldObjectClientManager.SetState(worldObjectClient.Id, MVWorldObjectState.Destroyed);
-		Object.Destroy(worldObjectClient.GameObject);
-		worldObjectClientManager.OnWorldObjectDestroyed(worldObjectClient.Id);
+		worldObjectClientManager.SetState(id, MVWorldObjectState.Destroyed);
 		return true;
-	}
-
-	private void OnUnregisterCleanUpLinks(MVWorldObjectClient wo)
-	{
-		List<Link> list = new List<Link>();
-		foreach (Link inputLinkRef in wo.InputLinkRefs)
-		{
-			list.Add(inputLinkRef);
-		}
-		foreach (Link outputLinkRef in wo.OutputLinkRefs)
-		{
-			list.Add(outputLinkRef);
-		}
-		foreach (Link item in list)
-		{
-			MVWorldObjectClient worldObjectClient = worldObjectClientManager.GetWorldObjectClient(item.outputWOID);
-			MVWorldObjectClient worldObjectClient2 = worldObjectClientManager.GetWorldObjectClient(item.inputWOID);
-			links.RemoveLink(item.id, worldObjectClient, worldObjectClient2);
-		}
 	}
 
 	public void ResetLogicFromId(int worldObjectID)
@@ -239,7 +216,7 @@ public class WorldNetwork : World
 		links.AddLink(link, worldObjectClient, worldObjectClient2);
 	}
 
-	public void RemoveLink(int linkID)
+	public override void RemoveLink(int linkID)
 	{
 		if (!links.Contains(linkID))
 		{

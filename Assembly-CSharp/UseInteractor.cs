@@ -23,11 +23,11 @@ public class UseInteractor
 
 	public int WoOwnerID => woOwnerID;
 
-	public UseInteractor(int woOwnerID, GameObject owner, bool reset, Collider triggerCollider, Func<int, bool> useFunction, Func<MVInteractableBase, bool> checkCanUseFunction = null, float yOffset = 2.5f)
+	public UseInteractor(MVWorldObjectClient wo, GameObject owner, bool reset, Collider triggerCollider, Func<int, bool> useFunction, Func<MVInteractableBase, bool> checkCanUseFunction = null, float yOffset = 2.5f)
 	{
 		useInteractorVisuals = owner.AddComponent<UseInteratorVisualization>();
-		useInteractorVisuals.Initialize(yOffset, woOwnerID);
-		this.woOwnerID = woOwnerID;
+		useInteractorVisuals.Initialize(yOffset, wo);
+		woOwnerID = wo.Id;
 		this.useFunction = useFunction;
 		this.triggerCollider = triggerCollider;
 		this.reset = reset;

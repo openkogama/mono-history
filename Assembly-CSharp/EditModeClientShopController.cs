@@ -83,7 +83,7 @@ public class EditModeClientShopController : MonoBehaviour, IEventSystemHandler, 
 		previewRootTransform = null;
 		for (int i = 0; i < previewedObjects.Count; i++)
 		{
-			previewedObjects[i].Destroy();
+			MVWorldObjectClient.DestroyRecursive(previewedObjects[i]);
 		}
 		previewedObjects.Clear();
 	}
@@ -114,7 +114,7 @@ public class EditModeClientShopController : MonoBehaviour, IEventSystemHandler, 
 		previewRootTransform = new GameObject("Preview Root - ClientShopInventory").transform;
 		for (int i = 0; i < previewedObjects.Count; i++)
 		{
-			previewedObjects[i].Destroy();
+			MVWorldObjectClient.DestroyRecursive(previewedObjects[i]);
 		}
 		previewedObjects.Clear();
 		inventoryController.Clear();

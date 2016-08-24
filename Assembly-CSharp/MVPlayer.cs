@@ -1,3 +1,4 @@
+using MV.Common;
 using MV.WorldObject;
 using UnityEngine.Events;
 
@@ -24,6 +25,8 @@ public class MVPlayer
 	public string Username { get; private set; }
 
 	public string RegionCode { get; private set; }
+
+	public BuildTarget BuildTarget { get; private set; }
 
 	public int Level
 	{
@@ -68,10 +71,11 @@ public class MVPlayer
 		}
 	}
 
-	public MVPlayer(int actorNumber, int profileID, string userName, string regionCode)
+	public MVPlayer(int actorNumber, int profileID, string userName, string regionCode, BuildTarget buildTarget)
 	{
 		ActorNr = actorNumber;
 		ProfileID = profileID;
+		BuildTarget = buildTarget;
 		if (profileID <= 0)
 		{
 			string newValue = TM._("Tourist");
@@ -81,8 +85,8 @@ public class MVPlayer
 		RegionCode = regionCode;
 	}
 
-	public MVPlayer(int actorNumber, int profileID, string userName, int level, string regionCode)
-		: this(actorNumber, profileID, userName, regionCode)
+	public MVPlayer(int actorNumber, int profileID, string userName, int level, string regionCode, BuildTarget buildTarget)
+		: this(actorNumber, profileID, userName, regionCode, buildTarget)
 	{
 		Level = level;
 	}

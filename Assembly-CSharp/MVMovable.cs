@@ -110,7 +110,6 @@ public class MVMovable : MVBlueprintBase
 		MVGameControllerBase.WOCM.MoveableController.AddMovable(this, isInventoryPreviewMovable: false);
 		movableVisualization = gameObject.AddComponent<MovableVisualization>();
 		movableVisualization.Init(cubeModel);
-		cubeModel.ReactsToLODChanges = false;
 		cubeModel.Visible = false;
 		Visible = true;
 	}

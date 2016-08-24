@@ -13,4 +13,9 @@ public class AnimationData
 		this.state = state;
 		this.timeStamp = timeStamp;
 	}
+
+	public override string ToString()
+	{
+		return $"State: {State}. TimeStamp {TimeStamp}.";
+	}
 }

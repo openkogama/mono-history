@@ -212,10 +212,6 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		{
 			CollidersEnabled = false;
 			shadowBlob.enabled = true;
-			attachedPartModels.ForEach((MVCubeModelInstance cmi) =>
-			{
-				cmi.ReactsToLODChanges = false;
-			});
 		}
 		else
 		{
@@ -245,10 +241,6 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		InitializeCommon();
 		CollidersEnabled = false;
 		shadowBlob.enabled = false;
-		attachedPartModels.ForEach((MVCubeModelInstance cmi) =>
-		{
-			cmi.ReactsToLODChanges = false;
-		});
 	}
 
 	public override void Destroy()
@@ -400,10 +392,6 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 			}
 			CollidersEnabled = false;
 			shadowBlob.enabled = true;
-			attachedPartModels.ForEach((MVCubeModelInstance cmi) =>
-			{
-				cmi.ReactsToLODChanges = false;
-			});
 		}
 	}
 

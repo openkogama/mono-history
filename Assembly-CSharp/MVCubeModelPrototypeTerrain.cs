@@ -6,8 +6,6 @@ public class MVCubeModelPrototypeTerrain : MVCubeModelBase
 {
 	private Dictionary<IntVector, CubeBase> removedCubes = new Dictionary<IntVector, CubeBase>();
 
-	private CullingTerrainManager cullingTerrainManager;
-
 	public bool RequiresResetToEdit => removedCubes.Count > 0;
 
 	public MVCubeModelPrototypeTerrain(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects, Dictionary<int, RuntimePrototypeCubeModel> prototypes)
@@ -20,7 +18,7 @@ public class MVCubeModelPrototypeTerrain : MVCubeModelBase
 	public override void Initialize()
 	{
 		base.Initialize();
-		cullingTerrainManager = new CullingTerrainManager(chunkInstances, this);
+		new CullingTerrainManager(chunkInstances, this);
 	}
 
 	public override void Destroy()

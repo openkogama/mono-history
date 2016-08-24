@@ -183,15 +183,6 @@ public class MVGroup : MVWorldObjectClient
 		}
 	}
 
-	public override void Destroy()
-	{
-		base.Destroy();
-		foreach (MVWorldObjectClient value in children.Values)
-		{
-			value.Destroy();
-		}
-	}
-
 	public override void PlayModeInitialize()
 	{
 		base.PlayModeInitialize();

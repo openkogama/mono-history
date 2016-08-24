@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MV.Common;
 using UnityEngine;
 
 public class MVAvatarRemote : MVAvatar
@@ -36,6 +37,10 @@ public class MVAvatarRemote : MVAvatar
 	{
 		base.Initialize();
 		avatar.UpdateNameTag();
+		if (MVGameControllerBase.Game.Players[avatar.mvAvatar.OwnerActorNr].BuildTarget == BuildTarget.Android)
+		{
+			avatar.ShowMobileIcon();
+		}
 		healthBar = gameObject.GetComponentInChildren<HealthBar>();
 		healthBar.Oxygen = 0f;
 		InitializeHealth();

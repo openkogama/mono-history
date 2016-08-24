@@ -15,4 +15,6 @@ public abstract class World
 	public MVWorldObjectClientManager WorldObjectClientManager => worldObjectClientManager;
 
 	public RuntimeEventManager RuntimeEventManager => runtimeEventManagerNetwork;
+
+	public abstract void RemoveLink(int linkID);
 }

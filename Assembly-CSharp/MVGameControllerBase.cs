@@ -93,6 +93,8 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	public static IEditModeUI IEditModeUI => editModeUI;
 
+	public static BuildTarget BuildTarget => GetBuildTarget();
+
 	private static bool OkToReAuth
 	{
 		get
@@ -361,6 +363,11 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		{
 			overrideMaterials.Register();
 		}
+	}
+
+	private static BuildTarget GetBuildTarget()
+	{
+		return BuildTarget.StandAlone;
 	}
 
 	private void InitUpdateController()

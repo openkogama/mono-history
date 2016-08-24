@@ -33,6 +33,8 @@ public class WinningConditionBriefingAndroid : MonoBehaviour, IBriefing
 
 	private List<WinningConditionAndroid> instantiatedConditions = new List<WinningConditionAndroid>();
 
+	private bool winningConditionMet = true;
+
 	private Dictionary<WinningConditionType, Sprite> currentWinningConditions = new Dictionary<WinningConditionType, Sprite>();
 
 	private void Awake()
@@ -42,6 +44,17 @@ public class WinningConditionBriefingAndroid : MonoBehaviour, IBriefing
 			currentWinningConditions.Add(winningConditionList[i].conditionType, winningConditionList[i].conditionSprite);
 		}
 		group.alpha = 0f;
+	}
+
+	private void Start()
+	{
+		MVNetworkGame game = MVGameControllerBase.Game;
+		game.OnWinningCondition = (Action<IWinningCondition>)Delegate.Combine(game.OnWinningCondition, new Action<IWinningCondition>(OnWinningConditionReceived));
+	}
+
+	private void OnWinningConditionReceived(IWinningCondition winningCondition)
+	{
+		winningConditionMet = true;
 	}
 
 	public void AddBriefing(WinningConditionType winType)
@@ -116,10 +129,14 @@ public class WinningConditionBriefingAndroid : MonoBehaviour, IBriefing
 	private void OnEnable()
 	{
 		Clear();
-		GenerateBriefing();
-		if (instantiatedConditions.Count != 0)
+		if (winningConditionMet)
 		{
-			StartCoroutine(ShowBriefingCoroutine());
+			GenerateBriefing();
+			if (instantiatedConditions.Count != 0)
+			{
+				StartCoroutine(ShowBriefingCoroutine());
+				winningConditionMet = false;
+			}
 		}
 	}
 

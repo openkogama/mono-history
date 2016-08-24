@@ -78,7 +78,7 @@ public class VehicleSeatManager : MonoBehaviour
 			seats[i].SeatID = i;
 		}
 		woOwner = wo;
-		useInteractor = new UseInteractor(woOwner.Id, gameObject, reset: true, triggerBoxEvents.Collider, Use, CheckCanUse);
+		useInteractor = new UseInteractor(woOwner, gameObject, reset: true, triggerBoxEvents.Collider, Use, CheckCanUse);
 		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
 		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
 		foreach (MVWorldObjectClient child in wo.Children)

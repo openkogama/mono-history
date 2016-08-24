@@ -14,8 +14,6 @@ public class SendMessageControl : MonoBehaviour
 
 	private string resolution = "/r";
 
-	private string lowerResolution = "/rl";
-
 	private string removeUI = "/ru";
 
 	private string enableHD = "/hd";
@@ -121,10 +119,6 @@ public class SendMessageControl : MonoBehaviour
 		else if (chatMsg == enableHD)
 		{
 			ToggleHD();
-		}
-		else if (chatMsg == "/c")
-		{
-			StaticBatchingUtilityWrapper.Combine();
 		}
 		else if (chatMsg == removeUI)
 		{

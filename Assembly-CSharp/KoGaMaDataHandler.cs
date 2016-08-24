@@ -37,6 +37,8 @@ public static class KoGaMaDataHandler
 
 		public readonly bool readRuntimeData;
 
+		public bool waitOneFrameBeforeDoneCallback = true;
+
 		public bool WaitFrame
 		{
 			get
@@ -219,25 +221,29 @@ public static class KoGaMaDataHandler
 		if (!GetPrototypeDataAsync())
 		{
 			Coroutines.Start(WaitForFrames.Frames(1, Execute));
-			return;
 		}
-		if (!GetWorldObjectDataAsync())
+		else if (!GetWorldObjectDataAsync())
 		{
 			Coroutines.Start(WaitForFrames.Frames(1, Execute));
-			return;
 		}
-		if (!GetLinksAsync())
+		else if (!GetLinksAsync())
 		{
 			Coroutines.Start(WaitForFrames.Frames(1, Execute));
-			return;
 		}
-		if (!GetObjectLinksAsync())
+		else if (!GetObjectLinksAsync())
 		{
 			Coroutines.Start(WaitForFrames.Frames(1, Execute));
-			return;
 		}
-		asyncBookkeeping.Done();
-		asyncBookkeeping = null;
+		else if (asyncBookkeeping.waitOneFrameBeforeDoneCallback)
+		{
+			asyncBookkeeping.waitOneFrameBeforeDoneCallback = false;
+			Coroutines.Start(WaitForFrames.Frames(1, Execute));
+		}
+		else
+		{
+			asyncBookkeeping.Done();
+			asyncBookkeeping = null;
+		}
 	}
 
 	private static void DeserializePrototype(BytePacker bp, UnityAction<Dictionary<object, object>, KogamaDataType> callBack)

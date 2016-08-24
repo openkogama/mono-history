@@ -16,8 +16,6 @@ public class MVWorldObjectClient : MVWorldObject
 
 	public UnityAction<MVWorldObjectClient, SelectedEventArgs> SelectedChanged;
 
-	public UnityAction<MVWorldObjectClient> ObjectDestroyed;
-
 	protected bool isCastingShadows;
 
 	protected static int woShadowCastersCount;
@@ -37,8 +35,6 @@ public class MVWorldObjectClient : MVWorldObject
 	protected InteractionDataHandlerBase interactionDataHandlerBase;
 
 	protected ObjectPrefab component;
-
-	private bool reactsToLODChanges = true;
 
 	private MVGroup group;
 
@@ -185,18 +181,6 @@ public class MVWorldObjectClient : MVWorldObject
 		set
 		{
 			WorldRotation = value;
-		}
-	}
-
-	public bool ReactsToLODChanges
-	{
-		get
-		{
-			return reactsToLODChanges;
-		}
-		set
-		{
-			reactsToLODChanges = value;
 		}
 	}
 
@@ -570,10 +554,6 @@ public class MVWorldObjectClient : MVWorldObject
 		{
 			Object.Destroy(gameObject);
 		}
-		if (ObjectDestroyed != null)
-		{
-			ObjectDestroyed(this);
-		}
 	}
 
 	public virtual void OnDataUpdate()
@@ -932,5 +912,17 @@ public class MVWorldObjectClient : MVWorldObject
 		{
 			RotationChanged(this, new RotationChangedEventArgs(quaternion2));
 		}
+	}
+
+	public static void DestroyRecursive(MVWorldObjectClient wo)
+	{
+		if (wo is MVGroup)
+		{
+			foreach (MVWorldObjectClient child in ((MVGroup)wo).Children)
+			{
+				DestroyRecursive(child);
+			}
+		}
+		wo.Destroy();
 	}
 }

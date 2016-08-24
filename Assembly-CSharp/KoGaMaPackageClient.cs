@@ -22,13 +22,8 @@ public class KoGaMaPackageClient
 
 	public void Destroy()
 	{
-		MVWorldObjectClient mVWorldObjectClient = worldObjects[worldObjectRoot];
-		GameObject gameObject = mVWorldObjectClient.GameObject;
-		mVWorldObjectClient.Destroy();
-		if (gameObject != null)
-		{
-			Object.Destroy(gameObject);
-		}
+		MVWorldObjectClient wo = worldObjects[worldObjectRoot];
+		MVWorldObjectClient.DestroyRecursive(wo);
 	}
 
 	public void HandleDeserializedData(Dictionary<object, object> returnData, KogamaDataType dataType)

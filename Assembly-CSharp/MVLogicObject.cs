@@ -67,6 +67,7 @@ public abstract class MVLogicObject : MVWorldObjectClient, IUpdatecontrollerSubs
 			cullingSubscriberBase.Destroy();
 			cullingSubscriberBase = null;
 		}
+		base.Destroy();
 	}
 
 	public virtual void UpdateControllerUpdate()

@@ -117,7 +117,7 @@ public class PlayerInventoryController : MonoBehaviour, IEventSystemHandler, IPl
 		playerInventoryRepository.OnInventoryChanged = (Action)Delegate.Remove(playerInventoryRepository.OnInventoryChanged, new Action(InventoryChanged));
 		for (int i = 0; i < previewedObjects.Count; i++)
 		{
-			previewedObjects[i].Destroy();
+			MVWorldObjectClient.DestroyRecursive(previewedObjects[i]);
 		}
 		previewedObjects.Clear();
 	}
@@ -158,13 +158,13 @@ public class PlayerInventoryController : MonoBehaviour, IEventSystemHandler, IPl
 			{
 				previewedObjects[i].Transform.SetParent(tempPreviewRoot);
 				draggedPreview.previewCam.transform.SetParent(tempPreviewRoot);
-				worldObjectDataCopy.Destroy();
+				MVWorldObjectClient.DestroyRecursive(worldObjectDataCopy);
 				worldObjectDataCopy = previewedObjects[i];
 				previewedObjects.RemoveAt(i);
 				return;
 			}
 		}
-		worldObjectDataCopy.Destroy();
+		MVWorldObjectClient.DestroyRecursive(worldObjectDataCopy);
 	}
 
 	public void UpdateContent()
@@ -176,7 +176,7 @@ public class PlayerInventoryController : MonoBehaviour, IEventSystemHandler, IPl
 		previewRootTransform = new GameObject("Preview Root - PlayerInventory").transform;
 		for (int i = 0; i < previewedObjects.Count; i++)
 		{
-			previewedObjects[i].Destroy();
+			MVWorldObjectClient.DestroyRecursive(previewedObjects[i]);
 		}
 		previewedObjects.Clear();
 		if (InventoryItemDragHandler.Dragging)

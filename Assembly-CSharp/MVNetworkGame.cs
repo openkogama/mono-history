@@ -77,13 +77,14 @@ public class MVNetworkGame : IPhotonPeerListener
 				int num5 = (int)photonEvent[254];
 				string userName = (string)photonEvent[9];
 				string regionCode = (string)photonEvent[155];
+				BuildTarget buildTarget = (BuildTarget)(byte)photonEvent[189];
 				MVTeam team2 = (MVTeam)(int)photonEvent[89];
 				if (num5 == networkGame.LocalPlayerActorNumber)
 				{
 					Debug.LogError("Received join event for localPlayerActorNumber");
 					break;
 				}
-				MVPlayer mVPlayer2 = new MVPlayer(num5, profileID3, userName, regionCode);
+				MVPlayer mVPlayer2 = new MVPlayer(num5, profileID3, userName, regionCode, buildTarget);
 				mVPlayer2.Team = team2;
 				networkGame.AddPlayer(mVPlayer2);
 				break;
@@ -850,8 +851,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			dictionary.Add(168, MVGameControllerBase.GameSessionData.token);
 			dictionary.Add(172, MVGameControllerBase.GameSessionData.newToken);
 			dictionary.Add(173, MVGameControllerBase.GameSessionData.newPlanetName);
-			BuildTarget buildTarget = BuildTarget.StandAlone;
-			dictionary.Add(189, buildTarget);
+			dictionary.Add(189, MVGameControllerBase.BuildTarget);
 			peer.OpCustom(byte.MaxValue, dictionary, sendReliable: true);
 		}
 
@@ -2761,16 +2761,18 @@ public class MVNetworkGame : IPhotonPeerListener
 		{
 			foreach (int key in userList.Keys)
 			{
+				Dictionary<byte, object> dictionary = (Dictionary<byte, object>)userList[key];
 				string text2 = text;
-				text = string.Concat(text2, (userList[key] as Dictionary<byte, object>)[9], " ", key, "\n");
+				text = string.Concat(text2, dictionary[9], " ", key, "\n");
 				if (key != LocalPlayerActorNumber)
 				{
-					int profileID = (int)(userList[key] as Dictionary<byte, object>)[11];
-					int team = (int)(userList[key] as Dictionary<byte, object>)[89];
-					string userName = (string)(userList[key] as Dictionary<byte, object>)[9];
-					int level = (int)(userList[key] as Dictionary<byte, object>)[170];
-					string regionCode = (string)(userList[key] as Dictionary<byte, object>)[155];
-					MVPlayer mVPlayer = new MVPlayer(key, profileID, userName, level, regionCode);
+					int profileID = (int)dictionary[11];
+					int team = (int)dictionary[89];
+					string userName = (string)dictionary[9];
+					int level = (int)dictionary[170];
+					string regionCode = (string)dictionary[155];
+					BuildTarget buildTarget = (BuildTarget)(byte)dictionary[189];
+					MVPlayer mVPlayer = new MVPlayer(key, profileID, userName, level, regionCode, buildTarget);
 					mVPlayer.Team = (MVTeam)team;
 					AddPlayer(mVPlayer);
 				}
