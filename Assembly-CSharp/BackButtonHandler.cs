@@ -20,7 +20,10 @@ public class BackButtonHandler : MonoBehaviour
 
 	private void InvokeButton()
 	{
-		invokeButton.onClick.Invoke();
+		if (invokeButton.interactable)
+		{
+			invokeButton.onClick.Invoke();
+		}
 	}
 
 	private void OnDisable()

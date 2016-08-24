@@ -12,9 +12,6 @@ public class LobbyStateController : MonoBehaviour
 	private RectTransform rewardTransform;
 
 	[SerializeField]
-	private float rewardButtonLerpSpeed = 5f;
-
-	[SerializeField]
 	private GameObject touristRegisterButton;
 
 	[SerializeField]
@@ -50,7 +47,6 @@ public class LobbyStateController : MonoBehaviour
 
 	private void RewardChanged()
 	{
-		bool flag = RewardManager.CountDownTimeInMS > 0 || RewardManager.NumberOfPendingRewards > 0;
 		rewardTransform.gameObject.SetActive(value: true);
 	}
 

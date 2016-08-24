@@ -110,7 +110,7 @@ public class MVGameCoin : MVLogicObject
 
 	public virtual bool OnPickup(int instigatorID)
 	{
-		if (instigatorID == MVGameControllerBase.WOCM.AvatarLocal.Id && state == GameCoinClientState.Visible)
+		if (instigatorID == MVGameControllerBase.Game.LocalPlayer.ActorNr && state == GameCoinClientState.Visible)
 		{
 			isVisible = false;
 			pickupObject.PickupItem.GreyOut();
@@ -179,7 +179,7 @@ public class MVGameCoin : MVLogicObject
 	{
 		if ((useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0)
 		{
-			OnPickup(MVGameControllerBase.WOCM.GetWorldObjectClient(e.instigatorWOID).Id);
+			OnPickup(MVGameControllerBase.WOCM.GetWorldObjectClient(e.instigatorWOID).OwnerActorNr);
 		}
 	}
 
