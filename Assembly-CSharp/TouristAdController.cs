@@ -14,8 +14,9 @@ public class TouristAdController : MonoBehaviour
 	public void Initialize(TouristModeController promotionSliderController)
 	{
 		promotionSliderCreator = promotionSliderController;
-		if (!MVGameControllerBase.IsTouristSession || !MVClientSettings.ShowTouristAd)
+		if (!MVGameControllerBase.IsTouristSession)
 		{
+			promotionSliderCreator.SetActive(active: true);
 			Object.Destroy(gameObject);
 		}
 		else
@@ -37,7 +38,7 @@ public class TouristAdController : MonoBehaviour
 		}
 		else if (hasBeenKilled)
 		{
-			if (timer >= timeBeforeAdShown && MVClientSettings.ShowTouristAd)
+			if (timer >= timeBeforeAdShown)
 			{
 				promotionSliderCreator.ShowAdPromotionSlide();
 				timer = 0f;

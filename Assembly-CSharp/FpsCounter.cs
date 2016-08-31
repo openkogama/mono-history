@@ -24,7 +24,7 @@ public class FpsCounter : MonoBehaviour
 
 		public void CollectFPSMetric(float averageFPS)
 		{
-			StatHatWrapper.Value("FPS", averageFPS);
+			StatHatWrapper.Value("FPS", Mathf.Clamp(averageFPS, 0f, 60f));
 			metricsCollected = true;
 		}
 	}

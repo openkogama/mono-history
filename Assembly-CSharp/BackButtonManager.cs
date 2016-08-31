@@ -73,7 +73,7 @@ public static class BackButtonManager
 				return;
 			}
 		}
-		Debug.Log("Unsubscribe not possible, handler doesn't exist.");
+		Debug.Log("Unsubscribe not possible, backbuttonhandler doesn't exist.");
 	}
 
 	private static bool ContainsHandler(BackButtonHandler handler)

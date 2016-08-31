@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SessionLocatorPing : IUpdatecontrollerSubscriber
 {
-	private WaitForTicks waitForTicks = new WaitForTicks(0);
+	private WaitForTicksLocal waitForTicks = new WaitForTicksLocal(0);
 
 	private int pingIntervalInMilliSeconds = 60000;
 
@@ -19,6 +19,7 @@ public class SessionLocatorPing : IUpdatecontrollerSubscriber
 	{
 		if (waitForTicks.TimeIsUp && !pingSend)
 		{
+			Debug.LogWarning("Do ping");
 			pingSend = true;
 			AsyncWWWManager.WWWRequest(new GetRequest(MVGameControllerBase.GameSessionData.pingURL, WWWCallBack, WWWRequestPriority.ExecuteIgnoreAllConstraints));
 		}
@@ -37,7 +38,8 @@ public class SessionLocatorPing : IUpdatecontrollerSubscriber
 			ErrorCallback(result);
 			return;
 		}
-		waitForTicks = new WaitForTicks(pingIntervalInMilliSeconds);
+		Debug.LogWarning("SessionLocatorPing success");
+		waitForTicks = new WaitForTicksLocal(pingIntervalInMilliSeconds);
 		pingSend = false;
 	}
 

@@ -147,16 +147,19 @@ public class TouristModeController : MonoBehaviour
 	[SerializeField]
 	private TouristPromotion touristPromotionWithAdPrefab;
 
+	[SerializeField]
+	private TouristPromotion touristPromotionWithAndroidAdPrefab;
+
 	private TouristPromotion promotion;
 
 	public void Awake()
 	{
-		touristPromotionActive = MVGameControllerBase.IsTouristSession && (MVClientSettings.ShowTouristPromotion || MVClientSettings.ShowTouristAd);
+		touristPromotionActive = MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion;
 		if (touristPromotionActive)
 		{
 			promotionDataManager = new PromotionDataManager();
 			showPromotionBookkeeping = new ShowPromotionBookkeeping();
-			enabled = !MVClientSettings.ShowTouristAd;
+			SetActive(active: false);
 		}
 	}
 
@@ -166,6 +169,11 @@ public class TouristModeController : MonoBehaviour
 		{
 			Object.Destroy(this);
 		}
+	}
+
+	public void SetActive(bool active)
+	{
+		enabled = active;
 	}
 
 	private void Update()
@@ -196,6 +204,12 @@ public class TouristModeController : MonoBehaviour
 	public void ShowAdPromotionSlide()
 	{
 		PushPromotionSlide(touristPromotionWithAdPrefab);
+		promotionDataManager.GetTextureDataToSet(SetPromotionTexture);
+	}
+
+	public void ShowAndroidAdPromotionSlide()
+	{
+		PushPromotionSlide(touristPromotionWithAndroidAdPrefab);
 		promotionDataManager.GetTextureDataToSet(SetPromotionTexture);
 	}
 

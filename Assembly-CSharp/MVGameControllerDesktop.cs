@@ -81,5 +81,6 @@ public class MVGameControllerDesktop : MVGameControllerBase
 	public override void HandleApplicationQuit(QuitBaseCallback quitBaseCallback)
 	{
 		quitBaseCallback?.OnQuit();
+		Application.Quit();
 	}
 }

@@ -1,3 +1,4 @@
+using MV.Common;
 using UnityEngine;
 
 public abstract class PlayModeControlsBase : MonoBehaviour
@@ -22,6 +23,9 @@ public abstract class PlayModeControlsBase : MonoBehaviour
 	[SerializeField]
 	private GameObject crossHairGO;
 
+	[SerializeField]
+	private GameObject respawnButton;
+
 	private void Update()
 	{
 		if (PickupGUI.ShowEquipableUI != showingEquipableUI)
@@ -34,6 +38,14 @@ public abstract class PlayModeControlsBase : MonoBehaviour
 		if (MVGameControllerBase.WOCM.AvatarLocal.IsSeated != leaveVehicle.gameObject.activeInHierarchy)
 		{
 			leaveVehicle.gameObject.SetActive(MVGameControllerBase.WOCM.AvatarLocal.IsSeated);
+		}
+		if (MVGameControllerBase.WOCM.AvatarLocal.AvatarRuntimeState != AvatarRuntimeState.Playing && respawnButton.gameObject.activeSelf)
+		{
+			respawnButton.gameObject.SetActive(value: false);
+		}
+		else if (MVGameControllerBase.WOCM.AvatarLocal.AvatarRuntimeState == AvatarRuntimeState.Playing && !respawnButton.gameObject.activeSelf)
+		{
+			respawnButton.gameObject.SetActive(value: true);
 		}
 	}
 

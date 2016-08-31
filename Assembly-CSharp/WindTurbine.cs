@@ -121,7 +121,7 @@ public class WindTurbine : MVLogicObject
 
 	private void EnterWindZone(int instigatorWOID)
 	{
-		if (affectedBodies.ContainsKey(instigatorWOID))
+		if (affectedBodies.ContainsKey(instigatorWOID) || (InputLinkRefs.Count != 0 && !InputState))
 		{
 			return;
 		}

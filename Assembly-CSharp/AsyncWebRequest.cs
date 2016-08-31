@@ -17,9 +17,9 @@ public abstract class AsyncWebRequest
 
 	protected int retries = 3;
 
-	protected float currentTimeout;
+	protected TimeSpan currentTimeout = new TimeSpan(0L);
 
-	protected float retryTime = Time.realtimeSinceStartup;
+	protected DateTime retryTime = DateTime.Now;
 
 	protected State state;
 
@@ -120,8 +120,8 @@ public abstract class AsyncWebRequest
 			if (retries > 0 && flag)
 			{
 				retries--;
-				retryTime = Time.time;
-				currentTimeout = AsyncWWWManager.RetryTimeouts[retries];
+				retryTime = DateTime.Now;
+				currentTimeout = new TimeSpan(0, 0, 0, AsyncWWWManager.RetryTimeouts[retries]);
 				state = State.Waiting;
 				Debug.Log(www.error + " " + www.url + " " + Time.frameCount + " " + AsyncWWWManager.RetryTimeouts[retries]);
 				Debug.Log("Response headers");
@@ -139,7 +139,7 @@ public abstract class AsyncWebRequest
 
 	private bool IsWaitingStateDone()
 	{
-		if (Time.time - retryTime > currentTimeout)
+		if (DateTime.Now - retryTime > currentTimeout)
 		{
 			return true;
 		}

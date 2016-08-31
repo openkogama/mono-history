@@ -21,7 +21,7 @@ public static class AsyncWWWManager
 
 	private static int maxRequests = 4;
 
-	public static readonly float[] RetryTimeouts = new float[3] { 30f, 20f, 10f };
+	public static readonly int[] RetryTimeouts = new int[3] { 30, 20, 10 };
 
 	private static Dictionary<WWWRequestPriority, Queue<AsyncWebRequest>> requests = new Dictionary<WWWRequestPriority, Queue<AsyncWebRequest>>
 	{

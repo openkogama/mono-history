@@ -15,9 +15,13 @@ public static class AwayMonitor
 
 	private static readonly TimeSpan awayCheckFrequency = new TimeSpan(0, 0, 0, 59);
 
-	private static readonly TimeSpan warningTimeSpan = new TimeSpan(0, 0, 10, 0);
+	private static int warningTimeMinutes = 5;
 
-	private static readonly TimeSpan idleKickTimeSpan = new TimeSpan(0, 0, 15, 0);
+	private static int idleKickTimeMinutes = 15;
+
+	private static readonly TimeSpan warningTimeSpan = new TimeSpan(0, 0, warningTimeMinutes, 0);
+
+	private static readonly TimeSpan idleKickTimeSpan = new TimeSpan(0, 0, idleKickTimeMinutes, 0);
 
 	private static State state = State.Active;
 
@@ -77,21 +81,24 @@ public static class AwayMonitor
 
 	private static void HandleIdle()
 	{
-		TimeSpan timeSpan = DateTime.Now - LatestMouseMoveTime;
-		if (timeSpan < warningTimeSpan)
+		if (state != State.InActive15Min)
 		{
-			state = State.Active;
-		}
-		else if (timeSpan > warningTimeSpan && state != State.InActive10Min)
-		{
-			MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, "Idle.You will be kicked in 5 min.");
-			state = State.InActive10Min;
-		}
-		else if (timeSpan > idleKickTimeSpan && state != State.InActive15Min)
-		{
-			MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, "Kicked. Idle for 15 min.");
-			MVGameControllerBase.ApplicationQuit(new QuitIdle());
-			state = State.InActive15Min;
+			TimeSpan timeSpan = DateTime.Now - LatestMouseMoveTime;
+			if (timeSpan < warningTimeSpan)
+			{
+				state = State.Active;
+			}
+			else if (timeSpan > warningTimeSpan && state != State.InActive10Min)
+			{
+				MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, $"Idle.You will be kicked in {idleKickTimeMinutes - warningTimeMinutes} min.");
+				state = State.InActive10Min;
+			}
+			else if (timeSpan > idleKickTimeSpan && state != State.InActive15Min)
+			{
+				MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, $"Kicked. Idle for {idleKickTimeMinutes} min.");
+				MVGameControllerBase.ApplicationQuit(new QuitIdle());
+				state = State.InActive15Min;
+			}
 		}
 	}
 }

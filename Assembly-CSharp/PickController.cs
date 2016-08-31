@@ -33,6 +33,7 @@ public class PickController : MonoBehaviour
 	private void OnPicked(MVWorldObjectClient wo, MVWorldObjectClient parent)
 	{
 		woIDText.text = wo.Id.ToString();
+		parentType.text = "WO Root Group";
 		if (parent != null)
 		{
 			parentType.text = parent.GetType().ToString();

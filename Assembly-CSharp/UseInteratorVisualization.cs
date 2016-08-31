@@ -77,8 +77,11 @@ public class UseInteratorVisualization : MonoBehaviour
 	{
 		if (cullingSubscriberBase != null)
 		{
-			MVWorldObjectClient mVWorldObjectClient = wo;
-			mVWorldObjectClient.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Remove(mVWorldObjectClient.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
+			if (wo != null)
+			{
+				MVWorldObjectClient mVWorldObjectClient = wo;
+				mVWorldObjectClient.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Remove(mVWorldObjectClient.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
+			}
 			cullingSubscriberBase.Destroy();
 			cullingSubscriberBase = null;
 		}

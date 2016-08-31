@@ -66,7 +66,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	[SerializeField]
 	protected PrefabPool prefabPool;
 
-	private static MVGameControllerBase instance;
+	protected static MVGameControllerBase instance;
 
 	protected static bool isInitialized;
 
@@ -275,6 +275,13 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	private void OnApplicationQuit()
 	{
 		Debug.Log("On application quit");
+		HandleQuitDisconnect();
+		CleanUp();
+		CullingApiWrapper.Destroy();
+	}
+
+	protected void HandleQuitDisconnect()
+	{
 		disconnectIsOk = true;
 		if (Game != null)
 		{
@@ -287,8 +294,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 				Game.Peer.Disconnect();
 			}
 		}
-		CleanUp();
-		CullingApiWrapper.Destroy();
 	}
 
 	public void UpdateControllerUpdate()
@@ -351,7 +356,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		{
 			quitHasBeenCalled = true;
 			instance.HandleApplicationQuit(applicationQuitObject);
-			Application.Quit();
 		}
 	}
 
