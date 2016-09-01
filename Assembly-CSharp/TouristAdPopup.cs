@@ -7,7 +7,6 @@ public class TouristAdPopup : MonoBehaviour
 {
 	public void OnViewAdClicked()
 	{
-		NotificationController.PushNotification("Please register to remove death-ads! Q('-'Q)");
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Pop();
