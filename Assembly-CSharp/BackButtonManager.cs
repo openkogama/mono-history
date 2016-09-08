@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.Events;
 
 public static class BackButtonManager
@@ -70,10 +69,9 @@ public static class BackButtonManager
 			if (subscribers[num].handler == handler)
 			{
 				subscribers.RemoveAt(num);
-				return;
+				break;
 			}
 		}
-		Debug.Log("Unsubscribe not possible, backbuttonhandler doesn't exist.");
 	}
 
 	private static bool ContainsHandler(BackButtonHandler handler)
@@ -82,7 +80,6 @@ public static class BackButtonManager
 		{
 			if (subscribers[i].handler == handler)
 			{
-				Debug.Log("BackButton already subscribed.");
 				return true;
 			}
 		}

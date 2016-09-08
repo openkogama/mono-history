@@ -82,7 +82,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 		{
 			HandleCursors();
 		}
-		if (fireSecondary && audioSource.clip != chargeSound)
+		if (fireSecondary && audioSource.gameObject.activeInHierarchy && audioSource.clip != chargeSound)
 		{
 			audioSource.clip = chargeSound;
 			audioSource.loop = true;
@@ -229,12 +229,15 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	protected void OnFireSecondary(bool isLocal)
 	{
-		audioSource.clip = releaseSound;
-		audioSource.loop = false;
-		audioSource.Play();
+		if (audioSource.gameObject.activeInHierarchy)
+		{
+			audioSource.clip = releaseSound;
+			audioSource.loop = false;
+			audioSource.Play();
+		}
 		Ray ray = new Ray(owner.LookOrigin, owner.LookDirection);
 		int num = -5 & ~(1 << LayerMask.NameToLayer("Player"));
-		num &= ~(1 << (LayerMask.NameToLayer("Logic") & 0x1F));
+		num &= ~(1 << LayerMask.NameToLayer("Logic"));
 		Vector3 point;
 		if (CollisionDetection.MVHit(ray, out var voxelHit, range, null, num))
 		{

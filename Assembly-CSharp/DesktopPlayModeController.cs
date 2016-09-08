@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -102,7 +103,9 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 			if (!rewardReady)
 			{
 				rewardReady = true;
-				NotificationController.PushNotification(TM._("Spin Available!"), 1f, mysteryBoxIcon, 3);
+				Dictionary<object, object> dictionary = new Dictionary<object, object>();
+				dictionary.Add((byte)2, 6);
+				NotificationController.OnNotificationReceived(NotificationType.SpinReady, dictionary);
 			}
 		}
 		else

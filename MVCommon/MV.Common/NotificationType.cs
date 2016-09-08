@@ -12,5 +12,8 @@ public enum NotificationType
 	FriendRequestAccepted,
 	LevelUp,
 	WonRareSpinReward,
-	Requirement
+	Requirement,
+	SpinReady,
+	GoldRewardReady,
+	AdReady
 }

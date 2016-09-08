@@ -9,7 +9,6 @@ public class BurningModifier : AvatarModifier
 
 	protected override void OnActivated(Avatar target)
 	{
-		Debug.Log("Activated");
 		if (!gameObject.activeInHierarchy)
 		{
 			fireParticles.Stop();
@@ -18,7 +17,6 @@ public class BurningModifier : AvatarModifier
 
 	protected override void OnDeactivated(Avatar target)
 	{
-		Debug.Log("Disabled");
 		if (gameObject.activeInHierarchy)
 		{
 			transform.parent = null;

@@ -102,7 +102,7 @@ public class PickupItemImpulseGun : PickupItem
 	{
 		if (isCharging)
 		{
-			if ((bool)releaseSound)
+			if ((bool)releaseSound && audioSource.gameObject.activeInHierarchy)
 			{
 				audioSource.Stop();
 				audioSource.loop = false;

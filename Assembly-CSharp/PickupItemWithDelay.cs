@@ -80,7 +80,6 @@ public abstract class PickupItemWithDelay : PickupItem, IUpdatecontrollerSubscri
 
 	protected virtual void OnDestroy()
 	{
-		Debug.Log("OnDestroy");
 		UpdateController.RemoveUpdateObject(this);
 	}
 

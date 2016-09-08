@@ -45,7 +45,10 @@ public class MouseGun : PickupItemWithDelay
 	{
 		Ray ray = new Ray(owner.LookOrigin, owner.LookDirection);
 		bool flag = false;
-		audioSource.PlayOneShot(shootSound);
+		if (audioSource.gameObject.activeInHierarchy)
+		{
+			audioSource.PlayOneShot(shootSound);
+		}
 		Vector3 point;
 		if (CollisionDetection.MVHit(ray, out var voxelHit, range, owner.IgnoreWOIDs, layerMask))
 		{

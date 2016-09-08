@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using MV.Common;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -37,6 +40,10 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 	[SerializeField]
 	private Sprite notificationImage;
 
+	public static bool IsCollected;
+
+	public static Action CollectedChanged;
+
 	public bool rewardAvailable { get; private set; }
 
 	private int rewardXP { get; set; }
@@ -45,6 +52,7 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 
 	public void Initialize()
 	{
+		CollectedChanged = (Action)Delegate.Combine(CollectedChanged, new Action(OnCollectedChanged));
 		if (!MVGameControllerBase.UsingDevSessionData)
 		{
 			UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
@@ -61,17 +69,34 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 		AsyncWWWManager.WWWRequest(new GetRequest(gameSessionData.gameRewardDataURL + text, OnRewardData, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 	}
 
+	private void OnCollectedChanged()
+	{
+		claimRewardBtn.gameObject.SetActive(value: false);
+		IsCollected = true;
+		NotificationController.PushNotification(TM._("Thank you for playing this NEW game! Received " + rewardXP + " XP and " + rewardGold + " gold!"), notificationImage);
+	}
+
 	public void RewardClicked()
 	{
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IOfferController x, BaseEventData y) =>
+		if (!IsCollected)
 		{
-			x.RequestShowOffer(OnFinishedViewingAd);
-		});
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IOfferController x, BaseEventData y) =>
+			{
+				x.RequestShowOffer(OnFinishedViewingAd);
+			});
+			IsCollected = true;
+			if (CollectedChanged != null)
+			{
+				CollectedChanged();
+			}
+		}
 	}
 
 	private void OnFinishedViewingAd()
 	{
-		NotificationController.PushNotification(TM._("Thank you for playing this NEW game! Received " + rewardXP + " XP and " + rewardGold + " gold!"), notificationImage);
+		ParticleSystem particleSystem = UnityEngine.Object.Instantiate(PrefabPool.Instance.GoldExplosion);
+		particleSystem.transform.parent = MVGameControllerBase.WOCM.AvatarLocal.Transform;
+		particleSystem.transform.localPosition = new Vector3(0f, 1f, 0f);
 		claimRewardBtn.interactable = false;
 		timerText.text = string.Empty;
 		GameSessionData gameSessionData = MVGameControllerBase.GameSessionData;
@@ -99,6 +124,7 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 		rewardGold = rewardData.gold;
 		rewardAvailable = rewardData.rewardEnabled;
 		claimRewardBtn.gameObject.SetActive(rewardAvailable);
+		IsCollected = !rewardAvailable;
 		if (!rewardAvailable)
 		{
 			Debug.Log("no gold reward available");
@@ -119,7 +145,9 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 				claimRewardBtn.interactable = true;
 				rewardAvailable = false;
 				timerText.text = TM._("Claim!");
-				NotificationController.PushNotification(TM._("Claim gold reward!"), notificationImage);
+				Dictionary<object, object> dictionary = new Dictionary<object, object>();
+				dictionary.Add((byte)2, 6);
+				NotificationController.OnNotificationReceived(NotificationType.GoldRewardReady, dictionary);
 				EnableEffects();
 			}
 			else
@@ -144,5 +172,6 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 	private void OnDestroy()
 	{
 		UpdateController.RemoveUpdateObject(this);
+		CollectedChanged = (Action)Delegate.Remove(CollectedChanged, new Action(OnCollectedChanged));
 	}
 }

@@ -16,25 +16,31 @@ public class KeepAliveWhenInBackground : MonoBehaviour
 
 	private PhotonPeer peer;
 
+	private bool initialized;
+
 	public void Initialize(SessionLocatorPing sessionLocatorPing, PhotonPeer peer)
 	{
 		this.sessionLocatorPing = sessionLocatorPing;
 		this.peer = peer;
+		initialized = true;
 	}
 
 	private void OnApplicationPause(bool applicationPause)
 	{
 		Debug.LogWarning("applicationPause " + applicationPause);
-		this.applicationPause = applicationPause;
-		if (applicationPause)
+		if (initialized)
 		{
-			pauseTime = DateTime.Now;
-			peer.LimitOfUnreliableCommands = 1;
-			SupportClass.CallInBackground(PauseUpdate);
-		}
-		else
-		{
-			peer.LimitOfUnreliableCommands = 0;
+			this.applicationPause = applicationPause;
+			if (applicationPause)
+			{
+				pauseTime = DateTime.Now;
+				peer.LimitOfUnreliableCommands = 1;
+				SupportClass.CallInBackground(PauseUpdate);
+			}
+			else
+			{
+				peer.LimitOfUnreliableCommands = 0;
+			}
 		}
 	}
 

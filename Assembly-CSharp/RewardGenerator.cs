@@ -24,6 +24,8 @@ public class RewardGenerator : RewardButtonBase
 
 	private bool currentlySpinning;
 
+	private bool changedState = true;
+
 	private void Start()
 	{
 		RewardManager.NumberOfPendingRewardsChanged = (UnityAction)Delegate.Combine(RewardManager.NumberOfPendingRewardsChanged, new UnityAction(RewardCountChanged));
@@ -58,6 +60,7 @@ public class RewardGenerator : RewardButtonBase
 	private void RewardCountChanged()
 	{
 		rewardAvailable = RewardManager.NumberOfPendingRewards > 0;
+		changedState = true;
 		currentlySpinning = false;
 	}
 
@@ -75,7 +78,11 @@ public class RewardGenerator : RewardButtonBase
 		float num = RewardManager.CountDownTimeInMS;
 		if (rewardAvailable)
 		{
-			rewardTimer.text = TM._("Claim!");
+			if (changedState)
+			{
+				rewardTimer.text = TM._("Claim!");
+				changedState = false;
+			}
 			SpinnyBackground.gameObject.SetActive(value: true);
 			EnableEffects();
 		}
@@ -91,10 +98,12 @@ public class RewardGenerator : RewardButtonBase
 			rewardTimer.text = $"{arg:00}:{arg2:00}";
 			UpdateOutline((maxTime - num2) / maxTime);
 			DisableEffects();
+			changedState = true;
 		}
-		else
+		else if (changedState)
 		{
 			rewardTimer.text = TM._("Loading");
+			changedState = false;
 			UpdateOutline(0f);
 			DisableEffects();
 		}

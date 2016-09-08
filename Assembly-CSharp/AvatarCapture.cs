@@ -8,7 +8,7 @@ public class AvatarCapture : MonoBehaviour
 	{
 		public Transform transform;
 
-		public Dictionary<GameObject, int> storedGameObjectLayers = new Dictionary<GameObject, int>();
+		public Dictionary<GameObject, KeyValuePair<int, bool>> storedGameObjectLayers = new Dictionary<GameObject, KeyValuePair<int, bool>>();
 
 		public RenderTextureTargetDef(Transform t)
 		{
@@ -17,9 +17,17 @@ public class AvatarCapture : MonoBehaviour
 
 		public void ChangeChildLayers(Transform parent)
 		{
-			if (parent.gameObject.layer == LayerUtil.GetLayerNumber(LayerFlags.Player) || parent.gameObject.layer == LayerUtil.GetLayerNumber(LayerFlags.Default))
+			if (parent.gameObject.layer == LayerUtil.GetLayerNumber(LayerFlags.Player) || parent.gameObject.layer == LayerUtil.GetLayerNumber(LayerFlags.Default) || parent.gameObject.layer == LayerUtil.GetLayerNumber(LayerFlags.CamRotateTarget))
 			{
-				storedGameObjectLayers.Add(parent.gameObject, parent.gameObject.layer);
+				Renderer component = parent.GetComponent<Renderer>();
+				bool value = false;
+				if (component != null)
+				{
+					value = component.enabled;
+					component.enabled = true;
+				}
+				KeyValuePair<int, bool> value2 = new KeyValuePair<int, bool>(parent.gameObject.layer, value);
+				storedGameObjectLayers.Add(parent.gameObject, value2);
 				parent.gameObject.layer = LayerUtil.GetLayerNumber(LayerFlags.UXElementSecondary);
 			}
 			foreach (Transform item in parent)
@@ -32,7 +40,12 @@ public class AvatarCapture : MonoBehaviour
 		{
 			if (parent.gameObject.layer == LayerUtil.GetLayerNumber(LayerFlags.UXElementSecondary))
 			{
-				parent.gameObject.layer = storedGameObjectLayers[parent.gameObject];
+				parent.gameObject.layer = storedGameObjectLayers[parent.gameObject].Key;
+				Renderer component = parent.GetComponent<Renderer>();
+				if (component != null)
+				{
+					component.enabled = storedGameObjectLayers[parent.gameObject].Value;
+				}
 			}
 			foreach (Transform item in parent)
 			{
@@ -91,9 +104,10 @@ public class AvatarCapture : MonoBehaviour
 
 	private void CapturePlayerGroup(List<MVPlayer> sortedList)
 	{
+		MVGameControllerBase.WOCM.AvatarLocal.Avatar.AvatarFader.SetTransparency(1f);
 		for (int i = 0; i < sortedList.Count; i++)
 		{
-			sortedList[i].Avatar.ChangeLOD(0f);
+			sortedList[i].Avatar.GameObject.SetActive(value: true);
 		}
 		int count = sortedList.Count;
 		List<Vector3> positions = new List<Vector3>();
@@ -107,20 +121,22 @@ public class AvatarCapture : MonoBehaviour
 		for (int k = 0; k < count; k++)
 		{
 			currentTargetWinner = list[k];
-			GameObject gameObject = sortedList[k].Avatar.GameObject;
-			renderCam.transform.position = gameObject.transform.position;
-			renderCam.transform.position += gameObject.transform.right * offset.x + gameObject.transform.right * (0f - positions[k].x);
-			renderCam.transform.position += gameObject.transform.forward * (offset.z + num / 2f) + gameObject.transform.forward * (0f - positions[k].z);
-			renderCam.transform.position += gameObject.transform.up * (offset.y + num / 3f) + gameObject.transform.up * positions[k].y;
+			Transform transform = sortedList[k].Avatar.Transform;
+			Transform transform2 = renderCam.transform;
+			transform2.position = transform.position;
+			transform2.position += transform.right * offset.x + transform.right * (0f - positions[k].x);
+			transform2.position += transform.forward * (offset.z + num / 2f) + transform.forward * (0f - positions[k].z);
+			transform2.position += transform.up * (offset.y + num / 3f) + transform.up * positions[k].y;
 			float num2 = Random.Range(-35f, 35f);
-			renderCam.transform.position = RotatePointAroundPivot(renderCam.transform.position, gameObject.transform.position, new Vector3(0f, num2, 0f));
-			renderCam.transform.rotation = Quaternion.AngleAxis(gameObject.transform.rotation.eulerAngles.y + 180f + num2, Vector3.up);
+			transform2.position = RotatePointAroundPivot(transform2.position, transform.position, new Vector3(0f, num2, 0f));
+			transform2.rotation = Quaternion.AngleAxis(transform.rotation.eulerAngles.y + 180f + num2, Vector3.up);
 			renderCam.Render();
 		}
 	}
 
 	public void CaptureGO(GameObject avatarObject, CameraClearFlags flags)
 	{
+		MVGameControllerBase.WOCM.AvatarLocal.Avatar.AvatarFader.SetTransparency(1f);
 		RenderTexture temporary = RenderTexture.GetTemporary(512, 512, 16, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, 1);
 		temporary.wrapMode = TextureWrapMode.Clamp;
 		temporary.filterMode = FilterMode.Bilinear;

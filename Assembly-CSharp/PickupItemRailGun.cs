@@ -188,7 +188,7 @@ public class PickupItemRailGun : PickupItem
 		{
 			audioSource.Stop();
 			audioSource.loop = false;
-			if (gameObject.activeInHierarchy)
+			if (audioSource.gameObject.activeInHierarchy)
 			{
 				audioSource.PlayOneShot(releaseSound);
 				releaseSoundPlaying = true;
