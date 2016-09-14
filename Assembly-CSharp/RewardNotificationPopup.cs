@@ -15,6 +15,14 @@ public class RewardNotificationPopup : Notification
 
 	public void OnRewardClicked()
 	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IOfferController x, BaseEventData y) =>
+		{
+			x.RequestShowOffer(OnCloseOffer);
+		});
+	}
+
+	private void OnCloseOffer()
+	{
 		RewardMinigame rewardMinigame = Object.Instantiate(rewardMinigamePrefab);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{

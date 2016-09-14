@@ -31,15 +31,15 @@ public class AvatarModifierPackages
 
 	public void ClearModifiers()
 	{
-		foreach (AvatarModifierPackage package in packages)
+		for (int num = packages.Count - 1; num >= 0; num--)
 		{
-			if (!package.persistant)
+			if (!packages[num].persistant)
 			{
 				if (OnModifierExpired != null)
 				{
-					OnModifierExpired(package);
+					OnModifierExpired(packages[num]);
 				}
-				packages.Remove(package);
+				packages.Remove(packages[num]);
 			}
 		}
 	}

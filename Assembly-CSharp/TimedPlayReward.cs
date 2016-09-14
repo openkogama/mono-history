@@ -71,29 +71,26 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 
 	private void OnCollectedChanged()
 	{
-		claimRewardBtn.gameObject.SetActive(value: false);
 		IsCollected = true;
-		NotificationController.PushNotification(TM._("Thank you for playing this NEW game! Received " + rewardXP + " XP and " + rewardGold + " gold!"), notificationImage);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IOfferController x, BaseEventData y) =>
+		{
+			x.RequestShowOffer(OnFinishedViewingAd);
+		});
 	}
 
 	public void RewardClicked()
 	{
-		if (!IsCollected)
+		if (!IsCollected && CollectedChanged != null)
 		{
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IOfferController x, BaseEventData y) =>
-			{
-				x.RequestShowOffer(OnFinishedViewingAd);
-			});
-			IsCollected = true;
-			if (CollectedChanged != null)
-			{
-				CollectedChanged();
-			}
+			CollectedChanged();
 		}
 	}
 
 	private void OnFinishedViewingAd()
 	{
+		claimRewardBtn.gameObject.SetActive(value: false);
+		IsCollected = true;
+		NotificationController.PushNotification(TM._("Thank you for playing this NEW game! Received " + rewardXP + " XP and " + rewardGold + " gold!"), notificationImage);
 		ParticleSystem particleSystem = UnityEngine.Object.Instantiate(PrefabPool.Instance.GoldExplosion);
 		particleSystem.transform.parent = MVGameControllerBase.WOCM.AvatarLocal.Transform;
 		particleSystem.transform.localPosition = new Vector3(0f, 1f, 0f);

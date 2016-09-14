@@ -128,11 +128,6 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 		{
 			ToggleLogicVisibility();
 		}
-		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.TogglePlayerParticles))
-		{
-			MVBody body = MVGameControllerBase.WOCM.AvatarLocal.Body;
-			body.AccessoryParticlesVisible = !body.AccessoryParticlesVisible;
-		}
 	}
 
 	private void RegisterHotkeys()

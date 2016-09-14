@@ -54,6 +54,7 @@ public class MVFire : MVLogicObject
 		base.Initialize();
 		OnInputLinkChanged();
 		SetupCulling(fireObject.ParticleSystem.gameObject);
+		fireObject.RangeVisualizationRenderer.SetActive(MVGameControllerBase.GameMode == MVGameMode.Edit);
 	}
 
 	public override void InitializeInventory()
@@ -62,6 +63,7 @@ public class MVFire : MVLogicObject
 		ParticleSystem.EmissionModule emission = fireObject.ParticleSystem.emission;
 		emission.enabled = false;
 		fireObject.enabled = false;
+		fireObject.RangeVisualizationRenderer.SetActive(value: false);
 	}
 
 	public override void OnInputLinkChanged()

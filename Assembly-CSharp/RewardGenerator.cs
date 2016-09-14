@@ -53,6 +53,10 @@ public class RewardGenerator : RewardButtonBase
 		purchaseSpinsPopup.Initialize(OnRewardCollected);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
+			x.PopGroups(UIGroupFlags.Popup);
+		});
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
 			x.Push(purchaseSpinsPopup.gameObject, UIPushOption.Blocking, RewardCountChanged, UIGroupFlags.Popup);
 		});
 	}

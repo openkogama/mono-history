@@ -20,6 +20,7 @@ public class AvatarCameraFade : MonoBehaviour
 		fadeStartDistance = fadeStartBase;
 		fadeEndDistance *= scale;
 		fadeStartDistance *= scale;
+		camMoveTowardsOffset *= scale;
 	}
 
 	private void Update()

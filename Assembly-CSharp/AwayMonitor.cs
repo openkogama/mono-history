@@ -57,6 +57,11 @@ public static class AwayMonitor
 		UpdateIdle();
 	}
 
+	public static void UpdateIdleAction()
+	{
+		latestMouseMoveTime = DateTime.Now;
+	}
+
 	private static void UpdateIdle()
 	{
 		if (DateTime.Now - LatestMouseMoveTime < awayCheckFrequency && DateTime.Now - latestResetAFKTime > awayCheckFrequency)

@@ -16,5 +16,6 @@ public enum ColorStyle
 	TransparentLight = 20,
 	NeonGreen = 21,
 	TransparentHeavyDark = 22,
-	AlmostWhite = 23
+	AlmostWhite = 23,
+	Golden = 24
 }

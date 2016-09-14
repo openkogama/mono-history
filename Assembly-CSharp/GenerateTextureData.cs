@@ -37,6 +37,7 @@ public class GenerateTextureData : MonoBehaviour
 		screenshotCam.backgroundColor = color;
 		screenshotCam.fieldOfView = Camera.main.fieldOfView;
 		screenshotCam.aspect = (float)width / (float)height;
+		screenshotCam.nearClipPlane = Camera.main.nearClipPlane;
 		LayerFlags layers = LayerFlags.Default | LayerFlags.Water | LayerFlags.Player;
 		screenshotCam.cullingMask = LayerUtil.GetMask(layers);
 		screenshotCamObject.transform.position = Camera.main.gameObject.transform.position;

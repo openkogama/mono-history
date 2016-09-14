@@ -7,6 +7,11 @@ public class GameMeterHandler : MonoBehaviour
 	[SerializeField]
 	private List<GameMeterAndroidBase> gameMeters;
 
+	private void OnEnable()
+	{
+		UpdateValue();
+	}
+
 	private void Start()
 	{
 		for (int i = 0; i < gameMeters.Count; i++)

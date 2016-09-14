@@ -40,8 +40,8 @@ public class OfferController : MonoBehaviour, IEventSystemHandler, IOfferControl
 			OnOfferClosed();
 			return;
 		}
-		OffersManager.RequestOffer(CreateOffer);
 		offerReady = false;
+		OffersManager.RequestOffer(CreateOffer);
 	}
 
 	private void CreateOffer()
@@ -70,6 +70,10 @@ public class OfferController : MonoBehaviour, IEventSystemHandler, IOfferControl
 		Debug.Log(offer);
 		OfferAvatarPopup avatarOffer = UnityEngine.Object.Instantiate(avatarAdPrefab);
 		avatarOffer.CreateOffer((ActorOfferAvatar)offer, worldObjectFromItemData);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.PopGroups(UIGroupFlags.Popup);
+		});
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Push(avatarOffer.gameObject, UIPushOption.Blocking, OnOfferClosed, UIGroupFlags.Popup);

@@ -49,8 +49,4 @@ public class LobbyStateController : MonoBehaviour
 	{
 		rewardTransform.gameObject.SetActive(value: true);
 	}
-
-	private void Update()
-	{
-	}
 }
