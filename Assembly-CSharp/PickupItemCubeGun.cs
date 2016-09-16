@@ -55,6 +55,10 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	public CubeBullet cubeBullet;
 
+	private bool showingCursors;
+
+	private bool hasLeftVehicle;
+
 	public override AvatarItemType Type => AvatarItemType.CubeGun;
 
 	public override int Quantity => currentAmmo;
@@ -68,7 +72,8 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	private void Start()
 	{
-		if (ShowCursors())
+		showingCursors = ShowCursors();
+		if (showingCursors)
 		{
 			primaryCursor = UnityEngine.Object.Instantiate(primaryCursor);
 			secondaryCursor = UnityEngine.Object.Instantiate(secondaryCursor);
@@ -78,7 +83,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	private void Update()
 	{
-		if (ShowCursors())
+		if (showingCursors)
 		{
 			HandleCursors();
 		}
@@ -103,6 +108,24 @@ public class PickupItemCubeGun : PickupItemWithDelay
 		Ray ray = new Ray(owner.LookOrigin, owner.LookDirection);
 		LayerMask layerMask = 1 << LayerMask.NameToLayer("Default");
 		return CollisionDetection.MVHit(ray, out hit, range, new HashSet<int> { owner.WorldObjectOwner.Id }, layerMask);
+	}
+
+	public override void OnLeaveVehicleWithWeapon()
+	{
+		base.OnLeaveVehicleWithWeapon();
+		hasLeftVehicle = true;
+		showingCursors = false;
+		primaryCursor.FadeState = FadeState.FadeOut;
+		secondaryCursor.FadeState = FadeState.FadeOut;
+		primaryCursor.FadeOverride = FadeOverride.FadeAllOut;
+		secondaryCursor.FadeOverride = FadeOverride.FadeAllOut;
+	}
+
+	public override void OnEnterVehicleWithWeapon()
+	{
+		base.OnEnterVehicleWithWeapon();
+		hasLeftVehicle = false;
+		showingCursors = ShowCursors();
 	}
 
 	private bool CanInsertCubeAtCubePos(IntVector cubePos)
@@ -171,8 +194,10 @@ public class PickupItemCubeGun : PickupItemWithDelay
 	public override void OnUnequip()
 	{
 		base.OnUnequip();
-		if (ShowCursors())
+		if (showingCursors)
 		{
+			primaryCursor.FadeOverride = FadeOverride.FadeAllOut;
+			secondaryCursor.FadeOverride = FadeOverride.FadeAllOut;
 			primaryCursor.Destroy();
 			secondaryCursor.Destroy();
 		}
@@ -188,7 +213,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	protected override void OnFire(bool isLocal)
 	{
-		if (fireSecondary || IsAmmoDepleted)
+		if (hasLeftVehicle || fireSecondary || IsAmmoDepleted)
 		{
 			return;
 		}
@@ -312,7 +337,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 		{
 			return false;
 		}
-		if (owner.IsLocal && owner.WorldObjectOwner is MVAvatarLocal)
+		if (owner.IsLocal && (owner.WorldObjectOwner is MVAvatarLocal || owner.WorldObjectOwner is MVVehicleBase))
 		{
 			return true;
 		}

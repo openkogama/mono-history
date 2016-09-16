@@ -10,6 +10,8 @@ public class MVSoundEmitter : MVLogicObject
 
 	private AudioSource currentSrc;
 
+	private SoundEmitterObject soundEmitterObject;
+
 	private MVNetworkGame Game => MVGameControllerBase.Game;
 
 	public override bool HasInputConnector => true;
@@ -20,11 +22,13 @@ public class MVSoundEmitter : MVLogicObject
 		: base(data, PrefabPool.Instance.MVSoundEmitterPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings | InteractionFlags.Sounds;
+		soundEmitterObject = (SoundEmitterObject)component;
 	}
 
 	public override void Initialize()
 	{
 		base.Initialize();
+		SetupCulling(soundEmitterObject.VisualObject);
 		if (!Data.ContainsKey("url") || Data["url"].ToString().StartsWith("file://"))
 		{
 			StreamingAssetInfo streamingAssetInfo = null;

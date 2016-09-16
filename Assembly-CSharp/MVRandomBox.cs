@@ -12,6 +12,12 @@ public class MVRandomBox : MVLogicObject
 	{
 	}
 
+	public override void Initialize()
+	{
+		base.Initialize();
+		SetupCulling(gameObject);
+	}
+
 	public override void OnDataUpdate()
 	{
 		int num = 0;

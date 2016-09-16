@@ -83,6 +83,14 @@ public abstract class PickupItem : MonoBehaviour
 	{
 	}
 
+	public virtual void OnLeaveVehicleWithWeapon()
+	{
+	}
+
+	public virtual void OnEnterVehicleWithWeapon()
+	{
+	}
+
 	public virtual void UpdateWithDirection(Vector3 dir)
 	{
 		dir.Normalize();

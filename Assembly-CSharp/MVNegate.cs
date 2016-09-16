@@ -10,4 +10,10 @@ public class MVNegate : MVLogicObject
 		: base(data, PrefabPool.Instance.MVNegatePrefab, worldObjects)
 	{
 	}
+
+	public override void Initialize()
+	{
+		base.Initialize();
+		SetupCulling(gameObject);
+	}
 }

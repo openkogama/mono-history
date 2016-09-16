@@ -13,6 +13,12 @@ public class MVTimeTrigger : MVLogicObject
 		interactionFlags |= InteractionFlags.HasSettings;
 	}
 
+	public override void Initialize()
+	{
+		base.Initialize();
+		SetupCulling(gameObject);
+	}
+
 	public override void OnInputStateChanged()
 	{
 	}

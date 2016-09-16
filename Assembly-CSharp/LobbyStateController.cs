@@ -32,6 +32,7 @@ public class LobbyStateController : MonoBehaviour
 		touristRegisterButton.SetActive(isTouristSession);
 		if (!isTouristSession)
 		{
+			rewardGenerator.Initialize();
 			accessoryShop.SetActive(value: true);
 			playReward.Initialize();
 			gameCoinBoosterButton.SetActive(value: true);

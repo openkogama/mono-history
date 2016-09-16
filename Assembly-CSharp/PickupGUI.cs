@@ -47,6 +47,7 @@ public class PickupGUI
 		if (pickupOwner.CurrentItem != null)
 		{
 			OnEquipItem(pickupOwner.CurrentItem);
+			pickupOwner.CurrentItem.OnEnterVehicleWithWeapon();
 		}
 	}
 
@@ -64,6 +65,10 @@ public class PickupGUI
 		canBeVisible = false;
 		UpdateCrossHairVisibility();
 		ShowEquipableUI = PickupGUIFlags.None;
+		if (pickupOwner.CurrentItem != null)
+		{
+			pickupOwner.CurrentItem.OnLeaveVehicleWithWeapon();
+		}
 	}
 
 	private void OnEquipItem(PickupItem item)

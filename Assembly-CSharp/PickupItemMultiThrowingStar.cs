@@ -46,6 +46,8 @@ public class PickupItemMultiThrowingStar : PickupItemWithDelay
 
 	public float fireDelay = 0.1f;
 
+	private bool hasLeftVehicle;
+
 	private bool isLocal;
 
 	private int throwingStarsFired;
@@ -91,9 +93,28 @@ public class PickupItemMultiThrowingStar : PickupItemWithDelay
 		}
 	}
 
+	public override void OnEnterVehicleWithWeapon()
+	{
+		base.OnEnterVehicleWithWeapon();
+		if (throwingStarsFired >= numStars)
+		{
+			isFiring = false;
+		}
+		hasLeftVehicle = false;
+	}
+
+	public override void OnLeaveVehicleWithWeapon()
+	{
+		base.OnLeaveVehicleWithWeapon();
+		if (throwingStarsFired >= numStars)
+		{
+			isFiring = false;
+		}
+		hasLeftVehicle = true;
+	}
+
 	public override void TriggerEnd()
 	{
-		isFiring = true;
 	}
 
 	private void StartFire()
@@ -132,6 +153,7 @@ public class PickupItemMultiThrowingStar : PickupItemWithDelay
 		if (throwingStarsFired >= numStars)
 		{
 			isFiring = false;
+			throwingStarsFired = 0;
 		}
 	}
 

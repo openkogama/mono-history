@@ -23,6 +23,7 @@ public class MVRoundCube : MVLogicObject
 		wOCM.OnResetWorldDone = (EventHandler<EventArgs>)Delegate.Combine(wOCM.OnResetWorldDone, new EventHandler<EventArgs>(OnResetWorldDone));
 		MVGameControllerBase.Game.WinningConditionManager.CreateWinnerCondition<TimeLimitClient>(new object[1] { WinningCondition });
 		initializedInWorld = true;
+		SetupCulling(gameObject);
 	}
 
 	public override bool IsSingletonObject()

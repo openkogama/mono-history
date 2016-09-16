@@ -17,10 +17,6 @@ public class VehiclePickupOwner : MVPickupOwner
 		IsLocal = false;
 	}
 
-	public void OnLocalVehicleEnter()
-	{
-	}
-
 	protected override void Equip(AvatarItemType type, int variantId)
 	{
 		PickupItem pickupItem = CreateAvatarItem(type, variantId);

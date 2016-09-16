@@ -29,7 +29,7 @@ public class MVTextMsg : MVLogicObject
 	public override void Initialize()
 	{
 		base.Initialize();
-		SetupCulling(msgObject.TextMesh.gameObject);
+		SetupCulling(msgObject.VisualObject);
 		cullingSubscriberBase.Radius = msgObject.TextMeshRenderer.bounds.extents.magnitude;
 		OnDataUpdate();
 		if (InputLinkRefs.Count == 0)

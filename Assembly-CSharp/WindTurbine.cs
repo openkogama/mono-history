@@ -121,20 +121,24 @@ public class WindTurbine : MVLogicObject
 
 	private void EnterWindZone(int instigatorWOID)
 	{
-		if (affectedBodies.ContainsKey(instigatorWOID) || (InputLinkRefs.Count != 0 && !InputState))
+		if (affectedBodies.ContainsKey(instigatorWOID))
 		{
 			return;
 		}
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(instigatorWOID);
 		MVRigidBody mVRigidBody = worldObjectClient.GameObject.GetComponent<MVRigidBody>();
-		if (mVRigidBody != null)
+		if (!(mVRigidBody != null))
 		{
-			MVInteractableBase mVInteractableBase = worldObjectClient.GameObject.GetComponent<MVInteractableBase>();
-			if (!(mVInteractableBase == null))
+			return;
+		}
+		MVInteractableBase mVInteractableBase = worldObjectClient.GameObject.GetComponent<MVInteractableBase>();
+		if (!(mVInteractableBase == null))
+		{
+			if (InputLinkRefs.Count == 0 || InputState)
 			{
 				mVInteractableBase.AddModifier(AvatarModifierPackageType.WindFriction);
-				affectedBodies[instigatorWOID] = mVRigidBody;
 			}
+			affectedBodies[instigatorWOID] = mVRigidBody;
 		}
 	}
 

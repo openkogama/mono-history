@@ -18,6 +18,8 @@ public class RewardGenerator : RewardButtonBase
 	[SerializeField]
 	private Image SpinnyBackground;
 
+	public static Action OnRewardPressCalled;
+
 	private float maxTime;
 
 	private bool rewardAvailable;
@@ -26,11 +28,21 @@ public class RewardGenerator : RewardButtonBase
 
 	private bool changedState = true;
 
+	public void Initialize()
+	{
+		OnRewardPressCalled = (Action)Delegate.Combine(OnRewardPressCalled, new Action(OnRewardPressed));
+	}
+
 	private void Start()
 	{
 		RewardManager.NumberOfPendingRewardsChanged = (UnityAction)Delegate.Combine(RewardManager.NumberOfPendingRewardsChanged, new UnityAction(RewardCountChanged));
 		SpinnyBackground.gameObject.SetActive(value: false);
 		gameObject.SetActive(value: true);
+	}
+
+	private void OnDestroy()
+	{
+		OnRewardPressCalled = (Action)Delegate.Remove(OnRewardPressCalled, new Action(OnRewardPressed));
 	}
 
 	public void OnRewardPressed()

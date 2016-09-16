@@ -19,6 +19,7 @@ public class MVPulseBox : MVLogicObject
 	public override void Initialize()
 	{
 		base.Initialize();
+		SetupCulling(gameObject);
 	}
 
 	public override void OnInputLinkChanged()

@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class MVPointLight : MVLogicObject
 {
-	private GameObject lightObject;
+	private MVPointLightObject lightObject;
 
 	private Light lightComponent;
 
@@ -15,7 +15,8 @@ public class MVPointLight : MVLogicObject
 		: base(data, PrefabPool.Instance.MVPointLightPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
-		lightComponent = gameObject.GetComponent<Light>();
+		lightObject = (MVPointLightObject)component;
+		lightComponent = lightObject.PointLight;
 		lightComponent.enabled = false;
 		gameObject.transform.localScale = Vector3.one;
 	}
@@ -23,7 +24,7 @@ public class MVPointLight : MVLogicObject
 	public override void Initialize()
 	{
 		base.Initialize();
-		SetupCulling(gameObject);
+		SetupCulling(lightObject.VisualObject);
 		OnDataUpdate();
 		if (InputLinkRefs.Count == 0)
 		{

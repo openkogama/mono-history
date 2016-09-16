@@ -34,6 +34,11 @@ public class MVFire : MVLogicObject
 		for (int i = 0; i < woList.Count; i++)
 		{
 			MVWorldObjectClient mVWorldObjectClient = woList[i];
+			if (mVWorldObjectClient == null || mVWorldObjectClient.GameObject == null)
+			{
+				woList.RemoveAt(i);
+				continue;
+			}
 			InteractionDataHandlerBase interactionDataHandlerBase = mVWorldObjectClient.InteractionDataHandlerBase;
 			if (!(interactionDataHandlerBase == null))
 			{
@@ -53,7 +58,7 @@ public class MVFire : MVLogicObject
 	{
 		base.Initialize();
 		OnInputLinkChanged();
-		SetupCulling(fireObject.ParticleSystem.gameObject);
+		SetupCulling(fireObject.VisualObject);
 		fireObject.RangeVisualizationRenderer.SetActive(MVGameControllerBase.GameMode == MVGameMode.Edit);
 	}
 

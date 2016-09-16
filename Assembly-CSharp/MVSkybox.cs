@@ -45,6 +45,7 @@ public class MVSkybox : MVLogicObject
 		base.Initialize();
 		skybox.mvSkyboxes.Add(this);
 		gameObject.transform.localScale = Vector3.one;
+		SetupCulling(gameObject);
 		OnDataUpdate();
 	}
 

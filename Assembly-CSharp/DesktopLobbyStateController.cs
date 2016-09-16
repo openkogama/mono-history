@@ -35,6 +35,9 @@ public class DesktopLobbyStateController : MonoBehaviour
 	[SerializeField]
 	private AdOfferGold adOfferGold;
 
+	[SerializeField]
+	private RewardGenerator rewardGenerator;
+
 	private readonly AccessoryMover accessoryMover = new AccessoryMover();
 
 	private Vector3 rewardButtonTarget = Vector3.zero;
@@ -63,6 +66,7 @@ public class DesktopLobbyStateController : MonoBehaviour
 		touristRewardPreview.SetActive(isTouristSession);
 		if (flag)
 		{
+			rewardGenerator.Initialize();
 			playReward.Initialize();
 			RewardManager.NumberOfPendingRewardsChanged = (UnityAction)Delegate.Combine(RewardManager.NumberOfPendingRewardsChanged, new UnityAction(RewardChanged));
 			RewardManager.TimerUpdated = (UnityAction)Delegate.Combine(RewardManager.TimerUpdated, new UnityAction(RewardChanged));

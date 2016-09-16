@@ -37,6 +37,7 @@ public class MVObjectEnabler : MVLogicObject
 	{
 		base.Initialize();
 		OnInputStateChanged();
+		SetupCulling(gameObject);
 	}
 
 	public override void PlayModeInitialize()

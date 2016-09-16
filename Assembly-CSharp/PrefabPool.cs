@@ -7,8 +7,8 @@ public class PrefabPool : MonoBehaviour
 
 	private static PrefabPool instance;
 
-	[SerializeField]
 	[Header("World Objects")]
+	[SerializeField]
 	private ObjectPrefab mvFirePrefab;
 
 	[SerializeField]
@@ -99,7 +99,7 @@ public class PrefabPool : MonoBehaviour
 	private ObjectPrefab mvSmokePrefab;
 
 	[SerializeField]
-	private ObjectPrefab mvSoundEmitterPrefab;
+	private SoundEmitterObject mvSoundEmitterPrefab;
 
 	[SerializeField]
 	private ObjectPrefab mvSpawnPointBluePrefab;
@@ -170,9 +170,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private SpawnerObject spawnerObject;
 
-	[SerializeField]
-	[Space(20f)]
 	[Header("Game")]
+	[Space(20f)]
+	[SerializeField]
 	private Material ghostMarkerMaterial;
 
 	[SerializeField]
@@ -196,8 +196,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private CubeModelChunkPrefab cubeModelChunkPrefab;
 
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
 	[Header("Pick up")]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
@@ -335,8 +335,8 @@ public class PrefabPool : MonoBehaviour
 	private AvatarModifier shieldModifier;
 
 	[Header("Particles")]
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
 	private GameObject particleBlood;
 
 	[SerializeField]
@@ -402,9 +402,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem goldExplosion;
 
-	[SerializeField]
-	[Space(20f)]
 	[Header("Logic object prefabs")]
+	[Space(20f)]
+	[SerializeField]
 	private GameObject logicInputConnectorPrefab;
 
 	[SerializeField]
@@ -442,8 +442,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material modelConstraintsMaterial;
 
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
 	[Header("UGUI")]
 	private AvatarInputControllerAndroidSettings avatarInputControllerAndroidSettings;
 
@@ -456,9 +456,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private InsertCursor insertCursor;
 
+	[Header("Editor")]
 	[Space(20f)]
 	[SerializeField]
-	[Header("Editor")]
 	private Material cellCursorErrorMaterial;
 
 	[SerializeField]
@@ -564,7 +564,7 @@ public class PrefabPool : MonoBehaviour
 
 	public ObjectPrefab MVSmokePrefab => mvSmokePrefab;
 
-	public ObjectPrefab MVSoundEmitterPrefab => mvSoundEmitterPrefab;
+	public SoundEmitterObject MVSoundEmitterPrefab => mvSoundEmitterPrefab;
 
 	public ObjectPrefab MVSpawnPointBluePrefab => mvSpawnPointBluePrefab;
 

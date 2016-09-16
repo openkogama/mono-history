@@ -19,6 +19,7 @@ public class MVToggleBox : MVLogicObject
 	{
 		OnDataUpdate();
 		base.Initialize();
+		SetupCulling(gameObject);
 	}
 
 	public override void OnDataUpdate()

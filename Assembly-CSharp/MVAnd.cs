@@ -10,4 +10,10 @@ public class MVAnd : MVLogicObject
 		: base(data, PrefabPool.Instance.MVAndPrefab, worldObjects)
 	{
 	}
+
+	public override void Initialize()
+	{
+		base.Initialize();
+		SetupCulling(gameObject);
+	}
 }
