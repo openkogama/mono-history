@@ -51,6 +51,9 @@ public class AvatarBlobShadowController : MonoBehaviour
 			case 1:
 				blobProjector.enabled = false;
 				break;
+			case 2:
+				blobProjector.enabled = true;
+				break;
 			}
 		}
 	}

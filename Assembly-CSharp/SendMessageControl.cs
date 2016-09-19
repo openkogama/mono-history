@@ -166,7 +166,8 @@ public class SendMessageControl : MonoBehaviour
 			empty += TM._("\n\n<WASD> Move\n<Space> Jump\n<K> Respawn\n<Left Mouse> Fire Weapon\n<Q> Drop currently equipped weapon");
 			break;
 		}
-		return empty + TM._("\n\nChat Commands\nFPS Counter: " + fps + "\nSee Resolution: " + resolution + "\nHD Mode: " + enableHD + "\n");
+		empty += TM._("\n\nChat Commands\nFPS Counter: " + fps + "\nSee Resolution: " + resolution + "\nHide UI (for Screenshots, can't undo): " + removeUI + "\n");
+		return empty + TM._("\nHD Mode: " + enableHD);
 	}
 
 	private void SanitizeMessage(ref string message, string tagToSanitize)

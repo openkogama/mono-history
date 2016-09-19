@@ -240,6 +240,7 @@ public class WaterPlaneManager : MonoBehaviour
 		switch (level)
 		{
 		case 0:
+		case 2:
 			water.m_WaterMode = Water.WaterMode.Simple;
 			audioHD = false;
 			break;
