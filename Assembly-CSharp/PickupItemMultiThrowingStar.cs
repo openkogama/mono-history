@@ -46,8 +46,6 @@ public class PickupItemMultiThrowingStar : PickupItemWithDelay
 
 	public float fireDelay = 0.1f;
 
-	private bool hasLeftVehicle;
-
 	private bool isLocal;
 
 	private int throwingStarsFired;
@@ -100,7 +98,6 @@ public class PickupItemMultiThrowingStar : PickupItemWithDelay
 		{
 			isFiring = false;
 		}
-		hasLeftVehicle = false;
 	}
 
 	public override void OnLeaveVehicleWithWeapon()
@@ -110,7 +107,6 @@ public class PickupItemMultiThrowingStar : PickupItemWithDelay
 		{
 			isFiring = false;
 		}
-		hasLeftVehicle = true;
 	}
 
 	public override void TriggerEnd()
