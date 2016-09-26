@@ -7,8 +7,8 @@ public class PrefabPool : MonoBehaviour
 
 	private static PrefabPool instance;
 
-	[Header("World Objects")]
 	[SerializeField]
+	[Header("World Objects")]
 	private ObjectPrefab mvFirePrefab;
 
 	[SerializeField]
@@ -170,8 +170,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private SpawnerObject spawnerObject;
 
-	[Header("Game")]
 	[Space(20f)]
+	[Header("Game")]
 	[SerializeField]
 	private Material ghostMarkerMaterial;
 
@@ -196,9 +196,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private CubeModelChunkPrefab cubeModelChunkPrefab;
 
-	[Header("Pick up")]
 	[SerializeField]
 	[Space(20f)]
+	[Header("Pick up")]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
 	[SerializeField]
@@ -255,8 +255,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private MVPickupItemBaseObject avatarGrowthPackPrefab;
 
-	[Space(20f)]
 	[Header("Avatar item pick up")]
+	[Space(20f)]
 	[SerializeField]
 	private GameObject avatarItemCenterGun;
 
@@ -308,8 +308,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject avatarItemSlapGun;
 
-	[Space(20f)]
 	[Header("Avatar modifier")]
+	[Space(20f)]
 	[SerializeField]
 	private AvatarModifier burningModifier;
 
@@ -334,9 +334,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private AvatarModifier shieldModifier;
 
+	[Space(20f)]
 	[SerializeField]
 	[Header("Particles")]
-	[Space(20f)]
 	private GameObject particleBlood;
 
 	[SerializeField]
@@ -431,8 +431,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material logicCubeConnectorBlueSelectedMaterial;
 
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
 	[Header("GUI")]
 	private Texture2D avatarAccessoryMoveIcon;
 
@@ -442,8 +442,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material modelConstraintsMaterial;
 
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
 	[Header("UGUI")]
 	private AvatarInputControllerAndroidSettings avatarInputControllerAndroidSettings;
 
@@ -456,9 +456,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private InsertCursor insertCursor;
 
-	[Header("Editor")]
 	[Space(20f)]
 	[SerializeField]
+	[Header("Editor")]
 	private Material cellCursorErrorMaterial;
 
 	[SerializeField]

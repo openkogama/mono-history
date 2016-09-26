@@ -8,8 +8,8 @@ public class KoGaMaSettingsContainer : ScriptableObject
 	[Header("Settings set by build system")]
 	private bool showDebugLogin;
 
-	[Header("Don't change")]
 	[SerializeField]
+	[Header("Don't change")]
 	private TextAsset versionText;
 
 	[SerializeField]
