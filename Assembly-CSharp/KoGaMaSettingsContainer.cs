@@ -4,8 +4,8 @@ using UnityEngine;
 [Serializable]
 public class KoGaMaSettingsContainer : ScriptableObject
 {
-	[SerializeField]
 	[Header("Settings set by build system")]
+	[SerializeField]
 	private bool showDebugLogin;
 
 	[SerializeField]
