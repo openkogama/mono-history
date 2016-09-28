@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using MV.WorldObject.Security;
 
-public class TouristSignupQuit : QuitBaseCallback
+public class TouristPromotionDesktop : TouristPromotion
 {
-	public void OnQuit()
+	public void SignupCallback()
 	{
 		if (!LevelingManager.IsInitialized)
 		{
@@ -17,5 +17,11 @@ public class TouristSignupQuit : QuitBaseCallback
 		string mD5Hash = Encryption.GetMD5Hash(sortedDictionary, MVGameControllerBase.Game.XpKey);
 		BrowserComm.ToJavaScript.ExternalCall("gotoSignupWithXP", xP, mD5Hash);
 		BrowserComm.ExecuteBrowserRequest(MVGameControllerBase.GameSessionData.signupURL);
+	}
+
+	public void LoginCallback()
+	{
+		BrowserComm.ToJavaScript.ExternalCall("gotoLogin");
+		BrowserComm.ExecuteBrowserRequest(MVGameControllerBase.GameSessionData.loginURL);
 	}
 }
