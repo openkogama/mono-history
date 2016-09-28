@@ -27,7 +27,7 @@ public class KeepAliveWhenInBackground : MonoBehaviour
 
 	private void OnApplicationPause(bool applicationPause)
 	{
-		Debug.Log("applicationPause " + applicationPause);
+		Debug.LogWarning("applicationPause " + applicationPause);
 		if (initialized)
 		{
 			this.applicationPause = applicationPause;
@@ -48,13 +48,13 @@ public class KeepAliveWhenInBackground : MonoBehaviour
 	{
 		while (peer.SendAcksOnly())
 		{
-			Debug.Log("Sending acks");
+			Debug.LogWarning("Sending acks");
 		}
 		if (DateTime.Now - pauseTime < SendOutGoingCommandsTimeSpan)
 		{
 			while (peer.SendOutgoingCommands())
 			{
-				Debug.Log("SendOutgoingCommands");
+				Debug.LogWarning("SendOutgoingCommands");
 			}
 		}
 		AsyncWWWManager.Update();

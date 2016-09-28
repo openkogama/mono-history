@@ -12,16 +12,16 @@ public class FyberSettings : ScriptableObject
 
 	private static FyberSettings instance;
 
-	[HideInInspector]
 	[SerializeField]
+	[HideInInspector]
 	private string bundlesJson;
 
-	[SerializeField]
 	[HideInInspector]
+	[SerializeField]
 	private string configJson;
 
-	[SerializeField]
 	[HideInInspector]
+	[SerializeField]
 	private int bundlesCount;
 
 	public static FyberSettings Instance => GetInstance();
