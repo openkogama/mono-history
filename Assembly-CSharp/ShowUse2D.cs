@@ -5,7 +5,7 @@ public class ShowUse2D : ShowUse
 {
 	private const float fadeTime = 1f;
 
-	private const ShowUseOption useButtonInsufficientOptions = ShowUseOption.GameCoinsInsufficient | ShowUseOption.LevelInsufficient | ShowUseOption.StarsInsufficient;
+	private const ShowUseOption useButtonInsufficientOptions = ShowUseOption.GameCoinsInsufficient | ShowUseOption.LevelInsufficient | ShowUseOption.StarsInsufficient | ShowUseOption.TeamRestricted;
 
 	[SerializeField]
 	private RequirementPanel starRequirement;
@@ -114,7 +114,12 @@ public class ShowUse2D : ShowUse
 				int stars = (int)worldObjectClient.Data["starAmount"];
 				ShowStarRequirement(useOption, stars);
 			}
-			if (((ShowUseOption.GameCoinsInsufficient | ShowUseOption.LevelInsufficient | ShowUseOption.StarsInsufficient) & useOption) == 0)
+			if ((useOption & ShowUseOption.UsingTeam) == ShowUseOption.UsingTeam)
+			{
+				int stars2 = (int)worldObjectClient.Data["team"];
+				ShowStarRequirement(useOption, stars2);
+			}
+			if (((ShowUseOption.GameCoinsInsufficient | ShowUseOption.LevelInsufficient | ShowUseOption.StarsInsufficient | ShowUseOption.TeamRestricted) & useOption) == 0)
 			{
 				eButton.sprite = canUse;
 			}

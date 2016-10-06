@@ -32,6 +32,10 @@ public class ContextMenuController : MonoBehaviour, IEventSystemHandler, IHandle
 		{
 			contextMenu.AddButton(TM._("Stars"), ShowStarsDialog);
 		}
+		if (worldObjectClient.HasInteractionFlag(InteractionFlags.CanUseTeam))
+		{
+			contextMenu.AddButton(TM._("Team"), ShowTeamDialog);
+		}
 		if (worldObjectClient.HasInteractionFlag(InteractionFlags.CanUseGameCoins))
 		{
 			contextMenu.AddButton(TM._("Game Coins"), ShowGameCoinsDialog);
@@ -117,6 +121,15 @@ public class ContextMenuController : MonoBehaviour, IEventSystemHandler, IHandle
 			handler.PopGroups(UIGroupFlags.GameObjectUI);
 		});
 		settingsFactory.CreateSettingsDialog(woID, UseRequirementType.Star);
+	}
+
+	private void ShowTeamDialog()
+	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
+		{
+			handler.PopGroups(UIGroupFlags.GameObjectUI);
+		});
+		settingsFactory.CreateSettingsDialog(woID, UseRequirementType.Team);
 	}
 
 	private void ShowGameCoinsDialog()

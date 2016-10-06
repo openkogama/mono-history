@@ -24,4 +24,9 @@ public class SettingsToggle : MonoBehaviour
 			handler.OnSettingChanged(key, value);
 		});
 	}
+
+	public bool IsSet()
+	{
+		return toggle.isOn;
+	}
 }

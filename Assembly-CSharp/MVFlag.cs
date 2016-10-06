@@ -12,21 +12,19 @@ public class MVFlag : MVLogicObject
 
 	private UseInteractor useInteractor;
 
-	private Vector3 gameCoinDisplayObjectOffset = new Vector3(0f, 2.5f, 0f);
-
 	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
-	private MVTriggerBoxObject flagObject;
+	private FlagObject flagObject;
 
 	public override Vector3 WorldPivot => transform.position;
 
 	public MVFlag(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVFlagPrefab, worldObjects)
 	{
-		flagObject = (MVTriggerBoxObject)component;
+		flagObject = (FlagObject)component;
 		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
 		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
-		interactionFlags |= InteractionFlags.CanUseGameCoins;
+		interactionFlags |= InteractionFlags.CanUseGameCoins | InteractionFlags.CanUseTeam;
 	}
 
 	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
@@ -56,8 +54,10 @@ public class MVFlag : MVLogicObject
 		useInteractor = new UseInteractor(this, flagObject.useInteractionRotator, reset: false, triggerBoxEvents.Collider, DoCaptureFlag);
 		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
 		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
-		GameCoinLogic useRequirement = new GameCoinLogic(flagObject.useInteractionRotator, gameCoinDisplayObjectOffset, hasUseButtonWhenFree: false);
+		GameCoinLogic useRequirement = new GameCoinLogic(flagObject.useInteractionRotator, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement);
+		TeamRequirement useRequirement2 = new TeamRequirement(flagObject.TintObject, hasUseButtonWhenFree: false);
+		useInteractor.AddRequirement(useRequirement2);
 	}
 
 	public override void OnDataUpdate()

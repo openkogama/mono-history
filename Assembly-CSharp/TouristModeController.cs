@@ -147,12 +147,6 @@ public class TouristModeController : MonoBehaviour
 	[SerializeField]
 	private TouristPromotion touristPromotionWithAdPrefab;
 
-	[SerializeField]
-	private TouristPromotion touristPromotionWithAndroidAdPrefab;
-
-	[SerializeField]
-	private TouristPromotion touristPromotionAndroidPrefab;
-
 	private TouristPromotion promotion;
 
 	public void Awake()
@@ -204,21 +198,9 @@ public class TouristModeController : MonoBehaviour
 		promotionDataManager.GetTextureDataToSet(SetPromotionTexture);
 	}
 
-	public void ShowAnyAndroidPromotionSlide()
-	{
-		PushPromotionSlide(touristPromotionAndroidPrefab);
-		promotionDataManager.GetTextureDataToSet(SetPromotionTexture);
-	}
-
 	public void ShowAdPromotionSlide()
 	{
 		PushPromotionSlide(touristPromotionWithAdPrefab);
-		promotionDataManager.GetTextureDataToSet(SetPromotionTexture);
-	}
-
-	public void ShowAndroidAdPromotionSlide()
-	{
-		PushPromotionSlide(touristPromotionWithAndroidAdPrefab);
 		promotionDataManager.GetTextureDataToSet(SetPromotionTexture);
 	}
 

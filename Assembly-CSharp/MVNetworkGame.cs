@@ -3207,6 +3207,7 @@ public class MVNetworkGame : IPhotonPeerListener
 	public void OnRemoveTeamEvent(MVTeam team, Dictionary<object, object> actorsWithNewTeam)
 	{
 		Debug.Log("Team removed");
+		TeamManager.RemoveTeam(team);
 		foreach (KeyValuePair<object, object> item in actorsWithNewTeam)
 		{
 			int num = (int)item.Key;
@@ -3215,7 +3216,6 @@ public class MVNetworkGame : IPhotonPeerListener
 			Debug.Log(mVTeam);
 			players[num].Team = mVTeam;
 		}
-		TeamManager.RemoveTeam(team);
 	}
 
 	public void OnSetWorldObjectsToPurchasedEvent(int purchaseProfileId, int itemId)

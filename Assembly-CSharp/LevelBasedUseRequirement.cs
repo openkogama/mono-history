@@ -11,7 +11,7 @@ public class LevelBasedUseRequirement : UseRequirement
 
 	private LevelDisplayCube displayObject;
 
-	private Vector3 displayObjectOffset = new Vector3(0f, 2f, 0f);
+	private Vector3 displayObjectOffset = new Vector3(0f, 0f, 0f);
 
 	private GameObject displayObjectRoot;
 
@@ -28,7 +28,7 @@ public class LevelBasedUseRequirement : UseRequirement
 	public LevelBasedUseRequirement(GameObject root, Vector3 displayOffset, bool hasUseButtonWhenFree = true)
 	{
 		hasUseWhenFree = hasUseButtonWhenFree;
-		displayObjectOffset = displayOffset;
+		displayObjectOffset += displayOffset;
 		displayObjectRoot = root;
 	}
 
@@ -136,5 +136,6 @@ public class LevelBasedUseRequirement : UseRequirement
 		vector = vector2 + pivot;
 		go.transform.localPosition = vector;
 		go.transform.LookAt(pivot + displayObjectRoot.transform.position);
+		displayObject.transform.position += displayObjectOffset;
 	}
 }

@@ -42,6 +42,7 @@ public class DesktopInGameGUIController : MonoBehaviour
 			use = Object.Instantiate(use3DPrefab);
 		}
 		use.transform.SetParent(transform, worldPositionStays: false);
+		use.transform.SetAsFirstSibling();
 		if (MVGameControllerBase.IsTouristSession)
 		{
 			touristLogo.SetActive(value: true);

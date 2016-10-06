@@ -12,5 +12,8 @@ public enum ShowUseOption : short
 	LevelInsufficient = 0x20,
 	UsingStars = 0x40,
 	StarsEnough = 0x80,
-	StarsInsufficient = 0x100
+	StarsInsufficient = 0x100,
+	UsingTeam = 0x200,
+	TeamAllowed = 0x400,
+	TeamRestricted = 0x800
 }

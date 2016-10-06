@@ -8,7 +8,7 @@ public class MVPlayer
 
 	protected int level = 1;
 
-	private MVTeam team;
+	private MVTeam team = MVTeam.None;
 
 	public UnityAction<int> OnLevelChanged;
 
@@ -53,7 +53,11 @@ public class MVPlayer
 		}
 		set
 		{
-			team = value;
+			team = MVTeam.None;
+			if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
+			{
+				team = value;
+			}
 		}
 	}
 

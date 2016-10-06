@@ -15,7 +15,7 @@ internal class ESWalkMode : ESStateBase
 		MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, TM._("Leveling is disabled in edit play mode"));
 		MVTeam team = MVGameControllerBase.Game.LocalPlayer.Team;
 		MVTeamManager teamManager = MVGameControllerBase.Game.TeamManager;
-		if (!teamManager.IsTeamActive(team))
+		if (team != MVTeam.None && !teamManager.IsTeamActive(team))
 		{
 			List<MVTeam> teamList = teamManager.GetTeamList();
 			MVGameControllerBase.OperationRequests.SetTeam(teamList[0]);

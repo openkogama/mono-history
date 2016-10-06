@@ -7,7 +7,7 @@ public class GameCoinLogic : UseRequirement
 
 	private UseRequirementType requirementType = UseRequirementType.GameCoin;
 
-	private Vector3 displayObjectOffset = new Vector3(0f, 1f, 0f);
+	private Vector3 displayObjectOffset = new Vector3(0f, 0f, 0f);
 
 	private GameObject displayGO;
 
@@ -30,7 +30,7 @@ public class GameCoinLogic : UseRequirement
 	public GameCoinLogic(GameObject root, Vector3 displayObjectOffset, bool hasUseButtonWhenFree = true)
 	{
 		hasUseWhenFree = hasUseButtonWhenFree;
-		this.displayObjectOffset = displayObjectOffset;
+		this.displayObjectOffset += displayObjectOffset;
 		displayObjectRoot = root;
 	}
 
@@ -71,7 +71,6 @@ public class GameCoinLogic : UseRequirement
 		displayObject = Object.Instantiate(PrefabPool.Instance.GameCoinDisplayPrefab);
 		displayGO = displayObject.gameObject;
 		displayGO.transform.parent = displayObjectRoot.transform;
-		displayGO.transform.localPosition = displayObjectOffset;
 	}
 
 	private void DestroyDisplayObject()
@@ -160,5 +159,6 @@ public class GameCoinLogic : UseRequirement
 		vector = vector2 + pivot;
 		displayObject.transform.localPosition = vector;
 		displayObject.transform.LookAt(pivot + displayObjectRoot.transform.position);
+		displayObject.transform.position += displayObjectOffset;
 	}
 }

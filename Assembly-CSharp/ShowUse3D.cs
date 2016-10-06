@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class ShowUse3D : ShowUse
 {
-	private const ShowUseOption useButtonInsufficientOptions = ShowUseOption.GameCoinsInsufficient | ShowUseOption.LevelInsufficient | ShowUseOption.StarsInsufficient;
+	private const ShowUseOption useButtonInsufficientOptions = ShowUseOption.GameCoinsInsufficient | ShowUseOption.LevelInsufficient | ShowUseOption.StarsInsufficient | ShowUseOption.TeamRestricted;
 
 	[SerializeField]
 	private GameObject canAfford;
@@ -12,7 +12,7 @@ public class ShowUse3D : ShowUse
 
 	public override void CalculateUseGraphics(ShowUseOption useOption, int woID = 0)
 	{
-		if (((ShowUseOption.GameCoinsInsufficient | ShowUseOption.LevelInsufficient | ShowUseOption.StarsInsufficient) & useOption) == 0)
+		if (((ShowUseOption.GameCoinsInsufficient | ShowUseOption.LevelInsufficient | ShowUseOption.StarsInsufficient | ShowUseOption.TeamRestricted) & useOption) == 0)
 		{
 			canAfford.SetActive(value: true);
 			canNotAfford.SetActive(value: false);

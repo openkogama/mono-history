@@ -1122,7 +1122,8 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 	{
 		triggerHandler.enabled = true;
 		int localPlayerActorNumber = MVGameControllerBase.Game.LocalPlayerActorNumber;
-		if (!MVGameControllerBase.Game.TeamManager.IsTeamActive(MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(localPlayerActorNumber)))
+		MVTeam teamFromActorNr = MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(localPlayerActorNumber);
+		if (teamFromActorNr != MVTeam.None && !MVGameControllerBase.Game.TeamManager.IsTeamActive(teamFromActorNr))
 		{
 			List<MVTeam> teamList = MVGameControllerBase.Game.TeamManager.GetTeamList();
 			MVGameControllerBase.OperationRequests.SetTeam(teamList[0]);

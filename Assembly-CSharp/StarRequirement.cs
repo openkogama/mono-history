@@ -7,7 +7,7 @@ public class StarRequirement : UseRequirement
 
 	private UseRequirementType requirementType = UseRequirementType.Star;
 
-	private Vector3 displayObjectOffset = new Vector3(0f, 1f, 0f);
+	private Vector3 displayObjectOffset = new Vector3(0f, 0f, 0f);
 
 	private GameObject displayGO;
 
@@ -30,7 +30,7 @@ public class StarRequirement : UseRequirement
 	public StarRequirement(GameObject root, Vector3 displayOffset, bool hasUseButtonWhenFree = true)
 	{
 		hasUseWhenFree = hasUseButtonWhenFree;
-		displayObjectOffset = displayOffset;
+		displayObjectOffset += displayOffset;
 		displayObjectRoot = root;
 	}
 
@@ -137,5 +137,6 @@ public class StarRequirement : UseRequirement
 		vector = vector2 + pivot;
 		displayGO.transform.localPosition = vector;
 		displayGO.transform.LookAt(pivot + displayObjectRoot.transform.position);
+		displayObject.transform.position += displayObjectOffset;
 	}
 }

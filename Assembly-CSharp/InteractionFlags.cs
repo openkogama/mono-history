@@ -28,5 +28,6 @@ public enum InteractionFlags
 	CanUseLevel = 0x200000,
 	CanUseStars = 0x400000,
 	TranslatbleXZ2D = 0x800000,
-	Sounds = 0x1000000
+	Sounds = 0x1000000,
+	CanUseTeam = 0x2000000
 }

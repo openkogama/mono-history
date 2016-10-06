@@ -7,8 +7,8 @@ public class PrefabPool : MonoBehaviour
 
 	private static PrefabPool instance;
 
-	[SerializeField]
 	[Header("World Objects")]
+	[SerializeField]
 	private ObjectPrefab mvFirePrefab;
 
 	[SerializeField]
@@ -170,9 +170,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private SpawnerObject spawnerObject;
 
+	[SerializeField]
 	[Space(20f)]
 	[Header("Game")]
-	[SerializeField]
 	private Material ghostMarkerMaterial;
 
 	[SerializeField]
@@ -256,8 +256,8 @@ public class PrefabPool : MonoBehaviour
 	private MVPickupItemBaseObject avatarGrowthPackPrefab;
 
 	[Header("Avatar item pick up")]
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
 	private GameObject avatarItemCenterGun;
 
 	[SerializeField]
@@ -308,9 +308,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject avatarItemSlapGun;
 
+	[SerializeField]
 	[Header("Avatar modifier")]
 	[Space(20f)]
-	[SerializeField]
 	private AvatarModifier burningModifier;
 
 	[SerializeField]
@@ -334,9 +334,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private AvatarModifier shieldModifier;
 
-	[Space(20f)]
-	[SerializeField]
 	[Header("Particles")]
+	[SerializeField]
+	[Space(20f)]
 	private GameObject particleBlood;
 
 	[SerializeField]
@@ -402,8 +402,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem goldExplosion;
 
-	[Header("Logic object prefabs")]
 	[Space(20f)]
+	[Header("Logic object prefabs")]
 	[SerializeField]
 	private GameObject logicInputConnectorPrefab;
 
@@ -431,9 +431,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material logicCubeConnectorBlueSelectedMaterial;
 
+	[Header("GUI")]
 	[Space(20f)]
 	[SerializeField]
-	[Header("GUI")]
 	private Texture2D avatarAccessoryMoveIcon;
 
 	[SerializeField]
@@ -442,9 +442,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material modelConstraintsMaterial;
 
+	[Header("UGUI")]
 	[Space(20f)]
 	[SerializeField]
-	[Header("UGUI")]
 	private AvatarInputControllerAndroidSettings avatarInputControllerAndroidSettings;
 
 	[SerializeField]

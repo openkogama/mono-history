@@ -92,6 +92,9 @@ public class SettingsFactory : MonoBehaviour
 	[SerializeField]
 	private StarsRequirementSettings starsRequirementSettingsPrefab;
 
+	[SerializeField]
+	private TeamRequirementSettings teamRequirementSettingsPrefab;
+
 	public void CreateSettingsDialog(int woID)
 	{
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woID);
@@ -118,6 +121,12 @@ public class SettingsFactory : MonoBehaviour
 		{
 			StarsRequirementSettings starsRequirementSettings = Object.Instantiate(starsRequirementSettingsPrefab);
 			starsRequirementSettings.Initialize(woID, gameObject);
+			break;
+		}
+		case UseRequirementType.Team:
+		{
+			TeamRequirementSettings teamRequirementSettings = Object.Instantiate(teamRequirementSettingsPrefab);
+			teamRequirementSettings.Initialize(woID, gameObject);
 			break;
 		}
 		}

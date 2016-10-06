@@ -15,8 +15,6 @@ public class MVTeleporter : MVLogicObject
 
 	private UseInteractor useInteractor;
 
-	private Vector3 gameCoinDisplayObjectOffset = new Vector3(0f, 1.5f, 0f);
-
 	private bool isDestroyed;
 
 	public override Vector3 InputConnectorOffset => new Vector3(-1.5f, 0f, 0f);
@@ -50,6 +48,7 @@ public class MVTeleporter : MVLogicObject
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
 		interactionFlags |= InteractionFlags.CanUseLevel;
 		interactionFlags |= InteractionFlags.CanUseStars;
+		interactionFlags |= InteractionFlags.CanUseTeam;
 	}
 
 	public override void Initialize()
@@ -61,15 +60,23 @@ public class MVTeleporter : MVLogicObject
 		SetupCulling(teleportObject.visualRoot).Radius = 4f;
 	}
 
+	public override void InitializeInventory()
+	{
+		base.InitializeInventory();
+		teleportObject.ParticleSystem.startSize = 0.8f;
+	}
+
 	private void SetupUseInteractor()
 	{
 		useInteractor = new UseInteractor(this, teleportObject.useInteractionRotator, reset: false, teleportObject.TriggerBoxEvents.Collider, DoTeleport);
-		GameCoinLogic useRequirement = new GameCoinLogic(teleportObject.useInteractionRotator, gameCoinDisplayObjectOffset, hasUseButtonWhenFree: false);
+		GameCoinLogic useRequirement = new GameCoinLogic(teleportObject.useInteractionRotator, hasUseButtonWhenFree: false);
 		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(teleportObject.useInteractionRotator, hasUseButtonWhenFree: false);
 		StarRequirement useRequirement3 = new StarRequirement(teleportObject.useInteractionRotator, hasUseButtonWhenFree: false);
+		TeamRequirement useRequirement4 = new TeamRequirement(teleportObject.TintObject, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement2);
 		useInteractor.AddRequirement(useRequirement);
 		useInteractor.AddRequirement(useRequirement3);
+		useInteractor.AddRequirement(useRequirement4);
 		teleportObject.TriggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
 		teleportObject.TriggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
 	}
@@ -106,8 +113,6 @@ public class MVTeleporter : MVLogicObject
 	public override void OnInputStateChanged()
 	{
 		base.OnInputStateChanged();
-		bool flag = InputLinkRefs.Count == 0 || InputState;
-		teleportObject.ParticleSystem.startColor = ((!flag) ? new Color(1f, 0.5f, 0f) : new Color(0f, 0.5f, 1f));
 	}
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -21,6 +22,9 @@ public class RequirementNotification : Notification
 
 	[SerializeField]
 	private NotificationRequirementPanel StarPanel;
+
+	[SerializeField]
+	private NotificationRequirementPanel TeamPanel;
 
 	private List<GameObject> PanelsToDestroy = new List<GameObject>();
 
@@ -49,6 +53,11 @@ public class RequirementNotification : Notification
 			int stars = (int)worldObjectClient.Data["starAmount"];
 			ShowStarRequirement(stars);
 		}
+		if (worldObjectClient.Data.ContainsKey("team"))
+		{
+			MVTeam team = (MVTeam)(int)worldObjectClient.Data["team"];
+			ShowTeamRequirement(team);
+		}
 	}
 
 	private void ShowGameCoinRequirement(int gameCoins)
@@ -70,6 +79,18 @@ public class RequirementNotification : Notification
 		ExecuteEvents.Execute(target, null, (INotificationRequirementPanel x, BaseEventData y) =>
 		{
 			x.OnToggleEnabled(stars, checkMark, enabled);
+		});
+	}
+
+	private void ShowTeamRequirement(MVTeam team)
+	{
+		GameObject target = InstantiatePanel(TeamPanel);
+		MVTeam teamFromActorNr = MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(MVGameControllerBase.WOCM.AvatarLocal.OwnerActorNr);
+		bool enabled = team == teamFromActorNr;
+		Sprite checkMark = ((!enabled) ? OffSprite : OnSprite);
+		ExecuteEvents.Execute(target, null, (INotificationRequirementPanel x, BaseEventData y) =>
+		{
+			x.OnToggleEnabled(team, checkMark, enabled);
 		});
 	}
 

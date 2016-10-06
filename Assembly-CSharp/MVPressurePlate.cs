@@ -17,8 +17,6 @@ public class MVPressurePlate : MVLogicObject
 
 	private UseInteractor useInteractor;
 
-	private Vector3 gameCoinDisplayObjectOffset = new Vector3(0f, 0.9f, 0f);
-
 	public override bool HasInputConnector => false;
 
 	public override bool HasOutputConnector => true;
@@ -41,7 +39,7 @@ public class MVPressurePlate : MVLogicObject
 		useInteractor = new UseInteractor(this, plateObject.useInteractionRotator, reset: false, plateObject.TriggerBoxEvents.Collider, DoEnter);
 		plateObject.TriggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
 		plateObject.TriggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
-		GameCoinLogic useRequirement = new GameCoinLogic(plateObject.useInteractionRotator, gameCoinDisplayObjectOffset, hasUseButtonWhenFree: false);
+		GameCoinLogic useRequirement = new GameCoinLogic(plateObject.useInteractionRotator, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement);
 		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(plateObject.useInteractionRotator, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement2);

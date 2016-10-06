@@ -2,5 +2,6 @@ public enum UseRequirementType
 {
 	Level,
 	GameCoin,
-	Star
+	Star,
+	Team
 }
