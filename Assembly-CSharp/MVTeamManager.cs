@@ -25,6 +25,10 @@ public class MVTeamManager
 		{
 			MVTeam.Yellow,
 			false
+		},
+		{
+			MVTeam.None,
+			true
 		}
 	};
 
@@ -39,7 +43,7 @@ public class MVTeamManager
 		List<TeamData> list = new List<TeamData>();
 		foreach (KeyValuePair<MVTeam, bool> teamActiveBool in teamActiveBools)
 		{
-			if (teamActiveBool.Value)
+			if (teamActiveBool.Value && teamActiveBool.Key != MVTeam.None)
 			{
 				int score = GetScore(teamActiveBool.Key, gameStatCounterType);
 				int noOfPlayersInTeam = GetNoOfPlayersInTeam(teamActiveBool.Key);
@@ -57,6 +61,10 @@ public class MVTeamManager
 			return;
 		}
 		teamActiveBools[team] = true;
+		if (TeamCount() > 2)
+		{
+			teamActiveBools[MVTeam.None] = false;
+		}
 		if (OnTeamsUpdated != null)
 		{
 			OnTeamsUpdated();
@@ -75,6 +83,10 @@ public class MVTeamManager
 			return;
 		}
 		teamActiveBools[team] = false;
+		if (TeamCount() == 1)
+		{
+			teamActiveBools[MVTeam.None] = true;
+		}
 		if (OnTeamsUpdated != null)
 		{
 			OnTeamsUpdated();
@@ -104,7 +116,7 @@ public class MVTeamManager
 		int num = 0;
 		foreach (KeyValuePair<MVTeam, bool> teamActiveBool in teamActiveBools)
 		{
-			if (teamActiveBool.Value)
+			if (teamActiveBool.Value && teamActiveBool.Key != MVTeam.None)
 			{
 				num++;
 			}

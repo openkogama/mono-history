@@ -37,6 +37,8 @@ public class PlayerLists : MonoBehaviour
 	[SerializeField]
 	private Vector2 cellSize4Teams;
 
+	private MVTeam defaultTeam = MVTeam.None;
+
 	public void Initialize(PlayerLists playerListsPrefab)
 	{
 		this.playerListsPrefab = playerListsPrefab;
@@ -81,11 +83,20 @@ public class PlayerLists : MonoBehaviour
 
 	private void CreatePlayerLists(IEnumerable<MVPlayer> players, List<MVTeam> teams)
 	{
-		if (teams.Count > 2)
+		bool flag = teams.Contains(MVTeam.None);
+		int num = teams.Count;
+		if (flag && num > 1)
+		{
+			teams.Remove(MVTeam.None);
+			flag = false;
+			num--;
+		}
+		defaultTeam = teams[0];
+		if (num > 2)
 		{
 			gridGroup.cellSize = cellSize4Teams;
 		}
-		else if (teams.Count > 1)
+		else if (num > 1)
 		{
 			gridGroup.cellSize = cellSize2Teams;
 		}
@@ -94,22 +105,18 @@ public class PlayerLists : MonoBehaviour
 			gridGroup.cellSize = cellSize1Team;
 		}
 		Dictionary<MVTeam, PlayerList> dictionary = new Dictionary<MVTeam, PlayerList>();
-		foreach (MVTeam team in teams)
+		if (flag)
 		{
-			PlayerList playerList = UnityEngine.Object.Instantiate(playerListPrefab);
-			playerList.transform.SetParent(gridGroup.transform, worldPositionStays: false);
-			playerList.gameObject.SetActive(value: true);
-			if (teams.Count == 1)
-			{
-				playerList.Initialize(MVTeam.None, 0);
-			}
-			else
-			{
-				playerList.Initialize(team, MVGameControllerBase.Game.TeamManager.GetScore(team, GameStatCounterType.Kill));
-			}
-			dictionary.Add(team, playerList);
+			dictionary.Add(MVTeam.None, CreatePlayerList(MVTeam.None, 0));
 		}
-		if (teams.Count <= 0)
+		else
+		{
+			foreach (MVTeam team2 in teams)
+			{
+				dictionary.Add(team2, CreatePlayerList(team2, MVGameControllerBase.Game.TeamManager.GetScore(team2, GameStatCounterType.Kill)));
+			}
+		}
+		if (num <= 0)
 		{
 			return;
 		}
@@ -118,21 +125,40 @@ public class PlayerLists : MonoBehaviour
 		{
 			foreach (MVPlayer item2 in item.Value)
 			{
-				dictionary[item2.Team].Add(item2);
+				MVTeam team = item2.Team;
+				if (team == MVTeam.None)
+				{
+					team = defaultTeam;
+				}
+				dictionary[team].Add(item2);
 			}
 		}
+	}
+
+	private PlayerList CreatePlayerList(MVTeam team, int score)
+	{
+		PlayerList playerList = UnityEngine.Object.Instantiate(playerListPrefab);
+		playerList.transform.SetParent(gridGroup.transform, worldPositionStays: false);
+		playerList.gameObject.SetActive(value: true);
+		playerList.Initialize(team, score);
+		return playerList;
 	}
 
 	private Dictionary<MVTeam, List<MVPlayer>> GetSortedTeamLists(IEnumerable<MVPlayer> players, List<MVTeam> teams)
 	{
 		Dictionary<MVTeam, List<MVPlayer>> dictionary = new Dictionary<MVTeam, List<MVPlayer>>();
-		foreach (MVTeam team in teams)
+		foreach (MVTeam team2 in teams)
 		{
-			dictionary.Add(team, new List<MVPlayer>());
+			dictionary.Add(team2, new List<MVPlayer>());
 		}
 		foreach (MVPlayer player in players)
 		{
-			dictionary[player.Team].Add(player);
+			MVTeam team = player.Team;
+			if (team == MVTeam.None)
+			{
+				team = defaultTeam;
+			}
+			dictionary[team].Add(player);
 		}
 		foreach (KeyValuePair<MVTeam, List<MVPlayer>> item in dictionary)
 		{

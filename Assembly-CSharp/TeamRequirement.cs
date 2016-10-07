@@ -66,7 +66,7 @@ public class TeamRequirement : UseRequirement
 			Dictionary<object, object> dictionary = new Dictionary<object, object>();
 			dictionary.Add("team", 0);
 			MVGameControllerBase.OperationRequests.RemoveWorldObjectDataPartial(ownerID, dictionary);
-			tintObject.Tint(1f, 1f, 1f);
+			tintObject.Tint(1f, 1f, 1f, 0f);
 		}
 		else if (tintObject != null)
 		{
