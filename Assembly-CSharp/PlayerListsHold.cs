@@ -81,11 +81,17 @@ public class PlayerListsHold : MonoBehaviour
 
 	private void CreatePlayerLists(IEnumerable<MVPlayer> players, List<MVTeam> teams)
 	{
-		if (teams.Count > 2)
+		int count = teams.Count;
+		bool flag = false;
+		if (count == 1)
+		{
+			flag = true;
+		}
+		if (count > 2)
 		{
 			gridGroup.cellSize = cellSize4Teams;
 		}
-		else if (teams.Count > 1)
+		else if (count > 1)
 		{
 			gridGroup.cellSize = cellSize2Teams;
 		}
@@ -94,41 +100,63 @@ public class PlayerListsHold : MonoBehaviour
 			gridGroup.cellSize = cellSize1Team;
 		}
 		Dictionary<MVTeam, PlayerListHold> dictionary = new Dictionary<MVTeam, PlayerListHold>();
-		foreach (MVTeam team in teams)
+		if (flag)
 		{
-			PlayerListHold playerListHold = UnityEngine.Object.Instantiate(playerListPrefab);
-			playerListHold.transform.SetParent(transform, worldPositionStays: false);
-			playerListHold.gameObject.SetActive(value: true);
-			if (teams.Count == 1)
+			dictionary.Add(MVTeam.None, CreatePlayerList(MVTeam.None, 0));
+		}
+		else
+		{
+			foreach (MVTeam team in teams)
 			{
-				playerListHold.Initialize(MVTeam.None, 0);
+				dictionary.Add(team, CreatePlayerList(team, MVGameControllerBase.Game.TeamManager.GetScore(team, GameStatCounterType.Kill)));
 			}
-			else
-			{
-				playerListHold.Initialize(team, MVGameControllerBase.Game.TeamManager.GetScore(team, GameStatCounterType.Kill));
-			}
-			dictionary.Add(team, playerListHold);
+		}
+		if (count <= 0)
+		{
+			return;
 		}
 		Dictionary<MVTeam, List<MVPlayer>> sortedTeamLists = GetSortedTeamLists(players, teams);
 		foreach (KeyValuePair<MVTeam, List<MVPlayer>> item in sortedTeamLists)
 		{
 			foreach (MVPlayer item2 in item.Value)
 			{
-				dictionary[item2.Team].Add(item2);
+				MVTeam mVTeam = item2.Team;
+				if (flag)
+				{
+					mVTeam = MVTeam.None;
+				}
+				else if (mVTeam == MVTeam.None && !flag)
+				{
+					continue;
+				}
+				dictionary[mVTeam].Add(item2);
 			}
 		}
+	}
+
+	private PlayerListHold CreatePlayerList(MVTeam team, int score)
+	{
+		PlayerListHold playerListHold = UnityEngine.Object.Instantiate(playerListPrefab);
+		playerListHold.transform.SetParent(gridGroup.transform, worldPositionStays: false);
+		playerListHold.gameObject.SetActive(value: true);
+		playerListHold.Initialize(team, score);
+		return playerListHold;
 	}
 
 	private Dictionary<MVTeam, List<MVPlayer>> GetSortedTeamLists(IEnumerable<MVPlayer> players, List<MVTeam> teams)
 	{
 		Dictionary<MVTeam, List<MVPlayer>> dictionary = new Dictionary<MVTeam, List<MVPlayer>>();
-		foreach (MVTeam team in teams)
+		foreach (MVTeam team2 in teams)
 		{
-			dictionary.Add(team, new List<MVPlayer>());
+			dictionary.Add(team2, new List<MVPlayer>());
 		}
 		foreach (MVPlayer player in players)
 		{
-			dictionary[player.Team].Add(player);
+			MVTeam team = player.Team;
+			if (team != MVTeam.None)
+			{
+				dictionary[team].Add(player);
+			}
 		}
 		foreach (KeyValuePair<MVTeam, List<MVPlayer>> item in dictionary)
 		{

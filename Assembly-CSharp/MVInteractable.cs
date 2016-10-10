@@ -28,7 +28,7 @@ public abstract class MVInteractable : MVInteractableBase
 	protected bool IgnoreDamage(MVPlayer damageDealer)
 	{
 		MVTeam teamFromActorNr = MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(worldObjectParent.OwnerActorNr);
-		if ((MVGameControllerBase.Game.TeamManager.TeamCount() > 1 && damageDealer != null && teamFromActorNr == damageDealer.Team && MVGameControllerBase.Game.LocalPlayer.ActorNr != damageDealer.ActorNr) || MVGameControllerBase.Game.LocalPlayer.Avatar.AvatarRuntimeState != AvatarRuntimeState.Playing)
+		if ((MVGameControllerBase.Game.TeamManager.TeamCount() > 1 && damageDealer != null && teamFromActorNr == damageDealer.Team && teamFromActorNr != MVTeam.None && MVGameControllerBase.Game.LocalPlayer.ActorNr != damageDealer.ActorNr) || MVGameControllerBase.Game.LocalPlayer.Avatar.AvatarRuntimeState != AvatarRuntimeState.Playing)
 		{
 			return true;
 		}

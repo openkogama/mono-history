@@ -53,11 +53,7 @@ public class MVPlayer
 		}
 		set
 		{
-			team = MVTeam.None;
-			if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
-			{
-				team = value;
-			}
+			team = value;
 		}
 	}
 

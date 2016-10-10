@@ -30,7 +30,7 @@ public class TeamRequirement : UseRequirement
 
 	public override UseGUIResult GetCanUseGUIResult()
 	{
-		MVTeam teamFromActorNr = MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(MVGameControllerBase.WOCM.AvatarLocal.OwnerActorNr);
+		MVTeam mVTeam = MVGameControllerBase.Game.LocalPlayer.Team;
 		if (team == MVTeam.None)
 		{
 			if (hasUseButtonWhenFree)
@@ -39,7 +39,7 @@ public class TeamRequirement : UseRequirement
 			}
 			return UseGUIResult.NoUseButton;
 		}
-		if (teamFromActorNr == team)
+		if (mVTeam == team && MVGameControllerBase.Game.TeamManager.TeamCount() != 1)
 		{
 			return UseGUIResult.CanAfford;
 		}
@@ -102,8 +102,8 @@ public class TeamRequirement : UseRequirement
 			return ShowUseOption.Normal;
 		}
 		ShowUseOption showUseOption = ShowUseOption.UsingTeam;
-		MVTeam teamFromActorNr = MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(MVGameControllerBase.WOCM.AvatarLocal.OwnerActorNr);
-		if (teamFromActorNr == team)
+		MVTeam mVTeam = MVGameControllerBase.Game.LocalPlayer.Team;
+		if (mVTeam == team && MVGameControllerBase.Game.TeamManager.TeamCount() != 1)
 		{
 			return showUseOption | ShowUseOption.TeamAllowed;
 		}

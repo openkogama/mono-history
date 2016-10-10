@@ -85,8 +85,8 @@ public class RequirementNotification : Notification
 	private void ShowTeamRequirement(MVTeam team)
 	{
 		GameObject target = InstantiatePanel(TeamPanel);
-		MVTeam teamFromActorNr = MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(MVGameControllerBase.WOCM.AvatarLocal.OwnerActorNr);
-		bool enabled = team == teamFromActorNr;
+		MVTeam team2 = MVGameControllerBase.Game.LocalPlayer.Team;
+		bool enabled = team == team2 && MVGameControllerBase.Game.TeamManager.TeamCount() != 1;
 		Sprite checkMark = ((!enabled) ? OffSprite : OnSprite);
 		ExecuteEvents.Execute(target, null, (INotificationRequirementPanel x, BaseEventData y) =>
 		{

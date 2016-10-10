@@ -1350,9 +1350,12 @@ public class MVNetworkGame : IPhotonPeerListener
 
 		public void SetTeam(MVTeam team)
 		{
-			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
-			dictionary.Add(89, (int)team);
-			peer.OpCustom(34, dictionary, sendReliable: true);
+			if (MVGameControllerBase.Game.TeamManager.IsTeamActive(team))
+			{
+				Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
+				dictionary.Add(89, (int)team);
+				peer.OpCustom(34, dictionary, sendReliable: true);
+			}
 		}
 
 		public void AttachWorldObjectToSeat(int seatOwnerWoID, int worldObjectID, VehicleSeatBase seatBase)
@@ -3207,7 +3210,6 @@ public class MVNetworkGame : IPhotonPeerListener
 	public void OnRemoveTeamEvent(MVTeam team, Dictionary<object, object> actorsWithNewTeam)
 	{
 		Debug.Log("Team removed");
-		TeamManager.RemoveTeam(team);
 		foreach (KeyValuePair<object, object> item in actorsWithNewTeam)
 		{
 			int num = (int)item.Key;
@@ -3216,6 +3218,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			Debug.Log(mVTeam);
 			players[num].Team = mVTeam;
 		}
+		TeamManager.RemoveTeam(team);
 	}
 
 	public void OnSetWorldObjectsToPurchasedEvent(int purchaseProfileId, int itemId)

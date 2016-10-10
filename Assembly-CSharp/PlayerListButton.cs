@@ -78,7 +78,7 @@ public class PlayerListButton : MonoBehaviour
 
 	private void UpdateTeamColor()
 	{
-		if (MVGameControllerBase.Game.TeamManager.TeamCount() == 1)
+		if (MVGameControllerBase.Game.TeamManager.TeamCount() <= 1)
 		{
 			Styles.SetStyle(button, ButtonStyle.RegularButton, MVTeam.None);
 			return;

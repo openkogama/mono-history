@@ -37,8 +37,6 @@ public class PlayerLists : MonoBehaviour
 	[SerializeField]
 	private Vector2 cellSize4Teams;
 
-	private MVTeam defaultTeam = MVTeam.None;
-
 	public void Initialize(PlayerLists playerListsPrefab)
 	{
 		this.playerListsPrefab = playerListsPrefab;
@@ -83,20 +81,17 @@ public class PlayerLists : MonoBehaviour
 
 	private void CreatePlayerLists(IEnumerable<MVPlayer> players, List<MVTeam> teams)
 	{
-		bool flag = teams.Contains(MVTeam.None);
-		int num = teams.Count;
-		if (flag && num > 1)
+		int count = teams.Count;
+		bool flag = false;
+		if (count == 1)
 		{
-			teams.Remove(MVTeam.None);
-			flag = false;
-			num--;
+			flag = true;
 		}
-		defaultTeam = teams[0];
-		if (num > 2)
+		if (count > 2)
 		{
 			gridGroup.cellSize = cellSize4Teams;
 		}
-		else if (num > 1)
+		else if (count > 1)
 		{
 			gridGroup.cellSize = cellSize2Teams;
 		}
@@ -111,12 +106,12 @@ public class PlayerLists : MonoBehaviour
 		}
 		else
 		{
-			foreach (MVTeam team2 in teams)
+			foreach (MVTeam team in teams)
 			{
-				dictionary.Add(team2, CreatePlayerList(team2, MVGameControllerBase.Game.TeamManager.GetScore(team2, GameStatCounterType.Kill)));
+				dictionary.Add(team, CreatePlayerList(team, MVGameControllerBase.Game.TeamManager.GetScore(team, GameStatCounterType.Kill)));
 			}
 		}
-		if (num <= 0)
+		if (count <= 0)
 		{
 			return;
 		}
@@ -125,12 +120,16 @@ public class PlayerLists : MonoBehaviour
 		{
 			foreach (MVPlayer item2 in item.Value)
 			{
-				MVTeam team = item2.Team;
-				if (team == MVTeam.None)
+				MVTeam mVTeam = item2.Team;
+				if (flag)
 				{
-					team = defaultTeam;
+					mVTeam = MVTeam.None;
 				}
-				dictionary[team].Add(item2);
+				else if (mVTeam == MVTeam.None && !flag)
+				{
+					continue;
+				}
+				dictionary[mVTeam].Add(item2);
 			}
 		}
 	}
@@ -154,11 +153,10 @@ public class PlayerLists : MonoBehaviour
 		foreach (MVPlayer player in players)
 		{
 			MVTeam team = player.Team;
-			if (team == MVTeam.None)
+			if (team != MVTeam.None)
 			{
-				team = defaultTeam;
+				dictionary[team].Add(player);
 			}
-			dictionary[team].Add(player);
 		}
 		foreach (KeyValuePair<MVTeam, List<MVPlayer>> item in dictionary)
 		{
