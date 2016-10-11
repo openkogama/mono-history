@@ -171,8 +171,8 @@ public class PrefabPool : MonoBehaviour
 	private SpawnerObject spawnerObject;
 
 	[SerializeField]
-	[Space(20f)]
 	[Header("Game")]
+	[Space(20f)]
 	private Material ghostMarkerMaterial;
 
 	[SerializeField]
@@ -197,8 +197,8 @@ public class PrefabPool : MonoBehaviour
 	private CubeModelChunkPrefab cubeModelChunkPrefab;
 
 	[SerializeField]
-	[Space(20f)]
 	[Header("Pick up")]
+	[Space(20f)]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
 	[SerializeField]
@@ -255,9 +255,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private MVPickupItemBaseObject avatarGrowthPackPrefab;
 
+	[Space(20f)]
 	[Header("Avatar item pick up")]
 	[SerializeField]
-	[Space(20f)]
 	private GameObject avatarItemCenterGun;
 
 	[SerializeField]
@@ -309,8 +309,8 @@ public class PrefabPool : MonoBehaviour
 	private GameObject avatarItemSlapGun;
 
 	[SerializeField]
-	[Header("Avatar modifier")]
 	[Space(20f)]
+	[Header("Avatar modifier")]
 	private AvatarModifier burningModifier;
 
 	[SerializeField]
@@ -334,8 +334,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private AvatarModifier shieldModifier;
 
-	[Header("Particles")]
 	[SerializeField]
+	[Header("Particles")]
 	[Space(20f)]
 	private GameObject particleBlood;
 
@@ -403,8 +403,8 @@ public class PrefabPool : MonoBehaviour
 	private ParticleSystem goldExplosion;
 
 	[Space(20f)]
-	[Header("Logic object prefabs")]
 	[SerializeField]
+	[Header("Logic object prefabs")]
 	private GameObject logicInputConnectorPrefab;
 
 	[SerializeField]

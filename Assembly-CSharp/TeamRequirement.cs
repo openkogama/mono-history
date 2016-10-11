@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class TeamRequirement : UseRequirement
 {
-	private const float tintStrength = 0.3f;
-
 	private TintObject tintObject;
 
 	private MVTeam team = MVTeam.None;
@@ -56,42 +54,23 @@ public class TeamRequirement : UseRequirement
 
 	public override void OnDataUpdate(Dictionary<object, object> data, int ownerID)
 	{
-		if (!data.ContainsKey("team"))
+		if (data.ContainsKey("team"))
 		{
-			return;
-		}
-		team = (MVTeam)(int)data["team"];
-		if (team == MVTeam.None)
-		{
-			Dictionary<object, object> dictionary = new Dictionary<object, object>();
-			dictionary.Add("team", 0);
-			MVGameControllerBase.OperationRequests.RemoveWorldObjectDataPartial(ownerID, dictionary);
-			tintObject.Tint(1f, 1f, 1f, 0f);
-		}
-		else if (tintObject != null)
-		{
-			switch (team)
+			team = (MVTeam)(int)data["team"];
+			if (team == MVTeam.None)
 			{
-			case MVTeam.Blue:
-				tintObject.Tint(0.3f, 0.3f, 1f, 0f);
-				break;
-			case MVTeam.Red:
-				tintObject.Tint(1f, 0.3f, 0.3f, 0f);
-				break;
-			case MVTeam.Green:
-				tintObject.Tint(0.3f, 1f, 0.3f, 0f);
-				break;
-			case MVTeam.Yellow:
-				tintObject.Tint(1f, 1f, 0.3f, 0f);
-				break;
-			default:
-				tintObject.Tint(1f, 1f, 1f, 0f);
-				break;
+				Dictionary<object, object> dictionary = new Dictionary<object, object>();
+				dictionary.Add("team", 0);
+				MVGameControllerBase.OperationRequests.RemoveWorldObjectDataPartial(ownerID, dictionary);
 			}
-		}
-		else
-		{
-			Debug.LogError("Unable to tint null.");
+			if (tintObject != null)
+			{
+				tintObject.TeamTint(team);
+			}
+			else
+			{
+				Debug.LogError("Unable to tint null.");
+			}
 		}
 	}
 
