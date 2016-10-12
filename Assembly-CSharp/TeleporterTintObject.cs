@@ -13,9 +13,6 @@ public class TeleporterTintObject : TintObject
 	private ParticleSystem particleCircleToTint;
 
 	[SerializeField]
-	private ParticleSystem particleEffectToTint;
-
-	[SerializeField]
 	private Light lightToTint;
 
 	private void Awake()
@@ -35,19 +32,15 @@ public class TeleporterTintObject : TintObject
 		{
 		case MVTeam.Blue:
 			Tint(0.075f, 0.372f, 0.859f, 0f);
-			particleEffectToTint.startColor = new Color(0.35f, 0.5f, 0.73f, 1f);
 			break;
 		case MVTeam.Red:
 			Tint(0.855f, 0f, 0f, 0f);
-			particleEffectToTint.startColor = new Color(0.72f, 0.31f, 0.05f, 1f);
 			break;
 		case MVTeam.Green:
 			Tint(0f, 0.655f, 0f, 0f);
-			particleEffectToTint.startColor = new Color(0.31f, 0.8f, 0.31f, 1f);
 			break;
 		case MVTeam.Yellow:
 			Tint(0.7f, 0.7f, 0f, 0f);
-			particleEffectToTint.startColor = new Color(0.9f, 0.9f, 0.18f, 1f);
 			break;
 		default:
 			Tint(0.82f, 0.82f, 1f, 0f);
