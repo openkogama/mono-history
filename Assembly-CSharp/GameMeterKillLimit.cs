@@ -1,6 +1,6 @@
 using System;
 
-public class GameMeterAndroidKillLimit : GameMeterAndroidKillBase
+public class GameMeterKillLimit : GameMeterKillBase
 {
 	private KillLimitClient killClient;
 
@@ -46,14 +46,18 @@ public class GameMeterAndroidKillLimit : GameMeterAndroidKillBase
 
 	public override void UpdateValue()
 	{
-		if (killClient != null)
+		if (killClient == null)
 		{
-			SetCount(GameStatCounterType.Kill, killClient.Limit);
-			int gameStat = MVGameControllerBase.Game.LocalPlayer.GetGameStat(GameStatCounterType.Kill);
-			if (prevValue != gameStat && gameStat != 0)
+			return;
+		}
+		SetCount(GameStatCounterType.Kill, killClient.Limit);
+		int gameStat = MVGameControllerBase.Game.LocalPlayer.GetGameStat(GameStatCounterType.Kill);
+		if (prevValue != gameStat && gameStat != 0)
+		{
+			prevValue = gameStat;
+			for (int i = 0; i < gameMeterVisualEffects.Count; i++)
 			{
-				prevValue = gameStat;
-				NotificationController.PushNotification(string.Format(TM._("Killed enemy! {0}/{1}"), gameStat, killClient.Limit));
+				gameMeterVisualEffects[i].ExecuteEffect();
 			}
 		}
 	}

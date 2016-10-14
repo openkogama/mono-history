@@ -5,14 +5,14 @@ using UnityEngine;
 public class GameMeterHandler : MonoBehaviour
 {
 	[SerializeField]
-	private List<GameMeterAndroidBase> gameMeters;
+	private List<GameMeterBase> gameMeters;
 
 	private void OnEnable()
 	{
 		UpdateValue();
 	}
 
-	private void Start()
+	private void Awake()
 	{
 		for (int i = 0; i < gameMeters.Count; i++)
 		{

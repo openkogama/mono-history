@@ -12,9 +12,6 @@ public class DesktopLobbyStateController : MonoBehaviour
 	private RectTransform rewardTransform;
 
 	[SerializeField]
-	private float rewardButtonLerpSpeed = 5f;
-
-	[SerializeField]
 	private GameObject respawnButton;
 
 	[SerializeField]
@@ -39,19 +36,6 @@ public class DesktopLobbyStateController : MonoBehaviour
 	private RewardGenerator rewardGenerator;
 
 	private readonly AccessoryMover accessoryMover = new AccessoryMover();
-
-	private Vector3 rewardButtonTarget = Vector3.zero;
-
-	private Vector3 rewardHiddenSize = Vector3.zero;
-
-	private Vector3 rewardShownSize = Vector3.one;
-
-	private void Awake()
-	{
-		rewardButtonTarget = rewardShownSize;
-		rewardTransform.localScale = rewardShownSize;
-		playReward.transform.localScale = rewardHiddenSize;
-	}
 
 	private void Start()
 	{
@@ -79,13 +63,7 @@ public class DesktopLobbyStateController : MonoBehaviour
 
 	private void RewardChanged()
 	{
-		bool flag = RewardManager.CountDownTimeInMS > 0 || RewardManager.NumberOfPendingRewards > 0;
 		rewardTransform.gameObject.SetActive(value: true);
-		rewardButtonTarget = rewardHiddenSize;
-		if (flag)
-		{
-			rewardButtonTarget = rewardShownSize;
-		}
 	}
 
 	private void Update()
@@ -97,14 +75,6 @@ public class DesktopLobbyStateController : MonoBehaviour
 		else if (MVGameControllerBase.WOCM.AvatarLocal.AvatarRuntimeState == AvatarRuntimeState.Playing && !respawnButton.gameObject.activeSelf)
 		{
 			respawnButton.gameObject.SetActive(value: true);
-		}
-		if (rewardTransform.localScale != rewardButtonTarget)
-		{
-			rewardTransform.localScale = Vector3.Lerp(rewardTransform.localScale, rewardButtonTarget, rewardButtonLerpSpeed * Time.deltaTime);
-		}
-		if (playReward.rewardAvailable)
-		{
-			playReward.transform.localScale = Vector3.Lerp(playReward.transform.localScale, Vector3.one, rewardButtonLerpSpeed * Time.deltaTime);
 		}
 		MVInputWrapper.IsInGameInputSuppressed = true;
 		accessoryMover.MoveAccessory();

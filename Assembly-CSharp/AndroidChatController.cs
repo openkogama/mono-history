@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
@@ -20,6 +21,8 @@ public class AndroidChatController : MonoBehaviour
 	private string chatMessageFormat = "<color=#{0}>[{1}]: </color><color=#{2}>{3}</color>";
 
 	private Queue<Text> lines = new Queue<Text>();
+
+	private bool promptRegisterForChat = true;
 
 	[SerializeField]
 	private ChatConsoleModes chatConsoleModes;
@@ -124,6 +127,14 @@ public class AndroidChatController : MonoBehaviour
 			break;
 		case ChatConsoleMode.ChatPlayMode:
 			enterChatButton.SetScrollingEnabled(scrollEnabled: true);
+			if (promptRegisterForChat && MVGameControllerBase.IsTouristSession)
+			{
+				promptRegisterForChat = false;
+				ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+				{
+					x.Create(TM._("Register or log in to chat!"), string.Empty);
+				});
+			}
 			inputAreaRoot.gameObject.SetActive(!MVGameControllerBase.IsTouristSession);
 			minimizeChat.gameObject.SetActive(value: true);
 			expandChat.gameObject.SetActive(value: false);

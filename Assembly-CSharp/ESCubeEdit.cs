@@ -113,6 +113,10 @@ internal class ESCubeEdit : ESStateBase
 			{
 				targetCubeModel.AddPreviewBox();
 			}
+			if (!e.ParentGroupIsRoot)
+			{
+				SharedCubeFunctions.SetLayerRecursively(MVGameControllerBase.WOCM.GetWorldObjectClient(e.ParentGroupID).Transform, select: false);
+			}
 			SharedCubeFunctions.SetLayerRecursively(targetCubeModel.Transform, select: false);
 			e.CameraController.BlueModeEnabled = false;
 		}

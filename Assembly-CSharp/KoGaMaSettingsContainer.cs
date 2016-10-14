@@ -49,6 +49,8 @@ public class KoGaMaSettingsContainer : ScriptableObject
 
 	public string VersionString => VersionMajor + "." + VersionMinor + "." + VersionMicro + "." + versionBuild;
 
+	public string VersionStringNoBuild => VersionMajor + "." + VersionMinor + "." + VersionMicro;
+
 	public string BranchName => branchName;
 
 	public string LatestCommitMessage => latestCommitMessage;

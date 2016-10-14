@@ -8,23 +8,16 @@ public class FriendRequestNotification : Notification
 	[SerializeField]
 	private Text label;
 
-	[SerializeField]
-	private Button acceptFriendship;
-
 	private Friend requester;
 
 	protected override NotificationLifetime Lifetime => NotificationLifetime.High;
 
-	private void Awake()
-	{
-		acceptFriendship.onClick.AddListener(AcceptFriendship);
-	}
-
 	public override void Initialize(Dictionary<object, object> data)
 	{
 		base.Initialize(data);
-		string text = (string)data[(byte)1];
-		label.text = text + TM._(" sent you a friend request!");
+		string arg = (string)data[(byte)1];
+		label.text = string.Format(TM._(" Accept {0} as friend!"), arg);
+		label.text += " <R>";
 	}
 
 	public void RegisterFriendshipRequest(Friend friend)

@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GameMeterAndroidRoundTime : GameMeterAndroidBase
+public class GameMeterRoundTime : GameMeterBase
 {
 	[SerializeField]
 	private Image roundTimeBar;

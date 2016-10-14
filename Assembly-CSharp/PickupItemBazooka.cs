@@ -88,7 +88,7 @@ public class PickupItemBazooka : PickupItemWithDelay
 				if (interactionDataHandlerBase != null)
 				{
 					float time = Vector3.Distance(voxelHit.point, collider.transform.position) / blastRadius;
-					float damage = damageFalloff.Evaluate(time) * baseDamage;
+					float damage = Mathf.Clamp(damageFalloff.Evaluate(time) * baseDamage, 0f, float.MaxValue);
 					Vector3 normalized = (collider.transform.position - voxelHit.point).normalized;
 					normalized.y += 0.1f;
 					normalized.Normalize();

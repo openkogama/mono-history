@@ -1,12 +1,9 @@
-using UnityEngine;
-
 internal class PaintCubes : CubeModelTool
 {
 	private PaintCursor paintCursor;
 
 	public override void Enter(CubeModelingStateMachine e)
 	{
-		Debug.Log(GetType().ToString());
 		paintCursor = new PaintCursor(e.CubeCorners);
 		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.PaintCubes);
 		waitForMouseUp = MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect);

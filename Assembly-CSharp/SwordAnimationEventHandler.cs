@@ -13,8 +13,11 @@ public class SwordAnimationEventHandler : MonoBehaviour
 	private void SwordAnimHit()
 	{
 		swordItem.StopOverlapCheck();
-		arcInstance.emit = false;
-		arcInstance.transform.parent = null;
+		if ((bool)arcInstance)
+		{
+			arcInstance.emit = false;
+			arcInstance.transform.parent = null;
+		}
 	}
 
 	private void SwordAnimStart()

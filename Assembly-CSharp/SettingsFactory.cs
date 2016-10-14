@@ -145,13 +145,13 @@ public class SettingsFactory : MonoBehaviour
 		case WorldObjectType.KillLimit:
 		{
 			KillLimitSettings killLimitSettings2 = Object.Instantiate(killLimitSettingsPrefab);
-			killLimitSettings2.Initialize(woID, gameObject);
+			killLimitSettings2.Initialize(woID, gameObject, TM._("Kill Limit"));
 			break;
 		}
 		case WorldObjectType.OculusKillLimit:
 		{
 			KillLimitSettings killLimitSettings = Object.Instantiate(killLimitSettingsPrefab);
-			killLimitSettings.Initialize(woID, gameObject);
+			killLimitSettings.Initialize(woID, gameObject, TM._("Oculus Kill Limit"));
 			break;
 		}
 		case WorldObjectType.PickupCubeGun:

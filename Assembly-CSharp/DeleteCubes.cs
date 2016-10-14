@@ -1,5 +1,3 @@
-using UnityEngine;
-
 internal class DeleteCubes : CubeModelTool
 {
 	private CubePickingInfo cubeNotToBeDeleted;
@@ -8,7 +6,6 @@ internal class DeleteCubes : CubeModelTool
 
 	public override void Enter(CubeModelingStateMachine e)
 	{
-		Debug.Log(GetType().ToString());
 		deleteCursor = new DeleteCursor(e.CubeCorners);
 		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.DeletingCubes);
 		waitForMouseUp = MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect);
@@ -47,7 +44,6 @@ internal class DeleteCubes : CubeModelTool
 	public override void Exit(CubeModelingStateMachine e)
 	{
 		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.Idle);
-		Debug.Log("Exit");
 		HideCursor();
 	}
 

@@ -233,6 +233,15 @@ public class WinningConditionDebriefingAndroid : MonoBehaviour, IDebriefing
 		}
 	}
 
+	private void Update()
+	{
+		if (debriefing != null)
+		{
+			MVInputWrapper.IsShortcutKeysSuppressed = true;
+			MVInputWrapper.IsInGameInputSuppressed = true;
+		}
+	}
+
 	private IEnumerator WaitForFadeOut()
 	{
 		while (MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState != MVGameStateType.PrepareRound)

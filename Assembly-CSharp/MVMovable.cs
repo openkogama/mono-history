@@ -119,6 +119,10 @@ public class MVMovable : MVBlueprintBase
 		movableVisualization.ChangeLOD(newVisible);
 	}
 
+	public override void OnInputStateChanged()
+	{
+	}
+
 	public override void InitializeInventory()
 	{
 		base.InitializeInventory();

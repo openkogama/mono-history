@@ -1,7 +1,12 @@
+using System.Collections.Generic;
+using GameMeterVisuals;
 using UnityEngine;
 
-public abstract class GameMeterAndroidBase : MonoBehaviour
+public abstract class GameMeterBase : MonoBehaviour
 {
+	[SerializeField]
+	protected List<GameMeterVisualEffect> gameMeterVisualEffects = new List<GameMeterVisualEffect>();
+
 	protected float inActiveAlpha;
 
 	protected bool meterActive = true;

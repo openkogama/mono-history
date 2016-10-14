@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GameMeterAndroidGameCoin : GameMeterAndroidBase
+public class GameMeterGameCoin : GameMeterBase
 {
 	[SerializeField]
 	private Image gameCoinBar;

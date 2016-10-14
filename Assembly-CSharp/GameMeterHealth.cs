@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GameMeterAndroidHealth : GameMeterAndroidBase
+public class GameMeterHealth : GameMeterBase
 {
 	[SerializeField]
 	private Image HealthMeter;
@@ -25,6 +25,7 @@ public class GameMeterAndroidHealth : GameMeterAndroidBase
 			health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnProgressUpdate));
 			enabled = true;
 			initialized = true;
+			OnProgressUpdate(avatarLocal.Health.Value);
 		}
 	}
 
@@ -35,6 +36,10 @@ public class GameMeterAndroidHealth : GameMeterAndroidBase
 	private void OnProgressUpdate(object newValue)
 	{
 		progressBar.Progress = (float)newValue / 100f;
+		for (int i = 0; i < gameMeterVisualEffects.Count; i++)
+		{
+			gameMeterVisualEffects[i].ExecuteEffect();
+		}
 	}
 
 	public override void SetShowGameMeter(bool show)

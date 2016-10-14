@@ -1,6 +1,7 @@
+using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class TouristAdPopup : TouristPromotionDesktop
+public class TouristAdPopup : MonoBehaviour
 {
 	public void OnViewAdClicked()
 	{

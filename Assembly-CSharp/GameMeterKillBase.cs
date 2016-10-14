@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GameMeterAndroidKillBase : GameMeterAndroidBase
+public class GameMeterKillBase : GameMeterBase
 {
 	[SerializeField]
 	protected Image killsBar;

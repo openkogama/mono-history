@@ -2,7 +2,9 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class SlideOnClick : MonoBehaviour, IPointerEnterHandler, IEventSystemHandler, IPointerExitHandler
+namespace GameMeterVisuals;
+
+public class SlideOnClick : GameMeterVisualEffect, IEventSystemHandler, IPointerEnterHandler, IPointerExitHandler
 {
 	[SerializeField]
 	private Vector3 targetPos;
@@ -25,6 +27,15 @@ public class SlideOnClick : MonoBehaviour, IPointerEnterHandler, IEventSystemHan
 	private void Start()
 	{
 		startPos = rectTransform.anchoredPosition;
+	}
+
+	public override void ExecuteEffect()
+	{
+		if (gameObject.activeInHierarchy && readyForSlide)
+		{
+			readyForSlide = false;
+			StartCoroutine(SlideTowardsPosition());
+		}
 	}
 
 	private IEnumerator SlideTowardsPosition()

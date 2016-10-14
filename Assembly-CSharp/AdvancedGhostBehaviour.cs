@@ -567,8 +567,9 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 	private void SetVisible()
 	{
-		GhostVisualization.gameObject.SetActive(allVisible && wantsVisible);
-		gameObject.SetActive(behaviourOnlyEnabled && wantsVisible);
+		bool flag = isDead();
+		GhostVisualization.gameObject.SetActive(allVisible && wantsVisible && !flag);
+		gameObject.SetActive(behaviourOnlyEnabled && wantsVisible && !flag);
 	}
 
 	public void SetGameMode(bool isPlayMode)
@@ -578,12 +579,12 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 			SetInitialState();
 			perception.Reset();
 			wantsVisible = true;
+			SetVisible();
 		}
 		else
 		{
 			wantsVisible = false;
 		}
-		SetVisible();
 	}
 
 	public void Reset()
@@ -591,6 +592,7 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 		respawn = true;
 		clearEffectsBecauseOfReset = true;
 		SetCurrentState(typeof(Idle));
+		SetVisible();
 	}
 
 	public void ReceivedDamage()

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class KillLimitSettings : MonoBehaviour, IEventSystemHandler, IHandleSettingChanged
 {
@@ -14,9 +15,13 @@ public class KillLimitSettings : MonoBehaviour, IEventSystemHandler, IHandleSett
 	[SerializeField]
 	private SettingsInputFieldSlider killLimitInputField;
 
-	public void Initialize(int woID, GameObject root)
+	[SerializeField]
+	private Text killLimitHeader;
+
+	public void Initialize(int woID, GameObject root, string header)
 	{
 		settingsBase.Initialize(woID, root);
+		killLimitHeader.text = header;
 		Dictionary<object, object> dictionary2;
 		if (woID == -1)
 		{

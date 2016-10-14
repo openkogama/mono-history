@@ -14,6 +14,10 @@ public class XPProgressData
 		}
 	}
 
+	public int NextXP => xpLevelLimits.NextXP;
+
+	public int PrevXP => xpLevelLimits.PrevXP;
+
 	public byte XpID
 	{
 		get

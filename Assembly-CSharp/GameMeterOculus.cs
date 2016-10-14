@@ -1,6 +1,6 @@
 using System;
 
-public class GameMeterAndroidOculus : GameMeterAndroidKillBase
+public class GameMeterOculus : GameMeterKillBase
 {
 	private OculusKillLimitClient oculusClient;
 
@@ -46,14 +46,18 @@ public class GameMeterAndroidOculus : GameMeterAndroidKillBase
 
 	public override void UpdateValue()
 	{
-		if (oculusClient != null)
+		if (oculusClient == null)
 		{
-			SetCount(GameStatCounterType.OculusKill, oculusClient.Limit);
-			int gameStat = MVGameControllerBase.Game.LocalPlayer.GetGameStat(GameStatCounterType.OculusKill);
-			if (prevValue != gameStat && gameStat != 0)
+			return;
+		}
+		SetCount(GameStatCounterType.OculusKill, oculusClient.Limit);
+		int gameStat = MVGameControllerBase.Game.LocalPlayer.GetGameStat(GameStatCounterType.OculusKill);
+		if (prevValue != gameStat && gameStat != 0)
+		{
+			prevValue = gameStat;
+			for (int i = 0; i < gameMeterVisualEffects.Count; i++)
 			{
-				prevValue = gameStat;
-				NotificationController.PushNotification(string.Format(TM._("Destroyed oculus! {0}/{1}"), gameStat, oculusClient.Limit));
+				gameMeterVisualEffects[i].ExecuteEffect();
 			}
 		}
 	}

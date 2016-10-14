@@ -18,6 +18,8 @@ public class SendMessageControl : MonoBehaviour
 
 	private string enableHD = "/hd";
 
+	private string buildInformation = "/build";
+
 	[SerializeField]
 	private InputField inputField;
 
@@ -124,6 +126,10 @@ public class SendMessageControl : MonoBehaviour
 		{
 			GetComponentInParent<Canvas>().gameObject.SetActive(value: false);
 		}
+		else if (chatMsg == buildInformation)
+		{
+			ShowBuildInformation();
+		}
 		else
 		{
 			MVGameControllerBase.OperationRequests.PostGameMsg(MVGameMsgType.Chat, new Dictionary<object, object>
@@ -142,6 +148,12 @@ public class SendMessageControl : MonoBehaviour
 		{
 			DoSend(arg0: false);
 		}
+	}
+
+	private void ShowBuildInformation()
+	{
+		string message = string.Format(TM._("Version: {0}\nBranch: {1}\nCommitMessage: {2}"), MVGameControllerBase.KoGaMaSettings.VersionString, MVGameControllerBase.KoGaMaSettings.BranchName, MVGameControllerBase.KoGaMaSettings.LatestCommitMessage);
+		MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, message);
 	}
 
 	private void ToggleHD()

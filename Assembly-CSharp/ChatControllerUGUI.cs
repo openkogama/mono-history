@@ -79,6 +79,8 @@ public class ChatControllerUGUI : MonoBehaviour
 	[SerializeField]
 	private VerticalLayoutGroup textGroup;
 
+	private bool promptRegisterForChat = true;
+
 	private void Start()
 	{
 		inputAreaRoot.gameObject.SetActive(value: false);
@@ -145,10 +147,19 @@ public class ChatControllerUGUI : MonoBehaviour
 
 	private void ChatHotkeyPressed()
 	{
-		if (!inputField.isFocused)
+		if (inputField.isFocused)
 		{
-			ChatFocusChanged(enterChatMode: true);
+			return;
 		}
+		if (promptRegisterForChat && MVGameControllerBase.IsTouristSession)
+		{
+			promptRegisterForChat = false;
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+			{
+				x.Create(TM._("Register or log in to chat!"), string.Empty);
+			});
+		}
+		ChatFocusChanged(enterChatMode: true);
 	}
 
 	public void ChatFocusChanged(bool enterChatMode)

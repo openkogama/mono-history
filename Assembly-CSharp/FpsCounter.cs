@@ -26,6 +26,7 @@ public class FpsCounter : MonoBehaviour
 		{
 			StatHatWrapper.Value("FPS", Mathf.Clamp(averageFPS, 0f, 60f));
 			metricsCollected = true;
+			StatHatWrapper.Value("RoundTripTime", MVGameControllerBase.Game.Peer.RoundTripTime);
 		}
 	}
 

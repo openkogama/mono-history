@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GameMeterAndroidCollectible : GameMeterAndroidBase
+public class GameMeterCollectible : GameMeterBase
 {
 	[SerializeField]
 	private Image collectibleBar;
@@ -54,17 +54,21 @@ public class GameMeterAndroidCollectible : GameMeterAndroidBase
 
 	public override void UpdateValue()
 	{
-		if (collectedClient != null)
+		if (collectedClient == null)
 		{
-			int gameStat = MVGameControllerBase.Game.LocalPlayer.GetGameStat(GameStatCounterType.Collectible);
-			if (prevValue != gameStat && gameStat != 0)
-			{
-				prevValue = gameStat;
-				NotificationController.PushNotification(string.Format(TM._("Collected star! {0}/{1}"), gameStat, collectedClient.Limit));
-			}
-			string text = gameStat + "/" + collectedClient.Limit;
-			collectibleText.text = text;
+			return;
 		}
+		int gameStat = MVGameControllerBase.Game.LocalPlayer.GetGameStat(GameStatCounterType.Collectible);
+		if (prevValue != gameStat && gameStat != 0)
+		{
+			for (int i = 0; i < gameMeterVisualEffects.Count; i++)
+			{
+				gameMeterVisualEffects[i].ExecuteEffect();
+			}
+			prevValue = gameStat;
+		}
+		string text = gameStat + "/" + collectedClient.Limit;
+		collectibleText.text = text;
 	}
 
 	private void Hide()

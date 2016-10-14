@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
@@ -30,6 +31,19 @@ public class LevelBadge : MonoBehaviour
 
 	public void OnClick()
 	{
+		if (!MVGameControllerBase.IsTouristSession)
+		{
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.PopGroups(UIGroupFlags.Effect);
+			});
+			PlayerStatusPopup playerStatus = UnityEngine.Object.Instantiate(playerStatusPopup);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(playerStatus.gameObject, UIPushOption.None, null, UIGroupFlags.Effect);
+			});
+			playerStatus.Initialize();
+		}
 	}
 
 	private void OnLevelingInitialized()

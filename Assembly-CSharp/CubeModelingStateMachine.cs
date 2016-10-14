@@ -70,6 +70,7 @@ public class CubeModelingStateMachine : FSMEntity
 		}
 		set
 		{
+			MaterialsControllerEditMode.targetMaterial = value;
 			currentMaterialId = value;
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IHandleMaterial x, BaseEventData y) =>
 			{
