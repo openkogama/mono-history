@@ -30,6 +30,10 @@ public class HealthbarLerp : GameMeterVisualEffect
 	{
 		if (gameObject.activeInHierarchy && isInitialized)
 		{
+			if (progressBar.Progress < targetProgressBar.Progress)
+			{
+				progressBar.Progress = targetProgressBar.Progress;
+			}
 			lerpStart = Time.realtimeSinceStartup;
 			startProgress = progressBar.Progress;
 			StopAllCoroutines();

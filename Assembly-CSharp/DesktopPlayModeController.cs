@@ -104,7 +104,7 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 			{
 				rewardReady = true;
 				Dictionary<object, object> dictionary = new Dictionary<object, object>();
-				dictionary.Add((byte)2, 6);
+				dictionary.Add((byte)2, 8);
 				NotificationController.OnNotificationReceived(NotificationType.SpinReady, dictionary);
 			}
 		}

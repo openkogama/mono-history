@@ -89,7 +89,6 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 	private void OnFinishedViewingAd()
 	{
 		claimRewardBtn.gameObject.SetActive(value: false);
-		IsCollected = true;
 		NotificationController.PushNotification(TM._("Thank you for playing this NEW game! Received " + rewardXP + " XP and " + rewardGold + " gold!"), notificationImage);
 		ParticleSystem particleSystem = UnityEngine.Object.Instantiate(PrefabPool.Instance.GoldExplosion);
 		particleSystem.transform.parent = MVGameControllerBase.WOCM.AvatarLocal.Transform;
@@ -143,7 +142,7 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 				rewardAvailable = false;
 				timerText.text = TM._("Claim!");
 				Dictionary<object, object> dictionary = new Dictionary<object, object>();
-				dictionary.Add((byte)2, 6);
+				dictionary.Add((byte)2, 8);
 				NotificationController.OnNotificationReceived(NotificationType.GoldRewardReady, dictionary);
 				EnableEffects();
 			}

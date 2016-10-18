@@ -21,6 +21,8 @@ public class WindTurbine : MVLogicObject
 
 	private WindTurbineObject windTurbineObject;
 
+	private List<int> keysToRemove = new List<int>();
+
 	public override Vector3 WorldPivot => transform.position;
 
 	public override Vector3 InputConnectorOffset => new Vector3(-1.55f, 0f, 0f);
@@ -96,7 +98,7 @@ public class WindTurbine : MVLogicObject
 		{
 			if (affectedBody.Value == null)
 			{
-				affectedBodies.Remove(affectedBody.Key);
+				keysToRemove.Add(affectedBody.Key);
 			}
 			else if (!affectedBody.Value.IsMovementLocked)
 			{
@@ -107,6 +109,11 @@ public class WindTurbine : MVLogicObject
 				affectedBody.Value.AddImpulse(gameObject.transform.forward * num3, suspendImpactDamage: true);
 			}
 		}
+		for (int i = 0; i < keysToRemove.Count; i++)
+		{
+			affectedBodies.Remove(keysToRemove[i]);
+		}
+		keysToRemove.Clear();
 	}
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
