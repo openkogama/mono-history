@@ -27,8 +27,7 @@ public abstract class VirtualInput
 	{
 		if (m_VirtualAxes.ContainsKey(axis.name))
 		{
-			Debug.LogError("There is already a virtual axis named " + axis.name + " registered.");
-			return;
+			m_VirtualAxes.Remove(axis.name);
 		}
 		m_VirtualAxes.Add(axis.name, axis);
 		if (!axis.matchWithInputManager)

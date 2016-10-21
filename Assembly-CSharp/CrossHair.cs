@@ -15,39 +15,9 @@ public class CrossHair : MonoBehaviour, IGUICrossHair
 	[SerializeField]
 	private float toggleInterval = 0.1f;
 
-	private Vector3 origin;
-
-	private Vector3 direction = Vector3.right;
-
 	private float timeSinceLastToggle;
 
 	private bool isFillOn = true;
-
-	public Vector3 Direction
-	{
-		get
-		{
-			return direction;
-		}
-		set
-		{
-			direction = value;
-		}
-	}
-
-	public Vector3 Origin
-	{
-		get
-		{
-			return origin;
-		}
-		set
-		{
-			origin = value;
-		}
-	}
-
-	public bool FiredThisFrame { get; private set; }
 
 	public bool Visible
 	{
@@ -61,14 +31,16 @@ public class CrossHair : MonoBehaviour, IGUICrossHair
 		}
 	}
 
-	public void UpdateCrossHair(int ammo, Color color, float chargeState, bool firedThisFrame)
+	public void UpdateCrossHair(PickupItem pickupItem)
 	{
-		FiredThisFrame = firedThisFrame;
-		if (ammo == 0 && ammoCount.isActiveAndEnabled)
+		int quantity = pickupItem.Quantity;
+		Color crossHairColor = pickupItem.CrossHairColor;
+		float chargeState = pickupItem.ChargeState;
+		if (quantity == 0 && ammoCount.isActiveAndEnabled)
 		{
 			ammoCount.gameObject.SetActive(value: false);
 		}
-		if (ammo > 0 && !ammoCount.isActiveAndEnabled)
+		if (quantity > 0 && !ammoCount.isActiveAndEnabled)
 		{
 			ammoCount.gameObject.SetActive(value: true);
 		}
@@ -86,11 +58,11 @@ public class CrossHair : MonoBehaviour, IGUICrossHair
 		}
 		if (ammoCount.isActiveAndEnabled)
 		{
-			ammoCount.text = ammo.ToString();
+			ammoCount.text = quantity.ToString();
 		}
 		if (crossHair != null)
 		{
-			crossHair.color = color;
+			crossHair.color = crossHairColor;
 		}
 		if (!(chargeState > 0f))
 		{

@@ -5,8 +5,6 @@ public class AndroidVehicleCamera : MVCameraBase, IVehicleCamera
 {
 	private Transform originalTransformParent;
 
-	private float rotationAroundY;
-
 	private readonly CameraLerpToDesiredDistance cameraLerpToDesiredDistance = new CameraLerpToDesiredDistance();
 
 	private readonly CameraCollision cameraCollision = new CameraCollision();
@@ -44,20 +42,14 @@ public class AndroidVehicleCamera : MVCameraBase, IVehicleCamera
 	{
 		get
 		{
-			return rotationAroundY;
+			return 0f;
 		}
 		set
 		{
-			rotationAroundY = value;
 		}
 	}
 
 	public override CameraType CameraType => CameraType.VehicleCamera;
-
-	public override void Reset()
-	{
-		rotationAroundY = 0f;
-	}
 
 	public override void Enter(MVCameraController camController)
 	{
@@ -104,24 +96,19 @@ public class AndroidVehicleCamera : MVCameraBase, IVehicleCamera
 
 	private void UpdateTargetRotation()
 	{
-		float num = targetRotation.EulerAngles.x;
-		float y = targetRotation.EulerAngles.y;
-		if (InputActive)
+		float value = MVInputWrapper.GetAxis("Mouse X") * 90f;
+		value = Mathf.Clamp(value, -90f, 90f);
+		Quaternion quaternion = Quaternion.AngleAxis(value, Vector3.up);
+		Quaternion quaternion2 = Quaternion.Euler(0f, lookAtTransform.rotation.eulerAngles.y, 0f);
+		float y = (quaternion * quaternion2).eulerAngles.y;
+		float degrees = MVInputWrapper.GetAxis("Mouse Y") * -90f + initialYRotation;
+		degrees = MathFunctions.NormalizeAngle(degrees);
+		if (degrees > 180f)
 		{
-			rotationAroundY += MVInputWrapper.GetAxis("Mouse X") * mouseSensitivity;
-			rotationAroundY = Mathf.Clamp(rotationAroundY, -90f, 90f);
-			Quaternion quaternion = Quaternion.Euler(0f, lookAtTransform.rotation.eulerAngles.y, 0f);
-			Quaternion quaternion2 = Quaternion.AngleAxis(rotationAroundY, Vector3.up);
-			y = (quaternion2 * quaternion).eulerAngles.y;
-			num += MVInputWrapper.GetAxis("Mouse Y") * mouseSensitivity;
+			degrees -= 360f;
 		}
-		num = MathFunctions.NormalizeAngle(num);
-		if (num > 180f)
-		{
-			num -= 360f;
-		}
-		num = Mathf.Clamp(num, minimumY, maximumY);
-		targetRotation.SetTargetRotation(num, y);
+		degrees = Mathf.Clamp(degrees, minimumY, maximumY);
+		targetRotation.SetTargetRotation(degrees, y);
 		transform.rotation = targetRotation.GetLerpRotation(transform.rotation);
 	}
 }

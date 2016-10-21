@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using MV.Common;
 using UnityEngine;
 
 public class UseInteractorHandler : MVComponent
@@ -66,6 +67,10 @@ public class UseInteractorHandler : MVComponent
 
 	private void UpdateUseVisuals()
 	{
+		if (MVGameControllerBase.WOCM.AvatarLocal.AvatarRuntimeState != AvatarRuntimeState.Playing)
+		{
+			return;
+		}
 		bool flag = false;
 		ShowUseOption option = ShowUseOption.Normal;
 		int level = 0;

@@ -4,21 +4,21 @@ public class Offset2DCameraInDirection
 {
 	private class DistanceScaledValues
 	{
-		private const float offsetSpeedX = 10f;
+		private const float offsetSpeedX = 12f;
 
-		private const float offsetSpeedY = 15f;
+		private const float offsetSpeedY = 12f;
 
-		private const float offsetMagnitudeX = 1.5f;
+		private const float offsetMagnitudeX = 3.5f;
 
-		private const float offsetMagnitudeY = 1.5f;
+		private const float offsetMagnitudeY = 3.5f;
 
-		public float OffsetSpeedX => 10f * Scale;
+		public float OffsetSpeedX => 12f * Scale;
 
-		public float OffsetSpeedY => 15f * Scale;
+		public float OffsetSpeedY => 12f * Scale;
 
-		public float OffsetMagnitudeX => 1.5f * Scale;
+		public float OffsetMagnitudeX => 3.5f * Scale;
 
-		public float OffsetMagnitudeY => 1.5f * Scale;
+		public float OffsetMagnitudeY => 3.5f * Scale;
 
 		public float Scale { get; set; }
 	}

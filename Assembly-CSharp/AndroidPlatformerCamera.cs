@@ -47,17 +47,9 @@ public class AndroidPlatformerCamera : MVCameraBase, ICameraSettings
 	public override void UpdateCamera(MVCameraController camController, Transform targetTransform)
 	{
 		transform.rotation = Quaternion.identity;
-		Vector3 vector = offset2DCameraInDirection.CurOffset;
-		if (IsMoving())
-		{
-			vector = offset2DCameraInDirection.GetMovementOffset(MVGameControllerBase.IPlayModeUI.GetCrossHair().Direction.normalized);
-		}
-		transform.position = MVGameControllerBase.WOCM.AvatarLocal.LookAtPos - transform.rotation * Vector3.forward * distanceToAvatar + vector;
+		Vector3 direction = new Vector3(MVInputWrapper.GetAxis("Mouse X"), MVInputWrapper.GetAxis("Mouse Y"));
+		Vector3 movementOffset = offset2DCameraInDirection.GetMovementOffset(direction);
+		transform.position = MVGameControllerBase.WOCM.AvatarLocal.LookAtPos - transform.rotation * Vector3.forward * distanceToAvatar + movementOffset;
 		base.UpdateCamera(camController, targetTransform);
-	}
-
-	private static bool IsMoving()
-	{
-		return MVInputWrapper.GetBooleanControl(KogamaControls.MoveLeft) || MVInputWrapper.GetBooleanControl(KogamaControls.MoveRight) || MVInputWrapper.GetBooleanControl(KogamaControls.Fire);
 	}
 }

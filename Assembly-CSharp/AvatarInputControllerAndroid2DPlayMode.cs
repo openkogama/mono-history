@@ -34,8 +34,8 @@ public class AvatarInputControllerAndroid2DPlayMode : IMotorAPI, IAvatarInputCon
 	{
 		if (moveDirection != Vector3.zero)
 		{
-			direction = moveDirection.normalized;
-			rotation = GetRotationMoveDirection(direction);
+			direction = moveDirection;
+			rotation = GetRotationMoveDirection(moveDirection.normalized);
 		}
 		else
 		{

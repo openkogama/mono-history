@@ -21,6 +21,9 @@ public class VehicleSeatBase : MonoBehaviour
 
 	public bool UnequipVehicleUser;
 
+	[SerializeField]
+	private ControlType joystickType;
+
 	public bool IsOccupied { get; set; }
 
 	public MVAvatar Owner => owner;

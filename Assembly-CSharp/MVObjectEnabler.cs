@@ -42,7 +42,7 @@ public class MVObjectEnabler : MVLogicObject
 
 	public override void PlayModeInitialize()
 	{
-		Initialize();
+		OnInputStateChanged();
 	}
 
 	public override void Reset()

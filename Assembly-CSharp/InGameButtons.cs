@@ -1,7 +1,7 @@
 using MV.Common;
 using UnityEngine;
 
-public abstract class PlayModeControlsBase : MonoBehaviour
+public class InGameButtons : MonoBehaviour
 {
 	private PickupGUIFlags showingEquipableUI;
 
@@ -18,12 +18,6 @@ public abstract class PlayModeControlsBase : MonoBehaviour
 	private RectTransform leaveVehicle;
 
 	[SerializeField]
-	private CrossHairAndroid crossHair;
-
-	[SerializeField]
-	private GameObject crossHairGO;
-
-	[SerializeField]
 	private GameObject respawnButton;
 
 	private void Update()
@@ -32,7 +26,6 @@ public abstract class PlayModeControlsBase : MonoBehaviour
 		{
 			fire.gameObject.SetActive((PickupGUI.ShowEquipableUI & PickupGUIFlags.CanFire) != 0);
 			dropWeapon.gameObject.SetActive((PickupGUI.ShowEquipableUI & PickupGUIFlags.CanUnequip) != 0);
-			crossHairGO.SetActive((PickupGUI.ShowEquipableUI & PickupGUIFlags.ShowCrosshair) != 0);
 			showingEquipableUI = PickupGUI.ShowEquipableUI;
 		}
 		if (MVGameControllerBase.WOCM.AvatarLocal.IsSeated != leaveVehicle.gameObject.activeInHierarchy)
@@ -57,10 +50,5 @@ public abstract class PlayModeControlsBase : MonoBehaviour
 	public void HideEUseIcon()
 	{
 		use.gameObject.SetActive(value: false);
-	}
-
-	public IGUICrossHair GetCrossHair()
-	{
-		return crossHair;
 	}
 }

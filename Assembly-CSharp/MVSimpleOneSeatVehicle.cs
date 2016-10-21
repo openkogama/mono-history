@@ -35,8 +35,8 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase
 			pickupOwner = vehicleBase.GameObject.GetComponent<VehiclePickupOwner>();
 			pickupOwner.IsLocal = true;
 			onDestroy = (Action)Delegate.Combine(onDestroy, new Action(pickupOwner.OnLocalObjectsDestroyed));
-			pickupGUI = new PickupGUI(pickupOwner);
-			onDestroy = (Action)Delegate.Combine(onDestroy, new Action(pickupGUI.Destroy));
+			pickupGUI = gameObject.AddComponent<PickupGUI>();
+			pickupGUI.Initialize(pickupOwner);
 			onEnter = (Action)Delegate.Combine(onEnter, new Action(pickupGUI.Enter));
 			onLeave = (Action)Delegate.Combine(onLeave, new Action(pickupGUI.Leave));
 			triggerHandler = gameObject.AddComponent<MVTriggerHandler>();
@@ -94,7 +94,6 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase
 				return null;
 			}
 			pickupOwner.HandleFire(interactionInput.Fire, owner.IsFiring);
-			pickupGUI.Update();
 			interactionInput.Fire = false;
 			if (interactionInput.Drop)
 			{

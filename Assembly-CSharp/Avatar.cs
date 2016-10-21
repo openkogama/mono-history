@@ -35,6 +35,9 @@ public class Avatar : MonoBehaviour
 	[SerializeField]
 	private GameObject mobileIcon;
 
+	[SerializeField]
+	public GameObject root;
+
 	private bool nameTagLabelVisible;
 
 	public bool IsLocal => isLocal;

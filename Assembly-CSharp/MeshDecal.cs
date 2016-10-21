@@ -1,7 +1,7 @@
 using UnityEngine;
 
-[RequireComponent(typeof(MeshRenderer))]
 [RequireComponent(typeof(MeshFilter))]
+[RequireComponent(typeof(MeshRenderer))]
 public class MeshDecal : MonoBehaviour
 {
 	public struct Hit(Vector3 position, Vector3 normal, float distance)

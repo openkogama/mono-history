@@ -2,8 +2,6 @@ using UnityEngine;
 
 public class TargetRotation : MonoBehaviour
 {
-	private const float maxInertialAngleBehind = 70f;
-
 	private Vector3 eulerAngles = default;
 
 	[SerializeField]
@@ -27,20 +25,5 @@ public class TargetRotation : MonoBehaviour
 		float x = Mathf.LerpAngle(vector.x, eulerAngles.x, Time.deltaTime * lerpSpeedX);
 		float y = Mathf.LerpAngle(vector.y, eulerAngles.y, Time.deltaTime * lerpSpeedY);
 		return Quaternion.Euler(x, y, 0f);
-	}
-
-	private static float ClampDegreeDiff(float target, float to, float maxDiff)
-	{
-		float num = Mathf.DeltaAngle(target, to);
-		float num2 = 0f;
-		if (num > maxDiff)
-		{
-			num2 = num - maxDiff;
-		}
-		else if (num < 0f - maxDiff)
-		{
-			num2 = num + maxDiff;
-		}
-		return target + num2;
 	}
 }

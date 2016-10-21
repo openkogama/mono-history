@@ -640,10 +640,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 			if (!interactionMap.IgnorePickupOwner)
 			{
 				mvAvatar.pickupOwner.HandleFire(interactionMap.Fire, mvAvatar.IsFiring);
-				if (mvAvatar.InGunMode)
-				{
-					mvAvatar.pickupGUI.Update();
-				}
 			}
 			if (mvAvatar.gameObject.transform.position.y < MVGameControllerBase.WOCM.WorldBounds.min.y - 200f)
 			{
@@ -886,7 +882,8 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		pickupOwner = avatarPickupOwner;
 		if (MVGameControllerBase.GameMode != MVGameMode.CharacterEditor)
 		{
-			pickupGUI = new PickupGUI(pickupOwner);
+			pickupGUI = gameObject.AddComponent<PickupGUI>();
+			pickupGUI.Initialize(pickupOwner);
 		}
 		avatarLocalModes = new AvatarLocalModes(this);
 		MVRuntimeDataVariableClampedFloat health = Health;

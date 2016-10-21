@@ -6,19 +6,22 @@ public class CullingSubscriberDynamic : ICullingSubscriber, IUpdatecontrollerSub
 
 	private int overrideDistanceBandIndex = -1;
 
-	private GameObject gameObject;
+	private GameObject root;
 
-	private Transform transform;
+	private Transform rootTransform;
+
+	private GameObject[] children;
 
 	public int CullingIndex { get; set; }
 
-	public CullingSubscriberDynamic(float radius, int cullingBandIndex, int overrideDistanceBandIndex, GameObject gameObject)
+	public CullingSubscriberDynamic(float radius, int cullingBandIndex, int overrideDistanceBandIndex, GameObject root, GameObject[] children = null)
 	{
 		this.cullingBandIndex = cullingBandIndex;
-		this.gameObject = gameObject;
-		transform = gameObject.transform;
+		this.root = root;
+		rootTransform = root.transform;
+		this.children = children;
 		CullingApiWrapper.Subscribe(this);
-		CullingApiWrapper.spheres[CullingIndex].position = transform.position;
+		CullingApiWrapper.spheres[CullingIndex].position = rootTransform.position;
 		CullingApiWrapper.spheres[CullingIndex].radius = radius;
 		UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
 	}
@@ -30,12 +33,20 @@ public class CullingSubscriberDynamic : ICullingSubscriber, IUpdatecontrollerSub
 		{
 			active = true;
 		}
-		gameObject.SetActive(active);
+		root.SetActive(active);
+		if (children != null)
+		{
+			GameObject[] array = children;
+			foreach (GameObject gameObject in array)
+			{
+				gameObject.SetActive(active);
+			}
+		}
 	}
 
 	public void UpdateControllerUpdate()
 	{
-		CullingApiWrapper.spheres[CullingIndex].position = transform.position;
+		CullingApiWrapper.spheres[CullingIndex].position = rootTransform.position;
 	}
 
 	public void UpdateControllerFixedUpdate()

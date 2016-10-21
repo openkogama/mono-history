@@ -117,7 +117,16 @@ public class MVTeleporter : MVLogicObject
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		if ((InputLinkRefs.Count == 0 || InputState) && (useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0)
+		bool flag = InputLinkRefs.Count == 0 || InputState;
+		if ((useInteractor.EvaluateRequirementsUsability() & UseGUIResult.CanAfford) != 0)
+		{
+			MVAvatarLocal avatarLocal = MVGameControllerBase.WOCM.AvatarLocal;
+			if (e.instigatorWOID == avatarLocal.Id)
+			{
+				avatarIgnoreList.Remove(avatarLocal);
+			}
+		}
+		if (flag && (useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0)
 		{
 			DoTeleport(e.instigatorWOID);
 		}

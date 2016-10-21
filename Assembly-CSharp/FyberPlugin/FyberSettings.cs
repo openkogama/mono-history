@@ -16,8 +16,8 @@ public class FyberSettings : ScriptableObject
 	[HideInInspector]
 	private string bundlesJson;
 
-	[SerializeField]
 	[HideInInspector]
+	[SerializeField]
 	private string configJson;
 
 	[SerializeField]

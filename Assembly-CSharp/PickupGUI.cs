@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class PickupGUI
+public class PickupGUI : MonoBehaviour
 {
 	private IGUICrossHair crossHair;
 
@@ -11,7 +11,7 @@ public class PickupGUI
 
 	public static PickupGUIFlags ShowEquipableUI { get; private set; }
 
-	public PickupGUI(MVPickupOwner pickupOwner)
+	public void Initialize(MVPickupOwner pickupOwner)
 	{
 		this.pickupOwner = pickupOwner;
 		crossHair = MVGameControllerBase.IPlayModeUI.GetCrossHair();
@@ -20,21 +20,16 @@ public class PickupGUI
 		pickupOwner.onUnequipItem = (MVPickupOwner.OnUnequipItemDelegate)Delegate.Combine(pickupOwner.onUnequipItem, new MVPickupOwner.OnUnequipItemDelegate(OnUnequipItem));
 	}
 
-	public void Update()
+	private void LateUpdate()
 	{
-		if (!(pickupOwner.CurrentItem == null))
+		if (pickupOwner.InGunMode && !(pickupOwner.CurrentItem == null))
 		{
-			int num = 0;
-			num = pickupOwner.CurrentItem.Quantity;
-			Color crossHairColor = pickupOwner.CurrentItem.CrossHairColor;
-			float chargeState = pickupOwner.CurrentItem.ChargeState;
-			bool andResetFiredThisFrame = pickupOwner.CurrentItem.GetAndResetFiredThisFrame();
-			crossHair.UpdateCrossHair(num, crossHairColor, chargeState, andResetFiredThisFrame);
+			crossHair.UpdateCrossHair(pickupOwner.CurrentItem);
 			UpdateCrossHairVisibility();
 		}
 	}
 
-	public void Destroy()
+	private void OnDestroy()
 	{
 		MVPickupOwner mVPickupOwner = pickupOwner;
 		mVPickupOwner.onEquipItem = (MVPickupOwner.OnEquipItemDelegate)Delegate.Remove(mVPickupOwner.onEquipItem, new MVPickupOwner.OnEquipItemDelegate(OnEquipItem));
@@ -46,6 +41,7 @@ public class PickupGUI
 	{
 		if (pickupOwner.CurrentItem != null)
 		{
+			enabled = true;
 			OnEquipItem(pickupOwner.CurrentItem);
 			pickupOwner.CurrentItem.OnEnterVehicleWithWeapon();
 		}
@@ -64,6 +60,7 @@ public class PickupGUI
 	{
 		canBeVisible = false;
 		UpdateCrossHairVisibility();
+		enabled = false;
 		ShowEquipableUI = PickupGUIFlags.None;
 		if (pickupOwner.CurrentItem != null)
 		{
