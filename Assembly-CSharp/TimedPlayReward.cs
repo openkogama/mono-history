@@ -56,9 +56,9 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 		if (!MVGameControllerBase.UsingDevSessionData)
 		{
 			UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
-			RequestRewardPermission();
 			rewardAvailable = false;
 			gameObject.SetActive(value: false);
+			RequestRewardPermission();
 		}
 	}
 

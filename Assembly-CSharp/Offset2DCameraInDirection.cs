@@ -43,26 +43,31 @@ public class Offset2DCameraInDirection
 
 	public Vector3 GetMovementOffset(Vector3 direction)
 	{
+		if (Mathf.Approximately(direction.magnitude, 0f) && !AndroidPlatformerCamera.snapbackMode)
+		{
+			return curOffset;
+		}
 		Vector3 vector = direction;
-		vector.x *= scaledValues.OffsetMagnitudeX;
-		vector.y *= scaledValues.OffsetMagnitudeY;
-		Vector3 vector2 = vector - curOffset;
-		Vector3 vector3 = vector2;
-		vector3.Normalize();
-		vector3.x *= scaledValues.OffsetSpeedX;
-		vector3.y *= scaledValues.OffsetSpeedY;
-		vector3 *= Time.deltaTime;
-		if (Mathf.Sign(vector2.x - vector3.x) != Mathf.Sign(vector2.x))
+		Vector3 vector2 = vector;
+		vector2.x *= scaledValues.OffsetMagnitudeX;
+		vector2.y *= scaledValues.OffsetMagnitudeY;
+		Vector3 vector3 = vector2 - curOffset;
+		Vector3 vector4 = vector3;
+		vector4.Normalize();
+		vector4.x *= scaledValues.OffsetSpeedX;
+		vector4.y *= scaledValues.OffsetSpeedY;
+		vector4 *= Time.deltaTime;
+		if (Mathf.Sign(vector3.x - vector4.x) != Mathf.Sign(vector3.x))
 		{
-			curOffset.x = vector.x;
-			vector3.x = 0f;
+			curOffset.x = vector2.x;
+			vector4.x = 0f;
 		}
-		if (Mathf.Sign(vector2.y - vector3.y) != Mathf.Sign(vector2.y))
+		if (Mathf.Sign(vector3.y - vector4.y) != Mathf.Sign(vector3.y))
 		{
-			curOffset.y = vector.y;
-			vector3.y = 0f;
+			curOffset.y = vector2.y;
+			vector4.y = 0f;
 		}
-		curOffset += vector3;
+		curOffset += vector4;
 		return curOffset;
 	}
 

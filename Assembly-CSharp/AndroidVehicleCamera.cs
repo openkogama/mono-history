@@ -38,6 +38,9 @@ public class AndroidVehicleCamera : MVCameraBase, IVehicleCamera
 	[SerializeField]
 	private float localPitch = -20f;
 
+	[SerializeField]
+	private Vector3 lookAtOffset = Vector3.down;
+
 	public float RotationAroundY
 	{
 		get
@@ -91,7 +94,7 @@ public class AndroidVehicleCamera : MVCameraBase, IVehicleCamera
 		Vector3 vector = transform.rotation * -Vector3.forward;
 		vector.Normalize();
 		vector *= distanceToLookAt;
-		transform.position = lookAtTransform.position + vector;
+		transform.position = lookAtTransform.position + vector + lookAtOffset;
 	}
 
 	private void UpdateTargetRotation()

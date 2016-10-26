@@ -12,6 +12,8 @@ public class AndroidPlatformerCamera : MVCameraBase, ICameraSettings
 
 	private readonly Offset2DCameraInDirection offset2DCameraInDirection = new Offset2DCameraInDirection();
 
+	public static bool snapbackMode = true;
+
 	public override CameraType CameraType => CameraType.Platformer;
 
 	public override void Awake()
