@@ -41,6 +41,8 @@ public class AndroidVehicleCamera : MVCameraBase, IVehicleCamera
 	[SerializeField]
 	private Vector3 lookAtOffset = Vector3.down;
 
+	private float rotationX;
+
 	public float RotationAroundY
 	{
 		get
@@ -62,6 +64,7 @@ public class AndroidVehicleCamera : MVCameraBase, IVehicleCamera
 		targetRotation.SetTargetRotation(initialYRotation, 0f);
 		Quaternion rotation = transform.rotation;
 		rotation.eulerAngles = targetRotation.EulerAngles;
+		rotationX = initialYRotation;
 		transform.rotation = rotation;
 	}
 
@@ -104,14 +107,14 @@ public class AndroidVehicleCamera : MVCameraBase, IVehicleCamera
 		Quaternion quaternion = Quaternion.AngleAxis(value, Vector3.up);
 		Quaternion quaternion2 = Quaternion.Euler(0f, lookAtTransform.rotation.eulerAngles.y, 0f);
 		float y = (quaternion * quaternion2).eulerAngles.y;
-		float degrees = MVInputWrapper.GetAxis("Mouse Y") * -90f + initialYRotation;
-		degrees = MathFunctions.NormalizeAngle(degrees);
-		if (degrees > 180f)
+		rotationX -= MVInputWrapper.GetAxis("Mouse Y") * 5f;
+		rotationX = MathFunctions.NormalizeAngle(rotationX);
+		if (rotationX > 180f)
 		{
-			degrees -= 360f;
+			rotationX -= 360f;
 		}
-		degrees = Mathf.Clamp(degrees, minimumY, maximumY);
-		targetRotation.SetTargetRotation(degrees, y);
+		rotationX = Mathf.Clamp(rotationX, minimumY, maximumY);
+		targetRotation.SetTargetRotation(rotationX, y);
 		transform.rotation = targetRotation.GetLerpRotation(transform.rotation);
 	}
 }

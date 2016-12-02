@@ -5,37 +5,13 @@ using UnityEngine.Rendering;
 
 public class MaterialLoader : MonoBehaviour
 {
-	private static string highResAtlasFileName = "Atlas/atlas512.unity3d";
+	private static string highResAtlasFileName = "Atlas/atlas512glowing.unity3d";
 
 	[SerializeField]
 	private Material cubeModelMaterialHigh;
 
 	[SerializeField]
 	private Material cubeModelMaterialLow;
-
-	[SerializeField]
-	private Material avatarMaterialHigh;
-
-	[SerializeField]
-	private Material avatarTransparentMaterialHigh;
-
-	[SerializeField]
-	private Material avatarMaterialLow;
-
-	[SerializeField]
-	private Material avatarTransparentMaterialLow;
-
-	[SerializeField]
-	private Shader avatarHigh;
-
-	[SerializeField]
-	private Shader avatarLow;
-
-	[SerializeField]
-	private Shader avatarTransparentHigh;
-
-	[SerializeField]
-	private Shader avatarTransparentLow;
 
 	[SerializeField]
 	private Shader pickupItemShader;
@@ -51,23 +27,7 @@ public class MaterialLoader : MonoBehaviour
 
 	private Material cubeModelMaterial;
 
-	private Material avatarMaterial;
-
-	private Material avatarTransparentMaterial;
-
-	private Shader avatarShader;
-
-	private Shader avatarTransparentShader;
-
 	public Material CubeModelMaterial => cubeModelMaterial;
-
-	public Material AvatarMaterial => avatarMaterial;
-
-	public Material AvatarTransparentMaterial => avatarTransparentMaterial;
-
-	public Shader AvatarShader => avatarShader;
-
-	public Shader AvatarTransparentShader => avatarTransparentShader;
 
 	public Shader PickupItemShader => pickupItemShader;
 
@@ -79,9 +39,6 @@ public class MaterialLoader : MonoBehaviour
 	{
 		cubeModelMaterialHigh = UnityEngine.Object.Instantiate(cubeModelMaterialHigh);
 		cubeModelMaterialLow = UnityEngine.Object.Instantiate(cubeModelMaterialLow);
-		avatarMaterialHigh = UnityEngine.Object.Instantiate(avatarMaterialHigh);
-		avatarMaterialLow = UnityEngine.Object.Instantiate(avatarMaterialLow);
-		avatarTransparentMaterialHigh = UnityEngine.Object.Instantiate(avatarTransparentMaterialHigh);
 		SetMainTexture(lowResMaterials);
 		SetupMaterials();
 		MeshPool.Instance.MaxAmtMeshes = 100;
@@ -89,18 +46,8 @@ public class MaterialLoader : MonoBehaviour
 
 	private void SetMainTexture(Texture texture)
 	{
-		Material material = cubeModelMaterialHigh;
-		Texture texture2 = texture;
-		avatarMaterialLow.mainTexture = texture2;
-		texture2 = texture2;
-		avatarTransparentMaterialHigh.mainTexture = texture2;
-		texture2 = texture2;
-		avatarMaterialLow.mainTexture = texture2;
-		texture2 = texture2;
-		avatarMaterialHigh.mainTexture = texture2;
-		texture2 = texture2;
-		cubeModelMaterialLow.mainTexture = texture2;
-		material.mainTexture = texture2;
+		cubeModelMaterialHigh.mainTexture = texture;
+		cubeModelMaterialLow.mainTexture = texture;
 	}
 
 	private void SetupMaterials()
@@ -123,30 +70,14 @@ public class MaterialLoader : MonoBehaviour
 		{
 			throw new NullReferenceException();
 		}
-		if (avatarMaterialHigh == null || avatarMaterialLow == null)
-		{
-			throw new NullReferenceException();
-		}
-		if (avatarTransparentMaterialHigh == null || avatarTransparentMaterialLow == null)
-		{
-			throw new NullReferenceException();
-		}
 		Debug.Log(SystemInfo.graphicsDeviceName);
 		Debug.Log(SystemInfo.graphicsDeviceType);
 		Debug.Log(SystemInfo.graphicsShaderLevel);
 		Debug.Log(SystemInfo.graphicsDeviceVersion);
 		cubeModelMaterial = cubeModelMaterialLow;
-		avatarMaterial = avatarMaterialLow;
-		avatarTransparentMaterial = avatarTransparentMaterialLow;
-		avatarShader = avatarLow;
-		avatarTransparentShader = avatarTransparentLow;
 		if (flag)
 		{
 			cubeModelMaterial = cubeModelMaterialHigh;
-			avatarMaterial = avatarMaterialHigh;
-			avatarTransparentMaterial = avatarTransparentMaterialHigh;
-			avatarShader = avatarHigh;
-			avatarTransparentShader = avatarTransparentHigh;
 		}
 		InitAllMaterials(flag);
 	}
@@ -176,23 +107,11 @@ public class MaterialLoader : MonoBehaviour
 		cubeModelMaterial.SetVector("_MaterialSize", new Vector4(TextureAtlas.UV[0].width, TextureAtlas.UV[0].height, num, num2));
 		cubeModelMaterial.mainTexture.filterMode = FilterMode.Point;
 		cubeModelMaterial.mainTexture.anisoLevel = 1;
-		avatarMaterial.SetVector("_MaterialSize", new Vector4(TextureAtlas.UV[0].width, TextureAtlas.UV[0].height, num, num2));
-		avatarMaterial.mainTexture.filterMode = FilterMode.Point;
-		avatarMaterial.mainTexture.anisoLevel = 1;
-		avatarTransparentMaterial.SetVector("_MaterialSize", new Vector4(TextureAtlas.UV[0].width, TextureAtlas.UV[0].height, num, num2));
-		avatarTransparentMaterial.mainTexture.filterMode = FilterMode.Point;
-		avatarTransparentMaterial.mainTexture.anisoLevel = 1;
 		if (useSM3)
 		{
 			cubeModelMaterial.SetVector("_MaterialSize", new Vector4(TextureAtlas.UV[0].width, TextureAtlas.UV[0].height, num, num2));
 			cubeModelMaterial.mainTexture.filterMode = FilterMode.Bilinear;
 			cubeModelMaterial.mainTexture.anisoLevel = 2;
-			avatarMaterial.SetVector("_MaterialSize", new Vector4(TextureAtlas.UV[0].width, TextureAtlas.UV[0].height, num, num2));
-			avatarMaterial.mainTexture.filterMode = FilterMode.Bilinear;
-			avatarMaterial.mainTexture.anisoLevel = 2;
-			avatarTransparentMaterial.SetVector("_MaterialSize", new Vector4(TextureAtlas.UV[0].width, TextureAtlas.UV[0].height, num, num2));
-			avatarTransparentMaterial.mainTexture.filterMode = FilterMode.Bilinear;
-			avatarTransparentMaterial.mainTexture.anisoLevel = 2;
 		}
 	}
 }

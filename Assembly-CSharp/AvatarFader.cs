@@ -15,10 +15,6 @@ public class AvatarFader : MonoBehaviour, IEventSystemHandler, IFadeParent
 		public Shader replacingShader;
 	}
 
-	private Shader normalShader;
-
-	private Shader fadeShader;
-
 	[SerializeField]
 	private ShaderFaderInstruction[] normalShaders;
 
@@ -57,8 +53,6 @@ public class AvatarFader : MonoBehaviour, IEventSystemHandler, IFadeParent
 
 	private void Start()
 	{
-		normalShader = MVGameControllerBase.MaterialLoader.AvatarShader;
-		fadeShader = MVGameControllerBase.MaterialLoader.AvatarTransparentShader;
 		normalShadersDictionary = new Dictionary<string, Shader>(normalShaders.Length);
 		fadeShadersDictionary = new Dictionary<string, Shader>(fadeShaders.Length);
 		int num = normalShaders.Length;
@@ -140,10 +134,6 @@ public class AvatarFader : MonoBehaviour, IEventSystemHandler, IFadeParent
 		else if (!normalShadersDictionary.TryGetValue(currShader.name, out value))
 		{
 			value = value ?? currShader;
-		}
-		if (value == null)
-		{
-			value = ((!fading) ? normalShader : fadeShader);
 		}
 		return value;
 	}
