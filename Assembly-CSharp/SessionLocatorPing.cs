@@ -19,7 +19,7 @@ public class SessionLocatorPing : IUpdatecontrollerSubscriber
 	{
 		if (waitForTicks.TimeIsUp && !pingSend)
 		{
-			Debug.LogWarning("Do ping");
+			Debug.Log("Do ping");
 			pingSend = true;
 			AsyncWWWManager.WWWRequest(new GetRequest(MVGameControllerBase.GameSessionData.pingURL, WWWCallBack, WWWRequestPriority.ExecuteIgnoreAllConstraints));
 		}
@@ -38,7 +38,7 @@ public class SessionLocatorPing : IUpdatecontrollerSubscriber
 			ErrorCallback(result);
 			return;
 		}
-		Debug.LogWarning("SessionLocatorPing success");
+		Debug.Log("SessionLocatorPing success");
 		waitForTicks = new WaitForTicksLocal(pingIntervalInMilliSeconds);
 		pingSend = false;
 	}
