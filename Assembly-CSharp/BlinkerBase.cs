@@ -3,7 +3,8 @@ using UnityEngine;
 
 public class BlinkerBase : MonoBehaviour
 {
-	public Material blinkMaterial;
+	[SerializeField]
+	protected Material blinkMaterial;
 
 	protected bool visible;
 
@@ -35,7 +36,7 @@ public class BlinkerBase : MonoBehaviour
 		}
 	}
 
-	public void StartBlinking(BlinkType type, float duration)
+	public void StartBlinking(BlinkType type, float duration = float.PositiveInfinity)
 	{
 		blinkers[type].Start(duration);
 	}
@@ -53,10 +54,14 @@ public class BlinkerBase : MonoBehaviour
 		}
 		foreach (Blinker value in blinkers.Values)
 		{
-			if (!value.IsExpired)
+			if (value.IsExpired)
 			{
-				MeshFilter[] array = meshFilters;
-				foreach (MeshFilter meshFilter in array)
+				continue;
+			}
+			MeshFilter[] array = meshFilters;
+			foreach (MeshFilter meshFilter in array)
+			{
+				if (meshFilter.gameObject.activeInHierarchy)
 				{
 					Transform tfm = meshFilter.transform;
 					value.Draw(meshFilter.mesh, tfm);

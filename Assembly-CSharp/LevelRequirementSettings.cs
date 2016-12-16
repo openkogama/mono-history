@@ -17,22 +17,12 @@ public class LevelRequirementSettings : MonoBehaviour, IEventSystemHandler, IHan
 	public void Initialize(int woID, GameObject root)
 	{
 		settingsBase.Initialize(woID, root);
-		Dictionary<object, object> dictionary2;
-		if (woID == -1)
+		Dictionary<object, object> data = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).Data;
+		if (!data.ContainsKey("levelAmount"))
 		{
-			Dictionary<object, object> dictionary = new Dictionary<object, object>();
-			dictionary.Add("levelAmount", 0);
-			dictionary2 = dictionary;
+			data["levelAmount"] = 0;
 		}
-		else
-		{
-			dictionary2 = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).Data;
-		}
-		if (!dictionary2.ContainsKey("levelAmount"))
-		{
-			dictionary2["levelAmount"] = 0;
-		}
-		int value = Convert.ToInt32(dictionary2["levelAmount"]);
+		int value = Convert.ToInt32(data["levelAmount"]);
 		slider.Initialize("levelAmount", value, 0, MVGameControllerBase.Game.LocalPlayer.Level);
 		inputField.Initialize("levelAmount", value);
 	}

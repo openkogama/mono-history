@@ -6,19 +6,25 @@ public class MVComponent : MonoBehaviour
 
 	protected MVWorldObjectClient worldObjectParent;
 
-	private void Awake()
+	protected virtual void Awake()
 	{
 		if (findWorldObjectParent)
 		{
-			if (worldObjectParent != null)
-			{
-				Debug.LogError("worldObjectParent already set " + worldObjectParent);
-			}
-			worldObjectParent = MVGameControllerBase.WOCM.GetWorldObjectByGoId(gameObject.GetInstanceID());
-			if (worldObjectParent == null)
-			{
-				Debug.LogError("wo not found on gameObject");
-			}
+			FindWorldObjectParent();
+		}
+	}
+
+	public void FindWorldObjectParent()
+	{
+		findWorldObjectParent = true;
+		if (worldObjectParent != null)
+		{
+			Debug.LogError("worldObjectParent already set " + worldObjectParent);
+		}
+		worldObjectParent = MVGameControllerBase.WOCM.GetWorldObjectByGoId(gameObject.GetInstanceID());
+		if (worldObjectParent == null)
+		{
+			Debug.LogError(string.Empty + gameObject.name + ": worldobjectParent not found on gameObject");
 		}
 	}
 }

@@ -44,4 +44,10 @@ public abstract class MVPlaymodeCameraBase : MVCameraBase
 			shakeDuration -= Time.deltaTime;
 		}
 	}
+
+	public override void UpdateCamera(MVCameraController camController, Transform targetTransform)
+	{
+		base.UpdateCamera(camController, targetTransform);
+		UpdateImpactSimulation(targetTransform);
+	}
 }

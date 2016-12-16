@@ -15,8 +15,6 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 
 	private GreyOutObjectScript pickupItemObjectScript;
 
-	private Vector3 displayObjectOffset = new Vector3(0f, 1.8f, 0f);
-
 	private SpawnerObject spawnerObject;
 
 	protected float cullDistance = 145f;
@@ -68,10 +66,10 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 		}
 		base.Initialize();
 		MVVehicleBase mVVehicleBase = (MVVehicleBase)GetChild(spawnWorldObjectID);
-		useInteractor = new UseInteractor(this, spawnerObject.UseInteractorRotator, reset: true, triggerBoxEvents.Collider, Use, CheckCanUse);
+		useInteractor = new UseInteractor(this, spawnerObject.UseInteractorRotator, reset: true, triggerBoxEvents.Collider, Use, CheckCanUse, 3.5f);
 		triggerBoxEvents.TriggerEnterOverride += useInteractor.triggerBoxEvents_TriggerEnter;
 		triggerBoxEvents.TriggerExitOverride += useInteractor.triggerBoxEvents_TriggerExit;
-		GameCoinLogic useRequirement = new GameCoinLogic(spawnerObject.UseInteractorRotator, displayObjectOffset);
+		GameCoinLogic useRequirement = new GameCoinLogic(spawnerObject.UseInteractorRotator);
 		useInteractor.AddRequirement(useRequirement);
 		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(spawnerObject.UseInteractorRotator);
 		useInteractor.AddRequirement(useRequirement2);

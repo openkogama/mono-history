@@ -28,6 +28,18 @@ public class ExplosionEvent : RuntimeEvent
 		}
 	}
 
+	private const float GodzillaPowerS = 4f;
+
+	private const float GodzillaPowerM = 8f;
+
+	private const float GodzillaPowerL = 20f;
+
+	private const float GodzillaPowerXL = 40f;
+
+	private const float GodzillaLaserImpactBaseDamage = 9f;
+
+	private const float GodzillaLaserImpactBaseRadius = 0.375f;
+
 	private static Dictionary<RuntimeEventType, ExplosionValues> explosionValues = new Dictionary<RuntimeEventType, ExplosionValues>
 	{
 		{
@@ -57,6 +69,22 @@ public class ExplosionEvent : RuntimeEvent
 		{
 			RuntimeEventType.VehicleImpact75,
 			new ExplosionValues(1.4f, 75.1f, DamageFallOffType.Linear)
+		},
+		{
+			RuntimeEventType.GodzillaLaserImpactS,
+			new ExplosionValues(1.5f, 36f, DamageFallOffType.Linear)
+		},
+		{
+			RuntimeEventType.GodzillaLaserImpactM,
+			new ExplosionValues(3f, 72f, DamageFallOffType.Linear)
+		},
+		{
+			RuntimeEventType.GodzillaLaserImpactL,
+			new ExplosionValues(7.5f, 180f, DamageFallOffType.Linear)
+		},
+		{
+			RuntimeEventType.GodzillaLaserImpactXL,
+			new ExplosionValues(15f, 360f, DamageFallOffType.Linear)
 		}
 	};
 

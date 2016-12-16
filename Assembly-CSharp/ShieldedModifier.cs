@@ -42,8 +42,8 @@ public class ShieldedModifier : AvatarModifier
 		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnHealthChange));
 		lineRenderer.Initialize();
 		transform.SetParent(owner.mvAvatar.Body.GetSlotTransform(AvatarAccessorySlot.Torso));
-		MVRuntimeDataVariable avatarRuntimeDataState = owner.mvAvatar.AvatarRuntimeDataState;
-		avatarRuntimeDataState.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(avatarRuntimeDataState.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChangedHandler));
+		MVRuntimeDataVariable avatarModeTypeFlags = owner.mvAvatar.avatarModeTypeFlags;
+		avatarModeTypeFlags.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(avatarModeTypeFlags.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChangedHandler));
 		if (MVGameControllerBase.IPlayModeUI.InLobbyState)
 		{
 			gameObject.SetActive(value: false);
@@ -55,23 +55,23 @@ public class ShieldedModifier : AvatarModifier
 	{
 		MVRuntimeDataVariableClampedFloat health = owner.mvAvatar.Health;
 		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Remove(health.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnHealthChange));
-		MVRuntimeDataVariable avatarRuntimeDataState = owner.mvAvatar.AvatarRuntimeDataState;
-		avatarRuntimeDataState.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Remove(avatarRuntimeDataState.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChangedHandler));
+		MVRuntimeDataVariable avatarModeTypeFlags = owner.mvAvatar.avatarModeTypeFlags;
+		avatarModeTypeFlags.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Remove(avatarModeTypeFlags.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChangedHandler));
 		UnityEngine.Object.Destroy(gameObject);
 	}
 
 	private void AvatarStateChangedHandler(object state)
 	{
-		switch ((AvatarRuntimeState)(byte)state)
+		int num = (int)state;
+		if ((num & 4) > 0)
 		{
-		case AvatarRuntimeState.Hidden:
 			gameObject.SetActive(value: false);
 			lineRenderer.OnSetHidden();
-			break;
-		case AvatarRuntimeState.Playing:
+		}
+		else if ((num & 1) > 0)
+		{
 			gameObject.SetActive(value: true);
 			lineRenderer.OnSetVisible();
-			break;
 		}
 	}
 

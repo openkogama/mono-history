@@ -22,7 +22,7 @@ public class Blinker
 	public void Start(float duration)
 	{
 		blinkStartTime = Time.time;
-		blinkDuration = Mathf.Max(blinkDuration, duration);
+		blinkDuration = duration;
 	}
 
 	public void Stop()

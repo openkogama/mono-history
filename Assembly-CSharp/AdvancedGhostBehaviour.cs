@@ -529,6 +529,11 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 		SetupCulling();
 	}
 
+	public void EditModeUpdateCulling()
+	{
+		cullingSubscriberBase.Position = transform.position;
+	}
+
 	private void SetupCulling()
 	{
 		cullingSubscriberBase = new CullingSubscriberBase(4f, transform.position, OnStateChange);
@@ -569,7 +574,7 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 	{
 		bool flag = isDead();
 		GhostVisualization.gameObject.SetActive(allVisible && wantsVisible && !flag);
-		gameObject.SetActive(behaviourOnlyEnabled && wantsVisible && !flag);
+		gameObject.SetActive(behaviourOnlyEnabled && !flag);
 	}
 
 	public void SetGameMode(bool isPlayMode)
@@ -579,12 +584,12 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 			SetInitialState();
 			perception.Reset();
 			wantsVisible = true;
-			SetVisible();
 		}
 		else
 		{
 			wantsVisible = false;
 		}
+		SetVisible();
 	}
 
 	public void Reset()

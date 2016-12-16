@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class MVTriggerHandler : MonoBehaviour
@@ -10,6 +11,8 @@ public class MVTriggerHandler : MonoBehaviour
 	private Collider triggingCollider;
 
 	private bool fixedUpdatedWasExecuted;
+
+	private bool wasResetThisFrame;
 
 	public Collider TriggingCollider
 	{
@@ -45,6 +48,20 @@ public class MVTriggerHandler : MonoBehaviour
 		fixedUpdatedWasExecuted = true;
 	}
 
+	private List<int> GetMissingKeysInDictionary(Dictionary<int, TriggerBoxEvents>.KeyCollection keys, Dictionary<int, TriggerBoxEvents> dictionary)
+	{
+		List<int> list = new List<int>();
+		for (int i = 0; i < keys.Count; i++)
+		{
+			int num = keys.ElementAt(i);
+			if (!dictionary.ContainsKey(num))
+			{
+				list.Add(num);
+			}
+		}
+		return list;
+	}
+
 	private void Update()
 	{
 		if (!fixedUpdatedWasExecuted)
@@ -52,37 +69,31 @@ public class MVTriggerHandler : MonoBehaviour
 			return;
 		}
 		fixedUpdatedWasExecuted = false;
-		List<int> list = new List<int>();
-		foreach (KeyValuePair<int, TriggerBoxEvents> triggerBoxEvent in triggerBoxEvents)
+		wasResetThisFrame = false;
+		List<int> missingKeysInDictionary = GetMissingKeysInDictionary(triggerBoxEvents.Keys, newTriggerBoxEvents);
+		List<int> missingKeysInDictionary2 = GetMissingKeysInDictionary(newTriggerBoxEvents.Keys, triggerBoxEvents);
+		for (int i = 0; i < missingKeysInDictionary.Count; i++)
 		{
-			if (!newTriggerBoxEvents.ContainsKey(triggerBoxEvent.Key))
+			int key = missingKeysInDictionary[i];
+			triggerBoxEvents[key].OnMVTriggerExit(TriggingCollider);
+			triggerBoxEvents.Remove(key);
+		}
+		for (int j = 0; j < missingKeysInDictionary2.Count; j++)
+		{
+			int key2 = missingKeysInDictionary2[j];
+			triggerBoxEvents.Add(key2, newTriggerBoxEvents[key2]);
+			triggerBoxEvents[key2].OnMVTriggerEnter(TriggingCollider);
+			if (wasResetThisFrame)
 			{
-				list.Add(triggerBoxEvent.Key);
+				break;
 			}
-		}
-		List<int> list2 = new List<int>();
-		foreach (KeyValuePair<int, TriggerBoxEvents> newTriggerBoxEvent in newTriggerBoxEvents)
-		{
-			if (!triggerBoxEvents.ContainsKey(newTriggerBoxEvent.Key))
-			{
-				list2.Add(newTriggerBoxEvent.Key);
-			}
-		}
-		foreach (int item in list)
-		{
-			triggerBoxEvents[item].OnMVTriggerExit(TriggingCollider);
-			triggerBoxEvents.Remove(item);
-		}
-		foreach (int item2 in list2)
-		{
-			triggerBoxEvents.Add(item2, newTriggerBoxEvents[item2]);
-			triggerBoxEvents[item2].OnMVTriggerEnter(TriggingCollider);
 		}
 		newTriggerBoxEvents.Clear();
 	}
 
 	public void Reset()
 	{
+		wasResetThisFrame = true;
 		foreach (KeyValuePair<int, TriggerBoxEvents> triggerBoxEvent in triggerBoxEvents)
 		{
 			triggerBoxEvent.Value.OnMVTriggerExit(TriggingCollider);

@@ -4,19 +4,21 @@ using UnityEngine;
 
 public class TriggerBoxEvents : MonoBehaviour
 {
-	private bool isInTrigger;
+	[SerializeField]
+	[Tooltip("Will be fetched with GetComponent<Collider>(), if null.")]
+	private Collider triggerCollider;
 
-	private Collider cachedCollider;
+	private bool isInTrigger;
 
 	public Collider Collider
 	{
 		get
 		{
-			if (!cachedCollider)
+			if (!triggerCollider)
 			{
-				cachedCollider = GetComponent<Collider>();
+				triggerCollider = GetComponent<Collider>();
 			}
-			return cachedCollider;
+			return triggerCollider;
 		}
 	}
 
@@ -29,6 +31,27 @@ public class TriggerBoxEvents : MonoBehaviour
 	public event EventHandler<TriggerEventArgs> TriggerEnter;
 
 	public event EventHandler<TriggerEventArgs> TriggerExit;
+
+	private void OnValidate()
+	{
+		if (triggerCollider == null)
+		{
+			int num = GetComponents<Collider>().Length;
+			if (num > 1)
+			{
+				Debug.LogWarning("TriggerBoxEvents: triggerCollider is not manually defined, and there are multiple to choose from.");
+			}
+			else if (num == 1)
+			{
+				triggerCollider = GetComponent<Collider>();
+				triggerCollider.isTrigger = true;
+			}
+		}
+		if (!triggerCollider.isTrigger)
+		{
+			Debug.LogWarning("TriggerBoxEvents: triggerCollider is not marked as trigger.");
+		}
+	}
 
 	public void OnMVTriggerEnter(Collider other)
 	{

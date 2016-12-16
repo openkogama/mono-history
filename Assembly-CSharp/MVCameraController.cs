@@ -48,9 +48,14 @@ public class MVCameraController : MonoBehaviour
 			TransitionCamera.InitTransition(cameraController, CurCamera.transform, transitionTime, soft);
 		}
 
+		public void CancelTransitionCam()
+		{
+			TransitionCamera.AbortTransition();
+		}
+
 		public void UpdateCamera(MVCameraController cameraController)
 		{
-			if (TransitionCamera.RotPercentage < 1f)
+			if (TransitionInProgress())
 			{
 				CurCamera.UpdateCamera(cameraController, cameraController.transform);
 				TransitionCamera.UpdateCamera(cameraController, cameraController.transform);
@@ -59,6 +64,11 @@ public class MVCameraController : MonoBehaviour
 			{
 				CurCamera.UpdateCamera(cameraController, cameraController.transform);
 			}
+		}
+
+		public bool TransitionInProgress()
+		{
+			return TransitionCamera.RotPercentage < 1f;
 		}
 
 		private void EnterCamera(MVCameraBase newCamera, MVCameraController cameraController)
@@ -338,6 +348,11 @@ public class MVCameraController : MonoBehaviour
 	public void StartTransitionCam(float transitionTime = 2f, bool soft = false)
 	{
 		cameraStack.StartTransitionCam(this, transitionTime, soft);
+	}
+
+	public void CancelTransitionCam()
+	{
+		cameraStack.CancelTransitionCam();
 	}
 
 	public void UpdateCamera()

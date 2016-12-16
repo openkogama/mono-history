@@ -12,5 +12,9 @@ public enum RuntimeEventType : byte
 	AvatarImpact50,
 	AvatarImpact75,
 	VehicleImpact50,
-	VehicleImpact75
+	VehicleImpact75,
+	GodzillaLaserImpactS,
+	GodzillaLaserImpactM,
+	GodzillaLaserImpactL,
+	GodzillaLaserImpactXL
 }

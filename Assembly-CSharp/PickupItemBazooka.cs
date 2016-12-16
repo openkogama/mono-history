@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
-using MV.WorldObject;
 using MV.WorldObject.RuntimeEvents;
 using UnityEngine;
 
@@ -71,6 +70,8 @@ public class PickupItemBazooka : PickupItemWithDelay
 
 	private void HandleRocketHitLocal(VoxelHit voxelHit, Ray lineOfFire)
 	{
+		ExplosionEvent explosion = new ExplosionEvent(RuntimeEventType.Bazooka, voxelHit.point, voxelHit.normal);
+		MVGameControllerBase.Game.World.RuntimeEventManager.SendRuntimeEvent(explosion);
 		int num = Physics.OverlapSphereNonAlloc(voxelHit.point, blastRadius, CollisionDetectionGlobalBuffers.colliderBuffer);
 		HashSet<int> hashSet = new HashSet<int>();
 		for (int i = 0; i < num; i++)
@@ -79,15 +80,10 @@ public class PickupItemBazooka : PickupItemWithDelay
 			MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(collider.transform);
 			if (mVObject != null && !hashSet.Contains(mVObject.Id))
 			{
-				if (mVObject.WorldObjectType == WorldObjectType.CubeModelPrototypeTerrain)
-				{
-					ExplosionEvent explosion = new ExplosionEvent(RuntimeEventType.Bazooka, voxelHit.point, voxelHit.normal);
-					MVGameControllerBase.Game.World.RuntimeEventManager.SendRuntimeEvent(explosion);
-				}
 				InteractionDataHandlerBase interactionDataHandlerBase = mVObject.InteractionDataHandlerBase;
 				if (interactionDataHandlerBase != null)
 				{
-					float time = Vector3.Distance(voxelHit.point, collider.transform.position) / blastRadius;
+					float time = Vector3.Distance(voxelHit.point, interactionDataHandlerBase.GetClosestPoint(voxelHit.point)) / blastRadius;
 					float damage = Mathf.Clamp(damageFalloff.Evaluate(time) * baseDamage, 0f, float.MaxValue);
 					Vector3 normalized = (collider.transform.position - voxelHit.point).normalized;
 					normalized.y += 0.1f;

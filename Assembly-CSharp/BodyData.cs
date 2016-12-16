@@ -5,6 +5,19 @@ using UnityEngine;
 
 public class BodyData : MonoBehaviour
 {
+	public enum PartIndex
+	{
+		Head,
+		Torso,
+		RArm,
+		LArm,
+		RUpLeg,
+		RLowLeg,
+		LUpLeg,
+		LLowLeg,
+		Size
+	}
+
 	public string[] PartNames = new string[8] { "Head", "Torso", "RArm", "LArm", "RUpLeg", "RLowLeg", "LUpLeg", "LLowLeg" };
 
 	public Transform[] PartBones;
@@ -69,6 +82,11 @@ public class BodyData : MonoBehaviour
 	public int GetPartIndex(string part)
 	{
 		return partMap[part];
+	}
+
+	public Transform GetPartBone(PartIndex part)
+	{
+		return PartBones[(int)part];
 	}
 
 	public Transform GetPartBone(string part)

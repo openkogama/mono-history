@@ -177,7 +177,7 @@ public class Avatar : MonoBehaviour
 		avatarName.GetComponent<Renderer>().material.color = color;
 	}
 
-	public void StartBlinking(BlinkType type, float duration)
+	public void StartBlinking(BlinkType type, float duration = float.PositiveInfinity)
 	{
 		mvAvatar.Body.StartBlinking(type, duration);
 	}

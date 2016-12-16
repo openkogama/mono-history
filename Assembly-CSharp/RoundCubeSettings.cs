@@ -33,20 +33,9 @@ public class RoundCubeSettings : MonoBehaviour, IEventSystemHandler, IHandleSett
 	public void Initialize(int woID, GameObject root)
 	{
 		settingsBase.Initialize(woID, root);
-		Dictionary<object, object> dictionary2;
-		if (woID == -1)
-		{
-			Dictionary<object, object> dictionary = new Dictionary<object, object>();
-			dictionary.Add("interval", 60);
-			dictionary.Add("winningCondition", 0);
-			dictionary2 = dictionary;
-		}
-		else
-		{
-			dictionary2 = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).Data;
-		}
-		int num = Convert.ToInt32(dictionary2["interval"]);
-		int num2 = Convert.ToInt32(dictionary2["winningCondition"]);
+		Dictionary<object, object> data = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).Data;
+		int num = Convert.ToInt32(data["interval"]);
+		int num2 = Convert.ToInt32(data["winningCondition"]);
 		slider.Initialize("interval", num, 30, 3600);
 		minutes.text = GetMinutes(num / 60).ToString();
 		seconds.text = GetSeconds(num).ToString();

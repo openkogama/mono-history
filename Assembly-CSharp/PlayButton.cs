@@ -6,7 +6,7 @@ public class PlayButton : MonoBehaviour
 	public void Play()
 	{
 		MVGameControllerBase.IPlayModeUI.InLobbyState = false;
-		if (MVGameControllerBase.WOCM.AvatarLocal.AvatarRuntimeState == AvatarRuntimeState.Hidden)
+		if (MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Hidden))
 		{
 			MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Playing);
 		}

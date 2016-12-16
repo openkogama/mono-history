@@ -16,5 +16,14 @@ public enum AvatarModifierPackageType
 	WindFriction,
 	DisableVehiclePickup,
 	Enlarged,
-	Shielded
+	Shielded,
+	GodzillaS,
+	GodzillaM,
+	GodzillaL,
+	GodzillaXL,
+	GodzillaLaserBurnS,
+	GodzillaLaserBurnM,
+	GodzillaLaserBurnL,
+	GodzillaLaserBurnXL,
+	SIZE
 }

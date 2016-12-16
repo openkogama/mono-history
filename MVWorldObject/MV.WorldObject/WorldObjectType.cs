@@ -97,7 +97,7 @@ public enum WorldObjectType
 	Christian15 = 144,
 	CameraSettings = 145,
 	GravityCube = 146,
-	Caspar3 = 147,
+	GodzillaTrigger = 147,
 	GameCoin = 148,
 	GameCoinChest = 149,
 	Caspar6 = 150,

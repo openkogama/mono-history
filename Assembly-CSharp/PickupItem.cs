@@ -43,6 +43,7 @@ public abstract class PickupItem : MonoBehaviour
 			AvatarItemType.Bazooka => Object.Instantiate(PrefabPool.Instance.AvatarItemBazooka), 
 			AvatarItemType.Hand => Object.Instantiate(PrefabPool.Instance.AvatarItemHand), 
 			AvatarItemType.RailGun => Object.Instantiate(PrefabPool.Instance.AvatarItemRailGun), 
+			AvatarItemType.GodzillaLaser => Object.Instantiate(PrefabPool.Instance.AvatarItemGodzillaLaser), 
 			AvatarItemType.Sword => Object.Instantiate(PrefabPool.Instance.AvatarItemSword), 
 			AvatarItemType.Shotgun => Object.Instantiate(PrefabPool.Instance.AvatarItemShotgun), 
 			AvatarItemType.Flamethrower => Object.Instantiate(PrefabPool.Instance.AvatarItemFlamethrower), 

@@ -49,6 +49,30 @@ public abstract class AvatarModifier : MonoBehaviour
 		case AvatarModifierPackageType.Shielded:
 			avatarModifier = Object.Instantiate(PrefabPool.Instance.ShieldModifier);
 			break;
+		case AvatarModifierPackageType.GodzillaS:
+			avatarModifier = Object.Instantiate(PrefabPool.Instance.GodzillaModifierS);
+			break;
+		case AvatarModifierPackageType.GodzillaM:
+			avatarModifier = Object.Instantiate(PrefabPool.Instance.GodzillaModifierM);
+			break;
+		case AvatarModifierPackageType.GodzillaL:
+			avatarModifier = Object.Instantiate(PrefabPool.Instance.GodzillaModifierL);
+			break;
+		case AvatarModifierPackageType.GodzillaXL:
+			avatarModifier = Object.Instantiate(PrefabPool.Instance.GodzillaModifierXL);
+			break;
+		case AvatarModifierPackageType.GodzillaLaserBurnS:
+			avatarModifier = Object.Instantiate(PrefabPool.Instance.GodzillaLaserBurnModifierS);
+			break;
+		case AvatarModifierPackageType.GodzillaLaserBurnM:
+			avatarModifier = Object.Instantiate(PrefabPool.Instance.GodzillaLaserBurnModifierM);
+			break;
+		case AvatarModifierPackageType.GodzillaLaserBurnL:
+			avatarModifier = Object.Instantiate(PrefabPool.Instance.GodzillaLaserBurnModifierL);
+			break;
+		case AvatarModifierPackageType.GodzillaLaserBurnXL:
+			avatarModifier = Object.Instantiate(PrefabPool.Instance.GodzillaLaserBurnModifierXL);
+			break;
 		default:
 			return null;
 		}

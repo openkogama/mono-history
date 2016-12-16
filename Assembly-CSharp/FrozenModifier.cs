@@ -9,7 +9,7 @@ public class FrozenModifier : AvatarModifier
 
 	protected override void OnActivated(Avatar target)
 	{
-		target.StartBlinking(BlinkType.Frozen, float.PositiveInfinity);
+		target.StartBlinking(BlinkType.Frozen);
 	}
 
 	protected override void OnDeactivated(Avatar target)

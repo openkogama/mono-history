@@ -12,6 +12,11 @@ public class TargetRotation : MonoBehaviour
 
 	public Vector3 EulerAngles => eulerAngles;
 
+	public void SetTargetRotation(Vector2 pitchYaw)
+	{
+		SetTargetRotation(pitchYaw.x, pitchYaw.y);
+	}
+
 	public void SetTargetRotation(float pitch, float yaw)
 	{
 		eulerAngles.x = pitch;

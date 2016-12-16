@@ -22,7 +22,7 @@ public class MVFlag : MVLogicObject
 		: base(data, PrefabPool.Instance.MVFlagPrefab, worldObjects)
 	{
 		flagObject = (FlagObject)component;
-		triggerBoxEvents = gameObject.GetComponentInChildren<TriggerBoxEvents>();
+		triggerBoxEvents = flagObject.TriggerBoxEvents;
 		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		interactionFlags |= InteractionFlags.CanUseGameCoins | InteractionFlags.CanUseTeam;
 	}

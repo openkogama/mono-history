@@ -519,6 +519,21 @@ public class MVNetworkGame : IPhotonPeerListener
 				MVGameControllerBase.PostGameMsg(MVGameMsgType.UserJoined, gameMsgData);
 				break;
 			}
+			case MVEventCodes.GodzillaEnter:
+			{
+				int[] array = (int[])photonEvent[71];
+				if (MVGameControllerBase.WOCM.GetWorldObjectClient(array[0]) is GodzillaTrigger godzillaTrigger2)
+				{
+					godzillaTrigger2.OccupationChange(array[1]);
+				}
+				break;
+			}
+			case MVEventCodes.GodzillaExit:
+				if (MVGameControllerBase.WOCM.GetWorldObjectClient((int)photonEvent[20]) is GodzillaTrigger godzillaTrigger)
+				{
+					godzillaTrigger.OccupationChange(-1);
+				}
+				break;
 			default:
 				Debug.LogError("Unknown event: " + eventCode);
 				break;
@@ -3634,7 +3649,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		OnUnregisterWorldObjectEvent(num);
 		if (MVGameControllerBase.Game.LocalPlayer.ActorNr == num3)
 		{
-			MVGameControllerBase.WOCM.AvatarLocal.SetMode(MVGameControllerBase.WOCM.AvatarLocal.AvatarRuntimeState);
+			MVGameControllerBase.WOCM.AvatarLocal.ResetMode();
 			if (MVGameControllerBase.GameMode == MVGameMode.Play)
 			{
 				MVGameControllerBase.WOCM.AvatarLocal.Body.AccessoryMoveOverride = true;

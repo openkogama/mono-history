@@ -43,6 +43,7 @@ public class WindTurbineSettings : MonoBehaviour, IEventSystemHandler, IHandleSe
 
 	public void OnSettingChanged(string key, object value)
 	{
+		Debug.Log("Setting changed " + key + " " + value);
 		settingsBase.OnSettingChanged(key, Convert.ToSingle(value));
 	}
 }

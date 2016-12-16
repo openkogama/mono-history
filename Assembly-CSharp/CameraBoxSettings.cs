@@ -18,26 +18,16 @@ public class CameraBoxSettings : MonoBehaviour, IEventSystemHandler, IHandleSett
 	public void Initialize(int woID, GameObject root)
 	{
 		settingsBase.Initialize(woID, root);
-		Dictionary<object, object> dictionary2;
-		if (woID == -1)
-		{
-			Dictionary<object, object> dictionary = new Dictionary<object, object>();
-			dictionary.Add("distanceToAvatar", 5);
-			dictionary2 = dictionary;
-		}
-		else
-		{
-			dictionary2 = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).Data;
-		}
+		Dictionary<object, object> data = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).Data;
 		if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
 		{
-			slider.Initialize("distanceToAvatar", Convert.ToSingle(dictionary2["distanceToAvatar"]), 3f, 10f);
+			slider.Initialize("distanceToAvatar", Convert.ToSingle(data["distanceToAvatar"]), 3f, 10f);
 		}
 		else if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
 		{
-			slider.Initialize("distanceToAvatar", Convert.ToSingle(dictionary2["distanceToAvatar"]), 15f, 45f);
+			slider.Initialize("distanceToAvatar", Convert.ToSingle(data["distanceToAvatar"]), 15f, 45f);
 		}
-		inputField.Initialize("distanceToAvatar", Convert.ToSingle(dictionary2["distanceToAvatar"]));
+		inputField.Initialize("distanceToAvatar", Convert.ToSingle(data["distanceToAvatar"]));
 	}
 
 	public void OnSettingChanged(string key, object value)

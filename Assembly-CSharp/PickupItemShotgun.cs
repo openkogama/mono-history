@@ -83,7 +83,6 @@ public class PickupItemShotgun : PickupItemWithDelay
 		hitParticle.transform.position = voxelHit.point;
 		hitParticle.transform.rotation = rotation;
 		hitParticle.Initialize();
-		MeshDecal.Create(new MeshDecal.Hit(voxelHit.point, voxelHit.normal, 1f), hitDecalMaterial, null);
 	}
 
 	private void HandleDirectHit(VoxelHit voxelHit, Ray lineOfFire)

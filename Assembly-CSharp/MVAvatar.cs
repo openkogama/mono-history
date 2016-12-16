@@ -7,6 +7,8 @@ public class MVAvatar : MVGroup
 {
 	protected Avatar avatar;
 
+	private float previousHealth;
+
 	public MVRuntimeDataVariableClampedFloat Health;
 
 	public MVRuntimeDataVariable Modifiers;
@@ -19,7 +21,9 @@ public class MVAvatar : MVGroup
 
 	public MVRuntimeDataVariable Animation;
 
-	public MVRuntimeDataVariable AvatarRuntimeDataState;
+	public MVRuntimeDataVariable avatarModeTypeFlags;
+
+	public Action<float, float> OnDamageTaken;
 
 	private readonly Vector3 characterControllerCenterOffset = new Vector3(0f, 0.95f, 0f);
 
@@ -31,15 +35,15 @@ public class MVAvatar : MVGroup
 
 	protected AvatarPickupOwner avatarPickupOwner;
 
-	public AvatarRuntimeState AvatarRuntimeState
+	public int AvatarModeTypeFlags
 	{
 		get
 		{
-			return (AvatarRuntimeState)(byte)AvatarRuntimeDataState.Value;
+			return (int)avatarModeTypeFlags.Value;
 		}
-		protected set
+		set
 		{
-			AvatarRuntimeDataState.Value = (byte)value;
+			avatarModeTypeFlags.Value = value;
 		}
 	}
 
@@ -76,10 +80,15 @@ public class MVAvatar : MVGroup
 		Modifiers = RuntimeDataVariables.New("modifiers", 1f, writeThrough: false);
 		CurrentItem = RuntimeDataVariables.New("currentItem", 0f, writeThrough: true);
 		Invulnerable = RuntimeDataVariables.New("invulnerable", 0.2f, writeThrough: true);
-		AvatarRuntimeDataState = RuntimeDataVariables.New("avatarRuntimeState", 0f, writeThrough: true);
+		avatarModeTypeFlags = RuntimeDataVariables.New("avatarModeTypes", 0f, writeThrough: true);
 		Animation = RuntimeDataVariables.New("animation", 0f, writeThrough: false);
 		gameObject.layer = LayerMask.NameToLayer("Player");
 		avatar = gameObject.GetComponent<Avatar>();
+	}
+
+	public bool IsInMode(AvatarModeTypes t)
+	{
+		return (int)((uint)AvatarModeTypeFlags & (uint)t) > 0;
 	}
 
 	public virtual void BeforeVehicleEntered()
@@ -128,24 +137,38 @@ public class MVAvatar : MVGroup
 	public override void Initialize()
 	{
 		base.Initialize();
-		gameObject.AddComponent<InteractionDataHandler>();
 		avatarPickupOwner = gameObject.AddComponent<AvatarPickupOwner>();
 		avatarPickupOwner.Init(CurrentItem, IsFiring, this);
 		avatarPickupOwner.IsLocal = isLocal;
 		avatar.Initialize(this, isLocal);
+		avatar.InteractionDataHandlerBase.FindWorldObjectParent();
 		InitializeModifiers();
 		MVGameControllerBase.Game.Players.TryGetValue(OwnerActorNr, out var value);
 		if (value != null)
 		{
 			value.Avatar = this;
 		}
-		MVRuntimeDataVariable avatarRuntimeDataState = AvatarRuntimeDataState;
-		avatarRuntimeDataState.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(avatarRuntimeDataState.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChangedHandler));
+		MVRuntimeDataVariable mVRuntimeDataVariable = avatarModeTypeFlags;
+		mVRuntimeDataVariable.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(mVRuntimeDataVariable.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChangedHandler));
+		previousHealth = Health.Value;
+		MVRuntimeDataVariableClampedFloat health = Health;
+		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(DamageTaken));
+	}
+
+	private void DamageTaken(object a)
+	{
+		float num = (float)a;
+		if (OnDamageTaken != null && num < previousHealth)
+		{
+			OnDamageTaken(num, previousHealth);
+		}
+		previousHealth = num;
 	}
 
 	protected virtual void AvatarStateChangedHandler(object a)
 	{
-		if ((byte)a == 0)
+		int num = (int)a;
+		if ((num & 4) > 0)
 		{
 			avatar.Collider.enabled = false;
 			avatar.InteractionDataHandlerBase.enabled = false;

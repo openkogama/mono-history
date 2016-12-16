@@ -7,6 +7,8 @@ using UnityEngine.Events;
 
 public class DesktopEditModeController : ModeControllerBase, IEditModeUI, ISetEditState, IEventSystemHandler, IGridSnapHandler, IEditModeController
 {
+	private const float focusTimeInputSupressTimeOut = 5f;
+
 	private bool isInPlayInEditMode;
 
 	private Action<EditModeChangeArgs> editModeChange;
@@ -59,6 +61,10 @@ public class DesktopEditModeController : ModeControllerBase, IEditModeUI, ISetEd
 	[SerializeField]
 	private RectTransform notificationsManager;
 
+	private float focusTime;
+
+	private bool focusSuppressInput = true;
+
 	public bool IsInPlayInEditMode => isInPlayInEditMode;
 
 	public ClientShopRepository ClientShopRepository { get; set; }
@@ -91,9 +97,25 @@ public class DesktopEditModeController : ModeControllerBase, IEditModeUI, ISetEd
 		RegisterShortcuts();
 	}
 
+	private void HandleFocusInputSupress()
+	{
+		if (focusSuppressInput && focusSuppressInput)
+		{
+			if (Input.GetKeyUp(KeyCode.Mouse0) || Time.realtimeSinceStartup - focusTime > 5f)
+			{
+				focusSuppressInput = false;
+			}
+			else
+			{
+				MVInputWrapper.IsInputSuppressed = true;
+			}
+		}
+	}
+
 	private void Update()
 	{
 		HandleFpsShortcut();
+		HandleFocusInputSupress();
 		if (editorStateMachine != null)
 		{
 			editorStateMachine.Update();
@@ -101,6 +123,16 @@ public class DesktopEditModeController : ModeControllerBase, IEditModeUI, ISetEd
 		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.ToggleHD) && uiStack.IsStackEmpty())
 		{
 			ToggleHD();
+		}
+	}
+
+	private void OnApplicationFocus(bool focus)
+	{
+		Debug.Log("OnApplicationFocus " + focus);
+		if (focus)
+		{
+			focusSuppressInput = true;
+			focusTime = Time.realtimeSinceStartup;
 		}
 	}
 

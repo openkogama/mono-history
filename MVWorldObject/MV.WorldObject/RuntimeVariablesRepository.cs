@@ -33,6 +33,10 @@ public static class RuntimeVariablesRepository
 		{
 			WorldObjectType.HamsterWheel,
 			HamsterWheelRuntimeData()
+		},
+		{
+			WorldObjectType.GodzillaTrigger,
+			GodzillaTriggerRuntimeData()
 		}
 	};
 
@@ -55,7 +59,7 @@ public static class RuntimeVariablesRepository
 		dictionary.Add("lineOfFire", new Dictionary<object, object>());
 		dictionary.Add("invulnerable", false);
 		dictionary.Add("seat", -1);
-		dictionary.Add("avatarRuntimeState", (byte)0);
+		dictionary.Add("avatarModeTypes", 4);
 		Dictionary<object, object> dictionary2 = new Dictionary<object, object>();
 		dictionary2.Add("state", "Idle");
 		dictionary2.Add("timeStamp", 0);
@@ -123,6 +127,13 @@ public static class RuntimeVariablesRepository
 	{
 		Dictionary<object, object> dictionary = new Dictionary<object, object>();
 		dictionary.Add("health", 300f);
+		return dictionary;
+	}
+
+	private static Dictionary<object, object> GodzillaTriggerRuntimeData()
+	{
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add("occupantWOID", -1);
 		return dictionary;
 	}
 }

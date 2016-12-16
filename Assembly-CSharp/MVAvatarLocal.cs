@@ -9,38 +9,45 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 {
 	private class AvatarLocalModes
 	{
-		private readonly MVAvatarLocal mvAvatar;
-
 		private readonly Dictionary<AvatarRuntimeState, AvatarMode> avatarModes = new Dictionary<AvatarRuntimeState, AvatarMode>();
 
-		public AvatarMode CurrentMode => avatarModes[mvAvatar.AvatarRuntimeState];
+		private AvatarMode currentMode;
+
+		private AvatarRuntimeState currentState;
+
+		public AvatarMode CurrentMode => currentMode;
+
+		public AvatarRuntimeState CurrentState => currentState;
 
 		public AvatarLocalModes(MVAvatarLocal avatar)
 		{
-			mvAvatar = avatar;
 			avatarModes.Add(AvatarRuntimeState.Playing, new WalkMode(avatar));
 			avatarModes.Add(AvatarRuntimeState.Edit2D, new EditorAvatarMode2D(avatar));
 			avatarModes.Add(AvatarRuntimeState.Edit, new JetPackMode(avatar));
 			avatarModes.Add(AvatarRuntimeState.Dead, new DeadMode(avatar));
 			avatarModes.Add(AvatarRuntimeState.Hidden, new LobbyMode(avatar));
+			avatarModes.Add(AvatarRuntimeState.Godzilla, new GodzillaMode(avatar));
+			avatarModes.Add(AvatarRuntimeState.GodzillaDead, new GodzillaDeadMode(avatar));
+			currentState = AvatarRuntimeState.Hidden;
+			currentMode = avatarModes[currentState];
 		}
 
 		public void FrameUpdate(InputToInGameAction interactionMap)
 		{
-			avatarModes[mvAvatar.AvatarRuntimeState].FrameUpdate(interactionMap);
+			currentMode.FrameUpdate(interactionMap);
 		}
 
 		public void FixedUpdate(IInputToPlayerMovement movementMap)
 		{
-			avatarModes[mvAvatar.AvatarRuntimeState].FixedUpdate(movementMap);
+			currentMode.FixedUpdate(movementMap);
 		}
 
 		public void SetMode(AvatarRuntimeState mode)
 		{
-			AvatarRuntimeState avatarRuntimeState = mvAvatar.AvatarRuntimeState;
-			avatarModes[avatarRuntimeState].DeActivate(mode);
-			mvAvatar.AvatarRuntimeState = mode;
-			avatarModes[mode].Activate(avatarRuntimeState);
+			currentMode.DeActivate(mode);
+			currentMode = avatarModes[mode];
+			currentMode.Activate(currentState);
+			currentState = mode;
 		}
 	}
 
@@ -48,21 +55,27 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 	{
 		protected readonly MVAvatarLocal mvAvatar;
 
-		protected AvatarMode(MVAvatarLocal mvAvatar)
+		public int modeTypes;
+
+		protected AvatarMode(MVAvatarLocal mvAvatar, int modeTypes)
 		{
 			this.mvAvatar = mvAvatar;
+			this.modeTypes = modeTypes;
 		}
-
-		public abstract void Activate(AvatarRuntimeState fromMode);
 
 		public abstract void DeActivate(AvatarRuntimeState toMode);
 
 		public abstract void FixedUpdate(IInputToPlayerMovement movementMap);
 
 		public abstract void FrameUpdate(InputToInGameAction interactionMap);
+
+		public virtual void Activate(AvatarRuntimeState fromMode)
+		{
+			mvAvatar.AvatarModeTypeFlags = modeTypes;
+		}
 	}
 
-	protected class DeadMode(MVAvatarLocal mvAvatar) : AvatarMode(mvAvatar)
+	protected class DeadMode(MVAvatarLocal mvAvatar) : AvatarMode(mvAvatar, 2)
 	{
 		private class AvatarInputControllerDead : IMotorAPI
 		{
@@ -85,14 +98,15 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 			public bool Jump => false;
 		}
 
-		private float deadTime;
+		protected float deadTime;
 
-		private float deadInterval = 2.5f;
+		protected float deadInterval = 2.5f;
 
 		private AvatarInputControllerDead inputController = new AvatarInputControllerDead();
 
 		public override void Activate(AvatarRuntimeState fromMode)
 		{
+			base.Activate(fromMode);
 			deadTime = Time.time;
 			mvAvatar.SetAnimation("Dead");
 			mvAvatar.avatarEquipable.Unequip();
@@ -128,8 +142,8 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 
 	public abstract class EditAvatarModeBase : AvatarMode
 	{
-		protected EditAvatarModeBase(MVAvatarLocal mvAvatar)
-			: base(mvAvatar)
+		protected EditAvatarModeBase(MVAvatarLocal mvAvatar, int modeTypes)
+			: base(mvAvatar, modeTypes)
 		{
 		}
 
@@ -141,7 +155,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		}
 	}
 
-	public class EditorAvatarMode2D(MVAvatarLocal mvAvatar) : EditAvatarModeBase(mvAvatar)
+	public class EditorAvatarMode2D(MVAvatarLocal mvAvatar) : EditAvatarModeBase(mvAvatar, 0)
 	{
 		private const float distanceModifierDivider = -15f;
 
@@ -175,6 +189,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 
 		public override void Activate(AvatarRuntimeState fromMode)
 		{
+			base.Activate(fromMode);
 			mvAvatar.SetAnimation("Idle");
 			if (mvAvatar.Body == null)
 			{
@@ -351,7 +366,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		private float XZMovementSpeedScale { get; set; }
 
 		public JetPackMode(MVAvatarLocal mvAvatar)
-			: base(mvAvatar)
+			: base(mvAvatar, 0)
 		{
 			YMovementSpeedScale = 1f;
 			XZMovementSpeedScale = 1f;
@@ -359,6 +374,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 
 		public override void Activate(AvatarRuntimeState fromMode)
 		{
+			base.Activate(fromMode);
 			mvAvatar.SetAnimation("Idle");
 			if (mvAvatar.Body == null)
 			{
@@ -529,12 +545,13 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 	protected class LobbyMode : AvatarMode
 	{
 		public LobbyMode(MVAvatarLocal mvAvatar)
-			: base(mvAvatar)
+			: base(mvAvatar, 4)
 		{
 		}
 
 		public override void Activate(AvatarRuntimeState fromMode)
 		{
+			base.Activate(fromMode);
 			LayerUtil.SetLayerRecursively(mvAvatar.Body.Transform, "Player", "CamRotateTarget");
 			MVGameControllerBase.CameraController.BlueModeEnabled = true;
 			MVGameControllerBase.IPlayModeUI.InLobbyState = true;
@@ -592,7 +609,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		private bool IsSwimming => swimStartProximity <= prevWaterProximity;
 
 		public WalkMode(MVAvatarLocal mvAvatar)
-			: base(mvAvatar)
+			: base(mvAvatar, 1)
 		{
 			AvatarPickupOwner pickupOwner = mvAvatar.pickupOwner;
 			pickupOwner.onHandleFiring = (MVPickupOwner.OnHandleFiringDelegate)Delegate.Combine(pickupOwner.onHandleFiring, new MVPickupOwner.OnHandleFiringDelegate(OnHandleFiring));
@@ -608,6 +625,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 
 		public override void Activate(AvatarRuntimeState fromMode)
 		{
+			base.Activate(fromMode);
 			respawnTime = Time.time;
 			MVGameControllerBase.CameraController.BlueModeEnabled = false;
 			MVGameControllerBase.CameraController.SetPlayModeCam();
@@ -781,6 +799,167 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		}
 	}
 
+	protected class GodzillaDeadMode : DeadMode
+	{
+		private const float modRemovalDelay = 0.25f;
+
+		private bool hasRestoredFromGodzillamode;
+
+		private FirstPersonDeathCamera camera;
+
+		public GodzillaDeadMode(MVAvatarLocal mvAvatar)
+			: base(mvAvatar)
+		{
+		}
+
+		public override void Activate(AvatarRuntimeState fromMode)
+		{
+			mvAvatar.AvatarModeTypeFlags = modeTypes;
+			deadTime = Time.time;
+			hasRestoredFromGodzillamode = false;
+			mvAvatar.SetAnimation("Dead");
+			camera = UnityEngine.Object.Instantiate(PrefabPool.Instance.FirstPersonDeathCamera);
+			MVGameControllerBase.CameraController.PushCamera(camera);
+		}
+
+		public override void DeActivate(AvatarRuntimeState toMode)
+		{
+			base.DeActivate(toMode);
+			MVGameControllerBase.CameraController.RemoveCamera(camera);
+			UnityEngine.Object.Destroy(camera.gameObject);
+		}
+
+		public override void FrameUpdate(InputToInGameAction interactionMap)
+		{
+			if (!hasRestoredFromGodzillamode && (Time.time - deadTime) / deadInterval > 0.25f)
+			{
+				mvAvatar.interactableLocal.RemoveModifier(AvatarModifierPackageType.GodzillaS);
+				mvAvatar.interactableLocal.RemoveModifier(AvatarModifierPackageType.GodzillaM);
+				mvAvatar.interactableLocal.RemoveModifier(AvatarModifierPackageType.GodzillaL);
+				mvAvatar.interactableLocal.RemoveModifier(AvatarModifierPackageType.GodzillaXL);
+				mvAvatar.avatarEquipable.Unequip();
+			}
+			base.FrameUpdate(interactionMap);
+		}
+	}
+
+	public class GodzillaMode : AvatarMode
+	{
+		public const string screenName = "Colossus";
+
+		private const float levitationHeight = 0.2f;
+
+		private MVCameraBase camera;
+
+		private GodzillaTrigger triggerRef;
+
+		private AvatarModifierPackageType activeModifierPackageType;
+
+		public GodzillaMode(MVAvatarLocal mvAvatar)
+			: base(mvAvatar, 1)
+		{
+		}
+
+		public override void Activate(AvatarRuntimeState fromMode)
+		{
+			base.Activate(fromMode);
+			if (mvAvatar.IsSeated)
+			{
+				mvAvatar.LeaveVehicle();
+			}
+			mvAvatar.triggerHandler.enabled = false;
+			mvAvatar.Collider.enabled = true;
+			mvAvatar.RigidBody.enabled = false;
+			mvAvatar.SetAnimation("Idle");
+			mvAvatar.Body.Visible = true;
+			mvAvatar.interactableLocal.ClearModifiers();
+			ActivateGodzillaCamera();
+		}
+
+		public void ActivateModifier(AvatarModifierPackageType godzillaType)
+		{
+			if (activeModifierPackageType != AvatarModifierPackageType.None)
+			{
+				mvAvatar.interactableLocal.AddModifier(godzillaType);
+				activeModifierPackageType = godzillaType;
+				mvAvatar.avatarEquipable.Unequip();
+			}
+			activeModifierPackageType = godzillaType;
+			mvAvatar.interactableLocal.AddModifier(godzillaType);
+			Dictionary<object, object> dictionary = new Dictionary<object, object>();
+			dictionary.Add("avatarModifierPackageType", (byte)activeModifierPackageType);
+			Dictionary<object, object> itemData = dictionary;
+			mvAvatar.avatarEquipable.Equip(AvatarItemType.GodzillaLaser, AvatarEquipableType.Weapon, itemData);
+		}
+
+		public override void DeActivate(AvatarRuntimeState toMode)
+		{
+			DeactivateGodzillaCamera();
+			mvAvatar.RigidBody.enabled = true;
+			mvAvatar.avatarMotor.Reset();
+			if (triggerRef != null)
+			{
+				triggerRef.Exit(mvAvatar.id);
+			}
+			if (toMode != AvatarRuntimeState.GodzillaDead)
+			{
+				mvAvatar.interactableLocal.RemoveModifier(activeModifierPackageType);
+				mvAvatar.avatarEquipable.Unequip();
+			}
+			activeModifierPackageType = AvatarModifierPackageType.None;
+		}
+
+		public override void FixedUpdate(IInputToPlayerMovement movementMap)
+		{
+		}
+
+		public override void FrameUpdate(InputToInGameAction interactionMap)
+		{
+			if (triggerRef == null)
+			{
+				mvAvatar.SetMode(AvatarRuntimeState.Playing);
+				return;
+			}
+			float y = 0.2f * mvAvatar.Scale.y;
+			mvAvatar.Position = triggerRef.Position + new Vector3(0f, y, 0f);
+			if (!interactionMap.IgnorePickupOwner)
+			{
+				mvAvatar.pickupOwner.HandleFire(interactionMap.Fire, mvAvatar.IsFiring);
+			}
+		}
+
+		public void SetGodzillaTriggerRef(GodzillaTrigger trigger)
+		{
+			triggerRef = trigger;
+		}
+
+		private void ActivateGodzillaCamera()
+		{
+			MVGameControllerBase.CameraController.BlueModeEnabled = false;
+			switch (MVGameControllerBase.Game.GameType)
+			{
+			case MVGameType.Classic:
+				camera = UnityEngine.Object.Instantiate(PrefabPool.Instance.GodzillaCamera);
+				break;
+			case MVGameType.Platformer:
+				camera = UnityEngine.Object.Instantiate(PrefabPool.Instance.GodzillaCamera2D);
+				((GodzillaCamera2D)camera).SetScale(GodzillaModifier.constants[(GodzillaModifier.GodzillaModifierPackageType)activeModifierPackageType].sizeModifier);
+				break;
+			default:
+				Debug.LogError("Unknown game mode.");
+				break;
+			}
+			MVGameControllerBase.CameraController.PushCamera(camera);
+		}
+
+		private void DeactivateGodzillaCamera()
+		{
+			MVGameControllerBase.CameraController.CancelTransitionCam();
+			MVGameControllerBase.CameraController.RemoveCamera(camera);
+			UnityEngine.Object.Destroy(camera.gameObject);
+		}
+	}
+
 	private string currAnim = string.Empty;
 
 	private AvatarMotor avatarMotor;
@@ -800,6 +979,8 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 	private MVRigidBody vehicleRigidBody;
 
 	private AvatarLocalModes avatarLocalModes;
+
+	private AvatarRuntimeState CurrentState => avatarLocalModes.CurrentState;
 
 	public Vector3 LookAtPos => transform.position + Vector3.up;
 
@@ -836,7 +1017,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 
 	public MVTriggerHandler TriggerHandler => triggerHandler;
 
-	public bool IsDead => AvatarRuntimeState == AvatarRuntimeState.Dead;
+	public bool IsDead => IsInMode(AvatarModeTypes.Dead);
 
 	public bool IsEnteringVehicle => MVGameControllerBase.Game.PlayerController.IsEnteringVehicle;
 
@@ -910,6 +1091,11 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		avatarInteractable.ModifierPackages.OnUnequipItemEvent += OnUnequip;
 		avatarInteractable.ModifierPackages.OnDisableVehiclesEvent += OnDisableVehicles;
 		CullingApiWrapper.SetDistanceReferencePoint(transform);
+	}
+
+	public void ResetMode()
+	{
+		SetMode(CurrentState);
 	}
 
 	public void SetMode(AvatarRuntimeState localMode)
@@ -1006,15 +1192,15 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 
 	public void Respawn()
 	{
-		if (AvatarRuntimeState == AvatarRuntimeState.Playing)
+		if (IsInMode(AvatarModeTypes.Playing))
 		{
 			MVGameControllerBase.WOCM.AvatarLocal.Suicide();
 		}
-		else if (AvatarRuntimeState == AvatarRuntimeState.Edit)
+		else if (CurrentState == AvatarRuntimeState.Edit)
 		{
 			MVGameControllerBase.WOCM.AvatarLocal.SetToSpawnTransform();
 		}
-		else if (AvatarRuntimeState == AvatarRuntimeState.Edit2D)
+		else if (CurrentState == AvatarRuntimeState.Edit2D)
 		{
 			((EditorAvatarMode2D)avatarLocalModes.CurrentMode).SetToSpawn();
 		}
@@ -1022,7 +1208,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 
 	private void Suicide()
 	{
-		if (AvatarRuntimeState != AvatarRuntimeState.Dead)
+		if (!IsInMode(AvatarModeTypes.Dead))
 		{
 			Die();
 		}
@@ -1109,9 +1295,17 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 
 	private void Die()
 	{
-		if (AvatarRuntimeState == AvatarRuntimeState.Playing)
+		if (IsInMode(AvatarModeTypes.Playing))
 		{
-			avatarLocalModes.SetMode(AvatarRuntimeState.Dead);
+			AvatarRuntimeState currentState = CurrentState;
+			if (currentState == AvatarRuntimeState.Godzilla)
+			{
+				avatarLocalModes.SetMode(AvatarRuntimeState.GodzillaDead);
+			}
+			else
+			{
+				avatarLocalModes.SetMode(AvatarRuntimeState.Dead);
+			}
 		}
 	}
 

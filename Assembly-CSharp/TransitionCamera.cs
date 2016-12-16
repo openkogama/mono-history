@@ -28,6 +28,11 @@ public class TransitionCamera : MVCameraBase
 		rotPercentage = 0f;
 	}
 
+	public void AbortTransition()
+	{
+		rotPercentage = 1f;
+	}
+
 	public override void UpdateCamera(MVCameraController camController, Transform targetTransform)
 	{
 		rotPercentage += 1f / time * Time.deltaTime;

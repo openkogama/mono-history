@@ -17,18 +17,8 @@ public class ShootablePlateSettings : MonoBehaviour, IEventSystemHandler, IHandl
 	public void Initialize(int woID, GameObject root)
 	{
 		settingsBase.Initialize(woID, root);
-		Dictionary<object, object> dictionary2;
-		if (woID == -1)
-		{
-			Dictionary<object, object> dictionary = new Dictionary<object, object>();
-			dictionary.Add("duration", 15f);
-			dictionary2 = dictionary;
-		}
-		else
-		{
-			dictionary2 = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).Data;
-		}
-		float value = Convert.ToSingle(dictionary2["duration"]);
+		Dictionary<object, object> data = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).Data;
+		float value = Convert.ToSingle(data["duration"]);
 		slider.Initialize("duration", value, 0.5f, 30f);
 		inputField.Initialize("duration", value);
 	}

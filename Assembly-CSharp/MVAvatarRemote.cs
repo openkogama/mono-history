@@ -2,9 +2,12 @@ using System;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class MVAvatarRemote : MVAvatar
 {
+	private const float initialCullingRadius = 3.5f;
+
 	private const float hitTimeOut = 2f;
 
 	private CullingSubscriberDynamic cullingSubscriberDynamic;
@@ -45,9 +48,9 @@ public class MVAvatarRemote : MVAvatar
 		healthBar.Oxygen = 0f;
 		InitializeHealth();
 		triggerCollider = CreateTriggerCollider();
-		AvatarStateChangedHandler(AvatarRuntimeDataState.Value);
+		AvatarStateChangedHandler(avatarModeTypeFlags.Value);
 		avatarRemoteMovementCalculator = gameObject.AddComponent<AvatarRemoteMovementCalculator>();
-		cullingSubscriberDynamic = new CullingSubscriberDynamic(3.5f, 3, 2, avatar.root, new GameObject[1] { Body.GameObject });
+		InitializeCulling();
 	}
 
 	public override void Destroy()
@@ -58,6 +61,19 @@ public class MVAvatarRemote : MVAvatar
 			cullingSubscriberDynamic.Destroy();
 			cullingSubscriberDynamic = null;
 		}
+	}
+
+	private void InitializeCulling()
+	{
+		cullingSubscriberDynamic = new CullingSubscriberDynamic(3.5f, 3, 2, gameObject);
+		ScaleChanged = (UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>)Delegate.Combine(ScaleChanged, new UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>(UpdateCullingRadius));
+	}
+
+	private void UpdateCullingRadius(MVWorldObjectClient objArg, ScaleChangedEventArgs scaleArg)
+	{
+		CullingSubscriberDynamic cullingSubscriberDynamic = this.cullingSubscriberDynamic;
+		Vector3 newScale = scaleArg.NewScale;
+		cullingSubscriberDynamic.SetCullingRadius(3.5f * newScale.y);
 	}
 
 	private void InitializeHealth()
@@ -78,6 +94,7 @@ public class MVAvatarRemote : MVAvatar
 		gameObject.transform.localRotation = Quaternion.identity;
 		gameObject.layer = LayerMask.NameToLayer("Player");
 		CapsuleCollider capsuleCollider = gameObject.AddComponent<CapsuleCollider>();
+		capsuleCollider.center = new Vector3(0f, 1f, 0f);
 		capsuleCollider.isTrigger = true;
 		CapsuleCollider capsuleCollider2 = (CapsuleCollider)base.gameObject.GetComponent<Collider>();
 		capsuleCollider.height = capsuleCollider2.height;
@@ -127,7 +144,8 @@ public class MVAvatarRemote : MVAvatar
 	protected override void AvatarStateChangedHandler(object a)
 	{
 		base.AvatarStateChangedHandler(a);
-		if ((byte)a == 0)
+		int num = (int)a;
+		if ((num & 4) > 0)
 		{
 			Body.Visible = false;
 			avatar.NameTagLabelVisible = false;

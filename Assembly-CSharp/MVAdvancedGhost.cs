@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 {
@@ -43,14 +45,20 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
 		{
 			SetupEditorIcon(mVCubeModelInstance, enableCulling: true);
+			PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
 		}
 		MVGameControllerBase.Game.GameStateController.AddUpdateObject(this);
 		OnDataUpdate();
 	}
 
+	private void OnPositionChanged(MVWorldObjectClient arg0, PositionChangedEventArgs positionChangedEventArgs)
+	{
+		advancedGhostBehaviour.EditModeUpdateCulling();
+	}
+
 	private void SetupEditorIcon(MVCubeModelBase cubeModelBody, bool enableCulling)
 	{
-		advancedGhostIcon = Object.Instantiate(PrefabPool.Instance.GhostEditorIconObject);
+		advancedGhostIcon = UnityEngine.Object.Instantiate(PrefabPool.Instance.GhostEditorIconObject);
 		advancedGhostIcon.transform.parent = transform;
 		advancedGhostIcon.transform.localPosition = Vector3.zero;
 		advancedGhostIcon.transform.localRotation = Quaternion.identity;
@@ -65,11 +73,12 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 		SetupEditorIcon(mVCubeModelBase, enableCulling: false);
 		mVCubeModelBase.GameObject.SetActive(value: false);
 		advancedGhostIcon.gameObject.SetLayerRecursively(LayerMask.NameToLayer("Default"));
-		SetGameMode(isPlayMode: false);
+		advancedGhostBehaviour.gameObject.SetActive(value: false);
 	}
 
 	private void SetGameMode(bool isPlayMode)
 	{
+		Debug.Log("SetGameMode " + isPlayMode);
 		if (advancedGhostIcon != null)
 		{
 			advancedGhostIcon.SetGameMode(isPlayMode);

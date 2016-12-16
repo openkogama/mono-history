@@ -3,9 +3,11 @@ using UnityEngine;
 
 public class VehicleBlinker : BlinkerBase
 {
-	public Color blinkDamageColor = new Color(251f, 0f, 0f);
+	[SerializeField]
+	private Color blinkDamageColor = new Color(251f, 0f, 0f);
 
-	public Color blinkAboutToExpireColor = new Color(29f, 108f, 219f);
+	[SerializeField]
+	private Color blinkAboutToExpireColor = new Color(29f, 108f, 219f);
 
 	private void Awake()
 	{

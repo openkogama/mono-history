@@ -42,7 +42,7 @@ public class EditModeClientShopController : MonoBehaviour, IEventSystemHandler, 
 		{
 			tabsNonLocalized[num] = repository.categories[key];
 			tabs[num] = new TabState(TM._(repository.categories[key]), numberOfSlotsPrPage);
-			tabs[num].highestSlotIndex = Math.Max(repository.CategoryItemCount(key) - 1, 1);
+			tabs[num].highestSlotIndex = Math.Max(repository.CategoryItemCount(key), 1);
 			num++;
 		}
 	}

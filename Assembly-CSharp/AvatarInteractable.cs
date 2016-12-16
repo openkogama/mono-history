@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using MV.Common;
 
@@ -47,7 +48,36 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 
 	public override void AddModifier(AvatarModifierPackageType type, int id = -1, AvatarModifierPackage.AvatarModifier[] additionalModifers = null)
 	{
-		if (type != AvatarModifierPackageType.None && MVGameControllerBase.Game.IsPlaying && (type != AvatarModifierPackageType.Poison || !HasModifierEffect(AvatarModifierEffect.PoisonImmune)))
+		if (!MVGameControllerBase.Game.IsPlaying)
+		{
+			return;
+		}
+		BitArray bitArray = new BitArray(25);
+		AvatarModifierPackageType[] array = new AvatarModifierPackageType[11]
+		{
+			AvatarModifierPackageType.Fire,
+			AvatarModifierPackageType.FlamerBurn,
+			AvatarModifierPackageType.Poison,
+			AvatarModifierPackageType.GodzillaS,
+			AvatarModifierPackageType.GodzillaM,
+			AvatarModifierPackageType.GodzillaL,
+			AvatarModifierPackageType.GodzillaXL,
+			AvatarModifierPackageType.GodzillaLaserBurnS,
+			AvatarModifierPackageType.GodzillaLaserBurnM,
+			AvatarModifierPackageType.GodzillaLaserBurnL,
+			AvatarModifierPackageType.GodzillaLaserBurnXL
+		};
+		if (HasModifierEffect(AvatarModifierEffect.GodzillaImmunity))
+		{
+			bitArray.SetAll(value: true);
+			for (int i = 0; i < array.Length; i++)
+			{
+				bitArray.Set((int)array[i], value: false);
+			}
+		}
+		bitArray.Set(0, value: true);
+		bitArray.Set(4, HasModifierEffect(AvatarModifierEffect.PoisonImmune));
+		if (!bitArray[(int)type])
 		{
 			base.AddModifier(type, id, additionalModifers);
 		}

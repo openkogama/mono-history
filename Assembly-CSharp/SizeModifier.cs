@@ -5,20 +5,25 @@ public abstract class SizeModifier : AvatarModifier
 {
 	protected delegate void ActionDelegate(float time);
 
+	[SerializeField]
 	protected float timeToSize = 1.5f;
 
-	protected float sizeModifier = 0.25f;
+	[SerializeField]
+	protected float sizeModifier = 1f;
 
+	[SerializeField]
 	protected float sizeUnstableAfterSeconds = 28f;
 
+	[SerializeField]
 	protected float unstableSpeed = 10f;
 
+	[SerializeField]
 	protected float sineStrength = 14f;
-
-	protected bool isDeactivating;
 
 	[SerializeField]
 	protected AudioSource audioSource;
+
+	protected bool isDeactivating;
 
 	public AudioClip growSound;
 
@@ -27,7 +32,6 @@ public abstract class SizeModifier : AvatarModifier
 	protected override void OnActivated(Avatar target)
 	{
 		isDeactivating = false;
-		SetSizeModifier();
 		timeStamp = Time.time;
 		owner = target;
 		owner.mvAvatar.Body.BlobShadow.ScaleShadow(sizeModifier);
@@ -46,10 +50,6 @@ public abstract class SizeModifier : AvatarModifier
 		owner = target;
 		owner.mvAvatar.Body.BlobShadow.ScaleShadow(1f);
 		UnScale();
-	}
-
-	protected virtual void SetSizeModifier()
-	{
 	}
 
 	protected virtual void UnScale()

@@ -14,10 +14,6 @@ public class PickupItemRailGun : PickupItem
 
 	public RailRay railGunRayPrefab;
 
-	public AudioClip hitSound;
-
-	public AudioClip missSound;
-
 	public Color hitColor = new Color(0.2f, 0.3f, 0.9f);
 
 	public Color missColor = new Color(0.9f, 0.3f, 0.2f);
@@ -34,9 +30,6 @@ public class PickupItemRailGun : PickupItem
 
 	[SerializeField]
 	private AudioSource audioSource;
-
-	[SerializeField]
-	private Renderer chargeParticlesRenderer;
 
 	private float toFieldOfView;
 

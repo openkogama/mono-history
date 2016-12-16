@@ -18,7 +18,7 @@ public class MutantModifier : AvatarModifier
 
 	protected override void OnActivated(Avatar target)
 	{
-		target.StartBlinking(BlinkType.Poison, float.PositiveInfinity);
+		target.StartBlinking(BlinkType.Poison);
 		owner = target;
 		isDeactivating = false;
 	}

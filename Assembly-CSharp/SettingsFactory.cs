@@ -84,6 +84,9 @@ public class SettingsFactory : MonoBehaviour
 	private ShootablePlateSettings shootablePlateSettingsPrefab;
 
 	[SerializeField]
+	private GodzillaSettings godzillaSettingsPrefab;
+
+	[SerializeField]
 	private LevelRequirementSettings levelRequirementSettingsPrefab;
 
 	[SerializeField]
@@ -265,6 +268,15 @@ public class SettingsFactory : MonoBehaviour
 			shootablePlateSettings.Initialize(woID, gameObject);
 			break;
 		}
+		case WorldObjectType.GodzillaTrigger:
+		{
+			GodzillaSettings godzillaSettings = Object.Instantiate(godzillaSettingsPrefab);
+			godzillaSettings.Initialize(woID, gameObject);
+			break;
+		}
+		default:
+			Debug.LogError("WorldObjectType has no settings dialogue.");
+			break;
 		}
 	}
 

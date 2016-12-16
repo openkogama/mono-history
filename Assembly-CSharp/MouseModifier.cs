@@ -1,19 +1,8 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public class MouseModifier : SizeModifier
 {
 	public override AvatarModifierPackageType ModifierType => AvatarModifierPackageType.Shrunken;
-
-	public override bool EvaluateShouldBeAdded(Dictionary<AvatarModifierPackageType, AvatarModifier> modifiers)
-	{
-		return true;
-	}
-
-	protected override void SetSizeModifier()
-	{
-		sizeModifier = 0.25f;
-	}
 
 	protected override void Scale()
 	{

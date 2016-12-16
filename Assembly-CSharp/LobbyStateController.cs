@@ -28,19 +28,22 @@ public class LobbyStateController : MonoBehaviour
 	private void Start()
 	{
 		bool isTouristSession = MVGameControllerBase.IsTouristSession;
-		touristRewardPreview.SetActive(isTouristSession);
+		touristRewardPreview.SetActive(isTouristSession && MVClientSettings.SpinEnabled);
 		touristRegisterButton.SetActive(isTouristSession);
 		if (!isTouristSession)
 		{
-			rewardGenerator.Initialize();
 			accessoryShop.SetActive(value: true);
 			playReward.Initialize();
 			gameCoinBoosterButton.SetActive(value: true);
-			RewardManager.NumberOfPendingRewardsChanged = (UnityAction)Delegate.Combine(RewardManager.NumberOfPendingRewardsChanged, new UnityAction(RewardChanged));
-			RewardManager.TimerUpdated = (UnityAction)Delegate.Combine(RewardManager.TimerUpdated, new UnityAction(RewardChanged));
-			if (RewardManager.TimerInitiated)
+			if (MVClientSettings.SpinEnabled)
 			{
-				RewardChanged();
+				rewardGenerator.Initialize();
+				RewardManager.NumberOfPendingRewardsChanged = (UnityAction)Delegate.Combine(RewardManager.NumberOfPendingRewardsChanged, new UnityAction(RewardChanged));
+				RewardManager.TimerUpdated = (UnityAction)Delegate.Combine(RewardManager.TimerUpdated, new UnityAction(RewardChanged));
+				if (RewardManager.TimerInitiated)
+				{
+					RewardChanged();
+				}
 			}
 		}
 		playReward.gameObject.SetActive(value: false);

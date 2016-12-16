@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WinningConditionBriefingAndroid : MonoBehaviour, IBriefing
+public class WinningConditionBriefing : MonoBehaviour, IBriefing
 {
 	[Serializable]
 	private struct WinningConditionDef

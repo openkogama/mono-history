@@ -38,6 +38,8 @@ public class KillNotification : Notification
 			PlayerKilledByType.RailGun => TM._("{1} noscoped {0}"), 
 			PlayerKilledByType.Shotgun => TM._("{1} blasted {0}"), 
 			PlayerKilledByType.Suicide => TM._("{0} respawned"), 
+			PlayerKilledByType.GodzillaLaser => TM._("{0} was incinerated by Colossus"), 
+			PlayerKilledByType.KillZone => TM._("{0} was crushed by Colossus"), 
 			_ => TM._("{1} eliminated {0}"), 
 		};
 	}

@@ -8,9 +8,11 @@ public class SharedWorldObjectGameplayFunctions
 {
 	public static class Explosion
 	{
+		private static readonly int layerMask = -5 & ~(1 << LayerMask.NameToLayer("Logic"));
+
 		private static void ApplyProximityDamage(Vector3 position, float damageValue, float damageRadius, float shockwaveAcceleration, bool local, ExplosionEvent explosionEvent, HashSet<int> ignoreIDs)
 		{
-			int num = Physics.OverlapSphereNonAlloc(position, damageRadius, CollisionDetectionGlobalBuffers.colliderBuffer);
+			int num = Physics.OverlapSphereNonAlloc(position, damageRadius, CollisionDetectionGlobalBuffers.colliderBuffer, layerMask);
 			for (int i = 0; i < num; i++)
 			{
 				Collider collider = CollisionDetectionGlobalBuffers.colliderBuffer[i];

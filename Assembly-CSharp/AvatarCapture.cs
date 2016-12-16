@@ -4,63 +4,18 @@ using UnityEngine;
 
 public class AvatarCapture : MonoBehaviour
 {
-	private class RenderTextureTargetDef
-	{
-		public Transform transform;
-
-		public Dictionary<GameObject, KeyValuePair<int, bool>> storedGameObjectLayers = new Dictionary<GameObject, KeyValuePair<int, bool>>();
-
-		public RenderTextureTargetDef(Transform t)
-		{
-			transform = t;
-		}
-
-		public void ChangeChildLayers(Transform parent)
-		{
-			if (parent.gameObject.layer == LayerUtil.GetLayerNumber(LayerFlags.Player) || parent.gameObject.layer == LayerUtil.GetLayerNumber(LayerFlags.Default) || parent.gameObject.layer == LayerUtil.GetLayerNumber(LayerFlags.CamRotateTarget))
-			{
-				Renderer component = parent.GetComponent<Renderer>();
-				bool value = false;
-				if (component != null)
-				{
-					value = component.enabled;
-					component.enabled = true;
-				}
-				KeyValuePair<int, bool> value2 = new KeyValuePair<int, bool>(parent.gameObject.layer, value);
-				storedGameObjectLayers.Add(parent.gameObject, value2);
-				parent.gameObject.layer = LayerUtil.GetLayerNumber(LayerFlags.UXElementSecondary);
-			}
-			foreach (Transform item in parent)
-			{
-				ChangeChildLayers(item);
-			}
-		}
-
-		public void RestoreChildLayers(Transform parent)
-		{
-			if (parent.gameObject.layer == LayerUtil.GetLayerNumber(LayerFlags.UXElementSecondary))
-			{
-				parent.gameObject.layer = storedGameObjectLayers[parent.gameObject].Key;
-				Renderer component = parent.GetComponent<Renderer>();
-				if (component != null)
-				{
-					component.enabled = storedGameObjectLayers[parent.gameObject].Value;
-				}
-			}
-			foreach (Transform item in parent)
-			{
-				RestoreChildLayers(item);
-			}
-		}
-	}
-
 	[SerializeField]
 	private Camera renderCam;
 
 	[SerializeField]
-	private Vector3 offset;
+	private Vector3 cameraOffset;
 
-	private RenderTextureTargetDef currentTargetWinner;
+	[SerializeField]
+	[Tooltip("Space between players on winningscreen")]
+	private Vector3 formationSpacing = new Vector3(2f, 0.6f, 1.2f);
+
+	[SerializeField]
+	private float formationRandomness = 1f;
 
 	public Camera RenderCam
 	{
@@ -76,11 +31,7 @@ public class AvatarCapture : MonoBehaviour
 
 	public void CaptureAllPlayersInGame(CameraClearFlags flags)
 	{
-		RenderTexture temporary = RenderTexture.GetTemporary(512, 512, 16, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, 1);
-		temporary.wrapMode = TextureWrapMode.Clamp;
-		temporary.filterMode = FilterMode.Bilinear;
-		renderCam.targetTexture = temporary;
-		renderCam.clearFlags = flags;
+		InitializeCamera(flags);
 		List<MVPlayer> list = new List<MVPlayer>();
 		foreach (MVPlayer value in MVGameControllerBase.Game.Players.Values)
 		{
@@ -91,11 +42,7 @@ public class AvatarCapture : MonoBehaviour
 
 	public void CapturePlayersInTeam(List<ScoreTeamEntry> scoreTeamEntries, CameraClearFlags flags, GameStatCounterType counterType)
 	{
-		RenderTexture temporary = RenderTexture.GetTemporary(512, 512, 16, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, 1);
-		temporary.wrapMode = TextureWrapMode.Clamp;
-		temporary.filterMode = FilterMode.Bilinear;
-		renderCam.targetTexture = temporary;
-		renderCam.clearFlags = flags;
+		InitializeCamera(flags);
 		List<MVPlayer> sortedList = (from o in MVGameControllerBase.Game.TeamManager.GetPlayersInTeam(scoreTeamEntries[0].team)
 			orderby o.GetGameStat(counterType)
 			select o).ToList();
@@ -105,49 +52,64 @@ public class AvatarCapture : MonoBehaviour
 	private void CapturePlayerGroup(List<MVPlayer> sortedList)
 	{
 		MVGameControllerBase.WOCM.AvatarLocal.Avatar.AvatarFader.SetTransparency(1f);
-		for (int i = 0; i < sortedList.Count; i++)
-		{
-			sortedList[i].Avatar.GameObject.SetActive(value: true);
-		}
 		int count = sortedList.Count;
 		List<Vector3> positions = new List<Vector3>();
-		float num = CreateTriangleFormation(ref positions, count, 1, 0f, 0f);
+		CreateTriangleFormation(ref positions, formationSpacing, count);
 		positions.Reverse();
-		List<RenderTextureTargetDef> list = new List<RenderTextureTargetDef>();
-		for (int j = 0; j < count; j++)
+		for (int i = 0; i < count; i++)
 		{
-			list.Add(new RenderTextureTargetDef(sortedList[j].Avatar.GameObject.transform));
-		}
-		for (int k = 0; k < count; k++)
-		{
-			currentTargetWinner = list[k];
-			Transform transform = sortedList[k].Avatar.Transform;
+			Transform transform = sortedList[i].Avatar.Body.Transform;
 			Transform transform2 = renderCam.transform;
 			transform2.position = transform.position;
-			transform2.position += transform.right * offset.x + transform.right * (0f - positions[k].x);
-			transform2.position += transform.forward * (offset.z + num / 2f) + transform.forward * (0f - positions[k].z);
-			transform2.position += transform.up * (offset.y + num / 3f) + transform.up * positions[k].y;
-			float num2 = Random.Range(-35f, 35f);
-			transform2.position = RotatePointAroundPivot(transform2.position, transform.position, new Vector3(0f, num2, 0f));
-			transform2.rotation = Quaternion.AngleAxis(transform.rotation.eulerAngles.y + 180f + num2, Vector3.up);
+			transform2.position += transform.right * cameraOffset.x;
+			transform2.position += transform.right * (0f - positions[i].x);
+			transform2.position += transform.forward * (0f - cameraOffset.z);
+			transform2.position += transform.forward * (0f - positions[i].z);
+			transform2.position += transform.up * cameraOffset.y;
+			transform2.position += transform.up * positions[i].y;
+			DrawObject(transform2, transform);
 			renderCam.Render();
 		}
 	}
 
-	public void CaptureGO(GameObject avatarObject, CameraClearFlags flags)
+	public void CaptureGO(MVPlayer player, CameraClearFlags flags)
 	{
-		MVGameControllerBase.WOCM.AvatarLocal.Avatar.AvatarFader.SetTransparency(1f);
-		RenderTexture temporary = RenderTexture.GetTemporary(512, 512, 16, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, 1);
+		InitializeCamera(flags);
+		renderCam.clearFlags = flags;
+		Transform transform = player.Avatar.Body.Transform;
+		renderCam.transform.position = transform.position + transform.forward * cameraOffset.z + transform.up * cameraOffset.y;
+		Transform cameraTransform = renderCam.transform;
+		DrawObject(cameraTransform, transform);
+		renderCam.Render();
+	}
+
+	private void InitializeCamera(CameraClearFlags flags)
+	{
+		renderCam.clearFlags = flags;
+		RenderTexture temporary = RenderTexture.GetTemporary(1024, 512, 16, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, 1);
 		temporary.wrapMode = TextureWrapMode.Clamp;
 		temporary.filterMode = FilterMode.Bilinear;
 		renderCam.targetTexture = temporary;
-		renderCam.clearFlags = flags;
-		currentTargetWinner = new RenderTextureTargetDef(avatarObject.transform);
-		renderCam.transform.position = currentTargetWinner.transform.position + currentTargetWinner.transform.forward * offset.z + currentTargetWinner.transform.up * offset.y;
+	}
+
+	private void DrawObject(Transform cameraTransform, Transform objectTransform)
+	{
 		float num = Random.Range(-35, 35);
-		renderCam.transform.position = RotatePointAroundPivot(renderCam.transform.position, currentTargetWinner.transform.position, new Vector3(0f, num, 0f));
-		renderCam.transform.rotation = Quaternion.AngleAxis(currentTargetWinner.transform.rotation.eulerAngles.y + 180f + num, Vector3.up);
-		renderCam.Render();
+		cameraTransform.position = RotatePointAroundPivot(cameraTransform.position, objectTransform.position, new Vector3(0f, num, 0f));
+		cameraTransform.rotation = Quaternion.AngleAxis(objectTransform.rotation.eulerAngles.y + 180f + num, Vector3.up);
+		MeshFilter[] componentsInChildren = objectTransform.GetComponentsInChildren<MeshFilter>(includeInactive: true);
+		for (int i = 0; i < componentsInChildren.Length; i++)
+		{
+			MeshFilter meshFilter = componentsInChildren[i];
+			Mesh mesh = componentsInChildren[i].mesh;
+			MeshRenderer component = meshFilter.gameObject.GetComponent<MeshRenderer>();
+			for (int j = 0; j < mesh.subMeshCount; j++)
+			{
+				Material material = component.sharedMaterials[j];
+				Matrix4x4 localToWorldMatrix = meshFilter.transform.localToWorldMatrix;
+				Graphics.DrawMesh(mesh, localToWorldMatrix, material, LayerMask.NameToLayer("UXElementSecondary"), renderCam, j);
+			}
+		}
 	}
 
 	private static Vector3 RotatePointAroundPivot(Vector3 point, Vector3 pivot, Vector3 angles)
@@ -158,39 +120,35 @@ public class AvatarCapture : MonoBehaviour
 		return point;
 	}
 
-	private int CreateTriangleFormation(ref List<Vector3> positions, int positionsRemaining, int unitsPerRow, float targetY, float targetZ)
+	private int CreateTriangleFormation(ref List<Vector3> positions, Vector3 formationSpacing, int numberOfPositions)
 	{
-		for (int i = 0; i < unitsPerRow; i++)
+		Vector3 item = new Vector3(0f, 0f, 0f);
+		positions.Add(item);
+		if (numberOfPositions > 1)
+		{
+			return CreateTriangleFormation(ref positions, formationSpacing, numberOfPositions - 1, 2, 0f - formationSpacing.y, 0f - formationSpacing.z);
+		}
+		return numberOfPositions;
+	}
+
+	private int CreateTriangleFormation(ref List<Vector3> positions, Vector3 formationSpacing, int positionsRemaining, int unitsThisRow, float targetY, float targetZ)
+	{
+		for (int i = 0; i < unitsThisRow; i++)
 		{
 			Vector3 item = new Vector3(0f, targetY, targetZ);
-			item.x = ((float)unitsPerRow / 2f - 0.5f) * 2f;
-			if (i != 0)
-			{
-				item.x = ((float)unitsPerRow / 2f - (float)i + Random.Range(-0.5f, 0.5f) - 0.5f) * 2f;
-			}
+			item.x = ((float)unitsThisRow / 2f - 0.5f - (float)i + Random.Range(0f - formationRandomness, formationRandomness)) * formationSpacing.x;
 			positions.Add(item);
 			if (positionsRemaining - i - 1 <= 0)
 			{
-				return unitsPerRow;
+				return unitsThisRow;
 			}
 		}
-		return CreateTriangleFormation(ref positions, positionsRemaining - unitsPerRow, unitsPerRow + 1, targetY - 0.6f, targetZ - 1.2f);
+		return CreateTriangleFormation(ref positions, formationSpacing, positionsRemaining - unitsThisRow, unitsThisRow + 1, targetY - formationSpacing.y, targetZ - formationSpacing.z);
 	}
 
 	private void OnDestroy()
 	{
 		RenderTexture.ReleaseTemporary(renderCam.targetTexture);
 		renderCam.targetTexture = null;
-	}
-
-	private void OnPreCull()
-	{
-		currentTargetWinner.storedGameObjectLayers.Clear();
-		currentTargetWinner.ChangeChildLayers(currentTargetWinner.transform);
-	}
-
-	private void OnPostRender()
-	{
-		currentTargetWinner.RestoreChildLayers(currentTargetWinner.transform);
 	}
 }

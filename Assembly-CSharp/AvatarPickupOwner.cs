@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
-using UnityEngine.Events;
 
 public class AvatarPickupOwner : MVPickupOwner
 {
@@ -48,7 +46,6 @@ public class AvatarPickupOwner : MVPickupOwner
 		InitLaser();
 		this.mvAvatar = mvAvatar;
 		Init(currentItemRuntimeDataVariable, isFiringRuntimeDataVariable);
-		mvAvatar.ScaleChanged = (UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>)Delegate.Combine(mvAvatar.ScaleChanged, new UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>(OnAvatarScaleChanged));
 	}
 
 	private void InitLaser()
@@ -75,7 +72,7 @@ public class AvatarPickupOwner : MVPickupOwner
 		}
 		if (mvAvatar.Body != null)
 		{
-			pickupItem.transform.parent = mvAvatar.Body.BodyData.GetPartBone("Torso");
+			pickupItem.transform.SetParent(mvAvatar.Body.BodyData.GetPartBone(BodyData.PartIndex.Torso), worldPositionStays: false);
 			pickupItem.transform.localPosition = new Vector3(0f, 0.25f, 0f);
 			pickupItem.transform.localRotation = Quaternion.identity;
 		}
@@ -98,21 +95,13 @@ public class AvatarPickupOwner : MVPickupOwner
 			currentItem.OnUnequip();
 			if (currentItem.Type != AvatarItemType.LaserPointer)
 			{
-				UnityEngine.Object.Destroy(currentItem.gameObject);
+				Object.Destroy(currentItem.gameObject);
 			}
 			currentItem = null;
 			if (onUnequipItem != null)
 			{
 				onUnequipItem(null);
 			}
-		}
-	}
-
-	private void OnAvatarScaleChanged(object sender, ScaleChangedEventArgs e)
-	{
-		if (currentItem != null)
-		{
-			currentItem.gameObject.transform.localScale = worldObjectParent.Scale;
 		}
 	}
 }

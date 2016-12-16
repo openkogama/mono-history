@@ -44,14 +44,17 @@ public class DesktopLobbyStateController : MonoBehaviour
 		playReward.gameObject.SetActive(value: false);
 		bool active = MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion;
 		touristRegisterButton.SetActive(active);
-		rewardTransform.gameObject.SetActive(flag);
+		rewardTransform.gameObject.SetActive(flag && MVClientSettings.SpinEnabled);
 		gameCoinBoosterButton.SetActive(!isTouristSession);
 		avatarAccessoriesButton.SetActive(!isTouristSession);
-		touristRewardPreview.SetActive(isTouristSession);
-		if (flag)
+		touristRewardPreview.SetActive(isTouristSession && MVClientSettings.SpinEnabled);
+		if (!flag)
 		{
-			rewardGenerator.Initialize();
-			playReward.Initialize();
+			return;
+		}
+		playReward.Initialize();
+		if (MVClientSettings.SpinEnabled)
+		{
 			RewardManager.NumberOfPendingRewardsChanged = (UnityAction)Delegate.Combine(RewardManager.NumberOfPendingRewardsChanged, new UnityAction(RewardChanged));
 			RewardManager.TimerUpdated = (UnityAction)Delegate.Combine(RewardManager.TimerUpdated, new UnityAction(RewardChanged));
 			if (RewardManager.TimerInitiated)
@@ -68,11 +71,11 @@ public class DesktopLobbyStateController : MonoBehaviour
 
 	private void Update()
 	{
-		if (MVGameControllerBase.WOCM.AvatarLocal.AvatarRuntimeState != AvatarRuntimeState.Playing && respawnButton.gameObject.activeSelf)
+		if (!MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Playing) && respawnButton.gameObject.activeSelf)
 		{
 			respawnButton.gameObject.SetActive(value: false);
 		}
-		else if (MVGameControllerBase.WOCM.AvatarLocal.AvatarRuntimeState == AvatarRuntimeState.Playing && !respawnButton.gameObject.activeSelf)
+		else if (MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Playing) && !respawnButton.gameObject.activeSelf)
 		{
 			respawnButton.gameObject.SetActive(value: true);
 		}

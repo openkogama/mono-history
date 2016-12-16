@@ -10,5 +10,6 @@ public enum ClientSettingFlags
 	ShowErrorPopupClient = 2,
 	EnableClientSentry = 4,
 	ShowTouristPromotion = 8,
-	ShowTouristAd = 0x10
+	ShowTouristAd = 0x10,
+	SpinEnabled = 0x20
 }

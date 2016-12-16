@@ -75,7 +75,7 @@ public class ContextMenuController : MonoBehaviour, IEventSystemHandler, IHandle
 		contextMenu.AddButton(TM._("Delete"), Delete);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
 		{
-			handler.PopGroups(UIGroupFlags.GameObjectUI);
+			handler.PopGroups(UIGroupFlags.GameObjectUI | UIGroupFlags.GameObjectUISubMenu);
 		});
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
@@ -90,6 +90,10 @@ public class ContextMenuController : MonoBehaviour, IEventSystemHandler, IHandle
 		contextMenu.AddButton(TM._("Delete"), () =>
 		{
 			DeleteLink(linkID, isObjectLink);
+		});
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
+		{
+			handler.PopGroups(UIGroupFlags.GameObjectUI);
 		});
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{

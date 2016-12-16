@@ -14,7 +14,7 @@ public class HoverCraftMotor : SimpleVehicleMotorBase
 
 	private BounceState bounceState;
 
-	private float thrustFactor = 10000f;
+	private float thrustFactor = 15000f;
 
 	private float dragCoefficientXZ = -2f;
 
@@ -243,9 +243,8 @@ public class HoverCraftMotor : SimpleVehicleMotorBase
 		Vector3 vector3 = HullRotationDrag(normalized, sqrMagnitude, hullRotationFactorClassic);
 		Vector3 vector4 = vector + vector2 + vector3;
 		Vector3 vector5 = directInputMoveMap * interactableLocal.HandleModifierEffect(AvatarModifierEffect.Speed, thrustFactor);
-		Vector3 vector6 = Controller.transform.rotation * Vector3.forward * vector3.magnitude * extraThrustFactor;
-		Vector3 vector7 = (vector5 + vector4 + vector6) / mass;
-		velocity += vector7 * Time.fixedDeltaTime;
+		Vector3 vector6 = (vector5 + vector4) / mass;
+		velocity += vector6 * Time.fixedDeltaTime;
 		velocity = HandleVerticalThrust(velocity);
 		return velocity;
 	}

@@ -67,7 +67,7 @@ public class UseInteractorHandler : MVComponent
 
 	private void UpdateUseVisuals()
 	{
-		if (MVGameControllerBase.WOCM.AvatarLocal.AvatarRuntimeState != AvatarRuntimeState.Playing)
+		if (!MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Playing))
 		{
 			return;
 		}

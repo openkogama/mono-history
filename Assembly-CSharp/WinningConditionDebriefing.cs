@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
 
-public class WinningConditionDebriefingAndroid : MonoBehaviour, IDebriefing
+public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 {
 	[Serializable]
 	private struct WinningConditionDef
@@ -284,7 +284,7 @@ public class WinningConditionDebriefingAndroid : MonoBehaviour, IDebriefing
 				UnityEngine.Object.Destroy(captureCamera.gameObject);
 			}
 			captureCamera = UnityEngine.Object.Instantiate(captureCameraPrefab);
-			captureCamera.CaptureGO(value.Avatar.GameObject, CameraClearFlags.Color);
+			captureCamera.CaptureGO(value, CameraClearFlags.Color);
 			debriefing.SetWinnerImage(captureCamera.RenderCam.targetTexture);
 		}
 		else

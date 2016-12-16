@@ -11,5 +11,8 @@ public enum CameraType
 	EditorCamera2D = 9,
 	VehicleCamera = 10,
 	AirCraftCamera = 11,
-	AvatarEditModeCamera = 12
+	AvatarEditModeCamera = 12,
+	GodzillaModeMainCamera = 13,
+	GodzillaModeEntryCamera = 14,
+	GodzillaMode2DCamera = 15
 }

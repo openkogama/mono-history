@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MV.Common;
 using UnityEngine;
 
 public class LobbyStateCamera : MVCameraBase
@@ -28,7 +29,7 @@ public class LobbyStateCamera : MVCameraBase
 	{
 		Vector3 lookAtPosition = GetLookAtPosition();
 		transform.position = lookAtPosition + transform.rotation * offset;
-		if ((byte)MVGameControllerBase.WOCM.AvatarLocal.AvatarRuntimeDataState.Value != 0)
+		if (!MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Hidden))
 		{
 			transform.position = PositionAfterCollision(transform.position, lookAtPosition);
 		}

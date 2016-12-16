@@ -19,5 +19,10 @@ public enum InteractionPackageType : byte
 	ThrowingStarHit = 15,
 	MouseGunHit = 16,
 	GrowthGunHit = 17,
-	IceGunHit = 18
+	IceGunHit = 18,
+	GodzillaLaserHit = 19,
+	GodzillaLaserBurnS = 20,
+	GodzillaLaserBurnM = 21,
+	GodzillaLaserBurnL = 22,
+	GodzillaLaserBurnXL = 23
 }

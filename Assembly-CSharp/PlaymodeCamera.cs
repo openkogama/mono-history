@@ -198,6 +198,7 @@ public abstract class PlaymodeCamera : MVPlaymodeCameraBase
 		b = Quaternion.Slerp(Quaternion.identity, b, Time.deltaTime * followRotationSpeed * num);
 		targetTransform.position = transform.position + shakeOffset;
 		targetTransform.rotation = b * transform.rotation;
+		UpdateImpactSimulation(targetTransform);
 	}
 
 	private void HandleGunMode()

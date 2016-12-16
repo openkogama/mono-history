@@ -1,19 +1,8 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public class GrowthModifier : SizeModifier
 {
 	public override AvatarModifierPackageType ModifierType => AvatarModifierPackageType.Enlarged;
-
-	public override bool EvaluateShouldBeAdded(Dictionary<AvatarModifierPackageType, AvatarModifier> modifiers)
-	{
-		return true;
-	}
-
-	protected override void SetSizeModifier()
-	{
-		sizeModifier = 2f;
-	}
 
 	protected override void Scale()
 	{

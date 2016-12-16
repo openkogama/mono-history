@@ -72,10 +72,17 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 	private void OnCollectedChanged()
 	{
 		IsCollected = true;
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IOfferController x, BaseEventData y) =>
+		if (MVClientSettings.SpinEnabled)
 		{
-			x.RequestShowOffer(OnFinishedViewingAd);
-		});
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IOfferController x, BaseEventData y) =>
+			{
+				x.RequestShowOffer(OnFinishedViewingAd);
+			});
+		}
+		else
+		{
+			OnFinishedViewingAd();
+		}
 	}
 
 	public void RewardClicked()

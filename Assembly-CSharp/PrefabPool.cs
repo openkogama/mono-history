@@ -170,8 +170,14 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private SpawnerObject spawnerObject;
 
-	[Header("Game")]
+	[SerializeField]
+	private GodzillaTriggerObject godzillaTriggerPrefab;
+
+	[SerializeField]
+	private GameObject godzillaAreaPrefab;
+
 	[Space(20f)]
+	[Header("Game")]
 	[SerializeField]
 	private Material ghostMarkerMaterial;
 
@@ -196,9 +202,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private CubeModelChunkPrefab cubeModelChunkPrefab;
 
+	[Header("Pick up")]
 	[Space(20f)]
 	[SerializeField]
-	[Header("Pick up")]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
 	[SerializeField]
@@ -276,6 +282,9 @@ public class PrefabPool : MonoBehaviour
 	private GameObject avatarItemRailGun;
 
 	[SerializeField]
+	private GameObject avatarItemGodzillaLaser;
+
+	[SerializeField]
 	private GameObject avatarItemSword;
 
 	[SerializeField]
@@ -308,8 +317,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject avatarItemSlapGun;
 
-	[Header("Avatar modifier")]
 	[Space(20f)]
+	[Header("Avatar modifier")]
 	[SerializeField]
 	private AvatarModifier burningModifier;
 
@@ -334,9 +343,15 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private AvatarModifier shieldModifier;
 
-	[Space(20f)]
+	[SerializeField]
+	private GodzillaModifier godzillaModifier;
+
+	[SerializeField]
+	private GodzillaLaserBurnModifier godzillaLaserBurnModifier;
+
 	[SerializeField]
 	[Header("Particles")]
+	[Space(20f)]
 	private GameObject particleBlood;
 
 	[SerializeField]
@@ -402,8 +417,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem goldExplosion;
 
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
 	[Header("Logic object prefabs")]
 	private GameObject logicInputConnectorPrefab;
 
@@ -431,8 +446,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material logicCubeConnectorBlueSelectedMaterial;
 
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
 	[Header("GUI")]
 	private Texture2D avatarAccessoryMoveIcon;
 
@@ -442,8 +457,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material modelConstraintsMaterial;
 
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
 	[Header("UGUI")]
 	private AvatarInputControllerAndroidSettings avatarInputControllerAndroidSettings;
 
@@ -456,9 +471,20 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private InsertCursor insertCursor;
 
-	[Space(20f)]
 	[SerializeField]
+	[Header("Cameras")]
+	[Space(20f)]
+	private GodzillaCamera godzillaCamera;
+
+	[SerializeField]
+	private GodzillaCamera2D godzillaCamera2D;
+
+	[SerializeField]
+	private FirstPersonDeathCamera firstPersonDeathCamera;
+
 	[Header("Editor")]
+	[SerializeField]
+	[Space(20f)]
 	private Material cellCursorErrorMaterial;
 
 	[SerializeField]
@@ -612,6 +638,10 @@ public class PrefabPool : MonoBehaviour
 
 	public SpawnerObject SpawnerObjectPrefab => spawnerObject;
 
+	public GodzillaTriggerObject GodzillaTriggerPrefab => godzillaTriggerPrefab;
+
+	public GameObject GodzillaAreaPrefab => godzillaAreaPrefab;
+
 	public Material GhostMarkerMaterial => ghostMarkerMaterial;
 
 	public Material ObjectHiddenMaterial => objectHiddenMaterial;
@@ -678,6 +708,8 @@ public class PrefabPool : MonoBehaviour
 
 	public GameObject AvatarItemRailGun => avatarItemRailGun;
 
+	public GameObject AvatarItemGodzillaLaser => avatarItemGodzillaLaser;
+
 	public GameObject AvatarItemSword => avatarItemSword;
 
 	public GameObject AvatarItemShotgun => avatarItemShotgun;
@@ -715,6 +747,78 @@ public class PrefabPool : MonoBehaviour
 	public AvatarModifier GrowthModifier => growthModifier;
 
 	public AvatarModifier ShieldModifier => shieldModifier;
+
+	public GodzillaModifier GodzillaModifierS
+	{
+		get
+		{
+			godzillaModifier.Type = GodzillaModifier.GodzillaModifierPackageType.S;
+			return godzillaModifier;
+		}
+	}
+
+	public GodzillaModifier GodzillaModifierM
+	{
+		get
+		{
+			godzillaModifier.Type = GodzillaModifier.GodzillaModifierPackageType.M;
+			return godzillaModifier;
+		}
+	}
+
+	public GodzillaModifier GodzillaModifierL
+	{
+		get
+		{
+			godzillaModifier.Type = GodzillaModifier.GodzillaModifierPackageType.L;
+			return godzillaModifier;
+		}
+	}
+
+	public GodzillaModifier GodzillaModifierXL
+	{
+		get
+		{
+			godzillaModifier.Type = GodzillaModifier.GodzillaModifierPackageType.XL;
+			return godzillaModifier;
+		}
+	}
+
+	public GodzillaLaserBurnModifier GodzillaLaserBurnModifierS
+	{
+		get
+		{
+			godzillaLaserBurnModifier.SetType(AvatarModifierPackageType.GodzillaLaserBurnS);
+			return godzillaLaserBurnModifier;
+		}
+	}
+
+	public GodzillaLaserBurnModifier GodzillaLaserBurnModifierM
+	{
+		get
+		{
+			godzillaLaserBurnModifier.SetType(AvatarModifierPackageType.GodzillaLaserBurnM);
+			return godzillaLaserBurnModifier;
+		}
+	}
+
+	public GodzillaLaserBurnModifier GodzillaLaserBurnModifierL
+	{
+		get
+		{
+			godzillaLaserBurnModifier.SetType(AvatarModifierPackageType.GodzillaLaserBurnL);
+			return godzillaLaserBurnModifier;
+		}
+	}
+
+	public GodzillaLaserBurnModifier GodzillaLaserBurnModifierXL
+	{
+		get
+		{
+			godzillaLaserBurnModifier.SetType(AvatarModifierPackageType.GodzillaLaserBurnXL);
+			return godzillaLaserBurnModifier;
+		}
+	}
 
 	public GameObject ParticleBlood => particleBlood;
 
@@ -791,6 +895,12 @@ public class PrefabPool : MonoBehaviour
 	public MaterialButtonTextureGenerator MaterialButtonTextureGenerator => materialButtonTextureGenerator;
 
 	public InsertCursor InsertCursor => insertCursor;
+
+	public GodzillaCamera GodzillaCamera => godzillaCamera;
+
+	public GodzillaCamera2D GodzillaCamera2D => godzillaCamera2D;
+
+	public FirstPersonDeathCamera FirstPersonDeathCamera => firstPersonDeathCamera;
 
 	public Material CellCursorErrorMaterial => cellCursorErrorMaterial;
 

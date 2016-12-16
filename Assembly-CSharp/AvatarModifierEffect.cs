@@ -12,6 +12,7 @@ public enum AvatarModifierEffect
 	DisableVehicles,
 	Invulnerable,
 	PoisonImmune,
+	GodzillaImmunity,
 	Friction,
 	Bounciness,
 	EnvironmentDamagePrSec,

@@ -49,6 +49,11 @@ public class CullingSubscriberDynamic : ICullingSubscriber, IUpdatecontrollerSub
 		CullingApiWrapper.spheres[CullingIndex].position = rootTransform.position;
 	}
 
+	public void SetCullingRadius(float radius)
+	{
+		CullingApiWrapper.spheres[CullingIndex].radius = radius;
+	}
+
 	public void UpdateControllerFixedUpdate()
 	{
 	}

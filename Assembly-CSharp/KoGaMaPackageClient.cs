@@ -245,6 +245,8 @@ public class KoGaMaPackageClient
 			return new ShootableButton(worldObjectData, worldObjects);
 		case WorldObjectType.UseLever:
 			return new UseLever(worldObjectData, worldObjects);
+		case WorldObjectType.GodzillaTrigger:
+			return new GodzillaTrigger(worldObjectData, worldObjects);
 		default:
 			Debug.LogError("WOCM trying to create unknown type: " + worldObjectType);
 			return null;
