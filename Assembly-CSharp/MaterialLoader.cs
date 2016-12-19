@@ -84,11 +84,13 @@ public class MaterialLoader : MonoBehaviour
 
 	public void Initialize()
 	{
-		AsyncWWWManager.WWWRequest(new CachedGetRequest(Urls.StreamingAssets + highResAtlasFileName, Callback, WWWRequestPriority.WaitUntilSyncronizingIsDone));
+		Debug.Log(Urls.StreamingAssets + highResAtlasFileName + "?version=" + MVGameControllerBase.KoGaMaSettings.VersionStreamingAssets);
+		AsyncWWWManager.WWWRequest(new CachedGetRequest(Urls.StreamingAssets + highResAtlasFileName + "?version=" + MVGameControllerBase.KoGaMaSettings.VersionStreamingAssets, Callback, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 	}
 
 	private void Callback(WWW www)
 	{
+		Debug.Log("Got texture");
 		string[] allAssetNames = www.assetBundle.GetAllAssetNames();
 		if (allAssetNames.Length != 1)
 		{

@@ -12,6 +12,21 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 		PlayerKilledByType.Impact
 	};
 
+	private readonly AvatarModifierPackageType[] canDamageGodzilla = new AvatarModifierPackageType[11]
+	{
+		AvatarModifierPackageType.Fire,
+		AvatarModifierPackageType.FlamerBurn,
+		AvatarModifierPackageType.Poison,
+		AvatarModifierPackageType.GodzillaS,
+		AvatarModifierPackageType.GodzillaM,
+		AvatarModifierPackageType.GodzillaL,
+		AvatarModifierPackageType.GodzillaXL,
+		AvatarModifierPackageType.GodzillaLaserBurnS,
+		AvatarModifierPackageType.GodzillaLaserBurnM,
+		AvatarModifierPackageType.GodzillaLaserBurnL,
+		AvatarModifierPackageType.GodzillaLaserBurnXL
+	};
+
 	private MVRuntimeDataVariable invulnerable;
 
 	public void Init(MVRuntimeDataVariable runtimeDataModifiers, MVRuntimeDataVariable invulnerable, MVRuntimeDataVariableClampedFloat health)
@@ -53,26 +68,12 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 			return;
 		}
 		BitArray bitArray = new BitArray(25);
-		AvatarModifierPackageType[] array = new AvatarModifierPackageType[11]
-		{
-			AvatarModifierPackageType.Fire,
-			AvatarModifierPackageType.FlamerBurn,
-			AvatarModifierPackageType.Poison,
-			AvatarModifierPackageType.GodzillaS,
-			AvatarModifierPackageType.GodzillaM,
-			AvatarModifierPackageType.GodzillaL,
-			AvatarModifierPackageType.GodzillaXL,
-			AvatarModifierPackageType.GodzillaLaserBurnS,
-			AvatarModifierPackageType.GodzillaLaserBurnM,
-			AvatarModifierPackageType.GodzillaLaserBurnL,
-			AvatarModifierPackageType.GodzillaLaserBurnXL
-		};
 		if (HasModifierEffect(AvatarModifierEffect.GodzillaImmunity))
 		{
 			bitArray.SetAll(value: true);
-			for (int i = 0; i < array.Length; i++)
+			for (int i = 0; i < canDamageGodzilla.Length; i++)
 			{
-				bitArray.Set((int)array[i], value: false);
+				bitArray.Set((int)canDamageGodzilla[i], value: false);
 			}
 		}
 		bitArray.Set(0, value: true);
