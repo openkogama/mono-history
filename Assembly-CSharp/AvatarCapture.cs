@@ -29,9 +29,9 @@ public class AvatarCapture : MonoBehaviour
 		}
 	}
 
-	public void CaptureAllPlayersInGame(CameraClearFlags flags)
+	public void CaptureAllPlayersInGame()
 	{
-		InitializeCamera(flags);
+		InitializeCamera();
 		List<MVPlayer> list = new List<MVPlayer>();
 		foreach (MVPlayer value in MVGameControllerBase.Game.Players.Values)
 		{
@@ -40,9 +40,9 @@ public class AvatarCapture : MonoBehaviour
 		CapturePlayerGroup(list);
 	}
 
-	public void CapturePlayersInTeam(List<ScoreTeamEntry> scoreTeamEntries, CameraClearFlags flags, GameStatCounterType counterType)
+	public void CapturePlayersInTeam(List<ScoreTeamEntry> scoreTeamEntries, GameStatCounterType counterType)
 	{
-		InitializeCamera(flags);
+		InitializeCamera();
 		List<MVPlayer> sortedList = (from o in MVGameControllerBase.Game.TeamManager.GetPlayersInTeam(scoreTeamEntries[0].team)
 			orderby o.GetGameStat(counterType)
 			select o).ToList();
@@ -51,7 +51,6 @@ public class AvatarCapture : MonoBehaviour
 
 	private void CapturePlayerGroup(List<MVPlayer> sortedList)
 	{
-		MVGameControllerBase.WOCM.AvatarLocal.Avatar.AvatarFader.SetTransparency(1f);
 		int count = sortedList.Count;
 		List<Vector3> positions = new List<Vector3>();
 		CreateTriangleFormation(ref positions, formationSpacing, count);
@@ -72,20 +71,23 @@ public class AvatarCapture : MonoBehaviour
 		}
 	}
 
-	public void CaptureGO(MVPlayer player, CameraClearFlags flags)
+	public void CapturePlayer(MVPlayer player)
 	{
-		InitializeCamera(flags);
-		renderCam.clearFlags = flags;
+		InitializeCamera();
 		Transform transform = player.Avatar.Body.Transform;
-		renderCam.transform.position = transform.position + transform.forward * cameraOffset.z + transform.up * cameraOffset.y;
-		Transform cameraTransform = renderCam.transform;
-		DrawObject(cameraTransform, transform);
+		Transform transform2 = renderCam.transform;
+		transform2.position = transform.position;
+		transform2.position += transform.right * cameraOffset.x;
+		transform2.position += transform.forward * (0f - cameraOffset.z);
+		transform2.position += transform.up * cameraOffset.y;
+		DrawObject(transform2, transform);
 		renderCam.Render();
 	}
 
-	private void InitializeCamera(CameraClearFlags flags)
+	private void InitializeCamera()
 	{
-		renderCam.clearFlags = flags;
+		MVGameControllerBase.WOCM.AvatarLocal.Avatar.AvatarFader.SetTransparency(1f);
+		renderCam.clearFlags = CameraClearFlags.Depth;
 		RenderTexture temporary = RenderTexture.GetTemporary(1024, 512, 16, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, 1);
 		temporary.wrapMode = TextureWrapMode.Clamp;
 		temporary.filterMode = FilterMode.Bilinear;

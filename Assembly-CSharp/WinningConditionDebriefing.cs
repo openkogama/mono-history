@@ -173,7 +173,7 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 			UnityEngine.Object.Destroy(captureCamera.gameObject);
 		}
 		captureCamera = UnityEngine.Object.Instantiate(captureCameraPrefab);
-		captureCamera.CapturePlayersInTeam(scoreTeamEntries, CameraClearFlags.Depth, counterType);
+		captureCamera.CapturePlayersInTeam(scoreTeamEntries, counterType);
 		debriefing.SetWinnerImage(captureCamera.RenderCam.targetTexture);
 		StartCoroutine(ShowDebriefingCoroutine());
 	}
@@ -191,7 +191,7 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 			UnityEngine.Object.Destroy(captureCamera.gameObject);
 		}
 		captureCamera = UnityEngine.Object.Instantiate(captureCameraPrefab);
-		captureCamera.CaptureAllPlayersInGame(CameraClearFlags.Depth);
+		captureCamera.CaptureAllPlayersInGame();
 		debriefing = UnityEngine.Object.Instantiate(noWinnerPrefab);
 		debriefing.transform.SetParent(group.gameObject.transform, worldPositionStays: false);
 		debriefing.SetWinnerText(TM._("Time's Up!"));
@@ -284,7 +284,7 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 				UnityEngine.Object.Destroy(captureCamera.gameObject);
 			}
 			captureCamera = UnityEngine.Object.Instantiate(captureCameraPrefab);
-			captureCamera.CaptureGO(value, CameraClearFlags.Color);
+			captureCamera.CapturePlayer(value);
 			debriefing.SetWinnerImage(captureCamera.RenderCam.targetTexture);
 		}
 		else
