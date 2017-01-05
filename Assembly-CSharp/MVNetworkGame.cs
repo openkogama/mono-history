@@ -368,6 +368,12 @@ public class MVNetworkGame : IPhotonPeerListener
 			case MVEventCodes.CloneWorldObjectTree:
 				networkGame.OnCloneWorldObjectTree(photonEvent);
 				break;
+			case MVEventCodes.CloneWorldObjectTreeWithPosition:
+				networkGame.OnCloneWorldObjectTreePosition(photonEvent);
+				break;
+			case MVEventCodes.CloneTempWorldObjectWithOriginalReferenceEvent:
+				networkGame.OnCloneTempWorldObjectWithOriginalReferenceEvent(photonEvent);
+				break;
 			case MVEventCodes.GetGameBatch:
 				networkGame.OnGetGameBatch(photonEvent);
 				break;
@@ -890,9 +896,7 @@ public class MVNetworkGame : IPhotonPeerListener
 				Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 				dictionary.Add(20, id);
 				dictionary.Add(33, networkGame.ServerTimeInMilliSeconds);
-				dictionary.Add(22, position.x);
-				dictionary.Add(23, position.y);
-				dictionary.Add(24, position.z);
+				TransformHelper.SetPosition(position, dictionary);
 				dictionary.Add(158, rotation);
 				dictionary.Add(34, (byte)packageType);
 				bool sendReliable = TransformPackageType.Stop == packageType;
@@ -938,13 +942,8 @@ public class MVNetworkGame : IPhotonPeerListener
 			else
 			{
 				dictionary.Add(83, true);
-				dictionary.Add(22, t.localPosition.x);
-				dictionary.Add(23, t.localPosition.y);
-				dictionary.Add(24, t.localPosition.z);
-				dictionary.Add(25, t.localRotation.x);
-				dictionary.Add(26, t.localRotation.y);
-				dictionary.Add(27, t.localRotation.z);
-				dictionary.Add(28, t.localRotation.w);
+				TransformHelper.SetPosition(t.localPosition, dictionary);
+				TransformHelper.SetRotation(t.localRotation, dictionary);
 			}
 			peer.OpCustom(6, dictionary, sendReliable: true);
 		}
@@ -1086,16 +1085,9 @@ public class MVNetworkGame : IPhotonPeerListener
 			dictionary.Add(16, woData);
 			dictionary.Add(18, localOwner ? networkGame.LocalPlayerActorNumber : 0);
 			dictionary.Add(37, transferOwnershipToServerOnLeave);
-			dictionary.Add(22, position.x);
-			dictionary.Add(23, position.y);
-			dictionary.Add(24, position.z);
-			dictionary.Add(25, rotation.x);
-			dictionary.Add(26, rotation.y);
-			dictionary.Add(27, rotation.z);
-			dictionary.Add(28, rotation.w);
-			dictionary.Add(29, scale.x);
-			dictionary.Add(30, scale.y);
-			dictionary.Add(31, scale.z);
+			TransformHelper.SetPosition(position, dictionary);
+			TransformHelper.SetRotation(rotation, dictionary);
+			TransformHelper.SetScale(scale, dictionary);
 			peer.OpCustom(0, dictionary, sendReliable: true);
 		}
 
@@ -1107,16 +1099,9 @@ public class MVNetworkGame : IPhotonPeerListener
 			dictionary.Add(245, customData);
 			dictionary.Add(18, localOwner ? networkGame.LocalPlayerActorNumber : 0);
 			dictionary.Add(37, transferOwnershipToServerOnLeave);
-			dictionary.Add(22, position.x);
-			dictionary.Add(23, position.y);
-			dictionary.Add(24, position.z);
-			dictionary.Add(25, rotation.x);
-			dictionary.Add(26, rotation.y);
-			dictionary.Add(27, rotation.z);
-			dictionary.Add(28, rotation.w);
-			dictionary.Add(29, scale.x);
-			dictionary.Add(30, scale.y);
-			dictionary.Add(31, scale.z);
+			TransformHelper.SetPosition(position, dictionary);
+			TransformHelper.SetRotation(rotation, dictionary);
+			TransformHelper.SetScale(scale, dictionary);
 			peer.OpCustom(45, dictionary, sendReliable: true);
 		}
 
@@ -1127,28 +1112,48 @@ public class MVNetworkGame : IPhotonPeerListener
 			dictionary.Add(21, groupId);
 			dictionary.Add(18, localOwner ? networkGame.LocalPlayerActorNumber : 0);
 			dictionary.Add(37, transferOwnershipToServerOnLeave);
-			dictionary.Add(22, position.x);
-			dictionary.Add(23, position.y);
-			dictionary.Add(24, position.z);
-			dictionary.Add(25, rotation.x);
-			dictionary.Add(26, rotation.y);
-			dictionary.Add(27, rotation.z);
-			dictionary.Add(28, rotation.w);
-			dictionary.Add(29, scale.x);
-			dictionary.Add(30, scale.y);
-			dictionary.Add(31, scale.z);
+			TransformHelper.SetPosition(position, dictionary);
+			TransformHelper.SetRotation(rotation, dictionary);
+			TransformHelper.SetScale(scale, dictionary);
 			dictionary.Add(125, isPreviewItem);
 			peer.OpCustom(46, dictionary, sendReliable: true);
 		}
 
 		public void CloneWorldObjectTree(MVWorldObjectClient root, bool localOwner, bool setAsPreviewItem, bool cloneToRootGroup)
 		{
+			Dictionary<byte, object> customOpParameters = CreateBasicCloneData(root, localOwner, setAsPreviewItem, cloneToRootGroup);
+			peer.OpCustom(38, customOpParameters, sendReliable: true);
+		}
+
+		public void CloneWorldObjectTreeWithPosition(MVWorldObjectClient root, Vector3 position, Quaternion rotation, bool localOwner, bool setAsPreviewItem, bool cloneToRootGroup, bool isTempObject)
+		{
+			Dictionary<byte, object> customOpParameters = CreateWithPositionCloneData(root, position, rotation, localOwner, setAsPreviewItem, cloneToRootGroup, isTempObject);
+			peer.OpCustom(79, customOpParameters, sendReliable: true);
+		}
+
+		public void CloneTempWorldObjectWithOriginalReference(MVWorldObjectClient root, Vector3 position, Quaternion rotation)
+		{
+			Dictionary<byte, object> customOpParameters = CreateWithPositionCloneData(root, position, rotation, localOwner: true, setAsPreviewItem: false, cloneToRootGroup: true, isTempObject: true);
+			peer.OpCustom(80, customOpParameters, sendReliable: true);
+		}
+
+		private Dictionary<byte, object> CreateBasicCloneData(MVWorldObjectClient root, bool localOwner, bool setAsPreviewItem, bool cloneToRootGroup)
+		{
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(20, root.Id);
 			dictionary.Add(18, localOwner ? networkGame.LocalPlayerActorNumber : 0);
 			dictionary.Add(101, cloneToRootGroup);
 			dictionary.Add(127, setAsPreviewItem);
-			peer.OpCustom(38, dictionary, sendReliable: true);
+			return dictionary;
+		}
+
+		private Dictionary<byte, object> CreateWithPositionCloneData(MVWorldObjectClient root, Vector3 position, Quaternion rotation, bool localOwner, bool setAsPreviewItem, bool cloneToRootGroup, bool isTempObject)
+		{
+			Dictionary<byte, object> dictionary = CreateBasicCloneData(root, localOwner, setAsPreviewItem, cloneToRootGroup);
+			dictionary.Add(204, isTempObject);
+			TransformHelper.SetPosition(position, dictionary);
+			TransformHelper.SetRotation(rotation, dictionary);
+			return dictionary;
 		}
 
 		public void AddPlanetToPlanet(int planetId, int subtreeId)
@@ -1902,10 +1907,10 @@ public class MVNetworkGame : IPhotonPeerListener
 				networkGame.OnExpireProductResponse(returnCode, returnValues);
 				break;
 			case MVOperationCodes.CloneWorldObjectTree:
+			case MVOperationCodes.CloneWorldObjectTreeWithPosition:
 			{
-				int num = (int)returnValues[20];
-				Debug.Log("rootID " + num);
-				networkGame.worldNetwork.WorldObjectClientManagerNetwork.OnCloneWorldObjectTreeResponse(returnCode == 0, num);
+				int rootId = (int)returnValues[20];
+				networkGame.worldNetwork.WorldObjectClientManagerNetwork.OnCloneWorldObjectTreeResponse(returnCode == 0, rootId);
 				break;
 			}
 			case MVOperationCodes.RequestStreamingAssetInventoryItems:
@@ -2551,13 +2556,13 @@ public class MVNetworkGame : IPhotonPeerListener
 	{
 		if (WorldObjectClientManager.GetWorldObjectClient(worldObjectID) != null)
 		{
-			if (!(WorldObjectClientManager.GetWorldObjectClient(worldObjectID) is MVPickupItemBase))
+			if (!(WorldObjectClientManager.GetWorldObjectClient(worldObjectID) is IPickupStateHandler))
 			{
 				Debug.LogError("PickUpItemStateChangeEvent failed, since WOID is not derived from MVPickupItemBase");
 				return;
 			}
-			MVPickupItemBase mVPickupItemBase = (MVPickupItemBase)WorldObjectClientManager.GetWorldObjectClient(worldObjectID);
-			mVPickupItemBase.HandleStateChange(state);
+			IPickupStateHandler pickupStateHandler = (IPickupStateHandler)WorldObjectClientManager.GetWorldObjectClient(worldObjectID);
+			pickupStateHandler.HandleStateChange(state);
 		}
 		else
 		{
@@ -2682,13 +2687,8 @@ public class MVNetworkGame : IPhotonPeerListener
 		Quaternion localRotation = seatBase.gameObject.transform.localRotation;
 		int seatID = seatBase.SeatID;
 		Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
-		dictionary.Add(22, localPosition.x);
-		dictionary.Add(23, localPosition.y);
-		dictionary.Add(24, localPosition.z);
-		dictionary.Add(25, localRotation.x);
-		dictionary.Add(26, localRotation.y);
-		dictionary.Add(27, localRotation.z);
-		dictionary.Add(28, localRotation.w);
+		TransformHelper.SetPosition(localPosition, dictionary);
+		TransformHelper.SetRotation(localRotation, dictionary);
 		dictionary.Add(142, (byte)seatID);
 		dictionary.Add(143, (byte)seatBase.SeatType);
 		return dictionary;
@@ -2942,7 +2942,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		{
 			int woID = (int)photonEvent[20];
 			NetworkTransformPackage networkTransformPackage = new NetworkTransformPackage();
-			networkTransformPackage.position = new Vector3((float)photonEvent[22], (float)photonEvent[23], (float)photonEvent[24]);
+			networkTransformPackage.position = TransformHelper.GetPosition(photonEvent.Parameters);
 			networkTransformPackage.rotation = QuaternionCompression.ToQuaternion((byte[])photonEvent[158]);
 			networkTransformPackage.timestamp = (int)photonEvent[33];
 			networkTransformPackage.packageType = (TransformPackageType)(byte)photonEvent[34];
@@ -2984,8 +2984,8 @@ public class MVNetworkGame : IPhotonPeerListener
 			MVWorldObjectClient worldObjectClient = WorldObjectClientManager.GetWorldObjectClient(num);
 			if (worldObjectClient != null)
 			{
-				Vector3 position = new Vector3((float)photonEvent[22], (float)photonEvent[23], (float)photonEvent[24]);
-				Quaternion rotation = new Quaternion((float)photonEvent[25], (float)photonEvent[26], (float)photonEvent[27], (float)photonEvent[28]);
+				Vector3 position = TransformHelper.GetPosition(photonEvent.Parameters);
+				Quaternion rotation = TransformHelper.GetRotation(photonEvent.Parameters);
 				transformNetworkManager.RemoveNetworkObject(num);
 				worldObjectClient.Position = position;
 				worldObjectClient.Rotation = rotation;
@@ -3078,25 +3078,9 @@ public class MVNetworkGame : IPhotonPeerListener
 		{
 			Debug.LogError("OnTriggerBoxStayBegin received, but worldObjectID: " + worldObjectID + " does not exist");
 		}
-		else if (worldObjectClient is MVTriggerBox)
+		else if (worldObjectClient is ITriggerBoxEventsHandler triggerBoxEventsHandler)
 		{
-			MVTriggerBox mVTriggerBox = (MVTriggerBox)worldObjectClient;
-			mVTriggerBox.OnStayBegin(actorNr);
-		}
-		else if (worldObjectClient is MVPressurePlate)
-		{
-			MVPressurePlate mVPressurePlate = (MVPressurePlate)worldObjectClient;
-			mVPressurePlate.OnStayBegin(actorNr);
-		}
-		else if (worldObjectClient is ShootableButton)
-		{
-			ShootableButton shootableButton = (ShootableButton)worldObjectClient;
-			shootableButton.OnActivated();
-		}
-		else if (worldObjectClient is UseLever)
-		{
-			UseLever useLever = (UseLever)worldObjectClient;
-			useLever.SetLinks(linkFlag: true);
+			triggerBoxEventsHandler.Enter(actorNr);
 		}
 		else
 		{
@@ -3123,25 +3107,9 @@ public class MVNetworkGame : IPhotonPeerListener
 		{
 			Debug.LogError("OnTriggerBoxStayEnd received, but worldObjectID: " + worldObjectID + " does not exist");
 		}
-		else if (worldObjectClient is MVTriggerBox)
+		else if (worldObjectClient is ITriggerBoxEventsHandler triggerBoxEventsHandler)
 		{
-			MVTriggerBox mVTriggerBox = (MVTriggerBox)worldObjectClient;
-			mVTriggerBox.OnStayEnd();
-		}
-		else if (worldObjectClient is MVPressurePlate)
-		{
-			MVPressurePlate mVPressurePlate = (MVPressurePlate)worldObjectClient;
-			mVPressurePlate.OnStayEnd();
-		}
-		else if (worldObjectClient is ShootableButton)
-		{
-			ShootableButton shootableButton = (ShootableButton)worldObjectClient;
-			shootableButton.OnDeactivated();
-		}
-		else if (worldObjectClient is UseLever)
-		{
-			UseLever useLever = (UseLever)worldObjectClient;
-			useLever.SetLinks(linkFlag: false);
+			triggerBoxEventsHandler.Exit();
 		}
 		else
 		{
@@ -3244,17 +3212,11 @@ public class MVNetworkGame : IPhotonPeerListener
 	public void OnTransferWorldObjectsToGroup(EventData eventData)
 	{
 		int groupId = (int)eventData[20];
-		int[] array = (int[])eventData[71];
-		string text = string.Empty;
-		int[] array2 = array;
-		foreach (int num in array2)
-		{
-			text = text + num + " ";
-		}
-		worldNetwork.WorldObjectClientManagerNetwork.OnTransferWorldObjectsToGroupEvent(groupId, array);
+		int[] worldObjectsToGroup = (int[])eventData[71];
+		worldNetwork.WorldObjectClientManagerNetwork.OnTransferWorldObjectsToGroupEvent(groupId, worldObjectsToGroup);
 	}
 
-	public void OnCloneWorldObjectTree(EventData eventData)
+	public MVWorldObjectClient OnCloneWorldObjectTree(EventData eventData)
 	{
 		int[] array = (int[])eventData[71];
 		int ownerActorNumber = (int)eventData[18];
@@ -3262,7 +3224,36 @@ public class MVNetworkGame : IPhotonPeerListener
 		int cloneObjectLinkId = (int)eventData[92];
 		bool cloneToRootGroup = (bool)eventData[101];
 		int previewProfileOwnerId = (int)eventData[128];
-		worldNetwork.OnCloneWorldObjectTreeEvent(ownerActorNumber, previewProfileOwnerId, cloneToRootGroup, array[0], array[1], cloneLinkId, cloneObjectLinkId);
+		return worldNetwork.OnCloneWorldObjectTreeEvent(ownerActorNumber, previewProfileOwnerId, cloneToRootGroup, array[0], array[1], cloneLinkId, cloneObjectLinkId);
+	}
+
+	public MVWorldObjectClient OnCloneWorldObjectTreePosition(EventData eventData)
+	{
+		MVWorldObjectClient mVWorldObjectClient = OnCloneWorldObjectTree(eventData);
+		mVWorldObjectClient.Position = TransformHelper.GetPosition(eventData.Parameters);
+		mVWorldObjectClient.Rotation = TransformHelper.GetRotation(eventData.Parameters);
+		return mVWorldObjectClient;
+	}
+
+	public void OnCloneTempWorldObjectWithOriginalReferenceEvent(EventData eventData)
+	{
+		int[] array = (int[])eventData[71];
+		int num = array[0];
+		MVWorldObjectClient worldObjectClient = WorldObjectClientManager.GetWorldObjectClient(num);
+		bool flag = true;
+		if (worldObjectClient.RunTimeData.ContainsObscuredKey("OriginalId"))
+		{
+			flag = false;
+		}
+		else
+		{
+			worldObjectClient.RunTimeData.SetObscuredType("OriginalId", (ObscuredInt)num);
+		}
+		OnCloneWorldObjectTreePosition(eventData);
+		if (flag)
+		{
+			worldObjectClient.RunTimeData.RemoveObscuredKey("OriginalId");
+		}
 	}
 
 	public void OnGetGameBatch(EventData eventData)

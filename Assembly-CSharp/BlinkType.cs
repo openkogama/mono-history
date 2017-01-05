@@ -5,5 +5,6 @@ public enum BlinkType
 	Invulnerable,
 	Poison,
 	Frozen,
-	AboutToExpire
+	AboutToExpire,
+	DropOffCollectedItem
 }

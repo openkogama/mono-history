@@ -3,7 +3,7 @@ using CodeStage.AntiCheat.ObscuredTypes;
 using MV.WorldObject;
 using UnityEngine;
 
-public class MVPressurePlate : MVLogicObject
+public class MVPressurePlate : MVLogicObject, ITriggerBoxEventsHandler
 {
 	private MVPressurePlateObject plateObject;
 
@@ -135,7 +135,7 @@ public class MVPressurePlate : MVLogicObject
 		MVGameControllerBase.OperationRequests.TriggerBoxExit(Id, instigatorWOID);
 	}
 
-	public void OnStayBegin(int actorNr)
+	public void Enter(int actorNr)
 	{
 		foreach (Link outputLinkRef in OutputLinkRefs)
 		{
@@ -144,7 +144,7 @@ public class MVPressurePlate : MVLogicObject
 		isDown = true;
 	}
 
-	public void OnStayEnd()
+	public void Exit()
 	{
 		foreach (Link outputLinkRef in OutputLinkRefs)
 		{

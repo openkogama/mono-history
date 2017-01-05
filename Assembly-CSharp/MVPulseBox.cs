@@ -6,6 +6,10 @@ public class MVPulseBox : MVLogicObject
 {
 	private bool currentlyHot;
 
+	private int intervalOnInMilliSecs;
+
+	private int intervalOffInMilliSecs;
+
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => true;
@@ -36,14 +40,19 @@ public class MVPulseBox : MVLogicObject
 		SetOutput(IsActive());
 	}
 
+	public override void OnDataUpdate()
+	{
+		base.OnDataUpdate();
+		intervalOnInMilliSecs = (int)((float)Data["intervalOn"] * 1000f);
+		intervalOffInMilliSecs = (int)((float)Data["intervalOff"] * 1000f);
+	}
+
 	protected override void OnUpdate()
 	{
 		if (IsActive())
 		{
-			int num = (int)((float)Data["intervalOn"] * 1000f);
-			int num2 = (int)((float)Data["intervalOff"] * 1000f);
-			int num3 = Math.Abs(MVGameControllerBase.Game.Peer.ServerTimeInMilliSeconds) % (num + num2);
-			if (num3 > num)
+			int num = Math.Abs(MVGameControllerBase.Game.Peer.ServerTimeInMilliSeconds) % (intervalOnInMilliSecs + intervalOffInMilliSecs);
+			if (num > intervalOnInMilliSecs)
 			{
 				SetOutput(output: false);
 			}

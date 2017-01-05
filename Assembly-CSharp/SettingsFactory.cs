@@ -84,6 +84,9 @@ public class SettingsFactory : MonoBehaviour
 	private ShootablePlateSettings shootablePlateSettingsPrefab;
 
 	[SerializeField]
+	private CollectTheItemSettings collectTheItemSettingsPrefab;
+
+	[SerializeField]
 	private GodzillaSettings godzillaSettingsPrefab;
 
 	[SerializeField]
@@ -266,6 +269,12 @@ public class SettingsFactory : MonoBehaviour
 		{
 			ShootablePlateSettings shootablePlateSettings = Object.Instantiate(shootablePlateSettingsPrefab);
 			shootablePlateSettings.Initialize(woID, gameObject);
+			break;
+		}
+		case WorldObjectType.CollectTheItemCollectable:
+		{
+			CollectTheItemSettings collectTheItemSettings = Object.Instantiate(collectTheItemSettingsPrefab);
+			collectTheItemSettings.Initialize(woID, gameObject);
 			break;
 		}
 		case WorldObjectType.GodzillaTrigger:

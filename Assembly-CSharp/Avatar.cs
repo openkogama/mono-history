@@ -93,16 +93,13 @@ public class Avatar : MonoBehaviour
 
 	private void OnXpProgress(XPProgressData xpProgressData)
 	{
-		ParticleSystem particleSystem = UnityEngine.Object.Instantiate(PrefabPool.Instance.ParticleXP);
-		particleSystem.transform.parent = transform;
-		particleSystem.transform.localPosition = Vector3.up;
-		particleSystem.transform.localRotation = Quaternion.identity;
-		particleSystem.transform.localScale = Vector3.one;
-		ParticleSystem.EmissionModule emission = particleSystem.emission;
-		ParticleSystem.MinMaxCurve rate = emission.rate;
-		rate.constantMax = xpProgressData.XPDelta;
-		emission.rate = rate;
-		particleSystem.Play();
+		AvatarPooledXPParticles avatarPooledXPParticles = PrefabPool.Instance.EnumPoolManager.Instantiate<AvatarPooledXPParticles>(PoolEnums.XP);
+		avatarPooledXPParticles.transform.parent = transform;
+		avatarPooledXPParticles.transform.localPosition = Vector3.up;
+		avatarPooledXPParticles.transform.localRotation = Quaternion.identity;
+		avatarPooledXPParticles.transform.localScale = Vector3.one;
+		avatarPooledXPParticles.Initialize(xpProgressData.XPDelta);
+		avatarPooledXPParticles.Play();
 	}
 
 	public void UpdateModifiers(Dictionary<object, object> newModifiers)

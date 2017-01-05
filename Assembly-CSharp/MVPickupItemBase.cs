@@ -3,7 +3,7 @@ using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 
-public class MVPickupItemBase : MVLogicObject
+public class MVPickupItemBase : MVLogicObject, IPickupStateHandler
 {
 	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 

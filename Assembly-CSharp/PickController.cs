@@ -19,29 +19,39 @@ public class PickController : MonoBehaviour
 
 	private UnityAction<int> pickCallback;
 
-	public void Initialize(UnityAction<int> onPickCallback)
+	private bool shouldSetText;
+
+	private int pickedWoId;
+
+	public void Initialize(UnityAction<int> onPickCallback, bool setText)
 	{
+		shouldSetText = setText;
 		pickCallback = onPickCallback;
 		PickHelper picker = Object.Instantiate(pickHelperPrefab);
-		picker.Initialize(OnPicked, "Select wo to add to inventory.");
+		picker.Initialize(SelectionChanged, "Select wo.");
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Push(picker.gameObject, UIPushOption.HideAll, null, UIGroupFlags.InventoryUISubMenu);
 		});
 	}
 
-	private void OnPicked(MVWorldObjectClient wo, MVWorldObjectClient parent)
+	public void SelectionChanged(MVWorldObjectClient wo, MVWorldObjectClient parent)
 	{
-		woIDText.text = wo.Id.ToString();
-		parentType.text = "WO Root Group";
-		if (parent != null)
+		pickedWoId = wo.Id;
+		if (shouldSetText)
 		{
-			parentType.text = parent.GetType().ToString();
+			woIDText.text = pickedWoId.ToString();
+			parentType.text = "WO Root Group";
+			if (parent != null)
+			{
+				parentType.text = parent.GetType().ToString();
+			}
+			woType.text = wo.GetType().ToString();
+			Refresh();
 		}
-		woType.text = wo.GetType().ToString();
 		if (pickCallback != null)
 		{
-			pickCallback(wo.Id);
+			pickCallback(pickedWoId);
 		}
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{

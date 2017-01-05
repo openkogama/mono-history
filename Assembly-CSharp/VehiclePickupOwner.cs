@@ -31,7 +31,7 @@ public class VehiclePickupOwner : MVPickupOwner
 
 	protected override void Unequip()
 	{
-		if (!(currentItem == null))
+		if (!(currentItem == null) && !currentItem.IsHolstered)
 		{
 			currentItem.OnUnequip();
 			Object.Destroy(currentItem.gameObject);

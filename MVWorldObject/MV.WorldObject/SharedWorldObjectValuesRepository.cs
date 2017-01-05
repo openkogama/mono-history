@@ -4,6 +4,8 @@ namespace MV.WorldObject;
 
 public static class SharedWorldObjectValuesRepository
 {
+	public const string OriginalIdKey = "OriginalId";
+
 	private static Dictionary<WorldObjectType, Dictionary<object, object>> values = new Dictionary<WorldObjectType, Dictionary<object, object>>
 	{
 		{

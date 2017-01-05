@@ -101,7 +101,7 @@ public class VehicleSeatBase : MonoBehaviour
 			MVEquipable component = avatar.GameObject.GetComponent<MVEquipable>();
 			if (component != null)
 			{
-				component.Unequip();
+				component.Holster();
 			}
 		}
 		owner = avatar;
@@ -109,5 +109,13 @@ public class VehicleSeatBase : MonoBehaviour
 
 	public virtual void Detach(MVAvatar avatar)
 	{
+		if (UnequipVehicleUser)
+		{
+			MVEquipable component = avatar.GameObject.GetComponent<MVEquipable>();
+			if (component != null)
+			{
+				component.Unholster();
+			}
+		}
 	}
 }

@@ -115,6 +115,7 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel, ICubeModelCollid
 		if (prototypeCubeModel != null)
 		{
 			text = text + " authorProfileID " + prototypeCubeModel.AuthorProfileID;
+			text = text + " prototypeCubeModel.PrototypeId " + prototypeCubeModel.PrototypeId;
 		}
 		return text + " can add to inventory " + ((interactionFlags & InteractionFlags.CanAddToInventory) != 0);
 	}

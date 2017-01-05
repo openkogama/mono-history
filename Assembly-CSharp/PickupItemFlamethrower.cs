@@ -45,8 +45,9 @@ public class PickupItemFlamethrower : PickupItem
 		currentFuel = fuelAmount;
 	}
 
-	public override void OnStateChanged(Dictionary<object, object> newState)
+	public override void ResetAmmo()
 	{
+		base.ResetAmmo();
 		currentFuel = fuelAmount;
 	}
 

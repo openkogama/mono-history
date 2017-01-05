@@ -110,7 +110,7 @@ public class MVGameCoin : MVLogicObject
 
 	public virtual bool OnPickup(int instigatorID)
 	{
-		if (instigatorID == MVGameControllerBase.Game.LocalPlayer.ActorNr && state == GameCoinClientState.Visible)
+		if ((instigatorID == MVGameControllerBase.Game.LocalPlayer.ActorNr || instigatorID == MVGameControllerBase.Game.LocalPlayer.Avatar.Id) && state == GameCoinClientState.Visible)
 		{
 			isVisible = false;
 			pickupObject.PickupItem.GreyOut();

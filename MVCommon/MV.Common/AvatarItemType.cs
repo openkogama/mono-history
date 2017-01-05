@@ -63,7 +63,7 @@ public enum AvatarItemType
 	Carl14,
 	Carl15,
 	MouseGun,
-	Thomas3,
+	CollectTheItemCollectable,
 	GrowthGun,
 	MousePack,
 	GrowthPack,

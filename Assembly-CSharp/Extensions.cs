@@ -198,6 +198,12 @@ public static class Extensions
 		return hashtable.ContainsKey(obscuredString);
 	}
 
+	public static bool RemoveObscuredKey(this Dictionary<object, object> hashtable, string key)
+	{
+		obscuredString = key;
+		return hashtable.Remove(obscuredString);
+	}
+
 	public static void ScaleBounds(this GameObject gameObject, float targetSize)
 	{
 		Bounds? axisAlignedBoundsRecursively = SharedCubeFunctions.GetAxisAlignedBoundsRecursively(gameObject.transform);

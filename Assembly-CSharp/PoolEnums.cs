@@ -16,5 +16,6 @@ public enum PoolEnums
 	NormalBulletBlood,
 	SixShooterBlood,
 	NinjaStarBlood,
+	XP,
 	LENGTH
 }

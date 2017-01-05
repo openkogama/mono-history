@@ -27,6 +27,8 @@ public abstract class MVPickupOwner : MVComponent
 
 	public OnHandleFiringDelegate onHandleFiring;
 
+	public Action OnHolstered;
+
 	public PickupItem CurrentItem => currentItem;
 
 	public bool IsLocal { get; set; }
@@ -40,6 +42,10 @@ public abstract class MVPickupOwner : MVComponent
 		get
 		{
 			if (CurrentItem == null)
+			{
+				return false;
+			}
+			if (CurrentItem.IsHolstered)
 			{
 				return false;
 			}
@@ -151,9 +157,26 @@ public abstract class MVPickupOwner : MVComponent
 		}
 		AvatarItemType avatarItemType = (AvatarItemType)(int)newState["type"];
 		int num = (newState.ContainsKey("variantId") ? ((int)newState["variantId"]) : 0);
+		bool flag = newState.ContainsKey("holstered") && (bool)newState["holstered"];
 		if (currentItem == null || avatarItemType != currentItem.Type || num != currentItem.VariantID)
 		{
 			Equip(avatarItemType, num);
+		}
+		else if (flag == currentItem.IsHolstered)
+		{
+			currentItem.ResetAmmo();
+		}
+		if (flag)
+		{
+			currentItem.HolsterPickup();
+			if (OnHolstered != null)
+			{
+				OnHolstered();
+			}
+		}
+		else
+		{
+			currentItem.UnholsterPickup();
 		}
 		currentItem.OnStateChanged(newState);
 	}

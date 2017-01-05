@@ -81,6 +81,8 @@ public enum MVOperationCodes : byte
 	JoinNotification = 76,
 	UploadBytes = 77,
 	Notification = 78,
+	CloneWorldObjectTreeWithPosition = 79,
+	CloneTempWorldObjectWithOriginalReference = 80,
 	Join = byte.MaxValue,
 	Leave = 254,
 	RaiseEvent = 253,

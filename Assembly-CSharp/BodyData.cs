@@ -15,10 +15,11 @@ public class BodyData : MonoBehaviour
 		RLowLeg,
 		LUpLeg,
 		LLowLeg,
+		Holster,
 		Size
 	}
 
-	public string[] PartNames = new string[8] { "Head", "Torso", "RArm", "LArm", "RUpLeg", "RLowLeg", "LUpLeg", "LLowLeg" };
+	public string[] PartNames = new string[9] { "Head", "Torso", "RArm", "LArm", "RUpLeg", "RLowLeg", "LUpLeg", "LLowLeg", "Holster" };
 
 	public Transform[] PartBones;
 

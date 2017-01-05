@@ -7,8 +7,8 @@ public class PrefabPool : MonoBehaviour
 
 	private static PrefabPool instance;
 
-	[SerializeField]
 	[Header("World Objects")]
+	[SerializeField]
 	private ObjectPrefab mvFirePrefab;
 
 	[SerializeField]
@@ -28,6 +28,18 @@ public class PrefabPool : MonoBehaviour
 
 	[SerializeField]
 	private GameObject mvHoverCraftPrefab;
+
+	[SerializeField]
+	private CollectTheItemDropOffObject collectTheItemDropOff;
+
+	[SerializeField]
+	private CollectTheItemObject collectTheItemCollectable;
+
+	[SerializeField]
+	private CollectTheItemLineObject collectTheItem;
+
+	[SerializeField]
+	private ObjectiveArrow collectTheItemDropOffArrow;
 
 	[SerializeField]
 	private GameObject mvJetPackPrefab;
@@ -202,9 +214,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private CubeModelChunkPrefab cubeModelChunkPrefab;
 
-	[Header("Pick up")]
 	[Space(20f)]
 	[SerializeField]
+	[Header("Pick up")]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
 	[SerializeField]
@@ -261,9 +273,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private MVPickupItemBaseObject avatarGrowthPackPrefab;
 
-	[Space(20f)]
-	[SerializeField]
 	[Header("Avatar item pick up")]
+	[SerializeField]
+	[Space(20f)]
 	private GameObject avatarItemCenterGun;
 
 	[SerializeField]
@@ -317,6 +329,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject avatarItemSlapGun;
 
+	[SerializeField]
+	private GameObject avatarItemCollectTheItem;
+
 	[Space(20f)]
 	[Header("Avatar modifier")]
 	[SerializeField]
@@ -349,9 +364,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GodzillaLaserBurnModifier godzillaLaserBurnModifier;
 
-	[SerializeField]
 	[Header("Particles")]
 	[Space(20f)]
+	[SerializeField]
 	private GameObject particleBlood;
 
 	[SerializeField]
@@ -417,6 +432,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem goldExplosion;
 
+	[SerializeField]
+	private ParticleSystem collectTheItemParticles;
+
 	[Space(20f)]
 	[SerializeField]
 	[Header("Logic object prefabs")]
@@ -446,9 +464,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material logicCubeConnectorBlueSelectedMaterial;
 
-	[SerializeField]
 	[Space(20f)]
 	[Header("GUI")]
+	[SerializeField]
 	private Texture2D avatarAccessoryMoveIcon;
 
 	[SerializeField]
@@ -471,9 +489,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private InsertCursor insertCursor;
 
-	[SerializeField]
-	[Header("Cameras")]
 	[Space(20f)]
+	[Header("Cameras")]
+	[SerializeField]
 	private GodzillaCamera godzillaCamera;
 
 	[SerializeField]
@@ -482,8 +500,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private FirstPersonDeathCamera firstPersonDeathCamera;
 
-	[Header("Editor")]
 	[SerializeField]
+	[Header("Editor")]
 	[Space(20f)]
 	private Material cellCursorErrorMaterial;
 
@@ -543,6 +561,14 @@ public class PrefabPool : MonoBehaviour
 	public GameObject MVHamsterWheelPrefab => mvHamsterWheelPrefab;
 
 	public GameObject MVHoverCraftPrefab => mvHoverCraftPrefab;
+
+	public CollectTheItemDropOffObject CollectTheItemDropOffPrefab => collectTheItemDropOff;
+
+	public CollectTheItemObject CollectTheItemCollectablePrefab => collectTheItemCollectable;
+
+	public CollectTheItemLineObject CollectTheItemPrefab => collectTheItem;
+
+	public ObjectiveArrow CollectTheItemDropOffArrowPrefab => collectTheItemDropOffArrow;
 
 	public GameObject MVJetPackPrefab => mvJetPackPrefab;
 
@@ -732,6 +758,8 @@ public class PrefabPool : MonoBehaviour
 
 	public GameObject AvatarItemSlapGun => avatarItemSlapGun;
 
+	public GameObject AvatarItemCollectTheItem => avatarItemCollectTheItem;
+
 	public AvatarModifier BurningModifier => burningModifier;
 
 	public AvatarModifier MutantModifier => mutantModifier;
@@ -863,6 +891,8 @@ public class PrefabPool : MonoBehaviour
 	public ParticleSystem ParticleXP => particleXP;
 
 	public ParticleSystem GoldExplosion => goldExplosion;
+
+	public ParticleSystem CollectTheItemParticles => collectTheItemParticles;
 
 	public GameObject LogicInputConnectorPrefab => logicInputConnectorPrefab;
 

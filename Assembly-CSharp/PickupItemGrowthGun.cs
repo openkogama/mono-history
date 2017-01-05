@@ -1,7 +1,7 @@
 using MV.Common;
 using MV.WorldObject;
 
-public class PickupItemGrowthGun : MouseGun
+public class PickupItemGrowthGun : SizeGunBase
 {
 	public override AvatarItemType Type => AvatarItemType.GrowthGun;
 

@@ -46,7 +46,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	private ObscuredInt currentAmmo = 10;
 
-	private bool fireMain = true;
+	private bool fireMain;
 
 	private bool fireSecondary;
 
@@ -128,6 +128,22 @@ public class PickupItemCubeGun : PickupItemWithDelay
 		showingCursors = ShowCursors();
 	}
 
+	protected override void OnHolstered()
+	{
+		base.OnHolstered();
+		showingCursors = false;
+		primaryCursor.FadeState = FadeState.FadeOut;
+		secondaryCursor.FadeState = FadeState.FadeOut;
+		primaryCursor.FadeOverride = FadeOverride.FadeAllOut;
+		secondaryCursor.FadeOverride = FadeOverride.FadeAllOut;
+	}
+
+	protected override void OnUnholstered()
+	{
+		base.OnUnholstered();
+		showingCursors = ShowCursors();
+	}
+
 	private bool CanInsertCubeAtCubePos(IntVector cubePos)
 	{
 		Vector3 vector = SharedCubeFunctions.LocalToWorld(MVGameControllerBase.WOCM.GetSingletonWorldObject<MVCubeModelFineGrainedTerrain>().GameObject, cubePos);
@@ -203,9 +219,14 @@ public class PickupItemCubeGun : PickupItemWithDelay
 		}
 	}
 
+	public override void ResetAmmo()
+	{
+		base.ResetAmmo();
+		currentAmmo = ammo;
+	}
+
 	public override void OnStateChanged(Dictionary<object, object> newState)
 	{
-		currentAmmo = ammo;
 		Dictionary<object, object> dictionary = (Dictionary<object, object>)newState["itemData"];
 		material = (byte)dictionary["material"];
 		cubeBullet.SetCubeMaterial(material);

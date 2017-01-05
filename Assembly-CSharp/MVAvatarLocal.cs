@@ -674,7 +674,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 					mvAvatar.useInteractorHandler.Use();
 				}
 			}
-			if (interactionMap.Drop)
+			if (interactionMap.Drop && !mvAvatar.pickupOwner.CurrentItem.IsHolstered)
 			{
 				mvAvatar.avatarEquipable.Equip(AvatarItemType.Hand, AvatarEquipableType.Weapon, null);
 			}

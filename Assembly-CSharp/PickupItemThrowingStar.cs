@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
 using UnityEngine;
@@ -32,18 +31,44 @@ public class PickupItemThrowingStar : PickupItemWithDelay
 
 	public Animation animationComponent;
 
+	private readonly string rotationAnimationName = "ThrowingStarRotation";
+
 	public override AvatarItemType Type => AvatarItemType.ThrowingStar;
 
 	public override int Quantity => ammo;
 
 	protected override bool IsAmmoDepleted => (int)ammo <= 0;
 
-	public override void OnStateChanged(Dictionary<object, object> newState)
+	public override void ResetAmmo()
 	{
+		base.ResetAmmo();
 		ammo = 50;
+	}
+
+	public override void OnEquip()
+	{
+		base.OnEquip();
 		if (animationComponent != null)
 		{
-			animationComponent.Play("ThrowingStarRotation");
+			animationComponent.Play(rotationAnimationName);
+		}
+	}
+
+	protected override void OnHolstered()
+	{
+		base.OnHolstered();
+		if (animationComponent != null)
+		{
+			animationComponent.Stop(rotationAnimationName);
+		}
+	}
+
+	protected override void OnUnholstered()
+	{
+		base.OnUnholstered();
+		if (animationComponent != null)
+		{
+			animationComponent.Play(rotationAnimationName);
 		}
 	}
 

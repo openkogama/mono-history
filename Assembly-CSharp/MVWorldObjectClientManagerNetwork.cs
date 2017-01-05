@@ -193,11 +193,11 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 		}
 		if (lockObject)
 		{
-			SetOwnerRecursively(id, MVGameControllerBase.Game.LocalPlayerActorNumber);
+			SetOwnerInHierarchy(id, MVGameControllerBase.Game.LocalPlayerActorNumber);
 		}
 		else
 		{
-			SetOwnerRecursively(id, 0);
+			SetOwnerInHierarchy(id, 0);
 		}
 		if (OnHierarchyLockedResponse != null)
 		{
@@ -209,13 +209,13 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 	public bool LockHierarchyProxy(int id, int actorNr)
 	{
 		Debug.Log("LockHierarchyProxy " + id);
-		SetOwnerRecursively(id, actorNr);
+		SetOwnerInHierarchy(id, actorNr);
 		return true;
 	}
 
-	private void SetOwnerRecursively(int id, int actorNr)
+	private void SetOwnerInHierarchy(int id, int actorNr)
 	{
-		Debug.LogError("SetOwnerRecursively is not recursive! Idiot!");
+		Debug.LogError("SetOwnerInHierarchy has been called! Restart Session!");
 		worldObjects[id].OwnerActorNr = actorNr;
 		if (worldObjects[id].GetType() != typeof(MVGroup))
 		{

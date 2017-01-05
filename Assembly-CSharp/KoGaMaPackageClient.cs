@@ -245,6 +245,14 @@ public class KoGaMaPackageClient
 			return new ShootableButton(worldObjectData, worldObjects);
 		case WorldObjectType.UseLever:
 			return new UseLever(worldObjectData, worldObjects);
+		case WorldObjectType.CollectTheItemDropOff:
+			return new CollectTheItemDropOff(worldObjectData, worldObjects);
+		case WorldObjectType.CollectTheItemCollectable:
+			return new CollectTheItemCollectable(worldObjectData, worldObjects);
+		case WorldObjectType.CollectTheItem:
+			return new CollectTheItem(worldObjectData, worldObjects);
+		case WorldObjectType.CollectTheItemCollectableInstance:
+			return new CollectTheItemCollectableInstance(worldObjectData, worldObjects);
 		case WorldObjectType.GodzillaTrigger:
 			return new GodzillaTrigger(worldObjectData, worldObjects);
 		default:

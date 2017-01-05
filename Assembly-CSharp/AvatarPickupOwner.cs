@@ -90,7 +90,7 @@ public class AvatarPickupOwner : MVPickupOwner
 
 	protected override void Unequip()
 	{
-		if (!(currentItem == null))
+		if (!(currentItem == null) && !currentItem.IsHolstered)
 		{
 			currentItem.OnUnequip();
 			if (currentItem.Type != AvatarItemType.LaserPointer)

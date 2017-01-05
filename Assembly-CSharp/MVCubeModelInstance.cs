@@ -10,7 +10,21 @@ public class MVCubeModelInstance : MVCubeModelBase
 {
 	protected CullingSubscriberBase cullingSubscriberBase;
 
+	private bool isVisible;
+
 	private Vector3 positionOffset = Vector3.zero;
+
+	public bool IsVisibleSet
+	{
+		get
+		{
+			return isVisible;
+		}
+		private set
+		{
+			isVisible = value;
+		}
+	}
 
 	public MVCubeModelInstance(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects, Dictionary<int, RuntimePrototypeCubeModel> prototypes)
 		: base(data, worldObjects, prototypes)
@@ -94,8 +108,8 @@ public class MVCubeModelInstance : MVCubeModelBase
 
 	public void OnStateChanged(CullingGroupEvent cullingGroupEvent)
 	{
-		bool isVisible = IsLodVisible(cullingGroupEvent);
-		ChangeLODVisible(isVisible);
+		IsVisibleSet = IsLodVisible(cullingGroupEvent);
+		ChangeLODVisible();
 	}
 
 	public bool IsLodVisible(CullingGroupEvent cullingGroupEvent)
@@ -103,9 +117,9 @@ public class MVCubeModelInstance : MVCubeModelBase
 		return CullingApiWrapper.Visible(cullingGroupEvent, cullingSubscriberBase.DistanceBandIndex);
 	}
 
-	public void ChangeLODVisible(bool isVisible)
+	public void ChangeLODVisible()
 	{
-		if (!isVisible)
+		if (!IsVisibleSet)
 		{
 			prototypeCubeModel.RemoveReferenceFromAllChunks();
 			SetLod(enabled: false);

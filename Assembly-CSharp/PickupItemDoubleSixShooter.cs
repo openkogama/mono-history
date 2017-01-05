@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
 using UnityEngine;
@@ -46,8 +45,9 @@ public class PickupItemDoubleSixShooter : PickupItemWithDelay
 
 	protected override bool IsAmmoDepleted => (int)ammo <= 0;
 
-	public override void OnStateChanged(Dictionary<object, object> newState)
+	public override void ResetAmmo()
 	{
+		base.ResetAmmo();
 		ammo = 12;
 	}
 

@@ -1,7 +1,6 @@
-using MV.WorldObject;
 using UnityEngine;
 
-public class ObjectEnabler : MonoBehaviour
+public class ObjectEnabler : MonoBehaviour, IUpdatecontrollerSubscriber
 {
 	public MVObjectEnabler woObjectEnabler;
 
@@ -9,7 +8,9 @@ public class ObjectEnabler : MonoBehaviour
 
 	private float currentAlpha;
 
-	private Material blah;
+	private Material objectMaterial;
+
+	private int nameToLayer;
 
 	public bool IsDrawingEnabled
 	{
@@ -23,47 +24,53 @@ public class ObjectEnabler : MonoBehaviour
 		}
 	}
 
+	public void Initialize()
+	{
+		Material objectHiddenMaterial = PrefabPool.Instance.ObjectHiddenMaterial;
+		objectMaterial = Object.Instantiate(objectHiddenMaterial);
+		UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
+		nameToLayer = LayerMask.NameToLayer("Default");
+	}
+
 	private void DrawObject(MeshFilter[] previewMeshes)
 	{
 		foreach (MeshFilter meshFilter in previewMeshes)
 		{
 			for (int j = 0; j < meshFilter.sharedMesh.subMeshCount; j++)
 			{
-				Graphics.DrawMesh(meshFilter.sharedMesh, meshFilter.transform.localToWorldMatrix, blah, LayerMask.NameToLayer("Default"), Camera.main, j);
+				Graphics.DrawMesh(meshFilter.sharedMesh, meshFilter.transform.localToWorldMatrix, objectMaterial, nameToLayer, Camera.main, j);
 			}
 		}
-	}
-
-	private void Awake()
-	{
-		Material objectHiddenMaterial = PrefabPool.Instance.ObjectHiddenMaterial;
-		blah = Object.Instantiate(objectHiddenMaterial);
 	}
 
 	private void OnDestroy()
 	{
-		Object.Destroy(blah);
+		UpdateController.RemoveUpdateObject(this);
+		Object.Destroy(objectMaterial);
 	}
 
-	private void Update()
+	public void UpdateControllerUpdate()
 	{
 		float num = ((!isEnabled) ? 0.15f : 0.05f);
 		currentAlpha = Mathf.Lerp(currentAlpha, num, Time.deltaTime * 1f);
-		Color color = blah.color;
+		Color color = objectMaterial.color;
 		color.a = currentAlpha;
-		blah.color = color;
+		objectMaterial.color = color;
 		if (!(isEnabled | (currentAlpha != num)) || !woObjectEnabler.ShowingOutline)
 		{
 			return;
 		}
-		foreach (ObjectLink objectLinkRef in woObjectEnabler.ObjectLinkRefs)
+		for (int i = 0; i < woObjectEnabler.ObjectLinkRefs.Count; i++)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(objectLinkRef.objectWOID);
-			if (worldObjectClient is MVCubeModelInstance)
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woObjectEnabler.ObjectLinkRefs[i].objectWOID);
+			if (worldObjectClient is MVCubeModelInstance && (worldObjectClient as MVCubeModelInstance).IsVisibleSet)
 			{
-				MVCubeModelInstance mVCubeModelInstance = worldObjectClient as MVCubeModelInstance;
-				DrawObject(mVCubeModelInstance.MeshFilters);
+				DrawObject((worldObjectClient as MVCubeModelInstance).MeshFilters);
 			}
 		}
+	}
+
+	public void UpdateControllerFixedUpdate()
+	{
 	}
 }

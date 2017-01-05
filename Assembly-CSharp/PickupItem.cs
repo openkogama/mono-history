@@ -12,10 +12,21 @@ public abstract class PickupItem : MonoBehaviour
 	protected Transform muzzlePoint;
 
 	[SerializeField]
+	protected Transform holsterTransformOffset;
+
+	private Vector3 previousHolsterPos;
+
+	private Quaternion previousHolsterRot;
+
+	private Vector3 previousHolsterScale;
+
+	[SerializeField]
 	protected Transform center;
 
 	[SerializeField]
 	protected MeshRenderer[] meshRenderers = new MeshRenderer[0];
+
+	public bool IsHolstered { get; private set; }
 
 	public Vector3 Origin => center.position;
 
@@ -55,8 +66,42 @@ public abstract class PickupItem : MonoBehaviour
 			AvatarItemType.GrowthGun => Object.Instantiate(PrefabPool.Instance.AvatarItemGrowthGun), 
 			AvatarItemType.MouseGun => Object.Instantiate(PrefabPool.Instance.AvatarItemMouseGun), 
 			AvatarItemType.SlapGun => Object.Instantiate(PrefabPool.Instance.AvatarItemSlapGun), 
+			AvatarItemType.CollectTheItemCollectable => Object.Instantiate(PrefabPool.Instance.AvatarItemCollectTheItem), 
 			_ => null, 
 		};
+	}
+
+	public void HolsterPickup()
+	{
+		if (!IsHolstered)
+		{
+			if (owner.WorldObjectOwner is MVAvatar mVAvatar)
+			{
+				Transform partBone = mVAvatar.Body.BodyData.GetPartBone(BodyData.PartIndex.Holster);
+				previousHolsterPos = transform.localPosition;
+				previousHolsterRot = transform.localRotation;
+				previousHolsterScale = transform.localScale;
+				Quaternion localRotation = holsterTransformOffset.localRotation * partBone.localRotation;
+				transform.localRotation = localRotation;
+				Vector3 vector = partBone.position - holsterTransformOffset.position;
+				transform.position += vector;
+				transform.localScale = holsterTransformOffset.localScale;
+				IsHolstered = true;
+			}
+			OnHolstered();
+		}
+	}
+
+	public void UnholsterPickup()
+	{
+		if (IsHolstered)
+		{
+			transform.localPosition = previousHolsterPos;
+			transform.localRotation = previousHolsterRot;
+			transform.localScale = previousHolsterScale;
+			IsHolstered = false;
+			OnUnholstered();
+		}
 	}
 
 	public virtual bool CanFire()
@@ -84,11 +129,24 @@ public abstract class PickupItem : MonoBehaviour
 	{
 	}
 
+	public virtual void ResetAmmo()
+	{
+	}
+
 	public virtual void OnLeaveVehicleWithWeapon()
 	{
 	}
 
 	public virtual void OnEnterVehicleWithWeapon()
+	{
+	}
+
+	protected virtual void OnHolstered()
+	{
+		TriggerEnd();
+	}
+
+	protected virtual void OnUnholstered()
 	{
 	}
 

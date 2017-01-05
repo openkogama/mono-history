@@ -5,7 +5,7 @@ using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 
-public class UseLever : MVLogicObject
+public class UseLever : MVLogicObject, ITriggerBoxEventsHandler
 {
 	private bool isActivated;
 
@@ -104,7 +104,17 @@ public class UseLever : MVLogicObject
 		return true;
 	}
 
-	public void SetLinks(bool linkFlag)
+	public void Exit()
+	{
+		SetLinks(linkFlag: false);
+	}
+
+	public void Enter(int instigatorWoID)
+	{
+		SetLinks(linkFlag: true);
+	}
+
+	private void SetLinks(bool linkFlag)
 	{
 		isActivated = linkFlag;
 		foreach (Link outputLinkRef in OutputLinkRefs)

@@ -129,7 +129,7 @@ public class WorldNetwork : World
 		AddObjectLink(objectLink);
 	}
 
-	public void OnCloneWorldObjectTreeEvent(int ownerActorNumber, int previewProfileOwnerId, bool cloneToRootGroup, int originalId, int cloneId, int cloneLinkId, int cloneObjectLinkId)
+	public MVWorldObjectClient OnCloneWorldObjectTreeEvent(int ownerActorNumber, int previewProfileOwnerId, bool cloneToRootGroup, int originalId, int cloneId, int cloneLinkId, int cloneObjectLinkId)
 	{
 		CloneBookkeeping cloneBookkeeping = new CloneBookkeeping();
 		MVWorldObjectClient worldObjectClient = worldObjectClientManager.GetWorldObjectClient(originalId);
@@ -148,6 +148,7 @@ public class WorldNetwork : World
 		CloneLinks(cloneBookkeeping);
 		CloneObjectLinks(cloneBookkeeping);
 		mVWorldObjectClient.Initialize();
+		return mVWorldObjectClient;
 	}
 
 	private void CloneLinks(CloneBookkeeping cloneBookkeeping)

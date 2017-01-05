@@ -19,4 +19,12 @@ public class MVEquipableProxy : MVEquipable
 	{
 		equipable.Unequip();
 	}
+
+	public override void Holster()
+	{
+	}
+
+	public override void Unholster()
+	{
+	}
 }

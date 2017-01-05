@@ -35,6 +35,7 @@ public class VehicleEquipable : MVEquipable
 					(int)type
 				},
 				{ "variantId", variantID },
+				{ "holstered", false },
 				{ "itemData", itemData }
 			};
 		}
@@ -46,14 +47,40 @@ public class VehicleEquipable : MVEquipable
 					"type",
 					(int)type
 				},
-				{ "variantId", variantID }
+				{ "variantId", variantID },
+				{ "holstered", false }
 			};
 		}
 		return true;
 	}
 
+	public override void Holster()
+	{
+		if (currentItem.Value is Dictionary<object, object> dictionary)
+		{
+			dictionary["holstered"] = true;
+			currentItem.Value = dictionary;
+		}
+	}
+
+	public override void Unholster()
+	{
+		if (currentItem.Value is Dictionary<object, object> dictionary)
+		{
+			dictionary["holstered"] = false;
+			currentItem.Value = dictionary;
+		}
+	}
+
 	public override void Unequip()
 	{
-		currentItem.Value = new Dictionary<object, object>();
+		if (currentItem.Value is Dictionary<object, object> dictionary && dictionary.ContainsKey("holstered") && (bool)dictionary["holstered"])
+		{
+			Debug.Log("Not unequipping holstered weapon");
+		}
+		else
+		{
+			currentItem.Value = new Dictionary<object, object>();
+		}
 	}
 }

@@ -22,6 +22,18 @@ public static class WorldObjectDataValidator
 			}
 			return;
 		}
+		if (wo.Data.ContainsKey("BlueprintData"))
+		{
+			Dictionary<object, object> dictionary = (Dictionary<object, object>)wo.Data["BlueprintData"];
+			if (dictionary.ContainsKey(key))
+			{
+				if (dictionary[key].GetType() != value.GetType())
+				{
+					throw new Exception($"Types does not match wo data. key {key}, data {dictionary[key].GetType()},  value {value.GetType()}");
+				}
+				return;
+			}
+		}
 		if (!lazyAddedData.ContainsKey(key))
 		{
 			throw new Exception($"Data not in wo or in lazyAddedData. key {key}, value {value}");

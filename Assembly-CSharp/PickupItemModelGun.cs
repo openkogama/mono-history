@@ -162,10 +162,15 @@ public class PickupItemModelGun : PickupItemWithDelay
 
 	public override void OnStateChanged(Dictionary<object, object> newState)
 	{
-		currentAmmo = ammo;
 		Dictionary<object, object> dictionary = (Dictionary<object, object>)newState["itemData"];
 		material = (byte)dictionary["material"];
 		GetComponentInChildren<CubeBullet>().SetCubeMaterial(material);
+	}
+
+	public override void ResetAmmo()
+	{
+		base.ResetAmmo();
+		currentAmmo = ammo;
 	}
 
 	protected override void OnFire(bool isLocal)

@@ -1,10 +1,9 @@
-using System.Collections.Generic;
 using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 
-public class MouseGun : PickupItemWithDelay
+public class SizeGunBase : PickupItemWithDelay
 {
 	private int layerMask;
 
@@ -25,9 +24,9 @@ public class MouseGun : PickupItemWithDelay
 
 	private int currAmmo;
 
-	public override int Quantity => ammo;
-
 	public override AvatarItemType Type => AvatarItemType.MouseGun;
+
+	public override int Quantity => ammo;
 
 	protected override bool IsAmmoDepleted => (int)ammo <= 0;
 
@@ -36,8 +35,9 @@ public class MouseGun : PickupItemWithDelay
 		layerMask = (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("Player"));
 	}
 
-	public override void OnStateChanged(Dictionary<object, object> newState)
+	public override void ResetAmmo()
 	{
+		base.ResetAmmo();
 		ammo = 5;
 	}
 
@@ -81,6 +81,7 @@ public class MouseGun : PickupItemWithDelay
 
 	protected virtual InteractionData GetPackageData()
 	{
+		Debug.LogError("This function shouldn't get called. Override this in sub class");
 		return MouseGunHitPackage.Create();
 	}
 

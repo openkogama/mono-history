@@ -57,6 +57,7 @@ public class AvatarEquipable : MVEquipable
 						(int)type
 					},
 					{ "variantId", variantID },
+					{ "holstered", false },
 					{ "itemData", itemData }
 				};
 			}
@@ -68,7 +69,8 @@ public class AvatarEquipable : MVEquipable
 						"type",
 						(int)type
 					},
-					{ "variantId", variantID }
+					{ "variantId", variantID },
+					{ "holstered", false }
 				};
 			}
 			return true;
@@ -76,26 +78,54 @@ public class AvatarEquipable : MVEquipable
 		return false;
 	}
 
+	public override void Holster()
+	{
+		if (currentItem.Value is Dictionary<object, object> dictionary)
+		{
+			dictionary["holstered"] = true;
+			currentItem.Value = dictionary;
+		}
+	}
+
+	public override void Unholster()
+	{
+		if (currentItem.Value is Dictionary<object, object> dictionary)
+		{
+			dictionary["holstered"] = false;
+			currentItem.Value = dictionary;
+		}
+	}
+
 	public bool GetIsEquipped(AvatarItemType type)
 	{
 		Dictionary<object, object> dictionary = (Dictionary<object, object>)currentItem.Value;
-		foreach (object key in dictionary.Keys)
+		if (dictionary.ContainsKey("type") && (int)dictionary["type"] == (int)type)
 		{
-			if ((string)key == "type" && (int)dictionary[(string)key] == (int)type)
-			{
-				return true;
-			}
+			return true;
 		}
 		return false;
 	}
 
 	public void EquipSlapGun(object sender, EventArgs e)
 	{
-		currentItem.Value = new Dictionary<object, object> { { "type", 65 } };
+		currentItem.Value = new Dictionary<object, object>
+		{
+			{ "type", 65 },
+			{ "holstered", false }
+		};
 	}
 
 	public override void Unequip()
 	{
-		currentItem.Value = new Dictionary<object, object> { { "type", 5 } };
+		if (currentItem.Value is Dictionary<object, object> dictionary && dictionary.ContainsKey("holstered") && (bool)dictionary["holstered"])
+		{
+			Debug.Log("Not unequipping holstered weapon");
+			return;
+		}
+		currentItem.Value = new Dictionary<object, object>
+		{
+			{ "type", 5 },
+			{ "holstered", false }
+		};
 	}
 }

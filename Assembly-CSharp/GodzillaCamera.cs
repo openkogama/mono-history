@@ -32,7 +32,7 @@ public class GodzillaCamera : MVCameraBase
 
 	public override void Awake()
 	{
-		gui.transform.parent = null;
+		gui.transform.SetParent(null);
 	}
 
 	private void OnDestroy()

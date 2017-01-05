@@ -371,6 +371,21 @@ public abstract class MVWorldObjectClientManager
 		return value;
 	}
 
+	public MVWorldObjectClient GetWorldObjectClientRoot(int id)
+	{
+		MVWorldObjectClient worldObjectClient = GetWorldObjectClient(id);
+		if (worldObjectClient.GroupId == -1)
+		{
+			Debug.LogError("Group id is -1. This is the world root");
+			return null;
+		}
+		if (worldObjectClient.GroupId == rootGroupId)
+		{
+			return worldObjectClient;
+		}
+		return GetWorldObjectClientRoot(worldObjectClient.GroupId);
+	}
+
 	public MVWorldObjectClient GetWorldObjectClientWhere(Func<MVWorldObjectClient, bool> predicate)
 	{
 		return worldObjects.Values.FirstOrDefault(predicate);

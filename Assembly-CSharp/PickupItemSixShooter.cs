@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
 using MV.WorldObject;
@@ -43,8 +42,9 @@ public class PickupItemSixShooter : PickupItemWithDelay
 
 	protected override bool IsAmmoDepleted => (int)ammo <= 0;
 
-	public override void OnStateChanged(Dictionary<object, object> newState)
+	public override void ResetAmmo()
 	{
+		base.ResetAmmo();
 		ammo = 6;
 	}
 

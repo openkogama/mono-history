@@ -26,8 +26,8 @@ public class GodzillaSettings : MonoBehaviour, IEventSystemHandler, IHandleSetti
 	[Header("Settings")]
 	private string[] sizes = new string[4];
 
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	private SettingsBase settingsBase;
 
 	[SerializeField]

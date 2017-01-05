@@ -43,8 +43,9 @@ public class PickupItemBazooka : PickupItemWithDelay
 		currentAmmo = ammo;
 	}
 
-	public override void OnStateChanged(Dictionary<object, object> newState)
+	public override void ResetAmmo()
 	{
+		base.ResetAmmo();
 		currentAmmo = ammo;
 	}
 

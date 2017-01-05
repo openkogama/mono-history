@@ -91,6 +91,8 @@ public enum MVEventCodes : byte
 	RewardIsReady = 86,
 	NumberOfPendingRewards = 87,
 	JoinNotification = 88,
+	CloneWorldObjectTreeWithPosition = 89,
+	CloneTempWorldObjectWithOriginalReferenceEvent = 90,
 	Join = byte.MaxValue,
 	Leave = 254,
 	PropertiesChanged = 253

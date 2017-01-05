@@ -1,0 +1,219 @@
+using System;
+using System.Collections.Generic;
+using CodeStage.AntiCheat.ObscuredTypes;
+using MV.Common;
+using MV.WorldObject;
+using UnityEngine;
+using UnityEngine.Events;
+
+public class CollectTheItemCollectableInstance : MVBlueprintBase, ITriggerBoxEventsHandler, IPickupStateHandler
+{
+	private CollectTheItemObject collectTheItemObject;
+
+	private CullingSubscriberBase cullingSubscriberBase;
+
+	private bool isTaken;
+
+	private readonly float timeCreated = Time.time;
+
+	private bool IsOriginalInstance => !RunTimeData.ContainsObscuredKey("OriginalId");
+
+	private int OriginalInstanceID
+	{
+		get
+		{
+			if (IsOriginalInstance)
+			{
+				return Id;
+			}
+			return (ObscuredInt)RunTimeData.GetObscuredType("OriginalId");
+		}
+	}
+
+	public bool HasArrowIndicator => (bool)blueprintData["hasIndicator"];
+
+	private int CollectTheItemCollectableID => MVGameControllerBase.WOCM.GetWorldObjectClient(OriginalInstanceID).GroupId;
+
+	public CollectTheItemCollectableInstance(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
+		: base(data, PrefabPool.Instance.CollectTheItemCollectablePrefab, worldObjects)
+	{
+		InteractionFlags &= ~InteractionFlags.CanClone;
+		collectTheItemObject = (CollectTheItemObject)component;
+	}
+
+	public override void Initialize()
+	{
+		base.Initialize();
+		SetupInstance();
+	}
+
+	private void SetupInstance()
+	{
+		InitializeInstanceWithData();
+		SetupCulling();
+		HashSet<int> hashSet = new HashSet<int>(WorldIDsRecursive);
+		foreach (int item in hashSet)
+		{
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(item);
+			if (worldObjectClient is MVCubeModelInstance mVCubeModelInstance)
+			{
+				mVCubeModelInstance.Visible = true;
+				mVCubeModelInstance.GameObject.SetLayerRecursively(LayerMask.NameToLayer("Player"));
+			}
+		}
+	}
+
+	public void InitializeInstanceWithData()
+	{
+		List<MVWorldObjectClient> list = Children;
+		for (int i = 0; i < list.Count; i++)
+		{
+			list[i].Transform.SetParent(collectTheItemObject.VisualObject.transform);
+			list[i].Transform.rotation = Quaternion.identity;
+		}
+		collectTheItemObject.TriggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
+		if (!IsOriginalInstance)
+		{
+			collectTheItemObject.EnableFading = true;
+		}
+		collectTheItemObject.InitializeGreyOutScript();
+	}
+
+	public void SetupGreyoutScript(CubeModelChangedEventArgs args)
+	{
+		collectTheItemObject.InitializeGreyOutScript();
+	}
+
+	public void SetupCulling()
+	{
+		cullingSubscriberBase = new CullingSubscriberBase(2f, Transform.position, OnStateChanged);
+		PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
+	}
+
+	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
+	{
+		if (!IsOriginalInstance && Time.time - timeCreated < 0.1f)
+		{
+			return;
+		}
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(e.instigatorWOID);
+		if (worldObjectClient != null)
+		{
+			MVInteractableBase mVInteractableBase = worldObjectClient.GameObject.GetComponent<MVInteractableBase>();
+			if (!(mVInteractableBase == null) && !mVInteractableBase.HasModifierEffect(AvatarModifierEffect.DisablePickups) && (IsOriginalInstance || !isTaken))
+			{
+				MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, e.instigatorWOID);
+			}
+		}
+	}
+
+	private void OnPositionChanged(MVWorldObjectClient arg0, PositionChangedEventArgs positionChangedEventArgs)
+	{
+		cullingSubscriberBase.Position = positionChangedEventArgs.NewPos;
+	}
+
+	public void OnStateChanged(CullingGroupEvent cullingEvent)
+	{
+		bool active = CullingApiWrapper.Visible(cullingEvent, cullingSubscriberBase.DistanceBandIndex);
+		collectTheItemObject.VisualObject.SetActive(active);
+	}
+
+	private bool DoPickup(int instigatorWOID)
+	{
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(instigatorWOID);
+		if (worldObjectClient == null)
+		{
+			return false;
+		}
+		MVEquipable mVEquipable = worldObjectClient.GameObject.GetComponent<MVEquipable>();
+		if (mVEquipable == null)
+		{
+			return false;
+		}
+		mVEquipable.Unequip();
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		if (MVGameControllerBase.WOCM.GetWorldObjectClient(OriginalInstanceID) == null)
+		{
+			return false;
+		}
+		dictionary.Add("CollectTheItemCollectableId", CollectTheItemCollectableID);
+		mVEquipable.Equip(AvatarItemType.CollectTheItemCollectable, AvatarEquipableType.Weapon, dictionary);
+		return true;
+	}
+
+	public void Enter(int instigatorWoID)
+	{
+		if (!IsOriginalInstance && isTaken)
+		{
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(instigatorWoID);
+			if (worldObjectClient == null)
+			{
+				return;
+			}
+			MVEquipable mVEquipable = worldObjectClient.GameObject.GetComponent<MVEquipable>();
+			if (mVEquipable == null)
+			{
+				return;
+			}
+			mVEquipable.Unequip();
+		}
+		if (DoPickup(instigatorWoID))
+		{
+			isTaken = true;
+		}
+	}
+
+	public void Exit()
+	{
+	}
+
+	public void SetRotationEnabled(bool enableRotation)
+	{
+		collectTheItemObject.RotateLocal.enabled = enableRotation;
+		collectTheItemObject.RotateLocal.transform.rotation = Quaternion.identity;
+	}
+
+	public override void Destroy()
+	{
+		base.Destroy();
+		if (PositionChanged != null)
+		{
+			PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Remove(PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
+		}
+		if (cullingSubscriberBase != null)
+		{
+			MVGroup mVGroup = (MVGroup)MVGameControllerBase.WOCM.GetWorldObjectClient(MVGameControllerBase.WOCM.RootGroup.Id);
+			mVGroup.RemoveChild(Id);
+			cullingSubscriberBase.Destroy();
+			cullingSubscriberBase = null;
+		}
+	}
+
+	public override bool Delete(MVWorldObjectClientManager worldObjectClientManager, ref string errorText)
+	{
+		if (!IsOriginalInstance)
+		{
+			return true;
+		}
+		return worldObjectClientManager.GetWorldObjectClient(groupId)?.Delete(worldObjectClientManager, ref errorText) ?? false;
+	}
+
+	public void HandleStateChange(PickupItemState state)
+	{
+		switch (state)
+		{
+		case PickupItemState.Listening:
+			isTaken = false;
+			collectTheItemObject.GreyOutObject.GreyIn();
+			collectTheItemObject.TriggerBoxEvents.Collider.enabled = true;
+			break;
+		case PickupItemState.Pickup:
+			collectTheItemObject.GreyOutObject.GreyOut();
+			isTaken = true;
+			collectTheItemObject.TriggerBoxEvents.Collider.enabled = false;
+			break;
+		case PickupItemState.Counting:
+			break;
+		}
+	}
+}

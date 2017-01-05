@@ -64,6 +64,10 @@ public class ContextMenuController : MonoBehaviour, IEventSystemHandler, IHandle
 		{
 			contextMenu.AddButton(TM._("Clone"), Clone);
 		}
+		if (CanCloneRoot())
+		{
+			contextMenu.AddButton(TM._("Clone"), CloneRoot);
+		}
 		if (worldObjectClient.HasInteractionFlag(InteractionFlags.CanAddToInventory) && !worldObjectClient.HasInteractionFlag(InteractionFlags.IsPreview))
 		{
 			contextMenu.AddButton(TM._("Add To Inventory"), AddToInventory);
@@ -202,6 +206,19 @@ public class ContextMenuController : MonoBehaviour, IEventSystemHandler, IHandle
 		});
 	}
 
+	private void CloneRoot()
+	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
+		{
+			handler.PopGroups(UIGroupFlags.GameObjectUI);
+		});
+		MVWorldObjectClient root = MVGameControllerBase.WOCM.GetWorldObjectClientRoot(woID);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (ICloneHandler handler, BaseEventData data) =>
+		{
+			handler.Clone(root, cloneToRoot: false, setAsPreviewItem: false);
+		});
+	}
+
 	private void AddToInventory()
 	{
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
@@ -262,6 +279,18 @@ public class ContextMenuController : MonoBehaviour, IEventSystemHandler, IHandle
 		foreach (MVWorldObjectClient selectedWO in editorStateMachine.SelectedWOs)
 		{
 			if (!selectedWO.HasInteractionFlag(InteractionFlags.CanClone) || selectedWO.HasInteractionFlag(InteractionFlags.IsPreview))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private bool CanCloneRoot()
+	{
+		foreach (MVWorldObjectClient selectedWO in editorStateMachine.SelectedWOs)
+		{
+			if (!selectedWO.HasInteractionFlag(InteractionFlags.CanCloneRoot) || selectedWO.HasInteractionFlag(InteractionFlags.IsPreview))
 			{
 				return false;
 			}

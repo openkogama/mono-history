@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
 
-public class MVTriggerBox : MVLogicObject
+public class MVTriggerBox : MVLogicObject, ITriggerBoxEventsHandler
 {
 	private TriggerBoxEvents triggerBoxEvents;
 
@@ -50,7 +50,7 @@ public class MVTriggerBox : MVLogicObject
 		}
 	}
 
-	public void OnStayBegin(int actorNr)
+	public void Enter(int actorNr)
 	{
 		foreach (Link outputLinkRef in OutputLinkRefs)
 		{
@@ -58,7 +58,7 @@ public class MVTriggerBox : MVLogicObject
 		}
 	}
 
-	public void OnStayEnd()
+	public void Exit()
 	{
 		foreach (Link outputLinkRef in OutputLinkRefs)
 		{

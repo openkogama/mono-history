@@ -18,11 +18,17 @@ public class PickupGUI : MonoBehaviour
 		crossHair.Visible = false;
 		pickupOwner.onEquipItem = (MVPickupOwner.OnEquipItemDelegate)Delegate.Combine(pickupOwner.onEquipItem, new MVPickupOwner.OnEquipItemDelegate(OnEquipItem));
 		pickupOwner.onUnequipItem = (MVPickupOwner.OnUnequipItemDelegate)Delegate.Combine(pickupOwner.onUnequipItem, new MVPickupOwner.OnUnequipItemDelegate(OnUnequipItem));
+		pickupOwner.OnHolstered = (Action)Delegate.Combine(pickupOwner.OnHolstered, new Action(OnHolstered));
+	}
+
+	public void OnHolstered()
+	{
+		crossHair.Visible = false;
 	}
 
 	private void LateUpdate()
 	{
-		if (pickupOwner.InGunMode && !(pickupOwner.CurrentItem == null))
+		if (pickupOwner.InGunMode)
 		{
 			crossHair.UpdateCrossHair(pickupOwner.CurrentItem);
 			UpdateCrossHairVisibility();
@@ -35,6 +41,8 @@ public class PickupGUI : MonoBehaviour
 		mVPickupOwner.onEquipItem = (MVPickupOwner.OnEquipItemDelegate)Delegate.Remove(mVPickupOwner.onEquipItem, new MVPickupOwner.OnEquipItemDelegate(OnEquipItem));
 		MVPickupOwner mVPickupOwner2 = pickupOwner;
 		mVPickupOwner2.onUnequipItem = (MVPickupOwner.OnUnequipItemDelegate)Delegate.Remove(mVPickupOwner2.onUnequipItem, new MVPickupOwner.OnUnequipItemDelegate(OnUnequipItem));
+		MVPickupOwner mVPickupOwner3 = pickupOwner;
+		mVPickupOwner3.OnHolstered = (Action)Delegate.Remove(mVPickupOwner3.OnHolstered, new Action(OnHolstered));
 	}
 
 	public void Enter()

@@ -5,7 +5,7 @@ using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 
-public class ShootableButton : MVLogicObject
+public class ShootableButton : MVLogicObject, ITriggerBoxEventsHandler
 {
 	private LogicInteractable interactable;
 
@@ -61,7 +61,7 @@ public class ShootableButton : MVLogicObject
 		collider = targetCollider;
 		if (RunTimeData.ContainsObscuredKey("isActivated") && (bool)(ObscuredBool)RunTimeData.GetObscuredType("isActivated"))
 		{
-			OnActivated();
+			Enter(-1);
 		}
 		SetupCulling(buttonObject.VisualRoot);
 	}
@@ -69,7 +69,7 @@ public class ShootableButton : MVLogicObject
 	public override void InitializeInventory()
 	{
 		base.InitializeInventory();
-		gameObject.transform.FindChild("EditCube").gameObject.SetActive(value: false);
+		buttonObject.EditCollider.gameObject.SetActive(value: false);
 	}
 
 	public override void Reset()
@@ -97,7 +97,7 @@ public class ShootableButton : MVLogicObject
 		MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, triggerInstigatorId);
 	}
 
-	public void OnActivated()
+	public void Enter(int instigatorWoID)
 	{
 		foreach (Link outputLinkRef in OutputLinkRefs)
 		{
@@ -107,7 +107,7 @@ public class ShootableButton : MVLogicObject
 		buttonObject.GreyOutObject.GreyOut();
 	}
 
-	public void OnDeactivated()
+	public void Exit()
 	{
 		foreach (Link outputLinkRef in OutputLinkRefs)
 		{

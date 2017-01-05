@@ -6,12 +6,28 @@ public class HelpController : MonoBehaviour
 	[SerializeField]
 	private GameObject helpScreen;
 
+	private bool pressed;
+
 	public void OnClick()
 	{
 		GameObject popup = Object.Instantiate(helpScreen);
+		pressed = true;
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			x.Push(popup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.Popup);
+			x.Push(popup.gameObject, UIPushOption.Blocking, OnClosed, UIGroupFlags.Popup);
 		});
+	}
+
+	private void Update()
+	{
+		if (pressed)
+		{
+			MVInputWrapper.IsInputSuppressed = true;
+		}
+	}
+
+	private void OnClosed()
+	{
+		pressed = false;
 	}
 }

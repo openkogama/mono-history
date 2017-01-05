@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
 using UnityEngine;
@@ -36,6 +35,8 @@ public class PickupItemMultiThrowingStar : PickupItemWithDelay
 
 	public Animation animComponent;
 
+	private readonly string rotationAnimationName = "MultiThrowingStarRotation";
+
 	public AnimationClip gunFireAnim;
 
 	public int numStars = 5;
@@ -58,12 +59,27 @@ public class PickupItemMultiThrowingStar : PickupItemWithDelay
 
 	protected override bool IsAmmoDepleted => (int)ammo <= 0;
 
-	public override void OnStateChanged(Dictionary<object, object> newState)
+	public override void ResetAmmo()
 	{
+		base.ResetAmmo();
 		ammo = 50;
+	}
+
+	protected override void OnHolstered()
+	{
+		base.OnHolstered();
 		if (animComponent != null)
 		{
-			animComponent.Play("MultiThrowingStarRotation");
+			animComponent.Stop(rotationAnimationName);
+		}
+	}
+
+	protected override void OnUnholstered()
+	{
+		base.OnUnholstered();
+		if (animComponent != null)
+		{
+			animComponent.Play(rotationAnimationName);
 		}
 	}
 
@@ -73,6 +89,10 @@ public class PickupItemMultiThrowingStar : PickupItemWithDelay
 		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
 		{
 			shootingAngleAxis = Vector3.forward;
+		}
+		if (animComponent != null)
+		{
+			animComponent.Play(rotationAnimationName);
 		}
 	}
 
