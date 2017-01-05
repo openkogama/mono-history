@@ -23,6 +23,8 @@ public class MVPulseBox : MVLogicObject
 	public override void Initialize()
 	{
 		base.Initialize();
+		intervalOnInMilliSecs = (int)((float)Data["intervalOn"] * 1000f);
+		intervalOffInMilliSecs = (int)((float)Data["intervalOff"] * 1000f);
 		SetupCulling(gameObject);
 	}
 
