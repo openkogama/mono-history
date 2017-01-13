@@ -16,6 +16,8 @@ public class CollectTheItemCollectableInstance : MVBlueprintBase, ITriggerBoxEve
 
 	private readonly float timeCreated = Time.time;
 
+	private PickupItemState currentState;
+
 	private bool IsOriginalInstance => !RunTimeData.ContainsObscuredKey("OriginalId");
 
 	private int OriginalInstanceID
@@ -45,6 +47,26 @@ public class CollectTheItemCollectableInstance : MVBlueprintBase, ITriggerBoxEve
 	{
 		base.Initialize();
 		SetupInstance();
+		if (!IsOriginalInstance)
+		{
+			InteractionFlags &= ~InteractionFlags.Selectable;
+			return;
+		}
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
+		{
+			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
+			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Combine(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
+		}
+		collectTheItemObject.GreyOutScriptEditMode.InitializeOriginalMaterials();
+	}
+
+	private void OnEditModeChange(EditModeChangeArgs arg)
+	{
+		collectTheItemObject.EditCollider.enabled = true;
+		if (arg.playInEditor)
+		{
+			collectTheItemObject.EditCollider.enabled = false;
+		}
 	}
 
 	private void SetupInstance()
@@ -61,6 +83,31 @@ public class CollectTheItemCollectableInstance : MVBlueprintBase, ITriggerBoxEve
 				mVCubeModelInstance.GameObject.SetLayerRecursively(LayerMask.NameToLayer("Player"));
 			}
 		}
+		if (MVGameControllerBase.WOCM.GetWorldObjectClient(CollectTheItemCollectableID) is CollectTheItemCollectable collectTheItemCollectable && MVGameControllerBase.WOCM.GetWorldObjectClient(collectTheItemCollectable.DropOffId) is CollectTheItemDropOff collectTheItemDropOff)
+		{
+			collectTheItemDropOff.OnPickupCollected = (Action<bool>)Delegate.Combine(collectTheItemDropOff.OnPickupCollected, new Action<bool>(OnCollected));
+		}
+	}
+
+	private void OnCollected(bool shouldBeActiveOnCollect)
+	{
+		collectTheItemObject.Collider.enabled = shouldBeActiveOnCollect;
+		collectTheItemObject.VisualObject.SetActive(shouldBeActiveOnCollect);
+		if (IsOriginalInstance && MVGameControllerBase.GameMode == MVGameMode.Edit && !shouldBeActiveOnCollect)
+		{
+			collectTheItemObject.GreyOutScriptEditMode.GreyOut();
+		}
+	}
+
+	public override void Reset()
+	{
+		base.Reset();
+		collectTheItemObject.VisualObject.SetActive(value: true);
+		collectTheItemObject.Collider.enabled = true;
+		if (IsOriginalInstance && MVGameControllerBase.GameMode == MVGameMode.Edit)
+		{
+			collectTheItemObject.GreyOutScriptEditMode.GreyIn();
+		}
 	}
 
 	public void InitializeInstanceWithData()
@@ -68,7 +115,7 @@ public class CollectTheItemCollectableInstance : MVBlueprintBase, ITriggerBoxEve
 		List<MVWorldObjectClient> list = Children;
 		for (int i = 0; i < list.Count; i++)
 		{
-			list[i].Transform.SetParent(collectTheItemObject.VisualObject.transform);
+			list[i].Transform.SetParent(collectTheItemObject.CullingObject.transform);
 			list[i].Transform.rotation = Quaternion.identity;
 		}
 		collectTheItemObject.TriggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
@@ -88,11 +135,16 @@ public class CollectTheItemCollectableInstance : MVBlueprintBase, ITriggerBoxEve
 	{
 		cullingSubscriberBase = new CullingSubscriberBase(2f, Transform.position, OnStateChanged);
 		PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
+		{
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(CollectTheItemCollectableID);
+			worldObjectClient.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(worldObjectClient.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
+		}
 	}
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		if (!IsOriginalInstance && Time.time - timeCreated < 0.1f)
+		if ((!IsOriginalInstance && Time.time - timeCreated < 0.1f) || currentState != PickupItemState.Listening)
 		{
 			return;
 		}
@@ -115,7 +167,7 @@ public class CollectTheItemCollectableInstance : MVBlueprintBase, ITriggerBoxEve
 	public void OnStateChanged(CullingGroupEvent cullingEvent)
 	{
 		bool active = CullingApiWrapper.Visible(cullingEvent, cullingSubscriberBase.DistanceBandIndex);
-		collectTheItemObject.VisualObject.SetActive(active);
+		collectTheItemObject.CullingObject.SetActive(active);
 	}
 
 	private bool DoPickup(int instigatorWOID)
@@ -176,6 +228,11 @@ public class CollectTheItemCollectableInstance : MVBlueprintBase, ITriggerBoxEve
 	public override void Destroy()
 	{
 		base.Destroy();
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
+		{
+			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
+			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Remove(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
+		}
 		if (PositionChanged != null)
 		{
 			PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Remove(PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
@@ -186,6 +243,17 @@ public class CollectTheItemCollectableInstance : MVBlueprintBase, ITriggerBoxEve
 			mVGroup.RemoveChild(Id);
 			cullingSubscriberBase.Destroy();
 			cullingSubscriberBase = null;
+		}
+		if (MVGameControllerBase.WOCM.GetWorldObjectClient(OriginalInstanceID) != null && MVGameControllerBase.WOCM.GetWorldObjectClient(CollectTheItemCollectableID) is CollectTheItemCollectable collectTheItemCollectable)
+		{
+			if (collectTheItemCollectable.PositionChanged != null)
+			{
+				collectTheItemCollectable.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Remove(collectTheItemCollectable.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
+			}
+			if (MVGameControllerBase.WOCM.GetWorldObjectClient(collectTheItemCollectable.DropOffId) is CollectTheItemDropOff collectTheItemDropOff)
+			{
+				collectTheItemDropOff.OnPickupCollected = (Action<bool>)Delegate.Remove(collectTheItemDropOff.OnPickupCollected, new Action<bool>(OnCollected));
+			}
 		}
 	}
 
@@ -200,17 +268,16 @@ public class CollectTheItemCollectableInstance : MVBlueprintBase, ITriggerBoxEve
 
 	public void HandleStateChange(PickupItemState state)
 	{
+		currentState = state;
 		switch (state)
 		{
 		case PickupItemState.Listening:
 			isTaken = false;
 			collectTheItemObject.GreyOutObject.GreyIn();
-			collectTheItemObject.TriggerBoxEvents.Collider.enabled = true;
 			break;
 		case PickupItemState.Pickup:
 			collectTheItemObject.GreyOutObject.GreyOut();
 			isTaken = true;
-			collectTheItemObject.TriggerBoxEvents.Collider.enabled = false;
 			break;
 		case PickupItemState.Counting:
 			break;

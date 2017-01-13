@@ -19,13 +19,13 @@ public class PickupItemCollectTheItem : PickupItem
 
 	private ObjectiveArrow arrow;
 
-	private GameObject dropoff;
-
 	private MVWorldObjectClient woDropOff;
 
 	private int cubeModelKeyId;
 
 	private int spawnerId;
+
+	private int dropOffId;
 
 	private GameObject pickup;
 
@@ -75,6 +75,21 @@ public class PickupItemCollectTheItem : PickupItem
 		return cubeModelKeyId;
 	}
 
+	private void OnDropoffActivated(bool shouldStayEquipped)
+	{
+		if (!shouldStayEquipped)
+		{
+			ParticleSystem particleSystem = UnityEngine.Object.Instantiate(PrefabPool.Instance.CollectTheItemParticles);
+			particleSystem.transform.position = pickup.transform.position;
+			if (arrow != null)
+			{
+				arrow.gameObject.SetActive(value: false);
+			}
+			NotificationController.PushNotification(TM._("A player has delivered the carried item!"), null, 7);
+			ForceUnequipPickup();
+		}
+	}
+
 	public override void OnStateChanged(Dictionary<object, object> newState)
 	{
 		if (pickup != null)
@@ -83,29 +98,40 @@ public class PickupItemCollectTheItem : PickupItem
 		}
 		Dictionary<object, object> dictionary = (Dictionary<object, object>)newState["itemData"];
 		int id = (int)dictionary["CollectTheItemCollectableId"];
-		CollectTheItemCollectable collectTheItemCollectable = (CollectTheItemCollectable)MVGameControllerBase.WOCM.GetWorldObjectClient(id);
-		if (collectTheItemCollectable == null)
+		if (!(MVGameControllerBase.WOCM.GetWorldObjectClient(id) is CollectTheItemCollectable collectTheItemCollectable))
 		{
 			ForceUnequipPickup();
 			return;
 		}
 		cubeModelKeyId = collectTheItemCollectable.CollectableModelId;
 		spawnerId = id;
-		int dropOffId = collectTheItemCollectable.DropOffId;
+		dropOffId = collectTheItemCollectable.DropOffId;
 		if (cubeModelKeyId == -1 || dropOffId == -1)
 		{
 			ForceUnequipPickup();
 			return;
 		}
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(cubeModelKeyId);
-		if (worldObjectClient != null)
+		if (worldObjectClient == null)
 		{
-			SetupPickupWo(worldObjectClient);
-			if (collectTheItemCollectable.HasArrowIndicator && owner != null && owner.IsLocal)
+			return;
+		}
+		SetupPickupWo(worldObjectClient);
+		if (!(owner == null) && owner.IsLocal && MVGameControllerBase.WOCM.GetWorldObjectClient(dropOffId) is CollectTheItemDropOff collectTheItemDropOff)
+		{
+			collectTheItemDropOff.OnPickupCollected = (Action<bool>)Delegate.Combine(collectTheItemDropOff.OnPickupCollected, new Action<bool>(OnDropoffActivated));
+			if (collectTheItemCollectable.HasArrowIndicator)
 			{
 				SetupDropOffArrow(dropOffId);
 			}
+			MVGameControllerBase.Game.WinningConditionManager.OnWinningConditionChanged += OnChanged;
 		}
+	}
+
+	private void OnChanged(object sender, EventArgs args)
+	{
+		MVGameControllerBase.Game.WinningConditionManager.OnWinningConditionChanged -= OnChanged;
+		ForceUnequipPickup();
 	}
 
 	private void SetupDropOffArrow(int dropoffId)
@@ -154,15 +180,27 @@ public class PickupItemCollectTheItem : PickupItem
 	{
 		shouldSpawnInstanceOnUnequip = false;
 		MVEquipable component = owner.WorldObjectOwner.GameObject.GetComponent<MVEquipable>();
-		component.Unequip();
+		if (component != null)
+		{
+			component.Unequip();
+		}
 	}
 
 	private void OnDestroy()
 	{
+		if (MVGameControllerBase.Game == null)
+		{
+			return;
+		}
 		if (MVGameControllerBase.WOCM.GetWorldObjectClient(spawnerId) is CollectTheItemCollectable collectTheItemCollectable)
 		{
 			collectTheItemCollectable.OnCollectTheItemDestroyed = (Action)Delegate.Remove(collectTheItemCollectable.OnCollectTheItemDestroyed, new Action(OnWorldObjectSpawnerDestroyed));
 		}
+		if (!(MVGameControllerBase.WOCM.GetWorldObjectClient(dropOffId) is CollectTheItemDropOff collectTheItemDropOff))
+		{
+			return;
+		}
+		collectTheItemDropOff.OnPickupCollected = (Action<bool>)Delegate.Remove(collectTheItemDropOff.OnPickupCollected, new Action<bool>(OnDropoffActivated));
 		if (arrow != null)
 		{
 			if (woDropOff != null)

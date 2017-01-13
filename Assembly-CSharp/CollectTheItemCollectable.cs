@@ -81,6 +81,8 @@ public class CollectTheItemCollectable : MVBlueprintBase
 		collectableModel.Transform.rotation = Quaternion.identity;
 		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
 		{
+			CollectTheItemCollectableInstance collectTheItemCollectableInstance = collectableInstance;
+			collectTheItemCollectableInstance.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(collectTheItemCollectableInstance.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
 			editableCubeModelWrapper = new EditableCubeModelWrapper(collectableModel, new IntVector(minBounds.x, minBounds.y, minBounds.z), new IntVector(maxBounds.x, maxBounds.y, maxBounds.z), minCubes);
 			MVCubeModelInstance cubeModel = editableCubeModelWrapper.CubeModel;
 			cubeModel.Changed = (Action<CubeModelChangedEventArgs>)Delegate.Combine(cubeModel.Changed, new Action<CubeModelChangedEventArgs>(collectableInstance.SetupGreyoutScript));
@@ -123,7 +125,7 @@ public class CollectTheItemCollectable : MVBlueprintBase
 	public void OnStateChanged(CullingGroupEvent cullingEvent)
 	{
 		bool active = CullingApiWrapper.Visible(cullingEvent, cullingSubscriberBase.DistanceBandIndex);
-		collectableInstance.GameObject.SetActive(active);
+		GameObject.SetActive(active);
 	}
 
 	public override bool Delete(MVWorldObjectClientManager worldObjectClientManager, ref string errorText)

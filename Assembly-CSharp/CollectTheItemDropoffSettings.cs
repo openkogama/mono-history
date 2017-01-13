@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class CollectTheItemSettings : MonoBehaviour, IEventSystemHandler, IHandleSettingChanged
+public class CollectTheItemDropoffSettings : MonoBehaviour, IEventSystemHandler, IHandleSettingChanged
 {
 	[SerializeField]
 	private SettingsBase settingsBase;
@@ -15,12 +15,11 @@ public class CollectTheItemSettings : MonoBehaviour, IEventSystemHandler, IHandl
 	public void Initialize(int woID, GameObject root)
 	{
 		MVBlueprintBase mVBlueprintBase = (MVBlueprintBase)MVGameControllerBase.WOCM.GetWorldObjectClient(woID);
-		MVWorldObjectClient child = mVBlueprintBase.GetChild("CollectableInstance");
-		int id = child.Id;
-		Dictionary<object, object> dictionary = (Dictionary<object, object>)child.Data["BlueprintData"];
+		int id = mVBlueprintBase.Id;
+		Dictionary<object, object> dictionary = (Dictionary<object, object>)mVBlueprintBase.Data["BlueprintData"];
 		childMap = new Dictionary<object, object>((Dictionary<object, object>)dictionary["ChildrenMap"]);
 		settingsBase.Initialize(id, root);
-		toggle.Initialize("hasIndicator", (bool)dictionary["hasIndicator"]);
+		toggle.Initialize("doOnce", (bool)dictionary["doOnce"]);
 	}
 
 	public void OnSettingChanged(string key, object value)

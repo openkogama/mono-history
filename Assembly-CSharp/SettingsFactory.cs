@@ -87,6 +87,9 @@ public class SettingsFactory : MonoBehaviour
 	private CollectTheItemSettings collectTheItemSettingsPrefab;
 
 	[SerializeField]
+	private CollectTheItemDropoffSettings collectTheItemDropoffSettingsPrefab;
+
+	[SerializeField]
 	private GodzillaSettings godzillaSettingsPrefab;
 
 	[SerializeField]
@@ -275,6 +278,12 @@ public class SettingsFactory : MonoBehaviour
 		{
 			CollectTheItemSettings collectTheItemSettings = Object.Instantiate(collectTheItemSettingsPrefab);
 			collectTheItemSettings.Initialize(woID, gameObject);
+			break;
+		}
+		case WorldObjectType.CollectTheItemDropOff:
+		{
+			CollectTheItemDropoffSettings collectTheItemDropoffSettings = Object.Instantiate(collectTheItemDropoffSettingsPrefab);
+			collectTheItemDropoffSettings.Initialize(woID, gameObject);
 			break;
 		}
 		case WorldObjectType.GodzillaTrigger:

@@ -117,15 +117,7 @@ public class AvatarEquipable : MVEquipable
 
 	public override void Unequip()
 	{
-		if (currentItem.Value is Dictionary<object, object> dictionary && dictionary.ContainsKey("holstered") && (bool)dictionary["holstered"])
-		{
-			Debug.Log("Not unequipping holstered weapon");
-			return;
-		}
-		currentItem.Value = new Dictionary<object, object>
-		{
-			{ "type", 5 },
-			{ "holstered", false }
-		};
+		Unholster();
+		Equip(AvatarItemType.Hand, AvatarEquipableType.Weapon, null);
 	}
 }

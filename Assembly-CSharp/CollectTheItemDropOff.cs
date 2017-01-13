@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using CodeStage.AntiCheat.ObscuredTypes;
+using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.Events;
@@ -17,23 +18,29 @@ public class CollectTheItemDropOff : MVBlueprintBase, ITriggerBoxEventsHandler
 
 	private ObscuredIntVector minBounds = new ObscuredIntVector(-5, -4, -6);
 
-	private ObscuredIntVector maxBounds = new ObscuredIntVector(7, 7, 6);
+	private ObscuredIntVector maxBounds = new ObscuredIntVector(7, 8, 6);
 
 	private ObscuredInt minCubes = 10;
 
-	public Action OnPickupCollected;
+	public Action<bool> OnPickupCollected;
+
+	private bool doOnce;
 
 	public override bool HasOutputConnector => true;
 
 	public override bool HasInputConnector => false;
 
-	public override Vector3 OutputConnectorOffset => new Vector3(3f, 0f, 0f);
+	public override Vector3 OutputConnectorOffset => new Vector3(3.5f, 0f, 0f);
+
+	public bool DoOnce => (bool)blueprintData["doOnce"];
 
 	public CollectTheItemDropOff(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.CollectTheItemDropOffPrefab, worldObjects)
 	{
 		InteractionFlags |= InteractionFlags.CanEdit;
 		InteractionFlags |= InteractionFlags.DirectlySelectable;
+		InteractionFlags |= InteractionFlags.HasSettings;
+		InteractionFlags |= InteractionFlags.CanResetLogic;
 		InteractionFlags &= ~InteractionFlags.CanClone;
 		triggerObject = (CollectTheItemDropOffObject)component;
 	}
@@ -46,16 +53,59 @@ public class CollectTheItemDropOff : MVBlueprintBase, ITriggerBoxEventsHandler
 	public override void Initialize()
 	{
 		base.Initialize();
-		OnPickupCollected = (Action)Delegate.Combine(OnPickupCollected, new Action(triggerObject.Blinker.OnBlinkingActivated));
+		OnPickupCollected = (Action<bool>)Delegate.Combine(OnPickupCollected, new Action<bool>(triggerObject.Blinker.OnBlinkingActivated));
+		OnPickupCollected = (Action<bool>)Delegate.Combine(OnPickupCollected, new Action<bool>(OnCollected));
 		triggerObject.TriggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
-		outputConnectorObject.transform.localScale = new Vector3(2f, 2f, 2f);
+		outputConnectorObject.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
 		MVCubeModelInstance mVCubeModelInstance = (MVCubeModelInstance)GetChild("DropOffModel");
 		mVCubeModelInstance.Visible = true;
-		mVCubeModelInstance.Transform.SetParent(triggerObject.VisualObject.transform);
+		mVCubeModelInstance.Transform.SetParent(triggerObject.CullingObject.transform);
 		editableCubeModelWrapper = new EditableCubeModelWrapper(mVCubeModelInstance, new IntVector(minBounds.x, minBounds.y, minBounds.z), new IntVector(maxBounds.x, maxBounds.y, maxBounds.z), minCubes);
 		triggerObject.Blinker.MeshFilters = mVCubeModelInstance.GameObject.GetComponentsInChildren<MeshFilter>();
 		triggerObject.Blinker.Visible = true;
+		doOnce = DoOnce;
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
+		{
+			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
+			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Combine(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
+			triggerObject.GreyOutScript.InitializeOriginalMaterials();
+		}
 		SetupCulling();
+	}
+
+	private void OnEditModeChange(EditModeChangeArgs arg)
+	{
+		triggerObject.EditCollider.enabled = true;
+		if (arg.playInEditor)
+		{
+			triggerObject.EditCollider.enabled = false;
+		}
+	}
+
+	private void OnCollected(bool shouldbeActiveOnCollect)
+	{
+		triggerObject.VisualObject.SetActive(shouldbeActiveOnCollect);
+		triggerObject.Collider.enabled = shouldbeActiveOnCollect;
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit && !shouldbeActiveOnCollect)
+		{
+			triggerObject.GreyOutScript.GreyOut();
+		}
+	}
+
+	public override void Reset()
+	{
+		base.Reset();
+		triggerObject.VisualObject.SetActive(value: true);
+		triggerObject.Collider.enabled = true;
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
+		{
+			triggerObject.GreyOutScript.GreyIn();
+			if (OnPickupCollected != null)
+			{
+				OnPickupCollected(obj: true);
+			}
+			triggerObject.Blinker.DeactivateBlinking();
+		}
 	}
 
 	private void SetupCulling()
@@ -72,7 +122,12 @@ public class CollectTheItemDropOff : MVBlueprintBase, ITriggerBoxEventsHandler
 	public void OnStateChanged(CullingGroupEvent cullingEvent)
 	{
 		bool active = CullingApiWrapper.Visible(cullingEvent, cullingSubscriberBase.DistanceBandIndex);
-		triggerObject.VisualObject.SetActive(active);
+		triggerObject.CullingObject.SetActive(active);
+	}
+
+	public override void OnDataUpdate()
+	{
+		doOnce = DoOnce;
 	}
 
 	public void Exit()
@@ -87,6 +142,7 @@ public class CollectTheItemDropOff : MVBlueprintBase, ITriggerBoxEventsHandler
 		{
 			return;
 		}
+		SetLinks(isSet: true);
 		int woIDWithLocalOwnerHighestInHierarchy = MVGameControllerBase.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(instigatorWOID);
 		if (woIDWithLocalOwnerHighestInHierarchy != -1)
 		{
@@ -96,34 +152,37 @@ public class CollectTheItemDropOff : MVBlueprintBase, ITriggerBoxEventsHandler
 		{
 			ParticleSystem particleSystem = UnityEngine.Object.Instantiate(PrefabPool.Instance.CollectTheItemParticles);
 			particleSystem.transform.position = worldObjectClient.Transform.position;
+			if (OnPickupCollected != null)
+			{
+				OnPickupCollected(!doOnce);
+			}
 		}
-		if (triggerObject.VisualObject.activeInHierarchy)
+		if (!triggerObject.CullingObject.activeInHierarchy)
 		{
-			MVEquipable mVEquipable = worldObjectClient.GameObject.GetComponent<MVEquipable>();
-			if (mVEquipable == null)
-			{
-				return;
-			}
-			MVPickupOwner componentInChildren = worldObjectClient.GameObject.GetComponentInChildren<MVPickupOwner>();
-			if (componentInChildren == null)
-			{
-				return;
-			}
-			PickupItem currentItem = componentInChildren.CurrentItem;
-			if (currentItem == null || !(currentItem is PickupItemCollectTheItem))
-			{
-				return;
-			}
+			return;
+		}
+		MVEquipable mVEquipable = worldObjectClient.GameObject.GetComponent<MVEquipable>();
+		if (mVEquipable == null)
+		{
+			return;
+		}
+		MVPickupOwner componentInChildren = worldObjectClient.GameObject.GetComponentInChildren<MVPickupOwner>();
+		if (componentInChildren == null)
+		{
+			return;
+		}
+		PickupItem currentItem = componentInChildren.CurrentItem;
+		if (!(currentItem == null) && currentItem is PickupItemCollectTheItem)
+		{
 			mVEquipable.Unequip();
 			PickupItemCollectTheItem pickupItemCollectTheItem = currentItem as PickupItemCollectTheItem;
 			ParticleSystem particleSystem2 = UnityEngine.Object.Instantiate(PrefabPool.Instance.CollectTheItemParticles);
 			particleSystem2.transform.position = pickupItemCollectTheItem.transform.position;
 			if (OnPickupCollected != null)
 			{
-				OnPickupCollected();
+				OnPickupCollected(!doOnce);
 			}
 		}
-		SetLinks(isSet: true);
 	}
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
@@ -157,6 +216,11 @@ public class CollectTheItemDropOff : MVBlueprintBase, ITriggerBoxEventsHandler
 	public override void Destroy()
 	{
 		OnPickupCollected = null;
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
+		{
+			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
+			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Remove(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
+		}
 		if (cullingSubscriberBase != null)
 		{
 			PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Remove(PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));

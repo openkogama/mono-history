@@ -40,6 +40,7 @@ public class CollectTheItem : MVBlueprintBase
 	{
 		if (!hasInitializedReferences)
 		{
+			hasInitializedReferences = true;
 			Dictionary<object, object> dictionary = (Dictionary<object, object>)Data["BlueprintData"];
 			Dictionary<object, object> table = (Dictionary<object, object>)dictionary["ChildrenMap"];
 			dropOff = (CollectTheItemDropOff)RetrieveWorldObject(table, "CollectTheItemDropOff");

@@ -15,8 +15,13 @@ public class CollectTheItemBlinker : BlinkerBase
 		} };
 	}
 
-	public void OnBlinkingActivated()
+	public void OnBlinkingActivated(bool shouldBlink)
 	{
 		StartBlinking(BlinkType.DropOffCollectedItem, 2f);
+	}
+
+	public void DeactivateBlinking()
+	{
+		StopBlinking(BlinkType.DropOffCollectedItem);
 	}
 }
