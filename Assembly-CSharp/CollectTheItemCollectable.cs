@@ -84,8 +84,7 @@ public class CollectTheItemCollectable : MVBlueprintBase
 			CollectTheItemCollectableInstance collectTheItemCollectableInstance = collectableInstance;
 			collectTheItemCollectableInstance.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(collectTheItemCollectableInstance.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
 			editableCubeModelWrapper = new EditableCubeModelWrapper(collectableModel, new IntVector(minBounds.x, minBounds.y, minBounds.z), new IntVector(maxBounds.x, maxBounds.y, maxBounds.z), minCubes);
-			MVCubeModelInstance cubeModel = editableCubeModelWrapper.CubeModel;
-			cubeModel.Changed = (Action<CubeModelChangedEventArgs>)Delegate.Combine(cubeModel.Changed, new Action<CubeModelChangedEventArgs>(collectableInstance.SetupGreyoutScript));
+			editableCubeModelWrapper.CubeModel.BeingEditedChanged += collectableInstance.SetupGreyoutScript;
 		}
 	}
 

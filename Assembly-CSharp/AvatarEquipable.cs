@@ -75,6 +75,11 @@ public class AvatarEquipable : MVEquipable
 			}
 			return true;
 		}
+		currentItem.Value = new Dictionary<object, object>
+		{
+			{ "type", 5 },
+			{ "variantId", 0 }
+		};
 		return false;
 	}
 

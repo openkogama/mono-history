@@ -6,22 +6,37 @@ public class CollectTheItemBlinker : BlinkerBase
 	[SerializeField]
 	private Color dropOffCollectedItemColor;
 
+	[SerializeField]
+	private Color DespawnColor;
+
 	private void Awake()
 	{
-		blinkers = new Dictionary<BlinkType, Blinker> { 
+		blinkers = new Dictionary<BlinkType, Blinker>
 		{
-			BlinkType.DropOffCollectedItem,
-			new Blinker(2f, blinkMaterial, dropOffCollectedItemColor)
-		} };
+			{
+				BlinkType.DropOffCollectedItem,
+				new Blinker(2f, blinkMaterial, dropOffCollectedItemColor)
+			},
+			{
+				BlinkType.AboutToExpire,
+				new Blinker(2f, blinkMaterial, DespawnColor)
+			}
+		};
 	}
 
-	public void OnBlinkingActivated(bool shouldBlink)
+	public void OnBlinkingActivated(bool shouldBlink, BlinkType type)
 	{
-		StartBlinking(BlinkType.DropOffCollectedItem, 2f);
+		if (shouldBlink)
+		{
+			StartBlinking(type, 2f);
+		}
 	}
 
 	public void DeactivateBlinking()
 	{
-		StopBlinking(BlinkType.DropOffCollectedItem);
+		foreach (BlinkType key in blinkers.Keys)
+		{
+			StopBlinking(key);
+		}
 	}
 }

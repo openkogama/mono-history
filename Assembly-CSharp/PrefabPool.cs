@@ -188,9 +188,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject godzillaAreaPrefab;
 
+	[SerializeField]
 	[Header("Game")]
 	[Space(20f)]
-	[SerializeField]
 	private Material ghostMarkerMaterial;
 
 	[SerializeField]
@@ -273,8 +273,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private MVPickupItemBaseObject avatarGrowthPackPrefab;
 
-	[Space(20f)]
 	[Header("Avatar item pick up")]
+	[Space(20f)]
 	[SerializeField]
 	private GameObject avatarItemCenterGun;
 
@@ -332,9 +332,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject avatarItemCollectTheItem;
 
+	[Header("Avatar modifier")]
 	[Space(20f)]
 	[SerializeField]
-	[Header("Avatar modifier")]
 	private AvatarModifier burningModifier;
 
 	[SerializeField]
@@ -364,9 +364,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GodzillaLaserBurnModifier godzillaLaserBurnModifier;
 
-	[Header("Particles")]
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
+	[Header("Particles")]
 	private GameObject particleBlood;
 
 	[SerializeField]
@@ -435,8 +435,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem collectTheItemParticles;
 
-	[SerializeField]
 	[Header("Logic object prefabs")]
+	[SerializeField]
 	[Space(20f)]
 	private GameObject logicInputConnectorPrefab;
 
@@ -464,9 +464,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material logicCubeConnectorBlueSelectedMaterial;
 
-	[Space(20f)]
 	[Header("GUI")]
 	[SerializeField]
+	[Space(20f)]
 	private Texture2D avatarAccessoryMoveIcon;
 
 	[SerializeField]
@@ -489,9 +489,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private InsertCursor insertCursor;
 
-	[SerializeField]
-	[Space(20f)]
 	[Header("Cameras")]
+	[Space(20f)]
+	[SerializeField]
 	private GodzillaCamera godzillaCamera;
 
 	[SerializeField]

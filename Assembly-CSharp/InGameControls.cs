@@ -17,8 +17,4 @@ public class InGameControls : MonoBehaviour
 		GameObject gameObject = Object.Instantiate(avatarJoystickPrefab);
 		gameObject.transform.SetParent(transform, worldPositionStays: false);
 	}
-
-	private void Update()
-	{
-	}
 }

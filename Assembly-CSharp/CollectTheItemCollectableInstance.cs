@@ -50,6 +50,8 @@ public class CollectTheItemCollectableInstance : MVBlueprintBase, ITriggerBoxEve
 		if (!IsOriginalInstance)
 		{
 			InteractionFlags &= ~InteractionFlags.Selectable;
+			SetBlinker();
+			collectTheItemObject.Blinker.Visible = true;
 			return;
 		}
 		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
@@ -85,6 +87,7 @@ public class CollectTheItemCollectableInstance : MVBlueprintBase, ITriggerBoxEve
 		}
 		if (MVGameControllerBase.WOCM.GetWorldObjectClient(CollectTheItemCollectableID) is CollectTheItemCollectable collectTheItemCollectable && MVGameControllerBase.WOCM.GetWorldObjectClient(collectTheItemCollectable.DropOffId) is CollectTheItemDropOff collectTheItemDropOff)
 		{
+			collectTheItemObject.EnableFading = !IsOriginalInstance;
 			collectTheItemDropOff.OnPickupCollected = (Action<bool>)Delegate.Combine(collectTheItemDropOff.OnPickupCollected, new Action<bool>(OnCollected));
 		}
 	}
@@ -96,6 +99,11 @@ public class CollectTheItemCollectableInstance : MVBlueprintBase, ITriggerBoxEve
 		if (IsOriginalInstance && MVGameControllerBase.GameMode == MVGameMode.Edit && !shouldBeActiveOnCollect)
 		{
 			collectTheItemObject.GreyOutScriptEditMode.GreyOut();
+		}
+		else if (!IsOriginalInstance && !shouldBeActiveOnCollect)
+		{
+			collectTheItemObject.TriggerBoxEvents.TriggerEnter -= triggerBoxEvents_TriggerEnter;
+			isTaken = true;
 		}
 	}
 
@@ -119,16 +127,24 @@ public class CollectTheItemCollectableInstance : MVBlueprintBase, ITriggerBoxEve
 			list[i].Transform.rotation = Quaternion.identity;
 		}
 		collectTheItemObject.TriggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
-		if (!IsOriginalInstance)
-		{
-			collectTheItemObject.EnableFading = true;
-		}
 		collectTheItemObject.InitializeGreyOutScript();
+		SetBlinker();
+		collectTheItemObject.Blinker.Visible = true;
 	}
 
-	public void SetupGreyoutScript(CubeModelChangedEventArgs args)
+	public void SetupGreyoutScript(object sender, EditStateEventArgs args)
 	{
-		collectTheItemObject.InitializeGreyOutScript();
+		SetBlinker();
+		Reset();
+		if (MVGameControllerBase.WOCM.GetWorldObjectClient(CollectTheItemCollectableID) is CollectTheItemCollectable collectTheItemCollectable && MVGameControllerBase.WOCM.GetWorldObjectClient(collectTheItemCollectable.DropOffId) is CollectTheItemDropOff collectTheItemDropOff)
+		{
+			collectTheItemDropOff.ReInitializeVisuals();
+		}
+	}
+
+	private void SetBlinker()
+	{
+		collectTheItemObject.Blinker.MeshFilters = collectTheItemObject.VisualObject.GetComponentsInChildren<MeshFilter>();
 	}
 
 	public void SetupCulling()
@@ -152,7 +168,7 @@ public class CollectTheItemCollectableInstance : MVBlueprintBase, ITriggerBoxEve
 		if (worldObjectClient != null)
 		{
 			MVInteractableBase mVInteractableBase = worldObjectClient.GameObject.GetComponent<MVInteractableBase>();
-			if (!(mVInteractableBase == null) && !mVInteractableBase.HasModifierEffect(AvatarModifierEffect.DisablePickups) && (IsOriginalInstance || !isTaken))
+			if (!(mVInteractableBase == null) && !mVInteractableBase.HasModifierEffect(AvatarModifierEffect.DisablePickups) && !mVInteractableBase.HasModifierEffect(AvatarModifierEffect.DisableWeapons) && (IsOriginalInstance || !isTaken))
 			{
 				MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, e.instigatorWOID);
 			}
@@ -189,12 +205,19 @@ public class CollectTheItemCollectableInstance : MVBlueprintBase, ITriggerBoxEve
 			return false;
 		}
 		dictionary.Add("CollectTheItemCollectableId", CollectTheItemCollectableID);
-		mVEquipable.Equip(AvatarItemType.CollectTheItemCollectable, AvatarEquipableType.Weapon, dictionary);
-		return true;
+		if (mVEquipable.Equip(AvatarItemType.CollectTheItemCollectable, AvatarEquipableType.Weapon, dictionary))
+		{
+			return true;
+		}
+		return false;
 	}
 
 	public void Enter(int instigatorWoID)
 	{
+		if (!MVGameControllerBase.IsPlaying)
+		{
+			return;
+		}
 		if (!IsOriginalInstance && isTaken)
 		{
 			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(instigatorWoID);

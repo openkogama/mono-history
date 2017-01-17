@@ -35,6 +35,10 @@ public class PickupItemCollectTheItem : PickupItem
 
 	public override bool ActivateGunModeOnEquip => false;
 
+	public override void UpdateWithDirection(Vector3 dir)
+	{
+	}
+
 	public override void OnLeaveVehicleWithWeapon()
 	{
 		base.OnLeaveVehicleWithWeapon();

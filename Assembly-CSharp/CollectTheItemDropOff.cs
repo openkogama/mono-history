@@ -16,6 +16,10 @@ public class CollectTheItemDropOff : MVBlueprintBase, ITriggerBoxEventsHandler
 
 	private CollectTheItem controller;
 
+	private readonly string isActive = "isActive";
+
+	private readonly string doOnceString = "doOnce";
+
 	private ObscuredIntVector minBounds = new ObscuredIntVector(-5, -4, -6);
 
 	private ObscuredIntVector maxBounds = new ObscuredIntVector(7, 8, 6);
@@ -32,7 +36,7 @@ public class CollectTheItemDropOff : MVBlueprintBase, ITriggerBoxEventsHandler
 
 	public override Vector3 OutputConnectorOffset => new Vector3(3.5f, 0f, 0f);
 
-	public bool DoOnce => (bool)blueprintData["doOnce"];
+	public bool DoOnce => (bool)blueprintData[doOnceString];
 
 	public CollectTheItemDropOff(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.CollectTheItemDropOffPrefab, worldObjects)
@@ -53,7 +57,6 @@ public class CollectTheItemDropOff : MVBlueprintBase, ITriggerBoxEventsHandler
 	public override void Initialize()
 	{
 		base.Initialize();
-		OnPickupCollected = (Action<bool>)Delegate.Combine(OnPickupCollected, new Action<bool>(triggerObject.Blinker.OnBlinkingActivated));
 		OnPickupCollected = (Action<bool>)Delegate.Combine(OnPickupCollected, new Action<bool>(OnCollected));
 		triggerObject.TriggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		outputConnectorObject.transform.localScale = new Vector3(1.5f, 1.5f, 1.5f);
@@ -69,8 +72,26 @@ public class CollectTheItemDropOff : MVBlueprintBase, ITriggerBoxEventsHandler
 			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
 			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Combine(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
 			triggerObject.GreyOutScript.InitializeOriginalMaterials();
+			editableCubeModelWrapper.CubeModel.BeingEditedChanged += OnChunkEditReset;
+		}
+		if (doOnce && RunTimeData.ContainsObscuredKey(isActive))
+		{
+			OnPickupCollected((ObscuredBool)RunTimeData.GetObscuredType(isActive));
 		}
 		SetupCulling();
+	}
+
+	private void OnChunkEditReset(object sender, EditStateEventArgs args)
+	{
+		ReInitializeVisuals();
+	}
+
+	public void ReInitializeVisuals()
+	{
+		MVGameControllerBase.OperationRequests.ResetLogicChunk(Id);
+		Reset();
+		triggerObject.GreyOutScript.InitializeOriginalMaterials();
+		triggerObject.Blinker.MeshFilters = editableCubeModelWrapper.CubeModel.GameObject.GetComponentsInChildren<MeshFilter>();
 	}
 
 	private void OnEditModeChange(EditModeChangeArgs arg)
@@ -86,6 +107,7 @@ public class CollectTheItemDropOff : MVBlueprintBase, ITriggerBoxEventsHandler
 	{
 		triggerObject.VisualObject.SetActive(shouldbeActiveOnCollect);
 		triggerObject.Collider.enabled = shouldbeActiveOnCollect;
+		triggerObject.Blinker.OnBlinkingActivated(shouldbeActiveOnCollect, BlinkType.DropOffCollectedItem);
 		if (MVGameControllerBase.GameMode == MVGameMode.Edit && !shouldbeActiveOnCollect)
 		{
 			triggerObject.GreyOutScript.GreyOut();
@@ -128,6 +150,8 @@ public class CollectTheItemDropOff : MVBlueprintBase, ITriggerBoxEventsHandler
 	public override void OnDataUpdate()
 	{
 		doOnce = DoOnce;
+		Reset();
+		MVGameControllerBase.OperationRequests.ResetLogicChunk(Id);
 	}
 
 	public void Exit()
@@ -137,12 +161,12 @@ public class CollectTheItemDropOff : MVBlueprintBase, ITriggerBoxEventsHandler
 
 	public void Enter(int instigatorWOID)
 	{
+		SetLinks(isSet: true);
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(instigatorWOID);
 		if (worldObjectClient == null)
 		{
 			return;
 		}
-		SetLinks(isSet: true);
 		int woIDWithLocalOwnerHighestInHierarchy = MVGameControllerBase.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(instigatorWOID);
 		if (woIDWithLocalOwnerHighestInHierarchy != -1)
 		{
@@ -156,10 +180,6 @@ public class CollectTheItemDropOff : MVBlueprintBase, ITriggerBoxEventsHandler
 			{
 				OnPickupCollected(!doOnce);
 			}
-		}
-		if (!triggerObject.CullingObject.activeInHierarchy)
-		{
-			return;
 		}
 		MVEquipable mVEquipable = worldObjectClient.GameObject.GetComponent<MVEquipable>();
 		if (mVEquipable == null)
@@ -199,8 +219,8 @@ public class CollectTheItemDropOff : MVBlueprintBase, ITriggerBoxEventsHandler
 			PickupItemCollectTheItem pickupItemCollectTheItem = currentItem as PickupItemCollectTheItem;
 			if (controller.GetDoesWoFitDropOff(pickupItemCollectTheItem.GetCubeModelKeyId()))
 			{
-				MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, e.instigatorWOID);
 				pickupItemCollectTheItem.SetShouldSpawnInstanceOnUnequip(shouldSpawnInstance: false);
+				MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, e.instigatorWOID);
 			}
 		}
 	}

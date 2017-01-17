@@ -1,4 +1,5 @@
 using System;
+using MV.Common;
 using UnityEngine;
 
 public class PickupGUI : MonoBehaviour
@@ -47,12 +48,14 @@ public class PickupGUI : MonoBehaviour
 
 	public void Enter()
 	{
-		if (pickupOwner.CurrentItem != null)
+		if (pickupOwner.CurrentItem == null)
 		{
-			enabled = true;
-			OnEquipItem(pickupOwner.CurrentItem);
-			pickupOwner.CurrentItem.OnEnterVehicleWithWeapon();
+			ShowEquipableUI = PickupGUIFlags.None;
+			return;
 		}
+		enabled = true;
+		OnEquipItem(pickupOwner.CurrentItem);
+		pickupOwner.CurrentItem.OnEnterVehicleWithWeapon();
 	}
 
 	private void UpdateCrossHairVisibility()
@@ -66,10 +69,24 @@ public class PickupGUI : MonoBehaviour
 
 	public void Leave()
 	{
-		canBeVisible = false;
-		UpdateCrossHairVisibility();
 		enabled = false;
-		ShowEquipableUI = PickupGUIFlags.None;
+		GameObject gameObject = MVGameControllerBase.WOCM.AvatarLocal.GameObject;
+		MVPickupOwner component = gameObject.GetComponent<MVPickupOwner>();
+		if (component != null)
+		{
+			if (component.CurrentItem != null && component.CurrentItem.Type != AvatarItemType.Hand)
+			{
+				OnEquipItem(component.CurrentItem);
+				crossHair.UpdateCrossHair(component.CurrentItem);
+				UpdateCrossHairVisibility();
+			}
+			else
+			{
+				canBeVisible = false;
+				UpdateCrossHairVisibility();
+				ShowEquipableUI = PickupGUIFlags.None;
+			}
+		}
 		if (pickupOwner.CurrentItem != null)
 		{
 			pickupOwner.CurrentItem.OnLeaveVehicleWithWeapon();
@@ -82,6 +99,7 @@ public class PickupGUI : MonoBehaviour
 		{
 			canBeVisible = true;
 			UpdateCrossHairVisibility();
+			crossHair.UpdateCrossHair(item);
 			ShowEquipableUI |= PickupGUIFlags.ShowCrosshair;
 		}
 		if (item.CanFire())

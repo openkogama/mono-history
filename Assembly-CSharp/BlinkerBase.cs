@@ -64,7 +64,7 @@ public class BlinkerBase : MonoBehaviour
 				if (meshFilter.gameObject.activeInHierarchy)
 				{
 					Transform tfm = meshFilter.transform;
-					value.Draw(meshFilter.mesh, tfm);
+					value.Draw(meshFilter.sharedMesh, tfm);
 				}
 			}
 		}

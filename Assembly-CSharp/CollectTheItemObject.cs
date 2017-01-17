@@ -25,11 +25,12 @@ public class CollectTheItemObject : ObjectPrefab
 	[SerializeField]
 	private GreyOutObjectScript greyOutScriptEditMode;
 
-	private float fadeTimer = 3f;
+	[SerializeField]
+	private CollectTheItemBlinker blinker;
+
+	private float fadeTimer;
 
 	private bool greyIn;
-
-	private float blinkTime = 0.6f;
 
 	public Collider EditCollider => editCollider;
 
@@ -45,33 +46,37 @@ public class CollectTheItemObject : ObjectPrefab
 
 	public GreyOutObjectScript GreyOutScriptEditMode => greyOutScriptEditMode;
 
-	public bool EnableFading { get; set; }
+	public CollectTheItemBlinker Blinker => blinker;
 
-	private void Update()
+	public bool EnableFading
 	{
-		if (EnableFading)
+		get
 		{
-			DoBlinking();
+			return enabled;
+		}
+		set
+		{
+			enabled = value;
 		}
 	}
 
-	private void DoBlinking()
+	private void Update()
 	{
-		fadeTimer -= Time.deltaTime;
-		if (fadeTimer <= 0f)
+		if (ShouldDoBlinking())
 		{
-			fadeTimer = blinkTime;
-			if (greyIn)
-			{
-				greyOutObject.GreyIn();
-				blinkTime /= 1.3f;
-			}
-			else
-			{
-				greyOutObject.GreyOut();
-			}
-			greyIn = !greyIn;
+			Blinker.StartBlinking(BlinkType.AboutToExpire);
+			EnableFading = false;
 		}
+	}
+
+	private bool ShouldDoBlinking()
+	{
+		if (fadeTimer >= 3f)
+		{
+			return true;
+		}
+		fadeTimer += Time.deltaTime;
+		return false;
 	}
 
 	public void InitializeGreyOutScript()
