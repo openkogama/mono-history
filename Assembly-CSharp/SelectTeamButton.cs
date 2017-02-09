@@ -11,7 +11,6 @@ public class SelectTeamButton : MonoBehaviour
 
 	private void Start()
 	{
-		Debug.Log("Start");
 		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
 		{
 			button.SetActive(value: true);

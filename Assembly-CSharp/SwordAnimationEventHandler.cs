@@ -12,7 +12,6 @@ public class SwordAnimationEventHandler : MonoBehaviour
 
 	private void SwordAnimHit()
 	{
-		swordItem.StopOverlapCheck();
 		if ((bool)arcInstance)
 		{
 			arcInstance.emit = false;
@@ -22,7 +21,6 @@ public class SwordAnimationEventHandler : MonoBehaviour
 
 	private void SwordAnimStart()
 	{
-		swordItem.StartOverlapCheck();
 		arcInstance = Object.Instantiate(trailArcPrefab);
 		arcInstance.transform.parent = target;
 		arcInstance.transform.localPosition = Vector3.zero;

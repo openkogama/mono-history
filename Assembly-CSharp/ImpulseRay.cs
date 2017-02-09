@@ -1,40 +1,43 @@
-using System.Collections;
 using UnityEngine;
 
 public class ImpulseRay : MonoBehaviour
 {
-	public Vector3 target;
-
 	public float radius;
 
 	public Color startColor;
 
+	private static readonly string tintColor = "_TintColor";
+
 	[SerializeField]
 	private MeshRenderer rayRenderer;
 
+	private readonly Color endColor = new Color(0.1f, 0.1f, 0.1f, 0f);
+
+	private readonly float time = 0.4f;
+
+	private float t;
+
+	private float rayMagnitude;
+
 	public MeshRenderer RayRenderer => rayRenderer;
 
-	private void Start()
+	public void Initialize(Vector3 target)
 	{
-		StartCoroutine(DoShowRay(target));
+		Vector3 vector = target - transform.position;
+		Quaternion rotation = Quaternion.LookRotation(vector.normalized, Vector3.up);
+		transform.rotation = rotation;
+		rayMagnitude = vector.magnitude;
 	}
 
-	private IEnumerator DoShowRay(Vector3 hit)
+	private void Update()
 	{
-		Vector3 up = Vector3.up;
-		Color endColor = new Color(0.1f, 0.1f, 0.1f, 0f);
-		float time = 0.4f;
-		float t = 0f;
-		while (t < time)
+		transform.localScale = new Vector3(radius, radius, rayMagnitude * t / time);
+		RayRenderer.material.SetColor(tintColor, Color.Lerp(startColor, endColor, t / time));
+		t += Time.deltaTime;
+		if (t >= time)
 		{
-			Vector3 ray = hit - transform.position;
-			Quaternion rayRotation = Quaternion.LookRotation(ray.normalized, up);
-			transform.rotation = rayRotation;
-			transform.localScale = new Vector3(radius, radius, ray.magnitude * t / time);
-			RayRenderer.material.SetColor("_TintColor", Color.Lerp(startColor, endColor, t / time));
-			t += Time.deltaTime;
-			yield return 0;
+			t = 0f;
+			PrefabPool.Instance.EnumPoolManager.Return(this, PoolEnums.ImpulseGunRay);
 		}
-		Object.Destroy(gameObject);
 	}
 }

@@ -60,7 +60,7 @@ public class AudioManager : MonoBehaviour
 		soundsToRemove.Clear();
 	}
 
-	public Sound Play(string name, AudioClip clip, Vector3 position, float volume, SoundRangeDistance range)
+	public Sound Play(string name, AudioClip clip, Vector3 position, float volume, SoundRangeDistance range, float pitch = 1f)
 	{
 		if (pooledSounds.Count != 0)
 		{
@@ -73,7 +73,7 @@ public class AudioManager : MonoBehaviour
 			sound.audio.clip = clip;
 			sound.audio.volume = volume;
 			sound.audio.priority = 128;
-			sound.audio.pitch = 1f;
+			sound.audio.pitch = pitch;
 			sound.audio.panStereo = 0f;
 			sound.audio.spatialBlend = 1f;
 			sound.audio.reverbZoneMix = 1f;

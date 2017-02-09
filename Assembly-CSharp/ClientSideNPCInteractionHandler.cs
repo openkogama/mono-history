@@ -19,6 +19,7 @@ public class ClientSideNPCInteractionHandler : InteractionDataHandlerBase
 			return false;
 		}
 		MVGameControllerBase.CameraController.PlayPlingSound();
+		MVGameControllerBase.IPlayModeUI.GetCrossHair().ShowHasHitEffect();
 		worldObjectParent.SendPackage(new Dictionary<object, object> { 
 		{
 			(byte)0,

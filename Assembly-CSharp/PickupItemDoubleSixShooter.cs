@@ -15,11 +15,7 @@ public class PickupItemDoubleSixShooter : PickupItemWithDelay
 
 	public float recoilImpact = 700f;
 
-	public AnimationCurve damageFalloff;
-
 	public float baseDamage = 30f;
-
-	public float rangeDamage = 70f;
 
 	public float bulletRange = 50f;
 
@@ -54,25 +50,25 @@ public class PickupItemDoubleSixShooter : PickupItemWithDelay
 	protected override void OnFire(bool isLocal)
 	{
 		Bullet bullet = null;
-		bullet = (((int)ammo % 2 != 0) ? Bullet.CreateBullet(PoolEnums.SixShooterBullet, muzzlePoint2.position) : Bullet.CreateBullet(PoolEnums.SixShooterBullet, muzzlePoint.position));
 		if ((int)ammo % 2 == 0)
 		{
+			bullet = Bullet.CreateBullet(PoolEnums.SixShooterBullet, muzzlePoint.position);
 			UnityEngine.Object.Instantiate(fireEmitter, muzzlePoint.position, Quaternion.identity);
 			animComponentL.Play("RevolverRecoil");
 		}
 		else
 		{
+			bullet = Bullet.CreateBullet(PoolEnums.SixShooterBullet, muzzlePoint2.position);
 			UnityEngine.Object.Instantiate(fireEmitter, muzzlePoint2.position, Quaternion.identity);
 			animComponentR.Play("RevolverRecoil");
 		}
-		Ray lineOfFire = new Ray(owner.LookOrigin, owner.LookDirection);
 		Bullet bullet2 = bullet;
-		bullet2.onHit = (Bullet.OnHitDelegate)Delegate.Combine(bullet2.onHit, new Bullet.OnHitDelegate(HandleHit));
+		bullet2.onHit = (Bullet.OnHitDelegate)Delegate.Combine(bullet2.onHit, new Bullet.OnHitDelegate(OnHit));
 		if (isLocal)
 		{
-			bullet.onHitLocal = HandleDirectHit;
+			bullet.onHitLocal = OnLoclaHit;
 		}
-		bullet.Fire(owner.GetAbsolutProjectileSpeed(bulletSpeed), bulletRange, lineOfFire, owner.IgnoreWOIDs);
+		bullet.Fire(lineOfFire: new Ray(owner.LookOrigin, owner.LookDirection), speed: owner.GetAbsolutProjectileSpeed(bulletSpeed), range: bulletRange, ignoreWoIDs: owner.IgnoreWOIDs);
 		--ammo;
 		if (isLocal)
 		{
@@ -86,36 +82,36 @@ public class PickupItemDoubleSixShooter : PickupItemWithDelay
 		MVRigidBody component = owner.GetComponent<MVRigidBody>();
 		if (component != null)
 		{
-			component.AddImpulse(-center.forward * recoilImpact);
+			component.AddImpulse(-owner.LookDirection * recoilImpact);
 		}
 	}
 
-	private void HandleHit(VoxelHit voxelHit, Ray lineOfFire)
+	private void OnHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
-		Quaternion rotation = Quaternion.FromToRotation(Vector3.up, voxelHit.normal);
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
-		HitParticle hitParticle = ((!(worldObjectClient is MVAvatar)) ? PrefabPool.Instance.EnumPoolManager.Instantiate<HitParticle>(PoolEnums.SixShooterSparks) : PrefabPool.Instance.EnumPoolManager.Instantiate<HitParticle>(PoolEnums.SixShooterBlood));
-		hitParticle.transform.position = voxelHit.point;
-		hitParticle.transform.rotation = rotation;
-		hitParticle.Initialize();
+		if (worldObjectClient is IBulletImpactVisualizer)
+		{
+			((IBulletImpactVisualizer)worldObjectClient).VisualizeBulletImpact(voxelHit, lineOfFire, owner.WorldObjectOwner.OwnerActorNr, baseDamage);
+		}
+		else
+		{
+			OneShotPooledParticleSystem.Instantiate(PoolEnums.SixShooterSparks, voxelHit.point, Quaternion.LookRotation(voxelHit.normal));
+		}
 	}
 
-	private void HandleDirectHit(VoxelHit voxelHit, Ray lineOfFire)
+	private void OnLoclaHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
-		float num = Vector3.Distance(voxelHit.point, owner.transform.position);
-		float time = num / bulletRange;
-		float damage = damageFalloff.Evaluate(time) * rangeDamage + baseDamage;
-		MVGameControllerBase.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, damage);
+		MVGameControllerBase.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, baseDamage);
 		int woIDHighestInHierarchyWithComponent = MVGameControllerBase.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
 		if (worldObjectClient != null)
 		{
 			InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
-			if (interactionDataHandlerBase != null)
+			if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
 			{
 				Vector3 value = voxelHit.point - owner.transform.position;
 				value = Vector3.Normalize(value);
-				interactionDataHandlerBase.HandleInteraction(SixShooterHitPackage.Create(value * hitImpact, damage), interactionIsLocal: false);
+				interactionDataHandlerBase.HandleInteraction(DoubleSixShooterHitPackage.Create(value * hitImpact), interactionIsLocal: false);
 			}
 		}
 	}

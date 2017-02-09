@@ -25,5 +25,7 @@ public enum AvatarModifierPackageType
 	GodzillaLaserBurnM,
 	GodzillaLaserBurnL,
 	GodzillaLaserBurnXL,
+	GodzillaGrowthInvulnerability,
+	SpawnProtection,
 	SIZE
 }

@@ -24,14 +24,27 @@ public class PickupItemShotgun : PickupItemWithDelay
 
 	public float maxRange = 50f;
 
+	public float fireRate = 1f;
+
+	public float bulletSpeed = 100f;
+
 	[SerializeField]
 	private AudioSource audioSource;
+
+	private static readonly float[] offsetsX = new float[5] { -1f, -1f, 0f, 1f, 1f };
+
+	private static readonly float[] offsetsY = new float[5] { -1f, 1f, 0f, -1f, 1f };
 
 	public override AvatarItemType Type => AvatarItemType.Shotgun;
 
 	public override int Quantity => ammo;
 
 	protected override bool IsAmmoDepleted => (int)ammo <= 0;
+
+	private void Awake()
+	{
+		fireInterval = fireRate;
+	}
 
 	public override void ResetAmmo()
 	{
@@ -44,24 +57,17 @@ public class PickupItemShotgun : PickupItemWithDelay
 		Quaternion quaternion = Quaternion.LookRotation(owner.LookDirection, Vector3.up);
 		Vector3 vector = quaternion * Vector3.right;
 		Vector3 vector2 = quaternion * Vector3.up;
-		float[] array = new float[5] { -1f, -1f, 0f, 1f, 1f };
-		float[] array2 = new float[5] { -1f, 1f, 0f, -1f, 1f };
 		muzzleFlare.Play();
-		Ray[] array3 = new Ray[5];
 		for (int i = 0; i < 5; i++)
 		{
-			ref Ray reference = ref array3[i];
-			reference = new Ray(owner.LookOrigin, owner.LookDirection + vector * array[i] * spread + vector2 * array2[i] * spread);
-		}
-		for (int j = 0; j < 5; j++)
-		{
+			Ray lineOfFire = new Ray(owner.LookOrigin, owner.LookDirection + vector * offsetsX[i] * spread + vector2 * offsetsY[i] * spread);
 			Bullet bullet = Bullet.CreateBullet(PoolEnums.ShotgunBullet, muzzlePoint.position);
-			bullet.onHit = (Bullet.OnHitDelegate)Delegate.Combine(bullet.onHit, new Bullet.OnHitDelegate(HandleHit));
+			bullet.onHit = (Bullet.OnHitDelegate)Delegate.Combine(bullet.onHit, new Bullet.OnHitDelegate(OnBulletHit));
 			if (isLocal)
 			{
-				bullet.onHitLocal = (Bullet.OnHitDelegate)Delegate.Combine(bullet.onHitLocal, new Bullet.OnHitDelegate(HandleDirectHit));
+				bullet.onHitLocal = (Bullet.OnHitDelegate)Delegate.Combine(bullet.onHitLocal, new Bullet.OnHitDelegate(OnLocalBulletHit));
 			}
-			bullet.Fire(owner.GetAbsolutProjectileSpeed(100f), 100f, array3[j], owner.IgnoreWOIDs);
+			bullet.Fire(owner.GetAbsolutProjectileSpeed(bulletSpeed), maxRange, lineOfFire, owner.IgnoreWOIDs);
 		}
 		--ammo;
 		if (isLocal)
@@ -75,28 +81,31 @@ public class PickupItemShotgun : PickupItemWithDelay
 		isFiring = false;
 	}
 
-	private void HandleHit(VoxelHit voxelHit, Ray lineOfFire)
+	private void OnBulletHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
-		Quaternion rotation = Quaternion.FromToRotation(Vector3.up, voxelHit.normal);
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
-		HitParticle hitParticle = ((!(worldObjectClient is MVAvatar)) ? PrefabPool.Instance.EnumPoolManager.Instantiate<HitParticle>(PoolEnums.NormalBulletSparks) : PrefabPool.Instance.EnumPoolManager.Instantiate<HitParticle>(PoolEnums.NormalBulletBlood));
-		hitParticle.transform.position = voxelHit.point;
-		hitParticle.transform.rotation = rotation;
-		hitParticle.Initialize();
+		if (worldObjectClient is IBulletImpactVisualizer)
+		{
+			((IBulletImpactVisualizer)worldObjectClient).VisualizeBulletImpact(voxelHit, lineOfFire, owner.WorldObjectOwner.OwnerActorNr, hitDamage);
+		}
+		else
+		{
+			OneShotPooledParticleSystem.Instantiate(PoolEnums.NormalBulletSparks, voxelHit.point, Quaternion.LookRotation(voxelHit.normal));
+		}
 	}
 
-	private void HandleDirectHit(VoxelHit voxelHit, Ray lineOfFire)
+	private void OnLocalBulletHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
-		Vector3 impulse = lineOfFire.direction * impulseStrength;
-		InteractionData interaction = ShotgunHitPackage.Create(impulse, hitDamage);
-		MVGameControllerBase.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, interaction.Damage);
+		MVGameControllerBase.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, hitDamage);
 		int woIDHighestInHierarchyWithComponent = MVGameControllerBase.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
 		if (worldObjectClient != null)
 		{
 			InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
-			if (!(interactionDataHandlerBase == null) && interactionDataHandlerBase != null)
+			if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
 			{
+				Vector3 impulse = lineOfFire.direction * impulseStrength;
+				InteractionData interaction = ShotgunHitPackage.Create(impulse);
 				interactionDataHandlerBase.HandleInteraction(interaction, interactionIsLocal: false);
 			}
 		}

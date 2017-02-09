@@ -189,8 +189,8 @@ public class PrefabPool : MonoBehaviour
 	private GameObject godzillaAreaPrefab;
 
 	[SerializeField]
-	[Header("Game")]
 	[Space(20f)]
+	[Header("Game")]
 	private Material ghostMarkerMaterial;
 
 	[SerializeField]
@@ -214,9 +214,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private CubeModelChunkPrefab cubeModelChunkPrefab;
 
+	[Header("Pick up")]
 	[Space(20f)]
 	[SerializeField]
-	[Header("Pick up")]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
 	[SerializeField]
@@ -273,9 +273,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private MVPickupItemBaseObject avatarGrowthPackPrefab;
 
-	[Header("Avatar item pick up")]
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
+	[Header("Avatar item pick up")]
 	private GameObject avatarItemCenterGun;
 
 	[SerializeField]
@@ -332,9 +332,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject avatarItemCollectTheItem;
 
-	[Header("Avatar modifier")]
 	[Space(20f)]
 	[SerializeField]
+	[Header("Avatar modifier")]
 	private AvatarModifier burningModifier;
 
 	[SerializeField]
@@ -365,17 +365,11 @@ public class PrefabPool : MonoBehaviour
 	private GodzillaLaserBurnModifier godzillaLaserBurnModifier;
 
 	[SerializeField]
+	private InvulnerabilityModifier invulnerabilityModifier;
+
 	[Space(20f)]
+	[SerializeField]
 	[Header("Particles")]
-	private GameObject particleBlood;
-
-	[SerializeField]
-	private GameObject particleBloodSixShooter;
-
-	[SerializeField]
-	private GameObject particleBlooxThrowingStar;
-
-	[SerializeField]
 	private GameObject particleCFX_GroundAura;
 
 	[SerializeField]
@@ -385,49 +379,10 @@ public class PrefabPool : MonoBehaviour
 	private ParticleSystem particleCubeDustDestroyed;
 
 	[SerializeField]
-	private GameObject particleDetailedSmoke;
-
-	[SerializeField]
-	private GameObject particleDustStorm;
-
-	[SerializeField]
 	private ParticleSystem particleExplosion;
 
 	[SerializeField]
-	private GameObject particleFire1;
-
-	[SerializeField]
 	private ParticleSystem particleFluffySmoke;
-
-	[SerializeField]
-	private GameObject particleFluffySmokeLarge;
-
-	[SerializeField]
-	private GameObject particleGhostDeath;
-
-	[SerializeField]
-	private GameObject particleGunSmoke;
-
-	[SerializeField]
-	private GameObject particleJetPackParticles;
-
-	[SerializeField]
-	private GameObject particleSmallExplosion;
-
-	[SerializeField]
-	private GameObject particleSmokeTrail;
-
-	[SerializeField]
-	private GameObject particleSparks;
-
-	[SerializeField]
-	private GameObject particleSparksSixShooter;
-
-	[SerializeField]
-	private GameObject particleSparksThrowingStar;
-
-	[SerializeField]
-	private ParticleSystem particleXP;
 
 	[SerializeField]
 	private ParticleSystem goldExplosion;
@@ -464,8 +419,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material logicCubeConnectorBlueSelectedMaterial;
 
-	[Header("GUI")]
 	[SerializeField]
+	[Header("GUI")]
 	[Space(20f)]
 	private Texture2D avatarAccessoryMoveIcon;
 
@@ -489,9 +444,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private InsertCursor insertCursor;
 
-	[Header("Cameras")]
 	[Space(20f)]
 	[SerializeField]
+	[Header("Cameras")]
 	private GodzillaCamera godzillaCamera;
 
 	[SerializeField]
@@ -848,11 +803,23 @@ public class PrefabPool : MonoBehaviour
 		}
 	}
 
-	public GameObject ParticleBlood => particleBlood;
+	public InvulnerabilityModifier GodzillaGrowthInvulnerabilityModifier
+	{
+		get
+		{
+			invulnerabilityModifier.SetType(AvatarModifierPackageType.GodzillaGrowthInvulnerability);
+			return invulnerabilityModifier;
+		}
+	}
 
-	public GameObject ParticleBloodSixShooter => particleBloodSixShooter;
-
-	public GameObject ParticleBlooxThrowingStar => particleBlooxThrowingStar;
+	public InvulnerabilityModifier SpawnProtectionModifier
+	{
+		get
+		{
+			invulnerabilityModifier.SetType(AvatarModifierPackageType.SpawnProtection);
+			return invulnerabilityModifier;
+		}
+	}
 
 	public GameObject ParticleCFX_GroundAura => particleCFX_GroundAura;
 
@@ -860,35 +827,9 @@ public class PrefabPool : MonoBehaviour
 
 	public ParticleSystem ParticleCubeDustDestroyed => particleCubeDustDestroyed;
 
-	public GameObject ParticleDetailedSmoke => particleDetailedSmoke;
-
-	public GameObject ParticleDustStorm => particleDustStorm;
-
 	public ParticleSystem ParticleExplosion => particleExplosion;
 
-	public GameObject ParticleFire1 => particleFire1;
-
 	public ParticleSystem ParticleFluffySmoke => particleFluffySmoke;
-
-	public GameObject ParticleFluffySmokeLarge => particleFluffySmokeLarge;
-
-	public GameObject ParticleGhostDeath => particleGhostDeath;
-
-	public GameObject ParticleGunSmoke => particleGunSmoke;
-
-	public GameObject ParticleJetPackParticles => particleJetPackParticles;
-
-	public GameObject ParticleSmallExplosion => particleSmallExplosion;
-
-	public GameObject ParticleSmokeTrail => particleSmokeTrail;
-
-	public GameObject ParticleSparks => particleSparks;
-
-	public GameObject ParticleSparksSixShooter => particleSparksSixShooter;
-
-	public GameObject ParticleSparksThrowingStar => particleSparksThrowingStar;
-
-	public ParticleSystem ParticleXP => particleXP;
 
 	public ParticleSystem GoldExplosion => goldExplosion;
 

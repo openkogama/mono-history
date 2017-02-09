@@ -30,8 +30,6 @@ public class CollectTheItemObject : ObjectPrefab
 
 	private float fadeTimer;
 
-	private bool greyIn;
-
 	public Collider EditCollider => editCollider;
 
 	public GameObject VisualObject => visualObject;

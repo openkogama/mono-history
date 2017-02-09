@@ -93,6 +93,7 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase
 			{
 				return null;
 			}
+			pickupOwner.SetLineOfFireLocal();
 			pickupOwner.HandleFire(interactionInput.Fire, owner.IsFiring);
 			interactionInput.Fire = false;
 			if (interactionInput.Drop)

@@ -5,53 +5,47 @@ using UnityEngine;
 
 public class PickupItemMultiThrowingStar : PickupItemWithDelay
 {
-	private Vector3 shootingAngleAxis = Vector3.up;
+	[SerializeField]
+	private ObscuredInt ammo;
 
-	public ObscuredInt ammo;
+	[SerializeField]
+	private BulletThrowingStar bulletPrefab;
 
-	public Material hitDecalMaterial;
+	[SerializeField]
+	private AudioClip bulletHitSound;
 
-	public BulletThrowingStar bulletPrefab;
+	[SerializeField]
+	private float baseDamage = 30f;
 
-	public AudioClip bulletHitSound;
+	[SerializeField]
+	private float bulletRangeStraight = 50f;
 
-	public AnimationCurve damageFalloff;
+	[SerializeField]
+	private float bulletRangeFall = 50f;
 
-	public float baseDamage = 30f;
+	[SerializeField]
+	private float bulletFallRate = 0.1f;
 
-	public float rangeDamage = 70f;
+	[SerializeField]
+	private float bulletSpeed = 80f;
 
-	public float bulletRangeStraight = 50f;
+	[SerializeField]
+	private int numStars = 5;
 
-	public float bulletRangeFall = 50f;
+	[SerializeField]
+	private float fireSpacingDelay = 0.1f;
 
-	public float bulletFallRate = 0.1f;
+	[SerializeField]
+	private float fireRate = 1f;
 
-	public float bulletSpeed = 80f;
-
-	public AudioClip fireSoundClip;
-
-	public ParticleEmitter fireEmitter;
-
-	public Animation animComponent;
-
-	private readonly string rotationAnimationName = "MultiThrowingStarRotation";
-
-	public AnimationClip gunFireAnim;
-
-	public int numStars = 5;
-
-	public float spread = 0.2f;
-
-	public float randomDirection = 0.001f;
-
-	public float fireDelay = 0.1f;
-
-	private bool isLocal;
+	[SerializeField]
+	private AudioClip fireSoundClip;
 
 	private int throwingStarsFired;
 
 	private float fireTime;
+
+	private bool isLocal;
 
 	public override AvatarItemType Type => AvatarItemType.MultiThrowingStar;
 
@@ -68,38 +62,22 @@ public class PickupItemMultiThrowingStar : PickupItemWithDelay
 	protected override void OnHolstered()
 	{
 		base.OnHolstered();
-		if (animComponent != null)
-		{
-			animComponent.Stop(rotationAnimationName);
-		}
 	}
 
 	protected override void OnUnholstered()
 	{
 		base.OnUnholstered();
-		if (animComponent != null)
-		{
-			animComponent.Play(rotationAnimationName);
-		}
 	}
 
 	public override void OnEquip()
 	{
 		base.OnEquip();
-		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-		{
-			shootingAngleAxis = Vector3.forward;
-		}
-		if (animComponent != null)
-		{
-			animComponent.Play(rotationAnimationName);
-		}
 	}
 
 	protected override void OnFire(bool isLocal)
 	{
 		this.isLocal = isLocal;
-		StartFire();
+		TriggerBegin(owner.WorldObjectOwner.Id);
 	}
 
 	public override void UpdateControllerUpdate()
@@ -129,31 +107,50 @@ public class PickupItemMultiThrowingStar : PickupItemWithDelay
 		}
 	}
 
+	private void TriggerFire()
+	{
+		if (!isFiring && Time.time > fireRate + fireTime)
+		{
+			isFiring = true;
+			throwingStarsFired = 0;
+			fireTime = Time.time;
+		}
+	}
+
+	public override void TriggerBegin(int instigator)
+	{
+		TriggerFire();
+	}
+
 	public override void TriggerEnd()
 	{
 	}
 
-	private void StartFire()
+	private void DoFire(bool isLocal)
 	{
-		isFiring = true;
-		throwingStarsFired = 0;
-		fireTime = Time.time;
+		if (throwingStarsFired < numStars && Time.time >= fireTime + fireSpacingDelay)
+		{
+			fireTime = Time.time;
+			Fire(isLocal);
+		}
+		if ((int)ammo <= 0)
+		{
+			MVEquipable component = owner.WorldObjectOwner.GameObject.GetComponent<MVEquipable>();
+			if (component != null)
+			{
+				component.Unequip();
+			}
+		}
 	}
 
-	private void FireThrowingStar(bool isLocal)
+	private void Fire(bool isLocal)
 	{
 		BulletThrowingStar bulletThrowingStar = BulletThrowingStar.CreateBullet(PoolEnums.MultiThrowingStarBullet, muzzlePoint.position);
-		float num = UnityEngine.Random.Range(0f - randomDirection, randomDirection);
-		if (throwingStarsFired == 2)
-		{
-			num = 0f;
-		}
-		Vector3 direction = Quaternion.AngleAxis(((float)throwingStarsFired - (float)numStars / 2f + num) * spread, shootingAngleAxis) * owner.LookDirection;
-		Ray lineOfFire = new Ray(owner.LookOrigin, direction);
-		bulletThrowingStar.onHit = (BulletThrowingStar.OnHitDelegate)Delegate.Combine(bulletThrowingStar.onHit, new BulletThrowingStar.OnHitDelegate(HandleHit));
+		Ray lineOfFire = new Ray(owner.LookOrigin, owner.LookDirection);
+		bulletThrowingStar.onHit = (BulletThrowingStar.OnHitDelegate)Delegate.Combine(bulletThrowingStar.onHit, new BulletThrowingStar.OnHitDelegate(OnBulletHit));
 		if (isLocal)
 		{
-			bulletThrowingStar.onHitLocal = HandleDirectHit;
+			bulletThrowingStar.onHitLocal = OnLocalBulletHit;
 		}
 		bulletThrowingStar.Fire(owner.GetAbsolutProjectileSpeed(bulletSpeed), bulletRangeStraight, lineOfFire, owner.IgnoreWOIDs, bulletRangeFall, bulletFallRate);
 		if (isLocal)
@@ -173,47 +170,31 @@ public class PickupItemMultiThrowingStar : PickupItemWithDelay
 		}
 	}
 
-	private void DoFire(bool isLocal)
+	private void OnBulletHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
-		if (throwingStarsFired < numStars && Time.time >= fireTime + fireDelay)
-		{
-			FireThrowingStar(isLocal);
-		}
-		if ((int)ammo <= 0)
-		{
-			MVEquipable component = owner.WorldObjectOwner.GameObject.GetComponent<MVEquipable>();
-			if (component != null)
-			{
-				component.Unequip();
-			}
-		}
-	}
-
-	private void HandleHit(VoxelHit voxelHit, Ray lineOfFire)
-	{
-		Quaternion rotation = Quaternion.FromToRotation(Vector3.up, voxelHit.normal);
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
-		HitParticle hitParticle = ((!(worldObjectClient is MVAvatar)) ? PrefabPool.Instance.EnumPoolManager.Instantiate<HitParticle>(PoolEnums.NinjaStarSparks) : PrefabPool.Instance.EnumPoolManager.Instantiate<HitParticle>(PoolEnums.NinjaStarBlood));
-		hitParticle.transform.position = voxelHit.point;
-		hitParticle.transform.rotation = rotation;
-		hitParticle.Initialize();
+		if (worldObjectClient is IBulletImpactVisualizer)
+		{
+			((IBulletImpactVisualizer)worldObjectClient).VisualizeBulletImpact(voxelHit, lineOfFire, owner.WorldObjectOwner.OwnerActorNr, baseDamage);
+		}
+		else
+		{
+			OneShotPooledParticleSystem.Instantiate(PoolEnums.NormalBulletSparks, voxelHit.point, Quaternion.LookRotation(voxelHit.normal));
+		}
 	}
 
-	private void HandleDirectHit(VoxelHit voxelHit, Ray lineOfFire)
+	private void OnLocalBulletHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
 		int woIDHighestInHierarchyWithComponent = MVGameControllerBase.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
 		if (worldObjectClient != null)
 		{
-			float num = Vector3.Distance(voxelHit.point, owner.transform.position);
-			float time = num / bulletRangeStraight;
-			float damage = damageFalloff.Evaluate(time) * rangeDamage + baseDamage;
 			InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
-			if (interactionDataHandlerBase != null)
+			if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
 			{
 				Vector3 value = voxelHit.point - owner.transform.position;
 				value = Vector3.Normalize(value);
-				interactionDataHandlerBase.HandleInteraction(MultiThrowingStarHitPackage.Create(Vector3.zero, damage), interactionIsLocal: false);
+				interactionDataHandlerBase.HandleInteraction(MultiThrowingStarHitPackage.Create(), interactionIsLocal: false);
 			}
 		}
 	}

@@ -32,6 +32,7 @@ public class VehicleCamera : PlaymodeCamera, IVehicleCamera
 	public override void UpdateCamera(MVCameraController camController, Transform targetTransform)
 	{
 		UpdateTargetRotation();
+		HandleGunMode();
 		base.UpdateCamera(camController, targetTransform);
 	}
 

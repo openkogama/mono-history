@@ -1,12 +1,11 @@
 using MV.Common;
 using MV.WorldObject;
-using UnityEngine;
 
 public class MultiThrowingStarHitPackage : InteractionPackage
 {
-	public static InteractionData Create(Vector3 impulse, float damage)
+	public static InteractionData Create()
 	{
-		return new InteractionData(InteractionPackageType.ThrowingStarHit, damage, impulse);
+		return new InteractionData(InteractionPackageType.MultiThrowingStarHit, PlayerKilledByType.MultiThrowingStar);
 	}
 
 	public override void ParseAndHandlePackage(MVWorldObjectClient worldObjectClient, MVPlayer shooter, InteractionData interactionStruct)
@@ -14,7 +13,7 @@ public class MultiThrowingStarHitPackage : InteractionPackage
 		MVRigidBody component = worldObjectClient.GameObject.GetComponent<MVRigidBody>();
 		if (component != null)
 		{
-			component.AddImpulse(interactionStruct.Impulse, suspendImpactDamage: true);
+			component.AddImpulse(shooter, interactionStruct.Impulse, suspendImpactDamage: true);
 		}
 		MVInteractableBase component2 = worldObjectClient.GameObject.GetComponent<MVInteractableBase>();
 		if (component2 != null)

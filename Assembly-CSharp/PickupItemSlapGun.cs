@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class PickupItemSlapGun : PickupItemWithDelay
 {
-	private int layerMask;
-
 	[SerializeField]
 	private AudioSource audioSource;
 
@@ -22,6 +20,8 @@ public class PickupItemSlapGun : PickupItemWithDelay
 
 	public Color slapColor = new Color(128f, 128f, 128f, 128f);
 
+	private int layerMask;
+
 	public override AvatarItemType Type => AvatarItemType.SlapGun;
 
 	public override bool CanUnequip => false;
@@ -29,6 +29,8 @@ public class PickupItemSlapGun : PickupItemWithDelay
 	public override bool ActivateGunModeOnEquip => false;
 
 	public override int Quantity => 0;
+
+	public override bool CanHolster => false;
 
 	private void Awake()
 	{
@@ -43,13 +45,14 @@ public class PickupItemSlapGun : PickupItemWithDelay
 			audioSource.PlayOneShot(slapSounds[Random.Range(0, 2)]);
 		}
 		List<MVWorldObjectClient> list = SphereCastAgainstWorldObjects(lineOfFire);
-		if (list.Count > 0 && owner.IsLocal)
+		if (owner.IsLocal)
 		{
-			foreach (MVWorldObjectClient item in list)
+			for (int i = 0; i < list.Count; i++)
 			{
+				MVWorldObjectClient mVWorldObjectClient = list[i];
 				Vector3 impulse = ComputeImpulseDirection(lineOfFire) * slapStrength;
-				InteractionDataHandlerBase interactionDataHandlerBase = item.InteractionDataHandlerBase;
-				if (interactionDataHandlerBase != null)
+				InteractionDataHandlerBase interactionDataHandlerBase = mVWorldObjectClient.InteractionDataHandlerBase;
+				if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(mVWorldObjectClient.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
 				{
 					interactionDataHandlerBase.HandleInteraction(ImpulseHitPackage.Create(impulse), interactionIsLocal: false);
 				}
@@ -57,7 +60,7 @@ public class PickupItemSlapGun : PickupItemWithDelay
 		}
 		Vector3 target = FindRayTarget(lineOfFire);
 		ImpulseRay impulseRay = Object.Instantiate(impulseRayPrefab, muzzlePoint.position, Quaternion.identity) as ImpulseRay;
-		impulseRay.target = target;
+		impulseRay.Initialize(target);
 		impulseRay.radius = 1.2f;
 		impulseRay.startColor = slapColor;
 	}

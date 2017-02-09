@@ -19,11 +19,23 @@ public class PickupGUI : MonoBehaviour
 		crossHair.Visible = false;
 		pickupOwner.onEquipItem = (MVPickupOwner.OnEquipItemDelegate)Delegate.Combine(pickupOwner.onEquipItem, new MVPickupOwner.OnEquipItemDelegate(OnEquipItem));
 		pickupOwner.onUnequipItem = (MVPickupOwner.OnUnequipItemDelegate)Delegate.Combine(pickupOwner.onUnequipItem, new MVPickupOwner.OnUnequipItemDelegate(OnUnequipItem));
-		pickupOwner.OnHolstered = (Action)Delegate.Combine(pickupOwner.OnHolstered, new Action(OnHolstered));
+		pickupOwner.OnHolsteredChanged = (Action<bool>)Delegate.Combine(pickupOwner.OnHolsteredChanged, new Action<bool>(OnHolstered));
 	}
 
-	public void OnHolstered()
+	public void OnHolstered(bool isHolstered)
 	{
+		if (!MVGameControllerBase.WOCM.AvatarLocal.IsSeated)
+		{
+			crossHair.HolsterStateChanged(isHolstered);
+		}
+		if (isHolstered)
+		{
+			ShowEquipableUI |= PickupGUIFlags.IsHolstered;
+		}
+		else
+		{
+			ShowEquipableUI &= ~PickupGUIFlags.IsHolstered;
+		}
 		crossHair.Visible = false;
 	}
 
@@ -43,7 +55,7 @@ public class PickupGUI : MonoBehaviour
 		MVPickupOwner mVPickupOwner2 = pickupOwner;
 		mVPickupOwner2.onUnequipItem = (MVPickupOwner.OnUnequipItemDelegate)Delegate.Remove(mVPickupOwner2.onUnequipItem, new MVPickupOwner.OnUnequipItemDelegate(OnUnequipItem));
 		MVPickupOwner mVPickupOwner3 = pickupOwner;
-		mVPickupOwner3.OnHolstered = (Action)Delegate.Remove(mVPickupOwner3.OnHolstered, new Action(OnHolstered));
+		mVPickupOwner3.OnHolsteredChanged = (Action<bool>)Delegate.Remove(mVPickupOwner3.OnHolsteredChanged, new Action<bool>(OnHolstered));
 	}
 
 	public void Enter()
@@ -79,6 +91,7 @@ public class PickupGUI : MonoBehaviour
 				OnEquipItem(component.CurrentItem);
 				crossHair.UpdateCrossHair(component.CurrentItem);
 				UpdateCrossHairVisibility();
+				ShowEquipableUI &= ~PickupGUIFlags.IsHolstered;
 			}
 			else
 			{
@@ -95,13 +108,21 @@ public class PickupGUI : MonoBehaviour
 
 	private void OnEquipItem(PickupItem item)
 	{
+		if (item.CanHolster)
+		{
+			if (item.IsHolstered)
+			{
+				ShowEquipableUI |= PickupGUIFlags.IsHolstered;
+			}
+			ShowEquipableUI |= PickupGUIFlags.CanHolster;
+		}
 		if (item.ActivateGunModeOnEquip)
 		{
 			canBeVisible = true;
-			UpdateCrossHairVisibility();
-			crossHair.UpdateCrossHair(item);
 			ShowEquipableUI |= PickupGUIFlags.ShowCrosshair;
 		}
+		UpdateCrossHairVisibility();
+		crossHair.UpdateCrossHair(item);
 		if (item.CanFire())
 		{
 			ShowEquipableUI |= PickupGUIFlags.CanFire;

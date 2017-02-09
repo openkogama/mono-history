@@ -20,7 +20,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	public Transform chargeObject;
 
-	public ObscuredFloat fireIntervalSecondary = 1.3f;
+	public ObscuredFloat fireIntervalSecondary = 0.5f;
 
 	public CubeGunBulletObject rocketPrefab;
 
@@ -68,6 +68,8 @@ public class PickupItemCubeGun : PickupItemWithDelay
 	private void Awake()
 	{
 		currentAmmo = ammo;
+		fireInterval = 0.3f;
+		fireIntervalSecondary = 0.5f;
 	}
 
 	private void Start()
@@ -77,6 +79,10 @@ public class PickupItemCubeGun : PickupItemWithDelay
 		{
 			primaryCursor = UnityEngine.Object.Instantiate(primaryCursor);
 			secondaryCursor = UnityEngine.Object.Instantiate(secondaryCursor);
+			primaryCursor.fadeInTime = 0.2f;
+			secondaryCursor.fadeInTime = 0.2f;
+			primaryCursor.fadeOutTime = 0.2f;
+			secondaryCursor.fadeOutTime = 0.2f;
 			secondaryCursor.FadeOverride = FadeOverride.FadeAllOut;
 		}
 	}

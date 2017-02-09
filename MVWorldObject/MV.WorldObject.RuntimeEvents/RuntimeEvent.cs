@@ -31,6 +31,7 @@ public abstract class RuntimeEvent
 		case RuntimeEventType.GodzillaLaserImpactM:
 		case RuntimeEventType.GodzillaLaserImpactL:
 		case RuntimeEventType.GodzillaLaserImpactXL:
+		case RuntimeEventType.SwordTerrainDestroy:
 			return RuntimeEventObjectType.Explosion;
 		default:
 			return RuntimeEventObjectType.Undefined;

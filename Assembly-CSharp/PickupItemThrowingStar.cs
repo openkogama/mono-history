@@ -13,11 +13,7 @@ public class PickupItemThrowingStar : PickupItemWithDelay
 
 	public AudioClip bulletHitSound;
 
-	public AnimationCurve damageFalloff;
-
 	public float baseDamage = 30f;
-
-	public float rangeDamage = 70f;
 
 	public float bulletRangeStraight = 50f;
 
@@ -28,10 +24,6 @@ public class PickupItemThrowingStar : PickupItemWithDelay
 	public float bulletSpeed = 80f;
 
 	public AudioClip fireSoundClip;
-
-	public Animation animationComponent;
-
-	private readonly string rotationAnimationName = "ThrowingStarRotation";
 
 	public override AvatarItemType Type => AvatarItemType.ThrowingStar;
 
@@ -45,43 +37,15 @@ public class PickupItemThrowingStar : PickupItemWithDelay
 		ammo = 50;
 	}
 
-	public override void OnEquip()
-	{
-		base.OnEquip();
-		if (animationComponent != null)
-		{
-			animationComponent.Play(rotationAnimationName);
-		}
-	}
-
-	protected override void OnHolstered()
-	{
-		base.OnHolstered();
-		if (animationComponent != null)
-		{
-			animationComponent.Stop(rotationAnimationName);
-		}
-	}
-
-	protected override void OnUnholstered()
-	{
-		base.OnUnholstered();
-		if (animationComponent != null)
-		{
-			animationComponent.Play(rotationAnimationName);
-		}
-	}
-
 	protected override void OnFire(bool isLocal)
 	{
 		BulletThrowingStar bulletThrowingStar = BulletThrowingStar.CreateBullet(PoolEnums.ThrowingStarBullet, muzzlePoint.position);
-		Ray lineOfFire = new Ray(owner.LookOrigin, owner.LookDirection);
-		bulletThrowingStar.onHit = (BulletThrowingStar.OnHitDelegate)Delegate.Combine(bulletThrowingStar.onHit, new BulletThrowingStar.OnHitDelegate(HandleHit));
+		bulletThrowingStar.onHit = (BulletThrowingStar.OnHitDelegate)Delegate.Combine(bulletThrowingStar.onHit, new BulletThrowingStar.OnHitDelegate(OnBulletHit));
 		if (isLocal)
 		{
-			bulletThrowingStar.onHitLocal = HandleDirectHit;
+			bulletThrowingStar.onHitLocal = OnLocalBulletHit;
 		}
-		bulletThrowingStar.Fire(owner.GetAbsolutProjectileSpeed(bulletSpeed), bulletRangeStraight, lineOfFire, owner.IgnoreWOIDs, bulletRangeFall, bulletFallRate);
+		bulletThrowingStar.Fire(lineOfFire: new Ray(owner.LookOrigin, owner.LookDirection), speed: owner.GetAbsolutProjectileSpeed(bulletSpeed), rangeStraight: bulletRangeStraight, ignoreWoIDs: owner.IgnoreWOIDs, rangeFall: bulletRangeFall, fallRate: bulletFallRate);
 		--ammo;
 		if (isLocal)
 		{
@@ -94,31 +58,29 @@ public class PickupItemThrowingStar : PickupItemWithDelay
 		isFiring = false;
 	}
 
-	private void HandleHit(VoxelHit voxelHit, Ray lineOfFire)
+	private void OnBulletHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
-		Quaternion rotation = Quaternion.FromToRotation(Vector3.up, voxelHit.normal);
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
-		HitParticle hitParticle = ((!(worldObjectClient is MVAvatar)) ? PrefabPool.Instance.EnumPoolManager.Instantiate<HitParticle>(PoolEnums.NinjaStarSparks) : PrefabPool.Instance.EnumPoolManager.Instantiate<HitParticle>(PoolEnums.NinjaStarBlood));
-		hitParticle.transform.position = voxelHit.point;
-		hitParticle.transform.rotation = rotation;
-		hitParticle.Initialize();
+		if (worldObjectClient is IBulletImpactVisualizer)
+		{
+			((IBulletImpactVisualizer)worldObjectClient).VisualizeBulletImpact(voxelHit, lineOfFire, owner.WorldObjectOwner.OwnerActorNr, baseDamage);
+		}
+		else
+		{
+			OneShotPooledParticleSystem.Instantiate(PoolEnums.NormalBulletSparks, voxelHit.point, Quaternion.LookRotation(voxelHit.normal));
+		}
 	}
 
-	private void HandleDirectHit(VoxelHit voxelHit, Ray lineOfFire)
+	private void OnLocalBulletHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
 		int woIDHighestInHierarchyWithComponent = MVGameControllerBase.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
 		if (worldObjectClient != null)
 		{
-			float num = Vector3.Distance(voxelHit.point, owner.transform.position);
-			float time = num / bulletRangeStraight;
-			float damage = damageFalloff.Evaluate(time) * rangeDamage + baseDamage;
 			InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
-			if (interactionDataHandlerBase != null)
+			if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
 			{
-				Vector3 value = voxelHit.point - owner.transform.position;
-				value = Vector3.Normalize(value);
-				interactionDataHandlerBase.HandleInteraction(ThrowingStarHitPackage.Create(Vector3.zero, damage), interactionIsLocal: false);
+				interactionDataHandlerBase.HandleInteraction(ThrowingStarHitPackage.Create(), interactionIsLocal: false);
 			}
 		}
 	}

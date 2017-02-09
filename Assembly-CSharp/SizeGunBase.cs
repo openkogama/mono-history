@@ -5,6 +5,9 @@ using UnityEngine;
 
 public class SizeGunBase : PickupItemWithDelay
 {
+	[SerializeField]
+	private AudioSource audioSource;
+
 	private int layerMask;
 
 	public float range = 300f;
@@ -12,9 +15,6 @@ public class SizeGunBase : PickupItemWithDelay
 	public RailRay railGunRayPrefab;
 
 	public AudioClip shootSound;
-
-	[SerializeField]
-	private AudioSource audioSource;
 
 	public ObscuredInt ammo = 5;
 
@@ -24,9 +24,9 @@ public class SizeGunBase : PickupItemWithDelay
 
 	private int currAmmo;
 
-	public override AvatarItemType Type => AvatarItemType.MouseGun;
-
 	public override int Quantity => ammo;
+
+	public override AvatarItemType Type => AvatarItemType.MouseGun;
 
 	protected override bool IsAmmoDepleted => (int)ammo <= 0;
 
@@ -53,7 +53,6 @@ public class SizeGunBase : PickupItemWithDelay
 		if (CollisionDetection.MVHit(ray, out var voxelHit, range, owner.IgnoreWOIDs, layerMask))
 		{
 			InteractionData packageData = GetPackageData();
-			MVGameControllerBase.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, packageData.Damage);
 			point = voxelHit.point;
 			int woIDHighestInHierarchyWithComponent = MVGameControllerBase.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
 			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);

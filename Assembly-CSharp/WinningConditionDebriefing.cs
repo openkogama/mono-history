@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using MV.Common;
+using MV.WorldObject;
 using UnityEngine;
 
 public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
@@ -54,6 +55,7 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 	{
 		if (MVGameControllerBase.GameMode == MVGameMode.Play || (MVGameControllerBase.GameMode == MVGameMode.Edit && MVGameControllerBase.IEditModeUI.IsInPlayInEditMode))
 		{
+			MVGameControllerBase.CameraController.SetCamera(CameraType.ThirdPerson);
 			GenerateDebriefing(winningCondition);
 			HandleXp(winningCondition);
 		}
@@ -174,7 +176,7 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 		}
 		captureCamera = UnityEngine.Object.Instantiate(captureCameraPrefab);
 		captureCamera.CapturePlayersInTeam(scoreTeamEntries, counterType);
-		debriefing.SetWinnerImage(captureCamera.RenderCam.targetTexture);
+		debriefing.SetWinnerImage(scoreTeamEntries[0].team, captureCamera.RenderCam.targetTexture);
 		StartCoroutine(ShowDebriefingCoroutine());
 	}
 
@@ -196,7 +198,7 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 		debriefing.transform.SetParent(group.gameObject.transform, worldPositionStays: false);
 		debriefing.SetWinnerText(TM._("Time's Up!"));
 		debriefing.SetWinningConditionSprite(currentWinningConditions[WinningConditionType.Time]);
-		debriefing.SetWinnerImage(captureCamera.RenderCam.targetTexture);
+		debriefing.SetWinnerImage(MVTeam.None, captureCamera.RenderCam.targetTexture);
 		StartCoroutine(ShowDebriefingCoroutine());
 	}
 
@@ -285,7 +287,7 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 			}
 			captureCamera = UnityEngine.Object.Instantiate(captureCameraPrefab);
 			captureCamera.CapturePlayer(value);
-			debriefing.SetWinnerImage(captureCamera.RenderCam.targetTexture);
+			debriefing.SetWinnerImage(MVTeam.Blue, captureCamera.RenderCam.targetTexture);
 		}
 		else
 		{

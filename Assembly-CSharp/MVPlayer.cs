@@ -54,6 +54,10 @@ public class MVPlayer
 		set
 		{
 			team = value;
+			if (_avatar != null)
+			{
+				_avatar.SetTeam();
+			}
 		}
 	}
 

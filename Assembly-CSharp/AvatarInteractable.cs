@@ -1,9 +1,12 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using MV.Common;
 
 public class AvatarInteractable : MVInteractable, IMoveHitHandler
 {
+	public Action<float, MVPlayer, PlayerKilledByType> OnDamageTaken;
+
 	private HashSet<PlayerKilledByType> KillNotificationBlacklist = new HashSet<PlayerKilledByType>
 	{
 		PlayerKilledByType.Environmental,
@@ -12,7 +15,7 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 		PlayerKilledByType.Impact
 	};
 
-	private readonly AvatarModifierPackageType[] canDamageGodzilla = new AvatarModifierPackageType[11]
+	private readonly AvatarModifierPackageType[] canAffectGodzilla = new AvatarModifierPackageType[12]
 	{
 		AvatarModifierPackageType.Fire,
 		AvatarModifierPackageType.FlamerBurn,
@@ -24,7 +27,8 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 		AvatarModifierPackageType.GodzillaLaserBurnS,
 		AvatarModifierPackageType.GodzillaLaserBurnM,
 		AvatarModifierPackageType.GodzillaLaserBurnL,
-		AvatarModifierPackageType.GodzillaLaserBurnXL
+		AvatarModifierPackageType.GodzillaLaserBurnXL,
+		AvatarModifierPackageType.GodzillaGrowthInvulnerability
 	};
 
 	private MVRuntimeDataVariable invulnerable;
@@ -44,6 +48,10 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 		amount *= HandleModifierEffect(AvatarModifierEffect.DamageMultiplier, 1f);
 		float value = health.Value;
 		health.Value -= amount;
+		if (OnDamageTaken != null)
+		{
+			OnDamageTaken(amount, damageDealer, damageType);
+		}
 		if (health.Value <= 0f && value > 0f)
 		{
 			int num = damageDealer?.ActorNr ?? MVGameControllerBase.Game.LocalPlayerActorNumber;
@@ -67,13 +75,13 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 		{
 			return;
 		}
-		BitArray bitArray = new BitArray(25);
+		BitArray bitArray = new BitArray(27);
 		if (HasModifierEffect(AvatarModifierEffect.GodzillaImmunity))
 		{
 			bitArray.SetAll(value: true);
-			for (int i = 0; i < canDamageGodzilla.Length; i++)
+			for (int i = 0; i < canAffectGodzilla.Length; i++)
 			{
-				bitArray.Set((int)canDamageGodzilla[i], value: false);
+				bitArray.Set((int)canAffectGodzilla[i], value: false);
 			}
 		}
 		bitArray.Set(0, value: true);

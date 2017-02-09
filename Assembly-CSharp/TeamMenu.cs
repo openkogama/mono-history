@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class TeamMenu : MonoBehaviour
@@ -12,10 +13,11 @@ public class TeamMenu : MonoBehaviour
 	public void Start()
 	{
 		List<TeamData> teamDatas = MVGameControllerBase.Game.TeamManager.GetTeamDatas(GameStatCounterType.Kill);
-		foreach (TeamData item in teamDatas)
+		List<TeamData> list = teamDatas.OrderBy((TeamData teamData) => teamData.playersCount).ToList();
+		for (int num = 0; num < list.Count; num++)
 		{
 			TeamMenuQuadrant teamMenuQuadrant = Object.Instantiate(this.teamMenuQuadrant);
-			teamMenuQuadrant.Initialize(item);
+			teamMenuQuadrant.Initialize(list[num]);
 			teamMenuQuadrant.transform.SetParent(teamsRoot, worldPositionStays: false);
 		}
 	}

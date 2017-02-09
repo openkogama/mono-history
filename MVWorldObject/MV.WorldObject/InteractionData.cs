@@ -20,15 +20,35 @@ public struct InteractionData
 	{
 		{
 			InteractionPackageType.CenterGun,
-			new InteractionData(InteractionPackageType.CenterGun, 13f, Vector3.zero, PlayerKilledByType.None, isShared: true)
-		},
-		{
-			InteractionPackageType.RailGunHit,
-			new InteractionData(InteractionPackageType.RailGunHit, 100f, Vector3.zero, PlayerKilledByType.None, isShared: true)
+			new InteractionData(InteractionPackageType.CenterGun, 11.5f, Vector3.zero, PlayerKilledByType.None, isShared: true)
 		},
 		{
 			InteractionPackageType.MutantHit,
 			new InteractionData(InteractionPackageType.MutantHit, 110f, Vector3.zero, PlayerKilledByType.None, isShared: true)
+		},
+		{
+			InteractionPackageType.ShotgunHit,
+			new InteractionData(InteractionPackageType.ShotgunHit, 13f, Vector3.zero, PlayerKilledByType.None, isShared: true)
+		},
+		{
+			InteractionPackageType.SixShooterHit,
+			new InteractionData(InteractionPackageType.SixShooterHit, 25f, Vector3.zero, PlayerKilledByType.None, isShared: true)
+		},
+		{
+			InteractionPackageType.DoubleSixShooterHit,
+			new InteractionData(InteractionPackageType.DoubleSixShooterHit, 25f, Vector3.zero, PlayerKilledByType.None, isShared: true)
+		},
+		{
+			InteractionPackageType.SwordHit,
+			new InteractionData(InteractionPackageType.SwordHit, 15f, Vector3.zero, PlayerKilledByType.None, isShared: true)
+		},
+		{
+			InteractionPackageType.ThrowingStarHit,
+			new InteractionData(InteractionPackageType.ThrowingStarHit, 15f, Vector3.zero, PlayerKilledByType.None, isShared: true)
+		},
+		{
+			InteractionPackageType.MultiThrowingStarHit,
+			new InteractionData(InteractionPackageType.MultiThrowingStarHit, 7.5f, Vector3.zero, PlayerKilledByType.None, isShared: true)
 		}
 	};
 

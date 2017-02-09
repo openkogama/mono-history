@@ -70,6 +70,14 @@ public abstract class MVCameraBase : MonoBehaviour
 	{
 	}
 
+	public virtual void Suspend(MVCameraController camController)
+	{
+	}
+
+	public virtual void Resume(MVCameraController camController)
+	{
+	}
+
 	public virtual void Reset()
 	{
 	}

@@ -292,9 +292,6 @@ public class PickupItemModelGun : PickupItemWithDelay
 		fireMain = false;
 		fireSecondary = false;
 		waitingToFire = false;
-		if (!IsAmmoDepleted)
-		{
-		}
 	}
 
 	private bool GetCubePosFromFineGrainedTerrain(VoxelHit voxelHit, float maxDistanceToEdge, ref IntVector pos)

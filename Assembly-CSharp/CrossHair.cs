@@ -15,9 +15,26 @@ public class CrossHair : MonoBehaviour, IGUICrossHair
 	[SerializeField]
 	private float toggleInterval = 0.1f;
 
+	[SerializeField]
+	private HolsterTip holsterTip;
+
+	[SerializeField]
+	private Image crossHairHitEnemyIndicator;
+
+	[SerializeField]
+	private AnimationCurve fadeCurve;
+
 	private float timeSinceLastToggle;
 
 	private bool isFillOn = true;
+
+	private bool shouldShowTipOnVisibleChanged = true;
+
+	private bool isHolstered;
+
+	private float timer = float.PositiveInfinity;
+
+	private bool hitEffectActive;
 
 	public bool Visible
 	{
@@ -27,8 +44,44 @@ public class CrossHair : MonoBehaviour, IGUICrossHair
 		}
 		set
 		{
+			if (value != gameObject.activeSelf && shouldShowTipOnVisibleChanged)
+			{
+				holsterTip.Reset();
+				holsterTip.SetHolsterState(isHolstered);
+				shouldShowTipOnVisibleChanged = false;
+			}
 			gameObject.SetActive(value);
 		}
+	}
+
+	private void Update()
+	{
+		if (hitEffectActive)
+		{
+			timer += Time.deltaTime;
+			Color color = crossHair.color;
+			color.a = fadeCurve.Evaluate(timer);
+			crossHairHitEnemyIndicator.color = color;
+			if (timer >= fadeCurve.keys[fadeCurve.length - 1].time)
+			{
+				hitEffectActive = false;
+			}
+		}
+	}
+
+	public void ShowHasHitEffect()
+	{
+		if (!(crossHairHitEnemyIndicator == null))
+		{
+			hitEffectActive = true;
+			timer = 0f;
+		}
+	}
+
+	public void HolsterStateChanged(bool isHolstered)
+	{
+		shouldShowTipOnVisibleChanged = true;
+		this.isHolstered = isHolstered;
 	}
 
 	public void UpdateCrossHair(PickupItem pickupItem)
@@ -56,10 +109,7 @@ public class CrossHair : MonoBehaviour, IGUICrossHair
 		{
 			chargeFill.gameObject.SetActive(value: true);
 		}
-		if (ammoCount.isActiveAndEnabled)
-		{
-			ammoCount.text = quantity.ToString();
-		}
+		ammoCount.text = quantity.ToString();
 		if (crossHair != null)
 		{
 			crossHair.color = crossHairColor;

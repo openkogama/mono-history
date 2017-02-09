@@ -84,6 +84,14 @@ public static class AvatarPackages
 		{
 			InteractionPackageType.GodzillaLaserBurnXL,
 			new GodzillaLaserBurnPackageXL()
+		},
+		{
+			InteractionPackageType.MultiThrowingStarHit,
+			new MultiThrowingStarHitPackage()
+		},
+		{
+			InteractionPackageType.DoubleSixShooterHit,
+			new DoubleSixShooterHitPackage()
 		}
 	};
 }

@@ -63,9 +63,9 @@ public static class AvatarModifierPackageFactory
 		},
 		{
 			AvatarModifierPackageType.FlamerBurn,
-			new AvatarModifierPackage(AvatarModifierPackageType.FlamerBurn, AvatarModifierPackageAdditionPolicy.Renew, 0.8f, new AvatarModifierPackage.AvatarModifier[1]
+			new AvatarModifierPackage(AvatarModifierPackageType.FlamerBurn, AvatarModifierPackageAdditionPolicy.Renew, 0.5f, new AvatarModifierPackage.AvatarModifier[1]
 			{
-				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Addition, AvatarModifierEffect.FlamerDamagePrSec, Const(20f))
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Addition, AvatarModifierEffect.FlamerDamagePrSec, Const(25f))
 			})
 		},
 		{
@@ -191,12 +191,29 @@ public static class AvatarModifierPackageFactory
 		{
 			AvatarModifierPackageType.GodzillaLaserBurnXL,
 			AssembleGodzillaLaserBurnModifierPackage(AvatarModifierPackageType.GodzillaXL)
+		},
+		{
+			AvatarModifierPackageType.GodzillaGrowthInvulnerability,
+			AssembleInvulnerabilityPackage(AvatarModifierPackageType.GodzillaGrowthInvulnerability, 3f)
+		},
+		{
+			AvatarModifierPackageType.SpawnProtection,
+			AssembleInvulnerabilityPackage(AvatarModifierPackageType.SpawnProtection, 2f)
 		}
 	};
 
 	public static Func<float> Const(float c)
 	{
 		return () => c;
+	}
+
+	private static AvatarModifierPackage AssembleInvulnerabilityPackage(AvatarModifierPackageType type, float time)
+	{
+		AvatarModifierPackage.AvatarModifier[] avatarModifiers = new AvatarModifierPackage.AvatarModifier[1]
+		{
+			new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Override, AvatarModifierEffect.Invulnerable, Const(1f))
+		};
+		return new AvatarModifierPackage(type, AvatarModifierPackageAdditionPolicy.Renew, time, avatarModifiers, null, persist: true);
 	}
 
 	private static AvatarModifierPackage AssembleGodzillaModifierPackage(AvatarModifierPackageType godzillaType)

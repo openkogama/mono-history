@@ -73,15 +73,21 @@ public class MVCameraController : MonoBehaviour
 
 		private void EnterCamera(MVCameraBase newCamera, MVCameraController cameraController)
 		{
-			for (int num = activeCameras.Count - 1; num >= 0; num--)
-			{
-				activeCameras[num].Exit(cameraController);
-				cameraController.onIgnoreInputTypes = (EventHandler<OnIgnoreInputTypesArgs>)Delegate.Remove(cameraController.onIgnoreInputTypes, new EventHandler<OnIgnoreInputTypesArgs>(activeCameras[num].camController_onIgnoreInputTypes));
-				activeCameras.RemoveAt(num);
-			}
+			ClearStack(cameraController);
 			activeCameras.Add(newCamera);
 			cameraController.onIgnoreInputTypes = (EventHandler<OnIgnoreInputTypesArgs>)Delegate.Combine(cameraController.onIgnoreInputTypes, new EventHandler<OnIgnoreInputTypesArgs>(CurCamera.camController_onIgnoreInputTypes));
 			CurCamera.Enter(cameraController);
+		}
+
+		private void ClearStack(MVCameraController cameraController)
+		{
+			int num = activeCameras.Count - 1;
+			for (int num2 = num; num2 >= 0; num2--)
+			{
+				activeCameras[num2].Exit(cameraController);
+				cameraController.onIgnoreInputTypes = (EventHandler<OnIgnoreInputTypesArgs>)Delegate.Remove(cameraController.onIgnoreInputTypes, new EventHandler<OnIgnoreInputTypesArgs>(activeCameras[num2].camController_onIgnoreInputTypes));
+				activeCameras.RemoveAt(num2);
+			}
 		}
 
 		public T GetCamera<T>() where T : MVCameraBase
@@ -103,6 +109,11 @@ public class MVCameraController : MonoBehaviour
 
 		public void PushCamera(MVCameraBase cameraBase, MVCameraController cameraController)
 		{
+			int count = activeCameras.Count;
+			if (count > 0)
+			{
+				activeCameras[count - 1].Suspend(cameraController);
+			}
 			activeCameras.Add(cameraBase);
 			cameraController.onIgnoreInputTypes = (EventHandler<OnIgnoreInputTypesArgs>)Delegate.Combine(cameraController.onIgnoreInputTypes, new EventHandler<OnIgnoreInputTypesArgs>(CurCamera.camController_onIgnoreInputTypes));
 			CurCamera.Enter(cameraController);
@@ -115,13 +126,18 @@ public class MVCameraController : MonoBehaviour
 
 		public void RemoveCamera(MVCameraBase cameraBase, MVCameraController cameraController)
 		{
-			for (int num = activeCameras.Count - 1; num >= 0; num--)
+			int num = activeCameras.Count - 1;
+			for (int num2 = num; num2 >= 0; num2--)
 			{
-				if (activeCameras[num] == cameraBase)
+				if (activeCameras[num2] == cameraBase)
 				{
-					activeCameras[num].Exit(cameraController);
+					activeCameras[num2].Exit(cameraController);
 					cameraController.onIgnoreInputTypes = (EventHandler<OnIgnoreInputTypesArgs>)Delegate.Remove(cameraController.onIgnoreInputTypes, new EventHandler<OnIgnoreInputTypesArgs>(CurCamera.camController_onIgnoreInputTypes));
-					activeCameras.RemoveAt(num);
+					activeCameras.RemoveAt(num2);
+					if (num2 == num && num2 > 0)
+					{
+						activeCameras[num2 - 1].Resume(cameraController);
+					}
 					break;
 				}
 			}
@@ -243,6 +259,7 @@ public class MVCameraController : MonoBehaviour
 
 	public void PlayPlingSound()
 	{
+		plingSound.Play();
 	}
 
 	private void RenderLogic(bool renderLogic)

@@ -52,17 +52,20 @@ public class AvatarBadge : MonoBehaviour
 		{
 			LevelingManager.OnLevelingInitialized = (UnityAction)Delegate.Remove(LevelingManager.OnLevelingInitialized, new UnityAction(OnLevelingInitialized));
 		}
-		if (MVGameControllerBase.Game.Players.ContainsKey(ownerActorId))
+		if (MVGameControllerBase.Game != null)
 		{
-			MVPlayer mVPlayer = MVGameControllerBase.Game.Players[ownerActorId];
-			mVPlayer.OnLevelChanged = (UnityAction<int>)Delegate.Remove(mVPlayer.OnLevelChanged, new UnityAction<int>(UpdateBadge));
+			if (MVGameControllerBase.Game.Players.ContainsKey(ownerActorId))
+			{
+				MVPlayer mVPlayer = MVGameControllerBase.Game.Players[ownerActorId];
+				mVPlayer.OnLevelChanged = (UnityAction<int>)Delegate.Remove(mVPlayer.OnLevelChanged, new UnityAction<int>(UpdateBadge));
+			}
+			if (scaleAnimation != null)
+			{
+				ScaleAnimations scaleAnimations = scaleAnimation;
+				scaleAnimations.OnIntermediateScaleAnimationStopped = (ScaleAnimationBase.OnScaleAnimationStoppedDelegate)Delegate.Remove(scaleAnimations.OnIntermediateScaleAnimationStopped, new ScaleAnimationBase.OnScaleAnimationStoppedDelegate(ScaleAnimationIntermediateCallback));
+			}
+			UnityEngine.Object.Destroy(badgeRenderer.material);
 		}
-		if (scaleAnimation != null)
-		{
-			ScaleAnimations scaleAnimations = scaleAnimation;
-			scaleAnimations.OnIntermediateScaleAnimationStopped = (ScaleAnimationBase.OnScaleAnimationStoppedDelegate)Delegate.Remove(scaleAnimations.OnIntermediateScaleAnimationStopped, new ScaleAnimationBase.OnScaleAnimationStoppedDelegate(ScaleAnimationIntermediateCallback));
-		}
-		UnityEngine.Object.Destroy(badgeRenderer.material);
 	}
 
 	private void StreamingAssetCallback(WWW www)

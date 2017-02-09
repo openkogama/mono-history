@@ -85,6 +85,10 @@ public class ExplosionEvent : RuntimeEvent
 		{
 			RuntimeEventType.GodzillaLaserImpactXL,
 			new ExplosionValues(15f, 360f, DamageFallOffType.Linear)
+		},
+		{
+			RuntimeEventType.SwordTerrainDestroy,
+			new ExplosionValues(0.3f, 100f, DamageFallOffType.Linear)
 		}
 	};
 

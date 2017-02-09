@@ -12,10 +12,7 @@ public enum PoolEnums
 	ImpulseGunRay,
 	NormalBulletSparks,
 	SixShooterSparks,
-	NinjaStarSparks,
-	NormalBulletBlood,
-	SixShooterBlood,
-	NinjaStarBlood,
 	XP,
+	AvatarBulletImpact,
 	LENGTH
 }

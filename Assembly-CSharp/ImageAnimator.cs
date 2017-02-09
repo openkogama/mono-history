@@ -21,6 +21,12 @@ public class ImageAnimator : MonoBehaviour
 
 	private float time;
 
+	public void SetColor(Color start, Color end)
+	{
+		startColor = start;
+		endColor = end;
+	}
+
 	private void Update()
 	{
 		time += Time.deltaTime;

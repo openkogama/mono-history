@@ -24,5 +24,7 @@ public enum InteractionPackageType : byte
 	GodzillaLaserBurnS = 20,
 	GodzillaLaserBurnM = 21,
 	GodzillaLaserBurnL = 22,
-	GodzillaLaserBurnXL = 23
+	GodzillaLaserBurnXL = 23,
+	MultiThrowingStarHit = 24,
+	DoubleSixShooterHit = 25
 }

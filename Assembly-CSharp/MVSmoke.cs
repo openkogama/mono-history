@@ -27,6 +27,12 @@ public class MVSmoke : MVLogicObject
 		SetupCulling(gameObject);
 	}
 
+	public override void InitializeInventory()
+	{
+		base.InitializeInventory();
+		particleSystem.Clear();
+	}
+
 	public override void OnInputLinkChanged()
 	{
 		if (InputLinkRefs.Count == 0)

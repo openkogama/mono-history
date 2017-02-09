@@ -66,29 +66,23 @@ public class PickupItemFlamethrower : PickupItem
 		{
 			currentFuel -= burnRate * Time.deltaTime;
 			muzzlePoint.transform.forward = owner.LookDirection;
-			if (owner.IsLocal)
+			MVRigidBody mvRigidBody = owner.WorldObjectOwner.GameObject.GetComponent<MVRigidBody>();
+			if (!mvRigidBody.Grounded)
 			{
-				MVRigidBody mvRigidBody = owner.WorldObjectOwner.GameObject.GetComponent<MVRigidBody>();
-				if (!mvRigidBody.Grounded)
+				float verticalVelocity = mvRigidBody.Velocity.y;
+				if (verticalVelocity < 0f)
 				{
-					float verticalVelocity = mvRigidBody.Velocity.y;
-					if (verticalVelocity < 0f)
-					{
-						float flamerImpulse = owner.LookDirection.y * (float)MVPhysics.Gravity * 0.95f * Time.deltaTime * 40f;
-						float impulseY = Mathf.Min(flamerImpulse, verticalVelocity);
-						mvRigidBody.AddImpulse(new Vector3(0f, 0f - impulseY, 0f), suspendImpactDamage: true);
-					}
+					float flamerImpulse = owner.LookDirection.y * (float)MVPhysics.Gravity * 0.95f * Time.deltaTime * 40f;
+					float impulseY = Mathf.Min(flamerImpulse, verticalVelocity);
+					mvRigidBody.AddImpulse(new Vector3(0f, 0f - impulseY, 0f), suspendImpactDamage: true);
 				}
 			}
 			if (currentFuel < 0f)
 			{
-				if (owner.IsLocal)
+				MVEquipable equipable = owner.WorldObjectOwner.GameObject.GetComponent<MVEquipable>();
+				if (equipable != null)
 				{
-					MVEquipable equipable = owner.WorldObjectOwner.GameObject.GetComponent<MVEquipable>();
-					if (equipable != null)
-					{
-						equipable.Unequip();
-					}
+					equipable.Unequip();
 				}
 				break;
 			}
@@ -137,41 +131,29 @@ public class PickupItemFlamethrower : PickupItem
 			{
 				flameParticles.Play();
 			}
+			if (!owner.IsLocal)
+			{
+				flameParticles.transform.rotation = Quaternion.LookRotation(owner.LookDirection);
+			}
 		}
 	}
 
 	private void Fire()
 	{
-		if (!owner.IsLocal)
-		{
-			return;
-		}
-		List<InteractionDataHandlerBase> list = SphereOverlapAgainsWos();
-		foreach (InteractionDataHandlerBase item in list)
-		{
-			item.HandleInteraction(FlamethrowerHitPackage.Create(), interactionIsLocal: false);
-		}
-	}
-
-	private List<InteractionDataHandlerBase> SphereOverlapAgainsWos()
-	{
-		List<InteractionDataHandlerBase> list = new List<InteractionDataHandlerBase>();
-		Vector3 vector = hitZoneCenter.position - muzzlePoint.position;
-		Ray ray = new Ray(muzzlePoint.position, vector.normalized);
+		Ray ray = new Ray(muzzlePoint.position, owner.LookDirection);
 		int layerMask = 1 << LayerMask.NameToLayer("Player");
-		List<VoxelHit> list2 = CollisionDetection.MVSphereCastAll(ray, hitRadius, vector.magnitude, owner.IgnoreWOIDs, layerMask);
-		foreach (VoxelHit item in list2)
+		List<VoxelHit> list = CollisionDetection.MVSphereCastAll(ray, hitRadius, maxRange, owner.IgnoreWOIDs, layerMask);
+		for (int i = 0; i < list.Count; i++)
 		{
-			MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(item.transform);
-			if (mVObject != null)
+			MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(list[i].transform);
+			if (mVObject != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(mVObject.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
 			{
 				InteractionDataHandlerBase interactionDataHandlerBase = mVObject.InteractionDataHandlerBase;
 				if (interactionDataHandlerBase != null)
 				{
-					list.Add(interactionDataHandlerBase);
+					interactionDataHandlerBase.HandleInteraction(FlamethrowerHitPackage.Create(), interactionIsLocal: false);
 				}
 			}
 		}
-		return list;
 	}
 }

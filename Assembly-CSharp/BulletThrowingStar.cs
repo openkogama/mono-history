@@ -5,6 +5,14 @@ public class BulletThrowingStar : MonoBehaviour
 {
 	public delegate void OnHitDelegate(VoxelHit hit, Ray lineOfFire);
 
+	private const float rotationSpeedXMin = 20f;
+
+	private const float rotationSpeedXMax = 30f;
+
+	private const float rotationSpeedZMin = 2f;
+
+	private const float rotationSpeedZMax = 8f;
+
 	private CullingSubscriberBase cullingSubscriberBase;
 
 	public OnHitDelegate onHit;
@@ -33,14 +41,6 @@ public class BulletThrowingStar : MonoBehaviour
 	private MeshFilter meshFilter;
 
 	private float fallRate;
-
-	private float rotationSpeedXMin = 20f;
-
-	private float rotationSpeedXMax = 30f;
-
-	private float rotationSpeedZMin = 2f;
-
-	private float rotationSpeedZMax = 8f;
 
 	private bool inAir;
 
@@ -89,10 +89,6 @@ public class BulletThrowingStar : MonoBehaviour
 		bulletThrowingStar.ignoreWoIDs.Clear();
 		bulletThrowingStar.isFired = false;
 		bulletThrowingStar.fallRate = 0f;
-		bulletThrowingStar.rotationSpeedXMin = 20f;
-		bulletThrowingStar.rotationSpeedXMax = 30f;
-		bulletThrowingStar.rotationSpeedZMin = 2f;
-		bulletThrowingStar.rotationSpeedZMax = 8f;
 		bulletThrowingStar.onHitLocal = null;
 		bulletThrowingStar.onHit = null;
 		bulletThrowingStar.initiatedPoolEnum = poolEnum;
@@ -135,7 +131,7 @@ public class BulletThrowingStar : MonoBehaviour
 			aSource.Play();
 		}
 		direction = tfrm.forward;
-		airRotation = new Vector3(Random.Range(rotationSpeedXMin, rotationSpeedXMax), 0f, Random.Range(rotationSpeedZMin, rotationSpeedZMax));
+		airRotation = new Vector3(Random.Range(20f, 30f), 0f, Random.Range(2f, 8f));
 		enabled = true;
 		cullingSubscriberBase = new CullingSubscriberBase(1f, transform.position, OnStateChanged);
 		cullingSubscriberBase.DistanceBandIndex = 5;

@@ -82,6 +82,7 @@ public class AvatarPickupOwner : MVPickupOwner
 			pickupItem.transform.localPosition = new Vector3(0f, 0.6f, 0f);
 			pickupItem.transform.localRotation = Quaternion.identity;
 		}
+		currentItem.OnEquip();
 		if (onEquipItem != null)
 		{
 			onEquipItem(currentItem);
@@ -90,7 +91,7 @@ public class AvatarPickupOwner : MVPickupOwner
 
 	protected override void Unequip()
 	{
-		if (!(currentItem == null) && !currentItem.IsHolstered)
+		if (!(currentItem == null))
 		{
 			currentItem.OnUnequip();
 			if (currentItem.Type != AvatarItemType.LaserPointer)

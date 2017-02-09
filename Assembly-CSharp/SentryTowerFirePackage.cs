@@ -13,7 +13,7 @@ public class SentryTowerFirePackage : InteractionPackage
 		MVRigidBody component = worldObjectClient.GameObject.GetComponent<MVRigidBody>();
 		if (component != null)
 		{
-			component.AddImpulse(interactionStruct.Impulse);
+			component.AddImpulse(shooter, interactionStruct.Impulse);
 		}
 		MVInteractableBase component2 = worldObjectClient.GameObject.GetComponent<MVInteractableBase>();
 		if (component2 != null)

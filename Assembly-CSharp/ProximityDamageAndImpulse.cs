@@ -16,7 +16,7 @@ public class ProximityDamageAndImpulse : InteractionPackage
 			MVRigidBody component = worldObjectClient.GameObject.GetComponent<MVRigidBody>();
 			if (component != null)
 			{
-				component.AddImpulse(interactionStruct.Impulse, suspendImpactDamage: true);
+				component.AddImpulse(shooter, interactionStruct.Impulse, suspendImpactDamage: true);
 			}
 		}
 		if (interactionStruct.Damage != 0f)

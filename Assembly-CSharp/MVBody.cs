@@ -21,6 +21,8 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 
 	private AvatarBlinker blinker;
 
+	private SelectionRenderer selectionRenderer;
+
 	private BodyData bodyData;
 
 	private Dictionary<int, IModelingConstraint> constraints = new Dictionary<int, IModelingConstraint>();
@@ -206,7 +208,9 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 			return;
 		}
 		base.Initialize();
-		blinker.MeshFilters = gameObject.GetComponentsInChildren<MeshFilter>();
+		MeshFilter[] componentsInChildren = gameObject.GetComponentsInChildren<MeshFilter>();
+		blinker.MeshFilters = componentsInChildren;
+		selectionRenderer.AddMeshFilters(componentsInChildren);
 		InitializeCommon();
 		if (attachedAvatar != null)
 		{
@@ -219,6 +223,11 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 			shadowBlob.enabled = false;
 		}
 		initialized = true;
+	}
+
+	public void Highlight()
+	{
+		selectionRenderer.Render();
 	}
 
 	public void EditorSwapAccessoryAssetPath(int invID, string assetPath)
@@ -556,6 +565,10 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		if (blinker == null)
 		{
 			blinker = gameObject.GetComponent<AvatarBlinker>();
+		}
+		if (selectionRenderer == null)
+		{
+			selectionRenderer = gameObject.GetComponent<SelectionRenderer>();
 		}
 		if (shadowBlob == null)
 		{

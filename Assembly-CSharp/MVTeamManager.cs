@@ -140,4 +140,18 @@ public class MVTeamManager
 	{
 		return GetPlayersInTeam(team).Count;
 	}
+
+	public bool IsOnSameTeam(MVWorldObjectClient a, MVWorldObjectClient b)
+	{
+		return IsOnSameTeam(a.OwnerActorNr, b.OwnerActorNr);
+	}
+
+	public bool IsOnSameTeam(int actorNumberA, int actorNumberB)
+	{
+		if (actorNumberA == 0 || actorNumberB == 0)
+		{
+			return actorNumberA == actorNumberB;
+		}
+		return MVGameControllerBase.Game.Players[actorNumberA].Team == MVGameControllerBase.Game.Players[actorNumberB].Team;
+	}
 }

@@ -24,14 +24,27 @@ public class PickupItemImpulseGun : PickupItem
 
 	public Color missColor = new Color(0.9f, 0.3f, 0.2f);
 
+	public float shakeFrequency = 1f;
+
+	public float shakePower = 1f;
+
+	public Vector3 shakeDirection = new Vector3(1f, 1f, 1f);
+
 	public AudioClip chargeSound;
 
 	public AudioClip releaseSound;
 
 	public AnimationCurve chargeCurve;
 
+	public AnimationCurve shakeCurve;
+
+	[SerializeField]
+	private Transform modelTransform;
+
 	[SerializeField]
 	private AudioSource audioSource;
+
+	private float maxVolume;
 
 	private bool isCharging;
 
@@ -53,12 +66,17 @@ public class PickupItemImpulseGun : PickupItem
 		}
 	}
 
+	private void Awake()
+	{
+		maxVolume = audioSource.volume;
+	}
+
 	private void DoChargingAnimation()
 	{
 		float num = chargeCurve.Evaluate(Time.time - chargeBeginTime);
-		audioSource.volume = num;
-		float num2 = Random.Range(0.1f, 0.3f);
-		transform.localScale = new Vector3(num2, num2, num2) * num + Vector3.one;
+		float num2 = shakeCurve.Evaluate((Time.time - chargeBeginTime) * shakeFrequency * num) / shakePower;
+		audioSource.volume = num * maxVolume;
+		modelTransform.localPosition = Vector3.zero + shakeDirection * num2;
 		chargeObject.localScale = Vector3.one * (num + num2 * 0.5f);
 	}
 
@@ -94,7 +112,7 @@ public class PickupItemImpulseGun : PickupItem
 		else if (chargeObject.gameObject.activeInHierarchy)
 		{
 			chargeObject.gameObject.SetActive(value: false);
-			transform.localScale = Vector3.one;
+			modelTransform.localPosition = Vector3.zero;
 		}
 	}
 
@@ -106,7 +124,6 @@ public class PickupItemImpulseGun : PickupItem
 			{
 				audioSource.Stop();
 				audioSource.loop = false;
-				audioSource.volume = Mathf.Min(0.6f, audioSource.volume);
 				audioSource.PlayOneShot(releaseSound);
 			}
 			float num = chargeCurve.Evaluate(Time.time - chargeBeginTime);
@@ -120,52 +137,51 @@ public class PickupItemImpulseGun : PickupItem
 	private void Fire(int avatarId, float impulseMagnitude, float recoilMagnitude)
 	{
 		Ray lineOfFire = new Ray(owner.LookOrigin, owner.LookDirection);
+		Vector3 vector = FindRayTarget(lineOfFire);
 		if (owner.IsLocal)
 		{
 			List<MVWorldObjectClient> list = SphereCastAgainstWorldObjects(lineOfFire);
-			if (list.Count > 0)
+			for (int i = 0; i < list.Count; i++)
 			{
-				foreach (MVWorldObjectClient item in list)
+				MVWorldObjectClient mVWorldObjectClient = list[i];
+				InteractionDataHandlerBase interactionDataHandlerBase = mVWorldObjectClient.InteractionDataHandlerBase;
+				if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(mVWorldObjectClient.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
 				{
 					Vector3 impulse = ComputeImpulseDirection(lineOfFire) * impulseMagnitude;
-					InteractionDataHandlerBase interactionDataHandlerBase = item.InteractionDataHandlerBase;
-					if (interactionDataHandlerBase != null)
-					{
-						interactionDataHandlerBase.HandleInteraction(ImpulseHitPackage.Create(impulse), interactionIsLocal: false);
-					}
+					interactionDataHandlerBase.HandleInteraction(ImpulseHitPackage.Create(impulse), interactionIsLocal: false);
+				}
+			}
+			Vector3 b = owner.transform.position + Vector3.up * 1.5f;
+			float num = Vector3.Distance(vector, b);
+			if (num < 10f)
+			{
+				float num2 = recoilMagnitude / Mathf.Max(num * 0.5f, 1f);
+				if (impulseMagnitude > 2500f)
+				{
+					MVGameControllerBase.Game.World.RuntimeEventManager.SendRuntimeEvent(new ExplosionEvent(RuntimeEventType.Bazooka, vector));
+				}
+				Vector3 impulse2 = -lineOfFire.direction * num2;
+				MVRigidBody component = owner.GetComponent<MVRigidBody>();
+				if (component != null)
+				{
+					component.AddImpulse(impulse2, suspendImpactDamage: true);
 				}
 			}
 		}
-		Vector3 vector = FindRayTarget(lineOfFire);
-		Vector3 b = owner.transform.position + Vector3.up * 1.5f;
-		float num = Vector3.Distance(vector, b);
-		if (owner.IsLocal && num < 10f)
-		{
-			float num2 = recoilMagnitude / Mathf.Max(num * 0.5f, 1f);
-			if (impulseMagnitude > 2500f)
-			{
-				MVGameControllerBase.Game.World.RuntimeEventManager.SendRuntimeEvent(new ExplosionEvent(RuntimeEventType.Bazooka, vector));
-			}
-			Vector3 impulse2 = -lineOfFire.direction * num2;
-			MVRigidBody component = owner.GetComponent<MVRigidBody>();
-			if (component != null)
-			{
-				component.AddImpulse(impulse2, suspendImpactDamage: true);
-			}
-		}
-		ImpulseRay impulseRay = Object.Instantiate(impulseRayPrefab, muzzlePoint.position, Quaternion.identity) as ImpulseRay;
-		impulseRay.target = vector;
+		ImpulseRay impulseRay = PrefabPool.Instance.EnumPoolManager.Instantiate<ImpulseRay>(PoolEnums.ImpulseGunRay);
+		impulseRay.transform.position = muzzlePoint.position;
 		impulseRay.radius = radius;
 		impulseRay.startColor = missColor;
+		impulseRay.Initialize(vector);
 	}
 
 	private List<MVWorldObjectClient> SphereCastAgainstWorldObjects(Ray lineOfFire)
 	{
 		List<MVWorldObjectClient> list = new List<MVWorldObjectClient>();
 		List<VoxelHit> list2 = CollisionDetection.MVSphereCastAll(lineOfFire, radius, maxRange, owner.IgnoreWOIDs, 1 << LayerMask.NameToLayer("Player"));
-		foreach (VoxelHit item in list2)
+		for (int i = 0; i < list2.Count; i++)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(item.woId);
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(list2[i].woId);
 			if (worldObjectClient != null)
 			{
 				list.Add(worldObjectClient);

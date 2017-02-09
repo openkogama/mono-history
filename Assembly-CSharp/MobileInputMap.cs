@@ -26,6 +26,10 @@ public class MobileInputMap : IKogamaInputMap
 		{
 			KogamaControls.DropCurrentItem,
 			new string[1] { "DropWeapon" }
+		},
+		{
+			KogamaControls.Holster,
+			new string[1] { "Holster" }
 		}
 	};
 

@@ -1,33 +1,36 @@
-using System.Collections;
 using System.Collections.Generic;
 using MV.Common;
-using MV.WorldObject;
+using MV.WorldObject.RuntimeEvents;
 using UnityEngine;
 
 public class PickupItemSword : PickupItemWithDelay
 {
 	[SerializeField]
+	private Transform swordHandle;
+
+	[SerializeField]
 	private AudioSource audioSource;
 
-	public Animation swordAnim;
+	[SerializeField]
+	[Tooltip("Impulse delivered to enemy on hit.")]
+	private float impulseStrength = 500f;
 
-	public GameObject bloodParticlesPrefab;
+	[SerializeField]
+	private Animation swordAnim;
 
-	public float pushMagnitude = 500f;
+	[SerializeField]
+	private float recoilForce = 700f;
 
-	public float pushRadius = 3f;
+	[SerializeField]
+	private float bladeRadius = 3f;
 
-	public float hitDamage = 25f;
+	[SerializeField]
+	private float hitDamage = 25f;
 
-	public float velocityDamageFactor = 0.2f;
+	[SerializeField]
+	private float range = 1f;
 
-	public float velocityPushFactor = 10f;
-
-	public AudioSource hitAudioSource;
-
-	public Transform MuzzlePointHitTerrain;
-
-	private bool checkingOverlaps;
+	private int hitLayerMask;
 
 	public override AvatarItemType Type => AvatarItemType.Sword;
 
@@ -35,14 +38,30 @@ public class PickupItemSword : PickupItemWithDelay
 
 	public override int Quantity => 0;
 
-	public override void UpdateWithDirection(Vector3 dir)
+	private void Awake()
 	{
+		hitLayerMask = (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("Player"));
+	}
+
+	public override void OnEquip()
+	{
+		base.OnEquip();
 	}
 
 	protected override void OnFire(bool isLocal)
 	{
 		swordAnim.Play();
 		isFiring = false;
+		Ray ray = new Ray(swordHandle.position - owner.LookDirection * bladeRadius, owner.LookDirection);
+		List<VoxelHit> list = CollisionDetection.MVSphereCastAll(ray, bladeRadius, range + bladeRadius, owner.IgnoreWOIDs, hitLayerMask);
+		if (list.Count > 0)
+		{
+			OnSwordHit(list, ray);
+			if (isLocal)
+			{
+				OnLocalSwordHit(list, ray);
+			}
+		}
 		if (isLocal)
 		{
 			MVGameControllerBase.AudioManager.Play("sword swing", audioSource, Camera.main.transform.position + Camera.main.transform.forward);
@@ -51,91 +70,66 @@ public class PickupItemSword : PickupItemWithDelay
 		{
 			MVGameControllerBase.AudioManager.Play("sword swing", audioSource, muzzlePoint.position);
 		}
-		if (isLocal)
+	}
+
+	private void OnSwordHit(List<VoxelHit> voxelHits, Ray lineOfFire)
+	{
+		OneShotPooledParticleSystem.Instantiate(PoolEnums.NormalBulletSparks, voxelHits[0].point, Quaternion.LookRotation(voxelHits[0].normal));
+		for (int i = 0; i < voxelHits.Count; i++)
 		{
+			OnSwordHit(voxelHits[i], lineOfFire);
 		}
 	}
 
-	private IEnumerator DoOverlapCheck()
+	private void OnSwordHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
-		checkingOverlaps = true;
-		HashSet<int> hitWos = new HashSet<int>();
-		while (checkingOverlaps)
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
+		if (worldObjectClient is IBulletImpactVisualizer)
 		{
-			int numOverlaps = Physics.OverlapSphereNonAlloc(muzzlePoint.position, pushRadius, CollisionDetectionGlobalBuffers.colliderBuffer);
-			for (int i = 0; i < numOverlaps; i++)
-			{
-				MVWorldObjectClient wo = MVWorldObjectClientManager.GetMVObject(CollisionDetectionGlobalBuffers.colliderBuffer[i].transform);
-				if (wo != null && !owner.IgnoreWOIDs.Contains(wo.Id))
-				{
-					hitWos.Add(wo.Id);
-				}
-			}
-			yield return 0;
-		}
-		Vector3 dir = owner.LookDirection;
-		dir.y = 0.02f;
-		dir.Normalize();
-		bool hitOpponent = false;
-		foreach (int woId in hitWos)
-		{
-			if (woId == owner.WorldObjectOwner.Id)
-			{
-				continue;
-			}
-			MVWorldObjectClient wo2 = MVGameControllerBase.WOCM.GetWorldObjectClient(woId);
-			if (wo2 != null)
-			{
-				InteractionDataHandlerBase interactionHandler = wo2.InteractionDataHandlerBase;
-				if (interactionHandler != null)
-				{
-					hitOpponent = true;
-					Vector3 impulse = dir * pushMagnitude;
-					float dmg = hitDamage;
-					interactionHandler.HandleInteraction(SwordHitPackage.Create(impulse, dmg), interactionIsLocal: false);
-					Object.Instantiate(bloodParticlesPrefab, wo2.GetTargetPosition(), Quaternion.identity);
-				}
-			}
-		}
-		DoRemoveCubes();
-		if (hitOpponent)
-		{
-			MVRigidBody rigidBody = owner.GetComponent<MVRigidBody>();
-			if (rigidBody != null)
-			{
-				rigidBody.AddImpulse(-dir * 700f);
-			}
-			hitAudioSource.Play();
+			((IBulletImpactVisualizer)worldObjectClient).VisualizeBulletImpact(voxelHit, lineOfFire, owner.WorldObjectOwner.OwnerActorNr, hitDamage);
 		}
 	}
 
-	private void DoRemoveCubes()
+	private void OnLocalSwordHit(List<VoxelHit> voxelHits, Ray lineOfFire)
 	{
-		Ray ray = new Ray(MuzzlePointHitTerrain.position - owner.LookDirection, owner.LookDirection);
-		Debug.DrawLine(ray.origin, ray.origin + ray.direction * 3f, Color.red, 10f);
-		if (CollisionDetection.MVHit(ray, out var voxelHit, 3f, new HashSet<int>(), 1 << LayerMask.NameToLayer("Default")))
+		MVGameControllerBase.Game.World.RuntimeEventManager.SendRuntimeEvent(new ExplosionEvent(RuntimeEventType.SwordTerrainDestroy, voxelHits[0].point, voxelHits[0].normal));
+		for (int i = 0; i < voxelHits.Count; i++)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
-			if (worldObjectClient.WorldObjectType == WorldObjectType.CubeModelPrototypeTerrain || worldObjectClient.WorldObjectType == WorldObjectType.CubeModelTerrainFineGrained)
+			OnLocalSwordHit(voxelHits[i], lineOfFire);
+		}
+	}
+
+	private Vector3 FindRayTarget(Ray lineOfFire)
+	{
+		VoxelHit voxelHit;
+		return (!CollisionDetection.MVHit(lineOfFire, out voxelHit, range, null, hitLayerMask)) ? lineOfFire.GetPoint(range) : voxelHit.point;
+	}
+
+	private void OnLocalSwordHit(VoxelHit voxelHit, Ray lineOfFire)
+	{
+		int woIDHighestInHierarchyWithComponent = MVGameControllerBase.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
+		if (worldObjectClient == null)
+		{
+			return;
+		}
+		InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
+		if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
+		{
+			Vector3 lookDirection = owner.LookDirection;
+			lookDirection.y = 0.02f;
+			lookDirection.Normalize();
+			Vector3 impulse = lookDirection * impulseStrength;
+			interactionDataHandlerBase.HandleInteraction(SwordHitPackage.Create(impulse), interactionIsLocal: false);
+			MVRigidBody component = owner.GetComponent<MVRigidBody>();
+			if (component != null)
 			{
-				MVGameControllerBase.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, 20f);
+				component.AddImpulse(-lookDirection * recoilForce);
 			}
 		}
 	}
 
-	public void StartOverlapCheck()
+	public override void UpdateWithDirection(Vector3 dir)
 	{
-		if (owner.IsLocal && !checkingOverlaps)
-		{
-			StartCoroutine(DoOverlapCheck());
-		}
-	}
-
-	public void StopOverlapCheck()
-	{
-		if (owner.IsLocal)
-		{
-			checkingOverlaps = false;
-		}
 	}
 }

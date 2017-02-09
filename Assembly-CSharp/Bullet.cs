@@ -94,6 +94,10 @@ public class Bullet : MonoBehaviour
 
 	public OnHitDelegate onHitLocal;
 
+	private PoolEnums initiatedPoolType;
+
+	private MonoBehaviour pooledObjectReference;
+
 	private HashSet<int> ignoreWoIDs = new HashSet<int>();
 
 	private bool isFired;
@@ -109,8 +113,7 @@ public class Bullet : MonoBehaviour
 	[SerializeField]
 	private MeshRenderer[] meshRenderers;
 
-	[SerializeField]
-	private MeshFilter meshFilter;
+	private CollisionBullet collisionBullet;
 
 	private bool hit;
 
@@ -127,12 +130,6 @@ public class Bullet : MonoBehaviour
 	private Transform localTransform;
 
 	private CullingSubscriberBase cullingSubscriberBase;
-
-	private PoolEnums initiatedPoolType;
-
-	private MonoBehaviour pooledObjectReference;
-
-	private CollisionBullet collisionBullet;
 
 	public PoolEnums InitiatedPoolType
 	{
@@ -161,79 +158,6 @@ public class Bullet : MonoBehaviour
 	private void Awake()
 	{
 		enabled = false;
-	}
-
-	public static Bullet CreateBullet(PoolEnums bulletType, Vector3 pos)
-	{
-		Bullet bullet = PrefabPool.Instance.EnumPoolManager.Instantiate<Bullet>(bulletType);
-		bullet.onHit = null;
-		bullet.onHitLocal = null;
-		bullet.ignoreWoIDs.Clear();
-		bullet.transform.localPosition = pos;
-		bullet.isFired = false;
-		bullet.hit = false;
-		bullet.hasCleaned = false;
-		bullet.currentAirTime = 0f;
-		bullet.maxAirTime = 0f;
-		bullet.initiatedPoolType = bulletType;
-		return bullet;
-	}
-
-	public void ResetBullet()
-	{
-		onHit = null;
-		onHitLocal = null;
-		ignoreWoIDs.Clear();
-		isFired = false;
-		hit = false;
-		hasCleaned = false;
-		currentAirTime = 0f;
-		maxAirTime = 0f;
-	}
-
-	public void ReturnToPool(PoolEnums bulletType)
-	{
-		ResetBullet();
-		cullingSubscriberBase.Destroy();
-		cullingSubscriberBase = null;
-		PrefabPool.Instance.EnumPoolManager.Return(pooledObjectReference, bulletType);
-	}
-
-	public void Fire(float speed, float range, Ray lineOfFire, HashSet<int> ignoreWoIDs)
-	{
-		if (!isFired)
-		{
-			this.lineOfFire = lineOfFire;
-			this.ignoreWoIDs = ignoreWoIDs;
-			isFired = true;
-			DoFire(speed, range);
-			enabled = true;
-			if (pooledObjectReference == null)
-			{
-				pooledObjectReference = this;
-			}
-			cullingSubscriberBase = new CullingSubscriberBase(1f, transform.position, OnStateChanged);
-			cullingSubscriberBase.DistanceBandIndex = 5;
-		}
-	}
-
-	private void OnStateChanged(CullingGroupEvent cullingGroupEvent)
-	{
-		bool flag = CullingApiWrapper.Visible(cullingGroupEvent, cullingSubscriberBase.DistanceBandIndex);
-		MeshRenderer[] array = meshRenderers;
-		foreach (MeshRenderer meshRenderer in array)
-		{
-			meshRenderer.enabled = flag;
-		}
-		if (trailRenderer != null)
-		{
-			trailRenderer.enabled = flag;
-		}
-		if (pSystem != null)
-		{
-			ParticleSystem.EmissionModule emission = pSystem.emission;
-			emission.enabled = flag;
-		}
 	}
 
 	private void Update()
@@ -279,41 +203,111 @@ public class Bullet : MonoBehaviour
 			{
 				meshRenderer2.enabled = false;
 			}
-			if ((bool)pSystem)
+			if (pSystem != null)
 			{
 				pSystem.Stop();
 			}
 			hasCleaned = true;
 		}
-		if ((bool)pSystem)
-		{
-			if (!pSystem.IsAlive())
-			{
-				ReturnToPool(initiatedPoolType);
-			}
-		}
-		else
+		if (pSystem == null)
 		{
 			ReturnToPool(initiatedPoolType);
+		}
+		else if (!pSystem.IsAlive())
+		{
+			ReturnToPool(initiatedPoolType);
+		}
+	}
+
+	public static Bullet CreateBullet(PoolEnums bulletType, Vector3 pos)
+	{
+		Bullet bullet = PrefabPool.Instance.EnumPoolManager.Instantiate<Bullet>(bulletType);
+		bullet.onHit = null;
+		bullet.onHitLocal = null;
+		bullet.ignoreWoIDs.Clear();
+		bullet.transform.localPosition = pos;
+		bullet.isFired = false;
+		bullet.hit = false;
+		bullet.hasCleaned = false;
+		bullet.currentAirTime = 0f;
+		bullet.maxAirTime = 0f;
+		bullet.initiatedPoolType = bulletType;
+		return bullet;
+	}
+
+	public void ResetBullet()
+	{
+		onHit = null;
+		onHitLocal = null;
+		ignoreWoIDs.Clear();
+		isFired = false;
+		hit = false;
+		hasCleaned = false;
+		currentAirTime = 0f;
+		maxAirTime = 0f;
+	}
+
+	public void ReturnToPool(PoolEnums bulletType)
+	{
+		ResetBullet();
+		cullingSubscriberBase.Destroy();
+		cullingSubscriberBase = null;
+		PrefabPool.Instance.EnumPoolManager.Return(pooledObjectReference, bulletType);
+	}
+
+	public void Fire(float speed, float range, Ray lineOfFire, HashSet<int> ignoreWoIDs)
+	{
+		if (!isFired)
+		{
+			this.lineOfFire = lineOfFire;
+			this.ignoreWoIDs = ignoreWoIDs;
+			isFired = true;
+			enabled = true;
+			DoFire(speed, range);
+			if (pooledObjectReference == null)
+			{
+				pooledObjectReference = this;
+			}
+			cullingSubscriberBase = new CullingSubscriberBase(1f, transform.position, OnStateChanged);
+			cullingSubscriberBase.DistanceBandIndex = 5;
 		}
 	}
 
 	private void DoFire(float speed, float maxRange)
 	{
 		collisionBullet = new CollisionBullet(maxRange, speed, lineOfFire.origin, lineOfFire.direction, ignoreWoIDs);
-		localTransform = GetComponent<Transform>();
+		localTransform = transform;
 		startPosition = localTransform.position;
 		targetPosition = FindTargetPos(maxRange);
 		localTransform.localRotation = Quaternion.LookRotation((startPosition - targetPosition).normalized);
 		float num = Vector3.Distance(targetPosition, lineOfFire.origin);
 		maxAirTime = num / speed;
-		if ((bool)trailRenderer)
+		if (trailRenderer != null)
 		{
 			trailRenderer.Clear();
 		}
-		if ((bool)pSystem)
+		if (pSystem != null)
 		{
 			pSystem.Play();
+		}
+	}
+
+	private void OnStateChanged(CullingGroupEvent cullingGroupEvent)
+	{
+		bool flag = CullingApiWrapper.Visible(cullingGroupEvent, cullingSubscriberBase.DistanceBandIndex);
+		MeshRenderer[] array = meshRenderers;
+		foreach (MeshRenderer meshRenderer in array)
+		{
+			meshRenderer.enabled = flag;
+		}
+		if (trailRenderer != null)
+		{
+			trailRenderer.enabled = flag;
+		}
+		if (pSystem != null)
+		{
+			ParticleSystem.EmissionModule emission = pSystem.emission;
+			emission.enabled = flag;
 		}
 	}
 

@@ -15,7 +15,7 @@ public class AvatarEquipable : MVEquipable
 		this.currentItem = currentItem;
 	}
 
-	public override bool Equip(AvatarItemType type, AvatarEquipableType equipType, Dictionary<object, object> itemData, int variantID = 0)
+	public override bool Equip(AvatarItemType type, AvatarEquipableType equipType, Dictionary<object, object> itemData, int variantID = 0, bool holsterable = true)
 	{
 		if (equipType == AvatarEquipableType.Modifier)
 		{
@@ -48,31 +48,19 @@ public class AvatarEquipable : MVEquipable
 		}
 		if (!interactableLocal.HasModifierEffect(AvatarModifierEffect.DisableWeapons))
 		{
+			Dictionary<object, object> dictionary = new Dictionary<object, object>();
+			dictionary.Add("type", (int)type);
+			dictionary.Add("variantId", variantID);
+			Dictionary<object, object> dictionary2 = dictionary;
+			if (holsterable)
+			{
+				dictionary2.Add("holstered", false);
+			}
 			if (itemData != null)
 			{
-				currentItem.Value = new Dictionary<object, object>
-				{
-					{
-						"type",
-						(int)type
-					},
-					{ "variantId", variantID },
-					{ "holstered", false },
-					{ "itemData", itemData }
-				};
+				dictionary2.Add("itemData", itemData);
 			}
-			else
-			{
-				currentItem.Value = new Dictionary<object, object>
-				{
-					{
-						"type",
-						(int)type
-					},
-					{ "variantId", variantID },
-					{ "holstered", false }
-				};
-			}
+			currentItem.Value = dictionary2;
 			return true;
 		}
 		currentItem.Value = new Dictionary<object, object>
@@ -85,7 +73,7 @@ public class AvatarEquipable : MVEquipable
 
 	public override void Holster()
 	{
-		if (currentItem.Value is Dictionary<object, object> dictionary)
+		if (currentItem.Value is Dictionary<object, object> dictionary && dictionary.ContainsKey("holstered"))
 		{
 			dictionary["holstered"] = true;
 			currentItem.Value = dictionary;
@@ -94,7 +82,7 @@ public class AvatarEquipable : MVEquipable
 
 	public override void Unholster()
 	{
-		if (currentItem.Value is Dictionary<object, object> dictionary)
+		if (currentItem.Value is Dictionary<object, object> dictionary && dictionary.ContainsKey("holstered"))
 		{
 			dictionary["holstered"] = false;
 			currentItem.Value = dictionary;
@@ -113,16 +101,11 @@ public class AvatarEquipable : MVEquipable
 
 	public void EquipSlapGun(object sender, EventArgs e)
 	{
-		currentItem.Value = new Dictionary<object, object>
-		{
-			{ "type", 65 },
-			{ "holstered", false }
-		};
+		currentItem.Value = new Dictionary<object, object> { { "type", 65 } };
 	}
 
 	public override void Unequip()
 	{
-		Unholster();
 		Equip(AvatarItemType.Hand, AvatarEquipableType.Weapon, null);
 	}
 }

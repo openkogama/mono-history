@@ -5,7 +5,7 @@ using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 
-public class MVAvatarLocal : MVAvatar, ILocalObject
+public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 {
 	private class AvatarLocalModes
 	{
@@ -590,8 +590,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 
 		private const float respawnTimeOut = 2f;
 
-		private float respawnTime;
-
 		private readonly IAvatarInputController avatarInputController;
 
 		private bool isFiring;
@@ -604,7 +602,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 
 		private float prevWaterProximity;
 
-		private bool CanReceivePackages => Time.time - respawnTime > 2f;
+		private readonly string MouseWheel = "Mouse ScrollWheel";
 
 		private bool IsSwimming => swimStartProximity <= prevWaterProximity;
 
@@ -626,16 +624,21 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		public override void Activate(AvatarRuntimeState fromMode)
 		{
 			base.Activate(fromMode);
-			respawnTime = Time.time;
+			switch (fromMode)
+			{
+			case AvatarRuntimeState.Hidden:
+			case AvatarRuntimeState.Dead:
+			case AvatarRuntimeState.GodzillaDead:
+				OnRespawn();
+				break;
+			}
 			MVGameControllerBase.CameraController.BlueModeEnabled = false;
 			MVGameControllerBase.CameraController.SetPlayModeCam();
 			MVGameControllerBase.CameraController.CurCamera.Reset();
 			MVGameControllerBase.WOCM.UpdateWorldBounds(SharedCubeFunctions.GetAxisAlignedBoundsRecursively(MVGameControllerBase.WOCM.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>().Transform).Value);
 			mvAvatar.triggerHandler.enabled = true;
-			mvAvatar.avatarEquipable.Unequip();
 			mvAvatar.ResetAvatar();
 			mvAvatar.Collider.enabled = true;
-			mvAvatar.SetAnimation("Idle");
 			avatarInputController.Rotation = mvAvatar.transform.rotation;
 			if (mvAvatar.Body != null)
 			{
@@ -654,11 +657,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 			{
 				mvAvatar.avatarMotor.UpdateFunction();
 			}
-			UpdateInvulnerable();
-			if (!interactionMap.IgnorePickupOwner)
-			{
-				mvAvatar.pickupOwner.HandleFire(interactionMap.Fire, mvAvatar.IsFiring);
-			}
 			if (mvAvatar.gameObject.transform.position.y < MVGameControllerBase.WOCM.WorldBounds.min.y - 200f)
 			{
 				DieByFalling();
@@ -674,14 +672,64 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 					mvAvatar.useInteractorHandler.Use();
 				}
 			}
-			if (interactionMap.Drop && !mvAvatar.pickupOwner.CurrentItem.IsHolstered)
+			if (mvAvatar.pickupOwner.CurrentItem != null)
 			{
-				mvAvatar.avatarEquipable.Equip(AvatarItemType.Hand, AvatarEquipableType.Weapon, null);
+				HandlePickupUpdate(interactionMap);
 			}
 			if (!mvAvatar.IsSeated && mvAvatar.avatarMotor.IsStuck())
 			{
 				HandleStuck();
 			}
+		}
+
+		private void HandlePickupUpdate(InputToInGameAction interactionMap)
+		{
+			bool isHolstered = mvAvatar.pickupOwner.CurrentItem.IsHolstered;
+			if (!interactionMap.IgnorePickupOwner)
+			{
+				mvAvatar.pickupOwner.SetLineOfFireLocal();
+				if (!isHolstered)
+				{
+					mvAvatar.pickupOwner.HandleFire(interactionMap.Fire, mvAvatar.IsFiring);
+				}
+			}
+			if (mvAvatar.pickupOwner.CurrentItem.Type == AvatarItemType.Hand || (mvAvatar.IsSeated && !IsInJetpack()))
+			{
+				return;
+			}
+			if (mvAvatar.pickupOwner.CurrentItem.CanHolster)
+			{
+				float axisRaw = MVInputWrapper.GetAxisRaw(MouseWheel);
+				bool flag = (!isHolstered && interactionMap.Holster) || (!isHolstered && axisRaw < 0f);
+				bool flag2 = (isHolstered && interactionMap.Holster) || (isHolstered && axisRaw > 0f);
+				if (flag)
+				{
+					mvAvatar.avatarEquipable.Holster();
+				}
+				else if (flag2)
+				{
+					mvAvatar.avatarEquipable.Unholster();
+				}
+			}
+			if (interactionMap.Drop)
+			{
+				mvAvatar.avatarEquipable.Unequip();
+			}
+		}
+
+		private bool IsInJetpack()
+		{
+			int woIDWithLocalOwnerHighestInHierarchy = MVGameControllerBase.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(mvAvatar.Id);
+			if (woIDWithLocalOwnerHighestInHierarchy == -1)
+			{
+				return false;
+			}
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDWithLocalOwnerHighestInHierarchy);
+			if (!(worldObjectClient is MVJetPack))
+			{
+				return false;
+			}
+			return true;
 		}
 
 		public override void FixedUpdate(IInputToPlayerMovement movementMap)
@@ -724,15 +772,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		{
 			mvAvatar.Health.Value = 0f;
 			MVGameControllerBase.OperationRequests.PostGameMsg(MVGameMsgType.AvatarKilled, GameMessages.MakePlayerKilledMessage(MVGameControllerBase.Game.LocalPlayerActorNumber, MVGameControllerBase.Game.LocalPlayerActorNumber, PlayerKilledByType.FallOffWorld));
-		}
-
-		private void UpdateInvulnerable()
-		{
-			bool flag = !CanReceivePackages;
-			if ((bool)mvAvatar.Invulnerable.Value != flag)
-			{
-				mvAvatar.Invulnerable.Value = flag;
-			}
 		}
 
 		private void OnHandleFiring(bool isFiring)
@@ -796,6 +835,11 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 				return new AvatarInputController2DPlayMode();
 			}
 			throw new Exception("Implement input controller");
+		}
+
+		public void OnRespawn()
+		{
+			mvAvatar.interactableLocal.AddModifier(AvatarModifierPackageType.SpawnProtection);
 		}
 	}
 
@@ -886,6 +930,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 			}
 			activeModifierPackageType = godzillaType;
 			mvAvatar.interactableLocal.AddModifier(godzillaType);
+			mvAvatar.interactableLocal.AddModifier(AvatarModifierPackageType.GodzillaGrowthInvulnerability);
 			Dictionary<object, object> dictionary = new Dictionary<object, object>();
 			dictionary.Add("avatarModifierPackageType", (byte)activeModifierPackageType);
 			Dictionary<object, object> itemData = dictionary;
@@ -964,7 +1009,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 
 	private AvatarMotor avatarMotor;
 
-	private MVInteractableBase interactableLocal;
+	private AvatarInteractable interactableLocal;
 
 	private UseInteractorHandler useInteractorHandler;
 
@@ -979,6 +1024,10 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 	private MVRigidBody vehicleRigidBody;
 
 	private AvatarLocalModes avatarLocalModes;
+
+	public Action<float, MVPlayer, PlayerKilledByType> OnDamageTaken;
+
+	public AvatarPickupOwner PickupOwner => pickupOwner;
 
 	private AvatarRuntimeState CurrentState => avatarLocalModes.CurrentState;
 
@@ -1035,6 +1084,14 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		SetNetworkObject(local: true);
 	}
 
+	private void RelayDamageEvent(float amount, MVPlayer damageDealer, PlayerKilledByType damageType)
+	{
+		if (OnDamageTaken != null)
+		{
+			OnDamageTaken(amount, damageDealer, damageType);
+		}
+	}
+
 	public float GetColliderRadius()
 	{
 		return avatarMotor.GetSizeState.ControllerRadius;
@@ -1057,6 +1114,8 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		AvatarInteractable avatarInteractable = gameObject.AddComponent<AvatarInteractable>();
 		avatarInteractable.Init(Modifiers, Invulnerable, Health);
 		interactableLocal = avatarInteractable;
+		AvatarInteractable avatarInteractable2 = interactableLocal;
+		avatarInteractable2.OnDamageTaken = (Action<float, MVPlayer, PlayerKilledByType>)Delegate.Combine(avatarInteractable2.OnDamageTaken, new Action<float, MVPlayer, PlayerKilledByType>(RelayDamageEvent));
 		avatarEquipable = gameObject.AddComponent<AvatarEquipable>();
 		avatarEquipable.Init(interactableLocal, CurrentItem);
 		avatarMotor.Init(avatarInteractable, CharacterControllerCenterOffset);
@@ -1323,7 +1382,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		Health.Value = 100f;
 		if (IsSeated)
 		{
-			Debug.Log("Left vehicle");
 			LeaveVehicle();
 		}
 		avatarEquipable.Unequip();
@@ -1336,5 +1394,10 @@ public class MVAvatarLocal : MVAvatar, ILocalObject
 		GameObject.transform.position = position;
 		GameObject.transform.rotation = rotation;
 		avatarMotor.Reset();
+	}
+
+	public void VisualizeBulletImpact(VoxelHit voxelHit, Ray lineOfFire, int shooterActornumber, float damage = 100f)
+	{
+		avatar.VisualizeBulletImpact(voxelHit, lineOfFire, shooterActornumber, damage);
 	}
 }

@@ -182,9 +182,31 @@ public abstract class PlaymodeCamera : MVPlaymodeCameraBase
 		smoothLookAt.Clear();
 	}
 
+	protected void HighlightFriendsInSight()
+	{
+		Ray ray = new Ray(transform.position, transform.forward);
+		int layerMask = 1 << LayerMask.NameToLayer("Player");
+		HashSet<int> hashSet = new HashSet<int>();
+		hashSet.Add(MVGameControllerBase.WOCM.AvatarLocal.Id);
+		HashSet<int> ignoreWoIds = hashSet;
+		if (!CollisionDetection.MVHit(ray, out var voxelHit, 1000f, ignoreWoIds, layerMask))
+		{
+			return;
+		}
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
+		if (MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
+		{
+			Avatar component = worldObjectClient.GameObject.GetComponent<Avatar>();
+			if (component != null)
+			{
+				component.mvAvatar.Body.Highlight();
+			}
+		}
+	}
+
 	public override void UpdateCamera(MVCameraController camController, Transform targetTransform)
 	{
-		HandleGunMode();
+		HighlightFriendsInSight();
 		avatarHeadOffset = new Vector3(0f, height, 0f);
 		transform.rotation = targetRot.GetLerpRotation(transform.rotation, aroundXInertia, aroundYInertia);
 		distance = Mathf.Lerp(distance, distanceToAvatar, targetDistanceStrength * Time.deltaTime);
@@ -201,7 +223,7 @@ public abstract class PlaymodeCamera : MVPlaymodeCameraBase
 		UpdateImpactSimulation(targetTransform);
 	}
 
-	private void HandleGunMode()
+	protected virtual void HandleGunMode()
 	{
 		if (MVGameControllerBase.WOCM.AvatarLocal.InGunMode)
 		{

@@ -43,6 +43,7 @@ public enum KogamaControls
 	ToggleHD,
 	LobbyMenu,
 	Escape,
+	Holster,
 	EditMoveUp,
 	EditMoveDown,
 	EditMoveForward,

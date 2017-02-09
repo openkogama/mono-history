@@ -23,6 +23,7 @@ public class VehiclePickupOwner : MVPickupOwner
 		pickupItem.transform.parent = mountTransform;
 		pickupItem.transform.localPosition = Vector3.zero;
 		pickupItem.transform.localRotation = Quaternion.identity;
+		currentItem.OnEquip();
 		if (onEquipItem != null)
 		{
 			onEquipItem(currentItem);

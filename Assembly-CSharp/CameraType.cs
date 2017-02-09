@@ -14,5 +14,6 @@ public enum CameraType
 	AvatarEditModeCamera = 12,
 	GodzillaModeMainCamera = 13,
 	GodzillaModeEntryCamera = 14,
-	GodzillaMode2DCamera = 15
+	GodzillaMode2DCamera = 15,
+	FirstPersonCamera = 16
 }

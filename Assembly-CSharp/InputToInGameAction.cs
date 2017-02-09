@@ -6,6 +6,8 @@ public class InputToInGameAction
 
 	private bool drop;
 
+	private bool holster;
+
 	private bool ignorePickupOwner;
 
 	public bool IgnorePickupOwner
@@ -36,11 +38,14 @@ public class InputToInGameAction
 
 	public bool Use => use;
 
+	public bool Holster => holster;
+
 	public void HandleInputState()
 	{
 		use = false;
 		fire = false;
 		drop = false;
+		holster = false;
 		ignorePickupOwner = false;
 		if (MVGameControllerBase.IPlayModeUI == null || !MVGameControllerBase.IPlayModeUI.InLobbyState)
 		{
@@ -51,6 +56,10 @@ public class InputToInGameAction
 			if (MVInputWrapper.GetBooleanControlDown(KogamaControls.DropCurrentItem))
 			{
 				drop = true;
+			}
+			if (MVInputWrapper.GetBooleanControlDown(KogamaControls.Holster))
+			{
+				holster = true;
 			}
 			if (MVInputWrapper.GetBooleanControl(KogamaControls.Fire) || MVInputWrapper.GetBooleanControlDown(KogamaControls.Fire))
 			{

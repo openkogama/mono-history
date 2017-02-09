@@ -27,7 +27,7 @@ public abstract class MVPickupOwner : MVComponent
 
 	public OnHandleFiringDelegate onHandleFiring;
 
-	public Action OnHolstered;
+	public Action<bool> OnHolsteredChanged;
 
 	public PickupItem CurrentItem => currentItem;
 
@@ -120,7 +120,7 @@ public abstract class MVPickupOwner : MVComponent
 		return enabledMonoBehaviourHighestInHierarchy.Velocity.magnitude * num * lookDirection + lookDirection;
 	}
 
-	private void SetLineOfFireLocal()
+	public void SetLineOfFireLocal()
 	{
 		Vector3 vector;
 		Vector3 vector2;
@@ -166,17 +166,24 @@ public abstract class MVPickupOwner : MVComponent
 		{
 			currentItem.ResetAmmo();
 		}
-		if (flag)
+		if (currentItem.CanHolster)
 		{
-			currentItem.HolsterPickup();
-			if (OnHolstered != null)
+			if (flag)
 			{
-				OnHolstered();
+				currentItem.HolsterPickup();
+				if (OnHolsteredChanged != null)
+				{
+					OnHolsteredChanged(obj: true);
+				}
 			}
-		}
-		else
-		{
-			currentItem.UnholsterPickup();
+			else
+			{
+				currentItem.UnholsterPickup();
+				if (OnHolsteredChanged != null)
+				{
+					OnHolsteredChanged(obj: false);
+				}
+			}
 		}
 		currentItem.OnStateChanged(newState);
 	}
@@ -209,7 +216,6 @@ public abstract class MVPickupOwner : MVComponent
 			Unequip();
 		}
 		currentItem = avatarItem;
-		currentItem.OnEquip();
 	}
 
 	protected PickupItem CreateAvatarItem(AvatarItemType type, int variantId)
@@ -229,5 +235,10 @@ public abstract class MVPickupOwner : MVComponent
 		component.VariantID = variantId;
 		SetAvatarItemAsCurrent(component);
 		return component;
+	}
+
+	private void Update()
+	{
+		Debug.DrawLine(LookOrigin, LookOrigin + LookDirection * 2f, Color.red, 2f);
 	}
 }

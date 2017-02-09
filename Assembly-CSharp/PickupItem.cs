@@ -14,11 +14,16 @@ public abstract class PickupItem : MonoBehaviour
 	[SerializeField]
 	protected Transform holsterTransformOffset;
 
-	private Vector3 previousHolsterPos;
+	[SerializeField]
+	protected Transform firstPersonTransform;
 
-	private Quaternion previousHolsterRot;
+	private Transform originalParent;
 
-	private Vector3 previousHolsterScale;
+	private Vector3 originalPos;
+
+	private Quaternion originalRot;
+
+	private Vector3 originalScale;
 
 	[SerializeField]
 	protected Transform center;
@@ -37,6 +42,8 @@ public abstract class PickupItem : MonoBehaviour
 	public virtual float ChargeState => 0f;
 
 	public virtual bool ActivateGunModeOnEquip => true;
+
+	public virtual bool CanHolster => true;
 
 	public virtual bool CanUnequip => true;
 
@@ -78,14 +85,7 @@ public abstract class PickupItem : MonoBehaviour
 			if (owner.WorldObjectOwner is MVAvatar mVAvatar)
 			{
 				Transform partBone = mVAvatar.Body.BodyData.GetPartBone(BodyData.PartIndex.Holster);
-				previousHolsterPos = transform.localPosition;
-				previousHolsterRot = transform.localRotation;
-				previousHolsterScale = transform.localScale;
-				Quaternion localRotation = holsterTransformOffset.localRotation * partBone.localRotation;
-				transform.localRotation = localRotation;
-				Vector3 vector = partBone.position - holsterTransformOffset.position;
-				transform.position += vector;
-				transform.localScale = holsterTransformOffset.localScale;
+				AlignThisTo(partBone, holsterTransformOffset);
 				IsHolstered = true;
 			}
 			OnHolstered();
@@ -96,12 +96,47 @@ public abstract class PickupItem : MonoBehaviour
 	{
 		if (IsHolstered)
 		{
-			transform.localPosition = previousHolsterPos;
-			transform.localRotation = previousHolsterRot;
-			transform.localScale = previousHolsterScale;
+			RevertToOriginalTransform();
 			IsHolstered = false;
 			OnUnholstered();
 		}
+	}
+
+	public void EnterFirstPersonView(MVCameraBase camera)
+	{
+		if (!IsHolstered)
+		{
+			transform.SetParent(camera.transform, worldPositionStays: false);
+			transform.localPosition = firstPersonTransform.localPosition;
+			transform.localRotation = firstPersonTransform.localRotation;
+			transform.localScale = firstPersonTransform.localScale;
+		}
+	}
+
+	public void LeaveFirstPersonView()
+	{
+		if (!IsHolstered)
+		{
+			RevertToOriginalTransform();
+		}
+	}
+
+	private void RevertToOriginalTransform()
+	{
+		transform.SetParent(originalParent, worldPositionStays: false);
+		transform.localPosition = originalPos;
+		transform.localRotation = originalRot;
+		transform.localScale = originalScale;
+	}
+
+	private void AlignThisTo(Transform targetHolsterTransform, Transform offset)
+	{
+		transform.SetParent(originalParent, worldPositionStays: false);
+		Quaternion localRotation = offset.localRotation * targetHolsterTransform.localRotation;
+		transform.localRotation = localRotation;
+		Vector3 vector = targetHolsterTransform.position - offset.position;
+		transform.position += vector;
+		transform.localScale = offset.localScale;
 	}
 
 	public virtual bool CanFire()
@@ -123,6 +158,10 @@ public abstract class PickupItem : MonoBehaviour
 
 	public virtual void OnEquip()
 	{
+		originalParent = transform.parent;
+		originalPos = transform.localPosition;
+		originalRot = transform.localRotation;
+		originalScale = transform.localScale;
 	}
 
 	public virtual void OnUnequip()

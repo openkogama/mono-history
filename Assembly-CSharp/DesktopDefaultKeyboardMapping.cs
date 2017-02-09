@@ -96,6 +96,10 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap
 				new KeyCode[1] { KeyCode.Q }
 			},
 			{
+				KogamaControls.Holster,
+				new KeyCode[1] { KeyCode.V }
+			},
+			{
 				KogamaControls.Use,
 				new KeyCode[1] { KeyCode.E }
 			},

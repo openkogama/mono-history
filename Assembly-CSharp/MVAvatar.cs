@@ -7,8 +7,6 @@ public class MVAvatar : MVGroup
 {
 	protected Avatar avatar;
 
-	private float previousHealth;
-
 	public MVRuntimeDataVariableClampedFloat Health;
 
 	public MVRuntimeDataVariable Modifiers;
@@ -22,8 +20,6 @@ public class MVAvatar : MVGroup
 	public MVRuntimeDataVariable Animation;
 
 	public MVRuntimeDataVariable avatarModeTypeFlags;
-
-	public Action<float, float> OnDamageTaken;
 
 	private readonly Vector3 characterControllerCenterOffset = new Vector3(0f, 0.95f, 0f);
 
@@ -48,6 +44,8 @@ public class MVAvatar : MVGroup
 	}
 
 	public Vector3 CharacterControllerCenterOffset => characterControllerCenterOffset;
+
+	public PickupItem CurrentPickup => avatarPickupOwner.CurrentItem;
 
 	public float SetTransparency
 	{
@@ -132,6 +130,15 @@ public class MVAvatar : MVGroup
 	public void SetTeam()
 	{
 		avatar.UpdateNameTag();
+		if (!avatar.IsLocal)
+		{
+			avatar.SetHealthBarColor(MVGameControllerBase.Game.TeamManager.IsOnSameTeam(OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr));
+			return;
+		}
+		foreach (MVPlayer value in MVGameControllerBase.Game.Players.Values)
+		{
+			value.Avatar.avatar.UpdateNameTag();
+		}
 	}
 
 	public override void Initialize()
@@ -150,25 +157,12 @@ public class MVAvatar : MVGroup
 		}
 		MVRuntimeDataVariable mVRuntimeDataVariable = avatarModeTypeFlags;
 		mVRuntimeDataVariable.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(mVRuntimeDataVariable.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChangedHandler));
-		previousHealth = Health.Value;
-		MVRuntimeDataVariableClampedFloat health = Health;
-		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(DamageTaken));
-	}
-
-	private void DamageTaken(object a)
-	{
-		float num = (float)a;
-		if (OnDamageTaken != null && num < previousHealth)
-		{
-			OnDamageTaken(num, previousHealth);
-		}
-		previousHealth = num;
 	}
 
 	protected virtual void AvatarStateChangedHandler(object a)
 	{
-		int num = (int)a;
-		if ((num & 4) > 0)
+		AvatarModeTypes avatarModeTypes = (AvatarModeTypes)(int)a;
+		if ((avatarModeTypes & AvatarModeTypes.Hidden) > AvatarModeTypes.None)
 		{
 			avatar.Collider.enabled = false;
 			avatar.InteractionDataHandlerBase.enabled = false;

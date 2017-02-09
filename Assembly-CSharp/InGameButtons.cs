@@ -20,11 +20,18 @@ public class InGameButtons : MonoBehaviour
 	[SerializeField]
 	private GameObject respawnButton;
 
+	[SerializeField]
+	private RectTransform holsterButton;
+
 	private void Update()
 	{
 		if (PickupGUI.ShowEquipableUI != showingEquipableUI)
 		{
-			fire.gameObject.SetActive((PickupGUI.ShowEquipableUI & PickupGUIFlags.CanFire) != 0);
+			if (holsterButton != null)
+			{
+				holsterButton.gameObject.SetActive((PickupGUI.ShowEquipableUI & PickupGUIFlags.CanHolster) != 0);
+			}
+			fire.gameObject.SetActive((PickupGUI.ShowEquipableUI & PickupGUIFlags.CanFire) != 0 && (PickupGUI.ShowEquipableUI & PickupGUIFlags.IsHolstered) == 0);
 			dropWeapon.gameObject.SetActive((PickupGUI.ShowEquipableUI & PickupGUIFlags.CanUnequip) != 0);
 			showingEquipableUI = PickupGUI.ShowEquipableUI;
 		}

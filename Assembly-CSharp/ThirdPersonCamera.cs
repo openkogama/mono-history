@@ -17,7 +17,17 @@ public class ThirdPersonCamera : PlaymodeCamera, ICameraSettings
 	public override void UpdateCamera(MVCameraController camController, Transform targetTransform)
 	{
 		UpdateTargetRotation();
+		HandleGunMode();
 		base.UpdateCamera(camController, targetTransform);
+	}
+
+	protected override void HandleGunMode()
+	{
+		base.HandleGunMode();
+		if (MVGameControllerBase.WOCM.AvatarLocal.InGunMode)
+		{
+			MVGameControllerBase.CameraController.SetCamera(CameraType.FirstPersonCamera);
+		}
 	}
 
 	public void UpdateFromCameraSettings(Dictionary<object, object> data)

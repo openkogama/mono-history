@@ -23,7 +23,13 @@ public class WinningConditionBriefing : MonoBehaviour, IBriefing
 	private List<WinningConditionDef> winningConditionList;
 
 	[SerializeField]
-	private CanvasGroup group;
+	private CanvasGroup winningConditionGroup;
+
+	[SerializeField]
+	private CanvasGroup teamReminderGroup;
+
+	[SerializeField]
+	private TeamAnnouncement teamAnnouncement;
 
 	private float fadeTime = 0.3f;
 
@@ -43,13 +49,22 @@ public class WinningConditionBriefing : MonoBehaviour, IBriefing
 		{
 			currentWinningConditions.Add(winningConditionList[i].conditionType, winningConditionList[i].conditionSprite);
 		}
-		group.alpha = 0f;
-	}
-
-	private void Start()
-	{
+		winningConditionGroup.alpha = 0f;
+		teamReminderGroup.alpha = 0f;
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnWinningCondition = (Action<IWinningCondition>)Delegate.Combine(game.OnWinningCondition, new Action<IWinningCondition>(OnWinningConditionReceived));
+		MVRuntimeDataVariable avatarModeTypeFlags = MVGameControllerBase.WOCM.AvatarLocal.avatarModeTypeFlags;
+		avatarModeTypeFlags.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(avatarModeTypeFlags.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChanged));
+		teamAnnouncement.AvatarRespawned = true;
+	}
+
+	private void AvatarStateChanged(object state)
+	{
+		int num = (int)state;
+		if ((num & 4) > 0)
+		{
+			teamAnnouncement.AvatarRespawned = true;
+		}
 	}
 
 	private void OnWinningConditionReceived(IWinningCondition winningCondition)
@@ -59,44 +74,26 @@ public class WinningConditionBriefing : MonoBehaviour, IBriefing
 
 	public void AddBriefing(WinningConditionType winType)
 	{
-		WinningConditionAndroid winningConditionAndroid = UnityEngine.Object.Instantiate(winningConditionPrefab);
-		instantiatedConditions.Add(winningConditionAndroid);
-		winningConditionAndroid.SetSprite(currentWinningConditions[winType]);
-		string additionalInformation = string.Empty;
-		switch (winType)
-		{
-		case WinningConditionType.Highest:
-			additionalInformation = TM._("Reach highest altitude");
-			break;
-		case WinningConditionType.Lowest:
-			additionalInformation = TM._("Reach lowest altitude");
-			break;
-		case WinningConditionType.Collectible:
-			additionalInformation = TM._("Collect stars");
-			break;
-		case WinningConditionType.Flag:
-			additionalInformation = TM._("Reach the flag");
-			break;
-		case WinningConditionType.Kill:
-			additionalInformation = TM._("Eliminate other players");
-			break;
-		case WinningConditionType.Oculus:
-			additionalInformation = TM._("Eliminate Oculi");
-			break;
-		case WinningConditionType.Time:
-			additionalInformation = TM._("Wait for the timer to end");
-			break;
-		}
-		winningConditionAndroid.SetAdditionalInformation(additionalInformation);
-		winningConditionAndroid.transform.SetParent(offsetTransform, worldPositionStays: false);
+		SetupCondition(winType);
 	}
 
 	public void AddBriefing(WinningConditionType winType, int limit)
 	{
+		WinningConditionAndroid winningConditionAndroid = SetupCondition(winType);
+		winningConditionAndroid.SetLimit(limit);
+	}
+
+	private WinningConditionAndroid CreateWinningCondition(WinningConditionType winType)
+	{
 		WinningConditionAndroid winningConditionAndroid = UnityEngine.Object.Instantiate(winningConditionPrefab);
 		instantiatedConditions.Add(winningConditionAndroid);
 		winningConditionAndroid.SetSprite(currentWinningConditions[winType]);
-		winningConditionAndroid.SetLimit(limit);
+		return winningConditionAndroid;
+	}
+
+	private WinningConditionAndroid SetupCondition(WinningConditionType winType)
+	{
+		WinningConditionAndroid winningConditionAndroid = CreateWinningCondition(winType);
 		string additionalInformation = string.Empty;
 		switch (winType)
 		{
@@ -124,20 +121,13 @@ public class WinningConditionBriefing : MonoBehaviour, IBriefing
 		}
 		winningConditionAndroid.SetAdditionalInformation(additionalInformation);
 		winningConditionAndroid.transform.SetParent(offsetTransform, worldPositionStays: false);
+		return winningConditionAndroid;
 	}
 
 	private void OnEnable()
 	{
 		Clear();
-		if (winningConditionMet)
-		{
-			GenerateBriefing();
-			if (instantiatedConditions.Count != 0)
-			{
-				StartCoroutine(ShowBriefingCoroutine());
-				winningConditionMet = false;
-			}
-		}
+		StartCoroutine(PlaySequentialInformation());
 	}
 
 	private void GenerateBriefing()
@@ -163,23 +153,58 @@ public class WinningConditionBriefing : MonoBehaviour, IBriefing
 		}
 	}
 
-	private IEnumerator ShowBriefingCoroutine()
+	private IEnumerator PlaySequentialInformation()
 	{
+		if (winningConditionMet)
+		{
+			GenerateBriefing();
+			if (instantiatedConditions.Count != 0)
+			{
+				yield return StartCoroutine(ShowBriefingCoroutine(winningConditionGroup));
+				winningConditionMet = false;
+			}
+		}
+		if (teamAnnouncement.AvatarRespawned)
+		{
+			yield return StartCoroutine(ShowAnnouncementCoroutine(teamReminderGroup));
+		}
+		Clear();
+		yield return 0;
+	}
+
+	private IEnumerator ShowAnnouncementCoroutine(CanvasGroup group)
+	{
+		teamAnnouncement.InitializeAnnouncement();
 		group.alpha = 0f;
 		yield return StartCoroutine(Wait(initialWaitTime));
+		CanvasGroup group2 = default;
 		yield return StartCoroutine(pTween.To(fadeTime, 0f, 1f, (float t) =>
 		{
-			group.alpha = t;
+			group2.alpha = t;
 		}));
 		yield return StartCoroutine(Wait(stayTime));
 		yield return StartCoroutine(pTween.To(fadeTime, 1f, 0f, (float t) =>
 		{
-			group.alpha = t;
-			if (t == 0f)
-			{
-				Clear();
-			}
+			group2.alpha = t;
 		}));
+		yield return 0;
+	}
+
+	private IEnumerator ShowBriefingCoroutine(CanvasGroup group)
+	{
+		group.alpha = 0f;
+		yield return StartCoroutine(Wait(initialWaitTime));
+		CanvasGroup group2 = default;
+		yield return StartCoroutine(pTween.To(fadeTime, 0f, 1f, (float t) =>
+		{
+			group2.alpha = t;
+		}));
+		yield return StartCoroutine(Wait(stayTime));
+		yield return StartCoroutine(pTween.To(fadeTime, 1f, 0f, (float t) =>
+		{
+			group2.alpha = t;
+		}));
+		yield return 0;
 	}
 
 	private IEnumerator Wait(float wait)
@@ -195,6 +220,7 @@ public class WinningConditionBriefing : MonoBehaviour, IBriefing
 			UnityEngine.Object.Destroy(instantiatedConditions[i].gameObject);
 		}
 		instantiatedConditions.Clear();
-		group.alpha = 0f;
+		winningConditionGroup.alpha = 0f;
+		teamReminderGroup.alpha = 0f;
 	}
 }

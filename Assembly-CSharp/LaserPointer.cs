@@ -87,6 +87,8 @@ public class LaserPointer : PickupItem, ILaserPointer
 
 	public override bool ActivateGunModeOnEquip => false;
 
+	public override bool CanHolster => false;
+
 	public void SetLaserCubeVisible(bool visible)
 	{
 		CubeRenderer.enabled = visible;

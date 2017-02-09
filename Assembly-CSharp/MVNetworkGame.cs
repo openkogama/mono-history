@@ -3477,16 +3477,9 @@ public class MVNetworkGame : IPhotonPeerListener
 		}
 		Players[actorNr].Team = team;
 		GameStatCounterManager.RemoveStatsFromActor(actorNr);
-		if (LocalPlayer.ActorNr == actorNr)
+		if (LocalPlayer.ActorNr == actorNr && MVGameControllerBase.Game.IsPlaying)
 		{
-			if (MVGameControllerBase.Game.IsPlaying)
-			{
-				MVGameControllerBase.Game.ResetPlayer();
-			}
-		}
-		else if (Players[actorNr].Avatar != null)
-		{
-			Players[actorNr].Avatar.SetTeam();
+			MVGameControllerBase.Game.ResetPlayer();
 		}
 		if (OnFinishedLoadingPlayers != null)
 		{

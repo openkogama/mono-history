@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 {
-	[SerializeField]
 	[Header("Stats for Godzilla (will be scaled by godzilla size)")]
+	[SerializeField]
 	private AnimationCurve baseAreaDamageByRange;
 
 	[SerializeField]
@@ -28,13 +28,13 @@ public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 	[SerializeField]
 	private AnimationCurve chargeCurve;
 
+	[SerializeField]
 	[Header("Network")]
 	[Tooltip("Look direction updates per second.")]
-	[SerializeField]
 	private float lookUpdateRate = 2f;
 
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	private List<GameObject> toHideInFirstperson = new List<GameObject>();
 
 	[SerializeField]
@@ -70,10 +70,8 @@ public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 	[SerializeField]
 	private CFX_AutoDestructShuriken glassShardDestruction;
 
-	[SerializeField]
 	private AnimationCurve scaledAreaDamageByRange;
 
-	[SerializeField]
 	private AnimationCurve scaledAreaImpulseByRange;
 
 	private RuntimeEventType laserImpactType;
@@ -355,7 +353,7 @@ public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 		if (hitSomething)
 		{
 			HandleDirectRayhit();
-			AreaDamage(voxelHit);
+			AreaDamage();
 		}
 		SendProjectile(pointOfImpact, hitSomething);
 		laserSight.Flash();
@@ -381,15 +379,15 @@ public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 		hitExplosion.Play();
 	}
 
-	public void AreaDamage(VoxelHit hit)
+	public void AreaDamage()
 	{
 		if (owner.IsLocal)
 		{
-			LocalDealAreaDamage(hit);
+			LocalDealAreaDamage();
 		}
 	}
 
-	private void LocalDealAreaDamage(VoxelHit voxelHit)
+	private void LocalDealAreaDamage()
 	{
 		ExplosionEvent explosion = new ExplosionEvent(laserImpactType, voxelHit.point, voxelHit.normal);
 		MVGameControllerBase.Game.World.RuntimeEventManager.SendRuntimeEvent(explosion);

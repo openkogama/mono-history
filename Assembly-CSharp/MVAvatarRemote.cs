@@ -4,7 +4,7 @@ using MV.Common;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class MVAvatarRemote : MVAvatar
+public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 {
 	private const float initialCullingRadius = 3.5f;
 
@@ -154,6 +154,7 @@ public class MVAvatarRemote : MVAvatar
 		else
 		{
 			Body.Visible = true;
+			avatar.SetHealthBarColor(MVGameControllerBase.Game.TeamManager.IsOnSameTeam(avatar.mvAvatar.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr));
 			avatar.NameTagLabelVisible = true;
 			triggerCollider.enabled = true;
 		}
@@ -168,5 +169,10 @@ public class MVAvatarRemote : MVAvatar
 	public override void OnLeaveVehicle()
 	{
 		HandleLeaveVehicle();
+	}
+
+	public void VisualizeBulletImpact(VoxelHit voxelHit, Ray lineOfFire, int shooterActornumber, float damage = 100f)
+	{
+		avatar.VisualizeBulletImpact(voxelHit, lineOfFire, shooterActornumber, damage);
 	}
 }

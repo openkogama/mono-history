@@ -1,4 +1,5 @@
 using System;
+using MV.Common;
 using UnityEngine;
 
 public class GodzillaCamera : MVCameraBase
@@ -18,28 +19,22 @@ public class GodzillaCamera : MVCameraBase
 	private float maxLookAngle;
 
 	[SerializeField]
-	private Vector2 targetRotationVector;
-
-	[SerializeField]
 	private TargetRotation targetRotation;
 
 	[SerializeField]
-	private GodzillaGUI gui;
+	private DamageIndicator damageIndicator;
 
-	private MVAvatar player;
+	private Vector2 targetRotationVector = new Vector2(0f, 0f);
+
+	private MVAvatarLocal player;
 
 	public override CameraType CameraType => CameraType.GodzillaModeMainCamera;
 
-	public override void Awake()
-	{
-		gui.transform.SetParent(null);
-	}
-
 	private void OnDestroy()
 	{
-		if (gui != null)
+		if (damageIndicator != null)
 		{
-			UnityEngine.Object.Destroy(gui.gameObject);
+			UnityEngine.Object.Destroy(damageIndicator.gameObject);
 		}
 	}
 
@@ -122,8 +117,8 @@ public class GodzillaCamera : MVCameraBase
 		targetRotationVector.x = player.Transform.rotation.eulerAngles.x;
 		targetRotationVector.y = player.Transform.rotation.eulerAngles.y;
 		MVGameControllerBase.CameraController.StartTransitionCam(0.3f);
-		MVAvatar mVAvatar = player;
-		mVAvatar.OnDamageTaken = (Action<float, float>)Delegate.Combine(mVAvatar.OnDamageTaken, new Action<float, float>(gui.AdaptiveFlash));
+		MVAvatarLocal mVAvatarLocal = player;
+		mVAvatarLocal.OnDamageTaken = (Action<float, MVPlayer, PlayerKilledByType>)Delegate.Combine(mVAvatarLocal.OnDamageTaken, new Action<float, MVPlayer, PlayerKilledByType>(damageIndicator.ShowDamage));
 	}
 
 	public override void Exit(MVCameraController camController)
@@ -131,7 +126,7 @@ public class GodzillaCamera : MVCameraBase
 		base.Exit(camController);
 		camController.AvatarCameraFade.enabled = true;
 		MVGameControllerBase.WOCM.AvatarLocal.SetTransparency = 1f;
-		MVAvatar mVAvatar = player;
-		mVAvatar.OnDamageTaken = (Action<float, float>)Delegate.Remove(mVAvatar.OnDamageTaken, new Action<float, float>(gui.AdaptiveFlash));
+		MVAvatarLocal mVAvatarLocal = player;
+		mVAvatarLocal.OnDamageTaken = (Action<float, MVPlayer, PlayerKilledByType>)Delegate.Remove(mVAvatarLocal.OnDamageTaken, new Action<float, MVPlayer, PlayerKilledByType>(damageIndicator.ShowDamage));
 	}
 }

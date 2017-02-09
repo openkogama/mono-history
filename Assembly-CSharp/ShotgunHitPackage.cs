@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class ShotgunHitPackage : InteractionPackage
 {
-	public static InteractionData Create(Vector3 impulse, float damage)
+	public static InteractionData Create(Vector3 impulse)
 	{
-		return new InteractionData(InteractionPackageType.ShotgunHit, damage, impulse);
+		return new InteractionData(InteractionPackageType.ShotgunHit, impulse, PlayerKilledByType.Shotgun);
 	}
 
 	public override void ParseAndHandlePackage(MVWorldObjectClient worldObjectClient, MVPlayer shooter, InteractionData interactionStruct)
@@ -14,7 +14,7 @@ public class ShotgunHitPackage : InteractionPackage
 		MVRigidBody component = worldObjectClient.GameObject.GetComponent<MVRigidBody>();
 		if (component != null)
 		{
-			component.AddImpulse(interactionStruct.Impulse, suspendImpactDamage: true);
+			component.AddImpulse(shooter, interactionStruct.Impulse, suspendImpactDamage: true);
 		}
 		MVInteractableBase component2 = worldObjectClient.GameObject.GetComponent<MVInteractableBase>();
 		if (component2 != null)

@@ -3,9 +3,9 @@ using MV.WorldObject;
 
 public class RailgunHitPackage : InteractionPackage
 {
-	public static InteractionData Create()
+	public static InteractionData Create(float damage)
 	{
-		return new InteractionData(InteractionPackageType.RailGunHit);
+		return new InteractionData(InteractionPackageType.RailGunHit, damage);
 	}
 
 	public override void ParseAndHandlePackage(MVWorldObjectClient worldObjectClient, MVPlayer shooter, InteractionData interactionStruct)

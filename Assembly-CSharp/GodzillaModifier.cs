@@ -191,8 +191,6 @@ public class GodzillaModifier : AvatarModifier
 		owner.mvAvatar.Body.BodyData.GetPartBone(BodyData.PartIndex.LUpLeg).gameObject.SetActive(value: false);
 		owner.mvAvatar.Body.BodyData.GetPartBone(BodyData.PartIndex.RUpLeg).gameObject.SetActive(value: false);
 		audioSource.PlayOneShot(growthSound);
-		owner.StartBlinking(BlinkType.Invulnerable);
-		owner.mvAvatar.Invulnerable.Value = true;
 		owner.mvAvatar.Health.Value = 100f;
 		Scale();
 	}
@@ -256,7 +254,6 @@ public class GodzillaModifier : AvatarModifier
 
 	private void InstaGrow()
 	{
-		owner.mvAvatar.Invulnerable.Value = false;
 		owner.mvAvatar.Scale = modifiedScale;
 		if (owner.IsLocal)
 		{

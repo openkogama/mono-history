@@ -16,11 +16,7 @@ public class PickupItemSixShooter : PickupItemWithDelay
 
 	public float recoilImpact = 700f;
 
-	public AnimationCurve damageFalloff;
-
 	public float baseDamage = 30f;
-
-	public float rangeDamage = 70f;
 
 	public float bulletRange = 50f;
 
@@ -50,15 +46,14 @@ public class PickupItemSixShooter : PickupItemWithDelay
 
 	protected override void OnFire(bool isLocal)
 	{
-		Bullet bullet = Bullet.CreateBullet(PoolEnums.SixShooterBullet, muzzlePoint.position);
 		animComponent.Play("RevolverRecoil");
-		Ray lineOfFire = new Ray(owner.LookOrigin, owner.LookDirection);
-		bullet.onHit = (Bullet.OnHitDelegate)Delegate.Combine(bullet.onHit, new Bullet.OnHitDelegate(HandleHit));
+		Bullet bullet = Bullet.CreateBullet(PoolEnums.SixShooterBullet, muzzlePoint.position);
+		bullet.onHit = (Bullet.OnHitDelegate)Delegate.Combine(bullet.onHit, new Bullet.OnHitDelegate(OnBulletHit));
 		if (isLocal)
 		{
-			bullet.onHitLocal = HandleDirectHit;
+			bullet.onHitLocal = OnLocalBulletHit;
 		}
-		bullet.Fire(owner.GetAbsolutProjectileSpeed(bulletSpeed), bulletRange, lineOfFire, owner.IgnoreWOIDs);
+		bullet.Fire(lineOfFire: new Ray(owner.LookOrigin, owner.LookDirection), speed: owner.GetAbsolutProjectileSpeed(bulletSpeed), range: bulletRange, ignoreWoIDs: owner.IgnoreWOIDs);
 		--ammo;
 		UnityEngine.Object.Instantiate(fireEmitter, muzzlePoint.position, Quaternion.identity);
 		if (isLocal)
@@ -73,36 +68,36 @@ public class PickupItemSixShooter : PickupItemWithDelay
 		MVRigidBody component = owner.GetComponent<MVRigidBody>();
 		if (component != null)
 		{
-			component.AddImpulse(-center.forward * recoilImpact);
+			component.AddImpulse(-owner.LookDirection * recoilImpact);
 		}
 	}
 
-	private void HandleHit(VoxelHit voxelHit, Ray lineOfFire)
+	private void OnBulletHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
-		Quaternion rotation = Quaternion.FromToRotation(Vector3.up, voxelHit.normal);
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
-		HitParticle hitParticle = ((!(worldObjectClient is MVAvatar)) ? PrefabPool.Instance.EnumPoolManager.Instantiate<HitParticle>(PoolEnums.SixShooterSparks) : PrefabPool.Instance.EnumPoolManager.Instantiate<HitParticle>(PoolEnums.SixShooterBlood));
-		hitParticle.transform.position = voxelHit.point;
-		hitParticle.transform.rotation = rotation;
-		hitParticle.Initialize();
+		if (worldObjectClient is IBulletImpactVisualizer)
+		{
+			((IBulletImpactVisualizer)worldObjectClient).VisualizeBulletImpact(voxelHit, lineOfFire, owner.WorldObjectOwner.OwnerActorNr, baseDamage);
+		}
+		else
+		{
+			OneShotPooledParticleSystem.Instantiate(PoolEnums.SixShooterSparks, voxelHit.point, Quaternion.LookRotation(voxelHit.normal));
+		}
 	}
 
-	private void HandleDirectHit(VoxelHit voxelHit, Ray lineOfFire)
+	private void OnLocalBulletHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
-		float num = Vector3.Distance(voxelHit.point, owner.transform.position);
-		float time = num / bulletRange;
-		float damage = damageFalloff.Evaluate(time) * rangeDamage + baseDamage;
-		MVGameControllerBase.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, damage);
+		MVGameControllerBase.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, baseDamage);
 		int woIDHighestInHierarchyWithComponent = MVGameControllerBase.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
 		if (worldObjectClient != null)
 		{
 			InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
-			if (interactionDataHandlerBase != null)
+			if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
 			{
 				Vector3 value = voxelHit.point - owner.transform.position;
 				value = Vector3.Normalize(value);
-				InteractionData interaction = SixShooterHitPackage.Create(value * hitImpact, damage);
+				InteractionData interaction = SixShooterHitPackage.Create(value * hitImpact);
 				interactionDataHandlerBase.HandleInteraction(interaction, interactionIsLocal: false);
 			}
 		}

@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
+using UnityEngine.Events;
 
-public class Avatar : MonoBehaviour
+public class Avatar : MonoBehaviour, IBulletImpactVisualizer
 {
 	public MVAvatar mvAvatar;
 
@@ -24,6 +25,18 @@ public class Avatar : MonoBehaviour
 	private TextMesh avatarName;
 
 	[SerializeField]
+	private Renderer healthBarRenderer;
+
+	[SerializeField]
+	private Renderer teamIconRenderer;
+
+	[SerializeField]
+	private Material teamIconMaterial;
+
+	[SerializeField]
+	private Material enemyIconMaterial;
+
+	[SerializeField]
 	private AvatarLevelUp avatarLevelUp;
 
 	[SerializeField]
@@ -37,6 +50,17 @@ public class Avatar : MonoBehaviour
 
 	[SerializeField]
 	public GameObject root;
+
+	[SerializeField]
+	private AvatarBulletImpactVisualizer bulletImpactVisualizer;
+
+	private CullingSubscriberBase cullingSubscriberBase;
+
+	private Material avatarNameMaterial;
+
+	private Material avatarHealthMaterial;
+
+	private Material avatarTeamIconMaterial;
 
 	private bool nameTagLabelVisible;
 
@@ -81,14 +105,31 @@ public class Avatar : MonoBehaviour
 		if (isLocal)
 		{
 			UnityEngine.Object.Destroy(avatarBadge.gameObject);
+			teamIconRenderer.gameObject.SetActive(value: false);
 			MVLocalPlayer localPlayer = MVGameControllerBase.Game.LocalPlayer;
 			localPlayer.OnXPProgressData = (XPProgress.OnXPProgressDataDelegate)Delegate.Combine(localPlayer.OnXPProgressData, new XPProgress.OnXPProgressDataDelegate(OnXpProgress));
+			avatarName.gameObject.SetActive(value: false);
 		}
 		else
 		{
 			avatarBadge.Initialize(mvAvatar.OwnerActorNr);
+			cullingSubscriberBase = new CullingSubscriberBase(0.5f, teamIconRenderer.transform.position, OnStateChanged);
+			mvAvatar.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(mvAvatar.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
 		}
 		avatarLevelUp.Init(mvAvatar.OwnerActorNr);
+		avatarNameMaterial = avatarName.GetComponent<Renderer>().material;
+		avatarHealthMaterial = healthBarRenderer.material;
+	}
+
+	private void OnStateChanged(CullingGroupEvent cullingEvent)
+	{
+		bool active = CullingApiWrapper.Visible(cullingEvent, cullingSubscriberBase.DistanceBandIndex);
+		teamIconRenderer.gameObject.SetActive(active);
+	}
+
+	private void OnPositionChanged(MVWorldObjectClient arg0, PositionChangedEventArgs positionChangedEventArgs)
+	{
+		cullingSubscriberBase.Position = teamIconRenderer.transform.position;
 	}
 
 	private void OnXpProgress(XPProgressData xpProgressData)
@@ -153,9 +194,10 @@ public class Avatar : MonoBehaviour
 	{
 		avatarName.text = MVGameControllerBase.Game.Players[mvAvatar.OwnerActorNr].Username;
 		Color color = Color.white;
+		MVPlayer mVPlayer = MVGameControllerBase.Game.Players[mvAvatar.OwnerActorNr];
 		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
 		{
-			switch (MVGameControllerBase.Game.Players[mvAvatar.OwnerActorNr].Team)
+			switch (mVPlayer.Team)
 			{
 			case MVTeam.Blue:
 				color = Color.blue;
@@ -171,7 +213,25 @@ public class Avatar : MonoBehaviour
 				break;
 			}
 		}
-		avatarName.GetComponent<Renderer>().material.color = color;
+		if (MVGameControllerBase.WOCM.AvatarLocal != null)
+		{
+			SetHealthBarColor(MVGameControllerBase.Game.TeamManager.IsOnSameTeam(mvAvatar.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr));
+		}
+		avatarNameMaterial.color = color;
+	}
+
+	public void SetHealthBarColor(bool isFriendly)
+	{
+		if (isFriendly)
+		{
+			avatarHealthMaterial.color = Color.green;
+			teamIconRenderer.material = teamIconMaterial;
+		}
+		else
+		{
+			avatarHealthMaterial.color = Color.red;
+			teamIconRenderer.material = enemyIconMaterial;
+		}
 	}
 
 	public void StartBlinking(BlinkType type, float duration = float.PositiveInfinity)
@@ -186,6 +246,20 @@ public class Avatar : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		UnityEngine.Object.Destroy(avatarName.GetComponent<Renderer>().material);
+		if (cullingSubscriberBase != null)
+		{
+			cullingSubscriberBase.Destroy();
+			cullingSubscriberBase = null;
+		}
+		UnityEngine.Object.Destroy(avatarNameMaterial);
+		UnityEngine.Object.Destroy(avatarHealthMaterial);
+	}
+
+	public void VisualizeBulletImpact(VoxelHit voxelHit, Ray lineOfFire, int shooterActorNumber, float damage = 100f)
+	{
+		if (!MVGameControllerBase.Game.TeamManager.IsOnSameTeam(mvAvatar.OwnerActorNr, shooterActorNumber))
+		{
+			bulletImpactVisualizer.VisualizeBulletImpact(voxelHit, lineOfFire, shooterActorNumber, damage);
+		}
 	}
 }
