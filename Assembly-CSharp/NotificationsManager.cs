@@ -4,22 +4,36 @@ using UnityEngine;
 
 public class NotificationsManager : MonoBehaviour
 {
-	[SerializeField]
-	private RectTransform contentPanel;
+	public enum eNotificationPanel
+	{
+		primary,
+		secondary,
+		tertiary
+	}
 
 	[SerializeField]
-	private NotificationObjectPool objectPool;
+	private NotificationArea notificationAreaPrimary;
+
+	[SerializeField]
+	private NotificationArea notificationAreaSecondary;
+
+	[SerializeField]
+	private NotificationArea notificationAreaTertiary;
+
+	private NotificationArea[] notificationAreas;
+
+	private void Awake()
+	{
+		notificationAreas = new NotificationArea[3] { notificationAreaPrimary, notificationAreaSecondary, notificationAreaTertiary };
+	}
 
 	private void OnEnable()
 	{
 		NotificationController.Register(this);
 	}
 
-	public Notification InstantiateNotification(NotificationType notificationType, Dictionary<object, object> message)
+	public Notification InstantiateNotification(NotificationType notificationType, eNotificationPanel panel, Dictionary<object, object> data)
 	{
-		Notification panel = objectPool.GetPanel(notificationType);
-		panel.transform.SetParent(contentPanel, worldPositionStays: false);
-		panel.Initialize(message);
-		return panel;
+		return notificationAreas[(int)panel].InstantiateNotification(notificationType, data);
 	}
 }

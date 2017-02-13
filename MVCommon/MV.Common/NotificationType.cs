@@ -15,5 +15,7 @@ public enum NotificationType
 	Requirement,
 	SpinReady,
 	GoldRewardReady,
-	AdReady
+	AdReady,
+	TeamNotification,
+	PlayerTip
 }

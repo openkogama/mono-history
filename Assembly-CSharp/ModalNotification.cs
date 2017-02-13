@@ -13,11 +13,15 @@ public class ModalNotification : Notification
 	[SerializeField]
 	private Sprite defaultSprite;
 
+	private NotificationLifetime lifeTime;
+
+	protected override NotificationLifetime Lifetime => lifeTime;
+
 	public override void Initialize(Dictionary<object, object> data)
 	{
 		base.Initialize(data);
 		text.text = (string)data[(byte)1];
-		Lifetime = (NotificationLifetime)(int)data[(byte)2];
+		lifeTime = (NotificationLifetime)(int)data[(byte)2];
 		if (data.ContainsKey((byte)3))
 		{
 			image.sprite = (Sprite)data[(byte)3];
@@ -27,7 +31,7 @@ public class ModalNotification : Notification
 			image.sprite = defaultSprite;
 		}
 		Vector3 localScale = image.transform.localScale;
-		localScale.x = (float)data[(byte)4];
+		localScale.x = -1f;
 		image.transform.localScale = localScale;
 	}
 }

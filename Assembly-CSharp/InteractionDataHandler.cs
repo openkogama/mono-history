@@ -19,8 +19,6 @@ public class InteractionDataHandler : InteractionDataHandlerBase
 		}
 		else
 		{
-			MVGameControllerBase.CameraController.PlayPlingSound();
-			MVGameControllerBase.IPlayModeUI.GetCrossHair().ShowHasHitEffect();
 			worldObjectParent.SendPackage(new Dictionary<object, object> { 
 			{
 				(byte)0,

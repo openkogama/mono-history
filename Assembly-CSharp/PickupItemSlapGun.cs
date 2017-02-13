@@ -40,10 +40,8 @@ public class PickupItemSlapGun : PickupItemWithDelay
 	protected override void OnFire(bool isLocal)
 	{
 		Ray lineOfFire = new Ray(muzzlePoint.position, owner.LookDirection);
-		if (audioSource.gameObject.activeInHierarchy)
-		{
-			audioSource.PlayOneShot(slapSounds[Random.Range(0, 2)]);
-		}
+		audioSource.clip = slapSounds[Random.Range(0, slapSounds.Length - 1)];
+		MVGameControllerBase.AudioManager.Play("Sound - slapGunFire", audioSource, audioSource.transform.position);
 		List<MVWorldObjectClient> list = SphereCastAgainstWorldObjects(lineOfFire);
 		if (owner.IsLocal)
 		{

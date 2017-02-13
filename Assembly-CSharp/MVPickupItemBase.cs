@@ -3,7 +3,7 @@ using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 
-public class MVPickupItemBase : MVLogicObject, IPickupStateHandler
+public class MVPickupItemBase : MVLogicObject, IUpdatecontrollerSubscriber, IPickupStateHandler
 {
 	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
@@ -97,6 +97,8 @@ public class MVPickupItemBase : MVLogicObject, IPickupStateHandler
 
 	private MVPickupItemBaseObject baseObject;
 
+	private List<int> instigatorsInTrigger = new List<int>();
+
 	public AvatarItemType Type => pickupItemType;
 
 	public int VariantID => pickupVariantId;
@@ -123,6 +125,39 @@ public class MVPickupItemBase : MVLogicObject, IPickupStateHandler
 		baseObject.TriggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
 	}
 
+	void IUpdatecontrollerSubscriber.UpdateControllerUpdate()
+	{
+		for (int i = 0; i < instigatorsInTrigger.Count; i++)
+		{
+			if (!canPickUp)
+			{
+				continue;
+			}
+			bool flag = true;
+			if (pickupPrefabLUT[Type].equipableType == AvatarEquipableType.Weapon)
+			{
+				int woIDWithLocalOwnerHighestInHierarchy = MVGameControllerBase.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(instigatorsInTrigger[i]);
+				MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDWithLocalOwnerHighestInHierarchy);
+				if (worldObjectClient != null)
+				{
+					MVPickupOwner mVPickupOwner = worldObjectClient.GameObject.GetComponent<MVPickupOwner>();
+					if (mVPickupOwner != null && !(mVPickupOwner is VehiclePickupOwner) && mVPickupOwner.CurrentItem != null && mVPickupOwner.CurrentItem.Type != Type)
+					{
+						flag = mVPickupOwner.CurrentItem.Type == AvatarItemType.Hand;
+					}
+				}
+			}
+			if ((useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0 && flag)
+			{
+				DoPickup(instigatorsInTrigger[i]);
+			}
+		}
+	}
+
+	void IUpdatecontrollerSubscriber.UpdateControllerFixedUpdate()
+	{
+	}
+
 	private static ObjectPrefab GetPickupPrefabName(Dictionary<object, object> data)
 	{
 		Dictionary<object, object> dictionary = (Dictionary<object, object>)data[WorldObjectDataParameters.Data];
@@ -132,9 +167,9 @@ public class MVPickupItemBase : MVLogicObject, IPickupStateHandler
 	private void SetupUseInteractor()
 	{
 		useInteractor = new UseInteractor(this, baseObject.useInteractionRotator, reset: false, baseObject.TriggerBoxEvents.Collider, DoPickup, CheckCanUse);
-		GameCoinLogic useRequirement = new GameCoinLogic(baseObject.useInteractionRotator, hasUseButtonWhenFree: false);
+		GameCoinLogic useRequirement = new GameCoinLogic(baseObject.useInteractionRotator);
 		useInteractor.AddRequirement(useRequirement);
-		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(baseObject.useInteractionRotator, hasUseButtonWhenFree: false);
+		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(baseObject.useInteractionRotator);
 		useInteractor.AddRequirement(useRequirement2);
 		baseObject.TriggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
 		baseObject.TriggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
@@ -149,6 +184,7 @@ public class MVPickupItemBase : MVLogicObject, IPickupStateHandler
 		baseObject.PickupItem.pickupObject.AddComponent<RotateLocal>().rotationSpeed = 68f;
 		SetupCulling(baseObject.PickupItem.pickupObject);
 		cullingSubscriberBase.DistanceBandIndex = 2;
+		UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
 	}
 
 	public override void Destroy()
@@ -192,15 +228,15 @@ public class MVPickupItemBase : MVLogicObject, IPickupStateHandler
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		if (e.instigatorWOID != -1 && canPickUp && (useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0)
+		if (e.instigatorWOID != -1)
 		{
-			DoPickup(e.instigatorWOID);
+			instigatorsInTrigger.Add(e.instigatorWOID);
 		}
 	}
 
 	private bool CheckCanUse(MVInteractableBase avatarInteractable)
 	{
-		if (avatarInteractable.HasModifierEffect(AvatarModifierEffect.DisablePickups))
+		if (avatarInteractable.HasModifierEffect(AvatarModifierEffect.DisablePickups) || avatarInteractable.HasModifierEffect(AvatarModifierEffect.DisableWeapons))
 		{
 			return false;
 		}
@@ -231,6 +267,7 @@ public class MVPickupItemBase : MVLogicObject, IPickupStateHandler
 	private void triggerBoxEvents_TriggerExit(object sender, TriggerEventArgs e)
 	{
 		MVGameControllerBase.OperationRequests.TriggerBoxExit(Id, e.instigatorWOID);
+		instigatorsInTrigger.Remove(e.instigatorWOID);
 	}
 
 	public void HandleStateChange(PickupItemState state)

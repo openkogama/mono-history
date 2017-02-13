@@ -1,39 +1,39 @@
 using System.Collections;
 using System.Collections.Generic;
+using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
 using UnityEngine;
 
-[RequireComponent(typeof(AudioSource))]
 public class PickupItemFlamethrower : PickupItem
 {
-	private const bool DEAL_DAMAGE_REMOTELY = true;
+	[SerializeField]
+	private ParticleSystem flameParticles;
 
-	public ParticleSystem flameParticles;
+	[SerializeField]
+	private float hitRadius = 1.2f;
 
-	public Transform hitZoneCenter;
+	[SerializeField]
+	[Tooltip("How many seconds a fueltank lasts.")]
+	private ObscuredFloat maxFuelTime = 100f;
 
-	public float hitRadius = 1.2f;
+	[SerializeField]
+	private float maxRange = 50f;
 
-	public float fuelAmount = 100f;
-
-	public float burnRate = 10f;
-
-	public float maxRange = 50f;
-
-	private bool isFlaming;
-
-	private float currentFuel;
-
-	private float flamerStartTime;
-
+	[SerializeField]
 	private float flamerMinimumBurnTime = 0.5f;
 
 	[SerializeField]
 	private AudioSource audioSource;
 
+	private float flamerStartTime;
+
+	private bool isFlaming;
+
+	private ObscuredFloat currentFuel = 0f;
+
 	public override AvatarItemType Type => AvatarItemType.Flamethrower;
 
-	public override int Quantity => Mathf.RoundToInt(currentFuel);
+	public override int Quantity => Mathf.RoundToInt((float)currentFuel / (float)maxFuelTime * 100f);
 
 	private bool IsStillFlaming()
 	{
@@ -42,18 +42,18 @@ public class PickupItemFlamethrower : PickupItem
 
 	private void Awake()
 	{
-		currentFuel = fuelAmount;
+		currentFuel = maxFuelTime;
 	}
 
 	public override void ResetAmmo()
 	{
 		base.ResetAmmo();
-		currentFuel = fuelAmount;
+		currentFuel = maxFuelTime;
 	}
 
 	private IEnumerator DoFlaming()
 	{
-		while (IsStillFlaming() && currentFuel > 0f)
+		while (IsStillFlaming() && (float)currentFuel > 0f)
 		{
 			Fire();
 			yield return new WaitForSeconds(0.2f);
@@ -64,7 +64,8 @@ public class PickupItemFlamethrower : PickupItem
 	{
 		while (IsStillFlaming())
 		{
-			currentFuel -= burnRate * Time.deltaTime;
+			PickupItemFlamethrower pickupItemFlamethrower = this;
+			pickupItemFlamethrower.currentFuel = (float)pickupItemFlamethrower.currentFuel - Time.deltaTime;
 			muzzlePoint.transform.forward = owner.LookDirection;
 			MVRigidBody mvRigidBody = owner.WorldObjectOwner.GameObject.GetComponent<MVRigidBody>();
 			if (!mvRigidBody.Grounded)
@@ -77,7 +78,7 @@ public class PickupItemFlamethrower : PickupItem
 					mvRigidBody.AddImpulse(new Vector3(0f, 0f - impulseY, 0f), suspendImpactDamage: true);
 				}
 			}
-			if (currentFuel < 0f)
+			if ((float)currentFuel < 0f)
 			{
 				MVEquipable equipable = owner.WorldObjectOwner.GameObject.GetComponent<MVEquipable>();
 				if (equipable != null)

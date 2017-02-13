@@ -257,9 +257,6 @@ public class Avatar : MonoBehaviour, IBulletImpactVisualizer
 
 	public void VisualizeBulletImpact(VoxelHit voxelHit, Ray lineOfFire, int shooterActorNumber, float damage = 100f)
 	{
-		if (!MVGameControllerBase.Game.TeamManager.IsOnSameTeam(mvAvatar.OwnerActorNr, shooterActorNumber))
-		{
-			bulletImpactVisualizer.VisualizeBulletImpact(voxelHit, lineOfFire, shooterActorNumber, damage);
-		}
+		bulletImpactVisualizer.VisualizeBulletImpact(voxelHit, lineOfFire, shooterActorNumber, damage);
 	}
 }

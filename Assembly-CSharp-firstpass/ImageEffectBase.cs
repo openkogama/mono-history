@@ -1,7 +1,7 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Camera))]
 [AddComponentMenu("")]
+[RequireComponent(typeof(Camera))]
 public class ImageEffectBase : MonoBehaviour
 {
 	public Shader shader;

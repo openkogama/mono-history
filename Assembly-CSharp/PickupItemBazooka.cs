@@ -7,30 +7,33 @@ using UnityEngine;
 
 public class PickupItemBazooka : PickupItemWithDelay
 {
-	public int ammo = 10;
+	[SerializeField]
+	private ObscuredInt maxAmmo = 10;
 
-	public float blastRadius = 10f;
+	[SerializeField]
+	private ObscuredFloat baseDamage = 75f;
 
-	public AnimationCurve damageFalloff;
+	[SerializeField]
+	private float blastRadius = 10f;
 
-	public float baseImpulse = 1500f;
+	[SerializeField]
+	private AnimationCurve damageFalloff;
 
-	public float baseDamage = 100f;
+	[SerializeField]
+	private float baseImpulse = 1500f;
 
-	public float rocketSpeed = 30f;
+	[SerializeField]
+	private float rocketSpeed = 30f;
 
-	public float rocketRange = 200f;
-
-	public Bullet rocketPrefab;
-
-	public AudioClip rocketHitSound;
+	[SerializeField]
+	private float rocketRange = 200f;
 
 	[SerializeField]
 	private AudioSource aSource;
 
 	private int layerMask;
 
-	private ObscuredInt currentAmmo = 10;
+	private ObscuredInt currentAmmo;
 
 	public override AvatarItemType Type => AvatarItemType.Bazooka;
 
@@ -40,14 +43,14 @@ public class PickupItemBazooka : PickupItemWithDelay
 
 	private void Awake()
 	{
-		currentAmmo = ammo;
+		currentAmmo = maxAmmo;
 		layerMask = 1 << LayerUtil.GetLayerNumber(LayerFlags.Player);
 	}
 
 	public override void ResetAmmo()
 	{
 		base.ResetAmmo();
-		currentAmmo = ammo;
+		currentAmmo = maxAmmo;
 	}
 
 	protected override void OnFire(bool isLocal)
@@ -72,7 +75,6 @@ public class PickupItemBazooka : PickupItemWithDelay
 
 	private void OnHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
-		MVGameControllerBase.AudioManager.Play("rocket hit", rocketHitSound, voxelHit.point, 0.4f, SoundRangeDistance.Long);
 		SharedWorldObjectGameplayFunctions.DustEfffect(PrefabPool.Instance.ParticleExplosion, voxelHit.point, 10f);
 	}
 
@@ -95,7 +97,7 @@ public class PickupItemBazooka : PickupItemWithDelay
 			{
 				float time = Vector3.Distance(voxelHit.point, interactionDataHandlerBase.GetClosestPoint(voxelHit.point)) / blastRadius;
 				float num2 = damageFalloff.Evaluate(time);
-				float num3 = Mathf.Clamp(num2 * baseDamage, 0f, float.MaxValue);
+				float num3 = Mathf.Clamp(num2 * (float)baseDamage, 0f, float.MaxValue);
 				if (num3 > 0f)
 				{
 					Vector3 normalized = (collider.transform.position - voxelHit.point).normalized;

@@ -6,16 +6,7 @@ using UnityEngine;
 public class PickupItemMultiThrowingStar : PickupItemWithDelay
 {
 	[SerializeField]
-	private ObscuredInt ammo;
-
-	[SerializeField]
-	private BulletThrowingStar bulletPrefab;
-
-	[SerializeField]
-	private AudioClip bulletHitSound;
-
-	[SerializeField]
-	private float baseDamage = 30f;
+	private ObscuredInt maxAmmo = 150;
 
 	[SerializeField]
 	private float bulletRangeStraight = 50f;
@@ -39,7 +30,11 @@ public class PickupItemMultiThrowingStar : PickupItemWithDelay
 	private float fireRate = 1f;
 
 	[SerializeField]
-	private AudioClip fireSoundClip;
+	private AudioSource fireSound;
+
+	private static readonly float baseDamage = MultiThrowingStarHitPackage.Create().Damage;
+
+	private ObscuredInt currentAmmo;
 
 	private int throwingStarsFired;
 
@@ -49,14 +44,19 @@ public class PickupItemMultiThrowingStar : PickupItemWithDelay
 
 	public override AvatarItemType Type => AvatarItemType.MultiThrowingStar;
 
-	public override int Quantity => ammo;
+	public override int Quantity => currentAmmo;
 
-	protected override bool IsAmmoDepleted => (int)ammo <= 0;
+	protected override bool IsAmmoDepleted => (int)currentAmmo <= 0;
+
+	private void Awake()
+	{
+		currentAmmo = maxAmmo;
+	}
 
 	public override void ResetAmmo()
 	{
 		base.ResetAmmo();
-		ammo = 50;
+		currentAmmo = maxAmmo;
 	}
 
 	protected override void OnHolstered()
@@ -133,7 +133,7 @@ public class PickupItemMultiThrowingStar : PickupItemWithDelay
 			fireTime = Time.time;
 			Fire(isLocal);
 		}
-		if ((int)ammo <= 0)
+		if ((int)currentAmmo <= 0)
 		{
 			MVEquipable component = owner.WorldObjectOwner.GameObject.GetComponent<MVEquipable>();
 			if (component != null)
@@ -155,14 +155,14 @@ public class PickupItemMultiThrowingStar : PickupItemWithDelay
 		bulletThrowingStar.Fire(owner.GetAbsolutProjectileSpeed(bulletSpeed), bulletRangeStraight, lineOfFire, owner.IgnoreWOIDs, bulletRangeFall, bulletFallRate);
 		if (isLocal)
 		{
-			MVGameControllerBase.AudioManager.Play("projectile fire", fireSoundClip, Camera.main.transform.position + Camera.main.transform.forward, 0.5f, SoundRangeDistance.Long);
+			MVGameControllerBase.AudioManager.Play("projectile fire", fireSound, Camera.main.transform.position + Camera.main.transform.forward);
 		}
 		else
 		{
-			MVGameControllerBase.AudioManager.Play("projectile fire", fireSoundClip, muzzlePoint.position, 0.5f, SoundRangeDistance.Long);
+			MVGameControllerBase.AudioManager.Play("projectile fire", fireSound, muzzlePoint.position);
 		}
 		throwingStarsFired++;
-		--ammo;
+		--currentAmmo;
 		if (throwingStarsFired >= numStars)
 		{
 			isFiring = false;

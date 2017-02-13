@@ -8,47 +8,45 @@ public class SizeGunBase : PickupItemWithDelay
 	[SerializeField]
 	private AudioSource audioSource;
 
+	[SerializeField]
+	private float range = 300f;
+
+	[SerializeField]
+	private ObscuredInt maxAmmo = 5;
+
+	[SerializeField]
+	private Color hitColor = new Color(0.2f, 0.3f, 0.9f);
+
+	[SerializeField]
+	private Color missColor = new Color(0.9f, 0.3f, 0.2f);
+
+	private ObscuredInt currentAmmo;
+
 	private int layerMask;
 
-	public float range = 300f;
-
-	public RailRay railGunRayPrefab;
-
-	public AudioClip shootSound;
-
-	public ObscuredInt ammo = 5;
-
-	public Color hitColor = new Color(0.2f, 0.3f, 0.9f);
-
-	public Color missColor = new Color(0.9f, 0.3f, 0.2f);
-
-	private int currAmmo;
-
-	public override int Quantity => ammo;
+	public override int Quantity => currentAmmo;
 
 	public override AvatarItemType Type => AvatarItemType.MouseGun;
 
-	protected override bool IsAmmoDepleted => (int)ammo <= 0;
+	protected override bool IsAmmoDepleted => (int)currentAmmo <= 0;
 
 	private void Awake()
 	{
 		layerMask = (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("Player"));
+		currentAmmo = maxAmmo;
 	}
 
 	public override void ResetAmmo()
 	{
 		base.ResetAmmo();
-		ammo = 5;
+		currentAmmo = maxAmmo;
 	}
 
 	protected override void OnFire(bool isLocal)
 	{
 		Ray ray = new Ray(owner.LookOrigin, owner.LookDirection);
 		bool flag = false;
-		if (audioSource.gameObject.activeInHierarchy)
-		{
-			audioSource.PlayOneShot(shootSound);
-		}
+		MVGameControllerBase.AudioManager.Play("Sound - SizeGunFire", audioSource, muzzlePoint.position);
 		Vector3 point;
 		if (CollisionDetection.MVHit(ray, out var voxelHit, range, owner.IgnoreWOIDs, layerMask))
 		{
@@ -86,8 +84,8 @@ public class SizeGunBase : PickupItemWithDelay
 
 	private void ReduceAmmo()
 	{
-		--ammo;
-		if ((int)ammo <= 0)
+		--currentAmmo;
+		if ((int)currentAmmo <= 0)
 		{
 			MVEquipable component = owner.GetComponent<MVEquipable>();
 			if (component != null)

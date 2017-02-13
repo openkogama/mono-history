@@ -51,6 +51,7 @@ public class AvatarEquipable : MVEquipable
 			Dictionary<object, object> dictionary = new Dictionary<object, object>();
 			dictionary.Add("type", (int)type);
 			dictionary.Add("variantId", variantID);
+			dictionary.Add("updateItemState", 6);
 			Dictionary<object, object> dictionary2 = dictionary;
 			if (holsterable)
 			{
@@ -75,6 +76,7 @@ public class AvatarEquipable : MVEquipable
 	{
 		if (currentItem.Value is Dictionary<object, object> dictionary && dictionary.ContainsKey("holstered"))
 		{
+			dictionary["updateItemState"] = 1;
 			dictionary["holstered"] = true;
 			currentItem.Value = dictionary;
 		}
@@ -84,6 +86,7 @@ public class AvatarEquipable : MVEquipable
 	{
 		if (currentItem.Value is Dictionary<object, object> dictionary && dictionary.ContainsKey("holstered"))
 		{
+			dictionary["updateItemState"] = 2;
 			dictionary["holstered"] = false;
 			currentItem.Value = dictionary;
 		}

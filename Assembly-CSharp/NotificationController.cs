@@ -40,7 +40,7 @@ public class NotificationController : MonoBehaviour
 			FriendRequestAccepted(data);
 			break;
 		default:
-			CurrentManager.InstantiateNotification(type, data);
+			CurrentManager.InstantiateNotification(type, NotificationsManager.eNotificationPanel.tertiary, data);
 			break;
 		}
 	}
@@ -66,7 +66,7 @@ public class NotificationController : MonoBehaviour
 		Friend friend = list[list.Count - 1];
 		if (friend.status == FriendStatus.Pending && MVGameControllerBase.JoinState == MVJoinState.Playing)
 		{
-			FriendRequestNotification friendRequestNotification = (FriendRequestNotification)CurrentManager.InstantiateNotification(NotificationType.FriendRequest, data);
+			FriendRequestNotification friendRequestNotification = (FriendRequestNotification)CurrentManager.InstantiateNotification(NotificationType.FriendRequest, NotificationsManager.eNotificationPanel.tertiary, data);
 			friendRequestNotification.RegisterFriendshipRequest(friend);
 			friendRequestNotification.OnNotificationClosedEnd += UnregisterFriendRequestNotification;
 			FriendRequestQueue.Add(friendRequestNotification);
@@ -75,20 +75,26 @@ public class NotificationController : MonoBehaviour
 
 	public static void PushNotification(string text, Sprite sprite = null, int lifeTime = 5)
 	{
-		PushNotification(text, -1f, sprite, lifeTime);
-	}
-
-	public static void PushNotification(string text, float xScale, Sprite sprite = null, int lifeTime = 5)
-	{
 		Dictionary<object, object> dictionary = new Dictionary<object, object>();
 		dictionary.Add((byte)1, text);
 		dictionary.Add((byte)2, lifeTime);
-		dictionary.Add((byte)4, xScale);
 		if (sprite != null)
 		{
 			dictionary.Add((byte)3, sprite);
 		}
-		CurrentManager.InstantiateNotification(NotificationType.ModalNotification, dictionary);
+		CurrentManager.InstantiateNotification(NotificationType.ModalNotification, NotificationsManager.eNotificationPanel.tertiary, dictionary);
+	}
+
+	public static void PushNotification(NotificationType notificationType, NotificationsManager.eNotificationPanel notificationPriority, NotificationLifetime lifeTime = NotificationLifetime.High)
+	{
+		Dictionary<object, object> data = new Dictionary<object, object>();
+		PushNotification(notificationType, notificationPriority, data, lifeTime);
+	}
+
+	public static void PushNotification(NotificationType notificationType, NotificationsManager.eNotificationPanel notificationPriority, Dictionary<object, object> data, NotificationLifetime lifeTime = NotificationLifetime.High)
+	{
+		data.Add((byte)2, lifeTime);
+		CurrentManager.InstantiateNotification(notificationType, notificationPriority, data);
 	}
 
 	private static void UnregisterFriendRequestNotification(Notification notification)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using MV.Common;
 using UnityEngine;
 
 public class WinningConditionBriefing : MonoBehaviour, IBriefing
@@ -25,11 +26,7 @@ public class WinningConditionBriefing : MonoBehaviour, IBriefing
 	[SerializeField]
 	private CanvasGroup winningConditionGroup;
 
-	[SerializeField]
-	private CanvasGroup teamReminderGroup;
-
-	[SerializeField]
-	private TeamAnnouncement teamAnnouncement;
+	private bool avatarRespawned = true;
 
 	private float fadeTime = 0.3f;
 
@@ -50,12 +47,10 @@ public class WinningConditionBriefing : MonoBehaviour, IBriefing
 			currentWinningConditions.Add(winningConditionList[i].conditionType, winningConditionList[i].conditionSprite);
 		}
 		winningConditionGroup.alpha = 0f;
-		teamReminderGroup.alpha = 0f;
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnWinningCondition = (Action<IWinningCondition>)Delegate.Combine(game.OnWinningCondition, new Action<IWinningCondition>(OnWinningConditionReceived));
 		MVRuntimeDataVariable avatarModeTypeFlags = MVGameControllerBase.WOCM.AvatarLocal.avatarModeTypeFlags;
 		avatarModeTypeFlags.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(avatarModeTypeFlags.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChanged));
-		teamAnnouncement.AvatarRespawned = true;
 	}
 
 	private void AvatarStateChanged(object state)
@@ -63,7 +58,7 @@ public class WinningConditionBriefing : MonoBehaviour, IBriefing
 		int num = (int)state;
 		if ((num & 4) > 0)
 		{
-			teamAnnouncement.AvatarRespawned = true;
+			avatarRespawned = true;
 		}
 	}
 
@@ -164,29 +159,12 @@ public class WinningConditionBriefing : MonoBehaviour, IBriefing
 				winningConditionMet = false;
 			}
 		}
-		if (teamAnnouncement.AvatarRespawned)
+		if (avatarRespawned)
 		{
-			yield return StartCoroutine(ShowAnnouncementCoroutine(teamReminderGroup));
+			NotificationController.PushNotification(NotificationType.TeamNotification, NotificationsManager.eNotificationPanel.secondary);
+			avatarRespawned = false;
 		}
 		Clear();
-		yield return 0;
-	}
-
-	private IEnumerator ShowAnnouncementCoroutine(CanvasGroup group)
-	{
-		teamAnnouncement.InitializeAnnouncement();
-		group.alpha = 0f;
-		yield return StartCoroutine(Wait(initialWaitTime));
-		CanvasGroup group2 = default;
-		yield return StartCoroutine(pTween.To(fadeTime, 0f, 1f, (float t) =>
-		{
-			group2.alpha = t;
-		}));
-		yield return StartCoroutine(Wait(stayTime));
-		yield return StartCoroutine(pTween.To(fadeTime, 1f, 0f, (float t) =>
-		{
-			group2.alpha = t;
-		}));
 		yield return 0;
 	}
 
@@ -221,6 +199,5 @@ public class WinningConditionBriefing : MonoBehaviour, IBriefing
 		}
 		instantiatedConditions.Clear();
 		winningConditionGroup.alpha = 0f;
-		teamReminderGroup.alpha = 0f;
 	}
 }

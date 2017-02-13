@@ -86,7 +86,7 @@ public abstract class MVPickupOwner : MVComponent
 	{
 		this.lookOrigin = lookOrigin;
 		this.lookDirection = lookDirection;
-		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer && CurrentItem != null)
+		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer && CurrentItem != null && !CurrentItem.IsHolstered)
 		{
 			CurrentItem.UpdateWithDirection(lookDirection);
 		}
@@ -157,32 +157,29 @@ public abstract class MVPickupOwner : MVComponent
 		}
 		AvatarItemType avatarItemType = (AvatarItemType)(int)newState["type"];
 		int num = (newState.ContainsKey("variantId") ? ((int)newState["variantId"]) : 0);
-		bool flag = newState.ContainsKey("holstered") && (bool)newState["holstered"];
+		bool obj = newState.ContainsKey("holstered") && (bool)newState["holstered"];
+		UpdateItemState updateItemState = (newState.ContainsKey("updateItemState") ? ((UpdateItemState)(int)newState["updateItemState"]) : UpdateItemState.None);
 		if (currentItem == null || avatarItemType != currentItem.Type || num != currentItem.VariantID)
 		{
 			Equip(avatarItemType, num);
 		}
-		else if (flag == currentItem.IsHolstered)
+		else if ((updateItemState & UpdateItemState.ResetAmmo) != 0)
 		{
 			currentItem.ResetAmmo();
 		}
 		if (currentItem.CanHolster)
 		{
-			if (flag)
+			if ((updateItemState & UpdateItemState.Holster) != 0 && !currentItem.IsHolstered)
 			{
 				currentItem.HolsterPickup();
-				if (OnHolsteredChanged != null)
-				{
-					OnHolsteredChanged(obj: true);
-				}
 			}
-			else
+			if ((updateItemState & UpdateItemState.Unholster) != 0 && currentItem.IsHolstered)
 			{
 				currentItem.UnholsterPickup();
-				if (OnHolsteredChanged != null)
-				{
-					OnHolsteredChanged(obj: false);
-				}
+			}
+			if (OnHolsteredChanged != null)
+			{
+				OnHolsteredChanged(obj);
 			}
 		}
 		currentItem.OnStateChanged(newState);

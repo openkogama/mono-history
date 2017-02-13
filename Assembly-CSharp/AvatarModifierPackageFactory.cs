@@ -198,7 +198,7 @@ public static class AvatarModifierPackageFactory
 		},
 		{
 			AvatarModifierPackageType.SpawnProtection,
-			AssembleInvulnerabilityPackage(AvatarModifierPackageType.SpawnProtection, 2f)
+			AssembleInvulnerabilityPackage(AvatarModifierPackageType.SpawnProtection, 4f)
 		}
 	};
 

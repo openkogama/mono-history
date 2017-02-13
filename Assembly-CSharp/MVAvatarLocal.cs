@@ -1090,6 +1090,10 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 		{
 			OnDamageTaken(amount, damageDealer, damageType);
 		}
+		if (Health.Value <= 0f)
+		{
+			int num = damageDealer?.ActorNr ?? MVGameControllerBase.Game.LocalPlayerActorNumber;
+		}
 	}
 
 	public float GetColliderRadius()
@@ -1396,8 +1400,11 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 		avatarMotor.Reset();
 	}
 
-	public void VisualizeBulletImpact(VoxelHit voxelHit, Ray lineOfFire, int shooterActornumber, float damage = 100f)
+	public void VisualizeBulletImpact(VoxelHit voxelHit, Ray lineOfFire, int shooterActorNumber, float damage = 100f)
 	{
-		avatar.VisualizeBulletImpact(voxelHit, lineOfFire, shooterActornumber, damage);
+		if (!MVGameControllerBase.Game.TeamManager.IsOnSameTeam(OwnerActorNr, shooterActorNumber) && !IsInMode(AvatarModeTypes.Dead))
+		{
+			avatar.VisualizeBulletImpact(voxelHit, lineOfFire, shooterActorNumber, damage);
+		}
 	}
 }

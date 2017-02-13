@@ -1,6 +1,7 @@
-using UnityEngine;
+using System.Collections.Generic;
+using MV.Common;
 
-public class HolsterTip : MonoBehaviour
+public class HolsterTip
 {
 	private enum HolsterState
 	{
@@ -9,53 +10,18 @@ public class HolsterTip : MonoBehaviour
 		Unholstered
 	}
 
-	[SerializeField]
-	private CanvasGroup group;
-
-	[SerializeField]
-	private AnimationCurve textVisibilityCurve;
-
-	[SerializeField]
-	private float duration = 1f;
-
-	[SerializeField]
-	private float timeoutPeriod = 120f;
-
-	private float currentTime;
-
-	private float activatedTime = -120f;
-
 	private HolsterState holsterState;
-
-	public void Reset()
-	{
-		currentTime = 0f;
-		group.alpha = 0f;
-	}
 
 	public void SetHolsterState(bool itemIsHolstered)
 	{
 		HolsterState holsterState = (itemIsHolstered ? HolsterState.Holstered : HolsterState.Unholstered);
-		if (this.holsterState != holsterState && currentTime == 0f && Time.time > activatedTime + timeoutPeriod)
+		if (this.holsterState != holsterState)
 		{
 			this.holsterState = holsterState;
-			enabled = true;
-			activatedTime = Time.time;
-		}
-	}
-
-	private void Update()
-	{
-		if (holsterState != HolsterState.NotSet)
-		{
-			currentTime += Time.deltaTime;
-			group.alpha = textVisibilityCurve.Evaluate(currentTime / duration);
-			if (currentTime >= duration)
-			{
-				group.alpha = 0f;
-				enabled = false;
-				currentTime = 0f;
-			}
+			Dictionary<object, object> dictionary = new Dictionary<object, object>();
+			dictionary.Add((byte)1, TM._("Press V or use scrollwheel to toggle Holster."));
+			Dictionary<object, object> data = dictionary;
+			NotificationController.PushNotification(NotificationType.PlayerTip, NotificationsManager.eNotificationPanel.secondary, data);
 		}
 	}
 }

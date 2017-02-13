@@ -88,6 +88,11 @@ public class AudioManager : MonoBehaviour
 		return null;
 	}
 
+	public Sound Play(string name, AudioSource audioSource)
+	{
+		return Play(name, audioSource, audioSource.transform.position);
+	}
+
 	public Sound Play(string name, AudioSource audioSource, Vector3 position)
 	{
 		if (pooledSounds.Count != 0)
@@ -99,9 +104,15 @@ public class AudioManager : MonoBehaviour
 			sound.go.name = "Sound (" + name + ")";
 			sound.go.transform.localPosition = position;
 			sound.audio.clip = audioSource.clip;
-			sound.audio.volume = audioSource.volume;
-			sound.audio.pitch = audioSource.pitch;
+			sound.audio.outputAudioMixerGroup = audioSource.outputAudioMixerGroup;
+			sound.audio.mute = audioSource.mute;
+			sound.audio.bypassEffects = audioSource.bypassEffects;
+			sound.audio.bypassListenerEffects = audioSource.bypassListenerEffects;
+			sound.audio.bypassReverbZones = audioSource.bypassReverbZones;
+			sound.audio.playOnAwake = audioSource.playOnAwake;
+			sound.audio.loop = audioSource.loop;
 			sound.audio.priority = audioSource.priority;
+			sound.audio.volume = audioSource.volume;
 			sound.audio.pitch = audioSource.pitch;
 			sound.audio.panStereo = audioSource.panStereo;
 			sound.audio.spatialBlend = audioSource.spatialBlend;
@@ -111,6 +122,10 @@ public class AudioManager : MonoBehaviour
 			sound.audio.rolloffMode = audioSource.rolloffMode;
 			sound.audio.minDistance = audioSource.minDistance;
 			sound.audio.maxDistance = audioSource.maxDistance;
+			if (sound.audio.rolloffMode == AudioRolloffMode.Custom)
+			{
+				sound.audio.SetCustomCurve(AudioSourceCurveType.CustomRolloff, audioSource.GetCustomCurve(AudioSourceCurveType.CustomRolloff));
+			}
 			sound.audio.Play();
 			return sound;
 		}

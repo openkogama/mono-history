@@ -1,31 +1,28 @@
+using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class TeamAnnouncement : MonoBehaviour
+public class TeamAnnouncement : Notification
 {
 	[SerializeField]
 	private Text teamColorText;
 
-	[SerializeField]
-	private GameObject announcementDisabler;
+	protected override NotificationLifetime Lifetime => NotificationLifetime.High;
 
-	public bool AvatarRespawned { get; set; }
-
-	public void InitializeAnnouncement()
+	public override void Initialize(Dictionary<object, object> data)
 	{
-		if (AvatarRespawned)
+		base.Initialize(data);
+		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
 		{
-			bool flag = MVGameControllerBase.Game.TeamManager.TeamCount() > 1;
-			announcementDisabler.SetActive(flag);
-			if (flag)
-			{
-				MVTeam teamFromActorNr = MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(MVGameControllerBase.Game.LocalPlayerActorNumber);
-				Color teamColor = Styles.GetTeamColor(teamFromActorNr);
-				teamColorText.color = teamColor;
-				teamColorText.text = string.Format(TM._("{0} Team"), teamFromActorNr.ToString());
-			}
-			AvatarRespawned = false;
+			MVTeam teamFromActorNr = MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(MVGameControllerBase.Game.LocalPlayerActorNumber);
+			Color teamColor = Styles.GetTeamColor(teamFromActorNr);
+			teamColorText.color = teamColor;
+			teamColorText.text = string.Format(TM._("{0} Team"), teamFromActorNr.ToString());
+		}
+		else
+		{
+			teamColorText.text = string.Empty;
 		}
 	}
 }

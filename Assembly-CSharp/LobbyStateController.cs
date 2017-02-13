@@ -53,4 +53,17 @@ public class LobbyStateController : MonoBehaviour
 	{
 		rewardTransform.gameObject.SetActive(value: true);
 	}
+
+	private void OnDisable()
+	{
+		if (MVGameControllerBase.Game != null)
+		{
+			MVGameControllerBase.WOCM.AvatarLocal.Body.AccessoryMoveOverride = false;
+		}
+	}
+
+	private void OnEnable()
+	{
+		MVGameControllerBase.WOCM.AvatarLocal.Body.AccessoryMoveOverride = true;
+	}
 }

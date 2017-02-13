@@ -17,7 +17,6 @@ public class TeamMenuButton : MonoBehaviour
 
 	private void Start()
 	{
-		buttonEnabler.SetActive(value: false);
 		MVRuntimeDataVariable avatarModeTypeFlags = MVGameControllerBase.WOCM.AvatarLocal.avatarModeTypeFlags;
 		avatarModeTypeFlags.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(avatarModeTypeFlags.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChanged));
 		SetButtonTeamColor();

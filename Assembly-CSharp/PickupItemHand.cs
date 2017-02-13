@@ -5,8 +5,6 @@ using UnityEngine;
 
 public class PickupItemHand : PickupItemWithDelay
 {
-	public ParticleSystem hitParticles;
-
 	public float pushMagnitude = 500f;
 
 	public float pushRadius = 3f;

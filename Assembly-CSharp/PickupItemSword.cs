@@ -11,8 +11,8 @@ public class PickupItemSword : PickupItemWithDelay
 	[SerializeField]
 	private AudioSource audioSource;
 
-	[SerializeField]
 	[Tooltip("Impulse delivered to enemy on hit.")]
+	[SerializeField]
 	private float impulseStrength = 500f;
 
 	[SerializeField]
@@ -25,12 +25,11 @@ public class PickupItemSword : PickupItemWithDelay
 	private float bladeRadius = 3f;
 
 	[SerializeField]
-	private float hitDamage = 25f;
-
-	[SerializeField]
 	private float range = 1f;
 
 	private int hitLayerMask;
+
+	private static readonly float hitDamage = SwordHitPackage.Create(new Vector3(0f, 0f, 0f)).Damage;
 
 	public override AvatarItemType Type => AvatarItemType.Sword;
 

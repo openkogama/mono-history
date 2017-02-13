@@ -85,12 +85,17 @@ public class DesktopLobbyStateController : MonoBehaviour
 
 	private void OnDisable()
 	{
-		accessoryMover.Destroy();
+		if (MVGameControllerBase.Game != null)
+		{
+			accessoryMover.Destroy();
+			MVGameControllerBase.WOCM.AvatarLocal.Body.AccessoryMoveOverride = false;
+		}
 	}
 
 	private void OnEnable()
 	{
 		accessoryMover.Activate();
+		MVGameControllerBase.WOCM.AvatarLocal.Body.AccessoryMoveOverride = true;
 		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
 		{
 			teamButton.SetActive(value: true);

@@ -12,26 +12,47 @@ public class PickupItemCenterGun : PickupItemWithDelay
 	[SerializeField]
 	private ParticleSystem muzzleFlare;
 
-	public ObscuredInt ammo;
+	[SerializeField]
+	private ObscuredInt maxAmmo;
 
-	public float projectileSpeed = 70f;
+	[SerializeField]
+	private float projectileSpeed = 70f;
 
-	public float range = 100f;
+	[SerializeField]
+	private float range = 100f;
 
-	public float impulseStrength = 700f;
+	[SerializeField]
+	private float impulseStrength = 700f;
 
-	public float damage = 13f;
+	private static readonly float damage = CenterGunHitPackage.Create(new Vector3(0f, 0f, 0f)).Damage;
 
-	protected override bool IsAmmoDepleted => (int)ammo <= 0;
+	private ObscuredInt currentAmmo;
 
 	public override AvatarItemType Type => AvatarItemType.CenterGun;
 
-	public override int Quantity => ammo;
+	public override int Quantity => currentAmmo;
+
+	protected override bool IsAmmoDepleted => (int)currentAmmo <= 0;
+
+	private void Awake()
+	{
+		currentAmmo = maxAmmo;
+	}
 
 	public override void ResetAmmo()
 	{
 		base.ResetAmmo();
-		ammo = 100;
+		currentAmmo = maxAmmo;
+	}
+
+	public override void TriggerBegin(int instigatorActorNr)
+	{
+		isFiring = true;
+	}
+
+	public override void TriggerEnd()
+	{
+		isFiring = false;
 	}
 
 	protected override void OnFire(bool isLocal)
@@ -45,7 +66,7 @@ public class PickupItemCenterGun : PickupItemWithDelay
 			bullet.onHitLocal = OnLocalBulletHit;
 		}
 		bullet.Fire(owner.GetAbsolutProjectileSpeed(projectileSpeed), range, lineOfFire, owner.IgnoreWOIDs);
-		--ammo;
+		--currentAmmo;
 		Vector3 position = ((!isLocal) ? muzzlePoint.position : (Camera.main.transform.position + Camera.main.transform.forward));
 		MVGameControllerBase.AudioManager.Play("CenterGun fire", audioSource, position);
 	}

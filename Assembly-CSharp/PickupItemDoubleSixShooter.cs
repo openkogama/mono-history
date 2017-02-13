@@ -5,52 +5,61 @@ using UnityEngine;
 
 public class PickupItemDoubleSixShooter : PickupItemWithDelay
 {
-	public ObscuredInt ammo;
+	[SerializeField]
+	private ObscuredInt maxAmmo;
 
-	public Material hitDecalMaterial;
+	[SerializeField]
+	private float recoilImpact = 700f;
 
-	public Bullet bulletPrefab;
+	[SerializeField]
+	private float bulletRange = 50f;
 
-	public AudioClip bulletHitSound;
+	[SerializeField]
+	private float bulletSpeed = 80f;
 
-	public float recoilImpact = 700f;
+	[SerializeField]
+	private float hitImpact = 300f;
 
-	public float baseDamage = 30f;
+	[SerializeField]
+	private AudioSource fireSound;
 
-	public float bulletRange = 50f;
+	[SerializeField]
+	private Transform muzzlePoint2;
 
-	public float bulletSpeed = 80f;
+	[SerializeField]
+	private ParticleEmitter fireEmitter;
 
-	public AudioClip fireSoundClip;
+	[SerializeField]
+	private Animation animComponentL;
 
-	public Transform muzzlePoint2;
+	[SerializeField]
+	private Animation animComponentR;
 
-	public ParticleEmitter fireEmitter;
+	private ObscuredInt currentAmmo;
 
-	public float hitImpact = 300f;
-
-	public Animation animComponentL;
-
-	public Animation animComponentR;
-
-	public AnimationClip gunFireAnim;
+	private static readonly float baseDamage = DoubleSixShooterHitPackage.Create(new Vector3(0f, 0f, 0f)).Damage;
 
 	public override AvatarItemType Type => AvatarItemType.DoubleSixShooter;
 
-	public override int Quantity => ammo;
+	public override int Quantity => currentAmmo;
 
-	protected override bool IsAmmoDepleted => (int)ammo <= 0;
+	protected override bool IsAmmoDepleted => (int)currentAmmo <= 0;
+
+	private void Awake()
+	{
+		currentAmmo = maxAmmo;
+	}
 
 	public override void ResetAmmo()
 	{
 		base.ResetAmmo();
-		ammo = 12;
+		currentAmmo = maxAmmo;
 	}
 
 	protected override void OnFire(bool isLocal)
 	{
 		Bullet bullet = null;
-		if ((int)ammo % 2 == 0)
+		if ((int)currentAmmo % 2 == 0)
 		{
 			bullet = Bullet.CreateBullet(PoolEnums.SixShooterBullet, muzzlePoint.position);
 			UnityEngine.Object.Instantiate(fireEmitter, muzzlePoint.position, Quaternion.identity);
@@ -69,14 +78,14 @@ public class PickupItemDoubleSixShooter : PickupItemWithDelay
 			bullet.onHitLocal = OnLoclaHit;
 		}
 		bullet.Fire(lineOfFire: new Ray(owner.LookOrigin, owner.LookDirection), speed: owner.GetAbsolutProjectileSpeed(bulletSpeed), range: bulletRange, ignoreWoIDs: owner.IgnoreWOIDs);
-		--ammo;
+		--currentAmmo;
 		if (isLocal)
 		{
-			MVGameControllerBase.AudioManager.Play("projectile fire", fireSoundClip, Camera.main.transform.position + Camera.main.transform.forward, 0.28f, SoundRangeDistance.Long);
+			MVGameControllerBase.AudioManager.Play("projectile fire", fireSound, Camera.main.transform.position + Camera.main.transform.forward);
 		}
 		else
 		{
-			MVGameControllerBase.AudioManager.Play("projectile fire", fireSoundClip, muzzlePoint.position, 0.28f, SoundRangeDistance.Long);
+			MVGameControllerBase.AudioManager.Play("projectile fire", fireSound, muzzlePoint.position);
 		}
 		isFiring = false;
 		MVRigidBody component = owner.GetComponent<MVRigidBody>();

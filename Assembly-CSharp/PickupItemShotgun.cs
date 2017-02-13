@@ -6,50 +6,50 @@ using UnityEngine;
 
 public class PickupItemShotgun : PickupItemWithDelay
 {
-	public ShotgunShot shotgunShotPrefab;
+	[SerializeField]
+	private ParticleSystem muzzleFlare;
 
-	public Bullet bulletPrefab;
+	[SerializeField]
+	private ObscuredInt maxAmmo = 24;
 
-	public Material hitDecalMaterial;
+	[SerializeField]
+	private float spread = 0.1f;
 
-	public ParticleSystem muzzleFlare;
+	[SerializeField]
+	private float impulseStrength = 700f;
 
-	public ObscuredInt ammo;
+	[SerializeField]
+	private float maxRange = 50f;
 
-	public float spread = 0.1f;
-
-	public float hitDamage = 34f;
-
-	public float impulseStrength = 700f;
-
-	public float maxRange = 50f;
-
-	public float fireRate = 1f;
-
-	public float bulletSpeed = 100f;
+	[SerializeField]
+	private float bulletSpeed = 100f;
 
 	[SerializeField]
 	private AudioSource audioSource;
+
+	private static readonly float hitDamage = ShotgunHitPackage.Create(new Vector3(0f, 0f, 0f)).Damage;
 
 	private static readonly float[] offsetsX = new float[5] { -1f, -1f, 0f, 1f, 1f };
 
 	private static readonly float[] offsetsY = new float[5] { -1f, 1f, 0f, -1f, 1f };
 
+	private ObscuredInt currentAmmo;
+
 	public override AvatarItemType Type => AvatarItemType.Shotgun;
 
-	public override int Quantity => ammo;
+	public override int Quantity => currentAmmo;
 
-	protected override bool IsAmmoDepleted => (int)ammo <= 0;
+	protected override bool IsAmmoDepleted => (int)currentAmmo <= 0;
 
 	private void Awake()
 	{
-		fireInterval = fireRate;
+		currentAmmo = maxAmmo;
 	}
 
 	public override void ResetAmmo()
 	{
 		base.ResetAmmo();
-		ammo = 24;
+		currentAmmo = maxAmmo;
 	}
 
 	protected override void OnFire(bool isLocal)
@@ -69,7 +69,7 @@ public class PickupItemShotgun : PickupItemWithDelay
 			}
 			bullet.Fire(owner.GetAbsolutProjectileSpeed(bulletSpeed), maxRange, lineOfFire, owner.IgnoreWOIDs);
 		}
-		--ammo;
+		--currentAmmo;
 		if (isLocal)
 		{
 			MVGameControllerBase.AudioManager.Play("shotgun fire", audioSource, Camera.main.transform.position + Camera.main.transform.forward);

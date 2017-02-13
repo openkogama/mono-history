@@ -21,6 +21,10 @@ public class PlayerNotification : Notification
 
 	private MVPlayer player;
 
+	protected NotificationLifetime lifeTime;
+
+	protected override NotificationLifetime Lifetime => lifeTime;
+
 	public override void Initialize(Dictionary<object, object> data)
 	{
 		base.Initialize(data);
@@ -28,19 +32,19 @@ public class PlayerNotification : Notification
 		if (player.Level >= 25)
 		{
 			PrestigiousPlayerFrame.gameObject.SetActive(value: true);
-			Lifetime = NotificationLifetime.High;
+			lifeTime = NotificationLifetime.High;
 		}
 		else
 		{
 			PrestigiousPlayerFrame.gameObject.SetActive(value: false);
-			Lifetime = NotificationLifetime.Low;
+			lifeTime = NotificationLifetime.Low;
 		}
 		Friend friendByProfileID = MVGameControllerBase.Game.Friends.GetFriendByProfileID(player.ProfileID);
 		if (friendByProfileID != null && friendByProfileID.status == FriendStatus.Accepted)
 		{
 			PrestigiousPlayerFrame.gameObject.SetActive(value: false);
 			FriendPlayerFrame.gameObject.SetActive(value: true);
-			Lifetime = NotificationLifetime.High;
+			lifeTime = NotificationLifetime.High;
 		}
 		if (LevelingManager.IsInitialized)
 		{

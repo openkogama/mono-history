@@ -5,36 +5,43 @@ using UnityEngine;
 
 public class PickupItemThrowingStar : PickupItemWithDelay
 {
-	public ObscuredInt ammo;
+	[SerializeField]
+	private ObscuredInt maxAmmo;
 
-	public Material hitDecalMaterial;
+	[SerializeField]
+	private float bulletRangeStraight = 50f;
 
-	public BulletThrowingStar bulletPrefab;
+	[SerializeField]
+	private float bulletRangeFall = 50f;
 
-	public AudioClip bulletHitSound;
+	[SerializeField]
+	private float bulletFallRate = 0.1f;
 
-	public float baseDamage = 30f;
+	[SerializeField]
+	private float bulletSpeed = 80f;
 
-	public float bulletRangeStraight = 50f;
+	[SerializeField]
+	private AudioSource fireSound;
 
-	public float bulletRangeFall = 50f;
+	private static readonly float damage = ThrowingStarHitPackage.Create().Damage;
 
-	public float bulletFallRate = 0.1f;
-
-	public float bulletSpeed = 80f;
-
-	public AudioClip fireSoundClip;
+	private ObscuredInt currentAmmo;
 
 	public override AvatarItemType Type => AvatarItemType.ThrowingStar;
 
-	public override int Quantity => ammo;
+	public override int Quantity => currentAmmo;
 
-	protected override bool IsAmmoDepleted => (int)ammo <= 0;
+	protected override bool IsAmmoDepleted => (int)currentAmmo <= 0;
+
+	private void Awake()
+	{
+		currentAmmo = maxAmmo;
+	}
 
 	public override void ResetAmmo()
 	{
 		base.ResetAmmo();
-		ammo = 50;
+		currentAmmo = maxAmmo;
 	}
 
 	protected override void OnFire(bool isLocal)
@@ -46,14 +53,14 @@ public class PickupItemThrowingStar : PickupItemWithDelay
 			bulletThrowingStar.onHitLocal = OnLocalBulletHit;
 		}
 		bulletThrowingStar.Fire(lineOfFire: new Ray(owner.LookOrigin, owner.LookDirection), speed: owner.GetAbsolutProjectileSpeed(bulletSpeed), rangeStraight: bulletRangeStraight, ignoreWoIDs: owner.IgnoreWOIDs, rangeFall: bulletRangeFall, fallRate: bulletFallRate);
-		--ammo;
+		--currentAmmo;
 		if (isLocal)
 		{
-			MVGameControllerBase.AudioManager.Play("projectile fire", fireSoundClip, Camera.main.transform.position + Camera.main.transform.forward, 0.5f, SoundRangeDistance.Long);
+			MVGameControllerBase.AudioManager.Play("projectile fire", fireSound, Camera.main.transform.position + Camera.main.transform.forward);
 		}
 		else
 		{
-			MVGameControllerBase.AudioManager.Play("projectile fire", fireSoundClip, muzzlePoint.position, 0.5f, SoundRangeDistance.Long);
+			MVGameControllerBase.AudioManager.Play("projectile fire", fireSound, muzzlePoint.position);
 		}
 		isFiring = false;
 	}
@@ -63,7 +70,7 @@ public class PickupItemThrowingStar : PickupItemWithDelay
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
 		if (worldObjectClient is IBulletImpactVisualizer)
 		{
-			((IBulletImpactVisualizer)worldObjectClient).VisualizeBulletImpact(voxelHit, lineOfFire, owner.WorldObjectOwner.OwnerActorNr, baseDamage);
+			((IBulletImpactVisualizer)worldObjectClient).VisualizeBulletImpact(voxelHit, lineOfFire, owner.WorldObjectOwner.OwnerActorNr, damage);
 		}
 		else
 		{

@@ -8,35 +8,41 @@ using UnityEngine;
 
 public class PickupItemCubeGun : PickupItemWithDelay
 {
-	public float minDistanceToCubeFire = 0.8f;
+	[SerializeField]
+	private float minDistanceToCubeFire = 0.8f;
 
-	public int ammo = 10;
+	[SerializeField]
+	private ObscuredInt maxAmmo = 10;
 
-	public RailRay railGunRayPrefab;
+	[SerializeField]
+	private float speed = 30f;
 
-	public float speed = 30f;
+	[SerializeField]
+	private float range = 200f;
 
-	public float range = 200f;
+	[SerializeField]
+	private Transform chargeObject;
 
-	public Transform chargeObject;
+	[SerializeField]
+	private ObscuredFloat fireIntervalSecondary = 0.5f;
 
-	public ObscuredFloat fireIntervalSecondary = 0.5f;
+	[SerializeField]
+	private GUICellCursor primaryCursor;
 
-	public CubeGunBulletObject rocketPrefab;
+	[SerializeField]
+	private GUICellCursor secondaryCursor;
 
-	public GUICellCursor primaryCursor;
+	[SerializeField]
+	private AudioClip cubeLandedSound;
 
-	public GUICellCursor secondaryCursor;
+	[SerializeField]
+	private AudioClip fireSound;
 
-	public AudioClip cubeLandedSound;
+	[SerializeField]
+	private AudioSource audioSource;
 
-	public AudioClip chargeSound;
-
-	public AudioClip releaseSound;
-
-	public AudioClip cubeDestroyedSound;
-
-	public AudioClip firePrimary;
+	[SerializeField]
+	private CubeBullet cubeBullet;
 
 	private float prevFireTime;
 
@@ -50,11 +56,6 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	private bool fireSecondary;
 
-	[SerializeField]
-	private AudioSource audioSource;
-
-	public CubeBullet cubeBullet;
-
 	private bool showingCursors;
 
 	private bool hasLeftVehicle;
@@ -67,7 +68,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	private void Awake()
 	{
-		currentAmmo = ammo;
+		currentAmmo = maxAmmo;
 		fireInterval = 0.3f;
 		fireIntervalSecondary = 0.5f;
 	}
@@ -92,12 +93,6 @@ public class PickupItemCubeGun : PickupItemWithDelay
 		if (showingCursors)
 		{
 			HandleCursors();
-		}
-		if (fireSecondary && audioSource.gameObject.activeInHierarchy && audioSource.clip != chargeSound)
-		{
-			audioSource.clip = chargeSound;
-			audioSource.loop = true;
-			audioSource.Play();
 		}
 		if (IsAmmoDepleted && cubeBullet.MeshRenderer.enabled)
 		{
@@ -228,7 +223,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 	public override void ResetAmmo()
 	{
 		base.ResetAmmo();
-		currentAmmo = ammo;
+		currentAmmo = maxAmmo;
 	}
 
 	public override void OnStateChanged(Dictionary<object, object> newState)
@@ -268,14 +263,6 @@ public class PickupItemCubeGun : PickupItemWithDelay
 		cubeGunBulletObject.Bullet.PooledObjectReference = cubeGunBulletObject;
 		Ray lineOfFire = new Ray(owner.LookOrigin, owner.LookDirection);
 		cubeGunBulletObject.Bullet.Fire(owner.GetAbsolutProjectileSpeed(speed), range, lineOfFire, owner.IgnoreWOIDs);
-		if (isLocal)
-		{
-			MVGameControllerBase.AudioManager.Play("cubeFire", firePrimary, Camera.main.transform.position + Camera.main.transform.forward, 0.4f, SoundRangeDistance.Long);
-		}
-		else
-		{
-			MVGameControllerBase.AudioManager.Play("cubeFire", firePrimary, muzzlePoint.position, 0.4f, SoundRangeDistance.Long);
-		}
 		currentAmmo = (int)currentAmmo - 1;
 	}
 
@@ -283,9 +270,9 @@ public class PickupItemCubeGun : PickupItemWithDelay
 	{
 		if (audioSource.gameObject.activeInHierarchy)
 		{
-			audioSource.clip = releaseSound;
+			audioSource.clip = fireSound;
 			audioSource.loop = false;
-			audioSource.Play();
+			MVGameControllerBase.AudioManager.Play("CubeGun - fireSound", audioSource, muzzlePoint.position);
 		}
 		Ray ray = new Ray(owner.LookOrigin, owner.LookDirection);
 		int num = -5 & ~(1 << LayerMask.NameToLayer("Player"));
@@ -482,7 +469,8 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	private void HandleCubeHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
-		MVGameControllerBase.AudioManager.Play("cubeLanded", cubeLandedSound, voxelHit.point, 0.6f, SoundRangeDistance.Long);
+		audioSource.clip = cubeLandedSound;
+		MVGameControllerBase.AudioManager.Play("CubeGun - cubeLanded", audioSource, voxelHit.point);
 	}
 
 	private IntVector GetCubePos(VoxelHit voxelHit)

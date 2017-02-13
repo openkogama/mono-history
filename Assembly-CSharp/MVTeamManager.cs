@@ -152,6 +152,6 @@ public class MVTeamManager
 		{
 			return actorNumberA == actorNumberB;
 		}
-		return MVGameControllerBase.Game.Players[actorNumberA].Team == MVGameControllerBase.Game.Players[actorNumberB].Team;
+		return MVGameControllerBase.Game.Players[actorNumberA].Team == MVGameControllerBase.Game.Players[actorNumberB].Team && TeamCount() > 1;
 	}
 }

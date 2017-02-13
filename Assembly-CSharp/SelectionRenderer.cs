@@ -26,6 +26,8 @@ public class SelectionRenderer : MonoBehaviour
 	[SerializeField]
 	private float fadeInTime = 0.5f;
 
+	private List<Mesh> wireMeshes;
+
 	private float strength;
 
 	private bool fadingIn;
@@ -74,19 +76,29 @@ public class SelectionRenderer : MonoBehaviour
 		{
 			wireMaterial = new Material(wireMaterial);
 		}
+		wireMeshes = new List<Mesh>(meshFilters.Count);
+		for (int i = 0; i < meshFilters.Count; i++)
+		{
+			wireMeshes.Add(new Mesh());
+		}
 	}
 
 	public void AddMeshFilter(MeshFilter m)
 	{
 		meshFilters.Add(m);
+		wireMeshes.Add(new Mesh());
 	}
 
 	public void AddMeshFilters(MeshFilter[] m)
 	{
 		meshFilters.AddRange(m);
+		for (int i = 0; i < m.Length; i++)
+		{
+			wireMeshes.Add(new Mesh());
+		}
 	}
 
-	public void Render()
+	public void Show()
 	{
 		strength += Time.deltaTime / fadeInTime;
 		if (strength > 1f)
@@ -98,19 +110,28 @@ public class SelectionRenderer : MonoBehaviour
 
 	private void LateUpdate()
 	{
-		if (strength > 0f)
+		if (!(strength > 0f))
 		{
-			if (!fadingIn)
+			return;
+		}
+		if (!fadingIn)
+		{
+			FadeOut();
+		}
+		fadingIn = false;
+		tintMaterial.color = color * strength;
+		wireMaterial.color = wireColor * strength;
+		for (int i = 0; i < meshFilters.Count; i++)
+		{
+			Matrix4x4 localToWorldMatrix = meshFilters[i].transform.localToWorldMatrix;
+			Mesh mesh = wireMeshes[i];
+			mesh.vertices = meshFilters[i].sharedMesh.vertices;
+			for (int j = 0; j < meshFilters[i].sharedMesh.subMeshCount; j++)
 			{
-				FadeOut();
+				mesh.SetIndices(meshFilters[i].sharedMesh.GetIndices(j), MeshTopology.LineStrip, j);
 			}
-			fadingIn = false;
-			tintMaterial.color = color * strength;
-			wireMaterial.color = wireColor * strength;
-			for (int i = 0; i < meshFilters.Count; i++)
-			{
-				Draw(meshFilters[i].sharedMesh, meshFilters[i].transform);
-			}
+			Graphics.DrawMesh(mesh, localToWorldMatrix, wireMaterial, 0);
+			Graphics.DrawMesh(meshFilters[i].sharedMesh, localToWorldMatrix, tintMaterial, 0);
 		}
 	}
 
@@ -120,19 +141,6 @@ public class SelectionRenderer : MonoBehaviour
 		if (strength < 0f)
 		{
 			strength = 0f;
-		}
-	}
-
-	private void Draw(Mesh mesh, Transform meshTransform)
-	{
-		Matrix4x4 localToWorldMatrix = meshTransform.localToWorldMatrix;
-		Mesh mesh2 = new Mesh();
-		mesh2.vertices = mesh.vertices;
-		for (int i = 0; i < mesh.subMeshCount; i++)
-		{
-			mesh2.SetIndices(mesh.GetIndices(i), MeshTopology.LineStrip, i);
-			Graphics.DrawMesh(mesh2, localToWorldMatrix, wireMaterial, 0);
-			Graphics.DrawMesh(mesh, localToWorldMatrix, tintMaterial, 0);
 		}
 	}
 }

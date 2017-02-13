@@ -11,14 +11,14 @@ public class UseInteractorHandler : MVComponent
 
 	private Collider triggingCollider;
 
-	private MVInteractableBase avatarBase;
+	private MVInteractableBase interactionBase;
 
 	private static readonly UseGUIResult useGui = UseGUIResult.NoUseButton | UseGUIResult.NoCost | UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
 	public void Init(Collider triggingCollider)
 	{
 		this.triggingCollider = triggingCollider;
-		avatarBase = gameObject.GetComponent<MVInteractableBase>();
+		interactionBase = gameObject.GetComponent<MVInteractableBase>();
 	}
 
 	public void AddUseInteractor(UseInteractor useInteractor)
@@ -73,40 +73,28 @@ public class UseInteractorHandler : MVComponent
 		}
 		bool flag = false;
 		ShowUseOption option = ShowUseOption.Normal;
-		int level = 0;
+		int woId = 0;
 		if (useInteractors.Count > 0)
 		{
 			UseInteractor useInteractor = SortByDistance()[0];
-			if (useInteractor.GetInteractorCanBeUsed(avatarBase))
+			if (useInteractor.GetInteractorCanBeUsed(interactionBase))
 			{
 				option = useInteractor.GetGUIShowOptions();
 				if ((useInteractor.EvaluateRequirementsUsability() & useGui) > UseGUIResult.NoUseButton)
 				{
 					flag = true;
-					level = useInteractor.WoOwnerID;
+					woId = useInteractor.WoOwnerID;
 				}
 			}
 		}
 		if (flag)
 		{
-			MVGameControllerBase.IPlayModeUI.ShowEUseIcon(option, level);
+			MVGameControllerBase.IPlayModeUI.ShowEUseIcon(option, woId);
 		}
 		else
 		{
 			MVGameControllerBase.IPlayModeUI.HideEUseIcon();
 		}
-	}
-
-	private bool IsInFront(Collider triggerCollider)
-	{
-		Transform transform = MVGameControllerBase.CameraController.transform;
-		Vector3 lhs = transform.rotation * Vector3.forward;
-		Vector3 normalized = (triggerCollider.bounds.center - transform.position).normalized;
-		if (Vector3.Dot(lhs, normalized) > 0f)
-		{
-			return true;
-		}
-		return false;
 	}
 
 	private List<UseInteractor> SortByDistance()
@@ -127,7 +115,7 @@ public class UseInteractorHandler : MVComponent
 		List<UseInteractor> list = SortByDistance();
 		foreach (UseInteractor item in list)
 		{
-			if (item.GetInteractorCanBeUsed(avatarBase) && item.Use(worldObjectParent.Id))
+			if (item.GetInteractorCanBeUsed(interactionBase) && item.Use(worldObjectParent.Id))
 			{
 				item.PayUseCost();
 				useInteractor = item;

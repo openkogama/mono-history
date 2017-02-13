@@ -6,42 +6,48 @@ using UnityEngine;
 
 public class PickupItemSixShooter : PickupItemWithDelay
 {
-	public ObscuredInt ammo;
+	[SerializeField]
+	private ObscuredInt maxAmmo;
 
-	public Material hitDecalMaterial;
+	[SerializeField]
+	private float recoilImpact = 700f;
 
-	public Bullet bulletPrefab;
+	[SerializeField]
+	private float bulletRange = 50f;
 
-	public AudioClip bulletHitSound;
+	[SerializeField]
+	private float bulletSpeed = 80f;
 
-	public float recoilImpact = 700f;
+	[SerializeField]
+	private float hitImpact = 300f;
 
-	public float baseDamage = 30f;
+	[SerializeField]
+	private AudioSource fireSound;
 
-	public float bulletRange = 50f;
-
-	public float bulletSpeed = 80f;
-
-	public AudioClip fireSoundClip;
-
-	public ParticleEmitter fireEmitter;
-
-	public float hitImpact = 300f;
+	[SerializeField]
+	private ParticleEmitter fireEmitter;
 
 	public Animation animComponent;
 
-	public AnimationClip gunFireAnim;
+	private ObscuredInt currentAmmo;
+
+	private static readonly float baseDamage = SixShooterHitPackage.Create(new Vector3(0f, 0f, 0f)).Damage;
 
 	public override AvatarItemType Type => AvatarItemType.SixShooter;
 
-	public override int Quantity => ammo;
+	public override int Quantity => currentAmmo;
 
-	protected override bool IsAmmoDepleted => (int)ammo <= 0;
+	protected override bool IsAmmoDepleted => (int)currentAmmo <= 0;
+
+	public void Awake()
+	{
+		currentAmmo = maxAmmo;
+	}
 
 	public override void ResetAmmo()
 	{
 		base.ResetAmmo();
-		ammo = 6;
+		currentAmmo = maxAmmo;
 	}
 
 	protected override void OnFire(bool isLocal)
@@ -54,15 +60,15 @@ public class PickupItemSixShooter : PickupItemWithDelay
 			bullet.onHitLocal = OnLocalBulletHit;
 		}
 		bullet.Fire(lineOfFire: new Ray(owner.LookOrigin, owner.LookDirection), speed: owner.GetAbsolutProjectileSpeed(bulletSpeed), range: bulletRange, ignoreWoIDs: owner.IgnoreWOIDs);
-		--ammo;
+		--currentAmmo;
 		UnityEngine.Object.Instantiate(fireEmitter, muzzlePoint.position, Quaternion.identity);
 		if (isLocal)
 		{
-			MVGameControllerBase.AudioManager.Play("projectile fire", fireSoundClip, Camera.main.transform.position + Camera.main.transform.forward, 0.28f, SoundRangeDistance.Long);
+			MVGameControllerBase.AudioManager.Play("projectile fire", fireSound, Camera.main.transform.position + Camera.main.transform.forward);
 		}
 		else
 		{
-			MVGameControllerBase.AudioManager.Play("projectile fire", fireSoundClip, muzzlePoint.position, 0.28f, SoundRangeDistance.Long);
+			MVGameControllerBase.AudioManager.Play("projectile fire", fireSound, transform.position);
 		}
 		isFiring = false;
 		MVRigidBody component = owner.GetComponent<MVRigidBody>();

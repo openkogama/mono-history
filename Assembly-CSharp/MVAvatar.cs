@@ -137,7 +137,10 @@ public class MVAvatar : MVGroup
 		}
 		foreach (MVPlayer value in MVGameControllerBase.Game.Players.Values)
 		{
-			value.Avatar.avatar.UpdateNameTag();
+			if (value.Avatar != null && !(value.Avatar.avatar == null))
+			{
+				value.Avatar.avatar.UpdateNameTag();
+			}
 		}
 	}
 

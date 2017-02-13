@@ -2,7 +2,7 @@ public interface IPlayModeUI
 {
 	bool InLobbyState { get; set; }
 
-	void ShowEUseIcon(ShowUseOption option, int level = 0);
+	void ShowEUseIcon(ShowUseOption option, int woId = 0);
 
 	void HideEUseIcon();
 

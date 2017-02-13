@@ -11,7 +11,7 @@ public class PickupItemRailGun : PickupItemWithDelay
 	private float range = 300f;
 
 	[SerializeField]
-	private int ammo = 10;
+	private ObscuredInt maxAmmo = 15;
 
 	[SerializeField]
 	private RailRay railGunRayPrefab;
@@ -23,10 +23,10 @@ public class PickupItemRailGun : PickupItemWithDelay
 	private float fireRate = 5f;
 
 	[SerializeField]
-	private float baseDamage = 50f;
+	private ObscuredFloat baseDamage = 25f;
 
 	[SerializeField]
-	private float chargeDamage = 30f;
+	private ObscuredFloat chargeDamage = 75f;
 
 	[SerializeField]
 	private Color hitColor = new Color(0.2f, 0.3f, 0.9f);
@@ -35,16 +35,17 @@ public class PickupItemRailGun : PickupItemWithDelay
 	private Color missColor = new Color(0.9f, 0.3f, 0.2f);
 
 	[SerializeField]
-	private AudioClip releaseSound;
+	private AudioSource releaseSound;
 
 	[SerializeField]
-	private AudioSource audioSource;
+	private AudioSource chargeAudioSource;
+
+	[SerializeField]
+	private AnimationCurve chargeCurve;
 
 	private float toFieldOfView;
 
 	private float initialFOV = 60f;
-
-	public AnimationCurve chargeCurve;
 
 	private bool isCharging;
 
@@ -52,7 +53,7 @@ public class PickupItemRailGun : PickupItemWithDelay
 
 	private float prevFireTime;
 
-	private ObscuredInt currentAmmo = 10;
+	private ObscuredInt currentAmmo;
 
 	private float currentCharge;
 
@@ -90,8 +91,7 @@ public class PickupItemRailGun : PickupItemWithDelay
 	private void Awake()
 	{
 		hitLayerMask = (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("Player"));
-		initialFOV = Camera.main.fieldOfView;
-		currentAmmo = ammo;
+		currentAmmo = maxAmmo;
 		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
 		{
 			toFieldOfView = initialFOV;
@@ -105,13 +105,13 @@ public class PickupItemRailGun : PickupItemWithDelay
 	public override void ResetAmmo()
 	{
 		base.ResetAmmo();
-		currentAmmo = ammo;
+		currentAmmo = maxAmmo;
 	}
 
 	private void DoChargingAnimation()
 	{
 		currentCharge = chargeCurve.Evaluate(Time.time - chargeBeginTime);
-		audioSource.pitch = 0.2f + currentCharge;
+		chargeAudioSource.pitch = 0.2f + currentCharge;
 		if (owner.IsLocal)
 		{
 			Camera.main.fieldOfView = Mathf.Lerp(initialFOV, toFieldOfView, currentCharge);
@@ -124,9 +124,9 @@ public class PickupItemRailGun : PickupItemWithDelay
 		if (isCharging)
 		{
 			DoChargingAnimation();
-			if (!audioSource.isPlaying)
+			if (!chargeAudioSource.isPlaying)
 			{
-				audioSource.Play();
+				chargeAudioSource.Play();
 			}
 			if (!chargeParticles.isPlaying)
 			{
@@ -139,7 +139,7 @@ public class PickupItemRailGun : PickupItemWithDelay
 			{
 				chargeParticles.Stop();
 			}
-			if (Camera.main.fieldOfView != initialFOV)
+			if (owner.IsLocal)
 			{
 				Camera.main.fieldOfView = initialFOV;
 			}
@@ -150,6 +150,7 @@ public class PickupItemRailGun : PickupItemWithDelay
 	{
 		base.OnEquip();
 		prevFireTime = Time.time - fireRate;
+		initialFOV = Camera.main.fieldOfView;
 	}
 
 	public override void OnUnequip()
@@ -182,22 +183,17 @@ public class PickupItemRailGun : PickupItemWithDelay
 		}
 		if (currentCharge < 1f)
 		{
-			audioSource.Stop();
-			audioSource.loop = false;
+			chargeAudioSource.Stop();
+			chargeAudioSource.loop = false;
 			isCharging = false;
 		}
 		if ((bool)releaseSound)
 		{
-			audioSource.Stop();
-			audioSource.loop = false;
-			if (audioSource.gameObject.activeInHierarchy)
-			{
-				float num = 1.5f - currentCharge * 0.8f;
-				audioSource.pitch = num;
-				float pitch = num;
-				Vector3 position = ((!owner.IsLocal) ? muzzlePoint.position : (Camera.main.transform.position + Camera.main.transform.forward));
-				MVGameControllerBase.AudioManager.Play("RailShot", releaseSound, position, 0.2f, SoundRangeDistance.Long, pitch);
-			}
+			chargeAudioSource.Stop();
+			chargeAudioSource.loop = false;
+			chargeAudioSource.pitch = 1.5f - currentCharge * 0.8f;
+			Vector3 position = ((!owner.IsLocal) ? muzzlePoint.position : (Camera.main.transform.position + Camera.main.transform.forward));
+			MVGameControllerBase.AudioManager.Play("RailShot", releaseSound, position);
 		}
 		missColor.a = 1f;
 		hitColor.a = missColor.a;
@@ -227,7 +223,7 @@ public class PickupItemRailGun : PickupItemWithDelay
 			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
 			if (worldObjectClient != null)
 			{
-				float damage = baseDamage + chargeDamage * currentCharge;
+				float damage = (float)baseDamage + (float)chargeDamage * currentCharge;
 				if (owner.IsLocal)
 				{
 					MVGameControllerBase.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, damage);

@@ -227,7 +227,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 
 	public void Highlight()
 	{
-		selectionRenderer.Render();
+		selectionRenderer.Show();
 	}
 
 	public void EditorSwapAccessoryAssetPath(int invID, string assetPath)

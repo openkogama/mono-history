@@ -82,7 +82,7 @@ public class PlayerJoinedNotification : PlayerNotification
 		string text = (string)data[(byte)12];
 		if (text == MVGameControllerBase.GameSessionData.language)
 		{
-			Lifetime = NotificationLifetime.High;
+			lifeTime = NotificationLifetime.High;
 			string empty = string.Empty;
 			if (!Country.ContainsKey(text))
 			{
