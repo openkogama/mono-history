@@ -1,4 +1,5 @@
 using System;
+using Assets.CodeStage.AntiCheatToolkit.Scripts.ObscuredTypes;
 using CodeStage.AntiCheat.Detectors;
 using UnityEngine;
 
@@ -7,7 +8,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes;
 [Serializable]
 public struct ObscuredLong : IEquatable<ObscuredLong>, IFormattable
 {
-	private static long cryptoKey = 444442L;
+	private static long cryptoKey = CryptoKeyGenerator.GenerateKey(int.MinValue, int.MaxValue);
 
 	[SerializeField]
 	private long currentCryptoKey;

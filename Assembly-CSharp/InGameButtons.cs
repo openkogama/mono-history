@@ -31,7 +31,9 @@ public class InGameButtons : MonoBehaviour
 			{
 				holsterButton.gameObject.SetActive((PickupGUI.ShowEquipableUI & PickupGUIFlags.CanHolster) != 0);
 			}
-			fire.gameObject.SetActive((PickupGUI.ShowEquipableUI & PickupGUIFlags.CanFire) != 0 && (PickupGUI.ShowEquipableUI & PickupGUIFlags.IsHolstered) == 0);
+			bool flag = (PickupGUI.ShowEquipableUI & PickupGUIFlags.CanFire) != 0;
+			bool flag2 = (PickupGUI.ShowEquipableUI & PickupGUIFlags.IsHolstered) != 0;
+			fire.gameObject.SetActive(flag && !flag2);
 			dropWeapon.gameObject.SetActive((PickupGUI.ShowEquipableUI & PickupGUIFlags.CanUnequip) != 0);
 			showingEquipableUI = PickupGUI.ShowEquipableUI;
 		}

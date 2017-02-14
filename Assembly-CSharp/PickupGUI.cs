@@ -24,19 +24,32 @@ public class PickupGUI : MonoBehaviour
 
 	public void OnHolstered(bool isHolstered)
 	{
-		if (!MVGameControllerBase.WOCM.AvatarLocal.IsSeated)
+		if (!MVGameControllerBase.WOCM.AvatarLocal.IsSeated || IsInJetpack())
 		{
 			crossHair.HolsterStateChanged(isHolstered);
 		}
 		if (isHolstered)
 		{
 			ShowEquipableUI |= PickupGUIFlags.IsHolstered;
+			crossHair.Visible = false;
+			return;
 		}
-		else
+		ShowEquipableUI &= ~PickupGUIFlags.IsHolstered;
+		if (pickupOwner.CurrentItem.ActivateGunModeOnEquip)
 		{
-			ShowEquipableUI &= ~PickupGUIFlags.IsHolstered;
+			crossHair.Visible = true;
 		}
-		crossHair.Visible = false;
+	}
+
+	private bool IsInJetpack()
+	{
+		int woIDWithLocalOwnerHighestInHierarchy = MVGameControllerBase.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(MVGameControllerBase.WOCM.AvatarLocal.Id);
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDWithLocalOwnerHighestInHierarchy);
+		if (worldObjectClient is MVJetPack)
+		{
+			return true;
+		}
+		return false;
 	}
 
 	private void LateUpdate()

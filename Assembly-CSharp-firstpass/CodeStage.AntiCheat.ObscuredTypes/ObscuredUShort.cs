@@ -1,4 +1,5 @@
 using System;
+using Assets.CodeStage.AntiCheatToolkit.Scripts.ObscuredTypes;
 using CodeStage.AntiCheat.Detectors;
 using UnityEngine;
 
@@ -7,7 +8,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes;
 [Serializable]
 public struct ObscuredUShort : IEquatable<ObscuredUShort>, IFormattable
 {
-	private static ushort cryptoKey = 224;
+	private static ushort cryptoKey = (ushort)CryptoKeyGenerator.GenerateKey(0, 32767);
 
 	private ushort currentCryptoKey;
 

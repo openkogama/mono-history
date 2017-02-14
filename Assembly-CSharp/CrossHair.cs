@@ -71,6 +71,9 @@ public class CrossHair : MonoBehaviour, IGUICrossHair
 	{
 		if (!(crossHairHitEnemyIndicator == null))
 		{
+			Color color = crossHair.color;
+			color.a = 0f;
+			crossHairHitEnemyIndicator.color = color;
 			hitEffectActive = true;
 			timer = 0f;
 		}

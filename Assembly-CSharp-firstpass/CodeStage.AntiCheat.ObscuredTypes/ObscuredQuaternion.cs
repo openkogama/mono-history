@@ -1,4 +1,5 @@
 using System;
+using Assets.CodeStage.AntiCheatToolkit.Scripts.ObscuredTypes;
 using CodeStage.AntiCheat.Detectors;
 using UnityEngine;
 
@@ -19,7 +20,7 @@ public struct ObscuredQuaternion
 		public int w;
 	}
 
-	private static int cryptoKey = 120205;
+	private static int cryptoKey = CryptoKeyGenerator.GenerateKey(int.MinValue, int.MaxValue);
 
 	private static readonly Quaternion initialFakeValue = Quaternion.identity;
 

@@ -1,4 +1,5 @@
 using System;
+using Assets.CodeStage.AntiCheatToolkit.Scripts.ObscuredTypes;
 using CodeStage.AntiCheat.Detectors;
 using UnityEngine;
 
@@ -15,7 +16,7 @@ public struct ObscuredVector2
 		public int y;
 	}
 
-	private static int cryptoKey = 120206;
+	private static int cryptoKey = CryptoKeyGenerator.GenerateKey(int.MinValue, int.MaxValue);
 
 	private static readonly Vector2 initialFakeValue = Vector2.zero;
 

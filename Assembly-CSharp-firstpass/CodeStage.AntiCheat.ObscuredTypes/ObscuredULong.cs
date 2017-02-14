@@ -1,4 +1,5 @@
 using System;
+using Assets.CodeStage.AntiCheatToolkit.Scripts.ObscuredTypes;
 using CodeStage.AntiCheat.Detectors;
 using UnityEngine;
 
@@ -7,7 +8,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes;
 [Serializable]
 public struct ObscuredULong : IEquatable<ObscuredULong>, IFormattable
 {
-	private static ulong cryptoKey = 444443uL;
+	private static ulong cryptoKey = (ulong)CryptoKeyGenerator.GenerateKey(0, int.MaxValue);
 
 	[SerializeField]
 	private ulong currentCryptoKey;

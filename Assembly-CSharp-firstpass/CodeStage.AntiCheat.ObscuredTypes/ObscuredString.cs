@@ -1,4 +1,5 @@
 using System;
+using Assets.CodeStage.AntiCheatToolkit.Scripts.ObscuredTypes;
 using CodeStage.AntiCheat.Detectors;
 using UnityEngine;
 
@@ -7,7 +8,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes;
 [Serializable]
 public sealed class ObscuredString
 {
-	private static string cryptoKey = "4441";
+	private static string cryptoKey = CryptoKeyGenerator.GenerateKey(0, 9999).ToString();
 
 	[SerializeField]
 	private string currentCryptoKey;

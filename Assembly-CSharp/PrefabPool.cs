@@ -7,8 +7,8 @@ public class PrefabPool : MonoBehaviour
 
 	private static PrefabPool instance;
 
-	[SerializeField]
 	[Header("World Objects")]
+	[SerializeField]
 	private ObjectPrefab mvFirePrefab;
 
 	[SerializeField]
@@ -215,8 +215,8 @@ public class PrefabPool : MonoBehaviour
 	private CubeModelChunkPrefab cubeModelChunkPrefab;
 
 	[Space(20f)]
-	[SerializeField]
 	[Header("Pick up")]
+	[SerializeField]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
 	[SerializeField]
@@ -273,9 +273,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private MVPickupItemBaseObject avatarGrowthPackPrefab;
 
-	[Header("Avatar item pick up")]
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
+	[Header("Avatar item pick up")]
 	private GameObject avatarItemCenterGun;
 
 	[SerializeField]
@@ -333,8 +333,8 @@ public class PrefabPool : MonoBehaviour
 	private GameObject avatarItemCollectTheItem;
 
 	[SerializeField]
-	[Header("Avatar modifier")]
 	[Space(20f)]
+	[Header("Avatar modifier")]
 	private AvatarModifier burningModifier;
 
 	[SerializeField]
@@ -368,8 +368,8 @@ public class PrefabPool : MonoBehaviour
 	private InvulnerabilityModifier invulnerabilityModifier;
 
 	[SerializeField]
-	[Header("Particles")]
 	[Space(20f)]
+	[Header("Particles")]
 	private GameObject particleCFX_GroundAura;
 
 	[SerializeField]
@@ -390,9 +390,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem collectTheItemParticles;
 
+	[Header("Logic object prefabs")]
 	[SerializeField]
 	[Space(20f)]
-	[Header("Logic object prefabs")]
 	private GameObject logicInputConnectorPrefab;
 
 	[SerializeField]
@@ -430,9 +430,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material modelConstraintsMaterial;
 
+	[Header("UGUI")]
 	[Space(20f)]
 	[SerializeField]
-	[Header("UGUI")]
 	private AvatarInputControllerAndroidSettings avatarInputControllerAndroidSettings;
 
 	[SerializeField]
@@ -444,9 +444,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private InsertCursor insertCursor;
 
-	[Header("Cameras")]
 	[Space(20f)]
 	[SerializeField]
+	[Header("Cameras")]
 	private GodzillaCamera godzillaCamera;
 
 	[SerializeField]

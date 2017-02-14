@@ -29,6 +29,7 @@ public class VehicleEquipable : MVEquipable
 		Dictionary<object, object> dictionary = new Dictionary<object, object>();
 		dictionary.Add("type", (int)type);
 		dictionary.Add("variantId", variantID);
+		dictionary.Add("updateItemState", 4);
 		Dictionary<object, object> dictionary2 = dictionary;
 		if (holsterable)
 		{
@@ -46,6 +47,7 @@ public class VehicleEquipable : MVEquipable
 	{
 		if (currentItem.Value is Dictionary<object, object> dictionary)
 		{
+			dictionary["updateItemState"] = 1;
 			dictionary["holstered"] = true;
 			currentItem.Value = dictionary;
 		}
@@ -55,6 +57,7 @@ public class VehicleEquipable : MVEquipable
 	{
 		if (currentItem.Value is Dictionary<object, object> dictionary)
 		{
+			dictionary["updateItemState"] = 2;
 			dictionary["holstered"] = false;
 			currentItem.Value = dictionary;
 		}

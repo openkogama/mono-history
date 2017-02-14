@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using Assets.CodeStage.AntiCheatToolkit.Scripts.ObscuredTypes;
 using CodeStage.AntiCheat.Common;
 using CodeStage.AntiCheat.Detectors;
 using UnityEngine;
@@ -26,7 +27,7 @@ public struct ObscuredDecimal : IEquatable<ObscuredDecimal>, IFormattable
 		public ACTkByte16 b16;
 	}
 
-	private static long cryptoKey = 209208L;
+	private static long cryptoKey = CryptoKeyGenerator.GenerateKey(int.MinValue, int.MaxValue);
 
 	private long currentCryptoKey;
 

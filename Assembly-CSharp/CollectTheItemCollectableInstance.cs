@@ -194,9 +194,20 @@ public class CollectTheItemCollectableInstance : MVBlueprintBase, ITriggerBoxEve
 		if (worldObjectClient != null)
 		{
 			MVPickupOwner mVPickupOwner = worldObjectClient.GameObject.GetComponent<MVPickupOwner>();
-			if (mVPickupOwner != null && (mVPickupOwner.CurrentItem == null || (mVPickupOwner.CurrentItem != null && mVPickupOwner.CurrentItem.Type == AvatarItemType.Hand)))
+			if (mVPickupOwner != null)
 			{
-				return true;
+				if (mVPickupOwner.CurrentItem == null || (mVPickupOwner.CurrentItem != null && mVPickupOwner.CurrentItem.Type == AvatarItemType.Hand))
+				{
+					return true;
+				}
+			}
+			else if (worldObjectClient is MVJetPack)
+			{
+				MVPickupOwner mVPickupOwner2 = MVGameControllerBase.WOCM.AvatarLocal.GameObject.GetComponent<MVPickupOwner>();
+				if (mVPickupOwner2 != null && (mVPickupOwner2.CurrentItem == null || (mVPickupOwner2.CurrentItem != null && mVPickupOwner2.CurrentItem.Type == AvatarItemType.Hand)))
+				{
+					return true;
+				}
 			}
 		}
 		return false;

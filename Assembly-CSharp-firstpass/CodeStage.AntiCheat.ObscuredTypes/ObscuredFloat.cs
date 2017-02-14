@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using Assets.CodeStage.AntiCheatToolkit.Scripts.ObscuredTypes;
 using CodeStage.AntiCheat.Common;
 using CodeStage.AntiCheat.Detectors;
 using UnityEngine;
@@ -23,7 +24,7 @@ public struct ObscuredFloat : IEquatable<ObscuredFloat>, IFormattable
 		public ACTkByte4 b4;
 	}
 
-	private static int cryptoKey = 230887;
+	private static int cryptoKey = CryptoKeyGenerator.GenerateKey(int.MinValue, int.MaxValue);
 
 	[SerializeField]
 	private int currentCryptoKey;

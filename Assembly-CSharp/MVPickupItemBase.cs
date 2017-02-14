@@ -127,12 +127,12 @@ public class MVPickupItemBase : MVLogicObject, IUpdatecontrollerSubscriber, IPic
 
 	void IUpdatecontrollerSubscriber.UpdateControllerUpdate()
 	{
+		if (!canPickUp)
+		{
+			return;
+		}
 		for (int i = 0; i < instigatorsInTrigger.Count; i++)
 		{
-			if (!canPickUp)
-			{
-				continue;
-			}
 			bool flag = true;
 			if (pickupPrefabLUT[Type].equipableType == AvatarEquipableType.Weapon)
 			{

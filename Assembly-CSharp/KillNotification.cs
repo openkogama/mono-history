@@ -16,12 +16,18 @@ public class KillNotification : Notification
 		base.Initialize(data);
 		MVPlayer mVPlayer = MVGameControllerBase.Game.Players[(int)data[(byte)6]];
 		MVPlayer mVPlayer2 = MVGameControllerBase.Game.Players[(int)data[(byte)7]];
-		Label.text = string.Format(GetText(data), mVPlayer2.Username, mVPlayer.Username);
+		Label.text = string.Format(GetKillText(data), mVPlayer2.Username, mVPlayer.Username);
 	}
 
-	private string GetText(Dictionary<object, object> data)
+	public static string GetKillText(Dictionary<object, object> data)
 	{
-		return (PlayerKilledByType)(byte)data[(byte)8] switch
+		PlayerKilledByType type = (PlayerKilledByType)(byte)data[(byte)8];
+		return GetKillText(type);
+	}
+
+	public static string GetKillText(PlayerKilledByType type)
+	{
+		return type switch
 		{
 			PlayerKilledByType.AdvancedGhost => TM._("{0} was eliminated by an Oculus!"), 
 			PlayerKilledByType.BazookaGun => TM._("{1} blew {0} up!"), 

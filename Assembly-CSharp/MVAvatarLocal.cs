@@ -1025,6 +1025,8 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 
 	private AvatarLocalModes avatarLocalModes;
 
+	public Action<string> OnKilled;
+
 	public Action<float, MVPlayer, PlayerKilledByType> OnDamageTaken;
 
 	public AvatarPickupOwner PickupOwner => pickupOwner;
@@ -1092,7 +1094,13 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 		}
 		if (Health.Value <= 0f)
 		{
-			int num = damageDealer?.ActorNr ?? MVGameControllerBase.Game.LocalPlayerActorNumber;
+			int key = damageDealer?.ActorNr ?? MVGameControllerBase.Game.LocalPlayerActorNumber;
+			int localPlayerActorNumber = MVGameControllerBase.Game.LocalPlayerActorNumber;
+			if (OnKilled != null)
+			{
+				string obj = string.Format(KillNotification.GetKillText(damageType), MVGameControllerBase.Game.Players[localPlayerActorNumber].Username, MVGameControllerBase.Game.Players[key].Username);
+				OnKilled(obj);
+			}
 		}
 	}
 

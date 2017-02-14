@@ -51,7 +51,7 @@ public class AvatarEquipable : MVEquipable
 			Dictionary<object, object> dictionary = new Dictionary<object, object>();
 			dictionary.Add("type", (int)type);
 			dictionary.Add("variantId", variantID);
-			dictionary.Add("updateItemState", 6);
+			dictionary.Add("updateItemState", 4);
 			Dictionary<object, object> dictionary2 = dictionary;
 			if (holsterable)
 			{

@@ -1,4 +1,5 @@
 using System;
+using Assets.CodeStage.AntiCheatToolkit.Scripts.ObscuredTypes;
 using CodeStage.AntiCheat.Detectors;
 using UnityEngine;
 
@@ -7,7 +8,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes;
 [Serializable]
 public struct ObscuredSByte : IEquatable<ObscuredSByte>, IFormattable
 {
-	private static sbyte cryptoKey = 112;
+	private static sbyte cryptoKey = (sbyte)CryptoKeyGenerator.GenerateKey(-128, 127);
 
 	private sbyte currentCryptoKey;
 

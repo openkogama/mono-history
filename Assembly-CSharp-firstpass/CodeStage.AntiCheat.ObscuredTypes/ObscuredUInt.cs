@@ -1,4 +1,5 @@
 using System;
+using Assets.CodeStage.AntiCheatToolkit.Scripts.ObscuredTypes;
 using CodeStage.AntiCheat.Detectors;
 using UnityEngine;
 
@@ -7,7 +8,7 @@ namespace CodeStage.AntiCheat.ObscuredTypes;
 [Serializable]
 public struct ObscuredUInt : IEquatable<ObscuredUInt>, IFormattable
 {
-	private static uint cryptoKey = 240513u;
+	private static uint cryptoKey = (uint)CryptoKeyGenerator.GenerateKey(0, int.MaxValue);
 
 	[SerializeField]
 	private uint currentCryptoKey;

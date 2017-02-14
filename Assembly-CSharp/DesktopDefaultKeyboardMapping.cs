@@ -93,11 +93,11 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap
 			},
 			{
 				KogamaControls.DropCurrentItem,
-				new KeyCode[1] { KeyCode.Q }
+				new KeyCode[1] { KeyCode.V }
 			},
 			{
 				KogamaControls.Holster,
-				new KeyCode[1] { KeyCode.V }
+				new KeyCode[1] { KeyCode.Q }
 			},
 			{
 				KogamaControls.Use,
