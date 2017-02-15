@@ -11,8 +11,8 @@ public class PickupItemSword : PickupItemWithDelay
 	[SerializeField]
 	private AudioSource audioSource;
 
-	[Tooltip("Impulse delivered to enemy on hit.")]
 	[SerializeField]
+	[Tooltip("Impulse delivered to enemy on hit.")]
 	private float impulseStrength = 500f;
 
 	[SerializeField]
@@ -82,7 +82,8 @@ public class PickupItemSword : PickupItemWithDelay
 
 	private void OnSwordHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
-		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
+		int woIDHighestInHierarchyWithComponent = MVGameControllerBase.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
 		if (worldObjectClient is IBulletImpactVisualizer)
 		{
 			((IBulletImpactVisualizer)worldObjectClient).VisualizeBulletImpact(voxelHit, lineOfFire, owner.WorldObjectOwner.OwnerActorNr, hitDamage);

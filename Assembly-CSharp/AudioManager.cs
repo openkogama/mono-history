@@ -122,10 +122,6 @@ public class AudioManager : MonoBehaviour
 			sound.audio.rolloffMode = audioSource.rolloffMode;
 			sound.audio.minDistance = audioSource.minDistance;
 			sound.audio.maxDistance = audioSource.maxDistance;
-			if (sound.audio.rolloffMode == AudioRolloffMode.Custom)
-			{
-				sound.audio.SetCustomCurve(AudioSourceCurveType.CustomRolloff, audioSource.GetCustomCurve(AudioSourceCurveType.CustomRolloff));
-			}
 			sound.audio.Play();
 			return sound;
 		}

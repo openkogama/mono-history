@@ -14,5 +14,6 @@ public enum PoolEnums
 	SixShooterSparks,
 	XP,
 	AvatarBulletImpact,
+	VehicleBulletImpact,
 	LENGTH
 }

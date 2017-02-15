@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class AvatarBulletImpactVisualizer : BulletImpactVisualizer
+public class VehicleBaseBulletImpactVisualizer : BulletImpactVisualizer
 {
 	[SerializeField]
 	[Range(0f, 10f)]
@@ -8,7 +8,7 @@ public class AvatarBulletImpactVisualizer : BulletImpactVisualizer
 
 	public override void VisualizeBulletImpact(VoxelHit voxelHit, Ray lineOfFire, int shooterActorNumber, float damage = 100f)
 	{
-		ParticleSystem particleSystem = OneShotPooledParticleSystem.Instantiate(PoolEnums.AvatarBulletImpact, voxelHit.point, Quaternion.LookRotation(-lineOfFire.direction));
+		ParticleSystem particleSystem = OneShotPooledParticleSystem.Instantiate(PoolEnums.VehicleBulletImpact, voxelHit.point, Quaternion.LookRotation(-lineOfFire.direction));
 		ParticleSystem.EmissionModule emission = particleSystem.emission;
 		ParticleSystem.Burst[] array = new ParticleSystem.Burst[1];
 		array[0].time = 0f;

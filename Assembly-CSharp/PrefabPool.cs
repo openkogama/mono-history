@@ -24,10 +24,10 @@ public class PrefabPool : MonoBehaviour
 	private GameObject mvBodyPrefab;
 
 	[SerializeField]
-	private GameObject mvHamsterWheelPrefab;
+	private VehicleBaseObject mvHamsterWheelPrefab;
 
 	[SerializeField]
-	private GameObject mvHoverCraftPrefab;
+	private VehicleBaseObject mvHoverCraftPrefab;
 
 	[SerializeField]
 	private CollectTheItemDropOffObject collectTheItemDropOff;
@@ -42,10 +42,10 @@ public class PrefabPool : MonoBehaviour
 	private ObjectiveArrow collectTheItemDropOffArrow;
 
 	[SerializeField]
-	private GameObject mvJetPackPrefab;
+	private VehicleBaseObject mvJetPackPrefab;
 
 	[SerializeField]
-	private GameObject mvJetPackDeluxePrefab;
+	private VehicleBaseObject mvJetPackDeluxePrefab;
 
 	[SerializeField]
 	private ObjectPrefab mvBatteryPrefab;
@@ -188,8 +188,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject godzillaAreaPrefab;
 
-	[Header("Game")]
 	[Space(20f)]
+	[Header("Game")]
 	[SerializeField]
 	private Material ghostMarkerMaterial;
 
@@ -214,9 +214,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private CubeModelChunkPrefab cubeModelChunkPrefab;
 
+	[SerializeField]
 	[Space(20f)]
 	[Header("Pick up")]
-	[SerializeField]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
 	[SerializeField]
@@ -273,9 +273,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private MVPickupItemBaseObject avatarGrowthPackPrefab;
 
-	[Space(20f)]
 	[SerializeField]
 	[Header("Avatar item pick up")]
+	[Space(20f)]
 	private GameObject avatarItemCenterGun;
 
 	[SerializeField]
@@ -332,9 +332,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject avatarItemCollectTheItem;
 
-	[SerializeField]
-	[Space(20f)]
 	[Header("Avatar modifier")]
+	[Space(20f)]
+	[SerializeField]
 	private AvatarModifier burningModifier;
 
 	[SerializeField]
@@ -367,9 +367,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private InvulnerabilityModifier invulnerabilityModifier;
 
-	[SerializeField]
-	[Space(20f)]
 	[Header("Particles")]
+	[Space(20f)]
+	[SerializeField]
 	private GameObject particleCFX_GroundAura;
 
 	[SerializeField]
@@ -390,9 +390,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem collectTheItemParticles;
 
-	[Header("Logic object prefabs")]
 	[SerializeField]
 	[Space(20f)]
+	[Header("Logic object prefabs")]
 	private GameObject logicInputConnectorPrefab;
 
 	[SerializeField]
@@ -419,9 +419,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material logicCubeConnectorBlueSelectedMaterial;
 
-	[Space(20f)]
 	[SerializeField]
 	[Header("GUI")]
+	[Space(20f)]
 	private Texture2D avatarAccessoryMoveIcon;
 
 	[SerializeField]
@@ -430,9 +430,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material modelConstraintsMaterial;
 
-	[Header("UGUI")]
 	[Space(20f)]
 	[SerializeField]
+	[Header("UGUI")]
 	private AvatarInputControllerAndroidSettings avatarInputControllerAndroidSettings;
 
 	[SerializeField]
@@ -513,9 +513,9 @@ public class PrefabPool : MonoBehaviour
 
 	public GameObject MVBodyPrefab => mvBodyPrefab;
 
-	public GameObject MVHamsterWheelPrefab => mvHamsterWheelPrefab;
+	public VehicleBaseObject MVHamsterWheelPrefab => mvHamsterWheelPrefab;
 
-	public GameObject MVHoverCraftPrefab => mvHoverCraftPrefab;
+	public VehicleBaseObject MVHoverCraftPrefab => mvHoverCraftPrefab;
 
 	public CollectTheItemDropOffObject CollectTheItemDropOffPrefab => collectTheItemDropOff;
 
@@ -525,9 +525,9 @@ public class PrefabPool : MonoBehaviour
 
 	public ObjectiveArrow CollectTheItemDropOffArrowPrefab => collectTheItemDropOffArrow;
 
-	public GameObject MVJetPackPrefab => mvJetPackPrefab;
+	public VehicleBaseObject MVJetPackPrefab => mvJetPackPrefab;
 
-	public GameObject MVJetPackDeluxePrefab => mvJetPackDeluxePrefab;
+	public VehicleBaseObject MVJetPackDeluxePrefab => mvJetPackDeluxePrefab;
 
 	public ObjectPrefab MVBatteryPrefab => mvBatteryPrefab;
 

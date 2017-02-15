@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class MVVehicleBase : MVBlueprintBase
+public abstract class MVVehicleBase : MVBlueprintBase, IBulletImpactVisualizer
 {
 	protected abstract class LocalObjectsBase : ILocalObject
 	{
@@ -142,15 +142,18 @@ public abstract class MVVehicleBase : MVBlueprintBase
 
 	protected VehicleVisualizationBase visualization;
 
+	protected VehicleBaseObject vehicleBaseObject;
+
 	public virtual bool IsDead => (bool)IsVehicleDead.Value;
 
 	public virtual bool IsInSpawner { get; private set; }
 
 	public VehicleVisualizationBase Visualization => visualization;
 
-	protected MVVehicleBase(Dictionary<object, object> data, GameObject vehiclePrefab, Dictionary<int, MVWorldObjectClient> worldObjects)
+	protected MVVehicleBase(Dictionary<object, object> data, ObjectPrefab vehiclePrefab, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, vehiclePrefab, worldObjects)
 	{
+		vehicleBaseObject = (VehicleBaseObject)component;
 	}
 
 	public override void OnDataUpdate()
@@ -207,5 +210,18 @@ public abstract class MVVehicleBase : MVBlueprintBase
 
 	protected virtual void VehicleEntered(MVAvatar vehicleUser, int seatID)
 	{
+	}
+
+	public void VisualizeBulletImpact(VoxelHit voxelHit, Ray lineOfFire, int shooterActorNumber, float damage)
+	{
+		if (!MVGameControllerBase.Game.TeamManager.IsOnSameTeam(OwnerActorNr, shooterActorNumber) && !IsDead)
+		{
+			vehicleBaseObject.BulletImpactVisualizer.VisualizeBulletImpact(voxelHit, lineOfFire, shooterActorNumber, damage);
+			if (shooterActorNumber == MVGameControllerBase.Game.LocalPlayer.ActorNr)
+			{
+				MVGameControllerBase.CameraController.PlayPlingSound();
+				MVGameControllerBase.IPlayModeUI.GetCrossHair().ShowHasHitEffect();
+			}
+		}
 	}
 }

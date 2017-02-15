@@ -72,10 +72,10 @@ public class PickupItemDoubleSixShooter : PickupItemWithDelay
 			animComponentR.Play("RevolverRecoil");
 		}
 		Bullet bullet2 = bullet;
-		bullet2.onHit = (Bullet.OnHitDelegate)Delegate.Combine(bullet2.onHit, new Bullet.OnHitDelegate(OnHit));
+		bullet2.onHit = (Bullet.OnHitDelegate)Delegate.Combine(bullet2.onHit, new Bullet.OnHitDelegate(OnBulletHit));
 		if (isLocal)
 		{
-			bullet.onHitLocal = OnLoclaHit;
+			bullet.onHitLocal = OnLocalBulletHit;
 		}
 		bullet.Fire(lineOfFire: new Ray(owner.LookOrigin, owner.LookDirection), speed: owner.GetAbsolutProjectileSpeed(bulletSpeed), range: bulletRange, ignoreWoIDs: owner.IgnoreWOIDs);
 		--currentAmmo;
@@ -95,9 +95,10 @@ public class PickupItemDoubleSixShooter : PickupItemWithDelay
 		}
 	}
 
-	private void OnHit(VoxelHit voxelHit, Ray lineOfFire)
+	private void OnBulletHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
-		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
+		int woIDHighestInHierarchyWithComponent = MVGameControllerBase.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
 		if (worldObjectClient is IBulletImpactVisualizer)
 		{
 			((IBulletImpactVisualizer)worldObjectClient).VisualizeBulletImpact(voxelHit, lineOfFire, owner.WorldObjectOwner.OwnerActorNr, baseDamage);
@@ -108,7 +109,7 @@ public class PickupItemDoubleSixShooter : PickupItemWithDelay
 		}
 	}
 
-	private void OnLoclaHit(VoxelHit voxelHit, Ray lineOfFire)
+	private void OnLocalBulletHit(VoxelHit voxelHit, Ray lineOfFire)
 	{
 		MVGameControllerBase.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, baseDamage);
 		int woIDHighestInHierarchyWithComponent = MVGameControllerBase.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);

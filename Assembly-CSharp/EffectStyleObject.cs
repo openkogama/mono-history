@@ -2,10 +2,10 @@ using Gamestrap;
 using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(GradientEffect))]
-[RequireComponent(typeof(Outline))]
 [RequireComponent(typeof(ShadowEffect))]
+[RequireComponent(typeof(Outline))]
 [RequireComponent(typeof(Graphic))]
+[RequireComponent(typeof(GradientEffect))]
 public class EffectStyleObject : MonoBehaviour
 {
 	[SerializeField]

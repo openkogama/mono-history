@@ -307,7 +307,7 @@ public class MVJetPack : MVVehicleBase
 
 	private JetPackType jetPackType;
 
-	private static readonly Dictionary<JetPackType, GameObject> jetPackTypes = new Dictionary<JetPackType, GameObject>
+	private static readonly Dictionary<JetPackType, VehicleBaseObject> jetPackTypes = new Dictionary<JetPackType, VehicleBaseObject>
 	{
 		{
 			JetPackType.JetPack,
@@ -441,7 +441,7 @@ public class MVJetPack : MVVehicleBase
 		return (JetPackType)(byte)dictionary["jetPackType"];
 	}
 
-	private static GameObject GetPickupPrefabName(Dictionary<object, object> data)
+	private static VehicleBaseObject GetPickupPrefabName(Dictionary<object, object> data)
 	{
 		return jetPackTypes[GetJetPackType(data)];
 	}
