@@ -196,6 +196,7 @@ public class MVPickupItemBase : MVLogicObject, IUpdatecontrollerSubscriber, IPic
 			useInteractor.OnDestroy(Data);
 			useInteractor = null;
 		}
+		UpdateController.RemoveUpdateObject(this);
 		base.Destroy();
 	}
 

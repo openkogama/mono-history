@@ -699,9 +699,8 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 			}
 			if (mvAvatar.pickupOwner.CurrentItem.CanHolster)
 			{
-				float axisRaw = MVInputWrapper.GetAxisRaw(MouseWheel);
-				bool flag = (!isHolstered && interactionMap.Holster) || (!isHolstered && axisRaw < 0f);
-				bool flag2 = (isHolstered && interactionMap.Holster) || (isHolstered && axisRaw > 0f);
+				bool flag = !isHolstered && interactionMap.Holster;
+				bool flag2 = isHolstered && interactionMap.Holster;
 				if (flag)
 				{
 					mvAvatar.avatarEquipable.Holster();
@@ -1161,6 +1160,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 		avatarMotor.GetSizeState.UnEquipSlapGunEvent += OnUnequip;
 		avatarInteractable.ModifierPackages.OnUnequipItemEvent += OnUnequip;
 		avatarInteractable.ModifierPackages.OnDisableVehiclesEvent += OnDisableVehicles;
+		MVGameControllerBase.Game.GameStatCounterManager.OnCounterTypeChanged += OnGameStatUpdated;
 		CullingApiWrapper.SetDistanceReferencePoint(transform);
 	}
 
@@ -1277,18 +1277,26 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 		}
 	}
 
+	public void SetToSpawnTransform()
+	{
+		Transform spawnTransform = GetSpawnTransform();
+		SetTransform(spawnTransform.position, spawnTransform.rotation);
+	}
+
+	private void OnGameStatUpdated(object sender, OnCounterTypeChangedArgs args)
+	{
+		if ((MVGameControllerBase.Game.GameStatCounterManager.ActiveTeams.Count > 1 || args.actorNumber == OwnerActorNr) && args.counterType == GameStatCounterType.Kill)
+		{
+			NotificationController.PushNotification(NotificationType.Kill, NotificationsManager.eNotificationPanel.primary, NotificationLifetime.Low);
+		}
+	}
+
 	private void Suicide()
 	{
 		if (!IsInMode(AvatarModeTypes.Dead))
 		{
 			Die();
 		}
-	}
-
-	public void SetToSpawnTransform()
-	{
-		Transform spawnTransform = GetSpawnTransform();
-		SetTransform(spawnTransform.position, spawnTransform.rotation);
 	}
 
 	private static Transform GetSpawnTransform()

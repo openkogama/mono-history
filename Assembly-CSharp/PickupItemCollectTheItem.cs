@@ -9,9 +9,6 @@ using UnityEngine.Events;
 public class PickupItemCollectTheItem : PickupItem
 {
 	[SerializeField]
-	private AudioSource audioSource;
-
-	[SerializeField]
 	private Transform cubeModelAttachPoint;
 
 	[SerializeField]

@@ -52,21 +52,6 @@ public class CrossHair : MonoBehaviour, IGUICrossHair
 		}
 	}
 
-	private void Update()
-	{
-		if (hitEffectActive)
-		{
-			timer += Time.deltaTime;
-			Color color = crossHair.color;
-			color.a = fadeCurve.Evaluate(timer);
-			crossHairHitEnemyIndicator.color = color;
-			if (timer >= fadeCurve.keys[fadeCurve.length - 1].time)
-			{
-				hitEffectActive = false;
-			}
-		}
-	}
-
 	public void ShowHasHitEffect()
 	{
 		if (!(crossHairHitEnemyIndicator == null))
@@ -128,6 +113,21 @@ public class CrossHair : MonoBehaviour, IGUICrossHair
 			{
 				isFillOn = !isFillOn;
 				timeSinceLastToggle = 0f;
+			}
+		}
+	}
+
+	private void Update()
+	{
+		if (hitEffectActive)
+		{
+			timer += Time.deltaTime;
+			Color color = crossHair.color;
+			color.a = fadeCurve.Evaluate(timer);
+			crossHairHitEnemyIndicator.color = color;
+			if (timer >= fadeCurve.keys[fadeCurve.length - 1].time)
+			{
+				hitEffectActive = false;
 			}
 		}
 	}

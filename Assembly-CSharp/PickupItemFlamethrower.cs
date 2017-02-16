@@ -55,7 +55,25 @@ public class PickupItemFlamethrower : PickupItem
 	{
 		while (IsStillFlaming() && (float)currentFuel > 0f)
 		{
-			Fire();
+			Ray lineofFire = new Ray(muzzlePoint.position, owner.LookDirection);
+			List<VoxelHit> hits = CollisionDetection.MVSphereCastAll(layerMask: 1 << LayerMask.NameToLayer("Player"), ray: lineofFire, radius: hitRadius, distance: maxRange, ignoreWoIds: owner.IgnoreWOIDs);
+			for (int i = 0; i < hits.Count; i++)
+			{
+				MVWorldObjectClient hitObject = MVWorldObjectClientManager.GetMVObject(hits[i].transform);
+				if (hitObject == null || MVGameControllerBase.Game.TeamManager.IsOnSameTeam(hitObject.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
+				{
+					continue;
+				}
+				InteractionDataHandlerBase interactionHandler = hitObject.InteractionDataHandlerBase;
+				if (interactionHandler != null)
+				{
+					interactionHandler.HandleInteraction(FlamethrowerHitPackage.Create(), interactionIsLocal: false);
+					if (hitObject is IBulletImpactVisualizer)
+					{
+						((IBulletImpactVisualizer)hitObject).VisualizeBulletImpact(hits[i], lineofFire, owner.WorldObjectOwner.OwnerActorNr, 0f);
+					}
+				}
+			}
 			yield return new WaitForSeconds(0.2f);
 		}
 	}
@@ -135,25 +153,6 @@ public class PickupItemFlamethrower : PickupItem
 			if (!owner.IsLocal)
 			{
 				flameParticles.transform.rotation = Quaternion.LookRotation(owner.LookDirection);
-			}
-		}
-	}
-
-	private void Fire()
-	{
-		Ray ray = new Ray(muzzlePoint.position, owner.LookDirection);
-		int layerMask = 1 << LayerMask.NameToLayer("Player");
-		List<VoxelHit> list = CollisionDetection.MVSphereCastAll(ray, hitRadius, maxRange, owner.IgnoreWOIDs, layerMask);
-		for (int i = 0; i < list.Count; i++)
-		{
-			MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(list[i].transform);
-			if (mVObject != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(mVObject.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
-			{
-				InteractionDataHandlerBase interactionDataHandlerBase = mVObject.InteractionDataHandlerBase;
-				if (interactionDataHandlerBase != null)
-				{
-					interactionDataHandlerBase.HandleInteraction(FlamethrowerHitPackage.Create(), interactionIsLocal: false);
-				}
 			}
 		}
 	}

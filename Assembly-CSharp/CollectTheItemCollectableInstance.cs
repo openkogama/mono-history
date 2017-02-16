@@ -194,6 +194,10 @@ public class CollectTheItemCollectableInstance : MVBlueprintBase, ITriggerBoxEve
 		if (worldObjectClient != null)
 		{
 			MVPickupOwner mVPickupOwner = worldObjectClient.GameObject.GetComponent<MVPickupOwner>();
+			if (mVPickupOwner is VehiclePickupOwner)
+			{
+				return true;
+			}
 			if (mVPickupOwner != null)
 			{
 				if (mVPickupOwner.CurrentItem == null || (mVPickupOwner.CurrentItem != null && mVPickupOwner.CurrentItem.Type == AvatarItemType.Hand))

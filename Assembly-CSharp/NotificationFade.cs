@@ -16,35 +16,9 @@ public class NotificationFade : MonoBehaviour
 
 	public Action OnFinished;
 
-	private bool finished = true;
+	private bool finished;
 
-	private void OnEnable()
-	{
-		finished = false;
-		group.alpha = 0f;
-		currentTime = 0f;
-	}
-
-	private void Update()
-	{
-		if (finished)
-		{
-			return;
-		}
-		currentTime += Time.deltaTime;
-		group.alpha = textVisibilityCurve.Evaluate(currentTime / duration);
-		if (currentTime >= duration)
-		{
-			finished = true;
-			group.alpha = 0f;
-			if (OnFinished != null)
-			{
-				OnFinished();
-			}
-		}
-	}
-
-	private void OnDisable()
+	public void Deactivate()
 	{
 		if (!finished)
 		{
@@ -56,5 +30,30 @@ public class NotificationFade : MonoBehaviour
 				OnFinished();
 			}
 		}
+	}
+
+	private void OnEnable()
+	{
+		finished = false;
+		group.alpha = 0f;
+		currentTime = 0f;
+	}
+
+	private void Update()
+	{
+		if (!finished)
+		{
+			currentTime += Time.deltaTime;
+			group.alpha = textVisibilityCurve.Evaluate(currentTime / duration);
+			if (currentTime >= duration)
+			{
+				Deactivate();
+			}
+		}
+	}
+
+	private void OnDisable()
+	{
+		Deactivate();
 	}
 }

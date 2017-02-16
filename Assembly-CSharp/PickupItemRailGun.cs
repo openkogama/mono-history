@@ -20,13 +20,7 @@ public class PickupItemRailGun : PickupItemWithDelay
 	private float targetFieldOfView = 25f;
 
 	[SerializeField]
-	private float fireRate = 5f;
-
-	[SerializeField]
 	private ObscuredFloat baseDamage = 25f;
-
-	[SerializeField]
-	private ObscuredFloat chargeDamage = 75f;
 
 	[SerializeField]
 	private Color hitColor = new Color(0.2f, 0.3f, 0.9f);
@@ -43,6 +37,9 @@ public class PickupItemRailGun : PickupItemWithDelay
 	[SerializeField]
 	private AnimationCurve chargeCurve;
 
+	[SerializeField]
+	private float curveChargeLength = 5f;
+
 	private float toFieldOfView;
 
 	private float initialFOV = 60f;
@@ -50,8 +47,6 @@ public class PickupItemRailGun : PickupItemWithDelay
 	private bool isCharging;
 
 	private float chargeBeginTime;
-
-	private float prevFireTime;
 
 	private ObscuredInt currentAmmo;
 
@@ -67,7 +62,7 @@ public class PickupItemRailGun : PickupItemWithDelay
 	{
 		get
 		{
-			if (isCharging && Time.time > prevFireTime + fireRate)
+			if (isCharging)
 			{
 				return currentCharge;
 			}
@@ -79,12 +74,11 @@ public class PickupItemRailGun : PickupItemWithDelay
 	{
 		get
 		{
-			if (Time.time > prevFireTime + fireRate)
+			if (currentCharge >= 1f)
 			{
 				return crossHairCanFire;
 			}
-			float t = (Time.time - prevFireTime) / fireRate;
-			return Color.Lerp(crossHairCannotFireLow, crossHairCannotFireHigh, t);
+			return Color.Lerp(crossHairCannotFireLow, crossHairCannotFireHigh, currentCharge);
 		}
 	}
 
@@ -110,7 +104,7 @@ public class PickupItemRailGun : PickupItemWithDelay
 
 	private void DoChargingAnimation()
 	{
-		currentCharge = chargeCurve.Evaluate(Time.time - chargeBeginTime);
+		currentCharge = chargeCurve.Evaluate((Time.time - chargeBeginTime) / curveChargeLength);
 		chargeAudioSource.pitch = 0.2f + currentCharge;
 		if (owner.IsLocal)
 		{
@@ -149,7 +143,6 @@ public class PickupItemRailGun : PickupItemWithDelay
 	public override void OnEquip()
 	{
 		base.OnEquip();
-		prevFireTime = Time.time - fireRate;
 		initialFOV = Camera.main.fieldOfView;
 	}
 
@@ -166,12 +159,9 @@ public class PickupItemRailGun : PickupItemWithDelay
 
 	public override void TriggerBegin(int instigatorActorNr)
 	{
-		if (!(Time.time < prevFireTime + fireRate))
-		{
-			base.TriggerBegin(instigatorActorNr);
-			isCharging = true;
-			chargeBeginTime = Time.time;
-		}
+		base.TriggerBegin(instigatorActorNr);
+		isCharging = true;
+		chargeBeginTime = Time.time;
 	}
 
 	public override void TriggerEnd()
@@ -186,6 +176,7 @@ public class PickupItemRailGun : PickupItemWithDelay
 			chargeAudioSource.Stop();
 			chargeAudioSource.loop = false;
 			isCharging = false;
+			return;
 		}
 		if ((bool)releaseSound)
 		{
@@ -198,7 +189,6 @@ public class PickupItemRailGun : PickupItemWithDelay
 		missColor.a = 1f;
 		hitColor.a = missColor.a;
 		Fire();
-		prevFireTime = Time.time;
 		isCharging = false;
 		currentAmmo = (int)currentAmmo - 1;
 		if ((int)currentAmmo == 0)
@@ -223,20 +213,19 @@ public class PickupItemRailGun : PickupItemWithDelay
 			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
 			if (worldObjectClient != null)
 			{
-				float damage = (float)baseDamage + (float)chargeDamage * currentCharge;
 				if (owner.IsLocal)
 				{
-					MVGameControllerBase.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, damage);
+					MVGameControllerBase.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, baseDamage);
 					InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
 					if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
 					{
-						InteractionData interaction = RailgunHitPackage.Create(damage);
+						InteractionData interaction = RailgunHitPackage.Create();
 						interactionDataHandlerBase.HandleInteraction(interaction, interactionIsLocal: false);
 					}
 				}
 				if (worldObjectClient is IBulletImpactVisualizer)
 				{
-					((IBulletImpactVisualizer)worldObjectClient).VisualizeBulletImpact(voxelHit, ray, owner.WorldObjectOwner.OwnerActorNr, damage);
+					((IBulletImpactVisualizer)worldObjectClient).VisualizeBulletImpact(voxelHit, ray, owner.WorldObjectOwner.OwnerActorNr, baseDamage);
 				}
 			}
 			flag = true;

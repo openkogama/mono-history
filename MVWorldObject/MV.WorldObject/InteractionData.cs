@@ -27,16 +27,20 @@ public struct InteractionData
 			new InteractionData(InteractionPackageType.MutantHit, 110f, Vector3.zero, PlayerKilledByType.None, isShared: true)
 		},
 		{
+			InteractionPackageType.RailGunHit,
+			new InteractionData(InteractionPackageType.RailGunHit, 100f, Vector3.zero, PlayerKilledByType.None, isShared: true)
+		},
+		{
 			InteractionPackageType.ShotgunHit,
 			new InteractionData(InteractionPackageType.ShotgunHit, 13f, Vector3.zero, PlayerKilledByType.None, isShared: true)
 		},
 		{
 			InteractionPackageType.SixShooterHit,
-			new InteractionData(InteractionPackageType.SixShooterHit, 25f, Vector3.zero, PlayerKilledByType.None, isShared: true)
+			new InteractionData(InteractionPackageType.SixShooterHit, 12.5f, Vector3.zero, PlayerKilledByType.None, isShared: true)
 		},
 		{
 			InteractionPackageType.DoubleSixShooterHit,
-			new InteractionData(InteractionPackageType.DoubleSixShooterHit, 25f, Vector3.zero, PlayerKilledByType.None, isShared: true)
+			new InteractionData(InteractionPackageType.DoubleSixShooterHit, 12.5f, Vector3.zero, PlayerKilledByType.None, isShared: true)
 		},
 		{
 			InteractionPackageType.SwordHit,
