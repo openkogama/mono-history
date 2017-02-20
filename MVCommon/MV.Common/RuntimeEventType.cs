@@ -17,5 +17,6 @@ public enum RuntimeEventType : byte
 	GodzillaLaserImpactM,
 	GodzillaLaserImpactL,
 	GodzillaLaserImpactXL,
-	SwordTerrainDestroy
+	SwordTerrainDestroy,
+	ImpulseGunImpact
 }

@@ -93,21 +93,26 @@ public class PickupItemBazooka : PickupItemWithDelay
 				continue;
 			}
 			InteractionDataHandlerBase interactionDataHandlerBase = mVObject.InteractionDataHandlerBase;
-			if (interactionDataHandlerBase != null && (mVObject.OwnerActorNr == MVGameControllerBase.Game.LocalPlayer.ActorNr || !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(mVObject.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr)))
+			if (!(interactionDataHandlerBase != null) || (mVObject.OwnerActorNr != MVGameControllerBase.Game.LocalPlayer.ActorNr && MVGameControllerBase.Game.TeamManager.IsOnSameTeam(mVObject.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr)))
 			{
-				float time = Vector3.Distance(voxelHit.point, interactionDataHandlerBase.GetClosestPoint(voxelHit.point)) / blastRadius;
-				float num2 = damageFalloff.Evaluate(time);
-				float num3 = Mathf.Clamp(num2 * (float)baseDamage, 0f, float.MaxValue);
-				if (num3 > 0f)
+				continue;
+			}
+			float time = Vector3.Distance(voxelHit.point, interactionDataHandlerBase.GetClosestPoint(voxelHit.point)) / blastRadius;
+			float num2 = damageFalloff.Evaluate(time);
+			float num3 = Mathf.Clamp(num2 * (float)baseDamage, 0f, float.MaxValue);
+			if (num3 > 0f)
+			{
+				Vector3 normalized = (collider.transform.position - voxelHit.point).normalized;
+				normalized.y += 0.1f;
+				normalized.Normalize();
+				Vector3 impulse = normalized * baseImpulse * num2;
+				bool interactionIsLocal = mVObject.OwnerActorNr == MVGameControllerBase.Game.LocalPlayer.ActorNr;
+				interactionDataHandlerBase.HandleInteraction(ProximityDamageAndImpulse.Create(num3, impulse, PlayerKilledByType.BazookaGun), interactionIsLocal);
+				if (mVObject is IBulletImpactVisualizer)
 				{
-					Vector3 normalized = (collider.transform.position - voxelHit.point).normalized;
-					normalized.y += 0.1f;
-					normalized.Normalize();
-					Vector3 impulse = normalized * baseImpulse * num2;
-					bool interactionIsLocal = mVObject.OwnerActorNr == MVGameControllerBase.Game.LocalPlayer.ActorNr;
-					interactionDataHandlerBase.HandleInteraction(ProximityDamageAndImpulse.Create(num3, impulse, PlayerKilledByType.BazookaGun), interactionIsLocal);
-					hashSet.Add(mVObject.Id);
+					((IBulletImpactVisualizer)mVObject).VisualizeBulletImpact(default, lineOfFire, owner.WorldObjectOwner.OwnerActorNr, 0f);
 				}
+				hashSet.Add(mVObject.Id);
 			}
 		}
 	}

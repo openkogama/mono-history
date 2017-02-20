@@ -31,12 +31,20 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 		AvatarModifierPackageType.GodzillaGrowthInvulnerability
 	};
 
+	private readonly MaterialHitPackage[] hitPackages = new MaterialHitPackage[1]
+	{
+		new MaterialHitPackage(AvatarModifierPackageType.Poison, PrefabPool.Instance.PoisonParticles)
+	};
+
+	private InteractableMaterialHitHandler materialHitHandler = new InteractableMaterialHitHandler();
+
 	private MVRuntimeDataVariable invulnerable;
 
 	public void Init(MVRuntimeDataVariable runtimeDataModifiers, MVRuntimeDataVariable invulnerable, MVRuntimeDataVariableClampedFloat health)
 	{
 		Init(runtimeDataModifiers, health);
 		this.invulnerable = invulnerable;
+		materialHitHandler.Initialize(hitPackages, transform);
 	}
 
 	public override void TakeDamage(float amount, MVPlayer damageDealer, PlayerKilledByType damageType)
@@ -94,6 +102,10 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 
 	public void HandleMoveHit(MVControllerColliderHit moveHit)
 	{
-		AddModifier(moveHit.material.modifierPackageType);
+		if (moveHit.material.modifierPackageType != AvatarModifierPackageType.None)
+		{
+			AddModifier(moveHit.material.modifierPackageType);
+		}
+		materialHitHandler.HandleHit(moveHit);
 	}
 }

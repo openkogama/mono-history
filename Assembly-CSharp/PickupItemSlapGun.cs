@@ -22,6 +22,8 @@ public class PickupItemSlapGun : PickupItemWithDelay
 
 	private int layerMask;
 
+	private static readonly float damage = SlapGunHitPackage.Create(new Vector3(0f, 0f, 0f)).Damage;
+
 	public override AvatarItemType Type => AvatarItemType.SlapGun;
 
 	public override bool CanUnequip => false;
@@ -39,44 +41,35 @@ public class PickupItemSlapGun : PickupItemWithDelay
 
 	protected override void OnFire(bool isLocal)
 	{
-		Ray lineOfFire = new Ray(muzzlePoint.position, owner.LookDirection);
+		Ray ray = new Ray(muzzlePoint.position, owner.LookDirection);
 		audioSource.clip = slapSounds[Random.Range(0, slapSounds.Length - 1)];
 		MVGameControllerBase.AudioManager.Play("Sound - slapGunFire", audioSource, audioSource.transform.position);
-		List<MVWorldObjectClient> list = SphereCastAgainstWorldObjects(lineOfFire);
 		if (owner.IsLocal)
 		{
-			for (int i = 0; i < list.Count; i++)
+			List<MVWorldObjectClient> list = new List<MVWorldObjectClient>();
+			List<VoxelHit> list2 = CollisionDetection.MVSphereCastAll(ray, 2f, maxRange, owner.IgnoreWOIDs, layerMask);
+			for (int i = 0; i < list2.Count; i++)
 			{
-				MVWorldObjectClient mVWorldObjectClient = list[i];
-				Vector3 impulse = ComputeImpulseDirection(lineOfFire) * slapStrength;
-				InteractionDataHandlerBase interactionDataHandlerBase = mVWorldObjectClient.InteractionDataHandlerBase;
-				if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(mVWorldObjectClient.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
+				VoxelHit voxelHit = list2[i];
+				MVGameControllerBase.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, slapStrength);
+				MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
+				Vector3 impulse = ComputeImpulseDirection(ray) * slapStrength;
+				InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
+				if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
 				{
-					interactionDataHandlerBase.HandleInteraction(ImpulseHitPackage.Create(impulse), interactionIsLocal: false);
+					interactionDataHandlerBase.HandleInteraction(SlapGunHitPackage.Create(impulse), interactionIsLocal: false);
+					if (worldObjectClient is IBulletImpactVisualizer)
+					{
+						((IBulletImpactVisualizer)worldObjectClient).VisualizeBulletImpact(voxelHit, ray, owner.WorldObjectOwner.OwnerActorNr, damage);
+					}
 				}
 			}
 		}
-		Vector3 target = FindRayTarget(lineOfFire);
+		Vector3 target = FindRayTarget(ray);
 		ImpulseRay impulseRay = Object.Instantiate(impulseRayPrefab, muzzlePoint.position, Quaternion.identity) as ImpulseRay;
 		impulseRay.Initialize(target);
 		impulseRay.radius = 1.2f;
 		impulseRay.startColor = slapColor;
-	}
-
-	private List<MVWorldObjectClient> SphereCastAgainstWorldObjects(Ray lineOfFire)
-	{
-		List<MVWorldObjectClient> list = new List<MVWorldObjectClient>();
-		List<VoxelHit> list2 = CollisionDetection.MVSphereCastAll(lineOfFire, 2f, maxRange, owner.IgnoreWOIDs, layerMask);
-		foreach (VoxelHit item in list2)
-		{
-			MVGameControllerBase.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(item, slapStrength);
-			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(item.woId);
-			if (worldObjectClient != null)
-			{
-				list.Add(worldObjectClient);
-			}
-		}
-		return list;
 	}
 
 	private Vector3 FindRayTarget(Ray lineOfFire)

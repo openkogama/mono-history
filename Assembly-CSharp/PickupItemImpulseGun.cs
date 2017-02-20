@@ -158,7 +158,7 @@ public class PickupItemImpulseGun : PickupItem
 				float num2 = recoilMagnitude / Mathf.Max(num * 0.5f, 1f);
 				if (impulseMagnitude > 2500f)
 				{
-					MVGameControllerBase.Game.World.RuntimeEventManager.SendRuntimeEvent(new ExplosionEvent(RuntimeEventType.Bazooka, vector));
+					MVGameControllerBase.Game.World.RuntimeEventManager.SendRuntimeEvent(new ExplosionEvent(RuntimeEventType.ImpulseGunImpact, vector));
 				}
 				Vector3 impulse2 = -lineOfFire.direction * num2;
 				MVRigidBody component = owner.GetComponent<MVRigidBody>();

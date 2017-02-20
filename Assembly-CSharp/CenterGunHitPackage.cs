@@ -11,19 +11,6 @@ public class CenterGunHitPackage : InteractionPackage
 
 	public override void ParseAndHandlePackage(MVWorldObjectClient worldObjectClient, MVPlayer shooter, InteractionData interactionStruct)
 	{
-		MVInteractableBase component = worldObjectClient.GameObject.GetComponent<MVInteractableBase>();
-		if (component != null)
-		{
-			component.TakeDamage(interactionStruct.Damage, shooter, PlayerKilledByType.CenterGun);
-		}
-		MVWorldObjectClient worldObjectClient2 = MVGameControllerBase.WOCM.GetWorldObjectClient(shooter.Avatar.Id);
-		if (worldObjectClient2 != null)
-		{
-			MVRigidBody component2 = worldObjectClient.GameObject.GetComponent<MVRigidBody>();
-			if (component2 != null)
-			{
-				component2.AddImpulse(shooter, interactionStruct.Impulse, suspendImpactDamage: true);
-			}
-		}
+		HandlePackage(worldObjectClient, shooter, interactionStruct.Damage, PlayerKilledByType.CenterGun, interactionStruct.Impulse);
 	}
 }

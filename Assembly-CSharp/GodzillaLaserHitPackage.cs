@@ -12,10 +12,6 @@ public class GodzillaLaserHitPackage : InteractionPackage
 
 	public override void ParseAndHandlePackage(MVWorldObjectClient worldObjectClient, MVPlayer shooter, InteractionData interactionStruct)
 	{
-		MVInteractableBase component = worldObjectClient.GameObject.GetComponent<MVInteractableBase>();
-		if (component != null)
-		{
-			component.TakeDamage(interactionStruct.Damage, shooter, PlayerKilledByType.GodzillaLaser);
-		}
+		HandlePackage(worldObjectClient, shooter, interactionStruct.Damage, PlayerKilledByType.GodzillaLaser);
 	}
 }

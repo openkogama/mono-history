@@ -6,17 +6,37 @@ public class DamageIndicator : MonoBehaviour
 {
 	private class IndicatorArrow
 	{
+		private static IndicatorArrow _nextArrow;
+
+		private static float indicationRadius;
+
 		private IndicatorArrow nextArrow;
 
 		private Image arrow;
+
+		private Transform damageOrigin;
 
 		private float timer;
 
 		private bool idle = true;
 
-		public IndicatorArrow NextArrow => nextArrow;
+		public static IndicatorArrow NextArrow
+		{
+			get
+			{
+				_nextArrow = _nextArrow.nextArrow;
+				return _nextArrow;
+			}
+		}
 
-		public IndicatorArrow(int numberOfArrows, Image arrowBase, IndicatorArrow firstArrow = null)
+		public IndicatorArrow(int numberOfArrows, Image arrowBase, float indicationRadius)
+			: this(numberOfArrows, arrowBase, null)
+		{
+			IndicatorArrow.indicationRadius = indicationRadius;
+			_nextArrow = this;
+		}
+
+		private IndicatorArrow(int numberOfArrows, Image arrowBase, IndicatorArrow firstArrow)
 		{
 			arrow = Object.Instantiate(arrowBase);
 			arrow.transform.SetParent(arrowBase.transform.parent, worldPositionStays: false);
@@ -35,15 +55,20 @@ public class DamageIndicator : MonoBehaviour
 			}
 		}
 
-		public void Show(Vector3 damageOrigin, float time, float indicationRadius)
+		public void Show(Transform damageOrigin, float time, float indicationRadius)
 		{
-			Vector3 vector = MVGameControllerBase.CameraController.transform.worldToLocalMatrix.MultiplyPoint(damageOrigin);
+			this.damageOrigin = damageOrigin;
+			timer = time;
+			arrow.enabled = true;
+			idle = false;
+		}
+
+		private void UpdateArrowPosition()
+		{
+			Vector3 vector = MVGameControllerBase.CameraController.transform.worldToLocalMatrix.MultiplyPoint(damageOrigin.position);
 			Vector2 normalized = new Vector2(vector.x, vector.y).normalized;
 			arrow.rectTransform.localRotation = Quaternion.LookRotation(new Vector3(0f, 0f, 1f), new Vector3(normalized.x, normalized.y, 0f));
 			arrow.rectTransform.anchoredPosition = new Vector2(normalized.x, normalized.y) * indicationRadius;
-			arrow.enabled = true;
-			timer = time;
-			idle = false;
 		}
 
 		private void InternalUpdate()
@@ -51,8 +76,9 @@ public class DamageIndicator : MonoBehaviour
 			if (!idle)
 			{
 				timer -= Time.deltaTime;
-				idle = timer <= 0f;
 				arrow.enabled = !idle;
+				idle = timer <= 0f;
+				UpdateArrowPosition();
 			}
 		}
 
@@ -81,20 +107,20 @@ public class DamageIndicator : MonoBehaviour
 		}
 	}
 
-	[Header("Configuration")]
 	[Tooltip("Distance from center, for indicator arrow to appear.")]
+	[Header("Configuration")]
 	[SerializeField]
 	private float indicationRadius = 35f;
 
-	[Tooltip("Transparency [0..1] by time [0..1] remaining")]
 	[SerializeField]
+	[Tooltip("Transparency [0..1] by time [0..1] remaining")]
 	private AnimationCurve fade;
 
 	[SerializeField]
 	private float durationPerPointOfDamage = 0.03f;
 
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	private Image damageOverlay;
 
 	[SerializeField]
@@ -111,7 +137,7 @@ public class DamageIndicator : MonoBehaviour
 		timeNormalizationFactor = 100f * durationPerPointOfDamage;
 		transform.SetParent(null, worldPositionStays: false);
 		directionArrowBase.enabled = false;
-		directionArrow = new IndicatorArrow(3, directionArrowBase);
+		directionArrow = new IndicatorArrow(3, directionArrowBase, indicationRadius);
 		ResetIndicators();
 	}
 
@@ -125,10 +151,10 @@ public class DamageIndicator : MonoBehaviour
 	{
 		if (damageDealer != null && damageDealer.ActorNr != MVGameControllerBase.Game.LocalPlayer.ActorNr)
 		{
-			directionArrow = directionArrow.NextArrow;
+			directionArrow = IndicatorArrow.NextArrow;
 			if (!damageDealer.Avatar.GameObject.activeInHierarchy)
 			{
-				directionArrow.Show(damageDealer.Avatar.Transform.position, damageAmount * durationPerPointOfDamage, indicationRadius);
+				directionArrow.Show(damageDealer.Avatar.Transform, damageAmount * durationPerPointOfDamage, indicationRadius);
 			}
 		}
 		damageOverlay.enabled = true;

@@ -3,31 +3,23 @@ using UnityEngine;
 public class ClosestPointSphere : ClosestPointBase
 {
 	[SerializeField]
-	private SphereCollider collider;
+	private Vector3 offset;
 
-	private Transform Transform => collider.gameObject.transform;
+	[SerializeField]
+	private float radius = 1f;
 
-	private Vector3 Position => Transform.position;
-
-	private float ScaledRadius => collider.radius * Transform.lossyScale.y;
-
-	public ClosestPointSphere(SphereCollider c)
+	protected void OnDrawGizmos()
 	{
-		collider = c;
+		Gizmos.color = Color.yellow;
+		Gizmos.DrawWireSphere(transform.position + offset, radius);
 	}
 
-	public override Vector3 GetClosestPoint(Vector3 from)
+	public override Vector3 GetClosestPoint(Vector3 spectator)
 	{
-		Vector3 vector = from - Position + Position + collider.center.Multiply(Transform.lossyScale);
-		return Position + vector.normalized * ScaledRadius;
-	}
-
-	private void OnValidate()
-	{
-		Debug.LogWarning("ClosestPointSphere is not properly tested.");
-		if (collider == null)
-		{
-			collider = GetComponent<SphereCollider>();
-		}
+		Vector3 vector = offset.Multiply(transform.lossyScale);
+		float num = radius * transform.lossyScale.x;
+		Vector3 vector2 = transform.position + vector;
+		Vector3 vector3 = (spectator - transform.position).normalized * num;
+		return vector2 + vector3;
 	}
 }

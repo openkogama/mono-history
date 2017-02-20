@@ -53,6 +53,10 @@ public struct InteractionData
 		{
 			InteractionPackageType.MultiThrowingStarHit,
 			new InteractionData(InteractionPackageType.MultiThrowingStarHit, 7.5f, Vector3.zero, PlayerKilledByType.None, isShared: true)
+		},
+		{
+			InteractionPackageType.SlapGunHit,
+			new InteractionData(InteractionPackageType.SlapGunHit, 35f, Vector3.zero, PlayerKilledByType.None, isShared: true)
 		}
 	};
 

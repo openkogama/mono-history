@@ -34,7 +34,7 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 	{
 		base.Initialize();
 		MVCubeModelInstance mVCubeModelInstance = (MVCubeModelInstance)GetChild("BodyCubeModel");
-		GameObject.AddComponent<ClientSideNPCInteractionHandler>();
+		GameObject.GetComponent<ClientSideNPCInteractionHandler>().FindWorldObjectParent();
 		interactable = GameObject.AddComponent<ClientSideNPCInteractable>();
 		interactable.Init(ReceiveDamage);
 		AdvancedGhostMotor advancedGhostMotor = GameObject.AddComponent<AdvancedGhostMotor>();

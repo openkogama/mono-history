@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MV.Common;
 using UnityEngine;
 
 public class GameMeterHandler : MonoBehaviour
@@ -19,6 +20,7 @@ public class GameMeterHandler : MonoBehaviour
 			gameMeters[i].SetGameMeterVisibility();
 		}
 		MVGameControllerBase.Game.GameStatCounterManager.OnCounterTypeChanged += CounterChanged;
+		MVGameControllerBase.Game.GameStatCounterManager.OnCounterTypeChanged += OnGameStatUpdated;
 		MVGameControllerBase.Game.WinningConditionManager.OnWinningConditionCountChanged += ConditionCountChanged;
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.onPlayerListChanged = (MVNetworkGame.OnPlayerListChangedDelegate)Delegate.Combine(game.onPlayerListChanged, new MVNetworkGame.OnPlayerListChangedDelegate(UpdateValue));
@@ -29,6 +31,7 @@ public class GameMeterHandler : MonoBehaviour
 		if (MVGameControllerBase.Game != null)
 		{
 			MVGameControllerBase.Game.GameStatCounterManager.OnCounterTypeChanged -= CounterChanged;
+			MVGameControllerBase.Game.GameStatCounterManager.OnCounterTypeChanged -= OnGameStatUpdated;
 			MVGameControllerBase.Game.WinningConditionManager.OnWinningConditionCountChanged -= ConditionCountChanged;
 			MVNetworkGame game = MVGameControllerBase.Game;
 			game.onPlayerListChanged = (MVNetworkGame.OnPlayerListChangedDelegate)Delegate.Remove(game.onPlayerListChanged, new MVNetworkGame.OnPlayerListChangedDelegate(UpdateValue));
@@ -48,6 +51,20 @@ public class GameMeterHandler : MonoBehaviour
 		for (int i = 0; i < gameMeters.Count; i++)
 		{
 			gameMeters[i].SetGameMeterVisibility();
+		}
+	}
+
+	private void OnGameStatUpdated(object sender, OnCounterTypeChangedArgs args)
+	{
+		if (args.actorNumber == MVGameControllerBase.WOCM.AvatarLocal.OwnerActorNr)
+		{
+			GameStatCounterType counterType = args.counterType;
+			if (counterType == GameStatCounterType.Kill)
+			{
+				Dictionary<object, object> dictionary = new Dictionary<object, object>();
+				dictionary.Add((byte)1, TM._("Score +1"));
+				NotificationController.PushNotification(NotificationType.Kill, NotificationsManager.eNotificationPanel.primary, dictionary, NotificationLifetime.Low);
+			}
 		}
 	}
 

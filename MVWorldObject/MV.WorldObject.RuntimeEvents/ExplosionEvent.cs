@@ -44,7 +44,7 @@ public class ExplosionEvent : RuntimeEvent
 	{
 		{
 			RuntimeEventType.Bazooka,
-			new ExplosionValues(5f, 100f, DamageFallOffType.Linear)
+			new ExplosionValues(3f, 100f, DamageFallOffType.Linear)
 		},
 		{
 			RuntimeEventType.AvatarImpact25,
@@ -89,6 +89,10 @@ public class ExplosionEvent : RuntimeEvent
 		{
 			RuntimeEventType.SwordTerrainDestroy,
 			new ExplosionValues(0.3f, 100f, DamageFallOffType.Linear)
+		},
+		{
+			RuntimeEventType.ImpulseGunImpact,
+			new ExplosionValues(1.5f, 100f, DamageFallOffType.NoFallOff)
 		}
 	};
 

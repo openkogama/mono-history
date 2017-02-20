@@ -11,21 +11,6 @@ public class ProximityDamageAndImpulse : InteractionPackage
 
 	public override void ParseAndHandlePackage(MVWorldObjectClient worldObjectClient, MVPlayer shooter, InteractionData interactionStruct)
 	{
-		if (interactionStruct.Impulse != Vector3.zero)
-		{
-			MVRigidBody component = worldObjectClient.GameObject.GetComponent<MVRigidBody>();
-			if (component != null)
-			{
-				component.AddImpulse(shooter, interactionStruct.Impulse, suspendImpactDamage: true);
-			}
-		}
-		if (interactionStruct.Damage != 0f)
-		{
-			MVInteractableBase component2 = worldObjectClient.GameObject.GetComponent<MVInteractableBase>();
-			if (component2 != null)
-			{
-				component2.TakeDamage(interactionStruct.Damage, shooter, interactionStruct.PlayerKilledByType);
-			}
-		}
+		HandlePackage(worldObjectClient, shooter, interactionStruct.Damage, interactionStruct.PlayerKilledByType, interactionStruct.Impulse);
 	}
 }

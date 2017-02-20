@@ -92,6 +92,10 @@ public static class AvatarPackages
 		{
 			InteractionPackageType.DoubleSixShooterHit,
 			new DoubleSixShooterHitPackage()
+		},
+		{
+			InteractionPackageType.SlapGunHit,
+			new SlapGunHitPackage()
 		}
 	};
 }

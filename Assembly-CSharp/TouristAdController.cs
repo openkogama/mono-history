@@ -40,7 +40,7 @@ public class TouristAdController : MonoBehaviour
 		{
 			if (timer >= timeBeforeAdShown)
 			{
-				promotionSliderCreator.ShowAdPromotionSlide();
+				promotionSliderCreator.ShowAnyPromotionSlide();
 				timer = 0f;
 			}
 			else

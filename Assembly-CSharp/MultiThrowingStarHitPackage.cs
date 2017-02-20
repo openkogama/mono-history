@@ -10,15 +10,6 @@ public class MultiThrowingStarHitPackage : InteractionPackage
 
 	public override void ParseAndHandlePackage(MVWorldObjectClient worldObjectClient, MVPlayer shooter, InteractionData interactionStruct)
 	{
-		MVRigidBody component = worldObjectClient.GameObject.GetComponent<MVRigidBody>();
-		if (component != null)
-		{
-			component.AddImpulse(shooter, interactionStruct.Impulse, suspendImpactDamage: true);
-		}
-		MVInteractableBase component2 = worldObjectClient.GameObject.GetComponent<MVInteractableBase>();
-		if (component2 != null)
-		{
-			component2.TakeDamage(interactionStruct.Damage, shooter, PlayerKilledByType.MultiThrowingStar);
-		}
+		HandlePackage(worldObjectClient, shooter, interactionStruct.Damage, PlayerKilledByType.MultiThrowingStar, interactionStruct.Impulse);
 	}
 }

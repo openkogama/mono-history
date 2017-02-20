@@ -10,16 +10,6 @@ public class ImpulseHitPackage : InteractionPackage
 
 	public override void ParseAndHandlePackage(MVWorldObjectClient worldObjectClient, MVPlayer shooter, InteractionData interactionStruct)
 	{
-		Debug.Log(interactionStruct);
-		MVRigidBody component = worldObjectClient.GameObject.GetComponent<MVRigidBody>();
-		if (component != null)
-		{
-			component.AddImpulse(shooter, interactionStruct.Impulse, suspendImpactDamage: true);
-		}
-		MVInteractableBase component2 = worldObjectClient.GameObject.GetComponent<MVInteractableBase>();
-		if (component2 != null)
-		{
-			component2.AddModifier(AvatarModifierPackageType.NoFriction);
-		}
+		HandlePackage(worldObjectClient, shooter, interactionStruct.Impulse, AvatarModifierPackageType.NoFriction);
 	}
 }

@@ -10,10 +10,6 @@ public class MutantHitPackage : InteractionPackage
 
 	public override void ParseAndHandlePackage(MVWorldObjectClient worldObjectClient, MVPlayer shooter, InteractionData interactionStruct)
 	{
-		MVInteractableBase component = worldObjectClient.GameObject.GetComponent<MVInteractableBase>();
-		if (component != null)
-		{
-			component.TakeDamage(interactionStruct.Damage, shooter, PlayerKilledByType.Mutant);
-		}
+		HandlePackage(worldObjectClient, shooter, interactionStruct.Damage, PlayerKilledByType.Mutant);
 	}
 }

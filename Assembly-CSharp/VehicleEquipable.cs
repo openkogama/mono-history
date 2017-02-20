@@ -31,10 +31,6 @@ public class VehicleEquipable : MVEquipable
 		dictionary.Add("variantId", variantID);
 		dictionary.Add("updateItemState", 4);
 		Dictionary<object, object> dictionary2 = dictionary;
-		if (holsterable)
-		{
-			dictionary2.Add("holstered", false);
-		}
 		if (itemData != null)
 		{
 			dictionary2.Add("itemData", itemData);
@@ -48,7 +44,6 @@ public class VehicleEquipable : MVEquipable
 		if (currentItem.Value is Dictionary<object, object> dictionary)
 		{
 			dictionary["updateItemState"] = 1;
-			dictionary["holstered"] = true;
 			currentItem.Value = dictionary;
 		}
 	}
@@ -58,20 +53,12 @@ public class VehicleEquipable : MVEquipable
 		if (currentItem.Value is Dictionary<object, object> dictionary)
 		{
 			dictionary["updateItemState"] = 2;
-			dictionary["holstered"] = false;
 			currentItem.Value = dictionary;
 		}
 	}
 
 	public override void Unequip()
 	{
-		if (currentItem.Value is Dictionary<object, object> dictionary && dictionary.ContainsKey("holstered") && (bool)dictionary["holstered"])
-		{
-			Debug.Log("Not unequipping holstered weapon");
-		}
-		else
-		{
-			currentItem.Value = new Dictionary<object, object>();
-		}
+		currentItem.Value = new Dictionary<object, object>();
 	}
 }

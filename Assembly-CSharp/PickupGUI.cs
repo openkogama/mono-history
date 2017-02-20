@@ -121,6 +121,7 @@ public class PickupGUI : MonoBehaviour
 
 	private void OnEquipItem(PickupItem item)
 	{
+		ShowEquipableUI = PickupGUIFlags.None;
 		if (item.CanHolster)
 		{
 			if (item.IsHolstered)

@@ -24,5 +24,6 @@ public enum PlayerKilledByType : byte
 	ThrowingStar,
 	MultiThrowingStar,
 	GodzillaLaser,
-	KillZone
+	KillZone,
+	SlapGun
 }

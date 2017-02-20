@@ -1160,7 +1160,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 		avatarMotor.GetSizeState.UnEquipSlapGunEvent += OnUnequip;
 		avatarInteractable.ModifierPackages.OnUnequipItemEvent += OnUnequip;
 		avatarInteractable.ModifierPackages.OnDisableVehiclesEvent += OnDisableVehicles;
-		MVGameControllerBase.Game.GameStatCounterManager.OnCounterTypeChanged += OnGameStatUpdated;
 		CullingApiWrapper.SetDistanceReferencePoint(transform);
 	}
 
@@ -1281,14 +1280,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 	{
 		Transform spawnTransform = GetSpawnTransform();
 		SetTransform(spawnTransform.position, spawnTransform.rotation);
-	}
-
-	private void OnGameStatUpdated(object sender, OnCounterTypeChangedArgs args)
-	{
-		if ((MVGameControllerBase.Game.GameStatCounterManager.ActiveTeams.Count > 1 || args.actorNumber == OwnerActorNr) && args.counterType == GameStatCounterType.Kill)
-		{
-			NotificationController.PushNotification(NotificationType.Kill, NotificationsManager.eNotificationPanel.primary, NotificationLifetime.Low);
-		}
 	}
 
 	private void Suicide()
