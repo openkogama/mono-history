@@ -202,7 +202,7 @@ public abstract class MVVehicleBase : MVBlueprintBase, IBulletImpactVisualizer
 			localObjects.Destroy();
 			localObjects = null;
 		}
-		vehicleUser.VehicleEntered();
+		vehicleUser.OnEnterVehicle();
 		VehicleEntered(vehicleUser, seatID);
 	}
 

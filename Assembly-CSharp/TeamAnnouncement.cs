@@ -8,10 +8,14 @@ public class TeamAnnouncement : Notification
 	[SerializeField]
 	private Text teamColorText;
 
+	[SerializeField]
+	private NotificationFade fader;
+
 	protected override NotificationLifetime Lifetime => NotificationLifetime.High;
 
 	public override void Initialize(Dictionary<object, object> data)
 	{
+		fader.Activate();
 		base.Initialize(data);
 		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
 		{

@@ -121,8 +121,6 @@ public class MVPickupItemBase : MVLogicObject, IUpdatecontrollerSubscriber, IPic
 		baseObject = (MVPickupItemBaseObject)component;
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
 		interactionFlags |= InteractionFlags.CanUseLevel;
-		baseObject.TriggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
-		baseObject.TriggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
 	}
 
 	void IUpdatecontrollerSubscriber.UpdateControllerUpdate()
@@ -185,10 +183,14 @@ public class MVPickupItemBase : MVLogicObject, IUpdatecontrollerSubscriber, IPic
 		SetupCulling(baseObject.PickupItem.pickupObject);
 		cullingSubscriberBase.DistanceBandIndex = 2;
 		UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
+		baseObject.TriggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
+		baseObject.TriggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
 	}
 
 	public override void Destroy()
 	{
+		baseObject.TriggerBoxEvents.TriggerEnter -= triggerBoxEvents_TriggerEnter;
+		baseObject.TriggerBoxEvents.TriggerExit -= triggerBoxEvents_TriggerExit;
 		if (useInteractor != null)
 		{
 			baseObject.TriggerBoxEvents.TriggerEnter -= useInteractor.triggerBoxEvents_TriggerEnter;

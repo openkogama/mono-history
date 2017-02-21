@@ -32,7 +32,7 @@ public class NotificationFade : MonoBehaviour
 		}
 	}
 
-	private void OnEnable()
+	public void Activate()
 	{
 		finished = false;
 		group.alpha = 0f;

@@ -11,6 +11,8 @@ public class KillNotification : Notification
 	[SerializeField]
 	private Image Background;
 
+	protected override NotificationLifetime Lifetime => NotificationLifetime.Low;
+
 	public override void Initialize(Dictionary<object, object> data)
 	{
 		base.Initialize(data);

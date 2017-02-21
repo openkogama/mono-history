@@ -67,6 +67,23 @@ public abstract class InteractionPackage
 		}
 	}
 
+	protected void HandlePackage(MVWorldObjectClient target, Vector3 impulse, AvatarModifierPackageType modifierType)
+	{
+		MVInteractableBase component = target.GameObject.GetComponent<MVInteractableBase>();
+		if (!(component != null) || !component.HasModifier(AvatarModifierPackageType.SpawnProtection))
+		{
+			if (component != null)
+			{
+				component.AddModifier(modifierType);
+			}
+			MVRigidBody component2 = target.GameObject.GetComponent<MVRigidBody>();
+			if (component2 != null)
+			{
+				component2.AddImpulse(null, impulse, suspendImpactDamage: true);
+			}
+		}
+	}
+
 	protected void HandlePackage(MVWorldObjectClient target, MVPlayer shooter, Vector3 impulse)
 	{
 		MVInteractableBase component = target.GameObject.GetComponent<MVInteractableBase>();

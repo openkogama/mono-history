@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MV.Common;
 using UnityEngine;
 
 public class JetPackVisualization : VehicleVisualizationBase
@@ -37,6 +38,8 @@ public class JetPackVisualization : VehicleVisualizationBase
 	private MVJetPack.JetModeType mode = MVJetPack.JetModeType.NotSet;
 
 	private bool modeChanged;
+
+	private float lastOverHeatTime;
 
 	public void Init(bool isInSpawner, Transform jetPackCubeModel, MVRuntimeDataVariable jetMode)
 	{
@@ -113,6 +116,11 @@ public class JetPackVisualization : VehicleVisualizationBase
 	public void DoOverheatBlinking()
 	{
 		vehicleBlinker.StartBlinking(BlinkType.Damage, 0.3f);
+		if (Time.time - lastOverHeatTime > 2f)
+		{
+			lastOverHeatTime = Time.time;
+			NotificationController.PushNotification(NotificationType.JetPackOverheating, NotificationsManager.eNotificationPanel.primary);
+		}
 	}
 
 	private void Start()

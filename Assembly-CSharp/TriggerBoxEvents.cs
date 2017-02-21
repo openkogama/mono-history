@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class TriggerBoxEvents : MonoBehaviour
 {
-	[SerializeField]
 	[Tooltip("Will be fetched with GetComponent<Collider>(), if null.")]
+	[SerializeField]
 	private Collider triggerCollider;
 
 	private bool isInTrigger;

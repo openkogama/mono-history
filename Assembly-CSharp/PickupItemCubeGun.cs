@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
 using MV.WorldObject;
-using MV.WorldObject.RuntimeEvents;
 using UnityEngine;
 
 public class PickupItemCubeGun : PickupItemWithDelay
@@ -31,12 +30,6 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	[SerializeField]
 	private GUICellCursor secondaryCursor;
-
-	[SerializeField]
-	private AudioClip cubeLandedSound;
-
-	[SerializeField]
-	private AudioClip fireSound;
 
 	[SerializeField]
 	private AudioSource audioSource;
@@ -247,20 +240,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 				return;
 			}
 		}
-		CubeGunBulletObject cubeGunBulletObject = PrefabPool.Instance.EnumPoolManager.Instantiate<CubeGunBulletObject>(PoolEnums.CubeGunBullet);
-		cubeGunBulletObject.Bullet.ResetBullet();
-		cubeGunBulletObject.Bullet.InitiatedPoolType = PoolEnums.CubeGunBullet;
-		cubeGunBulletObject.transform.localPosition = muzzlePoint.position;
-		cubeGunBulletObject.transform.localRotation = Quaternion.identity;
-		cubeGunBulletObject.CubeBullet.SetCubeMaterial(material);
-		if (isLocal)
-		{
-			Bullet bullet = cubeGunBulletObject.Bullet;
-			bullet.onHitLocal = (Bullet.OnHitDelegate)Delegate.Combine(bullet.onHitLocal, new Bullet.OnHitDelegate(HandleCubeHitLocal));
-		}
-		Bullet bullet2 = cubeGunBulletObject.Bullet;
-		bullet2.onHit = (Bullet.OnHitDelegate)Delegate.Combine(bullet2.onHit, new Bullet.OnHitDelegate(HandleCubeHit));
-		cubeGunBulletObject.Bullet.PooledObjectReference = cubeGunBulletObject;
+		CubeGunBulletObject cubeGunBulletObject = CubeGunBulletObject.Create(owner, muzzlePoint.position, material);
 		Ray lineOfFire = new Ray(owner.LookOrigin, owner.LookDirection);
 		cubeGunBulletObject.Bullet.Fire(owner.GetAbsolutProjectileSpeed(speed), range, lineOfFire, owner.IgnoreWOIDs);
 		currentAmmo = (int)currentAmmo - 1;
@@ -268,15 +248,10 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	protected void OnFireSecondary(bool isLocal)
 	{
-		if (audioSource.gameObject.activeInHierarchy)
-		{
-			audioSource.clip = fireSound;
-			audioSource.loop = false;
-			MVGameControllerBase.AudioManager.Play("CubeGun - fireSound", audioSource, muzzlePoint.position);
-		}
+		MVGameControllerBase.AudioManager.Play("CubeGun", audioSource, muzzlePoint.position);
 		Ray ray = new Ray(owner.LookOrigin, owner.LookDirection);
 		int num = -5 & ~(1 << LayerMask.NameToLayer("Player"));
-		num &= ~(1 << LayerMask.NameToLayer("Logic"));
+		num &= ~(1 << (LayerMask.NameToLayer("Logic") & 0x1F));
 		Vector3 point;
 		if (CollisionDetection.MVHit(ray, out var voxelHit, range, null, num))
 		{
@@ -398,7 +373,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 		}
 	}
 
-	private bool GetCubePosFromFineGrainedTerrain(VoxelHit voxelHit, float maxDistanceToEdge, ref IntVector pos)
+	private static bool GetCubePosFromFineGrainedTerrain(VoxelHit voxelHit, float maxDistanceToEdge, ref IntVector pos)
 	{
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
 		if (worldObjectClient is MVCubeModelFineGrainedTerrain)
@@ -450,30 +425,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 		return false;
 	}
 
-	private void HandleCubeHitLocal(VoxelHit voxelHit, Ray lineOfFire)
-	{
-		IntVector cubePos = GetCubePos(voxelHit);
-		float toughness = MVGameControllerBase.Game.MaterialRepository.GetMaterial(material).physicalProperties.toughness;
-		if (toughness == 0f)
-		{
-			MVCubeModelFineGrainedTerrain singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVCubeModelFineGrainedTerrain>();
-			singletonWorldObject.AddCube(cubePos, new Cube(CubeDataPacker.CornersToByteArray(CubeBase.IdentityCorners), Cube.CreateMaterialArray(material)));
-			singletonWorldObject.HandleDelta();
-		}
-		else
-		{
-			MVGameControllerBase.Game.World.RuntimeEventManager.SendRuntimeEvent(new SingleCubeFineGrainedEvent(cubePos, material));
-		}
-		GameSessionCounters.Increment(GameSessionCounterType.CubeGunCubeDelta);
-	}
-
-	private void HandleCubeHit(VoxelHit voxelHit, Ray lineOfFire)
-	{
-		audioSource.clip = cubeLandedSound;
-		MVGameControllerBase.AudioManager.Play("CubeGun - cubeLanded", audioSource, voxelHit.point);
-	}
-
-	private IntVector GetCubePos(VoxelHit voxelHit)
+	public static IntVector GetCubePos(VoxelHit voxelHit)
 	{
 		IntVector pos = default;
 		if (!GetCubePosFromFineGrainedTerrain(voxelHit, 0.2f, ref pos))

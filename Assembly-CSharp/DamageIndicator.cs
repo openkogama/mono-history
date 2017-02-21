@@ -76,8 +76,8 @@ public class DamageIndicator : MonoBehaviour
 			if (!idle)
 			{
 				timer -= Time.deltaTime;
-				arrow.enabled = !idle;
 				idle = timer <= 0f;
+				arrow.enabled = !idle;
 				UpdateArrowPosition();
 			}
 		}
@@ -107,9 +107,9 @@ public class DamageIndicator : MonoBehaviour
 		}
 	}
 
-	[Tooltip("Distance from center, for indicator arrow to appear.")]
 	[Header("Configuration")]
 	[SerializeField]
+	[Tooltip("Distance from center, for indicator arrow to appear.")]
 	private float indicationRadius = 35f;
 
 	[SerializeField]
@@ -132,12 +132,15 @@ public class DamageIndicator : MonoBehaviour
 
 	private float timeNormalizationFactor;
 
+	private float initialAlpha;
+
 	private void Awake()
 	{
 		timeNormalizationFactor = 100f * durationPerPointOfDamage;
 		transform.SetParent(null, worldPositionStays: false);
 		directionArrowBase.enabled = false;
 		directionArrow = new IndicatorArrow(3, directionArrowBase, indicationRadius);
+		initialAlpha = damageOverlay.color.a;
 		ResetIndicators();
 	}
 
@@ -172,8 +175,8 @@ public class DamageIndicator : MonoBehaviour
 			damageOverlay.enabled = false;
 			return;
 		}
-		float alpha = fade.Evaluate(damageOverlayTimer / timeNormalizationFactor);
-		SetTransparency(damageOverlay, alpha);
+		float num = fade.Evaluate(damageOverlayTimer / timeNormalizationFactor);
+		SetTransparency(damageOverlay, initialAlpha * num);
 		damageOverlayTimer -= Time.deltaTime;
 	}
 

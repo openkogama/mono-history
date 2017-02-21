@@ -236,9 +236,4 @@ public abstract class MVPickupOwner : MVComponent
 		SetAvatarItemAsCurrent(component);
 		return component;
 	}
-
-	private void Update()
-	{
-		Debug.DrawLine(LookOrigin, LookOrigin + LookDirection * 2f, Color.red, 2f);
-	}
 }

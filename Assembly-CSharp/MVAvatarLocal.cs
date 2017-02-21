@@ -602,8 +602,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 
 		private float prevWaterProximity;
 
-		private readonly string MouseWheel = "Mouse ScrollWheel";
-
 		private bool IsSwimming => swimStartProximity <= prevWaterProximity;
 
 		public WalkMode(MVAvatarLocal mvAvatar)
@@ -1220,7 +1218,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 		triggerHandler.Reset();
 	}
 
-	public override void VehicleEntered()
+	public override void OnEnterVehicle()
 	{
 		if (Group.GameObject.GetComponent<MVRigidBody>() != null)
 		{

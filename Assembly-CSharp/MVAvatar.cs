@@ -93,7 +93,7 @@ public class MVAvatar : MVGroup
 	{
 	}
 
-	public virtual void VehicleEntered()
+	public virtual void OnEnterVehicle()
 	{
 	}
 

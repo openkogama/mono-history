@@ -28,6 +28,8 @@ public class RequirementNotification : Notification
 
 	private List<GameObject> PanelsToDestroy = new List<GameObject>();
 
+	protected override NotificationLifetime Lifetime => NotificationLifetime.Low;
+
 	public override void Initialize(Dictionary<object, object> data)
 	{
 		base.Initialize(data);

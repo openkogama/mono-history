@@ -34,6 +34,8 @@ public class GUILoginHandler : MonoBehaviour
 		{ "embedded", false }
 	};
 
+	private static string playerPrefKey = "Dev_profileId";
+
 	private string _profileId;
 
 	private string _serverip;
@@ -53,6 +55,7 @@ public class GUILoginHandler : MonoBehaviour
 
 	private void Awake()
 	{
+		playerPrefKey = "Dev_profileId_standalone";
 		SetValuesToPrefOrDefault();
 		int num = PlayerPrefs.GetInt("serverIndex", 0);
 		SetupServerDropdown(num);
@@ -158,15 +161,15 @@ public class GUILoginHandler : MonoBehaviour
 
 	private void SetValuesToPrefOrDefault()
 	{
-		gameSessionData["profileID"] = Convert.ToInt32(GetPrefOrDefault("Dev_profileId", "-1"));
-		gameSessionData["token"] = GetPrefOrDefault("Dev_profileId", "-1");
+		gameSessionData["profileID"] = Convert.ToInt32(GetPrefOrDefault(playerPrefKey, "-1"));
+		gameSessionData["token"] = GetPrefOrDefault(playerPrefKey, "-1");
 		gameSessionData["serverIP"] = GetPrefOrDefault("Dev_serverip", string.Empty);
 		gameSessionData["planetID"] = Convert.ToInt32(GetPrefOrDefault("Dev_planetId", "-1"));
 	}
 
 	private void UpdatePrefValuesIfChanged()
 	{
-		_profileId = UpdateIfChanged("Dev_profileId", _profileId, ((int)gameSessionData["profileID"]).ToString());
+		_profileId = UpdateIfChanged(playerPrefKey, _profileId, ((int)gameSessionData["profileID"]).ToString());
 		_serverip = UpdateIfChanged("Dev_serverip", _serverip, (string)gameSessionData["serverIP"]);
 		_planetId = UpdateIfChanged("Dev_planetId", _planetId, ((int)gameSessionData["planetID"]).ToString());
 	}

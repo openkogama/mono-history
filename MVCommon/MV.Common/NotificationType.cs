@@ -17,5 +17,6 @@ public enum NotificationType
 	GoldRewardReady,
 	AdReady,
 	TeamNotification,
-	PlayerTip
+	PlayerTip,
+	JetPackOverheating
 }

@@ -1,16 +1,11 @@
 using System.Collections.Generic;
-using UnityEngine;
 
-public class KillPrimaryNotification : Notification
+public class JetPackOverheatNotification : Notification
 {
-	[SerializeField]
-	private NotificationFade fader;
-
 	protected override NotificationLifetime Lifetime => NotificationLifetime.Low;
 
 	public override void Initialize(Dictionary<object, object> data)
 	{
 		base.Initialize(data);
-		fader.Activate();
 	}
 }

@@ -345,6 +345,7 @@ public class MVJetPack : MVVehicleBase
 		{
 			InteractionDataHandler interactionDataHandler = mVCubeModelInstance.GameObject.AddComponent<InteractionDataHandler>();
 			interactionDataHandler.WorldObjectParent = this;
+			interactionDataHandlerBase = interactionDataHandler;
 			mVCubeModelInstance.Visible = true;
 			cullingSubscriberDynamic = new CullingSubscriberDynamic(4f, 3, 2, gameObject);
 		}

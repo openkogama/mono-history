@@ -10,6 +10,14 @@ public class ButtonHandler : MonoBehaviour
 	{
 	}
 
+	private void OnDisable()
+	{
+		if (CrossPlatformInputManager.GetButton(Name))
+		{
+			SetUpState();
+		}
+	}
+
 	public void SetDownState()
 	{
 		CrossPlatformInputManager.SetButtonDown(Name);

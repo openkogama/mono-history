@@ -10,6 +10,6 @@ public class SentryTowerIcePackage : InteractionPackage
 
 	public override void ParseAndHandlePackage(MVWorldObjectClient worldObjectClient, MVPlayer shooter, InteractionData interactionStruct)
 	{
-		HandlePackage(worldObjectClient, shooter, interactionStruct.Impulse, AvatarModifierPackageType.Frozen);
+		HandlePackage(worldObjectClient, interactionStruct.Impulse, AvatarModifierPackageType.Frozen);
 	}
 }

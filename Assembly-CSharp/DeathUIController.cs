@@ -40,5 +40,6 @@ public class DeathUIController : MonoBehaviour
 	{
 		deathReason.text = text;
 		fader.gameObject.SetActive(value: true);
+		fader.Activate();
 	}
 }

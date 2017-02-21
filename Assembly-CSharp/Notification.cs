@@ -8,16 +8,17 @@ public abstract class Notification : MonoBehaviour
 
 	public bool selfDestroy;
 
-	public NotificationObjectPool pool;
-
 	public NotificationType Type;
+
+	[HideInInspector]
+	public NotificationObjectPool pool;
 
 	[SerializeField]
 	protected RectTransform ContentBase;
 
 	private float timeSinceStart;
 
-	protected virtual NotificationLifetime Lifetime => NotificationLifetime.Low;
+	protected abstract NotificationLifetime Lifetime { get; }
 
 	public float Progress => timeSinceStart / (float)Lifetime;
 

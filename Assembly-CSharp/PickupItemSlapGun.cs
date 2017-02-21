@@ -46,11 +46,10 @@ public class PickupItemSlapGun : PickupItemWithDelay
 		MVGameControllerBase.AudioManager.Play("Sound - slapGunFire", audioSource, audioSource.transform.position);
 		if (owner.IsLocal)
 		{
-			List<MVWorldObjectClient> list = new List<MVWorldObjectClient>();
-			List<VoxelHit> list2 = CollisionDetection.MVSphereCastAll(ray, 2f, maxRange, owner.IgnoreWOIDs, layerMask);
-			for (int i = 0; i < list2.Count; i++)
+			List<VoxelHit> list = CollisionDetection.MVSphereCastAll(ray, 2f, maxRange, owner.IgnoreWOIDs, layerMask);
+			for (int i = 0; i < list.Count; i++)
 			{
-				VoxelHit voxelHit = list2[i];
+				VoxelHit voxelHit = list[i];
 				MVGameControllerBase.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, slapStrength);
 				MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
 				Vector3 impulse = ComputeImpulseDirection(ray) * slapStrength;

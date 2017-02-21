@@ -10,6 +10,6 @@ public class SentryTowerFirePackage : InteractionPackage
 
 	public override void ParseAndHandlePackage(MVWorldObjectClient worldObjectClient, MVPlayer shooter, InteractionData interactionStruct)
 	{
-		HandlePackage(worldObjectClient, shooter, interactionStruct.Impulse, AvatarModifierPackageType.Fire);
+		HandlePackage(worldObjectClient, interactionStruct.Impulse, AvatarModifierPackageType.Fire);
 	}
 }

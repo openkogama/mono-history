@@ -20,6 +20,7 @@ public class TeamMenuButton : MonoBehaviour
 		MVRuntimeDataVariable avatarModeTypeFlags = MVGameControllerBase.WOCM.AvatarLocal.avatarModeTypeFlags;
 		avatarModeTypeFlags.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(avatarModeTypeFlags.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChanged));
 		SetButtonTeamColor();
+		SetButtonIsActive();
 	}
 
 	private void AvatarStateChanged(object state)
@@ -27,12 +28,17 @@ public class TeamMenuButton : MonoBehaviour
 		int num = (int)state;
 		if ((num & 4) > 0)
 		{
-			bool flag = MVGameControllerBase.Game.TeamManager.TeamCount() > 1;
-			buttonEnabler.SetActive(flag);
-			if (flag)
-			{
-				SetButtonTeamColor();
-			}
+			SetButtonIsActive();
+		}
+	}
+
+	private void SetButtonIsActive()
+	{
+		bool flag = MVGameControllerBase.Game.TeamManager.TeamCount() > 1;
+		buttonEnabler.SetActive(flag);
+		if (flag)
+		{
+			SetButtonTeamColor();
 		}
 	}
 
