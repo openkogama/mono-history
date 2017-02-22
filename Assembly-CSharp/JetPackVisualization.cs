@@ -33,13 +33,13 @@ public class JetPackVisualization : VehicleVisualizationBase
 
 	public Transform JetPackRoot;
 
+	private float lastOverHeatNotificationTime;
+
 	public List<ParticleEmitter> thrusters = new List<ParticleEmitter>();
 
 	private MVJetPack.JetModeType mode = MVJetPack.JetModeType.NotSet;
 
 	private bool modeChanged;
-
-	private float lastOverHeatTime;
 
 	public void Init(bool isInSpawner, Transform jetPackCubeModel, MVRuntimeDataVariable jetMode)
 	{
@@ -116,9 +116,13 @@ public class JetPackVisualization : VehicleVisualizationBase
 	public void DoOverheatBlinking()
 	{
 		vehicleBlinker.StartBlinking(BlinkType.Damage, 0.3f);
-		if (Time.time - lastOverHeatTime > 2f)
+	}
+
+	public void ShowOverHeatWarning()
+	{
+		if (Time.time - lastOverHeatNotificationTime > 2f)
 		{
-			lastOverHeatTime = Time.time;
+			lastOverHeatNotificationTime = Time.time;
 			NotificationController.PushNotification(NotificationType.JetPackOverheating, NotificationsManager.eNotificationPanel.primary);
 		}
 	}

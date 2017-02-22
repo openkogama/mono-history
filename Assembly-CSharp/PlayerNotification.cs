@@ -21,7 +21,7 @@ public class PlayerNotification : Notification
 
 	private MVPlayer player;
 
-	protected NotificationLifetime lifeTime;
+	protected NotificationLifetime lifeTime = NotificationLifetime.Low;
 
 	protected override NotificationLifetime Lifetime => lifeTime;
 

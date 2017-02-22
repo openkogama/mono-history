@@ -3,18 +3,9 @@ using UnityEngine;
 
 public class NinjaRunModifier : AvatarModifier
 {
+	private const float minRemoteSpeed = 0.1f;
+
 	public TrailRenderer trailRenderer;
-
-	[SerializeField]
-	private AudioSource soundEffect;
-
-	private Vector3 oldPosition;
-
-	private Vector3 oldScale;
-
-	private bool isDestroying;
-
-	private float minMagnitudeValue = 0.1f;
 
 	[SerializeField]
 	private float startWidth;
@@ -25,9 +16,25 @@ public class NinjaRunModifier : AvatarModifier
 	[SerializeField]
 	private float trailHeight;
 
+	[SerializeField]
+	private AudioSource soundEffect;
+
+	private Vector3 oldPosition;
+
+	private Vector3 oldScale;
+
+	private float initialVolume;
+
+	private bool isDestroying;
+
 	private Transform ownerTransform;
 
 	public override AvatarModifierPackageType ModifierType => AvatarModifierPackageType.NinjaRun;
+
+	private void Awake()
+	{
+		initialVolume = soundEffect.volume;
+	}
 
 	protected override void OnActivated(Avatar target)
 	{
@@ -63,9 +70,10 @@ public class NinjaRunModifier : AvatarModifier
 		Object.Destroy(gameObject);
 	}
 
-	private void FixedUpdate()
+	private void Update()
 	{
-		if (!isDestroying && oldPosition != ownerTransform.position)
+		trailRenderer.enabled = !owner.IsLocal || MVGameControllerBase.CameraController.CurCamera.CameraType != CameraType.FirstPersonCamera;
+		if (oldPosition != ownerTransform.position && !isDestroying)
 		{
 			float magnitude = (ownerTransform.position - oldPosition).magnitude;
 			if (ownerTransform.localScale != oldScale)
@@ -76,12 +84,17 @@ public class NinjaRunModifier : AvatarModifier
 			}
 			if (owner.IsLocal)
 			{
-				soundEffect.volume = ((!(magnitude > 1f)) ? magnitude : 1f);
+				soundEffect.volume = Mathf.Clamp(magnitude, 0f, 1f);
+			}
+			else if (magnitude > 0.1f)
+			{
+				soundEffect.volume = 0.5f;
 			}
 			else
 			{
-				soundEffect.volume = ((!(magnitude > minMagnitudeValue)) ? 0f : 0.5f);
+				soundEffect.volume = 0f;
 			}
+			soundEffect.volume *= initialVolume;
 			oldPosition = ownerTransform.position;
 		}
 	}
