@@ -70,10 +70,6 @@ public class MaterialLoader : MonoBehaviour
 		{
 			throw new NullReferenceException();
 		}
-		Debug.Log(SystemInfo.graphicsDeviceName);
-		Debug.Log(SystemInfo.graphicsDeviceType);
-		Debug.Log(SystemInfo.graphicsShaderLevel);
-		Debug.Log(SystemInfo.graphicsDeviceVersion);
 		cubeModelMaterial = cubeModelMaterialLow;
 		if (flag)
 		{
@@ -90,7 +86,6 @@ public class MaterialLoader : MonoBehaviour
 
 	private void Callback(WWW www)
 	{
-		Debug.Log("Got texture");
 		string[] allAssetNames = www.assetBundle.GetAllAssetNames();
 		if (allAssetNames.Length != 1)
 		{

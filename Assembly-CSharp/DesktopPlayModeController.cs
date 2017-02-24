@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
@@ -51,6 +50,9 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 	[SerializeField]
 	private TouristModeController touristModeController;
 
+	[SerializeField]
+	private LobbyStatePlayModeController lobbyStatePlayModeController;
+
 	public UnityAction OnLeaveEditPlayMode;
 
 	private bool rewardReady;
@@ -61,11 +63,11 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 	{
 		get
 		{
-			return !lockCursorManager.LockCursor;
+			return lobbyStatePlayModeController.IsInLobbyState;
 		}
 		set
 		{
-			lockCursorManager.LockCursor = !value;
+			lobbyStatePlayModeController.IsInLobbyState = value;
 		}
 	}
 
@@ -149,7 +151,7 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 	public override void Initialize()
 	{
 		base.Initialize();
-		lobbyState = UnityEngine.Object.Instantiate(lobbyState);
+		lobbyState = Object.Instantiate(lobbyState);
 		lobbyState.SetParent(stackBottom.transform, worldPositionStays: false);
 		if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
 		{
@@ -161,7 +163,7 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 		}
 		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1 && MVGameControllerBase.GameMode == MVGameMode.Play)
 		{
-			TeamMenu newTeamMenu = UnityEngine.Object.Instantiate(teamMenu);
+			TeamMenu newTeamMenu = Object.Instantiate(teamMenu);
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
 			{
 				handler.PopGroups(UIGroupFlags.InventoryUI | UIGroupFlags.InventoryUISubMenu);
@@ -175,8 +177,7 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 		chatController.Initialize();
 		playerListButton.gameObject.SetActive(value: true);
 		MVGameControllerBase.WOCM.AvatarLocal.Body.AccessoryMoveOverride = true;
-		ILockCursorManager lockCursorManager = this.lockCursorManager;
-		lockCursorManager.OnCursorLockChanged = (Action<bool>)Delegate.Combine(lockCursorManager.OnCursorLockChanged, new Action<bool>(LobbyStateChange));
+		lobbyStatePlayModeController.Initialize(inGameController, lobbyState, chatController);
 	}
 
 	private void ToggleLogicVisibility()
@@ -192,28 +193,21 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 
 	private void CreateGUI()
 	{
-		chatController = UnityEngine.Object.Instantiate(chatController);
+		chatController = Object.Instantiate(chatController);
 		chatController.transform.SetParent(stackBottom.transform, worldPositionStays: false);
 		chatController.SubscribeToMessages();
-		inGameController = UnityEngine.Object.Instantiate(inGameController);
+		inGameController = Object.Instantiate(inGameController);
 		inGameController.Initialize();
 		inGameController.transform.SetParent(stackBottom.transform, worldPositionStays: false);
-		playerListButton = UnityEngine.Object.Instantiate(playerListButton);
+		playerListButton = Object.Instantiate(playerListButton);
 		playerListButton.transform.SetParent(stackBottom.transform, worldPositionStays: false);
-		levelBadge = UnityEngine.Object.Instantiate(levelBadge);
+		levelBadge = Object.Instantiate(levelBadge);
 		levelBadge.transform.SetParent(stackBottom.transform, worldPositionStays: false);
-		notificationsManager = UnityEngine.Object.Instantiate(notificationsManager);
+		notificationsManager = Object.Instantiate(notificationsManager);
 		notificationsManager.transform.SetParent(stackBottom.transform, worldPositionStays: false);
-		touristAdController = UnityEngine.Object.Instantiate(touristAdController);
+		touristAdController = Object.Instantiate(touristAdController);
 		touristAdController.transform.SetParent(stackBottom.transform, worldPositionStays: false);
 		touristAdController.Initialize(touristModeController);
-	}
-
-	private void LobbyStateChange(bool cursorLocked)
-	{
-		lobbyState.gameObject.SetActive(!cursorLocked);
-		inGameController.gameObject.SetActive(cursorLocked);
-		chatController.OnLobbyStateChange(cursorLocked);
 	}
 
 	public void ShowEUseIcon(ShowUseOption option, int woID = 0)

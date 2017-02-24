@@ -15,14 +15,13 @@ public class WorldNetwork : World
 	public WorldNetwork()
 	{
 		worldInventory = new MVWorldInventory();
-		links = new Links(OnResetNode);
+		links = new Links();
 		worldObjectClientManager = new MVWorldObjectClientManagerNetwork();
 		objectLinks = new ObjectLinks();
 	}
 
 	public void Update(MVNetworkGame game)
 	{
-		worldObjectClientManager.Update(game);
 		links.Update();
 		objectLinks.Update();
 	}
@@ -115,7 +114,6 @@ public class WorldNetwork : World
 		link.id = (int)data[LinkDataParameter.Id];
 		link.outputWOID = (int)data[LinkDataParameter.OutputWOID];
 		link.inputWOID = (int)data[LinkDataParameter.InputWOID];
-		link.isSet = (bool)data[LinkDataParameter.IsSet];
 		AddLink(link);
 	}
 
@@ -125,7 +123,6 @@ public class WorldNetwork : World
 		objectLink.id = (int)data[ObjectLinkDataParameter.Id];
 		objectLink.objectConnectorWOID = (int)data[ObjectLinkDataParameter.ObjectLinkConnectorWOID];
 		objectLink.objectWOID = (int)data[ObjectLinkDataParameter.ObjectWOID];
-		objectLink.isSet = (bool)data[ObjectLinkDataParameter.IsSet];
 		AddObjectLink(objectLink);
 	}
 
@@ -134,6 +131,7 @@ public class WorldNetwork : World
 		CloneBookkeeping cloneBookkeeping = new CloneBookkeeping();
 		MVWorldObjectClient worldObjectClient = worldObjectClientManager.GetWorldObjectClient(originalId);
 		cloneBookkeeping.cloneIdIncrement = cloneId;
+		Debug.Log("cloneBookkeeping.cloneLinkIdIncrement " + cloneBookkeeping.cloneLinkIdIncrement);
 		cloneBookkeeping.cloneLinkIdIncrement = cloneLinkId;
 		cloneBookkeeping.cloneObjectLinkIdIncrement = cloneObjectLinkId;
 		MVWorldObjectClient mVWorldObjectClient = worldObjectClientManager.Clone(ownerActorNumber, worldObjectClient, cloneBookkeeping, worldInventory);
@@ -153,10 +151,6 @@ public class WorldNetwork : World
 
 	private void CloneLinks(CloneBookkeeping cloneBookkeeping)
 	{
-		if (cloneBookkeeping.cloneLinkIdIncrement == -1 && cloneBookkeeping.linkIds.Count > 0)
-		{
-			Debug.LogError("Found links client side even none was detected serverside");
-		}
 		foreach (int linkId in cloneBookkeeping.linkIds)
 		{
 			if (cloneBookkeeping.worldObjectIdsMaps.ContainsKey(links.GetLink(linkId).inputWOID) && cloneBookkeeping.worldObjectIdsMaps.ContainsKey(links.GetLink(linkId).outputWOID))
@@ -172,10 +166,6 @@ public class WorldNetwork : World
 
 	private void CloneObjectLinks(CloneBookkeeping cloneBookkeeping)
 	{
-		if (cloneBookkeeping.cloneObjectLinkIdIncrement == -1 && cloneBookkeeping.objectLinkIds.Count > 0)
-		{
-			Debug.LogError("Found links client side even none was detected serverside");
-		}
 		foreach (int objectLinkId in cloneBookkeeping.objectLinkIds)
 		{
 			if (cloneBookkeeping.worldObjectIdsMaps.ContainsKey(objectLinks.GetObjectLink(objectLinkId).objectConnectorWOID) && cloneBookkeeping.worldObjectIdsMaps.ContainsKey(objectLinks.GetObjectLink(objectLinkId).objectWOID))
@@ -195,19 +185,8 @@ public class WorldNetwork : World
 		{
 			return false;
 		}
-		worldObjectClientManager.SetState(id, MVWorldObjectState.Destroyed);
+		worldObjectClientManager.DestroyWO(id);
 		return true;
-	}
-
-	public void ResetLogicFromId(int worldObjectID)
-	{
-		Debug.Log("ResetLogicFromId: " + worldObjectID);
-		links.ResetChunk(worldObjectID);
-	}
-
-	private void OnResetNode(int id)
-	{
-		worldObjectClientManager.GetWorldObjectClient(id).Reset();
 	}
 
 	public void AddLink(Link link)
@@ -217,73 +196,28 @@ public class WorldNetwork : World
 		links.AddLink(link, worldObjectClient, worldObjectClient2);
 	}
 
-	public override void RemoveLink(int linkID)
+	public Link RemoveLink(int linkID)
 	{
 		if (!links.Contains(linkID))
 		{
 			Debug.LogError("RemoveLink event, but link not registered!");
-			return;
+			return null;
 		}
 		Link link = links.GetLink(linkID);
 		MVWorldObjectClient worldObjectClient = worldObjectClientManager.GetWorldObjectClient(link.outputWOID);
 		MVWorldObjectClient worldObjectClient2 = worldObjectClientManager.GetWorldObjectClient(link.inputWOID);
 		links.RemoveLink(linkID, worldObjectClient, worldObjectClient2);
+		return link;
 	}
 
-	public bool AddPendingLink(Link link)
+	public bool LinksContains(int linkID)
 	{
-		if (!ValidateLink(link))
-		{
-			return false;
-		}
-		links.AddPendingLink(link);
-		return true;
+		return links.Contains(linkID);
 	}
 
-	public bool RemovePendingLink(int linkID)
+	public bool ObjectLinksContains(int linkID)
 	{
-		if (!links.Contains(linkID))
-		{
-			Debug.LogError("Attempt to remove link, but link not registered");
-			return false;
-		}
-		Link link = links.GetLink(linkID);
-		MVWorldObjectClient worldObjectClient = worldObjectClientManager.GetWorldObjectClient(link.outputWOID);
-		MVWorldObjectClient worldObjectClient2 = worldObjectClientManager.GetWorldObjectClient(link.inputWOID);
-		links.RemovePendingLink(link.id, worldObjectClient, worldObjectClient2);
-		return true;
-	}
-
-	public void HandleAddLinkResponse(bool success, int linkID)
-	{
-		if (success)
-		{
-			Link link = links.DequeuePendingLink();
-			link.id = linkID;
-			AddLink(link);
-		}
-		else
-		{
-			links.DequeuePendingLink();
-		}
-	}
-
-	public void HandleRemoveLinkResponse(bool success)
-	{
-		if (success)
-		{
-			links.DequeuePendingRemoveLink();
-			return;
-		}
-		Link link = links.DequeuePendingRemoveLink();
-		AddLink(link);
-	}
-
-	private bool ValidateLink(Link link)
-	{
-		MVWorldObjectClient worldObjectClient = worldObjectClientManager.GetWorldObjectClient(link.outputWOID);
-		MVWorldObjectClient worldObjectClient2 = worldObjectClientManager.GetWorldObjectClient(link.inputWOID);
-		return links.ValidateLink(link, worldObjectClient, worldObjectClient2);
+		return objectLinks.Contains(linkID);
 	}
 
 	public void AddObjectLink(ObjectLink objectLink)
@@ -304,61 +238,5 @@ public class WorldNetwork : World
 		MVWorldObjectClient worldObjectClient = worldObjectClientManager.GetWorldObjectClient(objectLink.objectConnectorWOID);
 		MVWorldObjectClient worldObjectClient2 = worldObjectClientManager.GetWorldObjectClient(objectLink.objectWOID);
 		objectLinks.RemoveObjectLink(objectLink, worldObjectClient, worldObjectClient2);
-	}
-
-	public bool AddPendingObjectLink(ObjectLink objectLink)
-	{
-		if (!ValidateObjectLink(objectLink))
-		{
-			return false;
-		}
-		objectLinks.AddPendingObjectLink(objectLink);
-		return true;
-	}
-
-	public bool RemovePendingObjectLink(int objectLinkID)
-	{
-		if (!objectLinks.Contains(objectLinkID))
-		{
-			Debug.LogError("Attempt to remove link, but link not registered");
-			return false;
-		}
-		ObjectLink objectLink = objectLinks.GetObjectLink(objectLinkID);
-		MVWorldObjectClient worldObjectClient = worldObjectClientManager.GetWorldObjectClient(objectLink.objectConnectorWOID);
-		MVWorldObjectClient worldObjectClient2 = worldObjectClientManager.GetWorldObjectClient(objectLink.objectWOID);
-		objectLinks.RemovePendingObjectLink(objectLink, worldObjectClient, worldObjectClient2);
-		return true;
-	}
-
-	public void HandleAddObjectLinkResponse(bool success, int linkID)
-	{
-		if (success)
-		{
-			ObjectLink objectLink = objectLinks.DequeuePendingObjectLink();
-			objectLink.id = linkID;
-			AddObjectLink(objectLink);
-		}
-		else
-		{
-			objectLinks.DequeuePendingObjectLink();
-		}
-	}
-
-	public void HandleRemoveObjectLinkResponse(bool success)
-	{
-		if (success)
-		{
-			objectLinks.DequeuePendingRemoveObjectLink();
-			return;
-		}
-		ObjectLink objectLink = objectLinks.DequeuePendingRemoveObjectLink();
-		AddObjectLink(objectLink);
-	}
-
-	private bool ValidateObjectLink(ObjectLink objectLink)
-	{
-		MVWorldObjectClient worldObjectClient = worldObjectClientManager.GetWorldObjectClient(objectLink.objectConnectorWOID);
-		MVWorldObjectClient worldObjectClient2 = worldObjectClientManager.GetWorldObjectClient(objectLink.objectWOID);
-		return objectLinks.ValidateObjectLink(objectLink, worldObjectClient, worldObjectClient2);
 	}
 }

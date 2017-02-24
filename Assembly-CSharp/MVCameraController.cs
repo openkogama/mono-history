@@ -173,6 +173,9 @@ public class MVCameraController : MonoBehaviour
 	[SerializeField]
 	private AudioSource plingSound;
 
+	[SerializeField]
+	private LineDrawManager lineDrawManager;
+
 	private bool blueModeEnabled;
 
 	private static float baseVolume = 0f;
@@ -182,6 +185,8 @@ public class MVCameraController : MonoBehaviour
 	public static Action<bool> OnMuteChange;
 
 	public AvatarCameraFade AvatarCameraFade => avatarCameraFade;
+
+	public LineDrawManager LineDrawManager => lineDrawManager;
 
 	public Camera MainCamera => mainCamera;
 
@@ -334,21 +339,25 @@ public class MVCameraController : MonoBehaviour
 
 	public void SetCamera(CameraType cameraType)
 	{
+		Debug.Log("SetCamera " + cameraType);
 		cameraStack.SetCamera(cameraType, this);
 	}
 
 	public void SetCamera(MVCameraBase cameraBase)
 	{
+		Debug.Log("SetCamera " + cameraBase.CameraType);
 		cameraStack.SetCamera(cameraBase, this);
 	}
 
 	public void PushCamera(CameraType cameraType)
 	{
+		Debug.Log("PushCamera " + cameraType);
 		cameraStack.PushCamera(cameraType, this);
 	}
 
 	public void PushCamera(MVCameraBase cameraBase)
 	{
+		Debug.Log("PushCamera " + cameraBase.CameraType);
 		cameraStack.PushCamera(cameraBase, this);
 	}
 

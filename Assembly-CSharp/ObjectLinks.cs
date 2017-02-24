@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 
@@ -6,11 +7,7 @@ public class ObjectLinks
 {
 	protected readonly Dictionary<int, ObjectLink> objectLinks = new Dictionary<int, ObjectLink>();
 
-	protected readonly Queue<ObjectLink> pendingObjectLinkQueue = new Queue<ObjectLink>();
-
-	protected readonly Queue<ObjectLink> pendingRemoveObjectLinkQueue = new Queue<ObjectLink>();
-
-	protected readonly Dictionary<int, GameObject> objectLinkObjects = new Dictionary<int, GameObject>();
+	protected readonly Dictionary<int, ObjectLinkObjectScript> objectLinkObjects = new Dictionary<int, ObjectLinkObjectScript>();
 
 	public ObjectLink GetObjectLink(int objectLinkID)
 	{
@@ -24,35 +21,19 @@ public class ObjectLinks
 
 	public void Update()
 	{
-		foreach (KeyValuePair<int, ObjectLink> objectLink in objectLinks)
+		if (MVGameControllerBase.GameMode != MVGameMode.Edit || !MVGameControllerBase.CameraController.IsLogicRendered)
 		{
-			LineDrawManager.Instance.ShowObjectLink(objectLink.Value, objectLinkObjects[objectLink.Key]);
+			return;
 		}
-		foreach (ObjectLink item in pendingObjectLinkQueue)
+		foreach (ObjectLink value in objectLinks.Values)
 		{
-			LineDrawManager.Instance.DrawPendingObjectLink(item);
+			objectLinkObjects[value.id].UpdateLinkVisual(value);
 		}
 	}
 
 	public bool Contains(int objectLinkID)
 	{
 		return objectLinks.ContainsKey(objectLinkID);
-	}
-
-	public void RemovePendingObjectLink(ObjectLink link, MVWorldObjectClient objectConnectorWo, MVWorldObjectClient objectWo)
-	{
-		if (!objectLinks.ContainsKey(link.id))
-		{
-			Debug.LogError("Attempt to RemovePending ObjectLink, but link not registered");
-			return;
-		}
-		RemoveObjectLink(link, objectConnectorWo, objectWo);
-		pendingRemoveObjectLinkQueue.Enqueue(link);
-	}
-
-	public void AddPendingObjectLink(ObjectLink link)
-	{
-		pendingObjectLinkQueue.Enqueue(link);
 	}
 
 	public bool RemoveObjectLink(ObjectLink link, MVWorldObjectClient objectConnectorWo, MVWorldObjectClient objectWo)
@@ -63,56 +44,27 @@ public class ObjectLinks
 			return false;
 		}
 		objectLinks.Remove(link.id);
-		Object.Destroy(objectLinkObjects[link.id]);
-		objectLinkObjects.Remove(link.id);
 		objectConnectorWo.RemoveObjectLink(link);
 		objectWo.RemoveObjectLink(link);
-		return true;
-	}
-
-	public bool ValidateObjectLink(ObjectLink objectLink, MVWorldObjectClient objectConnectorWo, MVWorldObjectClient objectWo)
-	{
-		if (objectLinks.ContainsKey(objectLink.id))
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
 		{
-			Debug.LogError("Attempt to add ObjectLink, but link with id already registered!");
-			return false;
-		}
-		if (objectLink.objectConnectorWOID <= 0 || objectLink.objectWOID <= 0)
-		{
-			Debug.LogError("Attempt to add ObjectLink, but link is not connected!");
-			return false;
-		}
-		if (objectConnectorWo == null || objectWo == null)
-		{
-			Debug.LogError("Attempt to add ObjectLink, but one of the ends points to unregistered WorldObjects");
-			return false;
+			Object.Destroy(objectLinkObjects[link.id].gameObject);
+			objectLinkObjects.Remove(link.id);
 		}
 		return true;
 	}
 
 	public bool AddObjectLink(ObjectLink objectLink, MVWorldObjectClient objectConnectorWo, MVWorldObjectClient objectWo)
 	{
-		if (!ValidateObjectLink(objectLink, objectConnectorWo, objectWo))
-		{
-			return false;
-		}
 		objectLinks.Add(objectLink.id, objectLink);
-		GameObject gameObject = Object.Instantiate(PrefabPool.Instance.ObjectLinkObject);
-		gameObject.GetComponentInChildren<LinkObjectScript>().linkID = objectLink.id;
-		gameObject.GetComponentInChildren<LinkObjectScript>().isObjectLink = true;
-		objectLinkObjects.Add(objectLink.id, gameObject);
 		objectConnectorWo.AddObjectLink(objectLink);
 		objectWo.AddObjectLink(objectLink);
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
+		{
+			ObjectLinkObjectScript objectLinkObjectScript = Object.Instantiate(PrefabPool.Instance.ObjectLinkObject);
+			objectLinkObjectScript.Initialize(objectLink);
+			objectLinkObjects.Add(objectLink.id, objectLinkObjectScript);
+		}
 		return true;
-	}
-
-	public ObjectLink DequeuePendingObjectLink()
-	{
-		return pendingObjectLinkQueue.Dequeue();
-	}
-
-	public ObjectLink DequeuePendingRemoveObjectLink()
-	{
-		return pendingRemoveObjectLinkQueue.Dequeue();
 	}
 }

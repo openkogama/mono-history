@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 
@@ -7,19 +7,7 @@ public class Links
 {
 	private readonly Dictionary<int, Link> links = new Dictionary<int, Link>();
 
-	private readonly Queue<Link> pendingLinkQueue = new Queue<Link>();
-
-	private readonly Queue<Link> pendingRemoveLinkQueue = new Queue<Link>();
-
-	private readonly Dictionary<int, GameObject> linkObjects = new Dictionary<int, GameObject>();
-
-	private readonly LinkGraph linkGraph = new LinkGraph();
-
-	public Links(LinkGraph.OnResetNodeDelegate onResetNode)
-	{
-		LinkGraph linkGraph = this.linkGraph;
-		linkGraph.OnResetNode = (LinkGraph.OnResetNodeDelegate)Delegate.Combine(linkGraph.OnResetNode, onResetNode);
-	}
+	private readonly Dictionary<int, LinkObjectScript> linkObjects = new Dictionary<int, LinkObjectScript>();
 
 	public bool RemoveLink(int linkID, MVWorldObjectClient outputWo, MVWorldObjectClient inputWo)
 	{
@@ -30,29 +18,26 @@ public class Links
 		}
 		Link link = links[linkID];
 		links.Remove(link.id);
-		linkGraph.RemoveLink(link.outputWOID, link.inputWOID);
-		UnityEngine.Object.Destroy(linkObjects[link.id]);
-		linkObjects.Remove(link.id);
 		outputWo.RemoveOutputLink(link);
 		inputWo.RemoveInputLink(link);
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
+		{
+			Object.Destroy(linkObjects[link.id].gameObject);
+			linkObjects.Remove(link.id);
+		}
 		return true;
 	}
 
 	public void Update()
 	{
-		foreach (KeyValuePair<int, Link> link in links)
+		if (MVGameControllerBase.GameMode != MVGameMode.Edit || !MVGameControllerBase.CameraController.IsLogicRendered)
 		{
-			LineDrawManager.Instance.ShowLink(link.Value, linkObjects[link.Key]);
+			return;
 		}
-		foreach (Link item in pendingLinkQueue)
+		foreach (Link value in links.Values)
 		{
-			LineDrawManager.Instance.DrawPendingLink(item);
+			linkObjects[value.id].UpdateLinkVisual(value);
 		}
-	}
-
-	public void ResetChunk(int worldObjectID)
-	{
-		linkGraph.ResetChunk(worldObjectID);
 	}
 
 	public bool Contains(int linkID)
@@ -70,80 +55,16 @@ public class Links
 		return links[linkID];
 	}
 
-	public bool AddLink(Link link, MVWorldObjectClient outputWo, MVWorldObjectClient inputWo)
+	public void AddLink(Link link, MVWorldObjectClient outputWo, MVWorldObjectClient inputWo)
 	{
-		if (!ValidateLink(link, outputWo, inputWo))
-		{
-			return false;
-		}
 		links.Add(link.id, link);
-		linkGraph.AddLink(link.outputWOID, link.inputWOID);
-		GameObject gameObject = UnityEngine.Object.Instantiate(PrefabPool.Instance.LinkObject);
-		gameObject.GetComponentInChildren<LinkObjectScript>().linkID = link.id;
-		linkObjects.Add(link.id, gameObject);
 		outputWo.AddOutputLink(link);
 		inputWo.AddInputLink(link);
-		return true;
-	}
-
-	public bool ValidateLink(Link link, MVWorldObjectClient outputWo, MVWorldObjectClient inputWo)
-	{
-		if (link.outputWOID <= 0 || link.inputWOID <= 0)
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
 		{
-			return false;
+			LinkObjectScript linkObjectScript = Object.Instantiate(PrefabPool.Instance.LinkObject);
+			linkObjectScript.Initialize(link);
+			linkObjects.Add(link.id, linkObjectScript);
 		}
-		if (link.inputWOID == link.outputWOID)
-		{
-			return false;
-		}
-		if (outputWo == null)
-		{
-			return false;
-		}
-		if (inputWo == null)
-		{
-			return false;
-		}
-		if (!outputWo.ValidateLink(link))
-		{
-			return false;
-		}
-		if (!linkGraph.ValidateLink(link.outputWOID, link.inputWOID))
-		{
-			return false;
-		}
-		if (link.inputWOID <= 0 || link.outputWOID <= 0)
-		{
-			Debug.LogError("Attempt to add link, but link not added to input/output WO's");
-			return false;
-		}
-		return true;
-	}
-
-	public void RemovePendingLink(int linkID, MVWorldObjectClient outputWo, MVWorldObjectClient inputWo)
-	{
-		if (!links.ContainsKey(linkID))
-		{
-			Debug.LogError("Attempt to RemovePending link, but link not registered");
-			return;
-		}
-		Link item = links[linkID];
-		RemoveLink(linkID, outputWo, inputWo);
-		pendingRemoveLinkQueue.Enqueue(item);
-	}
-
-	public Link DequeuePendingLink()
-	{
-		return pendingLinkQueue.Dequeue();
-	}
-
-	public Link DequeuePendingRemoveLink()
-	{
-		return pendingRemoveLinkQueue.Dequeue();
-	}
-
-	public void AddPendingLink(Link link)
-	{
-		pendingLinkQueue.Enqueue(link);
 	}
 }

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MVPointLight : MVLogicObject
+public class MVPointLight : MVLogicObject, ILogicWorldObject
 {
 	private MVPointLightObject lightObject;
 
@@ -10,6 +10,8 @@ public class MVPointLight : MVLogicObject
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => false;
+
+	public IInputSignalReceiver InputSignalReceiver { get; private set; }
 
 	public MVPointLight(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVPointLightPrefab, worldObjects)
@@ -25,42 +27,30 @@ public class MVPointLight : MVLogicObject
 	{
 		base.Initialize();
 		SetupCulling(lightObject.VisualObject);
-		OnDataUpdate();
-		if (InputLinkRefs.Count == 0)
-		{
-			lightComponent.enabled = true;
-		}
-		else
-		{
-			OnInputStateChanged();
-		}
+		SetLightToData();
+		InputSignalReceiver = LogicClientsideFactory.CreateStateChangeInputSignalReceiver(this, defaultInput: true, null, OnInputStateUpdate);
+		lightComponent.enabled = InputSignalReceiver.CurrentlyIsHot;
 	}
 
-	public override void OnInputLinkChanged()
+	private void OnInputStateUpdate(LogicInputState logicInputState, LogicObjectManager logicObjectManager)
 	{
-		if (InputLinkRefs.Count == 0)
+		if (logicInputState == LogicInputState.FromColdToHot)
 		{
 			lightComponent.enabled = true;
 		}
-		else
-		{
-			OnInputStateChanged();
-		}
-	}
-
-	public override void OnInputStateChanged()
-	{
-		if (InputState)
-		{
-			lightComponent.enabled = true;
-		}
-		else
+		if (logicInputState == LogicInputState.FromHotToCold)
 		{
 			lightComponent.enabled = false;
 		}
 	}
 
 	public override void OnDataUpdate()
+	{
+		SetLightToData();
+		LogicObjectManager.ResetChunk(Id, MVGameControllerBase.WOCM);
+	}
+
+	private void SetLightToData()
 	{
 		if (Data.ContainsKey("color"))
 		{

@@ -57,7 +57,7 @@ internal class ESTerrainEdit : ESStateBase
 			Physics.Raycast(ray, out var hitInfo, float.PositiveInfinity, layerMask);
 			if (hitInfo.collider != null)
 			{
-				LinkObjectScript componentInChildren = hitInfo.collider.gameObject.GetComponentInChildren<LinkObjectScript>();
+				LinkObjectBase componentInChildren = hitInfo.collider.gameObject.GetComponentInChildren<LinkObjectBase>();
 				if (componentInChildren != null && hitInfo.distance < num)
 				{
 					e.Event = EditorEvent.ObjectSelected;

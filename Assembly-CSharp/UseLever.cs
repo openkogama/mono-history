@@ -2,18 +2,23 @@ using System;
 using System.Collections.Generic;
 using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
-using MV.WorldObject;
 using UnityEngine;
 
-public class UseLever : MVLogicObject, ITriggerBoxEventsHandler
+public class UseLever : MVLogicObject, ILogicWorldObject, IIsLogicObjectFiringEventHandler
 {
-	private bool isActivated;
+	private const string beginActivateValueKey = "beginActivated";
+
+	private const string isActivateValueKey = "a";
 
 	private UseLeverObject useLeverObject;
 
 	private float minY = -0.25f;
 
 	private float speed = 1.8f;
+
+	private bool requestSend;
+
+	private OutputSignalTransmitter outputSignalTransmitter;
 
 	public override bool HasInputConnector => false;
 
@@ -22,6 +27,22 @@ public class UseLever : MVLogicObject, ITriggerBoxEventsHandler
 	public override Vector3 WorldPivot => transform.position;
 
 	public override Vector3 OutputConnectorOffset => new Vector3(2.2f, 0f, 0f);
+
+	private bool BeginActivated => (bool)Data["beginActivated"];
+
+	public IInputSignalReceiver InputSignalReceiver { get; private set; }
+
+	private bool IsActivated
+	{
+		get
+		{
+			return (ObscuredBool)RunTimeData.GetObscuredType("a");
+		}
+		set
+		{
+			RunTimeData.SetObscuredType("a", (ObscuredBool)value);
+		}
+	}
 
 	public UseLever(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.UseLeverPrefab, worldObjects)
@@ -61,29 +82,30 @@ public class UseLever : MVLogicObject, ITriggerBoxEventsHandler
 		{
 			OnEditModeChange(new EditModeChangeArgs(state: false));
 		}
-		isActivated = (bool)Data["beginActivated"];
-		if (RunTimeData.ContainsObscuredKey("activated"))
-		{
-			isActivated = (ObscuredBool)RunTimeData.GetObscuredType("activated");
-		}
 		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
 		{
 			transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, 180f, transform.localEulerAngles.z);
 		}
 		useLeverObject.UseInteractor.UpdateData(Data);
-		SetLinks(isActivated);
 		SetupCulling(useLeverObject.VisualRoot);
+		InputSignalReceiver = LogicClientsideFactory.CreateInputSignalReceiver(this, defaultInput: true, SignalCallback);
+		outputSignalTransmitter = new OutputSignalTransmitter(Id);
+	}
+
+	private void SignalCallback(bool b, bool wasHot, LogicObjectManager logicObjectManager)
+	{
+		outputSignalTransmitter.Send(IsActivated);
 	}
 
 	protected override void OnUpdate()
 	{
 		base.OnUpdate();
-		if (isActivated && useLeverObject.PlateButtonTransform.localPosition.z > minY)
+		if (IsActivated && useLeverObject.PlateButtonTransform.localPosition.z > minY)
 		{
 			float num = Mathf.Min(speed * Time.smoothDeltaTime, useLeverObject.PlateButtonTransform.localPosition.z - minY);
 			useLeverObject.PlateButtonTransform.localPosition = new Vector3(useLeverObject.PlateButtonTransform.localPosition.x, useLeverObject.PlateButtonTransform.localPosition.y, useLeverObject.PlateButtonTransform.localPosition.z - num);
 		}
-		else if (!isActivated && useLeverObject.PlateButtonTransform.localPosition.z < 0f)
+		else if (!IsActivated && useLeverObject.PlateButtonTransform.localPosition.z < 0f)
 		{
 			float num2 = Mathf.Min(speed * Time.smoothDeltaTime, 0f - useLeverObject.PlateButtonTransform.localPosition.z);
 			useLeverObject.PlateButtonTransform.localPosition = new Vector3(useLeverObject.PlateButtonTransform.localPosition.x, useLeverObject.PlateButtonTransform.localPosition.y, useLeverObject.PlateButtonTransform.localPosition.z + num2);
@@ -92,35 +114,13 @@ public class UseLever : MVLogicObject, ITriggerBoxEventsHandler
 
 	public bool Use(int userWoID)
 	{
-		isActivated = !isActivated;
-		if (isActivated)
+		if (requestSend)
 		{
-			MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, userWoID);
+			return true;
 		}
-		else
-		{
-			MVGameControllerBase.OperationRequests.TriggerBoxExit(Id, userWoID);
-		}
+		requestSend = true;
+		MVGameControllerBase.OperationRequests.LogicActivateRequest(Id, !IsActivated);
 		return true;
-	}
-
-	public void Exit()
-	{
-		SetLinks(linkFlag: false);
-	}
-
-	public void Enter(int instigatorWoID)
-	{
-		SetLinks(linkFlag: true);
-	}
-
-	private void SetLinks(bool linkFlag)
-	{
-		isActivated = linkFlag;
-		foreach (Link outputLinkRef in OutputLinkRefs)
-		{
-			outputLinkRef.isSet = linkFlag;
-		}
 	}
 
 	public override void InitializeInventory()
@@ -136,25 +136,14 @@ public class UseLever : MVLogicObject, ITriggerBoxEventsHandler
 
 	public override void Reset()
 	{
-		OnDataUpdate();
+		IsActivated = BeginActivated;
+		requestSend = false;
 	}
 
 	public override void OnDataUpdate()
 	{
-		isActivated = (bool)Data["beginActivated"];
 		useLeverObject.UseInteractor.UpdateData(Data);
-		MVAvatarLocal avatarLocal = MVGameControllerBase.WOCM.AvatarLocal;
-		if (avatarLocal != null)
-		{
-			if (isActivated)
-			{
-				MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, avatarLocal.Id);
-			}
-			else
-			{
-				MVGameControllerBase.OperationRequests.TriggerBoxExit(Id, avatarLocal.Id);
-			}
-		}
+		LogicObjectManager.ResetChunk(Id, MVGameControllerBase.WOCM);
 	}
 
 	public override void Destroy()
@@ -170,12 +159,6 @@ public class UseLever : MVLogicObject, ITriggerBoxEventsHandler
 		base.Destroy();
 	}
 
-	public override void OnOutputLinkChanged()
-	{
-		base.OnOutputLinkChanged();
-		Reset();
-	}
-
 	public void OnEditModeChange(EditModeChangeArgs arg)
 	{
 		useLeverObject.EditCollider.enabled = true;
@@ -187,22 +170,9 @@ public class UseLever : MVLogicObject, ITriggerBoxEventsHandler
 		}
 	}
 
-	private void SetVisibility()
+	public void OnIsFiringChanged(bool isFiring)
 	{
-		MeshRenderer[] meshRenderers = useLeverObject.MeshRenderers;
-		for (int i = 0; i < meshRenderers.Length; i++)
-		{
-			meshRenderers[i].enabled = !disabledByLod;
-		}
-	}
-
-	public override void ChangeLOD(float distance)
-	{
-		bool flag = disabledByLod;
-		base.ChangeLOD(distance);
-		if (flag != disabledByLod)
-		{
-			SetVisibility();
-		}
+		IsActivated = isFiring;
+		requestSend = false;
 	}
 }

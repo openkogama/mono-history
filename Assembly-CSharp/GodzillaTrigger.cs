@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class GodzillaTrigger : MVLogicObject
+public class GodzillaTrigger : MVLogicObject, ILogicWorldObject
 {
 	public const int noOccupant = -1;
 
@@ -22,6 +21,8 @@ public class GodzillaTrigger : MVLogicObject
 
 	private List<GameObject> toHideOnEntry;
 
+	private OutputSignalTransmitter outputSignalTransmitter;
+
 	public override bool HasOutputConnector => true;
 
 	private int OccupantWOID
@@ -35,6 +36,12 @@ public class GodzillaTrigger : MVLogicObject
 			occupantWOID.Value = value;
 		}
 	}
+
+	private GodzillaSettings.Sizes Size => (GodzillaSettings.Sizes)(int)Data["size"];
+
+	private bool IsOccupied => OccupantWOID != -1;
+
+	public IInputSignalReceiver InputSignalReceiver { get; private set; }
 
 	public GodzillaTrigger(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.GodzillaTriggerPrefab, worldObjects)
@@ -50,9 +57,32 @@ public class GodzillaTrigger : MVLogicObject
 		godzillaTriggerObject.TriggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
 	}
 
+	public override void Initialize()
+	{
+		base.Initialize();
+		originalScale = Scale;
+		if (IsOccupied)
+		{
+			CreateGodzillaArea();
+			SetOccupied(occupied: true);
+		}
+		avatarModifierPackageType = GodzillaSettings.GetPackageType(Size);
+		SetupScale();
+		InputSignalReceiver = LogicClientsideFactory.CreateInputSignalReceiver(this, defaultInput: false, SignalCallback);
+		outputSignalTransmitter = new OutputSignalTransmitter(Id);
+	}
+
+	private void SignalCallback(bool b, bool wasHot, LogicObjectManager logicObjectManager)
+	{
+		outputSignalTransmitter.Send(IsOccupied);
+	}
+
 	public override void Destroy()
 	{
-		ResetGodzilla();
+		if (IsOccupied)
+		{
+			ResetGodzilla();
+		}
 		if (IsLocal(OccupantWOID))
 		{
 			MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Playing);
@@ -62,23 +92,7 @@ public class GodzillaTrigger : MVLogicObject
 
 	private bool CanUse(MVInteractableBase interactable)
 	{
-		return OccupantWOID == -1 && !interactable.HasModifierEffect(AvatarModifierEffect.DisableVehicles);
-	}
-
-	public override void Initialize()
-	{
-		base.Initialize();
-		originalScale = Scale;
-		if (!Data.ContainsKey("size"))
-		{
-			Data["size"] = 1;
-		}
-		if (OccupantWOID != -1)
-		{
-			CreateGodzillaArea();
-			SetOccupied(occupied: true);
-		}
-		OnDataUpdate();
+		return !IsOccupied && !interactable.HasModifierEffect(AvatarModifierEffect.DisableVehicles);
 	}
 
 	public override void InitializeInventory()
@@ -87,33 +101,29 @@ public class GodzillaTrigger : MVLogicObject
 		logicCube.SetActive(value: false);
 	}
 
-	private bool HasGodzillaModifier(MVInteractableBase interactable)
-	{
-		return interactable.HasModifier(AvatarModifierPackageType.GodzillaS) || interactable.HasModifier(AvatarModifierPackageType.GodzillaM) || interactable.HasModifier(AvatarModifierPackageType.GodzillaL) || interactable.HasModifier(AvatarModifierPackageType.GodzillaXL);
-	}
-
 	public override void OnDataUpdate()
 	{
 		base.OnDataUpdate();
-		GodzillaSettings.Sizes s = (GodzillaSettings.Sizes)(int)Data["size"];
-		avatarModifierPackageType = GodzillaSettings.GetPackageType(s);
-		if (OccupantWOID != -1)
+		avatarModifierPackageType = GodzillaSettings.GetPackageType(Size);
+		LogicObjectManager.ResetChunk(Id, MVGameControllerBase.WOCM);
+	}
+
+	private void SetupScale()
+	{
+		if (IsOccupied)
 		{
 			float sizeModifier = GodzillaModifier.constants[(GodzillaModifier.GodzillaModifierPackageType)avatarModifierPackageType].sizeModifier;
 			godzillaArea.transform.localScale = new Vector3(sizeModifier, sizeModifier, sizeModifier);
-			if (MVGameControllerBase.WOCM.AvatarLocal != null && IsLocal(OccupantWOID))
-			{
-				MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Playing);
-			}
 		}
 	}
 
-	private void SetOutput(bool output)
+	public override void Reset()
 	{
-		foreach (Link outputLinkRef in OutputLinkRefs)
+		if (IsLocal(OccupantWOID))
 		{
-			outputLinkRef.isSet = output;
+			MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Playing);
 		}
+		OccupationChange(-1);
 	}
 
 	private bool IsLocal(int woid)
@@ -137,44 +147,42 @@ public class GodzillaTrigger : MVLogicObject
 		MVGameControllerBase.OperationRequests.TriggerBoxExit(Id, woid);
 	}
 
-	public void OccupationChange(object newValue)
+	public void OccupationChange(int newOccupant)
 	{
-		int num = (int)newValue;
-		SetOutput(num != -1);
-		ResetGodzilla();
-		SetGodzilla(num);
+		if (IsOccupied)
+		{
+			ResetGodzilla();
+		}
+		OccupantWOID = newOccupant;
+		if (IsOccupied)
+		{
+			SetGodzilla();
+		}
 	}
 
 	private void ResetGodzilla()
 	{
-		if (OccupantWOID != -1)
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(OccupantWOID);
+		godzillaArea.transform.localScale = originalScale;
+		if (worldObjectClient != null)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(OccupantWOID);
-			godzillaArea.transform.localScale = originalScale;
-			if (worldObjectClient != null)
-			{
-				worldObjectClient.ScaleChanged = (UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>)Delegate.Remove(worldObjectClient.ScaleChanged, new UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>(UpdateScale));
-			}
-			DestroyGodzillaArea();
-			SetOccupied(occupied: false);
+			worldObjectClient.ScaleChanged = (UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>)Delegate.Remove(worldObjectClient.ScaleChanged, new UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>(UpdateScale));
 		}
+		DestroyGodzillaArea();
+		SetOccupied(occupied: false);
 	}
 
-	private void SetGodzilla(int woid)
+	private void SetGodzilla()
 	{
-		OccupantWOID = woid;
-		if (OccupantWOID != -1)
+		if (IsLocal(OccupantWOID))
 		{
-			if (IsLocal(OccupantWOID))
-			{
-				SetGodzillaLocal();
-			}
-			CreateGodzillaArea();
-			SetOccupied(occupied: true);
-			EmitShockWave();
-			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(OccupantWOID);
-			worldObjectClient.ScaleChanged = (UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>)Delegate.Combine(worldObjectClient.ScaleChanged, new UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>(UpdateScale));
+			SetGodzillaLocal();
 		}
+		CreateGodzillaArea();
+		SetOccupied(occupied: true);
+		EmitShockWave();
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(OccupantWOID);
+		worldObjectClient.ScaleChanged = (UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>)Delegate.Combine(worldObjectClient.ScaleChanged, new UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>(UpdateScale));
 	}
 
 	private void SetGodzillaLocal()

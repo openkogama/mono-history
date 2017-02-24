@@ -1,11 +1,31 @@
 using System.Collections.Generic;
-using MV.WorldObject;
+using CodeStage.AntiCheat.ObscuredTypes;
 
-public class MVRandomBox : MVLogicObject
+public class MVRandomBox : MVLogicObject, ILogicWorldObject
 {
+	private const string currentValueKey = "currentValue";
+
+	private const int currentValueDefault = 0;
+
+	private OutputSignalTransmitterSpecific _outputSignalTransmitter;
+
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => true;
+
+	public IInputSignalReceiver InputSignalReceiver { get; private set; }
+
+	private int CurrentValue
+	{
+		get
+		{
+			return (ObscuredInt)RunTimeData.GetObscuredType("currentValue");
+		}
+		set
+		{
+			RunTimeData.SetObscuredType("currentValue", (ObscuredInt)value);
+		}
+	}
 
 	public MVRandomBox(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVRandomBoxPrefab, worldObjects)
@@ -16,22 +36,30 @@ public class MVRandomBox : MVLogicObject
 	{
 		base.Initialize();
 		SetupCulling(gameObject);
+		InputSignalReceiver = LogicClientsideFactory.CreateStateChangeInputSignalReceiver(this, defaultInput: false, null, InputStateUpdateCallback);
+		_outputSignalTransmitter = new OutputSignalTransmitterSpecific(Id);
 	}
 
-	public override void OnDataUpdate()
+	public void SetRandomIndex(int randomIndex)
 	{
-		int num = 0;
-		foreach (Link outputLinkRef in OutputLinkRefs)
+		CurrentValue = randomIndex;
+	}
+
+	private void InputStateUpdateCallback(LogicInputState logicInputState, LogicObjectManager logicObjectManager)
+	{
+		if (logicInputState == LogicInputState.FromColdToHot || logicInputState == LogicInputState.Hot)
 		{
-			if (num == (int)Data["currentOutput"])
-			{
-				outputLinkRef.isSet = true;
-			}
-			else
-			{
-				outputLinkRef.isSet = false;
-			}
-			num++;
+			_outputSignalTransmitter.Send(CurrentValue);
 		}
+		else
+		{
+			_outputSignalTransmitter.Send(-1);
+		}
+	}
+
+	public override void Reset()
+	{
+		CurrentValue = 0;
+		base.Reset();
 	}
 }

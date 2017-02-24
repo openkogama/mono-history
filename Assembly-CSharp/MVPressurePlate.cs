@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 using CodeStage.AntiCheat.ObscuredTypes;
-using MV.WorldObject;
 using UnityEngine;
 
-public class MVPressurePlate : MVLogicObject, ITriggerBoxEventsHandler
+public class MVPressurePlate : MVLogicObject, ILogicWorldObject, IIsLogicObjectFiringEventHandler
 {
 	private MVPressurePlateObject plateObject;
 
@@ -17,11 +16,15 @@ public class MVPressurePlate : MVLogicObject, ITriggerBoxEventsHandler
 
 	private UseInteractor useInteractor;
 
+	private OutputSignalTransmitter outputSignalTransmitter;
+
 	public override bool HasInputConnector => false;
 
 	public override bool HasOutputConnector => true;
 
 	public override Vector3 OutputConnectorOffset => new Vector3(2f, 0.25f, 0f);
+
+	public IInputSignalReceiver InputSignalReceiver { get; private set; }
 
 	public override Vector3 WorldPivot => SharedCubeFunctions.GetWorldCenter(transform) + transform.rotation * (0.5f * Vector3.left);
 
@@ -47,6 +50,17 @@ public class MVPressurePlate : MVLogicObject, ITriggerBoxEventsHandler
 		useInteractor.AddRequirement(useRequirement3);
 	}
 
+	public override void Initialize()
+	{
+		base.Initialize();
+		InputSignalReceiver = LogicClientsideFactory.CreateInputSignalReceiver(this, defaultInput: true, Callback);
+		outputSignalTransmitter = new OutputSignalTransmitter(Id);
+		useInteractor.UpdateData(Data);
+		SetVisibility();
+		SetupCulling(plateObject.gameObject);
+		isDown = (ObscuredBool)RunTimeData.GetObscuredType("triggerBoxState");
+	}
+
 	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
 	{
 		Vector3 one = Vector3.one;
@@ -54,20 +68,14 @@ public class MVPressurePlate : MVLogicObject, ITriggerBoxEventsHandler
 		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, one);
 	}
 
-	public override void Initialize()
+	public void OnIsFiringChanged(bool isFiring)
 	{
-		base.Initialize();
-		useInteractor.UpdateData(Data);
-		if (RunTimeData.ContainsObscuredKey("instigator"))
-		{
-			ObscuredInt obscuredInt = (ObscuredInt)RunTimeData.GetObscuredType("instigator");
-			if ((int)obscuredInt != 0)
-			{
-				MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, obscuredInt);
-			}
-		}
-		SetVisibility();
-		SetupCulling(plateObject.gameObject);
+		isDown = isFiring;
+	}
+
+	private void Callback(bool b, bool wasHot, LogicObjectManager logicObjectManager)
+	{
+		outputSignalTransmitter.Send(isDown);
 	}
 
 	public override void OnDataUpdate()
@@ -104,10 +112,11 @@ public class MVPressurePlate : MVLogicObject, ITriggerBoxEventsHandler
 			if (woIDWithLocalOwnerHighestInHierarchy == -1)
 			{
 				Debug.LogError("Pressure plate entered by object which is not owned locally");
-				return;
 			}
-			DoEnter(woIDWithLocalOwnerHighestInHierarchy);
-			isDown = true;
+			else
+			{
+				DoEnter(woIDWithLocalOwnerHighestInHierarchy);
+			}
 		}
 	}
 
@@ -133,24 +142,6 @@ public class MVPressurePlate : MVLogicObject, ITriggerBoxEventsHandler
 	private void DoExit(int instigatorWOID)
 	{
 		MVGameControllerBase.OperationRequests.TriggerBoxExit(Id, instigatorWOID);
-	}
-
-	public void Enter(int actorNr)
-	{
-		foreach (Link outputLinkRef in OutputLinkRefs)
-		{
-			outputLinkRef.isSet = true;
-		}
-		isDown = true;
-	}
-
-	public void Exit()
-	{
-		foreach (Link outputLinkRef in OutputLinkRefs)
-		{
-			outputLinkRef.isSet = false;
-		}
-		isDown = false;
 	}
 
 	public override void Destroy()
@@ -182,17 +173,7 @@ public class MVPressurePlate : MVLogicObject, ITriggerBoxEventsHandler
 		MeshRenderer[] meshRenderers = plateObject.MeshRenderers;
 		for (int i = 0; i < meshRenderers.Length; i++)
 		{
-			meshRenderers[i].enabled = IsVisible() && !disabledByLod;
-		}
-	}
-
-	public override void ChangeLOD(float distance)
-	{
-		bool flag = disabledByLod;
-		base.ChangeLOD(distance);
-		if (flag != disabledByLod)
-		{
-			SetVisibility();
+			meshRenderers[i].enabled = IsVisible();
 		}
 	}
 }

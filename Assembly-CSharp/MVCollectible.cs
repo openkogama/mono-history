@@ -126,10 +126,7 @@ public class MVCollectible : MVLogicObject
 			{
 				collectibleObject.AudioSource.Play();
 			}
-			if (!disabledByLod)
-			{
-				collectibleObject.Particles.Play();
-			}
+			collectibleObject.Particles.Play();
 		}
 	}
 

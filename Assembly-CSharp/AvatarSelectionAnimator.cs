@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class AvatarSelectionAnimator : MonoBehaviour
 {
-	private static AvatarSelectionAnimator _instance;
-
 	public List<MVBody> Bodies = new List<MVBody>();
 
 	public MVSpawnPointRed bodySpawnPoint;
@@ -35,23 +33,6 @@ public class AvatarSelectionAnimator : MonoBehaviour
 	private float addition;
 
 	private float SuperspeedFactor = 1f;
-
-	public static AvatarSelectionAnimator Instance
-	{
-		get
-		{
-			if (_instance == null)
-			{
-				_instance = UnityEngine.Object.FindObjectOfType(typeof(AvatarSelectionAnimator)) as AvatarSelectionAnimator;
-			}
-			if (_instance == null)
-			{
-				GameObject gameObject = new GameObject("AvatarSelectionAnimator");
-				_instance = gameObject.AddComponent(typeof(AvatarSelectionAnimator)) as AvatarSelectionAnimator;
-			}
-			return _instance;
-		}
-	}
 
 	private void Start()
 	{

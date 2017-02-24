@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
 using MV.WorldObject;
@@ -40,7 +41,9 @@ public class ClientSideNPCInteractable : MVInteractableBase
 
 	public void Reset()
 	{
-		worldObjectParent.RunTimeData = RuntimeVariablesRepository.GetRuntimeVariables(worldObjectParent.WorldObjectType);
+		Dictionary<object, object> dictionary = (Dictionary<object, object>)ObscuredTypesConverter.CreateUnObscuredValue(worldObjectParent.RunTimeData);
+		RuntimeVariablesRepository.SetupRuntimeVariable(worldObjectParent.WorldObjectType, dictionary);
+		worldObjectParent.RunTimeData = dictionary;
 		worldObjectParent.RunTimeData.SetObscuredType("deathTime", (ObscuredInt)WaitForTicks.GetEnvironmentTick(-respawnInterval));
 	}
 

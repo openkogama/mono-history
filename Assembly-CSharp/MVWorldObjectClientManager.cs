@@ -4,7 +4,7 @@ using System.Linq;
 using MV.WorldObject;
 using UnityEngine;
 
-public abstract class MVWorldObjectClientManager
+public abstract class MVWorldObjectClientManager : IWorldObjectManager
 {
 	protected class WorldObjectMapping
 	{
@@ -40,6 +40,10 @@ public abstract class MVWorldObjectClientManager
 			{
 				Debug.LogError("RemoveFromTypeSet failed. There is no HashSet defined for type: " + wo.WorldObjectType);
 				return;
+			}
+			if (!worldObjectTypeSets[wo.WorldObjectType].Contains(wo.Id))
+			{
+				Debug.LogWarning("Could not find wo for type " + wo.WorldObjectType);
 			}
 			worldObjectTypeSets[wo.WorldObjectType].Remove(wo.Id);
 			if (worldObjectTypeSets[wo.WorldObjectType].Count <= 0)
@@ -102,39 +106,9 @@ public abstract class MVWorldObjectClientManager
 		}
 	}
 
-	protected class WorldObjectLOD
-	{
-		private struct WorldObjectsIdsLodBookkeeping(List<int> worldObjectsIdsLod)
-		{
-			public int currentPosition = 0;
-
-			public List<int> worldObjectsIdsLod = worldObjectsIdsLod;
-
-			public MVWorldObjectClient currentWorldObject = null;
-		}
-
-		private const float distanceMultiplierHack = 1f;
-
-		private const float updatesPerSecond = 1000f;
-
-		public WorldObjectLOD(MVWorldObjectClientManager worldObjectClientManager)
-		{
-		}
-
-		public void AddWorldObjectToLOD(int woID)
-		{
-		}
-
-		public void UpdateLOD()
-		{
-		}
-	}
-
 	protected readonly Dictionary<int, MVWorldObjectClient> worldObjects = new Dictionary<int, MVWorldObjectClient>();
 
 	protected readonly Queue<int> pendingUngroupQueue = new Queue<int>();
-
-	protected readonly WorldObjectLOD worldObjectLOD;
 
 	protected readonly WorldObjectMapping worldObjectMapping;
 
@@ -183,7 +157,6 @@ public abstract class MVWorldObjectClientManager
 	public MVWorldObjectClientManager()
 	{
 		MoveableController = new MoveableController();
-		worldObjectLOD = new WorldObjectLOD(this);
 		worldObjectMapping = new WorldObjectMapping();
 	}
 
@@ -369,6 +342,11 @@ public abstract class MVWorldObjectClientManager
 	{
 		worldObjects.TryGetValue(id, out var value);
 		return value;
+	}
+
+	public MVWorldObject GetWorldObject(int id)
+	{
+		return GetWorldObjectClient(id);
 	}
 
 	public MVWorldObjectClient GetWorldObjectClientRoot(int id)

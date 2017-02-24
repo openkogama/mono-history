@@ -40,15 +40,15 @@ public class InventoryItem
 	public InventoryItem(EventData data)
 	{
 		itemID = (int)data[38];
-		itemCategoryID = (int)data[151];
+		itemCategoryID = (int)data[150];
 		itemTypeID = (int)data[39];
 		name = (string)data[40];
 		this.data = (byte[])data[41];
 		slotPosition = (int)data[43];
-		resellable = (bool)data[139];
-		authorProfileID = (int)data[138];
-		originalItemID = (int)data[140];
-		priceGold = (int)data[68];
+		resellable = (bool)data[138];
+		authorProfileID = (int)data[137];
+		originalItemID = (int)data[139];
+		priceGold = (int)data[67];
 		isDefaultInvItem = false;
 	}
 

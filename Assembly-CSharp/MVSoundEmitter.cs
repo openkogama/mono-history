@@ -4,7 +4,7 @@ using System.Linq;
 using MV.Common;
 using UnityEngine;
 
-public class MVSoundEmitter : MVLogicObject
+public class MVSoundEmitter : MVLogicObject, ILogicWorldObject
 {
 	private string currentUrl = string.Empty;
 
@@ -18,6 +18,8 @@ public class MVSoundEmitter : MVLogicObject
 
 	public override bool HasOutputConnector => false;
 
+	public IInputSignalReceiver InputSignalReceiver { get; private set; }
+
 	public MVSoundEmitter(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVSoundEmitterPrefab, worldObjects)
 	{
@@ -29,38 +31,58 @@ public class MVSoundEmitter : MVLogicObject
 	{
 		base.Initialize();
 		SetupCulling(soundEmitterObject.VisualObject);
-		if (!Data.ContainsKey("url") || Data["url"].ToString().StartsWith("file://"))
+		InputSignalReceiver = LogicClientsideFactory.CreateStateChangeInputSignalReceiver(this, defaultInput: true, null, InputStateUpdateCallback);
+		InitializeData();
+		if (((string)Data["url"]).Length > 0)
 		{
-			StreamingAssetInfo streamingAssetInfo = null;
-			foreach (StreamingAssetInfo value in MVGameControllerBase.Game.StreamingAssetInfoMap.Values)
+			LoadSound();
+		}
+	}
+
+	public override void OnDataUpdate()
+	{
+		LogicObjectManager.ResetChunk(Id, MVGameControllerBase.WOCM);
+	}
+
+	public override void Reset()
+	{
+		base.Reset();
+		LoadSound();
+	}
+
+	private void InitializeData()
+	{
+		if (Data.ContainsKey("url") && !Data["url"].ToString().StartsWith("file://"))
+		{
+			return;
+		}
+		StreamingAssetInfo streamingAssetInfo = null;
+		foreach (StreamingAssetInfo value in MVGameControllerBase.Game.StreamingAssetInfoMap.Values)
+		{
+			if (value.StreamedAssetType == StreamingAssetType.AmbientAudio && value.ShopInfo.PriceGold == 0)
 			{
-				if (value.StreamedAssetType == StreamingAssetType.AmbientAudio && value.ShopInfo.PriceGold == 0)
-				{
-					streamingAssetInfo = value;
-					break;
-				}
+				streamingAssetInfo = value;
+				break;
 			}
-			if (streamingAssetInfo == null)
-			{
-				Data["name"] = "ForestBirds";
-				Data["id"] = 1;
-				Data["url"] = "AmbientAudio/Nature/kgm_amb_forest.unity3d";
-				Debug.LogError("Failed to get default streaming inventory data");
-				return;
-			}
+		}
+		if (streamingAssetInfo != null)
+		{
 			Data["name"] = streamingAssetInfo.Name;
 			Data["id"] = streamingAssetInfo.ProductID;
 			Data["url"] = streamingAssetInfo.AssetPath;
 		}
-		if (((string)Data["url"]).Length > 0)
+		else
 		{
-			OnDataUpdate();
+			Data["name"] = "ForestBirds";
+			Data["id"] = 1;
+			Data["url"] = "AmbientAudio/Nature/kgm_amb_forest.unity3d";
+			Debug.LogError("Failed to get default streaming inventory data");
 		}
 	}
 
-	public override void OnInputStateChanged()
+	private void InputStateUpdateCallback(LogicInputState logicInputState, LogicObjectManager logicObjectManager)
 	{
-		if (currentSrc != null)
+		if (logicInputState != LogicInputState.Cold && logicInputState != LogicInputState.Hot && currentSrc != null)
 		{
 			if (ShouldPlay() && !currentSrc.isPlaying)
 			{
@@ -73,12 +95,7 @@ public class MVSoundEmitter : MVLogicObject
 		}
 	}
 
-	public override void OnInputLinkChanged()
-	{
-		OnInputStateChanged();
-	}
-
-	public override void OnDataUpdate()
+	private void LoadSound()
 	{
 		if ((string)Data["url"] != currentUrl)
 		{
@@ -100,7 +117,7 @@ public class MVSoundEmitter : MVLogicObject
 		}
 	}
 
-	public void StreamingAssetCallback(WWW www, UnityEngine.Object mainAsset)
+	private void StreamingAssetCallback(WWW www, UnityEngine.Object mainAsset)
 	{
 		try
 		{
@@ -186,11 +203,11 @@ public class MVSoundEmitter : MVLogicObject
 		{
 			return false;
 		}
-		if (InputLinkRefs.Count == 0)
+		if (InputSignalReceiver.CurrentlyIsHot)
 		{
 			return true;
 		}
-		return InputState;
+		return false;
 	}
 
 	private void StopAndDestroySound()
