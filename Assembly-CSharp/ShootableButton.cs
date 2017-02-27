@@ -75,7 +75,7 @@ public class ShootableButton : MVLogicObject, ILogicWorldObject, IIsLogicObjectF
 	{
 		base.Initialize();
 		interactable = gameObject.AddComponent<LogicInteractable>();
-		gameObject.AddComponent<InteractionDataHandler>();
+		gameObject.AddComponent<ClientSideLogicInteractionHandler>();
 		interactable.OnDamageEvent += Activate;
 		if (MVGameControllerBase.IEditModeUI != null)
 		{

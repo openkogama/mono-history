@@ -84,8 +84,6 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 
 	public void SetupDebriefing(WinningConditionType winType, HighScores highScores, bool teamMode)
 	{
-		Debug.Log("SetupDebriefing " + gameObject.name);
-		Debug.Log("SetupDebriefing activeInHierarchy " + gameObject.activeInHierarchy);
 		if (gameObject.activeInHierarchy)
 		{
 			if (teamMode)

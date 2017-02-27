@@ -562,7 +562,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 			}
 			mvAvatar.ResetAvatar();
 			mvAvatar.SetToSpawnTransform();
-			Debug.Log("LobbyState camera");
 			MVGameControllerBase.CameraController.PushCamera(CameraType.LobbyState);
 			LobbyStateCamera lobbyStateCamera = (LobbyStateCamera)MVGameControllerBase.CameraController.CurCamera;
 			lobbyStateCamera.SetRotation(mvAvatar.transform.rotation);

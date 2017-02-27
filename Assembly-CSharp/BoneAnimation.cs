@@ -75,7 +75,6 @@ public class BoneAnimation : MonoBehaviour
 
 	public void Attach(MVAvatar mvAvatar, bool isLocal)
 	{
-		Debug.Log("Attach " + gameObject.name);
 		this.mvAvatar = mvAvatar;
 		MVRuntimeDataVariable animation = this.mvAvatar.Animation;
 		animation.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(animation.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AnimationChangeHandler));

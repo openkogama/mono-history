@@ -57,7 +57,6 @@ public class LobbyStatePlayModeController : MonoBehaviour
 		}
 		else if (!flag && !isInLobbyState)
 		{
-			Debug.Log("To lobby state");
 			MVGameControllerDesktop.LockCursorManager.LockCursor = false;
 			SetObjectToLobbyState(isInLobbyState: true);
 		}
@@ -65,7 +64,6 @@ public class LobbyStatePlayModeController : MonoBehaviour
 
 	private void SetObjectToLobbyState(bool isInLobbyState)
 	{
-		Debug.Log("SetObject " + isInLobbyState);
 		this.isInLobbyState = isInLobbyState;
 		lobbyState.gameObject.SetActive(isInLobbyState);
 		inGameController.gameObject.SetActive(!isInLobbyState);

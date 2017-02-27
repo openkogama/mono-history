@@ -124,8 +124,8 @@ public class MVNetworkGame : IPhotonPeerListener
 				networkGame.gameStatCounterManager.SetStats(stats);
 				networkGame.gameStatCounterManager.OnCounterTypeChanged += GameSessionCounterRules.OnCounterTypeChanged;
 				networkGame.worldNetwork.WorldInventory.FineGrainedTerrainPrototypeID = (int)photonEvent[156];
-				networkGame.networkGameStateListener.ChangeState(gameStateType, startTime, duration, fromGameSnapshot: true);
 				Debug.LogFormat("Initial Server frameCount {0}. Server timeStamp {1}.", (int)photonEvent[205], (int)photonEvent[33]);
+				networkGame.networkGameStateListener.ChangeState(gameStateType, startTime, duration, fromGameSnapshot: true);
 				networkGame.logicObjectManager = new LogicObjectManager((int)photonEvent[33], (int)photonEvent[205]);
 				break;
 			}
@@ -138,7 +138,6 @@ public class MVNetworkGame : IPhotonPeerListener
 				break;
 			}
 			case MVEventCodes.SetActorReady:
-				Debug.Log("Set actor ready");
 				MVGameControllerBase.JoinState = MVJoinState.Playing;
 				HandleActorReadyMetric();
 				networkGame.gameCoinManager.Reset(networkGame);
@@ -313,6 +312,7 @@ public class MVNetworkGame : IPhotonPeerListener
 				networkGame.OnWoUniquePrototypeEvent((int)photonEvent[20], (int)photonEvent[45]);
 				break;
 			case MVEventCodes.GameStateChange:
+				Debug.Log("GameStateChange event " + (MVGameStateType)(int)photonEvent[63]);
 				networkGame.networkGameStateListener.ChangeState((MVGameStateType)(int)photonEvent[63], (int)photonEvent[65], (int)photonEvent[64], fromGameSnapshot: false);
 				break;
 			case MVEventCodes.PropertiesChanged:
@@ -539,6 +539,7 @@ public class MVNetworkGame : IPhotonPeerListener
 				networkGame.logicObjectManager.Update();
 				if ((int)photonEvent[33] != networkGame.logicObjectManager.TimeStamp)
 				{
+					Debug.LogFormat("networkGame.logicObjectManager.TimeStamp (local) {0}. remote {1}.", networkGame.logicObjectManager.TimeStamp, (int)photonEvent[33]);
 					Debug.LogError("Time stamp out of sync");
 				}
 				break;
@@ -3597,7 +3598,6 @@ public class MVNetworkGame : IPhotonPeerListener
 	{
 		WorldNetwork worldNetwork = this.worldNetwork;
 		worldNetwork.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Remove(worldNetwork.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(OnGameCreated));
-		Debug.Log("Game created");
 		Coroutines.Start(WaitForFrames.Frames(1, eventHandling.UncacheEventsFromJoin));
 	}
 
