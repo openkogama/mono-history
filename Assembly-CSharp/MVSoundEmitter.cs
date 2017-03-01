@@ -23,6 +23,7 @@ public class MVSoundEmitter : MVLogicObject, ILogicWorldObject
 	public MVSoundEmitter(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVSoundEmitterPrefab, worldObjects)
 	{
+		interactionFlags |= InteractionFlags.CanResetLogic;
 		interactionFlags |= InteractionFlags.HasSettings | InteractionFlags.Sounds;
 		soundEmitterObject = (SoundEmitterObject)component;
 	}

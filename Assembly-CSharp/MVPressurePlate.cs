@@ -32,6 +32,7 @@ public class MVPressurePlate : MVLogicObject, ILogicWorldObject, IIsLogicObjectF
 		: base(data, PrefabPool.Instance.MVPressurePlatePrefab, worldObjects)
 	{
 		plateObject = (MVPressurePlateObject)component;
+		interactionFlags |= InteractionFlags.CanResetLogic;
 		interactionFlags |= InteractionFlags.HasSettings;
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
 		interactionFlags |= InteractionFlags.CanUseLevel;

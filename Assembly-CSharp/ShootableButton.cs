@@ -66,6 +66,7 @@ public class ShootableButton : MVLogicObject, ILogicWorldObject, IIsLogicObjectF
 	public ShootableButton(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.ShootableButtonPrefab, worldObjects)
 	{
+		interactionFlags |= InteractionFlags.CanResetLogic;
 		interactionFlags |= InteractionFlags.HasSettings;
 		PlayInteractionType = PlayInteractionType.HandlesHits;
 		buttonObject = (ShootableButtonObject)component;

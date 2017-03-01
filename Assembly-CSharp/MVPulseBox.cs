@@ -30,6 +30,7 @@ public class MVPulseBox : MVLogicObject, ILogicWorldObject
 		: base(data, PrefabPool.Instance.MVPulseBoxPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
+		interactionFlags |= InteractionFlags.CanResetLogic;
 	}
 
 	public override void Initialize()

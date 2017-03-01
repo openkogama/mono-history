@@ -51,6 +51,7 @@ public class UseLever : MVLogicObject, ILogicWorldObject, IIsLogicObjectFiringEv
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
 		interactionFlags |= InteractionFlags.CanUseLevel;
 		interactionFlags |= InteractionFlags.CanUseStars;
+		interactionFlags |= InteractionFlags.CanResetLogic;
 		useLeverObject = (UseLeverObject)component;
 		useLeverObject.UseInteractor = new UseInteractor(this, useLeverObject.useInteractionRotator, reset: false, useLeverObject.LeverCollider, Use);
 		useLeverObject.TriggerBoxEvents.TriggerEnter += useLeverObject.UseInteractor.triggerBoxEvents_TriggerEnter;

@@ -22,6 +22,7 @@ public class MVObjectEnabler : MVLogicObject, ILogicWorldObject
 	public MVObjectEnabler(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVObjectEnablerPrefab, worldObjects)
 	{
+		interactionFlags |= InteractionFlags.CanResetLogic;
 		interactionFlags |= InteractionFlags.HasSettings;
 		goObjectEnabler = ((MVObjectEnablerObject)component).ObjectEnabler;
 		goObjectEnabler.woObjectEnabler = this;

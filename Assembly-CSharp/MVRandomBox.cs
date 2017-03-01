@@ -30,6 +30,7 @@ public class MVRandomBox : MVLogicObject, ILogicWorldObject
 	public MVRandomBox(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVRandomBoxPrefab, worldObjects)
 	{
+		interactionFlags |= InteractionFlags.CanResetLogic;
 	}
 
 	public override void Initialize()

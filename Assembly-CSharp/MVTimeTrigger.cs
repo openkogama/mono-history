@@ -39,6 +39,7 @@ public class MVTimeTrigger : MVLogicObject, ILogicWorldObject
 		: base(data, PrefabPool.Instance.MVTimeTriggerPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
+		interactionFlags |= InteractionFlags.CanResetLogic;
 	}
 
 	public override void Initialize()

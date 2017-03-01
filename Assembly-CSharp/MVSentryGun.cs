@@ -61,6 +61,7 @@ public class MVSentryGun : MVLogicObject, ILogicWorldObject
 	public MVSentryGun(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVSentryGunPrefab, worldObjects)
 	{
+		interactionFlags |= InteractionFlags.CanResetLogic;
 		gunObject = (MVSentryGunObject)component;
 		gunObject.SentryGunScript.SetLaserRange(laserRange);
 		RaycastIgnoreWorldObjectIds = new HashSet<int> { id };

@@ -16,6 +16,7 @@ public class MVPointLight : MVLogicObject, ILogicWorldObject
 	public MVPointLight(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVPointLightPrefab, worldObjects)
 	{
+		interactionFlags |= InteractionFlags.CanResetLogic;
 		interactionFlags |= InteractionFlags.HasSettings;
 		lightObject = (MVPointLightObject)component;
 		lightComponent = lightObject.PointLight;

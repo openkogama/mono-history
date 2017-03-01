@@ -69,6 +69,7 @@ public class MVCountingCube : MVLogicObject, ILogicWorldObject
 	public MVCountingCube(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVCountingCubePrefab, worldObjects)
 	{
+		interactionFlags |= InteractionFlags.CanResetLogic;
 		cubeObject = (MVCountingCubeObject)component;
 	}
 

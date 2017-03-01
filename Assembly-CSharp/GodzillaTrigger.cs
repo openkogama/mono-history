@@ -47,6 +47,7 @@ public class GodzillaTrigger : MVLogicObject, ILogicWorldObject
 		: base(data, PrefabPool.Instance.GodzillaTriggerPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
+		interactionFlags |= InteractionFlags.CanResetLogic;
 		occupantWOID = RuntimeDataVariables.New<int>("occupantWOID", float.PositiveInfinity, writeThrough: false);
 		GodzillaTriggerObject godzillaTriggerObject = (GodzillaTriggerObject)component;
 		logicCube = godzillaTriggerObject.LogicCube;

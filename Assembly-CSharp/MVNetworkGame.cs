@@ -537,11 +537,6 @@ public class MVNetworkGame : IPhotonPeerListener
 				break;
 			case MVEventCodes.LogicFrame:
 				networkGame.logicObjectManager.Update();
-				if ((int)photonEvent[33] != networkGame.logicObjectManager.TimeStamp)
-				{
-					Debug.LogFormat("networkGame.logicObjectManager.TimeStamp (local) {0}. remote {1}.", networkGame.logicObjectManager.TimeStamp, (int)photonEvent[33]);
-					Debug.LogError("Time stamp out of sync");
-				}
 				break;
 			case MVEventCodes.LogicObjectFiringStateChange:
 				((IIsLogicObjectFiringEventHandler)MVGameControllerBase.WOCM.GetWorldObjectClient((int)photonEvent[20])).OnIsFiringChanged((bool)photonEvent[204]);

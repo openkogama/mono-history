@@ -13,6 +13,7 @@ public class MVAnd : MVLogicObject, ILogicWorldObject
 	public MVAnd(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVAndPrefab, worldObjects)
 	{
+		interactionFlags |= InteractionFlags.CanResetLogic;
 	}
 
 	public override void Initialize()

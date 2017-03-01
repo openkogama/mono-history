@@ -14,6 +14,7 @@ public class MVSmoke : MVLogicObject, ILogicWorldObject
 	public MVSmoke(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVSmokePrefab, worldObjects)
 	{
+		interactionFlags |= InteractionFlags.CanResetLogic;
 		particleSystem = Object.Instantiate(PrefabPool.Instance.ParticleFluffySmoke, gameObject.transform.position, Quaternion.identity) as ParticleSystem;
 		particleSystem.transform.parent = gameObject.transform;
 		ToggleEmitter(toggle: false);

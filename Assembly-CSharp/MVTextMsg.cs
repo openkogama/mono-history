@@ -16,6 +16,7 @@ public class MVTextMsg : MVLogicObject, ILogicWorldObject
 	public MVTextMsg(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVTextMsgPrefab, worldObjects)
 	{
+		interactionFlags |= InteractionFlags.CanResetLogic;
 		interactionFlags |= InteractionFlags.HasSettings;
 		msgObject = (MVTextMsgObject)component;
 		localBounds = ComputeLocalBounds(gameObject.transform.position, msgObject.MeshRenderers);

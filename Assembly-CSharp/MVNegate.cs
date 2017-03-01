@@ -13,6 +13,7 @@ public class MVNegate : MVLogicObject, ILogicWorldObject
 	public MVNegate(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVNegatePrefab, worldObjects)
 	{
+		interactionFlags |= InteractionFlags.CanResetLogic;
 	}
 
 	public override void Initialize()

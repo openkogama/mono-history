@@ -43,6 +43,7 @@ public class WindTurbine : MVLogicObject, ILogicWorldObject
 		Rescale();
 		Rotate();
 		interactionFlags |= InteractionFlags.HasSettings;
+		interactionFlags |= InteractionFlags.CanResetLogic;
 		windTurbineObject.TriggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		windTurbineObject.TriggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
 		affectedBodies = new Dictionary<int, MVRigidBody>();

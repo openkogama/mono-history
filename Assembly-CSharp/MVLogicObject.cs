@@ -14,7 +14,7 @@ public abstract class MVLogicObject : MVWorldObjectClient, IUpdatecontrollerSubs
 	protected MVLogicObject(Dictionary<object, object> data, ObjectPrefab prefabObject, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, prefabObject, worldObjects)
 	{
-		interactionFlags = InteractionFlags.Selectable | InteractionFlags.CanRotateY | InteractionFlags.CanClone | InteractionFlags.CanResetLogic;
+		interactionFlags = InteractionFlags.Selectable | InteractionFlags.CanRotateY | InteractionFlags.CanClone;
 		PlayInteractionType = PlayInteractionType.ExcludeFromInteraction;
 		gameObject.layer = LayerMask.NameToLayer("Logic");
 		previewLayerMask |= LayerFlags.Logic;
