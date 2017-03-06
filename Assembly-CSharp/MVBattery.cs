@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-public class MVBattery : MVLogicObject
+public class MVBattery : MVLogicObject, ILogicWorldObject
 {
 	private OutputSignalTransmitter outputSignalTransmitter;
 

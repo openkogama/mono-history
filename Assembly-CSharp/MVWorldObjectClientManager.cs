@@ -349,6 +349,13 @@ public abstract class MVWorldObjectClientManager : IWorldObjectManager
 		return GetWorldObjectClient(id);
 	}
 
+	public bool TryGetWorldObject(int id, out MVWorldObject worldObject)
+	{
+		bool result = worldObjects.TryGetValue(id, out var value);
+		worldObject = value;
+		return result;
+	}
+
 	public MVWorldObjectClient GetWorldObjectClientRoot(int id)
 	{
 		MVWorldObjectClient worldObjectClient = GetWorldObjectClient(id);

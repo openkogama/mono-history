@@ -12,9 +12,11 @@ public abstract class InputSignalReceiverBase : IInputSignalReceiver
 
 	private int woID = -1;
 
-	public Action<bool, bool, LogicObjectManager> OnSignal;
-
 	protected bool firstFrame = true;
+
+	protected bool trackloops = true;
+
+	public Action<bool, bool, LogicObjectManager> OnSignal;
 
 	public abstract bool CurrentlyIsHot { get; set; }
 
@@ -75,6 +77,10 @@ public abstract class InputSignalReceiverBase : IInputSignalReceiver
 
 	private void SendSignal(bool isHot)
 	{
+		if (logicObjectManager.trackLoops)
+		{
+			logicObjectManager.DebugAddId(woID);
+		}
 		bool arg = CurrentlyIsHot;
 		CurrentlyIsHot = isHot;
 		if (firstFrame)

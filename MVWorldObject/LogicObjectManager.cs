@@ -42,14 +42,17 @@ public class LogicObjectManager
 
 	private Dictionary<int, IInputSignalReceiver> logicWorldObjects = new Dictionary<int, IInputSignalReceiver>();
 
-	private List<int> updatedIds = new List<int>();
+	public readonly bool trackLoops;
+
+	private HashSet<int> updatedIds = new HashSet<int>();
 
 	public int TimeStamp { get; private set; }
 
 	public int FrameCount { get; private set; }
 
-	public LogicObjectManager(int timeStamp, int frameCount)
+	public LogicObjectManager(int timeStamp, int frameCount, bool trackLoops)
 	{
+		this.trackLoops = trackLoops;
 		TimeStamp = timeStamp;
 		FrameCount = frameCount;
 	}
@@ -93,6 +96,10 @@ public class LogicObjectManager
 		}
 		TimeStamp += 100;
 		FrameCount++;
+		if (trackLoops)
+		{
+			ClearDebugIds();
+		}
 	}
 
 	public static int ResetChunk(int woID, IWorldObjectManager worldObjectManager)
@@ -114,19 +121,19 @@ public class LogicObjectManager
 			reportSeverity = ReportSeverity.Error;
 			return ValidateObjectLinkStatus.ObjectWOIDIsZeroOrLess;
 		}
-		MVWorldObject worldObject = worldObjectManager.GetWorldObject(objectLink.objectConnectorWOID);
-		MVWorldObject worldObject2 = worldObjectManager.GetWorldObject(objectLink.objectWOID);
-		if (worldObject == null && worldObject2 == null)
+		bool flag = worldObjectManager.TryGetWorldObject(objectLink.objectConnectorWOID, out var worldObject);
+		bool flag2 = worldObjectManager.TryGetWorldObject(objectLink.objectWOID, out var worldObject2);
+		if (!flag && !flag2)
 		{
 			reportSeverity = ReportSeverity.Info;
 			return ValidateObjectLinkStatus.BothObjectConnectorAndObjectWOIsNull;
 		}
-		if (worldObject == null)
+		if (!flag)
 		{
 			reportSeverity = ReportSeverity.Info;
 			return ValidateObjectLinkStatus.ObjectConnector;
 		}
-		if (worldObject2 == null)
+		if (!flag2)
 		{
 			reportSeverity = ReportSeverity.Info;
 			return ValidateObjectLinkStatus.ObjectWO;
@@ -255,39 +262,18 @@ public class LogicObjectManager
 		}
 	}
 
-	public void GetLogicRootNodes(int woID, HashSet<int> rootNodes, IWorldObjectManager worldObjectManager)
-	{
-		MVWorldObject worldObject = worldObjectManager.GetWorldObject(woID);
-		if (worldObject.InputLinkRefs.Count == 0)
-		{
-			rootNodes.Add(worldObject.Id);
-			return;
-		}
-		foreach (Link inputLinkRef in worldObject.InputLinkRefs)
-		{
-			GetLogicRootNodes(inputLinkRef.outputWOID, rootNodes, worldObjectManager);
-		}
-	}
-
 	public void DebugAddId(int id)
 	{
 		if (updatedIds.Contains(id))
 		{
-			throw new Exception("Id already evaluated");
+			throw new Exception("Id already evaluated. This is a loop issue");
 		}
 		updatedIds.Add(id);
 	}
 
-	public string PrintAndClearFrameResults()
+	private void ClearDebugIds()
 	{
-		string text = $"Timestamp {TimeStamp}\n";
-		for (int i = 0; i < updatedIds.Count; i++)
-		{
-			text += $"WoId {updatedIds[i]}\n";
-		}
-		text += "\n\n#########################################\n\n";
 		updatedIds.Clear();
-		return text;
 	}
 
 	public override string ToString()

@@ -126,7 +126,7 @@ public class MVNetworkGame : IPhotonPeerListener
 				networkGame.worldNetwork.WorldInventory.FineGrainedTerrainPrototypeID = (int)photonEvent[156];
 				Debug.LogFormat("Initial Server frameCount {0}. Server timeStamp {1}.", (int)photonEvent[205], (int)photonEvent[33]);
 				networkGame.networkGameStateListener.ChangeState(gameStateType, startTime, duration, fromGameSnapshot: true);
-				networkGame.logicObjectManager = new LogicObjectManager((int)photonEvent[33], (int)photonEvent[205]);
+				networkGame.logicObjectManager = new LogicObjectManager((int)photonEvent[33], (int)photonEvent[205], trackLoops: false);
 				break;
 			}
 			case MVEventCodes.GameSnapshotData:
