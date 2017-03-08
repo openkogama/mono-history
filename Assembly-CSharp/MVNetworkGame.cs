@@ -73,20 +73,20 @@ public class MVNetworkGame : IPhotonPeerListener
 			{
 			case MVEventCodes.Join:
 			{
-				int profileID3 = (int)photonEvent[11];
-				int num5 = (int)photonEvent[254];
+				int profileID = (int)photonEvent[11];
+				int num4 = (int)photonEvent[254];
 				string userName = (string)photonEvent[9];
 				string regionCode = (string)photonEvent[154];
 				BuildTarget buildTarget = (BuildTarget)(byte)photonEvent[188];
 				MVTeam team2 = (MVTeam)(int)photonEvent[88];
-				if (num5 == networkGame.LocalPlayerActorNumber)
+				if (num4 == networkGame.LocalPlayerActorNumber)
 				{
 					Debug.LogError("Received join event for localPlayerActorNumber");
 					break;
 				}
-				MVPlayer mVPlayer2 = new MVPlayer(num5, profileID3, userName, regionCode, buildTarget);
-				mVPlayer2.Team = team2;
-				networkGame.AddPlayer(mVPlayer2);
+				MVPlayer mVPlayer = new MVPlayer(num4, profileID, userName, regionCode, buildTarget);
+				mVPlayer.Team = team2;
+				networkGame.AddPlayer(mVPlayer);
 				break;
 			}
 			case MVEventCodes.GetDBTimeTicks:
@@ -124,9 +124,14 @@ public class MVNetworkGame : IPhotonPeerListener
 				networkGame.gameStatCounterManager.SetStats(stats);
 				networkGame.gameStatCounterManager.OnCounterTypeChanged += GameSessionCounterRules.OnCounterTypeChanged;
 				networkGame.worldNetwork.WorldInventory.FineGrainedTerrainPrototypeID = (int)photonEvent[156];
-				Debug.LogFormat("Initial Server frameCount {0}. Server timeStamp {1}.", (int)photonEvent[205], (int)photonEvent[33]);
 				networkGame.networkGameStateListener.ChangeState(gameStateType, startTime, duration, fromGameSnapshot: true);
-				networkGame.logicObjectManager = new LogicObjectManager((int)photonEvent[33], (int)photonEvent[205], trackLoops: false);
+				int num3 = (int)photonEvent[33];
+				if (num3 % 1000 != 0)
+				{
+					Debug.LogError("stepTimestamp is not correctly incremented");
+				}
+				networkGame.logicObjectManager = new LogicObjectManager(num3, trackLoops: false);
+				networkGame.logicObjectManagerClientWrapper = new LogicObjectManagerClientWrapper(networkGame, num3);
 				break;
 			}
 			case MVEventCodes.GameSnapshotData:
@@ -171,17 +176,17 @@ public class MVNetworkGame : IPhotonPeerListener
 				break;
 			case MVEventCodes.Leave:
 			{
-				int num4 = (int)photonEvent[254];
-				if (num4 != networkGame.LocalPlayer.ActorNr)
+				int num6 = (int)photonEvent[254];
+				if (num6 != networkGame.LocalPlayer.ActorNr)
 				{
-					MVPlayer mVPlayer = networkGame.Players[num4];
+					MVPlayer mVPlayer2 = networkGame.Players[num6];
 					Dictionary<object, object> dictionary5 = new Dictionary<object, object>();
-					dictionary5[(byte)0] = num4;
-					dictionary5[(byte)3] = mVPlayer.Username;
-					dictionary5[(byte)6] = MVGameControllerBase.Game.Friends.IsFriend(mVPlayer.ProfileID);
+					dictionary5[(byte)0] = num6;
+					dictionary5[(byte)3] = mVPlayer2.Username;
+					dictionary5[(byte)6] = MVGameControllerBase.Game.Friends.IsFriend(mVPlayer2.ProfileID);
 					MVGameControllerBase.PostGameMsg(MVGameMsgType.UserLeft, dictionary5);
-					networkGame.Players.Remove(num4);
-					networkGame.gameStatCounterManager.RemoveStatsFromActor(num4);
+					networkGame.Players.Remove(num6);
+					networkGame.gameStatCounterManager.RemoveStatsFromActor(num6);
 					if (networkGame.onPlayerListChanged != null)
 					{
 						networkGame.onPlayerListChanged();
@@ -261,17 +266,17 @@ public class MVNetworkGame : IPhotonPeerListener
 			case MVEventCodes.FriendRequest:
 			{
 				int friendID2 = (int)photonEvent[50];
-				int profileID2 = (int)photonEvent[11];
+				int profileID3 = (int)photonEvent[11];
 				int friendProfileID = (int)photonEvent[51];
-				networkGame.OnFriendRequestEvent(friendID2, profileID2, friendProfileID);
+				networkGame.OnFriendRequestEvent(friendID2, profileID3, friendProfileID);
 				break;
 			}
 			case MVEventCodes.FriendUpdate:
 			{
 				int friendID = (int)photonEvent[50];
-				int profileID = (int)photonEvent[11];
+				int profileID2 = (int)photonEvent[11];
 				FriendStatus status = (FriendStatus)(int)photonEvent[52];
-				networkGame.OnFriendUpdateEvent(friendID, profileID, status);
+				networkGame.OnFriendUpdateEvent(friendID, profileID2, status);
 				break;
 			}
 			case MVEventCodes.TriggerBoxEnter:
@@ -317,10 +322,10 @@ public class MVNetworkGame : IPhotonPeerListener
 				break;
 			case MVEventCodes.PropertiesChanged:
 			{
-				int num3 = (int)photonEvent[253];
+				int num5 = (int)photonEvent[253];
 				Dictionary<object, object> dictionary4 = (Dictionary<object, object>)photonEvent[251];
-				Debug.Log("ACTOR-NR: " + num3);
-				Debug.Log(networkGame.Players[num3].Username);
+				Debug.Log("ACTOR-NR: " + num5);
+				Debug.Log(networkGame.Players[num5].Username);
 				{
 					foreach (string key in dictionary4.Keys)
 					{
@@ -520,29 +525,15 @@ public class MVNetworkGame : IPhotonPeerListener
 				MVGameControllerBase.PostGameMsg(MVGameMsgType.UserJoined, gameMsgData);
 				break;
 			}
-			case MVEventCodes.GodzillaEnter:
-			{
-				int[] array = (int[])photonEvent[70];
-				if (MVGameControllerBase.WOCM.GetWorldObjectClient(array[0]) is GodzillaTrigger godzillaTrigger2)
-				{
-					godzillaTrigger2.OccupationChange(array[1]);
-				}
-				break;
-			}
-			case MVEventCodes.GodzillaExit:
-				if (MVGameControllerBase.WOCM.GetWorldObjectClient((int)photonEvent[20]) is GodzillaTrigger godzillaTrigger)
-				{
-					godzillaTrigger.OccupationChange(-1);
-				}
-				break;
 			case MVEventCodes.LogicFrame:
-				networkGame.logicObjectManager.Update();
+				networkGame.logicObjectManagerClientWrapper.Step();
 				break;
+			case MVEventCodes.GodzillaEnter:
+			case MVEventCodes.GodzillaExit:
 			case MVEventCodes.LogicObjectFiringStateChange:
-				((IIsLogicObjectFiringEventHandler)MVGameControllerBase.WOCM.GetWorldObjectClient((int)photonEvent[20])).OnIsFiringChanged((bool)photonEvent[204]);
-				break;
 			case MVEventCodes.RandomBoxIndex:
-				((MVRandomBox)MVGameControllerBase.WOCM.GetWorldObjectClient((int)photonEvent[20])).SetRandomIndex((int)photonEvent[206]);
+			case MVEventCodes.CollectTheItemDropOff:
+				networkGame.logicObjectManagerClientWrapper.EnqueueLogicEvent(photonEvent);
 				break;
 			default:
 				Debug.LogError("Unknown event: " + eventCode);
@@ -677,6 +668,154 @@ public class MVNetworkGame : IPhotonPeerListener
 				}
 				break;
 			}
+		}
+	}
+
+	private class LogicEventQueue
+	{
+		private readonly Dictionary<int, Queue<EventData>> logicEvents = new Dictionary<int, Queue<EventData>>();
+
+		private readonly MVNetworkGame networkGame;
+
+		public int Count => logicEvents.Count;
+
+		public LogicEventQueue(MVNetworkGame networkGame)
+		{
+			this.networkGame = networkGame;
+		}
+
+		public void Enqueue(EventData eventData)
+		{
+			int key = (int)eventData[33];
+			if (!logicEvents.ContainsKey(key))
+			{
+				logicEvents.Add(key, new Queue<EventData>());
+			}
+			logicEvents[key].Enqueue(eventData);
+		}
+
+		public void Dequeue(int timestamp)
+		{
+			if (logicEvents.ContainsKey(timestamp))
+			{
+				Queue<EventData> queue = logicEvents[timestamp];
+				logicEvents.Remove(timestamp);
+				while (queue.Count > 0)
+				{
+					HandleEvent(queue.Dequeue());
+				}
+			}
+		}
+
+		private void HandleEvent(EventData photonEvent)
+		{
+			MVEventCodes code = (MVEventCodes)photonEvent.Code;
+			switch (code)
+			{
+			case MVEventCodes.LogicObjectFiringStateChange:
+				((IIsLogicObjectFiringEventHandler)MVGameControllerBase.WOCM.GetWorldObjectClient((int)photonEvent[20])).OnIsFiringChanged((bool)photonEvent[204]);
+				break;
+			case MVEventCodes.RandomBoxIndex:
+				((MVRandomBox)MVGameControllerBase.WOCM.GetWorldObjectClient((int)photonEvent[20])).SetRandomIndex((int)photonEvent[206]);
+				break;
+			case MVEventCodes.CollectTheItemDropOff:
+			{
+				int[] array2 = (int[])photonEvent[70];
+				int instigatorWoID = array2[0];
+				int id = array2[1];
+				((CollectTheItemDropOff)MVGameControllerBase.WOCM.GetWorldObjectClient(id)).DropWoId(instigatorWoID);
+				break;
+			}
+			case MVEventCodes.GodzillaEnter:
+			{
+				int[] array = (int[])photonEvent[70];
+				if (MVGameControllerBase.WOCM.GetWorldObjectClient(array[0]) is GodzillaTrigger godzillaTrigger2)
+				{
+					godzillaTrigger2.OccupationChange(array[1]);
+				}
+				break;
+			}
+			case MVEventCodes.GodzillaExit:
+				if (MVGameControllerBase.WOCM.GetWorldObjectClient((int)photonEvent[20]) is GodzillaTrigger godzillaTrigger)
+				{
+					godzillaTrigger.OccupationChange(-1);
+				}
+				break;
+			default:
+				Debug.LogError("Unknown logic event: " + code);
+				break;
+			}
+		}
+	}
+
+	private class LogicObjectManagerClientWrapper
+	{
+		private LogicEventQueue logicEventQueue;
+
+		private readonly MVNetworkGame networkGame;
+
+		private int lastUpdateTick;
+
+		private int accumulatedTime;
+
+		private int stepTimestamp;
+
+		public LogicObjectManagerClientWrapper(MVNetworkGame networkGame, int stepTimestamp)
+		{
+			this.networkGame = networkGame;
+			this.stepTimestamp = stepTimestamp;
+			logicEventQueue = new LogicEventQueue(networkGame);
+		}
+
+		public void EnqueueLogicEvent(EventData eventData)
+		{
+			logicEventQueue.Enqueue(eventData);
+		}
+
+		public void Step()
+		{
+			ExecuteRemainingFrames();
+			stepTimestamp += 1000;
+		}
+
+		public void Reset()
+		{
+			stepTimestamp += 1000;
+			ExecuteRemainingFrames();
+			if (logicEventQueue.Count != 0)
+			{
+				Debug.LogError("logic event queue not cleared on reset");
+			}
+			networkGame.logicObjectManager.Reset();
+			stepTimestamp = 0;
+		}
+
+		private void ExecuteRemainingFrames()
+		{
+			while (networkGame.LogicObjectManager.TimeStamp + 100 < stepTimestamp)
+			{
+				UpdateLogicObjectManager();
+			}
+			lastUpdateTick = WaitForTicks.GetEnvironmentTick(0);
+			accumulatedTime = 0;
+		}
+
+		public void Update()
+		{
+			int num = WaitForTicks.Diff(lastUpdateTick);
+			lastUpdateTick = WaitForTicks.GetEnvironmentTick(0);
+			accumulatedTime += num;
+			while (accumulatedTime >= 100 && networkGame.LogicObjectManager.TimeStamp + 100 < stepTimestamp)
+			{
+				UpdateLogicObjectManager();
+				accumulatedTime -= 100;
+			}
+		}
+
+		private void UpdateLogicObjectManager()
+		{
+			logicEventQueue.Dequeue(networkGame.LogicObjectManager.TimeStamp);
+			networkGame.LogicObjectManager.Update();
 		}
 	}
 
@@ -2147,6 +2286,8 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public OnMarketPlaceActionCompleteDelegate OnMarketPlaceActionComplete;
 
+	private LogicObjectManagerClientWrapper logicObjectManagerClientWrapper;
+
 	private RuntimeVariableNetworkManager runtimeVariableNetworkManager = new RuntimeVariableNetworkManager();
 
 	private float prevServiceCallTime;
@@ -2378,7 +2519,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			}
 			break;
 		case MVGameStateType.Round:
-			logicObjectManager.Reset();
+			logicObjectManagerClientWrapper.Reset();
 			worldNetwork.WorldObjectClientManagerNetwork.ResetWorld();
 			winningConditionManager.Reset();
 			break;
@@ -2414,6 +2555,10 @@ public class MVNetworkGame : IPhotonPeerListener
 		if (peer != null)
 		{
 			Service();
+			if (logicObjectManagerClientWrapper != null)
+			{
+				logicObjectManagerClientWrapper.Update();
+			}
 			if (MVGameControllerBase.JoinState == MVJoinState.Playing)
 			{
 				CheckStreamingAsssetExpiration();

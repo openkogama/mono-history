@@ -6,7 +6,7 @@ using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class CollectTheItemDropOff : MVBlueprintBase, ILogicWorldObject, ITriggerBoxEventsHandler
+public class CollectTheItemDropOff : MVBlueprintBase, ILogicWorldObject
 {
 	private const string isActiveKey = "isActive";
 
@@ -163,7 +163,7 @@ public class CollectTheItemDropOff : MVBlueprintBase, ILogicWorldObject, ITrigge
 		LogicObjectManager.ResetChunk(Id, MVGameControllerBase.WOCM);
 	}
 
-	public void Enter(int instigatorWoID)
+	public void DropWoId(int instigatorWoID)
 	{
 		sendSignal = true;
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(instigatorWoID);
@@ -255,10 +255,5 @@ public class CollectTheItemDropOff : MVBlueprintBase, ILogicWorldObject, ITrigge
 	public override bool Delete(MVWorldObjectClientManager worldObjectClientManager, ref string errorText)
 	{
 		return worldObjectClientManager.GetWorldObjectClient(groupId)?.Delete(worldObjectClientManager, ref errorText) ?? false;
-	}
-
-	public void Exit()
-	{
-		throw new NotImplementedException();
 	}
 }

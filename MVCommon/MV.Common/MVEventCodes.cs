@@ -95,6 +95,7 @@ public enum MVEventCodes : byte
 	LogicObjectFiringStateChange = 90,
 	LogicFrame = 91,
 	RandomBoxIndex = 92,
+	CollectTheItemDropOff = 93,
 	Join = byte.MaxValue,
 	Leave = 254,
 	PropertiesChanged = 253

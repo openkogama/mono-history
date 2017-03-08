@@ -40,6 +40,10 @@ public class LogicObjectManager
 
 	public const int updateInterval = 100;
 
+	public const int stepInterval = 1000;
+
+	public const int updatesBeforeStepSend = 10;
+
 	private Dictionary<int, IInputSignalReceiver> logicWorldObjects = new Dictionary<int, IInputSignalReceiver>();
 
 	public readonly bool trackLoops;
@@ -48,19 +52,17 @@ public class LogicObjectManager
 
 	public int TimeStamp { get; private set; }
 
-	public int FrameCount { get; private set; }
+	public int FrameCount => TimeStamp / 100;
 
-	public LogicObjectManager(int timeStamp, int frameCount, bool trackLoops)
+	public LogicObjectManager(int timeStamp, bool trackLoops)
 	{
 		this.trackLoops = trackLoops;
 		TimeStamp = timeStamp;
-		FrameCount = frameCount;
 	}
 
 	public void Reset()
 	{
 		TimeStamp = 0;
-		FrameCount = 0;
 	}
 
 	public int OnLinkAdded(Link link, IWorldObjectManager worldObjectManager)
@@ -95,7 +97,6 @@ public class LogicObjectManager
 			value.UpdateSignal(value.DefaultInput);
 		}
 		TimeStamp += 100;
-		FrameCount++;
 		if (trackLoops)
 		{
 			ClearDebugIds();

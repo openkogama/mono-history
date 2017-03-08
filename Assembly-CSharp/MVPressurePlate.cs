@@ -71,6 +71,7 @@ public class MVPressurePlate : MVLogicObject, ILogicWorldObject, IIsLogicObjectF
 
 	public void OnIsFiringChanged(bool isFiring)
 	{
+		Debug.Log("OnIsFiringChanged " + MVGameControllerBase.Game.LogicObjectManager.TimeStamp);
 		isDown = isFiring;
 	}
 
