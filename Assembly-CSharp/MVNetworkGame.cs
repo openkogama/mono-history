@@ -792,7 +792,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 		private void ExecuteRemainingFrames()
 		{
-			while (networkGame.LogicObjectManager.TimeStamp + 100 < stepTimestamp)
+			while (networkGame.LogicObjectManager.TimeStamp < stepTimestamp)
 			{
 				UpdateLogicObjectManager();
 			}
@@ -805,7 +805,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			int num = WaitForTicks.Diff(lastUpdateTick);
 			lastUpdateTick = WaitForTicks.GetEnvironmentTick(0);
 			accumulatedTime += num;
-			while (accumulatedTime >= 100 && networkGame.LogicObjectManager.TimeStamp + 100 < stepTimestamp)
+			while (accumulatedTime >= 100 && networkGame.LogicObjectManager.TimeStamp < stepTimestamp)
 			{
 				UpdateLogicObjectManager();
 				accumulatedTime -= 100;
