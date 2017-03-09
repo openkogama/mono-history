@@ -18,6 +18,8 @@ public class UseLever : MVLogicObject, ILogicWorldObject, IIsLogicObjectFiringEv
 
 	private bool requestSend;
 
+	private bool localIsDown;
+
 	private OutputSignalTransmitter outputSignalTransmitter;
 
 	public override bool HasInputConnector => false;
@@ -91,6 +93,7 @@ public class UseLever : MVLogicObject, ILogicWorldObject, IIsLogicObjectFiringEv
 		SetupCulling(useLeverObject.VisualRoot);
 		InputSignalReceiver = LogicClientsideFactory.CreateInputSignalReceiver(this, defaultInput: true, SignalCallback);
 		outputSignalTransmitter = new OutputSignalTransmitter(Id);
+		localIsDown = IsActivated;
 	}
 
 	private void SignalCallback(bool b, bool wasHot, LogicObjectManager logicObjectManager)
@@ -101,12 +104,15 @@ public class UseLever : MVLogicObject, ILogicWorldObject, IIsLogicObjectFiringEv
 	protected override void OnUpdate()
 	{
 		base.OnUpdate();
-		if (IsActivated && useLeverObject.PlateButtonTransform.localPosition.z > minY)
+		if (localIsDown)
 		{
-			float num = Mathf.Min(speed * Time.smoothDeltaTime, useLeverObject.PlateButtonTransform.localPosition.z - minY);
-			useLeverObject.PlateButtonTransform.localPosition = new Vector3(useLeverObject.PlateButtonTransform.localPosition.x, useLeverObject.PlateButtonTransform.localPosition.y, useLeverObject.PlateButtonTransform.localPosition.z - num);
+			if (useLeverObject.PlateButtonTransform.localPosition.z > minY)
+			{
+				float num = Mathf.Min(speed * Time.smoothDeltaTime, useLeverObject.PlateButtonTransform.localPosition.z - minY);
+				useLeverObject.PlateButtonTransform.localPosition = new Vector3(useLeverObject.PlateButtonTransform.localPosition.x, useLeverObject.PlateButtonTransform.localPosition.y, useLeverObject.PlateButtonTransform.localPosition.z - num);
+			}
 		}
-		else if (!IsActivated && useLeverObject.PlateButtonTransform.localPosition.z < 0f)
+		else if (!localIsDown && useLeverObject.PlateButtonTransform.localPosition.z < 0f)
 		{
 			float num2 = Mathf.Min(speed * Time.smoothDeltaTime, 0f - useLeverObject.PlateButtonTransform.localPosition.z);
 			useLeverObject.PlateButtonTransform.localPosition = new Vector3(useLeverObject.PlateButtonTransform.localPosition.x, useLeverObject.PlateButtonTransform.localPosition.y, useLeverObject.PlateButtonTransform.localPosition.z + num2);
@@ -121,6 +127,7 @@ public class UseLever : MVLogicObject, ILogicWorldObject, IIsLogicObjectFiringEv
 		}
 		requestSend = true;
 		MVGameControllerBase.OperationRequests.LogicActivateRequest(Id, !IsActivated);
+		localIsDown = !IsActivated;
 		return true;
 	}
 
@@ -139,6 +146,7 @@ public class UseLever : MVLogicObject, ILogicWorldObject, IIsLogicObjectFiringEv
 	{
 		IsActivated = BeginActivated;
 		requestSend = false;
+		localIsDown = IsActivated;
 	}
 
 	public override void OnDataUpdate()
@@ -175,5 +183,6 @@ public class UseLever : MVLogicObject, ILogicWorldObject, IIsLogicObjectFiringEv
 	{
 		IsActivated = isFiring;
 		requestSend = false;
+		localIsDown = isFiring;
 	}
 }

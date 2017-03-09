@@ -160,6 +160,7 @@ public class ShootableButton : MVLogicObject, ILogicWorldObject, IIsLogicObjectF
 
 	public void Activate(object sender, TakeDamageEventArgs e)
 	{
+		SetToDownState();
 		MVGameControllerBase.OperationRequests.LogicActivateRequest(Id, activate: true);
 	}
 

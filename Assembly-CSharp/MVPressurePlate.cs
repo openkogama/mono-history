@@ -8,6 +8,8 @@ public class MVPressurePlate : MVLogicObject, ILogicWorldObject, IIsLogicObjectF
 
 	private bool isDown;
 
+	private bool localIsDown;
+
 	private float minY = -0.249f;
 
 	private float speed = 1.8f;
@@ -71,8 +73,15 @@ public class MVPressurePlate : MVLogicObject, ILogicWorldObject, IIsLogicObjectF
 
 	public void OnIsFiringChanged(bool isFiring)
 	{
-		Debug.Log("OnIsFiringChanged " + MVGameControllerBase.Game.LogicObjectManager.TimeStamp);
+		if (isFiring)
+		{
+			Debug.Log("OnIsFiringChanged " + isFiring + " " + MVGameControllerBase.Game.LogicObjectManager.TimeStamp + " " + Time.realtimeSinceStartup);
+		}
 		isDown = isFiring;
+		if (!isFiring && localIsDown)
+		{
+			localIsDown = false;
+		}
 	}
 
 	private void Callback(bool b, bool wasHot, LogicObjectManager logicObjectManager)
@@ -88,12 +97,15 @@ public class MVPressurePlate : MVLogicObject, ILogicWorldObject, IIsLogicObjectF
 
 	protected override void OnUpdate()
 	{
-		if (isDown && plateObject.PlateModelTranform.localPosition.y > minY)
+		if (isDown || localIsDown)
 		{
-			float num = Mathf.Min(speed * Time.smoothDeltaTime, plateObject.PlateModelTranform.localPosition.y - minY);
-			plateObject.PlateModelTranform.localPosition = new Vector3(plateObject.PlateModelTranform.localPosition.x, plateObject.PlateModelTranform.localPosition.y - num, plateObject.PlateModelTranform.localPosition.z);
+			if (plateObject.PlateModelTranform.localPosition.y > minY)
+			{
+				float num = Mathf.Min(speed * Time.smoothDeltaTime, plateObject.PlateModelTranform.localPosition.y - minY);
+				plateObject.PlateModelTranform.localPosition = new Vector3(plateObject.PlateModelTranform.localPosition.x, plateObject.PlateModelTranform.localPosition.y - num, plateObject.PlateModelTranform.localPosition.z);
+			}
 		}
-		else if (!isDown && plateObject.PlateModelTranform.localPosition.y < 0f)
+		else if ((!isDown || !localIsDown) && plateObject.PlateModelTranform.localPosition.y < 0f)
 		{
 			float num2 = Mathf.Min(speed * Time.smoothDeltaTime, 0f - plateObject.PlateModelTranform.localPosition.y);
 			plateObject.PlateModelTranform.localPosition = new Vector3(plateObject.PlateModelTranform.localPosition.x, plateObject.PlateModelTranform.localPosition.y + num2, plateObject.PlateModelTranform.localPosition.z);
@@ -137,12 +149,15 @@ public class MVPressurePlate : MVLogicObject, ILogicWorldObject, IIsLogicObjectF
 
 	private bool DoEnter(int instigatorWOID)
 	{
+		Debug.Log("Enter " + Time.realtimeSinceStartup);
 		MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, instigatorWOID);
+		localIsDown = true;
 		return true;
 	}
 
 	private void DoExit(int instigatorWOID)
 	{
+		Debug.Log("Exit");
 		MVGameControllerBase.OperationRequests.TriggerBoxExit(Id, instigatorWOID);
 	}
 

@@ -126,7 +126,7 @@ public class MVNetworkGame : IPhotonPeerListener
 				networkGame.worldNetwork.WorldInventory.FineGrainedTerrainPrototypeID = (int)photonEvent[156];
 				networkGame.networkGameStateListener.ChangeState(gameStateType, startTime, duration, fromGameSnapshot: true);
 				int num3 = (int)photonEvent[33];
-				if (num3 % 1000 != 0)
+				if (num3 % 500 != 0)
 				{
 					Debug.LogError("stepTimestamp is not correctly incremented");
 				}
@@ -775,12 +775,12 @@ public class MVNetworkGame : IPhotonPeerListener
 		public void Step()
 		{
 			ExecuteRemainingFrames();
-			stepTimestamp += 1000;
+			stepTimestamp += 500;
 		}
 
 		public void Reset()
 		{
-			stepTimestamp += 1000;
+			stepTimestamp += 500;
 			ExecuteRemainingFrames();
 			if (logicEventQueue.Count != 0)
 			{

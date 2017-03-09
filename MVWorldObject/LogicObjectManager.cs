@@ -40,9 +40,9 @@ public class LogicObjectManager
 
 	public const int updateInterval = 100;
 
-	public const int stepInterval = 1000;
+	public const int stepInterval = 500;
 
-	public const int updatesBeforeStepSend = 10;
+	public const int updatesBeforeStepSend = 5;
 
 	private Dictionary<int, IInputSignalReceiver> logicWorldObjects = new Dictionary<int, IInputSignalReceiver>();
 
