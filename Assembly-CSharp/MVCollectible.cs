@@ -37,12 +37,6 @@ public class MVCollectible : MVLogicObject
 		Create();
 	}
 
-	public MVCollectible(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects, ObjectPrefab overridePrefab)
-		: base(data, overridePrefab, worldObjects)
-	{
-		Create();
-	}
-
 	private void Create()
 	{
 		collectibleObject = (MVCollectibleObject)component;
@@ -126,10 +120,7 @@ public class MVCollectible : MVLogicObject
 			{
 				collectibleObject.AudioSource.Play();
 			}
-			if (!disabledByLod)
-			{
-				collectibleObject.Particles.Play();
-			}
+			collectibleObject.Particles.Play();
 		}
 	}
 

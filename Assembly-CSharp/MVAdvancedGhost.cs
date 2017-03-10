@@ -78,7 +78,6 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 
 	private void SetGameMode(bool isPlayMode)
 	{
-		Debug.Log("SetGameMode " + isPlayMode);
 		if (advancedGhostIcon != null)
 		{
 			advancedGhostIcon.SetGameMode(isPlayMode);

@@ -565,6 +565,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 			MVGameControllerBase.CameraController.PushCamera(CameraType.LobbyState);
 			LobbyStateCamera lobbyStateCamera = (LobbyStateCamera)MVGameControllerBase.CameraController.CurCamera;
 			lobbyStateCamera.SetRotation(mvAvatar.transform.rotation);
+			mvAvatar.Body.Visible = true;
 		}
 
 		public override void DeActivate(AvatarRuntimeState toMode)

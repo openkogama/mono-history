@@ -1,5 +1,6 @@
 using System;
 using MV.Common;
+using UnityEngine;
 
 public class MVNetworkGameStateListener
 {
@@ -11,33 +12,26 @@ public class MVNetworkGameStateListener
 
 	private int timeLeft;
 
-	private MVGameStateReason lastReason;
-
-	private int lastInstigatorActorNr;
-
 	public int TimeLeftMS => timeLeft;
 
+	public int CountdownInSeconds => (int)Mathf.Ceil(MVGameControllerBase.Game.NetworkGameStateListener.TimeLeftMS / 1000);
+
 	public MVGameStateType CurrentGameState => currentGameState;
-
-	public MVGameStateReason LastReason => lastReason;
-
-	public int LastInstigatorActorNr => lastInstigatorActorNr;
 
 	public int StartTime => startTime;
 
 	public event EventHandler<GameStateChangeEventArgs> OnGameStateChanged;
 
-	public void ChangeState(MVNetworkGame game, MVGameStateType gameStateType, int startTime, int duration, MVGameStateReason reason, int actorNr)
+	public void ChangeState(MVGameStateType gameStateType, int startTime, int duration, bool fromGameSnapshot)
 	{
 		currentGameState = gameStateType;
 		this.startTime = startTime;
 		this.duration = duration;
-		timeLeft = duration - (game.ServerTimeInMilliSeconds - startTime);
-		lastReason = reason;
-		lastInstigatorActorNr = actorNr;
-		if (OnGameStateChanged != null)
+		timeLeft = duration - (MVGameControllerBase.Game.ServerTimeInMilliSeconds - startTime);
+		Debug.Log("GameStateChange " + gameStateType);
+		if (!fromGameSnapshot && OnGameStateChanged != null)
 		{
-			OnGameStateChanged(this, new GameStateChangeEventArgs(actorNr, reason));
+			OnGameStateChanged(this, new GameStateChangeEventArgs());
 		}
 	}
 

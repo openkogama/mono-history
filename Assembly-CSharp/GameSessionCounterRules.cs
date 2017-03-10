@@ -241,7 +241,6 @@ public static class GameSessionCounterRules
 
 	private static void GameWon(GameSessionCounterType gameSessionCounterType, int count)
 	{
-		Debug.Log($"{gameSessionCounterType}: {count}");
 		LevelingManager.AddXPToLocalPlayer("GameWon", MVGameMode.Play);
 	}
 

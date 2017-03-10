@@ -25,36 +25,13 @@ public class LineDrawManager : MonoBehaviour
 	[SerializeField]
 	private Material lineMaterial;
 
-	private static LineDrawManager instance;
-
 	private Link tempLink;
 
 	private ObjectLink tempObjectLink;
 
-	private GameObject tempLinkObject;
+	private LinkObjectScript tempLinkObject;
 
 	private Queue<LinkLine> linkLines = new Queue<LinkLine>();
-
-	public static LineDrawManager Instance
-	{
-		get
-		{
-			if (instance == null)
-			{
-				instance = (LineDrawManager)UnityEngine.Object.FindObjectOfType(typeof(LineDrawManager));
-				if (instance == null)
-				{
-					Debug.LogError("LineDrawManager object could not be found");
-					return null;
-				}
-			}
-			return instance;
-		}
-	}
-
-	private void Start()
-	{
-	}
 
 	private void OnPostRender()
 	{
@@ -119,78 +96,6 @@ public class LineDrawManager : MonoBehaviour
 	public void SetTempObjectLink(ObjectLink link)
 	{
 		tempObjectLink = link;
-	}
-
-	public void ShowLink(Link link, GameObject linkGameObject)
-	{
-		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
-		{
-			Vector3 outputConnectorPos = MVGameControllerBase.WOCM.GetWorldObjectClient(link.outputWOID).GetOutputConnectorPos();
-			Vector3 inputConnectorPos = MVGameControllerBase.WOCM.GetWorldObjectClient(link.inputWOID).GetInputConnectorPos();
-			LineRenderer componentInChildren = linkGameObject.GetComponentInChildren<LineRenderer>();
-			componentInChildren.SetPosition(0, outputConnectorPos);
-			componentInChildren.SetPosition(1, inputConnectorPos);
-			BoxCollider componentInChildren2 = componentInChildren.gameObject.GetComponentInChildren<BoxCollider>();
-			componentInChildren2.gameObject.transform.position = outputConnectorPos + (inputConnectorPos - outputConnectorPos) / 2f;
-			componentInChildren2.gameObject.transform.rotation = Quaternion.LookRotation((inputConnectorPos - outputConnectorPos).normalized);
-			float magnitude = (inputConnectorPos - outputConnectorPos).magnitude;
-			magnitude -= 0.5f;
-			magnitude = Mathf.Max(magnitude, 0.2f);
-			componentInChildren2.transform.localScale = new Vector3(0.2f, 0.2f, magnitude);
-			componentInChildren2.gameObject.GetComponent<Renderer>().material.mainTextureScale = new Vector2((inputConnectorPos - outputConnectorPos).magnitude / 2f, 1f);
-			if (link.isSet)
-			{
-				componentInChildren2.gameObject.GetComponent<Renderer>().material.color = Color.green;
-				Vector2 mainTextureOffset = componentInChildren2.gameObject.GetComponent<Renderer>().material.mainTextureOffset;
-				mainTextureOffset.x -= Time.deltaTime * 1.5f;
-				componentInChildren2.gameObject.GetComponent<Renderer>().material.mainTextureOffset = mainTextureOffset;
-			}
-			else
-			{
-				componentInChildren2.gameObject.GetComponent<Renderer>().material.color = Color.grey;
-			}
-		}
-	}
-
-	public void ShowObjectLink(ObjectLink objectLink, GameObject objectLinkGameObject)
-	{
-		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
-		{
-			Vector3 objectConnectorPos = MVGameControllerBase.WOCM.GetWorldObjectClient(objectLink.objectConnectorWOID).GetObjectConnectorPos();
-			Vector3 vector = MVGameControllerBase.WOCM.GetWorldObjectClient(objectLink.objectWOID).WorldPosition;
-			if (MVGameControllerBase.WOCM.GetWorldObjectClient(objectLink.objectWOID) is MVCubeModelBase)
-			{
-				vector = (MVGameControllerBase.WOCM.GetWorldObjectClient(objectLink.objectWOID) as MVCubeModelBase).GetWorldCenterPos();
-			}
-			LineRenderer componentInChildren = objectLinkGameObject.GetComponentInChildren<LineRenderer>();
-			componentInChildren.SetPosition(0, objectConnectorPos);
-			componentInChildren.SetPosition(1, vector);
-			BoxCollider componentInChildren2 = componentInChildren.gameObject.GetComponentInChildren<BoxCollider>();
-			componentInChildren2.gameObject.transform.position = objectConnectorPos + (vector - objectConnectorPos) / 2f;
-			componentInChildren2.gameObject.transform.rotation = Quaternion.LookRotation((vector - objectConnectorPos).normalized);
-			float magnitude = (vector - objectConnectorPos).magnitude;
-			magnitude -= 0.5f;
-			magnitude = Mathf.Max(magnitude, 0.2f);
-			componentInChildren2.transform.localScale = new Vector3(0.2f, 0.2f, magnitude);
-			componentInChildren2.gameObject.GetComponent<Renderer>().material.mainTextureScale = new Vector2((vector - objectConnectorPos).magnitude / 2f, 1f);
-			componentInChildren2.gameObject.GetComponent<Renderer>().material.color = Color.yellow;
-		}
-	}
-
-	public void DrawPendingLink(Link link)
-	{
-		Vector3 outputConnectorPos = MVGameControllerBase.WOCM.GetWorldObjectClient(link.outputWOID).GetOutputConnectorPos();
-		Vector3 inputConnectorPos = MVGameControllerBase.WOCM.GetWorldObjectClient(link.inputWOID).GetInputConnectorPos();
-		Color color = new Color(0f, 1f, 0f, 1f);
-		linkLines.Enqueue(new LinkLine(outputConnectorPos, inputConnectorPos, color));
-	}
-
-	public void DrawPendingObjectLink(ObjectLink objectLink)
-	{
-		Vector3 objectConnectorPos = MVGameControllerBase.WOCM.GetWorldObjectClient(objectLink.objectConnectorWOID).GetObjectConnectorPos();
-		Vector3 worldPosition = MVGameControllerBase.WOCM.GetWorldObjectClient(objectLink.objectWOID).WorldPosition;
-		Color color = new Color(1f, 1f, 0f, 1f);
-		linkLines.Enqueue(new LinkLine(objectConnectorPos, worldPosition, color));
 	}
 
 	public void DrawLineDirect(Vector3 from, Vector3 to, Color color)

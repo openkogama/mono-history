@@ -31,7 +31,6 @@ public abstract class InteractionDataHandlerBase : MVComponent
 		base.Awake();
 		if (closestPoint == null)
 		{
-			Debug.LogWarning(string.Empty + gameObject.name + ": InteractionDataHandler is missing a reference to ClosestPoint.\nDefaulting to ClosestPointPoint. (Reason is probably that AddComponent<InteractionDataHandler>() is used.)");
 			ClosestPointPoint closestPointPoint = gameObject.AddComponent<ClosestPointPoint>();
 			closestPointPoint.Init(transform);
 			closestPoint = closestPointPoint;

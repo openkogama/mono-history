@@ -6,6 +6,7 @@ public class MVPointLightPreset : MVPointLight
 	public MVPointLightPreset(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, worldObjects)
 	{
+		interactionFlags |= InteractionFlags.CanResetLogic;
 		if (Application.isEditor)
 		{
 			interactionFlags &= ~InteractionFlags.HasSettings;

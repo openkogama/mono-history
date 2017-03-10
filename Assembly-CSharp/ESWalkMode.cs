@@ -10,7 +10,17 @@ internal class ESWalkMode : ESStateBase
 		esm.DeSelectAll();
 		esm.ExitGroupToRoot();
 		MVGameControllerBase.WOCM.RootGroup.PlayModeInitialize();
-		MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Playing);
+		Debug.Log(MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState);
+		if (MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.Round)
+		{
+			MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Playing);
+			MVGameControllerDesktop.LockCursorManager.LockCursor = true;
+		}
+		else if (MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded)
+		{
+			MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Hidden);
+			MVGameControllerDesktop.LockCursorManager.LockCursor = false;
+		}
 		MVGameControllerBase.WOCM.MoveableController.ResetMoveables();
 		MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, TM._("Leveling is disabled in edit play mode"));
 		MVTeam team = MVGameControllerBase.Game.LocalPlayer.Team;
@@ -20,7 +30,6 @@ internal class ESWalkMode : ESStateBase
 			List<MVTeam> teamList = teamManager.GetTeamList();
 			MVGameControllerBase.OperationRequests.SetTeam(teamList[0]);
 		}
-		MVGameControllerDesktop.LockCursorManager.LockCursor = true;
 		MVGameControllerBase.WOCM.AvatarLocal.Body.AccessoryMoveOverride = true;
 		DrawPlane.HideDrawPlane();
 	}

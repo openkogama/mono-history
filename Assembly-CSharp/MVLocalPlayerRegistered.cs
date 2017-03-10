@@ -45,7 +45,6 @@ public class MVLocalPlayerRegistered : MVLocalPlayer
 
 	private void OnLevelChangedLocalReceivedLevelData(int level)
 	{
-		Debug.Log("OnLevelChangedLocalReceivedLevelData");
 		OnLevelChangedLocal(level);
 		MVGameControllerBase.OperationRequests.JoinNotification();
 	}

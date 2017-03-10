@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using MV.WorldObject;
 using UnityEngine;
 
 public class TransformNetworkManager
@@ -46,26 +45,20 @@ public class TransformNetworkManager
 		if (worldObjectClient == null)
 		{
 			Debug.LogError("Attempt to update world object, but object not registered in world");
+			return;
 		}
-		else if (worldObjectClient.State != MVWorldObjectState.Destroyed)
+		if (!networkedObjects.ContainsKey(woID))
 		{
-			if (!networkedObjects.ContainsKey(woID))
-			{
-				networkedObjects.Add(woID, new MVNetworkListener(worldObjectClient));
-			}
-			MVNetworkObject mVNetworkObject = networkedObjects[woID];
-			if (mVNetworkObject != null && mVNetworkObject.GetType() == typeof(MVNetworkListener))
-			{
-				(mVNetworkObject as MVNetworkListener).AddTransformPackage(p);
-			}
-			else if (mVNetworkObject != null)
-			{
-				Debug.LogWarning(string.Concat("worldObjectClientManager.WorldObjects[worldObjectID].NetworkObject is ", mVNetworkObject.GetType(), " this is probably due to ownership switching of vehicle"));
-			}
+			networkedObjects.Add(woID, new MVNetworkListener(worldObjectClient));
 		}
-		else
+		MVNetworkObject mVNetworkObject = networkedObjects[woID];
+		if (mVNetworkObject != null && mVNetworkObject.GetType() == typeof(MVNetworkListener))
 		{
-			Debug.LogWarning("Attempt to update world object, but object in destroyed state");
+			(mVNetworkObject as MVNetworkListener).AddTransformPackage(p);
+		}
+		else if (mVNetworkObject != null)
+		{
+			Debug.LogWarning(string.Concat("worldObjectClientManager.WorldObjects[worldObjectID].NetworkObject is ", mVNetworkObject.GetType(), " this is probably due to ownership switching of vehicle"));
 		}
 	}
 
@@ -75,7 +68,7 @@ public class TransformNetworkManager
 		foreach (KeyValuePair<int, MVNetworkObject> networkedObject in networkedObjects)
 		{
 			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(networkedObject.Key);
-			if (worldObjectClient.State != MVWorldObjectState.Destroyed)
+			if (worldObjectClient != null)
 			{
 				networkedObject.Value.Update(game);
 				if (networkedObject.Value.RemoveFromUpdate)

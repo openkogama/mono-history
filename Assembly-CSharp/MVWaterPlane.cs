@@ -18,7 +18,7 @@ public class MVWaterPlane : MVLogicObject
 		localBounds = Component.MeshRenderers[0].bounds;
 		localBounds.center -= gameObject.transform.position;
 		gameObject.transform.localScale = Vector3.one;
-		waterManager = Object.FindObjectOfType(typeof(WaterPlaneManager)) as WaterPlaneManager;
+		waterManager = MVGameControllerBase.WaterPlaneManager;
 		interactionFlags |= InteractionFlags.HasSettings;
 		interactionFlags &= ~InteractionFlags.CanClone;
 	}
@@ -26,10 +26,6 @@ public class MVWaterPlane : MVLogicObject
 	public override bool IsSingletonObject()
 	{
 		return true;
-	}
-
-	public override void ChangeLOD(float distance)
-	{
 	}
 
 	public override Bounds GetLocalBounds(BoundsContext boundsContext)

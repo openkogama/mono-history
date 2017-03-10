@@ -190,7 +190,6 @@ public class MVAvatar : MVGroup
 	public override void AddChild(MVWorldObjectClient child)
 	{
 		base.AddChild(child);
-		Debug.Log("new body child " + child);
 		if (body != null)
 		{
 			body.Detach();

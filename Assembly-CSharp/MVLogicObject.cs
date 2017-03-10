@@ -1,13 +1,10 @@
 using System;
 using System.Collections.Generic;
-using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.Events;
 
 public abstract class MVLogicObject : MVWorldObjectClient, IUpdatecontrollerSubscriber
 {
-	protected bool disabledByLod;
-
 	private Bounds localBounds = new Bounds(Vector3.zero, Vector3.one);
 
 	protected CullingSubscriberBase cullingSubscriberBase;
@@ -17,7 +14,7 @@ public abstract class MVLogicObject : MVWorldObjectClient, IUpdatecontrollerSubs
 	protected MVLogicObject(Dictionary<object, object> data, ObjectPrefab prefabObject, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, prefabObject, worldObjects)
 	{
-		interactionFlags = InteractionFlags.Selectable | InteractionFlags.CanRotateY | InteractionFlags.CanClone | InteractionFlags.CanResetLogic;
+		interactionFlags = InteractionFlags.Selectable | InteractionFlags.CanRotateY | InteractionFlags.CanClone;
 		PlayInteractionType = PlayInteractionType.ExcludeFromInteraction;
 		gameObject.layer = LayerMask.NameToLayer("Logic");
 		previewLayerMask |= LayerFlags.Logic;
@@ -36,8 +33,6 @@ public abstract class MVLogicObject : MVWorldObjectClient, IUpdatecontrollerSubs
 	{
 		base.Initialize();
 		UpdateController.AddUpdateObject(this, UpdatePriority.PRE_UPDATEBUCKET_20);
-		SharedLinkFunctions.EvaluateLinks(this);
-		SharedLinkFunctions.UpdateOutputLinks(this);
 	}
 
 	protected CullingSubscriberBase SetupCulling(GameObject lodGameObject)
@@ -73,10 +68,6 @@ public abstract class MVLogicObject : MVWorldObjectClient, IUpdatecontrollerSubs
 	public virtual void UpdateControllerUpdate()
 	{
 		OnUpdate();
-		if (HasInputConnector)
-		{
-			SharedLinkFunctions.EvaluateLinks(this);
-		}
 	}
 
 	public override Bounds GetLocalBounds(BoundsContext boundsContext)

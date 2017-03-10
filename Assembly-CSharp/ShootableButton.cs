@@ -2,16 +2,23 @@ using System;
 using System.Collections.Generic;
 using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
-using MV.WorldObject;
 using UnityEngine;
 
-public class ShootableButton : MVLogicObject, ITriggerBoxEventsHandler
+public class ShootableButton : MVLogicObject, ILogicWorldObject, IIsLogicObjectFiringEventHandler
 {
+	private const string durationValueKey = "duration";
+
+	private const string currentTimeValueKey = "cT";
+
+	private const int currentTimeDefaultValue = -1;
+
 	private LogicInteractable interactable;
 
 	private Collider targetCollider;
 
 	private ShootableButtonObject buttonObject;
+
+	private OutputSignalTransmitter outputSignalTransmitter;
 
 	public override Vector3 WorldPivot => transform.position;
 
@@ -21,26 +28,55 @@ public class ShootableButton : MVLogicObject, ITriggerBoxEventsHandler
 
 	public override Vector3 OutputConnectorOffset => new Vector3(1.6f, 0f, 0f);
 
+	private int Duration => (int)((float)Data["duration"] * 1000f);
+
+	public IInputSignalReceiver InputSignalReceiver { get; private set; }
+
+	private int CurrentTime
+	{
+		get
+		{
+			return (ObscuredInt)RunTimeData.GetObscuredType("cT");
+		}
+		set
+		{
+			RunTimeData.SetObscuredType("cT", (ObscuredInt)value);
+		}
+	}
+
+	private bool IsActive
+	{
+		get
+		{
+			return CurrentTime != -1;
+		}
+		set
+		{
+			if (value)
+			{
+				CurrentTime = 0;
+			}
+			else
+			{
+				CurrentTime = -1;
+			}
+		}
+	}
+
 	public ShootableButton(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.ShootableButtonPrefab, worldObjects)
 	{
+		interactionFlags |= InteractionFlags.CanResetLogic;
 		interactionFlags |= InteractionFlags.HasSettings;
 		PlayInteractionType = PlayInteractionType.HandlesHits;
 		buttonObject = (ShootableButtonObject)component;
-	}
-
-	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
-	{
-		Vector3 one = Vector3.one;
-		one *= 1.5f;
-		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, one);
 	}
 
 	public override void Initialize()
 	{
 		base.Initialize();
 		interactable = gameObject.AddComponent<LogicInteractable>();
-		gameObject.AddComponent<InteractionDataHandler>();
+		gameObject.AddComponent<ClientSideLogicInteractionHandler>();
 		interactable.OnDamageEvent += Activate;
 		if (MVGameControllerBase.IEditModeUI != null)
 		{
@@ -59,11 +95,13 @@ public class ShootableButton : MVLogicObject, ITriggerBoxEventsHandler
 			targetCollider = buttonObject.TargetCollider3D;
 		}
 		collider = targetCollider;
-		if (RunTimeData.ContainsObscuredKey("isActivated") && (bool)(ObscuredBool)RunTimeData.GetObscuredType("isActivated"))
-		{
-			Enter(-1);
-		}
 		SetupCulling(buttonObject.VisualRoot);
+		InputSignalReceiver = LogicClientsideFactory.CreateInputSignalReceiver(this, defaultInput: false, SignalCallback);
+		outputSignalTransmitter = new OutputSignalTransmitter(Id);
+		if (IsActive)
+		{
+			SetToDownState();
+		}
 	}
 
 	public override void InitializeInventory()
@@ -72,9 +110,47 @@ public class ShootableButton : MVLogicObject, ITriggerBoxEventsHandler
 		buttonObject.EditCollider.gameObject.SetActive(value: false);
 	}
 
+	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
+	{
+		Vector3 one = Vector3.one;
+		one *= 1.5f;
+		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, one);
+	}
+
+	private void SignalCallback(bool b, bool wasHot, LogicObjectManager logicObjectManager)
+	{
+		if (!IsActive)
+		{
+			outputSignalTransmitter.Send(isHot: false);
+		}
+		else if (CurrentTime > Duration)
+		{
+			outputSignalTransmitter.Send(isHot: false);
+			CurrentTime = -1;
+			SetToUpState();
+		}
+		else
+		{
+			outputSignalTransmitter.Send(isHot: true);
+			CurrentTime += 100;
+		}
+	}
+
+	public void OnIsFiringChanged(bool isFiring)
+	{
+		IsActive = isFiring;
+		SetToDownState();
+	}
+
+	public override void OnDataUpdate()
+	{
+		LogicObjectManager.ResetChunk(Id, MVGameControllerBase.WOCM);
+	}
+
 	public override void Reset()
 	{
-		MVGameControllerBase.OperationRequests.TriggerBoxExit(Id, MVGameControllerBase.WOCM.AvatarLocal.Id);
+		CurrentTime = -1;
+		SetToUpState();
 	}
 
 	public override Bounds GetLocalBounds(BoundsContext boundsContext)
@@ -82,37 +158,20 @@ public class ShootableButton : MVLogicObject, ITriggerBoxEventsHandler
 		return new Bounds(Vector3.zero, new Vector3(2.001f, 2.001f, 0.701f));
 	}
 
-	public override void OnDataUpdate()
-	{
-		base.OnDataUpdate();
-	}
-
 	public void Activate(object sender, TakeDamageEventArgs e)
 	{
-		int triggerInstigatorId = 0;
-		if (e.damageSource != null)
-		{
-			triggerInstigatorId = e.damageSource.Avatar.Id;
-		}
-		MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, triggerInstigatorId);
+		SetToDownState();
+		MVGameControllerBase.OperationRequests.LogicActivateRequest(Id, activate: true);
 	}
 
-	public void Enter(int instigatorWoID)
+	public void SetToDownState()
 	{
-		foreach (Link outputLinkRef in OutputLinkRefs)
-		{
-			outputLinkRef.isSet = true;
-		}
 		targetCollider.enabled = false;
 		buttonObject.GreyOutObject.GreyOut();
 	}
 
-	public void Exit()
+	public void SetToUpState()
 	{
-		foreach (Link outputLinkRef in OutputLinkRefs)
-		{
-			outputLinkRef.isSet = false;
-		}
 		targetCollider.enabled = true;
 		buttonObject.GreyOutObject.GreyIn();
 	}
@@ -125,22 +184,6 @@ public class ShootableButton : MVLogicObject, ITriggerBoxEventsHandler
 			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Remove(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
 		}
 		base.Destroy();
-	}
-
-	private void SetVisibility()
-	{
-		Renderer componentInChildren = GameObject.GetComponentInChildren<Renderer>();
-		componentInChildren.enabled = !disabledByLod;
-	}
-
-	public override void ChangeLOD(float distance)
-	{
-		bool flag = disabledByLod;
-		base.ChangeLOD(distance);
-		if (flag != disabledByLod)
-		{
-			SetVisibility();
-		}
 	}
 
 	public void OnEditModeChange(EditModeChangeArgs arg)

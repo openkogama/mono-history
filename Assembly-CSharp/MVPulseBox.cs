@@ -1,104 +1,76 @@
-using System;
 using System.Collections.Generic;
-using MV.WorldObject;
+using CodeStage.AntiCheat.ObscuredTypes;
+using UnityEngine;
 
-public class MVPulseBox : MVLogicObject
+public class MVPulseBox : MVLogicObject, ILogicWorldObject
 {
-	private bool currentlyHot;
+	private const string currentStartTimeKey = "currentStartTime";
 
-	private int intervalOnInMilliSecs;
-
-	private int intervalOffInMilliSecs;
+	private OutputSignalTransmitter outputSignalTransmitter;
 
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => true;
 
+	public IInputSignalReceiver InputSignalReceiver { get; private set; }
+
+	public int CurrentStartTime
+	{
+		get
+		{
+			return (ObscuredInt)RunTimeData.GetObscuredType("currentStartTime");
+		}
+		set
+		{
+			RunTimeData.SetObscuredType("currentStartTime", (ObscuredInt)value);
+		}
+	}
+
 	public MVPulseBox(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVPulseBoxPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
+		interactionFlags |= InteractionFlags.CanResetLogic;
 	}
 
 	public override void Initialize()
 	{
 		base.Initialize();
-		intervalOnInMilliSecs = (int)((float)Data["intervalOn"] * 1000f);
-		intervalOffInMilliSecs = (int)((float)Data["intervalOff"] * 1000f);
 		SetupCulling(gameObject);
+		InputSignalReceiver = LogicClientsideFactory.CreateInputSignalReceiver(this, defaultInput: true, OnSignal);
+		outputSignalTransmitter = new OutputSignalTransmitter(Id);
 	}
 
-	public override void OnInputLinkChanged()
+	private void OnSignal(bool isHot, bool wasHot, LogicObjectManager logicObjectManager)
 	{
-		SetOutput(IsActive());
-	}
-
-	public override void OnOutputLinkChanged()
-	{
-	}
-
-	public override void OnInputStateChanged()
-	{
-		SetOutput(IsActive());
+		if (!isHot)
+		{
+			outputSignalTransmitter.Send(isHot: false);
+			return;
+		}
+		int num = (int)((float)Data["intervalOn"] * 1000f);
+		int num2 = (int)((float)Data["intervalOff"] * 1000f);
+		int num3 = (logicObjectManager.TimeStamp - CurrentStartTime) % (num + num2);
+		if (num3 >= num)
+		{
+			outputSignalTransmitter.Send(isHot: false);
+		}
+		else
+		{
+			outputSignalTransmitter.Send(isHot: true);
+		}
 	}
 
 	public override void OnDataUpdate()
 	{
-		base.OnDataUpdate();
-		intervalOnInMilliSecs = (int)((float)Data["intervalOn"] * 1000f);
-		intervalOffInMilliSecs = (int)((float)Data["intervalOff"] * 1000f);
+		LogicObjectManager.ResetChunk(Id, MVGameControllerBase.WOCM);
 	}
 
-	protected override void OnUpdate()
+	public override void Reset()
 	{
-		if (IsActive())
-		{
-			int num = Math.Abs(MVGameControllerBase.Game.Peer.ServerTimeInMilliSeconds) % (intervalOnInMilliSecs + intervalOffInMilliSecs);
-			if (num > intervalOnInMilliSecs)
-			{
-				SetOutput(output: false);
-			}
-			else
-			{
-				SetOutput(output: true);
-			}
-		}
-	}
-
-	private bool IsActive()
-	{
-		if (InputLinkRefs.Count == 0)
-		{
-			return true;
-		}
-		return InputState;
-	}
-
-	private void SetOutput(bool output)
-	{
-		if (output)
-		{
-			if (currentlyHot)
-			{
-				return;
-			}
-			foreach (Link outputLinkRef in OutputLinkRefs)
-			{
-				outputLinkRef.isSet = true;
-			}
-			currentlyHot = true;
-		}
-		else
-		{
-			if (!currentlyHot)
-			{
-				return;
-			}
-			foreach (Link outputLinkRef2 in OutputLinkRefs)
-			{
-				outputLinkRef2.isSet = false;
-			}
-			currentlyHot = false;
-		}
+		base.Reset();
+		Debug.Log("MVPulsebox reset");
+		CurrentStartTime = MVGameControllerBase.Game.LogicObjectManager.TimeStamp;
+		Debug.Log("CurrentTime " + CurrentStartTime);
 	}
 }

@@ -291,7 +291,7 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 		List<int> list = new List<int>();
 		foreach (KeyValuePair<int, DismountedPlayerControlledObject> dismountedLocalControlledObject in dismountedLocalControlledObjects)
 		{
-			if (dismountedLocalControlledObject.Value.ReadyToUnRegister())
+			if (dismountedLocalControlledObject.Value.ReadyToUnRegister() || MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded)
 			{
 				list.Add(dismountedLocalControlledObject.Key);
 			}

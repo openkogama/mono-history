@@ -53,9 +53,9 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 
 	private void OnWinningConditionReceived(IWinningCondition winningCondition)
 	{
+		Debug.Log("OnWinningConditionReceived");
 		if (MVGameControllerBase.GameMode == MVGameMode.Play || (MVGameControllerBase.GameMode == MVGameMode.Edit && MVGameControllerBase.IEditModeUI.IsInPlayInEditMode))
 		{
-			MVGameControllerBase.CameraController.SetCamera(CameraType.ThirdPerson);
 			GenerateDebriefing(winningCondition);
 			HandleXp(winningCondition);
 		}
@@ -63,6 +63,7 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 
 	private void GenerateDebriefing(IWinningCondition winningCondition)
 	{
+		Debug.Log("Generate debriefing");
 		if (winningCondition is IWinningConditionBriefing)
 		{
 			((IWinningConditionBriefing)winningCondition).GetDebriefing(this);
@@ -93,6 +94,7 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 			{
 				SetupDebriefingPlayer(winType, highScores.GenerateActorScores(), highScores.gameStatCounterType);
 			}
+			group.blocksRaycasts = true;
 		}
 	}
 
@@ -227,6 +229,7 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 			UnityEngine.Object.Destroy(captureCamera.gameObject);
 		}
 		group.alpha = 0f;
+		group.blocksRaycasts = false;
 		StopAllCoroutines();
 		if (debriefing != null)
 		{
@@ -246,14 +249,9 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 
 	private IEnumerator WaitForFadeOut()
 	{
-		while (MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState != MVGameStateType.PrepareRound)
+		while (MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded && MVGameControllerBase.Game.NetworkGameStateListener.TimeLeftMS > 3000)
 		{
-			debriefing.SetTimerText(string.Empty);
-			yield return 0;
-		}
-		while ((float)MVGameControllerBase.Game.NetworkGameStateListener.TimeLeftMS / 1000f - fadeTime > 0f)
-		{
-			debriefing.SetTimerText((Mathf.Ceil(MVGameControllerBase.Game.NetworkGameStateListener.TimeLeftMS / 1000) + 1f).ToString());
+			debriefing.SetTimerText(MVGameControllerBase.Game.NetworkGameStateListener.CountdownInSeconds.ToString());
 			yield return 0;
 		}
 	}

@@ -507,7 +507,6 @@ public class MVWorldObjectClient : MVWorldObject
 		MVWorldObjectClient mVWorldObjectClient = KoGaMaPackageClient.WorldObjectFactory(dictionary, worldObjects, prototypes);
 		cloneBookkeeping.worldObjectIdsMaps.Add(id, mVWorldObjectClient.id);
 		mVWorldObjectClient.SetNetworkObject(MVGameControllerBase.Game.LocalPlayerActorNumber == ownerActorNumber);
-		mVWorldObjectClient.State = MVWorldObjectState.Synced;
 		MVGameControllerBase.Game.AddCloneToWorldObjects(mVWorldObjectClient);
 		GetLinksForClone(cloneBookkeeping.linkIds);
 		GetObjectLinksForClone(cloneBookkeeping.objectLinkIds);
@@ -553,6 +552,10 @@ public class MVWorldObjectClient : MVWorldObject
 		if (gameObject != null)
 		{
 			Object.Destroy(gameObject);
+		}
+		if (MVGameControllerBase.Game.RuntimeVariableNetworkManager.ContainsRuntimeVariables(id))
+		{
+			MVGameControllerBase.Game.RuntimeVariableNetworkManager.RemoveRuntimeDataVariables(id);
 		}
 	}
 
@@ -651,10 +654,6 @@ public class MVWorldObjectClient : MVWorldObject
 	}
 
 	public virtual void HandleInput(NetworkInputActionCodes actionCode, NetworkInputKeyCodes keyCode)
-	{
-	}
-
-	public virtual void ChangeLOD(float distance)
 	{
 	}
 

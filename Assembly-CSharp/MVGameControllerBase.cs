@@ -83,7 +83,13 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	public static bool LevelingTestMode;
 
 	[SerializeField]
+	private AudioBuild audioBuild;
+
+	[SerializeField]
 	private WaterPlaneManager waterPlanetManager;
+
+	[SerializeField]
+	private SkyboxManager skyboxManager;
 
 	public static bool IsInitialized => isInitialized;
 
@@ -186,6 +192,18 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		}
 	}
 
+	public static SkyboxManager SkyboxManager
+	{
+		get
+		{
+			if (instance.cameraController == null)
+			{
+				throw new NullReferenceException();
+			}
+			return instance.skyboxManager;
+		}
+	}
+
 	public static void PostGameMsg(MVGameMsgType gameMsgType, Dictionary<object, object> gameMsgData)
 	{
 		if (OnReceivedGameMsg != null)
@@ -224,7 +242,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		overrideMaterials = GetComponentInChildren<OverrideMaterials>();
 		timeReward = new TimeReward();
 		CheatHandling.Init();
-		AudioEventHandler.Init();
+		AudioEventHandler.Init(audioBuild);
 		InitUpdateController();
 		UnityEngine.Object.DontDestroyOnLoad(gameObject);
 		Application.runInBackground = true;

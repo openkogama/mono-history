@@ -6,7 +6,7 @@ using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class MVSentryGun : MVLogicObject
+public class MVSentryGun : MVLogicObject, ILogicWorldObject
 {
 	private const float cullingRadius = 2f;
 
@@ -46,6 +46,8 @@ public class MVSentryGun : MVLogicObject
 
 	private bool wasDead;
 
+	public IInputSignalReceiver InputSignalReceiver { get; private set; }
+
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => false;
@@ -59,6 +61,7 @@ public class MVSentryGun : MVLogicObject
 	public MVSentryGun(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVSentryGunPrefab, worldObjects)
 	{
+		interactionFlags |= InteractionFlags.CanResetLogic;
 		gunObject = (MVSentryGunObject)component;
 		gunObject.SentryGunScript.SetLaserRange(laserRange);
 		RaycastIgnoreWorldObjectIds = new HashSet<int> { id };
@@ -68,6 +71,7 @@ public class MVSentryGun : MVLogicObject
 	public override void Initialize()
 	{
 		base.Initialize();
+		InputSignalReceiver = LogicClientsideFactory.CreateStateChangeInputSignalReceiver(this, defaultInput: true, null, null);
 		interactable = GameObject.AddComponent<ClientSideNPCInteractable>();
 		interactable.Init(ReceiveDamage);
 		InitializeCommon();
@@ -86,13 +90,12 @@ public class MVSentryGun : MVLogicObject
 
 	private void OnStateChange(CullingGroupEvent cullingGroupEvent)
 	{
-		bool flag = CullingApiWrapper.Visible(cullingGroupEvent, cullingSubscriberBase.DistanceBandIndex);
+		bool active = CullingApiWrapper.Visible(cullingGroupEvent, cullingSubscriberBase.DistanceBandIndex);
 		if (cullingGroupEvent.currentDistance <= 3)
 		{
-			flag = true;
+			active = true;
 		}
-		gameObject.SetActive(flag);
-		disabledByLod = !flag;
+		gameObject.SetActive(active);
 	}
 
 	public override void Destroy()
@@ -191,7 +194,7 @@ public class MVSentryGun : MVLogicObject
 		{
 			UpdateSentryState();
 		}
-		if ((InputState || InputLinkRefs.Count == 0) && !interactable.IsDead())
+		if (InputSignalReceiver.CurrentlyIsHot && !interactable.IsDead())
 		{
 			if (intervalWithRandomSeed.Update() && MVGameControllerBase.Game.IsPlaying)
 			{
@@ -242,16 +245,9 @@ public class MVSentryGun : MVLogicObject
 					woIdsBeamsMap.Remove(item2);
 				}
 			}
-			if (!disabledByLod)
-			{
-				gunObject.SentryGunScript.UpdateAnimation();
-			}
+			gunObject.SentryGunScript.UpdateAnimation();
 		}
 		DoFrameDelete();
-		if (disabledByLod)
-		{
-			return;
-		}
 		foreach (KeyValuePair<int, SentryGunBeam> item3 in woIdsBeamsMap)
 		{
 			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(item3.Key);
@@ -272,7 +268,6 @@ public class MVSentryGun : MVLogicObject
 			b = 0f;
 		}
 		glowFactor = Mathf.Lerp(glowFactor, b, Time.deltaTime * 2.5f);
-		gunObject.SentryGunScript.SetGlowFactor(glowFactor);
 	}
 
 	private void DoFrameDelete()

@@ -1,13 +1,14 @@
 using System.Collections.Generic;
 using CodeStage.AntiCheat.ObscuredTypes;
-using MV.WorldObject;
 using UnityEngine;
 
-public class MVPressurePlate : MVLogicObject, ITriggerBoxEventsHandler
+public class MVPressurePlate : MVLogicObject, ILogicWorldObject, IIsLogicObjectFiringEventHandler
 {
 	private MVPressurePlateObject plateObject;
 
 	private bool isDown;
+
+	private bool localIsDown;
 
 	private float minY = -0.249f;
 
@@ -17,11 +18,15 @@ public class MVPressurePlate : MVLogicObject, ITriggerBoxEventsHandler
 
 	private UseInteractor useInteractor;
 
+	private OutputSignalTransmitter outputSignalTransmitter;
+
 	public override bool HasInputConnector => false;
 
 	public override bool HasOutputConnector => true;
 
 	public override Vector3 OutputConnectorOffset => new Vector3(2f, 0.25f, 0f);
+
+	public IInputSignalReceiver InputSignalReceiver { get; private set; }
 
 	public override Vector3 WorldPivot => SharedCubeFunctions.GetWorldCenter(transform) + transform.rotation * (0.5f * Vector3.left);
 
@@ -29,6 +34,7 @@ public class MVPressurePlate : MVLogicObject, ITriggerBoxEventsHandler
 		: base(data, PrefabPool.Instance.MVPressurePlatePrefab, worldObjects)
 	{
 		plateObject = (MVPressurePlateObject)component;
+		interactionFlags |= InteractionFlags.CanResetLogic;
 		interactionFlags |= InteractionFlags.HasSettings;
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
 		interactionFlags |= InteractionFlags.CanUseLevel;
@@ -47,6 +53,17 @@ public class MVPressurePlate : MVLogicObject, ITriggerBoxEventsHandler
 		useInteractor.AddRequirement(useRequirement3);
 	}
 
+	public override void Initialize()
+	{
+		base.Initialize();
+		InputSignalReceiver = LogicClientsideFactory.CreateInputSignalReceiver(this, defaultInput: true, Callback);
+		outputSignalTransmitter = new OutputSignalTransmitter(Id);
+		useInteractor.UpdateData(Data);
+		SetVisibility();
+		SetupCulling(plateObject.gameObject);
+		isDown = (ObscuredBool)RunTimeData.GetObscuredType("triggerBoxState");
+	}
+
 	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
 	{
 		Vector3 one = Vector3.one;
@@ -54,20 +71,18 @@ public class MVPressurePlate : MVLogicObject, ITriggerBoxEventsHandler
 		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, one);
 	}
 
-	public override void Initialize()
+	public void OnIsFiringChanged(bool isFiring)
 	{
-		base.Initialize();
-		useInteractor.UpdateData(Data);
-		if (RunTimeData.ContainsObscuredKey("instigator"))
+		isDown = isFiring;
+		if (!isFiring && localIsDown)
 		{
-			ObscuredInt obscuredInt = (ObscuredInt)RunTimeData.GetObscuredType("instigator");
-			if ((int)obscuredInt != 0)
-			{
-				MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, obscuredInt);
-			}
+			localIsDown = false;
 		}
-		SetVisibility();
-		SetupCulling(plateObject.gameObject);
+	}
+
+	private void Callback(bool b, bool wasHot, LogicObjectManager logicObjectManager)
+	{
+		outputSignalTransmitter.Send(isDown);
 	}
 
 	public override void OnDataUpdate()
@@ -78,12 +93,15 @@ public class MVPressurePlate : MVLogicObject, ITriggerBoxEventsHandler
 
 	protected override void OnUpdate()
 	{
-		if (isDown && plateObject.PlateModelTranform.localPosition.y > minY)
+		if (isDown || localIsDown)
 		{
-			float num = Mathf.Min(speed * Time.smoothDeltaTime, plateObject.PlateModelTranform.localPosition.y - minY);
-			plateObject.PlateModelTranform.localPosition = new Vector3(plateObject.PlateModelTranform.localPosition.x, plateObject.PlateModelTranform.localPosition.y - num, plateObject.PlateModelTranform.localPosition.z);
+			if (plateObject.PlateModelTranform.localPosition.y > minY)
+			{
+				float num = Mathf.Min(speed * Time.smoothDeltaTime, plateObject.PlateModelTranform.localPosition.y - minY);
+				plateObject.PlateModelTranform.localPosition = new Vector3(plateObject.PlateModelTranform.localPosition.x, plateObject.PlateModelTranform.localPosition.y - num, plateObject.PlateModelTranform.localPosition.z);
+			}
 		}
-		else if (!isDown && plateObject.PlateModelTranform.localPosition.y < 0f)
+		else if ((!isDown || !localIsDown) && plateObject.PlateModelTranform.localPosition.y < 0f)
 		{
 			float num2 = Mathf.Min(speed * Time.smoothDeltaTime, 0f - plateObject.PlateModelTranform.localPosition.y);
 			plateObject.PlateModelTranform.localPosition = new Vector3(plateObject.PlateModelTranform.localPosition.x, plateObject.PlateModelTranform.localPosition.y + num2, plateObject.PlateModelTranform.localPosition.z);
@@ -104,10 +122,11 @@ public class MVPressurePlate : MVLogicObject, ITriggerBoxEventsHandler
 			if (woIDWithLocalOwnerHighestInHierarchy == -1)
 			{
 				Debug.LogError("Pressure plate entered by object which is not owned locally");
-				return;
 			}
-			DoEnter(woIDWithLocalOwnerHighestInHierarchy);
-			isDown = true;
+			else
+			{
+				DoEnter(woIDWithLocalOwnerHighestInHierarchy);
+			}
 		}
 	}
 
@@ -127,30 +146,13 @@ public class MVPressurePlate : MVLogicObject, ITriggerBoxEventsHandler
 	private bool DoEnter(int instigatorWOID)
 	{
 		MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, instigatorWOID);
+		localIsDown = true;
 		return true;
 	}
 
 	private void DoExit(int instigatorWOID)
 	{
 		MVGameControllerBase.OperationRequests.TriggerBoxExit(Id, instigatorWOID);
-	}
-
-	public void Enter(int actorNr)
-	{
-		foreach (Link outputLinkRef in OutputLinkRefs)
-		{
-			outputLinkRef.isSet = true;
-		}
-		isDown = true;
-	}
-
-	public void Exit()
-	{
-		foreach (Link outputLinkRef in OutputLinkRefs)
-		{
-			outputLinkRef.isSet = false;
-		}
-		isDown = false;
 	}
 
 	public override void Destroy()
@@ -182,17 +184,7 @@ public class MVPressurePlate : MVLogicObject, ITriggerBoxEventsHandler
 		MeshRenderer[] meshRenderers = plateObject.MeshRenderers;
 		for (int i = 0; i < meshRenderers.Length; i++)
 		{
-			meshRenderers[i].enabled = IsVisible() && !disabledByLod;
-		}
-	}
-
-	public override void ChangeLOD(float distance)
-	{
-		bool flag = disabledByLod;
-		base.ChangeLOD(distance);
-		if (flag != disabledByLod)
-		{
-			SetVisibility();
+			meshRenderers[i].enabled = IsVisible();
 		}
 	}
 }

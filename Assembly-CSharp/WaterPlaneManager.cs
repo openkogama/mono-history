@@ -111,7 +111,7 @@ public class WaterPlaneManager : MonoBehaviour
 
 	private void Start()
 	{
-		this.skyboxManager = UnityEngine.Object.FindObjectOfType(typeof(SkyboxManager)) as SkyboxManager;
+		this.skyboxManager = MVGameControllerBase.SkyboxManager;
 		SkyboxManager skyboxManager = this.skyboxManager;
 		skyboxManager.OnSkyboxColorChanged = (SkyboxManager.SkyboxColorChangedDelegate)Delegate.Combine(skyboxManager.OnSkyboxColorChanged, new SkyboxManager.SkyboxColorChangedDelegate(HandleSkyboxColorChanged));
 		underwaterPlane.gameObject.SetActive(value: false);
