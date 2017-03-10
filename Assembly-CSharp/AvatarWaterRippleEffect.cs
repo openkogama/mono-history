@@ -6,7 +6,8 @@ public class AvatarWaterRippleEffect : MonoBehaviour
 
 	public ParticleSystem avatarSplashPrefab;
 
-	[SerializeField]
+	private WaterPlaneManager waterPlane;
+
 	private Avatar avatar;
 
 	private ParticleSystem ripple;
@@ -17,21 +18,34 @@ public class AvatarWaterRippleEffect : MonoBehaviour
 
 	private Vector3 lastRipplePosition;
 
+	public Avatar Avatar
+	{
+		get
+		{
+			if (avatar == null)
+			{
+				avatar = GetComponent<Avatar>();
+			}
+			return avatar;
+		}
+	}
+
 	private void Start()
 	{
+		waterPlane = Object.FindObjectOfType(typeof(WaterPlaneManager)) as WaterPlaneManager;
 		ripple = Object.Instantiate(avatarSplashPrefab, Vector3.zero, Quaternion.identity) as ParticleSystem;
 	}
 
 	private void Update()
 	{
-		if (!MVGameControllerBase.WaterPlaneManager.IsActive)
+		if (!waterPlane.IsActive)
 		{
 			return;
 		}
-		Vector3 position = avatar.transform.position;
-		Vector3 position2 = MVGameControllerBase.WaterPlaneManager.transform.position;
+		Vector3 position = Avatar.transform.position;
+		Vector3 position2 = waterPlane.transform.position;
 		lastRippleTime += Time.deltaTime;
-		float num = MVGameControllerBase.WaterPlaneManager.ComputeAvatarWaterProximity(position);
+		float num = waterPlane.ComputeAvatarWaterProximity(position);
 		if ((previousAvatarWaterProximity <= 0f && num > 0f) || (previousAvatarWaterProximity >= 1f && num < 1f))
 		{
 			previousAvatarWaterProximity = num;

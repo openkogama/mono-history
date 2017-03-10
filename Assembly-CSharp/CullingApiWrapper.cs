@@ -123,6 +123,7 @@ public static class CullingApiWrapper
 	{
 		distances = UpdateDistances(newBaseDistance);
 		cullingGroup.SetBoundingDistances(distances);
+		Debug.Log("camera.farClipPlane " + distances[distances.Length - 1]);
 		camera.farClipPlane = distances[distances.Length - 1] + sizes[sizes.Length - 1];
 	}
 

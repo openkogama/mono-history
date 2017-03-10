@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MVPointLight : MVLogicObject, ILogicWorldObject
+public class MVPointLight : MVLogicObject
 {
 	private MVPointLightObject lightObject;
 
@@ -11,12 +11,9 @@ public class MVPointLight : MVLogicObject, ILogicWorldObject
 
 	public override bool HasOutputConnector => false;
 
-	public IInputSignalReceiver InputSignalReceiver { get; private set; }
-
 	public MVPointLight(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVPointLightPrefab, worldObjects)
 	{
-		interactionFlags |= InteractionFlags.CanResetLogic;
 		interactionFlags |= InteractionFlags.HasSettings;
 		lightObject = (MVPointLightObject)component;
 		lightComponent = lightObject.PointLight;
@@ -28,30 +25,42 @@ public class MVPointLight : MVLogicObject, ILogicWorldObject
 	{
 		base.Initialize();
 		SetupCulling(lightObject.VisualObject);
-		SetLightToData();
-		InputSignalReceiver = LogicClientsideFactory.CreateStateChangeInputSignalReceiver(this, defaultInput: true, null, OnInputStateUpdate);
-		lightComponent.enabled = InputSignalReceiver.CurrentlyIsHot;
-	}
-
-	private void OnInputStateUpdate(LogicInputState logicInputState, LogicObjectManager logicObjectManager)
-	{
-		if (logicInputState == LogicInputState.FromColdToHot)
+		OnDataUpdate();
+		if (InputLinkRefs.Count == 0)
 		{
 			lightComponent.enabled = true;
 		}
-		if (logicInputState == LogicInputState.FromHotToCold)
+		else
+		{
+			OnInputStateChanged();
+		}
+	}
+
+	public override void OnInputLinkChanged()
+	{
+		if (InputLinkRefs.Count == 0)
+		{
+			lightComponent.enabled = true;
+		}
+		else
+		{
+			OnInputStateChanged();
+		}
+	}
+
+	public override void OnInputStateChanged()
+	{
+		if (InputState)
+		{
+			lightComponent.enabled = true;
+		}
+		else
 		{
 			lightComponent.enabled = false;
 		}
 	}
 
 	public override void OnDataUpdate()
-	{
-		SetLightToData();
-		LogicObjectManager.ResetChunk(Id, MVGameControllerBase.WOCM);
-	}
-
-	private void SetLightToData()
 	{
 		if (Data.ContainsKey("color"))
 		{

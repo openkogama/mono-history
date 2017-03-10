@@ -17,6 +17,10 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 
 	private SpawnerObject spawnerObject;
 
+	protected float cullDistance = 145f;
+
+	protected bool disabledByLod;
+
 	public int SpawnWorldObjectID => spawnWorldObjectID;
 
 	public MVWorldObjectSpawnerVehicle(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
@@ -141,6 +145,29 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 			}
 			groundAura.SetActive(value: false);
 			break;
+		}
+	}
+
+	public override void ChangeLOD(float distance)
+	{
+		if (distance < cullDistance)
+		{
+			disabledByLod = false;
+			Renderer[] componentsInChildren = groundAura.GetComponentsInChildren<Renderer>();
+			Renderer[] array = componentsInChildren;
+			foreach (Renderer renderer in array)
+			{
+				renderer.enabled = true;
+			}
+		}
+		else if (!disabledByLod && distance >= cullDistance)
+		{
+			Renderer[] componentsInChildren2 = groundAura.GetComponentsInChildren<Renderer>();
+			Renderer[] array2 = componentsInChildren2;
+			foreach (Renderer renderer2 in array2)
+			{
+				renderer2.enabled = false;
+			}
 		}
 	}
 

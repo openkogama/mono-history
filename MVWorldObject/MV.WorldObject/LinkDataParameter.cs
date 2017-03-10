@@ -4,5 +4,6 @@ public enum LinkDataParameter : byte
 {
 	Id,
 	OutputWOID,
-	InputWOID
+	InputWOID,
+	IsSet
 }

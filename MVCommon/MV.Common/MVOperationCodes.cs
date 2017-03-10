@@ -83,7 +83,6 @@ public enum MVOperationCodes : byte
 	Notification = 78,
 	CloneWorldObjectTreeWithPosition = 79,
 	CloneTempWorldObjectWithOriginalReference = 80,
-	LogicActivateRequest = 81,
 	Join = byte.MaxValue,
 	Leave = 254,
 	RaiseEvent = 253,

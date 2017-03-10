@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
@@ -16,6 +15,8 @@ public abstract class MVWorldObject
 	protected int itemId;
 
 	internal bool inputState;
+
+	private MVWorldObjectState state;
 
 	internal List<Link> outputLinkRefs = new List<Link>();
 
@@ -40,10 +41,6 @@ public abstract class MVWorldObject
 	private Dictionary<object, object> runTimeData = new Dictionary<object, object>();
 
 	private int timestamp;
-
-	public Action<List<Link>> OnInputLinkChanged;
-
-	public Action<List<Link>> OnOutputLinkChanged;
 
 	public int Id => id;
 
@@ -92,6 +89,18 @@ public abstract class MVWorldObject
 		set
 		{
 			previewOwnerProfileId = value;
+		}
+	}
+
+	public MVWorldObjectState State
+	{
+		get
+		{
+			return state;
+		}
+		set
+		{
+			state = value;
 		}
 	}
 
@@ -205,6 +214,14 @@ public abstract class MVWorldObject
 	{
 	}
 
+	public virtual void OnInputLinkChanged()
+	{
+	}
+
+	public virtual void OnOutputLinkChanged()
+	{
+	}
+
 	public virtual void OnObjectLinkChanged()
 	{
 	}
@@ -216,6 +233,7 @@ public abstract class MVWorldObject
 
 	public MVWorldObject()
 	{
+		state = MVWorldObjectState.Created;
 	}
 
 	public MVWorldObject(MVWorldObject wo)
@@ -223,6 +241,7 @@ public abstract class MVWorldObject
 		id = wo.id;
 		groupId = wo.groupId;
 		inputState = wo.inputState;
+		state = wo.state;
 		outputLinkRefs = wo.outputLinkRefs;
 		inputLinkRefs = wo.inputLinkRefs;
 		ownerActorNr = wo.ownerActorNr;
@@ -243,7 +262,7 @@ public abstract class MVWorldObject
 
 	protected void ResetRunTimeData()
 	{
-		RuntimeVariablesRepository.SetupRuntimeVariable(WorldObjectType, RunTimeData);
+		RunTimeData = RuntimeVariablesRepository.GetRuntimeVariables(WorldObjectType);
 	}
 
 	public Dictionary<object, object> DeepCopyWorldObjectDataParameters()
@@ -292,28 +311,47 @@ public abstract class MVWorldObject
 		}
 	}
 
-	public void AddOutputLink(Link link)
+	public bool AddOutputLink(Link link)
 	{
+		if (!HasOutputConnector)
+		{
+			return false;
+		}
+		if (outputLinkRefs.Contains(link))
+		{
+			return false;
+		}
 		outputLinkRefs.Add(link);
 		link.outputWOID = id;
-		if (OnOutputLinkChanged != null)
-		{
-			OnOutputLinkChanged(outputLinkRefs);
-		}
+		SharedLinkFunctions.UpdateOutputLinks(this);
+		SharedLinkFunctions.EvaluateLinks(this);
+		OnOutputLinkChanged();
+		return true;
 	}
 
-	public void AddInputLink(Link link)
+	public bool AddInputLink(Link link)
 	{
+		if (!HasInputConnector)
+		{
+			return false;
+		}
+		if (inputLinkRefs.Contains(link))
+		{
+			return false;
+		}
 		inputLinkRefs.Add(link);
 		link.inputWOID = id;
-		if (OnInputLinkChanged != null)
-		{
-			OnInputLinkChanged(inputLinkRefs);
-		}
+		SharedLinkFunctions.EvaluateLinks(this);
+		OnInputLinkChanged();
+		return true;
 	}
 
 	public bool AddObjectLink(ObjectLink link)
 	{
+		if (GetIndexOfObjectLink(link) != -1)
+		{
+			return false;
+		}
 		objectLinkRefs.Add(link);
 		OnObjectLinkChanged();
 		return true;
@@ -321,18 +359,34 @@ public abstract class MVWorldObject
 
 	public bool RemoveOutputLink(Link link)
 	{
-		bool result = outputLinkRefs.Remove(link);
-		if (OnOutputLinkChanged != null)
+		if (!HasOutputConnector)
 		{
-			OnOutputLinkChanged(outputLinkRefs);
+			return false;
 		}
+		if (!outputLinkRefs.Contains(link))
+		{
+			return false;
+		}
+		bool result = outputLinkRefs.Remove(link);
+		SharedLinkFunctions.UpdateOutputLinks(this);
+		SharedLinkFunctions.EvaluateLinks(this);
+		OnOutputLinkChanged();
 		return result;
 	}
 
 	public bool RemoveInputLink(Link link)
 	{
+		if (!HasInputConnector)
+		{
+			return false;
+		}
+		if (!inputLinkRefs.Contains(link))
+		{
+			return false;
+		}
 		bool result = inputLinkRefs.Remove(link);
-		OnInputLinkChanged(inputLinkRefs);
+		SharedLinkFunctions.EvaluateLinks(this);
+		OnInputLinkChanged();
 		return result;
 	}
 
@@ -348,15 +402,6 @@ public abstract class MVWorldObject
 		return true;
 	}
 
-	public bool ContainObjectLink(ObjectLink link)
-	{
-		if (GetIndexOfObjectLink(link) == -1)
-		{
-			return false;
-		}
-		return true;
-	}
-
 	private int GetIndexOfObjectLink(ObjectLink link)
 	{
 		for (int i = 0; i < objectLinkRefs.Count; i++)
@@ -367,6 +412,33 @@ public abstract class MVWorldObject
 			}
 		}
 		return -1;
+	}
+
+	public bool ValidateLink(Link link)
+	{
+		if (link.inputWOID == Id)
+		{
+			foreach (Link inputLinkRef in inputLinkRefs)
+			{
+				if (inputLinkRef.outputWOID == link.outputWOID)
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+		if (link.outputWOID == Id)
+		{
+			foreach (Link outputLinkRef in outputLinkRefs)
+			{
+				if (outputLinkRef.inputWOID == link.inputWOID)
+				{
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
 	}
 
 	public virtual MVWorldObject ShallowCopy()

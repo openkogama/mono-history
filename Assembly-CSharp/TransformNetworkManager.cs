@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MV.WorldObject;
 using UnityEngine;
 
 public class TransformNetworkManager
@@ -45,20 +46,26 @@ public class TransformNetworkManager
 		if (worldObjectClient == null)
 		{
 			Debug.LogError("Attempt to update world object, but object not registered in world");
-			return;
 		}
-		if (!networkedObjects.ContainsKey(woID))
+		else if (worldObjectClient.State != MVWorldObjectState.Destroyed)
 		{
-			networkedObjects.Add(woID, new MVNetworkListener(worldObjectClient));
+			if (!networkedObjects.ContainsKey(woID))
+			{
+				networkedObjects.Add(woID, new MVNetworkListener(worldObjectClient));
+			}
+			MVNetworkObject mVNetworkObject = networkedObjects[woID];
+			if (mVNetworkObject != null && mVNetworkObject.GetType() == typeof(MVNetworkListener))
+			{
+				(mVNetworkObject as MVNetworkListener).AddTransformPackage(p);
+			}
+			else if (mVNetworkObject != null)
+			{
+				Debug.LogWarning(string.Concat("worldObjectClientManager.WorldObjects[worldObjectID].NetworkObject is ", mVNetworkObject.GetType(), " this is probably due to ownership switching of vehicle"));
+			}
 		}
-		MVNetworkObject mVNetworkObject = networkedObjects[woID];
-		if (mVNetworkObject != null && mVNetworkObject.GetType() == typeof(MVNetworkListener))
+		else
 		{
-			(mVNetworkObject as MVNetworkListener).AddTransformPackage(p);
-		}
-		else if (mVNetworkObject != null)
-		{
-			Debug.LogWarning(string.Concat("worldObjectClientManager.WorldObjects[worldObjectID].NetworkObject is ", mVNetworkObject.GetType(), " this is probably due to ownership switching of vehicle"));
+			Debug.LogWarning("Attempt to update world object, but object in destroyed state");
 		}
 	}
 
@@ -68,7 +75,7 @@ public class TransformNetworkManager
 		foreach (KeyValuePair<int, MVNetworkObject> networkedObject in networkedObjects)
 		{
 			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(networkedObject.Key);
-			if (worldObjectClient != null)
+			if (worldObjectClient.State != MVWorldObjectState.Destroyed)
 			{
 				networkedObject.Value.Update(game);
 				if (networkedObject.Value.RemoveFromUpdate)

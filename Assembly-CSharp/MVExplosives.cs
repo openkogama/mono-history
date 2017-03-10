@@ -3,7 +3,7 @@ using MV.Common;
 using MV.WorldObject.RuntimeEvents;
 using UnityEngine;
 
-public class MVExplosives : MVLogicObject, ILogicWorldObject
+public class MVExplosives(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects) : MVLogicObject(data, PrefabPool.Instance.MVExplosivesPrefab, worldObjects)
 {
 	private float damageRadius = 10f;
 
@@ -15,28 +15,22 @@ public class MVExplosives : MVLogicObject, ILogicWorldObject
 
 	private AudioLogicCube audioLC;
 
+	private bool isInitialized;
+
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => false;
 
-	public IInputSignalReceiver InputSignalReceiver { get; private set; }
-
-	public MVExplosives(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, PrefabPool.Instance.MVExplosivesPrefab, worldObjects)
-	{
-		interactionFlags |= InteractionFlags.CanResetLogic;
-	}
-
 	public override void Initialize()
 	{
 		base.Initialize();
+		isInitialized = true;
 		SetupCulling(((MVExplosivesObject)component).VisualObject);
-		InputSignalReceiver = LogicClientsideFactory.CreateStateChangeInputSignalReceiver(this, defaultInput: false, null, InputStateUpdateCallback);
 	}
 
-	private void InputStateUpdateCallback(LogicInputState logicInputState, LogicObjectManager logicObjectManager)
+	public override void OnInputStateChanged()
 	{
-		if (logicInputState == LogicInputState.FromColdToHot)
+		if (InputState && isInitialized)
 		{
 			Explode();
 		}

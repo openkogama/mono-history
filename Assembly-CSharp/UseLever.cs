@@ -2,25 +2,18 @@ using System;
 using System.Collections.Generic;
 using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
+using MV.WorldObject;
 using UnityEngine;
 
-public class UseLever : MVLogicObject, ILogicWorldObject, IIsLogicObjectFiringEventHandler
+public class UseLever : MVLogicObject, ITriggerBoxEventsHandler
 {
-	private const string beginActivateValueKey = "beginActivated";
-
-	private const string isActivateValueKey = "a";
+	private bool isActivated;
 
 	private UseLeverObject useLeverObject;
 
 	private float minY = -0.25f;
 
 	private float speed = 1.8f;
-
-	private bool requestSend;
-
-	private bool localIsDown;
-
-	private OutputSignalTransmitter outputSignalTransmitter;
 
 	public override bool HasInputConnector => false;
 
@@ -30,22 +23,6 @@ public class UseLever : MVLogicObject, ILogicWorldObject, IIsLogicObjectFiringEv
 
 	public override Vector3 OutputConnectorOffset => new Vector3(2.2f, 0f, 0f);
 
-	private bool BeginActivated => (bool)Data["beginActivated"];
-
-	public IInputSignalReceiver InputSignalReceiver { get; private set; }
-
-	private bool IsActivated
-	{
-		get
-		{
-			return (ObscuredBool)RunTimeData.GetObscuredType("a");
-		}
-		set
-		{
-			RunTimeData.SetObscuredType("a", (ObscuredBool)value);
-		}
-	}
-
 	public UseLever(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.UseLeverPrefab, worldObjects)
 	{
@@ -53,7 +30,6 @@ public class UseLever : MVLogicObject, ILogicWorldObject, IIsLogicObjectFiringEv
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
 		interactionFlags |= InteractionFlags.CanUseLevel;
 		interactionFlags |= InteractionFlags.CanUseStars;
-		interactionFlags |= InteractionFlags.CanResetLogic;
 		useLeverObject = (UseLeverObject)component;
 		useLeverObject.UseInteractor = new UseInteractor(this, useLeverObject.useInteractionRotator, reset: false, useLeverObject.LeverCollider, Use);
 		useLeverObject.TriggerBoxEvents.TriggerEnter += useLeverObject.UseInteractor.triggerBoxEvents_TriggerEnter;
@@ -85,34 +61,29 @@ public class UseLever : MVLogicObject, ILogicWorldObject, IIsLogicObjectFiringEv
 		{
 			OnEditModeChange(new EditModeChangeArgs(state: false));
 		}
+		isActivated = (bool)Data["beginActivated"];
+		if (RunTimeData.ContainsObscuredKey("activated"))
+		{
+			isActivated = (ObscuredBool)RunTimeData.GetObscuredType("activated");
+		}
 		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
 		{
 			transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, 180f, transform.localEulerAngles.z);
 		}
 		useLeverObject.UseInteractor.UpdateData(Data);
+		SetLinks(isActivated);
 		SetupCulling(useLeverObject.VisualRoot);
-		InputSignalReceiver = LogicClientsideFactory.CreateInputSignalReceiver(this, defaultInput: true, SignalCallback);
-		outputSignalTransmitter = new OutputSignalTransmitter(Id);
-		localIsDown = IsActivated;
-	}
-
-	private void SignalCallback(bool b, bool wasHot, LogicObjectManager logicObjectManager)
-	{
-		outputSignalTransmitter.Send(IsActivated);
 	}
 
 	protected override void OnUpdate()
 	{
 		base.OnUpdate();
-		if (localIsDown)
+		if (isActivated && useLeverObject.PlateButtonTransform.localPosition.z > minY)
 		{
-			if (useLeverObject.PlateButtonTransform.localPosition.z > minY)
-			{
-				float num = Mathf.Min(speed * Time.smoothDeltaTime, useLeverObject.PlateButtonTransform.localPosition.z - minY);
-				useLeverObject.PlateButtonTransform.localPosition = new Vector3(useLeverObject.PlateButtonTransform.localPosition.x, useLeverObject.PlateButtonTransform.localPosition.y, useLeverObject.PlateButtonTransform.localPosition.z - num);
-			}
+			float num = Mathf.Min(speed * Time.smoothDeltaTime, useLeverObject.PlateButtonTransform.localPosition.z - minY);
+			useLeverObject.PlateButtonTransform.localPosition = new Vector3(useLeverObject.PlateButtonTransform.localPosition.x, useLeverObject.PlateButtonTransform.localPosition.y, useLeverObject.PlateButtonTransform.localPosition.z - num);
 		}
-		else if (!localIsDown && useLeverObject.PlateButtonTransform.localPosition.z < 0f)
+		else if (!isActivated && useLeverObject.PlateButtonTransform.localPosition.z < 0f)
 		{
 			float num2 = Mathf.Min(speed * Time.smoothDeltaTime, 0f - useLeverObject.PlateButtonTransform.localPosition.z);
 			useLeverObject.PlateButtonTransform.localPosition = new Vector3(useLeverObject.PlateButtonTransform.localPosition.x, useLeverObject.PlateButtonTransform.localPosition.y, useLeverObject.PlateButtonTransform.localPosition.z + num2);
@@ -121,14 +92,35 @@ public class UseLever : MVLogicObject, ILogicWorldObject, IIsLogicObjectFiringEv
 
 	public bool Use(int userWoID)
 	{
-		if (requestSend)
+		isActivated = !isActivated;
+		if (isActivated)
 		{
-			return true;
+			MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, userWoID);
 		}
-		requestSend = true;
-		MVGameControllerBase.OperationRequests.LogicActivateRequest(Id, !IsActivated);
-		localIsDown = !IsActivated;
+		else
+		{
+			MVGameControllerBase.OperationRequests.TriggerBoxExit(Id, userWoID);
+		}
 		return true;
+	}
+
+	public void Exit()
+	{
+		SetLinks(linkFlag: false);
+	}
+
+	public void Enter(int instigatorWoID)
+	{
+		SetLinks(linkFlag: true);
+	}
+
+	private void SetLinks(bool linkFlag)
+	{
+		isActivated = linkFlag;
+		foreach (Link outputLinkRef in OutputLinkRefs)
+		{
+			outputLinkRef.isSet = linkFlag;
+		}
 	}
 
 	public override void InitializeInventory()
@@ -144,15 +136,25 @@ public class UseLever : MVLogicObject, ILogicWorldObject, IIsLogicObjectFiringEv
 
 	public override void Reset()
 	{
-		IsActivated = BeginActivated;
-		requestSend = false;
-		localIsDown = IsActivated;
+		OnDataUpdate();
 	}
 
 	public override void OnDataUpdate()
 	{
+		isActivated = (bool)Data["beginActivated"];
 		useLeverObject.UseInteractor.UpdateData(Data);
-		LogicObjectManager.ResetChunk(Id, MVGameControllerBase.WOCM);
+		MVAvatarLocal avatarLocal = MVGameControllerBase.WOCM.AvatarLocal;
+		if (avatarLocal != null)
+		{
+			if (isActivated)
+			{
+				MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, avatarLocal.Id);
+			}
+			else
+			{
+				MVGameControllerBase.OperationRequests.TriggerBoxExit(Id, avatarLocal.Id);
+			}
+		}
 	}
 
 	public override void Destroy()
@@ -168,6 +170,12 @@ public class UseLever : MVLogicObject, ILogicWorldObject, IIsLogicObjectFiringEv
 		base.Destroy();
 	}
 
+	public override void OnOutputLinkChanged()
+	{
+		base.OnOutputLinkChanged();
+		Reset();
+	}
+
 	public void OnEditModeChange(EditModeChangeArgs arg)
 	{
 		useLeverObject.EditCollider.enabled = true;
@@ -179,10 +187,22 @@ public class UseLever : MVLogicObject, ILogicWorldObject, IIsLogicObjectFiringEv
 		}
 	}
 
-	public void OnIsFiringChanged(bool isFiring)
+	private void SetVisibility()
 	{
-		IsActivated = isFiring;
-		requestSend = false;
-		localIsDown = isFiring;
+		MeshRenderer[] meshRenderers = useLeverObject.MeshRenderers;
+		for (int i = 0; i < meshRenderers.Length; i++)
+		{
+			meshRenderers[i].enabled = !disabledByLod;
+		}
+	}
+
+	public override void ChangeLOD(float distance)
+	{
+		bool flag = disabledByLod;
+		base.ChangeLOD(distance);
+		if (flag != disabledByLod)
+		{
+			SetVisibility();
+		}
 	}
 }

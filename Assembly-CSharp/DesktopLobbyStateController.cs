@@ -2,7 +2,6 @@ using System;
 using MV.Common;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.UI;
 
 public class DesktopLobbyStateController : MonoBehaviour
 {
@@ -35,9 +34,6 @@ public class DesktopLobbyStateController : MonoBehaviour
 
 	[SerializeField]
 	private RewardGenerator rewardGenerator;
-
-	[SerializeField]
-	private Image lobbyStateBlockingOverlay;
 
 	private readonly AccessoryMover accessoryMover = new AccessoryMover();
 
@@ -75,14 +71,6 @@ public class DesktopLobbyStateController : MonoBehaviour
 
 	private void Update()
 	{
-		if (MVGameControllerDesktop.LockCursorManager.LockCursor)
-		{
-			lobbyStateBlockingOverlay.raycastTarget = true;
-		}
-		else
-		{
-			lobbyStateBlockingOverlay.raycastTarget = false;
-		}
 		if (!MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Playing) && respawnButton.gameObject.activeSelf)
 		{
 			respawnButton.gameObject.SetActive(value: false);

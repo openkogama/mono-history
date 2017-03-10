@@ -4,5 +4,6 @@ public enum ObjectLinkDataParameter : byte
 {
 	Id,
 	ObjectLinkConnectorWOID,
-	ObjectWOID
+	ObjectWOID,
+	IsSet
 }

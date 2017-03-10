@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
 
-public class WindTurbine : MVLogicObject, ILogicWorldObject
+public class WindTurbine : MVLogicObject
 {
 	private const float maxWindStrength = 280f;
 
@@ -31,8 +31,6 @@ public class WindTurbine : MVLogicObject, ILogicWorldObject
 
 	public override bool HasOutputConnector => false;
 
-	public IInputSignalReceiver InputSignalReceiver { get; private set; }
-
 	public WindTurbine(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.WindTurbinePrefab, worldObjects)
 	{
@@ -43,7 +41,6 @@ public class WindTurbine : MVLogicObject, ILogicWorldObject
 		Rescale();
 		Rotate();
 		interactionFlags |= InteractionFlags.HasSettings;
-		interactionFlags |= InteractionFlags.CanResetLogic;
 		windTurbineObject.TriggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		windTurbineObject.TriggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
 		affectedBodies = new Dictionary<int, MVRigidBody>();
@@ -59,37 +56,31 @@ public class WindTurbine : MVLogicObject, ILogicWorldObject
 			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Combine(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
 		}
 		UpdateController.AddFixedUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
-		SetData();
+		OnDataUpdate();
 		SetupCulling(windTurbineObject.VisualObject).Radius = 4f;
-		InputSignalReceiver = LogicClientsideFactory.CreateStateChangeInputSignalReceiver(this, defaultInput: true, null, InputStateUpdateCallback);
-		ToggleTurbine(InputSignalReceiver.CurrentlyIsHot);
-	}
-
-	private void InputStateUpdateCallback(LogicInputState logicInputState, LogicObjectManager logicObjectManager)
-	{
-		if (logicInputState == LogicInputState.FromColdToHot)
-		{
-			ToggleTurbine(state: true);
-		}
-		if (logicInputState == LogicInputState.FromHotToCold)
-		{
-			ToggleTurbine(state: false);
-		}
 	}
 
 	public override void OnDataUpdate()
-	{
-		SetData();
-		LogicObjectManager.ResetChunk(Id, MVGameControllerBase.WOCM);
-	}
-
-	private void SetData()
 	{
 		windAreaSize = (float)Data["windSize"];
 		windPitch = (float)Data["windPitch"];
 		windStrength = windAreaSize / 20f * 280f;
 		Rescale();
 		Rotate();
+	}
+
+	public override void OnInputLinkChanged()
+	{
+		ToggleTurbine(state: true);
+		if (InputLinkRefs.Count != 0)
+		{
+			OnInputStateChanged();
+		}
+	}
+
+	public override void OnInputStateChanged()
+	{
+		ToggleTurbine(InputState);
 	}
 
 	public override Bounds GetLocalBounds(BoundsContext boundsContext)
@@ -207,7 +198,6 @@ public class WindTurbine : MVLogicObject, ILogicWorldObject
 
 	public override void Destroy()
 	{
-		Debug.Log("Destroy windTurbine");
 		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
 		{
 			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;

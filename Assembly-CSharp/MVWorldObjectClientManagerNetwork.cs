@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 {
+	private HashSet<int> deleteList = new HashSet<int>();
+
 	public void Cleanup()
 	{
 		foreach (MVWorldObjectClient value in worldObjects.Values)
@@ -29,12 +31,13 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 		foreach (MVWorldObjectClient value in worldObjects.Values)
 		{
 			value.Reset();
-			if (value is ILogicWorldObject)
-			{
-				((ILogicWorldObject)value).InputSignalReceiver.Reset();
-			}
 		}
-		MVGameControllerBase.Game.GameCoinManager.Reset(MVGameControllerBase.Game);
+		if (MVGameControllerBase.Game.IsPlaying)
+		{
+			MVGameControllerBase.Game.LocalPlayer.ResetCheckpoint();
+			MVGameControllerBase.Game.GameCoinManager.Reset(MVGameControllerBase.Game);
+			AvatarLocal.SetMode(AvatarRuntimeState.Hidden);
+		}
 		if (OnResetWorldDone != null)
 		{
 			OnResetWorldDone(this, new EventArgs());
@@ -275,30 +278,62 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 		{
 			((MVGroup)worldObjects[groupId]).TransferChild(item.Id);
 		}
-		DestroyWO(id);
+		SetState(id, MVWorldObjectState.Destroyed);
+		deleteList.Add(id);
 		UnityEngine.Object.Destroy(worldObjects[id].GameObject);
 	}
 
-	public void DestroyWO(int id)
+	public void SetState(int id, MVWorldObjectState state)
 	{
 		if (GetWorldObjectClient(id) is MVGroup)
 		{
 			foreach (MVWorldObjectClient child in ((MVGroup)GetWorldObjectClient(id)).Children)
 			{
-				DestroyWO(child.Id);
+				SetState(child.Id, state);
 			}
 		}
-		DeleteWO(id);
+		GetWorldObjectClient(id).State = state;
+		if (state == MVWorldObjectState.Destroyed)
+		{
+			deleteList.Add(id);
+		}
 	}
 
-	private void DeleteWO(int id)
+	public void Update(MVNetworkGame game)
 	{
-		MVWorldObjectClient worldObjectClient = GetWorldObjectClient(id);
-		worldObjectMapping.RemoveWorldObjectFromTypeSet(worldObjectClient);
-		OnWorldObjectDestroyed(worldObjectClient.Id);
-		worldObjectClient.Destroy();
-		worldObjects.Remove(worldObjectClient.Id);
-		MVGameControllerBase.Game.LogicObjectManager.RemoveLogicObjectFromUpdate(id);
+		HandleDeletedObjects();
+		worldObjectLOD.UpdateLOD();
+	}
+
+	private void HandleDeletedObjects()
+	{
+		foreach (int delete in deleteList)
+		{
+			MVWorldObjectClient worldObjectClient = GetWorldObjectClient(delete);
+			worldObjectMapping.RemoveWorldObjectFromTypeSet(worldObjectClient);
+			OnUnregisterCleanUpLinks(worldObjectClient);
+			OnWorldObjectDestroyed(worldObjectClient.Id);
+			worldObjectClient.Destroy();
+			worldObjects.Remove(worldObjectClient.Id);
+		}
+		deleteList.Clear();
+	}
+
+	private void OnUnregisterCleanUpLinks(MVWorldObjectClient wo)
+	{
+		List<Link> list = new List<Link>();
+		foreach (Link inputLinkRef in wo.InputLinkRefs)
+		{
+			list.Add(inputLinkRef);
+		}
+		foreach (Link outputLinkRef in wo.OutputLinkRefs)
+		{
+			list.Add(outputLinkRef);
+		}
+		foreach (Link item in list)
+		{
+			MVGameControllerBase.Game.World.RemoveLink(item.id);
+		}
 	}
 
 	public void OnWorldObjectDestroyed(int woID)
@@ -334,6 +369,7 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 			Debug.LogError("Key already in WorldObjects dictionary");
 			return;
 		}
+		worldObjectLOD.AddWorldObjectToLOD(wo.Id);
 		worldObjects.Add(wo.Id, wo);
 		worldObjectMapping.AddWorldObjectToTypeSet(wo);
 		Type type = wo.GetType();
@@ -372,5 +408,6 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 			}
 		}
 		AddToWorldObjects(mVWorldObjectClient);
+		mVWorldObjectClient.State = MVWorldObjectState.Synced;
 	}
 }

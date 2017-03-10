@@ -4,7 +4,7 @@ using System.Linq;
 using MV.Common;
 using UnityEngine;
 
-public class MVSoundEmitter : MVLogicObject, ILogicWorldObject
+public class MVSoundEmitter : MVLogicObject
 {
 	private string currentUrl = string.Empty;
 
@@ -18,12 +18,9 @@ public class MVSoundEmitter : MVLogicObject, ILogicWorldObject
 
 	public override bool HasOutputConnector => false;
 
-	public IInputSignalReceiver InputSignalReceiver { get; private set; }
-
 	public MVSoundEmitter(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVSoundEmitterPrefab, worldObjects)
 	{
-		interactionFlags |= InteractionFlags.CanResetLogic;
 		interactionFlags |= InteractionFlags.HasSettings | InteractionFlags.Sounds;
 		soundEmitterObject = (SoundEmitterObject)component;
 	}
@@ -32,58 +29,38 @@ public class MVSoundEmitter : MVLogicObject, ILogicWorldObject
 	{
 		base.Initialize();
 		SetupCulling(soundEmitterObject.VisualObject);
-		InputSignalReceiver = LogicClientsideFactory.CreateStateChangeInputSignalReceiver(this, defaultInput: true, null, InputStateUpdateCallback);
-		InitializeData();
-		if (((string)Data["url"]).Length > 0)
+		if (!Data.ContainsKey("url") || Data["url"].ToString().StartsWith("file://"))
 		{
-			LoadSound();
-		}
-	}
-
-	public override void OnDataUpdate()
-	{
-		LogicObjectManager.ResetChunk(Id, MVGameControllerBase.WOCM);
-	}
-
-	public override void Reset()
-	{
-		base.Reset();
-		LoadSound();
-	}
-
-	private void InitializeData()
-	{
-		if (Data.ContainsKey("url") && !Data["url"].ToString().StartsWith("file://"))
-		{
-			return;
-		}
-		StreamingAssetInfo streamingAssetInfo = null;
-		foreach (StreamingAssetInfo value in MVGameControllerBase.Game.StreamingAssetInfoMap.Values)
-		{
-			if (value.StreamedAssetType == StreamingAssetType.AmbientAudio && value.ShopInfo.PriceGold == 0)
+			StreamingAssetInfo streamingAssetInfo = null;
+			foreach (StreamingAssetInfo value in MVGameControllerBase.Game.StreamingAssetInfoMap.Values)
 			{
-				streamingAssetInfo = value;
-				break;
+				if (value.StreamedAssetType == StreamingAssetType.AmbientAudio && value.ShopInfo.PriceGold == 0)
+				{
+					streamingAssetInfo = value;
+					break;
+				}
 			}
-		}
-		if (streamingAssetInfo != null)
-		{
+			if (streamingAssetInfo == null)
+			{
+				Data["name"] = "ForestBirds";
+				Data["id"] = 1;
+				Data["url"] = "AmbientAudio/Nature/kgm_amb_forest.unity3d";
+				Debug.LogError("Failed to get default streaming inventory data");
+				return;
+			}
 			Data["name"] = streamingAssetInfo.Name;
 			Data["id"] = streamingAssetInfo.ProductID;
 			Data["url"] = streamingAssetInfo.AssetPath;
 		}
-		else
+		if (((string)Data["url"]).Length > 0)
 		{
-			Data["name"] = "ForestBirds";
-			Data["id"] = 1;
-			Data["url"] = "AmbientAudio/Nature/kgm_amb_forest.unity3d";
-			Debug.LogError("Failed to get default streaming inventory data");
+			OnDataUpdate();
 		}
 	}
 
-	private void InputStateUpdateCallback(LogicInputState logicInputState, LogicObjectManager logicObjectManager)
+	public override void OnInputStateChanged()
 	{
-		if (logicInputState != LogicInputState.Cold && logicInputState != LogicInputState.Hot && currentSrc != null)
+		if (currentSrc != null)
 		{
 			if (ShouldPlay() && !currentSrc.isPlaying)
 			{
@@ -96,7 +73,12 @@ public class MVSoundEmitter : MVLogicObject, ILogicWorldObject
 		}
 	}
 
-	private void LoadSound()
+	public override void OnInputLinkChanged()
+	{
+		OnInputStateChanged();
+	}
+
+	public override void OnDataUpdate()
 	{
 		if ((string)Data["url"] != currentUrl)
 		{
@@ -118,7 +100,7 @@ public class MVSoundEmitter : MVLogicObject, ILogicWorldObject
 		}
 	}
 
-	private void StreamingAssetCallback(WWW www, UnityEngine.Object mainAsset)
+	public void StreamingAssetCallback(WWW www, UnityEngine.Object mainAsset)
 	{
 		try
 		{
@@ -204,11 +186,11 @@ public class MVSoundEmitter : MVLogicObject, ILogicWorldObject
 		{
 			return false;
 		}
-		if (InputSignalReceiver.CurrentlyIsHot)
+		if (InputLinkRefs.Count == 0)
 		{
 			return true;
 		}
-		return false;
+		return InputState;
 	}
 
 	private void StopAndDestroySound()

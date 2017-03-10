@@ -173,9 +173,6 @@ public class MVCameraController : MonoBehaviour
 	[SerializeField]
 	private AudioSource plingSound;
 
-	[SerializeField]
-	private LineDrawManager lineDrawManager;
-
 	private bool blueModeEnabled;
 
 	private static float baseVolume = 0f;
@@ -185,8 +182,6 @@ public class MVCameraController : MonoBehaviour
 	public static Action<bool> OnMuteChange;
 
 	public AvatarCameraFade AvatarCameraFade => avatarCameraFade;
-
-	public LineDrawManager LineDrawManager => lineDrawManager;
 
 	public Camera MainCamera => mainCamera;
 

@@ -34,9 +34,9 @@ public static class AudioEventHandler
 		}
 	}
 
-	public static void Init(AudioBuild audioBuild)
+	public static void Init()
 	{
-		AudioEventHandler.audioBuild = audioBuild;
+		audioBuild = Object.FindObjectOfType(typeof(AudioBuild)) as AudioBuild;
 	}
 
 	public static void AddTranslateSoundData(float moveValue, bool moveToGridPos, Vector3 worldPos)

@@ -23,8 +23,8 @@ public class JsonPacket
 	[JsonProperty(PropertyName = "culprit", NullValueHandling = NullValueHandling.Ignore)]
 	public string Culprit { get; set; }
 
-	[JsonProperty(PropertyName = "level", NullValueHandling = NullValueHandling.Ignore)]
 	[JsonConverter(typeof(StringEnumConverter))]
+	[JsonProperty(PropertyName = "level", NullValueHandling = NullValueHandling.Ignore)]
 	public ErrorLevel Level { get; set; }
 
 	[JsonProperty(PropertyName = "timestamp", NullValueHandling = NullValueHandling.Ignore)]

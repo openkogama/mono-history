@@ -6,12 +6,8 @@ using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class CollectTheItemDropOff : MVBlueprintBase, ILogicWorldObject
+public class CollectTheItemDropOff : MVBlueprintBase, ITriggerBoxEventsHandler
 {
-	private const string isActiveKey = "isActive";
-
-	private const string doOnce = "doOnce";
-
 	private EditableCubeModelWrapper editableCubeModelWrapper;
 
 	private CollectTheItemDropOffObject triggerObject;
@@ -20,17 +16,19 @@ public class CollectTheItemDropOff : MVBlueprintBase, ILogicWorldObject
 
 	private CollectTheItem controller;
 
+	private readonly string isActive = "isActive";
+
+	private readonly string doOnceString = "doOnce";
+
 	private ObscuredIntVector minBounds = new ObscuredIntVector(-5, -4, -6);
 
 	private ObscuredIntVector maxBounds = new ObscuredIntVector(7, 8, 6);
 
 	private ObscuredInt minCubes = 10;
 
-	private OutputSignalTransmitter outputSignalTransmitter;
-
 	public Action<bool> OnPickupCollected;
 
-	private bool sendSignal;
+	private bool doOnce;
 
 	public override bool HasOutputConnector => true;
 
@@ -38,11 +36,7 @@ public class CollectTheItemDropOff : MVBlueprintBase, ILogicWorldObject
 
 	public override Vector3 OutputConnectorOffset => new Vector3(3.5f, 0f, 0f);
 
-	public IInputSignalReceiver InputSignalReceiver { get; private set; }
-
-	public bool IsActive => (ObscuredBool)RunTimeData.GetObscuredType("isActive");
-
-	public bool DoOnce => (bool)blueprintData["doOnce"];
+	public bool DoOnce => (bool)blueprintData[doOnceString];
 
 	public CollectTheItemDropOff(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.CollectTheItemDropOffPrefab, worldObjects)
@@ -72,6 +66,7 @@ public class CollectTheItemDropOff : MVBlueprintBase, ILogicWorldObject
 		editableCubeModelWrapper = new EditableCubeModelWrapper(mVCubeModelInstance, new IntVector(minBounds.x, minBounds.y, minBounds.z), new IntVector(maxBounds.x, maxBounds.y, maxBounds.z), minCubes);
 		triggerObject.Blinker.MeshFilters = mVCubeModelInstance.GameObject.GetComponentsInChildren<MeshFilter>();
 		triggerObject.Blinker.Visible = true;
+		doOnce = DoOnce;
 		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
 		{
 			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
@@ -79,19 +74,11 @@ public class CollectTheItemDropOff : MVBlueprintBase, ILogicWorldObject
 			triggerObject.GreyOutScript.InitializeOriginalMaterials();
 			editableCubeModelWrapper.CubeModel.BeingEditedChanged += OnChunkEditReset;
 		}
-		if (DoOnce)
+		if (doOnce && RunTimeData.ContainsObscuredKey(isActive))
 		{
-			OnPickupCollected(IsActive);
+			OnPickupCollected((ObscuredBool)RunTimeData.GetObscuredType(isActive));
 		}
 		SetupCulling();
-		InputSignalReceiver = LogicClientsideFactory.CreateInputSignalReceiver(this, defaultInput: false, SignalCallback);
-		outputSignalTransmitter = new OutputSignalTransmitter(Id);
-	}
-
-	private void SignalCallback(bool b, bool wasHot, LogicObjectManager logicObjectManager)
-	{
-		outputSignalTransmitter.Send(sendSignal);
-		sendSignal = false;
 	}
 
 	private void OnChunkEditReset(object sender, EditStateEventArgs args)
@@ -101,6 +88,8 @@ public class CollectTheItemDropOff : MVBlueprintBase, ILogicWorldObject
 
 	public void ReInitializeVisuals()
 	{
+		MVGameControllerBase.OperationRequests.ResetLogicChunk(Id);
+		Reset();
 		triggerObject.GreyOutScript.InitializeOriginalMaterials();
 		triggerObject.Blinker.MeshFilters = editableCubeModelWrapper.CubeModel.GameObject.GetComponentsInChildren<MeshFilter>();
 	}
@@ -160,25 +149,36 @@ public class CollectTheItemDropOff : MVBlueprintBase, ILogicWorldObject
 
 	public override void OnDataUpdate()
 	{
-		LogicObjectManager.ResetChunk(Id, MVGameControllerBase.WOCM);
+		doOnce = DoOnce;
+		Reset();
+		MVGameControllerBase.OperationRequests.ResetLogicChunk(Id);
 	}
 
-	public void DropWoId(int instigatorWoID)
+	public void Exit()
 	{
-		sendSignal = true;
-		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(instigatorWoID);
+		SetLinks(isSet: false);
+	}
+
+	public void Enter(int instigatorWOID)
+	{
+		SetLinks(isSet: true);
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(instigatorWOID);
 		if (worldObjectClient == null)
 		{
 			return;
 		}
-		int woIDWithLocalOwnerHighestInHierarchy = MVGameControllerBase.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(instigatorWoID);
-		if (woIDWithLocalOwnerHighestInHierarchy == -1)
+		int woIDWithLocalOwnerHighestInHierarchy = MVGameControllerBase.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(instigatorWOID);
+		if (woIDWithLocalOwnerHighestInHierarchy != -1)
+		{
+			MVGameControllerBase.OperationRequests.TriggerBoxExit(Id, instigatorWOID);
+		}
+		else
 		{
 			ParticleSystem particleSystem = UnityEngine.Object.Instantiate(PrefabPool.Instance.CollectTheItemParticles);
 			particleSystem.transform.position = worldObjectClient.Transform.position;
 			if (OnPickupCollected != null)
 			{
-				OnPickupCollected(!DoOnce);
+				OnPickupCollected(!doOnce);
 			}
 		}
 		MVEquipable mVEquipable = worldObjectClient.GameObject.GetComponent<MVEquipable>();
@@ -200,7 +200,7 @@ public class CollectTheItemDropOff : MVBlueprintBase, ILogicWorldObject
 			particleSystem2.transform.position = pickupItemCollectTheItem.transform.position;
 			if (OnPickupCollected != null)
 			{
-				OnPickupCollected(!DoOnce);
+				OnPickupCollected(!doOnce);
 			}
 		}
 	}
@@ -222,6 +222,14 @@ public class CollectTheItemDropOff : MVBlueprintBase, ILogicWorldObject
 				pickupItemCollectTheItem.SetShouldSpawnInstanceOnUnequip(shouldSpawnInstance: false);
 				MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, e.instigatorWOID);
 			}
+		}
+	}
+
+	private void SetLinks(bool isSet)
+	{
+		foreach (Link outputLinkRef in OutputLinkRefs)
+		{
+			outputLinkRef.isSet = isSet;
 		}
 	}
 

@@ -1,3 +1,4 @@
+using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -5,32 +6,9 @@ public class CEEditBodyUUI : ESStateBase
 {
 	private ConstraintVisualizer constraintVisualizer;
 
+	private MVCubeModelInstance targetCubeModel;
+
 	private IWorldObjectWithModelingConstraint modelBody;
-
-	private int targetCubeModelId = -1;
-
-	private MVCubeModelInstance TargetCubeModel
-	{
-		get
-		{
-			if (targetCubeModelId == -1)
-			{
-				return null;
-			}
-			return (MVCubeModelInstance)MVGameControllerBase.WOCM.GetWorldObjectClient(targetCubeModelId);
-		}
-		set
-		{
-			if (value != null)
-			{
-				targetCubeModelId = value.Id;
-			}
-			else
-			{
-				targetCubeModelId = -1;
-			}
-		}
-	}
 
 	public override void Enter(EditorStateMachine esm)
 	{
@@ -42,28 +20,28 @@ public class CEEditBodyUUI : ESStateBase
 			x.Set(ActiveEditStateUI.CubeModelTools);
 		});
 		tintedWo = null;
-		TargetCubeModel = (MVCubeModelInstance)esm.SingleSelectedWO;
-		modelBody = (IWorldObjectWithModelingConstraint)MVGameControllerBase.WOCM.GetWorldObjectClient(TargetCubeModel.GroupId);
+		targetCubeModel = (MVCubeModelInstance)esm.SingleSelectedWO;
+		modelBody = (IWorldObjectWithModelingConstraint)MVGameControllerBase.WOCM.GetWorldObjectClient(targetCubeModel.GroupId);
 		if (!esm.ParentGroupIsRoot)
 		{
 			SharedCubeFunctions.SetLayerRecursively(esm.ParentGroup.Transform, select: false);
 		}
 		SharedCubeFunctions.SetLayerRecursively(MVGameControllerBase.WOCM.AvatarLocal.Transform, select: false);
-		SharedCubeFunctions.SetLayerRecursively(TargetCubeModel.Transform, select: true);
+		SharedCubeFunctions.SetLayerRecursively(targetCubeModel.Transform, select: true);
 		esm.CameraController.BlueModeEnabled = true;
-		DrawPlane.DrawPlaneToModel(TargetCubeModel.GameObject);
+		DrawPlane.DrawPlaneToModel(targetCubeModel.GameObject);
 		((MVAvatarLocal.JetPackMode)MVGameControllerBase.WOCM.AvatarLocal.CurrentMode).ModifySpeed(0.25f, 0.25f);
-		IModelingConstraint modelConstaint = modelBody.GetModelConstaint(TargetCubeModel);
+		IModelingConstraint modelConstaint = modelBody.GetModelConstaint(targetCubeModel);
 		GameObject gameObject = new GameObject("constrainVisualizer");
 		constraintVisualizer = gameObject.AddComponent<ConstraintVisualizer>();
-		constraintVisualizer.Init(TargetCubeModel, modelConstaint);
-		esm.CubeModelingStateMachine.StartEdit(TargetCubeModel, modelConstaint);
+		constraintVisualizer.Init(targetCubeModel, modelConstaint);
+		esm.CubeModelingStateMachine.StartEdit(targetCubeModel, modelConstaint);
 	}
 
 	public override void Execute(EditorStateMachine esm)
 	{
 		base.Execute(esm);
-		if (TargetCubeModel == null)
+		if (targetCubeModel == null || targetCubeModel.State == MVWorldObjectState.Destroyed)
 		{
 			esm.Event = EditorEvent.CERoamUUI;
 		}
@@ -88,7 +66,7 @@ public class CEEditBodyUUI : ESStateBase
 		}
 		else
 		{
-			SharedCubeFunctions.SetLayerRecursively(TargetCubeModel.Transform, select: false);
+			SharedCubeFunctions.SetLayerRecursively(targetCubeModel.Transform, select: false);
 			esm.CameraController.BlueModeEnabled = false;
 		}
 		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.Idle);

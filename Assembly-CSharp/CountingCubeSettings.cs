@@ -39,6 +39,7 @@ public class CountingCubeSettings : MonoBehaviour, IEventSystemHandler, IHandleS
 
 	public void OnSettingChanged(string key, object value)
 	{
+		Debug.Log("DE: Received value!");
 		if (key == "startingValue")
 		{
 			settingsBase.OnSettingChanged(key, Convert.ToInt32(value));

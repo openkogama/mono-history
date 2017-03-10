@@ -1,4 +1,5 @@
 using MV.Common;
+using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -8,32 +9,9 @@ internal class ESCubeEdit : ESStateBase
 
 	private ConstraintVisualizer constraintVisualizer;
 
-	private int targetCubeModelId = -1;
+	private MVCubeModelBase targetCubeModel;
 
 	private bool exiting;
-
-	private MVCubeModelBase TargetCubeModel
-	{
-		get
-		{
-			if (targetCubeModelId == -1)
-			{
-				return null;
-			}
-			return (MVCubeModelBase)MVGameControllerBase.WOCM.GetWorldObjectClient(targetCubeModelId);
-		}
-		set
-		{
-			if (value != null)
-			{
-				targetCubeModelId = value.Id;
-			}
-			else
-			{
-				targetCubeModelId = -1;
-			}
-		}
-	}
 
 	public override void Enter(EditorStateMachine e)
 	{
@@ -57,31 +35,31 @@ internal class ESCubeEdit : ESStateBase
 			handler.Open(Exit);
 		});
 		tintedWo = null;
-		TargetCubeModel = (MVCubeModelBase)e.SingleSelectedWO;
+		targetCubeModel = (MVCubeModelBase)e.SingleSelectedWO;
 		e.DeSelectAll();
-		constraint = TargetCubeModel.ModelingConstraintBuilder();
+		constraint = targetCubeModel.ModelingConstraintBuilder();
 		GameObject gameObject = new GameObject("ConstrainVisualizer");
 		constraintVisualizer = gameObject.AddComponent<ConstraintVisualizer>();
-		constraintVisualizer.Init(TargetCubeModel, constraint);
-		if (TargetCubeModel.HasInteractionFlag(InteractionFlags.IsPreview))
+		constraintVisualizer.Init(targetCubeModel, constraint);
+		if (targetCubeModel.HasInteractionFlag(InteractionFlags.IsPreview))
 		{
-			TargetCubeModel.RemovePreviewBox();
+			targetCubeModel.RemovePreviewBox();
 		}
 		if (!e.ParentGroupIsRoot)
 		{
 			SharedCubeFunctions.SetLayerRecursively(MVGameControllerBase.WOCM.GetWorldObjectClient(e.ParentGroupID).Transform, select: false);
 		}
-		SharedCubeFunctions.SetLayerRecursively(TargetCubeModel.Transform, select: true);
-		DrawPlane.DrawPlaneToModel(TargetCubeModel.GameObject);
-		e.CubeModelingStateMachine.StartEdit(TargetCubeModel, constraint);
-		MVGameControllerBase.CameraController.CurCamera.FocusOnObject(TargetCubeModel);
+		SharedCubeFunctions.SetLayerRecursively(targetCubeModel.Transform, select: true);
+		DrawPlane.DrawPlaneToModel(targetCubeModel.GameObject);
+		e.CubeModelingStateMachine.StartEdit(targetCubeModel, constraint);
+		MVGameControllerBase.CameraController.CurCamera.FocusOnObject(targetCubeModel);
 		e.CameraController.BlueModeEnabled = true;
 	}
 
 	public override void Execute(EditorStateMachine e)
 	{
 		base.Execute(e);
-		exiting = exiting || TargetCubeModel == null;
+		exiting = exiting || targetCubeModel == null || targetCubeModel.State == MVWorldObjectState.Destroyed;
 		if (exiting)
 		{
 			Debug.Log("Exit cube edit, parentGroup: " + e.ParentGroup);
@@ -108,7 +86,7 @@ internal class ESCubeEdit : ESStateBase
 		else
 		{
 			e.CubeModelingStateMachine.Update();
-			if (!TargetCubeModel.ContainsCubes)
+			if (!targetCubeModel.ContainsCubes)
 			{
 				Debug.LogWarning("This prototype is empty and should be deleted");
 				e.Event = EditorEvent.ESTerrainEdit;
@@ -124,22 +102,22 @@ internal class ESCubeEdit : ESStateBase
 		{
 			handler.PopToBottom();
 		});
-		if (TargetCubeModel.GameObject == null)
+		if (targetCubeModel.GameObject == null)
 		{
 			Debug.LogWarning("Implement: Create drawplane");
 			e.CameraController.BlueModeEnabled = false;
 		}
 		else
 		{
-			if (TargetCubeModel.HasInteractionFlag(InteractionFlags.IsPreview))
+			if (targetCubeModel.HasInteractionFlag(InteractionFlags.IsPreview))
 			{
-				TargetCubeModel.AddPreviewBox();
+				targetCubeModel.AddPreviewBox();
 			}
 			if (!e.ParentGroupIsRoot)
 			{
 				SharedCubeFunctions.SetLayerRecursively(MVGameControllerBase.WOCM.GetWorldObjectClient(e.ParentGroupID).Transform, select: false);
 			}
-			SharedCubeFunctions.SetLayerRecursively(TargetCubeModel.Transform, select: false);
+			SharedCubeFunctions.SetLayerRecursively(targetCubeModel.Transform, select: false);
 			e.CameraController.BlueModeEnabled = false;
 		}
 		DrawPlane.ReturnDrawPlaneToLandscape();

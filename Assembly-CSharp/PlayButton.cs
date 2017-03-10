@@ -1,12 +1,14 @@
-public class PlayButton : PlayButtonBase
+using MV.Common;
+using UnityEngine;
+
+public class PlayButton : MonoBehaviour
 {
 	public void Play()
 	{
-		MVGameControllerDesktop.LockCursorManager.LockCursor = true;
-	}
-
-	private void Update()
-	{
-		UpdateButton();
+		MVGameControllerBase.IPlayModeUI.InLobbyState = false;
+		if (MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Hidden))
+		{
+			MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Playing);
+		}
 	}
 }

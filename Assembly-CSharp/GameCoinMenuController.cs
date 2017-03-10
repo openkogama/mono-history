@@ -111,7 +111,7 @@ public class GameCoinMenuController : MonoBehaviour
 	{
 		if (success)
 		{
-			int boostLeft = (int)result[(byte)179];
+			int boostLeft = (int)result[(byte)180];
 			MVGameControllerBase.Game.GameCoinManager.OnGameBoostChanged(boostLeft, boostEnabled: false);
 		}
 	}

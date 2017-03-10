@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using MV.Common;
 
 namespace MV.WorldObject;
 
@@ -40,11 +39,6 @@ public static class RuntimeVariablesRepository
 			GodzillaTriggerRuntimeData()
 		}
 	};
-
-	public static void SetupRuntimeVariable(WorldObjectType worldObjectType, Dictionary<object, object> targetRuntimeVariables)
-	{
-		CommonUtils.PartialUpdateHashtable(targetRuntimeVariables, GetRuntimeVariables(worldObjectType));
-	}
 
 	public static Dictionary<object, object> GetRuntimeVariables(WorldObjectType worldObjectType)
 	{

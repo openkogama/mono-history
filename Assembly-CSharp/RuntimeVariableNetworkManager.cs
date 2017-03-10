@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MV.WorldObject;
 using UnityEngine;
 
 public class RuntimeVariableNetworkManager
@@ -55,11 +56,15 @@ public class RuntimeVariableNetworkManager
 			Debug.LogError("Attempt to update world object, but object not registered in world");
 			return true;
 		}
-		Dictionary<object, object> dictionary = wo.RuntimeDataVariables.Send();
-		if (dictionary.Count > 0)
+		if (wo.State != MVWorldObjectState.Destroyed)
 		{
-			MVGameControllerBase.OperationRequests.UpdateWorldObjectRunTimeData(wo.Id, dictionary);
+			Dictionary<object, object> dictionary = wo.RuntimeDataVariables.Send();
+			if (dictionary.Count > 0)
+			{
+				MVGameControllerBase.OperationRequests.UpdateWorldObjectRunTimeData(wo.Id, dictionary);
+			}
+			return false;
 		}
-		return false;
+		return true;
 	}
 }

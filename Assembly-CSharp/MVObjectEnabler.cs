@@ -1,10 +1,8 @@
 using System.Collections.Generic;
 using MV.WorldObject;
 
-public class MVObjectEnabler : MVLogicObject, ILogicWorldObject
+public class MVObjectEnabler : MVLogicObject
 {
-	private bool isInitialized;
-
 	private ObjectEnabler goObjectEnabler;
 
 	private bool showingOutline = true;
@@ -15,17 +13,19 @@ public class MVObjectEnabler : MVLogicObject, ILogicWorldObject
 
 	public override bool HasObjectConnector => true;
 
-	public IInputSignalReceiver InputSignalReceiver { get; private set; }
-
 	public bool ShowingOutline => showingOutline;
 
 	public MVObjectEnabler(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVObjectEnablerPrefab, worldObjects)
 	{
-		interactionFlags |= InteractionFlags.CanResetLogic;
 		interactionFlags |= InteractionFlags.HasSettings;
 		goObjectEnabler = ((MVObjectEnablerObject)component).ObjectEnabler;
 		goObjectEnabler.woObjectEnabler = this;
+		OnDataUpdate();
+	}
+
+	public static void BuildSettingsDialog()
+	{
 	}
 
 	public override bool ValidateObjectLinkTarget(MVWorldObjectClient wo)
@@ -36,50 +36,44 @@ public class MVObjectEnabler : MVLogicObject, ILogicWorldObject
 	public override void Initialize()
 	{
 		base.Initialize();
-		InputSignalReceiver = LogicClientsideFactory.CreateStateChangeInputSignalReceiver(this, defaultInput: true, null, InputStateUpdateCallback);
-		OnDataUpdate();
-		UpdateShowObjects();
+		OnInputStateChanged();
 		SetupCulling(goObjectEnabler.gameObject);
 		goObjectEnabler.Initialize();
-		isInitialized = true;
-	}
-
-	private void InputStateUpdateCallback(LogicInputState logicInputState, LogicObjectManager logicObjectManager)
-	{
-		if (logicInputState == LogicInputState.FromColdToHot || logicInputState == LogicInputState.FromHotToCold)
-		{
-			UpdateShowObjects();
-		}
 	}
 
 	public override void PlayModeInitialize()
 	{
-		UpdateShowObjects();
+		OnInputStateChanged();
 	}
 
 	public override void Reset()
 	{
-		UpdateShowObjects();
+		OnInputStateChanged();
 	}
 
-	private void UpdateShowObjects()
+	public override void OnInputLinkChanged()
 	{
-		bool currentlyIsHot = InputSignalReceiver.CurrentlyIsHot;
-		ShowObjects(currentlyIsHot);
-		goObjectEnabler.IsDrawingEnabled = currentlyIsHot;
+		OnInputStateChanged();
+	}
+
+	public override void OnInputStateChanged()
+	{
+		bool flag = InputLinkRefs.Count == 0 || InputState;
+		ShowObjects(flag);
+		goObjectEnabler.IsDrawingEnabled = flag;
 	}
 
 	public override void OnObjectLinkChanged()
 	{
-		if (isInitialized)
-		{
-			UpdateShowObjects();
-		}
+		OnInputStateChanged();
 	}
 
 	public override void OnDataUpdate()
 	{
-		showingOutline = (bool)Data["showOutline"];
+		if (Data.ContainsKey("showOutline"))
+		{
+			showingOutline = (bool)Data["showOutline"];
+		}
 	}
 
 	private void ShowObjects(bool visible)

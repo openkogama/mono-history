@@ -24,13 +24,13 @@ internal class ESSelection : ESStateBase
 
 	private EditorStateMachine editorStateMachine;
 
-	private LinkObjectBase selectedLinkObject;
+	private LinkObjectScript selectedLinkObject;
 
 	private MVWorldObjectClient selectedWorldObject;
 
 	private PickResult<MVWorldObjectClient> pickedTarget;
 
-	private PickResult<LinkObjectBase> pickedLink;
+	private PickResult<LinkObjectScript> pickedLink;
 
 	private ContextMenuController contextMenuController;
 
@@ -92,8 +92,8 @@ internal class ESSelection : ESStateBase
 			pickedTarget = new PickResult<MVWorldObjectClient>(MVInputWrapper.GetPointerPosition(), hit, MVGameControllerBase.WOCM.GetWorldObjectClient(hit.woId));
 			selectedWorldObject = e.SingleSelectedWO;
 		}
-		LinkObjectBase linkHit = GetLinkHit(e, ref hit);
-		pickedLink = ((!(linkHit != null)) ? null : new PickResult<LinkObjectBase>(MVInputWrapper.GetPointerPosition(), hit, linkHit));
+		LinkObjectScript linkHit = GetLinkHit(e, ref hit);
+		pickedLink = ((!(linkHit != null)) ? null : new PickResult<LinkObjectScript>(MVInputWrapper.GetPointerPosition(), hit, linkHit));
 	}
 
 	public override void Execute(EditorStateMachine e)
@@ -206,10 +206,10 @@ internal class ESSelection : ESStateBase
 		else if (MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelectAlt))
 		{
 			VoxelHit hit5 = default;
-			LinkObjectBase linkHit = GetLinkHit(e, ref hit5);
+			LinkObjectScript linkHit = GetLinkHit(e, ref hit5);
 			if (linkHit != null)
 			{
-				pickedLink = new PickResult<LinkObjectBase>(MVInputWrapper.GetPointerPosition(), hit5, linkHit);
+				pickedLink = new PickResult<LinkObjectScript>(MVInputWrapper.GetPointerPosition(), hit5, linkHit);
 			}
 			else if (flag)
 			{
@@ -277,15 +277,13 @@ internal class ESSelection : ESStateBase
 		}
 	}
 
-	private LinkObjectBase GetLinkHit(EditorStateMachine e, ref VoxelHit hit)
+	private LinkObjectScript GetLinkHit(EditorStateMachine e, ref VoxelHit hit)
 	{
-		Debug.Log("GetLinkHit");
 		if (MVGameControllerBase.CameraController.IsLogicRendered)
 		{
 			float num = float.PositiveInfinity;
 			if (EditModeObjectPicker.Pick(ref hit))
 			{
-				Debug.Log("Pick hit " + hit.transform.name);
 				num = hit.distance;
 			}
 			Ray ray = MVGameControllerBase.CameraController.MainCamera.ScreenPointToRay(MVInputWrapper.GetPointerPosition());
@@ -293,9 +291,8 @@ internal class ESSelection : ESStateBase
 			Physics.Raycast(ray, out var hitInfo, float.PositiveInfinity, layerMask);
 			if (hitInfo.collider != null && hitInfo.distance < num)
 			{
-				Debug.Log(hitInfo.collider.gameObject.name);
 				hit.point = hitInfo.point;
-				return hitInfo.collider.gameObject.GetComponentInChildren<LinkObjectBase>();
+				return hitInfo.collider.gameObject.GetComponentInChildren<LinkObjectScript>();
 			}
 		}
 		return null;

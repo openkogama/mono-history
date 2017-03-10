@@ -30,7 +30,7 @@ public class GenerateTextureData : MonoBehaviour
 		{
 			layer = LayerMask.NameToLayer("Default")
 		};
-		SkyboxManager skybox = MVGameControllerBase.SkyboxManager;
+		SkyboxManager skybox = UnityEngine.Object.FindObjectOfType(typeof(SkyboxManager)) as SkyboxManager;
 		Color color = ((!(skybox != null)) ? SkyboxManager.defaultColor : skybox.currentColor);
 		Camera screenshotCam = screenshotCamObject.AddComponent<Camera>();
 		screenshotCam.clearFlags = CameraClearFlags.Color;

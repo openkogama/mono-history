@@ -188,9 +188,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject godzillaAreaPrefab;
 
-	[Header("Game")]
 	[Space(20f)]
 	[SerializeField]
+	[Header("Game")]
 	private Material ghostMarkerMaterial;
 
 	[SerializeField]
@@ -333,8 +333,8 @@ public class PrefabPool : MonoBehaviour
 	private GameObject avatarItemCollectTheItem;
 
 	[Header("Avatar modifier")]
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
 	private AvatarModifier burningModifier;
 
 	[SerializeField]
@@ -367,9 +367,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private InvulnerabilityModifier invulnerabilityModifier;
 
-	[SerializeField]
-	[Space(20f)]
 	[Header("Particles")]
+	[Space(20f)]
+	[SerializeField]
 	private GameObject particleCFX_GroundAura;
 
 	[SerializeField]
@@ -393,9 +393,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem collectTheItemParticles;
 
-	[Header("Logic object prefabs")]
 	[SerializeField]
 	[Space(20f)]
+	[Header("Logic object prefabs")]
 	private GameObject logicInputConnectorPrefab;
 
 	[SerializeField]
@@ -405,10 +405,10 @@ public class PrefabPool : MonoBehaviour
 	private GameObject logicObjectConnectorPrefab;
 
 	[SerializeField]
-	private LinkObjectScript linkObject;
+	private GameObject linkObject;
 
 	[SerializeField]
-	private ObjectLinkObjectScript objectLinkObject;
+	private GameObject objectLinkObject;
 
 	[SerializeField]
 	private Material logicCubeConnectorRedMaterial;
@@ -433,9 +433,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material modelConstraintsMaterial;
 
+	[Header("UGUI")]
 	[Space(20f)]
 	[SerializeField]
-	[Header("UGUI")]
 	private AvatarInputControllerAndroidSettings avatarInputControllerAndroidSettings;
 
 	[SerializeField]
@@ -447,9 +447,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private InsertCursor insertCursor;
 
-	[SerializeField]
-	[Space(20f)]
 	[Header("Cameras")]
+	[Space(20f)]
+	[SerializeField]
 	private GodzillaCamera godzillaCamera;
 
 	[SerializeField]
@@ -458,9 +458,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private FirstPersonDeathCamera firstPersonDeathCamera;
 
+	[Space(20f)]
 	[SerializeField]
 	[Header("Editor")]
-	[Space(20f)]
 	private Material cellCursorErrorMaterial;
 
 	[SerializeField]
@@ -846,9 +846,9 @@ public class PrefabPool : MonoBehaviour
 
 	public GameObject LogicObjectConnectorPrefab => logicObjectConnectorPrefab;
 
-	public LinkObjectScript LinkObject => linkObject;
+	public GameObject LinkObject => linkObject;
 
-	public ObjectLinkObjectScript ObjectLinkObject => objectLinkObject;
+	public GameObject ObjectLinkObject => objectLinkObject;
 
 	public Material LogicCubeConnectorRedMaterial => logicCubeConnectorRedMaterial;
 

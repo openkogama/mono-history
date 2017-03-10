@@ -32,7 +32,7 @@ internal class ESAddLink : ESStateBase
 			}
 			tempLink.outputWOID = esm.SingleSelectedWO.Id;
 		}
-		MVGameControllerBase.CameraController.LineDrawManager.SetTempLink(tempLink);
+		LineDrawManager.Instance.SetTempLink(tempLink);
 		wo.HighlightConnector(state: true);
 	}
 
@@ -86,6 +86,6 @@ internal class ESAddLink : ESStateBase
 	public override void Exit(EditorStateMachine esm)
 	{
 		wo.HighlightConnector(state: false);
-		MVGameControllerBase.CameraController.LineDrawManager.SetTempLink(null);
+		LineDrawManager.Instance.SetTempLink(null);
 	}
 }

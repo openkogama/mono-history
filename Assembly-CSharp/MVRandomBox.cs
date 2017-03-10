@@ -1,66 +1,37 @@
 using System.Collections.Generic;
-using CodeStage.AntiCheat.ObscuredTypes;
+using MV.WorldObject;
 
-public class MVRandomBox : MVLogicObject, ILogicWorldObject
+public class MVRandomBox : MVLogicObject
 {
-	private const string currentValueKey = "currentValue";
-
-	private const int currentValueDefault = 0;
-
-	private OutputSignalTransmitterSpecific _outputSignalTransmitter;
-
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => true;
 
-	public IInputSignalReceiver InputSignalReceiver { get; private set; }
-
-	private int CurrentValue
-	{
-		get
-		{
-			return (ObscuredInt)RunTimeData.GetObscuredType("currentValue");
-		}
-		set
-		{
-			RunTimeData.SetObscuredType("currentValue", (ObscuredInt)value);
-		}
-	}
-
 	public MVRandomBox(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVRandomBoxPrefab, worldObjects)
 	{
-		interactionFlags |= InteractionFlags.CanResetLogic;
 	}
 
 	public override void Initialize()
 	{
 		base.Initialize();
 		SetupCulling(gameObject);
-		InputSignalReceiver = LogicClientsideFactory.CreateStateChangeInputSignalReceiver(this, defaultInput: false, null, InputStateUpdateCallback);
-		_outputSignalTransmitter = new OutputSignalTransmitterSpecific(Id);
 	}
 
-	public void SetRandomIndex(int randomIndex)
+	public override void OnDataUpdate()
 	{
-		CurrentValue = randomIndex;
-	}
-
-	private void InputStateUpdateCallback(LogicInputState logicInputState, LogicObjectManager logicObjectManager)
-	{
-		if (logicInputState == LogicInputState.FromColdToHot || logicInputState == LogicInputState.Hot)
+		int num = 0;
+		foreach (Link outputLinkRef in OutputLinkRefs)
 		{
-			_outputSignalTransmitter.Send(CurrentValue);
+			if (num == (int)Data["currentOutput"])
+			{
+				outputLinkRef.isSet = true;
+			}
+			else
+			{
+				outputLinkRef.isSet = false;
+			}
+			num++;
 		}
-		else
-		{
-			_outputSignalTransmitter.Send(-1);
-		}
-	}
-
-	public override void Reset()
-	{
-		CurrentValue = 0;
-		base.Reset();
 	}
 }

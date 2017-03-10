@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MVTextMsg : MVLogicObject, ILogicWorldObject
+public class MVTextMsg : MVLogicObject
 {
+	private bool textVisible = true;
+
 	private Bounds localBounds;
 
 	private MVTextMsgObject msgObject;
@@ -11,12 +13,9 @@ public class MVTextMsg : MVLogicObject, ILogicWorldObject
 
 	public override bool HasOutputConnector => false;
 
-	public IInputSignalReceiver InputSignalReceiver { get; private set; }
-
 	public MVTextMsg(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVTextMsgPrefab, worldObjects)
 	{
-		interactionFlags |= InteractionFlags.CanResetLogic;
 		interactionFlags |= InteractionFlags.HasSettings;
 		msgObject = (MVTextMsgObject)component;
 		localBounds = ComputeLocalBounds(gameObject.transform.position, msgObject.MeshRenderers);
@@ -32,25 +31,10 @@ public class MVTextMsg : MVLogicObject, ILogicWorldObject
 		base.Initialize();
 		SetupCulling(msgObject.VisualObject);
 		cullingSubscriberBase.Radius = msgObject.TextMeshRenderer.bounds.extents.magnitude;
-		UpdateText();
-		InputSignalReceiver = LogicClientsideFactory.CreateStateChangeInputSignalReceiver(this, defaultInput: true, null, InputStateUpdateCallback);
-		ToggleText(InputSignalReceiver.CurrentlyIsHot);
-	}
-
-	private void ToggleText(bool visible)
-	{
-		msgObject.TextMeshRenderer.enabled = visible;
-	}
-
-	private void InputStateUpdateCallback(LogicInputState logicInputState, LogicObjectManager logicObjectManager)
-	{
-		if (logicInputState == LogicInputState.FromColdToHot)
+		OnDataUpdate();
+		if (InputLinkRefs.Count == 0)
 		{
-			ToggleText(visible: true);
-		}
-		if (logicInputState == LogicInputState.FromHotToCold)
-		{
-			ToggleText(visible: false);
+			msgObject.TextMeshRenderer.enabled = (textVisible = true);
 		}
 	}
 
@@ -58,16 +42,35 @@ public class MVTextMsg : MVLogicObject, ILogicWorldObject
 	{
 		base.InitializeInventory();
 		Data["text"] = string.Empty;
-		UpdateText();
+		OnDataUpdate();
+	}
+
+	public override void OnInputLinkChanged()
+	{
+		textVisible = true;
+		if (InputLinkRefs.Count == 0)
+		{
+			if (textVisible && !disabledByLod && !msgObject.TextMeshRenderer.enabled)
+			{
+				msgObject.TextMeshRenderer.enabled = (textVisible = true);
+			}
+		}
+		else
+		{
+			OnInputStateChanged();
+		}
+	}
+
+	public override void OnInputStateChanged()
+	{
+		textVisible = InputState;
+		if (!disabledByLod && msgObject.TextMeshRenderer.enabled != textVisible)
+		{
+			msgObject.TextMeshRenderer.enabled = textVisible;
+		}
 	}
 
 	public override void OnDataUpdate()
-	{
-		UpdateText();
-		LogicObjectManager.ResetChunk(Id, MVGameControllerBase.WOCM);
-	}
-
-	private void UpdateText()
 	{
 		if (Data.ContainsKey("text"))
 		{
@@ -85,6 +88,19 @@ public class MVTextMsg : MVLogicObject, ILogicWorldObject
 		if (cullingSubscriberBase != null)
 		{
 			cullingSubscriberBase.Radius = msgObject.TextMeshRenderer.bounds.extents.magnitude;
+		}
+	}
+
+	public override void ChangeLOD(float distance)
+	{
+		base.ChangeLOD(distance);
+		if (msgObject.TextMeshRenderer.enabled && disabledByLod)
+		{
+			msgObject.TextMeshRenderer.enabled = false;
+		}
+		else if (textVisible && !disabledByLod && !msgObject.TextMeshRenderer.enabled)
+		{
+			msgObject.TextMeshRenderer.enabled = true;
 		}
 	}
 }

@@ -65,10 +65,15 @@ public class MaterialLoader : MonoBehaviour
 		{
 			flag = false;
 		}
+		Debug.Log("Using Shader Model " + ((!flag) ? "2" : "3"));
 		if (cubeModelMaterialHigh == null || cubeModelMaterialLow == null)
 		{
 			throw new NullReferenceException();
 		}
+		Debug.Log(SystemInfo.graphicsDeviceName);
+		Debug.Log(SystemInfo.graphicsDeviceType);
+		Debug.Log(SystemInfo.graphicsShaderLevel);
+		Debug.Log(SystemInfo.graphicsDeviceVersion);
 		cubeModelMaterial = cubeModelMaterialLow;
 		if (flag)
 		{
@@ -79,11 +84,13 @@ public class MaterialLoader : MonoBehaviour
 
 	public void Initialize()
 	{
+		Debug.Log(Urls.StreamingAssets + highResAtlasFileName + "?version=" + MVGameControllerBase.KoGaMaSettings.VersionStreamingAssets);
 		AsyncWWWManager.WWWRequest(new CachedGetRequest(Urls.StreamingAssets + highResAtlasFileName + "?version=" + MVGameControllerBase.KoGaMaSettings.VersionStreamingAssets, Callback, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 	}
 
 	private void Callback(WWW www)
 	{
+		Debug.Log("Got texture");
 		string[] allAssetNames = www.assetBundle.GetAllAssetNames();
 		if (allAssetNames.Length != 1)
 		{

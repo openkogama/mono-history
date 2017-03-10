@@ -1,26 +1,19 @@
 using System.Collections.Generic;
 using CodeStage.AntiCheat.ObscuredTypes;
+using MV.WorldObject;
 using UnityEngine;
 
-public class MVCountingCube : MVLogicObject, ILogicWorldObject
+public class MVCountingCube : MVLogicObject
 {
 	private const float ConnectorOffset = 1.5f;
-
-	private const string currentValueKey = "currentValue";
-
-	private const string startingValueKey = "startingValue";
-
-	private const string resetValueKey = "reset";
 
 	private Vector3 ObjectSize = new Vector3(2f, 1.2f, 0.35f);
 
 	private MVCountingCubeObject cubeObject;
 
-	private OutputSignalTransmitter outputSignalTransmitter;
+	private int currentValue;
 
-	private bool isHot;
-
-	private int prevVal = -1;
+	private int startingValue;
 
 	public override bool HasInputConnector => true;
 
@@ -30,99 +23,52 @@ public class MVCountingCube : MVLogicObject, ILogicWorldObject
 
 	public override Vector3 InputConnectorOffset => Vector3.left * 1.5f;
 
-	public IInputSignalReceiver InputSignalReceiver { get; private set; }
-
-	public int CurrentValue
-	{
-		get
-		{
-			return (ObscuredInt)RunTimeData.GetObscuredType("currentValue");
-		}
-		set
-		{
-			RunTimeData.SetObscuredType("currentValue", (ObscuredInt)value);
-		}
-	}
-
-	public int StartingValue
-	{
-		get
-		{
-			return (int)Data["startingValue"];
-		}
-		set
-		{
-			Data["startingValue"] = value;
-		}
-	}
-
-	public bool ResetDataValue
-	{
-		get
-		{
-			return (bool)Data["reset"];
-		}
-		set
-		{
-			Data["reset"] = value;
-		}
-	}
-
 	public MVCountingCube(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVCountingCubePrefab, worldObjects)
 	{
-		interactionFlags |= InteractionFlags.CanResetLogic;
 		cubeObject = (MVCountingCubeObject)component;
+		if (Data.ContainsKey("startingValue"))
+		{
+			startingValue = (int)Data["startingValue"];
+		}
+		if (RunTimeData.ContainsKey("currentValue"))
+		{
+			currentValue = (ObscuredInt)RunTimeData["currentValue"];
+		}
+		else if (Data.ContainsKey("startingValue"))
+		{
+			currentValue = (int)Data["startingValue"];
+		}
+		interactionFlags |= InteractionFlags.HasSettings;
+		SetText();
 	}
 
 	public override void Initialize()
 	{
 		base.Initialize();
 		SetupCulling(cubeObject.VisualObject);
-		InputSignalReceiver = LogicClientsideFactory.CreateStateChangeInputSignalReceiver(this, defaultInput: false, null, InputStateUpdateCallback);
-		outputSignalTransmitter = new OutputSignalTransmitter(Id);
-		interactionFlags |= InteractionFlags.HasSettings;
-		SetText();
-		if (CurrentValue == 0)
-		{
-			isHot = true;
-		}
-	}
-
-	private void InputStateUpdateCallback(LogicInputState logicInputState, LogicObjectManager logicObjectManager)
-	{
-		if (logicInputState == LogicInputState.FromColdToHot)
-		{
-			if (CurrentValue == 1)
-			{
-				isHot = true;
-			}
-			if (CurrentValue == 0 && ResetDataValue)
-			{
-				CurrentValue = StartingValue;
-			}
-			else if (CurrentValue > 0)
-			{
-				CurrentValue--;
-			}
-			SetText();
-			PlaySound();
-		}
-		outputSignalTransmitter.Send(isHot);
-		if (CurrentValue != 0)
-		{
-			isHot = false;
-		}
-		if (prevVal != CurrentValue)
-		{
-			Debug.Log("Counting cube CurrentValue " + CurrentValue + " woId " + Id + " " + logicObjectManager.TimeStamp);
-			prevVal = CurrentValue;
-		}
 	}
 
 	public override void OnDataUpdate()
 	{
-		LogicObjectManager.ResetChunk(Id, MVGameControllerBase.WOCM);
+		startingValue = (currentValue = (int)Data["startingValue"]);
+		SetText();
+	}
+
+	public void UpdateCurrentValue(int currentValue)
+	{
+		this.currentValue = currentValue;
+		SetText();
+		SetOutgoing(currentValue == 0);
+	}
+
+	public override void OnInputStateChanged()
+	{
+		base.OnInputStateChanged();
+		if (InputState)
+		{
+			PlaySound();
+		}
 	}
 
 	public override Bounds GetLocalBounds(BoundsContext boundsContext)
@@ -130,17 +76,31 @@ public class MVCountingCube : MVLogicObject, ILogicWorldObject
 		return new Bounds(Vector3.zero, ObjectSize);
 	}
 
+	private void SetOutgoing(bool isActive)
+	{
+		if (isActive)
+		{
+			foreach (Link outputLinkRef in OutputLinkRefs)
+			{
+				outputLinkRef.isSet = true;
+			}
+			return;
+		}
+		foreach (Link outputLinkRef2 in OutputLinkRefs)
+		{
+			outputLinkRef2.isSet = false;
+		}
+	}
+
 	public override void Reset()
 	{
-		base.Reset();
-		CurrentValue = StartingValue;
-		isHot = false;
-		SetText();
+		UpdateCurrentValue(startingValue);
+		PlaySound();
 	}
 
 	private void SetText()
 	{
-		cubeObject.DigitManager.Number = CurrentValue;
+		cubeObject.DigitManager.Number = currentValue;
 	}
 
 	private void PlaySound()

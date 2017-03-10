@@ -56,6 +56,7 @@ public class MVTeleporter : MVLogicObject
 		SetupUseInteractor();
 		base.Initialize();
 		useInteractor.UpdateData(Data);
+		OnInputLinkChanged();
 		SetupCulling(teleportObject.visualRoot).Radius = 4f;
 	}
 
@@ -101,6 +102,17 @@ public class MVTeleporter : MVLogicObject
 		Vector3 closestGridPoint = base.GetClosestGridPoint(gridSize, position);
 		closestGridPoint.y = Mathf.Round(position.y / gridSize) * gridSize;
 		return closestGridPoint;
+	}
+
+	public override void OnInputLinkChanged()
+	{
+		base.OnInputLinkChanged();
+		OnInputStateChanged();
+	}
+
+	public override void OnInputStateChanged()
+	{
+		base.OnInputStateChanged();
 	}
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)

@@ -79,6 +79,7 @@ public class MVNetworkReporter(MVWorldObjectClient owner) : MVNetworkObject(owne
 		}
 		prevSendTransformData = sendTransformData;
 		MVGameControllerBase.OperationRequests.UpdateWorldObject(WorldObject.Id, WorldObject.Position, rotation, packageType);
+		WorldObject.State = MVWorldObjectState.Synced;
 		lastUpdateTimestamp = game.ServerTimeInMilliSeconds;
 	}
 }
