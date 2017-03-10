@@ -69,6 +69,7 @@ public class MVPulseBox : MVLogicObject, ILogicWorldObject
 	public override void Reset()
 	{
 		base.Reset();
+		Debug.Log("MVPulsebox reset");
 		CurrentStartTime = MVGameControllerBase.Game.LogicObjectManager.TimeStamp;
 		Debug.Log("CurrentTime " + CurrentStartTime);
 	}

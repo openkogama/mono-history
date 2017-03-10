@@ -22,8 +22,8 @@ public class SelectionRenderer : MonoBehaviour
 	[SerializeField]
 	private float fadeOutTime = 0.5f;
 
-	[SerializeField]
 	[Range(0.001f, 2f)]
+	[SerializeField]
 	private float fadeInTime = 0.5f;
 
 	private List<Mesh> wireMeshes;

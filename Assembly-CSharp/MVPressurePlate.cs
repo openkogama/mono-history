@@ -73,10 +73,6 @@ public class MVPressurePlate : MVLogicObject, ILogicWorldObject, IIsLogicObjectF
 
 	public void OnIsFiringChanged(bool isFiring)
 	{
-		if (isFiring)
-		{
-			Debug.Log("OnIsFiringChanged " + isFiring + " " + MVGameControllerBase.Game.LogicObjectManager.TimeStamp + " " + Time.realtimeSinceStartup);
-		}
 		isDown = isFiring;
 		if (!isFiring && localIsDown)
 		{
@@ -149,7 +145,6 @@ public class MVPressurePlate : MVLogicObject, ILogicWorldObject, IIsLogicObjectF
 
 	private bool DoEnter(int instigatorWOID)
 	{
-		Debug.Log("Enter " + Time.realtimeSinceStartup);
 		MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, instigatorWOID);
 		localIsDown = true;
 		return true;
@@ -157,7 +152,6 @@ public class MVPressurePlate : MVLogicObject, ILogicWorldObject, IIsLogicObjectF
 
 	private void DoExit(int instigatorWOID)
 	{
-		Debug.Log("Exit");
 		MVGameControllerBase.OperationRequests.TriggerBoxExit(Id, instigatorWOID);
 	}
 

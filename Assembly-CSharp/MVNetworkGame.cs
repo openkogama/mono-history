@@ -126,11 +126,11 @@ public class MVNetworkGame : IPhotonPeerListener
 				networkGame.worldNetwork.WorldInventory.FineGrainedTerrainPrototypeID = (int)photonEvent[156];
 				networkGame.networkGameStateListener.ChangeState(gameStateType, startTime, duration, fromGameSnapshot: true);
 				int num3 = (int)photonEvent[33];
-				if (num3 % 500 != 0)
+				if (num3 % 1000 != 0)
 				{
 					Debug.LogError("stepTimestamp is not correctly incremented");
 				}
-				networkGame.logicObjectManager = new LogicObjectManager(num3, trackLoops: false);
+				networkGame.logicObjectManager = new LogicObjectManagerClient(num3, trackLoops: false);
 				networkGame.logicObjectManagerClientWrapper = new LogicObjectManagerClientWrapper(networkGame, num3);
 				break;
 			}
@@ -528,6 +528,13 @@ public class MVNetworkGame : IPhotonPeerListener
 			case MVEventCodes.LogicFrame:
 				networkGame.logicObjectManagerClientWrapper.Step();
 				break;
+			case MVEventCodes.LogicFastForward:
+				Debug.Log("Fast forward");
+				networkGame.logicObjectManagerClientWrapper.FastForward((int)photonEvent[33]);
+				break;
+			case MVEventCodes.LogicFastForwardEventImmediate:
+				networkGame.logicObjectManagerClientWrapper.FastForwardImmediately((int)photonEvent[33]);
+				break;
 			case MVEventCodes.GodzillaEnter:
 			case MVEventCodes.GodzillaExit:
 			case MVEventCodes.LogicObjectFiringStateChange:
@@ -754,16 +761,14 @@ public class MVNetworkGame : IPhotonPeerListener
 
 		private readonly MVNetworkGame networkGame;
 
-		private int lastUpdateTick;
+		private UpdateEvaluator updateEvaluatorStep = new UpdateEvaluator(100);
 
-		private int accumulatedTime;
-
-		private int stepTimestamp;
+		private UpdateEvaluator fastFordwardUpdateEvaluator = new UpdateEvaluator(10);
 
 		public LogicObjectManagerClientWrapper(MVNetworkGame networkGame, int stepTimestamp)
 		{
 			this.networkGame = networkGame;
-			this.stepTimestamp = stepTimestamp;
+			updateEvaluatorStep.StepTimestamp = stepTimestamp;
 			logicEventQueue = new LogicEventQueue(networkGame);
 		}
 
@@ -775,40 +780,52 @@ public class MVNetworkGame : IPhotonPeerListener
 		public void Step()
 		{
 			ExecuteRemainingFrames();
-			stepTimestamp += 500;
+			updateEvaluatorStep.StepTimestamp += 1000;
+		}
+
+		public void FastForward(int timestamp)
+		{
+			fastFordwardUpdateEvaluator.StepTimestamp = timestamp;
+		}
+
+		public void FastForwardImmediately(int timestamp)
+		{
+			while (networkGame.logicObjectManager.TimeStamp < timestamp)
+			{
+				UpdateLogicObjectManager();
+			}
 		}
 
 		public void Reset()
 		{
-			stepTimestamp += 500;
+			updateEvaluatorStep.StepTimestamp += 1000;
 			ExecuteRemainingFrames();
 			if (logicEventQueue.Count != 0)
 			{
 				Debug.LogError("logic event queue not cleared on reset");
 			}
 			networkGame.logicObjectManager.Reset();
-			stepTimestamp = 0;
-		}
-
-		private void ExecuteRemainingFrames()
-		{
-			while (networkGame.LogicObjectManager.TimeStamp < stepTimestamp)
-			{
-				UpdateLogicObjectManager();
-			}
-			lastUpdateTick = WaitForTicks.GetEnvironmentTick(0);
-			accumulatedTime = 0;
+			updateEvaluatorStep.StepTimestamp = 0;
+			fastFordwardUpdateEvaluator.StepTimestamp = 0;
 		}
 
 		public void Update()
 		{
-			int num = WaitForTicks.Diff(lastUpdateTick);
-			lastUpdateTick = WaitForTicks.GetEnvironmentTick(0);
-			accumulatedTime += num;
-			while (accumulatedTime >= 100 && networkGame.LogicObjectManager.TimeStamp < stepTimestamp)
+			while (fastFordwardUpdateEvaluator.DoUpdate(networkGame.logicObjectManager))
 			{
 				UpdateLogicObjectManager();
-				accumulatedTime -= 100;
+			}
+			while (updateEvaluatorStep.DoUpdate(networkGame.logicObjectManager))
+			{
+				UpdateLogicObjectManager();
+			}
+		}
+
+		private void ExecuteRemainingFrames()
+		{
+			while (networkGame.LogicObjectManager.TimeStamp < updateEvaluatorStep.StepTimestamp)
+			{
+				UpdateLogicObjectManager();
 			}
 		}
 
@@ -816,6 +833,49 @@ public class MVNetworkGame : IPhotonPeerListener
 		{
 			logicEventQueue.Dequeue(networkGame.LogicObjectManager.TimeStamp);
 			networkGame.LogicObjectManager.Update();
+		}
+	}
+
+	private class UpdateEvaluator
+	{
+		private int lastUpdateTick;
+
+		private int accumulatedTime;
+
+		private int stepTimestamp;
+
+		private readonly int updateInterval;
+
+		public int StepTimestamp
+		{
+			get
+			{
+				return stepTimestamp;
+			}
+			set
+			{
+				stepTimestamp = value;
+				lastUpdateTick = WaitForTicksLocal.GetEnvironmentTick(0);
+				accumulatedTime = 0;
+			}
+		}
+
+		public UpdateEvaluator(int updateInterval)
+		{
+			this.updateInterval = updateInterval;
+		}
+
+		public bool DoUpdate(LogicObjectManager logicObjectManager)
+		{
+			int num = WaitForTicksLocal.Diff(lastUpdateTick);
+			lastUpdateTick = WaitForTicksLocal.GetEnvironmentTick(0);
+			accumulatedTime += num;
+			if (accumulatedTime >= updateInterval && logicObjectManager.TimeStamp < stepTimestamp)
+			{
+				accumulatedTime -= updateInterval;
+				return true;
+			}
+			return false;
 		}
 	}
 
@@ -884,14 +944,14 @@ public class MVNetworkGame : IPhotonPeerListener
 
 		public void AddObjectLink(ObjectLink link)
 		{
-			LogicObjectManager.ValidateObjectLinkStatus validateObjectLinkStatus = LogicObjectManager.ValidateObjectLink(link, MVGameControllerBase.WOCM, out var reportSeverity);
-			if (validateObjectLinkStatus != LogicObjectManager.ValidateObjectLinkStatus.Ok)
+			LogicObjectManager.ValidateObjectLinkStatus validateObjectLinkStatus = global::LogicObjectManager.ValidateObjectLink(link, MVGameControllerBase.WOCM, out var reportSeverity);
+			if (validateObjectLinkStatus != global::LogicObjectManager.ValidateObjectLinkStatus.Ok)
 			{
-				if (reportSeverity == LogicObjectManager.ReportSeverity.Error)
+				if (reportSeverity == global::LogicObjectManager.ReportSeverity.Error)
 				{
 					Debug.LogError("Link invalid and rejected. Reason: " + validateObjectLinkStatus);
 				}
-				if (reportSeverity == LogicObjectManager.ReportSeverity.Info || reportSeverity == LogicObjectManager.ReportSeverity.Warning)
+				if (reportSeverity == global::LogicObjectManager.ReportSeverity.Info || reportSeverity == global::LogicObjectManager.ReportSeverity.Warning)
 				{
 					Debug.LogWarning("Link invalid and rejected. Reason: " + validateObjectLinkStatus);
 				}
@@ -1030,14 +1090,14 @@ public class MVNetworkGame : IPhotonPeerListener
 
 		public bool AddLink(Link link)
 		{
-			LogicObjectManager.ValidateLinkStatus validateLinkStatus = LogicObjectManager.ValidateLink(link.outputWOID, link.inputWOID, MVGameControllerBase.WOCM, out var reportSeverity);
-			if (validateLinkStatus != LogicObjectManager.ValidateLinkStatus.Ok)
+			LogicObjectManager.ValidateLinkStatus validateLinkStatus = global::LogicObjectManager.ValidateLink(link.outputWOID, link.inputWOID, MVGameControllerBase.WOCM, out var reportSeverity);
+			if (validateLinkStatus != global::LogicObjectManager.ValidateLinkStatus.Ok)
 			{
-				if (reportSeverity == LogicObjectManager.ReportSeverity.Error)
+				if (reportSeverity == global::LogicObjectManager.ReportSeverity.Error)
 				{
 					Debug.LogError("Link invalid and rejected. Reason: " + validateLinkStatus);
 				}
-				if (reportSeverity == LogicObjectManager.ReportSeverity.Info || reportSeverity == LogicObjectManager.ReportSeverity.Warning)
+				if (reportSeverity == global::LogicObjectManager.ReportSeverity.Info || reportSeverity == global::LogicObjectManager.ReportSeverity.Warning)
 				{
 					Debug.LogWarning("Link invalid and rejected. Reason: " + validateLinkStatus);
 				}
@@ -2242,7 +2302,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	private TransformNetworkManager transformNetworkManager = new TransformNetworkManager();
 
-	private LogicObjectManager logicObjectManager;
+	private LogicObjectManagerClient logicObjectManager;
 
 	private MVGameCoinManager gameCoinManager;
 
@@ -2338,7 +2398,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	private StatusChangedHandling statusChangedHandling;
 
-	public LogicObjectManager LogicObjectManager => logicObjectManager;
+	public LogicObjectManagerClient LogicObjectManager => logicObjectManager;
 
 	public MVGameType GameType => gameType;
 
@@ -2685,7 +2745,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public void OnResetLogicChunkEvent(int worldObjectID)
 	{
-		LogicObjectManager.ResetChunk(worldObjectID, MVGameControllerBase.WOCM);
+		global::LogicObjectManager.ResetChunk(worldObjectID, MVGameControllerBase.WOCM);
 	}
 
 	public void OnPickupItemStateChangeEvent(PickupItemState state, int worldObjectID, int instigatorActorNr)
@@ -3145,7 +3205,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		link.inputWOID = toID;
 		link.id = linkID;
 		worldNetwork.AddLink(link);
-		int num = LogicObjectManager.ResetChunk(link.inputWOID, MVGameControllerBase.WOCM);
+		int num = logicObjectManager.OnLinkAdded(link, MVGameControllerBase.WOCM);
 		Debug.Log("reset count " + num);
 	}
 

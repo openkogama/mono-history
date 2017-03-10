@@ -44,7 +44,6 @@ public class MVExplosives : MVLogicObject, ILogicWorldObject
 
 	public void Explode()
 	{
-		Debug.Log("Explode " + MVGameControllerBase.Game.LogicObjectManager.TimeStamp);
 		ExplosionEvent explosionEvent = new ExplosionEvent(RuntimeEventType.Bazooka, gameObject.transform.position);
 		SharedWorldObjectGameplayFunctions.Explosion.Explode(PrefabPool.Instance.ParticleExplosion, gameObject.transform.position, damageValue, damageRadius, shockwaveAcceleration, local: true, explosionEvent, new HashSet<int>());
 	}

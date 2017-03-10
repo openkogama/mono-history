@@ -96,6 +96,8 @@ public enum MVEventCodes : byte
 	LogicFrame = 91,
 	RandomBoxIndex = 92,
 	CollectTheItemDropOff = 93,
+	LogicFastForward = 94,
+	LogicFastForwardEventImmediate = 95,
 	Join = byte.MaxValue,
 	Leave = 254,
 	PropertiesChanged = 253

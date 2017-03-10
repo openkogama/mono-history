@@ -40,9 +40,9 @@ public class LogicObjectManager
 
 	public const int updateInterval = 100;
 
-	public const int stepInterval = 500;
+	public const int stepInterval = 1000;
 
-	public const int updatesBeforeStepSend = 5;
+	public const int updatesBeforeStepSend = 10;
 
 	private Dictionary<int, IInputSignalReceiver> logicWorldObjects = new Dictionary<int, IInputSignalReceiver>();
 
@@ -63,18 +63,6 @@ public class LogicObjectManager
 	public void Reset()
 	{
 		TimeStamp = 0;
-	}
-
-	public int OnLinkAdded(Link link, IWorldObjectManager worldObjectManager)
-	{
-		return ResetChunk(link.inputWOID, worldObjectManager);
-	}
-
-	public int OnLinkRemoved(Link link, IWorldObjectManager worldObjectManager)
-	{
-		int num = ResetChunk(link.inputWOID, worldObjectManager);
-		int num2 = ResetChunk(link.outputWOID, worldObjectManager);
-		return num + num2;
 	}
 
 	public void AddLogicObjectToUpdate(int worldObjectID, IInputSignalReceiver logicWorldObject)

@@ -20,6 +20,8 @@ public class MVCountingCube : MVLogicObject, ILogicWorldObject
 
 	private bool isHot;
 
+	private int prevVal = -1;
+
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => true;
@@ -110,6 +112,11 @@ public class MVCountingCube : MVLogicObject, ILogicWorldObject
 		if (CurrentValue != 0)
 		{
 			isHot = false;
+		}
+		if (prevVal != CurrentValue)
+		{
+			Debug.Log("Counting cube CurrentValue " + CurrentValue + " woId " + Id + " " + logicObjectManager.TimeStamp);
+			prevVal = CurrentValue;
 		}
 	}
 
