@@ -35,6 +35,8 @@ public class MVMovable : MVBlueprintBase
 
 	private bool pausedMovement;
 
+	private bool isVisible = true;
+
 	private MVMovable parentMover;
 
 	public MVCubeModelInstance CubeModel => cubeModel;
@@ -93,7 +95,11 @@ public class MVMovable : MVBlueprintBase
 		}
 		set
 		{
-			movableVisualization.Visible = value;
+			isVisible = value;
+			if (movableVisualization != null)
+			{
+				movableVisualization.Visible = value;
+			}
 		}
 	}
 
@@ -111,7 +117,7 @@ public class MVMovable : MVBlueprintBase
 		movableVisualization = gameObject.AddComponent<MovableVisualization>();
 		movableVisualization.Init(cubeModel);
 		cubeModel.Visible = false;
-		Visible = true;
+		Visible = isVisible;
 	}
 
 	protected void SetVisible(bool newVisible)
