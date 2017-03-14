@@ -15,8 +15,6 @@ public class MVAvatar : MVGroup
 
 	public MVRuntimeDataVariable IsFiring;
 
-	public MVRuntimeDataVariable Invulnerable;
-
 	public MVRuntimeDataVariable Animation;
 
 	public MVRuntimeDataVariable avatarModeTypeFlags;
@@ -77,7 +75,6 @@ public class MVAvatar : MVGroup
 		IsFiring = RuntimeDataVariables.New("isFiring", 0f, writeThrough: false);
 		Modifiers = RuntimeDataVariables.New("modifiers", 1f, writeThrough: false);
 		CurrentItem = RuntimeDataVariables.New("currentItem", 0f, writeThrough: true);
-		Invulnerable = RuntimeDataVariables.New("invulnerable", 0.2f, writeThrough: true);
 		avatarModeTypeFlags = RuntimeDataVariables.New("avatarModeTypes", 0f, writeThrough: true);
 		Animation = RuntimeDataVariables.New("animation", 0f, writeThrough: false);
 		gameObject.layer = LayerMask.NameToLayer("Player");

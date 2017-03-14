@@ -149,6 +149,10 @@ public class PickupItemImpulseGun : PickupItem
 				{
 					Vector3 impulse = ComputeImpulseDirection(lineOfFire) * impulseMagnitude;
 					interactionDataHandlerBase.HandleInteraction(ImpulseHitPackage.Create(impulse), interactionIsLocal: false);
+					if (mVWorldObjectClient is IBulletImpactVisualizer)
+					{
+						((IBulletImpactVisualizer)mVWorldObjectClient).VisualizeBulletImpact(default, lineOfFire, owner.WorldObjectOwner.OwnerActorNr, 0f);
+					}
 				}
 			}
 			Vector3 b = owner.transform.position + Vector3.up * 1.5f;

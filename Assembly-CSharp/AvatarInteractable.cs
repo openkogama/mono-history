@@ -38,18 +38,15 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 
 	private InteractableMaterialHitHandler materialHitHandler = new InteractableMaterialHitHandler();
 
-	private MVRuntimeDataVariable invulnerable;
-
-	public void Init(MVRuntimeDataVariable runtimeDataModifiers, MVRuntimeDataVariable invulnerable, MVRuntimeDataVariableClampedFloat health)
+	public new void Init(MVRuntimeDataVariable runtimeDataModifiers, MVRuntimeDataVariableClampedFloat health)
 	{
-		Init(runtimeDataModifiers, health);
-		this.invulnerable = invulnerable;
+		base.Init(runtimeDataModifiers, health);
 		materialHitHandler.Initialize(hitPackages, transform);
 	}
 
 	public override void TakeDamage(float amount, MVPlayer damageDealer, PlayerKilledByType damageType)
 	{
-		if (IgnoreDamage(damageDealer) || !MVGameControllerBase.Game.IsPlaying || (bool)invulnerable.Value || HasModifierEffect(AvatarModifierEffect.Invulnerable))
+		if (IgnoreDamage(damageDealer) || !MVGameControllerBase.Game.IsPlaying || HasModifierEffect(AvatarModifierEffect.Invulnerable))
 		{
 			return;
 		}

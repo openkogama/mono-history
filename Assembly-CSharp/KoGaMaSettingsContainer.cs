@@ -4,12 +4,12 @@ using UnityEngine;
 [Serializable]
 public class KoGaMaSettingsContainer : ScriptableObject
 {
-	[Header("Settings set by build system")]
 	[SerializeField]
+	[Header("Settings set by build system")]
 	private bool showDebugLogin;
 
-	[SerializeField]
 	[Header("Don't change")]
+	[SerializeField]
 	private TextAsset versionText;
 
 	[SerializeField]

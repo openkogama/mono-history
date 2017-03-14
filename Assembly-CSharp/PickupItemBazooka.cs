@@ -44,7 +44,7 @@ public class PickupItemBazooka : PickupItemWithDelay
 	private void Awake()
 	{
 		currentAmmo = maxAmmo;
-		layerMask = 1 << LayerUtil.GetLayerNumber(LayerFlags.Player);
+		layerMask = (1 << LayerUtil.GetLayerNumber(LayerFlags.Player)) + (1 << LayerUtil.GetLayerNumber(LayerFlags.Default));
 	}
 
 	public override void ResetAmmo()

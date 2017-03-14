@@ -40,12 +40,6 @@ public class RandomGenerator
 
 	private uint round = 1u;
 
-	public RandomGenerator(RandomGenerator r)
-		: this(r.seed)
-	{
-		step = r.step;
-	}
-
 	public RandomGenerator(uint seed)
 	{
 		this.seed = seed;
@@ -70,6 +64,11 @@ public class RandomGenerator
 
 	public int Range(int min, int max)
 	{
+		max--;
+		if (max <= min)
+		{
+			throw new Exception("max must be greater than min");
+		}
 		int num = Math.Abs(GetNewRandom() / 2);
 		int num2 = max - min;
 		return min + num % (num2 + 1);

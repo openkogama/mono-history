@@ -41,6 +41,7 @@ public class GrowthModifier : SizeModifier
 		StartCoroutine(DoForSeconds(timeToSize, (float t) =>
 		{
 			owner.mvAvatar.Scale = Vector3.one * (sizeModifier - BlockStep(t, 40f, 0f, sizeModifier - 1f)) + Vector3.one * 0.25f * (1f - Mathf.Sin(t * sineStrength));
+			owner.mvAvatar.SetTransparency = 1f;
 			if (t == timeToSize)
 			{
 				Destroy();
@@ -65,6 +66,10 @@ public class GrowthModifier : SizeModifier
 	private void Destroy()
 	{
 		owner.mvAvatar.Scale = Vector3.one;
+		if (owner.mvAvatar is MVAvatarLocal mVAvatarLocal)
+		{
+			mVAvatarLocal.RigidBody.GetComponent<AvatarMotor>().GetSizeState.ScaleChanged();
+		}
 		Object.Destroy(gameObject);
 	}
 

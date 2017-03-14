@@ -59,42 +59,6 @@ public static class LocalizedEnums
 		}
 	}
 
-	private static class PlayerKilledByTypeLS
-	{
-		private static EnumLocalizeBookkeeping enumLocalizeBookkeeping = new EnumLocalizeBookkeeping(Init);
-
-		public static string Get(PlayerKilledByType enumVal)
-		{
-			return enumLocalizeBookkeeping.GetLocalizedString((int)enumVal);
-		}
-
-		private static void Init(Dictionary<int, string> map)
-		{
-			map.Add(0, TM._("None"));
-			map.Add(1, TM._("a Center Gun"));
-			map.Add(2, TM._("a Bazooka"));
-			map.Add(3, TM._("a RailGun"));
-			map.Add(4, TM._("{0} comitted suicide"));
-			map.Add(5, TM._("{0} hit the ground too hard"));
-			map.Add(6, TM._("{0}  was killed by the environment"));
-			map.Add(7, TM._("a Sword"));
-			map.Add(8, TM._("{0} was blown to bits"));
-			map.Add(9, TM._("{0} burned to death"));
-			map.Add(10, TM._("{0} fell off the world"));
-			map.Add(11, TM._("Mutant"));
-			map.Add(12, TM._("a Shotgun"));
-			map.Add(13, TM._("a FlameThrower"));
-			map.Add(14, TM._("{0} was crushed by cubes"));
-			map.Add(15, TM._("{0} was killed by a ghost"));
-			map.Add(16, TM._("{0} was eliminated by an Oculus"));
-			map.Add(17, TM._("Colt 45"));
-			map.Add(19, TM._("Throwing star"));
-			map.Add(20, TM._("Multi throwing star"));
-			map.Add(21, TM._("{0} was incinerated by Colossus"));
-			map.Add(22, TM._("{0} was crushed by Colossus"));
-		}
-	}
-
 	public static string _(MVConnState enumVal)
 	{
 		return MVConnStateLS.Get(enumVal);
@@ -103,10 +67,5 @@ public static class LocalizedEnums
 	public static string _(MVEventCodes enumVal)
 	{
 		return MVJoinStateLS.Get(enumVal);
-	}
-
-	public static string _(PlayerKilledByType enumVal)
-	{
-		return PlayerKilledByTypeLS.Get(enumVal);
 	}
 }

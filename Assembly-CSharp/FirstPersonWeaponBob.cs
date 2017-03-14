@@ -18,8 +18,8 @@ public class FirstPersonWeaponBob
 	[SerializeField]
 	private float bobMultiplier;
 
-	[Tooltip("Degrees by time")]
 	[SerializeField]
+	[Tooltip("Degrees by time")]
 	private AnimationCurve rotation;
 
 	[SerializeField]
@@ -34,7 +34,7 @@ public class FirstPersonWeaponBob
 
 	private Quaternion weaponRotation;
 
-	private FirstPersonWeaponBob()
+	public FirstPersonWeaponBob()
 	{
 		bobAxis.Normalize();
 		rotationAxis.Normalize();

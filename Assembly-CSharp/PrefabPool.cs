@@ -188,8 +188,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject godzillaAreaPrefab;
 
-	[Header("Game")]
 	[Space(20f)]
+	[Header("Game")]
 	[SerializeField]
 	private Material ghostMarkerMaterial;
 
@@ -273,8 +273,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private MVPickupItemBaseObject avatarGrowthPackPrefab;
 
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
 	[Header("Avatar item pick up")]
 	private GameObject avatarItemCenterGun;
 
@@ -332,9 +332,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject avatarItemCollectTheItem;
 
+	[SerializeField]
 	[Header("Avatar modifier")]
 	[Space(20f)]
-	[SerializeField]
 	private AvatarModifier burningModifier;
 
 	[SerializeField]
@@ -367,9 +367,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private InvulnerabilityModifier invulnerabilityModifier;
 
+	[Space(20f)]
 	[SerializeField]
 	[Header("Particles")]
-	[Space(20f)]
 	private GameObject particleCFX_GroundAura;
 
 	[SerializeField]
@@ -394,8 +394,8 @@ public class PrefabPool : MonoBehaviour
 	private ParticleSystem collectTheItemParticles;
 
 	[Header("Logic object prefabs")]
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
 	private GameObject logicInputConnectorPrefab;
 
 	[SerializeField]
@@ -422,8 +422,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material logicCubeConnectorBlueSelectedMaterial;
 
-	[Header("GUI")]
 	[Space(20f)]
+	[Header("GUI")]
 	[SerializeField]
 	private Texture2D avatarAccessoryMoveIcon;
 
@@ -434,8 +434,8 @@ public class PrefabPool : MonoBehaviour
 	private Material modelConstraintsMaterial;
 
 	[Space(20f)]
-	[SerializeField]
 	[Header("UGUI")]
+	[SerializeField]
 	private AvatarInputControllerAndroidSettings avatarInputControllerAndroidSettings;
 
 	[SerializeField]
@@ -447,10 +447,10 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private InsertCursor insertCursor;
 
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
 	[Header("Cameras")]
-	private GodzillaCamera godzillaCamera;
+	private GodzillaCameraDesktop godzillaCameraDesktop;
 
 	[SerializeField]
 	private GodzillaCamera2D godzillaCamera2D;
@@ -458,9 +458,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private FirstPersonDeathCamera firstPersonDeathCamera;
 
+	[Space(20f)]
 	[SerializeField]
 	[Header("Editor")]
-	[Space(20f)]
 	private Material cellCursorErrorMaterial;
 
 	[SerializeField]
@@ -872,7 +872,7 @@ public class PrefabPool : MonoBehaviour
 
 	public InsertCursor InsertCursor => insertCursor;
 
-	public GodzillaCamera GodzillaCamera => godzillaCamera;
+	public GodzillaCameraDesktop GodzillaCameraDesktop => godzillaCameraDesktop;
 
 	public GodzillaCamera2D GodzillaCamera2D => godzillaCamera2D;
 

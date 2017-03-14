@@ -136,7 +136,7 @@ public class ModifierIndicator : MonoBehaviour
 
 	public void Initialize(MVAvatarLocal localAvatar)
 	{
-		localInteractable = localAvatar.GameObject.GetComponent<MVInteractableBase>();
+		localInteractable = localAvatar.InteractableLocal;
 		enabled = true;
 	}
 

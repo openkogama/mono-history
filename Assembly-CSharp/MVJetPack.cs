@@ -251,7 +251,10 @@ public class MVJetPack : MVVehicleBase
 			else if (thrustTime > thrustTimeOverheatThreshold - thrustTimeWarning)
 			{
 				jetModeType2 = JetModeType.Overheating;
-				jetPackVisualization.DoOverheatBlinking();
+				if (avatarPickupOwner.CurrentItem != null && (!avatarPickupOwner.CurrentItem.ActivateGunModeOnEquip || avatarPickupOwner.CurrentItem.IsHolstered))
+				{
+					jetPackVisualization.DoOverheatBlinking();
+				}
 				if (!vehicleMotor.LeaveMode && MVGameControllerBase.CameraController.CurCamera.CameraType == CameraType.FirstPersonCamera)
 				{
 					jetPackVisualization.ShowOverHeatWarning();

@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
-using MV.Common;
 using UnityEngine;
 
 public class AvatarBlinker : BlinkerBase
 {
-	public Color blinkInvulnerableColor = new Color(29f, 108f, 219f);
-
 	public Color blinkDamageColor = new Color(251f, 0f, 0f);
 
 	public Color blinkHealthBoostColor = new Color(233f, 249f, 9f);
@@ -32,10 +29,6 @@ public class AvatarBlinker : BlinkerBase
 				new Blinker(5f, blinkMaterial, blinkHealthBoostColor)
 			},
 			{
-				BlinkType.Invulnerable,
-				new Blinker(3f, blinkMaterial, blinkInvulnerableColor)
-			},
-			{
 				BlinkType.Poison,
 				new Blinker(2f, blinkMaterial, blinkPoisonColor)
 			},
@@ -51,10 +44,6 @@ public class AvatarBlinker : BlinkerBase
 		this.mvAvatar = mvAvatar;
 		MVRuntimeDataVariableClampedFloat health = mvAvatar.Health;
 		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(HealthChangeHandler));
-		MVRuntimeDataVariable invulnerable = mvAvatar.Invulnerable;
-		invulnerable.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(invulnerable.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(InvulnerableChangedHandler));
-		MVRuntimeDataVariable avatarModeTypeFlags = mvAvatar.avatarModeTypeFlags;
-		avatarModeTypeFlags.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(avatarModeTypeFlags.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChangedHandler));
 	}
 
 	public void Detach()
@@ -62,10 +51,6 @@ public class AvatarBlinker : BlinkerBase
 		visible = false;
 		MVRuntimeDataVariableClampedFloat health = mvAvatar.Health;
 		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Remove(health.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(HealthChangeHandler));
-		MVRuntimeDataVariable invulnerable = mvAvatar.Invulnerable;
-		invulnerable.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Remove(invulnerable.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(InvulnerableChangedHandler));
-		MVRuntimeDataVariable avatarModeTypeFlags = mvAvatar.avatarModeTypeFlags;
-		avatarModeTypeFlags.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Remove(avatarModeTypeFlags.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChangedHandler));
 	}
 
 	public void HealthChangeHandler(object v)
@@ -76,30 +61,5 @@ public class AvatarBlinker : BlinkerBase
 			StartBlinking(BlinkType.Damage, 0.5f);
 		}
 		previousBlinkHealth = num;
-	}
-
-	private void InvulnerableChangedHandler(object v)
-	{
-		if ((bool)v && mvAvatar.IsInMode(AvatarModeTypes.Playing))
-		{
-			StartBlinking(BlinkType.Invulnerable);
-		}
-		else
-		{
-			StopBlinking(BlinkType.Invulnerable);
-		}
-	}
-
-	private void AvatarStateChangedHandler(object a)
-	{
-		int num = (int)a;
-		if ((num & 4) > 0)
-		{
-			StopBlinking(BlinkType.Invulnerable);
-		}
-		else if ((bool)mvAvatar.Invulnerable.Value)
-		{
-			StartBlinking(BlinkType.Invulnerable);
-		}
 	}
 }
