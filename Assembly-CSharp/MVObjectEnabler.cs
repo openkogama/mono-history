@@ -99,6 +99,7 @@ public class MVObjectEnabler : MVLogicObject, ILogicWorldObject
 			if (worldObjectClient2 is MVMovable)
 			{
 				((MVMovable)worldObjectClient2).Visible = flag;
+				(worldObjectClient as MVCubeModelBase).ObjectLinkChanged(flag);
 			}
 			else if (worldObjectClient is MVCubeModelBase)
 			{
