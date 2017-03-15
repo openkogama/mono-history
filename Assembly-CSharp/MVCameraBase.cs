@@ -12,8 +12,6 @@ public abstract class MVCameraBase : MonoBehaviour
 
 	public abstract CameraType CameraType { get; }
 
-	public virtual float FieldOfView => 70f;
-
 	public virtual void Awake()
 	{
 	}
@@ -23,17 +21,16 @@ public abstract class MVCameraBase : MonoBehaviour
 		ignoreInputTypes = e.inputTypes;
 	}
 
-	public virtual void UpdateCamera(MVCameraController camController, Transform targetTransform)
+	public virtual void UpdateCamera(MVCameraController camController, ProtectedTransform targetTransform)
 	{
 		targetTransform.position = transform.position;
 		targetTransform.rotation = transform.rotation;
 	}
 
-	protected void UpdateImpactSimulation(Transform targetTransform)
+	protected void UpdateImpactSimulation(ProtectedTransform targetTransform)
 	{
-		if (cameraImpact != null)
+		if (cameraImpact == null)
 		{
-			SimulateImpact(targetTransform);
 		}
 	}
 

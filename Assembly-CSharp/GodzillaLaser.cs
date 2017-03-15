@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 {
-	[SerializeField]
 	[Header("Stats for Godzilla (will be scaled by godzilla size)")]
+	[SerializeField]
 	private AnimationCurve baseAreaDamageByRange;
 
 	[SerializeField]
@@ -15,8 +15,8 @@ public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 	[SerializeField]
 	private float maxFireRange = 3000f;
 
-	[SerializeField]
 	[Header("Graphics")]
+	[SerializeField]
 	private Color crossHairCanFire;
 
 	[SerializeField]
@@ -29,12 +29,12 @@ public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 	private AnimationCurve chargeCurve;
 
 	[SerializeField]
-	[Tooltip("Look direction updates per second.")]
 	[Header("Network")]
+	[Tooltip("Look direction updates per second.")]
 	private float lookUpdateRate = 2f;
 
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	private List<GameObject> toHideInFirstperson = new List<GameObject>();
 
 	[SerializeField]
@@ -66,9 +66,6 @@ public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 
 	[SerializeField]
 	private ParticleSystem glassShardExplosion;
-
-	[SerializeField]
-	private AudioSource glassShardExplosionSound;
 
 	[SerializeField]
 	private CFX_AutoDestructShuriken glassShardDestruction;
@@ -228,7 +225,6 @@ public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 		glassShardExplosion.gameObject.transform.localPosition = center.position;
 		glassShardExplosion.Play();
 		glassShardDestruction.enabled = true;
-		glassShardExplosionSound.Play();
 	}
 
 	public void UpdateControllerUpdate()

@@ -15,8 +15,8 @@ public abstract class FirstPersonCamera : MVCameraBase
 	[SerializeField]
 	protected float maxLookAngleUpward = 60f;
 
-	[SerializeField]
 	[HideInInspector]
+	[SerializeField]
 	private Vector3 cameraOffset = new Vector3(0f, 2f, 0f);
 
 	[SerializeField]
@@ -51,8 +51,6 @@ public abstract class FirstPersonCamera : MVCameraBase
 
 	public override CameraType CameraType => CameraType.FirstPersonCamera;
 
-	public override float FieldOfView => 80f;
-
 	protected abstract void UpdateCameraRotation();
 
 	private void OnValidate()
@@ -71,7 +69,6 @@ public abstract class FirstPersonCamera : MVCameraBase
 		localAvatar = MVGameControllerBase.WOCM.AvatarLocal;
 		targetRotation.x = cameraController.transform.rotation.eulerAngles.x;
 		targetRotation.y = cameraController.transform.rotation.eulerAngles.y;
-		transform.localRotation = cameraController.transform.localRotation;
 		modifierIndicator.Initialize(localAvatar);
 		MVGameControllerBase.CameraController.StartTransitionCam(0.3f);
 		MVGameControllerBase.WOCM.AvatarLocal.SetTransparency = 1f;
@@ -84,22 +81,12 @@ public abstract class FirstPersonCamera : MVCameraBase
 		base.Enter(cameraController);
 		Initialize(cameraController);
 		ActivateFirstPerson();
-		UpdateCamera(cameraController, cameraController.transform);
 	}
 
 	public override void Resume(MVCameraController cameraController)
 	{
-		if (localAvatar.CurrentPickup.FirstPersonCapable)
-		{
-			base.Resume(cameraController);
-			Initialize(cameraController);
-			ActivateFirstPerson();
-			UpdateCamera(cameraController, cameraController.transform);
-		}
-		else
-		{
-			MVGameControllerBase.CameraController.RemoveCamera(CameraType);
-		}
+		base.Resume(cameraController);
+		ActivateFirstPerson();
 	}
 
 	public override void Exit(MVCameraController camController)
@@ -116,47 +103,45 @@ public abstract class FirstPersonCamera : MVCameraBase
 
 	private void ActivateFirstPerson()
 	{
-		MoveItemToFirstpersonView(localAvatar.CurrentPickup);
 		HideBody(b: true);
 		if (haveHiddenVehicle)
 		{
 			HideVehicle();
 		}
+		MoveItemToFirstpersonView(localAvatar.CurrentPickup);
 		AvatarPickupOwner pickupOwner = localAvatar.PickupOwner;
 		pickupOwner.onEquipItem = (MVPickupOwner.OnEquipItemDelegate)Delegate.Combine(pickupOwner.onEquipItem, new MVPickupOwner.OnEquipItemDelegate(MoveItemToFirstpersonView));
 		MVAvatarLocal mVAvatarLocal = localAvatar;
-		mVAvatarLocal.OnDamageTaken = (Action<float, MVPlayer, PlayerKilledByType>)Delegate.Combine(mVAvatarLocal.OnDamageTaken, new Action<float, MVPlayer, PlayerKilledByType>(healingIndicator.ShowHealing));
+		mVAvatarLocal.OnDamageTaken = (Action<float, MVPlayer, PlayerKilledByType>)Delegate.Combine(mVAvatarLocal.OnDamageTaken, new Action<float, MVPlayer, PlayerKilledByType>(damageIndicator.ShowDamage));
 		MVAvatarLocal mVAvatarLocal2 = localAvatar;
-		mVAvatarLocal2.OnDamageTaken = (Action<float, MVPlayer, PlayerKilledByType>)Delegate.Combine(mVAvatarLocal2.OnDamageTaken, new Action<float, MVPlayer, PlayerKilledByType>(damageIndicator.ShowDamage));
+		mVAvatarLocal2.OnDamageTaken = (Action<float, MVPlayer, PlayerKilledByType>)Delegate.Combine(mVAvatarLocal2.OnDamageTaken, new Action<float, MVPlayer, PlayerKilledByType>(healingIndicator.ShowHealing));
 		damageIndicator.enabled = true;
 		modifierIndicator.enabled = true;
 	}
 
 	private void DeactivateFirstPerson()
 	{
-		localAvatar.CurrentPickup.LeaveFirstPersonView();
 		HideBody(b: false);
 		if (haveHiddenVehicle)
 		{
 			ShowVehicle();
 		}
+		localAvatar.CurrentPickup.LeaveFirstPersonView();
 		AvatarPickupOwner pickupOwner = localAvatar.PickupOwner;
 		pickupOwner.onEquipItem = (MVPickupOwner.OnEquipItemDelegate)Delegate.Remove(pickupOwner.onEquipItem, new MVPickupOwner.OnEquipItemDelegate(MoveItemToFirstpersonView));
 		MVAvatarLocal mVAvatarLocal = localAvatar;
-		mVAvatarLocal.OnDamageTaken = (Action<float, MVPlayer, PlayerKilledByType>)Delegate.Remove(mVAvatarLocal.OnDamageTaken, new Action<float, MVPlayer, PlayerKilledByType>(healingIndicator.ShowHealing));
+		mVAvatarLocal.OnDamageTaken = (Action<float, MVPlayer, PlayerKilledByType>)Delegate.Remove(mVAvatarLocal.OnDamageTaken, new Action<float, MVPlayer, PlayerKilledByType>(damageIndicator.ShowDamage));
 		MVAvatarLocal mVAvatarLocal2 = localAvatar;
-		mVAvatarLocal2.OnDamageTaken = (Action<float, MVPlayer, PlayerKilledByType>)Delegate.Remove(mVAvatarLocal2.OnDamageTaken, new Action<float, MVPlayer, PlayerKilledByType>(damageIndicator.ShowDamage));
-		damageIndicator.ResetIndicators();
+		mVAvatarLocal2.OnDamageTaken = (Action<float, MVPlayer, PlayerKilledByType>)Delegate.Remove(mVAvatarLocal2.OnDamageTaken, new Action<float, MVPlayer, PlayerKilledByType>(healingIndicator.ShowHealing));
 		damageIndicator.enabled = false;
+		damageIndicator.ResetIndicators();
 		modifierIndicator.enabled = false;
 		modifierIndicator.ResetIndicators();
-		MVGameControllerBase.WOCM.AvatarLocal.Avatar.AvatarFader.SetTransparency(0f);
-		MVGameControllerBase.WOCM.AvatarLocal.Avatar.AvatarFader.enabled = true;
 	}
 
 	private void MoveItemToFirstpersonView(PickupItem item)
 	{
-		if (item.FirstPersonCapable)
+		if (item.ActivateGunModeOnEquip)
 		{
 			item.EnterFirstPersonView(this);
 			weaponBob.Initialize(localAvatar.CurrentPickup.transform);
@@ -209,23 +194,23 @@ public abstract class FirstPersonCamera : MVCameraBase
 		}
 	}
 
-	public override void UpdateCamera(MVCameraController camController, Transform targetTransform)
+	public override void UpdateCamera(MVCameraController camController, ProtectedTransform targetTransform)
 	{
+		HighlightFriendsInSight();
 		if (MVGameControllerBase.WOCM.AvatarLocal.InGunMode)
 		{
-			HighlightFriendsInSight();
-			UpdateAvatar();
 			UpdateCameraPosition();
 			UpdateCameraRotation();
-			weaponBob.Update();
-			UpdateImpactSimulation(targetTransform);
+			UpdateAvatar();
 			base.UpdateCamera(camController, targetTransform);
+			weaponBob.Update();
 		}
 		else
 		{
 			MVGameControllerBase.CameraController.SetCamera(CameraType.ThirdPerson);
 			MVGameControllerBase.CameraController.StartTransitionCam(0.3f);
 		}
+		UpdateImpactSimulation(targetTransform);
 	}
 
 	private void UpdateCameraPosition()
@@ -238,7 +223,7 @@ public abstract class FirstPersonCamera : MVCameraBase
 		if (!MVGameControllerBase.WOCM.AvatarLocal.IsInVehicle)
 		{
 			haveHiddenVehicle = false;
-			Transform transform = MVGameControllerBase.WOCM.AvatarLocal.Transform;
+			Transform transform = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform;
 			transform.localRotation = Quaternion.Euler(0f, base.transform.localRotation.eulerAngles.y, 0f);
 		}
 		else if (!haveHiddenVehicle)

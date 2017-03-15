@@ -14,6 +14,8 @@ public class SendMessageControl : MonoBehaviour
 
 	private string resolution = "/r";
 
+	private string mathTest = "/m";
+
 	private string removeUI = "/ru";
 
 	private string enableHD = "/hd";
@@ -117,6 +119,22 @@ public class SendMessageControl : MonoBehaviour
 		else if (chatMsg == resolution)
 		{
 			MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, $"{Screen.width} x {Screen.height}");
+		}
+		else if (chatMsg == mathTest)
+		{
+			Vector3 one = Vector3.one;
+			Quaternion identity = Quaternion.identity;
+			MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, "Math validation test");
+			MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, "Vector3.one " + MathFunctions.IsVectorFloatsValid(one));
+			one.x = float.PositiveInfinity;
+			MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, "vector3.x = float.PositiveInfinity " + MathFunctions.IsVectorFloatsValid(one));
+			one.x = float.NaN;
+			MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, "vector3.x = float.NaN " + MathFunctions.IsVectorFloatsValid(one));
+			MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, "Quaternion.identity " + MathFunctions.IsQuaternionFloatsValid(identity));
+			identity.x = float.PositiveInfinity;
+			MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, "q.x = float.PositiveInfinity " + MathFunctions.IsQuaternionFloatsValid(identity));
+			identity.x = float.NaN;
+			MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, "q.x = float.NaN " + MathFunctions.IsQuaternionFloatsValid(identity));
 		}
 		else if (chatMsg == enableHD)
 		{

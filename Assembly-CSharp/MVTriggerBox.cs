@@ -50,7 +50,7 @@ public class MVTriggerBox : MVLogicObject, ITriggerBoxEventsHandler
 		}
 	}
 
-	public void Enter(int instigatorId)
+	public void Enter(int actorNr)
 	{
 		foreach (Link outputLinkRef in OutputLinkRefs)
 		{

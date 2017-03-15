@@ -6,20 +6,20 @@ public class FirstPersonDeathCamera : MVCameraBase
 	[SerializeField]
 	private Vector3 cameraOffset;
 
-	[Range(0f, 1f)]
 	[Tooltip("Strength of screen flash.")]
+	[Range(0f, 1f)]
 	[SerializeField]
 	private float flashStrength;
 
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	private GodzillaGUI gui;
 
 	public override CameraType CameraType => CameraType.GodzillaModeMainCamera;
 
 	public override void Awake()
 	{
-		gui.transform.SetParent(null, worldPositionStays: false);
+		gui.transform.parent = null;
 	}
 
 	private void OnDestroy()
@@ -30,7 +30,7 @@ public class FirstPersonDeathCamera : MVCameraBase
 		}
 	}
 
-	public override void UpdateCamera(MVCameraController camController, Transform targetTransform)
+	public override void UpdateCamera(MVCameraController camController, ProtectedTransform targetTransform)
 	{
 		targetTransform.position = transform.position;
 		targetTransform.rotation = transform.rotation;
@@ -42,8 +42,8 @@ public class FirstPersonDeathCamera : MVCameraBase
 		camController.AvatarCameraFade.enabled = false;
 		gui.Flash(0.9f);
 		MVGameControllerBase.WOCM.AvatarLocal.SetTransparency = 0.9f;
-		transform.SetParent(MVGameControllerBase.WOCM.AvatarLocal.Body.BodyData.GetPartBone(BodyData.PartIndex.Head).transform, worldPositionStays: false);
-		transform.localPosition = cameraOffset;
+		transform.parent = MVGameControllerBase.WOCM.AvatarLocal.Body.BodyData.GetPartBone(BodyData.PartIndex.Head).transform;
+		transform.Translate(cameraOffset * transform.lossyScale.y);
 	}
 
 	public override void Exit(MVCameraController camController)

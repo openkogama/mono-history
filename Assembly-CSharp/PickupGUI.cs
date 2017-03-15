@@ -73,12 +73,12 @@ public class PickupGUI : MonoBehaviour
 
 	public void Enter()
 	{
-		enabled = true;
 		if (pickupOwner.CurrentItem == null)
 		{
 			ShowEquipableUI = PickupGUIFlags.None;
 			return;
 		}
+		enabled = true;
 		OnEquipItem(pickupOwner.CurrentItem);
 		pickupOwner.CurrentItem.OnEnterVehicleWithWeapon();
 	}
@@ -102,15 +102,14 @@ public class PickupGUI : MonoBehaviour
 			if (component.CurrentItem != null && component.CurrentItem.Type != AvatarItemType.Hand)
 			{
 				OnEquipItem(component.CurrentItem);
-				ShowEquipableUI &= ~PickupGUIFlags.IsHolstered;
 				crossHair.UpdateCrossHair(component.CurrentItem);
 				UpdateCrossHairVisibility();
+				ShowEquipableUI &= ~PickupGUIFlags.IsHolstered;
 			}
 			else
 			{
 				canBeVisible = false;
 				UpdateCrossHairVisibility();
-				crossHair.Visible = false;
 				ShowEquipableUI = PickupGUIFlags.None;
 			}
 		}
@@ -131,7 +130,6 @@ public class PickupGUI : MonoBehaviour
 			}
 			ShowEquipableUI |= PickupGUIFlags.CanHolster;
 		}
-		canBeVisible = false;
 		if (item.ActivateGunModeOnEquip)
 		{
 			canBeVisible = true;

@@ -46,7 +46,7 @@ public class AndroidPlatformerCamera : MVCameraBase, ICameraSettings
 		Debug.Log("Platformer camera does not scale");
 	}
 
-	public override void UpdateCamera(MVCameraController camController, Transform targetTransform)
+	public override void UpdateCamera(MVCameraController camController, ProtectedTransform targetTransform)
 	{
 		transform.rotation = Quaternion.identity;
 		Vector3 direction = new Vector3(MVInputWrapper.GetAxis("Mouse X"), MVInputWrapper.GetAxis("Mouse Y"));

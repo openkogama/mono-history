@@ -45,7 +45,7 @@ public abstract class MVPlaymodeCameraBase : MVCameraBase
 		}
 	}
 
-	public override void UpdateCamera(MVCameraController camController, Transform targetTransform)
+	public override void UpdateCamera(MVCameraController camController, ProtectedTransform targetTransform)
 	{
 		base.UpdateCamera(camController, targetTransform);
 		UpdateImpactSimulation(targetTransform);

@@ -31,7 +31,7 @@ public static class DebugLogHandler
 
 	public static void Init()
 	{
-		isSampling = Random.Range(0, sampleErrorFrequency + 1) == sampleErrorFrequency;
+		isSampling = Random.Range(0, 11) == 10;
 		Application.logMessageReceived += HandleLog;
 	}
 

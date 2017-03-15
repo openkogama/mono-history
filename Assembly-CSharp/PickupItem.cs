@@ -45,8 +45,6 @@ public abstract class PickupItem : MonoBehaviour
 
 	public virtual bool CanHolster => true;
 
-	public bool FirstPersonCapable => firstPersonTransform != null;
-
 	public virtual bool CanUnequip => true;
 
 	public abstract AvatarItemType Type { get; }

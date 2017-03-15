@@ -21,7 +21,7 @@ public class AirCraftCamera : MVPlaymodeCameraBase
 		baseDistanceFromLookAt = (lookAt.position - transform.position).magnitude;
 	}
 
-	public override void UpdateCamera(MVCameraController camController, Transform targetTransform)
+	public override void UpdateCamera(MVCameraController camController, ProtectedTransform targetTransform)
 	{
 		lookAtToCamDir = lookAt.transform.TransformPoint(initialLocalCamPosition) - lookAt.transform.position;
 		lookAtToCamDir.Normalize();

@@ -430,6 +430,34 @@ public static class MathFunctions
 		return false;
 	}
 
+	public static bool VectorIsFinite(Vector3 vector)
+	{
+		if (float.IsInfinity(vector.x) || float.IsInfinity(vector.y) || float.IsInfinity(vector.z))
+		{
+			return false;
+		}
+		return true;
+	}
+
+	public static bool QuaternionIsFinite(Quaternion quaternion)
+	{
+		if (float.IsInfinity(quaternion.x) || float.IsInfinity(quaternion.y) || float.IsInfinity(quaternion.z) || float.IsInfinity(quaternion.w))
+		{
+			return false;
+		}
+		return true;
+	}
+
+	public static bool IsQuaternionFloatsValid(Quaternion quaternion)
+	{
+		return !QuaternionIsNan(quaternion) && QuaternionIsFinite(quaternion);
+	}
+
+	public static bool IsVectorFloatsValid(Vector3 vector)
+	{
+		return !VectorIsNan(vector) && VectorIsFinite(vector);
+	}
+
 	public static Vector3 TruncateVector(Vector3 vector, int digits)
 	{
 		vector.x = (float)Truncate(vector.x, digits);

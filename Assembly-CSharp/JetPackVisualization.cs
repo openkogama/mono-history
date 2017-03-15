@@ -127,6 +127,10 @@ public class JetPackVisualization : VehicleVisualizationBase
 		}
 	}
 
+	private void Start()
+	{
+	}
+
 	private void Update()
 	{
 		UpdateSpartialValues();

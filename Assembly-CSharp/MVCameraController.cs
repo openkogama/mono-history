@@ -55,15 +55,14 @@ public class MVCameraController : MonoBehaviour
 
 		public void UpdateCamera(MVCameraController cameraController)
 		{
-			CurCamera.UpdateCamera(cameraController, cameraController.transform);
 			if (TransitionInProgress())
 			{
-				TransitionCamera.UpdateCamera(cameraController, cameraController.transform);
-				cameraController.FieldOfView = Mathf.Lerp(TransitionCamera.FieldOfView, CurCamera.FieldOfView, TransitionCamera.RotPercentage);
+				CurCamera.UpdateCamera(cameraController, cameraController.protectedTransform);
+				TransitionCamera.UpdateCamera(cameraController, cameraController.protectedTransform);
 			}
 			else
 			{
-				cameraController.FieldOfView = CurCamera.FieldOfView;
+				CurCamera.UpdateCamera(cameraController, cameraController.protectedTransform);
 			}
 		}
 
@@ -145,6 +144,8 @@ public class MVCameraController : MonoBehaviour
 		}
 	}
 
+	private ProtectedTransform protectedTransform;
+
 	[SerializeField]
 	private GrayscaleEffect greyScaleEffect;
 
@@ -154,25 +155,25 @@ public class MVCameraController : MonoBehaviour
 	private List<MVCameraBase> cameraBases = new List<MVCameraBase>();
 
 	[SerializeField]
-	private Camera mainCamera;
-
-	[SerializeField]
 	private Transform secondaryCamera;
 
 	[SerializeField]
 	private Transform tertiaryCamera;
 
+	private bool isLogicRendered;
+
 	[SerializeField]
 	private AvatarCameraFade avatarCameraFade;
-
-	[SerializeField]
-	private AudioSource plingSound;
-
-	private bool isLogicRendered;
 
 	private static Dictionary<MVGameType, ICameraSettings> cameraSettings = new Dictionary<MVGameType, ICameraSettings>();
 
 	public Shader transparentMultiplyColor;
+
+	[SerializeField]
+	private Camera mainCamera;
+
+	[SerializeField]
+	private AudioSource plingSound;
 
 	[SerializeField]
 	private LineDrawManager lineDrawManager;
@@ -185,23 +186,11 @@ public class MVCameraController : MonoBehaviour
 
 	public static Action<bool> OnMuteChange;
 
-	public float FieldOfView
-	{
-		get
-		{
-			return mainCamera.fieldOfView;
-		}
-		set
-		{
-			mainCamera.fieldOfView = value;
-		}
-	}
-
 	public AvatarCameraFade AvatarCameraFade => avatarCameraFade;
 
-	public Camera MainCamera => mainCamera;
-
 	public LineDrawManager LineDrawManager => lineDrawManager;
+
+	public Camera MainCamera => mainCamera;
 
 	public Vector3 FireDirection => transform.forward;
 
@@ -300,6 +289,7 @@ public class MVCameraController : MonoBehaviour
 
 	private void Awake()
 	{
+		protectedTransform = new ProtectedTransform(transform);
 		cameraStack = new CameraStack(cameraBases, this);
 		baseVolume = AudioListener.volume;
 		Mute = false;
@@ -307,7 +297,7 @@ public class MVCameraController : MonoBehaviour
 
 	public void Init()
 	{
-		MainCamera.cullingMask = ~((1 << LayerMask.NameToLayer("UXElement")) | (1 << LayerMask.NameToLayer("Preview")) | (1 << LayerMask.NameToLayer("Hidden")) | (1 << LayerMask.NameToLayer("UXElementSecondary")));
+		MainCamera.cullingMask = ~((1 << LayerMask.NameToLayer("UXElement")) | (1 << LayerMask.NameToLayer("Preview")) | ((1 << LayerMask.NameToLayer("Hidden")) | (1 << LayerMask.NameToLayer("UXElementSecondary"))));
 		if (MVGameControllerBase.GameMode == MVGameMode.Play && (MainCamera.cullingMask & LayerMask.NameToLayer("Logic")) == LayerMask.NameToLayer("Logic"))
 		{
 			MainCamera.cullingMask -= 1 << LayerMask.NameToLayer("Logic");

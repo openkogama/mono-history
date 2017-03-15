@@ -128,8 +128,6 @@ public abstract class PlaymodeCamera : MVPlaymodeCameraBase
 
 	public Vector3 lookAtOffset = new Vector3(0f, 2.5f, 0f);
 
-	protected Vector3 currentLookAtOffset;
-
 	protected bool autoRotate;
 
 	protected Vector3 currentLookAt = Vector3.zero;
@@ -159,7 +157,6 @@ public abstract class PlaymodeCamera : MVPlaymodeCameraBase
 		base.Awake();
 		distance = distanceToAvatar;
 		aroundYInertia = aroundYInertiaMouseControlled;
-		currentLookAtOffset = lookAtOffset;
 	}
 
 	public override void Enter(MVCameraController cameraController)
@@ -207,7 +204,7 @@ public abstract class PlaymodeCamera : MVPlaymodeCameraBase
 		}
 	}
 
-	public override void UpdateCamera(MVCameraController camController, Transform targetTransform)
+	public override void UpdateCamera(MVCameraController camController, ProtectedTransform targetTransform)
 	{
 		HighlightFriendsInSight();
 		avatarHeadOffset = new Vector3(0f, height, 0f);
@@ -226,7 +223,17 @@ public abstract class PlaymodeCamera : MVPlaymodeCameraBase
 		UpdateImpactSimulation(targetTransform);
 	}
 
-	protected abstract void HandleGunMode();
+	protected virtual void HandleGunMode()
+	{
+		if (MVGameControllerBase.WOCM.AvatarLocal.InGunMode)
+		{
+			lookAtOffset = shoulderOffset;
+		}
+		else
+		{
+			lookAtOffset = new Vector3(0f, 0.7f, 0f);
+		}
+	}
 
 	private void UpdatePosition()
 	{
@@ -234,7 +241,7 @@ public abstract class PlaymodeCamera : MVPlaymodeCameraBase
 		float num = distance / distanceToAvatar * lookAtScaleCorrection;
 		Quaternion identity = Quaternion.identity;
 		identity.eulerAngles = new Vector3(0f, transform.rotation.eulerAngles.y, 0f);
-		lookAtPos = lookAtTransform.position + identity * (avatarHeadOffset + currentLookAtOffset * num);
+		lookAtPos = lookAtTransform.position + identity * (avatarHeadOffset + lookAtOffset * num);
 		currentLookAt = lookAtPos;
 		Vector3 vector = smoothLookAt.GetCurrentLookAt(MVGameControllerBase.WOCM.AvatarLocal.RigidBody.Velocity);
 		currentLookAt -= vector;

@@ -99,11 +99,9 @@ public class DesktopEditModeController : ModeControllerBase, IEditModeUI, ISetEd
 
 	private void HandleFocusInputSupress()
 	{
-		if (focusSuppressInput)
+		if (focusSuppressInput && focusSuppressInput)
 		{
-			bool flag = Input.GetKeyUp(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Mouse1);
-			bool flag2 = Time.realtimeSinceStartup - focusTime > 5f;
-			if (flag || flag2)
+			if (Input.GetKeyUp(KeyCode.Mouse0) || Time.realtimeSinceStartup - focusTime > 5f)
 			{
 				focusSuppressInput = false;
 			}

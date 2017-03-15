@@ -68,7 +68,7 @@ public class AndroidVehicleCamera : MVCameraBase, IVehicleCamera
 		transform.rotation = rotation;
 	}
 
-	public override void UpdateCamera(MVCameraController camController, Transform targetTransform)
+	public override void UpdateCamera(MVCameraController camController, ProtectedTransform targetTransform)
 	{
 		UpdateTargetRotation();
 		HandlePos();

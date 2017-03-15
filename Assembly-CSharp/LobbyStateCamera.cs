@@ -25,7 +25,7 @@ public class LobbyStateCamera : MVCameraBase
 		transform.rotation = rotation;
 	}
 
-	public override void UpdateCamera(MVCameraController camController, Transform targetTransform)
+	public override void UpdateCamera(MVCameraController camController, ProtectedTransform targetTransform)
 	{
 		Vector3 lookAtPosition = GetLookAtPosition();
 		transform.position = lookAtPosition + transform.rotation * offset;

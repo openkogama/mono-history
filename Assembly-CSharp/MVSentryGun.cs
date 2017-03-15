@@ -75,7 +75,7 @@ public class MVSentryGun : MVLogicObject, ILogicWorldObject
 		interactable = GameObject.AddComponent<ClientSideNPCInteractable>();
 		interactable.Init(ReceiveDamage);
 		InitializeCommon();
-		GameObject.GetComponent<ClientSideNPCInteractionHandler>().FindWorldObjectParent();
+		gameObject.AddComponent<ClientSideNPCInteractionHandler>();
 		wasDead = interactable.IsDead();
 		UpdateSentryState();
 		PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));

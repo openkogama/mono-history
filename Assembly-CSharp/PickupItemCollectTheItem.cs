@@ -141,7 +141,7 @@ public class PickupItemCollectTheItem : PickupItem
 		arrow = UnityEngine.Object.Instantiate(PrefabPool.Instance.CollectTheItemDropOffArrowPrefab);
 		MVWorldObjectClient mVWorldObjectClient = woDropOff;
 		mVWorldObjectClient.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(mVWorldObjectClient.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(arrow.OnPositionChanged));
-		arrow.Initialize(transform.position + transform.forward * 2f, woDropOff.Transform, transform);
+		arrow.Initialize(woDropOff.Transform, transform);
 		arrow.gameObject.SetActive(value: true);
 	}
 

@@ -1,25 +1,18 @@
 using MV.Common;
 using UnityEngine;
-using UnityEngine.Events;
 
 public class MVGameControllerDesktop : MVGameControllerBase
 {
-	[SerializeField]
-	private GameObject eventSystem;
-
 	private static ModeControllerBase modeController;
 
 	private static ILockCursorManager lockCursorManager;
 
 	private static IEditModeObjectPicker editModeObjectPicker;
 
-	private static bool applicationHasFocus = true;
+	[SerializeField]
+	private GameObject eventSystem;
 
 	public static ILockCursorManager LockCursorManager => lockCursorManager;
-
-	public static UnityAction OnApplicationLostFocus { get; set; }
-
-	public static UnityAction OnApplicationRegainedFocus { get; set; }
 
 	protected override bool IsPlayingInternal
 	{
@@ -89,21 +82,5 @@ public class MVGameControllerDesktop : MVGameControllerBase
 	{
 		quitBaseCallback?.OnQuit();
 		Application.Quit();
-	}
-
-	protected void OnApplicationFocus(bool focus)
-	{
-		if (applicationHasFocus != focus)
-		{
-			applicationHasFocus = focus;
-			if (focus && OnApplicationRegainedFocus != null)
-			{
-				OnApplicationRegainedFocus();
-			}
-			else if (OnApplicationLostFocus != null)
-			{
-				OnApplicationLostFocus();
-			}
-		}
 	}
 }

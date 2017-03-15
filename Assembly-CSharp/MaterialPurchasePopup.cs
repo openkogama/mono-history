@@ -41,7 +41,7 @@ public class MaterialPurchasePopup : MonoBehaviour
 		price.text = material.unlockPriceGold.ToString();
 		productName.text = material.name;
 		materialPreviewer = UnityEngine.Object.Instantiate(materialPreviewer);
-		materialPreviewer.Initialize(material.mesh);
+		materialPreviewer.Initialize(MVGameControllerBase.Game.MaterialRepository.GetMaterial(materialID).mesh);
 		materialPreviewImage.texture = materialPreviewer.renderTexture;
 	}
 
@@ -66,20 +66,20 @@ public class MaterialPurchasePopup : MonoBehaviour
 		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Remove(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
 		if (returnCode == 0)
 		{
+			callback(arg0: true, purchaseResponseData);
 			MVGameControllerBase.Game.MaterialRepository.SetMaterialUnlocked(materialID, unlocked: true);
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 			{
 				x.Pop();
 			});
-			callback(arg0: true, purchaseResponseData);
 		}
 		else
 		{
+			callback(arg0: false, purchaseResponseData);
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 			{
 				x.Create((MVPurchaseReturnCode)returnCode, int.Parse(price.text), 0);
 			});
-			callback(arg0: false, purchaseResponseData);
 			waitOverLay.SetActive(value: false);
 		}
 	}

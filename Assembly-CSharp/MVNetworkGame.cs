@@ -282,22 +282,22 @@ public class MVNetworkGame : IPhotonPeerListener
 			case MVEventCodes.TriggerBoxEnter:
 			{
 				int worldObjectID6 = (int)photonEvent[20];
-				int actorNr2 = (int)photonEvent[254];
-				networkGame.OnTriggerBoxEnterEvent(actorNr2, worldObjectID6);
+				int actorNr3 = (int)photonEvent[254];
+				networkGame.OnTriggerBoxEnterEvent(actorNr3, worldObjectID6);
 				break;
 			}
 			case MVEventCodes.TriggerBoxExit:
 			{
 				int worldObjectID5 = (int)photonEvent[20];
-				int actorNr = (int)photonEvent[254];
-				networkGame.OnTriggerBoxExitEvent(actorNr, worldObjectID5);
+				int actorNr2 = (int)photonEvent[254];
+				networkGame.OnTriggerBoxExitEvent(actorNr2, worldObjectID5);
 				break;
 			}
 			case MVEventCodes.TriggerBoxStayBegin:
 			{
 				int worldObjectID4 = (int)photonEvent[20];
-				int instigatorId = (int)photonEvent[254];
-				networkGame.OnTriggerBoxStayBegin(worldObjectID4, instigatorId);
+				int actorNr = (int)photonEvent[254];
+				networkGame.OnTriggerBoxStayBegin(worldObjectID4, actorNr);
 				break;
 			}
 			case MVEventCodes.TriggerBoxStayEnd:
@@ -3257,7 +3257,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		}
 	}
 
-	private void OnTriggerBoxStayBegin(int worldObjectID, int instigatorId)
+	private void OnTriggerBoxStayBegin(int worldObjectID, int actorNr)
 	{
 		MVWorldObjectClient worldObjectClient = WorldObjectClientManager.GetWorldObjectClient(worldObjectID);
 		if (worldObjectClient == null)
@@ -3266,7 +3266,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		}
 		else if (worldObjectClient is ITriggerBoxEventsHandler triggerBoxEventsHandler)
 		{
-			triggerBoxEventsHandler.Enter(instigatorId);
+			triggerBoxEventsHandler.Enter(actorNr);
 		}
 		else
 		{

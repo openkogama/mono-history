@@ -278,6 +278,16 @@ public class ChatControllerUGUI : MonoBehaviour
 		}
 	}
 
+	private void AddKillMessage(Dictionary<object, object> data)
+	{
+		if (GameMessagesRepository.ShowKilledMessage(data))
+		{
+			string arg = GameMessagesRepository.CreateKilledMessage(data);
+			arg = $"<color=#{Styles.ColorToHex(killMessageColor)}>{arg}</color>";
+			AddLine(arg);
+		}
+	}
+
 	private void AddJoinFlowStatusLine(Dictionary<object, object> data)
 	{
 		string arg = (string)data[(byte)5];

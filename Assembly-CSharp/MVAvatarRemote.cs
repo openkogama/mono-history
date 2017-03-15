@@ -173,7 +173,7 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 
 	public void VisualizeBulletImpact(VoxelHit voxelHit, Ray lineOfFire, int shooterActorNumber, float damage = 100f)
 	{
-		if (!MVGameControllerBase.Game.TeamManager.IsOnSameTeam(OwnerActorNr, shooterActorNumber) && !IsInMode(AvatarModeTypes.Dead) && !avatar.HasModifierEffect(AvatarModifierEffect.Invulnerable))
+		if (!MVGameControllerBase.Game.TeamManager.IsOnSameTeam(OwnerActorNr, shooterActorNumber) && !IsInMode(AvatarModeTypes.Dead))
 		{
 			avatar.VisualizeBulletImpact(voxelHit, lineOfFire, shooterActorNumber, damage);
 			if (shooterActorNumber == MVGameControllerBase.Game.LocalPlayer.ActorNr)

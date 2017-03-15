@@ -24,6 +24,8 @@ public class GenerateTextureData : MonoBehaviour
 	private IEnumerator GenerateTexture(Action<byte[]> textureDataCallback)
 	{
 		isCreatingScreenShot = true;
+		int width = 600;
+		int height = 240;
 		GameObject screenshotCamObject = new GameObject
 		{
 			layer = LayerMask.NameToLayer("Default")
@@ -35,22 +37,18 @@ public class GenerateTextureData : MonoBehaviour
 		screenshotCam.backgroundColor = color;
 		screenshotCam.fieldOfView = Camera.main.fieldOfView;
 		screenshotCam.aspect = Camera.main.aspect;
-		int height = (int)(920f / Camera.main.aspect);
+		height = (int)((float)width / Camera.main.aspect);
 		screenshotCam.nearClipPlane = Camera.main.nearClipPlane;
 		LayerFlags layers = LayerFlags.Default | LayerFlags.Water | LayerFlags.Player;
 		screenshotCam.cullingMask = LayerUtil.GetMask(layers);
 		screenshotCamObject.transform.position = Camera.main.gameObject.transform.position;
 		screenshotCamObject.transform.rotation = Camera.main.gameObject.transform.rotation;
-		RenderTexture screenshotRenderTexture = (screenshotCam.targetTexture = new RenderTexture(920, height, 24)
-		{
-			antiAliasing = 8,
-			anisoLevel = 16
-		});
+		RenderTexture screenshotRenderTexture = (screenshotCam.targetTexture = new RenderTexture(width, height, 24));
 		yield return 0;
 		yield return 0;
 		RenderTexture.active = screenshotRenderTexture;
-		Texture2D screenshotTexture = new Texture2D(920, height, TextureFormat.RGB24, mipmap: false);
-		screenshotTexture.ReadPixels(new Rect(0f, 0f, 920f, height), 0, 0);
+		Texture2D screenshotTexture = new Texture2D(width, height, TextureFormat.RGB24, mipmap: false);
+		screenshotTexture.ReadPixels(new Rect(0f, 0f, width, height), 0, 0);
 		screenshotTexture.Apply();
 		byte[] bytes = screenshotTexture.EncodeToPNG();
 		textureDataCallback((byte[])bytes.Clone());

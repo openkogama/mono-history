@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using MV.Common;
+using UnityEngine;
 
 public class VehicleEquipable : MVEquipable
 {
@@ -22,6 +23,7 @@ public class VehicleEquipable : MVEquipable
 				interactableLocal.TakeDamage(-50f, null, PlayerKilledByType.None);
 				return true;
 			}
+			Debug.Log(string.Concat("ignoring ", type, " on car pickup"));
 			return false;
 		}
 		Dictionary<object, object> dictionary = new Dictionary<object, object>();

@@ -887,6 +887,8 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 
 	public class GodzillaMode : AvatarMode
 	{
+		public const string screenName = "Colossus";
+
 		private const float levitationHeight = 0.2f;
 
 		private MVCameraBase camera;
@@ -980,7 +982,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 			switch (MVGameControllerBase.Game.GameType)
 			{
 			case MVGameType.Classic:
-				camera = UnityEngine.Object.Instantiate(PrefabPool.Instance.GodzillaCameraDesktop);
+				camera = UnityEngine.Object.Instantiate(PrefabPool.Instance.GodzillaCamera);
 				break;
 			case MVGameType.Platformer:
 				camera = UnityEngine.Object.Instantiate(PrefabPool.Instance.GodzillaCamera2D);
@@ -1024,8 +1026,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 	public Action<string> OnKilled;
 
 	public Action<float, MVPlayer, PlayerKilledByType> OnDamageTaken;
-
-	public AvatarInteractable InteractableLocal => interactableLocal;
 
 	public AvatarPickupOwner PickupOwner => pickupOwner;
 
@@ -1122,7 +1122,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 		avatarMotor = gameObject.AddComponent<AvatarMotor>();
 		triggerHandler = gameObject.AddComponent<MVTriggerHandler>();
 		AvatarInteractable avatarInteractable = gameObject.AddComponent<AvatarInteractable>();
-		avatarInteractable.Init(Modifiers, Health);
+		avatarInteractable.Init(Modifiers, Invulnerable, Health);
 		interactableLocal = avatarInteractable;
 		AvatarInteractable avatarInteractable2 = interactableLocal;
 		avatarInteractable2.OnDamageTaken = (Action<float, MVPlayer, PlayerKilledByType>)Delegate.Combine(avatarInteractable2.OnDamageTaken, new Action<float, MVPlayer, PlayerKilledByType>(RelayDamageEvent));
@@ -1408,7 +1408,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 
 	public void VisualizeBulletImpact(VoxelHit voxelHit, Ray lineOfFire, int shooterActorNumber, float damage = 100f)
 	{
-		if (!MVGameControllerBase.Game.TeamManager.IsOnSameTeam(OwnerActorNr, shooterActorNumber) && !IsInMode(AvatarModeTypes.Dead) && !avatar.HasModifierEffect(AvatarModifierEffect.Invulnerable))
+		if (!MVGameControllerBase.Game.TeamManager.IsOnSameTeam(OwnerActorNr, shooterActorNumber) && !IsInMode(AvatarModeTypes.Dead))
 		{
 			avatar.VisualizeBulletImpact(voxelHit, lineOfFire, shooterActorNumber, damage);
 		}

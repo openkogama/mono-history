@@ -10,6 +10,8 @@ internal static class MVInputWrapper
 
 	private static int suppressShortcutKeysFrame = 0;
 
+	public static bool hasLostFocus = false;
+
 	private static float prevMouseUpTime;
 
 	private static Dictionary<string, bool> usedAxes = new Dictionary<string, bool>();
@@ -67,6 +69,11 @@ internal static class MVInputWrapper
 	public static void SetInputMap(IKogamaInputMap inputMap)
 	{
 		MVInputWrapper.inputMap = inputMap;
+	}
+
+	public static void Reset()
+	{
+		hasLostFocus = false;
 	}
 
 	public static bool GetBooleanControl(KogamaControls control, bool forceKeyUse = false, int index = -1)

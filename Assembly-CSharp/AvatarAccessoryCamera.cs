@@ -51,7 +51,7 @@ public class AvatarAccessoryCamera : MVCameraBase
 		}
 	}
 
-	public override void UpdateCamera(MVCameraController camController, Transform targetTransform)
+	public override void UpdateCamera(MVCameraController camController, ProtectedTransform targetTransform)
 	{
 		HandleInput(camController);
 		angle += angleVelocity * Time.deltaTime;

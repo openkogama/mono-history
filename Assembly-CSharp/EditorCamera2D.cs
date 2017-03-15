@@ -4,7 +4,7 @@ public class EditorCamera2D : MVCameraBase
 {
 	public override CameraType CameraType => CameraType.EditorCamera2D;
 
-	public override void UpdateCamera(MVCameraController camController, Transform targetTransform)
+	public override void UpdateCamera(MVCameraController camController, ProtectedTransform targetTransform)
 	{
 		transform.rotation = Quaternion.identity;
 		transform.position = MVGameControllerBase.WOCM.AvatarLocal.LookAtPos;

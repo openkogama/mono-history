@@ -17,7 +17,7 @@ public class GodzillaCamera2D : MVCameraBase
 		this.scale = scale;
 	}
 
-	public override void UpdateCamera(MVCameraController camController, Transform targetTransform)
+	public override void UpdateCamera(MVCameraController camController, ProtectedTransform targetTransform)
 	{
 		transform.eulerAngles = new Vector3(rotOffset, 0f, 0f);
 		transform.position = MVGameControllerBase.WOCM.AvatarLocal.LookAtPos - transform.rotation * Vector3.forward * baseDistanceToAvatar * scale;
