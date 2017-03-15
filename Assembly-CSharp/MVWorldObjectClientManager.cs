@@ -36,6 +36,11 @@ public abstract class MVWorldObjectClientManager : IWorldObjectManager
 
 		public void RemoveWorldObjectFromTypeSet(MVWorldObjectClient wo)
 		{
+			if (wo == null)
+			{
+				Debug.LogError("RemoveFromTypeSet failed. World object is null. This is most likely caused by non recursive delete serverside");
+				return;
+			}
 			if (!worldObjectTypeSets.ContainsKey(wo.WorldObjectType))
 			{
 				Debug.LogError("RemoveFromTypeSet failed. There is no HashSet defined for type: " + wo.WorldObjectType);

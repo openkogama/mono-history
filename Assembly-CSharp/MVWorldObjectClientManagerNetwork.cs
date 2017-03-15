@@ -294,6 +294,11 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 	private void DeleteWO(int id)
 	{
 		MVWorldObjectClient worldObjectClient = GetWorldObjectClient(id);
+		if (worldObjectClient == null)
+		{
+			Debug.LogError("Wo not found. This is most likely because non recursive delete server side");
+			return;
+		}
 		worldObjectMapping.RemoveWorldObjectFromTypeSet(worldObjectClient);
 		OnWorldObjectDestroyed(worldObjectClient.Id);
 		worldObjectClient.Destroy();

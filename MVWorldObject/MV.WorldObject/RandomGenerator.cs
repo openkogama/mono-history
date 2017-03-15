@@ -65,7 +65,7 @@ public class RandomGenerator
 	public int Range(int min, int max)
 	{
 		max--;
-		if (max <= min)
+		if (max < min)
 		{
 			throw new Exception("max must be greater than min");
 		}
