@@ -60,9 +60,14 @@ public class MVRandomBox : MVLogicObject, ILogicWorldObject
 	{
 		if (logicInputState == LogicInputState.FromColdToHot)
 		{
-			CurrentValue = randomGenerator.Range(0, OutputLinkRefs.Count);
-			Debug.Log("CurrentValue " + CurrentValue + " " + logicObjectManager.TimeStamp);
-			Debug.Log(string.Concat(randomGenerator, " ", logicObjectManager.TimeStamp));
+			if (OutputLinkRefs.Count == 0)
+			{
+				CurrentValue = 0;
+			}
+			else
+			{
+				CurrentValue = randomGenerator.Range(0, OutputLinkRefs.Count);
+			}
 		}
 		if (logicInputState == LogicInputState.FromColdToHot || logicInputState == LogicInputState.Hot)
 		{

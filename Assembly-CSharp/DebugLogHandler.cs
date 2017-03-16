@@ -6,11 +6,15 @@ using UnityEngine;
 
 public static class DebugLogHandler
 {
+	private const int maxErrorBeforeReport = 50;
+
+	private static int errorCount = 0;
+
 	private static bool logErrorHasBeenSendOnce = false;
 
 	private static Queue<Dictionary<string, object>> logContextQueue = new Queue<Dictionary<string, object>>();
 
-	private static int maxLogContextQueueCount = 15;
+	private static int maxLogContextQueueCount = 5;
 
 	private static int sampleErrorFrequency = 100;
 
@@ -18,9 +22,13 @@ public static class DebugLogHandler
 
 	private static bool isSampling = false;
 
+	private static string firstError = string.Empty;
+
 	private static HashSet<string> ignoreLogStrings = new HashSet<string> { "Fullscreen mode can only be enabled in the web player after clicking on the content." };
 
-	public static bool IsSampling => isSampling;
+	private static bool SendOnGoingError => 50 == errorCount;
+
+	public static bool IsSampling => true;
 
 	public static RavenClient RavenClient => ravenClient;
 
@@ -31,7 +39,7 @@ public static class DebugLogHandler
 
 	public static void Init()
 	{
-		isSampling = Random.Range(0, 11) == 10;
+		isSampling = Random.Range(0, sampleErrorFrequency + 1) == sampleErrorFrequency;
 		Application.logMessageReceived += HandleLog;
 	}
 
@@ -45,35 +53,53 @@ public static class DebugLogHandler
 		if (type == LogType.Warning || type == LogType.Log || IsIgnored(logString))
 		{
 			AddLogToLogContext(logString, type);
+			return;
 		}
-		else
+		errorCount++;
+		if (!logErrorHasBeenSendOnce)
 		{
-			if (logErrorHasBeenSendOnce)
-			{
-				return;
-			}
+			firstError = logString;
+		}
+		if (!logErrorHasBeenSendOnce || SendOnGoingError)
+		{
 			logErrorHasBeenSendOnce = true;
-			if (MVClientSettings.IsDebugMode)
+			if (SendOnGoingError)
 			{
-				try
-				{
-					MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, logString + ": " + stackTrace);
-				}
-				catch
-				{
-				}
+				logString = "[Ongoing error] " + logString;
 			}
-			if (MVClientSettings.EnableSentry || isSampling)
+			SendToConsole(logString, stackTrace);
+			ReportError(logString, stackTrace, type);
+		}
+	}
+
+	private static void ReportError(string logString, string stackTrace, LogType type)
+	{
+		if (MVClientSettings.EnableSentry || isSampling)
+		{
+			if (ravenClient != null)
 			{
-				if (ravenClient != null)
-				{
-					ravenClient.CaptureMessage(logString + "\n" + stackTrace, UnityLogTypeToRavenLevel(type), GetTags(), GetExtraSentryData());
-				}
-				else
-				{
-					MVGameControllerBase.OperationRequests.SendClientLog(logString, stackTrace, type, GetExtraSentryData(), GetTags());
-				}
+				ravenClient.CaptureMessage(logString + "\n" + stackTrace, UnityLogTypeToRavenLevel(type), GetTags(), GetExtraSentryData());
 			}
+			else
+			{
+				MVGameControllerBase.OperationRequests.SendClientLog(logString, stackTrace, type, GetExtraSentryData(), GetTags());
+			}
+		}
+	}
+
+	private static void SendToConsole(string logString, string stackTrace)
+	{
+		try
+		{
+			string text = logString + ": " + stackTrace;
+			if (text.Length > 1024)
+			{
+				text = text.Substring(0, 1024);
+			}
+			MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, text);
+		}
+		catch
+		{
 		}
 	}
 
@@ -119,6 +145,10 @@ public static class DebugLogHandler
 		dictionary.Add("RuntimePlatform", Application.platform.ToString());
 		dictionary.Add("SystemInfo", GetSystemInfo());
 		dictionary.Add("Log Context", GetLogContext());
+		if (SendOnGoingError)
+		{
+			dictionary.Add("First Error", firstError);
+		}
 		return dictionary;
 	}
 
