@@ -12,6 +12,8 @@ public abstract class MVCameraBase : MonoBehaviour
 
 	public abstract CameraType CameraType { get; }
 
+	public virtual float FieldOfView => 70f;
+
 	public virtual void Awake()
 	{
 	}

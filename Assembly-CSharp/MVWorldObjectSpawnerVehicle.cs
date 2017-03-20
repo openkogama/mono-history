@@ -155,7 +155,7 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 		{
 			return false;
 		}
-		if (avatarInteractable.HasModifierEffect(AvatarModifierEffect.DisableVehicles))
+		if (avatarInteractable.HasModifierEffect(AvatarModifierEffect.DisableVehicles) || avatarInteractable.HasModifierEffect(AvatarModifierEffect.DisablePickups))
 		{
 			return false;
 		}

@@ -42,7 +42,7 @@ public class PickupItemRailGun : PickupItemWithDelay
 
 	private float toFieldOfView;
 
-	private float initialFOV = 60f;
+	private float initialFOV;
 
 	private bool isCharging;
 
@@ -108,7 +108,7 @@ public class PickupItemRailGun : PickupItemWithDelay
 		chargeAudioSource.pitch = 0.2f + currentCharge;
 		if (owner.IsLocal)
 		{
-			Camera.main.fieldOfView = Mathf.Lerp(initialFOV, toFieldOfView, currentCharge);
+			MVGameControllerBase.CameraController.MainCamera.fieldOfView = Mathf.Lerp(initialFOV, toFieldOfView, currentCharge);
 		}
 		chargeParticles.time = currentCharge;
 	}
@@ -135,7 +135,7 @@ public class PickupItemRailGun : PickupItemWithDelay
 			}
 			if (owner.IsLocal)
 			{
-				Camera.main.fieldOfView = initialFOV;
+				MVGameControllerBase.CameraController.MainCamera.fieldOfView = initialFOV;
 			}
 		}
 	}
@@ -143,7 +143,7 @@ public class PickupItemRailGun : PickupItemWithDelay
 	public override void OnEquip()
 	{
 		base.OnEquip();
-		initialFOV = Camera.main.fieldOfView;
+		initialFOV = MVGameControllerBase.CameraController.MainCamera.fieldOfView;
 	}
 
 	public override void OnUnequip()
@@ -153,7 +153,7 @@ public class PickupItemRailGun : PickupItemWithDelay
 		if (owner.IsLocal)
 		{
 			isCharging = false;
-			Camera.main.fieldOfView = initialFOV;
+			MVGameControllerBase.CameraController.MainCamera.fieldOfView = initialFOV;
 		}
 	}
 

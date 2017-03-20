@@ -2,7 +2,7 @@ using System;
 using MV.Common;
 using UnityEngine;
 
-public class GodzillaCamera : MVCameraBase
+public abstract class GodzillaCamera : MVCameraBase
 {
 	public const float localBodyTransparancy = 0.9f;
 
@@ -30,11 +30,18 @@ public class GodzillaCamera : MVCameraBase
 
 	public override CameraType CameraType => CameraType.GodzillaModeMainCamera;
 
-	private void OnDestroy()
+	protected abstract Vector2 GetMouseInput();
+
+	protected void OnDestroy()
+	{
+		UnityEngine.Object.Destroy(damageIndicator);
+	}
+
+	private void OnValidate()
 	{
 		if (damageIndicator != null)
 		{
-			UnityEngine.Object.Destroy(damageIndicator.gameObject);
+			damageIndicator.enabled = false;
 		}
 	}
 
@@ -63,11 +70,6 @@ public class GodzillaCamera : MVCameraBase
 			return a;
 		}
 		return (!(DegreesBetween(a, min) < DegreesBetween(a, max))) ? max : min;
-	}
-
-	protected virtual Vector2 GetMouseInput()
-	{
-		return new Vector2(0f - MVInputWrapper.GetAxis("Mouse Y"), MVInputWrapper.GetAxis("Mouse X"));
 	}
 
 	private void UpdateCameraRotation()
@@ -119,6 +121,7 @@ public class GodzillaCamera : MVCameraBase
 		MVGameControllerBase.CameraController.StartTransitionCam(0.3f);
 		MVAvatarLocal mVAvatarLocal = player;
 		mVAvatarLocal.OnDamageTaken = (Action<float, MVPlayer, PlayerKilledByType>)Delegate.Combine(mVAvatarLocal.OnDamageTaken, new Action<float, MVPlayer, PlayerKilledByType>(damageIndicator.ShowDamage));
+		damageIndicator.enabled = true;
 	}
 
 	public override void Exit(MVCameraController camController)
@@ -128,5 +131,7 @@ public class GodzillaCamera : MVCameraBase
 		MVGameControllerBase.WOCM.AvatarLocal.SetTransparency = 1f;
 		MVAvatarLocal mVAvatarLocal = player;
 		mVAvatarLocal.OnDamageTaken = (Action<float, MVPlayer, PlayerKilledByType>)Delegate.Remove(mVAvatarLocal.OnDamageTaken, new Action<float, MVPlayer, PlayerKilledByType>(damageIndicator.ShowDamage));
+		damageIndicator.enabled = false;
+		damageIndicator.ResetIndicators();
 	}
 }

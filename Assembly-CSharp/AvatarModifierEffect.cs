@@ -20,5 +20,6 @@ public enum AvatarModifierEffect
 	StaticFriction,
 	WallJump,
 	FlamerDamagePrSec,
-	ThrustFactor
+	ThrustFactor,
+	Size
 }

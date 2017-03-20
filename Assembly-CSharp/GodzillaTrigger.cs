@@ -21,6 +21,10 @@ public class GodzillaTrigger : MVLogicObject, ILogicWorldObject
 
 	private List<GameObject> toHideOnEntry;
 
+	private MeshRenderer cover;
+
+	private Material inventoryCoverMaterial;
+
 	private OutputSignalTransmitter outputSignalTransmitter;
 
 	public override bool HasOutputConnector => true;
@@ -53,6 +57,8 @@ public class GodzillaTrigger : MVLogicObject, ILogicWorldObject
 		logicCube = godzillaTriggerObject.LogicCube;
 		shockWaveEmitter = godzillaTriggerObject.ShockWaveEmitter;
 		toHideOnEntry = godzillaTriggerObject.ToHideOnEntry;
+		cover = godzillaTriggerObject.Cover;
+		inventoryCoverMaterial = godzillaTriggerObject.InventoryCoverMaterial;
 		UseInteractor useInteractor = new UseInteractor(this, transform.gameObject, reset: false, godzillaTriggerObject.TriggerBoxEvents.Collider, Enter, CanUse);
 		godzillaTriggerObject.TriggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
 		godzillaTriggerObject.TriggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
@@ -100,6 +106,7 @@ public class GodzillaTrigger : MVLogicObject, ILogicWorldObject
 	{
 		base.InitializeInventory();
 		logicCube.SetActive(value: false);
+		cover.material = inventoryCoverMaterial;
 	}
 
 	public override void OnDataUpdate()

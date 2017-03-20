@@ -14,6 +14,8 @@ public class Avatar : MonoBehaviour, IBulletImpactVisualizer
 
 	private Dictionary<AvatarModifierPackageType, byte> currentModifierByteState = new Dictionary<AvatarModifierPackageType, byte>();
 
+	private byte[] modifierEffectCount = new byte[21];
+
 	private InteractionDataHandlerBase interactionDataHandler;
 
 	private Collider avatarCollider;
@@ -155,37 +157,49 @@ public class Avatar : MonoBehaviour, IBulletImpactVisualizer
 				list.Add(item);
 			}
 		}
-		foreach (AvatarModifierPackageType item2 in list)
+		for (int i = 0; i < list.Count; i++)
 		{
-			modifiers[item2].Deactivate(this);
-			modifiers.Remove(item2);
-			currentModifierByteState.Remove(item2);
+			AvatarModifierPackageType avatarModifierPackageType = list[i];
+			modifiers[avatarModifierPackageType].Deactivate(this);
+			modifiers.Remove(avatarModifierPackageType);
+			currentModifierByteState.Remove(avatarModifierPackageType);
+			AvatarModifierPackage.AvatarModifier[] avatarModifiers = AvatarModifierPackageFactory.GetPackage(avatarModifierPackageType).avatarModifiers;
+			for (int j = 0; j < avatarModifiers.Length; j++)
+			{
+				modifierEffectCount[(int)avatarModifiers[j].avatarModifierEffect]--;
+			}
 		}
 		foreach (KeyValuePair<object, object> newModifier in newModifiers)
 		{
-			string text2 = newModifier.Key as string;
-			AvatarModifierPackageType avatarModifierPackageType = (AvatarModifierPackageType)(int)Enum.Parse(typeof(AvatarModifierPackageType), text2.TrimStart('_'));
-			if (!modifiers.ContainsKey(avatarModifierPackageType))
+			string text2 = (string)newModifier.Key;
+			AvatarModifierPackageType avatarModifierPackageType2 = (AvatarModifierPackageType)(int)Enum.Parse(typeof(AvatarModifierPackageType), text2.TrimStart('_'));
+			if (!modifiers.ContainsKey(avatarModifierPackageType2))
 			{
-				AvatarModifier avatarModifier = AvatarModifier.CreateFromType(avatarModifierPackageType, this);
-				if (avatarModifier != null)
+				AvatarModifier avatarModifier = AvatarModifier.CreateFromType(avatarModifierPackageType2, this);
+				if (!(avatarModifier != null))
 				{
-					if (!avatarModifier.EvaluateShouldBeAdded(modifiers))
-					{
-						UnityEngine.Object.Destroy(avatarModifier.gameObject);
-						continue;
-					}
-					avatarModifier.transform.parent = transform;
-					avatarModifier.transform.localPosition = Vector3.zero;
-					modifiers.Add(avatarModifierPackageType, avatarModifier);
-					currentModifierByteState.Add(avatarModifierPackageType, (byte)newModifier.Value);
-					avatarModifier.Activate(this);
+					continue;
+				}
+				if (!avatarModifier.EvaluateShouldBeAdded(modifiers))
+				{
+					UnityEngine.Object.Destroy(avatarModifier.gameObject);
+					continue;
+				}
+				avatarModifier.transform.parent = transform;
+				avatarModifier.transform.localPosition = Vector3.zero;
+				modifiers.Add(avatarModifierPackageType2, avatarModifier);
+				currentModifierByteState.Add(avatarModifierPackageType2, (byte)newModifier.Value);
+				avatarModifier.Activate(this);
+				AvatarModifierPackage.AvatarModifier[] avatarModifiers2 = AvatarModifierPackageFactory.GetPackage(avatarModifier.ModifierType).avatarModifiers;
+				for (int k = 0; k < avatarModifiers2.Length; k++)
+				{
+					modifierEffectCount[(int)avatarModifiers2[k].avatarModifierEffect]++;
 				}
 			}
-			else if ((byte)newModifier.Value != currentModifierByteState[avatarModifierPackageType])
+			else if ((byte)newModifier.Value != currentModifierByteState[avatarModifierPackageType2])
 			{
-				modifiers[avatarModifierPackageType].ResetTimeStamp();
-				currentModifierByteState[avatarModifierPackageType] = (byte)newModifier.Value;
+				modifiers[avatarModifierPackageType2].ResetTimeStamp();
+				currentModifierByteState[avatarModifierPackageType2] = (byte)newModifier.Value;
 			}
 		}
 	}
@@ -258,5 +272,15 @@ public class Avatar : MonoBehaviour, IBulletImpactVisualizer
 	public void VisualizeBulletImpact(VoxelHit voxelHit, Ray lineOfFire, int shooterActorNumber, float damage = 100f)
 	{
 		bulletImpactVisualizer.VisualizeBulletImpact(voxelHit, lineOfFire, shooterActorNumber, damage);
+	}
+
+	public bool HasModifierPackage(AvatarModifierPackageType modifierPackageType)
+	{
+		return modifiers.ContainsKey(modifierPackageType);
+	}
+
+	public bool HasModifierEffect(AvatarModifierEffect modifierEffect)
+	{
+		return modifierEffectCount[(int)modifierEffect] > 0;
 	}
 }

@@ -12,8 +12,8 @@ public class PickupItemFlamethrower : PickupItem
 	[SerializeField]
 	private float hitRadius = 1.2f;
 
-	[Tooltip("How many seconds a fueltank lasts.")]
 	[SerializeField]
+	[Tooltip("How many seconds a fueltank lasts.")]
 	private ObscuredFloat maxFuelTime = 100f;
 
 	[SerializeField]
@@ -96,7 +96,7 @@ public class PickupItemFlamethrower : PickupItem
 					mvRigidBody.AddImpulse(new Vector3(0f, 0f - impulseY, 0f), suspendImpactDamage: true);
 				}
 			}
-			if ((float)currentFuel < 0f)
+			if ((float)currentFuel <= 0f)
 			{
 				MVEquipable equipable = owner.WorldObjectOwner.GameObject.GetComponent<MVEquipable>();
 				if (equipable != null)

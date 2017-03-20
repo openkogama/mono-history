@@ -2,13 +2,13 @@ using UnityEngine;
 
 public class FirstPersonDeathCamera : MVCameraBase
 {
-	[Header("Settings")]
 	[SerializeField]
+	[Header("Settings")]
 	private Vector3 cameraOffset;
 
+	[SerializeField]
 	[Tooltip("Strength of screen flash.")]
 	[Range(0f, 1f)]
-	[SerializeField]
 	private float flashStrength;
 
 	[SerializeField]
@@ -19,7 +19,7 @@ public class FirstPersonDeathCamera : MVCameraBase
 
 	public override void Awake()
 	{
-		gui.transform.parent = null;
+		gui.transform.SetParent(null, worldPositionStays: false);
 	}
 
 	private void OnDestroy()
@@ -42,8 +42,8 @@ public class FirstPersonDeathCamera : MVCameraBase
 		camController.AvatarCameraFade.enabled = false;
 		gui.Flash(0.9f);
 		MVGameControllerBase.WOCM.AvatarLocal.SetTransparency = 0.9f;
-		transform.parent = MVGameControllerBase.WOCM.AvatarLocal.Body.BodyData.GetPartBone(BodyData.PartIndex.Head).transform;
-		transform.Translate(cameraOffset * transform.lossyScale.y);
+		transform.SetParent(MVGameControllerBase.WOCM.AvatarLocal.Body.BodyData.GetPartBone(BodyData.PartIndex.Head).transform, worldPositionStays: false);
+		transform.localPosition = cameraOffset;
 	}
 
 	public override void Exit(MVCameraController camController)

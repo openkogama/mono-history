@@ -1,16 +1,19 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class DesktopDefaultKeyboardMapping : IKogamaInputMap
 {
 	protected Dictionary<KogamaControls, KeyCode[]> keyMapping;
 
-	private HashSet<KeyCode> currentKeyDownStates = new HashSet<KeyCode>();
+	protected BitArray controlDown = new BitArray(52);
 
 	public DesktopDefaultKeyboardMapping()
 	{
+		MVGameControllerDesktop.OnApplicationLostFocus = (UnityAction)Delegate.Combine(MVGameControllerDesktop.OnApplicationLostFocus, new UnityAction(OnApplicationLostFocus));
+		MVGameControllerDesktop.OnApplicationRegainedFocus = (UnityAction)Delegate.Combine(MVGameControllerDesktop.OnApplicationRegainedFocus, new UnityAction(OnApplicationRegainedFocus));
 		keyMapping = new Dictionary<KogamaControls, KeyCode[]>
 		{
 			{
@@ -249,54 +252,57 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap
 		};
 	}
 
-	public virtual bool GetBooleanControl(KogamaControls control, KeyState keyState, int index = -1)
+	private void OnApplicationLostFocus()
 	{
-		Func<KeyCode, bool> func = null;
-		switch (keyState)
-		{
-		case KeyState.Pressed:
-			func = Input.GetKey;
-			break;
-		case KeyState.Down:
-			func = Input.GetKeyDown;
-			break;
-		case KeyState.Up:
-			func = Input.GetKeyUp;
-			break;
-		}
-		bool result = false;
-		if (!keyMapping.Keys.Contains(control))
-		{
-			Debug.Log("Trying to retreive an unmapped control for " + control);
-			return false;
-		}
-		int num = 0;
+		controlDown.SetAll(value: false);
+	}
+
+	private void OnApplicationRegainedFocus()
+	{
+	}
+
+	public bool GetBooleanControl(KogamaControls control, KeyState keyState, int index = -1)
+	{
 		KeyCode[] array = keyMapping[control];
-		foreach (KeyCode keyCode in array)
+		for (int i = 0; i < array.Length; i++)
 		{
-			if (func == new Func<KeyCode, bool>(Input.GetKeyUp) && currentKeyDownStates.Contains(keyCode) && MVInputWrapper.hasLostFocus)
+			if (index != -1 && i != index)
 			{
-				currentKeyDownStates.Remove(keyCode);
-				result = true;
+				continue;
 			}
-			if (func(keyCode) && (num == index || index == -1))
+			KeyCode key = array[i];
+			switch (keyState)
 			{
-				if (func == new Func<KeyCode, bool>(Input.GetKeyUp))
+			case KeyState.Pressed:
+				if (!controlDown[(int)control] && Input.GetKeyDown(key))
 				{
-					if (currentKeyDownStates.Contains(keyCode))
-					{
-						currentKeyDownStates.Remove(keyCode);
-					}
+					controlDown[(int)control] = true;
 				}
-				else if (func == new Func<KeyCode, bool>(Input.GetKeyDown))
+				else if (controlDown[(int)control] && Input.GetKeyUp(key))
 				{
-					currentKeyDownStates.Add(keyCode);
+					controlDown[(int)control] = false;
 				}
-				result = true;
-				break;
+				return controlDown[(int)control];
+			case KeyState.Down:
+			{
+				bool keyDown = Input.GetKeyDown(key);
+				if (keyDown)
+				{
+					controlDown[(int)control] = true;
+				}
+				return keyDown;
 			}
-			num++;
+			case KeyState.Up:
+			{
+				bool keyUp = Input.GetKeyUp(key);
+				if (keyUp)
+				{
+					controlDown[(int)control] = false;
+				}
+				return keyUp;
+			}
+			}
 		}
-		return result;
+		return false;
 	}
 }

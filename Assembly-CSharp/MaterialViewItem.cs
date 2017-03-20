@@ -85,7 +85,7 @@ public class MaterialViewItem : MonoBehaviour
 		if (success)
 		{
 			locked = false;
-			lockedImage.gameObject.SetActive(locked);
+			lockedImage.gameObject.SetActive(value: false);
 			OnClick();
 		}
 	}

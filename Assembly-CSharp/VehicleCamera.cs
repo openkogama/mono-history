@@ -51,6 +51,18 @@ public class VehicleCamera : PlaymodeCamera, IVehicleCamera
 		transform.parent = originalTransformParent;
 	}
 
+	protected override void HandleGunMode()
+	{
+		if (MVGameControllerBase.WOCM.AvatarLocal.InGunMode)
+		{
+			currentLookAtOffset = shoulderOffset;
+		}
+		else
+		{
+			currentLookAtOffset = lookAtOffset;
+		}
+	}
+
 	private void UpdateTargetRotation()
 	{
 		Vector3 eulerAngles = targetRot.EulerAngles;

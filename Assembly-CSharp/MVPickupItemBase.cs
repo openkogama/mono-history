@@ -129,25 +129,15 @@ public class MVPickupItemBase : MVLogicObject, IUpdatecontrollerSubscriber, IPic
 		{
 			return;
 		}
-		for (int i = 0; i < instigatorsInTrigger.Count; i++)
+		for (int num = instigatorsInTrigger.Count - 1; num >= 0; num--)
 		{
-			bool flag = true;
-			if (pickupPrefabLUT[Type].equipableType == AvatarEquipableType.Weapon)
+			if (MVGameControllerBase.WOCM.GetWorldObjectClient(instigatorsInTrigger[num]) == null)
 			{
-				int woIDWithLocalOwnerHighestInHierarchy = MVGameControllerBase.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(instigatorsInTrigger[i]);
-				MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDWithLocalOwnerHighestInHierarchy);
-				if (worldObjectClient != null)
-				{
-					MVPickupOwner mVPickupOwner = worldObjectClient.GameObject.GetComponent<MVPickupOwner>();
-					if (mVPickupOwner != null && !(mVPickupOwner is VehiclePickupOwner) && mVPickupOwner.CurrentItem != null && mVPickupOwner.CurrentItem.Type != Type)
-					{
-						flag = mVPickupOwner.CurrentItem.Type == AvatarItemType.Hand;
-					}
-				}
+				instigatorsInTrigger.RemoveAt(num);
 			}
-			if ((useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0 && flag)
+			else if (ShouldDoAutoPickup(instigatorsInTrigger[num]))
 			{
-				DoPickup(instigatorsInTrigger[i]);
+				DoPickup(instigatorsInTrigger[num]);
 			}
 		}
 	}
@@ -247,11 +237,20 @@ public class MVPickupItemBase : MVLogicObject, IUpdatecontrollerSubscriber, IPic
 		{
 			return false;
 		}
+		int woIDWithLocalOwnerHighestInHierarchy = MVGameControllerBase.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(MVGameControllerBase.WOCM.AvatarLocal.Id);
+		if (ShouldDoAutoPickup(woIDWithLocalOwnerHighestInHierarchy))
+		{
+			return false;
+		}
 		return true;
 	}
 
 	private bool DoPickup(int instigatorWOID)
 	{
+		if (MVGameControllerBase.Game.PlayerController.IsEnteringVehicle)
+		{
+			return false;
+		}
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(instigatorWOID);
 		if (worldObjectClient.GameObject.GetComponent<MVInteractableBase>().HasModifierEffect(AvatarModifierEffect.DisablePickups))
 		{
@@ -294,5 +293,28 @@ public class MVPickupItemBase : MVLogicObject, IUpdatecontrollerSubscriber, IPic
 		case PickupItemState.Counting:
 			break;
 		}
+	}
+
+	private bool ShouldDoAutoPickup(int instigator)
+	{
+		bool flag = true;
+		if (pickupPrefabLUT[Type].equipableType == AvatarEquipableType.Weapon)
+		{
+			int woIDWithLocalOwnerHighestInHierarchy = MVGameControllerBase.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(instigator);
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDWithLocalOwnerHighestInHierarchy);
+			if (worldObjectClient != null)
+			{
+				MVPickupOwner mVPickupOwner = worldObjectClient.GameObject.GetComponent<MVPickupOwner>();
+				if (mVPickupOwner != null && !(mVPickupOwner is VehiclePickupOwner) && mVPickupOwner.CurrentItem != null && mVPickupOwner.CurrentItem.Type != Type)
+				{
+					flag = mVPickupOwner.CurrentItem.Type == AvatarItemType.Hand;
+				}
+			}
+		}
+		if ((useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0 && flag)
+		{
+			return true;
+		}
+		return false;
 	}
 }

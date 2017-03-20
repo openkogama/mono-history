@@ -164,7 +164,7 @@ public class MVSoundEmitter : MVLogicObject, ILogicWorldObject
 		try
 		{
 			currentSrc = source;
-			source.playOnAwake = false;
+			source.playOnAwake = true;
 			source.volume = (float)Data["volume"];
 			source.pitch = (float)Data["pitch"];
 			source.loop = (bool)Data["loop"];

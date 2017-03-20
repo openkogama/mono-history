@@ -34,7 +34,7 @@ public class FirstPersonWeaponBob
 
 	private Quaternion weaponRotation;
 
-	private FirstPersonWeaponBob()
+	public FirstPersonWeaponBob()
 	{
 		bobAxis.Normalize();
 		rotationAxis.Normalize();

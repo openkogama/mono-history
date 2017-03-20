@@ -12,8 +12,6 @@ public class AndroidChatController : MonoBehaviour
 
 	private string joinLeaveMessageFormat = "<color=#{0}>{1}</color> <color=#{2}>{3}</color>";
 
-	private string killMessageFormat = "<color=#{0}>{1}</color>";
-
 	private string joinStatusMessageFormat = "<color=#{0}>{1}</color>";
 
 	private string chatMessageFromFriend = "<color=#{0}><b>[{1}]: </b></color><color=#{2}>{3}</color>";
@@ -223,16 +221,6 @@ public class AndroidChatController : MonoBehaviour
 			}
 			string text2 = string.Format(joinLeaveMessageFormat, Styles.ColorToHex(color), text, Styles.ColorToHex(chatMessageColor), TM._("left the game"));
 			AddLine(text2);
-		}
-	}
-
-	private void AddKillMessage(Dictionary<object, object> data)
-	{
-		if (GameMessagesRepository.ShowKilledMessage(data))
-		{
-			string arg = GameMessagesRepository.CreateKilledMessage(data);
-			arg = string.Format(killMessageFormat, Styles.ColorToHex(killMessageColor), arg);
-			AddLine(arg);
 		}
 	}
 

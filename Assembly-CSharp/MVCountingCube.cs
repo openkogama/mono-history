@@ -115,7 +115,6 @@ public class MVCountingCube : MVLogicObject, ILogicWorldObject
 		}
 		if (prevVal != CurrentValue)
 		{
-			Debug.Log("Counting cube CurrentValue " + CurrentValue + " woId " + Id + " " + logicObjectManager.TimeStamp);
 			prevVal = CurrentValue;
 		}
 	}
