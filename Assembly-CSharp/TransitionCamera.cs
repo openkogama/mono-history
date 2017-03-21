@@ -4,7 +4,7 @@ public class TransitionCamera : MVCameraBase
 {
 	private float fieldOfView;
 
-	private float rotPercentage = 1f;
+	private float transitionPercentage = 1f;
 
 	private bool superSoft;
 
@@ -16,7 +16,7 @@ public class TransitionCamera : MVCameraBase
 
 	public override float FieldOfView => fieldOfView;
 
-	public float RotPercentage => rotPercentage;
+	public float TransitionPercentage => transitionPercentage;
 
 	public override CameraType CameraType => CameraType.TransitionCamera;
 
@@ -29,36 +29,40 @@ public class TransitionCamera : MVCameraBase
 		transform.localRotation = prevCameraRotation;
 		time = transitionTime;
 		superSoft = soft;
-		rotPercentage = 0f;
+		transitionPercentage = 0f;
 	}
 
 	public void AbortTransition()
 	{
-		rotPercentage = 1f;
+		transitionPercentage = 1f;
 	}
 
 	public override void UpdateCamera(MVCameraController camController, ProtectedTransform targetTransform)
 	{
-		rotPercentage += 1f / time * Time.deltaTime;
-		if (rotPercentage > 1f)
+		if (transitionPercentage < 1f)
 		{
-			rotPercentage = 1f;
+			transitionPercentage += 1f / time * Time.deltaTime;
+			if (transitionPercentage > 1f)
+			{
+				transitionPercentage = 1f;
+			}
+			if (superSoft)
+			{
+				Quaternion quaternion = RotateTowardsX(transform.eulerAngles, camController.CurCamera.transform.eulerAngles, transitionPercentage);
+				Quaternion quaternion2 = RotateTowardsY(transform.eulerAngles, camController.CurCamera.transform.eulerAngles, transitionPercentage);
+				transform.position = Vector3.Slerp(transform.position, camController.CurCamera.transform.position, transitionPercentage);
+				transform.localRotation = quaternion2 * quaternion;
+			}
+			else
+			{
+				Quaternion quaternion3 = RotateTowardsX(prevCameraRotation.eulerAngles, camController.CurCamera.transform.eulerAngles, transitionPercentage);
+				Quaternion quaternion4 = RotateTowardsY(prevCameraRotation.eulerAngles, camController.CurCamera.transform.eulerAngles, transitionPercentage);
+				transform.position = Vector3.Slerp(prevCameraPosition, camController.CurCamera.transform.position, transitionPercentage);
+				transform.localRotation = quaternion4 * quaternion3;
+			}
+			camController.FieldOfView = Mathf.Lerp(FieldOfView, camController.CurCamera.FieldOfView, transitionPercentage);
+			base.UpdateCamera(camController, targetTransform);
 		}
-		if (superSoft)
-		{
-			Quaternion quaternion = RotateTowardsX(transform.eulerAngles, camController.CurCamera.transform.eulerAngles, rotPercentage);
-			Quaternion quaternion2 = RotateTowardsY(transform.eulerAngles, camController.CurCamera.transform.eulerAngles, rotPercentage);
-			transform.position = Vector3.Slerp(transform.position, camController.CurCamera.transform.position, rotPercentage);
-			transform.localRotation = quaternion2 * quaternion;
-		}
-		else
-		{
-			Quaternion quaternion3 = RotateTowardsX(prevCameraRotation.eulerAngles, camController.CurCamera.transform.eulerAngles, rotPercentage);
-			Quaternion quaternion4 = RotateTowardsY(prevCameraRotation.eulerAngles, camController.CurCamera.transform.eulerAngles, rotPercentage);
-			transform.position = Vector3.Slerp(prevCameraPosition, camController.CurCamera.transform.position, rotPercentage);
-			transform.localRotation = quaternion4 * quaternion3;
-		}
-		base.UpdateCamera(camController, targetTransform);
 	}
 
 	private Quaternion RotateTowardsY(Vector3 eulerFrom, Vector3 eulerTo, float percentage)

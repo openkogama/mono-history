@@ -56,20 +56,7 @@ public class MVCameraController : MonoBehaviour
 		public void UpdateCamera(MVCameraController cameraController)
 		{
 			CurCamera.UpdateCamera(cameraController, cameraController.protectedTransform);
-			if (TransitionInProgress())
-			{
-				TransitionCamera.UpdateCamera(cameraController, cameraController.protectedTransform);
-				cameraController.FieldOfView = Mathf.Lerp(TransitionCamera.FieldOfView, CurCamera.FieldOfView, TransitionCamera.RotPercentage);
-			}
-			else
-			{
-				cameraController.FieldOfView = CurCamera.FieldOfView;
-			}
-		}
-
-		public bool TransitionInProgress()
-		{
-			return TransitionCamera.RotPercentage < 1f;
+			TransitionCamera.UpdateCamera(cameraController, cameraController.protectedTransform);
 		}
 
 		private void EnterCamera(MVCameraBase newCamera, MVCameraController cameraController)

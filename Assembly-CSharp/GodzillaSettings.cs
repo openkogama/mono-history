@@ -22,12 +22,12 @@ public class GodzillaSettings : MonoBehaviour, IEventSystemHandler, IHandleSetti
 
 	private const int numOfSizes = 4;
 
-	[Header("Settings")]
 	[SerializeField]
+	[Header("Settings")]
 	private string[] sizes = new string[4];
 
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	private SettingsBase settingsBase;
 
 	[SerializeField]

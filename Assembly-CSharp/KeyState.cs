@@ -2,5 +2,6 @@ public enum KeyState
 {
 	Up,
 	Down,
-	Pressed
+	Pressed,
+	Size
 }

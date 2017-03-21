@@ -39,7 +39,7 @@ public class MobileInputMap : IKogamaInputMap
 		KeyCode.Escape
 	} };
 
-	public bool GetBooleanControl(KogamaControls control, KeyState keyState, int index = -1)
+	public bool GetBooleanControl(KogamaControls control, KeyState keyState)
 	{
 		if (ButtonMapping.Keys.Contains(control))
 		{

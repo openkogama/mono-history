@@ -4,16 +4,50 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class DesktopDefaultKeyboardMapping : IKogamaInputMap
+public class DesktopDefaultKeyboardMapping : IKogamaInputMap, IUpdatecontrollerSubscriber
 {
+	private class KeyTracker
+	{
+		private BitArray keyStates = new BitArray(156);
+
+		public bool this[KogamaControls ctrl, KeyState keyState]
+		{
+			get
+			{
+				return keyStates[IndexFor(ctrl, keyState)];
+			}
+			set
+			{
+				keyStates[IndexFor(ctrl, keyState)] = value;
+			}
+		}
+
+		public void Reset()
+		{
+			BitArray bitArray = new BitArray(keyStates.Length);
+			for (KogamaControls kogamaControls = KogamaControls.MoveForward; kogamaControls < KogamaControls.Size; kogamaControls++)
+			{
+				bitArray[IndexFor(kogamaControls, KeyState.Up)] = this[kogamaControls, KeyState.Pressed];
+			}
+			keyStates = bitArray;
+		}
+
+		private int IndexFor(KogamaControls ctrl, KeyState keyState)
+		{
+			return (int)((int)keyState * 52 + ctrl);
+		}
+	}
+
 	protected Dictionary<KogamaControls, KeyCode[]> keyMapping;
 
-	protected BitArray controlDown = new BitArray(52);
+	private KeyTracker keys = new KeyTracker();
+
+	private BitArray hasBeenPolledThisFrame = new BitArray(52);
 
 	public DesktopDefaultKeyboardMapping()
 	{
+		UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
 		MVGameControllerDesktop.OnApplicationLostFocus = (UnityAction)Delegate.Combine(MVGameControllerDesktop.OnApplicationLostFocus, new UnityAction(OnApplicationLostFocus));
-		MVGameControllerDesktop.OnApplicationRegainedFocus = (UnityAction)Delegate.Combine(MVGameControllerDesktop.OnApplicationRegainedFocus, new UnityAction(OnApplicationRegainedFocus));
 		keyMapping = new Dictionary<KogamaControls, KeyCode[]>
 		{
 			{
@@ -254,53 +288,74 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap
 
 	private void OnApplicationLostFocus()
 	{
-		controlDown.SetAll(value: false);
+		keys.Reset();
 	}
 
-	private void OnApplicationRegainedFocus()
+	public bool GetBooleanControl(KogamaControls control, KeyState keyState)
 	{
+		if (!hasBeenPolledThisFrame[(int)control])
+		{
+			hasBeenPolledThisFrame[(int)control] = true;
+			bool value = !keys[control, KeyState.Pressed] && KeyDown(control);
+			keys[control, KeyState.Down] = value;
+			if (keys[control, KeyState.Down])
+			{
+				keys[control, KeyState.Pressed] = true;
+			}
+			bool flag = keys[control, KeyState.Pressed] && !KeyHeldDown(control);
+			keys[control, KeyState.Up] = flag;
+			if (flag)
+			{
+				keys[control, KeyState.Pressed] = false;
+			}
+		}
+		return keys[control, keyState];
 	}
 
-	public bool GetBooleanControl(KogamaControls control, KeyState keyState, int index = -1)
+	public void UpdateControllerUpdate()
+	{
+		hasBeenPolledThisFrame.SetAll(value: false);
+	}
+
+	public void UpdateControllerFixedUpdate()
+	{
+		throw new NotImplementedException();
+	}
+
+	private bool KeyHeldDown(KogamaControls control)
 	{
 		KeyCode[] array = keyMapping[control];
-		for (int i = 0; i < array.Length; i++)
+		foreach (KeyCode key in array)
 		{
-			if (index != -1 && i != index)
+			if (Input.GetKey(key))
 			{
-				continue;
+				return true;
 			}
-			KeyCode key = array[i];
-			switch (keyState)
+		}
+		return false;
+	}
+
+	private bool KeyDown(KogamaControls control)
+	{
+		KeyCode[] array = keyMapping[control];
+		foreach (KeyCode key in array)
+		{
+			if (Input.GetKeyDown(key))
 			{
-			case KeyState.Pressed:
-				if (!controlDown[(int)control] && Input.GetKeyDown(key))
-				{
-					controlDown[(int)control] = true;
-				}
-				else if (controlDown[(int)control] && Input.GetKeyUp(key))
-				{
-					controlDown[(int)control] = false;
-				}
-				return controlDown[(int)control];
-			case KeyState.Down:
-			{
-				bool keyDown = Input.GetKeyDown(key);
-				if (keyDown)
-				{
-					controlDown[(int)control] = true;
-				}
-				return keyDown;
+				return true;
 			}
-			case KeyState.Up:
+		}
+		return false;
+	}
+
+	private bool KeyUp(KogamaControls control)
+	{
+		KeyCode[] array = keyMapping[control];
+		foreach (KeyCode key in array)
+		{
+			if (Input.GetKeyUp(key))
 			{
-				bool keyUp = Input.GetKeyUp(key);
-				if (keyUp)
-				{
-					controlDown[(int)control] = false;
-				}
-				return keyUp;
-			}
+				return true;
 			}
 		}
 		return false;

@@ -69,22 +69,22 @@ internal static class MVInputWrapper
 		MVInputWrapper.inputMap = inputMap;
 	}
 
-	public static bool GetBooleanControl(KogamaControls control, bool forceKeyUse = false, int index = -1)
+	public static bool GetBooleanControl(KogamaControls control, bool forceKeyUse = false)
 	{
-		return GetBooleanControl(control, KeyState.Pressed, forceKeyUse, index);
+		return GetBooleanControl(control, KeyState.Pressed, forceKeyUse);
 	}
 
-	public static bool GetBooleanControlDown(KogamaControls control, bool forceKeyUse = false, int index = -1)
+	public static bool GetBooleanControlDown(KogamaControls control, bool forceKeyUse = false)
 	{
-		return GetBooleanControl(control, KeyState.Down, forceKeyUse, index);
+		return GetBooleanControl(control, KeyState.Down, forceKeyUse);
 	}
 
-	public static bool GetBooleanControlUp(KogamaControls control, bool forceKeyUse = false, int index = -1)
+	public static bool GetBooleanControlUp(KogamaControls control, bool forceKeyUse = false)
 	{
-		return GetBooleanControl(control, KeyState.Up, forceKeyUse, index);
+		return GetBooleanControl(control, KeyState.Up, forceKeyUse);
 	}
 
-	private static bool GetBooleanControl(KogamaControls control, KeyState keyState, bool forceKeyUse, int index = -1)
+	private static bool GetBooleanControl(KogamaControls control, KeyState keyState, bool forceKeyUse)
 	{
 		if (!forceKeyUse && IsInputSuppressed && control != KogamaControls.PointerSelect && control != KogamaControls.PointerSelectAlt)
 		{
@@ -94,7 +94,7 @@ internal static class MVInputWrapper
 		{
 			return false;
 		}
-		return inputMap.GetBooleanControl(control, keyState, index);
+		return inputMap.GetBooleanControl(control, keyState);
 	}
 
 	public static bool InputCharActive(KeyCode key)
