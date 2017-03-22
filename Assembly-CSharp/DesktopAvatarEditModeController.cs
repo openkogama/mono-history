@@ -37,6 +37,7 @@ public class DesktopAvatarEditModeController : ModeControllerBase, ISetEditState
 
 	private void Awake()
 	{
+		MVInputWrapper.SetInputMap(new DesktopPlayMode());
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnActiveAvatar = (Action<int>)Delegate.Combine(game.OnActiveAvatar, new Action<int>(FirstTimeSetActiveAvatar));
 		uiStack.Push(stackBottom);
@@ -67,7 +68,6 @@ public class DesktopAvatarEditModeController : ModeControllerBase, ISetEditState
 	{
 		base.Initialize();
 		avatarShopController.Initialize(avatarEditModeBodyController);
-		MVInputWrapper.SetInputMap(new DesktopPlayMode());
 		MVGameControllerBase.CameraController.IsLogicRendered = false;
 		InitializeLocalAvatar();
 		drawPlaneController.Initialize();

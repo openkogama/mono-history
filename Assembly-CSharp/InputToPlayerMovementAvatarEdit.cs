@@ -53,7 +53,6 @@ public class InputToPlayerMovementAvatarEdit : IInputToPlayerMovement
 		{
 			if (MVInputWrapper.GetBooleanControl(KogamaControls.MoveForward))
 			{
-				Debug.Log("Move forward");
 				movementMapFlags |= MovementMapFlags.Forward;
 			}
 			if (MVInputWrapper.GetBooleanControl(KogamaControls.MoveBackwards))

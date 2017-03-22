@@ -4,50 +4,38 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class DesktopDefaultKeyboardMapping : IKogamaInputMap, IUpdatecontrollerSubscriber
+public class DesktopDefaultKeyboardMapping : IKogamaInputMap
 {
-	private class KeyTracker
+	protected class ControlBitArray
 	{
-		private BitArray keyStates = new BitArray(156);
+		private BitArray controlDown = new BitArray(52);
 
-		public bool this[KogamaControls ctrl, KeyState keyState]
+		public bool this[KogamaControls ctrl]
 		{
 			get
 			{
-				return keyStates[IndexFor(ctrl, keyState)];
+				return controlDown[(int)ctrl];
 			}
 			set
 			{
-				keyStates[IndexFor(ctrl, keyState)] = value;
+				controlDown[(int)ctrl] = value;
 			}
 		}
 
 		public void Reset()
 		{
-			BitArray bitArray = new BitArray(keyStates.Length);
-			for (KogamaControls kogamaControls = KogamaControls.MoveForward; kogamaControls < KogamaControls.Size; kogamaControls++)
-			{
-				bitArray[IndexFor(kogamaControls, KeyState.Up)] = this[kogamaControls, KeyState.Pressed];
-			}
-			keyStates = bitArray;
-		}
-
-		private int IndexFor(KogamaControls ctrl, KeyState keyState)
-		{
-			return (int)((int)keyState * 52 + ctrl);
+			controlDown.SetAll(value: false);
 		}
 	}
 
 	protected Dictionary<KogamaControls, KeyCode[]> keyMapping;
 
-	private KeyTracker keys = new KeyTracker();
-
-	private BitArray hasBeenPolledThisFrame = new BitArray(52);
+	protected ControlBitArray controlDown = new ControlBitArray();
 
 	public DesktopDefaultKeyboardMapping()
 	{
-		UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
 		MVGameControllerDesktop.OnApplicationLostFocus = (UnityAction)Delegate.Combine(MVGameControllerDesktop.OnApplicationLostFocus, new UnityAction(OnApplicationLostFocus));
+		MVGameControllerDesktop.OnApplicationRegainedFocus = (UnityAction)Delegate.Combine(MVGameControllerDesktop.OnApplicationRegainedFocus, new UnityAction(OnApplicationRegainedFocus));
 		keyMapping = new Dictionary<KogamaControls, KeyCode[]>
 		{
 			{
@@ -288,51 +276,37 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap, IUpdatecontrollerS
 
 	private void OnApplicationLostFocus()
 	{
-		keys.Reset();
+		controlDown.Reset();
+	}
+
+	private void OnApplicationRegainedFocus()
+	{
 	}
 
 	public bool GetBooleanControl(KogamaControls control, KeyState keyState)
 	{
-		if (!hasBeenPolledThisFrame[(int)control])
+		bool flag = KeyDown(control);
+		if (flag)
 		{
-			hasBeenPolledThisFrame[(int)control] = true;
-			bool value = !keys[control, KeyState.Pressed] && KeyDown(control);
-			keys[control, KeyState.Down] = value;
-			if (keys[control, KeyState.Down])
-			{
-				keys[control, KeyState.Pressed] = true;
-			}
-			bool flag = keys[control, KeyState.Pressed] && !KeyHeldDown(control);
-			keys[control, KeyState.Up] = flag;
-			if (flag)
-			{
-				keys[control, KeyState.Pressed] = false;
-			}
+			controlDown[control] = true;
 		}
-		return keys[control, keyState];
-	}
-
-	public void UpdateControllerUpdate()
-	{
-		hasBeenPolledThisFrame.SetAll(value: false);
-	}
-
-	public void UpdateControllerFixedUpdate()
-	{
-		throw new NotImplementedException();
-	}
-
-	private bool KeyHeldDown(KogamaControls control)
-	{
-		KeyCode[] array = keyMapping[control];
-		foreach (KeyCode key in array)
+		bool flag2 = KeyUp(control);
+		if (flag2)
 		{
-			if (Input.GetKey(key))
-			{
-				return true;
-			}
+			controlDown[control] = false;
 		}
-		return false;
+		switch (keyState)
+		{
+		case KeyState.Pressed:
+			return controlDown[control];
+		case KeyState.Down:
+			return flag;
+		case KeyState.Up:
+			return flag2;
+		default:
+			Debug.LogError("Unexpected keystate.");
+			return false;
+		}
 	}
 
 	private bool KeyDown(KogamaControls control)
@@ -350,14 +324,20 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap, IUpdatecontrollerS
 
 	private bool KeyUp(KogamaControls control)
 	{
+		bool result = false;
 		KeyCode[] array = keyMapping[control];
 		foreach (KeyCode key in array)
 		{
+			if (Input.GetKey(key))
+			{
+				result = false;
+				break;
+			}
 			if (Input.GetKeyUp(key))
 			{
-				return true;
+				result = Input.GetKeyUp(key);
 			}
 		}
-		return false;
+		return result;
 	}
 }

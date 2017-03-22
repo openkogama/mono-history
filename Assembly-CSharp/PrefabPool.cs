@@ -214,8 +214,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private CubeModelChunkPrefab cubeModelChunkPrefab;
 
-	[SerializeField]
 	[Header("Pick up")]
+	[SerializeField]
 	[Space(20f)]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
@@ -273,9 +273,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private MVPickupItemBaseObject avatarGrowthPackPrefab;
 
-	[Space(20f)]
-	[SerializeField]
 	[Header("Avatar item pick up")]
+	[SerializeField]
+	[Space(20f)]
 	private GameObject avatarItemCenterGun;
 
 	[SerializeField]
@@ -332,9 +332,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject avatarItemCollectTheItem;
 
-	[Space(20f)]
 	[SerializeField]
 	[Header("Avatar modifier")]
+	[Space(20f)]
 	private AvatarModifier burningModifier;
 
 	[SerializeField]
@@ -367,9 +367,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private InvulnerabilityModifier invulnerabilityModifier;
 
-	[SerializeField]
 	[Space(20f)]
 	[Header("Particles")]
+	[SerializeField]
 	private GameObject particleCFX_GroundAura;
 
 	[SerializeField]
