@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using MV.WorldObject;
-using UnityEngine;
 
 public class MVObjectEnabler : MVLogicObject, ILogicWorldObject
 {
@@ -95,7 +94,6 @@ public class MVObjectEnabler : MVLogicObject, ILogicWorldObject
 			objectLinkRef.isSet = flag;
 			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(objectLinkRef.objectWOID);
 			MVWorldObjectClient worldObjectClient2 = MVGameControllerBase.WOCM.GetWorldObjectClient(worldObjectClient.GroupId);
-			Debug.Log(worldObjectClient2.GameObject.name);
 			if (worldObjectClient2 is MVMovable)
 			{
 				((MVMovable)worldObjectClient2).Visible = flag;

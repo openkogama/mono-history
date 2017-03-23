@@ -88,7 +88,7 @@ public class AvatarCapture : MonoBehaviour
 	{
 		MVGameControllerBase.WOCM.AvatarLocal.Avatar.AvatarFader.SetTransparency(1f);
 		renderCam.clearFlags = CameraClearFlags.Depth;
-		RenderTexture temporary = RenderTexture.GetTemporary(1024, 512, 16, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, 1);
+		RenderTexture temporary = RenderTexture.GetTemporary(1024, 512, 16, RenderTextureFormat.Default, RenderTextureReadWrite.Default, 1);
 		temporary.wrapMode = TextureWrapMode.Clamp;
 		temporary.filterMode = FilterMode.Bilinear;
 		renderCam.targetTexture = temporary;

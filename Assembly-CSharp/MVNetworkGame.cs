@@ -317,7 +317,6 @@ public class MVNetworkGame : IPhotonPeerListener
 				networkGame.OnWoUniquePrototypeEvent((int)photonEvent[20], (int)photonEvent[45]);
 				break;
 			case MVEventCodes.GameStateChange:
-				Debug.Log("GameStateChange event " + (MVGameStateType)(int)photonEvent[63]);
 				networkGame.networkGameStateListener.ChangeState((MVGameStateType)(int)photonEvent[63], (int)photonEvent[65], (int)photonEvent[64], fromGameSnapshot: false);
 				break;
 			case MVEventCodes.PropertiesChanged:

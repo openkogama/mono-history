@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using CodeStage.AntiCheat.ObscuredTypes;
 using MV.WorldObject;
-using UnityEngine;
 
 public class MVRandomBox : MVLogicObject, ILogicWorldObject
 {
@@ -46,7 +45,6 @@ public class MVRandomBox : MVLogicObject, ILogicWorldObject
 		base.Initialize();
 		SetupCulling(gameObject);
 		randomGenerator = new RandomGenerator((uint)(int)CurrentRandomValues[0], (uint)(int)CurrentRandomValues[1], (uint)(int)CurrentRandomValues[2]);
-		Debug.Log(randomGenerator);
 		InputSignalReceiver = LogicClientsideFactory.CreateStateChangeInputSignalReceiver(this, defaultInput: false, null, InputStateUpdateCallback);
 		_outputSignalTransmitter = new OutputSignalTransmitterSpecific(Id);
 	}

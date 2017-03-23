@@ -32,8 +32,8 @@ public struct ObscuredDouble : IEquatable<ObscuredDouble>, IFormattable
 	[SerializeField]
 	private ACTkByte8 hiddenValue;
 
-	[FormerlySerializedAs("hiddenValue")]
 	[SerializeField]
+	[FormerlySerializedAs("hiddenValue")]
 	private byte[] hiddenValueOld;
 
 	[SerializeField]

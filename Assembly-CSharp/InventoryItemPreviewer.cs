@@ -35,7 +35,7 @@ public class InventoryItemPreviewer : MonoBehaviour
 		transform.parent = previewItemsRoot;
 		gameObject.name = $"Preview_{name}_RenderCam";
 		gameObject.layer = LayerMask.NameToLayer("Preview");
-		previewTexture = new RenderTexture(textureWidth, textureHeight, 16, RenderTextureFormat.ARGB32);
+		previewTexture = new RenderTexture(textureWidth, textureHeight, 16, RenderTextureFormat.Default);
 		previewTexture.name = name;
 		previewTexture.filterMode = FilterMode.Bilinear;
 		previewTexture.hideFlags = HideFlags.DontSave;
