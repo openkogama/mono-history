@@ -77,10 +77,6 @@ public class MVMaterial
 		this.modifierPackageType = modifierPackageType;
 	}
 
-	public void Validate()
-	{
-	}
-
 	private void GenerateCube(int materialId)
 	{
 		mesh = new Mesh();

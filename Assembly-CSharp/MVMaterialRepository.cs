@@ -81,20 +81,4 @@ public class MVMaterialRepository
 		}
 		return materials[materialId].physicalProperties;
 	}
-
-	public void Validate()
-	{
-		try
-		{
-			foreach (MVMaterial material in materials)
-			{
-				material.Validate();
-			}
-		}
-		catch
-		{
-			CheatHandling.TextureHackDetected();
-			throw;
-		}
-	}
 }

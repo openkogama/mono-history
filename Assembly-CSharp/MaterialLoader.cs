@@ -27,6 +27,8 @@ public class MaterialLoader : MonoBehaviour
 
 	private Material cubeModelMaterial;
 
+	private uint atlasHash;
+
 	public Material CubeModelMaterial => cubeModelMaterial;
 
 	public Shader PickupItemShader => pickupItemShader;
@@ -44,8 +46,17 @@ public class MaterialLoader : MonoBehaviour
 		MeshPool.Instance.MaxAmtMeshes = 100;
 	}
 
-	private void SetMainTexture(Texture texture)
+	public void CheckAtlasIntegrity()
 	{
+		if (Hash((Texture2D)cubeModelMaterial.mainTexture) != atlasHash)
+		{
+			StatHatWrapper.Count("TextureHackDetected", 1);
+		}
+	}
+
+	private void SetMainTexture(Texture2D texture)
+	{
+		atlasHash = Hash(texture);
 		cubeModelMaterialHigh.mainTexture = texture;
 		cubeModelMaterialLow.mainTexture = texture;
 	}
@@ -65,25 +76,35 @@ public class MaterialLoader : MonoBehaviour
 		{
 			flag = false;
 		}
+		Debug.Log("Using Shader Model " + ((!flag) ? "2" : "3"));
 		if (cubeModelMaterialHigh == null || cubeModelMaterialLow == null)
 		{
 			throw new NullReferenceException();
 		}
-		cubeModelMaterial = cubeModelMaterialLow;
+		Debug.Log(SystemInfo.graphicsDeviceName);
+		Debug.Log(SystemInfo.graphicsDeviceType);
+		Debug.Log(SystemInfo.graphicsShaderLevel);
+		Debug.Log(SystemInfo.graphicsDeviceVersion);
 		if (flag)
 		{
 			cubeModelMaterial = cubeModelMaterialHigh;
+		}
+		else
+		{
+			cubeModelMaterial = cubeModelMaterialLow;
 		}
 		InitAllMaterials(flag);
 	}
 
 	public void Initialize()
 	{
+		Debug.Log(Urls.StreamingAssets + highResAtlasFileName + "?version=" + MVGameControllerBase.KoGaMaSettings.VersionStreamingAssets);
 		AsyncWWWManager.WWWRequest(new CachedGetRequest(Urls.StreamingAssets + highResAtlasFileName + "?version=" + MVGameControllerBase.KoGaMaSettings.VersionStreamingAssets, Callback, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 	}
 
 	private void Callback(WWW www)
 	{
+		Debug.Log("Got texture");
 		string[] allAssetNames = www.assetBundle.GetAllAssetNames();
 		if (allAssetNames.Length != 1)
 		{
@@ -108,5 +129,16 @@ public class MaterialLoader : MonoBehaviour
 			cubeModelMaterial.mainTexture.filterMode = FilterMode.Bilinear;
 			cubeModelMaterial.mainTexture.anisoLevel = 2;
 		}
+	}
+
+	private uint Hash(Texture2D tex)
+	{
+		uint num = 0u;
+		byte[] rawTextureData = tex.GetRawTextureData();
+		for (int i = 0; i < rawTextureData.Length; i += 10)
+		{
+			num += rawTextureData[i];
+		}
+		return num;
 	}
 }

@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using UnityEngine;
 
 public class AvatarScreenshotGenerator : MonoBehaviour
@@ -80,19 +79,5 @@ public class AvatarScreenshotGenerator : MonoBehaviour
 		bodyCloneGO = null;
 		boneAnimation = null;
 		UnityEngine.Object.Destroy(gameObject);
-	}
-
-	private void WriteToDisk(byte[] pngData)
-	{
-		if (Application.isEditor)
-		{
-			string path = "C:\\dev\\Screenshots\\test.png";
-			FileStream fileStream = File.Create(path);
-			if (fileStream != null)
-			{
-				fileStream.Write(pngData, 0, pngData.Length);
-				fileStream.Close();
-			}
-		}
 	}
 }

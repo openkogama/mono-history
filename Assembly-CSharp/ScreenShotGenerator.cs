@@ -28,7 +28,9 @@ public class ScreenShotGenerator : MonoBehaviour
 
 	private Bounds targetBounds;
 
-	private static bool generating;
+	private static bool generating = false;
+
+	private static readonly int renderLayers = (1 << LayerMask.NameToLayer("CamRotateTarget")) | (1 << LayerMask.NameToLayer("PlayerSelected"));
 
 	private static ScreenShotGenerator CreateInstance()
 	{
@@ -118,7 +120,7 @@ public class ScreenShotGenerator : MonoBehaviour
 			targetBounds = new Bounds(Vector3.zero, Vector3.one);
 		}
 		InitCamera(512, 512);
-		LayerUtil.SetLayerRecursively(targetObject.transform, "Preview");
+		LayerUtil.SetLayerRecursively(targetObject.transform, renderLayers, LayerMask.NameToLayer("Preview"));
 		yield return new WaitForEndOfFrame();
 		GenerateTexture();
 		generating = false;

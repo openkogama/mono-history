@@ -106,12 +106,23 @@ public abstract class FirstPersonCamera : MVCameraBase
 	{
 		base.Exit(camController);
 		DeactivateFirstPerson();
+		EnableFading(camController);
 	}
 
 	public override void Suspend(MVCameraController camController)
 	{
 		base.Suspend(camController);
 		DeactivateFirstPerson();
+		EnableFading(camController);
+	}
+
+	private void EnableFading(MVCameraController camController)
+	{
+		AvatarCameraFade component = camController.gameObject.GetComponent<AvatarCameraFade>();
+		if (component != null)
+		{
+			component.enabled = true;
+		}
 	}
 
 	private void ActivateFirstPerson()

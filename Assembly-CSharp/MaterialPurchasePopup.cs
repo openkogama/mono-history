@@ -47,6 +47,8 @@ public class MaterialPurchasePopup : MonoBehaviour
 
 	private void OnDestroy()
 	{
+		MVNetworkGame game = MVGameControllerBase.Game;
+		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Remove(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
 		UnityEngine.Object.Destroy(materialPreviewer.gameObject);
 	}
 
