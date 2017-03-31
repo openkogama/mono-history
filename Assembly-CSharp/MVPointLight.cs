@@ -7,6 +7,8 @@ public class MVPointLight : MVLogicObject, ILogicWorldObject
 
 	private Light lightComponent;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.PointLight;
+
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => false;

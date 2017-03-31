@@ -205,9 +205,12 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 		levelBadge.transform.SetParent(stackBottom.transform, worldPositionStays: false);
 		notificationsManager = Object.Instantiate(notificationsManager);
 		notificationsManager.transform.SetParent(stackBottom.transform, worldPositionStays: false);
-		touristAdController = Object.Instantiate(touristAdController);
-		touristAdController.transform.SetParent(stackBottom.transform, worldPositionStays: false);
-		touristAdController.Initialize(touristModeController);
+		if (MVGameControllerBase.IsTouristSession)
+		{
+			touristAdController = Object.Instantiate(touristAdController);
+			touristAdController.transform.SetParent(stackBottom.transform, worldPositionStays: false);
+			touristAdController.Initialize(touristModeController);
+		}
 	}
 
 	public void ShowEUseIcon(ShowUseOption option, int woID = 0)

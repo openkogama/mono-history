@@ -7,6 +7,8 @@ public class MVTextMsg : MVLogicObject, ILogicWorldObject
 
 	private MVTextMsgObject msgObject;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.Text;
+
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => false;

@@ -14,6 +14,8 @@ public class MVSoundEmitter : MVLogicObject, ILogicWorldObject
 
 	private MVNetworkGame Game => MVGameControllerBase.Game;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.SoundEmitter;
+
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => false;
@@ -118,7 +120,13 @@ public class MVSoundEmitter : MVLogicObject, ILogicWorldObject
 		}
 	}
 
-	private void StreamingAssetCallback(WWW www, UnityEngine.Object mainAsset)
+	public override void Destroy()
+	{
+		base.Destroy();
+		AsyncWWWManager.UnsubscribeWWWRequest(StreamingAssetCallback);
+	}
+
+	public void StreamingAssetCallback(WWW www, UnityEngine.Object mainAsset)
 	{
 		try
 		{

@@ -107,8 +107,8 @@ public class DamageIndicator : MonoBehaviour
 		}
 	}
 
-	[Header("Configuration")]
 	[Tooltip("Distance from center, for indicator arrow to appear.")]
+	[Header("Configuration")]
 	[SerializeField]
 	private float indicationRadius = 35f;
 
@@ -119,8 +119,8 @@ public class DamageIndicator : MonoBehaviour
 	[SerializeField]
 	private float durationPerPointOfDamage = 0.03f;
 
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	private Image damageOverlay;
 
 	[SerializeField]

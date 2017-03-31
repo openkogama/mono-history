@@ -8,6 +8,11 @@ public class MVLocalPlayerTourist : MVLocalPlayer
 		xpEventQueue = new XPEventQueueTourist();
 	}
 
+	public override void Destroy()
+	{
+		xpEventQueue.Destroy();
+	}
+
 	public override void InitializeLeveling(InitialLevelData initialLevelData)
 	{
 		base.InitializeLeveling(initialLevelData);

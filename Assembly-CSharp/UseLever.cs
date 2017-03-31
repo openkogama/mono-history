@@ -22,6 +22,8 @@ public class UseLever : MVLogicObject, ILogicWorldObject, IIsLogicObjectFiringEv
 
 	private OutputSignalTransmitter outputSignalTransmitter;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.Lever;
+
 	public override bool HasInputConnector => false;
 
 	public override bool HasOutputConnector => true;

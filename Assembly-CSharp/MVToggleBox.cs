@@ -9,6 +9,8 @@ public class MVToggleBox : MVLogicObject, ILogicWorldObject
 
 	private OutputSignalTransmitter outputSignalTransmitter;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.ToggleBox;
+
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => true;

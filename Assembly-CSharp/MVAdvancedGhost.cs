@@ -22,6 +22,8 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 
 	private float deathExplosionImpulse = 1000f;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.Oculus;
+
 	public override Vector3 WorldPivot => transform.position;
 
 	public MVAdvancedGhost(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)

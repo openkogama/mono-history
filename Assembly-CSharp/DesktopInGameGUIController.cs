@@ -101,4 +101,9 @@ public class DesktopInGameGUIController : MonoBehaviour
 		}
 		return crossHair;
 	}
+
+	private void OnDestroy()
+	{
+		AsyncWWWManager.UnsubscribeWWWRequest(StreamingAssetCallback);
+	}
 }

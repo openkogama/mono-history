@@ -87,6 +87,8 @@ public class MVPickupItemBase : MVLogicObject, IUpdatecontrollerSubscriber, IPic
 		}
 	};
 
+	private MVWorldObjectDocumentationType documentationType;
+
 	private AvatarItemType pickupItemType;
 
 	private int pickupVariantId;
@@ -96,6 +98,86 @@ public class MVPickupItemBase : MVLogicObject, IUpdatecontrollerSubscriber, IPic
 	private UseInteractor useInteractor;
 
 	private MVPickupItemBaseObject baseObject;
+
+	private static readonly Dictionary<AvatarItemType, MVWorldObjectDocumentationType> avatarItemToToinventoryItemDescrip = new Dictionary<AvatarItemType, MVWorldObjectDocumentationType>
+	{
+		{
+			AvatarItemType.Health,
+			MVWorldObjectDocumentationType.HealthPack
+		},
+		{
+			AvatarItemType.CenterGun,
+			MVWorldObjectDocumentationType.Centergun
+		},
+		{
+			AvatarItemType.ImpulseGun,
+			MVWorldObjectDocumentationType.ImpulseGun
+		},
+		{
+			AvatarItemType.Bazooka,
+			MVWorldObjectDocumentationType.Bazooka
+		},
+		{
+			AvatarItemType.RailGun,
+			MVWorldObjectDocumentationType.Railgun
+		},
+		{
+			AvatarItemType.Sword,
+			MVWorldObjectDocumentationType.Sword
+		},
+		{
+			AvatarItemType.Mutant,
+			MVWorldObjectDocumentationType.Mutant
+		},
+		{
+			AvatarItemType.Flamethrower,
+			MVWorldObjectDocumentationType.Flamethrower
+		},
+		{
+			AvatarItemType.Shotgun,
+			MVWorldObjectDocumentationType.Shotgun
+		},
+		{
+			AvatarItemType.GrowthPack,
+			MVWorldObjectDocumentationType.GrowthPill
+		},
+		{
+			AvatarItemType.MousePack,
+			MVWorldObjectDocumentationType.MousePill
+		},
+		{
+			AvatarItemType.MouseGun,
+			MVWorldObjectDocumentationType.MouseGun
+		},
+		{
+			AvatarItemType.ThrowingStar,
+			MVWorldObjectDocumentationType.ThrowingStar
+		},
+		{
+			AvatarItemType.MultiThrowingStar,
+			MVWorldObjectDocumentationType.MultiThrowingStar
+		},
+		{
+			AvatarItemType.CubeGun,
+			MVWorldObjectDocumentationType.CubeGun
+		},
+		{
+			AvatarItemType.DoubleSixShooter,
+			MVWorldObjectDocumentationType.DoubleSixShooter
+		},
+		{
+			AvatarItemType.GrowthGun,
+			MVWorldObjectDocumentationType.GrowthGun
+		},
+		{
+			AvatarItemType.SixShooter,
+			MVWorldObjectDocumentationType.SixShooter
+		},
+		{
+			AvatarItemType.NinjaRun,
+			MVWorldObjectDocumentationType.NinjaRun
+		}
+	};
 
 	private List<int> instigatorsInTrigger = new List<int>();
 
@@ -115,12 +197,17 @@ public class MVPickupItemBase : MVLogicObject, IUpdatecontrollerSubscriber, IPic
 		}
 	}
 
+	public override MVWorldObjectDocumentationType DocumentationType => documentationType;
+
 	public MVPickupItemBase(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, GetPickupPrefabName(data), worldObjects)
 	{
 		baseObject = (MVPickupItemBaseObject)component;
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
 		interactionFlags |= InteractionFlags.CanUseLevel;
+		Dictionary<object, object> dictionary = (Dictionary<object, object>)data[WorldObjectDataParameters.Data];
+		AvatarItemType key = (AvatarItemType)(int)dictionary["itemType"];
+		documentationType = (avatarItemToToinventoryItemDescrip.ContainsKey(key) ? avatarItemToToinventoryItemDescrip[key] : MVWorldObjectDocumentationType.Missing);
 	}
 
 	void IUpdatecontrollerSubscriber.UpdateControllerUpdate()

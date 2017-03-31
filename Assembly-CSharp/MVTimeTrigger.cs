@@ -13,6 +13,8 @@ public class MVTimeTrigger : MVLogicObject, ILogicWorldObject
 
 	private OutputSignalTransmitter outputSignalTransmitter;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.TimeTrigger;
+
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => true;

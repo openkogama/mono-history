@@ -18,5 +18,6 @@ public enum NotificationType
 	AdReady,
 	TeamNotification,
 	PlayerTip,
-	JetPackOverheating
+	JetPackOverheating,
+	OpenInventory
 }

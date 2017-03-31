@@ -29,9 +29,9 @@ public class MaterialViewItem : MonoBehaviour
 	[SerializeField]
 	private ToolTip toolTip;
 
-	public void Initialize(byte id, bool locked, Texture2D texture2D, bool isAvailable, bool isSelected, string materialName)
+	public void Initialize(byte id, bool locked, Texture2D texture2D, bool isAvailable, bool isSelected)
 	{
-		toolTip.SetText(materialName);
+		toolTip.SetText(MaterialDescription.materialDescriptions[id].Name);
 		this.isAvailable = isAvailable;
 		this.id = id;
 		this.locked = locked;

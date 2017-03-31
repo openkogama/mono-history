@@ -5,6 +5,8 @@ public class MVKillLimit : MVLogicObject
 {
 	private bool initializedInWorld;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.PlayerKillWinCondition;
+
 	private int KillLimit => (int)Data["killLimit"];
 
 	public MVKillLimit(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)

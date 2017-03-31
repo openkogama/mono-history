@@ -41,6 +41,7 @@ public class MVHoverCraft : MVSimpleOneSeatVehicle
 		: base(data, PrefabPool.Instance.MVHoverCraftPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.CanEdit;
+		documentationType = MVWorldObjectDocumentationType.Hovercraft;
 	}
 
 	public override void Initialize()

@@ -28,8 +28,15 @@ public class EditModeClientShopItem : MonoBehaviour
 	public void Initialize(Transform rootTransform, ShopItem item, MVWorldObjectClient woPreviewObject)
 	{
 		this.item = item;
+		item.ApplyLocalDescriptionOverride(woPreviewObject.DocumentationType);
 		objectPreviewer = Object.Instantiate(objectPreviewerPrefab);
-		objectPreviewer.Initialize(previewWidth, previewHeight, CameraClearFlags.Color, woPreviewObject.PreviewLayerMask, new Vector3(4.57f, 2f, 0.15f), rootTransform, new Vector3(100f, 100f, 10f * (float)item.slotPosition), item.name, woPreviewObject, woPreviewObject.GameObject);
+		Vector3 previewPosition = new Vector3(100f, 100f, 10f * (float)item.slotPosition);
+		Vector3 cameraOffset = new Vector3(0f, 0f, 0f);
+		if (InventoryItem.localItemDescriptionOverride.ContainsKey(woPreviewObject.DocumentationType))
+		{
+			cameraOffset = InventoryItem.localItemDescriptionOverride[woPreviewObject.DocumentationType].CameraPreviewerOffset;
+		}
+		objectPreviewer.Initialize(previewWidth, previewHeight, CameraClearFlags.Color, woPreviewObject.PreviewLayerMask, cameraOffset, rootTransform, previewPosition, item.name, woPreviewObject, woPreviewObject.GameObject);
 		previewImage.texture = objectPreviewer.PreviewTexture;
 		initialized = true;
 	}

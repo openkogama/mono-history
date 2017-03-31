@@ -76,6 +76,11 @@ public class LevelBadge : MonoBehaviour
 		BadgeManager.GetBadgeTexture(level, StreamingAssetCallback);
 	}
 
+	private void OnDestroy()
+	{
+		BadgeManager.UnsubscribeGetBadgeRequest(StreamingAssetCallback);
+	}
+
 	private void StreamingAssetCallback(WWW www)
 	{
 		if (www != null && www.texture != null)

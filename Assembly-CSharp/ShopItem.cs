@@ -34,4 +34,14 @@ public class ShopItem
 		priceGold = (int)((Dictionary<object, object>)outData[key])[(byte)76];
 		slotPosition = (int)((Dictionary<object, object>)outData[key])[(byte)101];
 	}
+
+	public void ApplyLocalDescriptionOverride(MVWorldObjectDocumentationType t)
+	{
+		if (InventoryItem.localItemDescriptionOverride.ContainsKey(t))
+		{
+			InventoryItem.ItemDescription itemDescription = InventoryItem.localItemDescriptionOverride[t];
+			name = itemDescription.Name;
+			description = itemDescription.Description;
+		}
+	}
 }

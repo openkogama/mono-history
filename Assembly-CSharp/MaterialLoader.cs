@@ -102,6 +102,11 @@ public class MaterialLoader : MonoBehaviour
 		AsyncWWWManager.WWWRequest(new CachedGetRequest(Urls.StreamingAssets + highResAtlasFileName + "?version=" + MVGameControllerBase.KoGaMaSettings.VersionStreamingAssets, Callback, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 	}
 
+	private void OnDestroy()
+	{
+		AsyncWWWManager.UnsubscribeWWWRequest(Callback);
+	}
+
 	private void Callback(WWW www)
 	{
 		Debug.Log("Got texture");

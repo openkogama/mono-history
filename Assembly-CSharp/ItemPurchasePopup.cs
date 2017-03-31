@@ -13,6 +13,9 @@ public class ItemPurchasePopup : MonoBehaviour
 	[SerializeField]
 	private RawImage itemImage;
 
+	[SerializeField]
+	private Text description;
+
 	private ShopItem item;
 
 	public void Initialize(RawImage image, ShopItem item)
@@ -21,6 +24,7 @@ public class ItemPurchasePopup : MonoBehaviour
 		itemName.text = item.name;
 		cost.text = item.priceGold.ToString();
 		itemImage.texture = image.texture;
+		description.text = item.description;
 	}
 
 	public void OnPurchaseClicked()

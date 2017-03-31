@@ -4,6 +4,8 @@ using UnityEngine;
 
 public abstract class MVWorldObjectSpawner : MVBlueprintBase
 {
+	protected MVWorldObjectDocumentationType documentationType;
+
 	protected UseInteractor useInteractor;
 
 	protected SpawnStateWrapper spawnStateWrapper;
@@ -11,6 +13,8 @@ public abstract class MVWorldObjectSpawner : MVBlueprintBase
 	protected int spawnWorldObjectID = -1;
 
 	protected TriggerBoxEvents triggerBoxEvents;
+
+	public override MVWorldObjectDocumentationType DocumentationType => documentationType;
 
 	protected MVWorldObjectSpawner(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, worldObjects)

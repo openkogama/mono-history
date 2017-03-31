@@ -59,4 +59,6 @@ public abstract class MVLocalPlayer : MVPlayer
 		}
 		oldLevel = level;
 	}
+
+	public abstract void Destroy();
 }

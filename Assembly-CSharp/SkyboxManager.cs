@@ -24,10 +24,6 @@ public class SkyboxManager : MonoBehaviour
 
 	public List<MVSkybox> mvSkyboxes = new List<MVSkybox>();
 
-	public AnimationCurve luminanceToAmbientScale;
-
-	public AnimationCurve luminanceToSkyboxFactor;
-
 	public Color brightAmbient = new Color(1f, 1f, 1f, 1f);
 
 	[SerializeField]
@@ -35,6 +31,12 @@ public class SkyboxManager : MonoBehaviour
 
 	[SerializeField]
 	private Camera targetCamera;
+
+	[SerializeField]
+	private MeshRenderer horizontalPlane;
+
+	[SerializeField]
+	private float skyContrast = 0.1f;
 
 	private Color targetColor;
 
@@ -114,7 +116,18 @@ public class SkyboxManager : MonoBehaviour
 		RenderSettings.fogColor = color;
 		RenderSettings.fogDensity = fogDensity;
 		RenderSettings.ambientLight = num * color2;
+		Color color3 = color;
+		float num2 = ((!(color3.r > 0.5f)) ? skyContrast : (0f - skyContrast));
+		float num3 = ((!(color3.g > 0.5f)) ? skyContrast : (0f - skyContrast));
+		float num4 = ((!(color3.b > 0.5f)) ? skyContrast : (0f - skyContrast));
+		color3.r += num2;
+		color.r -= num2;
+		color3.g += num3;
+		color.g -= num3;
+		color3.b += num4;
+		color.b -= num4;
 		targetCamera.backgroundColor = color;
+		horizontalPlane.material.SetColor("_Color", color3);
 		mainLight.transform.rotation = Quaternion.Euler(sunAngle, 45f, 0f);
 		if (OnSkyboxColorChanged != null)
 		{

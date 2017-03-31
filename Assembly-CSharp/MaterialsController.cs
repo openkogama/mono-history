@@ -68,6 +68,14 @@ public class MaterialsController : MonoBehaviour, IEventSystemHandler, IMaterial
 	{
 		if (!(inventoryController != null))
 		{
+			ShowInventory(UIPushOption.Blocking, tab.currentPage);
+		}
+	}
+
+	public void ShowMaterialInventoryFirstPage()
+	{
+		if (!(inventoryController != null))
+		{
 			ShowInventory(UIPushOption.Blocking);
 		}
 	}
@@ -81,12 +89,13 @@ public class MaterialsController : MonoBehaviour, IEventSystemHandler, IMaterial
 		});
 	}
 
-	private void ShowInventory(UIPushOption pushOption)
+	private void ShowInventory(UIPushOption pushOption, int page = 1)
 	{
 		this.inventoryController = UnityEngine.Object.Instantiate(inventoryControllerPrefab);
 		InventoryController inventoryController = this.inventoryController;
 		inventoryController.OnPageTurned = (UnityAction<int>)Delegate.Combine(inventoryController.OnPageTurned, new UnityAction<int>(PageTurned));
 		this.inventoryController.Initialize(numberOfSlotsPrPage);
+		tab.currentPage = page;
 		this.inventoryController.AddTab(0, tab.name);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
 		{
@@ -117,7 +126,7 @@ public class MaterialsController : MonoBehaviour, IEventSystemHandler, IMaterial
 			{
 				MVMaterial material = MVGameControllerBase.Game.MaterialRepository.GetMaterial(b);
 				MaterialViewItem materialViewItem = UnityEngine.Object.Instantiate(materialViewItemPrefab);
-				materialViewItem.Initialize(b, !material.isUnlocked, material.buttonTexture, material.IsAvailable, b == cubeModelingStateMachine.CurrentMaterialId, material.name);
+				materialViewItem.Initialize(b, !material.isUnlocked, material.buttonTexture, material.IsAvailable, b == cubeModelingStateMachine.CurrentMaterialId);
 				inventoryController.AddObject(materialViewItem.gameObject, b % numberOfSlotsPrPage);
 			}
 		}

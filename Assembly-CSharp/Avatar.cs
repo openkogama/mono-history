@@ -42,6 +42,9 @@ public class Avatar : MonoBehaviour, IBulletImpactVisualizer
 	private AvatarLevelUp avatarLevelUp;
 
 	[SerializeField]
+	private TeamIconScaleWithDistance teamIcon;
+
+	[SerializeField]
 	private Transform nameTagLabel;
 
 	[SerializeField]
@@ -117,6 +120,7 @@ public class Avatar : MonoBehaviour, IBulletImpactVisualizer
 			avatarBadge.Initialize(mvAvatar.OwnerActorNr);
 			cullingSubscriberBase = new CullingSubscriberBase(0.5f, teamIconRenderer.transform.position, OnStateChanged);
 			mvAvatar.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(mvAvatar.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
+			teamIcon.gameObject.SetActive(value: true);
 		}
 		avatarLevelUp.Init(mvAvatar.OwnerActorNr);
 		avatarNameMaterial = avatarName.GetComponent<Renderer>().material;

@@ -46,6 +46,13 @@ public class MVSentryGun : MVLogicObject, ILogicWorldObject
 
 	private bool wasDead;
 
+	public override MVWorldObjectDocumentationType DocumentationType => BeamType switch
+	{
+		SentryGunBeamType.FireBeam => MVWorldObjectDocumentationType.FireSentryTower, 
+		SentryGunBeamType.IceBeam => MVWorldObjectDocumentationType.FrostSentryTower, 
+		_ => MVWorldObjectDocumentationType.Missing, 
+	};
+
 	public IInputSignalReceiver InputSignalReceiver { get; private set; }
 
 	public override bool HasInputConnector => true;

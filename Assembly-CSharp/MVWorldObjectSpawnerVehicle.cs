@@ -120,6 +120,7 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 		groundAura.transform.parent = gameObject.transform;
 		groundAura.transform.localPosition = Vector3.zero + Vector3.up * (0f - mVVehicleBase.GetLocalBounds(BoundsContext.BoxVisualization).extents.y) * 0.9f;
 		groundAura.transform.rotation = Quaternion.identity;
+		documentationType = mVVehicleBase.DocumentationType;
 	}
 
 	protected override void OnSpawnStateChange(SpawnState spawnState)

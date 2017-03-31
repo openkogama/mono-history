@@ -48,6 +48,11 @@ public class XPProgress
 		}
 	}
 
+	public void Destroy()
+	{
+		AsyncWWWManager.UnsubscribeWWWRequest(XPLimitsCallback);
+	}
+
 	private void XPLimitsCallback(WWW result)
 	{
 		Debug.Log(result.url);

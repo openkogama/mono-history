@@ -27,6 +27,8 @@ public class MVCollectible : MVLogicObject
 
 	private bool initializedInWorld;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.Star;
+
 	public override bool HasInputConnector => false;
 
 	public override bool HasOutputConnector => false;

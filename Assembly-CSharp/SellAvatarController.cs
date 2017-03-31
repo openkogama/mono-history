@@ -70,13 +70,13 @@ public class SellAvatarController : MonoBehaviour
 		string text;
 		if (added)
 		{
-			text = ((!metaData.isOnMarketPlace) ? TM._("Avatar is now on the marketplace.") : TM._("Avatar updated on marketplace."));
+			text = ((!metaData.isOnMarketPlace) ? TM._("Avatar is now available in your shop.") : TM._("Avatar updated in your shop."));
 			removeButton.gameObject.SetActive(value: true);
 			sellButtonText.text = TM._("Update");
 		}
 		else
 		{
-			text = ((!metaData.isOnMarketPlace) ? TM._("Failed to put Avatar on the marketplace.") : TM._("Failed to update Avatar."));
+			text = ((!metaData.isOnMarketPlace) ? TM._("Failed to put Avatar in your shop.") : TM._("Failed to update Avatar."));
 		}
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 		{
@@ -120,10 +120,10 @@ public class SellAvatarController : MonoBehaviour
 		{
 			x.Pop();
 		});
-		string text = TM._("Failed to remove Avatar from marketplace.");
+		string text = TM._("Failed to remove Avatar from your shop.");
 		if (added)
 		{
-			text = TM._("Avatar removed from marketplace.");
+			text = TM._("Avatar removed from your shop.");
 			removeButton.gameObject.SetActive(value: false);
 			sellButtonText.text = TM._("Sell");
 		}

@@ -5,13 +5,16 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class ItemSellTab : ManageItemPage
+public class InventoryItemPreviewSell : ManageItemPage
 {
 	[SerializeField]
 	private InputField itemName;
 
 	[SerializeField]
 	private InputField description;
+
+	[SerializeField]
+	private RawImage previewImage;
 
 	[SerializeField]
 	private Button removeFromMarketButton;
@@ -40,6 +43,7 @@ public class ItemSellTab : ManageItemPage
 
 	public override void Initialize(RawImage preview, InventoryItem item)
 	{
+		previewImage.texture = preview.mainTexture;
 		previewItem = item;
 		itemName.text = item.name;
 		description.text = string.Empty;
@@ -47,16 +51,18 @@ public class ItemSellTab : ManageItemPage
 		{
 			description.text = item.description;
 		}
+		sellButton.gameObject.SetActive(value: false);
+		removeFromMarketButton.gameObject.SetActive(value: false);
 		if (item.shopInventoryID != 0 && item.authorProfileID == MVGameControllerBase.Game.LocalPlayer.ProfileID)
 		{
-			sellButtonText.text = "Update";
+			sellButtonText.text = TM._("Update");
 			removeFromMarketButton.gameObject.SetActive(value: true);
 			sellButton.gameObject.SetActive(value: true);
 			addingToMarket = false;
 		}
 		else if (item.authorProfileID == MVGameControllerBase.Game.LocalPlayer.ProfileID)
 		{
-			sellButtonText.text = "Sell";
+			sellButtonText.text = TM._("Sell");
 			sellButton.gameObject.SetActive(value: true);
 			addingToMarket = true;
 		}
@@ -71,7 +77,7 @@ public class ItemSellTab : ManageItemPage
 	{
 		if (MVGameControllerBase.Game.LocalPlayer.Level < MVGameControllerBase.Game.MarketPlaceLevel)
 		{
-			string txt = TM._("You can not add to marketplace before reaching level: ") + MVGameControllerBase.Game.MarketPlaceLevel;
+			string txt = TM._("You can not add item to your shop before reaching level: ") + MVGameControllerBase.Game.MarketPlaceLevel;
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 			{
 				x.Create(txt, "Error: ");
@@ -107,15 +113,15 @@ public class ItemSellTab : ManageItemPage
 		{
 			x.Pop();
 		});
-		string txt = "Failed to remove";
+		string txt = string.Format(TM._("Failed to remove {0} from your shop"), itemName.text);
 		if (success)
 		{
-			txt = "Successfully removed ";
+			txt = string.Format(TM._("Successfully removed {0} from your shop"), itemName.text);
 			MVGameControllerBase.IEditModeUI.PlayerInventoryRepository.UpdateShopInventoryID(previewItem.itemID, 0);
 		}
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 		{
-			x.Create(txt + itemName.text + " from marketplace.", string.Empty);
+			x.Create(txt, string.Empty);
 		});
 	}
 
@@ -131,18 +137,18 @@ public class ItemSellTab : ManageItemPage
 		{
 			previewItem.name = itemName.text;
 			previewItem.description = description.text;
-			string txt = ((!addingToMarket) ? "Successfully updated " : "Successfully placed ");
+			string txt = ((!addingToMarket) ? string.Format(TM._("Successfully updated {0} in your shop."), previewItem.name) : string.Format(TM._("Successfully added {0} to your shop."), previewItem.name));
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 			{
-				x.Create(txt + previewItem.name + " on marketplace.", string.Empty);
+				x.Create(txt, string.Empty);
 			});
 		}
 		else
 		{
-			string txt2 = ((!addingToMarket) ? "Failed to update " : "Failed to place ");
+			string txt2 = ((!addingToMarket) ? string.Format(TM._("Failed to update {0} in your shop."), previewItem.name) : string.Format(TM._("Failed to add {0} to your shop."), previewItem.name));
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 			{
-				x.Create(txt2 + itemName.text + " on marketplace.", string.Empty);
+				x.Create(txt2, string.Empty);
 			});
 		}
 	}
@@ -151,7 +157,6 @@ public class ItemSellTab : ManageItemPage
 	{
 		MVGameControllerBase.Game.ReceivedItemFromQuery -= OnLoadMarketPlaceItem;
 		BytePacker koGaMaData = e.KoGaMaData;
-		Debug.Log("new item " + previewItem.itemID);
 		KoGaMaPackageClient koGaMaPackageClient = new KoGaMaPackageClient(new BytePacker(previewItem.data), readRuntimeValues: false);
 		KoGaMaPackageClient koGaMaPackageClient2 = new KoGaMaPackageClient(koGaMaData, readRuntimeValues: false);
 		float num = KoGaMaPackageClient.Compare(koGaMaPackageClient2, koGaMaPackageClient);
@@ -163,10 +168,10 @@ public class ItemSellTab : ManageItemPage
 		compareSlider.gameObject.SetActive(value: true);
 		if (1f - num <= 1f - CommonValues.CompareThreshold)
 		{
-			compareText.text = TM._("Item is not different enough from the original.");
+			compareText.text = TM._("Item is not different enough from original item.");
 			return;
 		}
-		compareText.text = TM._("Item is different enough to be sold.");
+		compareText.text = TM._("Item is sellable.");
 		sellButton.gameObject.SetActive(value: true);
 	}
 }

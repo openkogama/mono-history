@@ -889,6 +889,8 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 	{
 		private const float levitationHeight = 0.2f;
 
+		public static readonly string screenName = TM._("Colossus");
+
 		private MVCameraBase camera;
 
 		private GodzillaTrigger triggerRef;

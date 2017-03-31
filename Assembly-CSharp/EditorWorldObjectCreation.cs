@@ -35,10 +35,7 @@ public class EditorWorldObjectCreation : MonoBehaviour, ICloneHandler, IAddItemF
 		if (!ValidateAddItemFromInventory(koGaMaPackageFromItem))
 		{
 			koGaMaPackageFromItem.Destroy();
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
-			{
-				x.Create(TM._("There is already an object of this type in the game. Only one per game is allowed. Moving existing one to your position."), string.Empty);
-			});
+			NotificationController.PushNotification(TM._("There can be only one of this object."));
 			return;
 		}
 		while (!esm.ParentGroupIsRoot && esm.ParentGroup.HasInteractionFlag(InteractionFlags.CantAddChildren))
@@ -113,22 +110,12 @@ public class EditorWorldObjectCreation : MonoBehaviour, ICloneHandler, IAddItemF
 				List<MVWorldObjectClient> worldObjectsByType = MVGameControllerBase.WOCM.GetWorldObjectsByType(value.WorldObjectType);
 				if (worldObjectsByType.Count > 0)
 				{
-					MoveExistingSingletonObject(worldObjectsByType[0]);
+					MVGameControllerBase.CameraController.CurCamera.FocusOnObject(worldObjectsByType[0]);
 					return false;
 				}
 			}
 		}
 		return true;
-	}
-
-	private void MoveExistingSingletonObject(MVWorldObjectClient wo)
-	{
-		Vector3 position = MVGameControllerBase.Game.LocalPlayer.Avatar.Transform.position;
-		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-		{
-			position.z = 0f;
-		}
-		wo.Transform.position = position;
 	}
 
 	private Quaternion HandlePlatformerRotationSpecialCases(int itemCategory, WorldObjectType worldObjectType)

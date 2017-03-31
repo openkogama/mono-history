@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 public class UIStack : MonoBehaviour, IEventSystemHandler, IUIStack
 {
@@ -12,6 +13,8 @@ public class UIStack : MonoBehaviour, IEventSystemHandler, IUIStack
 		public readonly bool blockingObject;
 
 		public readonly bool hideAll;
+
+		public readonly bool invisibleBlocker;
 
 		public readonly UnityAction onPop;
 
@@ -25,6 +28,7 @@ public class UIStack : MonoBehaviour, IEventSystemHandler, IUIStack
 			this.gameObject = gameObject;
 			blockingObject = (pushOption & UIPushOption.Blocking) != 0;
 			hideAll = (pushOption & UIPushOption.HideAll) != 0;
+			invisibleBlocker = (pushOption & UIPushOption.InvisibleBlocker) != 0;
 			this.onPop = onPop;
 			this.group = group;
 		}
@@ -36,7 +40,17 @@ public class UIStack : MonoBehaviour, IEventSystemHandler, IUIStack
 	[SerializeField]
 	private GameObject blockingObject;
 
+	[SerializeField]
+	private Image blockingObjectImage;
+
+	private float origBlockerAlpha = 0.5f;
+
 	private List<StackElement> stackableUiElements = new List<StackElement>();
+
+	private void Start()
+	{
+		origBlockerAlpha = blockingObjectImage.color.a;
+	}
 
 	public void Push(GameObject gameObject, UIPushOption pushOption = UIPushOption.None, UnityAction onPop = null, UIGroupFlags group = UIGroupFlags.Default)
 	{
@@ -75,6 +89,7 @@ public class UIStack : MonoBehaviour, IEventSystemHandler, IUIStack
 		stackElement.gameObject.transform.SetParent(root.transform, worldPositionStays: false);
 		stackElement.gameObject.SetActive(value: true);
 		stackableUiElements.Add(stackElement);
+		UpdateBlocking();
 	}
 
 	public void Pop()
@@ -124,6 +139,18 @@ public class UIStack : MonoBehaviour, IEventSystemHandler, IUIStack
 		{
 			if (stackableUiElements[num].blockingObject)
 			{
+				if (stackableUiElements[num].invisibleBlocker)
+				{
+					Color color = blockingObjectImage.color;
+					color.a = 0f;
+					blockingObjectImage.color = color;
+				}
+				else
+				{
+					Color color2 = blockingObjectImage.color;
+					color2.a = origBlockerAlpha;
+					blockingObjectImage.color = color2;
+				}
 				blockingObject.transform.SetAsLastSibling();
 				int siblingIndex = stackableUiElements[num].gameObject.transform.GetSiblingIndex();
 				blockingObject.transform.SetSiblingIndex(siblingIndex);

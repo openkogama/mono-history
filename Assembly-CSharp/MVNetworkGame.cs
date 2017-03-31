@@ -2099,7 +2099,7 @@ public class MVNetworkGame : IPhotonPeerListener
 				}
 				else
 				{
-					Debug.LogWarning("Failed to add item to marketPlace");
+					Debug.LogWarning("Failed to add item to shop");
 				}
 				if (networkGame.OnMarketPlaceActionComplete != null)
 				{

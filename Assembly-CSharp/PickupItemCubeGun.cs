@@ -62,8 +62,6 @@ public class PickupItemCubeGun : PickupItemWithDelay
 	private void Awake()
 	{
 		currentAmmo = maxAmmo;
-		fireInterval = 0.3f;
-		fireIntervalSecondary = 0.5f;
 	}
 
 	private void Start()

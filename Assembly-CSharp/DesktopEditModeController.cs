@@ -130,7 +130,6 @@ public class DesktopEditModeController : ModeControllerBase, IEditModeUI, ISetEd
 
 	private void OnApplicationFocus(bool focus)
 	{
-		Debug.Log("OnApplicationFocus " + focus);
 		if (focus)
 		{
 			focusSuppressInput = true;

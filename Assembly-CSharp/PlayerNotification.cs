@@ -52,6 +52,11 @@ public class PlayerNotification : Notification
 		}
 	}
 
+	private void OnDestroy()
+	{
+		BadgeManager.UnsubscribeGetBadgeRequest(BadgeCallback);
+	}
+
 	private void BadgeCallback(WWW www)
 	{
 		if (www != null && www.texture != null)

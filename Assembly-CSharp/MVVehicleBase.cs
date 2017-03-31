@@ -134,6 +134,8 @@ public abstract class MVVehicleBase : MVBlueprintBase, IBulletImpactVisualizer
 		}
 	}
 
+	protected MVWorldObjectDocumentationType documentationType;
+
 	public MVRuntimeDataVariable IsVehicleDead;
 
 	protected VehicleSeatManager seatManager;
@@ -143,6 +145,8 @@ public abstract class MVVehicleBase : MVBlueprintBase, IBulletImpactVisualizer
 	protected VehicleVisualizationBase visualization;
 
 	protected VehicleBaseObject vehicleBaseObject;
+
+	public override MVWorldObjectDocumentationType DocumentationType => documentationType;
 
 	public virtual bool IsDead => (bool)IsVehicleDead.Value;
 

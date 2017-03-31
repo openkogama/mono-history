@@ -28,13 +28,21 @@ public class TabState
 	{
 		if (pageDir == -1 && currentPage == 1)
 		{
-			return false;
+			currentPage = MaxPages;
+			return true;
 		}
 		if (pageDir == 1 && currentPage == MaxPages)
 		{
-			return false;
+			currentPage = 1;
+			return true;
 		}
 		currentPage += pageDir;
+		return true;
+	}
+
+	public bool SetPage(int page)
+	{
+		currentPage = Mathf.Clamp(page, 1, MaxPages);
 		return true;
 	}
 

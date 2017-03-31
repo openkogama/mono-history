@@ -20,6 +20,8 @@ public class TimeReward : IUpdatecontrollerSubscriber
 		}
 
 		public abstract RewardStateBase Update();
+
+		public abstract void Destroy();
 	}
 
 	private class RequestRewardData : RewardStateBase
@@ -111,6 +113,11 @@ public class TimeReward : IUpdatecontrollerSubscriber
 			rewardCountdown = new RewardCountdown(rewardData.timeInSeconds, rewardData.gold, rewardData.silver);
 			requestedRewardDataStatus = RequestRewardDataStatus.Accepted;
 		}
+
+		public override void Destroy()
+		{
+			AsyncWWWManager.UnsubscribeWWWRequest(OnRewardData);
+		}
 	}
 
 	private class RewardCountdown : RewardStateBase
@@ -122,6 +129,10 @@ public class TimeReward : IUpdatecontrollerSubscriber
 			Debug.Log("Time is started");
 			waitForTicks = new WaitForTicks(timeInSeconds * 1000);
 			rewardStateEventArgs = new RewardStateDataEventArgs(timeInSeconds, amountGold, amountSilver);
+		}
+
+		public override void Destroy()
+		{
 		}
 
 		public override RewardStateBase Update()
@@ -148,6 +159,10 @@ public class TimeReward : IUpdatecontrollerSubscriber
 			Debug.Log("s.gameRewardURL: " + gameSessionData.gameRewardURL);
 		}
 
+		public override void Destroy()
+		{
+		}
+
 		public override RewardStateBase Update()
 		{
 			return new RewardDone();
@@ -156,6 +171,10 @@ public class TimeReward : IUpdatecontrollerSubscriber
 
 	private class RewardDone : RewardStateBase
 	{
+		public override void Destroy()
+		{
+		}
+
 		public override RewardStateBase Update()
 		{
 			return this;
@@ -188,5 +207,10 @@ public class TimeReward : IUpdatecontrollerSubscriber
 		{
 			RewardStateChanged(this, rewardStateEventArgs);
 		}
+	}
+
+	public void DestroyRewardRequest()
+	{
+		rewardStateBase.Destroy();
 	}
 }

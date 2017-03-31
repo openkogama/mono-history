@@ -5,9 +5,11 @@ public class MVRoundCube : MVLogicObject
 {
 	private bool initializedInWorld;
 
-	private GameStatCounterType WinningCondition => (GameStatCounterType)(int)Data["winningCondition"];
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.RoundCube;
 
 	public int DurationInMilliseconds => (int)Data["interval"] * 1000;
+
+	private GameStatCounterType WinningCondition => (GameStatCounterType)(int)Data["winningCondition"];
 
 	public MVRoundCube(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVRoundCubePrefab, worldObjects)

@@ -14,6 +14,8 @@ public class MVRandomBox : MVLogicObject, ILogicWorldObject
 
 	private OutputSignalTransmitterSpecific _outputSignalTransmitter;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.RandomBox;
+
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => true;

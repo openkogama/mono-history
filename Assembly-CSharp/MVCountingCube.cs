@@ -22,6 +22,8 @@ public class MVCountingCube : MVLogicObject, ILogicWorldObject
 
 	private int prevVal = -1;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.CountingCube;
+
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => true;

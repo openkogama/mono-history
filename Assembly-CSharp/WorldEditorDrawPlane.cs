@@ -271,7 +271,6 @@ public class WorldEditorDrawPlane : MonoBehaviour
 
 	public void MoveDrawPlane(int dir)
 	{
-		Debug.Log("Moving drawplane");
 		if (Time.time - lastMovePlaneDelta > 0.1f)
 		{
 			Pos += transform.localRotation * Vector3.up * dir;

@@ -5,19 +5,14 @@ public class InventorySlot : MonoBehaviour, IEventSystemHandler, IDropHandler
 {
 	private int absoluteSlotValue;
 
+	[SerializeField]
+	private NotificationFade fade;
+
+	private GameObject previewItem;
+
 	public int AbsoluteSlot => absoluteSlotValue;
 
-	public GameObject Item
-	{
-		get
-		{
-			if (transform.childCount > 0)
-			{
-				return transform.GetChild(0).gameObject;
-			}
-			return null;
-		}
-	}
+	public GameObject Item => previewItem;
 
 	public void Clear()
 	{
@@ -29,11 +24,18 @@ public class InventorySlot : MonoBehaviour, IEventSystemHandler, IDropHandler
 		absoluteSlotValue = slotValue;
 	}
 
+	public void HighlightSlot()
+	{
+		fade.Activate();
+	}
+
 	public void Set(GameObject item)
 	{
 		if (!(item == null))
 		{
+			previewItem = item;
 			item.transform.SetParent(transform, worldPositionStays: false);
+			item.transform.SetAsFirstSibling();
 			item.GetComponent<RectTransform>().localPosition = Vector3.zero;
 		}
 	}

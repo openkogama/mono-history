@@ -302,6 +302,11 @@ public abstract class AvatarAccessory : MonoBehaviour
 		}
 	}
 
+	private void OnDestroy()
+	{
+		AsyncWWWManager.UnsubscribeWWWRequest(LoadedAccessoryAsset);
+	}
+
 	private static void LoadedAccessoryAsset(WWW www, UnityEngine.Object mainAsset)
 	{
 		string text = www.url.TrimStart(Urls.StreamingAssets.ToCharArray());

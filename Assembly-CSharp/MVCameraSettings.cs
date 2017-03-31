@@ -4,6 +4,8 @@ public class MVCameraSettings : MVLogicObject
 {
 	private bool isPreview;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.CameraSettings;
+
 	public override bool HasInputConnector => false;
 
 	public override bool HasOutputConnector => false;

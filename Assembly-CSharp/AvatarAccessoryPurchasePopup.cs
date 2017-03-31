@@ -18,9 +18,6 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 	[SerializeField]
 	private Text goldPrice;
 
-	[SerializeField]
-	private GameObject waitOverLay;
-
 	public void Initialize(StreamingAssetInfo streamingAssetInfo, Texture previewImage)
 	{
 		preview.texture = previewImage;
@@ -31,7 +28,10 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 
 	public void Purchase()
 	{
-		waitOverLay.SetActive(value: true);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+		{
+			x.Create();
+		});
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Combine(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
 		MVGameControllerBase.OperationRequests.PurchaseAvatarAccessory(streamingAssetInfo.ProductID);
@@ -41,7 +41,10 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 	{
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Remove(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
-		waitOverLay.SetActive(value: false);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Pop();
+		});
 		if (returnCode == 0)
 		{
 			HandleSuccessfulPurchase(purchaseResponseData);
@@ -88,7 +91,6 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 
 	public void Pop()
 	{
-		waitOverLay.SetActive(value: false);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Pop();

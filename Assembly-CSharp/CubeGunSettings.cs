@@ -13,7 +13,7 @@ public class CubeGunSettings : MonoBehaviour
 	{
 		this.woID = woID;
 		this.materialsController = materialsController;
-		materialsController.ShowMaterialInventory();
+		materialsController.ShowMaterialInventoryFirstPage();
 		materialsController.materialChange = (UnityAction<byte>)Delegate.Combine(materialsController.materialChange, new UnityAction<byte>(MaterialChange));
 		materialsController.materialsPop = (UnityAction)Delegate.Combine(materialsController.materialsPop, new UnityAction(Pop));
 	}

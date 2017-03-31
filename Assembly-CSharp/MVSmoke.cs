@@ -5,6 +5,8 @@ public class MVSmoke : MVLogicObject, ILogicWorldObject
 {
 	private ParticleSystem particleSystem;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.Smoke;
+
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => false;

@@ -174,6 +174,8 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 
 	private void OnDestroy()
 	{
+		AsyncWWWManager.UnsubscribeWWWRequest(OnRewardData);
+		AsyncWWWManager.UnsubscribeWWWRequest(OnFinishedRewardCollecting);
 		UpdateController.RemoveUpdateObject(this);
 		CollectedChanged = (Action)Delegate.Remove(CollectedChanged, new Action(OnCollectedChanged));
 	}

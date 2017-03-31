@@ -7,6 +7,8 @@ public class MVWaterPlane : MVLogicObject
 
 	private Bounds localBounds;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.WaterPlane;
+
 	public override bool HasInputConnector => false;
 
 	public override bool HasOutputConnector => false;

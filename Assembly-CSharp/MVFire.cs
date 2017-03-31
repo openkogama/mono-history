@@ -12,6 +12,8 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 
 	private FireObject fireObject;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.Fire;
+
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => false;

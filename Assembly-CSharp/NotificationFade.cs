@@ -12,17 +12,18 @@ public class NotificationFade : MonoBehaviour
 	[SerializeField]
 	private float duration = 1f;
 
+	[SerializeField]
+	private bool playing = true;
+
 	private float currentTime;
 
 	public Action OnFinished;
 
-	private bool finished;
-
 	public void Deactivate()
 	{
-		if (!finished)
+		if (playing)
 		{
-			finished = true;
+			playing = false;
 			group.alpha = 0f;
 			currentTime = 0f;
 			if (OnFinished != null)
@@ -34,14 +35,14 @@ public class NotificationFade : MonoBehaviour
 
 	public void Activate()
 	{
-		finished = false;
+		playing = true;
 		group.alpha = 0f;
 		currentTime = 0f;
 	}
 
 	private void Update()
 	{
-		if (!finished)
+		if (playing)
 		{
 			currentTime += Time.deltaTime;
 			group.alpha = textVisibilityCurve.Evaluate(currentTime / duration);

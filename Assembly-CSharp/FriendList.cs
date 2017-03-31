@@ -29,6 +29,8 @@ public class FriendList
 
 	public Dictionary<int, Friend> Pending => pending;
 
+	public List<int> PendingProfileIds => pendingNotifications;
+
 	public Friend this[int friendID]
 	{
 		get

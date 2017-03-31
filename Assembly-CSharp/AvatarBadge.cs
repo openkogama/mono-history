@@ -48,6 +48,7 @@ public class AvatarBadge : MonoBehaviour
 
 	private void OnDestroy()
 	{
+		BadgeManager.UnsubscribeGetBadgeRequest(StreamingAssetCallback);
 		if (!LevelingManager.IsInitialized)
 		{
 			LevelingManager.OnLevelingInitialized = (UnityAction)Delegate.Remove(LevelingManager.OnLevelingInitialized, new UnityAction(OnLevelingInitialized));

@@ -5,7 +5,7 @@ using MV.WorldObject;
 using MV.WorldObject.RuntimeEvents;
 using UnityEngine;
 
-public class MVHamsterWheel(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects) : MVSimpleOneSeatVehicle(data, PrefabPool.Instance.MVHamsterWheelPrefab, worldObjects)
+public class MVHamsterWheel : MVSimpleOneSeatVehicle
 {
 	protected class LocalObjectsHamsterWheel : LocalObjectsSimpleVehicle
 	{
@@ -80,6 +80,12 @@ public class MVHamsterWheel(Dictionary<object, object> data, Dictionary<int, MVW
 	private bool wasGrounded;
 
 	public override bool IsDead => (bool)IsVehicleDead.Value;
+
+	public MVHamsterWheel(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
+		: base(data, PrefabPool.Instance.MVHamsterWheelPrefab, worldObjects)
+	{
+		documentationType = MVWorldObjectDocumentationType.HamsterBall;
+	}
 
 	public override void Initialize()
 	{

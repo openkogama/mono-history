@@ -29,13 +29,16 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 	public AvatarPictureTakerUGUI pictureTaker;
 
 	[SerializeField]
-	private AvatarScreenShooter screenShooter;
-
-	[SerializeField]
 	private NotificationPopup notificationPopup;
 
 	[SerializeField]
 	private PleaseWaitPopup pleaseWaitPopupPrefab;
+
+	[SerializeField]
+	private UploadAvatarScreenshotHandler uploadAvatarScreenshotHandler;
+
+	[SerializeField]
+	private ResetAvatarHandler resetAvatarHandler;
 
 	private List<string> animations = new List<string> { "Idle", "Jump", "Dead", "Swim", "Walk" };
 
@@ -91,6 +94,16 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 
 	public void ResetCurrentBody()
 	{
+		ResetAvatarHandler resetHandler = UnityEngine.Object.Instantiate(resetAvatarHandler);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Push(resetHandler.gameObject, UIPushOption.Blocking | UIPushOption.InvisibleBlocker, null, UIGroupFlags.Popup);
+		});
+		resetHandler.ResetAvatar(CurrentBody, ExecuteReset);
+	}
+
+	private void ExecuteReset()
+	{
 		World world = MVGameControllerBase.Game.World;
 		world.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Combine(world.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(ResetCallback));
 		MVGameControllerBase.OperationRequests.ResetAvatar(CurrentBody.Id);
@@ -114,6 +127,10 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 			x.SetState(EditorEvent.CERoamUUI);
 		});
 		MVGameControllerBase.OperationRequests.SetActiveAvatar(id);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Pop();
+		});
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Pop();
@@ -184,25 +201,14 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 		pictureTaker.TakePicture(bodies[index], index, Picture2DTakenCallback, bodies[index] == CurrentBody);
 	}
 
-	public void TakeScreenshotForProfile()
+	public void TakeScreenshot()
 	{
-		PleaseWaitPopup popup = UnityEngine.Object.Instantiate(pleaseWaitPopupPrefab);
+		UploadAvatarScreenshotHandler screenshotHandler = UnityEngine.Object.Instantiate(uploadAvatarScreenshotHandler);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			x.Push(popup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.Popup);
+			x.Push(screenshotHandler.gameObject, UIPushOption.Blocking | UIPushOption.InvisibleBlocker, null, UIGroupFlags.Popup);
 		});
-		screenShooter.TakeScreenShot(ScreenShotCallback, CurrentBody, ignoreAccessories: false, TM._("Screenshot taken successfully"));
-	}
-
-	public void TakeScreenshotForPurchasedAvatar()
-	{
-		PleaseWaitPopup popup = UnityEngine.Object.Instantiate(pleaseWaitPopupPrefab);
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-		{
-			x.Push(popup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.Popup);
-		});
-		playingPurchaseSoundAfterScreenshot = true;
-		screenShooter.TakeScreenShot(ScreenShotCallback, CurrentBody, ignoreAccessories: false, TM._("New avatar purchased!"));
+		screenshotHandler.TakeScreenshot(CurrentBody, ScreenShotCallback);
 	}
 
 	public void PurchaseAvatar(AvatarRepositoryItem item)
@@ -268,7 +274,7 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 		SetCurrentBody(num);
 		AvatarSelectionController.CurrentlySelectedSlotIndex = num;
 		MVGameControllerBase.OperationRequests.SetActiveAvatar(e.RootWO.Id);
-		TakeScreenshotForPurchasedAvatar();
+		uploadAvatarScreenshotHandler.TakeScreenshot(CurrentBody, ScreenShotCallback, purchasedAvatar: true);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAvatarSetBodyGroup x, BaseEventData y) =>
 		{
 			x.SetBodyGroup(CurrentBody);

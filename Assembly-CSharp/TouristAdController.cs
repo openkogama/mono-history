@@ -14,15 +14,7 @@ public class TouristAdController : MonoBehaviour
 	public void Initialize(TouristModeController promotionSliderController)
 	{
 		promotionSliderCreator = promotionSliderController;
-		if (!MVGameControllerBase.IsTouristSession)
-		{
-			promotionSliderCreator.SetActive(active: true);
-			Object.Destroy(gameObject);
-		}
-		else
-		{
-			gameObject.SetActive(value: true);
-		}
+		gameObject.SetActive(value: true);
 	}
 
 	private void Update()

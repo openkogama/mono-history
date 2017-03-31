@@ -27,6 +27,8 @@ public class GodzillaTrigger : MVLogicObject, ILogicWorldObject
 
 	private OutputSignalTransmitter outputSignalTransmitter;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.Colossus;
+
 	public override bool HasOutputConnector => true;
 
 	private int OccupantWOID

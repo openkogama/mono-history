@@ -31,6 +31,18 @@ public abstract class AsyncWebRequest
 
 	protected static bool UseCaching => true;
 
+	public Action<WWW> Callback
+	{
+		get
+		{
+			return callback;
+		}
+		set
+		{
+			callback = value;
+		}
+	}
+
 	protected AsyncWebRequest(string path, Action<WWW> callback, WWWRequestPriority requestPriority)
 	{
 		this.requestPriority = requestPriority;

@@ -18,6 +18,8 @@ public class CollectTheItem : MVBlueprintBase
 
 	private bool hasInitializedReferences;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.CollectTheItem;
+
 	public int WoKeyInstance { get; set; }
 
 	public int DropOffId => dropOff.Id;

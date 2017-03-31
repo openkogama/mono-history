@@ -13,10 +13,10 @@ public class DesktopCubeModelingController : MonoBehaviour
 	private DesktopCubeModelingToolsController desktopCubeModelingController;
 
 	[SerializeField]
-	private AudioSource screenShotSound;
+	private Sprite errorSprite;
 
 	[SerializeField]
-	private Sprite errorSprite;
+	private UploadGameScreenshotHandler screenshotHandler;
 
 	public void Initialize(CubeModelingStateMachine cubeModelingStateMachine)
 	{
@@ -86,37 +86,16 @@ public class DesktopCubeModelingController : MonoBehaviour
 
 	public void TakeScreenshot()
 	{
-		if (MVGameControllerBase.Game.LocalPlayer.PlanetOwnershipTypeID == 2)
-		{
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
-			{
-				x.Create();
-			});
-			MVGameControllerBase.Game.ScreenshotUploaded += OnScreenShotUploaded;
-			MVGameControllerBase.OperationRequests.UploadGameScreenShot();
-		}
-		else
+		if (MVGameControllerBase.Game.LocalPlayer.PlanetOwnershipTypeID != 2)
 		{
 			NotificationController.PushNotification(TM._("You must be the owner in order to take a screenshot!"), errorSprite, 3);
+			return;
 		}
-	}
-
-	private void OnScreenShotUploaded(object sender, ScreenshotUploadedEventArgs args)
-	{
-		MVGameControllerBase.Game.ScreenshotUploaded -= OnScreenShotUploaded;
+		UploadGameScreenshotHandler screenshotGenerator = UnityEngine.Object.Instantiate(screenshotHandler);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			x.Pop();
+			x.Push(screenshotGenerator.gameObject, UIPushOption.Blocking | UIPushOption.HideAll, null, UIGroupFlags.Popup);
 		});
-		screenShotSound.Play();
-		string text = TM._("Screenshot Successfully uploaded");
-		if (!args.Uploaded)
-		{
-			text = TM._("Failed to upload screenshot");
-		}
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
-		{
-			x.Create(text, TM._("Screenshot upload"));
-		});
+		screenshotGenerator.TakeScreenshot();
 	}
 }

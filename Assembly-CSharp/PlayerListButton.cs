@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -21,6 +22,8 @@ public class PlayerListButton : MonoBehaviour
 
 	private GameObject currPlayerLists;
 
+	private Dictionary<int, MVPlayer> prevPlayerListState = new Dictionary<int, MVPlayer>();
+
 	private void Awake()
 	{
 		MVNetworkGame game = MVGameControllerBase.Game;
@@ -31,7 +34,21 @@ public class PlayerListButton : MonoBehaviour
 		friends.OnFriendRequestReceived = (UnityAction)Delegate.Combine(friends.OnFriendRequestReceived, new UnityAction(ViewNotification));
 		FriendList friends2 = MVGameControllerBase.Game.Friends;
 		friends2.OnPendingCountChanged = (UnityAction<int>)Delegate.Combine(friends2.OnPendingCountChanged, new UnityAction<int>(PendingCountChanged));
+		MVNetworkGame game2 = MVGameControllerBase.Game;
+		game2.OnFinishedLoadingPlayers = (UnityAction)Delegate.Combine(game2.OnFinishedLoadingPlayers, new UnityAction(OnPlayerListReady));
 		UpdateButton();
+	}
+
+	private void OnPlayerListReady()
+	{
+		foreach (MVPlayer value in MVGameControllerBase.Game.Players.Values)
+		{
+			if (MVGameControllerBase.Game.Friends.Pending.ContainsKey(value.ProfileID))
+			{
+				notification.gameObject.SetActive(value: true);
+				break;
+			}
+		}
 	}
 
 	private void PendingCountChanged(int pending)
@@ -46,6 +63,7 @@ public class PlayerListButton : MonoBehaviour
 
 	public void CreatePlayerList()
 	{
+		prevPlayerListState = new Dictionary<int, MVPlayer>(MVGameControllerBase.Game.Players);
 		notification.gameObject.SetActive(value: false);
 		if (currPlayerLists != null)
 		{
@@ -69,6 +87,14 @@ public class PlayerListButton : MonoBehaviour
 	{
 		UpdatePlayersCount();
 		UpdateTeamColor();
+		foreach (MVPlayer value in MVGameControllerBase.Game.Players.Values)
+		{
+			if (MVGameControllerBase.Game.Friends.PendingProfileIds.Contains(value.ProfileID) && !prevPlayerListState.ContainsKey(value.ProfileID))
+			{
+				notification.gameObject.SetActive(value: true);
+				break;
+			}
+		}
 	}
 
 	private void UpdatePlayersCount()

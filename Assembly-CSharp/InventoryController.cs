@@ -29,6 +29,11 @@ public class InventoryController : MonoBehaviour, IEventSystemHandler, ISlotChan
 		inventorySlots.Clear();
 	}
 
+	public void HighlightSlot(int slotPosition)
+	{
+		inventorySlots.HighlightSlot(slotPosition);
+	}
+
 	public void AddTab(int categoryId, string tabname)
 	{
 		tabMenu.AddTabMenuButton(categoryId, tabname);

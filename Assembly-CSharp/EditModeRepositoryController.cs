@@ -38,11 +38,6 @@ public class EditModeRepositoryController : MonoBehaviour
 			MVGameControllerBase.IEditModeUI.PlayerInventoryRepository.AddPurchasedItem(currentlyBuyingItem);
 			MVGameControllerBase.IEditModeUI.ClientShopRepository.RemoveItem(currentlyBuyingItem);
 			MVGameControllerBase.IEditModeUI.ClientShopRepository.ReorganizeBySlotPositions();
-			string txt = TM._("Successfully purchased item from shop.");
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
-			{
-				x.Create(txt, string.Empty);
-			});
 		}
 		else
 		{

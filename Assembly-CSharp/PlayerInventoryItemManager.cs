@@ -31,7 +31,7 @@ public class PlayerInventoryItemManager : MonoBehaviour, IEventSystemHandler, IT
 	private ItemInfoTab infoTabPrefab;
 
 	[SerializeField]
-	private ItemSellTab itemSellTabPrefab;
+	private InventoryItemPreviewSell itemSellTabPrefab;
 
 	[SerializeField]
 	private ItemInventoryDeleteTab ItemRemovalPrefab;

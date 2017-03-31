@@ -251,16 +251,14 @@ public class Styles : MonoBehaviour
 
 	private static bool HandleUnInitalized()
 	{
-		if (isInitialized)
+		if (!isInitialized)
 		{
-			return true;
+			Styles styles = (Styles)UnityEngine.Object.FindObjectOfType(typeof(Styles));
+			if (styles != null)
+			{
+				styles.Initialize();
+			}
 		}
-		Styles styles = (Styles)UnityEngine.Object.FindObjectOfType(typeof(Styles));
-		if (styles == null && !Application.isPlaying)
-		{
-			return false;
-		}
-		styles.Initialize();
 		return isInitialized;
 	}
 

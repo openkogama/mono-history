@@ -38,12 +38,12 @@ public static class BadgeManager
 		return badgeUrls[level].FriendsLimit;
 	}
 
-	public static void GetBadgeTexture(int level, Action<WWW> callback)
+	public static void UnsubscribeGetBadgeRequest(Action<WWW> callback)
 	{
-		HandleBadgeRequest(level, callback);
+		AsyncWWWManager.UnsubscribeWWWRequest(callback);
 	}
 
-	private static void HandleBadgeRequest(int level, Action<WWW> callback)
+	public static void GetBadgeTexture(int level, Action<WWW> callback)
 	{
 		if (maxLevelBadge == 0)
 		{

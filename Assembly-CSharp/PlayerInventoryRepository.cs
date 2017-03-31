@@ -19,6 +19,8 @@ public class PlayerInventoryRepository
 
 	public Action OnInventoryChanged;
 
+	public Action<int, int> OnInventoryItemAdded;
+
 	public PlayerInventoryRepository()
 	{
 		foreach (int key in categories.Keys)
@@ -39,6 +41,10 @@ public class PlayerInventoryRepository
 		if (OnInventoryChanged != null)
 		{
 			OnInventoryChanged();
+		}
+		if (OnInventoryItemAdded != null)
+		{
+			OnInventoryItemAdded(item.itemCategoryID, item.slotPosition);
 		}
 	}
 
@@ -128,5 +134,13 @@ public class PlayerInventoryRepository
 		InventoryItem inventoryItem = new InventoryItem(purchasedItem);
 		repository[purchasedItem.itemCategoryID].Add(inventoryItem);
 		inventoryItem.slotPosition = repository[purchasedItem.itemCategoryID].Count - 1;
+		if (OnInventoryChanged != null)
+		{
+			OnInventoryChanged();
+		}
+		if (OnInventoryItemAdded != null)
+		{
+			OnInventoryItemAdded(inventoryItem.itemCategoryID, inventoryItem.slotPosition);
+		}
 	}
 }

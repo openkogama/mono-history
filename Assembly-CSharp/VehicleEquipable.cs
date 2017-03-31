@@ -19,7 +19,7 @@ public class VehicleEquipable : MVEquipable
 		{
 			if (type == AvatarItemType.Health)
 			{
-				interactableLocal.TakeDamage(-50f, null, PlayerKilledByType.None);
+				interactableLocal.TakeDamage(float.NegativeInfinity, null, PlayerKilledByType.None);
 				return true;
 			}
 			return false;

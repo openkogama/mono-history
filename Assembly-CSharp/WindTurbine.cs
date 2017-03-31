@@ -23,6 +23,8 @@ public class WindTurbine : MVLogicObject, ILogicWorldObject
 
 	private List<int> keysToRemove = new List<int>();
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.WindTurbine;
+
 	public override Vector3 WorldPivot => transform.position;
 
 	public override Vector3 InputConnectorOffset => new Vector3(-1.55f, 0f, 0f);

@@ -12,58 +12,6 @@ public static class GameSessionCounterRules
 		}
 	}
 
-	private class HoverCraft360 : IRule
-	{
-		private bool inHoverCraft;
-
-		private bool grounded;
-
-		private int cameraRotation;
-
-		private bool wasRewarded;
-
-		public HoverCraft360(Dictionary<GameSessionCounterType, GameSessionCounters.GameSessionCounter> sessionCounters)
-			: base(sessionCounters)
-		{
-			GameSessionCounters.GameSessionCounter gameSessionCounter = sessionCounters[GameSessionCounterType.InHoverCraft];
-			gameSessionCounter.callbacks = (Action<GameSessionCounterType, int>)Delegate.Combine(gameSessionCounter.callbacks, new Action<GameSessionCounterType, int>(InHoverCraft));
-			GameSessionCounters.GameSessionCounter gameSessionCounter2 = sessionCounters[GameSessionCounterType.CameraRotation];
-			gameSessionCounter2.callbacks = (Action<GameSessionCounterType, int>)Delegate.Combine(gameSessionCounter2.callbacks, new Action<GameSessionCounterType, int>(CameraRotation));
-			GameSessionCounters.GameSessionCounter gameSessionCounter3 = sessionCounters[GameSessionCounterType.Grounded];
-			gameSessionCounter3.callbacks = (Action<GameSessionCounterType, int>)Delegate.Combine(gameSessionCounter3.callbacks, new Action<GameSessionCounterType, int>(Grounded));
-		}
-
-		private void CameraRotation(GameSessionCounterType gameSessionCounterType, int count)
-		{
-			if (grounded || !inHoverCraft || wasRewarded)
-			{
-				cameraRotation = 0;
-				return;
-			}
-			cameraRotation += count;
-			if (Mathf.Abs(cameraRotation) > 360)
-			{
-				cameraRotation = 0;
-				wasRewarded = true;
-				LevelingManager.AddXPToLocalPlayer("HoverCraft360", MVGameMode.Play);
-			}
-		}
-
-		private void InHoverCraft(GameSessionCounterType gameSessionCounterType, int count)
-		{
-			inHoverCraft = Convert.ToBoolean(count);
-		}
-
-		private void Grounded(GameSessionCounterType gameSessionCounterType, int count)
-		{
-			grounded = Convert.ToBoolean(count);
-			if (grounded)
-			{
-				wasRewarded = false;
-			}
-		}
-	}
-
 	private class WallJump5 : IRule
 	{
 		private int wallJumpCount;
@@ -101,66 +49,6 @@ public static class GameSessionCounterRules
 		}
 	}
 
-	private class ParkourWithRotation : IRule
-	{
-		private enum State
-		{
-			WaitingForFirstWallJump,
-			MeasuringRotation,
-			WaitingForSecondWallJump
-		}
-
-		private int rotation;
-
-		private State state;
-
-		public ParkourWithRotation(Dictionary<GameSessionCounterType, GameSessionCounters.GameSessionCounter> sessionCounters)
-			: base(sessionCounters)
-		{
-			GameSessionCounters.GameSessionCounter gameSessionCounter = sessionCounters[GameSessionCounterType.WallJump];
-			gameSessionCounter.callbacks = (Action<GameSessionCounterType, int>)Delegate.Combine(gameSessionCounter.callbacks, new Action<GameSessionCounterType, int>(WallJump));
-			GameSessionCounters.GameSessionCounter gameSessionCounter2 = sessionCounters[GameSessionCounterType.Grounded];
-			gameSessionCounter2.callbacks = (Action<GameSessionCounterType, int>)Delegate.Combine(gameSessionCounter2.callbacks, new Action<GameSessionCounterType, int>(Ground));
-			GameSessionCounters.GameSessionCounter gameSessionCounter3 = sessionCounters[GameSessionCounterType.CameraRotation];
-			gameSessionCounter3.callbacks = (Action<GameSessionCounterType, int>)Delegate.Combine(gameSessionCounter3.callbacks, new Action<GameSessionCounterType, int>(CameraRotation));
-		}
-
-		private void CameraRotation(GameSessionCounterType gameSessionCounterType, int count)
-		{
-			if (state == State.MeasuringRotation)
-			{
-				rotation += count;
-				if (Mathf.Abs(rotation) > 345)
-				{
-					state = State.WaitingForSecondWallJump;
-				}
-			}
-		}
-
-		private void WallJump(GameSessionCounterType gameSessionCounterType, int count)
-		{
-			if (state == State.WaitingForFirstWallJump)
-			{
-				state = State.MeasuringRotation;
-				rotation = 0;
-			}
-			else if (state == State.WaitingForSecondWallJump)
-			{
-				LevelingManager.AddXPToLocalPlayer("360ParkourJump", MVGameMode.Play);
-				state = State.WaitingForFirstWallJump;
-			}
-			else if (state == State.MeasuringRotation)
-			{
-				state = State.WaitingForFirstWallJump;
-			}
-		}
-
-		private void Ground(GameSessionCounterType gameSessionCounterType, int count)
-		{
-			state = State.WaitingForFirstWallJump;
-		}
-	}
-
 	private static List<IRule> rules = new List<IRule>();
 
 	private static bool cubeGunCubeAdded100Rewarded = false;
@@ -184,8 +72,6 @@ public static class GameSessionCounterRules
 		GameSessionCounters.GameSessionCounter gameSessionCounter8 = sessionCounters[GameSessionCounterType.Session1Min];
 		gameSessionCounter8.callbacks = (Action<GameSessionCounterType, int>)Delegate.Combine(gameSessionCounter8.callbacks, new Action<GameSessionCounterType, int>(Min1XpRewardPlayMode));
 		rules.Add(new WallJump5(sessionCounters));
-		rules.Add(new ParkourWithRotation(sessionCounters));
-		rules.Add(new HoverCraft360(sessionCounters));
 	}
 
 	public static void OnCounterTypeChanged(object sender, OnCounterTypeChangedArgs e)

@@ -11,6 +11,8 @@ public class MVTeleportGroup : MVBlueprintBase
 
 	public MVTeleporter Teleporter2 => teleporter2;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.Teleporter;
+
 	public MVTeleportGroup(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVTeleportGroupPrefab, worldObjects)
 	{

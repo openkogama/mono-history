@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MV.Common;
 using UnityEngine;
 
 public class MVCheckpoint : MVLogicObject
@@ -10,6 +11,8 @@ public class MVCheckpoint : MVLogicObject
 	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
 	private bool playingAnimation;
+
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.Checkpoint;
 
 	public override Vector3 WorldPivot => transform.position;
 
@@ -72,7 +75,7 @@ public class MVCheckpoint : MVLogicObject
 	{
 		if ((useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0)
 		{
-			DoReachCheckpoint(MVGameControllerBase.WOCM.AvatarLocal.Id);
+			DoReachCheckpoint(e.instigatorWOID);
 		}
 	}
 
@@ -94,6 +97,7 @@ public class MVCheckpoint : MVLogicObject
 		if (MVGameControllerBase.Game.LocalPlayer.GetCheckpoint() == null || MVGameControllerBase.Game.LocalPlayer.GetCheckpoint().Id != Id)
 		{
 			MVGameControllerBase.Game.LocalPlayer.SetCheckpoint(id);
+			DoHeal(instigatorId);
 			if (checkpointObject.Animation != null)
 			{
 				checkpointObject.Animation.Play("CheckpointReach");
@@ -102,5 +106,18 @@ public class MVCheckpoint : MVLogicObject
 			return true;
 		}
 		return false;
+	}
+
+	private void DoHeal(int instigator)
+	{
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(instigator);
+		if (worldObjectClient != null)
+		{
+			MVEquipable mVEquipable = worldObjectClient.GameObject.GetComponent<MVEquipable>();
+			if (!(mVEquipable == null))
+			{
+				mVEquipable.Equip(AvatarItemType.Health, AvatarEquipableType.Modifier, null);
+			}
+		}
 	}
 }

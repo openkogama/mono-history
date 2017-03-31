@@ -6,6 +6,14 @@ using UnityEngine.EventSystems;
 
 public class CubeModelingStateMachine : FSMEntity
 {
+	public enum HoverType
+	{
+		Corner,
+		Edge,
+		Face,
+		None
+	}
+
 	public delegate void OnCurrentMaterialChangeDelegate(byte currentMaterialId, Material currentMaterial);
 
 	private static Vector3[] zDepth1Cube = new Vector3[8]
@@ -113,11 +121,7 @@ public class CubeModelingStateMachine : FSMEntity
 		this.targetCubeModel = targetCubeModel;
 		this.constraint = constraint;
 		this.targetCubeModel.BeingEdited = true;
-		editMode2d = false;
-		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer && targetCubeModel is MVCubeModelPrototypeTerrain)
-		{
-			editMode2d = true;
-		}
+		editMode2d = MVGameControllerBase.Game.GameType == MVGameType.Platformer && targetCubeModel is MVCubeModelPrototypeTerrain;
 		if (editMode2d && (int)curEvent == 0)
 		{
 			curEvent = CubeModelingEvent.EditCubes2D;
@@ -145,6 +149,23 @@ public class CubeModelingStateMachine : FSMEntity
 		SelectedCube = DoPicking();
 		base.Update();
 		targetCubeModel.HandleDelta();
+	}
+
+	public HoverType CurrentlyHovered()
+	{
+		if (SelectedCube != null)
+		{
+			if (SelectedCube.pickedEdgeIndex0 || SelectedCube.pickedEdgeIndex1)
+			{
+				return HoverType.Corner;
+			}
+			if (SelectedCube.pickedEdge != Edge.None)
+			{
+				return HoverType.Edge;
+			}
+			return HoverType.Face;
+		}
+		return HoverType.None;
 	}
 
 	public CubePickingInfo DoPicking()

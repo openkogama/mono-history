@@ -63,12 +63,12 @@ internal class ESAddToMarketPlaceState : ESStateBase
 			float num = KoGaMaPackageClient.Compare(koGaMaPackageClient2, koGaMaPackageClient);
 			if (num <= CommonValues.CompareThreshold)
 			{
-				Debug.Log($"Compare val {num} <= threshold {CommonValues.CompareThreshold}. This item can be added to marketplace");
+				Debug.Log($"Compare val {num} <= threshold {CommonValues.CompareThreshold}. This item can be added to your shop");
 				internalState = AddToMarketPlaceInternalState.WaitingForMarketPlaceInfo;
 			}
 			else
 			{
-				Debug.Log($"Compare val {num} > threshold {CommonValues.CompareThreshold}. This item can not be added to marketplace");
+				Debug.Log($"Compare val {num} > threshold {CommonValues.CompareThreshold}. This item can not be added to your shop");
 				e.PopState();
 			}
 			koGaMaPackageClient.Destroy();

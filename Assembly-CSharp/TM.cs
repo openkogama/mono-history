@@ -127,6 +127,11 @@ public class TM : MonoBehaviour
 		AsyncWWWManager.WWWRequest(new GetRequest(Urls.StreamingAssets + text, StreamingAssetCallback, WWWRequestPriority.ExecuteWhileSyncronizing));
 	}
 
+	private void OnDestroy()
+	{
+		AsyncWWWManager.UnsubscribeWWWRequest(StreamingAssetCallback);
+	}
+
 	private static void StreamingAssetCallback(WWW www)
 	{
 		if (www.error != null)

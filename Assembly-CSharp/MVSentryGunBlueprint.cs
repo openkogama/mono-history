@@ -8,6 +8,8 @@ public class MVSentryGunBlueprint : MVBlueprintBase
 
 	private MVSentryGun gun;
 
+	public override MVWorldObjectDocumentationType DocumentationType => gun.DocumentationType;
+
 	public MVCubeModelBase EditableCubesWO => editableCubes;
 
 	public MVSentryGunBlueprint(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)

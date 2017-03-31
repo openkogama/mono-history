@@ -116,16 +116,24 @@ public class TouristModeController : MonoBehaviour
 			AsyncWWWManager.WWWRequest(new CachedGetRequest(Urls.StreamingAssets + GetPath(Random.Range(num, num + promotionCount) + 1), StreamingTextureLoaded, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 		}
 
+		public void Destroy()
+		{
+			AsyncWWWManager.UnsubscribeWWWRequest(StreamingTextureLoaded);
+		}
+
 		private void StreamingTextureLoaded(WWW www)
 		{
-			if (string.IsNullOrEmpty(www.error))
+			if (www != null && www.texture != null)
 			{
-				promotionIndex++;
-				OnTextureReadyCallback(www.texture);
-			}
-			else
-			{
-				Debug.LogError("Tourist promotion 'StreamingTextureLoaded' failed : " + www.error);
+				if (string.IsNullOrEmpty(www.error))
+				{
+					promotionIndex++;
+					OnTextureReadyCallback(www.texture);
+				}
+				else
+				{
+					Debug.LogError("Tourist promotion 'StreamingTextureLoaded' failed : " + www.error);
+				}
 			}
 		}
 
@@ -152,20 +160,14 @@ public class TouristModeController : MonoBehaviour
 	public void Awake()
 	{
 		touristPromotionActive = MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion;
-		if (touristPromotionActive)
-		{
-			promotionDataManager = new PromotionDataManager();
-			showPromotionBookkeeping = new ShowPromotionBookkeeping();
-			SetActive(active: false);
-		}
-	}
-
-	private void Start()
-	{
 		if (!touristPromotionActive)
 		{
 			Object.Destroy(this);
+			return;
 		}
+		promotionDataManager = new PromotionDataManager();
+		showPromotionBookkeeping = new ShowPromotionBookkeeping();
+		SetActive(active: false);
 	}
 
 	public void SetActive(bool active)
@@ -188,7 +190,7 @@ public class TouristModeController : MonoBehaviour
 		promotion = Object.Instantiate(prefab);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			x.Push(promotion.gameObject, UIPushOption.Blocking);
+			x.Push(promotion.gameObject, UIPushOption.Blocking, PromitionPopped);
 		});
 	}
 
@@ -204,8 +206,16 @@ public class TouristModeController : MonoBehaviour
 		promotionDataManager.GetTextureDataToSet(SetPromotionTexture);
 	}
 
+	private void PromitionPopped()
+	{
+		promotion = null;
+	}
+
 	private void SetPromotionTexture(Texture promotionTexture)
 	{
-		promotion.SetPromotionTexture(promotionTexture);
+		if (!(promotion == null))
+		{
+			promotion.SetPromotionTexture(promotionTexture);
+		}
 	}
 }

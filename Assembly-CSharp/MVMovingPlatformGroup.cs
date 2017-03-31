@@ -21,6 +21,8 @@ public class MVMovingPlatformGroup : MVBlueprintBase
 
 	private bool initializeFailed;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.MovingPlatform;
+
 	public MVMovingPlatform Platform => platform;
 
 	public override bool Visible

@@ -5,6 +5,8 @@ public class MVOculusKillLimit : MVLogicObject
 {
 	private bool initializedInWorld;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.OculusKillWinCondition;
+
 	private int KillLimit => (int)Data["killLimit"];
 
 	public MVOculusKillLimit(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)

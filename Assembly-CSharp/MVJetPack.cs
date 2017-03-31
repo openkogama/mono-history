@@ -326,6 +326,13 @@ public class MVJetPack : MVVehicleBase
 		}
 	};
 
+	public override MVWorldObjectDocumentationType DocumentationType => jetPackType switch
+	{
+		JetPackType.JetPack => MVWorldObjectDocumentationType.SmallJetpack, 
+		JetPackType.JetPackDeluxe => MVWorldObjectDocumentationType.BigJetpack, 
+		_ => MVWorldObjectDocumentationType.Missing, 
+	};
+
 	public MVJetPack(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, GetPickupPrefabName(data), worldObjects)
 	{

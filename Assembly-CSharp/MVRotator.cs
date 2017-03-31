@@ -12,6 +12,22 @@ public class MVRotator : MVMovable
 
 	private static HashSet<MVRotator> selectedRotators = new HashSet<MVRotator>();
 
+	public override MVWorldObjectDocumentationType DocumentationType
+	{
+		get
+		{
+			if (Horizontal)
+			{
+				return MVWorldObjectDocumentationType.HorizontalRotator;
+			}
+			if (Vertical)
+			{
+				return MVWorldObjectDocumentationType.VerticalRotator;
+			}
+			return MVWorldObjectDocumentationType.Missing;
+		}
+	}
+
 	private MVWorldObjectClientManager WOCM => MVGameControllerBase.WOCM;
 
 	public Vector3 InitAngularVelocity => initAngularVelocity;

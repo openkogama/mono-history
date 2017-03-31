@@ -20,6 +20,8 @@ public class MVPressurePlate : MVLogicObject, ILogicWorldObject, IIsLogicObjectF
 
 	private OutputSignalTransmitter outputSignalTransmitter;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.PressurePlate;
+
 	public override bool HasInputConnector => false;
 
 	public override bool HasOutputConnector => true;

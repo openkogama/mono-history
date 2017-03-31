@@ -51,6 +51,6 @@ public abstract class Notification : MonoBehaviour
 
 	protected void Close()
 	{
-		timeSinceStart = (float)(Lifetime - 1);
+		timeSinceStart = (float)(Lifetime + 1);
 	}
 }

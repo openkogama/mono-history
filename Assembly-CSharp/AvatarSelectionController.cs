@@ -48,22 +48,7 @@ public class AvatarSelectionController : MonoBehaviour, IEventSystemHandler, IAv
 
 	public void ResetCurrentAvatar()
 	{
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
-		{
-			x.Create("Do you really wish to reset all changes made to the avatar this session?", ResetCallback, "Reset avatar");
-		});
-	}
-
-	private void ResetCallback(bool confirmed, ConfirmationPopup popup)
-	{
-		if (confirmed)
-		{
-			avatarBodyController.ResetCurrentBody();
-		}
-		else
-		{
-			popup.Pop();
-		}
+		avatarBodyController.ResetCurrentBody();
 	}
 
 	public void AvatarSlotClicked(int slotIndex)
@@ -109,7 +94,7 @@ public class AvatarSelectionController : MonoBehaviour, IEventSystemHandler, IAv
 
 	public void TakeScreenshotForProfile()
 	{
-		avatarBodyController.TakeScreenshotForProfile();
+		avatarBodyController.TakeScreenshot();
 	}
 
 	public void SetToNextAnimation()

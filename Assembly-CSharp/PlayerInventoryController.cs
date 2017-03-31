@@ -103,6 +103,24 @@ public class PlayerInventoryController : MonoBehaviour, IEventSystemHandler, IPl
 		UpdateContent();
 	}
 
+	public void ActivateAtCategoryWithSlot(UIPushOption options, int categoryId, int slotPosition)
+	{
+		Activate(options);
+		string text = MVGameControllerBase.IEditModeUI.PlayerInventoryRepository.categories[categoryId];
+		foreach (KeyValuePair<int, string> item in tabsNonLocalized)
+		{
+			if (text == item.Value)
+			{
+				selectedTab = item.Key;
+				break;
+			}
+		}
+		int page = Mathf.CeilToInt(((float)slotPosition + 1f) / (float)numberOfSlotsPrPage);
+		tabs[selectedTab].SetPage(page);
+		inventoryController.HighlightSlot(slotPosition % numberOfSlotsPrPage);
+		UpdateContent();
+	}
+
 	private void OnPop()
 	{
 		if (tempPreviewRoot != null)

@@ -73,6 +73,7 @@ public class LevelDisplayCube : MonoBehaviour
 
 	public void Destroy()
 	{
+		BadgeManager.UnsubscribeGetBadgeRequest(StreamingAssetCallback);
 		Renderer[] array = Renderers;
 		foreach (Renderer renderer in array)
 		{

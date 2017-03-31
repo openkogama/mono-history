@@ -36,6 +36,11 @@ public abstract class XPEventQueue : IUpdatecontrollerSubscriber
 		UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
 	}
 
+	public void Destroy()
+	{
+		xpProgress.Destroy();
+	}
+
 	public void AddXp(string xpType)
 	{
 		if (!disabled)

@@ -11,6 +11,8 @@ public class MVSkybox : MVLogicObject, ILogicWorldObject
 
 	protected SkyboxManager skybox;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.Skybox;
+
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => false;

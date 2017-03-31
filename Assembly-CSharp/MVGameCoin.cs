@@ -28,6 +28,8 @@ public class MVGameCoin : MVLogicObject
 
 	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.Coin;
+
 	public override bool HasInputConnector => false;
 
 	public override bool HasOutputConnector => false;

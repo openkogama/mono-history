@@ -19,6 +19,11 @@ public class InventorySlots : MonoBehaviour, IEventSystemHandler, IGameObjectDro
 		}
 	}
 
+	public void HighlightSlot(int slotPosition)
+	{
+		inventorySlots[slotPosition].HighlightSlot();
+	}
+
 	public void Clear()
 	{
 		foreach (InventorySlot value in inventorySlots.Values)

@@ -22,6 +22,11 @@ public class LevelUpNotification : Notification
 		label.text = TM._("Level Up!");
 	}
 
+	private void OnDestroy()
+	{
+		BadgeManager.UnsubscribeGetBadgeRequest(BadgeCallback);
+	}
+
 	private void BadgeCallback(WWW www)
 	{
 		if (www != null && www.texture != null)

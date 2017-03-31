@@ -15,16 +15,13 @@ public class MaterialPurchasePopup : MonoBehaviour
 	private byte materialID;
 
 	[SerializeField]
-	private GameObject waitOverLay;
-
-	[SerializeField]
 	private Text price;
 
 	[SerializeField]
 	private Text productName;
 
 	[SerializeField]
-	private Button purchase;
+	private Text description;
 
 	[SerializeField]
 	private RawImage materialPreviewImage;
@@ -36,13 +33,13 @@ public class MaterialPurchasePopup : MonoBehaviour
 	{
 		this.materialID = materialID;
 		this.callback = callback;
-		purchase.onClick.AddListener(OnPurchaseClick);
 		MVMaterial material = MVGameControllerBase.Game.MaterialRepository.GetMaterial(materialID);
 		price.text = material.unlockPriceGold.ToString();
-		productName.text = material.name;
+		productName.text = MaterialDescription.materialDescriptions[materialID].Name;
 		materialPreviewer = UnityEngine.Object.Instantiate(materialPreviewer);
 		materialPreviewer.Initialize(material.mesh);
 		materialPreviewImage.texture = materialPreviewer.renderTexture;
+		description.text = MaterialDescription.materialDescriptions[materialID].Description;
 	}
 
 	private void OnDestroy()
@@ -52,13 +49,15 @@ public class MaterialPurchasePopup : MonoBehaviour
 		UnityEngine.Object.Destroy(materialPreviewer.gameObject);
 	}
 
-	private void OnPurchaseClick()
+	public void OnPurchaseClick()
 	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+		{
+			x.Create();
+		});
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Combine(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
 		MVGameControllerBase.OperationRequests.UnlockMaterial(materialID);
-		purchase.gameObject.SetActive(value: false);
-		waitOverLay.SetActive(value: true);
 	}
 
 	private void ProductPurchaseResponseHandler(int returnCode, Dictionary<object, object> purchaseResponseData)
@@ -66,6 +65,10 @@ public class MaterialPurchasePopup : MonoBehaviour
 		Debug.Log("Material unlocked");
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Remove(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Pop();
+		});
 		if (returnCode == 0)
 		{
 			MVGameControllerBase.Game.MaterialRepository.SetMaterialUnlocked(materialID, unlocked: true);
@@ -81,8 +84,6 @@ public class MaterialPurchasePopup : MonoBehaviour
 			{
 				x.Create((MVPurchaseReturnCode)returnCode, int.Parse(price.text), 0);
 			});
-			callback(arg0: false, purchaseResponseData);
-			waitOverLay.SetActive(value: false);
 		}
 	}
 }

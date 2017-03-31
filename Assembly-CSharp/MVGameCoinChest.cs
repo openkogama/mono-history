@@ -19,6 +19,8 @@ public class MVGameCoinChest : MVLogicObject
 
 	private MVGameCoinChestObject chestObject;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.CoinChest;
+
 	public override bool HasInputConnector => false;
 
 	public override bool HasOutputConnector => false;

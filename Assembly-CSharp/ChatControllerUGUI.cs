@@ -129,7 +129,7 @@ public class ChatControllerUGUI : MonoBehaviour
 
 	private void Update()
 	{
-		if (inputField.isFocused || MVGameControllerBase.JoinState != MVJoinState.Playing)
+		if (inputField.isFocused)
 		{
 			UpdateFadeTime();
 		}
@@ -190,10 +190,13 @@ public class ChatControllerUGUI : MonoBehaviour
 
 	public void UpdateFadeTime()
 	{
-		canvasGroup.alpha = 1f;
-		currFade = 0f;
-		startTime = Time.time;
-		canvasGroup.blocksRaycasts = true;
+		if (MVGameControllerBase.JoinState == MVJoinState.Playing)
+		{
+			canvasGroup.alpha = 1f;
+			currFade = 0f;
+			startTime = Time.time;
+			canvasGroup.blocksRaycasts = true;
+		}
 	}
 
 	private void ScrollbarChanged(Vector2 value)
@@ -218,7 +221,6 @@ public class ChatControllerUGUI : MonoBehaviour
 		switch (msgType)
 		{
 		case MVGameMsgType.JoinFlowStatus:
-			AddJoinFlowStatusLine(message);
 			break;
 		case MVGameMsgType.AvatarKilled:
 			break;

@@ -16,6 +16,8 @@ public class MVFlag : MVLogicObject
 
 	private FlagObject flagObject;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.Flag;
+
 	public override Vector3 WorldPivot => transform.position;
 
 	public MVFlag(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)

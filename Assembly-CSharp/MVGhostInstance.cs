@@ -56,6 +56,8 @@ public class MVGhostInstance : MVWorldObjectClient, IGameStateControllerSubscrib
 
 	private Vector3 lodSphereOffset = Vector3.up;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.Ghost;
+
 	public float Distance
 	{
 		get

@@ -23,7 +23,7 @@ public class ItemInventoryDeleteTab : ManageItemPage
 	{
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 		{
-			x.Create(TM._("This will remove the current item from your inventory and marketplace. Are you sure you wish to do this?"), OnConfirmation, TM._("Remove"));
+			x.Create(TM._("This will remove the current item from your inventory and shop. Are you sure you wish to do this?"), OnConfirmation, TM._("Remove"));
 		});
 	}
 

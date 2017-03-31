@@ -9,6 +9,8 @@ public class MVObjectEnabler : MVLogicObject, ILogicWorldObject
 
 	private bool showingOutline = true;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.ModelToggle;
+
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => false;

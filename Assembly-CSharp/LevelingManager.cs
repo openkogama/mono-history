@@ -66,6 +66,11 @@ public static class LevelingManager
 		}
 	}
 
+	public static void Destroy()
+	{
+		AsyncWWWManager.UnsubscribeWWWRequest(OnInitialData);
+	}
+
 	public static void Initialize(int profileID)
 	{
 		if (MVGameControllerBase.LevelingTestMode)

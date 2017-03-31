@@ -26,6 +26,12 @@ public class PlayerInventoryPreviewItem : MonoBehaviour
 	private InventoryItemPreviewer objectPreviewerPrefab;
 
 	[SerializeField]
+	private InventoryItemPreview itemPreviewerPrefab;
+
+	[SerializeField]
+	private InventoryItemCubeModelHandler itemPreviewerCubeModelPrefab;
+
+	[SerializeField]
 	private ToolTip toolTip;
 
 	private InventoryItem item;
@@ -36,12 +42,19 @@ public class PlayerInventoryPreviewItem : MonoBehaviour
 
 	public void Initialize(Transform rootTransform, InventoryItem item, MVWorldObjectClient woPreviewObject, bool draggable)
 	{
+		item.ApplyLocalDescriptionOverride(woPreviewObject.DocumentationType);
 		toolTip.SetText(item.name);
 		dragHandler.enabled = draggable;
 		this.item = item;
 		metaData.Initialize(item.slotPosition);
 		objectPreviewer = Object.Instantiate(objectPreviewerPrefab);
-		objectPreviewer.Initialize(previewWidth, previewHeight, CameraClearFlags.Color, woPreviewObject.PreviewLayerMask, new Vector3(4.57f, 2f, 0.15f), rootTransform, new Vector3(100f, 100f, 10f * (float)item.slotPosition), item.name, woPreviewObject, woPreviewObject.GameObject);
+		Vector3 previewPosition = new Vector3(100f, 100f, 10f * (float)item.slotPosition);
+		Vector3 cameraOffset = new Vector3(0f, 0f, 0f);
+		if (InventoryItem.localItemDescriptionOverride.ContainsKey(woPreviewObject.DocumentationType))
+		{
+			cameraOffset = InventoryItem.localItemDescriptionOverride[woPreviewObject.DocumentationType].CameraPreviewerOffset;
+		}
+		objectPreviewer.Initialize(previewWidth, previewHeight, CameraClearFlags.Color, woPreviewObject.PreviewLayerMask, cameraOffset, rootTransform, previewPosition, item.name, woPreviewObject, woPreviewObject.GameObject);
 		previewImage.texture = objectPreviewer.PreviewTexture;
 		initialized = true;
 	}
@@ -63,15 +76,34 @@ public class PlayerInventoryPreviewItem : MonoBehaviour
 
 	public void AdditionalItemSettingsPressed()
 	{
-		PlayerInventoryItemManager itemManager = Object.Instantiate(itemManagerPrefab);
-		itemManager.Initialize(item, previewImage);
+		InventoryItemPreview itemPreviewer = null;
+		if (item.resellable && !item.isDefaultInvItem)
+		{
+			if (item.itemCategoryID != 1)
+			{
+				int num = MVGameControllerBase.IEditModeUI.PlayerInventoryRepository.CountItemsWithOriginalID(item);
+				if (num > 1)
+				{
+					itemPreviewer = Object.Instantiate(itemPreviewerCubeModelPrefab);
+				}
+			}
+			else
+			{
+				itemPreviewer = Object.Instantiate(itemPreviewerCubeModelPrefab);
+			}
+		}
+		if (itemPreviewer == null)
+		{
+			itemPreviewer = Object.Instantiate(itemPreviewerPrefab);
+		}
+		itemPreviewer.Initialize(item, previewImage);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
 		{
 			handler.PopGroups(UIGroupFlags.InventoryUISubMenu);
 		});
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			x.Push(itemManager.gameObject, UIPushOption.Blocking, null, UIGroupFlags.InventoryUISubMenu);
+			x.Push(itemPreviewer.gameObject, UIPushOption.Blocking, null, UIGroupFlags.InventoryUISubMenu);
 		});
 	}
 

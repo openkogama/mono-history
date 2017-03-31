@@ -20,6 +20,8 @@ public class ShootableButton : MVLogicObject, ILogicWorldObject, IIsLogicObjectF
 
 	private OutputSignalTransmitter outputSignalTransmitter;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.ShootableButton;
+
 	public override Vector3 WorldPivot => transform.position;
 
 	public override bool HasInputConnector => false;

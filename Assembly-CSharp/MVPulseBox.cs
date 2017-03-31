@@ -8,6 +8,8 @@ public class MVPulseBox : MVLogicObject, ILogicWorldObject
 
 	private OutputSignalTransmitter outputSignalTransmitter;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.PulseBox;
+
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => true;

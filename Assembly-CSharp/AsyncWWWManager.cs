@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 public static class AsyncWWWManager
 {
@@ -62,6 +64,28 @@ public static class AsyncWWWManager
 			}
 		}
 		requests[asyncRequest.requestPriority].Enqueue(asyncRequest);
+	}
+
+	public static void UnsubscribeWWWRequest(Action<WWW> callback)
+	{
+		foreach (AsyncWebRequest item in activeRequest)
+		{
+			if (item.Callback == callback)
+			{
+				item.Callback = null;
+			}
+		}
+	}
+
+	public static void UnsubscribeWWWRequest(Action<WWW, UnityEngine.Object> callback)
+	{
+		foreach (AsyncWebRequest item in activeRequest)
+		{
+			if (item is StreamingAssetRequestTempHack streamingAssetRequestTempHack)
+			{
+				streamingAssetRequestTempHack.CallbackHack = null;
+			}
+		}
 	}
 
 	private static void AddRequestsToActiveRequests(Queue<AsyncWebRequest> requestQueue, int maxRequestForQueue)

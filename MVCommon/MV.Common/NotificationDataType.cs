@@ -14,5 +14,7 @@ public enum NotificationDataType : byte
 	ActorNr,
 	Object,
 	Rarity,
-	RegionCode
+	RegionCode,
+	OpenInventoryCategory,
+	OpenInventorySlot
 }

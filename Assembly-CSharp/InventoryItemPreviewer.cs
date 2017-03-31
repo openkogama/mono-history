@@ -9,6 +9,8 @@ public class InventoryItemPreviewer : MonoBehaviour
 
 	private Vector3 previewCamOffset = Vector3.zero;
 
+	private Vector3 inventoryItemStandardOffset = new Vector3(4.57f, 2f, 0.15f);
+
 	private LayerFlags layersToRender;
 
 	[SerializeField]
@@ -18,7 +20,11 @@ public class InventoryItemPreviewer : MonoBehaviour
 
 	private Vector3 pivotPoint;
 
-	private readonly Dictionary<string, float> WorldObjectCameraFOVOverload = new Dictionary<string, float> { { "HamsterWheel", 50f } };
+	private readonly Dictionary<MVWorldObjectDocumentationType, float> WorldObjectCameraFOVOverload = new Dictionary<MVWorldObjectDocumentationType, float> { 
+	{
+		MVWorldObjectDocumentationType.HamsterBall,
+		50f
+	} };
 
 	public RenderTexture PreviewTexture => previewTexture;
 
@@ -27,15 +33,15 @@ public class InventoryItemPreviewer : MonoBehaviour
 	public void Initialize(int textureWidth, int textureHeight, CameraClearFlags clearFlags, LayerFlags layersToRender, Vector3 cameraOffset, Transform previewItemsRoot, Vector3 previewPosition, string name, MVWorldObjectClient wo, GameObject woGameObjectCopy)
 	{
 		this.layersToRender = layersToRender | LayerFlags.Hidden;
-		if (WorldObjectCameraFOVOverload.ContainsKey(name))
+		if (WorldObjectCameraFOVOverload.ContainsKey(wo.DocumentationType))
 		{
-			previewCam.fieldOfView = WorldObjectCameraFOVOverload[name];
+			previewCam.fieldOfView = WorldObjectCameraFOVOverload[wo.DocumentationType];
 		}
 		previewCamOffset = cameraOffset;
 		transform.parent = previewItemsRoot;
 		gameObject.name = $"Preview_{name}_RenderCam";
 		gameObject.layer = LayerMask.NameToLayer("Preview");
-		previewTexture = new RenderTexture(textureWidth, textureHeight, 16, RenderTextureFormat.Default);
+		previewTexture = RenderTexture.GetTemporary(textureWidth, textureHeight, 16, RenderTextureFormat.ARGB32);
 		previewTexture.name = name;
 		previewTexture.filterMode = FilterMode.Bilinear;
 		previewTexture.hideFlags = HideFlags.DontSave;
@@ -75,8 +81,9 @@ public class InventoryItemPreviewer : MonoBehaviour
 		Vector3 vector = new Vector3(localBounds.center.x * localScale.x, localBounds.center.y * localScale.y, localBounds.center.z * localScale.z);
 		pivotPoint = vector * num2 + PreviewGameObject.transform.position;
 		PreviewGameObject.transform.RotateAround(pivotPoint, Vector3.up, 180f);
-		previewCam.transform.position = pivotPoint + previewCamOffset;
+		previewCam.transform.position = pivotPoint + inventoryItemStandardOffset;
 		previewCam.transform.LookAt(pivotPoint);
+		previewCam.transform.localPosition = previewCam.transform.localPosition + previewCam.transform.worldToLocalMatrix.MultiplyVector(previewCamOffset);
 	}
 
 	private void OnPreCull()
@@ -107,7 +114,7 @@ public class InventoryItemPreviewer : MonoBehaviour
 		}
 		if (previewTexture != null)
 		{
-			Object.Destroy(previewTexture);
+			RenderTexture.ReleaseTemporary(previewTexture);
 		}
 		Object.Destroy(gameObject);
 	}

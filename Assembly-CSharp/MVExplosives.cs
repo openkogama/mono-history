@@ -15,6 +15,8 @@ public class MVExplosives : MVLogicObject, ILogicWorldObject
 
 	private AudioLogicCube audioLC;
 
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.Explosives;
+
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => false;

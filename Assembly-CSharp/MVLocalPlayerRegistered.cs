@@ -48,4 +48,10 @@ public class MVLocalPlayerRegistered : MVLocalPlayer
 		OnLevelChangedLocal(level);
 		MVGameControllerBase.OperationRequests.JoinNotification();
 	}
+
+	public override void Destroy()
+	{
+		AsyncWWWManager.UnsubscribeWWWRequest(LevelCallback);
+		xpEventQueue.Destroy();
+	}
 }
