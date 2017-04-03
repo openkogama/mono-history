@@ -12,9 +12,6 @@ public class LoadingScreenHandler : MonoBehaviour
 	[SerializeField]
 	private Text uiText;
 
-	[SerializeField]
-	private Text planetName;
-
 	private int eventsCount = 17;
 
 	private int currentEventCount = 1;
@@ -24,11 +21,6 @@ public class LoadingScreenHandler : MonoBehaviour
 		loadingBar.Progress = 0f;
 		uiText.text = string.Empty;
 		MVGameControllerBase.OnReceivedGameMsg = (MVGameControllerBase.OnReceivedGameMsgDelegate)Delegate.Combine(MVGameControllerBase.OnReceivedGameMsg, new MVGameControllerBase.OnReceivedGameMsgDelegate(OnGameMessageReceived));
-		planetName.text = MVGameControllerBase.GameSessionData.planetName;
-		if (string.IsNullOrEmpty(planetName.text))
-		{
-			planetName.text = MVGameControllerBase.GameSessionData.newPlanetName;
-		}
 		switch (MVGameControllerBase.GameMode)
 		{
 		case MVGameMode.CharacterEditor:

@@ -46,12 +46,14 @@ public class MaterialLoader : MonoBehaviour
 		MeshPool.Instance.MaxAmtMeshes = 100;
 	}
 
-	public void CheckAtlasIntegrity()
+	public bool CheckAtlasIntegrity()
 	{
-		if (Hash((Texture2D)cubeModelMaterial.mainTexture) != atlasHash)
+		bool flag = Hash((Texture2D)cubeModelMaterial.mainTexture) == atlasHash;
+		if (!flag)
 		{
-			StatHatWrapper.Count("TextureHackDetected", 1);
+			StatHatWrapper.Count("TextureAtlasHackDetected", 1);
 		}
+		return flag;
 	}
 
 	private void SetMainTexture(Texture2D texture)

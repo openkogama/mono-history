@@ -185,14 +185,25 @@ public class FriendList
 
 	private void RemoveFromPendingByProfileID(int profileID)
 	{
+		List<int> list = new List<int>();
+		List<int> list2 = new List<int>();
 		foreach (int key in pending.Keys)
 		{
 			Friend friend = pending[key];
 			if (friend.profileID == profileID)
 			{
-				pending.Remove(key);
+				list.Add(key);
+				list2.Add(profileID);
 				break;
 			}
+		}
+		for (int i = 0; i < list.Count; i++)
+		{
+			pending.Remove(list[i]);
+		}
+		for (int j = 0; j < list2.Count; j++)
+		{
+			pendingNotifications.Remove(list2[j]);
 		}
 		if (OnFriendListUpdated != null)
 		{

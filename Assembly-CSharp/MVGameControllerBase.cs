@@ -66,6 +66,9 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	[SerializeField]
 	protected PrefabPool prefabPool;
 
+	[SerializeField]
+	protected TextureIntegrityChecker textureIntegrityChecker;
+
 	protected static MVGameControllerBase instance;
 
 	protected static bool isInitialized;
@@ -90,6 +93,8 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	[SerializeField]
 	private SkyboxManager skyboxManager;
+
+	public static TextureIntegrityChecker TextureIntegrityChecker => instance.textureIntegrityChecker;
 
 	public static bool IsInitialized => isInitialized;
 
@@ -243,6 +248,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		timeReward = new TimeReward();
 		CheatHandling.Init();
 		AudioEventHandler.Init(audioBuild);
+		textureIntegrityChecker.Initialize();
 		InitUpdateController();
 		UnityEngine.Object.DontDestroyOnLoad(gameObject);
 		Application.runInBackground = true;

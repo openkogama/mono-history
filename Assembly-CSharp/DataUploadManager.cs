@@ -14,6 +14,7 @@ public static class DataUploadManager
 
 	public static void UploadData(byte[] data, UnityAction doneNotification)
 	{
+		MVGameControllerBase.TextureIntegrityChecker.VerifyTextureIntegrity();
 		if (bytePacker != null)
 		{
 			Debug.LogError("DataUpload already in progress");

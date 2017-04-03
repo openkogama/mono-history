@@ -998,13 +998,13 @@ public class MVNetworkGame : IPhotonPeerListener
 
 		private bool PublishPlanet(bool newImagePending)
 		{
-			if (newImagePending)
+			if (!newImagePending || MVGameControllerBase.MaterialLoader.CheckAtlasIntegrity())
 			{
-				MVGameControllerBase.MaterialLoader.CheckAtlasIntegrity();
+				Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
+				dictionary.Add(62, newImagePending);
+				return operationResponsePendingManager.AddOperationCodeToPending(MVOperationCodes.PublishPlanet, dictionary);
 			}
-			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
-			dictionary.Add(62, newImagePending);
-			return operationResponsePendingManager.AddOperationCodeToPending(MVOperationCodes.PublishPlanet, dictionary);
+			return true;
 		}
 
 		public void UploadGameScreenShot()
@@ -1455,10 +1455,12 @@ public class MVNetworkGame : IPhotonPeerListener
 
 		public void AddWorldObjectToInventory(int worldObjectID)
 		{
-			MVGameControllerBase.MaterialLoader.CheckAtlasIntegrity();
-			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
-			dictionary.Add(20, worldObjectID);
-			peer.OpCustom(47, dictionary, sendReliable: true);
+			if (MVGameControllerBase.MaterialLoader.CheckAtlasIntegrity())
+			{
+				Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
+				dictionary.Add(20, worldObjectID);
+				peer.OpCustom(47, dictionary, sendReliable: true);
+			}
 		}
 
 		public void RemoveItemFromInventory(int itemID)
@@ -1598,12 +1600,14 @@ public class MVNetworkGame : IPhotonPeerListener
 
 		public void AddAvatarToAvatarShopInventory(int worldObjectId, int priceSilver, string name)
 		{
-			MVGameControllerBase.MaterialLoader.CheckAtlasIntegrity();
-			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
-			dictionary.Add(20, worldObjectId);
-			dictionary.Add(130, priceSilver);
-			dictionary.Add(166, name);
-			peer.OpCustom(62, dictionary, sendReliable: true);
+			if (MVGameControllerBase.MaterialLoader.CheckAtlasIntegrity())
+			{
+				Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
+				dictionary.Add(20, worldObjectId);
+				dictionary.Add(130, priceSilver);
+				dictionary.Add(166, name);
+				peer.OpCustom(62, dictionary, sendReliable: true);
+			}
 		}
 
 		public void DeleteAvatarFromShopInventory(int worldObjectId)
@@ -1841,10 +1845,13 @@ public class MVNetworkGame : IPhotonPeerListener
 
 		public bool UploadScreenshot(ImageType imageType)
 		{
-			MVGameControllerBase.MaterialLoader.CheckAtlasIntegrity();
-			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
-			dictionary.Add(116, (byte)imageType);
-			return operationResponsePendingManager.AddOperationCodeToPending(MVOperationCodes.UploadScreenshot, dictionary);
+			if (MVGameControllerBase.MaterialLoader.CheckAtlasIntegrity())
+			{
+				Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
+				dictionary.Add(116, (byte)imageType);
+				return operationResponsePendingManager.AddOperationCodeToPending(MVOperationCodes.UploadScreenshot, dictionary);
+			}
+			return true;
 		}
 
 		public void PurchaseItem(int itemID, int worldObjectID)

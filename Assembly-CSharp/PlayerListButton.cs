@@ -95,6 +95,7 @@ public class PlayerListButton : MonoBehaviour
 				break;
 			}
 		}
+		prevPlayerListState = new Dictionary<int, MVPlayer>(MVGameControllerBase.Game.Players);
 	}
 
 	private void UpdatePlayersCount()
