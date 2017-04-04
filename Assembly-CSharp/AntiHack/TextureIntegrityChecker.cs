@@ -1,5 +1,7 @@
 using UnityEngine;
 
+namespace AntiHack;
+
 public class TextureIntegrityChecker : ScriptableObject
 {
 	[SerializeField]

@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+namespace AntiHack;
+
 public class MaterialPlaneRenderer : MonoBehaviour
 {
 	[SerializeField]
@@ -19,6 +21,8 @@ public class MaterialPlaneRenderer : MonoBehaviour
 	private List<Texture2D> textures = new List<Texture2D>();
 
 	private List<byte> hashes = new List<byte>();
+
+	private static bool errorReportSent;
 
 	protected void OnValidate()
 	{
@@ -60,10 +64,12 @@ public class MaterialPlaneRenderer : MonoBehaviour
 		GenerateNewHashes();
 		for (int i = 0; i < array.Length; i++)
 		{
-			if (array[i] != hashes[i])
+			if (array[i] != hashes[i] && !errorReportSent)
 			{
-				StatHatWrapper.Count("Texture integrity breached.", 1);
-				Debug.LogError("Texture integrity breached.\n textures[" + i + "] \"" + material.mainTexture.name + "\" has been changed.");
+				errorReportSent = true;
+				StatHatWrapper.Count("TextureIntegrityBreached", 1);
+				Debug.Log("Texture integrity breached.\n textures[" + i + "], \"" + textures[i].name + "\" has been changed.");
+				DebugLogHandler.ReportError("Texture integrity breached.", string.Empty, LogType.Error);
 				hashes.Clear();
 				hashes.AddRange(array);
 				return false;

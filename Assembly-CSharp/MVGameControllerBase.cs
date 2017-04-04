@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
+using AntiHack;
 using MV.Common;
 using Newtonsoft.Json;
 using UnityEngine;

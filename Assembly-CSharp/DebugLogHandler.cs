@@ -72,7 +72,7 @@ public static class DebugLogHandler
 		}
 	}
 
-	private static void ReportError(string logString, string stackTrace, LogType type)
+	public static void ReportError(string logString, string stackTrace, LogType type)
 	{
 		if (MVClientSettings.EnableSentry || isSampling)
 		{

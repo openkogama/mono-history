@@ -14,15 +14,19 @@ public static class DataUploadManager
 
 	public static void UploadData(byte[] data, UnityAction doneNotification)
 	{
-		MVGameControllerBase.TextureIntegrityChecker.VerifyTextureIntegrity();
-		if (bytePacker != null)
+		if (bytePacker == null)
+		{
+			if (MVGameControllerBase.TextureIntegrityChecker.VerifyTextureIntegrity())
+			{
+				DataUploadManager.doneNotification = doneNotification;
+				bytePacker = new BytePacker(data);
+				SendChunk();
+			}
+		}
+		else
 		{
 			Debug.LogError("DataUpload already in progress");
-			return;
 		}
-		DataUploadManager.doneNotification = doneNotification;
-		bytePacker = new BytePacker(data);
-		SendChunk();
 	}
 
 	private static void SendChunk()
