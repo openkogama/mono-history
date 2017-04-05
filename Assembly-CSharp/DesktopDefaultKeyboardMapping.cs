@@ -35,7 +35,6 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap
 	public DesktopDefaultKeyboardMapping()
 	{
 		MVGameControllerDesktop.OnApplicationLostFocus = (UnityAction)Delegate.Combine(MVGameControllerDesktop.OnApplicationLostFocus, new UnityAction(OnApplicationLostFocus));
-		MVGameControllerDesktop.OnApplicationRegainedFocus = (UnityAction)Delegate.Combine(MVGameControllerDesktop.OnApplicationRegainedFocus, new UnityAction(OnApplicationRegainedFocus));
 		keyMapping = new Dictionary<KogamaControls, KeyCode[]>
 		{
 			{
@@ -274,15 +273,6 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap
 		};
 	}
 
-	private void OnApplicationLostFocus()
-	{
-		controlDown.Reset();
-	}
-
-	private void OnApplicationRegainedFocus()
-	{
-	}
-
 	public bool GetBooleanControl(KogamaControls control, KeyState keyState)
 	{
 		bool flag = KeyDown(control);
@@ -339,5 +329,15 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap
 			}
 		}
 		return result;
+	}
+
+	public void ForceReleaseAllKeys()
+	{
+		controlDown.Reset();
+	}
+
+	private void OnApplicationLostFocus()
+	{
+		ForceReleaseAllKeys();
 	}
 }

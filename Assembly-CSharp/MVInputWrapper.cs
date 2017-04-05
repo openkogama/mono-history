@@ -84,6 +84,11 @@ internal static class MVInputWrapper
 		return GetBooleanControl(control, KeyState.Up, forceKeyUse);
 	}
 
+	public static void ForceReleaseAllKeys()
+	{
+		inputMap.ForceReleaseAllKeys();
+	}
+
 	private static bool GetBooleanControl(KogamaControls control, KeyState keyState, bool forceKeyUse)
 	{
 		if (!forceKeyUse && IsInputSuppressed && control != KogamaControls.PointerSelect && control != KogamaControls.PointerSelectAlt)

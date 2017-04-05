@@ -86,7 +86,7 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.Railgun,
-			new ItemDescription(TM._("Rail gun"), TM._("The sniper rifle uses a charged coil to fire metal slugs surpassing the speed of sound."), TM._("Devastating when used at long range. Fully charge your shot for maximum damage!"))
+			new ItemDescription(TM._("Rail gun"), TM._("The sniper rifle uses a charged coil to fire metal slugs surpassing the speed of sound."), TM._("Devastating when used at long range. You need to fully charge your shot to fire!"))
 		},
 		{
 			MVWorldObjectDocumentationType.Sword,
@@ -162,7 +162,7 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.Oculus,
-			new ItemDescription(TM._("Oculus"), TM._("A monster from another dimension. Hunts and damages nearby players."), TM._("These hideous creatures only have one vulnerability: Their eye! Jump on it to bounce high!"), new Vector3(0f, 0f, 0.7f))
+			new ItemDescription(TM._("Oculus"), TM._("A customizable \ufffdculus monster from another dimension. Hunts and damages nearby players."), TM._("These hideous creatures only have one vulnerability: Their eye! Jump on it to bounce high!"), new Vector3(0f, 0f, 0.7f))
 		},
 		{
 			MVWorldObjectDocumentationType.Teleporter,
@@ -182,7 +182,7 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.MovingPlatform,
-			new ItemDescription(TM._("Moving Platform"), TM._("Create moving elevators or platforms."), TM._("Useful when bridging the gap between stories in a building or separate platforms."))
+			new ItemDescription(TM._("Moving Platform"), TM._("Create elevators or platforms with this customizable moving object!"), TM._("Useful when bridging the gap between stories in a building or separate platforms."))
 		},
 		{
 			MVWorldObjectDocumentationType.HorizontalRotator,
@@ -198,7 +198,7 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.Ghost,
-			new ItemDescription(TM._("Ghost"), TM._("A ghost which damages players on touch."), TM._("This scary monster can move through walls"))
+			new ItemDescription(TM._("Ghost"), TM._("An unkillable ghost which damages players on touch."), TM._("This scary monster can move through walls"))
 		},
 		{
 			MVWorldObjectDocumentationType.FrostSentryTower,
@@ -262,7 +262,7 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.Checkpoint,
-			new ItemDescription(TM._("Checkpoint"), TM._("A player who reaches this will respawn here."), TM._("This is a must have for any level with progression, especially parkour games! Make sure to rotate the checkpoint, so respawned players face the correct direction"))
+			new ItemDescription(TM._("Checkpoint"), TM._("A player who reaches this will respawn here and get fully healed."), TM._("This is a must have for any level with progression, especially parkour games! Make sure to rotate the checkpoint, so respawned players face the correct direction"))
 		},
 		{
 			MVWorldObjectDocumentationType.OculusKillWinCondition,
@@ -330,7 +330,7 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.CollectTheItem,
-			new ItemDescription(TM._("Collect The Item"), TM._("A pair consisting of a collectible and a drop off point. Emits a signal when someone brings the collectible to the drop off point."), TM._("Can be used for everything from locked doors (bring the key to the door), to pizza deliveries (bring the pizza to the helicopter)."))
+			new ItemDescription(TM._("Collect And Drop"), TM._("A pair consisting of a customizable collectible and a customizable drop off point. Emits a signal when someone brings the collectible to the drop off point."), TM._("Can be used for everything from locked doors (bring the key to the door), to pizza deliveries (bring the pizza to the helicopter)."))
 		}
 	};
 

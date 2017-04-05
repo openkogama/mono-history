@@ -552,6 +552,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 		public override void Activate(AvatarRuntimeState fromMode)
 		{
 			base.Activate(fromMode);
+			MVInputWrapper.ForceReleaseAllKeys();
 			LayerUtil.SetLayerRecursively(mvAvatar.Body.Transform, "Player", "CamRotateTarget");
 			MVGameControllerBase.CameraController.BlueModeEnabled = true;
 			MVGameControllerBase.IPlayModeUI.InLobbyState = true;

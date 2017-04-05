@@ -48,10 +48,6 @@ public class InventoryItemCubeModelHandler : InventoryItemPreview
 	public void OnDeleteConfirmation(bool affirmative, ConfirmationPopup popup)
 	{
 		popup.Pop();
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-		{
-			x.Pop();
-		});
 		if (affirmative)
 		{
 			MVGameControllerBase.OperationRequests.RemoveItemFromInventory(previewedItem.itemID);
@@ -61,6 +57,10 @@ public class InventoryItemCubeModelHandler : InventoryItemPreview
 			{
 				text = "item";
 			}
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Pop();
+			});
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 			{
 				x.Create(text + TM._(" was removed from inventory."), string.Empty);
