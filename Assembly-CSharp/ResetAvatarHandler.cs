@@ -28,12 +28,6 @@ public class ResetAvatarHandler : MonoBehaviour
 	{
 		OnReset = onReset;
 		avatarBody = currentBody;
-		GameObject popup = UnityEngine.Object.Instantiate(invisibleBlocker);
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-		{
-			x.Push(popup, UIPushOption.Blocking | UIPushOption.InvisibleBlocker, null, UIGroupFlags.Popup);
-		});
-		screenShooter.TakeScreenShot(OnScreenshotReady, avatarBody);
 		RetrieveToScreenshot();
 	}
 

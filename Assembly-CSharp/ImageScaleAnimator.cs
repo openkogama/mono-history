@@ -5,8 +5,8 @@ public class ImageScaleAnimator : MonoBehaviour
 	[SerializeField]
 	private RectTransform scaleTarget;
 
-	[SerializeField]
 	[Tooltip("Scale negative for downscaling")]
+	[SerializeField]
 	private AnimationCurve scaleCurve;
 
 	[SerializeField]
