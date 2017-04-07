@@ -82,7 +82,7 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.Bazooka,
-			new ItemDescription(TM._("Bazooka"), TM._("A tube, firing devastating rockets."), TM._("This rocket launcher is incredibly powerful when shot towards groups of players."))
+			new ItemDescription(TM._("Bazooka"), TM._("A rocket launcher with devastating firing power."), TM._("The bazooka is incredibly powerful when shot towards groups of players."))
 		},
 		{
 			MVWorldObjectDocumentationType.Railgun,
@@ -98,7 +98,7 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.Flamethrower,
-			new ItemDescription(TM._("Flamethrower"), TM._("A gun emitting a large flame, burning everything within reach."), TM._("Light your enemies on fire with this close range weapon."))
+			new ItemDescription(TM._("Flamethrower"), TM._("A classic! Burn everything within reach."), TM._("Light your enemies on fire with this close range weapon."))
 		},
 		{
 			MVWorldObjectDocumentationType.Shotgun,
@@ -110,11 +110,11 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.GrowthPill,
-			new ItemDescription(TM._("Growth Pill"), TM._("Transforms a player into a giant, with a deadly slap."), TM._("Become a giant KoGaMian, capable of slapping other players."))
+			new ItemDescription(TM._("Growth Pill"), TM._("Transforms a player into a giant!"), TM._("Become a giant KoGaMian, capable of slapping other players."))
 		},
 		{
 			MVWorldObjectDocumentationType.MousePill,
-			new ItemDescription(TM._("Mouse Pill"), TM._("Shrinks a player."), TM._("Become a miniature version of yourself, capable of entering any crevice."))
+			new ItemDescription(TM._("Mouse Pill"), TM._("Shrinks a player to the size of a mouse."), TM._("Become a miniature version of yourself, capable of entering any crevice."))
 		},
 		{
 			MVWorldObjectDocumentationType.MouseGun,
@@ -162,7 +162,7 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.Oculus,
-			new ItemDescription(TM._("Oculus"), TM._("A customizable \ufffdculus monster from another dimension. Hunts and damages nearby players."), TM._("These hideous creatures only have one vulnerability: Their eye! Jump on it to bounce high!"), new Vector3(0f, 0f, 0.7f))
+			new ItemDescription(TM._("Oculus"), TM._("A customizable monster from another dimension. Hunts and kills nearby players."), TM._("These hideous creatures only have one vulnerability: Their eye! Jump on it to bounce high!"), new Vector3(0f, 0f, 0.7f))
 		},
 		{
 			MVWorldObjectDocumentationType.Teleporter,
@@ -170,11 +170,11 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.Hovercraft,
-			new ItemDescription(TM._("Hovercraft"), TM._("A customizable hover craft."), TM._("Enables players to traverse great distances over both land and water."), new Vector3(0f, 0f, -0.3f))
+			new ItemDescription(TM._("Hovercraft"), TM._("A customizable hovercraft."), TM._("Enables players to traverse great distances over both land and water."), new Vector3(0f, 0f, -0.3f))
 		},
 		{
 			MVWorldObjectDocumentationType.HamsterBall,
-			new ItemDescription(TM._("Hamsterball"), TM._("A giant hamster ball."), TM._("This bouncy ball offers a hilarious way of travelling. It can also float in the water!"), new Vector3(-0.3f, 0.8f, 0f))
+			new ItemDescription(TM._("Hamster Ball"), TM._("A giant hamster ball."), TM._("This bouncy ball offers a hilarious way of travelling. It can also float in the water!"), new Vector3(-0.3f, 0.8f, 0f))
 		},
 		{
 			MVWorldObjectDocumentationType.FireSentryTower,
@@ -182,7 +182,7 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.MovingPlatform,
-			new ItemDescription(TM._("Moving Platform"), TM._("Create elevators or platforms with this customizable moving object!"), TM._("Useful when bridging the gap between stories in a building or separate platforms."))
+			new ItemDescription(TM._("Platform"), TM._("Create elevators or platforms with this customizable moving object!"), TM._("Useful when bridging the gap between stories in a building or separate platforms."))
 		},
 		{
 			MVWorldObjectDocumentationType.HorizontalRotator,
@@ -230,27 +230,27 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.Flag,
-			new ItemDescription(TM._("Finish Flag"), TM._("The player who reaches the flag first, wins!"), TM._("Flags are a great way to give players an objective, purpose, or a sense of competition."))
+			new ItemDescription(TM._("Game objective: Flag"), TM._("The player who reaches the flag first, wins!"), TM._("Flags are a great way to give players an objective, purpose, or a sense of competition."))
 		},
 		{
 			MVWorldObjectDocumentationType.Explosives,
-			new ItemDescription(TM._("Explosion Cube"), TM._("A bundle of dynamite that will explode when a signal is received."), TM._("Connecting this to a pressure plate or level, makes for an easy trap."))
+			new ItemDescription(TM._("Explosive"), TM._("A bundle of dynamite that will explode when it receives a signal from a link."), TM._("Use this by connectting it to a presssure plate or lever."))
 		},
 		{
 			MVWorldObjectDocumentationType.Fire,
-			new ItemDescription(TM._("Fire Cube"), TM._("A flame that burns anyone who gets too close. The flame can be controlled by logic signal."), TM._("You can pair this with the Smoke Cube to create a realistic effect!"))
+			new ItemDescription(TM._("Fire"), TM._("This burns anyone who gets too close. The Fire Cube can be controlled by connecting other logic cubes such as the pressure plate."), TM._("You can pair this with the Smoke Cube to create a realistic effect!"))
 		},
 		{
 			MVWorldObjectDocumentationType.Smoke,
-			new ItemDescription(TM._("Smoke Cube"), TM._("Emits a cloud of smoke. The smoke can be controlled by logic signal."), TM._("Great cube if you want to obstruct the player's view. Can also be paired with the Fire Cube for a cool effect!"))
+			new ItemDescription(TM._("Smoke"), TM._("Emits a cloud of smoke. The smoke can be controlled by connecting other logic cubes such as the pressure plate."), TM._("Great cube if you want to obstruct the player's view. Can also be paired with the Fire Cube for a cool effect!"))
 		},
 		{
 			MVWorldObjectDocumentationType.Text,
-			new ItemDescription(TM._("Text Cube"), TM._("An object enabling you to display a text in your game."), TM._("Display a game title, help text, or a piece of story through text."))
+			new ItemDescription(TM._("Text"), TM._("An object enabling you to display a text in your game."), TM._("Display a game title, help text, or a piece of story through text."))
 		},
 		{
 			MVWorldObjectDocumentationType.Skybox,
-			new ItemDescription(TM._("Skybox Cube"), TM._("An object specifying the games fog, sky, and ambient lighting."), TM._("Adding this cube to your project will make it looks awesome! Give it a go!"))
+			new ItemDescription(TM._("Skybox Cube"), TM._("Manage the look of your game by setting fog, sky, and ambient lighting."), TM._("Adding this to your project will make it looks awesome! Give it a go!"))
 		},
 		{
 			MVWorldObjectDocumentationType.WaterPlane,
@@ -258,7 +258,7 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.SoundEmitter,
-			new ItemDescription(TM._("Sound Emitter"), TM._("Add ambient sounds to your game. There's a wide collection of sounds to choose from."), TM._("Get rid of the silence in your game."))
+			new ItemDescription(TM._("Speaker"), TM._("Add sounds to your game. There's a wide collection of sounds to choose from."), TM._("This is great for creating the atmosphere that suits your game."))
 		},
 		{
 			MVWorldObjectDocumentationType.Checkpoint,
@@ -266,7 +266,7 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.OculusKillWinCondition,
-			new ItemDescription(TM._("Round Cube: Oculus Hunter"), TM._("An object defining a target number of oculus kills. First team to reach the target wins. This object will not be usable if you haven't first purchased the oculus spawner."), TM._("Round cubes are a great way to give players an objective, purpose, or a sense of competition."))
+			new ItemDescription(TM._("Game objective: Eliminate the Oculus"), TM._("Set a Oculus kill limit for your game. This object will not be usable if you haven't first purchased the Oculus."), TM._("The team or player that reaches the kill limit wins the game!"))
 		},
 		{
 			MVWorldObjectDocumentationType.WindTurbine,
@@ -274,43 +274,43 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.RoundCube,
-			new ItemDescription(TM._("Round Cube: Time"), TM._("Sets a time limit for a round. After the time is up, the round is restarted. Optionally a winner is determined based on avatar altitude."), TM._("Round cubes are a great way to give players an objective, purpose, or a sense of competition."))
+			new ItemDescription(TM._("Round time"), TM._("Set a time limit for a round. After the time is up, the round is restarted. Optionally a winner is determined based on avatar altitude."), TM._("Round cubes are a great if your game needs to be reset once in a while."))
 		},
 		{
 			MVWorldObjectDocumentationType.PlayerKillWinCondition,
-			new ItemDescription(TM._("Round Cube: Player Hunter"), TM._("An object defining a target number of player kills. First team to reach the target wins."), TM._("Round cubes are a great way to give players an objective, purpose, or a sense of competition."))
+			new ItemDescription(TM._("Game objective: Death match"), TM._("Set a player kill limit for your game."), TM._("Add this to create a death match game. If you have multiple teams you can even create a team death match game!"))
 		},
 		{
 			MVWorldObjectDocumentationType.CameraSettings,
-			new ItemDescription(TM._("Camera Cube"), TM._("An object specifying the distance between the camera and your avatar."), TM._("Tweaking the camera distance will make your game unique and memorable."))
+			new ItemDescription(TM._("Camera Cube"), TM._("An object specifying the distance between the camera and your avatar."), TM._("This is a great way to control the look and feel of your game"))
 		},
 		{
 			MVWorldObjectDocumentationType.TimeTrigger,
-			new ItemDescription(TM._("Time Cube"), TM._("A delay box. When receiving the signal it will wait x seconds before emitting a signal for y seconds."), TM._("You can put these in sequence to create really long waiting times."))
+			new ItemDescription(TM._("Delay Cube"), TM._("When receiving a signal from another logic object it will delay for x seconds before sending a signal for y seconds."), TM._("You can put these in sequence to create really long waiting times."))
 		},
 		{
 			MVWorldObjectDocumentationType.ToggleBox,
-			new ItemDescription(TM._("Toggle Cube"), TM._("Switches between ON and OFF when receiving an input signal"), TM._("Do you want to open and close the door with the same button? Then this is what you want."))
+			new ItemDescription(TM._("Toggle Cube"), TM._("Switches between ON and OFF each time it receives a new signal"), TM._("Do you want to open and close the door with the same button? Then this is what you want."))
 		},
 		{
 			MVWorldObjectDocumentationType.Negate,
-			new ItemDescription(TM._("Negate Cube"), TM._("A logic object which emits the opposite of its input."), TM._("Inverting a signal open up many possibilities."))
+			new ItemDescription(TM._("Negate Cube"), TM._("A logic object which sends the opposite of its input."), TM._("Inverting a signal open up many possibilities."))
 		},
 		{
 			MVWorldObjectDocumentationType.And,
-			new ItemDescription(TM._("And Cube"), TM._("The And Cube takes several inputs, and emits a signal when all of them are true."), TM._("Use this to require multiple signals."))
+			new ItemDescription(TM._("And Cube"), TM._("The And Cube takes several inputs, and sends a signal when all of them are ON."), TM._("If you want players to stand on multiple pressure plates to open a door this is for you."))
 		},
 		{
 			MVWorldObjectDocumentationType.PressurePlate,
-			new ItemDescription(TM._("Pressure Plate"), TM._("Whenever a player steps on the plate, it emits a signal. Can also be rendered invisible."), TM._("Connect this to an toggle box for a simple door, or to explosives for a landmine..."))
+			new ItemDescription(TM._("Pressure Plate"), TM._("Whenever a player steps on the plate, it sends a signal."), TM._("Connect this to an toggle box for a simple door, or to explosives for a landmine."))
 		},
 		{
 			MVWorldObjectDocumentationType.ModelToggle,
-			new ItemDescription(TM._("Model Toggle"), TM._("Hides connected cube model when powered."), TM._("This is most commonly used to enable/disable door models."))
+			new ItemDescription(TM._("Cube Model Hider"), TM._("Hides connected cube model when powered."), TM._("This is most commonly used to enable/disable door models."))
 		},
 		{
 			MVWorldObjectDocumentationType.PulseBox,
-			new ItemDescription(TM._("Pulse Cube"), TM._("This logic cube emits signals in intervals. This means that it'll be disabled for a couple of seconds, then enabled for a couple of seconds, and so forth."), TM._("This is really neat when you want to create something that flickers, like a light."))
+			new ItemDescription(TM._("Pulse Cube"), TM._("This logic cube sends signals in intervals. This means that it'll be disabled for a couple of seconds, then enabled for a couple of seconds, and so forth."), TM._("This is really neat when you want to create something that flickers, like a light."))
 		},
 		{
 			MVWorldObjectDocumentationType.RandomBox,
@@ -318,19 +318,19 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.CountingCube,
-			new ItemDescription(TM._("Counting Cube"), TM._("Starts emitting a signal after set time. Reset by in-signal."), TM._("Useful for creating timed events. Like a door opening one minute into your game."))
+			new ItemDescription(TM._("Counting Cube"), TM._("Set a count. Each time the cube receives a signal it counts down. When it reaches 0 it sends a signal"), TM._("This looks super cool and can be used a a count down display!"))
 		},
 		{
 			MVWorldObjectDocumentationType.ShootableButton,
-			new ItemDescription(TM._("Shootable Button"), TM._("Emits a signal when shot."), TM._("Can be used to open doors or secret areas when shot."))
+			new ItemDescription(TM._("Target cube"), TM._("Sends a signal when shot."), TM._("Can be used to open doors or secret areas from a distance by shooting."))
 		},
 		{
 			MVWorldObjectDocumentationType.Lever,
-			new ItemDescription(TM._("Lever"), TM._("Emits a signal when activated."), TM._("Open doors, trigger explosives... You can do a lot of things with a lever!"))
+			new ItemDescription(TM._("Lever"), TM._("Sends a signal when pulled."), TM._("Open doors, trigger explosives. You can do a lot of things with a lever!"))
 		},
 		{
 			MVWorldObjectDocumentationType.CollectTheItem,
-			new ItemDescription(TM._("Collect And Drop"), TM._("A pair consisting of a customizable collectible and a customizable drop off point. Emits a signal when someone brings the collectible to the drop off point."), TM._("Can be used for everything from locked doors (bring the key to the door), to pizza deliveries (bring the pizza to the helicopter)."))
+			new ItemDescription(TM._("Collect And Drop"), TM._("A pair consisting of a pickup and a drop off area. Sends a signal when someone brings the pickup into the drop off area."), TM._("Can be used for everything from locked doors (bring the key to the door), to pizza deliveries (bring the pizza to the helicopter)."))
 		}
 	};
 

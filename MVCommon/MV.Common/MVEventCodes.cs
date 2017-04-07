@@ -97,6 +97,7 @@ public enum MVEventCodes : byte
 	CollectTheItemDropOff = 92,
 	LogicFastForward = 93,
 	LogicFastForwardEventImmediate = 94,
+	ForceDetachWorldObjectFromVehicle = 95,
 	Join = byte.MaxValue,
 	Leave = 254,
 	PropertiesChanged = 253

@@ -301,7 +301,6 @@ public class MVWorldObjectClient : MVWorldObject
 	{
 		get
 		{
-			Debug.LogWarning("Getting uninitialized documentation type.");
 			return MVWorldObjectDocumentationType.Missing;
 		}
 		private set

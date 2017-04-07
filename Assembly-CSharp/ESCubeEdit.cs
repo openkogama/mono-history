@@ -37,7 +37,6 @@ internal class ESCubeEdit : ESStateBase
 
 	public override void Enter(EditorStateMachine e)
 	{
-		Debug.Log("ESCubeEdit enter");
 		HandleUnavailableMaterial(e);
 		exiting = false;
 		if (e.SingleSelectedWO == null)
@@ -84,10 +83,8 @@ internal class ESCubeEdit : ESStateBase
 		exiting = exiting || TargetCubeModel == null;
 		if (exiting)
 		{
-			Debug.Log("Exit cube edit, parentGroup: " + e.ParentGroup);
 			if (e.ParentGroupIsRoot)
 			{
-				Debug.Log("Parent group is root!");
 				e.Event = EditorEvent.ESTerrainEdit;
 			}
 			else if (e.ParentGroup != null)
@@ -118,7 +115,6 @@ internal class ESCubeEdit : ESStateBase
 
 	public override void Exit(EditorStateMachine e)
 	{
-		Debug.Log("ESCubeEdit exit");
 		DrawPlane.HideDrawPlane();
 		ExecuteEvents.ExecuteHierarchy(e.GameObject, null, (IUIStack handler, BaseEventData data) =>
 		{

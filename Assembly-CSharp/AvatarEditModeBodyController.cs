@@ -55,7 +55,6 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 	public void Initialize()
 	{
 		pictureTaker = UnityEngine.Object.Instantiate(pictureTaker);
-		Debug.Log("Initialize");
 		bodySpawnPoint = (MVSpawnPointRed)MVGameControllerBase.WOCM.GetWorldObjectClientWhere((MVWorldObjectClient wo) => wo is MVSpawnPointRed);
 		displayPos = bodySpawnPoint.WorldPosition - Vector3.up;
 		hidePos = bodySpawnPoint.WorldPosition - 51f * Vector3.up;
@@ -97,7 +96,7 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 		ResetAvatarHandler resetHandler = UnityEngine.Object.Instantiate(resetAvatarHandler);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			x.Push(resetHandler.gameObject, UIPushOption.Blocking | UIPushOption.InvisibleBlocker, null, UIGroupFlags.Popup);
+			x.Push(resetHandler.gameObject, UIPushOption.Blocking, null, UIGroupFlags.Popup);
 		});
 		resetHandler.ResetAvatar(CurrentBody, ExecuteReset);
 	}

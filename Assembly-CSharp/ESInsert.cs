@@ -44,7 +44,6 @@ internal class ESInsert : ESStateBase
 		float num = e.SingleSelectedWO.ComputeObjectRadius();
 		float num2 = Camera.main.fieldOfView * 0.5f * 0.8f;
 		distanceInFreeSpace = Mathf.Max(5f, num / Mathf.Tan(num2 * ((float)Math.PI / 180f)));
-		Debug.Log("Insert free distance = " + distanceInFreeSpace);
 		insertCursor = UnityEngine.Object.Instantiate(PrefabPool.Instance.InsertCursor);
 		insertOffset = Vector3.zero;
 		insertPosition = Camera.main.transform.position + Camera.main.transform.forward * distanceInFreeSpace;
@@ -66,7 +65,6 @@ internal class ESInsert : ESStateBase
 		{
 			MVGameControllerBase.CameraController.IsLogicRendered = true;
 		}
-		Debug.LogWarning("Block button pressing when dragging object");
 		e.SingleSelectedWO.GameObject.SetActive(value: false);
 	}
 

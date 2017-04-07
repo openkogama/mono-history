@@ -20,11 +20,8 @@ internal static class MVInputWrapper
 	{
 		get
 		{
-			if (Mathf.Abs(Time.frameCount - inputSuppressedFrame) < 2)
-			{
-				return true;
-			}
-			return false;
+			int num = Mathf.Abs(Time.frameCount - inputSuppressedFrame);
+			return num < 2;
 		}
 		set
 		{
@@ -36,11 +33,8 @@ internal static class MVInputWrapper
 	{
 		get
 		{
-			if (Mathf.Abs(Time.frameCount - suppressShortcutKeysFrame) < 2)
-			{
-				return true;
-			}
-			return false;
+			int num = Mathf.Abs(Time.frameCount - suppressShortcutKeysFrame);
+			return num < 2;
 		}
 		set
 		{
@@ -52,11 +46,13 @@ internal static class MVInputWrapper
 	{
 		get
 		{
-			if (Mathf.Abs(Time.frameCount - inputInGameInputSuppressedFrame) < 2)
+			int num = Mathf.Abs(Time.frameCount - inputInGameInputSuppressedFrame);
+			bool flag = num < 2;
+			if (flag)
 			{
-				return true;
+				inputMap.NotifyUnderSupression();
 			}
-			return false;
+			return flag;
 		}
 		set
 		{
@@ -82,11 +78,6 @@ internal static class MVInputWrapper
 	public static bool GetBooleanControlUp(KogamaControls control, bool forceKeyUse = false)
 	{
 		return GetBooleanControl(control, KeyState.Up, forceKeyUse);
-	}
-
-	public static void ForceReleaseAllKeys()
-	{
-		inputMap.ForceReleaseAllKeys();
 	}
 
 	private static bool GetBooleanControl(KogamaControls control, KeyState keyState, bool forceKeyUse)

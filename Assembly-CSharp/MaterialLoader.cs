@@ -78,15 +78,10 @@ public class MaterialLoader : MonoBehaviour
 		{
 			flag = false;
 		}
-		Debug.Log("Using Shader Model " + ((!flag) ? "2" : "3"));
 		if (cubeModelMaterialHigh == null || cubeModelMaterialLow == null)
 		{
 			throw new NullReferenceException();
 		}
-		Debug.Log(SystemInfo.graphicsDeviceName);
-		Debug.Log(SystemInfo.graphicsDeviceType);
-		Debug.Log(SystemInfo.graphicsShaderLevel);
-		Debug.Log(SystemInfo.graphicsDeviceVersion);
 		if (flag)
 		{
 			cubeModelMaterial = cubeModelMaterialHigh;
@@ -111,7 +106,6 @@ public class MaterialLoader : MonoBehaviour
 
 	private void Callback(WWW www)
 	{
-		Debug.Log("Got texture");
 		string[] allAssetNames = www.assetBundle.GetAllAssetNames();
 		if (allAssetNames.Length != 1)
 		{

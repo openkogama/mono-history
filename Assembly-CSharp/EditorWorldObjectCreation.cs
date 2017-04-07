@@ -18,7 +18,6 @@ public class EditorWorldObjectCreation : MonoBehaviour, ICloneHandler, IAddItemF
 
 	public void Clone(MVWorldObjectClient original, bool cloneToRoot, bool setAsPreviewItem, bool goToInsert = false)
 	{
-		Debug.Log("CloneHierarchy " + original);
 		if (goToInsert)
 		{
 			esm.Data.Add("goToInsert", null);

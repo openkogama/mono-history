@@ -1,5 +1,3 @@
-using UnityEngine;
-
 internal class ESWaitForSelected : ESStateBase
 {
 	private bool useESInsert = true;
@@ -8,7 +6,6 @@ internal class ESWaitForSelected : ESStateBase
 
 	public override void Enter(EditorStateMachine e)
 	{
-		Debug.Log("wait for selected");
 		e.DeSelectAll();
 		isNewPrototype = e.Data.ContainsKey("IsNewPrototype");
 	}

@@ -182,22 +182,21 @@ public class SendMessageControl : MonoBehaviour
 
 	public string CreateHelpTxt()
 	{
-		string empty = string.Empty;
-		empty += TM._("<M> Menu");
+		string text = "\n";
+		text += TM._("\nType: " + enableHD + " to enable HD mode.\n\n");
+		text += TM._("<M> Menu");
 		switch (MVGameControllerBase.GameMode)
 		{
 		case MVGameMode.CharacterEditor:
 			return string.Empty;
 		case MVGameMode.Edit:
-			empty += TM._("\n\n<PgDown> Move Workplane Down\n<PgUp> Move Workplane Up\n<TAB> Show Players\n<P> Play Mode\n<P> Edit Mode\n<1> Edit Cube\n<2> Delete Cube\n<3> Paint Cube\n<G> Toggle Grid Snap Size\n");
-			empty += TM._("<F> Toggle Workplane\n<H> Toggle Vanity Item\n<L> Toggle Show Logic Cubes\n<R> Change Cube Material\n<I> Open Inventory\n<N> Create New Model\n<V> Focus on selected object");
+			text += TM._("\n\n<Right mouse> Hold to look\n<WASD> Move\n<Scroll wheel> Move up and down\n<Shift> Hold to move fast\n");
 			break;
 		case MVGameMode.Play:
-			empty += TM._("\n\n<WASD> Move\n<Space> Jump\n<K> Respawn\n<Left Mouse> Fire Weapon\n<Q> Drop currently equipped weapon");
+			text += TM._("\n\n<WASD> Move\n<Space> Jump\n<K> Respawn\n<Left Mouse> Fire Weapon\n<Q> Drop currently equipped weapon\n<H> Toggle Accessory\n");
 			break;
 		}
-		empty += TM._("\n\nChat Commands\nFPS Counter: " + fps + "\nSee Resolution: " + resolution + "\nHide UI (for Screenshots, can't undo): " + removeUI + "\n");
-		return empty + TM._("\nHD Mode: " + enableHD);
+		return text;
 	}
 
 	private void SanitizeMessage(ref string message, string tagToSanitize)

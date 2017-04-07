@@ -96,6 +96,7 @@ public enum DBQuery
 	UpdateGameCoinBoosterLeft,
 	RewardPlanetOwner,
 	PurchaseMyseryBoxSpins,
+	GetResetAvatar,
 	TestQuery,
 	RequestGameTypeID,
 	RequestProtoPlanetID,

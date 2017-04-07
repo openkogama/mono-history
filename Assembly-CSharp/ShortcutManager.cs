@@ -47,7 +47,6 @@ public class ShortcutManager : MonoBehaviour, IEventSystemHandler, IShortcutKeyR
 
 	public void UnRegisterShortcutKey(KogamaControls kogamaControl, KeyState keyState)
 	{
-		Debug.Log("Unregister shortcut key");
 		if (!shortCutKeys.ContainsKey(kogamaControl))
 		{
 			Debug.LogError("Couldn't find shortcut key");

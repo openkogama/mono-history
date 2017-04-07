@@ -39,10 +39,6 @@ public class MobileInputMap : IKogamaInputMap
 		KeyCode.Escape
 	} };
 
-	public void ForceReleaseAllKeys()
-	{
-	}
-
 	public bool GetBooleanControl(KogamaControls control, KeyState keyState)
 	{
 		if (ButtonMapping.Keys.Contains(control))
@@ -78,5 +74,9 @@ public class MobileInputMap : IKogamaInputMap
 			Debug.LogWarning("Not implemented on mobile " + control);
 		}
 		return false;
+	}
+
+	public void NotifyUnderSupression()
+	{
 	}
 }

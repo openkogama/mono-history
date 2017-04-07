@@ -131,7 +131,6 @@ public class WorldNetwork : World
 		CloneBookkeeping cloneBookkeeping = new CloneBookkeeping();
 		MVWorldObjectClient worldObjectClient = worldObjectClientManager.GetWorldObjectClient(originalId);
 		cloneBookkeeping.cloneIdIncrement = cloneId;
-		Debug.Log("cloneBookkeeping.cloneLinkIdIncrement " + cloneBookkeeping.cloneLinkIdIncrement);
 		cloneBookkeeping.cloneLinkIdIncrement = cloneLinkId;
 		cloneBookkeeping.cloneObjectLinkIdIncrement = cloneObjectLinkId;
 		MVWorldObjectClient mVWorldObjectClient = worldObjectClientManager.Clone(ownerActorNumber, worldObjectClient, cloneBookkeeping, worldInventory);

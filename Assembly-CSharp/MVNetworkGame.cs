@@ -402,10 +402,28 @@ public class MVNetworkGame : IPhotonPeerListener
 			case MVEventCodes.DetachWorldObjectFromVehicle:
 			{
 				int id2 = (int)photonEvent[20];
-				MVWorldObjectClient worldObjectClient2 = networkGame.WorldObjectClientManager.GetWorldObjectClient(id2);
-				if (worldObjectClient2 != null && worldObjectClient2 is MVAvatar)
+				MVWorldObjectClient worldObjectClient4 = networkGame.WorldObjectClientManager.GetWorldObjectClient(id2);
+				if (worldObjectClient4 != null && worldObjectClient4 is MVAvatar)
 				{
-					((MVAvatar)worldObjectClient2).OnLeaveVehicle();
+					((MVAvatar)worldObjectClient4).OnLeaveVehicle();
+				}
+				break;
+			}
+			case MVEventCodes.ForceDetachWorldObjectFromVehicle:
+			{
+				int[] array = (int[])photonEvent[70];
+				MVWorldObjectClient worldObjectClient2 = networkGame.WorldObjectClientManager.GetWorldObjectClient(array[0]);
+				MVWorldObjectClient worldObjectClient3 = networkGame.WorldObjectClientManager.GetWorldObjectClient(array[1]);
+				Debug.Log("MVEventCodes.ForceDetachWorldObjectFromVehicle");
+				if (worldObjectClient2 != null)
+				{
+					Debug.Log("vehicle != null");
+					if (worldObjectClient3.GroupId == worldObjectClient2.Id)
+					{
+						Debug.Log("attachedObject.GroupId == vehicle.GroupId");
+						((MVAvatarLocal)worldObjectClient3).LeaveVehicle(leaveBecauseOfServer: true);
+						networkGame.PlayerController.HandleDetachWorldObjectFromVehicle(success: true);
+					}
 				}
 				break;
 			}
@@ -631,7 +649,6 @@ public class MVNetworkGame : IPhotonPeerListener
 
 		public void HandleDataBatch(int instigator, int queryId, QueryType queryType, bool queryDataLeft, BytePacker bp)
 		{
-			Debug.Log("instigator " + instigator);
 			GameDataQuery gameDataQuery = new GameDataQuery(bp, instigator, queryType);
 			OnGetGameBatch(queryId, gameDataQuery);
 			if (!queryDataLeft)
@@ -1876,6 +1893,13 @@ public class MVNetworkGame : IPhotonPeerListener
 			dictionary.Add(20, woID);
 			dictionary.Add(204, activate);
 			peer.OpCustom(81, dictionary, sendReliable: true);
+		}
+
+		public void GetResetAvatar(int avatarWoID)
+		{
+			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
+			dictionary.Add(20, avatarWoID);
+			peer.OpCustom(82, dictionary, sendReliable: true);
 		}
 
 		private void PurchaseProduct(MVProductType productTypeID, Dictionary<object, object> productData)
@@ -3441,7 +3465,6 @@ public class MVNetworkGame : IPhotonPeerListener
 		int instigator = (int)eventData[254];
 		BytePacker bp = new BytePacker((byte[])eventData[245]);
 		QueryType queryType = (QueryType)(byte)eventData[133];
-		Debug.Log(((byte[])eventData[245]).Length);
 		int queryId = -1;
 		bool queryDataLeft = false;
 		if (eventData.Parameters.ContainsKey(98))

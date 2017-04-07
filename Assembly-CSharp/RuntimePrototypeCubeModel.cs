@@ -361,6 +361,10 @@ public class RuntimePrototypeCubeModel
 	public void RemoveInstance(int id)
 	{
 		instances.Remove(id);
+		if (instances.Count == 0)
+		{
+			Destroy();
+		}
 	}
 
 	public void ResetSharedMaterials(MVCubeModelInstance cm)

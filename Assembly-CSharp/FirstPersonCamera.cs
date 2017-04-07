@@ -51,7 +51,7 @@ public abstract class FirstPersonCamera : MVCameraBase
 
 	public override CameraType CameraType => CameraType.FirstPersonCamera;
 
-	public override float FieldOfView => 80f;
+	public override float FieldOfView => 70f;
 
 	protected abstract void UpdateCameraRotation();
 

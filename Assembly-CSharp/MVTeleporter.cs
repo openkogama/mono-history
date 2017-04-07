@@ -134,7 +134,7 @@ public class MVTeleporter : MVLogicObject
 		}
 		if (avatarLocal.IsSeated)
 		{
-			avatarLocal.LeaveVehicle();
+			avatarLocal.LeaveVehicle(leaveBecauseOfServer: false);
 		}
 		if (!avatarIgnoreList.Contains(avatarLocal))
 		{

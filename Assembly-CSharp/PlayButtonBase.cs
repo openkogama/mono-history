@@ -28,14 +28,14 @@ public class PlayButtonBase : MonoBehaviour
 		if (flag)
 		{
 			countdownTest.text = TM._("New round starts in: ") + MVGameControllerBase.Game.NetworkGameStateListener.CountdownInSeconds;
-			if (!countdownTest.enabled)
+			if (!countdownTest.gameObject.activeSelf)
 			{
-				countdownTest.enabled = true;
+				countdownTest.gameObject.SetActive(value: true);
 			}
 		}
-		else if (countdownTest.enabled)
+		else if (countdownTest.gameObject.activeSelf)
 		{
-			countdownTest.enabled = false;
+			countdownTest.gameObject.SetActive(value: false);
 		}
 	}
 }

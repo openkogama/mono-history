@@ -76,7 +76,7 @@ public class AvatarPreviewer : MonoBehaviour
 	{
 		if (PreviewGameObject != null)
 		{
-			PreviewGameObject.transform.RotateAround(pivotPoint, Vector3.up, ((!(rotateSpeed > 0f)) ? previewItemRotateSpeed : rotateSpeed) * Time.deltaTime);
+			PreviewGameObject.transform.RotateAround(pivotPoint, Vector3.up, ((rotateSpeed != 0f) ? rotateSpeed : previewItemRotateSpeed) * Time.deltaTime);
 		}
 	}
 

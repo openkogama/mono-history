@@ -175,7 +175,7 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 		}
 	}
 
-	public bool DetachWorldObjectFromVehicle(int worldObjectID, ref int vehicleID)
+	public bool DetachWorldObjectFromVehicle(int worldObjectID, ref int vehicleID, bool leaveBecauseOfServer)
 	{
 		if (attachState != null && attachState is DetachState)
 		{
@@ -188,13 +188,16 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 			return false;
 		}
 		ILocalObject localObject = localControlledStack.Pop();
-		if (!dismountedLocalControlledObjects.ContainsKey(localObject.Id))
+		if (!leaveBecauseOfServer)
 		{
-			dismountedLocalControlledObjects.Add(localObject.Id, new DismountedPlayerControlledObject(localObject));
+			if (!dismountedLocalControlledObjects.ContainsKey(localObject.Id))
+			{
+				dismountedLocalControlledObjects.Add(localObject.Id, new DismountedPlayerControlledObject(localObject));
+			}
+			attachState = new DetachState();
+			Debug.Log("Detaching from vehicle");
+			MVGameControllerBase.OperationRequests.DetachWorldObjectFromVehicle(worldObjectID);
 		}
-		attachState = new DetachState();
-		Debug.Log("Detaching from vehicle");
-		MVGameControllerBase.OperationRequests.DetachWorldObjectFromVehicle(worldObjectID);
 		vehicleID = localObject.Id;
 		return true;
 	}

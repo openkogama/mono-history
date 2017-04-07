@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 {
-	[SerializeField]
 	[Header("Stats for Godzilla (will be scaled by godzilla size)")]
+	[SerializeField]
 	private AnimationCurve baseAreaDamageByRange;
 
 	[SerializeField]

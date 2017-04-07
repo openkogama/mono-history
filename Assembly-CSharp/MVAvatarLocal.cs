@@ -112,7 +112,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 			mvAvatar.avatarEquipable.Unequip();
 			if (mvAvatar.IsSeated)
 			{
-				mvAvatar.LeaveVehicle();
+				mvAvatar.LeaveVehicle(leaveBecauseOfServer: false);
 			}
 			mvAvatar.triggerHandler.enabled = false;
 		}
@@ -552,7 +552,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 		public override void Activate(AvatarRuntimeState fromMode)
 		{
 			base.Activate(fromMode);
-			MVInputWrapper.ForceReleaseAllKeys();
 			LayerUtil.SetLayerRecursively(mvAvatar.Body.Transform, "Player", "CamRotateTarget");
 			MVGameControllerBase.CameraController.BlueModeEnabled = true;
 			MVGameControllerBase.IPlayModeUI.InLobbyState = true;
@@ -665,7 +664,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 			{
 				if (mvAvatar.IsSeated)
 				{
-					mvAvatar.LeaveVehicle();
+					mvAvatar.LeaveVehicle(leaveBecauseOfServer: false);
 				}
 				else
 				{
@@ -908,7 +907,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 			base.Activate(fromMode);
 			if (mvAvatar.IsSeated)
 			{
-				mvAvatar.LeaveVehicle();
+				mvAvatar.LeaveVehicle(leaveBecauseOfServer: false);
 			}
 			mvAvatar.triggerHandler.enabled = false;
 			mvAvatar.Collider.enabled = true;
@@ -1189,11 +1188,11 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 		avatarMotor.OverrideCharacterController(characterController);
 	}
 
-	public void LeaveVehicle()
+	public void LeaveVehicle(bool leaveBecauseOfServer)
 	{
 		vehicleRigidBody = null;
 		int vehicleID = -1;
-		if (!MVGameControllerBase.Game.PlayerController.DetachWorldObjectFromVehicle(Id, ref vehicleID))
+		if (!MVGameControllerBase.Game.PlayerController.DetachWorldObjectFromVehicle(Id, ref vehicleID, leaveBecauseOfServer))
 		{
 			return;
 		}
@@ -1338,7 +1337,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 	{
 		if (IsSeated)
 		{
-			LeaveVehicle();
+			LeaveVehicle(leaveBecauseOfServer: false);
 		}
 	}
 
@@ -1395,7 +1394,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 		Health.Value = 100f;
 		if (IsSeated)
 		{
-			LeaveVehicle();
+			LeaveVehicle(leaveBecauseOfServer: false);
 		}
 		avatarEquipable.Unequip();
 		interactableLocal.ClearModifiers();

@@ -97,6 +97,7 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel, ICubeModelCollid
 		Scale = Vector3.one * prototypes[key].Scale;
 		ModelingConstraintBuilder = () => new ModelingDynamicBoxConstraint(this, SharedCubeFunctions.CubeConstraint);
 		SetName();
+		name = gameObject.name;
 	}
 
 	public override void Initialize()
@@ -328,5 +329,12 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel, ICubeModelCollid
 		{
 			ChunksChanged(chunksChanged);
 		}
+	}
+
+	public override void Destroy()
+	{
+		base.Destroy();
+		RuntimePrototypeCubeModel runtimePrototypeCubeModel = prototypeCubeModel;
+		runtimePrototypeCubeModel.DirtyChunksRegenerated = (Action<HashSet<IntVector>>)Delegate.Remove(runtimePrototypeCubeModel.DirtyChunksRegenerated, new Action<HashSet<IntVector>>(DirtyChunksRegeneratedHandler));
 	}
 }

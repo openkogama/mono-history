@@ -127,7 +127,7 @@ public abstract class MVVehicleBase : MVBlueprintBase, IBulletImpactVisualizer
 			Owner.TraverseRecursiveTail(callBack);
 			if (localAvatar != null)
 			{
-				localAvatar.LeaveVehicle();
+				localAvatar.LeaveVehicle(leaveBecauseOfServer: false);
 			}
 			MVGameControllerBase.Game.PlayerController.OverrideRemoveTimeForDismountedWorldObject(Id, timeBeforeUnregisterAfterDeath);
 			Owner.IsVehicleDead.Value = true;

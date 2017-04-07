@@ -28,7 +28,6 @@ public class MVNetworkGameStateListener
 		this.startTime = startTime;
 		this.duration = duration;
 		timeLeft = duration - (MVGameControllerBase.Game.ServerTimeInMilliSeconds - startTime);
-		Debug.Log("GameStateChange " + gameStateType);
 		if (!fromGameSnapshot && OnGameStateChanged != null)
 		{
 			OnGameStateChanged(this, new GameStateChangeEventArgs());

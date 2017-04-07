@@ -137,7 +137,6 @@ public class SelectionController : ISelectionController
 		{
 			worldObjectClient.Select();
 		}
-		Debug.Log("Selected: " + worldObjectClient);
 		return worldObjectClient;
 	}
 
@@ -159,9 +158,7 @@ public class SelectionController : ISelectionController
 		}
 		MVWorldObjectClient worldObjectClient = WOCM.GetWorldObjectClient(hit.woId);
 		bool flag = (hit.interactionFlags & InteractionFlags.DirectlySelectable) == InteractionFlags.DirectlySelectable;
-		bool flag2 = (hit.interactionFlags & InteractionFlags.SelectionRequiresEditGroup) == InteractionFlags.SelectionRequiresEditGroup;
-		Debug.Log(string.Concat("Select: [", worldObjectClient, "] ParentGroup id: ", ParentGroupID, " dirSelect: ", flag, " reqOpenGroup: ", flag2));
-		if (flag2 || (!parentGroups.Contains(worldObjectClient.GroupId) && !flag))
+		if ((hit.interactionFlags & InteractionFlags.SelectionRequiresEditGroup) == InteractionFlags.SelectionRequiresEditGroup || (!parentGroups.Contains(worldObjectClient.GroupId) && !flag))
 		{
 			int groupAbove = MVGroup.GetGroupAbove(ParentGroupID, worldObjectClient.Id, InteractionFlags.DirectlySelectable);
 			if (groupAbove == -1)

@@ -488,12 +488,10 @@ public abstract class MVWorldObjectClientManager : IWorldObjectManager
 		value = (Action<object, WorldObjectDestroyedEventArgs>)Delegate.Remove(value, woDestroyedEventHandler);
 		if (value != null)
 		{
-			Debug.Log("Unsubscribed but with subscribers left");
 			woDestroyedEventSubscribers[woID] = value;
 		}
 		else
 		{
-			Debug.Log("Null");
 			woDestroyedEventSubscribers.Remove(woID);
 		}
 	}

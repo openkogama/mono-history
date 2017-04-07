@@ -279,13 +279,11 @@ internal class ESSelection : ESStateBase
 
 	private LinkObjectBase GetLinkHit(EditorStateMachine e, ref VoxelHit hit)
 	{
-		Debug.Log("GetLinkHit");
 		if (MVGameControllerBase.CameraController.IsLogicRendered)
 		{
 			float num = float.PositiveInfinity;
 			if (EditModeObjectPicker.Pick(ref hit))
 			{
-				Debug.Log("Pick hit " + hit.transform.name);
 				num = hit.distance;
 			}
 			Ray ray = MVGameControllerBase.CameraController.MainCamera.ScreenPointToRay(MVInputWrapper.GetPointerPosition());

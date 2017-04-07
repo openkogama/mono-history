@@ -52,8 +52,6 @@ public class DrawPlaneControllerUUI : MonoBehaviour
 
 	public void DrawPlaneToModel(GameObject gameObject)
 	{
-		Debug.Log(gameObject.name);
-		Debug.Log(worldEditorDrawPlane.name);
 		worldEditorDrawPlane.CachePos();
 		worldEditorDrawPlane.TargetGameObject = gameObject;
 		worldEditorDrawPlane.SetToTargetGameObjectZero();
@@ -77,7 +75,6 @@ public class DrawPlaneControllerUUI : MonoBehaviour
 
 	public void HideDrawPlane()
 	{
-		Debug.Log("Hide drawplane");
 		if (worldEditorDrawPlane.Active)
 		{
 			ToggleDrawPlane();
@@ -86,7 +83,6 @@ public class DrawPlaneControllerUUI : MonoBehaviour
 
 	public void ReturnDrawPlaneToLandscape()
 	{
-		Debug.Log("Return drawplane");
 		worldEditorDrawPlane.ReturnDrawPlaneToLandscape();
 	}
 
