@@ -301,6 +301,25 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 		}
 		worldObjectMapping.RemoveWorldObjectFromTypeSet(worldObjectClient);
 		OnWorldObjectDestroyed(worldObjectClient.Id);
+		int groupId = worldObjectClient.GroupId;
+		if (groupId != -1)
+		{
+			if (worldObjects.TryGetValue(groupId, out var value))
+			{
+				if (value is MVGroup)
+				{
+					((MVGroup)value).RemoveChild(id);
+				}
+				else
+				{
+					Debug.LogError("World object is attached to non group. This should not be possible: " + value.WorldObjectType);
+				}
+			}
+			else
+			{
+				Debug.LogError("Could not find group when destroying wo");
+			}
+		}
 		worldObjectClient.Destroy();
 		worldObjects.Remove(worldObjectClient.Id);
 		MVGameControllerBase.Game.LogicObjectManager.RemoveLogicObjectFromUpdate(id);

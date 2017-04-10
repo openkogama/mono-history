@@ -12,8 +12,11 @@ public class TeamIconScaleWithDistance : MonoBehaviour
 
 	private void Update()
 	{
-		float magnitude = (transform.position - MVGameControllerBase.WOCM.AvatarLocal.Transform.position).magnitude;
-		magnitude = Mathf.Clamp(magnitude, minDistance, maxDistance);
-		transform.localScale = scale * magnitude / minDistance;
+		if (MVGameControllerBase.JoinState == MVJoinState.Playing)
+		{
+			float magnitude = (transform.position - MVGameControllerBase.WOCM.AvatarLocal.Transform.position).magnitude;
+			magnitude = Mathf.Clamp(magnitude, minDistance, maxDistance);
+			transform.localScale = scale * magnitude / minDistance;
+		}
 	}
 }

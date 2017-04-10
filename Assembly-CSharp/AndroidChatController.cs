@@ -153,7 +153,6 @@ public class AndroidChatController : MonoBehaviour
 		switch (msgType)
 		{
 		case MVGameMsgType.JoinFlowStatus:
-			AddJoinFlowStatusLine(message);
 			break;
 		case MVGameMsgType.AvatarKilled:
 			break;
