@@ -379,10 +379,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		Debug.Log("Application quit");
 		if (!quitHasBeenCalled)
 		{
-			Game.LocalPlayer.Destroy();
-			LevelingManager.Destroy();
-			AsyncWWWManager.UnsubscribeWWWRequest(instance.OnReceivedReAuthWebParametersFromHttpRequest);
-			timeReward.DestroyRewardRequest();
 			quitHasBeenCalled = true;
 			instance.HandleApplicationQuit(applicationQuitObject);
 		}

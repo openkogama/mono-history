@@ -1,9 +1,9 @@
 {
-    "id": "11297e81-d93f-4cb1-b66c-e94bb0725cb2",
+    "id": "6db1fc6b-d758-40c9-a44c-9bafcbeecf9c",
     "version": "1.46.0",
     "unityVersion": "5.3.7f1",
-    "timestamp": 1491896517,
-    "sha256": "aff96c17e66d6360eefa5409d8708086145556a04d24c4e7092cb9cc6cdf345d",
+    "timestamp": 1491917081,
+    "sha256": "498187218f4bf397dfa579df0bc78833cabeac65d7ff228cb7c8db0458dd41a3",
     "assemblies": [
         "Assembly-CSharp-firstpass.dll",
         "Assembly-CSharp.dll",
