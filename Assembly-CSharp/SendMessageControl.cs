@@ -193,7 +193,7 @@ public class SendMessageControl : MonoBehaviour
 			text += TM._("\n\n<Right mouse> Hold to look\n<WASD> Move\n<Scroll wheel> Move up and down\n<Shift> Hold to move fast\n");
 			break;
 		case MVGameMode.Play:
-			text += TM._("\n\n<WASD> Move\n<Space> Jump\n<K> Respawn\n<Left Mouse> Fire Weapon\n<Q> Drop currently equipped weapon\n<H> Toggle Accessory\n");
+			text += TM._("\n\n<H> Toggle Accessory\n<WASD> Move\n<Space> Jump\n<K> Respawn\n<Left Mouse> Fire Weapon\n<Q> Holster equipped weapon\n<V> Drop equipped weapon\n");
 			break;
 		}
 		return text;
