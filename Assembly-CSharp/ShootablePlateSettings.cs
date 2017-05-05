@@ -16,7 +16,7 @@ public class ShootablePlateSettings : MonoBehaviour, IEventSystemHandler, IHandl
 
 	public void Initialize(int woID, GameObject root)
 	{
-		settingsBase.Initialize(woID, root);
+		settingsBase.Initialize(woID, root, MVWorldObjectDocumentationType.ShootableButton);
 		Dictionary<object, object> data = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).Data;
 		float value = Convert.ToSingle(data["duration"]);
 		slider.Initialize("duration", value, 0.5f, 30f);

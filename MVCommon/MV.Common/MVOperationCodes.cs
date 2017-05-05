@@ -85,6 +85,7 @@ public enum MVOperationCodes : byte
 	CloneTempWorldObjectWithOriginalReference = 80,
 	LogicActivateRequest = 81,
 	GetResetAvatar = 82,
+	PostChatMsg = 83,
 	Join = byte.MaxValue,
 	Leave = 254,
 	RaiseEvent = 253,

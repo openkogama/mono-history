@@ -1098,7 +1098,8 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 			int localPlayerActorNumber = MVGameControllerBase.Game.LocalPlayerActorNumber;
 			if (OnKilled != null)
 			{
-				string obj = string.Format(KillNotification.GetKillText(damageType), MVGameControllerBase.Game.Players[localPlayerActorNumber].Username, MVGameControllerBase.Game.Players[key].Username);
+				bool shotSelf = MVGameControllerBase.Game.Players[localPlayerActorNumber].Username == MVGameControllerBase.Game.Players[key].Username;
+				string obj = string.Format(KillNotification.GetKillText(damageType, shotSelf), MVGameControllerBase.Game.Players[localPlayerActorNumber].Username, MVGameControllerBase.Game.Players[key].Username);
 				OnKilled(obj);
 			}
 		}

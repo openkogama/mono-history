@@ -17,7 +17,7 @@ public class CameraBoxSettings : MonoBehaviour, IEventSystemHandler, IHandleSett
 
 	public void Initialize(int woID, GameObject root)
 	{
-		settingsBase.Initialize(woID, root);
+		settingsBase.Initialize(woID, root, MVWorldObjectDocumentationType.CameraSettings);
 		Dictionary<object, object> data = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).Data;
 		if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
 		{

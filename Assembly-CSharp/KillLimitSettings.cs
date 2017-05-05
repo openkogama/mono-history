@@ -20,7 +20,7 @@ public class KillLimitSettings : MonoBehaviour, IEventSystemHandler, IHandleSett
 
 	public void Initialize(int woID, GameObject root, string header)
 	{
-		settingsBase.Initialize(woID, root);
+		settingsBase.Initialize(woID, root, MVWorldObjectDocumentationType.PlayerKillWinCondition);
 		killLimitHeader.text = header;
 		Dictionary<object, object> dictionary2;
 		if (woID == -1)

@@ -8,13 +8,12 @@ public class SkyboxManager : MonoBehaviour
 {
 	public delegate void SkyboxColorChangedDelegate(Color newColor);
 
+	[Header("Configuration")]
 	public static Color defaultColor = new Color(95f / 255f, 180f / 255f, 254f / 255f);
 
 	public static float defaultSunAngle = 80f;
 
 	public static float defaultFogDensity = 0.007f;
-
-	public SkyboxColorChangedDelegate OnSkyboxColorChanged;
 
 	public Color currentColor = defaultColor;
 
@@ -27,16 +26,22 @@ public class SkyboxManager : MonoBehaviour
 	public Color brightAmbient = new Color(1f, 1f, 1f, 1f);
 
 	[SerializeField]
-	private Light mainLight;
+	private float skyContrast = 0.1f;
+
+	[SerializeField]
+	private AnimationCurve lightDuskDawnFalloff;
+
+	public SkyboxColorChangedDelegate OnSkyboxColorChanged;
+
+	[SerializeField]
+	[Header("Dependencies")]
+	private Light sunLight;
 
 	[SerializeField]
 	private Camera targetCamera;
 
 	[SerializeField]
 	private MeshRenderer horizontalPlane;
-
-	[SerializeField]
-	private float skyContrast = 0.1f;
 
 	private Color targetColor;
 
@@ -91,16 +96,16 @@ public class SkyboxManager : MonoBehaviour
 			sunAngle = defaultSunAngle;
 			return;
 		}
+		float num2 = (sunAngle = enumerable.Select((MVSkybox s) => s.SunAngle).Average());
 		Color black = Color.black;
 		foreach (MVSkybox item in enumerable)
 		{
 			black += item.SkyboxColor / num;
 		}
 		black.a = 1f;
-		float num2 = enumerable.Select((MVSkybox s) => s.SunAngle).Average();
-		float num3 = enumerable.Select((MVSkybox s) => s.FogDensity).Average();
 		color = black;
-		sunAngle = num2;
+		Debug.Log(num2);
+		float num3 = enumerable.Select((MVSkybox s) => s.FogDensity).Average();
 		fogDensity = num3;
 	}
 
@@ -116,19 +121,28 @@ public class SkyboxManager : MonoBehaviour
 		RenderSettings.fogColor = color;
 		RenderSettings.fogDensity = fogDensity;
 		RenderSettings.ambientLight = num * color2;
+		sunLight.transform.rotation = Quaternion.Euler(sunAngle, 45f, 0f);
+		float num2 = Mathf.Abs(currentSunAngle - 90f);
+		if (num2 > 90f)
+		{
+			sunLight.intensity = 0f;
+		}
+		else
+		{
+			sunLight.intensity = lightDuskDawnFalloff.Evaluate(num2 / 90f);
+		}
 		Color color3 = color;
-		float num2 = ((!(color3.r > 0.5f)) ? skyContrast : (0f - skyContrast));
-		float num3 = ((!(color3.g > 0.5f)) ? skyContrast : (0f - skyContrast));
-		float num4 = ((!(color3.b > 0.5f)) ? skyContrast : (0f - skyContrast));
-		color3.r += num2;
-		color.r -= num2;
-		color3.g += num3;
-		color.g -= num3;
-		color3.b += num4;
-		color.b -= num4;
+		float num3 = ((!(color3.r > 0.5f)) ? skyContrast : (0f - skyContrast));
+		float num4 = ((!(color3.g > 0.5f)) ? skyContrast : (0f - skyContrast));
+		float num5 = ((!(color3.b > 0.5f)) ? skyContrast : (0f - skyContrast));
+		color3.r += num3;
+		color.r -= num3;
+		color3.g += num4;
+		color.g -= num4;
+		color3.b += num5;
+		color.b -= num5;
 		targetCamera.backgroundColor = color;
 		horizontalPlane.material.SetColor("_Color", color3);
-		mainLight.transform.rotation = Quaternion.Euler(sunAngle, 45f, 0f);
 		if (OnSkyboxColorChanged != null)
 		{
 			OnSkyboxColorChanged(currentColor);

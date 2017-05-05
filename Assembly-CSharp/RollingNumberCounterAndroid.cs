@@ -12,21 +12,24 @@ public class RollingNumberCounterAndroid : MonoBehaviour
 		string text = value.ToString();
 		if (text.Length > num)
 		{
-			Debug.LogError("Too many digits to display in rolling-counter!");
+			for (int i = 0; i < num; i++)
+			{
+				digits[i].Number = 9;
+			}
 			return;
 		}
 		if (text.Length < num)
 		{
 			string text2 = string.Empty;
-			for (int i = 0; i < num - text.Length; i++)
+			for (int j = 0; j < num - text.Length; j++)
 			{
 				text2 += "0";
 			}
 			text = text2 + text;
 		}
-		for (int j = 0; j < num; j++)
+		for (int k = 0; k < num; k++)
 		{
-			digits[j].Number = Convert.ToInt32(text.Substring(j, 1));
+			digits[k].Number = Convert.ToInt32(text.Substring(k, 1));
 		}
 	}
 }

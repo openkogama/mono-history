@@ -45,7 +45,7 @@ public class SoundInventoryController : MonoBehaviour, IEventSystemHandler, IHan
 
 	public void Initialize(int woID, GameObject root)
 	{
-		settingsBase.Initialize(woID, root);
+		settingsBase.Initialize(woID, root, MVWorldObjectDocumentationType.SoundEmitter);
 		selectedTab = 1;
 		foreach (ProductInventoryInfo item in MVGameControllerBase.Game.StreamingAssetInventory.Get(StreamingAssetType.AmbientAudio))
 		{

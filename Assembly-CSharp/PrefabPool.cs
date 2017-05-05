@@ -273,9 +273,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private MVPickupItemBaseObject avatarGrowthPackPrefab;
 
-	[Header("Avatar item pick up")]
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
+	[Header("Avatar item pick up")]
 	private GameObject avatarItemCenterGun;
 
 	[SerializeField]
@@ -332,8 +332,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject avatarItemCollectTheItem;
 
-	[Space(20f)]
 	[Header("Avatar modifier")]
+	[Space(20f)]
 	[SerializeField]
 	private AvatarModifier burningModifier;
 
@@ -367,8 +367,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private InvulnerabilityModifier invulnerabilityModifier;
 
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
 	[Header("Particles")]
 	private GameObject particleCFX_GroundAura;
 
@@ -393,9 +393,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem collectTheItemParticles;
 
-	[SerializeField]
 	[Header("Logic object prefabs")]
 	[Space(20f)]
+	[SerializeField]
 	private GameObject logicInputConnectorPrefab;
 
 	[SerializeField]
@@ -422,9 +422,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material logicCubeConnectorBlueSelectedMaterial;
 
-	[Header("GUI")]
 	[Space(20f)]
 	[SerializeField]
+	[Header("GUI")]
 	private Texture2D avatarAccessoryMoveIcon;
 
 	[SerializeField]
@@ -433,8 +433,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material modelConstraintsMaterial;
 
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
 	[Header("UGUI")]
 	private AvatarInputControllerAndroidSettings avatarInputControllerAndroidSettings;
 
@@ -447,9 +447,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private InsertCursor insertCursor;
 
-	[SerializeField]
 	[Header("Cameras")]
 	[Space(20f)]
+	[SerializeField]
 	private GodzillaCameraDesktop godzillaCameraDesktop;
 
 	[SerializeField]
@@ -458,9 +458,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private FirstPersonDeathCamera firstPersonDeathCamera;
 
+	[SerializeField]
 	[Space(20f)]
 	[Header("Editor")]
-	[SerializeField]
 	private Material cellCursorErrorMaterial;
 
 	[SerializeField]
@@ -734,95 +734,11 @@ public class PrefabPool : MonoBehaviour
 
 	public AvatarModifier ShieldModifier => shieldModifier;
 
-	public GodzillaModifier GodzillaModifierS
-	{
-		get
-		{
-			godzillaModifier.Type = GodzillaModifier.GodzillaModifierPackageType.S;
-			return godzillaModifier;
-		}
-	}
+	public GodzillaModifier GodzillaModifier => godzillaModifier;
 
-	public GodzillaModifier GodzillaModifierM
-	{
-		get
-		{
-			godzillaModifier.Type = GodzillaModifier.GodzillaModifierPackageType.M;
-			return godzillaModifier;
-		}
-	}
+	public GodzillaLaserBurnModifier GodzillaLaserBurnModifier => godzillaLaserBurnModifier;
 
-	public GodzillaModifier GodzillaModifierL
-	{
-		get
-		{
-			godzillaModifier.Type = GodzillaModifier.GodzillaModifierPackageType.L;
-			return godzillaModifier;
-		}
-	}
-
-	public GodzillaModifier GodzillaModifierXL
-	{
-		get
-		{
-			godzillaModifier.Type = GodzillaModifier.GodzillaModifierPackageType.XL;
-			return godzillaModifier;
-		}
-	}
-
-	public GodzillaLaserBurnModifier GodzillaLaserBurnModifierS
-	{
-		get
-		{
-			godzillaLaserBurnModifier.SetType(AvatarModifierPackageType.GodzillaLaserBurnS);
-			return godzillaLaserBurnModifier;
-		}
-	}
-
-	public GodzillaLaserBurnModifier GodzillaLaserBurnModifierM
-	{
-		get
-		{
-			godzillaLaserBurnModifier.SetType(AvatarModifierPackageType.GodzillaLaserBurnM);
-			return godzillaLaserBurnModifier;
-		}
-	}
-
-	public GodzillaLaserBurnModifier GodzillaLaserBurnModifierL
-	{
-		get
-		{
-			godzillaLaserBurnModifier.SetType(AvatarModifierPackageType.GodzillaLaserBurnL);
-			return godzillaLaserBurnModifier;
-		}
-	}
-
-	public GodzillaLaserBurnModifier GodzillaLaserBurnModifierXL
-	{
-		get
-		{
-			godzillaLaserBurnModifier.SetType(AvatarModifierPackageType.GodzillaLaserBurnXL);
-			return godzillaLaserBurnModifier;
-		}
-	}
-
-	public InvulnerabilityModifier GodzillaGrowthInvulnerabilityModifier
-	{
-		get
-		{
-			invulnerabilityModifier.SetType(AvatarModifierPackageType.GodzillaGrowthInvulnerability);
-			return invulnerabilityModifier;
-		}
-	}
-
-	public InvulnerabilityModifier SpawnProtectionModifier
-	{
-		get
-		{
-			invulnerabilityModifier.SetType(AvatarModifierPackageType.SpawnProtection);
-			return invulnerabilityModifier;
-		}
-	}
+	public InvulnerabilityModifier InvulnerabilityModifier => invulnerabilityModifier;
 
 	public GameObject ParticleCFX_GroundAura => particleCFX_GroundAura;
 

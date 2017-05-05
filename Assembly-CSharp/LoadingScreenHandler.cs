@@ -21,18 +21,6 @@ public class LoadingScreenHandler : MonoBehaviour
 		loadingBar.Progress = 0f;
 		uiText.text = string.Empty;
 		MVGameControllerBase.OnReceivedGameMsg = (MVGameControllerBase.OnReceivedGameMsgDelegate)Delegate.Combine(MVGameControllerBase.OnReceivedGameMsg, new MVGameControllerBase.OnReceivedGameMsgDelegate(OnGameMessageReceived));
-		switch (MVGameControllerBase.GameMode)
-		{
-		case MVGameMode.CharacterEditor:
-			eventsCount = 13;
-			break;
-		case MVGameMode.Play:
-			eventsCount = 12;
-			break;
-		case MVGameMode.Edit:
-			eventsCount = 17;
-			break;
-		}
 	}
 
 	private void OnGameMessageReceived(MVGameMsgType gameMsgType, Dictionary<object, object> gameMsgData)

@@ -42,7 +42,7 @@ public class AvatarPreviewer : MonoBehaviour
 		gameObject.name = $"Preview_{name}_RenderCam";
 		gameObject.layer = LayerMask.NameToLayer("Preview");
 		int antiAliasing = 2;
-		previewTexture = RenderTexture.GetTemporary(textureWidth, textureHeight, 16, RenderTextureFormat.Default, RenderTextureReadWrite.Default, antiAliasing);
+		previewTexture = RenderTexture.GetTemporary(textureWidth, textureHeight, 16, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, antiAliasing);
 		previewCam.targetTexture = previewTexture;
 		PreviewGameObject = woGameObjectCopy;
 		PreviewGameObject.name = "Preview_" + name + "_Item_" + wo.ItemId + "_woID_" + wo.Id;

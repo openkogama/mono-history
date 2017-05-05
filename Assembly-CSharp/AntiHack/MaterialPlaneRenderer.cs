@@ -70,6 +70,7 @@ public class MaterialPlaneRenderer : MonoBehaviour
 				StatHatWrapper.Count("TextureIntegrityBreached", 1);
 				Debug.Log("Texture integrity breached.\n textures[" + i + "], \"" + textures[i].name + "\" has been changed.");
 				DebugLogHandler.ReportError("Texture integrity breached.", string.Empty, LogType.Error);
+				CheatHandling.TextureHackDetected();
 				hashes.Clear();
 				hashes.AddRange(array);
 				return false;

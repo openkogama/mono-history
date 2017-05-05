@@ -18,7 +18,7 @@ public class CollectTheItemDropoffSettings : MonoBehaviour, IEventSystemHandler,
 		int id = mVBlueprintBase.Id;
 		Dictionary<object, object> dictionary = (Dictionary<object, object>)mVBlueprintBase.Data["BlueprintData"];
 		childMap = new Dictionary<object, object>((Dictionary<object, object>)dictionary["ChildrenMap"]);
-		settingsBase.Initialize(id, root);
+		settingsBase.Initialize(id, root, MVWorldObjectDocumentationType.CollectTheItem);
 		toggle.Initialize("doOnce", (bool)dictionary["doOnce"]);
 	}
 

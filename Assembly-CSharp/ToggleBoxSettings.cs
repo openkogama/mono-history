@@ -12,7 +12,7 @@ public class ToggleBoxSettings : MonoBehaviour, IEventSystemHandler, IHandleSett
 
 	public void Initialize(int woID, GameObject root)
 	{
-		settingsBase.Initialize(woID, root);
+		settingsBase.Initialize(woID, root, MVWorldObjectDocumentationType.ToggleBox);
 		Dictionary<object, object> dictionary2;
 		if (woID == -1)
 		{

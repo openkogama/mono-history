@@ -22,7 +22,7 @@ public class PulseBoxSettings : MonoBehaviour, IEventSystemHandler, IHandleSetti
 
 	public void Initialize(int woID, GameObject root)
 	{
-		settingsBase.Initialize(woID, root);
+		settingsBase.Initialize(woID, root, MVWorldObjectDocumentationType.PulseBox);
 		Dictionary<object, object> dictionary2;
 		if (woID == -1)
 		{

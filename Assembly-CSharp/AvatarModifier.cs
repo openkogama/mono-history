@@ -50,35 +50,75 @@ public abstract class AvatarModifier : MonoBehaviour
 			avatarModifier = Object.Instantiate(PrefabPool.Instance.ShieldModifier);
 			break;
 		case AvatarModifierPackageType.GodzillaS:
-			avatarModifier = Object.Instantiate(PrefabPool.Instance.GodzillaModifierS);
+		{
+			GodzillaModifier godzillaModifier4 = Object.Instantiate(PrefabPool.Instance.GodzillaModifier);
+			godzillaModifier4.Type = GodzillaModifier.GodzillaModifierPackageType.S;
+			avatarModifier = godzillaModifier4;
 			break;
+		}
 		case AvatarModifierPackageType.GodzillaM:
-			avatarModifier = Object.Instantiate(PrefabPool.Instance.GodzillaModifierM);
+		{
+			GodzillaModifier godzillaModifier3 = Object.Instantiate(PrefabPool.Instance.GodzillaModifier);
+			godzillaModifier3.Type = GodzillaModifier.GodzillaModifierPackageType.M;
+			avatarModifier = godzillaModifier3;
 			break;
+		}
 		case AvatarModifierPackageType.GodzillaL:
-			avatarModifier = Object.Instantiate(PrefabPool.Instance.GodzillaModifierL);
+		{
+			GodzillaModifier godzillaModifier2 = Object.Instantiate(PrefabPool.Instance.GodzillaModifier);
+			godzillaModifier2.Type = GodzillaModifier.GodzillaModifierPackageType.L;
+			avatarModifier = godzillaModifier2;
 			break;
+		}
 		case AvatarModifierPackageType.GodzillaXL:
-			avatarModifier = Object.Instantiate(PrefabPool.Instance.GodzillaModifierXL);
+		{
+			GodzillaModifier godzillaModifier = Object.Instantiate(PrefabPool.Instance.GodzillaModifier);
+			godzillaModifier.Type = GodzillaModifier.GodzillaModifierPackageType.XL;
+			avatarModifier = godzillaModifier;
 			break;
+		}
 		case AvatarModifierPackageType.GodzillaLaserBurnS:
-			avatarModifier = Object.Instantiate(PrefabPool.Instance.GodzillaLaserBurnModifierS);
+		{
+			GodzillaLaserBurnModifier godzillaLaserBurnModifier4 = Object.Instantiate(PrefabPool.Instance.GodzillaLaserBurnModifier);
+			godzillaLaserBurnModifier4.SetType(AvatarModifierPackageType.GodzillaLaserBurnS);
+			avatarModifier = godzillaLaserBurnModifier4;
 			break;
+		}
 		case AvatarModifierPackageType.GodzillaLaserBurnM:
-			avatarModifier = Object.Instantiate(PrefabPool.Instance.GodzillaLaserBurnModifierM);
+		{
+			GodzillaLaserBurnModifier godzillaLaserBurnModifier3 = Object.Instantiate(PrefabPool.Instance.GodzillaLaserBurnModifier);
+			godzillaLaserBurnModifier3.SetType(AvatarModifierPackageType.GodzillaLaserBurnM);
+			avatarModifier = godzillaLaserBurnModifier3;
 			break;
+		}
 		case AvatarModifierPackageType.GodzillaLaserBurnL:
-			avatarModifier = Object.Instantiate(PrefabPool.Instance.GodzillaLaserBurnModifierL);
+		{
+			GodzillaLaserBurnModifier godzillaLaserBurnModifier2 = Object.Instantiate(PrefabPool.Instance.GodzillaLaserBurnModifier);
+			godzillaLaserBurnModifier2.SetType(AvatarModifierPackageType.GodzillaLaserBurnL);
+			avatarModifier = godzillaLaserBurnModifier2;
 			break;
+		}
 		case AvatarModifierPackageType.GodzillaLaserBurnXL:
-			avatarModifier = Object.Instantiate(PrefabPool.Instance.GodzillaLaserBurnModifierXL);
+		{
+			GodzillaLaserBurnModifier godzillaLaserBurnModifier = Object.Instantiate(PrefabPool.Instance.GodzillaLaserBurnModifier);
+			godzillaLaserBurnModifier.SetType(AvatarModifierPackageType.GodzillaLaserBurnXL);
+			avatarModifier = godzillaLaserBurnModifier;
 			break;
-		case AvatarModifierPackageType.SpawnProtection:
-			avatarModifier = Object.Instantiate(PrefabPool.Instance.SpawnProtectionModifier);
-			break;
+		}
 		case AvatarModifierPackageType.GodzillaGrowthInvulnerability:
-			avatarModifier = Object.Instantiate(PrefabPool.Instance.GodzillaGrowthInvulnerabilityModifier);
+		{
+			InvulnerabilityModifier invulnerabilityModifier2 = Object.Instantiate(PrefabPool.Instance.InvulnerabilityModifier);
+			invulnerabilityModifier2.SetType(AvatarModifierPackageType.GodzillaGrowthInvulnerability);
+			avatarModifier = invulnerabilityModifier2;
 			break;
+		}
+		case AvatarModifierPackageType.SpawnProtection:
+		{
+			InvulnerabilityModifier invulnerabilityModifier = Object.Instantiate(PrefabPool.Instance.InvulnerabilityModifier);
+			invulnerabilityModifier.SetType(AvatarModifierPackageType.SpawnProtection);
+			avatarModifier = invulnerabilityModifier;
+			break;
+		}
 		default:
 			return null;
 		}

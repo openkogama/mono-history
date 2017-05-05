@@ -1182,6 +1182,13 @@ public class MVNetworkGame : IPhotonPeerListener
 			peer.OpCustom(33, dictionary, sendReliable: true);
 		}
 
+		public void PostChatMsg(Dictionary<object, object> gameMsgData)
+		{
+			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
+			dictionary.Add(87, gameMsgData);
+			peer.OpCustom(83, dictionary, sendReliable: true);
+		}
+
 		public void PostNotificationOperation(NotificationType type, Dictionary<object, object> notificationData)
 		{
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();

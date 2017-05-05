@@ -22,7 +22,7 @@ public class TimeTriggerSettings : MonoBehaviour, IEventSystemHandler, IHandleSe
 
 	public void Initialize(int woID, GameObject root)
 	{
-		settingsBase.Initialize(woID, root);
+		settingsBase.Initialize(woID, root, MVWorldObjectDocumentationType.TimeTrigger);
 		Dictionary<object, object> data = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).Data;
 		float value = Convert.ToSingle(data["duration"]);
 		float value2 = Convert.ToSingle(data["time"]);

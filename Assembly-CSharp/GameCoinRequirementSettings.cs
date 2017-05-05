@@ -16,7 +16,7 @@ public class GameCoinRequirementSettings : MonoBehaviour, IEventSystemHandler, I
 
 	public void Initialize(int woID, GameObject root)
 	{
-		settingsBase.Initialize(woID, root);
+		settingsBase.Initialize(woID, root, TM._("Game Coin Requirement"));
 		Dictionary<object, object> data = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).Data;
 		if (!data.ContainsKey("gameCoinAmount"))
 		{

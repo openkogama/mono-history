@@ -18,37 +18,64 @@ public class KillNotification : Notification
 		base.Initialize(data);
 		MVPlayer mVPlayer = MVGameControllerBase.Game.Players[(int)data[(byte)6]];
 		MVPlayer mVPlayer2 = MVGameControllerBase.Game.Players[(int)data[(byte)7]];
-		Label.text = string.Format(GetKillText(data), mVPlayer2.Username, mVPlayer.Username);
+		bool shotSelf = false;
+		if (mVPlayer2.Username == mVPlayer.Username)
+		{
+			shotSelf = true;
+		}
+		Label.text = string.Format(GetKillText(data, shotSelf), mVPlayer2.Username, mVPlayer.Username);
 	}
 
-	public static string GetKillText(Dictionary<object, object> data)
+	public static string GetKillText(Dictionary<object, object> data, bool shotSelf)
 	{
 		PlayerKilledByType type = (PlayerKilledByType)(byte)data[(byte)8];
-		return GetKillText(type);
+		return GetKillText(type, shotSelf);
 	}
 
-	public static string GetKillText(PlayerKilledByType type)
+	public static string GetKillText(PlayerKilledByType type, bool shotSelf)
 	{
-		return type switch
+		switch (type)
 		{
-			PlayerKilledByType.AdvancedGhost => TM._("{0} was eliminated by an Oculus."), 
-			PlayerKilledByType.BazookaGun => TM._("{0} eliminated {1} with a bazooka."), 
-			PlayerKilledByType.Crushed => TM._("{0} was crushed."), 
-			PlayerKilledByType.Environmental => TM._("{0} was killed by the environment."), 
-			PlayerKilledByType.Explosive => TM._("{0} blew up."), 
-			PlayerKilledByType.FallOffWorld => TM._("{0} fell off the world."), 
-			PlayerKilledByType.Fire => TM._("{0} was burned."), 
-			PlayerKilledByType.FlameThrower => TM._("{1} incinerated {0} with a flamethrower."), 
-			PlayerKilledByType.Ghost => TM._("{0} got caught by a ghost."), 
-			PlayerKilledByType.Impact => TM._("{0} hit the ground too hard."), 
-			PlayerKilledByType.Mutant => TM._("{1} eliminated {0} using mutant."), 
-			PlayerKilledByType.None => TM._("None"), 
-			PlayerKilledByType.RailGun => TM._("{1} sniped {0} with a railgun."), 
-			PlayerKilledByType.Shotgun => TM._("{1} eliminated {0} with a shotgun."), 
-			PlayerKilledByType.Suicide => TM._("{0} respawned."), 
-			PlayerKilledByType.GodzillaLaser => TM._("{0} was incinerated by Colossus."), 
-			PlayerKilledByType.KillZone => TM._("{0} was crushed by Colossus."), 
-			_ => TM._("{1} eliminated {0}."), 
-		};
+		case PlayerKilledByType.AdvancedGhost:
+			return TM._("{0} was eliminated by an Oculus.");
+		case PlayerKilledByType.BazookaGun:
+			if (shotSelf)
+			{
+				return TM._("{0} shot himself with a bazooka.");
+			}
+			return TM._("{1} eliminated {0} with a bazooka.");
+		case PlayerKilledByType.Crushed:
+			return TM._("{0} was crushed.");
+		case PlayerKilledByType.Environmental:
+			return TM._("{0} was killed by the environment.");
+		case PlayerKilledByType.Explosive:
+			return TM._("{0} blew up.");
+		case PlayerKilledByType.FallOffWorld:
+			return TM._("{0} fell off the world.");
+		case PlayerKilledByType.Fire:
+			return TM._("{0} was burned.");
+		case PlayerKilledByType.FlameThrower:
+			return TM._("{1} incinerated {0} with a flamethrower.");
+		case PlayerKilledByType.Ghost:
+			return TM._("{0} got caught by a ghost.");
+		case PlayerKilledByType.Impact:
+			return TM._("{0} hit the ground too hard.");
+		case PlayerKilledByType.Mutant:
+			return TM._("{1} eliminated {0} using mutant.");
+		case PlayerKilledByType.None:
+			return TM._("None");
+		case PlayerKilledByType.RailGun:
+			return TM._("{1} sniped {0} with a railgun.");
+		case PlayerKilledByType.Shotgun:
+			return TM._("{1} eliminated {0} with a shotgun.");
+		case PlayerKilledByType.Suicide:
+			return TM._("{0} respawned.");
+		case PlayerKilledByType.GodzillaLaser:
+			return TM._("{0} was incinerated by Colossus.");
+		case PlayerKilledByType.KillZone:
+			return TM._("{0} was crushed by Colossus.");
+		default:
+			return TM._("{1} eliminated {0}.");
+		}
 	}
 }

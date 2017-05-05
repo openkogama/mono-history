@@ -20,7 +20,7 @@ public class RotatorSettings : MonoBehaviour, IEventSystemHandler, IHandleSettin
 
 	public void Initialize(int woID, GameObject root)
 	{
-		settingsBase.Initialize(woID, root);
+		settingsBase.Initialize(woID, root, TM._("Rotator"));
 		if (woID == -1)
 		{
 			throw new NotImplementedException();

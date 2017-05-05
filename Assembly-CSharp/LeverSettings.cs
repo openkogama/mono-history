@@ -12,7 +12,7 @@ public class LeverSettings : MonoBehaviour, IEventSystemHandler, IHandleSettingC
 
 	public void Initialize(int woID, GameObject root)
 	{
-		settingsBase.Initialize(woID, root);
+		settingsBase.Initialize(woID, root, MVWorldObjectDocumentationType.Lever);
 		Dictionary<object, object> dictionary2;
 		if (woID == -1)
 		{

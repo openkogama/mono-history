@@ -19,7 +19,7 @@ public class CollectTheItemSettings : MonoBehaviour, IEventSystemHandler, IHandl
 		int id = child.Id;
 		Dictionary<object, object> dictionary = (Dictionary<object, object>)child.Data["BlueprintData"];
 		childMap = new Dictionary<object, object>((Dictionary<object, object>)dictionary["ChildrenMap"]);
-		settingsBase.Initialize(id, root);
+		settingsBase.Initialize(id, root, MVWorldObjectDocumentationType.CollectTheItem);
 		toggle.Initialize("hasIndicator", (bool)dictionary["hasIndicator"]);
 	}
 

@@ -16,7 +16,7 @@ public class OculusSettings : MonoBehaviour, IEventSystemHandler, IHandleSetting
 
 	public void Initialize(int woID, GameObject root)
 	{
-		settingsBase.Initialize(woID, root);
+		settingsBase.Initialize(woID, root, MVWorldObjectDocumentationType.Oculus);
 		Dictionary<object, object> dictionary2;
 		if (woID == -1)
 		{

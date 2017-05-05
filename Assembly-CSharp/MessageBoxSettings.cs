@@ -20,7 +20,7 @@ public class MessageBoxSettings : MonoBehaviour, IEventSystemHandler, IHandleSet
 
 	public void Initialize(int woID, GameObject root)
 	{
-		settingsBase.Initialize(woID, root);
+		settingsBase.Initialize(woID, root, MVWorldObjectDocumentationType.Text);
 		Dictionary<object, object> dictionary2;
 		if (woID == -1)
 		{

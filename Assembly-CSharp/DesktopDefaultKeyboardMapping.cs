@@ -2,9 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 
-public class DesktopDefaultKeyboardMapping : IKogamaInputMap
+public class DesktopDefaultKeyboardMapping : IKogamaInputMap, IUpdatecontrollerSubscriber
 {
 	protected class ControlBitArray
 	{
@@ -21,11 +20,6 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap
 				controlDown[(int)ctrl] = value;
 			}
 		}
-
-		public void Reset()
-		{
-			controlDown.SetAll(value: false);
-		}
 	}
 
 	protected Dictionary<KogamaControls, KeyCode[]> keyMapping;
@@ -34,7 +28,7 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap
 
 	public DesktopDefaultKeyboardMapping()
 	{
-		MVGameControllerDesktop.OnApplicationLostFocus = (UnityAction)Delegate.Combine(MVGameControllerDesktop.OnApplicationLostFocus, new UnityAction(NotifyUnderSupression));
+		UpdateController.AddUpdateObject(this, UpdatePriority.PRE_UPDATEBUCKET_20);
 		keyMapping = new Dictionary<KogamaControls, KeyCode[]>
 		{
 			{
@@ -299,6 +293,11 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap
 		}
 	}
 
+	public void NotifyUnderSupression()
+	{
+		throw new NotImplementedException();
+	}
+
 	private bool KeyDown(KogamaControls control)
 	{
 		KeyCode[] array = keyMapping[control];
@@ -331,7 +330,7 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap
 		return result;
 	}
 
-	public void NotifyUnderSupression()
+	public void UpdateControllerUpdate()
 	{
 		for (KogamaControls kogamaControls = KogamaControls.MoveForward; kogamaControls < KogamaControls.Size; kogamaControls++)
 		{
@@ -350,5 +349,9 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap
 				}
 			}
 		}
+	}
+
+	public void UpdateControllerFixedUpdate()
+	{
 	}
 }

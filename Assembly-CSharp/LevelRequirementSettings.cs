@@ -16,7 +16,7 @@ public class LevelRequirementSettings : MonoBehaviour, IEventSystemHandler, IHan
 
 	public void Initialize(int woID, GameObject root)
 	{
-		settingsBase.Initialize(woID, root);
+		settingsBase.Initialize(woID, root, TM._("Level Requirement"));
 		Dictionary<object, object> data = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).Data;
 		int value = 0;
 		if (data.ContainsKey("levelAmount"))

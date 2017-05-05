@@ -50,7 +50,6 @@ internal static class MVInputWrapper
 			bool flag = num < 2;
 			if (flag)
 			{
-				inputMap.NotifyUnderSupression();
 			}
 			return flag;
 		}

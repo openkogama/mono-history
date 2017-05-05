@@ -1094,12 +1094,7 @@ public static class ObscuredPrefs
 
 	private static string GetDeviceId()
 	{
-		string text = string.Empty;
-		if (string.IsNullOrEmpty(text))
-		{
-			text = SystemInfo.deviceUniqueIdentifier;
-		}
-		return text;
+		return string.Empty;
 	}
 
 	private static byte[] EncryptDecryptBytes(byte[] bytes, int dataLength, string key)

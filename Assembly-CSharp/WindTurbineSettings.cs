@@ -22,7 +22,7 @@ public class WindTurbineSettings : MonoBehaviour, IEventSystemHandler, IHandleSe
 
 	public void Initialize(int woID, GameObject root)
 	{
-		settingsBase.Initialize(woID, root);
+		settingsBase.Initialize(woID, root, MVWorldObjectDocumentationType.WindTurbine);
 		Dictionary<object, object> dictionary2;
 		if (woID == -1)
 		{

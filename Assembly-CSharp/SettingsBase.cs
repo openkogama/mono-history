@@ -1,15 +1,34 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class SettingsBase : MonoBehaviour
 {
+	[SerializeField]
+	private Text headerText;
+
 	private int woID;
 
 	private Dictionary<object, object> result = new Dictionary<object, object>();
 
-	public void Initialize(int woID, GameObject root)
+	public void Initialize(int woID, GameObject root, MVWorldObjectDocumentationType documentationType)
 	{
+		headerText.text = InventoryItem.localItemDescriptionOverride[documentationType].Name;
+		this.woID = woID;
+		ExecuteEvents.ExecuteHierarchy(root, null, (IUIStack handler, BaseEventData data) =>
+		{
+			handler.PopGroups(UIGroupFlags.GameObjectUISubMenu);
+		});
+		ExecuteEvents.ExecuteHierarchy(root, null, (IUIStack handler, BaseEventData data) =>
+		{
+			handler.Push(gameObject, UIPushOption.None, OnPop, UIGroupFlags.GameObjectUISubMenu);
+		});
+	}
+
+	public void Initialize(int woID, GameObject root, string header)
+	{
+		headerText.text = header;
 		this.woID = woID;
 		ExecuteEvents.ExecuteHierarchy(root, null, (IUIStack handler, BaseEventData data) =>
 		{

@@ -32,7 +32,7 @@ public class RoundCubeSettings : MonoBehaviour, IEventSystemHandler, IHandleSett
 
 	public void Initialize(int woID, GameObject root)
 	{
-		settingsBase.Initialize(woID, root);
+		settingsBase.Initialize(woID, root, MVWorldObjectDocumentationType.RoundCube);
 		Dictionary<object, object> data = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).Data;
 		int num = Convert.ToInt32(data["interval"]);
 		int num2 = Convert.ToInt32(data["winningCondition"]);

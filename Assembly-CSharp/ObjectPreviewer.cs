@@ -52,7 +52,7 @@ public class ObjectPreviewer : MonoBehaviour
 		gameObject.transform.parent = previewItemsRoot;
 		gameObject.name = $"Preview_{name}_RenderCam";
 		gameObject.layer = LayerMask.NameToLayer("Preview");
-		objectPreviewer.previewTexture = new RenderTexture(textureWidth, textureHeight, 16, RenderTextureFormat.Default);
+		objectPreviewer.previewTexture = new RenderTexture(textureWidth, textureHeight, 16, RenderTextureFormat.ARGB32);
 		objectPreviewer.previewTexture.name = name;
 		objectPreviewer.previewTexture.antiAliasing = 2;
 		objectPreviewer.previewTexture.filterMode = FilterMode.Bilinear;

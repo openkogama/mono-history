@@ -22,8 +22,8 @@ public class GodzillaSettings : MonoBehaviour, IEventSystemHandler, IHandleSetti
 
 	private const int numOfSizes = 4;
 
-	[Header("Settings")]
 	[SerializeField]
+	[Header("Settings")]
 	private string[] sizes = new string[4];
 
 	[Header("Dependencies")]
@@ -79,7 +79,7 @@ public class GodzillaSettings : MonoBehaviour, IEventSystemHandler, IHandleSetti
 
 	public void Initialize(int woID, GameObject root)
 	{
-		settingsBase.Initialize(woID, root);
+		settingsBase.Initialize(woID, root, MVWorldObjectDocumentationType.Colossus);
 		Dictionary<object, object> data = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).Data;
 		int value = (int)data["size"];
 		sizeSlider.Initialize("size", value, 0, 3);
