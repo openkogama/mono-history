@@ -47,11 +47,7 @@ internal static class MVInputWrapper
 		get
 		{
 			int num = Mathf.Abs(Time.frameCount - inputInGameInputSuppressedFrame);
-			bool flag = num < 2;
-			if (flag)
-			{
-			}
-			return flag;
+			return num < 2;
 		}
 		set
 		{

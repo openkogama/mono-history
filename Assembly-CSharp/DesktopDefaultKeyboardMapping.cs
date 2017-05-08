@@ -2,8 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
-public class DesktopDefaultKeyboardMapping : IKogamaInputMap, IUpdatecontrollerSubscriber
+public class DesktopDefaultKeyboardMapping : IKogamaInputMap
 {
 	protected class ControlBitArray
 	{
@@ -20,6 +21,11 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap, IUpdatecontrollerS
 				controlDown[(int)ctrl] = value;
 			}
 		}
+
+		public void Reset()
+		{
+			controlDown.SetAll(value: false);
+		}
 	}
 
 	protected Dictionary<KogamaControls, KeyCode[]> keyMapping;
@@ -28,7 +34,7 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap, IUpdatecontrollerS
 
 	public DesktopDefaultKeyboardMapping()
 	{
-		UpdateController.AddUpdateObject(this, UpdatePriority.PRE_UPDATEBUCKET_20);
+		MVGameControllerDesktop.OnApplicationLostFocus = (UnityAction)Delegate.Combine(MVGameControllerDesktop.OnApplicationLostFocus, new UnityAction(NotifyOutOfFocus));
 		keyMapping = new Dictionary<KogamaControls, KeyCode[]>
 		{
 			{
@@ -267,6 +273,11 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap, IUpdatecontrollerS
 		};
 	}
 
+	public void NotifyOutOfFocus()
+	{
+		controlDown.Reset();
+	}
+
 	public bool GetBooleanControl(KogamaControls control, KeyState keyState)
 	{
 		bool flag = KeyDown(control);
@@ -291,11 +302,6 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap, IUpdatecontrollerS
 			Debug.LogError("Unexpected keystate.");
 			return false;
 		}
-	}
-
-	public void NotifyUnderSupression()
-	{
-		throw new NotImplementedException();
 	}
 
 	private bool KeyDown(KogamaControls control)
@@ -328,30 +334,5 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap, IUpdatecontrollerS
 			}
 		}
 		return result;
-	}
-
-	public void UpdateControllerUpdate()
-	{
-		for (KogamaControls kogamaControls = KogamaControls.MoveForward; kogamaControls < KogamaControls.Size; kogamaControls++)
-		{
-			if (!keyMapping.ContainsKey(kogamaControls))
-			{
-				continue;
-			}
-			KeyCode[] array = keyMapping[kogamaControls];
-			for (int i = 0; i < array.Length; i++)
-			{
-				bool key = Input.GetKey(array[i]);
-				controlDown[kogamaControls] = key;
-				if (key)
-				{
-					break;
-				}
-			}
-		}
-	}
-
-	public void UpdateControllerFixedUpdate()
-	{
 	}
 }

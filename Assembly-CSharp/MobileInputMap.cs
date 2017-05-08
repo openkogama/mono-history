@@ -75,8 +75,4 @@ public class MobileInputMap : IKogamaInputMap
 		}
 		return false;
 	}
-
-	public void NotifyUnderSupression()
-	{
-	}
 }
