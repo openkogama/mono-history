@@ -155,4 +155,9 @@ internal static class MVInputWrapper
 		}
 		return CrossPlatformInputManager.GetAxisRaw(axis);
 	}
+
+	public static void NotifyOutOfFocus()
+	{
+		((DesktopDefaultKeyboardMapping)inputMap).NotifyOutOfFocus();
+	}
 }
