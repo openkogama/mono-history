@@ -65,7 +65,7 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 
 	private void InitializeCulling()
 	{
-		cullingSubscriberDynamic = new CullingSubscriberDynamic(3.5f, 3, 2, gameObject);
+		cullingSubscriberDynamic = new CullingSubscriberDynamic(3.5f, 3, gameObject);
 		ScaleChanged = (UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>)Delegate.Combine(ScaleChanged, new UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>(UpdateCullingRadius));
 	}
 

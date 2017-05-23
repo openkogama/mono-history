@@ -120,6 +120,8 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		}
 	}
 
+	public static int ReAuthTries => reAuthTestTries;
+
 	public static bool UsingDevSessionData => instance.koGaMaSettings.ShowDebugLogin || Application.isEditor;
 
 	public static MVNetworkGame Game { get; private set; }

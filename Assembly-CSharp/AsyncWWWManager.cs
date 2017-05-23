@@ -17,6 +17,22 @@ public static class AsyncWWWManager
 		{
 			cachedRequests.Add(path, cachedGetRequest);
 		}
+
+		public void Unsubscribe(Action<WWW, UnityEngine.Object> callback)
+		{
+			foreach (KeyValuePair<string, CachedGetRequest> cachedRequest in cachedRequests)
+			{
+				UnsubscribeStreamingAssetHack(cachedRequest.Value, callback);
+			}
+		}
+
+		public void UnsubscribeCached(Action<WWW> callback)
+		{
+			foreach (KeyValuePair<string, CachedGetRequest> cachedRequest in cachedRequests)
+			{
+				AsyncWWWManager.Unsubscribe((AsyncWebRequest)cachedRequest.Value, callback);
+			}
+		}
 	}
 
 	public const int Retries = 3;
@@ -70,21 +86,55 @@ public static class AsyncWWWManager
 	{
 		foreach (AsyncWebRequest item in activeRequest)
 		{
-			if (item.Callback == callback)
+			Unsubscribe(item, callback);
+		}
+		foreach (AsyncWebRequest doneRequest in doneRequests)
+		{
+			Unsubscribe(doneRequest, callback);
+		}
+		foreach (KeyValuePair<WWWRequestPriority, Queue<AsyncWebRequest>> request in requests)
+		{
+			foreach (AsyncWebRequest item2 in request.Value)
 			{
-				item.Callback = null;
+				Unsubscribe(item2, callback);
 			}
 		}
+		cache.UnsubscribeCached(callback);
 	}
 
 	public static void UnsubscribeWWWRequest(Action<WWW, UnityEngine.Object> callback)
 	{
 		foreach (AsyncWebRequest item in activeRequest)
 		{
-			if (item is StreamingAssetRequestTempHack streamingAssetRequestTempHack)
+			UnsubscribeStreamingAssetHack(item, callback);
+		}
+		foreach (AsyncWebRequest doneRequest in doneRequests)
+		{
+			UnsubscribeStreamingAssetHack(doneRequest, callback);
+		}
+		foreach (KeyValuePair<WWWRequestPriority, Queue<AsyncWebRequest>> request in requests)
+		{
+			foreach (AsyncWebRequest item2 in request.Value)
 			{
-				streamingAssetRequestTempHack.CallbackHack = null;
+				UnsubscribeStreamingAssetHack(item2, callback);
 			}
+		}
+		cache.Unsubscribe(callback);
+	}
+
+	private static void Unsubscribe(AsyncWebRequest request, Action<WWW> callback)
+	{
+		if (request.Callback == callback)
+		{
+			request.Callback = (Action<WWW>)Delegate.Remove(request.Callback, callback);
+		}
+	}
+
+	private static void UnsubscribeStreamingAssetHack(AsyncWebRequest request, Action<WWW, UnityEngine.Object> callback)
+	{
+		if (request is StreamingAssetRequestTempHack streamingAssetRequestTempHack)
+		{
+			streamingAssetRequestTempHack.CallbackHack = (Action<WWW, UnityEngine.Object>)Delegate.Remove(streamingAssetRequestTempHack.CallbackHack, callback);
 		}
 	}
 

@@ -159,4 +159,9 @@ public abstract class AsyncWebRequest
 	}
 
 	protected abstract WWW Create();
+
+	public override string ToString()
+	{
+		return path;
+	}
 }

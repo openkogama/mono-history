@@ -38,7 +38,7 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 
 	private InteractableMaterialHitHandler materialHitHandler = new InteractableMaterialHitHandler();
 
-	public new void Init(MVRuntimeDataVariable runtimeDataModifiers, MVRuntimeDataVariableClampedFloat health)
+	public override void Init(MVRuntimeDataVariable runtimeDataModifiers, MVRuntimeDataVariableClampedFloat health)
 	{
 		base.Init(runtimeDataModifiers, health);
 		materialHitHandler.Initialize(hitPackages, transform);

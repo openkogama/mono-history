@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Assets.Scripts.WorldObjectTypes.Avatar.Accessories;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
@@ -16,6 +17,8 @@ public class AccessoryAdCreator : MonoBehaviour
 
 	private UnityAction OnAccessoryPoppedCallback;
 
+	private AccessoryLoader accessoryLoader = new AccessoryLoader();
+
 	public void CreateOffer(UnityAction OnAccessoryPopped, ActorOfferAccessory accessoryOffer)
 	{
 		OnAccessoryPoppedCallback = OnAccessoryPopped;
@@ -27,8 +30,14 @@ public class AccessoryAdCreator : MonoBehaviour
 		}
 		else
 		{
-			AvatarAccessory.Create(streamingAssetInfo, AccessoryCreatedCallback);
+			accessoryLoader.LoadAccessory(streamingAssetInfo, AccessoryCreatedCallback);
 		}
+	}
+
+	private void OnDestroy()
+	{
+		accessoryLoader.Destroy();
+		accessoryLoader = null;
 	}
 
 	private void AccessoryCreatedCallback(AvatarAccessory avatarAccessory)

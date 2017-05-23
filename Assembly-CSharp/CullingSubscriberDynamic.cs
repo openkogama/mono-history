@@ -14,7 +14,7 @@ public class CullingSubscriberDynamic : ICullingSubscriber, IUpdatecontrollerSub
 
 	public int CullingIndex { get; set; }
 
-	public CullingSubscriberDynamic(float radius, int cullingBandIndex, int overrideDistanceBandIndex, GameObject root, GameObject[] children = null)
+	public CullingSubscriberDynamic(float radius, int cullingBandIndex, GameObject root, GameObject[] children = null)
 	{
 		this.cullingBandIndex = cullingBandIndex;
 		this.root = root;

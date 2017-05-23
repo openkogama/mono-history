@@ -209,6 +209,7 @@ public enum MVParameterKeys : byte
 	IsFiring = 204,
 	FrameCount = 205,
 	RandomBoxIndex = 206,
+	Count = 207,
 	GameId = byte.MaxValue,
 	ActorNr = 254,
 	TargetActorNr = 253,

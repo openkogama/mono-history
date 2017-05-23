@@ -3,9 +3,13 @@ using UnityEngine;
 
 public class StreamingAssetRequestTempHack : CachedGetRequest
 {
+	private const int delay = 60000;
+
 	private UnityEngine.Object mainAsset;
 
 	private Action<WWW, UnityEngine.Object> callbackTemp;
+
+	private int startTime;
 
 	public Action<WWW, UnityEngine.Object> CallbackHack
 	{
@@ -23,6 +27,7 @@ public class StreamingAssetRequestTempHack : CachedGetRequest
 		: base(path, null, requestPriority)
 	{
 		this.callbackTemp = callbackTemp;
+		startTime = WaitForTicksLocal.GetEnvironmentTick(0);
 	}
 
 	protected override bool UpdateRunningState()

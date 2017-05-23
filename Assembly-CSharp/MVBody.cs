@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Assets.Scripts.WorldObjectTypes.Avatar.Accessories;
 using MV.Common;
 using UnityEngine;
 
@@ -80,6 +81,8 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 			"RLowLeg"
 		}
 	};
+
+	private AccessoryLoader accessoryLoader = new AccessoryLoader();
 
 	private Vector3 modelScale = Vector3.zero;
 
@@ -255,6 +258,8 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 	public override void Destroy()
 	{
 		base.Destroy();
+		accessoryLoader.Destroy();
+		accessoryLoader = null;
 		AvatarAccessory[] array = accessoryMap.Values.ToArray();
 		foreach (AvatarAccessory acc in array)
 		{
@@ -625,7 +630,6 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 			int num = (int)dictionary[AvatarAccessoryData.InventoryID.ToString("d")];
 			string assetPath = (string)dictionary[AvatarAccessoryData.AssetPath.ToString("d")];
 			DateTime purchaseTime = new DateTime((long)dictionary[AvatarAccessoryData.PurchaseTimeTicks.ToString("d")]);
-			int num2 = (int)dictionary[AvatarAccessoryData.RentExpireSeconds.ToString("d")];
 			hashSet.Add(num);
 			AvatarAccessorySlot slot = (AvatarAccessorySlot)(int)dictionary[AvatarAccessoryData.Slot.ToString("d")];
 			float offset = (float)dictionary[AvatarAccessoryData.Offset.ToString("d")];
@@ -639,25 +643,11 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 				if (!pendingAccessoryPositions.ContainsKey(num))
 				{
 					pendingAccessoryPositions[num] = value;
-					if (0 < num2)
-					{
-						if (!Game.StreamingAssetExpirationChecker.Contains(num))
-						{
-							InventoryExpirationInfo expInfo = new InventoryExpirationInfo(MVProductType.StreamingAsset, num, ProductExpirationState.Expiring, purchaseTime, num2);
-							Game.StreamingAssetExpirationChecker.AddExpirationInfo(expInfo);
-						}
-						else
-						{
-							Debug.LogWarning("Body " + id + " not adding stored expiration data to checker");
-						}
-					}
-					AvatarAccessory.Create(num, assetPath, purchaseTime, num2, LoadedAccessoryCallback);
+					accessoryLoader.LoadAccessory(num, assetPath, purchaseTime, LoadedAccessoryCallback);
+					continue;
 				}
-				else
-				{
-					Debug.Log("Body " + id + " data contains multiple accessories with ID " + num);
-					Debug.LogError("Body data contains multiple accessories with the same inventoryID. This is caused by user hiding and show accessories");
-				}
+				Debug.Log("Body " + id + " data contains multiple accessories with ID " + num);
+				Debug.LogError("Body data contains multiple accessories with the same inventoryID. This is caused by user hiding and show accessories");
 			}
 			else
 			{

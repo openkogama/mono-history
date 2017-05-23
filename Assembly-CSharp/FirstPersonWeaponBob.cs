@@ -4,12 +4,12 @@ using UnityEngine;
 [Serializable]
 public class FirstPersonWeaponBob
 {
-	[SerializeField]
 	[Tooltip("Bobs per second.")]
+	[SerializeField]
 	private float bobFrequency = 1f;
 
-	[SerializeField]
 	[Tooltip("Units by time")]
+	[SerializeField]
 	private AnimationCurve bob;
 
 	[SerializeField]
@@ -18,8 +18,8 @@ public class FirstPersonWeaponBob
 	[SerializeField]
 	private float bobMultiplier;
 
-	[SerializeField]
 	[Tooltip("Degrees by time")]
+	[SerializeField]
 	private AnimationCurve rotation;
 
 	[SerializeField]

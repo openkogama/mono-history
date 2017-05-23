@@ -1,3 +1,4 @@
+using Assets.Scripts.WorldObjectTypes.Avatar.Accessories;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -29,6 +30,8 @@ public class AccessoryInventoryViewItem : MonoBehaviour
 
 	private ObjectPreviewer objectPreviewer;
 
+	private AccessoryLoader accessoryLoader = new AccessoryLoader();
+
 	private bool wasDestroyed;
 
 	public void Initialize(StreamingAssetInfo streamingAssetInfo, ProductInventoryInfo productInventoryInfo, Transform rootTransform)
@@ -40,7 +43,7 @@ public class AccessoryInventoryViewItem : MonoBehaviour
 		lockedImage.gameObject.SetActive(locked);
 		loadingWheel.SetActive(value: true);
 		this.streamingAssetInfo = streamingAssetInfo;
-		AvatarAccessory.Create(streamingAssetInfo, AccessoryCreatedCallback);
+		accessoryLoader.LoadAccessory(streamingAssetInfo, AccessoryCreatedCallback);
 	}
 
 	public void OnClicked()
@@ -90,6 +93,8 @@ public class AccessoryInventoryViewItem : MonoBehaviour
 	private void OnDestroy()
 	{
 		wasDestroyed = true;
+		accessoryLoader.Destroy();
+		accessoryLoader = null;
 	}
 
 	private void AccessoryCreatedCallback(AvatarAccessory avatarAccessory)

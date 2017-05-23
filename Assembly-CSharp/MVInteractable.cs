@@ -14,7 +14,7 @@ public abstract class MVInteractable : MVInteractableBase
 
 	public AvatarModifierPackages ModifierPackages => modifierPackages;
 
-	public void Init(MVRuntimeDataVariable runtimeDataModifiers, MVRuntimeDataVariableClampedFloat health)
+	public virtual void Init(MVRuntimeDataVariable runtimeDataModifiers, MVRuntimeDataVariableClampedFloat health)
 	{
 		this.runtimeDataModifiers = runtimeDataModifiers;
 		this.health = health;

@@ -188,9 +188,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject godzillaAreaPrefab;
 
+	[SerializeField]
 	[Header("Game")]
 	[Space(20f)]
-	[SerializeField]
 	private Material ghostMarkerMaterial;
 
 	[SerializeField]
@@ -214,8 +214,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private CubeModelChunkPrefab cubeModelChunkPrefab;
 
-	[Header("Pick up")]
 	[Space(20f)]
+	[Header("Pick up")]
 	[SerializeField]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
@@ -273,9 +273,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private MVPickupItemBaseObject avatarGrowthPackPrefab;
 
+	[Header("Avatar item pick up")]
 	[SerializeField]
 	[Space(20f)]
-	[Header("Avatar item pick up")]
 	private GameObject avatarItemCenterGun;
 
 	[SerializeField]
@@ -367,9 +367,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private InvulnerabilityModifier invulnerabilityModifier;
 
-	[Space(20f)]
 	[SerializeField]
 	[Header("Particles")]
+	[Space(20f)]
 	private GameObject particleCFX_GroundAura;
 
 	[SerializeField]
@@ -393,9 +393,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem collectTheItemParticles;
 
-	[Header("Logic object prefabs")]
 	[Space(20f)]
 	[SerializeField]
+	[Header("Logic object prefabs")]
 	private GameObject logicInputConnectorPrefab;
 
 	[SerializeField]
@@ -422,9 +422,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material logicCubeConnectorBlueSelectedMaterial;
 
+	[Header("GUI")]
 	[Space(20f)]
 	[SerializeField]
-	[Header("GUI")]
 	private Texture2D avatarAccessoryMoveIcon;
 
 	[SerializeField]
@@ -433,8 +433,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material modelConstraintsMaterial;
 
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
 	[Header("UGUI")]
 	private AvatarInputControllerAndroidSettings avatarInputControllerAndroidSettings;
 
@@ -458,9 +458,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private FirstPersonDeathCamera firstPersonDeathCamera;
 
-	[SerializeField]
-	[Space(20f)]
 	[Header("Editor")]
+	[Space(20f)]
+	[SerializeField]
 	private Material cellCursorErrorMaterial;
 
 	[SerializeField]

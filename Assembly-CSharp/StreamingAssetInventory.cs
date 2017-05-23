@@ -4,13 +4,6 @@ using MV.Common;
 
 public class StreamingAssetInventory : ProductInventory
 {
-	private static MVWorldObjectClientManager WOCM => MVGameControllerBase.WOCM;
-
-	public StreamingAssetInventory(InventoryExpirationChecker expirationChecker)
-		: base(expirationChecker)
-	{
-	}
-
 	public IEnumerable<ProductInventoryInfo> Get(StreamingAssetType type)
 	{
 		return Inventory.Values.Where((ProductInventoryInfo invInfo) =>

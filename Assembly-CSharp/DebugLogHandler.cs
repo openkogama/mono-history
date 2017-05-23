@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MV.Common;
 using SharpRaven;
@@ -39,7 +40,7 @@ public static class DebugLogHandler
 
 	public static void Init()
 	{
-		isSampling = Random.Range(0, sampleErrorFrequency + 1) == sampleErrorFrequency;
+		isSampling = UnityEngine.Random.Range(0, sampleErrorFrequency + 1) == sampleErrorFrequency;
 		Application.logMessageReceived += HandleLog;
 	}
 
@@ -217,6 +218,15 @@ public static class DebugLogHandler
 		dictionary.Add("supportsRenderTextures", SystemInfo.supportsRenderTextures.ToString());
 		dictionary.Add("supportsImageEffects", SystemInfo.supportsImageEffects.ToString());
 		dictionary.Add("supportedRenderTargetCount", SystemInfo.supportedRenderTargetCount.ToString());
+		if (SystemInfo.graphicsDeviceVendor == "Vivante Corporation")
+		{
+			string text = string.Empty;
+			foreach (int value in Enum.GetValues(typeof(RenderTextureFormat)))
+			{
+				text = ((!string.IsNullOrEmpty(text)) ? (text + " " + (RenderTextureFormat)value) : (text + (RenderTextureFormat)value));
+			}
+			dictionary.Add("supportedRenderTextureFormats", text);
+		}
 		return GenerateSystemInfoString(dictionary);
 	}
 

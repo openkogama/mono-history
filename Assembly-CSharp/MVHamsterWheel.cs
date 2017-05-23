@@ -97,7 +97,7 @@ public class MVHamsterWheel : MVSimpleOneSeatVehicle
 		if (!IsInSpawner)
 		{
 			gameObject.AddComponent<InteractionDataHandler>();
-			cullingSubscriberDynamic = new CullingSubscriberDynamic(4f, 2, 1, componentInChildren.gameObject);
+			cullingSubscriberDynamic = new CullingSubscriberDynamic(4f, 3, componentInChildren.gameObject);
 			componentInChildren.enabled = true;
 		}
 		MVRuntimeDataVariable isVehicleDead = IsVehicleDead;

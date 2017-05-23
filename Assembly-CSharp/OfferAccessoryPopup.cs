@@ -121,4 +121,9 @@ public class OfferAccessoryPopup : MonoBehaviour
 			x.Pop();
 		});
 	}
+
+	private void OnDestroy()
+	{
+		accessoryAttacher.Destroy();
+	}
 }

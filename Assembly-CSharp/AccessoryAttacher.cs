@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Assets.Scripts.WorldObjectTypes.Avatar.Accessories;
 using MV.Common;
 using UnityEngine;
 
@@ -15,13 +16,20 @@ public class AccessoryAttacher
 
 	private Action OnFinishedCallback;
 
+	private AccessoryLoader accessoryLoader = new AccessoryLoader();
+
 	public void AttachAccessory(int purchasedInventoryID, MVBody currentBody, Action OnFinishedCallback)
 	{
 		this.OnFinishedCallback = OnFinishedCallback;
 		avatarBody = currentBody;
 		this.purchasedInventoryID = purchasedInventoryID;
 		ProductInventoryInfo invInfo = MVGameControllerBase.Game.StreamingAssetInventory.Get(purchasedInventoryID);
-		AvatarAccessory.Create(invInfo, AvatarAccessoryCreateHandler);
+		accessoryLoader.LoadAccessory(invInfo, AvatarAccessoryCreateHandler);
+	}
+
+	public void Destroy()
+	{
+		accessoryLoader.Destroy();
 	}
 
 	private void AvatarAccessoryCreateHandler(AvatarAccessory avatarAccessory)
@@ -36,6 +44,7 @@ public class AccessoryAttacher
 		{
 			Equip();
 		}
+		accessoryLoader.Destroy();
 	}
 
 	private void Unequip(AvatarAccessory avatarAccessory)

@@ -18,6 +18,7 @@ public enum DBReasonCode
 	FriendProfileRejected,
 	FriendOtherPending,
 	FriendOtherProfileRejected,
+	FriendOtherProfileWithdrewFriendRequest,
 	RedundantRow,
 	NotInInventory,
 	ProductIsPurchased,

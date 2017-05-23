@@ -1,3 +1,4 @@
+using Assets.Scripts.WorldObjectTypes.Avatar.Accessories;
 using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -9,6 +10,8 @@ public class AccessoryShopPreview : MonoBehaviour, IEventSystemHandler, IPreview
 	private StreamingAssetInfo previewStreamingAssetInfo;
 
 	private AvatarAccessory previewAvatarAccessory;
+
+	private AccessoryLoader accessoryLoader = new AccessoryLoader();
 
 	protected MVBody AvatarBody;
 
@@ -42,7 +45,7 @@ public class AccessoryShopPreview : MonoBehaviour, IEventSystemHandler, IPreview
 			return;
 		}
 		waitingToBeAttached = streamingAssetInfo;
-		AvatarAccessory.Create(streamingAssetInfo, (AvatarAccessory avatarAccessory) =>
+		accessoryLoader.LoadAccessory(streamingAssetInfo, (AvatarAccessory avatarAccessory) =>
 		{
 			OnPreviewAvatarAccessoryLoaded(viewItem, avatarAccessory);
 		});
@@ -50,6 +53,8 @@ public class AccessoryShopPreview : MonoBehaviour, IEventSystemHandler, IPreview
 
 	private void OnDestroy()
 	{
+		accessoryLoader.Destroy();
+		accessoryLoader = null;
 		ResetAttachedAvatarItem();
 	}
 

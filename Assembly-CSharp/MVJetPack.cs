@@ -361,7 +361,7 @@ public class MVJetPack : MVVehicleBase
 			interactionDataHandler.WorldObjectParent = this;
 			interactionDataHandlerBase = interactionDataHandler;
 			mVCubeModelInstance.Visible = true;
-			cullingSubscriberDynamic = new CullingSubscriberDynamic(4f, 3, 2, gameObject);
+			cullingSubscriberDynamic = new CullingSubscriberDynamic(4f, 3, gameObject);
 		}
 	}
 

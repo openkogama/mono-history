@@ -11,16 +11,9 @@ public class ProductInventory
 
 	protected Dictionary<int, ProductInventoryInfo> Inventory = new Dictionary<int, ProductInventoryInfo>();
 
-	protected InventoryExpirationChecker expirationChecker;
-
 	private static MVWorldObjectClientManager WOCM => MVGameControllerBase.WOCM;
 
 	public int Count => Inventory.Count;
-
-	public ProductInventory(InventoryExpirationChecker expirationChecker)
-	{
-		this.expirationChecker = expirationChecker;
-	}
 
 	public bool Contains(int inventoryID)
 	{
@@ -33,11 +26,6 @@ public class ProductInventory
 		{
 			Debug.LogError("Trying to add inventory info without product info to inventory.");
 			return;
-		}
-		if (invInfo.IsRented && invInfo.ProductInfo.ShopInfo != null && !expirationChecker.Contains(invInfo.InventoryID))
-		{
-			InventoryExpirationInfo expInfo = new InventoryExpirationInfo(invInfo.ProductInfo.ProductType, invInfo.InventoryID, ProductExpirationState.Expiring, invInfo.PurchaseTime, invInfo.ProductInfo.ShopInfo.RentExpireSeconds);
-			expirationChecker.AddExpirationInfo(expInfo);
 		}
 		Inventory.Add(invInfo.InventoryID, invInfo);
 		OnAdded(invInfo);
