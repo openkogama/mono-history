@@ -11,6 +11,8 @@ public class NotificationController : MonoBehaviour
 
 	private static bool hasSubscribed = false;
 
+	private static HashSet<int> incomingPlayerFriendRequests = new HashSet<int>();
+
 	public static void Register(NotificationsManager manager)
 	{
 		CurrentManager = manager;
@@ -64,8 +66,9 @@ public class NotificationController : MonoBehaviour
 	{
 		List<Friend> list = new List<Friend>(MVGameControllerBase.Game.Friends.Pending.Values);
 		Friend friend = list[list.Count - 1];
-		if (friend.status == FriendStatus.Pending && MVGameControllerBase.JoinState == MVJoinState.Playing)
+		if (friend.status == FriendStatus.Pending && MVGameControllerBase.JoinState == MVJoinState.Playing && !incomingPlayerFriendRequests.Contains(friend.profileID))
 		{
+			incomingPlayerFriendRequests.Add(friend.profileID);
 			FriendRequestNotification friendRequestNotification = (FriendRequestNotification)CurrentManager.InstantiateNotification(NotificationType.FriendRequest, NotificationsManager.eNotificationPanel.tertiary, data);
 			friendRequestNotification.RegisterFriendshipRequest(friend);
 			friendRequestNotification.OnNotificationClosedEnd += UnregisterFriendRequestNotification;
