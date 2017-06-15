@@ -42,6 +42,7 @@ public class MVCollectible : MVLogicObject
 	private void Create()
 	{
 		collectibleObject = (MVCollectibleObject)component;
+		collectibleObject.StartTextureStreaming();
 		if (collectibleObject.TriggerBoxEvents != null)
 		{
 			collectibleObject.TriggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;

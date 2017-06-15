@@ -10,6 +10,8 @@ public class ModifierIndicator : MonoBehaviour
 		public Image image;
 
 		public ImageAnimator animator;
+
+		public StreamingAsset streamComponent;
 	}
 
 	private class OverlayWrapper
@@ -72,6 +74,7 @@ public class ModifierIndicator : MonoBehaviour
 				fadeOutTimer = 0f;
 				Image.enabled = true;
 				Animator.enabled = true;
+				image.streamComponent.enabled = true;
 			}
 			else if (Alpha > 0.01f)
 			{

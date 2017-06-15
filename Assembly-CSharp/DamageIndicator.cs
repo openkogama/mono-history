@@ -107,9 +107,9 @@ public class DamageIndicator : MonoBehaviour
 		}
 	}
 
-	[SerializeField]
-	[Header("Configuration")]
 	[Tooltip("Distance from center, for indicator arrow to appear.")]
+	[Header("Configuration")]
+	[SerializeField]
 	private float indicationRadius = 35f;
 
 	[Tooltip("Transparency [0..1] by time [0..1] remaining")]
@@ -138,7 +138,6 @@ public class DamageIndicator : MonoBehaviour
 	{
 		timeNormalizationFactor = 100f * durationPerPointOfDamage;
 		transform.SetParent(null, worldPositionStays: false);
-		directionArrowBase.enabled = false;
 		directionArrow = new IndicatorArrow(3, directionArrowBase, indicationRadius);
 		initialAlpha = damageOverlay.color.a;
 		ResetIndicators();

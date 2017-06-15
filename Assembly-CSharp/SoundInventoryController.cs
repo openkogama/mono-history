@@ -90,22 +90,8 @@ public class SoundInventoryController : MonoBehaviour, IEventSystemHandler, IHan
 			}
 			tabs[categoryToNameCombinations[assetInfo.CategoryName]].highestSlotIndex++;
 		}
-		Dictionary<object, object> dictionary2;
-		if (woID == -1)
-		{
-			Dictionary<object, object> dictionary = new Dictionary<object, object>();
-			dictionary.Add("url", "AmbientAudio/Nature/kgm_amb_forest.unity3d");
-			dictionary2 = dictionary;
-		}
-		else
-		{
-			dictionary2 = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).Data;
-		}
-		if (!dictionary2.ContainsKey("url"))
-		{
-			originalURL = "AmbientAudio / Nature / kgm_amb_forest.unity3d";
-		}
-		originalURL = (string)dictionary2["url"];
+		Dictionary<object, object> data = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).Data;
+		originalURL = (string)data["url"];
 		this.inventoryController = UnityEngine.Object.Instantiate(inventoryControllerPrefab);
 		InventoryController inventoryController = this.inventoryController;
 		inventoryController.OnPageTurned = (UnityAction<int>)Delegate.Combine(inventoryController.OnPageTurned, new UnityAction<int>(PageTurned));

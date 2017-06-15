@@ -75,7 +75,6 @@ public class WaterPlaneManager : MonoBehaviour
 
 	public void RemoveWaterPlaneLogicCube(MVWaterPlane wp)
 	{
-		Debug.Log("Removing water plane");
 		waterPlanes.Remove(wp);
 		if (waterPlanes.Count == 0)
 		{

@@ -8,8 +8,6 @@ public class MVSoundEmitter : MVLogicObject, ILogicWorldObject
 {
 	private string currentUrl = string.Empty;
 
-	private AudioSource currentSrc;
-
 	private SoundEmitterObject soundEmitterObject;
 
 	private MVNetworkGame Game => MVGameControllerBase.Game;
@@ -85,15 +83,15 @@ public class MVSoundEmitter : MVLogicObject, ILogicWorldObject
 
 	private void InputStateUpdateCallback(LogicInputState logicInputState, LogicObjectManager logicObjectManager)
 	{
-		if (logicInputState != LogicInputState.Cold && logicInputState != LogicInputState.Hot && currentSrc != null)
+		if (logicInputState != LogicInputState.Cold && logicInputState != LogicInputState.Hot && soundEmitterObject.AudioSource != null)
 		{
-			if (ShouldPlay() && !currentSrc.isPlaying)
+			if (ShouldPlay() && !soundEmitterObject.AudioSource.isPlaying)
 			{
-				UpdateSound(currentSrc);
+				UpdateSound(soundEmitterObject.AudioSource.clip);
 			}
-			if (!ShouldPlay() && currentSrc.isPlaying)
+			if (!ShouldPlay() && soundEmitterObject.AudioSource.isPlaying)
 			{
-				UpdateSound(currentSrc);
+				UpdateSound(soundEmitterObject.AudioSource.clip);
 			}
 		}
 	}
@@ -102,47 +100,52 @@ public class MVSoundEmitter : MVLogicObject, ILogicWorldObject
 	{
 		if ((string)Data["url"] != currentUrl)
 		{
-			StopAndDestroySound();
-			currentUrl = (string)Data["url"];
-			StreamingAssetInfo streamingAssetInfo = Game.StreamingAssetInfoMap.Values.FirstOrDefault((StreamingAssetInfo sai) => sai.AssetPath == currentUrl);
-			if (streamingAssetInfo != null)
+			if (Urls.StreamingAssetUrlReady())
 			{
-				AsyncWWWManager.WWWRequest(new StreamingAssetRequestTempHack(Urls.StreamingAssets + streamingAssetInfo.RequestPath, StreamingAssetCallback, WWWRequestPriority.WaitUntilSyncronizingIsDone));
+				Urls.onStreamingAssetsUrlAvailable = (Urls.OnStreamingAssetsUrlAvailable)Delegate.Remove(Urls.onStreamingAssetsUrlAvailable, new Urls.OnStreamingAssetsUrlAvailable(LoadSound));
+				StopAndDestroySound();
+				currentUrl = (string)Data["url"];
+				StreamingAssetInfo saInfo = Game.StreamingAssetInfoMap.Values.FirstOrDefault((StreamingAssetInfo sai) => sai.AssetPath == currentUrl);
+				Download(saInfo);
 			}
 			else
 			{
-				Debug.LogError("Could not find asset info for audio " + currentUrl);
+				Urls.onStreamingAssetsUrlAvailable = (Urls.OnStreamingAssetsUrlAvailable)Delegate.Combine(Urls.onStreamingAssetsUrlAvailable, new Urls.OnStreamingAssetsUrlAvailable(LoadSound));
 			}
 		}
-		else if (currentSrc != null)
+		else if (soundEmitterObject.AudioSource != null)
 		{
-			UpdateSound(currentSrc);
+			UpdateSound(soundEmitterObject.AudioSource.clip);
+		}
+	}
+
+	private void Download(StreamingAssetInfo saInfo)
+	{
+		if (saInfo != null)
+		{
+			string path = StreamingAsset.DBUrlToServerUrl(StreamingAsset.AssetBundleUrl + saInfo.RequestPath);
+			AsyncWWWManager.WWWRequest(new CachedGetRequest(path, OnDownloadFinished, WWWRequestPriority.WaitUntilSyncronizingIsDone));
+		}
+		else
+		{
+			Debug.LogError("Could not find asset info for audio " + currentUrl);
 		}
 	}
 
 	public override void Destroy()
 	{
 		base.Destroy();
-		AsyncWWWManager.UnsubscribeWWWRequest(StreamingAssetCallback);
+		AsyncWWWManager.UnsubscribeWWWRequest(OnDownloadFinished);
 	}
 
-	public void StreamingAssetCallback(WWW www, UnityEngine.Object mainAsset)
+	public void OnDownloadFinished(WWW www)
 	{
-		try
-		{
-			Validate(www);
-			StopAndDestroySound();
-			GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(mainAsset);
-			AudioSource audioSource = gameObject.GetComponent<AudioSource>();
-			audioSource.transform.parent = transform;
-			audioSource.transform.position = transform.position;
-			Data["loop"] = audioSource.loop;
-			UpdateSound(audioSource);
-		}
-		catch (Exception ex)
-		{
-			Debug.LogError("Failed sound update" + ex);
-		}
+		Validate(www);
+		StopAndDestroySound();
+		AudioClip clip = StreamingAsset.UnpackBundle<AudioClip>(www);
+		AudioSource audioSource = soundEmitterObject.AudioSource;
+		Data["loop"] = audioSource.loop;
+		UpdateSound(clip);
 	}
 
 	private void Validate(WWW www)
@@ -167,42 +170,26 @@ public class MVSoundEmitter : MVLogicObject, ILogicWorldObject
 		return base.Delete(worldObjectClientManager, ref errorText);
 	}
 
-	private void UpdateSound(AudioSource source)
+	private void UpdateSound(AudioClip clip)
 	{
-		try
+		AudioSource audioSource = soundEmitterObject.AudioSource;
+		audioSource.clip = clip;
+		audioSource.volume = (float)Data["volume"];
+		audioSource.pitch = (float)Data["pitch"];
+		audioSource.loop = (bool)Data["loop"];
+		audioSource.rolloffMode = AudioRolloffMode.Custom;
+		audioSource.minDistance = GetMinDistanceFromRangeAmbient((SoundRangeDistance)(int)Data["range"]);
+		audioSource.maxDistance = GetMaxDistanceFromRangeAmbient((SoundRangeDistance)(int)Data["range"]);
+		if ((string)Data["url"] == currentUrl || ShouldPlay() != audioSource.isPlaying)
 		{
-			currentSrc = source;
-			source.playOnAwake = true;
-			source.volume = (float)Data["volume"];
-			source.pitch = (float)Data["pitch"];
-			source.loop = (bool)Data["loop"];
-			source.rolloffMode = AudioRolloffMode.Custom;
-			source.dopplerLevel = 0f;
-			source.minDistance = GetMinDistanceFromRangeAmbient((SoundRangeDistance)(int)Data["range"]);
-			source.maxDistance = GetMaxDistanceFromRangeAmbient((SoundRangeDistance)(int)Data["range"]);
-			if ((string)Data["url"] == currentUrl || ShouldPlay() != source.isPlaying)
+			if (ShouldPlay())
 			{
-				if (ShouldPlay())
-				{
-					source.Play();
-				}
-				else
-				{
-					source.Stop();
-				}
+				audioSource.Play();
 			}
-		}
-		catch (Exception arg)
-		{
-			string text = string.Empty;
-			foreach (KeyValuePair<object, object> datum in Data)
+			else
 			{
-				string empty = string.Empty;
-				text += string.Format(arg2: (datum.Value == null) ? "null" : datum.Value.GetType().ToString(), format: "Key: {0}, ValueType: {1}, Value: {2}\n", arg0: datum.Key, arg1: datum.Value);
+				audioSource.Stop();
 			}
-			int planetID = MVGameControllerBase.GameSessionData.planetID;
-			string message = $"SoundEmitter error on planet: {planetID}. Data {text}. Exception {arg}";
-			Debug.LogError(message);
 		}
 	}
 
@@ -221,14 +208,10 @@ public class MVSoundEmitter : MVLogicObject, ILogicWorldObject
 
 	private void StopAndDestroySound()
 	{
-		if (currentSrc != null)
+		AudioSource audioSource = soundEmitterObject.AudioSource;
+		if (audioSource.isPlaying)
 		{
-			if (currentSrc.isPlaying)
-			{
-				currentSrc.Stop();
-			}
-			UnityEngine.Object.Destroy(currentSrc.gameObject);
-			currentSrc = null;
+			audioSource.Stop();
 		}
 	}
 

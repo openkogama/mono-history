@@ -3,6 +3,11 @@ using UnityEngine;
 public class MVCollectibleObject : ObjectPrefab
 {
 	[SerializeField]
+	private StreamedTextureToSharedMaterial streamedTextureToSharedMaterialPrefab;
+
+	private static bool streamComponentSet;
+
+	[SerializeField]
 	private GreyOutObjectScript pickupItem;
 
 	[SerializeField]
@@ -41,6 +46,15 @@ public class MVCollectibleObject : ObjectPrefab
 	public AllWorldObjectTriggerBoxEvents AllWorldObjectTriggerBoxEvents => allWorldObjectTriggerBoxEvents;
 
 	public CollectibleEffects CollectibleEffects => collectibleEffects;
+
+	public void StartTextureStreaming()
+	{
+		if (!streamComponentSet)
+		{
+			MVGameControllerBase.StreamingAssetManager.Instantiate(streamedTextureToSharedMaterialPrefab);
+			streamComponentSet = true;
+		}
+	}
 
 	protected override void OnValidate()
 	{

@@ -70,6 +70,9 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	[SerializeField]
 	protected TextureIntegrityChecker textureIntegrityChecker;
 
+	[SerializeField]
+	private StreamingAssetManager streamingAssetManager;
+
 	protected static MVGameControllerBase instance;
 
 	protected static bool isInitialized;
@@ -96,6 +99,8 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	private SkyboxManager skyboxManager;
 
 	public static TextureIntegrityChecker TextureIntegrityChecker => instance.textureIntegrityChecker;
+
+	public static StreamingAssetManager StreamingAssetManager => instance.streamingAssetManager;
 
 	public static bool IsInitialized => isInitialized;
 

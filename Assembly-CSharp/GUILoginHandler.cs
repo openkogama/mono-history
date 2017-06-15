@@ -15,6 +15,9 @@ public class GUILoginHandler : MonoBehaviour
 	}
 
 	[SerializeField]
+	private KoGaMaSettingsContainer kogamaSettings;
+
+	[SerializeField]
 	private Dropdown serverDropdown;
 
 	[SerializeField]
@@ -25,6 +28,9 @@ public class GUILoginHandler : MonoBehaviour
 
 	[SerializeField]
 	private InputField planetIdTextField;
+
+	[SerializeField]
+	private Toggle disableCacheToggle;
 
 	private Dictionary<string, object> gameSessionData = new Dictionary<string, object>
 	{
@@ -62,6 +68,7 @@ public class GUILoginHandler : MonoBehaviour
 		serverIp.text = GetIPFromDevServerTarget((DevServerTarget)num);
 		SetupProfileID();
 		SetupPlanetID();
+		disableCacheToggle.isOn = PlayerPrefs.GetInt("cachingEnabled") <= 0;
 	}
 
 	private void SetupServerDropdown(int savedChoice)
@@ -140,6 +147,11 @@ public class GUILoginHandler : MonoBehaviour
 		gameSessionData["embedded"] = isEmbedded;
 	}
 
+	public void Caching()
+	{
+		PlayerPrefs.SetInt("cachingEnabled", (!disableCacheToggle.isOn) ? 1 : 0);
+	}
+
 	private void StartGame(MVGameMode gameMode)
 	{
 		gameSessionData["gameMode"] = gameMode;
@@ -156,6 +168,11 @@ public class GUILoginHandler : MonoBehaviour
 		else
 		{
 			SceneManager.LoadScene("DesktopBase");
+		}
+		if (disableCacheToggle.isOn)
+		{
+			Debug.LogWarning("Cache disabled.");
+			kogamaSettings.InvalidateWebCache();
 		}
 	}
 

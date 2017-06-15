@@ -4,6 +4,10 @@ namespace MV.Common;
 
 public static class Urls
 {
+	public delegate void OnStreamingAssetsUrlAvailable();
+
+	public static OnStreamingAssetsUrlAvailable onStreamingAssetsUrlAvailable;
+
 	private static string streamingAssets = "";
 
 	private static string api = "";
@@ -44,6 +48,15 @@ public static class Urls
 	{
 		api = apiUrl;
 		streamingAssets = streamingAssetsUrl;
+		if (onStreamingAssetsUrlAvailable != null)
+		{
+			onStreamingAssetsUrlAvailable();
+		}
+	}
+
+	public static bool StreamingAssetUrlReady()
+	{
+		return !string.IsNullOrEmpty(streamingAssets);
 	}
 
 	private static void ValidateGet(string value)

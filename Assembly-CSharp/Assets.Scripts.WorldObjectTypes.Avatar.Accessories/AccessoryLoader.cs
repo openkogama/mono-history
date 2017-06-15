@@ -68,14 +68,31 @@ public class AccessoryLoader
 
 		public void LoadAccessory()
 		{
-			string streamingAssets = Urls.StreamingAssets;
-			AvatarAccessoryParams avatarAccessoryParams = parameters;
-			AsyncWWWManager.WWWRequest(new StreamingAssetRequestTempHack(streamingAssets + avatarAccessoryParams.AssetReqPath, Callback, WWWRequestPriority.WaitUntilSyncronizingIsDone));
+			if (Urls.StreamingAssetUrlReady())
+			{
+				Urls.onStreamingAssetsUrlAvailable = (Urls.OnStreamingAssetsUrlAvailable)Delegate.Remove(Urls.onStreamingAssetsUrlAvailable, new Urls.OnStreamingAssetsUrlAvailable(LoadAccessory));
+				string assetBundleUrl = StreamingAsset.AssetBundleUrl;
+				AvatarAccessoryParams avatarAccessoryParams = parameters;
+				string text = StreamingAsset.DBUrlToServerUrl(assetBundleUrl + avatarAccessoryParams.AssetReqPath) + MVGameControllerBase.KoGaMaSettings.WebCacheInvalidationCodeStr;
+				Debug.Log("Accessory download started:\n" + text);
+				GetRequest asyncRequest = new CachedGetRequest(text, Callback, WWWRequestPriority.WaitUntilSyncronizingIsDone);
+				AsyncWWWManager.WWWRequest(asyncRequest);
+			}
+			else
+			{
+				Urls.onStreamingAssetsUrlAvailable = (Urls.OnStreamingAssetsUrlAvailable)Delegate.Combine(Urls.onStreamingAssetsUrlAvailable, new Urls.OnStreamingAssetsUrlAvailable(LoadAccessory));
+			}
 		}
 
-		private void Callback(WWW www, UnityEngine.Object mainAsset)
+		private void Callback(WWW www)
 		{
-			GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(mainAsset);
+			Debug.Log("Accessory download finished:\n" + www.url);
+			if (!string.IsNullOrEmpty(www.error))
+			{
+				Debug.Log("Download error:\n" + www.error);
+			}
+			UnityEngine.Object original = StreamingAsset.UnpackBundle<GameObject>(www);
+			GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(original);
 			AccessorySettings component = gameObject.GetComponent<AccessorySettings>();
 			if (component == null)
 			{

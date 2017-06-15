@@ -15,8 +15,8 @@ public abstract class FirstPersonCamera : MVCameraBase
 	[SerializeField]
 	protected float maxLookAngleUpward = 60f;
 
-	[HideInInspector]
 	[SerializeField]
+	[HideInInspector]
 	private Vector3 cameraOffset = new Vector3(0f, 2f, 0f);
 
 	[SerializeField]
@@ -28,8 +28,8 @@ public abstract class FirstPersonCamera : MVCameraBase
 	[SerializeField]
 	private FirstPersonWeaponBob weaponBob;
 
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	private DamageIndicator damageIndicator;
 
 	[SerializeField]
@@ -55,15 +55,11 @@ public abstract class FirstPersonCamera : MVCameraBase
 
 	protected abstract void UpdateCameraRotation();
 
-	private void OnValidate()
+	public override void Reset()
 	{
 		cameraOffset.y = cameraHeight;
 		maxLookAngleDownward = Mathf.Clamp(maxLookAngleDownward, 0.1f, 89f);
 		maxLookAngleUpward = Mathf.Clamp(maxLookAngleUpward, 0.1f, 89f);
-		if (damageIndicator != null)
-		{
-			damageIndicator.enabled = false;
-		}
 	}
 
 	private void Initialize(MVCameraController cameraController)
@@ -159,8 +155,8 @@ public abstract class FirstPersonCamera : MVCameraBase
 		mVAvatarLocal2.OnDamageTaken = (Action<float, MVPlayer, PlayerKilledByType>)Delegate.Remove(mVAvatarLocal2.OnDamageTaken, new Action<float, MVPlayer, PlayerKilledByType>(damageIndicator.ShowDamage));
 		damageIndicator.ResetIndicators();
 		damageIndicator.enabled = false;
-		modifierIndicator.enabled = false;
 		modifierIndicator.ResetIndicators();
+		modifierIndicator.enabled = false;
 		MVGameControllerBase.WOCM.AvatarLocal.Avatar.AvatarFader.SetTransparency(0f);
 		MVGameControllerBase.WOCM.AvatarLocal.Avatar.AvatarFader.enabled = true;
 	}

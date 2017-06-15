@@ -29,7 +29,7 @@ public abstract class AsyncWebRequest
 
 	public readonly WWWRequestPriority requestPriority;
 
-	protected static bool UseCaching => true;
+	protected static bool CacheCompatibility => CheckCacheCompatibility();
 
 	public Action<WWW> Callback
 	{
@@ -48,6 +48,11 @@ public abstract class AsyncWebRequest
 		this.requestPriority = requestPriority;
 		this.path = path;
 		this.callback = callback;
+	}
+
+	private static bool CheckCacheCompatibility()
+	{
+		return true;
 	}
 
 	public bool Update()
