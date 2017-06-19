@@ -119,15 +119,18 @@ public class MaterialLoader : MonoBehaviour
 
 	private void Callback(WWW www)
 	{
-		string[] allAssetNames = www.assetBundle.GetAllAssetNames();
-		if (allAssetNames.Length != 1)
+		if (string.IsNullOrEmpty(www.error))
 		{
-			Debug.LogError("Failed to load highres texture from bundle as multiple assets where included");
-			return;
+			string[] allAssetNames = www.assetBundle.GetAllAssetNames();
+			if (allAssetNames.Length != 1)
+			{
+				Debug.LogError("Failed to load highres texture from bundle as multiple assets where included");
+				return;
+			}
+			Texture2D mainTexture = www.assetBundle.LoadAsset<Texture2D>(allAssetNames[0]);
+			SetMainTexture(mainTexture);
+			SetupMaterials();
 		}
-		Texture2D mainTexture = www.assetBundle.LoadAsset<Texture2D>(allAssetNames[0]);
-		SetMainTexture(mainTexture);
-		SetupMaterials();
 	}
 
 	private void InitAllMaterials(bool useSM3)

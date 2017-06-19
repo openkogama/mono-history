@@ -86,11 +86,11 @@ public class AccessoryLoader
 
 		private void Callback(WWW www)
 		{
-			Debug.Log("Accessory download finished:\n" + www.url);
 			if (!string.IsNullOrEmpty(www.error))
 			{
-				Debug.Log("Download error:\n" + www.error);
+				return;
 			}
+			Debug.Log("Accessory download finished:\n" + www.url);
 			UnityEngine.Object original = StreamingAsset.UnpackBundle<GameObject>(www);
 			GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(original);
 			AccessorySettings component = gameObject.GetComponent<AccessorySettings>();

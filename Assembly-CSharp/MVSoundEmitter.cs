@@ -140,27 +140,13 @@ public class MVSoundEmitter : MVLogicObject, ILogicWorldObject
 
 	public void OnDownloadFinished(WWW www)
 	{
-		Validate(www);
-		StopAndDestroySound();
-		AudioClip clip = StreamingAsset.UnpackBundle<AudioClip>(www);
-		AudioSource audioSource = soundEmitterObject.AudioSource;
-		Data["loop"] = audioSource.loop;
-		UpdateSound(clip);
-	}
-
-	private void Validate(WWW www)
-	{
-		if (GameObject == null)
+		if (string.IsNullOrEmpty(www.error))
 		{
-			throw new Exception("gameObject == null");
-		}
-		if (www == null)
-		{
-			throw new Exception("www== null");
-		}
-		if (www.assetBundle == null)
-		{
-			throw new Exception("www.assetBundle == null");
+			StopAndDestroySound();
+			AudioClip clip = StreamingAsset.UnpackBundle<AudioClip>(www);
+			AudioSource audioSource = soundEmitterObject.AudioSource;
+			Data["loop"] = audioSource.loop;
+			UpdateSound(clip);
 		}
 	}
 

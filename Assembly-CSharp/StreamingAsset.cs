@@ -50,19 +50,10 @@ public abstract class StreamingAsset<AssetType, PreviewType> : StreamingAsset wh
 
 	protected override void OnDownloadFinished(WWW www)
 	{
-		Debug.Log("StreamingAsset - Download finished:\n" + www.url);
-		string error = www.error;
-		if (string.IsNullOrEmpty(error))
+		if (string.IsNullOrEmpty(www.error))
 		{
+			Debug.Log("StreamingAsset - Download finished:\n" + www.url);
 			Asset = StreamingAsset.UnpackBundle<AssetType>(www);
-			if (Asset == null)
-			{
-				Debug.LogError("Download failed. Asset is null after assignement. Most likely asset is of incompatible type.");
-			}
-		}
-		else
-		{
-			Debug.LogError(error + "\nDownload failed. " + www.url);
 		}
 	}
 
@@ -115,6 +106,15 @@ public abstract class StreamingAsset : MonoBehaviour
 	public static AssetType UnpackBundle<AssetType>(WWW www) where AssetType : UnityEngine.Object
 	{
 		AssetType[] array = www.assetBundle.LoadAllAssets<AssetType>();
+		if (array.Length == 0)
+		{
+			Debug.LogError("Download failed. Asset is null after assignement. Most likely asset is of incompatible type.");
+			return (AssetType)null;
+		}
+		if (array.Length > 1)
+		{
+			Debug.LogWarning(www.url + "\nThere are multiple objects in bundle. Only the first asset will be used, and the download will take longer.");
+		}
 		return array[0];
 	}
 
