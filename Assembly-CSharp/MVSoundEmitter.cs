@@ -124,6 +124,7 @@ public class MVSoundEmitter : MVLogicObject, ILogicWorldObject
 		if (saInfo != null)
 		{
 			string path = StreamingAsset.DBUrlToServerUrl(StreamingAsset.AssetBundleUrl + saInfo.RequestPath);
+			AsyncWWWManager.UnsubscribeWWWRequest(OnDownloadFinished);
 			AsyncWWWManager.WWWRequest(new CachedGetRequest(path, OnDownloadFinished, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 		}
 		else

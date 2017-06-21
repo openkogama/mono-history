@@ -63,6 +63,7 @@ public class AccessoryLoader
 
 		public void Remove()
 		{
+			accessoryCreatedCallback = null;
 			AsyncWWWManager.UnsubscribeWWWRequest(Callback);
 		}
 
@@ -115,8 +116,11 @@ public class AccessoryLoader
 			AvatarAccessoryParams p = parameters;
 			AvatarAccessoryParams avatarAccessoryParams = parameters;
 			avatarAccessory2.InitAccessory(p, avatarAccessoryParams.AssetReqPath);
-			accessoryCreatedCallback(id, avatarAccessory);
-			accessoryCreatedCallback = null;
+			if (accessoryCreatedCallback != null)
+			{
+				accessoryCreatedCallback(id, avatarAccessory);
+				accessoryCreatedCallback = null;
+			}
 		}
 	}
 
@@ -124,29 +128,29 @@ public class AccessoryLoader
 
 	private Dictionary<int, Request> requests = new Dictionary<int, Request>();
 
-	public void LoadAccessory(StreamingAssetInfo assetInfo, Action<AvatarAccessory> accessoryCreatedCallback)
+	public void LoadAccessory(StreamingAssetInfo assetInfo, Action<AvatarAccessory> accessoryCreatedExternalCallback)
 	{
-		AddRequest(new AccessoryLoaderRequest(id, assetInfo, AccessoryCreatedCallback), accessoryCreatedCallback);
+		AddRequest(new AccessoryLoaderRequest(id, assetInfo, AccessoryCreatedInternalCallback), accessoryCreatedExternalCallback);
 	}
 
-	public void LoadAccessory(ProductInventoryInfo invInfo, Action<AvatarAccessory> accessoryCreatedCallback)
+	public void LoadAccessory(ProductInventoryInfo invInfo, Action<AvatarAccessory> accessoryCreatedExternalCallback)
 	{
-		AddRequest(new AccessoryLoaderRequest(id, invInfo, AccessoryCreatedCallback), accessoryCreatedCallback);
+		AddRequest(new AccessoryLoaderRequest(id, invInfo, AccessoryCreatedInternalCallback), accessoryCreatedExternalCallback);
 	}
 
-	public void LoadAccessory(int inventoryID, string assetPath, DateTime purchaseTime, Action<AvatarAccessory> accessoryCreatedCallback)
+	public void LoadAccessory(int inventoryID, string assetPath, DateTime purchaseTime, Action<AvatarAccessory> accessoryCreatedExternalCallback)
 	{
-		AddRequest(new AccessoryLoaderRequest(id, inventoryID, assetPath, purchaseTime, AccessoryCreatedCallback), accessoryCreatedCallback);
+		AddRequest(new AccessoryLoaderRequest(id, inventoryID, assetPath, purchaseTime, AccessoryCreatedInternalCallback), accessoryCreatedExternalCallback);
 	}
 
-	private void AddRequest(AccessoryLoaderRequest accessoryLoaderRequest, Action<AvatarAccessory> accessoryCreatedCallback)
+	private void AddRequest(AccessoryLoaderRequest accessoryLoaderRequest, Action<AvatarAccessory> accessoryCreatedExternalCallback)
 	{
-		requests.Add(id, new Request(accessoryCreatedCallback, accessoryLoaderRequest));
+		requests.Add(id, new Request(accessoryCreatedExternalCallback, accessoryLoaderRequest));
 		accessoryLoaderRequest.LoadAccessory();
 		id++;
 	}
 
-	private void AccessoryCreatedCallback(int doneId, AvatarAccessory avatarAccessory)
+	private void AccessoryCreatedInternalCallback(int doneId, AvatarAccessory avatarAccessory)
 	{
 		Request request = requests[doneId];
 		requests.Remove(doneId);

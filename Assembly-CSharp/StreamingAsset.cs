@@ -138,6 +138,7 @@ public abstract class StreamingAsset : MonoBehaviour
 
 	protected virtual void OnDestroy()
 	{
+		onAssetSetAction = (UnityAction)Delegate.Remove(onAssetSetAction, new UnityAction(OnAssetSet));
 		AsyncWWWManager.UnsubscribeWWWRequest(OnDownloadFinished);
 	}
 }
