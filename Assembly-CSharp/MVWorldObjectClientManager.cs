@@ -111,6 +111,14 @@ public abstract class MVWorldObjectClientManager : IWorldObjectManager
 		}
 	}
 
+	private class WOCMWorldObjectClientRef : WorldObjectClientRef
+	{
+		public WOCMWorldObjectClientRef(int woId)
+			: base(woId)
+		{
+		}
+	}
+
 	protected readonly Dictionary<int, MVWorldObjectClient> worldObjects = new Dictionary<int, MVWorldObjectClient>();
 
 	protected readonly Queue<int> pendingUngroupQueue = new Queue<int>();
@@ -345,8 +353,19 @@ public abstract class MVWorldObjectClientManager : IWorldObjectManager
 
 	public MVWorldObjectClient GetWorldObjectClient(int id)
 	{
-		worldObjects.TryGetValue(id, out var value);
+		MVWorldObjectClient value = null;
+		worldObjects.TryGetValue(id, out value);
 		return value;
+	}
+
+	public WorldObjectClientRef GetWorldObjectClientRef(int id)
+	{
+		return new WOCMWorldObjectClientRef(id);
+	}
+
+	public static WorldObjectClientRef GetWorldObjectClientRefNullRef()
+	{
+		return new WOCMWorldObjectClientRef(-1);
 	}
 
 	public MVWorldObject GetWorldObject(int id)

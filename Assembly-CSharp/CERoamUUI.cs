@@ -28,7 +28,7 @@ public class CERoamUUI : ESStateBase
 			x.Set(ActiveEditStateUI.AvatarManagement);
 		});
 		esm.CubeModelingStateMachine.RemoveCursors();
-		tintedWo = null;
+		tintedWo = MVWorldObjectClientManager.GetWorldObjectClientRefNullRef();
 		SharedCubeFunctions.SetLayerRecursively(esm.ParentGroup.Transform, select: true);
 		esm.CameraController.BlueModeEnabled = true;
 		if (esm.ParentGroup is MVBody)

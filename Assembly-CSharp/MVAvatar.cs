@@ -144,6 +144,7 @@ public class MVAvatar : MVGroup
 	public override void Initialize()
 	{
 		base.Initialize();
+		body.Attach(this, isLocal);
 		avatarPickupOwner = gameObject.AddComponent<AvatarPickupOwner>();
 		avatarPickupOwner.Init(CurrentItem, IsFiring, this);
 		avatarPickupOwner.IsLocal = isLocal;
@@ -194,7 +195,6 @@ public class MVAvatar : MVGroup
 		if (child is MVBody mVBody)
 		{
 			body = mVBody;
-			body.Attach(this, isLocal);
 		}
 	}
 

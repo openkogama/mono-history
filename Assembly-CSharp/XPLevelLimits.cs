@@ -1,5 +1,4 @@
 using System;
-using UnityEngine;
 
 public class XPLevelLimits
 {
@@ -39,7 +38,6 @@ public class XPLevelLimits
 		}
 		if (currentXp >= NextXP)
 		{
-			Debug.LogWarning("Limits out of date");
 			return false;
 		}
 		if (currentXp < 0)

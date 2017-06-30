@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class TranslateData
 {
-	public MVWorldObjectClient wo;
+	private readonly WorldObjectClientRef worldObjectClientRef;
 
 	public Vector3 ungridifiedPosition;
 
@@ -12,9 +12,11 @@ public class TranslateData
 
 	public Vector3 localDirCamToObject;
 
+	public MVWorldObjectClient Wo => worldObjectClientRef.WorldObjectClient;
+
 	public TranslateData(MVWorldObjectClient wo, float gridSize)
 	{
-		this.wo = wo;
+		worldObjectClientRef = MVGameControllerBase.WOCM.GetWorldObjectClientRef(wo.Id);
 		ungridifiedPosition = wo.WorldPosition;
 		gridifiedPosition = wo.GetClosestGridPoint(gridSize, ungridifiedPosition);
 		localDirCamToObject = Vector3.zero;

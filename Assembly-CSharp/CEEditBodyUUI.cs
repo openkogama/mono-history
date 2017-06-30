@@ -41,7 +41,7 @@ public class CEEditBodyUUI : ESStateBase
 		{
 			x.Set(ActiveEditStateUI.CubeModelTools);
 		});
-		tintedWo = null;
+		tintedWo = MVWorldObjectClientManager.GetWorldObjectClientRefNullRef();
 		TargetCubeModel = (MVCubeModelInstance)esm.SingleSelectedWO;
 		modelBody = (IWorldObjectWithModelingConstraint)MVGameControllerBase.WOCM.GetWorldObjectClient(TargetCubeModel.GroupId);
 		if (!esm.ParentGroupIsRoot)

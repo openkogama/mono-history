@@ -82,8 +82,8 @@ internal class ESTranslate : ESStateBase
 		woIds = new HashSet<int>();
 		foreach (TranslateData translateData in translateDatas)
 		{
-			MVGameControllerBase.WOCM.GetAllWoIds(translateData.wo.Id, woIds);
-			SharedCubeFunctions.SetLayerRecursively(translateData.wo.Transform, select: true);
+			MVGameControllerBase.WOCM.GetAllWoIds(translateData.Wo.Id, woIds);
+			SharedCubeFunctions.SetLayerRecursively(translateData.Wo.Transform, select: true);
 		}
 		Cursor.visible = false;
 		originPrevFrame = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position;
@@ -96,7 +96,7 @@ internal class ESTranslate : ESStateBase
 		{
 			e.PopState();
 		}
-		if (!MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
+		else if (!MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
 		{
 			Vector3 deltaMouse = GetDeltaMouse(e);
 			if (MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelectAlt))
@@ -119,15 +119,15 @@ internal class ESTranslate : ESStateBase
 				{
 					translateDatas[i].ungridifiedPosition += deltaMouse;
 				}
-				translateDatas[i].gridifiedPosition = translateDatas[i].wo.GetClosestGridPoint(gridSize, translateDatas[i].ungridifiedPosition);
+				translateDatas[i].gridifiedPosition = translateDatas[i].Wo.GetClosestGridPoint(gridSize, translateDatas[i].ungridifiedPosition);
 				if (gridSize < (translateDatas[i].prevGridifiedPosition - translateDatas[i].ungridifiedPosition).magnitude)
 				{
-					translateDatas[i].wo.SyncPos = translateDatas[i].gridifiedPosition;
+					translateDatas[i].Wo.SyncPos = translateDatas[i].gridifiedPosition;
 					translateDatas[i].prevGridifiedPosition = translateDatas[i].gridifiedPosition;
 					translateDatas[i].ungridifiedPosition = translateDatas[i].gridifiedPosition;
 					if (playTranslateSounds)
 					{
-						AudioEventHandler.AddTranslateSoundData(0f, moveToGridPos: true, translateDatas[i].wo.WorldPosition);
+						AudioEventHandler.AddTranslateSoundData(0f, moveToGridPos: true, translateDatas[i].Wo.WorldPosition);
 					}
 					continue;
 				}
@@ -136,11 +136,11 @@ internal class ESTranslate : ESStateBase
 				if (magnitude > completelyStuckLimit * gridSize)
 				{
 					vector2 *= stickyModifier;
-					translateDatas[i].wo.WorldPosition = translateDatas[i].prevGridifiedPosition + vector2;
+					translateDatas[i].Wo.WorldPosition = translateDatas[i].prevGridifiedPosition + vector2;
 				}
 				if (playTranslateSounds)
 				{
-					AudioEventHandler.AddTranslateSoundData(magnitude, moveToGridPos: false, translateDatas[i].wo.WorldPosition);
+					AudioEventHandler.AddTranslateSoundData(magnitude, moveToGridPos: false, translateDatas[i].Wo.WorldPosition);
 				}
 			}
 			UpdateLaserPosition(targets);
@@ -155,7 +155,7 @@ internal class ESTranslate : ESStateBase
 	{
 		foreach (TranslateData translateData in translateDatas)
 		{
-			if (translateData.wo == null)
+			if (translateData.Wo == null)
 			{
 				return false;
 			}
@@ -187,8 +187,11 @@ internal class ESTranslate : ESStateBase
 		e.CameraController.TertiaryCamera.ResetReplacementShader();
 		foreach (TranslateData translateData in translateDatas)
 		{
-			SharedCubeFunctions.SetLayerRecursively(translateData.wo.GameObject.transform, select: false);
-			translateData.wo.SyncPos = translateData.prevGridifiedPosition;
+			if (translateData.Wo != null)
+			{
+				SharedCubeFunctions.SetLayerRecursively(translateData.Wo.GameObject.transform, select: false);
+				translateData.Wo.SyncPos = translateData.prevGridifiedPosition;
+			}
 		}
 		Cursor.visible = true;
 		e.NetworkSelector.RequestReleaseOwnership(e.SelectedIDs);
@@ -239,11 +242,11 @@ internal class ESTranslate : ESStateBase
 			matrix4x = Matrix4x4.Inverse(matrix4x);
 			for (int i = 0; i < translateDatas.Count; i++)
 			{
-				translateDatas[i].localDirCamToObject = matrix4x.MultiplyVector((translateDatas[i].wo.WorldPosition - MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position).normalized);
+				translateDatas[i].localDirCamToObject = matrix4x.MultiplyVector((translateDatas[i].Wo.WorldPosition - MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position).normalized);
 			}
 			recalcLocalDirCamToObjects = false;
 		}
-		float magnitude = (translateDatas[targetIndex].wo.WorldPosition - MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position).magnitude;
+		float magnitude = (translateDatas[targetIndex].Wo.WorldPosition - MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position).magnitude;
 		Matrix4x4 matrix4x2 = default;
 		if (!fixedToYPlane)
 		{

@@ -77,7 +77,7 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 	{
 		if (!worldObjects.ContainsKey(worldObjectID))
 		{
-			Debug.LogError("Attempt to update WorldObjectData on unknown WorldObject " + worldObjectID);
+			Debug.LogError("Attempt to update WorldObjectData on unknown WorldObject");
 			return;
 		}
 		worldObjects[worldObjectID].Data = worldObjectData;
@@ -88,7 +88,7 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 	{
 		if (!worldObjects.ContainsKey(worldObjectID))
 		{
-			Debug.LogError("Attempt to update WorldObjectData on unknown WorldObject " + worldObjectID);
+			Debug.LogError("Attempt to update WorldObjectData on unknown WorldObject");
 		}
 		else
 		{
@@ -100,7 +100,7 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 	{
 		if (!worldObjects.ContainsKey(worldObjectID))
 		{
-			Debug.LogError("Attempt to remove data from WorldObjectData on unknown WorldObject " + worldObjectID);
+			Debug.LogError("Attempt to remove data from WorldObjectData on unknown WorldObject");
 		}
 		else
 		{
@@ -112,7 +112,7 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 	{
 		if (!worldObjects.ContainsKey(worldObjectID))
 		{
-			Debug.LogError("Attempt to update WorldObjectData on unknown WorldObject " + worldObjectID);
+			Debug.LogError("Attempt to update WorldObjectData on unknown WorldObject");
 			return;
 		}
 		MVWorldObjectClient mVWorldObjectClient = worldObjects[worldObjectID];

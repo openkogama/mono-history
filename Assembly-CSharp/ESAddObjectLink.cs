@@ -5,22 +5,23 @@ internal class ESAddObjectLink : ESStateBase
 {
 	private ObjectLink tempLink;
 
-	private MVWorldObjectClient wo;
+	private WorldObjectClientRef woRef;
 
 	public override void Enter(EditorStateMachine esm)
 	{
-		wo = esm.SingleSelectedWO;
-		if (wo == null)
+		MVWorldObjectClient singleSelectedWO = esm.SingleSelectedWO;
+		if (singleSelectedWO == null)
 		{
 			Debug.LogWarning("state started with multi-selection or no selection - there can be only one connector selected when adding object link!");
 			esm.PopState();
 			return;
 		}
 		tempLink = new ObjectLink();
-		if (wo.SelectedConnector == SelectedConnector.Object)
+		if (singleSelectedWO.SelectedConnector == SelectedConnector.Object)
 		{
 			tempLink.objectConnectorWOID = esm.SingleSelectedWO.Id;
 			MVGameControllerBase.CameraController.LineDrawManager.SetTempObjectLink(tempLink);
+			woRef = MVGameControllerBase.WOCM.GetWorldObjectClientRef(singleSelectedWO.Id);
 		}
 		else
 		{
@@ -32,21 +33,34 @@ internal class ESAddObjectLink : ESStateBase
 	public override void Execute(EditorStateMachine e)
 	{
 		base.Execute(e);
-		if (!MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
+		MVWorldObjectClient worldObjectClient = woRef.WorldObjectClient;
+		if (worldObjectClient == null)
 		{
-			return;
+			LeaveAddLink(e);
 		}
-		VoxelHit hit = default;
-		if (EditModeObjectPicker.Pick(ref hit) && hit.woId != -1)
+		else
 		{
-			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(hit.woId);
-			if (worldObjectClient != null && wo.Id != hit.woId && !wo.ObjectLinkRefs.Exists((ObjectLink o) => o.objectWOID == hit.woId) && wo.ValidateObjectLinkTarget(worldObjectClient))
+			if (!MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
 			{
-				tempLink.objectWOID = hit.woId;
-				DoAddLink();
+				return;
 			}
+			VoxelHit hit = default;
+			if (EditModeObjectPicker.Pick(ref hit) && hit.woId != -1)
+			{
+				MVWorldObjectClient worldObjectClient2 = MVGameControllerBase.WOCM.GetWorldObjectClient(hit.woId);
+				if (worldObjectClient2 != null && worldObjectClient.Id != hit.woId && !worldObjectClient.ObjectLinkRefs.Exists((ObjectLink o) => o.objectWOID == hit.woId) && worldObjectClient.ValidateObjectLinkTarget(worldObjectClient2))
+				{
+					tempLink.objectWOID = hit.woId;
+					DoAddLink();
+				}
+			}
+			e.DeSelectAll();
+			LeaveAddLink(e);
 		}
-		e.DeSelectAll();
+	}
+
+	private void LeaveAddLink(EditorStateMachine e)
+	{
 		if (e.ParentGroupID == MVGameControllerBase.WOCM.RootGroup.Id)
 		{
 			e.Event = EditorEvent.ESTerrainEdit;

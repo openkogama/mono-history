@@ -90,12 +90,12 @@ public class EditorStateMachine : FSMEntity
 		return selectionController.ExitGroupToRoot();
 	}
 
-	public MVWorldObjectClient Select(bool addToSelection, int layerMask = -5)
+	public WorldObjectClientRef Select(bool addToSelection, int layerMask = -5)
 	{
 		return selectionController.Select(addToSelection, showVisuals: true, layerMask);
 	}
 
-	public MVWorldObjectClient Select(VoxelHit hit, bool addToSelection)
+	public WorldObjectClientRef Select(VoxelHit hit, bool addToSelection)
 	{
 		return selectionController.Select(hit, addToSelection);
 	}
@@ -105,7 +105,7 @@ public class EditorStateMachine : FSMEntity
 		selectionController.DeSelectWorldObject(wo);
 	}
 
-	public MVWorldObjectClient SelectWO(int id, bool addToSelection, bool showVisuals = true)
+	public WorldObjectClientRef SelectWO(int id, bool addToSelection, bool showVisuals = true)
 	{
 		return selectionController.SelectWO(id, addToSelection, showVisuals);
 	}

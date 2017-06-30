@@ -26,9 +26,9 @@ internal class ESSelection : ESStateBase
 
 	private LinkObjectBase selectedLinkObject;
 
-	private MVWorldObjectClient selectedWorldObject;
+	private WorldObjectClientRef selectedWorldObject = MVWorldObjectClientManager.GetWorldObjectClientRefNullRef();
 
-	private PickResult<MVWorldObjectClient> pickedTarget;
+	private PickResult<WorldObjectClientRef> pickedTarget;
 
 	private PickResult<LinkObjectBase> pickedLink;
 
@@ -44,10 +44,13 @@ internal class ESSelection : ESStateBase
 
 	private void ShowContextMenuGizmo()
 	{
-		ContextMenuController contextMenuController = this.contextMenuController;
-		int id = selectedWorldObject.Id;
-		VoxelHit hit = pickedTarget.hit;
-		contextMenuController.ShowContextMenu(id, hit.point);
+		if (selectedWorldObject.WorldObjectClient != null)
+		{
+			ContextMenuController contextMenuController = this.contextMenuController;
+			int id = selectedWorldObject.WorldObjectClient.Id;
+			VoxelHit hit = pickedTarget.hit;
+			contextMenuController.ShowContextMenu(id, hit.point);
+		}
 	}
 
 	private void ShowLinkMenuGizmo()
@@ -89,8 +92,15 @@ internal class ESSelection : ESStateBase
 		VoxelHit hit = default;
 		if (EditModeObjectPicker.Pick(ref hit))
 		{
-			pickedTarget = new PickResult<MVWorldObjectClient>(MVInputWrapper.GetPointerPosition(), hit, MVGameControllerBase.WOCM.GetWorldObjectClient(hit.woId));
-			selectedWorldObject = e.SingleSelectedWO;
+			pickedTarget = new PickResult<WorldObjectClientRef>(MVInputWrapper.GetPointerPosition(), hit, MVGameControllerBase.WOCM.GetWorldObjectClientRef(hit.woId));
+			if (e.SingleSelectedWO == null)
+			{
+				selectedWorldObject = MVWorldObjectClientManager.GetWorldObjectClientRefNullRef();
+			}
+			else
+			{
+				selectedWorldObject = MVGameControllerBase.WOCM.GetWorldObjectClientRef(e.SingleSelectedWO.Id);
+			}
 		}
 		LinkObjectBase linkHit = GetLinkHit(e, ref hit);
 		pickedLink = ((!(linkHit != null)) ? null : new PickResult<LinkObjectBase>(MVInputWrapper.GetPointerPosition(), hit, linkHit));
@@ -137,24 +147,19 @@ internal class ESSelection : ESStateBase
 			flag = false;
 		}
 		TintObjectsOnMouseOver(e, flag, hit);
-		if (pickedTarget != null)
+		if (pickedTarget != null && pickedTarget.data.WorldObjectClient == null)
 		{
-			MVWorldObjectClientManager wOCM = MVGameControllerBase.WOCM;
-			VoxelHit hit2 = pickedTarget.hit;
-			if (wOCM.GetWorldObjectClient(hit2.woId) == null)
-			{
-				pickedTarget = null;
-			}
+			pickedTarget = null;
 		}
 		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelect))
 		{
 			if (flag)
 			{
-				pickedTarget = new PickResult<MVWorldObjectClient>(MVInputWrapper.GetPointerPosition(), hit, MVGameControllerBase.WOCM.GetWorldObjectClient(hit.woId));
+				pickedTarget = new PickResult<WorldObjectClientRef>(MVInputWrapper.GetPointerPosition(), hit, MVGameControllerBase.WOCM.GetWorldObjectClientRef(hit.woId));
 				HashSet<int> selectedIDs = e.SelectedIDs;
-				VoxelHit hit3 = pickedTarget.hit;
-				bool flag2 = selectedIDs.Contains(hit3.woId);
-				if ((pickedTarget.data.InteractionFlags & InteractionFlags.NotUserTransformable) != InteractionFlags.NotUserTransformable)
+				VoxelHit hit2 = pickedTarget.hit;
+				bool flag2 = selectedIDs.Contains(hit2.woId);
+				if ((pickedTarget.data.WorldObjectClient.InteractionFlags & InteractionFlags.NotUserTransformable) != InteractionFlags.NotUserTransformable)
 				{
 					bool addToSelection = flag2;
 					selectedWorldObject = e.Select(pickedTarget.hit, addToSelection);
@@ -180,16 +185,16 @@ internal class ESSelection : ESStateBase
 		}
 		else if (MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
 		{
-			if (selectedWorldObject != null && pickedTarget != null && IsMouseUpValid(pickedTarget.mousePosition))
+			if (selectedWorldObject.WorldObjectClient != null && pickedTarget != null && pickedTarget.data.WorldObjectClient != null && IsMouseUpValid(pickedTarget.mousePosition))
 			{
 				bool flag3 = CheckAndExecuteOnClickHandler(e, pickedTarget);
-				bool flag4 = !e.SelectedIDs.Contains(selectedWorldObject.Id);
+				bool flag4 = !e.SelectedIDs.Contains(selectedWorldObject.WorldObjectClient.Id);
 				if (!flag3 && !flag4)
 				{
 					GizmoController gizmoController = this.gizmoController;
-					int id = selectedWorldObject.Id;
-					VoxelHit hit4 = pickedTarget.hit;
-					gizmoController.Show(id, hit4.point, e);
+					int id = selectedWorldObject.WorldObjectClient.Id;
+					VoxelHit hit3 = pickedTarget.hit;
+					gizmoController.Show(id, hit3.point, e);
 				}
 			}
 			else
@@ -205,17 +210,17 @@ internal class ESSelection : ESStateBase
 		}
 		else if (MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelectAlt))
 		{
-			VoxelHit hit5 = default;
-			LinkObjectBase linkHit = GetLinkHit(e, ref hit5);
+			VoxelHit hit4 = default;
+			LinkObjectBase linkHit = GetLinkHit(e, ref hit4);
 			if (linkHit != null)
 			{
-				pickedLink = new PickResult<LinkObjectBase>(MVInputWrapper.GetPointerPosition(), hit5, linkHit);
+				pickedLink = new PickResult<LinkObjectBase>(MVInputWrapper.GetPointerPosition(), hit4, linkHit);
 			}
 			else if (flag)
 			{
-				MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(hit.woId);
-				pickedTarget = new PickResult<MVWorldObjectClient>(MVInputWrapper.GetPointerPosition(), hit, worldObjectClient);
-				if (!e.SelectedWOs.Contains(pickedTarget.data))
+				WorldObjectClientRef worldObjectClientRef = MVGameControllerBase.WOCM.GetWorldObjectClientRef(hit.woId);
+				pickedTarget = new PickResult<WorldObjectClientRef>(MVInputWrapper.GetPointerPosition(), hit, worldObjectClientRef);
+				if (!e.SelectedWOs.Contains(pickedTarget.data.WorldObjectClient))
 				{
 					selectedWorldObject = e.Select(pickedTarget.hit, addToSelection: false);
 				}
@@ -262,16 +267,20 @@ internal class ESSelection : ESStateBase
 		return (mousePosition - MVInputWrapper.GetPointerPosition()).sqrMagnitude < 20f;
 	}
 
-	private bool CheckAndExecuteOnClickHandler(EditorStateMachine e, PickResult<MVWorldObjectClient> pick)
+	private bool CheckAndExecuteOnClickHandler(EditorStateMachine e, PickResult<WorldObjectClientRef> pick)
 	{
-		MVWorldObjectClient data = pick.data;
+		if (pick.data.WorldObjectClient == null)
+		{
+			return false;
+		}
+		MVWorldObjectClient worldObjectClient = pick.data.WorldObjectClient;
 		VoxelHit hit = pick.hit;
-		return data.OnClickHandler(e, hit.collider);
+		return worldObjectClient.OnClickHandler(e, hit.collider);
 	}
 
 	private void SelectionController_SelectedWorldObjectDeletedHandler(object sender, WorldObjectDestroyedEventArgs e)
 	{
-		if (selectedWorldObject != null && selectedWorldObject.Id == e.WordObjectID)
+		if (selectedWorldObject.WorldObjectClient != null && selectedWorldObject.WorldObjectClient.Id == e.WordObjectID)
 		{
 			editorStateMachine.PopState();
 		}

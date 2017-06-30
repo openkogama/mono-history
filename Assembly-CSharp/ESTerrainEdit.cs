@@ -14,7 +14,7 @@ internal class ESTerrainEdit : ESStateBase
 		}
 		terrain = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>();
 		e.CubeModelingStateMachine.StartEdit(terrain);
-		tintedWo = null;
+		tintedWo = MVWorldObjectClientManager.GetWorldObjectClientRefNullRef();
 	}
 
 	public override void Execute(EditorStateMachine e)

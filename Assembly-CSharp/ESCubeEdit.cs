@@ -55,7 +55,7 @@ internal class ESCubeEdit : ESStateBase
 		{
 			handler.Open(Exit);
 		});
-		tintedWo = null;
+		tintedWo = MVWorldObjectClientManager.GetWorldObjectClientRefNullRef();
 		TargetCubeModel = (MVCubeModelBase)e.SingleSelectedWO;
 		e.DeSelectAll();
 		constraint = TargetCubeModel.ModelingConstraintBuilder();
@@ -120,7 +120,7 @@ internal class ESCubeEdit : ESStateBase
 		{
 			handler.PopToBottom();
 		});
-		if (TargetCubeModel.GameObject == null)
+		if (TargetCubeModel == null)
 		{
 			Debug.LogWarning("Implement: Create drawplane");
 			e.CameraController.BlueModeEnabled = false;

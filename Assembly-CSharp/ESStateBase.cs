@@ -4,7 +4,7 @@ public class ESStateBase : IState
 {
 	protected EditorEvent stateType;
 
-	protected MVWorldObjectClient tintedWo;
+	protected WorldObjectClientRef tintedWo = MVWorldObjectClientManager.GetWorldObjectClientRefNullRef();
 
 	private ILogger logger;
 
@@ -52,10 +52,10 @@ public class ESStateBase : IState
 
 	protected void DeTintCurrent()
 	{
-		if (tintedWo != null)
+		if (tintedWo.WorldObjectClient != null)
 		{
-			tintedWo.DeSelect();
-			tintedWo = null;
+			tintedWo.WorldObjectClient.DeSelect();
+			tintedWo = MVWorldObjectClientManager.GetWorldObjectClientRefNullRef();
 		}
 	}
 
@@ -68,9 +68,9 @@ public class ESStateBase : IState
 
 	protected void TintObjectsOnMouseOver(EditorStateMachine e, bool pickSuccess, VoxelHit hit)
 	{
-		if (tintedWo != null && e.IsSelected(tintedWo.Id))
+		if (tintedWo.WorldObjectClient != null && e.IsSelected(tintedWo.WorldObjectClient.Id))
 		{
-			tintedWo = null;
+			tintedWo = MVWorldObjectClientManager.GetWorldObjectClientRefNullRef();
 		}
 		if (pickSuccess)
 		{
@@ -78,10 +78,10 @@ public class ESStateBase : IState
 			bool flag2 = (hit.interactionFlags & InteractionFlags.DirectlySelectable) != 0;
 			if (flag)
 			{
-				MVWorldObjectClient worldObjectClient;
+				WorldObjectClientRef worldObjectClientRefNullRef = MVWorldObjectClientManager.GetWorldObjectClientRefNullRef();
 				if (flag2)
 				{
-					worldObjectClient = WOCM.GetWorldObjectClient(hit.woId);
+					worldObjectClientRefNullRef = WOCM.GetWorldObjectClientRef(hit.woId);
 				}
 				else
 				{
@@ -90,17 +90,20 @@ public class ESStateBase : IState
 					{
 						return;
 					}
-					worldObjectClient = WOCM.GetWorldObjectClient(parentBelow);
+					worldObjectClientRefNullRef = WOCM.GetWorldObjectClientRef(parentBelow);
 				}
-				if (tintedWo != null && tintedWo.Id != worldObjectClient.Id)
+				if (worldObjectClientRefNullRef.WorldObjectClient != null)
 				{
-					DeTintCurrent();
-				}
-				else if (tintedWo == null)
-				{
-					tintedWo = worldObjectClient;
-					Color color = new Color(0f, 0.8f, 0f, 1f);
-					tintedWo.Select(color);
+					if (tintedWo.WorldObjectClient != null && tintedWo.WorldObjectClient.Id != worldObjectClientRefNullRef.WorldObjectClient.Id)
+					{
+						DeTintCurrent();
+					}
+					else if (tintedWo.WorldObjectClient == null)
+					{
+						tintedWo = worldObjectClientRefNullRef;
+						Color color = new Color(0f, 0.8f, 0f, 1f);
+						tintedWo.WorldObjectClient.Select(color);
+					}
 				}
 			}
 			else

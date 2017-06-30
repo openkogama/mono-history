@@ -1097,8 +1097,12 @@ public class MVNetworkGame : IPhotonPeerListener
 		public bool AddLink(Link link)
 		{
 			LogicObjectManager.ValidateLinkStatus validateLinkStatus = global::LogicObjectManager.ValidateLink(link.outputWOID, link.inputWOID, MVGameControllerBase.WOCM, out var reportSeverity);
-			if (validateLinkStatus != global::LogicObjectManager.ValidateLinkStatus.Ok)
+			switch (validateLinkStatus)
 			{
+			case global::LogicObjectManager.ValidateLinkStatus.LoopDetected:
+				Debug.LogWarning("Link invalid and rejected. Reason: " + validateLinkStatus);
+				return false;
+			default:
 				if (reportSeverity == global::LogicObjectManager.ReportSeverity.Error)
 				{
 					Debug.LogError("Link invalid and rejected. Reason: " + validateLinkStatus);
@@ -1108,12 +1112,15 @@ public class MVNetworkGame : IPhotonPeerListener
 					Debug.LogWarning("Link invalid and rejected. Reason: " + validateLinkStatus);
 				}
 				return false;
+			case global::LogicObjectManager.ValidateLinkStatus.Ok:
+			{
+				Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
+				dictionary.Add(55, link.outputWOID);
+				dictionary.Add(54, link.inputWOID);
+				peer.OpCustom(9, dictionary, sendReliable: true);
+				return true;
 			}
-			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
-			dictionary.Add(55, link.outputWOID);
-			dictionary.Add(54, link.inputWOID);
-			peer.OpCustom(9, dictionary, sendReliable: true);
-			return true;
+			}
 		}
 
 		public void UpdateWorldObject(int id, Vector3 position, byte[] rotation, TransformPackageType packageType)

@@ -16,15 +16,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 
 	private Dictionary<object, object> accessoryData;
 
-	private BoneAnimation animation;
-
-	private AvatarBlobShadowController shadowBlob;
-
-	private AvatarBlinker blinker;
-
-	private SelectionRenderer selectionRenderer;
-
-	private BodyData bodyData;
+	private MVBodyObject bodyObject;
 
 	private Dictionary<int, IModelingConstraint> constraints = new Dictionary<int, IModelingConstraint>();
 
@@ -88,15 +80,15 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 
 	private MVNetworkGame Game => MVGameControllerBase.Game;
 
-	public BoneAnimation Animation => animation;
+	public BoneAnimation Animation => bodyObject.BoneAnimation;
 
-	public BodyData BodyData => bodyData;
+	public BodyData BodyData => bodyObject.BodyData;
 
 	public MVAvatar AttachedAvatar => attachedAvatar;
 
 	public List<MVCubeModelInstance> AttachedParts => attachedPartModels;
 
-	public AvatarBlobShadowController BlobShadow => shadowBlob;
+	public AvatarBlobShadowController BlobShadow => bodyObject.AvatarBlobShadowController;
 
 	public new bool Visible
 	{
@@ -193,12 +185,12 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 	public MVBody(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVBodyPrefab, worldObjects)
 	{
+		bodyObject = (MVBodyObject)component;
 		MVWorldObjectClient value = null;
 		if (worldObjects.TryGetValue(groupId, out value))
 		{
 			attachedAvatar = value as MVAvatar;
 		}
-		GetComponents();
 		previewLayerMask |= LayerFlags.Player;
 		gameObject.layer = LayerMask.NameToLayer("Player");
 	}
@@ -212,25 +204,25 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		}
 		base.Initialize();
 		MeshFilter[] componentsInChildren = gameObject.GetComponentsInChildren<MeshFilter>();
-		blinker.MeshFilters = componentsInChildren;
-		selectionRenderer.AddMeshFilters(componentsInChildren);
+		bodyObject.AvatarBlinker.MeshFilters = componentsInChildren;
+		bodyObject.SelectionRenderer.AddMeshFilters(componentsInChildren);
 		InitializeCommon();
 		if (attachedAvatar != null)
 		{
 			CollidersEnabled = false;
-			shadowBlob.enabled = true;
+			BlobShadow.enabled = true;
 		}
 		else
 		{
 			CollidersEnabled = true;
-			shadowBlob.enabled = false;
+			BlobShadow.enabled = false;
 		}
 		initialized = true;
 	}
 
 	public void Highlight()
 	{
-		selectionRenderer.Show();
+		bodyObject.SelectionRenderer.Show();
 	}
 
 	public void EditorSwapAccessoryAssetPath(int invID, string assetPath)
@@ -252,7 +244,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		base.InitializeInventory();
 		InitializeCommon();
 		CollidersEnabled = false;
-		shadowBlob.enabled = false;
+		BlobShadow.enabled = false;
 	}
 
 	public override void Destroy()
@@ -281,7 +273,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 			return gameObject.transform.position + GetLocalBounds(BoundsContext.Preview).center + offset;
 		}
 		string text = slotBoneNameMap[slot];
-		Transform partBone = bodyData.GetPartBone(text);
+		Transform partBone = BodyData.GetPartBone(text);
 		if (partBone == null)
 		{
 			Debug.LogError($"Accessory: Failed to get bone {text} for slot {slot}");
@@ -394,29 +386,28 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		attachedAvatar = mvAvatar;
 		if (attachedAvatar != null)
 		{
-			GetComponents();
-			if (animation != null)
+			if (bodyObject.BoneAnimation != null)
 			{
-				animation.Attach(attachedAvatar, isLocal);
+				bodyObject.BoneAnimation.Attach(attachedAvatar, isLocal);
 			}
-			if (blinker != null)
+			if (bodyObject.AvatarBlinker != null)
 			{
-				blinker.Visible = visible;
-				blinker.Attach(mvAvatar);
+				bodyObject.AvatarBlinker.Visible = visible;
+				bodyObject.AvatarBlinker.Attach(mvAvatar);
 			}
 			CollidersEnabled = false;
-			shadowBlob.enabled = true;
+			BlobShadow.enabled = true;
 		}
 	}
 
 	public void Detach()
 	{
-		animation.Detach();
-		if (blinker != null)
+		bodyObject.BoneAnimation.Detach();
+		if (bodyObject.AvatarBlinker != null)
 		{
-			blinker.Detach();
+			bodyObject.AvatarBlinker.Detach();
 		}
-		shadowBlob.enabled = false;
+		BlobShadow.enabled = false;
 	}
 
 	public IEnumerable<AvatarAccessory> GetAccessories(AvatarAccessorySlot slot)
@@ -513,12 +504,12 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 
 	public void StartBlinking(BlinkType type, float duration)
 	{
-		blinker.StartBlinking(type, duration);
+		bodyObject.AvatarBlinker.StartBlinking(type, duration);
 	}
 
 	public void StopBlinking(BlinkType type)
 	{
-		blinker.StopBlinking(type);
+		bodyObject.AvatarBlinker.StopBlinking(type);
 	}
 
 	public GameObject CopyByValue()
@@ -561,43 +552,19 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		Animation.enabled = true;
 	}
 
-	private void GetComponents()
-	{
-		if (animation == null)
-		{
-			animation = gameObject.GetComponent<BoneAnimation>();
-		}
-		if (blinker == null)
-		{
-			blinker = gameObject.GetComponent<AvatarBlinker>();
-		}
-		if (selectionRenderer == null)
-		{
-			selectionRenderer = gameObject.GetComponent<SelectionRenderer>();
-		}
-		if (shadowBlob == null)
-		{
-			shadowBlob = gameObject.GetComponentInChildren<AvatarBlobShadowController>();
-		}
-		if (bodyData == null)
-		{
-			bodyData = gameObject.GetComponent<BodyData>();
-		}
-	}
-
 	private void UpdateVisibility()
 	{
 		foreach (Renderer renderer in renderers)
 		{
 			renderer.enabled = visible;
 		}
-		if (shadowVisible && shadowBlob != null)
+		if (shadowVisible && BlobShadow != null)
 		{
-			shadowBlob.enabled = visible;
+			BlobShadow.enabled = visible;
 		}
-		if (blinker != null)
+		if (bodyObject.AvatarBlinker != null)
 		{
-			blinker.Visible = visible;
+			bodyObject.AvatarBlinker.Visible = visible;
 		}
 		foreach (AvatarAccessory value in accessoryMap.Values)
 		{
@@ -742,7 +709,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		{
 			return gameObject.transform;
 		}
-		return bodyData.GetPartBone(slotBoneNameMap[slot]);
+		return BodyData.GetPartBone(slotBoneNameMap[slot]);
 	}
 
 	private void MarkAccessoryPermanent(AvatarAccessory acc, ProductInventoryInfo invInfo)
@@ -793,9 +760,9 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 			if (value == null)
 			{
 				string part = (string)idChildMap[cubeModel.Id];
-				Vector3 partConstraintMin = bodyData.GetPartConstraintMin(part);
-				Vector3 partConstraintMax = bodyData.GetPartConstraintMax(part);
-				int partConstraintMinCount = bodyData.GetPartConstraintMinCount(part);
+				Vector3 partConstraintMin = BodyData.GetPartConstraintMin(part);
+				Vector3 partConstraintMax = BodyData.GetPartConstraintMax(part);
+				int partConstraintMinCount = BodyData.GetPartConstraintMinCount(part);
 				value = new ModelingBoxCountConstraint(cubeModel, partConstraintMin.ToIntVector(), partConstraintMax.ToIntVector(), partConstraintMinCount);
 				constraints.Add(cubeModel.Id, value);
 			}
@@ -834,7 +801,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 
 	private void AttachCube(string boneName)
 	{
-		Transform partBone = bodyData.GetPartBone(boneName);
+		Transform partBone = BodyData.GetPartBone(boneName);
 		MVCubeModelInstance bodyPart = GetBodyPart(boneName);
 		attachedPartModels.Add(bodyPart);
 		GameObject gameObject = bodyPart.GameObject;
@@ -869,7 +836,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 
 	private void AlignModel(string boneName, Transform bone, GameObject model)
 	{
-		Vector3 partBoneSpacePosition = bodyData.GetPartBoneSpacePosition(boneName);
+		Vector3 partBoneSpacePosition = BodyData.GetPartBoneSpacePosition(boneName);
 		Quaternion quaternion = Quaternion.identity;
 		switch (boneName)
 		{

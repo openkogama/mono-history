@@ -106,7 +106,7 @@ public class SelectionController : ISelectionController
 		}
 	}
 
-	public MVWorldObjectClient SelectWO(int id, bool addToSelection = false, bool showVisuals = true)
+	public WorldObjectClientRef SelectWO(int id, bool addToSelection = false, bool showVisuals = true)
 	{
 		MVWorldObjectClient worldObjectClient = WOCM.GetWorldObjectClient(id);
 		if (!addToSelection)
@@ -116,12 +116,12 @@ public class SelectionController : ISelectionController
 		if (worldObjectClient.OwnerActorNr != 0 && worldObjectClient.OwnerActorNr != MVGameControllerBase.Game.LocalPlayer.ActorNr)
 		{
 			Debug.LogWarning("Trying to select WO " + id + " that is owned by another acotr");
-			return null;
+			return MVWorldObjectClientManager.GetWorldObjectClientRefNullRef();
 		}
 		if (!MVGroup.IsDescendant(ParentGroupID, id) && !worldObjectClient.HasInteractionFlag(InteractionFlags.DirectlySelectable))
 		{
 			Debug.LogWarning("Trying to select WO " + id + " outside the parent group " + ParentGroupID);
-			return null;
+			return MVWorldObjectClientManager.GetWorldObjectClientRefNullRef();
 		}
 		if (ParentGroupID != worldObjectClient.GroupId)
 		{
@@ -137,10 +137,10 @@ public class SelectionController : ISelectionController
 		{
 			worldObjectClient.Select();
 		}
-		return worldObjectClient;
+		return WOCM.GetWorldObjectClientRef(worldObjectClient.Id);
 	}
 
-	public MVWorldObjectClient Select(bool addToSelection = false, bool showVisuals = true, int layerMask = -5)
+	public WorldObjectClientRef Select(bool addToSelection = false, bool showVisuals = true, int layerMask = -5)
 	{
 		VoxelHit hit = default;
 		if (!EditModeObjectPicker.Pick(ref hit, null, layerMask))
@@ -150,7 +150,7 @@ public class SelectionController : ISelectionController
 		return Select(hit, addToSelection, showVisuals);
 	}
 
-	public MVWorldObjectClient Select(VoxelHit hit, bool addToSelection = false, bool showVisuals = true)
+	public WorldObjectClientRef Select(VoxelHit hit, bool addToSelection = false, bool showVisuals = true)
 	{
 		if ((hit.interactionFlags & InteractionFlags.Selectable) == 0)
 		{
@@ -164,7 +164,7 @@ public class SelectionController : ISelectionController
 			if (groupAbove == -1)
 			{
 				Debug.Log("Could not find appropriate group Id");
-				return null;
+				return WOCM.GetWorldObjectClientRef(-1);
 			}
 			return SelectWO(groupAbove, addToSelection, showVisuals);
 		}

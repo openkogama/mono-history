@@ -1,0 +1,8 @@
+namespace CSUACSelfElevation;
+
+internal enum TOKEN_ELEVATION_TYPE
+{
+	TokenElevationTypeDefault = 1,
+	TokenElevationTypeFull,
+	TokenElevationTypeLimited
+}

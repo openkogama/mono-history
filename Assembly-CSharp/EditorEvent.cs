@@ -13,7 +13,6 @@ public enum EditorEvent
 	ESTranslate = 34,
 	ESWaitForClone = 35,
 	ESAddLink = 39,
-	ESPlaceEndpoint = 40,
 	ESWalkMode = 41,
 	ESInsert = 42,
 	ESAddObjectLink = 43,

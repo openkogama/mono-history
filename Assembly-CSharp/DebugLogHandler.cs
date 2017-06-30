@@ -223,7 +223,10 @@ public static class DebugLogHandler
 			string text = string.Empty;
 			foreach (int value in Enum.GetValues(typeof(RenderTextureFormat)))
 			{
-				text = ((!string.IsNullOrEmpty(text)) ? (text + " " + (RenderTextureFormat)value) : (text + (RenderTextureFormat)value));
+				if (SystemInfo.SupportsRenderTextureFormat((RenderTextureFormat)value))
+				{
+					text = ((!string.IsNullOrEmpty(text)) ? (text + " " + (RenderTextureFormat)value) : (text + (RenderTextureFormat)value));
+				}
 			}
 			dictionary.Add("supportedRenderTextureFormats", text);
 		}

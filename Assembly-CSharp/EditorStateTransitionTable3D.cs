@@ -12,7 +12,6 @@ internal class EditorStateTransitionTable3D : EditorStateTransitionTableBase
 		table.Add(EditorEvent.ESTranslate, new ESTranslate());
 		table.Add(EditorEvent.ESWaitForClone, new ESWaitForClone());
 		table.Add(EditorEvent.ESAddLink, new ESAddLink());
-		table.Add(EditorEvent.ESPlaceEndpoint, new ESPlaceEndpoint());
 		table.Add(EditorEvent.ESWalkMode, new ESWalkMode());
 		table.Add(EditorEvent.ESInsert, new ESInsert());
 		table.Add(EditorEvent.ESAddObjectLink, new ESAddObjectLink());
