@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MV.WorldObject.AntiCheat;
 using Microsoft.Win32;
 using UnityEngine;
 
@@ -41,7 +42,7 @@ public static class RegistryScanner
 		return registerRoots[root];
 	}
 
-	public static void StartScan(HackingToolDetector.ApplicationDesc[] banList)
+	public static void StartScan(ApplicationDesc[] banList)
 	{
 		for (int i = 0; i < banList.Length; i++)
 		{
@@ -49,22 +50,22 @@ public static class RegistryScanner
 		}
 	}
 
-	private static void RegistrySearch(HackingToolDetector.ApplicationDesc appDesc)
+	private static void RegistrySearch(ApplicationDesc appDesc)
 	{
 		for (int i = 0; i < appDesc.associatedRegistryKeys.Length; i++)
 		{
-			HackingToolDetector.ApplicationDesc.RegistryKey registryKey = appDesc.associatedRegistryKeys[i];
+			ApplicationDesc.RegistryKey registryKey = appDesc.associatedRegistryKeys[i];
 			string regPath = GetRegPath(registryKey);
 			if (regPath != null)
 			{
-				HackingToolDetector.instance.detectedHackingTools.Enqueue(new HackingToolDetector.HackingToolReport(appDesc, registryKey));
+				HackingToolDetector.Report(new HackingToolDetector.HackingToolReport(appDesc, registryKey));
 				continue;
 			}
 			Debug.Log("Registry key " + registryKey.Name + " associated with " + appDesc.ProgramName + " not found.");
 		}
 	}
 
-	private static string GetRegPath(HackingToolDetector.ApplicationDesc.RegistryKey key)
+	private static string GetRegPath(ApplicationDesc.RegistryKey key)
 	{
 		string name = key.Name;
 		string text = name.Substring(0, name.IndexOf('\\'));

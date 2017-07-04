@@ -15,7 +15,7 @@ public abstract class AsyncWebRequest
 
 	protected readonly string path;
 
-	protected int retries = 3;
+	protected int retries = AsyncWWWManager.Retries;
 
 	protected TimeSpan currentTimeout = new TimeSpan(0L);
 

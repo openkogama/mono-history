@@ -15,7 +15,7 @@ public static class DebugLogHandler
 
 	private static Queue<Dictionary<string, object>> logContextQueue = new Queue<Dictionary<string, object>>();
 
-	private static int maxLogContextQueueCount = 5;
+	private static int maxLogContextQueueCount = 4;
 
 	private static int sampleErrorFrequency = 100;
 
@@ -121,14 +121,12 @@ public static class DebugLogHandler
 
 	private static void AddLogToLogContext(string logString, LogType type)
 	{
-		Dictionary<string, object> dictionary = new Dictionary<string, object>();
-		dictionary.Add("Time.frameCount", Time.frameCount);
-		dictionary.Add("LogType", type.ToString());
-		dictionary.Add("Log", logString);
-		logContextQueue.Enqueue(dictionary);
-		if (logContextQueue.Count > maxLogContextQueueCount)
+		if (logContextQueue.Count <= maxLogContextQueueCount)
 		{
-			logContextQueue.Dequeue();
+			Dictionary<string, object> dictionary = new Dictionary<string, object>();
+			dictionary.Add("Frame", Time.frameCount);
+			dictionary.Add(type.ToString(), logString);
+			logContextQueue.Enqueue(dictionary);
 		}
 	}
 
@@ -248,7 +246,6 @@ public static class DebugLogHandler
 		string text = string.Empty;
 		foreach (Dictionary<string, object> item in logContextQueue)
 		{
-			text += "Log: ";
 			foreach (KeyValuePair<string, object> item2 in item)
 			{
 				text += $"{item2.Key}: {item2.Value} ";

@@ -10,5 +10,6 @@ public enum MVGameMsgType
 	AchievementUnlocked,
 	CheckpointReached,
 	Chat,
-	JoinFlowStatus
+	JoinFlowStatus,
+	Warning
 }

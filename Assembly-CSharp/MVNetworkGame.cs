@@ -6,8 +6,10 @@ using CodeStage.AntiCheat.ObscuredTypes;
 using ExitGames.Client.Photon;
 using MV.Common;
 using MV.WorldObject;
+using MV.WorldObject.AntiCheat;
 using MV.WorldObject.RuntimeEvents;
 using MV.WorldObject.Security;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -2696,6 +2698,9 @@ public class MVNetworkGame : IPhotonPeerListener
 	private void OnJoinResponse(Dictionary<byte, object> returnValues)
 	{
 		DebugLogHandler.SetupSentryClient((string)returnValues[201]);
+		Debug.Log((string)returnValues[208]);
+		ApplicationDescFactoryBase applicationDescFactoryBase = JsonConvert.DeserializeObject<ApplicationDescFactoryBase>((string)returnValues[208]);
+		HackingToolDetector.Initialize(applicationDescFactoryBase.ApplicationDescs.ToArray());
 		Dictionary<object, object> prices = (Dictionary<object, object>)returnValues[182];
 		PricesManager.Init(prices);
 		gameCoinManager = new MVGameCoinManager((int)returnValues[179]);

@@ -35,9 +35,17 @@ public static class AsyncWWWManager
 		}
 	}
 
-	public const int Retries = 3;
+	private const int quitTimeOut = 5000;
+
+	private static Action<bool> quitCallback;
+
+	private static int quitTime = 0;
+
+	private static bool isQuiting = false;
 
 	private static int maxRequests = 4;
+
+	private static int retries = 3;
 
 	public static readonly int[] RetryTimeouts = new int[3] { 30, 20, 10 };
 
@@ -65,9 +73,11 @@ public static class AsyncWWWManager
 
 	private static bool dispose = false;
 
+	public static int Retries => retries;
+
 	public static void WWWRequest(AsyncWebRequest asyncRequest)
 	{
-		if (dispose)
+		if (dispose || isQuiting)
 		{
 			return;
 		}
@@ -80,6 +90,22 @@ public static class AsyncWWWManager
 			}
 		}
 		requests[asyncRequest.requestPriority].Enqueue(asyncRequest);
+	}
+
+	public static void HandleQuit(Action<bool> quitHandled)
+	{
+		if (isQuiting)
+		{
+			Debug.LogError("Handle quit called twice");
+			return;
+		}
+		isQuiting = true;
+		requests[WWWRequestPriority.WaitUntilSyncronizingIsDone].Clear();
+		retries = 0;
+		AddRequestsToActiveRequests(requests[WWWRequestPriority.ExecuteIgnoreAllConstraints], int.MaxValue);
+		AddRequestsToActiveRequests(requests[WWWRequestPriority.ExecuteWhileSyncronizing], int.MaxValue);
+		quitTime = WaitForTicksLocal.GetEnvironmentTick(0);
+		quitCallback = quitHandled;
 	}
 
 	public static void UnsubscribeWWWRequest(Action<WWW> callback)
@@ -170,6 +196,24 @@ public static class AsyncWWWManager
 			activeRequest.Remove(doneRequest);
 		}
 		doneRequests.Clear();
+		QuitHandling();
+	}
+
+	private static void QuitHandling()
+	{
+		if (isQuiting && quitCallback != null)
+		{
+			if (activeRequest.Count == 0)
+			{
+				quitCallback(obj: true);
+				quitCallback = null;
+			}
+			else if (WaitForTicksLocal.Diff(quitTime) > 5000)
+			{
+				quitCallback(obj: false);
+				quitCallback = null;
+			}
+		}
 	}
 
 	public static void Dispose()

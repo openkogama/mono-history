@@ -210,6 +210,7 @@ public enum MVParameterKeys : byte
 	FrameCount = 205,
 	RandomBoxIndex = 206,
 	Count = 207,
+	AntiCheatData = 208,
 	GameId = byte.MaxValue,
 	ActorNr = 254,
 	TargetActorNr = 253,

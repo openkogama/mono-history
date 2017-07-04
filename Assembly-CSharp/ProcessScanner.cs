@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using MV.WorldObject.AntiCheat;
 using UnityEngine;
 
 public static class ProcessScanner
@@ -17,7 +18,7 @@ public static class ProcessScanner
 	[return: MarshalAs(UnmanagedType.LPStr)]
 	public static extern string GetLastExactFind();
 
-	public static void Initialize(HackingToolDetector.ApplicationDesc[] banList)
+	public static void Initialize(ApplicationDesc[] banList)
 	{
 		for (int i = 0; i < banList.Length; i++)
 		{
@@ -25,9 +26,9 @@ public static class ProcessScanner
 			{
 				AddToBanList(banList[i].ProcessName, banList[i].StrictComparison);
 			}
-			catch (Exception)
+			catch (Exception exception)
 			{
-				Debug.LogError("DLL error");
+				Debug.LogException(exception);
 			}
 		}
 	}
@@ -37,7 +38,7 @@ public static class ProcessScanner
 		Cleanup();
 	}
 
-	public static void StartScan(HackingToolDetector.ApplicationDesc[] banList)
+	public static void StartScan(ApplicationDesc[] banList)
 	{
 		try
 		{
@@ -46,11 +47,11 @@ public static class ProcessScanner
 			{
 				if (banList[num].StrictComparison)
 				{
-					HackingToolDetector.instance.detectedHackingTools.Enqueue(new HackingToolDetector.HackingToolReport(banList[num]));
+					HackingToolDetector.Report(new HackingToolDetector.HackingToolReport(banList[num]));
 				}
 				else
 				{
-					HackingToolDetector.instance.detectedHackingTools.Enqueue(new HackingToolDetector.HackingToolReport(banList[num], GetLastExactFind()));
+					HackingToolDetector.Report(new HackingToolDetector.HackingToolReport(banList[num], GetLastExactFind()));
 				}
 				return;
 			}
@@ -70,9 +71,9 @@ public static class ProcessScanner
 				break;
 			}
 		}
-		catch (Exception)
+		catch (Exception exception)
 		{
-			Debug.LogError("DLL error");
+			Debug.LogException(exception);
 		}
 	}
 }

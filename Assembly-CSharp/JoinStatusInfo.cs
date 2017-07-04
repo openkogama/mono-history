@@ -43,6 +43,10 @@ public class JoinStatusInfo : MonoBehaviour
 				string message3 = TM._("Type /h for help\nPress <Enter> or <T> to chat");
 				MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, message3);
 			}
+			if (HackingToolDetector.InstallTracesDetected)
+			{
+				MVGameControllerBase.PostGameMsg(MVGameMsgType.Warning, HackingToolDetector.CheatWarning);
+			}
 			Object.Destroy(this);
 		}
 	}

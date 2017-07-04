@@ -65,6 +65,9 @@ public class ChatControllerUGUI : MonoBehaviour
 	private Color systemMessageColor;
 
 	[SerializeField]
+	private Color warningColor;
+
+	[SerializeField]
 	private Color killMessageColor;
 
 	[SerializeField]
@@ -242,6 +245,9 @@ public class ChatControllerUGUI : MonoBehaviour
 		case MVGameMsgType.AdminMsg:
 			AddAdminMessage(message);
 			break;
+		case MVGameMsgType.Warning:
+			AddWarningMessage(message);
+			break;
 		default:
 			Debug.Log("GameMsg of type " + msgType.ToString() + " received...");
 			break;
@@ -296,6 +302,18 @@ public class ChatControllerUGUI : MonoBehaviour
 	private void AddAdminMessage(string msg)
 	{
 		msg = $"<color=#{Styles.ColorToHex(systemMessageColor)}>{msg}</color>";
+		AddLine(msg);
+	}
+
+	private void AddWarningMessage(Dictionary<object, object> data)
+	{
+		string msg = (string)data[(byte)5];
+		AddWarningMessage(msg);
+	}
+
+	private void AddWarningMessage(string msg)
+	{
+		msg = $"<color=#{Styles.ColorToHex(warningColor)}>{msg}</color>";
 		AddLine(msg);
 	}
 

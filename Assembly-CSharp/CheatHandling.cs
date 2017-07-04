@@ -9,6 +9,11 @@ public static class CheatHandling
 		ObscuredCheatingDetector.StartDetection(ObscuredCheatingDetected);
 	}
 
+	public static void CheatSoftwareRunningDetected()
+	{
+		ExecuteBan(CheatType.CheatSoftwareRunning);
+	}
+
 	public static void TextureHackDetected()
 	{
 		ExecuteBan(CheatType.TextureTampering);

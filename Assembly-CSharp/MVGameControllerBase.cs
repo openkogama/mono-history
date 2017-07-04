@@ -387,7 +387,11 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		if (!quitHasBeenCalled)
 		{
 			quitHasBeenCalled = true;
-			instance.HandleApplicationQuit(applicationQuitObject);
+			AsyncWWWManager.HandleQuit((bool handledAllRequest) =>
+			{
+				Debug.Log("Did handle all request:" + handledAllRequest);
+				instance.HandleApplicationQuit(applicationQuitObject);
+			});
 		}
 	}
 
