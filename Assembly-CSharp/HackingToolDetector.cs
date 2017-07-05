@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Threading;
-using MV.Common;
 using MV.WorldObject.AntiCheat;
 using UnityEngine;
 
@@ -145,15 +144,10 @@ public class HackingToolDetector : MonoBehaviour
 			DebugLogHandler.ReportError("Potential cheat detected.", string.Empty, LogType.Warning);
 			StatHatWrapper.Count("Cheat detected: " + reportCategory, 1);
 			alreadyReported[(int)reportCategory] = true;
-			switch (reportCategory)
+			if (reportCategory == ReportCategory.process)
 			{
-			case ReportCategory.regKey:
-				MVGameControllerBase.PostGameMsg(MVGameMsgType.Warning, CheatWarning);
-				break;
-			case ReportCategory.process:
 				Debug.Log("Application quit!");
 				CheatHandling.CheatSoftwareRunningDetected();
-				break;
 			}
 		}
 	}
