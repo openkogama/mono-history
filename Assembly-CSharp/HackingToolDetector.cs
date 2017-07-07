@@ -218,6 +218,7 @@ public class HackingToolDetector : MonoBehaviour
 			{
 				dateTime3 = dateTime3.AddSeconds(totalSeconds);
 				ScanForForbiddenProcesses();
+				Thread.Sleep((int)num);
 			}
 		}
 		ProcessScanner.Destroy();

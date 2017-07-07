@@ -58,7 +58,6 @@ public static class ProcessScanner
 			switch (num)
 			{
 			case -1:
-				Debug.Log("No forbidden application found.");
 				break;
 			case -2:
 				Debug.LogError("NativeFunc error: eError_CreateToolhelp32SnapshotFailed");

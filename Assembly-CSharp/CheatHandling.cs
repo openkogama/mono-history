@@ -1,5 +1,7 @@
+using System.Diagnostics;
 using CodeStage.AntiCheat.Detectors;
 using MV.Common;
+using UnityEngine;
 
 public static class CheatHandling
 {
@@ -7,6 +9,12 @@ public static class CheatHandling
 	{
 		SpeedHackDetector.StartDetection(SpeedHackDetected, 1f, 3);
 		ObscuredCheatingDetector.StartDetection(ObscuredCheatingDetected);
+	}
+
+	[Conditional("UNITY_STANDALONE_WIN")]
+	public static void MachineBanDetected()
+	{
+		MVGameControllerBase.ApplicationQuit(null);
 	}
 
 	public static void CheatSoftwareRunningDetected()
@@ -17,6 +25,11 @@ public static class CheatHandling
 	public static void TextureHackDetected()
 	{
 		ExecuteBan(CheatType.TextureTampering);
+	}
+
+	public static void SuspectedHackDetected(string msg)
+	{
+		DebugLogHandler.ReportError(msg, string.Empty, LogType.Error);
 	}
 
 	private static void SpeedHackDetected()
