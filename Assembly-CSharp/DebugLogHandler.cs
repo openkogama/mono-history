@@ -121,12 +121,13 @@ public static class DebugLogHandler
 
 	private static void AddLogToLogContext(string logString, LogType type)
 	{
-		if (logContextQueue.Count <= maxLogContextQueueCount)
+		Dictionary<string, object> dictionary = new Dictionary<string, object>();
+		dictionary.Add("Frame", Time.frameCount);
+		dictionary.Add(type.ToString(), logString);
+		logContextQueue.Enqueue(dictionary);
+		if (logContextQueue.Count > maxLogContextQueueCount)
 		{
-			Dictionary<string, object> dictionary = new Dictionary<string, object>();
-			dictionary.Add("Frame", Time.frameCount);
-			dictionary.Add(type.ToString(), logString);
-			logContextQueue.Enqueue(dictionary);
+			logContextQueue.Dequeue();
 		}
 	}
 
