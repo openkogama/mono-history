@@ -190,6 +190,7 @@ public class HackingToolDetector : MonoBehaviour
 		{
 			try
 			{
+				scanThread.Interrupt();
 				scanThread.Join();
 				Debug.Log("Hacking tool scan thread joined successfully.");
 			}
