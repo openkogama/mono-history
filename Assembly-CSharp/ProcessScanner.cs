@@ -6,7 +6,7 @@ using UnityEngine;
 public static class ProcessScanner
 {
 	[DllImport("NativeFuncs")]
-	private static extern void AddToBanList(string applicationName, bool strictComparison);
+	private static extern void AddToBanList(string certificateSerialNumber, bool strictComparison);
 
 	[DllImport("NativeFuncs")]
 	private static extern int ScanForForbiddenProcesses();
@@ -24,7 +24,7 @@ public static class ProcessScanner
 		{
 			try
 			{
-				AddToBanList(banList[i].ProcessName, banList[i].StrictComparison);
+				AddToBanList(banList[i].ExeCertSerialNumber, banList[i].StrictComparison);
 			}
 			catch (Exception exception)
 			{

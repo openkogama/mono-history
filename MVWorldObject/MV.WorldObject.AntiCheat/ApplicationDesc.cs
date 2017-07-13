@@ -35,8 +35,6 @@ public class ApplicationDesc
 
 	private string programName;
 
-	private string processName;
-
 	private bool strictComparison;
 
 	public RegistryKey[] associatedRegistryKeys;
@@ -53,17 +51,7 @@ public class ApplicationDesc
 		}
 	}
 
-	public string ProcessName
-	{
-		get
-		{
-			return processName;
-		}
-		set
-		{
-			processName = value;
-		}
-	}
+	public string ExeCertSerialNumber { get; set; }
 
 	public bool StrictComparison => strictComparison;
 
@@ -71,10 +59,10 @@ public class ApplicationDesc
 	{
 	}
 
-	public ApplicationDesc(string displayName, string processName, bool strictNameComparison, RegistryKey[] associatedRegKeys)
+	public ApplicationDesc(string displayName, string exeCertificateSerialNumber, bool strictNameComparison, RegistryKey[] associatedRegKeys)
 	{
 		programName = displayName;
-		this.processName = processName;
+		ExeCertSerialNumber = exeCertificateSerialNumber;
 		strictComparison = strictNameComparison;
 		associatedRegistryKeys = associatedRegKeys;
 	}

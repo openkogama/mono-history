@@ -119,11 +119,11 @@ public class HackingToolDetector : MonoBehaviour
 		{
 		case HackingToolReport.Kind.process:
 			reportCategory = ReportCategory.process;
-			text = "Running process \"" + a.app.ProcessName + "\" associated with \"" + a.app.ProgramName + "\" detected.";
+			text = "Running process \"" + a.app.ExeCertSerialNumber + "\" associated with \"" + a.app.ProgramName + "\" detected.";
 			break;
 		case HackingToolReport.Kind.suspectProcess:
 			reportCategory = ReportCategory.process;
-			text = "Running process \"" + a.app.ProcessName + "\" associated with \"" + a.app.ProgramName + "\" detected as \"" + a.exactFind + "\"";
+			text = "Running process \"" + a.app.ExeCertSerialNumber + "\" associated with \"" + a.app.ProgramName + "\" detected as \"" + a.exactFind + "\"";
 			break;
 		case HackingToolReport.Kind.regKey:
 			reportCategory = ReportCategory.regKey;
