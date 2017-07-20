@@ -14,7 +14,7 @@ public static class ProcessScanner
 	[DllImport("NativeFuncs")]
 	private static extern void Cleanup();
 
-	[DllImport("NativeFuncs", CharSet = CharSet.Ansi)]
+	[DllImport("NativeFuncs", CharSet = CharSet.Unicode)]
 	[return: MarshalAs(UnmanagedType.LPStr)]
 	public static extern string GetLastExactFind();
 
@@ -24,7 +24,7 @@ public static class ProcessScanner
 		{
 			try
 			{
-				AddToBanList(banList[i].ExeCertSerialNumber, banList[i].StrictComparison);
+				AddToBanList(banList[i].ExeCertSubjectName, banList[i].StrictComparison);
 			}
 			catch (Exception exception)
 			{
@@ -66,7 +66,7 @@ public static class ProcessScanner
 				Debug.LogError("NativeFunc error: eError_Process32FirstFailed");
 				break;
 			default:
-				Debug.LogError("NativeFunc error code: 666");
+				Debug.LogError("NativeFunc error code: UNKNOWN");
 				break;
 			}
 		}

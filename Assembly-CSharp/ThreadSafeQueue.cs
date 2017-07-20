@@ -17,7 +17,16 @@ public class ThreadSafeQueue<T>
 		}
 	}
 
-	public int Count => _queue.Count;
+	public int Count
+	{
+		get
+		{
+			lock (_lock)
+			{
+				return _queue.Count;
+			}
+		}
+	}
 
 	public ThreadSafeQueue(int initialCap)
 	{
@@ -54,10 +63,5 @@ public class ThreadSafeQueue<T>
 		{
 			return _queue.Peek();
 		}
-	}
-
-	public object ObtainLockForMultiOps()
-	{
-		return _lock;
 	}
 }

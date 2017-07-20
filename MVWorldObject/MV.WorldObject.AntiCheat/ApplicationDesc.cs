@@ -51,7 +51,7 @@ public class ApplicationDesc
 		}
 	}
 
-	public string ExeCertSerialNumber { get; set; }
+	public string ExeCertSubjectName { get; set; }
 
 	public bool StrictComparison => strictComparison;
 
@@ -59,10 +59,10 @@ public class ApplicationDesc
 	{
 	}
 
-	public ApplicationDesc(string displayName, string exeCertificateSerialNumber, bool strictNameComparison, RegistryKey[] associatedRegKeys)
+	public ApplicationDesc(string displayName, string exeCertSubjectName, bool strictNameComparison, RegistryKey[] associatedRegKeys)
 	{
 		programName = displayName;
-		ExeCertSerialNumber = exeCertificateSerialNumber;
+		ExeCertSubjectName = exeCertSubjectName;
 		strictComparison = strictNameComparison;
 		associatedRegistryKeys = associatedRegKeys;
 	}

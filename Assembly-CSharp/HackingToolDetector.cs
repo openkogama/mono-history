@@ -21,7 +21,8 @@ public class HackingToolDetector : MonoBehaviour
 			process,
 			suspectProcess,
 			regKey,
-			suspectKey
+			suspectKey,
+			debugLog
 		}
 
 		public Kind kind;
@@ -67,13 +68,9 @@ public class HackingToolDetector : MonoBehaviour
 
 	private BitArray alreadyReported = new BitArray(3);
 
-	[SerializeField]
 	[Tooltip("Scans per second.")]
-	private float scanFrequency = 1f / 60f;
-
 	[SerializeField]
-	[Tooltip("How many times per second the report queue is checked.")]
-	private float reportFrequency = 0.05f;
+	private float scanFrequency = 1f / 60f;
 
 	private ApplicationDesc[] banList;
 
@@ -93,6 +90,8 @@ public class HackingToolDetector : MonoBehaviour
 
 	private static HackingToolDetector Instance => instance;
 
+	private static float WaitTime => 1f / Instance.scanFrequency;
+
 	private bool QuitRequest
 	{
 		get
@@ -111,6 +110,10 @@ public class HackingToolDetector : MonoBehaviour
 		}
 	}
 
+	private static void DebugLogToChat(string str)
+	{
+	}
+
 	public void TemporaryReportHandler(HackingToolReport a)
 	{
 		ReportCategory reportCategory = ReportCategory.unknown;
@@ -119,11 +122,11 @@ public class HackingToolDetector : MonoBehaviour
 		{
 		case HackingToolReport.Kind.process:
 			reportCategory = ReportCategory.process;
-			text = "Running process \"" + a.app.ExeCertSerialNumber + "\" associated with \"" + a.app.ProgramName + "\" detected.";
+			text = "Running process \"" + a.app.ExeCertSubjectName + "\" associated with \"" + a.app.ProgramName + "\" detected.";
 			break;
 		case HackingToolReport.Kind.suspectProcess:
 			reportCategory = ReportCategory.process;
-			text = "Running process \"" + a.app.ExeCertSerialNumber + "\" associated with \"" + a.app.ProgramName + "\" detected as \"" + a.exactFind + "\"";
+			text = "Running process \"" + a.app.ExeCertSubjectName + "\" associated with \"" + a.app.ProgramName + "\" detected as \"" + a.exactFind + "\"";
 			break;
 		case HackingToolReport.Kind.regKey:
 			reportCategory = ReportCategory.regKey;
@@ -133,13 +136,17 @@ public class HackingToolDetector : MonoBehaviour
 			reportCategory = ReportCategory.regKey;
 			text = "Registry key \"" + a.foundKey.Name + "\" associated with \"" + a.app.ProgramName + "\" detected as \"" + a.exactFind + "\"";
 			break;
+		case HackingToolReport.Kind.debugLog:
+			return;
 		default:
 			text = "Report default label have been hit. Tampering with HackingToolDetector suspected.";
 			DebugLogHandler.ReportError(text, string.Empty, LogType.Warning);
 			break;
 		}
+		DebugLogToChat(text);
 		if (!alreadyReported[(int)reportCategory])
 		{
+			DebugLogToChat("Previous log was its first of its kind.");
 			Debug.Log(text);
 			DebugLogHandler.ReportError("Potential cheat detected.", string.Empty, LogType.Warning);
 			StatHatWrapper.Count("Cheat detected: " + reportCategory, 1);
@@ -173,6 +180,7 @@ public class HackingToolDetector : MonoBehaviour
 
 	public static void Initialize(ApplicationDesc[] banList)
 	{
+		DebugLogToChat("Ban list received.");
 		instance.banList = banList;
 		instance.InitiateDetection();
 	}
@@ -180,6 +188,7 @@ public class HackingToolDetector : MonoBehaviour
 	private void InitiateDetection()
 	{
 		scanThread.Start();
+		DebugLogToChat("Scan thread started.");
 		StartCoroutine(HandleReports());
 	}
 
@@ -209,26 +218,19 @@ public class HackingToolDetector : MonoBehaviour
 		DateTime dateTime2 = DateTime.Now.ToUniversalTime();
 		Debug.Log("Initial scan completed in " + (dateTime2 - dateTime).TotalSeconds + " seconds.");
 		ProcessScanner.Initialize(Instance.banList);
-		float num = 1f / Instance.scanFrequency;
-		DateTime dateTime3 = DateTime.Now.ToUniversalTime().AddSeconds(0f - num - 1f);
+		float waitTime = WaitTime;
+		DateTime dateTime3 = DateTime.Now.ToUniversalTime().AddSeconds(0f - waitTime - 1f);
 		while (!Instance.QuitRequest)
 		{
 			DateTime dateTime4 = DateTime.Now.ToUniversalTime();
 			double totalSeconds = (dateTime4 - dateTime3).TotalSeconds;
-			if (totalSeconds > (double)num)
+			if (totalSeconds > (double)waitTime)
 			{
 				dateTime3 = dateTime3.AddSeconds(totalSeconds);
 				ScanForForbiddenProcesses();
-				Thread.Sleep((int)num * 1000);
+				Thread.Sleep((int)waitTime * 1000);
 			}
 		}
-		ProcessScanner.Destroy();
-	}
-
-	private static void Scan_NonThreaded()
-	{
-		ProcessScanner.Initialize(Instance.banList);
-		ScanForForbiddenProcesses();
 		ProcessScanner.Destroy();
 	}
 
@@ -241,30 +243,16 @@ public class HackingToolDetector : MonoBehaviour
 		Debug.Log("Scan cycle completed in " + (dateTime2 - dateTime).TotalSeconds + " seconds.");
 	}
 
-	private IEnumerator Scan_Coroutine()
-	{
-		float waitDuration = 1f / scanFrequency;
-		RegistryScanner.StartScan(Instance.banList);
-		while (!QuitRequest)
-		{
-			ProcessScanner.StartScan(Instance.banList);
-			yield return new WaitForSeconds(waitDuration);
-		}
-	}
-
 	private IEnumerator HandleReports()
 	{
+		float waitDuration = WaitTime;
 		yield return new WaitForSeconds(1f);
-		float waitDuration = 1f / reportFrequency;
 		while (!QuitRequest)
 		{
-			lock (detectedHackingTools.ObtainLockForMultiOps())
+			while (detectedHackingTools.Count > 0)
 			{
-				while (detectedHackingTools.Count > 0)
-				{
-					HackingToolReport report = detectedHackingTools.Dequeue();
-					onHackToolDetected(report);
-				}
+				HackingToolReport report = detectedHackingTools.Dequeue();
+				onHackToolDetected(report);
 			}
 			yield return new WaitForSeconds(waitDuration);
 		}
