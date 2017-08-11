@@ -44,7 +44,7 @@ public class TeamMenuButton : MonoBehaviour
 
 	private void SetButtonTeamColor()
 	{
-		MVTeam teamFromActorNr = MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(MVGameControllerBase.Game.LocalPlayerActorNumber);
+		MVTeam teamFromActorNr = MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(MVGameControllerBase.Game.LocalPlayer.ActorNr);
 		Color teamColor = Styles.GetTeamColor(teamFromActorNr);
 		teamImage.color = teamColor;
 	}

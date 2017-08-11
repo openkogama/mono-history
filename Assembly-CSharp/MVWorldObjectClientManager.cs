@@ -111,6 +111,14 @@ public abstract class MVWorldObjectClientManager : IWorldObjectManager
 		}
 	}
 
+	private class WOCMWorldObjectClientRef<T> : WorldObjectClientRef<T> where T : MVWorldObjectClient
+	{
+		public WOCMWorldObjectClientRef(int woId)
+			: base(woId)
+		{
+		}
+	}
+
 	private class WOCMWorldObjectClientRef : WorldObjectClientRef
 	{
 		public WOCMWorldObjectClientRef(int woId)
@@ -356,6 +364,23 @@ public abstract class MVWorldObjectClientManager : IWorldObjectManager
 		MVWorldObjectClient value = null;
 		worldObjects.TryGetValue(id, out value);
 		return value;
+	}
+
+	public T GetWorldObjectClient<T>(int id) where T : MVWorldObjectClient
+	{
+		MVWorldObjectClient value = null;
+		worldObjects.TryGetValue(id, out value);
+		return (T)value;
+	}
+
+	public WorldObjectClientRef<T> GetWorldObjectClientRef<T>(int id) where T : MVWorldObjectClient
+	{
+		return new WOCMWorldObjectClientRef<T>(id);
+	}
+
+	public static WorldObjectClientRef<MVWorldObjectClient> GetWorldObjectClientRefNullRefTyped()
+	{
+		return new WOCMWorldObjectClientRef<MVWorldObjectClient>(-1);
 	}
 
 	public WorldObjectClientRef GetWorldObjectClientRef(int id)

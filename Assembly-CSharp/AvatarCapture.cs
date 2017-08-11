@@ -32,12 +32,8 @@ public class AvatarCapture : MonoBehaviour
 	public void CaptureAllPlayersInGame()
 	{
 		InitializeCamera();
-		List<MVPlayer> list = new List<MVPlayer>();
-		foreach (MVPlayer value in MVGameControllerBase.Game.Players.Values)
-		{
-			list.Add(value);
-		}
-		CapturePlayerGroup(list);
+		List<MVPlayer> sortedList = MVGameControllerBase.Game.MVPlayerContainer.Values.ToList();
+		CapturePlayerGroup(sortedList);
 	}
 
 	public void CapturePlayersInTeam(List<ScoreTeamEntry> scoreTeamEntries, GameStatCounterType counterType)

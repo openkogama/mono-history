@@ -136,7 +136,7 @@ public class EditorWorldObjectCreation : MonoBehaviour, ICloneHandler, IAddItemF
 
 	private void WOCM_InitializedGameQueryData(object sender, InitializedGameQueryDataEventArgs e)
 	{
-		if (MVGameControllerBase.Game.LocalPlayerActorNumber == e.InstigatorActorNumber && esm.CurEvent == EditorEvent.ESWaitForSelect)
+		if (MVGameControllerBase.Game.LocalPlayer.ActorNr == e.InstigatorActorNumber && esm.CurEvent == EditorEvent.ESWaitForSelect)
 		{
 			esm.SelectWO(e.RootWO.Id, addToSelection: false);
 		}

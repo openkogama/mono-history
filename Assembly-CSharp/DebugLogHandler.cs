@@ -139,6 +139,7 @@ public static class DebugLogHandler
 		dictionary.Add("GameMode", GetGameMode());
 		dictionary.Add("JoinState", GetJoinState());
 		dictionary.Add("PlayersCount", GetPlayersCount());
+		dictionary.Add("PendingPlayersCount", GetPendingPlayersCount());
 		dictionary.Add("Is tourist session", GetIsTouristSession());
 		dictionary.Add("ProfileID", GetProfileID());
 		dictionary.Add("PlanetID", GetPlanetID());
@@ -156,6 +157,7 @@ public static class DebugLogHandler
 	{
 		Dictionary<string, string> dictionary = new Dictionary<string, string>();
 		dictionary.Add("Version", MVGameControllerBase.KoGaMaSettings.VersionString);
+		dictionary.Add("ReleaseName", MVGameControllerBase.KoGaMaSettings.ReleaseName);
 		dictionary.Add("JoinState", MVGameControllerBase.JoinState.ToString());
 		dictionary.Add("Source", "standalone");
 		return dictionary;
@@ -196,7 +198,16 @@ public static class DebugLogHandler
 		{
 			return "MVGameController.WOCM is null";
 		}
-		return MVGameControllerBase.Game.Players.Count.ToString();
+		return MVGameControllerBase.Game.MVPlayerContainer.Count.ToString();
+	}
+
+	private static string GetPendingPlayersCount()
+	{
+		if (MVGameControllerBase.WOCM == null)
+		{
+			return "MVGameController.WOCM is null";
+		}
+		return MVGameControllerBase.Game.MVPlayerContainer.PendingPlayersCount.ToString();
 	}
 
 	private static string GetSystemInfo()

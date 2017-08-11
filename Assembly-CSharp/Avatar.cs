@@ -210,12 +210,12 @@ public class Avatar : MonoBehaviour, IBulletImpactVisualizer
 
 	public void UpdateNameTag()
 	{
-		avatarName.text = MVGameControllerBase.Game.Players[mvAvatar.OwnerActorNr].Username;
+		MVPlayer playerUnsafe = MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(mvAvatar.OwnerActorNr);
+		avatarName.text = playerUnsafe.Username;
 		Color color = Color.white;
-		MVPlayer mVPlayer = MVGameControllerBase.Game.Players[mvAvatar.OwnerActorNr];
 		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
 		{
-			switch (mVPlayer.Team)
+			switch (playerUnsafe.Team)
 			{
 			case MVTeam.Blue:
 				color = Color.blue;

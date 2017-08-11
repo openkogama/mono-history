@@ -16,8 +16,8 @@ public class KillNotification : Notification
 	public override void Initialize(Dictionary<object, object> data)
 	{
 		base.Initialize(data);
-		MVPlayer mVPlayer = MVGameControllerBase.Game.Players[(int)data[(byte)6]];
-		MVPlayer mVPlayer2 = MVGameControllerBase.Game.Players[(int)data[(byte)7]];
+		MVPlayer mVPlayer = MVGameControllerBase.Game.MVPlayerContainer[(int)data[(byte)6]];
+		MVPlayer mVPlayer2 = MVGameControllerBase.Game.MVPlayerContainer[(int)data[(byte)7]];
 		bool shotSelf = false;
 		if (mVPlayer2.Username == mVPlayer.Username)
 		{

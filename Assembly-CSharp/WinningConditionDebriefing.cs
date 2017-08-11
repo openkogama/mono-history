@@ -113,7 +113,7 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 		int num = scoreActorEntries[0].counter;
 		if (num == 0)
 		{
-			foreach (MVPlayer value in MVGameControllerBase.Game.Players.Values)
+			foreach (MVPlayer value in MVGameControllerBase.Game.MVPlayerContainer.Values)
 			{
 				if (value.ActorNr == scoreActorEntries[0].actorNumber)
 				{
@@ -158,7 +158,7 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 		int num = scoreTeamEntries[0].counter;
 		if (num == 0)
 		{
-			foreach (MVPlayer value in MVGameControllerBase.Game.Players.Values)
+			foreach (MVPlayer value in MVGameControllerBase.Game.MVPlayerContainer.Values)
 			{
 				if (value.Team == scoreTeamEntries[0].team)
 				{
@@ -276,15 +276,16 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 
 	private void RenderPlayerToRenderTexture(int actorNr)
 	{
-		if (MVGameControllerBase.Game.Players.TryGetValue(actorNr, out var value))
+		MVPlayer mVPlayer = MVGameControllerBase.Game.MVPlayerContainer[actorNr];
+		if (mVPlayer != null)
 		{
-			debriefing.SetWinnerText(value.Username);
+			debriefing.SetWinnerText(mVPlayer.Username);
 			if (captureCamera != null)
 			{
 				UnityEngine.Object.Destroy(captureCamera.gameObject);
 			}
 			captureCamera = UnityEngine.Object.Instantiate(captureCameraPrefab);
-			captureCamera.CapturePlayer(value);
+			captureCamera.CapturePlayer(mVPlayer);
 			debriefing.SetWinnerImage(MVTeam.Blue, captureCamera.RenderCam.targetTexture);
 		}
 		else

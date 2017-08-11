@@ -27,44 +27,46 @@ internal class ESTerrainEdit : ESStateBase
 			flag = false;
 		}
 		TintObjectsOnMouseOver(e, flag, hit);
-		if ((MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelect) || MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelectAlt)) && e.Select(addToSelection: false) != null)
+		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelect) || MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelectAlt))
 		{
-			e.Event = EditorEvent.ObjectSelected;
+			WorldObjectClientRef worldObjectClientRef = e.Select(addToSelection: false);
+			if (worldObjectClientRef != null && worldObjectClientRef.WorldObjectClient != null)
+			{
+				e.Event = EditorEvent.ObjectSelected;
+				return;
+			}
 		}
-		else
+		if (ResettingTerrain(hit))
 		{
-			if (ResettingTerrain(hit))
+			return;
+		}
+		e.CubeModelingStateMachine.Update();
+		if ((int)e.CubeModelingStateMachine.curEvent == 0)
+		{
+		}
+		if (hit.woId != 0 && hit.woId != terrain.Id)
+		{
+			e.CubeModelingStateMachine.CursorVisible = false;
+		}
+		if (!MVGameControllerBase.CameraController.IsLogicRendered || !MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelectAlt))
+		{
+			return;
+		}
+		VoxelHit hit2 = default;
+		float num = float.PositiveInfinity;
+		if (EditModeObjectPicker.Pick(ref hit2))
+		{
+			num = hit2.distance;
+		}
+		Ray ray = MVGameControllerBase.CameraController.MainCamera.ScreenPointToRay(MVInputWrapper.GetPointerPosition());
+		int layerMask = 1 << LayerMask.NameToLayer("Logic");
+		Physics.Raycast(ray, out var hitInfo, float.PositiveInfinity, layerMask);
+		if (hitInfo.collider != null)
+		{
+			LinkObjectBase componentInChildren = hitInfo.collider.gameObject.GetComponentInChildren<LinkObjectBase>();
+			if (componentInChildren != null && hitInfo.distance < num)
 			{
-				return;
-			}
-			e.CubeModelingStateMachine.Update();
-			if ((int)e.CubeModelingStateMachine.curEvent == 0)
-			{
-			}
-			if (hit.woId != 0 && hit.woId != terrain.Id)
-			{
-				e.CubeModelingStateMachine.CursorVisible = false;
-			}
-			if (!MVGameControllerBase.CameraController.IsLogicRendered || !MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelectAlt))
-			{
-				return;
-			}
-			VoxelHit hit2 = default;
-			float num = float.PositiveInfinity;
-			if (EditModeObjectPicker.Pick(ref hit2))
-			{
-				num = hit2.distance;
-			}
-			Ray ray = MVGameControllerBase.CameraController.MainCamera.ScreenPointToRay(MVInputWrapper.GetPointerPosition());
-			int layerMask = 1 << LayerMask.NameToLayer("Logic");
-			Physics.Raycast(ray, out var hitInfo, float.PositiveInfinity, layerMask);
-			if (hitInfo.collider != null)
-			{
-				LinkObjectBase componentInChildren = hitInfo.collider.gameObject.GetComponentInChildren<LinkObjectBase>();
-				if (componentInChildren != null && hitInfo.distance < num)
-				{
-					e.Event = EditorEvent.ObjectSelected;
-				}
+				e.Event = EditorEvent.ObjectSelected;
 			}
 		}
 	}

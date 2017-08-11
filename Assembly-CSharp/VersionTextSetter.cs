@@ -13,6 +13,6 @@ public class VersionTextSetter : MonoBehaviour
 
 	private void SetText()
 	{
-		textObject.text = "v. " + MVGameControllerBase.KoGaMaSettings.VersionStringNoBuild;
+		textObject.text = MVGameControllerBase.KoGaMaSettings.ReleaseName + "\nv. " + MVGameControllerBase.KoGaMaSettings.VersionStringNoBuild;
 	}
 }

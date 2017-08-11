@@ -16,7 +16,7 @@ public class AvatarBadge : MonoBehaviour
 
 	private Texture texture;
 
-	private int ownerActorId;
+	private int ownerActorId = -1;
 
 	public void Initialize(int ownerActorId)
 	{
@@ -35,9 +35,9 @@ public class AvatarBadge : MonoBehaviour
 
 	private void OnLevelingInitialized()
 	{
-		UpdateBadge(MVGameControllerBase.Game.Players[ownerActorId].Level);
-		MVPlayer mVPlayer = MVGameControllerBase.Game.Players[ownerActorId];
-		mVPlayer.OnLevelChanged = (UnityAction<int>)Delegate.Combine(mVPlayer.OnLevelChanged, new UnityAction<int>(UpdateBadge));
+		MVPlayer playerUnsafe = MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(ownerActorId);
+		UpdateBadge(playerUnsafe.Level);
+		playerUnsafe.OnLevelChanged = (UnityAction<int>)Delegate.Combine(playerUnsafe.OnLevelChanged, new UnityAction<int>(UpdateBadge));
 	}
 
 	private void UpdateBadge(int level)
@@ -55,10 +55,12 @@ public class AvatarBadge : MonoBehaviour
 		}
 		if (MVGameControllerBase.Game != null)
 		{
-			if (MVGameControllerBase.Game.Players.ContainsKey(ownerActorId))
+			Debug.Log("OwnerActorId " + ownerActorId);
+			Debug.Log(MVGameControllerBase.Game.LocalPlayer.ActorNr);
+			if (ownerActorId != -1)
 			{
-				MVPlayer mVPlayer = MVGameControllerBase.Game.Players[ownerActorId];
-				mVPlayer.OnLevelChanged = (UnityAction<int>)Delegate.Remove(mVPlayer.OnLevelChanged, new UnityAction<int>(UpdateBadge));
+				MVPlayer playerUnsafe = MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(ownerActorId);
+				playerUnsafe.OnLevelChanged = (UnityAction<int>)Delegate.Remove(playerUnsafe.OnLevelChanged, new UnityAction<int>(UpdateBadge));
 			}
 			if (scaleAnimation != null)
 			{

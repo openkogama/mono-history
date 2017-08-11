@@ -188,9 +188,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject godzillaAreaPrefab;
 
-	[Header("Game")]
 	[Space(20f)]
 	[SerializeField]
+	[Header("Game")]
 	private Material ghostMarkerMaterial;
 
 	[SerializeField]
@@ -274,8 +274,8 @@ public class PrefabPool : MonoBehaviour
 	private MVPickupItemBaseObject avatarGrowthPackPrefab;
 
 	[Space(20f)]
-	[Header("Avatar item pick up")]
 	[SerializeField]
+	[Header("Avatar item pick up")]
 	private GameObject avatarItemCenterGun;
 
 	[SerializeField]
@@ -333,8 +333,8 @@ public class PrefabPool : MonoBehaviour
 	private GameObject avatarItemCollectTheItem;
 
 	[Header("Avatar modifier")]
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
 	private AvatarModifier burningModifier;
 
 	[SerializeField]
@@ -393,9 +393,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem collectTheItemParticles;
 
-	[Header("Logic object prefabs")]
 	[Space(20f)]
 	[SerializeField]
+	[Header("Logic object prefabs")]
 	private GameObject logicInputConnectorPrefab;
 
 	[SerializeField]
@@ -422,9 +422,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material logicCubeConnectorBlueSelectedMaterial;
 
-	[Header("GUI")]
 	[Space(20f)]
 	[SerializeField]
+	[Header("GUI")]
 	private Texture2D avatarAccessoryMoveIcon;
 
 	[SerializeField]
@@ -433,9 +433,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material modelConstraintsMaterial;
 
-	[Header("UGUI")]
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
+	[Header("UGUI")]
 	private AvatarInputControllerAndroidSettings avatarInputControllerAndroidSettings;
 
 	[SerializeField]
@@ -458,9 +458,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private FirstPersonDeathCamera firstPersonDeathCamera;
 
-	[Header("Editor")]
 	[Space(20f)]
 	[SerializeField]
+	[Header("Editor")]
 	private Material cellCursorErrorMaterial;
 
 	[SerializeField]

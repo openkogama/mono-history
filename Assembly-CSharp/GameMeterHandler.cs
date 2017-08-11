@@ -22,8 +22,8 @@ public class GameMeterHandler : MonoBehaviour
 		MVGameControllerBase.Game.GameStatCounterManager.OnCounterTypeChanged += CounterChanged;
 		MVGameControllerBase.Game.GameStatCounterManager.OnCounterTypeChanged += OnGameStatUpdated;
 		MVGameControllerBase.Game.WinningConditionManager.OnWinningConditionCountChanged += ConditionCountChanged;
-		MVNetworkGame game = MVGameControllerBase.Game;
-		game.onPlayerListChanged = (MVNetworkGame.OnPlayerListChangedDelegate)Delegate.Combine(game.onPlayerListChanged, new MVNetworkGame.OnPlayerListChangedDelegate(UpdateValue));
+		MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
+		mVPlayerContainer.OnPlayerListChanged = (Action)Delegate.Combine(mVPlayerContainer.OnPlayerListChanged, new Action(UpdateValue));
 	}
 
 	private void OnDestroy()
@@ -33,8 +33,8 @@ public class GameMeterHandler : MonoBehaviour
 			MVGameControllerBase.Game.GameStatCounterManager.OnCounterTypeChanged -= CounterChanged;
 			MVGameControllerBase.Game.GameStatCounterManager.OnCounterTypeChanged -= OnGameStatUpdated;
 			MVGameControllerBase.Game.WinningConditionManager.OnWinningConditionCountChanged -= ConditionCountChanged;
-			MVNetworkGame game = MVGameControllerBase.Game;
-			game.onPlayerListChanged = (MVNetworkGame.OnPlayerListChangedDelegate)Delegate.Remove(game.onPlayerListChanged, new MVNetworkGame.OnPlayerListChangedDelegate(UpdateValue));
+			MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
+			mVPlayerContainer.OnPlayerListChanged = (Action)Delegate.Remove(mVPlayerContainer.OnPlayerListChanged, new Action(UpdateValue));
 		}
 	}
 

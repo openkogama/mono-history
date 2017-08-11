@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
@@ -128,10 +127,7 @@ public class AndroidChatController : MonoBehaviour
 			if (promptRegisterForChat && MVGameControllerBase.IsTouristSession)
 			{
 				promptRegisterForChat = false;
-				ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
-				{
-					x.Create(TM._("Register or log in to chat!"), string.Empty);
-				});
+				NotificationController.PushNotification(NotificationType.RegisterToChat, NotificationsManager.eNotificationPanel.tertiary);
 			}
 			inputAreaRoot.gameObject.SetActive(!MVGameControllerBase.IsTouristSession);
 			minimizeChat.gameObject.SetActive(value: true);
@@ -193,8 +189,8 @@ public class AndroidChatController : MonoBehaviour
 
 	private void JoinMessage(Dictionary<object, object> data)
 	{
-		int key = (int)data[(byte)0];
-		MVPlayer mVPlayer = MVGameControllerBase.Game.Players[key];
+		int actorNumber = (int)data[(byte)0];
+		MVPlayer mVPlayer = MVGameControllerBase.Game.MVPlayerContainer[actorNumber];
 		if (!mVPlayer.IsAnonymous)
 		{
 			Color color = chatMessageDefaultNameColor;
@@ -233,9 +229,9 @@ public class AndroidChatController : MonoBehaviour
 	private void AddChatLine(Dictionary<object, object> data)
 	{
 		string text = (string)data[(byte)5];
-		int key = (int)data[(byte)0];
+		int actorNumber = (int)data[(byte)0];
 		Color teamColor = chatMessageDefaultNameColor;
-		MVPlayer mVPlayer = MVGameControllerBase.Game.Players[key];
+		MVPlayer mVPlayer = MVGameControllerBase.Game.MVPlayerContainer[actorNumber];
 		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
 		{
 			teamColor = Styles.GetTeamColor(mVPlayer.Team);

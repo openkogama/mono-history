@@ -18,8 +18,8 @@ public class AvatarLevelUp : MonoBehaviour
 	public void Init(int ownerActorNr)
 	{
 		this.ownerActorNr = ownerActorNr;
-		MVPlayer mVPlayer = MVGameControllerBase.Game.Players[ownerActorNr];
-		mVPlayer.OnLevelChanged = (UnityAction<int>)Delegate.Combine(mVPlayer.OnLevelChanged, new UnityAction<int>(OnLevelChanged));
+		MVPlayer playerUnsafe = MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(ownerActorNr);
+		playerUnsafe.OnLevelChanged = (UnityAction<int>)Delegate.Combine(playerUnsafe.OnLevelChanged, new UnityAction<int>(OnLevelChanged));
 		ScaleAnimation scaleAnimation = this.scaleAnimation;
 		scaleAnimation.OnScaleAnimationStopped = (ScaleAnimationBase.OnScaleAnimationStoppedDelegate)Delegate.Combine(scaleAnimation.OnScaleAnimationStopped, new ScaleAnimationBase.OnScaleAnimationStoppedDelegate(OnScaleAnimationStopped));
 	}
@@ -41,10 +41,13 @@ public class AvatarLevelUp : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		if (MVGameControllerBase.Game != null && MVGameControllerBase.Game.Players.ContainsKey(ownerActorNr))
+		if (MVGameControllerBase.Game != null)
 		{
-			MVPlayer mVPlayer = MVGameControllerBase.Game.Players[ownerActorNr];
-			mVPlayer.OnLevelChanged = (UnityAction<int>)Delegate.Remove(mVPlayer.OnLevelChanged, new UnityAction<int>(OnLevelChanged));
+			MVPlayer playerUnsafe = MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(ownerActorNr);
+			if (playerUnsafe != null)
+			{
+				playerUnsafe.OnLevelChanged = (UnityAction<int>)Delegate.Remove(playerUnsafe.OnLevelChanged, new UnityAction<int>(OnLevelChanged));
+			}
 		}
 		if (this.scaleAnimation != null)
 		{

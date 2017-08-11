@@ -154,7 +154,7 @@ public class SelectionController : ISelectionController
 	{
 		if ((hit.interactionFlags & InteractionFlags.Selectable) == 0)
 		{
-			return null;
+			return MVWorldObjectClientManager.GetWorldObjectClientRefNullRef();
 		}
 		MVWorldObjectClient worldObjectClient = WOCM.GetWorldObjectClient(hit.woId);
 		bool flag = (hit.interactionFlags & InteractionFlags.DirectlySelectable) == InteractionFlags.DirectlySelectable;
@@ -164,7 +164,7 @@ public class SelectionController : ISelectionController
 			if (groupAbove == -1)
 			{
 				Debug.Log("Could not find appropriate group Id");
-				return WOCM.GetWorldObjectClientRef(-1);
+				return MVWorldObjectClientManager.GetWorldObjectClientRefNullRef();
 			}
 			return SelectWO(groupAbove, addToSelection, showVisuals);
 		}

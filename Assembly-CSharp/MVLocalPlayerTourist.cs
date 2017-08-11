@@ -2,8 +2,8 @@ using System;
 
 public class MVLocalPlayerTourist : MVLocalPlayer
 {
-	public MVLocalPlayerTourist(int actorNumber, int profileID, string userName, string regionCode)
-		: base(actorNumber, profileID, userName, regionCode)
+	public MVLocalPlayerTourist(int actorNumber, int profileID, string userName, string regionCode, int planetOwnershipTypeID)
+		: base(actorNumber, profileID, userName, regionCode, planetOwnershipTypeID)
 	{
 		xpEventQueue = new XPEventQueueTourist();
 	}

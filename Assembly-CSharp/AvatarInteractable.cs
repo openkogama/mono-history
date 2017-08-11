@@ -59,12 +59,12 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 		}
 		if (health.Value <= 0f && value > 0f)
 		{
-			int num = damageDealer?.ActorNr ?? MVGameControllerBase.Game.LocalPlayerActorNumber;
-			MVGameControllerBase.OperationRequests.PostGameMsg(MVGameMsgType.AvatarKilled, GameMessages.MakePlayerKilledMessage(MVGameControllerBase.Game.LocalPlayerActorNumber, num, damageType));
+			int num = damageDealer?.ActorNr ?? MVGameControllerBase.Game.LocalPlayer.ActorNr;
+			MVGameControllerBase.OperationRequests.PostGameMsg(MVGameMsgType.AvatarKilled, GameMessages.MakePlayerKilledMessage(MVGameControllerBase.Game.LocalPlayer.ActorNr, num, damageType));
 			if (!KillNotificationBlacklist.Contains(damageType))
 			{
 				Dictionary<object, object> dictionary = new Dictionary<object, object>();
-				dictionary.Add((byte)7, MVGameControllerBase.Game.LocalPlayerActorNumber);
+				dictionary.Add((byte)7, MVGameControllerBase.Game.LocalPlayer.ActorNr);
 				dictionary.Add((byte)6, num);
 				dictionary.Add((byte)8, damageType);
 				Dictionary<object, object> dictionary2 = dictionary;

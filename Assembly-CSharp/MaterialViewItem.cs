@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class MaterialViewItem : MonoBehaviour
+public class MaterialViewItem : MonoBehaviour, IEventSystemHandler, IPointerEnterHandler, IPointerExitHandler
 {
 	private byte id;
 
@@ -28,6 +28,9 @@ public class MaterialViewItem : MonoBehaviour
 
 	[SerializeField]
 	private ToolTip toolTip;
+
+	[SerializeField]
+	private GameObject mouseHoverDescriptionFrame;
 
 	public void Initialize(byte id, bool locked, Texture2D texture2D, bool isAvailable, bool isSelected)
 	{
@@ -88,5 +91,29 @@ public class MaterialViewItem : MonoBehaviour
 			lockedImage.gameObject.SetActive(value: false);
 			OnClick();
 		}
+	}
+
+	public void OnInfoClick()
+	{
+		MaterialPurchasePopup materialPurchasePopup = Object.Instantiate(materialPurchasePopupPrefab);
+		materialPurchasePopup.Initialize(id, PurchaseCallback);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
+		{
+			handler.PopGroups(UIGroupFlags.InventoryUISubMenu);
+		});
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Push(materialPurchasePopup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.InventoryUISubMenu);
+		});
+	}
+
+	public void OnPointerEnter(PointerEventData eventData)
+	{
+		mouseHoverDescriptionFrame.SetActive(value: true);
+	}
+
+	public void OnPointerExit(PointerEventData eventData)
+	{
+		mouseHoverDescriptionFrame.SetActive(value: false);
 	}
 }

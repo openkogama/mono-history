@@ -29,12 +29,19 @@ public class MaterialPurchasePopup : MonoBehaviour
 	[SerializeField]
 	private MaterialPreviewer materialPreviewer;
 
+	[SerializeField]
+	private GameObject purchaseButton;
+
 	public void Initialize(byte materialID, UnityAction<bool, Dictionary<object, object>> callback)
 	{
 		this.materialID = materialID;
 		this.callback = callback;
 		MVMaterial material = MVGameControllerBase.Game.MaterialRepository.GetMaterial(materialID);
 		price.text = material.unlockPriceGold.ToString();
+		if (material.isUnlocked)
+		{
+			purchaseButton.SetActive(value: false);
+		}
 		productName.text = MaterialDescription.materialDescriptions[materialID].Name;
 		materialPreviewer = UnityEngine.Object.Instantiate(materialPreviewer);
 		materialPreviewer.Initialize(material.mesh);

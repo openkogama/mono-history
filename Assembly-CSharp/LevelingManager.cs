@@ -58,7 +58,7 @@ public static class LevelingManager
 			{
 				return true;
 			}
-			if (MVGameControllerBase.GameMode == MVGameMode.Play && MVGameControllerBase.Game.Players.Count >= (int)playModeMinPlayers)
+			if (MVGameControllerBase.GameMode == MVGameMode.Play && MVGameControllerBase.Game.MVPlayerContainer.Count >= (int)playModeMinPlayers)
 			{
 				return true;
 			}
@@ -81,8 +81,8 @@ public static class LevelingManager
 		{
 			AsyncWWWManager.WWWRequest(new GetRequest(Urls.InitialData + profileID, OnInitialData, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 		}
-		MVNetworkGame game = MVGameControllerBase.Game;
-		game.onPlayerListChanged = (MVNetworkGame.OnPlayerListChangedDelegate)Delegate.Combine(game.onPlayerListChanged, new MVNetworkGame.OnPlayerListChangedDelegate(OnPlayerListChanged));
+		MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
+		mVPlayerContainer.OnPlayerListChanged = (Action)Delegate.Combine(mVPlayerContainer.OnPlayerListChanged, new Action(OnPlayerListChanged));
 	}
 
 	public static void AddXPToLocalPlayer(string xpType, MVGameMode gameMode)
@@ -95,7 +95,7 @@ public static class LevelingManager
 		if ((bool)playModeLevelingEnabled != LevelingEnabled && MVGameControllerBase.GameMode == MVGameMode.Play)
 		{
 			playModeLevelingEnabled = LevelingEnabled;
-			string text = ((!playModeLevelingEnabled) ? (TM._("Leveling deactivated! Players in game: ") + MVGameControllerBase.Game.Players.Count) : (TM._("Leveling activated! Players in game: ") + MVGameControllerBase.Game.Players.Count));
+			string text = ((!playModeLevelingEnabled) ? (TM._("Leveling deactivated! Players in game: ") + MVGameControllerBase.Game.MVPlayerContainer.Count) : (TM._("Leveling activated! Players in game: ") + MVGameControllerBase.Game.MVPlayerContainer.Count));
 			NotificationController.PushNotification(text);
 		}
 	}

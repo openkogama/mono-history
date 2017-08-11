@@ -1,9 +1,12 @@
 using MV.Common;
 using MV.WorldObject;
+using UnityEngine;
 using UnityEngine.Events;
 
 public class MVPlayer
 {
+	private WorldObjectClientRef<MVAvatar> _avatar;
+
 	private int checkpointWOID = -1;
 
 	protected int level = 1;
@@ -13,8 +16,6 @@ public class MVPlayer
 	public UnityAction<int> OnLevelChanged;
 
 	public UnityAction OnCheckpointReached;
-
-	private MVAvatar _avatar;
 
 	public int ProfileID { get; private set; }
 
@@ -27,6 +28,8 @@ public class MVPlayer
 	public string RegionCode { get; private set; }
 
 	public BuildTarget BuildTarget { get; private set; }
+
+	public bool IsReady { get; private set; }
 
 	public int Level
 	{
@@ -56,26 +59,14 @@ public class MVPlayer
 			team = value;
 			if (_avatar != null)
 			{
-				_avatar.SetTeam();
+				Avatar.SetTeam();
 			}
 		}
 	}
 
-	public int PlanetOwnershipTypeID { get; set; }
+	public MVAvatar Avatar => _avatar.WorldObjectClient;
 
-	public MVAvatar Avatar
-	{
-		get
-		{
-			return _avatar;
-		}
-		set
-		{
-			_avatar = value;
-		}
-	}
-
-	public MVPlayer(int actorNumber, int profileID, string userName, string regionCode, BuildTarget buildTarget)
+	public MVPlayer(int actorNumber, int profileID, string userName, string regionCode, BuildTarget buildTarget, bool isReady)
 	{
 		ActorNr = actorNumber;
 		ProfileID = profileID;
@@ -87,10 +78,11 @@ public class MVPlayer
 		}
 		Username = userName;
 		RegionCode = regionCode;
+		IsReady = isReady;
 	}
 
-	public MVPlayer(int actorNumber, int profileID, string userName, int level, string regionCode, BuildTarget buildTarget)
-		: this(actorNumber, profileID, userName, regionCode, buildTarget)
+	public MVPlayer(int actorNumber, int profileID, string userName, int level, string regionCode, BuildTarget buildTarget, bool isReady)
+		: this(actorNumber, profileID, userName, regionCode, buildTarget, isReady)
 	{
 		Level = level;
 	}
@@ -130,5 +122,19 @@ public class MVPlayer
 	public int GetGameStat(GameStatCounterType gameStatCounterType)
 	{
 		return MVGameControllerBase.Game.GameStatCounterManager.GetActorCount(gameStatCounterType, team, ActorNr);
+	}
+
+	public void SetReady()
+	{
+		if (IsReady)
+		{
+			Debug.LogError("Player already ready");
+		}
+		IsReady = true;
+	}
+
+	public void SetAvatar(int worldObjectId)
+	{
+		_avatar = MVGameControllerBase.WOCM.GetWorldObjectClientRef<MVAvatar>(worldObjectId);
 	}
 }

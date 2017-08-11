@@ -1,11 +1,18 @@
-public class WorldObjectClientRef
+public class WorldObjectClientRef<T> where T : MVWorldObjectClient
 {
 	private readonly int woId = -1;
 
-	public MVWorldObjectClient WorldObjectClient => MVGameControllerBase.WOCM.GetWorldObjectClient(woId);
+	public T WorldObjectClient => MVGameControllerBase.WOCM.GetWorldObjectClient<T>(woId);
 
 	protected WorldObjectClientRef(int woId)
 	{
 		this.woId = woId;
+	}
+}
+public class WorldObjectClientRef : WorldObjectClientRef<MVWorldObjectClient>
+{
+	protected WorldObjectClientRef(int woId)
+		: base(woId)
+	{
 	}
 }

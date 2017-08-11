@@ -132,12 +132,9 @@ public class MVAvatar : MVGroup
 			avatar.SetHealthBarColor(MVGameControllerBase.Game.TeamManager.IsOnSameTeam(OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr));
 			return;
 		}
-		foreach (MVPlayer value in MVGameControllerBase.Game.Players.Values)
+		foreach (MVPlayer value in MVGameControllerBase.Game.MVPlayerContainer.Values)
 		{
-			if (value.Avatar != null && !(value.Avatar.avatar == null))
-			{
-				value.Avatar.avatar.UpdateNameTag();
-			}
+			value.Avatar.avatar.UpdateNameTag();
 		}
 	}
 
@@ -151,11 +148,7 @@ public class MVAvatar : MVGroup
 		avatar.Initialize(this, isLocal);
 		avatar.InteractionDataHandlerBase.FindWorldObjectParent();
 		InitializeModifiers();
-		MVGameControllerBase.Game.Players.TryGetValue(OwnerActorNr, out var value);
-		if (value != null)
-		{
-			value.Avatar = this;
-		}
+		MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(OwnerActorNr)?.SetAvatar(Id);
 		MVRuntimeDataVariable mVRuntimeDataVariable = avatarModeTypeFlags;
 		mVRuntimeDataVariable.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(mVRuntimeDataVariable.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChangedHandler));
 	}

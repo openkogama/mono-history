@@ -20,6 +20,9 @@ public class KoGaMaSettingsContainer : ScriptableObject
 	private TextAsset versionText;
 
 	[SerializeField]
+	private TextAsset additionalMetaData;
+
+	[SerializeField]
 	private int versionBuild;
 
 	[SerializeField]
@@ -47,6 +50,8 @@ public class KoGaMaSettingsContainer : ScriptableObject
 	public int VersionMicro => int.Parse(versionText.text.Substring(3, 3));
 
 	public int VersionCode => int.Parse(versionText.text);
+
+	public string ReleaseName => additionalMetaData.text;
 
 	public int WebCacheInvalidationCode => webCacheInvalidationCode;
 

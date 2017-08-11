@@ -68,8 +68,8 @@ public class HackingToolDetector : MonoBehaviour
 
 	private BitArray alreadyReported = new BitArray(3);
 
-	[Tooltip("Scans per second.")]
 	[SerializeField]
+	[Tooltip("Scans per second.")]
 	private float scanFrequency = 1f / 60f;
 
 	private ApplicationDesc[] banList;

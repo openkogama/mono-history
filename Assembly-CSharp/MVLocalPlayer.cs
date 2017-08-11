@@ -11,12 +11,15 @@ public abstract class MVLocalPlayer : MVPlayer
 
 	private int oldLevel;
 
+	public int PlanetOwnershipTypeID { get; private set; }
+
 	public XPProgressData XPProgressData => xpEventQueue.XPProgressData;
 
-	public MVLocalPlayer(int actorNumber, int profileID, string userName, string regionCode)
-		: base(actorNumber, profileID, userName, regionCode, MVGameControllerBase.BuildTarget)
+	public MVLocalPlayer(int actorNumber, int profileID, string userName, string regionCode, int planetOwnershipTypeID)
+		: base(actorNumber, profileID, userName, regionCode, MVGameControllerBase.BuildTarget, isReady: false)
 	{
 		OnLevelChanged = (UnityAction<int>)Delegate.Combine(OnLevelChanged, new UnityAction<int>(OnLevelChangedLocal));
+		PlanetOwnershipTypeID = planetOwnershipTypeID;
 	}
 
 	public virtual void InitializeLeveling(InitialLevelData initialLevelData)

@@ -69,8 +69,8 @@ public abstract class StreamingAsset<AssetType, PreviewType> : StreamingAsset wh
 }
 public abstract class StreamingAsset : MonoBehaviour
 {
-	[SerializeField]
 	[HideInInspector]
+	[SerializeField]
 	protected string url = "NOT SET";
 
 	protected UnityAction onAssetSetAction;

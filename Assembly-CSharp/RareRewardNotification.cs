@@ -20,7 +20,7 @@ public class RareRewardNotification : Notification
 	{
 		base.Initialize(data);
 		RewardRarity rewardRarity = (RewardRarity)(byte)data[(byte)11];
-		MVPlayer mVPlayer = MVGameControllerBase.Game.Players[(int)data[(byte)9]];
+		MVPlayer mVPlayer = MVGameControllerBase.Game.MVPlayerContainer[(int)data[(byte)9]];
 		string arg = TypeToText((RewardType)(int)data[(byte)5]);
 		int num = (int)data[(byte)4];
 		text.text = string.Format(TM._("{0} won {1}{2} from spins!"), mVPlayer.Username, num, arg);

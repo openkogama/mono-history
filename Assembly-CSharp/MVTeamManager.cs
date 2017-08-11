@@ -128,12 +128,12 @@ public class MVTeamManager
 
 	public List<MVPlayer> GetPlayersInTeam(MVTeam team)
 	{
-		return MVGameControllerBase.Game.Players.Values.Where((MVPlayer player) => player.Team == team).ToList();
+		return MVGameControllerBase.Game.MVPlayerContainer.Values.Where((MVPlayer player) => player.Team == team).ToList();
 	}
 
 	public MVTeam GetTeamFromActorNr(int actorNumber)
 	{
-		return MVGameControllerBase.Game.Players[actorNumber].Team;
+		return MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(actorNumber).Team;
 	}
 
 	public int GetNoOfPlayersInTeam(MVTeam team)
@@ -154,7 +154,7 @@ public class MVTeamManager
 		}
 		if (TeamCount() > 1)
 		{
-			return MVGameControllerBase.Game.Players[actorNumberA].Team == MVGameControllerBase.Game.Players[actorNumberB].Team;
+			return MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(actorNumberA).Team == MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(actorNumberB).Team;
 		}
 		return actorNumberA == actorNumberB;
 	}

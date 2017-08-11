@@ -28,7 +28,7 @@ public class PlayerNotification : Notification
 	public override void Initialize(Dictionary<object, object> data)
 	{
 		base.Initialize(data);
-		player = MVGameControllerBase.Game.Players[(int)data[(byte)9]];
+		player = MVGameControllerBase.Game.MVPlayerContainer[(int)data[(byte)9]];
 		if (player.Level >= 25)
 		{
 			PrestigiousPlayerFrame.gameObject.SetActive(value: true);

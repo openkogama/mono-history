@@ -519,7 +519,7 @@ public class MVWorldObjectClient : MVWorldObject
 		dictionary[WorldObjectDataParameters.PreviewOwnerProfileId] = PreviewOwnerProfileId;
 		MVWorldObjectClient mVWorldObjectClient = KoGaMaPackageClient.WorldObjectFactory(dictionary, worldObjects, prototypes);
 		cloneBookkeeping.worldObjectIdsMaps.Add(id, mVWorldObjectClient.id);
-		mVWorldObjectClient.SetNetworkObject(MVGameControllerBase.Game.LocalPlayerActorNumber == ownerActorNumber);
+		mVWorldObjectClient.SetNetworkObject(MVGameControllerBase.Game.LocalPlayer.ActorNr == ownerActorNumber);
 		MVGameControllerBase.Game.AddCloneToWorldObjects(mVWorldObjectClient);
 		GetLinksForClone(cloneBookkeeping.linkIds);
 		GetObjectLinksForClone(cloneBookkeeping.objectLinkIds);

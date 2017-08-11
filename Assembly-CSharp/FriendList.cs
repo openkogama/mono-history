@@ -49,15 +49,15 @@ public class FriendList
 
 	public FriendList()
 	{
-		MVNetworkGame game = MVGameControllerBase.Game;
-		game.OnFinishedLoadingPlayers = (UnityAction)Delegate.Combine(game.OnFinishedLoadingPlayers, new UnityAction(OnPlayersLoaded));
+		MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
+		mVPlayerContainer.OnPlayerListLoaded = (Action)Delegate.Combine(mVPlayerContainer.OnPlayerListLoaded, new Action(OnPlayersLoaded));
 	}
 
 	private void OnPlayersLoaded()
 	{
-		MVNetworkGame game = MVGameControllerBase.Game;
-		game.OnFinishedLoadingPlayers = (UnityAction)Delegate.Remove(game.OnFinishedLoadingPlayers, new UnityAction(OnPlayersLoaded));
-		foreach (MVPlayer value in MVGameControllerBase.Game.Players.Values)
+		MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
+		mVPlayerContainer.OnPlayerListLoaded = (Action)Delegate.Remove(mVPlayerContainer.OnPlayerListLoaded, new Action(OnPlayersLoaded));
+		foreach (MVPlayer value in MVGameControllerBase.Game.MVPlayerContainer.Values)
 		{
 			if (pendingNotifications.Contains(value.ProfileID) && OnFriendRequestReceived != null)
 			{
@@ -81,7 +81,7 @@ public class FriendList
 			Friend value2 = new Friend(friendID, profileID, status);
 			pending.Add(friendID, value2);
 			pendingNotifications.Add(profileID);
-			foreach (MVPlayer value3 in MVGameControllerBase.Game.Players.Values)
+			foreach (MVPlayer value3 in MVGameControllerBase.Game.MVPlayerContainer.Values)
 			{
 				if (value3.ProfileID == profileID && OnFriendRequestReceived != null)
 				{
@@ -133,7 +133,7 @@ public class FriendList
 					OnPendingCountChanged(GetOnlineFriends().Count);
 				}
 				MVPlayer mVPlayer = null;
-				foreach (MVPlayer value in MVGameControllerBase.Game.Players.Values)
+				foreach (MVPlayer value in MVGameControllerBase.Game.MVPlayerContainer.Values)
 				{
 					if (profileID == value.ProfileID)
 					{
@@ -176,11 +176,11 @@ public class FriendList
 	public Dictionary<int, MVPlayer> GetOnlineFriends()
 	{
 		Dictionary<int, MVPlayer> dictionary = new Dictionary<int, MVPlayer>();
-		foreach (KeyValuePair<int, MVPlayer> player in MVGameControllerBase.Game.Players)
+		foreach (MVPlayer value in MVGameControllerBase.Game.MVPlayerContainer.Values)
 		{
-			if (IsFriend(player.Value.ProfileID))
+			if (IsFriend(value.ProfileID))
 			{
-				dictionary.Add(player.Key, player.Value);
+				dictionary.Add(value.ActorNr, value);
 			}
 		}
 		return dictionary;

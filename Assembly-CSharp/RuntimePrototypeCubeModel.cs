@@ -406,7 +406,7 @@ public class RuntimePrototypeCubeModel
 		foreach (int instance in instances)
 		{
 			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(instance);
-			if (worldObjectClient.OwnerActorNr != 0 && worldObjectClient.OwnerActorNr != MVGameControllerBase.Game.LocalPlayerActorNumber)
+			if (worldObjectClient.OwnerActorNr != 0 && worldObjectClient.OwnerActorNr != MVGameControllerBase.Game.LocalPlayer.ActorNr)
 			{
 				worldObjectClient.Select(Color.blue);
 			}

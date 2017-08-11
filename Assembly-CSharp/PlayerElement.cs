@@ -19,8 +19,18 @@ public class PlayerElement : MonoBehaviour
 	[SerializeField]
 	private Color localPlayerNameColor;
 
+	[SerializeField]
+	private Color localPlayerBackgroundColor;
+
+	[SerializeField]
+	private Image background;
+
 	public void Initialize(MVPlayer player)
 	{
+		if (player == MVGameControllerBase.Game.LocalPlayer)
+		{
+			background.color = localPlayerBackgroundColor;
+		}
 		Friend friendByProfileID = MVGameControllerBase.Game.Friends.GetFriendByProfileID(player.ProfileID);
 		if (friendByProfileID != null && friendByProfileID.status == FriendStatus.Accepted)
 		{

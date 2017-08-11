@@ -45,7 +45,7 @@ public abstract class MVInteractable : MVInteractableBase
 			float num = item.Value * Time.deltaTime;
 			if (num != 0f)
 			{
-				TakeDamage(num, MVGameControllerBase.Game.Players[key], PlayerKilledByType.FlameThrower);
+				TakeDamage(num, MVGameControllerBase.Game.MVPlayerContainer[key], PlayerKilledByType.FlameThrower);
 			}
 		}
 		float num2 = HandleModifierEffect(AvatarModifierEffect.EnvironmentDamagePrSec, 0f) * Time.deltaTime;

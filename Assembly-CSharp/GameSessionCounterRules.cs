@@ -80,7 +80,7 @@ public static class GameSessionCounterRules
 		if (counterType == GameStatCounterType.Kill && e.actorNumber == MVGameControllerBase.Game.LocalPlayer.ActorNr && e.actorNumber != e.otherID)
 		{
 			GameSessionCounters.Increment(GameSessionCounterType.Kill);
-			if (MVGameControllerBase.Game.Players.ContainsKey(e.otherID) && MVGameControllerBase.Game.Players[e.otherID].Team != MVGameControllerBase.Game.Players[e.actorNumber].Team)
+			if (MVGameControllerBase.Game.MVPlayerContainer[e.otherID].Team != MVGameControllerBase.Game.MVPlayerContainer[e.actorNumber].Team)
 			{
 				GameSessionCounters.Increment(GameSessionCounterType.KillOnOtherTeam);
 			}

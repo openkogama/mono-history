@@ -115,7 +115,7 @@ internal class ESWaitForGroup : ESStateBase
 
 	private void WOCM_InitializedGameQueryData(object sender, InitializedGameQueryDataEventArgs e)
 	{
-		if (MVGameControllerBase.Game.LocalPlayerActorNumber == e.InstigatorActorNumber)
+		if (MVGameControllerBase.Game.LocalPlayer.ActorNr == e.InstigatorActorNumber)
 		{
 			responseReceived = true;
 			createGroupId = e.RootWO.Id;

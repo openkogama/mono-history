@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class FirstPersonDeathCamera : MVCameraBase
 {
-	[SerializeField]
 	[Header("Settings")]
+	[SerializeField]
 	private Vector3 cameraOffset;
 
 	[Range(0f, 1f)]
@@ -11,8 +11,8 @@ public class FirstPersonDeathCamera : MVCameraBase
 	[SerializeField]
 	private float flashStrength;
 
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	private GodzillaGUI gui;
 
 	public override CameraType CameraType => CameraType.GodzillaModeMainCamera;

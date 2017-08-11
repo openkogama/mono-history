@@ -236,6 +236,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	{
 		instance = this;
 		Debug.Log(KoGaMaSettings.VersionString);
+		Debug.Log("Release name " + KoGaMaSettings.ReleaseName);
 		Debug.Log("Branch " + KoGaMaSettings.BranchName);
 		Debug.Log("Latest commit message " + koGaMaSettings.LatestCommitMessage);
 		Debug.Log("Build time " + koGaMaSettings.BuildTime);

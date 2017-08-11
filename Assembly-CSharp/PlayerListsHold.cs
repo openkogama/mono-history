@@ -44,19 +44,19 @@ public class PlayerListsHold : MonoBehaviour
 
 	private void Start()
 	{
-		IEnumerable<MVPlayer> values = MVGameControllerBase.Game.Players.Values;
+		IEnumerable<MVPlayer> values = MVGameControllerBase.Game.MVPlayerContainer.Values;
 		List<MVTeam> teamList = MVGameControllerBase.Game.TeamManager.GetTeamList();
 		CreatePlayerLists(values, teamList);
-		MVNetworkGame game = MVGameControllerBase.Game;
-		game.onPlayerListChanged = (MVNetworkGame.OnPlayerListChangedDelegate)Delegate.Combine(game.onPlayerListChanged, new MVNetworkGame.OnPlayerListChangedDelegate(ReCreate));
+		MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
+		mVPlayerContainer.OnPlayerListChanged = (Action)Delegate.Combine(mVPlayerContainer.OnPlayerListChanged, new Action(ReCreate));
 		FriendList friends = MVGameControllerBase.Game.Friends;
 		friends.OnFriendListUpdated = (FriendList.OnFriendListUpdatedDelegate)Delegate.Combine(friends.OnFriendListUpdated, new FriendList.OnFriendListUpdatedDelegate(ReCreate));
 	}
 
 	private void OnDestroy()
 	{
-		MVNetworkGame game = MVGameControllerBase.Game;
-		game.onPlayerListChanged = (MVNetworkGame.OnPlayerListChangedDelegate)Delegate.Remove(game.onPlayerListChanged, new MVNetworkGame.OnPlayerListChangedDelegate(ReCreate));
+		MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
+		mVPlayerContainer.OnPlayerListChanged = (Action)Delegate.Remove(mVPlayerContainer.OnPlayerListChanged, new Action(ReCreate));
 		FriendList friends = MVGameControllerBase.Game.Friends;
 		friends.OnFriendListUpdated = (FriendList.OnFriendListUpdatedDelegate)Delegate.Remove(friends.OnFriendListUpdated, new FriendList.OnFriendListUpdatedDelegate(ReCreate));
 	}

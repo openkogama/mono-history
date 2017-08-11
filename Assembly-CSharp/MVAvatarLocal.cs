@@ -763,13 +763,13 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 		private void HandleStuck()
 		{
 			mvAvatar.Die();
-			MVGameControllerBase.OperationRequests.PostGameMsg(MVGameMsgType.AvatarKilled, GameMessages.MakePlayerKilledMessage(MVGameControllerBase.Game.LocalPlayerActorNumber, MVGameControllerBase.Game.LocalPlayerActorNumber, PlayerKilledByType.Crushed));
+			MVGameControllerBase.OperationRequests.PostGameMsg(MVGameMsgType.AvatarKilled, GameMessages.MakePlayerKilledMessage(MVGameControllerBase.Game.LocalPlayer.ActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr, PlayerKilledByType.Crushed));
 		}
 
 		private void DieByFalling()
 		{
 			mvAvatar.Health.Value = 0f;
-			MVGameControllerBase.OperationRequests.PostGameMsg(MVGameMsgType.AvatarKilled, GameMessages.MakePlayerKilledMessage(MVGameControllerBase.Game.LocalPlayerActorNumber, MVGameControllerBase.Game.LocalPlayerActorNumber, PlayerKilledByType.FallOffWorld));
+			MVGameControllerBase.OperationRequests.PostGameMsg(MVGameMsgType.AvatarKilled, GameMessages.MakePlayerKilledMessage(MVGameControllerBase.Game.LocalPlayer.ActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr, PlayerKilledByType.FallOffWorld));
 		}
 
 		private void OnHandleFiring(bool isFiring)
@@ -1094,12 +1094,12 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 		}
 		if (Health.Value <= 0f)
 		{
-			int key = damageDealer?.ActorNr ?? MVGameControllerBase.Game.LocalPlayerActorNumber;
-			int localPlayerActorNumber = MVGameControllerBase.Game.LocalPlayerActorNumber;
+			int num = damageDealer?.ActorNr ?? MVGameControllerBase.Game.LocalPlayer.ActorNr;
+			int actorNr = MVGameControllerBase.Game.LocalPlayer.ActorNr;
 			if (OnKilled != null)
 			{
-				bool shotSelf = MVGameControllerBase.Game.Players[localPlayerActorNumber].Username == MVGameControllerBase.Game.Players[key].Username;
-				string obj = string.Format(KillNotification.GetKillText(damageType, shotSelf), MVGameControllerBase.Game.Players[localPlayerActorNumber].Username, MVGameControllerBase.Game.Players[key].Username);
+				bool shotSelf = actorNr == num;
+				string obj = string.Format(KillNotification.GetKillText(damageType, shotSelf), MVGameControllerBase.Game.MVPlayerContainer[actorNr].Username, MVGameControllerBase.Game.MVPlayerContainer[num].Username);
 				OnKilled(obj);
 			}
 		}
@@ -1384,8 +1384,8 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 	private void ResetAvatar()
 	{
 		triggerHandler.enabled = true;
-		int localPlayerActorNumber = MVGameControllerBase.Game.LocalPlayerActorNumber;
-		MVTeam teamFromActorNr = MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(localPlayerActorNumber);
+		int actorNr = MVGameControllerBase.Game.LocalPlayer.ActorNr;
+		MVTeam teamFromActorNr = MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(actorNr);
 		if (teamFromActorNr != MVTeam.None && !MVGameControllerBase.Game.TeamManager.IsTeamActive(teamFromActorNr))
 		{
 			List<MVTeam> teamList = MVGameControllerBase.Game.TeamManager.GetTeamList();

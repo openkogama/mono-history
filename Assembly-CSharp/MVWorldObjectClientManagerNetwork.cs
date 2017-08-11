@@ -190,7 +190,7 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 		}
 		if (lockObject)
 		{
-			SetOwnerInHierarchy(id, MVGameControllerBase.Game.LocalPlayerActorNumber);
+			SetOwnerInHierarchy(id, MVGameControllerBase.Game.LocalPlayer.ActorNr);
 		}
 		else
 		{

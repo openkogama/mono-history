@@ -150,19 +150,15 @@ public class ChatControllerUGUI : MonoBehaviour
 
 	private void ChatHotkeyPressed()
 	{
-		if (inputField.isFocused)
+		if (!inputField.isFocused)
 		{
-			return;
-		}
-		if (promptRegisterForChat && MVGameControllerBase.IsTouristSession)
-		{
-			promptRegisterForChat = false;
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+			if (promptRegisterForChat && MVGameControllerBase.IsTouristSession)
 			{
-				x.Create(TM._("Register or log in to chat!"), string.Empty);
-			});
+				promptRegisterForChat = false;
+				NotificationController.PushNotification(NotificationType.RegisterToChat, NotificationsManager.eNotificationPanel.tertiary);
+			}
+			ChatFocusChanged(enterChatMode: true);
 		}
-		ChatFocusChanged(enterChatMode: true);
 	}
 
 	public void ChatFocusChanged(bool enterChatMode)
@@ -256,8 +252,8 @@ public class ChatControllerUGUI : MonoBehaviour
 
 	private void JoinMessage(Dictionary<object, object> data)
 	{
-		int key = (int)data[(byte)0];
-		MVPlayer mVPlayer = MVGameControllerBase.Game.Players[key];
+		int actorNumber = (int)data[(byte)0];
+		MVPlayer mVPlayer = MVGameControllerBase.Game.MVPlayerContainer[actorNumber];
 		if (!mVPlayer.IsAnonymous)
 		{
 			Color color = chatMessageDefaultNameColor;
@@ -320,9 +316,9 @@ public class ChatControllerUGUI : MonoBehaviour
 	private void AddChatLine(Dictionary<object, object> data)
 	{
 		string text = (string)data[(byte)5];
-		int key = (int)data[(byte)0];
+		int actorNumber = (int)data[(byte)0];
 		Color teamColor = chatMessageDefaultNameColor;
-		MVPlayer mVPlayer = MVGameControllerBase.Game.Players[key];
+		MVPlayer mVPlayer = MVGameControllerBase.Game.MVPlayerContainer[actorNumber];
 		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
 		{
 			teamColor = Styles.GetTeamColor(mVPlayer.Team);

@@ -18,8 +18,8 @@ public class SelectionRenderer : MonoBehaviour
 	[SerializeField]
 	private List<MeshFilter> meshFilters = new List<MeshFilter>();
 
-	[Range(0.001f, 2f)]
 	[SerializeField]
+	[Range(0.001f, 2f)]
 	private float fadeOutTime = 0.5f;
 
 	[Range(0.001f, 2f)]

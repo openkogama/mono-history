@@ -50,16 +50,9 @@ public class NotificationController : MonoBehaviour
 	private static void FriendRequestAccepted(Dictionary<object, object> data)
 	{
 		Friend friend = (Friend)data[(byte)10];
-		MVPlayer mVPlayer = null;
-		foreach (MVPlayer value in MVGameControllerBase.Game.Players.Values)
-		{
-			if (friend.profileID == value.ProfileID)
-			{
-				mVPlayer = value;
-				break;
-			}
-		}
-		PushNotification(mVPlayer.Username + TM._(" accepted your friend request!"));
+		MVPlayer player = null;
+		MVGameControllerBase.Game.MVPlayerContainer.TryGetPlayerByProfileId(friend.profileID, out player);
+		PushNotification(player.Username + TM._(" accepted your friend request!"));
 	}
 
 	private static void ReceivedFriendsRequest(Dictionary<object, object> data)

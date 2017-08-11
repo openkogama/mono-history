@@ -26,22 +26,24 @@ public class PlayerListButton : MonoBehaviour
 
 	private void Awake()
 	{
-		MVNetworkGame game = MVGameControllerBase.Game;
-		game.onPlayerListChanged = (MVNetworkGame.OnPlayerListChangedDelegate)Delegate.Combine(game.onPlayerListChanged, new MVNetworkGame.OnPlayerListChangedDelegate(UpdateButton));
+		MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
+		mVPlayerContainer.OnPlayerListChanged = (Action)Delegate.Combine(mVPlayerContainer.OnPlayerListChanged, new Action(UpdateButton));
 		MVTeamManager teamManager = MVGameControllerBase.Game.TeamManager;
 		teamManager.OnTeamsUpdated = (MVTeamManager.OnTeamsUpdatedDelegate)Delegate.Combine(teamManager.OnTeamsUpdated, new MVTeamManager.OnTeamsUpdatedDelegate(UpdateButton));
 		FriendList friends = MVGameControllerBase.Game.Friends;
 		friends.OnFriendRequestReceived = (UnityAction)Delegate.Combine(friends.OnFriendRequestReceived, new UnityAction(ViewNotification));
 		FriendList friends2 = MVGameControllerBase.Game.Friends;
 		friends2.OnPendingCountChanged = (UnityAction<int>)Delegate.Combine(friends2.OnPendingCountChanged, new UnityAction<int>(PendingCountChanged));
-		MVNetworkGame game2 = MVGameControllerBase.Game;
-		game2.OnFinishedLoadingPlayers = (UnityAction)Delegate.Combine(game2.OnFinishedLoadingPlayers, new UnityAction(OnPlayerListReady));
+		MVPlayerContainer mVPlayerContainer2 = MVGameControllerBase.Game.MVPlayerContainer;
+		mVPlayerContainer2.OnPlayerListLoaded = (Action)Delegate.Combine(mVPlayerContainer2.OnPlayerListLoaded, new Action(OnPlayerListReady));
 		UpdateButton();
 	}
 
 	private void OnPlayerListReady()
 	{
-		foreach (MVPlayer value in MVGameControllerBase.Game.Players.Values)
+		MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
+		mVPlayerContainer.OnPlayerListLoaded = (Action)Delegate.Remove(mVPlayerContainer.OnPlayerListLoaded, new Action(OnPlayerListReady));
+		foreach (MVPlayer value in MVGameControllerBase.Game.MVPlayerContainer.Values)
 		{
 			if (MVGameControllerBase.Game.Friends.Pending.ContainsKey(value.ProfileID))
 			{
@@ -63,7 +65,11 @@ public class PlayerListButton : MonoBehaviour
 
 	public void CreatePlayerList()
 	{
-		prevPlayerListState = new Dictionary<int, MVPlayer>(MVGameControllerBase.Game.Players);
+		prevPlayerListState = new Dictionary<int, MVPlayer>();
+		foreach (MVPlayer value in MVGameControllerBase.Game.MVPlayerContainer.Values)
+		{
+			prevPlayerListState.Add(value.ActorNr, value);
+		}
 		notification.gameObject.SetActive(value: false);
 		if (currPlayerLists != null)
 		{
@@ -87,7 +93,7 @@ public class PlayerListButton : MonoBehaviour
 	{
 		UpdatePlayersCount();
 		UpdateTeamColor();
-		foreach (MVPlayer value in MVGameControllerBase.Game.Players.Values)
+		foreach (MVPlayer value in MVGameControllerBase.Game.MVPlayerContainer.Values)
 		{
 			if (MVGameControllerBase.Game.Friends.PendingProfileIds.Contains(value.ProfileID) && !prevPlayerListState.ContainsKey(value.ProfileID))
 			{
@@ -95,12 +101,16 @@ public class PlayerListButton : MonoBehaviour
 				break;
 			}
 		}
-		prevPlayerListState = new Dictionary<int, MVPlayer>(MVGameControllerBase.Game.Players);
+		prevPlayerListState = new Dictionary<int, MVPlayer>();
+		foreach (MVPlayer value2 in MVGameControllerBase.Game.MVPlayerContainer.Values)
+		{
+			prevPlayerListState.Add(value2.ActorNr, value2);
+		}
 	}
 
 	private void UpdatePlayersCount()
 	{
-		playersCount.text = MVGameControllerBase.Game.Players.Count.ToString();
+		playersCount.text = MVGameControllerBase.Game.MVPlayerContainer.Count.ToString();
 	}
 
 	private void UpdateTeamColor()

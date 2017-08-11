@@ -47,7 +47,7 @@ public class MaterialDescription
 		new MaterialDescription(TM._("Bricks"), TM._("The brick material is slightly rough whick makes players slide less when walking on it.")),
 		new MaterialDescription(TM._("Bright Wood"), TM._("This standard material can be used to create games, cube models and avatars.")),
 		new MaterialDescription(TM._("Cobblestone"), TM._("This standard material can be used to create games, cube models and avatars.")),
-		new MaterialDescription(TM._("Concrete"), TM._("This standard material can be used to create games, cube models and avatars.")),
+		new MaterialDescription(TM._("Cement"), TM._("This standard material can be used to create games, cube models and avatars.")),
 		new MaterialDescription(TM._("Camouflage"), TM._("This standard material can be used to create games, cube models and avatars.")),
 		new MaterialDescription(TM._("Green Pavement"), TM._("This standard material can be used to create games, cube models and avatars.")),
 		new MaterialDescription(TM._("Ancient Cobblestone"), TM._("This standard material can be used to create games, cube models and avatars.")),

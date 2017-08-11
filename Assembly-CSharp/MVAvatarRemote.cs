@@ -40,7 +40,7 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 	{
 		base.Initialize();
 		avatar.UpdateNameTag();
-		if (MVGameControllerBase.Game.Players[OwnerActorNr].BuildTarget == BuildTarget.Android)
+		if (MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(OwnerActorNr).BuildTarget == BuildTarget.Android)
 		{
 			avatar.ShowMobileIcon();
 		}
