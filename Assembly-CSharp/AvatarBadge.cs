@@ -57,7 +57,7 @@ public class AvatarBadge : MonoBehaviour
 		{
 			Debug.Log("OwnerActorId " + ownerActorId);
 			Debug.Log(MVGameControllerBase.Game.LocalPlayer.ActorNr);
-			if (ownerActorId != -1)
+			if (ownerActorId != -1 && MVGameControllerBase.Game.MVPlayerContainer.ContainsKey(ownerActorId))
 			{
 				MVPlayer playerUnsafe = MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(ownerActorId);
 				playerUnsafe.OnLevelChanged = (UnityAction<int>)Delegate.Remove(playerUnsafe.OnLevelChanged, new UnityAction<int>(UpdateBadge));

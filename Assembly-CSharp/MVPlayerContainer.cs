@@ -44,9 +44,8 @@ public class MVPlayerContainer : IEnumerator, IEnumerable, IEnumerable<KeyValueP
 	{
 		if (profileId <= 0)
 		{
-			Debug.LogError("Trying to get tourist profile by profileId");
 			player = null;
-			return false;
+			throw new Exception("Trying to get tourist profile by profileId");
 		}
 		foreach (MVPlayer value in Values)
 		{
@@ -102,11 +101,11 @@ public class MVPlayerContainer : IEnumerator, IEnumerable, IEnumerable<KeyValueP
 	{
 		if (players.ContainsKey(actorNr) && pendingPlayers.ContainsKey(actorNr))
 		{
-			Debug.LogError("Player contained in both players and pending players");
+			throw new Exception("Player contained in both players and pending players");
 		}
 		if (!players.ContainsKey(actorNr) && !pendingPlayers.ContainsKey(actorNr))
 		{
-			Debug.LogError("Player not contained in either players or pendingPlayers");
+			throw new Exception("Player not contained in either players or pendingPlayers");
 		}
 		if (players.ContainsKey(actorNr))
 		{
@@ -139,22 +138,18 @@ public class MVPlayerContainer : IEnumerator, IEnumerable, IEnumerable<KeyValueP
 		{
 			return players[actorNr];
 		}
-		Debug.Log(StackTraceUtility.ExtractStackTrace());
-		Debug.LogError("Could not get player unsafe");
-		return null;
+		throw new Exception("Could not get player unsafe");
 	}
 
 	public void SetPlayerReady(int actorNr)
 	{
 		if (!pendingPlayers.ContainsKey(actorNr) && players.ContainsKey(actorNr))
 		{
-			Debug.LogError("Player already added to players list. IsReady: " + players[actorNr].IsReady);
-			return;
+			throw new Exception("Player already added to players list.");
 		}
 		if (!pendingPlayers.ContainsKey(actorNr))
 		{
-			Debug.LogError("Pending player not found");
-			return;
+			throw new Exception("Pending player not found");
 		}
 		MVPlayer mVPlayer = pendingPlayers[actorNr];
 		pendingPlayers.Remove(actorNr);
