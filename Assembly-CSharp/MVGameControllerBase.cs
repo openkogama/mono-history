@@ -235,11 +235,16 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	private void Awake()
 	{
 		instance = this;
+		Debug.Log("Version Number");
 		Debug.Log(KoGaMaSettings.VersionString);
-		Debug.Log("Release name " + KoGaMaSettings.ReleaseName);
-		Debug.Log("Branch " + KoGaMaSettings.BranchName);
-		Debug.Log("Latest commit message " + koGaMaSettings.LatestCommitMessage);
-		Debug.Log("Build time " + koGaMaSettings.BuildTime);
+		Debug.Log("Release Name");
+		Debug.Log(KoGaMaSettings.ReleaseName);
+		Debug.Log("Branch");
+		Debug.Log(KoGaMaSettings.BranchName);
+		Debug.Log("Latest commit message");
+		Debug.Log(koGaMaSettings.LatestCommitMessage);
+		Debug.Log("Build time");
+		Debug.Log(koGaMaSettings.BuildTime);
 		DebugLogHandler.Init();
 		if (!DebugLogHandler.IsSampling && !Debug.isDebugBuild)
 		{
