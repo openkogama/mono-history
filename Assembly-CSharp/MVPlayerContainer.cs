@@ -10,8 +10,6 @@ public class MVPlayerContainer : IEnumerator, IEnumerable, IEnumerable<KeyValueP
 
 	private readonly Dictionary<int, MVPlayer> pendingPlayers = new Dictionary<int, MVPlayer>();
 
-	private bool sendPlayerListChangeEvents = true;
-
 	private int localPlayerActorNumber = -1;
 
 	public Action OnPlayerListChanged;
@@ -65,18 +63,14 @@ public class MVPlayerContainer : IEnumerator, IEnumerable, IEnumerable<KeyValueP
 		if (player.IsReady)
 		{
 			players.Add(player.ActorNr, player);
-			SendPlayerListEvents();
+			return;
 		}
-		else
-		{
-			Debug.Log("Adding to pending players " + player.ActorNr);
-			pendingPlayers.Add(player.ActorNr, player);
-		}
+		Debug.Log("Adding to pending players " + player.ActorNr);
+		pendingPlayers.Add(player.ActorNr, player);
 	}
 
 	public void Add(List<MVPlayer> playerList)
 	{
-		sendPlayerListChangeEvents = false;
 		bool flag = false;
 		foreach (MVPlayer player in playerList)
 		{
@@ -86,7 +80,6 @@ public class MVPlayerContainer : IEnumerator, IEnumerable, IEnumerable<KeyValueP
 			}
 			Add(player);
 		}
-		sendPlayerListChangeEvents = true;
 		if (flag)
 		{
 			SendPlayerListEvents();
@@ -155,6 +148,7 @@ public class MVPlayerContainer : IEnumerator, IEnumerable, IEnumerable<KeyValueP
 		pendingPlayers.Remove(actorNr);
 		players.Add(mVPlayer.ActorNr, mVPlayer);
 		mVPlayer.SetReady();
+		SendPlayerListEvents();
 	}
 
 	public bool TryGetValue(int actorNr, out MVPlayer player)
@@ -185,7 +179,7 @@ public class MVPlayerContainer : IEnumerator, IEnumerable, IEnumerable<KeyValueP
 
 	private void SendPlayerListEvents()
 	{
-		if (sendPlayerListChangeEvents && OnPlayerListChanged != null)
+		if (OnPlayerListChanged != null)
 		{
 			OnPlayerListChanged();
 		}
