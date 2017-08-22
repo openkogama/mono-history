@@ -158,19 +158,19 @@ public class LogicObjectManager
 			reportSeverity = ReportSeverity.Error;
 			return ValidateLinkStatus.OutputObjectIdIsZeroOrLess;
 		}
-		MVWorldObject worldObject = worldObjectManager.GetWorldObject(linkOutputWoId);
-		MVWorldObject worldObject2 = worldObjectManager.GetWorldObject(linkInputWoId);
-		if (worldObject == null && worldObject2 == null)
+		bool flag = worldObjectManager.TryGetWorldObject(linkOutputWoId, out var worldObject);
+		bool flag2 = worldObjectManager.TryGetWorldObject(linkInputWoId, out var worldObject2);
+		if (!flag && !flag2)
 		{
 			reportSeverity = ReportSeverity.Info;
 			return ValidateLinkStatus.BothInputAndOutputIsNull;
 		}
-		if (worldObject == null)
+		if (!flag)
 		{
 			reportSeverity = ReportSeverity.Info;
 			return ValidateLinkStatus.OutputObjectIsNull;
 		}
-		if (worldObject2 == null)
+		if (!flag2)
 		{
 			reportSeverity = ReportSeverity.Info;
 			return ValidateLinkStatus.InputObjectIsNull;

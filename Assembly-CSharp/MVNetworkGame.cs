@@ -3600,14 +3600,7 @@ public class MVNetworkGame : IPhotonPeerListener
 	private void OnLevelChanged(int actorNr, int level)
 	{
 		Debug.Log("MVNetworkGame.OnLevelChanged");
-		if (playerContainer.ContainsKey(actorNr))
-		{
-			playerContainer[actorNr].Level = level;
-		}
-		else
-		{
-			Debug.LogError("Could not find player");
-		}
+		playerContainer.GetPlayerUnsafe(actorNr).Level = level;
 	}
 
 	private void LoadModeGui()
