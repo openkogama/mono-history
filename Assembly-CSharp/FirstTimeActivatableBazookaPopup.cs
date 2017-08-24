@@ -4,6 +4,30 @@ using UnityEngine.EventSystems;
 
 public class FirstTimeActivatableBazookaPopup : FirstTimeActivatableElementBase
 {
+	private Dictionary<MVWorldObjectDocumentationType, int> priorityDictionary = new Dictionary<MVWorldObjectDocumentationType, int>
+	{
+		{
+			MVWorldObjectDocumentationType.Bazooka,
+			10000
+		},
+		{
+			MVWorldObjectDocumentationType.Centergun,
+			500
+		},
+		{
+			MVWorldObjectDocumentationType.DoubleSixShooter,
+			300
+		},
+		{
+			MVWorldObjectDocumentationType.ImpulseGun,
+			200
+		},
+		{
+			MVWorldObjectDocumentationType.Shotgun,
+			100
+		}
+	};
+
 	[SerializeField]
 	private TabMenu tabGroup;
 
@@ -18,7 +42,8 @@ public class FirstTimeActivatableBazookaPopup : FirstTimeActivatableElementBase
 		{
 			bool isBlocked = IsBlocked;
 			bool activeInHierarchy = gameObject.activeInHierarchy;
-			return !isBlocked && activeInHierarchy;
+			bool flag = slots.transform.childCount > 0;
+			return !isBlocked && activeInHierarchy && flag;
 		}
 	}
 
@@ -33,16 +58,28 @@ public class FirstTimeActivatableBazookaPopup : FirstTimeActivatableElementBase
 	private void DoShowing()
 	{
 		showing = true;
+		ExecuteEvents.ExecuteHierarchy(tabGroup.gameObject, null, (IPlayerInventory x, BaseEventData y) =>
+		{
+			x.OpenTab(UIPushOption.Blocking, 7);
+		});
 		PlayerInventoryRepository playerInventoryRepository = MVGameControllerBase.IEditModeUI.PlayerInventoryRepository;
 		string category = playerInventoryRepository.categories[7];
 		List<InventoryItem> itemsInCategory = playerInventoryRepository.GetItemsInCategory(category);
 		InventoryItem bazooka = null;
-		for (int i = 0; i < itemsInCategory.Count; i++)
+		int num = 0;
+		Dictionary<int, InventorySlot> dictionary = slots.GetSlots();
+		foreach (InventorySlot value in dictionary.Values)
 		{
-			if (itemsInCategory[i].name == InventoryItem.localItemDescriptionOverride[MVWorldObjectDocumentationType.Bazooka].Name)
+			PlayerInventoryPreviewItem component = value.Item.GetComponent<PlayerInventoryPreviewItem>();
+			int num2 = 0;
+			if (priorityDictionary.ContainsKey(component.DocumentationType))
 			{
-				bazooka = itemsInCategory[i];
-				break;
+				num2 = priorityDictionary[component.DocumentationType];
+			}
+			if (num2 > num)
+			{
+				bazooka = component.GetItem();
+				num = num2;
 			}
 		}
 		ExecuteEvents.ExecuteHierarchy(tabGroup.gameObject, null, (IPlayerInventory x, BaseEventData y) =>

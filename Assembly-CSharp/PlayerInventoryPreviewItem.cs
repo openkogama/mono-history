@@ -40,9 +40,12 @@ public class PlayerInventoryPreviewItem : MonoBehaviour
 
 	private bool initialized;
 
+	public MVWorldObjectDocumentationType DocumentationType;
+
 	public void Initialize(Transform rootTransform, InventoryItem item, MVWorldObjectClient woPreviewObject, bool draggable)
 	{
 		item.ApplyLocalDescriptionOverride(woPreviewObject.DocumentationType);
+		DocumentationType = woPreviewObject.DocumentationType;
 		toolTip.SetText(item.name);
 		dragHandler.enabled = draggable;
 		this.item = item;

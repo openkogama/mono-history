@@ -22,6 +22,11 @@ public class InventorySlots : MonoBehaviour, IEventSystemHandler, IGameObjectDro
 		}
 	}
 
+	public Dictionary<int, InventorySlot> GetSlots()
+	{
+		return inventorySlots;
+	}
+
 	public void HighlightSlot(int slotPosition)
 	{
 		inventorySlots[slotPosition].HighlightSlot();
