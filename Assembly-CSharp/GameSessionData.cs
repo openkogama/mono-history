@@ -13,8 +13,6 @@ public class GameSessionData
 
 	public string language = string.Empty;
 
-	public string planetName = string.Empty;
-
 	public bool embedded;
 
 	public string token = string.Empty;
@@ -94,10 +92,6 @@ public class GameSessionData
 		{
 			newPlanetName = (string)gameSessionData["newPlanetName"];
 		}
-		if (gameSessionData.ContainsKey("planetName"))
-		{
-			planetName = (string)gameSessionData["planetName"];
-		}
 		if (gameMode == MVGameMode.CharacterEditor)
 		{
 			planetID = -1;
@@ -106,6 +100,6 @@ public class GameSessionData
 
 	public override string ToString()
 	{
-		return $"serverIP {serverIP}. profileID {profileID}. planetID {planetID}. gameMode {gameMode}. language {language}. embedded {embedded}. token {token}. newToken {newToken}. newPlanetName {newPlanetName}. planetName {planetName}.";
+		return $"serverIP {serverIP}. profileID {profileID}. planetID {planetID}. gameMode {gameMode}. language {language}. embedded {embedded}. token {token}. newToken {newToken}. newPlanetName {newPlanetName}.";
 	}
 }

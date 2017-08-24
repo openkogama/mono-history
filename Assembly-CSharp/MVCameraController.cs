@@ -226,6 +226,8 @@ public class MVCameraController : MonoBehaviour
 
 	public Camera TertiaryCamera => tertiaryCamera.GetComponent<Camera>();
 
+	public Camera SecondaryCamera => secondaryCamera.GetComponent<Camera>();
+
 	public bool IsLogicRendered
 	{
 		get
@@ -374,7 +376,10 @@ public class MVCameraController : MonoBehaviour
 
 	public void StartTransitionCam(float transitionTime = 2f, bool soft = false)
 	{
-		cameraStack.StartTransitionCam(this, transitionTime, soft);
+		if (transitionTime != 0f)
+		{
+			cameraStack.StartTransitionCam(this, transitionTime, soft);
+		}
 	}
 
 	public void CancelTransitionCam()

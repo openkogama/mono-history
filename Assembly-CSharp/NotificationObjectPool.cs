@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MV.Common;
@@ -12,13 +13,17 @@ public class NotificationObjectPool : MonoBehaviour
 
 	private List<Notification> ActiveInstances = new List<Notification>();
 
+	public Action OnActiveInstancesChanged;
+
+	public int ActivateInstancesCount => ActiveInstances.Count;
+
 	private void Awake()
 	{
 		foreach (NotificationObjectPoolElement element in Elements)
 		{
 			for (int i = 0; i < element.Instances; i++)
 			{
-				Notification notification = Object.Instantiate(element.Prefab);
+				Notification notification = UnityEngine.Object.Instantiate(element.Prefab);
 				notification.transform.SetParent(transform);
 				notification.gameObject.SetActive(value: false);
 				Instances.Add(notification);
@@ -31,14 +36,7 @@ public class NotificationObjectPool : MonoBehaviour
 		for (int num = ActiveInstances.Count - 1; num >= 0; num--)
 		{
 			Notification notification = ActiveInstances[num];
-			if (notification.selfDestroy)
-			{
-				Object.Destroy(notification);
-			}
-			else
-			{
-				Return(notification);
-			}
+			Return(notification);
 		}
 	}
 
@@ -46,14 +44,14 @@ public class NotificationObjectPool : MonoBehaviour
 	{
 		if (!Instances.Find((Notification x) => (byte)x.Type == (byte)type))
 		{
+			Debug.LogWarning("Could not find type");
 			return CreateTempPanel(type);
 		}
 		int index = Instances.FindIndex((Notification x) => (byte)x.Type == (byte)type);
 		Notification notification = Instances[index];
-		notification.selfDestroy = false;
 		notification.pool = this;
 		notification.gameObject.SetActive(value: true);
-		ActiveInstances.Add(Instances[index]);
+		AddToActiveInstances(Instances[index]);
 		Instances.RemoveAt(index);
 		return notification;
 	}
@@ -62,20 +60,38 @@ public class NotificationObjectPool : MonoBehaviour
 	{
 		notification.gameObject.SetActive(value: false);
 		notification.transform.SetParent(transform);
-		ActiveInstances.Remove(notification);
+		RemoveFromActiveInstances(notification);
 		Instances.Add(notification);
 	}
 
 	private Notification CreateTempPanel(NotificationType type)
 	{
-		Notification notification = Object.Instantiate(Elements.First((NotificationObjectPoolElement x) => x.Prefab.Type == type).Prefab);
+		Notification notification = UnityEngine.Object.Instantiate(Elements.First((NotificationObjectPoolElement x) => x.Prefab.Type == type).Prefab);
 		notification.pool = this;
 		if (notification == null)
 		{
 			Debug.LogError("Couldn't find notification type " + type);
 		}
-		ActiveInstances.Add(notification);
+		AddToActiveInstances(notification);
 		notification.gameObject.SetActive(value: true);
 		return notification;
+	}
+
+	private void AddToActiveInstances(Notification notification)
+	{
+		ActiveInstances.Add(notification);
+		if (OnActiveInstancesChanged != null)
+		{
+			OnActiveInstancesChanged();
+		}
+	}
+
+	private void RemoveFromActiveInstances(Notification notification)
+	{
+		ActiveInstances.Remove(notification);
+		if (OnActiveInstancesChanged != null)
+		{
+			OnActiveInstancesChanged();
+		}
 	}
 }

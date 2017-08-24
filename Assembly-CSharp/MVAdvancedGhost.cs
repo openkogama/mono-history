@@ -137,18 +137,8 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 		advancedGhostBehaviour.ReceivedDamage();
 		if (interactable.IsDead())
 		{
-			HandleGameCounting(amount, damageDealer, damageType);
 			HashSet<int> worldIDsRecursive = WorldIDsRecursive;
 			SharedWorldObjectGameplayFunctions.Explosion.Explode(PrefabPool.Instance.ParticleExplosion, advancedGhostBehaviour.GhostVisualization.transform.position, deathExplosionDamageValue, deathExplosionRadius, deathExplosionImpulse, local: true, null, worldIDsRecursive);
-		}
-	}
-
-	private void HandleGameCounting(float amount, MVPlayer damageDealer, PlayerKilledByType damageType)
-	{
-		if (damageDealer.ActorNr == MVGameControllerBase.Game.LocalPlayer.ActorNr && (damageDealer.Avatar.Transform.position - advancedGhostBehaviour.transform.position).magnitude < 10f)
-		{
-			GameSessionCounters.Increment(GameSessionCounterType.OculusKilledByLocalPlayerInCloseCombat);
-			Debug.Log("Close combat");
 		}
 	}
 

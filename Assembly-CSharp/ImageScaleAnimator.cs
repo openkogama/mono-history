@@ -5,14 +5,12 @@ public class ImageScaleAnimator : MonoBehaviour
 	[SerializeField]
 	private RectTransform scaleTarget;
 
-	[SerializeField]
 	[Tooltip("Scale negative for downscaling")]
+	[SerializeField]
 	private AnimationCurve scaleCurve;
 
 	[SerializeField]
 	private float scaleSpeed;
-
-	private float time;
 
 	private Vector2 startSize;
 
@@ -25,8 +23,7 @@ public class ImageScaleAnimator : MonoBehaviour
 
 	private void Update()
 	{
-		time += Time.deltaTime;
-		float num = scaleCurve.Evaluate(time * scaleSpeed);
+		float num = scaleCurve.Evaluate(Time.timeSinceLevelLoad * scaleSpeed);
 		scaleTarget.sizeDelta = startSize + new Vector2(startSize.x * num, startSize.y * num);
 	}
 }

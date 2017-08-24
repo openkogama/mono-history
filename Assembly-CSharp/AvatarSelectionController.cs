@@ -39,7 +39,7 @@ public class AvatarSelectionController : MonoBehaviour, IEventSystemHandler, IAv
 		}
 	}
 
-	public void Initialize(AvatarEditModeBodyController bodyController)
+	public void Initialize(AvatarEditModeBodyController bodyController, EditorStateMachine esm)
 	{
 		avatarBodyController = bodyController;
 		avatarBodyController.SetPublishAvatarGO(publishAvatarGO);
@@ -59,18 +59,23 @@ public class AvatarSelectionController : MonoBehaviour, IEventSystemHandler, IAv
 			CurrentlySelectedSlotIndex = slotIndex;
 			avatarBodyController.SetCurrentBody(slotIndex);
 			MVGameControllerBase.OperationRequests.SetActiveAvatar(avatarBodyController.CurrentBody.Id);
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAvatarSetBodyGroup x, BaseEventData y) =>
-			{
-				x.SetBodyGroup(avatarBodyController.CurrentBody);
-			});
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (ISetEditState x, BaseEventData y) =>
-			{
-				x.SetState(EditorEvent.CERoamUUI);
-			});
+			SetStateToRoam();
 			Object.Destroy(avatarSlots[num].gameObject);
 			avatarSlots[num] = null;
 			avatarBodyController.CaptureScreenshotForBody(num, OnPicUpdateForPrevAvatar);
 		}
+	}
+
+	public void SetStateToRoam()
+	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAvatarSetBodyGroup x, BaseEventData y) =>
+		{
+			x.SetBodyGroup(avatarBodyController.CurrentBody);
+		});
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (ISetEditState x, BaseEventData y) =>
+		{
+			x.SetState(EditorEvent.CERoamUUI);
+		});
 	}
 
 	private void OnPicUpdateForPrevAvatar(int index, Texture2D image)

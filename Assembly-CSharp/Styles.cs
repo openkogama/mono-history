@@ -280,11 +280,7 @@ public class Styles : MonoBehaviour
 		AudioSource audioSource = soundStylesDictionary[soundStyle];
 		button.onClick.AddListener(() =>
 		{
-			if (audioSource == null)
-			{
-				Debug.LogWarning("Audio source was null");
-			}
-			else
+			if (!(audioSource == null))
 			{
 				audioSource.Play();
 			}
@@ -357,5 +353,14 @@ public class Styles : MonoBehaviour
 	public static void TeamToSprite(Image image, MVTeam team)
 	{
 		image.sprite = teamIconStylesDictionary[team].sprite;
+	}
+
+	public static void PlayUISound(SoundStyle soundStyle)
+	{
+		if (soundStyle != SoundStyle.NoSound)
+		{
+			AudioSource audioSource = soundStylesDictionary[soundStyle];
+			audioSource.Play();
+		}
 	}
 }

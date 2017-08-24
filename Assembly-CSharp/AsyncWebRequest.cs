@@ -126,13 +126,9 @@ public abstract class AsyncWebRequest
 		if (www.error != null)
 		{
 			bool flag = true;
-			if (int.TryParse(www.error[0].ToString(), out var result))
+			if (int.TryParse(www.error[0].ToString(), out var result) && result == 4)
 			{
-				Debug.Log("errorCodeFirstVal " + result);
-				if (result == 4)
-				{
-					flag = false;
-				}
+				flag = false;
 			}
 			if (retries > 0 && flag)
 			{

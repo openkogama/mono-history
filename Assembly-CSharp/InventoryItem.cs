@@ -341,14 +341,14 @@ public class InventoryItem
 	public InventoryItem(EventData data)
 	{
 		itemID = (int)data[38];
-		itemCategoryID = (int)data[150];
+		itemCategoryID = (int)data[149];
 		itemTypeID = (int)data[39];
 		name = (string)data[40];
 		this.data = (byte[])data[41];
 		slotPosition = (int)data[43];
-		resellable = (bool)data[138];
-		authorProfileID = (int)data[137];
-		originalItemID = (int)data[139];
+		resellable = (bool)data[137];
+		authorProfileID = (int)data[136];
+		originalItemID = (int)data[138];
 		priceGold = (int)data[67];
 		isDefaultInvItem = false;
 	}

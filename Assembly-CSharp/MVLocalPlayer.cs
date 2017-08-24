@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 public abstract class MVLocalPlayer : MVPlayer
 {
-	protected XPEventQueue xpEventQueue;
+	protected XPProgress xpProgress;
 
 	public XPProgress.OnXPProgressDataDelegate OnXPProgressData;
 
@@ -13,7 +13,7 @@ public abstract class MVLocalPlayer : MVPlayer
 
 	public int PlanetOwnershipTypeID { get; private set; }
 
-	public XPProgressData XPProgressData => xpEventQueue.XPProgressData;
+	public XPProgressData XPProgressData => xpProgress.XPProgressData;
 
 	public MVLocalPlayer(int actorNumber, int profileID, string userName, string regionCode, int planetOwnershipTypeID)
 		: base(actorNumber, profileID, userName, regionCode, MVGameControllerBase.BuildTarget, isReady: false)
@@ -25,14 +25,14 @@ public abstract class MVLocalPlayer : MVPlayer
 	public virtual void InitializeLeveling(InitialLevelData initialLevelData)
 	{
 		level = initialLevelData.Level;
-		xpEventQueue.Initialize(this, initialLevelData);
+		xpProgress = new XPProgress(this, initialLevelData);
 	}
 
-	public void AddXp(string xpType, MVGameMode gameMode)
+	public void AddXp(int currentPlayerXP, XPRewardType typeId, int xpDelta)
 	{
-		if (LevelingManager.LevelingEnabled && MVGameControllerBase.GameMode == gameMode)
+		if (LevelingManager.IsInitialized)
 		{
-			xpEventQueue.AddXp(xpType);
+			xpProgress.Update(currentPlayerXP, typeId, xpDelta);
 		}
 	}
 
@@ -63,5 +63,8 @@ public abstract class MVLocalPlayer : MVPlayer
 		oldLevel = level;
 	}
 
-	public abstract void Destroy();
+	public virtual void Destroy()
+	{
+		xpProgress.Destroy();
+	}
 }

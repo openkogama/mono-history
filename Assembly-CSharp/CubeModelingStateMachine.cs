@@ -119,7 +119,7 @@ public class CubeModelingStateMachine : FSMEntity
 			this.targetCubeModel.BeingEdited = false;
 		}
 		this.targetCubeModel = targetCubeModel;
-		this.constraint = constraint;
+		SetConstraint(constraint);
 		this.targetCubeModel.BeingEdited = true;
 		editMode2d = MVGameControllerBase.Game.GameType == MVGameType.Platformer && targetCubeModel is MVCubeModelPrototypeTerrain;
 		if (editMode2d && (int)curEvent == 0)
@@ -131,6 +131,11 @@ public class CubeModelingStateMachine : FSMEntity
 			curEvent = CubeModelingEvent.EditCubes;
 		}
 		Event = curEvent;
+	}
+
+	public void SetConstraint(IModelingConstraint constraint)
+	{
+		this.constraint = constraint;
 	}
 
 	public void EndEdit()
@@ -216,7 +221,7 @@ public class CubeModelingStateMachine : FSMEntity
 		}
 	}
 
-	public bool AddCube()
+	public EditCubeChange AddCube()
 	{
 		if (Cube.IsFaceBoxSideAligened(SelectedCube.cube, SelectedCube.pickedFace))
 		{
@@ -225,13 +230,13 @@ public class CubeModelingStateMachine : FSMEntity
 			{
 				HandleAudio(cubePosAboveFace, AudioActions.CubeAdded);
 				TargetCubeModel.AddCube(cubePosAboveFace, new Cube(CubeDataPacker.CornersToByteArray(Cube.GetCorners(SelectedCube.cube, SelectedCube.pickedFace)), Cube.CreateMaterialArray(CurrentMaterialId)));
-				return true;
+				return EditCubeChange.CubeAdded;
 			}
-			return false;
+			return EditCubeChange.None;
 		}
 		HandleAudio(SelectedCube.iLocalPos, AudioActions.FaceMoved);
 		TargetCubeModel.UnIndentCubeFace(SelectedCube.iLocalPos, SelectedCube.pickedFace, SelectedCube.cube);
-		return true;
+		return EditCubeChange.CubeUnindented;
 	}
 
 	public bool CanAddCubeAt(IntVector requestedCubePos)

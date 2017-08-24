@@ -74,9 +74,8 @@ public class AccessoryLoader
 				Urls.onStreamingAssetsUrlAvailable = (Urls.OnStreamingAssetsUrlAvailable)Delegate.Remove(Urls.onStreamingAssetsUrlAvailable, new Urls.OnStreamingAssetsUrlAvailable(LoadAccessory));
 				string assetBundleUrl = StreamingAsset.AssetBundleUrl;
 				AvatarAccessoryParams avatarAccessoryParams = parameters;
-				string text = StreamingAsset.DBUrlToServerUrl(assetBundleUrl + avatarAccessoryParams.AssetReqPath) + MVGameControllerBase.KoGaMaSettings.WebCacheInvalidationCodeStr;
-				Debug.Log("Accessory download started:\n" + text);
-				GetRequest asyncRequest = new CachedGetRequest(text, Callback, WWWRequestPriority.WaitUntilSyncronizingIsDone);
+				string path = StreamingAsset.DBUrlToServerUrl(assetBundleUrl + avatarAccessoryParams.AssetReqPath) + MVGameControllerBase.KoGaMaSettings.WebCacheInvalidationCodeStr;
+				GetRequest asyncRequest = new CachedGetRequest(path, Callback, WWWRequestPriority.WaitUntilSyncronizingIsDone);
 				AsyncWWWManager.WWWRequest(asyncRequest);
 			}
 			else
@@ -91,7 +90,6 @@ public class AccessoryLoader
 			{
 				return;
 			}
-			Debug.Log("Accessory download finished:\n" + www.url);
 			UnityEngine.Object original = StreamingAsset.UnpackBundle<GameObject>(www);
 			GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(original);
 			AccessorySettings component = gameObject.GetComponent<AccessorySettings>();

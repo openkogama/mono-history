@@ -31,13 +31,13 @@ public class Blinker
 		blinkStartTime = 0f;
 	}
 
-	public void Draw(Mesh mesh, Transform tfm)
+	public void Draw(Mesh mesh, Transform tfm, Camera targetCamera, int layerMask = 0)
 	{
 		if (!IsExpired && Mathf.Repeat(Time.time * blinkInterval, 1f) < 0.5f)
 		{
 			for (int i = 0; i < mesh.subMeshCount; i++)
 			{
-				Graphics.DrawMesh(mesh, tfm.localToWorldMatrix, blinkMaterial, 0, Camera.main, i);
+				Graphics.DrawMesh(mesh, tfm.localToWorldMatrix, blinkMaterial, layerMask, targetCamera, i);
 			}
 		}
 	}

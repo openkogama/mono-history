@@ -1,3 +1,4 @@
+using System.Collections;
 using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -14,6 +15,24 @@ public class LeavePlayModeButton : MonoBehaviour
 
 	public void Execute()
 	{
+		if (!gameObject.activeInHierarchy)
+		{
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (ILeaveEditPlayModeHandler x, BaseEventData y) =>
+			{
+				x.LeaveEditPlayMode();
+			});
+		}
+		else
+		{
+			StopAllCoroutines();
+			StartCoroutine(ExecuteLeaveEditDelayed());
+		}
+	}
+
+	private IEnumerator ExecuteLeaveEditDelayed()
+	{
+		yield return 0;
+		yield return 0;
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (ILeaveEditPlayModeHandler x, BaseEventData y) =>
 		{
 			x.LeaveEditPlayMode();

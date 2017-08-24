@@ -8,7 +8,9 @@ public class FriendRequestNotification : Notification
 	[SerializeField]
 	private Text label;
 
-	private Friend requester;
+	private int friendId;
+
+	private static int latestFriendId = -1;
 
 	protected override NotificationLifetime Lifetime => NotificationLifetime.High;
 
@@ -16,22 +18,22 @@ public class FriendRequestNotification : Notification
 	{
 		base.Initialize(data);
 		string arg = (string)data[(byte)1];
+		friendId = (int)data[(byte)15];
 		label.text = string.Format(TM._(" Accept {0} as friend!"), arg);
 		label.text += " <R>";
 	}
 
-	public void RegisterFriendshipRequest(Friend friend)
-	{
-		requester = friend;
-	}
-
-	public void AcceptFriendship()
+	private void AcceptFriendship()
 	{
 		if (ValidateFriendRequest())
 		{
-			MVGameControllerBase.OperationRequests.RequestAcceptFriendShip(requester.friendID);
+			MVGameControllerBase.OperationRequests.RequestAcceptFriendShip(friendId);
 		}
 		Close();
+	}
+
+	public override void OnReturn()
+	{
 	}
 
 	private bool ValidateFriendRequest()
@@ -45,5 +47,14 @@ public class FriendRequestNotification : Notification
 		}
 		MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, TM._("Your friendlist is full"));
 		return false;
+	}
+
+	protected override void Update()
+	{
+		base.Update();
+		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.NotificationAcceptFriendshipRequest) && latestFriendId != friendId)
+		{
+			AcceptFriendship();
+		}
 	}
 }

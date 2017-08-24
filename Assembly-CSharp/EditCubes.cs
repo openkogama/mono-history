@@ -56,6 +56,7 @@ internal class EditCubes : CubeModelTool
 	public override void Execute(CubeModelingStateMachine e)
 	{
 		base.Execute(e);
+		EditCubeChange editCubeChange = EditCubeChange.None;
 		if (waitForMouseUp)
 		{
 			waitForMouseUp = MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect);
@@ -99,7 +100,9 @@ internal class EditCubes : CubeModelTool
 			{
 				if (MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
 				{
-					if (!e.AddCube())
+					editCubeChange = e.AddCube();
+					CubeModelTool.SendCubeEvent(e.TargetCubeModel.CubeCount, editCubeChange);
+					if (editCubeChange == EditCubeChange.None)
 					{
 						IntVector cubePosAboveFace5 = Cube.GetCubePosAboveFace(e.SelectedCube.iLocalPos, e.SelectedCube.pickedFace);
 						modelCursor.SetErrorCursor(cubePosAboveFace5, e.TargetCubeModel.GameObject);
@@ -181,7 +184,9 @@ internal class EditCubes : CubeModelTool
 				{
 					e.SelectedCube = movingEdgeCube;
 					e.HandleAudio(e.SelectedCube.iLocalPos, AudioActions.CubeAdded);
-					if (!e.AddCube())
+					editCubeChange = e.AddCube();
+					CubeModelTool.SendCubeEvent(e.TargetCubeModel.CubeCount, editCubeChange);
+					if (editCubeChange == EditCubeChange.None)
 					{
 						IntVector cubePosAboveFace = Cube.GetCubePosAboveFace(e.SelectedCube.iLocalPos, e.SelectedCube.pickedFace);
 						modelCursor.SetErrorCursor(cubePosAboveFace, e.TargetCubeModel.GameObject);
@@ -193,7 +198,11 @@ internal class EditCubes : CubeModelTool
 			}
 			Vector3 mousePositionDelta = mouseSensitivityExtrude * new Vector3(MVInputWrapper.GetAxisRaw("Mouse X"), MVInputWrapper.GetAxisRaw("Mouse Y"), 0f);
 			bool edgeMoved = false;
-			CubeOutOfBoundState cubeOutOfBoundState = SharedCubeFunctions.MoveEdge(e.TargetCubeModel, movingEdgeCube, mousePositionDelta, ref delta, ref deltaAccum, mouseSensitivity, ref edgeMoved, movingEdgeCube.pickedEdgeIndex0, movingEdgeCube.pickedEdgeIndex1);
+			CubeOutOfBoundState cubeOutOfBoundState = SharedCubeFunctions.MoveEdge(e.TargetCubeModel, movingEdgeCube, mousePositionDelta, ref delta, ref deltaAccum, mouseSensitivity, ref edgeMoved, movingEdgeCube.pickedEdgeIndex0, movingEdgeCube.pickedEdgeIndex1, ref editCubeChange);
+			if (cubeOutOfBoundState == CubeOutOfBoundState.WithinBounds)
+			{
+				CubeModelTool.SendCubeEvent(e.TargetCubeModel.CubeCount, editCubeChange);
+			}
 			if (!edgeHasMoved && edgeMoved)
 			{
 				edgeHasMoved = true;
@@ -207,6 +216,7 @@ internal class EditCubes : CubeModelTool
 				{
 					e.HandleAudio(cubePosAboveFace3, AudioActions.FaceMoved);
 					e.TargetCubeModel.AddCube(cubePosAboveFace3, new Cube(CubeDataPacker.CornersToByteArray(Cube.GetCorners(movingEdgeCube.cube, movingEdgeCube.pickedFace)), Cube.CreateMaterialArray(e.CurrentMaterialId)));
+					CubeModelTool.SendCubeEvent(e.TargetCubeModel.CubeCount, EditCubeChange.CubeAdded);
 					CubePickingInfo cubePickingInfo2 = new CubePickingInfo(movingEdgeCube);
 					cubePickingInfo2.cube = Cube.Clone(e.TargetCubeModel.GetCube(cubePosAboveFace3));
 					cubePickingInfo2.iLocalPos = cubePosAboveFace3;
@@ -336,6 +346,7 @@ internal class EditCubes : CubeModelTool
 
 	public override void Exit(CubeModelingStateMachine e)
 	{
+		CubeModelTool.SendCubeEvent(0, EditCubeChange.None);
 		if (currentInternalState == BuildState.MultiChangeCubes)
 		{
 			currentInternalState = BuildState.MainState;

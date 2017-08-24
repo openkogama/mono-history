@@ -13,18 +13,6 @@ public class MVHoverCraft : MVSimpleOneSeatVehicle
 			: base(vehicleBase, smoothController, hoverCraftMotor)
 		{
 		}
-
-		public override void Enter()
-		{
-			base.Enter();
-			GameSessionCounters.SetCount(GameSessionCounterType.InHoverCraft, 1);
-		}
-
-		public override void Leave()
-		{
-			base.Leave();
-			GameSessionCounters.SetCount(GameSessionCounterType.InHoverCraft, 0);
-		}
 	}
 
 	private float deathExplosionDamageValue = 40f;

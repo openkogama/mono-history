@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
@@ -51,11 +52,16 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 	private TouristModeController touristModeController;
 
 	[SerializeField]
+	private GameObject fullscreenPlayModeStateTransform;
+
+	[SerializeField]
 	private LobbyStatePlayModeController lobbyStatePlayModeController;
 
 	public UnityAction OnLeaveEditPlayMode;
 
 	private bool rewardReady;
+
+	private GameObject playModeState;
 
 	public ILockCursorManager LockCursorManager => lockCursorManager;
 
@@ -73,7 +79,7 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 
 	private void Awake()
 	{
-		uiStack.Push(stackBottom);
+		uiStack.Push(stackBottom, UIPushOption.None, null, UIGroupFlags.StackBottom);
 		CreateGUI();
 		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
 		{
@@ -84,6 +90,14 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 			lockCursorManager = gameObject.AddComponent<LockCursorManager3DMode>();
 		}
 		MVGameControllerDesktop.RegisterPlayModeController(this);
+		if (MVGameControllerBase.Game.LocalPlayer.IsReady)
+		{
+			SetUIReady();
+		}
+		else
+		{
+			MVGameControllerBase.OnFirstFrameUpdateActorReady = (Action)Delegate.Combine(MVGameControllerBase.OnFirstFrameUpdateActorReady, new Action(SetUIReady));
+		}
 	}
 
 	private void Start()
@@ -151,8 +165,8 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 	public override void Initialize()
 	{
 		base.Initialize();
-		lobbyState = Object.Instantiate(lobbyState);
-		lobbyState.SetParent(stackBottom.transform, worldPositionStays: false);
+		lobbyState = UnityEngine.Object.Instantiate(lobbyState);
+		lobbyState.SetParent(playModeState.transform, worldPositionStays: false);
 		if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
 		{
 			MVInputWrapper.SetInputMap(new DesktopPlayMode());
@@ -163,7 +177,7 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 		}
 		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1 && MVGameControllerBase.GameMode == MVGameMode.Play)
 		{
-			TeamMenu newTeamMenu = Object.Instantiate(teamMenu);
+			TeamMenu newTeamMenu = UnityEngine.Object.Instantiate(teamMenu);
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
 			{
 				handler.PopGroups(UIGroupFlags.InventoryUI | UIGroupFlags.InventoryUISubMenu);
@@ -193,22 +207,24 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 
 	private void CreateGUI()
 	{
-		chatController = Object.Instantiate(chatController);
+		chatController = UnityEngine.Object.Instantiate(chatController);
 		chatController.transform.SetParent(stackBottom.transform, worldPositionStays: false);
 		chatController.SubscribeToMessages();
-		inGameController = Object.Instantiate(inGameController);
+		playModeState = UnityEngine.Object.Instantiate(fullscreenPlayModeStateTransform);
+		uiStack.Push(playModeState, UIPushOption.None, null, UIGroupFlags.MainUI);
+		inGameController = UnityEngine.Object.Instantiate(inGameController);
 		inGameController.Initialize();
-		inGameController.transform.SetParent(stackBottom.transform, worldPositionStays: false);
-		playerListButton = Object.Instantiate(playerListButton);
-		playerListButton.transform.SetParent(stackBottom.transform, worldPositionStays: false);
-		levelBadge = Object.Instantiate(levelBadge);
-		levelBadge.transform.SetParent(stackBottom.transform, worldPositionStays: false);
-		notificationsManager = Object.Instantiate(notificationsManager);
+		inGameController.transform.SetParent(playModeState.transform, worldPositionStays: false);
+		playerListButton = UnityEngine.Object.Instantiate(playerListButton);
+		playerListButton.transform.SetParent(playModeState.transform, worldPositionStays: false);
+		levelBadge = UnityEngine.Object.Instantiate(levelBadge);
+		levelBadge.transform.SetParent(playModeState.transform, worldPositionStays: false);
+		notificationsManager = UnityEngine.Object.Instantiate(notificationsManager);
 		notificationsManager.transform.SetParent(stackBottom.transform, worldPositionStays: false);
 		if (MVGameControllerBase.IsTouristSession)
 		{
-			touristAdController = Object.Instantiate(touristAdController);
-			touristAdController.transform.SetParent(stackBottom.transform, worldPositionStays: false);
+			touristAdController = UnityEngine.Object.Instantiate(touristAdController);
+			touristAdController.transform.SetParent(playModeState.transform, worldPositionStays: false);
 			touristAdController.Initialize(touristModeController);
 		}
 	}
@@ -247,5 +263,11 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 	public void SetPixelPerfect(bool pixelPerfect)
 	{
 		canvas.pixelPerfect = pixelPerfect;
+	}
+
+	public void SetUIReady()
+	{
+		uiStack.SetStackReady();
+		MVGameControllerBase.OnFirstFrameUpdateActorReady = (Action)Delegate.Remove(MVGameControllerBase.OnFirstFrameUpdateActorReady, new Action(SetUIReady));
 	}
 }

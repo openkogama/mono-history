@@ -642,7 +642,7 @@ internal static class SharedCubeFunctions
 		}
 	}
 
-	public static CubeOutOfBoundState MoveEdge(MVCubeModelBase cmb, CubePickingInfo info, Vector3 mousePositionDelta, ref float delta, ref float deltaAccum, float mouseSensitivity, ref bool edgeMoved, bool edgeIndex0, bool edgeIndex1)
+	public static CubeOutOfBoundState MoveEdge(MVCubeModelBase cmb, CubePickingInfo info, Vector3 mousePositionDelta, ref float delta, ref float deltaAccum, float mouseSensitivity, ref bool edgeMoved, bool edgeIndex0, bool edgeIndex1, ref EditCubeChange editCubeChange)
 	{
 		if (cmb.GetCube(info.iLocalPos) == null)
 		{
@@ -672,15 +672,18 @@ internal static class SharedCubeFunctions
 				if (edgeIndex0 || edgeIndex1)
 				{
 					Cube.MoveVertex(info, delta, (cmb.Transform.worldToLocalMatrix * vector.normalized).normalized, edgeIndex0, edgeIndex1, ref outOfBoundState);
+					editCubeChange = EditCubeChange.VertexMoved;
 				}
 				else
 				{
 					Cube.MoveEdge(info, delta, (cmb.Transform.worldToLocalMatrix * vector.normalized).normalized, ref outOfBoundState);
+					editCubeChange = EditCubeChange.EdgeMoved;
 				}
 			}
 			else
 			{
 				Cube.MoveFace(info, delta, (cmb.Transform.worldToLocalMatrix * vector.normalized).normalized, ref outOfBoundState);
+				editCubeChange = EditCubeChange.FaceMoved;
 			}
 			delta = 0f;
 			edgeMoved = true;

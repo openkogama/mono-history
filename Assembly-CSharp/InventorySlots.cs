@@ -9,8 +9,11 @@ public class InventorySlots : MonoBehaviour, IEventSystemHandler, IGameObjectDro
 	[SerializeField]
 	private InventorySlot inventorySlotPrefab;
 
+	public int SlotCountPerPage { get; private set; }
+
 	public void Initialize(int numberOfSlots)
 	{
+		SlotCountPerPage = numberOfSlots;
 		for (int i = 0; i < numberOfSlots; i++)
 		{
 			InventorySlot inventorySlot = Object.Instantiate(inventorySlotPrefab);

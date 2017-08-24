@@ -7,8 +7,8 @@ public class PrefabPool : MonoBehaviour
 
 	private static PrefabPool instance;
 
-	[SerializeField]
 	[Header("World Objects")]
+	[SerializeField]
 	private ObjectPrefab mvFirePrefab;
 
 	[SerializeField]
@@ -214,8 +214,11 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private CubeModelChunkPrefab cubeModelChunkPrefab;
 
-	[Space(20f)]
 	[SerializeField]
+	private Material blinkerDefaultMaterial;
+
+	[SerializeField]
+	[Space(20f)]
 	[Header("Pick up")]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
@@ -332,8 +335,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject avatarItemCollectTheItem;
 
-	[Header("Avatar modifier")]
 	[Space(20f)]
+	[Header("Avatar modifier")]
 	[SerializeField]
 	private AvatarModifier burningModifier;
 
@@ -367,9 +370,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private InvulnerabilityModifier invulnerabilityModifier;
 
-	[Header("Particles")]
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
+	[Header("Particles")]
 	private GameObject particleCFX_GroundAura;
 
 	[SerializeField]
@@ -393,8 +396,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem collectTheItemParticles;
 
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
 	[Header("Logic object prefabs")]
 	private GameObject logicInputConnectorPrefab;
 
@@ -433,9 +436,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material modelConstraintsMaterial;
 
-	[Space(20f)]
 	[SerializeField]
 	[Header("UGUI")]
+	[Space(20f)]
 	private AvatarInputControllerAndroidSettings avatarInputControllerAndroidSettings;
 
 	[SerializeField]
@@ -447,8 +450,18 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private InsertCursor insertCursor;
 
-	[Space(20f)]
 	[SerializeField]
+	[Header("TextBubbleContent")]
+	private RectTransform editCornerHelpText;
+
+	[SerializeField]
+	private RectTransform editEdgeHelpText;
+
+	[SerializeField]
+	private RectTransform editFaceHelpText;
+
+	[SerializeField]
+	[Space(20f)]
 	[Header("Cameras")]
 	private GodzillaCameraDesktop godzillaCameraDesktop;
 
@@ -458,9 +471,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private FirstPersonDeathCamera firstPersonDeathCamera;
 
+	[Header("Editor")]
 	[Space(20f)]
 	[SerializeField]
-	[Header("Editor")]
 	private Material cellCursorErrorMaterial;
 
 	[SerializeField]
@@ -641,6 +654,8 @@ public class PrefabPool : MonoBehaviour
 	public GameCoinDisplayObject GameCoinDisplayPrefab => gameCoinDisplayPrefab;
 
 	public CubeModelChunkPrefab CubeModelChunkPrefab => cubeModelChunkPrefab;
+
+	public Material BlinkerDefaultMaterial => blinkerDefaultMaterial;
 
 	public MVPickupItemBaseObject AvatarCenterGunPrefab => avatarCenterGunPrefab;
 
@@ -826,5 +841,16 @@ public class PrefabPool : MonoBehaviour
 	{
 		instance = this;
 		Object.DontDestroyOnLoad(this);
+	}
+
+	public RectTransform CubeEditHelpTextBubble(CubeModelingStateMachine.HoverType t)
+	{
+		return t switch
+		{
+			CubeModelingStateMachine.HoverType.Corner => editCornerHelpText, 
+			CubeModelingStateMachine.HoverType.Edge => editEdgeHelpText, 
+			CubeModelingStateMachine.HoverType.Face => editFaceHelpText, 
+			_ => null, 
+		};
 	}
 }

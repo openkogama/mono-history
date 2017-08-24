@@ -8,6 +8,14 @@ public class StarDisplayObject : MonoBehaviour
 	[SerializeField]
 	private TextMesh backText;
 
+	[SerializeField]
+	private StreamedSharedMaterialHandler handler;
+
+	private void Start()
+	{
+		handler.StartTextureStreaming();
+	}
+
 	public void Destroy()
 	{
 		Object.Destroy(frontText);

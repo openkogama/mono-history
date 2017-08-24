@@ -8,7 +8,8 @@ public class NotificationsManager : MonoBehaviour
 	{
 		primary,
 		secondary,
-		tertiary
+		tertiary,
+		custom
 	}
 
 	[SerializeField]
@@ -20,11 +21,14 @@ public class NotificationsManager : MonoBehaviour
 	[SerializeField]
 	private NotificationArea notificationAreaTertiary;
 
+	[SerializeField]
+	private NotificationArea notificationAreaCustom;
+
 	private NotificationArea[] notificationAreas;
 
 	private void Awake()
 	{
-		notificationAreas = new NotificationArea[3] { notificationAreaPrimary, notificationAreaSecondary, notificationAreaTertiary };
+		notificationAreas = new NotificationArea[4] { notificationAreaPrimary, notificationAreaSecondary, notificationAreaTertiary, notificationAreaCustom };
 	}
 
 	private void OnEnable()
@@ -32,8 +36,8 @@ public class NotificationsManager : MonoBehaviour
 		NotificationController.Register(this);
 	}
 
-	public Notification InstantiateNotification(NotificationType notificationType, eNotificationPanel panel, Dictionary<object, object> data)
+	public void InstantiateNotification(NotificationType notificationType, eNotificationPanel panel, Dictionary<object, object> data)
 	{
-		return notificationAreas[(int)panel].InstantiateNotification(notificationType, data);
+		notificationAreas[(int)panel].InstantiateNotification(notificationType, data);
 	}
 }

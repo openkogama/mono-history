@@ -44,8 +44,9 @@ public static class FullScreenController
 
 	public static void LateUpdate()
 	{
-		if (waitingForFullscreenChange && Screen.fullScreen == fullScreen)
+		if (waitingForFullscreenChange && (!fullScreen || (Screen.currentResolution.width == Screen.width && Screen.currentResolution.height == Screen.height)) && Screen.fullScreen == fullScreen)
 		{
+			Debug.Log("Switched to fullscreen " + fullScreen);
 			if (OnFullScreenChange != null)
 			{
 				OnFullScreenChange(Screen.fullScreen);

@@ -24,6 +24,7 @@ internal class PaintCubes : CubeModelTool
 			{
 				e.HandleAudio(e.SelectedCube.iLocalPos, AudioActions.CubeAdded);
 				e.TargetCubeModel.ReplaceCube(e.SelectedCube.iLocalPos, e.CurrentMaterialId);
+				CubeModelTool.SendCubeEvent(e.TargetCubeModel.CubeCount, EditCubeChange.CubePainted);
 			}
 			isPainting = true;
 		}

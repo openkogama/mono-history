@@ -8,17 +8,17 @@ using UnityEngine.UI;
 
 public class SendMessageControl : MonoBehaviour
 {
-	private string helpString = "/h";
+	private static string helpString = "/h";
 
-	private string fps = "/f";
+	private static string fps = "/f";
 
-	private string resolution = "/r";
+	private static string resolution = "/r";
 
-	private string mathTest = "/m";
+	private static string mathTest = "/m";
 
-	private string removeUI = "/ru";
+	private static string removeUI = "/ru";
 
-	private string enableHD = "/hd";
+	private static string enableHD = "/hd";
 
 	private string buildInformation = "/build";
 
@@ -180,20 +180,25 @@ public class SendMessageControl : MonoBehaviour
 		MVQualitySettings.CurrentLevel = currentLevel;
 	}
 
-	public string CreateHelpTxt()
+	public static string CreateHelpTxt()
 	{
 		string text = "\n";
 		text += TM._("\nType: " + enableHD + " to enable HD mode.\n\n");
-		text += TM._("<M> Menu");
-		switch (MVGameControllerBase.GameMode)
+		MVGameMode mVGameMode = MVGameControllerBase.GameMode;
+		if (MVGameControllerBase.IsPlaying)
+		{
+			mVGameMode = MVGameMode.Play;
+		}
+		switch (mVGameMode)
 		{
 		case MVGameMode.CharacterEditor:
 			return string.Empty;
 		case MVGameMode.Edit:
-			text += TM._("\n\n<Right mouse> Hold to look\n<WASD> Move\n<Scroll wheel> Move up and down\n<Shift> Hold to move fast\n");
+			text += TM._("\n<Right mouse> Hold to look\n<WASD> Move\n<Scroll wheel> Move up and down\n<Shift> Hold to move fast\n");
 			break;
 		case MVGameMode.Play:
-			text += TM._("\n\n<H> Toggle Accessory\n<WASD> Move\n<Space> Jump\n<K> Respawn\n<Left Mouse> Fire Weapon\n<Q> Holster equipped weapon\n<V> Drop equipped weapon\n");
+			text += TM._("<M> Menu");
+			text += TM._("\n<H> Toggle HD Mode\n<WASD> Move\n<Space> Jump\n<K> Respawn\n<Left Mouse> Fire Weapon\n<Q> Holster equipped weapon\n<V> Drop equipped weapon\n");
 			break;
 		}
 		return text;

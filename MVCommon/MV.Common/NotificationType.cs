@@ -20,5 +20,6 @@ public enum NotificationType
 	PlayerTip,
 	JetPackOverheating,
 	OpenInventory,
+	FirstTimeXPRewarded,
 	RegisterToChat
 }

@@ -49,7 +49,7 @@ public class MaterialsControllerEditMode : MaterialsController, IEventSystemHand
 		});
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			x.Push(desktopCubeModelingControllerEditMode.gameObject, UIPushOption.None, OnPop);
+			x.Push(desktopCubeModelingControllerEditMode.gameObject, UIPushOption.HideAllExceptStackBottom, OnPop);
 		});
 		cubeModelingStateMachine.CurrentMaterialId = cubeModelingStateMachine.CurrentMaterialId;
 	}

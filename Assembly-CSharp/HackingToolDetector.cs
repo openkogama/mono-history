@@ -213,20 +213,17 @@ public class HackingToolDetector : MonoBehaviour
 
 	private static void Scan_Threaded()
 	{
-		DateTime dateTime = DateTime.Now.ToUniversalTime();
 		RegistryScanner.StartScan(Instance.banList);
-		DateTime dateTime2 = DateTime.Now.ToUniversalTime();
-		Debug.Log("Initial scan completed in " + (dateTime2 - dateTime).TotalSeconds + " seconds.");
 		ProcessScanner.Initialize(Instance.banList);
 		float waitTime = WaitTime;
-		DateTime dateTime3 = DateTime.Now.ToUniversalTime().AddSeconds(0f - waitTime - 1f);
+		DateTime dateTime = DateTime.Now.ToUniversalTime().AddSeconds(0f - waitTime - 1f);
 		while (!Instance.QuitRequest)
 		{
-			DateTime dateTime4 = DateTime.Now.ToUniversalTime();
-			double totalSeconds = (dateTime4 - dateTime3).TotalSeconds;
+			DateTime dateTime2 = DateTime.Now.ToUniversalTime();
+			double totalSeconds = (dateTime2 - dateTime).TotalSeconds;
 			if (totalSeconds > (double)waitTime)
 			{
-				dateTime3 = dateTime3.AddSeconds(totalSeconds);
+				dateTime = dateTime.AddSeconds(totalSeconds);
 				ScanForForbiddenProcesses();
 				Thread.Sleep((int)waitTime * 1000);
 			}
@@ -236,11 +233,7 @@ public class HackingToolDetector : MonoBehaviour
 
 	private static void ScanForForbiddenProcesses()
 	{
-		Debug.Log("Scan cycle started.");
-		DateTime dateTime = DateTime.Now.ToUniversalTime();
 		ProcessScanner.StartScan(Instance.banList);
-		DateTime dateTime2 = DateTime.Now.ToUniversalTime();
-		Debug.Log("Scan cycle completed in " + (dateTime2 - dateTime).TotalSeconds + " seconds.");
 	}
 
 	private IEnumerator HandleReports()

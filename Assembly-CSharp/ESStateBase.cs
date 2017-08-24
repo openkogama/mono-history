@@ -37,6 +37,7 @@ public class ESStateBase : IState
 
 	public void Enter(FSMEntity e)
 	{
+		Debug.Log("Enter " + stateType);
 		Enter((EditorStateMachine)e);
 	}
 

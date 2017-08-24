@@ -9,8 +9,6 @@ public class StreamingAssetRequestTempHack : CachedGetRequest
 
 	private Action<WWW, UnityEngine.Object> callbackTemp;
 
-	private int startTime;
-
 	public Action<WWW, UnityEngine.Object> CallbackHack
 	{
 		get
@@ -27,7 +25,6 @@ public class StreamingAssetRequestTempHack : CachedGetRequest
 		: base(path, null, requestPriority)
 	{
 		this.callbackTemp = callbackTemp;
-		startTime = WaitForTicksLocal.GetEnvironmentTick(0);
 	}
 
 	protected override bool UpdateRunningState()

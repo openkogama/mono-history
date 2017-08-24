@@ -13,7 +13,7 @@ public class EditModeRepositoryController : MonoBehaviour
 	{
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			x.PopToBottom();
+			x.PopToGroup(UIGroupFlags.MainUI);
 		});
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 		{

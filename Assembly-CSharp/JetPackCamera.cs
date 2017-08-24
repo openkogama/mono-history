@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 public class JetPackCamera : MVCameraBase
@@ -109,21 +110,67 @@ public class JetPackCamera : MVCameraBase
 		return angle;
 	}
 
-	public override void FocusOnObject(MVWorldObjectClient wo)
+	public override void FocusOnObject(MVWorldObjectClient wo, [Optional][DefaultParameterValue(2f)] float transitionTime, [Optional] Vector3 avatarOffset)
 	{
 		float num = wo.ComputeObjectRadius();
-		float num2 = Camera.main.fieldOfView * 0.5f * 0.6f;
-		float a = num / Mathf.Tan(num2 * ((float)Math.PI / 180f));
-		a = Mathf.Max(a, 4f);
+		Debug.Log("r " + num);
+		float num2 = Camera.main.fieldOfView * 0.5f * 0.7f;
+		float num3 = num / Mathf.Tan(num2 * ((float)Math.PI / 180f));
+		float num4 = num3;
+		Vector3 worldPivot = wo.WorldPivot;
 		Transform transform = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform;
-		Vector3 position = wo.GameObject.transform.position;
-		Vector3 vector = position - transform.position;
-		transform.position += vector.normalized * (vector.magnitude - a);
-		base.transform.position = transform.position + lookAtOffset;
-		base.transform.LookAt(position);
-		xAxis = (xAxisTarget = NormalizeAngle(base.transform.eulerAngles.x));
-		yAxis = (yAxisTarget = base.transform.eulerAngles.y);
+		Vector3 vector = worldPivot - (transform.position + lookAtOffset);
+		Vector3 position = transform.position;
+		position += vector.normalized * (vector.magnitude - num4) + avatarOffset;
+		transform.position = position;
+		SetToPosition(transform.position);
+		LookAt(worldPivot);
+		MVGameControllerBase.CameraController.StartTransitionCam(transitionTime, soft: true);
+	}
+
+	public void FocusOnPointFromAvatarPosition(Vector3 focusPoint, Vector3 avatarPosition)
+	{
+		MVGameControllerBase.WOCM.AvatarLocal.Transform.position = GetLookAtAvatarPosition(avatarPosition);
+		SetToPosition(MVGameControllerBase.WOCM.AvatarLocal.Transform.position);
+		LookAt(focusPoint);
+	}
+
+	public void ResetDistanceAndDirectionToAvatar(Vector3 lookAtPosition)
+	{
+		MVSpawnPointBlue mVSpawnPointBlue = (MVSpawnPointBlue)MVGameControllerBase.WOCM.GetWorldObjectClientWhere((MVWorldObjectClient wo) => wo is MVSpawnPointBlue);
+		MVAvatarLocal avatarLocal = MVGameControllerBase.WOCM.AvatarLocal;
+		float magnitude = (mVSpawnPointBlue.WorldPosition - lookAtPosition).magnitude;
+		Vector3 vector = avatarLocal.WorldPosition - lookAtPosition;
+		vector.y = 0f;
+		float magnitude2 = vector.magnitude;
+		vector.Normalize();
+		avatarLocal.WorldPosition += vector * (magnitude - magnitude2);
+		FocusOnPosition(lookAtPosition);
+	}
+
+	public void FocusOnPosition(Vector3 lookAtPosition, float transitionTime = 2f)
+	{
+		Transform transform = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform;
+		SetToPosition(transform.position);
+		LookAt(lookAtPosition);
+		MVGameControllerBase.CameraController.StartTransitionCam(transitionTime, soft: true);
+	}
+
+	private void SetToPosition(Vector3 position)
+	{
+		transform.position = position + lookAtOffset;
+	}
+
+	private Vector3 GetLookAtAvatarPosition(Vector3 position)
+	{
+		return position - lookAtOffset;
+	}
+
+	private void LookAt(Vector3 position)
+	{
+		transform.LookAt(position);
+		xAxis = (xAxisTarget = NormalizeAngle(transform.eulerAngles.x));
+		yAxis = (yAxisTarget = transform.eulerAngles.y);
 		xAxisVelocity = (yAxisVelocity = 0f);
-		MVGameControllerBase.CameraController.StartTransitionCam(2f, soft: true);
 	}
 }

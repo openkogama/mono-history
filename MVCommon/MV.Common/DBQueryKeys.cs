@@ -145,5 +145,7 @@ public enum DBQueryKeys
 	CategorySlotOffset,
 	IsDefaultInvItem,
 	Limit,
-	PurchaseTypeName
+	PurchaseTypeName,
+	MetaData,
+	Url
 }

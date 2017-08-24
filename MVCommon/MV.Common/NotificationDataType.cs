@@ -16,5 +16,7 @@ public enum NotificationDataType : byte
 	Rarity,
 	RegionCode,
 	OpenInventoryCategory,
-	OpenInventorySlot
+	OpenInventorySlot,
+	Id,
+	Custom
 }

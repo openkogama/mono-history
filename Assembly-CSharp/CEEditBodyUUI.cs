@@ -35,7 +35,7 @@ public class CEEditBodyUUI : ESStateBase
 	public override void Enter(EditorStateMachine esm)
 	{
 		base.Enter(esm);
-		MVGameControllerBase.CameraController.SetCamera(CameraType.EditorCamera);
+		MVGameControllerBase.CameraController.SetCamera(CameraType.AvatarEditModeCamera);
 		MVGameControllerBase.CameraController.CurCamera.FocusOnObject(esm.SingleSelectedWO);
 		ExecuteEvents.ExecuteHierarchy(esm.GameObject, null, (IAvatarEditUIState x, BaseEventData y) =>
 		{
@@ -97,6 +97,5 @@ public class CEEditBodyUUI : ESStateBase
 		((MVAvatarLocal.JetPackMode)MVGameControllerBase.WOCM.AvatarLocal.CurrentMode).ModifySpeed(1f, 1f);
 		esm.CubeModelingStateMachine.RemoveCursors();
 		esm.CubeModelingStateMachine.EndEdit();
-		Debug.LogWarning("Reimplement");
 	}
 }

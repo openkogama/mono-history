@@ -54,7 +54,6 @@ public class CubeGunBulletObject : MonoBehaviour
 		{
 			MVGameControllerBase.Game.World.RuntimeEventManager.SendRuntimeEvent(new SingleCubeFineGrainedEvent(cubePos, materialID));
 		}
-		GameSessionCounters.Increment(GameSessionCounterType.CubeGunCubeDelta);
 	}
 
 	private void HandleCubeHit(VoxelHit voxelHit, Ray lineOfFire)

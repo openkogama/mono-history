@@ -85,7 +85,7 @@ public class MaterialsController : MonoBehaviour, IEventSystemHandler, IMaterial
 		cubeModelingStateMachine.CurrentMaterialId = materialID;
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			x.Pop();
+			x.PopGroups(UIGroupFlags.InventoryUI | UIGroupFlags.InventoryUISubMenu);
 		});
 	}
 

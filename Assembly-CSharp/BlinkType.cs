@@ -6,5 +6,6 @@ public enum BlinkType
 	Poison,
 	Frozen,
 	AboutToExpire,
-	DropOffCollectedItem
+	DropOffCollectedItem,
+	OnBoardingCubeModelSuccess
 }

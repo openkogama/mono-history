@@ -6,11 +6,15 @@ public class BlinkerBase : MonoBehaviour
 	[SerializeField]
 	protected Material blinkMaterial;
 
+	protected int layerMask;
+
 	protected bool visible;
 
 	protected MeshFilter[] meshFilters;
 
 	protected Dictionary<BlinkType, Blinker> blinkers;
+
+	protected Camera targetCamera;
 
 	public bool Visible
 	{
@@ -36,6 +40,11 @@ public class BlinkerBase : MonoBehaviour
 		}
 	}
 
+	private void Awake()
+	{
+		targetCamera = Camera.main;
+	}
+
 	public void StartBlinking(BlinkType type, float duration = float.PositiveInfinity)
 	{
 		blinkers[type].Start(duration);
@@ -48,7 +57,7 @@ public class BlinkerBase : MonoBehaviour
 
 	private void LateUpdate()
 	{
-		if (!visible || meshFilters == null || blinkers == null || blinkers.Values == null)
+		if (!visible || blinkers == null || blinkers.Values == null)
 		{
 			return;
 		}
@@ -58,16 +67,25 @@ public class BlinkerBase : MonoBehaviour
 			{
 				continue;
 			}
+			BeforeDraw();
+			if (meshFilters == null)
+			{
+				continue;
+			}
 			MeshFilter[] array = meshFilters;
 			foreach (MeshFilter meshFilter in array)
 			{
 				if (meshFilter.gameObject.activeInHierarchy)
 				{
 					Transform tfm = meshFilter.transform;
-					value.Draw(meshFilter.sharedMesh, tfm);
+					value.Draw(meshFilter.sharedMesh, tfm, targetCamera, layerMask);
 				}
 			}
 		}
+	}
+
+	protected virtual void BeforeDraw()
+	{
 	}
 
 	private void OnDestroy()

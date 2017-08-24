@@ -57,7 +57,6 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 		if (MVGameControllerBase.GameMode == MVGameMode.Play || (MVGameControllerBase.GameMode == MVGameMode.Edit && MVGameControllerBase.IEditModeUI.IsInPlayInEditMode))
 		{
 			GenerateDebriefing(winningCondition);
-			HandleXp(winningCondition);
 		}
 	}
 
@@ -67,18 +66,6 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 		if (winningCondition is IWinningConditionBriefing)
 		{
 			((IWinningConditionBriefing)winningCondition).GetDebriefing(this);
-		}
-	}
-
-	private void HandleXp(IWinningCondition winningCondition)
-	{
-		if (!winningCondition.IsTeamMode)
-		{
-			List<ScoreActorEntry> list = winningCondition.HighScores.GenerateActorScores();
-			if (list.Count > 0 && list[0].actorNumber == MVGameControllerBase.Game.LocalPlayer.ActorNr)
-			{
-				GameSessionCounters.Increment(GameSessionCounterType.GameWon);
-			}
 		}
 	}
 

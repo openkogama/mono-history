@@ -2,5 +2,6 @@ public enum SoundStyle
 {
 	ButtonClick,
 	NoSound,
-	ScreenshotTaken
+	ScreenshotTaken,
+	FirstTimeElementShown
 }

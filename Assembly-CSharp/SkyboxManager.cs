@@ -33,8 +33,8 @@ public class SkyboxManager : MonoBehaviour
 
 	public SkyboxColorChangedDelegate OnSkyboxColorChanged;
 
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	private Light sunLight;
 
 	[SerializeField]
@@ -96,7 +96,8 @@ public class SkyboxManager : MonoBehaviour
 			sunAngle = defaultSunAngle;
 			return;
 		}
-		float num2 = (sunAngle = enumerable.Select((MVSkybox s) => s.SunAngle).Average());
+		float num2 = enumerable.Select((MVSkybox s) => s.SunAngle).Average();
+		sunAngle = num2;
 		Color black = Color.black;
 		foreach (MVSkybox item in enumerable)
 		{
@@ -104,7 +105,6 @@ public class SkyboxManager : MonoBehaviour
 		}
 		black.a = 1f;
 		color = black;
-		Debug.Log(num2);
 		float num3 = enumerable.Select((MVSkybox s) => s.FogDensity).Average();
 		fogDensity = num3;
 	}

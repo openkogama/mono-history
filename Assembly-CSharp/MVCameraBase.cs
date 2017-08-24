@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 public abstract class MVCameraBase : MonoBehaviour
@@ -83,7 +84,7 @@ public abstract class MVCameraBase : MonoBehaviour
 	{
 	}
 
-	public virtual void FocusOnObject(MVWorldObjectClient wo)
+	public virtual void FocusOnObject(MVWorldObjectClient wo, [Optional][DefaultParameterValue(2f)] float transitionTime, [Optional] Vector3 avatarOffset)
 	{
 	}
 }

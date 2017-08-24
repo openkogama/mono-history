@@ -10,5 +10,11 @@ public interface IUIStack : IEventSystemHandler
 
 	void PopGroups(UIGroupFlags popGroups);
 
-	void PopToBottom();
+	void PopToGroup(UIGroupFlags group);
+
+	bool PopToStackElement(GameObject gameObject);
+
+	bool IsUIElementBlocked(GameObject gameObject);
+
+	GameObject Peak();
 }

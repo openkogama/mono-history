@@ -49,11 +49,7 @@ public class CEAvatarAccessoryUUI : ESStateBase
 		base.Exit(esm);
 		accessoryMover.Destroy();
 		MVGameControllerBase.CameraController.SetCamera(CameraType.AvatarEditModeCamera);
-		MVSpawnPointBlue mVSpawnPointBlue = (MVSpawnPointBlue)MVGameControllerBase.WOCM.GetWorldObjectClientWhere((MVWorldObjectClient wo) => wo is MVSpawnPointBlue);
-		MVAvatarLocal avatarLocal = MVGameControllerBase.WOCM.AvatarLocal;
-		avatarLocal.WorldPosition = mVSpawnPointBlue.WorldPosition - Vector3.up;
-		avatarLocal.WorldRotation = mVSpawnPointBlue.WorldRotation;
-		((AvatarEditModeCamera)MVGameControllerBase.CameraController.CurCamera).FocusOnPosition(currentBody.Transform.position + Vector3.up);
+		((AvatarEditModeCamera)MVGameControllerBase.CameraController.CurCamera).ResetPosition(currentBody.Transform.position + Vector3.up);
 		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.SetLaserCubeVisible(visible: true);
 	}
 }

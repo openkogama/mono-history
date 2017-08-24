@@ -4,25 +4,16 @@ using UnityEngine;
 
 public abstract class Notification : MonoBehaviour
 {
-	public delegate void NotificationDelegate(Notification notification);
-
-	public bool selfDestroy;
-
 	public NotificationType Type;
 
 	[HideInInspector]
 	public NotificationObjectPool pool;
 
-	[SerializeField]
-	protected RectTransform ContentBase;
-
-	private float timeSinceStart;
+	protected float timeSinceStart;
 
 	protected abstract NotificationLifetime Lifetime { get; }
 
 	public float Progress => timeSinceStart / (float)Lifetime;
-
-	public event NotificationDelegate OnNotificationClosedEnd;
 
 	public virtual void Initialize(Dictionary<object, object> data)
 	{
@@ -34,19 +25,13 @@ public abstract class Notification : MonoBehaviour
 		timeSinceStart += Time.deltaTime;
 		if (timeSinceStart >= (float)Lifetime)
 		{
-			if (OnNotificationClosedEnd != null)
-			{
-				OnNotificationClosedEnd(this);
-			}
-			if (selfDestroy)
-			{
-				Object.Destroy(gameObject);
-			}
-			else
-			{
-				pool.Return(this);
-			}
+			pool.Return(this);
+			OnReturn();
 		}
+	}
+
+	public virtual void OnReturn()
+	{
 	}
 
 	protected void Close()

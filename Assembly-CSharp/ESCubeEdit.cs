@@ -118,11 +118,10 @@ internal class ESCubeEdit : ESStateBase
 		DrawPlane.HideDrawPlane();
 		ExecuteEvents.ExecuteHierarchy(e.GameObject, null, (IUIStack handler, BaseEventData data) =>
 		{
-			handler.PopToBottom();
+			handler.PopToGroup(UIGroupFlags.MainUI);
 		});
 		if (TargetCubeModel == null)
 		{
-			Debug.LogWarning("Implement: Create drawplane");
 			e.CameraController.BlueModeEnabled = false;
 		}
 		else

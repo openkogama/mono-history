@@ -25,5 +25,8 @@ public enum EditorEvent
 	PMAvatarAccessory = 51,
 	CERoamUUI = 52,
 	CEEditBodyUUI = 53,
-	CEAvatarAccessoryUUI = 54
+	CEAvatarAccessoryUUI = 54,
+	ESEnterCubeTutorial = 55,
+	ESEditCubeTutorial = 56,
+	ESLeaveCubeTutorial = 57
 }

@@ -32,7 +32,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	public delegate void OnReceivedGameMsgDelegate(MVGameMsgType type, Dictionary<object, object> gameMsgData);
 
-	public delegate void OnReceivedNotificationEventDelegate(NotificationType type, Dictionary<object, object> data);
+	public delegate void OnReceivedNotificationEventDelegate(NotificationType type, Dictionary<object, object> data, NotificationsManager.eNotificationPanel panel = NotificationsManager.eNotificationPanel.tertiary);
 
 	public delegate void OnPostGameInitDelegate();
 
@@ -51,6 +51,8 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	private static LoadStats loadStats;
 
 	private static MVJoinState _joinState;
+
+	private static FirstFrameUpdateActorReady firstFrameUpdateActorReady;
 
 	[SerializeField]
 	protected KoGaMaSettingsContainer koGaMaSettings;
@@ -89,6 +91,8 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	public static bool LevelingTestMode;
 
+	private static Action<MVJoinState> onJoinStateChanged;
+
 	[SerializeField]
 	private AudioBuild audioBuild;
 
@@ -111,6 +115,18 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	public static IEditModeUI IEditModeUI => editModeUI;
 
 	public static BuildTarget BuildTarget => GetBuildTarget();
+
+	public static Action OnFirstFrameUpdateActorReady
+	{
+		get
+		{
+			return firstFrameUpdateActorReady.callbacks;
+		}
+		set
+		{
+			firstFrameUpdateActorReady.callbacks = value;
+		}
+	}
 
 	private static bool OkToReAuth
 	{
@@ -162,6 +178,26 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		set
 		{
 			_joinState = value;
+			if (onJoinStateChanged != null)
+			{
+				onJoinStateChanged(value);
+			}
+		}
+	}
+
+	public static Action<MVJoinState> OnJoinStateChanged
+	{
+		get
+		{
+			return onJoinStateChanged;
+		}
+		set
+		{
+			onJoinStateChanged = value;
+			if (onJoinStateChanged != null)
+			{
+				onJoinStateChanged(_joinState);
+			}
 		}
 	}
 
@@ -369,6 +405,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		disconnectIsOk = false;
 		StatHatWrapper.Count("MVGameControllerStartGame", 1);
 		Game = new MVNetworkGame();
+		firstFrameUpdateActorReady = new FirstFrameUpdateActorReady();
 		if (!Game.Join())
 		{
 			Debug.LogError("Failed to connect");

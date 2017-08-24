@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using MV.WorldObject;
-using UnityEngine;
 
 public class MVPlayerContainer : IEnumerator, IEnumerable, IEnumerable<KeyValuePair<int, MVPlayer>>
 {
@@ -15,6 +14,8 @@ public class MVPlayerContainer : IEnumerator, IEnumerable, IEnumerable<KeyValueP
 	public Action OnPlayerListChanged;
 
 	public Action OnPlayerListLoaded;
+
+	public Action OnLocalPlayerReady;
 
 	public MVLocalPlayer LocalPlayer => (MVLocalPlayer)GetPlayerUnsafe(localPlayerActorNumber);
 
@@ -59,14 +60,14 @@ public class MVPlayerContainer : IEnumerator, IEnumerable, IEnumerable<KeyValueP
 
 	public void Add(MVPlayer player)
 	{
-		Debug.Log("player.IsReady " + player.IsReady);
 		if (player.IsReady)
 		{
 			players.Add(player.ActorNr, player);
-			return;
 		}
-		Debug.Log("Adding to pending players " + player.ActorNr);
-		pendingPlayers.Add(player.ActorNr, player);
+		else
+		{
+			pendingPlayers.Add(player.ActorNr, player);
+		}
 	}
 
 	public void Add(List<MVPlayer> playerList)
@@ -149,6 +150,11 @@ public class MVPlayerContainer : IEnumerator, IEnumerable, IEnumerable<KeyValueP
 		players.Add(mVPlayer.ActorNr, mVPlayer);
 		mVPlayer.SetReady();
 		SendPlayerListEvents();
+		if (actorNr == localPlayerActorNumber && OnLocalPlayerReady != null)
+		{
+			OnLocalPlayerReady();
+			OnLocalPlayerReady = null;
+		}
 	}
 
 	public bool TryGetValue(int actorNr, out MVPlayer player)

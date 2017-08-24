@@ -365,6 +365,18 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 
 		private float XZMovementSpeedScale { get; set; }
 
+		public bool MovementConstrained
+		{
+			get
+			{
+				return moveConstraintSet;
+			}
+			set
+			{
+				moveConstraintSet = value;
+			}
+		}
+
 		public JetPackMode(MVAvatarLocal mvAvatar)
 			: base(mvAvatar, 0)
 		{
@@ -417,7 +429,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 
 		public void SetMoveConstraint(Vector3 center, float radius)
 		{
-			moveConstraintSet = true;
+			MovementConstrained = true;
 			moveConstraintCenter = center;
 			moveConstraintRadius = radius;
 		}
@@ -615,9 +627,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 			AvatarMotor avatarMotor = mvAvatar.avatarMotor;
 			avatarMotor.OnWallJump = (AvatarMotor.OnWallJumpDelegate)Delegate.Combine(avatarMotor.OnWallJump, new AvatarMotor.OnWallJumpDelegate(avatarSound.HandleWallJump));
 			AvatarMotor avatarMotor2 = mvAvatar.avatarMotor;
-			avatarMotor2.OnWallJump = (AvatarMotor.OnWallJumpDelegate)Delegate.Combine(avatarMotor2.OnWallJump, new AvatarMotor.OnWallJumpDelegate(HandleWallJump));
-			AvatarMotor avatarMotor3 = mvAvatar.avatarMotor;
-			avatarMotor3.OnActiveBounce = (AvatarMotor.OnActiveBounceDelegate)Delegate.Combine(avatarMotor3.OnActiveBounce, new AvatarMotor.OnActiveBounceDelegate(avatarSound.HandleActiveBounce));
+			avatarMotor2.OnActiveBounce = (AvatarMotor.OnActiveBounceDelegate)Delegate.Combine(avatarMotor2.OnActiveBounce, new AvatarMotor.OnActiveBounceDelegate(avatarSound.HandleActiveBounce));
 		}
 
 		public override void Activate(AvatarRuntimeState fromMode)
@@ -775,11 +785,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 		private void OnHandleFiring(bool isFiring)
 		{
 			this.isFiring = isFiring;
-		}
-
-		private static void HandleWallJump()
-		{
-			GameSessionCounters.Increment(GameSessionCounterType.WallJump);
 		}
 
 		private void HandleWaterplane()

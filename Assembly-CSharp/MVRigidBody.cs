@@ -217,15 +217,6 @@ public abstract class MVRigidBody : MVComponent
 	{
 		if (isPlayerControlled)
 		{
-			switch (groundChange)
-			{
-			case GroundChange.FromGroundedToAir:
-				GameSessionCounters.SetCount(GameSessionCounterType.Grounded, 0);
-				break;
-			case GroundChange.FromAirToGrounded:
-				GameSessionCounters.SetCount(GameSessionCounterType.Grounded, 1);
-				break;
-			}
 		}
 	}
 

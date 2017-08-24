@@ -102,5 +102,8 @@ public enum DBQuery
 	CreateDefaultItemInventory,
 	GetMostLikedAvatars,
 	GetAvatarRevisionData,
-	GetAvatarMetaData
+	GetAvatarMetaData,
+	GetProfileMetaData,
+	UpdateProfileMetaData,
+	GetAntiCheatData
 }

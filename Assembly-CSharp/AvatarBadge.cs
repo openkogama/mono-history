@@ -55,8 +55,6 @@ public class AvatarBadge : MonoBehaviour
 		}
 		if (MVGameControllerBase.Game != null)
 		{
-			Debug.Log("OwnerActorId " + ownerActorId);
-			Debug.Log(MVGameControllerBase.Game.LocalPlayer.ActorNr);
 			if (ownerActorId != -1 && MVGameControllerBase.Game.MVPlayerContainer.ContainsKey(ownerActorId))
 			{
 				MVPlayer playerUnsafe = MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(ownerActorId);

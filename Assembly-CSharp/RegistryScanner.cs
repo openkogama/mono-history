@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using MV.WorldObject.AntiCheat;
 using Microsoft.Win32;
-using UnityEngine;
 
 public static class RegistryScanner
 {
@@ -59,9 +58,7 @@ public static class RegistryScanner
 			if (regPath != null)
 			{
 				HackingToolDetector.Report(new HackingToolDetector.HackingToolReport(appDesc, registryKey));
-				continue;
 			}
-			Debug.Log("Registry key " + registryKey.Name + " associated with " + appDesc.ProgramName + " not found.");
 		}
 	}
 

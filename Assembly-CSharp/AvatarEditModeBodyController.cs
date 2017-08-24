@@ -319,7 +319,7 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 		}
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			x.PopToBottom();
+			x.PopToGroup(UIGroupFlags.MainUI);
 		});
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{

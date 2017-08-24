@@ -145,6 +145,7 @@ public class Avatar : MonoBehaviour, IBulletImpactVisualizer
 		avatarPooledXPParticles.transform.localPosition = Vector3.up;
 		avatarPooledXPParticles.transform.localRotation = Quaternion.identity;
 		avatarPooledXPParticles.transform.localScale = Vector3.one;
+		avatarPooledXPParticles.gameObject.layer = mvAvatar.Body.GameObject.layer;
 		avatarPooledXPParticles.Initialize(xpProgressData.XPDelta);
 		avatarPooledXPParticles.Play();
 	}

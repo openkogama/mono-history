@@ -7,8 +7,6 @@ public class NotificationController : MonoBehaviour
 {
 	private static NotificationsManager CurrentManager;
 
-	private static List<FriendRequestNotification> FriendRequestQueue = new List<FriendRequestNotification>();
-
 	private static bool hasSubscribed = false;
 
 	private static HashSet<int> incomingPlayerFriendRequests = new HashSet<int>();
@@ -23,15 +21,7 @@ public class NotificationController : MonoBehaviour
 		}
 	}
 
-	private void Update()
-	{
-		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.NotificationAcceptFriendshipRequest) && FriendRequestQueue.Count > 0)
-		{
-			FriendRequestQueue[FriendRequestQueue.Count - 1].AcceptFriendship();
-		}
-	}
-
-	public static void OnNotificationReceived(NotificationType type, Dictionary<object, object> data)
+	public static void OnNotificationReceived(NotificationType type, Dictionary<object, object> data, NotificationsManager.eNotificationPanel panel = NotificationsManager.eNotificationPanel.tertiary)
 	{
 		switch (type)
 		{
@@ -42,7 +32,7 @@ public class NotificationController : MonoBehaviour
 			FriendRequestAccepted(data);
 			break;
 		default:
-			CurrentManager.InstantiateNotification(type, NotificationsManager.eNotificationPanel.tertiary, data);
+			CurrentManager.InstantiateNotification(type, panel, data);
 			break;
 		}
 	}
@@ -62,10 +52,8 @@ public class NotificationController : MonoBehaviour
 		if (friend.status == FriendStatus.Pending && MVGameControllerBase.JoinState == MVJoinState.Playing && !incomingPlayerFriendRequests.Contains(friend.profileID))
 		{
 			incomingPlayerFriendRequests.Add(friend.profileID);
-			FriendRequestNotification friendRequestNotification = (FriendRequestNotification)CurrentManager.InstantiateNotification(NotificationType.FriendRequest, NotificationsManager.eNotificationPanel.tertiary, data);
-			friendRequestNotification.RegisterFriendshipRequest(friend);
-			friendRequestNotification.OnNotificationClosedEnd += UnregisterFriendRequestNotification;
-			FriendRequestQueue.Add(friendRequestNotification);
+			data.Add((byte)15, friend.friendID);
+			CurrentManager.InstantiateNotification(NotificationType.FriendRequest, NotificationsManager.eNotificationPanel.tertiary, data);
 		}
 	}
 
@@ -93,9 +81,10 @@ public class NotificationController : MonoBehaviour
 		CurrentManager.InstantiateNotification(notificationType, notificationPriority, data);
 	}
 
-	private static void UnregisterFriendRequestNotification(Notification notification)
+	public static void PushNoticationInstruction(string instruction, NotificationLifetime lifeTime = NotificationLifetime.High)
 	{
-		FriendRequestNotification item = (FriendRequestNotification)notification;
-		FriendRequestQueue.Remove(item);
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add((byte)1, instruction);
+		PushNotification(NotificationType.FirstTimeXPRewarded, NotificationsManager.eNotificationPanel.custom, dictionary, lifeTime);
 	}
 }

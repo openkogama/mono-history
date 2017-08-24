@@ -83,6 +83,8 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel, ICubeModelCollid
 		}
 	}
 
+	public override Vector3 WorldPivot => GetWorldBounds().center;
+
 	public event EventHandler<EditStateEventArgs> BeingEditedChanged;
 
 	public MVCubeModelBase(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects, Dictionary<int, RuntimePrototypeCubeModel> prototypes)

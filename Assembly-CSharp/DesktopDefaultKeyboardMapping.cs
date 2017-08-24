@@ -39,11 +39,19 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap
 		{
 			{
 				KogamaControls.EditMoveUp,
-				new KeyCode[1] { KeyCode.E }
+				new KeyCode[2]
+				{
+					KeyCode.E,
+					KeyCode.Space
+				}
 			},
 			{
 				KogamaControls.EditMoveDown,
-				new KeyCode[1] { KeyCode.C }
+				new KeyCode[2]
+				{
+					KeyCode.C,
+					KeyCode.LeftControl
+				}
 			},
 			{
 				KogamaControls.PointerSelect,

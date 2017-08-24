@@ -103,7 +103,6 @@ public class MaterialLoader : MonoBehaviour
 		if (Urls.StreamingAssetUrlReady())
 		{
 			Urls.onStreamingAssetsUrlAvailable = (Urls.OnStreamingAssetsUrlAvailable)Delegate.Remove(Urls.onStreamingAssetsUrlAvailable, new Urls.OnStreamingAssetsUrlAvailable(DownloadWhenPossible));
-			Debug.Log(Urls.StreamingAssets + highResAtlasFileName + "?version=" + MVGameControllerBase.KoGaMaSettings.WebCacheInvalidationCode);
 			AsyncWWWManager.WWWRequest(new CachedGetRequest(Urls.StreamingAssets + highResAtlasFileName + "?version=" + MVGameControllerBase.KoGaMaSettings.WebCacheInvalidationCode, Callback, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 		}
 		else

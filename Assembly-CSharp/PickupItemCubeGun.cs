@@ -277,7 +277,6 @@ public class PickupItemCubeGun : PickupItemWithDelay
 					}
 					SharedWorldObjectGameplayFunctions.DustEfffect(PrefabPool.Instance.ParticleCubeDust, point, 1f);
 				}
-				GameSessionCounters.Decrement(GameSessionCounterType.CubeGunCubeDelta);
 			}
 		}
 		else

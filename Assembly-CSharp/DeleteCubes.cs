@@ -32,6 +32,7 @@ internal class DeleteCubes : CubeModelTool
 				e.TargetCubeModel.RemoveCube(e.SelectedCube.iLocalPos);
 				deletedCube = true;
 				cubeNotToBeDeleted = e.DoPicking();
+				CubeModelTool.SendCubeEvent(e.TargetCubeModel.CubeCount, EditCubeChange.CubeDeleted);
 			}
 		}
 		else

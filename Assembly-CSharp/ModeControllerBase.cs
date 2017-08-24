@@ -30,5 +30,9 @@ public abstract class ModeControllerBase : MonoBehaviour, IToggleFps, IEventSyst
 		{
 			ToggleFps();
 		}
+		if (Input.GetKey(KeyCode.Alpha8) && Input.GetKeyUp(KeyCode.Alpha0))
+		{
+			FirstTimeEventManager.ResetFirstTimeEvents(overrideValue: false);
+		}
 	}
 }

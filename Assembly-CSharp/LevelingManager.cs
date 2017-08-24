@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -8,10 +6,6 @@ using UnityEngine.Events;
 
 public static class LevelingManager
 {
-	private static ObscuredBool playModeLevelingEnabled;
-
-	private static ObscuredInt playModeMinPlayers = 1;
-
 	public static UnityAction OnLevelingInitialized;
 
 	public static Dictionary<int, XPLevelLimits> TestLevelToLimits = new Dictionary<int, XPLevelLimits>
@@ -42,29 +36,7 @@ public static class LevelingManager
 		}
 	};
 
-	public static int PlayModeMinPlayers => playModeMinPlayers;
-
 	public static bool IsInitialized { get; private set; }
-
-	public static bool LevelingEnabled
-	{
-		get
-		{
-			if (!IsInitialized)
-			{
-				return false;
-			}
-			if (MVGameControllerBase.GameMode == MVGameMode.Edit || MVGameControllerBase.GameMode == MVGameMode.CharacterEditor)
-			{
-				return true;
-			}
-			if (MVGameControllerBase.GameMode == MVGameMode.Play && MVGameControllerBase.Game.MVPlayerContainer.Count >= (int)playModeMinPlayers)
-			{
-				return true;
-			}
-			return false;
-		}
-	}
 
 	public static void Destroy()
 	{
@@ -81,23 +53,6 @@ public static class LevelingManager
 		{
 			AsyncWWWManager.WWWRequest(new GetRequest(Urls.InitialData + profileID, OnInitialData, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 		}
-		MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
-		mVPlayerContainer.OnPlayerListChanged = (Action)Delegate.Combine(mVPlayerContainer.OnPlayerListChanged, new Action(OnPlayerListChanged));
-	}
-
-	public static void AddXPToLocalPlayer(string xpType, MVGameMode gameMode)
-	{
-		MVGameControllerBase.Game.LocalPlayer.AddXp(xpType, gameMode);
-	}
-
-	private static void OnPlayerListChanged()
-	{
-		if ((bool)playModeLevelingEnabled != LevelingEnabled && MVGameControllerBase.GameMode == MVGameMode.Play)
-		{
-			playModeLevelingEnabled = LevelingEnabled;
-			string text = ((!playModeLevelingEnabled) ? (TM._("Leveling deactivated! Players in game: ") + MVGameControllerBase.Game.MVPlayerContainer.Count) : (TM._("Leveling activated! Players in game: ") + MVGameControllerBase.Game.MVPlayerContainer.Count));
-			NotificationController.PushNotification(text);
-		}
 	}
 
 	public static void Test()
@@ -108,14 +63,12 @@ public static class LevelingManager
 	public static void OnInitialData(WWW result)
 	{
 		InitialLevelData initialLevelData = JsonConvert.DeserializeObject<InitialLevelData>(result.text);
-		playModeMinPlayers = initialLevelData.MinPlayersActivateXP;
 		Notify(initialLevelData);
 	}
 
 	private static void Notify(InitialLevelData initialLevelData)
 	{
 		BadgeManager.Initialize(initialLevelData.BadgeUrlData);
-		XPManager.Initialize(initialLevelData.XPManagerData);
 		MVGameControllerBase.Game.LocalPlayer.InitializeLeveling(initialLevelData);
 		IsInitialized = true;
 		if (OnLevelingInitialized != null)
@@ -129,7 +82,6 @@ public static class LevelingManager
 	{
 		InitialLevelData initialLevelData = new InitialLevelData();
 		initialLevelData.BadgeUrlData = TestBadgeUrlData();
-		initialLevelData.XPManagerData = TestXPData();
 		initialLevelData.Level = 2;
 		initialLevelData.XP = 120;
 		initialLevelData.XPLevelLimits = TestLevelToLimits[initialLevelData.Level];
@@ -144,13 +96,5 @@ public static class LevelingManager
 		list.Add(new BadgeUrlData(3, Urls.StreamingAssets + "Promotion/Promotion_03.png"));
 		list.Add(new BadgeUrlData(4, Urls.StreamingAssets + "Promotion/Promotion_04.png"));
 		return list;
-	}
-
-	private static Dictionary<string, XPData> TestXPData()
-	{
-		Dictionary<string, XPData> dictionary = new Dictionary<string, XPData>();
-		dictionary.Add("KilledSentryTower", new XPData(0, 20));
-		dictionary.Add("CollectiblePickup", new XPData(1, 17));
-		return dictionary;
 	}
 }

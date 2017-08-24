@@ -22,10 +22,11 @@ public class XPProgress
 		player.OnLevelChanged = (UnityAction<int>)Delegate.Combine(player.OnLevelChanged, new UnityAction<int>(UpdateLevel));
 	}
 
-	public void Update(int xp, byte xpId)
+	public void Update(int currentPlayerXP, XPRewardType xpId, int XPdelta)
 	{
 		xpProgressData.XpID = xpId;
-		xpProgressData.XP = xp;
+		xpProgressData.XP = currentPlayerXP;
+		xpProgressData.XPDelta = XPdelta;
 		if (OnXPProgressData != null)
 		{
 			OnXPProgressData(xpProgressData);

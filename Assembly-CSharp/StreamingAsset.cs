@@ -52,7 +52,6 @@ public abstract class StreamingAsset<AssetType, PreviewType> : StreamingAsset wh
 	{
 		if (string.IsNullOrEmpty(www.error))
 		{
-			Debug.Log("StreamingAsset - Download finished:\n" + www.url);
 			Asset = StreamingAsset.UnpackBundle<AssetType>(www);
 		}
 	}
@@ -129,7 +128,6 @@ public abstract class StreamingAsset : MonoBehaviour
 	protected void Download(string url, UnityAction onAssetSetAction)
 	{
 		url += MVGameControllerBase.KoGaMaSettings.WebCacheInvalidationCodeStr;
-		Debug.Log("StreamingAsset - download started:\n" + AssetBundleUrl + url);
 		this.onAssetSetAction = (UnityAction)Delegate.Combine(this.onAssetSetAction, new UnityAction(OnAssetSet));
 		AsyncWWWManager.WWWRequest(new CachedGetRequest(AssetBundleUrl + url, OnDownloadFinished, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 	}

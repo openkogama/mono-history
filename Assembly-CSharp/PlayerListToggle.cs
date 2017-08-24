@@ -53,7 +53,7 @@ public class PlayerListToggle : MonoBehaviour
 		{
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 			{
-				x.Pop();
+				x.PopGroups(UIGroupFlags.InventoryUI | UIGroupFlags.InventoryUISubMenu | UIGroupFlags.Popup);
 			});
 			showingPlayerWindow = false;
 		}

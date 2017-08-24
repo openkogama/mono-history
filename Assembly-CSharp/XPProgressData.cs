@@ -1,10 +1,14 @@
+using MV.Common;
+
 public class XPProgressData
 {
 	private XPLevelLimits xpLevelLimits;
 
-	private int xp;
+	private int playerCurrentXP;
 
-	private byte xpId;
+	private XPRewardType xpId;
+
+	private int xpDelta;
 
 	public XPLevelLimits XPLevelLimits
 	{
@@ -18,7 +22,7 @@ public class XPProgressData
 
 	public int PrevXP => xpLevelLimits.PrevXP;
 
-	public byte XpID
+	public XPRewardType XpID
 	{
 		get
 		{
@@ -34,29 +38,39 @@ public class XPProgressData
 	{
 		get
 		{
-			return xp;
+			return playerCurrentXP;
 		}
 		set
 		{
-			xp = value;
+			playerCurrentXP = value;
 		}
 	}
 
-	public string XPString => XPManager.GetXPText(xpId);
+	public string XPString => LocalizedEnums._(xpId);
 
-	public int XPDelta => XPManager.GetXPAmount(xpId);
+	public int XPDelta
+	{
+		get
+		{
+			return xpDelta;
+		}
+		set
+		{
+			xpDelta = value;
+		}
+	}
 
-	public int XpRel => xpLevelLimits.XpRel(xp);
+	public int XpRel => xpLevelLimits.XpRel(playerCurrentXP);
 
 	public int XpNextRel => xpLevelLimits.XPNextRel;
 
-	public bool XPLimitExceeded => !xpLevelLimits.Validate(xp);
+	public bool XPLimitExceeded => !xpLevelLimits.Validate(playerCurrentXP);
 
 	public int Level => xpLevelLimits.Level;
 
-	public XPProgressData(int xp, XPLevelLimits xpLevelLimits)
+	public XPProgressData(int playerCurrentXP, XPLevelLimits xpLevelLimits)
 	{
-		this.xp = xp;
+		this.playerCurrentXP = playerCurrentXP;
 		this.xpLevelLimits = xpLevelLimits;
 	}
 }

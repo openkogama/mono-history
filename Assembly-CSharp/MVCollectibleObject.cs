@@ -3,9 +3,7 @@ using UnityEngine;
 public class MVCollectibleObject : ObjectPrefab
 {
 	[SerializeField]
-	private StreamedTextureToSharedMaterial streamedTextureToSharedMaterialPrefab;
-
-	private static bool streamComponentSet;
+	private StreamedSharedMaterialHandler handler;
 
 	[SerializeField]
 	private GreyOutObjectScript pickupItem;
@@ -47,13 +45,9 @@ public class MVCollectibleObject : ObjectPrefab
 
 	public CollectibleEffects CollectibleEffects => collectibleEffects;
 
-	public void StartTextureStreaming()
+	private void Start()
 	{
-		if (!streamComponentSet)
-		{
-			MVGameControllerBase.StreamingAssetManager.Instantiate(streamedTextureToSharedMaterialPrefab);
-			streamComponentSet = true;
-		}
+		handler.StartTextureStreaming();
 	}
 
 	protected override void OnValidate()

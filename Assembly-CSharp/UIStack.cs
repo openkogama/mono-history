@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -16,6 +17,8 @@ public class UIStack : MonoBehaviour, IEventSystemHandler, IUIStack
 
 		public readonly bool invisibleBlocker;
 
+		public readonly bool hideAllExceptStackbottom;
+
 		public readonly UnityAction onPop;
 
 		public readonly UIGroupFlags group;
@@ -26,13 +29,16 @@ public class UIStack : MonoBehaviour, IEventSystemHandler, IUIStack
 		{
 			name = gameObject.name;
 			this.gameObject = gameObject;
-			blockingObject = (pushOption & UIPushOption.Blocking) != 0;
+			blockingObject = (pushOption & UIPushOption.Blocking) != 0 || (pushOption & UIPushOption.InvisibleBlocker) != 0;
 			hideAll = (pushOption & UIPushOption.HideAll) != 0;
 			invisibleBlocker = (pushOption & UIPushOption.InvisibleBlocker) != 0;
+			hideAllExceptStackbottom = (pushOption & UIPushOption.HideAllExceptStackBottom) != 0;
 			this.onPop = onPop;
 			this.group = group;
 		}
 	}
+
+	private Action uiStackChangedPublisher;
 
 	[SerializeField]
 	private GameObject root;
@@ -45,11 +51,35 @@ public class UIStack : MonoBehaviour, IEventSystemHandler, IUIStack
 
 	private float origBlockerAlpha = 0.5f;
 
+	private bool stackReady;
+
 	private List<StackElement> stackableUiElements = new List<StackElement>();
 
 	private void Start()
 	{
 		origBlockerAlpha = blockingObjectImage.color.a;
+	}
+
+	private void LateUpdate()
+	{
+		foreach (StackElement stackableUiElement in stackableUiElements)
+		{
+			if (stackableUiElement.blockingObject)
+			{
+				MVInputWrapper.IsShortcutKeysSuppressed = true;
+				break;
+			}
+		}
+	}
+
+	public void SubscribeToStackChanges(Action onStackChanged)
+	{
+		uiStackChangedPublisher = (Action)Delegate.Combine(uiStackChangedPublisher, onStackChanged);
+	}
+
+	public void UnSubscribeToStackChanges(Action onStackChanged)
+	{
+		uiStackChangedPublisher = (Action)Delegate.Remove(uiStackChangedPublisher, onStackChanged);
 	}
 
 	public void Push(GameObject gameObject, UIPushOption pushOption = UIPushOption.None, UnityAction onPop = null, UIGroupFlags group = UIGroupFlags.Default)
@@ -75,11 +105,11 @@ public class UIStack : MonoBehaviour, IEventSystemHandler, IUIStack
 		StackElement stackElement = new StackElement(gameObject, pushOption, onPop, group);
 		if (stackElement.hideAll)
 		{
-			foreach (StackElement stackableUiElement in stackableUiElements)
-			{
-				Debug.Log(stackableUiElement.gameObject.name);
-				stackableUiElement.gameObject.SetActive(value: false);
-			}
+			HideAll();
+		}
+		if (stackElement.hideAllExceptStackbottom)
+		{
+			HideAllExceptStackBottom();
 		}
 		if (stackElement.blockingObject)
 		{
@@ -89,7 +119,15 @@ public class UIStack : MonoBehaviour, IEventSystemHandler, IUIStack
 		stackElement.gameObject.transform.SetParent(root.transform, worldPositionStays: false);
 		stackElement.gameObject.SetActive(value: true);
 		stackableUiElements.Add(stackElement);
+		if (!stackReady)
+		{
+			HideAll();
+		}
 		UpdateBlocking();
+		if (uiStackChangedPublisher != null)
+		{
+			uiStackChangedPublisher();
+		}
 	}
 
 	public void Pop()
@@ -110,14 +148,110 @@ public class UIStack : MonoBehaviour, IEventSystemHandler, IUIStack
 		UpdateStack();
 	}
 
-	private void LateUpdate()
+	public bool PopToStackElement(GameObject gameObject)
+	{
+		bool flag = false;
+		foreach (StackElement stackableUiElement in stackableUiElements)
+		{
+			if (stackableUiElement.gameObject == gameObject)
+			{
+				flag = true;
+				break;
+			}
+		}
+		if (!flag)
+		{
+			Debug.Log(StackTraceUtility.ExtractStackTrace());
+			Debug.LogError("PopToStackElement: Element not found abouting");
+			return false;
+		}
+		while (Peak().gameObject != gameObject)
+		{
+			Pop();
+		}
+		return true;
+	}
+
+	public void SetStackReady()
+	{
+		stackReady = true;
+		UpdateStack();
+	}
+
+	public void PopToGroup(UIGroupFlags group)
+	{
+		bool flag = false;
+		foreach (StackElement stackableUiElement in stackableUiElements)
+		{
+			if (stackableUiElement.group == group)
+			{
+				flag = true;
+				break;
+			}
+		}
+		if (!flag)
+		{
+			Debug.Log(StackTraceUtility.ExtractStackTrace());
+			Debug.LogError("PopToGroup: Element not found abouting");
+		}
+		else
+		{
+			while (stackableUiElements[stackableUiElements.Count - 1].group != group)
+			{
+				Pop();
+			}
+		}
+	}
+
+	public bool IsUIElementBlocked(GameObject uiElement)
+	{
+		int index = -1;
+		FindStackParent(uiElement.transform, ref index);
+		if (index == -1)
+		{
+			Debug.LogError(uiElement.name + "IsUIElementBlocked index == " + index);
+			return false;
+		}
+		index++;
+		if (stackableUiElements.Count <= index)
+		{
+			return false;
+		}
+		for (int i = index; i < stackableUiElements.Count; i++)
+		{
+			if (stackableUiElements[i].blockingObject)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public GameObject Peak()
+	{
+		return stackableUiElements[stackableUiElements.Count - 1].gameObject;
+	}
+
+	public bool IsStackEmpty()
+	{
+		return stackableUiElements.Count <= 1;
+	}
+
+	private void HideAll()
 	{
 		foreach (StackElement stackableUiElement in stackableUiElements)
 		{
-			if (stackableUiElement.blockingObject)
+			stackableUiElement.gameObject.SetActive(value: false);
+		}
+	}
+
+	private void HideAllExceptStackBottom()
+	{
+		foreach (StackElement stackableUiElement in stackableUiElements)
+		{
+			if (stackableUiElement.group != UIGroupFlags.StackBottom)
 			{
-				MVInputWrapper.IsShortcutKeysSuppressed = true;
-				break;
+				stackableUiElement.gameObject.SetActive(value: false);
 			}
 		}
 	}
@@ -130,6 +264,10 @@ public class UIStack : MonoBehaviour, IEventSystemHandler, IUIStack
 			stackElement.gameObject.SetActive(value: true);
 			SetStackVisible();
 			UpdateBlocking();
+			if (uiStackChangedPublisher != null)
+			{
+				uiStackChangedPublisher();
+			}
 		}
 	}
 
@@ -170,20 +308,20 @@ public class UIStack : MonoBehaviour, IEventSystemHandler, IUIStack
 		{
 			stackElement.onPop();
 		}
-		Object.Destroy(stackElement.gameObject);
+		UnityEngine.Object.Destroy(stackElement.gameObject);
 	}
 
-	public void PopToBottom()
+	private void FindStackParent(Transform uiElement, ref int index)
 	{
-		while (stackableUiElements.Count > 1)
+		for (int i = 0; i < stackableUiElements.Count; i++)
 		{
-			Pop();
+			if (stackableUiElements[i].gameObject.transform == uiElement)
+			{
+				index = i;
+				return;
+			}
 		}
-	}
-
-	public bool IsStackEmpty()
-	{
-		return stackableUiElements.Count <= 1;
+		FindStackParent(uiElement.transform.parent, ref index);
 	}
 
 	private void SetStackVisible()
@@ -191,7 +329,7 @@ public class UIStack : MonoBehaviour, IEventSystemHandler, IUIStack
 		if (stackableUiElements.Count >= 2)
 		{
 			int num = stackableUiElements.Count - 2;
-			while (num >= 0 && !stackableUiElements[num + 1].hideAll)
+			while (num >= 0 && !stackableUiElements[num + 1].hideAll && !stackableUiElements[num + 1].hideAllExceptStackbottom)
 			{
 				stackableUiElements[num].gameObject.SetActive(value: true);
 				num--;

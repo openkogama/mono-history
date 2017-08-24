@@ -34,10 +34,6 @@ public class MVMaterialRepository
 	public void SetMaterialUnlocked(int materialId, bool unlocked)
 	{
 		materials[materialId].isUnlocked = unlocked;
-		if (AllMaterialUnlocked())
-		{
-			GameSessionCounters.Increment(GameSessionCounterType.AllMaterialsUnlocked);
-		}
 	}
 
 	private bool AllMaterialUnlocked()

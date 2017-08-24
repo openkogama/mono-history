@@ -8,14 +8,13 @@ public class MVLocalPlayerRegistered : MVLocalPlayer
 	public MVLocalPlayerRegistered(int actorNumber, int profileID, string userName, string regionCode, int planetOwnershipTypeId)
 		: base(actorNumber, profileID, userName, regionCode, planetOwnershipTypeId)
 	{
-		xpEventQueue = new XPEventQueueRegistered(this);
 	}
 
 	public override void InitializeLeveling(InitialLevelData initialLevelData)
 	{
 		base.InitializeLeveling(initialLevelData);
-		XPEventQueue xPEventQueue = xpEventQueue;
-		xPEventQueue.OnXPProgressData = (XPProgress.OnXPProgressDataDelegate)Delegate.Combine(xPEventQueue.OnXPProgressData, new XPProgress.OnXPProgressDataDelegate(OnXPProgressDataChangeRegistered));
+		XPProgress xPProgress = xpProgress;
+		xPProgress.OnXPProgressData = (XPProgress.OnXPProgressDataDelegate)Delegate.Combine(xPProgress.OnXPProgressData, new XPProgress.OnXPProgressDataDelegate(OnXPProgressDataChangeRegistered));
 		OnLevelChangedLocalReceivedLevelData(Level);
 	}
 
@@ -51,7 +50,7 @@ public class MVLocalPlayerRegistered : MVLocalPlayer
 
 	public override void Destroy()
 	{
+		base.Destroy();
 		AsyncWWWManager.UnsubscribeWWWRequest(LevelCallback);
-		xpEventQueue.Destroy();
 	}
 }

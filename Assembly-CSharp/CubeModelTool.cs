@@ -1,6 +1,14 @@
+using System;
+
 internal class CubeModelTool : IState
 {
 	protected bool waitForMouseUp;
+
+	private static EditCubeChange cubeChange;
+
+	private static int cubeCount;
+
+	public static Action<int, EditCubeChange> OnEditCubeChange;
 
 	public CubeModelingEvent StateType { get; protected set; }
 
@@ -15,6 +23,12 @@ internal class CubeModelTool : IState
 		}
 	}
 
+	protected static void SendCubeEvent(int cubeCount, EditCubeChange cubeChange)
+	{
+		CubeModelTool.cubeCount = cubeCount;
+		CubeModelTool.cubeChange = cubeChange;
+	}
+
 	public void SetStateType(CubeModelingEvent stateTypeEvent)
 	{
 		StateType = stateTypeEvent;
@@ -26,6 +40,11 @@ internal class CubeModelTool : IState
 
 	public virtual void Execute(CubeModelingStateMachine e)
 	{
+		if (cubeChange != EditCubeChange.None && OnEditCubeChange != null)
+		{
+			OnEditCubeChange(cubeCount, cubeChange);
+		}
+		cubeChange = EditCubeChange.None;
 	}
 
 	public virtual void Exit(CubeModelingStateMachine esm)

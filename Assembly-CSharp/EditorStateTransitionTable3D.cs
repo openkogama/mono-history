@@ -15,6 +15,9 @@ internal class EditorStateTransitionTable3D : EditorStateTransitionTableBase
 		table.Add(EditorEvent.ESWalkMode, new ESWalkMode());
 		table.Add(EditorEvent.ESInsert, new ESInsert());
 		table.Add(EditorEvent.ESAddObjectLink, new ESAddObjectLink());
+		table.Add(EditorEvent.ESEnterCubeTutorial, new CEEnterCubeTutorial());
+		table.Add(EditorEvent.ESEditCubeTutorial, new CEEditCubeTutorial());
+		table.Add(EditorEvent.ESLeaveCubeTutorial, new ESLeaveCubeTutorial());
 		table.Add(EditorEvent.ESAddToMarketPlaceState, new ESAddToMarketPlaceState());
 		SetStateTypes();
 	}

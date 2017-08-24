@@ -30,7 +30,7 @@ internal class SprayCubes : CubeModelTool
 				if (cubeNotToBeSprayed == null || e.SelectedCube.iLocalPos != cubeNotToBeSprayed.iLocalPos)
 				{
 					e.HandleAudio(e.SelectedCube.iLocalPos, AudioActions.CubeAdded);
-					addCube = e.AddCube();
+					addCube = e.AddCube() != EditCubeChange.None;
 					cubeNotToBeSprayed = e.DoPicking();
 				}
 			}

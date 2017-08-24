@@ -41,9 +41,6 @@ internal class ESTerrainEdit : ESStateBase
 			return;
 		}
 		e.CubeModelingStateMachine.Update();
-		if ((int)e.CubeModelingStateMachine.curEvent == 0)
-		{
-		}
 		if (hit.woId != 0 && hit.woId != terrain.Id)
 		{
 			e.CubeModelingStateMachine.CursorVisible = false;

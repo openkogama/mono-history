@@ -61,6 +61,12 @@ public class DesktopEditModeController : ModeControllerBase, IEditModeUI, ISetEd
 	[SerializeField]
 	private RectTransform notificationsManager;
 
+	[SerializeField]
+	private FirstTimeSetupTerrainEditTutorial firstTimeSetupTerrainEditTutorial;
+
+	[SerializeField]
+	private SetupCubeModelTutorialUI setupCubeModelTutorialUI;
+
 	private float focusTime;
 
 	private bool focusSuppressInput = true;
@@ -88,8 +94,16 @@ public class DesktopEditModeController : ModeControllerBase, IEditModeUI, ISetEd
 		chatController = UnityEngine.Object.Instantiate(chatController);
 		chatController.transform.SetParent(stackBottom.transform, worldPositionStays: false);
 		chatController.SubscribeToMessages();
-		uiStack.Push(stackBottom);
+		uiStack.Push(stackBottom, UIPushOption.None, null, UIGroupFlags.StackBottom);
 		MVGameControllerDesktop.RegisterEditModeController(this);
+		if (MVGameControllerBase.Game.LocalPlayer.IsReady)
+		{
+			SetUIReady();
+		}
+		else
+		{
+			MVGameControllerBase.OnFirstFrameUpdateActorReady = (Action)Delegate.Combine(MVGameControllerBase.OnFirstFrameUpdateActorReady, new Action(SetUIReady));
+		}
 	}
 
 	private void Start()
@@ -168,7 +182,7 @@ public class DesktopEditModeController : ModeControllerBase, IEditModeUI, ISetEd
 		editorStateMachine = new EditorStateMachine(gameObject, contextMenuController, gizmoController);
 		editorWorldObjectCreation.Initialize(editorStateMachine);
 		materialsController.Initialize(editorStateMachine.CubeModelingStateMachine);
-		materialsController.SetActive().SetParent(stackBottom.transform, worldPositionStays: false);
+		uiStack.Push(materialsController.SetActive().gameObject, UIPushOption.None, null, UIGroupFlags.MainUI);
 		editorStateMachine.CubeModelingStateMachine.CurrentMaterialId = 21;
 		chatController.Initialize();
 		contextMenuController.Initialize(editorStateMachine);
@@ -182,6 +196,8 @@ public class DesktopEditModeController : ModeControllerBase, IEditModeUI, ISetEd
 		MVGameControllerBase.WOCM.RootGroup.PlayModeInitialize();
 		notificationsManager = UnityEngine.Object.Instantiate(notificationsManager);
 		notificationsManager.transform.SetParent(stackBottom.transform, worldPositionStays: false);
+		firstTimeSetupTerrainEditTutorial.Initialize(editorStateMachine.CubeModelingStateMachine, materialsController);
+		setupCubeModelTutorialUI.Initialize(editorStateMachine.CubeModelingStateMachine);
 	}
 
 	public void SetState(EditorEvent editorEvent)
@@ -283,5 +299,12 @@ public class DesktopEditModeController : ModeControllerBase, IEditModeUI, ISetEd
 				handler.Pop();
 			});
 		}
+	}
+
+	public void SetUIReady()
+	{
+		uiStack.SetStackReady();
+		MVGameControllerBase.OnFirstFrameUpdateActorReady = (Action)Delegate.Remove(MVGameControllerBase.OnFirstFrameUpdateActorReady, new Action(SetUIReady));
+		Debug.Log("EditModeUI Shown");
 	}
 }

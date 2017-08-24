@@ -4,14 +4,12 @@ public class AvatarEditModeCamera : JetPackCamera
 {
 	public override CameraType CameraType => CameraType.AvatarEditModeCamera;
 
-	public void FocusOnPosition(Vector3 lookAtPosition)
+	public void ResetPosition(Vector3 lookAtPosition)
 	{
-		Transform transform = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform;
-		base.transform.position = transform.position + lookAtOffset;
-		base.transform.LookAt(lookAtPosition);
-		xAxis = (xAxisTarget = JetPackCamera.NormalizeAngle(base.transform.eulerAngles.x));
-		yAxis = (yAxisTarget = base.transform.eulerAngles.y);
-		xAxisVelocity = (yAxisVelocity = 0f);
-		MVGameControllerBase.CameraController.StartTransitionCam(2f, soft: true);
+		MVSpawnPointBlue mVSpawnPointBlue = (MVSpawnPointBlue)MVGameControllerBase.WOCM.GetWorldObjectClientWhere((MVWorldObjectClient wo) => wo is MVSpawnPointBlue);
+		MVAvatarLocal avatarLocal = MVGameControllerBase.WOCM.AvatarLocal;
+		avatarLocal.WorldPosition = mVSpawnPointBlue.WorldPosition + Vector3.up;
+		avatarLocal.WorldRotation = mVSpawnPointBlue.WorldRotation;
+		FocusOnPosition(lookAtPosition);
 	}
 }

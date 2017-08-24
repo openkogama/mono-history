@@ -23,9 +23,16 @@ public class DesktopCubeModelingToolsController : MonoBehaviour
 	[SerializeField]
 	private float enabledAlpha = 1f;
 
+	public CubeModelingEvent ActiveTool { get; private set; }
+
 	private void Awake()
 	{
 		SetupButtons();
+	}
+
+	public CubeModelingStateMachine.HoverType CurrentlyHovered()
+	{
+		return cubeModelingStateMachine.CurrentlyHovered();
 	}
 
 	public virtual void SetupButtons()
@@ -51,9 +58,10 @@ public class DesktopCubeModelingToolsController : MonoBehaviour
 
 	private void Start()
 	{
+		ActiveTool = (CubeModelingEvent)(int)cubeModelingStateMachine.curEvent;
 		if (defaultTool == null)
 		{
-			SetButtonTransparency((CubeModelingEvent)(int)cubeModelingStateMachine.curEvent);
+			SetButtonTransparency(ActiveTool);
 		}
 		else
 		{
@@ -63,6 +71,7 @@ public class DesktopCubeModelingToolsController : MonoBehaviour
 
 	protected void SetToolActive(CubeModelingEvent cubeTool)
 	{
+		ActiveTool = cubeTool;
 		SetButtonTransparency(cubeTool);
 		if (gameObject.activeInHierarchy)
 		{
@@ -97,7 +106,7 @@ public class DesktopCubeModelingToolsController : MonoBehaviour
 		cubeModelingStateMachine.Event = tool;
 	}
 
-	private void SetAllToTransparent()
+	public void SetAllToTransparent()
 	{
 		SetAlpha(editCube.image, disabledAlpha);
 		SetAlpha(deletecube.image, disabledAlpha);

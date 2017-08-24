@@ -247,9 +247,10 @@ public class ContextMenuController : MonoBehaviour, IEventSystemHandler, IHandle
 
 	private void OnFinishedAddingItem(int category, int slotPosition)
 	{
+		Debug.Log("Adding");
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
 		{
-			handler.PopToBottom();
+			handler.PopToGroup(UIGroupFlags.MainUI);
 		});
 		Dictionary<object, object> dictionary = new Dictionary<object, object>();
 		dictionary.Add((byte)13, category);
