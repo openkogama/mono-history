@@ -1109,10 +1109,8 @@ public class MVNetworkGame : IPhotonPeerListener
 			dictionary.Add(187, MVGameControllerBase.BuildTarget);
 			dictionary.Add(208, MVGameControllerBase.ReAuthTries);
 			dictionary.Add(211, MVGameControllerBase.KoGaMaSettings.VersionString);
-			Dictionary<string, int> dictionary2 = new Dictionary<string, int>();
-			dictionary2.Add("DllName", 23);
-			Dictionary<string, int> value = dictionary2;
-			dictionary.Add(212, JsonConvert.SerializeObject(value));
+			List<FileData> cRCData = DllProtector.GetCRCData();
+			dictionary.Add(212, JsonConvert.SerializeObject(cRCData));
 			peer.OpCustom(byte.MaxValue, dictionary, sendReliable: true);
 		}
 

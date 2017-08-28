@@ -62,7 +62,6 @@ public class FirstTimeActivatableBazookaPopup : FirstTimeActivatableElementBase
 		{
 			x.OpenTab(UIPushOption.Blocking, 7);
 		});
-		PlayerInventoryRepository playerInventoryRepository = MVGameControllerBase.IEditModeUI.PlayerInventoryRepository;
 		InventoryItem bazooka = null;
 		int num = 0;
 		Dictionary<int, InventorySlot> dictionary = slots.GetSlots();

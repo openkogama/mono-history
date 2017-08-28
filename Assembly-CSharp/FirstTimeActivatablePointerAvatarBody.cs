@@ -43,7 +43,7 @@ public class FirstTimeActivatablePointerAvatarBody : FirstTimeActivatableElement
 
 	private void Update()
 	{
-		if (showing)
+		if (showing && !(bodyController.CurrentBody.GameObject == null))
 		{
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (TextBubbleController x, BaseEventData y) =>
 			{
