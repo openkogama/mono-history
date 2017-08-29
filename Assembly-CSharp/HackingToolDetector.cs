@@ -146,10 +146,9 @@ public class HackingToolDetector : MonoBehaviour
 		DebugLogToChat(text);
 		if (!alreadyReported[(int)reportCategory])
 		{
-			DebugLogToChat("Previous log was its first of its kind.");
 			Debug.Log(text);
 			DebugLogHandler.ReportError("Potential cheat detected.", string.Empty, LogType.Warning);
-			StatHatWrapper.Count("Cheat detected: " + reportCategory, 1);
+			StatHatWrapper.Count("cheatDetected.ReportCategory." + reportCategory, 1);
 			alreadyReported[(int)reportCategory] = true;
 			if (reportCategory == ReportCategory.process)
 			{
