@@ -10,8 +10,8 @@ public class AvatarCapture : MonoBehaviour
 	[SerializeField]
 	private Vector3 cameraOffset;
 
-	[SerializeField]
 	[Tooltip("Space between players on winningscreen")]
+	[SerializeField]
 	private Vector3 formationSpacing = new Vector3(2f, 0.6f, 1.2f);
 
 	[SerializeField]
