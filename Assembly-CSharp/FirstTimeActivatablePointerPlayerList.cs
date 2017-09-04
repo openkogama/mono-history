@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class FirstTimeActivatablePointerPlayerList : FirstTimeActivatableButtonPointer
+public class FirstTimeActivatablePointerPlayerList : FirstTimeActivatableGotItPointer
 {
 	[SerializeField]
 	private int playersRequiredForShowingPlayerList;
