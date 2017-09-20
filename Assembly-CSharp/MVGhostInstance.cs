@@ -122,6 +122,7 @@ public class MVGhostInstance : MVWorldObjectClient, IGameStateControllerSubscrib
 		rangeVis.transform.parent = gameObject.transform;
 		rangeVis.transform.localPosition = Vector3.zero;
 		rangeVis.Radius = distance;
+		rangeVis.Initialize(Id);
 		UpdateController.AddFixedUpdateObject(this, UpdatePriority.PRE_UPDATEBUCKET_20, 10);
 		UpdateController.AddUpdateObject(this, UpdatePriority.PRE_UPDATEBUCKET_20, 10);
 		InitializeCommon();

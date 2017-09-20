@@ -614,11 +614,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 					continue;
 				}
 				Debug.Log("Body " + id + " data contains multiple accessories with ID " + num);
-				Debug.LogError("Body data contains multiple accessories with the same inventoryID. This is caused by user hiding and show accessories");
-			}
-			else
-			{
-				Debug.LogWarning("Body " + id + " already has attached accessory " + num);
+				Debug.LogWarning("Body data contains multiple accessories with the same inventoryID. This is caused by joining while a user equips an accessory");
 			}
 		}
 		List<AvatarAccessory> list = new List<AvatarAccessory>();

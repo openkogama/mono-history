@@ -17,15 +17,13 @@ public class AdvancedGhostEyeWeapon : AdvancedGhostTriggerBase
 			if (worldObjectClient != null && !timeoutMap.Contains(worldObjectClient.Id))
 			{
 				MVRigidBody component = worldObjectClient.GameObject.GetComponent<MVRigidBody>();
-				if (component == null)
+				if (!(component == null))
 				{
-					Debug.LogWarning("WorldObject does not have rigidBody");
-					continue;
+					Vector3 impulse = (worldObjectClient.GetTargetPosition() - (gameObject.transform.position - Vector3.up)).normalized * impulseStrength;
+					component.AddImpulse(impulse);
+					timeoutMap.Add(worldObjectClient.Id);
+					doDamage.Play();
 				}
-				Vector3 impulse = (worldObjectClient.GetTargetPosition() - (gameObject.transform.position - Vector3.up)).normalized * impulseStrength;
-				component.AddImpulse(impulse);
-				timeoutMap.Add(worldObjectClient.Id);
-				doDamage.Play();
 			}
 		}
 	}

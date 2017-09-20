@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 public class MVQualitySettings : MonoBehaviour
@@ -73,6 +74,29 @@ public class MVQualitySettings : MonoBehaviour
 
 	public void Start()
 	{
+		string[] names = QualitySettings.names;
+		string text = string.Empty;
+		if (names.Length != 3)
+		{
+			text += "QualitySettings have been changed:";
+		}
+		if (!names.Contains("SD"))
+		{
+			text += " SD Missing, ";
+		}
+		if (!names.Contains("SDAndroid"))
+		{
+			text += " SDAndroid Missing, ";
+		}
+		if (!names.Contains("HD"))
+		{
+			text += " HD Missing, ";
+		}
+		if (text != string.Empty)
+		{
+			Debug.Log("Error: " + text);
+			Debug.LogError("QualitySettings not correct! Missing 1 or several quality levels.");
+		}
 		CurrentLevel = 0;
 	}
 }

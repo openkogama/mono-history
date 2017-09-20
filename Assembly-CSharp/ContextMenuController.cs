@@ -81,10 +81,7 @@ public class ContextMenuController : MonoBehaviour, IEventSystemHandler, IHandle
 			contextMenu.AddButton(TM._("Purchase"), ShowClientShopInventory);
 		}
 		contextMenu.AddButton(TM._("Delete"), Delete);
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
-		{
-			handler.PopGroups(UIGroupFlags.GameObjectUI | UIGroupFlags.GameObjectUISubMenu);
-		});
+		PopGizmos();
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Push(contextMenu.gameObject, UIPushOption.None, OnContextMenuPop, UIGroupFlags.GameObjectUI);
@@ -99,15 +96,20 @@ public class ContextMenuController : MonoBehaviour, IEventSystemHandler, IHandle
 		{
 			DeleteLink(linkID, isObjectLink);
 		});
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
-		{
-			handler.PopGroups(UIGroupFlags.GameObjectUI);
-		});
+		PopGizmos();
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Push(contextMenu.gameObject, UIPushOption.None, OnContextMenuPop, UIGroupFlags.GameObjectUI);
 		});
 		contextMenu.InitializeLink(linkID, worldPos);
+	}
+
+	public void PopGizmos()
+	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
+		{
+			handler.PopGroups(UIGroupFlags.GameObjectUI | UIGroupFlags.GameObjectUISubMenu);
+		});
 	}
 
 	private void DeleteLink(int linkID, bool isObjectLink)

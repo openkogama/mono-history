@@ -12,13 +12,15 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 
 	private FireObject fireObject;
 
+	private SphereVolumeIndicator rangeVis;
+
 	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.Fire;
 
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => false;
 
-	public override Vector3 InputConnectorOffset => new Vector3(-3.488f, 0f, 0f);
+	public override Vector3 InputConnectorOffset => new Vector3(-1f, 0f, 0f);
 
 	public IInputSignalReceiver InputSignalReceiver { get; private set; }
 
@@ -36,6 +38,12 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 	{
 		base.Initialize();
 		SetupCulling(fireObject.VisualObject);
+		Debug.LogWarning("Initialized");
+		rangeVis = Object.Instantiate(PrefabPool.Instance.RangeVisualizationObject);
+		rangeVis.transform.parent = fireObject.transform;
+		rangeVis.transform.localPosition = Vector3.zero;
+		rangeVis.Radius = 2.5f;
+		rangeVis.Initialize(Id);
 		InputSignalReceiver = LogicClientsideFactory.CreateStateChangeInputSignalReceiver(this, defaultInput: true, null, OnInputStateUpdate);
 		ToggleEmitter(InputSignalReceiver.CurrentlyIsHot);
 	}

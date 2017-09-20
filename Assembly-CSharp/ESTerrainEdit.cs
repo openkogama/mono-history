@@ -15,6 +15,7 @@ internal class ESTerrainEdit : ESStateBase
 		terrain = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>();
 		e.CubeModelingStateMachine.StartEdit(terrain);
 		tintedWo = MVWorldObjectClientManager.GetWorldObjectClientRefNullRef();
+		MVGameControllerBase.CameraController.FieldOfView = MVGameControllerBase.CameraController.CurCamera.FieldOfView;
 	}
 
 	public override void Execute(EditorStateMachine e)
@@ -26,11 +27,15 @@ internal class ESTerrainEdit : ESStateBase
 		{
 			flag = false;
 		}
-		TintObjectsOnMouseOver(e, flag, hit);
+		bool flag2 = SelectionIsAllowedByLogicEnabled(hit.woId);
+		if (flag2)
+		{
+			TintObjectsOnMouseOver(e, flag, hit);
+		}
 		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelect) || MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelectAlt))
 		{
 			WorldObjectClientRef worldObjectClientRef = e.Select(addToSelection: false);
-			if (worldObjectClientRef != null && worldObjectClientRef.WorldObjectClient != null)
+			if (flag2 && worldObjectClientRef != null && worldObjectClientRef.WorldObjectClient != null)
 			{
 				e.Event = EditorEvent.ObjectSelected;
 				return;
@@ -66,6 +71,29 @@ internal class ESTerrainEdit : ESStateBase
 				e.Event = EditorEvent.ObjectSelected;
 			}
 		}
+	}
+
+	private bool SelectionIsAllowedByLogicEnabled(int woId)
+	{
+		WorldObjectClientRef worldObjectClientRef = MVGameControllerBase.WOCM.GetWorldObjectClientRef(woId);
+		if (!MVGameControllerBase.CameraController.IsLogicRendered && worldObjectClientRef.WorldObjectClient != null)
+		{
+			int num = LayerMask.NameToLayer("Default");
+			if (worldObjectClientRef.WorldObjectClient.GameObject.layer == num)
+			{
+				return true;
+			}
+			Transform[] componentsInChildren = worldObjectClientRef.WorldObjectClient.GameObject.GetComponentsInChildren<Transform>();
+			for (int i = 0; i < componentsInChildren.Length; i++)
+			{
+				if (componentsInChildren[i].gameObject.layer == num && componentsInChildren[i].gameObject.activeInHierarchy)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+		return true;
 	}
 
 	private bool ResettingTerrain(VoxelHit targetHit)

@@ -8,15 +8,26 @@ public class InventorySlot : MonoBehaviour, IEventSystemHandler, IDropHandler
 	[SerializeField]
 	private NotificationFade fade;
 
-	private GameObject previewItem;
-
 	public int AbsoluteSlot => absoluteSlotValue;
 
-	public GameObject Item => previewItem;
+	public GameObject Item
+	{
+		get
+		{
+			if (transform.childCount > 1)
+			{
+				return transform.GetChild(1).gameObject;
+			}
+			return null;
+		}
+	}
 
 	public void Clear()
 	{
-		Object.Destroy(Item);
+		if (Item != null)
+		{
+			Object.Destroy(Item);
+		}
 	}
 
 	public void UpdateAbsoluteSlotValue(int slotValue)
@@ -33,9 +44,7 @@ public class InventorySlot : MonoBehaviour, IEventSystemHandler, IDropHandler
 	{
 		if (!(item == null))
 		{
-			previewItem = item;
 			item.transform.SetParent(transform, worldPositionStays: false);
-			item.transform.SetAsFirstSibling();
 			item.GetComponent<RectTransform>().localPosition = Vector3.zero;
 		}
 	}

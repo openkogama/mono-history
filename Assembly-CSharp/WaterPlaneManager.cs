@@ -1,15 +1,18 @@
 using System;
-using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
 
 public class WaterPlaneManager : MonoBehaviour
 {
-	private static float avatarHeight = 2.1f;
+	private const float avatarHeight = 2.1f;
 
-	public Water water;
+	[SerializeField]
+	private Water water;
 
-	public Transform underwaterPlane;
+	[SerializeField]
+	private Transform underwaterCameraPlane;
+
+	private Renderer underwaterCameraPlaneRenderer;
 
 	private AudioLowPassFilter lowPassFilter;
 
@@ -17,17 +20,15 @@ public class WaterPlaneManager : MonoBehaviour
 
 	private bool audioHD;
 
-	private Renderer underwaterPlaneRenderer;
-
-	private List<MVWaterPlane> waterPlanes = new List<MVWaterPlane>();
+	private MVWaterPlane waterPlaneLogicCube;
 
 	private SkyboxManager skyboxManager;
 
 	private float localAvatarOxygen = 100f;
 
-	public bool IsActive => waterPlanes.Count > 0;
+	private AvatarModifierPackage.AvatarModifier[] additionalUnderWaterModifiers;
 
-	public List<MVWaterPlane> WaterPlanes => waterPlanes;
+	public bool IsActive => waterPlaneLogicCube != null;
 
 	private Color HorizonColor
 	{
@@ -49,105 +50,111 @@ public class WaterPlaneManager : MonoBehaviour
 		}
 		set
 		{
-			underwaterPlaneRenderer.material.SetColor("_Color", value);
+			underwaterCameraPlaneRenderer.material.SetColor("_Color", value);
 			water.Renderer.material.SetColor("_RefrColor", value);
 		}
 	}
 
-	public void AddWaterPlaneLogicCube(MVWaterPlane wp)
+	public void AddWaterPlaneLogicCube(MVWaterPlane logicCube)
 	{
-		if (!waterPlanes.Contains(wp))
+		if (waterPlaneLogicCube != null)
 		{
-			waterPlanes.Add(wp);
-			if (waterPlanes.Count == 1)
-			{
-				transform.parent = wp.Transform;
-				transform.localPosition = Vector3.zero;
-				transform.localRotation = Quaternion.identity;
-				underwaterPlane.transform.parent = Camera.main.transform;
-				underwaterPlane.localPosition = new Vector3(0f, 0f, Camera.main.nearClipPlane + 0.01f);
-				underwaterPlane.localRotation = Quaternion.Euler(-90f, 0f, 0f);
-				underwaterPlane.gameObject.SetActive(value: true);
-				water.gameObject.SetActive(value: true);
-			}
+			DebugLogHandler.ReportError("Added water plane to manager twice.", string.Empty, LogType.Error);
 		}
+		waterPlaneLogicCube = logicCube;
+		transform.SetParent(logicCube.Transform, worldPositionStays: false);
+		underwaterCameraPlane.transform.parent = Camera.main.transform;
+		underwaterCameraPlane.localPosition = new Vector3(0f, 0f, Camera.main.nearClipPlane + 0.01f);
+		underwaterCameraPlane.localRotation = Quaternion.Euler(-90f, 0f, 0f);
+		underwaterCameraPlane.gameObject.SetActive(value: true);
+		water.gameObject.SetActive(value: true);
 	}
 
 	public void RemoveWaterPlaneLogicCube(MVWaterPlane wp)
 	{
-		waterPlanes.Remove(wp);
-		if (waterPlanes.Count == 0)
-		{
-			transform.parent = null;
-			underwaterPlane.transform.parent = transform;
-			underwaterPlane.gameObject.SetActive(value: false);
-			water.gameObject.SetActive(value: false);
-		}
-		else
-		{
-			water.gameObject.SetActive(value: true);
-			transform.parent = waterPlanes[0].Transform;
-			transform.localPosition = Vector3.zero;
-			transform.localRotation = Quaternion.identity;
-		}
+		waterPlaneLogicCube = null;
+		transform.parent = null;
+		underwaterCameraPlane.transform.parent = transform;
+		underwaterCameraPlane.gameObject.SetActive(value: false);
+		water.gameObject.SetActive(value: false);
 		enabled = true;
 		gameObject.SetActive(value: true);
 	}
 
 	public float ComputeAvatarWaterProximity(Vector3 position)
 	{
-		if (waterPlanes.Count == 0)
+		if (waterPlaneLogicCube == null)
 		{
 			return 0f;
 		}
-		return Mathf.Clamp01((transform.position.y - position.y) / avatarHeight);
+		return Mathf.Clamp01((transform.position.y - position.y) / 2.1f);
 	}
 
-	private void Awake()
+	protected void Awake()
 	{
 		UnityEngine.Object.DontDestroyOnLoad(gameObject);
+		additionalUnderWaterModifiers = new AvatarModifierPackage.AvatarModifier[2]
+		{
+			new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.Speed, UnderwaterModifierCallback),
+			new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.JumpPower, UnderwaterJumpPowerModifierCallback)
+		};
 	}
 
-	private void Start()
+	protected void Start()
 	{
 		this.skyboxManager = MVGameControllerBase.SkyboxManager;
 		SkyboxManager skyboxManager = this.skyboxManager;
 		skyboxManager.OnSkyboxColorChanged = (SkyboxManager.SkyboxColorChangedDelegate)Delegate.Combine(skyboxManager.OnSkyboxColorChanged, new SkyboxManager.SkyboxColorChangedDelegate(HandleSkyboxColorChanged));
-		underwaterPlane.gameObject.SetActive(value: false);
-		underwaterPlaneRenderer = underwaterPlane.GetComponent<Renderer>();
+		underwaterCameraPlane.gameObject.SetActive(value: false);
+		underwaterCameraPlaneRenderer = underwaterCameraPlane.GetComponent<Renderer>();
 		water.gameObject.SetActive(value: false);
 		lowPassFilter = Camera.main.GetComponent<AudioLowPassFilter>();
 		reverbFilter = Camera.main.GetComponent<AudioReverbFilter>();
 	}
 
-	private void OnEnable()
+	protected void OnEnable()
 	{
 		MVQualitySettings.onQualityLevelChanged = (MVQualitySettings.OnQualityLevedChanged)Delegate.Combine(MVQualitySettings.onQualityLevelChanged, new MVQualitySettings.OnQualityLevedChanged(HandleQualityChanged));
 	}
 
-	private void OnDisable()
+	protected void OnDisable()
 	{
 		MVQualitySettings.onQualityLevelChanged = (MVQualitySettings.OnQualityLevedChanged)Delegate.Remove(MVQualitySettings.onQualityLevelChanged, new MVQualitySettings.OnQualityLevedChanged(HandleQualityChanged));
 	}
 
-	private void FixedUpdate()
+	protected void Update()
 	{
-		if (waterPlanes.Count != 0)
-		{
-		}
-	}
-
-	private void Update()
-	{
-		if (waterPlanes.Count == 0)
+		if (waterPlaneLogicCube == null)
 		{
 			return;
 		}
-		bool flag = Camera.main.transform.position.y < transform.position.y;
-		underwaterPlaneRenderer.enabled = flag;
-		if (underwaterPlaneRenderer.enabled)
+		UpdateUnderwaterCameraEffects();
+		MVAvatarLocal avatarLocal = MVGameControllerBase.WOCM.AvatarLocal;
+		if (avatarLocal == null)
 		{
-			underwaterPlaneRenderer.material.SetFloat("_WaterY", transform.position.y);
+			return;
+		}
+		Vector3 position = avatarLocal.GameObject.transform.position;
+		position.y = transform.position.y;
+		water.transform.position = position;
+		if (avatarLocal.InteractionDataHandlerBase.enabled)
+		{
+			MVInteractableBase component = avatarLocal.GameObject.GetComponent<MVInteractableBase>();
+			if (component != null)
+			{
+				UpdateLocalAvatarModifers(avatarLocal, component);
+				UpdateLocalAvatarOxygen(avatarLocal, component);
+			}
+		}
+	}
+
+	private void UpdateUnderwaterCameraEffects()
+	{
+		bool flag = Camera.main.transform.position.y < transform.position.y;
+		underwaterCameraPlaneRenderer.enabled = flag;
+		if (underwaterCameraPlaneRenderer.enabled)
+		{
+			underwaterCameraPlaneRenderer.material.SetFloat("_WaterY", transform.position.y);
 		}
 		if (lowPassFilter == null)
 		{
@@ -166,43 +173,32 @@ public class WaterPlaneManager : MonoBehaviour
 			lowPassFilter.enabled = false;
 			reverbFilter.enabled = false;
 		}
-		MVAvatarLocal avatarLocal = MVGameControllerBase.WOCM.AvatarLocal;
-		if (avatarLocal == null)
+	}
+
+	private void UpdateLocalAvatarModifers(MVAvatarLocal avatar, MVInteractableBase avatarInteractable)
+	{
+		if (avatar.GameObject.transform.position.y < transform.position.y)
 		{
-			return;
-		}
-		Vector3 position = avatarLocal.GameObject.transform.position;
-		position.y = transform.position.y;
-		water.transform.position = position;
-		bool flag2 = avatarLocal.GameObject.transform.position.y < transform.position.y;
-		MVInteractableBase component = avatarLocal.GameObject.GetComponent<MVInteractableBase>();
-		InteractionDataHandlerBase interactionDataHandlerBase = avatarLocal.InteractionDataHandlerBase;
-		if (!interactionDataHandlerBase.enabled || component == null)
-		{
-			return;
-		}
-		if (flag2)
-		{
-			component.AddModifier(AvatarModifierPackageType.Underwater, -1, new AvatarModifierPackage.AvatarModifier[2]
+			avatarInteractable.AddModifier(AvatarModifierPackageType.Underwater, -1, additionalUnderWaterModifiers);
+			if (waterPlaneLogicCube != null && waterPlaneLogicCube.Data.ContainsKey("avatarModifierPackageType"))
 			{
-				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.Speed, UnderwaterModifierCallback),
-				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.JumpPower, UnderwaterJumpPowerModifierCallback)
-			});
-			if (waterPlanes.Count > 0 && waterPlanes[0].Data.ContainsKey("avatarModifierPackageType"))
-			{
-				AvatarModifierPackageType avatarModifierPackageType = (AvatarModifierPackageType)(int)waterPlanes[0].Data["avatarModifierPackageType"];
+				AvatarModifierPackageType avatarModifierPackageType = (AvatarModifierPackageType)(int)waterPlaneLogicCube.Data["avatarModifierPackageType"];
 				if (avatarModifierPackageType != AvatarModifierPackageType.None)
 				{
 					AvatarModifierPackage package = AvatarModifierPackageFactory.GetPackage(avatarModifierPackageType);
-					component.AddModifier(avatarModifierPackageType, package.id, package.avatarModifiers);
+					avatarInteractable.AddModifier(avatarModifierPackageType, package.id, package.avatarModifiers);
 				}
 			}
 		}
-		else if (component.HasModifier(AvatarModifierPackageType.Underwater))
+		else if (avatarInteractable.HasModifier(AvatarModifierPackageType.Underwater))
 		{
-			component.RemoveModifier(AvatarModifierPackageType.Underwater);
+			avatarInteractable.RemoveModifier(AvatarModifierPackageType.Underwater);
 		}
-		float num = ComputeAvatarWaterProximity(avatarLocal.GameObject.transform.position);
+	}
+
+	private void UpdateLocalAvatarOxygen(MVAvatarLocal avatar, MVInteractableBase avatarInteractable)
+	{
+		float num = ComputeAvatarWaterProximity(avatar.GameObject.transform.position);
 		if (num >= 0.6f)
 		{
 			localAvatarOxygen = Mathf.Max(0f, localAvatarOxygen - Time.deltaTime * 5f);
@@ -213,7 +209,7 @@ public class WaterPlaneManager : MonoBehaviour
 		}
 		if (localAvatarOxygen <= 0f)
 		{
-			component.TakeDamage(5f * Time.deltaTime, null, PlayerKilledByType.Environmental);
+			avatarInteractable.TakeDamage(5f * Time.deltaTime, null, PlayerKilledByType.Environmental);
 		}
 	}
 

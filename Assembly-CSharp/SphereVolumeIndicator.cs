@@ -8,6 +8,12 @@ public class SphereVolumeIndicator : MonoBehaviour
 
 	public float arcDistance = 0.1f;
 
+	private WorldObjectClientRef owner;
+
+	private bool particlesSetup;
+
+	private bool initialized;
+
 	private ParticleSystem.Particle[] particles;
 
 	[SerializeField]
@@ -22,7 +28,7 @@ public class SphereVolumeIndicator : MonoBehaviour
 		set
 		{
 			radius = value;
-			SetupParticles(radius, arcDistance);
+			particlesSetup = false;
 		}
 	}
 
@@ -32,9 +38,21 @@ public class SphereVolumeIndicator : MonoBehaviour
 		pSystem.playOnAwake = false;
 	}
 
-	private void Start()
+	public void Initialize(int id)
 	{
-		if (particles == null)
+		pSystem.loop = false;
+		pSystem.playOnAwake = false;
+		initialized = true;
+		owner = MVGameControllerBase.WOCM.GetWorldObjectClientRef(id);
+		if (owner == null)
+		{
+			enabled = false;
+		}
+	}
+
+	private void Update()
+	{
+		if (initialized && !particlesSetup && owner.WorldObjectClient != null && owner.WorldObjectClient.GameObject.activeInHierarchy)
 		{
 			SetupParticles(radius, arcDistance);
 		}
@@ -42,6 +60,7 @@ public class SphereVolumeIndicator : MonoBehaviour
 
 	private void SetupParticles(float radius, float arcDistance)
 	{
+		particlesSetup = true;
 		int num = (int)(2f * radius * (float)Math.PI / arcDistance);
 		particles = new ParticleSystem.Particle[num * 3];
 		float num2 = (float)Math.PI * 2f / (float)num;

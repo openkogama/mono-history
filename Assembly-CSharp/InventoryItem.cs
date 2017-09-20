@@ -70,7 +70,7 @@ public class InventoryItem
 	{
 		{
 			MVWorldObjectDocumentationType.HealthPack,
-			new ItemDescription(TM._("Health pack"), TM._("The healthpack fully heals a player."), TM._("Place this after difficult parts of your game to refill players health."), new Vector3(0f, 0f, 0f))
+			new ItemDescription(TM._("Health pack"), TM._("The health pack fully heals a player."), TM._("Place this after difficult parts of your game to refill players health."), new Vector3(0f, 0f, 0f))
 		},
 		{
 			MVWorldObjectDocumentationType.Centergun,
@@ -102,7 +102,7 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.Shotgun,
-			new ItemDescription(TM._("Shotgun"), TM._("A gun modelled after the classic hunting rifle, firing a cluster of pellets."), TM._("Use this in close quarters to defeat any foe unfortunate enough to cross your path!"))
+			new ItemDescription(TM._("Shotgun"), TM._("A gun modeled after the classic hunting rifle, firing a cluster of pellets."), TM._("Use this in close quarters to defeat any foe unfortunate enough to cross your path!"))
 		},
 		{
 			MVWorldObjectDocumentationType.Star,
@@ -174,7 +174,7 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.HamsterBall,
-			new ItemDescription(TM._("Hamster Ball"), TM._("A giant hamster ball."), TM._("This bouncy ball offers a hilarious way of travelling. It can also float in the water!"), new Vector3(-0.3f, 0.8f, 0f))
+			new ItemDescription(TM._("Hamster Ball"), TM._("A giant hamster ball."), TM._("This bouncy ball offers a hilarious way of traveling. It can also float in the water!"), new Vector3(-0.3f, 0.8f, 0f))
 		},
 		{
 			MVWorldObjectDocumentationType.FireSentryTower,
@@ -234,7 +234,7 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.Explosives,
-			new ItemDescription(TM._("Explosive"), TM._("A bundle of dynamite that will explode when it receives a signal from a link."), TM._("Use this by connectting it to a presssure plate or lever."))
+			new ItemDescription(TM._("Explosive"), TM._("A bundle of dynamite that will explode when it receives a signal from a link."), TM._("Use this by connecting it to a pressure plate or lever."))
 		},
 		{
 			MVWorldObjectDocumentationType.Fire,
@@ -318,7 +318,7 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.CountingCube,
-			new ItemDescription(TM._("Counting Cube"), TM._("Set a count. Each time the cube receives a signal it counts down. When it reaches 0 it sends a signal"), TM._("This looks super cool and can be used a a count down display!"))
+			new ItemDescription(TM._("Counting Cube"), TM._("Set a count. Each time the cube receives a signal it counts down. When it reaches 0 it sends a signal"), TM._("This looks super cool and can be used as a count down display!"))
 		},
 		{
 			MVWorldObjectDocumentationType.ShootableButton,

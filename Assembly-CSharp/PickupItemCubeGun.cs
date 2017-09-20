@@ -43,7 +43,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	private bool waitingToFire;
 
-	private ObscuredInt currentAmmo = 10;
+	private ObscuredInt currentAmmo = 0;
 
 	private bool fireMain;
 
@@ -61,7 +61,9 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	private void Awake()
 	{
-		currentAmmo = maxAmmo;
+		currentAmmo = Mathf.Max(maxAmmo, currentAmmo);
+		primaryCursor = UnityEngine.Object.Instantiate(primaryCursor);
+		secondaryCursor = UnityEngine.Object.Instantiate(secondaryCursor);
 	}
 
 	private void Start()
@@ -69,8 +71,6 @@ public class PickupItemCubeGun : PickupItemWithDelay
 		showingCursors = ShowCursors();
 		if (showingCursors)
 		{
-			primaryCursor = UnityEngine.Object.Instantiate(primaryCursor);
-			secondaryCursor = UnityEngine.Object.Instantiate(secondaryCursor);
 			primaryCursor.fadeInTime = 0.2f;
 			secondaryCursor.fadeInTime = 0.2f;
 			primaryCursor.fadeOutTime = 0.2f;
@@ -214,7 +214,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 	public override void ResetAmmo()
 	{
 		base.ResetAmmo();
-		currentAmmo = maxAmmo;
+		currentAmmo = Mathf.Max(maxAmmo, currentAmmo);
 	}
 
 	public override void OnStateChanged(Dictionary<object, object> newState)
@@ -320,6 +320,10 @@ public class PickupItemCubeGun : PickupItemWithDelay
 	private bool ShowCursors()
 	{
 		if (owner == null)
+		{
+			return false;
+		}
+		if (IsHolstered)
 		{
 			return false;
 		}
