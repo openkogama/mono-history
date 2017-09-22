@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
@@ -29,7 +30,7 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 	{
 		interactionFlags |= InteractionFlags.CanResetLogic;
 		fireObject = (FireObject)component;
-		fireObject.AudioSource.pitch = 1f + Random.Range(-0.2f, 0.2f);
+		fireObject.AudioSource.pitch = 1f + UnityEngine.Random.Range(-0.2f, 0.2f);
 		fireObject.TriggerBoxEvents.TriggerEnter += TriggerAreaEnter;
 		fireObject.TriggerBoxEvents.TriggerExit += TriggerAreaExit;
 	}
@@ -37,9 +38,14 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 	public override void Initialize()
 	{
 		base.Initialize();
+		fireObject.FireCollider.enabled = false;
+		if (MVGameControllerBase.IEditModeUI != null)
+		{
+			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
+			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Combine(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
+		}
 		SetupCulling(fireObject.VisualObject);
-		Debug.LogWarning("Initialized");
-		rangeVis = Object.Instantiate(PrefabPool.Instance.RangeVisualizationObject);
+		rangeVis = UnityEngine.Object.Instantiate(PrefabPool.Instance.RangeVisualizationObject);
 		rangeVis.transform.parent = fireObject.transform;
 		rangeVis.transform.localPosition = Vector3.zero;
 		rangeVis.Radius = 2.5f;
@@ -54,6 +60,15 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 		ParticleSystem.EmissionModule emission = fireObject.ParticleSystem.emission;
 		emission.enabled = false;
 		fireObject.enabled = false;
+	}
+
+	private void OnEditModeChange(EditModeChangeArgs arg)
+	{
+		fireObject.FireCollider.enabled = false;
+		if (arg.playInEditor)
+		{
+			fireObject.FireCollider.enabled = true;
+		}
 	}
 
 	private void OnInputStateUpdate(LogicInputState logicInputState, LogicObjectManager logicObjectManager)

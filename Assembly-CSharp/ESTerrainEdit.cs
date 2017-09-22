@@ -27,11 +27,8 @@ internal class ESTerrainEdit : ESStateBase
 		{
 			flag = false;
 		}
-		bool flag2 = SelectionIsAllowedByLogicEnabled(hit.woId);
-		if (flag2)
-		{
-			TintObjectsOnMouseOver(e, flag, hit);
-		}
+		bool flag2 = ESStateBase.SelectionIsAllowedByLogicEnabled(hit.woId);
+		TintObjectsOnMouseOver(e, flag && flag2, hit);
 		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelect) || MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelectAlt))
 		{
 			WorldObjectClientRef worldObjectClientRef = e.Select(addToSelection: false);
@@ -46,7 +43,7 @@ internal class ESTerrainEdit : ESStateBase
 			return;
 		}
 		e.CubeModelingStateMachine.Update();
-		if (hit.woId != 0 && hit.woId != terrain.Id)
+		if (hit.woId != 0 && hit.woId != terrain.Id && flag2)
 		{
 			e.CubeModelingStateMachine.CursorVisible = false;
 		}
@@ -61,7 +58,7 @@ internal class ESTerrainEdit : ESStateBase
 			num = hit2.distance;
 		}
 		Ray ray = MVGameControllerBase.CameraController.MainCamera.ScreenPointToRay(MVInputWrapper.GetPointerPosition());
-		int layerMask = 1 << LayerMask.NameToLayer("Logic");
+		int layerMask = 1 << LayerUtil.GetLayerNumber(LayerFlags.Logic);
 		Physics.Raycast(ray, out var hitInfo, float.PositiveInfinity, layerMask);
 		if (hitInfo.collider != null)
 		{
@@ -71,29 +68,6 @@ internal class ESTerrainEdit : ESStateBase
 				e.Event = EditorEvent.ObjectSelected;
 			}
 		}
-	}
-
-	private bool SelectionIsAllowedByLogicEnabled(int woId)
-	{
-		WorldObjectClientRef worldObjectClientRef = MVGameControllerBase.WOCM.GetWorldObjectClientRef(woId);
-		if (!MVGameControllerBase.CameraController.IsLogicRendered && worldObjectClientRef.WorldObjectClient != null)
-		{
-			int num = LayerMask.NameToLayer("Default");
-			if (worldObjectClientRef.WorldObjectClient.GameObject.layer == num)
-			{
-				return true;
-			}
-			Transform[] componentsInChildren = worldObjectClientRef.WorldObjectClient.GameObject.GetComponentsInChildren<Transform>();
-			for (int i = 0; i < componentsInChildren.Length; i++)
-			{
-				if (componentsInChildren[i].gameObject.layer == num && componentsInChildren[i].gameObject.activeInHierarchy)
-				{
-					return true;
-				}
-			}
-			return false;
-		}
-		return true;
 	}
 
 	private bool ResettingTerrain(VoxelHit targetHit)

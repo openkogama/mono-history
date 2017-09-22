@@ -16,7 +16,11 @@ public class InventorySlot : MonoBehaviour, IEventSystemHandler, IDropHandler
 		{
 			if (transform.childCount > 1)
 			{
-				return transform.GetChild(1).gameObject;
+				return transform.GetChild(transform.childCount - 1).gameObject;
+			}
+			if (transform.childCount > 0 && fade == null)
+			{
+				return transform.GetChild(0).gameObject;
 			}
 			return null;
 		}

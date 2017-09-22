@@ -108,13 +108,13 @@ public class InventoryItemPreviewer : MonoBehaviour
 	{
 		if (previewCam != null)
 		{
-			RenderTexture targetTexture = previewCam.targetTexture;
 			previewCam.targetTexture = null;
-			targetTexture.Release();
 		}
 		if (previewTexture != null)
 		{
+			previewTexture.DiscardContents();
 			RenderTexture.ReleaseTemporary(previewTexture);
+			previewTexture = null;
 		}
 		Object.Destroy(gameObject);
 	}

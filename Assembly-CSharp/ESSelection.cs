@@ -151,10 +151,7 @@ internal class ESSelection : ESStateBase
 		{
 			flag = false;
 		}
-		if (flag)
-		{
-			TintObjectsOnMouseOver(e, flag, hit);
-		}
+		TintObjectsOnMouseOver(e, flag && ESStateBase.SelectionIsAllowedByLogicEnabled(hit.woId), hit);
 		if (pickedTarget != null && pickedTarget.data.WorldObjectClient == null)
 		{
 			pickedTarget = null;
