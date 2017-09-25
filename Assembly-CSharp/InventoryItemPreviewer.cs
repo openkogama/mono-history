@@ -41,11 +41,10 @@ public class InventoryItemPreviewer : MonoBehaviour
 		transform.parent = previewItemsRoot;
 		gameObject.name = $"Preview_{name}_RenderCam";
 		gameObject.layer = LayerMask.NameToLayer("Preview");
-		previewTexture = RenderTexture.GetTemporary(textureWidth, textureHeight, 16, RenderTextureFormat.ARGB32);
+		previewTexture = RenderTexture.GetTemporary(textureWidth, textureHeight, 16, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, 2);
 		previewTexture.name = name;
 		previewTexture.filterMode = FilterMode.Bilinear;
 		previewTexture.hideFlags = HideFlags.DontSave;
-		previewTexture.antiAliasing = 2;
 		previewCam.targetTexture = previewTexture;
 		PreviewGameObject = woGameObjectCopy;
 		PreviewGameObject.name = "Preview_" + name + "_Item_" + wo.ItemId + "_woID_" + wo.Id;
