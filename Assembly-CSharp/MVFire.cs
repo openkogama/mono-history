@@ -141,4 +141,14 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 			}
 		}
 	}
+
+	public override void Destroy()
+	{
+		base.Destroy();
+		if (MVGameControllerBase.IEditModeUI != null)
+		{
+			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
+			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Remove(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
+		}
+	}
 }
