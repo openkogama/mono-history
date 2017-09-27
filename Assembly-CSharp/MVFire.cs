@@ -38,7 +38,7 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 	public override void Initialize()
 	{
 		base.Initialize();
-		fireObject.FireCollider.enabled = false;
+		fireObject.FireCollider.enabled = MVGameControllerBase.IEditModeUI == null;
 		if (MVGameControllerBase.IEditModeUI != null)
 		{
 			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
