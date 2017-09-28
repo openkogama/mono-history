@@ -122,10 +122,10 @@ public class InventoryItemPreviewSell : ManageItemPage
 	{
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnMarketPlaceActionComplete = (MVNetworkGame.OnMarketPlaceActionCompleteDelegate)Delegate.Remove(game.OnMarketPlaceActionComplete, new MVNetworkGame.OnMarketPlaceActionCompleteDelegate(OnAddToMarketplaceReturn));
-		previewItem.name = itemName.text;
-		previewItem.description = description.text;
 		if (success)
 		{
+			previewItem.name = itemName.text;
+			previewItem.description = description.text;
 			string txt = ((!addingToMarket) ? string.Format(TM._("Successfully updated {0} in your shop."), previewItem.name) : string.Format(TM._("Successfully added {0} to your shop."), previewItem.name));
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 			{

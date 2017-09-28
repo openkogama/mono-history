@@ -20,7 +20,6 @@ public class AvatarScreenShooter : MonoBehaviour
 
 	public void TakeScreenShot(Action<Texture2D, string> callback, MVBody body, bool ignoreAccessories = false, string successMessage = "Screenshot taken successfully!")
 	{
-		Debug.Log("screenshot generation of avatar initiated");
 		if (isMakingScreenShot)
 		{
 			return;

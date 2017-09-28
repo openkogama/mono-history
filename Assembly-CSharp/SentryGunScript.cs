@@ -46,9 +46,8 @@ public class SentryGunScript : MonoBehaviour
 		}
 	}
 
-	public void Initialize(int id)
+	public void Initialize()
 	{
-		rangeVisualization.Initialize(id);
 	}
 
 	public void Explode()

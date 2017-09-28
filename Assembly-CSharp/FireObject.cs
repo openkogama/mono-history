@@ -14,16 +14,11 @@ public class FireObject : ObjectPrefab
 	[SerializeField]
 	private GameObject visualObject;
 
-	[SerializeField]
-	private Collider fireCollider;
-
 	public TriggerBoxEvents TriggerBoxEvents => triggerBoxEvents;
 
 	public ParticleSystem ParticleSystem => fireParticleSystem;
 
 	public AudioSource AudioSource => audioSource;
-
-	public Collider FireCollider => fireCollider;
 
 	public GameObject VisualObject => visualObject;
 }

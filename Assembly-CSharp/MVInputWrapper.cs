@@ -1,65 +1,18 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityStandardAssets.CrossPlatformInput;
 
 internal static class MVInputWrapper
 {
-	public class InputSuppression
-	{
-		private int suppressionFrame;
+	private static int inputSuppressedFrame = 0;
 
-		public virtual bool IsSuppressed
-		{
-			get
-			{
-				int num = Mathf.Abs(Time.frameCount - suppressionFrame);
-				return num < 2;
-			}
-			set
-			{
-				suppressionFrame = (value ? Time.frameCount : 0);
-			}
-		}
+	private static int inputInGameInputSuppressedFrame = 0;
 
-		public InputSuppression()
-		{
-			suppressionFrame = 0;
-		}
+	private static int suppressShortcutKeysFrame = 0;
 
-		public InputSuppression(bool b)
-		{
-			IsSuppressed = b;
-		}
+	private static float prevMouseUpTime;
 
-		public static implicit operator bool(InputSuppression a)
-		{
-			return a.IsSuppressed;
-		}
-	}
-
-	public class InputSuppressionWithReset : InputSuppression
-	{
-		public override bool IsSuppressed
-		{
-			get
-			{
-				return base.IsSuppressed;
-			}
-			set
-			{
-				base.IsSuppressed = value;
-				if (value)
-				{
-					((DesktopDefaultKeyboardMapping)inputMap).Reset();
-				}
-			}
-		}
-	}
-
-	public static InputSuppressionWithReset isInputSuppressed = new InputSuppressionWithReset();
-
-	public static InputSuppression isShortcutKeysSuppressed = new InputSuppression();
-
-	public static InputSuppressionWithReset isInGameInputSuppressed = new InputSuppressionWithReset();
+	private static Dictionary<string, bool> usedAxes = new Dictionary<string, bool>();
 
 	private static IKogamaInputMap inputMap = new DesktopDefaultKeyboardMapping();
 
@@ -67,11 +20,12 @@ internal static class MVInputWrapper
 	{
 		get
 		{
-			return isInputSuppressed;
+			int num = Mathf.Abs(Time.frameCount - inputSuppressedFrame);
+			return num < 2;
 		}
 		set
 		{
-			isInputSuppressed.IsSuppressed = value;
+			inputSuppressedFrame = Time.frameCount;
 		}
 	}
 
@@ -79,11 +33,12 @@ internal static class MVInputWrapper
 	{
 		get
 		{
-			return isShortcutKeysSuppressed;
+			int num = Mathf.Abs(Time.frameCount - suppressShortcutKeysFrame);
+			return num < 2;
 		}
 		set
 		{
-			isShortcutKeysSuppressed.IsSuppressed = value;
+			suppressShortcutKeysFrame = Time.frameCount;
 		}
 	}
 
@@ -91,11 +46,12 @@ internal static class MVInputWrapper
 	{
 		get
 		{
-			return isInGameInputSuppressed;
+			int num = Mathf.Abs(Time.frameCount - inputInGameInputSuppressedFrame);
+			return num < 2;
 		}
 		set
 		{
-			isInGameInputSuppressed.IsSuppressed = value;
+			inputInGameInputSuppressedFrame = Time.frameCount;
 		}
 	}
 
@@ -104,24 +60,24 @@ internal static class MVInputWrapper
 		MVInputWrapper.inputMap = inputMap;
 	}
 
-	public static bool GetBooleanControl(KogamaControls control)
+	public static bool GetBooleanControl(KogamaControls control, bool forceKeyUse = false)
 	{
-		return GetBooleanControl(control, KeyState.Pressed);
+		return GetBooleanControl(control, KeyState.Pressed, forceKeyUse);
 	}
 
-	public static bool GetBooleanControlDown(KogamaControls control)
+	public static bool GetBooleanControlDown(KogamaControls control, bool forceKeyUse = false)
 	{
-		return GetBooleanControl(control, KeyState.Down);
+		return GetBooleanControl(control, KeyState.Down, forceKeyUse);
 	}
 
-	public static bool GetBooleanControlUp(KogamaControls control)
+	public static bool GetBooleanControlUp(KogamaControls control, bool forceKeyUse = false)
 	{
-		return GetBooleanControl(control, KeyState.Up);
+		return GetBooleanControl(control, KeyState.Up, forceKeyUse);
 	}
 
-	private static bool GetBooleanControl(KogamaControls control, KeyState keyState)
+	private static bool GetBooleanControl(KogamaControls control, KeyState keyState, bool forceKeyUse)
 	{
-		if (IsInputSuppressed && control != KogamaControls.PointerSelect && control != KogamaControls.PointerSelectAlt)
+		if (!forceKeyUse && IsInputSuppressed && control != KogamaControls.PointerSelect && control != KogamaControls.PointerSelectAlt)
 		{
 			return false;
 		}
@@ -132,32 +88,24 @@ internal static class MVInputWrapper
 		return inputMap.GetBooleanControl(control, keyState);
 	}
 
+	public static bool InputCharActive(KeyCode key)
+	{
+		return Input.GetKey(key);
+	}
+
+	public static bool InputCharActiveDown(KeyCode key)
+	{
+		return Input.GetKeyDown(key);
+	}
+
+	public static string GetStringInput()
+	{
+		return Input.inputString;
+	}
+
 	public static Vector3 GetPointerPosition()
 	{
 		return Input.mousePosition;
-	}
-
-	public static float GetAxis(string axis)
-	{
-		if (IsInputSuppressed || IsInGameInputSuppressed)
-		{
-			return 0f;
-		}
-		return CrossPlatformInputManager.GetAxis(axis);
-	}
-
-	public static float GetAxisRaw(string axis)
-	{
-		if (IsInputSuppressed || IsInGameInputSuppressed)
-		{
-			return 0f;
-		}
-		return CrossPlatformInputManager.GetAxisRaw(axis);
-	}
-
-	public static void ResetInput()
-	{
-		((DesktopDefaultKeyboardMapping)inputMap).Reset();
 	}
 
 	public static bool DebugGetKeyDown(KeyCode key)
@@ -190,18 +138,26 @@ internal static class MVInputWrapper
 		return Input.GetKeyUp(st);
 	}
 
-	public static bool InputCharActive(KeyCode key)
+	public static float GetAxis(string axis)
 	{
-		return Input.GetKey(key);
+		if (IsInputSuppressed || IsInGameInputSuppressed)
+		{
+			return 0f;
+		}
+		return CrossPlatformInputManager.GetAxis(axis);
 	}
 
-	public static bool InputCharActiveDown(KeyCode key)
+	public static float GetAxisRaw(string axis)
 	{
-		return Input.GetKeyDown(key);
+		if (IsInputSuppressed || IsInGameInputSuppressed)
+		{
+			return 0f;
+		}
+		return CrossPlatformInputManager.GetAxisRaw(axis);
 	}
 
-	public static string GetStringInput()
+	public static void NotifyOutOfFocus()
 	{
-		return Input.inputString;
+		((DesktopDefaultKeyboardMapping)inputMap).NotifyOutOfFocus();
 	}
 }

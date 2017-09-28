@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
@@ -13,15 +12,13 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 
 	private FireObject fireObject;
 
-	private SphereVolumeIndicator rangeVis;
-
 	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.Fire;
 
 	public override bool HasInputConnector => true;
 
 	public override bool HasOutputConnector => false;
 
-	public override Vector3 InputConnectorOffset => new Vector3(-1f, 0f, 0f);
+	public override Vector3 InputConnectorOffset => new Vector3(-3.488f, 0f, 0f);
 
 	public IInputSignalReceiver InputSignalReceiver { get; private set; }
 
@@ -30,7 +27,7 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 	{
 		interactionFlags |= InteractionFlags.CanResetLogic;
 		fireObject = (FireObject)component;
-		fireObject.AudioSource.pitch = 1f + UnityEngine.Random.Range(-0.2f, 0.2f);
+		fireObject.AudioSource.pitch = 1f + Random.Range(-0.2f, 0.2f);
 		fireObject.TriggerBoxEvents.TriggerEnter += TriggerAreaEnter;
 		fireObject.TriggerBoxEvents.TriggerExit += TriggerAreaExit;
 	}
@@ -38,18 +35,7 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 	public override void Initialize()
 	{
 		base.Initialize();
-		fireObject.FireCollider.enabled = MVGameControllerBase.IEditModeUI == null;
-		if (MVGameControllerBase.IEditModeUI != null)
-		{
-			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
-			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Combine(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
-		}
 		SetupCulling(fireObject.VisualObject);
-		rangeVis = UnityEngine.Object.Instantiate(PrefabPool.Instance.RangeVisualizationObject);
-		rangeVis.transform.parent = fireObject.transform;
-		rangeVis.transform.localPosition = Vector3.zero;
-		rangeVis.Radius = 2.5f;
-		rangeVis.Initialize(Id);
 		InputSignalReceiver = LogicClientsideFactory.CreateStateChangeInputSignalReceiver(this, defaultInput: true, null, OnInputStateUpdate);
 		ToggleEmitter(InputSignalReceiver.CurrentlyIsHot);
 	}
@@ -60,15 +46,6 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 		ParticleSystem.EmissionModule emission = fireObject.ParticleSystem.emission;
 		emission.enabled = false;
 		fireObject.enabled = false;
-	}
-
-	private void OnEditModeChange(EditModeChangeArgs arg)
-	{
-		fireObject.FireCollider.enabled = false;
-		if (arg.playInEditor)
-		{
-			fireObject.FireCollider.enabled = true;
-		}
 	}
 
 	private void OnInputStateUpdate(LogicInputState logicInputState, LogicObjectManager logicObjectManager)
@@ -139,16 +116,6 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 				value = Mathf.Clamp(value, 0f, 100f);
 				interactionDataHandlerBase.HandleInteraction(ProximityDamageAndImpulse.Create(value, Vector3.zero, PlayerKilledByType.Fire), interactionIsLocal: true);
 			}
-		}
-	}
-
-	public override void Destroy()
-	{
-		base.Destroy();
-		if (MVGameControllerBase.IEditModeUI != null)
-		{
-			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
-			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Remove(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
 		}
 	}
 }

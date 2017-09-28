@@ -74,13 +74,9 @@ public class SellAvatarController : MonoBehaviour
 			removeButton.gameObject.SetActive(value: true);
 			sellButtonText.text = TM._("Update");
 		}
-		else if (MVGameControllerBase.Game.LocalPlayer.Level >= MVGameControllerBase.Game.MarketPlaceLevel)
-		{
-			text = ((!metaData.isOnMarketPlace) ? TM._("Failed to put Avatar in your shop.") : TM._("Failed to update Avatar."));
-		}
 		else
 		{
-			text = string.Format(TM._("You need to be level {0} to place avatar in shop"), MVGameControllerBase.Game.MarketPlaceLevel);
+			text = ((!metaData.isOnMarketPlace) ? TM._("Failed to put Avatar in your shop.") : TM._("Failed to update Avatar."));
 		}
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 		{

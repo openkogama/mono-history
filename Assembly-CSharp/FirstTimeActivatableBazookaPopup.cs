@@ -62,21 +62,12 @@ public class FirstTimeActivatableBazookaPopup : FirstTimeActivatableElementBase
 		{
 			x.OpenTab(UIPushOption.Blocking, 7);
 		});
-		if (slots.transform.childCount <= 0)
-		{
-			return;
-		}
-		InventoryItem prioritizedItem = null;
+		InventoryItem bazooka = null;
 		int num = 0;
 		Dictionary<int, InventorySlot> dictionary = slots.GetSlots();
 		foreach (InventorySlot value in dictionary.Values)
 		{
 			PlayerInventoryPreviewItem component = value.Item.GetComponent<PlayerInventoryPreviewItem>();
-			if (component.DocumentationType == MVWorldObjectDocumentationType.Missing)
-			{
-				Debug.LogWarning("item in inventory missing documentationtype, this may be uninitialized when accessed.");
-				continue;
-			}
 			int num2 = 0;
 			if (priorityDictionary.ContainsKey(component.DocumentationType))
 			{
@@ -84,18 +75,13 @@ public class FirstTimeActivatableBazookaPopup : FirstTimeActivatableElementBase
 			}
 			if (num2 > num)
 			{
-				prioritizedItem = component.GetItem();
+				bazooka = component.GetItem();
 				num = num2;
 			}
 		}
-		if (prioritizedItem == null)
-		{
-			Debug.LogError("prioritizedItem in first time player inventory was not found.");
-			return;
-		}
 		ExecuteEvents.ExecuteHierarchy(tabGroup.gameObject, null, (IPlayerInventory x, BaseEventData y) =>
 		{
-			x.ActivateAtCategoryWithSlot(UIPushOption.Blocking, prioritizedItem.itemCategoryID, prioritizedItem.slotPosition);
+			x.ActivateAtCategoryWithSlot(UIPushOption.Blocking, bazooka.itemCategoryID, bazooka.slotPosition);
 		});
 	}
 

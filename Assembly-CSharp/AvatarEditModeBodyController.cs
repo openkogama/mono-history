@@ -212,32 +212,21 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 
 	public void PurchaseAvatar(AvatarRepositoryItem item)
 	{
+		PleaseWaitPopup popup = UnityEngine.Object.Instantiate(pleaseWaitPopupPrefab);
 		purchasingItem = item;
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
-		{
-			x.Create(TM._("Purchase Avatar?"), OnPurchaseAvatarConfirmation, TM._("Confirm"));
-		});
-	}
-
-	private void OnPurchaseAvatarConfirmation(bool confirmed, ConfirmationPopup confirmationPopup)
-	{
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			x.Pop();
+			x.Push(popup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.Popup);
 		});
-		if (confirmed)
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IPurchaseSoundManager x, BaseEventData y) =>
 		{
-			PleaseWaitPopup popup = UnityEngine.Object.Instantiate(pleaseWaitPopupPrefab);
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-			{
-				x.Push(popup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.Popup);
-			});
-			MVNetworkGame game = MVGameControllerBase.Game;
-			game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Combine(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(OnProductPurchaseAvatarResponse));
-			World world = MVGameControllerBase.Game.World;
-			world.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Combine(world.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(InitializedPurchasedAvatar));
-			MVGameControllerBase.OperationRequests.PurchaseAvatar(purchasingItem.itemID);
-		}
+			x.SurpressSoundOnce();
+		});
+		MVNetworkGame game = MVGameControllerBase.Game;
+		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Combine(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(OnProductPurchaseAvatarResponse));
+		World world = MVGameControllerBase.Game.World;
+		world.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Combine(world.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(InitializedPurchasedAvatar));
+		MVGameControllerBase.OperationRequests.PurchaseAvatar(item.itemID);
 	}
 
 	private void OnProductPurchaseAvatarResponse(int returnCode, Dictionary<object, object> purchaseResponseData)
@@ -246,7 +235,7 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Remove(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(OnProductPurchaseAvatarResponse));
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			x.PopToGroup(UIGroupFlags.MainUI);
+			x.Pop();
 		});
 		Debug.Log("Avatar purchase response: " + (MVPurchaseReturnCode)returnCode);
 		if (returnCode != 0)
@@ -283,25 +272,12 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 		GenerateIconForBody(num);
 		SetCurrentBody(num);
 		AvatarSelectionController.CurrentlySelectedSlotIndex = num;
-		MVNetworkGame game = MVGameControllerBase.Game;
-		game.OnActiveAvatarSet = (Action)Delegate.Combine(game.OnActiveAvatarSet, new Action(OnActiveAvatarSetAfterPurchase));
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
-		{
-			x.Create();
-		});
+		MVGameControllerBase.OperationRequests.SetActiveAvatar(e.RootWO.Id);
+		uploadAvatarScreenshotHandler.TakeScreenshot(CurrentBody, ScreenShotCallback, purchasedAvatar: true);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAvatarSetBodyGroup x, BaseEventData y) =>
 		{
 			x.SetBodyGroup(CurrentBody);
 		});
-		MVGameControllerBase.OperationRequests.SetActiveAvatar(e.RootWO.Id);
-	}
-
-	private void OnActiveAvatarSetAfterPurchase()
-	{
-		MVNetworkGame game = MVGameControllerBase.Game;
-		game.OnActiveAvatarSet = (Action)Delegate.Remove(game.OnActiveAvatarSet, new Action(OnActiveAvatarSetAfterPurchase));
-		UploadAvatarScreenshotHandler uploadAvatarScreenshotHandler = UnityEngine.Object.Instantiate(this.uploadAvatarScreenshotHandler);
-		uploadAvatarScreenshotHandler.TakePurchasedScreenshot(CurrentBody, ScreenShotCallback);
 	}
 
 	public void SellCurrentAvatar(SellAvatarController avatarSeller)

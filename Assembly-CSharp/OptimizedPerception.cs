@@ -11,7 +11,7 @@ public class OptimizedPerception
 
 	private HashSet<int> removeSet = new HashSet<int>();
 
-	private List<WorldObjectClientRef> targets = new List<WorldObjectClientRef>(16);
+	private List<MVWorldObjectClient> targets = new List<MVWorldObjectClient>(16);
 
 	public void Update(Vector3 position, float radius)
 	{
@@ -22,21 +22,20 @@ public class OptimizedPerception
 
 	public bool TryGetTarget(int woID, out MVWorldObjectClient wo)
 	{
-		wo = null;
 		if (!potentialTargets.Contains(woID))
 		{
+			wo = null;
 			return false;
 		}
-		if (!GetValidTarget(woID, out var wo2))
+		if (!GetValidTarget(woID, out wo))
 		{
 			potentialTargets.Remove(woID);
 			return false;
 		}
-		wo = wo2.WorldObjectClient;
 		return true;
 	}
 
-	public List<WorldObjectClientRef> GetTargets()
+	public List<MVWorldObjectClient> GetTargets()
 	{
 		removeSet.Clear();
 		targets.Clear();
@@ -58,7 +57,7 @@ public class OptimizedPerception
 		return targets;
 	}
 
-	private bool GetValidTarget(int woID, out WorldObjectClientRef wo)
+	private bool GetValidTarget(int woID, out MVWorldObjectClient wo)
 	{
 		if (!MVGameControllerBase.WOCM.Contains(woID))
 		{
@@ -66,12 +65,8 @@ public class OptimizedPerception
 			wo = null;
 			return false;
 		}
-		wo = MVGameControllerBase.WOCM.GetWorldObjectClientRef(woID);
-		if (wo == null || wo.WorldObjectClient == null)
-		{
-			return false;
-		}
-		if (wo.WorldObjectClient.InteractionDataHandlerBase == null || !wo.WorldObjectClient.InteractionDataHandlerBase.enabled)
+		wo = MVGameControllerBase.WOCM.GetWorldObjectClient(woID);
+		if (!wo.InteractionDataHandlerBase.enabled)
 		{
 			return false;
 		}

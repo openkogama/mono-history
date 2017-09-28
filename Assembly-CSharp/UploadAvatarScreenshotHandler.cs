@@ -26,43 +26,15 @@ public class UploadAvatarScreenshotHandler : MonoBehaviour
 
 	public void TakeScreenshot(MVBody currentBody, Action<Texture2D, string> onUploadScreenshot, bool purchasedAvatar = false)
 	{
-		PrepareScreenshot(currentBody, onUploadScreenshot, purchasedAvatar, out var successText);
-		screenShooter.TakeScreenShot(OnScreenshotReady, avatarBody, ignoreAccessories: false, successText);
-	}
-
-	public void TakePurchasedScreenshot(MVBody currentBody, Action<Texture2D, string> onUploadScreenshot, bool purchasedAvatar = true)
-	{
-		PrepareScreenshot(currentBody, onUploadScreenshot, purchasedAvatar, out var successText);
-		screenShooter.TakeScreenShot(OnScreenshotReadyUploadDirect, avatarBody, ignoreAccessories: false, successText);
-	}
-
-	private void PrepareScreenshot(MVBody currentBody, Action<Texture2D, string> onUploadScreenshot, bool purchasedAvatar, out string successText)
-	{
 		OnUploadScreenshot = onUploadScreenshot;
-		if (purchasedAvatar)
-		{
-			successText = TM._("New avatar purchased!");
-		}
-		else
-		{
-			successText = TM._("Screenshot taken successfully");
-		}
 		avatarBody = currentBody;
+		string successMessage = ((!purchasedAvatar) ? TM._("Screenshot taken successfully") : TM._("New avatar purchased!"));
 		GameObject popup = UnityEngine.Object.Instantiate(invisibleBlocker);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Push(popup, UIPushOption.Blocking | UIPushOption.InvisibleBlocker, null, UIGroupFlags.Popup);
 		});
-	}
-
-	private void OnScreenshotReadyUploadDirect(Texture2D texture, string text)
-	{
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-		{
-			x.Pop();
-		});
-		OnUploadScreenshot(texture, text);
-		UnityEngine.Object.Destroy(gameObject);
+		screenShooter.TakeScreenShot(OnScreenshotReady, avatarBody, ignoreAccessories: false, successMessage);
 	}
 
 	private void OnScreenshotReady(Texture2D texture, string text)

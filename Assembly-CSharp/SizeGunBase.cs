@@ -50,6 +50,7 @@ public class SizeGunBase : PickupItemWithDelay
 		Vector3 point;
 		if (CollisionDetection.MVHit(ray, out var voxelHit, range, owner.IgnoreWOIDs, layerMask))
 		{
+			InteractionData packageData = GetPackageData();
 			point = voxelHit.point;
 			int woIDHighestInHierarchyWithComponent = MVGameControllerBase.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(voxelHit.woId);
 			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
@@ -58,7 +59,7 @@ public class SizeGunBase : PickupItemWithDelay
 				InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
 				if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
 				{
-					interactionDataHandlerBase.HandleInteraction(GetPackageData(), interactionIsLocal: false);
+					interactionDataHandlerBase.HandleInteraction(packageData, interactionIsLocal: false);
 					((IBulletImpactVisualizer)worldObjectClient).VisualizeBulletImpact(voxelHit, ray, owner.WorldObjectOwner.OwnerActorNr, 0f);
 				}
 			}

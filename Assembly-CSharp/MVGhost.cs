@@ -90,7 +90,6 @@ public class MVGhost : MVBlueprintBase, IUpdatecontrollerSubscriber
 		rangeVis = UnityEngine.Object.Instantiate(PrefabPool.Instance.RangeVisualizationObject);
 		rangeVis.transform.parent = base.gameObject.transform;
 		rangeVis.transform.localPosition = Vector3.zero;
-		rangeVis.Initialize(Id);
 		rangeVis.Radius = distance;
 		MeshRenderer componentInChildren = gameObject.GetComponentInChildren<MeshRenderer>();
 		localBounds = ComputeLocalBounds(base.gameObject.transform.position, new MeshRenderer[1] { componentInChildren });

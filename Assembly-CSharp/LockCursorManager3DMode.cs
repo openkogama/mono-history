@@ -174,7 +174,7 @@ public class LockCursorManager3DMode : MonoBehaviour, ILockCursorManager
 		if (prevCursorLock != (Cursor.lockState == CursorLockMode.Locked))
 		{
 			OnCursorLockChanged(Cursor.lockState == CursorLockMode.Locked);
-			MVInputWrapper.ResetInput();
+			MVInputWrapper.NotifyOutOfFocus();
 			prevCursorLock = Cursor.lockState == CursorLockMode.Locked;
 			if (Cursor.lockState != CursorLockMode.Locked)
 			{

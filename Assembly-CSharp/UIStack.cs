@@ -234,7 +234,7 @@ public class UIStack : MonoBehaviour, IEventSystemHandler, IUIStack
 
 	public bool IsStackEmpty()
 	{
-		return stackableUiElements.Count <= 2;
+		return stackableUiElements.Count <= 1;
 	}
 
 	private void HideAll()

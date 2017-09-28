@@ -385,7 +385,6 @@ public class MVPickupItemBase : MVLogicObject, IUpdatecontrollerSubscriber, IPic
 	private bool ShouldDoAutoPickup(int instigator)
 	{
 		bool flag = true;
-		bool flag2 = false;
 		if (pickupPrefabLUT[Type].equipableType == AvatarEquipableType.Weapon)
 		{
 			int woIDWithLocalOwnerHighestInHierarchy = MVGameControllerBase.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(instigator);
@@ -393,21 +392,13 @@ public class MVPickupItemBase : MVLogicObject, IUpdatecontrollerSubscriber, IPic
 			if (worldObjectClient != null)
 			{
 				MVPickupOwner mVPickupOwner = worldObjectClient.GameObject.GetComponent<MVPickupOwner>();
-				if (mVPickupOwner != null && !(mVPickupOwner is VehiclePickupOwner) && mVPickupOwner.CurrentItem != null)
+				if (mVPickupOwner != null && !(mVPickupOwner is VehiclePickupOwner) && mVPickupOwner.CurrentItem != null && mVPickupOwner.CurrentItem.Type != Type)
 				{
-					flag2 = mVPickupOwner.CurrentItem.Type == Type;
-					if (!flag2)
-					{
-						flag = mVPickupOwner.CurrentItem.Type == AvatarItemType.Hand;
-					}
+					flag = mVPickupOwner.CurrentItem.Type == AvatarItemType.Hand;
 				}
 			}
 		}
 		if ((useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0 && flag)
-		{
-			return true;
-		}
-		if ((useInteractor.GetGUIShowOptions() & ShowUseOption.UsingGameCoins) == 0 && (useInteractor.EvaluateRequirementsUsability() & UseGUIResult.CannotAfford) == 0 && flag2 && flag)
 		{
 			return true;
 		}

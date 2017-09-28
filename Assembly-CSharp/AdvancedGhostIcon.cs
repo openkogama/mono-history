@@ -31,7 +31,7 @@ public class AdvancedGhostIcon : MonoBehaviour
 
 	public void Init(MVAdvancedGhost advancedGhost, MVCubeModelBase body, bool enabledCulling)
 	{
-		AddSphereVolumeIndicator(advancedGhost.Id);
+		AddSphereVolumeIndicator();
 		body.Changed = (Action<CubeModelChangedEventArgs>)Delegate.Combine(body.Changed, new Action<CubeModelChangedEventArgs>(body_Changed));
 		CloneCubeMeshes(body);
 		if (enabledCulling)
@@ -105,16 +105,11 @@ public class AdvancedGhostIcon : MonoBehaviour
 		CloneCubeMeshes(e.Sender);
 	}
 
-	private void AddSphereVolumeIndicator(int Id)
+	private void AddSphereVolumeIndicator()
 	{
-		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(Id);
-		if (worldObjectClient != null)
-		{
-			sphereVolumeIndicator = UnityEngine.Object.Instantiate(PrefabPool.Instance.RangeVisualizationObject);
-			sphereVolumeIndicator.transform.parent = worldObjectClient.GameObject.transform;
-			sphereVolumeIndicator.transform.localPosition = Vector3.zero;
-			sphereVolumeIndicator.transform.localRotation = Quaternion.identity;
-			sphereVolumeIndicator.Initialize(Id);
-		}
+		sphereVolumeIndicator = UnityEngine.Object.Instantiate(PrefabPool.Instance.RangeVisualizationObject);
+		sphereVolumeIndicator.transform.parent = gameObject.transform;
+		sphereVolumeIndicator.transform.localPosition = Vector3.zero;
+		sphereVolumeIndicator.transform.localRotation = Quaternion.identity;
 	}
 }

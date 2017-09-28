@@ -29,7 +29,7 @@ public class ClientSideNPCInteractable : MVInteractableBase
 			float num = (ObscuredFloat)worldObjectParent.RunTimeData.GetObscuredType("health");
 			num -= amount;
 			worldObjectParent.RunTimeData.SetObscuredType("health", (ObscuredFloat)num);
-			if (num <= 0f)
+			if (num < 0f)
 			{
 				num = (float)RuntimeVariablesRepository.GetRuntimeVariables(worldObjectParent.WorldObjectType)["health"];
 				worldObjectParent.RunTimeData.SetObscuredType("deathTime", (ObscuredInt)WaitForTicks.GetEnvironmentTick(0));

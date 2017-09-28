@@ -7,8 +7,6 @@ public class MVWaterPlane : MVLogicObject
 
 	private Bounds localBounds;
 
-	private bool addedToWPManager;
-
 	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.WaterPlane;
 
 	public override bool HasInputConnector => false;
@@ -21,6 +19,7 @@ public class MVWaterPlane : MVLogicObject
 		Component.MeshRenderers[0].material = new Material(Component.MeshRenderers[0].material);
 		localBounds = Component.MeshRenderers[0].bounds;
 		localBounds.center -= gameObject.transform.position;
+		gameObject.transform.localScale = Vector3.one;
 		waterManager = MVGameControllerBase.WaterPlaneManager;
 		interactionFlags |= InteractionFlags.HasSettings;
 		interactionFlags &= ~InteractionFlags.CanClone;
@@ -40,7 +39,6 @@ public class MVWaterPlane : MVLogicObject
 	{
 		base.Initialize();
 		waterManager.AddWaterPlaneLogicCube(this);
-		addedToWPManager = true;
 		if (!Data.ContainsKey("waterColor"))
 		{
 			Data["waterColor"] = new float[3] { 0.1f, 0.2f, 0.5f };
@@ -60,10 +58,7 @@ public class MVWaterPlane : MVLogicObject
 
 	public override void Destroy()
 	{
-		if (addedToWPManager)
-		{
-			waterManager.RemoveWaterPlaneLogicCube(this);
-		}
+		waterManager.RemoveWaterPlaneLogicCube(this);
 		base.Destroy();
 	}
 }

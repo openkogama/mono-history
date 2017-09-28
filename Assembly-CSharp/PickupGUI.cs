@@ -85,7 +85,7 @@ public class PickupGUI : MonoBehaviour
 
 	private void UpdateCrossHairVisibility()
 	{
-		bool flag = !MVGameControllerBase.IPlayModeUI.InLobbyState && canBeVisible && pickupOwner.IsLocal;
+		bool flag = !MVGameControllerBase.IPlayModeUI.InLobbyState && canBeVisible;
 		if (crossHair.Visible != flag)
 		{
 			crossHair.Visible = flag;

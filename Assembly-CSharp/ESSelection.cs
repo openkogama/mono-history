@@ -62,11 +62,6 @@ internal class ESSelection : ESStateBase
 		contextMenuController.ShowContextMenuLink(linkID, isObjectLink, hit.point);
 	}
 
-	private void PopMenuGizmos()
-	{
-		contextMenuController.PopGizmos();
-	}
-
 	public override void Enter(EditorStateMachine e)
 	{
 		bool flag = e.SingleSelectedWO != null && (e.SingleSelectedWO.InteractionFlags & InteractionFlags.DirectlySelectable) != 0;
@@ -151,7 +146,7 @@ internal class ESSelection : ESStateBase
 		{
 			flag = false;
 		}
-		TintObjectsOnMouseOver(e, flag && ESStateBase.SelectionIsAllowedByLogicEnabled(hit.woId), hit);
+		TintObjectsOnMouseOver(e, flag, hit);
 		if (pickedTarget != null && pickedTarget.data.WorldObjectClient == null)
 		{
 			pickedTarget = null;
@@ -173,7 +168,7 @@ internal class ESSelection : ESStateBase
 		}
 		else if (MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect))
 		{
-			if (flag && pickedTarget != null && ((pickedTarget.mousePosition - MVInputWrapper.GetPointerPosition()).magnitude > 0.5f || MVInputWrapper.GetAxisRaw("Mouse ScrollWheel") != 0f))
+			if (pickedTarget != null && ((pickedTarget.mousePosition - MVInputWrapper.GetPointerPosition()).magnitude > 0.5f || MVInputWrapper.GetAxisRaw("Mouse ScrollWheel") != 0f))
 			{
 				if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
 				{
@@ -237,7 +232,6 @@ internal class ESSelection : ESStateBase
 			{
 				return;
 			}
-			PopMenuGizmos();
 			if (pickedLink != null && IsMouseUpValid(pickedLink.mousePosition))
 			{
 				selectedLinkObject = pickedLink.data;
@@ -251,7 +245,7 @@ internal class ESSelection : ESStateBase
 				}
 				else
 				{
-					Debug.LogWarning("There should be selected objects at this point");
+					Debug.LogWarning("There should be selected objects at this point - Martin");
 				}
 			}
 			pickedLink = null;

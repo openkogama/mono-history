@@ -132,7 +132,7 @@ public class MVSentryGun : MVLogicObject, ILogicWorldObject
 		{
 			beamType = (SentryGunBeamType)(byte)Data["beamType"];
 		}
-		gunObject.SentryGunScript.Initialize(Id);
+		gunObject.SentryGunScript.Initialize();
 		gunObject.SentryGunScript.SetSentryGunBeamType(beamType);
 		if (beamType == SentryGunBeamType.FireBeam)
 		{

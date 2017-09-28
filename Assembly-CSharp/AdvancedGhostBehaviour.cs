@@ -255,7 +255,7 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 		public bool TryGetNewTarget(out MVWorldObjectClient worldObjectClient)
 		{
-			List<WorldObjectClientRef> targets = perception.GetTargets();
+			List<MVWorldObjectClient> targets = perception.GetTargets();
 			if (!TryGetTarget(targets, out worldObjectClient))
 			{
 				return false;
@@ -264,33 +264,28 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 			return true;
 		}
 
-		private bool TryGetTarget(List<WorldObjectClientRef> targets, out MVWorldObjectClient target)
+		private bool TryGetTarget(List<MVWorldObjectClient> targets, out MVWorldObjectClient target)
 		{
-			WorldObjectClientRef worldObjectClientRef = null;
-			target = null;
+			MVWorldObjectClient mVWorldObjectClient = null;
 			float num = ghostBehaviour.RoamRadius;
-			foreach (WorldObjectClientRef target2 in targets)
+			foreach (MVWorldObjectClient target2 in targets)
 			{
-				if (target2 == null || target2.WorldObjectClient == null || target2.WorldObjectClient.WorldObjectType == WorldObjectType.AdvancedGhost)
+				if (target2.WorldObjectType == WorldObjectType.AdvancedGhost)
 				{
 					continue;
 				}
-				Vector3 targetPosition = target2.WorldObjectClient.GetTargetPosition();
+				Vector3 targetPosition = target2.GetTargetPosition();
 				if (CanSense(targetPosition))
 				{
 					float num2 = DistanceToTargetPosition(targetPosition);
 					if (num2 < num)
 					{
-						worldObjectClientRef = target2;
+						mVWorldObjectClient = target2;
 						num = num2;
 					}
 				}
 			}
-			if (worldObjectClientRef == null || worldObjectClientRef.WorldObjectClient == null)
-			{
-				return false;
-			}
-			target = worldObjectClientRef.WorldObjectClient;
+			target = mVWorldObjectClient;
 			return target != null;
 		}
 

@@ -186,7 +186,7 @@ public class MVPressurePlate : MVLogicObject, ILogicWorldObject, IIsLogicObjectF
 		MeshRenderer[] meshRenderers = plateObject.MeshRenderers;
 		for (int i = 0; i < meshRenderers.Length; i++)
 		{
-			meshRenderers[i].gameObject.SetActive(IsVisible());
+			meshRenderers[i].enabled = IsVisible();
 		}
 	}
 }

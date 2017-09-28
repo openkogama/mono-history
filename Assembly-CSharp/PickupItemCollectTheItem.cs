@@ -39,19 +39,13 @@ public class PickupItemCollectTheItem : PickupItem
 	public override void OnLeaveVehicleWithWeapon()
 	{
 		base.OnLeaveVehicleWithWeapon();
-		if (arrow != null)
-		{
-			arrow.gameObject.SetActive(value: false);
-		}
+		arrow.gameObject.SetActive(value: false);
 	}
 
 	public override void OnEnterVehicleWithWeapon()
 	{
 		base.OnEnterVehicleWithWeapon();
-		if (arrow != null)
-		{
-			arrow.gameObject.SetActive(value: true);
-		}
+		arrow.gameObject.SetActive(value: true);
 	}
 
 	public override void OnUnequip()

@@ -2151,12 +2151,6 @@ public class MVNetworkGame : IPhotonPeerListener
 			case MVOperationCodes.UploadBytes:
 				DataUploadManager.OnUploadBytes();
 				break;
-			case MVOperationCodes.SetActiveAvatar:
-				if (MVGameControllerBase.Game.OnActiveAvatarSet != null)
-				{
-					MVGameControllerBase.Game.OnActiveAvatarSet();
-				}
-				break;
 			case MVOperationCodes.SetFirstTimeEvent:
 				FirstTimeEventManager.OnFirstTimeEventResponse((FirstTimeEvent)(int)returnValues[190], (XPRewardType)(byte)returnValues[213]);
 				break;
@@ -2313,8 +2307,6 @@ public class MVNetworkGame : IPhotonPeerListener
 	public OnReceivedChatMessageDelegate OnReceivedChatMessage;
 
 	public OnMarketPlaceActionCompleteDelegate OnMarketPlaceActionComplete;
-
-	public Action OnActiveAvatarSet;
 
 	private readonly MVPlayerContainer playerContainer = new MVPlayerContainer();
 

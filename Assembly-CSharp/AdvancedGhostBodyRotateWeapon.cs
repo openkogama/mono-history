@@ -64,13 +64,13 @@ public class AdvancedGhostBodyRotateWeapon : MonoBehaviour
 			int[] attackTargets = ghostTrigger.AttackTargets;
 			foreach (int id in attackTargets)
 			{
-				WorldObjectClientRef worldObjectClientRef = MVGameControllerBase.WOCM.GetWorldObjectClientRef(id);
-				if (worldObjectClientRef == null || worldObjectClientRef.WorldObjectClient == null)
+				MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(id);
+				if (worldObjectClient == null)
 				{
 					continue;
 				}
-				InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClientRef.WorldObjectClient.InteractionDataHandlerBase;
-				if (timeoutMap.Contains(worldObjectClientRef.WorldObjectClient.Id))
+				InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
+				if (timeoutMap.Contains(worldObjectClient.Id))
 				{
 					continue;
 				}
@@ -79,11 +79,11 @@ public class AdvancedGhostBodyRotateWeapon : MonoBehaviour
 					Debug.LogError("WorldObject does not have interactionHandler");
 					continue;
 				}
-				Vector3 vector = (worldObjectClientRef.WorldObjectClient.GetTargetPosition() - gameObject.transform.position).normalized * impulseStrength;
+				Vector3 vector = (worldObjectClient.GetTargetPosition() - gameObject.transform.position).normalized * impulseStrength;
 				InteractionData interaction = AdvancedGhostBodyRotateWeaponPackage.Create(damage * factor, vector * factor);
 				if (interactionDataHandlerBase.HandleInteraction(interaction, interactionIsLocal: true))
 				{
-					timeoutMap.Add(worldObjectClientRef.WorldObjectClient.Id);
+					timeoutMap.Add(worldObjectClient.Id);
 					weaponHitSound.Play();
 				}
 			}

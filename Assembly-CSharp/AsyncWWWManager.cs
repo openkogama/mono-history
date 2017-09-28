@@ -18,11 +18,19 @@ public static class AsyncWWWManager
 			cachedRequests.Add(path, cachedGetRequest);
 		}
 
+		public void Unsubscribe(Action<WWW, UnityEngine.Object> callback)
+		{
+			foreach (KeyValuePair<string, CachedGetRequest> cachedRequest in cachedRequests)
+			{
+				UnsubscribeStreamingAssetHack(cachedRequest.Value, callback);
+			}
+		}
+
 		public void UnsubscribeCached(Action<WWW> callback)
 		{
 			foreach (KeyValuePair<string, CachedGetRequest> cachedRequest in cachedRequests)
 			{
-				Unsubscribe(cachedRequest.Value, callback);
+				AsyncWWWManager.Unsubscribe((AsyncWebRequest)cachedRequest.Value, callback);
 			}
 		}
 	}
@@ -120,11 +128,39 @@ public static class AsyncWWWManager
 		cache.UnsubscribeCached(callback);
 	}
 
+	public static void UnsubscribeWWWRequest(Action<WWW, UnityEngine.Object> callback)
+	{
+		foreach (AsyncWebRequest item in activeRequest)
+		{
+			UnsubscribeStreamingAssetHack(item, callback);
+		}
+		foreach (AsyncWebRequest doneRequest in doneRequests)
+		{
+			UnsubscribeStreamingAssetHack(doneRequest, callback);
+		}
+		foreach (KeyValuePair<WWWRequestPriority, Queue<AsyncWebRequest>> request in requests)
+		{
+			foreach (AsyncWebRequest item2 in request.Value)
+			{
+				UnsubscribeStreamingAssetHack(item2, callback);
+			}
+		}
+		cache.Unsubscribe(callback);
+	}
+
 	private static void Unsubscribe(AsyncWebRequest request, Action<WWW> callback)
 	{
 		if (request.Callback == callback)
 		{
 			request.Callback = (Action<WWW>)Delegate.Remove(request.Callback, callback);
+		}
+	}
+
+	private static void UnsubscribeStreamingAssetHack(AsyncWebRequest request, Action<WWW, UnityEngine.Object> callback)
+	{
+		if (request is StreamingAssetRequestTempHack streamingAssetRequestTempHack)
+		{
+			streamingAssetRequestTempHack.CallbackHack = (Action<WWW, UnityEngine.Object>)Delegate.Remove(streamingAssetRequestTempHack.CallbackHack, callback);
 		}
 	}
 

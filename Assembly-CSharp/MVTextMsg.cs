@@ -41,7 +41,7 @@ public class MVTextMsg : MVLogicObject, ILogicWorldObject
 
 	private void ToggleText(bool visible)
 	{
-		msgObject.TextMeshRenderer.gameObject.SetActive(visible);
+		msgObject.TextMeshRenderer.enabled = visible;
 	}
 
 	private void InputStateUpdateCallback(LogicInputState logicInputState, LogicObjectManager logicObjectManager)
