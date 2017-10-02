@@ -60,6 +60,34 @@ public class ESStateBase : IState
 		}
 	}
 
+	protected static bool SelectionIsAllowedByLogicEnabled(int woId)
+	{
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woId);
+		if (worldObjectClient == null || worldObjectClient.GroupId == -1)
+		{
+			return false;
+		}
+		MVWorldObjectClient worldObjectClientRoot = MVGameControllerBase.WOCM.GetWorldObjectClientRoot(woId);
+		if (!MVGameControllerBase.CameraController.IsLogicRendered && worldObjectClientRoot != null)
+		{
+			int layerNumber = LayerUtil.GetLayerNumber(LayerFlags.Default);
+			if (worldObjectClientRoot.GameObject.layer == layerNumber)
+			{
+				return true;
+			}
+			Transform[] componentsInChildren = worldObjectClientRoot.GameObject.GetComponentsInChildren<Transform>();
+			for (int i = 0; i < componentsInChildren.Length; i++)
+			{
+				if (componentsInChildren[i].gameObject.layer == layerNumber && componentsInChildren[i].gameObject.activeInHierarchy)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+		return true;
+	}
+
 	protected void TintObjectsOnMouseOver(EditorStateMachine e)
 	{
 		VoxelHit hit = default;
@@ -114,6 +142,7 @@ public class ESStateBase : IState
 		}
 		else
 		{
+			WOCM.GetWorldObjectClient(hit.woId)?.DeSelect();
 			DeTintCurrent();
 		}
 	}

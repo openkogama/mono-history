@@ -24,7 +24,7 @@ public class ChatControllerUGUI : MonoBehaviour
 
 	private const int maxLineCount = 50;
 
-	private bool shouldUpdateFade = true;
+	private bool shouldUpdateFade;
 
 	private float startTime;
 
@@ -84,6 +84,8 @@ public class ChatControllerUGUI : MonoBehaviour
 
 	private bool promptRegisterForChat = true;
 
+	private bool waitForLocalPlayerReady;
+
 	private void Start()
 	{
 		inputAreaRoot.gameObject.SetActive(value: false);
@@ -116,6 +118,16 @@ public class ChatControllerUGUI : MonoBehaviour
 
 	public void Initialize()
 	{
+		waitForLocalPlayerReady = true;
+		if (MVGameControllerBase.Game.LocalPlayer.IsReady)
+		{
+			InitializeReady();
+		}
+	}
+
+	private void InitializeReady()
+	{
+		waitForLocalPlayerReady = false;
 		transform.SetAsLastSibling();
 		ChatFocusChanged(MVGameControllerBase.GameMode != MVGameMode.Edit);
 		if (MVGameControllerBase.GameMode == MVGameMode.Play)
@@ -132,6 +144,14 @@ public class ChatControllerUGUI : MonoBehaviour
 
 	private void Update()
 	{
+		if (waitForLocalPlayerReady)
+		{
+			if (MVGameControllerBase.Game.LocalPlayer.IsReady)
+			{
+				InitializeReady();
+			}
+			return;
+		}
 		if (inputField.isFocused)
 		{
 			UpdateFadeTime();
@@ -200,6 +220,11 @@ public class ChatControllerUGUI : MonoBehaviour
 
 	private void ScrollbarChanged(Vector2 value)
 	{
+		shouldUpdateFade = true;
+		if (MVGameControllerBase.GameMode == MVGameMode.Play)
+		{
+			shouldUpdateFade = !currentlyInLobbyState;
+		}
 		UpdateFadeTime();
 	}
 

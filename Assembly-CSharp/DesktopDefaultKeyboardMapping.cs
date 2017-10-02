@@ -34,7 +34,7 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap
 
 	public DesktopDefaultKeyboardMapping()
 	{
-		MVGameControllerDesktop.OnApplicationLostFocus = (UnityAction)Delegate.Combine(MVGameControllerDesktop.OnApplicationLostFocus, new UnityAction(NotifyOutOfFocus));
+		MVGameControllerDesktop.OnApplicationLostFocus = (UnityAction)Delegate.Combine(MVGameControllerDesktop.OnApplicationLostFocus, new UnityAction(Reset));
 		keyMapping = new Dictionary<KogamaControls, KeyCode[]>
 		{
 			{
@@ -281,7 +281,7 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap
 		};
 	}
 
-	public void NotifyOutOfFocus()
+	public void Reset()
 	{
 		controlDown.Reset();
 	}

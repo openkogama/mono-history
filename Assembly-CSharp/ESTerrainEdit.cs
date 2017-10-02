@@ -15,6 +15,7 @@ internal class ESTerrainEdit : ESStateBase
 		terrain = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>();
 		e.CubeModelingStateMachine.StartEdit(terrain);
 		tintedWo = MVWorldObjectClientManager.GetWorldObjectClientRefNullRef();
+		MVGameControllerBase.CameraController.FieldOfView = MVGameControllerBase.CameraController.CurCamera.FieldOfView;
 	}
 
 	public override void Execute(EditorStateMachine e)
@@ -26,11 +27,12 @@ internal class ESTerrainEdit : ESStateBase
 		{
 			flag = false;
 		}
-		TintObjectsOnMouseOver(e, flag, hit);
+		bool flag2 = ESStateBase.SelectionIsAllowedByLogicEnabled(hit.woId);
+		TintObjectsOnMouseOver(e, flag && flag2, hit);
 		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelect) || MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelectAlt))
 		{
 			WorldObjectClientRef worldObjectClientRef = e.Select(addToSelection: false);
-			if (worldObjectClientRef != null && worldObjectClientRef.WorldObjectClient != null)
+			if (flag2 && worldObjectClientRef != null && worldObjectClientRef.WorldObjectClient != null)
 			{
 				e.Event = EditorEvent.ObjectSelected;
 				return;
@@ -41,7 +43,7 @@ internal class ESTerrainEdit : ESStateBase
 			return;
 		}
 		e.CubeModelingStateMachine.Update();
-		if (hit.woId != 0 && hit.woId != terrain.Id)
+		if (hit.woId != 0 && hit.woId != terrain.Id && flag2)
 		{
 			e.CubeModelingStateMachine.CursorVisible = false;
 		}
@@ -56,7 +58,7 @@ internal class ESTerrainEdit : ESStateBase
 			num = hit2.distance;
 		}
 		Ray ray = MVGameControllerBase.CameraController.MainCamera.ScreenPointToRay(MVInputWrapper.GetPointerPosition());
-		int layerMask = 1 << LayerMask.NameToLayer("Logic");
+		int layerMask = 1 << LayerUtil.GetLayerNumber(LayerFlags.Logic);
 		Physics.Raycast(ray, out var hitInfo, float.PositiveInfinity, layerMask);
 		if (hitInfo.collider != null)
 		{

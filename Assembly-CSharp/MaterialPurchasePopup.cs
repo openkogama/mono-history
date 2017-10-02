@@ -60,11 +60,26 @@ public class MaterialPurchasePopup : MonoBehaviour
 	{
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 		{
-			x.Create();
+			x.Create(TM._("Purchase Material?"), OnConfirmed, TM._("Confirm"));
 		});
-		MVNetworkGame game = MVGameControllerBase.Game;
-		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Combine(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
-		MVGameControllerBase.OperationRequests.UnlockMaterial(materialID);
+	}
+
+	private void OnConfirmed(bool confirmed, ConfirmationPopup confirmationPopup)
+	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Pop();
+		});
+		if (confirmed)
+		{
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+			{
+				x.Create();
+			});
+			MVNetworkGame game = MVGameControllerBase.Game;
+			game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Combine(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
+			MVGameControllerBase.OperationRequests.UnlockMaterial(materialID);
+		}
 	}
 
 	private void ProductPurchaseResponseHandler(int returnCode, Dictionary<object, object> purchaseResponseData)

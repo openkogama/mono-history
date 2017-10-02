@@ -91,7 +91,7 @@ public abstract class MVInteractable : MVInteractableBase
 			}
 			break;
 		case ModifierActions.CancelOut:
-			RemoveModifier(modifierPackages.GetPackageToActWith(type, actionToTakeWithPackageType));
+			RemoveModifier(modifierPackages.GetPackageToActWith(type, actionToTakeWithPackageType), id);
 			break;
 		}
 	}
