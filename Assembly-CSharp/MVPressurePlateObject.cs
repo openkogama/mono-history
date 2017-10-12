@@ -8,9 +8,14 @@ public class MVPressurePlateObject : ObjectPrefab
 	[SerializeField]
 	private Transform plateModelTransform;
 
+	[SerializeField]
+	private GameObject plateLogicModel;
+
 	public GameObject useInteractionRotator;
 
 	public TriggerBoxEvents TriggerBoxEvents => triggerBoxEvents;
+
+	public GameObject TriggerBoxLogic => plateLogicModel;
 
 	public Transform PlateModelTranform => plateModelTransform;
 

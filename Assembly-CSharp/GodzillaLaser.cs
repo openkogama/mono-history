@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 {
-	[Header("Stats for Godzilla (will be scaled by godzilla size)")]
 	[SerializeField]
+	[Header("Stats for Godzilla (will be scaled by godzilla size)")]
 	private AnimationCurve baseAreaDamageByRange;
 
 	[SerializeField]
@@ -33,8 +33,8 @@ public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 	[SerializeField]
 	private float lookUpdateRate = 2f;
 
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	private List<GameObject> toHideInFirstperson = new List<GameObject>();
 
 	[SerializeField]

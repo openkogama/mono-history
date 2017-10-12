@@ -6,8 +6,8 @@ using UnityEngine.UI;
 
 public class TextBubble : MonoBehaviour
 {
-	[SerializeField]
 	[Header("Configuration")]
+	[SerializeField]
 	private float tailSize = 0.25f;
 
 	[SerializeField]

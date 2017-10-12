@@ -113,7 +113,7 @@ public class MVPressurePlate : MVLogicObject, ILogicWorldObject, IIsLogicObjectF
 	public override void InitializeInventory()
 	{
 		base.InitializeInventory();
-		gameObject.transform.FindChild("TriggerCube").gameObject.SetActive(value: false);
+		plateObject.TriggerBoxLogic.SetActive(value: false);
 	}
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
