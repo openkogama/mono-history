@@ -133,7 +133,7 @@ public class MVTeamManager
 
 	public MVTeam GetTeamFromActorNr(int actorNumber)
 	{
-		return MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(actorNumber).Team;
+		return (actorNumber != 0) ? MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(actorNumber).Team : MVTeam.Server;
 	}
 
 	public int GetNoOfPlayersInTeam(MVTeam team)

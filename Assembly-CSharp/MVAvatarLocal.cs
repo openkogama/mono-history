@@ -1293,7 +1293,14 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 	{
 		if (!IsInMode(AvatarModeTypes.Dead))
 		{
-			Die();
+			if (interactableLocal.LastDamageSource == null || interactableLocal.LastDamageSource.Outdated)
+			{
+				Die();
+			}
+			else
+			{
+				interactableLocal.TakeDamage(100f, interactableLocal.LastDamageSource.shooter, interactableLocal.LastDamageSource.damageType);
+			}
 		}
 	}
 

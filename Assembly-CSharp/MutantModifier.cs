@@ -70,7 +70,7 @@ public class MutantModifier : AvatarModifier
 				InteractionDataHandlerBase interactionDataHandlerBase = component.InteractionDataHandlerBase;
 				if (interactionDataHandlerBase != null)
 				{
-					interactionDataHandlerBase.HandleInteraction(MutantHitPackage.Create(), interactionIsLocal: false);
+					interactionDataHandlerBase.HandleInteraction(mVAvatarLocal.PickupOwner, MutantHitPackage.Create(), interactionIsLocal: false);
 				}
 			}
 		}

@@ -30,6 +30,8 @@ public class WaterPlaneManager : MonoBehaviour
 
 	public bool IsActive => waterPlaneLogicCube != null;
 
+	public float WaterElevation => transform.position.y;
+
 	private Color HorizonColor
 	{
 		get

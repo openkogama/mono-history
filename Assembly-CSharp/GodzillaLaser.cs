@@ -15,8 +15,8 @@ public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 	[SerializeField]
 	private float maxFireRange = 3000f;
 
-	[SerializeField]
 	[Header("Graphics")]
+	[SerializeField]
 	private Color crossHairCanFire;
 
 	[SerializeField]
@@ -28,13 +28,13 @@ public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 	[SerializeField]
 	private AnimationCurve chargeCurve;
 
-	[Header("Network")]
-	[Tooltip("Look direction updates per second.")]
 	[SerializeField]
+	[Tooltip("Look direction updates per second.")]
+	[Header("Network")]
 	private float lookUpdateRate = 2f;
 
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	private List<GameObject> toHideInFirstperson = new List<GameObject>();
 
 	[SerializeField]
@@ -325,7 +325,7 @@ public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 				InteractionDataHandlerBase interactionDataHandlerBase = mVObject.InteractionDataHandlerBase;
 				if (interactionDataHandlerBase != null && mVObject != owner.WorldObjectOwner)
 				{
-					interactionDataHandlerBase.HandleInteraction(GodzillaLaserBurnPackage.Create(laserBurnType), interactionIsLocal: false);
+					interactionDataHandlerBase.HandleInteraction(owner, GodzillaLaserBurnPackage.Create(laserBurnType), interactionIsLocal: false);
 				}
 			}
 		}
@@ -372,7 +372,7 @@ public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 			InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
 			if (interactionDataHandlerBase != null)
 			{
-				interactionDataHandlerBase.HandleInteraction(GodzillaLaserHitPackage.Create(godzillaSizeModifier), interactionIsLocal: false);
+				interactionDataHandlerBase.HandleInteraction(owner, GodzillaLaserHitPackage.Create(godzillaSizeModifier), interactionIsLocal: false);
 			}
 		}
 	}
@@ -410,7 +410,7 @@ public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 					float time = Vector3.Distance(voxelHit.point, collider.transform.position);
 					float damage = scaledAreaDamageByRange.Evaluate(time);
 					Vector3 normalized = (collider.transform.position - voxelHit.point).normalized;
-					interactionDataHandlerBase.HandleInteraction(ProximityDamageAndImpulse.Create(damage, normalized * scaledAreaImpulseByRange.Evaluate(time), PlayerKilledByType.GodzillaLaser), interactionIsLocal: false);
+					interactionDataHandlerBase.HandleInteraction(owner, ProximityDamageAndImpulse.Create(damage, normalized * scaledAreaImpulseByRange.Evaluate(time), PlayerKilledByType.GodzillaLaser), interactionIsLocal: false);
 				}
 			}
 		}

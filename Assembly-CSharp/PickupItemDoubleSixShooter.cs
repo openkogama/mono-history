@@ -117,11 +117,11 @@ public class PickupItemDoubleSixShooter : PickupItemWithDelay
 		if (worldObjectClient != null)
 		{
 			InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
-			if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
+			if (interactionDataHandlerBase != null)
 			{
 				Vector3 value = voxelHit.point - owner.transform.position;
 				value = Vector3.Normalize(value);
-				interactionDataHandlerBase.HandleInteraction(DoubleSixShooterHitPackage.Create(value * hitImpact), interactionIsLocal: false);
+				interactionDataHandlerBase.HandleInteraction(owner, DoubleSixShooterHitPackage.Create(value * hitImpact), interactionIsLocal: false);
 			}
 		}
 	}

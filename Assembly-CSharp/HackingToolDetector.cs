@@ -62,15 +62,14 @@ public class HackingToolDetector : MonoBehaviour
 		}
 	}
 
+	[SerializeField]
+	private HackingToolDetectorSO sharedProperties;
+
 	public static readonly string CheatWarning = TM._("Cheating/Hacking is not allowed and will cause a permanent, irrevocable ban.");
 
 	public Action<HackingToolReport> onHackToolDetected;
 
 	private BitArray alreadyReported = new BitArray(3);
-
-	[SerializeField]
-	[Tooltip("Scans per second.")]
-	private float scanFrequency = 1f / 60f;
 
 	private ApplicationDesc[] banList;
 
@@ -90,7 +89,7 @@ public class HackingToolDetector : MonoBehaviour
 
 	private static HackingToolDetector Instance => instance;
 
-	private static float WaitTime => 1f / Instance.scanFrequency;
+	private static float WaitTime => 1f / Instance.sharedProperties.ScanFrequency;
 
 	private bool QuitRequest
 	{

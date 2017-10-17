@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
@@ -94,6 +95,8 @@ public class Bullet : MonoBehaviour
 
 	public OnHitDelegate onHitLocal;
 
+	public Action<Ray> onOutOfRange;
+
 	private PoolEnums initiatedPoolType;
 
 	private MonoBehaviour pooledObjectReference;
@@ -163,8 +166,9 @@ public class Bullet : MonoBehaviour
 	private void Update()
 	{
 		CollisionBullet.State state = collisionBullet.Update(out var voxelHit);
-		if (state == CollisionBullet.State.Hit)
+		switch (state)
 		{
+		case CollisionBullet.State.Hit:
 			hit = true;
 			if (onHit != null)
 			{
@@ -176,6 +180,13 @@ public class Bullet : MonoBehaviour
 				onHitLocal(voxelHit, lineOfFire);
 				onHitLocal = null;
 			}
+			break;
+		case CollisionBullet.State.OutOfRange:
+			if (onOutOfRange != null)
+			{
+				onOutOfRange(lineOfFire);
+			}
+			break;
 		}
 		currentAirTime += Time.deltaTime;
 		if (!hit && currentAirTime <= maxAirTime)
@@ -192,7 +203,7 @@ public class Bullet : MonoBehaviour
 			}
 		}
 		cullingSubscriberBase.Position = transform.position;
-		if (state != CollisionBullet.State.Hit && state != CollisionBullet.State.OutOfRange && !hasCleaned)
+		if (state != CollisionBullet.State.Hit && state != CollisionBullet.State.OutOfRange)
 		{
 			return;
 		}
@@ -239,6 +250,7 @@ public class Bullet : MonoBehaviour
 	{
 		onHit = null;
 		onHitLocal = null;
+		onOutOfRange = null;
 		ignoreWoIDs.Clear();
 		isFired = false;
 		hit = false;

@@ -21,7 +21,7 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 		public Type Update(AdvancedGhostBehaviour ghostBehaviour)
 		{
-			if (ghostBehaviour.isDead())
+			if (ghostBehaviour.IsDead)
 			{
 				return typeof(Die);
 			}
@@ -93,11 +93,15 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 		public void Enter(AdvancedGhostBehaviour ghostBehaviour)
 		{
 			ghostBehaviour.GhostVisualization.gameObject.SetActive(value: false);
+			if (ghostBehaviour.lives > 0)
+			{
+				ghostBehaviour.lives--;
+			}
 		}
 
 		public Type Update(AdvancedGhostBehaviour ghostBehaviour)
 		{
-			if (!ghostBehaviour.isDead())
+			if (!ghostBehaviour.IsDead)
 			{
 				return typeof(Idle);
 			}
@@ -115,7 +119,6 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 	{
 		public void Enter(AdvancedGhostBehaviour ghostBehaviour)
 		{
-			Debug.Log("Reset entered");
 		}
 
 		public Type Update(AdvancedGhostBehaviour ghostBehaviour)
@@ -201,6 +204,8 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 	private class AdvancedGhostPerception
 	{
+		public MVTeam alliedTeam = MVTeam.Server;
+
 		private AdvancedGhostBehaviour ghostBehaviour;
 
 		private OptimizedPerception perception;
@@ -210,6 +215,18 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 		private int perceptionIntervalMilliseconds = 1000;
 
 		private DeterministicSyncedInterval syncedInterval;
+
+		public MVTeam AlliedTeam
+		{
+			get
+			{
+				return alliedTeam;
+			}
+			set
+			{
+				alliedTeam = value;
+			}
+		}
 
 		public AdvancedGhostPerception(AdvancedGhostBehaviour ghostBehaviour, int woID)
 		{
@@ -255,7 +272,7 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 		public bool TryGetNewTarget(out MVWorldObjectClient worldObjectClient)
 		{
-			List<WorldObjectClientRef> targets = perception.GetTargets();
+			List<WorldObjectClientRef> targets = perception.GetTargets(AlliedTeam);
 			if (!TryGetTarget(targets, out worldObjectClient))
 			{
 				return false;
@@ -478,7 +495,11 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 	private Vector3 nextPosition;
 
-	private Func<bool> isDead;
+	private int lives = -1;
+
+	private int maxLives = -1;
+
+	private Func<bool> deathCheckFunc;
 
 	private ObscuredFloat speed;
 
@@ -497,6 +518,17 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 	private AdvancedGhostBodyRotateWeapon weapon;
 
 	public AdvancedGhostVisualizaton GhostVisualization;
+
+	public int Lives
+	{
+		set
+		{
+			lives = value;
+			maxLives = value;
+		}
+	}
+
+	private bool IsDead => lives == 0 || deathCheckFunc();
 
 	private float RoamRadius => radius + perceptionRadius;
 
@@ -524,7 +556,7 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 		speed = 10f;
 	}
 
-	public void Init(MVCubeModelBase body, AdvancedGhostMotor advancedGhostMotor, Func<bool> isDead, int woID)
+	public void Init(MVCubeModelBase body, AdvancedGhostMotor advancedGhostMotor, Func<bool> deathCheckFunc, int woID)
 	{
 		transformParent = transform.parent;
 		perception = new AdvancedGhostPerception(this, woID);
@@ -532,10 +564,16 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 		nextPosition = networkedValues.SyncPosition;
 		transform.position = nextPosition;
 		this.advancedGhostMotor = advancedGhostMotor;
-		this.isDead = isDead;
+		this.deathCheckFunc = deathCheckFunc;
 		InitBody(body);
 		SetInitialState();
 		SetupCulling();
+	}
+
+	public void SetTeam(MVTeam t)
+	{
+		perception.AlliedTeam = t;
+		weapon.AlliedTeam = t;
 	}
 
 	public void EditModeUpdateCulling()
@@ -581,9 +619,9 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 	private void SetVisible()
 	{
-		bool flag = isDead();
-		GhostVisualization.gameObject.SetActive(allVisible && wantsVisible && !flag);
-		gameObject.SetActive(behaviourOnlyEnabled && !flag);
+		bool isDead = IsDead;
+		GhostVisualization.gameObject.SetActive(allVisible && wantsVisible && !isDead);
+		gameObject.SetActive(behaviourOnlyEnabled && !isDead);
 	}
 
 	public void SetGameMode(bool isPlayMode)
@@ -607,6 +645,7 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 		clearEffectsBecauseOfReset = true;
 		SetCurrentState(typeof(Idle));
 		SetVisible();
+		lives = maxLives;
 	}
 
 	public void ReceivedDamage()
@@ -614,7 +653,7 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 		GhostVisualization.ReceivedDamage();
 	}
 
-	private void Update()
+	protected void Update()
 	{
 		if (perception != null)
 		{
@@ -629,7 +668,7 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 		}
 	}
 
-	private void FixedUpdate()
+	protected void FixedUpdate()
 	{
 		if (!(advancedGhostMotor == null))
 		{
@@ -652,7 +691,7 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 	private void SetInitialState()
 	{
-		if (isDead())
+		if (IsDead)
 		{
 			SetCurrentState(typeof(Dead));
 		}

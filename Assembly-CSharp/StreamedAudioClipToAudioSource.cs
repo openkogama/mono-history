@@ -16,9 +16,10 @@ public class StreamedAudioClipToAudioSource : StreamingAsset<AudioClip, AudioCli
 
 	protected override void OnAssetSet()
 	{
-		bool isPlaying = audioSource.isPlaying;
+		bool flag = audioSource.isPlaying && audioSource.loop;
+		bool flag2 = audioSource.playOnAwake && audioSource.clip == null;
 		audioSource.clip = Asset;
-		if (isPlaying && audioSource.loop)
+		if (flag || flag2)
 		{
 			audioSource.Play();
 		}

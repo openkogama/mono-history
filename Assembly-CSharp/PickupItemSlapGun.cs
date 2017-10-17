@@ -54,9 +54,9 @@ public class PickupItemSlapGun : PickupItemWithDelay
 				MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
 				Vector3 impulse = ComputeImpulseDirection(ray) * slapStrength;
 				InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
-				if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
+				if (interactionDataHandlerBase != null)
 				{
-					interactionDataHandlerBase.HandleInteraction(SlapGunHitPackage.Create(impulse), interactionIsLocal: false);
+					interactionDataHandlerBase.HandleInteraction(owner, SlapGunHitPackage.Create(impulse), interactionIsLocal: false);
 					if (worldObjectClient is IBulletImpactVisualizer)
 					{
 						((IBulletImpactVisualizer)worldObjectClient).VisualizeBulletImpact(voxelHit, ray, owner.WorldObjectOwner.OwnerActorNr, damage);

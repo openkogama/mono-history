@@ -12,8 +12,8 @@ public class PickupItemFlamethrower : PickupItem
 	[SerializeField]
 	private float hitRadius = 1.2f;
 
-	[SerializeField]
 	[Tooltip("How many seconds a fueltank lasts.")]
+	[SerializeField]
 	private ObscuredFloat maxFuelTime = 100f;
 
 	[SerializeField]
@@ -60,14 +60,14 @@ public class PickupItemFlamethrower : PickupItem
 			for (int i = 0; i < hits.Count; i++)
 			{
 				MVWorldObjectClient hitObject = MVWorldObjectClientManager.GetMVObject(hits[i].transform);
-				if (hitObject == null || MVGameControllerBase.Game.TeamManager.IsOnSameTeam(hitObject.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
+				if (hitObject == null)
 				{
 					continue;
 				}
 				InteractionDataHandlerBase interactionHandler = hitObject.InteractionDataHandlerBase;
 				if (interactionHandler != null)
 				{
-					interactionHandler.HandleInteraction(FlamethrowerHitPackage.Create(), interactionIsLocal: false);
+					interactionHandler.HandleInteraction(owner, FlamethrowerHitPackage.Create(), interactionIsLocal: false);
 					if (hitObject is IBulletImpactVisualizer)
 					{
 						((IBulletImpactVisualizer)hitObject).VisualizeBulletImpact(hits[i], lineofFire, owner.WorldObjectOwner.OwnerActorNr, 0f);

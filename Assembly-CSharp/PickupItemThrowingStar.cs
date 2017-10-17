@@ -86,9 +86,9 @@ public class PickupItemThrowingStar : PickupItemWithDelay
 		if (worldObjectClient != null)
 		{
 			InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
-			if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
+			if (interactionDataHandlerBase != null)
 			{
-				interactionDataHandlerBase.HandleInteraction(ThrowingStarHitPackage.Create(), interactionIsLocal: false);
+				interactionDataHandlerBase.HandleInteraction(owner, ThrowingStarHitPackage.Create(), interactionIsLocal: false);
 			}
 		}
 	}

@@ -7,8 +7,7 @@ public class HamsterWheelVisualization : VehicleVisualizationBase
 	public enum SpeedState
 	{
 		Idle,
-		Forward,
-		Backwards
+		Moving
 	}
 
 	public GameObject wheel;
@@ -31,17 +30,9 @@ public class HamsterWheelVisualization : VehicleVisualizationBase
 
 	private SpeedState speedState;
 
-	private float spinSpeed = 8f;
-
-	private AvatarRotationSlerper slerper;
-
 	public AudioSource audioSourceRolling;
 
 	public AudioSource audioSourceWind;
-
-	public AudioSource audioSourceLanding;
-
-	public AudioSource audioSourceSqueal;
 
 	private bool vehicleIsUnoccupied;
 
@@ -63,14 +54,6 @@ public class HamsterWheelVisualization : VehicleVisualizationBase
 		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object healthVal) =>
 		{
 			OnHealthChange((float)healthVal);
-		}));
-		isMovingForward.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(isMovingForward.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object val) =>
-		{
-			OnMovingForwardChange((bool)val);
-		}));
-		isMovingBackwards.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(isMovingBackwards.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object val) =>
-		{
-			OnMovingBackwardsChange((bool)val);
 		}));
 		isGrounded.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(isGrounded.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object val) =>
 		{
@@ -113,47 +96,37 @@ public class HamsterWheelVisualization : VehicleVisualizationBase
 		{
 			HandleUnoccupiedVehicle();
 		}
-		if (slerper != null && !slerper.Update())
-		{
-			slerper = null;
-		}
 		Vector3 axis = Vector3.Cross(velocity.normalized, Vector3.up);
-		float num = velocity.magnitude;
-		float num2 = Vector3.Dot(transform.forward, velocity.normalized);
+		float magnitude = velocity.magnitude;
 		if (!vehicleIsUnoccupied)
 		{
-			bool flag = false;
-			if (speedState != SpeedState.Idle && ((num < spinSpeed && num > 0f - spinSpeed / 4f) || (speedState == SpeedState.Backwards && num2 > 0f) || (speedState == SpeedState.Forward && num2 < 0f)))
+			Vector3 vector = new Vector3(velocity.x, 0f, velocity.z);
+			MVAvatar owner = vehicleSeatManager.seats[0].Owner;
+			int serverTimeInMilliSeconds = MVGameControllerBase.Game.ServerTimeInMilliSeconds;
+			if (vector.sqrMagnitude > 0.2f)
 			{
-				axis = transform.right;
-				if (speedState == SpeedState.Forward)
+				owner.Body.Transform.forward = vector.normalized;
+				if (speedState == SpeedState.Idle)
 				{
-					num = 0f - spinSpeed;
-					flag = true;
-				}
-				if (speedState == SpeedState.Backwards)
-				{
-					num = spinSpeed;
-					flag = true;
-				}
-			}
-			if (flag)
-			{
-				if (!audioSourceSqueal.isPlaying)
-				{
-					audioSourceSqueal.Play();
+					Dictionary<object, object> dictionary = new Dictionary<object, object>();
+					dictionary.Add("state", "Walk");
+					dictionary.Add("timeStamp", serverTimeInMilliSeconds);
+					Dictionary<object, object> value = dictionary;
+					owner.Animation.Value = value;
+					speedState = SpeedState.Moving;
 				}
 			}
-			else if (audioSourceSqueal.isPlaying)
+			else if (speedState != SpeedState.Idle)
 			{
-				audioSourceSqueal.Stop();
+				Dictionary<object, object> dictionary = new Dictionary<object, object>();
+				dictionary.Add("state", "Idle");
+				dictionary.Add("timeStamp", serverTimeInMilliSeconds);
+				Dictionary<object, object> value2 = dictionary;
+				owner.Animation.Value = value2;
+				speedState = SpeedState.Idle;
 			}
 		}
-		wheel.transform.Rotate(axis, (0f - num) * Time.deltaTime * 57.29578f, Space.World);
-		if (speedState == SpeedState.Idle && !vehicleIsUnoccupied)
-		{
-			vehicleSeatManager.seats[0].Owner.Body.Transform.parent.Rotate(axis, (0f - num) * Time.deltaTime * 57.29578f, Space.World);
-		}
+		wheel.transform.Rotate(axis, (0f - magnitude) * Time.deltaTime * 57.29578f, Space.World);
 	}
 
 	private void FixedUpdate()
@@ -211,80 +184,15 @@ public class HamsterWheelVisualization : VehicleVisualizationBase
 		curHealth = newHealth;
 	}
 
-	private void OnMovingForwardChange(bool value)
-	{
-		MVAvatar owner = vehicleSeatManager.seats[0].Owner;
-		int serverTimeInMilliSeconds = MVGameControllerBase.Game.ServerTimeInMilliSeconds;
-		if (value)
-		{
-			if (owner.Avatar.IsLocal)
-			{
-				Dictionary<object, object> dictionary = new Dictionary<object, object>();
-				dictionary.Add("state", "Walk");
-				dictionary.Add("timeStamp", serverTimeInMilliSeconds);
-				Dictionary<object, object> value2 = dictionary;
-				owner.Animation.Value = value2;
-			}
-			slerper = new AvatarRotationSlerper(vehicleSeatManager.seats[0].Owner.Body.Transform.parent, ref hamsterWheelVisualizationRoot);
-			speedState = SpeedState.Forward;
-		}
-		else
-		{
-			if (owner.Avatar.IsLocal)
-			{
-				Dictionary<object, object> dictionary = new Dictionary<object, object>();
-				dictionary.Add("state", "Idle");
-				dictionary.Add("timeStamp", serverTimeInMilliSeconds);
-				Dictionary<object, object> value3 = dictionary;
-				owner.Animation.Value = value3;
-			}
-			speedState = SpeedState.Idle;
-		}
-	}
-
-	private void OnMovingBackwardsChange(bool value)
-	{
-		MVAvatar owner = vehicleSeatManager.seats[0].Owner;
-		int serverTimeInMilliSeconds = MVGameControllerBase.Game.ServerTimeInMilliSeconds;
-		if (value)
-		{
-			if (owner.Avatar.IsLocal)
-			{
-				Dictionary<object, object> dictionary = new Dictionary<object, object>();
-				dictionary.Add("state", "Walk");
-				dictionary.Add("timeStamp", serverTimeInMilliSeconds);
-				Dictionary<object, object> value2 = dictionary;
-				owner.Animation.Value = value2;
-			}
-			slerper = new AvatarRotationSlerper(vehicleSeatManager.seats[0].Owner.Body.Transform.parent, ref hamsterWheelVisualizationRoot);
-			speedState = SpeedState.Backwards;
-		}
-		else
-		{
-			if (owner.Avatar.IsLocal)
-			{
-				Dictionary<object, object> dictionary = new Dictionary<object, object>();
-				dictionary.Add("state", "Idle");
-				dictionary.Add("timeStamp", serverTimeInMilliSeconds);
-				Dictionary<object, object> value3 = dictionary;
-				owner.Animation.Value = value3;
-			}
-			speedState = SpeedState.Idle;
-		}
-	}
-
 	private void OnGroundedChange(bool val)
 	{
 		if (val)
 		{
 			audioSourceRolling.volume = 1f;
-			audioSourceLanding.Play();
-			audioSourceSqueal.volume = 0.06f;
 		}
 		else
 		{
 			audioSourceRolling.volume = 0f;
-			audioSourceSqueal.volume = 0f;
 		}
 	}
 
@@ -294,11 +202,6 @@ public class HamsterWheelVisualization : VehicleVisualizationBase
 		{
 			unoccupiedTime = Time.time;
 			vehicleIsUnoccupied = true;
-			if (slerper != null)
-			{
-				slerper = null;
-			}
-			audioSourceSqueal.Stop();
 		}
 		if (vehicleIsUnoccupied && vehicleSeatManager.OccupiedSeatsCount > 0)
 		{

@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class TeamRequirement : UseRequirement
 {
+	public const string teamStr = "team";
+
 	private TintObject tintObject;
 
 	private MVTeam team = MVTeam.None;

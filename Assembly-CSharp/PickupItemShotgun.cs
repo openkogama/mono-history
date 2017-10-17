@@ -103,11 +103,11 @@ public class PickupItemShotgun : PickupItemWithDelay
 		if (worldObjectClient != null)
 		{
 			InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
-			if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
+			if (interactionDataHandlerBase != null)
 			{
 				Vector3 impulse = lineOfFire.direction * impulseStrength;
 				InteractionData interaction = ShotgunHitPackage.Create(impulse);
-				interactionDataHandlerBase.HandleInteraction(interaction, interactionIsLocal: false);
+				interactionDataHandlerBase.HandleInteraction(owner, interaction, interactionIsLocal: false);
 			}
 		}
 	}

@@ -100,12 +100,12 @@ public class PickupItemSixShooter : PickupItemWithDelay
 		if (worldObjectClient != null)
 		{
 			InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
-			if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
+			if (interactionDataHandlerBase != null)
 			{
 				Vector3 value = voxelHit.point - owner.transform.position;
 				value = Vector3.Normalize(value);
 				InteractionData interaction = SixShooterHitPackage.Create(value * hitImpact);
-				interactionDataHandlerBase.HandleInteraction(interaction, interactionIsLocal: false);
+				interactionDataHandlerBase.HandleInteraction(owner, interaction, interactionIsLocal: false);
 			}
 		}
 	}
