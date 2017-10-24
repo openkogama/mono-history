@@ -10,8 +10,6 @@ public class AudioManager : MonoBehaviour
 		public AudioSource audio;
 	}
 
-	private const int MaxPooledSoundObjects = 128;
-
 	private GameObject poolTransform;
 
 	private List<Sound> activeSounds = new List<Sound>();
@@ -19,6 +17,8 @@ public class AudioManager : MonoBehaviour
 	private List<Sound> pooledSounds = new List<Sound>();
 
 	private List<int> soundsToRemove = new List<int>();
+
+	private const int MaxPooledSoundObjects = 128;
 
 	private void Awake()
 	{

@@ -51,8 +51,9 @@ public class TeleporterTintObject : TintObject
 	public override void Tint(Color c)
 	{
 		materialCylinderToTint.color = c;
-		Color startColor = new Color(c.r / 2f, c.g / 2f, c.b / 2f, 1f);
-		particleCircleToTint.startColor = startColor;
+		Color color = new Color(c.r / 2f, c.g / 2f, c.b / 2f, 1f);
+		ParticleSystem.MainModule main = particleCircleToTint.main;
+		main.startColor = color;
 		lightToTint.color = c;
 	}
 }

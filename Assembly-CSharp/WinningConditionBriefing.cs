@@ -172,15 +172,14 @@ public class WinningConditionBriefing : MonoBehaviour, IBriefing
 	{
 		group.alpha = 0f;
 		yield return StartCoroutine(Wait(initialWaitTime));
-		CanvasGroup group2 = default;
 		yield return StartCoroutine(pTween.To(fadeTime, 0f, 1f, (float t) =>
 		{
-			group2.alpha = t;
+			group.alpha = t;
 		}));
 		yield return StartCoroutine(Wait(stayTime));
 		yield return StartCoroutine(pTween.To(fadeTime, 1f, 0f, (float t) =>
 		{
-			group2.alpha = t;
+			group.alpha = t;
 		}));
 		yield return 0;
 	}

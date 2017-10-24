@@ -4,19 +4,19 @@ using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
 using UnityEngine;
 
-public class ShootableButton : MVLogicObject, ILogicWorldObject, IIsLogicObjectFiringEventHandler
+public class ShootableButton : MVLogicObject, IIsLogicObjectFiringEventHandler, ILogicWorldObject
 {
-	private const string durationValueKey = "duration";
-
-	private const string currentTimeValueKey = "cT";
-
-	private const int currentTimeDefaultValue = -1;
-
 	private LogicInteractable interactable;
 
 	private Collider targetCollider;
 
 	private ShootableButtonObject buttonObject;
+
+	private const string durationValueKey = "duration";
+
+	private const string currentTimeValueKey = "cT";
+
+	private const int currentTimeDefaultValue = -1;
 
 	private OutputSignalTransmitter outputSignalTransmitter;
 

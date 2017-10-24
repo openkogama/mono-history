@@ -2,40 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using MV.Common;
-using UnityEngine;
 
 public class AvatarInteractable : MVInteractable, IMoveHitHandler
 {
-	public class DamageSource
-	{
-		private const float lifeTime = 4f;
-
-		public static readonly DamageSource none = new DamageSource();
-
-		public MVPlayer shooter;
-
-		public PlayerKilledByType damageType;
-
-		public float time;
-
-		public bool Outdated => Time.time - time > 4f;
-
-		public DamageSource(MVPlayer shooter, PlayerKilledByType damageType)
-		{
-			this.shooter = shooter;
-			this.damageType = damageType;
-			time = Time.time;
-		}
-
-		private DamageSource()
-		{
-			time = 0f;
-		}
-	}
-
 	public Action<float, MVPlayer, PlayerKilledByType> OnDamageTaken;
-
-	private DamageSource lastDamageSource = DamageSource.none;
 
 	private HashSet<PlayerKilledByType> KillNotificationBlacklist = new HashSet<PlayerKilledByType>
 	{
@@ -68,8 +38,6 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 
 	private InteractableMaterialHitHandler materialHitHandler = new InteractableMaterialHitHandler();
 
-	public DamageSource LastDamageSource => (!lastDamageSource.Outdated) ? lastDamageSource : null;
-
 	public override void Init(MVRuntimeDataVariable runtimeDataModifiers, MVRuntimeDataVariableClampedFloat health)
 	{
 		base.Init(runtimeDataModifiers, health);
@@ -85,39 +53,20 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 		amount *= HandleModifierEffect(AvatarModifierEffect.DamageMultiplier, 1f);
 		float value = health.Value;
 		health.Value -= amount;
-		if (damageDealer != null)
-		{
-			lastDamageSource = new DamageSource(damageDealer, damageType);
-		}
 		if (OnDamageTaken != null)
 		{
 			OnDamageTaken(amount, damageDealer, damageType);
 		}
 		if (health.Value <= 0f && value > 0f)
 		{
-			PlayerKilledByType playerKilledByType = damageType;
-			int actorNr;
-			if (damageDealer != null)
-			{
-				actorNr = damageDealer.ActorNr;
-			}
-			else if (LastDamageSource != null)
-			{
-				actorNr = LastDamageSource.shooter.ActorNr;
-				playerKilledByType = LastDamageSource.damageType;
-			}
-			else
-			{
-				actorNr = MVGameControllerBase.Game.LocalPlayer.ActorNr;
-			}
-			Dictionary<object, object> gameMsgData = GameMessages.MakePlayerKilledMessage(MVGameControllerBase.Game.LocalPlayer.ActorNr, actorNr, playerKilledByType);
-			MVGameControllerBase.OperationRequests.PostGameMsg(MVGameMsgType.AvatarKilled, gameMsgData);
-			if (!KillNotificationBlacklist.Contains(playerKilledByType))
+			int num = damageDealer?.ActorNr ?? MVGameControllerBase.Game.LocalPlayer.ActorNr;
+			MVGameControllerBase.OperationRequests.PostGameMsg(MVGameMsgType.AvatarKilled, GameMessages.MakePlayerKilledMessage(MVGameControllerBase.Game.LocalPlayer.ActorNr, num, damageType));
+			if (!KillNotificationBlacklist.Contains(damageType))
 			{
 				Dictionary<object, object> dictionary = new Dictionary<object, object>();
 				dictionary.Add((byte)7, MVGameControllerBase.Game.LocalPlayer.ActorNr);
-				dictionary.Add((byte)6, actorNr);
-				dictionary.Add((byte)8, playerKilledByType);
+				dictionary.Add((byte)6, num);
+				dictionary.Add((byte)8, damageType);
 				Dictionary<object, object> dictionary2 = dictionary;
 				NotificationController.OnNotificationReceived(NotificationType.Kill, dictionary2);
 				MVGameControllerBase.OperationRequests.PostNotificationOperation(NotificationType.Kill, dictionary2);

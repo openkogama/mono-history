@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class AvatarFader : MonoBehaviour, IEventSystemHandler, IFadeParent
+public class AvatarFader : MonoBehaviour, IFadeParent, IEventSystemHandler
 {
 	[Serializable]
 	public struct ShaderFaderInstruction

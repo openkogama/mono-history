@@ -16,10 +16,6 @@ public class JsonTextReader : JsonReader, IJsonLineInfo
 		ReadAsDateTimeOffset
 	}
 
-	private const int LineFeedValue = 10;
-
-	private const int CarriageReturnValue = 13;
-
 	private readonly TextReader _reader;
 
 	private readonly StringBuffer _buffer;
@@ -35,6 +31,10 @@ public class JsonTextReader : JsonReader, IJsonLineInfo
 	private ReadType _readType;
 
 	private CultureInfo _culture;
+
+	private const int LineFeedValue = 10;
+
+	private const int CarriageReturnValue = 13;
 
 	public CultureInfo Culture
 	{

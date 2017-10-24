@@ -87,36 +87,6 @@ public struct ObscuredIntVector
 		return (short)x + (short)y * 1000 + (short)z * 1000000;
 	}
 
-	public Vector3 ToVector3()
-	{
-		return new Vector3((short)x, (short)y, (short)z);
-	}
-
-	public override string ToString()
-	{
-		return string.Concat("x: ", x, " y: ", y, " z: ", z);
-	}
-
-	public int SquareMagnitude()
-	{
-		return (short)x * (short)x + (short)y * (short)y + (short)z * (short)z;
-	}
-
-	public static int ObscuredIntVectorToIndex(ObscuredIntVector ObscuredIntVector, int chunkSize)
-	{
-		return (short)ObscuredIntVector.x + (short)ObscuredIntVector.y * chunkSize + (short)ObscuredIntVector.z * chunkSize * chunkSize;
-	}
-
-	public static ObscuredIntVector IndexToObscuredIntVector(int index, int chunkSize)
-	{
-		int num = chunkSize * chunkSize;
-		int num2 = index / num;
-		int num3 = index % num * chunkSize;
-		int num4 = num3 / num;
-		int num5 = num3 % num * chunkSize / num;
-		return new ObscuredIntVector((short)num5, (short)num4, (short)num2);
-	}
-
 	public static bool operator ==(ObscuredIntVector a, ObscuredIntVector b)
 	{
 		return a.Equals(b);
@@ -125,6 +95,16 @@ public struct ObscuredIntVector
 	public static bool operator !=(ObscuredIntVector a, ObscuredIntVector b)
 	{
 		return !(a == b);
+	}
+
+	public Vector3 ToVector3()
+	{
+		return new Vector3((short)x, (short)y, (short)z);
+	}
+
+	public override string ToString()
+	{
+		return string.Concat("x: ", x, " y: ", y, " z: ", z);
 	}
 
 	public static ObscuredIntVector operator +(ObscuredIntVector i1)
@@ -165,5 +145,25 @@ public struct ObscuredIntVector
 	public static ObscuredIntVector operator /(ObscuredIntVector iV, int i)
 	{
 		return new ObscuredIntVector((short)((short)iV.x / i), (short)((short)iV.y / i), (short)((short)iV.z / i));
+	}
+
+	public int SquareMagnitude()
+	{
+		return (short)x * (short)x + (short)y * (short)y + (short)z * (short)z;
+	}
+
+	public static int ObscuredIntVectorToIndex(ObscuredIntVector ObscuredIntVector, int chunkSize)
+	{
+		return (short)ObscuredIntVector.x + (short)ObscuredIntVector.y * chunkSize + (short)ObscuredIntVector.z * chunkSize * chunkSize;
+	}
+
+	public static ObscuredIntVector IndexToObscuredIntVector(int index, int chunkSize)
+	{
+		int num = chunkSize * chunkSize;
+		int num2 = index / num;
+		int num3 = index % num * chunkSize;
+		int num4 = num3 / num;
+		int num5 = num3 % num * chunkSize / num;
+		return new ObscuredIntVector((short)num5, (short)num4, (short)num2);
 	}
 }

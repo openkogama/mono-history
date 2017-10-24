@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class DictionaryWithChangeEvent<TKey, TValue> : IEnumerable, ICollection<KeyValuePair<TKey, TValue>>, IDictionary<TKey, TValue>, IEnumerable<KeyValuePair<TKey, TValue>>
+public class DictionaryWithChangeEvent<TKey, TValue> : IDictionary<TKey, TValue>, IEnumerable, ICollection<KeyValuePair<TKey, TValue>>, IEnumerable<KeyValuePair<TKey, TValue>>
 {
 	public delegate void OnDictionaryChangeDelegate(IDictionary<TKey, TValue> dictionary);
 
@@ -33,11 +33,6 @@ public class DictionaryWithChangeEvent<TKey, TValue> : IEnumerable, ICollection<
 	public DictionaryWithChangeEvent()
 	{
 		dictionary = new Dictionary<TKey, TValue>();
-	}
-
-	IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
-	{
-		return dictionary.GetEnumerator();
 	}
 
 	public void Add(KeyValuePair<TKey, TValue> pair)
@@ -80,6 +75,11 @@ public class DictionaryWithChangeEvent<TKey, TValue> : IEnumerable, ICollection<
 	public bool ContainsKey(TKey key)
 	{
 		return dictionary.ContainsKey(key);
+	}
+
+	IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
+	{
+		return dictionary.GetEnumerator();
 	}
 
 	public IEnumerator GetEnumerator()

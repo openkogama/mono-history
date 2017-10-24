@@ -4,24 +4,6 @@ using UnityEngine;
 
 public class HamsterWheelMotor : SimpleVehicleMotorBase
 {
-	private const float maxSpeed = 38.8f;
-
-	private const float minSpeed = -10f;
-
-	private const float accelerationSpeed = 48f;
-
-	private const float angularSpeed = 1.4f;
-
-	private const float recalibrateCameraFactor = 1.05f;
-
-	private const float waterProximityThresshold = 0.01f;
-
-	private const float waterDownVelocity = 50f;
-
-	private const float waterOffset = -0.6f;
-
-	private const float maxUnderWaterYMovement = 40f;
-
 	private ImpactState impactState = new ImpactState(RuntimeEventType.VehicleImpact25, RuntimeEventType.VehicleImpact50, RuntimeEventType.VehicleImpact75);
 
 	private HamsterWheelBounceState bounceState;
@@ -30,7 +12,25 @@ public class HamsterWheelMotor : SimpleVehicleMotorBase
 
 	private Vector3 curVelocity = Vector3.zero;
 
-	private Vector3 speed = new Vector3(0f, 0f, 0f);
+	private float speed;
+
+	private float maxSpeed = 38.8f;
+
+	private float minSpeed = -10f;
+
+	private const float accelerationSpeed = 48f;
+
+	private float angularSpeed = 1.4f;
+
+	private float recalibrateCameraFactor = 1.05f;
+
+	private float waterProximityThresshold = 0.01f;
+
+	private float waterDownVelocity = 50f;
+
+	private float waterOffset = -0.6f;
+
+	private float maxUnderWaterYMovement = 40f;
 
 	private float platformerRotSpeed = 4.4f;
 
@@ -114,29 +114,57 @@ public class HamsterWheelMotor : SimpleVehicleMotorBase
 
 	private Vector3 GetVehicleVelocityClassicCam(Vector3 velocity, Vector3 movableVelocity)
 	{
-		float maxLength = interactable.HandleModifierEffect(AvatarModifierEffect.Speed, 38.8f);
+		float num = interactable.HandleModifierEffect(AvatarModifierEffect.Speed, maxSpeed);
 		velocity -= (velocity - 0.98f * velocity) * (Time.fixedDeltaTime / 0.02f);
+		if (HandleInput)
+		{
+			Controller.transform.Rotate(Vector3.up, Time.fixedDeltaTime * angularSpeed * DirectInputMoveMap.x * Mathf.Abs(MVInputWrapper.GetAxis("Horizontal")) * 57.29578f, Space.World);
+		}
 		if (Mathf.Abs(DirectInputMoveMap.z) > 0f || (double)Mathf.Abs(DirectInputMoveMap.x) > 0.0)
 		{
 			Quaternion quaternion = Quaternion.Euler(0f, VehicleCamera.RotationAroundY, 0f);
-			Quaternion quaternion2 = Quaternion.Slerp(Controller.transform.rotation, Controller.transform.rotation * quaternion, Time.fixedDeltaTime * 1.05f);
-			float num = Quaternion.Angle(quaternion2, Controller.transform.rotation);
+			Quaternion quaternion2 = Quaternion.Slerp(Controller.transform.rotation, Controller.transform.rotation * quaternion, Time.fixedDeltaTime * recalibrateCameraFactor);
+			float num2 = Quaternion.Angle(quaternion2, Controller.transform.rotation);
 			Controller.transform.rotation = quaternion2;
 			if (VehicleCamera.RotationAroundY < 0f)
 			{
-				VehicleCamera.RotationAroundY += num;
+				VehicleCamera.RotationAroundY += num2;
 			}
 			else
 			{
-				VehicleCamera.RotationAroundY -= num;
+				VehicleCamera.RotationAroundY -= num2;
 			}
 		}
-		speed = new Vector3(DirectInputMoveMap.x, 0f, DirectInputMoveMap.z) * 48f;
-		speed = Vector3.ClampMagnitude(speed, maxLength);
-		speed = Camera.main.transform.localToWorldMatrix * speed;
-		velocity += speed * Time.fixedDeltaTime;
-		float num2 = WaterProximity();
-		velocity = ((!(num2 > 0.01f)) ? ApplyGravity(velocity, curVelocity, interactableLocal) : ApplyWaterGravity(velocity, num2));
+		if (DirectInputMoveMap.z > 0f)
+		{
+			if (speed < num)
+			{
+				speed += 48f * Time.fixedDeltaTime;
+			}
+			if (speed > num)
+			{
+				speed = num;
+			}
+		}
+		if (DirectInputMoveMap.z < 0f)
+		{
+			if (speed > minSpeed)
+			{
+				speed -= 48f * Time.fixedDeltaTime;
+			}
+			if (speed < minSpeed)
+			{
+				speed = minSpeed;
+			}
+		}
+		if (DirectInputMoveMap.z == 0f)
+		{
+			speed = 0f;
+		}
+		Vector3 vector = transform.forward * speed * Time.fixedDeltaTime;
+		velocity += vector;
+		float num3 = WaterProximity();
+		velocity = ((!(num3 > waterProximityThresshold)) ? ApplyGravity(velocity, curVelocity, interactableLocal) : ApplyWaterGravity(velocity, num3));
 		velocity = bounceState.ApplyBounceVelocityMaterials(velocity);
 		velocity = jumpState.ApplyJumping(interactableLocal, groundState, density, 0f, Jump, velocity, movableVelocity);
 		velocity = GetImpulse(velocity, interactableLocal);
@@ -146,7 +174,7 @@ public class HamsterWheelMotor : SimpleVehicleMotorBase
 	private Vector3 GetVehicleVelocityPlatformerCam(Vector3 velocity, Vector3 movableVelocity)
 	{
 		velocity -= (velocity - 0.98f * velocity) * (Time.fixedDeltaTime / 0.02f);
-		float num = interactable.HandleModifierEffect(AvatarModifierEffect.Speed, 38.8f);
+		float num = interactable.HandleModifierEffect(AvatarModifierEffect.Speed, maxSpeed);
 		if (DirectInputMoveMap.sqrMagnitude > 0f)
 		{
 			lastKnownMovementDir = DirectInputMoveMap;
@@ -194,7 +222,7 @@ public class HamsterWheelMotor : SimpleVehicleMotorBase
 		}
 		velocity += platformerSpeed * platformerSpeedFactor * Time.fixedDeltaTime;
 		float num2 = WaterProximity();
-		velocity = ((!(num2 > 0.01f)) ? ApplyGravity(velocity, curVelocity, interactableLocal) : ApplyWaterGravity(velocity, num2));
+		velocity = ((!(num2 > waterProximityThresshold)) ? ApplyGravity(velocity, curVelocity, interactableLocal) : ApplyWaterGravity(velocity, num2));
 		velocity = bounceState.ApplyBounceVelocityMaterials(velocity);
 		velocity = jumpState.ApplyJumping(interactableLocal, groundState, density, 0f, Jump, velocity, movableVelocity);
 		velocity = GetImpulse(velocity, interactableLocal);
@@ -220,15 +248,15 @@ public class HamsterWheelMotor : SimpleVehicleMotorBase
 	private float WaterProximity()
 	{
 		WaterPlaneManager waterPlaneManager = MVGameControllerBase.WaterPlaneManager;
-		return waterPlaneManager.ComputeAvatarWaterProximity(gameObject.transform.position + Vector3.up * -0.6f);
+		return waterPlaneManager.ComputeAvatarWaterProximity(gameObject.transform.position + Vector3.up * waterOffset);
 	}
 
 	protected Vector3 ApplyWaterGravity(Vector3 velocity, float waterProximity)
 	{
-		velocity.y += 50f * Time.deltaTime * waterProximity;
+		velocity.y += waterDownVelocity * Time.deltaTime * waterProximity;
 		if (velocity.y > 0f)
 		{
-			velocity.y = Mathf.Clamp(velocity.y, 0f, 40f);
+			velocity.y = Mathf.Clamp(velocity.y, 0f, maxUnderWaterYMovement);
 		}
 		return velocity;
 	}

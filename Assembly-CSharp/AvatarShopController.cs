@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-public class AvatarShopController : MonoBehaviour, IEventSystemHandler, IPurchaseAvatar
+public class AvatarShopController : MonoBehaviour, IPurchaseAvatar, IEventSystemHandler
 {
 	private InventoryController inventoryController;
 

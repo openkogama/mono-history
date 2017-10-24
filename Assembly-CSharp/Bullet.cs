@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
@@ -24,7 +23,7 @@ public class Bullet : MonoBehaviour
 
 		private Vector3 prevPos;
 
-		private Ray ray;
+		private Ray ray = default;
 
 		private readonly HashSet<int> ignoreWoIDs;
 
@@ -67,7 +66,7 @@ public class Bullet : MonoBehaviour
 		private static bool DoBulletCollision(Ray ray, out VoxelHit voxelHit, float distance, HashSet<int> ignoreWoIDs)
 		{
 			LayerMask layerMask = -5;
-			layerMask = (int)layerMask & ~(1 << (LayerMask.NameToLayer("Logic") & 0x1F));
+			layerMask = (int)layerMask & ~(1 << LayerMask.NameToLayer("Logic"));
 			if (CollisionDetection.MVHit(ray, out voxelHit, distance, ignoreWoIDs, layerMask))
 			{
 				Debug.DrawLine(voxelHit.point, voxelHit.point + Vector3.up, Color.green, 10f);
@@ -94,8 +93,6 @@ public class Bullet : MonoBehaviour
 	public OnHitDelegate onHit;
 
 	public OnHitDelegate onHitLocal;
-
-	public Action<Ray> onOutOfRange;
 
 	private PoolEnums initiatedPoolType;
 
@@ -166,9 +163,8 @@ public class Bullet : MonoBehaviour
 	private void Update()
 	{
 		CollisionBullet.State state = collisionBullet.Update(out var voxelHit);
-		switch (state)
+		if (state == CollisionBullet.State.Hit)
 		{
-		case CollisionBullet.State.Hit:
 			hit = true;
 			if (onHit != null)
 			{
@@ -180,13 +176,6 @@ public class Bullet : MonoBehaviour
 				onHitLocal(voxelHit, lineOfFire);
 				onHitLocal = null;
 			}
-			break;
-		case CollisionBullet.State.OutOfRange:
-			if (onOutOfRange != null)
-			{
-				onOutOfRange(lineOfFire);
-			}
-			break;
 		}
 		currentAirTime += Time.deltaTime;
 		if (!hit && currentAirTime <= maxAirTime)
@@ -203,7 +192,7 @@ public class Bullet : MonoBehaviour
 			}
 		}
 		cullingSubscriberBase.Position = transform.position;
-		if (state != CollisionBullet.State.Hit && state != CollisionBullet.State.OutOfRange)
+		if (state != CollisionBullet.State.Hit && state != CollisionBullet.State.OutOfRange && !hasCleaned)
 		{
 			return;
 		}
@@ -250,7 +239,6 @@ public class Bullet : MonoBehaviour
 	{
 		onHit = null;
 		onHitLocal = null;
-		onOutOfRange = null;
 		ignoreWoIDs.Clear();
 		isFired = false;
 		hit = false;
@@ -328,7 +316,7 @@ public class Bullet : MonoBehaviour
 		if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
 		{
 			LayerMask layerMask = -5;
-			layerMask = (int)layerMask & ~(1 << (LayerMask.NameToLayer("Logic") & 0x1F));
+			layerMask = (int)layerMask & ~(1 << LayerMask.NameToLayer("Logic"));
 			if (CollisionDetection.MVHit(lineOfFire, out var voxelHit, maxRange, ignoreWoIDs, layerMask))
 			{
 				Debug.DrawLine(lineOfFire.origin, lineOfFire.GetPoint(voxelHit.distance), Color.yellow, 10f);

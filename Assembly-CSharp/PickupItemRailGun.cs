@@ -217,10 +217,10 @@ public class PickupItemRailGun : PickupItemWithDelay
 				{
 					MVGameControllerBase.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, baseDamage);
 					InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
-					if (interactionDataHandlerBase != null)
+					if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
 					{
 						InteractionData interaction = RailgunHitPackage.Create();
-						interactionDataHandlerBase.HandleInteraction(owner, interaction, interactionIsLocal: false);
+						interactionDataHandlerBase.HandleInteraction(interaction, interactionIsLocal: false);
 					}
 				}
 				if (worldObjectClient is IBulletImpactVisualizer)

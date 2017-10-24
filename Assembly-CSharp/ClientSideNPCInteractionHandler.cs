@@ -12,15 +12,6 @@ public class ClientSideNPCInteractionHandler : InteractionDataHandlerBase
 		InteractionPackageType.GodzillaLaserBurnXL
 	};
 
-	private MVTeam team = MVTeam.Server;
-
-	public override MVTeam Team => team;
-
-	public void SetTeam(MVTeam team)
-	{
-		this.team = team;
-	}
-
 	public override bool CanHandle(InteractionPackageType interactionPackageType, bool interactionIsLocal)
 	{
 		if (interactionIsLocal)
@@ -30,19 +21,19 @@ public class ClientSideNPCInteractionHandler : InteractionDataHandlerBase
 		return true;
 	}
 
-	public override bool HandleInteraction(MVPickupOwner interactor, InteractionData interaction, bool interactionIsLocal)
+	public override bool HandleInteraction(InteractionData interaction, bool interactionIsLocal)
 	{
 		if (!CanHandle(interaction.InteractionType, interactionIsLocal))
 		{
 			return false;
 		}
-		if (!IsFriendlyFire(interactor) && !unableToDamageNPCs.Contains(interaction.InteractionType))
+		worldObjectParent.SendPackage(new Dictionary<object, object> { 
 		{
-			worldObjectParent.SendPackage(new Dictionary<object, object> { 
-			{
-				(byte)0,
-				interaction.ToByteArray()
-			} });
+			(byte)0,
+			interaction.ToByteArray()
+		} });
+		if (!unableToDamageNPCs.Contains(interaction.InteractionType))
+		{
 			MVGameControllerBase.CameraController.PlayPlingSound();
 			MVGameControllerBase.IPlayModeUI.GetCrossHair().ShowHasHitEffect();
 		}

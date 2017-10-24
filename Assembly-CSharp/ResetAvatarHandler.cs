@@ -5,8 +5,6 @@ using UnityEngine.UI;
 
 public class ResetAvatarHandler : MonoBehaviour, IDragHandler, IPointerDownHandler, IPointerUpHandler, IEventSystemHandler
 {
-	private const string mouseX = "Mouse X";
-
 	[SerializeField]
 	private AvatarScreenShooter screenShooter;
 
@@ -45,6 +43,8 @@ public class ResetAvatarHandler : MonoBehaviour, IDragHandler, IPointerDownHandl
 	private AvatarPreviewer fromPreviewer;
 
 	private AvatarPreviewer toPreviewer;
+
+	private const string mouseX = "Mouse X";
 
 	private bool imagesReady;
 

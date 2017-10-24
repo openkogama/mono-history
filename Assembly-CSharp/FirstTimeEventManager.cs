@@ -76,11 +76,11 @@ public static class FirstTimeEventManager
 
 	public static void ResetFirstTimeEvents(bool overrideValue)
 	{
-		foreach (int value in Enum.GetValues(typeof(FirstTimeEvent)))
+		foreach (FirstTimeEvent value in Enum.GetValues(typeof(FirstTimeEvent)))
 		{
-			if (value != -1)
+			if (value != FirstTimeEvent.NoEvent)
 			{
-				firstTimeState.OverrideFirstTimeEvent((FirstTimeEvent)value, overrideValue);
+				firstTimeState.OverrideFirstTimeEvent(value, overrideValue);
 			}
 		}
 		MVGameControllerBase.Game.OperationRequestSender.ResetFirstTimeEvents(overrideValue);

@@ -93,10 +93,10 @@ public class PickupItemCenterGun : PickupItemWithDelay
 		if (worldObjectClient != null)
 		{
 			InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
-			if (interactionDataHandlerBase != null)
+			if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
 			{
 				InteractionData interaction = CenterGunHitPackage.Create(lineOfFire.direction * impulseStrength);
-				interactionDataHandlerBase.HandleInteraction(owner, interaction, interactionIsLocal: false);
+				interactionDataHandlerBase.HandleInteraction(interaction, interactionIsLocal: false);
 			}
 		}
 	}

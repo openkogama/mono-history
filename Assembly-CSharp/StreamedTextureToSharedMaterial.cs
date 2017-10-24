@@ -3,8 +3,8 @@ using UnityEngine;
 public class StreamedTextureToSharedMaterial : StreamingAsset<Texture2D, Texture2D>
 {
 	[Header("Configuration")]
-	[Tooltip("For standard unity shaders \"_MainTex\" is the main textures name.")]
 	[SerializeField]
+	[Tooltip("For standard unity shaders \"_MainTex\" is the main textures name.")]
 	protected string shaderTextureVariableName = "_MainTex";
 
 	[Header("Dependencies")]
@@ -13,7 +13,7 @@ public class StreamedTextureToSharedMaterial : StreamingAsset<Texture2D, Texture
 
 	public void Reset()
 	{
-		if (material == null && GetComponent<Renderer>() != null)
+		if (material == null)
 		{
 			material = GetComponent<Renderer>().sharedMaterial;
 		}

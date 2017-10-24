@@ -25,13 +25,7 @@ internal static class JavaScriptUtils
 					'\r' => "\\r", 
 					'\f' => "\\f", 
 					'\b' => "\\b", 
-					'\\' => "\\\\", 
-					'\u0085' => "\\u0085", 
-					'\u2028' => "\\u2028", 
-					'\u2029' => "\\u2029", 
-					'\'' => (delimiter != '\'') ? null : "\\'", 
-					'"' => (delimiter != '"') ? null : "\\\"", 
-					_ => (c > '\u001f') ? null : StringUtils.ToCharAsUnicode(c), 
+					_ => (c == '\u2028') ? "\\u2028" : ((c == '\u2029') ? "\\u2029" : ((c == '"') ? ((delimiter != '"') ? null : "\\\"") : ((c == '\'') ? ((delimiter != '\'') ? null : "\\'") : ((c == '\\') ? "\\\\" : ((c != '\u0085') ? ((c > '\u001f') ? null : StringUtils.ToCharAsUnicode(c)) : "\\u0085"))))), 
 				};
 				if (text != null)
 				{

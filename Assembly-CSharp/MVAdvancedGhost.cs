@@ -1,19 +1,12 @@
 using System;
 using System.Collections.Generic;
 using MV.Common;
-using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.Events;
 
 public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 {
 	private const string _prefab = "Prefabs/AdvancedGhost/AdvancedGhost";
-
-	private const float deathExplosionDamageValue = 20f;
-
-	private const float deathExplosionRadius = 5f;
-
-	private const float deathExplosionImpulse = 1000f;
 
 	private AdvancedGhostBehaviour advancedGhostBehaviour;
 
@@ -23,29 +16,27 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 
 	private AdvancedGhostIcon advancedGhostIcon;
 
-	private AdvancedGhostObject advGhostObject;
+	private float deathExplosionDamageValue = 20f;
 
-	private ClientSideNPCInteractionHandler interactionHandler;
+	private float deathExplosionRadius = 5f;
+
+	private float deathExplosionImpulse = 1000f;
 
 	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.Oculus;
-
-	private MVTeam Team => (!Data.ContainsKey("team")) ? MVTeam.Server : ((MVTeam)(int)Data["team"]);
 
 	public override Vector3 WorldPivot => transform.position;
 
 	public MVAdvancedGhost(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVAdvancedGhostPrefab, worldObjects)
 	{
-		interactionFlags |= InteractionFlags.Selectable | InteractionFlags.CanRotateY | InteractionFlags.CanEdit | InteractionFlags.CanClone | InteractionFlags.HasSettings | InteractionFlags.CanUseTeam;
-		advGhostObject = (AdvancedGhostObject)component;
+		interactionFlags |= InteractionFlags.Selectable | InteractionFlags.CanRotateY | InteractionFlags.CanEdit | InteractionFlags.CanClone | InteractionFlags.HasSettings;
 	}
 
 	public override void Initialize()
 	{
 		base.Initialize();
 		MVCubeModelInstance mVCubeModelInstance = (MVCubeModelInstance)GetChild("BodyCubeModel");
-		interactionHandler = GameObject.GetComponent<ClientSideNPCInteractionHandler>();
-		interactionHandler.FindWorldObjectParent();
+		GameObject.GetComponent<ClientSideNPCInteractionHandler>().FindWorldObjectParent();
 		interactable = GameObject.AddComponent<ClientSideNPCInteractable>();
 		interactable.Init(ReceiveDamage);
 		AdvancedGhostMotor advancedGhostMotor = GameObject.AddComponent<AdvancedGhostMotor>();
@@ -73,7 +64,7 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 		advancedGhostIcon.transform.parent = transform;
 		advancedGhostIcon.transform.localPosition = Vector3.zero;
 		advancedGhostIcon.transform.localRotation = Quaternion.identity;
-		advancedGhostIcon.Init(this, cubeModelBody, enableCulling, advGhostObject.TintedMaterial);
+		advancedGhostIcon.Init(this, cubeModelBody, enableCulling);
 	}
 
 	public override void InitializeInventory()
@@ -147,7 +138,7 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 		if (interactable.IsDead())
 		{
 			HashSet<int> worldIDsRecursive = WorldIDsRecursive;
-			SharedWorldObjectGameplayFunctions.Explosion.Explode(PrefabPool.Instance.ParticleExplosion, advancedGhostBehaviour.GhostVisualization.transform.position, 20f, 5f, 1000f, local: true, null, worldIDsRecursive);
+			SharedWorldObjectGameplayFunctions.Explosion.Explode(PrefabPool.Instance.ParticleExplosion, advancedGhostBehaviour.GhostVisualization.transform.position, deathExplosionDamageValue, deathExplosionRadius, deathExplosionImpulse, local: true, null, worldIDsRecursive);
 		}
 	}
 
@@ -165,25 +156,6 @@ public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber
 		{
 			advancedGhostIcon.Radius = (float)Data["Radius"];
 		}
-		if (Team == MVTeam.None)
-		{
-			Dictionary<object, object> dictionary = new Dictionary<object, object>();
-			dictionary.Add("team", 0);
-			MVGameControllerBase.OperationRequests.RemoveWorldObjectDataPartial(id, dictionary);
-		}
-		SetTeam(Team);
-		advancedGhostBehaviour.Lives = -1;
-		if (Data.ContainsKey("Lives"))
-		{
-			advancedGhostBehaviour.Lives = (int)Data["Lives"];
-		}
-	}
-
-	private void SetTeam(MVTeam team)
-	{
-		advGhostObject.TintObject.TeamTint(team);
-		advancedGhostBehaviour.SetTeam(team);
-		interactionHandler.SetTeam(team);
 	}
 
 	public void GameStateChanged(UpdateCondition condition)

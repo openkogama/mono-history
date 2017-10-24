@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class AvatarInputControllerAndroid : IMotorAPI, IAvatarInputController
+public class AvatarInputControllerAndroid : IAvatarInputController, IMotorAPI
 {
 	private Vector3 direction = Vector3.zero;
 

@@ -21,15 +21,15 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase
 
 		protected override MVVehicleBase Owner => owner;
 
-		public LocalObjectsSimpleVehicle(MVSimpleOneSeatVehicle vehicleBase, SmoothCharacterController smoothController, SimpleVehicleMotorBase motor)
+		public LocalObjectsSimpleVehicle(MVSimpleOneSeatVehicle vehicleBase, SmoothCharacterController smoothController, SimpleVehicleMotorBase hoverCraftMotor)
 		{
 			MVRuntimeDataVariableClampedFloat health = vehicleBase.Health;
 			health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnHealthChange));
 			GameObject gameObject = vehicleBase.GameObject;
 			VehicleInteractable vehicleInteractable = gameObject.AddComponent<VehicleInteractable>();
 			vehicleInteractable.Init(vehicleBase.Modifiers, vehicleBase.Health);
-			motor.Init(smoothController, vehicleInteractable);
-			onLeave = (Action)Delegate.Combine(onLeave, new Action(motor.OnLocalVehicleLeave));
+			hoverCraftMotor.Init(smoothController, vehicleInteractable);
+			onLeave = (Action)Delegate.Combine(onLeave, new Action(hoverCraftMotor.OnLocalVehicleLeave));
 			VehicleEquipable vehicleEquipable = gameObject.AddComponent<VehicleEquipable>();
 			vehicleEquipable.Init(vehicleInteractable, vehicleBase.CurrentItem);
 			pickupOwner = vehicleBase.GameObject.GetComponent<VehiclePickupOwner>();
@@ -42,10 +42,10 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase
 			triggerHandler = gameObject.AddComponent<MVTriggerHandler>();
 			localComponents.Add(vehicleInteractable);
 			localComponents.Add(smoothController);
-			localComponents.Add(motor);
+			localComponents.Add(hoverCraftMotor);
 			localComponents.Add(vehicleEquipable);
 			localComponents.Add(triggerHandler);
-			vehicleMotor = motor;
+			vehicleMotor = hoverCraftMotor;
 			owner = vehicleBase;
 		}
 

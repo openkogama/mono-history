@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-public class EditModeClientShopController : MonoBehaviour, IEventSystemHandler, IPurchaseClientShopItem, IOpenClientShop
+public class EditModeClientShopController : MonoBehaviour, IPurchaseClientShopItem, IOpenClientShop, IEventSystemHandler
 {
 	[SerializeField]
 	private InventoryController inventoryControllerPrefab;

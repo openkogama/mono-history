@@ -9,8 +9,7 @@ public static class WorldObjectDataValidator
 		{ "levelAmount", 0 },
 		{ "gameCoinAmount", 0 },
 		{ "starAmount", 0 },
-		{ "team", 0 },
-		{ "Lives", -1 }
+		{ "team", 0 }
 	};
 
 	public static void Validate(MVWorldObjectClient wo, string key, object value)

@@ -15,21 +15,7 @@ public class AdvancedGhostBodyRotateWeapon : MonoBehaviour
 
 	private AudioSource weaponHitSound;
 
-	public MVTeam alliedTeam = MVTeam.Server;
-
 	private List<AdvancedGhostTriggerBase> ghostTriggers = new List<AdvancedGhostTriggerBase>();
-
-	public MVTeam AlliedTeam
-	{
-		get
-		{
-			return alliedTeam;
-		}
-		set
-		{
-			alliedTeam = value;
-		}
-	}
 
 	public void SetAttackValueFactor(float factor)
 	{
@@ -76,35 +62,31 @@ public class AdvancedGhostBodyRotateWeapon : MonoBehaviour
 		foreach (AdvancedGhostTriggerBase ghostTrigger in ghostTriggers)
 		{
 			int[] attackTargets = ghostTrigger.AttackTargets;
-			foreach (int woid in attackTargets)
+			foreach (int id in attackTargets)
 			{
-				Attack(woid);
+				WorldObjectClientRef worldObjectClientRef = MVGameControllerBase.WOCM.GetWorldObjectClientRef(id);
+				if (worldObjectClientRef == null || worldObjectClientRef.WorldObjectClient == null)
+				{
+					continue;
+				}
+				InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClientRef.WorldObjectClient.InteractionDataHandlerBase;
+				if (timeoutMap.Contains(worldObjectClientRef.WorldObjectClient.Id))
+				{
+					continue;
+				}
+				if (interactionDataHandlerBase == null)
+				{
+					Debug.LogError("WorldObject does not have interactionHandler");
+					continue;
+				}
+				Vector3 vector = (worldObjectClientRef.WorldObjectClient.GetTargetPosition() - gameObject.transform.position).normalized * impulseStrength;
+				InteractionData interaction = AdvancedGhostBodyRotateWeaponPackage.Create(damage * factor, vector * factor);
+				if (interactionDataHandlerBase.HandleInteraction(interaction, interactionIsLocal: true))
+				{
+					timeoutMap.Add(worldObjectClientRef.WorldObjectClient.Id);
+					weaponHitSound.Play();
+				}
 			}
-		}
-	}
-
-	private void Attack(int woid)
-	{
-		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woid);
-		if (worldObjectClient == null || timeoutMap.Contains(worldObjectClient.Id))
-		{
-			return;
-		}
-		InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
-		if (interactionDataHandlerBase != null)
-		{
-			float num = ((MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(worldObjectClient.OwnerActorNr) != AlliedTeam) ? (damage * factor) : 0f);
-			Vector3 vector = (worldObjectClient.GetTargetPosition() - gameObject.transform.position).normalized * impulseStrength;
-			InteractionData interaction = AdvancedGhostBodyRotateWeaponPackage.Create(num, vector * factor);
-			if (interactionDataHandlerBase.HandleInteraction(interaction, interactionIsLocal: true))
-			{
-				timeoutMap.Add(worldObjectClient.Id);
-				weaponHitSound.Play();
-			}
-		}
-		else
-		{
-			Debug.LogError("WorldObject does not have interactionHandler");
 		}
 	}
 }

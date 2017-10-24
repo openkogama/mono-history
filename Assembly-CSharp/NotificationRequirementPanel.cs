@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class NotificationRequirementPanel : MonoBehaviour, IEventSystemHandler, INotificationRequirementPanel
+public class NotificationRequirementPanel : MonoBehaviour, INotificationRequirementPanel, IEventSystemHandler
 {
 	[SerializeField]
 	protected Image checkmark;

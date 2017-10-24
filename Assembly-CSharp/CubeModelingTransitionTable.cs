@@ -12,7 +12,7 @@ internal class CubeModelingTransitionTable : StateTransitionTable
 		foreach (KeyValuePair<object, IState> item in table)
 		{
 			CubeModelTool cubeModelTool = (CubeModelTool)item.Value;
-			cubeModelTool.SetStateType((CubeModelingEvent)(int)item.Key);
+			cubeModelTool.SetStateType((CubeModelingEvent)item.Key);
 		}
 	}
 }

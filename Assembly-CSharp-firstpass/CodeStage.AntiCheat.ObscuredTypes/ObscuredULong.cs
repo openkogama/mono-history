@@ -47,7 +47,7 @@ public struct ObscuredULong : IEquatable<ObscuredULong>, IFormattable
 
 	public static ulong Encrypt(ulong value, ulong key)
 	{
-		if (key == 0L)
+		if (key == 0)
 		{
 			return value ^ cryptoKey;
 		}
@@ -56,7 +56,7 @@ public struct ObscuredULong : IEquatable<ObscuredULong>, IFormattable
 
 	public static ulong Decrypt(ulong value, ulong key)
 	{
-		if (key == 0L)
+		if (key == 0)
 		{
 			return value ^ cryptoKey;
 		}
@@ -110,11 +110,48 @@ public struct ObscuredULong : IEquatable<ObscuredULong>, IFormattable
 			inited = true;
 		}
 		ulong num = Decrypt(hiddenValue, currentCryptoKey);
-		if (ObscuredCheatingDetector.IsRunning && fakeValue != 0L && num != fakeValue)
+		if (ObscuredCheatingDetector.IsRunning && fakeValue != 0 && num != fakeValue)
 		{
 			ObscuredCheatingDetector.Instance.OnCheatingDetected();
 		}
 		return num;
+	}
+
+	public static implicit operator ObscuredULong(ulong value)
+	{
+		ObscuredULong result = new ObscuredULong(Encrypt(value));
+		if (ObscuredCheatingDetector.IsRunning)
+		{
+			result.fakeValue = value;
+		}
+		return result;
+	}
+
+	public static implicit operator ulong(ObscuredULong value)
+	{
+		return value.InternalDecrypt();
+	}
+
+	public static ObscuredULong operator ++(ObscuredULong input)
+	{
+		ulong value = input.InternalDecrypt() + 1;
+		input.hiddenValue = Encrypt(value, input.currentCryptoKey);
+		if (ObscuredCheatingDetector.IsRunning)
+		{
+			input.fakeValue = value;
+		}
+		return input;
+	}
+
+	public static ObscuredULong operator --(ObscuredULong input)
+	{
+		ulong value = input.InternalDecrypt() - 1;
+		input.hiddenValue = Encrypt(value, input.currentCryptoKey);
+		if (ObscuredCheatingDetector.IsRunning)
+		{
+			input.fakeValue = value;
+		}
+		return input;
 	}
 
 	public override bool Equals(object obj)
@@ -158,42 +195,5 @@ public struct ObscuredULong : IEquatable<ObscuredULong>, IFormattable
 	public string ToString(string format, IFormatProvider provider)
 	{
 		return InternalDecrypt().ToString(format, provider);
-	}
-
-	public static implicit operator ObscuredULong(ulong value)
-	{
-		ObscuredULong result = new ObscuredULong(Encrypt(value));
-		if (ObscuredCheatingDetector.IsRunning)
-		{
-			result.fakeValue = value;
-		}
-		return result;
-	}
-
-	public static implicit operator ulong(ObscuredULong value)
-	{
-		return value.InternalDecrypt();
-	}
-
-	public static ObscuredULong operator ++(ObscuredULong input)
-	{
-		ulong value = input.InternalDecrypt() + 1;
-		input.hiddenValue = Encrypt(value, input.currentCryptoKey);
-		if (ObscuredCheatingDetector.IsRunning)
-		{
-			input.fakeValue = value;
-		}
-		return input;
-	}
-
-	public static ObscuredULong operator --(ObscuredULong input)
-	{
-		ulong value = input.InternalDecrypt() - 1;
-		input.hiddenValue = Encrypt(value, input.currentCryptoKey);
-		if (ObscuredCheatingDetector.IsRunning)
-		{
-			input.fakeValue = value;
-		}
-		return input;
 	}
 }

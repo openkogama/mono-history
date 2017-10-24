@@ -24,7 +24,7 @@ public class InstructionMessage : Notification
 		base.Initialize(data);
 		text.text = (string)data[(byte)1];
 		currentTime = 0f;
-		lifeTime = (NotificationLifetime)(int)data[(byte)2];
+		lifeTime = (NotificationLifetime)data[(byte)2];
 		Debug.Log("Initialize");
 	}
 

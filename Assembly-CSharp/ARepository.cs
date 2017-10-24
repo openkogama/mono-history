@@ -62,8 +62,7 @@ public abstract class ARepository
 	{
 		UnityAction<Dictionary<object, object>, KogamaDataType> callBack = (Dictionary<object, object> returnData, KogamaDataType dataType) =>
 		{
-			KogamaDataType kogamaDataType = dataType;
-			if (kogamaDataType == KogamaDataType.WorldObjects && returnData.ContainsKey(WorldObjectDataParameters.WorldObjectType))
+			if (dataType == KogamaDataType.WorldObjects && returnData.ContainsKey(WorldObjectDataParameters.WorldObjectType))
 			{
 				WorldObjectType worldObjectType = (WorldObjectType)(int)returnData[WorldObjectDataParameters.WorldObjectType];
 				if (onWorldObjectExtracted != null)

@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class ToolTipController : MonoBehaviour, IEventSystemHandler, IHandleToolTip
+public class ToolTipController : MonoBehaviour, IHandleToolTip, IEventSystemHandler
 {
 	private bool updatedThisFrame;
 

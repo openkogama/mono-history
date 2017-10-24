@@ -30,8 +30,6 @@ public class WaterPlaneManager : MonoBehaviour
 
 	public bool IsActive => waterPlaneLogicCube != null;
 
-	public float WaterElevation => transform.position.y;
-
 	private Color HorizonColor
 	{
 		get
@@ -185,7 +183,7 @@ public class WaterPlaneManager : MonoBehaviour
 			avatarInteractable.AddModifier(AvatarModifierPackageType.Underwater, -1, additionalUnderWaterModifiers);
 			if (waterPlaneLogicCube != null && waterPlaneLogicCube.Data.ContainsKey("avatarModifierPackageType"))
 			{
-				AvatarModifierPackageType avatarModifierPackageType = (AvatarModifierPackageType)(int)waterPlaneLogicCube.Data["avatarModifierPackageType"];
+				AvatarModifierPackageType avatarModifierPackageType = (AvatarModifierPackageType)waterPlaneLogicCube.Data["avatarModifierPackageType"];
 				if (avatarModifierPackageType != AvatarModifierPackageType.None)
 				{
 					AvatarModifierPackage package = AvatarModifierPackageFactory.GetPackage(avatarModifierPackageType);

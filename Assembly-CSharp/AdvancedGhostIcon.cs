@@ -7,23 +7,19 @@ using UnityEngine.Events;
 
 public class AdvancedGhostIcon : MonoBehaviour
 {
-	private const float advancedGhostBodyMaxRadius = 4f;
-
-	private const int ghostIconDistanceBand = 3;
-
-	[SerializeField]
-	private GhostBody ghostBody;
-
-	[SerializeField]
-	private MeshRenderer eyeBallMeshRenderer;
-
 	private bool visible;
 
 	private bool wantsVisible;
 
+	private const float advancedGhostBodyMaxRadius = 4f;
+
+	private const int ghostIconDistanceBand = 3;
+
 	private CullingSubscriberBase cullingSubscriberBase;
 
 	private SphereVolumeIndicator sphereVolumeIndicator;
+
+	public GhostBody GhostBody;
 
 	public float Radius
 	{
@@ -33,7 +29,7 @@ public class AdvancedGhostIcon : MonoBehaviour
 		}
 	}
 
-	public void Init(MVAdvancedGhost advancedGhost, MVCubeModelBase body, bool enabledCulling, Material material)
+	public void Init(MVAdvancedGhost advancedGhost, MVCubeModelBase body, bool enabledCulling)
 	{
 		AddSphereVolumeIndicator(advancedGhost.Id);
 		body.Changed = (Action<CubeModelChangedEventArgs>)Delegate.Combine(body.Changed, new Action<CubeModelChangedEventArgs>(body_Changed));
@@ -41,13 +37,10 @@ public class AdvancedGhostIcon : MonoBehaviour
 		if (enabledCulling)
 		{
 			SetupCulling(advancedGhost);
+			return;
 		}
-		else
-		{
-			visible = true;
-			wantsVisible = true;
-		}
-		eyeBallMeshRenderer.sharedMaterial = material;
+		visible = true;
+		wantsVisible = true;
 	}
 
 	public void SetGameMode(bool isPlayMode)
@@ -90,21 +83,21 @@ public class AdvancedGhostIcon : MonoBehaviour
 
 	private void CloneCubeMeshes(MVCubeModelBase body)
 	{
-		ghostBody.transform.localScale = Vector3.one;
-		foreach (Transform item in ghostBody.transform)
+		GhostBody.transform.localScale = Vector3.one;
+		foreach (Transform item in GhostBody.transform)
 		{
 			UnityEngine.Object.Destroy(item.gameObject);
 		}
 		foreach (KeyValuePair<IntVector, ChunkInstances.ChunkInstanceVariables> item2 in (IEnumerable)body.ChunkInstances)
 		{
 			GameObject gameObject = UnityEngine.Object.Instantiate(item2.Value.gameObject);
-			gameObject.transform.parent = ghostBody.transform;
+			gameObject.transform.parent = GhostBody.transform;
 			gameObject.transform.localPosition = Vector3.zero;
 			gameObject.transform.localRotation = Quaternion.identity;
-			gameObject.gameObject.layer = ghostBody.gameObject.layer;
-			gameObject.gameObject.SetActive(ghostBody.gameObject.activeSelf);
+			gameObject.gameObject.layer = GhostBody.gameObject.layer;
+			gameObject.gameObject.SetActive(GhostBody.gameObject.activeSelf);
 		}
-		ghostBody.transform.localScale = body.Transform.localScale;
+		GhostBody.transform.localScale = body.Transform.localScale;
 	}
 
 	private void body_Changed(CubeModelChangedEventArgs e)

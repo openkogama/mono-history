@@ -4,7 +4,7 @@ using MV.WorldObject.MetaData;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public abstract class FirstTimeActivatableElementBase : FirstTimeEventHandler, IEventSystemHandler, IFirstTimeEventSkip, IActivatableFirstTimeUiElement
+public abstract class FirstTimeActivatableElementBase : FirstTimeEventHandler, IActivatableFirstTimeUiElement, IFirstTimeEventSkip, IEventSystemHandler
 {
 	protected bool isRegistered;
 

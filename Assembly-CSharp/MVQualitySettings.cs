@@ -5,12 +5,6 @@ public class MVQualitySettings : MonoBehaviour
 {
 	public delegate void OnQualityLevedChanged(int level);
 
-	public const int QualitySD = 0;
-
-	public const int QualityHD = 1;
-
-	public const int QualitySDAndroid = 2;
-
 	private static LodData[] lodSettingsFastest = new LodData[2]
 	{
 		new LodData(0f, isVisible: true, shadows: true),
@@ -48,6 +42,12 @@ public class MVQualitySettings : MonoBehaviour
 	};
 
 	private static LodData[][] lodSettings = new LodData[6][] { lodSettingsFastest, lodSettingsFast, lodSettingsSimple, lodSettingsGood, lodSettingsBeautiful, lodSettingsFantastic };
+
+	public const int QualitySD = 0;
+
+	public const int QualityHD = 1;
+
+	public const int QualitySDAndroid = 2;
 
 	public static OnQualityLevedChanged onQualityLevelChanged;
 

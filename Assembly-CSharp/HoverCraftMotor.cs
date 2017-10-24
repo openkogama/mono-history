@@ -4,10 +4,6 @@ using UnityEngine;
 
 public class HoverCraftMotor : SimpleVehicleMotorBase
 {
-	private const float verticalThrustTime = 0.6f;
-
-	private const float stoppedJumpingTimeOut = 0.3f;
-
 	private ImpactState impactState = new ImpactState(RuntimeEventType.VehicleImpact25, RuntimeEventType.VehicleImpact50, RuntimeEventType.VehicleImpact75);
 
 	private Vector3 velocityPrevFrame;
@@ -46,31 +42,33 @@ public class HoverCraftMotor : SimpleVehicleMotorBase
 
 	private float recalibrateCameraFactor = 1.25f;
 
-	private float platformerRotSpeed = 180f;
-
-	private Vector3 lastKnownMovementDir = Vector3.zero;
-
 	private bool started;
 
 	private float startTime;
 
 	private float interval = 5f;
 
-	private float f;
-
 	private float driftCorrectionRotation = 10f;
+
+	private const float verticalThrustTime = 0.6f;
 
 	private float availableVerticalThrustTime = 0.6f;
 
 	private bool wasJumping;
 
-	private float stoppedJumpingTime = Time.time - 0.3f;
+	private const float stoppedJumpingTimeOut = 0.3f;
+
+	private float stoppedJumpingTime;
 
 	private float regenerationFactor = 0.6f;
 
 	private bool isVerticalThrusting;
 
 	private float jumpForce = 4f;
+
+	private float platformerRotSpeed = 180f;
+
+	private Vector3 lastKnownMovementDir = Vector3.zero;
 
 	public IVehicleCamera VehicleCamera { private get; set; }
 
@@ -193,18 +191,13 @@ public class HoverCraftMotor : SimpleVehicleMotorBase
 
 	private bool CanRotate()
 	{
-		float b = 10f;
-		f = Mathf.Lerp(f, b, Time.deltaTime);
 		if (!started && Input.GetKey(KeyCode.D))
 		{
 			startTime = Time.fixedTime;
 			started = true;
 		}
-		if (Time.fixedTime - startTime > interval)
-		{
-			return false;
-		}
-		return true;
+		float num = Time.fixedTime - startTime;
+		return num <= interval;
 	}
 
 	private Vector3 GetVehicleInputVelocityClassicCam(Vector3 velocity)

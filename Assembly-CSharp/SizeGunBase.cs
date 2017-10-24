@@ -56,9 +56,9 @@ public class SizeGunBase : PickupItemWithDelay
 			if (owner.IsLocal && worldObjectClient != null && worldObjectClient is MVAvatar)
 			{
 				InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
-				if (interactionDataHandlerBase != null)
+				if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
 				{
-					interactionDataHandlerBase.HandleInteraction(owner, GetPackageData(), interactionIsLocal: false);
+					interactionDataHandlerBase.HandleInteraction(GetPackageData(), interactionIsLocal: false);
 					((IBulletImpactVisualizer)worldObjectClient).VisualizeBulletImpact(voxelHit, ray, owner.WorldObjectOwner.OwnerActorNr, 0f);
 				}
 			}

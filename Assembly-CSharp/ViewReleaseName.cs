@@ -5,7 +5,4 @@ public class ViewReleaseName : MonoBehaviour
 {
 	[SerializeField]
 	private Text title;
-
-	[SerializeField]
-	private KoGaMaSettingsContainer koGaMaSettingsContainer;
 }

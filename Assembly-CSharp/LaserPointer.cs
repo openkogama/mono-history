@@ -15,8 +15,6 @@ public class LaserPointer : PickupItem, ILaserPointer
 		CubeMaterial
 	}
 
-	private const float syncInverval = 0.4f;
-
 	public Vector3 offset = new Vector3(0.43f, -0.36f, 0.5f);
 
 	public Transform cube;
@@ -52,6 +50,8 @@ public class LaserPointer : PickupItem, ILaserPointer
 	private float activeDuration;
 
 	private float currentLaserAlpha;
+
+	private const float syncInverval = 0.4f;
 
 	[SerializeField]
 	private Renderer cubeRenderer;
@@ -179,7 +179,7 @@ public class LaserPointer : PickupItem, ILaserPointer
 
 	private void Start()
 	{
-		lineRenderer.SetVertexCount(2);
+		lineRenderer.positionCount = 2;
 		ChangeState(state);
 	}
 

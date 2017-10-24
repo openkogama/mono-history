@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class StreamedAudioClipToAudioSource : StreamingAsset<AudioClip, AudioClip>
 {
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	protected AudioSource audioSource;
 
 	public void Reset()
@@ -16,10 +16,9 @@ public class StreamedAudioClipToAudioSource : StreamingAsset<AudioClip, AudioCli
 
 	protected override void OnAssetSet()
 	{
-		bool flag = audioSource.isPlaying && audioSource.loop;
-		bool flag2 = audioSource.playOnAwake && audioSource.clip == null;
+		bool isPlaying = audioSource.isPlaying;
 		audioSource.clip = Asset;
-		if (flag || flag2)
+		if (isPlaying && audioSource.loop)
 		{
 			audioSource.Play();
 		}

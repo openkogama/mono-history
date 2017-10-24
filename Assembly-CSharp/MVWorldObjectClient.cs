@@ -416,7 +416,7 @@ public class MVWorldObjectClient : MVWorldObject
 		id = (int)data[WorldObjectDataParameters.Id];
 		groupId = (int)data[WorldObjectDataParameters.GroudId];
 		itemId = (int)data[WorldObjectDataParameters.ItemId];
-		WorldObjectType = (WorldObjectType)(int)data[WorldObjectDataParameters.WorldObjectType];
+		WorldObjectType = (WorldObjectType)data[WorldObjectDataParameters.WorldObjectType];
 		Vector3 vector = (Vector3)data[WorldObjectDataParameters.Position];
 		if (MathFunctions.VectorIsNan(vector))
 		{
@@ -613,7 +613,7 @@ public class MVWorldObjectClient : MVWorldObject
 	{
 		foreach (KeyValuePair<object, object> item in package)
 		{
-			if ((byte)item.Key == 0)
+			if ((PackageType)item.Key == PackageType.Interaction)
 			{
 				ReceiveInteractionPackage(new InteractionData((byte[])item.Value), p);
 			}
@@ -633,17 +633,17 @@ public class MVWorldObjectClient : MVWorldObject
 	{
 		if (HasInputConnector)
 		{
-			inputConnectorObject = UnityEngine.Object.Instantiate(PrefabPool.Instance.LogicInputConnectorPrefab, gameObject.transform.position + InputConnectorOffset, Quaternion.identity) as GameObject;
+			inputConnectorObject = UnityEngine.Object.Instantiate(PrefabPool.Instance.LogicInputConnectorPrefab, gameObject.transform.position + InputConnectorOffset, Quaternion.identity);
 			inputConnectorObject.transform.parent = gameObject.transform;
 		}
 		if (HasOutputConnector)
 		{
-			outputConnectorObject = UnityEngine.Object.Instantiate(PrefabPool.Instance.LogicOutputConnectorPrefab, gameObject.transform.position + OutputConnectorOffset, Quaternion.identity) as GameObject;
+			outputConnectorObject = UnityEngine.Object.Instantiate(PrefabPool.Instance.LogicOutputConnectorPrefab, gameObject.transform.position + OutputConnectorOffset, Quaternion.identity);
 			outputConnectorObject.transform.parent = gameObject.transform;
 		}
 		if (HasObjectConnector)
 		{
-			objectConnectorObject = UnityEngine.Object.Instantiate(PrefabPool.Instance.LogicObjectConnectorPrefab, gameObject.transform.position + ObjectConnectorOffset, ObjectConnectorRotation) as GameObject;
+			objectConnectorObject = UnityEngine.Object.Instantiate(PrefabPool.Instance.LogicObjectConnectorPrefab, gameObject.transform.position + ObjectConnectorOffset, ObjectConnectorRotation);
 			objectConnectorObject.transform.parent = gameObject.transform;
 		}
 	}
