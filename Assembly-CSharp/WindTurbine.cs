@@ -183,7 +183,7 @@ public class WindTurbine : MVLogicObject, ILogicWorldObject
 		windTurbineObject.AreaColliderTransform.localPosition = localScale;
 		ParticleSystem.MainModule main = windTurbineObject.WindParticleSystem.main;
 		main.startLifetimeMultiplier = windAreaSize / 20f;
-		main.startLifetimeMultiplier = 0.1f;
+		main.startSize = 0.1f;
 	}
 
 	private void Rotate()

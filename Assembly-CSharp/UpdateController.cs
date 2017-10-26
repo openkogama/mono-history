@@ -145,8 +145,7 @@ public static class UpdateController
 
 	private static int GetPresentState()
 	{
-		int num = 0;
-		num++;
+		int num = 1;
 		if (!MVGameControllerBase.IsInitialized)
 		{
 			return num;
