@@ -11,7 +11,7 @@ using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Linq;
 
-public class JObject : JContainer, IDictionary<string, JToken>, INotifyPropertyChanged, ICustomTypeDescriptor, INotifyPropertyChanging, IEnumerable, ICollection<KeyValuePair<string, JToken>>, IEnumerable<KeyValuePair<string, JToken>>
+public class JObject : JContainer, IEnumerable, IDictionary<string, JToken>, ICollection<KeyValuePair<string, JToken>>, INotifyPropertyChanging, ICustomTypeDescriptor, INotifyPropertyChanged, IEnumerable<KeyValuePair<string, JToken>>
 {
 	public class JPropertKeyedCollection : KeyedCollection<string, JToken>
 	{
@@ -116,6 +116,139 @@ public class JObject : JContainer, IDictionary<string, JToken>, INotifyPropertyC
 	public JObject(object content)
 	{
 		Add(content);
+	}
+
+	bool IDictionary<string, JToken>.ContainsKey(string key)
+	{
+		if (_properties.Dictionary == null)
+		{
+			return false;
+		}
+		return _properties.Dictionary.ContainsKey(key);
+	}
+
+	void ICollection<KeyValuePair<string, JToken>>.Add(KeyValuePair<string, JToken> item)
+	{
+		Add(new JProperty(item.Key, item.Value));
+	}
+
+	void ICollection<KeyValuePair<string, JToken>>.Clear()
+	{
+		RemoveAll();
+	}
+
+	bool ICollection<KeyValuePair<string, JToken>>.Contains(KeyValuePair<string, JToken> item)
+	{
+		JProperty jProperty = Property(item.Key);
+		if (jProperty == null)
+		{
+			return false;
+		}
+		return jProperty.Value == item.Value;
+	}
+
+	void ICollection<KeyValuePair<string, JToken>>.CopyTo(KeyValuePair<string, JToken>[] array, int arrayIndex)
+	{
+		if (array == null)
+		{
+			throw new ArgumentNullException("array");
+		}
+		if (arrayIndex < 0)
+		{
+			throw new ArgumentOutOfRangeException("arrayIndex", "arrayIndex is less than 0.");
+		}
+		if (arrayIndex >= array.Length)
+		{
+			throw new ArgumentException("arrayIndex is equal to or greater than the length of array.");
+		}
+		if (Count > array.Length - arrayIndex)
+		{
+			throw new ArgumentException("The number of elements in the source JObject is greater than the available space from arrayIndex to the end of the destination array.");
+		}
+		int num = 0;
+		foreach (JProperty childrenToken in ChildrenTokens)
+		{
+			ref KeyValuePair<string, JToken> reference = ref array[arrayIndex + num];
+			reference = new KeyValuePair<string, JToken>(childrenToken.Name, childrenToken.Value);
+			num++;
+		}
+	}
+
+	bool ICollection<KeyValuePair<string, JToken>>.Remove(KeyValuePair<string, JToken> item)
+	{
+		if (!((ICollection<KeyValuePair<string, JToken>>)this).Contains(item))
+		{
+			return false;
+		}
+		((IDictionary<string, JToken>)this).Remove(item.Key);
+		return true;
+	}
+
+	PropertyDescriptorCollection ICustomTypeDescriptor.GetProperties()
+	{
+		return ((ICustomTypeDescriptor)this).GetProperties((Attribute[])null);
+	}
+
+	PropertyDescriptorCollection ICustomTypeDescriptor.GetProperties(Attribute[] attributes)
+	{
+		PropertyDescriptorCollection propertyDescriptorCollection = new PropertyDescriptorCollection(null);
+		using IEnumerator<KeyValuePair<string, JToken>> enumerator = GetEnumerator();
+		while (enumerator.MoveNext())
+		{
+			KeyValuePair<string, JToken> current = enumerator.Current;
+			propertyDescriptorCollection.Add(new JPropertyDescriptor(current.Key, GetTokenPropertyType(current.Value)));
+		}
+		return propertyDescriptorCollection;
+	}
+
+	AttributeCollection ICustomTypeDescriptor.GetAttributes()
+	{
+		return AttributeCollection.Empty;
+	}
+
+	string ICustomTypeDescriptor.GetClassName()
+	{
+		return null;
+	}
+
+	string ICustomTypeDescriptor.GetComponentName()
+	{
+		return null;
+	}
+
+	TypeConverter ICustomTypeDescriptor.GetConverter()
+	{
+		return new TypeConverter();
+	}
+
+	EventDescriptor ICustomTypeDescriptor.GetDefaultEvent()
+	{
+		return null;
+	}
+
+	PropertyDescriptor ICustomTypeDescriptor.GetDefaultProperty()
+	{
+		return null;
+	}
+
+	object ICustomTypeDescriptor.GetEditor(Type editorBaseType)
+	{
+		return null;
+	}
+
+	EventDescriptorCollection ICustomTypeDescriptor.GetEvents(Attribute[] attributes)
+	{
+		return EventDescriptorCollection.Empty;
+	}
+
+	EventDescriptorCollection ICustomTypeDescriptor.GetEvents()
+	{
+		return EventDescriptorCollection.Empty;
+	}
+
+	object ICustomTypeDescriptor.GetPropertyOwner(PropertyDescriptor pd)
+	{
+		return null;
 	}
 
 	internal override bool DeepEquals(JToken node)
@@ -247,15 +380,6 @@ public class JObject : JContainer, IDictionary<string, JToken>, INotifyPropertyC
 		Add(new JProperty(propertyName, value));
 	}
 
-	bool IDictionary<string, JToken>.ContainsKey(string key)
-	{
-		if (_properties.Dictionary == null)
-		{
-			return false;
-		}
-		return _properties.Dictionary.ContainsKey(key);
-	}
-
 	public bool Remove(string propertyName)
 	{
 		JProperty jProperty = Property(propertyName);
@@ -276,63 +400,6 @@ public class JObject : JContainer, IDictionary<string, JToken>, INotifyPropertyC
 			return false;
 		}
 		value = jProperty.Value;
-		return true;
-	}
-
-	void ICollection<KeyValuePair<string, JToken>>.Add(KeyValuePair<string, JToken> item)
-	{
-		Add(new JProperty(item.Key, item.Value));
-	}
-
-	void ICollection<KeyValuePair<string, JToken>>.Clear()
-	{
-		RemoveAll();
-	}
-
-	bool ICollection<KeyValuePair<string, JToken>>.Contains(KeyValuePair<string, JToken> item)
-	{
-		JProperty jProperty = Property(item.Key);
-		if (jProperty == null)
-		{
-			return false;
-		}
-		return jProperty.Value == item.Value;
-	}
-
-	void ICollection<KeyValuePair<string, JToken>>.CopyTo(KeyValuePair<string, JToken>[] array, int arrayIndex)
-	{
-		if (array == null)
-		{
-			throw new ArgumentNullException("array");
-		}
-		if (arrayIndex < 0)
-		{
-			throw new ArgumentOutOfRangeException("arrayIndex", "arrayIndex is less than 0.");
-		}
-		if (arrayIndex >= array.Length)
-		{
-			throw new ArgumentException("arrayIndex is equal to or greater than the length of array.");
-		}
-		if (Count > array.Length - arrayIndex)
-		{
-			throw new ArgumentException("The number of elements in the source JObject is greater than the available space from arrayIndex to the end of the destination array.");
-		}
-		int num = 0;
-		foreach (JProperty childrenToken in ChildrenTokens)
-		{
-			ref KeyValuePair<string, JToken> reference = ref array[arrayIndex + num];
-			reference = new KeyValuePair<string, JToken>(childrenToken.Name, childrenToken.Value);
-			num++;
-		}
-	}
-
-	bool ICollection<KeyValuePair<string, JToken>>.Remove(KeyValuePair<string, JToken> item)
-	{
-		if (!((ICollection<KeyValuePair<string, JToken>>)this).Contains(item))
-		{
-			return false;
-		}
-		((IDictionary<string, JToken>)this).Remove(item.Key);
 		return true;
 	}
 
@@ -365,11 +432,6 @@ public class JObject : JContainer, IDictionary<string, JToken>, INotifyPropertyC
 		}
 	}
 
-	PropertyDescriptorCollection ICustomTypeDescriptor.GetProperties()
-	{
-		return ((ICustomTypeDescriptor)this).GetProperties((Attribute[])null);
-	}
-
 	private static Type GetTokenPropertyType(JToken token)
 	{
 		if (token is JValue)
@@ -378,67 +440,5 @@ public class JObject : JContainer, IDictionary<string, JToken>, INotifyPropertyC
 			return (jValue.Value == null) ? typeof(object) : jValue.Value.GetType();
 		}
 		return token.GetType();
-	}
-
-	PropertyDescriptorCollection ICustomTypeDescriptor.GetProperties(Attribute[] attributes)
-	{
-		PropertyDescriptorCollection propertyDescriptorCollection = new PropertyDescriptorCollection(null);
-		using IEnumerator<KeyValuePair<string, JToken>> enumerator = GetEnumerator();
-		while (enumerator.MoveNext())
-		{
-			KeyValuePair<string, JToken> current = enumerator.Current;
-			propertyDescriptorCollection.Add(new JPropertyDescriptor(current.Key, GetTokenPropertyType(current.Value)));
-		}
-		return propertyDescriptorCollection;
-	}
-
-	AttributeCollection ICustomTypeDescriptor.GetAttributes()
-	{
-		return AttributeCollection.Empty;
-	}
-
-	string ICustomTypeDescriptor.GetClassName()
-	{
-		return null;
-	}
-
-	string ICustomTypeDescriptor.GetComponentName()
-	{
-		return null;
-	}
-
-	TypeConverter ICustomTypeDescriptor.GetConverter()
-	{
-		return new TypeConverter();
-	}
-
-	EventDescriptor ICustomTypeDescriptor.GetDefaultEvent()
-	{
-		return null;
-	}
-
-	PropertyDescriptor ICustomTypeDescriptor.GetDefaultProperty()
-	{
-		return null;
-	}
-
-	object ICustomTypeDescriptor.GetEditor(Type editorBaseType)
-	{
-		return null;
-	}
-
-	EventDescriptorCollection ICustomTypeDescriptor.GetEvents(Attribute[] attributes)
-	{
-		return EventDescriptorCollection.Empty;
-	}
-
-	EventDescriptorCollection ICustomTypeDescriptor.GetEvents()
-	{
-		return EventDescriptorCollection.Empty;
-	}
-
-	object ICustomTypeDescriptor.GetPropertyOwner(PropertyDescriptor pd)
-	{
-		return null;
 	}
 }

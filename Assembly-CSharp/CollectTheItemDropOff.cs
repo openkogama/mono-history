@@ -8,6 +8,10 @@ using UnityEngine.Events;
 
 public class CollectTheItemDropOff : MVBlueprintBase, ILogicWorldObject
 {
+	private const string isActiveKey = "isActive";
+
+	private const string doOnce = "doOnce";
+
 	private EditableCubeModelWrapper editableCubeModelWrapper;
 
 	private CollectTheItemDropOffObject triggerObject;
@@ -15,10 +19,6 @@ public class CollectTheItemDropOff : MVBlueprintBase, ILogicWorldObject
 	private CullingSubscriberBase cullingSubscriberBase;
 
 	private CollectTheItem controller;
-
-	private const string isActiveKey = "isActive";
-
-	private const string doOnce = "doOnce";
 
 	private ObscuredIntVector minBounds = new ObscuredIntVector(-5, -4, -6);
 

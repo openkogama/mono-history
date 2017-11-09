@@ -18,19 +18,19 @@ public class ChatControllerUGUI : MonoBehaviour
 
 	private const string chatMessageFormat = "<color=#{0}>[{1}]: </color><color=#{2}>{3}</color>";
 
-	private bool shouldUpdateFade;
-
-	private float startTime;
-
 	private const float timeBeforeFade = 10f;
 
 	private const float fadeTime = 1f;
 
+	private const int maxLineCount = 50;
+
+	private bool shouldUpdateFade;
+
+	private float startTime;
+
 	private float currFade;
 
 	private bool currentlyInLobbyState;
-
-	private const int maxLineCount = 50;
 
 	private Queue<Text> lines = new Queue<Text>();
 

@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class MaterialViewItem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IEventSystemHandler
+public class MaterialViewItem : MonoBehaviour, IEventSystemHandler, IPointerEnterHandler, IPointerExitHandler
 {
 	private byte id;
 

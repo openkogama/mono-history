@@ -2,6 +2,8 @@ namespace MV.Common;
 
 public static class CommonValues
 {
+	public const string errorCountString = "errorcount";
+
 	private static Price respawnNowPrice = new Price(0, 10);
 
 	public static int GameCoinBoostTime = 720000;

@@ -35,14 +35,10 @@ public static class StringEscaping
 			case '\t':
 				stringBuilder.Append("\\t");
 				continue;
-			default:
-				if (char.IsControl(c))
-				{
-					throw new FormatException($"Invalid character '{c}' in translatable string: '{text}'");
-				}
-				break;
-			case '_':
-				break;
+			}
+			if (c != '_' && char.IsControl(c))
+			{
+				throw new FormatException($"Invalid character '{c}' in translatable string: '{text}'");
 			}
 			stringBuilder.Append(c);
 		}
@@ -55,14 +51,15 @@ public static class StringEscaping
 		for (int i = 0; i < text.Length; i++)
 		{
 			char c = text[i];
-			if (c == '\\' && i + 1 < text.Length)
+			char c2 = c;
+			if (c2 == '\\' && i + 1 < text.Length)
 			{
-				char c2 = text[i + 1];
-				switch (c2)
+				char c3 = text[i + 1];
+				switch (c3)
 				{
 				case '"':
 				case '\\':
-					stringBuilder.Append(c2);
+					stringBuilder.Append(c3);
 					i++;
 					break;
 				case 'n':
@@ -78,7 +75,7 @@ public static class StringEscaping
 					i++;
 					break;
 				default:
-					throw new FormatException($"Invalid escape sequence '{c2}' in string: '{text}'");
+					throw new FormatException($"Invalid escape sequence '{c3}' in string: '{text}'");
 				}
 			}
 			else

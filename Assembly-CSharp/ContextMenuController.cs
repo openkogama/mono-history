@@ -4,7 +4,7 @@ using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class ContextMenuController : MonoBehaviour, IHandlePointerDownOnContextMenuButton, IEventSystemHandler
+public class ContextMenuController : MonoBehaviour, IEventSystemHandler, IHandlePointerDownOnContextMenuButton
 {
 	private int woID;
 

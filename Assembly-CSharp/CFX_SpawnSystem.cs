@@ -28,7 +28,12 @@ public class CFX_SpawnSystem : MonoBehaviour
 			return null;
 		}
 		int index = instance.poolCursors[instanceID];
-		instance.poolCursors[instanceID]++;
+		Dictionary<int, int> dictionary2;
+		Dictionary<int, int> dictionary = (dictionary2 = instance.poolCursors);
+		int key2;
+		int key = (key2 = instanceID);
+		key2 = dictionary2[key2];
+		dictionary[key] = key2 + 1;
 		if (instance.poolCursors[instanceID] >= instance.instantiatedObjects[instanceID].Count)
 		{
 			instance.poolCursors[instanceID] = 0;

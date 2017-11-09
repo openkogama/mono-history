@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class Aiming2DCamera
 {
-	private float xFactor = 1f;
-
 	private const float circleRadiusMin = 0.5f;
 
 	private const float circleRadiusMax = 10f;
+
+	private float xFactor = 1f;
 
 	private Vector3 lineOfSightDirection = Vector3.right;
 

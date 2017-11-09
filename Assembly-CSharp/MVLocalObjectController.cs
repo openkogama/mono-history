@@ -73,6 +73,8 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 
 	private const int maxLoclControlledObjects = 4;
 
+	public const float TimeBeforeUnregister = 30f;
+
 	private readonly IInputToPlayerMovement movementMap;
 
 	private InputToInGameAction interactionInput = new InputToInGameAction();
@@ -84,8 +86,6 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 	private Dictionary<int, DismountedPlayerControlledObject> dismountedLocalControlledObjects = new Dictionary<int, DismountedPlayerControlledObject>();
 
 	private MVWorldObjectClientManagerNetwork worldObjectClientManagerNetwork;
-
-	public const float TimeBeforeUnregister = 30f;
 
 	public bool IsEnteringVehicle
 	{

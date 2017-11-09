@@ -41,8 +41,10 @@ public class TextBubbleController : MonoBehaviour, IEventSystemHandler
 		}
 	}
 
-	[Header("Configuration")]
+	private const int maxNumOfBubbles = 40;
+
 	[SerializeField]
+	[Header("Configuration")]
 	private float bubbleLifeTime = 2f;
 
 	[SerializeField]
@@ -56,8 +58,6 @@ public class TextBubbleController : MonoBehaviour, IEventSystemHandler
 	private Text textPrefab;
 
 	private Dictionary<int, BubbleTracker> textBubbles = new Dictionary<int, BubbleTracker>();
-
-	private const int maxNumOfBubbles = 40;
 
 	private int currentBubbleId;
 

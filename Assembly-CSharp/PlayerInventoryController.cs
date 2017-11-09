@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-public class PlayerInventoryController : MonoBehaviour, IPlayerInventory, IEventSystemHandler
+public class PlayerInventoryController : MonoBehaviour, IEventSystemHandler, IPlayerInventory
 {
 	[SerializeField]
 	private InventoryController inventoryControllerPrefab;

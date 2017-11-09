@@ -22,7 +22,7 @@ public class TeamRequirementPanel : NotificationRequirementPanel
 	{
 		checkmark.sprite = checkmarkSprite;
 		textField.text = team.ToString();
-		switch ((MVTeam)team)
+		switch ((MVTeam)(int)team)
 		{
 		case MVTeam.Red:
 			break;

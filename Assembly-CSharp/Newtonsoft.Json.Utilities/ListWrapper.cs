@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Newtonsoft.Json.Utilities;
 
-internal class ListWrapper<T> : CollectionWrapper<T>, IList<T>, IWrappedList, IEnumerable, ICollection<T>, IEnumerable<T>, IList, ICollection
+internal class ListWrapper<T> : CollectionWrapper<T>, IEnumerable, IList, ICollection, IWrappedList, IList<T>, ICollection<T>, IEnumerable<T>
 {
 	private readonly IList<T> _genericList;
 

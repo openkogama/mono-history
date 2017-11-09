@@ -6,13 +6,13 @@ public class MVWorldInventory
 {
 	public delegate void OnWorldInventoryChangeDelegate(MVWorldInventory inventory);
 
+	private const int numberOfLowPriorityMeshGenerations = 1;
+
 	private Dictionary<int, RuntimePrototypeCubeModel> runtimePrototypes = new Dictionary<int, RuntimePrototypeCubeModel>();
 
 	private Dictionary<int, PendingPrototypeData> pendingRuntimePrototypes = new Dictionary<int, PendingPrototypeData>();
 
 	private List<RuntimePrototypeCubeModel> dirtyRPCM = new List<RuntimePrototypeCubeModel>();
-
-	private const int numberOfLowPriorityMeshGenerations = 1;
 
 	private int fineGrainedTerrainPrototypeID = -1;
 

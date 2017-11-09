@@ -354,14 +354,14 @@ public static class MVRaycast
 				{
 					corners[i] += vector;
 				}
-				foreach (FaceFlags value in Enum.GetValues(typeof(FaceFlags)))
+				foreach (byte value in Enum.GetValues(typeof(FaceFlags)))
 				{
-					if (((uint)cube.HiddenSides & (uint)value) != 0)
+					if ((cube.HiddenSides & value) != 0)
 					{
 						continue;
 					}
-					Face face = CubeBase.FaceFlagToFace(value);
-					Vector3[] face2 = Cube.GetFace(corners, CubeBase.FaceFlagToFace(value));
+					Face face = CubeBase.FaceFlagToFace((FaceFlags)value);
+					Vector3[] face2 = Cube.GetFace(corners, CubeBase.FaceFlagToFace((FaceFlags)value));
 					if (MathFunctions.LineFacetCollision(intersectRay.origin, localBoundsHitPoint + intersectRay.direction * 300f, face2[0], face2[3], face2[2], intersectRay.direction, ref p, ref vHit.normal) || MathFunctions.LineFacetCollision(intersectRay.origin, intersectRay.origin + intersectRay.direction * 300f, face2[2], face2[1], face2[0], intersectRay.direction, ref p, ref vHit.normal))
 					{
 						float magnitude = (intersectRay.origin - p).magnitude;

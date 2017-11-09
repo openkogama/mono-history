@@ -5,6 +5,10 @@ using UnityEngine.EventSystems;
 
 public class FirstTimeActivatablePointerObjectives : FirstTimeActivatableElementBase
 {
+	private const string mouseX = "Mouse X";
+
+	private const string mouseY = "Mouse Y";
+
 	[SerializeField]
 	private List<RectTransform> winningConditionTransforms;
 
@@ -23,10 +27,6 @@ public class FirstTimeActivatablePointerObjectives : FirstTimeActivatableElement
 	private bool visible;
 
 	private float currentTime;
-
-	private const string mouseX = "Mouse X";
-
-	private const string mouseY = "Mouse Y";
 
 	private bool isUpdating;
 

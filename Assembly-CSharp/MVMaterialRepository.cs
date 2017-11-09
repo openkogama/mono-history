@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class MVMaterialRepository
 {
+	public const int DEFAULT_MATERIAL_ID = 21;
+
 	private readonly List<MVMaterial> materials = new List<MVMaterial>();
 
 	private readonly MVMaterial noMaterial;
@@ -11,8 +13,6 @@ public class MVMaterialRepository
 	private readonly MVMaterial inAirMaterial;
 
 	private readonly PhysicalProperties physicalPropertiesDefault = new PhysicalProperties(0.43f, 0f, 1f, 20f, 0f);
-
-	public const int DEFAULT_MATERIAL_ID = 21;
 
 	public int MaterialCount => materials.Count;
 

@@ -107,43 +107,6 @@ public struct ObscuredShort : IEquatable<ObscuredShort>, IFormattable
 		return num;
 	}
 
-	public static implicit operator ObscuredShort(short value)
-	{
-		ObscuredShort result = new ObscuredShort(EncryptDecrypt(value));
-		if (ObscuredCheatingDetector.IsRunning)
-		{
-			result.fakeValue = value;
-		}
-		return result;
-	}
-
-	public static implicit operator short(ObscuredShort value)
-	{
-		return value.InternalDecrypt();
-	}
-
-	public static ObscuredShort operator ++(ObscuredShort input)
-	{
-		short value = (short)(input.InternalDecrypt() + 1);
-		input.hiddenValue = EncryptDecrypt(value);
-		if (ObscuredCheatingDetector.IsRunning)
-		{
-			input.fakeValue = value;
-		}
-		return input;
-	}
-
-	public static ObscuredShort operator --(ObscuredShort input)
-	{
-		short value = (short)(input.InternalDecrypt() - 1);
-		input.hiddenValue = EncryptDecrypt(value);
-		if (ObscuredCheatingDetector.IsRunning)
-		{
-			input.fakeValue = value;
-		}
-		return input;
-	}
-
 	public override bool Equals(object obj)
 	{
 		if (!(obj is ObscuredShort))
@@ -185,5 +148,42 @@ public struct ObscuredShort : IEquatable<ObscuredShort>, IFormattable
 	public string ToString(string format, IFormatProvider provider)
 	{
 		return InternalDecrypt().ToString(format, provider);
+	}
+
+	public static implicit operator ObscuredShort(short value)
+	{
+		ObscuredShort result = new ObscuredShort(EncryptDecrypt(value));
+		if (ObscuredCheatingDetector.IsRunning)
+		{
+			result.fakeValue = value;
+		}
+		return result;
+	}
+
+	public static implicit operator short(ObscuredShort value)
+	{
+		return value.InternalDecrypt();
+	}
+
+	public static ObscuredShort operator ++(ObscuredShort input)
+	{
+		short value = (short)(input.InternalDecrypt() + 1);
+		input.hiddenValue = EncryptDecrypt(value);
+		if (ObscuredCheatingDetector.IsRunning)
+		{
+			input.fakeValue = value;
+		}
+		return input;
+	}
+
+	public static ObscuredShort operator --(ObscuredShort input)
+	{
+		short value = (short)(input.InternalDecrypt() - 1);
+		input.hiddenValue = EncryptDecrypt(value);
+		if (ObscuredCheatingDetector.IsRunning)
+		{
+			input.fakeValue = value;
+		}
+		return input;
 	}
 }

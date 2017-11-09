@@ -25,6 +25,11 @@ public class ChunkInstances : IEnumerator, IEnumerable
 
 	public event EventHandler<ChunkInstancesChanged> Changed;
 
+	IEnumerator IEnumerable.GetEnumerator()
+	{
+		return chunkInstances.GetEnumerator();
+	}
+
 	public void Add(IntVector intVector, ChunkInstanceVariables gameObject)
 	{
 		chunkInstances.Add(intVector, gameObject);
@@ -65,11 +70,6 @@ public class ChunkInstances : IEnumerator, IEnumerable
 		{
 			Changed(this, new ChunkInstancesChanged(ChunkInstancesChanged.ChangeType.Clear, IntVector.One));
 		}
-	}
-
-	IEnumerator IEnumerable.GetEnumerator()
-	{
-		return chunkInstances.GetEnumerator();
 	}
 
 	public bool MoveNext()

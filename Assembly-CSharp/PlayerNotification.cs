@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class PlayerNotification : Notification
 {
+	private const int PrestigiousLevelRequirement = 25;
+
 	[SerializeField]
 	protected Text NameLabel;
 
@@ -18,8 +20,6 @@ public class PlayerNotification : Notification
 	private RectTransform FriendPlayerFrame;
 
 	private MVPlayer player;
-
-	private const int PrestigiousLevelRequirement = 25;
 
 	protected NotificationLifetime lifeTime = NotificationLifetime.Low;
 

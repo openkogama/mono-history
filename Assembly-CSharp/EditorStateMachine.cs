@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class EditorStateMachine : FSMEntity
 {
+	public const float sqrEpsilon = 0.64f;
+
 	private SelectionController selectionController;
 
 	private MVCameraController weCamera;
@@ -14,8 +16,6 @@ public class EditorStateMachine : FSMEntity
 
 	private GameObject gameObject;
 
-	public const float sqrEpsilon = 0.64f;
-
 	public MVNetworkSelector NetworkSelector => networkSelector;
 
 	public MVCameraController CameraController => weCamera;
@@ -24,11 +24,11 @@ public class EditorStateMachine : FSMEntity
 
 	public CubeModelingStateMachine CubeModelingStateMachine => cubeModelingStateMachine;
 
-	public EditorEvent CurEvent => (EditorEvent)curEvent;
+	public EditorEvent CurEvent => (EditorEvent)(int)curEvent;
 
-	public EditorEvent PrevEvent => (EditorEvent)prevEvent;
+	public EditorEvent PrevEvent => (EditorEvent)(int)prevEvent;
 
-	public EditorEvent NextEvent => (EditorEvent)nextEvent;
+	public EditorEvent NextEvent => (EditorEvent)(int)nextEvent;
 
 	public ISelectionController SelectionController => selectionController;
 

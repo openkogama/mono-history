@@ -21,11 +21,11 @@ public class CFX_ShurikenThreadFix : MonoBehaviour
 	{
 		yield return null;
 		ParticleSystem[] array = systems;
-		foreach (ParticleSystem particleSystem in array)
+		foreach (ParticleSystem ps in array)
 		{
-			ParticleSystem.EmissionModule emission = particleSystem.emission;
-			emission.enabled = true;
-			particleSystem.Play(withChildren: true);
+			ParticleSystem.EmissionModule em = ps.emission;
+			em.enabled = true;
+			ps.Play(withChildren: true);
 		}
 	}
 }

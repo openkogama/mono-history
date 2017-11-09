@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class SkyboxSettings : MonoBehaviour, IHandleSettingChanged, IEventSystemHandler
+public class SkyboxSettings : MonoBehaviour, IEventSystemHandler, IHandleSettingChanged
 {
 	private float[] color = new float[3];
 

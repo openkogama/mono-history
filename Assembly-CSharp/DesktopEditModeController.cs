@@ -5,8 +5,10 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-public class DesktopEditModeController : ModeControllerBase, ISetEditState, IEditModeUI, IGridSnapHandler, IEditModeController, IEventSystemHandler
+public class DesktopEditModeController : ModeControllerBase, IEditModeUI, ISetEditState, IEventSystemHandler, IGridSnapHandler, IEditModeController
 {
+	private const float focusTimeInputSupressTimeOut = 5f;
+
 	private bool isInPlayInEditMode;
 
 	private Action<EditModeChangeArgs> editModeChange;
@@ -68,8 +70,6 @@ public class DesktopEditModeController : ModeControllerBase, ISetEditState, IEdi
 	private float focusTime;
 
 	private bool focusSuppressInput = true;
-
-	private const float focusTimeInputSupressTimeOut = 5f;
 
 	public bool IsInPlayInEditMode => isInPlayInEditMode;
 

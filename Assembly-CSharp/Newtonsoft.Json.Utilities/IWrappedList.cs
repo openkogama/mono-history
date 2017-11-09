@@ -2,7 +2,7 @@ using System.Collections;
 
 namespace Newtonsoft.Json.Utilities;
 
-internal interface IWrappedList : IList, IEnumerable, ICollection
+internal interface IWrappedList : IEnumerable, IList, ICollection
 {
 	object UnderlyingList { get; }
 }

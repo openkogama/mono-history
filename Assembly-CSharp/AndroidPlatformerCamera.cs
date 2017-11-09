@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class AndroidPlatformerCamera : MVCameraBase, ICameraSettings
 {
+	private const float distanceToAvatarOffset = 10f;
+
 	private float baseDistanceToAvatar = 18f;
 
 	private float distanceToAvatar = 18f;
 
 	private readonly Offset2DCameraInDirection offset2DCameraInDirection = new Offset2DCameraInDirection();
-
-	private const float distanceToAvatarOffset = 10f;
 
 	public static bool snapbackMode = true;
 

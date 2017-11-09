@@ -23,11 +23,11 @@ public class GhostEye : MonoBehaviour
 
 	private abstract class IdleBase : IGhostEyeState
 	{
+		protected const float pi2 = (float)Math.PI * 2f;
+
 		protected float rotatationPrSecond = 0.5f;
 
 		protected float wrappedTime;
-
-		protected const float pi2 = (float)Math.PI * 2f;
 
 		protected float direction = 1f;
 
@@ -79,9 +79,9 @@ public class GhostEye : MonoBehaviour
 
 	private class DieRollback : IGhostEyeState
 	{
-		private static float rollbackPitch = -90f;
-
 		private const float rollbackTime = 1f;
+
+		private static float rollbackPitch = -90f;
 
 		private float currentRollbackTime;
 
@@ -223,6 +223,8 @@ public class GhostEye : MonoBehaviour
 		}
 	}
 
+	private const float transitionTime = 10f;
+
 	private GhostEyeState currentEyeState;
 
 	private readonly Dictionary<GhostEyeState, IGhostEyeState> ghostEyeStates = new Dictionary<GhostEyeState, IGhostEyeState>
@@ -244,8 +246,6 @@ public class GhostEye : MonoBehaviour
 			new SneakySideToSide()
 		}
 	};
-
-	private const float transitionTime = 10f;
 
 	private float currentTransitionTime;
 

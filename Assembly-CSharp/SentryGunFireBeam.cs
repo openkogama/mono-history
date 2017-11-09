@@ -7,7 +7,6 @@ public class SentryGunFireBeam : SentryGunBeam
 	protected override void OnUpdate()
 	{
 		Vector3 vector = EndPosition - StartPosition;
-		ParticleSystem.MainModule main = fireParticles.main;
-		main.startSpeedMultiplier = vector.magnitude;
+		fireParticles.startSpeed = vector.magnitude;
 	}
 }

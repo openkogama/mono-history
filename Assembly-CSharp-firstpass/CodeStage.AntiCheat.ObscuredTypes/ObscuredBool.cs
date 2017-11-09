@@ -127,22 +127,6 @@ public struct ObscuredBool : IEquatable<ObscuredBool>
 		return flag;
 	}
 
-	public static implicit operator ObscuredBool(bool value)
-	{
-		ObscuredBool result = new ObscuredBool(Encrypt(value));
-		if (ObscuredCheatingDetector.IsRunning)
-		{
-			result.fakeValue = value;
-			result.fakeValueChanged = true;
-		}
-		return result;
-	}
-
-	public static implicit operator bool(ObscuredBool value)
-	{
-		return value.InternalDecrypt();
-	}
-
 	public override bool Equals(object obj)
 	{
 		if (!(obj is ObscuredBool))
@@ -169,5 +153,21 @@ public struct ObscuredBool : IEquatable<ObscuredBool>
 	public override string ToString()
 	{
 		return InternalDecrypt().ToString();
+	}
+
+	public static implicit operator ObscuredBool(bool value)
+	{
+		ObscuredBool result = new ObscuredBool(Encrypt(value));
+		if (ObscuredCheatingDetector.IsRunning)
+		{
+			result.fakeValue = value;
+			result.fakeValueChanged = true;
+		}
+		return result;
+	}
+
+	public static implicit operator bool(ObscuredBool value)
+	{
+		return value.InternalDecrypt();
 	}
 }

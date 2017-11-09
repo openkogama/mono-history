@@ -7,6 +7,8 @@ using UnityEngine.UI;
 
 public class AndroidChatController : MonoBehaviour
 {
+	private const int maxLineCount = 50;
+
 	private string joinLeaveMessageFormat = "<color=#{0}>{1}</color> <color=#{2}>{3}</color>";
 
 	private string joinStatusMessageFormat = "<color=#{0}>{1}</color>";
@@ -14,8 +16,6 @@ public class AndroidChatController : MonoBehaviour
 	private string chatMessageFromFriend = "<color=#{0}><b>[{1}]: </b></color><color=#{2}>{3}</color>";
 
 	private string chatMessageFormat = "<color=#{0}>[{1}]: </color><color=#{2}>{3}</color>";
-
-	private const int maxLineCount = 50;
 
 	private Queue<Text> lines = new Queue<Text>();
 

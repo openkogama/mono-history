@@ -11,13 +11,13 @@ public abstract class MVPickupOwner : MVComponent
 
 	public delegate void OnHandleFiringDelegate(bool isFiring);
 
+	private const float _updateLineOfFireInterval = 0.5f;
+
 	private Vector3 lookOrigin = Vector3.one;
 
 	private Vector3 lookDirection = Vector3.one;
 
-	private float prevUpdateLineOfFireTime;
-
-	private const float _updateLineOfFireInterval = 0.5f;
+	private float prevUpdateLineOfFireTime = Time.time;
 
 	protected PickupItem currentItem;
 
@@ -60,12 +60,6 @@ public abstract class MVPickupOwner : MVComponent
 	protected abstract void Equip(AvatarItemType type, int variantId);
 
 	protected abstract void Unequip();
-
-	protected override void Awake()
-	{
-		base.Awake();
-		prevUpdateLineOfFireTime = Time.time;
-	}
 
 	public float GetAbsolutProjectileSpeed(float projectileSpeed)
 	{
@@ -161,7 +155,7 @@ public abstract class MVPickupOwner : MVComponent
 			Unequip();
 			return;
 		}
-		AvatarItemType avatarItemType = (AvatarItemType)newState["type"];
+		AvatarItemType avatarItemType = (AvatarItemType)(int)newState["type"];
 		int num = (newState.ContainsKey("variantId") ? ((int)newState["variantId"]) : 0);
 		UpdateItemState updateItemState = (newState.ContainsKey("updateItemState") ? ((UpdateItemState)(int)newState["updateItemState"]) : UpdateItemState.None);
 		if (currentItem == null || avatarItemType != currentItem.Type || num != currentItem.VariantID)

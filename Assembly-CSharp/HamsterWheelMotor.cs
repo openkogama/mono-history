@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class HamsterWheelMotor : SimpleVehicleMotorBase
 {
+	private const float accelerationSpeed = 48f;
+
 	private ImpactState impactState = new ImpactState(RuntimeEventType.VehicleImpact25, RuntimeEventType.VehicleImpact50, RuntimeEventType.VehicleImpact75);
 
 	private HamsterWheelBounceState bounceState;
@@ -17,8 +19,6 @@ public class HamsterWheelMotor : SimpleVehicleMotorBase
 	private float maxSpeed = 38.8f;
 
 	private float minSpeed = -10f;
-
-	private const float accelerationSpeed = 48f;
 
 	private float angularSpeed = 1.4f;
 

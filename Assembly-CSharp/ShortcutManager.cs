@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-public class ShortcutManager : MonoBehaviour, IShortcutKeyRegister, IShortcutKeyUnRegister, IEventSystemHandler
+public class ShortcutManager : MonoBehaviour, IEventSystemHandler, IShortcutKeyRegister, IShortcutKeyUnRegister
 {
 	private class ShortcutKey : IEquatable<ShortcutKey>
 	{

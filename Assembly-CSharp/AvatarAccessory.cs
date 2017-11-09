@@ -144,12 +144,11 @@ public abstract class AvatarAccessory : MonoBehaviour
 
 	public override bool Equals(object o)
 	{
-		AvatarAccessory avatarAccessory = o as AvatarAccessory;
-		if (avatarAccessory == null)
+		if (o == null)
 		{
 			return false;
 		}
-		if (avatarAccessory == this)
+		if (o == this)
 		{
 			return true;
 		}

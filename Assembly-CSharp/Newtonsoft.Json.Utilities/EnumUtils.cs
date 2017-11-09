@@ -38,7 +38,7 @@ internal static class EnumUtils
 		IList<T> list = new List<T>();
 		foreach (EnumValue<ulong> item in namesAndValues)
 		{
-			if ((num & item.Value) == item.Value && item.Value != 0)
+			if ((num & item.Value) == item.Value && item.Value != 0L)
 			{
 				list.Add((T)Convert.ChangeType(item.Value, underlyingType, CultureInfo.CurrentCulture));
 			}

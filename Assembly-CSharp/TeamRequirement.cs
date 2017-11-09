@@ -56,7 +56,7 @@ public class TeamRequirement : UseRequirement
 	{
 		if (data.ContainsKey("team"))
 		{
-			team = (MVTeam)data["team"];
+			team = (MVTeam)(int)data["team"];
 			if (team == MVTeam.None)
 			{
 				Dictionary<object, object> dictionary = new Dictionary<object, object>();

@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[ExecuteInEditMode]
 [RequireComponent(typeof(WaterBase))]
+[ExecuteInEditMode]
 public class PlanarReflection : MonoBehaviour
 {
 	public LayerMask reflectionMask;

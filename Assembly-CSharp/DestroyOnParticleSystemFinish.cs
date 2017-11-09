@@ -8,6 +8,6 @@ public class DestroyOnParticleSystemFinish : MonoBehaviour
 
 	private void Start()
 	{
-		Object.Destroy(gameObject, system.main.duration + system.main.startLifetime.constant);
+		Object.Destroy(gameObject, system.duration + system.startLifetime);
 	}
 }

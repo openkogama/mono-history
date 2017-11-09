@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class PlayerInventoryDropToGameHandler : MonoBehaviour, IDropHandler, IEventSystemHandler
+public class PlayerInventoryDropToGameHandler : MonoBehaviour, IEventSystemHandler, IDropHandler
 {
 	public void OnDrop(PointerEventData eventData)
 	{

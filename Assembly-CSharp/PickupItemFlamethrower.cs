@@ -12,8 +12,8 @@ public class PickupItemFlamethrower : PickupItem
 	[SerializeField]
 	private float hitRadius = 1.2f;
 
-	[SerializeField]
 	[Tooltip("How many seconds a fueltank lasts.")]
+	[SerializeField]
 	private ObscuredFloat maxFuelTime = 100f;
 
 	[SerializeField]
@@ -59,18 +59,18 @@ public class PickupItemFlamethrower : PickupItem
 			List<VoxelHit> hits = CollisionDetection.MVSphereCastAll(layerMask: 1 << LayerMask.NameToLayer("Player"), ray: lineofFire, radius: hitRadius, distance: maxRange, ignoreWoIds: owner.IgnoreWOIDs);
 			for (int i = 0; i < hits.Count; i++)
 			{
-				MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(hits[i].transform);
-				if (mVObject == null || MVGameControllerBase.Game.TeamManager.IsOnSameTeam(mVObject.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
+				MVWorldObjectClient hitObject = MVWorldObjectClientManager.GetMVObject(hits[i].transform);
+				if (hitObject == null || MVGameControllerBase.Game.TeamManager.IsOnSameTeam(hitObject.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
 				{
 					continue;
 				}
-				InteractionDataHandlerBase interactionDataHandlerBase = mVObject.InteractionDataHandlerBase;
-				if (interactionDataHandlerBase != null)
+				InteractionDataHandlerBase interactionHandler = hitObject.InteractionDataHandlerBase;
+				if (interactionHandler != null)
 				{
-					interactionDataHandlerBase.HandleInteraction(FlamethrowerHitPackage.Create(), interactionIsLocal: false);
-					if (mVObject is IBulletImpactVisualizer)
+					interactionHandler.HandleInteraction(FlamethrowerHitPackage.Create(), interactionIsLocal: false);
+					if (hitObject is IBulletImpactVisualizer)
 					{
-						((IBulletImpactVisualizer)mVObject).VisualizeBulletImpact(hits[i], lineofFire, owner.WorldObjectOwner.OwnerActorNr, 0f);
+						((IBulletImpactVisualizer)hitObject).VisualizeBulletImpact(hits[i], lineofFire, owner.WorldObjectOwner.OwnerActorNr, 0f);
 					}
 				}
 			}
@@ -88,20 +88,20 @@ public class PickupItemFlamethrower : PickupItem
 			MVRigidBody mvRigidBody = owner.WorldObjectOwner.GameObject.GetComponent<MVRigidBody>();
 			if (!mvRigidBody.Grounded)
 			{
-				float y = mvRigidBody.Velocity.y;
-				if (y < 0f)
+				float verticalVelocity = mvRigidBody.Velocity.y;
+				if (verticalVelocity < 0f)
 				{
-					float a = owner.LookDirection.y * (float)MVPhysics.Gravity * 0.95f * Time.deltaTime * 40f;
-					float num = Mathf.Min(a, y);
-					mvRigidBody.AddImpulse(new Vector3(0f, 0f - num, 0f), suspendImpactDamage: true);
+					float flamerImpulse = owner.LookDirection.y * (float)MVPhysics.Gravity * 0.95f * Time.deltaTime * 40f;
+					float impulseY = Mathf.Min(flamerImpulse, verticalVelocity);
+					mvRigidBody.AddImpulse(new Vector3(0f, 0f - impulseY, 0f), suspendImpactDamage: true);
 				}
 			}
 			if ((float)currentFuel <= 0f)
 			{
-				MVEquipable component = owner.WorldObjectOwner.GameObject.GetComponent<MVEquipable>();
-				if (component != null)
+				MVEquipable equipable = owner.WorldObjectOwner.GameObject.GetComponent<MVEquipable>();
+				if (equipable != null)
 				{
-					component.Unequip();
+					equipable.Unequip();
 				}
 				break;
 			}

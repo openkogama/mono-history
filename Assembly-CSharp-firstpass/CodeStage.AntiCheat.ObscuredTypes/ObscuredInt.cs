@@ -121,6 +121,49 @@ public struct ObscuredInt : IEquatable<ObscuredInt>, IFormattable
 		return num;
 	}
 
+	public override bool Equals(object obj)
+	{
+		if (!(obj is ObscuredInt))
+		{
+			return false;
+		}
+		return Equals((ObscuredInt)obj);
+	}
+
+	public bool Equals(ObscuredInt obj)
+	{
+		if (currentCryptoKey == obj.currentCryptoKey)
+		{
+			return hiddenValue == obj.hiddenValue;
+		}
+		return Decrypt(hiddenValue, currentCryptoKey) == Decrypt(obj.hiddenValue, obj.currentCryptoKey);
+	}
+
+	public override int GetHashCode()
+	{
+		return InternalDecrypt().GetHashCode();
+	}
+
+	public override string ToString()
+	{
+		return InternalDecrypt().ToString();
+	}
+
+	public string ToString(string format)
+	{
+		return InternalDecrypt().ToString(format);
+	}
+
+	public string ToString(IFormatProvider provider)
+	{
+		return InternalDecrypt().ToString(provider);
+	}
+
+	public string ToString(string format, IFormatProvider provider)
+	{
+		return InternalDecrypt().ToString(format, provider);
+	}
+
 	public static implicit operator ObscuredInt(int value)
 	{
 		ObscuredInt result = new ObscuredInt(Encrypt(value));
@@ -171,48 +214,5 @@ public struct ObscuredInt : IEquatable<ObscuredInt>, IFormattable
 			input.fakeValue = value;
 		}
 		return input;
-	}
-
-	public override bool Equals(object obj)
-	{
-		if (!(obj is ObscuredInt))
-		{
-			return false;
-		}
-		return Equals((ObscuredInt)obj);
-	}
-
-	public bool Equals(ObscuredInt obj)
-	{
-		if (currentCryptoKey == obj.currentCryptoKey)
-		{
-			return hiddenValue == obj.hiddenValue;
-		}
-		return Decrypt(hiddenValue, currentCryptoKey) == Decrypt(obj.hiddenValue, obj.currentCryptoKey);
-	}
-
-	public override int GetHashCode()
-	{
-		return InternalDecrypt().GetHashCode();
-	}
-
-	public override string ToString()
-	{
-		return InternalDecrypt().ToString();
-	}
-
-	public string ToString(string format)
-	{
-		return InternalDecrypt().ToString(format);
-	}
-
-	public string ToString(IFormatProvider provider)
-	{
-		return InternalDecrypt().ToString(provider);
-	}
-
-	public string ToString(string format, IFormatProvider provider)
-	{
-		return InternalDecrypt().ToString(format, provider);
 	}
 }

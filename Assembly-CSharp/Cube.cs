@@ -309,10 +309,10 @@ public class Cube : CubeBase
 
 	public static Face GetFace(Vector3[] corners, Vector3[] triangleVertices)
 	{
-		foreach (Face value in Enum.GetValues(typeof(Face)))
+		foreach (int value in Enum.GetValues(typeof(Face)))
 		{
 			int num = 0;
-			Vector3[] face2 = GetFace(corners, value);
+			Vector3[] face2 = GetFace(corners, (Face)value);
 			foreach (Vector3 vector in triangleVertices)
 			{
 				Vector3[] array = face2;
@@ -327,7 +327,7 @@ public class Cube : CubeBase
 			}
 			if (num == 3)
 			{
-				return value;
+				return (Face)value;
 			}
 		}
 		return Face.Top;
@@ -408,14 +408,14 @@ public class Cube : CubeBase
 	{
 		float num = 1000f;
 		Edge result = Edge.None;
-		foreach (Edge value in Enum.GetValues(typeof(Edge)))
+		foreach (int value in Enum.GetValues(typeof(Edge)))
 		{
-			Vector3[] edgeVerticesWorld = GetEdgeVerticesWorld(gameObject, cube, face, value, iVector);
+			Vector3[] edgeVerticesWorld = GetEdgeVerticesWorld(gameObject, cube, face, (Edge)value, iVector);
 			float distance = 1000f;
 			MathFunctions.DistancePointLine(pos, edgeVerticesWorld[0], edgeVerticesWorld[1], ref distance);
 			if (num > distance)
 			{
-				result = value;
+				result = (Edge)value;
 				num = distance;
 			}
 		}
@@ -1050,9 +1050,9 @@ public class Cube : CubeBase
 
 	public static bool IsLegal(Vector3[] corners)
 	{
-		foreach (Face value in Enum.GetValues(typeof(Face)))
+		foreach (int value in Enum.GetValues(typeof(Face)))
 		{
-			Vector3[] face2 = GetFace(corners, value);
+			Vector3[] face2 = GetFace(corners, (Face)value);
 			Vector3 zero = Vector3.zero;
 			for (int i = 0; i < face2.Length; i++)
 			{
@@ -1060,7 +1060,7 @@ public class Cube : CubeBase
 			}
 			zero.Normalize();
 			zero = -zero;
-			Vector3 faceAxis = GetFaceAxis(value);
+			Vector3 faceAxis = GetFaceAxis((Face)value);
 			float num = Vector3.Dot(zero, faceAxis);
 			if ((double)num < -0.0001)
 			{

@@ -308,7 +308,7 @@ public class SettingsFactory : MonoBehaviour
 	{
 		MVWorldObject worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woID);
 		Dictionary<object, object> dictionary = (Dictionary<object, object>)worldObjectClient.Data["BlueprintData"];
-		switch ((BlueprintType)dictionary[BlueprintData.ClientSideType.ToString()])
+		switch ((BlueprintType)(byte)dictionary[BlueprintData.ClientSideType.ToString()])
 		{
 		case BlueprintType.MovingPlatformGroup:
 			CreateMovablesSettings(woID);

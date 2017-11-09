@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class DesktopAvatarEditModeController : ModeControllerBase, IActivateUIElement, IAvatarEditUIState, ISetEditState, IAvatarSetBodyGroup, IGetCurrentBody, IEventSystemHandler
+public class DesktopAvatarEditModeController : ModeControllerBase, ISetEditState, IEventSystemHandler, IAvatarEditUIState, IAvatarSetBodyGroup, IGetCurrentBody, IActivateUIElement
 {
 	private EditorStateMachine editorStateMachine;
 
@@ -113,6 +113,8 @@ public class DesktopAvatarEditModeController : ModeControllerBase, IActivateUIEl
 			break;
 		case ActivateUIElement.AvatarShop:
 			avatarShopController.Activate(UIPushOption.Blocking);
+			break;
+		case ActivateUIElement.Materials:
 			break;
 		}
 	}

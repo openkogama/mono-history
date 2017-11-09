@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class InteractableMaterialHitHandler
 {
+	private const float deadzoneDist = 1f;
+
 	private Dictionary<AvatarModifierPackageType, ParticleSystem> particles = new Dictionary<AvatarModifierPackageType, ParticleSystem>();
 
 	private AvatarModifierPackageType currentMoveHitParticleType;
@@ -10,8 +12,6 @@ public class InteractableMaterialHitHandler
 	private ParticleSystem currentParticleSystem;
 
 	private Vector3 prevPos = new Vector3(0f, 0f, 0f);
-
-	private const float deadzoneDist = 1f;
 
 	public void Initialize(MaterialHitPackage[] packages, Transform parent)
 	{

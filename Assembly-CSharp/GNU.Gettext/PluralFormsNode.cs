@@ -96,7 +96,7 @@ internal class PluralFormsNode
 		case PluralFormsToken.Type.Reminder:
 		{
 			long num5 = nodes[1].Evaluate(n);
-			if (num5 != 0)
+			if (num5 != 0L)
 			{
 				num = nodes[0].Evaluate(n);
 				return num % num5;
@@ -106,16 +106,16 @@ internal class PluralFormsNode
 		case PluralFormsToken.Type.LogicalAnd:
 			num = nodes[0].Evaluate(n);
 			num2 = nodes[1].Evaluate(n);
-			return (num != 0 && num2 != 0) ? 1 : 0;
+			return (num != 0L && num2 != 0L) ? 1 : 0;
 		case PluralFormsToken.Type.LogicalOr:
 			num = nodes[0].Evaluate(n);
 			num2 = nodes[1].Evaluate(n);
-			return (num != 0 || num2 != 0) ? 1 : 0;
+			return (num != 0L || num2 != 0L) ? 1 : 0;
 		case PluralFormsToken.Type.Question:
 			num = nodes[0].Evaluate(n);
 			num2 = nodes[1].Evaluate(n);
 			num3 = nodes[2].Evaluate(n);
-			return (num == 0) ? num3 : num2;
+			return (num == 0L) ? num3 : num2;
 		default:
 			return 0L;
 		}
