@@ -25,7 +25,7 @@ public class ThirdPersonCamera : PlaymodeCamera, ICameraSettings
 	{
 		if (MVGameControllerBase.WOCM.AvatarLocal.InGunMode)
 		{
-			MVGameControllerBase.CameraController.SetCamera(CameraType.FirstPersonCamera);
+			MVGameControllerBase.CameraController.PushCamera(CameraType.FirstPersonCamera);
 		}
 	}
 

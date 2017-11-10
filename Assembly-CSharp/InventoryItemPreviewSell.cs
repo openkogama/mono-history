@@ -1,4 +1,6 @@
 using System;
+using MV.Common;
+using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -63,6 +65,11 @@ public class InventoryItemPreviewSell : ManageItemPage
 			sellButtonText.text = TM._("Sell");
 			sellButton.gameObject.SetActive(value: true);
 			addingToMarket = true;
+		}
+		else
+		{
+			MVGameControllerBase.Game.ReceivedItemFromQuery += OnLoadMarketPlaceItem;
+			MVGameControllerBase.OperationRequests.RequestMarketPlaceItem(item.itemID);
 		}
 	}
 
@@ -148,5 +155,27 @@ public class InventoryItemPreviewSell : ManageItemPage
 				x.Create(txt2, string.Empty);
 			});
 		}
+	}
+
+	private void OnLoadMarketPlaceItem(object sender, ReceivedItemFromQueryEventArgs e)
+	{
+		MVGameControllerBase.Game.ReceivedItemFromQuery -= OnLoadMarketPlaceItem;
+		BytePacker koGaMaData = e.KoGaMaData;
+		KoGaMaPackageClient koGaMaPackageClient = new KoGaMaPackageClient(new BytePacker(previewItem.data), readRuntimeValues: false);
+		KoGaMaPackageClient koGaMaPackageClient2 = new KoGaMaPackageClient(koGaMaData, readRuntimeValues: false);
+		float num = KoGaMaPackageClient.Compare(koGaMaPackageClient2, koGaMaPackageClient);
+		koGaMaPackageClient.Destroy();
+		koGaMaPackageClient2.Destroy();
+		compareSlider.Progress = 1f - num;
+		float num2 = 1f - CommonValues.CompareThreshold;
+		thresholdCaret.anchoredPosition = new Vector2(num2 * sliderTransform.rect.width, 0f);
+		compareSlider.gameObject.SetActive(value: true);
+		if (1f - num <= 1f - CommonValues.CompareThreshold)
+		{
+			compareText.text = TM._("Item is not different enough from original item.");
+			return;
+		}
+		compareText.text = TM._("Item is sellable.");
+		sellButton.gameObject.SetActive(value: true);
 	}
 }

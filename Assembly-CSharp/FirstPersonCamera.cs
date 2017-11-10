@@ -194,33 +194,10 @@ public abstract class FirstPersonCamera : MVCameraBase
 		}
 	}
 
-	protected void HighlightFriendsInSight()
-	{
-		Ray ray = new Ray(transform.position, transform.forward);
-		int layerMask = 1 << LayerMask.NameToLayer("Player");
-		HashSet<int> hashSet = new HashSet<int>();
-		hashSet.Add(MVGameControllerBase.WOCM.AvatarLocal.Id);
-		HashSet<int> ignoreWoIds = hashSet;
-		if (!CollisionDetection.MVHit(ray, out var voxelHit, 1000f, ignoreWoIds, layerMask))
-		{
-			return;
-		}
-		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
-		if (MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
-		{
-			Avatar component = worldObjectClient.GameObject.GetComponent<Avatar>();
-			if (component != null)
-			{
-				component.mvAvatar.Body.Highlight();
-			}
-		}
-	}
-
 	public override void UpdateCamera(MVCameraController camController, ProtectedTransform targetTransform)
 	{
 		if (MVGameControllerBase.WOCM.AvatarLocal.InGunMode)
 		{
-			HighlightFriendsInSight();
 			UpdateAvatar();
 			UpdateCameraPosition();
 			UpdateCameraRotation();

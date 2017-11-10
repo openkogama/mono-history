@@ -47,10 +47,6 @@ public class DesktopAvatarEditModeController : ModeControllerBase, ISetEditState
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnActiveAvatar = (Action<int>)Delegate.Combine(game.OnActiveAvatar, new Action<int>(FirstTimeSetActiveAvatar));
 		uiStack.Push(stackBottom, UIPushOption.None, null, UIGroupFlags.StackBottom);
-		chatController = UnityEngine.Object.Instantiate(chatController);
-		chatController.transform.SetParent(stackBottom.transform, worldPositionStays: false);
-		chatController.SubscribeToMessages();
-		chatController.Initialize();
 		stackBottom.SetActive(value: true);
 		avatarSelectionController = UnityEngine.Object.Instantiate(avatarSelectionController);
 		uiStack.Push(avatarSelectionController.gameObject, UIPushOption.None, null, UIGroupFlags.MainUI);

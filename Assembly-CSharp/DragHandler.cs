@@ -31,6 +31,14 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
 		dragging = false;
 	}
 
+	private void Update()
+	{
+		if (dragging)
+		{
+			MVInputWrapper.IsInputSuppressed = true;
+		}
+	}
+
 	public void OnDrag(PointerEventData eventData)
 	{
 		transform.position = eventData.position;

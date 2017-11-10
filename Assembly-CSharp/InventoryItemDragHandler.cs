@@ -46,4 +46,12 @@ public class InventoryItemDragHandler : MonoBehaviour, IBeginDragHandler, IEndDr
 	{
 		transform.position = eventData.position;
 	}
+
+	private void Update()
+	{
+		if (dragging)
+		{
+			MVInputWrapper.IsInputSuppressed = true;
+		}
+	}
 }

@@ -263,9 +263,6 @@ public class MVNetworkGame : IPhotonPeerListener
 			case MVEventCodes.RemoveObjectLink:
 				networkGame.OnRemoveObjectLinkEvent((int)photonEvent[56]);
 				break;
-			case MVEventCodes.AddItemToInventory:
-				networkGame.OnAddItemToInventoryEvent(photonEvent);
-				break;
 			case MVEventCodes.RemoveItemFromInventory:
 				networkGame.OnRemoveItemFromInventory((int)photonEvent[38]);
 				break;
@@ -575,6 +572,9 @@ public class MVNetworkGame : IPhotonPeerListener
 					StatHatWrapper.Count("FirstTime.Success", 1);
 					FirstTimeEventManager.Initialize(profileMetaData.FirstTimeState);
 				}
+				break;
+			case MVEventCodes.ServerError:
+				MVGameControllerBase.PostGameMsg(MVGameMsgType.Warning, "Server error: " + (string)photonEvent[245]);
 				break;
 			default:
 				Debug.LogError("Unknown event: " + eventCode);
@@ -1990,20 +1990,11 @@ public class MVNetworkGame : IPhotonPeerListener
 				networkGame.OnTransferOwnershipResponse(returnValues, returnCode);
 				break;
 			case MVOperationCodes.AddWorldObjectToInventory:
-				if (networkGame.OnAddWorldObjectToInventoryResponse != null)
-				{
-					networkGame.OnAddWorldObjectToInventoryResponse(returnCode, (int)returnValues[67], (int)returnValues[38], (int)returnValues[20]);
-				}
-				else
-				{
-					Debug.LogWarning("OnAddWorldObjectToInventoryResponse called with no subscribers, this is unhandled but possibly ok.");
-				}
+				networkGame.OnAddItemToInventory(returnValues, returnCode);
 				break;
 			case MVOperationCodes.AddWorldObjectToInventoryDev:
-				if (returnCode == 0)
-				{
-					networkGame.OnAddWorldObjectToInventoryResponseDev(returnCode, (int)returnValues[20], (int)returnValues[38]);
-				}
+				networkGame.OnAddItemToInventory(returnValues, returnCode);
+				networkGame.OnAddWorldObjectToInventoryResponseDev(returnCode, (int)returnValues[20], (int)returnValues[38]);
 				break;
 			case MVOperationCodes.RequestFriendshipByProfileID:
 				networkGame.OnRequestFriendshipResponse(returnCode);
@@ -2021,10 +2012,11 @@ public class MVNetworkGame : IPhotonPeerListener
 				}
 				break;
 			case MVOperationCodes.PurchaseItem:
-				if (networkGame.OnPurchaseItemResponse != null)
+				if (returnCode == -1)
 				{
-					networkGame.OnPurchaseItemResponse(returnCode);
+					Debug.LogError("Failed to added purchased item to inventory");
 				}
+				networkGame.OnAddItemToInventory(returnValues, returnCode);
 				break;
 			case MVOperationCodes.TransferWorldObjectsToGroup:
 				networkGame.worldNetwork.WorldObjectClientManagerNetwork.HandleTransferWorldObjectsToGroup(returnCode == 0);
@@ -2299,10 +2291,6 @@ public class MVNetworkGame : IPhotonPeerListener
 	public Action<int> OnActiveAvatar;
 
 	public Action<bool> OnItemAddedToWorld;
-
-	public Action<int, int, int, int> OnAddWorldObjectToInventoryResponse;
-
-	public UnityAction<int> OnPurchaseItemResponse;
 
 	public UnityAction<string> OnPublishedPlanet;
 
@@ -3124,34 +3112,6 @@ public class MVNetworkGame : IPhotonPeerListener
 		}
 	}
 
-	private void OnAddItemToInventoryEvent(EventData data)
-	{
-		int num = (int)data[254];
-		int id = (int)data[20];
-		if (num == playerContainer.LocalPlayer.ActorNr)
-		{
-			InventoryItem inventoryItem = new InventoryItem(data);
-			MVGameControllerBase.IEditModeUI.PlayerInventoryRepository.AddItem(inventoryItem);
-			itemBusinessLogic.AddItemWithNoData(inventoryItem.itemID, inventoryItem.resellable, inventoryItem.itemCategoryID, inventoryItem.itemTypeID, inventoryItem.name);
-		}
-		else
-		{
-			MVWorldObjectClient worldObjectClient = WorldObjectClientManager.GetWorldObjectClient(id);
-			if (worldObjectClient == null)
-			{
-				Debug.LogWarning("Attempted to assign itemId to worldObject failed. This is probably because the worldObject was deleted");
-				return;
-			}
-		}
-		int itemID = (int)data[38];
-		MVWorldObjectClient.CallBackDelegate callBack = (MVWorldObjectClient wo) =>
-		{
-			wo.ItemId = itemID;
-		};
-		MVWorldObjectClient worldObjectClient2 = WorldObjectClientManager.GetWorldObjectClient(id);
-		worldObjectClient2.TraverseRecursiveTail(callBack);
-	}
-
 	private void OnRemoveItemFromInventory(int itemID)
 	{
 		MVGameControllerBase.IEditModeUI.PlayerInventoryRepository.RemoveItem(itemID);
@@ -3537,6 +3497,26 @@ public class MVNetworkGame : IPhotonPeerListener
 			AvatarRepositoryItem item = new AvatarRepositoryItem(outData, key);
 			AvatarShopRepository.AddItem(item);
 		}
+	}
+
+	public void OnAddItemToInventory(Dictionary<byte, object> returnValues, short returnCode)
+	{
+		if (returnCode == -1)
+		{
+			Debug.LogWarning("Failed to add to inventory. This is probably because world object was deleted before operation req reached server.");
+			MVGameControllerBase.IEditModeUI.PlayerInventoryRepository.OnFailedToAddItem();
+			return;
+		}
+		int id = (int)returnValues[20];
+		InventoryItem inventoryItem = new InventoryItem(returnValues);
+		MVGameControllerBase.IEditModeUI.PlayerInventoryRepository.AddItem(inventoryItem);
+		itemBusinessLogic.AddItemWithNoData(inventoryItem.itemID, inventoryItem.resellable, inventoryItem.itemCategoryID, inventoryItem.itemTypeID, inventoryItem.name);
+		MVWorldObjectClient.CallBackDelegate callBack = (MVWorldObjectClient wo) =>
+		{
+			wo.ItemId = (int)returnValues[38];
+		};
+		MVWorldObjectClient worldObjectClient = WorldObjectClientManager.GetWorldObjectClient(id);
+		worldObjectClient.TraverseRecursiveTail(callBack);
 	}
 
 	public void OnAddWorldObjectToInventoryResponseDev(int returnCode, int worldObjectID, int itemID)

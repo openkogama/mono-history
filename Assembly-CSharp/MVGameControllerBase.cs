@@ -484,10 +484,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		{
 			Debug.Log("WEBPARAMS: " + data);
 			GameSessionData gameSessionData = JsonConvert.DeserializeObject<GameSessionData>(data);
-			if (gameSessionData.detailedStats)
-			{
-				StatHatWrapper.DoDetailedStatsForSession();
-			}
+			StatHatWrapper.Initialize(gameSessionData.detailedStats);
 			Debug.Log(gameSessionData.pingURL);
 			Debug.Log(gameSessionData.disconnectURL);
 			SetGameSessionData(gameSessionData);

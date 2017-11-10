@@ -29,12 +29,12 @@ public class MVMovingPlatformNode : MVWorldObjectClient
 
 	public override bool Delete(MVWorldObjectClientManager WOCM, ref string errorText)
 	{
+		Debug.Log("Delete");
 		MVWorldObjectClient worldObjectClient = WOCM.GetWorldObjectClient(groupId);
 		if (worldObjectClient != null && worldObjectClient is MVMovingPlatformGroup)
 		{
 			return worldObjectClient.Delete(WOCM, ref errorText);
 		}
-		WOCM.UnregisterWorldObject(id);
 		return true;
 	}
 }

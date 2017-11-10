@@ -240,12 +240,12 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 	{
 		if (LocalControlledWorldObjects.Count >= 4)
 		{
-			Debug.LogWarning("Can't have more active Client Controlled WorldObjects. Count is " + LocalControlledWorldObjects.Count + " max is " + 4);
+			Debug.Log("Can't have more active Client Controlled WorldObjects. Count is " + LocalControlledWorldObjects.Count + " max is " + 4);
 			return false;
 		}
 		if (attachState != null)
 		{
-			Debug.LogError("SpawnVehicleWithDriver is already pending");
+			Debug.Log("SpawnVehicleWithDriver is already pending");
 			return false;
 		}
 		attachState = new AttachState(worldObjectID);

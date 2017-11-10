@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using ExitGames.Client.Photon;
 using UnityEngine;
 
 public class InventoryItem
@@ -338,7 +337,7 @@ public class InventoryItem
 	{
 	}
 
-	public InventoryItem(EventData data)
+	public InventoryItem(Dictionary<byte, object> data)
 	{
 		itemID = (int)data[38];
 		itemCategoryID = (int)data[149];

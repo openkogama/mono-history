@@ -17,8 +17,6 @@ public class DesktopEditModeController : ModeControllerBase, IEditModeUI, ISetEd
 
 	private DesktopPlayModeController desktopPlayModeController;
 
-	private EditorStateMachine editorStateMachine;
-
 	[SerializeField]
 	private EditorWorldObjectCreation editorWorldObjectCreation;
 
@@ -70,6 +68,8 @@ public class DesktopEditModeController : ModeControllerBase, IEditModeUI, ISetEd
 	private float focusTime;
 
 	private bool focusSuppressInput = true;
+
+	public EditorStateMachine EditModeStateMachine { get; set; }
 
 	public bool IsInPlayInEditMode => isInPlayInEditMode;
 
@@ -132,9 +132,9 @@ public class DesktopEditModeController : ModeControllerBase, IEditModeUI, ISetEd
 	{
 		HandleFpsShortcut();
 		HandleFocusInputSupress();
-		if (editorStateMachine != null)
+		if (EditModeStateMachine != null)
 		{
-			editorStateMachine.Update();
+			EditModeStateMachine.Update();
 		}
 		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.ToggleHD) && uiStack.IsStackEmpty())
 		{
@@ -179,16 +179,16 @@ public class DesktopEditModeController : ModeControllerBase, IEditModeUI, ISetEd
 			drawPlaneController.Initialize();
 			DrawPlane.Initialize(drawPlaneController);
 		}
-		editorStateMachine = new EditorStateMachine(gameObject, contextMenuController, gizmoController);
-		editorWorldObjectCreation.Initialize(editorStateMachine);
-		materialsController.Initialize(editorStateMachine.CubeModelingStateMachine);
+		EditModeStateMachine = new EditorStateMachine(gameObject, contextMenuController, gizmoController);
+		editorWorldObjectCreation.Initialize(EditModeStateMachine);
+		materialsController.Initialize(EditModeStateMachine.CubeModelingStateMachine);
 		uiStack.Push(materialsController.SetActive().gameObject, UIPushOption.None, null, UIGroupFlags.MainUI);
-		editorStateMachine.CubeModelingStateMachine.CurrentMaterialId = 21;
+		EditModeStateMachine.CubeModelingStateMachine.CurrentMaterialId = 21;
 		chatController.Initialize();
-		contextMenuController.Initialize(editorStateMachine);
-		gizmoController.Initialize(editorStateMachine);
+		contextMenuController.Initialize(EditModeStateMachine);
+		gizmoController.Initialize(EditModeStateMachine);
 		MVInputWrapper.SetInputMap(new DesktopPlayMode());
-		editorStateMachine.Event = EditorEvent.ESTerrainEdit;
+		EditModeStateMachine.Event = EditorEvent.ESTerrainEdit;
 		clientShopController.Initialize(repositoryController);
 		playerInventoryController.Initialize();
 		desktopPlayModeController.Initialize();
@@ -196,17 +196,17 @@ public class DesktopEditModeController : ModeControllerBase, IEditModeUI, ISetEd
 		MVGameControllerBase.WOCM.RootGroup.PlayModeInitialize();
 		notificationsManager = UnityEngine.Object.Instantiate(notificationsManager);
 		notificationsManager.transform.SetParent(stackBottom.transform, worldPositionStays: false);
-		firstTimeSetupTerrainEditTutorial.Initialize(editorStateMachine.CubeModelingStateMachine, materialsController);
-		setupCubeModelTutorialUI.Initialize(editorStateMachine.CubeModelingStateMachine);
+		firstTimeSetupTerrainEditTutorial.Initialize(EditModeStateMachine.CubeModelingStateMachine, materialsController);
+		setupCubeModelTutorialUI.Initialize(EditModeStateMachine.CubeModelingStateMachine);
 	}
 
 	public void SetState(EditorEvent editorEvent)
 	{
 		if (editorEvent == EditorEvent.ESWalkMode)
 		{
-			editorStateMachine.ClearStateStack();
+			EditModeStateMachine.ClearStateStack();
 			isInPlayInEditMode = true;
-			editorStateMachine.Event = EditorEvent.ESWalkMode;
+			EditModeStateMachine.Event = EditorEvent.ESWalkMode;
 			desktopPlayModeController.gameObject.SetActive(value: true);
 			gameObject.SetActive(value: false);
 			if (editModeChange != null)
@@ -216,7 +216,7 @@ public class DesktopEditModeController : ModeControllerBase, IEditModeUI, ISetEd
 		}
 		else
 		{
-			editorStateMachine.Event = editorEvent;
+			EditModeStateMachine.Event = editorEvent;
 		}
 	}
 
@@ -232,7 +232,7 @@ public class DesktopEditModeController : ModeControllerBase, IEditModeUI, ISetEd
 	private void LeaveEditPlayMode()
 	{
 		isInPlayInEditMode = false;
-		editorStateMachine.Event = EditorEvent.ESTerrainEdit;
+		EditModeStateMachine.Event = EditorEvent.ESTerrainEdit;
 		desktopPlayModeController.gameObject.SetActive(value: false);
 		gameObject.SetActive(value: true);
 		StartCoroutine(HandleCursorVisible());
@@ -274,7 +274,7 @@ public class DesktopEditModeController : ModeControllerBase, IEditModeUI, ISetEd
 
 	public void MoveToSelectedObject()
 	{
-		MVWorldObjectClient singleSelectedWO = editorStateMachine.SingleSelectedWO;
+		MVWorldObjectClient singleSelectedWO = EditModeStateMachine.SingleSelectedWO;
 		if (singleSelectedWO != null)
 		{
 			MVGameControllerBase.CameraController.CurCamera.FocusOnObject(singleSelectedWO);
@@ -283,7 +283,7 @@ public class DesktopEditModeController : ModeControllerBase, IEditModeUI, ISetEd
 
 	public void DeleteWoid(int woid)
 	{
-		editorStateMachine.DeSelectAll();
+		EditModeStateMachine.DeSelectAll();
 		string errorText = string.Empty;
 		if (!MVGameControllerBase.WOCM.GetWorldObjectClient(woid).Delete(MVGameControllerBase.WOCM, ref errorText))
 		{

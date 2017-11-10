@@ -68,7 +68,6 @@ public class FirstTimeActivatablePointerAvatarBody : FirstTimeActivatableElement
 				hasButtonBeenAdded = true;
 				Button button = Object.Instantiate(skipElement);
 				button.onClick.AddListener(SkipEvent);
-				x.AddFirstElement(bubbleId, (RectTransform)button.transform);
 			}
 		});
 	}

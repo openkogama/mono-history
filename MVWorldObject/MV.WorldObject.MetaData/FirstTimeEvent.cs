@@ -80,5 +80,7 @@ public enum FirstTimeEvent
 	BM_TerrainTutorialText = 153,
 	BM_InventoryIntroduction = 154,
 	BM_Outro = 155,
+	BM_AddCubeModel = 156,
+	BM_ClickSettings = 157,
 	WebEvent = 250
 }

@@ -6,9 +6,6 @@ public class MVBodyObject : ObjectPrefab
 	private BoneAnimation boneAnimation;
 
 	[SerializeField]
-	private SelectionRenderer selectionRenderer;
-
-	[SerializeField]
 	private AvatarBlobShadowController avatarBlobShadowController;
 
 	[SerializeField]
@@ -18,8 +15,6 @@ public class MVBodyObject : ObjectPrefab
 	private BodyData bodyData;
 
 	public BoneAnimation BoneAnimation => boneAnimation;
-
-	public SelectionRenderer SelectionRenderer => selectionRenderer;
 
 	public AvatarBlobShadowController AvatarBlobShadowController => avatarBlobShadowController;
 

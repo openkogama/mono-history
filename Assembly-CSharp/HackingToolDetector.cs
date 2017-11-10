@@ -140,14 +140,13 @@ public class HackingToolDetector : MonoBehaviour
 			return;
 		default:
 			text = "Report default label have been hit. Tampering with HackingToolDetector suspected.";
-			DebugLogHandler.ReportError(text, string.Empty, LogType.Warning);
+			Debug.LogError(text);
 			break;
 		}
 		DebugLogToChat(text);
 		if (!alreadyReported[(int)reportCategory])
 		{
 			Debug.Log(text);
-			DebugLogHandler.ReportError("Potential cheat detected.", string.Empty, LogType.Warning);
 			StatHatWrapper.Count("cheatDetected.ReportCategory." + reportCategory, 1);
 			alreadyReported[(int)reportCategory] = true;
 			if (reportCategory == ReportCategory.process)

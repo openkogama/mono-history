@@ -21,6 +21,8 @@ public class PlayerInventoryRepository
 
 	public Action<int, int> OnInventoryItemAdded;
 
+	public Action OnFailedToAddItem;
+
 	public PlayerInventoryRepository()
 	{
 		foreach (int key in categories.Keys)
@@ -45,6 +47,14 @@ public class PlayerInventoryRepository
 		if (OnInventoryItemAdded != null)
 		{
 			OnInventoryItemAdded(item.itemCategoryID, item.slotPosition);
+		}
+	}
+
+	public void FailedToAddItem()
+	{
+		if (OnFailedToAddItem != null)
+		{
+			OnFailedToAddItem();
 		}
 	}
 

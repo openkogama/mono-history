@@ -8,21 +8,21 @@ using UnityEngine.UI;
 
 public class ChatControllerUGUI : MonoBehaviour
 {
-	private const string joinLeaveMessageFormat = "<color=#{0}>{1}</color> <color=#{2}>{3}</color>";
-
-	private const string killMessageFormat = "<color=#{0}>{1}</color>";
-
-	private const string joinStatusMessageFormat = "<color=#{0}>{1}</color>";
+	private const string adminMessageFormat = "<color=#{0}>{1}</color>";
 
 	private const string chatMessageFromFriend = "<color=#{0}>[{1}]: </color><color=#{2}>{3}</color>";
 
 	private const string chatMessageFormat = "<color=#{0}>[{1}]: </color><color=#{2}>{3}</color>";
+
+	private const string warningMessageFormat = "<color=#{0}>{1}</color>";
 
 	private const float timeBeforeFade = 10f;
 
 	private const float fadeTime = 1f;
 
 	private const int maxLineCount = 50;
+
+	private bool waitForLocalPlayerReady;
 
 	private bool shouldUpdateFade;
 
@@ -65,7 +65,7 @@ public class ChatControllerUGUI : MonoBehaviour
 	private Color systemMessageColor;
 
 	[SerializeField]
-	private Color warningColor;
+	private Color warningColor = Color.red;
 
 	[SerializeField]
 	private Color killMessageColor;
@@ -84,21 +84,20 @@ public class ChatControllerUGUI : MonoBehaviour
 
 	private bool promptRegisterForChat = true;
 
-	private bool waitForLocalPlayerReady;
-
-	private void Start()
+	private void Awake()
 	{
 		inputAreaRoot.gameObject.SetActive(value: false);
 		inputAreaDeactivated.gameObject.SetActive(value: true);
 		startTime = Time.time;
 		enterChatButton.gameObject.SetActive(value: false);
-		if (MVGameControllerBase.GameMode != MVGameMode.CharacterEditor)
+	}
+
+	private void Start()
+	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IShortcutKeyRegister x, BaseEventData y) =>
 		{
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IShortcutKeyRegister x, BaseEventData y) =>
-			{
-				x.RegisterShortcutKey(KogamaControls.ShowChat, KeyState.Down, ChatHotkeyPressed);
-			});
-		}
+			x.RegisterShortcutKey(KogamaControls.ShowChat, KeyState.Down, ChatHotkeyPressed);
+		});
 		SendMessageControl sendMessageControl = messageController;
 		sendMessageControl.DoSend = (UnityAction<bool>)Delegate.Combine(sendMessageControl.DoSend, new UnityAction<bool>(ChatFocusChanged));
 		SendMessageControl sendMessageControl2 = messageController;
@@ -133,8 +132,11 @@ public class ChatControllerUGUI : MonoBehaviour
 		if (MVGameControllerBase.GameMode == MVGameMode.Play)
 		{
 			shouldUpdateFade = false;
+			inputField.ActivateInputField();
 		}
-		enterChatButton.gameObject.SetActive(value: true);
+		enterChatButton.gameObject.SetActive(!MVGameControllerBase.IsTouristSession);
+		inputAreaRoot.gameObject.SetActive(!MVGameControllerBase.IsTouristSession);
+		inputAreaDeactivated.gameObject.SetActive(MVGameControllerBase.IsTouristSession);
 		currentlyInLobbyState = true;
 		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
 		{
@@ -183,7 +185,7 @@ public class ChatControllerUGUI : MonoBehaviour
 
 	public void ChatFocusChanged(bool enterChatMode)
 	{
-		if (enterChatMode && MVGameControllerBase.GameMode != MVGameMode.CharacterEditor)
+		if (enterChatMode)
 		{
 			inputAreaRoot.gameObject.SetActive(!MVGameControllerBase.IsTouristSession);
 			inputAreaDeactivated.gameObject.SetActive(MVGameControllerBase.IsTouristSession);
@@ -244,22 +246,6 @@ public class ChatControllerUGUI : MonoBehaviour
 	{
 		switch (msgType)
 		{
-		case MVGameMsgType.JoinFlowStatus:
-			break;
-		case MVGameMsgType.AvatarKilled:
-			break;
-		case MVGameMsgType.UserJoined:
-			break;
-		case MVGameMsgType.UserLeft:
-			break;
-		case MVGameMsgType.CollectiblePickedUp:
-			Debug.LogWarning("Not showing CollectiblePickedUp line");
-			break;
-		case MVGameMsgType.AchievementUnlocked:
-			break;
-		case MVGameMsgType.CheckpointReached:
-			Debug.LogWarning("Not showing CheckpointReached line");
-			break;
 		case MVGameMsgType.Chat:
 			AddChatLine(message);
 			break;
@@ -269,73 +255,25 @@ public class ChatControllerUGUI : MonoBehaviour
 		case MVGameMsgType.Warning:
 			AddWarningMessage(message);
 			break;
-		default:
-			Debug.Log("GameMsg of type " + msgType.ToString() + " received...");
-			break;
 		}
 	}
 
-	private void JoinMessage(Dictionary<object, object> data)
-	{
-		int actorNumber = (int)data[(byte)0];
-		MVPlayer mVPlayer = MVGameControllerBase.Game.MVPlayerContainer[actorNumber];
-		if (!mVPlayer.IsAnonymous)
-		{
-			Color color = chatMessageDefaultNameColor;
-			if (MVGameControllerBase.Game.Friends.IsFriend(mVPlayer.ProfileID))
-			{
-				color = friendNameColor;
-			}
-			string text = string.Format("<color=#{0}>{1}</color> <color=#{2}>{3}</color>", Styles.ColorToHex(color), mVPlayer.Username, Styles.ColorToHex(chatMessageColor), TM._("joined the game"));
-			AddLine(text);
-		}
-	}
-
-	private void LeaveMessage(Dictionary<object, object> data)
-	{
-		bool flag = (bool)data[(byte)6];
-		if (flag)
-		{
-			string text = (string)data[(byte)3];
-			Color color = chatMessageDefaultNameColor;
-			if (flag)
-			{
-				color = friendNameColor;
-			}
-			string text2 = string.Format("<color=#{0}>{1}</color> <color=#{2}>{3}</color>", Styles.ColorToHex(color), text, Styles.ColorToHex(chatMessageColor), TM._("left the game"));
-			AddLine(text2);
-		}
-	}
-
-	private void AddJoinFlowStatusLine(Dictionary<object, object> data)
+	private void AddAdminMessage(Dictionary<object, object> data)
 	{
 		string arg = (string)data[(byte)5];
 		arg = $"<color=#{Styles.ColorToHex(systemMessageColor)}>{arg}</color>";
 		AddLine(arg);
 	}
 
-	private void AddAdminMessage(Dictionary<object, object> data)
-	{
-		string msg = (string)data[(byte)5];
-		AddAdminMessage(msg);
-	}
-
-	private void AddAdminMessage(string msg)
-	{
-		msg = $"<color=#{Styles.ColorToHex(systemMessageColor)}>{msg}</color>";
-		AddLine(msg);
-	}
-
 	private void AddWarningMessage(Dictionary<object, object> data)
 	{
-		string msg = (string)data[(byte)5];
-		AddWarningMessage(msg);
-	}
-
-	private void AddWarningMessage(string msg)
-	{
-		msg = $"<color=#{Styles.ColorToHex(warningColor)}>{msg}</color>";
-		AddLine(msg);
+		string text = (string)data[(byte)5];
+		if (text.Length > 1536)
+		{
+			text.Substring(0, 1536);
+		}
+		text = $"<color=#{Styles.ColorToHex(warningColor)}>{text}</color>";
+		AddLine(text);
 	}
 
 	private void AddChatLine(Dictionary<object, object> data)

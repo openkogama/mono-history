@@ -40,23 +40,23 @@ public static class LocalizedEnums
 		private static void Init(Dictionary<int, string> map)
 		{
 			map.Add(255, TM._("Joining"));
-			map.Add(64, TM._("Synchronizing Game Time"));
-			map.Add(65, TM._("Fetching Materials"));
-			map.Add(67, TM._("Fetching Item Types"));
-			map.Add(66, TM._("Fetching Ownership Types"));
-			map.Add(74, TM._("Fetching Inventory"));
-			map.Add(76, TM._("Fetching BuiltIn Items"));
-			map.Add(75, TM._("Fetching Shop Inventory"));
-			map.Add(77, TM._("Fetching Avatar Shop Inventory"));
-			map.Add(70, TM._("Fetching Game Snapshot"));
-			map.Add(69, TM._("Creating Game Snapshot"));
-			map.Add(73, TM._("Fetching Friends"));
-			map.Add(68, TM._("Fetching Streaming Assets"));
-			map.Add(72, TM._("Fetching Streaming Asset Inventory"));
-			map.Add(71, TM._("Setting Actor Ready"));
-			map.Add(79, TM._("Fetching Active Avatar"));
-			map.Add(78, TM._("Initialize Avatar Edit"));
-			map.Add(96, TM._("Getting Profile Meta Data"));
+			map.Add(63, TM._("Synchronizing Game Time"));
+			map.Add(64, TM._("Fetching Materials"));
+			map.Add(66, TM._("Fetching Item Types"));
+			map.Add(65, TM._("Fetching Ownership Types"));
+			map.Add(73, TM._("Fetching Inventory"));
+			map.Add(75, TM._("Fetching BuiltIn Items"));
+			map.Add(74, TM._("Fetching Shop Inventory"));
+			map.Add(76, TM._("Fetching Avatar Shop Inventory"));
+			map.Add(69, TM._("Fetching Game Snapshot"));
+			map.Add(68, TM._("Creating Game Snapshot"));
+			map.Add(72, TM._("Fetching Friends"));
+			map.Add(67, TM._("Fetching Streaming Assets"));
+			map.Add(71, TM._("Fetching Streaming Asset Inventory"));
+			map.Add(70, TM._("Setting Actor Ready"));
+			map.Add(78, TM._("Fetching Active Avatar"));
+			map.Add(77, TM._("Initialize Avatar Edit"));
+			map.Add(95, TM._("Getting Profile Meta Data"));
 		}
 	}
 

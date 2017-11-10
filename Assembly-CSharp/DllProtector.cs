@@ -33,7 +33,6 @@ public static class DllProtector
 		else
 		{
 			Debug.LogError("Buffer is too small, causing undefined behavior in DllProtector.");
-			DebugLogHandler.ReportError("Buffer is too small, causing undefined behavior in DllProtector.", string.Empty, LogType.Error);
 		}
 		Debug.Log("Dll returned " + list.Count + " dlls.");
 		foreach (FileData item in list)

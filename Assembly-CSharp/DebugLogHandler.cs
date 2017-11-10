@@ -79,7 +79,7 @@ public static class DebugLogHandler
 		}
 	}
 
-	public static void ReportError(string logString, string stackTrace, LogType type)
+	private static void ReportError(string logString, string stackTrace, LogType type)
 	{
 		if (MVClientSettings.EnableSentry || isSampling)
 		{
@@ -96,7 +96,7 @@ public static class DebugLogHandler
 			{
 				text = text.Substring(0, 1024);
 			}
-			MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, text);
+			MVGameControllerBase.PostGameMsg(MVGameMsgType.Warning, text);
 		}
 		catch
 		{

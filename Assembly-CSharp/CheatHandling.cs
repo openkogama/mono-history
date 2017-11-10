@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using CodeStage.AntiCheat.Detectors;
 using MV.Common;
-using UnityEngine;
 
 public static class CheatHandling
 {
@@ -25,11 +24,6 @@ public static class CheatHandling
 	public static void TextureHackDetected()
 	{
 		ExecuteBan(CheatType.TextureTampering);
-	}
-
-	public static void SuspectedHackDetected(string msg)
-	{
-		DebugLogHandler.ReportError(msg, string.Empty, LogType.Error);
 	}
 
 	private static void SpeedHackDetected()

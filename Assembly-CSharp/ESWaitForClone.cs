@@ -56,5 +56,7 @@ internal class ESWaitForClone : ESStateBase
 
 	public override void Exit(EditorStateMachine e)
 	{
+		pos = Vector3.zero;
+		rot = Quaternion.identity;
 	}
 }

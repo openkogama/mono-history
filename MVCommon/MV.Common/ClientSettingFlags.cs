@@ -7,9 +7,9 @@ public enum ClientSettingFlags
 {
 	None = 0,
 	TouristChatAllowed = 1,
-	ShowErrorPopupClient = 2,
-	EnableClientSentry = 4,
-	ShowTouristPromotion = 8,
-	ShowTouristAd = 0x10,
-	SpinEnabled = 0x20
+	EnableClientSentry = 2,
+	ShowTouristPromotion = 4,
+	ShowTouristAd = 8,
+	SpinEnabled = 0x10,
+	StathatEnabled = 0x20
 }

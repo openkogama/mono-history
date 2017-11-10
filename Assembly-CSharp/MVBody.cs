@@ -205,7 +205,6 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		base.Initialize();
 		MeshFilter[] componentsInChildren = gameObject.GetComponentsInChildren<MeshFilter>();
 		bodyObject.AvatarBlinker.MeshFilters = componentsInChildren;
-		bodyObject.SelectionRenderer.AddMeshFilters(componentsInChildren);
 		InitializeCommon();
 		if (attachedAvatar != null)
 		{
@@ -218,11 +217,6 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 			BlobShadow.enabled = false;
 		}
 		initialized = true;
-	}
-
-	public void Highlight()
-	{
-		bodyObject.SelectionRenderer.Show();
 	}
 
 	public void EditorSwapAccessoryAssetPath(int invID, string assetPath)

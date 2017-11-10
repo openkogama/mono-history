@@ -147,7 +147,7 @@ public class CEEditCubeTutorial : ESStateBase
 		((MVAvatarLocal.JetPackMode)MVGameControllerBase.WOCM.AvatarLocal.CurrentMode).ModifySpeed(Mathf.Min(1f, 1f * e.SingleSelectedWO.Scale.x), Mathf.Min(1f, 1f * e.SingleSelectedWO.Scale.x));
 		DrawPlane.HideDrawPlane();
 		MVAvatarLocal.JetPackMode jetPackMode = (MVAvatarLocal.JetPackMode)MVGameControllerBase.WOCM.AvatarLocal.CurrentMode;
-		jetPackMode.MovementConstrained = false;
+		jetPackMode.SetMoveConstraint(new Vector3(0f, 0f, 0f), 25f);
 		ExecuteEvents.ExecuteHierarchy(e.GameObject, null, (IHandleCubeEditTutorial handler, BaseEventData data) =>
 		{
 			handler.PushCubeEditCubeTutorialTools(OnClosed);
@@ -232,6 +232,8 @@ public class CEEditCubeTutorial : ESStateBase
 	{
 		base.Exit(esm);
 		esm.CameraController.MainCamera.cullingMask = mainCameraDefaultMask;
+		MVAvatarLocal.JetPackMode jetPackMode = (MVAvatarLocal.JetPackMode)MVGameControllerBase.WOCM.AvatarLocal.CurrentMode;
+		jetPackMode.MovementConstrained = false;
 		string err = string.Empty;
 		if (!TargetCubeModel.Delete(MVGameControllerBase.WOCM, ref err))
 		{

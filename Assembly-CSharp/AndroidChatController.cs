@@ -9,13 +9,13 @@ public class AndroidChatController : MonoBehaviour
 {
 	private const int maxLineCount = 50;
 
-	private string joinLeaveMessageFormat = "<color=#{0}>{1}</color> <color=#{2}>{3}</color>";
-
-	private string joinStatusMessageFormat = "<color=#{0}>{1}</color>";
+	private string adminMessageFormat = "<color=#{0}>{1}</color>";
 
 	private string chatMessageFromFriend = "<color=#{0}><b>[{1}]: </b></color><color=#{2}>{3}</color>";
 
 	private string chatMessageFormat = "<color=#{0}>[{1}]: </color><color=#{2}>{3}</color>";
+
+	private string warningMessageFormat = "<color=#{0}>{1}</color>";
 
 	private Queue<Text> lines = new Queue<Text>();
 
@@ -52,31 +52,21 @@ public class AndroidChatController : MonoBehaviour
 	private Color systemMessageColor;
 
 	[SerializeField]
-	private Color killMessageColor;
-
-	[SerializeField]
 	private Color chatMessageColor;
 
 	[SerializeField]
 	private Color chatMessageDefaultNameColor;
 
 	[SerializeField]
-	private Color friendNameColor;
+	private Color warningMessageColor = Color.red;
 
-	private void Start()
+	public void Initialize()
 	{
 		MVGameControllerBase.OnReceivedGameMsg = (MVGameControllerBase.OnReceivedGameMsgDelegate)Delegate.Combine(MVGameControllerBase.OnReceivedGameMsg, new MVGameControllerBase.OnReceivedGameMsgDelegate(ReceiveMessage));
 		ConsoleDragAndTapHandler consoleDragAndTapHandler = enterChatButton;
 		consoleDragAndTapHandler.OnClick = (UnityAction)Delegate.Combine(consoleDragAndTapHandler.OnClick, new UnityAction(OnChatModeTapped));
 		chatConsoleModes = UnityEngine.Object.Instantiate(chatConsoleModes);
 		chatConsoleModes.transform.SetParent(transform.parent, worldPositionStays: false);
-		chatConsoleModes.Set(ChatConsoleMode.PlayMode, ref rectTransform);
-		enterChatButton.gameObject.SetActive(value: false);
-		inputAreaRoot.gameObject.SetActive(value: false);
-	}
-
-	public void Initialize()
-	{
 		transform.SetAsLastSibling();
 		enterChatButton.gameObject.SetActive(value: true);
 		chatConsoleModes.Set(ChatConsoleMode.ChatLobbyMode, ref rectTransform);
@@ -148,82 +138,34 @@ public class AndroidChatController : MonoBehaviour
 	{
 		switch (msgType)
 		{
-		case MVGameMsgType.JoinFlowStatus:
-			break;
-		case MVGameMsgType.AvatarKilled:
-			break;
-		case MVGameMsgType.UserJoined:
-			break;
-		case MVGameMsgType.UserLeft:
-			break;
-		case MVGameMsgType.CollectiblePickedUp:
-			break;
-		case MVGameMsgType.AchievementUnlocked:
-			break;
-		case MVGameMsgType.CheckpointReached:
-			break;
 		case MVGameMsgType.Chat:
 			AddChatLine(message);
 			break;
 		case MVGameMsgType.AdminMsg:
 			AddAdminMessage(message);
 			break;
+		case MVGameMsgType.Warning:
+			AddWarningMessage(message);
+			break;
 		}
 	}
 
 	private void AddAdminMessage(Dictionary<object, object> data)
 	{
+		string arg = (string)data[(byte)5];
+		arg = string.Format(adminMessageFormat, Styles.ColorToHex(systemMessageColor), arg);
+		AddLine(arg);
+	}
+
+	private void AddWarningMessage(Dictionary<object, object> data)
+	{
 		string text = (string)data[(byte)5];
 		if (text.Length > 1536)
 		{
-			text = text.Substring(0, 1536);
+			text.Substring(0, 1536);
 		}
-		AddAdminMessage(text);
-	}
-
-	private void AddAdminMessage(string msg)
-	{
-		msg = string.Format(joinStatusMessageFormat, Styles.ColorToHex(systemMessageColor), msg);
-		AddLine(msg);
-	}
-
-	private void JoinMessage(Dictionary<object, object> data)
-	{
-		int actorNumber = (int)data[(byte)0];
-		MVPlayer mVPlayer = MVGameControllerBase.Game.MVPlayerContainer[actorNumber];
-		if (!mVPlayer.IsAnonymous)
-		{
-			Color color = chatMessageDefaultNameColor;
-			if (MVGameControllerBase.Game.Friends.IsFriend(mVPlayer.ProfileID))
-			{
-				color = friendNameColor;
-			}
-			string text = string.Format(joinLeaveMessageFormat, Styles.ColorToHex(color), mVPlayer.Username, Styles.ColorToHex(chatMessageColor), TM._("joined the game"));
-			AddLine(text);
-		}
-	}
-
-	private void LeaveMessage(Dictionary<object, object> data)
-	{
-		bool flag = (bool)data[(byte)6];
-		if (flag)
-		{
-			string text = (string)data[(byte)3];
-			Color color = chatMessageDefaultNameColor;
-			if (flag)
-			{
-				color = friendNameColor;
-			}
-			string text2 = string.Format(joinLeaveMessageFormat, Styles.ColorToHex(color), text, Styles.ColorToHex(chatMessageColor), TM._("left the game"));
-			AddLine(text2);
-		}
-	}
-
-	private void AddJoinFlowStatusLine(Dictionary<object, object> data)
-	{
-		string arg = (string)data[(byte)5];
-		arg = string.Format(joinStatusMessageFormat, Styles.ColorToHex(systemMessageColor), arg);
-		AddLine(arg);
+		text = string.Format(warningMessageFormat, Styles.ColorToHex(warningMessageColor), text);
+		AddLine(text);
 	}
 
 	private void AddChatLine(Dictionary<object, object> data)

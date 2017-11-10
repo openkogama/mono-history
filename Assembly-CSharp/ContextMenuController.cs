@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -24,7 +22,7 @@ public class ContextMenuController : MonoBehaviour, IEventSystemHandler, IHandle
 	{
 		this.editorStateMachine = editorStateMachine;
 		PlayerInventoryRepository playerInventoryRepository = MVGameControllerBase.IEditModeUI.PlayerInventoryRepository;
-		playerInventoryRepository.OnInventoryItemAdded = (Action<int, int>)Delegate.Combine(playerInventoryRepository.OnInventoryItemAdded, new Action<int, int>(OnFinishedAddingItem));
+		playerInventoryRepository.OnFailedToAddItem = (Action)Delegate.Combine(playerInventoryRepository.OnFailedToAddItem, new Action(OnFailedToAddItem));
 	}
 
 	public void ShowContextMenu(int woID, Vector3 worldPos)
@@ -247,17 +245,12 @@ public class ContextMenuController : MonoBehaviour, IEventSystemHandler, IHandle
 		MVGameControllerBase.OperationRequests.AddWorldObjectToInventory(woId);
 	}
 
-	private void OnFinishedAddingItem(int category, int slotPosition)
+	private void OnFailedToAddItem()
 	{
-		Debug.Log("Adding");
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
 		{
 			handler.PopToGroup(UIGroupFlags.MainUI);
 		});
-		Dictionary<object, object> dictionary = new Dictionary<object, object>();
-		dictionary.Add((byte)13, category);
-		dictionary.Add((byte)14, slotPosition);
-		NotificationController.PushNotification(NotificationType.OpenInventory, NotificationsManager.eNotificationPanel.primary, dictionary, (NotificationLifetime)4);
 	}
 
 	private void Delete()

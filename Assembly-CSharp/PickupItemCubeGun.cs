@@ -95,6 +95,15 @@ public class PickupItemCubeGun : PickupItemWithDelay
 		}
 	}
 
+	public override void OnEquip()
+	{
+		base.OnEquip();
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add((byte)1, TM._("Hold shoot button to remove cubes."));
+		Dictionary<object, object> data = dictionary;
+		NotificationController.PushNotification(NotificationType.PlayerTip, NotificationsManager.eNotificationPanel.secondary, data);
+	}
+
 	private bool DoLineOfFireCheck(out VoxelHit hit)
 	{
 		Ray ray = new Ray(owner.LookOrigin, owner.LookDirection);

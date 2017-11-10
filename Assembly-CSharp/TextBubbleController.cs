@@ -50,8 +50,8 @@ public class TextBubbleController : MonoBehaviour, IEventSystemHandler
 	[SerializeField]
 	private float bubbleFadeIn = 0.2f;
 
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	private TextBubble textBubblePrefab;
 
 	[SerializeField]
@@ -100,9 +100,9 @@ public class TextBubbleController : MonoBehaviour, IEventSystemHandler
 
 	public int ShowBubble2D(Vector2 anchoredPosition, Vector2 targetCenterPoint, float lifeTime, List<RectTransform> content, Transform parentTransform)
 	{
-		Debug.Log("Show bubble 2d");
 		int num = currentBubbleId;
 		currentBubbleId++;
+		Debug.Log("Show bubble 2d " + num);
 		TextBubble textBubble = Object.Instantiate(textBubblePrefab);
 		for (int i = 0; i < content.Count; i++)
 		{
@@ -156,16 +156,22 @@ public class TextBubbleController : MonoBehaviour, IEventSystemHandler
 
 	public void ClearBubblesWithId(int bubbleId)
 	{
-		textBubbles[bubbleId].timeToLive = bubbleLifeTime;
+		if (textBubbles.ContainsKey(bubbleId))
+		{
+			textBubbles[bubbleId].timeToLive = bubbleLifeTime;
+		}
 	}
 
 	public void ClearBubblesOfTypeImmediately(int bubbleId)
 	{
-		textBubbles[bubbleId].timeToLive = 0f;
-		UpdateBubble(textBubbles[bubbleId]);
-		textBubbles[bubbleId].Bubble.OnRemoved();
-		textBubbles[bubbleId].Clear();
-		textBubbles.Remove(bubbleId);
+		if (textBubbles.ContainsKey(bubbleId))
+		{
+			textBubbles[bubbleId].timeToLive = 0f;
+			UpdateBubble(textBubbles[bubbleId]);
+			textBubbles[bubbleId].Bubble.OnRemoved();
+			textBubbles[bubbleId].Clear();
+			textBubbles.Remove(bubbleId);
+		}
 	}
 
 	protected void Update()

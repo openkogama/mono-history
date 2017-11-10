@@ -39,11 +39,16 @@ public class NotificationAreaQueue : NotificationArea
 		if (objectPool.ActivateInstancesCount == 0)
 		{
 			CreateNotification(notificationType, data);
+			return;
 		}
-		else
+		foreach (EnqueuedNotification enqueuedNotification in enqueuedNotifications)
 		{
-			enqueuedNotifications.Enqueue(new EnqueuedNotification(notificationType, data));
+			if (enqueuedNotification.notificationType == notificationType && enqueuedNotification.data[(byte)1] == data[(byte)1])
+			{
+				return;
+			}
 		}
+		enqueuedNotifications.Enqueue(new EnqueuedNotification(notificationType, data));
 	}
 
 	private void CreateNotification(NotificationType notificationType, Dictionary<object, object> data)

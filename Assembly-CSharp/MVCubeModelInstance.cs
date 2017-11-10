@@ -214,6 +214,12 @@ public class MVCubeModelInstance : MVCubeModelBase
 
 	public override bool OnEnterObject(EditorStateMachine e)
 	{
+		Debug.Log(e);
+		if (e.SingleSelectedWO == null)
+		{
+			e.SelectWO(Id, addToSelection: false);
+			Debug.LogWarning("OnEnter called with no seletect wo, defaulting to this Id");
+		}
 		e.Event = EditorEvent.EditCubes;
 		return true;
 	}
