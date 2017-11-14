@@ -17,6 +17,8 @@ public class FirstTimeActivatableLogicPointer : FirstTimeActivatableElementBase
 
 	private bool hasButtonBeenAdded;
 
+	private bool finishedESInsert;
+
 	[SerializeField]
 	private List<RectTransform> bubbleContent;
 
@@ -59,7 +61,7 @@ public class FirstTimeActivatableLogicPointer : FirstTimeActivatableElementBase
 			{
 				hasButtonBeenAdded = true;
 				Button button = Object.Instantiate(skipElement);
-				button.onClick.AddListener(SkipEvent);
+				button.onClick.AddListener(OnShown);
 				x.AddElement(bubbleId, (RectTransform)button.transform);
 			}
 		});
@@ -85,7 +87,11 @@ public class FirstTimeActivatableLogicPointer : FirstTimeActivatableElementBase
 		}
 		else if (editorStateMachine.CurEvent == EditorEvent.ESInsert)
 		{
+			finishedESInsert = true;
 			placedWo = MVGameControllerBase.WOCM.GetWorldObjectClientRef(editorStateMachine.SingleSelectedWO.Id);
+		}
+		else if (finishedESInsert && editorStateMachine.CurEvent == EditorEvent.ESTerrainEdit)
+		{
 			hasPlacedObject = true;
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IFirstTimeElementActivator x, BaseEventData y) =>
 			{
@@ -106,7 +112,6 @@ public class FirstTimeActivatableLogicPointer : FirstTimeActivatableElementBase
 
 	private void Clear()
 	{
-		Debug.Log("Clear");
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (TextBubbleController x, BaseEventData y) =>
 		{
 			x.ClearBubblesWithId(bubbleId);
@@ -115,7 +120,6 @@ public class FirstTimeActivatableLogicPointer : FirstTimeActivatableElementBase
 
 	private void OnShown()
 	{
-		Debug.Log("OnShown done");
 		showing = false;
 		Clear();
 		Object.Destroy(this);

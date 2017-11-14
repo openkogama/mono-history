@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using MV.Common;
+using UnityEngine;
 
 public class NotificationAreaQueue : NotificationArea
 {
@@ -54,6 +55,11 @@ public class NotificationAreaQueue : NotificationArea
 	private void CreateNotification(NotificationType notificationType, Dictionary<object, object> data)
 	{
 		Notification panel = objectPool.GetPanel(notificationType);
+		if (panel == null)
+		{
+			Debug.LogWarning("Notification is null");
+			return;
+		}
 		panel.transform.SetParent(contentHolderTransform, worldPositionStays: false);
 		panel.Initialize(data);
 	}

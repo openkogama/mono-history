@@ -26,6 +26,7 @@ public class NotificationObjectPool : MonoBehaviour
 				Notification notification = UnityEngine.Object.Instantiate(element.Prefab);
 				notification.transform.SetParent(transform);
 				notification.gameObject.SetActive(value: false);
+				notification.pool = this;
 				Instances.Add(notification);
 			}
 		}
@@ -44,7 +45,7 @@ public class NotificationObjectPool : MonoBehaviour
 	{
 		if (!Instances.Find((Notification x) => (byte)x.Type == (byte)type))
 		{
-			Debug.LogWarning("Could not find type");
+			Debug.LogWarning("Could not find notification type: " + type);
 			return CreateTempPanel(type);
 		}
 		int index = Instances.FindIndex((Notification x) => (byte)x.Type == (byte)type);
@@ -67,11 +68,12 @@ public class NotificationObjectPool : MonoBehaviour
 	private Notification CreateTempPanel(NotificationType type)
 	{
 		Notification notification = UnityEngine.Object.Instantiate(Elements.First((NotificationObjectPoolElement x) => x.Prefab.Type == type).Prefab);
-		notification.pool = this;
 		if (notification == null)
 		{
 			Debug.LogError("Couldn't find notification type " + type);
+			return null;
 		}
+		notification.pool = this;
 		AddToActiveInstances(notification);
 		notification.gameObject.SetActive(value: true);
 		return notification;

@@ -159,7 +159,7 @@ public class WinningConditionBriefing : MonoBehaviour, IBriefing
 				winningConditionMet = false;
 			}
 		}
-		if (avatarRespawned)
+		if (avatarRespawned && MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
 		{
 			NotificationController.PushNotification(NotificationType.TeamNotification, NotificationsManager.eNotificationPanel.secondary);
 			avatarRespawned = false;
