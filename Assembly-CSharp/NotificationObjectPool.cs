@@ -70,7 +70,7 @@ public class NotificationObjectPool : MonoBehaviour
 		Notification notification = UnityEngine.Object.Instantiate(Elements.First((NotificationObjectPoolElement x) => x.Prefab.Type == type).Prefab);
 		if (notification == null)
 		{
-			Debug.LogError("Couldn't find notification type " + type);
+			Debug.LogError("Couldn't find temp panel type " + type);
 			return null;
 		}
 		notification.pool = this;

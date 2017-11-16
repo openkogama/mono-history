@@ -161,7 +161,7 @@ public class WinningConditionBriefing : MonoBehaviour, IBriefing
 		}
 		if (avatarRespawned && MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
 		{
-			NotificationController.PushNotification(NotificationType.TeamNotification, NotificationsManager.eNotificationPanel.secondary);
+			NotificationController.PushNotification(NotificationType.TeamNotification, NotificationsManager.eNotificationPanel.secondary, new Dictionary<object, object> { [(byte)1] = MVGameControllerBase.Game.LocalPlayer.Team.ToString() + " Team" });
 			avatarRespawned = false;
 		}
 		Clear();
