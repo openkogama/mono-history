@@ -176,16 +176,16 @@ public class Water : MonoBehaviour
 			{
 				Vector4 vector = sharedMaterial.GetVector("WaveSpeed");
 				float num = sharedMaterial.GetFloat("_WaveScale");
-				Vector4 vector2 = new Vector4(num, num, num * 0.4f, num * 0.45f);
+				Vector4 value = new Vector4(num, num, num * 0.4f, num * 0.45f);
 				double num2 = (double)Time.timeSinceLevelLoad / 20.0;
-				Vector4 vector3 = new Vector4((float)Math.IEEERemainder((double)(vector.x * vector2.x) * num2, 1.0), (float)Math.IEEERemainder((double)(vector.y * vector2.y) * num2, 1.0), (float)Math.IEEERemainder((double)(vector.z * vector2.z) * num2, 1.0), (float)Math.IEEERemainder((double)(vector.w * vector2.w) * num2, 1.0));
-				sharedMaterial.SetVector("_WaveOffset", vector3);
-				sharedMaterial.SetVector("_WaveScale4", vector2);
+				Vector4 value2 = new Vector4((float)Math.IEEERemainder((double)(vector.x * value.x) * num2, 1.0), (float)Math.IEEERemainder((double)(vector.y * value.y) * num2, 1.0), (float)Math.IEEERemainder((double)(vector.z * value.z) * num2, 1.0), (float)Math.IEEERemainder((double)(vector.w * value.w) * num2, 1.0));
+				sharedMaterial.SetVector("_WaveOffset", value2);
+				sharedMaterial.SetVector("_WaveScale4", value);
 				Vector3 size = meshRenderer.bounds.size;
-				Matrix4x4 matrix = Matrix4x4.TRS(s: new Vector3(size.x * vector2.x, size.z * vector2.y, 1f), pos: new Vector3(vector3.x, vector3.y, 0f), q: Quaternion.identity);
-				sharedMaterial.SetMatrix("_WaveMatrix", matrix);
-				matrix = Matrix4x4.TRS(s: new Vector3(size.x * vector2.z, size.z * vector2.w, 1f), pos: new Vector3(vector3.z, vector3.w, 0f), q: Quaternion.identity);
-				sharedMaterial.SetMatrix("_WaveMatrix2", matrix);
+				Matrix4x4 value3 = Matrix4x4.TRS(s: new Vector3(size.x * value.x, size.z * value.y, 1f), pos: new Vector3(value2.x, value2.y, 0f), q: Quaternion.identity);
+				sharedMaterial.SetMatrix("_WaveMatrix", value3);
+				value3 = Matrix4x4.TRS(s: new Vector3(size.x * value.z, size.z * value.w, 1f), pos: new Vector3(value2.z, value2.w, 0f), q: Quaternion.identity);
+				sharedMaterial.SetMatrix("_WaveMatrix2", value3);
 			}
 		}
 	}
@@ -294,7 +294,7 @@ public class Water : MonoBehaviour
 
 	private WaterMode FindHardwareWaterSupport()
 	{
-		if (!SystemInfo.supportsRenderTextures || !meshRenderer)
+		if (!meshRenderer)
 		{
 			return WaterMode.Simple;
 		}

@@ -267,7 +267,8 @@ public class MVMovable : MVBlueprintBase
 		foreach (KeyValuePair<object, object> blueprintDatum in blueprintData)
 		{
 			empty = blueprintDatum.Value.ToString();
-			switch (blueprintDatum.Key.ToString())
+			string text = blueprintDatum.Key.ToString();
+			switch (text)
 			{
 			case "Rotation":
 			{

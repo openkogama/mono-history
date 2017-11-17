@@ -126,9 +126,10 @@ public class MVMovingPlatformGroup : MVBlueprintBase
 		if (!initializeFailed)
 		{
 			lineRenderer.useWorldSpace = false;
-			lineRenderer.SetVertexCount(nodeIdToWoMap.Count);
+			lineRenderer.positionCount = nodeIdToWoMap.Count;
 			float num = 0.3f * Scale.x;
-			lineRenderer.SetWidth(num, num);
+			lineRenderer.startWidth = num;
+			lineRenderer.endWidth = num;
 			int num2 = 0;
 			MVMovingPlatformNode next = startNode;
 			lineRenderer.SetPosition(num2, next.Position);

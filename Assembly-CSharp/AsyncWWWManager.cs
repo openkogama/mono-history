@@ -27,13 +27,13 @@ public static class AsyncWWWManager
 		}
 	}
 
-	private const int quitTimeOut = 5000;
-
 	private static Action<bool> quitCallback;
 
 	private static int quitTime = 0;
 
 	private static bool isQuiting = false;
+
+	private const int quitTimeOut = 5000;
 
 	private static int maxRequests = 4;
 

@@ -5,7 +5,7 @@ using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, IAvatarEditAnimationState
+public class AvatarEditModeBodyController : MonoBehaviour, IAvatarEditAnimationState, IEventSystemHandler
 {
 	private List<MVBody> bodies = new List<MVBody>();
 

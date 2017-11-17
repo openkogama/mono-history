@@ -321,33 +321,33 @@ public static class MVSweptElipsoidCheck
 		intVector4[collisionState.scanAxis] = (short)Mathf.Clamp(intVector3[collisionState.scanAxis], collisionState.minBounds[collisionState.scanAxis], collisionState.maxBounds[collisionState.scanAxis]);
 		int num = 0;
 		int num2 = 0;
-		int num3 = 0;
-		int num4 = 0;
+		int key = 0;
+		int key2 = 0;
 		for (int j = 0; j < 3; j++)
 		{
 			if (intVector[j] != 0)
 			{
 				num = Mathf.Abs(intVector3[j] - cellTraverser.VoxelPos[j]);
-				num3 = j;
+				key = j;
 			}
 			if (intVector2[j] != 0)
 			{
 				num2 = Mathf.Abs(intVector4[j] - cellTraverser.VoxelPos[j]);
-				num4 = j;
+				key2 = j;
 			}
 		}
 		num++;
 		num2++;
 		IntVector intVector5 = new IntVector(cellTraverser.VoxelPos.x, cellTraverser.VoxelPos.y, cellTraverser.VoxelPos.z);
-		int num5 = 0;
-		int num6 = 1000;
+		int num3 = 0;
+		int num4 = 1000;
 		if (DEBUG_MODE)
 		{
 			debugTestedIntVector.Clear();
 		}
 		while (intVector5[collisionState.scanAxis] <= collisionState.maxBounds[collisionState.scanAxis] && intVector5[collisionState.scanAxis] >= collisionState.minBounds[collisionState.scanAxis])
 		{
-			if (DEBUG_MODE && num5 > num6)
+			if (DEBUG_MODE && num3 > num4)
 			{
 				Debug.Log("scanAxis" + collisionState.scanAxis);
 				Debug.Log("testVector " + intVector5);
@@ -358,7 +358,7 @@ public static class MVSweptElipsoidCheck
 				Debug.LogError("While loop did not exit");
 				break;
 			}
-			num5++;
+			num3++;
 			for (int k = 0; k <= num; k++)
 			{
 				for (int l = 0; l <= num2; l++)
@@ -370,13 +370,13 @@ public static class MVSweptElipsoidCheck
 				intVector5 += intVector;
 			}
 			cellTraverser.Step();
-			int num7 = 0;
-			int num8 = 1000;
+			int num5 = 0;
+			int num6 = 1000;
 			while (cellTraverser.StepDir[collisionState.scanAxis] == 0)
 			{
 				if (DEBUG_MODE)
 				{
-					if (num7 > num8)
+					if (num5 > num6)
 					{
 						Debug.Log("scanAxis " + collisionState.scanAxis);
 						Debug.Log("testVector " + intVector5);
@@ -387,7 +387,7 @@ public static class MVSweptElipsoidCheck
 						Debug.LogError("While loop did not exit");
 						break;
 					}
-					num7++;
+					num5++;
 				}
 				intVector5.x = cellTraverser.VoxelPos.x;
 				intVector5.y = cellTraverser.VoxelPos.y;
@@ -403,12 +403,9 @@ public static class MVSweptElipsoidCheck
 				}
 				if (flag2)
 				{
-					if (cellTraverser.StepDir[num4] == intVector2[num4])
+					if (cellTraverser.StepDir[key2] == intVector2[key2])
 					{
-						int key2;
-						int key = (key2 = num4);
-						short num9 = intVector5[key2];
-						intVector5[key] = (short)(num9 + (short)num2);
+						intVector5[key2] += (short)num2;
 					}
 					for (int n = 0; n <= num; n++)
 					{
@@ -418,14 +415,11 @@ public static class MVSweptElipsoidCheck
 				}
 				else
 				{
-					if (cellTraverser.StepDir[num3] == intVector[num3])
+					if (cellTraverser.StepDir[key] == intVector[key])
 					{
-						int key2;
-						int key3 = (key2 = num3);
-						short num9 = intVector5[key2];
-						intVector5[key3] = (short)(num9 + (short)num);
+						intVector5[key] += (short)num;
 					}
-					for (int num10 = 0; num10 <= num2; num10++)
+					for (int num7 = 0; num7 <= num2; num7++)
 					{
 						HandleCube(ref vh, intVector5, radius, distance, ref collisionState);
 						intVector5 += intVector2;

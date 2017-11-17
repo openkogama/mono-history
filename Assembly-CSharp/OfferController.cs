@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-public class OfferController : MonoBehaviour, IEventSystemHandler, IOfferController
+public class OfferController : MonoBehaviour, IOfferController, IEventSystemHandler
 {
 	[SerializeField]
 	private AccessoryAdCreator accessoryAdCreator;

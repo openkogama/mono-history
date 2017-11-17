@@ -2,8 +2,6 @@ using UnityEngine;
 
 public class CollectTheItemObject : ObjectPrefab
 {
-	private const float timeBeforeBlink = 3f;
-
 	[SerializeField]
 	private Collider editCollider;
 
@@ -27,6 +25,8 @@ public class CollectTheItemObject : ObjectPrefab
 
 	[SerializeField]
 	private CollectTheItemBlinker blinker;
+
+	private const float timeBeforeBlink = 3f;
 
 	private float fadeTimer;
 

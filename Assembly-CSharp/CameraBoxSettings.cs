@@ -4,7 +4,7 @@ using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class CameraBoxSettings : MonoBehaviour, IEventSystemHandler, IHandleSettingChanged
+public class CameraBoxSettings : MonoBehaviour, IHandleSettingChanged, IEventSystemHandler
 {
 	[SerializeField]
 	private SettingsBase settingsBase;

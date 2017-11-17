@@ -5,8 +5,6 @@ using UnityEngine;
 
 public class SizeState
 {
-	private const float scalePercent = 0.1f;
-
 	private static readonly int layerMask = -5 & ~(1 << LayerMask.NameToLayer("Player")) & ~(1 << LayerMask.NameToLayer("Logic"));
 
 	private readonly MVInteractable interactableLocal;
@@ -14,6 +12,8 @@ public class SizeState
 	private readonly MvCharacterController controllerLocal;
 
 	private float currentSize = 1f;
+
+	private const float scalePercent = 0.1f;
 
 	private static List<Vector3> relativePositions = new List<Vector3>
 	{

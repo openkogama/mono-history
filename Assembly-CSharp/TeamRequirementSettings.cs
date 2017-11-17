@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class TeamRequirementSettings : MonoBehaviour, IEventSystemHandler, IHandleSettingChanged
+public class TeamRequirementSettings : MonoBehaviour, IHandleSettingChanged, IEventSystemHandler
 {
 	[SerializeField]
 	private SettingsBase settingsBase;
@@ -73,7 +73,7 @@ public class TeamRequirementSettings : MonoBehaviour, IEventSystemHandler, IHand
 	public void OnSettingChanged(string key, object value)
 	{
 		currentOutline.enabled = false;
-		switch ((MVTeam)(int)value)
+		switch ((MVTeam)value)
 		{
 		case MVTeam.Blue:
 			currentOutline = outlineTeamBlue;

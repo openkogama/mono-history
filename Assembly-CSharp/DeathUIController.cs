@@ -23,7 +23,7 @@ public class DeathUIController : MonoBehaviour
 
 	private void OnAvatarStateChanged(object state)
 	{
-		AvatarModeTypes avatarModeTypes = (AvatarModeTypes)(int)state;
+		AvatarModeTypes avatarModeTypes = (AvatarModeTypes)state;
 		if ((avatarModeTypes & AvatarModeTypes.Hidden) != 0)
 		{
 			fader.Deactivate();

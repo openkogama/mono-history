@@ -158,7 +158,7 @@ public class Avatar : MonoBehaviour, IBulletImpactVisualizer
 			string text = "_" + key;
 			if (!newModifiers.ContainsKey(text))
 			{
-				AvatarModifierPackageType item = (AvatarModifierPackageType)(int)Enum.Parse(typeof(AvatarModifierPackageType), text.TrimStart('_'));
+				AvatarModifierPackageType item = (AvatarModifierPackageType)Enum.Parse(typeof(AvatarModifierPackageType), text.TrimStart('_'));
 				list.Add(item);
 			}
 		}
@@ -177,7 +177,7 @@ public class Avatar : MonoBehaviour, IBulletImpactVisualizer
 		foreach (KeyValuePair<object, object> newModifier in newModifiers)
 		{
 			string text2 = (string)newModifier.Key;
-			AvatarModifierPackageType avatarModifierPackageType2 = (AvatarModifierPackageType)(int)Enum.Parse(typeof(AvatarModifierPackageType), text2.TrimStart('_'));
+			AvatarModifierPackageType avatarModifierPackageType2 = (AvatarModifierPackageType)Enum.Parse(typeof(AvatarModifierPackageType), text2.TrimStart('_'));
 			if (!modifiers.ContainsKey(avatarModifierPackageType2))
 			{
 				AvatarModifier avatarModifier = AvatarModifier.CreateFromType(avatarModifierPackageType2, this);

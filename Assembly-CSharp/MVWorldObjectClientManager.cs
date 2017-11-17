@@ -504,12 +504,9 @@ public abstract class MVWorldObjectClientManager : IWorldObjectManager
 		{
 			if (woDestroyedEventSubscribers.TryGetValue(woID, out var _))
 			{
-				Dictionary<int, Action<object, WorldObjectDestroyedEventArgs>> dictionary2;
-				Dictionary<int, Action<object, WorldObjectDestroyedEventArgs>> dictionary = (dictionary2 = woDestroyedEventSubscribers);
-				int key2;
-				int key = (key2 = woID);
-				Action<object, WorldObjectDestroyedEventArgs> a = dictionary2[key2];
-				dictionary[key] = (Action<object, WorldObjectDestroyedEventArgs>)Delegate.Combine(a, woDestroyedEventHandler);
+				Dictionary<int, Action<object, WorldObjectDestroyedEventArgs>> dictionary;
+				int key;
+				(dictionary = woDestroyedEventSubscribers)[key = woID] = (Action<object, WorldObjectDestroyedEventArgs>)Delegate.Combine(dictionary[key], woDestroyedEventHandler);
 			}
 			else
 			{
@@ -544,12 +541,9 @@ public abstract class MVWorldObjectClientManager : IWorldObjectManager
 	{
 		if (woCreatedEventSubscribers.TryGetValue(type, out var _))
 		{
-			Dictionary<Type, Action<object, WorldObjectCreatedEventArgs>> dictionary2;
-			Dictionary<Type, Action<object, WorldObjectCreatedEventArgs>> dictionary = (dictionary2 = woCreatedEventSubscribers);
-			Type key2;
-			Type key = (key2 = type);
-			Action<object, WorldObjectCreatedEventArgs> a = dictionary2[key2];
-			dictionary[key] = (Action<object, WorldObjectCreatedEventArgs>)Delegate.Combine(a, woCreatedEventHandler);
+			Dictionary<Type, Action<object, WorldObjectCreatedEventArgs>> dictionary;
+			Type key;
+			(dictionary = woCreatedEventSubscribers)[key = type] = (Action<object, WorldObjectCreatedEventArgs>)Delegate.Combine(dictionary[key], woCreatedEventHandler);
 		}
 		else
 		{

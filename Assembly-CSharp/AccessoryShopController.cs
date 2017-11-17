@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-public class AccessoryShopController : MonoBehaviour, IEventSystemHandler, IInventoryChanged, IAttachToBody
+public class AccessoryShopController : MonoBehaviour, IInventoryChanged, IAttachToBody, IEventSystemHandler
 {
 	private class AccessoryData
 	{
@@ -109,16 +109,7 @@ public class AccessoryShopController : MonoBehaviour, IEventSystemHandler, IInve
 			{
 				dictionary.Add(list[num].CategoryID, 0);
 			}
-			List<AccessoryData> list2 = slotToStreamingAssetInfoMap;
-			StreamingAssetInfo streamingAssetInfo = list[num];
-			ProductInventoryInfo productInventoryInfo2 = productInventoryInfo;
-			Dictionary<int, int> dictionary3;
-			Dictionary<int, int> dictionary2 = (dictionary3 = dictionary);
-			int categoryID;
-			int key = (categoryID = list[num].CategoryID);
-			categoryID = dictionary3[categoryID];
-			categoryID = (dictionary2[key] = categoryID + 1);
-			list2.Add(new AccessoryData(streamingAssetInfo, productInventoryInfo2, categoryID));
+			slotToStreamingAssetInfoMap.Add(new AccessoryData(list[num], productInventoryInfo, ++dictionary[list[num].CategoryID]));
 		}
 		enabled = true;
 		this.inventoryController = UnityEngine.Object.Instantiate(inventoryControllerPrefab);

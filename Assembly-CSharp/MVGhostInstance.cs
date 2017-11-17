@@ -6,7 +6,7 @@ using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class MVGhostInstance : MVWorldObjectClient, IGameStateControllerSubscriber, IUpdatecontrollerSubscriber
+public class MVGhostInstance : MVWorldObjectClient, IUpdatecontrollerSubscriber, IGameStateControllerSubscriber
 {
 	private enum GameEffect
 	{
@@ -104,7 +104,7 @@ public class MVGhostInstance : MVWorldObjectClient, IGameStateControllerSubscrib
 		_ghostInstance.transform.parent = base.gameObject.transform;
 		_ghostInstance.transform.localPosition = Vector3.zero;
 		Material ghostMarkerMaterial = PrefabPool.Instance.GhostMarkerMaterial;
-		_ghostMarker = base.gameObject.transform.FindChild("Ghost").gameObject;
+		_ghostMarker = base.gameObject.transform.Find("Ghost").gameObject;
 		_ghostMarker.GetComponentInChildren<MeshRenderer>().sharedMaterial = ghostMarkerMaterial;
 		GameObject gameObject = new GameObject(_ghostInstance.name + " physics");
 		gameObject.transform.parent = _ghostInstance.transform.parent;

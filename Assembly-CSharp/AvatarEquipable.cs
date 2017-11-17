@@ -89,7 +89,7 @@ public class AvatarEquipable : MVEquipable
 	public bool GetIsEquipped(AvatarItemType type)
 	{
 		Dictionary<object, object> dictionary = (Dictionary<object, object>)currentItem.Value;
-		if (dictionary.ContainsKey("type") && (int)dictionary["type"] == (int)type)
+		if (dictionary.ContainsKey("type") && (AvatarItemType)dictionary["type"] == type)
 		{
 			return true;
 		}

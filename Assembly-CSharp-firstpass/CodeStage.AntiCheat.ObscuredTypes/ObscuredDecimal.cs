@@ -78,7 +78,7 @@ public struct ObscuredDecimal : IEquatable<ObscuredDecimal>, IFormattable
 	private static ACTkByte16 InternalEncrypt(decimal value, long key)
 	{
 		long num = key;
-		if (num == 0L)
+		if (num == 0)
 		{
 			num = cryptoKey;
 		}
@@ -123,7 +123,7 @@ public struct ObscuredDecimal : IEquatable<ObscuredDecimal>, IFormattable
 		{
 			currentCryptoKey = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
 		}
-		while (currentCryptoKey == 0L);
+		while (currentCryptoKey == 0);
 		hiddenValue = InternalEncrypt(value, currentCryptoKey);
 	}
 
@@ -179,45 +179,6 @@ public struct ObscuredDecimal : IEquatable<ObscuredDecimal>, IFormattable
 		return d;
 	}
 
-	public override string ToString()
-	{
-		return InternalDecrypt().ToString();
-	}
-
-	public string ToString(string format)
-	{
-		return InternalDecrypt().ToString(format);
-	}
-
-	public string ToString(IFormatProvider provider)
-	{
-		return InternalDecrypt().ToString(provider);
-	}
-
-	public string ToString(string format, IFormatProvider provider)
-	{
-		return InternalDecrypt().ToString(format, provider);
-	}
-
-	public override bool Equals(object obj)
-	{
-		if (!(obj is ObscuredDecimal))
-		{
-			return false;
-		}
-		return Equals((ObscuredDecimal)obj);
-	}
-
-	public bool Equals(ObscuredDecimal obj)
-	{
-		return obj.InternalDecrypt().Equals(InternalDecrypt());
-	}
-
-	public override int GetHashCode()
-	{
-		return InternalDecrypt().GetHashCode();
-	}
-
 	public static implicit operator ObscuredDecimal(decimal value)
 	{
 		ObscuredDecimal result = new ObscuredDecimal(InternalEncrypt(value));
@@ -258,5 +219,44 @@ public struct ObscuredDecimal : IEquatable<ObscuredDecimal>, IFormattable
 			input.fakeValue = value;
 		}
 		return input;
+	}
+
+	public override string ToString()
+	{
+		return InternalDecrypt().ToString();
+	}
+
+	public string ToString(string format)
+	{
+		return InternalDecrypt().ToString(format);
+	}
+
+	public string ToString(IFormatProvider provider)
+	{
+		return InternalDecrypt().ToString(provider);
+	}
+
+	public string ToString(string format, IFormatProvider provider)
+	{
+		return InternalDecrypt().ToString(format, provider);
+	}
+
+	public override bool Equals(object obj)
+	{
+		if (!(obj is ObscuredDecimal))
+		{
+			return false;
+		}
+		return Equals((ObscuredDecimal)obj);
+	}
+
+	public bool Equals(ObscuredDecimal obj)
+	{
+		return obj.InternalDecrypt().Equals(InternalDecrypt());
+	}
+
+	public override int GetHashCode()
+	{
+		return InternalDecrypt().GetHashCode();
 	}
 }

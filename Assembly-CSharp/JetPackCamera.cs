@@ -1,11 +1,8 @@
 using System;
-using System.Runtime.InteropServices;
 using UnityEngine;
 
 public class JetPackCamera : MVCameraBase
 {
-	private const float rotationSmoothTimeMouseControlled = 0.1f;
-
 	public float sensitivityX = 15f;
 
 	public float sensitivityY = 15f;
@@ -43,6 +40,8 @@ public class JetPackCamera : MVCameraBase
 	protected float xAxisVelocity;
 
 	private float rotationSmoothTime = 0.1f;
+
+	private const float rotationSmoothTimeMouseControlled = 0.1f;
 
 	public override CameraType CameraType => CameraType.EditorCamera;
 
@@ -110,7 +109,7 @@ public class JetPackCamera : MVCameraBase
 		return angle;
 	}
 
-	public override void FocusOnObject(MVWorldObjectClient wo, [Optional][DefaultParameterValue(2f)] float transitionTime, [Optional] Vector3 avatarOffset)
+	public override void FocusOnObject(MVWorldObjectClient wo, float transitionTime = 2f, Vector3 avatarOffset = default(Vector3))
 	{
 		float num = wo.ComputeObjectRadius();
 		Debug.Log("r " + num);

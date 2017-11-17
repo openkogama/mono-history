@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 {
-	[SerializeField]
 	[Header("Stats for Godzilla (will be scaled by godzilla size)")]
+	[SerializeField]
 	private AnimationCurve baseAreaDamageByRange;
 
 	[SerializeField]
@@ -33,8 +33,8 @@ public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 	[Tooltip("Look direction updates per second.")]
 	private float lookUpdateRate = 2f;
 
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	private List<GameObject> toHideInFirstperson = new List<GameObject>();
 
 	[SerializeField]
@@ -265,7 +265,7 @@ public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 	{
 		chargeParticles.transform.LookAt(muzzlePoint);
 		ParticleSystem.EmissionModule emission = chargeParticles.emission;
-		emission.rate = new ParticleSystem.MinMaxCurve(charge * 128f);
+		emission.rateOverTime = new ParticleSystem.MinMaxCurve(charge * 128f);
 	}
 
 	private void AimAt(Vector3 point)

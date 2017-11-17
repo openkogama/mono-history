@@ -41,7 +41,8 @@ public class MutantModifier : AvatarModifier
 	{
 		ParticleSystem.EmissionModule em = fireParticles.emission;
 		em.enabled = false;
-		fireParticles.loop = false;
+		ParticleSystem.MainModule main = fireParticles.main;
+		main.loop = false;
 		while (fireParticles.particleCount > 0)
 		{
 			yield return 0;

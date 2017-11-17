@@ -6,15 +6,15 @@ public class MVCountingCube : MVLogicObject, ILogicWorldObject
 {
 	private const float ConnectorOffset = 1.5f;
 
+	private Vector3 ObjectSize = new Vector3(2f, 1.2f, 0.35f);
+
+	private MVCountingCubeObject cubeObject;
+
 	private const string currentValueKey = "currentValue";
 
 	private const string startingValueKey = "startingValue";
 
 	private const string resetValueKey = "reset";
-
-	private Vector3 ObjectSize = new Vector3(2f, 1.2f, 0.35f);
-
-	private MVCountingCubeObject cubeObject;
 
 	private OutputSignalTransmitter outputSignalTransmitter;
 

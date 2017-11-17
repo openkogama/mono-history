@@ -5,7 +5,7 @@ using MV.WorldObject.MetaData;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class FirstTimeElementActivator : MonoBehaviour, IEventSystemHandler, IFirstTimeElementActivator
+public class FirstTimeElementActivator : MonoBehaviour, IFirstTimeElementActivator, IEventSystemHandler
 {
 	private bool evaluateActivatableElements;
 

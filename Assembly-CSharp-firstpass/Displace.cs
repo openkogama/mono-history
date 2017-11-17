@@ -1,7 +1,7 @@
 using UnityEngine;
 
-[RequireComponent(typeof(WaterBase))]
 [ExecuteInEditMode]
+[RequireComponent(typeof(WaterBase))]
 public class Displace : MonoBehaviour
 {
 	private WaterBase waterBase;

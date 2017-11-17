@@ -34,14 +34,16 @@ public class SphereVolumeIndicator : MonoBehaviour
 
 	private void Awake()
 	{
-		pSystem.loop = false;
-		pSystem.playOnAwake = false;
+		ParticleSystem.MainModule main = pSystem.main;
+		main.loop = false;
+		main.playOnAwake = false;
 	}
 
 	public void Initialize(int id)
 	{
-		pSystem.loop = false;
-		pSystem.playOnAwake = false;
+		ParticleSystem.MainModule main = pSystem.main;
+		main.loop = false;
+		main.playOnAwake = false;
 		initialized = true;
 		owner = MVGameControllerBase.WOCM.GetWorldObjectClientRef(id);
 		if (owner == null)
@@ -66,7 +68,7 @@ public class SphereVolumeIndicator : MonoBehaviour
 		float num2 = (float)Math.PI * 2f / (float)num;
 		for (int i = 0; i < 3 * num; i++)
 		{
-			particles[i].lifetime = UnityEngine.Random.Range(1f, 2f);
+			particles[i].remainingLifetime = UnityEngine.Random.Range(1f, 2f);
 			particles[i].velocity = Vector3.zero;
 			particles[i].startLifetime = 2f;
 			particles[i].startSize = 0.25f;

@@ -31,24 +31,26 @@ public class SentryGunScript : MonoBehaviour
 	private AudioSource audioSource;
 
 	[SerializeField]
-	private ParticleEmitter smokeEffectEmitter;
+	private ParticleSystem smokeEffectEmitter;
 
 	[SerializeField]
 	private Renderer glowPlaneRenderer;
 
 	private float damageBlinkTimeoutTime;
 
-	public bool SmokeEnabled
-	{
-		set
-		{
-			smokeEffectEmitter.emit = value;
-		}
-	}
-
 	public void Initialize(int id)
 	{
 		rangeVisualization.Initialize(id);
+	}
+
+	public void EnableSmoke()
+	{
+		smokeEffectEmitter.Play();
+	}
+
+	public void DisableSmoke()
+	{
+		smokeEffectEmitter.Stop();
 	}
 
 	public void Explode()

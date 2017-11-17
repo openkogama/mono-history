@@ -65,7 +65,7 @@ public class PickupItemSlapGun : PickupItemWithDelay
 			}
 		}
 		Vector3 target = FindRayTarget(ray);
-		ImpulseRay impulseRay = Object.Instantiate(impulseRayPrefab, muzzlePoint.position, Quaternion.identity) as ImpulseRay;
+		ImpulseRay impulseRay = Object.Instantiate(impulseRayPrefab, muzzlePoint.position, Quaternion.identity);
 		impulseRay.Initialize(target);
 		impulseRay.radius = 1.2f;
 		impulseRay.startColor = slapColor;

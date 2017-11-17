@@ -110,7 +110,8 @@ public class ObjectPreviewer : MonoBehaviour
 		if (wo is MVMovingPlatformGroup)
 		{
 			LineRenderer componentInChildren = objectPreviewer.previewGameObject.GetComponentInChildren<LineRenderer>();
-			componentInChildren.SetWidth(0.3f * num2, 0.3f * num2);
+			float endWidth = (componentInChildren.startWidth = 0.3f * num2);
+			componentInChildren.endWidth = endWidth;
 		}
 		objectPreviewer.previewGameObject.transform.localScale = localScale * num2;
 		Vector3 vector = new Vector3(bounds.center.x * localScale.x, bounds.center.y * localScale.y, bounds.center.z * localScale.z);

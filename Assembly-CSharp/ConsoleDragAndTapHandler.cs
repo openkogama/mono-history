@@ -3,15 +3,15 @@ using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-public class ConsoleDragAndTapHandler : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler, IPointerDownHandler, IPointerUpHandler, IEventSystemHandler
+public class ConsoleDragAndTapHandler : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHandler, IPointerDownHandler, IPointerUpHandler, IEventSystemHandler
 {
-	private const float minDragDurationForClick = 0.2f;
-
 	public UnityAction OnClick;
 
 	private bool dragging;
 
 	private float dragStart;
+
+	private const float minDragDurationForClick = 0.2f;
 
 	private bool scrollingEnabled = true;
 

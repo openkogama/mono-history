@@ -5,15 +5,15 @@ using UnityEngine;
 
 public class MVFire : MVLogicObject, ILogicWorldObject
 {
-	private const float damageValue = 100f;
-
-	private const float damageRadius = 2.5f;
-
 	private List<MVWorldObjectClient> woList = new List<MVWorldObjectClient>();
 
 	private FireObject fireObject;
 
 	private SphereVolumeIndicator rangeVis;
+
+	private const float damageValue = 100f;
+
+	private const float damageRadius = 2.5f;
 
 	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.Fire;
 
