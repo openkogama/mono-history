@@ -9,12 +9,6 @@ using UnityEngine;
 
 public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSubscriber
 {
-	public delegate void OnReceivedGameMsgDelegate(MVGameMsgType type, Dictionary<object, object> gameMsgData);
-
-	public delegate void OnReceivedNotificationEventDelegate(NotificationType type, Dictionary<object, object> data, NotificationsManager.eNotificationPanel panel = NotificationsManager.eNotificationPanel.tertiary);
-
-	public delegate void OnPostGameInitDelegate();
-
 	protected class VersionData
 	{
 		public int minVersion { get; set; }
@@ -35,6 +29,12 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 			return $"version {version}. minVersion {minVersion}.";
 		}
 	}
+
+	public delegate void OnReceivedGameMsgDelegate(MVGameMsgType type, Dictionary<object, object> gameMsgData);
+
+	public delegate void OnReceivedNotificationEventDelegate(NotificationType type, Dictionary<object, object> data, NotificationsManager.eNotificationPanel panel = NotificationsManager.eNotificationPanel.tertiary);
+
+	public delegate void OnPostGameInitDelegate();
 
 	private static bool disconnectIsOk;
 
@@ -286,6 +286,10 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		Debug.Log("Build time");
 		Debug.Log(koGaMaSettings.BuildTime);
 		DebugLogHandler.Init();
+		if (!DebugLogHandler.IsSampling && !Debug.isDebugBuild)
+		{
+			Debug.logger.filterLogType = LogType.Warning;
+		}
 		styles = UnityEngine.Object.Instantiate(styles);
 		styles.transform.parent = transform;
 		loadStats = new LoadStats();
@@ -476,18 +480,16 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	private void ReceivedWebParamsCallback(bool ok, string data)
 	{
-		if (!ok)
+		if (ok)
 		{
-			Debug.LogError("ReceivedWebParamsCallback - Session data not OK");
-			return;
+			Debug.Log("WEBPARAMS: " + data);
+			GameSessionData gameSessionData = JsonConvert.DeserializeObject<GameSessionData>(data);
+			StatHatWrapper.Initialize(gameSessionData.detailedStats);
+			Debug.Log(gameSessionData.pingURL);
+			Debug.Log(gameSessionData.disconnectURL);
+			SetGameSessionData(gameSessionData);
+			StartGame();
 		}
-		Debug.Log("WEBPARAMS: " + data);
-		GameSessionData gameSessionData = JsonConvert.DeserializeObject<GameSessionData>(data);
-		StatHatWrapper.Initialize(gameSessionData.detailedStats);
-		Debug.Log(gameSessionData.pingURL);
-		Debug.Log(gameSessionData.disconnectURL);
-		SetGameSessionData(gameSessionData);
-		StartGame();
 	}
 
 	private void ReceivedLoadStatsCallback(bool ok, string data)
@@ -511,7 +513,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 			return;
 		}
 		BrowserComm.ToJavaScript.GetBrowserVersion();
-		Debug.Log("Requesting session parameters.");
 		BrowserComm.ToJavaScript.ExternalCall("sendPlayerParams", ReceivedWebParamsCallback);
 		BrowserComm.ToJavaScript.ExternalCall("sendLoadStats", ReceivedLoadStatsCallback);
 	}

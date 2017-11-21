@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(RectTransform))]
-public class ToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IEventSystemHandler
+public class ToolTip : MonoBehaviour, IEventSystemHandler, IPointerEnterHandler, IPointerExitHandler
 {
 	private bool hasEntered;
 

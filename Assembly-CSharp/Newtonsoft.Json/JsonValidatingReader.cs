@@ -193,6 +193,11 @@ public class JsonValidatingReader : JsonReader, IJsonLineInfo
 		_stack = new Stack<SchemaScope>();
 	}
 
+	bool IJsonLineInfo.HasLineInfo()
+	{
+		return _reader is IJsonLineInfo jsonLineInfo && jsonLineInfo.HasLineInfo();
+	}
+
 	private void Push(SchemaScope scope)
 	{
 		_stack.Push(scope);
@@ -432,7 +437,7 @@ public class JsonValidatingReader : JsonReader, IJsonLineInfo
 		if (schema.MaximumItems.HasValue)
 		{
 			int? maximumItems = schema.MaximumItems;
-			if (maximumItems.HasValue && arrayItemCount > maximumItems.GetValueOrDefault())
+			if (maximumItems.HasValue && arrayItemCount > maximumItems.Value)
 			{
 				RaiseError("Array item count {0} exceeds maximum count of {1}.".FormatWith(CultureInfo.InvariantCulture, arrayItemCount, schema.MaximumItems), schema);
 			}
@@ -440,7 +445,7 @@ public class JsonValidatingReader : JsonReader, IJsonLineInfo
 		if (schema.MinimumItems.HasValue)
 		{
 			int? minimumItems = schema.MinimumItems;
-			if (minimumItems.HasValue && arrayItemCount < minimumItems.GetValueOrDefault())
+			if (minimumItems.HasValue && arrayItemCount < minimumItems.Value)
 			{
 				RaiseError("Array item count {0} is less than minimum count of {1}.".FormatWith(CultureInfo.InvariantCulture, arrayItemCount, schema.MinimumItems), schema);
 			}
@@ -474,7 +479,7 @@ public class JsonValidatingReader : JsonReader, IJsonLineInfo
 		if (schema.MaximumLength.HasValue)
 		{
 			int? maximumLength = schema.MaximumLength;
-			if (maximumLength.HasValue && text.Length > maximumLength.GetValueOrDefault())
+			if (maximumLength.HasValue && text.Length > maximumLength.Value)
 			{
 				RaiseError("String '{0}' exceeds maximum length of {1}.".FormatWith(CultureInfo.InvariantCulture, text, schema.MaximumLength), schema);
 			}
@@ -482,7 +487,7 @@ public class JsonValidatingReader : JsonReader, IJsonLineInfo
 		if (schema.MinimumLength.HasValue)
 		{
 			int? minimumLength = schema.MinimumLength;
-			if (minimumLength.HasValue && text.Length < minimumLength.GetValueOrDefault())
+			if (minimumLength.HasValue && text.Length < minimumLength.Value)
 			{
 				RaiseError("String '{0}' is less than minimum length of {1}.".FormatWith(CultureInfo.InvariantCulture, text, schema.MinimumLength), schema);
 			}
@@ -511,7 +516,7 @@ public class JsonValidatingReader : JsonReader, IJsonLineInfo
 		if (schema.Maximum.HasValue)
 		{
 			double? maximum = schema.Maximum;
-			if (maximum.HasValue && (double)num > maximum.GetValueOrDefault())
+			if (maximum.HasValue && (double)num > maximum.Value)
 			{
 				RaiseError("Integer {0} exceeds maximum value of {1}.".FormatWith(CultureInfo.InvariantCulture, num, schema.Maximum), schema);
 			}
@@ -523,7 +528,7 @@ public class JsonValidatingReader : JsonReader, IJsonLineInfo
 		if (schema.Minimum.HasValue)
 		{
 			double? minimum = schema.Minimum;
-			if (minimum.HasValue && (double)num < minimum.GetValueOrDefault())
+			if (minimum.HasValue && (double)num < minimum.Value)
 			{
 				RaiseError("Integer {0} is less than minimum value of {1}.".FormatWith(CultureInfo.InvariantCulture, num, schema.Minimum), schema);
 			}
@@ -565,7 +570,7 @@ public class JsonValidatingReader : JsonReader, IJsonLineInfo
 		if (schema.Maximum.HasValue)
 		{
 			double? maximum = schema.Maximum;
-			if (maximum.HasValue && num > maximum.GetValueOrDefault())
+			if (maximum.HasValue && num > maximum.Value)
 			{
 				RaiseError("Float {0} exceeds maximum value of {1}.".FormatWith(CultureInfo.InvariantCulture, JsonConvert.ToString(num), schema.Maximum), schema);
 			}
@@ -577,7 +582,7 @@ public class JsonValidatingReader : JsonReader, IJsonLineInfo
 		if (schema.Minimum.HasValue)
 		{
 			double? minimum = schema.Minimum;
-			if (minimum.HasValue && num < minimum.GetValueOrDefault())
+			if (minimum.HasValue && num < minimum.Value)
 			{
 				RaiseError("Float {0} is less than minimum value of {1}.".FormatWith(CultureInfo.InvariantCulture, JsonConvert.ToString(num), schema.Minimum), schema);
 			}
@@ -660,10 +665,5 @@ public class JsonValidatingReader : JsonReader, IJsonLineInfo
 			return false;
 		}
 		return true;
-	}
-
-	bool IJsonLineInfo.HasLineInfo()
-	{
-		return _reader is IJsonLineInfo jsonLineInfo && jsonLineInfo.HasLineInfo();
 	}
 }

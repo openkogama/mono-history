@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActivateUIElement, ILeaveEditPlayModeHandler, ICanvasController, IEventSystemHandler
+public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanvasController, IEventSystemHandler, ILeaveEditPlayModeHandler, IActivateUIElement
 {
 	private ILockCursorManager lockCursorManager;
 

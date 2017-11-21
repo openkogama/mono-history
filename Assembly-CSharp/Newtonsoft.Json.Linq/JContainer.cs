@@ -10,7 +10,7 @@ using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Linq;
 
-public abstract class JContainer : JToken, IList<JToken>, ITypedList, IBindingList, IEnumerable, ICollection<JToken>, IEnumerable<JToken>, ICollection, IList
+public abstract class JContainer : JToken, IEnumerable<JToken>, ICollection<JToken>, IEnumerable, IList<JToken>, IList, ICollection, ITypedList, IBindingList
 {
 	private class JTokenReferenceEqualityComparer : IEqualityComparer<JToken>
 	{
@@ -120,6 +120,141 @@ public abstract class JContainer : JToken, IList<JToken>, ITypedList, IBindingLi
 		}
 	}
 
+	string ITypedList.GetListName(PropertyDescriptor[] listAccessors)
+	{
+		return string.Empty;
+	}
+
+	PropertyDescriptorCollection ITypedList.GetItemProperties(PropertyDescriptor[] listAccessors)
+	{
+		if (First is ICustomTypeDescriptor customTypeDescriptor)
+		{
+			return customTypeDescriptor.GetProperties();
+		}
+		return null;
+	}
+
+	int IList<JToken>.IndexOf(JToken item)
+	{
+		return IndexOfItem(item);
+	}
+
+	void IList<JToken>.Insert(int index, JToken item)
+	{
+		InsertItem(index, item);
+	}
+
+	void IList<JToken>.RemoveAt(int index)
+	{
+		RemoveItemAt(index);
+	}
+
+	void ICollection<JToken>.Add(JToken item)
+	{
+		Add(item);
+	}
+
+	void ICollection<JToken>.Clear()
+	{
+		ClearItems();
+	}
+
+	bool ICollection<JToken>.Contains(JToken item)
+	{
+		return ContainsItem(item);
+	}
+
+	void ICollection<JToken>.CopyTo(JToken[] array, int arrayIndex)
+	{
+		CopyItemsTo(array, arrayIndex);
+	}
+
+	bool ICollection<JToken>.Remove(JToken item)
+	{
+		return RemoveItem(item);
+	}
+
+	int IList.Add(object value)
+	{
+		Add(EnsureValue(value));
+		return Count - 1;
+	}
+
+	void IList.Clear()
+	{
+		ClearItems();
+	}
+
+	bool IList.Contains(object value)
+	{
+		return ContainsItem(EnsureValue(value));
+	}
+
+	int IList.IndexOf(object value)
+	{
+		return IndexOfItem(EnsureValue(value));
+	}
+
+	void IList.Insert(int index, object value)
+	{
+		InsertItem(index, EnsureValue(value));
+	}
+
+	void IList.Remove(object value)
+	{
+		RemoveItem(EnsureValue(value));
+	}
+
+	void IList.RemoveAt(int index)
+	{
+		RemoveItemAt(index);
+	}
+
+	void ICollection.CopyTo(Array array, int index)
+	{
+		CopyItemsTo(array, index);
+	}
+
+	void IBindingList.AddIndex(PropertyDescriptor property)
+	{
+	}
+
+	object IBindingList.AddNew()
+	{
+		AddingNewEventArgs e = new AddingNewEventArgs();
+		OnAddingNew(e);
+		if (e.NewObject == null)
+		{
+			throw new Exception("Could not determine new value to add to '{0}'.".FormatWith(CultureInfo.InvariantCulture, GetType()));
+		}
+		if (!(e.NewObject is JToken))
+		{
+			throw new Exception("New item to be added to collection must be compatible with {0}.".FormatWith(CultureInfo.InvariantCulture, typeof(JToken)));
+		}
+		JToken jToken = (JToken)e.NewObject;
+		Add(jToken);
+		return jToken;
+	}
+
+	void IBindingList.ApplySort(PropertyDescriptor property, ListSortDirection direction)
+	{
+		throw new NotSupportedException();
+	}
+
+	int IBindingList.Find(PropertyDescriptor property, object key)
+	{
+		throw new NotSupportedException();
+	}
+
+	void IBindingList.RemoveIndex(PropertyDescriptor property)
+	{
+	}
+
+	void IBindingList.RemoveSort()
+	{
+		throw new NotSupportedException();
+	}
+
 	internal void CheckReentrancy()
 	{
 		if (_busy)
@@ -135,13 +270,13 @@ public abstract class JContainer : JToken, IList<JToken>, ITypedList, IBindingLi
 
 	protected virtual void OnListChanged(ListChangedEventArgs e)
 	{
-		ListChangedEventHandler listChangedEventHandler = ListChanged;
-		if (listChangedEventHandler != null)
+		ListChangedEventHandler listChanged = ListChanged;
+		if (listChanged != null)
 		{
 			_busy = true;
 			try
 			{
-				listChangedEventHandler(this, e);
+				listChanged(this, e);
 			}
 			finally
 			{
@@ -622,60 +757,6 @@ public abstract class JContainer : JToken, IList<JToken>, ITypedList, IBindingLi
 		return num;
 	}
 
-	string ITypedList.GetListName(PropertyDescriptor[] listAccessors)
-	{
-		return string.Empty;
-	}
-
-	PropertyDescriptorCollection ITypedList.GetItemProperties(PropertyDescriptor[] listAccessors)
-	{
-		if (First is ICustomTypeDescriptor customTypeDescriptor)
-		{
-			return customTypeDescriptor.GetProperties();
-		}
-		return null;
-	}
-
-	int IList<JToken>.IndexOf(JToken item)
-	{
-		return IndexOfItem(item);
-	}
-
-	void IList<JToken>.Insert(int index, JToken item)
-	{
-		InsertItem(index, item);
-	}
-
-	void IList<JToken>.RemoveAt(int index)
-	{
-		RemoveItemAt(index);
-	}
-
-	void ICollection<JToken>.Add(JToken item)
-	{
-		Add(item);
-	}
-
-	void ICollection<JToken>.Clear()
-	{
-		ClearItems();
-	}
-
-	bool ICollection<JToken>.Contains(JToken item)
-	{
-		return ContainsItem(item);
-	}
-
-	void ICollection<JToken>.CopyTo(JToken[] array, int arrayIndex)
-	{
-		CopyItemsTo(array, arrayIndex);
-	}
-
-	bool ICollection<JToken>.Remove(JToken item)
-	{
-		return RemoveItem(item);
-	}
-
 	private JToken EnsureValue(object value)
 	{
 		if (value == null)
@@ -687,86 +768,5 @@ public abstract class JContainer : JToken, IList<JToken>, ITypedList, IBindingLi
 			return (JToken)value;
 		}
 		throw new ArgumentException("Argument is not a JToken.");
-	}
-
-	int IList.Add(object value)
-	{
-		Add(EnsureValue(value));
-		return Count - 1;
-	}
-
-	void IList.Clear()
-	{
-		ClearItems();
-	}
-
-	bool IList.Contains(object value)
-	{
-		return ContainsItem(EnsureValue(value));
-	}
-
-	int IList.IndexOf(object value)
-	{
-		return IndexOfItem(EnsureValue(value));
-	}
-
-	void IList.Insert(int index, object value)
-	{
-		InsertItem(index, EnsureValue(value));
-	}
-
-	void IList.Remove(object value)
-	{
-		RemoveItem(EnsureValue(value));
-	}
-
-	void IList.RemoveAt(int index)
-	{
-		RemoveItemAt(index);
-	}
-
-	void ICollection.CopyTo(Array array, int index)
-	{
-		CopyItemsTo(array, index);
-	}
-
-	void IBindingList.AddIndex(PropertyDescriptor property)
-	{
-	}
-
-	object IBindingList.AddNew()
-	{
-		AddingNewEventArgs e = new AddingNewEventArgs();
-		OnAddingNew(e);
-		if (e.NewObject == null)
-		{
-			throw new Exception("Could not determine new value to add to '{0}'.".FormatWith(CultureInfo.InvariantCulture, GetType()));
-		}
-		if (!(e.NewObject is JToken))
-		{
-			throw new Exception("New item to be added to collection must be compatible with {0}.".FormatWith(CultureInfo.InvariantCulture, typeof(JToken)));
-		}
-		JToken jToken = (JToken)e.NewObject;
-		Add(jToken);
-		return jToken;
-	}
-
-	void IBindingList.ApplySort(PropertyDescriptor property, ListSortDirection direction)
-	{
-		throw new NotSupportedException();
-	}
-
-	int IBindingList.Find(PropertyDescriptor property, object key)
-	{
-		throw new NotSupportedException();
-	}
-
-	void IBindingList.RemoveIndex(PropertyDescriptor property)
-	{
-	}
-
-	void IBindingList.RemoveSort()
-	{
-		throw new NotSupportedException();
 	}
 }

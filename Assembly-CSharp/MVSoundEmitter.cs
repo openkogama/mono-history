@@ -182,7 +182,15 @@ public class MVSoundEmitter : MVLogicObject, ILogicWorldObject
 
 	private bool ShouldPlay()
 	{
-		return !(bool)Data["mute"] && soundEmitterObject.AudioSource.enabled && InputSignalReceiver.CurrentlyIsHot;
+		if ((bool)Data["mute"])
+		{
+			return false;
+		}
+		if (InputSignalReceiver.CurrentlyIsHot)
+		{
+			return true;
+		}
+		return false;
 	}
 
 	private void StopAndDestroySound()

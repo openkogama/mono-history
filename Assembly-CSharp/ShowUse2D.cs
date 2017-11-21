@@ -3,6 +3,10 @@ using UnityEngine.UI;
 
 public class ShowUse2D : ShowUse
 {
+	private const float fadeTime = 1f;
+
+	private const ShowUseOption useButtonInsufficientOptions = ShowUseOption.GameCoinsInsufficient | ShowUseOption.LevelInsufficient | ShowUseOption.StarsInsufficient | ShowUseOption.TeamRestricted;
+
 	[SerializeField]
 	private RequirementPanel starRequirement;
 
@@ -32,15 +36,11 @@ public class ShowUse2D : ShowUse
 	[SerializeField]
 	private Sprite canNotUse;
 
-	private const float fadeTime = 1f;
-
 	private bool fading;
 
 	private bool prevFadingState;
 
 	private bool updateFade;
-
-	private const ShowUseOption useButtonInsufficientOptions = ShowUseOption.GameCoinsInsufficient | ShowUseOption.LevelInsufficient | ShowUseOption.StarsInsufficient | ShowUseOption.TeamRestricted;
 
 	private void Awake()
 	{

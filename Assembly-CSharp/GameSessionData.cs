@@ -80,7 +80,7 @@ public class GameSessionData
 		serverIP = (string)gameSessionData["serverIP"];
 		profileID = (int)gameSessionData["profileID"];
 		planetID = (int)gameSessionData["planetID"];
-		gameMode = (MVGameMode)gameSessionData["gameMode"];
+		gameMode = (MVGameMode)(int)gameSessionData["gameMode"];
 		language = (string)gameSessionData["language"];
 		embedded = (bool)gameSessionData["embedded"];
 		token = (string)gameSessionData["token"];

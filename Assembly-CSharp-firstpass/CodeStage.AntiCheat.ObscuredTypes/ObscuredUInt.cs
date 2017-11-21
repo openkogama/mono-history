@@ -117,48 +117,6 @@ public struct ObscuredUInt : IEquatable<ObscuredUInt>, IFormattable
 		return num;
 	}
 
-	public static implicit operator ObscuredUInt(uint value)
-	{
-		ObscuredUInt result = new ObscuredUInt(Encrypt(value));
-		if (ObscuredCheatingDetector.IsRunning)
-		{
-			result.fakeValue = value;
-		}
-		return result;
-	}
-
-	public static implicit operator uint(ObscuredUInt value)
-	{
-		return value.InternalDecrypt();
-	}
-
-	public static explicit operator ObscuredInt(ObscuredUInt value)
-	{
-		return (int)value.InternalDecrypt();
-	}
-
-	public static ObscuredUInt operator ++(ObscuredUInt input)
-	{
-		uint value = input.InternalDecrypt() + 1;
-		input.hiddenValue = Encrypt(value, input.currentCryptoKey);
-		if (ObscuredCheatingDetector.IsRunning)
-		{
-			input.fakeValue = value;
-		}
-		return input;
-	}
-
-	public static ObscuredUInt operator --(ObscuredUInt input)
-	{
-		uint value = input.InternalDecrypt() - 1;
-		input.hiddenValue = Encrypt(value, input.currentCryptoKey);
-		if (ObscuredCheatingDetector.IsRunning)
-		{
-			input.fakeValue = value;
-		}
-		return input;
-	}
-
 	public override bool Equals(object obj)
 	{
 		if (!(obj is ObscuredUInt))
@@ -200,5 +158,47 @@ public struct ObscuredUInt : IEquatable<ObscuredUInt>, IFormattable
 	public string ToString(string format, IFormatProvider provider)
 	{
 		return InternalDecrypt().ToString(format, provider);
+	}
+
+	public static implicit operator ObscuredUInt(uint value)
+	{
+		ObscuredUInt result = new ObscuredUInt(Encrypt(value));
+		if (ObscuredCheatingDetector.IsRunning)
+		{
+			result.fakeValue = value;
+		}
+		return result;
+	}
+
+	public static implicit operator uint(ObscuredUInt value)
+	{
+		return value.InternalDecrypt();
+	}
+
+	public static explicit operator ObscuredInt(ObscuredUInt value)
+	{
+		return (int)value.InternalDecrypt();
+	}
+
+	public static ObscuredUInt operator ++(ObscuredUInt input)
+	{
+		uint value = input.InternalDecrypt() + 1;
+		input.hiddenValue = Encrypt(value, input.currentCryptoKey);
+		if (ObscuredCheatingDetector.IsRunning)
+		{
+			input.fakeValue = value;
+		}
+		return input;
+	}
+
+	public static ObscuredUInt operator --(ObscuredUInt input)
+	{
+		uint value = input.InternalDecrypt() - 1;
+		input.hiddenValue = Encrypt(value, input.currentCryptoKey);
+		if (ObscuredCheatingDetector.IsRunning)
+		{
+			input.fakeValue = value;
+		}
+		return input;
 	}
 }

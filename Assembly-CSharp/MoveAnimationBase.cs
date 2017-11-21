@@ -2,14 +2,14 @@ using UnityEngine;
 
 public class MoveAnimationBase : MonoBehaviour
 {
-	public delegate void OnMoveAnimationStoppedDelegate(float extraTime);
-
 	protected enum State
 	{
 		None,
 		Stopped,
 		Playing
 	}
+
+	public delegate void OnMoveAnimationStoppedDelegate(float extraTime);
 
 	protected State state;
 

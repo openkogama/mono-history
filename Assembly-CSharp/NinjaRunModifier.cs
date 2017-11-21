@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class NinjaRunModifier : AvatarModifier
 {
+	private const float minRemoteSpeed = 0.1f;
+
 	public TrailRenderer trailRenderer;
 
 	[SerializeField]
@@ -26,8 +28,6 @@ public class NinjaRunModifier : AvatarModifier
 	private bool isDestroying;
 
 	private Transform ownerTransform;
-
-	private const float minRemoteSpeed = 0.1f;
 
 	public override AvatarModifierPackageType ModifierType => AvatarModifierPackageType.NinjaRun;
 

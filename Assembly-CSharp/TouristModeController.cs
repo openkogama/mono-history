@@ -7,6 +7,8 @@ public class TouristModeController : MonoBehaviour
 {
 	private class ShowPromotionBookkeeping
 	{
+		private const int deathShowFrequence = 1;
+
 		private bool isDead;
 
 		private bool deathConditionTriggered = true;
@@ -22,8 +24,6 @@ public class TouristModeController : MonoBehaviour
 		private bool showTouristPromotion;
 
 		private int deaths;
-
-		private const int deathShowFrequence = 1;
 
 		private static bool TouristPromotionAllowed => MVGameControllerBase.IsTouristSession && MVGameControllerBase.Game.IsPlaying && MVGameControllerBase.JoinState == MVJoinState.Playing;
 

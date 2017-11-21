@@ -5,6 +5,10 @@ using UnityEngine;
 
 public class WindTurbine : MVLogicObject, ILogicWorldObject
 {
+	private const float maxWindStrength = 280f;
+
+	private const float maxWindAreaSize = 20f;
+
 	private Dictionary<int, MVRigidBody> affectedBodies;
 
 	private bool isActive;
@@ -14,10 +18,6 @@ public class WindTurbine : MVLogicObject, ILogicWorldObject
 	private float windAreaSize = 10f;
 
 	private float windPitch;
-
-	private const float maxWindStrength = 280f;
-
-	private const float maxWindAreaSize = 20f;
 
 	private WindTurbineObject windTurbineObject;
 
@@ -181,9 +181,8 @@ public class WindTurbine : MVLogicObject, ILogicWorldObject
 		localScale = windTurbineObject.AreaColliderTransform.localPosition;
 		localScale.z = windAreaSize / 2f + 0.5f;
 		windTurbineObject.AreaColliderTransform.localPosition = localScale;
-		ParticleSystem.MainModule main = windTurbineObject.WindParticleSystem.main;
-		main.startLifetimeMultiplier = windAreaSize / 20f;
-		main.startSize = 0.1f;
+		windTurbineObject.WindParticleSystem.startLifetime = windAreaSize / 20f;
+		windTurbineObject.WindParticleSystem.startSize = 0.1f;
 	}
 
 	private void Rotate()

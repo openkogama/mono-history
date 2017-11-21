@@ -4,6 +4,10 @@ using UnityEngine.EventSystems;
 
 public class FirstTimeActivatablePopupTimed : FirstTimeActivatableElementBase
 {
+	private const string mouseX = "Mouse X";
+
+	private const string mouseY = "Mouse Y";
+
 	[SerializeField]
 	private CanvasGroup popupPrefab;
 
@@ -24,10 +28,6 @@ public class FirstTimeActivatablePopupTimed : FirstTimeActivatableElementBase
 	private float currentTime;
 
 	private CanvasGroup createdPopup;
-
-	private const string mouseX = "Mouse X";
-
-	private const string mouseY = "Mouse Y";
 
 	private bool isFading;
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class WindTurbineSettings : MonoBehaviour, IHandleSettingChanged, IEventSystemHandler
+public class WindTurbineSettings : MonoBehaviour, IEventSystemHandler, IHandleSettingChanged
 {
 	[SerializeField]
 	private SettingsBase settingsBase;

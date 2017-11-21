@@ -84,6 +84,11 @@ public abstract class JsonReader : IDisposable
 		Push(JTokenType.None);
 	}
 
+	void IDisposable.Dispose()
+	{
+		Dispose(disposing: true);
+	}
+
 	private void Push(JTokenType value)
 	{
 		_stack.Add(value);
@@ -278,11 +283,6 @@ public abstract class JsonReader : IDisposable
 			JsonToken.EndConstructor => JTokenType.Constructor, 
 			_ => throw new JsonReaderException("Not a valid close JsonToken: {0}".FormatWith(CultureInfo.InvariantCulture, token)), 
 		};
-	}
-
-	void IDisposable.Dispose()
-	{
-		Dispose(disposing: true);
 	}
 
 	protected virtual void Dispose(bool disposing)

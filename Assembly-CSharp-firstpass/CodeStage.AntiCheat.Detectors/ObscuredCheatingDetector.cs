@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.SceneManagement;
 
 namespace CodeStage.AntiCheat.Detectors;
 
@@ -90,7 +89,6 @@ public class ObscuredCheatingDetector : ActDetectorBase
 		{
 			Instance = this;
 		}
-		SceneManager.sceneLoaded += OnLevelWasLoadedNew;
 	}
 
 	protected override void OnDestroy()
@@ -99,7 +97,7 @@ public class ObscuredCheatingDetector : ActDetectorBase
 		instancesInScene--;
 	}
 
-	private void OnLevelWasLoadedNew(Scene scene, LoadSceneMode mode)
+	private void OnLevelWasLoaded()
 	{
 		OnLevelLoadedCallback();
 	}

@@ -6,9 +6,9 @@ public class FpsCounter : MonoBehaviour
 {
 	private class FPSMetricCollector
 	{
-		private readonly float startTime;
-
 		private const float timeBeforeMetricCollectionInSeconds = 30f;
+
+		private readonly float startTime;
 
 		private bool metricsCollected;
 

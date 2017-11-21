@@ -7,8 +7,8 @@ public class PrefabPool : MonoBehaviour
 
 	private static PrefabPool instance;
 
-	[Header("World Objects")]
 	[SerializeField]
+	[Header("World Objects")]
 	private ObjectPrefab mvFirePrefab;
 
 	[SerializeField]
@@ -188,9 +188,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject godzillaAreaPrefab;
 
-	[Header("Game")]
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
+	[Header("Game")]
 	private Material ghostMarkerMaterial;
 
 	[SerializeField]
@@ -217,9 +217,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material blinkerDefaultMaterial;
 
-	[Header("Pick up")]
 	[Space(20f)]
 	[SerializeField]
+	[Header("Pick up")]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
 	[SerializeField]
@@ -277,8 +277,8 @@ public class PrefabPool : MonoBehaviour
 	private MVPickupItemBaseObject avatarGrowthPackPrefab;
 
 	[Header("Avatar item pick up")]
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
 	private GameObject avatarItemCenterGun;
 
 	[SerializeField]
@@ -396,9 +396,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem collectTheItemParticles;
 
+	[SerializeField]
 	[Header("Logic object prefabs")]
 	[Space(20f)]
-	[SerializeField]
 	private GameObject logicInputConnectorPrefab;
 
 	[SerializeField]
@@ -437,8 +437,8 @@ public class PrefabPool : MonoBehaviour
 	private Material modelConstraintsMaterial;
 
 	[Header("UGUI")]
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
 	private AvatarInputControllerAndroidSettings avatarInputControllerAndroidSettings;
 
 	[SerializeField]
@@ -472,8 +472,8 @@ public class PrefabPool : MonoBehaviour
 	private FirstPersonDeathCamera firstPersonDeathCamera;
 
 	[Header("Editor")]
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
 	private Material cellCursorErrorMaterial;
 
 	[SerializeField]

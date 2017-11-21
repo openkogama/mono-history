@@ -5,9 +5,9 @@ using UnityEngine;
 
 public class MVGroundState
 {
-	private MVMaterial groundMaterial = new MVMaterial();
-
 	private const float groundDepth = 0.1f;
+
+	private MVMaterial groundMaterial = new MVMaterial();
 
 	private ObscuredBool grounded = false;
 

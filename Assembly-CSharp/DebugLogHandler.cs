@@ -224,16 +224,17 @@ public static class DebugLogHandler
 		dictionary.Add("graphicsDeviceVersion", SystemInfo.graphicsDeviceVersion);
 		dictionary.Add("graphicsShaderLevel", SystemInfo.graphicsShaderLevel.ToString());
 		dictionary.Add("supportsShadows", SystemInfo.supportsShadows.ToString());
+		dictionary.Add("supportsRenderTextures", SystemInfo.supportsRenderTextures.ToString());
 		dictionary.Add("supportsImageEffects", SystemInfo.supportsImageEffects.ToString());
 		dictionary.Add("supportedRenderTargetCount", SystemInfo.supportedRenderTargetCount.ToString());
 		if (SystemInfo.graphicsDeviceVendor == "Vivante Corporation")
 		{
 			string text = string.Empty;
-			foreach (RenderTextureFormat value in Enum.GetValues(typeof(RenderTextureFormat)))
+			foreach (int value in Enum.GetValues(typeof(RenderTextureFormat)))
 			{
-				if (SystemInfo.SupportsRenderTextureFormat(value))
+				if (SystemInfo.SupportsRenderTextureFormat((RenderTextureFormat)value))
 				{
-					text = ((!string.IsNullOrEmpty(text)) ? (text + " " + value) : (text + value));
+					text = ((!string.IsNullOrEmpty(text)) ? (text + " " + (RenderTextureFormat)value) : (text + (RenderTextureFormat)value));
 				}
 			}
 			dictionary.Add("supportedRenderTextureFormats", text);

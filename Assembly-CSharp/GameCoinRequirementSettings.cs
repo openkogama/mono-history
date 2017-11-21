@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class GameCoinRequirementSettings : MonoBehaviour, IHandleSettingChanged, IEventSystemHandler
+public class GameCoinRequirementSettings : MonoBehaviour, IEventSystemHandler, IHandleSettingChanged
 {
 	[SerializeField]
 	private SettingsBase settingsBase;

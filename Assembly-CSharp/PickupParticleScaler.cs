@@ -10,9 +10,14 @@ public class PickupParticleScaler : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem particleSysToScale;
 
+	private float initialParticleStartSize;
+
+	private float initialParticleStartSpeed;
+
 	private void Start()
 	{
-		ParticleSystem.MainModule main = particleSysToScale.main;
+		initialParticleStartSize = particleSysToScale.startSize;
+		initialParticleStartSpeed = particleSysToScale.startSpeed;
 		if (itemAttachedTo.owner != null)
 		{
 			MVWorldObjectClient worldObjectOwner = itemAttachedTo.owner.WorldObjectOwner;
@@ -32,8 +37,7 @@ public class PickupParticleScaler : MonoBehaviour
 	private void OnScaleChange(MVWorldObjectClient obj, ScaleChangedEventArgs args)
 	{
 		float y = transform.lossyScale.y;
-		ParticleSystem.MainModule main = particleSysToScale.main;
-		main.startSizeMultiplier = y;
-		main.startSpeedMultiplier = y;
+		particleSysToScale.startSize = initialParticleStartSize * y;
+		particleSysToScale.startSpeed = initialParticleStartSpeed * y;
 	}
 }

@@ -171,21 +171,6 @@ public struct ObscuredQuaternion
 		return Math.Abs(q1.x - q2.x) < quaternionEpsilon && Math.Abs(q1.y - q2.y) < quaternionEpsilon && Math.Abs(q1.z - q2.z) < quaternionEpsilon && Math.Abs(q1.w - q2.w) < quaternionEpsilon;
 	}
 
-	public static implicit operator ObscuredQuaternion(Quaternion value)
-	{
-		ObscuredQuaternion result = new ObscuredQuaternion(Encrypt(value));
-		if (ObscuredCheatingDetector.IsRunning)
-		{
-			result.fakeValue = value;
-		}
-		return result;
-	}
-
-	public static implicit operator Quaternion(ObscuredQuaternion value)
-	{
-		return value.InternalDecrypt();
-	}
-
 	public override int GetHashCode()
 	{
 		return InternalDecrypt().GetHashCode();
@@ -199,5 +184,20 @@ public struct ObscuredQuaternion
 	public string ToString(string format)
 	{
 		return InternalDecrypt().ToString(format);
+	}
+
+	public static implicit operator ObscuredQuaternion(Quaternion value)
+	{
+		ObscuredQuaternion result = new ObscuredQuaternion(Encrypt(value));
+		if (ObscuredCheatingDetector.IsRunning)
+		{
+			result.fakeValue = value;
+		}
+		return result;
+	}
+
+	public static implicit operator Quaternion(ObscuredQuaternion value)
+	{
+		return value.InternalDecrypt();
 	}
 }

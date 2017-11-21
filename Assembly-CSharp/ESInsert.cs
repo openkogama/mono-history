@@ -10,9 +10,9 @@ internal class ESInsert : ESStateBase
 
 	private const float offsetLerpSpeed = 10f;
 
-	private float distanceInFreeSpace = 5f;
-
 	private const float minimumDistance = 5f;
+
+	private float distanceInFreeSpace = 5f;
 
 	private Vector3 insertPosition = Vector3.zero;
 

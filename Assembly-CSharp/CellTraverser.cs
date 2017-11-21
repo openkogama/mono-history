@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CellTraverser
 {
-	private Ray intersectRay = default;
+	private Ray intersectRay;
 
 	private Vector3 tMax;
 

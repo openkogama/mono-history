@@ -242,8 +242,8 @@ public class HackingToolDetector : MonoBehaviour
 		{
 			while (detectedHackingTools.Count > 0)
 			{
-				HackingToolReport obj = detectedHackingTools.Dequeue();
-				onHackToolDetected(obj);
+				HackingToolReport report = detectedHackingTools.Dequeue();
+				onHackToolDetected(report);
 			}
 			yield return new WaitForSeconds(waitDuration);
 		}

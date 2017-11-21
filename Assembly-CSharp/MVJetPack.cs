@@ -232,7 +232,7 @@ public class MVJetPack : MVVehicleBase
 
 		private void OverheatUpdate(bool thrust)
 		{
-			JetModeType jetModeType = (JetModeType)owner.JetMode.Value;
+			JetModeType jetModeType = (JetModeType)(byte)owner.JetMode.Value;
 			JetModeType jetModeType2 = JetModeType.Off;
 			if (thrust)
 			{
@@ -453,7 +453,7 @@ public class MVJetPack : MVVehicleBase
 		{
 			Debug.LogError("WoData does not contain jetPackType ");
 		}
-		return (JetPackType)dictionary["jetPackType"];
+		return (JetPackType)(byte)dictionary["jetPackType"];
 	}
 
 	private static VehicleBaseObject GetPickupPrefabName(Dictionary<object, object> data)

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class StarsRequirementSettings : MonoBehaviour, IHandleSettingChanged, IEventSystemHandler
+public class StarsRequirementSettings : MonoBehaviour, IEventSystemHandler, IHandleSettingChanged
 {
 	[SerializeField]
 	private SettingsBase settingsBase;

@@ -68,7 +68,7 @@ public static class KoGaMaDataHandler
 		}
 	}
 
-	private static AsyncBookkeeping asyncBookkeeping = null;
+	private static AsyncBookkeeping asyncBookkeeping;
 
 	private static int serializeVersion = 11;
 

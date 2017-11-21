@@ -3,7 +3,7 @@ using UnityEngine;
 public class OneShotPooledParticleSystem : MonoBehaviour
 {
 	[SerializeField]
-	private ParticleSystem particles;
+	private ParticleSystem particleSystem;
 
 	private PoolEnums type;
 
@@ -11,7 +11,7 @@ public class OneShotPooledParticleSystem : MonoBehaviour
 	{
 		OneShotPooledParticleSystem oneShotPooledParticleSystem = PrefabPool.Instance.EnumPoolManager.Instantiate<OneShotPooledParticleSystem>(type);
 		oneShotPooledParticleSystem.type = type;
-		return oneShotPooledParticleSystem.particles;
+		return oneShotPooledParticleSystem.particleSystem;
 	}
 
 	public static ParticleSystem Instantiate(PoolEnums type, Vector3 position, Quaternion rotation)
@@ -20,20 +20,20 @@ public class OneShotPooledParticleSystem : MonoBehaviour
 		oneShotPooledParticleSystem.type = type;
 		oneShotPooledParticleSystem.transform.localPosition = position;
 		oneShotPooledParticleSystem.transform.localRotation = rotation;
-		return oneShotPooledParticleSystem.particles;
+		return oneShotPooledParticleSystem.particleSystem;
 	}
 
 	private void OnValidate()
 	{
-		if (particles == null)
+		if (particleSystem == null)
 		{
-			particles = GetComponent<ParticleSystem>();
+			particleSystem = GetComponent<ParticleSystem>();
 		}
 	}
 
 	private void Update()
 	{
-		if (particles.time >= particles.main.duration)
+		if (particleSystem.time >= particleSystem.duration)
 		{
 			PrefabPool.Instance.EnumPoolManager.Return(this, type);
 		}

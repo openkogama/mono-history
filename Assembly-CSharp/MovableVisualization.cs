@@ -38,9 +38,9 @@ public class MovableVisualization : MonoBehaviour, IUpdatecontrollerSubscriber
 
 	private bool isDirty;
 
-	private const float updateDirtyInterval = 1f;
+	private static float updateDirtyInterval = 1f;
 
-	private float prevUpdateDirtyTime;
+	private float prevUpdateDirtyTime = Time.realtimeSinceStartup - updateDirtyInterval;
 
 	public bool Visible
 	{
@@ -53,11 +53,6 @@ public class MovableVisualization : MonoBehaviour, IUpdatecontrollerSubscriber
 			canBeVisible = value;
 			SetMeshRenderers(value, cmbClone);
 		}
-	}
-
-	protected virtual void Awake()
-	{
-		prevUpdateDirtyTime = Time.realtimeSinceStartup - 1f;
 	}
 
 	public void Init(MVCubeModelBase cmb)
@@ -176,7 +171,7 @@ public class MovableVisualization : MonoBehaviour, IUpdatecontrollerSubscriber
 
 	private void HandleDirty()
 	{
-		if (isDirty && Time.realtimeSinceStartup - prevUpdateDirtyTime > 1f)
+		if (isDirty && Time.realtimeSinceStartup - prevUpdateDirtyTime > updateDirtyInterval)
 		{
 			UnityEngine.Object.Destroy(cmbClone);
 			cmbClone = CreateMeshClone(cmb);

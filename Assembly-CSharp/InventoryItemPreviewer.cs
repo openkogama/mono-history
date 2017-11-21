@@ -74,8 +74,7 @@ public class InventoryItemPreviewer : MonoBehaviour
 		if (wo is MVMovingPlatformGroup)
 		{
 			LineRenderer componentInChildren = PreviewGameObject.GetComponentInChildren<LineRenderer>();
-			float endWidth = (componentInChildren.startWidth = 0.3f * num2);
-			componentInChildren.endWidth = endWidth;
+			componentInChildren.SetWidth(0.3f * num2, 0.3f * num2);
 		}
 		PreviewGameObject.transform.localScale = localScale * num2;
 		Vector3 vector = new Vector3(localBounds.center.x * localScale.x, localBounds.center.y * localScale.y, localBounds.center.z * localScale.z);

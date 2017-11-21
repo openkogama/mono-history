@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class RoundCubeSettings : MonoBehaviour, IHandleSettingChanged, IEventSystemHandler
+public class RoundCubeSettings : MonoBehaviour, IEventSystemHandler, IHandleSettingChanged
 {
 	[SerializeField]
 	private SettingsBase settingsBase;

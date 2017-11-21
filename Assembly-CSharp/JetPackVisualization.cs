@@ -23,9 +23,9 @@ public class JetPackVisualization : VehicleVisualizationBase
 
 	private Vector3 posDiff = Vector3.zero;
 
-	private float originalEmissionRate;
+	private float originalMaxEmission;
 
-	private float originalParticleSize;
+	private float originalMaxSize;
 
 	public AudioSource moving;
 
@@ -35,7 +35,7 @@ public class JetPackVisualization : VehicleVisualizationBase
 
 	private float lastOverHeatNotificationTime;
 
-	public List<ParticleSystem> thrusters = new List<ParticleSystem>();
+	public List<ParticleEmitter> thrusters = new List<ParticleEmitter>();
 
 	private MVJetPack.JetModeType mode = MVJetPack.JetModeType.NotSet;
 
@@ -50,7 +50,7 @@ public class JetPackVisualization : VehicleVisualizationBase
 		jetPackCubeModel.localRotation = localRotation;
 		jetMode.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(jetMode.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object jetModeVal) =>
 		{
-			OnJetModeChange((MVJetPack.JetModeType)jetModeVal);
+			OnJetModeChange((MVJetPack.JetModeType)(byte)jetModeVal);
 		}));
 		base.isInSpawner = isInSpawner;
 		if (isInSpawner)
@@ -59,12 +59,12 @@ public class JetPackVisualization : VehicleVisualizationBase
 		}
 		else
 		{
-			foreach (ParticleSystem thruster in thrusters)
+			foreach (ParticleEmitter thruster in thrusters)
 			{
-				originalParticleSize = thruster.main.startSizeMultiplier;
-				originalEmissionRate = thruster.emission.rateOverTimeMultiplier;
+				originalMaxSize = thruster.maxSize;
+				originalMaxEmission = thruster.maxEmission;
 			}
-			OnJetModeChange((MVJetPack.JetModeType)jetMode.Value);
+			OnJetModeChange((MVJetPack.JetModeType)(byte)jetMode.Value);
 			moving.enabled = true;
 			vehicleBlinker.Init(JetPackRoot.gameObject.GetComponentsInChildren<MeshFilter>());
 			vehicleBlinker.Visible = true;
@@ -79,7 +79,7 @@ public class JetPackVisualization : VehicleVisualizationBase
 		{
 			if (mode == MVJetPack.JetModeType.Overheating)
 			{
-				SetMaxSizeForThrusters(originalParticleSize, originalEmissionRate);
+				SetMaxSizeForThrusters(originalMaxSize, originalMaxEmission);
 			}
 			switch (newMode)
 			{
@@ -99,16 +99,9 @@ public class JetPackVisualization : VehicleVisualizationBase
 
 	public void EnableThruster(bool enable)
 	{
-		foreach (ParticleSystem thruster in thrusters)
+		foreach (ParticleEmitter thruster in thrusters)
 		{
-			if (enable)
-			{
-				thruster.Play();
-			}
-			else
-			{
-				thruster.Stop();
-			}
+			thruster.emit = enable;
 		}
 		if (enable)
 		{
@@ -150,14 +143,12 @@ public class JetPackVisualization : VehicleVisualizationBase
 		}
 	}
 
-	private void SetMaxSizeForThrusters(float particleSize, float emissionRate)
+	private void SetMaxSizeForThrusters(float maxSize, float maxEmission)
 	{
-		foreach (ParticleSystem thruster in thrusters)
+		foreach (ParticleEmitter thruster in thrusters)
 		{
-			ParticleSystem.MainModule main = thruster.main;
-			main.startSizeMultiplier = particleSize;
-			ParticleSystem.EmissionModule emission = thruster.emission;
-			emission.rateOverTimeMultiplier = emissionRate;
+			thruster.maxSize = maxSize;
+			thruster.maxEmission = maxEmission;
 		}
 	}
 

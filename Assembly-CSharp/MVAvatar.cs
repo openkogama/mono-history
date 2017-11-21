@@ -155,7 +155,7 @@ public class MVAvatar : MVGroup
 
 	protected virtual void AvatarStateChangedHandler(object a)
 	{
-		AvatarModeTypes avatarModeTypes = (AvatarModeTypes)a;
+		AvatarModeTypes avatarModeTypes = (AvatarModeTypes)(int)a;
 		if ((avatarModeTypes & AvatarModeTypes.Hidden) > AvatarModeTypes.None)
 		{
 			avatar.Collider.enabled = false;

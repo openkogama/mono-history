@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class PlayerInventoryItemManager : MonoBehaviour, ITabSelected, IEventSystemHandler
+public class PlayerInventoryItemManager : MonoBehaviour, IEventSystemHandler, ITabSelected
 {
 	private class ItemManagePageDef
 	{

@@ -6,8 +6,6 @@ using UnityEngine.EventSystems;
 
 public class CubeModelingStateMachine : FSMEntity
 {
-	public delegate void OnCurrentMaterialChangeDelegate(byte currentMaterialId, Material currentMaterial);
-
 	public enum HoverType
 	{
 		Corner,
@@ -15,6 +13,8 @@ public class CubeModelingStateMachine : FSMEntity
 		Face,
 		None
 	}
+
+	public delegate void OnCurrentMaterialChangeDelegate(byte currentMaterialId, Material currentMaterial);
 
 	private static Vector3[] zDepth1Cube = new Vector3[8]
 	{
@@ -122,11 +122,11 @@ public class CubeModelingStateMachine : FSMEntity
 		SetConstraint(constraint);
 		this.targetCubeModel.BeingEdited = true;
 		editMode2d = MVGameControllerBase.Game.GameType == MVGameType.Platformer && targetCubeModel is MVCubeModelPrototypeTerrain;
-		if (editMode2d && (CubeModelingEvent)curEvent == CubeModelingEvent.EditCubes)
+		if (editMode2d && (int)curEvent == 0)
 		{
 			curEvent = CubeModelingEvent.EditCubes2D;
 		}
-		if (!editMode2d && (CubeModelingEvent)curEvent == CubeModelingEvent.EditCubes2D)
+		if (!editMode2d && (int)curEvent == 4)
 		{
 			curEvent = CubeModelingEvent.EditCubes;
 		}

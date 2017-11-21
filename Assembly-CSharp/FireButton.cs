@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityStandardAssets.CrossPlatformInput;
 
-public class FireButton : MonoBehaviour, IPointerUpHandler, IPointerDownHandler, IEventSystemHandler
+public class FireButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IEventSystemHandler
 {
 	[SerializeField]
 	private string buttonName;

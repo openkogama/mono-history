@@ -206,7 +206,7 @@ public class PickupItemModelGun : PickupItemWithDelay
 		GetComponent<AudioSource>().Play();
 		Ray ray = new Ray(owner.LookOrigin, owner.LookDirection);
 		int num = -5 & ~(1 << LayerMask.NameToLayer("Player"));
-		num &= ~(1 << LayerMask.NameToLayer("Logic"));
+		num &= ~(1 << (LayerMask.NameToLayer("Logic") & 0x1F));
 		Vector3 point;
 		if (CollisionDetection.MVHit(ray, out var voxelHit, range, null, num))
 		{
@@ -226,7 +226,7 @@ public class PickupItemModelGun : PickupItemWithDelay
 		{
 			point = ray.GetPoint(range);
 		}
-		RailRay railRay = UnityEngine.Object.Instantiate(railGunRayPrefab, muzzlePoint.position, Quaternion.identity);
+		RailRay railRay = UnityEngine.Object.Instantiate(railGunRayPrefab, muzzlePoint.position, Quaternion.identity) as RailRay;
 		railRay.target = point;
 		railRay.startColor = Color.yellow;
 	}
@@ -304,19 +304,19 @@ public class PickupItemModelGun : PickupItemWithDelay
 			float distance = 0f;
 			if (MathFunctions.DistancePointLine(voxelHit.point, edgeVerticesWorld[0], edgeVerticesWorld[1], ref distance) && distance < maxDistanceToEdge)
 			{
-				foreach (Face value in Enum.GetValues(typeof(Face)))
+				foreach (int value in Enum.GetValues(typeof(Face)))
 				{
-					if (value == voxelHit.face)
+					if (value == (int)voxelHit.face)
 					{
 						continue;
 					}
-					foreach (Edge value2 in Enum.GetValues(typeof(Edge)))
+					foreach (int value2 in Enum.GetValues(typeof(Edge)))
 					{
-						if (value2 == Edge.None)
+						if (value2 == 0)
 						{
 							continue;
 						}
-						Vector3[] edgeVerticesWorld2 = Cube.GetEdgeVerticesWorld(worldObjectClient.GameObject, voxelHit.cube, value, value2, voxelHit.cubePos);
+						Vector3[] edgeVerticesWorld2 = Cube.GetEdgeVerticesWorld(worldObjectClient.GameObject, voxelHit.cube, (Face)value, (Edge)value2, voxelHit.cubePos);
 						Debug.DrawLine(edgeVerticesWorld2[0], edgeVerticesWorld2[1], Color.cyan, 10f);
 						int num = 0;
 						Vector3[] array = edgeVerticesWorld2;
@@ -333,7 +333,7 @@ public class PickupItemModelGun : PickupItemWithDelay
 						}
 						if (num == 2)
 						{
-							pos = Cube.GetCubePosAboveFace(voxelHit.cubePos, value);
+							pos = Cube.GetCubePosAboveFace(voxelHit.cubePos, (Face)value);
 							if (((MVCubeModelFineGrainedTerrain)worldObjectClient).GetCube(pos) == null)
 							{
 								return true;

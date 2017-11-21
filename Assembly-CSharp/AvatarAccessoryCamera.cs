@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 public class AvatarAccessoryCamera : MVCameraBase
@@ -65,7 +66,7 @@ public class AvatarAccessoryCamera : MVCameraBase
 		base.UpdateCamera(camController, targetTransform);
 	}
 
-	public override void FocusOnObject(MVWorldObjectClient wo, float transitionTime = 2f, Vector3 avatarOffset = default(Vector3))
+	public override void FocusOnObject(MVWorldObjectClient wo, [Optional][DefaultParameterValue(2f)] float transitionTime, [Optional] Vector3 avatarOffset)
 	{
 		focusObject = wo;
 	}

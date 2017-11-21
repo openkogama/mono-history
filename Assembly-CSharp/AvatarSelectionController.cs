@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class AvatarSelectionController : MonoBehaviour, IAvatarSlotClicked, IEventSystemHandler
+public class AvatarSelectionController : MonoBehaviour, IEventSystemHandler, IAvatarSlotClicked
 {
 	private static int currSelectedSlot = -1;
 

@@ -62,8 +62,7 @@ public class MVTeleporter : MVLogicObject
 	public override void InitializeInventory()
 	{
 		base.InitializeInventory();
-		ParticleSystem.MainModule main = teleportObject.ParticleSystem.main;
-		main.startSizeMultiplier = 0.8f;
+		teleportObject.ParticleSystem.startSize = 0.8f;
 	}
 
 	private void SetupUseInteractor()
@@ -139,7 +138,7 @@ public class MVTeleporter : MVLogicObject
 		}
 		if (!avatarIgnoreList.Contains(avatarLocal))
 		{
-			TeleportAvatar teleportAvatar = Object.Instantiate(teleportAvatarPrefab, transform.position, Quaternion.identity);
+			TeleportAvatar teleportAvatar = Object.Instantiate(teleportAvatarPrefab, transform.position, Quaternion.identity) as TeleportAvatar;
 			teleportAvatar.avatar = avatarLocal;
 			teleportAvatar.targetPosition = target.WorldPosition;
 			teleportAvatar.originPosition = transform.position;
