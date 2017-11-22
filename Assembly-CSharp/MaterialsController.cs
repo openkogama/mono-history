@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-public class MaterialsController : MonoBehaviour, IEventSystemHandler, IMaterialClicked, IHandleMaterial
+public class MaterialsController : MonoBehaviour, IMaterialClicked, IHandleMaterial, IEventSystemHandler
 {
 	protected CubeModelingStateMachine cubeModelingStateMachine;
 

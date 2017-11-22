@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class ShootablePlateSettings : MonoBehaviour, IEventSystemHandler, IHandleSettingChanged
+public class ShootablePlateSettings : MonoBehaviour, IHandleSettingChanged, IEventSystemHandler
 {
 	[SerializeField]
 	private SettingsBase settingsBase;

@@ -40,8 +40,6 @@ public static class ObscuredPrefs
 
 	private const string DATA_SEPARATOR = "|";
 
-	private const char DEPRECATED_RAW_SEPARATOR = ':';
-
 	private static bool foreignSavesReported;
 
 	private static string cryptoKey = "e806f6";
@@ -61,6 +59,8 @@ public static class ObscuredPrefs
 	public static bool readForeignSaves;
 
 	public static bool emergencyMode;
+
+	private const char DEPRECATED_RAW_SEPARATOR = ':';
 
 	private static string deprecatedDeviceId;
 
@@ -807,7 +807,7 @@ public static class ObscuredPrefs
 		byte a = (byte)(num >> 24);
 		byte r = (byte)(num >> 16);
 		byte g = (byte)(num >> 8);
-		byte b = (byte)num;
+		byte b = (byte)(num >> 0);
 		return new Color32(r, g, b, a);
 	}
 

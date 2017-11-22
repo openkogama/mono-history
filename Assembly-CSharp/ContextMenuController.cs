@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class ContextMenuController : MonoBehaviour, IEventSystemHandler, IHandlePointerDownOnContextMenuButton
+public class ContextMenuController : MonoBehaviour, IHandlePointerDownOnContextMenuButton, IEventSystemHandler
 {
 	private int woID;
 

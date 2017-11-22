@@ -15,8 +15,8 @@ public class KoGaMaSettingsContainer : ScriptableObject
 	[SerializeField]
 	private bool showDebugLogin;
 
-	[SerializeField]
 	[Header("Don't change")]
+	[SerializeField]
 	private TextAsset versionText;
 
 	[SerializeField]

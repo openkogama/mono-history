@@ -38,12 +38,6 @@ public class ModelingBoxCountConstraint : ModelingBoxConstraint
 	{
 		switch (e.Action)
 		{
-		case CubeAction.Added:
-			break;
-		case CubeAction.Deleted:
-			break;
-		case CubeAction.CornersChanged:
-			break;
 		}
 	}
 }

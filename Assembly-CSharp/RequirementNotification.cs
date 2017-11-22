@@ -57,7 +57,7 @@ public class RequirementNotification : Notification
 		}
 		if (worldObjectClient.Data.ContainsKey("team"))
 		{
-			MVTeam team = (MVTeam)(int)worldObjectClient.Data["team"];
+			MVTeam team = (MVTeam)worldObjectClient.Data["team"];
 			ShowTeamRequirement(team);
 		}
 	}

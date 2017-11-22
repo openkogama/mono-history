@@ -2,12 +2,12 @@ using UnityEngine;
 
 public class TeleportAnimator : MonoBehaviour
 {
-	private const string texString = "_MainTex";
-
 	[SerializeField]
 	private Renderer teleportRenderer;
 
 	private Material _material;
+
+	private const string texString = "_MainTex";
 
 	private void Awake()
 	{

@@ -8,8 +8,8 @@ public class NotificationSlideOut : MonoBehaviour
 	[SerializeField]
 	private Vector2 slideVelocity = new Vector2(-400f, 0f);
 
-	[Range(0f, 1f)]
 	[SerializeField]
+	[Range(0f, 1f)]
 	private float slideOutStartTime = 0.75f;
 
 	private void OnValidate()

@@ -18,7 +18,7 @@ public class OpenInventoryNotification : Notification
 	public override void Initialize(Dictionary<object, object> data)
 	{
 		base.Initialize(data);
-		lifeTime = (NotificationLifetime)(int)data[(byte)2];
+		lifeTime = (NotificationLifetime)data[(byte)2];
 		category = (int)data[(byte)13];
 		slot = (int)data[(byte)14];
 		fader.Activate();

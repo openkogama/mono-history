@@ -6,15 +6,15 @@ using UnityEngine.UI;
 
 public class TextBubble : MonoBehaviour
 {
-	[SerializeField]
 	[Header("Configuration")]
+	[SerializeField]
 	private float tailSize = 0.25f;
 
 	[SerializeField]
 	private float tailDistance = 1f;
 
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	private LayoutGroup bubble;
 
 	[SerializeField]

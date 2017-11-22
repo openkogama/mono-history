@@ -243,21 +243,6 @@ public struct ObscuredVector2
 		return ObscuredFloat.Encrypt(encrypted, cryptoKey);
 	}
 
-	public override int GetHashCode()
-	{
-		return InternalDecrypt().GetHashCode();
-	}
-
-	public override string ToString()
-	{
-		return InternalDecrypt().ToString();
-	}
-
-	public string ToString(string format)
-	{
-		return InternalDecrypt().ToString(format);
-	}
-
 	public static implicit operator ObscuredVector2(Vector2 value)
 	{
 		ObscuredVector2 result = new ObscuredVector2(Encrypt(value));
@@ -277,5 +262,20 @@ public struct ObscuredVector2
 	{
 		Vector2 vector = value.InternalDecrypt();
 		return new Vector3(vector.x, vector.y, 0f);
+	}
+
+	public override int GetHashCode()
+	{
+		return InternalDecrypt().GetHashCode();
+	}
+
+	public override string ToString()
+	{
+		return InternalDecrypt().ToString();
+	}
+
+	public string ToString(string format)
+	{
+		return InternalDecrypt().ToString(format);
 	}
 }

@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-public class SoundViewItem : MonoBehaviour, IEventSystemHandler, IPointerEnterHandler, IPointerExitHandler
+public class SoundViewItem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IEventSystemHandler
 {
 	private bool previewLoaded;
 

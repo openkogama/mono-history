@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-public class MaterialsControllerEditMode : MaterialsController, IEventSystemHandler, IHandleCubeModelEdit
+public class MaterialsControllerEditMode : MaterialsController, IHandleCubeModelEdit, IEventSystemHandler
 {
 	private DesktopCubeModelingController desktopCubeModelingControllerEditMode;
 

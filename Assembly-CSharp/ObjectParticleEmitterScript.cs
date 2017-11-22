@@ -10,7 +10,7 @@ public class ObjectParticleEmitterScript : MonoBehaviour
 	{
 		if (particleSystemPrefab != null)
 		{
-			particleSystemInstance = (ParticleSystem)Object.Instantiate(particleSystemPrefab, transform.position, transform.rotation);
+			particleSystemInstance = Object.Instantiate(particleSystemPrefab, transform.position, transform.rotation);
 			if (particleSystemInstance != null)
 			{
 				particleSystemInstance.Play();

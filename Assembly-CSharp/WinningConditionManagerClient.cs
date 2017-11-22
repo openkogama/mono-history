@@ -28,7 +28,7 @@ public class WinningConditionManagerClient : WinningConditionManager
 		}
 		if (typeFromHandle == typeof(TimeLimitClient))
 		{
-			return (T)(WinningCondition)new TimeLimitClient((WinningCondition)args[0], (int)args[1], (GameStatCounterManager)args[2], (GameStatCounterType)(byte)args[3]);
+			return (T)(WinningCondition)new TimeLimitClient((WinningCondition)args[0], (int)args[1], (GameStatCounterManager)args[2], (GameStatCounterType)args[3]);
 		}
 		return base.Factory<T>(args);
 	}

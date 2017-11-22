@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class ObjectEnablerSettings : MonoBehaviour, IEventSystemHandler, IHandleSettingChanged
+public class ObjectEnablerSettings : MonoBehaviour, IHandleSettingChanged, IEventSystemHandler
 {
 	[SerializeField]
 	private SettingsBase settingsBase;

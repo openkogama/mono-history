@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class OculusSettings : MonoBehaviour, IEventSystemHandler, IHandleSettingChanged
+public class OculusSettings : MonoBehaviour, IHandleSettingChanged, IEventSystemHandler
 {
 	[SerializeField]
 	private SettingsBase settingsBase;

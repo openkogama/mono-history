@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class PlatformerCamera : MVCameraBase, ICameraSettings
 {
-	private const float distanceToAvatarOffset = 10f;
-
 	private float rotOffset = 10f;
 
 	private float baseDistanceToAvatar = 20f;
 
 	private float distanceToAvatar = 20f;
+
+	private const float distanceToAvatarOffset = 10f;
 
 	public override CameraType CameraType => CameraType.Platformer;
 

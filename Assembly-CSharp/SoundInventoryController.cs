@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-public class SoundInventoryController : MonoBehaviour, IEventSystemHandler, IHandleSettingChanged
+public class SoundInventoryController : MonoBehaviour, IHandleSettingChanged, IEventSystemHandler
 {
 	private InventoryController inventoryController;
 
@@ -66,10 +66,8 @@ public class SoundInventoryController : MonoBehaviour, IEventSystemHandler, IHan
 			});
 			tabs[key].highestSlotIndex++;
 		}
-		StreamingAssetInfo assetInfo;
-		foreach (StreamingAssetInfo item2 in MVGameControllerBase.Game.StreamingAssetShopInventory.Get(StreamingAssetType.AmbientAudio))
+		foreach (StreamingAssetInfo assetInfo in MVGameControllerBase.Game.StreamingAssetShopInventory.Get(StreamingAssetType.AmbientAudio))
 		{
-			assetInfo = item2;
 			int key2 = categoryToNameCombinations[assetInfo.CategoryName];
 			if (!tabs.ContainsKey(categoryToNameCombinations[assetInfo.CategoryName]))
 			{

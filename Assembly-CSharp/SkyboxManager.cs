@@ -33,8 +33,8 @@ public class SkyboxManager : MonoBehaviour
 
 	public SkyboxColorChangedDelegate OnSkyboxColorChanged;
 
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	private Light sunLight;
 
 	[SerializeField]
@@ -131,18 +131,18 @@ public class SkyboxManager : MonoBehaviour
 		{
 			sunLight.intensity = lightDuskDawnFalloff.Evaluate(num2 / 90f);
 		}
-		Color color3 = color;
-		float num3 = ((!(color3.r > 0.5f)) ? skyContrast : (0f - skyContrast));
-		float num4 = ((!(color3.g > 0.5f)) ? skyContrast : (0f - skyContrast));
-		float num5 = ((!(color3.b > 0.5f)) ? skyContrast : (0f - skyContrast));
-		color3.r += num3;
+		Color value = color;
+		float num3 = ((!(value.r > 0.5f)) ? skyContrast : (0f - skyContrast));
+		float num4 = ((!(value.g > 0.5f)) ? skyContrast : (0f - skyContrast));
+		float num5 = ((!(value.b > 0.5f)) ? skyContrast : (0f - skyContrast));
+		value.r += num3;
 		color.r -= num3;
-		color3.g += num4;
+		value.g += num4;
 		color.g -= num4;
-		color3.b += num5;
+		value.b += num5;
 		color.b -= num5;
 		targetCamera.backgroundColor = color;
-		horizontalPlane.material.SetColor("_Color", color3);
+		horizontalPlane.material.SetColor("_Color", value);
 		if (OnSkyboxColorChanged != null)
 		{
 			OnSkyboxColorChanged(currentColor);

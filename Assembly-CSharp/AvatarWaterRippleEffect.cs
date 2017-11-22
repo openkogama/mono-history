@@ -19,7 +19,7 @@ public class AvatarWaterRippleEffect : MonoBehaviour
 
 	private void Start()
 	{
-		ripple = Object.Instantiate(avatarSplashPrefab, Vector3.zero, Quaternion.identity) as ParticleSystem;
+		ripple = Object.Instantiate(avatarSplashPrefab, Vector3.zero, Quaternion.identity);
 	}
 
 	private void Update()
@@ -45,8 +45,8 @@ public class AvatarWaterRippleEffect : MonoBehaviour
 				{
 					position = position,
 					velocity = default,
-					startSize = ripple.startSize,
-					startLifetime = ripple.startLifetime,
+					startSize = ripple.main.startSizeMultiplier,
+					startLifetime = ripple.main.startLifetimeMultiplier,
 					startColor = Color.white
 				};
 				ripple.Emit(emitParams, 1);

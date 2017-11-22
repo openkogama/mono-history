@@ -4,17 +4,17 @@ using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
 using UnityEngine;
 
-public class UseLever : MVLogicObject, ILogicWorldObject, IIsLogicObjectFiringEventHandler
+public class UseLever : MVLogicObject, IIsLogicObjectFiringEventHandler, ILogicWorldObject
 {
-	private const string beginActivateValueKey = "beginActivated";
-
-	private const string isActivateValueKey = "a";
-
 	private UseLeverObject useLeverObject;
 
 	private float minY = -0.25f;
 
 	private float speed = 1.8f;
+
+	private const string beginActivateValueKey = "beginActivated";
+
+	private const string isActivateValueKey = "a";
 
 	private bool requestSend;
 

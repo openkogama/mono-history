@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class PointLightSettings : MonoBehaviour, IEventSystemHandler, IHandleSettingChanged
+public class PointLightSettings : MonoBehaviour, IHandleSettingChanged, IEventSystemHandler
 {
 	private float[] color = new float[3];
 

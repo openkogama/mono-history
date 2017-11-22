@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-public class InventoryController : MonoBehaviour, IEventSystemHandler, ISlotChanged, IPagedTurned, ITabSelected
+public class InventoryController : MonoBehaviour, IPagedTurned, ITabSelected, ISlotChanged, IEventSystemHandler
 {
 	private int numberOfSlots;
 

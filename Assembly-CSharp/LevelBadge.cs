@@ -63,6 +63,11 @@ public class LevelBadge : MonoBehaviour
 			Debug.LogError("Can't calculate update progress as xpNextRel <= 0");
 			return;
 		}
+		if ((float)xpProgress.XpRel <= 0f)
+		{
+			Debug.LogError("Can't calculate update progress as XpRel <= 0");
+			return;
+		}
 		float num = (float)xpProgress.XpRel / (float)xpProgress.XpNextRel;
 		if (num < 0f)
 		{

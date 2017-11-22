@@ -4,8 +4,6 @@ using UnityEngine;
 
 public static class MVElipsoidOverlapCheck
 {
-	private const float SQRT_3 = 1.7320508f;
-
 	private static Matrix4x4 worldToElipsoidSpace = default;
 
 	private static Matrix4x4 elipsoidSpaceToWorld = default;
@@ -35,6 +33,8 @@ public static class MVElipsoidOverlapCheck
 	private static Vector3[] cachedCorners = new Vector3[8];
 
 	private static Vector3[] cachedFace = new Vector3[4];
+
+	private const float SQRT_3 = 1.7320508f;
 
 	private static ElipsoidOverlapCheckType checkType = ElipsoidOverlapCheckType.Bool;
 

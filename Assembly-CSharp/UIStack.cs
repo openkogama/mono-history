@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-public class UIStack : MonoBehaviour, IEventSystemHandler, IUIStack
+public class UIStack : MonoBehaviour, IUIStack, IEventSystemHandler
 {
 	private class StackElement
 	{

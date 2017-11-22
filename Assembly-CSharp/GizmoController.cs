@@ -2,7 +2,7 @@ using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class GizmoController : MonoBehaviour, IEventSystemHandler, IGizmoHandler
+public class GizmoController : MonoBehaviour, IGizmoHandler, IEventSystemHandler
 {
 	private int woID;
 

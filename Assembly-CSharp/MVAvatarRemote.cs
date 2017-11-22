@@ -6,10 +6,6 @@ using UnityEngine.Events;
 
 public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 {
-	private const float initialCullingRadius = 3.5f;
-
-	private const float hitTimeOut = 2f;
-
 	private CullingSubscriberDynamic cullingSubscriberDynamic;
 
 	private HealthBar healthBar;
@@ -18,6 +14,8 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 
 	private AvatarRemoteMovementCalculator avatarRemoteMovementCalculator;
 
+	private const float initialCullingRadius = 3.5f;
+
 	private float impulseMagnitudeFactor = 0.6f;
 
 	private float velocityMinMagnitude = 1500f;
@@ -25,6 +23,8 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 	private float velocityMaxMagnitude = 5000f;
 
 	private float minVelocity = 700f;
+
+	private const float hitTimeOut = 2f;
 
 	private float prevHitTime = Time.time - 2f;
 

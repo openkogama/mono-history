@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 namespace CodeStage.AntiCheat.Detectors;
 
@@ -116,6 +117,7 @@ public class SpeedHackDetector : ActDetectorBase
 		{
 			Instance = this;
 		}
+		SceneManager.sceneLoaded += OnLevelWasLoadedNew;
 	}
 
 	protected override void OnDestroy()
@@ -124,7 +126,7 @@ public class SpeedHackDetector : ActDetectorBase
 		instancesInScene--;
 	}
 
-	private void OnLevelWasLoaded()
+	private void OnLevelWasLoadedNew(Scene scene, LoadSceneMode mode)
 	{
 		OnLevelLoadedCallback();
 	}

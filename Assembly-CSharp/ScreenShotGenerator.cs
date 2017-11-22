@@ -4,10 +4,6 @@ using UnityEngine;
 
 public class ScreenShotGenerator : MonoBehaviour
 {
-	private const int width = 512;
-
-	private const int height = 512;
-
 	public Texture2D genTexture;
 
 	private RenderTexture genRenderTexture;
@@ -28,6 +24,10 @@ public class ScreenShotGenerator : MonoBehaviour
 
 	private Bounds targetBounds;
 
+	private const int width = 512;
+
+	private const int height = 512;
+
 	private static bool generating = false;
 
 	private static readonly int renderLayers = (1 << LayerMask.NameToLayer("CamRotateTarget")) | (1 << LayerMask.NameToLayer("PlayerSelected"));
@@ -46,7 +46,7 @@ public class ScreenShotGenerator : MonoBehaviour
 		{
 			Vector3 position = new Vector3(1000f, 1000f, 1000f);
 			Quaternion rotation = Quaternion.Euler(0f, 180f, 0f);
-			gameObject = (GameObject)UnityEngine.Object.Instantiate(obj, position, rotation);
+			gameObject = UnityEngine.Object.Instantiate(obj, position, rotation);
 			Behaviour[] componentsInChildren = gameObject.GetComponentsInChildren<Behaviour>();
 			Behaviour[] array = componentsInChildren;
 			foreach (Behaviour behaviour in array)
@@ -65,7 +65,7 @@ public class ScreenShotGenerator : MonoBehaviour
 		{
 			Vector3 position = new Vector3(1000f, 1000f, 1000f);
 			Quaternion rotation = Quaternion.Euler(0f, 180f, 0f);
-			gameObject = (GameObject)UnityEngine.Object.Instantiate(obj, position, rotation);
+			gameObject = UnityEngine.Object.Instantiate(obj, position, rotation);
 			Behaviour[] componentsInChildren = gameObject.GetComponentsInChildren<Behaviour>();
 			Behaviour[] array = componentsInChildren;
 			foreach (Behaviour behaviour in array)

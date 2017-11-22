@@ -7,7 +7,7 @@ internal abstract class EditorStateTransitionTableBase : StateTransitionTable
 		foreach (KeyValuePair<object, IState> item in table)
 		{
 			ESStateBase eSStateBase = (ESStateBase)item.Value;
-			eSStateBase.SetStateType((EditorEvent)(int)item.Key);
+			eSStateBase.SetStateType((EditorEvent)item.Key);
 		}
 	}
 }
