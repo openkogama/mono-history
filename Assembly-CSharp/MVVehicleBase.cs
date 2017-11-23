@@ -218,7 +218,8 @@ public abstract class MVVehicleBase : MVBlueprintBase, IBulletImpactVisualizer
 
 	public void VisualizeBulletImpact(VoxelHit voxelHit, Ray lineOfFire, int shooterActorNumber, float damage)
 	{
-		if (!MVGameControllerBase.Game.TeamManager.IsOnSameTeam(OwnerActorNr, shooterActorNumber) && !IsDead)
+		MVPlayer player = null;
+		if (MVGameControllerBase.Game.MVPlayerContainer.TryGetValue(shooterActorNumber, out player) && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(this, player.Avatar) && !IsDead)
 		{
 			vehicleBaseObject.BulletImpactVisualizer.VisualizeBulletImpact(voxelHit, lineOfFire, shooterActorNumber, damage);
 			if (shooterActorNumber == MVGameControllerBase.Game.LocalPlayer.ActorNr)

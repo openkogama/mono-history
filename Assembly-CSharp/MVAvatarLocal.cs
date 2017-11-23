@@ -157,6 +157,12 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 
 	public class EditorAvatarMode2D(MVAvatarLocal mvAvatar) : EditAvatarModeBase(mvAvatar, 0)
 	{
+		private const float distanceModifierDivider = -15f;
+
+		private const float distanceMinModifier = 1f;
+
+		private const float distanceMaxModifier = 10f;
+
 		private float resetZ;
 
 		private float speed = 8f;
@@ -178,12 +184,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 		private float keyAcceleration = 10f;
 
 		private float keyDamping = 10f;
-
-		private const float distanceModifierDivider = -15f;
-
-		private const float distanceMinModifier = 1f;
-
-		private const float distanceMaxModifier = 10f;
 
 		private readonly float heightAdjustSpeed = 5f;
 
@@ -333,6 +333,8 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 
 	public class JetPackMode : EditAvatarModeBase
 	{
+		private const float moveSlowDownPoint = 0.75f;
+
 		private readonly float maxSpeed = 1.75f;
 
 		private readonly float speedModifier = 5f;
@@ -350,8 +352,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 		private Vector3 moveConstraintCenter;
 
 		private float moveConstraintRadius;
-
-		private const float moveSlowDownPoint = 0.75f;
 
 		private float keyVelocity;
 
@@ -633,9 +633,13 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 		public override void Activate(AvatarRuntimeState fromMode)
 		{
 			base.Activate(fromMode);
-			if (fromMode == AvatarRuntimeState.Hidden || fromMode == AvatarRuntimeState.Dead || fromMode == AvatarRuntimeState.GodzillaDead)
+			switch (fromMode)
 			{
+			case AvatarRuntimeState.Hidden:
+			case AvatarRuntimeState.Dead:
+			case AvatarRuntimeState.GodzillaDead:
 				OnRespawn();
+				break;
 			}
 			MVGameControllerBase.CameraController.BlueModeEnabled = false;
 			MVGameControllerBase.CameraController.SetPlayModeCam();
@@ -888,9 +892,9 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 
 	public class GodzillaMode : AvatarMode
 	{
-		public static readonly string screenName = TM._("Colossus");
-
 		private const float levitationHeight = 0.2f;
+
+		public static readonly string screenName = TM._("Colossus");
 
 		private MVCameraBase camera;
 
@@ -1075,7 +1079,19 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 
 	public bool IsInVehicle => vehicleRigidBody != null;
 
-	public override Vector3 Velocity => avatarMotor.Velocity;
+	public override Vector3 VelocityRelative
+	{
+		get
+		{
+			if (avatarMotor == null)
+			{
+				return Vector3.zero;
+			}
+			return avatarMotor.Velocity;
+		}
+	}
+
+	public override Vector3 VelocityAbsolute => (!IsInVehicle) ? RigidBody.Velocity : vehicleRigidBody.Velocity;
 
 	public AvatarMode CurrentMode => avatarLocalModes.CurrentMode;
 
@@ -1109,15 +1125,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 	public float GetColliderRadius()
 	{
 		return avatarMotor.GetSizeState.ControllerRadius;
-	}
-
-	public Vector3 GetAbsoluteVelocity()
-	{
-		if (vehicleRigidBody != null)
-		{
-			return vehicleRigidBody.Velocity;
-		}
-		return RigidBody.Velocity;
 	}
 
 	public override void Initialize()
@@ -1289,7 +1296,14 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 	{
 		if (!IsInMode(AvatarModeTypes.Dead))
 		{
-			Die();
+			if (interactableLocal.LastDamageSource == null || interactableLocal.LastDamageSource.Outdated)
+			{
+				Die();
+			}
+			else
+			{
+				interactableLocal.TakeDamage(100f, interactableLocal.LastDamageSource.shooter, interactableLocal.LastDamageSource.damageType);
+			}
 		}
 	}
 
@@ -1412,7 +1426,8 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 
 	public void VisualizeBulletImpact(VoxelHit voxelHit, Ray lineOfFire, int shooterActorNumber, float damage = 100f)
 	{
-		if (!MVGameControllerBase.Game.TeamManager.IsOnSameTeam(OwnerActorNr, shooterActorNumber) && !IsInMode(AvatarModeTypes.Dead) && !avatar.HasModifierEffect(AvatarModifierEffect.Invulnerable))
+		MVPlayer player = null;
+		if (MVGameControllerBase.Game.MVPlayerContainer.TryGetValue(shooterActorNumber, out player) && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(this, player.Avatar) && !IsInMode(AvatarModeTypes.Dead) && !avatar.HasModifierEffect(AvatarModifierEffect.Invulnerable))
 		{
 			avatar.VisualizeBulletImpact(voxelHit, lineOfFire, shooterActorNumber, damage);
 		}

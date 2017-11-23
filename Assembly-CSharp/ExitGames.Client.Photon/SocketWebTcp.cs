@@ -6,17 +6,17 @@ namespace ExitGames.Client.Photon;
 
 internal class SocketWebTcp : IPhotonSocket
 {
-	private WebSocket sock;
-
-	private readonly object syncer = new object();
-
-	private GameObject websocketConnectionObject;
-
 	internal const int ALL_HEADER_BYTES = 9;
 
 	internal const int TCP_HEADER_BYTES = 7;
 
 	internal const int MSG_HEADER_BYTES = 2;
+
+	private WebSocket sock;
+
+	private readonly object syncer = new object();
+
+	private GameObject websocketConnectionObject;
 
 	public SocketWebTcp(PeerBase npeer)
 		: base(npeer)
@@ -38,7 +38,7 @@ internal class SocketWebTcp : IPhotonSocket
 			UnityEngine.Object.Destroy(websocketConnectionObject);
 		}
 		websocketConnectionObject = new GameObject("websocketConnectionObject");
-		MonoBehaviour monoBehaviour = websocketConnectionObject.AddComponent<EmptyMonoBehavior>();
+		MonoBehaviour monoBehaviour = websocketConnectionObject.AddComponent<MonoBehaviour>();
 		UnityEngine.Object.DontDestroyOnLoad(websocketConnectionObject);
 		sock = new WebSocket(new Uri(ServerAddress));
 		monoBehaviour.StartCoroutine(sock.Connect());

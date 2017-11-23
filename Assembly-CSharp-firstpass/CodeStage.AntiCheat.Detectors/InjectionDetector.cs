@@ -4,7 +4,6 @@ using System.Reflection;
 using CodeStage.AntiCheat.ObscuredTypes;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.SceneManagement;
 
 namespace CodeStage.AntiCheat.Detectors;
 
@@ -106,7 +105,6 @@ public class InjectionDetector : ActDetectorBase
 		{
 			Instance = this;
 		}
-		SceneManager.sceneLoaded += OnLevelWasLoadedNew;
 	}
 
 	protected override void OnDestroy()
@@ -115,7 +113,7 @@ public class InjectionDetector : ActDetectorBase
 		instancesInScene--;
 	}
 
-	private void OnLevelWasLoadedNew(Scene scene, LoadSceneMode mode)
+	private void OnLevelWasLoaded()
 	{
 		OnLevelLoadedCallback();
 	}

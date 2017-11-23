@@ -52,6 +52,11 @@ public class SettingsBase : MonoBehaviour
 		}
 	}
 
+	public void RemoveData(string key)
+	{
+		result.Remove(key);
+	}
+
 	public void OnSettingChanged(string key, object value)
 	{
 		if (woID == -1 || string.IsNullOrEmpty(key))

@@ -308,9 +308,9 @@ public class RuntimePrototypeCubeModel
 		{
 			return;
 		}
-		foreach (Face value in Enum.GetValues(typeof(Face)))
+		foreach (int value in Enum.GetValues(typeof(Face)))
 		{
-			Cube.SetMaterial(cube, value, materialId);
+			Cube.SetMaterial(cube, (Face)value, materialId);
 		}
 		AddToChunk(iVector, cube, MeshGeneratePriority.HighGenerateAllDirty);
 		deltaCubes.Enqueue(iVector, CubeAction.FaceChanged);

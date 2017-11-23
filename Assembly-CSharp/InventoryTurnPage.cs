@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class InventoryTurnPage : MonoBehaviour, IPointerEnterHandler, IEventSystemHandler
+public class InventoryTurnPage : MonoBehaviour, IEventSystemHandler, IPointerEnterHandler
 {
 	[SerializeField]
 	private bool pageForward;

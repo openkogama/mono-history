@@ -41,8 +41,7 @@ public class MutantModifier : AvatarModifier
 	{
 		ParticleSystem.EmissionModule em = fireParticles.emission;
 		em.enabled = false;
-		ParticleSystem.MainModule main = fireParticles.main;
-		main.loop = false;
+		fireParticles.loop = false;
 		while (fireParticles.particleCount > 0)
 		{
 			yield return 0;
@@ -71,7 +70,7 @@ public class MutantModifier : AvatarModifier
 				InteractionDataHandlerBase interactionDataHandlerBase = component.InteractionDataHandlerBase;
 				if (interactionDataHandlerBase != null)
 				{
-					interactionDataHandlerBase.HandleInteraction(MutantHitPackage.Create(), interactionIsLocal: false);
+					interactionDataHandlerBase.HandleInteraction(mVAvatarLocal.PickupOwner, MutantHitPackage.Create(), interactionIsLocal: false);
 				}
 			}
 		}

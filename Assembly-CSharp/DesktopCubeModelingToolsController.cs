@@ -58,7 +58,7 @@ public class DesktopCubeModelingToolsController : MonoBehaviour
 
 	private void Start()
 	{
-		ActiveTool = (CubeModelingEvent)cubeModelingStateMachine.curEvent;
+		ActiveTool = (CubeModelingEvent)(int)cubeModelingStateMachine.curEvent;
 		if (defaultTool == null)
 		{
 			SetButtonTransparency(ActiveTool);

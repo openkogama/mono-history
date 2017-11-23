@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using MV.WorldObject;
 
-public class MVPlayerContainer : IEnumerator, IEnumerable<KeyValuePair<int, MVPlayer>>, IEnumerable
+public class MVPlayerContainer : IEnumerator, IEnumerable, IEnumerable<KeyValuePair<int, MVPlayer>>
 {
 	private readonly Dictionary<int, MVPlayer> players = new Dictionary<int, MVPlayer>();
 
@@ -28,6 +28,11 @@ public class MVPlayerContainer : IEnumerator, IEnumerable<KeyValuePair<int, MVPl
 	public MVPlayer this[int actorNumber] => players[actorNumber];
 
 	public object Current => players.GetEnumerator().Current;
+
+	IEnumerator IEnumerable.GetEnumerator()
+	{
+		return players.GetEnumerator();
+	}
 
 	public void SetLocalPlayer(int actorNumber)
 	{
@@ -163,11 +168,6 @@ public class MVPlayerContainer : IEnumerator, IEnumerable<KeyValuePair<int, MVPl
 	}
 
 	public IEnumerator<KeyValuePair<int, MVPlayer>> GetEnumerator()
-	{
-		return players.GetEnumerator();
-	}
-
-	IEnumerator IEnumerable.GetEnumerator()
 	{
 		return players.GetEnumerator();
 	}

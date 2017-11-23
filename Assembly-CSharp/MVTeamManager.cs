@@ -133,7 +133,7 @@ public class MVTeamManager
 
 	public MVTeam GetTeamFromActorNr(int actorNumber)
 	{
-		return MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(actorNumber).Team;
+		return (actorNumber != 0) ? MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(actorNumber).Team : MVTeam.Server;
 	}
 
 	public int GetNoOfPlayersInTeam(MVTeam team)
@@ -143,19 +143,36 @@ public class MVTeamManager
 
 	public bool IsOnSameTeam(MVWorldObjectClient a, MVWorldObjectClient b)
 	{
-		return IsOnSameTeam(a.OwnerActorNr, b.OwnerActorNr);
-	}
-
-	public bool IsOnSameTeam(int actorNumberA, int actorNumberB)
-	{
-		if (actorNumberA == 0 || actorNumberB == 0)
+		if (TeamCount() <= 1)
 		{
-			return actorNumberA == actorNumberB;
+			return false;
 		}
-		if (TeamCount() > 1)
+		if (a is ITeamInteractorNPC && b is ITeamInteractorNPC)
 		{
-			return MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(actorNumberA).Team == MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(actorNumberB).Team;
+			return a.OwnerActorNr == b.OwnerActorNr;
 		}
-		return actorNumberA == actorNumberB;
+		MVPlayer player = null;
+		MVPlayer player2 = null;
+		if (MVGameControllerBase.Game.MVPlayerContainer.TryGetValue(a.OwnerActorNr, out player))
+		{
+			ITeamInteractorNPC teamInteractorNPC = b as ITeamInteractorNPC;
+			if (b.OwnerActorNr == 0 && teamInteractorNPC != null)
+			{
+				return teamInteractorNPC.IsOnSameTeam(player.Team);
+			}
+		}
+		if (MVGameControllerBase.Game.MVPlayerContainer.TryGetValue(b.OwnerActorNr, out player2))
+		{
+			ITeamInteractorNPC teamInteractorNPC2 = a as ITeamInteractorNPC;
+			if (a.OwnerActorNr == 0 && teamInteractorNPC2 != null)
+			{
+				return teamInteractorNPC2.IsOnSameTeam(player2.Team);
+			}
+		}
+		if (player != null && player2 != null && player.Team == player2.Team)
+		{
+			return true;
+		}
+		return a.OwnerActorNr == b.OwnerActorNr;
 	}
 }

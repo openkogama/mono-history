@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-public class SetupCubeModelTutorialUI : MonoBehaviour, IHandleCubeEditTutorial, IEventSystemHandler
+public class SetupCubeModelTutorialUI : MonoBehaviour, IEventSystemHandler, IHandleCubeEditTutorial
 {
 	protected CubeModelingStateMachine cubeModelingStateMachine;
 

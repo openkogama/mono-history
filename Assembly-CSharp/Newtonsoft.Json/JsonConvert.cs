@@ -53,7 +53,10 @@ public static class JsonConvert
 		long value2 = ConvertDateTimeToJavaScriptTicks(value, offset);
 		writer.Write("\"\\/Date(");
 		writer.Write(value2);
-		if (kind == DateTimeKind.Local || kind == DateTimeKind.Unspecified)
+		switch (kind)
+		{
+		case DateTimeKind.Unspecified:
+		case DateTimeKind.Local:
 		{
 			writer.Write((offset.Ticks < 0) ? "-" : "+");
 			int num = Math.Abs(offset.Hours);
@@ -68,6 +71,8 @@ public static class JsonConvert
 				writer.Write(0);
 			}
 			writer.Write(num2);
+			break;
+		}
 		}
 		writer.Write(")\\/\"");
 	}

@@ -60,6 +60,11 @@ public class PickupItemBazooka : PickupItemWithDelay
 		if (isLocal)
 		{
 			bullet.onHitLocal = (Bullet.OnHitDelegate)Delegate.Combine(bullet.onHitLocal, new Bullet.OnHitDelegate(OnHitLocal));
+			bullet.onOutOfRange = (Action<Ray>)Delegate.Combine(bullet.onOutOfRange, new Action<Ray>(OnHitMaxRangeLocal));
+		}
+		else
+		{
+			bullet.onOutOfRange = (Action<Ray>)Delegate.Combine(bullet.onOutOfRange, new Action<Ray>(OnHitMaxRangeRemote));
 		}
 		bullet.Fire(lineOfFire: new Ray(owner.LookOrigin, owner.LookDirection), speed: owner.GetAbsolutProjectileSpeed(rocketSpeed), range: rocketRange, ignoreWoIDs: owner.IgnoreWOIDs);
 		if (isLocal)
@@ -93,7 +98,7 @@ public class PickupItemBazooka : PickupItemWithDelay
 				continue;
 			}
 			InteractionDataHandlerBase interactionDataHandlerBase = mVObject.InteractionDataHandlerBase;
-			if (!(interactionDataHandlerBase != null) || (mVObject.OwnerActorNr != MVGameControllerBase.Game.LocalPlayer.ActorNr && MVGameControllerBase.Game.TeamManager.IsOnSameTeam(mVObject.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr)))
+			if (!(interactionDataHandlerBase != null) || (mVObject.OwnerActorNr != MVGameControllerBase.Game.LocalPlayer.ActorNr && MVGameControllerBase.Game.TeamManager.IsOnSameTeam(mVObject, MVGameControllerBase.Game.LocalPlayer.Avatar)))
 			{
 				continue;
 			}
@@ -107,7 +112,7 @@ public class PickupItemBazooka : PickupItemWithDelay
 				normalized.Normalize();
 				Vector3 impulse = normalized * baseImpulse * num2;
 				bool interactionIsLocal = mVObject.OwnerActorNr == MVGameControllerBase.Game.LocalPlayer.ActorNr;
-				interactionDataHandlerBase.HandleInteraction(ProximityDamageAndImpulse.Create(num3, impulse, PlayerKilledByType.BazookaGun), interactionIsLocal);
+				interactionDataHandlerBase.HandleInteraction(owner, ProximityDamageAndImpulse.Create(num3, impulse, PlayerKilledByType.BazookaGun), interactionIsLocal);
 				if (mVObject is IBulletImpactVisualizer)
 				{
 					((IBulletImpactVisualizer)mVObject).VisualizeBulletImpact(default, lineOfFire, owner.WorldObjectOwner.OwnerActorNr, 0f);
@@ -115,5 +120,30 @@ public class PickupItemBazooka : PickupItemWithDelay
 				hashSet.Add(mVObject.Id);
 			}
 		}
+	}
+
+	private void OnHitMaxRangeRemote(Ray lineOfFire)
+	{
+		OnHit(new VoxelHit
+		{
+			point = lineOfFire.origin + lineOfFire.direction * rocketRange,
+			normal = -lineOfFire.direction
+		}, lineOfFire);
+	}
+
+	private void OnHitMaxRangeLocal(Ray lineOfFire)
+	{
+		VoxelHit voxelHit = default;
+		if (rocketRange > Camera.main.farClipPlane)
+		{
+			voxelHit.point = lineOfFire.origin + lineOfFire.direction * (Camera.main.farClipPlane * 0.95f);
+		}
+		else
+		{
+			voxelHit.point = lineOfFire.origin + lineOfFire.direction * rocketRange;
+		}
+		voxelHit.normal = -lineOfFire.direction;
+		OnHitLocal(voxelHit, lineOfFire);
+		SharedWorldObjectGameplayFunctions.DustEfffect(PrefabPool.Instance.ParticleExplosion, voxelHit.point, 10f);
 	}
 }

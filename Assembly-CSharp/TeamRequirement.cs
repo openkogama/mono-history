@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class TeamRequirement : UseRequirement
 {
+	public const string teamStr = "team";
+
 	private TintObject tintObject;
 
 	private MVTeam team = MVTeam.None;
@@ -56,7 +58,7 @@ public class TeamRequirement : UseRequirement
 	{
 		if (data.ContainsKey("team"))
 		{
-			team = (MVTeam)data["team"];
+			team = (MVTeam)(int)data["team"];
 			if (team == MVTeam.None)
 			{
 				Dictionary<object, object> dictionary = new Dictionary<object, object>();

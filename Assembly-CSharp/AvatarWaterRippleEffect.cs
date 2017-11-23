@@ -1,58 +1,56 @@
 using UnityEngine;
 
-public class AvatarWaterRippleEffect : MonoBehaviour
+public class AvatarWaterRippleEffect : WaterSplashComponent
 {
-	private static float avatarHeight = 2f;
+	[SerializeField]
+	[Header("AirBubbles")]
+	private ParticleSystem airBubbleParticlesPrefab;
 
-	public ParticleSystem avatarSplashPrefab;
+	[SerializeField]
+	private Vector3 airBubbleOffset;
 
+	[Header("Dependencies")]
 	[SerializeField]
 	private Avatar avatar;
 
-	private ParticleSystem ripple;
+	private ParticleSystem airBubbleParticles;
 
-	private float previousAvatarWaterProximity;
+	private GameObject airBubbleCollitionPlane;
 
-	private float lastRippleTime;
+	private float AvatarHeight => bounds.size.y;
 
-	private Vector3 lastRipplePosition;
-
-	private void Start()
+	protected override void Start()
 	{
-		ripple = Object.Instantiate(avatarSplashPrefab, Vector3.zero, Quaternion.identity);
+		base.Start();
+		airBubbleCollitionPlane = Object.Instantiate(new GameObject("AirBubbleCollitionPlane"));
+		airBubbleCollitionPlane.transform.Rotate(new Vector3(180f, 0f, 0f));
+		airBubbleParticles = Object.Instantiate(airBubbleParticlesPrefab);
+		airBubbleParticles.transform.SetParent(avatar.transform);
+		airBubbleParticles.transform.localPosition = airBubbleOffset;
+		airBubbleParticles.collision.SetPlane(0, airBubbleCollitionPlane.transform);
 	}
 
-	private void Update()
+	protected override void Update()
 	{
+		base.Update();
 		if (!MVGameControllerBase.WaterPlaneManager.IsActive)
 		{
 			return;
 		}
 		Vector3 position = avatar.transform.position;
-		Vector3 position2 = MVGameControllerBase.WaterPlaneManager.transform.position;
-		lastRippleTime += Time.deltaTime;
-		float num = MVGameControllerBase.WaterPlaneManager.ComputeAvatarWaterProximity(position);
-		if ((previousAvatarWaterProximity <= 0f && num > 0f) || (previousAvatarWaterProximity >= 1f && num < 1f))
+		airBubbleCollitionPlane.transform.position = MVGameControllerBase.WaterPlaneManager.transform.position;
+		float waterLevel = MVGameControllerBase.WaterPlaneManager.WaterLevel;
+		if (position.y + AvatarHeight < waterLevel)
 		{
-			previousAvatarWaterProximity = num;
-		}
-		if (position.y + avatarHeight > position2.y && position.y <= position2.y)
-		{
-			position.y = position2.y;
-			if (lastRippleTime > 1.2f || Vector3.Distance(lastRipplePosition, position) > 1.5f)
+			airBubbleParticles.startLifetime = (waterLevel - airBubbleParticles.transform.position.y) / airBubbleParticles.startSpeed;
+			if (!airBubbleParticles.isPlaying)
 			{
-				ParticleSystem.EmitParams emitParams = new ParticleSystem.EmitParams
-				{
-					position = position,
-					velocity = default,
-					startSize = ripple.main.startSizeMultiplier,
-					startLifetime = ripple.main.startLifetimeMultiplier,
-					startColor = Color.white
-				};
-				ripple.Emit(emitParams, 1);
-				lastRipplePosition = position;
-				lastRippleTime = 0f;
+				airBubbleParticles.Play();
 			}
+		}
+		else if (airBubbleParticles.isPlaying)
+		{
+			airBubbleParticles.Stop();
 		}
 	}
 }

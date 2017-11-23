@@ -11,8 +11,8 @@ public class PickupItemSword : PickupItemWithDelay
 	[SerializeField]
 	private AudioSource audioSource;
 
-	[SerializeField]
 	[Tooltip("Impulse delivered to enemy on hit.")]
+	[SerializeField]
 	private float impulseStrength = 500f;
 
 	[SerializeField]
@@ -114,13 +114,13 @@ public class PickupItemSword : PickupItemWithDelay
 			return;
 		}
 		InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
-		if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
+		if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient, MVGameControllerBase.Game.LocalPlayer.Avatar))
 		{
 			Vector3 lookDirection = owner.LookDirection;
 			lookDirection.y = 0.02f;
 			lookDirection.Normalize();
 			Vector3 impulse = lookDirection * impulseStrength;
-			interactionDataHandlerBase.HandleInteraction(SwordHitPackage.Create(impulse), interactionIsLocal: false);
+			interactionDataHandlerBase.HandleInteraction(owner, SwordHitPackage.Create(impulse), interactionIsLocal: false);
 			MVRigidBody component = owner.GetComponent<MVRigidBody>();
 			if (component != null)
 			{

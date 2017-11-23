@@ -3,13 +3,13 @@ using UnityEngine;
 
 public class MVSkybox : MVLogicObject, ILogicWorldObject
 {
-	private bool inventoryObject;
-
-	protected SkyboxManager skybox;
-
 	private const float sunAngle = 80f;
 
 	private const float fogDensity = 0.007f;
+
+	private bool inventoryObject;
+
+	protected SkyboxManager skybox;
 
 	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.Skybox;
 

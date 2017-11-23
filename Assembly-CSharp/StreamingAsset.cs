@@ -56,14 +56,14 @@ public abstract class StreamingAsset<AssetType, PreviewType> : StreamingAsset wh
 		}
 	}
 
-	public static implicit operator AssetType(StreamingAsset<AssetType, PreviewType> a)
-	{
-		return a.asset;
-	}
-
 	protected override void OnDestroy()
 	{
 		base.OnDestroy();
+	}
+
+	public static implicit operator AssetType(StreamingAsset<AssetType, PreviewType> a)
+	{
+		return a.asset;
 	}
 }
 public abstract class StreamingAsset : MonoBehaviour

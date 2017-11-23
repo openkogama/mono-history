@@ -20,6 +20,12 @@ public class SettingsInputFieldSlider : MonoBehaviour
 
 	public Slider Slider => settingsSlider.slider;
 
+	public void SetText(string text)
+	{
+		inputField.contentType = InputField.ContentType.Standard;
+		inputField.text = text;
+	}
+
 	public void Initialize(string key, float value)
 	{
 		this.key = key;

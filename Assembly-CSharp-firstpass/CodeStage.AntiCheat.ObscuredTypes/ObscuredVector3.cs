@@ -274,6 +274,26 @@ public struct ObscuredVector3
 		return ObscuredFloat.Encrypt(encrypted, cryptoKey);
 	}
 
+	public override bool Equals(object other)
+	{
+		return InternalDecrypt().Equals(other);
+	}
+
+	public override int GetHashCode()
+	{
+		return InternalDecrypt().GetHashCode();
+	}
+
+	public override string ToString()
+	{
+		return InternalDecrypt().ToString();
+	}
+
+	public string ToString(string format)
+	{
+		return InternalDecrypt().ToString(format);
+	}
+
 	public static implicit operator ObscuredVector3(Vector3 value)
 	{
 		ObscuredVector3 result = new ObscuredVector3(Encrypt(value, cryptoKey));
@@ -367,25 +387,5 @@ public struct ObscuredVector3
 	public static bool operator !=(ObscuredVector3 lhs, Vector3 rhs)
 	{
 		return lhs.InternalDecrypt() != rhs;
-	}
-
-	public override bool Equals(object other)
-	{
-		return InternalDecrypt().Equals(other);
-	}
-
-	public override int GetHashCode()
-	{
-		return InternalDecrypt().GetHashCode();
-	}
-
-	public override string ToString()
-	{
-		return InternalDecrypt().ToString();
-	}
-
-	public string ToString(string format)
-	{
-		return InternalDecrypt().ToString(format);
 	}
 }

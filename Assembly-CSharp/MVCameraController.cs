@@ -63,7 +63,7 @@ public class MVCameraController : MonoBehaviour
 		{
 			ClearStack(cameraController);
 			activeCameras.Add(newCamera);
-			cameraController.onIgnoreInputTypes += CurCamera.camController_onIgnoreInputTypes;
+			cameraController.onIgnoreInputTypes = (EventHandler<OnIgnoreInputTypesArgs>)Delegate.Combine(cameraController.onIgnoreInputTypes, new EventHandler<OnIgnoreInputTypesArgs>(CurCamera.camController_onIgnoreInputTypes));
 			CurCamera.Enter(cameraController);
 		}
 
@@ -73,7 +73,7 @@ public class MVCameraController : MonoBehaviour
 			for (int num2 = num; num2 >= 0; num2--)
 			{
 				activeCameras[num2].Exit(cameraController);
-				cameraController.onIgnoreInputTypes -= activeCameras[num2].camController_onIgnoreInputTypes;
+				cameraController.onIgnoreInputTypes = (EventHandler<OnIgnoreInputTypesArgs>)Delegate.Remove(cameraController.onIgnoreInputTypes, new EventHandler<OnIgnoreInputTypesArgs>(activeCameras[num2].camController_onIgnoreInputTypes));
 				activeCameras.RemoveAt(num2);
 			}
 		}
@@ -103,7 +103,7 @@ public class MVCameraController : MonoBehaviour
 				activeCameras[count - 1].Suspend(cameraController);
 			}
 			activeCameras.Add(cameraBase);
-			cameraController.onIgnoreInputTypes += CurCamera.camController_onIgnoreInputTypes;
+			cameraController.onIgnoreInputTypes = (EventHandler<OnIgnoreInputTypesArgs>)Delegate.Combine(cameraController.onIgnoreInputTypes, new EventHandler<OnIgnoreInputTypesArgs>(CurCamera.camController_onIgnoreInputTypes));
 			CurCamera.Enter(cameraController);
 		}
 
@@ -120,7 +120,7 @@ public class MVCameraController : MonoBehaviour
 				if (activeCameras[num2] == cameraBase)
 				{
 					activeCameras[num2].Exit(cameraController);
-					cameraController.onIgnoreInputTypes -= CurCamera.camController_onIgnoreInputTypes;
+					cameraController.onIgnoreInputTypes = (EventHandler<OnIgnoreInputTypesArgs>)Delegate.Remove(cameraController.onIgnoreInputTypes, new EventHandler<OnIgnoreInputTypesArgs>(CurCamera.camController_onIgnoreInputTypes));
 					activeCameras.RemoveAt(num2);
 					if (num2 == num && num2 > 0)
 					{

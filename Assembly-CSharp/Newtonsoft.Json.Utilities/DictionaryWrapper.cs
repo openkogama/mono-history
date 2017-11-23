@@ -6,9 +6,9 @@ using System.Threading;
 
 namespace Newtonsoft.Json.Utilities;
 
-internal class DictionaryWrapper<TKey, TValue> : IDictionary<TKey, TValue>, IWrappedDictionary, IEnumerable, ICollection<KeyValuePair<TKey, TValue>>, IEnumerable<KeyValuePair<TKey, TValue>>, IDictionary, ICollection
+internal class DictionaryWrapper<TKey, TValue> : IEnumerable, ICollection, IDictionary, IWrappedDictionary, IDictionary<TKey, TValue>, ICollection<KeyValuePair<TKey, TValue>>, IEnumerable<KeyValuePair<TKey, TValue>>
 {
-	private struct DictionaryEnumerator<TEnumeratorKey, TEnumeratorValue> : IDictionaryEnumerator, IEnumerator
+	private struct DictionaryEnumerator<TEnumeratorKey, TEnumeratorValue> : IEnumerator, IDictionaryEnumerator
 	{
 		private readonly IEnumerator<KeyValuePair<TEnumeratorKey, TEnumeratorValue>> _e;
 
@@ -221,6 +221,53 @@ internal class DictionaryWrapper<TKey, TValue> : IDictionary<TKey, TValue>, IWra
 		_genericDictionary = dictionary;
 	}
 
+	IEnumerator IEnumerable.GetEnumerator()
+	{
+		return GetEnumerator();
+	}
+
+	void IDictionary.Add(object key, object value)
+	{
+		if (_genericDictionary != null)
+		{
+			_genericDictionary.Add((TKey)key, (TValue)value);
+		}
+		else
+		{
+			_dictionary.Add(key, value);
+		}
+	}
+
+	bool IDictionary.Contains(object key)
+	{
+		if (_genericDictionary != null)
+		{
+			return _genericDictionary.ContainsKey((TKey)key);
+		}
+		return _dictionary.Contains(key);
+	}
+
+	IDictionaryEnumerator IDictionary.GetEnumerator()
+	{
+		if (_genericDictionary != null)
+		{
+			return new DictionaryEnumerator<TKey, TValue>(_genericDictionary.GetEnumerator());
+		}
+		return _dictionary.GetEnumerator();
+	}
+
+	void ICollection.CopyTo(Array array, int index)
+	{
+		if (_genericDictionary != null)
+		{
+			_genericDictionary.CopyTo((KeyValuePair<TKey, TValue>[])array, index);
+		}
+		else
+		{
+			_dictionary.CopyTo(array, index);
+		}
+	}
+
 	public void Add(TKey key, TValue value)
 	{
 		if (_genericDictionary != null)
@@ -347,41 +394,6 @@ internal class DictionaryWrapper<TKey, TValue> : IDictionary<TKey, TValue>, IWra
 			select new KeyValuePair<TKey, TValue>((TKey)de.Key, (TValue)de.Value)).GetEnumerator();
 	}
 
-	IEnumerator IEnumerable.GetEnumerator()
-	{
-		return GetEnumerator();
-	}
-
-	void IDictionary.Add(object key, object value)
-	{
-		if (_genericDictionary != null)
-		{
-			_genericDictionary.Add((TKey)key, (TValue)value);
-		}
-		else
-		{
-			_dictionary.Add(key, value);
-		}
-	}
-
-	bool IDictionary.Contains(object key)
-	{
-		if (_genericDictionary != null)
-		{
-			return _genericDictionary.ContainsKey((TKey)key);
-		}
-		return _dictionary.Contains(key);
-	}
-
-	IDictionaryEnumerator IDictionary.GetEnumerator()
-	{
-		if (_genericDictionary != null)
-		{
-			return new DictionaryEnumerator<TKey, TValue>(_genericDictionary.GetEnumerator());
-		}
-		return _dictionary.GetEnumerator();
-	}
-
 	public void Remove(object key)
 	{
 		if (_genericDictionary != null)
@@ -391,18 +403,6 @@ internal class DictionaryWrapper<TKey, TValue> : IDictionary<TKey, TValue>, IWra
 		else
 		{
 			_dictionary.Remove(key);
-		}
-	}
-
-	void ICollection.CopyTo(Array array, int index)
-	{
-		if (_genericDictionary != null)
-		{
-			_genericDictionary.CopyTo((KeyValuePair<TKey, TValue>[])array, index);
-		}
-		else
-		{
-			_dictionary.CopyTo(array, index);
 		}
 	}
 }

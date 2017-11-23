@@ -5,6 +5,8 @@ using UnityEngine.Events;
 
 public class UseInteratorVisualization : MonoBehaviour
 {
+	private const float scaleTime = 1f;
+
 	private List<UseRequirement> useRequirements = new List<UseRequirement>();
 
 	private Vector3 pivot = new Vector3(0f, 2.5f, 0f);
@@ -22,8 +24,6 @@ public class UseInteratorVisualization : MonoBehaviour
 	private bool hasUseRequirement;
 
 	private bool visible;
-
-	private const float scaleTime = 1f;
 
 	private MVWorldObjectClient wo;
 

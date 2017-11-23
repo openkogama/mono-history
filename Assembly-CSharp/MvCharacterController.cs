@@ -15,17 +15,17 @@ public abstract class MvCharacterController : MonoBehaviour
 		public bool Valid => valid;
 	}
 
-	private static int maxRecursions = 7;
-
 	private const float unitsPerMeter = 100f;
 
 	private const float unitScale = 1f;
 
 	protected const float veryCloseDistance = 0.005f;
 
+	private static int maxRecursions = 7;
+
 	private static float collisionMaxAngle = 89.95f;
 
-	private static int layerMask = -1;
+	private static readonly int layerMask = -5 & ~(1 << LayerMask.NameToLayer("Player")) & ~(1 << LayerMask.NameToLayer("Logic"));
 
 	protected Vector3 center;
 
@@ -66,14 +66,6 @@ public abstract class MvCharacterController : MonoBehaviour
 	protected abstract bool NoOverlapPosition(Vector3 R3Position, Vector3 R3Direction, ref Vector3 offset);
 
 	protected abstract Vector3 RecalcDirectionMoveAway(Vector3 ePos, Vector3 eDir, float distance, Vector3 ePoint);
-
-	protected void Awake()
-	{
-		if (layerMask == -1)
-		{
-			layerMask = -5 & ~(1 << LayerMask.NameToLayer("Player")) & ~(1 << LayerMask.NameToLayer("Logic"));
-		}
-	}
 
 	public void Init(float radius, float height, Vector3 center)
 	{

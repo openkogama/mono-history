@@ -27,7 +27,7 @@ public class PickupItemDoubleSixShooter : PickupItemWithDelay
 	private Transform muzzlePoint2;
 
 	[SerializeField]
-	private ParticleSystem fireEmitter;
+	private ParticleEmitter fireEmitter;
 
 	[SerializeField]
 	private Animation animComponentL;
@@ -62,16 +62,15 @@ public class PickupItemDoubleSixShooter : PickupItemWithDelay
 		if ((int)currentAmmo % 2 == 0)
 		{
 			bullet = Bullet.CreateBullet(PoolEnums.SixShooterBullet, muzzlePoint.position);
-			fireEmitter.transform.position = muzzlePoint.position;
+			UnityEngine.Object.Instantiate(fireEmitter, muzzlePoint.position, Quaternion.identity);
 			animComponentL.Play("RevolverRecoil");
 		}
 		else
 		{
 			bullet = Bullet.CreateBullet(PoolEnums.SixShooterBullet, muzzlePoint2.position);
-			fireEmitter.transform.position = muzzlePoint2.position;
+			UnityEngine.Object.Instantiate(fireEmitter, muzzlePoint2.position, Quaternion.identity);
 			animComponentR.Play("RevolverRecoil");
 		}
-		fireEmitter.Play();
 		Bullet bullet2 = bullet;
 		bullet2.onHit = (Bullet.OnHitDelegate)Delegate.Combine(bullet2.onHit, new Bullet.OnHitDelegate(OnBulletHit));
 		if (isLocal)
@@ -118,11 +117,11 @@ public class PickupItemDoubleSixShooter : PickupItemWithDelay
 		if (worldObjectClient != null)
 		{
 			InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
-			if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
+			if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient, MVGameControllerBase.Game.LocalPlayer.Avatar))
 			{
 				Vector3 value = voxelHit.point - owner.transform.position;
 				value = Vector3.Normalize(value);
-				interactionDataHandlerBase.HandleInteraction(DoubleSixShooterHitPackage.Create(value * hitImpact), interactionIsLocal: false);
+				interactionDataHandlerBase.HandleInteraction(owner, DoubleSixShooterHitPackage.Create(value * hitImpact), interactionIsLocal: false);
 			}
 		}
 	}

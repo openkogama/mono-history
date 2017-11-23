@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using CodeStage.AntiCheat.ObscuredTypes;
 using UnityEngine;
 
-public class MVPressurePlate : MVLogicObject, IIsLogicObjectFiringEventHandler, ILogicWorldObject
+public class MVPressurePlate : MVLogicObject, ILogicWorldObject, IIsLogicObjectFiringEventHandler
 {
 	private MVPressurePlateObject plateObject;
 

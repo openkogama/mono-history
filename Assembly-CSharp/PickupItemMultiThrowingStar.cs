@@ -191,11 +191,11 @@ public class PickupItemMultiThrowingStar : PickupItemWithDelay
 		if (worldObjectClient != null)
 		{
 			InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
-			if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
+			if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient, MVGameControllerBase.Game.LocalPlayer.Avatar))
 			{
 				Vector3 value = voxelHit.point - owner.transform.position;
 				value = Vector3.Normalize(value);
-				interactionDataHandlerBase.HandleInteraction(MultiThrowingStarHitPackage.Create(), interactionIsLocal: false);
+				interactionDataHandlerBase.HandleInteraction(owner, MultiThrowingStarHitPackage.Create(), interactionIsLocal: false);
 			}
 		}
 	}

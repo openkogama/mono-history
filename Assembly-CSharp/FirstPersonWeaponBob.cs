@@ -4,8 +4,8 @@ using UnityEngine;
 [Serializable]
 public class FirstPersonWeaponBob
 {
-	[SerializeField]
 	[Tooltip("Bobs per second.")]
+	[SerializeField]
 	private float bobFrequency = 1f;
 
 	[SerializeField]

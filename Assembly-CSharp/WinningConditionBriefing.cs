@@ -161,9 +161,7 @@ public class WinningConditionBriefing : MonoBehaviour, IBriefing
 		}
 		if (avatarRespawned && MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
 		{
-			Dictionary<object, object> dictionary = new Dictionary<object, object>();
-			dictionary[(byte)1] = MVGameControllerBase.Game.LocalPlayer.Team.ToString() + " Team";
-			NotificationController.PushNotification(NotificationType.TeamNotification, NotificationsManager.eNotificationPanel.secondary, dictionary);
+			NotificationController.PushNotification(NotificationType.TeamNotification, NotificationsManager.eNotificationPanel.secondary, new Dictionary<object, object> { [(byte)1] = MVGameControllerBase.Game.LocalPlayer.Team.ToString() + " Team" });
 			avatarRespawned = false;
 		}
 		Clear();
@@ -174,14 +172,15 @@ public class WinningConditionBriefing : MonoBehaviour, IBriefing
 	{
 		group.alpha = 0f;
 		yield return StartCoroutine(Wait(initialWaitTime));
+		CanvasGroup group2 = default;
 		yield return StartCoroutine(pTween.To(fadeTime, 0f, 1f, (float t) =>
 		{
-			group.alpha = t;
+			group2.alpha = t;
 		}));
 		yield return StartCoroutine(Wait(stayTime));
 		yield return StartCoroutine(pTween.To(fadeTime, 1f, 0f, (float t) =>
 		{
-			group.alpha = t;
+			group2.alpha = t;
 		}));
 		yield return 0;
 	}

@@ -3,9 +3,9 @@ using UnityEngine;
 public class ClosestPointCapsule : ClosestPointBase
 {
 	[SerializeField]
-	private CapsuleCollider capsule;
+	private CapsuleCollider collider;
 
-	private Transform Transform => capsule.gameObject.transform;
+	private Transform Transform => collider.gameObject.transform;
 
 	private Vector3 Position => Transform.position;
 
@@ -13,13 +13,13 @@ public class ClosestPointCapsule : ClosestPointBase
 
 	public ClosestPointCapsule(CapsuleCollider c)
 	{
-		capsule = c;
+		collider = c;
 	}
 
 	public override Vector3 GetClosestPoint(Vector3 from)
 	{
-		Vector3 vector = Position + capsule.center.Multiply(Scale);
-		float num = (capsule.height / 2f - capsule.radius) * Scale.y;
+		Vector3 vector = Position + collider.center.Multiply(Scale);
+		float num = (collider.height / 2f - collider.radius) * Scale.y;
 		float y = vector.y;
 		y += num;
 		float y2 = vector.y;
@@ -28,14 +28,14 @@ public class ClosestPointCapsule : ClosestPointBase
 		Vector3 position = Position;
 		position.y = y3;
 		Vector3 vector2 = from - position;
-		return position + vector2.normalized * capsule.radius * Scale.y;
+		return position + vector2.normalized * collider.radius * Scale.y;
 	}
 
 	private void OnValidate()
 	{
-		if (capsule == null)
+		if (collider == null)
 		{
-			capsule = GetComponent<CapsuleCollider>();
+			collider = GetComponent<CapsuleCollider>();
 		}
 	}
 }

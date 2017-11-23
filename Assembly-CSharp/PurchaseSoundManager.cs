@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class PurchaseSoundManager : MonoBehaviour, IPurchaseSoundManager, IEventSystemHandler
+public class PurchaseSoundManager : MonoBehaviour, IEventSystemHandler, IPurchaseSoundManager
 {
 	[SerializeField]
 	private AudioSource purchaseSound;

@@ -54,9 +54,9 @@ public class PickupItemSlapGun : PickupItemWithDelay
 				MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
 				Vector3 impulse = ComputeImpulseDirection(ray) * slapStrength;
 				InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
-				if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
+				if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient, MVGameControllerBase.Game.LocalPlayer.Avatar))
 				{
-					interactionDataHandlerBase.HandleInteraction(SlapGunHitPackage.Create(impulse), interactionIsLocal: false);
+					interactionDataHandlerBase.HandleInteraction(owner, SlapGunHitPackage.Create(impulse), interactionIsLocal: false);
 					if (worldObjectClient is IBulletImpactVisualizer)
 					{
 						((IBulletImpactVisualizer)worldObjectClient).VisualizeBulletImpact(voxelHit, ray, owner.WorldObjectOwner.OwnerActorNr, damage);
@@ -65,7 +65,7 @@ public class PickupItemSlapGun : PickupItemWithDelay
 			}
 		}
 		Vector3 target = FindRayTarget(ray);
-		ImpulseRay impulseRay = Object.Instantiate(impulseRayPrefab, muzzlePoint.position, Quaternion.identity);
+		ImpulseRay impulseRay = Object.Instantiate(impulseRayPrefab, muzzlePoint.position, Quaternion.identity) as ImpulseRay;
 		impulseRay.Initialize(target);
 		impulseRay.radius = 1.2f;
 		impulseRay.startColor = slapColor;

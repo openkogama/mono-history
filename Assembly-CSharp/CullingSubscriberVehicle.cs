@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class CullingSubscriberVehicle : CullingSubscriberBase
 {
-	private GameObject visualRoot;
-
 	private const int vehicleDistanceBandIndex = 2;
+
+	private GameObject visualRoot;
 
 	public CullingSubscriberVehicle(GameObject visualRoot)
 	{

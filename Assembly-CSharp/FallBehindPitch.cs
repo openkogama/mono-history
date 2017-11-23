@@ -9,13 +9,13 @@ public class FallBehindPitch
 		RotationSet
 	}
 
-	private Vector3 prevCameraRotatedPosition = Vector3.zero;
-
-	private Vector3 prevPosition;
-
 	private const float distanceBeforeFallBehind = 2f;
 
 	private const float degreesPrMeter = 3f;
+
+	private Vector3 prevCameraRotatedPosition = Vector3.zero;
+
+	private Vector3 prevPosition;
 
 	private State state;
 

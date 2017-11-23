@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 
 namespace GameMeterVisuals;
 
-public class SlideOnClick : GameMeterVisualEffect, IPointerEnterHandler, IPointerExitHandler, IEventSystemHandler
+public class SlideOnClick : GameMeterVisualEffect, IEventSystemHandler, IPointerEnterHandler, IPointerExitHandler
 {
 	[SerializeField]
 	private Vector3 targetPos;

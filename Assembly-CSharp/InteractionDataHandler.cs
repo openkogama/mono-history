@@ -3,6 +3,8 @@ using MV.WorldObject;
 
 public class InteractionDataHandler : InteractionDataHandlerBase
 {
+	public override MVTeam Team => MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(worldObjectParent.OwnerActorNr);
+
 	public MVWorldObjectClient WorldObjectParent
 	{
 		set
@@ -11,13 +13,13 @@ public class InteractionDataHandler : InteractionDataHandlerBase
 		}
 	}
 
-	public override bool HandleInteraction(InteractionData interaction, bool interactionIsLocal)
+	public override bool HandleInteraction(MVPickupOwner interactor, InteractionData interaction, bool interactionIsLocal)
 	{
 		if (interactionIsLocal)
 		{
 			worldObjectParent.ReceiveInteractionPackage(interaction, null);
 		}
-		else
+		else if (!IsFriendlyFire(interactor))
 		{
 			worldObjectParent.SendPackage(new Dictionary<object, object> { 
 			{

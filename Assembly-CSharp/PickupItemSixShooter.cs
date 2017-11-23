@@ -25,7 +25,7 @@ public class PickupItemSixShooter : PickupItemWithDelay
 	private AudioSource fireSound;
 
 	[SerializeField]
-	private ParticleSystem fireEmitter;
+	private ParticleEmitter fireEmitter;
 
 	public Animation animComponent;
 
@@ -61,7 +61,7 @@ public class PickupItemSixShooter : PickupItemWithDelay
 		}
 		bullet.Fire(lineOfFire: new Ray(owner.LookOrigin, owner.LookDirection), speed: owner.GetAbsolutProjectileSpeed(bulletSpeed), range: bulletRange, ignoreWoIDs: owner.IgnoreWOIDs);
 		--currentAmmo;
-		fireEmitter.Play();
+		UnityEngine.Object.Instantiate(fireEmitter, muzzlePoint.position, Quaternion.identity);
 		if (isLocal)
 		{
 			MVGameControllerBase.AudioManager.Play("projectile fire", fireSound, Camera.main.transform.position + Camera.main.transform.forward);
@@ -100,12 +100,12 @@ public class PickupItemSixShooter : PickupItemWithDelay
 		if (worldObjectClient != null)
 		{
 			InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
-			if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr))
+			if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient, MVGameControllerBase.Game.LocalPlayer.Avatar))
 			{
 				Vector3 value = voxelHit.point - owner.transform.position;
 				value = Vector3.Normalize(value);
 				InteractionData interaction = SixShooterHitPackage.Create(value * hitImpact);
-				interactionDataHandlerBase.HandleInteraction(interaction, interactionIsLocal: false);
+				interactionDataHandlerBase.HandleInteraction(owner, interaction, interactionIsLocal: false);
 			}
 		}
 	}

@@ -234,7 +234,7 @@ public class BoneAnimation : MonoBehaviour
 				speed = 1f;
 				if (mvAvatar != null)
 				{
-					speed = mvAvatar.Velocity.magnitude;
+					speed = mvAvatar.VelocityRelative.magnitude;
 				}
 				if (MVGameControllerBase.GameMode != MVGameMode.CharacterEditor)
 				{

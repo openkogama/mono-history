@@ -73,7 +73,7 @@ public class AndroidVehicleCamera : MVCameraBase, IVehicleCamera
 		UpdateTargetRotation();
 		HandlePos();
 		HandleCollision();
-		targetTransform.position = cameraShake.Shake(transform.position, MVGameControllerBase.WOCM.AvatarLocal.Velocity.magnitude);
+		targetTransform.position = cameraShake.Shake(transform.position, MVGameControllerBase.WOCM.AvatarLocal.VelocityRelative.magnitude);
 		targetTransform.rotation = transform.rotation * Quaternion.Euler(localPitch, 0f, 0f);
 	}
 

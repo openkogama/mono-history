@@ -6,6 +6,10 @@ using UnityEngine.Events;
 
 public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 {
+	private const float initialCullingRadius = 3.5f;
+
+	private const float hitTimeOut = 2f;
+
 	private CullingSubscriberDynamic cullingSubscriberDynamic;
 
 	private HealthBar healthBar;
@@ -13,8 +17,6 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 	private CapsuleCollider triggerCollider;
 
 	private AvatarRemoteMovementCalculator avatarRemoteMovementCalculator;
-
-	private const float initialCullingRadius = 3.5f;
 
 	private float impulseMagnitudeFactor = 0.6f;
 
@@ -24,16 +26,29 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 
 	private float minVelocity = 700f;
 
-	private const float hitTimeOut = 2f;
-
 	private float prevHitTime = Time.time - 2f;
 
-	public override Vector3 Velocity => avatarRemoteMovementCalculator.VelocityEstimate;
+	public bool IsInVehicle { get; private set; }
+
+	public override Vector3 VelocityRelative => (!IsInVehicle) ? avatarRemoteMovementCalculator.VelocityEstimate : new Vector3(0f, 0f, 0f);
+
+	public override Vector3 VelocityAbsolute
+	{
+		get
+		{
+			if (avatarRemoteMovementCalculator == null)
+			{
+				return Vector3.zero;
+			}
+			return avatarRemoteMovementCalculator.VelocityEstimate;
+		}
+	}
 
 	public MVAvatarRemote(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, worldObjects)
 	{
 		SetNetworkObject(local: false);
+		IsInVehicle = false;
 	}
 
 	public override void Initialize()
@@ -48,9 +63,17 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 		healthBar.Oxygen = 0f;
 		InitializeHealth();
 		triggerCollider = CreateTriggerCollider();
-		AvatarStateChangedHandler(avatarModeTypeFlags.Value);
+		MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
+		mVPlayerContainer.OnLocalPlayerReady = (Action)Delegate.Combine(mVPlayerContainer.OnLocalPlayerReady, new Action(InitAvatarState));
 		avatarRemoteMovementCalculator = gameObject.AddComponent<AvatarRemoteMovementCalculator>();
 		InitializeCulling();
+	}
+
+	private void InitAvatarState()
+	{
+		AvatarStateChangedHandler(avatarModeTypeFlags.Value);
+		MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
+		mVPlayerContainer.OnLocalPlayerReady = (Action)Delegate.Remove(mVPlayerContainer.OnLocalPlayerReady, new Action(InitAvatarState));
 	}
 
 	public override void Destroy()
@@ -154,7 +177,7 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 		else
 		{
 			Body.Visible = true;
-			avatar.SetHealthBarColor(MVGameControllerBase.Game.TeamManager.IsOnSameTeam(avatar.mvAvatar.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr));
+			avatar.SetHealthBarColor(MVGameControllerBase.Game.TeamManager.IsOnSameTeam(this, MVGameControllerBase.Game.LocalPlayer.Avatar));
 			avatar.NameTagLabelVisible = true;
 			triggerCollider.enabled = true;
 		}
@@ -166,14 +189,21 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 		newBody.Visible = true;
 	}
 
+	public override void OnEnterVehicle()
+	{
+		IsInVehicle = true;
+	}
+
 	public override void OnLeaveVehicle()
 	{
+		IsInVehicle = false;
 		HandleLeaveVehicle();
 	}
 
 	public void VisualizeBulletImpact(VoxelHit voxelHit, Ray lineOfFire, int shooterActorNumber, float damage = 100f)
 	{
-		if (!MVGameControllerBase.Game.TeamManager.IsOnSameTeam(OwnerActorNr, shooterActorNumber) && !IsInMode(AvatarModeTypes.Dead) && !avatar.HasModifierEffect(AvatarModifierEffect.Invulnerable))
+		MVPlayer player = null;
+		if (MVGameControllerBase.Game.MVPlayerContainer.TryGetValue(shooterActorNumber, out player) && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(this, player.Avatar) && !IsInMode(AvatarModeTypes.Dead) && !avatar.HasModifierEffect(AvatarModifierEffect.Invulnerable))
 		{
 			avatar.VisualizeBulletImpact(voxelHit, lineOfFire, shooterActorNumber, damage);
 			if (shooterActorNumber == MVGameControllerBase.Game.LocalPlayer.ActorNr)

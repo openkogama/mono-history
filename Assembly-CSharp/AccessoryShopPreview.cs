@@ -3,7 +3,7 @@ using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class AccessoryShopPreview : MonoBehaviour, IPreviewAccessoryShopItem, IEventSystemHandler
+public class AccessoryShopPreview : MonoBehaviour, IEventSystemHandler, IPreviewAccessoryShopItem
 {
 	private StreamingAssetInfo waitingToBeAttached;
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
 
-public class MVAvatar : MVGroup
+public abstract class MVAvatar : MVGroup
 {
 	protected Avatar avatar;
 
@@ -57,13 +57,9 @@ public class MVAvatar : MVGroup
 
 	public Avatar Avatar => avatar;
 
-	public virtual Vector3 Velocity
-	{
-		get
-		{
-			throw new Exception("not implemented");
-		}
-	}
+	public abstract Vector3 VelocityRelative { get; }
+
+	public abstract Vector3 VelocityAbsolute { get; }
 
 	public MVAvatar(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVAvatarPrefab, worldObjects)
@@ -129,7 +125,7 @@ public class MVAvatar : MVGroup
 		avatar.UpdateNameTag();
 		if (!avatar.IsLocal)
 		{
-			avatar.SetHealthBarColor(MVGameControllerBase.Game.TeamManager.IsOnSameTeam(OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr));
+			avatar.SetHealthBarColor(MVGameControllerBase.Game.TeamManager.IsOnSameTeam(this, MVGameControllerBase.Game.LocalPlayer.Avatar));
 			return;
 		}
 		foreach (MVPlayer value in MVGameControllerBase.Game.MVPlayerContainer.Values)
@@ -155,7 +151,7 @@ public class MVAvatar : MVGroup
 
 	protected virtual void AvatarStateChangedHandler(object a)
 	{
-		AvatarModeTypes avatarModeTypes = (AvatarModeTypes)a;
+		AvatarModeTypes avatarModeTypes = (AvatarModeTypes)(int)a;
 		if ((avatarModeTypes & AvatarModeTypes.Hidden) > AvatarModeTypes.None)
 		{
 			avatar.Collider.enabled = false;

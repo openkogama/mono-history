@@ -12,6 +12,9 @@ public class WaterPlaneManager : MonoBehaviour
 	[SerializeField]
 	private Transform underwaterCameraPlane;
 
+	[SerializeField]
+	private SplashController splashController;
+
 	private Renderer underwaterCameraPlaneRenderer;
 
 	private AudioLowPassFilter lowPassFilter;
@@ -28,7 +31,24 @@ public class WaterPlaneManager : MonoBehaviour
 
 	private AvatarModifierPackage.AvatarModifier[] additionalUnderWaterModifiers;
 
+	public SplashController Splash => splashController;
+
 	public bool IsActive => waterPlaneLogicCube != null;
+
+	public float WaterLevel => transform.position.y;
+
+	public Color WaterColor
+	{
+		get
+		{
+			return water.Renderer.material.GetColor("_RefrColor");
+		}
+		set
+		{
+			underwaterCameraPlaneRenderer.material.SetColor("_Color", value);
+			water.Renderer.material.SetColor("_RefrColor", value);
+		}
+	}
 
 	private Color HorizonColor
 	{
@@ -42,17 +62,64 @@ public class WaterPlaneManager : MonoBehaviour
 		}
 	}
 
-	public Color WaterColor
+	protected void Awake()
 	{
-		get
+		additionalUnderWaterModifiers = new AvatarModifierPackage.AvatarModifier[2]
 		{
-			return water.Renderer.material.GetColor("_RefrColor");
-		}
-		set
+			new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.Speed, UnderwaterModifierCallback),
+			new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.JumpPower, UnderwaterJumpPowerModifierCallback)
+		};
+		Splash.Initialize();
+	}
+
+	protected void Start()
+	{
+		this.skyboxManager = MVGameControllerBase.SkyboxManager;
+		SkyboxManager skyboxManager = this.skyboxManager;
+		skyboxManager.OnSkyboxColorChanged = (SkyboxManager.SkyboxColorChangedDelegate)Delegate.Combine(skyboxManager.OnSkyboxColorChanged, new SkyboxManager.SkyboxColorChangedDelegate(HandleSkyboxColorChanged));
+		underwaterCameraPlane.gameObject.SetActive(value: false);
+		underwaterCameraPlaneRenderer = underwaterCameraPlane.GetComponent<Renderer>();
+		water.gameObject.SetActive(value: false);
+		lowPassFilter = Camera.main.GetComponent<AudioLowPassFilter>();
+		reverbFilter = Camera.main.GetComponent<AudioReverbFilter>();
+	}
+
+	protected void Update()
+	{
+		if (waterPlaneLogicCube == null)
 		{
-			underwaterCameraPlaneRenderer.material.SetColor("_Color", value);
-			water.Renderer.material.SetColor("_RefrColor", value);
+			return;
 		}
+		UpdateUnderwaterCameraEffects();
+		Splash.CleanUpInactiveObjectIDs();
+		MVAvatarLocal avatarLocal = MVGameControllerBase.WOCM.AvatarLocal;
+		if (avatarLocal == null)
+		{
+			return;
+		}
+		Vector3 position = avatarLocal.GameObject.transform.position;
+		position = water.transform.worldToLocalMatrix * position;
+		position.y = 0f;
+		water.transform.localPosition = position;
+		if (avatarLocal.InteractionDataHandlerBase.enabled)
+		{
+			MVInteractableBase component = avatarLocal.GameObject.GetComponent<MVInteractableBase>();
+			if (component != null)
+			{
+				UpdateLocalAvatarModifers(avatarLocal, component);
+				UpdateLocalAvatarOxygen(avatarLocal, component);
+			}
+		}
+	}
+
+	protected void OnEnable()
+	{
+		MVQualitySettings.onQualityLevelChanged = (MVQualitySettings.OnQualityLevedChanged)Delegate.Combine(MVQualitySettings.onQualityLevelChanged, new MVQualitySettings.OnQualityLevedChanged(HandleQualityChanged));
+	}
+
+	protected void OnDisable()
+	{
+		MVQualitySettings.onQualityLevelChanged = (MVQualitySettings.OnQualityLevedChanged)Delegate.Remove(MVQualitySettings.onQualityLevelChanged, new MVQualitySettings.OnQualityLevedChanged(HandleQualityChanged));
 	}
 
 	public void AddWaterPlaneLogicCube(MVWaterPlane logicCube)
@@ -90,63 +157,14 @@ public class WaterPlaneManager : MonoBehaviour
 		return Mathf.Clamp01((transform.position.y - position.y) / 2.1f);
 	}
 
-	protected void Awake()
+	public float GetHeightAboveWaterLevel(Vector3 position)
 	{
-		UnityEngine.Object.DontDestroyOnLoad(gameObject);
-		additionalUnderWaterModifiers = new AvatarModifierPackage.AvatarModifier[2]
-		{
-			new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.Speed, UnderwaterModifierCallback),
-			new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.JumpPower, UnderwaterJumpPowerModifierCallback)
-		};
+		return GetHeightAboveWaterLevel(position.y);
 	}
 
-	protected void Start()
+	public float GetHeightAboveWaterLevel(float altitude)
 	{
-		this.skyboxManager = MVGameControllerBase.SkyboxManager;
-		SkyboxManager skyboxManager = this.skyboxManager;
-		skyboxManager.OnSkyboxColorChanged = (SkyboxManager.SkyboxColorChangedDelegate)Delegate.Combine(skyboxManager.OnSkyboxColorChanged, new SkyboxManager.SkyboxColorChangedDelegate(HandleSkyboxColorChanged));
-		underwaterCameraPlane.gameObject.SetActive(value: false);
-		underwaterCameraPlaneRenderer = underwaterCameraPlane.GetComponent<Renderer>();
-		water.gameObject.SetActive(value: false);
-		lowPassFilter = Camera.main.GetComponent<AudioLowPassFilter>();
-		reverbFilter = Camera.main.GetComponent<AudioReverbFilter>();
-	}
-
-	protected void OnEnable()
-	{
-		MVQualitySettings.onQualityLevelChanged = (MVQualitySettings.OnQualityLevedChanged)Delegate.Combine(MVQualitySettings.onQualityLevelChanged, new MVQualitySettings.OnQualityLevedChanged(HandleQualityChanged));
-	}
-
-	protected void OnDisable()
-	{
-		MVQualitySettings.onQualityLevelChanged = (MVQualitySettings.OnQualityLevedChanged)Delegate.Remove(MVQualitySettings.onQualityLevelChanged, new MVQualitySettings.OnQualityLevedChanged(HandleQualityChanged));
-	}
-
-	protected void Update()
-	{
-		if (waterPlaneLogicCube == null)
-		{
-			return;
-		}
-		UpdateUnderwaterCameraEffects();
-		MVAvatarLocal avatarLocal = MVGameControllerBase.WOCM.AvatarLocal;
-		if (avatarLocal == null)
-		{
-			return;
-		}
-		Vector3 position = avatarLocal.GameObject.transform.position;
-		position = water.transform.worldToLocalMatrix * position;
-		position.y = 0f;
-		water.transform.localPosition = position;
-		if (avatarLocal.InteractionDataHandlerBase.enabled)
-		{
-			MVInteractableBase component = avatarLocal.GameObject.GetComponent<MVInteractableBase>();
-			if (component != null)
-			{
-				UpdateLocalAvatarModifers(avatarLocal, component);
-				UpdateLocalAvatarOxygen(avatarLocal, component);
-			}
-		}
+		return altitude - WaterLevel;
 	}
 
 	private void UpdateUnderwaterCameraEffects()
@@ -183,7 +201,7 @@ public class WaterPlaneManager : MonoBehaviour
 			avatarInteractable.AddModifier(AvatarModifierPackageType.Underwater, -1, additionalUnderWaterModifiers);
 			if (waterPlaneLogicCube != null && waterPlaneLogicCube.Data.ContainsKey("avatarModifierPackageType"))
 			{
-				AvatarModifierPackageType avatarModifierPackageType = (AvatarModifierPackageType)waterPlaneLogicCube.Data["avatarModifierPackageType"];
+				AvatarModifierPackageType avatarModifierPackageType = (AvatarModifierPackageType)(int)waterPlaneLogicCube.Data["avatarModifierPackageType"];
 				if (avatarModifierPackageType != AvatarModifierPackageType.None)
 				{
 					AvatarModifierPackage package = AvatarModifierPackageFactory.GetPackage(avatarModifierPackageType);

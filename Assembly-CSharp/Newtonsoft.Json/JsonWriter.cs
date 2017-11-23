@@ -193,6 +193,11 @@ public abstract class JsonWriter : IDisposable
 		CloseOutput = true;
 	}
 
+	void IDisposable.Dispose()
+	{
+		Dispose(disposing: true);
+	}
+
 	private void Push(JTokenType value)
 	{
 		_top++;
@@ -999,11 +1004,6 @@ public abstract class JsonWriter : IDisposable
 		{
 			throw new JsonWriterException("Only white space characters should be used.");
 		}
-	}
-
-	void IDisposable.Dispose()
-	{
-		Dispose(disposing: true);
 	}
 
 	private void Dispose(bool disposing)

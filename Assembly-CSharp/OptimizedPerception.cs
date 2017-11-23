@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MV.WorldObject;
 using UnityEngine;
 
 public class OptimizedPerception
@@ -20,29 +21,13 @@ public class OptimizedPerception
 		UpdatePotentialTargets();
 	}
 
-	public bool TryGetTarget(int woID, out MVWorldObjectClient wo)
-	{
-		wo = null;
-		if (!potentialTargets.Contains(woID))
-		{
-			return false;
-		}
-		if (!GetValidTarget(woID, out var wo2))
-		{
-			potentialTargets.Remove(woID);
-			return false;
-		}
-		wo = wo2.WorldObjectClient;
-		return true;
-	}
-
-	public List<WorldObjectClientRef> GetTargets()
+	public List<WorldObjectClientRef> GetTargets(MVTeam alliedTeam)
 	{
 		removeSet.Clear();
 		targets.Clear();
 		foreach (int potentialTarget in potentialTargets)
 		{
-			if (!GetValidTarget(potentialTarget, out var wo))
+			if (!GetValidTarget(potentialTarget, alliedTeam, out var wo))
 			{
 				removeSet.Add(potentialTarget);
 			}
@@ -58,7 +43,7 @@ public class OptimizedPerception
 		return targets;
 	}
 
-	private bool GetValidTarget(int woID, out WorldObjectClientRef wo)
+	private bool GetValidTarget(int woID, MVTeam alliedTeam, out WorldObjectClientRef wo)
 	{
 		if (!MVGameControllerBase.WOCM.Contains(woID))
 		{
@@ -71,11 +56,7 @@ public class OptimizedPerception
 		{
 			return false;
 		}
-		if (wo.WorldObjectClient.InteractionDataHandlerBase == null || !wo.WorldObjectClient.InteractionDataHandlerBase.enabled)
-		{
-			return false;
-		}
-		return true;
+		return wo.WorldObjectClient.InteractionDataHandlerBase.enabled && (MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(wo.WorldObjectClient.OwnerActorNr) != alliedTeam || MVGameControllerBase.Game.TeamManager.TeamCount() <= 1);
 	}
 
 	private void UpdatePotentialTargets()
@@ -89,7 +70,7 @@ public class OptimizedPerception
 			{
 				int id = mVObject.Id;
 				InteractionDataHandlerBase interactionDataHandlerBase = mVObject.InteractionDataHandlerBase;
-				if (!(interactionDataHandlerBase == null) && interactionDataHandlerBase.enabled)
+				if (interactionDataHandlerBase != null && interactionDataHandlerBase.enabled)
 				{
 					potentialTargets.Add(id);
 				}

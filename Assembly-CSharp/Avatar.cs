@@ -4,7 +4,7 @@ using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class Avatar : MonoBehaviour, IBulletImpactVisualizer
+public class Avatar : MonoBehaviour, IMovable, IBulletImpactVisualizer
 {
 	public MVAvatar mvAvatar;
 
@@ -59,6 +59,9 @@ public class Avatar : MonoBehaviour, IBulletImpactVisualizer
 	[SerializeField]
 	private AvatarBulletImpactVisualizer bulletImpactVisualizer;
 
+	[SerializeField]
+	private WaterSplashComponent waterSplashComponent;
+
 	private CullingSubscriberBase cullingSubscriberBase;
 
 	private Material avatarNameMaterial;
@@ -95,6 +98,12 @@ public class Avatar : MonoBehaviour, IBulletImpactVisualizer
 		}
 	}
 
+	public Vector3 Velocity => mvAvatar.VelocityAbsolute;
+
+	public Bounds Bounds => mvAvatar.GetLocalBounds(BoundsContext.Default);
+
+	public Vector3 Position => transform.position;
+
 	public void ShowMobileIcon()
 	{
 		mobileIcon.SetActive(value: true);
@@ -125,6 +134,7 @@ public class Avatar : MonoBehaviour, IBulletImpactVisualizer
 		avatarLevelUp.Init(mvAvatar.OwnerActorNr);
 		avatarNameMaterial = avatarName.GetComponent<Renderer>().material;
 		avatarHealthMaterial = healthBarRenderer.material;
+		waterSplashComponent.Initialize(this);
 	}
 
 	private void OnStateChanged(CullingGroupEvent cullingEvent)
@@ -158,7 +168,7 @@ public class Avatar : MonoBehaviour, IBulletImpactVisualizer
 			string text = "_" + key;
 			if (!newModifiers.ContainsKey(text))
 			{
-				AvatarModifierPackageType item = (AvatarModifierPackageType)Enum.Parse(typeof(AvatarModifierPackageType), text.TrimStart('_'));
+				AvatarModifierPackageType item = (AvatarModifierPackageType)(int)Enum.Parse(typeof(AvatarModifierPackageType), text.TrimStart('_'));
 				list.Add(item);
 			}
 		}
@@ -177,7 +187,7 @@ public class Avatar : MonoBehaviour, IBulletImpactVisualizer
 		foreach (KeyValuePair<object, object> newModifier in newModifiers)
 		{
 			string text2 = (string)newModifier.Key;
-			AvatarModifierPackageType avatarModifierPackageType2 = (AvatarModifierPackageType)Enum.Parse(typeof(AvatarModifierPackageType), text2.TrimStart('_'));
+			AvatarModifierPackageType avatarModifierPackageType2 = (AvatarModifierPackageType)(int)Enum.Parse(typeof(AvatarModifierPackageType), text2.TrimStart('_'));
 			if (!modifiers.ContainsKey(avatarModifierPackageType2))
 			{
 				AvatarModifier avatarModifier = AvatarModifier.CreateFromType(avatarModifierPackageType2, this);
@@ -234,7 +244,7 @@ public class Avatar : MonoBehaviour, IBulletImpactVisualizer
 		}
 		if (MVGameControllerBase.WOCM.AvatarLocal != null)
 		{
-			SetHealthBarColor(MVGameControllerBase.Game.TeamManager.IsOnSameTeam(mvAvatar.OwnerActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr));
+			SetHealthBarColor(MVGameControllerBase.Game.TeamManager.IsOnSameTeam(mvAvatar, MVGameControllerBase.Game.LocalPlayer.Avatar));
 		}
 		avatarNameMaterial.color = color;
 	}

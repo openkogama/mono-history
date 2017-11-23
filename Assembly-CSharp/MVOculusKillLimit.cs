@@ -34,7 +34,7 @@ public class MVOculusKillLimit : MVLogicObject
 		OculusKillLimitClient singletonWinnerConditionByType = MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<OculusKillLimitClient>();
 		if (singletonWinnerConditionByType == null)
 		{
-			throw new Exception("Couldn't find killLimitClient winning condition.");
+			throw new Exception("Couldn't find OculusKillLimitClient winning condition.");
 		}
 		singletonWinnerConditionByType.SetLimit(KillLimit);
 	}
@@ -47,7 +47,7 @@ public class MVOculusKillLimit : MVLogicObject
 			OculusKillLimitClient singletonWinnerConditionByType = MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<OculusKillLimitClient>();
 			if (singletonWinnerConditionByType == null)
 			{
-				throw new Exception("Couldn't find killLimitClient winning condition.");
+				throw new Exception("Couldn't find OculusKillLimitClient winning condition.");
 			}
 			MVGameControllerBase.Game.WinningConditionManager.RemoveWinnerCondition(singletonWinnerConditionByType.ID);
 		}

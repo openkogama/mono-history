@@ -16,16 +16,6 @@ public class MVNetworkReporter(MVWorldObjectClient owner) : MVNetworkObject(owne
 			return other.position == position && other.rotation[0] == rotation[0] && other.rotation[1] == rotation[1] && other.rotation[2] == rotation[2];
 		}
 
-		public static bool operator ==(SendTransformData std1, SendTransformData std2)
-		{
-			return std1.Equals(std2);
-		}
-
-		public static bool operator !=(SendTransformData std1, SendTransformData std2)
-		{
-			return !std1.Equals(std2);
-		}
-
 		public override bool Equals(object obj)
 		{
 			if (object.ReferenceEquals(null, obj))
@@ -42,6 +32,16 @@ public class MVNetworkReporter(MVWorldObjectClient owner) : MVNetworkObject(owne
 		public override int GetHashCode()
 		{
 			return (position.GetHashCode() * 397) ^ ((rotation != null) ? rotation.GetHashCode() : 0);
+		}
+
+		public static bool operator ==(SendTransformData std1, SendTransformData std2)
+		{
+			return std1.Equals(std2);
+		}
+
+		public static bool operator !=(SendTransformData std1, SendTransformData std2)
+		{
+			return !std1.Equals(std2);
 		}
 	}
 

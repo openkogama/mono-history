@@ -48,7 +48,7 @@ public class RailRay : MonoBehaviour
 	{
 		hit = target;
 		elapsed = 0f;
-		RayRenderer.positionCount = 2;
+		RayRenderer.SetVertexCount(2);
 		RayRenderer.SetPosition(1, transform.localPosition);
 		RayRenderer.SetPosition(0, hit);
 		RayRenderer.material.SetColor("_TintColor", startColor);
@@ -59,7 +59,7 @@ public class RailRay : MonoBehaviour
 	{
 		hit = target;
 		elapsed = 0f;
-		RayRenderer.positionCount = 2;
+		RayRenderer.SetVertexCount(2);
 		RayRenderer.SetPosition(1, transform.localPosition);
 		RayRenderer.SetPosition(0, hit);
 		RayRenderer.material.SetColor("_TintColor", startColor);
@@ -84,7 +84,7 @@ public class RailRay : MonoBehaviour
 		Color endColor = new Color(0.1f, 0.1f, 0.1f, 0f);
 		Vector3 origin = transform.position;
 		transform.position = target;
-		RayRenderer.positionCount = 2;
+		RayRenderer.SetVertexCount(2);
 		RayRenderer.SetPosition(1, origin);
 		RayRenderer.SetPosition(0, hit);
 		float time = 1.2f;

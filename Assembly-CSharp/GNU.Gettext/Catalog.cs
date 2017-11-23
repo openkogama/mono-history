@@ -7,8 +7,10 @@ using UnityEngine;
 
 namespace GNU.Gettext;
 
-public class Catalog : IEnumerable<CatalogEntry>, IEnumerable
+public class Catalog : IEnumerable, IEnumerable<CatalogEntry>
 {
+	public const string PluralFormsHeader = "Plural-Forms";
+
 	private IDictionary<string, CatalogEntry> entriesDict;
 
 	private List<CatalogEntry> entriesList;
@@ -20,8 +22,6 @@ public class Catalog : IEnumerable<CatalogEntry>, IEnumerable
 	private bool isDirty;
 
 	private string fileName;
-
-	public const string PluralFormsHeader = "Plural-Forms";
 
 	private Dictionary<string, string> headerEntries = new Dictionary<string, string>();
 
@@ -214,6 +214,11 @@ public class Catalog : IEnumerable<CatalogEntry>, IEnumerable
 		deletedEntriesList = new List<CatalogDeletedEntry>();
 		isOk = true;
 		CreateNewHeaders();
+	}
+
+	IEnumerator IEnumerable.GetEnumerator()
+	{
+		return entriesList.GetEnumerator();
 	}
 
 	public string GetPluralFormsHeader()
@@ -736,11 +741,6 @@ public class Catalog : IEnumerable<CatalogEntry>, IEnumerable
 	}
 
 	public IEnumerator<CatalogEntry> GetEnumerator()
-	{
-		return entriesList.GetEnumerator();
-	}
-
-	IEnumerator IEnumerable.GetEnumerator()
 	{
 		return entriesList.GetEnumerator();
 	}

@@ -101,7 +101,7 @@ public class FSMEntity
 		{
 			if (overridePushState == EditorEvent.UndefinedState)
 			{
-				stateStack.Push((EditorEvent)curEvent);
+				stateStack.Push((EditorEvent)(int)curEvent);
 			}
 			else
 			{

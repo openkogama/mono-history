@@ -3,8 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class OculusSettings : MonoBehaviour, IHandleSettingChanged, IEventSystemHandler
+public class OculusSettings : MonoBehaviour, IEventSystemHandler, IHandleSettingChanged
 {
+	public static class Strings
+	{
+		public const string Radius = "Radius";
+
+		public const string Speed = "Speed";
+
+		public const string Lives = "Lives";
+	}
+
+	private const int maxLives = 100;
+
 	[SerializeField]
 	private SettingsBase settingsBase;
 
@@ -14,27 +25,58 @@ public class OculusSettings : MonoBehaviour, IHandleSettingChanged, IEventSystem
 	[SerializeField]
 	private SettingsSlider aggresionSlider;
 
+	[SerializeField]
+	private SettingsSlider numOfLivesSlider;
+
+	[SerializeField]
+	private SettingsInputFieldSlider numOfLivesInputSlider;
+
+	private MVWorldObjectClient target;
+
 	public void Initialize(int woID, GameObject root)
 	{
 		settingsBase.Initialize(woID, root, MVWorldObjectDocumentationType.Oculus);
-		Dictionary<object, object> dictionary2;
-		if (woID == -1)
+		target = MVGameControllerBase.WOCM.GetWorldObjectClient(woID);
+		Dictionary<object, object> data = target.Data;
+		rangeSlider.Initialize("Radius", Convert.ToSingle(data["Radius"]), 5f, 40f);
+		aggresionSlider.Initialize("Speed", Convert.ToSingle(data["Speed"]), 10f, 50f);
+		int num = 100;
+		if (data.ContainsKey("Lives"))
 		{
-			Dictionary<object, object> dictionary = new Dictionary<object, object>();
-			dictionary.Add("Radius", 17);
-			dictionary.Add("Speed", 20);
-			dictionary2 = dictionary;
+			num = Convert.ToInt32(data["Lives"]);
 		}
-		else
+		numOfLivesSlider.Initialize("Lives", num, 1, 100);
+		numOfLivesInputSlider.Initialize("Lives", num);
+		if (num == 100)
 		{
-			dictionary2 = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).Data;
+			numOfLivesInputSlider.SetText("∞");
 		}
-		rangeSlider.Initialize("Radius", Convert.ToSingle(dictionary2["Radius"]), 5f, 40f);
-		aggresionSlider.Initialize("Speed", Convert.ToSingle(dictionary2["Speed"]), 10f, 50f);
 	}
 
 	public void OnSettingChanged(string key, object value)
 	{
-		settingsBase.OnSettingChanged(key, Convert.ToSingle(value));
+		switch (key)
+		{
+		case "Lives":
+		{
+			int num = Convert.ToInt32(value);
+			if (num == 100)
+			{
+				numOfLivesInputSlider.SetText("∞");
+				Dictionary<object, object> dictionary = new Dictionary<object, object>();
+				dictionary.Add("Lives", num);
+				MVGameControllerBase.OperationRequests.RemoveWorldObjectDataPartial(target.Id, dictionary);
+				settingsBase.RemoveData(key);
+			}
+			else
+			{
+				settingsBase.OnSettingChanged(key, num);
+			}
+			break;
+		}
+		default:
+			settingsBase.OnSettingChanged(key, Convert.ToSingle(value));
+			break;
+		}
 	}
 }

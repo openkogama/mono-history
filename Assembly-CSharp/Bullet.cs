@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
@@ -10,7 +11,8 @@ public class Bullet : MonoBehaviour
 		{
 			Moving,
 			Hit,
-			OutOfRange
+			OutOfRange,
+			Expiring
 		}
 
 		private readonly float speed;
@@ -23,7 +25,7 @@ public class Bullet : MonoBehaviour
 
 		private Vector3 prevPos;
 
-		private Ray ray = default;
+		private Ray ray;
 
 		private readonly HashSet<int> ignoreWoIDs;
 
@@ -66,7 +68,7 @@ public class Bullet : MonoBehaviour
 		private static bool DoBulletCollision(Ray ray, out VoxelHit voxelHit, float distance, HashSet<int> ignoreWoIDs)
 		{
 			LayerMask layerMask = -5;
-			layerMask = (int)layerMask & ~(1 << LayerMask.NameToLayer("Logic"));
+			layerMask = (int)layerMask & ~(1 << (LayerMask.NameToLayer("Logic") & 0x1F));
 			if (CollisionDetection.MVHit(ray, out voxelHit, distance, ignoreWoIDs, layerMask))
 			{
 				Debug.DrawLine(voxelHit.point, voxelHit.point + Vector3.up, Color.green, 10f);
@@ -93,6 +95,8 @@ public class Bullet : MonoBehaviour
 	public OnHitDelegate onHit;
 
 	public OnHitDelegate onHitLocal;
+
+	public Action<Ray> onOutOfRange;
 
 	private PoolEnums initiatedPoolType;
 
@@ -131,6 +135,8 @@ public class Bullet : MonoBehaviour
 
 	private CullingSubscriberBase cullingSubscriberBase;
 
+	private VoxelHit voxelHit = default;
+
 	public PoolEnums InitiatedPoolType
 	{
 		get
@@ -162,10 +168,16 @@ public class Bullet : MonoBehaviour
 
 	private void Update()
 	{
-		CollisionBullet.State state = collisionBullet.Update(out var voxelHit);
-		if (state == CollisionBullet.State.Hit)
+		CollisionBullet.State state = CollisionBullet.State.Expiring;
+		if (!hit)
 		{
+			state = collisionBullet.Update(out voxelHit);
+		}
+		switch (state)
+		{
+		case CollisionBullet.State.Hit:
 			hit = true;
+			state = CollisionBullet.State.Expiring;
 			if (onHit != null)
 			{
 				onHit(voxelHit, lineOfFire);
@@ -176,6 +188,16 @@ public class Bullet : MonoBehaviour
 				onHitLocal(voxelHit, lineOfFire);
 				onHitLocal = null;
 			}
+			break;
+		case CollisionBullet.State.OutOfRange:
+			hit = true;
+			state = CollisionBullet.State.Expiring;
+			if (onOutOfRange != null)
+			{
+				onOutOfRange(lineOfFire);
+				onOutOfRange = null;
+			}
+			break;
 		}
 		currentAirTime += Time.deltaTime;
 		if (!hit && currentAirTime <= maxAirTime)
@@ -192,7 +214,7 @@ public class Bullet : MonoBehaviour
 			}
 		}
 		cullingSubscriberBase.Position = transform.position;
-		if (state != CollisionBullet.State.Hit && state != CollisionBullet.State.OutOfRange && !hasCleaned)
+		if (state != CollisionBullet.State.Expiring)
 		{
 			return;
 		}
@@ -224,6 +246,7 @@ public class Bullet : MonoBehaviour
 		Bullet bullet = PrefabPool.Instance.EnumPoolManager.Instantiate<Bullet>(bulletType);
 		bullet.onHit = null;
 		bullet.onHitLocal = null;
+		bullet.onOutOfRange = null;
 		bullet.ignoreWoIDs.Clear();
 		bullet.transform.localPosition = pos;
 		bullet.isFired = false;
@@ -239,6 +262,7 @@ public class Bullet : MonoBehaviour
 	{
 		onHit = null;
 		onHitLocal = null;
+		onOutOfRange = null;
 		ignoreWoIDs.Clear();
 		isFired = false;
 		hit = false;
@@ -316,7 +340,7 @@ public class Bullet : MonoBehaviour
 		if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
 		{
 			LayerMask layerMask = -5;
-			layerMask = (int)layerMask & ~(1 << LayerMask.NameToLayer("Logic"));
+			layerMask = (int)layerMask & ~(1 << (LayerMask.NameToLayer("Logic") & 0x1F));
 			if (CollisionDetection.MVHit(lineOfFire, out var voxelHit, maxRange, ignoreWoIDs, layerMask))
 			{
 				Debug.DrawLine(lineOfFire.origin, lineOfFire.GetPoint(voxelHit.distance), Color.yellow, 10f);

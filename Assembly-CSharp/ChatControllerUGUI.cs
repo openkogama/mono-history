@@ -8,8 +8,6 @@ using UnityEngine.UI;
 
 public class ChatControllerUGUI : MonoBehaviour
 {
-	private bool waitForLocalPlayerReady;
-
 	private const string adminMessageFormat = "<color=#{0}>{1}</color>";
 
 	private const string chatMessageFromFriend = "<color=#{0}>[{1}]: </color><color=#{2}>{3}</color>";
@@ -18,19 +16,21 @@ public class ChatControllerUGUI : MonoBehaviour
 
 	private const string warningMessageFormat = "<color=#{0}>{1}</color>";
 
-	private bool shouldUpdateFade;
-
-	private float startTime;
-
 	private const float timeBeforeFade = 10f;
 
 	private const float fadeTime = 1f;
 
+	private const int maxLineCount = 50;
+
+	private bool waitForLocalPlayerReady;
+
+	private bool shouldUpdateFade;
+
+	private float startTime;
+
 	private float currFade;
 
 	private bool currentlyInLobbyState;
-
-	private const int maxLineCount = 50;
 
 	private Queue<Text> lines = new Queue<Text>();
 

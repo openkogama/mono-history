@@ -893,7 +893,7 @@ internal class JsonSerializerInternalReader : JsonSerializerInternalBase
 					}
 					IWrappedDictionary wrappedDictionary = jsonDictionaryContract.CreateWrapper(value3);
 					IWrappedDictionary wrappedDictionary2 = jsonDictionaryContract.CreateWrapper(value);
-					foreach (DictionaryEntry item4 in wrappedDictionary2)
+					foreach (DictionaryEntry item4 in (IEnumerable)wrappedDictionary2)
 					{
 						wrappedDictionary.Add(item4.Key, item4.Value);
 					}

@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class GodzillaSettings : MonoBehaviour, IHandleSettingChanged, IEventSystemHandler
+public class GodzillaSettings : MonoBehaviour, IEventSystemHandler, IHandleSettingChanged
 {
 	public enum Sizes
 	{
@@ -89,13 +89,14 @@ public class GodzillaSettings : MonoBehaviour, IHandleSettingChanged, IEventSyst
 	{
 		int num = (int)(float)value;
 		settingsBase.OnSettingChanged(key, num);
-		if (key != null && key == "size")
+		switch (key)
 		{
+		case "size":
 			sizeLabel.text = sizes[num];
-		}
-		else
-		{
+			break;
+		default:
 			Debug.LogError("GodzillaSettings:OnSettingChanged - Unexpected key: " + key);
+			break;
 		}
 	}
 }

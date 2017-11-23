@@ -71,7 +71,7 @@ public class GameMessages
 		return new AchievementGetMessage
 		{
 			playerId = (int)package[(byte)0],
-			achievementType = (AchievementType)package[(byte)4]
+			achievementType = (AchievementType)(int)package[(byte)4]
 		};
 	}
 

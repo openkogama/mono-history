@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class SentryGunBeam : MonoBehaviour
 {
-	public LineRenderer lineRenderer;
-
 	private const float timeout = 1f;
+
+	public LineRenderer lineRenderer;
 
 	private float deleteTimer = 1f;
 
@@ -16,7 +16,7 @@ public class SentryGunBeam : MonoBehaviour
 
 	public static SentryGunBeam Create(SentryGunBeam prefab, SentryGunBeamType beamType, MVSentryGun owner)
 	{
-		SentryGunBeam sentryGunBeam = Object.Instantiate(prefab, owner.WorldPosition, owner.WorldRotation);
+		SentryGunBeam sentryGunBeam = Object.Instantiate(prefab, owner.WorldPosition, owner.WorldRotation) as SentryGunBeam;
 		sentryGunBeam.lineRenderer.sharedMaterial = sentryGunBeam.lineRenderer.sharedMaterials[(uint)beamType];
 		return sentryGunBeam;
 	}

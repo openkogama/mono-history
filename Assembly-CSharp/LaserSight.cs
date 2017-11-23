@@ -4,6 +4,8 @@ using UnityEngine.Events;
 
 public class LaserSight : MonoBehaviour
 {
+	private const float projectionDistFromImpactPoint = 10f;
+
 	[SerializeField]
 	private PickupItem itemAttachedTo;
 
@@ -44,8 +46,6 @@ public class LaserSight : MonoBehaviour
 
 	private float flashTimer = float.PositiveInfinity;
 
-	private const float projectionDistFromImpactPoint = 10f;
-
 	private float initialProjectorSize;
 
 	private bool idle;
@@ -55,10 +55,8 @@ public class LaserSight : MonoBehaviour
 		if (lineRenderer != null)
 		{
 			initialProjectorSize = projector.orthographicSize;
-			lineRenderer.startColor = startColor;
-			lineRenderer.endColor = endColor;
-			coreLineRenderer.startColor = coreColorStart;
-			coreLineRenderer.endColor = coreColorEnd;
+			lineRenderer.SetColors(startColor, endColor);
+			coreLineRenderer.SetColors(coreColorStart, coreColorEnd);
 			OnScaleChange();
 		}
 	}
@@ -91,8 +89,7 @@ public class LaserSight : MonoBehaviour
 	private void SetIdle()
 	{
 		idle = true;
-		lineRenderer.startColor = startColor;
-		lineRenderer.endColor = endColor;
+		lineRenderer.SetColors(startColor, endColor);
 		coreLineRenderer.enabled = false;
 	}
 
@@ -101,10 +98,8 @@ public class LaserSight : MonoBehaviour
 		flashTimer += Time.deltaTime;
 		float num = flashCurve.Evaluate(flashTimer);
 		Color color = new Color(0f, 0f, 0f, 1f) * num;
-		lineRenderer.startColor = startColor + color;
-		lineRenderer.endColor = endColor + color;
-		coreLineRenderer.startColor = coreColorStart * num;
-		coreLineRenderer.endColor = coreColorEnd * num;
+		lineRenderer.SetColors(startColor + color, endColor + color);
+		coreLineRenderer.SetColors(coreColorStart * num, coreColorEnd * num);
 	}
 
 	public void DisableLineRenderer()
@@ -126,11 +121,9 @@ public class LaserSight : MonoBehaviour
 	{
 		projector.orthographicSize = initialProjectorSize * transform.lossyScale.y;
 		float num = rayWidth * transform.lossyScale.y;
-		lineRenderer.startWidth = num;
-		lineRenderer.endWidth = num;
+		lineRenderer.SetWidth(num, num);
 		num = coreRayWidth * transform.lossyScale.y;
-		coreLineRenderer.startWidth = num;
-		coreLineRenderer.endWidth = num;
+		coreLineRenderer.SetWidth(num, num);
 	}
 
 	public void AimAt(Vector3 point)

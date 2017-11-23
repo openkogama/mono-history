@@ -99,43 +99,6 @@ public struct ObscuredUShort : IEquatable<ObscuredUShort>, IFormattable
 		return num;
 	}
 
-	public static implicit operator ObscuredUShort(ushort value)
-	{
-		ObscuredUShort result = new ObscuredUShort(EncryptDecrypt(value));
-		if (ObscuredCheatingDetector.IsRunning)
-		{
-			result.fakeValue = value;
-		}
-		return result;
-	}
-
-	public static implicit operator ushort(ObscuredUShort value)
-	{
-		return value.InternalDecrypt();
-	}
-
-	public static ObscuredUShort operator ++(ObscuredUShort input)
-	{
-		ushort value = (ushort)(input.InternalDecrypt() + 1);
-		input.hiddenValue = EncryptDecrypt(value, input.currentCryptoKey);
-		if (ObscuredCheatingDetector.IsRunning)
-		{
-			input.fakeValue = value;
-		}
-		return input;
-	}
-
-	public static ObscuredUShort operator --(ObscuredUShort input)
-	{
-		ushort value = (ushort)(input.InternalDecrypt() - 1);
-		input.hiddenValue = EncryptDecrypt(value, input.currentCryptoKey);
-		if (ObscuredCheatingDetector.IsRunning)
-		{
-			input.fakeValue = value;
-		}
-		return input;
-	}
-
 	public override bool Equals(object obj)
 	{
 		if (!(obj is ObscuredUShort))
@@ -177,5 +140,42 @@ public struct ObscuredUShort : IEquatable<ObscuredUShort>, IFormattable
 	public string ToString(string format, IFormatProvider provider)
 	{
 		return InternalDecrypt().ToString(format, provider);
+	}
+
+	public static implicit operator ObscuredUShort(ushort value)
+	{
+		ObscuredUShort result = new ObscuredUShort(EncryptDecrypt(value));
+		if (ObscuredCheatingDetector.IsRunning)
+		{
+			result.fakeValue = value;
+		}
+		return result;
+	}
+
+	public static implicit operator ushort(ObscuredUShort value)
+	{
+		return value.InternalDecrypt();
+	}
+
+	public static ObscuredUShort operator ++(ObscuredUShort input)
+	{
+		ushort value = (ushort)(input.InternalDecrypt() + 1);
+		input.hiddenValue = EncryptDecrypt(value, input.currentCryptoKey);
+		if (ObscuredCheatingDetector.IsRunning)
+		{
+			input.fakeValue = value;
+		}
+		return input;
+	}
+
+	public static ObscuredUShort operator --(ObscuredUShort input)
+	{
+		ushort value = (ushort)(input.InternalDecrypt() - 1);
+		input.hiddenValue = EncryptDecrypt(value, input.currentCryptoKey);
+		if (ObscuredCheatingDetector.IsRunning)
+		{
+			input.fakeValue = value;
+		}
+		return input;
 	}
 }
