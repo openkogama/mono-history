@@ -8,11 +8,10 @@ public class Water : MonoBehaviour
 	public enum WaterMode
 	{
 		Simple,
-		Reflective,
-		Refractive
+		Reflective
 	}
 
-	public WaterMode m_WaterMode = WaterMode.Refractive;
+	public WaterMode m_WaterMode;
 
 	public bool m_DisablePixelLights = true;
 
@@ -22,17 +21,11 @@ public class Water : MonoBehaviour
 
 	public LayerMask m_ReflectLayers = -1;
 
-	public LayerMask m_RefractLayers = -1;
-
 	private Dictionary<object, object> m_ReflectionCameras = new Dictionary<object, object>();
-
-	private Dictionary<object, object> m_RefractionCameras = new Dictionary<object, object>();
 
 	private RenderTexture m_ReflectionTexture;
 
-	private RenderTexture m_RefractionTexture;
-
-	private WaterMode m_HardwareWaterSupport = WaterMode.Refractive;
+	private WaterMode m_HardwareWaterSupport;
 
 	private int m_OldReflectionTextureSize;
 
@@ -44,10 +37,6 @@ public class Water : MonoBehaviour
 	private Renderer meshRenderer;
 
 	public Renderer Renderer => meshRenderer;
-
-	private void Start()
-	{
-	}
 
 	public void OnWillRenderObject()
 	{
@@ -94,20 +83,6 @@ public class Water : MonoBehaviour
 				GL.invertCulling = false;
 				meshRenderer.sharedMaterial.SetTexture("_ReflectionTex", m_ReflectionTexture);
 			}
-			if (waterMode >= WaterMode.Refractive)
-			{
-				refractionCamera.worldToCameraMatrix = current.worldToCameraMatrix;
-				Vector4 clipPlane2 = CameraSpacePlane(refractionCamera, position, up, -1f);
-				Matrix4x4 projection = current.projectionMatrix;
-				CalculateObliqueMatrix(ref projection, clipPlane2);
-				refractionCamera.projectionMatrix = projection;
-				refractionCamera.cullingMask = -17 & m_RefractLayers.value;
-				refractionCamera.targetTexture = m_RefractionTexture;
-				refractionCamera.transform.position = current.transform.position;
-				refractionCamera.transform.rotation = current.transform.rotation;
-				refractionCamera.Render();
-				meshRenderer.sharedMaterial.SetTexture("_RefractionTex", m_RefractionTexture);
-			}
 			if (m_DisablePixelLights)
 			{
 				QualitySettings.pixelLightCount = pixelLightCount;
@@ -123,11 +98,6 @@ public class Water : MonoBehaviour
 				Shader.DisableKeyword("WATER_SIMPLE");
 				Shader.EnableKeyword("WATER_REFLECTIVE");
 				Shader.DisableKeyword("WATER_REFRACTIVE");
-				break;
-			case WaterMode.Refractive:
-				Shader.DisableKeyword("WATER_SIMPLE");
-				Shader.DisableKeyword("WATER_REFLECTIVE");
-				Shader.EnableKeyword("WATER_REFRACTIVE");
 				break;
 			}
 			s_InsideWater = false;
@@ -150,21 +120,11 @@ public class Water : MonoBehaviour
 			m_ReflectionTexture.Release();
 			m_ReflectionTexture = null;
 		}
-		if ((bool)m_RefractionTexture)
-		{
-			m_RefractionTexture.Release();
-			m_RefractionTexture = null;
-		}
 		foreach (KeyValuePair<object, object> reflectionCamera in m_ReflectionCameras)
 		{
 			UnityEngine.Object.Destroy(((Camera)reflectionCamera.Value).gameObject);
 		}
 		m_ReflectionCameras.Clear();
-		foreach (KeyValuePair<object, object> refractionCamera in m_RefractionCameras)
-		{
-			UnityEngine.Object.Destroy(((Camera)refractionCamera.Value).gameObject);
-		}
-		m_RefractionCameras.Clear();
 	}
 
 	private void Update()
@@ -225,61 +185,35 @@ public class Water : MonoBehaviour
 		WaterMode waterMode = GetWaterMode();
 		reflectionCamera = null;
 		refractionCamera = null;
-		if (waterMode >= WaterMode.Reflective)
-		{
-			if (!m_ReflectionTexture || m_OldReflectionTextureSize != m_TextureSize)
-			{
-				if ((bool)m_ReflectionTexture)
-				{
-					UnityEngine.Object.DestroyImmediate(m_ReflectionTexture);
-				}
-				m_ReflectionTexture = new RenderTexture(m_TextureSize, m_TextureSize, 16);
-				m_ReflectionTexture.name = "__WaterReflection" + GetInstanceID();
-				m_ReflectionTexture.isPowerOfTwo = true;
-				m_ReflectionTexture.hideFlags = HideFlags.DontSave;
-				m_OldReflectionTextureSize = m_TextureSize;
-			}
-			if (m_ReflectionCameras.ContainsKey(currentCamera))
-			{
-				reflectionCamera = m_ReflectionCameras[currentCamera] as Camera;
-			}
-			if (!reflectionCamera)
-			{
-				GameObject gameObject = new GameObject("Water Refl Camera id" + GetInstanceID() + " for " + currentCamera.GetInstanceID(), typeof(Camera), typeof(Skybox));
-				reflectionCamera = gameObject.GetComponent<Camera>();
-				reflectionCamera.enabled = false;
-				reflectionCamera.transform.position = transform.position;
-				reflectionCamera.transform.rotation = transform.rotation;
-				gameObject.hideFlags = HideFlags.HideAndDontSave;
-				m_ReflectionCameras[currentCamera] = reflectionCamera;
-			}
-		}
-		if (waterMode < WaterMode.Refractive)
+		if (waterMode < WaterMode.Reflective)
 		{
 			return;
 		}
-		if (!m_RefractionTexture || m_OldRefractionTextureSize != m_TextureSize)
+		if (!m_ReflectionTexture || m_OldReflectionTextureSize != m_TextureSize)
 		{
-			if ((bool)m_RefractionTexture)
+			if ((bool)m_ReflectionTexture)
 			{
-				UnityEngine.Object.DestroyImmediate(m_RefractionTexture);
+				UnityEngine.Object.DestroyImmediate(m_ReflectionTexture);
 			}
-			m_RefractionTexture = new RenderTexture(m_TextureSize, m_TextureSize, 16);
-			m_RefractionTexture.name = "__WaterRefraction" + GetInstanceID();
-			m_RefractionTexture.isPowerOfTwo = true;
-			m_RefractionTexture.hideFlags = HideFlags.DontSave;
-			m_OldRefractionTextureSize = m_TextureSize;
+			m_ReflectionTexture = new RenderTexture(m_TextureSize, m_TextureSize, 16);
+			m_ReflectionTexture.name = "__WaterReflection" + GetInstanceID();
+			m_ReflectionTexture.isPowerOfTwo = true;
+			m_ReflectionTexture.hideFlags = HideFlags.DontSave;
+			m_OldReflectionTextureSize = m_TextureSize;
 		}
-		refractionCamera = m_RefractionCameras[currentCamera] as Camera;
-		if (!refractionCamera)
+		if (m_ReflectionCameras.ContainsKey(currentCamera))
 		{
-			GameObject gameObject2 = new GameObject("Water Refr Camera id" + GetInstanceID() + " for " + currentCamera.GetInstanceID(), typeof(Camera), typeof(Skybox));
-			refractionCamera = gameObject2.GetComponent<Camera>();
-			refractionCamera.enabled = false;
-			refractionCamera.transform.position = transform.position;
-			refractionCamera.transform.rotation = transform.rotation;
-			gameObject2.hideFlags = HideFlags.HideAndDontSave;
-			m_RefractionCameras[currentCamera] = refractionCamera;
+			reflectionCamera = m_ReflectionCameras[currentCamera] as Camera;
+		}
+		if (!reflectionCamera)
+		{
+			GameObject gameObject = new GameObject("Water Refl Camera id" + GetInstanceID() + " for " + currentCamera.GetInstanceID(), typeof(Camera), typeof(Skybox));
+			reflectionCamera = gameObject.GetComponent<Camera>();
+			reflectionCamera.enabled = false;
+			reflectionCamera.transform.position = transform.position;
+			reflectionCamera.transform.rotation = transform.rotation;
+			gameObject.hideFlags = HideFlags.HideAndDontSave;
+			m_ReflectionCameras[currentCamera] = reflectionCamera;
 		}
 	}
 
@@ -304,10 +238,6 @@ public class Water : MonoBehaviour
 			return WaterMode.Simple;
 		}
 		string text = sharedMaterial.GetTag("WATERMODE", searchFallbacks: false);
-		if (text == "Refractive")
-		{
-			return WaterMode.Refractive;
-		}
 		if (text == "Reflective")
 		{
 			return WaterMode.Reflective;

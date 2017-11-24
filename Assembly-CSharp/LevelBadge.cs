@@ -58,7 +58,7 @@ public class LevelBadge : MonoBehaviour
 
 	private void UpdateProgress(XPProgressData xpProgress)
 	{
-		if (xpProgress.XpNextRel <= 0)
+		if (xpProgress.XpNextRel < 0)
 		{
 			Debug.LogError("Can't calculate update progress as xpNextRel <= 0");
 			return;
@@ -66,7 +66,8 @@ public class LevelBadge : MonoBehaviour
 		float num = (float)xpProgress.XpRel / (float)xpProgress.XpNextRel;
 		if (num < 0f)
 		{
-			Debug.LogError("processPercentage invalid. " + num);
+			Debug.Log("ProgressPercentage: " + num);
+			Debug.LogError("processPercentage invalid.");
 		}
 		xpBar.Progress = num;
 	}

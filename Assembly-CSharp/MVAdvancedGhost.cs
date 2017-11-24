@@ -188,9 +188,17 @@ public class MVAdvancedGhost : MVBlueprintBase, ITeamInteractorNPC, IGameStateCo
 	private void SetTeam(MVTeam team)
 	{
 		advGhostObject.TintObject.TeamTint(team);
-		advancedGhostIcon.Team = team;
 		advancedGhostBehaviour.Team = team;
 		interactionHandler.SetTeam(team);
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
+		{
+			SetTeam_Edit(team);
+		}
+	}
+
+	private void SetTeam_Edit(MVTeam team)
+	{
+		advancedGhostIcon.Team = team;
 	}
 
 	public void GameStateChanged(UpdateCondition condition)

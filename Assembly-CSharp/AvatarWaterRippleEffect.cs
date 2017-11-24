@@ -7,7 +7,7 @@ public class AvatarWaterRippleEffect : WaterSplashComponent
 	private ParticleSystem airBubbleParticlesPrefab;
 
 	[SerializeField]
-	private Vector3 airBubbleOffset;
+	private Vector3 airBubbleOffset = new Vector3(0f, 1.325f, 0.4f);
 
 	[Header("Dependencies")]
 	[SerializeField]

@@ -26,8 +26,8 @@ public abstract class FirstTimeActivatableElementBase : FirstTimeEventHandler, I
 	[SerializeField]
 	protected float delayBeforeShown;
 
-	[SerializeField]
 	[Tooltip("Set false to avoid checking for blocking elements in the stack.")]
+	[SerializeField]
 	private bool checkForStackBlocking = true;
 
 	private bool waitingForDelay;
