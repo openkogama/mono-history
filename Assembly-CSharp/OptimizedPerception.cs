@@ -56,7 +56,11 @@ public class OptimizedPerception
 		{
 			return false;
 		}
-		return wo.WorldObjectClient.InteractionDataHandlerBase.enabled && (MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(wo.WorldObjectClient.OwnerActorNr) != alliedTeam || MVGameControllerBase.Game.TeamManager.TeamCount() <= 1);
+		bool flag = MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(wo.WorldObjectClient.OwnerActorNr) != alliedTeam;
+		bool flag2 = MVGameControllerBase.Game.TeamManager.TeamCount() <= 1;
+		bool flag3 = flag || flag2;
+		InteractionDataHandlerBase interactionDataHandlerBase = wo.WorldObjectClient.InteractionDataHandlerBase;
+		return wo.WorldObjectClient.InteractionDataHandlerBase != null && wo.WorldObjectClient.InteractionDataHandlerBase.enabled && flag3;
 	}
 
 	private void UpdatePotentialTargets()

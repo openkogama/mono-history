@@ -238,7 +238,6 @@ public class VehicleSeatManager : MonoBehaviour
 		vehicleUser.RunTimeData.SetObscuredType("seat", (ObscuredInt)(-1));
 		if (vehicleUser.GetType() == typeof(MVAvatarLocal))
 		{
-			Debug.Log("LOCAL AVATAR");
 			vehicleSeatBase.RemoveCamera();
 		}
 		vehicleSeatBase.Detach(vehicleUser);
