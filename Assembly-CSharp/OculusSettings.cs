@@ -16,6 +16,8 @@ public class OculusSettings : MonoBehaviour, IEventSystemHandler, IHandleSetting
 
 	private const int maxLives = 100;
 
+	private const string infinity = "∞";
+
 	[SerializeField]
 	private SettingsBase settingsBase;
 
