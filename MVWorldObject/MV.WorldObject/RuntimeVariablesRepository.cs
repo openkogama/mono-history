@@ -59,6 +59,7 @@ public static class RuntimeVariablesRepository
 	{
 		Dictionary<object, object> dictionary = new Dictionary<object, object>();
 		dictionary.Add("health", 100f);
+		dictionary.Add("shield", 0f);
 		dictionary.Add("isFiring", false);
 		dictionary.Add("modifiers", new Dictionary<object, object>());
 		dictionary.Add("currentItem", new Dictionary<object, object> { { "type", 5 } });
@@ -78,6 +79,7 @@ public static class RuntimeVariablesRepository
 	{
 		Dictionary<object, object> dictionary = new Dictionary<object, object>();
 		dictionary.Add("health", 150f);
+		dictionary.Add("shield", 0f);
 		dictionary.Add("isFiring", false);
 		dictionary.Add("modifiers", new Dictionary<object, object>());
 		dictionary.Add("currentItem", new Dictionary<object, object>());
@@ -89,6 +91,7 @@ public static class RuntimeVariablesRepository
 	{
 		Dictionary<object, object> dictionary = new Dictionary<object, object>();
 		dictionary.Add("health", 150f);
+		dictionary.Add("shield", 0f);
 		dictionary.Add("isFiring", false);
 		dictionary.Add("modifiers", new Dictionary<object, object>());
 		dictionary.Add("currentItem", new Dictionary<object, object>());
@@ -103,6 +106,7 @@ public static class RuntimeVariablesRepository
 	{
 		Dictionary<object, object> dictionary = new Dictionary<object, object>();
 		dictionary.Add("health", 80f);
+		dictionary.Add("shield", 0f);
 		dictionary.Add("isFiring", false);
 		dictionary.Add("modifiers", new Dictionary<object, object>());
 		dictionary.Add("currentItem", new Dictionary<object, object>());
@@ -114,6 +118,7 @@ public static class RuntimeVariablesRepository
 	{
 		Dictionary<object, object> dictionary = new Dictionary<object, object>();
 		dictionary.Add("health", 20f);
+		dictionary.Add("shield", 0f);
 		dictionary.Add("modifiers", new Dictionary<object, object>());
 		dictionary.Add("isDead", false);
 		dictionary.Add("jetMode", (byte)0);
@@ -124,6 +129,7 @@ public static class RuntimeVariablesRepository
 	{
 		Dictionary<object, object> dictionary = new Dictionary<object, object>();
 		dictionary.Add("health", 80f);
+		dictionary.Add("shield", 0f);
 		dictionary.Add("modifiers", new Dictionary<object, object>());
 		dictionary.Add("deathTime", 0);
 		return dictionary;
@@ -133,6 +139,7 @@ public static class RuntimeVariablesRepository
 	{
 		Dictionary<object, object> dictionary = new Dictionary<object, object>();
 		dictionary.Add("health", 300f);
+		dictionary.Add("shield", 0f);
 		return dictionary;
 	}
 

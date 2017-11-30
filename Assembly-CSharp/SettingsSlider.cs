@@ -17,17 +17,17 @@ public class SettingsSlider : MonoBehaviour
 	public void Initialize(string key, float value, float minValue, float maxValue)
 	{
 		this.key = key;
-		slider.minValue = minValue;
 		slider.maxValue = maxValue;
 		slider.value = value;
+		slider.minValue = minValue;
 	}
 
 	public void Initialize(string key, int value, int minValue, int maxValue)
 	{
 		this.key = key;
-		slider.minValue = minValue;
 		slider.maxValue = maxValue;
 		slider.value = value;
+		slider.minValue = minValue;
 	}
 
 	public void ValueChanged()

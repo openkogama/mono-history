@@ -47,6 +47,8 @@ public abstract class PickupItem : MonoBehaviour
 
 	public bool FirstPersonCapable => firstPersonTransform != null;
 
+	public bool IsInFirstPersonMode => firstPersonTransform != null && !IsHolstered;
+
 	public virtual bool CanUnequip => true;
 
 	public abstract AvatarItemType Type { get; }
@@ -75,6 +77,7 @@ public abstract class PickupItem : MonoBehaviour
 			AvatarItemType.GrowthGun => Object.Instantiate(PrefabPool.Instance.AvatarItemGrowthGun), 
 			AvatarItemType.MouseGun => Object.Instantiate(PrefabPool.Instance.AvatarItemMouseGun), 
 			AvatarItemType.SlapGun => Object.Instantiate(PrefabPool.Instance.AvatarItemSlapGun), 
+			AvatarItemType.HealRay => Object.Instantiate(PrefabPool.Instance.AvatarItemHealRay), 
 			AvatarItemType.CollectTheItemCollectable => Object.Instantiate(PrefabPool.Instance.AvatarItemCollectTheItem), 
 			_ => null, 
 		};

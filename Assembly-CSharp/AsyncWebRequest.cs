@@ -136,8 +136,6 @@ public abstract class AsyncWebRequest
 				retryTime = DateTime.Now;
 				currentTimeout = new TimeSpan(0, 0, 0, AsyncWWWManager.RetryTimeouts[retries]);
 				state = State.Waiting;
-				Debug.Log(www.error + " " + www.url + " " + Time.frameCount + " " + AsyncWWWManager.RetryTimeouts[retries]);
-				Debug.Log("Response headers");
 				foreach (KeyValuePair<string, string> responseHeader in www.responseHeaders)
 				{
 					Debug.LogFormat("{0} {1}", responseHeader.Key, responseHeader.Value);

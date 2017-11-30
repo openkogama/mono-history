@@ -30,5 +30,6 @@ public enum InteractionFlags
 	TranslatbleXZ2D = 0x800000,
 	Sounds = 0x1000000,
 	CanUseTeam = 0x2000000,
-	CanCloneRoot = 0x4000000
+	CanCloneRoot = 0x4000000,
+	GlobalSounds = 0x8000000
 }

@@ -84,6 +84,10 @@ public class MVPickupItemBase : MVLogicObject, IUpdatecontrollerSubscriber, IPic
 		{
 			AvatarItemType.GrowthPack,
 			new EquipableData(PrefabPool.Instance.AvatarGrowthPackPrefab, AvatarEquipableType.Modifier)
+		},
+		{
+			AvatarItemType.HealRay,
+			new EquipableData(PrefabPool.Instance.AvatarHealRayPrefab, AvatarEquipableType.Weapon)
 		}
 	};
 
@@ -176,6 +180,10 @@ public class MVPickupItemBase : MVLogicObject, IUpdatecontrollerSubscriber, IPic
 		{
 			AvatarItemType.NinjaRun,
 			MVWorldObjectDocumentationType.NinjaRun
+		},
+		{
+			AvatarItemType.HealRay,
+			MVWorldObjectDocumentationType.HealRay
 		}
 	};
 

@@ -23,98 +23,98 @@ public abstract class AvatarModifier : MonoBehaviour
 		switch (type)
 		{
 		case AvatarModifierPackageType.Fire:
-			avatarModifier = Object.Instantiate(PrefabPool.Instance.BurningModifier);
+			avatarModifier = PrefabPool.Instance.EnumPoolManager.Instantiate<BurningModifier>(PoolEnums.BurningModifier);
 			break;
 		case AvatarModifierPackageType.FlamerBurn:
-			avatarModifier = Object.Instantiate(PrefabPool.Instance.BurningModifier);
+			avatarModifier = PrefabPool.Instance.EnumPoolManager.Instantiate<BurningModifier>(PoolEnums.BurningModifier);
 			break;
 		case AvatarModifierPackageType.Mutant:
-			avatarModifier = Object.Instantiate(PrefabPool.Instance.MutantModifier);
+			avatarModifier = PrefabPool.Instance.EnumPoolManager.Instantiate<MutantModifier>(PoolEnums.MutantModifier);
 			break;
 		case AvatarModifierPackageType.Poison:
-			avatarModifier = Object.Instantiate(PrefabPool.Instance.PoisonModifier);
+			avatarModifier = PrefabPool.Instance.EnumPoolManager.Instantiate<PoisonModifier>(PoolEnums.PoisonModifier);
 			break;
 		case AvatarModifierPackageType.Frozen:
-			avatarModifier = Object.Instantiate(PrefabPool.Instance.FrozenModifier);
+			avatarModifier = PrefabPool.Instance.EnumPoolManager.Instantiate<FrozenModifier>(PoolEnums.FrozenModifier);
 			break;
 		case AvatarModifierPackageType.NinjaRun:
-			avatarModifier = Object.Instantiate(PrefabPool.Instance.NinjaRunModifier);
+			avatarModifier = PrefabPool.Instance.EnumPoolManager.Instantiate<NinjaRunModifier>(PoolEnums.NinjaRunModifier);
 			break;
 		case AvatarModifierPackageType.Shrunken:
-			avatarModifier = Object.Instantiate(PrefabPool.Instance.MouseModifier);
+			avatarModifier = PrefabPool.Instance.EnumPoolManager.Instantiate<MouseModifier>(PoolEnums.MouseModifier);
 			break;
 		case AvatarModifierPackageType.Enlarged:
-			avatarModifier = Object.Instantiate(PrefabPool.Instance.GrowthModifier);
+			avatarModifier = PrefabPool.Instance.EnumPoolManager.Instantiate<GrowthModifier>(PoolEnums.GrowthModifier);
 			break;
 		case AvatarModifierPackageType.Shielded:
 			avatarModifier = Object.Instantiate(PrefabPool.Instance.ShieldModifier);
 			break;
 		case AvatarModifierPackageType.GodzillaS:
 		{
-			GodzillaModifier godzillaModifier4 = Object.Instantiate(PrefabPool.Instance.GodzillaModifier);
+			GodzillaModifier godzillaModifier4 = PrefabPool.Instance.EnumPoolManager.Instantiate<GodzillaModifier>(PoolEnums.GodzillaModifier);
 			godzillaModifier4.Type = GodzillaModifier.GodzillaModifierPackageType.S;
 			avatarModifier = godzillaModifier4;
 			break;
 		}
 		case AvatarModifierPackageType.GodzillaM:
 		{
-			GodzillaModifier godzillaModifier3 = Object.Instantiate(PrefabPool.Instance.GodzillaModifier);
+			GodzillaModifier godzillaModifier3 = PrefabPool.Instance.EnumPoolManager.Instantiate<GodzillaModifier>(PoolEnums.GodzillaModifier);
 			godzillaModifier3.Type = GodzillaModifier.GodzillaModifierPackageType.M;
 			avatarModifier = godzillaModifier3;
 			break;
 		}
 		case AvatarModifierPackageType.GodzillaL:
 		{
-			GodzillaModifier godzillaModifier2 = Object.Instantiate(PrefabPool.Instance.GodzillaModifier);
+			GodzillaModifier godzillaModifier2 = PrefabPool.Instance.EnumPoolManager.Instantiate<GodzillaModifier>(PoolEnums.GodzillaModifier);
 			godzillaModifier2.Type = GodzillaModifier.GodzillaModifierPackageType.L;
 			avatarModifier = godzillaModifier2;
 			break;
 		}
 		case AvatarModifierPackageType.GodzillaXL:
 		{
-			GodzillaModifier godzillaModifier = Object.Instantiate(PrefabPool.Instance.GodzillaModifier);
+			GodzillaModifier godzillaModifier = PrefabPool.Instance.EnumPoolManager.Instantiate<GodzillaModifier>(PoolEnums.GodzillaModifier);
 			godzillaModifier.Type = GodzillaModifier.GodzillaModifierPackageType.XL;
 			avatarModifier = godzillaModifier;
 			break;
 		}
 		case AvatarModifierPackageType.GodzillaLaserBurnS:
 		{
-			GodzillaLaserBurnModifier godzillaLaserBurnModifier4 = Object.Instantiate(PrefabPool.Instance.GodzillaLaserBurnModifier);
+			GodzillaLaserBurnModifier godzillaLaserBurnModifier4 = PrefabPool.Instance.EnumPoolManager.Instantiate<GodzillaLaserBurnModifier>(PoolEnums.GodzillaLazerBurnModifier);
 			godzillaLaserBurnModifier4.SetType(AvatarModifierPackageType.GodzillaLaserBurnS);
 			avatarModifier = godzillaLaserBurnModifier4;
 			break;
 		}
 		case AvatarModifierPackageType.GodzillaLaserBurnM:
 		{
-			GodzillaLaserBurnModifier godzillaLaserBurnModifier3 = Object.Instantiate(PrefabPool.Instance.GodzillaLaserBurnModifier);
+			GodzillaLaserBurnModifier godzillaLaserBurnModifier3 = PrefabPool.Instance.EnumPoolManager.Instantiate<GodzillaLaserBurnModifier>(PoolEnums.GodzillaLazerBurnModifier);
 			godzillaLaserBurnModifier3.SetType(AvatarModifierPackageType.GodzillaLaserBurnM);
 			avatarModifier = godzillaLaserBurnModifier3;
 			break;
 		}
 		case AvatarModifierPackageType.GodzillaLaserBurnL:
 		{
-			GodzillaLaserBurnModifier godzillaLaserBurnModifier2 = Object.Instantiate(PrefabPool.Instance.GodzillaLaserBurnModifier);
+			GodzillaLaserBurnModifier godzillaLaserBurnModifier2 = PrefabPool.Instance.EnumPoolManager.Instantiate<GodzillaLaserBurnModifier>(PoolEnums.GodzillaLazerBurnModifier);
 			godzillaLaserBurnModifier2.SetType(AvatarModifierPackageType.GodzillaLaserBurnL);
 			avatarModifier = godzillaLaserBurnModifier2;
 			break;
 		}
 		case AvatarModifierPackageType.GodzillaLaserBurnXL:
 		{
-			GodzillaLaserBurnModifier godzillaLaserBurnModifier = Object.Instantiate(PrefabPool.Instance.GodzillaLaserBurnModifier);
+			GodzillaLaserBurnModifier godzillaLaserBurnModifier = PrefabPool.Instance.EnumPoolManager.Instantiate<GodzillaLaserBurnModifier>(PoolEnums.GodzillaLazerBurnModifier);
 			godzillaLaserBurnModifier.SetType(AvatarModifierPackageType.GodzillaLaserBurnXL);
 			avatarModifier = godzillaLaserBurnModifier;
 			break;
 		}
 		case AvatarModifierPackageType.GodzillaGrowthInvulnerability:
 		{
-			InvulnerabilityModifier invulnerabilityModifier2 = Object.Instantiate(PrefabPool.Instance.InvulnerabilityModifier);
+			InvulnerabilityModifier invulnerabilityModifier2 = PrefabPool.Instance.EnumPoolManager.Instantiate<InvulnerabilityModifier>(PoolEnums.InvulnerabilityModifier);
 			invulnerabilityModifier2.SetType(AvatarModifierPackageType.GodzillaGrowthInvulnerability);
 			avatarModifier = invulnerabilityModifier2;
 			break;
 		}
 		case AvatarModifierPackageType.SpawnProtection:
 		{
-			InvulnerabilityModifier invulnerabilityModifier = Object.Instantiate(PrefabPool.Instance.InvulnerabilityModifier);
+			InvulnerabilityModifier invulnerabilityModifier = PrefabPool.Instance.EnumPoolManager.Instantiate<InvulnerabilityModifier>(PoolEnums.InvulnerabilityModifier);
 			invulnerabilityModifier.SetType(AvatarModifierPackageType.SpawnProtection);
 			avatarModifier = invulnerabilityModifier;
 			break;

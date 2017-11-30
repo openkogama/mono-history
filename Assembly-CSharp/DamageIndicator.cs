@@ -107,8 +107,8 @@ public class DamageIndicator : MonoBehaviour
 		}
 	}
 
-	[SerializeField]
 	[Tooltip("Distance from center, for indicator arrow to appear.")]
+	[SerializeField]
 	[Header("Configuration")]
 	private float indicationRadius = 35f;
 
