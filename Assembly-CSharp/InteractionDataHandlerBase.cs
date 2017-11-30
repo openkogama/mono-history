@@ -50,7 +50,7 @@ public abstract class InteractionDataHandlerBase : MVComponent
 		if (interactor != null)
 		{
 			MVTeam teamFromActorNr = MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(interactor.WorldObjectOwner.OwnerActorNr);
-			result = teamFromActorNr == Team;
+			result = teamFromActorNr == Team && MVGameControllerBase.Game.TeamManager.TeamCount() > 1;
 		}
 		return result;
 	}
