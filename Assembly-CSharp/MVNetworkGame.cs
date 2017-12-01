@@ -2450,7 +2450,6 @@ public class MVNetworkGame : IPhotonPeerListener
 		peer = new PhotonPeer(this, ConnectionProtocol.Udp);
 		peer.DisconnectTimeout = 30000;
 		peer.DebugOut = DebugLevel.WARNING;
-		peer.DebugOut = DebugLevel.ERROR;
 		CreatePrivateClasses();
 		networkGameStateListener = new MVNetworkGameStateListener();
 		networkGameStateListener.OnGameStateChanged += networkGameStateListener_OnGameStateChanged;

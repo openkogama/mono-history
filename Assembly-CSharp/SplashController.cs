@@ -164,10 +164,10 @@ public class SplashController : StreamedAudioClip.IReceiver
 		waterSplashParticles.Emit((int)(velocity.magnitude * baseNumberOfSplashParticles));
 	}
 
-	private void EmitWaterPillar(Vector3 position, Vector3 velocity)
+	private void EmitWaterPillar(Vector3 position, Vector3 impactVelocity)
 	{
 		waterPillarParticles.transform.position = position;
-		float magnitude = velocity.magnitude;
+		float magnitude = impactVelocity.magnitude;
 		float num = waterPillarDensity * magnitude;
 		for (int i = 1; (float)i < num; i++)
 		{
