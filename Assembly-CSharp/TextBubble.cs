@@ -13,8 +13,8 @@ public class TextBubble : MonoBehaviour
 	[SerializeField]
 	private float tailDistance = 1f;
 
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	private LayoutGroup bubble;
 
 	[SerializeField]

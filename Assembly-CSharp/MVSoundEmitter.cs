@@ -1,13 +1,16 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using MV.Common;
 using UnityEngine;
 
 public class MVSoundEmitter : MVLogicObject, ILogicWorldObject
 {
-	private const string defaultUrl = "AmbientAudio/Nature/kgm_amb_forest.unity3d";
+	private string currentUrl = string.Empty;
 
 	private SoundEmitterObject soundEmitterObject;
 
-	private SoundLoader soundLoader = new SoundLoader();
+	private MVNetworkGame Game => MVGameControllerBase.Game;
 
 	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.SoundEmitter;
 
@@ -20,48 +23,61 @@ public class MVSoundEmitter : MVLogicObject, ILogicWorldObject
 	public MVSoundEmitter(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVSoundEmitterPrefab, worldObjects)
 	{
+		interactionFlags |= InteractionFlags.CanResetLogic;
 		interactionFlags |= InteractionFlags.HasSettings | InteractionFlags.Sounds;
 		soundEmitterObject = (SoundEmitterObject)component;
 	}
 
 	public override void Initialize()
 	{
-		InputSignalReceiver = LogicClientsideFactory.CreateStateChangeInputSignalReceiver(this, defaultInput: true, null, InputStateUpdateCallback);
-		soundEmitterObject.SoundCheck.Initialize(this);
 		base.Initialize();
-		soundLoader.AudioSource = soundEmitterObject.AudioSource;
-		soundLoader.callback = UpdateSound;
 		SetupCulling(soundEmitterObject.VisualObject);
-		if (!Data.ContainsKey("url"))
+		InputSignalReceiver = LogicClientsideFactory.CreateStateChangeInputSignalReceiver(this, defaultInput: true, null, InputStateUpdateCallback);
+		InitializeData();
+		if (((string)Data["url"]).Length > 0)
 		{
-			soundLoader.Url = "AmbientAudio/Nature/kgm_amb_forest.unity3d";
-			soundLoader.LoadSound();
-		}
-		else if (((string)Data["url"]).Length > 0)
-		{
-			soundLoader.Url = (string)Data["url"];
-			soundLoader.LoadSound();
+			LoadSound();
 		}
 	}
 
 	public override void OnDataUpdate()
 	{
 		LogicObjectManager.ResetChunk(Id, MVGameControllerBase.WOCM);
-		if (!Data.ContainsKey("url"))
+	}
+
+	public override void Reset()
+	{
+		base.Reset();
+		LoadSound();
+	}
+
+	private void InitializeData()
+	{
+		if (Data.ContainsKey("url") && !Data["url"].ToString().StartsWith("file://"))
 		{
-			soundLoader.Url = "AmbientAudio/Nature/kgm_amb_forest.unity3d";
-			soundLoader.LoadSound();
+			return;
 		}
-		else if (((string)Data["url"]).Length > 0)
+		StreamingAssetInfo streamingAssetInfo = null;
+		foreach (StreamingAssetInfo value in MVGameControllerBase.Game.StreamingAssetInfoMap.Values)
 		{
-			soundLoader.Url = (string)Data["url"];
-			soundLoader.LoadSound();
+			if (value.StreamedAssetType == StreamingAssetType.AmbientAudio && value.ShopInfo.PriceGold == 0)
+			{
+				streamingAssetInfo = value;
+				break;
+			}
 		}
-		else if (((string)Data["url"]).Length <= 0)
+		if (streamingAssetInfo != null)
 		{
+			Data["name"] = streamingAssetInfo.Name;
+			Data["id"] = streamingAssetInfo.ProductID;
+			Data["url"] = streamingAssetInfo.AssetPath;
+		}
+		else
+		{
+			Data["name"] = "ForestBirds";
+			Data["id"] = 1;
 			Data["url"] = "AmbientAudio/Nature/kgm_amb_forest.unity3d";
-			soundLoader.Url = (string)Data["url"];
-			soundLoader.LoadSound();
+			Debug.LogError("Failed to get default streaming inventory data");
 		}
 	}
 
@@ -71,47 +87,87 @@ public class MVSoundEmitter : MVLogicObject, ILogicWorldObject
 		{
 			if (ShouldPlay() && !soundEmitterObject.AudioSource.isPlaying)
 			{
-				UpdateSound();
+				UpdateSound(soundEmitterObject.AudioSource.clip);
 			}
 			if (!ShouldPlay() && soundEmitterObject.AudioSource.isPlaying)
 			{
-				UpdateSound();
+				UpdateSound(soundEmitterObject.AudioSource.clip);
 			}
+		}
+	}
+
+	private void LoadSound()
+	{
+		if ((string)Data["url"] != currentUrl)
+		{
+			if (Urls.StreamingAssetUrlReady())
+			{
+				Urls.onStreamingAssetsUrlAvailable = (Urls.OnStreamingAssetsUrlAvailable)Delegate.Remove(Urls.onStreamingAssetsUrlAvailable, new Urls.OnStreamingAssetsUrlAvailable(LoadSound));
+				StopAndDestroySound();
+				currentUrl = (string)Data["url"];
+				StreamingAssetInfo saInfo = Game.StreamingAssetInfoMap.Values.FirstOrDefault((StreamingAssetInfo sai) => sai.AssetPath == currentUrl);
+				Download(saInfo);
+			}
+			else
+			{
+				Urls.onStreamingAssetsUrlAvailable = (Urls.OnStreamingAssetsUrlAvailable)Delegate.Combine(Urls.onStreamingAssetsUrlAvailable, new Urls.OnStreamingAssetsUrlAvailable(LoadSound));
+			}
+		}
+		else if (soundEmitterObject.AudioSource != null)
+		{
+			UpdateSound(soundEmitterObject.AudioSource.clip);
+		}
+	}
+
+	private void Download(StreamingAssetInfo saInfo)
+	{
+		if (saInfo != null)
+		{
+			string path = StreamingAsset.DBUrlToServerUrl(StreamingAsset.AssetBundleUrl + saInfo.RequestPath);
+			AsyncWWWManager.UnsubscribeWWWRequest(OnDownloadFinished);
+			AsyncWWWManager.WWWRequest(new CachedGetRequest(path, OnDownloadFinished, WWWRequestPriority.WaitUntilSyncronizingIsDone));
+		}
+		else
+		{
+			Debug.LogError("Could not find asset info for audio " + currentUrl);
 		}
 	}
 
 	public override void Destroy()
 	{
 		base.Destroy();
-		soundLoader.Destroy();
+		AsyncWWWManager.UnsubscribeWWWRequest(OnDownloadFinished);
+	}
+
+	public void OnDownloadFinished(WWW www)
+	{
+		if (string.IsNullOrEmpty(www.error))
+		{
+			StopAndDestroySound();
+			AudioClip clip = StreamingAsset.UnpackBundle<AudioClip>(www);
+			AudioSource audioSource = soundEmitterObject.AudioSource;
+			Data["loop"] = audioSource.loop;
+			UpdateSound(clip);
+		}
 	}
 
 	public override bool Delete(MVWorldObjectClientManager worldObjectClientManager, ref string errorText)
 	{
-		soundLoader.StopAndDestroySound();
+		StopAndDestroySound();
 		return base.Delete(worldObjectClientManager, ref errorText);
 	}
 
-	public void UpdateSound()
+	private void UpdateSound(AudioClip clip)
 	{
-		if (soundEmitterObject == null)
-		{
-			Debug.LogError("soundEmitterObject is null");
-			return;
-		}
 		AudioSource audioSource = soundEmitterObject.AudioSource;
-		if (audioSource == null)
-		{
-			Debug.LogError("audioSource for soundEmitterObject is null");
-			return;
-		}
+		audioSource.clip = clip;
 		audioSource.volume = (float)Data["volume"];
 		audioSource.pitch = (float)Data["pitch"];
 		audioSource.loop = (bool)Data["loop"];
 		audioSource.rolloffMode = AudioRolloffMode.Custom;
 		audioSource.minDistance = GetMinDistanceFromRangeAmbient((SoundRangeDistance)(int)Data["range"]);
 		audioSource.maxDistance = GetMaxDistanceFromRangeAmbient((SoundRangeDistance)(int)Data["range"]);
-		if (ShouldPlay() != audioSource.isPlaying)
+		if ((string)Data["url"] == currentUrl || ShouldPlay() != audioSource.isPlaying)
 		{
 			if (ShouldPlay())
 			{
@@ -135,6 +191,15 @@ public class MVSoundEmitter : MVLogicObject, ILogicWorldObject
 			return true;
 		}
 		return false;
+	}
+
+	private void StopAndDestroySound()
+	{
+		AudioSource audioSource = soundEmitterObject.AudioSource;
+		if (audioSource.isPlaying)
+		{
+			audioSource.Stop();
+		}
 	}
 
 	private static float GetMinDistanceFromRangeAmbient(SoundRangeDistance range)

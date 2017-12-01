@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 public abstract class FirstPersonCamera : MVCameraBase
 {
@@ -16,8 +15,8 @@ public abstract class FirstPersonCamera : MVCameraBase
 	[SerializeField]
 	protected float maxLookAngleUpward = 60f;
 
-	[SerializeField]
 	[HideInInspector]
+	[SerializeField]
 	private Vector3 cameraOffset = new Vector3(0f, 2f, 0f);
 
 	[SerializeField]
@@ -125,8 +124,7 @@ public abstract class FirstPersonCamera : MVCameraBase
 	private void ActivateFirstPerson()
 	{
 		MoveItemToFirstpersonView(localAvatar.CurrentPickup);
-		HideBody(shouldHideBody: true);
-		HideBlinking(shouldHideBlinking: true);
+		HideBody(b: true);
 		if (haveHiddenVehicle)
 		{
 			HideVehicle();
@@ -144,8 +142,7 @@ public abstract class FirstPersonCamera : MVCameraBase
 	private void DeactivateFirstPerson()
 	{
 		localAvatar.CurrentPickup.LeaveFirstPersonView();
-		HideBody(shouldHideBody: false);
-		HideBlinking(shouldHideBlinking: false);
+		HideBody(b: false);
 		if (haveHiddenVehicle)
 		{
 			ShowVehicle();
@@ -173,30 +170,9 @@ public abstract class FirstPersonCamera : MVCameraBase
 		}
 	}
 
-	private void HideBody(bool shouldHideBody)
+	private void HideBody(bool b)
 	{
-		Component[] componentsInChildren = localAvatar.Body.BodyData.GetPartBone(BodyData.PartIndex.Torso).GetComponentsInChildren<MeshRenderer>();
-		if (shouldHideBody)
-		{
-			for (short num = 0; num < componentsInChildren.Length; num++)
-			{
-				MeshRenderer meshRenderer = (MeshRenderer)componentsInChildren[num];
-				meshRenderer.shadowCastingMode = ShadowCastingMode.ShadowsOnly;
-			}
-		}
-		else
-		{
-			for (short num2 = 0; num2 < componentsInChildren.Length; num2++)
-			{
-				MeshRenderer meshRenderer2 = (MeshRenderer)componentsInChildren[num2];
-				meshRenderer2.shadowCastingMode = ShadowCastingMode.On;
-			}
-		}
-	}
-
-	private void HideBlinking(bool shouldHideBlinking)
-	{
-		localAvatar.Body.ToggleBlinking(!shouldHideBlinking);
+		localAvatar.Body.BodyData.GetPartBone(BodyData.PartIndex.Torso).gameObject.SetActive(!b);
 	}
 
 	private void HideVehicle()

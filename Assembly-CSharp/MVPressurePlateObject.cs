@@ -9,9 +9,6 @@ public class MVPressurePlateObject : ObjectPrefab
 	private Transform plateModelTransform;
 
 	[SerializeField]
-	private PressurePlateTintObject tintObject;
-
-	[SerializeField]
 	private GameObject plateLogicModel;
 
 	public GameObject useInteractionRotator;
@@ -21,8 +18,6 @@ public class MVPressurePlateObject : ObjectPrefab
 	public GameObject TriggerBoxLogic => plateLogicModel;
 
 	public Transform PlateModelTranform => plateModelTransform;
-
-	public PressurePlateTintObject TintObject => tintObject;
 
 	protected override void OnValidate()
 	{

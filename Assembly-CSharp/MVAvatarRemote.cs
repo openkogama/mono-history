@@ -12,6 +12,8 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 
 	private CullingSubscriberDynamic cullingSubscriberDynamic;
 
+	private HealthBar healthBar;
+
 	private CapsuleCollider triggerCollider;
 
 	private AvatarRemoteMovementCalculator avatarRemoteMovementCalculator;
@@ -57,9 +59,9 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 		{
 			avatar.ShowMobileIcon();
 		}
-		avatar.HealthBar.Oxygen = 0f;
+		healthBar = gameObject.GetComponentInChildren<HealthBar>();
+		healthBar.Oxygen = 0f;
 		InitializeHealth();
-		InitializeShield();
 		triggerCollider = CreateTriggerCollider();
 		MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
 		mVPlayerContainer.OnLocalPlayerReady = (Action)Delegate.Combine(mVPlayerContainer.OnLocalPlayerReady, new Action(InitAvatarState));
@@ -102,23 +104,9 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 		MVRuntimeDataVariableClampedFloat health = Health;
 		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object obj) =>
 		{
-			TrySpawningHealParticles(avatar.HealthBar.Health, Health.Value);
-			avatar.HealthBar.Health = (float)obj;
+			healthBar.Health = (float)obj;
 		}));
-		avatar.HealthBar.Health = Health.Value;
-		Body.InitializeHealth(Health.Value);
-	}
-
-	private void InitializeShield()
-	{
-		MVRuntimeDataVariableClampedFloat mVRuntimeDataVariableClampedFloat = Shield;
-		mVRuntimeDataVariableClampedFloat.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(mVRuntimeDataVariableClampedFloat.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object shield) =>
-		{
-			TrySpawningHealParticles(avatar.ShieldBar.Shield, Shield.Value);
-			avatar.ShieldBar.Shield = (float)shield;
-		}));
-		avatar.ShieldBar.Shield = Shield.Value;
-		Body.InitializeShield(Shield.Value);
+		healthBar.Health = Health.Value;
 	}
 
 	private CapsuleCollider CreateTriggerCollider()
@@ -178,7 +166,6 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 
 	protected override void AvatarStateChangedHandler(object a)
 	{
-		healParticleSpawnTime = Time.time;
 		base.AvatarStateChangedHandler(a);
 		int num = (int)a;
 		if ((num & 4) > 0)

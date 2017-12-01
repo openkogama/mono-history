@@ -34,7 +34,7 @@ public class LevelBasedUseRequirement : UseRequirement
 
 	public override UseGUIResult GetCanUseGUIResult()
 	{
-		if (levelAmount == 0 || MVGameControllerBase.Game.LocalPlayer.Level >= levelAmount)
+		if (levelAmount == 0)
 		{
 			if (hasUseWhenFree)
 			{

@@ -7,21 +7,13 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 {
 	private const float damageValue = 100f;
 
-	private const float originalDamageRadius = 2.5f;
-
-	private const float originalVisualObjectScale = 5f;
-
-	private const float originalParticleSize = 4f;
-
-	private const float fireHitBoxYOffset = 0.04f;
+	private const float damageRadius = 2.5f;
 
 	private List<MVWorldObjectClient> woList = new List<MVWorldObjectClient>();
 
 	private FireObject fireObject;
 
 	private SphereVolumeIndicator rangeVis;
-
-	private float damageRadius = 2.5f;
 
 	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.Fire;
 
@@ -37,7 +29,6 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 		: base(data, PrefabPool.Instance.MVFirePrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.CanResetLogic;
-		InteractionFlags |= InteractionFlags.HasSettings;
 		fireObject = (FireObject)component;
 		fireObject.AudioSource.pitch = 1f + UnityEngine.Random.Range(-0.2f, 0.2f);
 		fireObject.TriggerBoxEvents.TriggerEnter += TriggerAreaEnter;
@@ -57,11 +48,8 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 		rangeVis = UnityEngine.Object.Instantiate(PrefabPool.Instance.RangeVisualizationObject);
 		rangeVis.transform.parent = fireObject.transform;
 		rangeVis.transform.localPosition = Vector3.zero;
-		rangeVis.Radius = damageRadius;
+		rangeVis.Radius = 2.5f;
 		rangeVis.Initialize(Id);
-		SetFireToData();
-		float num = damageRadius / 2.5f * 5f;
-		SetFireHitBoxYOffset(num * 0.04f);
 		InputSignalReceiver = LogicClientsideFactory.CreateStateChangeInputSignalReceiver(this, defaultInput: true, null, OnInputStateUpdate);
 		ToggleEmitter(InputSignalReceiver.CurrentlyIsHot);
 	}
@@ -127,7 +115,7 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 	protected override void OnUpdate()
 	{
 		base.OnUpdate();
-		if (InputSignalReceiver == null || !InputSignalReceiver.CurrentlyIsHot)
+		if (!InputSignalReceiver.CurrentlyIsHot)
 		{
 			return;
 		}
@@ -147,90 +135,11 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 				{
 					num = Vector3.Distance(mVWorldObjectClient.Collider.ClosestPointOnBounds(WorldPosition), WorldPosition);
 				}
-				float num2 = 1f;
-				float startSize = fireObject.ParticleSystem.startSize;
-				num2 = ((!(startSize <= 4f)) ? (startSize / 13f) : (startSize / 12f));
-				float num3 = Time.deltaTime * 100f * (1f - num / damageRadius);
-				num3 = Mathf.Clamp(num2 * num3, 0f, 100f);
-				interactionDataHandlerBase.HandleInteraction(ProximityDamageAndImpulse.Create(num3, Vector3.zero, PlayerKilledByType.Fire), interactionIsLocal: true);
+				float value = Time.deltaTime * 100f * (1f - num / 2.5f);
+				value = Mathf.Clamp(value, 0f, 100f);
+				interactionDataHandlerBase.HandleInteraction(ProximityDamageAndImpulse.Create(value, Vector3.zero, PlayerKilledByType.Fire), interactionIsLocal: true);
 			}
 		}
-	}
-
-	public override void OnDataUpdate()
-	{
-		SetFireToData();
-		LogicObjectManager.ResetChunk(Id, MVGameControllerBase.WOCM);
-	}
-
-	private void SetFireToData()
-	{
-		if (Data.ContainsKey("C"))
-		{
-			float[] array = (float[])Data["C"];
-			fireObject.ParticleSystem.startColor = new Color(array[0], array[1], array[2]);
-		}
-		float num = fireObject.ParticleSystem.startSize * 0.625f / 2f;
-		float num2 = num / 2.5f * 5f;
-		SetFireHitBoxYOffset((0f - num2) * 0.04f);
-		if (Data.ContainsKey("I"))
-		{
-			fireObject.ParticleSystem.startSize = (float)Data["I"];
-		}
-		float startSize = fireObject.ParticleSystem.startSize;
-		damageRadius = startSize * 0.625f;
-		damageRadius /= 2f;
-		rangeVis.Radius = damageRadius;
-		float num3 = damageRadius / 2.5f * 5f;
-		SetFireHitBoxYOffset(num3 * 0.04f);
-		Vector3 localScale = fireObject.TriggerBoxEvents.transform.localScale;
-		localScale.x = num3;
-		localScale.y = num3;
-		localScale.z = num3;
-		fireObject.TriggerBoxEvents.transform.localScale = localScale;
-		RenewCullingSize();
-		if (startSize < 4f)
-		{
-			ParticleSystem.EmissionModule emission = fireObject.ParticleSystem.emission;
-			ParticleSystem.MinMaxCurve rate = emission.rate;
-			rate.constantMax = 10f;
-			emission.rate = rate;
-			fireObject.ParticleSystem.startLifetime = 0.4f;
-			fireObject.ParticleSystem.startSpeed = 0.5f;
-			ParticleSystem.ShapeModule shape = fireObject.ParticleSystem.shape;
-			shape.randomDirection = false;
-			ParticleSystem.SizeOverLifetimeModule sizeOverLifetime = fireObject.ParticleSystem.sizeOverLifetime;
-			AnimationCurve animationCurve = new AnimationCurve();
-			animationCurve.AddKey(0f, 0.5f);
-			animationCurve.AddKey(0.6f, 0.5f);
-			animationCurve.AddKey(1f, 0.1f);
-			ParticleSystem.MinMaxCurve size = new ParticleSystem.MinMaxCurve(1f, animationCurve);
-			sizeOverLifetime.size = size;
-		}
-		else
-		{
-			ParticleSystem.EmissionModule emission2 = fireObject.ParticleSystem.emission;
-			ParticleSystem.MinMaxCurve rate2 = emission2.rate;
-			rate2.constantMax = 22f;
-			emission2.rate = rate2;
-			fireObject.ParticleSystem.startLifetime = 0.6f;
-			fireObject.ParticleSystem.startSpeed = 1.6f;
-			ParticleSystem.SizeOverLifetimeModule sizeOverLifetime2 = fireObject.ParticleSystem.sizeOverLifetime;
-			AnimationCurve animationCurve2 = new AnimationCurve();
-			animationCurve2.AddKey(0f, 0.4f);
-			animationCurve2.AddKey(0.6f, 1f);
-			animationCurve2.AddKey(1f, 0.1f);
-			ParticleSystem.MinMaxCurve size2 = new ParticleSystem.MinMaxCurve(1f, animationCurve2);
-			sizeOverLifetime2.size = size2;
-			ParticleSystem.ShapeModule shape2 = fireObject.ParticleSystem.shape;
-			shape2.randomDirection = true;
-		}
-	}
-
-	private void RenewCullingSize()
-	{
-		cullingSubscriberBase.Destroy();
-		cullingSubscriberBase = new CullingSubscriberBase(damageRadius, WorldPosition, OnStateChanged);
 	}
 
 	public override void Destroy()
@@ -241,19 +150,5 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
 			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Remove(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
 		}
-	}
-
-	private void SetFireHitBoxYOffset(float offset)
-	{
-		if (offset < 0.04f && offset > 0f)
-		{
-			offset *= -1f;
-		}
-		Vector3 vector = fireObject.TriggerBoxEvents.transform.position;
-		vector.y += offset;
-		Vector3 localPosition = rangeVis.transform.localPosition;
-		localPosition.y += offset;
-		rangeVis.transform.localPosition = localPosition;
-		fireObject.TriggerBoxEvents.transform.position = vector;
 	}
 }
