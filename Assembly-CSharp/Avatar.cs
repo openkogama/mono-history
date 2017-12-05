@@ -14,7 +14,7 @@ public class Avatar : MonoBehaviour, IMovable, IBulletImpactVisualizer
 
 	private Dictionary<AvatarModifierPackageType, byte> currentModifierByteState = new Dictionary<AvatarModifierPackageType, byte>();
 
-	private byte[] modifierEffectCount = new byte[21];
+	private byte[] modifierEffectCount = new byte[22];
 
 	private InteractionDataHandlerBase interactionDataHandler;
 
@@ -30,7 +30,16 @@ public class Avatar : MonoBehaviour, IMovable, IBulletImpactVisualizer
 	private Renderer healthBarRenderer;
 
 	[SerializeField]
+	private Renderer shieldBarRenderer;
+
+	[SerializeField]
 	private Renderer teamIconRenderer;
+
+	[SerializeField]
+	private HealthBar healthBar;
+
+	[SerializeField]
+	private ShieldBar shieldBar;
 
 	[SerializeField]
 	private Material teamIconMaterial;
@@ -68,6 +77,8 @@ public class Avatar : MonoBehaviour, IMovable, IBulletImpactVisualizer
 
 	private Material avatarHealthMaterial;
 
+	private Material avatarShieldMaterial;
+
 	private Material avatarTeamIconMaterial;
 
 	private bool nameTagLabelVisible;
@@ -97,6 +108,10 @@ public class Avatar : MonoBehaviour, IMovable, IBulletImpactVisualizer
 			}
 		}
 	}
+
+	public HealthBar HealthBar => healthBar;
+
+	public ShieldBar ShieldBar => shieldBar;
 
 	public Vector3 Velocity => mvAvatar.VelocityAbsolute;
 
@@ -134,6 +149,7 @@ public class Avatar : MonoBehaviour, IMovable, IBulletImpactVisualizer
 		avatarLevelUp.Init(mvAvatar.OwnerActorNr);
 		avatarNameMaterial = avatarName.GetComponent<Renderer>().material;
 		avatarHealthMaterial = healthBarRenderer.material;
+		avatarShieldMaterial = shieldBarRenderer.material;
 		waterSplashComponent.Initialize(this);
 	}
 
@@ -251,16 +267,20 @@ public class Avatar : MonoBehaviour, IMovable, IBulletImpactVisualizer
 
 	public void SetHealthBarColor(bool isFriendly)
 	{
+		avatarShieldMaterial.color = new Color(25f / 255f, 25f / 255f, 112f / 255f);
 		if (isFriendly)
 		{
 			avatarHealthMaterial.color = Color.green;
 			teamIconRenderer.material = teamIconMaterial;
+			return;
 		}
-		else
-		{
-			avatarHealthMaterial.color = Color.red;
-			teamIconRenderer.material = enemyIconMaterial;
-		}
+		Color red = Color.red;
+		red.r = 1f;
+		red.g = 99f / 255f;
+		red.b = 71f / 255f;
+		avatarHealthMaterial.color = red;
+		enemyIconMaterial.color = red;
+		teamIconRenderer.material = enemyIconMaterial;
 	}
 
 	public void StartBlinking(BlinkType type, float duration = float.PositiveInfinity)
@@ -297,5 +317,11 @@ public class Avatar : MonoBehaviour, IMovable, IBulletImpactVisualizer
 	public bool HasModifierEffect(AvatarModifierEffect modifierEffect)
 	{
 		return modifierEffectCount[(int)modifierEffect] > 0;
+	}
+
+	public void DeactivateBars()
+	{
+		healthBar.gameObject.SetActive(value: false);
+		shieldBar.gameObject.SetActive(value: false);
 	}
 }

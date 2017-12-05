@@ -35,6 +35,8 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 
 	public Action<float, MVPlayer, PlayerKilledByType> OnDamageTaken;
 
+	public Action OnShieldReplenished;
+
 	private DamageSource lastDamageSource = DamageSource.none;
 
 	private HashSet<PlayerKilledByType> KillNotificationBlacklist = new HashSet<PlayerKilledByType>
@@ -70,19 +72,43 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 
 	public DamageSource LastDamageSource => (!lastDamageSource.Outdated) ? lastDamageSource : null;
 
-	public override void Init(MVRuntimeDataVariable runtimeDataModifiers, MVRuntimeDataVariableClampedFloat health)
+	public override void Init(MVRuntimeDataVariable runtimeDataModifiers, MVRuntimeDataVariableClampedFloat health, MVRuntimeDataVariableClampedFloat shield)
 	{
-		base.Init(runtimeDataModifiers, health);
+		base.Init(runtimeDataModifiers, health, shield);
 		materialHitHandler.Initialize(hitPackages, transform);
 	}
 
 	public override void TakeDamage(float amount, MVPlayer damageDealer, PlayerKilledByType damageType)
 	{
-		if (IgnoreDamage(damageDealer) || !MVGameControllerBase.Game.IsPlaying || HasModifierEffect(AvatarModifierEffect.Invulnerable))
+		if (amount > 0f)
+		{
+			if (IgnoreDamage(damageDealer))
+			{
+				return;
+			}
+		}
+		else
+		{
+			if (IgnoreHealing(damageDealer))
+			{
+				return;
+			}
+			if (health.Value >= 100f)
+			{
+				float num = HandleModifierEffect(AvatarModifierEffect.OverHeal, 0f) * Time.deltaTime;
+				shield.Value += num;
+				if (OnShieldReplenished != null)
+				{
+					OnShieldReplenished();
+				}
+			}
+		}
+		if (!MVGameControllerBase.Game.IsPlaying || HasModifierEffect(AvatarModifierEffect.Invulnerable))
 		{
 			return;
 		}
 		amount *= HandleModifierEffect(AvatarModifierEffect.DamageMultiplier, 1f);
+		amount = DamageShield(amount);
 		float value = health.Value;
 		health.Value -= amount;
 		if (damageDealer != null)
@@ -125,13 +151,29 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 		}
 	}
 
+	private float DamageShield(float amount)
+	{
+		if (amount < 0f)
+		{
+			return amount;
+		}
+		if (amount > shield.Value)
+		{
+			float result = amount - shield.Value;
+			shield.Value = 0f;
+			return result;
+		}
+		shield.Value -= amount;
+		return 0f;
+	}
+
 	public override void AddModifier(AvatarModifierPackageType type, int id = -1, AvatarModifierPackage.AvatarModifier[] additionalModifers = null)
 	{
 		if (!MVGameControllerBase.Game.IsPlaying)
 		{
 			return;
 		}
-		BitArray bitArray = new BitArray(27);
+		BitArray bitArray = new BitArray(28);
 		if (HasModifierEffect(AvatarModifierEffect.GodzillaImmunity))
 		{
 			bitArray.SetAll(value: true);

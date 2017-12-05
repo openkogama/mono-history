@@ -18,6 +18,9 @@ public class SettingsFactory : MonoBehaviour
 	private PointLightSettings pointLightSettingsPrefab;
 
 	[SerializeField]
+	private SmokeSettings smokeSettingsPrefab;
+
+	[SerializeField]
 	private KillLimitSettings killLimitSettingsPrefab;
 
 	[SerializeField]
@@ -75,7 +78,13 @@ public class SettingsFactory : MonoBehaviour
 	private SoundEmitterSettings soundEmitterSettingsPrefab;
 
 	[SerializeField]
+	private GlobalSoundEmitterSettings globalSoundEmitterSettingsPrefab;
+
+	[SerializeField]
 	private SoundInventoryController soundInventoryControllerPrefab;
+
+	[SerializeField]
+	private SoundInventoryController globalSoundInventoryControllerPrefab;
 
 	[SerializeField]
 	private LeverSettings leverSettingsPrefab;
@@ -91,6 +100,9 @@ public class SettingsFactory : MonoBehaviour
 
 	[SerializeField]
 	private GodzillaSettings godzillaSettingsPrefab;
+
+	[SerializeField]
+	private FireSettings fireSettingsPrefab;
 
 	[SerializeField]
 	private LevelRequirementSettings levelRequirementSettingsPrefab;
@@ -149,6 +161,12 @@ public class SettingsFactory : MonoBehaviour
 		{
 			PointLightSettings pointLightSettings = Object.Instantiate(pointLightSettingsPrefab);
 			pointLightSettings.Initialize(woID, gameObject);
+			break;
+		}
+		case WorldObjectType.Smoke:
+		{
+			SmokeSettings smokeSettings = Object.Instantiate(smokeSettingsPrefab);
+			smokeSettings.Initialize(woID, gameObject);
 			break;
 		}
 		case WorldObjectType.KillLimit:
@@ -262,6 +280,12 @@ public class SettingsFactory : MonoBehaviour
 			soundEmitterSettings.Initialize(woID, gameObject);
 			break;
 		}
+		case WorldObjectType.GlobalSoundEmitter:
+		{
+			GlobalSoundEmitterSettings globalSoundEmitterSettings = Object.Instantiate(globalSoundEmitterSettingsPrefab);
+			globalSoundEmitterSettings.Initialize(woID, gameObject);
+			break;
+		}
 		case WorldObjectType.UseLever:
 		{
 			LeverSettings leverSettings = Object.Instantiate(leverSettingsPrefab);
@@ -292,6 +316,12 @@ public class SettingsFactory : MonoBehaviour
 			godzillaSettings.Initialize(woID, gameObject);
 			break;
 		}
+		case WorldObjectType.Fire:
+		{
+			FireSettings fireSettings = Object.Instantiate(fireSettingsPrefab);
+			fireSettings.Initialize(woID, gameObject);
+			break;
+		}
 		default:
 			Debug.LogError("WorldObjectType has no settings dialogue.");
 			break;
@@ -301,6 +331,12 @@ public class SettingsFactory : MonoBehaviour
 	public void CreateSoundsInventory(int woID)
 	{
 		SoundInventoryController soundInventoryController = Object.Instantiate(soundInventoryControllerPrefab);
+		soundInventoryController.Initialize(woID, gameObject);
+	}
+
+	public void CreateGlobalSoundsInventory(int woID)
+	{
+		SoundInventoryController soundInventoryController = Object.Instantiate(globalSoundInventoryControllerPrefab);
 		soundInventoryController.Initialize(woID, gameObject);
 	}
 

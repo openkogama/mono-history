@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
 
-public abstract class MVSimpleOneSeatVehicle : MVVehicleBase
+public abstract class MVSimpleOneSeatVehicle : MVVehicleBase, ICurrentItemOwner
 {
 	protected class LocalObjectsSimpleVehicle : LocalObjectsBase
 	{
@@ -27,7 +27,7 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase
 			health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnHealthChange));
 			GameObject gameObject = vehicleBase.GameObject;
 			VehicleInteractable vehicleInteractable = gameObject.AddComponent<VehicleInteractable>();
-			vehicleInteractable.Init(vehicleBase.Modifiers, vehicleBase.Health);
+			vehicleInteractable.Init(vehicleBase.Modifiers, vehicleBase.Health, vehicleBase.Shield);
 			motor.Init(smoothController, vehicleInteractable);
 			onLeave = (Action)Delegate.Combine(onLeave, new Action(motor.OnLocalVehicleLeave));
 			VehicleEquipable vehicleEquipable = gameObject.AddComponent<VehicleEquipable>();
@@ -117,7 +117,21 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase
 
 	public MVRuntimeDataVariable IsFiring;
 
+	private MVRuntimeDataVariableClampedFloat shield;
+
 	protected EditableCubeModelWrapper editableCubeModelWrapper;
+
+	public MVRuntimeDataVariableClampedFloat Shield
+	{
+		get
+		{
+			return shield;
+		}
+		set
+		{
+			shield = value;
+		}
+	}
 
 	protected MVSimpleOneSeatVehicle(Dictionary<object, object> data, VehicleBaseObject _vehiclePrefab, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, _vehiclePrefab, worldObjects)
@@ -129,6 +143,7 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase
 		base.Initialize();
 		float maxValue = (float)RuntimeVariablesRepository.GetRuntimeVariables(WorldObjectType)["health"];
 		Health = RuntimeDataVariables.NewClampedFloat("health", 0.2f, writeThrough: false, 0f, maxValue);
+		Shield = RuntimeDataVariables.NewClampedFloat("shield", 0.2f, writeThrough: false, 0f, maxValue);
 		CurrentItem = RuntimeDataVariables.New("currentItem", 0f, writeThrough: true);
 		IsFiring = RuntimeDataVariables.New("isFiring", 0f, writeThrough: false);
 		Modifiers = RuntimeDataVariables.New("modifiers", 1f, writeThrough: false);
@@ -155,5 +170,15 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase
 	public override bool OnExitObject(EditorStateMachine e)
 	{
 		return editableCubeModelWrapper.OnExitObject(e);
+	}
+
+	public Dictionary<object, object> GetCurrentItemState()
+	{
+		return (Dictionary<object, object>)CurrentItem.Value;
+	}
+
+	public void SetCurrentItemState(Dictionary<object, object> aNewState)
+	{
+		CurrentItem.Value = aNewState;
 	}
 }

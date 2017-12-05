@@ -5,7 +5,7 @@ using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 
-public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
+public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletImpactVisualizer
 {
 	private class AvatarLocalModes
 	{
@@ -1030,6 +1030,10 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 
 	public Action<string> OnKilled;
 
+	private float previousHealth;
+
+	private float previousShield;
+
 	public Action<float, MVPlayer, PlayerKilledByType> OnDamageTaken;
 
 	public AvatarInteractable InteractableLocal => interactableLocal;
@@ -1133,7 +1137,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 		avatarMotor = gameObject.AddComponent<AvatarMotor>();
 		triggerHandler = gameObject.AddComponent<MVTriggerHandler>();
 		AvatarInteractable avatarInteractable = gameObject.AddComponent<AvatarInteractable>();
-		avatarInteractable.Init(Modifiers, Health);
+		avatarInteractable.Init(Modifiers, Health, Shield);
 		interactableLocal = avatarInteractable;
 		AvatarInteractable avatarInteractable2 = interactableLocal;
 		avatarInteractable2.OnDamageTaken = (Action<float, MVPlayer, PlayerKilledByType>)Delegate.Combine(avatarInteractable2.OnDamageTaken, new Action<float, MVPlayer, PlayerKilledByType>(RelayDamageEvent));
@@ -1147,16 +1151,9 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 			pickupGUI.Initialize(pickupOwner);
 		}
 		avatarLocalModes = new AvatarLocalModes(this);
-		MVRuntimeDataVariableClampedFloat health = Health;
-		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object obj) =>
-		{
-			if ((float)obj == 0f)
-			{
-				Die();
-			}
-		}));
-		HealthBar componentInChildren = gameObject.GetComponentInChildren<HealthBar>();
-		UnityEngine.Object.Destroy(componentInChildren.gameObject);
+		InitializeHealth();
+		InitializeShield();
+		avatar.DeactivateBars();
 		MVGameControllerBase.WOCM.AvatarLocal = this;
 		InitializeAvatarState(MVGameControllerBase.GameMode, MVGameControllerBase.Game.GameType);
 		if (MVGameControllerBase.GameMode != MVGameMode.CharacterEditor)
@@ -1170,6 +1167,9 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 		avatarMotor.GetSizeState.UnEquipSlapGunEvent += OnUnequip;
 		avatarInteractable.ModifierPackages.OnUnequipItemEvent += OnUnequip;
 		avatarInteractable.ModifierPackages.OnDisableVehiclesEvent += OnDisableVehicles;
+		AvatarShieldDecay avatarShieldDecay = gameObject.AddComponent<AvatarShieldDecay>();
+		avatarShieldDecay.Init(Shield);
+		avatarInteractable.OnShieldReplenished = (Action)Delegate.Combine(avatarInteractable.OnShieldReplenished, new Action(avatarShieldDecay.ResetDecayTimer));
 		CullingApiWrapper.SetDistanceReferencePoint(transform);
 	}
 
@@ -1180,6 +1180,8 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 
 	public void SetMode(AvatarRuntimeState localMode)
 	{
+		healParticleSpawnTime = Time.time;
+		Shield.Value = 0f;
 		avatarLocalModes.SetMode(localMode);
 	}
 
@@ -1199,6 +1201,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 
 	public void LeaveVehicle(bool leaveBecauseOfServer)
 	{
+		Vector3 impulse = RigidBody.Velocity;
 		vehicleRigidBody = null;
 		int vehicleID = -1;
 		if (!MVGameControllerBase.Game.PlayerController.DetachWorldObjectFromVehicle(Id, ref vehicleID, leaveBecauseOfServer))
@@ -1211,6 +1214,15 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 			if (worldObjectClient != null && worldObjectClient is MVVehicleBase)
 			{
 				((MVVehicleBase)worldObjectClient).LeaveLocal();
+				MVRigidBody mVRigidBody = worldObjectClient.GameObject.GetComponent<MVRigidBody>();
+				if (mVRigidBody != null)
+				{
+					Vector3 velocity = mVRigidBody.Velocity;
+					velocity /= Time.deltaTime;
+					velocity /= 2f;
+					velocity.y += velocity.magnitude / 7f;
+					impulse = velocity;
+				}
 			}
 			else
 			{
@@ -1222,6 +1234,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 		RigidBody.Reset();
 		RigidBody.enabled = true;
 		triggerHandler.enabled = true;
+		RigidBody.AddImpulse(impulse);
 		MVGameControllerBase.Game.TransformNetworkManager.AddReporter(id, new MVNetworkReporter(this));
 	}
 
@@ -1349,6 +1362,35 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 		}
 	}
 
+	private void InitializeHealth()
+	{
+		previousHealth = Health.Value;
+		MVRuntimeDataVariableClampedFloat health = Health;
+		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object obj) =>
+		{
+			if ((float)obj == 0f)
+			{
+				Die();
+			}
+			else
+			{
+				TrySpawningHealParticles(previousHealth, Health.Value);
+			}
+			previousHealth = Health.Value;
+		}));
+	}
+
+	private void InitializeShield()
+	{
+		previousShield = Shield.Value;
+		MVRuntimeDataVariableClampedFloat mVRuntimeDataVariableClampedFloat = Shield;
+		mVRuntimeDataVariableClampedFloat.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(mVRuntimeDataVariableClampedFloat.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object shield) =>
+		{
+			TrySpawningHealParticles(previousShield, Shield.Value);
+			previousShield = Shield.Value;
+		}));
+	}
+
 	private void OnDisableVehicles(object sender, EventArgs args)
 	{
 		if (IsSeated)
@@ -1384,6 +1426,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 	{
 		if (IsInMode(AvatarModeTypes.Playing))
 		{
+			Shield.Value = 0f;
 			AvatarRuntimeState currentState = CurrentState;
 			if (currentState == AvatarRuntimeState.Godzilla)
 			{
@@ -1431,5 +1474,15 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer
 		{
 			avatar.VisualizeBulletImpact(voxelHit, lineOfFire, shooterActorNumber, damage);
 		}
+	}
+
+	public Dictionary<object, object> GetCurrentItemState()
+	{
+		return (Dictionary<object, object>)CurrentItem.Value;
+	}
+
+	public void SetCurrentItemState(Dictionary<object, object> aNewState)
+	{
+		CurrentItem.Value = aNewState;
 	}
 }

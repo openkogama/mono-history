@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 {
-	[SerializeField]
 	[Header("Stats for Godzilla (will be scaled by godzilla size)")]
+	[SerializeField]
 	private AnimationCurve baseAreaDamageByRange;
 
 	[SerializeField]
@@ -29,8 +29,8 @@ public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 	private AnimationCurve chargeCurve;
 
 	[Header("Network")]
-	[Tooltip("Look direction updates per second.")]
 	[SerializeField]
+	[Tooltip("Look direction updates per second.")]
 	private float lookUpdateRate = 2f;
 
 	[SerializeField]

@@ -132,6 +132,14 @@ public class AdvancedGhostVisualizaton : MonoBehaviour
 		}
 	}
 
+	public void ReceivedHealing()
+	{
+		if (gameObject.activeInHierarchy)
+		{
+			blinker.StartBlinking(BlinkType.Healing, 1.3f);
+		}
+	}
+
 	public void PlayEffect(Effect effect, float duration)
 	{
 		if (currentEffect != null)
