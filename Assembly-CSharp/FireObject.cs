@@ -17,9 +17,6 @@ public class FireObject : ObjectPrefab
 	[SerializeField]
 	private Collider fireCollider;
 
-	[SerializeField]
-	private AnimationCurve soundIntensityScale;
-
 	public TriggerBoxEvents TriggerBoxEvents => triggerBoxEvents;
 
 	public ParticleSystem ParticleSystem => fireParticleSystem;
@@ -29,6 +26,4 @@ public class FireObject : ObjectPrefab
 	public Collider FireCollider => fireCollider;
 
 	public GameObject VisualObject => visualObject;
-
-	public AnimationCurve SoundIntensityScale => soundIntensityScale;
 }

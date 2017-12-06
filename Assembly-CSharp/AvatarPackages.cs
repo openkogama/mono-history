@@ -96,10 +96,6 @@ public static class AvatarPackages
 		{
 			InteractionPackageType.SlapGunHit,
 			new SlapGunHitPackage()
-		},
-		{
-			InteractionPackageType.HealRayHit,
-			new HealRayHitPackage()
 		}
 	};
 }

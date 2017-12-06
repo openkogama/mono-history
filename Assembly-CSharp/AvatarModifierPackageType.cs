@@ -27,6 +27,5 @@ public enum AvatarModifierPackageType
 	GodzillaLaserBurnXL,
 	GodzillaGrowthInvulnerability,
 	SpawnProtection,
-	RayHeal,
 	SIZE
 }

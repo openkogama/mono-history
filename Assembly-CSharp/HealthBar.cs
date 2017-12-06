@@ -8,10 +8,6 @@ public class HealthBar : MonoBehaviour
 
 	public float Health
 	{
-		get
-		{
-			return healthPivot.localScale.x * 100f;
-		}
 		set
 		{
 			Vector3 localScale = healthPivot.localScale;

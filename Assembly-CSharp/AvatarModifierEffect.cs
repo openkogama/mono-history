@@ -21,6 +21,5 @@ public enum AvatarModifierEffect
 	WallJump,
 	FlamerDamagePrSec,
 	ThrustFactor,
-	OverHeal,
 	Size
 }

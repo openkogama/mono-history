@@ -71,6 +71,5 @@ public enum AvatarItemType
 	Thomas8,
 	Thomas9,
 	Thomas10,
-	Thomas11,
-	HealRay
+	Thomas11
 }

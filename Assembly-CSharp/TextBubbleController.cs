@@ -50,8 +50,8 @@ public class TextBubbleController : MonoBehaviour, IEventSystemHandler
 	[SerializeField]
 	private float bubbleFadeIn = 0.2f;
 
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	private TextBubble textBubblePrefab;
 
 	[SerializeField]

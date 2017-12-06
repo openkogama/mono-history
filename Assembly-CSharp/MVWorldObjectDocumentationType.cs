@@ -49,7 +49,6 @@ public enum MVWorldObjectDocumentationType
 	Skybox,
 	WaterPlane,
 	SoundEmitter,
-	GlobalSoundEmitter,
 	Checkpoint,
 	OculusKillWinCondition,
 	WindTurbine,
@@ -67,6 +66,5 @@ public enum MVWorldObjectDocumentationType
 	CountingCube,
 	ShootableButton,
 	Lever,
-	CollectTheItem,
-	HealRay
+	CollectTheItem
 }

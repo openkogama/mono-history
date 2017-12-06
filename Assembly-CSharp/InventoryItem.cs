@@ -330,14 +330,6 @@ public class InventoryItem
 		{
 			MVWorldObjectDocumentationType.CollectTheItem,
 			new ItemDescription(TM._("Collect And Drop"), TM._("A pair consisting of a pickup and a drop off area. Sends a signal when someone brings the pickup into the drop off area."), TM._("Can be used for everything from locked doors (bring the key to the door), to pizza deliveries (bring the pizza to the helicopter)."))
-		},
-		{
-			MVWorldObjectDocumentationType.HealRay,
-			new ItemDescription(TM._("Heal Ray"), TM._("Shoots a ray that heals people, repairs vehicles, and removes poison and fire."), TM._("Don't let your friends die, shoot them!"))
-		},
-		{
-			MVWorldObjectDocumentationType.GlobalSoundEmitter,
-			new ItemDescription(TM._("Global Speaker"), TM._("Adds a global sound to the game that can be heard from anywhere."), TM._("This can be used to make a better ambience for the game."))
 		}
 	};
 

@@ -31,7 +31,7 @@ public class TeamRequirement : UseRequirement
 	public override UseGUIResult GetCanUseGUIResult()
 	{
 		MVTeam mVTeam = MVGameControllerBase.Game.LocalPlayer.Team;
-		if (team == MVTeam.None || (mVTeam == team && MVGameControllerBase.Game.TeamManager.TeamCount() != 1))
+		if (team == MVTeam.None)
 		{
 			if (hasUseButtonWhenFree)
 			{

@@ -219,16 +219,6 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		initialized = true;
 	}
 
-	public void InitializeHealth(float currentHealthAmount)
-	{
-		bodyObject.AvatarBlinker.SetPreviousHealth(currentHealthAmount);
-	}
-
-	public void InitializeShield(float currentShieldAmount)
-	{
-		bodyObject.AvatarBlinker.SetPreviousShield(currentShieldAmount);
-	}
-
 	public void EditorSwapAccessoryAssetPath(int invID, string assetPath)
 	{
 		if (Application.isEditor)
@@ -514,11 +504,6 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 	public void StopBlinking(BlinkType type)
 	{
 		bodyObject.AvatarBlinker.StopBlinking(type);
-	}
-
-	public void ToggleBlinking(bool shouldShowBlinking)
-	{
-		bodyObject.AvatarBlinker.Visible = shouldShowBlinking;
 	}
 
 	public GameObject CopyByValue()

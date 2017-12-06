@@ -52,10 +52,6 @@ public class AvatarModifierPackages
 	private void AddModifierPackage(AvatarModifierPackage modifierPackage, int id)
 	{
 		modifierPackage.id = id;
-		if (!HandleNewAvatarModifierPackage(modifierPackage))
-		{
-			return;
-		}
 		if (modifierPackage.AvatarModifierPackageAdditionPolicy == AvatarModifierPackageAdditionPolicy.Renew)
 		{
 			int num = packages.FindIndex((AvatarModifierPackage x) => modifierPackage.IsEqualTo(x));
@@ -64,10 +60,16 @@ public class AvatarModifierPackages
 				AvatarModifierPackage value = packages[num];
 				value.Renew();
 				packages[num] = value;
-				return;
+			}
+			else
+			{
+				packages.Add(modifierPackage);
 			}
 		}
-		packages.Add(modifierPackage);
+		else
+		{
+			packages.Add(modifierPackage);
+		}
 	}
 
 	public void AddModifier(AvatarModifierPackageType modifierPackageType, int id = -1, AvatarModifierPackage.AvatarModifier[] additionalModifers = null)
@@ -114,41 +116,6 @@ public class AvatarModifierPackages
 			}
 		}
 		return ModifierActions.Add;
-	}
-
-	private bool HandleNewAvatarModifierPackage(AvatarModifierPackage newAvatarModifierPackage)
-	{
-		bool result = true;
-		foreach (AvatarModifierPackage package in packages)
-		{
-			ModifierActions modifierActions = ModifierActions.Add;
-			if (newAvatarModifierPackage.actionsToTakeVsTypes == null)
-			{
-				continue;
-			}
-			foreach (AvatarModifierPackageType key in newAvatarModifierPackage.actionsToTakeVsTypes.Keys)
-			{
-				if (key == package.AvatarModifierPackageType)
-				{
-					modifierActions = newAvatarModifierPackage.actionsToTakeVsTypes[key];
-					break;
-				}
-			}
-			switch (modifierActions)
-			{
-			case ModifierActions.Renew:
-				package.Renew();
-				break;
-			case ModifierActions.Replace:
-				RemoveModifier(package.AvatarModifierPackageType, package.id);
-				break;
-			case ModifierActions.CancelOut:
-				RemoveModifier(package.AvatarModifierPackageType, package.id);
-				result = false;
-				break;
-			}
-		}
-		return result;
 	}
 
 	public AvatarModifierPackageType GetPackageToActWith(AvatarModifierPackageType modifierPackageType, ModifierActions action)
