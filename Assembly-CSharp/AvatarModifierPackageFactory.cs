@@ -199,6 +199,24 @@ public static class AvatarModifierPackageFactory
 		{
 			AvatarModifierPackageType.SpawnProtection,
 			AssembleInvulnerabilityPackage(AvatarModifierPackageType.SpawnProtection, 4f)
+		},
+		{
+			AvatarModifierPackageType.RayHeal,
+			new AvatarModifierPackage(AvatarModifierPackageType.RayHeal, AvatarModifierPackageAdditionPolicy.Add, 0.2f, new AvatarModifierPackage.AvatarModifier[2]
+			{
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Addition, AvatarModifierEffect.EnvironmentDamagePrSec, Const(-20f)),
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Addition, AvatarModifierEffect.OverHeal, Const(20f))
+			}, new Dictionary<AvatarModifierPackageType, ModifierActions>
+			{
+				{
+					AvatarModifierPackageType.Poison,
+					ModifierActions.Replace
+				},
+				{
+					AvatarModifierPackageType.Fire,
+					ModifierActions.Replace
+				}
+			})
 		}
 	};
 

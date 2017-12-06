@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -6,6 +7,8 @@ using UnityEngine.UI;
 public class PointLightSettings : MonoBehaviour, IEventSystemHandler, IHandleSettingChanged
 {
 	private float[] color = new float[3];
+
+	private int intType;
 
 	[SerializeField]
 	private SettingsBase settingsBase;
@@ -26,30 +29,36 @@ public class PointLightSettings : MonoBehaviour, IEventSystemHandler, IHandleSet
 	private SettingsSlider intensity;
 
 	[SerializeField]
+	private SettingsSlider HaloTextures;
+
+	[SerializeField]
+	private SettingsToggle hide;
+
+	[SerializeField]
 	private Image preview;
 
 	public void Initialize(int woID, GameObject root)
 	{
 		settingsBase.Initialize(woID, root, MVWorldObjectDocumentationType.PointLight);
-		Dictionary<object, object> dictionary2;
-		if (woID == -1)
+		Dictionary<object, object> data = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).Data;
+		if (!data.ContainsKey("hide"))
 		{
-			Dictionary<object, object> dictionary = new Dictionary<object, object>();
-			dictionary.Add("color", new float[3] { 0.5f, 0.5f, 0.5f });
-			dictionary.Add("range", 10f);
-			dictionary.Add("intensity", 10f);
-			dictionary2 = dictionary;
+			data.Add("hide", true);
+			settingsBase.OnSettingChanged("hide", true);
 		}
-		else
+		if (!data.ContainsKey("halo"))
 		{
-			dictionary2 = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).Data;
+			data.Add("halo", 1);
+			settingsBase.OnSettingChanged("halo", 1);
 		}
-		color = (float[])dictionary2["color"];
+		color = (float[])data["color"];
 		colorR.Initialize("colorR", color[0], 0f, 1f);
 		colorG.Initialize("colorG", color[1], 0f, 1f);
 		colorB.Initialize("colorB", color[2], 0f, 1f);
-		range.Initialize("range", (float)dictionary2["range"], 1f, 10f);
-		intensity.Initialize("intensity", (float)dictionary2["intensity"], 1f, 20f);
+		range.Initialize("range", (float)data["range"], 1f, 10f);
+		intensity.Initialize("intensity", (float)data["intensity"], 1f, 20f);
+		HaloTextures.Initialize("halo", (int)data["halo"], 1, 3);
+		hide.Initialize("hide", (bool)data["hide"]);
 		preview.color = new Color(color[0], color[1], color[2]);
 	}
 
@@ -71,6 +80,10 @@ public class PointLightSettings : MonoBehaviour, IEventSystemHandler, IHandleSet
 			color[2] = (float)value;
 			settingsBase.OnSettingChanged("color", color);
 			preview.color = new Color(color[0], color[1], color[2]);
+			break;
+		case "halo":
+			intType = Convert.ToInt32(value);
+			settingsBase.OnSettingChanged("halo", intType);
 			break;
 		default:
 			settingsBase.OnSettingChanged(key, value);

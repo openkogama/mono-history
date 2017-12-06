@@ -7,5 +7,7 @@ public enum BlinkType
 	Frozen,
 	AboutToExpire,
 	DropOffCollectedItem,
-	OnBoardingCubeModelSuccess
+	OnBoardingCubeModelSuccess,
+	Healing,
+	ShieldDamage
 }

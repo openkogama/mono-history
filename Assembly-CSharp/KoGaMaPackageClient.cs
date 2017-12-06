@@ -255,6 +255,8 @@ public class KoGaMaPackageClient
 			return new CollectTheItemCollectableInstance(worldObjectData, worldObjects);
 		case WorldObjectType.GodzillaTrigger:
 			return new GodzillaTrigger(worldObjectData, worldObjects);
+		case WorldObjectType.GlobalSoundEmitter:
+			return new MVGlobalSoundEmitter(worldObjectData, worldObjects);
 		default:
 			Debug.LogError("WOCM trying to create unknown type: " + worldObjectType);
 			return null;

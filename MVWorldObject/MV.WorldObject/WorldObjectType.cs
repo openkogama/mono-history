@@ -121,7 +121,7 @@ public enum WorldObjectType
 	CollectTheItemCollectable = 168,
 	CollectTheItem = 169,
 	WindTurbine = 170,
-	Mathias2 = 171,
+	GlobalSoundEmitter = 171,
 	Mathias3 = 172,
 	Mathias4 = 173,
 	Mathias5 = 174,
@@ -129,5 +129,15 @@ public enum WorldObjectType
 	Mathias7 = 176,
 	Mathias8 = 177,
 	Mathias9 = 178,
-	Mathias10 = 179
+	Mathias10 = 179,
+	Marcus1 = 180,
+	Marcus2 = 181,
+	Marcus3 = 182,
+	Marcus4 = 183,
+	Marcus5 = 184,
+	Marcus6 = 185,
+	Marcus7 = 186,
+	Marcus8 = 187,
+	Marcus9 = 188,
+	Marcus10 = 189
 }

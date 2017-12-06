@@ -52,14 +52,17 @@ public class GrowthModifier : SizeModifier
 	private void OnDisable()
 	{
 		StopAllCoroutines();
-		if (isDeactivating)
+		if (owner != null)
 		{
-			owner.mvAvatar.Scale = Vector3.one;
-			Destroy();
-		}
-		else
-		{
-			owner.mvAvatar.Scale = Vector3.one * sizeModifier;
+			if (isDeactivating)
+			{
+				owner.mvAvatar.Scale = Vector3.one;
+				Destroy();
+			}
+			else
+			{
+				owner.mvAvatar.Scale = Vector3.one * sizeModifier;
+			}
 		}
 	}
 

@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
 
-public abstract class MVAvatar : MVGroup
+public abstract class MVAvatar : MVGroup, IHealRayAttachementObject
 {
+	protected const float healParticleSpawnCooldownTime = 1f;
+
 	protected Avatar avatar;
 
 	public MVRuntimeDataVariableClampedFloat Health;
+
+	private MVRuntimeDataVariableClampedFloat shield;
 
 	public MVRuntimeDataVariable Modifiers;
 
@@ -21,13 +25,29 @@ public abstract class MVAvatar : MVGroup
 
 	private readonly Vector3 characterControllerCenterOffset = new Vector3(0f, 0.95f, 0f);
 
+	protected float healParticleSpawnTime;
+
 	private Ray lineOfFire;
 
 	private bool isLocal;
 
 	private MVBody body;
 
+	private GameObject healRayAttachmentObject;
+
 	protected AvatarPickupOwner avatarPickupOwner;
+
+	public MVRuntimeDataVariableClampedFloat Shield
+	{
+		get
+		{
+			return shield;
+		}
+		set
+		{
+			shield = value;
+		}
+	}
 
 	public int AvatarModeTypeFlags
 	{
@@ -68,6 +88,7 @@ public abstract class MVAvatar : MVGroup
 		interactionFlags = InteractionFlags.None;
 		PlayInteractionType = PlayInteractionType.HandlesHits;
 		Health = RuntimeDataVariables.NewClampedFloat("health", 0.2f, writeThrough: false, 0f, 100f);
+		shield = RuntimeDataVariables.NewClampedFloat("shield", 0.2f, writeThrough: false, 0f, 100f);
 		IsFiring = RuntimeDataVariables.New("isFiring", 0f, writeThrough: false);
 		Modifiers = RuntimeDataVariables.New("modifiers", 1f, writeThrough: false);
 		CurrentItem = RuntimeDataVariables.New("currentItem", 0f, writeThrough: true);
@@ -144,7 +165,10 @@ public abstract class MVAvatar : MVGroup
 		avatar.Initialize(this, isLocal);
 		avatar.InteractionDataHandlerBase.FindWorldObjectParent();
 		InitializeModifiers();
+		healParticleSpawnTime = Time.time;
 		MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(OwnerActorNr)?.SetAvatar(Id);
+		BodyData.PartIndex part = BodyData.PartIndex.Head;
+		healRayAttachmentObject = Body.BodyData.GetPartBone(part).gameObject;
 		MVRuntimeDataVariable mVRuntimeDataVariable = avatarModeTypeFlags;
 		mVRuntimeDataVariable.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(mVRuntimeDataVariable.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChangedHandler));
 	}
@@ -214,5 +238,25 @@ public abstract class MVAvatar : MVGroup
 		newBody.Rotation = Quaternion.identity;
 		newBody.Attach(this, isLocal);
 		body = newBody;
+	}
+
+	protected void TrySpawningHealParticles(float previousHealth, float currentHealth)
+	{
+		float num = Time.time - healParticleSpawnTime;
+		if (currentHealth > previousHealth && num > 1f)
+		{
+			healParticleSpawnTime = Time.time;
+			ParticleSystem particleSystem = UnityEngine.Object.Instantiate(PrefabPool.Instance.HealingParticles);
+			Vector3 vector = gameObject.transform.position;
+			vector.y += 0.6f;
+			particleSystem.transform.position = vector;
+			particleSystem.transform.SetParent(transform);
+			Avatar.StartBlinking(BlinkType.Healing, 1.5f);
+		}
+	}
+
+	public GameObject GetHealRayAttachmentObject()
+	{
+		return healRayAttachmentObject;
 	}
 }

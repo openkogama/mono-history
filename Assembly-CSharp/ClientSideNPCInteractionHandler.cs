@@ -1,11 +1,16 @@
 using System.Collections.Generic;
 using MV.WorldObject;
+using UnityEngine;
 
 public class ClientSideNPCInteractionHandler : InteractionDataHandlerBase
 {
+	[SerializeField]
+	private GameObject attachmentObjectForHealRay;
+
 	private readonly HashSet<InteractionPackageType> unableToDamageNPCs = new HashSet<InteractionPackageType>
 	{
 		InteractionPackageType.FlamethrowerHit,
+		InteractionPackageType.HealRayHit,
 		InteractionPackageType.GodzillaLaserBurnS,
 		InteractionPackageType.GodzillaLaserBurnM,
 		InteractionPackageType.GodzillaLaserBurnL,
@@ -47,5 +52,10 @@ public class ClientSideNPCInteractionHandler : InteractionDataHandlerBase
 			MVGameControllerBase.IPlayModeUI.GetCrossHair().ShowHasHitEffect();
 		}
 		return true;
+	}
+
+	public GameObject GetHealRayAttachmentObject()
+	{
+		return attachmentObjectForHealRay;
 	}
 }
