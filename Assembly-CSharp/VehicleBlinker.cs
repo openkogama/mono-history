@@ -7,6 +7,9 @@ public class VehicleBlinker : BlinkerBase
 	private Color blinkDamageColor = new Color(251f, 0f, 0f);
 
 	[SerializeField]
+	private Color blinkHealingColor = new Color(0f, 250f, 125f);
+
+	[SerializeField]
 	private Color blinkAboutToExpireColor = new Color(29f, 108f, 219f);
 
 	private void Awake()
@@ -16,6 +19,10 @@ public class VehicleBlinker : BlinkerBase
 			{
 				BlinkType.Damage,
 				new Blinker(4f, blinkMaterial, blinkDamageColor)
+			},
+			{
+				BlinkType.Healing,
+				new Blinker(4f, blinkMaterial, blinkHealingColor)
 			},
 			{
 				BlinkType.AboutToExpire,

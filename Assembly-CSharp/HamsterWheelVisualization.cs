@@ -181,6 +181,10 @@ public class HamsterWheelVisualization : VehicleVisualizationBase
 		{
 			vehicleBlinker.StartBlinking(BlinkType.Damage, 0.3f);
 		}
+		else if (curHealth < newHealth)
+		{
+			vehicleBlinker.StartBlinking(BlinkType.Healing, 0.3f);
+		}
 		curHealth = newHealth;
 	}
 

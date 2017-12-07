@@ -6,5 +6,6 @@ public enum GameMeterType
 	Time,
 	GameCoins,
 	Health,
-	Flag
+	Flag,
+	Shield
 }

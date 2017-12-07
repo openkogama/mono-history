@@ -159,6 +159,10 @@ public class HoverCraftVisualization : VehicleVisualizationBase
 		{
 			vehicleBlinker.StartBlinking(BlinkType.Damage, 0.3f);
 		}
+		else if (prevHealth < newHealth)
+		{
+			vehicleBlinker.StartBlinking(BlinkType.Healing, 0.3f);
+		}
 		float num = (1f - newHealth / maxHealth) * damageParticleFactor;
 		ellipsoidParticleEmitter.minSize = num;
 		ellipsoidParticleEmitter.maxSize = num;

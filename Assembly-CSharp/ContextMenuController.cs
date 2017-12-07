@@ -54,6 +54,10 @@ public class ContextMenuController : MonoBehaviour, IEventSystemHandler, IHandle
 		{
 			contextMenu.AddButton(TM._("Sounds"), ShowSoundsDialog);
 		}
+		if (worldObjectClient.HasInteractionFlag(InteractionFlags.GlobalSounds))
+		{
+			contextMenu.AddButton(TM._("Global Sounds"), ShowGlobalSoundsDialog);
+		}
 		if (worldObjectClient.HasInteractionFlag(InteractionFlags.CanEdit) && !worldObjectClient.HasInteractionFlag(InteractionFlags.IsPreview))
 		{
 			contextMenu.AddButton(TM._("Edit Model"), EnterCubeEdit);
@@ -178,6 +182,15 @@ public class ContextMenuController : MonoBehaviour, IEventSystemHandler, IHandle
 			handler.PopGroups(UIGroupFlags.GameObjectUI);
 		});
 		settingsFactory.CreateSoundsInventory(woID);
+	}
+
+	private void ShowGlobalSoundsDialog()
+	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
+		{
+			handler.PopGroups(UIGroupFlags.GameObjectUI);
+		});
+		settingsFactory.CreateGlobalSoundsInventory(woID);
 	}
 
 	private void EnterCubeEdit()

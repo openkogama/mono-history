@@ -7,14 +7,29 @@ using UnityEngine;
 
 public class ClientSideNPCInteractable : MVInteractableBase
 {
+	private static readonly Dictionary<AvatarModifierPackageType, float> allowedModifiersDictionary = new Dictionary<AvatarModifierPackageType, float>
+	{
+		{
+			AvatarModifierPackageType.RayHeal,
+			-1f
+		},
+		{
+			AvatarModifierPackageType.FlamerBurn,
+			1.8f
+		}
+	};
+
 	private Action<float, MVPlayer, PlayerKilledByType> takeDamageCallback;
 
 	private int respawnInterval;
+
+	private float maxHealth;
 
 	public void Init(Action<float, MVPlayer, PlayerKilledByType> takeDamageCallback)
 	{
 		this.takeDamageCallback = takeDamageCallback;
 		respawnInterval = (int)SharedWorldObjectValuesRepository.GetValues(worldObjectParent.WorldObjectType)["RespawnInterval"];
+		maxHealth = (ObscuredFloat)worldObjectParent.RunTimeData.GetObscuredType("health");
 	}
 
 	public bool IsDead()
@@ -28,6 +43,10 @@ public class ClientSideNPCInteractable : MVInteractableBase
 		{
 			float num = (ObscuredFloat)worldObjectParent.RunTimeData.GetObscuredType("health");
 			num -= amount;
+			if (num > maxHealth)
+			{
+				num = maxHealth;
+			}
 			worldObjectParent.RunTimeData.SetObscuredType("health", (ObscuredFloat)num);
 			if (num <= 0f)
 			{
@@ -49,6 +68,15 @@ public class ClientSideNPCInteractable : MVInteractableBase
 
 	public override void AddModifier(AvatarModifierPackageType type, int id, AvatarModifierPackage.AvatarModifier[] additionalModifers)
 	{
+		if (allowedModifiersDictionary.ContainsKey(type))
+		{
+			MVPlayer playerUnsafe = MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(id);
+			if (playerUnsafe != null)
+			{
+				TakeDamage(allowedModifiersDictionary[type], MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(id), PlayerKilledByType.None);
+				return;
+			}
+		}
 		Debug.Log("Ignore add modifier");
 	}
 

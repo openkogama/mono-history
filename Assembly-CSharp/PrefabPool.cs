@@ -114,6 +114,9 @@ public class PrefabPool : MonoBehaviour
 	private SoundEmitterObject mvSoundEmitterPrefab;
 
 	[SerializeField]
+	private SoundEmitterObject mvGloablSoundEmitterPrefab;
+
+	[SerializeField]
 	private ObjectPrefab mvSpawnPointBluePrefab;
 
 	[SerializeField]
@@ -188,9 +191,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject godzillaAreaPrefab;
 
-	[Header("Game")]
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
+	[Header("Game")]
 	private Material ghostMarkerMaterial;
 
 	[SerializeField]
@@ -217,9 +220,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material blinkerDefaultMaterial;
 
-	[Header("Pick up")]
 	[SerializeField]
 	[Space(20f)]
+	[Header("Pick up")]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
 	[SerializeField]
@@ -276,8 +279,11 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private MVPickupItemBaseObject avatarGrowthPackPrefab;
 
-	[Header("Avatar item pick up")]
+	[SerializeField]
+	private MVPickupItemBaseObject avatarHealRayPrefab;
+
 	[Space(20f)]
+	[Header("Avatar item pick up")]
 	[SerializeField]
 	private GameObject avatarItemCenterGun;
 
@@ -336,43 +342,16 @@ public class PrefabPool : MonoBehaviour
 	private GameObject avatarItemCollectTheItem;
 
 	[SerializeField]
-	[Space(20f)]
+	private GameObject avatarItemHealRay;
+
 	[Header("Avatar modifier")]
-	private AvatarModifier burningModifier;
-
-	[SerializeField]
-	private AvatarModifier mutantModifier;
-
-	[SerializeField]
-	private AvatarModifier poisonModifier;
-
-	[SerializeField]
-	private AvatarModifier frozenModifier;
-
-	[SerializeField]
-	private AvatarModifier ninjaRunModifier;
-
-	[SerializeField]
-	private AvatarModifier mouseModifier;
-
-	[SerializeField]
-	private AvatarModifier growthModifier;
-
+	[Space(20f)]
 	[SerializeField]
 	private AvatarModifier shieldModifier;
 
 	[SerializeField]
-	private GodzillaModifier godzillaModifier;
-
-	[SerializeField]
-	private GodzillaLaserBurnModifier godzillaLaserBurnModifier;
-
-	[SerializeField]
-	private InvulnerabilityModifier invulnerabilityModifier;
-
 	[Space(20f)]
 	[Header("Particles")]
-	[SerializeField]
 	private GameObject particleCFX_GroundAura;
 
 	[SerializeField]
@@ -395,6 +374,9 @@ public class PrefabPool : MonoBehaviour
 
 	[SerializeField]
 	private ParticleSystem collectTheItemParticles;
+
+	[SerializeField]
+	private ParticleSystem healingParticles;
 
 	[Header("Logic object prefabs")]
 	[SerializeField]
@@ -425,8 +407,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material logicCubeConnectorBlueSelectedMaterial;
 
-	[SerializeField]
 	[Header("GUI")]
+	[SerializeField]
 	[Space(20f)]
 	private Texture2D avatarAccessoryMoveIcon;
 
@@ -437,8 +419,8 @@ public class PrefabPool : MonoBehaviour
 	private Material modelConstraintsMaterial;
 
 	[Space(20f)]
-	[SerializeField]
 	[Header("UGUI")]
+	[SerializeField]
 	private AvatarInputControllerAndroidSettings avatarInputControllerAndroidSettings;
 
 	[SerializeField]
@@ -450,8 +432,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private InsertCursor insertCursor;
 
-	[SerializeField]
 	[Header("TextBubbleContent")]
+	[SerializeField]
 	private RectTransform editCornerHelpText;
 
 	[SerializeField]
@@ -460,9 +442,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private RectTransform editFaceHelpText;
 
-	[Header("Cameras")]
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
+	[Header("Cameras")]
 	private GodzillaCameraDesktop godzillaCameraDesktop;
 
 	[SerializeField]
@@ -472,8 +454,8 @@ public class PrefabPool : MonoBehaviour
 	private FirstPersonDeathCamera firstPersonDeathCamera;
 
 	[Header("Editor")]
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
 	private Material cellCursorErrorMaterial;
 
 	[SerializeField]
@@ -589,6 +571,8 @@ public class PrefabPool : MonoBehaviour
 
 	public SoundEmitterObject MVSoundEmitterPrefab => mvSoundEmitterPrefab;
 
+	public SoundEmitterObject MVGlobalSoundEmitterPrefab => mvGloablSoundEmitterPrefab;
+
 	public ObjectPrefab MVSpawnPointBluePrefab => mvSpawnPointBluePrefab;
 
 	public ObjectPrefab MVSpawnPointGreenPrefab => mvSpawnPointGreenPrefab;
@@ -695,6 +679,8 @@ public class PrefabPool : MonoBehaviour
 
 	public MVPickupItemBaseObject AvatarGrowthPackPrefab => avatarGrowthPackPrefab;
 
+	public MVPickupItemBaseObject AvatarHealRayPrefab => avatarHealRayPrefab;
+
 	public GameObject AvatarItemCenterGun => avatarItemCenterGun;
 
 	public GameObject AvatarItemImpulseGun => avatarItemImpulseGun;
@@ -733,27 +719,9 @@ public class PrefabPool : MonoBehaviour
 
 	public GameObject AvatarItemCollectTheItem => avatarItemCollectTheItem;
 
-	public AvatarModifier BurningModifier => burningModifier;
-
-	public AvatarModifier MutantModifier => mutantModifier;
-
-	public AvatarModifier PoisonModifier => poisonModifier;
-
-	public AvatarModifier FrozenModifier => frozenModifier;
-
-	public AvatarModifier NinjaRunModifier => ninjaRunModifier;
-
-	public AvatarModifier MouseModifier => mouseModifier;
-
-	public AvatarModifier GrowthModifier => growthModifier;
+	public GameObject AvatarItemHealRay => avatarItemHealRay;
 
 	public AvatarModifier ShieldModifier => shieldModifier;
-
-	public GodzillaModifier GodzillaModifier => godzillaModifier;
-
-	public GodzillaLaserBurnModifier GodzillaLaserBurnModifier => godzillaLaserBurnModifier;
-
-	public InvulnerabilityModifier InvulnerabilityModifier => invulnerabilityModifier;
 
 	public GameObject ParticleCFX_GroundAura => particleCFX_GroundAura;
 
@@ -770,6 +738,8 @@ public class PrefabPool : MonoBehaviour
 	public ParticleSystem PoisonParticles => poisonParticles;
 
 	public ParticleSystem CollectTheItemParticles => collectTheItemParticles;
+
+	public ParticleSystem HealingParticles => healingParticles;
 
 	public GameObject LogicInputConnectorPrefab => logicInputConnectorPrefab;
 

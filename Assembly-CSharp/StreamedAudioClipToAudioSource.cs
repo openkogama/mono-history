@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class StreamedAudioClipToAudioSource : StreamingAsset<AudioClip, AudioClip>
 {
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	protected AudioSource audioSource;
 
 	public void Reset()

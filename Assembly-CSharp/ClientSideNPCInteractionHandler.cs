@@ -1,16 +1,23 @@
 using System.Collections.Generic;
 using MV.WorldObject;
+using UnityEngine;
 
 public class ClientSideNPCInteractionHandler : InteractionDataHandlerBase
 {
+	[SerializeField]
+	private GameObject attachmentObjectForHealRay;
+
 	private readonly HashSet<InteractionPackageType> unableToDamageNPCs = new HashSet<InteractionPackageType>
 	{
 		InteractionPackageType.FlamethrowerHit,
+		InteractionPackageType.HealRayHit,
 		InteractionPackageType.GodzillaLaserBurnS,
 		InteractionPackageType.GodzillaLaserBurnM,
 		InteractionPackageType.GodzillaLaserBurnL,
 		InteractionPackageType.GodzillaLaserBurnXL
 	};
+
+	private readonly HashSet<InteractionPackageType> friendlyInteractions = new HashSet<InteractionPackageType> { InteractionPackageType.HealRayHit };
 
 	private MVTeam team = MVTeam.None;
 
@@ -46,6 +53,19 @@ public class ClientSideNPCInteractionHandler : InteractionDataHandlerBase
 			MVGameControllerBase.CameraController.PlayPlingSound();
 			MVGameControllerBase.IPlayModeUI.GetCrossHair().ShowHasHitEffect();
 		}
+		else if (friendlyInteractions.Contains(interaction.InteractionType))
+		{
+			worldObjectParent.SendPackage(new Dictionary<object, object> { 
+			{
+				(byte)0,
+				interaction.ToByteArray()
+			} });
+		}
 		return true;
+	}
+
+	public GameObject GetHealRayAttachmentObject()
+	{
+		return attachmentObjectForHealRay;
 	}
 }

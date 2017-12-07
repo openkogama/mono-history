@@ -146,6 +146,10 @@ public class MVSentryGun : MVLogicObject, ILogicWorldObject
 
 	public void ReceiveDamage(float amount, MVPlayer damageDealer, PlayerKilledByType damageType)
 	{
+		if (amount > 0f)
+		{
+			gunObject.SentryGunScript.BlinkDamage();
+		}
 		if (interactable.IsDead())
 		{
 			gunObject.SentryGunScript.Explode();
@@ -157,7 +161,6 @@ public class MVSentryGun : MVLogicObject, ILogicWorldObject
 
 	private void UpdateSentryState()
 	{
-		gunObject.SentryGunScript.BlinkDamage();
 		if (interactable.IsDead())
 		{
 			gunObject.SentryGunScript.SetHealth(0f);

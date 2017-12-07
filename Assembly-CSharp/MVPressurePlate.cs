@@ -41,6 +41,7 @@ public class MVPressurePlate : MVLogicObject, ILogicWorldObject, IIsLogicObjectF
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
 		interactionFlags |= InteractionFlags.CanUseLevel;
 		interactionFlags |= InteractionFlags.CanUseStars;
+		InteractionFlags |= InteractionFlags.CanUseTeam;
 		plateObject.TriggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		plateObject.TriggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
 		SetVisibility();
@@ -53,6 +54,8 @@ public class MVPressurePlate : MVLogicObject, ILogicWorldObject, IIsLogicObjectF
 		useInteractor.AddRequirement(useRequirement2);
 		StarRequirement useRequirement3 = new StarRequirement(plateObject.useInteractionRotator, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement3);
+		TeamRequirement useRequirement4 = new TeamRequirement(plateObject.TintObject, hasUseButtonWhenFree: false);
+		useInteractor.AddRequirement(useRequirement4);
 	}
 
 	public override void Initialize()
