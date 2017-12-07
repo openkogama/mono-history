@@ -649,6 +649,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 			mvAvatar.ResetAvatar();
 			mvAvatar.Collider.enabled = true;
 			avatarInputController.Rotation = mvAvatar.transform.rotation;
+			mvAvatar.LimbManager.SetLimbRotatorActivity(shouldBeActive: true);
 			if (mvAvatar.Body != null)
 			{
 				mvAvatar.Body.Visible = true;
@@ -657,6 +658,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 
 		public override void DeActivate(AvatarRuntimeState toMode)
 		{
+			mvAvatar.LimbManager.SetLimbRotatorActivity(shouldBeActive: false);
 		}
 
 		public override void FrameUpdate(InputToInGameAction interactionMap)
@@ -694,14 +696,12 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 		private void HandlePickupUpdate(InputToInGameAction interactionMap)
 		{
 			bool isHolstered = mvAvatar.pickupOwner.CurrentItem.IsHolstered;
-			if (!interactionMap.IgnorePickupOwner)
+			mvAvatar.pickupOwner.SetLineOfFireLocal();
+			if (!isHolstered)
 			{
-				mvAvatar.pickupOwner.SetLineOfFireLocal();
-				if (!isHolstered)
-				{
-					mvAvatar.pickupOwner.HandleFire(interactionMap.Fire, mvAvatar.IsFiring);
-				}
+				mvAvatar.pickupOwner.HandleFire(interactionMap.Fire, mvAvatar.IsFiring);
 			}
+			mvAvatar.pickupOwner.HandlePointing(interactionMap.Fire);
 			if (mvAvatar.pickupOwner.CurrentItem.Type == AvatarItemType.Hand || (mvAvatar.IsSeated && !IsInJetpack()))
 			{
 				return;

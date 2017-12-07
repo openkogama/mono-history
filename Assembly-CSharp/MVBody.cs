@@ -229,6 +229,11 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		bodyObject.AvatarBlinker.SetPreviousShield(currentShieldAmount);
 	}
 
+	public void UpdateBlinking()
+	{
+		bodyObject.AvatarBlinker.UpdateBlinking();
+	}
+
 	public void EditorSwapAccessoryAssetPath(int invID, string assetPath)
 	{
 		if (Application.isEditor)

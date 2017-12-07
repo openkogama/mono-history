@@ -35,7 +35,11 @@ public abstract class MVAvatar : MVGroup, IHealRayAttachementObject
 
 	private GameObject healRayAttachmentObject;
 
+	private AvatarlateUpdateManager avatarlateUpdateManager;
+
 	protected AvatarPickupOwner avatarPickupOwner;
+
+	protected AvatarLimbManager limbManager;
 
 	public MVRuntimeDataVariableClampedFloat Shield
 	{
@@ -64,6 +68,8 @@ public abstract class MVAvatar : MVGroup, IHealRayAttachementObject
 	public Vector3 CharacterControllerCenterOffset => characterControllerCenterOffset;
 
 	public PickupItem CurrentPickup => avatarPickupOwner.CurrentItem;
+
+	public AvatarLimbManager LimbManager => limbManager;
 
 	public float SetTransparency
 	{
@@ -160,11 +166,15 @@ public abstract class MVAvatar : MVGroup, IHealRayAttachementObject
 		base.Initialize();
 		body.Attach(this, isLocal);
 		avatarPickupOwner = gameObject.AddComponent<AvatarPickupOwner>();
-		avatarPickupOwner.Init(CurrentItem, IsFiring, this);
 		avatarPickupOwner.IsLocal = isLocal;
+		avatarPickupOwner.Init(CurrentItem, IsFiring, this);
 		avatar.Initialize(this, isLocal);
 		avatar.InteractionDataHandlerBase.FindWorldObjectParent();
 		InitializeModifiers();
+		limbManager = new AvatarLimbManager();
+		limbManager.Initialize(avatarPickupOwner, this);
+		avatarlateUpdateManager = transform.gameObject.AddComponent<AvatarlateUpdateManager>();
+		avatarlateUpdateManager.Initialize(Body, limbManager);
 		healParticleSpawnTime = Time.time;
 		MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(OwnerActorNr)?.SetAvatar(Id);
 		BodyData.PartIndex part = BodyData.PartIndex.Head;
