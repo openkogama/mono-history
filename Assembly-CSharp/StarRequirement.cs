@@ -36,7 +36,7 @@ public class StarRequirement : UseRequirement
 
 	public override UseGUIResult GetCanUseGUIResult()
 	{
-		if (starAmount == 0 || MVGameControllerBase.Game.LocalPlayer.GetGameStat(GameStatCounterType.Collectible) >= starAmount)
+		if (starAmount == 0)
 		{
 			if (hasUseWhenFree)
 			{

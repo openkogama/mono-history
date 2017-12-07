@@ -79,7 +79,7 @@ public class MVJetPack : MVVehicleBase
 			GameObject gameObject = vehicleBase.GameObject;
 			jetPackVisualization = gameObject.GetComponentInChildren<JetPackVisualization>();
 			VehicleInteractable vehicleInteractable = gameObject.AddComponent<VehicleInteractable>();
-			vehicleInteractable.Init(vehicleBase.Modifiers, vehicleBase.Health, vehicleBase.Shield);
+			vehicleInteractable.Init(vehicleBase.Modifiers, vehicleBase.Health);
 			JetPackMotor jetPackMotor = gameObject.AddComponent<JetPackMotor>();
 			jetPackMotor.Init(component, vehicleInteractable, smoothCharacterController, jetPackTypeParameters.thrustStrength, jetPackTypeParameters.density);
 			MVEquipableProxy mVEquipableProxy = gameObject.AddComponent<MVEquipableProxy>();
@@ -304,8 +304,6 @@ public class MVJetPack : MVVehicleBase
 
 	private EditableCubeModelWrapper editableCubeModelWrapper;
 
-	private MVRuntimeDataVariableClampedFloat shield;
-
 	public MVRuntimeDataVariableClampedFloat Health;
 
 	public MVRuntimeDataVariable Modifiers;
@@ -335,18 +333,6 @@ public class MVJetPack : MVVehicleBase
 		_ => MVWorldObjectDocumentationType.Missing, 
 	};
 
-	public MVRuntimeDataVariableClampedFloat Shield
-	{
-		get
-		{
-			return shield;
-		}
-		set
-		{
-			shield = value;
-		}
-	}
-
 	public MVJetPack(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, GetPickupPrefabName(data), worldObjects)
 	{
@@ -360,7 +346,6 @@ public class MVJetPack : MVVehicleBase
 		base.Initialize();
 		float maxValue = (float)RuntimeVariablesRepository.GetRuntimeVariables(WorldObjectType)["health"];
 		Health = RuntimeDataVariables.NewClampedFloat("health", 0.2f, writeThrough: false, 0f, maxValue);
-		Shield = RuntimeDataVariables.NewClampedFloat("shield", 0.2f, writeThrough: false, 0f, maxValue);
 		Modifiers = RuntimeDataVariables.New("modifiers", 1f, writeThrough: false);
 		JetMode = RuntimeDataVariables.New("jetMode", 1f, writeThrough: false);
 		MVRuntimeDataVariable isVehicleDead = IsVehicleDead;

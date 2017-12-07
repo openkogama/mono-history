@@ -745,40 +745,20 @@ public class MVWorldObjectClient : MVWorldObject
 
 	public virtual void HighlightConnector(bool state)
 	{
-		if (selectedConnector == SelectedConnector.None)
+		if (selectedConnector == SelectedConnector.Input)
 		{
-			if (outputConnectorObject != null)
+			Renderer componentInChildren = inputConnectorObject.GetComponentInChildren<Collider>().GetComponentInChildren<Renderer>();
+			if (!(componentInChildren == null))
 			{
-				Renderer componentInChildren = outputConnectorObject.GetComponentInChildren<Collider>().GetComponentInChildren<Renderer>();
-				if (componentInChildren == null)
-				{
-					return;
-				}
-				componentInChildren.material = (state ? PrefabPool.Instance.LogicCubeConnectorBlueSelectedMaterial : PrefabPool.Instance.LogicCubeConnectorBlueMaterial);
-			}
-			if (inputConnectorObject != null)
-			{
-				Renderer componentInChildren2 = inputConnectorObject.GetComponentInChildren<Collider>().GetComponentInChildren<Renderer>();
-				if (!(componentInChildren2 == null))
-				{
-					componentInChildren2.material = (state ? PrefabPool.Instance.LogicCubeConnectorRedSelectedMaterial : PrefabPool.Instance.LogicCubeConnectorRedMaterial);
-				}
-			}
-		}
-		else if (selectedConnector == SelectedConnector.Input)
-		{
-			Renderer componentInChildren3 = inputConnectorObject.GetComponentInChildren<Collider>().GetComponentInChildren<Renderer>();
-			if (!(componentInChildren3 == null))
-			{
-				componentInChildren3.material = (state ? PrefabPool.Instance.LogicCubeConnectorRedSelectedMaterial : PrefabPool.Instance.LogicCubeConnectorRedMaterial);
+				componentInChildren.material = (state ? PrefabPool.Instance.LogicCubeConnectorRedSelectedMaterial : PrefabPool.Instance.LogicCubeConnectorRedMaterial);
 			}
 		}
 		else if (selectedConnector == SelectedConnector.Output)
 		{
-			Renderer componentInChildren4 = outputConnectorObject.GetComponentInChildren<Collider>().GetComponentInChildren<Renderer>();
-			if (!(componentInChildren4 == null))
+			Renderer componentInChildren2 = outputConnectorObject.GetComponentInChildren<Collider>().GetComponentInChildren<Renderer>();
+			if (!(componentInChildren2 == null))
 			{
-				componentInChildren4.material = (state ? PrefabPool.Instance.LogicCubeConnectorBlueSelectedMaterial : PrefabPool.Instance.LogicCubeConnectorBlueMaterial);
+				componentInChildren2.material = (state ? PrefabPool.Instance.LogicCubeConnectorBlueSelectedMaterial : PrefabPool.Instance.LogicCubeConnectorBlueMaterial);
 			}
 		}
 	}

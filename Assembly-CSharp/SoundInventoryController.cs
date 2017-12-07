@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
@@ -9,11 +10,11 @@ public class SoundInventoryController : MonoBehaviour, IEventSystemHandler, IHan
 {
 	private InventoryController inventoryController;
 
+	private readonly Dictionary<int, List<SoundBite>> categoryToAssets = new Dictionary<int, List<SoundBite>>();
+
 	private readonly Dictionary<int, TabState> tabs = new Dictionary<int, TabState>();
 
 	private int selectedTab;
-
-	private readonly Dictionary<int, List<SoundTabInfo>> soundTabInfos = new Dictionary<int, List<SoundTabInfo>>();
 
 	[SerializeField]
 	private InventoryController inventoryControllerPrefab;
@@ -27,79 +28,81 @@ public class SoundInventoryController : MonoBehaviour, IEventSystemHandler, IHan
 	[SerializeField]
 	private SettingsBase settingsBase;
 
-	[SerializeField]
-	private StreamedAudioClipList audioUrls;
-
-	private List<StreamedAudioClipInfo> urls;
-
-	private readonly Dictionary<int, int> categorysAmount = new Dictionary<int, int>();
-
 	private string originalURL;
 
-	private readonly Dictionary<string, int> categoryToNameCombinations = new Dictionary<string, int>();
+	private readonly Dictionary<string, int> categoryToNameCombinations = new Dictionary<string, int>
+	{
+		{ "Nature", 1 },
+		{ "Machinery", 2 },
+		{ "Urban", 3 },
+		{ "MusicLoop", 4 },
+		{ "Alarms", 5 },
+		{ "Horror", 6 },
+		{ "Delight", 7 },
+		{ "Suspense", 6 },
+		{ "Robotic", 2 }
+	};
 
 	public void Initialize(int woID, GameObject root)
 	{
 		settingsBase.Initialize(woID, root, MVWorldObjectDocumentationType.SoundEmitter);
 		selectedTab = 1;
-		Dictionary<object, object> data = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).Data;
-		if (!data.ContainsKey("url"))
+		foreach (ProductInventoryInfo item in MVGameControllerBase.Game.StreamingAssetInventory.Get(StreamingAssetType.AmbientAudio))
 		{
-			data.Add("url", string.Empty);
+			int key = categoryToNameCombinations[item.ProductInfo.CategoryName];
+			if (!tabs.ContainsKey(key))
+			{
+				TabState value = new TabState(item.ProductInfo.CategoryName, numberOfSlotsPrPage);
+				tabs.Add(item.ProductInfo.CategoryID, value);
+			}
+			if (!categoryToAssets.ContainsKey(key))
+			{
+				categoryToAssets.Add(key, new List<SoundBite>());
+			}
+			categoryToAssets[key].Add(new SoundBite
+			{
+				assetInfo = item.ProductInfo,
+				unlocked = true
+			});
+			tabs[key].highestSlotIndex++;
 		}
-		Debug.Log("Data sound: url: " + data["url"].ToString() + " Volume: " + data["volume"].ToString() + " Pitch: " + data["pitch"].ToString());
+		StreamingAssetInfo assetInfo;
+		foreach (StreamingAssetInfo item2 in MVGameControllerBase.Game.StreamingAssetShopInventory.Get(StreamingAssetType.AmbientAudio))
+		{
+			assetInfo = item2;
+			int key2 = categoryToNameCombinations[assetInfo.CategoryName];
+			if (!tabs.ContainsKey(categoryToNameCombinations[assetInfo.CategoryName]))
+			{
+				TabState value2 = new TabState(assetInfo.CategoryName, numberOfSlotsPrPage);
+				tabs.Add(assetInfo.CategoryID, value2);
+			}
+			if (!categoryToAssets.ContainsKey(key2))
+			{
+				categoryToAssets.Add(key2, new List<SoundBite>());
+			}
+			if (categoryToAssets[key2].All((SoundBite sb) => sb.assetInfo.ProductID != assetInfo.ProductID))
+			{
+				categoryToAssets[key2].Add(new SoundBite
+				{
+					assetInfo = assetInfo,
+					unlocked = false
+				});
+			}
+			tabs[categoryToNameCombinations[assetInfo.CategoryName]].highestSlotIndex++;
+		}
+		Dictionary<object, object> data = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).Data;
 		originalURL = (string)data["url"];
-		urls = audioUrls.URLS;
 		this.inventoryController = UnityEngine.Object.Instantiate(inventoryControllerPrefab);
 		InventoryController inventoryController = this.inventoryController;
 		inventoryController.OnPageTurned = (UnityAction<int>)Delegate.Combine(inventoryController.OnPageTurned, new UnityAction<int>(PageTurned));
 		InventoryController inventoryController2 = this.inventoryController;
 		inventoryController2.OnTabSelected = (UnityAction<int>)Delegate.Combine(inventoryController2.OnTabSelected, new UnityAction<int>(TabSelected));
 		this.inventoryController.Initialize(numberOfSlotsPrPage);
-		this.inventoryController.transform.SetParent(transform, worldPositionStays: false);
-		for (int i = 0; i < urls.Count; i++)
+		foreach (KeyValuePair<int, TabState> tab in tabs)
 		{
-			string category = urls[i].category;
-			string soundName = urls[i].name;
-			if (!categoryToNameCombinations.ContainsKey(category))
-			{
-				categoryToNameCombinations.Add(category, categoryToNameCombinations.Count + 1);
-			}
-			int num = categoryToNameCombinations[category];
-			if (!tabs.ContainsKey(categoryToNameCombinations[category]))
-			{
-				TabState tabState = new TabState(category, numberOfSlotsPrPage);
-				tabs.Add(num, tabState);
-				this.inventoryController.AddTab(num, tabState.name);
-			}
-			if (!soundTabInfos.ContainsKey(num))
-			{
-				soundTabInfos.Add(num, new List<SoundTabInfo>());
-			}
-			if (soundTabInfos[num].All((SoundTabInfo soundTabInfo) => soundTabInfo.name != soundName))
-			{
-				soundTabInfos[num].Add(new SoundTabInfo
-				{
-					name = soundName,
-					categoryName = category,
-					url = urls[i].url
-				});
-			}
-			if (!categorysAmount.ContainsKey(num))
-			{
-				categorysAmount.Add(num, 1);
-			}
-			else
-			{
-				Dictionary<int, int> dictionary2;
-				Dictionary<int, int> dictionary = (dictionary2 = categorysAmount);
-				int key2;
-				int key = (key2 = num);
-				key2 = dictionary2[key2];
-				dictionary[key] = key2 + 1;
-			}
-			tabs[categoryToNameCombinations[category]].highestSlotIndex++;
+			this.inventoryController.AddTab(tab.Key, tab.Value.name);
 		}
+		this.inventoryController.transform.SetParent(transform, worldPositionStays: false);
 		UpdateContent();
 	}
 
@@ -108,14 +111,13 @@ public class SoundInventoryController : MonoBehaviour, IEventSystemHandler, IHan
 		inventoryController.Clear();
 		inventoryController.SelectTab(selectedTab, tabs[selectedTab].currentPage, tabs[selectedTab].MaxPages);
 		OnSettingChanged("url", originalURL);
-		List<SoundTabInfo> list = soundTabInfos[selectedTab];
-		int num = categorysAmount[selectedTab];
-		for (int i = 0; i < num; i++)
+		List<SoundBite> list = categoryToAssets[selectedTab];
+		for (int i = 0; i < list.Count; i++)
 		{
 			if (tabs[selectedTab].SlotIndexIsInRange(i))
 			{
 				SoundViewItem soundViewItem = UnityEngine.Object.Instantiate(soundViewItemPrefab);
-				soundViewItem.Initialize(list[i], originalURL, SetNewOriginalUrl);
+				soundViewItem.Initialize(list[i].assetInfo, originalURL, SetNewOriginalUrl);
 				inventoryController.AddObject(soundViewItem.gameObject, i % numberOfSlotsPrPage);
 			}
 		}
@@ -147,5 +149,10 @@ public class SoundInventoryController : MonoBehaviour, IEventSystemHandler, IHan
 	public void OnSettingChanged(string key, object value)
 	{
 		settingsBase.OnSettingChanged(key, Convert.ToString(value));
+	}
+
+	private void OnDestroy()
+	{
+		OnSettingChanged("url", originalURL);
 	}
 }

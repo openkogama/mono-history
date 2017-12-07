@@ -51,17 +51,14 @@ public class MouseModifier : SizeModifier
 	private void OnDisable()
 	{
 		StopAllCoroutines();
-		if (owner != null)
+		if (isDeactivating)
 		{
-			if (isDeactivating)
-			{
-				owner.mvAvatar.Scale = Vector3.one;
-				Destroy();
-			}
-			else
-			{
-				owner.mvAvatar.Scale = Vector3.one * sizeModifier;
-			}
+			owner.mvAvatar.Scale = Vector3.one;
+			Destroy();
+		}
+		else
+		{
+			owner.mvAvatar.Scale = Vector3.one * sizeModifier;
 		}
 	}
 

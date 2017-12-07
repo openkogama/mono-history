@@ -15,16 +15,5 @@ public enum PoolEnums
 	XP,
 	AvatarBulletImpact,
 	VehicleBulletImpact,
-	BurningModifier,
-	MutantModifier,
-	PoisonModifier,
-	FrozenModifier,
-	NinjaRunModifier,
-	MouseModifier,
-	GrowthModifier,
-	GodzillaModifier,
-	GodzillaLazerBurnModifier,
-	InvulnerabilityModifier,
-	HealRaySparks,
 	LENGTH
 }

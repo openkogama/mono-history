@@ -115,8 +115,9 @@ public class WindTurbine : MVLogicObject, ILogicWorldObject
 			{
 				Vector3 vector = gameObject.transform.InverseTransformPoint(affectedBody.Value.GetComponent<Collider>().bounds.center);
 				float num = Mathf.Max(1f - vector.z * vector.z / (windAreaSize * 20f), 0f);
-				float num2 = windStrength * num;
-				affectedBody.Value.AddImpulse(gameObject.transform.forward * num2, suspendImpactDamage: true);
+				float num2 = Mathf.Max(1f - (vector.x * vector.x + vector.y * vector.y) / 3f, 0f);
+				float num3 = windStrength * (num * num2);
+				affectedBody.Value.AddImpulse(gameObject.transform.forward * num3, suspendImpactDamage: true);
 			}
 		}
 		for (int i = 0; i < keysToRemove.Count; i++)

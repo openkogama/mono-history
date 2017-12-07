@@ -660,11 +660,6 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 		GhostVisualization.ReceivedDamage();
 	}
 
-	public void ReceivedHealing()
-	{
-		GhostVisualization.ReceivedHealing();
-	}
-
 	protected void Update()
 	{
 		if (perception != null)

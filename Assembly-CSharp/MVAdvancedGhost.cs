@@ -5,7 +5,7 @@ using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class MVAdvancedGhost : MVBlueprintBase, ITeamInteractorNPC, IGameStateControllerSubscriber, IHealRayAttachementObject
+public class MVAdvancedGhost : MVBlueprintBase, ITeamInteractorNPC, IGameStateControllerSubscriber
 {
 	private const float deathExplosionDamageValue = 20f;
 
@@ -20,8 +20,6 @@ public class MVAdvancedGhost : MVBlueprintBase, ITeamInteractorNPC, IGameStateCo
 	private AdvancedGhostCubeModelWrapper editableCubeModelWrapper;
 
 	private AdvancedGhostIcon advancedGhostIcon;
-
-	private GameObject attachmentObject;
 
 	private AdvancedGhostObject advGhostObject;
 
@@ -46,7 +44,6 @@ public class MVAdvancedGhost : MVBlueprintBase, ITeamInteractorNPC, IGameStateCo
 		MVCubeModelInstance mVCubeModelInstance = (MVCubeModelInstance)GetChild("BodyCubeModel");
 		interactionHandler = GameObject.GetComponent<ClientSideNPCInteractionHandler>();
 		interactionHandler.FindWorldObjectParent();
-		attachmentObject = interactionHandler.GetHealRayAttachmentObject();
 		interactable = GameObject.AddComponent<ClientSideNPCInteractable>();
 		interactable.Init(ReceiveDamage);
 		AdvancedGhostMotor advancedGhostMotor = GameObject.AddComponent<AdvancedGhostMotor>();
@@ -144,14 +141,7 @@ public class MVAdvancedGhost : MVBlueprintBase, ITeamInteractorNPC, IGameStateCo
 
 	private void ReceiveDamage(float amount, MVPlayer damageDealer, PlayerKilledByType damageType)
 	{
-		if (amount > 0f)
-		{
-			advancedGhostBehaviour.ReceivedDamage();
-		}
-		else if (amount < 0f)
-		{
-			advancedGhostBehaviour.ReceivedHealing();
-		}
+		advancedGhostBehaviour.ReceivedDamage();
 		if (interactable.IsDead())
 		{
 			HashSet<int> worldIDsRecursive = WorldIDsRecursive;
@@ -221,10 +211,5 @@ public class MVAdvancedGhost : MVBlueprintBase, ITeamInteractorNPC, IGameStateCo
 		{
 			SetGameMode(isPlayMode: true);
 		}
-	}
-
-	public GameObject GetHealRayAttachmentObject()
-	{
-		return attachmentObject;
 	}
 }
