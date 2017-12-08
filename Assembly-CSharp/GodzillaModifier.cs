@@ -91,8 +91,8 @@ public class GodzillaModifier : AvatarModifier
 	[SerializeField]
 	private GodzillaModifierPackageType type;
 
-	[SerializeField]
 	[HideInInspector]
+	[SerializeField]
 	private float sizeModifier;
 
 	[SerializeField]

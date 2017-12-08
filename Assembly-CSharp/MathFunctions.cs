@@ -647,28 +647,6 @@ public static class MathFunctions
 		return 57.29578f * (SignedAngle(Vector3.up, -dir, planeNormal) + (float)Math.PI);
 	}
 
-	public static float SignedYawFromLocalDirection(Vector3 localDirection)
-	{
-		Vector3 normalized = new Vector3(localDirection.x, 0f, localDirection.z).normalized;
-		float num = Vector3.Angle(Vector3.forward, normalized);
-		float num2 = Vector3.Dot(normalized, Vector3.right);
-		if (num2 < 0f)
-		{
-			num = 0f - num;
-		}
-		return num;
-	}
-
-	public static float PitchFromLocalDirection(Vector3 localDirection)
-	{
-		return Vector3.Angle(Vector3.up, localDirection) - 90f;
-	}
-
-	public static Quaternion QuaternionFromAngleAndAxis(float angle, Vector3 AxisVector)
-	{
-		return Quaternion.AngleAxis(angle, AxisVector);
-	}
-
 	public static List<Vector2> FlipPolygon(List<Vector2> points)
 	{
 		List<Vector2> list = new List<Vector2>(points);

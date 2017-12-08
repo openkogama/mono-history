@@ -55,12 +55,7 @@ public class BlinkerBase : MonoBehaviour
 		blinkers[type].Stop();
 	}
 
-	public virtual void LateUpdate()
-	{
-		DoBlinking();
-	}
-
-	protected void DoBlinking()
+	private void LateUpdate()
 	{
 		if (!visible || blinkers == null || blinkers.Values == null)
 		{

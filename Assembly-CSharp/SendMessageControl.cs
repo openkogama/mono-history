@@ -22,12 +22,6 @@ public class SendMessageControl : MonoBehaviour
 
 	private string buildInformation = "/build";
 
-	private static string startHeadShake = "/no";
-
-	private static string startNod = "/yes";
-
-	private static string startWave = "/wave";
-
 	[SerializeField]
 	private InputField inputField;
 
@@ -153,18 +147,6 @@ public class SendMessageControl : MonoBehaviour
 		else if (chatMsg == buildInformation)
 		{
 			ShowBuildInformation();
-		}
-		else if (chatMsg == startHeadShake)
-		{
-			MVGameControllerBase.WOCM.AvatarLocal.LimbManager.StartEmote(EmoteTypes.Shake);
-		}
-		else if (chatMsg == startNod)
-		{
-			MVGameControllerBase.WOCM.AvatarLocal.LimbManager.StartEmote(EmoteTypes.Nod);
-		}
-		else if (chatMsg == startWave)
-		{
-			MVGameControllerBase.WOCM.AvatarLocal.LimbManager.StartEmote(EmoteTypes.wave);
 		}
 		else
 		{

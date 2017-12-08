@@ -12,9 +12,6 @@ public class InGameButtons : MonoBehaviour
 	private RectTransform fire;
 
 	[SerializeField]
-	private RectTransform point;
-
-	[SerializeField]
 	private RectTransform dropWeapon;
 
 	[SerializeField]
@@ -28,13 +25,15 @@ public class InGameButtons : MonoBehaviour
 
 	private void Update()
 	{
-		HandleFireVisibility();
 		if (PickupGUI.ShowEquipableUI != showingEquipableUI)
 		{
 			if (holsterButton != null)
 			{
 				holsterButton.gameObject.SetActive((PickupGUI.ShowEquipableUI & PickupGUIFlags.CanHolster) != 0);
 			}
+			bool flag = (PickupGUI.ShowEquipableUI & PickupGUIFlags.CanFire) != 0;
+			bool flag2 = (PickupGUI.ShowEquipableUI & PickupGUIFlags.IsHolstered) != 0;
+			fire.gameObject.SetActive(flag && !flag2);
 			dropWeapon.gameObject.SetActive((PickupGUI.ShowEquipableUI & PickupGUIFlags.CanUnequip) != 0);
 			showingEquipableUI = PickupGUI.ShowEquipableUI;
 		}
@@ -49,29 +48,6 @@ public class InGameButtons : MonoBehaviour
 		else if (MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Playing) && !respawnButton.gameObject.activeSelf)
 		{
 			respawnButton.gameObject.SetActive(value: true);
-		}
-	}
-
-	private void HandleFireVisibility()
-	{
-		bool flag = (PickupGUI.ShowEquipableUI & PickupGUIFlags.CanFire) != 0;
-		bool flag2 = (PickupGUI.ShowEquipableUI & PickupGUIFlags.IsHolstered) != 0;
-		if (flag && !flag2)
-		{
-			fire.gameObject.SetActive(value: true);
-			point.gameObject.SetActive(value: false);
-			return;
-		}
-		PickupItem currentItem = MVGameControllerBase.WOCM.AvatarLocal.PickupOwner.CurrentItem;
-		if (currentItem.IsHolstered || currentItem == null || currentItem.Type == AvatarItemType.Hand)
-		{
-			fire.gameObject.SetActive(value: false);
-			point.gameObject.SetActive(value: true);
-		}
-		else
-		{
-			fire.gameObject.SetActive(value: false);
-			point.gameObject.SetActive(value: false);
 		}
 	}
 

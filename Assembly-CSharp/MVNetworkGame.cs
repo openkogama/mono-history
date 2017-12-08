@@ -573,30 +573,6 @@ public class MVNetworkGame : IPhotonPeerListener
 					FirstTimeEventManager.Initialize(profileMetaData.FirstTimeState);
 				}
 				break;
-			case MVEventCodes.UpdateHeadRotation:
-			{
-				Quaternion quaternion2 = QuaternionCompression.ToQuaternion((byte[])photonEvent[156]);
-				networkGame.OnUpdateHeadRotation((int)photonEvent[20], quaternion2.eulerAngles.y, quaternion2.eulerAngles.x);
-				break;
-			}
-			case MVEventCodes.UpdatePointingAndHeadRotation:
-			{
-				Quaternion quaternion = QuaternionCompression.ToQuaternion((byte[])photonEvent[156]);
-				float y = quaternion.eulerAngles.y;
-				float x = quaternion.eulerAngles.x;
-				networkGame.OnUpdateHeadRotation((int)photonEvent[20], y, x);
-				networkGame.OnUpdatePointing((int)photonEvent[20], y, x);
-				break;
-			}
-			case MVEventCodes.StartHeadShake:
-				networkGame.OnStartHeadShake((int)photonEvent[20]);
-				break;
-			case MVEventCodes.StartHeadNod:
-				networkGame.OnStartHeadNod((int)photonEvent[20]);
-				break;
-			case MVEventCodes.StartWave:
-				networkGame.OnStartWave((int)photonEvent[20]);
-				break;
 			case MVEventCodes.ServerError:
 				MVGameControllerBase.PostGameMsg(MVGameMsgType.Warning, "Server error: " + (string)photonEvent[245]);
 				break;
@@ -1193,40 +1169,6 @@ public class MVNetworkGame : IPhotonPeerListener
 			dictionary.Add(76, camDir.y);
 			dictionary.Add(77, camDir.z);
 			peer.OpCustom(29, dictionary, sendReliable: false);
-		}
-
-		public void UpdateHeadRotation(Quaternion rotation)
-		{
-			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
-			byte[] value = QuaternionCompression.ToBytes(rotation);
-			dictionary.Add(156, value);
-			peer.OpCustom(88, dictionary, sendReliable: false);
-		}
-
-		public void UpdatePointingAndHeadRotation(Quaternion rotation)
-		{
-			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
-			byte[] value = QuaternionCompression.ToBytes(rotation);
-			dictionary.Add(156, value);
-			peer.OpCustom(89, dictionary, sendReliable: false);
-		}
-
-		public void StartHeadShake()
-		{
-			Dictionary<byte, object> customOpParameters = new Dictionary<byte, object>();
-			peer.OpCustom(90, customOpParameters, sendReliable: false);
-		}
-
-		public void StartHeadNod()
-		{
-			Dictionary<byte, object> customOpParameters = new Dictionary<byte, object>();
-			peer.OpCustom(91, customOpParameters, sendReliable: false);
-		}
-
-		public void StartWave()
-		{
-			Dictionary<byte, object> customOpParameters = new Dictionary<byte, object>();
-			peer.OpCustom(92, customOpParameters, sendReliable: false);
 		}
 
 		public void TransferWorldObjectsToGroup(int groupId, int[] worldObjects)
@@ -2509,7 +2451,6 @@ public class MVNetworkGame : IPhotonPeerListener
 		peer.DisconnectTimeout = 20000;
 		peer.SentCountAllowance = 8;
 		peer.DebugOut = DebugLevel.WARNING;
-		peer.DebugOut = DebugLevel.ERROR;
 		CreatePrivateClasses();
 		networkGameStateListener = new MVNetworkGameStateListener();
 		networkGameStateListener.OnGameStateChanged += networkGameStateListener_OnGameStateChanged;
@@ -2666,91 +2607,6 @@ public class MVNetworkGame : IPhotonPeerListener
 		else
 		{
 			component.SetLineOfFire(camOrigin, camDir);
-		}
-	}
-
-	public void OnUpdateHeadRotation(int worldObjectID, float yaw, float pitch)
-	{
-		MVWorldObjectClient worldObjectClient = WorldObjectClientManager.GetWorldObjectClient(worldObjectID);
-		if (worldObjectClient == null)
-		{
-			Debug.LogError("Avatar not found");
-		}
-		else if (worldObjectClient is MVAvatar)
-		{
-			((MVAvatar)worldObjectClient).LimbManager.UpdateHeadRotationRemotely(yaw, pitch);
-		}
-		else
-		{
-			Debug.LogError("Cant update head rotation because world object is not an avatar");
-		}
-	}
-
-	public void OnUpdatePointing(int worldObjectID, float yaw, float pitch)
-	{
-		MVWorldObjectClient worldObjectClient = WorldObjectClientManager.GetWorldObjectClient(worldObjectID);
-		if (worldObjectClient == null)
-		{
-			Debug.LogError("Avatar not found");
-		}
-		else if (worldObjectClient is MVAvatar)
-		{
-			((MVAvatar)worldObjectClient).LimbManager.UpdatePointingRemotely(yaw, pitch);
-		}
-		else
-		{
-			Debug.LogError("Cant pointing because world object is not an avatar");
-		}
-	}
-
-	public void OnStartHeadShake(int worldObjectID)
-	{
-		MVWorldObjectClient worldObjectClient = WorldObjectClientManager.GetWorldObjectClient(worldObjectID);
-		if (worldObjectClient == null)
-		{
-			Debug.LogError("Avatar not found");
-		}
-		else if (worldObjectClient is MVAvatar)
-		{
-			((MVAvatar)worldObjectClient).LimbManager.HandleEmote(EmoteTypes.Shake);
-		}
-		else
-		{
-			Debug.LogError("Cant start shake head because world object is not an avatar");
-		}
-	}
-
-	public void OnStartHeadNod(int worldObjectID)
-	{
-		MVWorldObjectClient worldObjectClient = WorldObjectClientManager.GetWorldObjectClient(worldObjectID);
-		if (worldObjectClient == null)
-		{
-			Debug.LogError("Avatar not found");
-		}
-		else if (worldObjectClient is MVAvatar)
-		{
-			((MVAvatar)worldObjectClient).LimbManager.HandleEmote(EmoteTypes.Nod);
-		}
-		else
-		{
-			Debug.LogError("Cant start nod head because world object is not an avatar");
-		}
-	}
-
-	public void OnStartWave(int worldObjectID)
-	{
-		MVWorldObjectClient worldObjectClient = WorldObjectClientManager.GetWorldObjectClient(worldObjectID);
-		if (worldObjectClient == null)
-		{
-			Debug.LogError("Avatar not found");
-		}
-		else if (worldObjectClient is MVAvatar)
-		{
-			((MVAvatar)worldObjectClient).LimbManager.HandleEmote(EmoteTypes.wave);
-		}
-		else
-		{
-			Debug.LogError("Cant start wave because world object is not an avatar");
 		}
 	}
 
