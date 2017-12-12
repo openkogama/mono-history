@@ -78,6 +78,15 @@ public class AvatarBlinker : BlinkerBase
 		previousBlinkHealth = currentValue;
 	}
 
+	public void UpdateBlinking()
+	{
+		DoBlinking();
+	}
+
+	public override void LateUpdate()
+	{
+	}
+
 	public void ShieldChangeHandler(object v)
 	{
 		float currentValue = (float)v;

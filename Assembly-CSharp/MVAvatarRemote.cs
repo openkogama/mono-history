@@ -65,6 +65,9 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 		mVPlayerContainer.OnLocalPlayerReady = (Action)Delegate.Combine(mVPlayerContainer.OnLocalPlayerReady, new Action(InitAvatarState));
 		avatarRemoteMovementCalculator = gameObject.AddComponent<AvatarRemoteMovementCalculator>();
 		InitializeCulling();
+		limbManager = new AvatarLimbManagerRemote();
+		limbManager.Initialize(avatarPickupOwner, this);
+		avatarlateUpdateManager.Initialize(Body, limbManager);
 	}
 
 	private void InitAvatarState()

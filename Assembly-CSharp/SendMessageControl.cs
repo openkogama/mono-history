@@ -22,6 +22,12 @@ public class SendMessageControl : MonoBehaviour
 
 	private string buildInformation = "/build";
 
+	private static string startHeadShake = "/no";
+
+	private static string startNod = "/yes";
+
+	private static string startWave = "/wave";
+
 	[SerializeField]
 	private InputField inputField;
 
@@ -148,6 +154,18 @@ public class SendMessageControl : MonoBehaviour
 		{
 			ShowBuildInformation();
 		}
+		else if (chatMsg == startHeadShake)
+		{
+			MVGameControllerBase.WOCM.AvatarLocal.LimbManager.StartEmote(EmoteTypes.Shake);
+		}
+		else if (chatMsg == startNod)
+		{
+			MVGameControllerBase.WOCM.AvatarLocal.LimbManager.StartEmote(EmoteTypes.Nod);
+		}
+		else if (chatMsg == startWave)
+		{
+			MVGameControllerBase.WOCM.AvatarLocal.LimbManager.StartEmote(EmoteTypes.wave);
+		}
 		else
 		{
 			MVGameControllerBase.OperationRequests.PostChatMsg(new Dictionary<object, object>
@@ -183,6 +201,8 @@ public class SendMessageControl : MonoBehaviour
 	public static string CreateHelpTxt()
 	{
 		string text = "\n";
+		string text2 = text;
+		text = text2 + "\nType: " + startHeadShake + " or " + startNod + " or " + startWave + " to start an emote";
 		text += TM._("\nType: " + enableHD + " to enable HD mode.\n\n");
 		MVGameMode mVGameMode = MVGameControllerBase.GameMode;
 		if (MVGameControllerBase.IsPlaying)
@@ -198,7 +218,7 @@ public class SendMessageControl : MonoBehaviour
 			break;
 		case MVGameMode.Play:
 			text += TM._("<M> Menu");
-			text += TM._("\n<H> Toggle HD Mode\n<WASD> Move\n<Space> Jump\n<K> Respawn\n<Left Mouse> Fire Weapon\n<Q> Holster equipped weapon\n<V> Drop equipped weapon\n");
+			text += TM._("\n<H> Toggle HD Mode\n<WASD> Move\n<Space> Jump\n<K> Respawn\n<Left Mouse> Fire Weapon\n<Q> Holster equipped weapon\n<V> Drop equipped weapon");
 			break;
 		}
 		return text;

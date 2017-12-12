@@ -95,7 +95,10 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase, ICurrentItemOwner
 			}
 			pickupOwner.SetLineOfFireLocal();
 			pickupOwner.HandleFire(interactionInput.Fire, owner.IsFiring);
-			interactionInput.Fire = false;
+			if (pickupOwner.CurrentItem != null && !pickupOwner.CurrentItem.IsHolstered)
+			{
+				interactionInput.Fire = false;
+			}
 			if (interactionInput.Drop)
 			{
 				owner.GameObject.GetComponent<MVEquipable>().Unequip();
