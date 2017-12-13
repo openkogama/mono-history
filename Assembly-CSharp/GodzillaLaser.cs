@@ -15,8 +15,8 @@ public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 	[SerializeField]
 	private float maxFireRange = 3000f;
 
-	[SerializeField]
 	[Header("Graphics")]
+	[SerializeField]
 	private Color crossHairCanFire;
 
 	[SerializeField]
@@ -29,8 +29,8 @@ public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 	private AnimationCurve chargeCurve;
 
 	[SerializeField]
-	[Header("Network")]
 	[Tooltip("Look direction updates per second.")]
+	[Header("Network")]
 	private float lookUpdateRate = 2f;
 
 	[Header("Dependencies")]

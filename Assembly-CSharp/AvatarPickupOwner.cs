@@ -105,12 +105,4 @@ public class AvatarPickupOwner : MVPickupOwner
 			}
 		}
 	}
-
-	public void HandlePointing(bool inputFire)
-	{
-		if (inputFire && (currentItem.Type == AvatarItemType.Hand || currentItem.IsHolstered))
-		{
-			((AvatarLimbManagerLocal)mvAvatar.LimbManager).StartPointing();
-		}
-	}
 }

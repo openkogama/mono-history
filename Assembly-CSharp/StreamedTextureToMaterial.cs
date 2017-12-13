@@ -7,8 +7,8 @@ public class StreamedTextureToMaterial : StreamingAsset<Texture, Texture>
 	[SerializeField]
 	protected string shaderTextureVariableName = "_MainTex";
 
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	private MeshRenderer meshRenderer;
 
 	public bool assetSet;

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using MV.Common;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -8,13 +7,6 @@ using UnityEngine.UI;
 
 public class GUILoginHandler : MonoBehaviour
 {
-	private struct PlanetData(int planet, int profile)
-	{
-		public int planetID = planet;
-
-		public int profileID = profile;
-	}
-
 	public enum DevServerTarget
 	{
 		Dev,
@@ -39,30 +31,6 @@ public class GUILoginHandler : MonoBehaviour
 
 	[SerializeField]
 	private Toggle disableCacheToggle;
-
-	[SerializeField]
-	private Dropdown planetDropdown;
-
-	[SerializeField]
-	private Dropdown profileDropdown;
-
-	[SerializeField]
-	private Button buildButton;
-
-	[SerializeField]
-	private Button avatarEditButton;
-
-	private Dictionary<string, PlanetData> defaultPlanetData = new Dictionary<string, PlanetData>
-	{
-		{
-			"WOTest",
-			new PlanetData(48887, 1)
-		},
-		{
-			"Default",
-			new PlanetData(48888, 13)
-		}
-	};
 
 	private Dictionary<string, object> gameSessionData = new Dictionary<string, object>
 	{
@@ -103,10 +71,6 @@ public class GUILoginHandler : MonoBehaviour
 		disableCacheToggle.isOn = PlayerPrefs.GetInt("cachingEnabled") <= 0;
 	}
 
-	private void Start()
-	{
-	}
-
 	private void SetupServerDropdown(int savedChoice)
 	{
 		string[] names = Enum.GetNames(typeof(DevServerTarget));
@@ -118,23 +82,6 @@ public class GUILoginHandler : MonoBehaviour
 		string text2 = Enum.GetNames(typeof(DevServerTarget))[savedChoice];
 		serverDropdown.captionText.text = text2;
 		ComboboxChanged(savedChoice);
-	}
-
-	public void OnProfileDropdownChanged()
-	{
-		Dropdown.OptionData optionData = profileDropdown.options[profileDropdown.value];
-		string text = Regex.Replace(optionData.text, "[^0-9]+", string.Empty);
-		profileIdTextField.text = text;
-	}
-
-	public void OnPlanetDropdownChanged()
-	{
-		Dropdown.OptionData optionData = planetDropdown.options[planetDropdown.value];
-		if (defaultPlanetData.ContainsKey(optionData.text))
-		{
-			planetIdTextField.text = defaultPlanetData[optionData.text].planetID.ToString();
-			profileIdTextField.text = defaultPlanetData[optionData.text].profileID.ToString();
-		}
 	}
 
 	private void SetupPlanetID()
