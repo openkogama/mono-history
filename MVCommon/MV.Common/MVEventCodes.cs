@@ -98,7 +98,12 @@ public enum MVEventCodes : byte
 	ForceDetachWorldObjectFromVehicle = 93,
 	XPReward = 94,
 	GetProfileMetaData = 95,
-	ServerError = 96,
+	UpdateHeadRotation = 96,
+	UpdatePointingAndHeadRotation = 97,
+	StartHeadShake = 98,
+	StartHeadNod = 99,
+	StartWave = 100,
+	ServerError = 101,
 	Join = byte.MaxValue,
 	Leave = 254,
 	PropertiesChanged = 253

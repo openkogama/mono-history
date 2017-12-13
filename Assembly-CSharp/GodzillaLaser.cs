@@ -29,8 +29,8 @@ public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 	private AnimationCurve chargeCurve;
 
 	[SerializeField]
-	[Tooltip("Look direction updates per second.")]
 	[Header("Network")]
+	[Tooltip("Look direction updates per second.")]
 	private float lookUpdateRate = 2f;
 
 	[Header("Dependencies")]

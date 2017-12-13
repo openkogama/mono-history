@@ -37,7 +37,10 @@ public class PickUpItemHealRay : PickupItem
 	private ParticleSystem hitParticles;
 
 	[SerializeField]
-	private float maxRange = 50f;
+	private float maxRayRange = 20f;
+
+	[SerializeField]
+	private float maxLockOnRange = 25f;
 
 	[SerializeField]
 	private float rayMinimumChargeTime = 0.5f;
@@ -59,8 +62,8 @@ public class PickUpItemHealRay : PickupItem
 
 	private Vector3 hitOffset;
 
-	[Tooltip("How many seconds the healrays ammo lasts.")]
 	[SerializeField]
+	[Tooltip("How many seconds the healrays ammo lasts.")]
 	private ObscuredFloat maxAmmoTime = 100f;
 
 	private LayerMask layers = -5 & ~(1 << LayerUtil.GetLayerNumber(LayerFlags.Logic));
@@ -343,7 +346,7 @@ public class PickUpItemHealRay : PickupItem
 			}
 			else
 			{
-				rayParticles.startLifetime = maxRange / rayParticles.startSpeed;
+				rayParticles.startLifetime = GetMaxRange() / rayParticles.startSpeed;
 				hitParticles.Stop();
 			}
 		}
@@ -372,7 +375,7 @@ public class PickUpItemHealRay : PickupItem
 			UpdateRayHealingLogic(result.HitVoxel);
 			break;
 		case RayCastData.RayCastStatus.StopRay:
-			rayParticles.startLifetime = maxRange / rayParticles.startSpeed;
+			rayParticles.startLifetime = GetMaxRange() / rayParticles.startSpeed;
 			hitParticles.Stop();
 			HandleNoHit();
 			break;
@@ -395,10 +398,21 @@ public class PickUpItemHealRay : PickupItem
 
 	private void UpdateRayHealingLogic(VoxelHit hitVoxel)
 	{
-		int woIDHighestInHierarchyWithComponent = MVGameControllerBase.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(hitVoxel.woId);
-		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
-		InteractionDataHandlerBase interactionHandler = GetInteractionHandler(worldObjectClient);
+		MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(hitVoxel.transform);
+		InteractionDataHandlerBase interactionHandler = GetInteractionHandler(mVObject);
+		interactionHandler = HandleChildObjectHit(hitVoxel, interactionHandler);
 		TryHealTarget(interactionHandler);
+	}
+
+	private InteractionDataHandlerBase HandleChildObjectHit(VoxelHit hitVoxel, InteractionDataHandlerBase interactionHandler)
+	{
+		if (interactionHandler == null)
+		{
+			int woIDHighestInHierarchyWithComponent = MVGameControllerBase.WOCM.GetWoIDHighestInHierarchyWithComponent<InteractionDataHandlerBase>(hitVoxel.woId);
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDHighestInHierarchyWithComponent);
+			return GetInteractionHandler(worldObjectClient);
+		}
+		return interactionHandler;
 	}
 
 	private InteractionDataHandlerBase GetInteractionHandler(MVWorldObjectClient worldObject)
@@ -429,7 +443,7 @@ public class PickUpItemHealRay : PickupItem
 			{
 				num2 = 1f;
 			}
-			float num3 = 1f - num2 / maxRange;
+			float num3 = 1f - num2 / GetMaxRange();
 			float num4 = 50f;
 			float num5 = num4 * num3 + num4;
 			if (num > num5 || num < 0f - num5)
@@ -449,7 +463,7 @@ public class PickUpItemHealRay : PickupItem
 	private List<VoxelHit> DoRaycast(Vector3 direction)
 	{
 		Ray ray = new Ray(owner.LookOrigin, direction);
-		return CollisionDetection.MVHitAll(ray, maxRange, owner.IgnoreWOIDs, layers);
+		return CollisionDetection.MVHitAll(ray, GetMaxRange(), owner.IgnoreWOIDs, layers);
 	}
 
 	private VoxelHit CalculateClosestVoxelHit(List<VoxelHit> hitVoxels)
@@ -645,5 +659,14 @@ public class PickUpItemHealRay : PickupItem
 		{
 			newState[key] = value;
 		}
+	}
+
+	private float GetMaxRange()
+	{
+		if (isLockedOn)
+		{
+			return maxLockOnRange;
+		}
+		return maxRayRange;
 	}
 }

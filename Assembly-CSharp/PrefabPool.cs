@@ -220,8 +220,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material blinkerDefaultMaterial;
 
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
 	[Header("Pick up")]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
@@ -283,8 +283,8 @@ public class PrefabPool : MonoBehaviour
 	private MVPickupItemBaseObject avatarHealRayPrefab;
 
 	[Space(20f)]
-	[Header("Avatar item pick up")]
 	[SerializeField]
+	[Header("Avatar item pick up")]
 	private GameObject avatarItemCenterGun;
 
 	[SerializeField]
@@ -344,9 +344,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject avatarItemHealRay;
 
-	[Header("Avatar modifier")]
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
+	[Header("Avatar modifier")]
 	private AvatarModifier shieldModifier;
 
 	[SerializeField]
@@ -378,9 +378,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem healingParticles;
 
-	[Header("Logic object prefabs")]
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
+	[Header("Logic object prefabs")]
 	private GameObject logicInputConnectorPrefab;
 
 	[SerializeField]
@@ -407,9 +407,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material logicCubeConnectorBlueSelectedMaterial;
 
-	[Header("GUI")]
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
+	[Header("GUI")]
 	private Texture2D avatarAccessoryMoveIcon;
 
 	[SerializeField]
@@ -418,8 +418,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material modelConstraintsMaterial;
 
-	[Space(20f)]
 	[Header("UGUI")]
+	[Space(20f)]
 	[SerializeField]
 	private AvatarInputControllerAndroidSettings avatarInputControllerAndroidSettings;
 
@@ -432,8 +432,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private InsertCursor insertCursor;
 
-	[Header("TextBubbleContent")]
 	[SerializeField]
+	[Header("TextBubbleContent")]
 	private RectTransform editCornerHelpText;
 
 	[SerializeField]

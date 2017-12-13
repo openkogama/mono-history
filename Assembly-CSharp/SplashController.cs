@@ -22,8 +22,8 @@ public class SplashController : StreamedAudioClip.IReceiver
 		}
 	}
 
-	[SerializeField]
 	[Header("Rings")]
+	[SerializeField]
 	private ParticleSystem waterRingParticles;
 
 	[SerializeField]
@@ -32,12 +32,12 @@ public class SplashController : StreamedAudioClip.IReceiver
 	[SerializeField]
 	private float distanceBeforeNewRingIsEmitted = 1.5f;
 
-	[SerializeField]
 	[Header("Splash")]
+	[SerializeField]
 	private ParticleSystem waterSplashParticles;
 
-	[SerializeField]
 	[Tooltip("Actual number is based off avatar speed.")]
+	[SerializeField]
 	private float baseNumberOfSplashParticles = 1f;
 
 	[SerializeField]
@@ -59,8 +59,8 @@ public class SplashController : StreamedAudioClip.IReceiver
 	[SerializeField]
 	private Color pillarTint;
 
-	[SerializeField]
 	[Header("Sound")]
+	[SerializeField]
 	private StreamedAudioClip streamedSplashSound;
 
 	private static int currentObjectID = 0;
