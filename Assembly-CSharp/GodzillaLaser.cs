@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 {
-	[Header("Stats for Godzilla (will be scaled by godzilla size)")]
 	[SerializeField]
+	[Header("Stats for Godzilla (will be scaled by godzilla size)")]
 	private AnimationCurve baseAreaDamageByRange;
 
 	[SerializeField]
@@ -15,8 +15,8 @@ public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 	[SerializeField]
 	private float maxFireRange = 3000f;
 
-	[Header("Graphics")]
 	[SerializeField]
+	[Header("Graphics")]
 	private Color crossHairCanFire;
 
 	[SerializeField]
@@ -28,8 +28,8 @@ public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 	[SerializeField]
 	private AnimationCurve chargeCurve;
 
-	[SerializeField]
 	[Header("Network")]
+	[SerializeField]
 	[Tooltip("Look direction updates per second.")]
 	private float lookUpdateRate = 2f;
 

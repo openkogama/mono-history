@@ -191,9 +191,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject godzillaAreaPrefab;
 
-	[Space(20f)]
-	[SerializeField]
 	[Header("Game")]
+	[SerializeField]
+	[Space(20f)]
 	private Material ghostMarkerMaterial;
 
 	[SerializeField]
@@ -220,9 +220,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material blinkerDefaultMaterial;
 
-	[Space(20f)]
 	[SerializeField]
 	[Header("Pick up")]
+	[Space(20f)]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
 	[SerializeField]
@@ -282,9 +282,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private MVPickupItemBaseObject avatarHealRayPrefab;
 
+	[Header("Avatar item pick up")]
 	[Space(20f)]
 	[SerializeField]
-	[Header("Avatar item pick up")]
 	private GameObject avatarItemCenterGun;
 
 	[SerializeField]
@@ -344,14 +344,14 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject avatarItemHealRay;
 
+	[Header("Avatar modifier")]
 	[SerializeField]
 	[Space(20f)]
-	[Header("Avatar modifier")]
 	private AvatarModifier shieldModifier;
 
 	[SerializeField]
-	[Space(20f)]
 	[Header("Particles")]
+	[Space(20f)]
 	private GameObject particleCFX_GroundAura;
 
 	[SerializeField]
@@ -378,9 +378,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem healingParticles;
 
-	[Space(20f)]
 	[SerializeField]
 	[Header("Logic object prefabs")]
+	[Space(20f)]
 	private GameObject logicInputConnectorPrefab;
 
 	[SerializeField]
@@ -454,8 +454,8 @@ public class PrefabPool : MonoBehaviour
 	private FirstPersonDeathCamera firstPersonDeathCamera;
 
 	[Header("Editor")]
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
 	private Material cellCursorErrorMaterial;
 
 	[SerializeField]
