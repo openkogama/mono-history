@@ -7,8 +7,8 @@ public class StreamedTextureToSharedMaterial : StreamingAsset<Texture2D, Texture
 	[Header("Configuration")]
 	protected string shaderTextureVariableName = "_MainTex";
 
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	protected Material material;
 
 	public void Reset()
