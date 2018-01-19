@@ -40,9 +40,9 @@ public class AvatarLimbManagerRemote : AvatarLimbManager
 
 		private Quaternion remotePitchRotation;
 
-		public override void Initialize(AvatarLimbManager limbManager, LimbRotator limbRotator)
+		public override void Initialize(AvatarLimbManager limbManager, LimbRotator limbRotator, AvatarEnabledChangeHandler enableChangeHandler)
 		{
-			base.Initialize(limbManager, limbRotator);
+			base.Initialize(limbManager, limbRotator, enableChangeHandler);
 			remoteYawRotation = Quaternion.identity;
 			remotePitchRotation = Quaternion.identity;
 			pointingDuration = 1.5f;
@@ -85,9 +85,9 @@ public class AvatarLimbManagerRemote : AvatarLimbManager
 		headRotationHandler = new AvatarHeadRotationHandlerRemote();
 		headRotationHandler.Initialize(this, limbRotator, lookDirectionHandler);
 		pointingHandler = new AvatarPointingHandlerRemote();
-		pointingHandler.Initialize(this, limbRotator);
+		pointingHandler.Initialize(this, limbRotator, mvAvatar.Avatar.EnabledChangeHandler);
 		emoteHandler = new AvatarEmoteHandler();
-		emoteHandler.Initialize(this, lookDirectionHandler, pointingHandler, headRotationHandler, limbRotator);
+		emoteHandler.Initialize(this, lookDirectionHandler, pointingHandler, headRotationHandler, limbRotator, mvAvatar.Avatar.EnabledChangeHandler);
 	}
 
 	public override void UpdateLimbRotations()

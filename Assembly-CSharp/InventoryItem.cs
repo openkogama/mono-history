@@ -117,7 +117,7 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.MouseGun,
-			new ItemDescription(TM._("Mouse Gun"), TM._("A pistol that shrinks the target."), TM._("Turn enemy players into helpeless little rodents, or help your friends navigate narrow areas."))
+			new ItemDescription(TM._("Mouse Gun"), TM._("A pistol that shrinks the target."), TM._("Turn enemy players into helpless little rodents, or help your friends navigate narrow areas."))
 		},
 		{
 			MVWorldObjectDocumentationType.Colossus,
@@ -193,7 +193,7 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.BigJetpack,
-			new ItemDescription(TM._("Dragonfly Jetpack"), TM._("A big customizable jetpack."), TM._("This jetpack offer unprecedented agility and speed, compared to it's sibling the Firefly Jetpack"), new Vector3(0f, -1f, 0.2f))
+			new ItemDescription(TM._("Dragonfly Jetpack"), TM._("A big customizable jetpack."), TM._("This jetpack offers unprecedented agility and speed, compared to it's sibling the Firefly Jetpack"), new Vector3(0f, -1f, 0.2f))
 		},
 		{
 			MVWorldObjectDocumentationType.Ghost,
@@ -301,7 +301,7 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.PressurePlate,
-			new ItemDescription(TM._("Pressure Plate"), TM._("Whenever a player steps on the plate, it sends a signal."), TM._("Connect this to an toggle box for a simple door, or to explosives for a landmine."))
+			new ItemDescription(TM._("Pressure Plate"), TM._("Whenever a player steps on the plate, it sends a signal."), TM._("Connect this to an toggle box for a simple door, or to explosives for a land mine."))
 		},
 		{
 			MVWorldObjectDocumentationType.ModelToggle,
@@ -337,7 +337,7 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.GlobalSoundEmitter,
-			new ItemDescription(TM._("Global Speaker"), TM._("Adds a global sound to the game that can be heard from anywhere."), TM._("This can be used to make a better ambience for the game."))
+			new ItemDescription(TM._("Global Speaker"), TM._("Adds a global sound to the game that can be heard from anywhere."), TM._("This can be used to make a better ambiance for the game."))
 		}
 	};
 

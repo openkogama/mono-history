@@ -160,6 +160,7 @@ public class TouristModeController : MonoBehaviour
 	public void Awake()
 	{
 		touristPromotionActive = MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion;
+		touristPromotionActive &= !MVGameControllerBase.GameSessionData.IsPlayedFromPoki;
 		if (!touristPromotionActive)
 		{
 			Object.Destroy(this);

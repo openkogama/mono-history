@@ -56,11 +56,13 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Combine(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
 		}
 		SetupCulling(fireObject.VisualObject);
-		rangeVis = UnityEngine.Object.Instantiate(PrefabPool.Instance.RangeVisualizationObject);
-		rangeVis.transform.parent = fireObject.transform;
-		rangeVis.transform.localPosition = Vector3.zero;
-		rangeVis.Radius = damageRadius;
-		rangeVis.Initialize(Id);
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
+		{
+			rangeVis = UnityEngine.Object.Instantiate(PrefabPool.Instance.RangeVisualizationObject);
+			rangeVis.transform.parent = fireObject.transform;
+			rangeVis.transform.localPosition = Vector3.zero;
+			rangeVis.SetRadius(damageRadius);
+		}
 		SetFireToData();
 		float num = damageRadius / 2.5f * 5f;
 		SetFireHitBoxYOffset(num * 0.04f);
@@ -218,7 +220,10 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 	private void UpdateDamageRadius(float intensity)
 	{
 		damageRadius = CalculateDamageRadius(intensity);
-		rangeVis.Radius = damageRadius;
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
+		{
+			rangeVis.SetRadius(damageRadius);
+		}
 	}
 
 	private void UpdateScale(float scale)
@@ -291,11 +296,11 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 
 	private void SetFireHitBoxYOffset(float offset)
 	{
-		Vector3 vector = fireObject.TriggerBoxEvents.transform.position;
-		vector.y += offset;
-		Vector3 localPosition = rangeVis.transform.localPosition;
-		localPosition.y += offset;
-		rangeVis.transform.localPosition = localPosition;
-		fireObject.TriggerBoxEvents.transform.position = vector;
+		Vector3 translation = new Vector3(0f, offset, 0f);
+		fireObject.TriggerBoxEvents.transform.Translate(translation, Space.World);
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
+		{
+			rangeVis.transform.Translate(translation, Space.Self);
+		}
 	}
 }

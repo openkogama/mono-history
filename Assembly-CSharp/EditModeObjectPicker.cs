@@ -8,7 +8,7 @@ public static class EditModeObjectPicker
 
 	public static bool Pick(ref VoxelHit hit, HashSet<int> ignoreWoIds = null, int layerMask = -262149)
 	{
-		if (MVInputWrapper.IsInputSuppressed)
+		if (MVInputWrapper.IsAllInputSuppressed)
 		{
 			return false;
 		}
@@ -57,7 +57,7 @@ public static class EditModeObjectPicker
 
 	public static bool GetPickingInfo(MVCubeModelBase cr, ref CubePickingInfo info)
 	{
-		if (MVInputWrapper.IsInputSuppressed)
+		if (MVInputWrapper.IsAllInputSuppressed)
 		{
 			return false;
 		}

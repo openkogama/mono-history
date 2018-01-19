@@ -48,7 +48,10 @@ public class MVGhost : MVBlueprintBase, IUpdatecontrollerSubscriber
 				distance = value;
 				blueprintData["Distance"] = value;
 				MVGameControllerBase.OperationRequests.UpdateWorldObjectDataPartial(Id, "BlueprintData\\Distance", value);
-				rangeVis.Radius = distance;
+				if (MVGameControllerBase.GameMode == MVGameMode.Edit)
+				{
+					rangeVis.SetRadius(distance);
+				}
 			}
 		}
 	}
@@ -87,11 +90,13 @@ public class MVGhost : MVBlueprintBase, IUpdatecontrollerSubscriber
 		ghostBody = gameObject.transform;
 		ghostBody.parent = base.gameObject.transform;
 		ghostBody.localPosition = Vector3.zero;
-		rangeVis = UnityEngine.Object.Instantiate(PrefabPool.Instance.RangeVisualizationObject);
-		rangeVis.transform.parent = base.gameObject.transform;
-		rangeVis.transform.localPosition = Vector3.zero;
-		rangeVis.Initialize(Id);
-		rangeVis.Radius = distance;
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
+		{
+			rangeVis = UnityEngine.Object.Instantiate(PrefabPool.Instance.RangeVisualizationObject);
+			rangeVis.transform.parent = base.gameObject.transform;
+			rangeVis.transform.localPosition = Vector3.zero;
+			rangeVis.SetRadius(distance);
+		}
 		MeshRenderer componentInChildren = gameObject.GetComponentInChildren<MeshRenderer>();
 		localBounds = ComputeLocalBounds(base.gameObject.transform.position, new MeshRenderer[1] { componentInChildren });
 	}

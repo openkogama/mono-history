@@ -16,18 +16,16 @@ public class WaterSplashComponent : MonoBehaviour
 		movingObject = obj;
 		bounds = obj.Bounds;
 		offset = bounds.center - obj.Position;
+		enabled = true;
 	}
 
 	protected virtual void Start()
 	{
-		if (MVGameControllerBase.GameMode == MVGameMode.Play && !MVGameControllerBase.WaterPlaneManager.IsActive)
-		{
-			enabled = false;
-		}
-		else
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit || MVGameControllerBase.WaterPlaneManager.IsActive)
 		{
 			waterObjectID = MVGameControllerBase.WaterPlaneManager.Splash.NewObjectID;
 		}
+		enabled = false;
 	}
 
 	protected virtual void Update()

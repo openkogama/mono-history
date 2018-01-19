@@ -71,6 +71,9 @@ public class Avatar : MonoBehaviour, IMovable, IBulletImpactVisualizer
 	[SerializeField]
 	private WaterSplashComponent waterSplashComponent;
 
+	[SerializeField]
+	private AvatarEnabledChangeHandler enabledChangeHandler;
+
 	private CullingSubscriberBase cullingSubscriberBase;
 
 	private Material avatarNameMaterial;
@@ -108,6 +111,8 @@ public class Avatar : MonoBehaviour, IMovable, IBulletImpactVisualizer
 			}
 		}
 	}
+
+	public AvatarEnabledChangeHandler EnabledChangeHandler => enabledChangeHandler;
 
 	public HealthBar HealthBar => healthBar;
 

@@ -3,6 +3,11 @@ using MV.Common;
 
 public class GameSessionData
 {
+	private static class ReferrerStrings
+	{
+		public const string Poki = "gsm";
+	}
+
 	public string serverIP = string.Empty;
 
 	public int profileID = -1;
@@ -58,6 +63,8 @@ public class GameSessionData
 		"gsm",
 		LoadLogoType.Poki
 	} };
+
+	public bool IsPlayedFromPoki => referrer == "gsm";
 
 	public LoadLogoType LoadLogoType
 	{

@@ -6,6 +6,8 @@ using UnityEngine;
 [RequireComponent(typeof(Animation))]
 public class BoneAnimation : MonoBehaviour
 {
+	public Action<string> OnAnimationChange;
+
 	private float walkMinSpeed = 0.7f;
 
 	private float assumedWalkMaxSpeed = 8f;
@@ -93,16 +95,20 @@ public class BoneAnimation : MonoBehaviour
 	private void AnimationChangeHandler(object animData)
 	{
 		Dictionary<object, object> dictionary = (Dictionary<object, object>)animData;
-		string state = (string)dictionary["state"];
+		string text = (string)dictionary["state"];
 		int timeStamp = (int)dictionary["timeStamp"];
+		if (OnAnimationChange != null)
+		{
+			OnAnimationChange(text);
+		}
 		if (mvAvatar is MVAvatarLocal)
 		{
-			currentAnim = new AnimationData(state, timeStamp);
+			currentAnim = new AnimationData(text, timeStamp);
 			ComputeAnimation();
 		}
 		else
 		{
-			animationQueue.Enqueue(new AnimationData(state, timeStamp));
+			animationQueue.Enqueue(new AnimationData(text, timeStamp));
 			ComputeRemoteAnimation();
 		}
 	}

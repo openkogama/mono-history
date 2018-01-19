@@ -229,8 +229,8 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 	{
 		if (debriefing != null)
 		{
-			MVInputWrapper.IsShortcutKeysSuppressed = true;
-			MVInputWrapper.IsInGameInputSuppressed = true;
+			MVInputWrapper.SuppressShortcutKeys();
+			MVInputWrapper.SuppressInGameInput();
 		}
 	}
 

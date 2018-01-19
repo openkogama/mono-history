@@ -112,8 +112,8 @@ public class DamageIndicator : MonoBehaviour
 	[Header("Configuration")]
 	private float indicationRadius = 35f;
 
-	[SerializeField]
 	[Tooltip("Transparency [0..1] by time [0..1] remaining")]
+	[SerializeField]
 	private AnimationCurve fade;
 
 	[SerializeField]

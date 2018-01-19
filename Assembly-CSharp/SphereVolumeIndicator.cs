@@ -1,89 +1,84 @@
-using System;
 using UnityEngine;
 
-[RequireComponent(typeof(ParticleSystem))]
 public class SphereVolumeIndicator : MonoBehaviour
 {
-	public float radius = 5f;
-
-	public float arcDistance = 0.1f;
-
-	private WorldObjectClientRef owner;
-
-	private bool particlesSetup;
-
-	private bool initialized;
-
-	private ParticleSystem.Particle[] particles;
+	[SerializeField]
+	[Header("Configuration")]
+	private float lineDotDensity = 22f;
 
 	[SerializeField]
-	private ParticleSystem pSystem;
+	private int circleSergmentCount = 8;
 
-	public float Radius
+	[SerializeField]
+	private float lineWidth = 1f;
+
+	[Header("Dependencies")]
+	[SerializeField]
+	private LineRenderer rangeIndicatorXY;
+
+	[SerializeField]
+	private LineRenderer rangeIndicatorYZ;
+
+	[SerializeField]
+	private LineRenderer rangeIndicatorZX;
+
+	[SerializeField]
+	private Material lineDotMaterial;
+
+	private Material materialCopy;
+
+	protected void Awake()
 	{
-		get
-		{
-			return radius;
-		}
-		set
-		{
-			radius = value;
-			particlesSetup = false;
-		}
+		CopyMaterial();
 	}
 
-	private void Awake()
+	private void CopyMaterial()
 	{
-		pSystem.loop = false;
-		pSystem.playOnAwake = false;
+		materialCopy = new Material(lineDotMaterial);
+		rangeIndicatorXY.material = materialCopy;
+		rangeIndicatorYZ.material = materialCopy;
+		rangeIndicatorZX.material = materialCopy;
 	}
 
-	public void Initialize(int id)
+	public void SetRadius(float radius)
 	{
-		pSystem.loop = false;
-		pSystem.playOnAwake = false;
-		initialized = true;
-		owner = MVGameControllerBase.WOCM.GetWorldObjectClientRef(id);
-		if (owner == null)
+		Vector3 vector = new Vector3(0f, radius, 0f);
+		Quaternion quaternion = Quaternion.AngleAxis(360f / (float)circleSergmentCount, new Vector3(0f, 0f, 1f));
+		int num = circleSergmentCount + 1;
+		Vector3[] array = new Vector3[num];
+		for (int i = 0; i < num; i++)
 		{
-			enabled = false;
+			vector = quaternion * vector;
+			array[i] = vector;
 		}
-	}
-
-	private void Update()
-	{
-		if (initialized && !particlesSetup && owner.WorldObjectClient != null && owner.WorldObjectClient.GameObject.activeInHierarchy)
-		{
-			SetupParticles(radius, arcDistance);
-		}
-	}
-
-	private void SetupParticles(float radius, float arcDistance)
-	{
-		particlesSetup = true;
-		int num = (int)(2f * radius * (float)Math.PI / arcDistance);
-		particles = new ParticleSystem.Particle[num * 3];
-		float num2 = (float)Math.PI * 2f / (float)num;
-		for (int i = 0; i < 3 * num; i++)
-		{
-			particles[i].lifetime = UnityEngine.Random.Range(1f, 2f);
-			particles[i].velocity = Vector3.zero;
-			particles[i].startLifetime = 2f;
-			particles[i].startSize = 0.25f;
-			particles[i].rotation = 0f;
-			particles[i].startColor = Color.white;
-			particles[i].angularVelocity = 0f;
-			particles[i].randomSeed = 0u;
-		}
+		rangeIndicatorXY.SetVertexCount(num);
+		rangeIndicatorXY.SetPositions(array);
+		vector = new Vector3(0f, 0f, radius);
+		quaternion = Quaternion.AngleAxis(360f / (float)circleSergmentCount, new Vector3(1f, 0f, 0f));
 		for (int j = 0; j < num; j++)
 		{
-			float f = (float)j * num2;
-			float num3 = Mathf.Sin(f) * radius;
-			float num4 = Mathf.Cos(f) * radius;
-			particles[j].position = new Vector3(num4, num3, 0f);
-			particles[num + j].position = new Vector3(num4, 0f, num3);
-			particles[2 * num + j].position = new Vector3(0f, num4, num3);
+			array[j].z = array[j].x;
+			array[j].x = 0f;
 		}
-		pSystem.SetParticles(particles, particles.Length);
+		rangeIndicatorYZ.SetVertexCount(num);
+		rangeIndicatorYZ.SetPositions(array);
+		vector = new Vector3(radius, 0f, 0f);
+		quaternion = Quaternion.AngleAxis(360f / (float)circleSergmentCount, new Vector3(0f, 1f, 0f));
+		for (int k = 0; k < num; k++)
+		{
+			array[k].x = array[k].y;
+			array[k].y = 0f;
+		}
+		rangeIndicatorZX.SetVertexCount(num);
+		rangeIndicatorZX.SetPositions(array);
+		materialCopy.SetTextureScale("_MainTex", new Vector2(lineDotDensity * radius, 1f));
+		SetLineWidths(lineWidth);
+	}
+
+	private void SetLineWidths(float w)
+	{
+		rangeIndicatorXY.SetWidth(w, w);
+		rangeIndicatorYZ.SetWidth(w, w);
+		rangeIndicatorZX.SetWidth(w, w);
 	}
 }

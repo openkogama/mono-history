@@ -7,7 +7,7 @@ internal static class MVInputWrapper
 	{
 		private int suppressionFrame;
 
-		public virtual bool IsSuppressed
+		protected virtual bool IsSuppressed
 		{
 			get
 			{
@@ -20,14 +20,14 @@ internal static class MVInputWrapper
 			}
 		}
 
-		public InputSuppression()
+		protected InputSuppression(bool a)
 		{
-			suppressionFrame = 0;
+			IsSuppressed = a;
 		}
 
-		public InputSuppression(bool b)
+		public static implicit operator InputSuppression(bool a)
 		{
-			IsSuppressed = b;
+			return new InputSuppression(a);
 		}
 
 		public static implicit operator bool(InputSuppression a)
@@ -36,67 +36,33 @@ internal static class MVInputWrapper
 		}
 	}
 
-	public class InputSuppressionWithReset : InputSuppression
+	private static InputSuppression isInputAllSuppressed = false;
+
+	private static InputSuppression isShortcutKeysSuppressed = false;
+
+	private static InputSuppression isInGameInputSuppressed = false;
+
+	private static IKogamaInputMap inputMap;
+
+	public static bool IsAllInputSuppressed => isInputAllSuppressed;
+
+	public static bool IsShortcutKeysSuppressed => (bool)isShortcutKeysSuppressed || IsAllInputSuppressed;
+
+	public static bool IsInGameInputSuppressed => (bool)isInGameInputSuppressed || IsAllInputSuppressed;
+
+	public static void SuppressAllInput()
 	{
-		public override bool IsSuppressed
-		{
-			get
-			{
-				return base.IsSuppressed;
-			}
-			set
-			{
-				base.IsSuppressed = value;
-				if (value)
-				{
-					((DesktopDefaultKeyboardMapping)inputMap).Reset();
-				}
-			}
-		}
+		isInputAllSuppressed = true;
 	}
 
-	public static InputSuppressionWithReset isInputSuppressed = new InputSuppressionWithReset();
-
-	public static InputSuppression isShortcutKeysSuppressed = new InputSuppression();
-
-	public static InputSuppressionWithReset isInGameInputSuppressed = new InputSuppressionWithReset();
-
-	private static IKogamaInputMap inputMap = new DesktopDefaultKeyboardMapping();
-
-	public static bool IsInputSuppressed
+	public static void SuppressShortcutKeys()
 	{
-		get
-		{
-			return isInputSuppressed;
-		}
-		set
-		{
-			isInputSuppressed.IsSuppressed = value;
-		}
+		isShortcutKeysSuppressed = true;
 	}
 
-	public static bool IsShortcutKeysSuppressed
+	public static void SuppressInGameInput()
 	{
-		get
-		{
-			return isShortcutKeysSuppressed;
-		}
-		set
-		{
-			isShortcutKeysSuppressed.IsSuppressed = value;
-		}
-	}
-
-	public static bool IsInGameInputSuppressed
-	{
-		get
-		{
-			return isInGameInputSuppressed;
-		}
-		set
-		{
-			isInGameInputSuppressed.IsSuppressed = value;
-		}
+		isInGameInputSuppressed = true;
 	}
 
 	public static void SetInputMap(IKogamaInputMap inputMap)
@@ -121,7 +87,7 @@ internal static class MVInputWrapper
 
 	private static bool GetBooleanControl(KogamaControls control, KeyState keyState)
 	{
-		if (IsInputSuppressed && control != KogamaControls.PointerSelect && control != KogamaControls.PointerSelectAlt)
+		if (IsAllInputSuppressed && control != KogamaControls.PointerSelect && control != KogamaControls.PointerSelectAlt)
 		{
 			return false;
 		}
@@ -139,7 +105,7 @@ internal static class MVInputWrapper
 
 	public static float GetAxis(string axis)
 	{
-		if (IsInputSuppressed || IsInGameInputSuppressed)
+		if (IsInGameInputSuppressed)
 		{
 			return 0f;
 		}
@@ -148,7 +114,7 @@ internal static class MVInputWrapper
 
 	public static float GetAxisRaw(string axis)
 	{
-		if (IsInputSuppressed || IsInGameInputSuppressed)
+		if (IsInGameInputSuppressed)
 		{
 			return 0f;
 		}

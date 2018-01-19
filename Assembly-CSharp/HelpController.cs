@@ -22,7 +22,7 @@ public class HelpController : MonoBehaviour
 	{
 		if (pressed)
 		{
-			MVInputWrapper.IsInputSuppressed = true;
+			MVInputWrapper.SuppressAllInput();
 		}
 	}
 

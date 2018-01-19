@@ -9,7 +9,7 @@ public class DragSuppress : MonoBehaviour, IBeginDragHandler, IEndDragHandler, I
 	{
 		if (isDragging)
 		{
-			MVInputWrapper.IsInputSuppressed = true;
+			MVInputWrapper.SuppressAllInput();
 		}
 	}
 

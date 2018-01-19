@@ -123,7 +123,7 @@ public class DesktopEditModeController : ModeControllerBase, IEditModeUI, ISetEd
 			}
 			else
 			{
-				MVInputWrapper.IsInputSuppressed = true;
+				MVInputWrapper.SuppressAllInput();
 			}
 		}
 	}

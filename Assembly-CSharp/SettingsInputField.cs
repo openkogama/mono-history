@@ -20,7 +20,7 @@ public class SettingsInputField : MonoBehaviour
 	{
 		if (inputField.isFocused)
 		{
-			MVInputWrapper.IsShortcutKeysSuppressed = true;
+			MVInputWrapper.SuppressShortcutKeys();
 		}
 	}
 

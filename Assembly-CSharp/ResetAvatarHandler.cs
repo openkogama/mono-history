@@ -107,8 +107,8 @@ public class ResetAvatarHandler : MonoBehaviour, IDragHandler, IPointerDownHandl
 	{
 		if (imagesReady)
 		{
-			MVInputWrapper.IsInGameInputSuppressed = true;
-			MVInputWrapper.IsInputSuppressed = true;
+			MVInputWrapper.SuppressInGameInput();
+			MVInputWrapper.SuppressAllInput();
 			fromPreviewer.UpdateRotation(currentRotationSpeed);
 			toPreviewer.UpdateRotation(currentRotationSpeed);
 			currentRotationSpeed = ((!isDown) ? defaultRotationSpeed : 0.01f);

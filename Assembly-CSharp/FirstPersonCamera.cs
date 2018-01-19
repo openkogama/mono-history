@@ -6,8 +6,8 @@ using UnityEngine.Rendering;
 
 public abstract class FirstPersonCamera : MVCameraBase
 {
-	[Header("Configuration")]
 	[SerializeField]
+	[Header("Configuration")]
 	private float cameraHeight = 2f;
 
 	[SerializeField]
@@ -16,8 +16,8 @@ public abstract class FirstPersonCamera : MVCameraBase
 	[SerializeField]
 	protected float maxLookAngleUpward = 60f;
 
-	[SerializeField]
 	[HideInInspector]
+	[SerializeField]
 	private Vector3 cameraOffset = new Vector3(0f, 2f, 0f);
 
 	[SerializeField]
@@ -206,7 +206,7 @@ public abstract class FirstPersonCamera : MVCameraBase
 		worldObjectClient.GameObject.GetComponentsInChildren(includeInactive: false, vehiclesHiddenMeshRenderers);
 		for (int i = 0; i < vehiclesHiddenMeshRenderers.Count; i++)
 		{
-			vehiclesHiddenMeshRenderers[i].enabled = false;
+			vehiclesHiddenMeshRenderers[i].shadowCastingMode = ShadowCastingMode.ShadowsOnly;
 		}
 	}
 
@@ -214,7 +214,7 @@ public abstract class FirstPersonCamera : MVCameraBase
 	{
 		for (int i = 0; i < vehiclesHiddenMeshRenderers.Count; i++)
 		{
-			vehiclesHiddenMeshRenderers[i].enabled = true;
+			vehiclesHiddenMeshRenderers[i].shadowCastingMode = ShadowCastingMode.On;
 		}
 	}
 

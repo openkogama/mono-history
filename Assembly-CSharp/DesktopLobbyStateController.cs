@@ -46,7 +46,7 @@ public class DesktopLobbyStateController : MonoBehaviour
 		bool isTouristSession = MVGameControllerBase.IsTouristSession;
 		bool flag = MVGameControllerBase.IEditModeUI == null && !isTouristSession && MVGameControllerBase.GameMode == MVGameMode.Play;
 		playReward.gameObject.SetActive(value: false);
-		bool active = MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion;
+		bool active = MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion && !MVGameControllerBase.GameSessionData.IsPlayedFromPoki;
 		touristRegisterButton.SetActive(active);
 		rewardTransform.gameObject.SetActive(flag && MVClientSettings.SpinEnabled);
 		gameCoinBoosterButton.SetActive(!isTouristSession);
@@ -91,7 +91,7 @@ public class DesktopLobbyStateController : MonoBehaviour
 		{
 			respawnButton.gameObject.SetActive(value: true);
 		}
-		MVInputWrapper.IsInGameInputSuppressed = true;
+		MVInputWrapper.SuppressInGameInput();
 		accessoryMover.MoveAccessory();
 	}
 

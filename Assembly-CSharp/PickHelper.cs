@@ -19,7 +19,7 @@ public class PickHelper : MonoBehaviour
 
 	private void Update()
 	{
-		MVInputWrapper.IsInGameInputSuppressed = true;
+		MVInputWrapper.SuppressInGameInput();
 		if (pickCallback == null || !Input.GetKeyUp(KeyCode.Mouse0))
 		{
 			return;

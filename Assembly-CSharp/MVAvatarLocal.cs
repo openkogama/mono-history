@@ -333,6 +333,8 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 
 	public class JetPackMode : EditAvatarModeBase
 	{
+		private const float doubleTapThreshold = 0.3f;
+
 		private const float moveSlowDownPoint = 0.75f;
 
 		private readonly float maxSpeed = 1.75f;
@@ -346,6 +348,28 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 		private float speed;
 
 		private float speedSmoothingTime = 10f;
+
+		private Dictionary<KogamaControls, float> doubleTapMovementTimers = new Dictionary<KogamaControls, float>
+		{
+			{
+				KogamaControls.EditMoveForward,
+				0f
+			},
+			{
+				KogamaControls.EditMoveLeft,
+				0f
+			},
+			{
+				KogamaControls.EditMoveRight,
+				0f
+			},
+			{
+				KogamaControls.EditMoveBackwards,
+				0f
+			}
+		};
+
+		private bool fastMovement;
 
 		private bool moveConstraintSet;
 
@@ -511,11 +535,11 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 			}
 		}
 
-		private Vector3 GetDirection()
+		private Vector3 GetDirection(bool freeFlight)
 		{
 			Transform transform = Camera.main.transform;
 			Vector3 result = transform.rotation * GetInputDirection();
-			if (!MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveFast))
+			if (!freeFlight)
 			{
 				result.y = 0f;
 			}
@@ -545,10 +569,37 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 			return zero.normalized;
 		}
 
+		private bool IsDoubleTap(KogamaControls ctrl)
+		{
+			bool result = false;
+			if (MVInputWrapper.GetBooleanControlDown(ctrl))
+			{
+				if (Time.realtimeSinceStartup - doubleTapMovementTimers[ctrl] < 0.3f)
+				{
+					result = true;
+				}
+				doubleTapMovementTimers[ctrl] = Time.realtimeSinceStartup;
+			}
+			return result;
+		}
+
 		private Vector3 GetMovementVelocity()
 		{
-			Vector3 direction = GetDirection();
-			targetSpeed = direction.magnitude * maxSpeed * ((!MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveFast)) ? 1f : speedModifier);
+			bool freeFlight = MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveFast) || Input.GetMouseButton(1);
+			Vector3 direction = GetDirection(freeFlight);
+			if (IsDoubleTap(KogamaControls.EditMoveForward) || IsDoubleTap(KogamaControls.EditMoveLeft) || IsDoubleTap(KogamaControls.EditMoveRight) || IsDoubleTap(KogamaControls.EditMoveBackwards))
+			{
+				fastMovement = true;
+			}
+			if (!MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveForward) && !MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveLeft) && !MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveRight) && !MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveBackwards))
+			{
+				fastMovement = false;
+			}
+			targetSpeed = direction.magnitude * maxSpeed;
+			if (fastMovement)
+			{
+				targetSpeed *= speedModifier;
+			}
 			speed = Mathf.Lerp(speed, targetSpeed, speedSmoothingTime * Time.deltaTime);
 			return direction * speed * speedModifier * XZMovementSpeedScale;
 		}

@@ -71,7 +71,10 @@ public class MVGhostInstance : MVWorldObjectClient, IGameStateControllerSubscrib
 				distance = value;
 				Data["Distance"] = value;
 				MVGameControllerBase.OperationRequests.UpdateWorldObjectDataPartial(Id, "Data\\Distance", value);
-				rangeVis.Radius = distance;
+				if (MVGameControllerBase.GameMode == MVGameMode.Edit)
+				{
+					rangeVis.SetRadius(distance);
+				}
 			}
 		}
 	}
@@ -118,11 +121,13 @@ public class MVGhostInstance : MVWorldObjectClient, IGameStateControllerSubscrib
 	public override void Initialize()
 	{
 		base.Initialize();
-		rangeVis = UnityEngine.Object.Instantiate(PrefabPool.Instance.RangeVisualizationObject);
-		rangeVis.transform.parent = gameObject.transform;
-		rangeVis.transform.localPosition = Vector3.zero;
-		rangeVis.Radius = distance;
-		rangeVis.Initialize(Id);
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
+		{
+			rangeVis = UnityEngine.Object.Instantiate(PrefabPool.Instance.RangeVisualizationObject);
+			rangeVis.transform.parent = gameObject.transform;
+			rangeVis.transform.localPosition = Vector3.zero;
+			rangeVis.SetRadius(distance);
+		}
 		UpdateController.AddFixedUpdateObject(this, UpdatePriority.PRE_UPDATEBUCKET_20, 10);
 		UpdateController.AddUpdateObject(this, UpdatePriority.PRE_UPDATEBUCKET_20, 10);
 		InitializeCommon();

@@ -66,7 +66,7 @@ public class UIStack : MonoBehaviour, IEventSystemHandler, IUIStack
 		{
 			if (stackableUiElement.blockingObject)
 			{
-				MVInputWrapper.IsShortcutKeysSuppressed = true;
+				MVInputWrapper.SuppressShortcutKeys();
 				break;
 			}
 		}

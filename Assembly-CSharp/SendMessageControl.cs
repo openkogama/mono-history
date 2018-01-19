@@ -201,9 +201,15 @@ public class SendMessageControl : MonoBehaviour
 	public static string CreateHelpTxt()
 	{
 		string text = "\n";
-		string text2 = text;
-		text = text2 + "\nType: " + startHeadShake + " or " + startNod + " or " + startWave + " to start an emote";
-		text += TM._("\nType: " + enableHD + " to enable HD mode.\n\n");
+		if (!MVGameControllerBase.IsTouristSession)
+		{
+			string text2 = text;
+			text = text2 + "\nType: " + startHeadShake + " or " + startNod + " or " + startWave + " to start an emote";
+		}
+		if (!MVGameControllerBase.IsTouristSession)
+		{
+			text += TM._("\nType: " + enableHD + " to enable HD mode.\n\n");
+		}
 		MVGameMode mVGameMode = MVGameControllerBase.GameMode;
 		if (MVGameControllerBase.IsPlaying)
 		{

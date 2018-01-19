@@ -26,7 +26,7 @@ public class PickupGUI : MonoBehaviour
 	{
 		if (!MVGameControllerBase.WOCM.AvatarLocal.IsSeated || IsInJetpack())
 		{
-			crossHair.HolsterStateChanged(isHolstered);
+			HolsterTip.Show();
 		}
 		if (isHolstered)
 		{
@@ -125,6 +125,10 @@ public class PickupGUI : MonoBehaviour
 		ShowEquipableUI = PickupGUIFlags.None;
 		if (item.CanHolster)
 		{
+			if (!MVGameControllerBase.WOCM.AvatarLocal.IsSeated || IsInJetpack())
+			{
+				HolsterTip.Show();
+			}
 			if (item.IsHolstered)
 			{
 				ShowEquipableUI |= PickupGUIFlags.IsHolstered;

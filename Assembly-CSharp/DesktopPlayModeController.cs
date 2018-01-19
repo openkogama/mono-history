@@ -221,7 +221,7 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 		levelBadge.transform.SetParent(playModeState.transform, worldPositionStays: false);
 		notificationsManager = UnityEngine.Object.Instantiate(notificationsManager);
 		notificationsManager.transform.SetParent(stackBottom.transform, worldPositionStays: false);
-		if (MVGameControllerBase.IsTouristSession)
+		if (MVGameControllerBase.IsTouristSession && !MVGameControllerBase.GameSessionData.IsPlayedFromPoki)
 		{
 			touristAdController = UnityEngine.Object.Instantiate(touristAdController);
 			touristAdController.transform.SetParent(playModeState.transform, worldPositionStays: false);

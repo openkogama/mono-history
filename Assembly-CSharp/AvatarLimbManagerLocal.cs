@@ -530,9 +530,9 @@ public class AvatarLimbManagerLocal : AvatarLimbManager
 		headRotationHandler.Initialize(this, limbRotator, lookDirectionHandler);
 		pointingRotationCalculator = new AvatarPointingRotationCalculator();
 		pointingHandler = new AvatarPointingHandlerLocal();
-		pointingHandler.Initialize(this, limbRotator);
+		pointingHandler.Initialize(this, limbRotator, mvAvatar.Avatar.EnabledChangeHandler);
 		emoteHandler = new AvatarEmoteHandlerLocal();
-		emoteHandler.Initialize(this, lookDirectionHandler, pointingHandler, headRotationHandler, limbRotator);
+		emoteHandler.Initialize(this, lookDirectionHandler, pointingHandler, headRotationHandler, limbRotator, mvAvatar.Avatar.EnabledChangeHandler);
 		DelayHeadRotationNetworkMessage = (Action<float>)Delegate.Combine(DelayHeadRotationNetworkMessage, new Action<float>(headRotationHandler.ResetNetworkMessageCooldown));
 		DelayPointingNetworkMessage = (Action<float>)Delegate.Combine(DelayPointingNetworkMessage, new Action<float>(pointingHandler.ResetNetworkMessageDelay));
 	}

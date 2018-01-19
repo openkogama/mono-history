@@ -420,6 +420,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	public static void SetGameSessionData(GameSessionData gameSessionData)
 	{
 		MVGameControllerBase.gameSessionData = gameSessionData;
+		AwayMonitor.Initialize(gameSessionData.gameMode);
 	}
 
 	protected void StartGame()

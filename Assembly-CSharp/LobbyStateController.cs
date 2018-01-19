@@ -29,7 +29,7 @@ public class LobbyStateController : MonoBehaviour
 	{
 		bool isTouristSession = MVGameControllerBase.IsTouristSession;
 		touristRewardPreview.SetActive(isTouristSession && MVClientSettings.SpinEnabled);
-		touristRegisterButton.SetActive(isTouristSession);
+		touristRegisterButton.SetActive(isTouristSession && !MVGameControllerBase.GameSessionData.IsPlayedFromPoki);
 		if (!isTouristSession)
 		{
 			accessoryShop.SetActive(value: true);

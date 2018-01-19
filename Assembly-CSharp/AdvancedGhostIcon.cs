@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.Events;
@@ -23,13 +24,16 @@ public class AdvancedGhostIcon : MonoBehaviour
 
 	private CullingSubscriberBase cullingSubscriberBase;
 
-	private SphereVolumeIndicator sphereVolumeIndicator;
+	private LineRangeIndicator lineRangeIndicator;
 
 	public float Radius
 	{
 		set
 		{
-			sphereVolumeIndicator.Radius = value;
+			if (MVGameControllerBase.GameMode == MVGameMode.Edit)
+			{
+				lineRangeIndicator.SetRange(value);
+			}
 		}
 	}
 
@@ -51,7 +55,10 @@ public class AdvancedGhostIcon : MonoBehaviour
 
 	public void Init(MVAdvancedGhost advancedGhost, MVCubeModelBase body, bool enabledCulling, MVTeam team)
 	{
-		AddSphereVolumeIndicator(advancedGhost.Id);
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
+		{
+			AddSphereVolumeIndicator(advancedGhost.Id);
+		}
 		body.Changed = (Action<CubeModelChangedEventArgs>)Delegate.Combine(body.Changed, new Action<CubeModelChangedEventArgs>(body_Changed));
 		CloneCubeMeshes(body);
 		if (enabledCulling)
@@ -133,11 +140,9 @@ public class AdvancedGhostIcon : MonoBehaviour
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(Id);
 		if (worldObjectClient != null)
 		{
-			sphereVolumeIndicator = UnityEngine.Object.Instantiate(PrefabPool.Instance.RangeVisualizationObject);
-			sphereVolumeIndicator.transform.parent = worldObjectClient.GameObject.transform;
-			sphereVolumeIndicator.transform.localPosition = Vector3.zero;
-			sphereVolumeIndicator.transform.localRotation = Quaternion.identity;
-			sphereVolumeIndicator.Initialize(Id);
+			lineRangeIndicator = UnityEngine.Object.Instantiate(PrefabPool.Instance.LineRangeIndicator);
+			lineRangeIndicator.transform.SetParent(worldObjectClient.GameObject.transform, worldPositionStays: false);
+			lineRangeIndicator.transform.forward = gameObject.transform.right;
 		}
 	}
 }

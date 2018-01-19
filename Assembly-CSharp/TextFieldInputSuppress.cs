@@ -11,7 +11,7 @@ public class TextFieldInputSuppress : MonoBehaviour
 	{
 		if (inputField.isFocused)
 		{
-			MVInputWrapper.IsInputSuppressed = true;
+			MVInputWrapper.SuppressAllInput();
 		}
 	}
 

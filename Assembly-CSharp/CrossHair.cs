@@ -21,15 +21,9 @@ public class CrossHair : MonoBehaviour, IGUICrossHair
 	[SerializeField]
 	private AnimationCurve fadeCurve;
 
-	private HolsterTip holsterTip = new HolsterTip();
-
 	private float timeSinceLastToggle;
 
 	private bool isFillOn = true;
-
-	private bool shouldShowTipOnVisibleChanged = true;
-
-	private bool isHolstered;
 
 	private float timer = float.PositiveInfinity;
 
@@ -43,11 +37,6 @@ public class CrossHair : MonoBehaviour, IGUICrossHair
 		}
 		set
 		{
-			if (value != gameObject.activeSelf && shouldShowTipOnVisibleChanged)
-			{
-				holsterTip.SetHolsterState(isHolstered);
-				shouldShowTipOnVisibleChanged = false;
-			}
 			gameObject.SetActive(value);
 		}
 	}
@@ -62,12 +51,6 @@ public class CrossHair : MonoBehaviour, IGUICrossHair
 			hitEffectActive = true;
 			timer = 0f;
 		}
-	}
-
-	public void HolsterStateChanged(bool isHolstered)
-	{
-		shouldShowTipOnVisibleChanged = true;
-		this.isHolstered = isHolstered;
 	}
 
 	public void UpdateCrossHair(PickupItem pickupItem)

@@ -35,7 +35,7 @@ public class DragHandler : MonoBehaviour, IBeginDragHandler, IEndDragHandler, ID
 	{
 		if (dragging)
 		{
-			MVInputWrapper.IsInputSuppressed = true;
+			MVInputWrapper.SuppressAllInput();
 		}
 	}
 

@@ -64,10 +64,12 @@ public abstract class AvatarLimbManager
 
 		protected bool isActive = true;
 
-		public void Initialize(AvatarLimbManager limbManager, AvatarLookDirectionHandler lookDirectionHandler, AvatarPointingHandler pointingHandler, AvatarHeadRotationHandler headRotationHandler, LimbRotator limbRotator)
+		public void Initialize(AvatarLimbManager limbManager, AvatarLookDirectionHandler lookDirectionHandler, AvatarPointingHandler pointingHandler, AvatarHeadRotationHandler headRotationHandler, LimbRotator limbRotator, AvatarEnabledChangeHandler enableChangeHandler)
 		{
 			this.limbManager = limbManager;
 			CreateLimbEvents(limbManager, lookDirectionHandler, pointingHandler, headRotationHandler, limbRotator);
+			enableChangeHandler.OnEnabled = (Action)Delegate.Combine(enableChangeHandler.OnEnabled, new Action(OnEnable));
+			enableChangeHandler.OnDisabled = (Action)Delegate.Combine(enableChangeHandler.OnDisabled, new Action(OnDisable));
 		}
 
 		protected virtual void CreateLimbEvents(AvatarLimbManager limbManager, AvatarLookDirectionHandler lookDirectionHandler, AvatarPointingHandler pointingHandler, AvatarHeadRotationHandler headRotationHandler, LimbRotator limbRotator)
@@ -441,10 +443,12 @@ public abstract class AvatarLimbManager
 
 		protected bool isActive = true;
 
-		public virtual void Initialize(AvatarLimbManager limbManager, LimbRotator limbRotator)
+		public virtual void Initialize(AvatarLimbManager limbManager, LimbRotator limbRotator, AvatarEnabledChangeHandler enableChangeHandler)
 		{
 			this.limbManager = limbManager;
 			this.limbRotator = limbRotator;
+			enableChangeHandler.OnEnabled = (Action)Delegate.Combine(enableChangeHandler.OnEnabled, new Action(OnEnable));
+			enableChangeHandler.OnDisabled = (Action)Delegate.Combine(enableChangeHandler.OnDisabled, new Action(OnDisable));
 		}
 
 		public virtual void UpdatePointing(Vector3 localLookDirection)
@@ -471,6 +475,16 @@ public abstract class AvatarLimbManager
 		{
 			limbRotator.StopLimbRotation(BodyData.PartIndex.RArm);
 			limbRotator.StopLimbRotation(BodyData.PartIndex.LArm);
+		}
+
+		private void OnDisable()
+		{
+			isActive = false;
+		}
+
+		private void OnEnable()
+		{
+			isActive = true;
 		}
 	}
 
@@ -675,10 +689,20 @@ public abstract class AvatarLimbManager
 		public void Initialize(MVAvatar avatar, AvatarLimbManager limbManager)
 		{
 			limbControllers = new Dictionary<BodyData.PartIndex, LimbController>();
+			BoneAnimation animation = avatar.Body.Animation;
+			animation.OnAnimationChange = (Action<string>)Delegate.Combine(animation.OnAnimationChange, new Action<string>(OnAnimationChange));
 			CreateLimbController(BodyData.PartIndex.Torso, avatar, limbManager);
 			CreateLimbController(BodyData.PartIndex.Head, avatar, limbManager);
 			CreateLimbController(BodyData.PartIndex.RArm, avatar, limbManager);
 			CreateLimbController(BodyData.PartIndex.LArm, avatar, limbManager);
+		}
+
+		private void OnAnimationChange(string newAnimation)
+		{
+			foreach (KeyValuePair<BodyData.PartIndex, LimbController> limbController in limbControllers)
+			{
+				limbController.Value.CurrentAnimation = newAnimation;
+			}
 		}
 
 		private void CreateLimbController(BodyData.PartIndex partIndex, MVAvatar avatar, AvatarLimbManager limbManager)

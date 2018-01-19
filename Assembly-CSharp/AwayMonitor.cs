@@ -7,21 +7,34 @@ public static class AwayMonitor
 	private enum State
 	{
 		Active,
-		InActive10Min,
-		InActive15Min
+		IdleAndWarned,
+		Kicked
+	}
+
+	private class IdleKickTimes
+	{
+		public int warningTimeMinutes;
+
+		public int idleKickTimeMinutes;
+
+		public readonly TimeSpan warningTimeSpan;
+
+		public readonly TimeSpan idleKickTimeSpan;
+
+		public IdleKickTimes(int warnAfterMinutes, int kickAfterMinutes)
+		{
+			warningTimeMinutes = warnAfterMinutes;
+			idleKickTimeMinutes = kickAfterMinutes;
+			warningTimeSpan = new TimeSpan(0, 0, warningTimeMinutes, 0);
+			idleKickTimeSpan = new TimeSpan(0, 0, idleKickTimeMinutes, 0);
+		}
 	}
 
 	private static DateTime latestResetAFKTime = DateTime.Now;
 
 	private static readonly TimeSpan awayCheckFrequency = new TimeSpan(0, 0, 0, 59);
 
-	private static int warningTimeMinutes = 5;
-
-	private static int idleKickTimeMinutes = 15;
-
-	private static readonly TimeSpan warningTimeSpan = new TimeSpan(0, 0, warningTimeMinutes, 0);
-
-	private static readonly TimeSpan idleKickTimeSpan = new TimeSpan(0, 0, idleKickTimeMinutes, 0);
+	private static IdleKickTimes idleKickTimes;
 
 	private static State state = State.Active;
 
@@ -50,6 +63,23 @@ public static class AwayMonitor
 	}
 
 	public static DateTime LatestMouseMoveTime => latestMouseMoveTime;
+
+	public static void Initialize(MVGameMode mode)
+	{
+		switch (mode)
+		{
+		case MVGameMode.Play:
+			idleKickTimes = new IdleKickTimes(5, 15);
+			break;
+		case MVGameMode.Edit:
+		case MVGameMode.CharacterEditor:
+			idleKickTimes = new IdleKickTimes(15, 30);
+			break;
+		default:
+			Debug.LogError(string.Concat("GameMode: ", mode, ", is not accounted"));
+			break;
+		}
+	}
 
 	public static void Update()
 	{
@@ -86,23 +116,23 @@ public static class AwayMonitor
 
 	private static void HandleIdle()
 	{
-		if (state != State.InActive15Min)
+		if (state != State.Kicked)
 		{
 			TimeSpan timeSpan = DateTime.Now - LatestMouseMoveTime;
-			if (timeSpan < warningTimeSpan)
+			if (timeSpan < idleKickTimes.warningTimeSpan)
 			{
 				state = State.Active;
 			}
-			else if (timeSpan > warningTimeSpan && state != State.InActive10Min)
+			else if (timeSpan > idleKickTimes.warningTimeSpan && state != State.IdleAndWarned)
 			{
-				MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, $"Idle.You will be kicked in {idleKickTimeMinutes - warningTimeMinutes} min.");
-				state = State.InActive10Min;
+				MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, $"Idle.You will be kicked in {idleKickTimes.idleKickTimeMinutes - idleKickTimes.warningTimeMinutes} min.");
+				state = State.IdleAndWarned;
 			}
-			else if (timeSpan > idleKickTimeSpan && state != State.InActive15Min)
+			else if (timeSpan > idleKickTimes.idleKickTimeSpan && state != State.Kicked)
 			{
-				MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, $"Kicked. Idle for {idleKickTimeMinutes} min.");
+				MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, $"Kicked. Idle for {idleKickTimes.idleKickTimeMinutes} min.");
 				MVGameControllerBase.ApplicationQuit(new QuitIdle());
-				state = State.InActive15Min;
+				state = State.Kicked;
 			}
 		}
 	}

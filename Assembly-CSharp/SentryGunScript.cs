@@ -1,10 +1,9 @@
+using MV.Common;
 using UnityEngine;
 
 public class SentryGunScript : MonoBehaviour
 {
 	public MeshRenderer sentryRenderer;
-
-	public SphereVolumeIndicator rangeVisualization;
 
 	public Transform glowPlane;
 
@@ -22,8 +21,6 @@ public class SentryGunScript : MonoBehaviour
 
 	public Transform healthPivot;
 
-	private Color color;
-
 	[SerializeField]
 	private Mesh sentryMesh;
 
@@ -36,6 +33,10 @@ public class SentryGunScript : MonoBehaviour
 	[SerializeField]
 	private Renderer glowPlaneRenderer;
 
+	private Color color;
+
+	private SphereVolumeIndicator rangeVisualization;
+
 	private float damageBlinkTimeoutTime;
 
 	public bool SmokeEnabled
@@ -46,9 +47,11 @@ public class SentryGunScript : MonoBehaviour
 		}
 	}
 
-	public void Initialize(int id)
+	protected void Awake()
 	{
-		rangeVisualization.Initialize(id);
+		rangeVisualization = Object.Instantiate(PrefabPool.Instance.RangeVisualizationObject);
+		rangeVisualization.transform.parent = transform;
+		rangeVisualization.transform.localPosition = Vector3.zero;
 	}
 
 	public void Explode()
@@ -82,7 +85,10 @@ public class SentryGunScript : MonoBehaviour
 
 	public void SetLaserRange(float range)
 	{
-		rangeVisualization.Radius = range;
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
+		{
+			rangeVisualization.SetRadius(range);
+		}
 	}
 
 	public void SetSentryGunBeamType(SentryGunBeamType beamType)

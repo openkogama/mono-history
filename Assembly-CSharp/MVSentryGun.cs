@@ -70,7 +70,6 @@ public class MVSentryGun : MVLogicObject, ILogicWorldObject
 	{
 		interactionFlags |= InteractionFlags.CanResetLogic;
 		gunObject = (MVSentryGunObject)component;
-		gunObject.SentryGunScript.SetLaserRange(laserRange);
 		RaycastIgnoreWorldObjectIds = new HashSet<int> { id };
 		PlayInteractionType = PlayInteractionType.HandlesHits;
 	}
@@ -88,6 +87,7 @@ public class MVSentryGun : MVLogicObject, ILogicWorldObject
 		PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
 		cullingSubscriberBase = new CullingSubscriberBase(2f, WorldPosition, OnStateChange);
 		cullingSubscriberBase.DistanceBandIndex = 3;
+		gunObject.SentryGunScript.SetLaserRange(laserRange);
 	}
 
 	private void OnPositionChanged(MVWorldObjectClient wo, PositionChangedEventArgs positionChangedEventArgs)
@@ -132,7 +132,6 @@ public class MVSentryGun : MVLogicObject, ILogicWorldObject
 		{
 			beamType = (SentryGunBeamType)(byte)Data["beamType"];
 		}
-		gunObject.SentryGunScript.Initialize(Id);
 		gunObject.SentryGunScript.SetSentryGunBeamType(beamType);
 		if (beamType == SentryGunBeamType.FireBeam)
 		{

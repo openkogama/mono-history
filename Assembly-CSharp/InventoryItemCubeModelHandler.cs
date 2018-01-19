@@ -41,8 +41,8 @@ public class InventoryItemCubeModelHandler : InventoryItemPreview
 
 	private void Update()
 	{
-		MVInputWrapper.IsInGameInputSuppressed = true;
-		MVInputWrapper.IsInputSuppressed = true;
+		MVInputWrapper.SuppressInGameInput();
+		MVInputWrapper.SuppressAllInput();
 	}
 
 	public void OnDeleteConfirmation(bool affirmative, ConfirmationPopup popup)

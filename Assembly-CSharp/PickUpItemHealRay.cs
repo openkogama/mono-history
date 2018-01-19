@@ -54,7 +54,7 @@ public class PickUpItemHealRay : PickupItem
 
 	private bool isLockedOn;
 
-	private bool isHealing;
+	private bool isShooting;
 
 	private ObscuredFloat currentAmmoLeft = 0f;
 
@@ -62,8 +62,8 @@ public class PickUpItemHealRay : PickupItem
 
 	private Vector3 hitOffset;
 
-	[SerializeField]
 	[Tooltip("How many seconds the healrays ammo lasts.")]
+	[SerializeField]
 	private ObscuredFloat maxAmmoTime = 100f;
 
 	private LayerMask layers = -5 & ~(1 << LayerUtil.GetLayerNumber(LayerFlags.Logic));
@@ -124,7 +124,7 @@ public class PickUpItemHealRay : PickupItem
 
 	private bool IsStillChargingRay()
 	{
-		return isHealing || rayStartTime + rayMinimumChargeTime >= Time.time;
+		return isShooting || rayStartTime + rayMinimumChargeTime >= Time.time;
 	}
 
 	private void DoHealing()
@@ -140,7 +140,6 @@ public class PickUpItemHealRay : PickupItem
 			else
 			{
 				direction = owner.LookDirection;
-				rayParticles.transform.localRotation = Quaternion.identity;
 			}
 			RayCastData result = UpdateRaycastLocally(direction);
 			HandleRaycastResultLocally(result);
@@ -153,12 +152,12 @@ public class PickUpItemHealRay : PickupItem
 		emission.enabled = true;
 		if (IsStillChargingRay())
 		{
-			isHealing = true;
+			isShooting = true;
 			rayStartTime = Time.time;
 			return;
 		}
 		rayStartTime = Time.time;
-		isHealing = true;
+		isShooting = true;
 		if (!owner.IsLocal)
 		{
 			rayParticles.transform.rotation = Quaternion.LookRotation(CalculateParticlesRotation());
@@ -207,7 +206,7 @@ public class PickUpItemHealRay : PickupItem
 	private void Update()
 	{
 		UpdateRaysVisualRepresentation();
-		if (!isHealing)
+		if (!isShooting)
 		{
 			return;
 		}
@@ -263,7 +262,7 @@ public class PickUpItemHealRay : PickupItem
 		rayParticles.startColor = startColor2;
 		audioSource.pitch = 1f;
 		rayParticles.startSize = 0.3f;
-		if (owner.IsLocal)
+		if (owner.IsLocal && isShooting)
 		{
 			rayParticles.transform.LookAt(muzzlePoint.position + CalculateParticlesRotation());
 		}
@@ -293,7 +292,7 @@ public class PickUpItemHealRay : PickupItem
 		isLockedOn = false;
 		ParticleSystem.EmissionModule emission = rayParticles.emission;
 		emission.enabled = false;
-		isHealing = false;
+		isShooting = false;
 		audioSource.Stop();
 		stuckObject = null;
 		hitParticles.Stop();

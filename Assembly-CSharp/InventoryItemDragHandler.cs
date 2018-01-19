@@ -51,7 +51,7 @@ public class InventoryItemDragHandler : MonoBehaviour, IBeginDragHandler, IEndDr
 	{
 		if (dragging)
 		{
-			MVInputWrapper.IsInputSuppressed = true;
+			MVInputWrapper.SuppressAllInput();
 		}
 	}
 }

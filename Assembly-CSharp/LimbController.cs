@@ -32,6 +32,8 @@ public class LimbController
 
 	private bool shouldRotate;
 
+	private string currentAnimation;
+
 	private List<string> blendAnimations;
 
 	private List<string> cancelAnimations;
@@ -59,6 +61,14 @@ public class LimbController
 		set
 		{
 			isEventControllingLimb = value;
+		}
+	}
+
+	public string CurrentAnimation
+	{
+		set
+		{
+			currentAnimation = value;
 		}
 	}
 
@@ -116,7 +126,6 @@ public class LimbController
 	public void UpdateRotation()
 	{
 		UpdateRotationDuration();
-		string currentAnimation = GetCurrentAnimation();
 		if (shouldRotate)
 		{
 			if (IsCancelRotation(currentAnimation))
@@ -144,17 +153,6 @@ public class LimbController
 				elapsedInterpolateAnimationTime = 0f;
 			}
 		}
-	}
-
-	private string GetCurrentAnimation()
-	{
-		Dictionary<object, object> dictionary = (Dictionary<object, object>)avatar.Animation.Value;
-		string result = string.Empty;
-		if (dictionary.ContainsKey("state"))
-		{
-			result = (string)dictionary["state"];
-		}
-		return result;
 	}
 
 	private bool IsCancelRotation(string currentAnimation)

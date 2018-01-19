@@ -33,7 +33,7 @@ public class WaterPlaneManager : MonoBehaviour
 
 	public SplashController Splash => splashController;
 
-	public bool IsActive => waterPlaneLogicCube != null;
+	public bool IsActive => water.enabled;
 
 	public float WaterLevel => transform.position.y;
 
@@ -97,10 +97,10 @@ public class WaterPlaneManager : MonoBehaviour
 		{
 			return;
 		}
-		Vector3 position = avatarLocal.GameObject.transform.position;
-		position = water.transform.worldToLocalMatrix * position;
-		position.y = 0f;
-		water.transform.localPosition = position;
+		water.transform.position = avatarLocal.Transform.position;
+		Vector3 localPosition = water.transform.localPosition;
+		localPosition.y = 0f;
+		water.transform.localPosition = localPosition;
 		if (avatarLocal.InteractionDataHandlerBase.enabled)
 		{
 			MVInteractableBase component = avatarLocal.GameObject.GetComponent<MVInteractableBase>();

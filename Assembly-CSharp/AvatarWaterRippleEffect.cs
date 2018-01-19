@@ -1,3 +1,4 @@
+using MV.Common;
 using UnityEngine;
 
 public class AvatarWaterRippleEffect : WaterSplashComponent
@@ -22,12 +23,15 @@ public class AvatarWaterRippleEffect : WaterSplashComponent
 	protected override void Start()
 	{
 		base.Start();
-		airBubbleCollitionPlane = Object.Instantiate(new GameObject("AirBubbleCollitionPlane"));
-		airBubbleCollitionPlane.transform.Rotate(new Vector3(180f, 0f, 0f));
-		airBubbleParticles = Object.Instantiate(airBubbleParticlesPrefab);
-		airBubbleParticles.transform.SetParent(avatar.transform);
-		airBubbleParticles.transform.localPosition = airBubbleOffset;
-		airBubbleParticles.collision.SetPlane(0, airBubbleCollitionPlane.transform);
+		if (MVGameControllerBase.GameMode == MVGameMode.Edit || MVGameControllerBase.WaterPlaneManager.IsActive)
+		{
+			airBubbleCollitionPlane = Object.Instantiate(new GameObject("AirBubbleCollitionPlane"));
+			airBubbleCollitionPlane.transform.Rotate(new Vector3(180f, 0f, 0f));
+			airBubbleParticles = Object.Instantiate(airBubbleParticlesPrefab);
+			airBubbleParticles.transform.SetParent(avatar.transform);
+			airBubbleParticles.transform.localPosition = airBubbleOffset;
+			airBubbleParticles.collision.SetPlane(0, airBubbleCollitionPlane.transform);
+		}
 	}
 
 	protected override void Update()

@@ -4,7 +4,5 @@ public interface IGUICrossHair
 
 	void UpdateCrossHair(PickupItem pickupItem);
 
-	void HolsterStateChanged(bool isHolstered);
-
 	void ShowHasHitEffect();
 }

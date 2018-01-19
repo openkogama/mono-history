@@ -307,7 +307,7 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap
 		case KeyState.Up:
 			return flag2;
 		default:
-			Debug.LogError("Unexpected keystate.");
+			Debug.LogError("Unexpected key state.");
 			return false;
 		}
 	}
