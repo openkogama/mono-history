@@ -221,8 +221,8 @@ public class PrefabPool : MonoBehaviour
 	private Material blinkerDefaultMaterial;
 
 	[SerializeField]
-	[Space(20f)]
 	[Header("Pick up")]
+	[Space(20f)]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
 	[SerializeField]
@@ -282,9 +282,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private MVPickupItemBaseObject avatarHealRayPrefab;
 
-	[SerializeField]
-	[Header("Avatar item pick up")]
 	[Space(20f)]
+	[Header("Avatar item pick up")]
+	[SerializeField]
 	private GameObject avatarItemCenterGun;
 
 	[SerializeField]
@@ -345,8 +345,8 @@ public class PrefabPool : MonoBehaviour
 	private GameObject avatarItemHealRay;
 
 	[SerializeField]
-	[Space(20f)]
 	[Header("Avatar modifier")]
+	[Space(20f)]
 	private AvatarModifier shieldModifier;
 
 	[Space(20f)]
@@ -378,9 +378,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem healingParticles;
 
-	[Space(20f)]
-	[SerializeField]
 	[Header("Logic object prefabs")]
+	[SerializeField]
+	[Space(20f)]
 	private GameObject logicInputConnectorPrefab;
 
 	[SerializeField]
@@ -407,8 +407,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material logicCubeConnectorBlueSelectedMaterial;
 
-	[Header("GUI")]
 	[Space(20f)]
+	[Header("GUI")]
 	[SerializeField]
 	private Texture2D avatarAccessoryMoveIcon;
 
@@ -419,8 +419,8 @@ public class PrefabPool : MonoBehaviour
 	private Material modelConstraintsMaterial;
 
 	[SerializeField]
-	[Space(20f)]
 	[Header("UGUI")]
+	[Space(20f)]
 	private AvatarInputControllerAndroidSettings avatarInputControllerAndroidSettings;
 
 	[SerializeField]
@@ -442,9 +442,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private RectTransform editFaceHelpText;
 
-	[Space(20f)]
-	[SerializeField]
 	[Header("Cameras")]
+	[SerializeField]
+	[Space(20f)]
 	private GodzillaCameraDesktop godzillaCameraDesktop;
 
 	[SerializeField]
@@ -453,9 +453,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private FirstPersonDeathCamera firstPersonDeathCamera;
 
-	[Space(20f)]
 	[Header("Editor")]
 	[SerializeField]
+	[Space(20f)]
 	private Material cellCursorErrorMaterial;
 
 	[SerializeField]

@@ -62,8 +62,8 @@ public class PickUpItemHealRay : PickupItem
 
 	private Vector3 hitOffset;
 
-	[Tooltip("How many seconds the healrays ammo lasts.")]
 	[SerializeField]
+	[Tooltip("How many seconds the healrays ammo lasts.")]
 	private ObscuredFloat maxAmmoTime = 100f;
 
 	private LayerMask layers = -5 & ~(1 << LayerUtil.GetLayerNumber(LayerFlags.Logic));
@@ -76,6 +76,14 @@ public class PickUpItemHealRay : PickupItem
 
 	[SerializeField]
 	private ParticleSystem localRayParticles;
+
+	private Transform remoteMuzzlePoint;
+
+	private ParticleSystem remoteParticleSystem;
+
+	private Material normalRayMaterial;
+
+	private ParticleSystemRenderer particleRenderer;
 
 	public override AvatarItemType Type => AvatarItemType.HealRay;
 
@@ -103,8 +111,11 @@ public class PickUpItemHealRay : PickupItem
 		hitParticles.Stop();
 		if (owner.IsLocal)
 		{
-			ParticleSystemRenderer component = rayParticles.GetComponent<ParticleSystemRenderer>();
-			component.material = ZIgnoreMaterial;
+			particleRenderer = rayParticles.GetComponent<ParticleSystemRenderer>();
+			normalRayMaterial = particleRenderer.material;
+			particleRenderer.material = ZIgnoreMaterial;
+			remoteMuzzlePoint = muzzlePoint;
+			remoteParticleSystem = rayParticles;
 			muzzlePoint = localMuzzePoint;
 			rayParticles = localRayParticles;
 		}
@@ -148,6 +159,7 @@ public class PickUpItemHealRay : PickupItem
 
 	public override void TriggerBegin(int instigatorActorNr)
 	{
+		ChangeUsedParticleSystem();
 		ParticleSystem.EmissionModule emission = rayParticles.emission;
 		emission.enabled = true;
 		if (IsStillChargingRay())
@@ -161,6 +173,17 @@ public class PickUpItemHealRay : PickupItem
 		if (!owner.IsLocal)
 		{
 			rayParticles.transform.rotation = Quaternion.LookRotation(CalculateParticlesRotation());
+		}
+	}
+
+	private void ChangeUsedParticleSystem()
+	{
+		_ = owner.IsLocal;
+		if (owner.IsLocal && owner is VehiclePickupOwner)
+		{
+			particleRenderer.material = normalRayMaterial;
+			muzzlePoint = remoteMuzzlePoint;
+			rayParticles = remoteParticleSystem;
 		}
 	}
 
@@ -392,7 +415,17 @@ public class PickUpItemHealRay : PickupItem
 		}
 		Vector3 vector = CalculateHitPosition(fireFromPosition, direction, distance);
 		float magnitude = (vector - muzzlePoint.position).magnitude;
+		vector = HandleVehicleHitPosition(vector, direction, distance);
 		OnHitParticleUpdate(vector, direction, magnitude);
+	}
+
+	private Vector3 HandleVehicleHitPosition(Vector3 hitPosition, Vector3 direction, float hitDistance)
+	{
+		if (!isLockedOn && owner is VehiclePickupOwner)
+		{
+			hitPosition = CalculateHitPosition(owner.LookOrigin, direction, hitDistance);
+		}
+		return hitPosition;
 	}
 
 	private void UpdateRayHealingLogic(VoxelHit hitVoxel)

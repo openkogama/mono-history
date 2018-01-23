@@ -7,8 +7,8 @@ public class StreamedTextureToSharedMaterial : StreamingAsset<Texture2D, Texture
 	[Tooltip("For standard unity shaders \"_MainTex\" is the main textures name.")]
 	protected string shaderTextureVariableName = "_MainTex";
 
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	protected Material material;
 
 	public void Reset()

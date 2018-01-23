@@ -33,7 +33,7 @@ public class WaterPlaneManager : MonoBehaviour
 
 	public SplashController Splash => splashController;
 
-	public bool IsActive => water.enabled;
+	public bool IsActive => water.gameObject.activeInHierarchy;
 
 	public float WaterLevel => transform.position.y;
 

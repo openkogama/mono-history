@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class ShockWaveEmitter : MonoBehaviour
 {
-	[SerializeField]
 	[Tooltip("Impulse by range from emission.")]
+	[SerializeField]
 	private AnimationCurve strengthByDistance;
 
 	[Tooltip("Rotation and translation over time [0,1]")]
