@@ -585,9 +585,9 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 
 		private Vector3 GetMovementVelocity()
 		{
-			bool freeFlight = MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveFast) || Input.GetMouseButton(1);
-			Vector3 direction = GetDirection(freeFlight);
-			if (IsDoubleTap(KogamaControls.EditMoveForward) || IsDoubleTap(KogamaControls.EditMoveLeft) || IsDoubleTap(KogamaControls.EditMoveRight) || IsDoubleTap(KogamaControls.EditMoveBackwards))
+			bool booleanControl = MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelectAlt);
+			Vector3 direction = GetDirection(booleanControl);
+			if (MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveFast) || IsDoubleTap(KogamaControls.EditMoveForward) || IsDoubleTap(KogamaControls.EditMoveLeft) || IsDoubleTap(KogamaControls.EditMoveRight) || IsDoubleTap(KogamaControls.EditMoveBackwards))
 			{
 				fastMovement = true;
 			}
