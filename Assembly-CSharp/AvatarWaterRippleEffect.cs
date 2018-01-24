@@ -18,11 +18,13 @@ public class AvatarWaterRippleEffect : WaterSplashComponent
 
 	private GameObject airBubbleCollitionPlane;
 
+	private bool isInitialized;
+
 	private float AvatarHeight => bounds.size.y;
 
-	protected override void Start()
+	public override void Initialize(IMovable obj)
 	{
-		base.Start();
+		base.Initialize(obj);
 		if (MVGameControllerBase.GameMode == MVGameMode.Edit || MVGameControllerBase.WaterPlaneManager.IsActive)
 		{
 			airBubbleCollitionPlane = Object.Instantiate(new GameObject("AirBubbleCollitionPlane"));
@@ -31,12 +33,17 @@ public class AvatarWaterRippleEffect : WaterSplashComponent
 			airBubbleParticles.transform.SetParent(avatar.transform);
 			airBubbleParticles.transform.localPosition = airBubbleOffset;
 			airBubbleParticles.collision.SetPlane(0, airBubbleCollitionPlane.transform);
+			isInitialized = true;
 		}
 	}
 
 	protected override void Update()
 	{
 		base.Update();
+		if (!isInitialized)
+		{
+			return;
+		}
 		if (MVGameControllerBase.WaterPlaneManager.IsActive)
 		{
 			Vector3 position = avatar.transform.position;

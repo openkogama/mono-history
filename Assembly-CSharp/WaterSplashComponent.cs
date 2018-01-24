@@ -11,7 +11,7 @@ public class WaterSplashComponent : MonoBehaviour
 
 	private int waterObjectID;
 
-	public void Initialize(IMovable obj)
+	public virtual void Initialize(IMovable obj)
 	{
 		movingObject = obj;
 		bounds = obj.Bounds;
