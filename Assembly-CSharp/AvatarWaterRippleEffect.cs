@@ -55,7 +55,7 @@ public class AvatarWaterRippleEffect : WaterSplashComponent
 				airBubbleParticles.Stop();
 			}
 		}
-		else if (airBubbleParticles.isPlaying)
+		else if (airBubbleParticles != null && airBubbleParticles.isPlaying)
 		{
 			airBubbleParticles.Stop();
 		}
