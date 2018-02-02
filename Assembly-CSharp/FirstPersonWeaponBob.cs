@@ -18,8 +18,8 @@ public class FirstPersonWeaponBob
 	[SerializeField]
 	private float bobMultiplier;
 
-	[Tooltip("Degrees by time")]
 	[SerializeField]
+	[Tooltip("Degrees by time")]
 	private AnimationCurve rotation;
 
 	[SerializeField]

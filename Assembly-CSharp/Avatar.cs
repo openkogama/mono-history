@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using LivelyChatBubbles;
 using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.Events;
@@ -55,6 +56,12 @@ public class Avatar : MonoBehaviour, IMovable, IBulletImpactVisualizer
 
 	[SerializeField]
 	private Transform nameTagLabel;
+
+	[SerializeField]
+	private SayChatBubbleHandler sayChatBubbleHandler;
+
+	[SerializeField]
+	private ChatAnchor chatBubbleAnchor;
 
 	[SerializeField]
 	private AvatarFader avatarFader;
@@ -114,6 +121,10 @@ public class Avatar : MonoBehaviour, IMovable, IBulletImpactVisualizer
 
 	public AvatarEnabledChangeHandler EnabledChangeHandler => enabledChangeHandler;
 
+	public SayChatBubbleHandler SayChatBubbleHandler => sayChatBubbleHandler;
+
+	public ChatAnchor ChatBubbleAnchor => chatBubbleAnchor;
+
 	public HealthBar HealthBar => healthBar;
 
 	public ShieldBar ShieldBar => shieldBar;
@@ -151,6 +162,7 @@ public class Avatar : MonoBehaviour, IMovable, IBulletImpactVisualizer
 			mvAvatar.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(mvAvatar.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
 			teamIcon.gameObject.SetActive(value: true);
 		}
+		chatBubbleAnchor.Initialize(isLocal, this);
 		avatarLevelUp.Init(mvAvatar.OwnerActorNr);
 		avatarNameMaterial = avatarName.GetComponent<Renderer>().material;
 		avatarHealthMaterial = healthBarRenderer.material;

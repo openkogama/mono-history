@@ -90,6 +90,7 @@ public enum MVOperationCodes : byte
 	StartHeadShake = 90,
 	StartHeadNod = 91,
 	StartWave = 92,
+	SetSayChatBubbleVisible = 93,
 	Join = byte.MaxValue,
 	Leave = 254,
 	RaiseEvent = 253,

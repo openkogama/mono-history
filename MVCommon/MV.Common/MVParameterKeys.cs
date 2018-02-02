@@ -217,6 +217,7 @@ public enum MVParameterKeys : byte
 	ClientVerificationData = 212,
 	XPRewardType = 213,
 	CurrentPlayerXP = 214,
+	Visible = 215,
 	GameId = byte.MaxValue,
 	ActorNr = 254,
 	TargetActorNr = 253,

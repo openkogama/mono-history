@@ -19,9 +19,6 @@ public class DesktopAvatarEditModeController : ModeControllerBase, ISetEditState
 	private GameObject stackBottom;
 
 	[SerializeField]
-	private ChatControllerUGUI chatController;
-
-	[SerializeField]
 	private AccessoryShopController accessoryShopController;
 
 	[SerializeField]

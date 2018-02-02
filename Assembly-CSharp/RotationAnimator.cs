@@ -5,8 +5,8 @@ public class RotationAnimator : MonoBehaviour
 	[SerializeField]
 	private RectTransform rotateTarget;
 
-	[SerializeField]
 	[Tooltip("Rotation animation curve, value 1 = full rotation")]
+	[SerializeField]
 	private AnimationCurve rotateCurve;
 
 	[SerializeField]

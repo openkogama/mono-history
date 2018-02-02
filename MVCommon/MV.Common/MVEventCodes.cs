@@ -104,6 +104,7 @@ public enum MVEventCodes : byte
 	StartHeadNod = 99,
 	StartWave = 100,
 	ServerError = 101,
+	SetSayChatBubbleVisible = 102,
 	Join = byte.MaxValue,
 	Leave = 254,
 	PropertiesChanged = 253

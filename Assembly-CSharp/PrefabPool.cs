@@ -1,3 +1,4 @@
+using LivelyChatBubbles;
 using UnityEngine;
 
 public class PrefabPool : MonoBehaviour
@@ -7,8 +8,8 @@ public class PrefabPool : MonoBehaviour
 
 	private static PrefabPool instance;
 
-	[Header("World Objects")]
 	[SerializeField]
+	[Header("World Objects")]
 	private ObjectPrefab mvFirePrefab;
 
 	[SerializeField]
@@ -220,9 +221,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material blinkerDefaultMaterial;
 
-	[SerializeField]
 	[Header("Pick up")]
 	[Space(20f)]
+	[SerializeField]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
 	[SerializeField]
@@ -282,9 +283,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private MVPickupItemBaseObject avatarHealRayPrefab;
 
-	[Space(20f)]
 	[Header("Avatar item pick up")]
 	[SerializeField]
+	[Space(20f)]
 	private GameObject avatarItemCenterGun;
 
 	[SerializeField]
@@ -345,12 +346,12 @@ public class PrefabPool : MonoBehaviour
 	private GameObject avatarItemHealRay;
 
 	[SerializeField]
-	[Header("Avatar modifier")]
 	[Space(20f)]
+	[Header("Avatar modifier")]
 	private AvatarModifier shieldModifier;
 
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
 	[Header("Particles")]
 	private GameObject particleCFX_GroundAura;
 
@@ -378,9 +379,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem healingParticles;
 
-	[Header("Logic object prefabs")]
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
+	[Header("Logic object prefabs")]
 	private GameObject logicInputConnectorPrefab;
 
 	[SerializeField]
@@ -418,9 +419,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material modelConstraintsMaterial;
 
+	[Space(20f)]
 	[SerializeField]
 	[Header("UGUI")]
-	[Space(20f)]
 	private AvatarInputControllerAndroidSettings avatarInputControllerAndroidSettings;
 
 	[SerializeField]
@@ -432,8 +433,11 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private InsertCursor insertCursor;
 
-	[Header("TextBubbleContent")]
 	[SerializeField]
+	private ChatBubble chatBubble;
+
+	[SerializeField]
+	[Header("TextBubbleContent")]
 	private RectTransform editCornerHelpText;
 
 	[SerializeField]
@@ -442,9 +446,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private RectTransform editFaceHelpText;
 
-	[Header("Cameras")]
 	[SerializeField]
 	[Space(20f)]
+	[Header("Cameras")]
 	private GodzillaCameraDesktop godzillaCameraDesktop;
 
 	[SerializeField]
@@ -775,6 +779,8 @@ public class PrefabPool : MonoBehaviour
 	public MaterialButtonTextureGenerator MaterialButtonTextureGenerator => materialButtonTextureGenerator;
 
 	public InsertCursor InsertCursor => insertCursor;
+
+	public ChatBubble ChatBubble => chatBubble;
 
 	public GodzillaCameraDesktop GodzillaCameraDesktop => godzillaCameraDesktop;
 

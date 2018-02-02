@@ -14,11 +14,17 @@ public class ChatControllerUGUI : MonoBehaviour
 
 	private const string chatMessageFormat = "<color=#{0}>[{1}]: </color><color=#{2}>{3}</color>";
 
+	private const string teamMessageFormat = "<color=#{0}>[{1}] </color><color=#{2}>{3}: </color><color=#{4}>{5}</color>";
+
+	private const string sayMessageFormat = "<color=#{0}>[{1}] </color><color=#{2}>{3}: </color><color=#{4}>{5}</color>";
+
 	private const string warningMessageFormat = "<color=#{0}>{1}</color>";
 
 	private const float timeBeforeFade = 10f;
 
 	private const float fadeTime = 1f;
+
+	private const float sayHearingDistance = 15f;
 
 	private const int maxLineCount = 50;
 
@@ -80,6 +86,9 @@ public class ChatControllerUGUI : MonoBehaviour
 	private Color friendNameColor;
 
 	[SerializeField]
+	private Color sayColor;
+
+	[SerializeField]
 	private VerticalLayoutGroup textGroup;
 
 	private bool promptRegisterForChat = true;
@@ -102,6 +111,7 @@ public class ChatControllerUGUI : MonoBehaviour
 		sendMessageControl.DoSend = (UnityAction<bool>)Delegate.Combine(sendMessageControl.DoSend, new UnityAction<bool>(ChatFocusChanged));
 		SendMessageControl sendMessageControl2 = messageController;
 		sendMessageControl2.SpamWarning = (UnityAction)Delegate.Combine(sendMessageControl2.SpamWarning, new UnityAction(WarnForSpam));
+		messageController.SayChatColor = sayColor;
 		scrollRect.onValueChanged.AddListener(ScrollbarChanged);
 	}
 
@@ -141,6 +151,7 @@ public class ChatControllerUGUI : MonoBehaviour
 		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
 		{
 			inputField.DeactivateInputField();
+			messageController.OnInputFocusChange(isFocused: false);
 		}
 	}
 
@@ -190,10 +201,12 @@ public class ChatControllerUGUI : MonoBehaviour
 			inputAreaRoot.gameObject.SetActive(!MVGameControllerBase.IsTouristSession);
 			inputAreaDeactivated.gameObject.SetActive(MVGameControllerBase.IsTouristSession);
 			inputField.ActivateInputField();
+			messageController.OnInputFocusChange(isFocused: true);
 		}
 		else
 		{
 			bool flag = MVGameControllerBase.IEditModeUI != null && !MVGameControllerBase.IEditModeUI.IsInPlayInEditMode;
+			messageController.OnInputFocusChange(isFocused: false);
 			if (!currentlyInLobbyState || flag)
 			{
 				inputField.DeactivateInputField();
@@ -249,11 +262,22 @@ public class ChatControllerUGUI : MonoBehaviour
 		case MVGameMsgType.Chat:
 			AddChatLine(message);
 			break;
+		case MVGameMsgType.TeamChat:
+			HandleTeamChatMessage(message);
+			break;
+		case MVGameMsgType.SayChat:
+			HandleSayChatMessage(message);
+			break;
 		case MVGameMsgType.AdminMsg:
 			AddAdminMessage(message);
 			break;
 		case MVGameMsgType.Warning:
 			AddWarningMessage(message);
+			break;
+		case MVGameMsgType.CollectiblePickedUp:
+		case MVGameMsgType.AchievementUnlocked:
+		case MVGameMsgType.CheckpointReached:
+		case MVGameMsgType.JoinFlowStatus:
 			break;
 		}
 	}
@@ -274,6 +298,72 @@ public class ChatControllerUGUI : MonoBehaviour
 		}
 		text = $"<color=#{Styles.ColorToHex(warningColor)}>{text}</color>";
 		AddLine(text);
+	}
+
+	private void HandleTeamChatMessage(Dictionary<object, object> data)
+	{
+		int actorNr = (int)data[(byte)0];
+		MVPlayer playerUnsafe = MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(actorNr);
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(playerUnsafe.Avatar.Id);
+		if (worldObjectClient != null && MVGameControllerBase.Game.TeamManager.IsOnSameTeam(MVGameControllerBase.WOCM.AvatarLocal, worldObjectClient))
+		{
+			AddLine(FormatTeamChatMessage(data));
+		}
+	}
+
+	private string FormatTeamChatMessage(Dictionary<object, object> data)
+	{
+		string text = (string)data[(byte)5];
+		int actorNumber = (int)data[(byte)0];
+		string text2 = "(Team)";
+		Color teamColor = chatMessageDefaultNameColor;
+		MVPlayer mVPlayer = MVGameControllerBase.Game.MVPlayerContainer[actorNumber];
+		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
+		{
+			teamColor = Styles.GetTeamColor(mVPlayer.Team);
+		}
+		Color color = teamColor;
+		if (MVGameControllerBase.Game.Friends.IsFriend(mVPlayer.ProfileID))
+		{
+			color = friendNameColor;
+		}
+		return $"<color=#{Styles.ColorToHex(color)}>[{mVPlayer.Username}] </color><color=#{Styles.ColorToHex(teamColor)}>{text2}: </color><color=#{Styles.ColorToHex(chatMessageColor)}>{text}</color>";
+	}
+
+	private void HandleSayChatMessage(Dictionary<object, object> data)
+	{
+		if (MVGameControllerBase.Game.LocalPlayer.IsReady)
+		{
+			int actorNumber = (int)data[(byte)0];
+			Vector3 position = MVGameControllerBase.WOCM.AvatarLocal.Avatar.transform.position;
+			MVAvatar avatar = MVGameControllerBase.Game.MVPlayerContainer[actorNumber].Avatar;
+			Vector3 position2 = avatar.Transform.position;
+			if ((position - position2).magnitude <= 15f)
+			{
+				AddLine(FormatSayChatMessage(data));
+				string text = (string)data[(byte)5];
+				ChatBubbleManager.ShowChatBubble(text, avatar.Id, avatar.Avatar.ChatBubbleAnchor);
+			}
+		}
+	}
+
+	private string FormatSayChatMessage(Dictionary<object, object> data)
+	{
+		string text = (string)data[(byte)5];
+		int actorNumber = (int)data[(byte)0];
+		string text2 = "(says)";
+		Color teamColor = chatMessageDefaultNameColor;
+		MVPlayer mVPlayer = MVGameControllerBase.Game.MVPlayerContainer[actorNumber];
+		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
+		{
+			teamColor = Styles.GetTeamColor(mVPlayer.Team);
+		}
+		Color color = teamColor;
+		if (MVGameControllerBase.Game.Friends.IsFriend(mVPlayer.ProfileID))
+		{
+			color = friendNameColor;
+		}
+		return $"<color=#{Styles.ColorToHex(color)}>[{mVPlayer.Username}] </color><color=#{Styles.ColorToHex(sayColor)}>{text2}: </color><color=#{Styles.ColorToHex(chatMessageColor)}>{text}</color>";
 	}
 
 	private void AddChatLine(Dictionary<object, object> data)
@@ -328,5 +418,11 @@ public class ChatControllerUGUI : MonoBehaviour
 		text.transform.SetParent(contentPanel, worldPositionStays: false);
 		text.transform.SetAsLastSibling();
 		return text;
+	}
+
+	private void OnEnable()
+	{
+		shouldUpdateFade = true;
+		UpdateFadeTime();
 	}
 }

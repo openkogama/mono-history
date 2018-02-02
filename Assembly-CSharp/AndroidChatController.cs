@@ -7,7 +7,13 @@ using UnityEngine.UI;
 
 public class AndroidChatController : MonoBehaviour
 {
+	private const string teamMessageFormat = "<color=#{0}>[{1}] </color><color=#{2}>{3}: </color><color=#{4}>{5}</color>";
+
+	private const string sayMessageFormat = "<color=#{0}>[{1}] </color><color=#{2}>{3}: </color><color=#{4}>{5}</color>";
+
 	private const int maxLineCount = 50;
+
+	private const float sayHearingDistance = 15f;
 
 	private string adminMessageFormat = "<color=#{0}>{1}</color>";
 
@@ -43,6 +49,9 @@ public class AndroidChatController : MonoBehaviour
 	private RectTransform minimizeChat;
 
 	[SerializeField]
+	private SendMessageControl messageController;
+
+	[SerializeField]
 	private Text consoleLinePrefab;
 
 	[SerializeField]
@@ -60,6 +69,9 @@ public class AndroidChatController : MonoBehaviour
 	[SerializeField]
 	private Color warningMessageColor = Color.red;
 
+	[SerializeField]
+	private Color sayColor;
+
 	public void Initialize()
 	{
 		MVGameControllerBase.OnReceivedGameMsg = (MVGameControllerBase.OnReceivedGameMsgDelegate)Delegate.Combine(MVGameControllerBase.OnReceivedGameMsg, new MVGameControllerBase.OnReceivedGameMsgDelegate(ReceiveMessage));
@@ -67,6 +79,7 @@ public class AndroidChatController : MonoBehaviour
 		consoleDragAndTapHandler.OnClick = (UnityAction)Delegate.Combine(consoleDragAndTapHandler.OnClick, new UnityAction(OnChatModeTapped));
 		chatConsoleModes = UnityEngine.Object.Instantiate(chatConsoleModes);
 		chatConsoleModes.transform.SetParent(transform.parent, worldPositionStays: false);
+		messageController.SayChatColor = sayColor;
 		transform.SetAsLastSibling();
 		enterChatButton.gameObject.SetActive(value: true);
 		chatConsoleModes.Set(ChatConsoleMode.ChatLobbyMode, ref rectTransform);
@@ -141,11 +154,22 @@ public class AndroidChatController : MonoBehaviour
 		case MVGameMsgType.Chat:
 			AddChatLine(message);
 			break;
+		case MVGameMsgType.TeamChat:
+			HandleTeamChatMessage(message);
+			break;
+		case MVGameMsgType.SayChat:
+			HandleSayChatMessage(message);
+			break;
 		case MVGameMsgType.AdminMsg:
 			AddAdminMessage(message);
 			break;
 		case MVGameMsgType.Warning:
 			AddWarningMessage(message);
+			break;
+		case MVGameMsgType.CollectiblePickedUp:
+		case MVGameMsgType.AchievementUnlocked:
+		case MVGameMsgType.CheckpointReached:
+		case MVGameMsgType.JoinFlowStatus:
 			break;
 		}
 	}
@@ -209,5 +233,63 @@ public class AndroidChatController : MonoBehaviour
 		text.transform.SetParent(contentPanel, worldPositionStays: false);
 		text.transform.SetAsLastSibling();
 		return text;
+	}
+
+	private void HandleTeamChatMessage(Dictionary<object, object> data)
+	{
+		int actorNr = (int)data[(byte)0];
+		MVPlayer playerUnsafe = MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(actorNr);
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(playerUnsafe.Avatar.Id);
+		if (worldObjectClient != null && MVGameControllerBase.Game.TeamManager.IsOnSameTeam(MVGameControllerBase.WOCM.AvatarLocal, worldObjectClient))
+		{
+			AddLine(FormatTeamChatMessage(data));
+		}
+	}
+
+	private string FormatTeamChatMessage(Dictionary<object, object> data)
+	{
+		string text = (string)data[(byte)5];
+		int actorNumber = (int)data[(byte)0];
+		string text2 = "(Team)";
+		Color teamColor = chatMessageDefaultNameColor;
+		MVPlayer mVPlayer = MVGameControllerBase.Game.MVPlayerContainer[actorNumber];
+		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
+		{
+			teamColor = Styles.GetTeamColor(mVPlayer.Team);
+		}
+		Color color = teamColor;
+		return $"<color=#{Styles.ColorToHex(color)}>[{mVPlayer.Username}] </color><color=#{Styles.ColorToHex(teamColor)}>{text2}: </color><color=#{Styles.ColorToHex(chatMessageColor)}>{text}</color>";
+	}
+
+	private void HandleSayChatMessage(Dictionary<object, object> data)
+	{
+		if (MVGameControllerBase.Game.LocalPlayer.IsReady)
+		{
+			int actorNumber = (int)data[(byte)0];
+			Vector3 position = MVGameControllerBase.WOCM.AvatarLocal.Avatar.transform.position;
+			MVAvatar avatar = MVGameControllerBase.Game.MVPlayerContainer[actorNumber].Avatar;
+			Vector3 position2 = avatar.Transform.position;
+			if ((position - position2).magnitude <= 15f)
+			{
+				AddLine(FormatSayChatMessage(data));
+				string text = (string)data[(byte)5];
+				ChatBubbleManager.ShowChatBubble(text, avatar.Id, avatar.Avatar.ChatBubbleAnchor);
+			}
+		}
+	}
+
+	private string FormatSayChatMessage(Dictionary<object, object> data)
+	{
+		string text = (string)data[(byte)5];
+		int actorNumber = (int)data[(byte)0];
+		string text2 = "(says)";
+		Color teamColor = chatMessageDefaultNameColor;
+		MVPlayer mVPlayer = MVGameControllerBase.Game.MVPlayerContainer[actorNumber];
+		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
+		{
+			teamColor = Styles.GetTeamColor(mVPlayer.Team);
+		}
+		Color color = teamColor;
+		return $"<color=#{Styles.ColorToHex(color)}>[{mVPlayer.Username}] </color><color=#{Styles.ColorToHex(sayColor)}>{text2}: </color><color=#{Styles.ColorToHex(chatMessageColor)}>{text}</color>";
 	}
 }
