@@ -13,6 +13,10 @@ public class ChatBubble : MonoBehaviour
 
 	private const int characerLimit = 130;
 
+	private const float startFadeRadius = 17.5f;
+
+	private const float completelyFadeRadius = 20f;
+
 	[Tooltip("Text component in the tree used to display the bubble's message.")]
 	public Text MessageComponent;
 
@@ -91,7 +95,7 @@ public class ChatBubble : MonoBehaviour
 				value = value.Substring(0, 130) + "...";
 			}
 			MessageValue = value;
-			if (!MessageComponent || MessageComponent.text == value)
+			if (!MessageComponent)
 			{
 				return false;
 			}
@@ -167,6 +171,7 @@ public class ChatBubble : MonoBehaviour
 	private void OnDisable()
 	{
 		isActive = false;
+		HideBubble();
 	}
 
 	private void Update()
@@ -185,7 +190,27 @@ public class ChatBubble : MonoBehaviour
 		{
 			currentFade -= Time.deltaTime;
 			CanvasGroup.alpha = currentFade;
+			return;
 		}
+		float magnitude = (anchor.transform.position - MVGameControllerBase.WOCM.AvatarLocal.Transform.position).magnitude;
+		if (magnitude >= 20f)
+		{
+			HideBubble();
+		}
+		else if (magnitude > 17.5f)
+		{
+			float num = 2.5f;
+			float num2 = 20f - magnitude;
+			float alpha = num2 / num;
+			CanvasGroup.alpha = alpha;
+		}
+	}
+
+	private void HideBubble()
+	{
+		timeUntilFade = 0f;
+		currentFade = 0f;
+		CanvasGroup.alpha = currentFade;
 	}
 
 	public void SetChatBubbleVisibility(bool shouldBeVisible)

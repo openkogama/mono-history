@@ -193,8 +193,8 @@ public class PrefabPool : MonoBehaviour
 	private GameObject godzillaAreaPrefab;
 
 	[Space(20f)]
-	[SerializeField]
 	[Header("Game")]
+	[SerializeField]
 	private Material ghostMarkerMaterial;
 
 	[SerializeField]
@@ -458,8 +458,8 @@ public class PrefabPool : MonoBehaviour
 	private FirstPersonDeathCamera firstPersonDeathCamera;
 
 	[Header("Editor")]
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
 	private Material cellCursorErrorMaterial;
 
 	[SerializeField]

@@ -40,9 +40,9 @@ public class SplashController : StreamedAudioClip.IReceiver
 	[Tooltip("Actual number is based off avatar speed.")]
 	private float baseNumberOfSplashParticles = 1f;
 
-	[SerializeField]
-	[Range(0f, 4f)]
 	[Tooltip("Actual number is based off avatar speed.")]
+	[Range(0f, 4f)]
+	[SerializeField]
 	private float baseSplashParticlesSpeed = 0.5f;
 
 	[SerializeField]

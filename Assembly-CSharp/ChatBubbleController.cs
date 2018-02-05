@@ -27,6 +27,5 @@ public class ChatBubbleController : MonoBehaviour
 			chatBubbleList[woid].BindMessageValue(text);
 		}
 		chatBubbleList[woid].rectTransform.SetAsLastSibling();
-		chatBubbleList[woid].gameObject.SetActive(chatBubbleList[woid].IsActive);
 	}
 }
