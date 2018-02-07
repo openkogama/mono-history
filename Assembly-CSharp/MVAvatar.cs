@@ -187,6 +187,7 @@ public abstract class MVAvatar : MVGroup, IHealRayAttachementObject
 		{
 			avatar.Collider.enabled = false;
 			avatar.InteractionDataHandlerBase.enabled = false;
+			OnStateChangeToHidden();
 		}
 		else
 		{
@@ -265,5 +266,10 @@ public abstract class MVAvatar : MVGroup, IHealRayAttachementObject
 	public GameObject GetHealRayAttachmentObject()
 	{
 		return healRayAttachmentObject;
+	}
+
+	protected void OnStateChangeToHidden()
+	{
+		avatar.ChatBubbleAnchor.HideChatBubble();
 	}
 }

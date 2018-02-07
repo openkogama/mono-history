@@ -159,7 +159,10 @@ public class PickUpItemHealRay : PickupItem
 
 	public override void TriggerBegin(int instigatorActorNr)
 	{
-		ChangeUsedParticleSystem();
+		if (owner.IsLocal)
+		{
+			ChangeUsedParticleSystem();
+		}
 		ParticleSystem.EmissionModule emission = rayParticles.emission;
 		emission.enabled = true;
 		if (IsStillChargingRay())
@@ -178,12 +181,17 @@ public class PickUpItemHealRay : PickupItem
 
 	private void ChangeUsedParticleSystem()
 	{
-		_ = owner.IsLocal;
-		if (owner.IsLocal && owner is VehiclePickupOwner)
+		if (owner is VehiclePickupOwner)
 		{
 			particleRenderer.material = normalRayMaterial;
 			muzzlePoint = remoteMuzzlePoint;
 			rayParticles = remoteParticleSystem;
+		}
+		else
+		{
+			muzzlePoint = localMuzzePoint;
+			rayParticles = localRayParticles;
+			particleRenderer.material = ZIgnoreMaterial;
 		}
 	}
 

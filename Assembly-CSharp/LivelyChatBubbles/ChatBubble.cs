@@ -3,8 +3,8 @@ using UnityEngine.UI;
 
 namespace LivelyChatBubbles;
 
-[RequireComponent(typeof(RectTransform))]
 [ExecuteInEditMode]
+[RequireComponent(typeof(RectTransform))]
 public class ChatBubble : MonoBehaviour
 {
 	private const float baseFadeWaitTime = 5f;
@@ -44,9 +44,8 @@ public class ChatBubble : MonoBehaviour
 	[Tooltip("Canvas group")]
 	public CanvasGroup CanvasGroup;
 
-	[Tooltip("Offset of the extender along the docked edge.")]
-	[Range(0f, 1f)]
-	public float ExtenderPosition = 0.5f;
+	[Tooltip("Sound which plays on PopUp")]
+	public AudioSource PopUpSound;
 
 	private bool isActive = true;
 
@@ -99,6 +98,10 @@ public class ChatBubble : MonoBehaviour
 			{
 				return false;
 			}
+			if ((MessageComponent.text != value || timeUntilFade < Time.time) && PopUpSound.isActiveAndEnabled)
+			{
+				PopUpSound.Play();
+			}
 			MessageComponent.text = value;
 			if (AutoSize)
 			{
@@ -123,18 +126,6 @@ public class ChatBubble : MonoBehaviour
 		}
 		ExtenderDock = value;
 		PerformExtenderSnap();
-		PerformExtenderPosition();
-		return true;
-	}
-
-	public bool BindExtenderPosition(float value)
-	{
-		value = Mathf.Clamp01(value);
-		if (ExtenderPosition == value)
-		{
-			return false;
-		}
-		ExtenderPosition = value;
 		PerformExtenderPosition();
 		return true;
 	}
@@ -189,24 +180,33 @@ public class ChatBubble : MonoBehaviour
 		if (timeUntilFade < Time.time)
 		{
 			currentFade -= Time.deltaTime;
-			CanvasGroup.alpha = currentFade;
-			return;
+			if (currentFade < CanvasGroup.alpha)
+			{
+				CanvasGroup.alpha = currentFade;
+			}
 		}
-		float magnitude = (anchor.transform.position - MVGameControllerBase.WOCM.AvatarLocal.Transform.position).magnitude;
-		if (magnitude >= 20f)
+		else
 		{
-			HideBubble();
-		}
-		else if (magnitude > 17.5f)
-		{
-			float num = 2.5f;
-			float num2 = 20f - magnitude;
-			float alpha = num2 / num;
-			CanvasGroup.alpha = alpha;
+			UpdateDistanceFading();
 		}
 	}
 
-	private void HideBubble()
+	private void UpdateDistanceFading()
+	{
+		if (MVGameControllerBase.WOCM.AvatarLocal != null && !(anchor == null))
+		{
+			float magnitude = (anchor.transform.position - MVGameControllerBase.WOCM.AvatarLocal.Transform.position).magnitude;
+			if (magnitude > 17.5f)
+			{
+				float num = 2.5f;
+				float num2 = 20f - magnitude;
+				float alpha = num2 / num;
+				CanvasGroup.alpha = alpha;
+			}
+		}
+	}
+
+	public void HideBubble()
 	{
 		timeUntilFade = 0f;
 		currentFade = 0f;
@@ -228,8 +228,8 @@ public class ChatBubble : MonoBehaviour
 		else
 		{
 			currentFade = 0f;
-			CanvasGroup.alpha = currentFade;
 			timeUntilFade = 0f;
+			CanvasGroup.alpha = currentFade;
 		}
 	}
 
@@ -347,68 +347,79 @@ public class ChatBubble : MonoBehaviour
 		Camera main = Camera.main;
 		if (main != null && anchor != null)
 		{
-			if (main.WorldToViewportPoint(anchor.transform.position).z >= 0f)
+			Vector3 vector = main.WorldToViewportPoint(anchor.transform.position);
+			if (vector.z > 0f && vector.x > 0f && vector.x < 1f && vector.y > 0f && vector.y < 1f)
 			{
 				BindExtenderDock(ExtenderBorderEnum.Bottom);
 			}
 			else
 			{
-				Vector3 position = main.transform.position;
-				float sqrMagnitude = (position + main.transform.up).sqrMagnitude;
-				float sqrMagnitude2 = (position + main.transform.up * -1f).sqrMagnitude;
-				float num;
-				ExtenderBorderEnum value;
-				if (sqrMagnitude < sqrMagnitude2)
-				{
-					num = sqrMagnitude;
-					value = ExtenderBorderEnum.Top;
-				}
-				else
-				{
-					num = sqrMagnitude2;
-					value = ExtenderBorderEnum.Bottom;
-				}
-				float sqrMagnitude3 = (position + main.transform.right).sqrMagnitude;
-				float sqrMagnitude4 = (position + main.transform.right * -1f).sqrMagnitude;
-				float num2;
-				ExtenderBorderEnum value2;
-				if (sqrMagnitude3 < sqrMagnitude4)
-				{
-					num2 = sqrMagnitude3;
-					value2 = ExtenderBorderEnum.Right;
-				}
-				else
-				{
-					num2 = sqrMagnitude4;
-					value2 = ExtenderBorderEnum.Left;
-				}
-				if (num2 < num)
-				{
-					BindExtenderDock(value2);
-				}
-				else
-				{
-					BindExtenderDock(value);
-				}
+				BindExtenderToClosestBorder(main);
 			}
 		}
 		Vector3 v = Vector3.zero;
 		Vector3 v2 = Vector3.zero;
 		ExtenderBorderInfo extenderBorderInfo = ExtenderBorderInfo[(int)ExtenderDock];
 		CalculateExtenderBorderVertices(extenderBorderInfo, ref v, ref v2);
+		SetExtenderAnchorPosToBorder(extenderBorderInfo);
+	}
+
+	private void BindExtenderToClosestBorder(Camera camera)
+	{
+		Vector3 position = camera.transform.position;
+		float sqrMagnitude = (anchor.transform.position - (position + camera.transform.up)).sqrMagnitude;
+		float sqrMagnitude2 = (anchor.transform.position - (position - camera.transform.up)).sqrMagnitude;
+		float num;
+		ExtenderBorderEnum value;
+		if (sqrMagnitude < sqrMagnitude2)
+		{
+			num = sqrMagnitude;
+			value = ExtenderBorderEnum.Top;
+		}
+		else
+		{
+			num = sqrMagnitude2;
+			value = ExtenderBorderEnum.Bottom;
+		}
+		float sqrMagnitude3 = (anchor.transform.position - (position + camera.transform.right)).sqrMagnitude;
+		float sqrMagnitude4 = (anchor.transform.position - (position - camera.transform.right)).sqrMagnitude;
+		float num2;
+		ExtenderBorderEnum value2;
+		if (sqrMagnitude3 < sqrMagnitude4)
+		{
+			num2 = sqrMagnitude3;
+			value2 = ExtenderBorderEnum.Right;
+		}
+		else
+		{
+			num2 = sqrMagnitude4;
+			value2 = ExtenderBorderEnum.Left;
+		}
+		if (num2 < num)
+		{
+			BindExtenderDock(value2);
+		}
+		else
+		{
+			BindExtenderDock(value);
+		}
+	}
+
+	private void SetExtenderAnchorPosToBorder(ExtenderBorderInfo info)
+	{
 		switch (ExtenderDock)
 		{
 		case ExtenderBorderEnum.Bottom:
-			ExtenderComponent.rectTransform.anchoredPosition = new Vector3(ExtenderComponent.rectTransform.anchoredPosition.x, extenderBorderInfo.Margin, 0f);
+			ExtenderComponent.rectTransform.anchoredPosition = new Vector3(ExtenderComponent.rectTransform.anchoredPosition.x, info.Margin, 0f);
 			break;
 		case ExtenderBorderEnum.Left:
-			ExtenderComponent.rectTransform.anchoredPosition = new Vector3(extenderBorderInfo.Margin, ExtenderComponent.rectTransform.anchoredPosition.y, 0f);
+			ExtenderComponent.rectTransform.anchoredPosition = new Vector3(info.Margin, ExtenderComponent.rectTransform.anchoredPosition.y, 0f);
 			break;
 		case ExtenderBorderEnum.Right:
-			ExtenderComponent.rectTransform.anchoredPosition = new Vector3(0f - extenderBorderInfo.Margin, ExtenderComponent.rectTransform.anchoredPosition.y, 0f);
+			ExtenderComponent.rectTransform.anchoredPosition = new Vector3(0f - info.Margin, ExtenderComponent.rectTransform.anchoredPosition.y, 0f);
 			break;
 		case ExtenderBorderEnum.Top:
-			ExtenderComponent.rectTransform.anchoredPosition = new Vector3(ExtenderComponent.rectTransform.anchoredPosition.x, 0f - extenderBorderInfo.Margin, 0f);
+			ExtenderComponent.rectTransform.anchoredPosition = new Vector3(ExtenderComponent.rectTransform.anchoredPosition.x, 0f - info.Margin, 0f);
 			break;
 		}
 	}

@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class AvatarWaterRippleEffect : WaterSplashComponent
 {
-	[Header("AirBubbles")]
 	[SerializeField]
+	[Header("AirBubbles")]
 	private ParticleSystem airBubbleParticlesPrefab;
 
 	[SerializeField]

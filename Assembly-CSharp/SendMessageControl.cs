@@ -17,7 +17,7 @@ public class SendMessageControl : MonoBehaviour
 
 	private const string allChat = " [ All ]";
 
-	private const string teamChat = "[Team]";
+	private const string teamChat = "[ Team ]";
 
 	private const string sayChat = " [ Say ]";
 
@@ -425,7 +425,7 @@ public class SendMessageControl : MonoBehaviour
 				MVGameControllerBase.OperationRequests.SetSayChatBubbleVisible(shouldShow: false);
 				isSayChatIconVisible = false;
 			}
-			currentChat.text = "[Team]";
+			currentChat.text = "[ Team ]";
 			selectedChat = MVGameMsgType.TeamChat;
 			ChangeTeamChatColor();
 		}
