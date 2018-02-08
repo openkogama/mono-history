@@ -10,9 +10,10 @@ internal class PluginBridgeComponent : IPluginBridge
 		Utils.printWarningMessage();
 	}
 
-	public void Cache(string action)
+	public bool Cache(string action)
 	{
 		Utils.printWarningMessage();
+		return false;
 	}
 
 	public void Request(string json)
@@ -48,6 +49,21 @@ internal class PluginBridgeComponent : IPluginBridge
 	}
 
 	public void GameObjectStarted()
+	{
+		Utils.printWarningMessage();
+	}
+
+	public void ApplicationQuit()
+	{
+		Utils.printWarningMessage();
+	}
+
+	public void ShowTestSuite()
+	{
+		Utils.printWarningMessage();
+	}
+
+	public void AnalyzeTestSuite()
 	{
 		Utils.printWarningMessage();
 	}

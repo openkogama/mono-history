@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using FyberPlugin;
 using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -20,6 +21,8 @@ public class SendMessageControl : MonoBehaviour
 	private const string teamChat = "[ Team ]";
 
 	private const string sayChat = " [ Say ]";
+
+	private const string fyberTestSuite = "/fyber";
 
 	private const float sendMessageDelay = 0.01f;
 
@@ -289,6 +292,10 @@ public class SendMessageControl : MonoBehaviour
 		else if (chatMsg == startWave)
 		{
 			MVGameControllerBase.WOCM.AvatarLocal.LimbManager.StartEmote(EmoteTypes.wave);
+		}
+		else if (chatMsg == "/fyber")
+		{
+			IntegrationAnalyzer.ShowTestSuite();
 		}
 		else
 		{
