@@ -21,6 +21,8 @@ public class SendMessageControl : MonoBehaviour
 
 	private const string sayChat = " [ Say ]";
 
+	private const float sendMessageDelay = 0.01f;
+
 	private static string helpString = "/h";
 
 	private static string fps = "/f";
@@ -63,6 +65,8 @@ public class SendMessageControl : MonoBehaviour
 
 	private int frameCountSent;
 
+	private float sendMessageCooldownTime;
+
 	private List<float> spamList = new List<float>();
 
 	private MVGameMsgType selectedChat = MVGameMsgType.Chat;
@@ -101,6 +105,12 @@ public class SendMessageControl : MonoBehaviour
 
 	private void Send()
 	{
+		if (sendMessageCooldownTime > Time.time)
+		{
+			EnforceCharacterLimit();
+			return;
+		}
+		sendMessageCooldownTime = Time.time + 0.01f;
 		string text = inputField.text;
 		text = Regex.Replace(text, "\\r\\n?|\\n", string.Empty);
 		SanitizeMessage(ref text, "size");
@@ -154,11 +164,7 @@ public class SendMessageControl : MonoBehaviour
 			SetToNextChat();
 			return;
 		}
-		if (text.Length >= inputField.characterLimit)
-		{
-			text = text.Substring(0, inputField.characterLimit - 1);
-			inputField.text = text;
-		}
+		EnforceCharacterLimit();
 		if (selectedChat == MVGameMsgType.SayChat && !isSayChatIconVisible)
 		{
 			MVGameControllerBase.OperationRequests.SetSayChatBubbleVisible(shouldShow: true);
@@ -170,6 +176,16 @@ public class SendMessageControl : MonoBehaviour
 		if (frameCountSent == Time.frameCount)
 		{
 			inputField.text = string.Empty;
+		}
+	}
+
+	private void EnforceCharacterLimit()
+	{
+		string text = inputField.text;
+		if (text.Length >= inputField.characterLimit)
+		{
+			text = text.Substring(0, inputField.characterLimit - 1);
+			inputField.text = text;
 		}
 	}
 
