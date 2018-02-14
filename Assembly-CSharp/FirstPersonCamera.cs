@@ -29,8 +29,8 @@ public abstract class FirstPersonCamera : MVCameraBase
 	[SerializeField]
 	private FirstPersonWeaponBob weaponBob;
 
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	private DamageIndicator damageIndicator;
 
 	[SerializeField]

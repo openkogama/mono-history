@@ -176,12 +176,12 @@ public class User
 		Put("number_of_sessions", numberOfSessions);
 	}
 
-	public static void SetPsTime(long? ps_time)
+	public static void SetPsTime(long ps_time)
 	{
 		Put("ps_time", ps_time);
 	}
 
-	public static void SetLastSession(long? lastSession)
+	public static void SetLastSession(long lastSession)
 	{
 		Put("last_session", lastSession);
 	}
