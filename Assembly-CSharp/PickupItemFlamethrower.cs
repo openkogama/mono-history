@@ -12,8 +12,8 @@ public class PickupItemFlamethrower : PickupItem
 	[SerializeField]
 	private float hitRadius = 1.2f;
 
-	[SerializeField]
 	[Tooltip("How many seconds a fueltank lasts.")]
+	[SerializeField]
 	private ObscuredFloat maxFuelTime = 100f;
 
 	[SerializeField]
