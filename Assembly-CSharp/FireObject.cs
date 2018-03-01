@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class FireObject : ObjectPrefab
@@ -20,6 +21,8 @@ public class FireObject : ObjectPrefab
 	[SerializeField]
 	private AnimationCurve soundIntensityScale;
 
+	public Action OnFireObjectCreated;
+
 	public TriggerBoxEvents TriggerBoxEvents => triggerBoxEvents;
 
 	public ParticleSystem ParticleSystem => fireParticleSystem;
@@ -31,4 +34,12 @@ public class FireObject : ObjectPrefab
 	public GameObject VisualObject => visualObject;
 
 	public AnimationCurve SoundIntensityScale => soundIntensityScale;
+
+	private void OnEnable()
+	{
+		if (OnFireObjectCreated != null)
+		{
+			OnFireObjectCreated();
+		}
+	}
 }

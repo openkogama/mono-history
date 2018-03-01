@@ -25,21 +25,16 @@ public static class DllProtector
 	{
 		byte[] array = new byte[10240];
 		uint crcData = GetCrcData(array, 10240);
-		List<FileData> list = null;
+		List<FileData> result = null;
 		if (crcData <= 10240)
 		{
-			list = ParseCrcData(array, crcData);
+			result = ParseCrcData(array, crcData);
 		}
 		else
 		{
 			Debug.LogError("Buffer is too small, causing undefined behavior in DllProtector.");
 		}
-		Debug.Log("Dll returned " + list.Count + " dlls.");
-		foreach (FileData item in list)
-		{
-			Debug.Log(item.ToString() + "\n");
-		}
-		return list;
+		return result;
 	}
 
 	private static List<FileData> ParseCrcData(byte[] crcData, uint numOfWrittenBytes)

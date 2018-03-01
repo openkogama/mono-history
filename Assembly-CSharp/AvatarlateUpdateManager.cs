@@ -6,15 +6,21 @@ public class AvatarlateUpdateManager : MonoBehaviour
 
 	private AvatarLimbManager limbManager;
 
+	private bool isInitialized;
+
 	public void Initialize(MVBody body, AvatarLimbManager limbManager)
 	{
 		this.body = body;
 		this.limbManager = limbManager;
+		isInitialized = true;
 	}
 
 	private void LateUpdate()
 	{
-		limbManager.UpdateLimbRotations();
-		body.UpdateBlinking();
+		if (isInitialized)
+		{
+			limbManager.UpdateLimbRotations();
+			body.UpdateBlinking();
+		}
 	}
 }

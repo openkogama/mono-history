@@ -93,7 +93,7 @@ public class MVPrototype
 		}
 	}
 
-	public bool IsEmpty => ((Dictionary<IntVector, byte[]>)Data[(byte)48]).Count == 0;
+	public bool IsEmpty => ((Dictionary<IntVector, byte[]>)Data[(byte)49]).Count == 0;
 
 	public int InsertedInWorldByProfileID
 	{
@@ -154,7 +154,7 @@ public class MVPrototype
 	public virtual MVPrototype DeepCopy()
 	{
 		MVPrototype mVPrototype = ShallowCopy();
-		Dictionary<IntVector, byte[]> dictionary = (Dictionary<IntVector, byte[]>)Data[(byte)48];
+		Dictionary<IntVector, byte[]> dictionary = (Dictionary<IntVector, byte[]>)Data[(byte)49];
 		Dictionary<IntVector, byte[]> dictionary2 = new Dictionary<IntVector, byte[]>();
 		foreach (KeyValuePair<IntVector, byte[]> item in dictionary)
 		{
@@ -165,7 +165,7 @@ public class MVPrototype
 			}
 			dictionary2.Add(item.Key, array);
 		}
-		mVPrototype.Data[(byte)48] = dictionary2;
+		mVPrototype.Data[(byte)49] = dictionary2;
 		return mVPrototype;
 	}
 }

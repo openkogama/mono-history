@@ -26,6 +26,9 @@ public class InGameButtons : MonoBehaviour
 	[SerializeField]
 	private RectTransform holsterButton;
 
+	[SerializeField]
+	private RectTransform jumpButton;
+
 	private void Update()
 	{
 		HandleFireVisibility();
@@ -42,13 +45,13 @@ public class InGameButtons : MonoBehaviour
 		{
 			leaveVehicle.gameObject.SetActive(MVGameControllerBase.WOCM.AvatarLocal.IsSeated);
 		}
-		if (!MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Playing) && respawnButton.gameObject.activeSelf)
+		if (MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Playing))
 		{
-			respawnButton.gameObject.SetActive(value: false);
+			HandleInPlayMode();
 		}
-		else if (MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Playing) && !respawnButton.gameObject.activeSelf)
+		else if (!MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Playing))
 		{
-			respawnButton.gameObject.SetActive(value: true);
+			HandleNotInPlayMode();
 		}
 	}
 
@@ -83,5 +86,53 @@ public class InGameButtons : MonoBehaviour
 	public void HideEUseIcon()
 	{
 		use.gameObject.SetActive(value: false);
+	}
+
+	private void HandleInPlayMode()
+	{
+		if (!respawnButton.gameObject.activeSelf)
+		{
+			respawnButton.gameObject.SetActive(value: true);
+		}
+		if (!jumpButton.gameObject.activeSelf)
+		{
+			jumpButton.gameObject.SetActive(value: true);
+		}
+	}
+
+	private void HandleNotInPlayMode()
+	{
+		if (use.gameObject.activeSelf)
+		{
+			use.gameObject.SetActive(value: false);
+		}
+		if (fire.gameObject.activeSelf)
+		{
+			fire.gameObject.SetActive(value: false);
+		}
+		if (point.gameObject.activeSelf)
+		{
+			point.gameObject.SetActive(value: false);
+		}
+		if (dropWeapon.gameObject.activeSelf)
+		{
+			dropWeapon.gameObject.SetActive(value: false);
+		}
+		if (leaveVehicle.gameObject.activeSelf)
+		{
+			leaveVehicle.gameObject.SetActive(value: false);
+		}
+		if (respawnButton.gameObject.activeSelf)
+		{
+			respawnButton.gameObject.SetActive(value: false);
+		}
+		if (holsterButton.gameObject.activeSelf)
+		{
+			holsterButton.gameObject.SetActive(value: false);
+		}
+		if (jumpButton.gameObject.activeSelf)
+		{
+			jumpButton.gameObject.SetActive(value: false);
+		}
 	}
 }

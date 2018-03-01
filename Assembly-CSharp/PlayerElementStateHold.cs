@@ -12,7 +12,7 @@ public class PlayerElementStateHold : MonoBehaviour
 
 	public void Initialize(MVPlayer player, Friend friend)
 	{
-		if (!player.IsAnonymous && !MVGameControllerBase.Game.LocalPlayer.IsAnonymous)
+		if (!player.IsTourist && !MVGameControllerBase.Game.LocalPlayer.IsTourist)
 		{
 			if (friend != null && friend.status == FriendStatus.Pending && MVGameControllerBase.Game.Friends.Friends.ContainsValue(friend))
 			{

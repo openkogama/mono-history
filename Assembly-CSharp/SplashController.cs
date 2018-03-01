@@ -22,8 +22,8 @@ public class SplashController : StreamedAudioClip.IReceiver
 		}
 	}
 
-	[SerializeField]
 	[Header("Rings")]
+	[SerializeField]
 	private ParticleSystem waterRingParticles;
 
 	[SerializeField]
@@ -32,24 +32,24 @@ public class SplashController : StreamedAudioClip.IReceiver
 	[SerializeField]
 	private float distanceBeforeNewRingIsEmitted = 1.5f;
 
-	[Header("Splash")]
 	[SerializeField]
+	[Header("Splash")]
 	private ParticleSystem waterSplashParticles;
 
 	[SerializeField]
 	[Tooltip("Actual number is based off avatar speed.")]
 	private float baseNumberOfSplashParticles = 1f;
 
-	[Range(0f, 4f)]
 	[SerializeField]
 	[Tooltip("Actual number is based off avatar speed.")]
+	[Range(0f, 4f)]
 	private float baseSplashParticlesSpeed = 0.5f;
 
 	[SerializeField]
 	private Color splashTint;
 
-	[Header("Pillar")]
 	[SerializeField]
+	[Header("Pillar")]
 	private ParticleSystem waterPillarParticles;
 
 	[SerializeField]
@@ -61,7 +61,13 @@ public class SplashController : StreamedAudioClip.IReceiver
 
 	[Header("Sound")]
 	[SerializeField]
+	[Range(0f, 1f)]
+	private float splashSoundVolume = 0.5f;
+
+	[SerializeField]
 	private StreamedAudioClip streamedSplashSound;
+
+	private AudioClip splashSound;
 
 	private static int currentObjectID = 0;
 
@@ -118,10 +124,17 @@ public class SplashController : StreamedAudioClip.IReceiver
 			if (!objectData.IsInWater)
 			{
 				objectData.IsInWater = true;
+				MVGameControllerBase.AudioManager.Play("AvatarWaterSplashSound", splashSound, vector2, CalcSplashSoundVolume(velocity), SoundRangeDistance.Long);
 				EmitWaterPillar(vector2, velocity);
 				EmitWaterSplash(vector2, velocity);
 			}
 		}
+	}
+
+	private float CalcSplashSoundVolume(Vector3 velocity)
+	{
+		float num = Mathf.Clamp(0f - velocity.y, 0f, 30f) / 30f;
+		return splashSoundVolume * num;
 	}
 
 	private static ObjectData GetObjectData(int objectID)
@@ -174,5 +187,6 @@ public class SplashController : StreamedAudioClip.IReceiver
 
 	public void OnAudioReceived(AudioClip a)
 	{
+		splashSound = a;
 	}
 }
