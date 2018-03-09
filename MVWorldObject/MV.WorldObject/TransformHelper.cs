@@ -22,17 +22,17 @@ public static class TransformHelper
 
 	public static Vector3 GetPosition(Dictionary<byte, object> positionData)
 	{
-		return new Vector3(ValidateFloat((float)positionData[23]), ValidateFloat((float)positionData[24]), ValidateFloat((float)positionData[25]));
+		return new Vector3(ValidateFloat((float)positionData[22]), ValidateFloat((float)positionData[23]), ValidateFloat((float)positionData[24]));
 	}
 
 	public static Quaternion GetRotation(Dictionary<byte, object> rotationData)
 	{
-		return new Quaternion(ValidateFloat((float)rotationData[26]), ValidateFloat((float)rotationData[27]), ValidateFloat((float)rotationData[28]), ValidateFloat((float)rotationData[29]));
+		return new Quaternion(ValidateFloat((float)rotationData[25]), ValidateFloat((float)rotationData[26]), ValidateFloat((float)rotationData[27]), ValidateFloat((float)rotationData[28]));
 	}
 
 	public static Vector3 GetScale(Dictionary<byte, object> scaleData)
 	{
-		return new Vector3(ValidateFloat((float)scaleData[30]), ValidateFloat((float)scaleData[31]), ValidateFloat((float)scaleData[32]));
+		return new Vector3(ValidateFloat((float)scaleData[29]), ValidateFloat((float)scaleData[30]), ValidateFloat((float)scaleData[31]));
 	}
 
 	public static void SetPosition(Vector3 position, IPosition positionObject)
@@ -59,24 +59,24 @@ public static class TransformHelper
 
 	public static void SetPosition(Vector3 position, Dictionary<byte, object> data)
 	{
-		data.Add(23, ValidateFloat(position.x));
-		data.Add(24, ValidateFloat(position.y));
-		data.Add(25, ValidateFloat(position.z));
+		data.Add(22, ValidateFloat(position.x));
+		data.Add(23, ValidateFloat(position.y));
+		data.Add(24, ValidateFloat(position.z));
 	}
 
 	public static void SetRotation(Quaternion rotation, Dictionary<byte, object> data)
 	{
-		data.Add(26, ValidateFloat(rotation.x));
-		data.Add(27, ValidateFloat(rotation.y));
-		data.Add(28, ValidateFloat(rotation.z));
-		data.Add(29, ValidateFloat(rotation.w));
+		data.Add(25, ValidateFloat(rotation.x));
+		data.Add(26, ValidateFloat(rotation.y));
+		data.Add(27, ValidateFloat(rotation.z));
+		data.Add(28, ValidateFloat(rotation.w));
 	}
 
 	public static void SetScale(Vector3 scale, Dictionary<byte, object> data)
 	{
-		data.Add(30, ValidateFloat(scale.x));
-		data.Add(31, ValidateFloat(scale.y));
-		data.Add(32, ValidateFloat(scale.z));
+		data.Add(29, ValidateFloat(scale.x));
+		data.Add(30, ValidateFloat(scale.y));
+		data.Add(31, ValidateFloat(scale.z));
 	}
 
 	private static float ValidateFloat(float f)

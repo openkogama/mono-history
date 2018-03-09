@@ -333,6 +333,8 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 
 	public class JetPackMode : EditAvatarModeBase
 	{
+		private const float doubleTapThreshold = 0.3f;
+
 		private const float moveSlowDownPoint = 0.75f;
 
 		private readonly float maxSpeed = 1.75f;
@@ -347,13 +349,33 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 
 		private float speedSmoothingTime = 10f;
 
+		private Dictionary<KogamaControls, float> doubleTapMovementTimers = new Dictionary<KogamaControls, float>
+		{
+			{
+				KogamaControls.EditMoveForward,
+				0f
+			},
+			{
+				KogamaControls.EditMoveLeft,
+				0f
+			},
+			{
+				KogamaControls.EditMoveRight,
+				0f
+			},
+			{
+				KogamaControls.EditMoveBackwards,
+				0f
+			}
+		};
+
+		private bool fastMovement;
+
 		private bool moveConstraintSet;
 
 		private Vector3 moveConstraintCenter;
 
 		private float moveConstraintRadius;
-
-		private DoubleTapMovementChecker doubleTap = new DoubleTapMovementChecker();
 
 		private float keyVelocity;
 
@@ -420,7 +442,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 
 		public override void FrameUpdate(InputToInGameAction interactionMap)
 		{
-			doubleTap.FrameUpdate();
 			Move(GetMovementVelocity());
 			MoveCharacter(GetElevationVelocity() * YMovementSpeedScale);
 			UpdateRotationToCamera();
@@ -474,7 +495,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 
 		protected Vector3 GetElevationVelocity()
 		{
-			if (MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveUp) && !MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveDown))
+			if (MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveUp))
 			{
 				keyVelocity += keyAcceleration * Time.deltaTime;
 			}
@@ -548,12 +569,34 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 			return zero.normalized;
 		}
 
+		private bool IsDoubleTap(KogamaControls ctrl)
+		{
+			bool result = false;
+			if (MVInputWrapper.GetBooleanControlDown(ctrl))
+			{
+				if (Time.realtimeSinceStartup - doubleTapMovementTimers[ctrl] < 0.3f)
+				{
+					result = true;
+				}
+				doubleTapMovementTimers[ctrl] = Time.realtimeSinceStartup;
+			}
+			return result;
+		}
+
 		private Vector3 GetMovementVelocity()
 		{
 			bool booleanControl = MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelectAlt);
 			Vector3 direction = GetDirection(booleanControl);
+			if (MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveFast) || IsDoubleTap(KogamaControls.EditMoveForward) || IsDoubleTap(KogamaControls.EditMoveLeft) || IsDoubleTap(KogamaControls.EditMoveRight) || IsDoubleTap(KogamaControls.EditMoveBackwards))
+			{
+				fastMovement = true;
+			}
+			if (!MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveForward) && !MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveLeft) && !MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveRight) && !MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveBackwards))
+			{
+				fastMovement = false;
+			}
 			targetSpeed = direction.magnitude * maxSpeed;
-			if (MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveFast) || doubleTap.DoubleTap)
+			if (fastMovement)
 			{
 				targetSpeed *= speedModifier;
 			}
@@ -1245,7 +1288,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 		triggerHandler.enabled = true;
 		RigidBody.AddImpulse(impulse);
 		MVGameControllerBase.Game.TransformNetworkManager.AddReporter(id, new MVNetworkReporter(this));
-		OnLeaveVehicle();
 	}
 
 	private Vector3 CalculateVehicleExitMomentum(Vector3 velocity)
@@ -1263,7 +1305,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 
 	public override void OnEnterVehicle()
 	{
-		base.OnEnterVehicle();
 		if (Group.GameObject.GetComponent<MVRigidBody>() != null)
 		{
 			RigidBody.enabled = false;

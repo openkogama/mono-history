@@ -115,12 +115,11 @@ public abstract class MVAvatar : MVGroup, IHealRayAttachementObject
 
 	public virtual void OnEnterVehicle()
 	{
-		avatar.OnEnterVehicle();
 	}
 
 	public virtual void OnLeaveVehicle()
 	{
-		avatar.OnExitVehicle();
+		Debug.Log("Do the thing with the legs");
 	}
 
 	protected void HandleLeaveVehicle()

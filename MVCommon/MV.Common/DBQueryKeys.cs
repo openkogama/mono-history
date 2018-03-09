@@ -147,6 +147,5 @@ public enum DBQueryKeys
 	Limit,
 	PurchaseTypeName,
 	MetaData,
-	Url,
-	Boolean
+	Url
 }

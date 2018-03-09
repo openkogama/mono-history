@@ -33,8 +33,8 @@ public class SkyboxManager : MonoBehaviour
 
 	public SkyboxColorChangedDelegate OnSkyboxColorChanged;
 
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	private Light sunLight;
 
 	[SerializeField]

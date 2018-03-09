@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class MVLocalPlayerRegistered : MVLocalPlayer
 {
-	public MVLocalPlayerRegistered(int actorNumber, int profileID, string userName, string regionCode, int planetOwnershipTypeId, bool isAdmin)
-		: base(actorNumber, profileID, userName, regionCode, planetOwnershipTypeId, isAdmin)
+	public MVLocalPlayerRegistered(int actorNumber, int profileID, string userName, string regionCode, int planetOwnershipTypeId)
+		: base(actorNumber, profileID, userName, regionCode, planetOwnershipTypeId)
 	{
 	}
 

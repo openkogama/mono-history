@@ -39,10 +39,6 @@ public class MVPointLight : MVLogicObject, ILogicWorldObject
 	public override void Initialize()
 	{
 		base.Initialize();
-		if (Data.ContainsKey("hide"))
-		{
-			inputVisible = !(bool)Data["hide"];
-		}
 		SetupCulling(lightObject.VisualObject);
 		SetLightToData();
 		UpdateTexture();

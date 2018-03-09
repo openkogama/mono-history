@@ -80,8 +80,6 @@ public enum MVOperationCodes : byte
 	CloneWorldObjectTreeWithPosition = 75,
 	CloneTempWorldObjectWithOriginalReference = 76,
 	LogicActivateRequest = 77,
-	AdminOperation = 78,
-	OwnerOperation = 79,
 	ResetFirstTimeEvents = 83,
 	SetFirstTimeEvent = 84,
 	OverrideFirstTimeEvent = 85,

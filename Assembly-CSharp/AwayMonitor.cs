@@ -107,7 +107,7 @@ public static class AwayMonitor
 
 	private static void UpdateMouse()
 	{
-		if (MVInputWrapper.GetAxisRaw(scroll) > Mathf.Epsilon || MVInputWrapper.GetAxisRaw(mouseX) > Mathf.Epsilon || MVInputWrapper.GetAxisRaw(mouseY) > Mathf.Epsilon)
+		if (Input.mousePosition != prevMousePos || MVInputWrapper.GetAxisRaw(scroll) > Mathf.Epsilon || MVInputWrapper.GetAxisRaw(mouseX) > Mathf.Epsilon || MVInputWrapper.GetAxisRaw(mouseY) > Mathf.Epsilon)
 		{
 			prevMousePos = Input.mousePosition;
 			latestMouseMoveTime = DateTime.Now;

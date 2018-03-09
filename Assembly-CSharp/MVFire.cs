@@ -49,17 +49,17 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 	public override void Initialize()
 	{
 		base.Initialize();
-		this.fireObject.FireCollider.enabled = MVGameControllerBase.IEditModeUI == null;
+		fireObject.FireCollider.enabled = MVGameControllerBase.IEditModeUI == null;
 		if (MVGameControllerBase.IEditModeUI != null)
 		{
 			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
 			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Combine(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
 		}
-		SetupCulling(this.fireObject.VisualObject);
+		SetupCulling(fireObject.VisualObject);
 		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
 		{
 			rangeVis = UnityEngine.Object.Instantiate(PrefabPool.Instance.RangeVisualizationObject);
-			rangeVis.transform.parent = this.fireObject.transform;
+			rangeVis.transform.parent = fireObject.transform;
 			rangeVis.transform.localPosition = Vector3.zero;
 			rangeVis.SetRadius(damageRadius);
 		}
@@ -67,16 +67,6 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 		float num = damageRadius / 2.5f * 5f;
 		SetFireHitBoxYOffset(num * 0.04f);
 		InputSignalReceiver = LogicClientsideFactory.CreateStateChangeInputSignalReceiver(this, defaultInput: true, null, OnInputStateUpdate);
-		ToggleEmitter(InputSignalReceiver.CurrentlyIsHot);
-		FireObject fireObject = this.fireObject;
-		fireObject.OnFireObjectCreated = (Action)Delegate.Combine(fireObject.OnFireObjectCreated, new Action(OnFireObjectPlaced));
-	}
-
-	private void OnFireObjectPlaced()
-	{
-		FireObject fireObject = this.fireObject;
-		fireObject.OnFireObjectCreated = (Action)Delegate.Remove(fireObject.OnFireObjectCreated, new Action(OnFireObjectPlaced));
-		Debug.Log("is active now after subscribing");
 		ToggleEmitter(InputSignalReceiver.CurrentlyIsHot);
 	}
 
@@ -297,11 +287,6 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 	public override void Destroy()
 	{
 		base.Destroy();
-		if (this.fireObject != null)
-		{
-			FireObject fireObject = this.fireObject;
-			fireObject.OnFireObjectCreated = (Action)Delegate.Remove(fireObject.OnFireObjectCreated, new Action(OnFireObjectPlaced));
-		}
 		if (MVGameControllerBase.IEditModeUI != null)
 		{
 			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;

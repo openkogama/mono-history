@@ -19,7 +19,7 @@ public class MVPlayer
 
 	public int ProfileID { get; private set; }
 
-	public bool IsTourist => ProfileID == 0;
+	public bool IsAnonymous => ProfileID == 0;
 
 	public int ActorNr { get; private set; }
 

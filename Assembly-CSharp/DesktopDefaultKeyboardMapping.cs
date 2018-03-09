@@ -293,7 +293,6 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap
 		{
 			controlDown[control] = true;
 		}
-		bool result = controlDown[control];
 		bool flag2 = KeyUp(control);
 		if (flag2)
 		{
@@ -302,7 +301,7 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap
 		switch (keyState)
 		{
 		case KeyState.Pressed:
-			return result;
+			return controlDown[control];
 		case KeyState.Down:
 			return flag;
 		case KeyState.Up:
@@ -328,15 +327,20 @@ public class DesktopDefaultKeyboardMapping : IKogamaInputMap
 
 	private bool KeyUp(KogamaControls control)
 	{
+		bool result = false;
 		KeyCode[] array = keyMapping[control];
 		foreach (KeyCode key in array)
 		{
-			bool flag = controlDown[control] && !Input.GetKey(key);
-			if (!Input.GetKeyUp(key) && !flag)
+			if (Input.GetKey(key))
 			{
-				return false;
+				result = false;
+				break;
+			}
+			if (Input.GetKeyUp(key))
+			{
+				result = Input.GetKeyUp(key);
 			}
 		}
-		return true;
+		return result;
 	}
 }

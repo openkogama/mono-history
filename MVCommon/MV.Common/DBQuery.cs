@@ -105,6 +105,5 @@ public enum DBQuery
 	GetAvatarMetaData,
 	GetProfileMetaData,
 	UpdateProfileMetaData,
-	GetAntiCheatData,
-	RevokeEditRights
+	GetAntiCheatData
 }

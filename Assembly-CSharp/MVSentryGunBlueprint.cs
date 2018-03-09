@@ -8,17 +8,7 @@ public class MVSentryGunBlueprint : MVBlueprintBase
 
 	private MVSentryGun gun;
 
-	public override MVWorldObjectDocumentationType DocumentationType
-	{
-		get
-		{
-			if (gun == null)
-			{
-				return MVWorldObjectDocumentationType.FireSentryTower;
-			}
-			return gun.DocumentationType;
-		}
-	}
+	public override MVWorldObjectDocumentationType DocumentationType => gun.DocumentationType;
 
 	public MVCubeModelBase EditableCubesWO => editableCubes;
 
@@ -55,13 +45,11 @@ public class MVSentryGunBlueprint : MVBlueprintBase
 		gun = (MVSentryGun)GetChild("sentryGun");
 		if (editableCubes == null)
 		{
-			Debug.LogWarning("Missing editable cubes");
-			return;
+			Debug.Log("Missing editable cubes");
 		}
 		if (gun == null)
 		{
-			Debug.LogWarning("Missing gun");
-			return;
+			Debug.Log("Missing gun");
 		}
 		gun.RaycastIgnoreWorldObjectIds = new HashSet<int> { gun.Id, editableCubes.Id };
 		gun.InteractionFlags |= InteractionFlags.SelectionRequiresEditGroup | InteractionFlags.NotUserTransformable;
