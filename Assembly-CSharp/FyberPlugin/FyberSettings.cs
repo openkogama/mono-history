@@ -20,8 +20,8 @@ public class FyberSettings : ScriptableObject
 	[SerializeField]
 	private string configJson;
 
-	[HideInInspector]
 	[SerializeField]
+	[HideInInspector]
 	private int bundlesCount;
 
 	public static FyberSettings Instance => GetInstance();

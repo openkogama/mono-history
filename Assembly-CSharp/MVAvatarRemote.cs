@@ -61,8 +61,15 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 		InitializeHealth();
 		InitializeShield();
 		triggerCollider = CreateTriggerCollider();
-		MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
-		mVPlayerContainer.OnLocalPlayerReady = (Action)Delegate.Combine(mVPlayerContainer.OnLocalPlayerReady, new Action(InitAvatarState));
+		if (MVGameControllerBase.Game.MVPlayerContainer.LocalPlayer.IsReady)
+		{
+			InitAvatarState();
+		}
+		else
+		{
+			MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
+			mVPlayerContainer.OnLocalPlayerReady = (Action)Delegate.Combine(mVPlayerContainer.OnLocalPlayerReady, new Action(InitAvatarState));
+		}
 		avatarRemoteMovementCalculator = gameObject.AddComponent<AvatarRemoteMovementCalculator>();
 		InitializeCulling();
 		limbManager = new AvatarLimbManagerRemote();
@@ -209,11 +216,13 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 
 	public override void OnEnterVehicle()
 	{
+		base.OnEnterVehicle();
 		IsInVehicle = true;
 	}
 
 	public override void OnLeaveVehicle()
 	{
+		base.OnLeaveVehicle();
 		IsInVehicle = false;
 		HandleLeaveVehicle();
 	}

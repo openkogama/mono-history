@@ -293,6 +293,10 @@ public class SendMessageControl : MonoBehaviour
 		{
 			MVGameControllerBase.WOCM.AvatarLocal.LimbManager.StartEmote(EmoteTypes.wave);
 		}
+		else if (chatMsg[0] == '/')
+		{
+			TextCommand.Resolve(chatMsg);
+		}
 		else if (chatMsg == "/fyber")
 		{
 			IntegrationAnalyzer.ShowTestSuite();

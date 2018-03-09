@@ -13,7 +13,7 @@ public class FirstTimeActivatablePointerPlayerList : FirstTimeActivatableGotItPo
 			{
 				foreach (MVPlayer value in MVGameControllerBase.Game.MVPlayerContainer.Values)
 				{
-					if (!value.IsAnonymous)
+					if (!value.IsTourist)
 					{
 						return base.CanShow;
 					}

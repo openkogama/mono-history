@@ -252,6 +252,16 @@ public class Avatar : MonoBehaviour, IMovable, IBulletImpactVisualizer
 		}
 	}
 
+	public void OnEnterVehicle()
+	{
+		waterSplashComponent.enabled = false;
+	}
+
+	public void OnExitVehicle()
+	{
+		waterSplashComponent.enabled = true;
+	}
+
 	public void UpdateNameTag()
 	{
 		MVPlayer playerUnsafe = MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(mvAvatar.OwnerActorNr);

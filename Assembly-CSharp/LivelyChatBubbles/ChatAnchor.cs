@@ -2,8 +2,8 @@ using UnityEngine;
 
 namespace LivelyChatBubbles;
 
-[RequireComponent(typeof(Transform))]
 [ExecuteInEditMode]
+[RequireComponent(typeof(Transform))]
 public class ChatAnchor : MonoBehaviour
 {
 	private const float screenEdgeOffset = 40f;

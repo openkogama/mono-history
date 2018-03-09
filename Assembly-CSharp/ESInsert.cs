@@ -32,6 +32,8 @@ internal class ESInsert : ESStateBase
 
 	private HashSet<int> woIgnoreList = new HashSet<int>();
 
+	private bool pointerWasUp;
+
 	public override void Enter(EditorStateMachine e)
 	{
 		laser = MVGameControllerBase.WOCM.AvatarLocal.LaserPointer;
@@ -66,6 +68,10 @@ internal class ESInsert : ESStateBase
 			MVGameControllerBase.CameraController.IsLogicRendered = true;
 		}
 		e.SingleSelectedWO.GameObject.SetActive(value: false);
+		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
+		{
+			pointerWasUp = true;
+		}
 	}
 
 	public override void Execute(EditorStateMachine e)
@@ -104,7 +110,7 @@ internal class ESInsert : ESStateBase
 		Vector3 b = ComputeSnapPosition(e.SingleSelectedWO, insertPosition);
 		e.SingleSelectedWO.SyncPos = Vector3.Lerp(e.SingleSelectedWO.WorldPosition, b, Time.deltaTime * 20f);
 		DrawObject(e.SingleSelectedWO.GameObject);
-		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
+		if (!pointerWasUp && MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
 		{
 			if (isNewPrototype)
 			{
@@ -116,6 +122,7 @@ internal class ESInsert : ESStateBase
 				e.Event = EditorEvent.ESTerrainEdit;
 			}
 		}
+		pointerWasUp = false;
 	}
 
 	public override void Exit(EditorStateMachine e)

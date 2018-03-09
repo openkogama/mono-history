@@ -5,21 +5,49 @@ using UnityEngine.Events;
 
 public abstract class MVLocalPlayer : MVPlayer
 {
+	public enum PlanetOwnershipType
+	{
+		None,
+		Editor,
+		Owner
+	}
+
 	protected XPProgress xpProgress;
+
+	private int planetOwnershipTypeID;
 
 	public XPProgress.OnXPProgressDataDelegate OnXPProgressData;
 
 	private int oldLevel;
 
-	public int PlanetOwnershipTypeID { get; private set; }
+	public int PlanetOwnershipTypeID
+	{
+		get
+		{
+			if (MVGameControllerBase.GameMode != MVGameMode.Edit)
+			{
+				throw new Exception("There are currently no way to access MVLocalPlayer:PlanetOwnership in play mode. Server side refactoring is required to fix this.");
+			}
+			return planetOwnershipTypeID;
+		}
+		private set
+		{
+			planetOwnershipTypeID = value;
+		}
+	}
+
+	public PlanetOwnershipType PlanetOwnership => (PlanetOwnershipType)PlanetOwnershipTypeID;
+
+	public virtual bool IsAdmin { get; private set; }
 
 	public XPProgressData XPProgressData => xpProgress.XPProgressData;
 
-	public MVLocalPlayer(int actorNumber, int profileID, string userName, string regionCode, int planetOwnershipTypeID)
+	public MVLocalPlayer(int actorNumber, int profileID, string userName, string regionCode, int planetOwnershipTypeID, bool isAdmin)
 		: base(actorNumber, profileID, userName, regionCode, MVGameControllerBase.BuildTarget, isReady: false)
 	{
 		OnLevelChanged = (UnityAction<int>)Delegate.Combine(OnLevelChanged, new UnityAction<int>(OnLevelChangedLocal));
 		PlanetOwnershipTypeID = planetOwnershipTypeID;
+		IsAdmin = isAdmin;
 	}
 
 	public virtual void InitializeLeveling(InitialLevelData initialLevelData)

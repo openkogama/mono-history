@@ -6,16 +6,6 @@ using UnityEngine.UI;
 
 public class PlayerElementState : MonoBehaviour
 {
-	private bool showAcceptButton;
-
-	private bool showRequestButton;
-
-	private bool showCancelButton;
-
-	private bool showPendingButton;
-
-	private bool showLocalPlayerImage;
-
 	[SerializeField]
 	private Button requestFriendship;
 
@@ -31,43 +21,78 @@ public class PlayerElementState : MonoBehaviour
 	[SerializeField]
 	private Image localPlayerImage;
 
+	[SerializeField]
+	private Button manageUserButton;
+
+	[SerializeField]
+	private AdminToolController adminToolsPrefab;
+
+	[SerializeField]
+	private OwnerToolController ownerToolsPrefab;
+
+	[SerializeField]
+	private Text playerName;
+
 	public void Initialize(MVPlayer player, Friend friend)
 	{
 		SetupButtons(player, friend);
 		SetButtonVisibility(player, friend);
 	}
 
+	public void OpenUserManagement()
+	{
+		MVLocalPlayer localPlayer = MVGameControllerBase.Game.LocalPlayer;
+		if (localPlayer.ProfileID > 0 && localPlayer.IsAdmin)
+		{
+			AdminToolController adminTools = UnityEngine.Object.Instantiate(adminToolsPrefab);
+			adminTools.Initialize(playerName.text);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(adminTools.gameObject, UIPushOption.Blocking, null, UIGroupFlags.GameObjectUI);
+			});
+		}
+		else if (MVGameControllerBase.GameMode == MVGameMode.Edit && localPlayer.PlanetOwnership == MVLocalPlayer.PlanetOwnershipType.Owner)
+		{
+			OwnerToolController ownerTools = UnityEngine.Object.Instantiate(ownerToolsPrefab);
+			ownerTools.Initialize(playerName.text);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(ownerTools.gameObject, UIPushOption.Blocking, null, UIGroupFlags.GameObjectUI);
+			});
+		}
+	}
+
 	private void SetButtonVisibility(MVPlayer player, Friend friend)
 	{
-		if (player.IsAnonymous || MVGameControllerBase.Game.LocalPlayer.IsAnonymous)
+		MVLocalPlayer localPlayer = MVGameControllerBase.Game.LocalPlayer;
+		bool flag = player.Avatar == localPlayer.Avatar;
+		localPlayerImage.gameObject.SetActive(flag);
+		bool flag2 = MVGameControllerBase.GameMode == MVGameMode.Edit && localPlayer.PlanetOwnership == MVLocalPlayer.PlanetOwnershipType.Owner;
+		manageUserButton.gameObject.SetActive(!localPlayer.IsTourist && (localPlayer.IsAdmin || flag2));
+		if (!player.IsTourist && !localPlayer.IsTourist && !flag)
 		{
-			return;
-		}
-		if (friend == null && player != MVGameControllerBase.Game.LocalPlayer)
-		{
-			showRequestButton = true;
-		}
-		else if (friend != null && friend.status == FriendStatus.Pending)
-		{
-			if (MVGameControllerBase.Game.Friends.Friends.ContainsValue(friend))
+			requestFriendship.gameObject.SetActive(friend == null);
+			if (friend != null && friend.status == FriendStatus.Pending)
 			{
-				showPendingButton = true;
+				bool flag3 = MVGameControllerBase.Game.Friends.Friends.ContainsValue(friend);
+				pendingFriendship.gameObject.SetActive(flag3);
+				cancel.gameObject.SetActive(!flag3);
+				acceptFriendRequest.gameObject.SetActive(!flag3);
 			}
 			else
 			{
-				showAcceptButton = true;
-				showCancelButton = true;
+				pendingFriendship.gameObject.SetActive(value: false);
+				cancel.gameObject.SetActive(value: false);
+				acceptFriendRequest.gameObject.SetActive(value: false);
 			}
 		}
-		if (player.ProfileID == MVGameControllerBase.Game.LocalPlayer.ProfileID)
+		else
 		{
-			showLocalPlayerImage = true;
+			pendingFriendship.gameObject.SetActive(value: false);
+			cancel.gameObject.SetActive(value: false);
+			acceptFriendRequest.gameObject.SetActive(value: false);
+			manageUserButton.gameObject.SetActive(value: false);
 		}
-		requestFriendship.gameObject.SetActive(showRequestButton);
-		pendingFriendship.gameObject.SetActive(showPendingButton);
-		acceptFriendRequest.gameObject.SetActive(showAcceptButton);
-		cancel.gameObject.SetActive(showCancelButton);
-		localPlayerImage.gameObject.SetActive(showLocalPlayerImage);
 	}
 
 	private void SetupButtons(MVPlayer player, Friend friend)
