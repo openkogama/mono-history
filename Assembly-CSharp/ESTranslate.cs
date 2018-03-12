@@ -26,13 +26,15 @@ internal class ESTranslate : ESStateBase
 
 	private float scrollMoveDistance;
 
-	private bool fixedToYPlane = true;
-
 	private TranslateMode translateMode;
 
 	private HashSet<int> woIds;
 
+	private bool fixedToYPlane = true;
+
 	private bool moveWithAvatar;
+
+	private bool enteredStateWithPointerSelectReleased;
 
 	private ILaserPointer laser;
 
@@ -87,6 +89,7 @@ internal class ESTranslate : ESStateBase
 		}
 		Cursor.visible = false;
 		originPrevFrame = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position;
+		enteredStateWithPointerSelectReleased = MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect);
 	}
 
 	public override void Execute(EditorStateMachine e)
@@ -96,7 +99,7 @@ internal class ESTranslate : ESStateBase
 		{
 			e.PopState();
 		}
-		else if (!MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
+		else if (enteredStateWithPointerSelectReleased || !MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
 		{
 			Vector3 deltaMouse = GetDeltaMouse(e);
 			if (MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelectAlt))
@@ -144,6 +147,7 @@ internal class ESTranslate : ESStateBase
 				}
 			}
 			UpdateLaserPosition(targets);
+			enteredStateWithPointerSelectReleased = false;
 		}
 		else
 		{
