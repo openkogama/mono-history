@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -11,9 +10,6 @@ public class GameCoinMenuController : MonoBehaviour
 
 	[SerializeField]
 	private Button startStopBoostButton;
-
-	[SerializeField]
-	private Button purchaseBoostButton;
 
 	[SerializeField]
 	private Text boostLeftText;
@@ -29,7 +25,6 @@ public class GameCoinMenuController : MonoBehaviour
 
 	private void Awake()
 	{
-		purchaseBoostButton.onClick.AddListener(CreatePurchaseDialog);
 		startStopBoostButton.onClick.AddListener(ToggleGameCoinBoostState);
 		MVGameCoinManager gameCoinManager = MVGameControllerBase.Game.GameCoinManager;
 		gameCoinManager.BoostStateChanged = (Action<int, bool>)Delegate.Combine(gameCoinManager.BoostStateChanged, new Action<int, bool>(OnBoostingChanged));
@@ -72,47 +67,21 @@ public class GameCoinMenuController : MonoBehaviour
 		}
 	}
 
-	private void CreatePurchaseDialog()
-	{
-		GameCoinBoostShopDialog purchasePopup = UnityEngine.Object.Instantiate(gameCoinBoostShopDialogPrefab);
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
-		{
-			handler.PopGroups(UIGroupFlags.InventoryUI | UIGroupFlags.InventoryUISubMenu);
-		});
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-		{
-			x.Push(purchasePopup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.InventoryUI);
-		});
-		purchasePopup.Initialize(OnShopDialogResult);
-	}
-
 	private void OnBoostingChanged(int boostTimeLeft, bool boosting)
 	{
 		SetAllToNotVisible();
-		if (boostTimeLeft == 0)
+		if (boostTimeLeft != 0)
 		{
-			purchaseBoostButton.gameObject.SetActive(value: true);
-			return;
-		}
-		startStopBoostButton.gameObject.SetActive(value: true);
-		if (boosting)
-		{
-			AwayMonitor.IdleKickEnabled = false;
+			startStopBoostButton.gameObject.SetActive(value: true);
+			if (boosting)
+			{
+				AwayMonitor.IdleKickEnabled = false;
+			}
 		}
 	}
 
 	private void SetAllToNotVisible()
 	{
-		purchaseBoostButton.gameObject.SetActive(value: false);
 		startStopBoostButton.gameObject.SetActive(value: false);
-	}
-
-	private void OnShopDialogResult(bool success, Dictionary<object, object> result)
-	{
-		if (success)
-		{
-			int boostLeft = (int)result[(byte)179];
-			MVGameControllerBase.Game.GameCoinManager.OnGameBoostChanged(boostLeft, boostEnabled: false);
-		}
 	}
 }

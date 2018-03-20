@@ -40,8 +40,6 @@ public static class AwayMonitor
 
 	private static bool idleKickEnabled = true;
 
-	private static Vector3 prevMousePos = default;
-
 	private static DateTime latestMouseMoveTime = DateTime.Now;
 
 	private static readonly string mouseX = "Mouse X";
@@ -109,7 +107,6 @@ public static class AwayMonitor
 	{
 		if (MVInputWrapper.GetAxisRaw(scroll) > Mathf.Epsilon || MVInputWrapper.GetAxisRaw(mouseX) > Mathf.Epsilon || MVInputWrapper.GetAxisRaw(mouseY) > Mathf.Epsilon)
 		{
-			prevMousePos = Input.mousePosition;
 			latestMouseMoveTime = DateTime.Now;
 		}
 	}

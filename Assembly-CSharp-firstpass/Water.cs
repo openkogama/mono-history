@@ -29,8 +29,6 @@ public class Water : MonoBehaviour
 
 	private int m_OldReflectionTextureSize;
 
-	private int m_OldRefractionTextureSize;
-
 	private static bool s_InsideWater;
 
 	[SerializeField]
