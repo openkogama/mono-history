@@ -24,6 +24,9 @@ public class SoundViewItem : MonoBehaviour, IEventSystemHandler, IPointerEnterHa
 	[SerializeField]
 	private GameObject loadingWheel;
 
+	[SerializeField]
+	private Button buttonComponent;
+
 	private UnityAction<string> setNewOriginalUrl;
 
 	private string originalUrl;
@@ -49,16 +52,31 @@ public class SoundViewItem : MonoBehaviour, IEventSystemHandler, IPointerEnterHa
 
 	private void OnDownloadFinished(WWW www)
 	{
-		if (www != null && !string.IsNullOrEmpty(www.error) && www.error.Length > 0)
+		if (www == null)
 		{
-			Debug.LogWarning("error from www in SoundViewItem! " + www.error);
+			Debug.LogWarning("Error loading sound, download unable to be finished.");
+			title.text = TM._("Download failed");
+			toolTip.SetText(TM._("Sound failed to download."));
 			return;
 		}
+		if (!string.IsNullOrEmpty(www.error))
+		{
+			Debug.LogWarning("error from www in SoundViewItem! " + www.error);
+			title.text = TM._("Download failed");
+			toolTip.SetText(TM._("Sound failed to download."));
+			return;
+		}
+		buttonComponent.interactable = true;
 		loadingWheel.SetActive(value: false);
 		soundImage.gameObject.SetActive(value: true);
 		toolTip.SetText(tabInfo.name);
 		title.text = tabInfo.name;
 		doneLoading = true;
+	}
+
+	public void UnsubscribePendingDownloads()
+	{
+		AsyncWWWManager.UnsubscribeWWWRequest(OnDownloadFinished);
 	}
 
 	public void OnPointerEnter(PointerEventData eventData)
@@ -94,6 +112,6 @@ public class SoundViewItem : MonoBehaviour, IEventSystemHandler, IPointerEnterHa
 
 	private void OnDestroy()
 	{
-		AsyncWWWManager.UnsubscribeWWWRequest(OnDownloadFinished);
+		UnsubscribePendingDownloads();
 	}
 }

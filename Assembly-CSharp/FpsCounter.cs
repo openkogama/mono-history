@@ -24,7 +24,20 @@ public class FpsCounter : MonoBehaviour
 
 		public void CollectFPSMetric(float averageFPS)
 		{
-			StatHatWrapper.Value("FPS", Mathf.Clamp(averageFPS, 0f, 60f));
+			float num = Mathf.Clamp(averageFPS, 0f, 60f);
+			if (num < 20f)
+			{
+				StatHatWrapper.Count("FPSBucket0-20", 1);
+			}
+			else if (num < 30f)
+			{
+				StatHatWrapper.Count("FPSBucket20-30", 1);
+			}
+			else
+			{
+				StatHatWrapper.Count("FPSBucket30+", 1);
+			}
+			StatHatWrapper.Value("FPS", num);
 			metricsCollected = true;
 			StatHatWrapper.Value("RoundTripTime", MVGameControllerBase.Game.Peer.RoundTripTime);
 		}

@@ -62,7 +62,6 @@ public class MVMaterialRepository
 	{
 		if (materialId >= materials.Count)
 		{
-			Debug.LogError("Material out of range");
 			return noMaterial;
 		}
 		return materials[materialId];

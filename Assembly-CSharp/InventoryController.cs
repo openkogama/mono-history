@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
@@ -72,5 +73,22 @@ public class InventoryController : MonoBehaviour, IEventSystemHandler, ISlotChan
 		{
 			OnSlotChanged(fromSlotIndex, toSlotIndex);
 		}
+	}
+
+	public List<T> GetComponentsOfSlotsWithType<T>() where T : MonoBehaviour
+	{
+		List<T> list = new List<T>();
+		foreach (KeyValuePair<int, InventorySlot> slot in inventorySlots.GetSlots())
+		{
+			if (!(slot.Value.Item == null))
+			{
+				T component = slot.Value.Item.GetComponent<T>();
+				if (component != null)
+				{
+					list.Add(component);
+				}
+			}
+		}
+		return list;
 	}
 }

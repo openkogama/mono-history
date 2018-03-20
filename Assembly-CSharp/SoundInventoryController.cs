@@ -105,18 +105,23 @@ public class SoundInventoryController : MonoBehaviour, IEventSystemHandler, IHan
 
 	public void UpdateContent()
 	{
+		List<SoundViewItem> componentsOfSlotsWithType = inventoryController.GetComponentsOfSlotsWithType<SoundViewItem>();
+		for (int i = 0; i < componentsOfSlotsWithType.Count; i++)
+		{
+			componentsOfSlotsWithType[i].UnsubscribePendingDownloads();
+		}
 		inventoryController.Clear();
 		inventoryController.SelectTab(selectedTab, tabs[selectedTab].currentPage, tabs[selectedTab].MaxPages);
 		OnSettingChanged("url", originalURL);
 		List<SoundTabInfo> list = soundTabInfos[selectedTab];
 		int num = categorysAmount[selectedTab];
-		for (int i = 0; i < num; i++)
+		for (int j = 0; j < num; j++)
 		{
-			if (tabs[selectedTab].SlotIndexIsInRange(i))
+			if (tabs[selectedTab].SlotIndexIsInRange(j))
 			{
 				SoundViewItem soundViewItem = UnityEngine.Object.Instantiate(soundViewItemPrefab);
-				soundViewItem.Initialize(list[i], originalURL, SetNewOriginalUrl);
-				inventoryController.AddObject(soundViewItem.gameObject, i % numberOfSlotsPrPage);
+				soundViewItem.Initialize(list[j], originalURL, SetNewOriginalUrl);
+				inventoryController.AddObject(soundViewItem.gameObject, j % numberOfSlotsPrPage);
 			}
 		}
 	}
