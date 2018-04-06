@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 {
-	[SerializeField]
 	[Header("Stats for Godzilla (will be scaled by godzilla size)")]
+	[SerializeField]
 	private AnimationCurve baseAreaDamageByRange;
 
 	[SerializeField]
@@ -28,13 +28,13 @@ public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 	[SerializeField]
 	private AnimationCurve chargeCurve;
 
-	[Tooltip("Look direction updates per second.")]
-	[SerializeField]
 	[Header("Network")]
+	[SerializeField]
+	[Tooltip("Look direction updates per second.")]
 	private float lookUpdateRate = 2f;
 
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	private List<GameObject> toHideInFirstperson = new List<GameObject>();
 
 	[SerializeField]
@@ -118,6 +118,8 @@ public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 	private int layerMask_Player;
 
 	private float BlastRadius => scaledAreaDamageByRange.keys[scaledAreaDamageByRange.length - 1].time;
+
+	public override int MaxQuantity => 0;
 
 	public override AvatarItemType Type => AvatarItemType.GodzillaLaser;
 

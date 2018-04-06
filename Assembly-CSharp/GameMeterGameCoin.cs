@@ -8,7 +8,7 @@ public class GameMeterGameCoin : GameMeterBase
 	private Image gameCoinBar;
 
 	[SerializeField]
-	private RollingNumberCounterAndroid counter;
+	private Text coinAmountText;
 
 	public override GameMeterType GameMeterType => GameMeterType.GameCoins;
 
@@ -55,13 +55,13 @@ public class GameMeterGameCoin : GameMeterBase
 
 	public void OnGameCoinAmountChange(int amount)
 	{
-		counter.SetCounter(amount);
+		coinAmountText.text = amount.ToString();
 	}
 
 	public override void SetShowGameMeter(bool show)
 	{
 		gameCoinBar.enabled = show;
-		counter.enabled = show;
+		coinAmountText.enabled = show;
 	}
 
 	private void Show()

@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
@@ -10,15 +9,11 @@ public class LevelBadge : MonoBehaviour
 	private RawImage levelBadge;
 
 	[SerializeField]
-	private ProgressBarAndroid xpBar;
-
-	[SerializeField]
 	private PlayerStatusPopup playerStatusPopup;
 
 	private void Awake()
 	{
 		levelBadge.enabled = false;
-		xpBar.gameObject.SetActive(value: false);
 		if (LevelingManager.IsInitialized)
 		{
 			OnLevelingInitialized();
@@ -26,23 +21,6 @@ public class LevelBadge : MonoBehaviour
 		else
 		{
 			LevelingManager.OnLevelingInitialized = (UnityAction)Delegate.Combine(LevelingManager.OnLevelingInitialized, new UnityAction(OnLevelingInitialized));
-		}
-	}
-
-	public void OnClick()
-	{
-		if (!MVGameControllerBase.IsTouristSession)
-		{
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-			{
-				x.PopGroups(UIGroupFlags.Effect);
-			});
-			PlayerStatusPopup playerStatus = UnityEngine.Object.Instantiate(playerStatusPopup);
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-			{
-				x.Push(playerStatus.gameObject, UIPushOption.None, null, UIGroupFlags.Effect);
-			});
-			playerStatus.Initialize();
 		}
 	}
 
@@ -69,7 +47,6 @@ public class LevelBadge : MonoBehaviour
 			Debug.Log("ProgressPercentage: " + num);
 			Debug.LogError("processPercentage invalid.");
 		}
-		xpBar.Progress = num;
 	}
 
 	private void UpdateBadge(int level)
@@ -87,7 +64,6 @@ public class LevelBadge : MonoBehaviour
 		if (www != null && www.texture != null)
 		{
 			levelBadge.enabled = true;
-			xpBar.gameObject.SetActive(value: true);
 			levelBadge.texture = www.texture;
 		}
 	}

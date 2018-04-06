@@ -1,16 +1,12 @@
 using System;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class GameMeterShield : GameMeterBase
 {
 	private const float maxShieldValue = 100f;
 
 	[SerializeField]
-	private Image ShieldMeter;
-
-	[SerializeField]
-	private ProgressBarAndroid progressBar;
+	private GameObject ShieldMeter;
 
 	private MVAvatar avatarLocal;
 
@@ -44,8 +40,8 @@ public class GameMeterShield : GameMeterBase
 	private void Update()
 	{
 		elapsedInterpolationTime += Time.deltaTime;
-		float progress = (previousShieldProgress = Mathf.Lerp(previousShieldProgress, interpolateTowardsShieldProgress, elapsedInterpolationTime));
-		progressBar.Progress = progress;
+		float num = (previousShieldProgress = Mathf.Lerp(previousShieldProgress, interpolateTowardsShieldProgress, elapsedInterpolationTime));
+		progress.Progress = num;
 		for (int i = 0; i < gameMeterVisualEffects.Count; i++)
 		{
 			gameMeterVisualEffects[i].ExecuteEffect();
@@ -60,7 +56,7 @@ public class GameMeterShield : GameMeterBase
 
 	public override void SetShowGameMeter(bool show)
 	{
-		ShieldMeter.enabled = show;
-		progressBar.enabled = show;
+		ShieldMeter.SetActive(show);
+		progress.enabled = show;
 	}
 }

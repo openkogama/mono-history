@@ -1,203 +1,195 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using MV.Common;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class WinningConditionBriefing : MonoBehaviour, IBriefing
+public class WinningConditionBriefing : MonoBehaviour
 {
 	[Serializable]
-	private struct WinningConditionDef
+	private class WinningConditionBriefingDef
 	{
-		public WinningConditionType conditionType;
+		public WinningConditionType type = WinningConditionType.None;
 
-		public Sprite conditionSprite;
+		public Image scoreIconPrefab;
+
+		public Image winConImagePrefab;
 	}
 
 	[SerializeField]
-	private Transform offsetTransform;
+	private GameObject winningConditionImageBackground;
 
 	[SerializeField]
-	private WinningConditionAndroid winningConditionPrefab;
+	private ProgressBar scoreProgressBar;
 
 	[SerializeField]
-	private List<WinningConditionDef> winningConditionList;
+	private Text scoreText;
 
 	[SerializeField]
-	private CanvasGroup winningConditionGroup;
+	private Text scoreSlash;
 
-	private bool avatarRespawned = true;
+	[SerializeField]
+	private Text scoreLimit;
 
-	private float fadeTime = 0.3f;
+	[SerializeField]
+	private GameObject scoreGameObject;
 
-	private float stayTime = 3f;
+	[SerializeField]
+	private GameObject reachTheFlagPresent;
 
-	private float initialWaitTime = 1f;
+	[SerializeField]
+	private GameObject progressableWinningConditionPresent;
 
-	private List<WinningConditionAndroid> instantiatedConditions = new List<WinningConditionAndroid>();
+	[SerializeField]
+	private ProgressBar roundTimeProgressBar;
 
-	private bool winningConditionMet = true;
+	[SerializeField]
+	private Text roundTimeText;
 
-	private Dictionary<WinningConditionType, Sprite> currentWinningConditions = new Dictionary<WinningConditionType, Sprite>();
+	[SerializeField]
+	private Image roundTimeIconPrefab;
 
-	private void Awake()
+	[SerializeField]
+	private Text winningConditionHeader;
+
+	[SerializeField]
+	private WinningConditionBriefingLayoutFitter briefingLayoutFitter;
+
+	[SerializeField]
+	private ScoreBoardController scoreBoardController;
+
+	[SerializeField]
+	private List<WinningConditionBriefingDef> winningConditionMapping;
+
+	private WinningConditionType winConType;
+
+	private bool isInitialized;
+
+	private Action initializeCallback;
+
+	private readonly Dictionary<WinningConditionType, string> headerMap = new Dictionary<WinningConditionType, string>
 	{
-		for (int i = 0; i < winningConditionList.Count; i++)
 		{
-			currentWinningConditions.Add(winningConditionList[i].conditionType, winningConditionList[i].conditionSprite);
+			WinningConditionType.Flag,
+			TM._("REACH THE FLAG!")
+		},
+		{
+			WinningConditionType.Collectible,
+			TM._("FIND ALL STARS!")
+		},
+		{
+			WinningConditionType.Kill,
+			TM._("ELIMINATE YOUR ENEMIES!")
+		},
+		{
+			WinningConditionType.Oculus,
+			TM._("ELIMINATE THE OCULI!")
 		}
-		winningConditionGroup.alpha = 0f;
-		MVNetworkGame game = MVGameControllerBase.Game;
-		game.OnWinningCondition = (Action<IWinningCondition>)Delegate.Combine(game.OnWinningCondition, new Action<IWinningCondition>(OnWinningConditionReceived));
-		MVRuntimeDataVariable avatarModeTypeFlags = MVGameControllerBase.WOCM.AvatarLocal.avatarModeTypeFlags;
-		avatarModeTypeFlags.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(avatarModeTypeFlags.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChanged));
-	}
+	};
 
-	private void AvatarStateChanged(object state)
+	private Vector2 screensize;
+
+	public void Initialize(WinningConditionType winConType)
 	{
-		int num = (int)state;
-		if ((num & 4) > 0)
+		this.winConType = winConType;
+		isInitialized = true;
+		if (initializeCallback != null)
 		{
-			avatarRespawned = true;
+			initializeCallback();
 		}
 	}
 
-	private void OnWinningConditionReceived(IWinningCondition winningCondition)
+	private void Start()
 	{
-		winningConditionMet = true;
-	}
-
-	public void AddBriefing(WinningConditionType winType)
-	{
-		SetupCondition(winType);
-	}
-
-	public void AddBriefing(WinningConditionType winType, int limit)
-	{
-		WinningConditionAndroid winningConditionAndroid = SetupCondition(winType);
-		winningConditionAndroid.SetLimit(limit);
-	}
-
-	private WinningConditionAndroid CreateWinningCondition(WinningConditionType winType)
-	{
-		WinningConditionAndroid winningConditionAndroid = UnityEngine.Object.Instantiate(winningConditionPrefab);
-		instantiatedConditions.Add(winningConditionAndroid);
-		winningConditionAndroid.SetSprite(currentWinningConditions[winType]);
-		return winningConditionAndroid;
-	}
-
-	private WinningConditionAndroid SetupCondition(WinningConditionType winType)
-	{
-		WinningConditionAndroid winningConditionAndroid = CreateWinningCondition(winType);
-		string additionalInformation = string.Empty;
-		switch (winType)
+		screensize = new Vector2(Screen.width, Screen.height);
+		if (isInitialized)
 		{
-		case WinningConditionType.Highest:
-			additionalInformation = TM._("Reach highest altitude");
-			break;
-		case WinningConditionType.Lowest:
-			additionalInformation = TM._("Reach lowest altitude");
-			break;
-		case WinningConditionType.Collectible:
-			additionalInformation = TM._("Collect stars");
-			break;
-		case WinningConditionType.Flag:
-			additionalInformation = TM._("Reach the flag");
-			break;
-		case WinningConditionType.Kill:
-			additionalInformation = TM._("Eliminate other players");
-			break;
-		case WinningConditionType.Oculus:
-			additionalInformation = TM._("Eliminate Oculi");
-			break;
-		case WinningConditionType.Time:
-			additionalInformation = TM._("Wait for the timer to end");
-			break;
+			SetupBriefing();
 		}
-		winningConditionAndroid.SetAdditionalInformation(additionalInformation);
-		winningConditionAndroid.transform.SetParent(offsetTransform, worldPositionStays: false);
-		return winningConditionAndroid;
-	}
-
-	private void OnEnable()
-	{
-		Clear();
-		StartCoroutine(PlaySequentialInformation());
-	}
-
-	private void GenerateBriefing()
-	{
-		List<IWinningCondition> winnerConditions = new List<IWinningCondition>();
-		MVGameControllerBase.Game.WinningConditionManager.Traverse((IWinningCondition winnerCondition) =>
+		else
 		{
-			if (winnerCondition.IsBriefingNode)
+			initializeCallback = (Action)Delegate.Combine(initializeCallback, new Action(SetupBriefing));
+		}
+	}
+
+	private void SetupBriefing()
+	{
+		initializeCallback = (Action)Delegate.Remove(initializeCallback, new Action(SetupBriefing));
+		WinningConditionBriefingDef winningConditionBriefingDef = null;
+		for (int i = 0; i < winningConditionMapping.Count; i++)
+		{
+			if (winConType == winningConditionMapping[i].type)
 			{
-				winnerConditions.Add(winnerCondition);
-			}
-			return false;
-		});
-		foreach (IWinningCondition item in winnerConditions)
-		{
-			if (item is IWinningConditionBriefing)
-			{
-				((IWinningConditionBriefing)item).GetBriefing(this);
-				continue;
-			}
-			string message = $"No localized briefing for: {item.GetType()}";
-			Debug.LogWarning(message);
-		}
-	}
-
-	private IEnumerator PlaySequentialInformation()
-	{
-		if (winningConditionMet)
-		{
-			GenerateBriefing();
-			if (instantiatedConditions.Count != 0)
-			{
-				yield return StartCoroutine(ShowBriefingCoroutine(winningConditionGroup));
-				winningConditionMet = false;
+				winningConditionBriefingDef = winningConditionMapping[i];
+				break;
 			}
 		}
-		if (avatarRespawned && MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
+		if (winningConditionBriefingDef == null)
 		{
-			NotificationController.PushNotification(NotificationType.TeamNotification, NotificationsManager.eNotificationPanel.secondary, new Dictionary<object, object> { [(byte)1] = MVGameControllerBase.Game.LocalPlayer.Team.ToString() + " Team" });
-			avatarRespawned = false;
+			Debug.Log("winConType: " + winConType);
+			Debug.LogError("WinningConditionData is null, but a winning condition was expected");
 		}
-		Clear();
-		yield return 0;
-	}
-
-	private IEnumerator ShowBriefingCoroutine(CanvasGroup group)
-	{
-		group.alpha = 0f;
-		yield return StartCoroutine(Wait(initialWaitTime));
-		CanvasGroup group2 = default;
-		yield return StartCoroutine(pTween.To(fadeTime, 0f, 1f, (float t) =>
+		if (winConType != WinningConditionType.None && WinningConditionControl.CurrentWinningCondition != null)
 		{
-			group2.alpha = t;
-		}));
-		yield return StartCoroutine(Wait(stayTime));
-		yield return StartCoroutine(pTween.To(fadeTime, 1f, 0f, (float t) =>
+			winningConditionHeader.text = headerMap[winConType];
+			if (WinningConditionControl.TryGetPrioritizedStat(out var statType))
+			{
+				int num = 0;
+				num = ((MVGameControllerBase.Game.TeamManager.TeamCount() <= 1) ? MVGameControllerBase.Game.GameStatCounterManager.GetActorCount(statType, MVGameControllerBase.Game.LocalPlayer.Team, MVGameControllerBase.Game.LocalPlayer.ActorNr) : MVGameControllerBase.Game.GameStatCounterManager.GetTeamCount(statType, MVGameControllerBase.Game.LocalPlayer.Team));
+				int prioritizedStatLimit = WinningConditionControl.GetPrioritizedStatLimit(statType);
+				if (prioritizedStatLimit == 0 && winConType == WinningConditionType.Flag)
+				{
+					progressableWinningConditionPresent.SetActive(value: false);
+					reachTheFlagPresent.SetActive(value: true);
+				}
+				else
+				{
+					reachTheFlagPresent.SetActive(value: false);
+					progressableWinningConditionPresent.SetActive(value: true);
+				}
+				scoreLimit.text = prioritizedStatLimit.ToString();
+				scoreProgressBar.Progress = (float)num / (float)prioritizedStatLimit;
+				scoreText.text = WinningConditionControl.MakeIntoScoreText(num, statType);
+			}
+			ScoreBoardBase instantiatedScoreboard = scoreBoardController.GetInstantiatedScoreboard(winConType);
+			instantiatedScoreboard.transform.SetParent(scoreBoardController.transform, worldPositionStays: false);
+			instantiatedScoreboard.transform.SetAsFirstSibling();
+			instantiatedScoreboard.Initialize(statType);
+			UnityEngine.Object.Instantiate(winningConditionBriefingDef.winConImagePrefab).transform.SetParent(winningConditionImageBackground.transform, worldPositionStays: false);
+			UnityEngine.Object.Instantiate(winningConditionBriefingDef.scoreIconPrefab).transform.SetParent(scoreGameObject.transform, worldPositionStays: false);
+		}
+		WorldObjectClientRef<MVRoundCube> singletonWorldObjectRef = MVGameControllerBase.WOCM.GetSingletonWorldObjectRef<MVRoundCube>();
+		if (singletonWorldObjectRef != null)
 		{
-			group2.alpha = t;
-		}));
-		yield return 0;
-	}
-
-	private IEnumerator Wait(float wait)
-	{
-		yield return new WaitForSeconds(wait);
-	}
-
-	public void Clear()
-	{
+			roundTimeProgressBar.gameObject.SetActive(value: true);
+			roundTimeProgressBar.Progress = (float)singletonWorldObjectRef.WorldObjectClient.GetTimeLeft() / (float)singletonWorldObjectRef.WorldObjectClient.DurationInMilliseconds;
+			roundTimeText.text = singletonWorldObjectRef.WorldObjectClient.MakeTimeIntoText(singletonWorldObjectRef.WorldObjectClient.GetTimeLeft());
+			UnityEngine.Object.Instantiate(roundTimeIconPrefab).transform.SetParent(roundTimeProgressBar.transform, worldPositionStays: false);
+		}
 		StopAllCoroutines();
-		for (int i = 0; i < instantiatedConditions.Count; i++)
+		StartCoroutine(FixAspectRatioDelay());
+	}
+
+	private void Update()
+	{
+		if (screensize.x != (float)Screen.width || screensize.y != (float)Screen.height)
 		{
-			UnityEngine.Object.Destroy(instantiatedConditions[i].gameObject);
+			screensize = new Vector2(Screen.width, Screen.height);
+			StopAllCoroutines();
+			StartCoroutine(FixAspectRatioDelay());
 		}
-		instantiatedConditions.Clear();
-		winningConditionGroup.alpha = 0f;
+		WorldObjectClientRef<MVRoundCube> singletonWorldObjectRef = MVGameControllerBase.WOCM.GetSingletonWorldObjectRef<MVRoundCube>();
+		if (singletonWorldObjectRef != null)
+		{
+			roundTimeProgressBar.Progress = (float)singletonWorldObjectRef.WorldObjectClient.GetTimeLeft() / (float)singletonWorldObjectRef.WorldObjectClient.DurationInMilliseconds;
+			roundTimeText.text = singletonWorldObjectRef.WorldObjectClient.MakeTimeIntoText(singletonWorldObjectRef.WorldObjectClient.GetTimeLeft());
+		}
+	}
+
+	private IEnumerator FixAspectRatioDelay()
+	{
+		yield return new WaitForEndOfFrame();
+		yield return null;
+		briefingLayoutFitter.FixAspectRatio();
 	}
 }

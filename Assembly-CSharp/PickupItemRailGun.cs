@@ -56,6 +56,8 @@ public class PickupItemRailGun : PickupItemWithDelay
 
 	public override AvatarItemType Type => AvatarItemType.RailGun;
 
+	public override int MaxQuantity => maxAmmo;
+
 	public override int Quantity => currentAmmo;
 
 	public override float ChargeState

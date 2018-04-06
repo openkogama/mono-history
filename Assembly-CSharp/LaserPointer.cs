@@ -67,6 +67,8 @@ public class LaserPointer : PickupItem, ILaserPointer
 
 	public MeshFilter CubeMeshFilter => cubeMeshFilter;
 
+	public override int MaxQuantity => 0;
+
 	public bool LaserActive { get; set; }
 
 	public byte CurrentCubeMaterial

@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class MVFlag : MVLogicObject
 {
+	private const float captureCooldown = 5f;
+
 	private TriggerBoxEvents triggerBoxEvents;
 
 	private bool initializedInWorld;
@@ -15,6 +17,8 @@ public class MVFlag : MVLogicObject
 	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
 	private FlagObject flagObject;
+
+	private float lastCaptureTime;
 
 	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.Flag;
 
@@ -78,7 +82,13 @@ public class MVFlag : MVLogicObject
 
 	private bool DoCaptureFlag(int instigator)
 	{
+		if (Time.time < lastCaptureTime + 5f)
+		{
+			return false;
+		}
+		lastCaptureTime = Time.time;
 		MVGameControllerBase.OperationRequests.ReportCaptureFlag();
+		FlagDebriefingControl.StartFlagDebriefing();
 		return true;
 	}
 

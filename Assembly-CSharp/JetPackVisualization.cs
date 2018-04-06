@@ -123,7 +123,7 @@ public class JetPackVisualization : VehicleVisualizationBase
 		if (Time.time - lastOverHeatNotificationTime > 2f)
 		{
 			lastOverHeatNotificationTime = Time.time;
-			NotificationController.PushNotification(NotificationType.JetPackOverheating, NotificationsManager.eNotificationPanel.primary);
+			NotificationController.PushNotification(NotificationType.JetPackOverheating);
 		}
 	}
 

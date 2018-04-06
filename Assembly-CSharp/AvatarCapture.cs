@@ -10,8 +10,8 @@ public class AvatarCapture : MonoBehaviour
 	[SerializeField]
 	private Vector3 cameraOffset;
 
-	[SerializeField]
 	[Tooltip("Space between players on winningscreen")]
+	[SerializeField]
 	private Vector3 formationSpacing = new Vector3(2f, 0.6f, 1.2f);
 
 	[SerializeField]
@@ -32,28 +32,72 @@ public class AvatarCapture : MonoBehaviour
 	public void CaptureAllPlayersInGame()
 	{
 		InitializeCamera();
-		List<MVPlayer> sortedList = MVGameControllerBase.Game.MVPlayerContainer.Values.ToList();
-		CapturePlayerGroup(sortedList);
+		List<List<MVPlayer>> list = new List<List<MVPlayer>>();
+		List<MVPlayer> item = MVGameControllerBase.Game.MVPlayerContainer.Values.ToList();
+		list.Add(item);
+		CapturePlayerGroup(list);
 	}
 
 	public void CapturePlayersInTeam(List<ScoreTeamEntry> scoreTeamEntries, GameStatCounterType counterType)
 	{
 		InitializeCamera();
-		List<MVPlayer> sortedList = (from o in MVGameControllerBase.Game.TeamManager.GetPlayersInTeam(scoreTeamEntries[0].team)
-			orderby o.GetGameStat(counterType)
-			select o).ToList();
-		CapturePlayerGroup(sortedList);
+		List<List<MVPlayer>> list = new List<List<MVPlayer>>();
+		for (int i = 0; i < scoreTeamEntries.Count; i++)
+		{
+			List<MVPlayer> item = (from o in MVGameControllerBase.Game.TeamManager.GetPlayersInTeam(scoreTeamEntries[i].team)
+				orderby o.GetGameStat(counterType)
+				select o).ToList();
+			list.Add(item);
+		}
+		CapturePlayerGroup(list);
 	}
 
-	private void CapturePlayerGroup(List<MVPlayer> sortedList)
+	private void CapturePlayerGroup(List<List<MVPlayer>> sortedList)
 	{
-		int count = sortedList.Count;
+		for (int i = 0; i < sortedList.Count; i++)
+		{
+			int count = sortedList[i].Count;
+			List<Vector3> positions = new List<Vector3>();
+			CreateTriangleFormation(ref positions, formationSpacing, count);
+			positions.Reverse();
+			int currentWinner = i + 1;
+			int count2 = sortedList.Count;
+			for (int j = 0; j < positions.Count; j++)
+			{
+				List<Vector3> list2;
+				List<Vector3> list = (list2 = positions);
+				int index2;
+				int index = (index2 = j);
+				Vector3 vector = list2[index2];
+				list[index] = vector + CalculateTieOffset(currentWinner, count2);
+			}
+			for (int k = 0; k < count; k++)
+			{
+				Transform transform = sortedList[i][k].Avatar.Body.Transform;
+				Transform transform2 = renderCam.transform;
+				transform2.position = transform.position;
+				transform2.position += transform.right * cameraOffset.x;
+				transform2.position += transform.right * (0f - positions[k].x);
+				transform2.position += transform.forward * (0f - cameraOffset.z);
+				transform2.position += transform.forward * (0f - positions[k].z);
+				transform2.position += transform.up * cameraOffset.y;
+				transform2.position += transform.up * positions[k].y;
+				DrawObject(transform2, transform);
+				renderCam.Render();
+			}
+		}
+	}
+
+	public void CapturePlayer(List<MVPlayer> players)
+	{
+		InitializeCamera();
+		int count = players.Count;
 		List<Vector3> positions = new List<Vector3>();
 		CreateTriangleFormation(ref positions, formationSpacing, count);
 		positions.Reverse();
-		for (int i = 0; i < count; i++)
+		for (int i = 0; i < players.Count; i++)
 		{
-			Transform transform = sortedList[i].Avatar.Body.Transform;
+			Transform transform = players[i].Avatar.Body.Transform;
 			Transform transform2 = renderCam.transform;
 			transform2.position = transform.position;
 			transform2.position += transform.right * cameraOffset.x;
@@ -65,19 +109,6 @@ public class AvatarCapture : MonoBehaviour
 			DrawObject(transform2, transform);
 			renderCam.Render();
 		}
-	}
-
-	public void CapturePlayer(MVPlayer player)
-	{
-		InitializeCamera();
-		Transform transform = player.Avatar.Body.Transform;
-		Transform transform2 = renderCam.transform;
-		transform2.position = transform.position;
-		transform2.position += transform.right * cameraOffset.x;
-		transform2.position += transform.forward * (0f - cameraOffset.z);
-		transform2.position += transform.up * cameraOffset.y;
-		DrawObject(transform2, transform);
-		renderCam.Render();
 	}
 
 	private void InitializeCamera()
@@ -146,6 +177,23 @@ public class AvatarCapture : MonoBehaviour
 			}
 		}
 		return CreateTriangleFormation(ref positions, formationSpacing, positionsRemaining - unitsThisRow, unitsThisRow + 1, targetY - formationSpacing.y, targetZ - formationSpacing.z);
+	}
+
+	private Vector3 CalculateTieOffset(int currentWinner, int amountOfWinners)
+	{
+		Vector3 zero = Vector3.zero;
+		zero.z = -0.5f * (float)amountOfWinners;
+		if (amountOfWinners % 2 != 0 && currentWinner == 1)
+		{
+			return zero;
+		}
+		zero.x = 4f * (1f / (float)Mathf.FloorToInt((float)(amountOfWinners + 2) / 2f)) * ((float)Mathf.FloorToInt(((float)currentWinner - 1f) / 2f) + 1f);
+		zero.x += 1f * ((float)Mathf.FloorToInt(((float)currentWinner - 1f) / 2f) + 1f);
+		if (currentWinner % 2 == 0)
+		{
+			zero.x *= -1f;
+		}
+		return zero;
 	}
 
 	private void OnDestroy()

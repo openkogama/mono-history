@@ -3,6 +3,8 @@ using UnityEngine.UI;
 
 public class CrossHair : MonoBehaviour, IGUICrossHair
 {
+	private const string infinity = "∞";
+
 	[SerializeField]
 	private Image crossHair;
 
@@ -11,6 +13,9 @@ public class CrossHair : MonoBehaviour, IGUICrossHair
 
 	[SerializeField]
 	private Image chargeFill;
+
+	[SerializeField]
+	private ProgressBar ammoProgressBar;
 
 	[SerializeField]
 	private float toggleInterval = 0.1f;
@@ -56,11 +61,16 @@ public class CrossHair : MonoBehaviour, IGUICrossHair
 	public void UpdateCrossHair(PickupItem pickupItem)
 	{
 		int quantity = pickupItem.Quantity;
+		ammoProgressBar.Progress = ((pickupItem.MaxQuantity != 0) ? ((float)quantity / (float)pickupItem.MaxQuantity) : 1f);
 		Color crossHairColor = pickupItem.CrossHairColor;
 		float chargeState = pickupItem.ChargeState;
 		if (quantity == 0 && ammoCount.isActiveAndEnabled)
 		{
-			ammoCount.gameObject.SetActive(value: false);
+			ammoCount.text = "∞";
+		}
+		else
+		{
+			ammoCount.text = quantity.ToString();
 		}
 		if (quantity > 0 && !ammoCount.isActiveAndEnabled)
 		{
@@ -78,7 +88,6 @@ public class CrossHair : MonoBehaviour, IGUICrossHair
 		{
 			chargeFill.gameObject.SetActive(value: true);
 		}
-		ammoCount.text = quantity.ToString();
 		if (crossHair != null)
 		{
 			crossHair.color = crossHairColor;
@@ -105,13 +114,14 @@ public class CrossHair : MonoBehaviour, IGUICrossHair
 		if (hitEffectActive)
 		{
 			timer += Time.deltaTime;
+			if (timer >= fadeCurve.keys[fadeCurve.length - 1].time)
+			{
+				timer = 0f;
+				hitEffectActive = false;
+			}
 			Color color = crossHair.color;
 			color.a = fadeCurve.Evaluate(timer);
 			crossHairHitEnemyIndicator.color = color;
-			if (timer >= fadeCurve.keys[fadeCurve.length - 1].time)
-			{
-				hitEffectActive = false;
-			}
 		}
 	}
 }

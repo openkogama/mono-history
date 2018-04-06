@@ -59,6 +59,8 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	protected override bool IsAmmoDepleted => (int)currentAmmo <= 0;
 
+	public override int MaxQuantity => maxAmmo;
+
 	private void Awake()
 	{
 		currentAmmo = Mathf.Max(maxAmmo, currentAmmo);
@@ -105,7 +107,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 			Dictionary<object, object> dictionary = new Dictionary<object, object>();
 			dictionary.Add((byte)1, TM._("Hold shoot button to remove cubes."));
 			Dictionary<object, object> data = dictionary;
-			NotificationController.PushNotification(NotificationType.PlayerTip, NotificationsManager.eNotificationPanel.secondary, data);
+			NotificationController.PushNotification(NotificationType.PlayerTip, data);
 		}
 	}
 

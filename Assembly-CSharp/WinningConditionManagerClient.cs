@@ -2,11 +2,6 @@ using System;
 
 public class WinningConditionManagerClient : WinningConditionManager
 {
-	public WinningConditionManagerClient(GameStatCounterManager gameCounterManager)
-		: base(gameCounterManager)
-	{
-	}
-
 	protected override T Factory<T>(params object[] args)
 	{
 		Type typeFromHandle = typeof(T);
@@ -28,7 +23,7 @@ public class WinningConditionManagerClient : WinningConditionManager
 		}
 		if (typeFromHandle == typeof(TimeLimitClient))
 		{
-			return (T)(WinningCondition)new TimeLimitClient((WinningCondition)args[0], (int)args[1], (GameStatCounterManager)args[2], (GameStatCounterType)(byte)args[3]);
+			return (T)(WinningCondition)new TimeLimitClient((WinningCondition)args[0], (int)args[1], (GameStatCounterManager)args[2]);
 		}
 		return base.Factory<T>(args);
 	}

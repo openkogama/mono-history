@@ -9,7 +9,7 @@ using UnityEngine.UI;
 public class PlayerListButton : MonoBehaviour
 {
 	[SerializeField]
-	private PlayerLists playerListsPrefab;
+	private PlayerListsLayout playerListsPrefab;
 
 	[SerializeField]
 	private Button button;
@@ -80,12 +80,13 @@ public class PlayerListButton : MonoBehaviour
 			});
 			return;
 		}
-		PlayerLists playerLists = UnityEngine.Object.Instantiate(playerListsPrefab);
-		currPlayerLists = playerLists.gameObject;
-		playerLists.Initialize(playerListsPrefab);
+		PlayerListsLayout playerListsLayout = UnityEngine.Object.Instantiate(playerListsPrefab);
+		currPlayerLists = playerListsLayout.gameObject;
+		WinningConditionControl.TryGetPrioritizedStat(out var statType);
+		playerListsLayout.Initialize(playerListsPrefab, statType);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			x.Push(currPlayerLists.gameObject, UIPushOption.None, null, UIGroupFlags.InventoryUI);
+			x.Push(currPlayerLists.gameObject, UIPushOption.HideAll, null, UIGroupFlags.InventoryUI);
 		});
 	}
 

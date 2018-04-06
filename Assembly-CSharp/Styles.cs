@@ -337,6 +337,15 @@ public class Styles : MonoBehaviour
 		return colorStylesDictionary[teamToColorStyle[team]].color;
 	}
 
+	public static Color GetColor(ColorStyle colorStyle)
+	{
+		if (!HandleUnInitalized())
+		{
+			return Color.magenta;
+		}
+		return colorStylesDictionary[colorStyle].color;
+	}
+
 	public static string ColorToHex(Color32 color)
 	{
 		return color.r.ToString("X2") + color.g.ToString("X2") + color.b.ToString("X2");

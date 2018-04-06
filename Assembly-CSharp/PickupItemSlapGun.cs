@@ -34,6 +34,8 @@ public class PickupItemSlapGun : PickupItemWithDelay
 
 	public override bool CanHolster => false;
 
+	public override int MaxQuantity => 0;
+
 	private void Awake()
 	{
 		layerMask = (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("Player"));

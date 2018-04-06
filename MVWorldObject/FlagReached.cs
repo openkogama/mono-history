@@ -1,5 +1,3 @@
-using System;
-
 public class FlagReached : WinningCondition
 {
 	public override bool IsSingleton => true;
@@ -11,6 +9,5 @@ public class FlagReached : WinningCondition
 
 	protected override void GameCountersQuery_OnCounterTypeChanged(object sender, OnCounterTypeChangedArgs e)
 	{
-		SendWinningConditionChangedEvent(new EventArgs(), e);
 	}
 }

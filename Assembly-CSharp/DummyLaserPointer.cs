@@ -29,6 +29,8 @@ public class DummyLaserPointer : PickupItem, ILaserPointer
 		}
 	}
 
+	public override int MaxQuantity => 0;
+
 	public void ActivateLaserForDuration(float duration)
 	{
 	}

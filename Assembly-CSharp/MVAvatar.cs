@@ -87,8 +87,8 @@ public abstract class MVAvatar : MVGroup, IHealRayAttachementObject
 
 	public abstract Vector3 VelocityAbsolute { get; }
 
-	public MVAvatar(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, PrefabPool.Instance.MVAvatarPrefab, worldObjects)
+	public MVAvatar(Dictionary<object, object> data, GameObject avatarPrefab, Dictionary<int, MVWorldObjectClient> worldObjects)
+		: base(data, avatarPrefab, worldObjects)
 	{
 		isLocal = OwnerActorNr == MVGameControllerBase.Game.LocalPlayer.ActorNr;
 		interactionFlags = InteractionFlags.None;
@@ -150,15 +150,18 @@ public abstract class MVAvatar : MVGroup, IHealRayAttachementObject
 
 	public void SetTeam()
 	{
-		avatar.UpdateNameTag();
 		if (!avatar.IsLocal)
 		{
-			avatar.SetHealthBarColor(MVGameControllerBase.Game.TeamManager.IsOnSameTeam(this, MVGameControllerBase.Game.LocalPlayer.Avatar));
+			((AvatarUIHandlerRemote)avatar.AvatarUIHandler).UpdateNameTag();
+			((AvatarUIHandlerRemote)avatar.AvatarUIHandler).SetHealthBarColor(MVGameControllerBase.Game.TeamManager.IsOnSameTeam(this, MVGameControllerBase.Game.LocalPlayer.Avatar));
 			return;
 		}
 		foreach (MVPlayer value in MVGameControllerBase.Game.MVPlayerContainer.Values)
 		{
-			value.Avatar.avatar.UpdateNameTag();
+			if (!value.Avatar.isLocal)
+			{
+				((AvatarUIHandlerRemote)value.Avatar.avatar.AvatarUIHandler).UpdateNameTag();
+			}
 		}
 	}
 
@@ -189,11 +192,13 @@ public abstract class MVAvatar : MVGroup, IHealRayAttachementObject
 			avatar.Collider.enabled = false;
 			avatar.InteractionDataHandlerBase.enabled = false;
 			OnStateChangeToHidden();
+			avatar.AvatarUIHandler.SetShouldShowUI(shouldShow: false);
 		}
 		else
 		{
 			avatar.Collider.enabled = true;
 			avatar.InteractionDataHandlerBase.enabled = true;
+			avatar.AvatarUIHandler.SetShouldShowUI(shouldShow: true);
 		}
 	}
 
@@ -271,6 +276,6 @@ public abstract class MVAvatar : MVGroup, IHealRayAttachementObject
 
 	protected void OnStateChangeToHidden()
 	{
-		avatar.ChatBubbleAnchor.HideChatBubble();
+		avatar.AvatarUIHandler.ChatBubbleAnchor.HideChatBubble();
 	}
 }

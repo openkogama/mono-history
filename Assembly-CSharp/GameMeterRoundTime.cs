@@ -57,6 +57,7 @@ public class GameMeterRoundTime : GameMeterBase
 		{
 			int num = (int)((float)timeLeft / 1000f) + 1;
 			roundTime.text = $"{num / 60:00}:{num % 60:00}";
+			progress.Progress = roundCube.GetTimeLeft() / roundCube.DurationInMilliseconds;
 		}
 	}
 

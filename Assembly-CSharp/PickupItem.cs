@@ -37,6 +37,8 @@ public abstract class PickupItem : MonoBehaviour
 
 	public virtual int Quantity => 0;
 
+	public abstract int MaxQuantity { get; }
+
 	public virtual Color CrossHairColor => Color.green;
 
 	public virtual float ChargeState => 0f;
