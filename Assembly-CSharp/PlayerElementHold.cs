@@ -19,7 +19,7 @@ public class PlayerElementHold : MonoBehaviour
 	[SerializeField]
 	private Color localPlayerNameColor;
 
-	public void Initialize(MVPlayer player, GameStatCounterType typeToDisplay, int scoreValue)
+	public void Initialize(MVPlayer player)
 	{
 		Friend friendByProfileID = MVGameControllerBase.Game.Friends.GetFriendByProfileID(player.ProfileID);
 		if (friendByProfileID != null && friendByProfileID.status == FriendStatus.Accepted)
@@ -31,7 +31,7 @@ public class PlayerElementHold : MonoBehaviour
 			playerName.color = localPlayerNameColor;
 		}
 		playerName.text = player.Username;
-		score.text = WinningConditionControl.MakeIntoScoreText(scoreValue, typeToDisplay);
+		score.text = player.GetGameStat(GameStatCounterType.Kill).ToString();
 		state.Initialize(player, friendByProfileID);
 	}
 }

@@ -12,8 +12,8 @@ public class PickupItemFlamethrower : PickupItem
 	[SerializeField]
 	private float hitRadius = 1.2f;
 
-	[SerializeField]
 	[Tooltip("How many seconds a fueltank lasts.")]
+	[SerializeField]
 	private ObscuredFloat maxFuelTime = 100f;
 
 	[SerializeField]
@@ -30,8 +30,6 @@ public class PickupItemFlamethrower : PickupItem
 	private bool isFlaming;
 
 	private ObscuredFloat currentFuel = 0f;
-
-	public override int MaxQuantity => 100;
 
 	public override AvatarItemType Type => AvatarItemType.Flamethrower;
 

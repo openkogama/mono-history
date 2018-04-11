@@ -39,8 +39,6 @@ public class PickupItemShotgun : PickupItemWithDelay
 
 	public override int Quantity => currentAmmo;
 
-	public override int MaxQuantity => maxAmmo;
-
 	protected override bool IsAmmoDepleted => (int)currentAmmo <= 0;
 
 	private void Awake()

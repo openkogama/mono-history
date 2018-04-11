@@ -2404,7 +2404,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public Action<int, Dictionary<object, object>> PurchaseProductResponseHandler;
 
-	public Action<IWinningCondition> OnWinningConditionFulfilled;
+	public Action<IWinningCondition> OnWinningCondition;
 
 	public Action<int> OnActiveAvatar;
 
@@ -2565,7 +2565,7 @@ public class MVNetworkGame : IPhotonPeerListener
 	public MVNetworkGame()
 	{
 		MVGameControllerBase.JoinState = MVJoinState.Joining;
-		peer = new PhotonPeer(this, ConnectionProtocol.Udp);
+		peer = new PhotonPeer(this, MVGameControllerBase.GameSessionData.ConnectionProtocol);
 		peer.DisconnectTimeout = 20000;
 		peer.SentCountAllowance = 8;
 		peer.DebugOut = DebugLevel.WARNING;
@@ -2988,8 +2988,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		GameStateController = new MVGameModeChangeNotifier();
 		teamManager.OnTeamAdded += gameStatCounterManager.OnTeamAdded;
 		teamManager.OnTeamRemoved += gameStatCounterManager.OnTeamRemoved;
-		winningConditionManager = new WinningConditionManagerClient();
-		winningConditionManager.Initialize(gameStatCounterManager);
+		winningConditionManager = new WinningConditionManagerClient(gameStatCounterManager);
 	}
 
 	private void OnRequestMaterialsResponse(Dictionary<object, object> materialList)
@@ -3495,11 +3494,11 @@ public class MVNetworkGame : IPhotonPeerListener
 		}
 		else
 		{
-			Debug.Log("Round was reset without winning condition victory, this is probably due to new winning condition object being added or removed");
+			Debug.LogError("Did not find winner condition");
 		}
-		if (OnWinningConditionFulfilled != null)
+		if (OnWinningCondition != null)
 		{
-			OnWinningConditionFulfilled(obj);
+			OnWinningCondition(obj);
 		}
 	}
 
@@ -3856,7 +3855,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		}
 		else if (worldObjectClient is MVAvatarRemote)
 		{
-			((AvatarUIHandlerRemote)((MVAvatarRemote)worldObjectClient).Avatar.AvatarUIHandler).SayChatBubbleHandler.SetSayBubbleVisibility(visible);
+			((MVAvatarRemote)worldObjectClient).Avatar.SayChatBubbleHandler.SetSayBubbleVisibility(visible);
 		}
 		else
 		{

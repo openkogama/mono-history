@@ -37,12 +37,9 @@ public class PlayerLists : MonoBehaviour
 	[SerializeField]
 	private Vector2 cellSize4Teams;
 
-	private GameStatCounterType typeToDisplay;
-
-	public void Initialize(PlayerLists playerListsPrefab, GameStatCounterType typeToDisplay)
+	public void Initialize(PlayerLists playerListsPrefab)
 	{
 		this.playerListsPrefab = playerListsPrefab;
-		this.typeToDisplay = typeToDisplay;
 	}
 
 	private void Start()
@@ -71,7 +68,7 @@ public class PlayerLists : MonoBehaviour
 			x.Pop();
 		});
 		PlayerLists newPlayerLists = UnityEngine.Object.Instantiate(playerListsPrefab);
-		newPlayerLists.Initialize(playerListsPrefab, typeToDisplay);
+		newPlayerLists.Initialize(playerListsPrefab);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.PopGroups(UIGroupFlags.InventoryUI | UIGroupFlags.InventoryUISubMenu);
@@ -111,9 +108,8 @@ public class PlayerLists : MonoBehaviour
 		{
 			foreach (MVTeam team in teams)
 			{
-				dictionary.Add(team, CreatePlayerList(team, MVGameControllerBase.Game.TeamManager.GetScore(team, typeToDisplay)));
+				dictionary.Add(team, CreatePlayerList(team, MVGameControllerBase.Game.TeamManager.GetScore(team, GameStatCounterType.Kill)));
 			}
-			SortPlayerListsAfterScore(dictionary, teams, typeToDisplay);
 		}
 		if (count <= 0)
 		{
@@ -143,39 +139,8 @@ public class PlayerLists : MonoBehaviour
 		PlayerList playerList = UnityEngine.Object.Instantiate(playerListPrefab);
 		playerList.transform.SetParent(gridGroup.transform, worldPositionStays: false);
 		playerList.gameObject.SetActive(value: true);
-		playerList.Initialize(team, score, typeToDisplay);
+		playerList.Initialize(team, score);
 		return playerList;
-	}
-
-	private void SortPlayerListsAfterScore(Dictionary<MVTeam, PlayerList> playerLists, List<MVTeam> teams, GameStatCounterType typeToDisplay)
-	{
-		List<PlayerList> list = new List<PlayerList>();
-		foreach (MVTeam team in teams)
-		{
-			bool flag = false;
-			for (int i = 0; i < list.Count; i++)
-			{
-				if (!flag)
-				{
-					int score = MVGameControllerBase.Game.TeamManager.GetScore(team, typeToDisplay);
-					int score2 = MVGameControllerBase.Game.TeamManager.GetScore(list[i].Team, typeToDisplay);
-					if (WinningConditionControl.IsNewScoreBetter(score, score2, typeToDisplay))
-					{
-						list.Insert(i, playerLists[team]);
-						flag = true;
-					}
-				}
-				else
-				{
-					list[i].transform.SetAsLastSibling();
-				}
-			}
-			if (!flag)
-			{
-				list.Add(playerLists[team]);
-				playerLists[team].transform.SetAsLastSibling();
-			}
-		}
 	}
 
 	private Dictionary<MVTeam, List<MVPlayer>> GetSortedTeamLists(IEnumerable<MVPlayer> players, List<MVTeam> teams)

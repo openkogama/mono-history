@@ -1,25 +1,13 @@
-using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
 
 public class PlayerList : MonoBehaviour
 {
-	private struct PlayerElementData
-	{
-		public int score;
-
-		public PlayerElement playerElement;
-	}
-
 	private int score;
 
 	private int playerCount;
 
 	private MVTeam team;
-
-	private GameStatCounterType typeToDisplay;
-
-	private List<PlayerElementData> playerElementList;
 
 	[SerializeField]
 	private RectTransform contentPanel;
@@ -36,13 +24,11 @@ public class PlayerList : MonoBehaviour
 
 	public int Score => score;
 
-	public void Initialize(MVTeam team, int score, GameStatCounterType typeToDisplay)
+	public void Initialize(MVTeam team, int score)
 	{
 		this.score = score;
 		this.team = team;
-		this.typeToDisplay = typeToDisplay;
-		teamTab.Initialize(team, typeToDisplay);
-		playerElementList = new List<PlayerElementData>();
+		teamTab.Initialize(team);
 	}
 
 	public void Add(MVPlayer player)
@@ -50,47 +36,7 @@ public class PlayerList : MonoBehaviour
 		PlayerElement playerElement = Object.Instantiate(playerElementPrefab);
 		playerElement.transform.SetParent(contentPanel, worldPositionStays: false);
 		playerElement.gameObject.SetActive(value: true);
-		int gameStat = player.GetGameStat(typeToDisplay);
-		playerElement.Initialize(player, typeToDisplay, gameStat);
+		playerElement.Initialize(player);
 		playerCount++;
-		PlayerElementData playerElementData = CreatePlayerElementHoldData(gameStat, playerElement);
-		SortAfterScore(playerElementData);
-	}
-
-	private PlayerElementData CreatePlayerElementHoldData(int score, PlayerElement playerElement)
-	{
-		return new PlayerElementData
-		{
-			score = score,
-			playerElement = playerElement
-		};
-	}
-
-	private void SortAfterScore(PlayerElementData playerElementData)
-	{
-		bool flag = false;
-		for (int i = 0; i < playerElementList.Count; i++)
-		{
-			if (!flag)
-			{
-				if (WinningConditionControl.IsNewScoreBetter(playerElementData.score, playerElementList[i].score, typeToDisplay))
-				{
-					playerElementList.Insert(i, playerElementData);
-					flag = true;
-				}
-			}
-			else
-			{
-				playerElementList[i].playerElement.transform.SetAsLastSibling();
-			}
-		}
-		if (!flag)
-		{
-			playerElementList.Add(playerElementData);
-		}
-		for (int j = 0; j < playerElementList.Count; j++)
-		{
-			playerElementList[j].playerElement.UpdateScoreIndex();
-		}
 	}
 }

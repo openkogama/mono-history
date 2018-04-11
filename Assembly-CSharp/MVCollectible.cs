@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using MV.WorldObject;
 using UnityEngine;
 
 public class MVCollectible : MVLogicObject
@@ -25,10 +24,6 @@ public class MVCollectible : MVLogicObject
 	private float reshowingStateDuration = 0.5f;
 
 	private float pickedUpTime;
-
-	private MVRuntimeDataVariable takenByListRunTimeVariable;
-
-	private List<MVTeam> takenByTeamList;
 
 	private bool initializedInWorld;
 
@@ -77,28 +72,6 @@ public class MVCollectible : MVLogicObject
 		allCollectiblesCollectedClient.SetLimit(allCollectiblesCollectedClient.Limit + 1);
 		initializedInWorld = true;
 		SetupCulling(collectibleObject.PickupMesh);
-		takenByListRunTimeVariable = RuntimeDataVariables.New("takenByList", 1f, writeThrough: false);
-		takenByTeamList = new List<MVTeam>();
-		Dictionary<object, object> dictionary = (Dictionary<object, object>)takenByListRunTimeVariable.Value;
-		if (dictionary.ContainsKey(MVTeam.Blue.ToString()))
-		{
-			takenByTeamList.Add(MVTeam.Blue);
-		}
-		if (dictionary.ContainsKey(MVTeam.Red.ToString()))
-		{
-			takenByTeamList.Add(MVTeam.Red);
-		}
-		if (dictionary.ContainsKey(MVTeam.Green.ToString()))
-		{
-			takenByTeamList.Add(MVTeam.Green);
-		}
-		if (dictionary.ContainsKey(MVTeam.Yellow.ToString()))
-		{
-			takenByTeamList.Add(MVTeam.Yellow);
-		}
-		OnTakenByListChange();
-		MVNetworkGame game = MVGameControllerBase.Game;
-		game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Combine(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnWinningConditionFulfilled));
 	}
 
 	public override void Destroy()
@@ -119,11 +92,6 @@ public class MVCollectible : MVLogicObject
 			if (singletonWinnerConditionByType.Limit == 0)
 			{
 				MVGameControllerBase.Game.WinningConditionManager.RemoveWinnerCondition(singletonWinnerConditionByType.ID);
-			}
-			if (MVGameControllerBase.Game != null)
-			{
-				MVNetworkGame game = MVGameControllerBase.Game;
-				game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Remove(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnWinningConditionFulfilled));
 			}
 		}
 	}
@@ -148,28 +116,13 @@ public class MVCollectible : MVLogicObject
 		int num = MVGameControllerBase.WOCM.GetWorldObjectClient(e.instigatorWOID).OwnerActorNr;
 		bool flag = MVGameControllerBase.Game.LocalPlayer.ActorNr == num;
 		bool flag2 = num <= 0;
-		if (takenByTeamList == null)
-		{
-			return;
-		}
-		MVPlayer playerUnsafe = MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(num);
-		if (playerUnsafe == null)
-		{
-			return;
-		}
-		MVTeam team = playerUnsafe.Team;
-		if ((flag && isVisible) || (!flag && !flag2 && !takenByTeamList.Contains(team)))
+		if ((flag && isVisible) || (!flag && !flag2))
 		{
 			if ((bool)collectibleObject.AudioSource)
 			{
 				collectibleObject.AudioSource.Play();
 			}
 			collectibleObject.Particles.Play();
-			if (MVGameControllerBase.Game.TeamManager.GetTeamList().Count > 1 && flag)
-			{
-				takenByTeamList.Add(team);
-				OnTakenByListChange();
-			}
 		}
 	}
 
@@ -182,38 +135,20 @@ public class MVCollectible : MVLogicObject
 			state = CollectibleClientState.PickedUp;
 			collectibleObject.CollectibleEffects.SetState(state);
 			pickedUpTime = Time.realtimeSinceStartup;
-			return;
-		}
-		MVPlayer playerUnsafe = MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(actorNr);
-		if (playerUnsafe != null)
-		{
-			MVTeam team = playerUnsafe.Team;
-			if (!takenByTeamList.Contains(team) && MVGameControllerBase.Game.TeamManager.GetTeamList().Count > 1)
-			{
-				takenByTeamList.Add(team);
-				OnTakenByListChange();
-			}
 		}
 	}
 
 	public override void Reset()
 	{
 		SetVisible();
-		MVTeam team = MVGameControllerBase.Game.LocalPlayer.Team;
-		if (MVGameControllerBase.Game.TeamManager.GetTeamList().Count > 1 && takenByTeamList.Contains(team) && isVisible)
-		{
-			isVisible = false;
-			collectibleObject.PickupItem.GreyOut();
-		}
-	}
-
-	private void OnWinningConditionFulfilled(IWinningCondition winningCondition)
-	{
-		takenByTeamList.Clear();
 	}
 
 	protected override void OnUpdate()
 	{
+		if (state == CollectibleClientState.Visible || state == CollectibleClientState.Invisible)
+		{
+			return;
+		}
 		if (state == CollectibleClientState.PickedUp)
 		{
 			if (Time.realtimeSinceStartup - pickedUpTime > pickedUpStateDuration)
@@ -235,7 +170,7 @@ public class MVCollectible : MVLogicObject
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		if (collectibleObject.WorldObjectEnableController.EnableState == EnableState.Enable && state == CollectibleClientState.Visible)
+		if (collectibleObject.WorldObjectEnableController.EnableState == EnableState.Enable && isVisible && state != CollectibleClientState.PickingUp && state != CollectibleClientState.PickedUp)
 		{
 			state = CollectibleClientState.PickingUp;
 			MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, e.instigatorWOID);
@@ -247,14 +182,5 @@ public class MVCollectible : MVLogicObject
 		Vector3 one = Vector3.one;
 		one *= 2f;
 		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, one);
-	}
-
-	private void OnTakenByListChange()
-	{
-		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1 && takenByTeamList.Contains(MVGameControllerBase.Game.LocalPlayer.Team))
-		{
-			isVisible = false;
-			collectibleObject.PickupItem.GreyOut();
-		}
 	}
 }

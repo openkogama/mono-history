@@ -32,8 +32,6 @@ public class PickupItemCollectTheItem : PickupItem
 
 	public override bool ActivateGunModeOnEquip => false;
 
-	public override int MaxQuantity => 0;
-
 	public override void UpdateWithDirection(Vector3 dir)
 	{
 	}

@@ -16,6 +16,9 @@ public class DesktopLobbyStateController : MonoBehaviour
 	private GameObject respawnButton;
 
 	[SerializeField]
+	private GameObject gameCoinBoosterButton;
+
+	[SerializeField]
 	private GameObject avatarAccessoriesButton;
 
 	[SerializeField]
@@ -46,6 +49,7 @@ public class DesktopLobbyStateController : MonoBehaviour
 		bool active = MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion && !MVGameControllerBase.GameSessionData.IsPlayedFromPoki;
 		touristRegisterButton.SetActive(active);
 		rewardTransform.gameObject.SetActive(flag && MVClientSettings.SpinEnabled);
+		gameCoinBoosterButton.SetActive(!isTouristSession);
 		avatarAccessoriesButton.SetActive(!isTouristSession);
 		touristRewardPreview.SetActive(isTouristSession && MVClientSettings.SpinEnabled);
 		if (!flag)

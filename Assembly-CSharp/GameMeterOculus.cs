@@ -30,14 +30,17 @@ public class GameMeterOculus : GameMeterKillBase
 	public override void SetGameMeterVisibility()
 	{
 		oculusClient = MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<OculusKillLimitClient>();
-		WinningConditionControl.TryGetPrioritizedWinCondition(out var condition);
-		if (condition != WinningConditionType.Oculus)
+		if (oculusClient != null)
 		{
-			Hide();
+			if (!gameObject.activeSelf)
+			{
+				Show();
+			}
+			UpdateValue();
 		}
 		else
 		{
-			Show();
+			Hide();
 		}
 	}
 
@@ -49,7 +52,6 @@ public class GameMeterOculus : GameMeterKillBase
 		}
 		SetCount(GameStatCounterType.OculusKill, oculusClient.Limit);
 		int gameStat = MVGameControllerBase.Game.LocalPlayer.GetGameStat(GameStatCounterType.OculusKill);
-		progress.Progress = gameStat / oculusClient.Limit;
 		if (prevValue != gameStat && gameStat != 0)
 		{
 			prevValue = gameStat;

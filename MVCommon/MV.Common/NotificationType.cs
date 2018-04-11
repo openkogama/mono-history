@@ -21,10 +21,5 @@ public enum NotificationType
 	JetPackOverheating,
 	OpenInventory,
 	FirstTimeXPRewarded,
-	RegisterToChat,
-	WinningWarning,
-	KillPrimary,
-	BestFlagTime,
-	HurryUp,
-	FlagHighScore
+	RegisterToChat
 }

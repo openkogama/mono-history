@@ -7,9 +7,6 @@ public abstract class GameMeterBase : MonoBehaviour
 	[SerializeField]
 	protected List<GameMeterVisualEffect> gameMeterVisualEffects = new List<GameMeterVisualEffect>();
 
-	[SerializeField]
-	protected ProgressBar progress;
-
 	protected float inActiveAlpha;
 
 	protected bool meterActive = true;

@@ -173,6 +173,7 @@ public class GUILoginHandler : MonoBehaviour
 		serverIp.text = iPFromDevServerTarget;
 		PlayerPrefs.SetInt("serverIndex", index);
 		gameSessionData["serverIP"] = iPFromDevServerTarget;
+		Debug.Log("ServerIP " + iPFromDevServerTarget);
 	}
 
 	public void UIDropdownChanged(int index)

@@ -58,8 +58,6 @@ public class PickupItemModelGun : PickupItemWithDelay
 
 	protected override bool IsAmmoDepleted => currentAmmo <= 0;
 
-	public override int MaxQuantity => ammo;
-
 	private void Update()
 	{
 		if (ShowCursors())

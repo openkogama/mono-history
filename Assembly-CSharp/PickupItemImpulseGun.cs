@@ -54,8 +54,6 @@ public class PickupItemImpulseGun : PickupItem
 
 	public override int Quantity => 0;
 
-	public override int MaxQuantity => 0;
-
 	public override float ChargeState
 	{
 		get

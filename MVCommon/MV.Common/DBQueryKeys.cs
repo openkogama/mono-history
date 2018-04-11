@@ -148,5 +148,6 @@ public enum DBQueryKeys
 	PurchaseTypeName,
 	MetaData,
 	Url,
-	Boolean
+	Boolean,
+	Data
 }

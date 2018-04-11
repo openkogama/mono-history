@@ -13,26 +13,6 @@ public class DeathUIController : MonoBehaviour
 
 	private void Awake()
 	{
-		if (MVGameControllerBase.WOCM.AvatarLocal == null)
-		{
-			MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
-			mVPlayerContainer.OnLocalPlayerReady = (Action)Delegate.Combine(mVPlayerContainer.OnLocalPlayerReady, new Action(LateInitialize));
-		}
-		else
-		{
-			Initialize();
-		}
-	}
-
-	private void LateInitialize()
-	{
-		Initialize();
-		MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
-		mVPlayerContainer.OnLocalPlayerReady = (Action)Delegate.Remove(mVPlayerContainer.OnLocalPlayerReady, new Action(Initialize));
-	}
-
-	private void Initialize()
-	{
 		MVAvatarLocal avatarLocal = MVGameControllerBase.WOCM.AvatarLocal;
 		avatarLocal.OnKilled = (Action<string>)Delegate.Combine(avatarLocal.OnKilled, new Action<string>(OnLocalAvatarKilled));
 		MVRuntimeDataVariable avatarModeTypeFlags = MVGameControllerBase.WOCM.AvatarLocal.avatarModeTypeFlags;

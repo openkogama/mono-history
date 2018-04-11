@@ -19,8 +19,6 @@ public class PickupItemHand : PickupItemWithDelay
 
 	public override int Quantity => 0;
 
-	public override int MaxQuantity => 0;
-
 	public override bool CanFire()
 	{
 		return false;

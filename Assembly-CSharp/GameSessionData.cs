@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ExitGames.Client.Photon;
 using MV.Common;
 
 public class GameSessionData
@@ -77,6 +78,8 @@ public class GameSessionData
 			return LoadLogoType.None;
 		}
 	}
+
+	public ConnectionProtocol ConnectionProtocol => ConnectionProtocol.Udp;
 
 	public GameSessionData()
 	{

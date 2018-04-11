@@ -62,8 +62,8 @@ public class PickUpItemHealRay : PickupItem
 
 	private Vector3 hitOffset;
 
-	[Tooltip("How many seconds the healrays ammo lasts.")]
 	[SerializeField]
+	[Tooltip("How many seconds the healrays ammo lasts.")]
 	private ObscuredFloat maxAmmoTime = 100f;
 
 	private LayerMask layers = -5 & ~(1 << LayerUtil.GetLayerNumber(LayerFlags.Logic));
@@ -88,8 +88,6 @@ public class PickUpItemHealRay : PickupItem
 	public override AvatarItemType Type => AvatarItemType.HealRay;
 
 	public override int Quantity => Mathf.RoundToInt((float)currentAmmoLeft / (float)maxAmmoTime * 100f);
-
-	public override int MaxQuantity => 100;
 
 	private void Awake()
 	{

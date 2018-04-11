@@ -34,6 +34,7 @@ public class EditorWorldObjectCreation : MonoBehaviour, ICloneHandler, IAddItemF
 		if (!ValidateAddItemFromInventory(koGaMaPackageFromItem))
 		{
 			koGaMaPackageFromItem.Destroy();
+			NotificationController.PushNotification(TM._("There can be only one of this object."));
 			return;
 		}
 		while (!esm.ParentGroupIsRoot && esm.ParentGroup.HasInteractionFlag(InteractionFlags.CantAddChildren))
@@ -109,90 +110,11 @@ public class EditorWorldObjectCreation : MonoBehaviour, ICloneHandler, IAddItemF
 				if (worldObjectsByType.Count > 0)
 				{
 					MVGameControllerBase.CameraController.CurCamera.FocusOnObject(worldObjectsByType[0]);
-					NotificationController.PushNotification(TM._("There can be only one of this object."));
 					return false;
 				}
 			}
-			if (!IsItemAnAllowedWinningCondition(value))
-			{
-				NotificationController.PushNotification(TM._("You can only place one winning condition per game."));
-				List<MVWorldObjectClient> placedWinningConditions = GetPlacedWinningConditions();
-				if (placedWinningConditions != null)
-				{
-					MVGameControllerBase.CameraController.CurCamera.FocusOnObject(placedWinningConditions[0]);
-				}
-				return false;
-			}
 		}
 		return true;
-	}
-
-	private bool IsItemAnAllowedWinningCondition(MVWorldObjectClient worldObject)
-	{
-		switch (worldObject.WorldObjectType)
-		{
-		case WorldObjectType.Flag:
-			if (IsWinningConditionPlaceable<FlagReachedClient>())
-			{
-				return true;
-			}
-			break;
-		case WorldObjectType.CollectibleItem:
-			if (IsWinningConditionPlaceable<AllCollectiblesCollectedClient>())
-			{
-				return true;
-			}
-			break;
-		case WorldObjectType.KillLimit:
-			if (IsWinningConditionPlaceable<KillLimitClient>())
-			{
-				return true;
-			}
-			break;
-		case WorldObjectType.OculusKillLimit:
-			if (IsWinningConditionPlaceable<OculusKillLimitClient>())
-			{
-				return true;
-			}
-			break;
-		default:
-			return true;
-		}
-		return false;
-	}
-
-	private bool IsWinningConditionPlaceable<T>() where T : WinningCondition
-	{
-		if (MVGameControllerBase.Game.WinningConditionManager.CanPlaceWinningCondition<T>())
-		{
-			return true;
-		}
-		return false;
-	}
-
-	private List<MVWorldObjectClient> GetPlacedWinningConditions()
-	{
-		List<MVWorldObjectClient> worldObjectsByType = MVGameControllerBase.WOCM.GetWorldObjectsByType(WorldObjectType.OculusKillLimit);
-		if (worldObjectsByType.Count > 0)
-		{
-			return worldObjectsByType;
-		}
-		List<MVWorldObjectClient> worldObjectsByType2 = MVGameControllerBase.WOCM.GetWorldObjectsByType(WorldObjectType.KillLimit);
-		if (worldObjectsByType2.Count > 0)
-		{
-			return worldObjectsByType2;
-		}
-		List<MVWorldObjectClient> worldObjectsByType3 = MVGameControllerBase.WOCM.GetWorldObjectsByType(WorldObjectType.CollectibleItem);
-		if (worldObjectsByType3.Count > 0)
-		{
-			return worldObjectsByType3;
-		}
-		List<MVWorldObjectClient> worldObjectsByType4 = MVGameControllerBase.WOCM.GetWorldObjectsByType(WorldObjectType.Flag);
-		if (worldObjectsByType4.Count > 0)
-		{
-			return worldObjectsByType4;
-		}
-		return null;
 	}
 
 	private Quaternion HandlePlatformerRotationSpecialCases(int itemCategory, WorldObjectType worldObjectType)

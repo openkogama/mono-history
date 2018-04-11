@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+namespace LivelyChatBubbles;
+
 [ExecuteInEditMode]
 [RequireComponent(typeof(RectTransform))]
 public class ChatBubble : MonoBehaviour

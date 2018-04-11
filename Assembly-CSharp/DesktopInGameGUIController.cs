@@ -25,9 +25,6 @@ public class DesktopInGameGUIController : MonoBehaviour
 	[SerializeField]
 	private Image logo;
 
-	[SerializeField]
-	private FlagDebriefing FlagDebriefing;
-
 	private Dictionary<LoadLogoType, string> logoToPathMap = new Dictionary<LoadLogoType, string> { 
 	{
 		LoadLogoType.Poki,
@@ -55,11 +52,6 @@ public class DesktopInGameGUIController : MonoBehaviour
 				string path = Urls.StreamingAssets + logoToPathMap[loadLogoType];
 				AsyncWWWManager.WWWRequest(new CachedGetRequest(path, StreamingAssetCallback, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 			}
-		}
-		WinningConditionControl.TryGetPrioritizedWinCondition(out var condition);
-		if (condition == WinningConditionType.Flag)
-		{
-			FlagDebriefing = Object.Instantiate(FlagDebriefing);
 		}
 	}
 

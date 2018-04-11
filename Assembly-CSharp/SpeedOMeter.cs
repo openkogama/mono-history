@@ -58,7 +58,7 @@ public class SpeedOMeter : MonoBehaviour
 			}
 			Fade();
 		}
-		speedText.text = ((int)curSpeed).ToString();
+		speedText.text = $"{(int)curSpeed} km/h";
 	}
 
 	private void Fade()

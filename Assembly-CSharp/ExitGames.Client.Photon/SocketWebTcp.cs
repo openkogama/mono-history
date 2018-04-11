@@ -26,7 +26,7 @@ internal class SocketWebTcp : IPhotonSocket
 		{
 			Listener.DebugReturn(DebugLevel.INFO, "new SocketWebTcp() " + ServerAddress);
 		}
-		Protocol = ConnectionProtocol.Tcp;
+		Protocol = MVGameControllerBase.GameSessionData.ConnectionProtocol;
 		PollReceive = false;
 	}
 

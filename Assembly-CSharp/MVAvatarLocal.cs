@@ -1112,7 +1112,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 	public event EventHandler Respawned;
 
 	public MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, PrefabPool.Instance.MVLocalAvatarPrefab, worldObjects)
+		: base(data, worldObjects)
 	{
 		SetNetworkObject(local: true);
 	}
@@ -1163,6 +1163,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 		avatarLocalModes = new AvatarLocalModes(this);
 		InitializeHealth();
 		InitializeShield();
+		avatar.DeactivateBars();
 		MVGameControllerBase.WOCM.AvatarLocal = this;
 		InitializeAvatarState(MVGameControllerBase.GameMode, MVGameControllerBase.Game.GameType);
 		if (MVGameControllerBase.GameMode != MVGameMode.CharacterEditor)
@@ -1457,7 +1458,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 		}
 	}
 
-	public void ResetAvatar()
+	private void ResetAvatar()
 	{
 		triggerHandler.enabled = true;
 		int actorNr = MVGameControllerBase.Game.LocalPlayer.ActorNr;

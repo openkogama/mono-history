@@ -49,9 +49,6 @@ public class AndroidChatController : MonoBehaviour
 	private RectTransform minimizeChat;
 
 	[SerializeField]
-	private RectTransform scrollbar;
-
-	[SerializeField]
 	private SendMessageControl messageController;
 
 	[SerializeField]
@@ -127,22 +124,19 @@ public class AndroidChatController : MonoBehaviour
 			inputAreaRoot.gameObject.SetActive(!MVGameControllerBase.IsTouristSession);
 			minimizeChat.gameObject.SetActive(value: false);
 			expandChat.gameObject.SetActive(value: false);
-			scrollbar.gameObject.SetActive(value: true);
 			break;
 		case ChatConsoleMode.ChatPlayMode:
 			enterChatButton.SetScrollingEnabled(scrollEnabled: true);
 			if (promptRegisterForChat && MVGameControllerBase.IsTouristSession)
 			{
 				promptRegisterForChat = false;
-				NotificationController.PushNotification(NotificationType.RegisterToChat);
+				NotificationController.PushNotification(NotificationType.RegisterToChat, NotificationsManager.eNotificationPanel.tertiary);
 			}
-			scrollbar.gameObject.SetActive(value: true);
 			inputAreaRoot.gameObject.SetActive(!MVGameControllerBase.IsTouristSession);
 			minimizeChat.gameObject.SetActive(value: true);
 			expandChat.gameObject.SetActive(value: false);
 			break;
 		case ChatConsoleMode.PlayMode:
-			scrollbar.gameObject.SetActive(value: false);
 			enterChatButton.SetScrollingEnabled(scrollEnabled: false);
 			inputAreaRoot.gameObject.SetActive(value: false);
 			minimizeChat.gameObject.SetActive(value: false);
@@ -279,7 +273,7 @@ public class AndroidChatController : MonoBehaviour
 			{
 				AddLine(FormatSayChatMessage(data));
 				string text = (string)data[(byte)5];
-				ChatBubbleManager.ShowChatBubble(text, avatar.Id, avatar.Avatar.AvatarUIHandler.ChatBubbleAnchor);
+				ChatBubbleManager.ShowChatBubble(text, avatar.Id, avatar.Avatar.ChatBubbleAnchor);
 			}
 		}
 	}

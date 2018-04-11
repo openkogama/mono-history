@@ -48,8 +48,6 @@ public class PickupItemMultiThrowingStar : PickupItemWithDelay
 
 	protected override bool IsAmmoDepleted => (int)currentAmmo <= 0;
 
-	public override int MaxQuantity => maxAmmo;
-
 	private void Awake()
 	{
 		currentAmmo = maxAmmo;

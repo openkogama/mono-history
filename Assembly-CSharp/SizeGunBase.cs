@@ -30,8 +30,6 @@ public class SizeGunBase : PickupItemWithDelay
 
 	protected override bool IsAmmoDepleted => (int)currentAmmo <= 0;
 
-	public override int MaxQuantity => maxAmmo;
-
 	private void Awake()
 	{
 		layerMask = (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("Player"));

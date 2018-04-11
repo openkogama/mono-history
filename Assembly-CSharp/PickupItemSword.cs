@@ -37,8 +37,6 @@ public class PickupItemSword : PickupItemWithDelay
 
 	public override int Quantity => 0;
 
-	public override int MaxQuantity => 0;
-
 	private void Awake()
 	{
 		hitLayerMask = (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("Player"));

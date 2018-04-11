@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,37 +14,22 @@ public class TeamTab : MonoBehaviour
 	private Image teamImage;
 
 	[SerializeField]
-	private List<Image> darkTeamColoredImages;
+	private Image background;
 
-	[SerializeField]
-	private List<Image> teamColoredImages;
-
-	[SerializeField]
-	private Image scoreIcon;
-
-	public void Initialize(MVTeam team, GameStatCounterType statToDisplay)
+	public void Initialize(MVTeam team)
 	{
 		if (team == MVTeam.None)
 		{
 			MVTeam team2 = MVGameControllerBase.Game.TeamManager.GetTeamList()[0];
 			playerCount.text = MVGameControllerBase.Game.TeamManager.GetPlayersInTeam(team2).Count.ToString();
-			score.text = WinningConditionControl.MakeIntoScoreText(MVGameControllerBase.Game.TeamManager.GetScore(team2, statToDisplay), statToDisplay);
+			score.text = MVGameControllerBase.Game.TeamManager.GetScore(team2, GameStatCounterType.Kill).ToString();
 		}
 		else
 		{
 			playerCount.text = MVGameControllerBase.Game.TeamManager.GetPlayersInTeam(team).Count.ToString();
-			score.text = WinningConditionControl.MakeIntoScoreText(MVGameControllerBase.Game.TeamManager.GetScore(team, statToDisplay), statToDisplay);
+			score.text = MVGameControllerBase.Game.TeamManager.GetScore(team, GameStatCounterType.Kill).ToString();
 		}
-		Color teamColor = Styles.GetTeamColor(team);
-		Color color = teamColor - new Color(0.1f, 0.1f, 0.1f, 0f);
-		for (int i = 0; i < teamColoredImages.Count; i++)
-		{
-			teamColoredImages[i].color = teamColor;
-		}
-		for (int j = 0; j < darkTeamColoredImages.Count; j++)
-		{
-			darkTeamColoredImages[j].color = color;
-		}
+		background.color = Styles.GetTeamColor(team);
 		Styles.TeamToSprite(teamImage, team);
 	}
 }
