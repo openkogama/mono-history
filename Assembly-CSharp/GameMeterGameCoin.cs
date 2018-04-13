@@ -8,7 +8,7 @@ public class GameMeterGameCoin : GameMeterBase
 	private Image gameCoinBar;
 
 	[SerializeField]
-	private RollingNumberCounterAndroid counter;
+	private GameObject coinAmount;
 
 	public override GameMeterType GameMeterType => GameMeterType.GameCoins;
 
@@ -16,8 +16,6 @@ public class GameMeterGameCoin : GameMeterBase
 	{
 		MVGameCoinManager gameCoinManager = MVGameControllerBase.Game.GameCoinManager;
 		gameCoinManager.OnActivationChange = (MVGameCoinManager.OnActivationChangeDelegate)Delegate.Combine(gameCoinManager.OnActivationChange, new MVGameCoinManager.OnActivationChangeDelegate(OnActivationChange));
-		MVGameCoinManager gameCoinManager2 = MVGameControllerBase.Game.GameCoinManager;
-		gameCoinManager2.OnGameCoinAmountChange = (MVGameCoinManager.OnGameCoinAmountChangeDelegate)Delegate.Combine(gameCoinManager2.OnGameCoinAmountChange, new MVGameCoinManager.OnGameCoinAmountChangeDelegate(OnGameCoinAmountChange));
 	}
 
 	public override void SetGameMeterVisibility()
@@ -31,8 +29,6 @@ public class GameMeterGameCoin : GameMeterBase
 		{
 			MVGameCoinManager gameCoinManager = MVGameControllerBase.Game.GameCoinManager;
 			gameCoinManager.OnActivationChange = (MVGameCoinManager.OnActivationChangeDelegate)Delegate.Remove(gameCoinManager.OnActivationChange, new MVGameCoinManager.OnActivationChangeDelegate(OnActivationChange));
-			MVGameCoinManager gameCoinManager2 = MVGameControllerBase.Game.GameCoinManager;
-			gameCoinManager2.OnGameCoinAmountChange = (MVGameCoinManager.OnGameCoinAmountChangeDelegate)Delegate.Remove(gameCoinManager2.OnGameCoinAmountChange, new MVGameCoinManager.OnGameCoinAmountChangeDelegate(OnGameCoinAmountChange));
 		}
 	}
 
@@ -53,15 +49,10 @@ public class GameMeterGameCoin : GameMeterBase
 	{
 	}
 
-	public void OnGameCoinAmountChange(int amount)
-	{
-		counter.SetCounter(amount);
-	}
-
 	public override void SetShowGameMeter(bool show)
 	{
 		gameCoinBar.enabled = show;
-		counter.enabled = show;
+		coinAmount.SetActive(show);
 	}
 
 	private void Show()

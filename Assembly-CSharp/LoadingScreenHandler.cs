@@ -6,21 +6,52 @@ using UnityEngine.UI;
 
 public class LoadingScreenHandler : MonoBehaviour
 {
+	private const float lerpSpeed = 1f;
+
 	[SerializeField]
 	private ProgressBarAndroid loadingBar;
 
 	[SerializeField]
 	private Text uiText;
 
-	private int eventsCount = 17;
+	private Dictionary<MVGameMode, int> eventCountLookup = new Dictionary<MVGameMode, int>
+	{
+		{
+			MVGameMode.Play,
+			7
+		},
+		{
+			MVGameMode.Edit,
+			16
+		},
+		{
+			MVGameMode.CharacterEditor,
+			14
+		}
+	};
 
 	private int currentEventCount = 1;
+
+	private int eventsCount = 17;
+
+	private float currentProgress;
+
+	private float targetProgress;
+
+	private float currentTime;
 
 	private void Awake()
 	{
 		loadingBar.Progress = 0f;
 		uiText.text = string.Empty;
 		MVGameControllerBase.OnReceivedGameMsg = (MVGameControllerBase.OnReceivedGameMsgDelegate)Delegate.Combine(MVGameControllerBase.OnReceivedGameMsg, new MVGameControllerBase.OnReceivedGameMsgDelegate(OnGameMessageReceived));
+		eventsCount = eventCountLookup[MVGameControllerBase.GameMode];
+	}
+
+	private void Update()
+	{
+		currentTime += Time.deltaTime;
+		loadingBar.Progress = Mathf.Lerp(currentProgress, targetProgress, currentTime);
 	}
 
 	private void OnGameMessageReceived(MVGameMsgType gameMsgType, Dictionary<object, object> gameMsgData)
@@ -30,7 +61,9 @@ public class LoadingScreenHandler : MonoBehaviour
 			string key = (string)gameMsgData[(byte)5];
 			uiText.text = TM._(key);
 			currentEventCount++;
-			loadingBar.Progress = (float)currentEventCount / (float)eventsCount;
+			currentProgress = loadingBar.Progress;
+			currentTime = 0f;
+			targetProgress = (float)currentEventCount / (float)eventsCount;
 		}
 	}
 

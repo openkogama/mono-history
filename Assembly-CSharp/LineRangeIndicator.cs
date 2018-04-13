@@ -9,8 +9,8 @@ public class LineRangeIndicator : MonoBehaviour
 	[SerializeField]
 	private float lineWidth = 0.6f;
 
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	private MeshRenderer rangeIndicator;
 
 	[SerializeField]

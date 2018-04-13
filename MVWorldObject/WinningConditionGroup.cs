@@ -5,6 +5,8 @@ public abstract class WinningConditionGroup(WinningCondition parent, int id, Gam
 {
 	protected Dictionary<int, IWinningCondition> winnerConditions = new Dictionary<int, IWinningCondition>();
 
+	public int Length => winnerConditions.Count;
+
 	public override bool IsSingleton => false;
 
 	public void AddWinnerCondition(WinningCondition winnerCondition)

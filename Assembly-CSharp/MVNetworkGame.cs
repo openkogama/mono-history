@@ -2404,7 +2404,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public Action<int, Dictionary<object, object>> PurchaseProductResponseHandler;
 
-	public Action<IWinningCondition> OnWinningCondition;
+	public Action<IWinningCondition> OnWinningConditionFulfilled;
 
 	public Action<int> OnActiveAvatar;
 
@@ -2739,8 +2739,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		{
 			MVAvatar mVAvatar = (MVAvatar)worldObjectClient;
 			int ownerActorNr = mVAvatar.OwnerActorNr;
-			MVPlayer playerUnsafe = MVGameControllerBase.Game.playerContainer.GetPlayerUnsafe(ownerActorNr);
-			if (playerUnsafe != null && playerUnsafe.IsReady)
+			if (MVGameControllerBase.Game.MVPlayerContainer.TryGetValue(ownerActorNr, out var player) && player.IsReady)
 			{
 				((AvatarLimbManagerRemote)mVAvatar.LimbManager).UpdateHeadRotationRemotely(yaw, pitch);
 			}
@@ -2762,8 +2761,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		{
 			MVAvatar mVAvatar = (MVAvatar)worldObjectClient;
 			int ownerActorNr = mVAvatar.OwnerActorNr;
-			MVPlayer playerUnsafe = MVGameControllerBase.Game.playerContainer.GetPlayerUnsafe(ownerActorNr);
-			if (playerUnsafe != null && playerUnsafe.IsReady)
+			if (MVGameControllerBase.Game.MVPlayerContainer.TryGetValue(ownerActorNr, out var player) && player.IsReady)
 			{
 				((AvatarLimbManagerRemote)mVAvatar.LimbManager).UpdatePointingRemotely(yaw, pitch);
 			}
@@ -2785,8 +2783,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		{
 			MVAvatar mVAvatar = (MVAvatar)worldObjectClient;
 			int ownerActorNr = mVAvatar.OwnerActorNr;
-			MVPlayer playerUnsafe = MVGameControllerBase.Game.playerContainer.GetPlayerUnsafe(ownerActorNr);
-			if (playerUnsafe != null && playerUnsafe.IsReady)
+			if (MVGameControllerBase.Game.MVPlayerContainer.TryGetValue(ownerActorNr, out var player) && player.IsReady)
 			{
 				((AvatarLimbManagerRemote)mVAvatar.LimbManager).StartEmote(EmoteTypes.Shake);
 			}
@@ -2808,8 +2805,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		{
 			MVAvatar mVAvatar = (MVAvatar)worldObjectClient;
 			int ownerActorNr = mVAvatar.OwnerActorNr;
-			MVPlayer playerUnsafe = MVGameControllerBase.Game.playerContainer.GetPlayerUnsafe(ownerActorNr);
-			if (playerUnsafe != null && playerUnsafe.IsReady)
+			if (MVGameControllerBase.Game.MVPlayerContainer.TryGetValue(ownerActorNr, out var player) && player.IsReady)
 			{
 				((AvatarLimbManagerRemote)mVAvatar.LimbManager).StartEmote(EmoteTypes.Nod);
 			}
@@ -2831,8 +2827,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		{
 			MVAvatar mVAvatar = (MVAvatar)worldObjectClient;
 			int ownerActorNr = mVAvatar.OwnerActorNr;
-			MVPlayer playerUnsafe = MVGameControllerBase.Game.playerContainer.GetPlayerUnsafe(ownerActorNr);
-			if (playerUnsafe != null && playerUnsafe.IsReady)
+			if (MVGameControllerBase.Game.MVPlayerContainer.TryGetValue(ownerActorNr, out var player) && player.IsReady)
 			{
 				((AvatarLimbManagerRemote)mVAvatar.LimbManager).StartEmote(EmoteTypes.wave);
 			}
@@ -2988,7 +2983,8 @@ public class MVNetworkGame : IPhotonPeerListener
 		GameStateController = new MVGameModeChangeNotifier();
 		teamManager.OnTeamAdded += gameStatCounterManager.OnTeamAdded;
 		teamManager.OnTeamRemoved += gameStatCounterManager.OnTeamRemoved;
-		winningConditionManager = new WinningConditionManagerClient(gameStatCounterManager);
+		winningConditionManager = new WinningConditionManagerClient();
+		winningConditionManager.Initialize(gameStatCounterManager);
 	}
 
 	private void OnRequestMaterialsResponse(Dictionary<object, object> materialList)
@@ -3482,7 +3478,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			List<IWinningCondition> forfilledWinningConditions = winningConditionManager.GetForfilledWinningConditions();
 			if (forfilledWinningConditions.Count == 0)
 			{
-				Debug.LogError("No winning condition found even though server reported game ended");
+				Debug.Log("No winning condition found even though server reported game ended.");
 				return;
 			}
 			if (forfilledWinningConditions.Count > 1)
@@ -3494,11 +3490,11 @@ public class MVNetworkGame : IPhotonPeerListener
 		}
 		else
 		{
-			Debug.LogError("Did not find winner condition");
+			Debug.Log("Round was reset without winning condition victory, this is probably due to new winning condition object being added or removed");
 		}
-		if (OnWinningCondition != null)
+		if (OnWinningConditionFulfilled != null)
 		{
-			OnWinningCondition(obj);
+			OnWinningConditionFulfilled(obj);
 		}
 	}
 
@@ -3855,7 +3851,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		}
 		else if (worldObjectClient is MVAvatarRemote)
 		{
-			((MVAvatarRemote)worldObjectClient).Avatar.SayChatBubbleHandler.SetSayBubbleVisibility(visible);
+			((AvatarUIHandlerRemote)((MVAvatarRemote)worldObjectClient).Avatar.AvatarUIHandler).SayChatBubbleHandler.SetSayBubbleVisibility(visible);
 		}
 		else
 		{

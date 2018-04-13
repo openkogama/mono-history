@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class StreamedTextureToSharedMaterial : StreamingAsset<Texture2D, Texture2D>
 {
+	[Tooltip("For standard unity shaders \"_MainTex\" is the main textures name.")]
 	[Header("Configuration")]
 	[SerializeField]
-	[Tooltip("For standard unity shaders \"_MainTex\" is the main textures name.")]
 	protected string shaderTextureVariableName = "_MainTex";
 
 	[Header("Dependencies")]

@@ -30,17 +30,14 @@ public class GameMeterKillLimit : GameMeterKillBase
 	public override void SetGameMeterVisibility()
 	{
 		killClient = MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<KillLimitClient>();
-		if (killClient != null)
+		WinningConditionControl.TryGetPrioritizedWinCondition(out var condition);
+		if (condition != WinningConditionType.Kill)
 		{
-			if (!gameObject.activeSelf)
-			{
-				Show();
-			}
-			UpdateValue();
+			Hide();
 		}
 		else
 		{
-			Hide();
+			Show();
 		}
 	}
 

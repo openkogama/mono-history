@@ -4,7 +4,6 @@ public enum WinningConditionType
 	Flag,
 	Kill,
 	Oculus,
-	Highest,
-	Lowest,
-	Time
+	Time,
+	None
 }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using LivelyChatBubbles;
 using UnityEngine;
 
 public class ChatBubbleController : MonoBehaviour

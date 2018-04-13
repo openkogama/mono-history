@@ -30,17 +30,14 @@ public class GameMeterOculus : GameMeterKillBase
 	public override void SetGameMeterVisibility()
 	{
 		oculusClient = MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<OculusKillLimitClient>();
-		if (oculusClient != null)
+		WinningConditionControl.TryGetPrioritizedWinCondition(out var condition);
+		if (condition != WinningConditionType.Oculus)
 		{
-			if (!gameObject.activeSelf)
-			{
-				Show();
-			}
-			UpdateValue();
+			Hide();
 		}
 		else
 		{
-			Hide();
+			Show();
 		}
 	}
 

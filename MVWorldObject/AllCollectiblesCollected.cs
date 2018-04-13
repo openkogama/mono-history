@@ -13,7 +13,16 @@ public class AllCollectiblesCollected : WinningCondition
 
 	protected override void GameCountersQuery_OnCounterTypeChanged(object sender, OnCounterTypeChangedArgs e)
 	{
-		if (e.count == Limit)
+		if (!IsTeamMode)
+		{
+			if (e.count >= Limit)
+			{
+				SendWinningConditionChangedEvent(new EventArgs(), e);
+			}
+			return;
+		}
+		int teamCount = gameCounterManager.GetTeamCount(GameStatCounterType, e.team);
+		if (teamCount >= Limit)
 		{
 			SendWinningConditionChangedEvent(new EventArgs(), e);
 		}

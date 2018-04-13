@@ -19,9 +19,6 @@ public class PlayerElementState : MonoBehaviour
 	private Button cancel;
 
 	[SerializeField]
-	private Image localPlayerImage;
-
-	[SerializeField]
 	private Button manageUserButton;
 
 	[SerializeField]
@@ -66,7 +63,6 @@ public class PlayerElementState : MonoBehaviour
 	{
 		MVLocalPlayer localPlayer = MVGameControllerBase.Game.LocalPlayer;
 		bool flag = player.Avatar == localPlayer.Avatar;
-		localPlayerImage.gameObject.SetActive(flag);
 		bool flag2 = MVGameControllerBase.GameMode == MVGameMode.Edit && localPlayer.PlanetOwnership == MVLocalPlayer.PlanetOwnershipType.Owner;
 		manageUserButton.gameObject.SetActive(!localPlayer.IsTourist && (localPlayer.IsAdmin || flag2));
 		if (!player.IsTourist && !localPlayer.IsTourist && !flag)
@@ -92,6 +88,7 @@ public class PlayerElementState : MonoBehaviour
 			cancel.gameObject.SetActive(value: false);
 			acceptFriendRequest.gameObject.SetActive(value: false);
 			manageUserButton.gameObject.SetActive(value: false);
+			requestFriendship.gameObject.SetActive(value: false);
 		}
 	}
 
