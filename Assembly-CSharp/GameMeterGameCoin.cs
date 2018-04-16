@@ -10,17 +10,27 @@ public class GameMeterGameCoin : GameMeterBase
 	[SerializeField]
 	private GameObject coinAmount;
 
+	[SerializeField]
+	private RollingNumberCounterAndroid counter;
+
 	public override GameMeterType GameMeterType => GameMeterType.GameCoins;
 
 	private void Start()
 	{
 		MVGameCoinManager gameCoinManager = MVGameControllerBase.Game.GameCoinManager;
 		gameCoinManager.OnActivationChange = (MVGameCoinManager.OnActivationChangeDelegate)Delegate.Combine(gameCoinManager.OnActivationChange, new MVGameCoinManager.OnActivationChangeDelegate(OnActivationChange));
+		MVGameCoinManager gameCoinManager2 = MVGameControllerBase.Game.GameCoinManager;
+		gameCoinManager2.OnGameCoinAmountChange = (MVGameCoinManager.OnGameCoinAmountChangeDelegate)Delegate.Combine(gameCoinManager2.OnGameCoinAmountChange, new MVGameCoinManager.OnGameCoinAmountChangeDelegate(OnGameCoinAmountChanged));
 	}
 
 	public override void SetGameMeterVisibility()
 	{
 		OnActivationChange(MVGameControllerBase.Game.GameCoinManager.Active);
+	}
+
+	private void OnGameCoinAmountChanged(int amount)
+	{
+		counter.SetCounter(amount);
 	}
 
 	private void OnDestroy()

@@ -67,6 +67,8 @@ public class WinningConditionBriefing : MonoBehaviour
 
 	private Action initializeCallback;
 
+	private Image winConImage;
+
 	private readonly Dictionary<WinningConditionType, string> headerMap = new Dictionary<WinningConditionType, string>
 	{
 		{
@@ -155,7 +157,8 @@ public class WinningConditionBriefing : MonoBehaviour
 			instantiatedScoreboard.transform.SetParent(scoreBoardController.transform, worldPositionStays: false);
 			instantiatedScoreboard.transform.SetAsFirstSibling();
 			instantiatedScoreboard.Initialize(statType);
-			UnityEngine.Object.Instantiate(winningConditionBriefingDef.winConImagePrefab).transform.SetParent(winningConditionImageBackground.transform, worldPositionStays: false);
+			winConImage = UnityEngine.Object.Instantiate(winningConditionBriefingDef.winConImagePrefab);
+			winConImage.transform.SetParent(winningConditionImageBackground.transform, worldPositionStays: false);
 			UnityEngine.Object.Instantiate(winningConditionBriefingDef.scoreIconPrefab).transform.SetParent(scoreGameObject.transform, worldPositionStays: false);
 		}
 		WorldObjectClientRef<MVRoundCube> singletonWorldObjectRef = MVGameControllerBase.WOCM.GetSingletonWorldObjectRef<MVRoundCube>();
@@ -191,5 +194,8 @@ public class WinningConditionBriefing : MonoBehaviour
 		yield return new WaitForEndOfFrame();
 		yield return null;
 		briefingLayoutFitter.FixAspectRatio();
+		yield return null;
+		winConImage.transform.SetParent(transform, worldPositionStays: true);
+		winConImage.transform.SetAsLastSibling();
 	}
 }

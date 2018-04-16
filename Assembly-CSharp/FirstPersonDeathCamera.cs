@@ -6,9 +6,9 @@ public class FirstPersonDeathCamera : MVCameraBase
 	[SerializeField]
 	private Vector3 cameraOffset;
 
-	[SerializeField]
-	[Range(0f, 1f)]
 	[Tooltip("Strength of screen flash.")]
+	[Range(0f, 1f)]
+	[SerializeField]
 	private float flashStrength;
 
 	[SerializeField]

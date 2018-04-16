@@ -3,12 +3,12 @@ using UnityEngine;
 public class StreamedTextureToSharedMaterial : StreamingAsset<Texture2D, Texture2D>
 {
 	[Tooltip("For standard unity shaders \"_MainTex\" is the main textures name.")]
-	[Header("Configuration")]
 	[SerializeField]
+	[Header("Configuration")]
 	protected string shaderTextureVariableName = "_MainTex";
 
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	protected Material material;
 
 	public void Reset()

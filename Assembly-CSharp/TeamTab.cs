@@ -22,7 +22,7 @@ public class TeamTab : MonoBehaviour
 
 	public void Initialize(MVTeam team, GameStatCounterType statToDisplay)
 	{
-		if (statToDisplay != GameStatCounterType.None && statToDisplay != GameStatCounterType.Flag)
+		if (statToDisplay != GameStatCounterType.None && statToDisplay != GameStatCounterType.Flag && team != MVTeam.None)
 		{
 			score.gameObject.SetActive(value: true);
 		}

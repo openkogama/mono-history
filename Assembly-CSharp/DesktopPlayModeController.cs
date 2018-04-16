@@ -37,6 +37,9 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 	private AccessoryShopController accessoryShopController;
 
 	[SerializeField]
+	private LevelBadge levelBadge;
+
+	[SerializeField]
 	private Sprite mysteryBoxIcon;
 
 	[SerializeField]
@@ -226,6 +229,8 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 		inGameController.transform.SetParent(playModeState.transform, worldPositionStays: false);
 		playerListButton = UnityEngine.Object.Instantiate(playerListButton);
 		playerListButton.transform.SetParent(playModeState.transform, worldPositionStays: false);
+		levelBadge = UnityEngine.Object.Instantiate(levelBadge);
+		levelBadge.transform.SetParent(playModeState.transform, worldPositionStays: false);
 		notificationsManager = UnityEngine.Object.Instantiate(notificationsManager);
 		notificationsManager.transform.SetParent(stackBottom.transform, worldPositionStays: false);
 		if (MVGameControllerBase.IsTouristSession && !MVGameControllerBase.GameSessionData.IsPlayedFromPoki)
