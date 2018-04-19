@@ -1,15 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class TeamMenu : MonoBehaviour
 {
 	[SerializeField]
-	private VerticalLayoutGroup teamLayoutGroup;
+	private TeamMenuQuadrant teamMenuQuadrant;
 
 	[SerializeField]
-	private TeamSelectButton teamPrefab;
+	private RectTransform teamsRoot;
 
 	public void Start()
 	{
@@ -17,9 +16,9 @@ public class TeamMenu : MonoBehaviour
 		List<TeamData> list = teamDatas.OrderBy((TeamData teamData) => teamData.playersCount).ToList();
 		for (int num = 0; num < list.Count; num++)
 		{
-			TeamSelectButton teamSelectButton = Object.Instantiate(teamPrefab);
-			teamSelectButton.Initialize(list[num]);
-			teamSelectButton.transform.SetParent(teamLayoutGroup.transform, worldPositionStays: false);
+			TeamMenuQuadrant teamMenuQuadrant = Object.Instantiate(this.teamMenuQuadrant);
+			teamMenuQuadrant.Initialize(list[num]);
+			teamMenuQuadrant.transform.SetParent(teamsRoot, worldPositionStays: false);
 		}
 	}
 }

@@ -14,8 +14,6 @@ public class LobbyStatePlayModeController : MonoBehaviour
 
 	private ChatControllerUGUI chatController;
 
-	private RectTransform playerListButton;
-
 	public bool IsInLobbyState
 	{
 		get
@@ -29,11 +27,10 @@ public class LobbyStatePlayModeController : MonoBehaviour
 		}
 	}
 
-	public void Initialize(DesktopInGameGUIController inGameController, RectTransform lobbyState, ChatControllerUGUI chatController, RectTransform playerListButton)
+	public void Initialize(DesktopInGameGUIController inGameController, RectTransform lobbyState, ChatControllerUGUI chatController)
 	{
 		ILockCursorManager lockCursorManager = MVGameControllerDesktop.LockCursorManager;
 		lockCursorManager.OnCursorLockChanged = (Action<bool>)Delegate.Combine(lockCursorManager.OnCursorLockChanged, new Action<bool>(OnCursorLockChanged));
-		this.playerListButton = playerListButton;
 		this.inGameController = inGameController;
 		this.lobbyState = lobbyState;
 		this.chatController = chatController;
@@ -69,7 +66,6 @@ public class LobbyStatePlayModeController : MonoBehaviour
 	{
 		this.isInLobbyState = isInLobbyState;
 		lobbyState.gameObject.SetActive(isInLobbyState);
-		playerListButton.gameObject.SetActive(isInLobbyState);
 		inGameController.gameObject.SetActive(!isInLobbyState);
 		chatController.OnLobbyStateChange(!isInLobbyState);
 	}

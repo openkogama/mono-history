@@ -55,9 +55,6 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 	private GameObject fullscreenPlayModeStateTransform;
 
 	[SerializeField]
-	private WinningConditionBriefing winningConditionBriefingMenu;
-
-	[SerializeField]
 	private LobbyStatePlayModeController lobbyStatePlayModeController;
 
 	public UnityAction OnLeaveEditPlayMode;
@@ -178,32 +175,23 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 		{
 			MVInputWrapper.SetInputMap(new Desktop2DPlayMode());
 		}
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
-		{
-			handler.PopGroups(UIGroupFlags.InventoryUI | UIGroupFlags.InventoryUISubMenu);
-		});
-		if (MVGameControllerBase.Game.TeamManager.TeamCount() <= 1 && WinningConditionControl.TryGetPrioritizedWinCondition(out var condition))
-		{
-			WinningConditionBriefing winConMenu = UnityEngine.Object.Instantiate(winningConditionBriefingMenu);
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-			{
-				x.Push(winConMenu.gameObject, UIPushOption.Blocking | UIPushOption.HideAll, null, UIGroupFlags.InventoryUI);
-			});
-			winConMenu.Initialize(condition);
-		}
 		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1 && MVGameControllerBase.GameMode == MVGameMode.Play)
 		{
 			TeamMenu newTeamMenu = UnityEngine.Object.Instantiate(teamMenu);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
+			{
+				handler.PopGroups(UIGroupFlags.InventoryUI | UIGroupFlags.InventoryUISubMenu);
+			});
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 			{
-				x.Push(newTeamMenu.gameObject, UIPushOption.Blocking | UIPushOption.HideAll, null, UIGroupFlags.InventoryUI);
+				x.Push(newTeamMenu.gameObject, UIPushOption.Blocking, null, UIGroupFlags.InventoryUI);
 			});
 		}
 		accessoryShopController.Initialize();
 		chatController.Initialize();
 		playerListButton.gameObject.SetActive(value: true);
 		MVGameControllerBase.WOCM.AvatarLocal.Body.AccessoryMoveOverride = true;
-		lobbyStatePlayModeController.Initialize(inGameController, lobbyState, chatController, playerListButton);
+		lobbyStatePlayModeController.Initialize(inGameController, lobbyState, chatController);
 	}
 
 	private void ToggleLogicVisibility()

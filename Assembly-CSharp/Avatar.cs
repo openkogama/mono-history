@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using LivelyChatBubbles;
+using MV.WorldObject;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Avatar : MonoBehaviour, IMovable, IBulletImpactVisualizer
 {
@@ -19,10 +22,52 @@ public class Avatar : MonoBehaviour, IMovable, IBulletImpactVisualizer
 	private Collider avatarCollider;
 
 	[SerializeField]
+	private AvatarBadge avatarBadge;
+
+	[SerializeField]
+	private TextMesh avatarName;
+
+	[SerializeField]
+	private Renderer healthBarRenderer;
+
+	[SerializeField]
+	private Renderer shieldBarRenderer;
+
+	[SerializeField]
+	private Renderer teamIconRenderer;
+
+	[SerializeField]
+	private HealthBar healthBar;
+
+	[SerializeField]
+	private ShieldBar shieldBar;
+
+	[SerializeField]
+	private Material teamIconMaterial;
+
+	[SerializeField]
+	private Material enemyIconMaterial;
+
+	[SerializeField]
 	private AvatarLevelUp avatarLevelUp;
 
 	[SerializeField]
+	private TeamIconScaleWithDistance teamIcon;
+
+	[SerializeField]
+	private Transform nameTagLabel;
+
+	[SerializeField]
+	private SayChatBubbleHandler sayChatBubbleHandler;
+
+	[SerializeField]
+	private ChatAnchor chatBubbleAnchor;
+
+	[SerializeField]
 	private AvatarFader avatarFader;
+
+	[SerializeField]
+	private GameObject mobileIcon;
 
 	[SerializeField]
 	public GameObject root;
@@ -36,8 +81,17 @@ public class Avatar : MonoBehaviour, IMovable, IBulletImpactVisualizer
 	[SerializeField]
 	private AvatarEnabledChangeHandler enabledChangeHandler;
 
-	[SerializeField]
-	protected AvatarUIHandler avatarUIHandler;
+	private CullingSubscriberBase cullingSubscriberBase;
+
+	private Material avatarNameMaterial;
+
+	private Material avatarHealthMaterial;
+
+	private Material avatarShieldMaterial;
+
+	private Material avatarTeamIconMaterial;
+
+	private bool nameTagLabelVisible;
 
 	public bool IsLocal => isLocal;
 
@@ -47,9 +101,33 @@ public class Avatar : MonoBehaviour, IMovable, IBulletImpactVisualizer
 
 	public AvatarFader AvatarFader => avatarFader;
 
+	public bool NameTagLabelVisible
+	{
+		get
+		{
+			return nameTagLabelVisible;
+		}
+		set
+		{
+			nameTagLabelVisible = value;
+			Renderer[] componentsInChildren = nameTagLabel.GetComponentsInChildren<Renderer>(includeInactive: true);
+			Renderer[] array = componentsInChildren;
+			foreach (Renderer renderer in array)
+			{
+				renderer.enabled = nameTagLabelVisible;
+			}
+		}
+	}
+
 	public AvatarEnabledChangeHandler EnabledChangeHandler => enabledChangeHandler;
 
-	public AvatarUIHandler AvatarUIHandler => avatarUIHandler;
+	public SayChatBubbleHandler SayChatBubbleHandler => sayChatBubbleHandler;
+
+	public ChatAnchor ChatBubbleAnchor => chatBubbleAnchor;
+
+	public HealthBar HealthBar => healthBar;
+
+	public ShieldBar ShieldBar => shieldBar;
 
 	public Vector3 Velocity => mvAvatar.VelocityAbsolute;
 
@@ -57,16 +135,62 @@ public class Avatar : MonoBehaviour, IMovable, IBulletImpactVisualizer
 
 	public Vector3 Position => transform.position;
 
-	public virtual void Initialize(MVAvatar mvAvatar, bool isLocal)
+	public void ShowMobileIcon()
+	{
+		mobileIcon.SetActive(value: true);
+	}
+
+	public void Initialize(MVAvatar mvAvatar, bool isLocal)
 	{
 		this.mvAvatar = mvAvatar;
 		avatarFader.BodyTransform = mvAvatar.Body.Transform;
 		this.isLocal = isLocal;
 		interactionDataHandler = GetComponent<InteractionDataHandlerBase>();
 		avatarCollider = GetComponent<Collider>();
+		if (isLocal)
+		{
+			UnityEngine.Object.Destroy(avatarBadge.gameObject);
+			teamIconRenderer.gameObject.SetActive(value: false);
+			MVLocalPlayer localPlayer = MVGameControllerBase.Game.LocalPlayer;
+			localPlayer.OnXPProgressData = (XPProgress.OnXPProgressDataDelegate)Delegate.Combine(localPlayer.OnXPProgressData, new XPProgress.OnXPProgressDataDelegate(OnXpProgress));
+			avatarName.gameObject.SetActive(value: false);
+		}
+		else
+		{
+			avatarBadge.Initialize(mvAvatar.OwnerActorNr);
+			cullingSubscriberBase = new CullingSubscriberBase(0.5f, teamIconRenderer.transform.position, OnStateChanged);
+			mvAvatar.PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(mvAvatar.PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
+			teamIcon.gameObject.SetActive(value: true);
+		}
+		chatBubbleAnchor.Initialize(isLocal, this);
 		avatarLevelUp.Init(mvAvatar.OwnerActorNr);
+		avatarNameMaterial = avatarName.GetComponent<Renderer>().material;
+		avatarHealthMaterial = healthBarRenderer.material;
+		avatarShieldMaterial = shieldBarRenderer.material;
 		waterSplashComponent.Initialize(this);
-		avatarUIHandler.Initialize(IsLocal, mvAvatar);
+	}
+
+	private void OnStateChanged(CullingGroupEvent cullingEvent)
+	{
+		bool active = CullingApiWrapper.Visible(cullingEvent, cullingSubscriberBase.DistanceBandIndex);
+		teamIconRenderer.gameObject.SetActive(active);
+	}
+
+	private void OnPositionChanged(MVWorldObjectClient arg0, PositionChangedEventArgs positionChangedEventArgs)
+	{
+		cullingSubscriberBase.Position = teamIconRenderer.transform.position;
+	}
+
+	private void OnXpProgress(XPProgressData xpProgressData)
+	{
+		AvatarPooledXPParticles avatarPooledXPParticles = PrefabPool.Instance.EnumPoolManager.Instantiate<AvatarPooledXPParticles>(PoolEnums.XP);
+		avatarPooledXPParticles.transform.parent = transform;
+		avatarPooledXPParticles.transform.localPosition = Vector3.up;
+		avatarPooledXPParticles.transform.localRotation = Quaternion.identity;
+		avatarPooledXPParticles.transform.localScale = Vector3.one;
+		avatarPooledXPParticles.gameObject.layer = mvAvatar.Body.GameObject.layer;
+		avatarPooledXPParticles.Initialize(xpProgressData.XPDelta);
+		avatarPooledXPParticles.Play();
 	}
 
 	public void UpdateModifiers(Dictionary<object, object> newModifiers)
@@ -138,6 +262,54 @@ public class Avatar : MonoBehaviour, IMovable, IBulletImpactVisualizer
 		waterSplashComponent.enabled = true;
 	}
 
+	public void UpdateNameTag()
+	{
+		MVPlayer playerUnsafe = MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(mvAvatar.OwnerActorNr);
+		avatarName.text = playerUnsafe.Username;
+		Color color = Color.white;
+		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
+		{
+			switch (playerUnsafe.Team)
+			{
+			case MVTeam.Blue:
+				color = Color.blue;
+				break;
+			case MVTeam.Red:
+				color = Color.red;
+				break;
+			case MVTeam.Green:
+				color = Color.green;
+				break;
+			case MVTeam.Yellow:
+				color = Color.yellow;
+				break;
+			}
+		}
+		if (MVGameControllerBase.WOCM.AvatarLocal != null)
+		{
+			SetHealthBarColor(MVGameControllerBase.Game.TeamManager.IsOnSameTeam(mvAvatar, MVGameControllerBase.Game.LocalPlayer.Avatar));
+		}
+		avatarNameMaterial.color = color;
+	}
+
+	public void SetHealthBarColor(bool isFriendly)
+	{
+		avatarShieldMaterial.color = new Color(25f / 255f, 25f / 255f, 112f / 255f);
+		if (isFriendly)
+		{
+			avatarHealthMaterial.color = Color.green;
+			teamIconRenderer.material = teamIconMaterial;
+			return;
+		}
+		Color red = Color.red;
+		red.r = 1f;
+		red.g = 99f / 255f;
+		red.b = 71f / 255f;
+		avatarHealthMaterial.color = red;
+		enemyIconMaterial.color = red;
+		teamIconRenderer.material = enemyIconMaterial;
+	}
+
 	public void StartBlinking(BlinkType type, float duration = float.PositiveInfinity)
 	{
 		mvAvatar.Body.StartBlinking(type, duration);
@@ -146,6 +318,17 @@ public class Avatar : MonoBehaviour, IMovable, IBulletImpactVisualizer
 	public void StopBlinking(BlinkType type)
 	{
 		mvAvatar.Body.StopBlinking(type);
+	}
+
+	private void OnDestroy()
+	{
+		if (cullingSubscriberBase != null)
+		{
+			cullingSubscriberBase.Destroy();
+			cullingSubscriberBase = null;
+		}
+		UnityEngine.Object.Destroy(avatarNameMaterial);
+		UnityEngine.Object.Destroy(avatarHealthMaterial);
 	}
 
 	public void VisualizeBulletImpact(VoxelHit voxelHit, Ray lineOfFire, int shooterActorNumber, float damage = 100f)
@@ -161,5 +344,11 @@ public class Avatar : MonoBehaviour, IMovable, IBulletImpactVisualizer
 	public bool HasModifierEffect(AvatarModifierEffect modifierEffect)
 	{
 		return modifierEffectCount[(int)modifierEffect] > 0;
+	}
+
+	public void DeactivateBars()
+	{
+		healthBar.gameObject.SetActive(value: false);
+		shieldBar.gameObject.SetActive(value: false);
 	}
 }

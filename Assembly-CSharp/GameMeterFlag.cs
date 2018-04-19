@@ -1,11 +1,10 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameMeterFlag : GameMeterBase
 {
 	[SerializeField]
-	private GameObject flagBar;
-
-	private FlagReachedClient flagClient;
+	private Image flagBar;
 
 	public override GameMeterType GameMeterType => GameMeterType.Flag;
 
@@ -16,14 +15,17 @@ public class GameMeterFlag : GameMeterBase
 
 	public override void SetGameMeterVisibility()
 	{
-		WinningConditionControl.TryGetPrioritizedWinCondition(out var condition);
-		if (condition != WinningConditionType.Flag)
+		FlagReachedClient singletonWinnerConditionByType = MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<FlagReachedClient>();
+		if (singletonWinnerConditionByType != null)
 		{
-			Hide();
+			if (!gameObject.activeSelf)
+			{
+				Show();
+			}
 		}
 		else
 		{
-			Show();
+			Hide();
 		}
 	}
 
@@ -33,7 +35,7 @@ public class GameMeterFlag : GameMeterBase
 
 	public override void SetShowGameMeter(bool show)
 	{
-		flagBar.SetActive(show);
+		flagBar.enabled = show;
 	}
 
 	private void Hide()

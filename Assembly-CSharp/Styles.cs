@@ -179,30 +179,6 @@ public class Styles : MonoBehaviour
 		}
 	};
 
-	private static Dictionary<MVTeam, ColorStyle> teamToDarkColorStyle = new Dictionary<MVTeam, ColorStyle>
-	{
-		{
-			MVTeam.None,
-			ColorStyle.TeamNoneDark
-		},
-		{
-			MVTeam.Blue,
-			ColorStyle.TeamBlueDark
-		},
-		{
-			MVTeam.Red,
-			ColorStyle.TeamRedDark
-		},
-		{
-			MVTeam.Green,
-			ColorStyle.TeamGreenDark
-		},
-		{
-			MVTeam.Yellow,
-			ColorStyle.TeamYellowDark
-		}
-	};
-
 	private static Dictionary<ButtonStyle, ButtonStyleDef> buttonStylesDictionary = new Dictionary<ButtonStyle, ButtonStyleDef>();
 
 	private static Dictionary<TextStyle, TextStyleDef> textStylesDictionary = new Dictionary<TextStyle, TextStyleDef>();
@@ -352,34 +328,13 @@ public class Styles : MonoBehaviour
 		}
 	}
 
-	public static Color GetTeamColor(MVTeam team, bool darkTeam = false)
+	public static Color GetTeamColor(MVTeam team)
 	{
 		if (!HandleUnInitalized())
 		{
 			return Color.magenta;
 		}
-		if (darkTeam)
-		{
-			if (MVGameControllerBase.Game.TeamManager.GetTeamList().Count > 1)
-			{
-				return colorStylesDictionary[teamToDarkColorStyle[team]].color;
-			}
-			return colorStylesDictionary[teamToDarkColorStyle[MVTeam.None]].color;
-		}
-		if (MVGameControllerBase.Game.TeamManager.GetTeamList().Count > 1)
-		{
-			return colorStylesDictionary[teamToColorStyle[team]].color;
-		}
-		return colorStylesDictionary[teamToColorStyle[MVTeam.None]].color;
-	}
-
-	public static Color GetColor(ColorStyle colorStyle)
-	{
-		if (!HandleUnInitalized())
-		{
-			return Color.magenta;
-		}
-		return colorStylesDictionary[colorStyle].color;
+		return colorStylesDictionary[teamToColorStyle[team]].color;
 	}
 
 	public static string ColorToHex(Color32 color)

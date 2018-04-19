@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,44 +8,30 @@ public class PlayerElementHold : MonoBehaviour
 	private Text playerName;
 
 	[SerializeField]
-	private Text rank;
+	private PlayerElementStateHold state;
 
 	[SerializeField]
 	private Text score;
 
 	[SerializeField]
-	private List<Image> backgrounds;
+	private Color friendNameColor;
 
-	public void Initialize(MVPlayer player, GameStatCounterType typeToDisplay, int scoreValue)
+	[SerializeField]
+	private Color localPlayerNameColor;
+
+	public void Initialize(MVPlayer player)
 	{
 		Friend friendByProfileID = MVGameControllerBase.Game.Friends.GetFriendByProfileID(player.ProfileID);
 		if (friendByProfileID != null && friendByProfileID.status == FriendStatus.Accepted)
 		{
-			playerName.color = Styles.GetColor(ColorStyle.FriendGreen);
-			for (int i = 0; i < backgrounds.Count; i++)
-			{
-				backgrounds[i].color = Styles.GetColor(ColorStyle.FriendListBackground);
-			}
+			playerName.color = friendNameColor;
 		}
-		if (player == MVGameControllerBase.Game.LocalPlayer)
+		if (MVGameControllerBase.Game.LocalPlayer.ActorNr == player.ActorNr)
 		{
-			for (int j = 0; j < backgrounds.Count; j++)
-			{
-				backgrounds[j].color = Styles.GetColor(ColorStyle.LocalPlayerBackground);
-			}
+			playerName.color = localPlayerNameColor;
 		}
 		playerName.text = player.Username;
-		if (typeToDisplay == GameStatCounterType.None || typeToDisplay == GameStatCounterType.Flag)
-		{
-			score.gameObject.SetActive(value: false);
-			return;
-		}
-		score.gameObject.SetActive(value: true);
-		score.text = WinningConditionControl.MakeIntoScoreText(scoreValue, typeToDisplay);
-	}
-
-	public void UpdateScoreIndex()
-	{
-		rank.text = (transform.GetSiblingIndex() + 1).ToString();
+		score.text = player.GetGameStat(GameStatCounterType.Kill).ToString();
+		state.Initialize(player, friendByProfileID);
 	}
 }

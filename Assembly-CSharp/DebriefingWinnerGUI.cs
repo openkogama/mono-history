@@ -1,3 +1,4 @@
+using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -27,11 +28,12 @@ public class DebriefingWinnerGUI : MonoBehaviour
 	[SerializeField]
 	private ImageAnimator backgroundImage;
 
-	public void SetWinnerImage(Color startColor, RenderTexture image)
+	public void SetWinnerImage(MVTeam team, RenderTexture image)
 	{
-		Color end = startColor * 1.25f;
+		Color teamColor = Styles.GetTeamColor(team);
+		Color end = teamColor * 1.25f;
 		end.a = 1f;
-		backgroundImage.SetColor(startColor, end);
+		backgroundImage.SetColor(teamColor, end);
 		winnerImage.texture = image;
 	}
 

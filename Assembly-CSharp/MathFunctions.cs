@@ -458,11 +458,6 @@ public static class MathFunctions
 		return !VectorIsNan(vector) && VectorIsFinite(vector);
 	}
 
-	public static bool IsFloatValid(float floatToValidate)
-	{
-		return !float.IsInfinity(floatToValidate) && !float.IsNaN(floatToValidate);
-	}
-
 	public static Vector3 TruncateVector(Vector3 vector, int digits)
 	{
 		vector.x = (float)Truncate(vector.x, digits);

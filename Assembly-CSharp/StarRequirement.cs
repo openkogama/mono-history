@@ -36,7 +36,7 @@ public class StarRequirement : UseRequirement
 
 	public override UseGUIResult GetCanUseGUIResult()
 	{
-		if (starAmount == 0 || GetLocalPLayerStat() >= starAmount)
+		if (starAmount == 0 || MVGameControllerBase.Game.LocalPlayer.GetGameStat(GameStatCounterType.Collectible) >= starAmount)
 		{
 			if (hasUseWhenFree)
 			{
@@ -44,7 +44,7 @@ public class StarRequirement : UseRequirement
 			}
 			return UseGUIResult.NoUseButton;
 		}
-		if (GetLocalPLayerStat() >= starAmount)
+		if (MVGameControllerBase.Game.LocalPlayer.GetGameStat(GameStatCounterType.Collectible) >= starAmount)
 		{
 			return UseGUIResult.CanAfford;
 		}
@@ -68,7 +68,7 @@ public class StarRequirement : UseRequirement
 			return ShowUseOption.Normal;
 		}
 		ShowUseOption showUseOption = ShowUseOption.UsingStars;
-		if (GetLocalPLayerStat() >= starAmount)
+		if (MVGameControllerBase.Game.LocalPlayer.GetGameStat(GameStatCounterType.Collectible) >= starAmount)
 		{
 			return showUseOption | ShowUseOption.StarsEnough;
 		}
@@ -138,14 +138,5 @@ public class StarRequirement : UseRequirement
 		displayGO.transform.localPosition = vector;
 		displayGO.transform.LookAt(pivot + displayObjectRoot.transform.position);
 		displayObject.transform.position += displayObjectOffset;
-	}
-
-	private int GetLocalPLayerStat()
-	{
-		if (MVGameControllerBase.Game.TeamManager.GetTeamList().Count > 1)
-		{
-			return MVGameControllerBase.Game.GameStatCounterManager.GetTeamCount(GameStatCounterType.Collectible, MVGameControllerBase.Game.LocalPlayer.Team);
-		}
-		return MVGameControllerBase.Game.LocalPlayer.GetGameStat(GameStatCounterType.Collectible);
 	}
 }

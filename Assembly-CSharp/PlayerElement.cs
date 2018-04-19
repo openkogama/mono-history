@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,52 +8,40 @@ public class PlayerElement : MonoBehaviour
 	private Text playerName;
 
 	[SerializeField]
-	private Text rank;
-
-	[SerializeField]
 	private PlayerElementState state;
 
 	[SerializeField]
 	private Text score;
 
 	[SerializeField]
-	private List<Image> backgrounds;
+	private Color friendNameColor;
 
-	public string PlayerName => playerName.text;
+	[SerializeField]
+	private Color localPlayerNameColor;
 
-	public void Initialize(MVPlayer player, GameStatCounterType typeToDisplay, int scoreValue)
+	[SerializeField]
+	private Color localPlayerBackgroundColor;
+
+	[SerializeField]
+	private Image background;
+
+	public void Initialize(MVPlayer player)
 	{
 		if (player == MVGameControllerBase.Game.LocalPlayer)
 		{
-			for (int i = 0; i < backgrounds.Count; i++)
-			{
-				backgrounds[i].color = Styles.GetColor(ColorStyle.LocalPlayerBackground);
-			}
+			background.color = localPlayerBackgroundColor;
 		}
 		Friend friendByProfileID = MVGameControllerBase.Game.Friends.GetFriendByProfileID(player.ProfileID);
 		if (friendByProfileID != null && friendByProfileID.status == FriendStatus.Accepted)
 		{
-			playerName.color = Styles.GetColor(ColorStyle.FriendGreen);
-			for (int j = 0; j < backgrounds.Count; j++)
-			{
-				backgrounds[j].color = Styles.GetColor(ColorStyle.FriendListBackground);
-			}
+			playerName.color = friendNameColor;
+		}
+		if (MVGameControllerBase.Game.LocalPlayer.ActorNr == player.ActorNr)
+		{
+			playerName.color = localPlayerNameColor;
 		}
 		playerName.text = player.Username;
-		if (typeToDisplay == GameStatCounterType.None || typeToDisplay == GameStatCounterType.Flag)
-		{
-			score.gameObject.SetActive(value: false);
-		}
-		else
-		{
-			score.gameObject.SetActive(value: true);
-			score.text = WinningConditionControl.MakeIntoScoreText(scoreValue, typeToDisplay);
-		}
+		score.text = player.GetGameStat(GameStatCounterType.Kill).ToString();
 		state.Initialize(player, friendByProfileID);
-	}
-
-	public void UpdateScoreIndex()
-	{
-		rank.text = (transform.GetSiblingIndex() + 1).ToString();
 	}
 }

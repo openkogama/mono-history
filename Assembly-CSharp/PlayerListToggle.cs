@@ -31,7 +31,7 @@ public class PlayerListToggle : MonoBehaviour
 	public void CreatePlayerList()
 	{
 		PlayerListsHold newPlayerLists = Object.Instantiate(playerListsPrefab);
-		newPlayerLists.Initialize(playerListsPrefab, GameStatCounterType.Kill);
+		newPlayerLists.Initialize(playerListsPrefab);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.PopGroups(UIGroupFlags.InventoryUI | UIGroupFlags.InventoryUISubMenu);

@@ -130,7 +130,7 @@ public class AndroidChatController : MonoBehaviour
 			if (promptRegisterForChat && MVGameControllerBase.IsTouristSession)
 			{
 				promptRegisterForChat = false;
-				NotificationController.PushNotification(NotificationType.RegisterToChat);
+				NotificationController.PushNotification(NotificationType.RegisterToChat, NotificationsManager.eNotificationPanel.tertiary);
 			}
 			inputAreaRoot.gameObject.SetActive(!MVGameControllerBase.IsTouristSession);
 			minimizeChat.gameObject.SetActive(value: true);
@@ -273,7 +273,7 @@ public class AndroidChatController : MonoBehaviour
 			{
 				AddLine(FormatSayChatMessage(data));
 				string text = (string)data[(byte)5];
-				ChatBubbleManager.ShowChatBubble(text, avatar.Id, avatar.Avatar.AvatarUIHandler.ChatBubbleAnchor);
+				ChatBubbleManager.ShowChatBubble(text, avatar.Id, avatar.Avatar.ChatBubbleAnchor);
 			}
 		}
 	}
