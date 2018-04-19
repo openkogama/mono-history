@@ -1,8 +1,6 @@
 using System;
 using UnityEngine;
 
-namespace LivelyChatBubbles;
-
 [Serializable]
 public class ExtenderBorderInfo
 {

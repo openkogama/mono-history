@@ -105,7 +105,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 			Dictionary<object, object> dictionary = new Dictionary<object, object>();
 			dictionary.Add((byte)1, TM._("Hold shoot button to remove cubes."));
 			Dictionary<object, object> data = dictionary;
-			NotificationController.PushNotification(NotificationType.PlayerTip, NotificationsManager.eNotificationPanel.secondary, data);
+			NotificationController.PushNotification(NotificationType.PlayerTip, data);
 		}
 	}
 

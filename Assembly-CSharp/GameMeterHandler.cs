@@ -21,7 +21,7 @@ public class GameMeterHandler : MonoBehaviour
 		}
 		MVGameControllerBase.Game.GameStatCounterManager.OnCounterTypeChanged += CounterChanged;
 		MVGameControllerBase.Game.GameStatCounterManager.OnCounterTypeChanged += OnGameStatUpdated;
-		MVGameControllerBase.Game.WinningConditionManager.OnWinningConditionCountChanged += ConditionCountChanged;
+		MVGameControllerBase.Game.WinningConditionManager.OnWinningConditionAddedOrRemoved += ConditionCountChanged;
 		MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
 		mVPlayerContainer.OnPlayerListChanged = (Action)Delegate.Combine(mVPlayerContainer.OnPlayerListChanged, new Action(UpdateValue));
 	}
@@ -32,7 +32,7 @@ public class GameMeterHandler : MonoBehaviour
 		{
 			MVGameControllerBase.Game.GameStatCounterManager.OnCounterTypeChanged -= CounterChanged;
 			MVGameControllerBase.Game.GameStatCounterManager.OnCounterTypeChanged -= OnGameStatUpdated;
-			MVGameControllerBase.Game.WinningConditionManager.OnWinningConditionCountChanged -= ConditionCountChanged;
+			MVGameControllerBase.Game.WinningConditionManager.OnWinningConditionAddedOrRemoved -= ConditionCountChanged;
 			MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
 			mVPlayerContainer.OnPlayerListChanged = (Action)Delegate.Remove(mVPlayerContainer.OnPlayerListChanged, new Action(UpdateValue));
 		}
@@ -56,6 +56,7 @@ public class GameMeterHandler : MonoBehaviour
 
 	private void OnGameStatUpdated(object sender, OnCounterTypeChangedArgs args)
 	{
+		WinningConditionNotificationManager.UpdateNotification(args.actorNumber, args.counterType, args.count);
 		if (args.actorNumber == MVGameControllerBase.WOCM.AvatarLocal.OwnerActorNr)
 		{
 			GameStatCounterType counterType = args.counterType;
@@ -63,7 +64,7 @@ public class GameMeterHandler : MonoBehaviour
 			{
 				Dictionary<object, object> dictionary = new Dictionary<object, object>();
 				dictionary.Add((byte)1, TM._("Score +1"));
-				NotificationController.PushNotification(NotificationType.Kill, NotificationsManager.eNotificationPanel.primary, dictionary, NotificationLifetime.Low);
+				NotificationController.PushNotification(NotificationType.KillPrimary, dictionary, NotificationLifetime.Low);
 			}
 		}
 	}

@@ -15,10 +15,10 @@ public class HealthbarLerp : GameMeterVisualEffect
 	private bool isInitialized;
 
 	[SerializeField]
-	private ProgressBarAndroid progressBar;
+	private ProgressBar progressBar;
 
 	[SerializeField]
-	private ProgressBarAndroid targetProgressBar;
+	private ProgressBar targetProgressBar;
 
 	private void OnEnable()
 	{

@@ -38,6 +38,10 @@ public static class RuntimeVariablesRepository
 		{
 			WorldObjectType.GodzillaTrigger,
 			GodzillaTriggerRuntimeData()
+		},
+		{
+			WorldObjectType.CollectibleItem,
+			CollectibleRuntimeData()
 		}
 	};
 
@@ -147,6 +151,13 @@ public static class RuntimeVariablesRepository
 	{
 		Dictionary<object, object> dictionary = new Dictionary<object, object>();
 		dictionary.Add("occupantWOID", -1);
+		return dictionary;
+	}
+
+	private static Dictionary<object, object> CollectibleRuntimeData()
+	{
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add("takenByList", new Dictionary<object, object>());
 		return dictionary;
 	}
 }

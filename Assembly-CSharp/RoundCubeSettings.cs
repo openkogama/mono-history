@@ -18,32 +18,14 @@ public class RoundCubeSettings : MonoBehaviour, IEventSystemHandler, IHandleSett
 	[SerializeField]
 	private InputField seconds;
 
-	[SerializeField]
-	private SettingsDropdown dropdown;
-
-	private string[] options = new string[3]
-	{
-		TM._("None"),
-		TM._("Reach Lowest Altitude"),
-		TM._("Reach Highest Altitude")
-	};
-
-	private List<int> WOResultsParser = new List<int> { 0, 3, 2 };
-
 	public void Initialize(int woID, GameObject root)
 	{
 		settingsBase.Initialize(woID, root, MVWorldObjectDocumentationType.RoundCube);
 		Dictionary<object, object> data = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).Data;
 		int num = Convert.ToInt32(data["interval"]);
-		int num2 = Convert.ToInt32(data["winningCondition"]);
 		slider.Initialize("interval", num, 30, 3600);
 		minutes.text = GetMinutes(num / 60).ToString();
 		seconds.text = GetSeconds(num).ToString();
-		if (!WOResultsParser.Contains(num2))
-		{
-			num2 = 0;
-		}
-		dropdown.Initialize("winningCondition", num2, options, WOResultsParser);
 	}
 
 	public void OnSettingChanged(string key, object value)

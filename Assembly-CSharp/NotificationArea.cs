@@ -21,4 +21,9 @@ public class NotificationArea : MonoBehaviour
 		panel.transform.SetParent(contentHolderTransform, worldPositionStays: false);
 		panel.Initialize(data);
 	}
+
+	public bool CanInstantiateNotificationType(NotificationType notificationType)
+	{
+		return objectPool.CanInstantiateNotificationType(notificationType);
+	}
 }

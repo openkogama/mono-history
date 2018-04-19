@@ -12,11 +12,15 @@ public abstract class MVLocalPlayer : MVPlayer
 		Owner
 	}
 
+	public Action OnInitializeLeveling;
+
 	protected XPProgress xpProgress;
 
 	private int planetOwnershipTypeID;
 
 	public XPProgress.OnXPProgressDataDelegate OnXPProgressData;
+
+	protected int joinTime;
 
 	private int oldLevel;
 
@@ -42,11 +46,16 @@ public abstract class MVLocalPlayer : MVPlayer
 
 	public XPProgressData XPProgressData => xpProgress.XPProgressData;
 
+	public int JoinTime => joinTime;
+
+	public bool CanGetXPProgressData => xpProgress != null;
+
 	public MVLocalPlayer(int actorNumber, int profileID, string userName, string regionCode, int planetOwnershipTypeID, bool isAdmin)
 		: base(actorNumber, profileID, userName, regionCode, MVGameControllerBase.BuildTarget, isReady: false)
 	{
 		OnLevelChanged = (UnityAction<int>)Delegate.Combine(OnLevelChanged, new UnityAction<int>(OnLevelChangedLocal));
 		PlanetOwnershipTypeID = planetOwnershipTypeID;
+		joinTime = MVGameControllerBase.Game.ServerTimeInMilliSeconds;
 		IsAdmin = isAdmin;
 	}
 
@@ -54,6 +63,10 @@ public abstract class MVLocalPlayer : MVPlayer
 	{
 		level = initialLevelData.Level;
 		xpProgress = new XPProgress(this, initialLevelData);
+		if (OnInitializeLeveling != null)
+		{
+			OnInitializeLeveling();
+		}
 	}
 
 	public void AddXp(int currentPlayerXP, XPRewardType typeId, int xpDelta)
