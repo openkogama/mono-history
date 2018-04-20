@@ -60,6 +60,8 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 	[SerializeField]
 	private LobbyStatePlayModeController lobbyStatePlayModeController;
 
+	private RectTransform lobbyStateRect;
+
 	public UnityAction OnLeaveEditPlayMode;
 
 	private bool rewardReady;
@@ -168,8 +170,8 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 	public override void Initialize()
 	{
 		base.Initialize();
-		lobbyState = UnityEngine.Object.Instantiate(lobbyState);
-		lobbyState.SetParent(playModeState.transform, worldPositionStays: false);
+		lobbyStateRect = UnityEngine.Object.Instantiate(lobbyState);
+		lobbyStateRect.SetParent(playModeState.transform, worldPositionStays: false);
 		if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
 		{
 			MVInputWrapper.SetInputMap(new DesktopPlayMode());
@@ -182,28 +184,31 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 		{
 			handler.PopGroups(UIGroupFlags.InventoryUI | UIGroupFlags.InventoryUISubMenu);
 		});
-		if (MVGameControllerBase.Game.TeamManager.TeamCount() <= 1 && WinningConditionControl.TryGetPrioritizedWinCondition(out var condition))
+		if (MVGameControllerBase.GameMode == MVGameMode.Play)
 		{
-			WinningConditionBriefing winConMenu = UnityEngine.Object.Instantiate(winningConditionBriefingMenu);
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			if (MVGameControllerBase.Game.TeamManager.TeamCount() <= 1 && WinningConditionControl.TryGetPrioritizedWinCondition(out var condition))
 			{
-				x.Push(winConMenu.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
-			});
-			winConMenu.Initialize(condition);
-		}
-		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1 && MVGameControllerBase.GameMode == MVGameMode.Play)
-		{
-			TeamMenu newTeamMenu = UnityEngine.Object.Instantiate(teamMenu);
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+				WinningConditionBriefing winConMenu = UnityEngine.Object.Instantiate(winningConditionBriefingMenu);
+				ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+				{
+					x.Push(winConMenu.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
+				});
+				winConMenu.Initialize(condition);
+			}
+			if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
 			{
-				x.Push(newTeamMenu.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
-			});
+				TeamMenu newTeamMenu = UnityEngine.Object.Instantiate(teamMenu);
+				ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+				{
+					x.Push(newTeamMenu.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
+				});
+			}
 		}
 		accessoryShopController.Initialize();
 		chatController.Initialize();
 		playerListButton.gameObject.SetActive(value: true);
 		MVGameControllerBase.WOCM.AvatarLocal.Body.AccessoryMoveOverride = true;
-		lobbyStatePlayModeController.Initialize(inGameController, lobbyState, chatController, playerListButton);
+		lobbyStatePlayModeController.Initialize(inGameController, lobbyStateRect, chatController);
 	}
 
 	private void ToggleLogicVisibility()

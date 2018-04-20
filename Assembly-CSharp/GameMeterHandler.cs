@@ -57,10 +57,15 @@ public class GameMeterHandler : MonoBehaviour
 	private void OnGameStatUpdated(object sender, OnCounterTypeChangedArgs args)
 	{
 		WinningConditionNotificationManager.UpdateNotification(args.actorNumber, args.counterType, args.count);
-		if (args.actorNumber == MVGameControllerBase.WOCM.AvatarLocal.OwnerActorNr)
+		if (args.actorNumber != MVGameControllerBase.WOCM.AvatarLocal.OwnerActorNr)
 		{
-			GameStatCounterType counterType = args.counterType;
-			if (counterType == GameStatCounterType.Kill)
+			return;
+		}
+		GameStatCounterType counterType = args.counterType;
+		if (counterType == GameStatCounterType.Kill)
+		{
+			WinningConditionControl.TryGetPrioritizedStat(out var statType);
+			if (statType == GameStatCounterType.Kill)
 			{
 				Dictionary<object, object> dictionary = new Dictionary<object, object>();
 				dictionary.Add((byte)1, TM._("Score +1"));

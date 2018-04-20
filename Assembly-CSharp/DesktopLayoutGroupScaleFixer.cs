@@ -17,7 +17,6 @@ public class DesktopLayoutGroupScaleFixer : MonoBehaviour
 	{
 		if (layoutGroupVertical != null)
 		{
-			float num = 1440f * (float)Screen.height;
 			RectOffset padding = layoutGroupVertical.padding;
 			padding.top = (int)((float)padding.top / 1440f * (float)Screen.height);
 			padding.bottom = (int)((float)padding.bottom / 1440f * (float)Screen.height);
@@ -28,7 +27,6 @@ public class DesktopLayoutGroupScaleFixer : MonoBehaviour
 		}
 		if (layoutGroupHorizontal != null)
 		{
-			float num2 = 1920f * (float)Screen.width;
 			RectOffset padding2 = layoutGroupHorizontal.padding;
 			padding2.top = (int)((float)padding2.top / 1920f * (float)Screen.width);
 			padding2.bottom = (int)((float)padding2.bottom / 1920f * (float)Screen.width);

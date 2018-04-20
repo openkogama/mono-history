@@ -82,10 +82,6 @@ public class MVFlag : MVLogicObject
 
 	private bool DoCaptureFlag(int instigator)
 	{
-		if (Time.time < lastCaptureTime + 5f)
-		{
-			return false;
-		}
 		lastCaptureTime = Time.time;
 		MVGameControllerBase.OperationRequests.ReportCaptureFlag();
 		return true;

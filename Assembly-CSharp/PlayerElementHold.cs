@@ -36,7 +36,7 @@ public class PlayerElementHold : MonoBehaviour
 			}
 		}
 		playerName.text = player.Username;
-		if (typeToDisplay == GameStatCounterType.None || typeToDisplay == GameStatCounterType.Flag)
+		if (typeToDisplay == GameStatCounterType.None)
 		{
 			score.gameObject.SetActive(value: false);
 			return;

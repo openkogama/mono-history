@@ -22,4 +22,20 @@ public class TeamMenu : MonoBehaviour
 			teamSelectButton.transform.SetParent(teamLayoutGroup.transform, worldPositionStays: false);
 		}
 	}
+
+	private void Update()
+	{
+		if (MVGameControllerBase.CameraController.BlueModeEnabled)
+		{
+			MVGameControllerBase.WOCM.AvatarLocal.Visible = false;
+		}
+	}
+
+	private void OnDestroy()
+	{
+		if (MVGameControllerBase.CameraController.BlueModeEnabled)
+		{
+			MVGameControllerBase.WOCM.AvatarLocal.Visible = true;
+		}
+	}
 }

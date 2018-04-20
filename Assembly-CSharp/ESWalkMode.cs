@@ -21,6 +21,7 @@ internal class ESWalkMode : ESStateBase
 			MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Hidden);
 			MVGameControllerDesktop.LockCursorManager.LockCursor = false;
 		}
+		MVGameControllerBase.WOCM.AvatarLocal.Visible = true;
 		MVGameControllerBase.WOCM.MoveableController.ResetMoveables();
 		MVTeam team = MVGameControllerBase.Game.LocalPlayer.Team;
 		MVTeamManager teamManager = MVGameControllerBase.Game.TeamManager;

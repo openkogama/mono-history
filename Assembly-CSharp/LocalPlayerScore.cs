@@ -28,20 +28,22 @@ public class LocalPlayerScore : MonoBehaviour
 	public void Activate()
 	{
 		WinningConditionControl.TryGetPrioritizedStat(out var statType);
-		if (statType != GameStatCounterType.None)
+		if (statType == GameStatCounterType.None)
 		{
-			int actorNr = MVGameControllerBase.Game.LocalPlayer.ActorNr;
-			MVTeam team = MVGameControllerBase.Game.LocalPlayer.Team;
-			int actorCount = MVGameControllerBase.Game.GameStatCounterManager.GetActorCount(statType, team, actorNr);
-			int localPlayerRanking = GetLocalPlayerRanking(statType, team, actorNr, actorCount);
-			if (localPlayerRanking > scoreBoardCount)
-			{
-				Show(statType, team, localPlayerRanking, actorCount);
-			}
-			else
-			{
-				gameObject.SetActive(value: false);
-			}
+			gameObject.SetActive(value: false);
+			return;
+		}
+		int actorNr = MVGameControllerBase.Game.LocalPlayer.ActorNr;
+		MVTeam team = MVGameControllerBase.Game.LocalPlayer.Team;
+		int actorCount = MVGameControllerBase.Game.GameStatCounterManager.GetActorCount(statType, team, actorNr);
+		int localPlayerRanking = GetLocalPlayerRanking(statType, team, actorNr, actorCount);
+		if (localPlayerRanking > scoreBoardCount)
+		{
+			Show(statType, team, localPlayerRanking, actorCount);
+		}
+		else
+		{
+			gameObject.SetActive(value: false);
 		}
 	}
 

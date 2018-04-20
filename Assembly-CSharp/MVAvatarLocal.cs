@@ -666,6 +666,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 				break;
 			}
 			MVGameControllerBase.CameraController.BlueModeEnabled = false;
+			MVGameControllerBase.WOCM.AvatarLocal.Visible = true;
 			MVGameControllerBase.CameraController.SetPlayModeCam();
 			MVGameControllerBase.CameraController.CurCamera.Reset();
 			MVGameControllerBase.WOCM.UpdateWorldBounds(SharedCubeFunctions.GetAxisAlignedBoundsRecursively(MVGameControllerBase.WOCM.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>().Transform).Value);

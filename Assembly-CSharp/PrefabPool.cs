@@ -223,9 +223,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material blinkerDefaultMaterial;
 
-	[Space(20f)]
-	[Header("Pick up")]
 	[SerializeField]
+	[Header("Pick up")]
+	[Space(20f)]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
 	[SerializeField]
@@ -286,8 +286,8 @@ public class PrefabPool : MonoBehaviour
 	private MVPickupItemBaseObject avatarHealRayPrefab;
 
 	[SerializeField]
-	[Space(20f)]
 	[Header("Avatar item pick up")]
+	[Space(20f)]
 	private GameObject avatarItemCenterGun;
 
 	[SerializeField]

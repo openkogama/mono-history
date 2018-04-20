@@ -16,7 +16,9 @@ public class AddDotsToTruncatedText : MonoBehaviour
 		text.fontSize = text.cachedTextGenerator.fontSizeUsedForBestFit;
 		bool isBestFit = text.resizeTextForBestFit;
 		text.resizeTextForBestFit = false;
-		while (textValue.Length > 0 && (float)CalculateLengthOfMessage(textValue) > text.rectTransform.rect.width - 15f)
+		float res = 1920f / (float)Screen.width;
+		float dotSize = 5f * res;
+		while (textValue.Length > 0 && (float)CalculateLengthOfMessage(textValue) * res > text.rectTransform.rect.width - dotSize)
 		{
 			addDots = true;
 			textValue = textValue.Remove(Mathf.Max(0, textValue.Length - 1), 1);
@@ -27,6 +29,7 @@ public class AddDotsToTruncatedText : MonoBehaviour
 			text.text += "...";
 		}
 		text.resizeTextForBestFit = isBestFit;
+		text.fontSize = Mathf.Clamp(text.fontSize, text.resizeTextMinSize, text.resizeTextMaxSize);
 	}
 
 	private int CalculateLengthOfMessage(string message)

@@ -53,23 +53,23 @@ public class TeamSelectButton : MonoBehaviour
 
 	public void OnTeamSelected()
 	{
-		if (MVGameControllerBase.Game.LocalPlayer.Team != teamData.team)
-		{
-			MVGameControllerBase.OperationRequests.SetTeam(teamData.team);
-		}
-		MVGameControllerBase.Game.LocalPlayer.Team = teamData.team;
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Pop();
 		});
-		if (WinningConditionControl.TryGetPrioritizedWinCondition(out var condition))
+		if (MVGameControllerBase.Game.LocalPlayer.Team != teamData.team)
 		{
-			WinningConditionBriefing winConMenu = Object.Instantiate(winningConditionBriefingMenu);
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			if (WinningConditionControl.TryGetPrioritizedWinCondition(out var condition))
 			{
-				x.Push(winConMenu.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
-			});
-			winConMenu.Initialize(condition);
+				WinningConditionBriefing winConMenu = Object.Instantiate(winningConditionBriefingMenu);
+				ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+				{
+					x.Push(winConMenu.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
+				});
+				winConMenu.Initialize(condition);
+			}
+			MVGameControllerBase.OperationRequests.SetTeam(teamData.team);
 		}
+		MVGameControllerBase.Game.LocalPlayer.Team = teamData.team;
 	}
 }

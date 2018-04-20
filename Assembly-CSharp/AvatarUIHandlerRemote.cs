@@ -44,9 +44,6 @@ public class AvatarUIHandlerRemote : AvatarUIHandler
 	private TeamIconScaleWithDistance teamIcon;
 
 	[SerializeField]
-	private GameObject targetIcon;
-
-	[SerializeField]
 	private Transform nameTagLabel;
 
 	[SerializeField]
@@ -114,16 +111,7 @@ public class AvatarUIHandlerRemote : AvatarUIHandler
 		{
 			mobileIcon.SetActive(shouldShow);
 		}
-		if (ShouldTargetIconBeVisible())
-		{
-			targetIcon.SetActive(shouldShow);
-			teamIcon.gameObject.SetActive(value: false);
-		}
-		else
-		{
-			targetIcon.SetActive(value: false);
-			teamIcon.gameObject.SetActive(shouldShow);
-		}
+		teamIcon.gameObject.SetActive(shouldShow);
 	}
 
 	public override void OnPositionChanged(MVWorldObjectClient arg0, PositionChangedEventArgs positionChangedEventArgs)
@@ -134,16 +122,6 @@ public class AvatarUIHandlerRemote : AvatarUIHandler
 
 	public override void HandleTeamChange()
 	{
-		if (ShouldTargetIconBeVisible())
-		{
-			targetIcon.SetActive(shouldShowUI);
-			teamIcon.gameObject.SetActive(value: false);
-		}
-		else
-		{
-			targetIcon.SetActive(value: false);
-			teamIcon.gameObject.SetActive(shouldShowUI);
-		}
 		if (IsOnSameTeamAsLocalAvatar())
 		{
 			SetHealthBarColor(isFriendly: true);
@@ -205,22 +183,8 @@ public class AvatarUIHandlerRemote : AvatarUIHandler
 
 	private void OnStateChanged(CullingGroupEvent cullingEvent)
 	{
-		bool flag = CullingApiWrapper.Visible(cullingEvent, cullingSubscriberBase.DistanceBandIndex);
-		teamIconRenderer.gameObject.SetActive(flag);
-		if (ShouldTargetIconBeVisible() || !flag)
-		{
-			targetIcon.SetActive(flag);
-		}
-	}
-
-	private bool ShouldTargetIconBeVisible()
-	{
-		WinningConditionControl.TryGetPrioritizedWinCondition(out var condition);
-		if (condition == WinningConditionType.Kill && !IsOnSameTeamAsLocalAvatar() && shouldShowUI)
-		{
-			return true;
-		}
-		return false;
+		bool active = CullingApiWrapper.Visible(cullingEvent, cullingSubscriberBase.DistanceBandIndex);
+		teamIconRenderer.gameObject.SetActive(active);
 	}
 
 	private bool IsOnSameTeamAsLocalAvatar()

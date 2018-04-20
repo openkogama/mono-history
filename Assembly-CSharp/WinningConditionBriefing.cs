@@ -175,6 +175,7 @@ public class WinningConditionBriefing : MonoBehaviour
 
 	private void Update()
 	{
+		MVGameControllerBase.WOCM.AvatarLocal.Visible = false;
 		if (screensize.x != (float)Screen.width || screensize.y != (float)Screen.height)
 		{
 			screensize = new Vector2(Screen.width, Screen.height);
@@ -187,6 +188,11 @@ public class WinningConditionBriefing : MonoBehaviour
 			roundTimeProgressBar.Progress = (float)singletonWorldObjectRef.WorldObjectClient.GetTimeLeft() / (float)singletonWorldObjectRef.WorldObjectClient.DurationInMilliseconds;
 			roundTimeText.text = singletonWorldObjectRef.WorldObjectClient.MakeTimeIntoText(singletonWorldObjectRef.WorldObjectClient.GetTimeLeft());
 		}
+	}
+
+	private void OnDestroy()
+	{
+		MVGameControllerBase.WOCM.AvatarLocal.Visible = true;
 	}
 
 	private IEnumerator FixAspectRatioDelay()
