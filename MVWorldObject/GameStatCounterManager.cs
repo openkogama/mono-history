@@ -8,8 +8,6 @@ public class GameStatCounterManager : IGameStatCounterQuery
 
 	protected Dictionary<GameStatCounterType, TeamsCounter> statTypeCounters = new Dictionary<GameStatCounterType, TeamsCounter>();
 
-	public List<GameStatCounterType> sessionPersistentStats;
-
 	public HashSet<MVTeam> ActiveTeams => new HashSet<MVTeam>(activeTeams);
 
 	public event EventHandler<OnCounterTypeChangedArgs> OnCounterTypeChanged;
@@ -34,7 +32,6 @@ public class GameStatCounterManager : IGameStatCounterQuery
 
 	public GameStatCounterManager()
 	{
-		sessionPersistentStats = new List<GameStatCounterType> { GameStatCounterType.Flag };
 	}
 
 	public GameStatCounterManager(byte[] data)
@@ -104,16 +101,7 @@ public class GameStatCounterManager : IGameStatCounterQuery
 
 	public void Clear()
 	{
-		Dictionary<GameStatCounterType, TeamsCounter> dictionary = new Dictionary<GameStatCounterType, TeamsCounter>();
-		for (int i = 0; i < sessionPersistentStats.Count; i++)
-		{
-			if (statTypeCounters.ContainsKey(sessionPersistentStats[i]))
-			{
-				dictionary.Add(sessionPersistentStats[i], statTypeCounters[sessionPersistentStats[i]]);
-			}
-		}
 		statTypeCounters.Clear();
-		statTypeCounters = dictionary;
 	}
 
 	private void SendChangeEvent(int count, GameStatCounterType counterType, int actorNumber, MVTeam team, int otherID)

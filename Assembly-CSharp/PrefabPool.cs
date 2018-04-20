@@ -1,3 +1,4 @@
+using LivelyChatBubbles;
 using UnityEngine;
 
 public class PrefabPool : MonoBehaviour
@@ -7,18 +8,15 @@ public class PrefabPool : MonoBehaviour
 
 	private static PrefabPool instance;
 
-	[SerializeField]
 	[Header("World Objects")]
+	[SerializeField]
 	private ObjectPrefab mvFirePrefab;
 
 	[SerializeField]
 	private ObjectPrefab mvAndPrefab;
 
 	[SerializeField]
-	private GameObject mvLocalAvatarPrefab;
-
-	[SerializeField]
-	private GameObject mvRemoteAvatarPrefab;
+	private GameObject mvAvatarPrefab;
 
 	[SerializeField]
 	private AdvancedGhostObject mvAdvancedGhostPrefab;
@@ -194,9 +192,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject godzillaAreaPrefab;
 
-	[SerializeField]
-	[Space(20f)]
 	[Header("Game")]
+	[Space(20f)]
+	[SerializeField]
 	private Material ghostMarkerMaterial;
 
 	[SerializeField]
@@ -224,8 +222,8 @@ public class PrefabPool : MonoBehaviour
 	private Material blinkerDefaultMaterial;
 
 	[SerializeField]
-	[Header("Pick up")]
 	[Space(20f)]
+	[Header("Pick up")]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
 	[SerializeField]
@@ -285,8 +283,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private MVPickupItemBaseObject avatarHealRayPrefab;
 
-	[SerializeField]
 	[Header("Avatar item pick up")]
+	[SerializeField]
 	[Space(20f)]
 	private GameObject avatarItemCenterGun;
 
@@ -352,9 +350,9 @@ public class PrefabPool : MonoBehaviour
 	[Header("Avatar modifier")]
 	private AvatarModifier shieldModifier;
 
-	[Header("Particles")]
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
+	[Header("Particles")]
 	private GameObject particleCFX_GroundAura;
 
 	[SerializeField]
@@ -381,9 +379,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem healingParticles;
 
-	[SerializeField]
 	[Space(20f)]
 	[Header("Logic object prefabs")]
+	[SerializeField]
 	private GameObject logicInputConnectorPrefab;
 
 	[SerializeField]
@@ -411,8 +409,8 @@ public class PrefabPool : MonoBehaviour
 	private Material logicCubeConnectorBlueSelectedMaterial;
 
 	[Space(20f)]
-	[SerializeField]
 	[Header("GUI")]
+	[SerializeField]
 	private Texture2D avatarAccessoryMoveIcon;
 
 	[SerializeField]
@@ -421,9 +419,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material modelConstraintsMaterial;
 
-	[SerializeField]
-	[Space(20f)]
 	[Header("UGUI")]
+	[Space(20f)]
+	[SerializeField]
 	private AvatarInputControllerAndroidSettings avatarInputControllerAndroidSettings;
 
 	[SerializeField]
@@ -459,9 +457,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private FirstPersonDeathCamera firstPersonDeathCamera;
 
-	[SerializeField]
 	[Space(20f)]
 	[Header("Editor")]
+	[SerializeField]
 	private Material cellCursorErrorMaterial;
 
 	[SerializeField]
@@ -514,9 +512,7 @@ public class PrefabPool : MonoBehaviour
 
 	public ObjectPrefab MVAndPrefab => mvAndPrefab;
 
-	public GameObject MVLocalAvatarPrefab => mvLocalAvatarPrefab;
-
-	public GameObject MVRemoteAvatarPrefab => mvRemoteAvatarPrefab;
+	public GameObject MVAvatarPrefab => mvAvatarPrefab;
 
 	public AdvancedGhostObject MVAdvancedGhostPrefab => mvAdvancedGhostPrefab;
 

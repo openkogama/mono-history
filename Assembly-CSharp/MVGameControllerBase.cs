@@ -32,7 +32,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	public delegate void OnReceivedGameMsgDelegate(MVGameMsgType type, Dictionary<object, object> gameMsgData);
 
-	public delegate void OnReceivedNotificationEventDelegate(NotificationType type, Dictionary<object, object> data);
+	public delegate void OnReceivedNotificationEventDelegate(NotificationType type, Dictionary<object, object> data, NotificationsManager.eNotificationPanel panel = NotificationsManager.eNotificationPanel.tertiary);
 
 	public delegate void OnPostGameInitDelegate();
 

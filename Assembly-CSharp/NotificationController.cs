@@ -21,7 +21,7 @@ public class NotificationController : MonoBehaviour
 		}
 	}
 
-	public static void OnNotificationReceived(NotificationType type, Dictionary<object, object> data)
+	public static void OnNotificationReceived(NotificationType type, Dictionary<object, object> data, NotificationsManager.eNotificationPanel panel = NotificationsManager.eNotificationPanel.tertiary)
 	{
 		switch (type)
 		{
@@ -32,7 +32,7 @@ public class NotificationController : MonoBehaviour
 			FriendRequestAccepted(data);
 			break;
 		default:
-			CurrentManager.InstantiateNotification(type, data);
+			CurrentManager.InstantiateNotification(type, panel, data);
 			break;
 		}
 	}
@@ -53,7 +53,7 @@ public class NotificationController : MonoBehaviour
 		{
 			incomingPlayerFriendRequests.Add(friend.profileID);
 			data.Add((byte)15, friend.friendID);
-			CurrentManager.InstantiateNotification(NotificationType.FriendRequest, data);
+			CurrentManager.InstantiateNotification(NotificationType.FriendRequest, NotificationsManager.eNotificationPanel.tertiary, data);
 		}
 	}
 
@@ -66,25 +66,25 @@ public class NotificationController : MonoBehaviour
 		{
 			dictionary.Add((byte)3, sprite);
 		}
-		CurrentManager.InstantiateNotification(NotificationType.ModalNotification, dictionary);
+		CurrentManager.InstantiateNotification(NotificationType.ModalNotification, NotificationsManager.eNotificationPanel.tertiary, dictionary);
 	}
 
-	public static void PushNotification(NotificationType notificationType, NotificationLifetime lifeTime = NotificationLifetime.High)
+	public static void PushNotification(NotificationType notificationType, NotificationsManager.eNotificationPanel notificationPriority, NotificationLifetime lifeTime = NotificationLifetime.High)
 	{
 		Dictionary<object, object> data = new Dictionary<object, object>();
-		PushNotification(notificationType, data, lifeTime);
+		PushNotification(notificationType, notificationPriority, data, lifeTime);
 	}
 
-	public static void PushNotification(NotificationType notificationType, Dictionary<object, object> data, NotificationLifetime lifeTime = NotificationLifetime.High)
+	public static void PushNotification(NotificationType notificationType, NotificationsManager.eNotificationPanel notificationPriority, Dictionary<object, object> data, NotificationLifetime lifeTime = NotificationLifetime.High)
 	{
 		data.Add((byte)2, lifeTime);
-		CurrentManager.InstantiateNotification(notificationType, data);
+		CurrentManager.InstantiateNotification(notificationType, notificationPriority, data);
 	}
 
 	public static void PushNoticationInstruction(string instruction, NotificationLifetime lifeTime = NotificationLifetime.High)
 	{
 		Dictionary<object, object> dictionary = new Dictionary<object, object>();
 		dictionary.Add((byte)1, instruction);
-		PushNotification(NotificationType.FirstTimeXPRewarded, dictionary, lifeTime);
+		PushNotification(NotificationType.FirstTimeXPRewarded, NotificationsManager.eNotificationPanel.custom, dictionary, lifeTime);
 	}
 }
