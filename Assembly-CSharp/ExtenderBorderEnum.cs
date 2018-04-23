@@ -1,7 +1,5 @@
 using System;
 
-namespace LivelyChatBubbles;
-
 [Serializable]
 public enum ExtenderBorderEnum
 {

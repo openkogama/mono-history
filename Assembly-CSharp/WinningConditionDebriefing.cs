@@ -48,7 +48,7 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 			currentWinningConditions.Add(winningConditionList[i].conditionType, winningConditionList[i].conditionSprite);
 		}
 		MVNetworkGame game = MVGameControllerBase.Game;
-		game.OnWinningCondition = (Action<IWinningCondition>)Delegate.Combine(game.OnWinningCondition, new Action<IWinningCondition>(OnWinningConditionReceived));
+		game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Combine(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnWinningConditionReceived));
 	}
 
 	private void OnWinningConditionReceived(IWinningCondition winningCondition)
@@ -96,7 +96,13 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 		Clear();
 		debriefing = UnityEngine.Object.Instantiate(playerWinPrefab);
 		debriefing.transform.SetParent(group.gameObject.transform, worldPositionStays: false);
-		RenderPlayerToRenderTexture(scoreActorEntries[0].actorNumber);
+		scoreActorEntries = GetWinningActorsFromScoreActorEntries(scoreActorEntries, counterType);
+		List<int> list = new List<int>();
+		for (int i = 0; i < scoreActorEntries.Count; i++)
+		{
+			list.Add(scoreActorEntries[i].actorNumber);
+		}
+		RenderPlayerToRenderTexture(list);
 		int num = scoreActorEntries[0].counter;
 		if (num == 0)
 		{
@@ -112,20 +118,11 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 				}
 			}
 		}
-		string additionalInformation = string.Empty;
-		switch (counterType)
-		{
-		case GameStatCounterType.YUp:
-			additionalInformation = TM._("Reach highest altitude");
-			break;
-		case GameStatCounterType.YDown:
-			additionalInformation = TM._("Reach lowest altitude");
-			break;
-		}
+		string empty = string.Empty;
 		string winValue = FormatCount(counterType, num);
 		debriefing.SetWinValue(winValue);
 		debriefing.SetWinningConditionSprite(currentWinningConditions[winType]);
-		debriefing.SetAdditionalInformation(additionalInformation);
+		debriefing.SetAdditionalInformation(empty);
 		StartCoroutine(ShowDebriefingCoroutine());
 	}
 
@@ -140,7 +137,29 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 		Clear();
 		debriefing = UnityEngine.Object.Instantiate(teamWinPrefab);
 		debriefing.transform.SetParent(group.gameObject.transform, worldPositionStays: false);
-		debriefing.SetWinnerText(scoreTeamEntries[0].team.ToString() + " team wins!");
+		scoreTeamEntries = GetWinningTeamsFromScoreTeamEntries(scoreTeamEntries, counterType);
+		if (scoreTeamEntries.Count == 1)
+		{
+			debriefing.SetWinnerText(scoreTeamEntries[0].team.ToString() + " team wins!");
+		}
+		else
+		{
+			string text = "It's a tie";
+			if (scoreTeamEntries.Count <= 2)
+			{
+				text += " between ";
+				for (int i = 0; i < scoreTeamEntries.Count; i++)
+				{
+					text = text + scoreTeamEntries[i].team.ToString() + " team";
+					if (i < scoreTeamEntries.Count - 1)
+					{
+						text += " and ";
+					}
+				}
+			}
+			text += "!";
+			debriefing.SetWinnerText(text);
+		}
 		debriefing.SetWinningConditionSprite(currentWinningConditions[winType]);
 		int num = scoreTeamEntries[0].counter;
 		if (num == 0)
@@ -165,7 +184,12 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 		}
 		captureCamera = UnityEngine.Object.Instantiate(captureCameraPrefab);
 		captureCamera.CapturePlayersInTeam(scoreTeamEntries, counterType);
-		debriefing.SetWinnerImage(scoreTeamEntries[0].team, captureCamera.RenderCam.targetTexture);
+		MVTeam team = MVTeam.None;
+		if (scoreTeamEntries.Count == 1)
+		{
+			team = scoreTeamEntries[0].team;
+		}
+		debriefing.SetWinnerImage(Styles.GetTeamColor(team), captureCamera.RenderCam.targetTexture);
 		StartCoroutine(ShowDebriefingCoroutine());
 	}
 
@@ -187,7 +211,7 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 		debriefing.transform.SetParent(group.gameObject.transform, worldPositionStays: false);
 		debriefing.SetWinnerText(TM._("Time's Up!"));
 		debriefing.SetWinningConditionSprite(currentWinningConditions[WinningConditionType.Time]);
-		debriefing.SetWinnerImage(MVTeam.None, captureCamera.RenderCam.targetTexture);
+		debriefing.SetWinnerImage(Styles.GetColor(ColorStyle.DarkNavyBlue), captureCamera.RenderCam.targetTexture);
 		StartCoroutine(ShowDebriefingCoroutine());
 	}
 
@@ -248,8 +272,6 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 		switch (statType)
 		{
 		case GameStatCounterType.Kill:
-		case GameStatCounterType.YUp:
-		case GameStatCounterType.YDown:
 		case GameStatCounterType.Collectible:
 		case GameStatCounterType.OculusKill:
 			return count.ToString();
@@ -261,23 +283,105 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 		}
 	}
 
-	private void RenderPlayerToRenderTexture(int actorNr)
+	private void RenderPlayerToRenderTexture(List<int> actorNrs)
 	{
-		MVPlayer mVPlayer = MVGameControllerBase.Game.MVPlayerContainer[actorNr];
-		if (mVPlayer != null)
+		List<MVPlayer> list = new List<MVPlayer>();
+		for (int i = 0; i < actorNrs.Count; i++)
 		{
-			debriefing.SetWinnerText(mVPlayer.Username);
+			if (MVGameControllerBase.Game.MVPlayerContainer.ContainsKey(actorNrs[i]))
+			{
+				MVPlayer item = MVGameControllerBase.Game.MVPlayerContainer[actorNrs[i]];
+				list.Add(item);
+			}
+		}
+		for (int j = 0; j < list.Count; j++)
+		{
+			if (list[j] == null)
+			{
+				list.RemoveAt(j);
+				j--;
+			}
+		}
+		if (list.Count >= 1)
+		{
+			string empty = string.Empty;
+			if (list.Count == 1)
+			{
+				empty = list[0].Username;
+			}
+			else
+			{
+				empty += "It's a tie";
+				if (list.Count <= 2)
+				{
+					empty += " between ";
+					for (int k = 0; k < list.Count; k++)
+					{
+						empty += list[k].Username;
+						if (k < list.Count - 1)
+						{
+							empty += " and ";
+						}
+					}
+				}
+				empty += "!";
+			}
+			debriefing.SetWinnerText(empty);
 			if (captureCamera != null)
 			{
 				UnityEngine.Object.Destroy(captureCamera.gameObject);
 			}
 			captureCamera = UnityEngine.Object.Instantiate(captureCameraPrefab);
-			captureCamera.CapturePlayer(mVPlayer);
-			debriefing.SetWinnerImage(MVTeam.Blue, captureCamera.RenderCam.targetTexture);
+			captureCamera.CapturePlayer(list);
+			debriefing.SetWinnerImage(Styles.GetTeamColor(MVTeam.Blue), captureCamera.RenderCam.targetTexture);
 		}
 		else
 		{
 			Debug.LogWarning("Winning player can't be found. Probably left game session");
 		}
+	}
+
+	private List<ScoreTeamEntry> GetWinningTeamsFromScoreTeamEntries(List<ScoreTeamEntry> scoreTeamEntries, GameStatCounterType counterType)
+	{
+		List<ScoreTeamEntry> list = new List<ScoreTeamEntry>();
+		for (int i = 0; i < scoreTeamEntries.Count; i++)
+		{
+			if (list.Count < 1)
+			{
+				list.Add(scoreTeamEntries[i]);
+			}
+			else if (WinningConditionControl.IsNewScoreBetter(scoreTeamEntries[i].counter, list[0].counter, counterType))
+			{
+				list.Clear();
+				list.Add(scoreTeamEntries[i]);
+			}
+			else if (list[0].counter == scoreTeamEntries[i].counter)
+			{
+				list.Add(scoreTeamEntries[i]);
+			}
+		}
+		return list;
+	}
+
+	private List<ScoreActorEntry> GetWinningActorsFromScoreActorEntries(List<ScoreActorEntry> scoreActorEntries, GameStatCounterType counterType)
+	{
+		List<ScoreActorEntry> list = new List<ScoreActorEntry>();
+		for (int i = 0; i < scoreActorEntries.Count; i++)
+		{
+			if (list.Count < 1)
+			{
+				list.Add(scoreActorEntries[i]);
+			}
+			else if (WinningConditionControl.IsNewScoreBetter(scoreActorEntries[i].counter, list[0].counter, counterType))
+			{
+				list.Clear();
+				list.Add(scoreActorEntries[i]);
+			}
+			else if (list[0].counter == scoreActorEntries[i].counter)
+			{
+				list.Add(scoreActorEntries[i]);
+			}
+		}
+		return list;
 	}
 }

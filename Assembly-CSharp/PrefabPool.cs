@@ -1,4 +1,3 @@
-using LivelyChatBubbles;
 using UnityEngine;
 
 public class PrefabPool : MonoBehaviour
@@ -16,7 +15,10 @@ public class PrefabPool : MonoBehaviour
 	private ObjectPrefab mvAndPrefab;
 
 	[SerializeField]
-	private GameObject mvAvatarPrefab;
+	private GameObject mvLocalAvatarPrefab;
+
+	[SerializeField]
+	private GameObject mvRemoteAvatarPrefab;
 
 	[SerializeField]
 	private AdvancedGhostObject mvAdvancedGhostPrefab;
@@ -221,8 +223,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material blinkerDefaultMaterial;
 
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
 	[Header("Pick up")]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
@@ -346,13 +348,13 @@ public class PrefabPool : MonoBehaviour
 	private GameObject avatarItemHealRay;
 
 	[SerializeField]
-	[Header("Avatar modifier")]
 	[Space(20f)]
+	[Header("Avatar modifier")]
 	private AvatarModifier shieldModifier;
 
 	[Header("Particles")]
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
 	private GameObject particleCFX_GroundAura;
 
 	[SerializeField]
@@ -380,8 +382,8 @@ public class PrefabPool : MonoBehaviour
 	private ParticleSystem healingParticles;
 
 	[SerializeField]
-	[Header("Logic object prefabs")]
 	[Space(20f)]
+	[Header("Logic object prefabs")]
 	private GameObject logicInputConnectorPrefab;
 
 	[SerializeField]
@@ -408,8 +410,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material logicCubeConnectorBlueSelectedMaterial;
 
-	[SerializeField]
 	[Header("GUI")]
+	[SerializeField]
 	[Space(20f)]
 	private Texture2D avatarAccessoryMoveIcon;
 
@@ -436,8 +438,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ChatBubble chatBubble;
 
-	[SerializeField]
 	[Header("TextBubbleContent")]
+	[SerializeField]
 	private RectTransform editCornerHelpText;
 
 	[SerializeField]
@@ -457,9 +459,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private FirstPersonDeathCamera firstPersonDeathCamera;
 
+	[SerializeField]
 	[Space(20f)]
 	[Header("Editor")]
-	[SerializeField]
 	private Material cellCursorErrorMaterial;
 
 	[SerializeField]
@@ -512,7 +514,9 @@ public class PrefabPool : MonoBehaviour
 
 	public ObjectPrefab MVAndPrefab => mvAndPrefab;
 
-	public GameObject MVAvatarPrefab => mvAvatarPrefab;
+	public GameObject MVLocalAvatarPrefab => mvLocalAvatarPrefab;
+
+	public GameObject MVRemoteAvatarPrefab => mvRemoteAvatarPrefab;
 
 	public AdvancedGhostObject MVAdvancedGhostPrefab => mvAdvancedGhostPrefab;
 

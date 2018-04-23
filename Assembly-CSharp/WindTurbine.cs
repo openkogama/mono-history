@@ -208,7 +208,6 @@ public class WindTurbine : MVLogicObject, ILogicWorldObject
 
 	public override void Destroy()
 	{
-		Debug.Log("Destroy windTurbine");
 		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
 		{
 			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;

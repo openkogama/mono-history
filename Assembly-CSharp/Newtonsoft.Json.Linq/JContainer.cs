@@ -10,7 +10,7 @@ using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Linq;
 
-public abstract class JContainer : JToken, IEnumerable, IEnumerable<JToken>, ICollection<JToken>, IList<JToken>, IList, ICollection, ITypedList, IBindingList
+public abstract class JContainer : JToken, IEnumerable<JToken>, ICollection<JToken>, IEnumerable, IList<JToken>, IList, ICollection, ITypedList, IBindingList
 {
 	private class JTokenReferenceEqualityComparer : IEqualityComparer<JToken>
 	{

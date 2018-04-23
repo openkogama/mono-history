@@ -23,7 +23,19 @@ public class KillNotification : Notification
 		{
 			shotSelf = true;
 		}
-		Label.text = string.Format(GetKillText(data, shotSelf), mVPlayer2.Username, mVPlayer.Username);
+		Color color;
+		Color color2;
+		if (MVGameControllerBase.Game.TeamManager.GetTeamList().Count > 1)
+		{
+			color = Styles.GetTeamColor(mVPlayer2.Team);
+			color2 = Styles.GetTeamColor(mVPlayer.Team);
+		}
+		else
+		{
+			color = Styles.GetColor(ColorStyle.TeamNone);
+			color2 = Styles.GetColor(ColorStyle.TeamNone);
+		}
+		Label.text = string.Format(GetKillText(data, shotSelf), Styles.ColorToHex(color), mVPlayer2.Username, Styles.ColorToHex(color2), mVPlayer.Username);
 	}
 
 	public static string GetKillText(Dictionary<object, object> data, bool shotSelf)
@@ -37,45 +49,45 @@ public class KillNotification : Notification
 		switch (type)
 		{
 		case PlayerKilledByType.AdvancedGhost:
-			return TM._("{0} was eliminated by an Oculus.");
+			return TM._("<color=#{0}>{1}</color> was eliminated by an Oculus.");
 		case PlayerKilledByType.BazookaGun:
 			if (shotSelf)
 			{
-				return TM._("{0} shot himself with a bazooka.");
+				return TM._("<color=#{0}>{1}</color> shot himself with a bazooka.");
 			}
-			return TM._("{1} eliminated {0} with a bazooka.");
+			return TM._("<color=#{2}>{3}</color> eliminated <color=#{0}>{1}</color> with a bazooka.");
 		case PlayerKilledByType.Crushed:
-			return TM._("{0} was crushed.");
+			return TM._("<color=#{0}>{1}</color> was crushed.");
 		case PlayerKilledByType.Environmental:
-			return TM._("{0} was killed by the environment.");
+			return TM._("<color=#{0}>{1}</color> was killed by the environment.");
 		case PlayerKilledByType.Explosive:
-			return TM._("{0} blew up.");
+			return TM._("<color=#{0}>{1}</color> blew up.");
 		case PlayerKilledByType.FallOffWorld:
-			return TM._("{0} fell off the world.");
+			return TM._("<color=#{0}>{1}</color> fell off the world.");
 		case PlayerKilledByType.Fire:
-			return TM._("{0} was burned.");
+			return TM._("<color=#{0}>{1}</color> was burned.");
 		case PlayerKilledByType.FlameThrower:
-			return TM._("{1} incinerated {0} with a flamethrower.");
+			return TM._("<color=#{2}>{3}</color> incinerated <color=#{0}>{1}</color> with a flamethrower.");
 		case PlayerKilledByType.Ghost:
-			return TM._("{0} got caught by a ghost.");
+			return TM._("<color=#{0}>{1}</color> got caught by a ghost.");
 		case PlayerKilledByType.Impact:
-			return TM._("{0} hit the ground too hard.");
+			return TM._("<color=#{0}>{1}</color> hit the ground too hard.");
 		case PlayerKilledByType.Mutant:
-			return TM._("{1} eliminated {0} using mutant.");
+			return TM._("<color=#{2}>{3}</color> eliminated <color=#{0}>{1}</color> using mutant.");
 		case PlayerKilledByType.None:
 			return TM._("None");
 		case PlayerKilledByType.RailGun:
-			return TM._("{1} sniped {0} with a railgun.");
+			return TM._("<color=#{2}>{3}</color> sniped <color=#{0}>{1}</color> with a railgun.");
 		case PlayerKilledByType.Shotgun:
-			return TM._("{1} eliminated {0} with a shotgun.");
+			return TM._("<color=#{2}>{3}</color> eliminated <color=#{0}>{1}</color> with a shotgun.");
 		case PlayerKilledByType.Suicide:
-			return TM._("{0} respawned.");
+			return TM._("<color=#{0}>{1}</color> respawned.");
 		case PlayerKilledByType.GodzillaLaser:
-			return TM._("{0} was incinerated by Colossus.");
+			return TM._("<color=#{0}>{1}</color> was incinerated by Colossus.");
 		case PlayerKilledByType.KillZone:
-			return TM._("{0} was crushed by Colossus.");
+			return TM._("<color=#{0}>{1}</color> was crushed by Colossus.");
 		default:
-			return TM._("{1} eliminated {0}.");
+			return TM._("<color=#{2}>{3}</color> eliminated <color=#{0}>{1}</color>.");
 		}
 	}
 }

@@ -44,7 +44,7 @@ public class NotificationAreaQueue : NotificationArea
 		}
 		foreach (EnqueuedNotification enqueuedNotification in enqueuedNotifications)
 		{
-			if (enqueuedNotification.notificationType == notificationType && enqueuedNotification.data[(byte)1] == data[(byte)1])
+			if (enqueuedNotification.notificationType == notificationType && enqueuedNotification.data.ContainsKey((byte)1) && enqueuedNotification.data[(byte)1] == data[(byte)1])
 			{
 				return;
 			}

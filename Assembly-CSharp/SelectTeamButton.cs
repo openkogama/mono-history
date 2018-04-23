@@ -22,7 +22,7 @@ public class SelectTeamButton : MonoBehaviour
 		TeamMenu newTeamMenu = Object.Instantiate(teamMenuPrefab);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			x.Push(newTeamMenu.gameObject, UIPushOption.Blocking);
+			x.Push(newTeamMenu.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker);
 		});
 	}
 }

@@ -17,6 +17,15 @@ public class NotificationObjectPool : MonoBehaviour
 
 	public int ActivateInstancesCount => ActiveInstances.Count;
 
+	public bool CanInstantiateNotificationType(NotificationType notificationType)
+	{
+		if (!Instances.Find((Notification x) => (byte)x.Type == (byte)notificationType) && !ActiveInstances.Find((Notification x) => (byte)x.Type == (byte)notificationType))
+		{
+			return false;
+		}
+		return true;
+	}
+
 	private void Awake()
 	{
 		foreach (NotificationObjectPoolElement element in Elements)

@@ -9,6 +9,18 @@ public class TeamsCounter
 	{
 	}
 
+	public TeamsCounter(TeamsCounter teamCounterCopy)
+	{
+		foreach (KeyValuePair<MVTeam, TeamCounter> teamCounter in teamCounterCopy.teamCounters)
+		{
+			foreach (KeyValuePair<int, ActorCounter> actorCounter in teamCounter.Value.ActorCounters)
+			{
+				Update(teamCounter.Key, actorCounter.Key, actorCounter.Value.Count, includeTeamScore: false);
+			}
+			UpdateTeam(teamCounter.Key, teamCounter.Value.TeamCount);
+		}
+	}
+
 	public TeamsCounter(BytePacker bp)
 	{
 		int num = bp.ReadInt32();

@@ -188,7 +188,7 @@ public class ChatControllerUGUI : MonoBehaviour
 			if (promptRegisterForChat && MVGameControllerBase.IsTouristSession)
 			{
 				promptRegisterForChat = false;
-				NotificationController.PushNotification(NotificationType.RegisterToChat, NotificationsManager.eNotificationPanel.tertiary);
+				NotificationController.PushNotification(NotificationType.RegisterToChat);
 			}
 			ChatFocusChanged(enterChatMode: true);
 		}
@@ -342,7 +342,7 @@ public class ChatControllerUGUI : MonoBehaviour
 			{
 				AddLine(FormatSayChatMessage(data));
 				string text = (string)data[(byte)5];
-				ChatBubbleManager.ShowChatBubble(text, avatar.Id, avatar.Avatar.ChatBubbleAnchor);
+				ChatBubbleManager.ShowChatBubble(text, avatar.Id, avatar.Avatar.AvatarUIHandler.ChatBubbleAnchor);
 			}
 		}
 	}

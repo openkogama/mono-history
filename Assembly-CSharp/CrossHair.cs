@@ -3,6 +3,8 @@ using UnityEngine.UI;
 
 public class CrossHair : MonoBehaviour, IGUICrossHair
 {
+	private const string infinity = "∞";
+
 	[SerializeField]
 	private Image crossHair;
 
@@ -60,7 +62,11 @@ public class CrossHair : MonoBehaviour, IGUICrossHair
 		float chargeState = pickupItem.ChargeState;
 		if (quantity == 0 && ammoCount.isActiveAndEnabled)
 		{
-			ammoCount.gameObject.SetActive(value: false);
+			ammoCount.text = "∞";
+		}
+		else
+		{
+			ammoCount.text = quantity.ToString();
 		}
 		if (quantity > 0 && !ammoCount.isActiveAndEnabled)
 		{
@@ -78,7 +84,6 @@ public class CrossHair : MonoBehaviour, IGUICrossHair
 		{
 			chargeFill.gameObject.SetActive(value: true);
 		}
-		ammoCount.text = quantity.ToString();
 		if (crossHair != null)
 		{
 			crossHair.color = crossHairColor;
@@ -110,6 +115,10 @@ public class CrossHair : MonoBehaviour, IGUICrossHair
 			crossHairHitEnemyIndicator.color = color;
 			if (timer >= fadeCurve.keys[fadeCurve.length - 1].time)
 			{
+				timer = 0f;
+				Color color2 = crossHair.color;
+				color2.a = 0f;
+				crossHairHitEnemyIndicator.color = color2;
 				hitEffectActive = false;
 			}
 		}

@@ -1,14 +1,13 @@
 using System;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class GameMeterHealth : GameMeterBase
 {
 	[SerializeField]
-	private Image HealthMeter;
+	private GameObject HealthMeter;
 
 	[SerializeField]
-	private ProgressBarAndroid progressBar;
+	private ProgressBar progressBar;
 
 	private MVAvatar avatarLocal;
 
@@ -44,7 +43,6 @@ public class GameMeterHealth : GameMeterBase
 
 	public override void SetShowGameMeter(bool show)
 	{
-		HealthMeter.enabled = show;
-		progressBar.enabled = show;
+		HealthMeter.SetActive(show);
 	}
 }
