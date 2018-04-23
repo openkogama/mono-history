@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 using AntiHack;
+using Borodar.FarlandSkies.CloudyCrownPro;
 using MV.Common;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -53,6 +54,9 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	private static MVJoinState _joinState;
 
 	private static FirstFrameUpdateActorReady firstFrameUpdateActorReady;
+
+	[SerializeField]
+	private SkyboxController skyboxController;
 
 	[SerializeField]
 	protected KoGaMaSettingsContainer koGaMaSettings;
@@ -257,6 +261,11 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 			}
 			return instance.skyboxManager;
 		}
+	}
+
+	public static void InitializeSkyboxTest()
+	{
+		instance.skyboxController.Initialize();
 	}
 
 	public static void PostGameMsg(MVGameMsgType gameMsgType, Dictionary<object, object> gameMsgData)

@@ -2963,6 +2963,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		playerContainer.Add(mVLocalPlayer);
 		playerContainer.SetLocalPlayer(mVLocalPlayer.ActorNr);
 		MVClientSettings.ClientSettingFlags = (ClientSettingFlags)(int)returnValues[168];
+		MVGameControllerBase.InitializeSkyboxTest();
 		isPublished = (bool)returnValues[81];
 		MVGameControllerBase.JoinState = MVJoinState.LoadGUI;
 		LoadModeGui();

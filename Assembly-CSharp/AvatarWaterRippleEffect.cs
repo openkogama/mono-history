@@ -3,15 +3,15 @@ using UnityEngine;
 
 public class AvatarWaterRippleEffect : WaterSplashComponent
 {
-	[Header("AirBubbles")]
 	[SerializeField]
+	[Header("AirBubbles")]
 	private ParticleSystem airBubbleParticlesPrefab;
 
 	[SerializeField]
 	private Vector3 airBubbleOffset = new Vector3(0f, 1.325f, 0.4f);
 
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	private Avatar avatar;
 
 	private ParticleSystem airBubbleParticles;
