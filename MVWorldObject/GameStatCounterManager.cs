@@ -80,7 +80,7 @@ public class GameStatCounterManager : IGameStatCounterQuery
 
 	public int GetActorCount(GameStatCounterType counterType, MVTeam team, int actorNumber)
 	{
-		if (!persistentStats.ContainsKey(counterType))
+		if (!statTypeCounters.ContainsKey(counterType))
 		{
 			return 0;
 		}
