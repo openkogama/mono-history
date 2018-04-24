@@ -18,7 +18,7 @@ public class GameMeterUpdatedEffect : GameMeterVisualEffect
 
 	private void OnEnable()
 	{
-		startSize = new Vector3(0.5f, 0.5f, 0.5f);
+		startSize = scaleTarget.transform.localScale;
 	}
 
 	public override void ExecuteEffect()

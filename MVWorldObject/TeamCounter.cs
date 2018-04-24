@@ -9,8 +9,6 @@ public class TeamCounter
 
 	public int TeamCount => teamCount;
 
-	public Dictionary<int, ActorCounter> ActorCounters => actorCounters;
-
 	public HighScore HighScore => new HighScore(teamCount, actorCounters);
 
 	public TeamCounter()

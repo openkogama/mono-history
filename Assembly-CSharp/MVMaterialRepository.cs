@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using MV.WorldObject;
+using UnityEngine;
 
 public class MVMaterialRepository
 {
@@ -70,6 +71,7 @@ public class MVMaterialRepository
 	{
 		if (materialId >= materials.Count)
 		{
+			Debug.LogError("Material out of range");
 			return noMaterial.physicalProperties;
 		}
 		return materials[materialId].physicalProperties;

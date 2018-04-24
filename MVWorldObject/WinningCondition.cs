@@ -58,10 +58,6 @@ public abstract class WinningCondition : IWinningCondition
 	public void SetLimit(int limit)
 	{
 		this.limit = limit;
-		if (OnWinningConditionChanged != null)
-		{
-			OnWinningConditionChanged(this, null);
-		}
 	}
 
 	public override string ToString()

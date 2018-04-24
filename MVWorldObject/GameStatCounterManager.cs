@@ -4,10 +4,6 @@ using MV.WorldObject;
 
 public class GameStatCounterManager : IGameStatCounterQuery
 {
-	private List<GameStatCounterType> sessionPersistentStats = new List<GameStatCounterType> { GameStatCounterType.Flag };
-
-	private Dictionary<GameStatCounterType, TeamsCounter> persistentStats;
-
 	private HashSet<MVTeam> activeTeams = new HashSet<MVTeam>();
 
 	protected Dictionary<GameStatCounterType, TeamsCounter> statTypeCounters = new Dictionary<GameStatCounterType, TeamsCounter>();
@@ -36,18 +32,10 @@ public class GameStatCounterManager : IGameStatCounterQuery
 
 	public GameStatCounterManager()
 	{
-		if (persistentStats == null)
-		{
-			persistentStats = new Dictionary<GameStatCounterType, TeamsCounter>();
-		}
 	}
 
 	public GameStatCounterManager(byte[] data)
 	{
-		if (persistentStats == null)
-		{
-			persistentStats = new Dictionary<GameStatCounterType, TeamsCounter>();
-		}
 		SetStats(data);
 	}
 
@@ -91,27 +79,14 @@ public class GameStatCounterManager : IGameStatCounterQuery
 	{
 		Validate(actorNumber, team);
 		AddIfNotPresent(counterType);
-		int num = statTypeCounters[counterType].Increment(team, actorNumber, value, includeTeamScore);
-		SendChangeEvent(num, counterType, actorNumber, team, otherID);
-		if (sessionPersistentStats.Contains(counterType) && IsNewScoreBetter(num, persistentStats[counterType].GetActorCount(team, actorNumber), counterType))
-		{
-			persistentStats[counterType].Update(team, actorNumber, num, includeTeamScore);
-		}
+		int count = statTypeCounters[counterType].Increment(team, actorNumber, value, includeTeamScore);
+		SendChangeEvent(count, counterType, actorNumber, team, otherID);
 	}
 
 	public void Update(GameStatCounterType counterType, int actorNumber, MVTeam team, int value, int otherID, bool includeTeamScore)
 	{
 		Validate(actorNumber, team);
 		AddIfNotPresent(counterType);
-		if (sessionPersistentStats.Contains(counterType))
-		{
-			ClearStats();
-			AddIfNotPresent(counterType);
-			if (IsNewScoreBetter(value, persistentStats[counterType].GetActorCount(team, actorNumber), counterType))
-			{
-				persistentStats[counterType].Update(team, actorNumber, value, includeTeamScore);
-			}
-		}
 		int count = statTypeCounters[counterType].Update(team, actorNumber, value, includeTeamScore);
 		SendChangeEvent(count, counterType, actorNumber, team, otherID);
 	}
@@ -125,12 +100,6 @@ public class GameStatCounterManager : IGameStatCounterQuery
 	}
 
 	public void Clear()
-	{
-		statTypeCounters.Clear();
-		AddPersistentStats();
-	}
-
-	public void ClearStats()
 	{
 		statTypeCounters.Clear();
 	}
@@ -156,10 +125,6 @@ public class GameStatCounterManager : IGameStatCounterQuery
 		if (!statTypeCounters.ContainsKey(statType))
 		{
 			statTypeCounters.Add(statType, new TeamsCounter());
-		}
-		if (sessionPersistentStats.Contains(statType) && !persistentStats.ContainsKey(statType))
-		{
-			persistentStats.Add(statType, new TeamsCounter());
 		}
 	}
 
@@ -223,58 +188,12 @@ public class GameStatCounterManager : IGameStatCounterQuery
 
 	private void SetStat(BytePacker bp)
 	{
-		GameStatCounterType gameStatCounterType = (GameStatCounterType)bp.ReadByte();
+		GameStatCounterType key = (GameStatCounterType)bp.ReadByte();
 		TeamsCounter value = new TeamsCounter(bp);
-		if (statTypeCounters.ContainsKey(gameStatCounterType))
+		if (statTypeCounters.ContainsKey(key))
 		{
-			statTypeCounters.Remove(gameStatCounterType);
+			statTypeCounters.Remove(key);
 		}
-		statTypeCounters.Add(gameStatCounterType, value);
-		if (sessionPersistentStats.Contains(gameStatCounterType))
-		{
-			if (persistentStats.ContainsKey(gameStatCounterType))
-			{
-				persistentStats.Remove(gameStatCounterType);
-			}
-			persistentStats.Add(gameStatCounterType, value);
-		}
-	}
-
-	private bool IsNewScoreBetter(int newScore, int oldScore, GameStatCounterType statType)
-	{
-		switch (statType)
-		{
-		case GameStatCounterType.Kill:
-		case GameStatCounterType.Collectible:
-		case GameStatCounterType.OculusKill:
-			if (newScore > oldScore)
-			{
-				return true;
-			}
-			break;
-		case GameStatCounterType.Flag:
-			if (oldScore < 0)
-			{
-				return true;
-			}
-			if (newScore <= 0)
-			{
-				return false;
-			}
-			if (newScore < oldScore || oldScore == 0)
-			{
-				return true;
-			}
-			break;
-		}
-		return false;
-	}
-
-	private void AddPersistentStats()
-	{
-		foreach (KeyValuePair<GameStatCounterType, TeamsCounter> persistentStat in persistentStats)
-		{
-			statTypeCounters.Add(persistentStat.Key, new TeamsCounter(persistentStat.Value));
-		}
+		statTypeCounters.Add(key, value);
 	}
 }

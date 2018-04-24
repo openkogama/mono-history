@@ -75,7 +75,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 		}
 	}
 
-	protected class DeadMode : AvatarMode
+	protected class DeadMode(MVAvatarLocal mvAvatar) : AvatarMode(mvAvatar, 2)
 	{
 		private class AvatarInputControllerDead : IMotorAPI
 		{
@@ -98,26 +98,15 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 			public bool Jump => false;
 		}
 
-		protected const float deathDuration = 2.5f;
-
-		protected const float deathBriefingDuration = 4f;
-
 		protected float deadTime;
 
 		protected float deadInterval = 2.5f;
 
 		private AvatarInputControllerDead inputController = new AvatarInputControllerDead();
 
-		public DeadMode(MVAvatarLocal mvAvatar)
-			: base(mvAvatar, 2)
-		{
-			mvAvatar.OnKilled = (Action<string>)Delegate.Combine(mvAvatar.OnKilled, new Action<string>(HandleDeathBriefingPause));
-		}
-
 		public override void Activate(AvatarRuntimeState fromMode)
 		{
 			base.Activate(fromMode);
-			deadInterval = 2.5f;
 			deadTime = Time.time;
 			mvAvatar.SetAnimation("Dead");
 			mvAvatar.avatarEquipable.Unequip();
@@ -126,11 +115,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 				mvAvatar.LeaveVehicle(leaveBecauseOfServer: false);
 			}
 			mvAvatar.triggerHandler.enabled = false;
-		}
-
-		private void HandleDeathBriefingPause(string text)
-		{
-			deadInterval = 4f;
 		}
 
 		public override void DeActivate(AvatarRuntimeState toMode)
@@ -666,7 +650,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 				break;
 			}
 			MVGameControllerBase.CameraController.BlueModeEnabled = false;
-			MVGameControllerBase.WOCM.AvatarLocal.Visible = true;
 			MVGameControllerBase.CameraController.SetPlayModeCam();
 			MVGameControllerBase.CameraController.CurCamera.Reset();
 			MVGameControllerBase.WOCM.UpdateWorldBounds(SharedCubeFunctions.GetAxisAlignedBoundsRecursively(MVGameControllerBase.WOCM.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>().Transform).Value);
@@ -1129,7 +1112,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 	public event EventHandler Respawned;
 
 	public MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, PrefabPool.Instance.MVLocalAvatarPrefab, worldObjects)
+		: base(data, worldObjects)
 	{
 		SetNetworkObject(local: true);
 	}
@@ -1140,31 +1123,16 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 		{
 			OnDamageTaken(amount, damageDealer, damageType);
 		}
-		if (!(Health.Value <= 0f))
+		if (Health.Value <= 0f)
 		{
-			return;
-		}
-		int num = damageDealer?.ActorNr ?? MVGameControllerBase.Game.LocalPlayer.ActorNr;
-		int actorNr = MVGameControllerBase.Game.LocalPlayer.ActorNr;
-		if (OnKilled != null)
-		{
-			bool shotSelf = actorNr == num;
-			Color color;
-			Color color2;
-			if (MVGameControllerBase.Game.TeamManager.GetTeamList().Count > 1)
+			int num = damageDealer?.ActorNr ?? MVGameControllerBase.Game.LocalPlayer.ActorNr;
+			int actorNr = MVGameControllerBase.Game.LocalPlayer.ActorNr;
+			if (OnKilled != null)
 			{
-				color = Styles.GetTeamColor(MVGameControllerBase.Game.MVPlayerContainer[actorNr].Team);
-				color2 = Styles.GetTeamColor(MVGameControllerBase.Game.MVPlayerContainer[num].Team);
+				bool shotSelf = actorNr == num;
+				string obj = string.Format(KillNotification.GetKillText(damageType, shotSelf), MVGameControllerBase.Game.MVPlayerContainer[actorNr].Username, MVGameControllerBase.Game.MVPlayerContainer[num].Username);
+				OnKilled(obj);
 			}
-			else
-			{
-				color = Styles.GetColor(ColorStyle.Gray);
-				color2 = Styles.GetColor(ColorStyle.Gray);
-			}
-			string username = MVGameControllerBase.Game.MVPlayerContainer[actorNr].Username;
-			string username2 = MVGameControllerBase.Game.MVPlayerContainer[num].Username;
-			string obj = string.Format(KillNotification.GetKillText(damageType, shotSelf), Styles.ColorToHex(color), username, Styles.ColorToHex(color2), username2);
-			OnKilled(obj);
 		}
 	}
 
@@ -1195,6 +1163,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 		avatarLocalModes = new AvatarLocalModes(this);
 		InitializeHealth();
 		InitializeShield();
+		avatar.DeactivateBars();
 		MVGameControllerBase.WOCM.AvatarLocal = this;
 		InitializeAvatarState(MVGameControllerBase.GameMode, MVGameControllerBase.Game.GameType);
 		if (MVGameControllerBase.GameMode != MVGameMode.CharacterEditor)
@@ -1489,7 +1458,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 		}
 	}
 
-	public void ResetAvatar()
+	private void ResetAvatar()
 	{
 		triggerHandler.enabled = true;
 		int actorNr = MVGameControllerBase.Game.LocalPlayer.ActorNr;

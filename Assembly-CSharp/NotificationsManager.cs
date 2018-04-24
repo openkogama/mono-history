@@ -4,24 +4,40 @@ using UnityEngine;
 
 public class NotificationsManager : MonoBehaviour
 {
+	public enum eNotificationPanel
+	{
+		primary,
+		secondary,
+		tertiary,
+		custom
+	}
+
 	[SerializeField]
+	private NotificationArea notificationAreaPrimary;
+
+	[SerializeField]
+	private NotificationArea notificationAreaSecondary;
+
+	[SerializeField]
+	private NotificationArea notificationAreaTertiary;
+
+	[SerializeField]
+	private NotificationArea notificationAreaCustom;
+
 	private NotificationArea[] notificationAreas;
+
+	private void Awake()
+	{
+		notificationAreas = new NotificationArea[4] { notificationAreaPrimary, notificationAreaSecondary, notificationAreaTertiary, notificationAreaCustom };
+	}
 
 	private void OnEnable()
 	{
 		NotificationController.Register(this);
 	}
 
-	public void InstantiateNotification(NotificationType notificationType, Dictionary<object, object> data)
+	public void InstantiateNotification(NotificationType notificationType, eNotificationPanel panel, Dictionary<object, object> data)
 	{
-		for (int i = 0; i < notificationAreas.Length; i++)
-		{
-			if (notificationAreas[i].CanInstantiateNotificationType(notificationType))
-			{
-				notificationAreas[i].InstantiateNotification(notificationType, data);
-				return;
-			}
-		}
-		Debug.LogError("Could not find a notification area who could instantiate notification of type " + notificationType);
+		notificationAreas[(int)panel].InstantiateNotification(notificationType, data);
 	}
 }

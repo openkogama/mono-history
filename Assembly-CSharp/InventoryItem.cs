@@ -105,7 +105,7 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.Star,
-			new ItemDescription(TM._("Game objective: Star"), TM._("The player/team who first collects all the stars, wins!"), TM._("Collect all these sparkly trinkets to win games and unlock new paths."))
+			new ItemDescription(TM._("Star"), TM._("The player who first collects all the stars, wins!"), TM._("Collect all these sparkly trinkets to win games and unlock new paths."))
 		},
 		{
 			MVWorldObjectDocumentationType.GrowthPill,

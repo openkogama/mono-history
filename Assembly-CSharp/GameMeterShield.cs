@@ -10,7 +10,7 @@ public class GameMeterShield : GameMeterBase
 	private Image ShieldMeter;
 
 	[SerializeField]
-	private ProgressBar progressBar;
+	private ProgressBarAndroid progressBar;
 
 	private MVAvatar avatarLocal;
 
