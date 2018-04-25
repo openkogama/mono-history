@@ -43,7 +43,7 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 	}
 
 	public MVAvatarRemote(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, worldObjects)
+		: base(data, PrefabPool.Instance.MVRemoteAvatarPrefab, worldObjects)
 	{
 		SetNetworkObject(local: false);
 		IsInVehicle = false;
@@ -52,12 +52,12 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 	public override void Initialize()
 	{
 		base.Initialize();
-		avatar.UpdateNameTag();
+		((AvatarUIHandlerRemote)avatar.AvatarUIHandler).UpdateNameTag();
 		if (MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(OwnerActorNr).BuildTarget == BuildTarget.Android)
 		{
-			avatar.ShowMobileIcon();
+			((AvatarUIHandlerRemote)avatar.AvatarUIHandler).ShowMobileIcon();
 		}
-		avatar.HealthBar.Oxygen = 0f;
+		((AvatarUIHandlerRemote)avatar.AvatarUIHandler).HealthBar.Oxygen = 0f;
 		InitializeHealth();
 		InitializeShield();
 		triggerCollider = CreateTriggerCollider();
@@ -114,10 +114,10 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 		MVRuntimeDataVariableClampedFloat health = Health;
 		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object obj) =>
 		{
-			TrySpawningHealParticles(avatar.HealthBar.Health, Health.Value);
-			avatar.HealthBar.Health = (float)obj;
+			TrySpawningHealParticles(((AvatarUIHandlerRemote)avatar.AvatarUIHandler).HealthBar.Health, Health.Value);
+			((AvatarUIHandlerRemote)avatar.AvatarUIHandler).HealthBar.Health = (float)obj;
 		}));
-		avatar.HealthBar.Health = Health.Value;
+		((AvatarUIHandlerRemote)avatar.AvatarUIHandler).HealthBar.Health = Health.Value;
 		Body.InitializeHealth(Health.Value);
 	}
 
@@ -126,10 +126,10 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 		MVRuntimeDataVariableClampedFloat mVRuntimeDataVariableClampedFloat = Shield;
 		mVRuntimeDataVariableClampedFloat.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(mVRuntimeDataVariableClampedFloat.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object shield) =>
 		{
-			TrySpawningHealParticles(avatar.ShieldBar.Shield, Shield.Value);
-			avatar.ShieldBar.Shield = (float)shield;
+			TrySpawningHealParticles(((AvatarUIHandlerRemote)avatar.AvatarUIHandler).ShieldBar.Shield, Shield.Value);
+			((AvatarUIHandlerRemote)avatar.AvatarUIHandler).ShieldBar.Shield = (float)shield;
 		}));
-		avatar.ShieldBar.Shield = Shield.Value;
+		((AvatarUIHandlerRemote)avatar.AvatarUIHandler).ShieldBar.Shield = Shield.Value;
 		Body.InitializeShield(Shield.Value);
 	}
 
@@ -196,14 +196,14 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 		if ((num & 4) > 0)
 		{
 			Body.Visible = false;
-			avatar.NameTagLabelVisible = false;
+			((AvatarUIHandlerRemote)avatar.AvatarUIHandler).NameTagLabelVisible = false;
 			triggerCollider.enabled = false;
 		}
 		else
 		{
 			Body.Visible = true;
-			avatar.SetHealthBarColor(MVGameControllerBase.Game.TeamManager.IsOnSameTeam(this, MVGameControllerBase.Game.LocalPlayer.Avatar));
-			avatar.NameTagLabelVisible = true;
+			((AvatarUIHandlerRemote)avatar.AvatarUIHandler).SetHealthBarColor(MVGameControllerBase.Game.TeamManager.IsOnSameTeam(this, MVGameControllerBase.Game.LocalPlayer.Avatar));
+			((AvatarUIHandlerRemote)avatar.AvatarUIHandler).NameTagLabelVisible = true;
 			triggerCollider.enabled = true;
 		}
 	}

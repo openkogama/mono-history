@@ -34,7 +34,7 @@ public class WinningConditionManager
 		}
 	}
 
-	private readonly WinningConditionOr winnerConditionsRoot;
+	private WinningConditionOr winnerConditionsRoot;
 
 	private int winnerConditionIDCounter;
 
@@ -46,11 +46,13 @@ public class WinningConditionManager
 
 	public event EventHandler<EventArgs> OnWinningConditionReset;
 
-	public event EventHandler<EventArgs> OnWinningConditionCountChanged;
+	public event EventHandler<EventArgs> OnWinningConditionAddedOrRemoved;
 
-	public WinningConditionManager(GameStatCounterManager gameCounterManager)
+	public event EventHandler<EventArgs> OnWinningConditionStateChangedEditMode;
+
+	public void Initialize(GameStatCounterManager gameStatCounterManager)
 	{
-		this.gameCounterManager = gameCounterManager;
+		gameCounterManager = gameStatCounterManager;
 		winnerConditionsRoot = CreateInstance<WinningConditionOr>(null, new object[3]
 		{
 			false,
@@ -80,6 +82,14 @@ public class WinningConditionManager
 		winnerConditionsRoot.Traverse(callBack);
 	}
 
+	public void PublishWinningConditionLimitChanged()
+	{
+		if (OnWinningConditionStateChangedEditMode != null)
+		{
+			OnWinningConditionStateChangedEditMode(this, null);
+		}
+	}
+
 	public List<IWinningCondition> GetForfilledWinningConditions()
 	{
 		return new ForfilledWinnerConditionGenerator(this).gameWonWinnerConditions;
@@ -99,9 +109,9 @@ public class WinningConditionManager
 		}
 		singletonWinnerConditionByType = CreateInstance<T>(parent, args);
 		AddWinnerConditionToNode(parent, singletonWinnerConditionByType);
-		if (OnWinningConditionCountChanged != null)
+		if (OnWinningConditionAddedOrRemoved != null)
 		{
-			OnWinningConditionCountChanged(this, new EventArgs());
+			OnWinningConditionAddedOrRemoved(this, new EventArgs());
 		}
 		return singletonWinnerConditionByType;
 	}
@@ -109,9 +119,29 @@ public class WinningConditionManager
 	public void RemoveWinnerCondition(int id)
 	{
 		winnerConditionsRoot.RemoveWinnerCondition(id);
-		if (OnWinningConditionCountChanged != null)
+		if (OnWinningConditionAddedOrRemoved != null)
 		{
-			OnWinningConditionCountChanged(this, new EventArgs());
+			OnWinningConditionAddedOrRemoved(this, new EventArgs());
+		}
+	}
+
+	public void SetLimitForSingletonWinningConditionWithRoundReset<T>(int limit) where T : WinningCondition
+	{
+		List<T> winnerConditionsByType = GetWinnerConditionsByType<T>();
+		if (winnerConditionsByType.Count != 0)
+		{
+			if (winnerConditionsByType.Count > 1)
+			{
+				throw new Exception($"Singleton count of type:{typeof(T)} is: {winnerConditionsByType.Count}");
+			}
+			T val = winnerConditionsByType[0];
+			if (!val.IsSingleton)
+			{
+				throw new Exception($"Type is not singleton:{typeof(T)}");
+			}
+			T val2 = winnerConditionsByType[0];
+			val2.SetLimit(limit);
+			PublishWinningConditionLimitChanged();
 		}
 	}
 
@@ -253,8 +283,38 @@ public class WinningConditionManager
 		}
 		if (typeFromHandle == typeof(TimeLimit))
 		{
-			return (T)(WinningCondition)new TimeLimit((WinningCondition)args[0], (int)args[1], (GameStatCounterManager)args[2], (GameStatCounterType)args[3]);
+			return (T)(WinningCondition)new TimeLimit((WinningCondition)args[0], (int)args[1], (GameStatCounterManager)args[2]);
+		}
+		if (typeFromHandle == typeof(FinishLineReached))
+		{
+			return (T)(WinningCondition)new FinishLineReached((WinningCondition)args[0], (int)args[1], (GameStatCounterManager)args[2]);
 		}
 		return null;
+	}
+
+	public bool CanPlaceWinningCondition<T>() where T : WinningCondition
+	{
+		if (winnerConditionsRoot.Length <= 0)
+		{
+			return true;
+		}
+		if (GetSingletonWinnerConditionByType<T>() != null)
+		{
+			return true;
+		}
+		if (winnerConditionsRoot.Length == 1 && winnerConditionsRoot.Traverse(IsTimeLimit))
+		{
+			return true;
+		}
+		return false;
+	}
+
+	private bool IsTimeLimit(IWinningCondition winningCondition)
+	{
+		if (winningCondition is TimeLimit)
+		{
+			return true;
+		}
+		return false;
 	}
 }

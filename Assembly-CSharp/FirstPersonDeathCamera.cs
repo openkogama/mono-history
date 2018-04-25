@@ -2,13 +2,13 @@ using UnityEngine;
 
 public class FirstPersonDeathCamera : MVCameraBase
 {
-	[Header("Settings")]
 	[SerializeField]
+	[Header("Settings")]
 	private Vector3 cameraOffset;
 
 	[Tooltip("Strength of screen flash.")]
-	[Range(0f, 1f)]
 	[SerializeField]
+	[Range(0f, 1f)]
 	private float flashStrength;
 
 	[SerializeField]

@@ -130,7 +130,7 @@ public enum WorldObjectType
 	Mathias8 = 177,
 	Mathias9 = 178,
 	Mathias10 = 179,
-	Marcus1 = 180,
+	FinishLine = 180,
 	Marcus2 = 181,
 	Marcus3 = 182,
 	Marcus4 = 183,

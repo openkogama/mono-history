@@ -87,12 +87,12 @@ public class GodzillaModifier : AvatarModifier
 		}
 	};
 
-	[SerializeField]
 	[HideInInspector]
+	[SerializeField]
 	private GodzillaModifierPackageType type;
 
-	[SerializeField]
 	[HideInInspector]
+	[SerializeField]
 	private float sizeModifier;
 
 	[SerializeField]

@@ -58,7 +58,7 @@ public class TeamMenuButton : MonoBehaviour
 		});
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			x.Push(newTeamMenu.gameObject, UIPushOption.Blocking | UIPushOption.HideAll, null, UIGroupFlags.InventoryUI);
+			x.Push(newTeamMenu.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
 		});
 	}
 }

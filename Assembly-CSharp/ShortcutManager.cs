@@ -33,8 +33,6 @@ public class ShortcutManager : MonoBehaviour, IEventSystemHandler, IShortcutKeyR
 
 	private Dictionary<KogamaControls, Stack<ShortcutKey>> shortCutKeys = new Dictionary<KogamaControls, Stack<ShortcutKey>>();
 
-	private ShortcutKey shortcutKey;
-
 	public void RegisterShortcutKey(KogamaControls kogamaControl, KeyState keyState, UnityAction callback)
 	{
 		ShortcutKey t = new ShortcutKey(kogamaControl, keyState, callback);
@@ -68,33 +66,35 @@ public class ShortcutManager : MonoBehaviour, IEventSystemHandler, IShortcutKeyR
 		foreach (KeyValuePair<KogamaControls, Stack<ShortcutKey>> shortCutKey in shortCutKeys)
 		{
 			bool flag = false;
-			shortcutKey = shortCutKey.Value.Peek();
-			switch (shortcutKey.keyState)
+			foreach (ShortcutKey item in shortCutKey.Value)
 			{
-			case KeyState.Down:
-				if (MVInputWrapper.GetBooleanControlDown(shortcutKey.kogamaControl))
+				switch (item.keyState)
 				{
-					flag = true;
+				case KeyState.Down:
+					if (MVInputWrapper.GetBooleanControlDown(item.kogamaControl))
+					{
+						flag = true;
+					}
+					break;
+				case KeyState.Up:
+					if (MVInputWrapper.GetBooleanControlUp(item.kogamaControl))
+					{
+						flag = true;
+					}
+					break;
+				case KeyState.Pressed:
+					if (MVInputWrapper.GetBooleanControl(item.kogamaControl))
+					{
+						flag = true;
+					}
+					break;
 				}
-				break;
-			case KeyState.Up:
-				if (MVInputWrapper.GetBooleanControlUp(shortcutKey.kogamaControl))
+				if (flag)
 				{
-					flag = true;
+					item.callback();
+					break;
 				}
-				break;
-			case KeyState.Pressed:
-				if (MVInputWrapper.GetBooleanControl(shortcutKey.kogamaControl))
-				{
-					flag = true;
-				}
-				break;
-			}
-			if (flag)
-			{
-				shortcutKey.callback();
 			}
 		}
-		shortcutKey = null;
 	}
 }

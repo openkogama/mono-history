@@ -68,5 +68,6 @@ public enum MVWorldObjectDocumentationType
 	ShootableButton,
 	Lever,
 	CollectTheItem,
-	HealRay
+	HealRay,
+	FinishLine
 }

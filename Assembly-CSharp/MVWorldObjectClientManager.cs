@@ -270,6 +270,21 @@ public abstract class MVWorldObjectClientManager : IWorldObjectManager
 		return (T)singletonWorldObjectByType;
 	}
 
+	public WorldObjectClientRef<T> GetSingletonWorldObjectRef<T>() where T : MVWorldObjectClient
+	{
+		WorldObjectType worldObjectType = WorldObjectType.Battery;
+		if (!worldObjectMapping.TryGetWorldObjectTypeFromObjectType(typeof(T), ref worldObjectType))
+		{
+			return null;
+		}
+		MVWorldObjectClient singletonWorldObjectByType = GetSingletonWorldObjectByType(worldObjectType);
+		if (singletonWorldObjectByType == null)
+		{
+			return null;
+		}
+		return new WOCMWorldObjectClientRef<T>(singletonWorldObjectByType.Id);
+	}
+
 	private MVWorldObjectClient GetSingletonWorldObjectByType(WorldObjectType worldObjectType)
 	{
 		List<MVWorldObjectClient> worldObjectsByType = GetWorldObjectsByType(worldObjectType);

@@ -18,5 +18,6 @@ public enum NotificationDataType : byte
 	OpenInventoryCategory,
 	OpenInventorySlot,
 	Id,
-	Custom
+	Custom,
+	TimeStamp
 }

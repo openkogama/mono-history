@@ -93,6 +93,7 @@ public enum MVOperationCodes : byte
 	StartHeadNod = 91,
 	StartWave = 92,
 	SetSayChatBubbleVisible = 93,
+	ReportReachedFinishLine = 94,
 	Join = byte.MaxValue,
 	Leave = 254,
 	RaiseEvent = 253,

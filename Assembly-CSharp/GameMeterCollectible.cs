@@ -38,17 +38,14 @@ public class GameMeterCollectible : GameMeterBase
 	public override void SetGameMeterVisibility()
 	{
 		collectedClient = MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<AllCollectiblesCollectedClient>();
-		if (collectedClient != null)
+		WinningConditionControl.TryGetPrioritizedWinCondition(out var condition);
+		if (condition != WinningConditionType.Collectible)
 		{
-			if (!gameObject.activeSelf)
-			{
-				Show();
-			}
-			UpdateValue();
+			Hide();
 		}
 		else
 		{
-			Hide();
+			Show();
 		}
 	}
 
@@ -58,16 +55,16 @@ public class GameMeterCollectible : GameMeterBase
 		{
 			return;
 		}
-		int gameStat = MVGameControllerBase.Game.LocalPlayer.GetGameStat(GameStatCounterType.Collectible);
-		if (prevValue != gameStat && gameStat != 0)
+		int num = ((MVGameControllerBase.Game.TeamManager.GetTeamList().Count <= 1) ? MVGameControllerBase.Game.LocalPlayer.GetGameStat(GameStatCounterType.Collectible) : MVGameControllerBase.Game.GameStatCounterManager.GetTeamCount(GameStatCounterType.Collectible, MVGameControllerBase.Game.LocalPlayer.Team));
+		if (prevValue != num && num != 0)
 		{
 			for (int i = 0; i < gameMeterVisualEffects.Count; i++)
 			{
 				gameMeterVisualEffects[i].ExecuteEffect();
 			}
-			prevValue = gameStat;
+			prevValue = num;
 		}
-		string text = gameStat + "/" + collectedClient.Limit;
+		string text = num + "/" + collectedClient.Limit;
 		collectibleText.text = text;
 	}
 

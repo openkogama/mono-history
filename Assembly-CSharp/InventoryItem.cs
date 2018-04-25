@@ -105,7 +105,7 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.Star,
-			new ItemDescription(TM._("Star"), TM._("The player who first collects all the stars, wins!"), TM._("Collect all these sparkly trinkets to win games and unlock new paths."))
+			new ItemDescription(TM._("Game objective: Star"), TM._("The player/team who first collects all the stars, wins!"), TM._("Collect all these sparkly trinkets to win games and unlock new paths."))
 		},
 		{
 			MVWorldObjectDocumentationType.GrowthPill,
@@ -338,6 +338,10 @@ public class InventoryItem
 		{
 			MVWorldObjectDocumentationType.GlobalSoundEmitter,
 			new ItemDescription(TM._("Global Speaker"), TM._("Adds a global sound to the game that can be heard from anywhere."), TM._("This can be used to make a better ambiance for the game."))
+		},
+		{
+			MVWorldObjectDocumentationType.FinishLine,
+			new ItemDescription(TM._("Game objective: Finish Line"), TM._("Records the time it took for a player to reach it, without resetting the round."), TM._("Try it with a round cube to determine the winner after a set period of time."))
 		}
 	};
 
