@@ -26,5 +26,6 @@ public enum NotificationType
 	KillPrimary,
 	BestFlagTime,
 	HurryUp,
-	FlagHighScore
+	FlagHighScore,
+	CurrentProgress
 }

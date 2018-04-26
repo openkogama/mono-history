@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
 using UnityEngine.UI;
@@ -90,6 +91,7 @@ public class DeathUIController : MonoBehaviour
 				fader.Activate();
 				HandleScoreBoardVisibility();
 				localPlayeScore.Activate();
+				SendCurrentProgressNotification();
 				isDeathBriefActive = true;
 			}
 			float num = waitTime + 1.2f;
@@ -164,6 +166,16 @@ public class DeathUIController : MonoBehaviour
 			{
 				scoreBoardSingle.ReSortScoreBoard();
 			}
+		}
+	}
+
+	private void SendCurrentProgressNotification()
+	{
+		WinningConditionControl.TryGetPrioritizedStat(out var gameStatCounterType);
+		if (gameStatCounterType != GameStatCounterType.None)
+		{
+			Dictionary<object, object> data = new Dictionary<object, object>();
+			NotificationController.PushNotification(NotificationType.CurrentProgress, data);
 		}
 	}
 }

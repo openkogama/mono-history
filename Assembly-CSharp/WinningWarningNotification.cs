@@ -57,7 +57,6 @@ public class WinningWarningNotification : Notification
 			if (winningConditionImages[i].Key == winningConditionType)
 			{
 				winningConditionImages[i].Value.gameObject.SetActive(value: true);
-				winningConditionImages[i].Value.color = Styles.GetTeamColor(player.Team);
 			}
 			else
 			{
