@@ -12,9 +12,6 @@ public class FlagHighScoreNotification : Notification
 	private Text userNameText;
 
 	[SerializeField]
-	private Image flagImage;
-
-	[SerializeField]
 	private NotificationFade fader;
 
 	protected override NotificationLifetime Lifetime => NotificationLifetime.High;
@@ -28,7 +25,6 @@ public class FlagHighScoreNotification : Notification
 			timeText.text = (string)data[(byte)1];
 			userNameText.text = player.Username;
 			fader.Activate();
-			flagImage.color = Styles.GetTeamColor(MVGameControllerBase.Game.LocalPlayer.Team);
 			NotificationFade notificationFade = fader;
 			notificationFade.OnFinished = (Action)Delegate.Combine(notificationFade.OnFinished, new Action(DestroyNotification));
 		}

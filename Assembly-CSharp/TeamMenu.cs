@@ -33,7 +33,7 @@ public class TeamMenu : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		if (MVGameControllerBase.CameraController.BlueModeEnabled)
+		if (!WinningConditionControl.TryGetPrioritizedWinCondition(out var _))
 		{
 			MVGameControllerBase.WOCM.AvatarLocal.Visible = true;
 		}

@@ -138,14 +138,14 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 			}
 			Dictionary<object, object> gameMsgData = GameMessages.MakePlayerKilledMessage(MVGameControllerBase.Game.LocalPlayer.ActorNr, actorNr, playerKilledByType);
 			MVGameControllerBase.OperationRequests.PostGameMsg(MVGameMsgType.AvatarKilled, gameMsgData);
+			Dictionary<object, object> dictionary = new Dictionary<object, object>();
+			dictionary.Add((byte)7, MVGameControllerBase.Game.LocalPlayer.ActorNr);
+			dictionary.Add((byte)6, actorNr);
+			dictionary.Add((byte)8, playerKilledByType);
+			Dictionary<object, object> dictionary2 = dictionary;
+			NotificationController.OnNotificationReceived(NotificationType.Kill, dictionary2);
 			if (!KillNotificationBlacklist.Contains(playerKilledByType))
 			{
-				Dictionary<object, object> dictionary = new Dictionary<object, object>();
-				dictionary.Add((byte)7, MVGameControllerBase.Game.LocalPlayer.ActorNr);
-				dictionary.Add((byte)6, actorNr);
-				dictionary.Add((byte)8, playerKilledByType);
-				Dictionary<object, object> dictionary2 = dictionary;
-				NotificationController.OnNotificationReceived(NotificationType.Kill, dictionary2);
 				MVGameControllerBase.OperationRequests.PostNotificationOperation(NotificationType.Kill, dictionary2);
 			}
 		}

@@ -9,9 +9,6 @@ public class HurryUpNotification : Notification
 	private Text timeText;
 
 	[SerializeField]
-	private Image timeImage;
-
-	[SerializeField]
 	private NotificationFade fader;
 
 	[SerializeField]
@@ -31,7 +28,6 @@ public class HurryUpNotification : Notification
 		base.Initialize(data);
 		timeStamp = (int)data[(byte)17];
 		timeLeftFromTimeStamp = (int)data[(byte)4];
-		timeImage.color = Styles.GetTeamColor(MVGameControllerBase.Game.LocalPlayer.Team);
 		int serverTimeInMilliSeconds = MVGameControllerBase.Game.ServerTimeInMilliSeconds;
 		int num = timeLeftFromTimeStamp - (serverTimeInMilliSeconds - timeStamp);
 		int num2 = (int)((float)num / 1000f);

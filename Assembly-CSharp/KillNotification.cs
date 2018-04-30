@@ -76,6 +76,8 @@ public class KillNotification : Notification
 			return TM._("<color=#{2}>{3}</color> eliminated <color=#{0}>{1}</color> using mutant.");
 		case PlayerKilledByType.None:
 			return TM._("None");
+		case PlayerKilledByType.Sword:
+			return TM._("<color=#{2}>{3}</color> eliminated <color=#{0}>{1}</color> with a sword.");
 		case PlayerKilledByType.RailGun:
 			return TM._("<color=#{2}>{3}</color> sniped <color=#{0}>{1}</color> with a railgun.");
 		case PlayerKilledByType.Shotgun:

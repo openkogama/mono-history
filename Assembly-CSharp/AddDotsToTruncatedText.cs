@@ -18,7 +18,6 @@ public class AddDotsToTruncatedText : MonoBehaviour
 		}
 		float res = (float)Screen.width / 1920f;
 		float dotSize = (float)CalculateLengthOfMessage("...") / res;
-		Debug.Log("Length: " + (float)CalculateLengthOfMessage(textValue) / res + "/" + text.rectTransform.rect.width);
 		while (textValue.Length > 0 && (float)CalculateLengthOfMessage(textValue) / res > text.rectTransform.rect.width - dotSize)
 		{
 			addDots = true;
@@ -30,7 +29,6 @@ public class AddDotsToTruncatedText : MonoBehaviour
 			text.text += "...";
 		}
 		text.fontSize = Mathf.Clamp(text.fontSize, text.resizeTextMinSize, text.resizeTextMaxSize);
-		Debug.Log("Length: " + (float)CalculateLengthOfMessage(textValue) * res + "/" + text.rectTransform.rect.width);
 	}
 
 	private int CalculateLengthOfMessage(string message)

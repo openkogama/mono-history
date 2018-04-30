@@ -128,6 +128,7 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 		debriefing.SetWinValue(winValue);
 		debriefing.SetWinningConditionSprite(currentWinningConditions[winType]);
 		debriefing.SetAdditionalInformation(empty);
+		debriefing.ActivateScoreImage(winType);
 		StartCoroutine(ShowDebriefingCoroutine());
 	}
 
@@ -166,6 +167,7 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 			debriefing.SetWinnerText(text);
 		}
 		debriefing.SetWinningConditionSprite(currentWinningConditions[winType]);
+		debriefing.ActivateScoreImage(winType);
 		int num = scoreTeamEntries[0].counter;
 		if (num == 0)
 		{
@@ -217,6 +219,7 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 		debriefing.SetWinnerText(TM._("Time's Up!"));
 		debriefing.SetWinningConditionSprite(currentWinningConditions[WinningConditionType.Time]);
 		debriefing.SetWinnerImage(Styles.GetColor(ColorStyle.DarkNavyBlue), captureCamera.RenderCam.targetTexture);
+		debriefing.ActivateScoreImage(WinningConditionType.None);
 		StartCoroutine(ShowDebriefingCoroutine());
 	}
 

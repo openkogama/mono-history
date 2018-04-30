@@ -40,16 +40,12 @@ public class LoadingScreenHandler : MonoBehaviour
 
 	private float currentTime;
 
-	private void Awake()
-	{
-		uiText.text = string.Empty;
-		MVGameControllerBase.OnReceivedGameMsg = (MVGameControllerBase.OnReceivedGameMsgDelegate)Delegate.Combine(MVGameControllerBase.OnReceivedGameMsg, new MVGameControllerBase.OnReceivedGameMsgDelegate(OnGameMessageReceived));
-		eventsCount = eventCountLookup[MVGameControllerBase.GameMode];
-	}
-
 	private void Start()
 	{
+		uiText.text = string.Empty;
 		loadingBar.Progress = 0f;
+		MVGameControllerBase.OnReceivedGameMsg = (MVGameControllerBase.OnReceivedGameMsgDelegate)Delegate.Combine(MVGameControllerBase.OnReceivedGameMsg, new MVGameControllerBase.OnReceivedGameMsgDelegate(OnGameMessageReceived));
+		eventsCount = eventCountLookup[MVGameControllerBase.GameMode];
 	}
 
 	private void Update()

@@ -1,8 +1,18 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class DebriefingWinnerGUI : MonoBehaviour
 {
+	[Serializable]
+	private struct ScoreImageData
+	{
+		public WinningConditionType scoreType;
+
+		public Image scoreImage;
+	}
+
 	[SerializeField]
 	private Text winnerName;
 
@@ -26,6 +36,9 @@ public class DebriefingWinnerGUI : MonoBehaviour
 
 	[SerializeField]
 	private ImageAnimator backgroundImage;
+
+	[SerializeField]
+	private List<ScoreImageData> scoreImages;
 
 	public void SetWinnerImage(Color startColor, RenderTexture image)
 	{
@@ -62,5 +75,20 @@ public class DebriefingWinnerGUI : MonoBehaviour
 	public void SetWinnerText(string winner)
 	{
 		winnerName.text = winner;
+	}
+
+	public void ActivateScoreImage(WinningConditionType statType)
+	{
+		for (int i = 0; i < scoreImages.Count; i++)
+		{
+			if (statType == scoreImages[i].scoreType)
+			{
+				scoreImages[i].scoreImage.enabled = true;
+			}
+			else
+			{
+				scoreImages[i].scoreImage.enabled = false;
+			}
+		}
 	}
 }

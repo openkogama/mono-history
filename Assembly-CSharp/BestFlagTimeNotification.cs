@@ -9,9 +9,6 @@ public class BestFlagTimeNotification : Notification
 	private Text timeText;
 
 	[SerializeField]
-	private Image flagImage;
-
-	[SerializeField]
 	private NotificationFade fader;
 
 	protected override NotificationLifetime Lifetime => NotificationLifetime.High;
@@ -21,7 +18,6 @@ public class BestFlagTimeNotification : Notification
 		base.Initialize(data);
 		timeText.text = (string)data[(byte)1];
 		fader.Activate();
-		flagImage.color = Styles.GetTeamColor(MVGameControllerBase.Game.LocalPlayer.Team);
 		NotificationFade notificationFade = fader;
 		notificationFade.OnFinished = (Action)Delegate.Combine(notificationFade.OnFinished, new Action(DestroyNotification));
 	}
