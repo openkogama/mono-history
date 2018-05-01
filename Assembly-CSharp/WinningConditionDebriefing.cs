@@ -8,14 +8,6 @@ using UnityEngine.EventSystems;
 
 public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 {
-	[Serializable]
-	private struct WinningConditionDef
-	{
-		public WinningConditionType conditionType;
-
-		public Sprite conditionSprite;
-	}
-
 	[SerializeField]
 	private CanvasGroup group;
 
@@ -35,19 +27,10 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 
 	private AvatarCapture captureCamera;
 
-	[SerializeField]
-	private List<WinningConditionDef> winningConditionList;
-
-	private Dictionary<WinningConditionType, Sprite> currentWinningConditions = new Dictionary<WinningConditionType, Sprite>();
-
 	private float fadeTime = 0.3f;
 
 	private void Start()
 	{
-		for (int i = 0; i < winningConditionList.Count; i++)
-		{
-			currentWinningConditions.Add(winningConditionList[i].conditionType, winningConditionList[i].conditionSprite);
-		}
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Combine(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnWinningConditionReceived));
 	}
@@ -126,8 +109,7 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 		string empty = string.Empty;
 		string winValue = FormatCount(counterType, num);
 		debriefing.SetWinValue(winValue);
-		debriefing.SetWinningConditionSprite(currentWinningConditions[winType]);
-		debriefing.SetAdditionalInformation(empty);
+		debriefing.SetAdditionalInformation(empty, winType);
 		debriefing.ActivateScoreImage(winType);
 		StartCoroutine(ShowDebriefingCoroutine());
 	}
@@ -166,7 +148,6 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 			text += "!";
 			debriefing.SetWinnerText(text);
 		}
-		debriefing.SetWinningConditionSprite(currentWinningConditions[winType]);
 		debriefing.ActivateScoreImage(winType);
 		int num = scoreTeamEntries[0].counter;
 		if (num == 0)
@@ -217,7 +198,6 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 		debriefing = UnityEngine.Object.Instantiate(noWinnerPrefab);
 		debriefing.transform.SetParent(group.gameObject.transform, worldPositionStays: false);
 		debriefing.SetWinnerText(TM._("Time's Up!"));
-		debriefing.SetWinningConditionSprite(currentWinningConditions[WinningConditionType.Time]);
 		debriefing.SetWinnerImage(Styles.GetColor(ColorStyle.DarkNavyBlue), captureCamera.RenderCam.targetTexture);
 		debriefing.ActivateScoreImage(WinningConditionType.None);
 		StartCoroutine(ShowDebriefingCoroutine());

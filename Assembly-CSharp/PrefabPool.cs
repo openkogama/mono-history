@@ -384,9 +384,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem healingParticles;
 
+	[Space(20f)]
 	[SerializeField]
 	[Header("Logic object prefabs")]
-	[Space(20f)]
 	private GameObject logicInputConnectorPrefab;
 
 	[SerializeField]
@@ -413,9 +413,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material logicCubeConnectorBlueSelectedMaterial;
 
-	[Space(20f)]
 	[SerializeField]
 	[Header("GUI")]
+	[Space(20f)]
 	private Texture2D avatarAccessoryMoveIcon;
 
 	[SerializeField]
@@ -424,9 +424,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material modelConstraintsMaterial;
 
-	[Header("UGUI")]
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
+	[Header("UGUI")]
 	private AvatarInputControllerAndroidSettings avatarInputControllerAndroidSettings;
 
 	[SerializeField]
@@ -451,9 +451,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private RectTransform editFaceHelpText;
 
-	[Space(20f)]
-	[Header("Cameras")]
 	[SerializeField]
+	[Header("Cameras")]
+	[Space(20f)]
 	private GodzillaCameraDesktop godzillaCameraDesktop;
 
 	[SerializeField]
@@ -462,9 +462,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private FirstPersonDeathCamera firstPersonDeathCamera;
 
+	[SerializeField]
 	[Header("Editor")]
 	[Space(20f)]
-	[SerializeField]
 	private Material cellCursorErrorMaterial;
 
 	[SerializeField]

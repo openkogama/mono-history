@@ -83,7 +83,7 @@ public class PlayerListButton : MonoBehaviour
 		PlayerListsLayout playerListsLayout = UnityEngine.Object.Instantiate(playerListsPrefab);
 		currPlayerLists = playerListsLayout.gameObject;
 		WinningConditionControl.TryGetPrioritizedStat(out var statType);
-		playerListsLayout.Initialize(playerListsPrefab, statType);
+		playerListsLayout.Initialize(playerListsPrefab, statType, UIPushOption.HideAll);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Push(currPlayerLists.gameObject, UIPushOption.HideAll, null, UIGroupFlags.InventoryUI);

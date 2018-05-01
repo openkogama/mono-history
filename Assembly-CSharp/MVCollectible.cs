@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 
@@ -79,22 +80,25 @@ public class MVCollectible : MVLogicObject
 		SetupCulling(collectibleObject.PickupMesh);
 		takenByListRunTimeVariable = RuntimeDataVariables.New("takenByList", 1f, writeThrough: false);
 		takenByTeamList = new List<MVTeam>();
-		Dictionary<object, object> dictionary = (Dictionary<object, object>)takenByListRunTimeVariable.Value;
-		if (dictionary.ContainsKey(MVTeam.Blue.ToString()))
+		if (MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState != MVGameStateType.RoundEnded)
 		{
-			takenByTeamList.Add(MVTeam.Blue);
-		}
-		if (dictionary.ContainsKey(MVTeam.Red.ToString()))
-		{
-			takenByTeamList.Add(MVTeam.Red);
-		}
-		if (dictionary.ContainsKey(MVTeam.Green.ToString()))
-		{
-			takenByTeamList.Add(MVTeam.Green);
-		}
-		if (dictionary.ContainsKey(MVTeam.Yellow.ToString()))
-		{
-			takenByTeamList.Add(MVTeam.Yellow);
+			Dictionary<object, object> dictionary = (Dictionary<object, object>)takenByListRunTimeVariable.Value;
+			if (dictionary.ContainsKey(MVTeam.Blue.ToString()))
+			{
+				takenByTeamList.Add(MVTeam.Blue);
+			}
+			if (dictionary.ContainsKey(MVTeam.Red.ToString()))
+			{
+				takenByTeamList.Add(MVTeam.Red);
+			}
+			if (dictionary.ContainsKey(MVTeam.Green.ToString()))
+			{
+				takenByTeamList.Add(MVTeam.Green);
+			}
+			if (dictionary.ContainsKey(MVTeam.Yellow.ToString()))
+			{
+				takenByTeamList.Add(MVTeam.Yellow);
+			}
 		}
 		OnTakenByListChange();
 		MVNetworkGame game = MVGameControllerBase.Game;

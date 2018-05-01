@@ -28,7 +28,7 @@ public class PlayerListHoldHotkey : MonoBehaviour
 		isActive = true;
 		PlayerListsLayout newPlayerLists = Object.Instantiate(playerListsPrefab);
 		WinningConditionControl.TryGetPrioritizedStat(out var statType);
-		newPlayerLists.Initialize(playerListsPrefab, statType);
+		newPlayerLists.Initialize(playerListsPrefab, statType, UIPushOption.None);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.PopGroups(UIGroupFlags.InventoryUI | UIGroupFlags.InventoryUISubMenu);
@@ -50,6 +50,10 @@ public class PlayerListHoldHotkey : MonoBehaviour
 
 	private void OnDestroy()
 	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.PopGroups(UIGroupFlags.InventoryUI | UIGroupFlags.InventoryUISubMenu);
+		});
 		if (registeredHotkeys)
 		{
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IShortcutKeyUnRegister x, BaseEventData y) =>

@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class StreamedTextureToMaterial : StreamingAsset<Texture, Texture>
 {
+	[Header("Configuration")]
 	[Tooltip("For standard unity shaders \"_MainTex\" is the main textures name.")]
 	[SerializeField]
-	[Header("Configuration")]
 	protected string shaderTextureVariableName = "_MainTex";
 
 	[SerializeField]

@@ -33,10 +33,13 @@ public class PlayerListsLayout : MonoBehaviour
 
 	private GameStatCounterType typeToDisplay;
 
-	public void Initialize(PlayerListsLayout playerListsPrefab, GameStatCounterType typeToDisplay)
+	private UIPushOption pushOptions;
+
+	public void Initialize(PlayerListsLayout playerListsPrefab, GameStatCounterType typeToDisplay, UIPushOption pushOptions)
 	{
 		this.playerListsPrefab = playerListsPrefab;
 		this.typeToDisplay = typeToDisplay;
+		this.pushOptions = pushOptions;
 	}
 
 	private void Start()
@@ -68,14 +71,14 @@ public class PlayerListsLayout : MonoBehaviour
 			x.Pop();
 		});
 		PlayerListsLayout newPlayerLists = UnityEngine.Object.Instantiate(playerListsPrefab);
-		newPlayerLists.Initialize(playerListsPrefab, typeToDisplay);
+		newPlayerLists.Initialize(playerListsPrefab, typeToDisplay, pushOptions);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.PopGroups(UIGroupFlags.InventoryUI | UIGroupFlags.InventoryUISubMenu);
 		});
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			x.Push(newPlayerLists.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
+			x.Push(newPlayerLists.gameObject, pushOptions, null, UIGroupFlags.InventoryUI);
 		});
 	}
 

@@ -6,18 +6,21 @@ using UnityEngine.UI;
 public class DebriefingWinnerGUI : MonoBehaviour
 {
 	[Serializable]
-	private struct ScoreImageData
+	private struct WinningConditionData
 	{
-		public WinningConditionType scoreType;
+		public WinningConditionType ScoreType;
 
-		public Image scoreImage;
+		public Image ScoreImage;
+
+		public GameObject WinningConditionImage;
+
+		public Text AdditionalInfo;
+
+		public GameObject InfoBG;
 	}
 
 	[SerializeField]
 	private Text winnerName;
-
-	[SerializeField]
-	private WinningConditionAndroid winningConditionPrefab;
 
 	[SerializeField]
 	private Text timer;
@@ -26,19 +29,13 @@ public class DebriefingWinnerGUI : MonoBehaviour
 	private Text winValue;
 
 	[SerializeField]
-	private Text additionalInfo;
-
-	[SerializeField]
-	private GameObject infoBG;
-
-	[SerializeField]
 	private RawImage winnerImage;
 
 	[SerializeField]
 	private ImageAnimator backgroundImage;
 
 	[SerializeField]
-	private List<ScoreImageData> scoreImages;
+	private List<WinningConditionData> winConImages;
 
 	public void SetWinnerImage(Color startColor, RenderTexture image)
 	{
@@ -48,17 +45,19 @@ public class DebriefingWinnerGUI : MonoBehaviour
 		winnerImage.texture = image;
 	}
 
-	public void SetWinningConditionSprite(Sprite sprite)
+	public void SetAdditionalInformation(string text, WinningConditionType winConType)
 	{
-		winningConditionPrefab.SetSprite(sprite);
-	}
-
-	public void SetAdditionalInformation(string text)
-	{
-		if (!(text == string.Empty))
+		if (text == string.Empty)
 		{
-			infoBG.SetActive(value: true);
-			additionalInfo.text = text;
+			return;
+		}
+		for (int i = 0; i < winConImages.Count; i++)
+		{
+			if (winConImages[i].ScoreType == winConType)
+			{
+				winConImages[i].InfoBG.SetActive(value: true);
+				winConImages[i].AdditionalInfo.text = text;
+			}
 		}
 	}
 
@@ -79,15 +78,17 @@ public class DebriefingWinnerGUI : MonoBehaviour
 
 	public void ActivateScoreImage(WinningConditionType statType)
 	{
-		for (int i = 0; i < scoreImages.Count; i++)
+		for (int i = 0; i < winConImages.Count; i++)
 		{
-			if (statType == scoreImages[i].scoreType)
+			if (statType == winConImages[i].ScoreType)
 			{
-				scoreImages[i].scoreImage.enabled = true;
+				winConImages[i].ScoreImage.gameObject.SetActive(value: true);
+				winConImages[i].WinningConditionImage.SetActive(value: true);
 			}
 			else
 			{
-				scoreImages[i].scoreImage.enabled = false;
+				winConImages[i].ScoreImage.gameObject.SetActive(value: false);
+				winConImages[i].WinningConditionImage.SetActive(value: false);
 			}
 		}
 	}

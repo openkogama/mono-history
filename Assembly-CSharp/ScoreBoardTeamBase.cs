@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
 
@@ -18,7 +17,7 @@ public class ScoreBoardTeamBase : ScoreBoardBase
 	{
 		if (MVGameControllerBase.Game.MVPlayerContainer.TryGetValue(actorNumber, out var player) && IsNewScoreBetter(scoreCount, scoreBoardPlayerData[scoreBoardPlayerData.Count - 1].Score))
 		{
-			SortNewScore(GetBestPlayerInTeamName(player.Team), (int)player.Team, scoreCount);
+			SortNewScore(string.Empty, (int)player.Team, scoreCount);
 		}
 	}
 
@@ -26,30 +25,6 @@ public class ScoreBoardTeamBase : ScoreBoardBase
 	{
 		base.ReSortScoreBoard();
 		AddTeamsToScoreBoard();
-	}
-
-	protected string GetBestPlayerInTeamName(MVTeam team)
-	{
-		List<MVPlayer> playersInTeam = MVGameControllerBase.Game.TeamManager.GetPlayersInTeam(team);
-		MVPlayer mVPlayer = null;
-		int oldScore = -1;
-		for (int i = 0; i < playersInTeam.Count; i++)
-		{
-			if (playersInTeam[i] != null)
-			{
-				int actorCount = MVGameControllerBase.Game.GameStatCounterManager.GetActorCount(statType, team, playersInTeam[i].ActorNr);
-				if (IsNewScoreBetter(actorCount, oldScore))
-				{
-					mVPlayer = playersInTeam[i];
-					oldScore = actorCount;
-				}
-			}
-		}
-		if (mVPlayer == null)
-		{
-			return string.Empty;
-		}
-		return mVPlayer.Username;
 	}
 
 	protected override void UnSubscribeToCallbacks()
@@ -62,7 +37,7 @@ public class ScoreBoardTeamBase : ScoreBoardBase
 		for (int i = 0; i < MVGameControllerBase.Game.TeamManager.GetTeamList().Count; i++)
 		{
 			MVTeam mVTeam = MVGameControllerBase.Game.TeamManager.GetTeamList()[i];
-			SortNewScore(GetBestPlayerInTeamName(mVTeam), (int)mVTeam, MVGameControllerBase.Game.GameStatCounterManager.GetTeamCount(statType, mVTeam));
+			SortNewScore(string.Empty, (int)mVTeam, MVGameControllerBase.Game.GameStatCounterManager.GetTeamCount(statType, mVTeam));
 		}
 	}
 
