@@ -11,9 +11,13 @@ public class LevelBadge : MonoBehaviour
 	[SerializeField]
 	private PlayerStatusPopup playerStatusPopup;
 
+	[SerializeField]
+	private ProgressBarAndroid xpBar;
+
 	private void Awake()
 	{
 		levelBadge.enabled = false;
+		xpBar.gameObject.SetActive(value: false);
 		if (LevelingManager.IsInitialized)
 		{
 			OnLevelingInitialized();
@@ -47,6 +51,7 @@ public class LevelBadge : MonoBehaviour
 			Debug.Log("ProgressPercentage: " + num);
 			Debug.LogError("processPercentage invalid.");
 		}
+		xpBar.Progress = num;
 	}
 
 	private void UpdateBadge(int level)
@@ -65,6 +70,7 @@ public class LevelBadge : MonoBehaviour
 		{
 			levelBadge.enabled = true;
 			levelBadge.texture = www.texture;
+			xpBar.gameObject.SetActive(value: true);
 		}
 	}
 }
