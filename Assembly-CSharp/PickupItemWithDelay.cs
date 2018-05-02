@@ -16,7 +16,7 @@ public abstract class PickupItemWithDelay : PickupItem, IUpdatecontrollerSubscri
 
 	private float lastFireTime;
 
-	protected virtual bool IsAmmoDepleted => false;
+	protected override bool IsAmmoDepleted => false;
 
 	public override Color CrossHairColor
 	{

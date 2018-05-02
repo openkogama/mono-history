@@ -45,11 +45,14 @@ public class LoadingScreenHandler : MonoBehaviour
 		uiText.text = string.Empty;
 		loadingBar.Progress = 0f;
 		MVGameControllerBase.OnReceivedGameMsg = (MVGameControllerBase.OnReceivedGameMsgDelegate)Delegate.Combine(MVGameControllerBase.OnReceivedGameMsg, new MVGameControllerBase.OnReceivedGameMsgDelegate(OnGameMessageReceived));
-		eventsCount = eventCountLookup[MVGameControllerBase.GameMode];
 	}
 
 	private void Update()
 	{
+		if (MVGameControllerBase.GameSessionData != null)
+		{
+			eventsCount = eventCountLookup[MVGameControllerBase.GameSessionData.gameMode];
+		}
 		currentTime += Time.deltaTime;
 		loadingBar.Progress = Mathf.Lerp(currentProgress, targetProgress, currentTime);
 	}
@@ -58,9 +61,10 @@ public class LoadingScreenHandler : MonoBehaviour
 	{
 		if (gameMsgType == MVGameMsgType.JoinFlowStatus)
 		{
-			string key = (string)gameMsgData[(byte)5];
-			uiText.text = TM._(key);
+			string text = (string)gameMsgData[(byte)5];
+			uiText.text = text;
 			currentEventCount++;
+			currentProgress = 0f;
 			currentProgress = loadingBar.Progress;
 			currentTime = 0f;
 			targetProgress = (float)currentEventCount / (float)eventsCount;

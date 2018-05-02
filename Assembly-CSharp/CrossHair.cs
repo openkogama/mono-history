@@ -60,7 +60,7 @@ public class CrossHair : MonoBehaviour, IGUICrossHair
 		int quantity = pickupItem.Quantity;
 		Color crossHairColor = pickupItem.CrossHairColor;
 		float chargeState = pickupItem.ChargeState;
-		if (quantity == 0 && ammoCount.isActiveAndEnabled)
+		if (quantity == 0 && ammoCount.isActiveAndEnabled && !pickupItem.IsAmmoEmpty)
 		{
 			ammoCount.text = "∞";
 		}

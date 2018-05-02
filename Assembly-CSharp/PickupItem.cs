@@ -33,6 +33,8 @@ public abstract class PickupItem : MonoBehaviour
 
 	public bool IsHolstered { get; private set; }
 
+	protected virtual bool IsAmmoDepleted => Quantity <= 0;
+
 	public Vector3 Origin => center.position;
 
 	public virtual int Quantity => 0;
@@ -48,6 +50,8 @@ public abstract class PickupItem : MonoBehaviour
 	public bool FirstPersonCapable => firstPersonTransform != null;
 
 	public bool IsInFirstPersonMode => firstPersonTransform != null && !IsHolstered;
+
+	public bool IsAmmoEmpty => IsAmmoDepleted;
 
 	public virtual bool CanUnequip => true;
 

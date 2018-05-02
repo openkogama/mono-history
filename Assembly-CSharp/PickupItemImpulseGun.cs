@@ -50,6 +50,8 @@ public class PickupItemImpulseGun : PickupItem
 
 	private float chargeBeginTime;
 
+	protected override bool IsAmmoDepleted => false;
+
 	public override AvatarItemType Type => AvatarItemType.ImpulseGun;
 
 	public override int Quantity => 0;
