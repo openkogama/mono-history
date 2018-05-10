@@ -309,10 +309,6 @@ public class MVNetworkGame : IPhotonPeerListener
 				networkGame.OnTriggerBoxStayEnd(worldObjectID4);
 				break;
 			}
-			case MVEventCodes.Ungroup:
-				Debug.Log("Ungroup event...");
-				networkGame.OnUngroupEvent(photonEvent);
-				break;
 			case MVEventCodes.LockHierarchy:
 				networkGame.OnLockHierarchyEvent(photonEvent);
 				break;
@@ -954,7 +950,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(191, id);
 			dictionary.Add(245, uploadData);
-			peer.OpCustom(73, dictionary, sendReliable: true);
+			peer.OpCustom(70, dictionary, sendReliable: true);
 		}
 
 		public void TryRemovePendingOperation(MVOperationCodes operationCode)
@@ -964,37 +960,37 @@ public class MVNetworkGame : IPhotonPeerListener
 
 		public void Syncronize()
 		{
-			peer.OpCustom(64, new Dictionary<byte, object>(), sendReliable: true);
+			peer.OpCustom(61, new Dictionary<byte, object>(), sendReliable: true);
 		}
 
 		public void SyncronizePing()
 		{
-			peer.OpCustom(66, new Dictionary<byte, object>(), sendReliable: true);
+			peer.OpCustom(63, new Dictionary<byte, object>(), sendReliable: true);
 		}
 
 		public void GetRewardList()
 		{
-			peer.OpCustom(67, new Dictionary<byte, object>(), sendReliable: true);
+			peer.OpCustom(64, new Dictionary<byte, object>(), sendReliable: true);
 		}
 
 		public void GetRewardIndex()
 		{
-			peer.OpCustom(68, new Dictionary<byte, object>(), sendReliable: true);
+			peer.OpCustom(65, new Dictionary<byte, object>(), sendReliable: true);
 		}
 
 		public void ClaimReward()
 		{
-			peer.OpCustom(69, new Dictionary<byte, object>(), sendReliable: true);
+			peer.OpCustom(66, new Dictionary<byte, object>(), sendReliable: true);
 		}
 
 		public void GetOffer()
 		{
-			peer.OpCustom(70, new Dictionary<byte, object>(), sendReliable: true);
+			peer.OpCustom(67, new Dictionary<byte, object>(), sendReliable: true);
 		}
 
 		public void ClaimOffer()
 		{
-			peer.OpCustom(71, new Dictionary<byte, object>(), sendReliable: true);
+			peer.OpCustom(68, new Dictionary<byte, object>(), sendReliable: true);
 		}
 
 		public void AddObjectLink(ObjectLink link)
@@ -1016,7 +1012,7 @@ public class MVNetworkGame : IPhotonPeerListener
 				Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 				dictionary.Add(56, link.objectConnectorWOID);
 				dictionary.Add(55, link.objectWOID);
-				peer.OpCustom(34, dictionary, sendReliable: true);
+				peer.OpCustom(31, dictionary, sendReliable: true);
 			}
 		}
 
@@ -1121,7 +1117,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		{
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(21, woId);
-			peer.OpCustom(24, dictionary, sendReliable: true);
+			peer.OpCustom(22, dictionary, sendReliable: true);
 		}
 
 		public void JoinGame()
@@ -1200,7 +1196,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			dictionary.Add(76, camDir.x);
 			dictionary.Add(77, camDir.y);
 			dictionary.Add(78, camDir.z);
-			peer.OpCustom(29, dictionary, sendReliable: false);
+			peer.OpCustom(27, dictionary, sendReliable: false);
 		}
 
 		public void UpdateHeadRotation(Quaternion rotation)
@@ -1247,7 +1243,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(21, groupId);
 			dictionary.Add(71, worldObjects);
-			peer.OpCustom(36, dictionary, sendReliable: true);
+			peer.OpCustom(33, dictionary, sendReliable: true);
 		}
 
 		public void TransferOwnership(int worldObjectID, int ownerActorNr, Transform t)
@@ -1273,7 +1269,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(86, (int)gameMsgType);
 			dictionary.Add(87, gameMsgData);
-			peer.OpCustom(32, dictionary, sendReliable: true);
+			peer.OpCustom(29, dictionary, sendReliable: true);
 		}
 
 		public void PostChatMsg(Dictionary<object, object> gameMsgData, MVGameMsgType chatMsgType)
@@ -1290,7 +1286,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			dictionary.Add(199, type);
 			dictionary.Add(200, notificationData);
 			Dictionary<byte, object> customOpParameters = dictionary;
-			peer.OpCustom(74, customOpParameters, sendReliable: true);
+			peer.OpCustom(71, customOpParameters, sendReliable: true);
 		}
 
 		public void LockHierarchy(int worldObjectID, bool lockHierarchy)
@@ -1298,7 +1294,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(21, worldObjectID);
 			dictionary.Add(62, lockHierarchy);
-			peer.OpCustom(21, dictionary, sendReliable: true);
+			peer.OpCustom(20, dictionary, sendReliable: true);
 		}
 
 		public void UpdateWorldObjectData(int worldObjectID, Dictionary<object, object> worldObjectData)
@@ -1381,7 +1377,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(21, worldObjectID);
 			dictionary.Add(82, dataPackage);
-			peer.OpCustom(30, dictionary, sendReliable: true);
+			peer.OpCustom(28, dictionary, sendReliable: true);
 		}
 
 		public void UpdateWorldObjectRunTimeData(int worldObjectID, Dictionary<object, object> worldObjectRunTimeData)
@@ -1389,7 +1385,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(21, worldObjectID);
 			dictionary.Add(69, worldObjectRunTimeData);
-			peer.OpCustom(27, dictionary, sendReliable: true);
+			peer.OpCustom(25, dictionary, sendReliable: true);
 		}
 
 		public void RegisterWorldObject(WorldObjectType type, int groupId, Dictionary<object, object> woData, Vector3 position, Quaternion rotation, Vector3 scale, bool localOwner, bool transferOwnershipToServerOnLeave)
@@ -1417,10 +1413,10 @@ public class MVNetworkGame : IPhotonPeerListener
 			TransformHelper.SetPosition(position, dictionary);
 			TransformHelper.SetRotation(rotation, dictionary);
 			TransformHelper.SetScale(scale, dictionary);
-			peer.OpCustom(42, dictionary, sendReliable: true);
+			peer.OpCustom(39, dictionary, sendReliable: true);
 		}
 
-		public void AddItemToWorld(int itemId, int groupId, Vector3 position, Quaternion rotation, Vector3 scale, bool localOwner, bool transferOwnershipToServerOnLeave, bool isPreviewItem)
+		public void AddItemToWorld(int itemId, int groupId, Vector3 position, Quaternion rotation, bool localOwner, bool transferOwnershipToServerOnLeave, bool isPreviewItem)
 		{
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(39, itemId);
@@ -1429,27 +1425,26 @@ public class MVNetworkGame : IPhotonPeerListener
 			dictionary.Add(38, transferOwnershipToServerOnLeave);
 			TransformHelper.SetPosition(position, dictionary);
 			TransformHelper.SetRotation(rotation, dictionary);
-			TransformHelper.SetScale(scale, dictionary);
 			dictionary.Add(124, isPreviewItem);
-			peer.OpCustom(43, dictionary, sendReliable: true);
+			peer.OpCustom(40, dictionary, sendReliable: true);
 		}
 
 		public void CloneWorldObjectTree(MVWorldObjectClient root, bool localOwner, bool setAsPreviewItem, bool cloneToRootGroup)
 		{
 			Dictionary<byte, object> customOpParameters = CreateBasicCloneData(root, localOwner, setAsPreviewItem, cloneToRootGroup);
-			peer.OpCustom(37, customOpParameters, sendReliable: true);
+			peer.OpCustom(34, customOpParameters, sendReliable: true);
 		}
 
 		public void CloneWorldObjectTreeWithPosition(MVWorldObjectClient root, Vector3 position, Quaternion rotation, bool localOwner, bool setAsPreviewItem, bool cloneToRootGroup, bool isTempObject)
 		{
 			Dictionary<byte, object> customOpParameters = CreateWithPositionCloneData(root, position, rotation, localOwner, setAsPreviewItem, cloneToRootGroup, isTempObject);
-			peer.OpCustom(75, customOpParameters, sendReliable: true);
+			peer.OpCustom(72, customOpParameters, sendReliable: true);
 		}
 
 		public void CloneTempWorldObjectWithOriginalReference(MVWorldObjectClient root, Vector3 position, Quaternion rotation)
 		{
 			Dictionary<byte, object> customOpParameters = CreateWithPositionCloneData(root, position, rotation, localOwner: true, setAsPreviewItem: false, cloneToRootGroup: true, isTempObject: true);
-			peer.OpCustom(76, customOpParameters, sendReliable: true);
+			peer.OpCustom(73, customOpParameters, sendReliable: true);
 		}
 
 		private Dictionary<byte, object> CreateBasicCloneData(MVWorldObjectClient root, bool localOwner, bool setAsPreviewItem, bool cloneToRootGroup)
@@ -1476,7 +1471,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(85, planetId);
 			dictionary.Add(21, subtreeId);
-			peer.OpCustom(38, dictionary, sendReliable: true);
+			peer.OpCustom(35, dictionary, sendReliable: true);
 		}
 
 		public void UnregisterWorldObject(int worldObjectID)
@@ -1490,7 +1485,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		{
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(169, level);
-			peer.OpCustom(61, dictionary, sendReliable: true);
+			peer.OpCustom(58, dictionary, sendReliable: true);
 		}
 
 		public void JoinNotification()
@@ -1505,7 +1500,7 @@ public class MVNetworkGame : IPhotonPeerListener
 				dictionary2.Add(199, NotificationType.PlayerJoined);
 				dictionary2.Add(200, value);
 				Dictionary<byte, object> customOpParameters = dictionary2;
-				peer.OpCustom(74, customOpParameters, sendReliable: true);
+				peer.OpCustom(71, customOpParameters, sendReliable: true);
 			}
 		}
 
@@ -1521,7 +1516,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			dictionary2.Add(199, NotificationType.WonRareSpinReward);
 			dictionary2.Add(200, value);
 			Dictionary<byte, object> customOpParameters = dictionary2;
-			peer.OpCustom(74, customOpParameters, sendReliable: true);
+			peer.OpCustom(71, customOpParameters, sendReliable: true);
 		}
 
 		public void Ban(CheatType cheatType)
@@ -1530,7 +1525,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			{
 				Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 				dictionary.Add(178, (byte)cheatType);
-				peer.OpCustom(62, dictionary, sendReliable: true);
+				peer.OpCustom(59, dictionary, sendReliable: true);
 				peer.SendOutgoingCommands();
 			}
 		}
@@ -1540,7 +1535,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(46, worldInventoryID);
 			dictionary.Add(21, woId);
-			peer.OpCustom(24, dictionary, sendReliable: true);
+			peer.OpCustom(22, dictionary, sendReliable: true);
 		}
 
 		public void UpdatePrototype(int worldInventoryID, byte[] prototypeData)
@@ -1565,7 +1560,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			{
 				Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 				dictionary.Add(21, worldObjectID);
-				peer.OpCustom(44, dictionary, sendReliable: true);
+				peer.OpCustom(41, dictionary, sendReliable: true);
 			}
 		}
 
@@ -1585,7 +1580,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 		public void SwitchAvatar()
 		{
-			peer.OpCustom(65, new Dictionary<byte, object>(), sendReliable: true);
+			peer.OpCustom(62, new Dictionary<byte, object>(), sendReliable: true);
 		}
 
 		public void SendClientLog(string logString, string stackTrace, LogType type, Dictionary<string, object> extraSentryData, Dictionary<string, string> tags)
@@ -1596,25 +1591,13 @@ public class MVNetworkGame : IPhotonPeerListener
 			dictionary.Add(148, (byte)type);
 			dictionary.Add(153, extraSentryData);
 			dictionary.Add(187, tags);
-			peer.OpCustom(55, dictionary, sendReliable: true);
+			peer.OpCustom(52, dictionary, sendReliable: true);
 			peer.SendOutgoingCommands();
-		}
-
-		public void Ungroup(int worldObjectID)
-		{
-			if (!networkGame.worldNetwork.WorldObjectClientManagerNetwork.Ungroup(worldObjectID))
-			{
-				Debug.LogWarning("Ungroup failed");
-				return;
-			}
-			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
-			dictionary.Add(21, worldObjectID);
-			peer.OpCustom(20, dictionary, sendReliable: true);
 		}
 
 		public void ReportCaptureFlag()
 		{
-			peer.OpCustom(25, new Dictionary<byte, object>(), sendReliable: true);
+			peer.OpCustom(23, new Dictionary<byte, object>(), sendReliable: true);
 		}
 
 		public void ReportReachedFinishLine()
@@ -1626,7 +1609,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		{
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(21, worldObjectID);
-			peer.OpCustom(26, dictionary, sendReliable: true);
+			peer.OpCustom(24, dictionary, sendReliable: true);
 		}
 
 		public bool RequestFriendShipByID(int id, ref string errorText)
@@ -1647,7 +1630,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			Debug.Log("MVOperationCodes.GetMarketPlaceItem");
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(39, itemID);
-			peer.OpCustom(48, dictionary, sendReliable: true);
+			peer.OpCustom(45, dictionary, sendReliable: true);
 		}
 
 		public void RequestAddItemToMarketPlace(int itemID, string itemName, string itemDescription, int silverPrice)
@@ -1657,14 +1640,14 @@ public class MVNetworkGame : IPhotonPeerListener
 			dictionary.Add(41, itemName);
 			dictionary.Add(134, itemDescription);
 			dictionary.Add(68, silverPrice);
-			peer.OpCustom(49, dictionary, sendReliable: true);
+			peer.OpCustom(46, dictionary, sendReliable: true);
 		}
 
 		public void RequestRemoveItemFromMarketPlace(int itemID)
 		{
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(39, itemID);
-			peer.OpCustom(50, dictionary, sendReliable: true);
+			peer.OpCustom(47, dictionary, sendReliable: true);
 		}
 
 		public void RequestLargeDBQuery(MVOperationCodes operationCode, DBQuery query, Dictionary<object, object> inData, int numRowsPerReturn)
@@ -1679,14 +1662,14 @@ public class MVNetworkGame : IPhotonPeerListener
 		public void RequestResetTerrain()
 		{
 			Dictionary<byte, object> customOpParameters = new Dictionary<byte, object>();
-			peer.OpCustom(58, customOpParameters, sendReliable: true);
+			peer.OpCustom(55, customOpParameters, sendReliable: true);
 		}
 
 		public void SendRuntimeEventOperation(RuntimeEvent runtimeEvent)
 		{
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(245, runtimeEvent.Data);
-			peer.OpCustom(57, dictionary, sendReliable: true);
+			peer.OpCustom(54, dictionary, sendReliable: true);
 		}
 
 		public void SetTeam(MVTeam team)
@@ -1695,7 +1678,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			{
 				Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 				dictionary.Add(88, (int)team);
-				peer.OpCustom(33, dictionary, sendReliable: true);
+				peer.OpCustom(30, dictionary, sendReliable: true);
 			}
 		}
 
@@ -1706,7 +1689,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			dictionary.Add((byte)4, seatOwnerWoID);
 			dictionary.Add((byte)0, worldObjectID);
 			attachWorldObjectToSeatData.Add(71, dictionary);
-			peer.OpCustom(52, attachWorldObjectToSeatData, sendReliable: true);
+			peer.OpCustom(49, attachWorldObjectToSeatData, sendReliable: true);
 		}
 
 		public void AddAvatarToAvatarShopInventory(int worldObjectId, int priceSilver, string name)
@@ -1717,7 +1700,7 @@ public class MVNetworkGame : IPhotonPeerListener
 				dictionary.Add(21, worldObjectId);
 				dictionary.Add(130, priceSilver);
 				dictionary.Add(166, name);
-				peer.OpCustom(59, dictionary, sendReliable: true);
+				peer.OpCustom(56, dictionary, sendReliable: true);
 			}
 		}
 
@@ -1725,7 +1708,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		{
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(21, worldObjectId);
-			peer.OpCustom(60, dictionary, sendReliable: true);
+			peer.OpCustom(57, dictionary, sendReliable: true);
 		}
 
 		public void SpawnVehicleWithDriver(int worldObjectSpawnerVehicleID, int worldObjectID, VehicleSeatBase seatBase)
@@ -1735,14 +1718,14 @@ public class MVNetworkGame : IPhotonPeerListener
 			dictionary.Add((byte)1, worldObjectSpawnerVehicleID);
 			dictionary.Add((byte)0, worldObjectID);
 			attachWorldObjectToSeatData.Add(71, dictionary);
-			peer.OpCustom(54, attachWorldObjectToSeatData, sendReliable: true);
+			peer.OpCustom(51, attachWorldObjectToSeatData, sendReliable: true);
 		}
 
 		public void DetachWorldObjectFromVehicle(int worldObjectID)
 		{
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(21, worldObjectID);
-			peer.OpCustom(53, dictionary, sendReliable: true);
+			peer.OpCustom(50, dictionary, sendReliable: true);
 		}
 
 		public void SetAvatarAccessorySlot(int avatarBodyWoID, int accessoryInventoryID, AvatarAccessorySlot slot, float slotOffset)
@@ -1753,7 +1736,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			dictionary[110] = accessoryInventoryID;
 			dictionary[112] = slot;
 			dictionary[113] = slotOffset;
-			peer.OpCustom(51, dictionary, sendReliable: true);
+			peer.OpCustom(48, dictionary, sendReliable: true);
 		}
 
 		public void ResetAvatar(int AvatarID)
@@ -1761,14 +1744,14 @@ public class MVNetworkGame : IPhotonPeerListener
 			Debug.Log("Reset ActiveAvatar  called");
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(125, AvatarID);
-			peer.OpCustom(47, dictionary, sendReliable: true);
+			peer.OpCustom(44, dictionary, sendReliable: true);
 		}
 
 		public void SetActiveAvatar(int AvatarID)
 		{
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(125, AvatarID);
-			peer.OpCustom(46, dictionary, sendReliable: true);
+			peer.OpCustom(43, dictionary, sendReliable: true);
 		}
 
 		public void UpdateAvatarAccessoryOffset(int bodyWoID, AvatarAccessorySlot slot, float offset)
@@ -1777,14 +1760,14 @@ public class MVNetworkGame : IPhotonPeerListener
 			dictionary[125] = bodyWoID;
 			dictionary[112] = (int)slot;
 			dictionary[113] = offset;
-			peer.OpCustom(56, dictionary, sendReliable: true);
+			peer.OpCustom(53, dictionary, sendReliable: true);
 		}
 
 		public void SetGameCoinBoostState(bool gameCoinBoosterEnabled)
 		{
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(183, gameCoinBoosterEnabled);
-			peer.OpCustom(63, dictionary, sendReliable: true);
+			peer.OpCustom(60, dictionary, sendReliable: true);
 		}
 
 		public void PurchaseMysteryBoxSpins(int numberOfSpins)
@@ -1794,7 +1777,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			Dictionary<byte, object> dictionary2 = new Dictionary<byte, object>();
 			dictionary2.Add(93, 7);
 			dictionary2.Add(94, dictionary);
-			peer.OpCustom(39, dictionary2, sendReliable: true);
+			peer.OpCustom(36, dictionary2, sendReliable: true);
 		}
 
 		public void PurchaseStreamingAsset(StreamingAssetType assetType, int streamingAssetID)
@@ -1862,7 +1845,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			}
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(57, objectLinkID);
-			peer.OpCustom(35, dictionary, sendReliable: true);
+			peer.OpCustom(32, dictionary, sendReliable: true);
 		}
 
 		public void TriggerBoxEnter(int triggerBoxOwnerId, int triggerInstigatorId)
@@ -1901,7 +1884,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(39, itemID);
 			dictionary.Add(21, worldObjectID);
-			peer.OpCustom(28, dictionary, sendReliable: true);
+			peer.OpCustom(26, dictionary, sendReliable: true);
 		}
 
 		public void PurchaseAvatarAccessory(int streamingAssetID)
@@ -1917,7 +1900,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(21, woID);
 			dictionary.Add(204, activate);
-			peer.OpCustom(77, dictionary, sendReliable: true);
+			peer.OpCustom(74, dictionary, sendReliable: true);
 		}
 
 		public void SetFirstTimeEvent(FirstTimeEvent firstTimeEvent)
@@ -1955,7 +1938,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			dictionary.Add(217, (byte)0);
 			dictionary.Add(11, target.ProfileID);
 			Dictionary<byte, object> customOpParameters = dictionary;
-			peer.OpCustom(79, customOpParameters, sendReliable: true);
+			peer.OpCustom(76, customOpParameters, sendReliable: true);
 		}
 
 		public void Kick(MVPlayer target, string reason)
@@ -1966,7 +1949,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			dictionary.Add(11, target.ProfileID);
 			dictionary.Add(87, reason);
 			Dictionary<byte, object> customOpParameters = dictionary;
-			peer.OpCustom(78, customOpParameters, sendReliable: true);
+			peer.OpCustom(75, customOpParameters, sendReliable: true);
 		}
 
 		public void Ban(int hours, MVPlayer target, string reason)
@@ -1977,7 +1960,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			dictionary.Add(11, target.ProfileID);
 			dictionary.Add(87, reason);
 			Dictionary<byte, object> customOpParameters = dictionary;
-			peer.OpCustom(78, customOpParameters, sendReliable: true);
+			peer.OpCustom(75, customOpParameters, sendReliable: true);
 		}
 
 		public void Expel(MVPlayer target, string reason)
@@ -1988,7 +1971,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			dictionary.Add(11, target.ProfileID);
 			dictionary.Add(87, reason);
 			Dictionary<byte, object> customOpParameters = dictionary;
-			peer.OpCustom(78, customOpParameters, sendReliable: true);
+			peer.OpCustom(75, customOpParameters, sendReliable: true);
 		}
 
 		public void SetSayChatBubbleVisible(bool shouldShow)
@@ -2005,7 +1988,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(93, (int)productTypeID);
 			dictionary.Add(94, productData);
-			peer.OpCustom(39, dictionary, sendReliable: true);
+			peer.OpCustom(36, dictionary, sendReliable: true);
 		}
 	}
 
@@ -2121,9 +2104,6 @@ public class MVNetworkGame : IPhotonPeerListener
 				break;
 			case MVOperationCodes.RequestFriendshipByProfileID:
 				networkGame.OnRequestFriendshipResponse(returnCode);
-				break;
-			case MVOperationCodes.Ungroup:
-				networkGame.OnUngroupResponse(returnCode == 0);
 				break;
 			case MVOperationCodes.LockHierarchy:
 				networkGame.OnLockHierarchyResponse(returnValues, returnCode);
@@ -3166,19 +3146,9 @@ public class MVNetworkGame : IPhotonPeerListener
 		}
 	}
 
-	private void OnUngroupResponse(bool success)
-	{
-		worldNetwork.WorldObjectClientManagerNetwork.UngroupResponse(success);
-	}
-
 	private void OnLockHierarchyEvent(EventData eventData)
 	{
 		worldNetwork.WorldObjectClientManagerNetwork.LockHierarchyProxy((int)eventData[21], (int)eventData[19]);
-	}
-
-	private void OnUngroupEvent(EventData eventData)
-	{
-		worldNetwork.WorldObjectClientManagerNetwork.UngroupProxy((int)eventData[21]);
 	}
 
 	private void OnUnregisterWorldObjectEvent(int worldObjectID)
@@ -3583,7 +3553,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		Debug.LogWarning("Request SA inventory items " + inventoryIDs.BuildString(null, eachEntryNewLine: false));
 		Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 		dictionary.Add(111, inventoryIDs);
-		peer.OpCustom(41, dictionary, sendReliable: true);
+		peer.OpCustom(38, dictionary, sendReliable: true);
 	}
 
 	private void OnRequestStreamingAssetInventoryItemsResponse(int returnCode, Dictionary<byte, object> returnValues)

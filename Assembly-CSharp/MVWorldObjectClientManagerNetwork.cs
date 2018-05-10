@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
@@ -222,61 +221,6 @@ public class MVWorldObjectClientManagerNetwork : MVWorldObjectClientManager
 		{
 			child.OwnerActorNr = actorNr;
 		}
-	}
-
-	public bool UngroupResponse(bool success)
-	{
-		if (success)
-		{
-			if (pendingUngroupQueue.Count <= 0)
-			{
-				Debug.LogError("UngroupResponse, but no object on pendingUngroupQueue");
-				return false;
-			}
-			int num = pendingUngroupQueue.Dequeue();
-			UngroupExecute(num);
-			if (OnUngroupResponse != null)
-			{
-				OnUngroupResponse(this, new OnUngroupResponseEventArgs(num, success));
-			}
-			return true;
-		}
-		if (pendingUngroupQueue.Count <= 0)
-		{
-			Debug.LogError("UngroupResponse, but no object on pendingUngroupQueue");
-			return false;
-		}
-		int worldObjectID = pendingUngroupQueue.Dequeue();
-		if (OnUngroupResponse != null)
-		{
-			OnUngroupResponse(this, new OnUngroupResponseEventArgs(worldObjectID, success));
-		}
-		return false;
-	}
-
-	public bool UngroupProxy(int id)
-	{
-		if (!worldObjects.ContainsKey(id))
-		{
-			return false;
-		}
-		if (worldObjects[id].GroupId != -1)
-		{
-			UngroupExecute(id);
-		}
-		return true;
-	}
-
-	private void UngroupExecute(int id)
-	{
-		int groupId = worldObjects[id].GroupId;
-		ArrayList arrayList = new ArrayList(((MVGroup)worldObjects[id]).Children);
-		foreach (MVWorldObjectClient item in arrayList)
-		{
-			((MVGroup)worldObjects[groupId]).TransferChild(item.Id);
-		}
-		DestroyWO(id);
-		UnityEngine.Object.Destroy(worldObjects[id].GameObject);
 	}
 
 	public void DestroyWO(int id)

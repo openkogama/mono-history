@@ -85,9 +85,13 @@ public class MVSmoke : MVLogicObject, ILogicWorldObject
 			float[] array = (float[])Data["color"];
 			particleSystem.startColor = new Color(array[0], array[1], array[2], array[3]);
 		}
-		if (Data.ContainsKey("wind") && Data.ContainsKey("length"))
+		float num = 0f;
+		if (Data.ContainsKey("length"))
 		{
-			float num = (float)Data["wind"];
+			if (Data.ContainsKey("wind"))
+			{
+				num = (float)Data["wind"];
+			}
 			startLifetime = (float)Data["length"];
 			SetupSmokeCulling(startLifetime * lengthCullingScale, gameObject);
 			particleSystem.startLifetime = startLifetime / (1f + num);

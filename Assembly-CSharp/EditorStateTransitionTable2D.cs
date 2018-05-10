@@ -8,7 +8,6 @@ internal class EditorStateTransitionTable2D : EditorStateTransitionTableBase
 		table.Add(EditorEvent.ESTerrainEdit, new ESTerrainEdit());
 		table.Add(EditorEvent.ESWaitForSelect, new ESWaitForSelected());
 		table.Add(EditorEvent.ESWaitForGroup, new ESWaitForGroup());
-		table.Add(EditorEvent.ESWaitForUngroup, new ESWaitForUngroup());
 		table.Add(EditorEvent.ESTranslate, new ESTranslate());
 		table.Add(EditorEvent.ESWaitForClone, new ESWaitForClone());
 		table.Add(EditorEvent.ESAddLink, new ESAddLink());

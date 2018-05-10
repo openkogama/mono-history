@@ -57,7 +57,7 @@ public class EditorWorldObjectCreation : MonoBehaviour, ICloneHandler, IAddItemF
 				WorldObjectType worldObjectType = koGaMaPackageFromItem.worldObjects[koGaMaPackageFromItem.worldObjectRoot].WorldObjectType;
 				rotation = HandlePlatformerRotationSpecialCases(item.itemCategoryID, worldObjectType);
 			}
-			MVGameControllerBase.OperationRequests.AddItemToWorld(item.itemID, esm.ParentGroupID, Vector3.up * 10f, rotation, Vector3.one, localOwner: false, transferOwnershipToServerOnLeave: true, isPreviewItem: false);
+			MVGameControllerBase.OperationRequests.AddItemToWorld(item.itemID, esm.ParentGroupID, Vector3.up * 10f, rotation, localOwner: false, transferOwnershipToServerOnLeave: true, isPreviewItem: false);
 		}
 		koGaMaPackageFromItem.Destroy();
 	}
