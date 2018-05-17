@@ -30,7 +30,7 @@ public class TeamTab : MonoBehaviour
 		{
 			MVTeam team2 = MVGameControllerBase.Game.TeamManager.GetTeamList()[0];
 			playerCount.text = MVGameControllerBase.Game.TeamManager.GetPlayersInTeam(team2).Count.ToString();
-			score.text = WinningConditionControl.MakeIntoScoreText(MVGameControllerBase.Game.TeamManager.GetScore(team2, statToDisplay), statToDisplay);
+			score.text = string.Empty;
 		}
 		else
 		{
