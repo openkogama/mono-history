@@ -56,9 +56,6 @@ public class WinningConditionBriefing : MonoBehaviour
 	private Text winningConditionHeader;
 
 	[SerializeField]
-	private WinningConditionBriefingLayoutFitter briefingLayoutFitter;
-
-	[SerializeField]
 	private ScoreBoardController scoreBoardController;
 
 	[SerializeField]
@@ -206,8 +203,6 @@ public class WinningConditionBriefing : MonoBehaviour
 	private IEnumerator FixAspectRatioDelay()
 	{
 		yield return new WaitForEndOfFrame();
-		yield return null;
-		briefingLayoutFitter.FixAspectRatio();
 		yield return null;
 		winConImage.transform.SetParent(transform, worldPositionStays: true);
 		winConImage.transform.SetAsLastSibling();

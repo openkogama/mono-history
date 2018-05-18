@@ -14,15 +14,11 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 
 		public int timeInSeconds;
 
-		public int gold;
-
-		public int silver;
-
 		public int xp;
 
 		public override string ToString()
 		{
-			return $"rewardEnabled {rewardEnabled}. timeInSeconds {timeInSeconds}. gold {gold}. silver {silver}.";
+			return $"rewardEnabled {rewardEnabled}. timeInSeconds {timeInSeconds}.";
 		}
 	}
 
@@ -47,8 +43,6 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 	public bool rewardAvailable { get; private set; }
 
 	private int rewardXP { get; set; }
-
-	private int rewardGold { get; set; }
 
 	public void Initialize()
 	{
@@ -96,10 +90,10 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 	private void OnFinishedViewingAd()
 	{
 		claimRewardBtn.gameObject.SetActive(value: false);
-		NotificationController.PushNotification(TM._("Thank you for playing this NEW game! Received " + rewardXP + " XP and " + rewardGold + " gold!"), notificationImage);
-		ParticleSystem particleSystem = UnityEngine.Object.Instantiate(PrefabPool.Instance.GoldExplosion);
-		particleSystem.transform.parent = MVGameControllerBase.WOCM.AvatarLocal.Transform;
-		particleSystem.transform.localPosition = new Vector3(0f, 1f, 0f);
+		NotificationController.PushNotification(TM._("Thank you for playing this NEW game! Received " + rewardXP + " XP!"), notificationImage);
+		AvatarPooledXPParticles avatarPooledXPParticles = PrefabPool.Instance.EnumPoolManager.Instantiate<AvatarPooledXPParticles>(PoolEnums.XP);
+		avatarPooledXPParticles.transform.parent = MVGameControllerBase.WOCM.AvatarLocal.Transform;
+		avatarPooledXPParticles.transform.localPosition = new Vector3(0f, 1f, 0f);
 		claimRewardBtn.interactable = false;
 		timerText.text = string.Empty;
 		GameSessionData gameSessionData = MVGameControllerBase.GameSessionData;
@@ -124,7 +118,6 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 		}
 		RewardData rewardData = JsonConvert.DeserializeObject<RewardData>(www.text);
 		rewardXP = rewardData.xp;
-		rewardGold = rewardData.gold;
 		rewardAvailable = rewardData.rewardEnabled;
 		claimRewardBtn.gameObject.SetActive(rewardAvailable);
 		IsCollected = !rewardAvailable;

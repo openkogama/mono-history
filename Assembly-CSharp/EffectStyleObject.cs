@@ -3,8 +3,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(ShadowEffect))]
-[RequireComponent(typeof(GradientEffect))]
 [RequireComponent(typeof(Graphic))]
+[RequireComponent(typeof(GradientEffect))]
 [RequireComponent(typeof(Outline))]
 public class EffectStyleObject : MonoBehaviour
 {

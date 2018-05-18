@@ -34,20 +34,14 @@ public class AddDotsToTruncatedText : MonoBehaviour
 	private int CalculateLengthOfMessage(string message)
 	{
 		float num = 0f;
-		float num2 = (float)Screen.width / 1920f;
 		CharacterInfo info = default;
 		char[] array = message.ToCharArray();
 		char[] array2 = array;
 		foreach (char ch in array2)
 		{
 			text.font.GetCharacterInfo(ch, out info, text.cachedTextGenerator.fontSizeUsedForBestFit);
-			num += (float)info.advance * num2;
+			num += (float)info.advance;
 		}
 		return (int)num;
-	}
-
-	private void OnValidate()
-	{
-		text = GetComponent<Text>();
 	}
 }
