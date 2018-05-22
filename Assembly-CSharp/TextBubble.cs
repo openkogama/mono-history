@@ -13,8 +13,8 @@ public class TextBubble : MonoBehaviour
 	[SerializeField]
 	private float tailDistance = 1f;
 
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	private LayoutGroup bubble;
 
 	[SerializeField]
@@ -37,11 +37,11 @@ public class TextBubble : MonoBehaviour
 	{
 		private get
 		{
-			return tail.position;
+			return tail.anchoredPosition;
 		}
 		set
 		{
-			tail.position = value;
+			tail.anchoredPosition = value;
 			RecalcPositionWithScreenCollision();
 		}
 	}
@@ -110,28 +110,38 @@ public class TextBubble : MonoBehaviour
 
 	public void RecalcPositionAndSize(int inside)
 	{
-		Vector2 vector = centerPoint / 2f - (Vector2)tail.position;
-		Vector2 vector2;
+		Vector2 vector = centerPoint / 2f - tail.anchoredPosition;
 		if (Mathf.Abs(vector.x) > Mathf.Abs(vector.y))
 		{
-			int num = ((!(vector.x > 0f)) ? 1 : (-1));
-			tail.up = new Vector3(num, 0f, 0f);
-			float num2 = Position.y / (float)Screen.height;
-			float y = CalculatePivotNearEdgeOffset(num2);
-			vector2 = new Vector2(tail.rect.height * (float)num, y);
-			BubbleTransform.pivot = new Vector2((num <= 0) ? 1 : 0, num2);
-			BubbleTransform.localPosition = (Vector2)tail.localPosition + vector2;
+			float num = tailSize * VerticalPadding;
+			tail.sizeDelta = new Vector2(num, num);
+			int num2 = ((!(vector.x > 0f)) ? 1 : (-1));
+			num2 *= inside;
+			tail.up = new Vector3(num2, 0f, 0f);
+			Vector2 vector2 = new Vector2(tail.rect.height - tail.pivot.y * tail.rect.height, 0f) * num2;
+			float num3 = Position.y / (float)Screen.height;
+			BubbleTransform.pivot = new Vector2((num2 <= 0) ? 1 : 0, num3);
+			BubbleTransform.localPosition = tail.anchoredPosition + vector2;
+			BubbleTransform.Translate(tail.up * tailDistance);
+			float num4 = num3 - 0.5f;
+			BubbleTransform.Translate(new Vector3(0f, num4 * num, 0f));
+			BubbleTransform.Translate(new Vector3(0f, (float)((!(num4 > 0f)) ? bubble.padding.bottom : bubble.padding.top) * num4, 0f));
 		}
 		else
 		{
-			float num3 = ((!(vector.y > 0f)) ? 1 : (-1));
-			tail.up = new Vector3(0f, num3, 0f);
-			float num4 = Position.x / (float)Screen.width;
-			float num5 = CalculatePivotNearEdgeOffset(num4);
-			vector2 = new Vector2(tail.rect.height * num3, num5);
-			vector2 = new Vector2(num5, tail.rect.height * num3);
-			BubbleTransform.pivot = new Vector2(num4, (!(num3 > 0f)) ? 1 : 0);
-			BubbleTransform.localPosition = (Vector2)tail.localPosition + vector2;
+			float num5 = tailSize * HorizontalPadding;
+			tail.sizeDelta = new Vector2(num5, num5);
+			float num6 = ((!(vector.y > 0f)) ? 1 : (-1));
+			num6 *= (float)inside;
+			tail.up = new Vector3(0f, num6, 0f);
+			Vector2 vector2 = new Vector2(0f, tail.rect.height - tail.pivot.y * tail.rect.height) * num6;
+			float num7 = Position.x / (float)Screen.width;
+			BubbleTransform.pivot = new Vector2(num7, (!(num6 > 0f)) ? 1 : 0);
+			BubbleTransform.localPosition = tail.anchoredPosition + vector2;
+			BubbleTransform.Translate(tail.up * tailDistance);
+			float num8 = num7 - 0.5f;
+			BubbleTransform.Translate(new Vector3(num8 * num5, 0f, 0f));
+			BubbleTransform.Translate(new Vector3((float)((!(num8 > 0f)) ? bubble.padding.right : bubble.padding.left) * num8, 0f, 0f));
 		}
 	}
 
@@ -143,17 +153,5 @@ public class TextBubble : MonoBehaviour
 	protected void OnValidate()
 	{
 		((RectTransform)base.transform).anchoredPosition = Vector2.zero;
-	}
-
-	private float CalculatePivotNearEdgeOffset(float pivot)
-	{
-		float result = 0f;
-		float num = ((pivot > 0.5f) ? 1 : (-1));
-		float num2 = (pivot - 0.5f) * num;
-		if (num2 > 0.25f)
-		{
-			result = tail.rect.height * (0.25f / num2) * num;
-		}
-		return result;
 	}
 }

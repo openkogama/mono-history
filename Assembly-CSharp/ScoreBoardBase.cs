@@ -26,6 +26,9 @@ public abstract class ScoreBoardBase : MonoBehaviour
 	[SerializeField]
 	protected List<ScoreData> scoreBoardPlayerData;
 
+	[SerializeField]
+	private VerticalLayoutGroup layoutGroup;
+
 	protected float backgroundAlpha;
 
 	public abstract void OnStatsChange(int id, int scoreCount);
@@ -35,6 +38,7 @@ public abstract class ScoreBoardBase : MonoBehaviour
 		this.statType = statType;
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Combine(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnWinningConditionFulfilled));
+		layoutGroup.spacing = layoutGroup.spacing / 1440f * (float)Screen.height;
 		if (scoreBoardPlayerData.Count > 0)
 		{
 			backgroundAlpha = scoreBoardPlayerData[0].Background.color.a;

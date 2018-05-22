@@ -43,15 +43,15 @@ public class TextBubbleController : MonoBehaviour, IEventSystemHandler
 
 	private const int maxNumOfBubbles = 40;
 
-	[SerializeField]
 	[Header("Configuration")]
+	[SerializeField]
 	private float bubbleLifeTime = 2f;
 
 	[SerializeField]
 	private float bubbleFadeIn = 0.2f;
 
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	private TextBubble textBubblePrefab;
 
 	[SerializeField]
@@ -109,6 +109,7 @@ public class TextBubbleController : MonoBehaviour, IEventSystemHandler
 			textBubble.Add(Object.Instantiate(content[i]));
 		}
 		textBubble.Initialize(targetCenterPoint, num);
+		textBubble.Position = anchoredPosition;
 		if (parentTransform != null)
 		{
 			textBubble.gameObject.transform.SetParent(parentTransform, worldPositionStays: true);
@@ -117,13 +118,6 @@ public class TextBubbleController : MonoBehaviour, IEventSystemHandler
 		{
 			textBubble.gameObject.transform.SetParent(transform, worldPositionStays: false);
 		}
-		Vector3 localScale = textBubble.gameObject.transform.localScale;
-		localScale.x /= Mathf.Abs(localScale.x);
-		localScale.y /= Mathf.Abs(localScale.y);
-		localScale.z /= Mathf.Abs(localScale.z);
-		textBubble.gameObject.transform.localScale = localScale;
-		textBubble.gameObject.transform.localPosition = Vector3.zero;
-		textBubble.Position = anchoredPosition;
 		textBubbles.Add(num, new BubbleTracker());
 		textBubbles[num].Bubble = textBubble;
 		textBubbles[num].currentLifeTime = 0f;

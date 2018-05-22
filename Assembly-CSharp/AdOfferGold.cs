@@ -32,9 +32,9 @@ public class AdOfferGold : MonoBehaviour
 		{
 			BrowserComm.ToJavaScript.ExternalCall("refreshCredentials");
 			NotificationController.PushNotification(TM._("Thank you for watching! Enjoy your gold!"));
-			AvatarPooledXPParticles avatarPooledXPParticles = PrefabPool.Instance.EnumPoolManager.Instantiate<AvatarPooledXPParticles>(PoolEnums.XP);
-			avatarPooledXPParticles.transform.parent = MVGameControllerBase.WOCM.AvatarLocal.Transform;
-			avatarPooledXPParticles.transform.localPosition = new Vector3(0f, 1f, 0f);
+			ParticleSystem particleSystem = Object.Instantiate(PrefabPool.Instance.GoldExplosion);
+			particleSystem.transform.parent = MVGameControllerBase.WOCM.AvatarLocal.Transform;
+			particleSystem.transform.localPosition = new Vector3(0f, 1f, 0f);
 		}
 	}
 }
