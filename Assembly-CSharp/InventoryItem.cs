@@ -351,16 +351,16 @@ public class InventoryItem
 
 	public InventoryItem(Dictionary<byte, object> data)
 	{
-		itemID = (int)data[39];
-		itemCategoryID = (int)data[150];
-		itemTypeID = (int)data[40];
-		name = (string)data[41];
-		this.data = (byte[])data[42];
-		slotPosition = (int)data[44];
-		resellable = (bool)data[138];
-		authorProfileID = (int)data[137];
-		originalItemID = (int)data[139];
-		priceGold = (int)data[68];
+		itemID = (int)data[40];
+		itemCategoryID = (int)data[151];
+		itemTypeID = (int)data[41];
+		name = (string)data[42];
+		this.data = (byte[])data[43];
+		slotPosition = (int)data[45];
+		resellable = (bool)data[139];
+		authorProfileID = (int)data[138];
+		originalItemID = (int)data[140];
+		priceGold = (int)data[69];
 		isDefaultInvItem = false;
 	}
 

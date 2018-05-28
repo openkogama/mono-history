@@ -6,13 +6,13 @@ public class FirstPersonDeathCamera : MVCameraBase
 	[SerializeField]
 	private Vector3 cameraOffset;
 
+	[SerializeField]
 	[Range(0f, 1f)]
 	[Tooltip("Strength of screen flash.")]
-	[SerializeField]
 	private float flashStrength;
 
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	private GodzillaGUI gui;
 
 	public override CameraType CameraType => CameraType.GodzillaModeMainCamera;

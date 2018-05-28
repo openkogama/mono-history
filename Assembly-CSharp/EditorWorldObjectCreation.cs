@@ -7,6 +7,9 @@ using UnityEngine.EventSystems;
 
 public class EditorWorldObjectCreation : MonoBehaviour, ICloneHandler, IAddItemFromInventory, ICreateNewPrototype, IEventSystemHandler
 {
+	[SerializeField]
+	private ThemeRepository themeRepository;
+
 	private EditorStateMachine esm;
 
 	public void Initialize(EditorStateMachine esm)
@@ -116,6 +119,16 @@ public class EditorWorldObjectCreation : MonoBehaviour, ICloneHandler, IAddItemF
 			if (!IsItemAnAllowedWinningCondition(value))
 			{
 				NotificationController.PushNotification(TM._("Only one winning condition will be actively displayed per game."));
+			}
+			if (value is MVSkybox && themeRepository.CurrentlySerializedTheme != null && themeRepository.CurrentlySerializedTheme.OverrideSkyboxManager)
+			{
+				string header = TM._("Skybox Unavailable");
+				string msg = TM._("Your theme is currently controlling the sky. Thus skyboxes cannot be used.");
+				ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+				{
+					x.Create(msg, header);
+				});
+				return false;
 			}
 		}
 		return true;

@@ -9,7 +9,7 @@ public class MVPointLightObject : ObjectPrefab
 	private GameObject visualObject;
 
 	[SerializeField]
-	private StreamedTextureToMaterial streamedTexture;
+	private StreamedTextureToMeshRenderer streamedTexture;
 
 	[SerializeField]
 	private MeshRenderer pointLightPlaneMesh;
@@ -21,7 +21,7 @@ public class MVPointLightObject : ObjectPrefab
 
 	public Light PointLight => pointLight;
 
-	public StreamedTextureToMaterial StreamedTexture => streamedTexture;
+	public StreamedTextureToMeshRenderer StreamedTexture => streamedTexture;
 
 	public MeshRenderer PointLightPlaneMesh => pointLightPlaneMesh;
 

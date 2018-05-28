@@ -5,6 +5,10 @@ using UnityEngine.Events;
 
 public abstract class StreamingAsset<AssetType, PreviewType> : StreamingAsset where AssetType : UnityEngine.Object where PreviewType : UnityEngine.Object
 {
+	[SerializeField]
+	[Tooltip("If true, bundle will be cached in memory, and never unloaded. It will also require a unique bundle name. If false, bundle will be destroyed and resources freed on destruction.")]
+	private bool useCache = true;
+
 	private AssetType asset;
 
 	public AssetType Asset
@@ -40,7 +44,14 @@ public abstract class StreamingAsset<AssetType, PreviewType> : StreamingAsset wh
 		if (Urls.StreamingAssetUrlReady())
 		{
 			Urls.onStreamingAssetsUrlAvailable = (Urls.OnStreamingAssetsUrlAvailable)Delegate.Remove(Urls.onStreamingAssetsUrlAvailable, new Urls.OnStreamingAssetsUrlAvailable(DownloadWhenPossible));
-			Download(url, onAssetSetAction);
+			if (useCache)
+			{
+				Download_Cached(url, onAssetSetAction);
+			}
+			else
+			{
+				Download_NonCached(url, onAssetSetAction);
+			}
 		}
 		else
 		{
@@ -52,12 +63,16 @@ public abstract class StreamingAsset<AssetType, PreviewType> : StreamingAsset wh
 	{
 		if (string.IsNullOrEmpty(www.error))
 		{
-			Asset = StreamingAsset.UnpackBundle<AssetType>(www);
+			Asset = StreamingAsset.UnpackBundle<AssetType>(www, !useCache);
 		}
 	}
 
 	protected override void OnDestroy()
 	{
+		if (!useCache)
+		{
+			Resources.UnloadUnusedAssets();
+		}
 		base.OnDestroy();
 	}
 
@@ -68,8 +83,8 @@ public abstract class StreamingAsset<AssetType, PreviewType> : StreamingAsset wh
 }
 public abstract class StreamingAsset : MonoBehaviour
 {
-	[HideInInspector]
 	[SerializeField]
+	[HideInInspector]
 	protected string url = "NOT SET";
 
 	protected UnityAction onAssetSetAction;
@@ -102,7 +117,7 @@ public abstract class StreamingAsset : MonoBehaviour
 
 	protected abstract void OnAssetSet();
 
-	public static AssetType UnpackBundle<AssetType>(WWW www) where AssetType : UnityEngine.Object
+	public static AssetType UnpackBundle<AssetType>(WWW www, bool unloadBundle = false) where AssetType : UnityEngine.Object
 	{
 		AssetType[] array = www.assetBundle.LoadAllAssets<AssetType>();
 		if (array.Length == 0)
@@ -113,6 +128,10 @@ public abstract class StreamingAsset : MonoBehaviour
 		if (array.Length > 1)
 		{
 			Debug.LogWarning(www.url + "\nThere are multiple objects in bundle. Only the first asset will be used, and the download will take longer.");
+		}
+		if (unloadBundle)
+		{
+			www.assetBundle.Unload(unloadAllLoadedObjects: false);
 		}
 		return array[0];
 	}
@@ -125,11 +144,18 @@ public abstract class StreamingAsset : MonoBehaviour
 		return text + text2;
 	}
 
-	protected void Download(string url, UnityAction onAssetSetAction)
+	protected void Download_Cached(string url, UnityAction onAssetSetAction)
 	{
 		url += MVGameControllerBase.KoGaMaSettings.WebCacheInvalidationCodeStr;
 		this.onAssetSetAction = (UnityAction)Delegate.Combine(this.onAssetSetAction, new UnityAction(OnAssetSet));
 		AsyncWWWManager.WWWRequest(new CachedGetRequest(AssetBundleUrl + url, OnDownloadFinished, WWWRequestPriority.WaitUntilSyncronizingIsDone));
+	}
+
+	protected void Download_NonCached(string url, UnityAction onAssetSetAction)
+	{
+		url += MVGameControllerBase.KoGaMaSettings.WebCacheInvalidationCodeStr;
+		this.onAssetSetAction = (UnityAction)Delegate.Combine(this.onAssetSetAction, new UnityAction(OnAssetSet));
+		AsyncWWWManager.WWWRequest(new GetRequest(AssetBundleUrl + url, OnDownloadFinished, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 	}
 
 	protected abstract void OnDownloadFinished(WWW www);
