@@ -102,7 +102,5 @@ public enum DBQuery
 	GetProfileMetaData,
 	UpdateProfileMetaData,
 	GetAntiCheatData,
-	RevokeEditRights,
-	GetThemesData,
-	PurchaseTheme
+	RevokeEditRights
 }

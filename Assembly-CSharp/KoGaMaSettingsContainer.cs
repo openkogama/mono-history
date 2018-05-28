@@ -11,8 +11,8 @@ public class KoGaMaSettingsContainer : ScriptableObject
 		public byte numOfBits = (byte)numOfBits;
 	}
 
-	[Header("Settings set by build system")]
 	[SerializeField]
+	[Header("Settings set by build system")]
 	private bool showDebugLogin;
 
 	[Header("Don't change")]

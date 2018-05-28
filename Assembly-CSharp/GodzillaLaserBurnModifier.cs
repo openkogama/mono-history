@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class GodzillaLaserBurnModifier : AvatarModifier
 {
-	[HideInInspector]
 	[SerializeField]
+	[HideInInspector]
 	private AvatarModifierPackageType modifierType;
 
 	public override AvatarModifierPackageType ModifierType => modifierType;
