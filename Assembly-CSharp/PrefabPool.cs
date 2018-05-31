@@ -226,9 +226,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material blinkerDefaultMaterial;
 
-	[Space(20f)]
 	[SerializeField]
 	[Header("Pick up")]
+	[Space(20f)]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
 	[SerializeField]
@@ -350,8 +350,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private GameObject avatarItemHealRay;
 
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
 	[Header("Avatar modifier")]
 	private AvatarModifier shieldModifier;
 
@@ -385,8 +385,8 @@ public class PrefabPool : MonoBehaviour
 	private ParticleSystem healingParticles;
 
 	[Space(20f)]
-	[Header("Logic object prefabs")]
 	[SerializeField]
+	[Header("Logic object prefabs")]
 	private GameObject logicInputConnectorPrefab;
 
 	[SerializeField]
@@ -413,9 +413,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material logicCubeConnectorBlueSelectedMaterial;
 
-	[SerializeField]
-	[Space(20f)]
 	[Header("GUI")]
+	[Space(20f)]
+	[SerializeField]
 	private Texture2D avatarAccessoryMoveIcon;
 
 	[SerializeField]
@@ -425,8 +425,8 @@ public class PrefabPool : MonoBehaviour
 	private Material modelConstraintsMaterial;
 
 	[Space(20f)]
-	[Header("UGUI")]
 	[SerializeField]
+	[Header("UGUI")]
 	private AvatarInputControllerAndroidSettings avatarInputControllerAndroidSettings;
 
 	[SerializeField]
@@ -441,8 +441,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ChatBubble chatBubble;
 
-	[Header("TextBubbleContent")]
 	[SerializeField]
+	[Header("TextBubbleContent")]
 	private RectTransform editCornerHelpText;
 
 	[SerializeField]
@@ -452,8 +452,8 @@ public class PrefabPool : MonoBehaviour
 	private RectTransform editFaceHelpText;
 
 	[SerializeField]
-	[Space(20f)]
 	[Header("Cameras")]
+	[Space(20f)]
 	private GodzillaCameraDesktop godzillaCameraDesktop;
 
 	[SerializeField]

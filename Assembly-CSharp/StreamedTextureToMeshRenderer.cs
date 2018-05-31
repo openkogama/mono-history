@@ -1,14 +1,14 @@
 using UnityEngine;
 
-public class StreamedTextureToMaterial : StreamingAsset<Texture, Texture>
+public class StreamedTextureToMeshRenderer : StreamingAsset<Texture, Texture>
 {
-	[Header("Configuration")]
 	[SerializeField]
 	[Tooltip("For standard unity shaders \"_MainTex\" is the main textures name.")]
+	[Header("Configuration")]
 	protected string shaderTextureVariableName = "_MainTex";
 
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	private MeshRenderer meshRenderer;
 
 	public bool assetSet;
@@ -17,7 +17,7 @@ public class StreamedTextureToMaterial : StreamingAsset<Texture, Texture>
 
 	public void ReDownload()
 	{
-		Download(url, onAssetSetAction);
+		Download_Cached(url, onAssetSetAction);
 	}
 
 	protected override void OnAssetSet()

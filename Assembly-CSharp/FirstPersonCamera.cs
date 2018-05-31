@@ -6,8 +6,8 @@ using UnityEngine.Rendering;
 
 public abstract class FirstPersonCamera : MVCameraBase
 {
-	[Header("Configuration")]
 	[SerializeField]
+	[Header("Configuration")]
 	private float cameraHeight = 2f;
 
 	[SerializeField]
