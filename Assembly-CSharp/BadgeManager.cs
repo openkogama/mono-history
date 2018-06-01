@@ -12,7 +12,7 @@ public static class BadgeManager
 
 	private static int maxLevelBadge = 0;
 
-	private static string fromUnityArgument = "?Unity=1";
+	private static string fromUnityArgument = "?Unity=2";
 
 	public static void Initialize(List<BadgeUrlData> badgeUrlDatas)
 	{
