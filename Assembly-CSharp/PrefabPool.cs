@@ -7,8 +7,8 @@ public class PrefabPool : MonoBehaviour
 
 	private static PrefabPool instance;
 
-	[SerializeField]
 	[Header("World Objects")]
+	[SerializeField]
 	private ObjectPrefab mvFirePrefab;
 
 	[SerializeField]
@@ -197,9 +197,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ObjectPrefab finishLinePrefab;
 
-	[Header("Game")]
 	[Space(20f)]
 	[SerializeField]
+	[Header("Game")]
 	private Material ghostMarkerMaterial;
 
 	[SerializeField]
@@ -226,9 +226,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material blinkerDefaultMaterial;
 
+	[Space(20f)]
 	[SerializeField]
 	[Header("Pick up")]
-	[Space(20f)]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
 	[SerializeField]
@@ -288,8 +288,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private MVPickupItemBaseObject avatarHealRayPrefab;
 
-	[SerializeField]
 	[Space(20f)]
+	[SerializeField]
 	[Header("Avatar item pick up")]
 	private GameObject avatarItemCenterGun;
 
@@ -351,13 +351,13 @@ public class PrefabPool : MonoBehaviour
 	private GameObject avatarItemHealRay;
 
 	[Space(20f)]
-	[SerializeField]
 	[Header("Avatar modifier")]
+	[SerializeField]
 	private AvatarModifier shieldModifier;
 
+	[Space(20f)]
 	[SerializeField]
 	[Header("Particles")]
-	[Space(20f)]
 	private GameObject particleCFX_GroundAura;
 
 	[SerializeField]
@@ -384,9 +384,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem healingParticles;
 
-	[Space(20f)]
 	[SerializeField]
 	[Header("Logic object prefabs")]
+	[Space(20f)]
 	private GameObject logicInputConnectorPrefab;
 
 	[SerializeField]
@@ -413,9 +413,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material logicCubeConnectorBlueSelectedMaterial;
 
-	[Header("GUI")]
 	[Space(20f)]
 	[SerializeField]
+	[Header("GUI")]
 	private Texture2D avatarAccessoryMoveIcon;
 
 	[SerializeField]
@@ -424,9 +424,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material modelConstraintsMaterial;
 
+	[Header("UGUI")]
 	[Space(20f)]
 	[SerializeField]
-	[Header("UGUI")]
 	private AvatarInputControllerAndroidSettings avatarInputControllerAndroidSettings;
 
 	[SerializeField]
@@ -451,9 +451,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private RectTransform editFaceHelpText;
 
+	[Space(20f)]
 	[SerializeField]
 	[Header("Cameras")]
-	[Space(20f)]
 	private GodzillaCameraDesktop godzillaCameraDesktop;
 
 	[SerializeField]
@@ -462,9 +462,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private FirstPersonDeathCamera firstPersonDeathCamera;
 
-	[SerializeField]
 	[Header("Editor")]
 	[Space(20f)]
+	[SerializeField]
 	private Material cellCursorErrorMaterial;
 
 	[SerializeField]

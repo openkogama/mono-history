@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class CloudyTheme : CloudyThemeBase
 {
-	[Header("Meta")]
 	[SerializeField]
+	[Header("Meta")]
 	private string identifier = "UID";
 
 	[SerializeField]
