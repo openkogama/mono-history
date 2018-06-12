@@ -40,9 +40,4 @@ public class ThemeWorldObject : MVWorldObjectClient
 		base.Reset();
 		Visualization.ThemeReset();
 	}
-
-	public override void OnDataUpdate()
-	{
-		Visualization.Initialize(id);
-	}
 }

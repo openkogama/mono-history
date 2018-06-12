@@ -21,9 +21,9 @@ public abstract class CloudyThemeBase : Theme
 		public const int fogDisabled = 32;
 	}
 
-	[Header("Attributes", order = 1)]
-	[SerializeField]
 	[Header("Day/night-cycle", order = 2)]
+	[SerializeField]
+	[Header("Attributes", order = 1)]
 	private BoolAttribute useDayNightCycle;
 
 	[SerializeField]
@@ -50,15 +50,15 @@ public abstract class CloudyThemeBase : Theme
 	[SerializeField]
 	private FloatAttribute moonLongitude;
 
-	[SerializeField]
 	[Header("Sky")]
+	[SerializeField]
 	private ColorAttribute topColor;
 
 	[SerializeField]
 	private ColorAttribute bottomColor;
 
-	[Header("Stars")]
 	[SerializeField]
+	[Header("Stars")]
 	private ColorAttribute starsTint;
 
 	[SerializeField]
@@ -89,8 +89,8 @@ public abstract class CloudyThemeBase : Theme
 	[SerializeField]
 	private FloatAttribute sunFlareBrightness;
 
-	[SerializeField]
 	[Header("Moon")]
+	[SerializeField]
 	private ColorAttribute moonTint;
 
 	[SerializeField]
@@ -121,19 +121,22 @@ public abstract class CloudyThemeBase : Theme
 	[SerializeField]
 	private FloatAttribute cloudsRotationSpeed;
 
-	[Header("Fog")]
 	[SerializeField]
+	[Header("Fog")]
 	private BoolAttribute useFog;
+
+	[SerializeField]
+	private IntAttribute fogMode;
 
 	[SerializeField]
 	private FloatAttribute fogDensity;
 
-	[Header("Misc")]
 	[SerializeField]
+	[Header("Misc")]
 	private FloatAttribute exposure;
 
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	private ThemeSkybox skybox;
 
 	[SerializeField]
@@ -292,6 +295,10 @@ public abstract class CloudyThemeBase : Theme
 			skybox.CloudsRotationSpeed = f;
 		});
 		useFog.Initialize(Settings, "useFog", 0, ToggleFog);
+		fogMode.Initialize(Settings, "fogMode", 16, (int i) =>
+		{
+			skybox.FogMode = (FogMode)i;
+		});
 		fogDensity.Initialize(Settings, "fogDensity", 16, (float f) =>
 		{
 			skybox.FogDensity = f;
