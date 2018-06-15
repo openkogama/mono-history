@@ -16,7 +16,7 @@ public static class BytePackerFunctionsVersion11
 			bytePacker.Write(value.ID);
 			bytePacker.Write(value.Scale);
 			bytePacker.Write(value.InsertedInWorldByProfileID);
-			byte[] prototypeData = MVPrototype.GetPrototypeData((Dictionary<IntVector, byte[]>)value.Data[(byte)50]);
+			byte[] prototypeData = MVPrototype.GetPrototypeData((Dictionary<IntVector, byte[]>)value.Data[(byte)49]);
 			bytePacker.Write(prototypeData.Length);
 			bytePacker.Write(prototypeData);
 		}

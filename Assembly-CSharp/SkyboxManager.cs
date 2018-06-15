@@ -21,7 +21,7 @@ public class SkyboxManager : MonoBehaviour
 
 	public float currentFogDensity = defaultFogDensity;
 
-	private List<MVSkybox> mvSkyboxes = new List<MVSkybox>();
+	public List<MVSkybox> mvSkyboxes = new List<MVSkybox>();
 
 	public Color brightAmbient = new Color(1f, 1f, 1f, 1f);
 
@@ -33,8 +33,8 @@ public class SkyboxManager : MonoBehaviour
 
 	public SkyboxColorChangedDelegate OnSkyboxColorChanged;
 
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	private Light sunLight;
 
 	[SerializeField]
@@ -51,8 +51,6 @@ public class SkyboxManager : MonoBehaviour
 
 	private bool initialized;
 
-	private bool pendingLateInitialization;
-
 	public void RefreshColor()
 	{
 		if (initialized)
@@ -63,24 +61,20 @@ public class SkyboxManager : MonoBehaviour
 		}
 	}
 
-	public void Add(MVSkybox skybox)
+	private void Start()
 	{
-		if (!enabled)
+		MVGameControllerBase.OnPostGameInit = (MVGameControllerBase.OnPostGameInitDelegate)Delegate.Combine(MVGameControllerBase.OnPostGameInit, (MVGameControllerBase.OnPostGameInitDelegate)(() =>
 		{
-			skybox.SetDeleteOnlyInteractionFlags();
-		}
-		mvSkyboxes.Add(skybox);
-	}
-
-	public void Remove(MVSkybox skybox)
-	{
-		mvSkyboxes.Remove(skybox);
+			ComputeSkyboxSettings(out targetColor, out targetSunAngle, out targetFogDensity);
+			SetColor(targetColor, targetSunAngle, targetFogDensity);
+			initialized = true;
+		}));
 	}
 
 	private IEnumerator DoAnimate()
 	{
 		float t = 0f;
-		while (t <= 1f && enabled)
+		while (t <= 1f)
 		{
 			Color c = Color.Lerp(currentColor, targetColor, t);
 			float s = Mathf.Lerp(currentSunAngle, targetSunAngle, t);
@@ -89,59 +83,6 @@ public class SkyboxManager : MonoBehaviour
 			SetColor(c, s, d);
 			yield return 0;
 		}
-	}
-
-	protected void Awake()
-	{
-		MVGameControllerBase.OnPostGameInit = (MVGameControllerBase.OnPostGameInitDelegate)Delegate.Combine(MVGameControllerBase.OnPostGameInit, (MVGameControllerBase.OnPostGameInitDelegate)(() =>
-		{
-			if (enabled)
-			{
-				Initialize();
-			}
-			else
-			{
-				pendingLateInitialization = true;
-			}
-		}));
-	}
-
-	protected void OnEnable()
-	{
-		sunLight.enabled = true;
-		foreach (MVSkybox mvSkybox in mvSkyboxes)
-		{
-			mvSkybox.SetDefaultInteractionFlags();
-		}
-		if (pendingLateInitialization)
-		{
-			Initialize();
-		}
-		if (initialized)
-		{
-			CalcAndSetSkyboxSettings();
-		}
-	}
-
-	protected void OnDisable()
-	{
-		sunLight.enabled = false;
-		foreach (MVSkybox mvSkybox in mvSkyboxes)
-		{
-			mvSkybox.SetDeleteOnlyInteractionFlags();
-		}
-	}
-
-	private void Initialize()
-	{
-		CalcAndSetSkyboxSettings();
-		initialized = true;
-	}
-
-	private void CalcAndSetSkyboxSettings()
-	{
-		ComputeSkyboxSettings(out targetColor, out targetSunAngle, out targetFogDensity);
-		SetColor(targetColor, targetSunAngle, targetFogDensity);
 	}
 
 	private void ComputeSkyboxSettings(out Color color, out float sunAngle, out float fogDensity)
@@ -177,10 +118,6 @@ public class SkyboxManager : MonoBehaviour
 		float t = Mathf.SmoothStep(0f, 0.7f, grayscale) / 0.7f;
 		Color color2 = Color.Lerp(color, brightAmbient, t);
 		float num = Mathf.SmoothStep(0.9f, 0f, grayscale) * 0.85f + 0.4f;
-		RenderSettings.fog = true;
-		RenderSettings.fogMode = FogMode.ExponentialSquared;
-		RenderSettings.fogStartDistance = 400f;
-		RenderSettings.fogEndDistance = 500f;
 		RenderSettings.fogColor = color;
 		RenderSettings.fogDensity = fogDensity;
 		RenderSettings.ambientLight = num * color2;

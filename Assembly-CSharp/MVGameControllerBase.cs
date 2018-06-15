@@ -73,9 +73,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	protected TextureIntegrityChecker textureIntegrityChecker;
 
 	[SerializeField]
-	private ThemeRepository themeRepository;
-
-	[SerializeField]
 	private StreamingAssetManager streamingAssetManager;
 
 	protected static MVGameControllerBase instance;
@@ -308,7 +305,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		CheatHandling.Init();
 		AudioEventHandler.Init(audioBuild);
 		textureIntegrityChecker.Initialize();
-		themeRepository.Initialize();
 		InitUpdateController();
 		waterPlaneManager = UnityEngine.Object.Instantiate(instance.waterPlaneManagerPrefab);
 		UnityEngine.Object.DontDestroyOnLoad(gameObject);
