@@ -6,5 +6,6 @@ public enum MVPurchaseReturnCode
 	InsufficientFunds,
 	AlreadyPurchased,
 	ProductSubtypeNotSold,
-	Failed
+	Failed,
+	InsufficientLevel
 }

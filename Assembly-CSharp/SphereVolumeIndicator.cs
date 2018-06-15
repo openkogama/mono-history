@@ -12,8 +12,8 @@ public class SphereVolumeIndicator : MonoBehaviour
 	[SerializeField]
 	private float lineWidth = 1f;
 
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	private LineRenderer rangeIndicatorXY;
 
 	[SerializeField]

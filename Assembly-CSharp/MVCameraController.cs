@@ -157,6 +157,9 @@ public class MVCameraController : MonoBehaviour
 	[SerializeField]
 	private AudioSource plingSound;
 
+	[SerializeField]
+	private Skybox skybox;
+
 	private bool isLogicRendered;
 
 	private static Dictionary<MVGameType, ICameraSettings> cameraSettings = new Dictionary<MVGameType, ICameraSettings>();
@@ -173,6 +176,8 @@ public class MVCameraController : MonoBehaviour
 	private static bool mute = false;
 
 	public static Action<bool> OnMuteChange;
+
+	public Skybox Skybox => skybox;
 
 	public float FieldOfView
 	{
