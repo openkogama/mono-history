@@ -163,7 +163,6 @@ public class ThemeSkybox : ThemeComponent
 			_bottomColor = value;
 			skyboxMaterial.SetColor("_BottomColor", _bottomColor);
 			RecalculateFogColor();
-			RenderSettings.ambientLight = _bottomColor;
 		}
 	}
 
@@ -176,7 +175,6 @@ public class ThemeSkybox : ThemeComponent
 		set
 		{
 			fogEnabled = value;
-			RenderSettings.fog = value;
 		}
 	}
 
@@ -189,7 +187,6 @@ public class ThemeSkybox : ThemeComponent
 		set
 		{
 			fogDensity = value;
-			RenderSettings.fogDensity = value;
 		}
 	}
 
@@ -202,7 +199,6 @@ public class ThemeSkybox : ThemeComponent
 		set
 		{
 			fogStartDist = value;
-			RenderSettings.fogStartDistance = value;
 		}
 	}
 
@@ -215,7 +211,6 @@ public class ThemeSkybox : ThemeComponent
 		set
 		{
 			fogEndDist = value;
-			RenderSettings.fogEndDistance = value;
 		}
 	}
 
@@ -519,7 +514,6 @@ public class ThemeSkybox : ThemeComponent
 		{
 			_exposure = value;
 			skyboxMaterial.SetFloat("_Exposure", _exposure);
-			RenderSettings.ambientIntensity = _exposure;
 			RecalculateFogColor();
 		}
 	}
@@ -540,18 +534,12 @@ public class ThemeSkybox : ThemeComponent
 		skyboxMaterial.SetMatrix("sunMatrix", _sun.Light.transform.worldToLocalMatrix);
 		skyboxMaterial.SetMatrix("moonMatrix", _moon.Light.transform.worldToLocalMatrix);
 		previousClearFlags = Camera.clearFlags;
-		Camera.clearFlags = CameraClearFlags.Skybox;
-		_sun.enabled = true;
-		_moon.enabled = true;
 		ApplyRenderSettings();
 	}
 
 	public override void Deactivate()
 	{
 		Skybox.material = previousSkyboxMaterial;
-		Camera.clearFlags = previousClearFlags;
-		_sun.enabled = false;
-		_moon.enabled = false;
 	}
 
 	public void RecalculateSunLight()
@@ -560,7 +548,6 @@ public class ThemeSkybox : ThemeComponent
 		float time = sunAngle / 90f - _cloudsHeight;
 		SunLight.intensity = lightIntensityByEmitterHeight.Evaluate(time) * _sunLightIntensity;
 		SunFlare.brightness = SunLight.intensity * _sunFlareBrightness;
-		SunFlare.enabled = !Mathf.Approximately(SunFlare.brightness, 0f);
 	}
 
 	public void RecalculateMoonLight()
@@ -569,25 +556,16 @@ public class ThemeSkybox : ThemeComponent
 		float time = moonAngle / 90f - _cloudsHeight;
 		MoonLight.intensity = lightIntensityByEmitterHeight.Evaluate(time) * _moonLightIntensity;
 		MoonFlare.brightness = MoonLight.intensity * _moonFlareBrightness;
-		MoonFlare.enabled = !Mathf.Approximately(MoonFlare.brightness, 0f);
 	}
 
 	public void RecalculateFogColor()
 	{
-		Color fogColor = _bottomColor * _exposure;
-		fogColor.a = 1f;
-		RenderSettings.fogColor = fogColor;
+		Color color = _bottomColor * _exposure;
+		color.a = 1f;
 	}
 
 	private void ApplyRenderSettings()
 	{
-		RenderSettings.fog = fogEnabled;
-		RenderSettings.fogMode = FogMode.ExponentialSquared;
-		RenderSettings.fogStartDistance = fogStartDist;
-		RenderSettings.fogEndDistance = fogEndDist;
-		RenderSettings.fogDensity = fogDensity;
 		RecalculateFogColor();
-		RenderSettings.ambientLight = _bottomColor;
-		RenderSettings.ambientIntensity = _exposure;
 	}
 }
