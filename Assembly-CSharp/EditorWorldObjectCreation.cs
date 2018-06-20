@@ -7,9 +7,6 @@ using UnityEngine.EventSystems;
 
 public class EditorWorldObjectCreation : MonoBehaviour, ICloneHandler, IAddItemFromInventory, ICreateNewPrototype, IEventSystemHandler
 {
-	[SerializeField]
-	private ThemeRepository themeRepository;
-
 	private EditorStateMachine esm;
 
 	public void Initialize(EditorStateMachine esm)
