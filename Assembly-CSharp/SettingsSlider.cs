@@ -14,6 +14,8 @@ public class SettingsSlider : MonoBehaviour
 
 	private string key;
 
+	public float Value => slider.value;
+
 	public void Initialize(string key, float value, float minValue, float maxValue)
 	{
 		this.key = key;

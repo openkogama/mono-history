@@ -10,5 +10,6 @@ public enum MVProductType
 	RespawnNow,
 	GameCoinBooster,
 	MysteryBoxSpins,
-	MarketPlaceAvatar
+	MarketPlaceAvatar,
+	Theme
 }

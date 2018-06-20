@@ -28,11 +28,13 @@ public class GenerateTextureData : MonoBehaviour
 		{
 			layer = LayerMask.NameToLayer("Default")
 		};
-		SkyboxManager skybox = MVGameControllerBase.SkyboxManager;
-		Color color = ((!(skybox != null)) ? SkyboxManager.defaultColor : skybox.currentColor);
+		SkyboxManager skyboxManager = MVGameControllerBase.SkyboxManager;
+		Color color = ((!(skyboxManager != null)) ? SkyboxManager.defaultColor : skyboxManager.currentColor);
 		Camera screenshotCam = screenshotCamObject.AddComponent<Camera>();
-		screenshotCam.clearFlags = CameraClearFlags.Color;
+		screenshotCam.clearFlags = Camera.main.clearFlags;
 		screenshotCam.backgroundColor = color;
+		Skybox skybox = screenshotCamObject.AddComponent<Skybox>();
+		skybox.material = MVGameControllerBase.CameraController.Skybox.material;
 		screenshotCam.fieldOfView = Camera.main.fieldOfView;
 		screenshotCam.aspect = Camera.main.aspect;
 		int height = (int)(920f / Camera.main.aspect);

@@ -100,7 +100,7 @@ public enum WorldObjectType
 	GodzillaTrigger = 147,
 	GameCoin = 148,
 	GameCoinChest = 149,
-	Caspar6 = 150,
+	Theme = 150,
 	Caspar7 = 151,
 	Caspar8 = 152,
 	Caspar9 = 153,

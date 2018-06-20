@@ -157,6 +157,9 @@ public class MVCameraController : MonoBehaviour
 	[SerializeField]
 	private AudioSource plingSound;
 
+	[SerializeField]
+	private Skybox skybox;
+
 	private bool isLogicRendered;
 
 	private static Dictionary<MVGameType, ICameraSettings> cameraSettings = new Dictionary<MVGameType, ICameraSettings>();
@@ -168,11 +171,15 @@ public class MVCameraController : MonoBehaviour
 
 	private bool blueModeEnabled;
 
+	private int cullingMask;
+
 	private static float baseVolume = 0f;
 
 	private static bool mute = false;
 
 	public static Action<bool> OnMuteChange;
+
+	public Skybox Skybox => skybox;
 
 	public float FieldOfView
 	{
@@ -209,6 +216,21 @@ public class MVCameraController : MonoBehaviour
 			blueModeEnabled = value;
 			secondaryCamera.gameObject.SetActive(value);
 			greyScaleEffect.enabled = value;
+		}
+	}
+
+	public bool AvatarLobbyFocus
+	{
+		set
+		{
+			if (value)
+			{
+				mainCamera.cullingMask = 1 << LayerMask.NameToLayer("CamRotateTarget");
+			}
+			else
+			{
+				mainCamera.cullingMask = cullingMask;
+			}
 		}
 	}
 
@@ -306,6 +328,7 @@ public class MVCameraController : MonoBehaviour
 		{
 			MainCamera.cullingMask -= 1 << LayerMask.NameToLayer("Logic");
 		}
+		cullingMask = MainCamera.cullingMask;
 	}
 
 	public static void RegisterCameraWithSettings(MVGameType gameType, ICameraSettings cameraSettings)

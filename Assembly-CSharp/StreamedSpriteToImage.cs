@@ -3,8 +3,8 @@ using UnityEngine.UI;
 
 public class StreamedSpriteToImage : StreamingAsset<Sprite, Texture2D>
 {
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	protected Image image;
 
 	public void Reset()

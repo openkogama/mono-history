@@ -11,6 +11,8 @@ public class MVSkybox : MVLogicObject, ILogicWorldObject
 
 	protected SkyboxManager skybox;
 
+	private InteractionFlags defaultInteractionFlags;
+
 	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.Skybox;
 
 	public override bool HasInputConnector => true;
@@ -66,13 +68,14 @@ public class MVSkybox : MVLogicObject, ILogicWorldObject
 	{
 		interactionFlags |= InteractionFlags.CanResetLogic;
 		interactionFlags |= InteractionFlags.HasSettings;
+		defaultInteractionFlags = interactionFlags;
 	}
 
 	public override void Initialize()
 	{
 		base.Initialize();
 		skybox = MVGameControllerBase.SkyboxManager;
-		skybox.mvSkyboxes.Add(this);
+		skybox.Add(this);
 		gameObject.transform.localScale = Vector3.one;
 		SetupCulling(gameObject);
 		InputSignalReceiver = LogicClientsideFactory.CreateStateChangeInputSignalReceiver(this, defaultInput: true, null, InputStateUpdateCallback);
@@ -110,8 +113,18 @@ public class MVSkybox : MVLogicObject, ILogicWorldObject
 			base.Destroy();
 			return;
 		}
-		skybox.mvSkyboxes.Remove(this);
+		skybox.Remove(this);
 		skybox.RefreshColor();
 		base.Destroy();
+	}
+
+	public void SetDefaultInteractionFlags()
+	{
+		interactionFlags = defaultInteractionFlags;
+	}
+
+	public void SetDeleteOnlyInteractionFlags()
+	{
+		interactionFlags = InteractionFlags.Selectable;
 	}
 }
