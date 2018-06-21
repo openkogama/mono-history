@@ -163,7 +163,6 @@ public class ThemeSkybox : ThemeComponent
 			_bottomColor = value;
 			skyboxMaterial.SetColor("_BottomColor", _bottomColor);
 			RecalculateFogColor();
-			RenderSettings.ambientLight = _bottomColor;
 		}
 	}
 
@@ -176,7 +175,6 @@ public class ThemeSkybox : ThemeComponent
 		set
 		{
 			fogEnabled = value;
-			RenderSettings.fog = value;
 		}
 	}
 
@@ -189,7 +187,6 @@ public class ThemeSkybox : ThemeComponent
 		set
 		{
 			fogDensity = value;
-			RenderSettings.fogDensity = value;
 		}
 	}
 
@@ -202,7 +199,6 @@ public class ThemeSkybox : ThemeComponent
 		set
 		{
 			fogStartDist = value;
-			RenderSettings.fogStartDistance = value;
 		}
 	}
 
@@ -215,7 +211,6 @@ public class ThemeSkybox : ThemeComponent
 		set
 		{
 			fogEndDist = value;
-			RenderSettings.fogEndDistance = value;
 		}
 	}
 
@@ -519,7 +514,6 @@ public class ThemeSkybox : ThemeComponent
 		{
 			_exposure = value;
 			skyboxMaterial.SetFloat("_Exposure", _exposure);
-			RenderSettings.ambientIntensity = _exposure;
 			RecalculateFogColor();
 		}
 	}
@@ -540,7 +534,6 @@ public class ThemeSkybox : ThemeComponent
 		skyboxMaterial.SetMatrix("sunMatrix", _sun.Light.transform.worldToLocalMatrix);
 		skyboxMaterial.SetMatrix("moonMatrix", _moon.Light.transform.worldToLocalMatrix);
 		previousClearFlags = Camera.clearFlags;
-		Camera.clearFlags = CameraClearFlags.Skybox;
 		_sun.enabled = true;
 		_moon.enabled = true;
 		ApplyRenderSettings();
@@ -549,7 +542,6 @@ public class ThemeSkybox : ThemeComponent
 	public override void Deactivate()
 	{
 		Skybox.material = previousSkyboxMaterial;
-		Camera.clearFlags = previousClearFlags;
 		_sun.enabled = false;
 		_moon.enabled = false;
 	}
@@ -574,20 +566,12 @@ public class ThemeSkybox : ThemeComponent
 
 	public void RecalculateFogColor()
 	{
-		Color fogColor = _bottomColor * _exposure;
-		fogColor.a = 1f;
-		RenderSettings.fogColor = fogColor;
+		Color color = _bottomColor * _exposure;
+		color.a = 1f;
 	}
 
 	private void ApplyRenderSettings()
 	{
-		RenderSettings.fog = fogEnabled;
-		RenderSettings.fogMode = FogMode.ExponentialSquared;
-		RenderSettings.fogStartDistance = fogStartDist;
-		RenderSettings.fogEndDistance = fogEndDist;
-		RenderSettings.fogDensity = fogDensity;
 		RecalculateFogColor();
-		RenderSettings.ambientLight = _bottomColor;
-		RenderSettings.ambientIntensity = _exposure;
 	}
 }

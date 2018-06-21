@@ -132,8 +132,8 @@ public abstract class CloudyThemeBase : Theme
 	[SerializeField]
 	private FloatAttribute exposure;
 
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	private ThemeSkybox skybox;
 
 	[SerializeField]

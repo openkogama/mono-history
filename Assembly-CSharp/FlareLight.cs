@@ -24,7 +24,6 @@ public class FlareLight : MonoBehaviour
 
 	private void SetEnabled(bool b)
 	{
-		light.enabled = b;
 		lensFlare.enabled = b;
 	}
 

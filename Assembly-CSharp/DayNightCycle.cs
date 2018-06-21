@@ -75,7 +75,7 @@ public class DayNightCycle : MonoBehaviour
 
 	private DayNightCycleColorPresets.Preset activeColorPreset;
 
-	private float CurrentStepTime => (float)MVGameControllerBase.Game.StepTimeStamp / 1000f;
+	private float CurrentStepTime => 0f;
 
 	private SkyParamsList _skyParamsList => activeColorPreset.Sky;
 
@@ -369,7 +369,6 @@ public class DayNightCycle : MonoBehaviour
 		skybox.SunLight.color = CurrentSunParam.LightColor;
 		skybox.SunLight.intensity = CurrentSunParam.LightIntencity;
 		skybox.SunFlare.brightness = skybox.SunLight.intensity * skybox.SunFlareBrightness;
-		skybox.SunFlare.enabled = !Mathf.Approximately(skybox.SunFlare.brightness, 0f);
 		if (timeOfDay > _moonrise || timeOfDay < _moonset)
 		{
 			float num2 = ((!(_moonrise < timeOfDay)) ? (100f + timeOfDay - _moonrise) : (timeOfDay - _moonrise));
@@ -384,7 +383,6 @@ public class DayNightCycle : MonoBehaviour
 		skybox.MoonLight.color = CurrentMoonParam.LightColor;
 		skybox.MoonLight.intensity = CurrentMoonParam.LightIntencity;
 		skybox.MoonFlare.brightness = skybox.MoonLight.intensity * skybox.MoonFlareBrightness;
-		skybox.MoonFlare.enabled = !Mathf.Approximately(skybox.MoonFlare.brightness, 0f);
 	}
 
 	protected void OnValidate()

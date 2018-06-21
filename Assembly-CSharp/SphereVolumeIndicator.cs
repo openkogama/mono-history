@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class SphereVolumeIndicator : MonoBehaviour
 {
-	[SerializeField]
 	[Header("Configuration")]
+	[SerializeField]
 	private float lineDotDensity = 22f;
 
 	[SerializeField]
@@ -12,8 +12,8 @@ public class SphereVolumeIndicator : MonoBehaviour
 	[SerializeField]
 	private float lineWidth = 1f;
 
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	private LineRenderer rangeIndicatorXY;
 
 	[SerializeField]

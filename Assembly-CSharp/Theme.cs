@@ -53,7 +53,6 @@ public abstract class Theme : MonoBehaviour
 	{
 		if (overrideSkyboxManager)
 		{
-			MVGameControllerBase.SkyboxManager.enabled = false;
 		}
 		foreach (ThemeComponent component in components)
 		{
@@ -65,7 +64,6 @@ public abstract class Theme : MonoBehaviour
 	{
 		if (overrideSkyboxManager)
 		{
-			MVGameControllerBase.SkyboxManager.enabled = true;
 		}
 		foreach (ThemeComponent component in components)
 		{
