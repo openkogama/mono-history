@@ -567,7 +567,7 @@ public class MVNetworkGame : IPhotonPeerListener
 				Debug.Log("MVEventCodes.XPReceivedEvent");
 				break;
 			case MVEventCodes.XPReward:
-				networkGame.LocalPlayer.AddXp((int)photonEvent[216], (XPRewardType)(byte)photonEvent[215], (int)photonEvent[85]);
+				networkGame.LocalPlayer.AddXp((int)photonEvent[217], (XPRewardType)(byte)photonEvent[216], (int)photonEvent[85]);
 				break;
 			case MVEventCodes.GetProfileMetaData:
 				FirstTimeEventManager.GetProfileMetaDataOk = (bool)photonEvent[209];
@@ -1141,9 +1141,9 @@ public class MVNetworkGame : IPhotonPeerListener
 			dictionary.Add(173, MVGameControllerBase.GameSessionData.newPlanetName);
 			dictionary.Add(189, MVGameControllerBase.BuildTarget);
 			dictionary.Add(210, MVGameControllerBase.ReAuthTries);
-			dictionary.Add(213, MVGameControllerBase.KoGaMaSettings.VersionString);
+			dictionary.Add(214, MVGameControllerBase.KoGaMaSettings.VersionString);
 			List<FileData> cRCData = DllProtector.GetCRCData();
-			dictionary.Add(214, JsonConvert.SerializeObject(cRCData));
+			dictionary.Add(215, JsonConvert.SerializeObject(cRCData));
 			peer.OpCustom(byte.MaxValue, dictionary, sendReliable: true);
 		}
 
@@ -1940,7 +1940,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		public void RevokeEditRights(MVPlayer target)
 		{
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
-			dictionary.Add(218, (byte)0);
+			dictionary.Add(219, (byte)0);
 			dictionary.Add(11, target.ProfileID);
 			Dictionary<byte, object> customOpParameters = dictionary;
 			peer.OpCustom(76, customOpParameters, sendReliable: true);
@@ -1949,7 +1949,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		public void Kick(MVPlayer target, string reason)
 		{
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
-			dictionary.Add(218, (byte)0);
+			dictionary.Add(219, (byte)0);
 			dictionary.Add(144, 0);
 			dictionary.Add(11, target.ProfileID);
 			dictionary.Add(88, reason);
@@ -1960,7 +1960,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		public void Ban(int hours, MVPlayer target, string reason)
 		{
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
-			dictionary.Add(218, (byte)1);
+			dictionary.Add(219, (byte)1);
 			dictionary.Add(144, hours);
 			dictionary.Add(11, target.ProfileID);
 			dictionary.Add(88, reason);
@@ -1971,7 +1971,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		public void Expel(MVPlayer target, string reason)
 		{
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
-			dictionary.Add(218, (byte)2);
+			dictionary.Add(219, (byte)2);
 			dictionary.Add(144, 0);
 			dictionary.Add(11, target.ProfileID);
 			dictionary.Add(88, reason);
@@ -2263,7 +2263,7 @@ public class MVNetworkGame : IPhotonPeerListener
 				}
 				break;
 			case MVOperationCodes.SetFirstTimeEvent:
-				FirstTimeEventManager.OnFirstTimeEventResponse((FirstTimeEvent)(int)returnValues[192], (XPRewardType)(byte)returnValues[215]);
+				FirstTimeEventManager.OnFirstTimeEventResponse((FirstTimeEvent)(int)returnValues[192], (XPRewardType)(byte)returnValues[216]);
 				break;
 			case MVOperationCodes.GetThemesData:
 			{
@@ -2985,6 +2985,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			bool isAdmin = (bool)returnValues[15];
 			mVLocalPlayer = new MVLocalPlayerRegistered(actorNumber, MVGameControllerBase.GameSessionData.profileID, (string)returnValues[9], MVGameControllerBase.GameSessionData.language, num, isAdmin);
 		}
+		ThemeRepository.Instance.ThemesEnabled = (bool)returnValues[213];
 		mVLocalPlayer.Team = (MVTeam)(int)returnValues[89];
 		playerContainer.Add(mVLocalPlayer);
 		playerContainer.SetLocalPlayer(mVLocalPlayer.ActorNr);

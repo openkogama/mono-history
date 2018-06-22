@@ -10,8 +10,8 @@ public class DayNightCycle : MonoBehaviour
 	[SerializeField]
 	private float _sunrise = 25f;
 
-	[Range(0f, 100f)]
 	[SerializeField]
+	[Range(0f, 100f)]
 	private float _sunset = 85f;
 
 	[SerializeField]
@@ -22,24 +22,24 @@ public class DayNightCycle : MonoBehaviour
 	[Tooltip("Angle between z-axis and the center of sun’s disk at sunrise")]
 	private float _sunLongitude;
 
-	[SerializeField]
 	[Tooltip("A pair of angles that limit visible orbit of the sun")]
+	[SerializeField]
 	private Vector2 _sunOrbit = new Vector2(-20f, 200f);
 
-	[Range(0f, 100f)]
 	[SerializeField]
+	[Range(0f, 100f)]
 	private float _moonrise = 90f;
 
-	[Range(0f, 100f)]
 	[SerializeField]
+	[Range(0f, 100f)]
 	private float _moonset = 22.5f;
 
 	[SerializeField]
 	[Tooltip("Max angle between the horizon and the center of moon’s disk")]
 	private float _moonAltitude = 45f;
 
-	[Tooltip("Angle between z-axis and the center of moon’s disk at moonrise")]
 	[SerializeField]
+	[Tooltip("Angle between z-axis and the center of moon’s disk at moonrise")]
 	private float _moonLongitude;
 
 	[SerializeField]
@@ -369,6 +369,7 @@ public class DayNightCycle : MonoBehaviour
 		skybox.SunLight.color = CurrentSunParam.LightColor;
 		skybox.SunLight.intensity = CurrentSunParam.LightIntencity;
 		skybox.SunFlare.brightness = skybox.SunLight.intensity * skybox.SunFlareBrightness;
+		skybox.SunFlare.enabled = !Mathf.Approximately(skybox.SunFlare.brightness, 0f);
 		if (timeOfDay > _moonrise || timeOfDay < _moonset)
 		{
 			float num2 = ((!(_moonrise < timeOfDay)) ? (100f + timeOfDay - _moonrise) : (timeOfDay - _moonrise));
@@ -383,6 +384,7 @@ public class DayNightCycle : MonoBehaviour
 		skybox.MoonLight.color = CurrentMoonParam.LightColor;
 		skybox.MoonLight.intensity = CurrentMoonParam.LightIntencity;
 		skybox.MoonFlare.brightness = skybox.MoonLight.intensity * skybox.MoonFlareBrightness;
+		skybox.MoonFlare.enabled = !Mathf.Approximately(skybox.MoonFlare.brightness, 0f);
 	}
 
 	protected void OnValidate()

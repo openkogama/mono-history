@@ -21,7 +21,19 @@ public class ThemeMenuButton : MonoBehaviour
 
 	protected void Awake()
 	{
-		if (MVGameControllerBase.Game.LocalPlayer.PlanetOwnership == MVLocalPlayer.PlanetOwnershipType.Owner)
+		if (ThemeRepository.Instance.ThemesEnabled)
+		{
+			SetButtonAvailability(MVGameControllerBase.Game.LocalPlayer.PlanetOwnership);
+		}
+		else
+		{
+			button.gameObject.SetActive(value: false);
+		}
+	}
+
+	private void SetButtonAvailability(MVLocalPlayer.PlanetOwnershipType planetOwnership)
+	{
+		if (planetOwnership == MVLocalPlayer.PlanetOwnershipType.Owner)
 		{
 			button.interactable = true;
 			toolTip.SetText(toolTipStr_ButtonEnabled);

@@ -11,6 +11,8 @@ public class ThemeRepository : ScriptableObject
 
 	public static ThemeRepository Instance { get; private set; }
 
+	public bool ThemesEnabled { get; set; }
+
 	public int CurrentThemeWoid => (!ThemeIsActive) ? (-1) : CurrentTheme.Id;
 
 	public Theme CurrentThemeVisualization => CurrentTheme?.Visualization;

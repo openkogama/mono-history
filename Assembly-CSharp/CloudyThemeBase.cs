@@ -22,8 +22,8 @@ public abstract class CloudyThemeBase : Theme
 	}
 
 	[Header("Day/night-cycle", order = 2)]
-	[SerializeField]
 	[Header("Attributes", order = 1)]
+	[SerializeField]
 	private BoolAttribute useDayNightCycle;
 
 	[SerializeField]
@@ -57,8 +57,8 @@ public abstract class CloudyThemeBase : Theme
 	[SerializeField]
 	private ColorAttribute bottomColor;
 
-	[SerializeField]
 	[Header("Stars")]
+	[SerializeField]
 	private ColorAttribute starsTint;
 
 	[SerializeField]
@@ -89,8 +89,8 @@ public abstract class CloudyThemeBase : Theme
 	[SerializeField]
 	private FloatAttribute sunFlareBrightness;
 
-	[SerializeField]
 	[Header("Moon")]
+	[SerializeField]
 	private ColorAttribute moonTint;
 
 	[SerializeField]
@@ -132,8 +132,8 @@ public abstract class CloudyThemeBase : Theme
 	[SerializeField]
 	private FloatAttribute exposure;
 
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	private ThemeSkybox skybox;
 
 	[SerializeField]

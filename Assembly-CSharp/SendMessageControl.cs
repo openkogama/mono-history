@@ -293,10 +293,6 @@ public class SendMessageControl : MonoBehaviour
 		{
 			MVGameControllerBase.WOCM.AvatarLocal.LimbManager.StartEmote(EmoteTypes.wave);
 		}
-		else if (chatMsg == "/ptest")
-		{
-			PerfTestVerifier.ToggleThemeVisibility();
-		}
 		else if (chatMsg[0] == '/')
 		{
 			TextCommand.Resolve(chatMsg);

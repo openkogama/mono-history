@@ -6,8 +6,8 @@ using UnityEngine.UI;
 
 public class TextBubble : MonoBehaviour
 {
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	private LayoutGroup bubble;
 
 	[SerializeField]
