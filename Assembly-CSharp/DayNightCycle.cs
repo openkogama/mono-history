@@ -5,17 +5,17 @@ using UnityEngine;
 
 public class DayNightCycle : MonoBehaviour
 {
+	[SerializeField]
 	[Header("Configuration")]
 	[Range(0f, 100f)]
-	[SerializeField]
 	private float _sunrise = 25f;
 
 	[SerializeField]
 	[Range(0f, 100f)]
 	private float _sunset = 85f;
 
-	[SerializeField]
 	[Tooltip("Max angle between the horizon and the center of sun’s disk")]
+	[SerializeField]
 	private float _sunAltitude = 45f;
 
 	[SerializeField]
@@ -30,20 +30,20 @@ public class DayNightCycle : MonoBehaviour
 	[Range(0f, 100f)]
 	private float _moonrise = 90f;
 
-	[SerializeField]
 	[Range(0f, 100f)]
+	[SerializeField]
 	private float _moonset = 22.5f;
 
 	[SerializeField]
 	[Tooltip("Max angle between the horizon and the center of moon’s disk")]
 	private float _moonAltitude = 45f;
 
-	[SerializeField]
 	[Tooltip("Angle between z-axis and the center of moon’s disk at moonrise")]
+	[SerializeField]
 	private float _moonLongitude;
 
-	[SerializeField]
 	[Tooltip("A pair of angles that limit visible orbit of the moon")]
+	[SerializeField]
 	private Vector2 _moonOrbit = new Vector2(-20f, 200f);
 
 	[Header("Dependencies")]

@@ -2,13 +2,13 @@ using UnityEngine;
 
 public class StreamedTextureToMeshRenderer : StreamingAsset<Texture, Texture>
 {
-	[Tooltip("For standard unity shaders \"_MainTex\" is the main textures name.")]
 	[SerializeField]
 	[Header("Configuration")]
+	[Tooltip("For standard unity shaders \"_MainTex\" is the main textures name.")]
 	protected string shaderTextureVariableName = "_MainTex";
 
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	private MeshRenderer meshRenderer;
 
 	public bool assetSet;

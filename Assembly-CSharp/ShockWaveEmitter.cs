@@ -6,8 +6,8 @@ public class ShockWaveEmitter : MonoBehaviour
 	[Tooltip("Impulse by range from emission.")]
 	private AnimationCurve strengthByDistance;
 
-	[SerializeField]
 	[Tooltip("Rotation and translation over time [0,1]")]
+	[SerializeField]
 	private AnimationCurve cameraKnockbackCurve;
 
 	private float MaxImpulse => strengthByDistance.keys[0].value;

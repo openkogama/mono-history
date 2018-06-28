@@ -26,8 +26,8 @@ public class ThemeSkybox : ThemeComponent
 
 	private Material skyboxMaterial;
 
-	[Tooltip("Color at the top pole of skybox sphere")]
 	[SerializeField]
+	[Tooltip("Color at the top pole of skybox sphere")]
 	private Color _topColor = new Color(0.247f, 0.318f, 0.561f);
 
 	[Tooltip("Color at the bottom pole of skybox sphere")]
@@ -50,8 +50,8 @@ public class ThemeSkybox : ThemeComponent
 	[SerializeField]
 	private Color _starsTint = Color.gray;
 
-	[SerializeField]
 	[Range(0f, 10f)]
+	[SerializeField]
 	[Tooltip("Reduction in stars apparent brightness closer to the horizon")]
 	private float _starsExtinction = 2f;
 
@@ -79,8 +79,8 @@ public class ThemeSkybox : ThemeComponent
 	[Range(0f, 1f)]
 	private float _sunLightContrast = 0.5f;
 
-	[SerializeField]
 	[Range(0f, 8f)]
+	[SerializeField]
 	private float _sunLightIntensity = 1f;
 
 	[SerializeField]
@@ -89,17 +89,17 @@ public class ThemeSkybox : ThemeComponent
 	[SerializeField]
 	private Color _moonTint = Color.gray;
 
-	[SerializeField]
 	[Range(0.1f, 3f)]
+	[SerializeField]
 	private float _moonSize = 1f;
 
-	[Tooltip("Actual flare brightness depends on moon tint alpha, and this property is just a coefficient for that value")]
-	[Range(0.01f, 2f)]
 	[SerializeField]
+	[Range(0.01f, 2f)]
+	[Tooltip("Actual flare brightness depends on moon tint alpha, and this property is just a coefficient for that value")]
 	private float _moonFlareBrightness = 0.3f;
 
-	[Range(0f, 1f)]
 	[SerializeField]
+	[Range(0f, 1f)]
 	private float _moonLightContrast = 0.5f;
 
 	[Range(0f, 8f)]
@@ -111,9 +111,9 @@ public class ThemeSkybox : ThemeComponent
 	[SerializeField]
 	private float _cloudsHeight;
 
-	[Tooltip("Distance between the cloud waves")]
-	[SerializeField]
 	[Range(0f, 1f)]
+	[SerializeField]
+	[Tooltip("Distance between the cloud waves")]
 	private float _cloudsOffset = 0.2f;
 
 	[SerializeField]
@@ -121,8 +121,8 @@ public class ThemeSkybox : ThemeComponent
 	[Tooltip("Rotation of the clouds around the positive y axis")]
 	private float _cloudsRotationSpeed = 1f;
 
-	[Range(0f, 10f)]
 	[Tooltip("Adjusts the brightness of the skybox")]
+	[Range(0f, 10f)]
 	[SerializeField]
 	private float _exposure = 1f;
 

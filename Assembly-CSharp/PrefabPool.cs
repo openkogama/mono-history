@@ -197,9 +197,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ObjectPrefab finishLinePrefab;
 
-	[Space(20f)]
 	[SerializeField]
 	[Header("Game")]
+	[Space(20f)]
 	private Material ghostMarkerMaterial;
 
 	[SerializeField]
@@ -351,13 +351,13 @@ public class PrefabPool : MonoBehaviour
 	private GameObject avatarItemHealRay;
 
 	[Space(20f)]
-	[Header("Avatar modifier")]
 	[SerializeField]
+	[Header("Avatar modifier")]
 	private AvatarModifier shieldModifier;
 
-	[Space(20f)]
-	[SerializeField]
 	[Header("Particles")]
+	[SerializeField]
+	[Space(20f)]
 	private GameObject particleCFX_GroundAura;
 
 	[SerializeField]
@@ -384,9 +384,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem healingParticles;
 
-	[SerializeField]
-	[Header("Logic object prefabs")]
 	[Space(20f)]
+	[Header("Logic object prefabs")]
+	[SerializeField]
 	private GameObject logicInputConnectorPrefab;
 
 	[SerializeField]
@@ -462,9 +462,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private FirstPersonDeathCamera firstPersonDeathCamera;
 
-	[Header("Editor")]
 	[Space(20f)]
 	[SerializeField]
+	[Header("Editor")]
 	private Material cellCursorErrorMaterial;
 
 	[SerializeField]

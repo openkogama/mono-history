@@ -10,11 +10,17 @@ public class SwitchThemeButton : MonoBehaviour
 	private RawImage levelReqImage;
 
 	[SerializeField]
+	private GameObject priceTag;
+
+	[SerializeField]
+	private Text priceTagNumber;
+
+	[SerializeField]
 	private Button button;
 
 	public Button Button => button;
 
-	public int LevelRequirement
+	private int LevelRequirement
 	{
 		set
 		{
@@ -27,6 +33,30 @@ public class SwitchThemeButton : MonoBehaviour
 			{
 				levelReq.SetActive(value: false);
 			}
+		}
+	}
+
+	private int GoldRequirement
+	{
+		set
+		{
+			priceTagNumber.text = value.ToString();
+		}
+	}
+
+	public void Initialize(int levelReq, int goldReq)
+	{
+		if (MVGameControllerBase.Game.LocalPlayer.Level < levelReq)
+		{
+			LevelRequirement = levelReq;
+			this.levelReq.SetActive(value: true);
+			priceTag.SetActive(value: false);
+		}
+		else
+		{
+			GoldRequirement = goldReq;
+			this.levelReq.SetActive(value: false);
+			priceTag.SetActive(value: true);
 		}
 	}
 

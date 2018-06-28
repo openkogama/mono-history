@@ -25,6 +25,8 @@ public class ThemePreviewSettingsMenu : ThemeSettingsMenuBase
 
 	private ThemeSettingsSideBar sideBar;
 
+	private ThemeData ThemeData { get; set; }
+
 	public void Initialize(Theme theme, ThemeData data, ThemeMenuController menuController)
 	{
 		sideBar = UnityEngine.Object.Instantiate(sideBarPrefab);
@@ -32,11 +34,12 @@ public class ThemePreviewSettingsMenu : ThemeSettingsMenuBase
 		sideBar.InitializeForPreview();
 		Initialize(theme, sideBar.Content);
 		previewTheme = theme;
-		previewID = data.id;
+		ThemeData = data;
 		this.menuController = menuController;
+		previewID = data.id;
 		SwitchThemeButton switchThemeButton = UnityEngine.Object.Instantiate(switchThemeButtonPrefab);
 		switchThemeButton.transform.SetParent(settingsArea, worldPositionStays: false);
-		switchThemeButton.LevelRequirement = data.levelRequirement;
+		switchThemeButton.Initialize(data.levelRequirement, data.priceGold);
 		switchThemeButton.Button.onClick.AddListener(() =>
 		{
 			SwitchThemeButtonClicked(data.id, data.levelRequirement);
@@ -62,6 +65,15 @@ public class ThemePreviewSettingsMenu : ThemeSettingsMenuBase
 	private void DisplayInsufficientLevelNotification(int levelReq)
 	{
 		string msg = string.Format("{0} {1}.{2} {3}.", TM._("In order to buy this theme you'll need to reach level"), levelReq, TM._("You're currently level"), MVGameControllerBase.Game.LocalPlayer.Level);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+		{
+			x.CreateErrorNotificationPopup(msg);
+		});
+	}
+
+	private void DisplayInsufficientGoldNotification(int price)
+	{
+		string msg = string.Format("{0} {1} {2}.", TM._("You don't have enough gold. In order to buy this theme you'll need"), price, TM._("gold"));
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 		{
 			x.CreateErrorNotificationPopup(msg);
@@ -131,7 +143,7 @@ public class ThemePreviewSettingsMenu : ThemeSettingsMenuBase
 		case MVPurchaseReturnCode.InsufficientFunds:
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 			{
-				x.Create(TM._("You do not have enough gold to buy this theme."), TM._("Theme activation"));
+				x.Create(MVPurchaseReturnCode.InsufficientFunds, ThemeData.priceGold, 0);
 			});
 			break;
 		case MVPurchaseReturnCode.InsufficientLevel:
