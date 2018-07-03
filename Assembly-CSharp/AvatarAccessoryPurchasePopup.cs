@@ -3,27 +3,81 @@ using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class AvatarAccessoryPurchasePopup : MonoBehaviour
 {
-	private StreamingAssetInfo streamingAssetInfo;
+	private AccessoryDataClient accessoryDataClient;
 
 	[SerializeField]
-	private RawImage preview;
+	private Image preview;
 
 	[SerializeField]
-	private Text accessoryName;
+	private Text priceText;
 
 	[SerializeField]
-	private Text goldPrice;
+	private Text originalPriceText;
 
-	public void Initialize(StreamingAssetInfo streamingAssetInfo, Texture previewImage)
+	[SerializeField]
+	private GameObject discountTag;
+
+	[SerializeField]
+	private Text discountTagText;
+
+	[SerializeField]
+	private Text goldSavedText;
+
+	[SerializeField]
+	private AccessoryItemBackground accessoryItemBackground;
+
+	[SerializeField]
+	private AccessoryTimeLimitDisplayer timeLimitDisplayer;
+
+	[SerializeField]
+	private RawImage levelRequirement;
+
+	[SerializeField]
+	private GameObject newAccessoryImage;
+
+	[SerializeField]
+	private AvatarAccessoryEquipPopup avatarAccessoryEquipPopup;
+
+	[SerializeField]
+	private AvatarAccessorySuccesPopup avatarAccessorySuccesPopup;
+
+	private UnityAction refreshGoldCallback;
+
+	private int price;
+
+	protected MVBody AvatarBody;
+
+	private void SetCurrentBody(MVBody body)
 	{
-		preview.texture = previewImage;
-		this.streamingAssetInfo = streamingAssetInfo;
-		accessoryName.text = streamingAssetInfo.Name;
-		goldPrice.text = streamingAssetInfo.ShopInfo.PriceGold.ToString();
+		AvatarBody = body;
+	}
+
+	public void Initialize(AccessoryDataClient accessoryDataClient, Sprite previewImage, UnityAction refreshGoldCallback)
+	{
+		if (MVGameControllerBase.GameMode == MVGameMode.CharacterEditor)
+		{
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IGetCurrentBody x, BaseEventData y) =>
+			{
+				x.GetCurrentBody(SetCurrentBody);
+			});
+		}
+		else
+		{
+			AvatarBody = MVGameControllerBase.Game.LocalPlayer.Avatar.Body;
+		}
+		this.refreshGoldCallback = refreshGoldCallback;
+		preview.sprite = previewImage;
+		this.accessoryDataClient = accessoryDataClient;
+		priceText.text = accessoryDataClient.priceGold.ToString();
+		price = accessoryDataClient.priceGold;
+		goldSavedText.gameObject.SetActive(value: false);
+		accessoryItemBackground.Initialize(accessoryDataClient);
+		HandleNotOwnedUI();
 	}
 
 	public void Purchase()
@@ -34,7 +88,7 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 		});
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Combine(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
-		MVGameControllerBase.OperationRequests.PurchaseAvatarAccessory(streamingAssetInfo.ProductID);
+		MVGameControllerBase.OperationRequests.PurchaseAvatarAccessory(accessoryDataClient.streamingAssetID);
 	}
 
 	private void ProductPurchaseResponseHandler(int returnCode, Dictionary<object, object> purchaseResponseData)
@@ -52,41 +106,42 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 		}
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 		{
-			x.Create((MVPurchaseReturnCode)returnCode, int.Parse(goldPrice.text), 0);
+			x.Create((MVPurchaseReturnCode)returnCode, price, 0);
 		});
 	}
 
 	private void HandleSuccessfulPurchase(Dictionary<object, object> purchaseResponseData)
 	{
-		int num = (int)purchaseResponseData[(byte)73];
-		long ticks = (long)purchaseResponseData[(byte)83];
-		DateTime purchaseTime = new DateTime(ticks);
-		if (!MVGameControllerBase.Game.StreamingAssetInventory.Contains(num))
+		int toOwns = (int)purchaseResponseData[(byte)105];
+		AccessoryDataManager.SetToOwns(toOwns);
+		Debug.LogWarning("HandleSuccessfulPurchase");
+		SuccesfulPopupCallBack();
+		refreshGoldCallback();
+	}
+
+	private void SuccesfulPopupCallBack()
+	{
+		AvatarAccessoryEquipPopup popup = UnityEngine.Object.Instantiate(avatarAccessoryEquipPopup);
+		popup.Initialize(EquipPopupResultCallback, preview.sprite, accessoryDataClient);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			AddToInventory(num, purchaseTime, purchaseResponseData);
-		}
-		Pop();
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
-		{
-			x.Create("Successfully purchased accessory!", string.Empty);
+			x.Push(popup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.InventoryUISubMenu);
 		});
 	}
 
-	private void AddToInventory(int invID, DateTime purchaseTime, Dictionary<object, object> purchaseResponse)
+	private void EquipPopupResultCallback(bool attach)
 	{
-		int productID = streamingAssetInfo.ProductID;
-		StreamingAssetInfo value = null;
-		MVGameControllerBase.Game.StreamingAssetInfoMap.TryGetValue(productID, out value);
-		if (value != null)
+		if (attach)
 		{
-			ProductInventoryInfo invInfo = new ProductInventoryInfo(invID, value, purchaseTime);
-			MVGameControllerBase.Game.StreamingAssetInventory.Add(invInfo);
-			MVGameControllerBase.Game.StreamingAssetInventory.NotifyProductInventoryChange();
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAttachToBody x, BaseEventData y) =>
+			{
+				x.AttachToBody(accessoryDataClient.streamingAssetID, AvatarBody.GetAccessoryOffset(accessoryDataClient.accessorySlotType), AvatarBody.GetAccessoryScale(accessoryDataClient.accessorySlotType));
+			});
 		}
-		else
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			Debug.LogError("Trying to add non-existing avatar accessory to inventory");
-		}
+			x.PopGroups(UIGroupFlags.InventoryUISubMenu);
+		});
 	}
 
 	public void Pop()
@@ -95,5 +150,47 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 		{
 			x.Pop();
 		});
+	}
+
+	private void HandlePrices(AccessoryDataClient streamingAssetInfo)
+	{
+		int priceGold = streamingAssetInfo.priceGold;
+		int discount = streamingAssetInfo.discount;
+		int num = priceGold;
+		originalPriceText.gameObject.SetActive(discount > 0);
+		discountTag.SetActive(discount > 0);
+		if (discount > 0)
+		{
+			discountTagText.text = ((discount < 100) ? ("-" + discount + "%") : "FREE");
+			int num2 = Mathf.FloorToInt((float)priceGold * ((float)discount / 100f));
+			num = priceGold - num2;
+			originalPriceText.text = priceGold.ToString("N0");
+			goldSavedText.gameObject.SetActive(value: true);
+			goldSavedText.text = num2.ToString("N0");
+		}
+		priceText.text = num.ToString("N0");
+	}
+
+	private void HandleNotOwnedUI()
+	{
+		HandlePrices(accessoryDataClient);
+		timeLimitDisplayer.Initialize(accessoryDataClient.timelimit);
+		timeLimitDisplayer.gameObject.SetActive(accessoryDataClient.timelimit.IsTimeLimited);
+		if (accessoryDataClient.level > 0)
+		{
+			BadgeManager.GetBadgeTexture(accessoryDataClient.level, OnLevelRequirementLoaded);
+		}
+		newAccessoryImage.SetActive(accessoryDataClient.isNew);
+	}
+
+	private void OnLevelRequirementLoaded(WWW www)
+	{
+		if (www == null || www.texture == null)
+		{
+			Debug.LogWarning("Badge not loaded for accessory level requirement");
+			return;
+		}
+		levelRequirement.texture = www.texture;
+		levelRequirement.gameObject.SetActive(value: true);
 	}
 }

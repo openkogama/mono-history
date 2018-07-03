@@ -7,5 +7,6 @@ public enum MVPurchaseReturnCode
 	AlreadyPurchased,
 	ProductSubtypeNotSold,
 	Failed,
+	TimeBasedAvailabilityExpired,
 	InsufficientLevel
 }

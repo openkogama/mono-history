@@ -80,7 +80,6 @@ public class DesktopAvatarEditModeController : ModeControllerBase, ISetEditState
 		InitializeLocalAvatar();
 		drawPlaneController.Initialize();
 		DrawPlane.Initialize(drawPlaneController);
-		accessoryShopController.Initialize();
 		notificationsManager = UnityEngine.Object.Instantiate(notificationsManager);
 		notificationsManager.transform.SetParent(stackBottom.transform, worldPositionStays: false);
 		avatarEditModeBodyController.Initialize();
@@ -107,6 +106,7 @@ public class DesktopAvatarEditModeController : ModeControllerBase, ISetEditState
 		case ActivateUIElement.AvatarShop:
 			avatarShopController.Activate(UIPushOption.Blocking);
 			break;
+		case ActivateUIElement.AvatarAccessoryShopBundles:
 		case ActivateUIElement.Materials:
 			break;
 		}

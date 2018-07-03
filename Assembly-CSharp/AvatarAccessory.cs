@@ -1,9 +1,8 @@
-using MV.Common;
 using UnityEngine;
 
 public abstract class AvatarAccessory : MonoBehaviour
 {
-	private int _gameObjectID;
+	private string previewImageStreamPath;
 
 	private Transform _transform;
 
@@ -13,23 +12,25 @@ public abstract class AvatarAccessory : MonoBehaviour
 
 	private bool _visible = true;
 
-	private bool attached;
-
-	private Quaternion worldRotationOnAttach;
-
 	public abstract AccessorySettings AccessorySettings { get; }
-
-	public AvatarAccessoryCategory Category { get; protected set; }
 
 	public string AssetPath { get; private set; }
 
-	public int InventoryID { get; private set; }
-
-	public AvatarAccessorySlot Slot { get; set; }
-
 	public float Offset { get; set; }
 
-	public int GameObjectID => _gameObjectID;
+	public float Scale { get; set; }
+
+	public string PreviewImageStreamPath
+	{
+		get
+		{
+			return previewImageStreamPath;
+		}
+		set
+		{
+			previewImageStreamPath = value;
+		}
+	}
 
 	public Transform Transform
 	{
@@ -87,32 +88,12 @@ public abstract class AvatarAccessory : MonoBehaviour
 		}
 	}
 
-	public bool Attached
-	{
-		get
-		{
-			return attached;
-		}
-		set
-		{
-			if (attached != value)
-			{
-				attached = value;
-				if (attached)
-				{
-					worldRotationOnAttach = Transform.rotation;
-				}
-			}
-		}
-	}
-
 	public virtual Vector3 AttachmentPointWorldPos => Vector3.zero;
 
 	public virtual bool HasAttachmentPoint => false;
 
 	protected virtual void Awake()
 	{
-		_gameObjectID = gameObject.GetInstanceID();
 		Collider[] colliders = Colliders;
 		foreach (Collider collider in colliders)
 		{
@@ -131,28 +112,6 @@ public abstract class AvatarAccessory : MonoBehaviour
 
 	protected virtual void Update()
 	{
-		if (attached && AccessorySettings.ConstantWorldRotation)
-		{
-			Transform.rotation = worldRotationOnAttach;
-		}
-	}
-
-	public override int GetHashCode()
-	{
-		return 17 * InventoryID;
-	}
-
-	public override bool Equals(object o)
-	{
-		if (o == null)
-		{
-			return false;
-		}
-		if (o == this)
-		{
-			return true;
-		}
-		return false;
 	}
 
 	public virtual Bounds GetWorldBounds()
@@ -184,10 +143,10 @@ public abstract class AvatarAccessory : MonoBehaviour
 		return worldBounds;
 	}
 
-	public virtual void InitAccessory(AvatarAccessoryParams p, string bundleName)
+	public virtual void InitAccessory(string assetReqPath, string bundleName, string previewImagePath)
 	{
-		InventoryID = p.InventoryID;
-		AssetPath = p.AssetReqPath;
-		name = "Accessory " + InventoryID + " " + bundleName;
+		AssetPath = assetReqPath;
+		name = "Accessory " + AssetPath;
+		PreviewImageStreamPath = previewImagePath;
 	}
 }

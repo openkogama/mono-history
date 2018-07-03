@@ -8,8 +8,6 @@ public class AvatarPreviewer : MonoBehaviour
 
 	private float previewCamDist = 1.5f;
 
-	private float previewItemRotateSpeed = 9.3f;
-
 	private LayerFlags layersToRender;
 
 	[SerializeField]
@@ -35,10 +33,11 @@ public class AvatarPreviewer : MonoBehaviour
 		transform.position = cameraOffset;
 	}
 
-	public void Initialize(int textureWidth, int textureHeight, CameraClearFlags clearFlags, LayerFlags layersToRender, Vector3 cameraOffset, Transform previewItemsRoot, Vector3 previewPosition, string name, MVWorldObjectClient wo, GameObject woGameObjectCopy)
+	public void Initialize(int textureWidth, int textureHeight, CameraClearFlags clearFlags, LayerFlags layersToRender, Vector3 cameraOffset, Transform previewItemsRoot, Vector3 previewPosition, string name, MVWorldObjectClient wo, GameObject woGameObjectCopy, Vector3 additionalCameraRotation)
 	{
 		this.layersToRender = layersToRender | LayerFlags.Hidden;
 		transform.parent = previewItemsRoot;
+		previewItemsRoot.gameObject.name = "Avatar_Previewer";
 		gameObject.name = $"Preview_{name}_RenderCam";
 		gameObject.layer = LayerMask.NameToLayer("Preview");
 		int antiAliasing = 2;
@@ -47,7 +46,7 @@ public class AvatarPreviewer : MonoBehaviour
 		PreviewGameObject = woGameObjectCopy;
 		PreviewGameObject.name = "Preview_" + name + "_Item_" + wo.ItemId + "_woID_" + wo.Id;
 		PreviewGameObject.transform.parent = previewItemsRoot;
-		PreviewGameObject.transform.localRotation = Quaternion.identity;
+		PreviewGameObject.transform.rotation = Quaternion.identity;
 		PreviewGameObject.transform.position = previewPosition;
 		Bounds localBounds = wo.GetLocalBounds(BoundsContext.Preview);
 		Vector3 localScale = PreviewGameObject.transform.localScale;
@@ -57,9 +56,9 @@ public class AvatarPreviewer : MonoBehaviour
 		PreviewGameObject.transform.localScale = localScale * num2;
 		Vector3 vector = new Vector3(localBounds.center.x * localScale.x, localBounds.center.y * localScale.y, localBounds.center.z * localScale.z);
 		pivotPoint = vector * num2 + PreviewGameObject.transform.position;
-		PreviewGameObject.transform.RotateAround(pivotPoint, Vector3.up, 180f);
 		previewCam.transform.position = pivotPoint + (new Vector3(0f, previewCamAdditionalHeight, 0f - previewCamDist) + cameraOffset) * previewObjMaxSize;
 		previewCam.transform.LookAt(pivotPoint);
+		previewCam.transform.Rotate(additionalCameraRotation);
 	}
 
 	private void OnPreCull()
@@ -72,11 +71,11 @@ public class AvatarPreviewer : MonoBehaviour
 		LayerUtil.SetLayerRecursively(PreviewGameObject.transform, "Preview", "Hidden");
 	}
 
-	public void UpdateRotation(float rotateSpeed = 0f)
+	public void UpdateRotation(float rotateSpeed)
 	{
-		if (PreviewGameObject != null)
+		if (rotateSpeed != 0f && PreviewGameObject != null)
 		{
-			PreviewGameObject.transform.RotateAround(pivotPoint, Vector3.up, ((rotateSpeed != 0f) ? rotateSpeed : previewItemRotateSpeed) * Time.deltaTime);
+			PreviewGameObject.transform.RotateAround(pivotPoint, Vector3.up, rotateSpeed * Time.deltaTime);
 		}
 	}
 

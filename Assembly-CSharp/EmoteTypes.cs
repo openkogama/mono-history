@@ -3,5 +3,5 @@ public enum EmoteTypes : byte
 	None,
 	Shake,
 	Nod,
-	wave
+	Wave
 }

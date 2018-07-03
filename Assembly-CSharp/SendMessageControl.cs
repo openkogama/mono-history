@@ -291,7 +291,7 @@ public class SendMessageControl : MonoBehaviour
 		}
 		else if (chatMsg == startWave)
 		{
-			MVGameControllerBase.WOCM.AvatarLocal.LimbManager.StartEmote(EmoteTypes.wave);
+			MVGameControllerBase.WOCM.AvatarLocal.LimbManager.StartEmote(EmoteTypes.Wave);
 		}
 		else if (chatMsg[0] == '/')
 		{

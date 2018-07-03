@@ -76,11 +76,13 @@ public class ResetAvatarHandler : MonoBehaviour, IDragHandler, IPointerDownHandl
 		toImage.color = new Color(1f, 1f, 1f, 1f);
 		fromImage.color = new Color(1f, 1f, 1f, 1f);
 		toPreviewer = UnityEngine.Object.Instantiate(previewer);
-		toPreviewer.Initialize(previewDimensions, previewDimensions, CameraClearFlags.Color, mVWorldObjectClient.PreviewLayerMask, new Vector3(0f, 0f, 0f), avatarResetToTransform, new Vector3(100f, 100f, 100f), "Avatar reset-to", mVWorldObjectClient, mVWorldObjectClient.GameObject);
+		toPreviewer.Initialize(previewDimensions, previewDimensions, CameraClearFlags.Color, mVWorldObjectClient.PreviewLayerMask, default, avatarResetToTransform, new Vector3(100f, 100f, 100f), "Avatar reset-to", mVWorldObjectClient, mVWorldObjectClient.GameObject, default);
+		toPreviewer.PreviewGameObject.transform.Rotate(0f, 180f, 0f);
 		GameObject woGameObjectCopy = UnityEngine.Object.Instantiate(avatarBody.GameObject);
 		woGameObjectCopy.SetLayerRecursively(LayerUtil.GetLayerNumber(LayerFlags.Hidden));
 		fromPreviewer = UnityEngine.Object.Instantiate(previewer);
-		fromPreviewer.Initialize(previewDimensions, previewDimensions, CameraClearFlags.Color, avatarBody.PreviewLayerMask, new Vector3(0f, 0f, 0f), avatarResetToTransform, new Vector3(100f, 100f, 100f), "Avatar reset-to", avatarBody, woGameObjectCopy);
+		fromPreviewer.Initialize(previewDimensions, previewDimensions, CameraClearFlags.Color, avatarBody.PreviewLayerMask, new Vector3(0f, 0f, 0f), avatarResetToTransform, new Vector3(100f, 100f, 100f), "Avatar reset-to", avatarBody, woGameObjectCopy, default);
+		fromPreviewer.PreviewGameObject.transform.Rotate(0f, 180f, 0f);
 		fromImage.texture = fromPreviewer.PreviewTexture;
 		toImage.texture = toPreviewer.PreviewTexture;
 		imagesReady = true;
@@ -111,7 +113,7 @@ public class ResetAvatarHandler : MonoBehaviour, IDragHandler, IPointerDownHandl
 			MVInputWrapper.SuppressAllInput();
 			fromPreviewer.UpdateRotation(currentRotationSpeed);
 			toPreviewer.UpdateRotation(currentRotationSpeed);
-			currentRotationSpeed = ((!isDown) ? defaultRotationSpeed : 0.01f);
+			currentRotationSpeed = ((!isDown) ? defaultRotationSpeed : 0f);
 		}
 	}
 

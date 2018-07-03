@@ -16,6 +16,7 @@ public enum FirstTimeEvent
 	PM_RespawnButtonPointer = 22,
 	PM_ClosePlayerList = 23,
 	PM_LobbyState = 24,
+	PM_AccessoryShop = 25,
 	AvatarEditModeEvent = 60,
 	AEM_WelcomeScreen = 61,
 	AEM_ClickBody = 62,

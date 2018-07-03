@@ -2,11 +2,9 @@ namespace MV.Common;
 
 public enum AvatarAccessoryData : short
 {
-	Undefined,
-	InventoryID,
+	InventoryID = 1,
 	Slot,
 	Offset,
 	AssetPath,
-	PurchaseTimeTicks,
-	RentExpireSeconds
+	Scale
 }

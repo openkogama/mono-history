@@ -11,7 +11,7 @@ public class MVLocalPlayerTourist : MVLocalPlayer
 	}
 
 	public MVLocalPlayerTourist(int actorNumber, int profileID, string userName, string regionCode, int planetOwnershipTypeID)
-		: base(actorNumber, profileID, userName, regionCode, planetOwnershipTypeID, isAdmin: false)
+		: base(actorNumber, profileID, userName, regionCode, planetOwnershipTypeID, isAdmin: false, 0)
 	{
 	}
 }

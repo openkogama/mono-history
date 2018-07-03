@@ -2,7 +2,6 @@ namespace MV.Common;
 
 public enum ActorOfferType : byte
 {
-	Unavailable,
-	Accessory,
-	Avatar
+	Unavailable = 0,
+	Avatar = 2
 }

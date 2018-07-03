@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -64,8 +63,6 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 
 	public UnityAction OnLeaveEditPlayMode;
 
-	private bool rewardReady;
-
 	private GameObject playModeState;
 
 	public ILockCursorManager LockCursorManager => lockCursorManager;
@@ -114,25 +111,6 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 	{
 		HandleFpsShortcut();
 		HandleInput();
-		HandleMysteryBoxNotification();
-	}
-
-	private void HandleMysteryBoxNotification()
-	{
-		if (RewardManager.NumberOfPendingRewards > 0)
-		{
-			if (!rewardReady)
-			{
-				rewardReady = true;
-				Dictionary<object, object> dictionary = new Dictionary<object, object>();
-				dictionary.Add((byte)2, 8);
-				NotificationController.OnNotificationReceived(NotificationType.SpinReady, dictionary);
-			}
-		}
-		else
-		{
-			rewardReady = false;
-		}
 	}
 
 	private void HandleInput()
@@ -204,10 +182,8 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 				});
 			}
 		}
-		accessoryShopController.Initialize();
 		chatController.Initialize();
 		playerListButton.gameObject.SetActive(value: true);
-		MVGameControllerBase.WOCM.AvatarLocal.Body.AccessoryMoveOverride = true;
 		lobbyStatePlayModeController.Initialize(inGameController, lobbyStateRect, chatController);
 	}
 
@@ -263,9 +239,14 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 
 	public void Activate(ActivateUIElement element)
 	{
-		if (element == ActivateUIElement.AvatarAccessoryShop)
+		switch (element)
 		{
+		case ActivateUIElement.AvatarAccessoryShop:
 			accessoryShopController.Activate(UIPushOption.HideAll);
+			break;
+		case ActivateUIElement.AvatarAccessoryShopBundles:
+			accessoryShopController.Activate(UIPushOption.HideAll, AccessoryCategoryClient.Bundles);
+			break;
 		}
 	}
 

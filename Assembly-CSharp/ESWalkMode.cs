@@ -30,7 +30,6 @@ internal class ESWalkMode : ESStateBase
 			List<MVTeam> teamList = teamManager.GetTeamList();
 			MVGameControllerBase.OperationRequests.SetTeam(teamList[0]);
 		}
-		MVGameControllerBase.WOCM.AvatarLocal.Body.AccessoryMoveOverride = true;
 		DrawPlane.HideDrawPlane();
 	}
 
@@ -53,7 +52,6 @@ internal class ESWalkMode : ESStateBase
 		MVGameControllerBase.WOCM.MoveableController.ResetMoveables();
 		MVGameControllerBase.WOCM.RootGroup.PlayModeInitialize();
 		MVGameControllerDesktop.LockCursorManager.LockCursor = false;
-		MVGameControllerBase.WOCM.AvatarLocal.Body.AccessoryMoveOverride = false;
 		if (MVGameControllerBase.Game.GameCoinManager.BoostEnabled)
 		{
 			MVGameControllerBase.OperationRequests.SetGameCoinBoostState(gameCoinBoosterEnabled: false);

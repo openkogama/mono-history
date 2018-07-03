@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using MV.Common;
 using UnityEngine;
 
 public class ShieldedModifier : AvatarModifier
@@ -41,7 +40,7 @@ public class ShieldedModifier : AvatarModifier
 		MVRuntimeDataVariableClampedFloat health = owner.mvAvatar.Health;
 		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnHealthChange));
 		lineRenderer.Initialize();
-		transform.SetParent(owner.mvAvatar.Body.GetSlotTransform(AvatarAccessorySlot.Torso));
+		transform.SetParent(owner.mvAvatar.Body.BodyData.GetPartBone("Torso"));
 		MVRuntimeDataVariable avatarModeTypeFlags = owner.mvAvatar.avatarModeTypeFlags;
 		avatarModeTypeFlags.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(avatarModeTypeFlags.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChangedHandler));
 		if (MVGameControllerBase.IPlayModeUI.InLobbyState)

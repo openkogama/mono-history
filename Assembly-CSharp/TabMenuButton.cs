@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class TabMenuButton : MonoBehaviour
+public class TabMenuButton : TabMenuButtonBase
 {
 	[SerializeField]
 	private Text buttonText;
@@ -10,7 +10,7 @@ public class TabMenuButton : MonoBehaviour
 	[SerializeField]
 	private Button button;
 
-	public void Initialize(int tabId, string categoryName)
+	public override void Initialize(int tabId, string categoryName)
 	{
 		buttonText.text = categoryName;
 		button.onClick.AddListener(() =>
@@ -22,14 +22,14 @@ public class TabMenuButton : MonoBehaviour
 		});
 	}
 
-	public void SetAsSelected()
+	public override void SetAsSelected()
 	{
 		ColorBlock colors = button.colors;
 		colors.normalColor = colors.pressedColor;
 		button.colors = colors;
 	}
 
-	public void SetAsDeselected()
+	public override void SetAsDeselected()
 	{
 		ColorBlock colors = button.colors;
 		colors.normalColor = colors.disabledColor;

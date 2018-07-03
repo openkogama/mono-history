@@ -192,7 +192,6 @@ public class DesktopEditModeController : ModeControllerBase, IEditModeUI, ISetEd
 		clientShopController.Initialize(repositoryController);
 		playerInventoryController.Initialize();
 		desktopPlayModeController.Initialize();
-		MVGameControllerBase.WOCM.AvatarLocal.Body.AccessoryMoveOverride = false;
 		MVGameControllerBase.WOCM.RootGroup.PlayModeInitialize();
 		notificationsManager = UnityEngine.Object.Instantiate(notificationsManager);
 		notificationsManager.transform.SetParent(stackBottom.transform, worldPositionStays: false);

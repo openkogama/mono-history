@@ -3,6 +3,11 @@ using UnityEngine;
 
 public class AvatarLocal : Avatar
 {
+	[SerializeField]
+	private SkinnedMeshOptimizeManager skinnedMeshOptimizeManager;
+
+	public SkinnedMeshOptimizeManager SkinnedMeshOptimizeManager => skinnedMeshOptimizeManager;
+
 	public override void Initialize(MVAvatar mvAvatar, bool isLocal)
 	{
 		base.Initialize(mvAvatar, isLocal);

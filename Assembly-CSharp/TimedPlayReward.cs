@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using MV.Common;
 using Newtonsoft.Json;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
@@ -66,17 +65,7 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 	private void OnCollectedChanged()
 	{
 		IsCollected = true;
-		if (MVClientSettings.SpinEnabled)
-		{
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IOfferController x, BaseEventData y) =>
-			{
-				x.RequestShowOffer(OnFinishedViewingAd);
-			});
-		}
-		else
-		{
-			OnFinishedViewingAd();
-		}
+		OnFinishedViewingAd();
 	}
 
 	public void RewardClicked()

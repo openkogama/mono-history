@@ -2,28 +2,32 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class TabMenu : MonoBehaviour
+public class TabMenu : TabMenuBase
 {
-	private Dictionary<int, TabMenuButton> buttons = new Dictionary<int, TabMenuButton>();
+	private Dictionary<int, TabMenuButtonBase> buttons = new Dictionary<int, TabMenuButtonBase>();
 
 	[SerializeField]
 	private Text pages;
 
 	[SerializeField]
-	private TabMenuButton tabMenuButtonPrefab;
+	private TabMenuButtonBase tabMenuButtonPrefab;
 
-	public void AddTabMenuButton(int categoryIndex, string categoryName)
+	public override void AddTabMenuButton(int categoryIndex, string categoryName)
 	{
-		TabMenuButton tabMenuButton = Object.Instantiate(tabMenuButtonPrefab);
-		tabMenuButton.Initialize(categoryIndex, categoryName);
-		tabMenuButton.transform.SetParent(transform, worldPositionStays: false);
-		buttons.Add(categoryIndex, tabMenuButton);
+		TabMenuButtonBase tabMenuButtonBase = Object.Instantiate(tabMenuButtonPrefab);
+		tabMenuButtonBase.Initialize(categoryIndex, categoryName);
+		tabMenuButtonBase.transform.SetParent(transform, worldPositionStays: false);
+		buttons.Add(categoryIndex, tabMenuButtonBase);
 	}
 
-	public void SelectTab(int tab, int currentPage, int maxPages)
+	public override void SelectTab(int tab, int currentPage, int maxPages)
 	{
-		pages.text = $"{currentPage} / {maxPages}";
-		foreach (KeyValuePair<int, TabMenuButton> button in buttons)
+		pages.text = string.Empty;
+		if (maxPages > 1)
+		{
+			pages.text = $"{currentPage}/{maxPages}";
+		}
+		foreach (KeyValuePair<int, TabMenuButtonBase> button in buttons)
 		{
 			button.Value.SetAsDeselected();
 		}

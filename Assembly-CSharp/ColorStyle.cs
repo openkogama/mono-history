@@ -40,5 +40,13 @@ public enum ColorStyle
 	ConfirmationColor = 44,
 	CancelColor = 45,
 	TeamNoneDark = 46,
-	GrayTransparent = 47
+	GrayTransparent = 47,
+	SelectedTab = 48,
+	ButtonSuccess = 49,
+	ButtonRed = 50,
+	ButtonBlue = 51,
+	ButtonYellow = 52,
+	ButtonGreen = 53,
+	Success = 54,
+	Error = 55
 }

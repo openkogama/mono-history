@@ -16,7 +16,7 @@ public class AvatarLimbManagerLocal : AvatarLimbManager
 			avatarEmoteRecogniser.OnStartEvent = (Action)Delegate.Combine(avatarEmoteRecogniser.OnStartEvent, new Action(OnWaveEmoteStart));
 			AvatarPointingHandlerLocal avatarPointingHandlerLocal = (AvatarPointingHandlerLocal)pointingHandler;
 			avatarPointingHandlerLocal.OnIsPointingChange = (Action<bool>)Delegate.Combine(avatarPointingHandlerLocal.OnIsPointingChange, new Action<bool>(avatarEmoteRecogniser.SetIsActive));
-			emoteRecognisers.Add(EmoteTypes.wave, avatarEmoteRecogniser);
+			emoteRecognisers.Add(EmoteTypes.Wave, avatarEmoteRecogniser);
 			AvatarEmoteRecogniser avatarEmoteRecogniser2 = new AvatarEmoteRecogniser();
 			avatarEmoteRecogniser2.Initlialize(limbManager, 10f, 2f, 4, shouldRecognisePositiveAngleFirst: true, isActive: true);
 			lookDirectionHandler.OnLookDirectionYawChange = (Action<float>)Delegate.Combine(lookDirectionHandler.OnLookDirectionYawChange, new Action<float>(avatarEmoteRecogniser2.HandleNewAngle));
@@ -61,12 +61,12 @@ public class AvatarLimbManagerLocal : AvatarLimbManager
 
 		private void OnWaveEmoteStart()
 		{
-			if (CanStartEmote(emoteDatas[EmoteTypes.wave]))
+			if (CanStartEmote(emoteDatas[EmoteTypes.Wave]))
 			{
-				StartEmote(EmoteTypes.wave);
+				StartEmote(EmoteTypes.Wave);
 				MVGameControllerBase.OperationRequests.StartWave();
-				((AvatarLimbManagerLocal)limbManager).DelayHeadRotationNetworkMessage(emoteDatas[EmoteTypes.wave].emote.LifeTime);
-				((AvatarLimbManagerLocal)limbManager).DelayPointingNetworkMessage(emoteDatas[EmoteTypes.wave].emote.LifeTime);
+				((AvatarLimbManagerLocal)limbManager).DelayHeadRotationNetworkMessage(emoteDatas[EmoteTypes.Wave].emote.LifeTime);
+				((AvatarLimbManagerLocal)limbManager).DelayPointingNetworkMessage(emoteDatas[EmoteTypes.Wave].emote.LifeTime);
 			}
 		}
 
@@ -80,7 +80,7 @@ public class AvatarLimbManagerLocal : AvatarLimbManager
 			case EmoteTypes.Nod:
 				OnNodEmoteStart();
 				break;
-			case EmoteTypes.wave:
+			case EmoteTypes.Wave:
 				OnWaveEmoteStart();
 				break;
 			default:
@@ -535,6 +535,8 @@ public class AvatarLimbManagerLocal : AvatarLimbManager
 		emoteHandler.Initialize(this, lookDirectionHandler, pointingHandler, headRotationHandler, limbRotator, mvAvatar.Avatar.EnabledChangeHandler);
 		DelayHeadRotationNetworkMessage = (Action<float>)Delegate.Combine(DelayHeadRotationNetworkMessage, new Action<float>(headRotationHandler.ResetNetworkMessageCooldown));
 		DelayPointingNetworkMessage = (Action<float>)Delegate.Combine(DelayPointingNetworkMessage, new Action<float>(pointingHandler.ResetNetworkMessageDelay));
+		AvatarEmoteHandler avatarEmoteHandler = emoteHandler;
+		avatarEmoteHandler.OnEmoteStart = (Action<string>)Delegate.Combine(avatarEmoteHandler.OnEmoteStart, new Action<string>(OnStartEmote));
 	}
 
 	public override void UpdateLimbRotations()

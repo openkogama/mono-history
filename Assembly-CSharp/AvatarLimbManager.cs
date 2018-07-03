@@ -64,6 +64,8 @@ public abstract class AvatarLimbManager
 
 		protected bool isActive = true;
 
+		public Action<string> OnEmoteStart;
+
 		public void Initialize(AvatarLimbManager limbManager, AvatarLookDirectionHandler lookDirectionHandler, AvatarPointingHandler pointingHandler, AvatarHeadRotationHandler headRotationHandler, LimbRotator limbRotator, AvatarEnabledChangeHandler enableChangeHandler)
 		{
 			this.limbManager = limbManager;
@@ -84,7 +86,7 @@ public abstract class AvatarLimbManager
 			emoteDatas.Add(EmoteTypes.Nod, value2);
 			AvatarWaveEmote emote = new AvatarWaveEmote();
 			EmoteData value3 = CreateEmoteData(emote, limbRotator, 1.5f, 2);
-			emoteDatas.Add(EmoteTypes.wave, value3);
+			emoteDatas.Add(EmoteTypes.Wave, value3);
 		}
 
 		private EmoteData CreateEmoteData(AvatarEmote emote, LimbRotator limbRotator, float lifeTime, short priority)
@@ -137,6 +139,10 @@ public abstract class AvatarLimbManager
 			{
 				emoteDatas[emoteType].emote.StartEmote();
 				currentRunningEmoteData = emoteDatas[emoteType];
+				if (OnEmoteStart != null)
+				{
+					OnEmoteStart(emoteType.ToString());
+				}
 			}
 		}
 
@@ -581,7 +587,7 @@ public abstract class AvatarLimbManager
 			RArmController = limbRotator.GetLimbController(BodyData.PartIndex.RArm);
 			LArmController = limbRotator.GetLimbController(BodyData.PartIndex.LArm);
 			originalInterpolationSpeed = RArmController.InterpolationSpeed;
-			emote = EmoteTypes.wave;
+			emote = EmoteTypes.Wave;
 		}
 
 		public override void StartEmote()
@@ -821,6 +827,8 @@ public abstract class AvatarLimbManager
 
 	public Action OnAvatarRotate;
 
+	public Action<string> OnEmoteStart;
+
 	protected MVAvatar mvAvatar;
 
 	protected AvatarPickupOwner avatarPickupOwner;
@@ -857,6 +865,14 @@ public abstract class AvatarLimbManager
 			OnAvatarRotate();
 		}
 		previousTransformRotation = mvAvatar.Transform.rotation;
+	}
+
+	protected void OnStartEmote(string newAnimation)
+	{
+		if (OnEmoteStart != null)
+		{
+			OnEmoteStart(newAnimation);
+		}
 	}
 
 	private float QuaternionAngleToNormalAngle(float angle)

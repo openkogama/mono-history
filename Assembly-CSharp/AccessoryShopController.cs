@@ -1,34 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using MV.Common;
+using MV.WorldObject.Accessories;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-public class AccessoryShopController : MonoBehaviour, IEventSystemHandler, IInventoryChanged, IAttachToBody
+public class AccessoryShopController : MonoBehaviour, IEventSystemHandler, IInventoryChanged, IAttachToBody, IAccessoryInventoryControl
 {
-	private class AccessoryData
-	{
-		public readonly StreamingAssetInfo streamingAssetInfo;
-
-		public readonly ProductInventoryInfo productInventoryInfo;
-
-		public readonly int slotIndex;
-
-		public AccessoryData(StreamingAssetInfo streamingAssetInfo, ProductInventoryInfo productInventoryInfo, int slotIndex)
-		{
-			this.streamingAssetInfo = streamingAssetInfo;
-			this.productInventoryInfo = productInventoryInfo;
-			this.slotIndex = slotIndex;
-		}
-	}
-
 	private InventoryController inventoryController;
 
 	private Transform previewItemsRoot;
-
-	private List<AccessoryData> slotToStreamingAssetInfoMap = new List<AccessoryData>();
 
 	private Dictionary<int, TabState> tabs = new Dictionary<int, TabState>();
 
@@ -36,33 +18,16 @@ public class AccessoryShopController : MonoBehaviour, IEventSystemHandler, IInve
 
 	private AccessoryAttacher accessoryAttacher = new AccessoryAttacher();
 
-	private AccessoryMover accessoryMover = new AccessoryMover();
-
-	private bool usingAccessoryMoverAndroid;
-
 	private int currentlyAttachingID;
 
 	private bool attachingReady = true;
 
-	private int slotIndexOffset;
+	private AccessoryCategoryClient startingCategory = AccessoryCategoryClient.Hats;
 
-	private static Dictionary<int, AvatarAccessorySlot> categoryAvatarAccessorySlotMap = new Dictionary<int, AvatarAccessorySlot>
-	{
-		{
-			1,
-			AvatarAccessorySlot.Head
-		},
-		{
-			2,
-			AvatarAccessorySlot.Torso
-		}
-	};
+	private bool displayShopItems = true;
 
 	[SerializeField]
 	private AccessoryInventoryViewItem accessoryInventoryItemPrefab;
-
-	[SerializeField]
-	private AccessoryUnEquip accessoryUnEquipPrefab;
 
 	[SerializeField]
 	private int numberOfSlotsPrPage;
@@ -72,66 +37,66 @@ public class AccessoryShopController : MonoBehaviour, IEventSystemHandler, IInve
 
 	private UIPushOption currentlyPushOption;
 
-	public void Awake()
-	{
-	}
+	private UIPushOption pushOption;
 
-	public void Initialize()
+	private bool firstTimeSetup = true;
+
+	private void Setup()
 	{
-		List<StreamingAssetInfo> list = MVGameControllerBase.Game.StreamingAssetShopInventory.Get(StreamingAssetType.AvatarAccessory).ToList();
-		foreach (StreamingAssetInfo item in list)
-		{
-			if (!tabs.ContainsKey(item.CategoryID))
-			{
-				TabState value = new TabState(TM._(item.CategoryName), numberOfSlotsPrPage);
-				tabs.Add(item.CategoryID, value);
-			}
-			tabs[item.CategoryID].highestSlotIndex++;
-		}
-		selectedTab = 1;
+		DisplayAllItems();
 	}
 
 	public void Activate(UIPushOption pushOption)
 	{
+		this.pushOption = pushOption;
+		AccessoryDataManager.readyCallback = (UnityAction)Delegate.Combine(AccessoryDataManager.readyCallback, new UnityAction(ReadyCallback));
+		AccessoryDataManager.SetReady();
+	}
+
+	public void Activate(UIPushOption pushOption, AccessoryCategoryClient category)
+	{
+		startingCategory = category;
+		Activate(pushOption);
+	}
+
+	public void DisplayPurchasableItems(bool displayShopItems)
+	{
+		this.displayShopItems = displayShopItems;
+		ClearShop();
+		if (displayShopItems)
+		{
+			DisplayAllItems();
+		}
+		else
+		{
+			DisplayOwnedItems();
+		}
+		tabs[selectedTab].SetPage(1);
+		UpdateContent();
+	}
+
+	private void ReadyCallback()
+	{
+		Debug.Log("ReadyCallback");
+		selectedTab = (int)startingCategory;
+		if (firstTimeSetup)
+		{
+			Setup();
+			firstTimeSetup = false;
+		}
+		AccessoryDataManager.readyCallback = (UnityAction)Delegate.Remove(AccessoryDataManager.readyCallback, new UnityAction(ReadyCallback));
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (ISetEditState x, BaseEventData y) =>
 		{
 			x.SetState(EditorEvent.CEAvatarAccessoryUUI);
 		});
 		currentlyPushOption = pushOption;
-		slotToStreamingAssetInfoMap.Clear();
-		List<ProductInventoryInfo> productInventoryInfos = MVGameControllerBase.Game.StreamingAssetInventory.Get(StreamingAssetType.AvatarAccessory).ToList();
-		List<StreamingAssetInfo> list = MVGameControllerBase.Game.StreamingAssetShopInventory.Get(StreamingAssetType.AvatarAccessory).ToList();
-		Dictionary<int, int> dictionary = new Dictionary<int, int>();
-		for (int num = 0; num < list.Count; num++)
-		{
-			TryGetProductInventoryInfo(out var productInventoryInfo, list[num].ProductID, productInventoryInfos);
-			if (!dictionary.ContainsKey(list[num].CategoryID))
-			{
-				dictionary.Add(list[num].CategoryID, 0);
-			}
-			List<AccessoryData> list2 = slotToStreamingAssetInfoMap;
-			StreamingAssetInfo streamingAssetInfo = list[num];
-			ProductInventoryInfo productInventoryInfo2 = productInventoryInfo;
-			Dictionary<int, int> dictionary3;
-			Dictionary<int, int> dictionary2 = (dictionary3 = dictionary);
-			int categoryID;
-			int key = (categoryID = list[num].CategoryID);
-			categoryID = dictionary3[categoryID];
-			categoryID = (dictionary2[key] = categoryID + 1);
-			list2.Add(new AccessoryData(streamingAssetInfo, productInventoryInfo2, categoryID));
-		}
 		enabled = true;
 		this.inventoryController = UnityEngine.Object.Instantiate(inventoryControllerPrefab);
 		InventoryController inventoryController = this.inventoryController;
 		inventoryController.OnPageTurned = (UnityAction<int>)Delegate.Combine(inventoryController.OnPageTurned, new UnityAction<int>(PageTurned));
 		InventoryController inventoryController2 = this.inventoryController;
 		inventoryController2.OnTabSelected = (UnityAction<int>)Delegate.Combine(inventoryController2.OnTabSelected, new UnityAction<int>(TabSelected));
-		this.inventoryController.gameObject.AddComponent<AccessoryShopPreview>();
 		this.inventoryController.Initialize(numberOfSlotsPrPage);
-		if (!usingAccessoryMoverAndroid)
-		{
-			accessoryMover.Activate();
-		}
 		foreach (KeyValuePair<int, TabState> tab in tabs)
 		{
 			this.inventoryController.AddTab(tab.Key, tab.Value.name);
@@ -144,7 +109,94 @@ public class AccessoryShopController : MonoBehaviour, IEventSystemHandler, IInve
 		{
 			x.Push(this.inventoryController.gameObject, pushOption, OnPop, UIGroupFlags.InventoryUI);
 		});
-		UpdateContent();
+		SetAccessoriesToSelectable(selectable: true);
+		if (tabs.ContainsKey(255) && startingCategory != AccessoryCategoryClient.Bundles)
+		{
+			TabSelected(255);
+		}
+		else
+		{
+			UpdateContent();
+		}
+	}
+
+	private void ClearShop()
+	{
+		tabs.Clear();
+		inventoryController.Clear();
+	}
+
+	private void DisplayAllItems()
+	{
+		Dictionary<AccessoryCategory, List<AccessoryDataClient>> accessoriesCategoryMap = AccessoryDataManager.GetAccessoriesCategoryMap();
+		foreach (KeyValuePair<AccessoryCategory, List<AccessoryDataClient>> item in accessoriesCategoryMap)
+		{
+			TabState tabState = new TabState(LocalizedEnums._((AccessoryCategoryClient)item.Key), numberOfSlotsPrPage);
+			tabState.highestSlotIndex = item.Value.Count;
+			tabs.Add((int)item.Key, tabState);
+		}
+		List<AccessoryDataClient> accessoryDataFromCategoryType = GetAccessoryDataFromCategoryType(AccessoryCategoryClient.Bundles);
+		int count = accessoryDataFromCategoryType.Count;
+		if (count > 0)
+		{
+			TabState tabState2 = new TabState(LocalizedEnums._(AccessoryCategoryClient.Bundles), numberOfSlotsPrPage);
+			tabs.Add(254, tabState2);
+			tabState2.highestSlotIndex = count;
+		}
+		List<AccessoryDataClient> accessoryDataFromCategoryType2 = GetAccessoryDataFromCategoryType(AccessoryCategoryClient.Featured);
+		int count2 = accessoryDataFromCategoryType2.Count;
+		if (count2 > 0)
+		{
+			TabState tabState3 = new TabState(LocalizedEnums._(AccessoryCategoryClient.Featured), numberOfSlotsPrPage);
+			tabs.Add(255, tabState3);
+			tabState3.highestSlotIndex = count2;
+		}
+	}
+
+	private void DisplayOwnedItems()
+	{
+		Dictionary<AccessoryCategory, List<AccessoryDataClient>> accessoriesCategoryMap = AccessoryDataManager.GetAccessoriesCategoryMap();
+		foreach (KeyValuePair<AccessoryCategory, List<AccessoryDataClient>> item in accessoriesCategoryMap)
+		{
+			Debug.Log(item.Key);
+			TabState tabState = new TabState(LocalizedEnums._((AccessoryCategoryClient)item.Key), numberOfSlotsPrPage);
+			int ownedAmount = GetOwnedAmount(item.Value);
+			tabState.highestSlotIndex = ownedAmount;
+			tabs.Add((int)item.Key, tabState);
+		}
+	}
+
+	private int GetOwnedAmount(List<AccessoryDataClient> accessoryList)
+	{
+		int num = 0;
+		for (int i = 0; i < accessoryList.Count; i++)
+		{
+			if (accessoryList[i].owns)
+			{
+				num++;
+			}
+		}
+		return num;
+	}
+
+	private void SetAccessoriesToSelectable(bool selectable)
+	{
+		MVBody currentBody = null;
+		if (MVGameControllerBase.GameMode == MVGameMode.CharacterEditor)
+		{
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IGetCurrentBody x, BaseEventData y) =>
+			{
+				x.GetCurrentBody((MVBody body) =>
+				{
+					currentBody = body;
+				});
+			});
+		}
+		else
+		{
+			currentBody = MVGameControllerBase.Game.LocalPlayer.Avatar.Body;
+		}
+		currentBody.AccessoryMoveOverride = selectable;
 	}
 
 	public void InventoryChanged()
@@ -170,22 +222,24 @@ public class AccessoryShopController : MonoBehaviour, IEventSystemHandler, IInve
 		{
 			selectedTab = tabId;
 			UpdateContent();
+			inventoryController.SetHeaderText(LocalizedEnums._((AccessoryCategoryClient)tabId));
 		}
 	}
 
 	private void OnPop()
 	{
+		AccessoryDataManager.readyCallback = (UnityAction)Delegate.Remove(AccessoryDataManager.readyCallback, new UnityAction(ReadyCallback));
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (ISetEditState x, BaseEventData y) =>
 		{
 			x.SetState(EditorEvent.CERoamUUI);
 		});
-		UnityEngine.Object.Destroy(previewItemsRoot.gameObject);
+		if (previewItemsRoot != null)
+		{
+			UnityEngine.Object.Destroy(previewItemsRoot.gameObject);
+		}
 		previewItemsRoot = null;
 		enabled = false;
-		if (!usingAccessoryMoverAndroid)
-		{
-			accessoryMover.Destroy();
-		}
+		SetAccessoriesToSelectable(selectable: false);
 	}
 
 	private void UpdateContent()
@@ -194,94 +248,107 @@ public class AccessoryShopController : MonoBehaviour, IEventSystemHandler, IInve
 		{
 			UnityEngine.Object.Destroy(previewItemsRoot.gameObject);
 		}
-		previewItemsRoot = null;
-		inventoryController.Clear();
 		previewItemsRoot = new GameObject("Preview Root - AccessoryShopController").transform;
+		inventoryController.Clear();
 		TabState tabState = tabs[selectedTab];
 		inventoryController.SelectTab(selectedTab, tabState.currentPage, tabState.MaxPages);
-		slotIndexOffset = 0;
 		if (MVGameControllerBase.GameMode == MVGameMode.CharacterEditor)
 		{
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IGetCurrentBody x, BaseEventData y) =>
 			{
-				x.GetCurrentBody(CreateAccessoryUnequip);
+				x.GetCurrentBody(UpdateContentWithBody);
 			});
 		}
 		else
 		{
-			CreateAccessoryUnequip(MVGameControllerBase.WOCM.AvatarLocal.Body);
+			UpdateContentWithBody(MVGameControllerBase.Game.LocalPlayer.Avatar.Body);
 		}
-		foreach (AccessoryData item in slotToStreamingAssetInfoMap)
+	}
+
+	private void UpdateContentWithBody(MVBody avatarBody)
+	{
+		List<AccessoryDataClient> accessoryDataFromCategoryType = GetAccessoryDataFromCategoryType((AccessoryCategoryClient)selectedTab);
+		int num = tabs[selectedTab].SlotRange[0];
+		for (int i = num; i < accessoryDataFromCategoryType.Count && accessoryDataFromCategoryType.Count > i && i >= 0; i++)
 		{
-			if (item.streamingAssetInfo.CategoryID == selectedTab && tabState.SlotIndexIsInRange(item.slotIndex - slotIndexOffset))
+			AccessoryDataClient accessoryDataClient = accessoryDataFromCategoryType[i];
+			if ((displayShopItems || accessoryDataClient.owns) && num < tabs[selectedTab].SlotRange[1] && accessoryDataClient.GetShowInShop())
 			{
 				AccessoryInventoryViewItem accessoryInventoryViewItem = UnityEngine.Object.Instantiate(accessoryInventoryItemPrefab);
-				inventoryController.AddObject(accessoryInventoryViewItem.gameObject, (item.slotIndex - slotIndexOffset) % numberOfSlotsPrPage);
-				accessoryInventoryViewItem.Initialize(item.streamingAssetInfo, item.productInventoryInfo, previewItemsRoot);
+				inventoryController.AddObject(accessoryInventoryViewItem.gameObject, num % numberOfSlotsPrPage);
+				accessoryInventoryViewItem.Initialize(accessoryDataFromCategoryType[i], previewItemsRoot, avatarBody, selectedTab == 254);
+				num++;
 			}
 		}
 	}
 
-	private void CreateAccessoryUnequip(MVBody body)
+	private List<AccessoryDataClient> GetAccessoryDataFromCategoryType(AccessoryCategoryClient category)
 	{
-		int accessoryID = body.GetAccessoryID(categoryAvatarAccessorySlotMap[selectedTab]);
-		if (tabs[selectedTab].currentPage != 1)
+		switch (category)
 		{
-			if (accessoryID == -1)
+		case AccessoryCategoryClient.Bundles:
+		{
+			List<AccessoryDataClient> list2 = new List<AccessoryDataClient>();
+			List<AccessoryBundleItem> accessoryBundleItems = AccessoryDataManager.GetAccessoryBundleClient().accessoryBundleItems;
+			for (int j = 0; j < accessoryBundleItems.Count; j++)
 			{
-				slotIndexOffset = 1;
+				AccessoryDataClient accessoryDataByMetaDataId = AccessoryDataManager.GetAccessoryDataByMetaDataId(accessoryBundleItems[j].accessoryMetaDataID);
+				if (!accessoryDataByMetaDataId.owns)
+				{
+					list2.Add(accessoryDataByMetaDataId);
+				}
+			}
+			return list2;
+		}
+		case AccessoryCategoryClient.Featured:
+		{
+			List<AccessoryDataClient> list = new List<AccessoryDataClient>();
+			Dictionary<AccessoryCategory, List<AccessoryDataClient>> accessoriesCategoryMap = AccessoryDataManager.GetAccessoriesCategoryMap();
+			{
+				foreach (KeyValuePair<AccessoryCategory, List<AccessoryDataClient>> item in accessoriesCategoryMap)
+				{
+					for (int i = 0; i < item.Value.Count; i++)
+					{
+						AccessoryDataClient accessoryDataClient = item.Value[i];
+						if (accessoryDataClient.isFeatured && !accessoryDataClient.owns && !list.Contains(accessoryDataClient))
+						{
+							list.Add(accessoryDataClient);
+						}
+					}
+				}
+				return list;
 			}
 		}
-		else if (accessoryID == -1)
-		{
-			slotIndexOffset = 1;
-		}
-		else
-		{
-			AccessoryUnEquip accessoryUnEquip = UnityEngine.Object.Instantiate(accessoryUnEquipPrefab);
-			inventoryController.AddObject(accessoryUnEquip.gameObject, 0);
-			accessoryUnEquip.Initialize(categoryAvatarAccessorySlotMap[selectedTab], body);
-			accessoryUnEquip.OnUnequipFinished = (UnityAction)Delegate.Combine(accessoryUnEquip.OnUnequipFinished, new UnityAction(UpdateContent));
+		default:
+			return AccessoryDataManager.GetAccessoriesByCategoryId((AccessoryCategory)selectedTab);
 		}
 	}
 
-	private bool TryGetProductInventoryInfo(out ProductInventoryInfo productInventoryInfo, int productID, List<ProductInventoryInfo> productInventoryInfos)
-	{
-		foreach (ProductInventoryInfo productInventoryInfo2 in productInventoryInfos)
-		{
-			if (productInventoryInfo2.ProductInfo.ProductID == productID)
-			{
-				productInventoryInfo = productInventoryInfo2;
-				return true;
-			}
-		}
-		productInventoryInfo = null;
-		return false;
-	}
-
-	public void AttachToBody(int productId)
+	public void AttachToBody(int productId, float offset, float scale)
 	{
 		currentlyAttachingID = productId;
 		if (MVGameControllerBase.GameMode == MVGameMode.CharacterEditor)
 		{
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IGetCurrentBody x, BaseEventData y) =>
 			{
-				x.GetCurrentBody(Attach);
+				x.GetCurrentBody((MVBody body) =>
+				{
+					Attach(body, offset, scale);
+				});
 			});
 		}
 		else
 		{
-			Attach(MVGameControllerBase.Game.LocalPlayer.Avatar.Body);
+			Attach(MVGameControllerBase.Game.LocalPlayer.Avatar.Body, offset, scale);
 		}
 	}
 
-	private void Attach(MVBody body)
+	private void Attach(MVBody body, float offset, float scale)
 	{
 		if (attachingReady)
 		{
 			attachingReady = false;
-			accessoryAttacher.AttachAccessory(currentlyAttachingID, body, AttacherFinished);
-			UpdateContent();
+			accessoryAttacher.AttachAccessory(currentlyAttachingID, body, offset, scale, AttacherFinished);
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 			{
 				x.Create();
@@ -296,13 +363,10 @@ public class AccessoryShopController : MonoBehaviour, IEventSystemHandler, IInve
 		{
 			x.Pop();
 		});
-	}
-
-	private void Update()
-	{
-		if (!usingAccessoryMoverAndroid)
+		ExecuteEvents.ExecuteHierarchy(inventoryController.gameObject, null, (IAccessoryChanged x, BaseEventData y) =>
 		{
-			accessoryMover.MoveAccessory();
-		}
+			x.AccessoryChanged();
+		});
+		UpdateContent();
 	}
 }

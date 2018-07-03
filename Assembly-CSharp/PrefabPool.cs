@@ -226,8 +226,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material blinkerDefaultMaterial;
 
-	[Space(20f)]
 	[SerializeField]
+	[Space(20f)]
 	[Header("Pick up")]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
@@ -288,9 +288,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private MVPickupItemBaseObject avatarHealRayPrefab;
 
-	[Space(20f)]
 	[SerializeField]
 	[Header("Avatar item pick up")]
+	[Space(20f)]
 	private GameObject avatarItemCenterGun;
 
 	[SerializeField]
@@ -355,8 +355,8 @@ public class PrefabPool : MonoBehaviour
 	[Header("Avatar modifier")]
 	private AvatarModifier shieldModifier;
 
-	[Header("Particles")]
 	[SerializeField]
+	[Header("Particles")]
 	[Space(20f)]
 	private GameObject particleCFX_GroundAura;
 
@@ -384,9 +384,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ParticleSystem healingParticles;
 
-	[Space(20f)]
-	[Header("Logic object prefabs")]
 	[SerializeField]
+	[Header("Logic object prefabs")]
+	[Space(20f)]
 	private GameObject logicInputConnectorPrefab;
 
 	[SerializeField]
@@ -413,9 +413,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material logicCubeConnectorBlueSelectedMaterial;
 
+	[Header("GUI")]
 	[Space(20f)]
 	[SerializeField]
-	[Header("GUI")]
 	private Texture2D avatarAccessoryMoveIcon;
 
 	[SerializeField]
@@ -441,8 +441,8 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private ChatBubble chatBubble;
 
-	[SerializeField]
 	[Header("TextBubbleContent")]
+	[SerializeField]
 	private RectTransform editCornerHelpText;
 
 	[SerializeField]
@@ -451,9 +451,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private RectTransform editFaceHelpText;
 
-	[Space(20f)]
 	[SerializeField]
 	[Header("Cameras")]
+	[Space(20f)]
 	private GodzillaCameraDesktop godzillaCameraDesktop;
 
 	[SerializeField]
@@ -463,8 +463,8 @@ public class PrefabPool : MonoBehaviour
 	private FirstPersonDeathCamera firstPersonDeathCamera;
 
 	[Space(20f)]
-	[SerializeField]
 	[Header("Editor")]
+	[SerializeField]
 	private Material cellCursorErrorMaterial;
 
 	[SerializeField]

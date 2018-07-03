@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using MV.Common;
 using UnityEngine;
 
@@ -13,6 +12,8 @@ public class AccessoryLoader
 		private Action<AvatarAccessory> accessoryCreatedCallback;
 
 		private AccessoryLoaderRequest accessoryLoaderRequest;
+
+		public string SubUrl => accessoryLoaderRequest.SubUrl;
 
 		public Request(Action<AvatarAccessory> accessoryCreatedCallback, AccessoryLoaderRequest accessoryLoaderRequest)
 		{
@@ -37,28 +38,15 @@ public class AccessoryLoader
 
 		private Action<int, AvatarAccessory> accessoryCreatedCallback;
 
-		private readonly AvatarAccessoryParams parameters;
+		private readonly string subUrl;
 
-		private AccessoryLoaderRequest(int id, Action<int, AvatarAccessory> accessoryCreatedCallback, AvatarAccessoryParams parameters)
+		public string SubUrl => subUrl;
+
+		public AccessoryLoaderRequest(int id, Action<int, AvatarAccessory> accessoryCreatedCallback, string subUrl)
 		{
 			this.id = id;
 			this.accessoryCreatedCallback = accessoryCreatedCallback;
-			this.parameters = parameters;
-		}
-
-		public AccessoryLoaderRequest(int id, StreamingAssetInfo assetInfo, Action<int, AvatarAccessory> accessoryCreatedCallback)
-			: this(id, accessoryCreatedCallback, new AvatarAccessoryParams(0, assetInfo.RequestPath))
-		{
-		}
-
-		public AccessoryLoaderRequest(int id, ProductInventoryInfo invInfo, Action<int, AvatarAccessory> accessoryCreatedCallback)
-			: this(id, accessoryCreatedCallback, new AvatarAccessoryParams(invInfo.InventoryID, invInfo.ProductInfo.RequestPath))
-		{
-		}
-
-		public AccessoryLoaderRequest(int id, int inventoryID, string assetPath, DateTime purchaseTime, Action<int, AvatarAccessory> accessoryCreatedCallback)
-			: this(id, accessoryCreatedCallback, new AvatarAccessoryParams(inventoryID, MVGameControllerBase.Game.StreamingAssetInfoMap.Values.FirstOrDefault((StreamingAssetInfo sai) => sai.AssetPath == assetPath).RequestPath))
-		{
+			this.subUrl = subUrl;
 		}
 
 		public void Remove()
@@ -72,9 +60,7 @@ public class AccessoryLoader
 			if (Urls.StreamingAssetUrlReady())
 			{
 				Urls.onStreamingAssetsUrlAvailable = (Urls.OnStreamingAssetsUrlAvailable)Delegate.Remove(Urls.onStreamingAssetsUrlAvailable, new Urls.OnStreamingAssetsUrlAvailable(LoadAccessory));
-				string assetBundleUrl = StreamingAsset.AssetBundleUrl;
-				AvatarAccessoryParams avatarAccessoryParams = parameters;
-				string path = StreamingAsset.DBUrlToServerUrl(assetBundleUrl + avatarAccessoryParams.AssetReqPath) + MVGameControllerBase.KoGaMaSettings.WebCacheInvalidationCodeStr;
+				string path = StreamingAsset.DBUrlToServerUrl(StreamingAsset.AssetBundleUrl + subUrl) + MVGameControllerBase.KoGaMaSettings.WebCacheInvalidationCodeStr;
 				GetRequest asyncRequest = new CachedGetRequest(path, Callback, WWWRequestPriority.WaitUntilSyncronizingIsDone);
 				AsyncWWWManager.WWWRequest(asyncRequest);
 			}
@@ -102,18 +88,19 @@ public class AccessoryLoader
 			{
 				avatarAccessory = gameObject.AddComponent<AvatarAccessoryHat>();
 			}
+			else if (component.GetType() == typeof(AccessoryParticlesSettings))
+			{
+				avatarAccessory = gameObject.AddComponent<AvatarAccessoryParticles>();
+			}
 			else
 			{
-				if (component.GetType() != typeof(AccessoryParticlesSettings))
+				if (component.GetType() != typeof(AccessoryBackAccessoriesSettings))
 				{
 					throw new Exception("Unknown settings");
 				}
-				avatarAccessory = gameObject.AddComponent<AvatarAccessoryParticles>();
+				avatarAccessory = gameObject.AddComponent<AvatarAccessoryBackAccessories>();
 			}
-			AvatarAccessory avatarAccessory2 = avatarAccessory;
-			AvatarAccessoryParams p = parameters;
-			AvatarAccessoryParams avatarAccessoryParams = parameters;
-			avatarAccessory2.InitAccessory(p, avatarAccessoryParams.AssetReqPath);
+			avatarAccessory.InitAccessory(subUrl, subUrl, component.PreviewImageSpritePath);
 			if (accessoryCreatedCallback != null)
 			{
 				accessoryCreatedCallback(id, avatarAccessory);
@@ -126,19 +113,17 @@ public class AccessoryLoader
 
 	private Dictionary<int, Request> requests = new Dictionary<int, Request>();
 
-	public void LoadAccessory(StreamingAssetInfo assetInfo, Action<AvatarAccessory> accessoryCreatedExternalCallback)
+	public void LoadAccessory(string url, Action<AvatarAccessory> accessoryCreatedExternalCallback)
 	{
-		AddRequest(new AccessoryLoaderRequest(id, assetInfo, AccessoryCreatedInternalCallback), accessoryCreatedExternalCallback);
-	}
-
-	public void LoadAccessory(ProductInventoryInfo invInfo, Action<AvatarAccessory> accessoryCreatedExternalCallback)
-	{
-		AddRequest(new AccessoryLoaderRequest(id, invInfo, AccessoryCreatedInternalCallback), accessoryCreatedExternalCallback);
-	}
-
-	public void LoadAccessory(int inventoryID, string assetPath, DateTime purchaseTime, Action<AvatarAccessory> accessoryCreatedExternalCallback)
-	{
-		AddRequest(new AccessoryLoaderRequest(id, inventoryID, assetPath, purchaseTime, AccessoryCreatedInternalCallback), accessoryCreatedExternalCallback);
+		foreach (KeyValuePair<int, Request> request in requests)
+		{
+			if (request.Value.SubUrl == url)
+			{
+				Debug.LogWarning("Request already pending. Ignoring.");
+				return;
+			}
+		}
+		AddRequest(new AccessoryLoaderRequest(id, AccessoryCreatedInternalCallback, url), accessoryCreatedExternalCallback);
 	}
 
 	private void AddRequest(AccessoryLoaderRequest accessoryLoaderRequest, Action<AvatarAccessory> accessoryCreatedExternalCallback)

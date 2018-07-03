@@ -5,7 +5,7 @@ public static class JoinUIUpdater
 {
 	public static Queue<MVEventCodes> JoinEventCodes = new Queue<MVEventCodes>();
 
-	private static MVEventCodes latestJoinEvent = MVEventCodes.GetDBTimeTicks;
+	private static MVEventCodes latestJoinEvent = MVEventCodes.RequestMaterials;
 
 	public static void UpdateJoinStateForUI(MVEventCodes eventCode)
 	{

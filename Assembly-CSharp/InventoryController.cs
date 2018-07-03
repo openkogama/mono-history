@@ -2,16 +2,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 public class InventoryController : MonoBehaviour, IEventSystemHandler, ISlotChanged, IPagedTurned, ITabSelected
 {
 	private int numberOfSlots;
 
 	[SerializeField]
-	private TabMenu tabMenu;
+	private TabMenuBase tabMenu;
 
 	[SerializeField]
 	private InventorySlots inventorySlots;
+
+	[SerializeField]
+	private Text categoryHeaderText;
 
 	public UnityAction<int> OnPageTurned;
 
@@ -28,6 +32,11 @@ public class InventoryController : MonoBehaviour, IEventSystemHandler, ISlotChan
 	public void Clear()
 	{
 		inventorySlots.Clear();
+	}
+
+	public void SetHeaderText(string category)
+	{
+		categoryHeaderText.text = category;
 	}
 
 	public void HighlightSlot(int slotPosition)

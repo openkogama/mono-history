@@ -8,8 +8,6 @@ public class CERoamUUI : ESStateBase
 
 	private bool enterEditNextFrame;
 
-	private readonly AccessoryMover accessoryMover = new AccessoryMover();
-
 	private Vector3 centerPos;
 
 	private bool didExit;
@@ -22,7 +20,6 @@ public class CERoamUUI : ESStateBase
 	public override void Enter(EditorStateMachine esm)
 	{
 		didExit = false;
-		accessoryMover.Activate();
 		ExecuteEvents.ExecuteHierarchy(esm.GameObject, null, (IAvatarEditUIState x, BaseEventData y) =>
 		{
 			x.Set(ActiveEditStateUI.AvatarManagement);
@@ -69,16 +66,11 @@ public class CERoamUUI : ESStateBase
 		DeTintCurrent();
 		((MVAvatarLocal.JetPackMode)MVGameControllerBase.WOCM.AvatarLocal.CurrentMode).ModifySpeed(1f, 1f);
 		didExit = true;
-		accessoryMover.Destroy();
 	}
 
 	private bool HandleSelect(EditorStateMachine esm)
 	{
 		if (didExit)
-		{
-			return false;
-		}
-		if (accessoryMover.MoveAccessory())
 		{
 			return false;
 		}

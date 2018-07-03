@@ -4,12 +4,12 @@ public enum MVProductType
 {
 	MaterialUnlock,
 	PremiumCubeModel,
-	StreamingAsset,
+	Accessory,
 	Item,
 	Avatar,
 	RespawnNow,
 	GameCoinBooster,
-	MysteryBoxSpins,
 	MarketPlaceAvatar,
-	Theme
+	Theme,
+	AccessoryBundle
 }

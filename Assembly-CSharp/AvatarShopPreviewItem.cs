@@ -26,7 +26,8 @@ public class AvatarShopPreviewItem : MonoBehaviour
 	{
 		this.item = item;
 		previewer = Object.Instantiate(previewer);
-		previewer.Initialize(previewWidth, previewHeight, CameraClearFlags.Color, wo.PreviewLayerMask, new Vector3(0f, 0f, 0f), previewItemsRoot, new Vector3(100f, 100f, 10f * (float)item.slotPosition), item.name, wo, wo.GameObject);
+		previewer.Initialize(previewWidth, previewHeight, CameraClearFlags.Color, wo.PreviewLayerMask, new Vector3(0f, 0f, 0f), previewItemsRoot, new Vector3(100f, 100f, 10f * (float)item.slotPosition), item.name, wo, wo.GameObject, default);
+		previewer.PreviewGameObject.transform.Rotate(0f, 180f, 0f);
 		previewImage.texture = previewer.PreviewTexture;
 	}
 
@@ -44,7 +45,7 @@ public class AvatarShopPreviewItem : MonoBehaviour
 	{
 		if (previewer != null)
 		{
-			previewer.UpdateRotation();
+			previewer.UpdateRotation(9.3f);
 		}
 	}
 }

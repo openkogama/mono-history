@@ -55,10 +55,13 @@ public class InventorySlot : MonoBehaviour, IEventSystemHandler, IDropHandler
 
 	public void OnDrop(PointerEventData eventData)
 	{
-		Debug.Log("From: " + eventData.selectedObject.GetComponent<InventoryItemMetaData>().SlotIndex + " To: " + absoluteSlotValue);
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IGameObjectDroppedInSlot x, BaseEventData y) =>
+		if (eventData.selectedObject != null && eventData.selectedObject.GetComponent<InventoryItemMetaData>() != null)
 		{
-			x.SlotChanged(eventData.selectedObject, absoluteSlotValue);
-		});
+			Debug.Log("From: " + eventData.selectedObject.GetComponent<InventoryItemMetaData>().SlotIndex + " To: " + absoluteSlotValue);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IGameObjectDroppedInSlot x, BaseEventData y) =>
+			{
+				x.SlotChanged(eventData.selectedObject, absoluteSlotValue);
+			});
+		}
 	}
 }

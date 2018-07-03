@@ -6,12 +6,9 @@ public class CEAvatarAccessoryUUI : ESStateBase
 {
 	private MVWorldObjectClient currentBody;
 
-	private readonly AccessoryMover accessoryMover = new AccessoryMover();
-
 	public override void Enter(EditorStateMachine esm)
 	{
 		base.Enter(esm);
-		accessoryMover.Activate();
 		ExecuteEvents.ExecuteHierarchy(esm.GameObject, null, (IAvatarEditUIState x, BaseEventData y) =>
 		{
 			x.Set(ActiveEditStateUI.AvatarManagement);
@@ -41,13 +38,11 @@ public class CEAvatarAccessoryUUI : ESStateBase
 	public override void Execute(EditorStateMachine esm)
 	{
 		base.Execute(esm);
-		accessoryMover.MoveAccessory();
 	}
 
 	public override void Exit(EditorStateMachine esm)
 	{
 		base.Exit(esm);
-		accessoryMover.Destroy();
 		MVGameControllerBase.CameraController.SetCamera(CameraType.AvatarEditModeCamera);
 		((AvatarEditModeCamera)MVGameControllerBase.CameraController.CurCamera).ResetPosition(currentBody.Transform.position + Vector3.up);
 		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.SetLaserCubeVisible(visible: true);

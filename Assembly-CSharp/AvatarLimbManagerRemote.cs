@@ -88,6 +88,8 @@ public class AvatarLimbManagerRemote : AvatarLimbManager
 		pointingHandler.Initialize(this, limbRotator, mvAvatar.Avatar.EnabledChangeHandler);
 		emoteHandler = new AvatarEmoteHandler();
 		emoteHandler.Initialize(this, lookDirectionHandler, pointingHandler, headRotationHandler, limbRotator, mvAvatar.Avatar.EnabledChangeHandler);
+		AvatarEmoteHandler avatarEmoteHandler = emoteHandler;
+		avatarEmoteHandler.OnEmoteStart = (Action<string>)Delegate.Combine(avatarEmoteHandler.OnEmoteStart, new Action<string>(OnStartEmote));
 	}
 
 	public override void UpdateLimbRotations()

@@ -5,21 +5,29 @@ public class SelectionHelperAvatarAccessory : MonoBehaviour
 {
 	private AvatarAccessory avatarAccessory;
 
-	private AvatarAccessorySlot slot;
+	private AccessorySlotType slot;
 
 	private int avatarBodyWoID;
 
+	[HideInInspector]
+	[SerializeField]
+	private int streamingAssetsId = -1;
+
 	public AvatarAccessory AvatarAccessory => avatarAccessory;
 
-	public AvatarAccessorySlot Slot => slot;
+	public AccessorySlotType Slot => slot;
 
 	public int AvatarBodyWoID => avatarBodyWoID;
 
-	public void Init(AvatarAccessory avatarAccessory, AvatarAccessorySlot slot, int avatarBodyWoID)
+	public int StreamingAssetsId => streamingAssetsId;
+
+	public void Init(AvatarAccessory avatarAccessory, AccessorySlotType slot, int avatarBodyWoID, int accessoryStreamingAssetsId)
 	{
+		Debug.Log("Selection helper initialized! " + gameObject.name);
 		this.avatarAccessory = avatarAccessory;
 		this.slot = slot;
 		this.avatarBodyWoID = avatarBodyWoID;
+		streamingAssetsId = accessoryStreamingAssetsId;
 	}
 
 	public override string ToString()

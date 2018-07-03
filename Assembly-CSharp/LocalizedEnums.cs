@@ -40,23 +40,20 @@ public static class LocalizedEnums
 		private static void Init(Dictionary<int, string> map)
 		{
 			map.Add(255, TM._("Joining"));
-			map.Add(62, TM._("Synchronizing Game Time"));
-			map.Add(63, TM._("Fetching Materials"));
-			map.Add(65, TM._("Fetching Item Types"));
-			map.Add(64, TM._("Fetching Ownership Types"));
-			map.Add(72, TM._("Fetching Inventory"));
-			map.Add(74, TM._("Fetching BuiltIn Items"));
-			map.Add(73, TM._("Fetching Shop Inventory"));
-			map.Add(75, TM._("Fetching Avatar Shop Inventory"));
-			map.Add(68, TM._("Fetching Game Snapshot"));
-			map.Add(67, TM._("Creating Game Snapshot"));
-			map.Add(71, TM._("Fetching Friends"));
-			map.Add(66, TM._("Fetching Streaming Assets"));
-			map.Add(70, TM._("Fetching Streaming Asset Inventory"));
-			map.Add(69, TM._("Setting Actor Ready"));
-			map.Add(77, TM._("Fetching Active Avatar"));
-			map.Add(76, TM._("Initialize Avatar Edit"));
-			map.Add(94, TM._("Getting Profile Meta Data"));
+			map.Add(62, TM._("Fetching Materials"));
+			map.Add(64, TM._("Fetching Item Types"));
+			map.Add(63, TM._("Fetching Ownership Types"));
+			map.Add(69, TM._("Fetching Inventory"));
+			map.Add(71, TM._("Fetching BuiltIn Items"));
+			map.Add(70, TM._("Fetching Shop Inventory"));
+			map.Add(72, TM._("Fetching Avatar Shop Inventory"));
+			map.Add(66, TM._("Fetching Game Snapshot"));
+			map.Add(65, TM._("Creating Game Snapshot"));
+			map.Add(68, TM._("Fetching Friends"));
+			map.Add(67, TM._("Setting Actor Ready"));
+			map.Add(74, TM._("Fetching Active Avatar"));
+			map.Add(73, TM._("Initialize Avatar Edit"));
+			map.Add(91, TM._("Getting Profile Meta Data"));
 		}
 	}
 
@@ -80,6 +77,25 @@ public static class LocalizedEnums
 		}
 	}
 
+	private static class AccessoryCategoryLS
+	{
+		private static EnumLocalizeBookkeeping enumLocalizeBookkeeping = new EnumLocalizeBookkeeping(Init);
+
+		public static string Get(AccessoryCategoryClient enumVal)
+		{
+			return enumLocalizeBookkeeping.GetLocalizedString((int)enumVal);
+		}
+
+		private static void Init(Dictionary<int, string> map)
+		{
+			map.Add(1, TM._("HATS"));
+			map.Add(2, TM._("PARTICLES"));
+			map.Add(3, TM._("BACK ACCESSORIES"));
+			map.Add(254, TM._("BUNDLE"));
+			map.Add(255, TM._("FEATURED"));
+		}
+	}
+
 	public static string _(MVConnState enumVal)
 	{
 		return MVConnStateLS.Get(enumVal);
@@ -93,5 +109,10 @@ public static class LocalizedEnums
 	public static string _(XPRewardType enumVal)
 	{
 		return XPRewardTypeLS.Get(enumVal);
+	}
+
+	public static string _(AccessoryCategoryClient enumVal)
+	{
+		return AccessoryCategoryLS.Get(enumVal);
 	}
 }

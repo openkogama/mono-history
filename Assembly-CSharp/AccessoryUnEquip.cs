@@ -6,13 +6,13 @@ using UnityEngine.Events;
 
 public class AccessoryUnEquip : MonoBehaviour
 {
-	private AvatarAccessorySlot avatarAccessorySlot;
+	private AccessorySlotType avatarAccessorySlot;
 
 	public UnityAction OnUnequipFinished;
 
 	private MVBody AvatarBody;
 
-	public void Initialize(AvatarAccessorySlot avatarAccessorySlot, MVBody body)
+	public void Initialize(AccessorySlotType avatarAccessorySlot, MVBody body)
 	{
 		AvatarBody = body;
 		this.avatarAccessorySlot = avatarAccessorySlot;
@@ -26,10 +26,8 @@ public class AccessoryUnEquip : MonoBehaviour
 		{
 			x.Create();
 		});
-		int accessoryID = AvatarBody.GetAccessoryID(avatarAccessorySlot);
-		MVGameControllerBase.OperationRequests.SetAvatarAccessorySlot(AvatarBody.Id, accessoryID, AvatarAccessorySlot.Undefined, 0f);
-		MVNetworkGame game = MVGameControllerBase.Game;
-		game.OnSetAvatarAccessoryResponse = (Action<bool>)Delegate.Combine(game.OnSetAvatarAccessoryResponse, new Action<bool>(OnUnequipPop));
+		MVGameControllerBase.OperationRequests.UnEquipAccessory(AvatarBody.Id, avatarAccessorySlot);
+		Debug.LogWarning("Implement callback. Investigate if something smart is possible.");
 	}
 
 	private void OnUnequipPop(bool setSlotSuccess)

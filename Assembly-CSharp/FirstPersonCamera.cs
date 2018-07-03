@@ -16,8 +16,8 @@ public abstract class FirstPersonCamera : MVCameraBase
 	[SerializeField]
 	protected float maxLookAngleUpward = 60f;
 
-	[HideInInspector]
 	[SerializeField]
+	[HideInInspector]
 	private Vector3 cameraOffset = new Vector3(0f, 2f, 0f);
 
 	[SerializeField]
@@ -29,8 +29,8 @@ public abstract class FirstPersonCamera : MVCameraBase
 	[SerializeField]
 	private FirstPersonWeaponBob weaponBob;
 
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	private DamageIndicator damageIndicator;
 
 	[SerializeField]
@@ -175,21 +175,21 @@ public abstract class FirstPersonCamera : MVCameraBase
 
 	private void HideBody(bool shouldHideBody)
 	{
-		Component[] componentsInChildren = localAvatar.Body.BodyData.GetPartBone(BodyData.PartIndex.Torso).GetComponentsInChildren<MeshRenderer>();
+		Component[] componentsInChildren = localAvatar.Body.BodyData.GetPartBone(BodyData.PartIndex.Torso).GetComponentsInChildren<Renderer>();
 		if (shouldHideBody)
 		{
 			for (short num = 0; num < componentsInChildren.Length; num++)
 			{
-				MeshRenderer meshRenderer = (MeshRenderer)componentsInChildren[num];
-				meshRenderer.shadowCastingMode = ShadowCastingMode.ShadowsOnly;
+				Renderer renderer = (Renderer)componentsInChildren[num];
+				renderer.shadowCastingMode = ShadowCastingMode.ShadowsOnly;
 			}
 		}
 		else
 		{
 			for (short num2 = 0; num2 < componentsInChildren.Length; num2++)
 			{
-				MeshRenderer meshRenderer2 = (MeshRenderer)componentsInChildren[num2];
-				meshRenderer2.shadowCastingMode = ShadowCastingMode.On;
+				Renderer renderer2 = (Renderer)componentsInChildren[num2];
+				renderer2.shadowCastingMode = ShadowCastingMode.On;
 			}
 		}
 	}

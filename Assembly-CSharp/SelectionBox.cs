@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class SelectionBox : MonoBehaviour
 {
@@ -27,6 +28,8 @@ public class SelectionBox : MonoBehaviour
 		gameObject.layer = LayerMask.NameToLayer("UIItems");
 		meshRenderer = gameObject.GetComponent<MeshRenderer>();
 		meshFilter = gameObject.GetComponent<MeshFilter>();
+		meshRenderer.receiveShadows = false;
+		meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
 	}
 
 	public void Init(IModelingConstraint constraint, string layer = "UIItems")
@@ -113,6 +116,9 @@ public class SelectionBox : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		Object.Destroy(meshRenderer.material);
+		if (meshRenderer != null)
+		{
+			Object.Destroy(meshRenderer.material);
+		}
 	}
 }

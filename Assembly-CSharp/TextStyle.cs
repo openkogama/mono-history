@@ -7,5 +7,6 @@ public enum TextStyle
 	ConsoleText,
 	PurchaseText,
 	TabText,
-	BoldButtonText
+	BoldButtonText,
+	BoldHeaderText
 }

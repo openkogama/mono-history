@@ -1,4 +1,3 @@
-using MV.Common;
 using UnityEngine;
 
 public class AvatarAccessoryParticles : AvatarAccessory
@@ -34,17 +33,6 @@ public class AvatarAccessoryParticles : AvatarAccessory
 	}
 
 	public override AccessorySettings AccessorySettings => AccessoryParticlesSettings;
-
-	protected override void Awake()
-	{
-		base.Awake();
-		Category = AvatarAccessoryCategory.Particles;
-	}
-
-	protected override void Start()
-	{
-		base.Start();
-	}
 
 	public override Bounds GetWorldBounds()
 	{

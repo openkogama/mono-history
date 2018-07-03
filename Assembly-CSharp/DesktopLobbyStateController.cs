@@ -1,16 +1,11 @@
-using System;
 using MV.Common;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class DesktopLobbyStateController : MonoBehaviour
 {
 	[SerializeField]
 	private GameObject teamButton;
-
-	[SerializeField]
-	private RectTransform rewardTransform;
 
 	[SerializeField]
 	private GameObject respawnButton;
@@ -25,21 +20,13 @@ public class DesktopLobbyStateController : MonoBehaviour
 	private GameObject touristRegisterButton;
 
 	[SerializeField]
-	private GameObject touristRewardPreview;
-
-	[SerializeField]
 	private TimedPlayReward playReward;
 
 	[SerializeField]
 	private AdOfferGold adOfferGold;
 
 	[SerializeField]
-	private RewardGenerator rewardGenerator;
-
-	[SerializeField]
 	private Image lobbyStateBlockingOverlay;
-
-	private readonly AccessoryMover accessoryMover = new AccessoryMover();
 
 	private void Start()
 	{
@@ -48,29 +35,12 @@ public class DesktopLobbyStateController : MonoBehaviour
 		playReward.gameObject.SetActive(value: false);
 		bool active = MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion && !MVGameControllerBase.GameSessionData.IsPlayedFromPoki;
 		touristRegisterButton.SetActive(active);
-		rewardTransform.gameObject.SetActive(flag && MVClientSettings.SpinEnabled);
 		gameCoinBoosterButton.SetActive(!isTouristSession);
 		avatarAccessoriesButton.SetActive(!isTouristSession);
-		touristRewardPreview.SetActive(isTouristSession && MVClientSettings.SpinEnabled);
-		if (!flag)
+		if (flag)
 		{
-			return;
+			playReward.Initialize();
 		}
-		playReward.Initialize();
-		if (MVClientSettings.SpinEnabled)
-		{
-			RewardManager.NumberOfPendingRewardsChanged = (UnityAction)Delegate.Combine(RewardManager.NumberOfPendingRewardsChanged, new UnityAction(RewardChanged));
-			RewardManager.TimerUpdated = (UnityAction)Delegate.Combine(RewardManager.TimerUpdated, new UnityAction(RewardChanged));
-			if (RewardManager.TimerInitiated)
-			{
-				RewardChanged();
-			}
-		}
-	}
-
-	private void RewardChanged()
-	{
-		rewardTransform.gameObject.SetActive(value: true);
 	}
 
 	private void Update()
@@ -92,22 +62,10 @@ public class DesktopLobbyStateController : MonoBehaviour
 			respawnButton.gameObject.SetActive(value: true);
 		}
 		MVInputWrapper.SuppressInGameInput();
-		accessoryMover.MoveAccessory();
-	}
-
-	private void OnDisable()
-	{
-		if (MVGameControllerBase.Game != null)
-		{
-			accessoryMover.Destroy();
-			MVGameControllerBase.WOCM.AvatarLocal.Body.AccessoryMoveOverride = false;
-		}
 	}
 
 	private void OnEnable()
 	{
-		accessoryMover.Activate();
-		MVGameControllerBase.WOCM.AvatarLocal.Body.AccessoryMoveOverride = true;
 		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
 		{
 			teamButton.SetActive(value: true);

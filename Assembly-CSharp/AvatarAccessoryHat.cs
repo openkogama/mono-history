@@ -1,4 +1,3 @@
-using MV.Common;
 using UnityEngine;
 
 public class AvatarAccessoryHat : AvatarAccessory
@@ -6,9 +5,6 @@ public class AvatarAccessoryHat : AvatarAccessory
 	private Transform attachPosTfm;
 
 	private AccessoryHatSettings hatSettings;
-
-	[SerializeField]
-	private Shader accessoryShader = MVGameControllerBase.MaterialLoader.DefaultDiffuseShader;
 
 	public override bool HasAttachmentPoint => attachPosTfm != null;
 
@@ -41,12 +37,6 @@ public class AvatarAccessoryHat : AvatarAccessory
 	protected override void Awake()
 	{
 		base.Awake();
-		Category = AvatarAccessoryCategory.Hat;
 		attachPosTfm = Transform.FindChildRecursively("HatAttachPoint");
-		Renderer[] renderers = Renderers;
-		foreach (Renderer renderer in renderers)
-		{
-			renderer.material.shader = accessoryShader;
-		}
 	}
 }
