@@ -13,10 +13,10 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IEventSystemHandler, IP
 	private bool locked;
 
 	[SerializeField]
-	private Image previewImage;
+	private RawImage previewImage;
 
 	[SerializeField]
-	private StreamedSpriteToImageManual previewImageStreaminAssetManual;
+	private StreamPngToSprite previewImageStreaminAssetManual;
 
 	[SerializeField]
 	private GameObject loadingWheel;
@@ -226,7 +226,13 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IEventSystemHandler, IP
 		loadingWheel.SetActive(value: false);
 		accessoryPreviewer = UnityEngine.Object.Instantiate(accessoryPreviewerPrefab);
 		accessoryPreviewer.Initialize(512, 512, LayerFlags.Default | LayerFlags.CamRotateTarget, CameraClearFlags.Color, new Vector3(0f, 2.8f, -3.5f), new Vector3(-3f, 0f, 0f), avatarAccessory.gameObject, rootTransform);
-		previewImageStreaminAssetManual.Initialize(avatarAccessory.PreviewImageStreamPath);
+		string text = "AccessoryShop/" + accessoryDataClient.category.ToString() + "Images/";
+		string[] array = accessoryDataClient.url.Split(new string[1] { "/" }, StringSplitOptions.None);
+		array = array[array.Length - 1].Split(new string[1] { "." }, StringSplitOptions.None);
+		string text2 = array[0];
+		text = text + text2 + "Image.png";
+		text = text.ToLower();
+		previewImageStreaminAssetManual.Initialize(text);
 		previewImageStreaminAssetManual.StartDownloading();
 	}
 

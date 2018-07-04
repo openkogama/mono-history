@@ -198,8 +198,8 @@ public class PrefabPool : MonoBehaviour
 	private ObjectPrefab finishLinePrefab;
 
 	[SerializeField]
-	[Header("Game")]
 	[Space(20f)]
+	[Header("Game")]
 	private Material ghostMarkerMaterial;
 
 	[SerializeField]
@@ -227,8 +227,8 @@ public class PrefabPool : MonoBehaviour
 	private Material blinkerDefaultMaterial;
 
 	[SerializeField]
-	[Space(20f)]
 	[Header("Pick up")]
+	[Space(20f)]
 	private MVPickupItemBaseObject avatarCenterGunPrefab;
 
 	[SerializeField]

@@ -10,10 +10,10 @@ public class AccessoryView : MonoBehaviour
 	private AccessoryDataClient accessoryDataClient;
 
 	[SerializeField]
-	private Image previewImage;
+	private RawImage previewImage;
 
 	[SerializeField]
-	private StreamedSpriteToImageManual previewImageStreamingManager;
+	private StreamPngToSprite previewImageStreamingManager;
 
 	[SerializeField]
 	private Text nameText;
@@ -184,7 +184,7 @@ public class AccessoryView : MonoBehaviour
 	public void Purchase()
 	{
 		AvatarAccessoryPurchasePopup popUp = UnityEngine.Object.Instantiate(AvatarAccessoryPurchasePopupPrefab);
-		popUp.Initialize(accessoryDataClient, previewImage.sprite, RefreshGoldAmount);
+		popUp.Initialize(accessoryDataClient, previewImage.texture, RefreshGoldAmount);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Push(popUp.gameObject, UIPushOption.Blocking, null, UIGroupFlags.InventoryUISubMenu);
@@ -224,7 +224,13 @@ public class AccessoryView : MonoBehaviour
 			OnFinished();
 		}
 		OnFinished = null;
-		previewImageStreamingManager.Initialize(avatarAccessory.PreviewImageStreamPath);
+		string text = "AccessoryShop/" + accessoryDataClient.category.ToString() + "Images/";
+		string[] array = accessoryDataClient.url.Split(new string[1] { "/" }, StringSplitOptions.None);
+		array = array[array.Length - 1].Split(new string[1] { "." }, StringSplitOptions.None);
+		string text2 = array[0];
+		text = text + text2 + "Image.png";
+		text = text.ToLower();
+		previewImageStreamingManager.Initialize(text);
 		previewImageStreamingManager.StartDownloading();
 	}
 

@@ -11,7 +11,7 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 	private AccessoryDataClient accessoryDataClient;
 
 	[SerializeField]
-	private Image preview;
+	private RawImage preview;
 
 	[SerializeField]
 	private Text priceText;
@@ -57,7 +57,7 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 		AvatarBody = body;
 	}
 
-	public void Initialize(AccessoryDataClient accessoryDataClient, Sprite previewImage, UnityAction refreshGoldCallback)
+	public void Initialize(AccessoryDataClient accessoryDataClient, Texture previewImage, UnityAction refreshGoldCallback)
 	{
 		if (MVGameControllerBase.GameMode == MVGameMode.CharacterEditor)
 		{
@@ -71,7 +71,7 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 			AvatarBody = MVGameControllerBase.Game.LocalPlayer.Avatar.Body;
 		}
 		this.refreshGoldCallback = refreshGoldCallback;
-		preview.sprite = previewImage;
+		preview.texture = previewImage;
 		this.accessoryDataClient = accessoryDataClient;
 		priceText.text = accessoryDataClient.priceGold.ToString();
 		price = accessoryDataClient.priceGold;
@@ -122,7 +122,7 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 	private void SuccesfulPopupCallBack()
 	{
 		AvatarAccessoryEquipPopup popup = UnityEngine.Object.Instantiate(avatarAccessoryEquipPopup);
-		popup.Initialize(EquipPopupResultCallback, preview.sprite, accessoryDataClient);
+		popup.Initialize(EquipPopupResultCallback, preview.texture, accessoryDataClient);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Push(popup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.InventoryUISubMenu);

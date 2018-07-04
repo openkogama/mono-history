@@ -7,6 +7,4 @@ public abstract class AccessorySettings : MonoBehaviour
 	public float DefaultOffset;
 
 	public bool ConstantWorldRotation;
-
-	public string PreviewImageSpritePath = string.Empty;
 }

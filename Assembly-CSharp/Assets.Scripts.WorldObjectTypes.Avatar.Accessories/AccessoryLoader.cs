@@ -100,7 +100,7 @@ public class AccessoryLoader
 				}
 				avatarAccessory = gameObject.AddComponent<AvatarAccessoryBackAccessories>();
 			}
-			avatarAccessory.InitAccessory(subUrl, subUrl, component.PreviewImageSpritePath);
+			avatarAccessory.InitAccessory(subUrl, subUrl);
 			if (accessoryCreatedCallback != null)
 			{
 				accessoryCreatedCallback(id, avatarAccessory);

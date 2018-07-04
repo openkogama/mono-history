@@ -2,8 +2,6 @@ using UnityEngine;
 
 public abstract class AvatarAccessory : MonoBehaviour
 {
-	private string previewImageStreamPath;
-
 	private Transform _transform;
 
 	private Collider[] _colliders;
@@ -19,18 +17,6 @@ public abstract class AvatarAccessory : MonoBehaviour
 	public float Offset { get; set; }
 
 	public float Scale { get; set; }
-
-	public string PreviewImageStreamPath
-	{
-		get
-		{
-			return previewImageStreamPath;
-		}
-		set
-		{
-			previewImageStreamPath = value;
-		}
-	}
 
 	public Transform Transform
 	{
@@ -143,10 +129,9 @@ public abstract class AvatarAccessory : MonoBehaviour
 		return worldBounds;
 	}
 
-	public virtual void InitAccessory(string assetReqPath, string bundleName, string previewImagePath)
+	public virtual void InitAccessory(string assetReqPath, string bundleName)
 	{
 		AssetPath = assetReqPath;
 		name = "Accessory " + AssetPath;
-		PreviewImageStreamPath = previewImagePath;
 	}
 }

@@ -22,8 +22,8 @@ public class SplashController : StreamedAudioClip.IReceiver
 		}
 	}
 
-	[SerializeField]
 	[Header("Rings")]
+	[SerializeField]
 	private ParticleSystem waterRingParticles;
 
 	[SerializeField]
@@ -52,15 +52,15 @@ public class SplashController : StreamedAudioClip.IReceiver
 	[Header("Pillar")]
 	private ParticleSystem waterPillarParticles;
 
-	[SerializeField]
 	[Range(0f, 10f)]
+	[SerializeField]
 	private float waterPillarDensity = 0.5f;
 
 	[SerializeField]
 	private Color pillarTint;
 
-	[SerializeField]
 	[Range(0f, 1f)]
+	[SerializeField]
 	[Header("Sound")]
 	private float splashSoundVolume = 0.5f;
 

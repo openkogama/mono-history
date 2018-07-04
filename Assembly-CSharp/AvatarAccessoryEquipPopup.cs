@@ -6,16 +6,16 @@ using UnityEngine.UI;
 public class AvatarAccessoryEquipPopup : MonoBehaviour, IEventSystemHandler
 {
 	[SerializeField]
-	private Image preview;
+	private RawImage preview;
 
 	[SerializeField]
 	private AccessoryItemBackground itemBackground;
 
 	private UnityAction<bool> resultCallback;
 
-	public void Initialize(UnityAction<bool> resultCallback, Sprite previewImage, AccessoryDataClient accessoryData)
+	public void Initialize(UnityAction<bool> resultCallback, Texture previewImage, AccessoryDataClient accessoryData)
 	{
-		preview.sprite = previewImage;
+		preview.texture = previewImage;
 		this.resultCallback = resultCallback;
 		itemBackground.Initialize(accessoryData);
 	}
