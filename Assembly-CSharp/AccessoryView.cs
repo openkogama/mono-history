@@ -66,6 +66,9 @@ public class AccessoryView : MonoBehaviour
 	[SerializeField]
 	private PlayerCurrentGoldAmountTracker currentGoldAmountTracker;
 
+	[SerializeField]
+	private AvatarAccessoryEquipPopup avatarAccessoryEquipPopup;
+
 	private AccessoryPreviewer previewer;
 
 	private Transform rootTransform;
@@ -103,6 +106,10 @@ public class AccessoryView : MonoBehaviour
 		if (!accessoryData.owns)
 		{
 			HandleNotOwnedUI();
+		}
+		else
+		{
+			HideNotOwnedUI();
 		}
 		accessoryLoader.LoadAccessory(accessoryData.url, AvatarAccessoryCreateHandler);
 	}
@@ -204,6 +211,26 @@ public class AccessoryView : MonoBehaviour
 		}
 		rootTransform = null;
 		previewer.Destroy();
+		if (accessoryDataClient.owns && !avatarBody.IsAccessoryEquipped(accessoryDataClient.streamingAssetID))
+		{
+			AvatarAccessoryEquipPopup popup = UnityEngine.Object.Instantiate(avatarAccessoryEquipPopup);
+			popup.Initialize(EquipPopupResultCallback, previewImage.texture, accessoryDataClient, avatarBody);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(popup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.InventoryUISubMenu);
+			});
+		}
+		else
+		{
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAccessoryClicked x, BaseEventData y) =>
+			{
+				x.OpenCategoryScreen(canSortByInventory: true);
+			});
+		}
+	}
+
+	private void EquipPopupResultCallback()
+	{
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAccessoryClicked x, BaseEventData y) =>
 		{
 			x.OpenCategoryScreen(canSortByInventory: true);
@@ -228,8 +255,8 @@ public class AccessoryView : MonoBehaviour
 		string[] array = accessoryDataClient.url.Split(new string[1] { "/" }, StringSplitOptions.None);
 		array = array[array.Length - 1].Split(new string[1] { "." }, StringSplitOptions.None);
 		string text2 = array[0];
-		text = text + text2 + "Image.png";
-		text = text.ToLower();
+		text2 += "Image.png";
+		text += text2.ToLower();
 		previewImageStreamingManager.Initialize(text);
 		previewImageStreamingManager.StartDownloading();
 	}
@@ -257,7 +284,7 @@ public class AccessoryView : MonoBehaviour
 	{
 		HandlePrices(accessoryDataClient);
 		timeLimitDisplayer.Initialize(accessoryDataClient.timelimit);
-		timeLimitDisplayer.gameObject.SetActive(accessoryDataClient.timelimit.IsTimeLimited);
+		timeLimitDisplayer.gameObject.SetActive(!accessoryDataClient.owns && accessoryDataClient.timelimit.IsTimeLimited);
 		if (accessoryDataClient.level > 0)
 		{
 			BadgeManager.GetBadgeTexture(accessoryDataClient.level, OnLevelRequirementLoaded);

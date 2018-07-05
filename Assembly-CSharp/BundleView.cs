@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using MV.Common;
 using MV.WorldObject.Accessories;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -21,6 +23,9 @@ public class BundleView : MonoBehaviour
 	[SerializeField]
 	private Text goldSavedText;
 
+	[SerializeField]
+	private ConfirmationPopup bundlePopup;
+
 	public void Initialize()
 	{
 		AccessoryBundleClient accessoryBundleClient = AccessoryDataManager.GetAccessoryBundleClient();
@@ -29,9 +34,11 @@ public class BundleView : MonoBehaviour
 
 	public void OnBundlePurchaseClicked()
 	{
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+		ConfirmationPopup popup = UnityEngine.Object.Instantiate(bundlePopup);
+		popup.Initialize(TM._("Confirm"), OnPurchaseBundleConfirmation, TM._("Confirm Purchase"));
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			x.Create(TM._("Are you sure you wish to purchase this bundle?"), OnPurchaseBundleConfirmation, TM._("Confirm"));
+			x.Push(popup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.InventoryUISubMenu);
 		});
 	}
 
@@ -39,13 +46,72 @@ public class BundleView : MonoBehaviour
 	{
 		if (confirmed)
 		{
+			MVNetworkGame game = MVGameControllerBase.Game;
+			game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Combine(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
 			MVGameControllerBase.OperationRequests.PurchaseAvatarAccessoryBundle(AccessoryDataManager.GetAccessoryBundleId());
-			return;
 		}
+		else
+		{
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Pop();
+			});
+		}
+	}
+
+	private void ProductPurchaseResponseHandler(int returnCode, Dictionary<object, object> purchaseResponseData)
+	{
+		MVNetworkGame game = MVGameControllerBase.Game;
+		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Remove(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Pop();
 		});
+		switch ((MVPurchaseReturnCode)returnCode)
+		{
+		case MVPurchaseReturnCode.Success:
+			Debug.Log("Display a skippable slideshow of accessories purchased.");
+			break;
+		case MVPurchaseReturnCode.InsufficientLevel:
+		{
+			ConfirmationPopup confirmationPopup2 = UnityEngine.Object.Instantiate(bundlePopup);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(confirmationPopup2.gameObject, UIPushOption.Blocking, null, UIGroupFlags.Popup);
+			});
+			confirmationPopup2.Initialize(TM._("Too low level"), OnInsufficientResourceCallback, TM._("Get XP"));
+			break;
+		}
+		case MVPurchaseReturnCode.InsufficientFunds:
+		{
+			ConfirmationPopup confirmationPopup = UnityEngine.Object.Instantiate(bundlePopup);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(confirmationPopup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.Popup);
+			});
+			confirmationPopup.Initialize(TM._("Not enough gold"), OnInsufficientResourceCallback, TM._("Get gold"));
+			break;
+		}
+		default:
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+			{
+				x.Create((MVPurchaseReturnCode)returnCode, 0, 0);
+			});
+			break;
+		}
+	}
+
+	private void OnInsufficientResourceCallback(bool confirmed, ConfirmationPopup popup)
+	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Pop();
+		});
+		if (confirmed)
+		{
+			BrowserComm.ToJavaScript.ExternalCall("gotoPurchaseGold");
+			BrowserComm.ExecuteBrowserRequest(MVGameControllerBase.GameSessionData.purchaseGoldURL);
+		}
 	}
 
 	private void HandlePrices(AccessoryBundleClient accessoryData)
@@ -56,7 +122,7 @@ public class BundleView : MonoBehaviour
 		for (int i = 0; i < accessoryBundleItems.Count; i++)
 		{
 			AccessoryDataClient accessoryDataByMetaDataId = AccessoryDataManager.GetAccessoryDataByMetaDataId(accessoryBundleItems[i].accessoryMetaDataID);
-			if (!accessoryDataByMetaDataId.owns)
+			if (accessoryDataByMetaDataId != null && !accessoryDataByMetaDataId.owns)
 			{
 				num += accessoryDataByMetaDataId.priceGold;
 				num2++;

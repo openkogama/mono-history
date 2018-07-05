@@ -11,22 +11,40 @@ public class AvatarAccessoryEquipPopup : MonoBehaviour, IEventSystemHandler
 	[SerializeField]
 	private AccessoryItemBackground itemBackground;
 
-	private UnityAction<bool> resultCallback;
+	private UnityAction resultCallback;
 
-	public void Initialize(UnityAction<bool> resultCallback, Texture previewImage, AccessoryDataClient accessoryData)
+	private AccessoryDataClient accessoryDataClient;
+
+	private MVBody avatarBody;
+
+	public void Initialize(UnityAction resultCallback, Texture previewImage, AccessoryDataClient accessoryData, MVBody avatarBody)
 	{
 		preview.texture = previewImage;
 		this.resultCallback = resultCallback;
 		itemBackground.Initialize(accessoryData);
+		accessoryDataClient = accessoryData;
+		this.avatarBody = avatarBody;
 	}
 
 	public void Equip()
 	{
-		resultCallback(arg0: true);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAttachToBody x, BaseEventData y) =>
+		{
+			x.AttachToBody(accessoryDataClient.streamingAssetID, avatarBody.GetAccessoryOffset(accessoryDataClient.accessorySlotType), avatarBody.GetAccessoryScale(accessoryDataClient.accessorySlotType));
+		});
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Pop();
+		});
+		resultCallback();
 	}
 
 	public void DontEquip()
 	{
-		resultCallback(arg0: false);
+		resultCallback();
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Pop();
+		});
 	}
 }

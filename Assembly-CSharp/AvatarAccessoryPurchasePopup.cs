@@ -46,6 +46,9 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 	[SerializeField]
 	private AvatarAccessorySuccesPopup avatarAccessorySuccesPopup;
 
+	[SerializeField]
+	private AvatarAccessoryErrorPopup insufficientResourcesPopup;
+
 	private UnityAction refreshGoldCallback;
 
 	private int price;
@@ -99,22 +102,57 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 		{
 			x.Pop();
 		});
-		if (returnCode == 0)
+		switch ((MVPurchaseReturnCode)returnCode)
 		{
+		case MVPurchaseReturnCode.Success:
 			HandleSuccessfulPurchase(purchaseResponseData);
-			return;
-		}
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+			break;
+		case MVPurchaseReturnCode.InsufficientLevel:
 		{
-			x.Create((MVPurchaseReturnCode)returnCode, price, 0);
+			AvatarAccessoryErrorPopup confirmationPopup2 = UnityEngine.Object.Instantiate(insufficientResourcesPopup);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(confirmationPopup2.gameObject, UIPushOption.Blocking, null, UIGroupFlags.Popup);
+			});
+			confirmationPopup2.Initialize(OnGoldPurchaseDialogResult, preview.mainTexture, accessoryDataClient, TM._("Too low level"), TM._("Get XP"));
+			break;
+		}
+		case MVPurchaseReturnCode.InsufficientFunds:
+		{
+			AvatarAccessoryErrorPopup confirmationPopup = UnityEngine.Object.Instantiate(insufficientResourcesPopup);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(confirmationPopup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.Popup);
+			});
+			confirmationPopup.Initialize(OnGoldPurchaseDialogResult, preview.mainTexture, accessoryDataClient, TM._("Not enough gold"), TM._("Get gold"));
+			break;
+		}
+		default:
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+			{
+				x.Create((MVPurchaseReturnCode)returnCode, price, 0);
+			});
+			break;
+		}
+	}
+
+	private void OnGoldPurchaseDialogResult(bool result)
+	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Pop();
 		});
+		if (result)
+		{
+			BrowserComm.ToJavaScript.ExternalCall("gotoPurchaseGold");
+			BrowserComm.ExecuteBrowserRequest(MVGameControllerBase.GameSessionData.purchaseGoldURL);
+		}
 	}
 
 	private void HandleSuccessfulPurchase(Dictionary<object, object> purchaseResponseData)
 	{
 		int toOwns = (int)purchaseResponseData[(byte)105];
 		AccessoryDataManager.SetToOwns(toOwns);
-		Debug.LogWarning("HandleSuccessfulPurchase");
 		SuccesfulPopupCallBack();
 		refreshGoldCallback();
 	}
@@ -122,25 +160,18 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 	private void SuccesfulPopupCallBack()
 	{
 		AvatarAccessoryEquipPopup popup = UnityEngine.Object.Instantiate(avatarAccessoryEquipPopup);
-		popup.Initialize(EquipPopupResultCallback, preview.texture, accessoryDataClient);
+		popup.Initialize(EquipPopupResultCallback, preview.texture, accessoryDataClient, AvatarBody);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Push(popup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.InventoryUISubMenu);
 		});
 	}
 
-	private void EquipPopupResultCallback(bool attach)
+	private void EquipPopupResultCallback()
 	{
-		if (attach)
-		{
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAttachToBody x, BaseEventData y) =>
-			{
-				x.AttachToBody(accessoryDataClient.streamingAssetID, AvatarBody.GetAccessoryOffset(accessoryDataClient.accessorySlotType), AvatarBody.GetAccessoryScale(accessoryDataClient.accessorySlotType));
-			});
-		}
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			x.PopGroups(UIGroupFlags.InventoryUISubMenu);
+			x.Pop();
 		});
 	}
 

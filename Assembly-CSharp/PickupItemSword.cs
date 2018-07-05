@@ -11,8 +11,8 @@ public class PickupItemSword : PickupItemWithDelay
 	[SerializeField]
 	private AudioSource audioSource;
 
-	[Tooltip("Impulse delivered to enemy on hit.")]
 	[SerializeField]
+	[Tooltip("Impulse delivered to enemy on hit.")]
 	private float impulseStrength = 500f;
 
 	[SerializeField]

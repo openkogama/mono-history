@@ -11,21 +11,29 @@ public class AvatarAccessoryErrorPopup : MonoBehaviour
 	[SerializeField]
 	private AccessoryItemBackground itemBackground;
 
-	private UnityAction resultCallback;
+	[SerializeField]
+	private Text header;
 
-	public void Initialize(UnityAction resultCallback, Texture previewImage, AccessoryDataClient accessoryData)
+	[SerializeField]
+	private Text buttonText;
+
+	private UnityAction<bool> resultCallback;
+
+	public void Initialize(UnityAction<bool> resultCallback, Texture previewImage, AccessoryDataClient accessoryData, string header, string buttonText)
 	{
+		this.buttonText.text = buttonText;
+		this.header.text = header;
 		preview.texture = previewImage;
 		this.resultCallback = resultCallback;
 		itemBackground.Initialize(accessoryData);
 	}
 
-	public void OnButtonPressed()
+	public void OnButtonPressed(bool confirmed)
 	{
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Pop();
 		});
-		resultCallback();
+		resultCallback(confirmed);
 	}
 }

@@ -293,7 +293,7 @@ public class AccessoryShopController : MonoBehaviour, IEventSystemHandler, IInve
 			for (int j = 0; j < accessoryBundleItems.Count; j++)
 			{
 				AccessoryDataClient accessoryDataByMetaDataId = AccessoryDataManager.GetAccessoryDataByMetaDataId(accessoryBundleItems[j].accessoryMetaDataID);
-				if (!accessoryDataByMetaDataId.owns)
+				if (accessoryDataByMetaDataId != null && !accessoryDataByMetaDataId.owns)
 				{
 					list2.Add(accessoryDataByMetaDataId);
 				}

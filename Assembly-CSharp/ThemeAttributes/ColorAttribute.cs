@@ -24,8 +24,8 @@ public class ColorAttribute : NamedThemeAttribute<Color>
 		public const string a = "Alpha";
 	}
 
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	private Setter prefab;
 
 	public override object Data => ToSerializable(value);

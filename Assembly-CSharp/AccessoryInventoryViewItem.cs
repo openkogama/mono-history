@@ -230,8 +230,8 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IEventSystemHandler, IP
 		string[] array = accessoryDataClient.url.Split(new string[1] { "/" }, StringSplitOptions.None);
 		array = array[array.Length - 1].Split(new string[1] { "." }, StringSplitOptions.None);
 		string text2 = array[0];
-		text = text + text2 + "Image.png";
-		text = text.ToLower();
+		text2 += "Image.png";
+		text += text2.ToLower();
 		previewImageStreaminAssetManual.Initialize(text);
 		previewImageStreaminAssetManual.StartDownloading();
 	}

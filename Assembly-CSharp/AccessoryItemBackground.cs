@@ -9,10 +9,10 @@ public class AccessoryItemBackground : MonoBehaviour
 	private enum PriceRange
 	{
 		PriceCommon = 100,
-		PriceUncommon = 500,
-		PriceRare = 1000,
-		PriceEpic = 5000,
-		PriceLegendary = 10000
+		PriceUncommon = 200,
+		PriceRare = 300,
+		PriceEpic = 500,
+		PriceLegendary = 1000
 	}
 
 	[Serializable]
