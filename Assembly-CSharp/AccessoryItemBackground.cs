@@ -6,25 +6,6 @@ using UnityEngine.UI;
 
 public class AccessoryItemBackground : MonoBehaviour
 {
-	private enum PriceRange
-	{
-		PriceCommon = 100,
-		PriceUncommon = 200,
-		PriceRare = 300,
-		PriceEpic = 500,
-		PriceLegendary = 1000
-	}
-
-	[Serializable]
-	private struct RarityColor
-	{
-		public PriceRange priceClass;
-
-		public Color correspondingColor;
-
-		public Color glowColor;
-	}
-
 	[SerializeField]
 	private Image rarityImage;
 
@@ -65,7 +46,7 @@ public class AccessoryItemBackground : MonoBehaviour
 		}
 	}
 
-	private RarityColor GetColorFromPrice(int price)
+	public static RarityColor GetColorFromPrice(int price)
 	{
 		Array values = Enum.GetValues(typeof(PriceRange));
 		for (int i = 0; i < values.Length; i++)

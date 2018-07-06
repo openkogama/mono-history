@@ -18,26 +18,23 @@ public class AccessoryAnimationHandler : MonoBehaviour
 	[SerializeField]
 	private List<AnimationData> animationData;
 
+	private MVAvatar mvAvatar;
+
 	private void Start()
 	{
-		BoneAnimation animation = MVGameControllerBase.WOCM.AvatarLocal.Body.Animation;
-		animation.OnAnimationChange = (Action<string>)Delegate.Combine(animation.OnAnimationChange, new Action<string>(OnLocalAvatarAnimationChange));
-		AvatarLimbManager limbManager = MVGameControllerBase.WOCM.AvatarLocal.LimbManager;
-		limbManager.OnEmoteStart = (Action<string>)Delegate.Combine(limbManager.OnEmoteStart, new Action<string>(OnLocalAvatarAnimationChange));
-		ApplyAnimationSpeed("Idle");
-		animations.Play("Idle");
+		Initialize();
 	}
 
 	private void OnDestroy()
 	{
-		if (MVGameControllerBase.Game != null)
+		if (mvAvatar != null)
 		{
-			BoneAnimation animation = MVGameControllerBase.WOCM.AvatarLocal.Body.Animation;
+			BoneAnimation animation = mvAvatar.Body.Animation;
 			animation.OnAnimationChange = (Action<string>)Delegate.Remove(animation.OnAnimationChange, new Action<string>(OnLocalAvatarAnimationChange));
 		}
-		if (MVGameControllerBase.Game != null)
+		if (mvAvatar != null)
 		{
-			AvatarLimbManager limbManager = MVGameControllerBase.WOCM.AvatarLocal.LimbManager;
+			AvatarLimbManager limbManager = mvAvatar.LimbManager;
 			limbManager.OnEmoteStart = (Action<string>)Delegate.Remove(limbManager.OnEmoteStart, new Action<string>(OnLocalAvatarAnimationChange));
 		}
 	}
@@ -59,10 +56,48 @@ public class AccessoryAnimationHandler : MonoBehaviour
 		PlayAnimation("Idle");
 	}
 
-	private void PlayAnimation(string animationName)
+	private Avatar GetAvatar()
 	{
-		ApplyAnimationSpeed(animationName);
-		animations.Play(animationName);
+		Avatar avatar = null;
+		Transform parent = transform.parent;
+		while (parent != null)
+		{
+			avatar = parent.GetComponent<Avatar>();
+			parent = parent.parent;
+			if (avatar != null)
+			{
+				break;
+			}
+		}
+		return avatar;
+	}
+
+	private bool HaveAnimationData(string animationName)
+	{
+		for (int i = 0; i < animationData.Count; i++)
+		{
+			if (animationData[i].animationName == animationName)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public void PlayAnimation(string animationName)
+	{
+		if (!HaveAnimationData(animationName))
+		{
+			if (animationName != "Idle")
+			{
+				PlayAnimation("Idle");
+			}
+		}
+		else
+		{
+			ApplyAnimationSpeed(animationName);
+			animations.Play(animationName);
+		}
 	}
 
 	private void ApplyAnimationSpeed(string animationName)
@@ -73,6 +108,29 @@ public class AccessoryAnimationHandler : MonoBehaviour
 			{
 				animations[animationName].speed = animationData[i].animationSpeed;
 			}
+		}
+	}
+
+	public void Initialize()
+	{
+		Avatar avatar = GetAvatar();
+		if (!(avatar == null))
+		{
+			mvAvatar = avatar.mvAvatar;
+			BoneAnimation animation = mvAvatar.Body.Animation;
+			animation.OnAnimationChange = (Action<string>)Delegate.Combine(animation.OnAnimationChange, new Action<string>(OnLocalAvatarAnimationChange));
+			AvatarLimbManager limbManager = mvAvatar.LimbManager;
+			limbManager.OnEmoteStart = (Action<string>)Delegate.Combine(limbManager.OnEmoteStart, new Action<string>(OnLocalAvatarAnimationChange));
+			ApplyAnimationSpeed("Idle");
+			animations.Play("Idle");
+		}
+	}
+
+	public void SetAllAnimationToLooping()
+	{
+		foreach (AnimationState animation in animations)
+		{
+			animation.wrapMode = WrapMode.Loop;
 		}
 	}
 }

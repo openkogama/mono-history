@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using MV.Common;
 using MV.WorldObject.Accessories;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -25,6 +26,9 @@ public class BundleView : MonoBehaviour
 
 	[SerializeField]
 	private ConfirmationPopup bundlePopup;
+
+	[SerializeField]
+	private PurchasedAccessoryPreviewer previewSlideshowPrefab;
 
 	public void Initialize()
 	{
@@ -70,8 +74,25 @@ public class BundleView : MonoBehaviour
 		switch ((MVPurchaseReturnCode)returnCode)
 		{
 		case MVPurchaseReturnCode.Success:
-			Debug.Log("Display a skippable slideshow of accessories purchased.");
+		{
+			List<int> list = JsonConvert.DeserializeObject<List<int>>((string)purchaseResponseData[(byte)108]);
+			AccessoryDataClient[] array = new AccessoryDataClient[list.Count];
+			for (int num = 0; num < list.Count; num++)
+			{
+				AccessoryDataClient accessoryDataByStreamingAssetId = AccessoryDataManager.GetAccessoryDataByStreamingAssetId(list[num]);
+				if (accessoryDataByStreamingAssetId != null)
+				{
+					array[num] = accessoryDataByStreamingAssetId;
+				}
+			}
+			PurchasedAccessoryPreviewer popup = UnityEngine.Object.Instantiate(previewSlideshowPrefab);
+			popup.Initialize(array);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(popup.gameObject, UIPushOption.Blocking, OnPop, UIGroupFlags.Popup);
+			});
 			break;
+		}
 		case MVPurchaseReturnCode.InsufficientLevel:
 		{
 			ConfirmationPopup confirmationPopup2 = UnityEngine.Object.Instantiate(bundlePopup);
@@ -99,6 +120,14 @@ public class BundleView : MonoBehaviour
 			});
 			break;
 		}
+	}
+
+	private void OnPop()
+	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IRefreshGoldHandler x, BaseEventData y) =>
+		{
+			x.RefreshGoldAmount();
+		});
 	}
 
 	private void OnInsufficientResourceCallback(bool confirmed, ConfirmationPopup popup)

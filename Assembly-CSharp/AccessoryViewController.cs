@@ -35,6 +35,7 @@ public class AccessoryViewController : MonoBehaviour, IEventSystemHandler, IAcce
 		accessoryView.Initialize(accessoryData);
 		accessoryView.gameObject.SetActive(value: true);
 		backbackController.SetBackpackIconIsEnabled(enable: false);
+		previewer.OnAccessoryPreviewEnter();
 	}
 
 	public void OpenCategoryScreen(bool canSortByInventory)

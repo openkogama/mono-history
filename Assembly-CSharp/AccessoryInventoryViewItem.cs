@@ -224,8 +224,6 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IEventSystemHandler, IP
 		previewImage.gameObject.SetActive(value: true);
 		purchasePopupButton.enabled = true;
 		loadingWheel.SetActive(value: false);
-		accessoryPreviewer = UnityEngine.Object.Instantiate(accessoryPreviewerPrefab);
-		accessoryPreviewer.Initialize(512, 512, LayerFlags.Default | LayerFlags.CamRotateTarget, CameraClearFlags.Color, new Vector3(0f, 2.8f, -3.5f), new Vector3(-3f, 0f, 0f), avatarAccessory.gameObject, rootTransform);
 		string text = "AccessoryShop/" + accessoryDataClient.category.ToString() + "Images/";
 		string[] array = accessoryDataClient.url.Split(new string[1] { "/" }, StringSplitOptions.None);
 		array = array[array.Length - 1].Split(new string[1] { "." }, StringSplitOptions.None);

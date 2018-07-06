@@ -44,6 +44,8 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 
 	private Animation goAnimation;
 
+	private AccessoryAnimationHandler[] accessoryAnimationHandlers;
+
 	public void SetupPreviewer(MVBody avatarBody)
 	{
 		this.avatarBody = avatarBody;
@@ -109,6 +111,11 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 			item.wrapMode = WrapMode.Loop;
 		}
 		goAnimation.Play(animations[currentAnimation]);
+		AccessoryAnimationHandler[] componentsInChildren6 = goAnimation.GetComponentsInChildren<AccessoryAnimationHandler>();
+		for (int num = 0; num < componentsInChildren6.Length; num++)
+		{
+			componentsInChildren6[num].PlayAnimation(animations[currentAnimation]);
+		}
 		toPreviewer = Object.Instantiate(previewer);
 		toPreviewer.Initialize(previewDimensionsX, previewDimensionsY, CameraClearFlags.Color, MVGameControllerBase.WOCM.AvatarLocal.PreviewLayerMask, new Vector3(0f, -0.5f, -1f), avatarResetToTransform, new Vector3(100f, 100f, 100f), "Avatar accessory preview", MVGameControllerBase.WOCM.AvatarLocal, bodyClone, new Vector3(-2.4f, -16.3f, 0f));
 		bodyClone.transform.rotation = rotation;
@@ -210,5 +217,18 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 			currentAnimation = 0;
 		}
 		goAnimation.Play(animations[currentAnimation]);
+		for (int i = 0; i < accessoryAnimationHandlers.Length; i++)
+		{
+			accessoryAnimationHandlers[i].PlayAnimation(animations[currentAnimation]);
+		}
+	}
+
+	public void OnAccessoryPreviewEnter()
+	{
+		accessoryAnimationHandlers = goAnimation.GetComponentsInChildren<AccessoryAnimationHandler>();
+		for (int i = 0; i < accessoryAnimationHandlers.Length; i++)
+		{
+			accessoryAnimationHandlers[i].SetAllAnimationToLooping();
+		}
 	}
 }

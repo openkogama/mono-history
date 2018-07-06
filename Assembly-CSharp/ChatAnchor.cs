@@ -12,8 +12,8 @@ public class ChatAnchor : MonoBehaviour
 	[Tooltip("Radius in world units from the anchor transform to the bubble's pivot.")]
 	public float AttachedRadius = 1f;
 
-	[Range(-180f, 180f)]
 	[Tooltip("Angle in degrees around the transform to the bubble's pivot.")]
+	[Range(-180f, 180f)]
 	public float AttachedAngle = 90f;
 
 	[Tooltip("Smoothing speed as the bubble follows the anchor transform.")]

@@ -75,6 +75,22 @@ public class AccessoryShopController : MonoBehaviour, IEventSystemHandler, IInve
 		UpdateContent();
 	}
 
+	public void RefreshItems()
+	{
+		int currentPage = tabs[selectedTab].currentPage;
+		ClearShop();
+		if (displayShopItems)
+		{
+			DisplayAllItems();
+		}
+		else
+		{
+			DisplayOwnedItems();
+		}
+		tabs[selectedTab].SetPage(currentPage);
+		UpdateContent();
+	}
+
 	private void ReadyCallback()
 	{
 		Debug.Log("ReadyCallback");
@@ -269,7 +285,7 @@ public class AccessoryShopController : MonoBehaviour, IEventSystemHandler, IInve
 	{
 		List<AccessoryDataClient> accessoryDataFromCategoryType = GetAccessoryDataFromCategoryType((AccessoryCategoryClient)selectedTab);
 		int num = tabs[selectedTab].SlotRange[0];
-		for (int i = num; i < accessoryDataFromCategoryType.Count && accessoryDataFromCategoryType.Count > i && i >= 0; i++)
+		for (int i = num; i < accessoryDataFromCategoryType.Count; i++)
 		{
 			AccessoryDataClient accessoryDataClient = accessoryDataFromCategoryType[i];
 			if ((displayShopItems || accessoryDataClient.owns) && num < tabs[selectedTab].SlotRange[1] && accessoryDataClient.GetShowInShop())

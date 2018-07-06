@@ -9,8 +9,8 @@ public class SelectionHelperAvatarAccessory : MonoBehaviour
 
 	private int avatarBodyWoID;
 
-	[HideInInspector]
 	[SerializeField]
+	[HideInInspector]
 	private int streamingAssetsId = -1;
 
 	public AvatarAccessory AvatarAccessory => avatarAccessory;

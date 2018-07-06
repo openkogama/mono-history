@@ -47,7 +47,11 @@ public static class AccessoryDataManager
 
 	public static AccessoryDataClient GetAccessoryDataByStreamingAssetId(int id)
 	{
-		return accessoryShopData.accessoryDatas[id];
+		if (accessoryShopData.accessoryDatas.ContainsKey(id))
+		{
+			return accessoryShopData.accessoryDatas[id];
+		}
+		return null;
 	}
 
 	public static AccessoryDataClient GetAccessoryDataByMetaDataId(int id)

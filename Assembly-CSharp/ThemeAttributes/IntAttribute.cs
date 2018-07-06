@@ -18,8 +18,8 @@ public class IntAttribute : NamedThemeAttribute<int>
 	[SerializeField]
 	private int max = int.MaxValue;
 
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	private Setter prefab;
 
 	public override object Data => value;

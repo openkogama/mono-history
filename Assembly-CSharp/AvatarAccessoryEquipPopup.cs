@@ -41,10 +41,10 @@ public class AvatarAccessoryEquipPopup : MonoBehaviour, IEventSystemHandler
 
 	public void DontEquip()
 	{
-		resultCallback();
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Pop();
 		});
+		resultCallback();
 	}
 }

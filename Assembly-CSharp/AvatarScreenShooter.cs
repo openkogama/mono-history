@@ -39,6 +39,14 @@ public class AvatarScreenShooter : MonoBehaviour
 					UnityEngine.Object.Destroy(avatarAccessory.gameObject);
 				}
 			}
+			else
+			{
+				SkinnedMeshOptimizer[] componentsInChildren2 = bodyCloneGO.GetComponentsInChildren<SkinnedMeshOptimizer>();
+				for (int j = 0; j < componentsInChildren2.Length; j++)
+				{
+					componentsInChildren2[j].TurnOffMesh();
+				}
+			}
 			AvatarScreenshotGenerator.Generate(bodyCloneGO, ScreenShotDataTexHandler);
 		}
 		isMakingScreenShot = true;

@@ -575,7 +575,7 @@ internal static class SharedCubeFunctions
 	{
 		MeshRenderer component = transform.GetComponent<MeshRenderer>();
 		Bounds? result = null;
-		if (component != null)
+		if (component != null && component.enabled)
 		{
 			result = component.bounds;
 		}

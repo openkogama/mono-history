@@ -10,7 +10,7 @@ public class TabState
 
 	public int currentPage = 1;
 
-	public int MaxPages => Mathf.CeilToInt((float)highestSlotIndex / (float)slotsPrPage);
+	public int MaxPages => Mathf.Max(Mathf.CeilToInt((float)highestSlotIndex / (float)slotsPrPage), 1);
 
 	public int[] SlotRange => new int[2]
 	{

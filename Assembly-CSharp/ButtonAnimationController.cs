@@ -1,8 +1,8 @@
 using System;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-public class ButtonAnimationController : MonoBehaviour
+public class ButtonAnimationController : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IEventSystemHandler, IPointerEnterHandler, IPointerExitHandler
 {
 	private const float pressedMovePercentage = 0.14285f;
 
@@ -13,9 +13,6 @@ public class ButtonAnimationController : MonoBehaviour
 
 	[SerializeField]
 	private RectTransform buttonRectTransform;
-
-	[SerializeField]
-	private Button button;
 
 	private float originalValue;
 
@@ -28,13 +25,7 @@ public class ButtonAnimationController : MonoBehaviour
 		originalValue = transformToMove.localPosition.y;
 	}
 
-	public void OnButtonPressed()
-	{
-		buttonPressedState++;
-		transformToMove.localPosition = new Vector3(transformToMove.localPosition.x, originalValue - buttonRectTransform.rect.height * 0.14285f, transformToMove.localPosition.z);
-	}
-
-	public void OnButtonUnPressed()
+	public void OnPointerUp(PointerEventData eventData)
 	{
 		buttonPressedState--;
 		if (buttonPressedState == 0)
@@ -44,11 +35,11 @@ public class ButtonAnimationController : MonoBehaviour
 		if (buttonPressedState == 0 && buttonHighlightedState > 0)
 		{
 			buttonHighlightedState--;
-			OnButtonMouseIn();
+			OnPointerEnter(null);
 		}
 	}
 
-	public void OnButtonMouseIn()
+	public void OnPointerEnter(PointerEventData eventData)
 	{
 		buttonHighlightedState++;
 		if (buttonPressedState == 0)
@@ -57,15 +48,21 @@ public class ButtonAnimationController : MonoBehaviour
 			return;
 		}
 		buttonPressedState--;
-		OnButtonPressed();
+		OnPointerDown(null);
 	}
 
-	public void OnButtonMouseOut()
+	public void OnPointerExit(PointerEventData eventData)
 	{
 		buttonHighlightedState--;
 		if (buttonHighlightedState == 0)
 		{
 			transformToMove.localPosition = new Vector3(transformToMove.localPosition.x, originalValue, transformToMove.localPosition.z);
 		}
+	}
+
+	public void OnPointerDown(PointerEventData eventData)
+	{
+		buttonPressedState++;
+		transformToMove.localPosition = new Vector3(transformToMove.localPosition.x, originalValue - buttonRectTransform.rect.height * 0.14285f, transformToMove.localPosition.z);
 	}
 }

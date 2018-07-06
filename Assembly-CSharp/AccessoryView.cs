@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class AccessoryView : MonoBehaviour
+public class AccessoryView : MonoBehaviour, IEventSystemHandler, IRefreshGoldHandler
 {
 	private AccessoryDataClient accessoryDataClient;
 
@@ -194,11 +194,11 @@ public class AccessoryView : MonoBehaviour
 		popUp.Initialize(accessoryDataClient, previewImage.texture, RefreshGoldAmount);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			x.Push(popUp.gameObject, UIPushOption.Blocking, null, UIGroupFlags.InventoryUISubMenu);
+			x.Push(popUp.gameObject, UIPushOption.Blocking, BackToShop, UIGroupFlags.InventoryUISubMenu);
 		});
 	}
 
-	private void RefreshGoldAmount()
+	public void RefreshGoldAmount()
 	{
 		currentGoldAmountTracker.RefreshGoldAmount();
 	}
@@ -226,6 +226,10 @@ public class AccessoryView : MonoBehaviour
 			{
 				x.OpenCategoryScreen(canSortByInventory: true);
 			});
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAccessoryInventoryControl x, BaseEventData y) =>
+			{
+				x.RefreshItems();
+			});
 		}
 	}
 
@@ -234,6 +238,10 @@ public class AccessoryView : MonoBehaviour
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAccessoryClicked x, BaseEventData y) =>
 		{
 			x.OpenCategoryScreen(canSortByInventory: true);
+		});
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAccessoryInventoryControl x, BaseEventData y) =>
+		{
+			x.RefreshItems();
 		});
 	}
 

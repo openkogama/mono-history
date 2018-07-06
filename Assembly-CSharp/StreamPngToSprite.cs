@@ -4,11 +4,13 @@ using UnityEngine.UI;
 
 public class StreamPngToSprite : MonoBehaviour
 {
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	protected RawImage rawImage;
 
 	private string url;
+
+	private bool currentlyDownloading;
 
 	private bool isInitialized;
 
@@ -26,11 +28,23 @@ public class StreamPngToSprite : MonoBehaviour
 		{
 			Debug.LogError("StreamingAssetManual can't start downloading while being uninitialized.");
 		}
+		if (currentlyDownloading)
+		{
+			CancelDownload();
+		}
+		currentlyDownloading = true;
 		AsyncWWWManager.WWWRequest(new CachedGetRequest(Urls.StreamingAssets + url, StreamingTextureLoaded, WWWRequestPriority.WaitUntilSyncronizingIsDone));
+	}
+
+	public void CancelDownload()
+	{
+		currentlyDownloading = false;
+		AsyncWWWManager.UnsubscribeWWWRequest(StreamingTextureLoaded);
 	}
 
 	private void StreamingTextureLoaded(WWW www)
 	{
+		currentlyDownloading = false;
 		if (www != null && www.texture != null)
 		{
 			if (string.IsNullOrEmpty(www.error))
@@ -55,5 +69,10 @@ public class StreamPngToSprite : MonoBehaviour
 		{
 			rawImage = GetComponent<RawImage>();
 		}
+	}
+
+	private void OnDestroy()
+	{
+		CancelDownload();
 	}
 }

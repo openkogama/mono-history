@@ -21,9 +21,9 @@ public abstract class CloudyThemeBase : Theme
 		public const int fogDisabled = 32;
 	}
 
-	[Header("Day/night-cycle", order = 2)]
-	[Header("Attributes", order = 1)]
 	[SerializeField]
+	[Header("Attributes", order = 1)]
+	[Header("Day/night-cycle", order = 2)]
 	private BoolAttribute useDayNightCycle;
 
 	[SerializeField]
@@ -50,8 +50,8 @@ public abstract class CloudyThemeBase : Theme
 	[SerializeField]
 	private FloatAttribute moonLongitude;
 
-	[Header("Sky")]
 	[SerializeField]
+	[Header("Sky")]
 	private ColorAttribute topColor;
 
 	[SerializeField]
@@ -111,8 +111,8 @@ public abstract class CloudyThemeBase : Theme
 	[SerializeField]
 	private FloatAttribute moonFlareBrightness;
 
-	[SerializeField]
 	[Header("Clouds")]
+	[SerializeField]
 	private FloatAttribute cloudsHeight;
 
 	[SerializeField]
