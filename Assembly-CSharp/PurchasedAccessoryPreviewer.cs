@@ -44,7 +44,7 @@ public class PurchasedAccessoryPreviewer : MonoBehaviour
 
 	public void Initialize(AccessoryDataClient[] previewAccessories)
 	{
-		targetHeight = Screen.height;
+		targetHeight = Screen.height * 2;
 		previewData = previewAccessories;
 		targetColorBackground = AccessoryItemBackground.GetColorFromPrice(previewData[currentStreamingAssetIndex].priceGold).correspondingColor;
 		targetColorGlow = AccessoryItemBackground.GetColorFromPrice(previewData[currentStreamingAssetIndex].priceGold).glowColor;

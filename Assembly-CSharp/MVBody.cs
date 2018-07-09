@@ -183,10 +183,8 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 
 	public GameObject CreateClone()
 	{
-		Debug.LogWarning("I think it is preferable that the clone is solely owned by the body. ");
 		GameObject gameObject = Object.Instantiate(GameObject);
 		gameObject.transform.parent = null;
-		Debug.LogWarning("All colliders must be removed");
 		gameObject.transform.position = gameObject.transform.position + Vector3.up * 10f;
 		bodyClone = gameObject.AddComponent<BodyClone>();
 		AvatarAccessory[] componentsInChildren = bodyClone.GetComponentsInChildren<AvatarAccessory>();

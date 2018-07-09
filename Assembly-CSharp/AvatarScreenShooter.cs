@@ -44,6 +44,7 @@ public class AvatarScreenShooter : MonoBehaviour
 				SkinnedMeshOptimizer[] componentsInChildren2 = bodyCloneGO.GetComponentsInChildren<SkinnedMeshOptimizer>();
 				for (int j = 0; j < componentsInChildren2.Length; j++)
 				{
+					componentsInChildren2[j].DisableOptimizer();
 					componentsInChildren2[j].TurnOffMesh();
 				}
 			}

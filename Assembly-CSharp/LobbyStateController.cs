@@ -11,9 +11,6 @@ public class LobbyStateController : MonoBehaviour
 	[SerializeField]
 	private TimedPlayReward playReward;
 
-	[SerializeField]
-	private GameObject gameCoinBoosterButton;
-
 	private void Start()
 	{
 		bool isTouristSession = MVGameControllerBase.IsTouristSession;
@@ -22,7 +19,6 @@ public class LobbyStateController : MonoBehaviour
 		{
 			accessoryShop.SetActive(value: true);
 			playReward.Initialize();
-			gameCoinBoosterButton.SetActive(value: true);
 		}
 		playReward.gameObject.SetActive(value: false);
 	}

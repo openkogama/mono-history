@@ -8,7 +8,7 @@ public class PlayButtonBase : MonoBehaviour
 	private Text countdownTest;
 
 	[SerializeField]
-	private Text playText;
+	private RectTransform playIcon;
 
 	[SerializeField]
 	private Text pleaseWaitText;
@@ -21,9 +21,9 @@ public class PlayButtonBase : MonoBehaviour
 		{
 			pleaseWaitText.gameObject.SetActive(flag2);
 		}
-		if (playText.gameObject.activeSelf == flag2)
+		if (playIcon.gameObject.activeSelf == flag2)
 		{
-			playText.gameObject.SetActive(!flag2);
+			playIcon.gameObject.SetActive(!flag2);
 		}
 		if (flag)
 		{

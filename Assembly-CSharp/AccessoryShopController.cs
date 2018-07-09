@@ -71,6 +71,10 @@ public class AccessoryShopController : MonoBehaviour, IEventSystemHandler, IInve
 		{
 			DisplayOwnedItems();
 		}
+		if (!tabs.ContainsKey(selectedTab))
+		{
+			selectedTab = (int)startingCategory;
+		}
 		tabs[selectedTab].SetPage(1);
 		UpdateContent();
 	}
@@ -113,6 +117,9 @@ public class AccessoryShopController : MonoBehaviour, IEventSystemHandler, IInve
 		InventoryController inventoryController2 = this.inventoryController;
 		inventoryController2.OnTabSelected = (UnityAction<int>)Delegate.Combine(inventoryController2.OnTabSelected, new UnityAction<int>(TabSelected));
 		this.inventoryController.Initialize(numberOfSlotsPrPage);
+		displayShopItems = true;
+		ClearShop();
+		DisplayAllItems();
 		foreach (KeyValuePair<int, TabState> tab in tabs)
 		{
 			this.inventoryController.AddTab(tab.Key, tab.Value.name);
@@ -234,12 +241,9 @@ public class AccessoryShopController : MonoBehaviour, IEventSystemHandler, IInve
 
 	private void TabSelected(int tabId)
 	{
-		if (tabId != selectedTab)
-		{
-			selectedTab = tabId;
-			UpdateContent();
-			inventoryController.SetHeaderText(LocalizedEnums._((AccessoryCategoryClient)tabId));
-		}
+		selectedTab = tabId;
+		UpdateContent();
+		inventoryController.SetHeaderText(LocalizedEnums._((AccessoryCategoryClient)tabId));
 	}
 
 	private void OnPop()
@@ -266,6 +270,10 @@ public class AccessoryShopController : MonoBehaviour, IEventSystemHandler, IInve
 		}
 		previewItemsRoot = new GameObject("Preview Root - AccessoryShopController").transform;
 		inventoryController.Clear();
+		if (!tabs.ContainsKey(selectedTab))
+		{
+			selectedTab = (int)startingCategory;
+		}
 		TabState tabState = tabs[selectedTab];
 		inventoryController.SelectTab(selectedTab, tabState.currentPage, tabState.MaxPages);
 		if (MVGameControllerBase.GameMode == MVGameMode.CharacterEditor)
@@ -311,6 +319,7 @@ public class AccessoryShopController : MonoBehaviour, IEventSystemHandler, IInve
 				AccessoryDataClient accessoryDataByMetaDataId = AccessoryDataManager.GetAccessoryDataByMetaDataId(accessoryBundleItems[j].accessoryMetaDataID);
 				if (accessoryDataByMetaDataId != null && !accessoryDataByMetaDataId.owns)
 				{
+					Debug.Log("data added to bundle: " + accessoryDataByMetaDataId.name);
 					list2.Add(accessoryDataByMetaDataId);
 				}
 			}

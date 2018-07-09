@@ -16,6 +16,9 @@ public class BundleView : MonoBehaviour
 	private Text discountedPriceText;
 
 	[SerializeField]
+	private Text bundlePriceTextWithoutText;
+
+	[SerializeField]
 	private GameObject discountTag;
 
 	[SerializeField]
@@ -124,9 +127,9 @@ public class BundleView : MonoBehaviour
 
 	private void OnPop()
 	{
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IRefreshGoldHandler x, BaseEventData y) =>
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IBundleController x, BaseEventData y) =>
 		{
-			x.RefreshGoldAmount();
+			x.PurchasedBundle();
 		});
 	}
 
@@ -174,7 +177,15 @@ public class BundleView : MonoBehaviour
 			originalPriceText.text = num.ToString("N0");
 			goldSavedText.gameObject.SetActive(value: true);
 			goldSavedText.text = num4.ToString("N0");
+			discountedPriceText.gameObject.SetActive(value: true);
+			bundlePriceTextWithoutText.gameObject.SetActive(value: false);
+		}
+		else
+		{
+			discountedPriceText.gameObject.SetActive(value: false);
+			bundlePriceTextWithoutText.gameObject.SetActive(value: true);
 		}
 		discountedPriceText.text = num3.ToString("N0");
+		bundlePriceTextWithoutText.text = num3.ToString("N0");
 	}
 }

@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class ButtonAnimationController : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IEventSystemHandler, IPointerEnterHandler, IPointerExitHandler
 {
@@ -13,6 +14,9 @@ public class ButtonAnimationController : MonoBehaviour, IPointerDownHandler, IPo
 
 	[SerializeField]
 	private RectTransform buttonRectTransform;
+
+	[SerializeField]
+	private Button button;
 
 	private float originalValue;
 
@@ -27,42 +31,61 @@ public class ButtonAnimationController : MonoBehaviour, IPointerDownHandler, IPo
 
 	public void OnPointerUp(PointerEventData eventData)
 	{
-		buttonPressedState--;
-		if (buttonPressedState == 0)
+		if (button.interactable || buttonPressedState != 0)
 		{
-			transformToMove.localPosition = new Vector3(transformToMove.localPosition.x, originalValue, transformToMove.localPosition.z);
-		}
-		if (buttonPressedState == 0 && buttonHighlightedState > 0)
-		{
-			buttonHighlightedState--;
-			OnPointerEnter(null);
+			buttonPressedState--;
+			if (buttonPressedState == 0)
+			{
+				transformToMove.localPosition = new Vector3(transformToMove.localPosition.x, originalValue, transformToMove.localPosition.z);
+			}
+			if (buttonPressedState == 0 && buttonHighlightedState > 0)
+			{
+				buttonHighlightedState--;
+				OnPointerEnter(null);
+			}
 		}
 	}
 
 	public void OnPointerEnter(PointerEventData eventData)
 	{
-		buttonHighlightedState++;
-		if (buttonPressedState == 0)
+		if (button.interactable)
 		{
-			transformToMove.localPosition = new Vector3(transformToMove.localPosition.x, originalValue + buttonRectTransform.rect.height * (67f / (273f * (float)Math.PI)), transformToMove.localPosition.z);
-			return;
+			buttonHighlightedState++;
+			if (buttonPressedState == 0)
+			{
+				transformToMove.localPosition = new Vector3(transformToMove.localPosition.x, originalValue + buttonRectTransform.rect.height * (67f / (273f * (float)Math.PI)), transformToMove.localPosition.z);
+				return;
+			}
+			buttonPressedState--;
+			OnPointerDown(null);
 		}
-		buttonPressedState--;
-		OnPointerDown(null);
 	}
 
 	public void OnPointerExit(PointerEventData eventData)
 	{
-		buttonHighlightedState--;
-		if (buttonHighlightedState == 0)
+		if (button.interactable || buttonHighlightedState != 0)
 		{
-			transformToMove.localPosition = new Vector3(transformToMove.localPosition.x, originalValue, transformToMove.localPosition.z);
+			buttonHighlightedState--;
+			if (buttonHighlightedState == 0)
+			{
+				transformToMove.localPosition = new Vector3(transformToMove.localPosition.x, originalValue, transformToMove.localPosition.z);
+			}
 		}
 	}
 
 	public void OnPointerDown(PointerEventData eventData)
 	{
-		buttonPressedState++;
-		transformToMove.localPosition = new Vector3(transformToMove.localPosition.x, originalValue - buttonRectTransform.rect.height * 0.14285f, transformToMove.localPosition.z);
+		if (button.interactable)
+		{
+			buttonPressedState++;
+			transformToMove.localPosition = new Vector3(transformToMove.localPosition.x, originalValue - buttonRectTransform.rect.height * 0.14285f, transformToMove.localPosition.z);
+		}
+	}
+
+	private void OnDisable()
+	{
+		buttonPressedState = 0;
+		buttonHighlightedState = 0;
+		transformToMove.localPosition = new Vector3(transformToMove.localPosition.x, originalValue, transformToMove.localPosition.z);
 	}
 }

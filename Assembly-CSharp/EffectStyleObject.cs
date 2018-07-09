@@ -3,9 +3,9 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Graphic))]
+[RequireComponent(typeof(ShadowEffect))]
 [RequireComponent(typeof(Outline))]
 [RequireComponent(typeof(GradientEffect))]
-[RequireComponent(typeof(ShadowEffect))]
 public class EffectStyleObject : MonoBehaviour
 {
 	[SerializeField]

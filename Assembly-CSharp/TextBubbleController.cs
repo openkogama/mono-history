@@ -43,15 +43,15 @@ public class TextBubbleController : MonoBehaviour, IEventSystemHandler
 
 	private const int maxNumOfBubbles = 40;
 
-	[SerializeField]
 	[Header("Configuration")]
+	[SerializeField]
 	private float bubbleLifeTime = 2f;
 
 	[SerializeField]
 	private float bubbleFadeIn = 0.2f;
 
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	private TextBubble textBubblePrefab;
 
 	[SerializeField]

@@ -1,8 +1,6 @@
 using System;
-using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 public class TeamMenuButton : MonoBehaviour
 {
@@ -12,14 +10,10 @@ public class TeamMenuButton : MonoBehaviour
 	[SerializeField]
 	private GameObject buttonEnabler;
 
-	[SerializeField]
-	private Image teamImage;
-
 	private void Start()
 	{
 		MVRuntimeDataVariable avatarModeTypeFlags = MVGameControllerBase.WOCM.AvatarLocal.avatarModeTypeFlags;
 		avatarModeTypeFlags.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(avatarModeTypeFlags.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChanged));
-		SetButtonTeamColor();
 		SetButtonIsActive();
 	}
 
@@ -34,19 +28,8 @@ public class TeamMenuButton : MonoBehaviour
 
 	private void SetButtonIsActive()
 	{
-		bool flag = MVGameControllerBase.Game.TeamManager.TeamCount() > 1;
-		buttonEnabler.SetActive(flag);
-		if (flag)
-		{
-			SetButtonTeamColor();
-		}
-	}
-
-	private void SetButtonTeamColor()
-	{
-		MVTeam teamFromActorNr = MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(MVGameControllerBase.Game.LocalPlayer.ActorNr);
-		Color teamColor = Styles.GetTeamColor(teamFromActorNr);
-		teamImage.color = teamColor;
+		bool active = MVGameControllerBase.Game.TeamManager.TeamCount() > 1;
+		buttonEnabler.SetActive(active);
 	}
 
 	public void ShowTeamMenu()

@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class AccessoryView : MonoBehaviour, IEventSystemHandler, IRefreshGoldHandler
+public class AccessoryView : MonoBehaviour
 {
 	private AccessoryDataClient accessoryDataClient;
 
@@ -19,10 +19,13 @@ public class AccessoryView : MonoBehaviour, IEventSystemHandler, IRefreshGoldHan
 	private Text nameText;
 
 	[SerializeField]
-	private GameObject purchaseButton;
+	private Button purchaseButton;
 
 	[SerializeField]
 	private Text priceText;
+
+	[SerializeField]
+	private Text priceTextWithoutDiscount;
 
 	[SerializeField]
 	private Text originalPriceText;
@@ -50,6 +53,9 @@ public class AccessoryView : MonoBehaviour, IEventSystemHandler, IRefreshGoldHan
 
 	[SerializeField]
 	private RawImage levelRequirement;
+
+	[SerializeField]
+	private RawImage levelRequirementPurchaseButton;
 
 	[SerializeField]
 	private GameObject newAccessoryImage;
@@ -98,7 +104,7 @@ public class AccessoryView : MonoBehaviour, IEventSystemHandler, IRefreshGoldHan
 			HandlePreviewing(MVGameControllerBase.WOCM.AvatarLocal.Body);
 		}
 		goldSavedText.gameObject.SetActive(value: false);
-		purchaseButton.SetActive(!accessoryData.owns);
+		purchaseButton.gameObject.SetActive(!accessoryData.owns);
 		nameText.text = accessoryData.name.ToUpper();
 		offsetSlider.Initialize(accessoryData.accessorySlotType, accessoryData.streamingAssetID);
 		sizeSlider.Initialize(accessoryData.accessorySlotType, accessoryData.streamingAssetID);
@@ -159,7 +165,8 @@ public class AccessoryView : MonoBehaviour, IEventSystemHandler, IRefreshGoldHan
 			return;
 		}
 		levelRequirement.texture = www.texture;
-		levelRequirement.gameObject.SetActive(value: true);
+		levelRequirement.gameObject.SetActive(MVGameControllerBase.Game.LocalPlayer.Level >= accessoryDataClient.level);
+		levelRequirementPurchaseButton.texture = www.texture;
 	}
 
 	public void AttachAccessory(AccessoryDataClient purchasedItem, Action OnFinishedCallback)
@@ -267,6 +274,11 @@ public class AccessoryView : MonoBehaviour, IEventSystemHandler, IRefreshGoldHan
 		text += text2.ToLower();
 		previewImageStreamingManager.Initialize(text);
 		previewImageStreamingManager.StartDownloading();
+		SkinnedMeshOptimizer[] componentsInChildren = avatarAccessory.GetComponentsInChildren<SkinnedMeshOptimizer>();
+		for (int i = 0; i < componentsInChildren.Length; i++)
+		{
+			componentsInChildren[i].DisableOptimizer();
+		}
 	}
 
 	private void HandlePrices(AccessoryDataClient streamingAssetInfo)
@@ -284,13 +296,41 @@ public class AccessoryView : MonoBehaviour, IEventSystemHandler, IRefreshGoldHan
 			originalPriceText.text = priceGold.ToString("N0");
 			goldSavedText.gameObject.SetActive(value: true);
 			goldSavedText.text = num2.ToString("N0");
+			priceTextWithoutDiscount.gameObject.SetActive(value: false);
+			priceText.gameObject.SetActive(value: true);
+		}
+		else
+		{
+			priceTextWithoutDiscount.gameObject.SetActive(value: true);
+			priceText.gameObject.SetActive(value: false);
 		}
 		priceText.text = num.ToString("N0");
+		priceTextWithoutDiscount.text = num.ToString("N0");
+		levelRequirementPurchaseButton.gameObject.SetActive(value: false);
+	}
+
+	private void HidePrices()
+	{
+		priceTextWithoutDiscount.gameObject.SetActive(value: false);
+		priceText.gameObject.SetActive(value: false);
+		goldSavedText.gameObject.SetActive(value: false);
+		originalPriceText.gameObject.SetActive(value: false);
+		discountTag.SetActive(value: false);
+		purchaseButton.interactable = false;
+		levelRequirement.gameObject.SetActive(value: false);
+		levelRequirementPurchaseButton.gameObject.SetActive(value: true);
 	}
 
 	private void HandleNotOwnedUI()
 	{
-		HandlePrices(accessoryDataClient);
+		if (MVGameControllerBase.Game.LocalPlayer.Level >= accessoryDataClient.level)
+		{
+			HandlePrices(accessoryDataClient);
+		}
+		else
+		{
+			HidePrices();
+		}
 		timeLimitDisplayer.Initialize(accessoryDataClient.timelimit);
 		timeLimitDisplayer.gameObject.SetActive(!accessoryDataClient.owns && accessoryDataClient.timelimit.IsTimeLimited);
 		if (accessoryDataClient.level > 0)
@@ -302,7 +342,7 @@ public class AccessoryView : MonoBehaviour, IEventSystemHandler, IRefreshGoldHan
 
 	private void HideNotOwnedUI()
 	{
-		purchaseButton.SetActive(value: false);
+		purchaseButton.gameObject.SetActive(value: false);
 		timeLimitDisplayer.gameObject.SetActive(value: false);
 		levelRequirement.gameObject.SetActive(value: false);
 		newAccessoryImage.SetActive(value: false);

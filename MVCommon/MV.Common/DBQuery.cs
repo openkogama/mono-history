@@ -57,7 +57,6 @@ public enum DBQuery
 	GetAllAvatarBodies,
 	RequestAvatarShopInventory,
 	PurchaseAvatar,
-	CreateNewAvatar,
 	ResetAvatar,
 	GetProtoAvatar,
 	GetAchievementData,
@@ -105,5 +104,6 @@ public enum DBQuery
 	RequestAccessoryBundleData,
 	PurchaseAccessoryBundle,
 	RequestInGameHighlight,
-	PostPurchaseRequestGoldAmount
+	PostPurchaseRequestGoldAmount,
+	ResetAvatarToOriginalAvatar
 }

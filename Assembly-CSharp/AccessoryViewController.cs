@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using MV.WorldObject.Accessories;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -35,7 +37,7 @@ public class AccessoryViewController : MonoBehaviour, IEventSystemHandler, IAcce
 		accessoryView.Initialize(accessoryData);
 		accessoryView.gameObject.SetActive(value: true);
 		backbackController.SetBackpackIconIsEnabled(enable: false);
-		previewer.OnAccessoryPreviewEnter();
+		previewer.OnRestartAnimation();
 	}
 
 	public void OpenCategoryScreen(bool canSortByInventory)
@@ -43,6 +45,7 @@ public class AccessoryViewController : MonoBehaviour, IEventSystemHandler, IAcce
 		HideScreens();
 		inventoryView.SetActive(value: true);
 		backbackController.SetBackpackIconIsEnabled(canSortByInventory);
+		previewer.OnRestartAnimation();
 	}
 
 	public void ShowBundle()
@@ -59,5 +62,25 @@ public class AccessoryViewController : MonoBehaviour, IEventSystemHandler, IAcce
 		bundlePurchaseOptions.gameObject.SetActive(value: false);
 		inventoryView.SetActive(value: false);
 		accessoryView.gameObject.SetActive(value: false);
+	}
+
+	public void PurchasedBundle()
+	{
+		List<AccessoryBundleItem> accessoryBundleItems = AccessoryDataManager.GetAccessoryBundleClient().accessoryBundleItems;
+		tabMenuAccessoryShop.DestroyTab(AccessoryCategoryClient.Bundles);
+		for (int i = 0; i < accessoryBundleItems.Count; i++)
+		{
+			AccessoryDataClient accessoryDataByMetaDataId = AccessoryDataManager.GetAccessoryDataByMetaDataId(accessoryBundleItems[i].accessoryMetaDataID);
+			if (accessoryDataByMetaDataId != null)
+			{
+				Debug.Log("data owned: " + accessoryDataByMetaDataId.name);
+				AccessoryDataManager.SetToOwns(accessoryDataByMetaDataId.streamingAssetID);
+			}
+		}
+		accessoryView.RefreshGoldAmount();
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAccessoryInventoryControl x, BaseEventData y) =>
+		{
+			x.DisplayPurchasableItems(displayShopItems: true);
+		});
 	}
 }

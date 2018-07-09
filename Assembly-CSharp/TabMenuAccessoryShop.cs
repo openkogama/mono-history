@@ -36,6 +36,15 @@ public class TabMenuAccessoryShop : TabMenuBase
 		return buttons[(int)category];
 	}
 
+	public void DestroyTab(AccessoryCategoryClient category)
+	{
+		if (buttons.ContainsKey((int)category))
+		{
+			UnityEngine.Object.Destroy(buttons[(int)category].gameObject);
+			buttons.Remove((int)category);
+		}
+	}
+
 	public override void AddTabMenuButton(int categoryIndex, string categoryName)
 	{
 		TabMenuButtonBase tabMenuButtonBase = null;

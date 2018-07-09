@@ -67,11 +67,15 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IEventSystemHandler, IP
 	private RawImage levelRequirement;
 
 	[SerializeField]
+	private RawImage levelRequirementTooHigh;
+
+	[SerializeField]
+	private GameObject priceBackground;
+
+	[SerializeField]
 	private AccessoryTimeLimitDisplayer timeLimitDisplayer;
 
 	private Transform rootTransform;
-
-	private AccessoryPreviewer accessoryPreviewer;
 
 	private AccessoryLoader accessoryLoader = new AccessoryLoader();
 
@@ -112,6 +116,7 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IEventSystemHandler, IP
 			discountText.text = $"-{accessoryDataClient.discount.ToString()}%";
 			if (accessoryDataClient.level > 0)
 			{
+				levelRequirement.gameObject.SetActive(value: true);
 				BadgeManager.GetBadgeTexture(accessoryDataClient.level, OnLevelRequirementLoaded);
 			}
 			equipCheckbox.gameObject.SetActive(!locked);
@@ -125,6 +130,13 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IEventSystemHandler, IP
 			priceStrikeout.SetActive(locked && accessoryDataClient.discount > 0 && accessoryDataClient.priceGold > 0);
 			priceStrikeoutText.text = accessoryDataClient.priceGold.ToString();
 			priceText.text = accessoryDataClient.DiscountedPrice.ToString();
+			if (MVGameControllerBase.Game.LocalPlayer.Level < accessoryDataClient.level)
+			{
+				priceBackground.SetActive(value: false);
+				levelRequirement.gameObject.SetActive(value: false);
+				discount.SetActive(value: false);
+				levelRequirementTooHigh.gameObject.SetActive(value: true);
+			}
 		}
 		purchasePopupButton.interactable = !bundleView;
 		previewImage.gameObject.SetActive(value: false);
@@ -140,7 +152,7 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IEventSystemHandler, IP
 			return;
 		}
 		levelRequirement.texture = www.texture;
-		levelRequirement.gameObject.SetActive(value: true);
+		levelRequirementTooHigh.texture = www.texture;
 	}
 
 	public void OnClicked()
@@ -208,10 +220,6 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IEventSystemHandler, IP
 		accessoryLoader.Destroy();
 		accessoryLoader = null;
 		BadgeManager.UnsubscribeGetBadgeRequest(OnLevelRequirementLoaded);
-		if (accessoryPreviewer != null)
-		{
-			UnityEngine.Object.Destroy(accessoryPreviewer.gameObject);
-		}
 	}
 
 	private void AccessoryCreatedCallback(AvatarAccessory avatarAccessory)
@@ -221,6 +229,7 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IEventSystemHandler, IP
 			UnityEngine.Object.Destroy(avatarAccessory.gameObject);
 			return;
 		}
+		avatarAccessory.transform.parent = rootTransform;
 		previewImage.gameObject.SetActive(value: true);
 		purchasePopupButton.enabled = true;
 		loadingWheel.SetActive(value: false);
@@ -232,6 +241,11 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IEventSystemHandler, IP
 		text += text2.ToLower();
 		previewImageStreaminAssetManual.Initialize(text);
 		previewImageStreaminAssetManual.StartDownloading();
+		SkinnedMeshOptimizer[] componentsInChildren = avatarAccessory.GetComponentsInChildren<SkinnedMeshOptimizer>();
+		for (int i = 0; i < componentsInChildren.Length; i++)
+		{
+			componentsInChildren[i].DisableOptimizer();
+		}
 	}
 
 	public void OnPointerEnter(PointerEventData eventData)

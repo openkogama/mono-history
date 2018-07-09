@@ -1,24 +1,32 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class AccessoryShinyButton : MonoBehaviour
 {
-	[SerializeField]
-	private RawImage image;
+	[Serializable]
+	private class ScrollingUVSprite
+	{
+		public Image image;
+
+		public AnimationCurve alphaCurve;
+
+		public Vector2 direction = Vector2.zero;
+
+		public AnimationCurve movementX;
+	}
 
 	[SerializeField]
-	private AnimationCurve scrollEffect;
-
-	[SerializeField]
-	private Vector2 direction;
+	private List<ScrollingUVSprite> scrollingSpriteElements;
 
 	private void Update()
 	{
-		Rect uvRect = image.uvRect;
-		Color color = image.color;
-		color.a = 0.8f - scrollEffect.Evaluate(Time.time);
-		image.color = color;
-		uvRect.position += direction * (scrollEffect.Evaluate(Time.time) * Time.deltaTime);
-		image.uvRect = uvRect;
+		for (int i = 0; i < scrollingSpriteElements.Count; i++)
+		{
+			Color color = scrollingSpriteElements[i].image.color;
+			color.a = scrollingSpriteElements[i].alphaCurve.Evaluate(Time.time);
+			scrollingSpriteElements[i].image.color = color;
+		}
 	}
 }

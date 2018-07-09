@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -19,6 +20,8 @@ public class AccessoryAnimationHandler : MonoBehaviour
 	private List<AnimationData> animationData;
 
 	private MVAvatar mvAvatar;
+
+	private bool shouldResetToIdle;
 
 	private void Start()
 	{
@@ -92,23 +95,34 @@ public class AccessoryAnimationHandler : MonoBehaviour
 			{
 				PlayAnimation("Idle");
 			}
+			return;
 		}
-		else
+		shouldResetToIdle = false;
+		ApplyAnimationSpeed(animationName);
+		animations.Play(animationName);
+		AnimationState animationState = animations[animationName];
+		if (animationState.wrapMode == WrapMode.Once)
 		{
-			ApplyAnimationSpeed(animationName);
-			animations.Play(animationName);
+			StartCoroutine(ResetToIdle(animationState.length / GetAnimationSpeed(animationName)));
 		}
 	}
 
 	private void ApplyAnimationSpeed(string animationName)
 	{
+		animations[animationName].speed = GetAnimationSpeed(animationName);
+	}
+
+	public float GetAnimationSpeed(string animationName)
+	{
+		float result = 1f;
 		for (int i = 0; i < animationData.Count; i++)
 		{
 			if (animationData[i].animationName == animationName)
 			{
-				animations[animationName].speed = animationData[i].animationSpeed;
+				result = animationData[i].animationSpeed;
 			}
 		}
+		return result;
 	}
 
 	public void Initialize()
@@ -131,6 +145,20 @@ public class AccessoryAnimationHandler : MonoBehaviour
 		foreach (AnimationState animation in animations)
 		{
 			animation.wrapMode = WrapMode.Loop;
+		}
+	}
+
+	private IEnumerator ResetToIdle(float resetDelay)
+	{
+		shouldResetToIdle = true;
+		float startTime = Time.time;
+		while (Time.time < startTime + resetDelay && shouldResetToIdle)
+		{
+			yield return null;
+		}
+		if (shouldResetToIdle)
+		{
+			PlayAnimation("Idle");
 		}
 	}
 }

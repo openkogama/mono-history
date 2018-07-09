@@ -135,7 +135,7 @@ public class AvatarCapture : MonoBehaviour
 		{
 			MeshFilter meshFilter = componentsInChildren[i];
 			Mesh mesh = componentsInChildren[i].mesh;
-			MeshRenderer component = meshFilter.gameObject.GetComponent<MeshRenderer>();
+			Renderer component = meshFilter.gameObject.GetComponent<Renderer>();
 			for (int j = 0; j < mesh.subMeshCount; j++)
 			{
 				Material material = component.sharedMaterials[j];

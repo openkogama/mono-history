@@ -325,6 +325,10 @@ public class BodyAccessoriesController
 		{
 			return true;
 		}
+		if (accessoryMoveOverride && accessory.GetType() == typeof(AvatarAccessoryBackAccessories))
+		{
+			return true;
+		}
 		if (MVGameControllerBase.GameMode != MVGameMode.CharacterEditor)
 		{
 			return false;

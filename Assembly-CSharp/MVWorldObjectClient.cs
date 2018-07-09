@@ -326,13 +326,13 @@ public class MVWorldObjectClient : MVWorldObject
 		}
 		set
 		{
-			MeshRenderer[] componentsInChildren = gameObject.GetComponentsInChildren<MeshRenderer>();
+			Renderer[] componentsInChildren = gameObject.GetComponentsInChildren<Renderer>();
 			if (componentsInChildren.Length > 0)
 			{
-				MeshRenderer[] array = componentsInChildren;
-				foreach (MeshRenderer meshRenderer in array)
+				Renderer[] array = componentsInChildren;
+				foreach (Renderer renderer in array)
 				{
-					meshRenderer.enabled = value;
+					renderer.enabled = value;
 				}
 			}
 			else

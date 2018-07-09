@@ -8,6 +8,8 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 {
 	private const string mouseX = "Mouse X";
 
+	private const string mouseY = "Mouse Y";
+
 	[SerializeField]
 	private AvatarPreviewer previewer;
 
@@ -22,6 +24,9 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 
 	[SerializeField]
 	private float rotationSensitivity = 15f;
+
+	[SerializeField]
+	private float zoomSpeed = 1.5f;
 
 	[SerializeField]
 	private GameObject dropShadowPlane;
@@ -45,6 +50,8 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 	private Animation goAnimation;
 
 	private AccessoryAnimationHandler[] accessoryAnimationHandlers;
+
+	private bool pickedAccessory;
 
 	public void SetupPreviewer(MVBody avatarBody)
 	{
@@ -92,6 +99,7 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 		{
 			if (componentsInChildren4[l] != null)
 			{
+				componentsInChildren4[l].DisableOptimizer();
 				componentsInChildren4[l].TurnOffMesh();
 			}
 		}
@@ -111,33 +119,39 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 			item.wrapMode = WrapMode.Loop;
 		}
 		goAnimation.Play(animations[currentAnimation]);
-		AccessoryAnimationHandler[] componentsInChildren6 = goAnimation.GetComponentsInChildren<AccessoryAnimationHandler>();
-		for (int num = 0; num < componentsInChildren6.Length; num++)
+		accessoryAnimationHandlers = goAnimation.GetComponentsInChildren<AccessoryAnimationHandler>();
+		for (int num = 0; num < accessoryAnimationHandlers.Length; num++)
 		{
-			componentsInChildren6[num].PlayAnimation(animations[currentAnimation]);
+			accessoryAnimationHandlers[num].PlayAnimation(animations[currentAnimation]);
 		}
 		toPreviewer = Object.Instantiate(previewer);
-		toPreviewer.Initialize(previewDimensionsX, previewDimensionsY, CameraClearFlags.Color, MVGameControllerBase.WOCM.AvatarLocal.PreviewLayerMask, new Vector3(0f, -0.5f, -1f), avatarResetToTransform, new Vector3(100f, 100f, 100f), "Avatar accessory preview", MVGameControllerBase.WOCM.AvatarLocal, bodyClone, new Vector3(-2.4f, -16.3f, 0f));
+		toPreviewer.Initialize(previewDimensionsX, previewDimensionsY, CameraClearFlags.Color, MVGameControllerBase.WOCM.AvatarLocal.PreviewLayerMask, new Vector3(0f, -0.5f, -1f), avatarResetToTransform, new Vector3(100f, 100f, 100f), "Avatar accessory preview", MVGameControllerBase.WOCM.AvatarLocal, bodyClone, new Vector3(15f, 0f, 0f));
+		toPreviewer.previewCam.transform.position += new Vector3(0f, 1.1f, 0f);
 		bodyClone.transform.rotation = rotation;
 		bodyClone.SetLayerRecursively(LayerUtil.GetLayerNumber(LayerFlags.Hidden));
 		toImage.texture = toPreviewer.PreviewTexture;
 		GameObject gameObject = Object.Instantiate(dropShadowPlane);
 		gameObject.transform.SetParent(avatarResetToTransform);
-		gameObject.transform.position = toPreviewer.PreviewGameObject.transform.position + new Vector3(0f, -0.03f, 0f);
+		gameObject.transform.position = toPreviewer.PreviewGameObject.transform.position + new Vector3(0f, -0.1f, 0f);
 		imagesReady = true;
 	}
 
 	private bool PickAccessory(Ray ray, out GameObject gameObject, out RaycastHit raycastHit)
 	{
-		if (Physics.Raycast(ray, out raycastHit, float.PositiveInfinity, 1 << LayerMask.NameToLayer("Hidden")))
+		Debug.DrawRay(ray.origin, ray.direction, Color.red, 10f);
+		RaycastHit[] array = Physics.RaycastAll(ray, float.PositiveInfinity, 1 << LayerMask.NameToLayer("Hidden"));
+		for (int i = 0; i < array.Length; i++)
 		{
-			gameObject = raycastHit.collider.gameObject;
+			Debug.Log("Hit: " + array[i].collider.gameObject.name);
+			gameObject = array[i].collider.gameObject;
+			raycastHit = array[i];
 			if (gameObject.GetComponent<SelectionHelperAvatarAccessory>() != null)
 			{
 				return true;
 			}
 		}
 		gameObject = null;
+		raycastHit = default;
 		return false;
 	}
 
@@ -154,16 +168,6 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 		{
 			SetupPreviewer(MVGameControllerBase.WOCM.AvatarLocal.Body);
 		}
-	}
-
-	public void OnDrag(PointerEventData data)
-	{
-		currentRotationSpeed = (0f - Input.GetAxis("Mouse X")) * rotationSensitivity;
-	}
-
-	public void OnPointerDown(PointerEventData eventData)
-	{
-		currentRotationSpeed = 0f;
 	}
 
 	private void Update()
@@ -191,13 +195,33 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 		}
 	}
 
+	public void OnDrag(PointerEventData data)
+	{
+		currentRotationSpeed = (0f - Input.GetAxis("Mouse X")) * rotationSensitivity;
+		toPreviewer.previewCam.fieldOfView += Input.GetAxis("Mouse Y") * zoomSpeed * Time.deltaTime;
+		toPreviewer.previewCam.fieldOfView = Mathf.Clamp(toPreviewer.previewCam.fieldOfView, 10f, 90f);
+	}
+
+	public void OnPointerDown(PointerEventData eventData)
+	{
+		currentRotationSpeed = 0f;
+		Vector2 screenPoint = Input.mousePosition;
+		RectTransformUtility.ScreenPointToLocalPointInRectangle(toImage.rectTransform, screenPoint, null, out var localPoint);
+		localPoint += new Vector2(toImage.rectTransform.rect.width / (1f / toImage.rectTransform.pivot.x), toImage.rectTransform.rect.height / (1f / toImage.rectTransform.pivot.y));
+		Ray ray = toPreviewer.previewCam.ScreenPointToRay(localPoint);
+		if (PickAccessory(ray, out var _, out var _))
+		{
+			pickedAccessory = true;
+		}
+	}
+
 	public void OnPointerClick(PointerEventData eventData)
 	{
 		Vector2 screenPoint = Input.mousePosition;
 		RectTransformUtility.ScreenPointToLocalPointInRectangle(toImage.rectTransform, screenPoint, null, out var localPoint);
 		localPoint += new Vector2(toImage.rectTransform.rect.width / (1f / toImage.rectTransform.pivot.x), toImage.rectTransform.rect.height / (1f / toImage.rectTransform.pivot.y));
 		Ray ray = toPreviewer.previewCam.ScreenPointToRay(localPoint);
-		if (PickAccessory(ray, out var gameObject, out var _))
+		if (pickedAccessory && PickAccessory(ray, out var gameObject, out var _))
 		{
 			SelectionHelperAvatarAccessory componentInChildren = gameObject.GetComponentInChildren<SelectionHelperAvatarAccessory>(includeInactive: true);
 			Debug.Log(componentInChildren.StreamingAssetsId);
@@ -207,6 +231,7 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 				x.OpenAccessoryManagementScreen(accessoryData);
 			});
 		}
+		pickedAccessory = false;
 	}
 
 	public void ChangeAnimation()
@@ -216,19 +241,28 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 		{
 			currentAnimation = 0;
 		}
+		PlayAnimation();
+	}
+
+	public void OnRestartAnimation()
+	{
+		if (!(goAnimation == null))
+		{
+			accessoryAnimationHandlers = goAnimation.GetComponentsInChildren<AccessoryAnimationHandler>();
+			for (int i = 0; i < accessoryAnimationHandlers.Length; i++)
+			{
+				accessoryAnimationHandlers[i].SetAllAnimationToLooping();
+			}
+			PlayAnimation();
+		}
+	}
+
+	private void PlayAnimation()
+	{
 		goAnimation.Play(animations[currentAnimation]);
 		for (int i = 0; i < accessoryAnimationHandlers.Length; i++)
 		{
 			accessoryAnimationHandlers[i].PlayAnimation(animations[currentAnimation]);
-		}
-	}
-
-	public void OnAccessoryPreviewEnter()
-	{
-		accessoryAnimationHandlers = goAnimation.GetComponentsInChildren<AccessoryAnimationHandler>();
-		for (int i = 0; i < accessoryAnimationHandlers.Length; i++)
-		{
-			accessoryAnimationHandlers[i].SetAllAnimationToLooping();
 		}
 	}
 }
