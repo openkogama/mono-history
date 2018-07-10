@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class LineRangeIndicator : MonoBehaviour
 {
-	[Header("Configuration")]
 	[SerializeField]
+	[Header("Configuration")]
 	private float lineDotDensity = 4.1f;
 
 	[SerializeField]

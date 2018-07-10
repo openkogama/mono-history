@@ -28,13 +28,13 @@ public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 	[SerializeField]
 	private AnimationCurve chargeCurve;
 
-	[Tooltip("Look direction updates per second.")]
 	[Header("Network")]
 	[SerializeField]
+	[Tooltip("Look direction updates per second.")]
 	private float lookUpdateRate = 2f;
 
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	private List<GameObject> toHideInFirstperson = new List<GameObject>();
 
 	[SerializeField]

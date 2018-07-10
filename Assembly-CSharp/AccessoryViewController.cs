@@ -23,6 +23,9 @@ public class AccessoryViewController : MonoBehaviour, IEventSystemHandler, IAcce
 	[SerializeField]
 	private TabMenuAccessoryShop tabMenuAccessoryShop;
 
+	[SerializeField]
+	private GameObject featuredTabFlare;
+
 	public void UpdateHighlightedTab(AccessoryCategoryClient category)
 	{
 		if (tabMenuAccessoryShop.GetTabMenuButton(category) is IHighlightedElement highlightedElement)
@@ -82,5 +85,10 @@ public class AccessoryViewController : MonoBehaviour, IEventSystemHandler, IAcce
 		{
 			x.DisplayPurchasableItems(displayShopItems: true);
 		});
+	}
+
+	public void DisplayFlare(bool show)
+	{
+		featuredTabFlare.SetActive(show);
 	}
 }

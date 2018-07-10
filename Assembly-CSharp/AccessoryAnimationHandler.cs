@@ -44,7 +44,7 @@ public class AccessoryAnimationHandler : MonoBehaviour
 
 	private void OnLocalAvatarAnimationChange(string newAnimation)
 	{
-		if (animations.IsPlaying(newAnimation))
+		if (!gameObject.activeInHierarchy || animations.IsPlaying(newAnimation))
 		{
 			return;
 		}
@@ -89,6 +89,10 @@ public class AccessoryAnimationHandler : MonoBehaviour
 
 	public void PlayAnimation(string animationName)
 	{
+		if (!gameObject.activeInHierarchy)
+		{
+			return;
+		}
 		if (!HaveAnimationData(animationName))
 		{
 			if (animationName != "Idle")

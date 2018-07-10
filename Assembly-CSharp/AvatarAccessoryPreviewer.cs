@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
@@ -9,6 +10,8 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 	private const string mouseX = "Mouse X";
 
 	private const string mouseY = "Mouse Y";
+
+	private const float animationLoopTimes = 3f;
 
 	[SerializeField]
 	private AvatarPreviewer previewer;
@@ -79,54 +82,60 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 		{
 			monoBehaviour.enabled = false;
 		}
-		SelectionHelperAvatarAccessory[] componentsInChildren2 = bodyClone.GetComponentsInChildren<SelectionHelperAvatarAccessory>(includeInactive: true);
+		PickupItem[] componentsInChildren2 = bodyClone.GetComponentsInChildren<PickupItem>();
 		for (int j = 0; j < componentsInChildren2.Length; j++)
 		{
-			componentsInChildren2[j].GetComponent<Collider>().enabled = true;
+			componentsInChildren2[j].gameObject.SetActive(value: false);
 		}
-		SelectionBox[] componentsInChildren3 = bodyClone.GetComponentsInChildren<SelectionBox>();
+		AvatarModifier[] componentsInChildren3 = bodyClone.GetComponentsInChildren<AvatarModifier>();
 		for (int k = 0; k < componentsInChildren3.Length; k++)
 		{
-			Object.Destroy(componentsInChildren3[k].gameObject);
+			componentsInChildren3[k].gameObject.SetActive(value: false);
+		}
+		SelectionHelperAvatarAccessory[] componentsInChildren4 = bodyClone.GetComponentsInChildren<SelectionHelperAvatarAccessory>(includeInactive: true);
+		for (int l = 0; l < componentsInChildren4.Length; l++)
+		{
+			componentsInChildren4[l].GetComponent<Collider>().enabled = true;
+		}
+		SelectionBox[] componentsInChildren5 = bodyClone.GetComponentsInChildren<SelectionBox>();
+		for (int m = 0; m < componentsInChildren5.Length; m++)
+		{
+			Object.Destroy(componentsInChildren5[m].gameObject);
 		}
 		InvulnerabilityBubble componentInChildren = bodyClone.GetComponentInChildren<InvulnerabilityBubble>();
 		if (componentInChildren != null)
 		{
 			componentInChildren.gameObject.SetActive(value: false);
 		}
-		SkinnedMeshOptimizer[] componentsInChildren4 = bodyClone.GetComponentsInChildren<SkinnedMeshOptimizer>();
-		for (int l = 0; l < componentsInChildren4.Length; l++)
+		SkinnedMeshOptimizer[] componentsInChildren6 = bodyClone.GetComponentsInChildren<SkinnedMeshOptimizer>();
+		for (int n = 0; n < componentsInChildren6.Length; n++)
 		{
-			if (componentsInChildren4[l] != null)
+			if (componentsInChildren6[n] != null)
 			{
-				componentsInChildren4[l].DisableOptimizer();
-				componentsInChildren4[l].TurnOffMesh();
+				componentsInChildren6[n].DisableOptimizer();
+				componentsInChildren6[n].TurnOffMesh();
 			}
 		}
-		MeshRenderer[] componentsInChildren5 = bodyClone.GetComponentsInChildren<MeshRenderer>();
-		for (int m = 0; m < componentsInChildren5.Length; m++)
+		MeshRenderer[] componentsInChildren7 = bodyClone.GetComponentsInChildren<MeshRenderer>();
+		for (int num = 0; num < componentsInChildren7.Length; num++)
 		{
-			for (int n = 0; n < componentsInChildren5[m].materials.Length; n++)
+			for (int num2 = 0; num2 < componentsInChildren7[num].materials.Length; num2++)
 			{
-				Color color = componentsInChildren5[m].materials[n].color;
+				Color color = componentsInChildren7[num].materials[num2].color;
 				color.a = 1f;
-				componentsInChildren5[m].materials[n].color = color;
+				componentsInChildren7[num].materials[num2].color = color;
 			}
 		}
 		goAnimation = bodyClone.GetComponentInChildren<Animation>();
-		foreach (AnimationState item in goAnimation)
-		{
-			item.wrapMode = WrapMode.Loop;
-		}
 		goAnimation.Play(animations[currentAnimation]);
 		accessoryAnimationHandlers = goAnimation.GetComponentsInChildren<AccessoryAnimationHandler>();
-		for (int num = 0; num < accessoryAnimationHandlers.Length; num++)
+		for (int num3 = 0; num3 < accessoryAnimationHandlers.Length; num3++)
 		{
-			accessoryAnimationHandlers[num].PlayAnimation(animations[currentAnimation]);
+			accessoryAnimationHandlers[num3].PlayAnimation(animations[currentAnimation]);
 		}
 		toPreviewer = Object.Instantiate(previewer);
 		toPreviewer.Initialize(previewDimensionsX, previewDimensionsY, CameraClearFlags.Color, MVGameControllerBase.WOCM.AvatarLocal.PreviewLayerMask, new Vector3(0f, -0.5f, -1f), avatarResetToTransform, new Vector3(100f, 100f, 100f), "Avatar accessory preview", MVGameControllerBase.WOCM.AvatarLocal, bodyClone, new Vector3(15f, 0f, 0f));
-		toPreviewer.previewCam.transform.position += new Vector3(0f, 1.1f, 0f);
+		toPreviewer.previewCam.transform.position += new Vector3(0f, 1.22f, 0f);
 		bodyClone.transform.rotation = rotation;
 		bodyClone.SetLayerRecursively(LayerUtil.GetLayerNumber(LayerFlags.Hidden));
 		toImage.texture = toPreviewer.PreviewTexture;
@@ -199,7 +208,7 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 	{
 		currentRotationSpeed = (0f - Input.GetAxis("Mouse X")) * rotationSensitivity;
 		toPreviewer.previewCam.fieldOfView += Input.GetAxis("Mouse Y") * zoomSpeed * Time.deltaTime;
-		toPreviewer.previewCam.fieldOfView = Mathf.Clamp(toPreviewer.previewCam.fieldOfView, 10f, 90f);
+		toPreviewer.previewCam.fieldOfView = Mathf.Clamp(toPreviewer.previewCam.fieldOfView, 20f, 60f);
 	}
 
 	public void OnPointerDown(PointerEventData eventData)
@@ -239,7 +248,7 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 		currentAnimation++;
 		if (currentAnimation >= animations.Count)
 		{
-			currentAnimation = 0;
+			currentAnimation = 1;
 		}
 		PlayAnimation();
 	}
@@ -249,20 +258,35 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 		if (!(goAnimation == null))
 		{
 			accessoryAnimationHandlers = goAnimation.GetComponentsInChildren<AccessoryAnimationHandler>();
-			for (int i = 0; i < accessoryAnimationHandlers.Length; i++)
-			{
-				accessoryAnimationHandlers[i].SetAllAnimationToLooping();
-			}
 			PlayAnimation();
 		}
 	}
 
 	private void PlayAnimation()
 	{
-		goAnimation.Play(animations[currentAnimation]);
+		PlayAnimation(animations[currentAnimation]);
+	}
+
+	private void PlayAnimation(string animationName)
+	{
+		goAnimation.Play(animationName);
 		for (int i = 0; i < accessoryAnimationHandlers.Length; i++)
 		{
-			accessoryAnimationHandlers[i].PlayAnimation(animations[currentAnimation]);
+			accessoryAnimationHandlers[i].PlayAnimation(animationName);
 		}
+		StopAllCoroutines();
+		AnimationState animationState = goAnimation[animationName];
+		float resetDelay = animationState.length / animationState.speed * ((animationState.wrapMode != WrapMode.Loop) ? 1f : 3f);
+		StartCoroutine(AnimationEndTrack(resetDelay));
+	}
+
+	private IEnumerator AnimationEndTrack(float resetDelay)
+	{
+		float startTime = Time.time;
+		while (Time.time < startTime + resetDelay)
+		{
+			yield return null;
+		}
+		PlayAnimation("Idle");
 	}
 }

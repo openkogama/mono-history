@@ -131,17 +131,27 @@ public class AccessoryView : MonoBehaviour
 
 	private void OnDisable()
 	{
-		if (MVGameControllerBase.Game != null)
+		if (MVGameControllerBase.Game == null)
 		{
-			if (isPreviewing)
+			return;
+		}
+		if (isPreviewing)
+		{
+			avatarBody.EndPreviewAccessory();
+		}
+		TabMenuButtonBase tabMenuButton = tabMenu.GetTabMenuButton(AccessoryCategoryClient.Bundles);
+		if (tabMenuButton != null)
+		{
+			tabMenuButton.gameObject.SetActive(value: true);
+		}
+		if (accessoryDataClient != null && accessoryDataClient.owns && !avatarBody.IsAccessoryEquipped(accessoryDataClient.streamingAssetID))
+		{
+			AvatarAccessoryEquipPopup popup = UnityEngine.Object.Instantiate(avatarAccessoryEquipPopup);
+			popup.Initialize(EquipPopupResultCallback, previewImage.texture, accessoryDataClient, avatarBody);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 			{
-				avatarBody.EndPreviewAccessory();
-			}
-			TabMenuButtonBase tabMenuButton = tabMenu.GetTabMenuButton(AccessoryCategoryClient.Bundles);
-			if (tabMenuButton != null)
-			{
-				tabMenuButton.gameObject.SetActive(value: true);
-			}
+				x.Push(popup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.InventoryUISubMenu);
+			});
 		}
 	}
 
@@ -218,26 +228,14 @@ public class AccessoryView : MonoBehaviour
 		}
 		rootTransform = null;
 		previewer.Destroy();
-		if (accessoryDataClient.owns && !avatarBody.IsAccessoryEquipped(accessoryDataClient.streamingAssetID))
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAccessoryClicked x, BaseEventData y) =>
 		{
-			AvatarAccessoryEquipPopup popup = UnityEngine.Object.Instantiate(avatarAccessoryEquipPopup);
-			popup.Initialize(EquipPopupResultCallback, previewImage.texture, accessoryDataClient, avatarBody);
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-			{
-				x.Push(popup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.InventoryUISubMenu);
-			});
-		}
-		else
+			x.OpenCategoryScreen(canSortByInventory: true);
+		});
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAccessoryInventoryControl x, BaseEventData y) =>
 		{
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAccessoryClicked x, BaseEventData y) =>
-			{
-				x.OpenCategoryScreen(canSortByInventory: true);
-			});
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAccessoryInventoryControl x, BaseEventData y) =>
-			{
-				x.RefreshItems();
-			});
-		}
+			x.RefreshItems();
+		});
 	}
 
 	private void EquipPopupResultCallback()

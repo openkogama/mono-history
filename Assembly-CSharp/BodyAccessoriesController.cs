@@ -25,7 +25,7 @@ public class BodyAccessoriesController
 	{
 		{
 			AccessorySlotType.Head,
-			new Vector3(0f, 0.6f, -0.015f)
+			new Vector3(0f, 0.6f, 0.07f)
 		},
 		{
 			AccessorySlotType.Torso,
@@ -271,7 +271,6 @@ public class BodyAccessoriesController
 		AvatarAccessory avatarAccessory = accessoryMap[slot];
 		avatarAccessory.Transform.parent = null;
 		accessoryMap.Remove(slot);
-		Debug.LogWarning("Was blinker stuff implemented?");
 		Object.Destroy(avatarAccessory.gameObject);
 	}
 

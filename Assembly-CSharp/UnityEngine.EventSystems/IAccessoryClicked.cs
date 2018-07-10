@@ -7,4 +7,6 @@ public interface IAccessoryClicked : IEventSystemHandler
 	void OpenCategoryScreen(bool canSortByInventory);
 
 	void UpdateHighlightedTab(AccessoryCategoryClient category);
+
+	void DisplayFlare(bool show);
 }

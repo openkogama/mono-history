@@ -104,6 +104,10 @@ public class TabMenuButtonAccessory : TabMenuButtonBase, IHighlightedElement
 		{
 			x.OpenCategoryScreen(category != AccessoryCategoryClient.Featured);
 		});
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAccessoryClicked x, BaseEventData y) =>
+		{
+			x.DisplayFlare(category == AccessoryCategoryClient.Featured);
+		});
 		StopAllCoroutines();
 		StartCoroutine(LerpToSize(selectedTabHeight));
 	}

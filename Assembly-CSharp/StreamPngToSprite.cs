@@ -4,8 +4,8 @@ using UnityEngine.UI;
 
 public class StreamPngToSprite : MonoBehaviour
 {
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	protected RawImage rawImage;
 
 	private string url;

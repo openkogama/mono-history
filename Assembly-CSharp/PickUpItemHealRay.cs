@@ -62,8 +62,8 @@ public class PickUpItemHealRay : PickupItem
 
 	private Vector3 hitOffset;
 
-	[SerializeField]
 	[Tooltip("How many seconds the healrays ammo lasts.")]
+	[SerializeField]
 	private ObscuredFloat maxAmmoTime = 100f;
 
 	private LayerMask layers = -5 & ~(1 << LayerUtil.GetLayerNumber(LayerFlags.Logic));
