@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class AvatarAccessoryErrorPopup : MonoBehaviour
 {
 	[SerializeField]
-	private RawImage preview;
+	private StreamPngToSprite preview;
 
 	[SerializeField]
 	private AccessoryItemBackground itemBackground;
@@ -19,11 +19,11 @@ public class AvatarAccessoryErrorPopup : MonoBehaviour
 
 	private UnityAction<bool> resultCallback;
 
-	public void Initialize(UnityAction<bool> resultCallback, Texture previewImage, AccessoryDataClient accessoryData, string header, string buttonText)
+	public void Initialize(UnityAction<bool> resultCallback, string previewImageUrl, AccessoryDataClient accessoryData, string header, string buttonText)
 	{
 		this.buttonText.text = buttonText;
 		this.header.text = header;
-		preview.texture = previewImage;
+		preview.StartDownloading(previewImageUrl);
 		this.resultCallback = resultCallback;
 		itemBackground.Initialize(accessoryData);
 	}
@@ -35,5 +35,10 @@ public class AvatarAccessoryErrorPopup : MonoBehaviour
 			x.Pop();
 		});
 		resultCallback(confirmed);
+	}
+
+	private void OnDestroy()
+	{
+		preview.DestroyTexture();
 	}
 }

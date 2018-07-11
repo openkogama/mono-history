@@ -44,7 +44,7 @@ public class PurchasedAccessoryPreviewer : MonoBehaviour
 
 	public void Initialize(AccessoryDataClient[] previewAccessories)
 	{
-		targetHeight = Screen.height * 2;
+		targetHeight = Screen.currentResolution.height;
 		previewData = previewAccessories;
 		targetColorBackground = AccessoryItemBackground.GetColorFromPrice(previewData[currentStreamingAssetIndex].priceGold).correspondingColor;
 		targetColorGlow = AccessoryItemBackground.GetColorFromPrice(previewData[currentStreamingAssetIndex].priceGold).glowColor;
@@ -64,8 +64,7 @@ public class PurchasedAccessoryPreviewer : MonoBehaviour
 	private IEnumerator DisplayAndFadeImages()
 	{
 		string url = GetImageUrl(previewData[currentStreamingAssetIndex]);
-		imageLoader.Initialize(url);
-		imageLoader.StartDownloading();
+		imageLoader.StartDownloading(url);
 		image.rectTransform.sizeDelta = new Vector2(0f, 0f);
 		currentTime = 0f;
 		while (currentTime / imageDisplayTime < 1f)
@@ -105,7 +104,8 @@ public class PurchasedAccessoryPreviewer : MonoBehaviour
 	private void EvaluateImageAtTime(float bounceTime, float colorTime)
 	{
 		float num = bounceEffect.Evaluate(bounceTime);
-		image.rectTransform.sizeDelta = new Vector2(num * (float)targetHeight, num * (float)targetHeight);
+		image.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, num * (float)targetHeight);
+		image.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, num * (float)targetHeight);
 		background.CrossFadeColor(targetColorBackground, colorTime, ignoreTimeScale: false, useAlpha: false);
 		backgroundGlow.CrossFadeColor(targetColorGlow, colorTime, ignoreTimeScale: false, useAlpha: false);
 		Color color = image.color;

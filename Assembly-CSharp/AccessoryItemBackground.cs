@@ -51,9 +51,10 @@ public class AccessoryItemBackground : MonoBehaviour
 		Array values = Enum.GetValues(typeof(PriceRange));
 		for (int i = 0; i < values.Length; i++)
 		{
-			if (price <= (int)values.GetValue(i))
+			int num = (int)values.GetValue(i);
+			if (price < num)
 			{
-				return priceColors[(PriceRange)(int)values.GetValue(i)];
+				return priceColors[(PriceRange)num];
 			}
 		}
 		return priceColors[PriceRange.PriceLegendary];

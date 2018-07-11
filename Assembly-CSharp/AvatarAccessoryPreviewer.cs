@@ -151,7 +151,6 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 		RaycastHit[] array = Physics.RaycastAll(ray, float.PositiveInfinity, 1 << LayerMask.NameToLayer("Hidden"));
 		for (int i = 0; i < array.Length; i++)
 		{
-			Debug.Log("Hit: " + array[i].collider.gameObject.name);
 			gameObject = array[i].collider.gameObject;
 			raycastHit = array[i];
 			if (gameObject.GetComponent<SelectionHelperAvatarAccessory>() != null)
@@ -233,7 +232,6 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 		if (pickedAccessory && PickAccessory(ray, out var gameObject, out var _))
 		{
 			SelectionHelperAvatarAccessory componentInChildren = gameObject.GetComponentInChildren<SelectionHelperAvatarAccessory>(includeInactive: true);
-			Debug.Log(componentInChildren.StreamingAssetsId);
 			AccessoryDataClient accessoryData = AccessoryDataManager.GetAccessoryDataByStreamingAssetId(componentInChildren.StreamingAssetsId);
 			ExecuteEvents.ExecuteHierarchy(base.gameObject, null, (IAccessoryClicked x, BaseEventData y) =>
 			{
@@ -258,7 +256,7 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 		if (!(goAnimation == null))
 		{
 			accessoryAnimationHandlers = goAnimation.GetComponentsInChildren<AccessoryAnimationHandler>();
-			PlayAnimation();
+			PlayAnimation("Idle");
 		}
 	}
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class AvatarAccessoryPurchasePopup : MonoBehaviour
@@ -11,7 +10,7 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 	private AccessoryDataClient accessoryDataClient;
 
 	[SerializeField]
-	private RawImage preview;
+	private StreamPngToSprite preview;
 
 	[SerializeField]
 	private Text priceText;
@@ -49,9 +48,9 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 	[SerializeField]
 	private PurchasedAccessoryPreviewer successPreviewer;
 
-	private UnityAction refreshGoldCallback;
-
 	private int price;
+
+	private string previewImageUrl;
 
 	protected MVBody AvatarBody;
 
@@ -60,7 +59,7 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 		AvatarBody = body;
 	}
 
-	public void Initialize(AccessoryDataClient accessoryDataClient, Texture previewImage, UnityAction refreshGoldCallback)
+	public void Initialize(AccessoryDataClient accessoryDataClient, string previewImageUrl)
 	{
 		if (MVGameControllerBase.GameMode == MVGameMode.CharacterEditor)
 		{
@@ -73,11 +72,11 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 		{
 			AvatarBody = MVGameControllerBase.Game.LocalPlayer.Avatar.Body;
 		}
-		this.refreshGoldCallback = refreshGoldCallback;
-		preview.texture = previewImage;
+		preview.StartDownloading(previewImageUrl);
 		this.accessoryDataClient = accessoryDataClient;
 		priceText.text = accessoryDataClient.priceGold.ToString();
 		price = accessoryDataClient.priceGold;
+		this.previewImageUrl = previewImageUrl;
 		goldSavedText.gameObject.SetActive(value: false);
 		accessoryItemBackground.Initialize(accessoryDataClient);
 		HandleNotOwnedUI();
@@ -127,7 +126,7 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 		{
 			x.Push(confirmationPopup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.Popup);
 		});
-		confirmationPopup.Initialize(OnGoldPurchaseDialogResult, preview.mainTexture, accessoryDataClient, header, buttonText);
+		confirmationPopup.Initialize(OnGoldPurchaseDialogResult, previewImageUrl, accessoryDataClient, header, buttonText);
 	}
 
 	private void OnGoldPurchaseDialogResult(bool result)
@@ -148,7 +147,6 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 		int num = (int)purchaseResponseData[(byte)105];
 		AccessoryDataManager.SetToOwns(num);
 		SuccessfulPopupCallBack(num);
-		refreshGoldCallback();
 	}
 
 	private void SuccessfulPopupCallBack(int streamingAssetId)
@@ -211,5 +209,10 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 		}
 		levelRequirement.texture = www.texture;
 		levelRequirement.gameObject.SetActive(value: true);
+	}
+
+	private void OnDestroy()
+	{
+		preview.DestroyTexture();
 	}
 }

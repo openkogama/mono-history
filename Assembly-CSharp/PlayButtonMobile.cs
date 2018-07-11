@@ -1,15 +1,11 @@
 using MV.Common;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class PlayButtonMobile : MonoBehaviour
 {
 	[SerializeField]
-	private Text text;
-
-	[SerializeField]
-	private EnterPlaySessionRoundCountDown enterPlaySessionRoundCountDownPrefab;
+	private Image countdownFill;
 
 	public void Play()
 	{
@@ -21,29 +17,21 @@ public class PlayButtonMobile : MonoBehaviour
 				MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Playing);
 			}
 		}
-		else
-		{
-			EnterPlaySessionRoundCountDown enterPlaySessionRoundCountDown = Object.Instantiate(enterPlaySessionRoundCountDownPrefab);
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-			{
-				x.Push(enterPlaySessionRoundCountDown.gameObject, UIPushOption.Blocking);
-			});
-		}
 	}
 
 	private void Update()
 	{
 		if (MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded)
 		{
-			text.text = TM._("New round starts in: ") + MVGameControllerBase.Game.NetworkGameStateListener.CountdownInSeconds;
-			if (!text.enabled)
+			countdownFill.fillAmount = MVGameControllerBase.Game.NetworkGameStateListener.CountdownInPercentage;
+			if (!countdownFill.enabled)
 			{
-				text.enabled = true;
+				countdownFill.enabled = true;
 			}
 		}
-		else if (text.enabled)
+		else if (countdownFill.enabled)
 		{
-			text.enabled = false;
+			countdownFill.enabled = false;
 		}
 	}
 }

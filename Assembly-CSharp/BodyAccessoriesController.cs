@@ -152,7 +152,6 @@ public class BodyAccessoriesController
 
 	private bool AttachAccessory(AvatarAccessory acc, AccessorySlotType slot, float offset, float scale)
 	{
-		Debug.Log("AttachAccessory slot" + slot);
 		if (!accessoryMap.ContainsKey(slot))
 		{
 			accessoryMap.Add(slot, acc);
@@ -294,7 +293,6 @@ public class BodyAccessoriesController
 			Debug.LogError("Failed to load accessory!");
 			return;
 		}
-		Debug.LogWarning("I think this already works, but accessory should only be attachable if the data confirms it. ");
 		Dictionary<object, object> dictionary = AccessoryData;
 		int num = (int)slot;
 		Dictionary<object, object> dictionary2 = (Dictionary<object, object>)dictionary[num.ToString()];

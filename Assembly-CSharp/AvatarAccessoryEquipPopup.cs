@@ -1,12 +1,11 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
-using UnityEngine.UI;
 
 public class AvatarAccessoryEquipPopup : MonoBehaviour, IEventSystemHandler
 {
 	[SerializeField]
-	private RawImage preview;
+	private StreamPngToSprite preview;
 
 	[SerializeField]
 	private AccessoryItemBackground itemBackground;
@@ -15,22 +14,25 @@ public class AvatarAccessoryEquipPopup : MonoBehaviour, IEventSystemHandler
 
 	private AccessoryDataClient accessoryDataClient;
 
-	private MVBody avatarBody;
+	private float accessoryOffset;
 
-	public void Initialize(UnityAction resultCallback, Texture previewImage, AccessoryDataClient accessoryData, MVBody avatarBody)
+	private float accessoryScale;
+
+	public void Initialize(UnityAction resultCallback, string previewImageUrl, AccessoryDataClient accessoryData, float accessoryOffset, float accessoryScale)
 	{
-		preview.texture = previewImage;
+		preview.StartDownloading(previewImageUrl);
 		this.resultCallback = resultCallback;
 		itemBackground.Initialize(accessoryData);
 		accessoryDataClient = accessoryData;
-		this.avatarBody = avatarBody;
+		this.accessoryOffset = accessoryOffset;
+		this.accessoryScale = accessoryScale;
 	}
 
 	public void Equip()
 	{
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAttachToBody x, BaseEventData y) =>
 		{
-			x.AttachToBody(accessoryDataClient.streamingAssetID, avatarBody.GetAccessoryOffset(accessoryDataClient.accessorySlotType), avatarBody.GetAccessoryScale(accessoryDataClient.accessorySlotType));
+			x.AttachToBody(accessoryDataClient.streamingAssetID, accessoryOffset, accessoryScale);
 		});
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
@@ -46,5 +48,10 @@ public class AvatarAccessoryEquipPopup : MonoBehaviour, IEventSystemHandler
 			x.Pop();
 		});
 		resultCallback();
+	}
+
+	private void OnDestroy()
+	{
+		preview.DestroyTexture();
 	}
 }

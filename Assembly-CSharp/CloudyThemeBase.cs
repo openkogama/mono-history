@@ -21,9 +21,9 @@ public abstract class CloudyThemeBase : Theme
 		public const int fogDisabled = 32;
 	}
 
+	[Header("Attributes", order = 1)]
 	[Header("Day/night-cycle", order = 2)]
 	[SerializeField]
-	[Header("Attributes", order = 1)]
 	private BoolAttribute useDayNightCycle;
 
 	[SerializeField]
@@ -121,8 +121,8 @@ public abstract class CloudyThemeBase : Theme
 	[SerializeField]
 	private FloatAttribute cloudsRotationSpeed;
 
-	[Header("Fog")]
 	[SerializeField]
+	[Header("Fog")]
 	private BoolAttribute useFog;
 
 	[SerializeField]

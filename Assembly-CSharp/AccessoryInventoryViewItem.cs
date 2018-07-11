@@ -67,9 +67,6 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IEventSystemHandler, IP
 	private RawImage levelRequirement;
 
 	[SerializeField]
-	private RawImage levelRequirementTooHigh;
-
-	[SerializeField]
 	private GameObject priceBackground;
 
 	[SerializeField]
@@ -112,13 +109,8 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IEventSystemHandler, IP
 			timeLimitDisplayer.gameObject.SetActive(locked && accessoryDataClient.timelimit.IsTimeLimited);
 			bool flag = accessoryDataClient.discount >= 100 || accessoryDataClient.priceGold == 0;
 			discount.SetActive(locked && accessoryDataClient.discount > 0 && !flag);
-			freeLabel.SetActive(locked && accessoryDataClient.discount > 0 && flag);
+			freeLabel.SetActive(locked && flag);
 			discountText.text = $"-{accessoryDataClient.discount.ToString()}%";
-			if (accessoryDataClient.level > 0)
-			{
-				levelRequirement.gameObject.SetActive(value: true);
-				BadgeManager.GetBadgeTexture(accessoryDataClient.level, OnLevelRequirementLoaded);
-			}
 			equipCheckbox.gameObject.SetActive(!locked);
 			if (!locked)
 			{
@@ -130,12 +122,17 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IEventSystemHandler, IP
 			priceStrikeout.SetActive(locked && accessoryDataClient.discount > 0 && accessoryDataClient.priceGold > 0);
 			priceStrikeoutText.text = accessoryDataClient.priceGold.ToString();
 			priceText.text = accessoryDataClient.DiscountedPrice.ToString();
-			if (MVGameControllerBase.Game.LocalPlayer.Level < accessoryDataClient.level)
+			if (MVGameControllerBase.Game.LocalPlayer.Level < accessoryDataClient.level && locked)
 			{
 				priceBackground.SetActive(value: false);
-				levelRequirement.gameObject.SetActive(value: false);
 				discount.SetActive(value: false);
-				levelRequirementTooHigh.gameObject.SetActive(value: true);
+				priceDisplay.SetActive(value: false);
+				priceText.gameObject.SetActive(value: false);
+				priceStrikeout.SetActive(value: false);
+				priceStrikeoutText.gameObject.SetActive(value: false);
+				freeLabel.SetActive(value: false);
+				levelRequirement.gameObject.SetActive(value: true);
+				BadgeManager.GetBadgeTexture(accessoryDataClient.level, OnLevelRequirementLoaded);
 			}
 		}
 		purchasePopupButton.interactable = !bundleView;
@@ -149,10 +146,11 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IEventSystemHandler, IP
 		if (www == null || www.texture == null)
 		{
 			Debug.LogWarning("Badge not loaded for accessory level requirement");
-			return;
 		}
-		levelRequirement.texture = www.texture;
-		levelRequirementTooHigh.texture = www.texture;
+		else
+		{
+			levelRequirement.texture = www.texture;
+		}
 	}
 
 	public void OnClicked()
@@ -239,8 +237,7 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IEventSystemHandler, IP
 		string text2 = array[0];
 		text2 += "Image.png";
 		text += text2.ToLower();
-		previewImageStreaminAssetManual.Initialize(text);
-		previewImageStreaminAssetManual.StartDownloading();
+		previewImageStreaminAssetManual.StartDownloading(text);
 		SkinnedMeshOptimizer[] componentsInChildren = avatarAccessory.GetComponentsInChildren<SkinnedMeshOptimizer>();
 		for (int i = 0; i < componentsInChildren.Length; i++)
 		{

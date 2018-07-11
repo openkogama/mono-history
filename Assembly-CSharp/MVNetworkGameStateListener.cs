@@ -16,6 +16,8 @@ public class MVNetworkGameStateListener
 
 	public int CountdownInSeconds => (int)Mathf.Ceil(MVGameControllerBase.Game.NetworkGameStateListener.TimeLeftMS / 1000);
 
+	public float CountdownInPercentage => (float)timeLeft / (float)duration;
+
 	public MVGameStateType CurrentGameState => currentGameState;
 
 	public int StartTime => startTime;

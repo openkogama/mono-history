@@ -81,6 +81,10 @@ public class AccessoryShopController : MonoBehaviour, IEventSystemHandler, IInve
 
 	public void RefreshItems()
 	{
+		if (!tabs.ContainsKey(selectedTab))
+		{
+			TabSelected((int)startingCategory);
+		}
 		int currentPage = tabs[selectedTab].currentPage;
 		ClearShop();
 		if (displayShopItems)
@@ -90,6 +94,10 @@ public class AccessoryShopController : MonoBehaviour, IEventSystemHandler, IInve
 		else
 		{
 			DisplayOwnedItems();
+		}
+		if (!tabs.ContainsKey(selectedTab))
+		{
+			TabSelected((int)startingCategory);
 		}
 		tabs[selectedTab].SetPage(currentPage);
 		UpdateContent();
@@ -181,7 +189,6 @@ public class AccessoryShopController : MonoBehaviour, IEventSystemHandler, IInve
 		Dictionary<AccessoryCategory, List<AccessoryDataClient>> accessoriesCategoryMap = AccessoryDataManager.GetAccessoriesCategoryMap();
 		foreach (KeyValuePair<AccessoryCategory, List<AccessoryDataClient>> item in accessoriesCategoryMap)
 		{
-			Debug.Log(item.Key);
 			TabState tabState = new TabState(LocalizedEnums._((AccessoryCategoryClient)item.Key), numberOfSlotsPrPage);
 			int ownedAmount = GetOwnedAmount(item.Value);
 			tabState.highestSlotIndex = ownedAmount;
@@ -242,7 +249,16 @@ public class AccessoryShopController : MonoBehaviour, IEventSystemHandler, IInve
 	private void TabSelected(int tabId)
 	{
 		selectedTab = tabId;
-		UpdateContent();
+		if (tabId == 255 || tabId == 254)
+		{
+			bool flag = displayShopItems;
+			DisplayPurchasableItems(displayShopItems: true);
+			displayShopItems = flag;
+		}
+		else
+		{
+			DisplayPurchasableItems(displayShopItems);
+		}
 		inventoryController.SetHeaderText(LocalizedEnums._((AccessoryCategoryClient)tabId));
 	}
 
@@ -319,7 +335,6 @@ public class AccessoryShopController : MonoBehaviour, IEventSystemHandler, IInve
 				AccessoryDataClient accessoryDataByMetaDataId = AccessoryDataManager.GetAccessoryDataByMetaDataId(accessoryBundleItems[j].accessoryMetaDataID);
 				if (accessoryDataByMetaDataId != null && !accessoryDataByMetaDataId.owns)
 				{
-					Debug.Log("data added to bundle: " + accessoryDataByMetaDataId.name);
 					list2.Add(accessoryDataByMetaDataId);
 				}
 			}

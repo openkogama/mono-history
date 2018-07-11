@@ -8,38 +8,32 @@ public class StreamPngToSprite : MonoBehaviour
 	[Header("Dependencies")]
 	protected RawImage rawImage;
 
-	private string url;
-
 	private bool currentlyDownloading;
 
-	private bool isInitialized;
-
-	public bool IsInitialized => isInitialized;
-
-	public void Initialize(string downloadUrl)
+	public void StartDownloading(string downloadUrl)
 	{
-		isInitialized = true;
-		url = downloadUrl;
-	}
-
-	public void StartDownloading()
-	{
-		if (!isInitialized)
-		{
-			Debug.LogError("StreamingAssetManual can't start downloading while being uninitialized.");
-		}
 		if (currentlyDownloading)
 		{
 			CancelDownload();
 		}
 		currentlyDownloading = true;
-		AsyncWWWManager.WWWRequest(new CachedGetRequest(Urls.StreamingAssets + url, StreamingTextureLoaded, WWWRequestPriority.WaitUntilSyncronizingIsDone));
+		AsyncWWWManager.WWWRequest(new CachedGetRequest(Urls.StreamingAssets + downloadUrl, StreamingTextureLoaded, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 	}
 
 	public void CancelDownload()
 	{
+		DestroyTexture();
 		currentlyDownloading = false;
 		AsyncWWWManager.UnsubscribeWWWRequest(StreamingTextureLoaded);
+	}
+
+	public void DestroyTexture()
+	{
+		if (rawImage != null)
+		{
+			Object.Destroy(rawImage.texture);
+			rawImage.texture = null;
+		}
 	}
 
 	private void StreamingTextureLoaded(WWW www)
@@ -49,18 +43,19 @@ public class StreamPngToSprite : MonoBehaviour
 		{
 			if (string.IsNullOrEmpty(www.error))
 			{
-				SetPromotionTexture(www.texture);
+				SetImageTexture(www.texture);
 			}
 			else
 			{
 				Debug.LogError("Stream static image 'StreamingTextureLoaded' failed : " + www.error);
 			}
 		}
+		AsyncWWWManager.UnsubscribeWWWRequest(StreamingTextureLoaded);
 	}
 
-	public void SetPromotionTexture(Texture tex)
+	public void SetImageTexture(Texture texture)
 	{
-		rawImage.texture = tex;
+		rawImage.texture = texture;
 	}
 
 	public void Reset()

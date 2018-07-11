@@ -2117,6 +2117,10 @@ public class MVNetworkGame : IPhotonPeerListener
 				if (returnCode == 0)
 				{
 					MVGameControllerBase.Game.LocalPlayer.GoldAmount = (int)returnValues[130];
+					if (MVGameControllerBase.Game.LocalPlayer.OnGoldAmountChange != null)
+					{
+						MVGameControllerBase.Game.LocalPlayer.OnGoldAmountChange();
+					}
 				}
 				break;
 			}

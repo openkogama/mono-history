@@ -23,7 +23,6 @@ public class SelectionHelperAvatarAccessory : MonoBehaviour
 
 	public void Init(AvatarAccessory avatarAccessory, AccessorySlotType slot, int avatarBodyWoID, int accessoryStreamingAssetsId)
 	{
-		Debug.Log("Selection helper initialized! " + gameObject.name);
 		this.avatarAccessory = avatarAccessory;
 		this.slot = slot;
 		this.avatarBodyWoID = avatarBodyWoID;

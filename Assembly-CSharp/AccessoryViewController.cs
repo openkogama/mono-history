@@ -26,6 +26,31 @@ public class AccessoryViewController : MonoBehaviour, IEventSystemHandler, IAcce
 	[SerializeField]
 	private GameObject featuredTabFlare;
 
+	private Color prevLight;
+
+	private void Start()
+	{
+		WorldObjectClientRef<ThemeWorldObject> singletonWorldObjectRef = MVGameControllerBase.WOCM.GetSingletonWorldObjectRef<ThemeWorldObject>();
+		if (singletonWorldObjectRef != null && singletonWorldObjectRef.WorldObjectClient != null)
+		{
+			singletonWorldObjectRef.WorldObjectClient.Visualization.Deactivate();
+		}
+		prevLight = RenderSettings.ambientLight;
+	}
+
+	private void OnDestroy()
+	{
+		if (MVGameControllerBase.Game != null)
+		{
+			RenderSettings.ambientLight = prevLight;
+			WorldObjectClientRef<ThemeWorldObject> singletonWorldObjectRef = MVGameControllerBase.WOCM.GetSingletonWorldObjectRef<ThemeWorldObject>();
+			if (singletonWorldObjectRef != null && singletonWorldObjectRef.WorldObjectClient != null)
+			{
+				singletonWorldObjectRef.WorldObjectClient.Visualization.Activate();
+			}
+		}
+	}
+
 	public void UpdateHighlightedTab(AccessoryCategoryClient category)
 	{
 		if (tabMenuAccessoryShop.GetTabMenuButton(category) is IHighlightedElement highlightedElement)
@@ -76,11 +101,9 @@ public class AccessoryViewController : MonoBehaviour, IEventSystemHandler, IAcce
 			AccessoryDataClient accessoryDataByMetaDataId = AccessoryDataManager.GetAccessoryDataByMetaDataId(accessoryBundleItems[i].accessoryMetaDataID);
 			if (accessoryDataByMetaDataId != null)
 			{
-				Debug.Log("data owned: " + accessoryDataByMetaDataId.name);
 				AccessoryDataManager.SetToOwns(accessoryDataByMetaDataId.streamingAssetID);
 			}
 		}
-		accessoryView.RefreshGoldAmount();
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAccessoryInventoryControl x, BaseEventData y) =>
 		{
 			x.DisplayPurchasableItems(displayShopItems: true);

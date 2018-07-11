@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Assets.Scripts.WorldObjectTypes.Avatar.Accessories;
 using MV.Common;
 using UnityEngine;
@@ -52,9 +53,6 @@ public class AccessoryView : MonoBehaviour
 	private AccessoryTimeLimitDisplayer timeLimitDisplayer;
 
 	[SerializeField]
-	private RawImage levelRequirement;
-
-	[SerializeField]
 	private RawImage levelRequirementPurchaseButton;
 
 	[SerializeField]
@@ -75,6 +73,9 @@ public class AccessoryView : MonoBehaviour
 	[SerializeField]
 	private AvatarAccessoryEquipPopup avatarAccessoryEquipPopup;
 
+	[SerializeField]
+	private AvatarAccessoryErrorPopup insufficientResourcePopup;
+
 	private AccessoryPreviewer previewer;
 
 	private Transform rootTransform;
@@ -87,8 +88,14 @@ public class AccessoryView : MonoBehaviour
 
 	private MVBody avatarBody;
 
+	private string previewImageUrl;
+
 	public void Initialize(AccessoryDataClient accessoryData)
 	{
+		if (rootTransform != null)
+		{
+			UnityEngine.Object.Destroy(rootTransform.gameObject);
+		}
 		rootTransform = new GameObject().transform;
 		rootTransform.gameObject.name = "Accessory_Preview";
 		accessoryDataClient = accessoryData;
@@ -131,27 +138,42 @@ public class AccessoryView : MonoBehaviour
 
 	private void OnDisable()
 	{
-		if (MVGameControllerBase.Game == null)
-		{
-			return;
-		}
-		if (isPreviewing)
-		{
-			avatarBody.EndPreviewAccessory();
-		}
-		TabMenuButtonBase tabMenuButton = tabMenu.GetTabMenuButton(AccessoryCategoryClient.Bundles);
-		if (tabMenuButton != null)
-		{
-			tabMenuButton.gameObject.SetActive(value: true);
-		}
 		if (accessoryDataClient != null && accessoryDataClient.owns && !avatarBody.IsAccessoryEquipped(accessoryDataClient.streamingAssetID))
 		{
 			AvatarAccessoryEquipPopup popup = UnityEngine.Object.Instantiate(avatarAccessoryEquipPopup);
-			popup.Initialize(EquipPopupResultCallback, previewImage.texture, accessoryDataClient, avatarBody);
+			float accessoryOffset = avatarBody.GetAccessoryOffset(accessoryDataClient.accessorySlotType);
+			float accessoryScale = avatarBody.GetAccessoryScale(accessoryDataClient.accessorySlotType);
+			popup.Initialize(EquipPopupResultCallback, previewImageUrl, accessoryDataClient, accessoryOffset, accessoryScale);
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 			{
 				x.Push(popup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.InventoryUISubMenu);
 			});
+		}
+		if (MVGameControllerBase.Game != null)
+		{
+			if (isPreviewing)
+			{
+				avatarBody.EndPreviewAccessory();
+			}
+			TabMenuButtonBase tabMenuButton = tabMenu.GetTabMenuButton(AccessoryCategoryClient.Bundles);
+			if (tabMenuButton != null)
+			{
+				tabMenuButton.gameObject.SetActive(value: true);
+			}
+			if (rootTransform != null)
+			{
+				UnityEngine.Object.Destroy(rootTransform.gameObject);
+				rootTransform = null;
+			}
+			if (previewer != null)
+			{
+				UnityEngine.Object.Destroy(previewer.gameObject);
+			}
+			if (accessoryLoader != null)
+			{
+				accessoryLoader.Destroy();
+			}
+			previewImageStreamingManager.DestroyTexture();
 		}
 	}
 
@@ -172,11 +194,11 @@ public class AccessoryView : MonoBehaviour
 		if (www == null || www.texture == null)
 		{
 			Debug.LogWarning("Badge not loaded for accessory level requirement");
-			return;
 		}
-		levelRequirement.texture = www.texture;
-		levelRequirement.gameObject.SetActive(MVGameControllerBase.Game.LocalPlayer.Level >= accessoryDataClient.level);
-		levelRequirementPurchaseButton.texture = www.texture;
+		else
+		{
+			levelRequirementPurchaseButton.texture = www.texture;
+		}
 	}
 
 	public void AttachAccessory(AccessoryDataClient purchasedItem, Action OnFinishedCallback)
@@ -194,7 +216,10 @@ public class AccessoryView : MonoBehaviour
 		{
 			UnityEngine.Object.Destroy(previewer.gameObject);
 		}
-		accessoryLoader.Destroy();
+		if (accessoryLoader != null)
+		{
+			accessoryLoader.Destroy();
+		}
 	}
 
 	public void Pop()
@@ -207,17 +232,37 @@ public class AccessoryView : MonoBehaviour
 
 	public void Purchase()
 	{
-		AvatarAccessoryPurchasePopup popUp = UnityEngine.Object.Instantiate(AvatarAccessoryPurchasePopupPrefab);
-		popUp.Initialize(accessoryDataClient, previewImage.texture, RefreshGoldAmount);
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		if (MVGameControllerBase.Game.LocalPlayer.GoldAmount >= accessoryDataClient.priceGold)
 		{
-			x.Push(popUp.gameObject, UIPushOption.Blocking, BackToShop, UIGroupFlags.InventoryUISubMenu);
-		});
+			AvatarAccessoryPurchasePopup popUp = UnityEngine.Object.Instantiate(AvatarAccessoryPurchasePopupPrefab);
+			popUp.Initialize(accessoryDataClient, previewImageUrl);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(popUp.gameObject, UIPushOption.Blocking, BackToShop, UIGroupFlags.InventoryUISubMenu);
+			});
+		}
+		else
+		{
+			AvatarAccessoryErrorPopup popUp2 = UnityEngine.Object.Instantiate(insufficientResourcePopup);
+			popUp2.Initialize(OnGoldPurchaseDialogResult, previewImageUrl, accessoryDataClient, TM._("Not enough gold"), TM._("Get gold"));
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(popUp2.gameObject, UIPushOption.Blocking, BackToShop, UIGroupFlags.InventoryUISubMenu);
+			});
+		}
 	}
 
-	public void RefreshGoldAmount()
+	private void OnGoldPurchaseDialogResult(bool result)
 	{
-		currentGoldAmountTracker.RefreshGoldAmount();
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Pop();
+		});
+		if (result)
+		{
+			BrowserComm.ToJavaScript.ExternalCall("gotoPurchaseGold");
+			BrowserComm.ExecuteBrowserRequest(MVGameControllerBase.GameSessionData.purchaseGoldURL);
+		}
 	}
 
 	public void BackToShop()
@@ -227,7 +272,18 @@ public class AccessoryView : MonoBehaviour
 			UnityEngine.Object.Destroy(rootTransform.gameObject);
 		}
 		rootTransform = null;
-		previewer.Destroy();
+		if (accessoryLoader != null)
+		{
+			accessoryLoader.Destroy();
+		}
+		if (previewer != null)
+		{
+			previewer.Destroy();
+		}
+		if (tabMenu.GetTabMenuButton(AccessoryCategoryClient.Featured) != null)
+		{
+			DestroyFeaturedTab();
+		}
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAccessoryClicked x, BaseEventData y) =>
 		{
 			x.OpenCategoryScreen(canSortByInventory: true);
@@ -236,6 +292,26 @@ public class AccessoryView : MonoBehaviour
 		{
 			x.RefreshItems();
 		});
+	}
+
+	private void DestroyFeaturedTab()
+	{
+		Dictionary<AccessoryCategory, List<AccessoryDataClient>> accessoriesCategoryMap = AccessoryDataManager.GetAccessoriesCategoryMap();
+		bool flag = false;
+		foreach (List<AccessoryDataClient> value in accessoriesCategoryMap.Values)
+		{
+			for (int i = 0; i < value.Count; i++)
+			{
+				if (!value[i].owns && value[i].isFeatured)
+				{
+					flag = true;
+				}
+			}
+		}
+		if (!flag)
+		{
+			tabMenu.DestroyTab(AccessoryCategoryClient.Featured);
+		}
 	}
 
 	private void EquipPopupResultCallback()
@@ -258,6 +334,7 @@ public class AccessoryView : MonoBehaviour
 			return;
 		}
 		previewer = UnityEngine.Object.Instantiate(accessoryPreviewerPrefab);
+		previewer.transform.SetParent(rootTransform);
 		previewer.Initialize(512, 512, LayerFlags.Default | LayerFlags.CamRotateTarget, CameraClearFlags.Color, new Vector3(0f, 2.8f, -3.5f), new Vector3(-3f, 0f, 0f), avatarAccessory.gameObject, rootTransform);
 		if (OnFinished != null)
 		{
@@ -270,8 +347,8 @@ public class AccessoryView : MonoBehaviour
 		string text2 = array[0];
 		text2 += "Image.png";
 		text += text2.ToLower();
-		previewImageStreamingManager.Initialize(text);
-		previewImageStreamingManager.StartDownloading();
+		previewImageStreamingManager.StartDownloading(text);
+		previewImageUrl = text;
 		SkinnedMeshOptimizer[] componentsInChildren = avatarAccessory.GetComponentsInChildren<SkinnedMeshOptimizer>();
 		for (int i = 0; i < componentsInChildren.Length; i++)
 		{
@@ -315,8 +392,8 @@ public class AccessoryView : MonoBehaviour
 		originalPriceText.gameObject.SetActive(value: false);
 		discountTag.SetActive(value: false);
 		purchaseButton.interactable = false;
-		levelRequirement.gameObject.SetActive(value: false);
 		levelRequirementPurchaseButton.gameObject.SetActive(value: true);
+		BadgeManager.GetBadgeTexture(accessoryDataClient.level, OnLevelRequirementLoaded);
 	}
 
 	private void HandleNotOwnedUI()
@@ -331,10 +408,6 @@ public class AccessoryView : MonoBehaviour
 		}
 		timeLimitDisplayer.Initialize(accessoryDataClient.timelimit);
 		timeLimitDisplayer.gameObject.SetActive(!accessoryDataClient.owns && accessoryDataClient.timelimit.IsTimeLimited);
-		if (accessoryDataClient.level > 0)
-		{
-			BadgeManager.GetBadgeTexture(accessoryDataClient.level, OnLevelRequirementLoaded);
-		}
 		newAccessoryImage.SetActive(accessoryDataClient.isNew);
 	}
 
@@ -342,7 +415,6 @@ public class AccessoryView : MonoBehaviour
 	{
 		purchaseButton.gameObject.SetActive(value: false);
 		timeLimitDisplayer.gameObject.SetActive(value: false);
-		levelRequirement.gameObject.SetActive(value: false);
 		newAccessoryImage.SetActive(value: false);
 		originalPriceText.gameObject.SetActive(value: false);
 		discountTag.SetActive(value: false);

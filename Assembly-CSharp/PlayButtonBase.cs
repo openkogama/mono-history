@@ -5,37 +5,21 @@ using UnityEngine.UI;
 public class PlayButtonBase : MonoBehaviour
 {
 	[SerializeField]
-	private Text countdownTest;
-
-	[SerializeField]
-	private RectTransform playIcon;
-
-	[SerializeField]
-	private Text pleaseWaitText;
+	private Image countdownFill;
 
 	protected void UpdateButton()
 	{
-		bool flag = MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded;
-		bool flag2 = MVGameControllerDesktop.LockCursorManager.LockCursor && flag;
-		if (pleaseWaitText.gameObject.activeSelf != flag2)
+		if (MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded)
 		{
-			pleaseWaitText.gameObject.SetActive(flag2);
-		}
-		if (playIcon.gameObject.activeSelf == flag2)
-		{
-			playIcon.gameObject.SetActive(!flag2);
-		}
-		if (flag)
-		{
-			countdownTest.text = TM._("New round starts in: ") + MVGameControllerBase.Game.NetworkGameStateListener.CountdownInSeconds;
-			if (!countdownTest.gameObject.activeSelf)
+			countdownFill.fillAmount = MVGameControllerBase.Game.NetworkGameStateListener.CountdownInPercentage;
+			if (!countdownFill.gameObject.activeSelf)
 			{
-				countdownTest.gameObject.SetActive(value: true);
+				countdownFill.gameObject.SetActive(value: true);
 			}
 		}
-		else if (countdownTest.gameObject.activeSelf)
+		else if (countdownFill.gameObject.activeSelf)
 		{
-			countdownTest.gameObject.SetActive(value: false);
+			countdownFill.gameObject.SetActive(value: false);
 		}
 	}
 }

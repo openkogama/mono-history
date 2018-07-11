@@ -13,8 +13,8 @@ public class ThemeSelectionButton : TextButton
 	[SerializeField]
 	private RectTransform previewImageArea;
 
-	[Header("Configuration")]
 	[SerializeField]
+	[Header("Configuration")]
 	private Color selectedColor;
 
 	private Color normalColor;

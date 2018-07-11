@@ -5,6 +5,7 @@ using MV.WorldObject.HighlightSystem;
 using MV.WorldObject.HighlightSystem.HighlightPayloads;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class BundleTab : TabMenuButtonBase
@@ -72,8 +73,21 @@ public class BundleTab : TabMenuButtonBase
 		int level = AccessoryDataManager.GetAccessoryBundleClient().level;
 		if (level > 0)
 		{
-			BadgeManager.GetBadgeTexture(level, OnBadgeLoaded);
+			if (LevelingManager.IsInitialized)
+			{
+				SetLevelBadge();
+			}
+			else
+			{
+				LevelingManager.OnLevelingInitialized = (UnityAction)Delegate.Combine(LevelingManager.OnLevelingInitialized, new UnityAction(SetLevelBadge));
+			}
 		}
+	}
+
+	private void SetLevelBadge()
+	{
+		LevelingManager.OnLevelingInitialized = (UnityAction)Delegate.Remove(LevelingManager.OnLevelingInitialized, new UnityAction(SetLevelBadge));
+		BadgeManager.GetBadgeTexture(AccessoryDataManager.GetAccessoryBundleClient().level, OnBadgeLoaded);
 	}
 
 	private void OnBadgeLoaded(WWW www)
@@ -96,6 +110,10 @@ public class BundleTab : TabMenuButtonBase
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAccessoryClicked x, BaseEventData y) =>
 		{
 			x.OpenCategoryScreen(canSortByInventory: false);
+		});
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAccessoryClicked x, BaseEventData y) =>
+		{
+			x.DisplayFlare(show: true);
 		});
 		gameObject.SetActive(value: true);
 		StopAllCoroutines();

@@ -16,7 +16,7 @@ public class BundleView : MonoBehaviour
 	private Text discountedPriceText;
 
 	[SerializeField]
-	private Text bundlePriceTextWithoutText;
+	private Text bundlePriceWithoutDiscount;
 
 	[SerializeField]
 	private GameObject discountTag;
@@ -103,7 +103,7 @@ public class BundleView : MonoBehaviour
 			{
 				x.Push(confirmationPopup2.gameObject, UIPushOption.Blocking, null, UIGroupFlags.Popup);
 			});
-			confirmationPopup2.Initialize(TM._("Too low level"), OnInsufficientResourceCallback, TM._("Get XP"));
+			confirmationPopup2.Initialize(TM._("Get XP"), OnInsufficientResourceCallback, TM._("Too low level"));
 			break;
 		}
 		case MVPurchaseReturnCode.InsufficientFunds:
@@ -113,7 +113,7 @@ public class BundleView : MonoBehaviour
 			{
 				x.Push(confirmationPopup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.Popup);
 			});
-			confirmationPopup.Initialize(TM._("Not enough gold"), OnInsufficientResourceCallback, TM._("Get gold"));
+			confirmationPopup.Initialize(TM._("Get gold"), OnInsufficientResourceCallback, TM._("Not enough gold"));
 			break;
 		}
 		default:
@@ -178,14 +178,14 @@ public class BundleView : MonoBehaviour
 			goldSavedText.gameObject.SetActive(value: true);
 			goldSavedText.text = num4.ToString("N0");
 			discountedPriceText.gameObject.SetActive(value: true);
-			bundlePriceTextWithoutText.gameObject.SetActive(value: false);
+			bundlePriceWithoutDiscount.gameObject.SetActive(value: false);
 		}
 		else
 		{
 			discountedPriceText.gameObject.SetActive(value: false);
-			bundlePriceTextWithoutText.gameObject.SetActive(value: true);
+			bundlePriceWithoutDiscount.gameObject.SetActive(value: true);
 		}
 		discountedPriceText.text = num3.ToString("N0");
-		bundlePriceTextWithoutText.text = num3.ToString("N0");
+		bundlePriceWithoutDiscount.text = num3.ToString("N0");
 	}
 }

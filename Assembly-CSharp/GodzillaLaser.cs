@@ -15,8 +15,8 @@ public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 	[SerializeField]
 	private float maxFireRange = 3000f;
 
-	[SerializeField]
 	[Header("Graphics")]
+	[SerializeField]
 	private Color crossHairCanFire;
 
 	[SerializeField]
@@ -29,12 +29,12 @@ public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 	private AnimationCurve chargeCurve;
 
 	[Header("Network")]
-	[SerializeField]
 	[Tooltip("Look direction updates per second.")]
+	[SerializeField]
 	private float lookUpdateRate = 2f;
 
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	private List<GameObject> toHideInFirstperson = new List<GameObject>();
 
 	[SerializeField]

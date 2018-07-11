@@ -22,6 +22,8 @@ public abstract class MVLocalPlayer : MVPlayer
 
 	protected int joinTime;
 
+	public Action OnGoldAmountChange;
+
 	private int oldLevel;
 
 	public int PlanetOwnershipTypeID
