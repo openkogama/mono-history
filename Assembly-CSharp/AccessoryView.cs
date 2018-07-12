@@ -382,6 +382,7 @@ public class AccessoryView : MonoBehaviour
 		priceText.text = num.ToString("N0");
 		priceTextWithoutDiscount.text = num.ToString("N0");
 		levelRequirementPurchaseButton.gameObject.SetActive(value: false);
+		purchaseButton.interactable = true;
 	}
 
 	private void HidePrices()

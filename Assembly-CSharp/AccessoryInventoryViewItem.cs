@@ -6,6 +6,7 @@ using MV.WorldObject.HighlightSystem;
 using MV.WorldObject.HighlightSystem.HighlightPayloads;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class AccessoryInventoryViewItem : MonoBehaviour, IEventSystemHandler, IPointerEnterHandler, IPointerExitHandler
@@ -131,8 +132,14 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IEventSystemHandler, IP
 				priceStrikeout.SetActive(value: false);
 				priceStrikeoutText.gameObject.SetActive(value: false);
 				freeLabel.SetActive(value: false);
-				levelRequirement.gameObject.SetActive(value: true);
-				BadgeManager.GetBadgeTexture(accessoryDataClient.level, OnLevelRequirementLoaded);
+				if (LevelingManager.IsInitialized)
+				{
+					SetLevelBadge();
+				}
+				else
+				{
+					LevelingManager.OnLevelingInitialized = (UnityAction)Delegate.Combine(LevelingManager.OnLevelingInitialized, new UnityAction(SetLevelBadge));
+				}
 			}
 		}
 		purchasePopupButton.interactable = !bundleView;
@@ -141,16 +148,21 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IEventSystemHandler, IP
 		accessoryLoader.LoadAccessory(accessoryDataClient.url, AccessoryCreatedCallback);
 	}
 
+	private void SetLevelBadge()
+	{
+		LevelingManager.OnLevelingInitialized = (UnityAction)Delegate.Remove(LevelingManager.OnLevelingInitialized, new UnityAction(SetLevelBadge));
+		BadgeManager.GetBadgeTexture(accessoryDataClient.level, OnLevelRequirementLoaded);
+	}
+
 	private void OnLevelRequirementLoaded(WWW www)
 	{
-		if (www == null || www.texture == null)
+		if (www == null || www.texture == null || !string.IsNullOrEmpty(www.error))
 		{
-			Debug.LogWarning("Badge not loaded for accessory level requirement");
+			Debug.LogWarning("Badge not loaded for accessory level requirement, Error: " + www.error);
+			return;
 		}
-		else
-		{
-			levelRequirement.texture = www.texture;
-		}
+		levelRequirement.gameObject.SetActive(value: true);
+		levelRequirement.texture = www.texture;
 	}
 
 	public void OnClicked()

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using MV.Common;
 using Newtonsoft.Json;
-using UnityEngine;
 using UnityEngine.Events;
 
 public static class AccessoryDataManager
@@ -69,7 +68,6 @@ public static class AccessoryDataManager
 	public static void SetAccessoryData(string accessoryData)
 	{
 		accessoryShopData = JsonConvert.DeserializeObject<AccessoryShopDataClient>(accessoryData);
-		Debug.Log("accessoryShopData.accessoryBundle.accessoryBundleItems.Count: " + accessoryShopData.accessoryBundle.accessoryBundleItems.Count);
 		accessoriesReady = true;
 		if (readyCallback != null)
 		{

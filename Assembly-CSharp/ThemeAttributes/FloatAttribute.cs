@@ -18,8 +18,8 @@ public class FloatAttribute : NamedThemeAttribute<float>
 	[SerializeField]
 	private float max;
 
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	private Setter sliderPrefab;
 
 	public override object Data => value;

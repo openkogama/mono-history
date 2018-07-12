@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using MV.WorldObject.HighlightSystem;
 using MV.WorldObject.HighlightSystem.HighlightPayloads;
 using Newtonsoft.Json;
-using UnityEngine;
 
 public static class HighlightManager
 {
@@ -25,9 +24,7 @@ public static class HighlightManager
 
 	public static void Init(string availableHighlightDatasString)
 	{
-		Debug.Log("Highlight manager initialized");
 		highlightDatas = JsonConvert.DeserializeObject<Dictionary<int, AvailableHighlightData>>(availableHighlightDatasString);
-		Debug.Log("highlightDatas.Count: " + highlightDatas.Count);
 	}
 
 	public static void SetHighlightToSeen(int highlightId)

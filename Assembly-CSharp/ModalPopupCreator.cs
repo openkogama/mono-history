@@ -44,7 +44,7 @@ public class ModalPopupCreator : MonoBehaviour, IEventSystemHandler, IModalPopup
 		PleaseWaitPopup waitPopup = Object.Instantiate(waitPopupPrefab);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			x.Push(waitPopup.gameObject, popupPushOption, null, UIGroupFlags.Popup);
+			x.Push(waitPopup.gameObject, UIPushOption.InvisibleBlocker, null, UIGroupFlags.Popup);
 		});
 		return waitPopup;
 	}

@@ -1,8 +1,8 @@
 public enum PriceRange
 {
-	PriceCommon = 1500,
-	PriceUncommon = 3900,
-	PriceRare = 7800,
-	PriceEpic = 12000,
-	PriceLegendary = 20000
+	PriceCommon = 470,
+	PriceUncommon = 1880,
+	PriceRare = 4700,
+	PriceEpic = 11750,
+	PriceLegendary = 1000000
 }

@@ -30,22 +30,19 @@ public class AvatarScreenShooter : MonoBehaviour
 		if (body != null)
 		{
 			bodyCloneGO = UnityEngine.Object.Instantiate(body.GameObject);
+			SkinnedMeshOptimizer[] componentsInChildren = bodyCloneGO.GetComponentsInChildren<SkinnedMeshOptimizer>();
+			for (int i = 0; i < componentsInChildren.Length; i++)
+			{
+				componentsInChildren[i].DisableOptimizer();
+				componentsInChildren[i].TurnOffMesh();
+			}
 			if (ignoreAccessories)
 			{
-				AvatarAccessory[] componentsInChildren = bodyCloneGO.GetComponentsInChildren<AvatarAccessory>();
-				AvatarAccessory[] array = componentsInChildren;
+				AvatarAccessory[] componentsInChildren2 = bodyCloneGO.GetComponentsInChildren<AvatarAccessory>();
+				AvatarAccessory[] array = componentsInChildren2;
 				foreach (AvatarAccessory avatarAccessory in array)
 				{
 					UnityEngine.Object.Destroy(avatarAccessory.gameObject);
-				}
-			}
-			else
-			{
-				SkinnedMeshOptimizer[] componentsInChildren2 = bodyCloneGO.GetComponentsInChildren<SkinnedMeshOptimizer>();
-				for (int j = 0; j < componentsInChildren2.Length; j++)
-				{
-					componentsInChildren2[j].DisableOptimizer();
-					componentsInChildren2[j].TurnOffMesh();
 				}
 			}
 			AvatarScreenshotGenerator.Generate(bodyCloneGO, ScreenShotDataTexHandler);

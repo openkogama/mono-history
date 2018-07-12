@@ -461,7 +461,6 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 	public override void OnDataUpdate()
 	{
 		base.OnDataUpdate();
-		Debug.LogWarning("TODO In case of partial update this should be done only if accessory info changed");
 		RefreshAccessories();
 		Debug.Log("OnDataUpdate");
 	}

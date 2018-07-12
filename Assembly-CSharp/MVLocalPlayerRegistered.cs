@@ -8,7 +8,6 @@ public class MVLocalPlayerRegistered : MVLocalPlayer
 	public MVLocalPlayerRegistered(int actorNumber, int profileID, string userName, string regionCode, int planetOwnershipTypeId, bool isAdmin, int goldAmount)
 		: base(actorNumber, profileID, userName, regionCode, planetOwnershipTypeId, isAdmin, goldAmount)
 	{
-		Debug.Log("Gold amount: " + goldAmount);
 	}
 
 	public override void InitializeLeveling(InitialLevelData initialLevelData)

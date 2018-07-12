@@ -21,9 +21,9 @@ public abstract class CloudyThemeBase : Theme
 		public const int fogDisabled = 32;
 	}
 
+	[SerializeField]
 	[Header("Attributes", order = 1)]
 	[Header("Day/night-cycle", order = 2)]
-	[SerializeField]
 	private BoolAttribute useDayNightCycle;
 
 	[SerializeField]
@@ -57,8 +57,8 @@ public abstract class CloudyThemeBase : Theme
 	[SerializeField]
 	private ColorAttribute bottomColor;
 
-	[Header("Stars")]
 	[SerializeField]
+	[Header("Stars")]
 	private ColorAttribute starsTint;
 
 	[SerializeField]
@@ -128,12 +128,12 @@ public abstract class CloudyThemeBase : Theme
 	[SerializeField]
 	private FloatAttribute fogDensity;
 
-	[Header("Misc")]
 	[SerializeField]
+	[Header("Misc")]
 	private FloatAttribute exposure;
 
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	private ThemeSkybox skybox;
 
 	[SerializeField]

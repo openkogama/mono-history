@@ -3,8 +3,8 @@ using UnityEngine.UI;
 
 public class DayNightCycleController : MonoBehaviour
 {
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	private Toggle playToggle;
 
 	[SerializeField]

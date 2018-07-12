@@ -33,7 +33,7 @@ public class BodyAccessoriesController
 		},
 		{
 			AccessorySlotType.Back,
-			new Vector3(0f, 0.4342f, -0.16f)
+			new Vector3(0f, 0.4342f, -0.36f)
 		}
 	};
 
@@ -334,7 +334,6 @@ public class BodyAccessoriesController
 		{
 			return false;
 		}
-		Debug.LogWarning("Got rid of: body.Group.GetType() == typeof (MVAvatarLocal)");
 		return true;
 	}
 
