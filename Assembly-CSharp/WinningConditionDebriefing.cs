@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 {
@@ -55,10 +54,6 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 
 	public void SetupDebriefing(WinningConditionType winType, HighScores highScores, bool teamMode)
 	{
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-		{
-			x.PopGroups(UIGroupFlags.InventoryUI | UIGroupFlags.InventoryUISubMenu);
-		});
 		if (gameObject.activeInHierarchy)
 		{
 			if (teamMode)

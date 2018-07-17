@@ -90,9 +90,14 @@ public class BundleTab : TabMenuButtonBase
 		BadgeManager.GetBadgeTexture(AccessoryDataManager.GetAccessoryBundleClient().level, OnBadgeLoaded);
 	}
 
+	private void OnDestroy()
+	{
+		BadgeManager.UnsubscribeGetBadgeRequest(OnBadgeLoaded);
+	}
+
 	private void OnBadgeLoaded(WWW www)
 	{
-		if (www != null && string.IsNullOrEmpty(www.error) && www.texture != null)
+		if (!(levelBadge == null) && www != null && string.IsNullOrEmpty(www.error) && www.texture != null)
 		{
 			levelBadge.texture = www.texture;
 			levelBadge.gameObject.SetActive(value: true);

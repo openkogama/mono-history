@@ -20,6 +20,11 @@ public class VehiclePickupOwner : MVPickupOwner
 	protected override void Equip(AvatarItemType type, int variantId)
 	{
 		PickupItem pickupItem = CreateAvatarItem(type, variantId);
+		if (pickupItem == null)
+		{
+			Debug.LogError("AvatarItem is null. This is thought to be cheaters manipulating equip data. Equipping Hand.");
+			pickupItem = CreateAvatarItem(AvatarItemType.Hand, variantId);
+		}
 		pickupItem.transform.parent = mountTransform;
 		pickupItem.transform.localPosition = Vector3.zero;
 		pickupItem.transform.localRotation = Quaternion.identity;

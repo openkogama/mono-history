@@ -33,7 +33,7 @@ public class AccessoryItemBackground : MonoBehaviour
 		RarityColor colorFromPrice = GetColorFromPrice(accessoryData.priceGold);
 		rarityImage.color = colorFromPrice.correspondingColor;
 		glowImage.color = colorFromPrice.glowColor;
-		backgroundRay.gameObject.SetActive(accessoryData.isFeatured);
+		backgroundRay.gameObject.SetActive(!accessoryData.owns && accessoryData.isFeatured);
 		AccessoryBundleClient accessoryBundleClient = AccessoryDataManager.GetAccessoryBundleClient();
 		List<AccessoryBundleItem> accessoryBundleItems = accessoryBundleClient.accessoryBundleItems;
 		for (int j = 0; j < accessoryBundleItems.Count; j++)

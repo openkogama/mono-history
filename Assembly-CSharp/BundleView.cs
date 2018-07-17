@@ -28,28 +28,74 @@ public class BundleView : MonoBehaviour
 	private Text goldSavedText;
 
 	[SerializeField]
-	private ConfirmationPopup bundlePopup;
+	private PurchasedAccessoryPreviewer previewSlideshowPrefab;
 
 	[SerializeField]
-	private PurchasedAccessoryPreviewer previewSlideshowPrefab;
+	private RawImage levelRequirement;
+
+	[SerializeField]
+	private BundlePurchasePopUp bundlePurchasePopup;
+
+	[SerializeField]
+	private BundleErrorPopUp bundleErrorPopUp;
+
+	[SerializeField]
+	private LevelErrorPopup levelErrorPopUp;
+
+	[SerializeField]
+	private GameObject claimText;
+
+	private AccessoryBundleClient bundleData;
+
+	private int price;
+
+	private int originalPrice;
 
 	public void Initialize()
 	{
-		AccessoryBundleClient accessoryBundleClient = AccessoryDataManager.GetAccessoryBundleClient();
-		HandlePrices(accessoryBundleClient);
+		bundleData = AccessoryDataManager.GetAccessoryBundleClient();
+		if (MVGameControllerBase.Game.LocalPlayer.Level >= bundleData.level)
+		{
+			HandlePrices(bundleData);
+		}
+		else
+		{
+			HandleLevel(bundleData);
+		}
 	}
 
 	public void OnBundlePurchaseClicked()
 	{
-		ConfirmationPopup popup = UnityEngine.Object.Instantiate(bundlePopup);
-		popup.Initialize(TM._("Confirm"), OnPurchaseBundleConfirmation, TM._("Confirm Purchase"));
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		if (MVGameControllerBase.Game.LocalPlayer.Level < bundleData.level)
 		{
-			x.Push(popup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.InventoryUISubMenu);
-		});
+			LevelErrorPopup errorPopup = UnityEngine.Object.Instantiate(levelErrorPopUp);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(errorPopup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.Popup);
+			});
+			errorPopup.Initialize(OnInsufficientLevelCallback, bundleData.level);
+		}
+		else if (MVGameControllerBase.Game.LocalPlayer.GoldAmount < price)
+		{
+			BundleErrorPopUp errorPopup2 = UnityEngine.Object.Instantiate(bundleErrorPopUp);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(errorPopup2.gameObject, UIPushOption.Blocking, null, UIGroupFlags.Popup);
+			});
+			errorPopup2.Initialize(OnInsufficientResourceCallback, TM._("NOT ENOUGH GOLD"), TM._("Get Gold"));
+		}
+		else
+		{
+			BundlePurchasePopUp popup = UnityEngine.Object.Instantiate(bundlePurchasePopup);
+			popup.Initialize(bundleData, price, originalPrice, OnPurchaseBundleConfirmation);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(popup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.InventoryUISubMenu);
+			});
+		}
 	}
 
-	private void OnPurchaseBundleConfirmation(bool confirmed, ConfirmationPopup popup)
+	private void OnPurchaseBundleConfirmation(bool confirmed)
 	{
 		if (confirmed)
 		{
@@ -98,22 +144,22 @@ public class BundleView : MonoBehaviour
 		}
 		case MVPurchaseReturnCode.InsufficientLevel:
 		{
-			ConfirmationPopup confirmationPopup2 = UnityEngine.Object.Instantiate(bundlePopup);
+			LevelErrorPopup errorPopup2 = UnityEngine.Object.Instantiate(levelErrorPopUp);
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 			{
-				x.Push(confirmationPopup2.gameObject, UIPushOption.Blocking, null, UIGroupFlags.Popup);
+				x.Push(errorPopup2.gameObject, UIPushOption.Blocking, null, UIGroupFlags.Popup);
 			});
-			confirmationPopup2.Initialize(TM._("Get XP"), OnInsufficientResourceCallback, TM._("Too low level"));
+			errorPopup2.Initialize(OnInsufficientLevelCallback, bundleData.level);
 			break;
 		}
 		case MVPurchaseReturnCode.InsufficientFunds:
 		{
-			ConfirmationPopup confirmationPopup = UnityEngine.Object.Instantiate(bundlePopup);
+			BundleErrorPopUp errorPopup = UnityEngine.Object.Instantiate(bundleErrorPopUp);
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 			{
-				x.Push(confirmationPopup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.Popup);
+				x.Push(errorPopup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.Popup);
 			});
-			confirmationPopup.Initialize(TM._("Get gold"), OnInsufficientResourceCallback, TM._("Not enough gold"));
+			errorPopup.Initialize(OnInsufficientResourceCallback, TM._("NOT ENOUGH GOLD"), TM._("Get Gold"));
 			break;
 		}
 		default:
@@ -133,7 +179,7 @@ public class BundleView : MonoBehaviour
 		});
 	}
 
-	private void OnInsufficientResourceCallback(bool confirmed, ConfirmationPopup popup)
+	private void OnInsufficientResourceCallback(bool confirmed)
 	{
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
@@ -146,37 +192,43 @@ public class BundleView : MonoBehaviour
 		}
 	}
 
+	private void OnInsufficientLevelCallback()
+	{
+	}
+
 	private void HandlePrices(AccessoryBundleClient accessoryData)
 	{
+		originalPrice = 0;
 		int num = 0;
-		int num2 = 0;
+		levelRequirement.gameObject.SetActive(value: false);
 		List<AccessoryBundleItem> accessoryBundleItems = accessoryData.accessoryBundleItems;
 		for (int i = 0; i < accessoryBundleItems.Count; i++)
 		{
 			AccessoryDataClient accessoryDataByMetaDataId = AccessoryDataManager.GetAccessoryDataByMetaDataId(accessoryBundleItems[i].accessoryMetaDataID);
 			if (accessoryDataByMetaDataId != null && !accessoryDataByMetaDataId.owns)
 			{
-				num += accessoryDataByMetaDataId.priceGold;
-				num2++;
+				originalPrice += accessoryDataByMetaDataId.priceGold;
+				num++;
 			}
 		}
-		if (num2 == 0)
+		if (num == 0)
 		{
 			Debug.LogError("Bundle shown, but all items are owned");
 			return;
 		}
 		int discount = accessoryData.discount;
-		int num3 = num;
+		price = originalPrice;
 		originalPriceText.gameObject.SetActive(discount > 0);
 		discountTag.SetActive(discount > 0);
+		goldSavedText.gameObject.SetActive(discount > 0);
+		claimText.SetActive(value: false);
 		if (discount > 0)
 		{
 			discountTagText.text = "-" + discount + "%";
-			int num4 = Mathf.FloorToInt((float)num * ((float)discount / 100f));
-			num3 = num - num4;
-			originalPriceText.text = num.ToString("N0");
-			goldSavedText.gameObject.SetActive(value: true);
-			goldSavedText.text = num4.ToString("N0");
+			int num2 = Mathf.FloorToInt((float)originalPrice * ((float)discount / 100f));
+			price = originalPrice - num2;
+			originalPriceText.text = originalPrice.ToString("N0");
+			goldSavedText.text = num2.ToString("N0");
 			discountedPriceText.gameObject.SetActive(value: true);
 			bundlePriceWithoutDiscount.gameObject.SetActive(value: false);
 		}
@@ -185,7 +237,44 @@ public class BundleView : MonoBehaviour
 			discountedPriceText.gameObject.SetActive(value: false);
 			bundlePriceWithoutDiscount.gameObject.SetActive(value: true);
 		}
-		discountedPriceText.text = num3.ToString("N0");
-		bundlePriceWithoutDiscount.text = num3.ToString("N0");
+		if (price == 0)
+		{
+			discountTag.SetActive(value: false);
+			discountedPriceText.gameObject.SetActive(value: false);
+			bundlePriceWithoutDiscount.gameObject.SetActive(value: false);
+			originalPriceText.gameObject.SetActive(value: false);
+			goldSavedText.gameObject.SetActive(value: false);
+			claimText.SetActive(value: true);
+		}
+		discountedPriceText.text = price.ToString("N0");
+		bundlePriceWithoutDiscount.text = price.ToString("N0");
+	}
+
+	private void HandleLevel(AccessoryBundleClient accessoryData)
+	{
+		levelRequirement.gameObject.SetActive(value: true);
+		BadgeManager.GetBadgeTexture(accessoryData.level, OnLevelRequirementLoaded);
+		originalPriceText.gameObject.SetActive(value: false);
+		discountedPriceText.gameObject.SetActive(value: false);
+		bundlePriceWithoutDiscount.gameObject.SetActive(value: false);
+		discountTag.SetActive(value: false);
+		goldSavedText.gameObject.SetActive(value: false);
+	}
+
+	private void OnLevelRequirementLoaded(WWW www)
+	{
+		if (www == null || www.texture == null)
+		{
+			Debug.LogWarning("Badge not loaded for accessory level requirement");
+		}
+		else
+		{
+			levelRequirement.texture = www.texture;
+		}
+	}
+
+	private void OnDestroy()
+	{
+		AsyncWWWManager.UnsubscribeWWWRequest(OnLevelRequirementLoaded);
 	}
 }

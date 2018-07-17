@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class AvatarPreviewer : MonoBehaviour
 {
+	private const int lowResRT = 256;
+
 	private float previewObjMaxSize = 2f;
 
 	private float previewCamAdditionalHeight = 0.5f;
@@ -41,6 +43,28 @@ public class AvatarPreviewer : MonoBehaviour
 		gameObject.name = $"Preview_{name}_RenderCam";
 		gameObject.layer = LayerMask.NameToLayer("Preview");
 		int antiAliasing = 2;
+		try
+		{
+			previewTexture = new RenderTexture(textureWidth, textureHeight, 16, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
+			previewTexture.antiAliasing = antiAliasing;
+			if (!previewTexture.Create())
+			{
+				Object.Destroy(previewTexture);
+				previewTexture = new RenderTexture(256 * (textureWidth / textureHeight), 256, 16, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
+				previewTexture.antiAliasing = antiAliasing;
+				previewTexture.Create();
+			}
+		}
+		catch
+		{
+			Debug.LogWarning("Rendertexture not created, it is likely not supported on target device.");
+			if (previewTexture != null)
+			{
+				Object.Destroy(previewTexture);
+			}
+			previewTexture = null;
+			return;
+		}
 		previewTexture = RenderTexture.GetTemporary(textureWidth, textureHeight, 16, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, antiAliasing);
 		previewCam.targetTexture = previewTexture;
 		PreviewGameObject = woGameObjectCopy;
@@ -84,8 +108,13 @@ public class AvatarPreviewer : MonoBehaviour
 		if (previewCam != null)
 		{
 			previewCam.targetTexture = null;
-			RenderTexture.ReleaseTemporary(previewTexture);
+			previewTexture = null;
 		}
+		if (previewTexture != null)
+		{
+			Object.Destroy(previewTexture);
+		}
+		previewTexture = null;
 		Object.Destroy(gameObject);
 	}
 }

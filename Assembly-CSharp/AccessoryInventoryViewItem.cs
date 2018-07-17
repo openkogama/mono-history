@@ -83,6 +83,8 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IEventSystemHandler, IP
 
 	private int highlightId = -1;
 
+	private bool bundleView;
+
 	private bool wasDestroyed;
 
 	private float effectDuration = 0.1f;
@@ -93,6 +95,7 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IEventSystemHandler, IP
 		this.rootTransform = rootTransform;
 		locked = !accessoryDataClient.owns;
 		this.targetBody = targetBody;
+		this.bundleView = bundleView;
 		List<Highlight<HighlightAccessory>> highLights = HighlightManager.GetHighLights<HighlightAccessory>(HighlightType.Accessory);
 		for (int i = 0; i < highLights.Count; i++)
 		{
@@ -102,48 +105,9 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IEventSystemHandler, IP
 				highlightId = highLights[i].id;
 			}
 		}
-		accessoryItemBackground.Initialize(accessoryDataClient);
-		newAccessoryImage.SetActive(accessoryDataClient.isNew);
-		if (!bundleView)
-		{
-			timeLimitDisplayer.Initialize(accessoryDataClient.timelimit);
-			timeLimitDisplayer.gameObject.SetActive(locked && accessoryDataClient.timelimit.IsTimeLimited);
-			bool flag = accessoryDataClient.discount >= 100 || accessoryDataClient.priceGold == 0;
-			discount.SetActive(locked && accessoryDataClient.discount > 0 && !flag);
-			freeLabel.SetActive(locked && flag);
-			discountText.text = $"-{accessoryDataClient.discount.ToString()}%";
-			equipCheckbox.gameObject.SetActive(!locked);
-			if (!locked)
-			{
-				equipCheckbox.isOn = targetBody.IsAccessoryEquipped(accessoryDataClient.streamingAssetID);
-			}
-			equipCheckbox.GetComponent<CanvasGroup>().alpha = ((!equipCheckbox.isOn) ? 1f : 0.5f);
-			equipCheckbox.onValueChanged.AddListener(OnEquip);
-			priceDisplay.SetActive(locked);
-			priceStrikeout.SetActive(locked && accessoryDataClient.discount > 0 && accessoryDataClient.priceGold > 0);
-			priceStrikeoutText.text = accessoryDataClient.priceGold.ToString();
-			priceText.text = accessoryDataClient.DiscountedPrice.ToString();
-			if (MVGameControllerBase.Game.LocalPlayer.Level < accessoryDataClient.level && locked)
-			{
-				priceBackground.SetActive(value: false);
-				discount.SetActive(value: false);
-				priceDisplay.SetActive(value: false);
-				priceText.gameObject.SetActive(value: false);
-				priceStrikeout.SetActive(value: false);
-				priceStrikeoutText.gameObject.SetActive(value: false);
-				freeLabel.SetActive(value: false);
-				if (LevelingManager.IsInitialized)
-				{
-					SetLevelBadge();
-				}
-				else
-				{
-					LevelingManager.OnLevelingInitialized = (UnityAction)Delegate.Combine(LevelingManager.OnLevelingInitialized, new UnityAction(SetLevelBadge));
-				}
-			}
-		}
 		purchasePopupButton.interactable = !bundleView;
 		previewImage.gameObject.SetActive(value: false);
+		accessoryItemBackground.gameObject.SetActive(value: false);
 		loadingWheel.SetActive(value: true);
 		accessoryLoader.LoadAccessory(accessoryDataClient.url, AccessoryCreatedCallback);
 	}
@@ -240,20 +204,67 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IEventSystemHandler, IP
 			return;
 		}
 		avatarAccessory.transform.parent = rootTransform;
-		previewImage.gameObject.SetActive(value: true);
-		purchasePopupButton.enabled = true;
-		loadingWheel.SetActive(value: false);
 		string text = "AccessoryShop/" + accessoryDataClient.category.ToString() + "Images/";
 		string[] array = accessoryDataClient.url.Split(new string[1] { "/" }, StringSplitOptions.None);
 		array = array[array.Length - 1].Split(new string[1] { "." }, StringSplitOptions.None);
 		string text2 = array[0];
 		text2 += "Image.png";
 		text += text2.ToLower();
+		StreamPngToSprite streamPngToSprite = previewImageStreaminAssetManual;
+		streamPngToSprite.OnDownloadFinish = (Action)Delegate.Combine(streamPngToSprite.OnDownloadFinish, new Action(OnPreviewImageDownloadFinished));
 		previewImageStreaminAssetManual.StartDownloading(text);
 		SkinnedMeshOptimizer[] componentsInChildren = avatarAccessory.GetComponentsInChildren<SkinnedMeshOptimizer>();
 		for (int i = 0; i < componentsInChildren.Length; i++)
 		{
 			componentsInChildren[i].DisableOptimizer();
+		}
+	}
+
+	private void OnPreviewImageDownloadFinished()
+	{
+		previewImage.gameObject.SetActive(value: true);
+		loadingWheel.SetActive(value: false);
+		accessoryItemBackground.gameObject.SetActive(value: true);
+		accessoryItemBackground.Initialize(accessoryDataClient);
+		newAccessoryImage.SetActive(accessoryDataClient.isNew);
+		if (bundleView)
+		{
+			return;
+		}
+		timeLimitDisplayer.Initialize(accessoryDataClient.timelimit);
+		timeLimitDisplayer.gameObject.SetActive(locked && accessoryDataClient.timelimit.IsTimeLimited);
+		bool flag = accessoryDataClient.discount >= 100 || accessoryDataClient.priceGold == 0;
+		discount.SetActive(locked && accessoryDataClient.discount > 0 && !flag);
+		freeLabel.SetActive(locked && flag);
+		discountText.text = $"-{accessoryDataClient.discount.ToString()}%";
+		equipCheckbox.gameObject.SetActive(!locked);
+		if (!locked)
+		{
+			equipCheckbox.isOn = targetBody.IsAccessoryEquipped(accessoryDataClient.streamingAssetID);
+		}
+		equipCheckbox.GetComponent<CanvasGroup>().alpha = ((!equipCheckbox.isOn) ? 1f : 0.5f);
+		equipCheckbox.onValueChanged.AddListener(OnEquip);
+		priceDisplay.SetActive(locked);
+		priceStrikeout.SetActive(locked && accessoryDataClient.discount > 0 && accessoryDataClient.priceGold > 0);
+		priceStrikeoutText.text = accessoryDataClient.priceGold.ToString();
+		priceText.text = accessoryDataClient.DiscountedPrice.ToString();
+		if (MVGameControllerBase.Game.LocalPlayer.Level < accessoryDataClient.level && locked)
+		{
+			priceBackground.SetActive(value: false);
+			discount.SetActive(value: false);
+			priceDisplay.SetActive(value: false);
+			priceText.gameObject.SetActive(value: false);
+			priceStrikeout.SetActive(value: false);
+			priceStrikeoutText.gameObject.SetActive(value: false);
+			freeLabel.SetActive(value: false);
+			if (LevelingManager.IsInitialized)
+			{
+				SetLevelBadge();
+			}
+			else
+			{
+				LevelingManager.OnLevelingInitialized = (UnityAction)Delegate.Combine(LevelingManager.OnLevelingInitialized, new UnityAction(SetLevelBadge));
+			}
 		}
 	}
 

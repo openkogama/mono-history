@@ -21,6 +21,13 @@ public class LocalizedText : MonoBehaviour
 	private void Reset()
 	{
 		text = GetComponent<Text>();
-		text.text = "_(\"Text\")";
+		if (text.text == string.Empty)
+		{
+			text.text = "_(\"Text\")";
+		}
+		else
+		{
+			text.text = $"_(\"{text.text}\")";
+		}
 	}
 }

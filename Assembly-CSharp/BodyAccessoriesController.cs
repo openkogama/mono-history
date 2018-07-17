@@ -25,7 +25,7 @@ public class BodyAccessoriesController
 	{
 		{
 			AccessorySlotType.Head,
-			new Vector3(0f, 0.6f, 0.07f)
+			new Vector3(0f, 0.6f, 0.05f)
 		},
 		{
 			AccessorySlotType.Torso,
@@ -191,8 +191,11 @@ public class BodyAccessoriesController
 
 	public void ApplySizeChange(float size, AccessorySlotType slot)
 	{
-		accessoryMap[slot].Scale = size;
-		accessoryMap[slot].transform.localScale = Vector3.one * size;
+		if (accessoryMap.ContainsKey(slot))
+		{
+			accessoryMap[slot].Scale = size;
+			accessoryMap[slot].transform.localScale = Vector3.one * size;
+		}
 		Dictionary<object, object> dictionary = accessoryData;
 		int num = (int)slot;
 		Dictionary<object, object> dictionary2 = (Dictionary<object, object>)dictionary[num.ToString()];
@@ -201,8 +204,11 @@ public class BodyAccessoriesController
 
 	public void ApplyAccessoryOffset(float yOffset, AccessorySlotType slot)
 	{
-		accessoryMap[slot].Transform.localPosition = Vector3.zero + slotBoneOffset[slot] + Vector3.up * yOffset;
-		accessoryMap[slot].Transform.localRotation = Quaternion.identity;
+		if (accessoryMap.ContainsKey(slot))
+		{
+			accessoryMap[slot].Transform.localPosition = Vector3.zero + slotBoneOffset[slot] + Vector3.up * yOffset;
+			accessoryMap[slot].Transform.localRotation = Quaternion.identity;
+		}
 		Dictionary<object, object> dictionary = accessoryData;
 		int num = (int)slot;
 		Dictionary<object, object> dictionary2 = (Dictionary<object, object>)dictionary[num.ToString()];

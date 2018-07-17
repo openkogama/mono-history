@@ -1,32 +1,63 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class AccessoryShinyButton : MonoBehaviour
 {
-	[Serializable]
-	private class ScrollingUVSprite
-	{
-		public Image image;
-
-		public AnimationCurve alphaCurve;
-
-		public Vector2 direction = Vector2.zero;
-
-		public AnimationCurve movementX;
-	}
+	[SerializeField]
+	private RectTransform buttonRect;
 
 	[SerializeField]
-	private List<ScrollingUVSprite> scrollingSpriteElements;
+	private Transform buttonShine;
+
+	[SerializeField]
+	private AnimationCurve buttonShinePositionCurve;
+
+	[SerializeField]
+	private Image topFlare;
+
+	[SerializeField]
+	private AnimationCurve topFlarePositionCurve;
+
+	[SerializeField]
+	private Image bottomFlare;
+
+	[SerializeField]
+	private AnimationCurve bottomFlarePositionCurve;
+
+	[SerializeField]
+	private AnimationCurve flareAlphaCurve;
+
+	[SerializeField]
+	private float animationDuration;
+
+	private float currentProgress;
+
+	private void Start()
+	{
+		currentProgress = 0f;
+	}
 
 	private void Update()
 	{
-		for (int i = 0; i < scrollingSpriteElements.Count; i++)
+		currentProgress += Time.deltaTime;
+		if (currentProgress > animationDuration)
 		{
-			Color color = scrollingSpriteElements[i].image.color;
-			color.a = scrollingSpriteElements[i].alphaCurve.Evaluate(Time.time);
-			scrollingSpriteElements[i].image.color = color;
+			currentProgress = 0f;
 		}
+		Vector3 localPosition = buttonShine.localPosition;
+		localPosition.x = buttonRect.rect.width * buttonShinePositionCurve.Evaluate(currentProgress);
+		buttonShine.localPosition = localPosition;
+		localPosition = topFlare.transform.localPosition;
+		localPosition.x = buttonRect.rect.width * topFlarePositionCurve.Evaluate(currentProgress);
+		topFlare.transform.localPosition = localPosition;
+		Color color = topFlare.color;
+		color.a = flareAlphaCurve.Evaluate(currentProgress);
+		topFlare.color = color;
+		localPosition = bottomFlare.transform.localPosition;
+		localPosition.x = buttonRect.rect.width * bottomFlarePositionCurve.Evaluate(currentProgress);
+		bottomFlare.transform.localPosition = localPosition;
+		color = bottomFlare.color;
+		color.a = flareAlphaCurve.Evaluate(currentProgress);
+		bottomFlare.color = color;
 	}
 }

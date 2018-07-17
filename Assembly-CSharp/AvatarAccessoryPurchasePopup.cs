@@ -13,6 +13,9 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 	private StreamPngToSprite preview;
 
 	[SerializeField]
+	private GameObject loadingWheel;
+
+	[SerializeField]
 	private Text priceText;
 
 	[SerializeField]
@@ -25,16 +28,10 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 	private Text discountTagText;
 
 	[SerializeField]
-	private Text goldSavedText;
-
-	[SerializeField]
 	private AccessoryItemBackground accessoryItemBackground;
 
 	[SerializeField]
 	private AccessoryTimeLimitDisplayer timeLimitDisplayer;
-
-	[SerializeField]
-	private RawImage levelRequirement;
 
 	[SerializeField]
 	private GameObject newAccessoryImage;
@@ -48,36 +45,24 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 	[SerializeField]
 	private PurchasedAccessoryPreviewer successPreviewer;
 
+	[SerializeField]
+	private GameObject emptyFrame;
+
 	private int price;
 
 	private string previewImageUrl;
 
-	protected MVBody AvatarBody;
-
-	private void SetCurrentBody(MVBody body)
-	{
-		AvatarBody = body;
-	}
-
 	public void Initialize(AccessoryDataClient accessoryDataClient, string previewImageUrl)
 	{
-		if (MVGameControllerBase.GameMode == MVGameMode.CharacterEditor)
-		{
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IGetCurrentBody x, BaseEventData y) =>
-			{
-				x.GetCurrentBody(SetCurrentBody);
-			});
-		}
-		else
-		{
-			AvatarBody = MVGameControllerBase.Game.LocalPlayer.Avatar.Body;
-		}
+		loadingWheel.SetActive(value: true);
+		preview.gameObject.SetActive(value: false);
+		StreamPngToSprite streamPngToSprite = preview;
+		streamPngToSprite.OnDownloadFinish = (Action)Delegate.Combine(streamPngToSprite.OnDownloadFinish, new Action(OnPreviewImageDownLoaded));
 		preview.StartDownloading(previewImageUrl);
 		this.accessoryDataClient = accessoryDataClient;
 		priceText.text = accessoryDataClient.priceGold.ToString();
 		price = accessoryDataClient.priceGold;
 		this.previewImageUrl = previewImageUrl;
-		goldSavedText.gameObject.SetActive(value: false);
 		accessoryItemBackground.Initialize(accessoryDataClient);
 		HandleNotOwnedUI();
 	}
@@ -182,8 +167,6 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 			int num2 = Mathf.FloorToInt((float)priceGold * ((float)discount / 100f));
 			num = priceGold - num2;
 			originalPriceText.text = priceGold.ToString("N0");
-			goldSavedText.gameObject.SetActive(value: true);
-			goldSavedText.text = num2.ToString("N0");
 		}
 		priceText.text = num.ToString("N0");
 	}
@@ -193,26 +176,20 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 		HandlePrices(accessoryDataClient);
 		timeLimitDisplayer.Initialize(accessoryDataClient.timelimit);
 		timeLimitDisplayer.gameObject.SetActive(accessoryDataClient.timelimit.IsTimeLimited);
-		if (accessoryDataClient.level > 0)
-		{
-			BadgeManager.GetBadgeTexture(accessoryDataClient.level, OnLevelRequirementLoaded);
-		}
 		newAccessoryImage.SetActive(accessoryDataClient.isNew);
 	}
 
-	private void OnLevelRequirementLoaded(WWW www)
+	private void OnPreviewImageDownLoaded()
 	{
-		if (www == null || www.texture == null)
-		{
-			Debug.LogWarning("Badge not loaded for accessory level requirement");
-			return;
-		}
-		levelRequirement.texture = www.texture;
-		levelRequirement.gameObject.SetActive(value: true);
+		loadingWheel.SetActive(value: false);
+		emptyFrame.SetActive(value: false);
+		preview.gameObject.SetActive(value: true);
 	}
 
 	private void OnDestroy()
 	{
+		StreamPngToSprite streamPngToSprite = preview;
+		streamPngToSprite.OnDownloadFinish = (Action)Delegate.Remove(streamPngToSprite.OnDownloadFinish, new Action(OnPreviewImageDownLoaded));
 		preview.DestroyTexture();
 	}
 }

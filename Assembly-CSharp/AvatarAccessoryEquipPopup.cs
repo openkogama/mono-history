@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
@@ -10,6 +11,12 @@ public class AvatarAccessoryEquipPopup : MonoBehaviour, IEventSystemHandler
 	[SerializeField]
 	private AccessoryItemBackground itemBackground;
 
+	[SerializeField]
+	private GameObject loadingWheel;
+
+	[SerializeField]
+	private GameObject emptyFrame;
+
 	private UnityAction resultCallback;
 
 	private AccessoryDataClient accessoryDataClient;
@@ -20,6 +27,10 @@ public class AvatarAccessoryEquipPopup : MonoBehaviour, IEventSystemHandler
 
 	public void Initialize(UnityAction resultCallback, string previewImageUrl, AccessoryDataClient accessoryData, float accessoryOffset, float accessoryScale)
 	{
+		loadingWheel.SetActive(value: true);
+		preview.gameObject.SetActive(value: false);
+		StreamPngToSprite streamPngToSprite = preview;
+		streamPngToSprite.OnDownloadFinish = (Action)Delegate.Combine(streamPngToSprite.OnDownloadFinish, new Action(OnPreviewImageDownLoaded));
 		preview.StartDownloading(previewImageUrl);
 		this.resultCallback = resultCallback;
 		itemBackground.Initialize(accessoryData);
@@ -50,8 +61,17 @@ public class AvatarAccessoryEquipPopup : MonoBehaviour, IEventSystemHandler
 		resultCallback();
 	}
 
+	private void OnPreviewImageDownLoaded()
+	{
+		loadingWheel.SetActive(value: false);
+		emptyFrame.SetActive(value: false);
+		preview.gameObject.SetActive(value: true);
+	}
+
 	private void OnDestroy()
 	{
+		StreamPngToSprite streamPngToSprite = preview;
+		streamPngToSprite.OnDownloadFinish = (Action)Delegate.Remove(streamPngToSprite.OnDownloadFinish, new Action(OnPreviewImageDownLoaded));
 		preview.DestroyTexture();
 	}
 }

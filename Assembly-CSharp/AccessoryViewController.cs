@@ -28,6 +28,10 @@ public class AccessoryViewController : MonoBehaviour, IEventSystemHandler, IAcce
 
 	private Color prevLight;
 
+	private float prevIntensity = 1f;
+
+	private bool wasEnabled;
+
 	private void Start()
 	{
 		WorldObjectClientRef<ThemeWorldObject> singletonWorldObjectRef = MVGameControllerBase.WOCM.GetSingletonWorldObjectRef<ThemeWorldObject>();
@@ -36,18 +40,22 @@ public class AccessoryViewController : MonoBehaviour, IEventSystemHandler, IAcce
 			singletonWorldObjectRef.WorldObjectClient.Visualization.Deactivate();
 		}
 		prevLight = RenderSettings.ambientLight;
+		prevIntensity = RenderSettings.ambientIntensity;
+		wasEnabled = MVGameControllerBase.SkyboxManager.enabled;
+		MVGameControllerBase.SkyboxManager.enabled = false;
+		RenderSettings.ambientIntensity = 0.55f;
+		RenderSettings.ambientLight = Color.white;
 	}
 
 	private void OnDestroy()
 	{
-		if (MVGameControllerBase.Game != null)
+		RenderSettings.ambientLight = prevLight;
+		RenderSettings.ambientIntensity = prevIntensity;
+		MVGameControllerBase.SkyboxManager.enabled = wasEnabled;
+		WorldObjectClientRef<ThemeWorldObject> singletonWorldObjectRef = MVGameControllerBase.WOCM.GetSingletonWorldObjectRef<ThemeWorldObject>();
+		if (singletonWorldObjectRef != null && singletonWorldObjectRef.WorldObjectClient != null)
 		{
-			RenderSettings.ambientLight = prevLight;
-			WorldObjectClientRef<ThemeWorldObject> singletonWorldObjectRef = MVGameControllerBase.WOCM.GetSingletonWorldObjectRef<ThemeWorldObject>();
-			if (singletonWorldObjectRef != null && singletonWorldObjectRef.WorldObjectClient != null)
-			{
-				singletonWorldObjectRef.WorldObjectClient.Visualization.Activate();
-			}
+			singletonWorldObjectRef.WorldObjectClient.Visualization.Activate();
 		}
 	}
 
@@ -61,11 +69,15 @@ public class AccessoryViewController : MonoBehaviour, IEventSystemHandler, IAcce
 
 	public void OpenAccessoryManagementScreen(AccessoryDataClient accessoryData)
 	{
-		HideScreens();
-		accessoryView.Initialize(accessoryData);
-		accessoryView.gameObject.SetActive(value: true);
-		backbackController.SetBackpackIconIsEnabled(enable: false);
-		previewer.OnRestartAnimation();
+		if (!accessoryView.CurrentlyViewingAccessory(accessoryData))
+		{
+			HideScreens();
+			accessoryView.Initialize(accessoryData);
+			accessoryView.gameObject.SetActive(value: true);
+			backbackController.SetBackpackIconIsEnabled(enable: false);
+			previewer.OnRestartAnimation();
+			previewer.ResetPreviewTransform();
+		}
 	}
 
 	public void OpenCategoryScreen(bool canSortByInventory)
@@ -74,6 +86,7 @@ public class AccessoryViewController : MonoBehaviour, IEventSystemHandler, IAcce
 		inventoryView.SetActive(value: true);
 		backbackController.SetBackpackIconIsEnabled(canSortByInventory);
 		previewer.OnRestartAnimation();
+		previewer.ResetPreviewTransform();
 	}
 
 	public void ShowBundle()
@@ -83,6 +96,7 @@ public class AccessoryViewController : MonoBehaviour, IEventSystemHandler, IAcce
 		bundlePurchaseOptions.gameObject.SetActive(value: true);
 		inventoryView.SetActive(value: true);
 		backbackController.SetBackpackIconIsEnabled(enable: false);
+		previewer.ResetPreviewTransform();
 	}
 
 	private void HideScreens()
@@ -106,7 +120,7 @@ public class AccessoryViewController : MonoBehaviour, IEventSystemHandler, IAcce
 		}
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAccessoryInventoryControl x, BaseEventData y) =>
 		{
-			x.DisplayPurchasableItems(displayShopItems: true);
+			x.ResetAfterBundlePurchase();
 		});
 	}
 

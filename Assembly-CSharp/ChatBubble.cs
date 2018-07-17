@@ -1,8 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(RectTransform))]
 [ExecuteInEditMode]
+[RequireComponent(typeof(RectTransform))]
 public class ChatBubble : MonoBehaviour
 {
 	private const float baseFadeWaitTime = 5f;

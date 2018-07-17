@@ -9,9 +9,6 @@ public class LevelBadge : MonoBehaviour
 	private RawImage levelBadge;
 
 	[SerializeField]
-	private PlayerStatusPopup playerStatusPopup;
-
-	[SerializeField]
 	private ProgressBarAndroid xpBar;
 
 	private void Awake()

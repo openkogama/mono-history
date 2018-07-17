@@ -59,7 +59,7 @@ public class AvatarPickupOwner : MVPickupOwner
 
 	protected override void Equip(AvatarItemType type, int variantId)
 	{
-		PickupItem pickupItem;
+		PickupItem pickupItem = null;
 		if (type == AvatarItemType.LaserPointer)
 		{
 			pickupItem = laserPointerAvatarItem;
@@ -69,6 +69,11 @@ public class AvatarPickupOwner : MVPickupOwner
 		else
 		{
 			pickupItem = CreateAvatarItem(type, variantId);
+			if (pickupItem == null)
+			{
+				Debug.LogError("AvatarItem is null. This is thought to be cheaters manipulating equip data. Equipping Hand.");
+				pickupItem = CreateAvatarItem(AvatarItemType.Hand, variantId);
+			}
 		}
 		if (mvAvatar.Body != null)
 		{

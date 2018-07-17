@@ -119,7 +119,6 @@ public class AccessoryLoader
 		{
 			if (request.Value.SubUrl == url)
 			{
-				Debug.LogWarning("Request already pending. Ignoring.");
 				return;
 			}
 		}

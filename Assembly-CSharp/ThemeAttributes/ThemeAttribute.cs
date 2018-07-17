@@ -35,8 +35,8 @@ public abstract class ThemeAttribute
 }
 public abstract class ThemeAttribute<T> : ThemeAttribute
 {
-	[SerializeField]
 	[Header("Configuration")]
+	[SerializeField]
 	protected T value;
 
 	protected Action<T> themeCallback;

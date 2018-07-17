@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MV.Common;
 using MV.WorldObject.Accessories;
 using UnityEngine;
@@ -238,6 +239,11 @@ public class AccessoryShopController : MonoBehaviour, IEventSystemHandler, IInve
 		Activate(currentlyPushOption);
 	}
 
+	public void ResetAfterBundlePurchase()
+	{
+		TabSelected((int)startingCategory);
+	}
+
 	private void PageTurned(int dir)
 	{
 		if (tabs[selectedTab].UpdatePage(dir))
@@ -308,16 +314,28 @@ public class AccessoryShopController : MonoBehaviour, IEventSystemHandler, IInve
 	private void UpdateContentWithBody(MVBody avatarBody)
 	{
 		List<AccessoryDataClient> accessoryDataFromCategoryType = GetAccessoryDataFromCategoryType((AccessoryCategoryClient)selectedTab);
-		int num = tabs[selectedTab].SlotRange[0];
-		for (int i = num; i < accessoryDataFromCategoryType.Count; i++)
+		if (!displayShopItems)
 		{
-			AccessoryDataClient accessoryDataClient = accessoryDataFromCategoryType[i];
-			if ((displayShopItems || accessoryDataClient.owns) && num < tabs[selectedTab].SlotRange[1] && accessoryDataClient.GetShowInShop())
+			for (int num = accessoryDataFromCategoryType.Count - 1; num >= 0; num--)
+			{
+				AccessoryDataClient accessoryDataClient = accessoryDataFromCategoryType[num];
+				if (!accessoryDataClient.owns)
+				{
+					accessoryDataFromCategoryType.RemoveAt(num);
+				}
+			}
+		}
+		accessoryDataFromCategoryType = accessoryDataFromCategoryType.OrderBy((AccessoryDataClient o) => o.position).ToList();
+		int num2 = tabs[selectedTab].SlotRange[0];
+		for (int num3 = num2; num3 < accessoryDataFromCategoryType.Count; num3++)
+		{
+			AccessoryDataClient accessoryDataClient2 = accessoryDataFromCategoryType[num3];
+			if (num2 < tabs[selectedTab].SlotRange[1] && accessoryDataClient2.GetShowInShop())
 			{
 				AccessoryInventoryViewItem accessoryInventoryViewItem = UnityEngine.Object.Instantiate(accessoryInventoryItemPrefab);
-				inventoryController.AddObject(accessoryInventoryViewItem.gameObject, num % numberOfSlotsPrPage);
-				accessoryInventoryViewItem.Initialize(accessoryDataFromCategoryType[i], previewItemsRoot, avatarBody, selectedTab == 254);
-				num++;
+				inventoryController.AddObject(accessoryInventoryViewItem.gameObject, num2 % numberOfSlotsPrPage);
+				accessoryInventoryViewItem.Initialize(accessoryDataFromCategoryType[num3], previewItemsRoot, avatarBody, selectedTab == 254);
+				num2++;
 			}
 		}
 	}

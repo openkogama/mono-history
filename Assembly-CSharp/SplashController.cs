@@ -41,8 +41,8 @@ public class SplashController : StreamedAudioClip.IReceiver
 	private float baseNumberOfSplashParticles = 1f;
 
 	[SerializeField]
-	[Range(0f, 4f)]
 	[Tooltip("Actual number is based off avatar speed.")]
+	[Range(0f, 4f)]
 	private float baseSplashParticlesSpeed = 0.5f;
 
 	[SerializeField]
@@ -60,8 +60,8 @@ public class SplashController : StreamedAudioClip.IReceiver
 	private Color pillarTint;
 
 	[Range(0f, 1f)]
-	[SerializeField]
 	[Header("Sound")]
+	[SerializeField]
 	private float splashSoundVolume = 0.5f;
 
 	[SerializeField]

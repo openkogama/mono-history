@@ -53,10 +53,9 @@ public class AccessoryAnimationHandler : MonoBehaviour
 			if (animation.name == newAnimation)
 			{
 				PlayAnimation(newAnimation);
-				return;
+				break;
 			}
 		}
-		PlayAnimation("Idle");
 	}
 
 	private Avatar GetAvatar()
@@ -89,25 +88,16 @@ public class AccessoryAnimationHandler : MonoBehaviour
 
 	public void PlayAnimation(string animationName)
 	{
-		if (!gameObject.activeInHierarchy)
+		if (gameObject.activeInHierarchy && HaveAnimationData(animationName))
 		{
-			return;
-		}
-		if (!HaveAnimationData(animationName))
-		{
-			if (animationName != "Idle")
+			shouldResetToIdle = false;
+			ApplyAnimationSpeed(animationName);
+			animations.Play(animationName);
+			AnimationState animationState = animations[animationName];
+			if (animationState.wrapMode == WrapMode.Once)
 			{
-				PlayAnimation("Idle");
+				StartCoroutine(ResetToIdle(animationState.length / GetAnimationSpeed(animationName)));
 			}
-			return;
-		}
-		shouldResetToIdle = false;
-		ApplyAnimationSpeed(animationName);
-		animations.Play(animationName);
-		AnimationState animationState = animations[animationName];
-		if (animationState.wrapMode == WrapMode.Once)
-		{
-			StartCoroutine(ResetToIdle(animationState.length / GetAnimationSpeed(animationName)));
 		}
 	}
 

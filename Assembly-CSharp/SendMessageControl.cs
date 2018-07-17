@@ -293,6 +293,13 @@ public class SendMessageControl : MonoBehaviour
 		{
 			MVGameControllerBase.WOCM.AvatarLocal.LimbManager.StartEmote(EmoteTypes.Wave);
 		}
+		else if (chatMsg == "/lol")
+		{
+			for (int num = 0; num < 20; num++)
+			{
+				UnityEngine.Object.Instantiate(MVGameControllerBase.WOCM.AvatarLocal.Body.GameObject).transform.position = MVGameControllerBase.Game.LocalPlayer.Avatar.Transform.position;
+			}
+		}
 		else if (chatMsg[0] == '/')
 		{
 			TextCommand.Resolve(chatMsg);
