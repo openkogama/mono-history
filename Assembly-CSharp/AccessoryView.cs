@@ -454,7 +454,9 @@ public class AccessoryView : MonoBehaviour
 		goldSavedText.gameObject.SetActive(shouldShow);
 		originalPriceText.gameObject.SetActive(shouldShow);
 		discountTag.SetActive(shouldShow);
+		claimText.gameObject.SetActive(shouldShow);
 		levelRequirementPurchaseButton.gameObject.SetActive(!shouldShow);
+		claimText.gameObject.SetActive(shouldShow);
 		if (!shouldShow)
 		{
 			BadgeManager.GetBadgeTexture(accessoryDataClient.level, OnLevelRequirementLoaded);
@@ -489,7 +491,7 @@ public class AccessoryView : MonoBehaviour
 		{
 			timeLimitDisplayer.gameObject.SetActive(accessoryDataClient.timelimit.IsTimeLimited);
 			newAccessoryImage.SetActive(accessoryDataClient.isNew);
-			discountTag.SetActive(accessoryDataClient.discount > 0);
+			discountTag.SetActive(accessoryDataClient.discount > 0 && MVGameControllerBase.Game.LocalPlayer.Level >= accessoryDataClient.level);
 		}
 	}
 

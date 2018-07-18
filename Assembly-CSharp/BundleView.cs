@@ -259,6 +259,7 @@ public class BundleView : MonoBehaviour
 		bundlePriceWithoutDiscount.gameObject.SetActive(value: false);
 		discountTag.SetActive(value: false);
 		goldSavedText.gameObject.SetActive(value: false);
+		claimText.SetActive(value: false);
 	}
 
 	private void OnLevelRequirementLoaded(WWW www)
