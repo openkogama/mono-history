@@ -88,8 +88,8 @@ public class WinningConditionBriefing : MonoBehaviour
 			TM._("ELIMINATE THE OCULI!")
 		},
 		{
-			WinningConditionType.FinishLine,
-			TM._("REACH THE FINISH LINE!")
+			WinningConditionType.TimeAttackFlag,
+			TM._("REACH THE FLAG!")
 		}
 	};
 
@@ -143,11 +143,11 @@ public class WinningConditionBriefing : MonoBehaviour
 				int num = 0;
 				num = ((MVGameControllerBase.Game.TeamManager.TeamCount() <= 1) ? MVGameControllerBase.Game.GameStatCounterManager.GetActorCount(statType, MVGameControllerBase.Game.LocalPlayer.Team, MVGameControllerBase.Game.LocalPlayer.ActorNr) : MVGameControllerBase.Game.GameStatCounterManager.GetTeamCount(statType, MVGameControllerBase.Game.LocalPlayer.Team));
 				int prioritizedStatLimit = WinningConditionControl.GetPrioritizedStatLimit(statType);
-				if (prioritizedStatLimit == 0 && winConType == WinningConditionType.Flag)
+				if (prioritizedStatLimit == 0 && (winConType == WinningConditionType.Flag || winConType == WinningConditionType.TimeAttackFlag))
 				{
 					progressableWinningConditionPresent.SetActive(value: false);
 					reachTheFlagPresent.SetActive(value: true);
-					flagScoreText.text = WinningConditionControl.MakeIntoScoreText(GetFlagHighScore(), GameStatCounterType.Flag);
+					flagScoreText.text = WinningConditionControl.MakeIntoScoreText(GetHighScore(winConType), GameStatCounterType.Flag);
 				}
 				else
 				{
@@ -208,16 +208,22 @@ public class WinningConditionBriefing : MonoBehaviour
 		winConImage.transform.SetAsLastSibling();
 	}
 
-	private int GetFlagHighScore()
+	private int GetHighScore(WinningConditionType winningConditionType)
 	{
+		GameStatCounterType gameStatCounterType = winningConditionType switch
+		{
+			WinningConditionType.Flag => GameStatCounterType.Flag, 
+			WinningConditionType.TimeAttackFlag => GameStatCounterType.TimeAttackFlag, 
+			_ => GameStatCounterType.None, 
+		};
 		int num = 0;
 		foreach (KeyValuePair<int, MVPlayer> item in MVGameControllerBase.Game.MVPlayerContainer)
 		{
 			if (item.Value != null)
 			{
 				int actorNr = item.Value.ActorNr;
-				int actorCount = MVGameControllerBase.Game.GameStatCounterManager.GetActorCount(GameStatCounterType.Flag, item.Value.Team, actorNr);
-				if (WinningConditionControl.IsNewScoreBetter(actorCount, num, GameStatCounterType.Flag))
+				int actorCount = MVGameControllerBase.Game.GameStatCounterManager.GetActorCount(gameStatCounterType, item.Value.Team, actorNr);
+				if (WinningConditionControl.IsNewScoreBetter(actorCount, num, gameStatCounterType))
 				{
 					num = actorCount;
 				}

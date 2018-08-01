@@ -12,6 +12,10 @@ public class AddDotsToTruncatedText : MonoBehaviour
 		yield return new WaitForEndOfFrame();
 		string textValue = text.text;
 		bool addDots = false;
+		while (text.cachedTextGenerator.fontSizeUsedForBestFit == 0)
+		{
+			yield return new WaitForSeconds(0.1f);
+		}
 		if (text.resizeTextForBestFit)
 		{
 			text.fontSize = text.cachedTextGenerator.fontSizeUsedForBestFit;

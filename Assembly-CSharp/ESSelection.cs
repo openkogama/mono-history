@@ -173,7 +173,7 @@ internal class ESSelection : ESStateBase
 		}
 		else if (MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect))
 		{
-			if (flag && pickedTarget != null && ((pickedTarget.mousePosition - MVInputWrapper.GetPointerPosition()).magnitude > 0.5f || MVInputWrapper.GetAxisRaw("Mouse ScrollWheel") != 0f))
+			if (flag && pickedTarget != null && ((pickedTarget.mousePosition - MVInputWrapper.GetPointerPosition()).magnitude > 0.5f || MVInputWrapper.GetAxisRawWithoutSensitivity("Mouse ScrollWheel") != 0f))
 			{
 				if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
 				{

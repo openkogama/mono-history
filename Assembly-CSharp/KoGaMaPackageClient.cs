@@ -187,8 +187,8 @@ public class KoGaMaPackageClient
 			return new MVGhostInstance(worldObjectData, worldObjects);
 		case WorldObjectType.CheckPoint:
 			return new MVCheckpoint(worldObjectData, worldObjects);
-		case WorldObjectType.FinishLine:
-			return new FinishLine(worldObjectData, worldObjects);
+		case WorldObjectType.TimeAttackFlag:
+			return new TimeAttackFlag(worldObjectData, worldObjects);
 		case WorldObjectType.Blueprint:
 		{
 			Dictionary<object, object> dictionary = (Dictionary<object, object>)worldObjectData[WorldObjectDataParameters.Data];

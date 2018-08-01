@@ -8,5 +8,5 @@ public enum GameStatCounterType : byte
 	FlagCaptured,
 	OculusKill,
 	GameCoin,
-	FinishLine
+	TimeAttackFlag
 }

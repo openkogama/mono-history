@@ -375,6 +375,10 @@ public class AvatarLimbManagerLocal : AvatarLimbManager
 
 	private class AvatarPointingHandlerLocal : AvatarPointingHandler
 	{
+		private const float lArmYawRotationOffset = -30f;
+
+		private const float rArmYawRotationOffset = 20f;
+
 		private float networkMessageCooldown;
 
 		private Quaternion yawRotation = Quaternion.identity;
@@ -447,9 +451,23 @@ public class AvatarLimbManagerLocal : AvatarLimbManager
 
 		public void HandleResult(PointingRotationCalculationResult result)
 		{
-			yawRotation = result.YawRotation;
+			yawRotation = ApplyYawOffset(result.YawRotation);
 			pitchRotation = result.PitchRotation;
 			shouldPoint = result.ShouldPoint;
+		}
+
+		private Quaternion ApplyYawOffset(Quaternion newYawRotation)
+		{
+			Quaternion identity = Quaternion.identity;
+			if (yawRotation.eulerAngles.y < 180f || yawRotation.eulerAngles.y > 340f)
+			{
+				identity.eulerAngles = new Vector3(0f, 20f, 0f);
+			}
+			else
+			{
+				identity.eulerAngles = new Vector3(0f, -30f, 0f);
+			}
+			return newYawRotation * identity;
 		}
 	}
 

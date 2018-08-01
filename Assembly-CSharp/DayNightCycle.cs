@@ -46,8 +46,8 @@ public class DayNightCycle : MonoBehaviour
 	[SerializeField]
 	private Vector2 _moonOrbit = new Vector2(-20f, 200f);
 
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	private ThemeSkybox skybox;
 
 	[SerializeField]

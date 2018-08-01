@@ -25,7 +25,7 @@ public class TimeLimit : WinningCondition
 		return CounterType switch
 		{
 			GameStatCounterType.Flag => gameCounterManager.GetHighScores(GameStatCounterType.Flag, gameCounterManager.ActiveTeams.Count > 1, WinningConditionPresentStyle.OneWinner, byAscending: false), 
-			GameStatCounterType.FinishLine => gameCounterManager.GetHighScores(GameStatCounterType.FinishLine, gameCounterManager.ActiveTeams.Count > 1, WinningConditionPresentStyle.OneWinner, byAscending: false), 
+			GameStatCounterType.TimeAttackFlag => gameCounterManager.GetHighScores(GameStatCounterType.TimeAttackFlag, gameCounterManager.ActiveTeams.Count > 1, WinningConditionPresentStyle.OneWinner, byAscending: false), 
 			GameStatCounterType.Collectible => gameCounterManager.GetHighScores(GameStatCounterType.Collectible, gameCounterManager.ActiveTeams.Count > 1, WinningConditionPresentStyle.OneWinner, byAscending: false), 
 			GameStatCounterType.Kill => gameCounterManager.GetHighScores(GameStatCounterType.Kill, gameCounterManager.ActiveTeams.Count > 1, WinningConditionPresentStyle.OneWinner, byAscending: false), 
 			GameStatCounterType.OculusKill => gameCounterManager.GetHighScores(GameStatCounterType.OculusKill, gameCounterManager.ActiveTeams.Count > 1, WinningConditionPresentStyle.OneWinner, byAscending: false), 

@@ -17,6 +17,8 @@ public class MVPlayerContainer : IEnumerator, IEnumerable, IEnumerable<KeyValueP
 
 	public Action OnLocalPlayerReady;
 
+	public Action OnLocalPlayerTeamChanged;
+
 	public MVLocalPlayer LocalPlayer => (MVLocalPlayer)GetPlayerUnsafe(localPlayerActorNumber);
 
 	public int Count => players.Count;
@@ -118,6 +120,10 @@ public class MVPlayerContainer : IEnumerator, IEnumerable, IEnumerable<KeyValueP
 		playerUnsafe.Team = team;
 		if (playerUnsafe.IsReady)
 		{
+			if (playerUnsafe == LocalPlayer && OnLocalPlayerTeamChanged != null)
+			{
+				OnLocalPlayerTeamChanged();
+			}
 			SendPlayerListEvents();
 		}
 	}

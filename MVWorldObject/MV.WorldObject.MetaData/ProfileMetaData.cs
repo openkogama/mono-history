@@ -13,7 +13,8 @@ public class ProfileMetaData
 		FirstTimeState = 1,
 		TestData = 4,
 		ProfileHighlightState = 8,
-		All = 0xF
+		MouseSensitivity = 0x10,
+		All = 0x1F
 	}
 
 	protected readonly bool IsInitialized = true;
@@ -22,13 +23,14 @@ public class ProfileMetaData
 
 	public ProfileHighlightState ProfileHighlightState = new ProfileHighlightState();
 
+	public float MS = 1f;
+
 	public Dictionary<string, string> TestData = new Dictionary<string, string>();
 
 	protected SerializeFlag serializeFlags = SerializeFlag.All;
 
 	public ProfileMetaData()
 	{
-		TestData.Add("TestString", "This is a test");
 	}
 
 	protected ProfileMetaData(bool isInitialized)
@@ -40,7 +42,7 @@ public class ProfileMetaData
 	{
 		if (!IsInitialized)
 		{
-			throw new Exception("Can't serialize meta data");
+			throw new Exception("Can't serialize meta data. Not initialized.");
 		}
 		return (serializeFlags & SerializeFlag.FirstTimeState) != 0;
 	}
@@ -49,7 +51,7 @@ public class ProfileMetaData
 	{
 		if (!IsInitialized)
 		{
-			throw new Exception("Can't serialize meta data");
+			throw new Exception("Can't serialize meta data. Not initialized.");
 		}
 		return (serializeFlags & SerializeFlag.TestData) != 0;
 	}
@@ -58,8 +60,17 @@ public class ProfileMetaData
 	{
 		if (!IsInitialized)
 		{
-			throw new Exception("Can't serialize meta data");
+			throw new Exception("Can't serialize meta data. Not initialized.");
 		}
 		return (serializeFlags & SerializeFlag.ProfileHighlightState) != 0;
+	}
+
+	public bool ShouldSerializeMS()
+	{
+		if (!IsInitialized)
+		{
+			throw new Exception("Can't serialize meta data. Not initialized.");
+		}
+		return (serializeFlags & SerializeFlag.MouseSensitivity) != 0;
 	}
 }

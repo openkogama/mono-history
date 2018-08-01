@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AccessoryAnimationHandler : MonoBehaviour
+public class AccessoryAnimationHandler : ActivateOnAnimationBase
 {
 	[Serializable]
 	private struct AnimationData
@@ -19,42 +19,19 @@ public class AccessoryAnimationHandler : MonoBehaviour
 	[SerializeField]
 	private List<AnimationData> animationData;
 
-	private MVAvatar mvAvatar;
-
 	private bool shouldResetToIdle;
 
-	private void Start()
+	protected override void Start()
 	{
+		base.Start();
 		Initialize();
 	}
 
-	private void OnDestroy()
+	public override void OnAvatarAnimationChange(string newAnimation)
 	{
-		if (mvAvatar != null)
+		if (!animations.IsPlaying(newAnimation))
 		{
-			BoneAnimation animation = mvAvatar.Body.Animation;
-			animation.OnAnimationChange = (Action<string>)Delegate.Remove(animation.OnAnimationChange, new Action<string>(OnLocalAvatarAnimationChange));
-		}
-		if (mvAvatar != null)
-		{
-			AvatarLimbManager limbManager = mvAvatar.LimbManager;
-			limbManager.OnEmoteStart = (Action<string>)Delegate.Remove(limbManager.OnEmoteStart, new Action<string>(OnLocalAvatarAnimationChange));
-		}
-	}
-
-	private void OnLocalAvatarAnimationChange(string newAnimation)
-	{
-		if (!gameObject.activeInHierarchy || animations.IsPlaying(newAnimation))
-		{
-			return;
-		}
-		foreach (AnimationState animation in animations)
-		{
-			if (animation.name == newAnimation)
-			{
-				PlayAnimation(newAnimation);
-				break;
-			}
+			PlayAnimation(newAnimation);
 		}
 	}
 
@@ -121,17 +98,8 @@ public class AccessoryAnimationHandler : MonoBehaviour
 
 	public void Initialize()
 	{
-		Avatar avatar = GetAvatar();
-		if (!(avatar == null))
-		{
-			mvAvatar = avatar.mvAvatar;
-			BoneAnimation animation = mvAvatar.Body.Animation;
-			animation.OnAnimationChange = (Action<string>)Delegate.Combine(animation.OnAnimationChange, new Action<string>(OnLocalAvatarAnimationChange));
-			AvatarLimbManager limbManager = mvAvatar.LimbManager;
-			limbManager.OnEmoteStart = (Action<string>)Delegate.Combine(limbManager.OnEmoteStart, new Action<string>(OnLocalAvatarAnimationChange));
-			ApplyAnimationSpeed("Idle");
-			animations.Play("Idle");
-		}
+		ApplyAnimationSpeed("Idle");
+		animations.Play("Idle");
 	}
 
 	public void SetAllAnimationToLooping()

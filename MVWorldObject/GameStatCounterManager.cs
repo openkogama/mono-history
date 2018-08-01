@@ -6,10 +6,12 @@ public class GameStatCounterManager : IGameStatCounterQuery
 {
 	private List<GameStatCounterType> roundEndingStats = new List<GameStatCounterType> { GameStatCounterType.Flag };
 
-	private List<GameStatCounterType> sessionPersistentStats = new List<GameStatCounterType>
+	private List<GameStatCounterType> sessionPersistentStats = new List<GameStatCounterType> { GameStatCounterType.Flag };
+
+	private List<GameStatCounterType> statsToRemoveOnActorLeave = new List<GameStatCounterType>
 	{
 		GameStatCounterType.Flag,
-		GameStatCounterType.FinishLine
+		GameStatCounterType.TimeAttackFlag
 	};
 
 	private Dictionary<GameStatCounterType, TeamsCounter> persistentStats;
@@ -21,6 +23,37 @@ public class GameStatCounterManager : IGameStatCounterQuery
 	public HashSet<MVTeam> ActiveTeams => new HashSet<MVTeam>(activeTeams);
 
 	public event EventHandler<OnCounterTypeChangedArgs> OnCounterTypeChanged;
+
+	public static bool IsNewScoreBetter(int newScore, int oldScore, GameStatCounterType statType)
+	{
+		switch (statType)
+		{
+		case GameStatCounterType.Kill:
+		case GameStatCounterType.Collectible:
+		case GameStatCounterType.OculusKill:
+			if (newScore > oldScore)
+			{
+				return true;
+			}
+			break;
+		case GameStatCounterType.Flag:
+		case GameStatCounterType.TimeAttackFlag:
+			if (oldScore < 0)
+			{
+				return true;
+			}
+			if (newScore <= 0)
+			{
+				return false;
+			}
+			if (newScore < oldScore || oldScore == 0)
+			{
+				return true;
+			}
+			break;
+		}
+		return false;
+	}
 
 	public void OnTeamAdded(object sender, TeamEventArgs e)
 	{
@@ -250,42 +283,50 @@ public class GameStatCounterManager : IGameStatCounterQuery
 		}
 	}
 
-	private bool IsNewScoreBetter(int newScore, int oldScore, GameStatCounterType statType)
-	{
-		switch (statType)
-		{
-		case GameStatCounterType.Kill:
-		case GameStatCounterType.Collectible:
-		case GameStatCounterType.OculusKill:
-			if (newScore > oldScore)
-			{
-				return true;
-			}
-			break;
-		case GameStatCounterType.Flag:
-		case GameStatCounterType.FinishLine:
-			if (oldScore < 0)
-			{
-				return true;
-			}
-			if (newScore <= 0)
-			{
-				return false;
-			}
-			if (newScore < oldScore || oldScore == 0)
-			{
-				return true;
-			}
-			break;
-		}
-		return false;
-	}
-
 	private void AddPersistentStats()
 	{
 		foreach (KeyValuePair<GameStatCounterType, TeamsCounter> persistentStat in persistentStats)
 		{
 			statTypeCounters.Add(persistentStat.Key, new TeamsCounter(persistentStat.Value));
+		}
+	}
+
+	private void RemoveActorHighScoreFromTeam(int newBestScore, MVTeam team, GameStatCounterType statType)
+	{
+		if (newBestScore > 0)
+		{
+			statTypeCounters[statType].UpdateTeam(team, newBestScore);
+			if (persistentStats.ContainsKey(statType))
+			{
+				persistentStats[statType].UpdateTeam(team, newBestScore);
+			}
+		}
+		else
+		{
+			statTypeCounters[statType].RemoveTeam(team);
+			if (persistentStats.ContainsKey(statType))
+			{
+				persistentStats[statType].RemoveTeam(team);
+			}
+		}
+	}
+
+	public void RemoveTeamScoreOnActorLeave(int actorNr, MVTeam team)
+	{
+		for (int i = 0; i < statsToRemoveOnActorLeave.Count; i++)
+		{
+			GameStatCounterType gameStatCounterType = statsToRemoveOnActorLeave[i];
+			int teamCount = GetTeamCount(gameStatCounterType, team);
+			if (teamCount > 0)
+			{
+				int actorCount = GetActorCount(gameStatCounterType, team, actorNr);
+				if (actorCount == teamCount)
+				{
+					int score = 0;
+					statTypeCounters[gameStatCounterType].GetActorWithBestScore(out score, team, gameStatCounterType, actorNr);
+					RemoveActorHighScoreFromTeam(score, team, gameStatCounterType);
+				}
+			}
 		}
 	}
 }

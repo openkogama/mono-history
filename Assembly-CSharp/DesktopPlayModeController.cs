@@ -59,6 +59,9 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 	[SerializeField]
 	private LobbyStatePlayModeController lobbyStatePlayModeController;
 
+	[SerializeField]
+	private ChatBubbleController chatBubbleController;
+
 	private RectTransform lobbyStateRect;
 
 	public UnityAction OnLeaveEditPlayMode;
@@ -148,6 +151,8 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 	public override void Initialize()
 	{
 		base.Initialize();
+		chatBubbleController = UnityEngine.Object.Instantiate(chatBubbleController);
+		chatBubbleController.transform.SetParent(transform, worldPositionStays: false);
 		lobbyStateRect = UnityEngine.Object.Instantiate(lobbyState);
 		lobbyStateRect.SetParent(playModeState.transform, worldPositionStays: false);
 		if (MVGameControllerBase.Game.GameType == MVGameType.Classic)

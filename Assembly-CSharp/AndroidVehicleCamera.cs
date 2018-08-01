@@ -102,12 +102,12 @@ public class AndroidVehicleCamera : MVCameraBase, IVehicleCamera
 
 	private void UpdateTargetRotation()
 	{
-		float value = MVInputWrapper.GetAxis("Mouse X") * 90f;
+		float value = MVInputWrapper.GetAxisWithoutSensitivity("Mouse X") * 90f;
 		value = Mathf.Clamp(value, -90f, 90f);
 		Quaternion quaternion = Quaternion.AngleAxis(value, Vector3.up);
 		Quaternion quaternion2 = Quaternion.Euler(0f, lookAtTransform.rotation.eulerAngles.y, 0f);
 		float y = (quaternion * quaternion2).eulerAngles.y;
-		rotationX -= MVInputWrapper.GetAxis("Mouse Y") * 5f;
+		rotationX -= MVInputWrapper.GetAxisWithoutSensitivity("Mouse Y") * 5f;
 		rotationX = MathFunctions.NormalizeAngle(rotationX);
 		if (rotationX > 180f)
 		{

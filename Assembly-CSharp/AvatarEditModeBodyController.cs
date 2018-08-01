@@ -364,11 +364,14 @@ public class AvatarEditModeBodyController : MonoBehaviour, IEventSystemHandler, 
 	public void Set(string animation)
 	{
 		CurrentBody.Animation.Play(animation);
-		AccessoryAnimationHandler[] componentsInChildren = CurrentBody.GameObject.GetComponentsInChildren<AccessoryAnimationHandler>();
+		ActivateOnAnimationBase[] componentsInChildren = CurrentBody.GameObject.GetComponentsInChildren<ActivateOnAnimationBase>();
 		for (int i = 0; i < componentsInChildren.Length; i++)
 		{
-			componentsInChildren[i].SetAllAnimationToLooping();
-			componentsInChildren[i].PlayAnimation(animation);
+			if (componentsInChildren[i] is AccessoryAnimationHandler)
+			{
+				((AccessoryAnimationHandler)componentsInChildren[i]).SetAllAnimationToLooping();
+			}
+			componentsInChildren[i].OnAvatarAnimationChange(animation);
 		}
 	}
 }

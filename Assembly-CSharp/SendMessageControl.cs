@@ -10,6 +10,10 @@ using UnityEngine.UI;
 
 public class SendMessageControl : MonoBehaviour
 {
+	private const string exportTool = "/export";
+
+	private const string exportSelfTool = "/exportself";
+
 	private const string chatChangeCommandAll = "/all";
 
 	private const string chatChangeCommandTeam = "/team";
@@ -171,10 +175,12 @@ public class SendMessageControl : MonoBehaviour
 		if (selectedChat == MVGameMsgType.SayChat && !isSayChatIconVisible)
 		{
 			MVGameControllerBase.OperationRequests.SetSayChatBubbleVisible(shouldShow: true);
+			isSayChatIconVisible = true;
 		}
 		else if (selectedChat != MVGameMsgType.SayChat && isSayChatIconVisible)
 		{
 			MVGameControllerBase.OperationRequests.SetSayChatBubbleVisible(shouldShow: false);
+			isSayChatIconVisible = false;
 		}
 		if (frameCountSent == Time.frameCount)
 		{
@@ -275,7 +281,11 @@ public class SendMessageControl : MonoBehaviour
 		}
 		else if (chatMsg == removeUI)
 		{
-			GetComponentInParent<Canvas>().gameObject.SetActive(value: false);
+			Canvas[] componentsInParent = GetComponentsInParent<Canvas>();
+			for (int num = 0; num < componentsInParent.Length; num++)
+			{
+				componentsInParent[num].gameObject.SetActive(value: false);
+			}
 		}
 		else if (chatMsg == buildInformation)
 		{
@@ -293,12 +303,13 @@ public class SendMessageControl : MonoBehaviour
 		{
 			MVGameControllerBase.WOCM.AvatarLocal.LimbManager.StartEmote(EmoteTypes.Wave);
 		}
-		else if (chatMsg == "/lol")
+		else if (chatMsg == "/export")
 		{
-			for (int num = 0; num < 20; num++)
-			{
-				UnityEngine.Object.Instantiate(MVGameControllerBase.WOCM.AvatarLocal.Body.GameObject).transform.position = MVGameControllerBase.Game.LocalPlayer.Avatar.Transform.position;
-			}
+			ObjExportHandler.InitializePicking();
+		}
+		else if (chatMsg == "/exportself")
+		{
+			ObjExportHandler.ExportSelfAvatar();
 		}
 		else if (chatMsg[0] == '/')
 		{

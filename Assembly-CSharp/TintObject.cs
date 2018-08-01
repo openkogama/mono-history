@@ -10,16 +10,16 @@ public abstract class TintObject : MonoBehaviour
 		switch (team)
 		{
 		case MVTeam.Blue:
-			Tint(0f, 0f, 1f);
+			Tint(Styles.GetColor(ColorStyle.TeamBlue));
 			break;
 		case MVTeam.Red:
-			Tint(1f, 0f, 0f);
+			Tint(Styles.GetColor(ColorStyle.TeamRed));
 			break;
 		case MVTeam.Green:
-			Tint(0f, 1f, 0f);
+			Tint(Styles.GetColor(ColorStyle.TeamGreen));
 			break;
 		case MVTeam.Yellow:
-			Tint(1f, 1f, 0f);
+			Tint(Styles.GetColor(ColorStyle.TeamYellow));
 			break;
 		default:
 			Tint(1f, 1f, 1f);

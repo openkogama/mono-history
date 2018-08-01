@@ -290,9 +290,9 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 			{
 				keyVelocity -= keyAcceleration * Time.deltaTime;
 			}
-			else if (MVInputWrapper.GetAxis("Mouse ScrollWheel") != 0f)
+			else if (MVInputWrapper.GetAxisWithoutSensitivity("Mouse ScrollWheel") != 0f)
 			{
-				if (MVInputWrapper.GetAxis("Mouse ScrollWheel") > 0f)
+				if (MVInputWrapper.GetAxisWithoutSensitivity("Mouse ScrollWheel") > 0f)
 				{
 					keyVelocity = 3f;
 				}
@@ -498,9 +498,9 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 			{
 				keyVelocity -= keyAcceleration * Time.deltaTime;
 			}
-			else if (MVInputWrapper.GetAxis("Mouse ScrollWheel") != 0f)
+			else if (MVInputWrapper.GetAxisWithoutSensitivity("Mouse ScrollWheel") != 0f)
 			{
-				if (MVInputWrapper.GetAxis("Mouse ScrollWheel") > 0f)
+				if (MVInputWrapper.GetAxisWithoutSensitivity("Mouse ScrollWheel") > 0f)
 				{
 					keyVelocity = 3f;
 				}

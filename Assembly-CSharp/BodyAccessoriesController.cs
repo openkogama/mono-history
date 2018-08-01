@@ -128,6 +128,10 @@ public class BodyAccessoriesController
 			accessoryLoader.Destroy();
 		}
 		accessoryLoader = null;
+		if (accessoryMap == null)
+		{
+			return;
+		}
 		foreach (KeyValuePair<AccessorySlotType, AvatarAccessory> item in accessoryMap)
 		{
 			Object.Destroy(item.Value.gameObject);

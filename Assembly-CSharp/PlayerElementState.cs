@@ -61,10 +61,15 @@ public class PlayerElementState : MonoBehaviour
 
 	private void SetButtonVisibility(MVPlayer player, Friend friend)
 	{
+		pendingFriendship.gameObject.SetActive(value: false);
+		cancel.gameObject.SetActive(value: false);
+		acceptFriendRequest.gameObject.SetActive(value: false);
+		requestFriendship.gameObject.SetActive(value: false);
+		manageUserButton.gameObject.SetActive(value: false);
 		MVLocalPlayer localPlayer = MVGameControllerBase.Game.LocalPlayer;
 		bool flag = player.Avatar == localPlayer.Avatar;
 		bool flag2 = MVGameControllerBase.GameMode == MVGameMode.Edit && localPlayer.PlanetOwnership == MVLocalPlayer.PlanetOwnershipType.Owner;
-		manageUserButton.gameObject.SetActive(!localPlayer.IsTourist && (localPlayer.IsAdmin || flag2));
+		manageUserButton.gameObject.SetActive(!localPlayer.IsTourist && (localPlayer.IsAdmin || flag2) && !flag);
 		if (!player.IsTourist && !localPlayer.IsTourist && !flag)
 		{
 			requestFriendship.gameObject.SetActive(friend == null);
@@ -75,20 +80,6 @@ public class PlayerElementState : MonoBehaviour
 				cancel.gameObject.SetActive(!flag3);
 				acceptFriendRequest.gameObject.SetActive(!flag3);
 			}
-			else
-			{
-				pendingFriendship.gameObject.SetActive(value: false);
-				cancel.gameObject.SetActive(value: false);
-				acceptFriendRequest.gameObject.SetActive(value: false);
-			}
-		}
-		else
-		{
-			pendingFriendship.gameObject.SetActive(value: false);
-			cancel.gameObject.SetActive(value: false);
-			acceptFriendRequest.gameObject.SetActive(value: false);
-			manageUserButton.gameObject.SetActive(value: false);
-			requestFriendship.gameObject.SetActive(value: false);
 		}
 	}
 

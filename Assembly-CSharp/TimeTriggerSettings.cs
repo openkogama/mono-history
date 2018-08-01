@@ -26,9 +26,9 @@ public class TimeTriggerSettings : MonoBehaviour, IEventSystemHandler, IHandleSe
 		Dictionary<object, object> data = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).Data;
 		float value = Convert.ToSingle(data["duration"]);
 		float value2 = Convert.ToSingle(data["time"]);
-		durationSlider.Initialize("duration", value, 0.1f, 20f);
+		durationSlider.Initialize("duration", value, 0.1f, 1000f);
 		durationInputField.Initialize("duration", value);
-		delaySlider.Initialize("time", value2, 0f, 20f);
+		delaySlider.Initialize("time", value2, 0f, 1000f);
 		delayInputField.Initialize("time", value2);
 	}
 

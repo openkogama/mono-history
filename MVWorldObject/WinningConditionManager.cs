@@ -285,9 +285,9 @@ public class WinningConditionManager
 		{
 			return (T)(WinningCondition)new TimeLimit((WinningCondition)args[0], (int)args[1], (GameStatCounterManager)args[2]);
 		}
-		if (typeFromHandle == typeof(FinishLineReached))
+		if (typeFromHandle == typeof(TimeAttackFlagReached))
 		{
-			return (T)(WinningCondition)new FinishLineReached((WinningCondition)args[0], (int)args[1], (GameStatCounterManager)args[2]);
+			return (T)(WinningCondition)new TimeAttackFlagReached((WinningCondition)args[0], (int)args[1], (GameStatCounterManager)args[2]);
 		}
 		return null;
 	}

@@ -24,21 +24,32 @@ public class FlagDebriefing : MonoBehaviour
 	[SerializeField]
 	private ScoreBoardTeamBase scoreBoardTeam;
 
+	[SerializeField]
+	private LocalPlayerScore localPlayerScore;
+
 	private int captureFlagTimeStamp;
 
 	private int avatarStartTime;
 
 	private void Start()
 	{
-		WinningConditionControl.TryGetPrioritizedWinCondition(out var condition);
-		if (condition == WinningConditionType.FinishLine)
+		FlagDebriefingControl.OnFlagDebriefing = (Action)Delegate.Combine(FlagDebriefingControl.OnFlagDebriefing, new Action(OnLocalAvatarReachFlag));
+		NotificationFade notificationFade = fader;
+		notificationFade.OnFinished = (Action)Delegate.Combine(notificationFade.OnFinished, new Action(OnFadeFinished));
+		avatarStartTime = MVGameControllerBase.Game.LocalPlayer.JoinTime;
+		scoreBoardSingle.Initialize(GameStatCounterType.TimeAttackFlag);
+		scoreBoardTeam.Initialize(GameStatCounterType.TimeAttackFlag);
+		localPlayerScore.Initialize();
+		MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
+		mVPlayerContainer.OnLocalPlayerTeamChanged = (Action)Delegate.Combine(mVPlayerContainer.OnLocalPlayerTeamChanged, new Action(OnLocalPlayerChangeTeam));
+	}
+
+	private void OnDestroy()
+	{
+		if (MVGameControllerBase.Game != null)
 		{
-			FlagDebriefingControl.OnFlagDebriefing = (Action)Delegate.Combine(FlagDebriefingControl.OnFlagDebriefing, new Action(OnLocalAvatarReachFlag));
-			NotificationFade notificationFade = fader;
-			notificationFade.OnFinished = (Action)Delegate.Combine(notificationFade.OnFinished, new Action(OnFadeFinished));
-			avatarStartTime = MVGameControllerBase.Game.LocalPlayer.JoinTime;
-			scoreBoardSingle.Initialize(GameStatCounterType.FinishLine);
-			scoreBoardTeam.Initialize(GameStatCounterType.FinishLine);
+			MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
+			mVPlayerContainer.OnLocalPlayerTeamChanged = (Action)Delegate.Remove(mVPlayerContainer.OnLocalPlayerTeamChanged, new Action(OnLocalPlayerChangeTeam));
 		}
 	}
 
@@ -49,35 +60,40 @@ public class FlagDebriefing : MonoBehaviour
 
 	private void OnLocalAvatarReachFlag()
 	{
-		int startTime = GetStartTime();
-		int num = CalculateCaptureTime(startTime);
-		int actorCount = MVGameControllerBase.Game.GameStatCounterManager.GetActorCount(GameStatCounterType.FinishLine, MVGameControllerBase.Game.LocalPlayer.Team, MVGameControllerBase.Game.LocalPlayer.ActorNr);
-		if (WinningConditionControl.IsNewScoreBetter(num, actorCount, GameStatCounterType.FinishLine))
+		WinningConditionControl.TryGetPrioritizedWinCondition(out var condition);
+		if (condition == WinningConditionType.TimeAttackFlag)
 		{
-			string value = WinningConditionControl.MakeIntoScoreText(num, GameStatCounterType.FinishLine);
-			Dictionary<object, object> dictionary = new Dictionary<object, object>();
-			dictionary.Add((byte)1, value);
-			Dictionary<object, object> data = dictionary;
-			NotificationController.PushNotification(NotificationType.BestFlagTime, data);
-			if (messageObject.activeSelf)
+			int startTime = GetStartTime();
+			int num = CalculateCaptureTime(startTime);
+			int actorCount = MVGameControllerBase.Game.GameStatCounterManager.GetActorCount(GameStatCounterType.TimeAttackFlag, MVGameControllerBase.Game.LocalPlayer.Team, MVGameControllerBase.Game.LocalPlayer.ActorNr);
+			if (WinningConditionControl.IsNewScoreBetter(num, actorCount, GameStatCounterType.TimeAttackFlag))
 			{
-				messageObject.SetActive(value: false);
+				string value = WinningConditionControl.MakeIntoScoreText(num, GameStatCounterType.TimeAttackFlag);
+				Dictionary<object, object> dictionary = new Dictionary<object, object>();
+				dictionary.Add((byte)1, value);
+				Dictionary<object, object> data = dictionary;
+				NotificationController.PushNotification(NotificationType.BestFlagTime, data);
+				if (messageObject.activeSelf)
+				{
+					messageObject.SetActive(value: false);
+				}
 			}
-		}
-		else
-		{
-			string text = MakeDebriefingText(num);
-			captureTimeText.text = text;
-			string text2 = MakeBestTimeText(num);
-			bestTimeText.text = text2;
-			if (!messageObject.activeSelf)
+			else
 			{
-				messageObject.SetActive(value: true);
+				string text = MakeDebriefingText(num);
+				captureTimeText.text = text;
+				string text2 = MakeBestTimeText(num);
+				bestTimeText.text = text2;
+				if (!messageObject.activeSelf)
+				{
+					messageObject.SetActive(value: true);
+				}
 			}
+			fader.gameObject.SetActive(value: true);
+			fader.Activate();
+			HandleScoreBoardVisibility(num);
+			localPlayerScore.Activate();
 		}
-		fader.gameObject.SetActive(value: true);
-		fader.Activate();
-		HandleScoreBoardVisibility(num);
 		ResetPlayer();
 	}
 
@@ -100,13 +116,13 @@ public class FlagDebriefing : MonoBehaviour
 	private string MakeDebriefingText(int captureTime)
 	{
 		string empty = string.Empty;
-		return "Finish line reached in " + WinningConditionControl.MakeIntoScoreText(captureTime, GameStatCounterType.FinishLine) + "!";
+		return "Flag reached in " + WinningConditionControl.MakeIntoScoreText(captureTime, GameStatCounterType.TimeAttackFlag) + "!";
 	}
 
 	private string MakeBestTimeText(int captureTime)
 	{
-		int actorCount = MVGameControllerBase.Game.GameStatCounterManager.GetActorCount(GameStatCounterType.FinishLine, MVGameControllerBase.Game.LocalPlayer.Team, MVGameControllerBase.Game.LocalPlayer.ActorNr);
-		return "Best time: " + WinningConditionControl.MakeIntoScoreText(actorCount, GameStatCounterType.FinishLine) + "!";
+		int actorCount = MVGameControllerBase.Game.GameStatCounterManager.GetActorCount(GameStatCounterType.TimeAttackFlag, MVGameControllerBase.Game.LocalPlayer.Team, MVGameControllerBase.Game.LocalPlayer.ActorNr);
+		return "Best time: " + WinningConditionControl.MakeIntoScoreText(actorCount, GameStatCounterType.TimeAttackFlag) + "!";
 	}
 
 	private void ResetPlayer()
@@ -146,5 +162,10 @@ public class FlagDebriefing : MonoBehaviour
 			scoreBoardSingle.ReSortScoreBoard();
 			scoreBoardSingle.OnStatsChange(MVGameControllerBase.Game.LocalPlayer.ActorNr, score);
 		}
+	}
+
+	private void OnLocalPlayerChangeTeam()
+	{
+		avatarStartTime = MVGameControllerBase.Game.ServerTimeInMilliSeconds;
 	}
 }

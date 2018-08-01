@@ -5,8 +5,8 @@ using UnityEngine.Events;
 
 public abstract class StreamingAsset<AssetType, PreviewType> : StreamingAsset where AssetType : UnityEngine.Object where PreviewType : UnityEngine.Object
 {
-	[SerializeField]
 	[Tooltip("If true, bundle will be cached in memory, and never unloaded. It will also require a unique bundle name. If false, bundle will be destroyed and resources freed on destruction.")]
+	[SerializeField]
 	private bool useCache = true;
 
 	private AssetType asset;
@@ -83,8 +83,8 @@ public abstract class StreamingAsset<AssetType, PreviewType> : StreamingAsset wh
 }
 public abstract class StreamingAsset : MonoBehaviour
 {
-	[SerializeField]
 	[HideInInspector]
+	[SerializeField]
 	protected string url = "NOT SET";
 
 	protected UnityAction onAssetSetAction;

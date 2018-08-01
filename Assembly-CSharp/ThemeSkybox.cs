@@ -26,19 +26,19 @@ public class ThemeSkybox : ThemeComponent
 
 	private Material skyboxMaterial;
 
-	[Tooltip("Color at the top pole of skybox sphere")]
 	[SerializeField]
+	[Tooltip("Color at the top pole of skybox sphere")]
 	private Color _topColor = new Color(0.247f, 0.318f, 0.561f);
 
-	[SerializeField]
 	[Tooltip("Color at the bottom pole of skybox sphere")]
+	[SerializeField]
 	private Color _bottomColor = new Color(0.773f, 0.455f, 0.682f);
 
 	[SerializeField]
 	private bool fogEnabled;
 
-	[SerializeField]
 	[Range(0f, 0.5f)]
+	[SerializeField]
 	private float fogDensity;
 
 	[SerializeField]
@@ -50,14 +50,14 @@ public class ThemeSkybox : ThemeComponent
 	[SerializeField]
 	private Color _starsTint = Color.gray;
 
-	[SerializeField]
 	[Range(0f, 10f)]
 	[Tooltip("Reduction in stars apparent brightness closer to the horizon")]
+	[SerializeField]
 	private float _starsExtinction = 2f;
 
-	[SerializeField]
 	[Range(0f, 25f)]
 	[Tooltip("Variation in stars apparent brightness caused by the atmospheric turbulence")]
+	[SerializeField]
 	private float _starsTwinklingSpeed = 4f;
 
 	[SerializeField]
@@ -66,17 +66,17 @@ public class ThemeSkybox : ThemeComponent
 	[SerializeField]
 	private Color _sunTint = Color.gray;
 
-	[SerializeField]
 	[Range(0.1f, 3f)]
+	[SerializeField]
 	private float _sunSize = 1f;
 
-	[SerializeField]
 	[Range(0.01f, 2f)]
 	[Tooltip("Actual flare brightness depends on sun tint alpha, and this property is just a coefficient for that value")]
+	[SerializeField]
 	private float _sunFlareBrightness = 0.3f;
 
-	[Range(0f, 1f)]
 	[SerializeField]
+	[Range(0f, 1f)]
 	private float _sunLightContrast = 0.5f;
 
 	[SerializeField]
@@ -93,37 +93,37 @@ public class ThemeSkybox : ThemeComponent
 	[Range(0.1f, 3f)]
 	private float _moonSize = 1f;
 
-	[SerializeField]
 	[Range(0.01f, 2f)]
 	[Tooltip("Actual flare brightness depends on moon tint alpha, and this property is just a coefficient for that value")]
+	[SerializeField]
 	private float _moonFlareBrightness = 0.3f;
 
-	[Range(0f, 1f)]
 	[SerializeField]
+	[Range(0f, 1f)]
 	private float _moonLightContrast = 0.5f;
 
 	[SerializeField]
 	[Range(0f, 8f)]
 	private float _moonLightIntensity = 1f;
 
+	[Tooltip("Height of the clouds relative to the horizon")]
 	[SerializeField]
 	[Range(-0.75f, 0.75f)]
-	[Tooltip("Height of the clouds relative to the horizon")]
 	private float _cloudsHeight;
 
-	[Tooltip("Distance between the cloud waves")]
 	[SerializeField]
 	[Range(0f, 1f)]
+	[Tooltip("Distance between the cloud waves")]
 	private float _cloudsOffset = 0.2f;
 
-	[SerializeField]
 	[Range(-50f, 50f)]
 	[Tooltip("Rotation of the clouds around the positive y axis")]
+	[SerializeField]
 	private float _cloudsRotationSpeed = 1f;
 
-	[SerializeField]
 	[Range(0f, 10f)]
 	[Tooltip("Adjusts the brightness of the skybox")]
+	[SerializeField]
 	private float _exposure = 1f;
 
 	[SerializeField]
@@ -552,6 +552,7 @@ public class ThemeSkybox : ThemeComponent
 		Camera.clearFlags = previousClearFlags;
 		_sun.enabled = false;
 		_moon.enabled = false;
+		SkyboxManager.ResetAmbientLight();
 	}
 
 	public void RecalculateSunLight()

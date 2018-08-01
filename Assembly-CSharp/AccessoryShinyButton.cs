@@ -32,8 +32,11 @@ public class AccessoryShinyButton : MonoBehaviour
 
 	private float currentProgress;
 
+	private RectTransform shine;
+
 	private void Start()
 	{
+		shine = buttonShine.GetComponent<RectTransform>();
 		currentProgress = 0f;
 	}
 
@@ -44,9 +47,9 @@ public class AccessoryShinyButton : MonoBehaviour
 		{
 			currentProgress = 0f;
 		}
-		Vector3 localPosition = buttonShine.localPosition;
-		localPosition.x = buttonRect.rect.width * buttonShinePositionCurve.Evaluate(currentProgress);
-		buttonShine.localPosition = localPosition;
+		Vector3 localPosition = shine.localPosition;
+		localPosition.x = buttonRect.rect.width * buttonShinePositionCurve.Evaluate(currentProgress) - shine.rect.width;
+		shine.localPosition = localPosition;
 		localPosition = topFlare.transform.localPosition;
 		localPosition.x = buttonRect.rect.width * topFlarePositionCurve.Evaluate(currentProgress);
 		topFlare.transform.localPosition = localPosition;

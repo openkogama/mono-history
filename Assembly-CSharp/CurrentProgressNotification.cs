@@ -45,7 +45,7 @@ public class CurrentProgressNotification : Notification
 		if (MVGameControllerBase.Game.MVPlayerContainer.TryGetValue(actorNr, out var player))
 		{
 			base.Initialize(data);
-			if (statType == GameStatCounterType.Flag)
+			if (statType == GameStatCounterType.Flag || statType == GameStatCounterType.TimeAttackFlag)
 			{
 				currentProgressText.text = string.Empty;
 				scoreText.text = WinningConditionControl.MakeIntoScoreText(CalculateCurrentTime(GetStartTime()), GameStatCounterType.Flag);
@@ -98,7 +98,7 @@ public class CurrentProgressNotification : Notification
 			text += "S";
 		}
 		text += " LEFT!";
-		if (winningConditionType == GameStatCounterType.Flag)
+		if (winningConditionType == GameStatCounterType.Flag || winningConditionType == GameStatCounterType.TimeAttackFlag)
 		{
 			text = "CURRENT TIME";
 		}
@@ -174,7 +174,7 @@ public class CurrentProgressNotification : Notification
 			break;
 		}
 		case GameStatCounterType.Flag:
-		case GameStatCounterType.FinishLine:
+		case GameStatCounterType.TimeAttackFlag:
 			result = scoreCount;
 			break;
 		}

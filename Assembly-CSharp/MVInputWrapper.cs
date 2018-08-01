@@ -36,6 +36,8 @@ internal static class MVInputWrapper
 		}
 	}
 
+	private static float mouseSensitivtyModifier = 1f;
+
 	private static InputSuppression isInputAllSuppressed = false;
 
 	private static InputSuppression isShortcutKeysSuppressed = false;
@@ -43,6 +45,18 @@ internal static class MVInputWrapper
 	private static InputSuppression isInGameInputSuppressed = false;
 
 	private static IKogamaInputMap inputMap;
+
+	public static float MouseSensitivityModifier
+	{
+		get
+		{
+			return mouseSensitivtyModifier;
+		}
+		set
+		{
+			mouseSensitivtyModifier = value;
+		}
+	}
 
 	public static bool IsAllInputSuppressed => isInputAllSuppressed;
 
@@ -109,10 +123,28 @@ internal static class MVInputWrapper
 		{
 			return 0f;
 		}
+		return CrossPlatformInputManager.GetAxis(axis) * MouseSensitivityModifier;
+	}
+
+	public static float GetAxisWithoutSensitivity(string axis)
+	{
+		if (IsInGameInputSuppressed)
+		{
+			return 0f;
+		}
 		return CrossPlatformInputManager.GetAxis(axis);
 	}
 
 	public static float GetAxisRaw(string axis)
+	{
+		if (IsInGameInputSuppressed)
+		{
+			return 0f;
+		}
+		return CrossPlatformInputManager.GetAxisRaw(axis) * MouseSensitivityModifier;
+	}
+
+	public static float GetAxisRawWithoutSensitivity(string axis)
 	{
 		if (IsInGameInputSuppressed)
 		{

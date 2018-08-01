@@ -20,6 +20,9 @@ public class LocalPlayerScore : MonoBehaviour
 	[SerializeField]
 	private Text rankingText;
 
+	[SerializeField]
+	private GameStatCounterType statTypeToShow;
+
 	public void Initialize()
 	{
 		playerNameText.text = MVGameControllerBase.Game.LocalPlayer.Username;
@@ -28,6 +31,10 @@ public class LocalPlayerScore : MonoBehaviour
 	public void Activate()
 	{
 		WinningConditionControl.TryGetPrioritizedStat(out var statType);
+		if (statTypeToShow != GameStatCounterType.None)
+		{
+			statType = statTypeToShow;
+		}
 		if (statType == GameStatCounterType.None)
 		{
 			gameObject.SetActive(value: false);

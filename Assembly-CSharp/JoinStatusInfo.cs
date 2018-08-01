@@ -33,15 +33,6 @@ public class JoinStatusInfo : MonoBehaviour
 		if (MVGameControllerBase.JoinState == MVJoinState.Playing)
 		{
 			MVGameControllerBase.PostGameMsg(MVGameMsgType.JoinFlowStatus, "\n\n" + MVGameControllerBase.KoGaMaSettings.VersionString + "\n\n");
-			if (MVGameControllerBase.IsTouristSession)
-			{
-				MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, SendMessageControl.CreateHelpTxt());
-			}
-			else if (MVGameControllerBase.GameMode != MVGameMode.CharacterEditor)
-			{
-				string message2 = TM._("Type /h for help\nPress <Enter> or <T> to chat");
-				MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, message2);
-			}
 			if (HackingToolDetector.InstallTracesDetected)
 			{
 				MVGameControllerBase.PostGameMsg(MVGameMsgType.Warning, HackingToolDetector.CheatWarning);

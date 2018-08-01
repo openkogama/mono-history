@@ -37,9 +37,9 @@ public class PulseBoxSettings : MonoBehaviour, IEventSystemHandler, IHandleSetti
 		}
 		float value = Convert.ToSingle(dictionary2["intervalOn"]);
 		float value2 = Convert.ToSingle(dictionary2["intervalOff"]);
-		enabledSlider.Initialize("intervalOn", value, 0.1f, 20f);
+		enabledSlider.Initialize("intervalOn", value, 0.1f, 1000f);
 		enabledInputField.Initialize("intervalOn", value);
-		disabledSlider.Initialize("intervalOff", value2, 0.1f, 20f);
+		disabledSlider.Initialize("intervalOff", value2, 0.1f, 1000f);
 		disabledInputField.Initialize("intervalOff", value2);
 	}
 

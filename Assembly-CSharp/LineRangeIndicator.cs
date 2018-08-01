@@ -2,15 +2,15 @@ using UnityEngine;
 
 public class LineRangeIndicator : MonoBehaviour
 {
-	[Header("Configuration")]
 	[SerializeField]
+	[Header("Configuration")]
 	private float lineDotDensity = 4.1f;
 
 	[SerializeField]
 	private float lineWidth = 0.6f;
 
-	[Header("Dependencies")]
 	[SerializeField]
+	[Header("Dependencies")]
 	private MeshRenderer rangeIndicator;
 
 	[SerializeField]

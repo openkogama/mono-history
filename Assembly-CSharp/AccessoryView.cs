@@ -276,7 +276,7 @@ public class AccessoryView : MonoBehaviour
 
 	public void Purchase()
 	{
-		if (MVGameControllerBase.Game.LocalPlayer.GoldAmount >= accessoryDataClient.priceGold)
+		if (MVGameControllerBase.Game.LocalPlayer.GoldAmount >= accessoryDataClient.DiscountedPrice)
 		{
 			AvatarAccessoryPurchasePopup popUp = UnityEngine.Object.Instantiate(AvatarAccessoryPurchasePopupPrefab);
 			popUp.Initialize(accessoryDataClient, previewImageUrl);

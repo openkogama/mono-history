@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class FinishLineObject : ObjectPrefab
+public class TimeAttackFlagObject : ObjectPrefab
 {
 	[SerializeField]
 	private GameObject visualObject;

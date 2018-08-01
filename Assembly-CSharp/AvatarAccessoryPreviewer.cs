@@ -52,7 +52,7 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 
 	private Animation goAnimation;
 
-	private AccessoryAnimationHandler[] accessoryAnimationHandlers;
+	private ActivateOnAnimationBase[] OnAnimationActivators;
 
 	private float startFov;
 
@@ -122,10 +122,10 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 		}
 		goAnimation = bodyClone.GetComponentInChildren<Animation>();
 		goAnimation.Play(animations[currentAnimation]);
-		accessoryAnimationHandlers = goAnimation.GetComponentsInChildren<AccessoryAnimationHandler>();
-		for (int num2 = 0; num2 < accessoryAnimationHandlers.Length; num2++)
+		OnAnimationActivators = goAnimation.GetComponentsInChildren<ActivateOnAnimationBase>();
+		for (int num2 = 0; num2 < OnAnimationActivators.Length; num2++)
 		{
-			accessoryAnimationHandlers[num2].PlayAnimation(animations[currentAnimation]);
+			OnAnimationActivators[num2].OnAvatarAnimationChange(animations[currentAnimation]);
 		}
 		toPreviewer = Object.Instantiate(previewer);
 		toPreviewer.Initialize(previewDimensionsX, previewDimensionsY, CameraClearFlags.Color, MVGameControllerBase.WOCM.AvatarLocal.PreviewLayerMask, new Vector3(0f, -0.5f, -1f), avatarResetToTransform, new Vector3(100f, 100f, 100f), "Avatar accessory preview", MVGameControllerBase.WOCM.AvatarLocal, bodyClone, new Vector3(15f, 0f, 0f));
@@ -255,7 +255,7 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 	{
 		if (!(goAnimation == null))
 		{
-			accessoryAnimationHandlers = goAnimation.GetComponentsInChildren<AccessoryAnimationHandler>();
+			OnAnimationActivators = goAnimation.GetComponentsInChildren<ActivateOnAnimationBase>();
 			RemoveSkinnedMeshOptimizers();
 			PlayAnimation("Idle");
 		}
@@ -269,9 +269,9 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 	private void PlayAnimation(string animationName)
 	{
 		goAnimation.Play(animationName);
-		for (int i = 0; i < accessoryAnimationHandlers.Length; i++)
+		for (int i = 0; i < OnAnimationActivators.Length; i++)
 		{
-			accessoryAnimationHandlers[i].PlayAnimation(animationName);
+			OnAnimationActivators[i].OnAvatarAnimationChange(animationName);
 		}
 		StopAllCoroutines();
 		AnimationState animationState = goAnimation[animationName];

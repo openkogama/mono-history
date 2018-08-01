@@ -90,6 +90,11 @@ public class TeamsCounter
 		}
 	}
 
+	public void RemoveTeam(MVTeam team)
+	{
+		teamCounters.Remove(team);
+	}
+
 	private void AddIfNotPresent(MVTeam team)
 	{
 		if (!teamCounters.ContainsKey(team))
@@ -119,5 +124,21 @@ public class TeamsCounter
 			bytePacker.Write(teamCounter.Value.ToByteArray());
 		}
 		return bytePacker.ToArray();
+	}
+
+	public void GetActorWithBestScore(out int score, MVTeam team, GameStatCounterType statType, int excludedActorNr = -1)
+	{
+		score = 0;
+		foreach (KeyValuePair<int, ActorCounter> actorCounter in teamCounters[team].ActorCounters)
+		{
+			if (actorCounter.Key != excludedActorNr)
+			{
+				int count = actorCounter.Value.Count;
+				if (count > 0 && GameStatCounterManager.IsNewScoreBetter(count, score, statType))
+				{
+					score = count;
+				}
+			}
+		}
 	}
 }

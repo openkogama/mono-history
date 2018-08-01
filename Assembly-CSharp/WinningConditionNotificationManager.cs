@@ -69,7 +69,7 @@ public static class WinningConditionNotificationManager
 			break;
 		}
 		case GameStatCounterType.Flag:
-		case GameStatCounterType.FinishLine:
+		case GameStatCounterType.TimeAttackFlag:
 			result = scoreCount;
 			break;
 		}
@@ -95,7 +95,7 @@ public static class WinningConditionNotificationManager
 			}
 			break;
 		case GameStatCounterType.Flag:
-		case GameStatCounterType.FinishLine:
+		case GameStatCounterType.TimeAttackFlag:
 		{
 			if (scoreLeftToWin == 0)
 			{
@@ -128,8 +128,8 @@ public static class WinningConditionNotificationManager
 			result = scoreLeftToWin.ToString();
 			break;
 		case GameStatCounterType.Flag:
-		case GameStatCounterType.FinishLine:
-			result = WinningConditionControl.MakeIntoScoreText(scoreLeftToWin, GameStatCounterType.FinishLine);
+		case GameStatCounterType.TimeAttackFlag:
+			result = WinningConditionControl.MakeIntoScoreText(scoreLeftToWin, GameStatCounterType.TimeAttackFlag);
 			break;
 		}
 		return result;
@@ -185,7 +185,7 @@ public static class WinningConditionNotificationManager
 
 	private static bool IsFlagScoreBestInGame(int score, int actorNumber)
 	{
-		int playerRanking = GetPlayerRanking(GameStatCounterType.FinishLine, actorNumber, score);
+		int playerRanking = GetPlayerRanking(GameStatCounterType.TimeAttackFlag, actorNumber, score);
 		if (playerRanking == 1)
 		{
 			return true;

@@ -10,9 +10,9 @@ public class WinningConditionControl : MonoBehaviour
 			condition = WinningConditionType.Flag;
 			return true;
 		}
-		if (MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<FinishLineReachedClient>() != null)
+		if (MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<TimeAttackFlagReachedClient>() != null)
 		{
-			condition = WinningConditionType.FinishLine;
+			condition = WinningConditionType.TimeAttackFlag;
 			return true;
 		}
 		if (MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<AllCollectiblesCollectedClient>() != null)
@@ -41,9 +41,9 @@ public class WinningConditionControl : MonoBehaviour
 			statType = GameStatCounterType.Flag;
 			return true;
 		}
-		if (MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<FinishLineReachedClient>() != null)
+		if (MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<TimeAttackFlagReachedClient>() != null)
 		{
-			statType = GameStatCounterType.FinishLine;
+			statType = GameStatCounterType.TimeAttackFlag;
 			return true;
 		}
 		if (MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<AllCollectiblesCollectedClient>() != null)
@@ -89,7 +89,7 @@ public class WinningConditionControl : MonoBehaviour
 			}
 			break;
 		case GameStatCounterType.Flag:
-		case GameStatCounterType.FinishLine:
+		case GameStatCounterType.TimeAttackFlag:
 			if (oldScore < 0)
 			{
 				return true;
@@ -116,7 +116,7 @@ public class WinningConditionControl : MonoBehaviour
 		case GameStatCounterType.OculusKill:
 			return score.ToString();
 		case GameStatCounterType.Flag:
-		case GameStatCounterType.FinishLine:
+		case GameStatCounterType.TimeAttackFlag:
 		{
 			string text = string.Empty;
 			if (score == 0)

@@ -196,7 +196,7 @@ internal class EditCubes : CubeModelTool
 				edgeHasMoved = false;
 				break;
 			}
-			Vector3 mousePositionDelta = mouseSensitivityExtrude * new Vector3(MVInputWrapper.GetAxisRaw("Mouse X"), MVInputWrapper.GetAxisRaw("Mouse Y"), 0f);
+			Vector3 mousePositionDelta = mouseSensitivityExtrude * new Vector3(MVInputWrapper.GetAxisRawWithoutSensitivity("Mouse X"), MVInputWrapper.GetAxisRawWithoutSensitivity("Mouse Y"), 0f);
 			bool edgeMoved = false;
 			CubeOutOfBoundState cubeOutOfBoundState = SharedCubeFunctions.MoveEdge(e.TargetCubeModel, movingEdgeCube, mousePositionDelta, ref delta, ref deltaAccum, mouseSensitivity, ref edgeMoved, movingEdgeCube.pickedEdgeIndex0, movingEdgeCube.pickedEdgeIndex1, ref editCubeChange);
 			if (cubeOutOfBoundState == CubeOutOfBoundState.WithinBounds)
@@ -374,8 +374,8 @@ internal class EditCubes : CubeModelTool
 	{
 		if (prevSelectedCube != null)
 		{
-			float num = Mathf.Abs(MVInputWrapper.GetAxis("Mouse X"));
-			float num2 = Mathf.Abs(MVInputWrapper.GetAxis("Mouse Y"));
+			float num = Mathf.Abs(MVInputWrapper.GetAxisWithoutSensitivity("Mouse X"));
+			float num2 = Mathf.Abs(MVInputWrapper.GetAxisWithoutSensitivity("Mouse Y"));
 			if (num != 0f || num2 != 0f)
 			{
 				return true;

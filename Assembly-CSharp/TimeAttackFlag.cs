@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FinishLine : MVLogicObject
+public class TimeAttackFlag : MVLogicObject
 {
 	private const float captureCooldown = 5f;
 
@@ -18,17 +18,17 @@ public class FinishLine : MVLogicObject
 
 	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
-	private FinishLineObject finishLineObject;
+	private TimeAttackFlagObject timeAttackFlagObject;
 
-	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.FinishLine;
+	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.TimeAttackFlag;
 
 	public override Vector3 WorldPivot => transform.position;
 
-	public FinishLine(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, PrefabPool.Instance.FinishLinePrefab, worldObjects)
+	public TimeAttackFlag(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
+		: base(data, PrefabPool.Instance.TimeAttackFlagPrefab, worldObjects)
 	{
-		finishLineObject = (FinishLineObject)component;
-		triggerBoxEvents = finishLineObject.TriggerBoxEvents;
+		timeAttackFlagObject = (TimeAttackFlagObject)component;
+		triggerBoxEvents = timeAttackFlagObject.TriggerBoxEvents;
 		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		interactionFlags |= InteractionFlags.CanUseTeam;
 	}
@@ -45,24 +45,24 @@ public class FinishLine : MVLogicObject
 	{
 		SetupUseInteractor();
 		base.Initialize();
-		if (MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<FinishLineReachedClient>() == null)
+		if (MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<TimeAttackFlagReachedClient>() == null)
 		{
-			MVGameControllerBase.Game.WinningConditionManager.CreateWinnerCondition<FinishLineReachedClient>(new object[0]);
+			MVGameControllerBase.Game.WinningConditionManager.CreateWinnerCondition<TimeAttackFlagReachedClient>(new object[0]);
 		}
 		initializedInWorld = true;
 		useInteractor.UpdateData(Data);
 		worldObjectEnableController = gameObject.GetComponentInChildren<WorldObjectEnableController>();
-		SetupCulling(finishLineObject.VisualObject);
+		SetupCulling(timeAttackFlagObject.VisualObject);
 	}
 
 	private void SetupUseInteractor()
 	{
-		useInteractor = new UseInteractor(this, finishLineObject.useInteractionRotator, reset: false, triggerBoxEvents.Collider, DoReachFinishLine);
+		useInteractor = new UseInteractor(this, timeAttackFlagObject.useInteractionRotator, reset: false, triggerBoxEvents.Collider, DoReachTimeAttackFlag);
 		triggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
 		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
-		GameCoinLogic useRequirement = new GameCoinLogic(finishLineObject.useInteractionRotator, hasUseButtonWhenFree: false);
+		GameCoinLogic useRequirement = new GameCoinLogic(timeAttackFlagObject.useInteractionRotator, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement);
-		TeamRequirement useRequirement2 = new TeamRequirement(finishLineObject.TintObject, hasUseButtonWhenFree: false);
+		TeamRequirement useRequirement2 = new TeamRequirement(timeAttackFlagObject.TintObject, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement2);
 	}
 
@@ -76,18 +76,18 @@ public class FinishLine : MVLogicObject
 	{
 		if (worldObjectEnableController.EnableState == EnableState.Enable && (useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0)
 		{
-			DoReachFinishLine(MVGameControllerBase.WOCM.AvatarLocal.Id);
+			DoReachTimeAttackFlag(MVGameControllerBase.WOCM.AvatarLocal.Id);
 		}
 	}
 
-	private bool DoReachFinishLine(int instigator)
+	private bool DoReachTimeAttackFlag(int instigator)
 	{
 		if (Time.time < lastCaptureTime + 5f)
 		{
 			return false;
 		}
 		lastCaptureTime = Time.time;
-		MVGameControllerBase.OperationRequests.ReportReachedFinishLine();
+		MVGameControllerBase.OperationRequests.ReportReachedTimeAttackFlag();
 		FlagDebriefingControl.StartFlagDebriefing();
 		return true;
 	}
@@ -105,7 +105,7 @@ public class FinishLine : MVLogicObject
 		base.Destroy();
 		if (initializedInWorld && MVGameControllerBase.Game.World.WorldObjectClientManager.GetWorldObjectsByType(WorldObjectType).Count == 0)
 		{
-			FinishLineReachedClient singletonWinnerConditionByType = MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<FinishLineReachedClient>();
+			TimeAttackFlagReachedClient singletonWinnerConditionByType = MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<TimeAttackFlagReachedClient>();
 			if (singletonWinnerConditionByType == null)
 			{
 				throw new Exception("Could not find FlagReached singleton");

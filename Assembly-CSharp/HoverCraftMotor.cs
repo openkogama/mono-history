@@ -212,7 +212,7 @@ public class HoverCraftMotor : SimpleVehicleMotorBase
 		velocity = HoverCraftFrictionXZ(velocity);
 		if (HandleInput)
 		{
-			Controller.transform.Rotate(Vector3.up, 57.29578f * Time.fixedDeltaTime * angularSpeed * DirectInputMoveMap.x * Mathf.Abs(MVInputWrapper.GetAxis("Horizontal")), Space.World);
+			Controller.transform.Rotate(Vector3.up, 57.29578f * Time.fixedDeltaTime * angularSpeed * DirectInputMoveMap.x * Mathf.Abs(MVInputWrapper.GetAxisWithoutSensitivity("Horizontal")), Space.World);
 		}
 		if (Mathf.Abs(DirectInputMoveMap.z) > 0f || (double)Mathf.Abs(DirectInputMoveMap.x) > 0.0)
 		{

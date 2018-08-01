@@ -30,7 +30,7 @@ public class ButtonAnimationController : MonoBehaviour, IPointerDownHandler, IPo
 
 	public void OnPointerUp(PointerEventData eventData)
 	{
-		if (button.interactable || buttonPressedState != 0)
+		if (eventData.button == PointerEventData.InputButton.Left && (button.interactable || buttonPressedState != 0))
 		{
 			buttonPressedState--;
 			if (buttonPressedState == 0)
@@ -40,7 +40,7 @@ public class ButtonAnimationController : MonoBehaviour, IPointerDownHandler, IPo
 			if (buttonPressedState == 0 && buttonHighlightedState > 0)
 			{
 				buttonHighlightedState--;
-				OnPointerEnter(null);
+				OnPointerEnter(eventData);
 			}
 			HandleButtonDisabled();
 		}
@@ -58,7 +58,7 @@ public class ButtonAnimationController : MonoBehaviour, IPointerDownHandler, IPo
 			else
 			{
 				buttonPressedState--;
-				OnPointerDown(null);
+				OnPointerDown(eventData);
 			}
 			HandleButtonDisabled();
 		}
@@ -75,12 +75,14 @@ public class ButtonAnimationController : MonoBehaviour, IPointerDownHandler, IPo
 			}
 			HandleButtonDisabled();
 			button.OnDeselect(eventData);
+			button.enabled = false;
+			button.enabled = true;
 		}
 	}
 
 	public void OnPointerDown(PointerEventData eventData)
 	{
-		if (button.interactable)
+		if (eventData.button == PointerEventData.InputButton.Left && button.interactable)
 		{
 			buttonPressedState++;
 			transformToMove.localPosition = new Vector3(transformToMove.localPosition.x, originalValue + -25f, transformToMove.localPosition.z);

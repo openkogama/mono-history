@@ -9,7 +9,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-public class AccessoryInventoryViewItem : MonoBehaviour, IEventSystemHandler, IPointerEnterHandler, IPointerExitHandler
+public class AccessoryInventoryViewItem : MonoBehaviour, IEventSystemHandler, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
 	private bool locked;
 
@@ -194,6 +194,7 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IEventSystemHandler, IP
 		accessoryLoader.Destroy();
 		accessoryLoader = null;
 		BadgeManager.UnsubscribeGetBadgeRequest(OnLevelRequirementLoaded);
+		previewImageStreaminAssetManual.CancelDownload();
 	}
 
 	private void AccessoryCreatedCallback(AvatarAccessory avatarAccessory)
@@ -276,6 +277,10 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IEventSystemHandler, IP
 	public void OnPointerExit(PointerEventData eventData)
 	{
 		StartCoroutine(OnHoverEvent(-76f));
+	}
+
+	public void OnPointerClick(PointerEventData eventData)
+	{
 	}
 
 	private IEnumerator OnHoverEvent(float sizeOffset)

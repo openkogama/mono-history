@@ -6,8 +6,8 @@ using UnityEngine.Rendering;
 
 public abstract class FirstPersonCamera : MVCameraBase
 {
-	[Header("Configuration")]
 	[SerializeField]
+	[Header("Configuration")]
 	private float cameraHeight = 2f;
 
 	[SerializeField]
@@ -201,6 +201,7 @@ public abstract class FirstPersonCamera : MVCameraBase
 
 	private void HideVehicle()
 	{
+		vehiclesHiddenMeshRenderers.Clear();
 		int woIDWithLocalOwnerHighestInHierarchy = MVGameControllerBase.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(localAvatar.Id);
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDWithLocalOwnerHighestInHierarchy);
 		worldObjectClient.GameObject.GetComponentsInChildren(includeInactive: false, vehiclesHiddenMeshRenderers);
@@ -212,6 +213,10 @@ public abstract class FirstPersonCamera : MVCameraBase
 
 	private void ShowVehicle()
 	{
+		vehiclesHiddenMeshRenderers.Clear();
+		int woIDWithLocalOwnerHighestInHierarchy = MVGameControllerBase.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(localAvatar.Id);
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDWithLocalOwnerHighestInHierarchy);
+		worldObjectClient.GameObject.GetComponentsInChildren(includeInactive: false, vehiclesHiddenMeshRenderers);
 		for (int i = 0; i < vehiclesHiddenMeshRenderers.Count; i++)
 		{
 			vehiclesHiddenMeshRenderers[i].shadowCastingMode = ShadowCastingMode.On;

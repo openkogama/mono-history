@@ -69,5 +69,5 @@ public enum MVWorldObjectDocumentationType
 	Lever,
 	CollectTheItem,
 	HealRay,
-	FinishLine
+	TimeAttackFlag
 }

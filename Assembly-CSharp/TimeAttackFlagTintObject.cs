@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class FinishLineTintObject : TintObject
+public class TimeAttackFlagTintObject : TintObject
 {
 	[SerializeField]
 	private MeshRenderer meshRenderer;
@@ -8,12 +8,9 @@ public class FinishLineTintObject : TintObject
 	[SerializeField]
 	private Material materialToTint;
 
-	[SerializeField]
-	private Material materialBlack;
-
 	private void Awake()
 	{
-		meshRenderer.materials = new Material[2] { materialToTint, materialBlack };
+		meshRenderer.materials = new Material[1] { materialToTint };
 		materialToTint = meshRenderer.materials[0];
 	}
 

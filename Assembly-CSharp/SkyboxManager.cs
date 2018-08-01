@@ -211,4 +211,10 @@ public class SkyboxManager : MonoBehaviour
 			OnSkyboxColorChanged(currentColor);
 		}
 	}
+
+	public static void ResetAmbientLight()
+	{
+		RenderSettings.ambientLight = new Color(139f / 255f, 146f / 255f, 160f / 255f, 1f);
+		RenderSettings.ambientIntensity = 1f;
+	}
 }

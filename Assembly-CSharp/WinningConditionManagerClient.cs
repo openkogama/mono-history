@@ -25,9 +25,9 @@ public class WinningConditionManagerClient : WinningConditionManager
 		{
 			return (T)(WinningCondition)new TimeLimitClient((WinningCondition)args[0], (int)args[1], (GameStatCounterManager)args[2]);
 		}
-		if (typeFromHandle == typeof(FinishLineReachedClient))
+		if (typeFromHandle == typeof(TimeAttackFlagReachedClient))
 		{
-			return (T)(WinningCondition)new FinishLineReachedClient((WinningCondition)args[0], (int)args[1], (GameStatCounterManager)args[2]);
+			return (T)(WinningCondition)new TimeAttackFlagReachedClient((WinningCondition)args[0], (int)args[1], (GameStatCounterManager)args[2]);
 		}
 		return base.Factory<T>(args);
 	}

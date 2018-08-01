@@ -118,7 +118,7 @@ public class HamsterWheelMotor : SimpleVehicleMotorBase
 		velocity -= (velocity - 0.98f * velocity) * (Time.fixedDeltaTime / 0.02f);
 		if (HandleInput)
 		{
-			Controller.transform.Rotate(Vector3.up, Time.fixedDeltaTime * angularSpeed * MVInputWrapper.GetAxis("Horizontal") * 57.29578f, Space.World);
+			Controller.transform.Rotate(Vector3.up, Time.fixedDeltaTime * angularSpeed * MVInputWrapper.GetAxisWithoutSensitivity("Horizontal") * 57.29578f, Space.World);
 		}
 		if (Mathf.Abs(DirectInputMoveMap.z) > 0f || (double)Mathf.Abs(DirectInputMoveMap.x) > 0.0)
 		{

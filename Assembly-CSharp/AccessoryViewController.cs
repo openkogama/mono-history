@@ -49,13 +49,16 @@ public class AccessoryViewController : MonoBehaviour, IEventSystemHandler, IAcce
 
 	private void OnDestroy()
 	{
-		RenderSettings.ambientLight = prevLight;
-		RenderSettings.ambientIntensity = prevIntensity;
-		MVGameControllerBase.SkyboxManager.enabled = wasEnabled;
-		WorldObjectClientRef<ThemeWorldObject> singletonWorldObjectRef = MVGameControllerBase.WOCM.GetSingletonWorldObjectRef<ThemeWorldObject>();
-		if (singletonWorldObjectRef != null && singletonWorldObjectRef.WorldObjectClient != null)
+		if (MVGameControllerBase.Game != null)
 		{
-			singletonWorldObjectRef.WorldObjectClient.Visualization.Activate();
+			RenderSettings.ambientLight = prevLight;
+			RenderSettings.ambientIntensity = prevIntensity;
+			MVGameControllerBase.SkyboxManager.enabled = wasEnabled;
+			WorldObjectClientRef<ThemeWorldObject> singletonWorldObjectRef = MVGameControllerBase.WOCM.GetSingletonWorldObjectRef<ThemeWorldObject>();
+			if (singletonWorldObjectRef != null && singletonWorldObjectRef.WorldObjectClient != null)
+			{
+				singletonWorldObjectRef.WorldObjectClient.Visualization.Activate();
+			}
 		}
 	}
 

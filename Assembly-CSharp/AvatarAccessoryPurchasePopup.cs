@@ -25,6 +25,9 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 	private GameObject discountTag;
 
 	[SerializeField]
+	private GameObject freeItemTag;
+
+	[SerializeField]
 	private Text discountTagText;
 
 	[SerializeField]
@@ -167,6 +170,13 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 			int num2 = Mathf.FloorToInt((float)priceGold * ((float)discount / 100f));
 			num = priceGold - num2;
 			originalPriceText.text = priceGold.ToString("N0");
+		}
+		freeItemTag.SetActive(num == 0);
+		if (num == 0)
+		{
+			originalPriceText.gameObject.SetActive(value: false);
+			discountTag.SetActive(value: false);
+			priceText.gameObject.SetActive(value: false);
 		}
 		priceText.text = num.ToString("N0");
 	}

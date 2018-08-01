@@ -22,6 +22,9 @@ public class BundlePurchasePopUp : MonoBehaviour
 	[SerializeField]
 	private AccessoryTimeLimitDisplayer timeLimitDisplayer;
 
+	[SerializeField]
+	private GameObject freeLabel;
+
 	private int originalPrice;
 
 	private UnityAction<bool> resultCallback;
@@ -78,6 +81,13 @@ public class BundlePurchasePopUp : MonoBehaviour
 			int num2 = Mathf.FloorToInt((float)originalPrice * ((float)discount / 100f));
 			num = originalPrice - num2;
 			originalPriceText.text = originalPrice.ToString("N0");
+		}
+		freeLabel.SetActive(num == 0);
+		if (num == 0)
+		{
+			originalPriceText.gameObject.SetActive(value: false);
+			discountTag.SetActive(value: false);
+			priceText.gameObject.SetActive(value: false);
 		}
 		priceText.text = num.ToString("N0");
 	}

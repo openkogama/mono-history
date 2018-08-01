@@ -69,6 +69,7 @@ public class TeamSelectButton : MonoBehaviour
 		if (MVGameControllerBase.Game.LocalPlayer.Team != teamData.team)
 		{
 			MVGameControllerBase.OperationRequests.SetTeam(teamData.team);
+			MVGameControllerBase.Game.GameStatCounterManager.RemoveTeamScoreOnActorLeave(MVGameControllerBase.Game.LocalPlayer.ActorNr, MVGameControllerBase.Game.LocalPlayer.Team);
 		}
 		MVGameControllerBase.Game.LocalPlayer.Team = teamData.team;
 	}

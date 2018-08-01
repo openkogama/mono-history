@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ActivateSoundOnAnimation : MonoBehaviour
+public class ActivateSoundOnAnimation : ActivateOnAnimationBase
 {
 	[Serializable]
 	private struct ActivationData
@@ -19,15 +19,7 @@ public class ActivateSoundOnAnimation : MonoBehaviour
 	[SerializeField]
 	private List<ActivationData> activationDataList;
 
-	private void Start()
-	{
-		BoneAnimation animation = MVGameControllerBase.WOCM.AvatarLocal.Body.Animation;
-		animation.OnAnimationChange = (Action<string>)Delegate.Combine(animation.OnAnimationChange, new Action<string>(OnAvatarAnimationChange));
-		AvatarLimbManager limbManager = MVGameControllerBase.WOCM.AvatarLocal.LimbManager;
-		limbManager.OnEmoteStart = (Action<string>)Delegate.Combine(limbManager.OnEmoteStart, new Action<string>(OnAvatarAnimationChange));
-	}
-
-	private void OnAvatarAnimationChange(string newAnimation)
+	public override void OnAvatarAnimationChange(string newAnimation)
 	{
 		for (int i = 0; i < activationDataList.Count; i++)
 		{

@@ -8,8 +8,8 @@ public class FirstPersonWeaponBob
 	[Tooltip("Bobs per second.")]
 	private float bobFrequency = 1f;
 
-	[Tooltip("Units by time")]
 	[SerializeField]
+	[Tooltip("Units by time")]
 	private AnimationCurve bob;
 
 	[SerializeField]

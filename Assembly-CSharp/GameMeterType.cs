@@ -8,5 +8,6 @@ public enum GameMeterType
 	Health,
 	Flag,
 	Shield,
+	TimeAttackFlag,
 	XP
 }

@@ -49,7 +49,7 @@ public class AndroidPlatformerCamera : MVCameraBase, ICameraSettings
 	public override void UpdateCamera(MVCameraController camController, ProtectedTransform targetTransform)
 	{
 		transform.rotation = Quaternion.identity;
-		Vector3 direction = new Vector3(MVInputWrapper.GetAxis("Mouse X"), MVInputWrapper.GetAxis("Mouse Y"));
+		Vector3 direction = new Vector3(MVInputWrapper.GetAxisWithoutSensitivity("Mouse X"), MVInputWrapper.GetAxisWithoutSensitivity("Mouse Y"));
 		Vector3 movementOffset = offset2DCameraInDirection.GetMovementOffset(direction);
 		transform.position = MVGameControllerBase.WOCM.AvatarLocal.LookAtPos - transform.rotation * Vector3.forward * distanceToAvatar + movementOffset;
 		base.UpdateCamera(camController, targetTransform);

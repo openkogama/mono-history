@@ -32,9 +32,6 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 	[SerializeField]
 	private Text timerText;
 
-	[SerializeField]
-	private Sprite notificationImage;
-
 	public static bool IsCollected;
 
 	public static Action CollectedChanged;
@@ -79,7 +76,7 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 	private void OnFinishedViewingAd()
 	{
 		claimRewardBtn.gameObject.SetActive(value: false);
-		NotificationController.PushNotification(TM._("Thank you for playing this NEW game! Received " + rewardXP + " XP!"), notificationImage);
+		NotificationController.PushNotification(TM._("Thank you for playing this NEW game! Received " + rewardXP + " XP!"));
 		AvatarPooledXPParticles avatarPooledXPParticles = PrefabPool.Instance.EnumPoolManager.Instantiate<AvatarPooledXPParticles>(PoolEnums.XP);
 		avatarPooledXPParticles.transform.parent = MVGameControllerBase.WOCM.AvatarLocal.Transform;
 		avatarPooledXPParticles.transform.localPosition = new Vector3(0f, 1f, 0f);

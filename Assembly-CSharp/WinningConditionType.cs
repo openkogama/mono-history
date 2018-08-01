@@ -5,6 +5,6 @@ public enum WinningConditionType
 	Kill,
 	Oculus,
 	Time,
-	FinishLine,
+	TimeAttackFlag,
 	None
 }

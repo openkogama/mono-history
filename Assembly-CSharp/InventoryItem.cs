@@ -340,8 +340,8 @@ public class InventoryItem
 			new ItemDescription(TM._("Global Speaker"), TM._("Adds a global sound to the game that can be heard from anywhere."), TM._("This can be used to make a better ambiance for the game."))
 		},
 		{
-			MVWorldObjectDocumentationType.FinishLine,
-			new ItemDescription(TM._("Game objective: Finish Line"), TM._("Records the time it took for a player to reach it, without resetting the round."), TM._("Try it with a round cube to determine the winner after a set period of time."))
+			MVWorldObjectDocumentationType.TimeAttackFlag,
+			new ItemDescription(TM._("Game objective: Time Attack Flag"), TM._("Records the time it took for a player to reach it, without resetting the round."), TM._("Lets players take their time reaching the flag."))
 		}
 	};
 

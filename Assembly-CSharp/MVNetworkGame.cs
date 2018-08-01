@@ -179,6 +179,7 @@ public class MVNetworkGame : IPhotonPeerListener
 						dictionary6[(byte)3] = mVPlayer.Username;
 						dictionary6[(byte)6] = MVGameControllerBase.Game.Friends.IsFriend(mVPlayer.ProfileID);
 						MVGameControllerBase.PostGameMsg(MVGameMsgType.UserLeft, dictionary6);
+						networkGame.gameStatCounterManager.RemoveTeamScoreOnActorLeave(num4, mVPlayer.Team);
 						networkGame.gameStatCounterManager.RemoveStatsFromActor(num4);
 					}
 					networkGame.MVPlayerContainer.Remove(num4);
@@ -541,7 +542,7 @@ public class MVNetworkGame : IPhotonPeerListener
 				Debug.Log("MVEventCodes.XPReceivedEvent");
 				break;
 			case MVEventCodes.XPReward:
-				networkGame.LocalPlayer.AddXp((int)photonEvent[217], (XPRewardType)(byte)photonEvent[216], (int)photonEvent[85]);
+				networkGame.LocalPlayer.AddXp((int)photonEvent[218], (XPRewardType)(byte)photonEvent[217], (int)photonEvent[85]);
 				break;
 			case MVEventCodes.GetProfileMetaData:
 				FirstTimeEventManager.GetProfileMetaDataOk = (bool)photonEvent[209];
@@ -551,6 +552,7 @@ public class MVNetworkGame : IPhotonPeerListener
 					StatHatWrapper.Count("FirstTime.Success", 1);
 					FirstTimeEventManager.Initialize(profileMetaData.FirstTimeState);
 					HighlightManager.Init((string)photonEvent[245]);
+					MVInputWrapper.MouseSensitivityModifier = profileMetaData.MS;
 				}
 				break;
 			case MVEventCodes.UpdateHeadRotation:
@@ -1091,9 +1093,9 @@ public class MVNetworkGame : IPhotonPeerListener
 			dictionary.Add(173, MVGameControllerBase.GameSessionData.newPlanetName);
 			dictionary.Add(189, MVGameControllerBase.BuildTarget);
 			dictionary.Add(210, MVGameControllerBase.ReAuthTries);
-			dictionary.Add(214, MVGameControllerBase.KoGaMaSettings.VersionString);
+			dictionary.Add(215, MVGameControllerBase.KoGaMaSettings.VersionString);
 			List<FileData> cRCData = DllProtector.GetCRCData();
-			dictionary.Add(215, JsonConvert.SerializeObject(cRCData));
+			dictionary.Add(216, JsonConvert.SerializeObject(cRCData));
 			peer.OpCustom(byte.MaxValue, dictionary, sendReliable: true);
 		}
 
@@ -1547,7 +1549,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			peer.OpCustom(23, new Dictionary<byte, object>(), sendReliable: true);
 		}
 
-		public void ReportReachedFinishLine()
+		public void ReportReachedTimeAttackFlag()
 		{
 			peer.OpCustom(94, new Dictionary<byte, object>(), sendReliable: true);
 		}
@@ -1892,6 +1894,13 @@ public class MVNetworkGame : IPhotonPeerListener
 			peer.OpCustom(83, dictionary, sendReliable: true);
 		}
 
+		public void SetMouseSensitivity(float newMouseSensitivity)
+		{
+			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
+			dictionary.Add(214, newMouseSensitivity);
+			peer.OpCustom(101, dictionary, sendReliable: true);
+		}
+
 		public void GetResetAvatar(int avatarWoID)
 		{
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
@@ -1902,7 +1911,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		public void RevokeEditRights(MVPlayer target)
 		{
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
-			dictionary.Add(219, (byte)0);
+			dictionary.Add(220, (byte)0);
 			dictionary.Add(11, target.ProfileID);
 			Dictionary<byte, object> customOpParameters = dictionary;
 			peer.OpCustom(70, customOpParameters, sendReliable: true);
@@ -1911,7 +1920,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		public void Kick(MVPlayer target, string reason)
 		{
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
-			dictionary.Add(219, (byte)0);
+			dictionary.Add(220, (byte)0);
 			dictionary.Add(144, 0);
 			dictionary.Add(11, target.ProfileID);
 			dictionary.Add(88, reason);
@@ -1922,7 +1931,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		public void Ban(int hours, MVPlayer target, string reason)
 		{
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
-			dictionary.Add(219, (byte)1);
+			dictionary.Add(220, (byte)1);
 			dictionary.Add(144, hours);
 			dictionary.Add(11, target.ProfileID);
 			dictionary.Add(88, reason);
@@ -1933,7 +1942,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		public void Expel(MVPlayer target, string reason)
 		{
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
-			dictionary.Add(219, (byte)2);
+			dictionary.Add(220, (byte)2);
 			dictionary.Add(144, 0);
 			dictionary.Add(11, target.ProfileID);
 			dictionary.Add(88, reason);
@@ -2206,7 +2215,7 @@ public class MVNetworkGame : IPhotonPeerListener
 				}
 				break;
 			case MVOperationCodes.SetFirstTimeEvent:
-				FirstTimeEventManager.OnFirstTimeEventResponse((FirstTimeEvent)(int)returnValues[192], (XPRewardType)(byte)returnValues[216]);
+				FirstTimeEventManager.OnFirstTimeEventResponse((FirstTimeEvent)(int)returnValues[192], (XPRewardType)(byte)returnValues[217]);
 				break;
 			case MVOperationCodes.GetThemesData:
 			{
@@ -3487,6 +3496,10 @@ public class MVNetworkGame : IPhotonPeerListener
 		if (!playerContainer.ContainsKey(actorNr))
 		{
 			Debug.LogError("!Players.ContainsKey(actorNr): " + actorNr);
+		}
+		if (playerContainer.ContainsKey(actorNr) && team != playerContainer.GetPlayerUnsafe(actorNr).Team)
+		{
+			GameStatCounterManager.RemoveTeamScoreOnActorLeave(actorNr, playerContainer.GetPlayerUnsafe(actorNr).Team);
 		}
 		playerContainer.UpdateTeam(actorNr, team);
 		GameStatCounterManager.RemoveStatsFromActor(actorNr);

@@ -12,8 +12,8 @@ public class BoolAttribute : NamedThemeAttribute<bool>
 		public abstract void Initialize(BoolAttribute attrib, Action<bool> onChange);
 	}
 
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	private Setter togglePrefab;
 
 	public override object Data => value;
