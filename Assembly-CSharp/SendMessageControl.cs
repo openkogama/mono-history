@@ -10,26 +10,6 @@ using UnityEngine.UI;
 
 public class SendMessageControl : MonoBehaviour
 {
-	private const string exportTool = "/export";
-
-	private const string exportSelfTool = "/exportself";
-
-	private const string chatChangeCommandAll = "/all";
-
-	private const string chatChangeCommandTeam = "/team";
-
-	private const string chatChangeCommandSay = "/say";
-
-	private const string allChat = " [ All ]";
-
-	private const string teamChat = "[ Team ]";
-
-	private const string sayChat = " [ Say ]";
-
-	private const string fyberTestSuite = "/fyber";
-
-	private const float sendMessageDelay = 0.01f;
-
 	private static string helpString = "/h";
 
 	private static string fps = "/f";
@@ -46,6 +26,22 @@ public class SendMessageControl : MonoBehaviour
 
 	private string buildInformation = "/build";
 
+	private const string exportTool = "/export";
+
+	private const string exportSelfTool = "/exportself";
+
+	private const string chatChangeCommandAll = "/all";
+
+	private const string chatChangeCommandTeam = "/team";
+
+	private const string chatChangeCommandSay = "/say";
+
+	private const string allChat = " [ All ]";
+
+	private const string teamChat = "[ Team ]";
+
+	private const string sayChat = " [ Say ]";
+
 	[SerializeField]
 	private Text currentChat;
 
@@ -54,6 +50,8 @@ public class SendMessageControl : MonoBehaviour
 	private static string startNod = "/yes";
 
 	private static string startWave = "/wave";
+
+	private const string fyberTestSuite = "/fyber";
 
 	[SerializeField]
 	private InputField inputField;
@@ -71,6 +69,8 @@ public class SendMessageControl : MonoBehaviour
 	private int maxMessagesPerInterval = 5;
 
 	private int frameCountSent;
+
+	private const float sendMessageDelay = 0.01f;
 
 	private float sendMessageCooldownTime;
 

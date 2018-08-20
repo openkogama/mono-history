@@ -3,7 +3,7 @@ using ThemeAttributes;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class ThemeColorPickerRGBA : ThemeColorPickerRGB, IEventSystemHandler, IHandleSettingChanged
+public class ThemeColorPickerRGBA : ThemeColorPickerRGB, IHandleSettingChanged, IEventSystemHandler
 {
 	[SerializeField]
 	private SettingsSlider sliderA;

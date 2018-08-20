@@ -19,9 +19,9 @@ public class RareRewardNotification : Notification
 	public override void Initialize(Dictionary<object, object> data)
 	{
 		base.Initialize(data);
-		RewardRarity rewardRarity = (RewardRarity)(byte)data[(byte)11];
+		RewardRarity rewardRarity = (RewardRarity)data[(byte)11];
 		MVPlayer mVPlayer = MVGameControllerBase.Game.MVPlayerContainer[(int)data[(byte)9]];
-		string arg = TypeToText((RewardType)(int)data[(byte)5]);
+		string arg = TypeToText((RewardType)data[(byte)5]);
 		int num = (int)data[(byte)4];
 		text.text = string.Format(TM._("{0} won {1}{2} from spins!"), mVPlayer.Username, num, arg);
 		switch (rewardRarity)

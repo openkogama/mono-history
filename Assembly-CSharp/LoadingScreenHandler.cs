@@ -6,8 +6,6 @@ using UnityEngine.UI;
 
 public class LoadingScreenHandler : MonoBehaviour
 {
-	private const float lerpSpeed = 1f;
-
 	[SerializeField]
 	private ProgressBarAndroid loadingBar;
 
@@ -33,6 +31,8 @@ public class LoadingScreenHandler : MonoBehaviour
 	private int currentEventCount = 1;
 
 	private int eventsCount = 17;
+
+	private const float lerpSpeed = 1f;
 
 	private float currentProgress;
 

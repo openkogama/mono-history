@@ -3,11 +3,11 @@ using UnityEngine;
 
 public class MVSoundEmitter : MVLogicObject, ILogicWorldObject
 {
-	private const string defaultUrl = "AmbientAudio/Nature/kgm_amb_forest.unity3d";
-
 	private SoundEmitterObject soundEmitterObject;
 
 	private SoundLoader soundLoader = new SoundLoader();
+
+	private const string defaultUrl = "AmbientAudio/Nature/kgm_amb_forest.unity3d";
 
 	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.SoundEmitter;
 

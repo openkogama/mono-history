@@ -47,7 +47,7 @@ public class HamsterWheelBounceState
 		MVControllerColliderHit mVControllerColliderHit = default;
 		bool flag = false;
 		bounced = false;
-		float num = interactable.HandleModifierEffect(AvatarModifierEffect.Bounciness, mvControllerColliderHit.material.physicalProperties.bouncyness + 0.6f);
+		float num = interactable.HandleModifierEffect(AvatarModifierEffect.Bounciness, mvControllerColliderHit.material.PhysicalProperties.bouncyness + 0.6f);
 		if (num > 0f)
 		{
 			Vector3 impactVelocity = mvControllerColliderHit.impactVelocity;

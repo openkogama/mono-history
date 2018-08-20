@@ -6,9 +6,9 @@ namespace ThemeAttributes;
 
 public abstract class ThemeAttribute
 {
-	protected const string valueOutOfBoundsMsg = "Theme attribute is out of expected range.";
-
 	private SettingsWrapper themeSettings;
+
+	protected const string valueOutOfBoundsMsg = "Theme attribute is out of expected range.";
 
 	public string Key { get; private set; }
 
@@ -35,8 +35,8 @@ public abstract class ThemeAttribute
 }
 public abstract class ThemeAttribute<T> : ThemeAttribute
 {
-	[SerializeField]
 	[Header("Configuration")]
+	[SerializeField]
 	protected T value;
 
 	protected Action<T> themeCallback;

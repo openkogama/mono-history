@@ -52,7 +52,7 @@ public class GenerateTextureData : MonoBehaviour
 		yield return 0;
 		yield return 0;
 		RenderTexture.active = screenshotRenderTexture;
-		Texture2D screenshotTexture = new Texture2D(920, height, TextureFormat.RGB24, mipmap: false);
+		Texture2D screenshotTexture = new Texture2D(920, height, TextureFormat.RGB24, mipChain: false);
 		screenshotTexture.ReadPixels(new Rect(0f, 0f, 920f, height), 0, 0);
 		screenshotTexture.Apply();
 		byte[] bytes = screenshotTexture.EncodeToPNG();

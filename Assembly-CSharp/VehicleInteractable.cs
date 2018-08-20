@@ -24,6 +24,6 @@ public class VehicleInteractable : MVInteractable, IMoveHitHandler
 
 	public void HandleMoveHit(MVControllerColliderHit moveHit)
 	{
-		AddModifier(moveHit.material.modifierPackageType);
+		AddModifier(moveHit.material.ModifierPackageType);
 	}
 }

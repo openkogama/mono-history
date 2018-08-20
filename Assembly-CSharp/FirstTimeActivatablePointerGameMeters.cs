@@ -4,10 +4,6 @@ using UnityEngine.EventSystems;
 
 public class FirstTimeActivatablePointerGameMeters : FirstTimeActivatableElementBase
 {
-	private const string mouseX = "Mouse X";
-
-	private const string mouseY = "Mouse Y";
-
 	[SerializeField]
 	private Vector2 pointerBodyDirectionOffset;
 
@@ -26,6 +22,10 @@ public class FirstTimeActivatablePointerGameMeters : FirstTimeActivatableElement
 	private bool visible;
 
 	private float currentTime;
+
+	private const string mouseX = "Mouse X";
+
+	private const string mouseY = "Mouse Y";
 
 	private bool isUpdating;
 

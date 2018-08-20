@@ -8,9 +8,9 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 {
 	public class DamageSource
 	{
-		private const float lifeTime = 4f;
-
 		public static readonly DamageSource none = new DamageSource();
+
+		private const float lifeTime = 4f;
 
 		public MVPlayer shooter;
 
@@ -192,9 +192,9 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 
 	public void HandleMoveHit(MVControllerColliderHit moveHit)
 	{
-		if (moveHit.material.modifierPackageType != AvatarModifierPackageType.None)
+		if (moveHit.material.ModifierPackageType != AvatarModifierPackageType.None)
 		{
-			AddModifier(moveHit.material.modifierPackageType);
+			AddModifier(moveHit.material.ModifierPackageType);
 		}
 		materialHitHandler.HandleHit(moveHit);
 	}

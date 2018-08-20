@@ -55,8 +55,9 @@ public class SharedWorldObjectGameplayFunctions
 		{
 			if (DoParticleEffect(position))
 			{
-				ParticleSystem particleSystem = Object.Instantiate(particlePrefab, position, Quaternion.identity) as ParticleSystem;
-				particleSystem.startSize = damageRadius;
+				ParticleSystem particleSystem = Object.Instantiate(particlePrefab, position, Quaternion.identity);
+				ParticleSystem.MainModule main = particleSystem.main;
+				main.startSizeMultiplier = damageRadius;
 			}
 			ApplyProximityDamage(position, damageValue, damageRadius, shockwaveAcceleration, local, explosionEvent, ignoreIDs);
 		}
@@ -79,8 +80,9 @@ public class SharedWorldObjectGameplayFunctions
 	{
 		if (DoParticleEffect(position))
 		{
-			ParticleSystem particleSystem = Object.Instantiate(particlePrefab, position, Quaternion.identity) as ParticleSystem;
-			particleSystem.startSize = radius;
+			ParticleSystem particleSystem = Object.Instantiate(particlePrefab, position, Quaternion.identity);
+			ParticleSystem.MainModule main = particleSystem.main;
+			main.startSizeMultiplier = radius;
 		}
 	}
 }

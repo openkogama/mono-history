@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace Newtonsoft.Json.Utilities;
 
-internal class CollectionWrapper<T> : IEnumerable, IList, ICollection, IWrappedCollection, ICollection<T>, IEnumerable<T>
+internal class CollectionWrapper<T> : ICollection<T>, IWrappedCollection, IEnumerable, IEnumerable<T>, IList, ICollection
 {
 	private readonly IList _list;
 
@@ -117,76 +117,6 @@ internal class CollectionWrapper<T> : IEnumerable, IList, ICollection, IWrappedC
 		_genericCollection = list;
 	}
 
-	IEnumerator IEnumerable.GetEnumerator()
-	{
-		if (_genericCollection != null)
-		{
-			return _genericCollection.GetEnumerator();
-		}
-		return _list.GetEnumerator();
-	}
-
-	int IList.Add(object value)
-	{
-		VerifyValueType(value);
-		Add((T)value);
-		return Count - 1;
-	}
-
-	bool IList.Contains(object value)
-	{
-		if (IsCompatibleObject(value))
-		{
-			return Contains((T)value);
-		}
-		return false;
-	}
-
-	int IList.IndexOf(object value)
-	{
-		if (_genericCollection != null)
-		{
-			throw new Exception("Wrapped ICollection<T> does not support IndexOf.");
-		}
-		if (IsCompatibleObject(value))
-		{
-			return _list.IndexOf((T)value);
-		}
-		return -1;
-	}
-
-	void IList.RemoveAt(int index)
-	{
-		if (_genericCollection != null)
-		{
-			throw new Exception("Wrapped ICollection<T> does not support RemoveAt.");
-		}
-		_list.RemoveAt(index);
-	}
-
-	void IList.Insert(int index, object value)
-	{
-		if (_genericCollection != null)
-		{
-			throw new Exception("Wrapped ICollection<T> does not support Insert.");
-		}
-		VerifyValueType(value);
-		_list.Insert(index, (T)value);
-	}
-
-	void IList.Remove(object value)
-	{
-		if (IsCompatibleObject(value))
-		{
-			Remove((T)value);
-		}
-	}
-
-	void ICollection.CopyTo(Array array, int arrayIndex)
-	{
-		CopyTo((T[])array, arrayIndex);
-	}
-
 	public virtual void Add(T item)
 	{
 		if (_genericCollection != null)
@@ -258,6 +188,76 @@ internal class CollectionWrapper<T> : IEnumerable, IList, ICollection, IWrappedC
 	public bool IsGenericCollection()
 	{
 		return _genericCollection != null;
+	}
+
+	IEnumerator IEnumerable.GetEnumerator()
+	{
+		if (_genericCollection != null)
+		{
+			return _genericCollection.GetEnumerator();
+		}
+		return _list.GetEnumerator();
+	}
+
+	int IList.Add(object value)
+	{
+		VerifyValueType(value);
+		Add((T)value);
+		return Count - 1;
+	}
+
+	bool IList.Contains(object value)
+	{
+		if (IsCompatibleObject(value))
+		{
+			return Contains((T)value);
+		}
+		return false;
+	}
+
+	int IList.IndexOf(object value)
+	{
+		if (_genericCollection != null)
+		{
+			throw new Exception("Wrapped ICollection<T> does not support IndexOf.");
+		}
+		if (IsCompatibleObject(value))
+		{
+			return _list.IndexOf((T)value);
+		}
+		return -1;
+	}
+
+	void IList.RemoveAt(int index)
+	{
+		if (_genericCollection != null)
+		{
+			throw new Exception("Wrapped ICollection<T> does not support RemoveAt.");
+		}
+		_list.RemoveAt(index);
+	}
+
+	void IList.Insert(int index, object value)
+	{
+		if (_genericCollection != null)
+		{
+			throw new Exception("Wrapped ICollection<T> does not support Insert.");
+		}
+		VerifyValueType(value);
+		_list.Insert(index, (T)value);
+	}
+
+	void IList.Remove(object value)
+	{
+		if (IsCompatibleObject(value))
+		{
+			Remove((T)value);
+		}
+	}
+
+	void ICollection.CopyTo(Array array, int arrayIndex)
+	{
+		CopyTo((T[])array, arrayIndex);
 	}
 
 	private static void VerifyValueType(object value)

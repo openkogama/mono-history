@@ -5,14 +5,8 @@ using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class MVAdvancedGhost : MVBlueprintBase, ITeamInteractorNPC, IGameStateControllerSubscriber, IHealRayAttachementObject
+public class MVAdvancedGhost : MVBlueprintBase, IGameStateControllerSubscriber, ITeamInteractorNPC, IHealRayAttachementObject
 {
-	private const float deathExplosionDamageValue = 20f;
-
-	private const float deathExplosionRadius = 5f;
-
-	private const float deathExplosionImpulse = 1000f;
-
 	private AdvancedGhostBehaviour advancedGhostBehaviour;
 
 	private ClientSideNPCInteractable interactable;
@@ -27,9 +21,15 @@ public class MVAdvancedGhost : MVBlueprintBase, ITeamInteractorNPC, IGameStateCo
 
 	private ClientSideNPCInteractionHandler interactionHandler;
 
+	private const float deathExplosionDamageValue = 20f;
+
+	private const float deathExplosionRadius = 5f;
+
+	private const float deathExplosionImpulse = 1000f;
+
 	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.Oculus;
 
-	private MVTeam Team => (!Data.ContainsKey("team")) ? MVTeam.Server : ((MVTeam)(int)Data["team"]);
+	private MVTeam Team => (!Data.ContainsKey("team")) ? MVTeam.Server : ((MVTeam)Data["team"]);
 
 	public override Vector3 WorldPivot => transform.position;
 

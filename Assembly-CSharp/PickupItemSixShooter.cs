@@ -25,7 +25,7 @@ public class PickupItemSixShooter : PickupItemWithDelay
 	private AudioSource fireSound;
 
 	[SerializeField]
-	private ParticleEmitter fireEmitter;
+	private ParticleSystem muzzleParticles;
 
 	public Animation animComponent;
 
@@ -61,7 +61,7 @@ public class PickupItemSixShooter : PickupItemWithDelay
 		}
 		bullet.Fire(lineOfFire: new Ray(owner.LookOrigin, owner.LookDirection), speed: owner.GetAbsolutProjectileSpeed(bulletSpeed), range: bulletRange, ignoreWoIDs: owner.IgnoreWOIDs);
 		--currentAmmo;
-		UnityEngine.Object.Instantiate(fireEmitter, muzzlePoint.position, Quaternion.identity);
+		UnityEngine.Object.Instantiate(muzzleParticles, muzzlePoint.position, muzzleParticles.transform.rotation, muzzlePoint).Play();
 		if (isLocal)
 		{
 			MVGameControllerBase.AudioManager.Play("projectile fire", fireSound, Camera.main.transform.position + Camera.main.transform.forward);

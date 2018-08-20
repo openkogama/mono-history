@@ -5,16 +5,6 @@ using UnityEngine.UI;
 [RequireComponent(typeof(RectTransform))]
 public class ChatBubble : MonoBehaviour
 {
-	private const float baseFadeWaitTime = 5f;
-
-	private const float charactersPerSecond = 30f;
-
-	private const int characerLimit = 130;
-
-	private const float startFadeRadius = 17.5f;
-
-	private const float completelyFadeRadius = 20f;
-
 	[Tooltip("Text component in the tree used to display the bubble's message.")]
 	public Text MessageComponent;
 
@@ -54,6 +44,16 @@ public class ChatBubble : MonoBehaviour
 	private float currentFade;
 
 	private float timeUntilFade;
+
+	private const float baseFadeWaitTime = 5f;
+
+	private const float charactersPerSecond = 30f;
+
+	private const int characerLimit = 130;
+
+	private const float startFadeRadius = 17.5f;
+
+	private const float completelyFadeRadius = 20f;
 
 	public static bool BindingsExpanded;
 

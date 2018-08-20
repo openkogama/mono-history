@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class ShockWaveEmitter : MonoBehaviour
 {
-	[Tooltip("Impulse by range from emission.")]
 	[SerializeField]
+	[Tooltip("Impulse by range from emission.")]
 	private AnimationCurve strengthByDistance;
 
 	[SerializeField]

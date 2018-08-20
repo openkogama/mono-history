@@ -10,8 +10,8 @@ public class AvatarCapture : MonoBehaviour
 	[SerializeField]
 	private Vector3 cameraOffset;
 
-	[Tooltip("Space between players on winningscreen")]
 	[SerializeField]
+	[Tooltip("Space between players on winningscreen")]
 	private Vector3 formationSpacing = new Vector3(2f, 0.6f, 1.2f);
 
 	[SerializeField]
@@ -64,12 +64,7 @@ public class AvatarCapture : MonoBehaviour
 			int count2 = sortedList.Count;
 			for (int j = 0; j < positions.Count; j++)
 			{
-				List<Vector3> list2;
-				List<Vector3> list = (list2 = positions);
-				int index2;
-				int index = (index2 = j);
-				Vector3 vector = list2[index2];
-				list[index] = vector + CalculateTieOffset(currentWinner, count2);
+				positions[j] += CalculateTieOffset(currentWinner, count2);
 			}
 			for (int k = 0; k < count; k++)
 			{

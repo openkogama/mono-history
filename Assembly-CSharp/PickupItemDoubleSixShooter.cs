@@ -27,7 +27,7 @@ public class PickupItemDoubleSixShooter : PickupItemWithDelay
 	private Transform muzzlePoint2;
 
 	[SerializeField]
-	private ParticleEmitter fireEmitter;
+	private ParticleSystem muzzleParticles;
 
 	[SerializeField]
 	private Animation animComponentL;
@@ -62,13 +62,13 @@ public class PickupItemDoubleSixShooter : PickupItemWithDelay
 		if ((int)currentAmmo % 2 == 0)
 		{
 			bullet = Bullet.CreateBullet(PoolEnums.SixShooterBullet, muzzlePoint.position);
-			UnityEngine.Object.Instantiate(fireEmitter, muzzlePoint.position, Quaternion.identity);
+			UnityEngine.Object.Instantiate(muzzleParticles, muzzlePoint.position, muzzleParticles.transform.rotation, muzzlePoint).Play();
 			animComponentL.Play("RevolverRecoil");
 		}
 		else
 		{
 			bullet = Bullet.CreateBullet(PoolEnums.SixShooterBullet, muzzlePoint2.position);
-			UnityEngine.Object.Instantiate(fireEmitter, muzzlePoint2.position, Quaternion.identity);
+			UnityEngine.Object.Instantiate(muzzleParticles, muzzlePoint2.position, muzzleParticles.transform.rotation, muzzlePoint2).Play();
 			animComponentR.Play("RevolverRecoil");
 		}
 		Bullet bullet2 = bullet;

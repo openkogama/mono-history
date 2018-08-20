@@ -32,7 +32,7 @@ public class TriggerBoxEvents : MonoBehaviour
 
 	public event EventHandler<TriggerEventArgs> TriggerExit;
 
-	private void OnValidate()
+	protected void OnValidate()
 	{
 		if (triggerCollider == null)
 		{

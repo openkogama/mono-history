@@ -2,7 +2,7 @@ public class PlayButton : PlayButtonBase
 {
 	public void Play()
 	{
-		MVGameControllerDesktop.LockCursorManager.LockCursor = true;
+		MVGameControllerDesktop.LockCursorManager.CursorLock = true;
 	}
 
 	private void Update()

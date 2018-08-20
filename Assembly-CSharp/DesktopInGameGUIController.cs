@@ -65,7 +65,7 @@ public class DesktopInGameGUIController : MonoBehaviour
 				return;
 			}
 			logo.gameObject.SetActive(value: true);
-			Texture2D texture2D = new Texture2D(www.texture.width, www.texture.height, www.texture.format, mipmap: false);
+			Texture2D texture2D = new Texture2D(www.texture.width, www.texture.height, www.texture.format, mipChain: false);
 			texture2D.wrapMode = TextureWrapMode.Clamp;
 			texture2D.SetPixels32(www.texture.GetPixels32());
 			texture2D.Apply();

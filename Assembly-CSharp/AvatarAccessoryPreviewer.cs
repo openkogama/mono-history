@@ -5,14 +5,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDownHandler, IEventSystemHandler, IPointerClickHandler
+public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDownHandler, IPointerClickHandler, IEventSystemHandler
 {
-	private const string mouseX = "Mouse X";
-
-	private const string mouseY = "Mouse Y";
-
-	private const float animationLoopTimes = 3f;
-
 	[SerializeField]
 	private AvatarPreviewer previewer;
 
@@ -40,6 +34,10 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 
 	private AvatarPreviewer toPreviewer;
 
+	private const string mouseX = "Mouse X";
+
+	private const string mouseY = "Mouse Y";
+
 	private bool imagesReady;
 
 	private int currentAnimation;
@@ -53,6 +51,8 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 	private Animation goAnimation;
 
 	private ActivateOnAnimationBase[] OnAnimationActivators;
+
+	private const float animationLoopTimes = 3f;
 
 	private float startFov;
 

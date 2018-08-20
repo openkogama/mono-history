@@ -1,55 +1,28 @@
+using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 
 public class MVMaterial
 {
-	public Mesh mesh;
-
-	public string name;
-
-	public string description;
-
-	public PhysicalProperties physicalProperties;
-
-	public MaterialSound materialSound;
-
-	public AvatarModifierPackageType modifierPackageType;
-
 	public int unlockPriceGold;
-
-	public int unlockPriceSilver;
 
 	public bool isUnlocked;
 
-	public Texture2D buttonTexture;
+	public Mesh Mesh { get; private set; }
 
-	public bool IsAvailable
-	{
-		get
-		{
-			if (MVMaterialRepository.AllowDestructibleMaterialSelection)
-			{
-				return true;
-			}
-			if (physicalProperties.toughness == 0f)
-			{
-				return true;
-			}
-			return false;
-		}
-	}
+	public string Name { get; private set; }
 
-	public bool IsDestructible
-	{
-		get
-		{
-			if (physicalProperties.toughness == 0f)
-			{
-				return false;
-			}
-			return true;
-		}
-	}
+	public string Description { get; private set; }
+
+	public PhysicalProperties PhysicalProperties { get; private set; }
+
+	public AvatarModifierPackageType ModifierPackageType { get; private set; }
+
+	public Texture2D ButtonTexture { get; private set; }
+
+	public bool IsAvailable => MVMaterialRepository.AllowDestructibleMaterialSelection || PhysicalProperties.toughness == 0f;
+
+	public bool IsDestructible => PhysicalProperties.toughness != 0f;
 
 	public MVMaterial()
 	{
@@ -59,27 +32,25 @@ public class MVMaterial
 		: this(physicalProperties, materialSound, modifierPackageType)
 	{
 		GenerateCube(materialId);
-		if (materialButtonTextureGenerator != null)
+		if (MVGameControllerBase.GameMode != MVGameMode.Play && materialButtonTextureGenerator != null)
 		{
-			buttonTexture = materialButtonTextureGenerator.TakePicture(mesh);
+			ButtonTexture = materialButtonTextureGenerator.TakePicture(Mesh);
 		}
 		unlockPriceGold = priceGold;
-		unlockPriceSilver = priceSilver;
 		this.isUnlocked = isUnlocked;
-		this.name = name;
-		this.description = description;
+		Name = name;
+		Description = description;
 	}
 
 	public MVMaterial(PhysicalProperties physicalProperties, MaterialSound materialSound, AvatarModifierPackageType modifierPackageType)
 	{
-		this.physicalProperties = physicalProperties;
-		this.materialSound = materialSound;
-		this.modifierPackageType = modifierPackageType;
+		PhysicalProperties = physicalProperties;
+		ModifierPackageType = modifierPackageType;
 	}
 
 	private void GenerateCube(int materialId)
 	{
-		mesh = new Mesh();
+		Mesh = new Mesh();
 		MeshDataPool.Reset();
 		Rect rect = TextureAtlas.UV[materialId];
 		int num = 0;
@@ -102,11 +73,11 @@ public class MVMaterial
 				MeshDataPool.AddColor(new Color(1f, rect.x, rect.y));
 			}
 		}
-		mesh.vertices = MeshDataPool.GetVertices();
-		mesh.uv = MeshDataPool.GetUvs();
-		mesh.triangles = MeshDataPool.GetIndices();
-		mesh.colors = MeshDataPool.GetColors();
-		mesh.RecalculateNormals();
+		Mesh.vertices = MeshDataPool.GetVertices();
+		Mesh.uv = MeshDataPool.GetUvs();
+		Mesh.triangles = MeshDataPool.GetIndices();
+		Mesh.colors = MeshDataPool.GetColors();
+		Mesh.RecalculateNormals();
 	}
 
 	private void AddVertices(int direction)

@@ -387,8 +387,6 @@ public class CollectTheItemCollectableInstance : MVBlueprintBase, ITriggerBoxEve
 			collectTheItemObject.GreyOutObject.GreyOut();
 			isTaken = true;
 			break;
-		case PickupItemState.Counting:
-			break;
 		}
 	}
 }

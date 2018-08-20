@@ -8,8 +8,6 @@ using UnityEngine.Events;
 
 public class MVSentryGun : MVLogicObject, ILogicWorldObject
 {
-	private const float cullingRadius = 2f;
-
 	private static readonly Dictionary<SentryGunBeamType, SentryGunBeam> prefabMap = new Dictionary<SentryGunBeamType, SentryGunBeam>
 	{
 		{
@@ -43,6 +41,8 @@ public class MVSentryGun : MVLogicObject, ILogicWorldObject
 	private SentryGunBeamType beamType = SentryGunBeamType.IceBeam;
 
 	private MVSentryGunObject gunObject;
+
+	private const float cullingRadius = 2f;
 
 	private bool wasDead;
 
@@ -130,7 +130,7 @@ public class MVSentryGun : MVLogicObject, ILogicWorldObject
 		}
 		if (Data.ContainsKey("beamType"))
 		{
-			beamType = (SentryGunBeamType)(byte)Data["beamType"];
+			beamType = (SentryGunBeamType)Data["beamType"];
 		}
 		gunObject.SentryGunScript.SetSentryGunBeamType(beamType);
 		if (beamType == SentryGunBeamType.FireBeam)
@@ -152,7 +152,7 @@ public class MVSentryGun : MVLogicObject, ILogicWorldObject
 		if (interactable.IsDead())
 		{
 			gunObject.SentryGunScript.Explode();
-			gunObject.SentryGunScript.SmokeEnabled = true;
+			gunObject.SentryGunScript.EnableSmoke();
 			wasDead = true;
 		}
 		UpdateSentryState();
@@ -165,7 +165,7 @@ public class MVSentryGun : MVLogicObject, ILogicWorldObject
 			gunObject.SentryGunScript.SetHealth(0f);
 			return;
 		}
-		gunObject.SentryGunScript.SmokeEnabled = false;
+		gunObject.SentryGunScript.DisableSmoke();
 		gunObject.SentryGunScript.SetHealth((ObscuredFloat)RunTimeData.GetObscuredType("health"));
 	}
 
@@ -336,8 +336,8 @@ public class MVSentryGun : MVLogicObject, ILogicWorldObject
 	public override bool CompareWithKoGaMaPackage(MVWorldObjectClient wo, KoGaMaPackageClient koGaMaPackageClient, ref int insertedBy)
 	{
 		MVSentryGun mVSentryGun = wo as MVSentryGun;
-		SentryGunBeamType sentryGunBeamType = (SentryGunBeamType)(byte)Data["beamType"];
-		SentryGunBeamType sentryGunBeamType2 = (SentryGunBeamType)(byte)mVSentryGun.Data["beamType"];
+		SentryGunBeamType sentryGunBeamType = (SentryGunBeamType)Data["beamType"];
+		SentryGunBeamType sentryGunBeamType2 = (SentryGunBeamType)mVSentryGun.Data["beamType"];
 		return sentryGunBeamType2 == sentryGunBeamType;
 	}
 }

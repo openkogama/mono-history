@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class InventorySlots : MonoBehaviour, IEventSystemHandler, IGameObjectDroppedInSlot
+public class InventorySlots : MonoBehaviour, IGameObjectDroppedInSlot, IEventSystemHandler
 {
 	private Dictionary<int, InventorySlot> inventorySlots = new Dictionary<int, InventorySlot>();
 

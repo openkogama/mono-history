@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class FireSettings : MonoBehaviour, IEventSystemHandler, IHandleSettingChanged
+public class FireSettings : MonoBehaviour, IHandleSettingChanged, IEventSystemHandler
 {
 	private float[] color = new float[3];
 

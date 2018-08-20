@@ -57,7 +57,7 @@ public class LobbyStatePlayModeController : MonoBehaviour
 		}
 		else if (!flag && !isInLobbyState)
 		{
-			MVGameControllerDesktop.LockCursorManager.LockCursor = false;
+			MVGameControllerDesktop.LockCursorManager.CursorLock = false;
 			SetObjectToLobbyState(isInLobbyState: true);
 		}
 	}

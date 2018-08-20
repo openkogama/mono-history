@@ -2,7 +2,7 @@ using System;
 
 public class WinningConditionManagerClient : WinningConditionManager
 {
-	protected override T Factory<T>(params object[] args)
+	protected override T Factory<T>(object[] args)
 	{
 		Type typeFromHandle = typeof(T);
 		if (typeFromHandle == typeof(AllCollectiblesCollectedClient))

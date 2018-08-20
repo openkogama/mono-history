@@ -12,8 +12,8 @@ public class SphereVolumeIndicator : MonoBehaviour
 	[SerializeField]
 	private float lineWidth = 1f;
 
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	private LineRenderer rangeIndicatorXY;
 
 	[SerializeField]
@@ -51,7 +51,7 @@ public class SphereVolumeIndicator : MonoBehaviour
 			vector = quaternion * vector;
 			array[i] = vector;
 		}
-		rangeIndicatorXY.SetVertexCount(num);
+		rangeIndicatorXY.positionCount = num;
 		rangeIndicatorXY.SetPositions(array);
 		vector = new Vector3(0f, 0f, radius);
 		quaternion = Quaternion.AngleAxis(360f / (float)circleSergmentCount, new Vector3(1f, 0f, 0f));
@@ -60,7 +60,7 @@ public class SphereVolumeIndicator : MonoBehaviour
 			array[j].z = array[j].x;
 			array[j].x = 0f;
 		}
-		rangeIndicatorYZ.SetVertexCount(num);
+		rangeIndicatorYZ.positionCount = num;
 		rangeIndicatorYZ.SetPositions(array);
 		vector = new Vector3(radius, 0f, 0f);
 		quaternion = Quaternion.AngleAxis(360f / (float)circleSergmentCount, new Vector3(0f, 1f, 0f));
@@ -69,7 +69,7 @@ public class SphereVolumeIndicator : MonoBehaviour
 			array[k].x = array[k].y;
 			array[k].y = 0f;
 		}
-		rangeIndicatorZX.SetVertexCount(num);
+		rangeIndicatorZX.positionCount = num;
 		rangeIndicatorZX.SetPositions(array);
 		materialCopy.SetTextureScale("_MainTex", new Vector2(lineDotDensity * radius, 1f));
 		SetLineWidths(lineWidth);
@@ -77,8 +77,11 @@ public class SphereVolumeIndicator : MonoBehaviour
 
 	private void SetLineWidths(float w)
 	{
-		rangeIndicatorXY.SetWidth(w, w);
-		rangeIndicatorYZ.SetWidth(w, w);
-		rangeIndicatorZX.SetWidth(w, w);
+		rangeIndicatorXY.startWidth = w;
+		rangeIndicatorXY.endWidth = w;
+		rangeIndicatorYZ.startWidth = w;
+		rangeIndicatorYZ.endWidth = w;
+		rangeIndicatorZX.startWidth = w;
+		rangeIndicatorZX.endWidth = w;
 	}
 }

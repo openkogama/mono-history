@@ -14,12 +14,12 @@ internal class ESWalkMode : ESStateBase
 		if (MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.Round)
 		{
 			MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Playing);
-			MVGameControllerDesktop.LockCursorManager.LockCursor = true;
+			MVGameControllerDesktop.LockCursorManager.CursorLock = true;
 		}
 		else if (MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded)
 		{
 			MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Hidden);
-			MVGameControllerDesktop.LockCursorManager.LockCursor = false;
+			MVGameControllerDesktop.LockCursorManager.CursorLock = false;
 		}
 		MVGameControllerBase.WOCM.AvatarLocal.Visible = true;
 		MVGameControllerBase.WOCM.MoveableController.ResetMoveables();
@@ -51,7 +51,7 @@ internal class ESWalkMode : ESStateBase
 		}
 		MVGameControllerBase.WOCM.MoveableController.ResetMoveables();
 		MVGameControllerBase.WOCM.RootGroup.PlayModeInitialize();
-		MVGameControllerDesktop.LockCursorManager.LockCursor = false;
+		MVGameControllerDesktop.LockCursorManager.CursorLock = false;
 		if (MVGameControllerBase.Game.GameCoinManager.BoostEnabled)
 		{
 			MVGameControllerBase.OperationRequests.SetGameCoinBoostState(gameCoinBoosterEnabled: false);

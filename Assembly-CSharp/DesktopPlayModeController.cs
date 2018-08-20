@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanvasController, IEventSystemHandler, ILeaveEditPlayModeHandler, IActivateUIElement
+public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActivateUIElement, ILeaveEditPlayModeHandler, ICanvasController, IEventSystemHandler
 {
 	private ILockCursorManager lockCursorManager;
 
@@ -120,7 +120,7 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, ICanva
 	{
 		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.LobbyMenu))
 		{
-			lockCursorManager.LockCursor = false;
+			lockCursorManager.CursorLock = false;
 		}
 		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.ToggleHD) && uiStack.IsStackEmpty())
 		{

@@ -163,7 +163,7 @@ public class AvatarMotor : MVRigidBody
 		if (groundState.Grounded)
 		{
 			velocity = groundState.ApplySlidingVelocity(velocity, density, interactableLocal);
-			velocity -= velocity * MathFunctions.Pow2(interactableLocal.HandleModifierEffect(AvatarModifierEffect.Friction, groundState.GroundMaterial.physicalProperties.friction)) * Time.fixedDeltaTime;
+			velocity -= velocity * MathFunctions.Pow2(interactableLocal.HandleModifierEffect(AvatarModifierEffect.Friction, groundState.GroundMaterial.PhysicalProperties.friction)) * Time.fixedDeltaTime;
 			velocity = ApplyInputVelocityChangeGrounded(velocity, inputDirection);
 		}
 		else
@@ -200,9 +200,9 @@ public class AvatarMotor : MVRigidBody
 		Vector3 hVelocity = inputDirection * speed;
 		hVelocity = MVRigidBody.AdjustGroundVelocityToNormal(hVelocity, groundState.GroundNormal);
 		Vector3 vector = hVelocity - velocity;
-		vector *= MathFunctions.Pow2(interactableLocal.HandleModifierEffect(AvatarModifierEffect.Friction, groundState.GroundMaterial.physicalProperties.friction)) * Time.fixedDeltaTime / 0.02f;
+		vector *= MathFunctions.Pow2(interactableLocal.HandleModifierEffect(AvatarModifierEffect.Friction, groundState.GroundMaterial.PhysicalProperties.friction)) * Time.fixedDeltaTime / 0.02f;
 		velocity += vector;
-		if (MathFunctions.Pow2(interactableLocal.HandleModifierEffect(AvatarModifierEffect.Friction, groundState.GroundMaterial.physicalProperties.friction)) < 0.1f && hVelocity.magnitude != 0f)
+		if (MathFunctions.Pow2(interactableLocal.HandleModifierEffect(AvatarModifierEffect.Friction, groundState.GroundMaterial.PhysicalProperties.friction)) < 0.1f && hVelocity.magnitude != 0f)
 		{
 			velocity += hVelocity * 0.5f * Time.fixedDeltaTime;
 		}

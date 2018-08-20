@@ -10,8 +10,8 @@ public class AvatarWaterRippleEffect : WaterSplashComponent
 	[SerializeField]
 	private Vector3 airBubbleOffset = new Vector3(0f, 1.325f, 0.4f);
 
-	[SerializeField]
 	[Header("Dependencies")]
+	[SerializeField]
 	private Avatar avatar;
 
 	private ParticleSystem airBubbleParticles;
@@ -51,7 +51,8 @@ public class AvatarWaterRippleEffect : WaterSplashComponent
 			float waterLevel = MVGameControllerBase.WaterPlaneManager.WaterLevel;
 			if (position.y + AvatarHeight < waterLevel)
 			{
-				airBubbleParticles.startLifetime = (waterLevel - airBubbleParticles.transform.position.y) / airBubbleParticles.startSpeed;
+				ParticleSystem.MainModule main = airBubbleParticles.main;
+				main.startLifetimeMultiplier = (waterLevel - airBubbleParticles.transform.position.y) / airBubbleParticles.main.startSpeedMultiplier;
 				if (!airBubbleParticles.isPlaying)
 				{
 					airBubbleParticles.Play();

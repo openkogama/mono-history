@@ -5,9 +5,17 @@ using UnityEngine;
 
 public class MVFire : MVLogicObject, ILogicWorldObject
 {
+	private List<MVWorldObjectClient> woList = new List<MVWorldObjectClient>();
+
+	private FireObject fireObject;
+
+	private SphereVolumeIndicator rangeVis;
+
 	private const float damageValue = 100f;
 
 	private const float originalDamageRadius = 2.5f;
+
+	private float damageRadius = 2.5f;
 
 	private const float originalVisualObjectScale = 5f;
 
@@ -16,14 +24,6 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 	private const float fireHitBoxYOffset = 0.04f;
 
 	private const float originalIntensity = 4f;
-
-	private List<MVWorldObjectClient> woList = new List<MVWorldObjectClient>();
-
-	private FireObject fireObject;
-
-	private SphereVolumeIndicator rangeVis;
-
-	private float damageRadius = 2.5f;
 
 	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.Fire;
 
@@ -172,12 +172,12 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 	private float CalculateDamageModifier()
 	{
 		float num = 1f;
-		float startSize = fireObject.ParticleSystem.startSize;
-		if (startSize <= 4f)
+		float startSizeMultiplier = fireObject.ParticleSystem.main.startSizeMultiplier;
+		if (startSizeMultiplier <= 4f)
 		{
-			return startSize / 12f;
+			return startSizeMultiplier / 12f;
 		}
-		return startSize / 13f;
+		return startSizeMultiplier / 13f;
 	}
 
 	public override void OnDataUpdate()
@@ -191,23 +191,25 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 		if (Data.ContainsKey("C"))
 		{
 			float[] array = (float[])Data["C"];
-			fireObject.ParticleSystem.startColor = new Color(array[0], array[1], array[2]);
+			ParticleSystem.MainModule main = fireObject.ParticleSystem.main;
+			main.startColor = new Color(array[0], array[1], array[2]);
 		}
-		float num = CalculateDamageRadius(fireObject.ParticleSystem.startSize);
+		float num = CalculateDamageRadius(fireObject.ParticleSystem.main.startSizeMultiplier);
 		float num2 = CalculateScale(num);
 		SetFireHitBoxYOffset((0f - num2) * 0.04f);
 		if (Data.ContainsKey("I"))
 		{
-			fireObject.ParticleSystem.startSize = (float)Data["I"];
+			ParticleSystem.MainModule main2 = fireObject.ParticleSystem.main;
+			main2.startSizeMultiplier = (float)Data["I"];
 		}
-		float startSize = fireObject.ParticleSystem.startSize;
-		UpdateDamageRadius(startSize);
+		float startSizeMultiplier = fireObject.ParticleSystem.main.startSizeMultiplier;
+		UpdateDamageRadius(startSizeMultiplier);
 		float num3 = CalculateScale(damageRadius);
 		SetFireHitBoxYOffset(num3 * 0.04f);
 		UpdateScale(num3);
 		RenewCullingSize();
-		UpdateSoundVolume(startSize);
-		if (startSize < 4f)
+		UpdateSoundVolume(startSizeMultiplier);
+		if (startSizeMultiplier < 4f)
 		{
 			SetCandleAnimation();
 		}
@@ -253,13 +255,12 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 	private void SetCandleAnimation()
 	{
 		ParticleSystem.EmissionModule emission = fireObject.ParticleSystem.emission;
-		ParticleSystem.MinMaxCurve rate = emission.rate;
-		rate.constantMax = 10f;
-		emission.rate = rate;
-		fireObject.ParticleSystem.startLifetime = 0.4f;
-		fireObject.ParticleSystem.startSpeed = 0.5f;
+		emission.rateOverTimeMultiplier = 10f;
+		ParticleSystem.MainModule main = fireObject.ParticleSystem.main;
+		main.startLifetimeMultiplier = 0.4f;
+		main.startSpeedMultiplier = 0.5f;
 		ParticleSystem.ShapeModule shape = fireObject.ParticleSystem.shape;
-		shape.randomDirection = false;
+		shape.randomDirectionAmount = 0f;
 		ParticleSystem.SizeOverLifetimeModule sizeOverLifetime = fireObject.ParticleSystem.sizeOverLifetime;
 		AnimationCurve animationCurve = new AnimationCurve();
 		animationCurve.AddKey(0f, 0.5f);
@@ -272,11 +273,10 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 	private void SetOriginalAnimation()
 	{
 		ParticleSystem.EmissionModule emission = fireObject.ParticleSystem.emission;
-		ParticleSystem.MinMaxCurve rate = emission.rate;
-		rate.constantMax = 22f;
-		emission.rate = rate;
-		fireObject.ParticleSystem.startLifetime = 0.6f;
-		fireObject.ParticleSystem.startSpeed = 1.6f;
+		emission.rateOverTimeMultiplier = 22f;
+		ParticleSystem.MainModule main = fireObject.ParticleSystem.main;
+		main.startLifetimeMultiplier = 0.6f;
+		main.startSpeedMultiplier = 1.6f;
 		ParticleSystem.SizeOverLifetimeModule sizeOverLifetime = fireObject.ParticleSystem.sizeOverLifetime;
 		AnimationCurve animationCurve = new AnimationCurve();
 		animationCurve.AddKey(0f, 0.4f);
@@ -285,7 +285,7 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 		ParticleSystem.MinMaxCurve size = new ParticleSystem.MinMaxCurve(1f, animationCurve);
 		sizeOverLifetime.size = size;
 		ParticleSystem.ShapeModule shape = fireObject.ParticleSystem.shape;
-		shape.randomDirection = true;
+		shape.randomDirectionAmount = 1f;
 	}
 
 	private void RenewCullingSize()

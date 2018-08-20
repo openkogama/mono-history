@@ -4,10 +4,6 @@ using UnityEngine;
 
 public class HoverCraftMotor : SimpleVehicleMotorBase
 {
-	private const float verticalThrustTime = 0.6f;
-
-	private const float stoppedJumpingTimeOut = 0.3f;
-
 	private ImpactState impactState = new ImpactState(RuntimeEventType.VehicleImpact25, RuntimeEventType.VehicleImpact50, RuntimeEventType.VehicleImpact75);
 
 	private Vector3 velocityPrevFrame;
@@ -60,11 +56,15 @@ public class HoverCraftMotor : SimpleVehicleMotorBase
 
 	private float driftCorrectionRotation = 10f;
 
+	private const float verticalThrustTime = 0.6f;
+
 	private float availableVerticalThrustTime = 0.6f;
 
 	private bool wasJumping;
 
-	private float stoppedJumpingTime = Time.time - 0.3f;
+	private const float stoppedJumpingTimeOut = 0.3f;
+
+	private float stoppedJumpingTime;
 
 	private float regenerationFactor = 0.6f;
 

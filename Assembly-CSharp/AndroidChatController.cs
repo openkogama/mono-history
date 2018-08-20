@@ -7,25 +7,25 @@ using UnityEngine.UI;
 
 public class AndroidChatController : MonoBehaviour
 {
-	private const string teamMessageFormat = "<color=#{0}>[{1}] </color><color=#{2}>{3}: </color><color=#{4}>{5}</color>";
-
-	private const string sayMessageFormat = "<color=#{0}>[{1}] </color><color=#{2}>{3}: </color><color=#{4}>{5}</color>";
-
-	private const int maxLineCount = 50;
-
-	private const float sayHearingDistance = 15f;
-
 	private string adminMessageFormat = "<color=#{0}>{1}</color>";
 
 	private string chatMessageFromFriend = "<color=#{0}><b>[{1}]: </b></color><color=#{2}>{3}</color>";
 
 	private string chatMessageFormat = "<color=#{0}>[{1}]: </color><color=#{2}>{3}</color>";
 
+	private const string teamMessageFormat = "<color=#{0}>[{1}] </color><color=#{2}>{3}: </color><color=#{4}>{5}</color>";
+
+	private const string sayMessageFormat = "<color=#{0}>[{1}] </color><color=#{2}>{3}: </color><color=#{4}>{5}</color>";
+
 	private string warningMessageFormat = "<color=#{0}>{1}</color>";
+
+	private const int maxLineCount = 50;
 
 	private Queue<Text> lines = new Queue<Text>();
 
 	private bool promptRegisterForChat = true;
+
+	private const float sayHearingDistance = 15f;
 
 	[SerializeField]
 	private ChatConsoleModes chatConsoleModes;
@@ -165,11 +165,6 @@ public class AndroidChatController : MonoBehaviour
 			break;
 		case MVGameMsgType.Warning:
 			AddWarningMessage(message);
-			break;
-		case MVGameMsgType.CollectiblePickedUp:
-		case MVGameMsgType.AchievementUnlocked:
-		case MVGameMsgType.CheckpointReached:
-		case MVGameMsgType.JoinFlowStatus:
 			break;
 		}
 	}

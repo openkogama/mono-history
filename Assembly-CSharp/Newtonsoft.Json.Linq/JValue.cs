@@ -5,7 +5,7 @@ using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Linq;
 
-public class JValue : JToken, IFormattable, IComparable, IEquatable<JValue>, IComparable<JValue>
+public class JValue : JToken, IEquatable<JValue>, IFormattable, IComparable, IComparable<JValue>
 {
 	private JTokenType _valueType;
 
@@ -92,16 +92,6 @@ public class JValue : JToken, IFormattable, IComparable, IEquatable<JValue>, ICo
 	public JValue(object value)
 		: this(value, GetValueType(null, value))
 	{
-	}
-
-	int IComparable.CompareTo(object obj)
-	{
-		if (obj == null)
-		{
-			return 1;
-		}
-		object objB = ((!(obj is JValue)) ? obj : ((JValue)obj).Value);
-		return Compare(_valueType, _value, objB);
 	}
 
 	internal override bool DeepEquals(JToken node)
@@ -324,7 +314,7 @@ public class JValue : JToken, IFormattable, IComparable, IEquatable<JValue>, ICo
 		}
 	}
 
-	public override void WriteTo(JsonWriter writer, params JsonConverter[] converters)
+	public override void WriteTo(JsonWriter writer, JsonConverter[] converters)
 	{
 		switch (_valueType)
 		{
@@ -456,6 +446,16 @@ public class JValue : JToken, IFormattable, IComparable, IEquatable<JValue>, ICo
 			return formattable.ToString(format, formatProvider);
 		}
 		return _value.ToString();
+	}
+
+	int IComparable.CompareTo(object obj)
+	{
+		if (obj == null)
+		{
+			return 1;
+		}
+		object objB = ((!(obj is JValue)) ? obj : ((JValue)obj).Value);
+		return Compare(_valueType, _value, objB);
 	}
 
 	public int CompareTo(JValue obj)

@@ -52,7 +52,7 @@ public abstract class MVRigidBody : MVComponent
 						Cube cube = mVCubeModelFineGrainedTerrain.GetCube(intVector);
 						if (!(cube == null))
 						{
-							float toughness = MVGameControllerBase.Game.MaterialRepository.GetMaterial(cube.FaceMaterials[0]).physicalProperties.toughness;
+							float toughness = MVGameControllerBase.Game.MaterialRepository.GetMaterial(cube.FaceMaterials[0]).PhysicalProperties.toughness;
 							if (toughness != 0f)
 							{
 								MVGameControllerBase.Game.World.RuntimeEventManager.SendRuntimeEvent(new SingleCubeFineGrainedEvent(intVector));

@@ -89,7 +89,7 @@ internal class JumpState
 		if ((groundState.Grounded || flag2 || flag) && Time.time - lastStartTime > jumpTimeOut)
 		{
 			float num = regularButtonDownTimeLimit;
-			if (interactableLocal.HandleModifierEffect(AvatarModifierEffect.Bounciness, groundState.GroundMaterial.physicalProperties.bouncyness) > bouncinessThresshold)
+			if (interactableLocal.HandleModifierEffect(AvatarModifierEffect.Bounciness, groundState.GroundMaterial.PhysicalProperties.bouncyness) > bouncinessThresshold)
 			{
 				num = bouncyMaterialButtonDownTimeLimit;
 			}
@@ -132,7 +132,7 @@ internal class JumpState
 
 	private float GetSliperyFactor(MVInteractableBase interactableLocal, MVGroundState groundState, float waterProximity, bool canWaterJump)
 	{
-		float num = Mathf.Sin(groundState.GradientAngle * ((float)Math.PI / 180f)) * (1f - SpreadFunction(interactableLocal.HandleModifierEffect(AvatarModifierEffect.Friction, groundState.GroundMaterial.physicalProperties.friction)));
+		float num = Mathf.Sin(groundState.GradientAngle * ((float)Math.PI / 180f)) * (1f - SpreadFunction(interactableLocal.HandleModifierEffect(AvatarModifierEffect.Friction, groundState.GroundMaterial.PhysicalProperties.friction)));
 		if (num < sliperyValMin || (canWaterJump && waterProximity > 0.5f))
 		{
 			num = 0f;
@@ -226,7 +226,7 @@ internal class JumpState
 
 	public void HandleMoveHit(MVControllerColliderHit moveHit)
 	{
-		if (moveHit.material.modifierPackageType == AvatarModifierPackageType.WallJump)
+		if (moveHit.material.ModifierPackageType == AvatarModifierPackageType.WallJump)
 		{
 			wallJumpHits.Add(moveHit);
 		}

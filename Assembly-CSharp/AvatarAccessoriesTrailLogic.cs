@@ -15,7 +15,8 @@ public class AvatarAccessoriesTrailLogic : MonoBehaviour
 		if ((transform.position - lastPosition).magnitude > mininumMovementRequirement)
 		{
 			emission.enabled = true;
-			particles.startSpeed = 0f;
+			ParticleSystem.MainModule main = particles.main;
+			main.startSpeedMultiplier = 0f;
 			lastPosition = transform.position;
 		}
 		else

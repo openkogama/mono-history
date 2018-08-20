@@ -7,19 +7,19 @@ public static class ImageGenerator
 	public static IEnumerator CreateTextureFromData(MVWorldObjectClient wo, Action<byte[]> callback)
 	{
 		int textureSize = 512;
-		Texture2D previewTexture = new Texture2D(textureSize, textureSize, TextureFormat.RGB24, mipmap: false);
+		Texture2D previewTexture = new Texture2D(textureSize, textureSize, TextureFormat.RGB24, mipChain: false);
 		GameObject previewRoot = new GameObject("Item Preview");
 		MVComponent[] mvComponents = wo.GameObject.GetComponentsInChildren<MVComponent>();
 		MVComponent[] array = mvComponents;
-		foreach (MVComponent mvComponent in array)
+		foreach (MVComponent mVComponent in array)
 		{
-			mvComponent.findWorldObjectParent = false;
+			mVComponent.findWorldObjectParent = false;
 		}
 		GameObject itemCopy = UnityEngine.Object.Instantiate(wo.GameObject);
 		MVComponent[] array2 = mvComponents;
-		foreach (MVComponent mvComponent2 in array2)
+		foreach (MVComponent mVComponent2 in array2)
 		{
-			mvComponent2.findWorldObjectParent = true;
+			mVComponent2.findWorldObjectParent = true;
 		}
 		ObjectPreviewer objectPreviewer = ObjectPreviewer.Create(textureSize, CameraClearFlags.Skybox, wo.PreviewLayerMask, new Vector3(1.2f, 0.1f, 0.3f), previewRoot.transform, itemCopy.transform.position, "Model preview", wo, itemCopy);
 		yield return 0;

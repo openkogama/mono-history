@@ -2,8 +2,6 @@ using UnityEngine;
 
 public class AvatarPreviewer : MonoBehaviour
 {
-	private const int lowResRT = 256;
-
 	private float previewObjMaxSize = 2f;
 
 	private float previewCamAdditionalHeight = 0.5f;
@@ -18,6 +16,8 @@ public class AvatarPreviewer : MonoBehaviour
 	private RenderTexture previewTexture;
 
 	private Vector3 pivotPoint;
+
+	private const int lowResRT = 256;
 
 	public RenderTexture PreviewTexture => previewTexture;
 

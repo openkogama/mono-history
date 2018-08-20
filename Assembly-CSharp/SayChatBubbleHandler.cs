@@ -2,10 +2,10 @@ using UnityEngine;
 
 public class SayChatBubbleHandler : MonoBehaviour
 {
-	private const float sayHearingDistance = 15f;
-
 	[SerializeField]
 	private MeshRenderer sayChatBubble;
+
+	private const float sayHearingDistance = 15f;
 
 	private bool isActive;
 

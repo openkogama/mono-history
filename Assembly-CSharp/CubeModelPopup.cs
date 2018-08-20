@@ -26,7 +26,7 @@ public class CubeModelPopup : MonoBehaviour
 		}
 		MaterialButtonTextureGenerator materialButtonTextureGenerator = Object.Instantiate(PrefabPool.Instance.MaterialButtonTextureGenerator);
 		materialButtonTextureGenerator.previewResolution = 180;
-		Texture2D texture = materialButtonTextureGenerator.TakePicture(material.mesh);
+		Texture2D texture = materialButtonTextureGenerator.TakePicture(material.Mesh);
 		Object.Destroy(materialButtonTextureGenerator.gameObject);
 		scale25Percent.texture = texture;
 		scale50Percent.texture = texture;

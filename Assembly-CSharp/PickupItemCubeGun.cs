@@ -263,7 +263,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 		MVGameControllerBase.AudioManager.Play("CubeGun", audioSource, muzzlePoint.position);
 		Ray ray = new Ray(owner.LookOrigin, owner.LookDirection);
 		int num = -5 & ~(1 << LayerMask.NameToLayer("Player"));
-		num &= ~(1 << (LayerMask.NameToLayer("Logic") & 0x1F));
+		num &= ~(1 << LayerMask.NameToLayer("Logic"));
 		Vector3 point;
 		if (CollisionDetection.MVHit(ray, out var voxelHit, range, null, num))
 		{
@@ -271,7 +271,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
 			if (voxelHit.isCubeHit)
 			{
-				float toughness = MVGameControllerBase.Game.MaterialRepository.GetMaterial(voxelHit.cube.FaceMaterials[0]).physicalProperties.toughness;
+				float toughness = MVGameControllerBase.Game.MaterialRepository.GetMaterial(voxelHit.cube.FaceMaterials[0]).PhysicalProperties.toughness;
 				if (toughness != 0f)
 				{
 					currentAmmo = (int)currentAmmo + 1;
@@ -398,19 +398,19 @@ public class PickupItemCubeGun : PickupItemWithDelay
 			float distance = 0f;
 			if (MathFunctions.DistancePointLine(voxelHit.point, edgeVerticesWorld[0], edgeVerticesWorld[1], ref distance) && distance < maxDistanceToEdge)
 			{
-				foreach (int value in Enum.GetValues(typeof(Face)))
+				foreach (Face value in Enum.GetValues(typeof(Face)))
 				{
-					if (value == (int)voxelHit.face)
+					if (value == voxelHit.face)
 					{
 						continue;
 					}
-					foreach (int value2 in Enum.GetValues(typeof(Edge)))
+					foreach (Edge value2 in Enum.GetValues(typeof(Edge)))
 					{
-						if (value2 == 0)
+						if (value2 == Edge.None)
 						{
 							continue;
 						}
-						Vector3[] edgeVerticesWorld2 = Cube.GetEdgeVerticesWorld(worldObjectClient.GameObject, voxelHit.cube, (Face)value, (Edge)value2, voxelHit.cubePos);
+						Vector3[] edgeVerticesWorld2 = Cube.GetEdgeVerticesWorld(worldObjectClient.GameObject, voxelHit.cube, value, value2, voxelHit.cubePos);
 						int num = 0;
 						Vector3[] array = edgeVerticesWorld2;
 						foreach (Vector3 b in array)
@@ -426,7 +426,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 						}
 						if (num == 2)
 						{
-							pos = Cube.GetCubePosAboveFace(voxelHit.cubePos, (Face)value);
+							pos = Cube.GetCubePosAboveFace(voxelHit.cubePos, value);
 							if (((MVCubeModelFineGrainedTerrain)worldObjectClient).GetCube(pos) == null)
 							{
 								return true;

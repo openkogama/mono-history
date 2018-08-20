@@ -35,7 +35,7 @@ public class JetPackVisualization : VehicleVisualizationBase
 
 	private float lastOverHeatNotificationTime;
 
-	public List<ParticleEmitter> thrusters = new List<ParticleEmitter>();
+	public List<ParticleSystem> thrusters = new List<ParticleSystem>();
 
 	private MVJetPack.JetModeType mode = MVJetPack.JetModeType.NotSet;
 
@@ -50,7 +50,7 @@ public class JetPackVisualization : VehicleVisualizationBase
 		jetPackCubeModel.localRotation = localRotation;
 		jetMode.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(jetMode.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object jetModeVal) =>
 		{
-			OnJetModeChange((MVJetPack.JetModeType)(byte)jetModeVal);
+			OnJetModeChange((MVJetPack.JetModeType)jetModeVal);
 		}));
 		base.isInSpawner = isInSpawner;
 		if (isInSpawner)
@@ -59,12 +59,13 @@ public class JetPackVisualization : VehicleVisualizationBase
 		}
 		else
 		{
-			foreach (ParticleEmitter thruster in thrusters)
+			foreach (ParticleSystem thruster in thrusters)
 			{
-				originalMaxSize = thruster.maxSize;
-				originalMaxEmission = thruster.maxEmission;
+				originalMaxSize = thruster.main.startSizeMultiplier;
+				originalMaxEmission = thruster.emission.rateOverTimeMultiplier;
+				thruster.Play();
 			}
-			OnJetModeChange((MVJetPack.JetModeType)(byte)jetMode.Value);
+			OnJetModeChange((MVJetPack.JetModeType)jetMode.Value);
 			moving.enabled = true;
 			vehicleBlinker.Init(JetPackRoot.gameObject.GetComponentsInChildren<MeshFilter>());
 			vehicleBlinker.Visible = true;
@@ -99,9 +100,10 @@ public class JetPackVisualization : VehicleVisualizationBase
 
 	public void EnableThruster(bool enable)
 	{
-		foreach (ParticleEmitter thruster in thrusters)
+		foreach (ParticleSystem thruster in thrusters)
 		{
-			thruster.emit = enable;
+			ParticleSystem.EmissionModule emission = thruster.emission;
+			emission.enabled = enable;
 		}
 		if (enable)
 		{
@@ -145,10 +147,12 @@ public class JetPackVisualization : VehicleVisualizationBase
 
 	private void SetMaxSizeForThrusters(float maxSize, float maxEmission)
 	{
-		foreach (ParticleEmitter thruster in thrusters)
+		foreach (ParticleSystem thruster in thrusters)
 		{
-			thruster.maxSize = maxSize;
-			thruster.maxEmission = maxEmission;
+			ParticleSystem.MainModule main = thruster.main;
+			main.startSizeMultiplier = maxSize;
+			ParticleSystem.EmissionModule emission = thruster.emission;
+			emission.rateOverTimeMultiplier = maxEmission;
 		}
 	}
 

@@ -12,8 +12,6 @@ public class ThemeSelection : MonoBehaviour
 		public static Action<ThemeData[]> OnThemeDataReceived;
 	}
 
-	public const string menuDescription = "_(\"Hover over a theme to know more about it. Click it to see it in game.\")";
-
 	[SerializeField]
 	private ThemeRepository themeRepo;
 
@@ -34,6 +32,8 @@ public class ThemeSelection : MonoBehaviour
 
 	[SerializeField]
 	private Image back;
+
+	public const string menuDescription = "_(\"Hover over a theme to know more about it. Click it to see it in game.\")";
 
 	public string currentDescription = "_(\"Hover over a theme to know more about it. Click it to see it in game.\")";
 

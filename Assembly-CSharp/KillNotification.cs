@@ -40,7 +40,7 @@ public class KillNotification : Notification
 
 	public static string GetKillText(Dictionary<object, object> data, bool shotSelf)
 	{
-		PlayerKilledByType type = (PlayerKilledByType)(byte)data[(byte)8];
+		PlayerKilledByType type = (PlayerKilledByType)data[(byte)8];
 		return GetKillText(type, shotSelf);
 	}
 

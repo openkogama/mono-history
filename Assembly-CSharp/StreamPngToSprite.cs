@@ -42,11 +42,7 @@ public class StreamPngToSprite : MonoBehaviour
 	private void StreamingTextureLoaded(WWW www)
 	{
 		currentlyDownloading = false;
-		if (www == null || !(www.texture != null))
-		{
-			return;
-		}
-		if (string.IsNullOrEmpty(www.error))
+		if (www != null && www.texture != null && string.IsNullOrEmpty(www.error))
 		{
 			SetImageTexture(www.texture);
 			if (OnDownloadFinish != null)
@@ -56,7 +52,8 @@ public class StreamPngToSprite : MonoBehaviour
 		}
 		else
 		{
-			Debug.LogError("Stream static image 'StreamingTextureLoaded' failed : " + www.error);
+			Debug.Log("URL: " + www.url + ": " + www.error);
+			Debug.LogError("Error streaming png to sprite");
 		}
 	}
 

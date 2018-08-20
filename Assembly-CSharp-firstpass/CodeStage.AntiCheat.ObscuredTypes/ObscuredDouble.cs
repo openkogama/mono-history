@@ -79,7 +79,7 @@ public struct ObscuredDouble : IEquatable<ObscuredDouble>, IFormattable
 	private static ACTkByte8 InternalEncrypt(double value, long key)
 	{
 		long num = key;
-		if (num == 0L)
+		if (num == 0)
 		{
 			num = cryptoKey;
 		}
@@ -121,7 +121,7 @@ public struct ObscuredDouble : IEquatable<ObscuredDouble>, IFormattable
 		{
 			currentCryptoKey = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
 		}
-		while (currentCryptoKey == 0L);
+		while (currentCryptoKey == 0);
 		hiddenValue = InternalEncrypt(value, currentCryptoKey);
 	}
 
@@ -176,6 +176,43 @@ public struct ObscuredDouble : IEquatable<ObscuredDouble>, IFormattable
 		return d;
 	}
 
+	public static implicit operator ObscuredDouble(double value)
+	{
+		ObscuredDouble result = new ObscuredDouble(InternalEncrypt(value));
+		if (ObscuredCheatingDetector.IsRunning)
+		{
+			result.fakeValue = value;
+		}
+		return result;
+	}
+
+	public static implicit operator double(ObscuredDouble value)
+	{
+		return value.InternalDecrypt();
+	}
+
+	public static ObscuredDouble operator ++(ObscuredDouble input)
+	{
+		double value = input.InternalDecrypt() + 1.0;
+		input.hiddenValue = InternalEncrypt(value, input.currentCryptoKey);
+		if (ObscuredCheatingDetector.IsRunning)
+		{
+			input.fakeValue = value;
+		}
+		return input;
+	}
+
+	public static ObscuredDouble operator --(ObscuredDouble input)
+	{
+		double value = input.InternalDecrypt() - 1.0;
+		input.hiddenValue = InternalEncrypt(value, input.currentCryptoKey);
+		if (ObscuredCheatingDetector.IsRunning)
+		{
+			input.fakeValue = value;
+		}
+		return input;
+	}
+
 	public override string ToString()
 	{
 		return InternalDecrypt().ToString();
@@ -213,42 +250,5 @@ public struct ObscuredDouble : IEquatable<ObscuredDouble>, IFormattable
 	public override int GetHashCode()
 	{
 		return InternalDecrypt().GetHashCode();
-	}
-
-	public static implicit operator ObscuredDouble(double value)
-	{
-		ObscuredDouble result = new ObscuredDouble(InternalEncrypt(value));
-		if (ObscuredCheatingDetector.IsRunning)
-		{
-			result.fakeValue = value;
-		}
-		return result;
-	}
-
-	public static implicit operator double(ObscuredDouble value)
-	{
-		return value.InternalDecrypt();
-	}
-
-	public static ObscuredDouble operator ++(ObscuredDouble input)
-	{
-		double value = input.InternalDecrypt() + 1.0;
-		input.hiddenValue = InternalEncrypt(value, input.currentCryptoKey);
-		if (ObscuredCheatingDetector.IsRunning)
-		{
-			input.fakeValue = value;
-		}
-		return input;
-	}
-
-	public static ObscuredDouble operator --(ObscuredDouble input)
-	{
-		double value = input.InternalDecrypt() - 1.0;
-		input.hiddenValue = InternalEncrypt(value, input.currentCryptoKey);
-		if (ObscuredCheatingDetector.IsRunning)
-		{
-			input.fakeValue = value;
-		}
-		return input;
 	}
 }

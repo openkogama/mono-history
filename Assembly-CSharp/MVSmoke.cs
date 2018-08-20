@@ -20,7 +20,7 @@ public class MVSmoke : MVLogicObject, ILogicWorldObject
 	{
 		interactionFlags |= InteractionFlags.CanResetLogic;
 		interactionFlags |= InteractionFlags.HasSettings;
-		particleSystem = Object.Instantiate(PrefabPool.Instance.ParticleFluffySmoke, gameObject.transform.position, Quaternion.identity) as ParticleSystem;
+		particleSystem = Object.Instantiate(PrefabPool.Instance.ParticleFluffySmoke, gameObject.transform.position, Quaternion.identity);
 		particleSystem.transform.parent = gameObject.transform;
 		particleSystem.Stop();
 		ToggleEmitter(toggle: false);
@@ -30,7 +30,7 @@ public class MVSmoke : MVLogicObject, ILogicWorldObject
 	{
 		base.Initialize();
 		SetupCulling(gameObject);
-		SetupSmokeCulling(particleSystem.startLifetime, gameObject);
+		SetupSmokeCulling(particleSystem.main.startLifetimeMultiplier, gameObject);
 		SetSmokeProperties();
 		InputSignalReceiver = LogicClientsideFactory.CreateStateChangeInputSignalReceiver(this, defaultInput: true, null, OnInputStateUpdate);
 		ToggleEmitter(InputSignalReceiver.CurrentlyIsHot);
@@ -79,11 +79,12 @@ public class MVSmoke : MVLogicObject, ILogicWorldObject
 
 	private void SetSmokeProperties()
 	{
-		float startLifetime = particleSystem.startLifetime;
+		float startLifetimeMultiplier = particleSystem.main.startLifetimeMultiplier;
 		if (Data.ContainsKey("color"))
 		{
 			float[] array = (float[])Data["color"];
-			particleSystem.startColor = new Color(array[0], array[1], array[2], array[3]);
+			ParticleSystem.MainModule main = particleSystem.main;
+			main.startColor = new Color(array[0], array[1], array[2], array[3]);
 		}
 		float num = 0f;
 		if (Data.ContainsKey("length"))
@@ -92,9 +93,10 @@ public class MVSmoke : MVLogicObject, ILogicWorldObject
 			{
 				num = (float)Data["wind"];
 			}
-			startLifetime = (float)Data["length"];
-			SetupSmokeCulling(startLifetime * lengthCullingScale, gameObject);
-			particleSystem.startLifetime = startLifetime / (1f + num);
+			startLifetimeMultiplier = (float)Data["length"];
+			SetupSmokeCulling(startLifetimeMultiplier * lengthCullingScale, gameObject);
+			ParticleSystem.MainModule main2 = particleSystem.main;
+			main2.startLifetimeMultiplier = startLifetimeMultiplier / (1f + num);
 			particleSystem.transform.rotation = transform.rotation;
 			ParticleSystem.ForceOverLifetimeModule forceOverLifetime = particleSystem.forceOverLifetime;
 			AnimationCurve animationCurve = new AnimationCurve();

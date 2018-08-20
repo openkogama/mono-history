@@ -159,9 +159,11 @@ public class ModifierIndicator : MonoBehaviour
 
 	public void ResetIndicators()
 	{
-		for (EOverlay eOverlay = EOverlay.Poison; (int)eOverlay < 3; eOverlay++)
+		EOverlay eOverlay = EOverlay.Poison;
+		while ((int)eOverlay < 3)
 		{
 			modifierIndicators[(uint)eOverlay].Reset();
+			eOverlay++;
 		}
 	}
 }

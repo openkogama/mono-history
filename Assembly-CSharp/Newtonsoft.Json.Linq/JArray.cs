@@ -7,7 +7,7 @@ using Newtonsoft.Json.Utilities;
 
 namespace Newtonsoft.Json.Linq;
 
-public class JArray : JContainer, IEnumerable<JToken>, ICollection<JToken>, IEnumerable, IList<JToken>
+public class JArray : JContainer, IList<JToken>, IEnumerable, ICollection<JToken>, IEnumerable<JToken>
 {
 	private IList<JToken> _values = new List<JToken>();
 
@@ -70,11 +70,6 @@ public class JArray : JContainer, IEnumerable<JToken>, ICollection<JToken>, IEnu
 		Add(content);
 	}
 
-	void ICollection<JToken>.CopyTo(JToken[] array, int arrayIndex)
-	{
-		CopyItemsTo(array, arrayIndex);
-	}
-
 	internal override bool DeepEquals(JToken node)
 	{
 		return node is JArray container && ContentsEqual(container);
@@ -122,7 +117,7 @@ public class JArray : JContainer, IEnumerable<JToken>, ICollection<JToken>, IEnu
 		return (JArray)jToken;
 	}
 
-	public override void WriteTo(JsonWriter writer, params JsonConverter[] converters)
+	public override void WriteTo(JsonWriter writer, JsonConverter[] converters)
 	{
 		writer.WriteStartArray();
 		foreach (JToken childrenToken in ChildrenTokens)
@@ -160,6 +155,11 @@ public class JArray : JContainer, IEnumerable<JToken>, ICollection<JToken>, IEnu
 	public bool Contains(JToken item)
 	{
 		return ContainsItem(item);
+	}
+
+	void ICollection<JToken>.CopyTo(JToken[] array, int arrayIndex)
+	{
+		CopyItemsTo(array, arrayIndex);
 	}
 
 	public bool Remove(JToken item)

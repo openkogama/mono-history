@@ -6,10 +6,6 @@ using UnityEngine.UI;
 
 public class DeathUIController : MonoBehaviour
 {
-	private const float delayDuration = 1.2f;
-
-	private const float briefingDuration = 2.8f;
-
 	[SerializeField]
 	private Text deathReason;
 
@@ -31,6 +27,10 @@ public class DeathUIController : MonoBehaviour
 	private GameStatCounterType statType;
 
 	private float waitTime;
+
+	private const float delayDuration = 1.2f;
+
+	private const float briefingDuration = 2.8f;
 
 	private bool isDeathBriefActive;
 
@@ -71,7 +71,7 @@ public class DeathUIController : MonoBehaviour
 
 	private void OnAvatarStateChanged(object state)
 	{
-		AvatarModeTypes avatarModeTypes = (AvatarModeTypes)(int)state;
+		AvatarModeTypes avatarModeTypes = (AvatarModeTypes)state;
 		if ((avatarModeTypes & AvatarModeTypes.Hidden) != 0)
 		{
 			fader.Deactivate();

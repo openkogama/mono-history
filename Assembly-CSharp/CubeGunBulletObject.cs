@@ -43,7 +43,7 @@ public class CubeGunBulletObject : MonoBehaviour
 	private void HandleCubeHitLocal(VoxelHit voxelHit, Ray lineOfFire)
 	{
 		IntVector cubePos = PickupItemCubeGun.GetCubePos(voxelHit);
-		float toughness = MVGameControllerBase.Game.MaterialRepository.GetMaterial(materialID).physicalProperties.toughness;
+		float toughness = MVGameControllerBase.Game.MaterialRepository.GetMaterial(materialID).PhysicalProperties.toughness;
 		if (toughness == 0f)
 		{
 			MVCubeModelFineGrainedTerrain singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVCubeModelFineGrainedTerrain>();

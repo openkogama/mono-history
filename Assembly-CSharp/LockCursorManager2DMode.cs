@@ -25,7 +25,7 @@ public class LockCursorManager2DMode : MonoBehaviour, ILockCursorManager
 		}
 	}
 
-	public bool LockCursor
+	public bool CursorLock
 	{
 		get
 		{
@@ -36,15 +36,6 @@ public class LockCursorManager2DMode : MonoBehaviour, ILockCursorManager
 			wantsCursorLock = value;
 		}
 	}
-
-	public bool UnLockCursorOverride
-	{
-		set
-		{
-		}
-	}
-
-	public bool HasFocusAndLockCursor => hasFocus && wantsCursorLock;
 
 	private void LateUpdate()
 	{

@@ -8,7 +8,7 @@ public class HealingIndicator : MonoBehaviour
 	private Image healthOverlay;
 
 	[SerializeField]
-	private AnimationCurve animation;
+	private AnimationCurve curve;
 
 	private float timer;
 
@@ -26,14 +26,14 @@ public class HealingIndicator : MonoBehaviour
 		if (damageAmount < 0f)
 		{
 			enabled = true;
-			targetTime = animation.keys[animation.length - 1].time;
+			targetTime = curve.keys[curve.length - 1].time;
 		}
 	}
 
 	private void Update()
 	{
 		timer += Time.deltaTime;
-		float a = animation.Evaluate(timer);
+		float a = curve.Evaluate(timer);
 		Color color = healthOverlay.color;
 		color.a = a;
 		healthOverlay.color = color;

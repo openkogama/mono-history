@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-public class ModalPopupCreator : MonoBehaviour, IEventSystemHandler, IModalPopupCreator
+public class ModalPopupCreator : MonoBehaviour, IModalPopupCreator, IEventSystemHandler
 {
 	[SerializeField]
 	private UIPushOption popupPushOption;

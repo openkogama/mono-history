@@ -21,7 +21,7 @@ public class ModalNotification : Notification
 	{
 		base.Initialize(data);
 		text.text = (string)data[(byte)1];
-		lifeTime = (NotificationLifetime)(int)data[(byte)2];
+		lifeTime = (NotificationLifetime)data[(byte)2];
 		if (data.ContainsKey((byte)3))
 		{
 			image.sprite = (Sprite)data[(byte)3];

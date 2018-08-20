@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class OculusSettings : MonoBehaviour, IEventSystemHandler, IHandleSettingChanged
+public class OculusSettings : MonoBehaviour, IHandleSettingChanged, IEventSystemHandler
 {
 	public static class Strings
 	{
@@ -13,10 +13,6 @@ public class OculusSettings : MonoBehaviour, IEventSystemHandler, IHandleSetting
 
 		public const string Lives = "Lives";
 	}
-
-	private const int maxLives = 100;
-
-	private const string infinity = "∞";
 
 	[SerializeField]
 	private SettingsBase settingsBase;
@@ -32,6 +28,10 @@ public class OculusSettings : MonoBehaviour, IEventSystemHandler, IHandleSetting
 
 	[SerializeField]
 	private SettingsInputFieldSlider numOfLivesInputSlider;
+
+	private const int maxLives = 100;
+
+	private const string infinity = "∞";
 
 	private MVWorldObjectClient target;
 
@@ -57,9 +57,7 @@ public class OculusSettings : MonoBehaviour, IEventSystemHandler, IHandleSetting
 
 	public void OnSettingChanged(string key, object value)
 	{
-		switch (key)
-		{
-		case "Lives":
+		if (key != null && key == "Lives")
 		{
 			int num = Convert.ToInt32(value);
 			if (num == 100)
@@ -74,11 +72,10 @@ public class OculusSettings : MonoBehaviour, IEventSystemHandler, IHandleSetting
 			{
 				settingsBase.OnSettingChanged(key, num);
 			}
-			break;
 		}
-		default:
+		else
+		{
 			settingsBase.OnSettingChanged(key, Convert.ToSingle(value));
-			break;
 		}
 	}
 }

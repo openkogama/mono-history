@@ -29,7 +29,7 @@ public class AvatarPickupOwner : MVPickupOwner
 	{
 		get
 		{
-			if (currentItem != laserPointer)
+			if (currentItem is ILaserPointer laserPointer && laserPointer != this.laserPointer)
 			{
 				MVEquipable component = GetComponent<MVEquipable>();
 				if (component != null)
@@ -37,7 +37,7 @@ public class AvatarPickupOwner : MVPickupOwner
 					component.Equip(AvatarItemType.LaserPointer, AvatarEquipableType.Weapon, null);
 				}
 			}
-			return laserPointer;
+			return this.laserPointer;
 		}
 	}
 

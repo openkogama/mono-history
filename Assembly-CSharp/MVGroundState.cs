@@ -5,9 +5,9 @@ using UnityEngine;
 
 public class MVGroundState
 {
-	private const float groundDepth = 0.1f;
-
 	private MVMaterial groundMaterial = new MVMaterial();
+
+	private const float groundDepth = 0.1f;
 
 	private ObscuredBool grounded = false;
 
@@ -33,8 +33,8 @@ public class MVGroundState
 	{
 		if (Grounded)
 		{
-			Vector3 vector = gradientDirection * Mathf.Sin(gradientAngle * ((float)Math.PI / 180f)) * (1f - MathFunctions.Pow2(interactableLocal.HandleModifierEffect(AvatarModifierEffect.Friction, GroundMaterial.physicalProperties.friction))) * MVPhysics.Gravity * interactableLocal.HandleModifierEffect(AvatarModifierEffect.Density, density);
-			if (vector.magnitude > interactableLocal.HandleModifierEffect(AvatarModifierEffect.StaticFriction, GroundMaterial.physicalProperties.staticFriction))
+			Vector3 vector = gradientDirection * Mathf.Sin(gradientAngle * ((float)Math.PI / 180f)) * (1f - MathFunctions.Pow2(interactableLocal.HandleModifierEffect(AvatarModifierEffect.Friction, GroundMaterial.PhysicalProperties.friction))) * MVPhysics.Gravity * interactableLocal.HandleModifierEffect(AvatarModifierEffect.Density, density);
+			if (vector.magnitude > interactableLocal.HandleModifierEffect(AvatarModifierEffect.StaticFriction, GroundMaterial.PhysicalProperties.staticFriction))
 			{
 				velocity += vector * Time.deltaTime;
 			}

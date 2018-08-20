@@ -21,12 +21,6 @@ public class PickUpItemHealRay : PickupItem
 		public Vector3 Direction;
 	}
 
-	private const float updateWaitTime = 0.05f;
-
-	private const float hitGroundStartPositionMidifier = 0.6f;
-
-	private const string stuckObjectIDString = "S";
-
 	private float passedLerpTime;
 
 	private Quaternion lerpStartRotation;
@@ -58,15 +52,19 @@ public class PickUpItemHealRay : PickupItem
 
 	private ObscuredFloat currentAmmoLeft = 0f;
 
+	private const float updateWaitTime = 0.05f;
+
 	private float elapsedUpdateWaitTime;
 
 	private Vector3 hitOffset;
 
-	[Tooltip("How many seconds the healrays ammo lasts.")]
 	[SerializeField]
+	[Tooltip("How many seconds the healrays ammo lasts.")]
 	private ObscuredFloat maxAmmoTime = 100f;
 
 	private LayerMask layers = -5 & ~(1 << LayerUtil.GetLayerNumber(LayerFlags.Logic));
+
+	private const float hitGroundStartPositionMidifier = 0.6f;
 
 	[SerializeField]
 	private Material ZIgnoreMaterial;
@@ -84,6 +82,8 @@ public class PickUpItemHealRay : PickupItem
 	private Material normalRayMaterial;
 
 	private ParticleSystemRenderer particleRenderer;
+
+	private const string stuckObjectIDString = "S";
 
 	public override AvatarItemType Type => AvatarItemType.HealRay;
 
@@ -279,20 +279,21 @@ public class PickUpItemHealRay : PickupItem
 
 	private void UpdateRaysVisualRepresentation()
 	{
+		ParticleSystem.MainModule main = rayParticles.main;
 		if (stuckObject != null)
 		{
 			Vector3 worldPosition = CalculateStuckPosition();
 			rayParticles.transform.LookAt(worldPosition);
-			Color startColor = new Color(0f, 139f / 255f, 139f / 255f);
-			rayParticles.startColor = startColor;
+			Color color = new Color(0f, 139f / 255f, 139f / 255f);
+			main.startColor = color;
+			main.startSizeMultiplier = 0.4f;
 			audioSource.pitch = 2f;
-			rayParticles.startSize = 0.4f;
 			return;
 		}
-		Color startColor2 = new Color(58f / 255f, 1f, 133f / 255f);
-		rayParticles.startColor = startColor2;
+		Color color2 = new Color(58f / 255f, 1f, 133f / 255f);
+		main.startColor = color2;
+		main.startSizeMultiplier = 0.3f;
 		audioSource.pitch = 1f;
-		rayParticles.startSize = 0.3f;
 		if (owner.IsLocal && isShooting)
 		{
 			rayParticles.transform.LookAt(muzzlePoint.position + CalculateParticlesRotation());
@@ -376,7 +377,8 @@ public class PickUpItemHealRay : PickupItem
 			}
 			else
 			{
-				rayParticles.startLifetime = GetMaxRange() / rayParticles.startSpeed;
+				ParticleSystem.MainModule main = rayParticles.main;
+				main.startLifetimeMultiplier = GetMaxRange() / main.startSpeedMultiplier;
 				hitParticles.Stop();
 			}
 		}
@@ -405,10 +407,13 @@ public class PickUpItemHealRay : PickupItem
 			UpdateRayHealingLogic(result.HitVoxel);
 			break;
 		case RayCastData.RayCastStatus.StopRay:
-			rayParticles.startLifetime = GetMaxRange() / rayParticles.startSpeed;
+		{
+			ParticleSystem.MainModule main = rayParticles.main;
+			main.startLifetimeMultiplier = GetMaxRange() / main.startSpeedMultiplier;
 			hitParticles.Stop();
 			HandleNoHit();
 			break;
+		}
 		}
 	}
 
@@ -542,7 +547,8 @@ public class PickUpItemHealRay : PickupItem
 
 	private void SetRayParticleDistance(float distance)
 	{
-		rayParticles.startLifetime = distance / rayParticles.startSpeed;
+		ParticleSystem.MainModule main = rayParticles.main;
+		main.startLifetimeMultiplier = distance / main.startSpeedMultiplier;
 	}
 
 	private void HandleNoHit()
@@ -616,7 +622,7 @@ public class PickUpItemHealRay : PickupItem
 		}
 		else
 		{
-			Debug.LogWarning("HealRay holder " + owner.WorldObjectOwner.GameObject.name + " is not a ICurrentItemOwner. This might cause a so that HealRays lock-on is not syncrhonized correctly.");
+			Debug.LogWarning("HealRay holder " + owner.WorldObjectOwner.GameObject.name + " is not a ICurrentItemOwner. This might cause a so that HealRays lock-on is not synchronized correctly.");
 		}
 	}
 

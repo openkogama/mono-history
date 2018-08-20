@@ -21,9 +21,9 @@ public class AvatarPooledXPParticles : MonoBehaviour
 	public void Initialize(int xpDelta)
 	{
 		ParticleSystem.EmissionModule emission = xpParticleSystem.emission;
-		ParticleSystem.MinMaxCurve rate = emission.rate;
-		rate.constantMax = xpDelta;
-		emission.rate = rate;
+		ParticleSystem.MinMaxCurve rateOverTime = emission.rateOverTime;
+		rateOverTime.constant = xpDelta;
+		emission.rateOverTime = rateOverTime;
 	}
 
 	public void Play()

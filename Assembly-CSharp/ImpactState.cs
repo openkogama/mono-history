@@ -108,8 +108,6 @@ public class ImpactState
 		}
 	}
 
-	private const int suspendImpactDamageFrames = 1;
-
 	public Vector3 prevVelocityChangeVector = Vector3.zero;
 
 	private bool collidedPrevFrame;
@@ -121,6 +119,8 @@ public class ImpactState
 	private float impactDamageMultiplier = 4f;
 
 	private float impactDamage;
+
+	private const int suspendImpactDamageFrames = 1;
 
 	private int suspendImpactDamageCounter = 1;
 
@@ -189,7 +189,7 @@ public class ImpactState
 			averageSoftnessPrevFrame = 0f;
 			foreach (MVControllerColliderHit moveHit in moveHits)
 			{
-				averageSoftnessPrevFrame += interactableLocal.HandleModifierEffect(AvatarModifierEffect.Softness, moveHit.material.physicalProperties.softness);
+				averageSoftnessPrevFrame += interactableLocal.HandleModifierEffect(AvatarModifierEffect.Softness, moveHit.material.PhysicalProperties.softness);
 			}
 			averageSoftnessPrevFrame /= moveHits.Count;
 		}

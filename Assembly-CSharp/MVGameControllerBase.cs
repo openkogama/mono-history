@@ -9,6 +9,12 @@ using UnityEngine;
 
 public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSubscriber
 {
+	public delegate void OnReceivedGameMsgDelegate(MVGameMsgType type, Dictionary<object, object> gameMsgData);
+
+	public delegate void OnReceivedNotificationEventDelegate(NotificationType type, Dictionary<object, object> data);
+
+	public delegate void OnPostGameInitDelegate();
+
 	protected class VersionData
 	{
 		public int minVersion { get; set; }
@@ -29,12 +35,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 			return $"version {version}. minVersion {minVersion}.";
 		}
 	}
-
-	public delegate void OnReceivedGameMsgDelegate(MVGameMsgType type, Dictionary<object, object> gameMsgData);
-
-	public delegate void OnReceivedNotificationEventDelegate(NotificationType type, Dictionary<object, object> data);
-
-	public delegate void OnPostGameInitDelegate();
 
 	private static bool disconnectIsOk;
 
@@ -293,7 +293,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		DebugLogHandler.Init();
 		if (!DebugLogHandler.IsSampling && !Debug.isDebugBuild)
 		{
-			Debug.logger.filterLogType = LogType.Warning;
+			Debug.unityLogger.filterLogType = LogType.Warning;
 		}
 		styles = UnityEngine.Object.Instantiate(styles);
 		styles.transform.parent = transform;
@@ -345,15 +345,15 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	{
 		if (Input.GetKey(KeyCode.Alpha7) && Input.GetKeyUp(KeyCode.Alpha9))
 		{
-			if (Debug.logger.filterLogType == LogType.Warning)
+			if (Debug.unityLogger.filterLogType == LogType.Warning)
 			{
-				Debug.logger.filterLogType = LogType.Log;
+				Debug.unityLogger.filterLogType = LogType.Log;
 				Debug.Log("Enabling logging!");
 			}
-			else if (Debug.logger.filterLogType == LogType.Log)
+			else if (Debug.unityLogger.filterLogType == LogType.Log)
 			{
 				Debug.Log("Disabling logging!");
-				Debug.logger.filterLogType = LogType.Warning;
+				Debug.unityLogger.filterLogType = LogType.Warning;
 			}
 		}
 	}

@@ -50,7 +50,7 @@ public class AvatarPictureTakerUGUI : MonoBehaviour
 		});
 		pictureCamera.Render();
 		pictureCamera.enabled = false;
-		Texture2D texture2D = new Texture2D(previewResolution, previewResolution, TextureFormat.ARGB32, mipmap: false);
+		Texture2D texture2D = new Texture2D(previewResolution, previewResolution, TextureFormat.ARGB32, mipChain: false);
 		RenderTexture.active = temporary;
 		texture2D.ReadPixels(new Rect(0f, 0f, temporary.width, temporary.height), 0, 0);
 		texture2D.Apply();

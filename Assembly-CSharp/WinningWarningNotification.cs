@@ -35,7 +35,7 @@ public class WinningWarningNotification : Notification
 	public override void Initialize(Dictionary<object, object> data)
 	{
 		int actorNr = (int)data[(byte)9];
-		GameStatCounterType winningConditionType = (GameStatCounterType)(byte)data[(byte)5];
+		GameStatCounterType winningConditionType = (GameStatCounterType)data[(byte)5];
 		int scoreLeft = (int)data[(byte)4];
 		if (MVGameControllerBase.Game.MVPlayerContainer.TryGetValue(actorNr, out var player))
 		{

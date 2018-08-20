@@ -16,8 +16,10 @@ public class Timer : ITimer
 
 	public void Update()
 	{
-		for (Time += UnityEngine.Time.deltaTime * timeScale; Time > 100f; Time -= 100f)
+		Time += UnityEngine.Time.deltaTime * timeScale;
+		while (Time > 100f)
 		{
+			Time -= 100f;
 		}
 	}
 }

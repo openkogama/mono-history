@@ -8,10 +8,6 @@ using UnityEngine.Events;
 
 public class AdvancedGhostIcon : MonoBehaviour
 {
-	private const float advancedGhostBodyMaxRadius = 4f;
-
-	private const int ghostIconDistanceBand = 3;
-
 	[SerializeField]
 	private GhostBody ghostBody;
 
@@ -21,6 +17,10 @@ public class AdvancedGhostIcon : MonoBehaviour
 	private bool visible;
 
 	private bool wantsVisible;
+
+	private const float advancedGhostBodyMaxRadius = 4f;
+
+	private const int ghostIconDistanceBand = 3;
 
 	private CullingSubscriberBase cullingSubscriberBase;
 

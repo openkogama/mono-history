@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class ThemeColorPickerRGB : ColorAttribute.Setter, IEventSystemHandler, IHandleSettingChanged
+public class ThemeColorPickerRGB : ColorAttribute.Setter, IHandleSettingChanged, IEventSystemHandler
 {
 	[SerializeField]
 	private Text label;

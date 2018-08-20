@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class SmokeSettings : MonoBehaviour, IEventSystemHandler, IHandleSettingChanged
+public class SmokeSettings : MonoBehaviour, IHandleSettingChanged, IEventSystemHandler
 {
 	private float[] color = new float[4];
 

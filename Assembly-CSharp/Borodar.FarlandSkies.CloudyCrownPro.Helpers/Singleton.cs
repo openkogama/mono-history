@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
 namespace Borodar.FarlandSkies.CloudyCrownPro.Helpers;
@@ -7,7 +6,6 @@ public class Singleton<T> : MonoBehaviour where T : Component
 {
 	private static T _instance;
 
-	[SuppressMessage("ReSharper", "InvertIf")]
 	public static T Instance
 	{
 		get

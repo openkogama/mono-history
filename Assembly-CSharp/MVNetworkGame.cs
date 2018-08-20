@@ -17,15 +17,19 @@ using UnityEngine.Events;
 
 public class MVNetworkGame : IPhotonPeerListener
 {
+	public delegate void OnReceivedChatMessageDelegate(MVPlayer sender, string message);
+
+	public delegate void OnMarketPlaceActionCompleteDelegate(bool success);
+
 	private class EventHandling
 	{
-		private const float maxJoinTimeValue = 250000f;
-
 		private bool cacheEvents;
 
 		private Queue<EventData> cachedEvents = new Queue<EventData>();
 
 		private MVNetworkGame networkGame;
+
+		private const float maxJoinTimeValue = 250000f;
 
 		public bool CacheEvents
 		{
@@ -81,7 +85,7 @@ public class MVNetworkGame : IPhotonPeerListener
 				int num5 = (int)photonEvent[254];
 				string userName = (string)photonEvent[9];
 				string regionCode = (string)photonEvent[155];
-				BuildTarget buildTarget = (BuildTarget)(byte)photonEvent[189];
+				BuildTarget buildTarget = (BuildTarget)photonEvent[189];
 				MVTeam team2 = (MVTeam)(int)photonEvent[89];
 				if (num5 == networkGame.LocalPlayer.ActorNr)
 				{
@@ -127,7 +131,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			case MVEventCodes.GameSnapshotData:
 			{
 				BytePacker bytePacker = new BytePacker((byte[])photonEvent[245]);
-				QueryType queryType = (QueryType)(byte)photonEvent[134];
+				QueryType queryType = (QueryType)photonEvent[134];
 				bool dataLeft = (bool)photonEvent[100];
 				networkGame.HandleGameSnapshotData(bytePacker, queryType, dataLeft);
 				break;
@@ -219,16 +223,16 @@ public class MVNetworkGame : IPhotonPeerListener
 				break;
 			case MVEventCodes.UpdateWorldObjectDataPartial:
 			{
-				int worldObjectID9 = (int)photonEvent[22];
+				int worldObjectID8 = (int)photonEvent[22];
 				Dictionary<object, object> worldObjectData = (Dictionary<object, object>)photonEvent[18];
-				networkGame.worldNetwork.WorldObjectClientManagerNetwork.OnUpdateWorldObjectDataPartialEvent(worldObjectID9, worldObjectData);
+				networkGame.worldNetwork.WorldObjectClientManagerNetwork.OnUpdateWorldObjectDataPartialEvent(worldObjectID8, worldObjectData);
 				break;
 			}
 			case MVEventCodes.RemoveWorldObjectDataPartial:
 			{
-				int worldObjectID8 = (int)photonEvent[22];
+				int worldObjectID7 = (int)photonEvent[22];
 				Dictionary<object, object> worldObjectDataToRemove = (Dictionary<object, object>)photonEvent[19];
-				networkGame.worldNetwork.WorldObjectClientManagerNetwork.OnRemoveWorldObjectDataPartialEvent(worldObjectID8, worldObjectDataToRemove);
+				networkGame.worldNetwork.WorldObjectClientManagerNetwork.OnRemoveWorldObjectDataPartialEvent(worldObjectID7, worldObjectDataToRemove);
 				break;
 			}
 			case MVEventCodes.UpdateWorldObjectRunTimeData:
@@ -264,35 +268,35 @@ public class MVNetworkGame : IPhotonPeerListener
 			{
 				int friendID = (int)photonEvent[52];
 				int profileID = (int)photonEvent[11];
-				FriendStatus status = (FriendStatus)(int)photonEvent[54];
+				FriendStatus status = (FriendStatus)photonEvent[54];
 				networkGame.OnFriendUpdateEvent(friendID, profileID, status);
 				break;
 			}
 			case MVEventCodes.TriggerBoxEnter:
 			{
-				int worldObjectID7 = (int)photonEvent[22];
+				int worldObjectID6 = (int)photonEvent[22];
 				int actorNr2 = (int)photonEvent[254];
-				networkGame.OnTriggerBoxEnterEvent(actorNr2, worldObjectID7);
+				networkGame.OnTriggerBoxEnterEvent(actorNr2, worldObjectID6);
 				break;
 			}
 			case MVEventCodes.TriggerBoxExit:
 			{
-				int worldObjectID6 = (int)photonEvent[22];
+				int worldObjectID5 = (int)photonEvent[22];
 				int actorNr = (int)photonEvent[254];
-				networkGame.OnTriggerBoxExitEvent(actorNr, worldObjectID6);
+				networkGame.OnTriggerBoxExitEvent(actorNr, worldObjectID5);
 				break;
 			}
 			case MVEventCodes.TriggerBoxStayBegin:
 			{
-				int worldObjectID5 = (int)photonEvent[22];
+				int worldObjectID4 = (int)photonEvent[22];
 				int instigatorId = (int)photonEvent[254];
-				networkGame.OnTriggerBoxStayBegin(worldObjectID5, instigatorId);
+				networkGame.OnTriggerBoxStayBegin(worldObjectID4, instigatorId);
 				break;
 			}
 			case MVEventCodes.TriggerBoxStayEnd:
 			{
-				int worldObjectID4 = (int)photonEvent[22];
-				networkGame.OnTriggerBoxStayEnd(worldObjectID4);
+				int worldObjectID3 = (int)photonEvent[22];
+				networkGame.OnTriggerBoxStayEnd(worldObjectID3);
 				break;
 			}
 			case MVEventCodes.LockHierarchy:
@@ -338,13 +342,13 @@ public class MVNetworkGame : IPhotonPeerListener
 				MVGameControllerBase.PostGameMsg((MVGameMsgType)(int)photonEvent[87], (Dictionary<object, object>)photonEvent[88]);
 				break;
 			case MVEventCodes.SetTeam:
-				networkGame.OnSetTeamEvent((int)photonEvent[254], (MVTeam)(int)Enum.ToObject(typeof(MVTeam), (int)photonEvent[89]));
+				networkGame.OnSetTeamEvent((int)photonEvent[254], (MVTeam)Enum.ToObject(typeof(MVTeam), (int)photonEvent[89]));
 				break;
 			case MVEventCodes.AddTeam:
-				networkGame.OnAddTeamEvent((MVTeam)(int)Enum.ToObject(typeof(MVTeam), (int)photonEvent[89]));
+				networkGame.OnAddTeamEvent((MVTeam)Enum.ToObject(typeof(MVTeam), (int)photonEvent[89]));
 				break;
 			case MVEventCodes.RemoveTeam:
-				networkGame.OnRemoveTeamEvent((MVTeam)(int)Enum.ToObject(typeof(MVTeam), (int)photonEvent[89]), (Dictionary<object, object>)photonEvent[245]);
+				networkGame.OnRemoveTeamEvent((MVTeam)Enum.ToObject(typeof(MVTeam), (int)photonEvent[89]), (Dictionary<object, object>)photonEvent[245]);
 				break;
 			case MVEventCodes.TransferWorldObjectsToGroup:
 				networkGame.OnTransferWorldObjectsToGroup(photonEvent);
@@ -374,14 +378,14 @@ public class MVNetworkGame : IPhotonPeerListener
 				networkGame.OnSetWorldObjectsToPurchasedEvent((int)photonEvent[11], (int)photonEvent[40]);
 				break;
 			case MVEventCodes.AchievementUnlockedEvent:
-				Debug.Log($"Profile with ID {(int)photonEvent[11]} unlocked Achievement {(AchievementType)(int)photonEvent[129]}");
+				Debug.Log($"Profile with ID {(int)photonEvent[11]} unlocked Achievement {(AchievementType)photonEvent[129]}");
 				break;
 			case MVEventCodes.AttachWorldObjectToSeat:
 			{
 				Dictionary<object, object> dictionary4 = (Dictionary<object, object>)photonEvent[72];
 				int seatOwnerWoID = (int)dictionary4[(byte)4];
-				int worldObjectID3 = (int)dictionary4[(byte)0];
-				networkGame.PlayerController.OnAttachWorldObjectToSeat((int)photonEvent[254], seatOwnerWoID, worldObjectID3, (byte)photonEvent[142]);
+				int worldObjectID2 = (int)dictionary4[(byte)0];
+				networkGame.PlayerController.OnAttachWorldObjectToSeat((int)photonEvent[254], seatOwnerWoID, worldObjectID2, (byte)photonEvent[142]);
 				break;
 			}
 			case MVEventCodes.DetachWorldObjectFromVehicle:
@@ -416,7 +420,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			{
 				Dictionary<object, object> dictionary3 = (Dictionary<object, object>)photonEvent[72];
 				int id = (int)dictionary3[(byte)1];
-				int worldObjectID2 = (int)dictionary3[(byte)0];
+				int worldObjectID = (int)dictionary3[(byte)0];
 				MVWorldObjectSpawnerVehicle mVWorldObjectSpawnerVehicle = (MVWorldObjectSpawnerVehicle)networkGame.WorldObjectClientManager.GetWorldObjectClient(id);
 				int spawnWorldObjectID = mVWorldObjectSpawnerVehicle.SpawnWorldObjectID;
 				int num2 = (int)dictionary3[(byte)3];
@@ -431,15 +435,15 @@ public class MVNetworkGame : IPhotonPeerListener
 					wo.InteractionFlags = InteractionFlags.None;
 				};
 				worldObjectClient.TraverseRecursiveTail(callBack);
-				networkGame.PlayerController.OnAttachWorldObjectToSeat((int)photonEvent[254], num2, worldObjectID2, (byte)photonEvent[142]);
+				networkGame.PlayerController.OnAttachWorldObjectToSeat((int)photonEvent[254], num2, worldObjectID, (byte)photonEvent[142]);
 				mVWorldObjectSpawnerVehicle.Take(takeTime);
 				break;
 			}
 			case MVEventCodes.Reward:
 			{
 				int num = (int)photonEvent[144];
-				RewardReason rewardReason = (RewardReason)(byte)photonEvent[146];
-				RewardType rewardType = (RewardType)(int)photonEvent[145];
+				RewardReason rewardReason = (RewardReason)photonEvent[146];
+				RewardType rewardType = (RewardType)photonEvent[145];
 				Debug.Log($"Amount {num}, rewardReason {rewardReason}, rewardType {rewardType} ");
 				BrowserComm.ToJavaScript.ExternalCall("refreshCredentials");
 				break;
@@ -518,8 +522,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			{
 				Dictionary<object, object> dictionary = (Dictionary<object, object>)photonEvent[245];
 				bool visible = (bool)dictionary["V"];
-				int worldObjectID = (int)photonEvent[22];
-				networkGame.OnSetSayChatBubbleVisible(worldObjectID, visible);
+				networkGame.OnSetSayChatBubbleVisible((int)photonEvent[22], visible);
 				break;
 			}
 			case MVEventCodes.LogicFrame:
@@ -2300,17 +2303,11 @@ public class MVNetworkGame : IPhotonPeerListener
 		}
 	}
 
-	public delegate void OnReceivedChatMessageDelegate(MVPlayer sender, string message);
-
-	public delegate void OnMarketPlaceActionCompleteDelegate(bool success);
-
-	private const string appName = "MVGameServer";
-
-	private const float serviceCallInterval = 0.07f;
-
 	private PhotonPeer peer;
 
 	private MVConnState connState;
+
+	private const string appName = "MVGameServer";
 
 	private MVGameType gameType;
 
@@ -2413,6 +2410,8 @@ public class MVNetworkGame : IPhotonPeerListener
 	private RuntimeVariableNetworkManager runtimeVariableNetworkManager = new RuntimeVariableNetworkManager();
 
 	private float prevServiceCallTime;
+
+	private const float serviceCallInterval = 0.07f;
 
 	private GameDataQueryManager.GameDataQuery gameDataQuery;
 
@@ -2914,7 +2913,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		{
 			new SessionLocatorPing();
 		}
-		gameType = (MVGameType)(int)returnValues[171];
+		gameType = (MVGameType)returnValues[171];
 		Region = (Region)(byte)returnValues[16];
 		InitializeManagers();
 		int actorNumber = (int)returnValues[254];
@@ -2931,10 +2930,10 @@ public class MVNetworkGame : IPhotonPeerListener
 			mVLocalPlayer = new MVLocalPlayerRegistered(actorNumber, MVGameControllerBase.GameSessionData.profileID, (string)returnValues[9], MVGameControllerBase.GameSessionData.language, num, isAdmin, goldAmount);
 		}
 		ThemeRepository.Instance.ThemesEnabled = (bool)returnValues[213];
-		mVLocalPlayer.Team = (MVTeam)(int)returnValues[89];
+		mVLocalPlayer.Team = (MVTeam)returnValues[89];
 		playerContainer.Add(mVLocalPlayer);
 		playerContainer.SetLocalPlayer(mVLocalPlayer.ActorNr);
-		MVClientSettings.ClientSettingFlags = (ClientSettingFlags)(int)returnValues[169];
+		MVClientSettings.ClientSettingFlags = (ClientSettingFlags)returnValues[169];
 		isPublished = (bool)returnValues[82];
 		MVGameControllerBase.JoinState = MVJoinState.LoadGUI;
 		LoadModeGui();
@@ -3008,7 +3007,7 @@ public class MVNetworkGame : IPhotonPeerListener
 					int level = (int)dictionary[170];
 					string regionCode = (string)dictionary[155];
 					bool isReady = (bool)dictionary[211];
-					BuildTarget buildTarget = (BuildTarget)(byte)dictionary[189];
+					BuildTarget buildTarget = (BuildTarget)dictionary[189];
 					MVPlayer mVPlayer = new MVPlayer(key, profileID, userName, level, regionCode, buildTarget, isReady);
 					mVPlayer.Team = (MVTeam)team;
 					list.Add(mVPlayer);
@@ -3046,7 +3045,7 @@ public class MVNetworkGame : IPhotonPeerListener
 				Dictionary<object, object> dictionary = (Dictionary<object, object>)friendsList[key];
 				int profileID = (int)dictionary[(byte)0];
 				int friendProfileID = (int)dictionary[(byte)26];
-				FriendStatus status = (FriendStatus)(int)dictionary[(byte)28];
+				FriendStatus status = (FriendStatus)dictionary[(byte)28];
 				Friends.AddFriend(key, profileID, friendProfileID, status);
 			}
 			return;
@@ -3417,7 +3416,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		}
 		int instigator = (int)eventData[254];
 		BytePacker bp = new BytePacker((byte[])eventData[245]);
-		QueryType queryType = (QueryType)(byte)eventData[134];
+		QueryType queryType = (QueryType)eventData[134];
 		int queryId = -1;
 		bool queryDataLeft = false;
 		if (eventData.Parameters.ContainsKey(99))

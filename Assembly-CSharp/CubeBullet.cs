@@ -19,7 +19,7 @@ public class CubeBullet : MonoBehaviour
 
 	public void SetCubeMaterial(byte id)
 	{
-		meshFilter.sharedMesh = MVGameControllerBase.Game.MaterialRepository.GetMaterial(id).mesh;
+		meshFilter.sharedMesh = MVGameControllerBase.Game.MaterialRepository.GetMaterial(id).Mesh;
 		meshRenderer.sharedMaterial = MVGameControllerBase.MaterialLoader.CubeModelMaterial;
 	}
 }

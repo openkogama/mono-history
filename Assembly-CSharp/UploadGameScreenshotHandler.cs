@@ -23,7 +23,7 @@ public class UploadGameScreenshotHandler : MonoBehaviour
 	private void OnScreenshotReady(byte[] imageData)
 	{
 		screenShotSound.Play();
-		Texture2D texture2D = new Texture2D(600, 240, TextureFormat.ARGB32, mipmap: false);
+		Texture2D texture2D = new Texture2D(600, 240, TextureFormat.ARGB32, mipChain: false);
 		texture2D.LoadImage(imageData);
 		toImage.texture = texture2D;
 	}

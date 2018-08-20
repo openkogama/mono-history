@@ -45,7 +45,7 @@ public class BounceState
 		MVControllerColliderHit mVControllerColliderHit = default;
 		bool flag = false;
 		bounced = false;
-		float num = interactable.HandleModifierEffect(AvatarModifierEffect.Bounciness, mvControllerColliderHit.material.physicalProperties.bouncyness);
+		float num = interactable.HandleModifierEffect(AvatarModifierEffect.Bounciness, mvControllerColliderHit.material.PhysicalProperties.bouncyness);
 		if (num > 0f)
 		{
 			Vector3 impactVelocity = mvControllerColliderHit.impactVelocity;

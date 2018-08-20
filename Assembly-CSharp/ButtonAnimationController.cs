@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class ButtonAnimationController : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IEventSystemHandler, IPointerEnterHandler, IPointerExitHandler
+public class ButtonAnimationController : MonoBehaviour, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IEventSystemHandler
 {
 	private const float pressedMoveAmount = -25f;
 

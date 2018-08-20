@@ -4,8 +4,6 @@ using UnityEngine;
 
 public static class BadgeManager
 {
-	public const int defaultMaxFriendsLimit = 200;
-
 	private static string baseUrl;
 
 	private static Dictionary<int, BadgeUrlData> badgeUrls = new Dictionary<int, BadgeUrlData>();
@@ -13,6 +11,8 @@ public static class BadgeManager
 	private static int maxLevelBadge = 0;
 
 	private static string fromUnityArgument = "?Unity=2";
+
+	public const int defaultMaxFriendsLimit = 200;
 
 	public static void Initialize(List<BadgeUrlData> badgeUrlDatas)
 	{

@@ -28,7 +28,7 @@ public class SentryGunScript : MonoBehaviour
 	private AudioSource audioSource;
 
 	[SerializeField]
-	private ParticleEmitter smokeEffectEmitter;
+	private ParticleSystem smokeEffectEmitter;
 
 	[SerializeField]
 	private Renderer glowPlaneRenderer;
@@ -39,19 +39,21 @@ public class SentryGunScript : MonoBehaviour
 
 	private float damageBlinkTimeoutTime;
 
-	public bool SmokeEnabled
-	{
-		set
-		{
-			smokeEffectEmitter.emit = value;
-		}
-	}
-
 	protected void Awake()
 	{
 		rangeVisualization = Object.Instantiate(PrefabPool.Instance.RangeVisualizationObject);
 		rangeVisualization.transform.parent = transform;
 		rangeVisualization.transform.localPosition = Vector3.zero;
+	}
+
+	public void EnableSmoke()
+	{
+		smokeEffectEmitter.Play();
+	}
+
+	public void DisableSmoke()
+	{
+		smokeEffectEmitter.Stop();
 	}
 
 	public void Explode()

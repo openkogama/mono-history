@@ -4,8 +4,6 @@ using UnityEngine.UI;
 
 public class GameMeterShield : GameMeterBase
 {
-	private const float maxShieldValue = 100f;
-
 	[SerializeField]
 	private Image ShieldMeter;
 
@@ -15,6 +13,8 @@ public class GameMeterShield : GameMeterBase
 	private MVAvatar avatarLocal;
 
 	private bool initialized;
+
+	private const float maxShieldValue = 100f;
 
 	private float interpolateTowardsShieldProgress;
 

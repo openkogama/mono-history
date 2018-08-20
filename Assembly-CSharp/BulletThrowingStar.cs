@@ -5,14 +5,6 @@ public class BulletThrowingStar : MonoBehaviour
 {
 	public delegate void OnHitDelegate(VoxelHit hit, Ray lineOfFire);
 
-	private const float rotationSpeedXMin = 20f;
-
-	private const float rotationSpeedXMax = 30f;
-
-	private const float rotationSpeedZMin = 2f;
-
-	private const float rotationSpeedZMax = 8f;
-
 	private CullingSubscriberBase cullingSubscriberBase;
 
 	public OnHitDelegate onHit;
@@ -41,6 +33,14 @@ public class BulletThrowingStar : MonoBehaviour
 	private MeshFilter meshFilter;
 
 	private float fallRate;
+
+	private const float rotationSpeedXMin = 20f;
+
+	private const float rotationSpeedXMax = 30f;
+
+	private const float rotationSpeedZMin = 2f;
+
+	private const float rotationSpeedZMax = 8f;
 
 	private bool inAir;
 
@@ -270,7 +270,7 @@ public class BulletThrowingStar : MonoBehaviour
 	private static bool DoBulletCollision(Ray ray, out VoxelHit voxelHit, float distance, HashSet<int> ignoreWoIDs)
 	{
 		LayerMask layerMask = -5;
-		layerMask = (int)layerMask & ~(1 << (LayerMask.NameToLayer("Logic") & 0x1F));
+		layerMask = (int)layerMask & ~(1 << LayerMask.NameToLayer("Logic"));
 		if (CollisionDetection.MVHit(ray, out voxelHit, distance, ignoreWoIDs, layerMask))
 		{
 			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(voxelHit.woId);
@@ -292,7 +292,7 @@ public class BulletThrowingStar : MonoBehaviour
 	public Vector3 FindTargetPos(float maxRange)
 	{
 		LayerMask layerMask = -5;
-		layerMask = (int)layerMask & ~(1 << (LayerMask.NameToLayer("Logic") & 0x1F));
+		layerMask = (int)layerMask & ~(1 << LayerMask.NameToLayer("Logic"));
 		if (CollisionDetection.MVHit(lineOfFire, out var voxelHit, maxRange, ignoreWoIDs, layerMask))
 		{
 			Debug.DrawLine(lineOfFire.origin, lineOfFire.GetPoint(voxelHit.distance), Color.yellow, 10f);

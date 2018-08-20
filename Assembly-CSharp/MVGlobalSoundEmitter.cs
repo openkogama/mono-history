@@ -3,11 +3,11 @@ using UnityEngine;
 
 public class MVGlobalSoundEmitter : MVLogicObject
 {
-	private const string defaultUrl = "AmbientAudio/Music/slowstones.unity3d";
-
 	private SoundEmitterObject soundEmitterObject;
 
 	private SoundLoader soundLoader = new SoundLoader();
+
+	private const string defaultUrl = "AmbientAudio/Music/slowstones.unity3d";
 
 	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.GlobalSoundEmitter;
 

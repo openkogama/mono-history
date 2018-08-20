@@ -4,8 +4,6 @@ using UnityEngine;
 
 internal class ESTranslate : ESStateBase
 {
-	private const float _mouseSensitivity = 0.005f;
-
 	private float gridSize;
 
 	private float stickyModifier = 0.2f;
@@ -17,6 +15,8 @@ internal class ESTranslate : ESStateBase
 	private List<TranslateData> translateDatas = new List<TranslateData>();
 
 	private List<MVWorldObjectClient> targets = new List<MVWorldObjectClient>();
+
+	private const float _mouseSensitivity = 0.005f;
 
 	private float initialDistance;
 
@@ -48,7 +48,7 @@ internal class ESTranslate : ESStateBase
 		{
 			gridSize = 0.0625f;
 		}
-		translateMode = (TranslateMode)(int)e.Data["translateMode"];
+		translateMode = (TranslateMode)e.Data["translateMode"];
 		moveWithAvatar = (bool)e.Data["moveWithAvatar"];
 		float hitDistance = 0f;
 		initialDistance = 0f;

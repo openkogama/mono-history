@@ -92,8 +92,6 @@ public class AvatarLimbManagerLocal : AvatarLimbManager
 
 	private class AvatarEmoteRecogniser
 	{
-		private const float maxRotationMovement = 45f;
-
 		public Action OnStartEvent;
 
 		private bool isActive;
@@ -111,6 +109,8 @@ public class AvatarLimbManagerLocal : AvatarLimbManager
 		private float resetCooldown;
 
 		private short startModulusOffset;
+
+		private const float maxRotationMovement = 45f;
 
 		public void Initlialize(AvatarLimbManager limbManager, float angleSensitivity, float resetInterval, short recognitionsBeforeEvent, bool shouldRecognisePositiveAngleFirst, bool isActive)
 		{
@@ -375,15 +375,15 @@ public class AvatarLimbManagerLocal : AvatarLimbManager
 
 	private class AvatarPointingHandlerLocal : AvatarPointingHandler
 	{
-		private const float lArmYawRotationOffset = -30f;
-
-		private const float rArmYawRotationOffset = 20f;
-
 		private float networkMessageCooldown;
 
 		private Quaternion yawRotation = Quaternion.identity;
 
 		private Quaternion pitchRotation = Quaternion.identity;
+
+		private const float lArmYawRotationOffset = -30f;
+
+		private const float rArmYawRotationOffset = 20f;
 
 		public Action<bool> OnIsPointingChange;
 

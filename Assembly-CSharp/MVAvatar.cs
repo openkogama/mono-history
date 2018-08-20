@@ -5,8 +5,6 @@ using UnityEngine;
 
 public abstract class MVAvatar : MVGroup, IHealRayAttachementObject
 {
-	protected const float healParticleSpawnCooldownTime = 1f;
-
 	protected Avatar avatar;
 
 	public MVRuntimeDataVariableClampedFloat Health;
@@ -24,6 +22,8 @@ public abstract class MVAvatar : MVGroup, IHealRayAttachementObject
 	public MVRuntimeDataVariable avatarModeTypeFlags;
 
 	private readonly Vector3 characterControllerCenterOffset = new Vector3(0f, 0.95f, 0f);
+
+	protected const float healParticleSpawnCooldownTime = 1f;
 
 	protected float healParticleSpawnTime;
 
@@ -186,7 +186,7 @@ public abstract class MVAvatar : MVGroup, IHealRayAttachementObject
 
 	protected virtual void AvatarStateChangedHandler(object a)
 	{
-		AvatarModeTypes avatarModeTypes = (AvatarModeTypes)(int)a;
+		AvatarModeTypes avatarModeTypes = (AvatarModeTypes)a;
 		if ((avatarModeTypes & AvatarModeTypes.Hidden) > AvatarModeTypes.None)
 		{
 			avatar.Collider.enabled = false;

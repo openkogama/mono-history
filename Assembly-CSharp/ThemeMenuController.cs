@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-public class ThemeMenuController : MonoBehaviour, IEventSystemHandler, ThemeMenuButton.IClickHandler
+public class ThemeMenuController : MonoBehaviour, ThemeMenuButton.IClickHandler, IEventSystemHandler
 {
 	[SerializeField]
 	private ThemeSelection selectionPrefab;

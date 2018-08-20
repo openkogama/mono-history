@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class GlobalSoundEmitterSettings : MonoBehaviour, IEventSystemHandler, IHandleSettingChanged
+public class GlobalSoundEmitterSettings : MonoBehaviour, IHandleSettingChanged, IEventSystemHandler
 {
 	private class Keys
 	{

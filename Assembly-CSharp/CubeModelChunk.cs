@@ -278,12 +278,12 @@ public class CubeModelChunk
 		cubeModelChunkPrefab.gameObject.name = name;
 		cubeModelChunkPrefab.MeshFilter.sharedMesh = sharedMeshData.mesh;
 		cubeModelChunkPrefab.MeshRenderer.sharedMaterial = sharedMeshData.material;
-		cubeModelChunkPrefab.BoxCollider.size = meshBounds.size;
-		cubeModelChunkPrefab.BoxCollider.center = meshBounds.center;
 		cubeModelChunkPrefab.transform.parent = cubeInstance.Transform;
 		cubeModelChunkPrefab.transform.localPosition = Vector3.zero;
 		cubeModelChunkPrefab.transform.localRotation = Quaternion.identity;
 		cubeModelChunkPrefab.transform.localScale = Vector3.one;
+		cubeModelChunkPrefab.BoxCollider.size = meshBounds.size;
+		cubeModelChunkPrefab.BoxCollider.center = meshBounds.center;
 		cubeModelChunkPrefab.gameObject.layer = cubeInstance.GameObject.layer;
 		ChunkInstances.ChunkInstanceVariables chunkInstanceVariables = new ChunkInstances.ChunkInstanceVariables
 		{

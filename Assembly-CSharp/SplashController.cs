@@ -40,16 +40,16 @@ public class SplashController : StreamedAudioClip.IReceiver
 	[Tooltip("Actual number is based off avatar speed.")]
 	private float baseNumberOfSplashParticles = 1f;
 
-	[Tooltip("Actual number is based off avatar speed.")]
 	[SerializeField]
+	[Tooltip("Actual number is based off avatar speed.")]
 	[Range(0f, 4f)]
 	private float baseSplashParticlesSpeed = 0.5f;
 
 	[SerializeField]
 	private Color splashTint;
 
-	[SerializeField]
 	[Header("Pillar")]
+	[SerializeField]
 	private ParticleSystem waterPillarParticles;
 
 	[SerializeField]
@@ -59,8 +59,8 @@ public class SplashController : StreamedAudioClip.IReceiver
 	[SerializeField]
 	private Color pillarTint;
 
-	[SerializeField]
 	[Header("Sound")]
+	[SerializeField]
 	[Range(0f, 1f)]
 	private float splashSoundVolume = 0.5f;
 
@@ -165,9 +165,9 @@ public class SplashController : StreamedAudioClip.IReceiver
 	private void EmitWaterSplash(Vector3 position, Vector3 velocity)
 	{
 		waterSplashParticles.transform.position = position;
-		waterSplashParticles.startSpeed = velocity.magnitude * baseSplashParticlesSpeed;
-		Color waterColor = MVGameControllerBase.WaterPlaneManager.WaterColor;
-		waterSplashParticles.startColor = (waterColor + splashTint) / 2f;
+		ParticleSystem.MainModule main = waterSplashParticles.main;
+		main.startSpeedMultiplier = velocity.magnitude * baseSplashParticlesSpeed;
+		main.startColor = (MVGameControllerBase.WaterPlaneManager.WaterColor + splashTint) / 2f;
 		waterSplashParticles.Emit((int)(velocity.magnitude * baseNumberOfSplashParticles));
 	}
 
@@ -176,11 +176,11 @@ public class SplashController : StreamedAudioClip.IReceiver
 		waterPillarParticles.transform.position = position;
 		float magnitude = impactVelocity.magnitude;
 		float num = waterPillarDensity * magnitude;
+		ParticleSystem.MainModule main = waterPillarParticles.main;
+		main.startColor = (MVGameControllerBase.WaterPlaneManager.WaterColor + pillarTint) / 2f;
 		for (int i = 1; (float)i < num; i++)
 		{
-			waterPillarParticles.startSpeed = num - (float)i;
-			Color waterColor = MVGameControllerBase.WaterPlaneManager.WaterColor;
-			waterPillarParticles.startColor = (waterColor + pillarTint) / 2f;
+			main.startSpeedMultiplier = num - (float)i;
 			waterPillarParticles.Emit(1);
 		}
 	}

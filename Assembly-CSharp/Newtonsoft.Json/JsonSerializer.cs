@@ -295,7 +295,7 @@ public class JsonSerializer
 			jsonSerializer.Context = settings.Context;
 			if (settings.Error != null)
 			{
-				jsonSerializer.Error = (EventHandler<Newtonsoft.Json.Serialization.ErrorEventArgs>)Delegate.Combine(jsonSerializer.Error, settings.Error);
+				jsonSerializer.Error += settings.Error;
 			}
 			if (settings.ContractResolver != null)
 			{

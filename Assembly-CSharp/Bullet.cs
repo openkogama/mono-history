@@ -25,7 +25,7 @@ public class Bullet : MonoBehaviour
 
 		private Vector3 prevPos;
 
-		private Ray ray;
+		private Ray ray = default;
 
 		private readonly HashSet<int> ignoreWoIDs;
 
@@ -68,7 +68,7 @@ public class Bullet : MonoBehaviour
 		private static bool DoBulletCollision(Ray ray, out VoxelHit voxelHit, float distance, HashSet<int> ignoreWoIDs)
 		{
 			LayerMask layerMask = -5;
-			layerMask = (int)layerMask & ~(1 << (LayerMask.NameToLayer("Logic") & 0x1F));
+			layerMask = (int)layerMask & ~(1 << LayerMask.NameToLayer("Logic"));
 			if (CollisionDetection.MVHit(ray, out voxelHit, distance, ignoreWoIDs, layerMask))
 			{
 				Debug.DrawLine(voxelHit.point, voxelHit.point + Vector3.up, Color.green, 10f);
@@ -340,7 +340,7 @@ public class Bullet : MonoBehaviour
 		if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
 		{
 			LayerMask layerMask = -5;
-			layerMask = (int)layerMask & ~(1 << (LayerMask.NameToLayer("Logic") & 0x1F));
+			layerMask = (int)layerMask & ~(1 << LayerMask.NameToLayer("Logic"));
 			if (CollisionDetection.MVHit(lineOfFire, out var voxelHit, maxRange, ignoreWoIDs, layerMask))
 			{
 				Debug.DrawLine(lineOfFire.origin, lineOfFire.GetPoint(voxelHit.distance), Color.yellow, 10f);

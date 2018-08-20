@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-public class AccessoryShopController : MonoBehaviour, IEventSystemHandler, IInventoryChanged, IAttachToBody, IAccessoryInventoryControl
+public class AccessoryShopController : MonoBehaviour, IInventoryChanged, IAttachToBody, IAccessoryInventoryControl, IEventSystemHandler
 {
 	private InventoryController inventoryController;
 
@@ -330,7 +330,7 @@ public class AccessoryShopController : MonoBehaviour, IEventSystemHandler, IInve
 		for (int num3 = num2; num3 < accessoryDataFromCategoryType.Count; num3++)
 		{
 			AccessoryDataClient accessoryDataClient2 = accessoryDataFromCategoryType[num3];
-			if (num2 < tabs[selectedTab].SlotRange[1] && accessoryDataClient2.GetShowInShop())
+			if (num2 < tabs[selectedTab].SlotRange[1] && (accessoryDataClient2.GetShowInShop() || accessoryDataClient2.owns))
 			{
 				AccessoryInventoryViewItem accessoryInventoryViewItem = UnityEngine.Object.Instantiate(accessoryInventoryItemPrefab);
 				inventoryController.AddObject(accessoryInventoryViewItem.gameObject, num2 % numberOfSlotsPrPage);

@@ -3,8 +3,6 @@ using UnityEngine.UI;
 
 public class MouseSensitivitySettings : MonoBehaviour
 {
-	private const float middleValue = 50f;
-
 	[SerializeField]
 	private Slider slider;
 
@@ -19,6 +17,8 @@ public class MouseSensitivitySettings : MonoBehaviour
 
 	[SerializeField]
 	private float mouseSensitivityMinModifier;
+
+	private const float middleValue = 50f;
 
 	private float mouseSensitivity;
 

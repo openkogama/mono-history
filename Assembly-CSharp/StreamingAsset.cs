@@ -1,12 +1,13 @@
 using System;
+using System.Collections;
 using MV.Common;
 using UnityEngine;
 using UnityEngine.Events;
 
 public abstract class StreamingAsset<AssetType, PreviewType> : StreamingAsset where AssetType : UnityEngine.Object where PreviewType : UnityEngine.Object
 {
-	[Tooltip("If true, bundle will be cached in memory, and never unloaded. It will also require a unique bundle name. If false, bundle will be destroyed and resources freed on destruction.")]
 	[SerializeField]
+	[Tooltip("If true, bundle will be cached in memory, and never unloaded. It will also require a unique bundle name. If false, bundle will be destroyed and resources freed on destruction.")]
 	private bool useCache = true;
 
 	private AssetType asset;
@@ -63,8 +64,17 @@ public abstract class StreamingAsset<AssetType, PreviewType> : StreamingAsset wh
 	{
 		if (string.IsNullOrEmpty(www.error))
 		{
-			Asset = StreamingAsset.UnpackBundle<AssetType>(www, !useCache);
+			Asset = StreamingAsset.UnpackBundle<AssetType>(www);
+			if (!useCache)
+			{
+				StartCoroutine("DelayedUnload", www);
+			}
 		}
+	}
+
+	public static implicit operator AssetType(StreamingAsset<AssetType, PreviewType> a)
+	{
+		return a.asset;
 	}
 
 	protected override void OnDestroy()
@@ -75,16 +85,11 @@ public abstract class StreamingAsset<AssetType, PreviewType> : StreamingAsset wh
 		}
 		base.OnDestroy();
 	}
-
-	public static implicit operator AssetType(StreamingAsset<AssetType, PreviewType> a)
-	{
-		return a.asset;
-	}
 }
 public abstract class StreamingAsset : MonoBehaviour
 {
-	[HideInInspector]
 	[SerializeField]
+	[HideInInspector]
 	protected string url = "NOT SET";
 
 	protected UnityAction onAssetSetAction;
@@ -117,23 +122,25 @@ public abstract class StreamingAsset : MonoBehaviour
 
 	protected abstract void OnAssetSet();
 
-	public static AssetType UnpackBundle<AssetType>(WWW www, bool unloadBundle = false) where AssetType : UnityEngine.Object
+	public static AssetType UnpackBundle<AssetType>(WWW www) where AssetType : UnityEngine.Object
 	{
 		AssetType[] array = www.assetBundle.LoadAllAssets<AssetType>();
 		if (array.Length == 0)
 		{
-			Debug.LogError("Download failed. Asset is null after assignement. Most likely asset is of incompatible type.");
+			Debug.LogError("Download failed. Asset is null after assignment. Most likely asset is of incompatible type.");
 			return (AssetType)null;
 		}
 		if (array.Length > 1)
 		{
 			Debug.LogWarning(www.url + "\nThere are multiple objects in bundle. Only the first asset will be used, and the download will take longer.");
 		}
-		if (unloadBundle)
-		{
-			www.assetBundle.Unload(unloadAllLoadedObjects: false);
-		}
 		return array[0];
+	}
+
+	private IEnumerator DelayedUnload(WWW www)
+	{
+		yield return null;
+		www.assetBundle.Unload(unloadAllLoadedObjects: false);
 	}
 
 	public static string DBUrlToServerUrl(string url)

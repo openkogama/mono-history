@@ -6,7 +6,7 @@ public class HoverCraftVisualization : VehicleVisualizationBase
 {
 	public Transform hoverCraftHullRoot;
 
-	public ParticleEmitter ellipsoidParticleEmitter;
+	public ParticleSystem damageSmokeEmitter;
 
 	public ParticleSystem fire;
 
@@ -142,15 +142,15 @@ public class HoverCraftVisualization : VehicleVisualizationBase
 
 	private void OnHealthChange(float newHealth)
 	{
-		if (newHealth < maxHealth && !ellipsoidParticleEmitter.emit)
+		if (newHealth < maxHealth && !damageSmokeEmitter.isPlaying)
 		{
-			ellipsoidParticleEmitter.emit = true;
+			damageSmokeEmitter.Play();
 			ParticleSystem.EmissionModule emission = fire.emission;
 			emission.enabled = true;
 		}
-		if (newHealth == maxHealth && ellipsoidParticleEmitter.emit)
+		if (newHealth == maxHealth && damageSmokeEmitter.isPlaying)
 		{
-			ellipsoidParticleEmitter.emit = false;
+			damageSmokeEmitter.Stop();
 			ParticleSystem.EmissionModule emission2 = fire.emission;
 			emission2.enabled = false;
 			return;
@@ -164,10 +164,11 @@ public class HoverCraftVisualization : VehicleVisualizationBase
 			vehicleBlinker.StartBlinking(BlinkType.Healing, 0.3f);
 		}
 		float num = (1f - newHealth / maxHealth) * damageParticleFactor;
-		ellipsoidParticleEmitter.minSize = num;
-		ellipsoidParticleEmitter.maxSize = num;
+		ParticleSystem.MainModule main = damageSmokeEmitter.main;
+		main.startSizeMultiplier = num;
 		prevHealth = newHealth;
-		fire.startSize = num * 0.3f;
+		ParticleSystem.MainModule main2 = fire.main;
+		main2.startSizeMultiplier = num * 0.3f;
 	}
 
 	private void Update()

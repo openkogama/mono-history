@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class AvatarInputController2DPlayMode : IMotorAPI, IAvatarInputController
+public class AvatarInputController2DPlayMode : IAvatarInputController, IMotorAPI
 {
 	private Vector3 direction = Vector3.zero;
 

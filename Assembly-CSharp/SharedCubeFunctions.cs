@@ -5,6 +5,8 @@ using UnityEngine;
 
 internal static class SharedCubeFunctions
 {
+	private static IntVector constaint = new IntVector(24, 24, 24);
+
 	public const float LowestCubeSize = 0.0625f;
 
 	public const float CubeSegmentSize = 0.25f;
@@ -14,8 +16,6 @@ internal static class SharedCubeFunctions
 	public const float NoneGridSize = 0.0625f;
 
 	private const float forceEdgeDistance = 0.15f;
-
-	private static IntVector constaint = new IntVector(24, 24, 24);
 
 	public static IntVector[][] LightTestOffsets = new IntVector[24][]
 	{

@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -469,7 +468,6 @@ internal class JsonSerializerInternalWriter : JsonSerializerInternalBase
 	}
 
 	[SecuritySafeCritical]
-	[SuppressMessage("Microsoft.Portability", "CA1903:UseOnlyApiFromTargetedFramework", MessageId = "System.Security.SecuritySafeCriticalAttribute")]
 	private void SerializeISerializable(JsonWriter writer, ISerializable value, JsonISerializableContract contract)
 	{
 		contract.InvokeOnSerializing(value, Serializer.Context);

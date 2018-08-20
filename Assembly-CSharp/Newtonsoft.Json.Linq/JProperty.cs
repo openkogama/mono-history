@@ -146,7 +146,7 @@ public class JProperty : JContainer
 		return new JProperty(this);
 	}
 
-	public override void WriteTo(JsonWriter writer, params JsonConverter[] converters)
+	public override void WriteTo(JsonWriter writer, JsonConverter[] converters)
 	{
 		writer.WritePropertyName(_name);
 		Value.WriteTo(writer, converters);

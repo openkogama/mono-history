@@ -50,15 +50,15 @@ public abstract class CloudyThemeBase : Theme
 	[SerializeField]
 	private FloatAttribute moonLongitude;
 
-	[SerializeField]
 	[Header("Sky")]
+	[SerializeField]
 	private ColorAttribute topColor;
 
 	[SerializeField]
 	private ColorAttribute bottomColor;
 
-	[SerializeField]
 	[Header("Stars")]
+	[SerializeField]
 	private ColorAttribute starsTint;
 
 	[SerializeField]
@@ -89,8 +89,8 @@ public abstract class CloudyThemeBase : Theme
 	[SerializeField]
 	private FloatAttribute sunFlareBrightness;
 
-	[SerializeField]
 	[Header("Moon")]
+	[SerializeField]
 	private ColorAttribute moonTint;
 
 	[SerializeField]
@@ -121,15 +121,15 @@ public abstract class CloudyThemeBase : Theme
 	[SerializeField]
 	private FloatAttribute cloudsRotationSpeed;
 
-	[SerializeField]
 	[Header("Fog")]
+	[SerializeField]
 	private BoolAttribute useFog;
 
 	[SerializeField]
 	private FloatAttribute fogDensity;
 
-	[SerializeField]
 	[Header("Misc")]
+	[SerializeField]
 	private FloatAttribute exposure;
 
 	[Header("Dependencies")]

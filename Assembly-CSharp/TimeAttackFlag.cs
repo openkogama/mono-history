@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class TimeAttackFlag : MVLogicObject
 {
-	private const float captureCooldown = 5f;
-
 	private TriggerBoxEvents triggerBoxEvents;
 
 	private bool initializedInWorld;
@@ -15,6 +13,8 @@ public class TimeAttackFlag : MVLogicObject
 	private UseInteractor useInteractor;
 
 	private float lastCaptureTime;
+
+	private const float captureCooldown = 5f;
 
 	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 

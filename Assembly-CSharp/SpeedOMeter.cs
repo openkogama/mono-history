@@ -58,7 +58,7 @@ public class SpeedOMeter : MonoBehaviour
 			}
 			Fade();
 		}
-		speedText.text = (int)curSpeed + " km/h";
+		speedText.text = (int)curSpeed/*cast due to constrained. prefix*/ + " km/h";
 	}
 
 	private void Fade()

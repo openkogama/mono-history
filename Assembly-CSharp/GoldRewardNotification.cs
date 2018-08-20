@@ -9,7 +9,7 @@ public class GoldRewardNotification : Notification
 	public override void Initialize(Dictionary<object, object> data)
 	{
 		base.Initialize(data);
-		lifeTime = (NotificationLifetime)(int)data[(byte)2];
+		lifeTime = (NotificationLifetime)data[(byte)2];
 	}
 
 	public void RewardClicked()

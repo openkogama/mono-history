@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-public class SoundInventoryController : MonoBehaviour, IEventSystemHandler, IHandleSettingChanged
+public class SoundInventoryController : MonoBehaviour, IHandleSettingChanged, IEventSystemHandler
 {
 	private InventoryController inventoryController;
 
@@ -91,12 +91,7 @@ public class SoundInventoryController : MonoBehaviour, IEventSystemHandler, IHan
 			}
 			else
 			{
-				Dictionary<int, int> dictionary2;
-				Dictionary<int, int> dictionary = (dictionary2 = categorysAmount);
-				int key2;
-				int key = (key2 = num);
-				key2 = dictionary2[key2];
-				dictionary[key] = key2 + 1;
+				categorysAmount[num]++;
 			}
 			tabs[categoryToNameCombinations[category]].highestSlotIndex++;
 		}

@@ -6,28 +6,28 @@ using UnityEngine;
 public class DayNightCycle : MonoBehaviour
 {
 	[Header("Configuration")]
-	[Range(0f, 100f)]
 	[SerializeField]
+	[Range(0f, 100f)]
 	private float _sunrise = 25f;
 
-	[Range(0f, 100f)]
 	[SerializeField]
+	[Range(0f, 100f)]
 	private float _sunset = 85f;
 
-	[Tooltip("Max angle between the horizon and the center of sun’s disk")]
 	[SerializeField]
+	[Tooltip("Max angle between the horizon and the center of sun’s disk")]
 	private float _sunAltitude = 45f;
 
-	[Tooltip("Angle between z-axis and the center of sun’s disk at sunrise")]
 	[SerializeField]
+	[Tooltip("Angle between z-axis and the center of sun’s disk at sunrise")]
 	private float _sunLongitude;
 
-	[Tooltip("A pair of angles that limit visible orbit of the sun")]
 	[SerializeField]
+	[Tooltip("A pair of angles that limit visible orbit of the sun")]
 	private Vector2 _sunOrbit = new Vector2(-20f, 200f);
 
-	[Range(0f, 100f)]
 	[SerializeField]
+	[Range(0f, 100f)]
 	private float _moonrise = 90f;
 
 	[SerializeField]
@@ -38,12 +38,12 @@ public class DayNightCycle : MonoBehaviour
 	[Tooltip("Max angle between the horizon and the center of moon’s disk")]
 	private float _moonAltitude = 45f;
 
-	[Tooltip("Angle between z-axis and the center of moon’s disk at moonrise")]
 	[SerializeField]
+	[Tooltip("Angle between z-axis and the center of moon’s disk at moonrise")]
 	private float _moonLongitude;
 
-	[Tooltip("A pair of angles that limit visible orbit of the moon")]
 	[SerializeField]
+	[Tooltip("A pair of angles that limit visible orbit of the moon")]
 	private Vector2 _moonOrbit = new Vector2(-20f, 200f);
 
 	[Header("Dependencies")]

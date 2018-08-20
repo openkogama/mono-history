@@ -348,11 +348,11 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 	{
 		private const float pi2 = (float)Math.PI * 2f;
 
-		private const float idleTargetPosMoveSpeedFactor = 0.2f;
-
 		private Vector3 lookDir;
 
 		private float minLookDeltaOffset = 0.1f;
+
+		private const float idleTargetPosMoveSpeedFactor = 0.2f;
 
 		private AdvancedGhostBehaviour ghostBehaviour;
 
@@ -473,9 +473,9 @@ public class AdvancedGhostBehaviour : MonoBehaviour
 
 	private const float advancedGhostBodyMaxRadius = 4f;
 
-	private const int behaviourOnlyDistanceBand = 3;
-
 	private CullingSubscriberBase cullingSubscriberBase;
+
+	private const int behaviourOnlyDistanceBand = 3;
 
 	private bool behaviourOnlyEnabled;
 

@@ -9,6 +9,13 @@ public class MVWorldObjectClient : MVWorldObject
 {
 	public new delegate void CallBackDelegate(MVWorldObjectClient woc);
 
+	private struct TransformData
+	{
+		public Vector3 position;
+
+		public Quaternion rotation;
+	}
+
 	public UnityAction<MVWorldObjectClient, PositionChangedEventArgs> PositionChanged;
 
 	public UnityAction<MVWorldObjectClient, RotationChangedEventArgs> RotationChanged;
@@ -344,7 +351,7 @@ public class MVWorldObjectClient : MVWorldObject
 
 	public MVWorldObjectClient(Dictionary<object, object> data, GameObject prefabObject, Dictionary<int, MVWorldObjectClient> worldObjects)
 	{
-		gameObject = InstantiatePrefab(prefabObject);
+		gameObject = InstantiatePrefab(prefabObject, GetTransformData(data));
 		transform = gameObject.transform;
 		collider = gameObject.GetComponent<Collider>();
 		CreateWorldObject(data, worldObjects);
@@ -352,7 +359,7 @@ public class MVWorldObjectClient : MVWorldObject
 
 	public MVWorldObjectClient(Dictionary<object, object> data, ObjectPrefab prefabObject, Dictionary<int, MVWorldObjectClient> worldObjects)
 	{
-		component = InstantiatePrefab(prefabObject);
+		component = InstantiatePrefab(prefabObject, GetTransformData(data));
 		gameObject = component.gameObject;
 		collider = component.Collider;
 		transform = gameObject.transform;
@@ -364,6 +371,9 @@ public class MVWorldObjectClient : MVWorldObject
 		gameObject = new GameObject();
 		goId = gameObject.GetInstanceID();
 		transform = gameObject.transform;
+		TransformData transformData = GetTransformData(data);
+		transform.localPosition = transformData.position;
+		transform.localRotation = transformData.rotation;
 		collider = gameObject.GetComponent<Collider>();
 		CreateWorldObject(data, worldObjects);
 	}
@@ -376,24 +386,24 @@ public class MVWorldObjectClient : MVWorldObject
 		}
 	}
 
-	protected GameObject InstantiatePrefab(GameObject prefabObject)
+	private GameObject InstantiatePrefab(GameObject prefabObject, TransformData transformData)
 	{
 		if (prefabObject == null)
 		{
 			Debug.LogError("Prefab object is null.");
 		}
-		GameObject gameObject = UnityEngine.Object.Instantiate(prefabObject);
+		GameObject gameObject = UnityEngine.Object.Instantiate(prefabObject, transformData.position, transformData.rotation);
 		goId = gameObject.GetInstanceID();
 		return gameObject;
 	}
 
-	protected ObjectPrefab InstantiatePrefab(ObjectPrefab prefabObject)
+	private ObjectPrefab InstantiatePrefab(ObjectPrefab prefabObject, TransformData transformData)
 	{
 		if (prefabObject == null)
 		{
 			Debug.LogError("Prefab object is null.");
 		}
-		ObjectPrefab objectPrefab = UnityEngine.Object.Instantiate(prefabObject);
+		ObjectPrefab objectPrefab = UnityEngine.Object.Instantiate(prefabObject, transformData.position, transformData.rotation);
 		goId = objectPrefab.gameObject.GetInstanceID();
 		return objectPrefab;
 	}
@@ -411,33 +421,37 @@ public class MVWorldObjectClient : MVWorldObject
 		}
 	}
 
+	private TransformData GetTransformData(Dictionary<object, object> data)
+	{
+		TransformData result = default;
+		result.position = (Vector3)data[WorldObjectDataParameters.Position];
+		if (MathFunctions.VectorIsNan(result.position))
+		{
+			Debug.LogError("Nan position detected");
+			result.position = Vector3.zero;
+		}
+		result.rotation = (Quaternion)data[WorldObjectDataParameters.Rotation];
+		if (MathFunctions.QuaternionIsNan(result.rotation))
+		{
+			Debug.LogError("Nan rotation detected");
+			result.rotation = Quaternion.identity;
+		}
+		return result;
+	}
+
 	private void ApplyData(Dictionary<object, object> data)
 	{
 		id = (int)data[WorldObjectDataParameters.Id];
 		groupId = (int)data[WorldObjectDataParameters.GroudId];
 		itemId = (int)data[WorldObjectDataParameters.ItemId];
-		WorldObjectType = (WorldObjectType)(int)data[WorldObjectDataParameters.WorldObjectType];
-		Vector3 vector = (Vector3)data[WorldObjectDataParameters.Position];
+		WorldObjectType = (WorldObjectType)data[WorldObjectDataParameters.WorldObjectType];
+		Vector3 vector = (Vector3)data[WorldObjectDataParameters.Scale];
 		if (MathFunctions.VectorIsNan(vector))
 		{
-			Debug.LogError("Nan position detected");
-			vector = Vector3.zero;
-		}
-		transform.localPosition = vector;
-		Quaternion quaternion = (Quaternion)data[WorldObjectDataParameters.Rotation];
-		if (MathFunctions.QuaternionIsNan(quaternion))
-		{
-			Debug.LogError("Nan rotation detected");
-			quaternion = Quaternion.identity;
-		}
-		transform.localRotation = quaternion;
-		Vector3 vector2 = (Vector3)data[WorldObjectDataParameters.Scale];
-		if (MathFunctions.VectorIsNan(vector2))
-		{
 			Debug.LogError("Nan scale detected");
-			vector2 = Vector3.one;
+			vector = Vector3.one;
 		}
-		transform.localScale = vector2;
+		transform.localScale = vector;
 		Data = (Dictionary<object, object>)data[WorldObjectDataParameters.Data];
 		if (data.ContainsKey(WorldObjectDataParameters.RuntimeData))
 		{
@@ -613,7 +627,7 @@ public class MVWorldObjectClient : MVWorldObject
 	{
 		foreach (KeyValuePair<object, object> item in package)
 		{
-			if ((byte)item.Key == 0)
+			if ((PackageType)item.Key == PackageType.Interaction)
 			{
 				ReceiveInteractionPackage(new InteractionData((byte[])item.Value), p);
 			}
@@ -633,18 +647,18 @@ public class MVWorldObjectClient : MVWorldObject
 	{
 		if (HasInputConnector)
 		{
-			inputConnectorObject = UnityEngine.Object.Instantiate(PrefabPool.Instance.LogicInputConnectorPrefab, gameObject.transform.position + InputConnectorOffset, Quaternion.identity) as GameObject;
-			inputConnectorObject.transform.parent = gameObject.transform;
+			inputConnectorObject = UnityEngine.Object.Instantiate(PrefabPool.Instance.LogicInputConnectorPrefab, InputConnectorOffset, Quaternion.identity);
+			inputConnectorObject.transform.SetParent(gameObject.transform, worldPositionStays: false);
 		}
 		if (HasOutputConnector)
 		{
-			outputConnectorObject = UnityEngine.Object.Instantiate(PrefabPool.Instance.LogicOutputConnectorPrefab, gameObject.transform.position + OutputConnectorOffset, Quaternion.identity) as GameObject;
-			outputConnectorObject.transform.parent = gameObject.transform;
+			outputConnectorObject = UnityEngine.Object.Instantiate(PrefabPool.Instance.LogicOutputConnectorPrefab, OutputConnectorOffset, Quaternion.identity);
+			outputConnectorObject.transform.SetParent(gameObject.transform, worldPositionStays: false);
 		}
 		if (HasObjectConnector)
 		{
-			objectConnectorObject = UnityEngine.Object.Instantiate(PrefabPool.Instance.LogicObjectConnectorPrefab, gameObject.transform.position + ObjectConnectorOffset, ObjectConnectorRotation) as GameObject;
-			objectConnectorObject.transform.parent = gameObject.transform;
+			objectConnectorObject = UnityEngine.Object.Instantiate(PrefabPool.Instance.LogicObjectConnectorPrefab, ObjectConnectorOffset, ObjectConnectorRotation);
+			objectConnectorObject.transform.SetParent(gameObject.transform, worldPositionStays: false);
 		}
 	}
 

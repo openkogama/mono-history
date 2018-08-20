@@ -265,7 +265,7 @@ public class GodzillaLaser : PickupItem, IUpdatecontrollerSubscriber
 	{
 		chargeParticles.transform.LookAt(muzzlePoint);
 		ParticleSystem.EmissionModule emission = chargeParticles.emission;
-		emission.rate = new ParticleSystem.MinMaxCurve(charge * 128f);
+		emission.rateOverDistanceMultiplier = charge * 128f;
 	}
 
 	private void AimAt(Vector3 point)

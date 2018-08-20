@@ -3,7 +3,7 @@ using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 
-public class MVPickupItemBase : MVLogicObject, IUpdatecontrollerSubscriber, IPickupStateHandler
+public class MVPickupItemBase : MVLogicObject, IPickupStateHandler, IUpdatecontrollerSubscriber
 {
 	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
@@ -214,37 +214,14 @@ public class MVPickupItemBase : MVLogicObject, IUpdatecontrollerSubscriber, IPic
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
 		interactionFlags |= InteractionFlags.CanUseLevel;
 		Dictionary<object, object> dictionary = (Dictionary<object, object>)data[WorldObjectDataParameters.Data];
-		AvatarItemType key = (AvatarItemType)(int)dictionary["itemType"];
+		AvatarItemType key = (AvatarItemType)dictionary["itemType"];
 		documentationType = (avatarItemToToinventoryItemDescrip.ContainsKey(key) ? avatarItemToToinventoryItemDescrip[key] : MVWorldObjectDocumentationType.Missing);
-	}
-
-	void IUpdatecontrollerSubscriber.UpdateControllerUpdate()
-	{
-		if (!canPickUp)
-		{
-			return;
-		}
-		for (int num = instigatorsInTrigger.Count - 1; num >= 0; num--)
-		{
-			if (MVGameControllerBase.WOCM.GetWorldObjectClient(instigatorsInTrigger[num]) == null)
-			{
-				instigatorsInTrigger.RemoveAt(num);
-			}
-			else if (ShouldDoAutoPickup(instigatorsInTrigger[num]))
-			{
-				DoPickup(instigatorsInTrigger[num]);
-			}
-		}
-	}
-
-	void IUpdatecontrollerSubscriber.UpdateControllerFixedUpdate()
-	{
 	}
 
 	private static ObjectPrefab GetPickupPrefabName(Dictionary<object, object> data)
 	{
 		Dictionary<object, object> dictionary = (Dictionary<object, object>)data[WorldObjectDataParameters.Data];
-		return pickupPrefabLUT[(AvatarItemType)(int)dictionary["itemType"]].prefabObject;
+		return pickupPrefabLUT[(AvatarItemType)dictionary["itemType"]].prefabObject;
 	}
 
 	private void SetupUseInteractor()
@@ -297,7 +274,7 @@ public class MVPickupItemBase : MVLogicObject, IUpdatecontrollerSubscriber, IPic
 	public override void InitializeInventory()
 	{
 		base.InitializeInventory();
-		gameObject.transform.FindChild("Cube").gameObject.SetActive(value: false);
+		gameObject.transform.Find("Cube").gameObject.SetActive(value: false);
 	}
 
 	public override void OnDataUpdate()
@@ -309,7 +286,7 @@ public class MVPickupItemBase : MVLogicObject, IUpdatecontrollerSubscriber, IPic
 		}
 		if (Data.ContainsKey("itemType"))
 		{
-			pickupItemType = (AvatarItemType)(int)Data["itemType"];
+			pickupItemType = (AvatarItemType)Data["itemType"];
 		}
 		useInteractor.UpdateData(Data);
 	}
@@ -385,8 +362,6 @@ public class MVPickupItemBase : MVLogicObject, IUpdatecontrollerSubscriber, IPic
 			canPickUp = false;
 			baseObject.TriggerBoxEvents.Collider.enabled = false;
 			break;
-		case PickupItemState.Counting:
-			break;
 		}
 	}
 
@@ -420,5 +395,28 @@ public class MVPickupItemBase : MVLogicObject, IUpdatecontrollerSubscriber, IPic
 			return true;
 		}
 		return false;
+	}
+
+	void IUpdatecontrollerSubscriber.UpdateControllerUpdate()
+	{
+		if (!canPickUp)
+		{
+			return;
+		}
+		for (int num = instigatorsInTrigger.Count - 1; num >= 0; num--)
+		{
+			if (MVGameControllerBase.WOCM.GetWorldObjectClient(instigatorsInTrigger[num]) == null)
+			{
+				instigatorsInTrigger.RemoveAt(num);
+			}
+			else if (ShouldDoAutoPickup(instigatorsInTrigger[num]))
+			{
+				DoPickup(instigatorsInTrigger[num]);
+			}
+		}
+	}
+
+	void IUpdatecontrollerSubscriber.UpdateControllerFixedUpdate()
+	{
 	}
 }

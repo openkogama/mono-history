@@ -98,39 +98,6 @@ public struct ObscuredChar : IEquatable<ObscuredChar>
 		return c;
 	}
 
-	public override bool Equals(object obj)
-	{
-		if (!(obj is ObscuredChar))
-		{
-			return false;
-		}
-		return Equals((ObscuredChar)obj);
-	}
-
-	public bool Equals(ObscuredChar obj)
-	{
-		if (currentCryptoKey == obj.currentCryptoKey)
-		{
-			return hiddenValue == obj.hiddenValue;
-		}
-		return EncryptDecrypt(hiddenValue, currentCryptoKey) == EncryptDecrypt(obj.hiddenValue, obj.currentCryptoKey);
-	}
-
-	public override string ToString()
-	{
-		return InternalDecrypt().ToString();
-	}
-
-	public string ToString(IFormatProvider provider)
-	{
-		return InternalDecrypt().ToString(provider);
-	}
-
-	public override int GetHashCode()
-	{
-		return InternalDecrypt().GetHashCode();
-	}
-
 	public static implicit operator ObscuredChar(char value)
 	{
 		ObscuredChar result = new ObscuredChar(EncryptDecrypt(value));
@@ -166,5 +133,38 @@ public struct ObscuredChar : IEquatable<ObscuredChar>
 			input.fakeValue = value;
 		}
 		return input;
+	}
+
+	public override bool Equals(object obj)
+	{
+		if (!(obj is ObscuredChar))
+		{
+			return false;
+		}
+		return Equals((ObscuredChar)obj);
+	}
+
+	public bool Equals(ObscuredChar obj)
+	{
+		if (currentCryptoKey == obj.currentCryptoKey)
+		{
+			return hiddenValue == obj.hiddenValue;
+		}
+		return EncryptDecrypt(hiddenValue, currentCryptoKey) == EncryptDecrypt(obj.hiddenValue, obj.currentCryptoKey);
+	}
+
+	public override string ToString()
+	{
+		return InternalDecrypt().ToString();
+	}
+
+	public string ToString(IFormatProvider provider)
+	{
+		return InternalDecrypt().ToString(provider);
+	}
+
+	public override int GetHashCode()
+	{
+		return InternalDecrypt().GetHashCode();
 	}
 }

@@ -3,7 +3,7 @@ using MV.WorldObject.Accessories;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class AccessoryViewController : MonoBehaviour, IEventSystemHandler, IAccessoryClicked, IBundleController
+public class AccessoryViewController : MonoBehaviour, IAccessoryClicked, IBundleController, IEventSystemHandler
 {
 	[SerializeField]
 	private AvatarAccessoryPreviewer previewer;
@@ -40,11 +40,10 @@ public class AccessoryViewController : MonoBehaviour, IEventSystemHandler, IAcce
 			singletonWorldObjectRef.WorldObjectClient.Visualization.Deactivate();
 		}
 		prevLight = RenderSettings.ambientLight;
-		prevIntensity = RenderSettings.ambientIntensity;
 		wasEnabled = MVGameControllerBase.SkyboxManager.enabled;
 		MVGameControllerBase.SkyboxManager.enabled = false;
-		RenderSettings.ambientIntensity = 0.55f;
-		RenderSettings.ambientLight = Color.white;
+		float num = 0.55f;
+		RenderSettings.ambientLight = Color.white * num;
 	}
 
 	private void OnDestroy()
@@ -52,7 +51,6 @@ public class AccessoryViewController : MonoBehaviour, IEventSystemHandler, IAcce
 		if (MVGameControllerBase.Game != null)
 		{
 			RenderSettings.ambientLight = prevLight;
-			RenderSettings.ambientIntensity = prevIntensity;
 			MVGameControllerBase.SkyboxManager.enabled = wasEnabled;
 			WorldObjectClientRef<ThemeWorldObject> singletonWorldObjectRef = MVGameControllerBase.WOCM.GetSingletonWorldObjectRef<ThemeWorldObject>();
 			if (singletonWorldObjectRef != null && singletonWorldObjectRef.WorldObjectClient != null)

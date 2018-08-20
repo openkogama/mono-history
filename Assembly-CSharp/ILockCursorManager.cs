@@ -4,9 +4,5 @@ public interface ILockCursorManager
 {
 	Action<bool> OnCursorLockChanged { get; set; }
 
-	bool LockCursor { get; set; }
-
-	bool HasFocusAndLockCursor { get; }
-
-	bool UnLockCursorOverride { set; }
+	bool CursorLock { get; set; }
 }

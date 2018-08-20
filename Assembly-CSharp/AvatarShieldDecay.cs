@@ -2,19 +2,19 @@ using UnityEngine;
 
 public class AvatarShieldDecay : MonoBehaviour
 {
-	private const float decayCooldown = 1f;
-
-	private const float decayAmount = 15f;
-
-	private const float updateValueCooldown = 0.5f;
-
 	private float decayTime;
 
+	private const float decayCooldown = 1f;
+
 	private MVRuntimeDataVariableClampedFloat shield;
+
+	private const float decayAmount = 15f;
 
 	private float accumulatedShieldDecay;
 
 	private float updateValueTime;
+
+	private const float updateValueCooldown = 0.5f;
 
 	public void Init(MVRuntimeDataVariableClampedFloat shield)
 	{

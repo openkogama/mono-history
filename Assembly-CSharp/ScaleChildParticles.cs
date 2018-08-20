@@ -11,9 +11,10 @@ public class ScaleChildParticles : MonoBehaviour
 	private void Start()
 	{
 		ParticleSystem[] toScale = ToScale;
-		for (int i = 0; i < toScale.Length; i++)
+		foreach (ParticleSystem particleSystem in toScale)
 		{
-			toScale[i].startSize *= Source.startSize;
+			ParticleSystem.MainModule main = particleSystem.main;
+			main.startSizeMultiplier *= Source.main.startSizeMultiplier;
 		}
 	}
 }

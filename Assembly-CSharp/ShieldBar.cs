@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class ShieldBar : MonoBehaviour
 {
-	private const float maxShieldValue = 100f;
-
 	public Transform shieldPivot;
+
+	private const float maxShieldValue = 100f;
 
 	private float interpolateTowardsShield;
 

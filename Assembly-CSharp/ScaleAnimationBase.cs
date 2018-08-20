@@ -2,14 +2,14 @@ using UnityEngine;
 
 public class ScaleAnimationBase : MonoBehaviour
 {
+	public delegate void OnScaleAnimationStoppedDelegate(float extraTime);
+
 	protected enum State
 	{
 		None,
 		Stopped,
 		Playing
 	}
-
-	public delegate void OnScaleAnimationStoppedDelegate(float extraTime);
 
 	protected State state;
 

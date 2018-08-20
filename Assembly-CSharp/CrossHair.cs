@@ -3,8 +3,6 @@ using UnityEngine.UI;
 
 public class CrossHair : MonoBehaviour, IGUICrossHair
 {
-	private const string infinity = "∞";
-
 	[SerializeField]
 	private Image crossHair;
 
@@ -30,6 +28,8 @@ public class CrossHair : MonoBehaviour, IGUICrossHair
 	private float timer = float.PositiveInfinity;
 
 	private bool hitEffectActive;
+
+	private const string infinity = "∞";
 
 	public bool Visible
 	{

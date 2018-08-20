@@ -6,7 +6,7 @@ namespace AntiHack;
 public class MaterialPlaneRenderer : MonoBehaviour
 {
 	[SerializeField]
-	private Camera camera;
+	private Camera cam;
 
 	[SerializeField]
 	private Mesh plane;
@@ -26,11 +26,11 @@ public class MaterialPlaneRenderer : MonoBehaviour
 
 	protected void OnValidate()
 	{
-		if (camera == null)
+		if (cam == null)
 		{
-			camera = GetComponent<Camera>();
+			cam = GetComponent<Camera>();
 		}
-		camera.enabled = false;
+		cam.enabled = false;
 		transform.position = Vector3.zero;
 		transform.rotation = Quaternion.Euler(90f, 0f, 0f);
 	}
@@ -95,7 +95,7 @@ public class MaterialPlaneRenderer : MonoBehaviour
 		{
 			Texture2D mainTexture = textures[i];
 			material.mainTexture = mainTexture;
-			camera.Render();
+			cam.Render();
 		}
 	}
 
@@ -103,7 +103,7 @@ public class MaterialPlaneRenderer : MonoBehaviour
 	{
 		RenderTexture active = RenderTexture.active;
 		RenderTexture.active = texture;
-		Texture2D texture2D = new Texture2D(renderTexture.width, renderTexture.height, TextureFormat.RGB24, mipmap: false);
+		Texture2D texture2D = new Texture2D(renderTexture.width, renderTexture.height, TextureFormat.RGB24, mipChain: false);
 		texture2D.ReadPixels(new Rect(0f, 0f, renderTexture.width, renderTexture.height), 0, 0);
 		texture2D.Apply();
 		RenderTexture.active = active;

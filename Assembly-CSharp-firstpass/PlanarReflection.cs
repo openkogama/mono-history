@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(WaterBase))]
 [ExecuteInEditMode]
+[RequireComponent(typeof(WaterBase))]
 public class PlanarReflection : MonoBehaviour
 {
 	public LayerMask reflectionMask;
@@ -225,9 +225,9 @@ public class PlanarReflection : MonoBehaviour
 
 	private Vector4 CameraSpacePlane(Camera cam, Vector3 pos, Vector3 normal, float sideSign)
 	{
-		Vector3 v = pos + normal * clipPlaneOffset;
+		Vector3 point = pos + normal * clipPlaneOffset;
 		Matrix4x4 worldToCameraMatrix = cam.worldToCameraMatrix;
-		Vector3 lhs = worldToCameraMatrix.MultiplyPoint(v);
+		Vector3 lhs = worldToCameraMatrix.MultiplyPoint(point);
 		Vector3 rhs = worldToCameraMatrix.MultiplyVector(normal).normalized * sideSign;
 		return new Vector4(rhs.x, rhs.y, rhs.z, 0f - Vector3.Dot(lhs, rhs));
 	}

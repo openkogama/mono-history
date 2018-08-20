@@ -44,7 +44,7 @@ public class MaterialPurchasePopup : MonoBehaviour
 		}
 		productName.text = MaterialDescription.materialDescriptions[materialID].Name;
 		materialPreviewer = UnityEngine.Object.Instantiate(materialPreviewer);
-		materialPreviewer.Initialize(material.mesh);
+		materialPreviewer.Initialize(material.Mesh);
 		materialPreviewImage.texture = materialPreviewer.renderTexture;
 		description.text = MaterialDescription.materialDescriptions[materialID].Description;
 	}

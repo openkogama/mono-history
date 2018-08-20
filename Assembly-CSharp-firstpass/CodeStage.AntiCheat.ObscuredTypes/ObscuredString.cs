@@ -135,9 +135,54 @@ public sealed class ObscuredString
 		return text2;
 	}
 
+	public static implicit operator ObscuredString(string value)
+	{
+		if (value == null)
+		{
+			return null;
+		}
+		ObscuredString obscuredString = new ObscuredString(InternalEncrypt(value));
+		if (ObscuredCheatingDetector.IsRunning)
+		{
+			obscuredString.fakeValue = value;
+		}
+		return obscuredString;
+	}
+
+	public static implicit operator string(ObscuredString value)
+	{
+		if (value == null)
+		{
+			return null;
+		}
+		return value.InternalDecrypt();
+	}
+
 	public override string ToString()
 	{
 		return InternalDecrypt();
+	}
+
+	public static bool operator ==(ObscuredString a, ObscuredString b)
+	{
+		if (object.ReferenceEquals(a, b))
+		{
+			return true;
+		}
+		if ((object)a == null || (object)b == null)
+		{
+			return false;
+		}
+		if (a.currentCryptoKey == b.currentCryptoKey)
+		{
+			return ArraysEquals(a.hiddenValue, b.hiddenValue);
+		}
+		return string.Equals(a.InternalDecrypt(), b.InternalDecrypt());
+	}
+
+	public static bool operator !=(ObscuredString a, ObscuredString b)
+	{
+		return !(a == b);
 	}
 
 	public override bool Equals(object obj)
@@ -212,50 +257,5 @@ public sealed class ObscuredString
 			return true;
 		}
 		return false;
-	}
-
-	public static implicit operator ObscuredString(string value)
-	{
-		if (value == null)
-		{
-			return null;
-		}
-		ObscuredString obscuredString = new ObscuredString(InternalEncrypt(value));
-		if (ObscuredCheatingDetector.IsRunning)
-		{
-			obscuredString.fakeValue = value;
-		}
-		return obscuredString;
-	}
-
-	public static implicit operator string(ObscuredString value)
-	{
-		if (value == null)
-		{
-			return null;
-		}
-		return value.InternalDecrypt();
-	}
-
-	public static bool operator ==(ObscuredString a, ObscuredString b)
-	{
-		if (object.ReferenceEquals(a, b))
-		{
-			return true;
-		}
-		if ((object)a == null || (object)b == null)
-		{
-			return false;
-		}
-		if (a.currentCryptoKey == b.currentCryptoKey)
-		{
-			return ArraysEquals(a.hiddenValue, b.hiddenValue);
-		}
-		return string.Equals(a.InternalDecrypt(), b.InternalDecrypt());
-	}
-
-	public static bool operator !=(ObscuredString a, ObscuredString b)
-	{
-		return !(a == b);
 	}
 }

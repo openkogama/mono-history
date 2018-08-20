@@ -176,13 +176,13 @@ public abstract class AvatarLimbManager
 
 	protected class AvatarHeadRotationHandler
 	{
-		protected const float maxYaw = 90f;
-
-		protected const float maxPitch = 45f;
-
 		protected float idleTime;
 
 		protected LimbRotator limbRotator;
+
+		protected const float maxYaw = 90f;
+
+		protected const float maxPitch = 45f;
 
 		protected bool shouldLean = true;
 
@@ -361,13 +361,13 @@ public abstract class AvatarLimbManager
 
 	protected class AvatarNodEmote : AvatarEmote
 	{
-		private const float nodAngle = 15f;
-
-		private const float amountOfRotations = 5f;
-
 		private LimbController headController;
 
 		private float originalInterpolationSpeed;
+
+		private const float nodAngle = 15f;
+
+		private const float amountOfRotations = 5f;
 
 		public override void Initialize(LimbRotator limbRotator, float lifeTime)
 		{
@@ -496,13 +496,13 @@ public abstract class AvatarLimbManager
 
 	protected class AvatarShakeEmote : AvatarEmote
 	{
-		private const float shakeAngle = 25f;
-
-		private const float amountOfRotations = 5f;
-
 		private LimbController headController;
 
 		private float originalInterpolationSpeed;
+
+		private const float shakeAngle = 25f;
+
+		private const float amountOfRotations = 5f;
 
 		public override void Initialize(LimbRotator limbRotator, float lifeTime)
 		{
@@ -571,15 +571,15 @@ public abstract class AvatarLimbManager
 
 	protected class AvatarWaveEmote : AvatarEmote
 	{
-		private const float waveAngle = 25f;
-
-		private const float amountOfRotations = 8f;
-
 		private LimbController RArmController;
 
 		private LimbController LArmController;
 
 		private float originalInterpolationSpeed;
+
+		private const float waveAngle = 25f;
+
+		private const float amountOfRotations = 8f;
 
 		public override void Initialize(LimbRotator limbRotator, float lifeTime)
 		{
@@ -823,8 +823,6 @@ public abstract class AvatarLimbManager
 		}
 	}
 
-	private const float maxYawAllowed = 30f;
-
 	public Action OnAvatarRotate;
 
 	public Action<string> OnEmoteStart;
@@ -840,6 +838,8 @@ public abstract class AvatarLimbManager
 	protected AvatarLookDirectionHandler lookDirectionHandler;
 
 	private Quaternion previousTransformRotation;
+
+	private const float maxYawAllowed = 30f;
 
 	public virtual void Initialize(AvatarPickupOwner avatarPickupOwner, MVAvatar mvAvatar)
 	{

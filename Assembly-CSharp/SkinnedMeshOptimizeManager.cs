@@ -10,9 +10,9 @@ public class SkinnedMeshOptimizeManager : MonoBehaviour
 		public MeshRenderer mesh;
 	}
 
-	private const int allowedSkinnedMeshAmount = 5;
-
 	private List<SkinnedMeshOptimizationData> optimizationDataList = new List<SkinnedMeshOptimizationData>();
+
+	private const int allowedSkinnedMeshAmount = 5;
 
 	public void AddOptimizationData(SkinnedMeshOptimizationData optimizationData)
 	{

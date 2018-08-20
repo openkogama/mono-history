@@ -4,15 +4,15 @@ using UnityEngine;
 
 public class TransformNetworkManager
 {
-	public const int broadcastInterval = 200;
-
-	public const int clientDelay = 200;
-
 	private Dictionary<int, MVNetworkObject> networkedObjects = new Dictionary<int, MVNetworkObject>();
 
 	private List<int> removeList = new List<int>();
 
 	private static int delayedTime;
+
+	public const int broadcastInterval = 200;
+
+	public const int clientDelay = 200;
 
 	public static int DelayedTime => delayedTime;
 

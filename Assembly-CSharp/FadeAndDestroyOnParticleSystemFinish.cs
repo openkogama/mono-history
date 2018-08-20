@@ -10,7 +10,7 @@ public class FadeAndDestroyOnParticleSystemFinish : MonoBehaviour
 
 	private void Start()
 	{
-		fadeCountDown = system.duration;
+		fadeCountDown = system.main.duration;
 	}
 
 	private void Update()

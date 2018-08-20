@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-public class MaterialsController : MonoBehaviour, IEventSystemHandler, IMaterialClicked, IHandleMaterial
+public class MaterialsController : MonoBehaviour, IMaterialClicked, IHandleMaterial, IEventSystemHandler
 {
 	protected CubeModelingStateMachine cubeModelingStateMachine;
 
@@ -126,7 +126,7 @@ public class MaterialsController : MonoBehaviour, IEventSystemHandler, IMaterial
 			{
 				MVMaterial material = MVGameControllerBase.Game.MaterialRepository.GetMaterial(b);
 				MaterialViewItem materialViewItem = UnityEngine.Object.Instantiate(materialViewItemPrefab);
-				materialViewItem.Initialize(b, !material.isUnlocked, material.buttonTexture, material.IsAvailable, b == cubeModelingStateMachine.CurrentMaterialId);
+				materialViewItem.Initialize(b, !material.isUnlocked, material.ButtonTexture, material.IsAvailable, b == cubeModelingStateMachine.CurrentMaterialId);
 				inventoryController.AddObject(materialViewItem.gameObject, b % numberOfSlotsPrPage);
 			}
 		}

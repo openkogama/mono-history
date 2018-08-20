@@ -6,9 +6,9 @@ using UnityEngine.EventSystems;
 
 public class ObjExportHandler : MonoBehaviour
 {
-	private const int defaultMask = -262149;
-
 	private static bool picking = false;
+
+	private const int defaultMask = -262149;
 
 	private static HashSet<int> ignoreIds = new HashSet<int>();
 

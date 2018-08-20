@@ -3,10 +3,10 @@ using UnityEngine.UI;
 
 public class TeamMenuLayoutFitter : MonoBehaviour
 {
-	private const int maxTeamCount = 4;
-
 	[SerializeField]
 	private VerticalLayoutGroup layoutGroup;
+
+	private const int maxTeamCount = 4;
 
 	private void Start()
 	{

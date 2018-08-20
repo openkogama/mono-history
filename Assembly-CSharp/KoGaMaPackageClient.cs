@@ -193,7 +193,7 @@ public class KoGaMaPackageClient
 		{
 			Dictionary<object, object> dictionary = (Dictionary<object, object>)worldObjectData[WorldObjectDataParameters.Data];
 			Dictionary<object, object> dictionary2 = (Dictionary<object, object>)dictionary["BlueprintData"];
-			BlueprintType blueprintType = (BlueprintType)(byte)dictionary2[BlueprintData.ClientSideType.ToString()];
+			BlueprintType blueprintType = (BlueprintType)dictionary2[BlueprintData.ClientSideType.ToString()];
 			switch (blueprintType)
 			{
 			case BlueprintType.Movable:

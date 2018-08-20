@@ -5,8 +5,6 @@ using UnityEngine.UI;
 
 public class FlagWinningCondition : WinningConditionBase
 {
-	private const float updateFlagFrequency = 10f;
-
 	[SerializeField]
 	private Image flagIcon;
 
@@ -15,6 +13,8 @@ public class FlagWinningCondition : WinningConditionBase
 
 	[SerializeField]
 	private Text score;
+
+	private const float updateFlagFrequency = 10f;
 
 	protected override GameStatCounterType StatType => GameStatCounterType.Flag;
 
@@ -54,7 +54,7 @@ public class FlagWinningCondition : WinningConditionBase
 		{
 			if (worldObjectsByType[num] is MVFlag mVFlag && mVFlag.Data.ContainsKey("team"))
 			{
-				bool flag = (int)mVFlag.Data["team"] == (int)team;
+				bool flag = (MVTeam)mVFlag.Data["team"] == team;
 				bool flag2 = MVGameControllerBase.Game.TeamManager.TeamCount() > 1;
 				if (!flag)
 				{

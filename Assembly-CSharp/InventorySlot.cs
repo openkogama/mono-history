@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class InventorySlot : MonoBehaviour, IEventSystemHandler, IDropHandler
+public class InventorySlot : MonoBehaviour, IDropHandler, IEventSystemHandler
 {
 	private int absoluteSlotValue;
 

@@ -5,7 +5,7 @@ using UnityEngine.Rendering;
 
 public class MaterialLoader : MonoBehaviour
 {
-	private static string highResAtlasFileName = "Atlas/atlas512glowing.unity3d";
+	private static string highResAtlasFileName = "AssetBundles/Atlas/atlas.unity3d";
 
 	[SerializeField]
 	private Material cubeModelMaterialHigh;
@@ -66,7 +66,7 @@ public class MaterialLoader : MonoBehaviour
 	private void SetupMaterials()
 	{
 		bool flag = false;
-		if (SystemInfo.graphicsShaderLevel >= 30 && (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Direct3D9 || SystemInfo.graphicsDeviceType == GraphicsDeviceType.Direct3D12 || SystemInfo.graphicsDeviceType == GraphicsDeviceType.Direct3D11))
+		if (SystemInfo.graphicsShaderLevel >= 30 && (SystemInfo.graphicsDeviceType == GraphicsDeviceType.Direct3D12 || SystemInfo.graphicsDeviceType == GraphicsDeviceType.Direct3D11))
 		{
 			flag = true;
 		}
@@ -74,7 +74,7 @@ public class MaterialLoader : MonoBehaviour
 		{
 			flag = true;
 		}
-		if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES2 || SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGL2 || SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLCore)
+		if (SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLES2 || SystemInfo.graphicsDeviceType == GraphicsDeviceType.OpenGLCore)
 		{
 			flag = false;
 		}

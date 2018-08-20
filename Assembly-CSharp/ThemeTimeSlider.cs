@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class ThemeTimeSlider : FloatAttribute.Setter, IEventSystemHandler, IHandleSettingChanged
+public class ThemeTimeSlider : FloatAttribute.Setter, IHandleSettingChanged, IEventSystemHandler
 {
 	[SerializeField]
 	private SettingsSlider slider;

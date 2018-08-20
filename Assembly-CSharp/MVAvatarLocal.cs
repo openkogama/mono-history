@@ -5,7 +5,7 @@ using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 
-public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletImpactVisualizer
+public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, ICurrentItemOwner
 {
 	private class AvatarLocalModes
 	{
@@ -98,15 +98,15 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 			public bool Jump => false;
 		}
 
-		protected const float deathDuration = 2.5f;
-
-		protected const float deathBriefingDuration = 4f;
-
 		protected float deadTime;
 
 		protected float deadInterval = 2.5f;
 
 		private AvatarInputControllerDead inputController = new AvatarInputControllerDead();
+
+		protected const float deathDuration = 2.5f;
+
+		protected const float deathBriefingDuration = 4f;
 
 		public DeadMode(MVAvatarLocal mvAvatar)
 			: base(mvAvatar, 2)
@@ -173,12 +173,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 
 	public class EditorAvatarMode2D(MVAvatarLocal mvAvatar) : EditAvatarModeBase(mvAvatar, 0)
 	{
-		private const float distanceModifierDivider = -15f;
-
-		private const float distanceMinModifier = 1f;
-
-		private const float distanceMaxModifier = 10f;
-
 		private float resetZ;
 
 		private float speed = 8f;
@@ -200,6 +194,12 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 		private float keyAcceleration = 10f;
 
 		private float keyDamping = 10f;
+
+		private const float distanceModifierDivider = -15f;
+
+		private const float distanceMinModifier = 1f;
+
+		private const float distanceMaxModifier = 10f;
 
 		private readonly float heightAdjustSpeed = 5f;
 
@@ -349,8 +349,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 
 	public class JetPackMode : EditAvatarModeBase
 	{
-		private const float moveSlowDownPoint = 0.75f;
-
 		private readonly float maxSpeed = 1.75f;
 
 		private readonly float speedModifier = 5f;
@@ -368,6 +366,8 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 		private Vector3 moveConstraintCenter;
 
 		private float moveConstraintRadius;
+
+		private const float moveSlowDownPoint = 0.75f;
 
 		private DoubleTapMovementChecker doubleTap = new DoubleTapMovementChecker();
 
@@ -657,13 +657,9 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 		public override void Activate(AvatarRuntimeState fromMode)
 		{
 			base.Activate(fromMode);
-			switch (fromMode)
+			if (fromMode == AvatarRuntimeState.Hidden || fromMode == AvatarRuntimeState.Dead || fromMode == AvatarRuntimeState.GodzillaDead)
 			{
-			case AvatarRuntimeState.Hidden:
-			case AvatarRuntimeState.Dead:
-			case AvatarRuntimeState.GodzillaDead:
 				OnRespawn();
-				break;
 			}
 			MVGameControllerBase.CameraController.BlueModeEnabled = false;
 			MVGameControllerBase.WOCM.AvatarLocal.Visible = true;
@@ -917,9 +913,9 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 
 	public class GodzillaMode : AvatarMode
 	{
-		private const float levitationHeight = 0.2f;
-
 		public static readonly string screenName = TM._("Colossus");
+
+		private const float levitationHeight = 0.2f;
 
 		private MVCameraBase camera;
 
@@ -1033,9 +1029,9 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, ICurrentItemOwner, IBulletI
 		}
 	}
 
-	private const float exitVehicleMomentumModifier = 7f;
-
 	private string currAnim = string.Empty;
+
+	private const float exitVehicleMomentumModifier = 7f;
 
 	private AvatarMotor avatarMotor;
 

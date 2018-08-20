@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class ThemeToggle : BoolAttribute.Setter, IEventSystemHandler, IHandleSettingChanged
+public class ThemeToggle : BoolAttribute.Setter, IHandleSettingChanged, IEventSystemHandler
 {
 	[SerializeField]
 	protected Text label;

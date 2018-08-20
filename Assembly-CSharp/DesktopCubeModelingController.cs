@@ -25,7 +25,7 @@ public class DesktopCubeModelingController : MonoBehaviour
 
 	public void SetMaterial(byte materialId)
 	{
-		materialsButtonImage.texture = MVGameControllerBase.Game.MaterialRepository.GetMaterial(materialId).buttonTexture;
+		materialsButtonImage.texture = MVGameControllerBase.Game.MaterialRepository.GetMaterial(materialId).ButtonTexture;
 		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.CurrentCubeMaterial = materialId;
 	}
 

@@ -139,7 +139,7 @@ public class GUILoginHandler : MonoBehaviour
 
 	private void SetupPlanetID()
 	{
-		planetIdTextField.text = ((int)gameSessionData["planetID"]).ToString();
+		planetIdTextField.text = ((int)gameSessionData["planetID"]/*cast due to constrained. prefix*/).ToString();
 		planetIdTextField.onValueChanged.AddListener((string value) =>
 		{
 			if (int.TryParse(value, out var result))
@@ -151,7 +151,7 @@ public class GUILoginHandler : MonoBehaviour
 
 	private void SetupProfileID()
 	{
-		profileIdTextField.text = ((int)gameSessionData["profileID"]).ToString();
+		profileIdTextField.text = ((int)gameSessionData["profileID"]/*cast due to constrained. prefix*/).ToString();
 		profileIdTextField.onValueChanged.AddListener((string value) =>
 		{
 			if (int.TryParse(value, out var result))
@@ -240,9 +240,9 @@ public class GUILoginHandler : MonoBehaviour
 
 	private void UpdatePrefValuesIfChanged()
 	{
-		_profileId = UpdateIfChanged(playerPrefKey, _profileId, ((int)gameSessionData["profileID"]).ToString());
+		_profileId = UpdateIfChanged(playerPrefKey, _profileId, ((int)gameSessionData["profileID"]/*cast due to constrained. prefix*/).ToString());
 		_serverip = UpdateIfChanged("Dev_serverip", _serverip, (string)gameSessionData["serverIP"]);
-		_planetId = UpdateIfChanged("Dev_planetId", _planetId, ((int)gameSessionData["planetID"]).ToString());
+		_planetId = UpdateIfChanged("Dev_planetId", _planetId, ((int)gameSessionData["planetID"]/*cast due to constrained. prefix*/).ToString());
 	}
 
 	private string GetPrefOrDefault(string prefName, string target)

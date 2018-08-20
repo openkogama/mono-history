@@ -41,7 +41,7 @@ public class DesktopLobbyStateController : MonoBehaviour
 
 	private void Update()
 	{
-		if (MVGameControllerDesktop.LockCursorManager.LockCursor)
+		if (MVGameControllerDesktop.LockCursorManager.CursorLock)
 		{
 			lobbyStateBlockingOverlay.raycastTarget = true;
 		}

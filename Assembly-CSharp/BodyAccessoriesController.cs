@@ -355,7 +355,7 @@ public class BodyAccessoriesController
 			foreach (KeyValuePair<object, object> accessoryDatum in AccessoryData)
 			{
 				Dictionary<object, object> dictionary = (Dictionary<object, object>)accessoryDatum.Value;
-				if (accessorySlot == (AccessorySlotType)(int)dictionary[AvatarAccessoryData.Slot.ToString("d")])
+				if (accessorySlot == (AccessorySlotType)dictionary[AvatarAccessoryData.Slot.ToString("d")])
 				{
 					accessoryStreamingAssetsId = (int)dictionary[AvatarAccessoryData.InventoryID.ToString("d")];
 				}

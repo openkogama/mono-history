@@ -5,8 +5,6 @@ using UnityEngine;
 
 public class SizeState
 {
-	private const float scalePercent = 0.1f;
-
 	private static readonly int layerMask = -5 & ~(1 << LayerMask.NameToLayer("Player")) & ~(1 << LayerMask.NameToLayer("Logic"));
 
 	private readonly MVInteractable interactableLocal;
@@ -14,6 +12,8 @@ public class SizeState
 	private readonly MvCharacterController controllerLocal;
 
 	private float currentSize = 1f;
+
+	private const float scalePercent = 0.1f;
 
 	private static List<Vector3> relativePositions = new List<Vector3>
 	{
@@ -161,8 +161,8 @@ public class SizeState
 	{
 		Vector3 vector = controllerLocal.transform.position + controllerLocal.Center - hitData.positionTouchingHit;
 		float num = controllerLocal.Radius / controllerLocal.radiusBase.x;
-		Vector3 inPt = controllerLocal.centerBase - controllerLocal.Center + vector * num;
-		float distanceToPoint = new Plane(hitData.slopeNormal, controllerLocal.transform.position + controllerLocal.Center - hitData.positionTouchingHit).GetDistanceToPoint(inPt);
+		Vector3 point = controllerLocal.centerBase - controllerLocal.Center + vector * num;
+		float distanceToPoint = new Plane(hitData.slopeNormal, controllerLocal.transform.position + controllerLocal.Center - hitData.positionTouchingHit).GetDistanceToPoint(point);
 		Vector3 vector2 = hitData.slopeNormal * distanceToPoint;
 		controllerLocal.transform.position = controllerLocal.transform.position + vector2;
 	}
