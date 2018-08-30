@@ -241,6 +241,7 @@ public class AccessoryShopController : MonoBehaviour, IInventoryChanged, IAttach
 
 	public void ResetAfterBundlePurchase()
 	{
+		startingCategory = AccessoryCategoryClient.Hats;
 		TabSelected((int)startingCategory);
 	}
 

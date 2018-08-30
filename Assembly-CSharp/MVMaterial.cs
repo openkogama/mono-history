@@ -28,7 +28,7 @@ public class MVMaterial
 	{
 	}
 
-	public MVMaterial(int materialId, string name, string description, PhysicalProperties physicalProperties, MaterialSound materialSound, AvatarModifierPackageType modifierPackageType, int priceGold, int priceSilver, bool isUnlocked, MaterialButtonTextureGenerator materialButtonTextureGenerator)
+	public MVMaterial(int materialId, string name, string description, PhysicalProperties physicalProperties, MaterialSound materialSound, AvatarModifierPackageType modifierPackageType, int priceGold, bool isUnlocked, MaterialButtonTextureGenerator materialButtonTextureGenerator)
 		: this(physicalProperties, materialSound, modifierPackageType)
 	{
 		GenerateCube(materialId);

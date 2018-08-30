@@ -43,7 +43,7 @@ public class EditModeRepositoryController : MonoBehaviour
 		{
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 			{
-				x.Create((MVPurchaseReturnCode)returnCode, int.Parse(currentlyBuyingItem.priceGold.ToString()), 0);
+				x.Create((MVPurchaseReturnCode)returnCode, int.Parse(currentlyBuyingItem.priceGold.ToString()));
 			});
 		}
 	}

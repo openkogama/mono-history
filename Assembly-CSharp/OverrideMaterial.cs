@@ -24,17 +24,15 @@ public class OverrideMaterial : MonoBehaviour
 
 	public int priceGold;
 
-	public int priceSilver;
-
 	public bool isUnlocked = true;
 
 	public void Register()
 	{
-		MVGameControllerBase.Game.MaterialRepository.AddMaterial(materialName, description, path, materialSound, modifierPackageType, priceGold, priceSilver, isUnlocked, new float[5] { friction, bouncyness, softness, staticFriction, toughness }, null);
+		MVGameControllerBase.Game.MaterialRepository.AddMaterial(materialName, description, path, materialSound, modifierPackageType, priceGold, isUnlocked, new float[5] { friction, bouncyness, softness, staticFriction, toughness }, null);
 	}
 
 	public override string ToString()
 	{
-		return $"INSERT INTO `Material` (`Name`, `Description`, `Path`, `MaterialSound`, `AvatarModifierPackageType`, `MaterialAnimatorTypeName`, `UnlockPrice`, `UnlockPriceSilver`, `Friction`, `Bouncyness`, `Softness`, `StaticFriction`, `Toughness`) VALUES ('{name}', '{description}', '{path}', '{(int)materialSound}', '{(int)modifierPackageType}', '', '{priceGold}', '{priceSilver}', '{friction}', '{bouncyness}', '{softness}', '{staticFriction}', '{toughness}');\n";
+		return $"INSERT INTO `Material` (`Name`, `Description`, `Path`, `MaterialSound`, `AvatarModifierPackageType`, `MaterialAnimatorTypeName`, `UnlockPrice`, `Friction`, `Bouncyness`, `Softness`, `StaticFriction`, `Toughness`) VALUES ('{name}', '{description}', '{path}', '{(int)materialSound}', '{(int)modifierPackageType}', '', '{priceGold}', '{friction}', '{bouncyness}', '{softness}', '{staticFriction}', '{toughness}');\n";
 	}
 }

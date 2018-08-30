@@ -104,7 +104,7 @@ public class MaterialPurchasePopup : MonoBehaviour
 		{
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 			{
-				x.Create((MVPurchaseReturnCode)returnCode, int.Parse(price.text), 0);
+				x.Create((MVPurchaseReturnCode)returnCode, int.Parse(price.text));
 			});
 		}
 	}

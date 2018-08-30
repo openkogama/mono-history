@@ -47,15 +47,6 @@ public class MVRotator : MVMovable
 	{
 		base.Initialize();
 		interactionFlags |= InteractionFlags.CanRotateY | InteractionFlags.CanEdit | InteractionFlags.HasSettings;
-		List<MVWorldObjectClient> blueprintWorldObjectsByType = WOCM.GetBlueprintWorldObjectsByType(typeof(MVRotator));
-		foreach (MVWorldObjectClient item in blueprintWorldObjectsByType)
-		{
-			if (item != this)
-			{
-				item.SelectedChanged = (UnityAction<MVWorldObjectClient, SelectedEventArgs>)Delegate.Combine(item.SelectedChanged, new UnityAction<MVWorldObjectClient, SelectedEventArgs>(WorldObjectClient_SelectedChangedHandler));
-			}
-		}
-		WOCM.SubscribeWOCreatedEvent(typeof(MVRotator), WOCM_WorldObjectCreatedHandler);
 		initAngularVelocity = AngularVelocity;
 		IntVector min = new IntVector(-15, -15, -15);
 		IntVector max = new IntVector(15, 15, 15);
@@ -141,12 +132,6 @@ public class MVRotator : MVMovable
 		}
 	}
 
-	private void WOCM_WorldObjectCreatedHandler(object sender, WorldObjectCreatedEventArgs e)
-	{
-		MVWorldObjectClient worldObject = e.WorldObject;
-		worldObject.SelectedChanged = (UnityAction<MVWorldObjectClient, SelectedEventArgs>)Delegate.Combine(worldObject.SelectedChanged, new UnityAction<MVWorldObjectClient, SelectedEventArgs>(WorldObjectClient_SelectedChangedHandler));
-	}
-
 	public override Bounds GetLocalBounds(BoundsContext boundsContext)
 	{
 		Bounds localBounds = base.GetLocalBounds(boundsContext);
@@ -162,12 +147,6 @@ public class MVRotator : MVMovable
 	public override void Destroy()
 	{
 		selectedRotators.Remove(this);
-		List<MVWorldObjectClient> blueprintWorldObjectsByType = WOCM.GetBlueprintWorldObjectsByType(typeof(MVRotator));
-		foreach (MVWorldObjectClient item in blueprintWorldObjectsByType)
-		{
-			item.SelectedChanged = (UnityAction<MVWorldObjectClient, SelectedEventArgs>)Delegate.Remove(item.SelectedChanged, new UnityAction<MVWorldObjectClient, SelectedEventArgs>(WorldObjectClient_SelectedChangedHandler));
-		}
-		WOCM.UnsubscribeWOCreatedEvent(typeof(MVRotator), WOCM_WorldObjectCreatedHandler);
 		base.Destroy();
 		if (cullingSubscriberBase != null)
 		{

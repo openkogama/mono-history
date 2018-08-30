@@ -33,8 +33,6 @@ public class GameSessionData
 
 	public string gameRewardURL = string.Empty;
 
-	public string convertToSilverURL = string.Empty;
-
 	public string gamePublishedURL = string.Empty;
 
 	public string purchaseGoldURL = string.Empty;
@@ -49,7 +47,7 @@ public class GameSessionData
 
 	public string region = "RegionNotDefined";
 
-	public string ezKey = "z6U6gACPMA1m8zg5";
+	public string ezKey = "h5g9REtmi1LT7JY5";
 
 	public string reauthURL = string.Empty;
 

@@ -80,7 +80,7 @@ public class BundlePurchasePopUp : MonoBehaviour
 			discountTagText.text = ((discount < 100) ? ("-" + discount + "%") : "FREE");
 			int num2 = Mathf.FloorToInt((float)originalPrice * ((float)discount / 100f));
 			num = originalPrice - num2;
-			originalPriceText.text = originalPrice.ToString("N0");
+			originalPriceText.text = originalPrice.ToString("N0").Replace(",", " ");
 		}
 		freeLabel.SetActive(num == 0);
 		if (num == 0)
@@ -89,7 +89,7 @@ public class BundlePurchasePopUp : MonoBehaviour
 			discountTag.SetActive(value: false);
 			priceText.gameObject.SetActive(value: false);
 		}
-		priceText.text = num.ToString("N0");
+		priceText.text = num.ToString("N0").Replace(",", " ");
 	}
 
 	private void HandleNotOwnedUI()

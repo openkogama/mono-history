@@ -41,11 +41,9 @@ public class TimeReward : IUpdatecontrollerSubscriber
 
 			public int gold;
 
-			public int silver;
-
 			public override string ToString()
 			{
-				return $"rewardEnabled {rewardEnabled}. timeInSeconds {timeInSeconds}. gold {gold}. silver {silver}.";
+				return $"rewardEnabled {rewardEnabled}. timeInSeconds {timeInSeconds}. gold {gold}.";
 			}
 		}
 
@@ -71,7 +69,6 @@ public class TimeReward : IUpdatecontrollerSubscriber
 			{
 				dictionary.Add("timeInSeconds", 180);
 				dictionary.Add("gold", 1);
-				dictionary.Add("silver", 0);
 				action(dictionary);
 			}
 			else
@@ -110,7 +107,7 @@ public class TimeReward : IUpdatecontrollerSubscriber
 				return;
 			}
 			Debug.Log("!rewardData.timeInSeconds: " + rewardData.timeInSeconds);
-			rewardCountdown = new RewardCountdown(rewardData.timeInSeconds, rewardData.gold, rewardData.silver);
+			rewardCountdown = new RewardCountdown(rewardData.timeInSeconds, rewardData.gold);
 			requestedRewardDataStatus = RequestRewardDataStatus.Accepted;
 		}
 
@@ -124,11 +121,11 @@ public class TimeReward : IUpdatecontrollerSubscriber
 	{
 		private WaitForTicks waitForTicks;
 
-		public RewardCountdown(int timeInSeconds, int amountGold, int amountSilver)
+		public RewardCountdown(int timeInSeconds, int amountGold)
 		{
 			Debug.Log("Time is started");
 			waitForTicks = new WaitForTicks(timeInSeconds * 1000);
-			rewardStateEventArgs = new RewardStateDataEventArgs(timeInSeconds, amountGold, amountSilver);
+			rewardStateEventArgs = new RewardStateDataEventArgs(timeInSeconds, amountGold);
 		}
 
 		public override void Destroy()

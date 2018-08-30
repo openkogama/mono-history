@@ -29,8 +29,6 @@ public enum DBQuery
 	UnregisterGameServer2,
 	LogChatMsg,
 	RequestProtoPlanet,
-	RequestItemPrice,
-	PurchaseItem,
 	IsItemInInventory,
 	IncreaseSessionSum,
 	DecreaseSessionSum,

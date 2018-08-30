@@ -49,7 +49,7 @@ public class ModalPopupCreator : MonoBehaviour, IModalPopupCreator, IEventSystem
 		return waitPopup;
 	}
 
-	public void Create(MVPurchaseReturnCode returnCode, int priceGold, int priceSilver)
+	public void Create(MVPurchaseReturnCode returnCode, int priceGold)
 	{
 		if (returnCode == MVPurchaseReturnCode.InsufficientFunds)
 		{
@@ -58,13 +58,9 @@ public class ModalPopupCreator : MonoBehaviour, IModalPopupCreator, IEventSystem
 			{
 				x.Push(confirmationPopup.gameObject, popupPushOption, null, UIGroupFlags.Popup);
 			});
-			if (priceGold > 0 && priceSilver == 0)
+			if (priceGold > 0)
 			{
 				confirmationPopup.Initialize(TM._("Get more gold now?"), OnGoldPurchaseDialogResult, TM._("Not enough gold"));
-			}
-			else if (priceGold == 0 && priceSilver > 0)
-			{
-				confirmationPopup.Initialize(TM._("Get more silver now?"), OnSilverPurchaseDialogResult, TM._("Not enough silver"));
 			}
 			else
 			{
@@ -88,16 +84,6 @@ public class ModalPopupCreator : MonoBehaviour, IModalPopupCreator, IEventSystem
 		if (result)
 		{
 			BrowserComm.ToJavaScript.ExternalCall("gotoPurchaseGold");
-			BrowserComm.ExecuteBrowserRequest(MVGameControllerBase.GameSessionData.purchaseGoldURL);
-		}
-	}
-
-	private static void OnSilverPurchaseDialogResult(bool result, ConfirmationPopup confirmationPopup)
-	{
-		confirmationPopup.Pop();
-		if (result)
-		{
-			BrowserComm.ToJavaScript.ExternalCall("gotoConvertToSilver");
 			BrowserComm.ExecuteBrowserRequest(MVGameControllerBase.GameSessionData.purchaseGoldURL);
 		}
 	}

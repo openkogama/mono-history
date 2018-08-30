@@ -103,7 +103,7 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 		}
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 		{
-			x.Create((MVPurchaseReturnCode)returnCode, price, 0);
+			x.Create((MVPurchaseReturnCode)returnCode, price);
 		});
 	}
 
@@ -169,7 +169,7 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 			discountTagText.text = ((discount < 100) ? ("-" + discount + "%") : "FREE");
 			int num2 = Mathf.FloorToInt((float)priceGold * ((float)discount / 100f));
 			num = priceGold - num2;
-			originalPriceText.text = priceGold.ToString("N0");
+			originalPriceText.text = priceGold.ToString("N0").Replace(",", " ");
 		}
 		freeItemTag.SetActive(num == 0);
 		if (num == 0)
@@ -178,7 +178,7 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 			discountTag.SetActive(value: false);
 			priceText.gameObject.SetActive(value: false);
 		}
-		priceText.text = num.ToString("N0");
+		priceText.text = num.ToString("N0").Replace(",", " ");
 	}
 
 	private void HandleNotOwnedUI()

@@ -6,12 +6,9 @@ public class RewardStateDataEventArgs : EventArgs
 
 	public readonly int amountGold;
 
-	public readonly int amountSilver;
-
-	public RewardStateDataEventArgs(int timeInSeconds, int amountGold, int amountSilver)
+	public RewardStateDataEventArgs(int timeInSeconds, int amountGold)
 	{
 		timeSpan = new TimeSpan(0, 0, 0, timeInSeconds);
 		this.amountGold = amountGold;
-		this.amountSilver = amountSilver;
 	}
 }

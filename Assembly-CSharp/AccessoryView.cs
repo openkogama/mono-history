@@ -422,9 +422,9 @@ public class AccessoryView : MonoBehaviour
 			discountTagText.text = ((discount < 100) ? ("-" + discount + "%") : "FREE");
 			int num2 = Mathf.FloorToInt((float)priceGold * ((float)discount / 100f));
 			num = priceGold - num2;
-			originalPriceText.text = priceGold.ToString("N0");
+			originalPriceText.text = priceGold.ToString("N0").Replace(",", " ");
 			goldSavedText.gameObject.SetActive(value: true);
-			goldSavedText.text = num2.ToString("N0");
+			goldSavedText.text = num2.ToString("N0").Replace(",", " ");
 			priceTextWithoutDiscount.gameObject.SetActive(value: false);
 			priceText.gameObject.SetActive(value: true);
 		}
@@ -433,8 +433,8 @@ public class AccessoryView : MonoBehaviour
 			priceTextWithoutDiscount.gameObject.SetActive(value: true);
 			priceText.gameObject.SetActive(value: false);
 		}
-		priceText.text = num.ToString("N0");
-		priceTextWithoutDiscount.text = num.ToString("N0");
+		priceText.text = num.ToString("N0").Replace(",", " ");
+		priceTextWithoutDiscount.text = num.ToString("N0").Replace(",", " ");
 		levelRequirementPurchaseButton.gameObject.SetActive(value: false);
 		if (num == 0)
 		{

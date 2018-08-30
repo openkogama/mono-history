@@ -94,7 +94,7 @@ public class InventoryItemPreviewSell : ManageItemPage
 		{
 			MVNetworkGame game = MVGameControllerBase.Game;
 			game.OnMarketPlaceActionComplete = (MVNetworkGame.OnMarketPlaceActionCompleteDelegate)Delegate.Combine(game.OnMarketPlaceActionComplete, new MVNetworkGame.OnMarketPlaceActionCompleteDelegate(OnAddToMarketplaceReturn));
-			MVGameControllerBase.OperationRequests.RequestAddItemToMarketPlace(previewItem.itemID, itemName.text, description.text, 0);
+			MVGameControllerBase.OperationRequests.RequestAddItemToMarketPlace(previewItem.itemID, itemName.text, description.text);
 		}
 	}
 

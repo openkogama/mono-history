@@ -255,7 +255,7 @@ public class AvatarEditModeBodyController : MonoBehaviour, IAvatarEditAnimationS
 			world.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Remove(world.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(InitializedPurchasedAvatar));
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 			{
-				x.Create((MVPurchaseReturnCode)returnCode, purchasingItem.priceGold, 0);
+				x.Create((MVPurchaseReturnCode)returnCode, purchasingItem.priceGold);
 			});
 		}
 	}

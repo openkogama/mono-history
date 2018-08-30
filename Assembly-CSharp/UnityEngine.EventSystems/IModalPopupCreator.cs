@@ -5,7 +5,7 @@ namespace UnityEngine.EventSystems;
 
 public interface IModalPopupCreator : IEventSystemHandler
 {
-	void Create(MVPurchaseReturnCode returnCode, int priceGold, int priceSilver);
+	void Create(MVPurchaseReturnCode returnCode, int priceGold);
 
 	void CreateErrorNotificationPopup(string error);
 

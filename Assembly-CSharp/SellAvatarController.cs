@@ -56,7 +56,7 @@ public class SellAvatarController : MonoBehaviour
 
 	private void OnImageUploaded()
 	{
-		MVGameControllerBase.OperationRequests.AddAvatarToAvatarShopInventory(woID, 0, nameField.text);
+		MVGameControllerBase.OperationRequests.AddAvatarToAvatarShopInventory(woID, nameField.text);
 	}
 
 	private void OnAddToMarketplace(bool added)

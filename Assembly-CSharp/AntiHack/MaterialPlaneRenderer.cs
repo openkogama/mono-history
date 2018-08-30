@@ -24,6 +24,8 @@ public class MaterialPlaneRenderer : MonoBehaviour
 
 	private static bool errorReportSent;
 
+	private bool disableTextureIntegrityCheck = true;
+
 	protected void OnValidate()
 	{
 		if (cam == null)
@@ -90,12 +92,15 @@ public class MaterialPlaneRenderer : MonoBehaviour
 
 	private void GenerateNewHashes()
 	{
-		hashes.Clear();
-		for (int i = 0; i < textures.Count; i++)
+		if (!disableTextureIntegrityCheck)
 		{
-			Texture2D mainTexture = textures[i];
-			material.mainTexture = mainTexture;
-			cam.Render();
+			hashes.Clear();
+			for (int i = 0; i < textures.Count; i++)
+			{
+				Texture2D mainTexture = textures[i];
+				material.mainTexture = mainTexture;
+				cam.Render();
+			}
 		}
 	}
 

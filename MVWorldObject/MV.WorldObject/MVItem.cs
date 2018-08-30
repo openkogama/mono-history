@@ -26,8 +26,6 @@ public class MVItem
 
 	public int shopInventoryID;
 
-	public int priceSilver;
-
 	public int priceGold;
 
 	public bool isDeleted;
@@ -39,17 +37,16 @@ public class MVItem
 	public MVItem(int itemID, Dictionary<object, object> itemData)
 	{
 		this.itemID = itemID;
-		itemCategoryID = (int)itemData[(byte)116];
+		itemCategoryID = (int)itemData[(byte)112];
 		itemTypeID = (int)itemData[(byte)15];
 		name = (string)itemData[(byte)10];
-		description = (string)itemData[(byte)107];
-		resellable = (bool)itemData[(byte)104];
-		priceSilver = (int)itemData[(byte)77];
-		priceGold = (int)itemData[(byte)76];
-		shopInventoryID = (int)itemData[(byte)108];
-		authorProfileID = (int)itemData[(byte)106];
-		originalItemID = (int)itemData[(byte)110];
-		isDeleted = (bool)itemData[(byte)109];
+		description = (string)itemData[(byte)103];
+		resellable = (bool)itemData[(byte)100];
+		priceGold = (int)itemData[(byte)75];
+		shopInventoryID = (int)itemData[(byte)104];
+		authorProfileID = (int)itemData[(byte)102];
+		originalItemID = (int)itemData[(byte)106];
+		isDeleted = (bool)itemData[(byte)105];
 		if (!isDeleted)
 		{
 			data = (byte[])itemData[(byte)11];
@@ -58,6 +55,6 @@ public class MVItem
 
 	public override string ToString()
 	{
-		return $"Name: {name} ItemID: {itemID} ItemTypeID: {itemTypeID}\nPriceSilver: {priceSilver} PriceGold: {priceGold} Resellable: {resellable} \n";
+		return $"Name: {name} ItemID: {itemID} ItemTypeID: {itemTypeID}\nPriceGold: {priceGold} Resellable: {resellable} \n";
 	}
 }

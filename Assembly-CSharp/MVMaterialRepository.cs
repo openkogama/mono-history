@@ -25,7 +25,7 @@ public class MVMaterialRepository
 		inAirMaterial = new MVMaterial(MVPhysics.airPhysicalProperties, MaterialSound.None, AvatarModifierPackageType.None);
 	}
 
-	public void SetMaterialPrice(int materialID, int materialUnlockPriceGold, int materialUnlockPriceSilver)
+	public void SetMaterialPrice(int materialID, int materialUnlockPriceGold)
 	{
 		materials[materialID].unlockPriceGold = materialUnlockPriceGold;
 	}
@@ -52,9 +52,9 @@ public class MVMaterialRepository
 		return false;
 	}
 
-	public void AddMaterial(string name, string description, string path, MaterialSound materialSound, AvatarModifierPackageType modifierPackageType, int priceGold, int priceSilver, bool isUnlocked, float[] physicalProperties, MaterialButtonTextureGenerator materialButtonTextureGenerator)
+	public void AddMaterial(string name, string description, string path, MaterialSound materialSound, AvatarModifierPackageType modifierPackageType, int priceGold, bool isUnlocked, float[] physicalProperties, MaterialButtonTextureGenerator materialButtonTextureGenerator)
 	{
-		materials.Add(new MVMaterial(materials.Count, name, description, new PhysicalProperties(physicalProperties[0], physicalProperties[1], physicalProperties[2], physicalProperties[3], physicalProperties[4]), materialSound, modifierPackageType, priceGold, priceSilver, isUnlocked, materialButtonTextureGenerator));
+		materials.Add(new MVMaterial(materials.Count, name, description, new PhysicalProperties(physicalProperties[0], physicalProperties[1], physicalProperties[2], physicalProperties[3], physicalProperties[4]), materialSound, modifierPackageType, priceGold, isUnlocked, materialButtonTextureGenerator));
 	}
 
 	public MVMaterial GetMaterial(byte materialId)

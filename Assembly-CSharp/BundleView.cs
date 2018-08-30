@@ -165,7 +165,7 @@ public class BundleView : MonoBehaviour
 		default:
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 			{
-				x.Create((MVPurchaseReturnCode)returnCode, 0, 0);
+				x.Create((MVPurchaseReturnCode)returnCode, 0);
 			});
 			break;
 		}
@@ -227,8 +227,8 @@ public class BundleView : MonoBehaviour
 			discountTagText.text = "-" + discount + "%";
 			int num2 = Mathf.FloorToInt((float)originalPrice * ((float)discount / 100f));
 			price = originalPrice - num2;
-			originalPriceText.text = originalPrice.ToString("N0");
-			goldSavedText.text = num2.ToString("N0");
+			originalPriceText.text = originalPrice.ToString("N0").Replace(",", " ");
+			goldSavedText.text = num2.ToString("N0").Replace(",", " ");
 			discountedPriceText.gameObject.SetActive(value: true);
 			bundlePriceWithoutDiscount.gameObject.SetActive(value: false);
 		}
@@ -246,8 +246,8 @@ public class BundleView : MonoBehaviour
 			goldSavedText.gameObject.SetActive(value: false);
 			claimText.SetActive(value: true);
 		}
-		discountedPriceText.text = price.ToString("N0");
-		bundlePriceWithoutDiscount.text = price.ToString("N0");
+		discountedPriceText.text = price.ToString("N0").Replace(",", " ");
+		bundlePriceWithoutDiscount.text = price.ToString("N0").Replace(",", " ");
 	}
 
 	private void HandleLevel(AccessoryBundleClient accessoryData)

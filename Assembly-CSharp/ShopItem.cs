@@ -25,14 +25,14 @@ public class ShopItem
 	public ShopItem(int key, Dictionary<object, object> outData)
 	{
 		itemID = key;
-		itemCategoryID = (int)((Dictionary<object, object>)outData[key])[(byte)116];
+		itemCategoryID = (int)((Dictionary<object, object>)outData[key])[(byte)112];
 		itemTypeID = (int)((Dictionary<object, object>)outData[key])[(byte)15];
 		name = (string)((Dictionary<object, object>)outData[key])[(byte)10];
-		description = (string)((Dictionary<object, object>)outData[key])[(byte)107];
+		description = (string)((Dictionary<object, object>)outData[key])[(byte)103];
 		data = (byte[])((Dictionary<object, object>)outData[key])[(byte)11];
-		resellable = (bool)((Dictionary<object, object>)outData[key])[(byte)104];
-		priceGold = (int)((Dictionary<object, object>)outData[key])[(byte)76];
-		slotPosition = (int)((Dictionary<object, object>)outData[key])[(byte)101];
+		resellable = (bool)((Dictionary<object, object>)outData[key])[(byte)100];
+		priceGold = (int)((Dictionary<object, object>)outData[key])[(byte)75];
+		slotPosition = (int)((Dictionary<object, object>)outData[key])[(byte)98];
 	}
 
 	public void ApplyLocalDescriptionOverride(MVWorldObjectDocumentationType t)

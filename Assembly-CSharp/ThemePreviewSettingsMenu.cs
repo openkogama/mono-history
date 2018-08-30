@@ -143,7 +143,7 @@ public class ThemePreviewSettingsMenu : ThemeSettingsMenuBase
 		case MVPurchaseReturnCode.InsufficientFunds:
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 			{
-				x.Create(MVPurchaseReturnCode.InsufficientFunds, ThemeData.priceGold, 0);
+				x.Create(MVPurchaseReturnCode.InsufficientFunds, ThemeData.priceGold);
 			});
 			break;
 		case MVPurchaseReturnCode.InsufficientLevel:

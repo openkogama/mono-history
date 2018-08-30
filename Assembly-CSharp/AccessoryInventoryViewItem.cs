@@ -247,8 +247,8 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, I
 		equipCheckbox.onValueChanged.AddListener(OnEquip);
 		priceDisplay.SetActive(locked);
 		priceStrikeout.SetActive(locked && accessoryDataClient.discount > 0 && accessoryDataClient.priceGold > 0);
-		priceStrikeoutText.text = accessoryDataClient.priceGold.ToString();
-		priceText.text = accessoryDataClient.DiscountedPrice.ToString();
+		priceStrikeoutText.text = accessoryDataClient.priceGold.ToString("N0").Replace(",", " ");
+		priceText.text = accessoryDataClient.DiscountedPrice.ToString("N0").Replace(",", " ");
 		if (MVGameControllerBase.Game.LocalPlayer.Level < accessoryDataClient.level && locked)
 		{
 			priceBackground.SetActive(value: false);

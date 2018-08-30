@@ -14,10 +14,10 @@ public class AvatarRepositoryItem
 
 	public AvatarRepositoryItem(Dictionary<object, object> outData, int key)
 	{
-		data = (byte[])((Dictionary<object, object>)outData[key])[(byte)92];
+		data = (byte[])((Dictionary<object, object>)outData[key])[(byte)89];
 		itemID = key;
 		name = "Avatar " + key;
-		priceGold = (int)((Dictionary<object, object>)outData[key])[(byte)76];
-		slotPosition = (int)((Dictionary<object, object>)outData[key])[(byte)101];
+		priceGold = (int)((Dictionary<object, object>)outData[key])[(byte)75];
+		slotPosition = (int)((Dictionary<object, object>)outData[key])[(byte)98];
 	}
 }
