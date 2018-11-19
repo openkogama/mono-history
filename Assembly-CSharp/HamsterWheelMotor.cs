@@ -124,16 +124,9 @@ public class HamsterWheelMotor : SimpleVehicleMotorBase
 		{
 			Quaternion quaternion = Quaternion.Euler(0f, VehicleCamera.RotationAroundY, 0f);
 			Quaternion quaternion2 = Quaternion.Slerp(Controller.transform.rotation, Controller.transform.rotation * quaternion, Time.fixedDeltaTime * recalibrateCameraFactor);
-			float num2 = Quaternion.Angle(quaternion2, Controller.transform.rotation);
+			float b = Quaternion.Angle(quaternion2, Controller.transform.rotation);
 			Controller.transform.rotation = quaternion2;
-			if (VehicleCamera.RotationAroundY < 0f)
-			{
-				VehicleCamera.RotationAroundY += num2;
-			}
-			else
-			{
-				VehicleCamera.RotationAroundY -= num2;
-			}
+			VehicleCamera.RotationAroundY = Mathf.Lerp(VehicleCamera.RotationAroundY, b, Time.fixedDeltaTime * recalibrateCameraFactor);
 		}
 		if (DirectInputMoveMap.z > 0f)
 		{
@@ -163,8 +156,8 @@ public class HamsterWheelMotor : SimpleVehicleMotorBase
 		}
 		Vector3 vector = transform.forward * speed * Time.fixedDeltaTime;
 		velocity += vector;
-		float num3 = WaterProximity();
-		velocity = ((!(num3 > waterProximityThresshold)) ? ApplyGravity(velocity, curVelocity, interactableLocal) : ApplyWaterGravity(velocity, num3));
+		float num2 = WaterProximity();
+		velocity = ((!(num2 > waterProximityThresshold)) ? ApplyGravity(velocity, curVelocity, interactableLocal) : ApplyWaterGravity(velocity, num2));
 		velocity = bounceState.ApplyBounceVelocityMaterials(velocity);
 		velocity = jumpState.ApplyJumping(interactableLocal, groundState, density, 0f, Jump, velocity, movableVelocity);
 		velocity = GetImpulse(velocity, interactableLocal);

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -12,6 +13,8 @@ public class TeleportAvatar : MonoBehaviour
 	public Vector3 originPosition;
 
 	public MVAvatar avatar;
+
+	private bool shouldCancelTeleportation;
 
 	private IEnumerator DoForSeconds(float duration, ActionDelegate body)
 	{
@@ -39,22 +42,50 @@ public class TeleportAvatar : MonoBehaviour
 			rigidBody.IsMovementLocked = true;
 			rigidBody.Reset();
 		}
+		FlagDebriefingControl.OnFlagDebriefingEnd = (Action)Delegate.Combine(FlagDebriefingControl.OnFlagDebriefingEnd, new Action(CancelTeleportation));
+		MVNetworkGame game = MVGameControllerBase.Game;
+		game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Combine(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(CancelTeleportation));
 		yield return StartCoroutine(DoForSeconds(teleportTime, (float t) =>
 		{
 			avatar.SetTransparency = 1f - BlockStep(t, 10f);
 		}));
-		avatar.WorldPosition = targetPosition;
-		avatar.SyncPos = targetPosition;
-		transform.position = targetPosition;
-		rigidBody.Reset();
-		yield return StartCoroutine(DoForSeconds(teleportTime, (float t) =>
+		if (shouldCancelTeleportation)
 		{
-			avatar.SetTransparency = BlockStep(t, 10f);
-		}));
+			avatar.SetTransparency = 1f;
+		}
+		else
+		{
+			avatar.WorldPosition = targetPosition;
+			avatar.SyncPos = targetPosition;
+			transform.position = targetPosition;
+			rigidBody.Reset();
+			yield return StartCoroutine(DoForSeconds(teleportTime, (float t) =>
+			{
+				avatar.SetTransparency = BlockStep(t, 10f);
+			}));
+		}
+		EndTeleportation(rigidBody);
+	}
+
+	private void CancelTeleportation()
+	{
+		shouldCancelTeleportation = true;
+	}
+
+	private void CancelTeleportation(IWinningCondition winningCondition)
+	{
+		CancelTeleportation();
+	}
+
+	private void EndTeleportation(MVRigidBody rigidBody)
+	{
 		if (rigidBody != null)
 		{
 			rigidBody.IsMovementLocked = false;
 		}
-		Object.Destroy(gameObject);
+		FlagDebriefingControl.OnFlagDebriefingEnd = (Action)Delegate.Remove(FlagDebriefingControl.OnFlagDebriefingEnd, new Action(CancelTeleportation));
+		MVNetworkGame game = MVGameControllerBase.Game;
+		game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Remove(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(CancelTeleportation));
+		UnityEngine.Object.Destroy(gameObject);
 	}
 }

@@ -6,5 +6,6 @@ public enum AvatarRuntimeState : byte
 	Edit2D,
 	Dead,
 	Godzilla,
-	GodzillaDead
+	GodzillaDead,
+	TimeAttackFlagDebriefing
 }

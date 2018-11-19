@@ -27,9 +27,19 @@ public class ImageAnimator : MonoBehaviour
 		endColor = end;
 	}
 
+	public float GetCurrentAlpha()
+	{
+		return curve.Evaluate(time * speed);
+	}
+
 	private void Update()
 	{
 		time += Time.deltaTime;
 		image.color = Color.Lerp(startColor, endColor, curve.Evaluate(time * speed));
+	}
+
+	private void OnDisable()
+	{
+		time = 0f;
 	}
 }

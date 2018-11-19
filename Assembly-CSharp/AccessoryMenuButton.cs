@@ -15,7 +15,13 @@ public class AccessoryMenuButton : MonoBehaviour
 	private GameObject redDotNotification;
 
 	[SerializeField]
+	private AccessoryShinyButton shineEffect;
+
+	[SerializeField]
 	private Text redDotNotificationText;
+
+	[SerializeField]
+	private AccessoryPreviewPopup accessoryPreviewPopup;
 
 	private bool playerReady;
 
@@ -67,6 +73,44 @@ public class AccessoryMenuButton : MonoBehaviour
 		playerReady = true;
 		CalculateShouldShowHighlightIcon();
 		CalculateShouldShowBundleAd();
+		CalculateShouldShowAccessoryPopup();
+	}
+
+	private void CalculateShouldShowAccessoryPopup()
+	{
+		bool uiBlocked = false;
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			uiBlocked = x.IsUIElementBlocked(gameObject);
+		});
+		if (uiBlocked || MVGameControllerBase.IEditModeUI != null)
+		{
+			return;
+		}
+		List<Highlight<HighlightAccessory>> highLights = HighlightManager.GetHighLights<HighlightAccessory>(HighlightType.AccessoryPopup);
+		List<AccessoryDataClient> list = new List<AccessoryDataClient>();
+		for (int num = 0; num < highLights.Count; num++)
+		{
+			AccessoryDataClient accessoryDataByMetaDataId = AccessoryDataManager.GetAccessoryDataByMetaDataId(highLights[num].highlightData.accessoryMetaDataId);
+			if (accessoryDataByMetaDataId != null && accessoryDataByMetaDataId.GetShowInShop() && !accessoryDataByMetaDataId.owns && accessoryDataByMetaDataId.isAvailable)
+			{
+				HighlightManager.SetHighlightToSeen(highLights[num].id);
+				list.Add(accessoryDataByMetaDataId);
+				if (list.Count > 2)
+				{
+					break;
+				}
+			}
+		}
+		if (list.Count > 0)
+		{
+			AccessoryPreviewPopup popup = UnityEngine.Object.Instantiate(accessoryPreviewPopup);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(popup.gameObject, UIPushOption.InvisibleBlocker, null, UIGroupFlags.Popup);
+			});
+			popup.Initialize(list);
+		}
 	}
 
 	private void CalculateShouldShowHighlightIcon()
@@ -76,11 +120,12 @@ public class AccessoryMenuButton : MonoBehaviour
 		for (int i = 0; i < highLights.Count; i++)
 		{
 			AccessoryDataClient accessoryDataByMetaDataId = AccessoryDataManager.GetAccessoryDataByMetaDataId(highLights[i].highlightData.accessoryMetaDataId);
-			if (accessoryDataByMetaDataId != null && accessoryDataByMetaDataId.GetShowInShop())
+			if (accessoryDataByMetaDataId != null && accessoryDataByMetaDataId.GetShowInShop() && !accessoryDataByMetaDataId.owns)
 			{
 				num++;
 			}
 		}
+		shineEffect.gameObject.SetActive(num > 0);
 		redDotNotification.SetActive(num > 0);
 		redDotNotificationText.text = num.ToString();
 	}
@@ -110,6 +155,7 @@ public class AccessoryMenuButton : MonoBehaviour
 				continue;
 			}
 			redDotNotification.SetActive(value: true);
+			shineEffect.gameObject.SetActive(value: true);
 			if (FirstTimeEventManager.HasFirstTimeEventOccured(FirstTimeEvent.PM_AccessoryShop))
 			{
 				HighlightManager.SetHighlightToSeen(num);

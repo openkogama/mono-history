@@ -45,13 +45,13 @@ public class SellAvatarController : MonoBehaviour
 
 	private void ScreenShotCallback(Texture2D texture, string successMessage)
 	{
+		MVNetworkGame game = MVGameControllerBase.Game;
+		game.OnMarketPlaceActionComplete = (MVNetworkGame.OnMarketPlaceActionCompleteDelegate)Delegate.Combine(game.OnMarketPlaceActionComplete, new MVNetworkGame.OnMarketPlaceActionCompleteDelegate(OnAddToMarketplace));
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 		{
 			x.Create();
 		});
-		MVNetworkGame game = MVGameControllerBase.Game;
-		game.OnMarketPlaceActionComplete = (MVNetworkGame.OnMarketPlaceActionCompleteDelegate)Delegate.Combine(game.OnMarketPlaceActionComplete, new MVNetworkGame.OnMarketPlaceActionCompleteDelegate(OnAddToMarketplace));
-		DataUploadManager.UploadData(texture.EncodeToPNG(), OnImageUploaded);
+		OnImageUploaded();
 	}
 
 	private void OnImageUploaded()
@@ -65,11 +65,15 @@ public class SellAvatarController : MonoBehaviour
 		game.OnMarketPlaceActionComplete = (MVNetworkGame.OnMarketPlaceActionCompleteDelegate)Delegate.Remove(game.OnMarketPlaceActionComplete, new MVNetworkGame.OnMarketPlaceActionCompleteDelegate(OnAddToMarketplace));
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			x.Pop();
+			x.PopGroups(UIGroupFlags.Popup);
 		});
 		string text;
 		if (added)
 		{
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+			{
+				x.CreateErrorNotificationPopup(TM._("Avatar uploaded to marketplace. Image upload is disabled in standalone. Reload game using the browser version to update your avatar image in the shop.\n"), TM._("Warning"));
+			});
 			text = ((!metaData.isOnMarketPlace) ? TM._("Avatar is now available in your shop.") : TM._("Avatar updated in your shop."));
 			removeButton.gameObject.SetActive(value: true);
 			sellButtonText.text = TM._("Update");

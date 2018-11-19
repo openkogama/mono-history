@@ -15,9 +15,9 @@ public class LobbyStateController : MonoBehaviour
 	{
 		bool isTouristSession = MVGameControllerBase.IsTouristSession;
 		touristRegisterButton.SetActive(isTouristSession && !MVGameControllerBase.GameSessionData.IsPlayedFromPoki);
+		accessoryShop.SetActive(value: true);
 		if (!isTouristSession)
 		{
-			accessoryShop.SetActive(value: true);
 			playReward.Initialize();
 		}
 		playReward.gameObject.SetActive(value: false);

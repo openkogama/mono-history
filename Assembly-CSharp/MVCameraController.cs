@@ -223,6 +223,7 @@ public class MVCameraController : MonoBehaviour
 	{
 		set
 		{
+			blueModeEnabled = value;
 			if (value)
 			{
 				mainCamera.cullingMask = 1 << LayerMask.NameToLayer("CamRotateTarget");

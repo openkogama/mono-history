@@ -45,6 +45,8 @@ public class MVJetPack : MVVehicleBase
 
 		private SmoothCharacterController avatarController;
 
+		private Camera mainCamera;
+
 		private JetPackVisualization jetPackVisualization;
 
 		private MVAvatarLocal vehicleUser;
@@ -93,6 +95,7 @@ public class MVJetPack : MVVehicleBase
 			vehicleMotor = jetPackMotor;
 			owner = vehicleBase;
 			this.vehicleUser = vehicleUser;
+			mainCamera = Camera.main;
 			owner.interactionDataHandlerBase = vehicleUser.InteractionDataHandlerBase;
 		}
 
@@ -169,7 +172,7 @@ public class MVJetPack : MVVehicleBase
 			bool shouldSetRotation = false;
 			if (movementMap != null)
 			{
-				Transform transform = Camera.main.transform;
+				Transform transform = mainCamera.transform;
 				Vector3 vector = movementMap.Direction;
 				if (vector.magnitude > 0f)
 				{

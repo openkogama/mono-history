@@ -9,6 +9,10 @@ public class AddDotsToTruncatedText : MonoBehaviour
 
 	private IEnumerator Start()
 	{
+		Color c = text.color;
+		float alpha = c.a;
+		c.a = 0f;
+		text.color = c;
 		yield return new WaitForEndOfFrame();
 		string textValue = text.text;
 		bool addDots = false;
@@ -33,6 +37,8 @@ public class AddDotsToTruncatedText : MonoBehaviour
 			text.text += "...";
 		}
 		text.fontSize = Mathf.Clamp(text.fontSize, text.resizeTextMinSize, text.resizeTextMaxSize);
+		c.a = alpha;
+		text.color = c;
 	}
 
 	private int CalculateLengthOfMessage(string message)

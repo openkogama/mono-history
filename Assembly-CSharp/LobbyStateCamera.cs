@@ -73,4 +73,9 @@ public class LobbyStateCamera : MVCameraBase
 	{
 		camController.StartTransitionCam(0.5f);
 	}
+
+	public override void Reset()
+	{
+		transform.rotation = Quaternion.identity;
+	}
 }

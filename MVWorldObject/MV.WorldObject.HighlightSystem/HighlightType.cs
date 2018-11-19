@@ -4,5 +4,6 @@ public enum HighlightType : byte
 {
 	None,
 	AccessoryBundle,
-	Accessory
+	Accessory,
+	AccessoryPopup
 }

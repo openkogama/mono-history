@@ -28,6 +28,14 @@ public class ButtonAnimationController : MonoBehaviour, IPointerUpHandler, IPoin
 		HandleButtonDisabled();
 	}
 
+	private void Update()
+	{
+		if (!button.IsInteractable())
+		{
+			HandleButtonDisabled();
+		}
+	}
+
 	public void OnPointerUp(PointerEventData eventData)
 	{
 		if (eventData.button == PointerEventData.InputButton.Left && (button.interactable || buttonPressedState != 0))

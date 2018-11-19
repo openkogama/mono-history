@@ -31,6 +31,8 @@ public class WaterPlaneManager : MonoBehaviour
 
 	private AvatarModifierPackage.AvatarModifier[] additionalUnderWaterModifiers;
 
+	private Camera mainCamera;
+
 	public SplashController Splash => splashController;
 
 	public bool IsActive => water.gameObject.activeInHierarchy;
@@ -80,8 +82,9 @@ public class WaterPlaneManager : MonoBehaviour
 		underwaterCameraPlane.gameObject.SetActive(value: false);
 		underwaterCameraPlaneRenderer = underwaterCameraPlane.GetComponent<Renderer>();
 		water.gameObject.SetActive(value: false);
-		lowPassFilter = Camera.main.GetComponent<AudioLowPassFilter>();
-		reverbFilter = Camera.main.GetComponent<AudioReverbFilter>();
+		mainCamera = Camera.main;
+		lowPassFilter = mainCamera.GetComponent<AudioLowPassFilter>();
+		reverbFilter = mainCamera.GetComponent<AudioReverbFilter>();
 	}
 
 	protected void Update()
@@ -130,8 +133,8 @@ public class WaterPlaneManager : MonoBehaviour
 		}
 		waterPlaneLogicCube = logicCube;
 		transform.SetParent(logicCube.Transform, worldPositionStays: false);
-		underwaterCameraPlane.transform.SetParent(Camera.main.transform, worldPositionStays: false);
-		underwaterCameraPlane.localPosition = new Vector3(0f, 0f, Camera.main.nearClipPlane + 0.01f);
+		underwaterCameraPlane.transform.SetParent(mainCamera.transform, worldPositionStays: false);
+		underwaterCameraPlane.localPosition = new Vector3(0f, 0f, mainCamera.nearClipPlane + 0.01f);
 		underwaterCameraPlane.localRotation = Quaternion.Euler(-90f, 0f, 0f);
 		underwaterCameraPlane.gameObject.SetActive(value: true);
 		water.gameObject.SetActive(value: true);
@@ -169,7 +172,7 @@ public class WaterPlaneManager : MonoBehaviour
 
 	private void UpdateUnderwaterCameraEffects()
 	{
-		bool flag = Camera.main.transform.position.y < transform.position.y;
+		bool flag = mainCamera.transform.position.y < transform.position.y;
 		underwaterCameraPlaneRenderer.enabled = flag;
 		if (underwaterCameraPlaneRenderer.enabled)
 		{
@@ -177,7 +180,7 @@ public class WaterPlaneManager : MonoBehaviour
 		}
 		if (lowPassFilter == null)
 		{
-			lowPassFilter = Camera.main.GetComponent<AudioLowPassFilter>();
+			lowPassFilter = mainCamera.GetComponent<AudioLowPassFilter>();
 		}
 		if (flag && !lowPassFilter.enabled)
 		{

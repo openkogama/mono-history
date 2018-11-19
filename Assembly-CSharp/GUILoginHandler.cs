@@ -226,7 +226,7 @@ public class GUILoginHandler : MonoBehaviour
 		if (disableCacheToggle.isOn)
 		{
 			Debug.LogWarning("Cache disabled.");
-			kogamaSettings.InvalidateWebCache();
+			kogamaSettings.InvalidateStreamingAssetsCache();
 		}
 	}
 

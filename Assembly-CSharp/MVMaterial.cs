@@ -31,6 +31,10 @@ public class MVMaterial
 	public MVMaterial(int materialId, string name, string description, PhysicalProperties physicalProperties, MaterialSound materialSound, AvatarModifierPackageType modifierPackageType, int priceGold, bool isUnlocked, MaterialButtonTextureGenerator materialButtonTextureGenerator)
 		: this(physicalProperties, materialSound, modifierPackageType)
 	{
+		if (materialId == 60)
+		{
+			materialId = 24;
+		}
 		GenerateCube(materialId);
 		if (MVGameControllerBase.GameMode != MVGameMode.Play && materialButtonTextureGenerator != null)
 		{

@@ -10,26 +10,26 @@ public class GameMeterTimeAttackFlag : GameMeterBase
 	[SerializeField]
 	private Text timeAttackFlagText;
 
-	private int prevValue;
+	private bool shouldUpdate;
 
 	public override GameMeterType GameMeterType => GameMeterType.TimeAttackFlag;
 
 	private void Start()
 	{
 		SetGameMeterVisibility();
-		MVGameControllerBase.Game.WinningConditionManager.OnWinningConditionReset += OnVictoryConditionMet;
+		timeAttackFlagText.text = "00:00:00";
+		FlagDebriefingControl.OnFlagDebriefing = (Action<int>)Delegate.Combine(FlagDebriefingControl.OnFlagDebriefing, new Action<int>(OnStartFlagCountdown));
+		FlagDebriefingControl.OnFlagCountDown = (Action)Delegate.Combine(FlagDebriefingControl.OnFlagCountDown, new Action(OnStartFlagCountdown));
+		FlagDebriefingControl.OnFlagCountDownEnd = (Action)Delegate.Combine(FlagDebriefingControl.OnFlagCountDownEnd, new Action(OnEndFlagCountdown));
 	}
 
-	private void OnVictoryConditionMet(object sender, EventArgs args)
+	private void Update()
 	{
-		UpdateValue();
-	}
-
-	private void OnDestroy()
-	{
-		if (MVGameControllerBase.Game != null)
+		if (shouldUpdate)
 		{
-			MVGameControllerBase.Game.WinningConditionManager.OnWinningConditionReset -= OnVictoryConditionMet;
+			int score = Mathf.FloorToInt((Time.time - FlagDebriefingControl.RunStartTime) * 1000f);
+			string text = WinningConditionControl.MakeIntoScoreText(score, GameStatCounterType.TimeAttackFlag);
+			timeAttackFlagText.text = text;
 		}
 	}
 
@@ -48,17 +48,6 @@ public class GameMeterTimeAttackFlag : GameMeterBase
 
 	public override void UpdateValue()
 	{
-		int num = ((MVGameControllerBase.Game.TeamManager.GetTeamList().Count <= 1) ? MVGameControllerBase.Game.LocalPlayer.GetGameStat(GameStatCounterType.TimeAttackFlag) : MVGameControllerBase.Game.GameStatCounterManager.GetTeamCount(GameStatCounterType.TimeAttackFlag, MVGameControllerBase.Game.LocalPlayer.Team));
-		if (prevValue != num && num != 0)
-		{
-			for (int i = 0; i < gameMeterVisualEffects.Count; i++)
-			{
-				gameMeterVisualEffects[i].ExecuteEffect();
-			}
-			prevValue = num;
-		}
-		string text = WinningConditionControl.MakeIntoScoreText(num, GameStatCounterType.TimeAttackFlag);
-		timeAttackFlagText.text = text;
 	}
 
 	private void Hide()
@@ -75,5 +64,21 @@ public class GameMeterTimeAttackFlag : GameMeterBase
 	{
 		timeAttackFlagBar.enabled = show;
 		timeAttackFlagText.enabled = show;
+	}
+
+	private void OnStartFlagCountdown()
+	{
+		shouldUpdate = false;
+		timeAttackFlagText.text = "00:00:00";
+	}
+
+	private void OnStartFlagCountdown(int captureTime)
+	{
+		OnStartFlagCountdown();
+	}
+
+	private void OnEndFlagCountdown()
+	{
+		shouldUpdate = true;
 	}
 }

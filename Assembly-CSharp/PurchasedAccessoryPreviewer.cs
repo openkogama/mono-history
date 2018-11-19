@@ -46,8 +46,10 @@ public class PurchasedAccessoryPreviewer : MonoBehaviour
 	{
 		targetHeight = Screen.currentResolution.height;
 		previewData = previewAccessories;
-		targetColorBackground = AccessoryItemBackground.GetColorFromPrice(previewData[currentStreamingAssetIndex].priceGold).correspondingColor;
-		targetColorGlow = AccessoryItemBackground.GetColorFromPrice(previewData[currentStreamingAssetIndex].priceGold).glowColor;
+		RarityStylesDef rarityStylesDef = null;
+		rarityStylesDef = ((previewData[currentStreamingAssetIndex].level == 0 || previewData[currentStreamingAssetIndex].priceGold != 0) ? Styles.GetAccessoryColorsFromPrice(previewData[currentStreamingAssetIndex].priceGold) : Styles.GetAccessoryColorsFromLevel(previewData[currentStreamingAssetIndex].level));
+		targetColorBackground = rarityStylesDef.backgroundColor;
+		targetColorGlow = rarityStylesDef.glowColor;
 		StartCoroutine(DisplayAndFadeImages());
 	}
 
@@ -79,8 +81,9 @@ public class PurchasedAccessoryPreviewer : MonoBehaviour
 		{
 			EvaluateImageAtTime(0f, 0f);
 			currentStreamingAssetIndex++;
-			targetColorBackground = AccessoryItemBackground.GetColorFromPrice(previewData[currentStreamingAssetIndex].priceGold).correspondingColor;
-			targetColorGlow = AccessoryItemBackground.GetColorFromPrice(previewData[currentStreamingAssetIndex].priceGold).glowColor;
+			RarityStylesDef rarityStylesDef = ((previewData[currentStreamingAssetIndex].level == 0 || previewData[currentStreamingAssetIndex].priceGold != 0) ? Styles.GetAccessoryColorsFromPrice(previewData[currentStreamingAssetIndex].priceGold) : Styles.GetAccessoryColorsFromLevel(previewData[currentStreamingAssetIndex].level));
+			targetColorBackground = rarityStylesDef.backgroundColor;
+			targetColorGlow = rarityStylesDef.glowColor;
 			StartCoroutine(DisplayAndFadeImages());
 		}
 		else

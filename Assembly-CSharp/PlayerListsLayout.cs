@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
@@ -46,7 +47,7 @@ public class PlayerListsLayout : MonoBehaviour
 	{
 		IEnumerable<MVPlayer> values = MVGameControllerBase.Game.MVPlayerContainer.Values;
 		List<MVTeam> teamList = MVGameControllerBase.Game.TeamManager.GetTeamList();
-		CreatePlayerLists(values, teamList);
+		StartCoroutine(CreatePlayerLists(values, teamList));
 		MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
 		mVPlayerContainer.OnPlayerListChanged = (Action)Delegate.Combine(mVPlayerContainer.OnPlayerListChanged, new Action(ReCreate));
 		FriendList friends = MVGameControllerBase.Game.Friends;
@@ -82,20 +83,21 @@ public class PlayerListsLayout : MonoBehaviour
 		});
 	}
 
-	private void CreatePlayerLists(IEnumerable<MVPlayer> players, List<MVTeam> teams)
+	private IEnumerator CreatePlayerLists(IEnumerable<MVPlayer> players, List<MVTeam> teams)
 	{
-		int count = teams.Count;
-		bool flag = false;
-		if (count == 1)
+		yield return new WaitForEndOfFrame();
+		int teamCount = teams.Count;
+		bool teamNone = false;
+		if (teamCount == 1)
 		{
-			flag = true;
+			teamNone = true;
 		}
 		bottomGrid.SetActive(value: false);
-		Dictionary<MVTeam, PlayerListBase> dictionary = new Dictionary<MVTeam, PlayerListBase>();
-		if (flag)
+		Dictionary<MVTeam, PlayerListBase> playerLists = new Dictionary<MVTeam, PlayerListBase>();
+		if (teamNone)
 		{
 			PlayerListBase playerListBase = CreatePlayerList(MVTeam.None, 0);
-			dictionary.Add(MVTeam.None, playerListBase);
+			playerLists.Add(MVTeam.None, playerListBase);
 			playerListBase.transform.SetParent(topGrid.transform, worldPositionStays: false);
 		}
 		else
@@ -104,25 +106,26 @@ public class PlayerListsLayout : MonoBehaviour
 			{
 				bottomGrid.SetActive(value: true);
 			}
+			int num = ((teams.Count > 3) ? 1 : 0);
+			RectTransform rectTransform = (RectTransform)topGrid.transform;
+			float preferredWidth = rectTransform.rect.width / 2f - rectTransform.GetComponent<HorizontalLayoutGroup>().spacing / 2f;
 			for (int i = 0; i < teams.Count; i++)
 			{
 				PlayerListBase playerListBase2 = CreatePlayerList(teams[i], MVGameControllerBase.Game.TeamManager.GetScore(teams[i], typeToDisplay));
+				LayoutElement component = playerListBase2.GetComponent<LayoutElement>();
+				component.preferredWidth = preferredWidth;
 				if (i > 1)
 				{
-					playerListBase2.GetComponent<LayoutElement>().flexibleWidth = 0f;
+					component.flexibleWidth = num;
 					playerListBase2.transform.SetParent(bottomGrid.transform, worldPositionStays: false);
 				}
 				else
 				{
 					playerListBase2.transform.SetParent(topGrid.transform, worldPositionStays: false);
 				}
-				dictionary.Add(teams[i], playerListBase2);
+				playerLists.Add(teams[i], playerListBase2);
 			}
-			SortPlayerListsAfterScore(dictionary, teams, typeToDisplay);
-		}
-		if (count <= 0)
-		{
-			return;
+			SortPlayerListsAfterScore(playerLists, teams, typeToDisplay);
 		}
 		Dictionary<MVTeam, List<MVPlayer>> sortedTeamLists = GetSortedTeamLists(players, teams);
 		foreach (KeyValuePair<MVTeam, List<MVPlayer>> item in sortedTeamLists)
@@ -130,15 +133,15 @@ public class PlayerListsLayout : MonoBehaviour
 			foreach (MVPlayer item2 in item.Value)
 			{
 				MVTeam mVTeam = item2.Team;
-				if (flag)
+				if (teamNone)
 				{
 					mVTeam = MVTeam.None;
 				}
-				else if (mVTeam == MVTeam.None && !flag)
+				else if (mVTeam == MVTeam.None && !teamNone)
 				{
 					continue;
 				}
-				dictionary[mVTeam].Add(item2);
+				playerLists[mVTeam].Add(item2);
 			}
 		}
 	}

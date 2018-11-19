@@ -10,21 +10,25 @@ using UnityEngine.UI;
 
 public class SendMessageControl : MonoBehaviour
 {
-	private static string helpString = "/h";
+	public UnityAction<bool> DoSend;
 
-	private static string fps = "/f";
+	public UnityAction SpamWarning;
 
-	private static string resolution = "/r";
+	private const string helpString = "/h";
 
-	private static string mathTest = "/m";
+	private const string fps = "/f";
 
-	private static string chatCommands = "/c";
+	private const string resolution = "/r";
+
+	private const string mathTest = "/m";
+
+	private const string chatCommands = "/c";
 
 	private static string removeUI = "/ru";
 
-	private static string enableHD = "/hd";
+	private const string enableHD = "/hd";
 
-	private string buildInformation = "/build";
+	private const string buildInformation = "/build";
 
 	private const string exportTool = "/export";
 
@@ -36,37 +40,33 @@ public class SendMessageControl : MonoBehaviour
 
 	private const string chatChangeCommandSay = "/say";
 
-	private const string allChat = " [ All ]";
+	private const string startHeadShake = "/no";
+
+	private const string startNod = "/yes";
+
+	private const string startWave = "/wave";
+
+	private const string fyberTestSuite = "/fyber";
+
+	private const string allChat = "[ All ]";
 
 	private const string teamChat = "[ Team ]";
 
-	private const string sayChat = " [ Say ]";
+	private const string sayChat = "[ Say ]";
 
 	[SerializeField]
 	private Text currentChat;
 
-	private static string startHeadShake = "/no";
-
-	private static string startNod = "/yes";
-
-	private static string startWave = "/wave";
-
-	private const string fyberTestSuite = "/fyber";
-
 	[SerializeField]
 	private InputField inputField;
-
-	private Regex whiteSpaceCheck;
-
-	public UnityAction<bool> DoSend;
-
-	public UnityAction SpamWarning;
 
 	[SerializeField]
 	private float intervalForMessages = 5f;
 
 	[SerializeField]
 	private int maxMessagesPerInterval = 5;
+
+	private Regex whiteSpaceCheck;
 
 	private int frameCountSent;
 
@@ -240,22 +240,21 @@ public class SendMessageControl : MonoBehaviour
 	private bool HandleChatCommands(string chatMsg)
 	{
 		bool result = false;
-		if (chatMsg == helpString)
+		switch (chatMsg)
 		{
+		case "/h":
 			MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, CreateHelpTxt());
-		}
-		else if (chatMsg == fps)
-		{
+			break;
+		case "/f":
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IToggleFps x, BaseEventData y) =>
 			{
 				x.ToggleFps();
 			});
-		}
-		else if (chatMsg == resolution)
-		{
+			break;
+		case "/r":
 			MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, $"{Screen.width} x {Screen.height}");
-		}
-		else if (chatMsg == mathTest)
+			break;
+		case "/m":
 		{
 			Vector3 one = Vector3.one;
 			Quaternion identity = Quaternion.identity;
@@ -270,58 +269,59 @@ public class SendMessageControl : MonoBehaviour
 			MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, "q.x = float.PositiveInfinity " + MathFunctions.IsQuaternionFloatsValid(identity));
 			identity.x = float.NaN;
 			MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, "q.x = float.NaN " + MathFunctions.IsQuaternionFloatsValid(identity));
+			break;
 		}
-		else if (chatMsg == chatCommands)
-		{
+		case "/c":
 			MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, CreateChatCommandsHelpTxt());
-		}
-		else if (chatMsg == enableHD)
-		{
+			break;
+		case "/hd":
 			ToggleHD();
-		}
-		else if (chatMsg == removeUI)
-		{
-			Canvas[] componentsInParent = GetComponentsInParent<Canvas>();
-			for (int num = 0; num < componentsInParent.Length; num++)
+			break;
+		default:
+			if (chatMsg == removeUI)
 			{
-				componentsInParent[num].gameObject.SetActive(value: false);
+				Canvas[] componentsInParent = GetComponentsInParent<Canvas>();
+				for (int i = 0; i < componentsInParent.Length; i++)
+				{
+					componentsInParent[i].gameObject.SetActive(value: false);
+				}
+				break;
 			}
-		}
-		else if (chatMsg == buildInformation)
-		{
-			ShowBuildInformation();
-		}
-		else if (chatMsg == startHeadShake)
-		{
-			MVGameControllerBase.WOCM.AvatarLocal.LimbManager.StartEmote(EmoteTypes.Shake);
-		}
-		else if (chatMsg == startNod)
-		{
-			MVGameControllerBase.WOCM.AvatarLocal.LimbManager.StartEmote(EmoteTypes.Nod);
-		}
-		else if (chatMsg == startWave)
-		{
-			MVGameControllerBase.WOCM.AvatarLocal.LimbManager.StartEmote(EmoteTypes.Wave);
-		}
-		else if (chatMsg == "/export")
-		{
-			ObjExportHandler.InitializePicking();
-		}
-		else if (chatMsg == "/exportself")
-		{
-			ObjExportHandler.ExportSelfAvatar();
-		}
-		else if (chatMsg[0] == '/')
-		{
-			TextCommand.Resolve(chatMsg);
-		}
-		else if (chatMsg == "/fyber")
-		{
-			IntegrationAnalyzer.ShowTestSuite();
-		}
-		else
-		{
-			result = true;
+			switch (chatMsg)
+			{
+			case "/build":
+				ShowBuildInformation();
+				break;
+			case "/no":
+				MVGameControllerBase.WOCM.AvatarLocal.LimbManager.StartEmote(EmoteTypes.Shake);
+				break;
+			case "/yes":
+				MVGameControllerBase.WOCM.AvatarLocal.LimbManager.StartEmote(EmoteTypes.Nod);
+				break;
+			case "/wave":
+				MVGameControllerBase.WOCM.AvatarLocal.LimbManager.StartEmote(EmoteTypes.Wave);
+				break;
+			case "/export":
+				ObjExportHandler.InitializePicking();
+				break;
+			case "/exportself":
+				ObjExportHandler.ExportSelfAvatar();
+				break;
+			case "/fyber":
+				IntegrationAnalyzer.ShowTestSuite();
+				break;
+			default:
+				if (chatMsg[0] == '/')
+				{
+					TextCommand.Resolve(chatMsg);
+				}
+				else
+				{
+					result = true;
+				}
+				break;
+			}
+			break;
 		}
 		return result;
 	}
@@ -343,7 +343,7 @@ public class SendMessageControl : MonoBehaviour
 		string text = "\n";
 		if (!MVGameControllerBase.IsTouristSession)
 		{
-			text += TM._("\nType: " + chatCommands + " to see available chat commands.\n\n");
+			text += TM._("\nType: /c to see available chat commands.\n\n");
 		}
 		MVGameMode mVGameMode = MVGameControllerBase.GameMode;
 		if (MVGameControllerBase.IsPlaying)
@@ -368,13 +368,13 @@ public class SendMessageControl : MonoBehaviour
 	public static string CreateChatCommandsHelpTxt()
 	{
 		string empty = string.Empty;
-		empty = empty + "\nType: " + startNod + " to nod your head.";
-		empty = empty + "\nType: " + startHeadShake + " to shake your head.";
-		empty = empty + "\nType: " + startWave + " to wave your arms.";
+		empty += "\nType: /yes to nod your head.";
+		empty += "\nType: /no to shake your head.";
+		empty += "\nType: /wave to wave your arms.";
 		empty += "\n\nType: /all to enter all chat. ";
 		empty += "\nType: /team to enter team chat.";
 		empty += "\nType: /say to enter say chat.";
-		return empty + TM._("\n\nType: " + enableHD + " to enable HD mode.\n");
+		return empty + TM._("\n\nType: /hd to enable HD mode.\n");
 	}
 
 	private void SanitizeMessage(ref string message, string tagToSanitize)
@@ -456,7 +456,7 @@ public class SendMessageControl : MonoBehaviour
 			MVGameControllerBase.OperationRequests.SetSayChatBubbleVisible(shouldShow: false);
 			isSayChatIconVisible = false;
 		}
-		currentChat.text = " [ All ]";
+		currentChat.text = "[ All ]";
 		currentChat.color = Color.white;
 		selectedChat = MVGameMsgType.Chat;
 	}
@@ -483,7 +483,7 @@ public class SendMessageControl : MonoBehaviour
 			MVGameControllerBase.OperationRequests.SetSayChatBubbleVisible(shouldShow: true);
 			isSayChatIconVisible = true;
 		}
-		currentChat.text = " [ Say ]";
+		currentChat.text = "[ Say ]";
 		currentChat.color = sayChatColor;
 		selectedChat = MVGameMsgType.SayChat;
 	}

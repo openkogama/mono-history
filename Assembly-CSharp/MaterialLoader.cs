@@ -14,6 +14,9 @@ public class MaterialLoader : MonoBehaviour
 	private Material cubeModelMaterialLow;
 
 	[SerializeField]
+	private Material cubeModelMaterialMobile;
+
+	[SerializeField]
 	private Shader pickupItemShader;
 
 	[SerializeField]
@@ -41,6 +44,7 @@ public class MaterialLoader : MonoBehaviour
 	{
 		cubeModelMaterialHigh = UnityEngine.Object.Instantiate(cubeModelMaterialHigh);
 		cubeModelMaterialLow = UnityEngine.Object.Instantiate(cubeModelMaterialLow);
+		cubeModelMaterialMobile = UnityEngine.Object.Instantiate(cubeModelMaterialMobile);
 		SetMainTexture(lowResMaterials);
 		SetupMaterials();
 		MeshPool.Instance.MaxAmtMeshes = 100;
@@ -61,6 +65,7 @@ public class MaterialLoader : MonoBehaviour
 		atlasHash = Hash(texture);
 		cubeModelMaterialHigh.mainTexture = texture;
 		cubeModelMaterialLow.mainTexture = texture;
+		cubeModelMaterialMobile.mainTexture = texture;
 	}
 
 	private void SetupMaterials()
@@ -103,7 +108,7 @@ public class MaterialLoader : MonoBehaviour
 		if (Urls.StreamingAssetUrlReady())
 		{
 			Urls.onStreamingAssetsUrlAvailable = (Urls.OnStreamingAssetsUrlAvailable)Delegate.Remove(Urls.onStreamingAssetsUrlAvailable, new Urls.OnStreamingAssetsUrlAvailable(DownloadWhenPossible));
-			AsyncWWWManager.WWWRequest(new CachedGetRequest(Urls.StreamingAssets + highResAtlasFileName + "?version=" + MVGameControllerBase.KoGaMaSettings.WebCacheInvalidationCode, Callback, WWWRequestPriority.WaitUntilSyncronizingIsDone));
+			AsyncWWWManager.WWWRequest(new CachedAssetBundleRequest(Urls.StreamingAssets + highResAtlasFileName, Callback, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 		}
 		else
 		{

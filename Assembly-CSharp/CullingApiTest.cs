@@ -27,9 +27,12 @@ public class CullingApiTest : MonoBehaviour
 	[SerializeField]
 	private Transform movingTransform;
 
+	private Camera mainCamera;
+
 	private void Start()
 	{
-		CullingApiWrapper.Init(0, Camera.main, CullingApiWrapper.baseDistance, Camera.main.transform);
+		mainCamera = Camera.main;
+		CullingApiWrapper.Init(0, mainCamera, CullingApiWrapper.baseDistance, mainCamera.transform);
 		Subscribe();
 	}
 
@@ -63,7 +66,7 @@ public class CullingApiTest : MonoBehaviour
 		}
 		if (distancesChange)
 		{
-			CullingApiWrapper.ChangeDistances(10f, Camera.main);
+			CullingApiWrapper.ChangeDistances(10f, mainCamera);
 			distancesChange = false;
 		}
 		for (int i = 0; i < CullingApiWrapper.NumBoundSpheres; i++)

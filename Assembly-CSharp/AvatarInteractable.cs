@@ -173,7 +173,7 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 		{
 			return;
 		}
-		BitArray bitArray = new BitArray(28);
+		BitArray bitArray = new BitArray(29);
 		if (HasModifierEffect(AvatarModifierEffect.GodzillaImmunity))
 		{
 			bitArray.SetAll(value: true);

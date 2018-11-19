@@ -12,6 +12,8 @@ public class ModifierIndicator : MonoBehaviour
 		public ImageAnimator animator;
 
 		public StreamingAsset streamComponent;
+
+		public CanvasGroup alphaHandler;
 	}
 
 	private class OverlayWrapper
@@ -50,11 +52,11 @@ public class ModifierIndicator : MonoBehaviour
 		{
 			get
 			{
-				return Image.color.a;
+				return image.alphaHandler.alpha;
 			}
 			set
 			{
-				Image.color = new Color(Image.color.r, Image.color.g, Image.color.b, value);
+				image.alphaHandler.alpha = value;
 			}
 		}
 
@@ -78,12 +80,12 @@ public class ModifierIndicator : MonoBehaviour
 			}
 			else if (Alpha > 0.01f)
 			{
-				Animator.enabled = false;
 				Alpha = fadeOutCurve.Evaluate(fadeOutTimer);
 				fadeOutTimer += Time.deltaTime;
 			}
 			else
 			{
+				Animator.enabled = false;
 				Image.enabled = false;
 			}
 		}

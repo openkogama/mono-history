@@ -6,6 +6,10 @@ public class ThirdPersonCamera : PlaymodeCamera, ICameraSettings
 {
 	private float baseDistanceSettings = 5f;
 
+	private const string mouseX = "Mouse X";
+
+	private const string mouseY = "Mouse Y";
+
 	public override CameraType CameraType => CameraType.ThirdPerson;
 
 	public override void Awake()
@@ -80,7 +84,6 @@ public class ThirdPersonCamera : PlaymodeCamera, ICameraSettings
 		{
 			num2 += MVInputWrapper.GetAxis("Mouse X") * mouseSensitivity;
 			num += MVInputWrapper.GetAxis("Mouse Y") * mouseSensitivity;
-			aroundYInertia = aroundYInertiaMouseControlled;
 		}
 		num = MathFunctions.NormalizeAngle(num);
 		if (num > 180f)

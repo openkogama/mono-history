@@ -9,6 +9,10 @@ public class VehicleCamera : PlaymodeCamera, IVehicleCamera
 	[SerializeField]
 	private Transform LookAtTransform;
 
+	private const string mouseX = "Mouse X";
+
+	private const string mouseY = "Mouse Y";
+
 	public float RotationAroundY
 	{
 		get
@@ -77,9 +81,7 @@ public class VehicleCamera : PlaymodeCamera, IVehicleCamera
 			Quaternion quaternion2 = Quaternion.AngleAxis(rotationAroundY, Vector3.up);
 			y = (quaternion2 * quaternion).eulerAngles.y;
 			num += MVInputWrapper.GetAxis("Mouse Y") * mouseSensitivity;
-			aroundYInertia = aroundYInertiaMouseControlled;
 		}
-		num = MathFunctions.NormalizeAngle(num);
 		if (num > 180f)
 		{
 			num -= 360f;

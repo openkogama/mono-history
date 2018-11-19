@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActivateUIElement, ILeaveEditPlayModeHandler, ICanvasController, IEventSystemHandler
+public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActivateUIElement, ILeaveEditPlayModeHandler, ICanvasController, IAccessoryPopupHandler, IEventSystemHandler
 {
 	private ILockCursorManager lockCursorManager;
 
@@ -39,9 +39,6 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 	private LevelBadge levelBadge;
 
 	[SerializeField]
-	private Sprite mysteryBoxIcon;
-
-	[SerializeField]
 	private Canvas canvas;
 
 	[SerializeField]
@@ -61,6 +58,9 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 
 	[SerializeField]
 	private ChatBubbleController chatBubbleController;
+
+	[SerializeField]
+	private TimeAttackFlagDebriefing timeAttackFlagDebriefing;
 
 	private RectTransform lobbyStateRect;
 
@@ -151,10 +151,21 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 	public override void Initialize()
 	{
 		base.Initialize();
+		if (MVGameControllerBase.IEditModeUI == null)
+		{
+			MVGameControllerBase.CameraController.AvatarLobbyFocus = true;
+		}
 		chatBubbleController = UnityEngine.Object.Instantiate(chatBubbleController);
 		chatBubbleController.transform.SetParent(transform, worldPositionStays: false);
 		lobbyStateRect = UnityEngine.Object.Instantiate(lobbyState);
 		lobbyStateRect.SetParent(playModeState.transform, worldPositionStays: false);
+		timeAttackFlagDebriefing = UnityEngine.Object.Instantiate(timeAttackFlagDebriefing);
+		timeAttackFlagDebriefing.transform.SetParent(playModeState.transform, worldPositionStays: false);
+		FlagDebriefingControl.OnFlagDebriefing = (Action<int>)Delegate.Combine(FlagDebriefingControl.OnFlagDebriefing, new Action<int>(OnShowTimeAttackFlagDebriefing));
+		FlagDebriefingControl.OnFlagCountDown = (Action)Delegate.Combine(FlagDebriefingControl.OnFlagCountDown, new Action(OnShowTimeAttackFlagCountDown));
+		FlagDebriefingControl.OnFlagCountDownEnd = (Action)Delegate.Combine(FlagDebriefingControl.OnFlagCountDownEnd, new Action(OnHideTimeAttackFlagCountDown));
+		MVNetworkGame game = MVGameControllerBase.Game;
+		game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Combine(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnRoundEnd));
 		if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
 		{
 			MVInputWrapper.SetInputMap(new DesktopPlayMode());
@@ -227,6 +238,43 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 		}
 	}
 
+	private void OnShowTimeAttackFlagDebriefing(int captureTime)
+	{
+		timeAttackFlagDebriefing.gameObject.SetActive(value: true);
+		timeAttackFlagDebriefing.Initialize(captureTime);
+		lobbyStateRect.gameObject.SetActive(value: false);
+		playerListButton.gameObject.SetActive(value: false);
+	}
+
+	private void OnShowTimeAttackFlagCountDown()
+	{
+		timeAttackFlagDebriefing.InitializeCountDown();
+		timeAttackFlagDebriefing.gameObject.SetActive(value: true);
+		lobbyStateRect.gameObject.SetActive(value: false);
+		playerListButton.gameObject.SetActive(value: false);
+	}
+
+	private void OnHideTimeAttackFlagCountDown()
+	{
+		timeAttackFlagDebriefing.gameObject.SetActive(value: false);
+		playerListButton.gameObject.SetActive(value: true);
+	}
+
+	private void OnRoundEnd(IWinningCondition winningCondition)
+	{
+		if (timeAttackFlagDebriefing.isActiveAndEnabled)
+		{
+			timeAttackFlagDebriefing.OnRoundEnd();
+			timeAttackFlagDebriefing.gameObject.SetActive(value: false);
+			lobbyStateRect.gameObject.SetActive(value: true);
+		}
+	}
+
+	private void LeavePlayMode()
+	{
+		timeAttackFlagDebriefing.OnLeavePlayMode();
+	}
+
 	public void ShowEUseIcon(ShowUseOption option, int woID = 0)
 	{
 		inGameController.ShowEUseIcon(option, woID);
@@ -257,6 +305,7 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 
 	public void LeaveEditPlayMode()
 	{
+		LeavePlayMode();
 		if (OnLeaveEditPlayMode != null)
 		{
 			OnLeaveEditPlayMode();
@@ -272,5 +321,10 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 	{
 		uiStack.SetStackReady();
 		MVGameControllerBase.OnFirstFrameUpdateActorReady = (Action)Delegate.Remove(MVGameControllerBase.OnFirstFrameUpdateActorReady, new Action(SetUIReady));
+	}
+
+	public void OpenInventoryAtItem(UIPushOption pushOption, AccessoryDataClient displayShopItems)
+	{
+		accessoryShopController.OpenInventoryAtItem(pushOption, displayShopItems);
 	}
 }

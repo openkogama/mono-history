@@ -21,6 +21,10 @@ public class HurryUpNotification : Notification
 
 	private int timeLeftFromTimeStamp;
 
+	private int previousSecondCount;
+
+	private const int mininumMillieSecondDelayBeforePlayingSound = 900;
+
 	protected override NotificationLifetime Lifetime => NotificationLifetime.High;
 
 	public override void Initialize(Dictionary<object, object> data)
@@ -50,21 +54,24 @@ public class HurryUpNotification : Notification
 	{
 		base.Update();
 		int serverTimeInMilliSeconds = MVGameControllerBase.Game.ServerTimeInMilliSeconds;
-		int num = timeLeftFromTimeStamp - (serverTimeInMilliSeconds - timeStamp) + 1000;
+		int num = timeLeftFromTimeStamp - (serverTimeInMilliSeconds - timeStamp);
 		string text = WinningConditionControl.MakeIntoScoreText(num, GameStatCounterType.Flag);
-		if (timeText.text != text)
+		if (num <= 0)
 		{
-			timeText.text = text;
-			if (num <= 10000)
-			{
-				countDownSound.Play();
-			}
+			text = "00:00:00";
+		}
+		int num2 = Mathf.FloorToInt((float)num / 1000f);
+		timeText.text = text;
+		if ((float)num <= 10000f && num2 != previousSecondCount && num - num2 * 1000 > 900)
+		{
+			MVGameControllerBase.AudioManager.Play("Sound - CountDown", countDownSound, transform.position);
 		}
 		if (num < 0)
 		{
 			fader.Deactivate();
 			countdownFader.Deactivate();
 		}
+		previousSecondCount = num2;
 	}
 
 	private void DestroyNotification()

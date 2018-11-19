@@ -16,6 +16,8 @@ public class TimeAttackFlag : MVLogicObject
 
 	private const float captureCooldown = 5f;
 
+	private bool isTimeAttackDebriefingOn;
+
 	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
 	private TimeAttackFlagObject timeAttackFlagObject;
@@ -53,6 +55,28 @@ public class TimeAttackFlag : MVLogicObject
 		useInteractor.UpdateData(Data);
 		worldObjectEnableController = gameObject.GetComponentInChildren<WorldObjectEnableController>();
 		SetupCulling(timeAttackFlagObject.VisualObject);
+		if (MVGameControllerBase.WOCM.AvatarLocal == null)
+		{
+			MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
+			mVPlayerContainer.OnLocalPlayerReady = (Action)Delegate.Combine(mVPlayerContainer.OnLocalPlayerReady, new Action(LateInitialize));
+		}
+		else
+		{
+			InitializeCallbacks();
+		}
+	}
+
+	private void LateInitialize()
+	{
+		InitializeCallbacks();
+		MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
+		mVPlayerContainer.OnLocalPlayerReady = (Action)Delegate.Remove(mVPlayerContainer.OnLocalPlayerReady, new Action(Initialize));
+	}
+
+	private void InitializeCallbacks()
+	{
+		FlagDebriefingControl.OnFlagDebriefing = (Action<int>)Delegate.Combine(FlagDebriefingControl.OnFlagDebriefing, new Action<int>(OnStartFlagDebriefing));
+		FlagDebriefingControl.OnFlagDebriefingEnd = (Action)Delegate.Combine(FlagDebriefingControl.OnFlagDebriefingEnd, new Action(OnEndFlagDebriefing));
 	}
 
 	private void SetupUseInteractor()
@@ -82,14 +106,25 @@ public class TimeAttackFlag : MVLogicObject
 
 	private bool DoReachTimeAttackFlag(int instigator)
 	{
-		if (Time.time < lastCaptureTime + 5f)
+		if (isTimeAttackDebriefingOn || Time.time < lastCaptureTime + 5f)
 		{
 			return false;
 		}
 		lastCaptureTime = Time.time;
-		MVGameControllerBase.OperationRequests.ReportReachedTimeAttackFlag();
-		FlagDebriefingControl.StartFlagDebriefing();
+		int captureTime = Mathf.FloorToInt((Time.time - FlagDebriefingControl.RunStartTime) * 1000f);
+		MVGameControllerBase.OperationRequests.ReportReachedTimeAttackFlag(captureTime);
+		FlagDebriefingControl.StartFlagDebriefing(captureTime);
 		return true;
+	}
+
+	public void OnStartFlagDebriefing(int captureTime)
+	{
+		isTimeAttackDebriefingOn = true;
+	}
+
+	public void OnEndFlagDebriefing()
+	{
+		isTimeAttackDebriefingOn = false;
 	}
 
 	public override void Destroy()

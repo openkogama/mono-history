@@ -21,7 +21,7 @@ public class MVMaterialRepository
 
 	public MVMaterialRepository()
 	{
-		noMaterial = new MVMaterial(physicalPropertiesDefault, MaterialSound.None, AvatarModifierPackageType.None);
+		noMaterial = new MVMaterial(24, MaterialDescription.materialDescriptions[24].Name, MaterialDescription.materialDescriptions[24].Description, physicalPropertiesDefault, MaterialSound.None, AvatarModifierPackageType.None, 0, isUnlocked: false, null);
 		inAirMaterial = new MVMaterial(MVPhysics.airPhysicalProperties, MaterialSound.None, AvatarModifierPackageType.None);
 	}
 

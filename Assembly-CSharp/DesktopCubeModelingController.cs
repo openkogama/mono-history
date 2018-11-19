@@ -86,16 +86,9 @@ public class DesktopCubeModelingController : MonoBehaviour
 
 	public void TakeScreenshot()
 	{
-		if (MVGameControllerBase.Game.LocalPlayer.PlanetOwnershipTypeID != 2)
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 		{
-			NotificationController.PushNotification(TM._("You must be the owner in order to take a screenshot!"), errorSprite, 3);
-			return;
-		}
-		UploadGameScreenshotHandler screenshotGenerator = UnityEngine.Object.Instantiate(screenshotHandler);
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-		{
-			x.Push(screenshotGenerator.gameObject, UIPushOption.Blocking | UIPushOption.HideAll, null, UIGroupFlags.Popup);
+			x.CreateErrorNotificationPopup(TM._("Image upload is disabled in standalone. Reload game using the browser version.\n"));
 		});
-		screenshotGenerator.TakeScreenshot();
 	}
 }

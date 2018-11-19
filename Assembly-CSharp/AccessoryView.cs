@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Assets.Scripts.WorldObjectTypes.Avatar.Accessories;
 using MV.Common;
+using MV.WorldObject.Security;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -91,6 +92,15 @@ public class AccessoryView : MonoBehaviour
 	[SerializeField]
 	private Text claimText;
 
+	[SerializeField]
+	private AvatarAccessoryErrorPopup touristErrorPopup;
+
+	[SerializeField]
+	private AccessoryShinyButton buttonAnimation;
+
+	[SerializeField]
+	private GameObject lockIcon;
+
 	private AccessoryPreviewer previewer;
 
 	private Transform rootTransform;
@@ -132,6 +142,7 @@ public class AccessoryView : MonoBehaviour
 		accessoryItemBackground.Initialize(accessoryData);
 		SetShowNotOwnedUI(shouldShow: false);
 		purchaseButton.gameObject.SetActive(!accessoryData.owns);
+		levelRequirementPurchaseButton.gameObject.SetActive(value: false);
 		if (!accessoryDataClient.owns)
 		{
 			SetShowNotOwnedUI(shouldShow: true);
@@ -261,17 +272,28 @@ public class AccessoryView : MonoBehaviour
 
 	public void OnPurchaseButtonPressed()
 	{
-		if (MVGameControllerBase.Game.LocalPlayer.Level >= accessoryDataClient.level)
+		if (MVGameControllerBase.Game.LocalPlayer.IsTourist)
+		{
+			AvatarAccessoryErrorPopup errorPopup = UnityEngine.Object.Instantiate(touristErrorPopup);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(errorPopup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.Popup);
+			});
+			errorPopup.Initialize(OnTouristSignupClicked, previewImageUrl, accessoryDataClient, TM._("Signup required"), TM._("Sign up"));
+		}
+		else if (MVGameControllerBase.Game.LocalPlayer.Level >= accessoryDataClient.level)
 		{
 			Purchase();
-			return;
 		}
-		LevelErrorPopup errorPopup = UnityEngine.Object.Instantiate(insufficientLevelPopup);
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		else
 		{
-			x.Push(errorPopup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.Popup);
-		});
-		errorPopup.Initialize(OnInsufficientLevelCallback, accessoryDataClient.level);
+			LevelErrorPopup errorPopup2 = UnityEngine.Object.Instantiate(insufficientLevelPopup);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(errorPopup2.gameObject, UIPushOption.Blocking, null, UIGroupFlags.Popup);
+			});
+			errorPopup2.Initialize(OnInsufficientLevelCallback, accessoryDataClient.level);
+		}
 	}
 
 	public void Purchase()
@@ -410,6 +432,7 @@ public class AccessoryView : MonoBehaviour
 
 	private void HandlePrices(AccessoryDataClient streamingAssetInfo)
 	{
+		buttonAnimation.gameObject.SetActive(value: true);
 		int priceGold = streamingAssetInfo.priceGold;
 		int discount = streamingAssetInfo.discount;
 		int num = priceGold;
@@ -417,6 +440,8 @@ public class AccessoryView : MonoBehaviour
 		goldSavedText.gameObject.SetActive(discount > 0);
 		discountTag.SetActive(discount > 0);
 		claimText.gameObject.SetActive(value: false);
+		purchaseButton.image.color = Styles.GetColor(ColorStyle.ButtonSuccess);
+		lockIcon.SetActive(value: false);
 		if (discount > 0)
 		{
 			discountTagText.text = ((discount < 100) ? ("-" + discount + "%") : "FREE");
@@ -449,6 +474,7 @@ public class AccessoryView : MonoBehaviour
 
 	private void SetShowPrices(bool shouldShow)
 	{
+		buttonAnimation.gameObject.SetActive(shouldShow);
 		priceTextWithoutDiscount.gameObject.SetActive(shouldShow);
 		priceText.gameObject.SetActive(shouldShow);
 		goldSavedText.gameObject.SetActive(shouldShow);
@@ -457,8 +483,11 @@ public class AccessoryView : MonoBehaviour
 		claimText.gameObject.SetActive(shouldShow);
 		levelRequirementPurchaseButton.gameObject.SetActive(!shouldShow);
 		claimText.gameObject.SetActive(shouldShow);
+		purchaseButton.image.color = Styles.GetColor(ColorStyle.ButtonSuccess);
 		if (!shouldShow)
 		{
+			lockIcon.SetActive(!shouldShow);
+			purchaseButton.image.color = Styles.GetColor(ColorStyle.DisabledButton);
 			BadgeManager.GetBadgeTexture(accessoryDataClient.level, OnLevelRequirementLoaded);
 		}
 	}
@@ -503,6 +532,25 @@ public class AccessoryView : MonoBehaviour
 		originalPriceText.gameObject.SetActive(shouldShow);
 		discountTag.SetActive(shouldShow);
 		goldSavedText.gameObject.SetActive(shouldShow);
+	}
+
+	private void OnTouristSignupClicked(bool confirmed)
+	{
+		if (confirmed)
+		{
+			if (!LevelingManager.IsInitialized)
+			{
+				BrowserComm.ToJavaScript.ExternalCall("gotoSignup");
+				BrowserComm.ExecuteBrowserRequest(MVGameControllerBase.GameSessionData.signupURL);
+				return;
+			}
+			SortedDictionary<string, string> sortedDictionary = new SortedDictionary<string, string>();
+			int xP = MVGameControllerBase.Game.LocalPlayer.XPProgressData.XP;
+			sortedDictionary.Add("xp", xP.ToString());
+			string mD5Hash = Encryption.GetMD5Hash(sortedDictionary, MVGameControllerBase.Game.XpKey);
+			BrowserComm.ToJavaScript.ExternalCall("gotoSignupWithXP", xP, mD5Hash);
+			BrowserComm.ExecuteBrowserRequest(MVGameControllerBase.GameSessionData.signupURL);
+		}
 	}
 
 	private void OnInsufficientLevelCallback()

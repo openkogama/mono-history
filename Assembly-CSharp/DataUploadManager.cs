@@ -1,3 +1,4 @@
+using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.Events;
@@ -14,7 +15,11 @@ public static class DataUploadManager
 
 	public static void UploadData(byte[] data, UnityAction doneNotification)
 	{
-		if (bytePacker == null)
+		if (MVGameControllerBase.BuildTarget == BuildTarget.StandAlone)
+		{
+			Debug.LogWarning("UploadData called even though user is in standalone.");
+		}
+		else if (bytePacker == null)
 		{
 			if (MVGameControllerBase.TextureIntegrityChecker.VerifyTextureIntegrity())
 			{

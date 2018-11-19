@@ -97,9 +97,9 @@ public class TouristModeController : MonoBehaviour
 	{
 		private string baseAssetString = "Promotion/Promotion_{0}.png";
 
-		private static int promotionIndex = 5;
+		private static int promotionIndex = 4;
 
-		private static readonly int promotionCount = 5;
+		private static readonly int promotionCount = 4;
 
 		private UnityAction<Texture> OnTextureReadyCallback;
 

@@ -24,8 +24,9 @@ public enum NotificationType
 	RegisterToChat,
 	WinningWarning,
 	KillPrimary,
-	BestFlagTime,
+	TimeAttackFlagDebriefing,
 	HurryUp,
 	FlagHighScore,
-	CurrentProgress
+	CurrentProgress,
+	TimeAttackFlagCountDown
 }

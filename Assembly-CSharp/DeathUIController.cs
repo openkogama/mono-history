@@ -61,6 +61,7 @@ public class DeathUIController : MonoBehaviour
 		avatarLocal.OnKilled = (Action<string>)Delegate.Combine(avatarLocal.OnKilled, new Action<string>(OnLocalAvatarKilled));
 		MVRuntimeDataVariable avatarModeTypeFlags = MVGameControllerBase.WOCM.AvatarLocal.avatarModeTypeFlags;
 		avatarModeTypeFlags.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(avatarModeTypeFlags.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnAvatarStateChanged));
+		FlagDebriefingControl.OnFlagDebriefingEnd = (Action)Delegate.Combine(FlagDebriefingControl.OnFlagDebriefingEnd, new Action(EndDeathBriefing));
 		NotificationFade notificationFade = fader;
 		notificationFade.OnFinished = (Action)Delegate.Combine(notificationFade.OnFinished, new Action(OnFadeFinished));
 		WinningConditionControl.TryGetPrioritizedStat(out statType);
@@ -74,11 +75,16 @@ public class DeathUIController : MonoBehaviour
 		AvatarModeTypes avatarModeTypes = (AvatarModeTypes)state;
 		if ((avatarModeTypes & AvatarModeTypes.Hidden) != 0)
 		{
-			fader.Deactivate();
-			fader.gameObject.SetActive(value: false);
-			gameObject.SetActive(value: false);
-			isDeathBriefActive = false;
+			EndDeathBriefing();
 		}
+	}
+
+	private void EndDeathBriefing()
+	{
+		fader.Deactivate();
+		fader.gameObject.SetActive(value: false);
+		gameObject.SetActive(value: false);
+		isDeathBriefActive = false;
 	}
 
 	private void Update()

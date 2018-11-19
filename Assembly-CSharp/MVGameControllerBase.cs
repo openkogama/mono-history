@@ -178,6 +178,10 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	public static bool IsTouristSession => GameSessionData.profileID <= 0;
 
+	public static bool InterstitialAdsEnabled { get; set; }
+
+	public static bool RewardedAdsEnabled { get; set; }
+
 	public static MVJoinState JoinState
 	{
 		get

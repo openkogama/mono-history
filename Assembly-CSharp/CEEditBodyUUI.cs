@@ -89,8 +89,8 @@ public class CEEditBodyUUI : ESStateBase
 		else
 		{
 			SharedCubeFunctions.SetLayerRecursively(TargetCubeModel.Transform, select: false);
-			esm.CameraController.BlueModeEnabled = false;
 		}
+		esm.CameraController.BlueModeEnabled = false;
 		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.Idle);
 		esm.DeSelectAll();
 		MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Edit);

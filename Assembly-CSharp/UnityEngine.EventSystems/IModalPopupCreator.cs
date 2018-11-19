@@ -7,7 +7,7 @@ public interface IModalPopupCreator : IEventSystemHandler
 {
 	void Create(MVPurchaseReturnCode returnCode, int priceGold);
 
-	void CreateErrorNotificationPopup(string error);
+	void CreateErrorNotificationPopup(string error, string header = "Error");
 
 	PleaseWaitPopup Create();
 

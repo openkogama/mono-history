@@ -123,14 +123,15 @@ public class WinningConditionControl : MonoBehaviour
 			{
 				return "--:--";
 			}
+			int num = (int)((float)(score - (int)((float)score / 1000f) * 1000) / 10f);
 			score = (int)((float)score / 1000f);
-			int num = score % 60;
-			int num2 = Mathf.FloorToInt((float)score / 60f);
-			if (num2 >= 60)
+			int num2 = score % 60;
+			int num3 = Mathf.FloorToInt((float)score / 60f);
+			if (num3 >= 60)
 			{
-				int num3 = Mathf.FloorToInt((float)num2 / 60f);
-				num2 %= 60;
-				text = text + num3 + ":";
+				int num4 = Mathf.FloorToInt((float)num3 / 60f);
+				num3 %= 60;
+				text = text + num4 + ":";
 			}
 			string text2 = string.Empty;
 			if (num < 10)
@@ -144,7 +145,14 @@ public class WinningConditionControl : MonoBehaviour
 				text3 += "0";
 			}
 			text3 += num2;
-			return text + text3 + ":" + text2;
+			string text4 = string.Empty;
+			if (num3 < 10)
+			{
+				text4 += "0";
+			}
+			text4 += num3;
+			string text5 = text;
+			return text5 + text4 + ":" + text3 + ":" + text2;
 		}
 		default:
 			return score.ToString();

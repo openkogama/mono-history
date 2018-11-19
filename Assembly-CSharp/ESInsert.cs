@@ -34,8 +34,11 @@ internal class ESInsert : ESStateBase
 
 	private bool pointerWasUp;
 
+	private Camera mainCamera;
+
 	public override void Enter(EditorStateMachine e)
 	{
+		mainCamera = Camera.main;
 		laser = MVGameControllerBase.WOCM.AvatarLocal.LaserPointer;
 		laser.ChangeState(LaserPointerState.Inserting);
 		laser.LaserActive = true;
@@ -44,11 +47,11 @@ internal class ESInsert : ESStateBase
 			previewMaterial = PrefabPool.Instance.InsertPreviewMaterial;
 		}
 		float num = e.SingleSelectedWO.ComputeObjectRadius();
-		float num2 = Camera.main.fieldOfView * 0.5f * 0.8f;
+		float num2 = mainCamera.fieldOfView * 0.5f * 0.8f;
 		distanceInFreeSpace = Mathf.Max(5f, num / Mathf.Tan(num2 * ((float)Math.PI / 180f)));
 		insertCursor = UnityEngine.Object.Instantiate(PrefabPool.Instance.InsertCursor);
 		insertOffset = Vector3.zero;
-		insertPosition = Camera.main.transform.position + Camera.main.transform.forward * distanceInFreeSpace;
+		insertPosition = mainCamera.transform.position + mainCamera.transform.forward * distanceInFreeSpace;
 		Cursor.visible = false;
 		if (!e.NetworkSelector.RequestOwnership(e.SelectedIDs))
 		{
@@ -57,7 +60,7 @@ internal class ESInsert : ESStateBase
 		}
 		Vector3 worldPivot = e.SingleSelectedWO.WorldPivot;
 		pivotToOrigin = e.SingleSelectedWO.WorldPosition - worldPivot;
-		Ray ray = Camera.main.ScreenPointToRay(new Vector3(MVInputWrapper.GetPointerPosition().x, MVInputWrapper.GetPointerPosition().y));
+		Ray ray = mainCamera.ScreenPointToRay(new Vector3(MVInputWrapper.GetPointerPosition().x, MVInputWrapper.GetPointerPosition().y));
 		Vector3 worldPosition = ComputeSnapPosition(e.SingleSelectedWO, ray.GetPoint(distanceInFreeSpace) + pivotToOrigin);
 		e.SingleSelectedWO.WorldPosition = worldPosition;
 		previewMeshes = e.SingleSelectedWO.GameObject.GetComponentsInChildren<MeshFilter>();
@@ -99,7 +102,7 @@ internal class ESInsert : ESStateBase
 		{
 			insertCursor.enabled = false;
 			insertOffset = Vector3.Lerp(insertOffset, Vector3.zero, Time.deltaTime * 10f);
-			Ray ray = Camera.main.ScreenPointToRay(new Vector3(MVInputWrapper.GetPointerPosition().x, MVInputWrapper.GetPointerPosition().y));
+			Ray ray = mainCamera.ScreenPointToRay(new Vector3(MVInputWrapper.GetPointerPosition().x, MVInputWrapper.GetPointerPosition().y));
 			Vector3 vector = ComputeSnapPosition(e.SingleSelectedWO, ray.GetPoint(distanceInFreeSpace) + pivotToOrigin);
 			Vector3 vector2 = insertPosition - ray.origin;
 			Vector3 vector3 = vector - ray.origin;
@@ -204,7 +207,7 @@ internal class ESInsert : ESStateBase
 		{
 			for (int j = 0; j < meshFilter.sharedMesh.subMeshCount; j++)
 			{
-				Graphics.DrawMesh(meshFilter.sharedMesh, meshFilter.transform.localToWorldMatrix, previewMaterial, LayerMask.NameToLayer("Default"), Camera.main, j);
+				Graphics.DrawMesh(meshFilter.sharedMesh, meshFilter.transform.localToWorldMatrix, previewMaterial, LayerMask.NameToLayer("Default"), mainCamera, j);
 			}
 		}
 	}

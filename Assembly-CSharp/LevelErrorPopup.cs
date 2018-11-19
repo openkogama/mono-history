@@ -50,6 +50,9 @@ public class LevelErrorPopup : MonoBehaviour
 		{
 			x.Pop();
 		});
-		resultCallback();
+		if (resultCallback != null)
+		{
+			resultCallback();
+		}
 	}
 }

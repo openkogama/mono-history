@@ -34,6 +34,8 @@ public class CurrentProgressNotification : Notification
 
 	private bool shouldShowCurrentTime;
 
+	private GameStatCounterType currentDisplayedStatType;
+
 	protected override NotificationLifetime Lifetime => NotificationLifetime.High;
 
 	public override void Initialize(Dictionary<object, object> data)
@@ -41,21 +43,28 @@ public class CurrentProgressNotification : Notification
 		avatarStartTime = MVGameControllerBase.Game.LocalPlayer.JoinTime;
 		int actorNr = MVGameControllerBase.Game.LocalPlayer.ActorNr;
 		WinningConditionControl.TryGetPrioritizedStat(out var statType);
+		currentDisplayedStatType = statType;
 		int num = GetScoreLeftToWin(scoreCount: (MVGameControllerBase.Game.TeamManager.GetTeamList().Count <= 1) ? MVGameControllerBase.Game.GameStatCounterManager.GetActorCount(statType, MVGameControllerBase.Game.LocalPlayer.Team, actorNr) : MVGameControllerBase.Game.GameStatCounterManager.GetTeamCount(statType, MVGameControllerBase.Game.LocalPlayer.Team), counterType: statType);
 		if (MVGameControllerBase.Game.MVPlayerContainer.TryGetValue(actorNr, out var player))
 		{
 			base.Initialize(data);
-			if (statType == GameStatCounterType.Flag || statType == GameStatCounterType.TimeAttackFlag)
+			switch (statType)
 			{
+			case GameStatCounterType.Flag:
 				currentProgressText.text = string.Empty;
 				scoreText.text = WinningConditionControl.MakeIntoScoreText(CalculateCurrentTime(GetStartTime()), GameStatCounterType.Flag);
 				shouldShowCurrentTime = true;
-			}
-			else
-			{
+				break;
+			case GameStatCounterType.TimeAttackFlag:
+				currentProgressText.text = string.Empty;
+				scoreText.text = WinningConditionControl.MakeIntoScoreText(ConvertSecondsToMilliSeconds(Time.time - FlagDebriefingControl.RunStartTime), GameStatCounterType.TimeAttackFlag);
+				shouldShowCurrentTime = true;
+				break;
+			default:
 				currentProgressText.text = "YOU HAVE";
 				scoreText.text = WinningConditionControl.MakeIntoScoreText(num, statType);
 				shouldShowCurrentTime = false;
+				break;
 			}
 			fader.Activate();
 			SelectWinningConditionImage(statType, player);
@@ -131,6 +140,10 @@ public class CurrentProgressNotification : Notification
 
 	private int CalculateCurrentTime(int startTime)
 	{
+		if (currentDisplayedStatType == GameStatCounterType.TimeAttackFlag)
+		{
+			return ConvertSecondsToMilliSeconds(Time.time - FlagDebriefingControl.RunStartTime);
+		}
 		return MVGameControllerBase.Game.ServerTimeInMilliSeconds - startTime;
 	}
 
@@ -179,5 +192,10 @@ public class CurrentProgressNotification : Notification
 			break;
 		}
 		return result;
+	}
+
+	private int ConvertSecondsToMilliSeconds(float seconds)
+	{
+		return Mathf.FloorToInt(seconds * 1000f);
 	}
 }

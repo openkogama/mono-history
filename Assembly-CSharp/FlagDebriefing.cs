@@ -33,7 +33,6 @@ public class FlagDebriefing : MonoBehaviour
 
 	private void Start()
 	{
-		FlagDebriefingControl.OnFlagDebriefing = (Action)Delegate.Combine(FlagDebriefingControl.OnFlagDebriefing, new Action(OnLocalAvatarReachFlag));
 		NotificationFade notificationFade = fader;
 		notificationFade.OnFinished = (Action)Delegate.Combine(notificationFade.OnFinished, new Action(OnFadeFinished));
 		avatarStartTime = MVGameControllerBase.Game.LocalPlayer.JoinTime;
@@ -72,7 +71,7 @@ public class FlagDebriefing : MonoBehaviour
 				Dictionary<object, object> dictionary = new Dictionary<object, object>();
 				dictionary.Add((byte)1, value);
 				Dictionary<object, object> data = dictionary;
-				NotificationController.PushNotification(NotificationType.BestFlagTime, data);
+				NotificationController.PushNotification(NotificationType.TimeAttackFlagDebriefing, data);
 				if (messageObject.activeSelf)
 				{
 					messageObject.SetActive(value: false);

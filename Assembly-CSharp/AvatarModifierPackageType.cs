@@ -28,5 +28,6 @@ public enum AvatarModifierPackageType
 	GodzillaGrowthInvulnerability,
 	SpawnProtection,
 	RayHeal,
+	TimeAttackFlagDebriefSlow,
 	SIZE
 }

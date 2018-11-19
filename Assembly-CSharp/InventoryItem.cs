@@ -69,15 +69,15 @@ public class InventoryItem
 	{
 		{
 			MVWorldObjectDocumentationType.HealthPack,
-			new ItemDescription(TM._("Health pack"), TM._("The health pack fully heals a player."), TM._("Place this after difficult parts of your game to refill players health."), new Vector3(0f, 0f, 0f))
+			new ItemDescription(TM._("Health Pack"), TM._("The health pack fully heals a player."), TM._("Place this after difficult parts of your game to refill players health."), new Vector3(0f, 0f, 0f))
 		},
 		{
 			MVWorldObjectDocumentationType.Centergun,
-			new ItemDescription(TM._("Machine gun"), TM._("A fully automatic rifle capable of firing a large amount of bullets towards the target."), TM._("This rifle is at its best in close to mid-range combat."))
+			new ItemDescription(TM._("Machine Gun"), TM._("A fully automatic rifle capable of firing a large amount of bullets towards the target."), TM._("This rifle is at its best in close to mid-range combat."))
 		},
 		{
 			MVWorldObjectDocumentationType.ImpulseGun,
-			new ItemDescription(TM._("Impulse gun"), TM._("A gun generating a powerful force wave, pushing anything or anyone away."), TM._("This gun has a very high recoil. By shooting straight down into the ground you can do super jumps with it."))
+			new ItemDescription(TM._("Impulse Gun"), TM._("A gun generating a powerful force wave, pushing anything or anyone away."), TM._("This gun has a very high recoil. By shooting straight down into the ground you can do super jumps with it."))
 		},
 		{
 			MVWorldObjectDocumentationType.Bazooka,
@@ -85,7 +85,7 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.Railgun,
-			new ItemDescription(TM._("Rail gun"), TM._("The sniper rifle uses a charged coil to fire metal slugs surpassing the speed of sound."), TM._("Devastating when used at long range. You need to fully charge your shot to fire!"))
+			new ItemDescription(TM._("Rail Gun"), TM._("The sniper rifle uses a charged coil to fire metal slugs surpassing the speed of sound."), TM._("Devastating when used at long range. You need to fully charge your shot to fire!"))
 		},
 		{
 			MVWorldObjectDocumentationType.Sword,
@@ -105,7 +105,7 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.Star,
-			new ItemDescription(TM._("Game objective: Star"), TM._("The player/team who first collects all the stars, wins!"), TM._("Collect all these sparkly trinkets to win games and unlock new paths."))
+			new ItemDescription(TM._("Game Objective: Star"), TM._("The player/team who first collects all the stars, wins!"), TM._("Collect all these sparkly trinkets to win games and unlock new paths."))
 		},
 		{
 			MVWorldObjectDocumentationType.GrowthPill,
@@ -229,7 +229,7 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.Flag,
-			new ItemDescription(TM._("Game objective: Flag"), TM._("The player who reaches the flag first, wins!"), TM._("Flags are a great way to give players an objective, purpose, or a sense of competition."))
+			new ItemDescription(TM._("Game Objective: Flag"), TM._("The player who reaches the flag first, wins!"), TM._("Flags are a great way to give players an objective, purpose, or a sense of competition."))
 		},
 		{
 			MVWorldObjectDocumentationType.Explosives,
@@ -265,7 +265,7 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.OculusKillWinCondition,
-			new ItemDescription(TM._("Game objective: Eliminate the Oculus"), TM._("Set a Oculus kill limit for your game. This object will not be usable if you haven't first purchased the Oculus."), TM._("The team or player that reaches the kill limit wins the game!"))
+			new ItemDescription(TM._("Game Objective: Eliminate the Oculus"), TM._("Set a Oculus kill limit for your game. This object will not be usable if you haven't first purchased the Oculus."), TM._("The team or player that reaches the kill limit wins the game!"))
 		},
 		{
 			MVWorldObjectDocumentationType.WindTurbine,
@@ -273,11 +273,11 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.RoundCube,
-			new ItemDescription(TM._("Round time"), TM._("Set a time limit for a round. After the time is up, the round is restarted. Optionally a winner is determined based on avatar altitude."), TM._("Round cubes are a great if your game needs to be reset once in a while."))
+			new ItemDescription(TM._("Round Time"), TM._("Set a time limit for a round. After the time is up, the round is restarted. Optionally a winner is determined based on avatar altitude."), TM._("Round cubes are a great if your game needs to be reset once in a while."))
 		},
 		{
 			MVWorldObjectDocumentationType.PlayerKillWinCondition,
-			new ItemDescription(TM._("Game objective: Death match"), TM._("Set a player kill limit for your game."), TM._("Add this to create a death match game. If you have multiple teams you can even create a team death match game!"))
+			new ItemDescription(TM._("Game Objective: Death match"), TM._("Set a player kill limit for your game."), TM._("Add this to create a death match game. If you have multiple teams you can even create a team death match game!"))
 		},
 		{
 			MVWorldObjectDocumentationType.CameraSettings,
@@ -321,7 +321,7 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.ShootableButton,
-			new ItemDescription(TM._("Target cube"), TM._("Sends a signal when shot."), TM._("Can be used to open doors or secret areas from a distance by shooting."))
+			new ItemDescription(TM._("Target Cube"), TM._("Sends a signal when shot."), TM._("Can be used to open doors or secret areas from a distance by shooting."))
 		},
 		{
 			MVWorldObjectDocumentationType.Lever,
@@ -341,7 +341,7 @@ public class InventoryItem
 		},
 		{
 			MVWorldObjectDocumentationType.TimeAttackFlag,
-			new ItemDescription(TM._("Game objective: Time Attack Flag"), TM._("Records the time it took for a player to reach it, without resetting the round."), TM._("Lets players take their time reaching the flag."))
+			new ItemDescription(TM._("Game Objective: Time Attack Flag"), TM._("Records the time it took for a player to reach it, without resetting the round."), TM._("Lets players take their time reaching the flag."))
 		}
 	};
 

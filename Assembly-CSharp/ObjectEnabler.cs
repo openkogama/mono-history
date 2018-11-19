@@ -12,6 +12,8 @@ public class ObjectEnabler : MonoBehaviour, IUpdatecontrollerSubscriber
 
 	private int nameToLayer;
 
+	private Camera mainCamera;
+
 	public bool IsDrawingEnabled
 	{
 		get
@@ -30,6 +32,7 @@ public class ObjectEnabler : MonoBehaviour, IUpdatecontrollerSubscriber
 		objectMaterial = Object.Instantiate(objectHiddenMaterial);
 		UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
 		nameToLayer = LayerMask.NameToLayer("Default");
+		mainCamera = Camera.main;
 	}
 
 	private void DrawObject(MeshFilter[] previewMeshes)
@@ -38,7 +41,7 @@ public class ObjectEnabler : MonoBehaviour, IUpdatecontrollerSubscriber
 		{
 			for (int j = 0; j < meshFilter.sharedMesh.subMeshCount; j++)
 			{
-				Graphics.DrawMesh(meshFilter.sharedMesh, meshFilter.transform.localToWorldMatrix, objectMaterial, nameToLayer, Camera.main, j);
+				Graphics.DrawMesh(meshFilter.sharedMesh, meshFilter.transform.localToWorldMatrix, objectMaterial, nameToLayer, mainCamera, j);
 			}
 		}
 	}

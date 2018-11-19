@@ -731,7 +731,7 @@ public abstract class AvatarLimbManager
 				List<string> blendAnimations3 = new List<string>();
 				List<string> list3 = new List<string>();
 				list3.Add("Dead");
-				limbController3.Initialize(limbManager, avatar, partIndex, Quaternion.identity, Quaternion.identity, blendAnimations3, list3, 90f, 45f);
+				limbController3.Initialize(limbManager, avatar, partIndex, Quaternion.identity, Quaternion.identity, blendAnimations3, list3, 90f, 20f);
 				limbControllers.Add(partIndex, limbController3);
 				break;
 			}

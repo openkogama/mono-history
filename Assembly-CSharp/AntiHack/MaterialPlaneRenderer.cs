@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace AntiHack;
 
@@ -15,16 +16,28 @@ public class MaterialPlaneRenderer : MonoBehaviour
 	private Material material;
 
 	[SerializeField]
-	private RenderTexture renderTexture;
-
-	[SerializeField]
 	private List<Texture2D> textures = new List<Texture2D>();
 
-	private List<byte> hashes = new List<byte>();
+	private List<byte> hashes = new List<byte>(1);
+
+	private RenderTextureDescriptor renderTextureDesc = new RenderTextureDescriptor
+	{
+		dimension = TextureDimension.Tex2D,
+		width = 16,
+		height = 16,
+		msaaSamples = 1,
+		bindMS = false,
+		colorFormat = RenderTextureFormat.Default,
+		depthBufferBits = 0,
+		sRGB = false,
+		useMipMap = false,
+		autoGenerateMips = false,
+		volumeDepth = 1
+	};
+
+	private RenderTexture renderTexture;
 
 	private static bool errorReportSent;
-
-	private bool disableTextureIntegrityCheck = true;
 
 	protected void OnValidate()
 	{
@@ -44,20 +57,11 @@ public class MaterialPlaneRenderer : MonoBehaviour
 
 	public void Initialize()
 	{
+		renderTexture = new RenderTexture(renderTextureDesc);
+		renderTexture.wrapMode = TextureWrapMode.Clamp;
+		renderTexture.filterMode = FilterMode.Point;
+		renderTexture.anisoLevel = 1;
 		GenerateNewHashes();
-	}
-
-	public void OnPostRender_GenerateNewHashes()
-	{
-		if (material.SetPass(0))
-		{
-			Graphics.DrawMeshNow(plane, Vector3.zero, Quaternion.identity);
-			hashes.Add(CalculateHash(renderTexture));
-		}
-		else
-		{
-			Debug.LogError("MaterialPlaneRenderer failed to set shader pass.");
-		}
 	}
 
 	public bool VerifyTextureIntegrity()
@@ -72,46 +76,41 @@ public class MaterialPlaneRenderer : MonoBehaviour
 				StatHatWrapper.Count("TextureIntegrityBreached", 1);
 				Debug.Log("Texture integrity breached.\n textures[" + i + "], \"" + textures[i].name + "\" has been changed.");
 				CheatHandling.TextureHackDetected();
-				hashes.Clear();
-				hashes.AddRange(array);
 				return false;
 			}
 		}
 		return true;
 	}
 
-	public void ClearTextures()
-	{
-		textures.Clear();
-	}
-
-	public void AddTexture(Texture2D texture)
-	{
-		textures.Add(texture);
-	}
-
 	private void GenerateNewHashes()
 	{
-		if (!disableTextureIntegrityCheck)
+		hashes.Clear();
+		for (int i = 0; i < textures.Count; i++)
 		{
-			hashes.Clear();
-			for (int i = 0; i < textures.Count; i++)
-			{
-				Texture2D mainTexture = textures[i];
-				material.mainTexture = mainTexture;
-				cam.Render();
-			}
+			Texture2D mainTexture = textures[i];
+			material.mainTexture = mainTexture;
+			cam.Render();
 		}
 	}
 
-	private byte CalculateHash(RenderTexture texture)
+	private void OnPostRender_GenerateNewHashes()
 	{
-		RenderTexture active = RenderTexture.active;
-		RenderTexture.active = texture;
-		Texture2D texture2D = new Texture2D(renderTexture.width, renderTexture.height, TextureFormat.RGB24, mipChain: false);
+		if (material.SetPass(0))
+		{
+			Graphics.DrawMeshNow(plane, Vector3.zero, Quaternion.identity);
+			hashes.Add(CalculateHash(renderTexture));
+		}
+		else
+		{
+			Debug.LogError("MaterialPlaneRenderer failed to set shader pass.");
+		}
+	}
+
+	private byte CalculateHash(RenderTexture renderTexture)
+	{
+		Texture2D texture2D = new Texture2D(renderTexture.width, renderTexture.height, TextureFormat.ARGB32, mipChain: false);
 		texture2D.ReadPixels(new Rect(0f, 0f, renderTexture.width, renderTexture.height), 0, 0);
 		texture2D.Apply();
-		RenderTexture.active = active;
 		return CalculateHash(texture2D);
 	}
 

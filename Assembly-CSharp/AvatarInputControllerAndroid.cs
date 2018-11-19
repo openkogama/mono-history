@@ -10,6 +10,8 @@ public class AvatarInputControllerAndroid : IAvatarInputController, IMotorAPI
 
 	private AvatarInputControllerAndroidSettings settings;
 
+	private static Camera mainCamera;
+
 	public Vector3 Direction => direction;
 
 	public Quaternion Rotation
@@ -29,6 +31,7 @@ public class AvatarInputControllerAndroid : IAvatarInputController, IMotorAPI
 	public AvatarInputControllerAndroid()
 	{
 		settings = Object.Instantiate(PrefabPool.Instance.AvatarInputControllerAndroidSettings);
+		mainCamera = Camera.main;
 	}
 
 	public void HandleDead()
@@ -82,7 +85,7 @@ public class AvatarInputControllerAndroid : IAvatarInputController, IMotorAPI
 	{
 		if (moveDirection.magnitude > 0f)
 		{
-			Transform transform = Camera.main.transform;
+			Transform transform = mainCamera.transform;
 			Vector3 vector = transform.rotation * moveDirection;
 			vector.y = 0f;
 			moveDirection = vector.normalized;
@@ -92,7 +95,7 @@ public class AvatarInputControllerAndroid : IAvatarInputController, IMotorAPI
 
 	private static Quaternion GetCameraYRotation()
 	{
-		Transform transform = Camera.main.transform;
+		Transform transform = mainCamera.transform;
 		return Quaternion.Euler(0f, transform.rotation.eulerAngles.y, 0f);
 	}
 

@@ -5,10 +5,10 @@ public class TargetRotation : MonoBehaviour
 	private Vector3 eulerAngles = default;
 
 	[SerializeField]
-	private float lerpSpeedX;
+	private float lerpSpeedX = 15f;
 
 	[SerializeField]
-	private float lerpSpeedY;
+	private float lerpSpeedY = 15f;
 
 	public Vector3 EulerAngles => eulerAngles;
 
@@ -21,6 +21,12 @@ public class TargetRotation : MonoBehaviour
 	{
 		eulerAngles.x = pitch;
 		eulerAngles.y = yaw;
+		eulerAngles.z = 0f;
+	}
+
+	public void SetTargetRotation(Quaternion q)
+	{
+		eulerAngles = q.eulerAngles;
 		eulerAngles.z = 0f;
 	}
 

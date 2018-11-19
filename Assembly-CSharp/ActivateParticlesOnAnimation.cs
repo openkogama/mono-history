@@ -23,7 +23,7 @@ public class ActivateParticlesOnAnimation : ActivateOnAnimationBase
 	{
 		for (int i = 0; i < activationDataList.Count; i++)
 		{
-			if (activationDataList[i].activatingAnimation == newAnimation)
+			if (activationDataList[i].activatingAnimation == newAnimation && gameObject.activeInHierarchy)
 			{
 				StartCoroutine(PlayParticles(activationDataList[i].activationDelay));
 				break;

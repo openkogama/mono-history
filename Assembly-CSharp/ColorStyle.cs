@@ -48,5 +48,6 @@ public enum ColorStyle
 	ButtonYellow = 52,
 	ButtonGreen = 53,
 	Success = 54,
-	Error = 55
+	Error = 55,
+	DisabledButton = 56
 }

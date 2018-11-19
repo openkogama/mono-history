@@ -50,7 +50,7 @@ public class SwitchThemeButton : MonoBehaviour
 		{
 			LevelRequirement = levelReq;
 			this.levelReq.SetActive(value: true);
-			priceTag.SetActive(value: false);
+			priceTag.SetActive(value: true);
 		}
 		else
 		{

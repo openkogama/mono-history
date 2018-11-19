@@ -27,7 +27,7 @@ public class CERoamUUI : ESStateBase
 		esm.CubeModelingStateMachine.RemoveCursors();
 		tintedWo = MVWorldObjectClientManager.GetWorldObjectClientRefNullRef();
 		SharedCubeFunctions.SetLayerRecursively(esm.ParentGroup.Transform, select: true);
-		esm.CameraController.BlueModeEnabled = true;
+		esm.CameraController.BlueModeEnabled = false;
 		if (esm.ParentGroup is MVBody)
 		{
 			MVAvatarLocal.JetPackMode jetPackMode = (MVAvatarLocal.JetPackMode)MVGameControllerBase.WOCM.AvatarLocal.CurrentMode;

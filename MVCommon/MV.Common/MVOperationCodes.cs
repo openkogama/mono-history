@@ -91,6 +91,7 @@ public enum MVOperationCodes : byte
 	UpdateAvatarAccessoryScale = 99,
 	GetThemesData = 100,
 	SetMouseSensitivity = 101,
+	StartSessionTime = 102,
 	Join = byte.MaxValue,
 	Leave = 254,
 	RaiseEvent = 253,

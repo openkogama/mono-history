@@ -12,7 +12,9 @@ public class MVCubeModelPrototypeTerrain : MVCubeModelBase
 		: base(data, worldObjects, prototypes)
 	{
 		interactionFlags = InteractionFlags.IsTerrain;
-		MVGameControllerBase.WOCM.UpdateWorldBounds(SharedCubeFunctions.GetAxisAlignedBoundsRecursively(gameObject.transform).Value);
+		Bounds? axisAlignedBoundsRecursively = SharedCubeFunctions.GetAxisAlignedBoundsRecursively(gameObject.transform);
+		Bounds bounds = (axisAlignedBoundsRecursively.HasValue ? axisAlignedBoundsRecursively.Value : default(Bounds));
+		MVGameControllerBase.WOCM.UpdateWorldBounds(bounds);
 	}
 
 	public override void Initialize()

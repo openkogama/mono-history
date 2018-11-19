@@ -35,6 +35,8 @@ public class BoneAnimation : MonoBehaviour
 	[SerializeField]
 	private Animation avatarAnimation;
 
+	private Camera mainCamera;
+
 	private float speed = 1f;
 
 	public AudioSource AudioSource
@@ -49,6 +51,11 @@ public class BoneAnimation : MonoBehaviour
 		}
 	}
 
+	private void Start()
+	{
+		mainCamera = Camera.main;
+	}
+
 	public void PlayFootstepAudio()
 	{
 		if (mvAvatar == null)
@@ -60,7 +67,7 @@ public class BoneAnimation : MonoBehaviour
 			if (MVGameControllerBase.WOCM.AvatarLocal.RigidBody.Grounded && !MVGameControllerBase.WOCM.AvatarLocal.IsInVehicle)
 			{
 				AudioSource.pitch = GetFootstepPitch();
-				MVGameControllerBase.AudioManager.Play("Footstep", AudioSource, Camera.main.transform.position + Camera.main.transform.forward);
+				MVGameControllerBase.AudioManager.Play("Footstep", AudioSource, mainCamera.transform.position + mainCamera.transform.forward);
 			}
 		}
 		else

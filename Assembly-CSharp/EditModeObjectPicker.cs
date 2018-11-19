@@ -6,6 +6,20 @@ public static class EditModeObjectPicker
 {
 	private const int defaultMask = -262149;
 
+	private static Camera mainCamera;
+
+	private static Camera MainCamera
+	{
+		get
+		{
+			if (mainCamera == null)
+			{
+				mainCamera = Camera.main;
+			}
+			return mainCamera;
+		}
+	}
+
 	public static bool Pick(ref VoxelHit hit, HashSet<int> ignoreWoIds = null, int layerMask = -262149)
 	{
 		if (MVInputWrapper.IsAllInputSuppressed)
@@ -20,7 +34,7 @@ public static class EditModeObjectPicker
 		{
 			return false;
 		}
-		Ray ray = Camera.main.ScreenPointToRay(new Vector3(MVInputWrapper.GetPointerPosition().x, MVInputWrapper.GetPointerPosition().y));
+		Ray ray = MainCamera.ScreenPointToRay(new Vector3(MVInputWrapper.GetPointerPosition().x, MVInputWrapper.GetPointerPosition().y));
 		float num = 0f;
 		bool flag = false;
 		if (DrawPlane.IsDrawPlaneActive)
@@ -65,7 +79,7 @@ public static class EditModeObjectPicker
 		{
 			return false;
 		}
-		Ray ray = Camera.main.ScreenPointToRay(MVInputWrapper.GetPointerPosition());
+		Ray ray = MainCamera.ScreenPointToRay(MVInputWrapper.GetPointerPosition());
 		VoxelHit voxelHit = default;
 		if (CollisionDetection.MVHit(ray, cr, out voxelHit))
 		{

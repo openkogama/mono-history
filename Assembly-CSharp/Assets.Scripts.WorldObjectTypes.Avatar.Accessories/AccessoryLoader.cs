@@ -60,7 +60,7 @@ public class AccessoryLoader
 			if (Urls.StreamingAssetUrlReady())
 			{
 				Urls.onStreamingAssetsUrlAvailable = (Urls.OnStreamingAssetsUrlAvailable)Delegate.Remove(Urls.onStreamingAssetsUrlAvailable, new Urls.OnStreamingAssetsUrlAvailable(LoadAccessory));
-				string path = StreamingAsset.DBUrlToServerUrl(StreamingAsset.AssetBundleUrl + subUrl) + MVGameControllerBase.KoGaMaSettings.WebCacheInvalidationCodeStr;
+				string path = StreamingAsset.DBUrlToServerUrl(StreamingAsset.AssetBundleUrl + subUrl);
 				GetRequest asyncRequest = new CachedGetRequest(path, Callback, WWWRequestPriority.WaitUntilSyncronizingIsDone);
 				AsyncWWWManager.WWWRequest(asyncRequest);
 			}

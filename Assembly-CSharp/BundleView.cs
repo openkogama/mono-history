@@ -31,7 +31,7 @@ public class BundleView : MonoBehaviour
 	private PurchasedAccessoryPreviewer previewSlideshowPrefab;
 
 	[SerializeField]
-	private RawImage levelRequirement;
+	private Image levelLocked;
 
 	[SerializeField]
 	private BundlePurchasePopUp bundlePurchasePopup;
@@ -44,6 +44,12 @@ public class BundleView : MonoBehaviour
 
 	[SerializeField]
 	private GameObject claimText;
+
+	[SerializeField]
+	private Button purchaseButton;
+
+	[SerializeField]
+	private AccessoryShinyButton shineEffect;
 
 	private AccessoryBundleClient bundleData;
 
@@ -200,7 +206,9 @@ public class BundleView : MonoBehaviour
 	{
 		originalPrice = 0;
 		int num = 0;
-		levelRequirement.gameObject.SetActive(value: false);
+		levelLocked.gameObject.SetActive(value: false);
+		purchaseButton.image.color = Styles.GetColor(ColorStyle.ButtonSuccess);
+		shineEffect.gameObject.SetActive(value: true);
 		List<AccessoryBundleItem> accessoryBundleItems = accessoryData.accessoryBundleItems;
 		for (int i = 0; i < accessoryBundleItems.Count; i++)
 		{
@@ -252,30 +260,14 @@ public class BundleView : MonoBehaviour
 
 	private void HandleLevel(AccessoryBundleClient accessoryData)
 	{
-		levelRequirement.gameObject.SetActive(value: true);
-		BadgeManager.GetBadgeTexture(accessoryData.level, OnLevelRequirementLoaded);
+		purchaseButton.image.color = Styles.GetColor(ColorStyle.DisabledButton);
+		shineEffect.gameObject.SetActive(value: false);
+		levelLocked.gameObject.SetActive(value: true);
 		originalPriceText.gameObject.SetActive(value: false);
 		discountedPriceText.gameObject.SetActive(value: false);
 		bundlePriceWithoutDiscount.gameObject.SetActive(value: false);
 		discountTag.SetActive(value: false);
 		goldSavedText.gameObject.SetActive(value: false);
 		claimText.SetActive(value: false);
-	}
-
-	private void OnLevelRequirementLoaded(WWW www)
-	{
-		if (www == null || www.texture == null)
-		{
-			Debug.LogWarning("Badge not loaded for accessory level requirement");
-		}
-		else
-		{
-			levelRequirement.texture = www.texture;
-		}
-	}
-
-	private void OnDestroy()
-	{
-		AsyncWWWManager.UnsubscribeWWWRequest(OnLevelRequirementLoaded);
 	}
 }

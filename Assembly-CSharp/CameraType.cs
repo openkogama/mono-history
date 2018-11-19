@@ -15,5 +15,7 @@ public enum CameraType
 	GodzillaModeMainCamera = 13,
 	GodzillaModeEntryCamera = 14,
 	GodzillaMode2DCamera = 15,
-	FirstPersonCamera = 16
+	FirstPersonCamera = 16,
+	TimeAttackFlagDebriefingCamera = 17,
+	TimeAttackFlagCountdownCamera = 18
 }

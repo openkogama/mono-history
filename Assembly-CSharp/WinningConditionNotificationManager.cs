@@ -94,8 +94,29 @@ public static class WinningConditionNotificationManager
 				return true;
 			}
 			break;
-		case GameStatCounterType.Flag:
 		case GameStatCounterType.TimeAttackFlag:
+		{
+			if (MVGameControllerBase.Game.LocalPlayer.ActorNr == actorNumber)
+			{
+				return false;
+			}
+			if (scoreLeftToWin == 0)
+			{
+				return false;
+			}
+			MVPlayer mVPlayer2 = MVGameControllerBase.Game.MVPlayerContainer[actorNumber];
+			if (mVPlayer2 == null)
+			{
+				return false;
+			}
+			if (IsFlagScoreBestInGame(scoreLeftToWin, actorNumber))
+			{
+				notificationType = NotificationType.FlagHighScore;
+				return true;
+			}
+			break;
+		}
+		case GameStatCounterType.Flag:
 		{
 			if (scoreLeftToWin == 0)
 			{

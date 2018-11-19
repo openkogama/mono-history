@@ -46,13 +46,7 @@ public class HoverCraftMotor : SimpleVehicleMotorBase
 
 	private Vector3 lastKnownMovementDir = Vector3.zero;
 
-	private bool started;
-
-	private float startTime;
-
-	private float interval = 5f;
-
-	private float f;
+	private const string horizontal = "Horizontal";
 
 	private float driftCorrectionRotation = 10f;
 
@@ -137,7 +131,7 @@ public class HoverCraftMotor : SimpleVehicleMotorBase
 
 	private void Move(Vector3 velocity, Vector3 basevelocity)
 	{
-		Vector3 motion = (velocity + basevelocity) * Time.deltaTime;
+		Vector3 motion = (velocity + basevelocity) * Time.fixedDeltaTime;
 		Controller.Move(motion);
 		groundState.Update(Controller, velocity);
 	}
@@ -173,7 +167,7 @@ public class HoverCraftMotor : SimpleVehicleMotorBase
 
 	protected Vector3 ApplyWaterGravity(Vector3 velocity, float waterProximity)
 	{
-		velocity.y += waterDownVelocity * Time.deltaTime * waterProximity;
+		velocity.y += waterDownVelocity * Time.fixedDeltaTime * waterProximity;
 		if (velocity.y > 0f)
 		{
 			velocity.y = Mathf.Clamp(velocity.y, 0f, maxUnderWaterYMovement);
@@ -191,22 +185,6 @@ public class HoverCraftMotor : SimpleVehicleMotorBase
 		};
 	}
 
-	private bool CanRotate()
-	{
-		float b = 10f;
-		f = Mathf.Lerp(f, b, Time.deltaTime);
-		if (!started && Input.GetKey(KeyCode.D))
-		{
-			startTime = Time.fixedTime;
-			started = true;
-		}
-		if (Time.fixedTime - startTime > interval)
-		{
-			return false;
-		}
-		return true;
-	}
-
 	private Vector3 GetVehicleInputVelocityClassicCam(Vector3 velocity)
 	{
 		velocity = HoverCraftFrictionXZ(velocity);
@@ -218,16 +196,9 @@ public class HoverCraftMotor : SimpleVehicleMotorBase
 		{
 			Quaternion quaternion = Quaternion.Euler(0f, VehicleCamera.RotationAroundY, 0f);
 			Quaternion quaternion2 = Quaternion.Slerp(Controller.transform.rotation, Controller.transform.rotation * quaternion, Time.fixedDeltaTime * recalibrateCameraFactor);
-			float num = Quaternion.Angle(quaternion2, Controller.transform.rotation);
+			float b = Quaternion.Angle(quaternion2, Controller.transform.rotation);
 			Controller.transform.rotation = quaternion2;
-			if (VehicleCamera.RotationAroundY < 0f)
-			{
-				VehicleCamera.RotationAroundY += num;
-			}
-			else
-			{
-				VehicleCamera.RotationAroundY -= num;
-			}
+			VehicleCamera.RotationAroundY = Mathf.Lerp(VehicleCamera.RotationAroundY, b, Time.fixedDeltaTime * recalibrateCameraFactor);
 		}
 		Vector3 directInputMoveMap = DirectInputMoveMap;
 		directInputMoveMap.x = 0f;
@@ -298,7 +269,7 @@ public class HoverCraftMotor : SimpleVehicleMotorBase
 	{
 		float num = 57.29578f * MathFunctions.SignedAngle(vec, target, Vector3.up);
 		float num2 = Mathf.Abs(num);
-		float num3 = speedInDegrees * Time.deltaTime;
+		float num3 = speedInDegrees * Time.fixedDeltaTime;
 		if (num3 > num2)
 		{
 			num3 = num2;
@@ -315,7 +286,7 @@ public class HoverCraftMotor : SimpleVehicleMotorBase
 	private float GetDriftCorrectValue(float val)
 	{
 		float num = Mathf.Abs(val);
-		float num2 = Mathf.Max(0f, num - driftCorrectionRotation * Time.deltaTime);
+		float num2 = Mathf.Max(0f, num - driftCorrectionRotation * Time.fixedDeltaTime);
 		if (val < 0f)
 		{
 			return 0f - num2;
@@ -352,7 +323,7 @@ public class HoverCraftMotor : SimpleVehicleMotorBase
 			return velocity;
 		}
 		float num = 1f / (magnitude / magnitudeDivider + 1f);
-		Vector3 vector2 = vector.normalized * num * frictionFactor * Time.deltaTime;
+		Vector3 vector2 = vector.normalized * num * frictionFactor * Time.fixedDeltaTime;
 		if (vector2.sqrMagnitude > vector.sqrMagnitude)
 		{
 			vector2 = vector;
@@ -405,7 +376,7 @@ public class HoverCraftMotor : SimpleVehicleMotorBase
 			}
 			if (availableVerticalThrustTime < 0.6f)
 			{
-				availableVerticalThrustTime = Mathf.Clamp(availableVerticalThrustTime + Time.deltaTime * regenerationFactor, 0f, 0.6f);
+				availableVerticalThrustTime = Mathf.Clamp(availableVerticalThrustTime + Time.fixedDeltaTime * regenerationFactor, 0f, 0.6f);
 			}
 			return velocity;
 		}
@@ -413,7 +384,7 @@ public class HoverCraftMotor : SimpleVehicleMotorBase
 		{
 			return velocity;
 		}
-		availableVerticalThrustTime = Mathf.Clamp(availableVerticalThrustTime - Time.deltaTime, 0f, 0.6f);
+		availableVerticalThrustTime = Mathf.Clamp(availableVerticalThrustTime - Time.fixedDeltaTime, 0f, 0.6f);
 		if (availableVerticalThrustTime == 0f)
 		{
 			stoppedJumpingTime = Time.time;

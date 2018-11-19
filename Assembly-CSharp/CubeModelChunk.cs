@@ -540,9 +540,9 @@ public class CubeModelChunk
 			for (int i = 0; i < index; i++)
 			{
 				int num2 = CubeBase.GetMaterial(cell.Value.cube, faceData[i].face);
-				if (num2 < 0 || num2 > 60)
+				if (num2 < 0 || num2 >= 60)
 				{
-					num2 = 60;
+					num2 = 24;
 				}
 				for (int j = 0; j < 4; j++)
 				{

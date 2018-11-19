@@ -159,10 +159,11 @@ public class DamageIndicator : MonoBehaviour
 				directionArrow.Show(damageDealer.Avatar.Transform, damageAmount * durationPerPointOfDamage, indicationRadius);
 			}
 		}
-		damageOverlay.enabled = true;
 		if (damageType != PlayerKilledByType.Environmental)
 		{
 			damageOverlayTimer = Mathf.Max(damageOverlayTimer, damageAmount * durationPerPointOfDamage);
+			Debug.Log(damageOverlayTimer);
+			damageOverlay.enabled = true;
 		}
 	}
 

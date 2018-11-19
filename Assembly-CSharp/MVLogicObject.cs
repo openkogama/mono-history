@@ -33,6 +33,7 @@ public abstract class MVLogicObject : MVWorldObjectClient, IUpdatecontrollerSubs
 	{
 		base.Initialize();
 		UpdateController.AddUpdateObject(this, UpdatePriority.PRE_UPDATEBUCKET_20);
+		transform.position += new Vector3(0f, 0.001f, 0f);
 	}
 
 	protected CullingSubscriberBase SetupCulling(GameObject lodGameObject)

@@ -11,5 +11,7 @@ public enum ClientSettingFlags
 	ShowTouristPromotion = 4,
 	ShowTouristAd = 8,
 	SpinEnabled = 0x10,
-	StathatEnabled = 0x20
+	StathatEnabled = 0x20,
+	InterstitalAdsEnabled = 0x40,
+	RewardedAdsEnabled = 0x80
 }

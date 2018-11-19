@@ -46,6 +46,8 @@ public class CubeModelingStateMachine : FSMEntity
 
 	private bool editMode2d;
 
+	private Camera mainCamera;
+
 	public Vector3[] CubeCorners
 	{
 		get
@@ -110,6 +112,7 @@ public class CubeModelingStateMachine : FSMEntity
 		this.gameObject = gameObject;
 		transitionTable = new CubeModelingTransitionTable();
 		Event = CubeModelingEvent.EditCubes;
+		mainCamera = Camera.main;
 	}
 
 	public void StartEdit(MVCubeModelBase targetCubeModel, IModelingConstraint constraint = null)
@@ -181,8 +184,8 @@ public class CubeModelingStateMachine : FSMEntity
 			Vector3 hit = Vector3.zero;
 			if (DrawPlane.Pick(ref hit))
 			{
-				float magnitude = (hit - Camera.main.transform.position).magnitude;
-				float magnitude2 = (info.point - Camera.main.transform.position).magnitude;
+				float magnitude = (hit - mainCamera.transform.position).magnitude;
+				float magnitude2 = (info.point - mainCamera.transform.position).magnitude;
 				if (magnitude - 0.01f < magnitude2)
 				{
 					return null;

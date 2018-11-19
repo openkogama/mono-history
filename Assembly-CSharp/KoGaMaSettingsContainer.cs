@@ -26,7 +26,7 @@ public class KoGaMaSettingsContainer : ScriptableObject
 	private int versionBuild;
 
 	[SerializeField]
-	private int webCacheInvalidationCode;
+	private int streamingAssetVersion;
 
 	[SerializeField]
 	private string versionGuid = string.Empty;
@@ -53,9 +53,9 @@ public class KoGaMaSettingsContainer : ScriptableObject
 
 	public string ReleaseName => additionalMetaData.text;
 
-	public int WebCacheInvalidationCode => webCacheInvalidationCode;
+	public int LocalDiscCacheAssetVersion => streamingAssetVersion;
 
-	public string WebCacheInvalidationCodeStr => "?version=" + webCacheInvalidationCode;
+	public string UrlCacheAssetVersionArgument => "?version=" + streamingAssetVersion;
 
 	public string VersionGuid => versionGuid;
 
@@ -71,7 +71,7 @@ public class KoGaMaSettingsContainer : ScriptableObject
 
 	public string BuildTime => buildTime;
 
-	public void InvalidateWebCache(bool serialize = true)
+	public void InvalidateStreamingAssetsCache(bool serialize = true)
 	{
 		DateTime utcNow = DateTime.UtcNow;
 		CrunchDesc[] array = new CrunchDesc[6]
@@ -90,6 +90,11 @@ public class KoGaMaSettingsContainer : ScriptableObject
 			num <<= (int)crunchDesc.numOfBits;
 			num += crunchDesc.data;
 		}
-		webCacheInvalidationCode = num;
+		streamingAssetVersion = num;
+	}
+
+	public void SetStreamingAssetVersion(int version)
+	{
+		streamingAssetVersion = version;
 	}
 }

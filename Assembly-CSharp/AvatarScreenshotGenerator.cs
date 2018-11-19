@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class AvatarScreenshotGenerator : MonoBehaviour
@@ -10,10 +11,6 @@ public class AvatarScreenshotGenerator : MonoBehaviour
 	public string animationToShoot = "Walk";
 
 	public float animationTime = 0.16f;
-
-	private bool generatingScreenshot;
-
-	private int generateStartFrame = -1;
 
 	private ParticleSystem[] particleSystems;
 
@@ -34,24 +31,15 @@ public class AvatarScreenshotGenerator : MonoBehaviour
 		avatarScreenshotGenerator.screenShotDataTexHandler = screenShotDataTexHandler;
 		avatarScreenshotGenerator.bodyCloneGO = bodyCloneGO;
 		avatarScreenshotGenerator.boneAnimation = bodyCloneGO.GetComponentInChildren<BoneAnimation>();
-		avatarScreenshotGenerator.generateStartFrame = Time.frameCount;
-		avatarScreenshotGenerator.generatingScreenshot = true;
 		avatarScreenshotGenerator.particleSystems = bodyCloneGO.GetComponentsInChildren<ParticleSystem>();
 		avatarScreenshotGenerator.boneAnimation.PlayAndPauseAt(avatarScreenshotGenerator.animationToShoot, avatarScreenshotGenerator.animationTime);
+		avatarScreenshotGenerator.StartCoroutine(avatarScreenshotGenerator.GenerateScreenshot());
 	}
 
-	private void Update()
+	public IEnumerator GenerateScreenshot()
 	{
-		if (!generatingScreenshot)
+		if (particleSystems != null)
 		{
-			return;
-		}
-		if (Time.frameCount == generateStartFrame + 1)
-		{
-			if (particleSystems == null)
-			{
-				return;
-			}
 			ParticleSystem[] array = particleSystems;
 			foreach (ParticleSystem particleSystem in array)
 			{
@@ -61,21 +49,19 @@ public class AvatarScreenshotGenerator : MonoBehaviour
 				}
 			}
 		}
-		else if (Time.frameCount == generateStartFrame + 2)
-		{
-			ScreenShotGenerator.Generate(bodyCloneGO, cameraOffset, lookAtOffset, ScreenShotDataTexHandler);
-		}
+		yield return new WaitForEndOfFrame();
+		AvatarEditModeBodyController.Theme.Deactivate();
+		ScreenShotGenerator.Generate(bodyCloneGO, cameraOffset, lookAtOffset, ScreenShotDataTexHandler);
 	}
 
 	private void ScreenShotDataTexHandler(Texture2D screenshotTex)
 	{
+		AvatarEditModeBodyController.Theme.Activate();
 		if (screenShotDataTexHandler != null)
 		{
 			screenShotDataTexHandler(screenshotTex);
 		}
 		UnityEngine.Object.Destroy(bodyCloneGO);
-		generatingScreenshot = false;
-		generateStartFrame = -1;
 		bodyCloneGO = null;
 		boneAnimation = null;
 		UnityEngine.Object.Destroy(gameObject);

@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class DesktopAvatarEditModeController : ModeControllerBase, IActivateUIElement, IAvatarEditUIState, ISetEditState, IAvatarSetBodyGroup, IGetCurrentBody, IEventSystemHandler
+public class DesktopAvatarEditModeController : ModeControllerBase, IActivateUIElement, IAvatarEditUIState, ISetEditState, IAvatarSetBodyGroup, IGetCurrentBody, IAccessoryPopupHandler, IEventSystemHandler
 {
 	private EditorStateMachine editorStateMachine;
 
@@ -156,5 +156,10 @@ public class DesktopAvatarEditModeController : ModeControllerBase, IActivateUIEl
 	{
 		uiStack.SetStackReady();
 		MVGameControllerBase.OnFirstFrameUpdateActorReady = (Action)Delegate.Remove(MVGameControllerBase.OnFirstFrameUpdateActorReady, new Action(SetUIReady));
+	}
+
+	public void OpenInventoryAtItem(UIPushOption pushOption, AccessoryDataClient displayShopItems)
+	{
+		accessoryShopController.OpenInventoryAtItem(pushOption, displayShopItems);
 	}
 }

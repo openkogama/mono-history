@@ -214,6 +214,8 @@ public class Styles : MonoBehaviour
 
 	private static Dictionary<SoundStyle, AudioSource> soundStylesDictionary = new Dictionary<SoundStyle, AudioSource>();
 
+	private static Dictionary<AccessoryRarity, RarityStylesDef> accessoryRarityColorsDictionary = new Dictionary<AccessoryRarity, RarityStylesDef>();
+
 	[SerializeField]
 	private List<ButtonStyleDef> buttonStyles = new List<ButtonStyleDef>();
 
@@ -231,6 +233,9 @@ public class Styles : MonoBehaviour
 
 	[SerializeField]
 	private List<SoundStyleDef> soundStyles = new List<SoundStyleDef>();
+
+	[SerializeField]
+	private List<RarityStylesDef> rarityStyles = new List<RarityStylesDef>();
 
 	private static bool isInitialized;
 
@@ -269,6 +274,10 @@ public class Styles : MonoBehaviour
 		foreach (SoundStyleDef soundStyle in soundStyles)
 		{
 			soundStylesDictionary.Add(soundStyle.soundStyle, soundStyle.audioSource);
+		}
+		foreach (RarityStylesDef rarityStyle in rarityStyles)
+		{
+			accessoryRarityColorsDictionary.Add(rarityStyle.rarity, rarityStyle);
 		}
 	}
 
@@ -406,5 +415,33 @@ public class Styles : MonoBehaviour
 			AudioSource audioSource = soundStylesDictionary[soundStyle];
 			audioSource.Play();
 		}
+	}
+
+	public static RarityStylesDef GetAccessoryColorsFromPrice(int price)
+	{
+		Array values = Enum.GetValues(typeof(AccessoryRarity));
+		for (int i = 0; i < values.Length; i++)
+		{
+			RarityStylesDef rarityStylesDef = accessoryRarityColorsDictionary[(AccessoryRarity)i];
+			if (price < rarityStylesDef.priceRange)
+			{
+				return accessoryRarityColorsDictionary[(AccessoryRarity)i];
+			}
+		}
+		return accessoryRarityColorsDictionary[AccessoryRarity.Legendary];
+	}
+
+	public static RarityStylesDef GetAccessoryColorsFromLevel(int level)
+	{
+		Array values = Enum.GetValues(typeof(AccessoryRarity));
+		for (int i = 0; i < values.Length; i++)
+		{
+			RarityStylesDef rarityStylesDef = accessoryRarityColorsDictionary[(AccessoryRarity)i];
+			if (level < rarityStylesDef.levelRange)
+			{
+				return accessoryRarityColorsDictionary[(AccessoryRarity)i];
+			}
+		}
+		return accessoryRarityColorsDictionary[AccessoryRarity.Legendary];
 	}
 }

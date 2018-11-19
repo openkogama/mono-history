@@ -3,72 +3,6 @@ using UnityEngine;
 
 public abstract class PlaymodeCamera : MVPlaymodeCameraBase
 {
-	protected class TargetRotation
-	{
-		private Vector3 eulerAngles = default;
-
-		private float maxInertialAngleBehind = 70f;
-
-		public Vector3 EulerAngles => eulerAngles;
-
-		public TargetRotation(float pitch, float yaw)
-		{
-			SetTargetRotation(pitch, yaw);
-		}
-
-		public void SetTargetRotation(float pitch, float yaw)
-		{
-			eulerAngles.x = pitch;
-			eulerAngles.y = yaw;
-			eulerAngles.z = 0f;
-		}
-
-		public void SetTargetRotation(Quaternion q)
-		{
-			eulerAngles = q.eulerAngles;
-			eulerAngles.z = 0f;
-		}
-
-		public Quaternion GetRotation()
-		{
-			return Quaternion.Euler(eulerAngles);
-		}
-
-		public Quaternion GetLerpRotation(Quaternion from, float lerpSpeedX, float lerpSpeedY)
-		{
-			Vector3 vector = from.eulerAngles;
-			float x = Mathf.LerpAngle(vector.x, eulerAngles.x, Time.deltaTime * lerpSpeedX);
-			vector.y = ClampDegreeDiff(vector.y, eulerAngles.y, maxInertialAngleBehind);
-			float y = Mathf.LerpAngle(vector.y, eulerAngles.y, Time.deltaTime * lerpSpeedY);
-			return Quaternion.Euler(x, y, 0f);
-		}
-
-		private static float ClampDegreeDiff(float target, float to, float maxDiff)
-		{
-			float num = Mathf.DeltaAngle(target, to);
-			float num2 = 0f;
-			if (num > maxDiff)
-			{
-				num2 = num - maxDiff;
-			}
-			else if (num < 0f - maxDiff)
-			{
-				num2 = num + maxDiff;
-			}
-			return target + num2;
-		}
-
-		public float Normalize(float degrees)
-		{
-			degrees %= 360f;
-			if (degrees < 0f)
-			{
-				degrees += 360f;
-			}
-			return degrees;
-		}
-	}
-
 	private class SmoothLookAt
 	{
 		private int samleLength = 5;
@@ -108,10 +42,6 @@ public abstract class PlaymodeCamera : MVPlaymodeCameraBase
 
 	public float height = 1.5f;
 
-	public float mouseSensitivity = 0.25f;
-
-	public float aroundYInertiaMouseControlled = 0.5f;
-
 	public float minimumY = -60f;
 
 	public float maximumY = 60f;
@@ -119,8 +49,6 @@ public abstract class PlaymodeCamera : MVPlaymodeCameraBase
 	public Vector3 shoulderOffset = new Vector3(1.5f, 0f, -0.2f);
 
 	private Vector3 avatarHeadOffset = new Vector3(0f, 1.5f, 0f);
-
-	public float aroundXInertia = 7f;
 
 	public float targetDistanceStrength = 2f;
 
@@ -142,11 +70,14 @@ public abstract class PlaymodeCamera : MVPlaymodeCameraBase
 
 	protected Transform lookAtTransform;
 
-	protected TargetRotation targetRot = new TargetRotation(0f, 0f);
-
-	protected float aroundYInertia;
+	[SerializeField]
+	protected TargetRotation targetRot;
 
 	protected Vector3 lookAtPos = Vector3.zero;
+
+	public float mouseSensitivity = 0.25f;
+
+	protected float aroundYInertia;
 
 	protected float lookAtScaleCorrection = 1f;
 
@@ -158,7 +89,6 @@ public abstract class PlaymodeCamera : MVPlaymodeCameraBase
 	{
 		base.Awake();
 		distance = distanceToAvatar;
-		aroundYInertia = aroundYInertiaMouseControlled;
 		currentLookAtOffset = lookAtOffset;
 	}
 
@@ -188,7 +118,7 @@ public abstract class PlaymodeCamera : MVPlaymodeCameraBase
 	public override void UpdateCamera(MVCameraController camController, ProtectedTransform targetTransform)
 	{
 		avatarHeadOffset = new Vector3(0f, height, 0f);
-		transform.rotation = targetRot.GetLerpRotation(transform.rotation, aroundXInertia, aroundYInertia);
+		transform.rotation = targetRot.GetLerpRotation(transform.rotation);
 		distance = Mathf.Lerp(distance, distanceToAvatar, targetDistanceStrength * Time.deltaTime);
 		UpdatePosition();
 		CameraCollision();

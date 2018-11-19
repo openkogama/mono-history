@@ -78,10 +78,6 @@ public class ContextMenuController : MonoBehaviour, IHandlePointerDownOnContextM
 		{
 			contextMenu.AddButton(TM._("Add To Inventory"), AddToInventory);
 		}
-		if (worldObjectClient.HasInteractionFlag(InteractionFlags.IsPreview) && worldObjectClient.PreviewOwnerProfileId == MVGameControllerBase.Game.LocalPlayer.ProfileID)
-		{
-			contextMenu.AddButton(TM._("Purchase"), ShowClientShopInventory);
-		}
 		contextMenu.AddButton(TM._("Delete"), Delete);
 		PopGizmos();
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
@@ -207,10 +203,6 @@ public class ContextMenuController : MonoBehaviour, IHandlePointerDownOnContextM
 		MVGameControllerBase.OperationRequests.ResetLogicChunk(woID);
 	}
 
-	private void ShowClientShopInventory()
-	{
-	}
-
 	private void Clone()
 	{
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
@@ -242,15 +234,22 @@ public class ContextMenuController : MonoBehaviour, IHandlePointerDownOnContextM
 		{
 			x.Create();
 		});
-		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woID);
-		Action<byte[]> callback = (byte[] imageData) =>
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			DataUploadManager.UploadData(imageData, () =>
-			{
-				ItemImageUploaded(woID);
-			});
-		};
-		StartCoroutine(ImageGenerator.CreateTextureFromData(worldObjectClient, callback));
+			x.Pop();
+		});
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+		{
+			x.Create(TM._("Image upload is disabled in standalone. Reload game using the browser version to update image of model.\n"), OnClosedStandaloneError, TM._("Are you sure?"));
+		});
+	}
+
+	private void OnClosedStandaloneError(bool confirmed, ConfirmationPopup popup)
+	{
+		if (confirmed)
+		{
+			ItemImageUploaded(woID);
+		}
 	}
 
 	private void ItemImageUploaded(int woId)

@@ -157,6 +157,18 @@ public abstract class CloudyThemeBase : Theme
 		}
 	}
 
+	public ThemeSkybox Skybox
+	{
+		get
+		{
+			return skybox;
+		}
+		private set
+		{
+			skybox = value;
+		}
+	}
+
 	public override void ThemeReset()
 	{
 		base.ThemeReset();

@@ -8,6 +8,8 @@ public class AvatarInputController : IAvatarInputController, IMotorAPI
 
 	private bool jump;
 
+	private static Camera mainCamera;
+
 	public Vector3 Direction => direction;
 
 	public Quaternion Rotation
@@ -23,6 +25,11 @@ public class AvatarInputController : IAvatarInputController, IMotorAPI
 	}
 
 	public bool Jump => jump;
+
+	public AvatarInputController()
+	{
+		mainCamera = Camera.main;
+	}
 
 	public void HandleInput(Vector3 moveDirection, bool jump, bool didShoot, Vector3 velocity, bool inGunMode, bool forceRotateToCamDirection)
 	{
@@ -42,7 +49,7 @@ public class AvatarInputController : IAvatarInputController, IMotorAPI
 	{
 		if (moveDirection.magnitude > 0f)
 		{
-			Transform transform = Camera.main.transform;
+			Transform transform = mainCamera.transform;
 			Vector3 vector = transform.rotation * moveDirection;
 			vector.y = 0f;
 			moveDirection = vector.normalized;
@@ -52,7 +59,7 @@ public class AvatarInputController : IAvatarInputController, IMotorAPI
 
 	private static Quaternion GetCameraYRotation()
 	{
-		Transform transform = Camera.main.transform;
+		Transform transform = mainCamera.transform;
 		return Quaternion.Euler(0f, transform.rotation.eulerAngles.y, 0f);
 	}
 

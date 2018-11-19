@@ -47,34 +47,34 @@ public class InputToPlayerMovement : IInputToPlayerMovement
 
 	public void HandleInputState(bool fromFrameUpdate)
 	{
-		if (MVGameControllerBase.IPlayModeUI.InLobbyState)
+		MovementMapFlags movementMapFlags = MovementMapFlags.None;
+		movementMapState = MovementMapFlags.None;
+		if (MVInputWrapper.IsInGameInputSuppressed)
 		{
 			return;
 		}
-		MovementMapFlags movementMapFlags = MovementMapFlags.None;
-		movementMapState = MovementMapFlags.None;
-		if (!MVInputWrapper.IsInGameInputSuppressed)
+		if (MVInputWrapper.GetBooleanControl(KogamaControls.MoveForward))
 		{
-			if (MVInputWrapper.GetBooleanControl(KogamaControls.MoveForward))
-			{
-				movementMapFlags |= MovementMapFlags.Forward;
-			}
-			if (MVInputWrapper.GetBooleanControl(KogamaControls.MoveBackwards))
-			{
-				movementMapFlags |= MovementMapFlags.Back;
-			}
-			if (MVInputWrapper.GetBooleanControl(KogamaControls.MoveLeft))
-			{
-				movementMapFlags |= MovementMapFlags.Left;
-			}
-			if (MVInputWrapper.GetBooleanControl(KogamaControls.MoveRight))
-			{
-				movementMapFlags |= MovementMapFlags.Right;
-			}
-			if (MVInputWrapper.GetBooleanControl(KogamaControls.Jump))
-			{
-				movementMapFlags |= MovementMapFlags.Jump;
-			}
+			movementMapFlags |= MovementMapFlags.Forward;
+		}
+		if (MVInputWrapper.GetBooleanControl(KogamaControls.MoveBackwards))
+		{
+			movementMapFlags |= MovementMapFlags.Back;
+		}
+		if (MVInputWrapper.GetBooleanControl(KogamaControls.MoveLeft))
+		{
+			movementMapFlags |= MovementMapFlags.Left;
+		}
+		if (MVInputWrapper.GetBooleanControl(KogamaControls.MoveRight))
+		{
+			movementMapFlags |= MovementMapFlags.Right;
+		}
+		if (MVInputWrapper.GetBooleanControl(KogamaControls.Jump))
+		{
+			movementMapFlags |= MovementMapFlags.Jump;
+		}
+		if (!MVGameControllerBase.IPlayModeUI.InLobbyState)
+		{
 			if (fromFrameUpdate)
 			{
 				frameUpdateMovementMapState |= movementMapFlags;

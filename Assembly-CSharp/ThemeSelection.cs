@@ -134,7 +134,7 @@ public class ThemeSelection : MonoBehaviour
 
 	private void ShowThemeRemovalWarning()
 	{
-		string msg = string.Format("{0}\n{1}", TM._("This will remove the current theme. Your theme settings will be permanently lost.)"), TM._("Are you sure you want to do this?"));
+		string msg = string.Format("{0}\n{1}", TM._("This will remove the current theme. Your theme settings will be permanently lost."), TM._("Are you sure you want to do this?"));
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 		{
 			x.Create(msg, OnThemeRemovalWarningResolved, TM._("Theme removal"));

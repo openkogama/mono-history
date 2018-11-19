@@ -17,7 +17,11 @@ public class NotificationFade : MonoBehaviour
 
 	private float currentTime;
 
+	private float pauseAt = 1f;
+
 	public Action OnFinished;
+
+	public bool IsPaused => pauseAt == duration;
 
 	public void Deactivate()
 	{
@@ -36,8 +40,23 @@ public class NotificationFade : MonoBehaviour
 	public void Activate()
 	{
 		playing = true;
+		pauseAt = duration;
 		group.alpha = 0f;
 		currentTime = 0f;
+	}
+
+	public void PauseAt(float pausePoint)
+	{
+		pauseAt = pausePoint;
+	}
+
+	public void Unpause()
+	{
+		if (!IsPaused)
+		{
+			currentTime = pauseAt;
+			pauseAt = duration;
+		}
 	}
 
 	private void Update()
@@ -45,6 +64,10 @@ public class NotificationFade : MonoBehaviour
 		if (playing)
 		{
 			currentTime += Time.deltaTime;
+			if (currentTime > pauseAt)
+			{
+				currentTime = pauseAt;
+			}
 			group.alpha = textVisibilityCurve.Evaluate(currentTime / duration);
 			if (currentTime >= duration)
 			{

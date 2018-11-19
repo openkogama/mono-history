@@ -28,8 +28,6 @@ public class AccessoryViewController : MonoBehaviour, IAccessoryClicked, IBundle
 
 	private Color prevLight;
 
-	private float prevIntensity = 1f;
-
 	private bool wasEnabled;
 
 	private void Start()

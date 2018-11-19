@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using MV.WorldObject.Accessories;
 using UnityEngine;
@@ -15,48 +14,27 @@ public class AccessoryItemBackground : MonoBehaviour
 	[SerializeField]
 	private Image backgroundRay;
 
-	[SerializeField]
-	private List<RarityColor> rarities;
-
-	private static Dictionary<PriceRange, RarityColor> priceColors;
-
 	public void Initialize(AccessoryDataClient accessoryData)
 	{
-		if (priceColors == null)
+		RarityStylesDef rarityStylesDef = null;
+		rarityStylesDef = ((accessoryData.level == 0 || accessoryData.priceGold != 0) ? Styles.GetAccessoryColorsFromPrice(accessoryData.priceGold) : Styles.GetAccessoryColorsFromLevel(accessoryData.level));
+		rarityImage.color = rarityStylesDef.backgroundColor;
+		glowImage.color = rarityStylesDef.glowColor;
+		backgroundRay.gameObject.SetActive(value: false);
+		if (accessoryData.owns)
 		{
-			priceColors = new Dictionary<PriceRange, RarityColor>();
-			for (int i = 0; i < rarities.Count; i++)
-			{
-				priceColors.Add(rarities[i].priceClass, rarities[i]);
-			}
+			return;
 		}
-		RarityColor colorFromPrice = GetColorFromPrice(accessoryData.priceGold);
-		rarityImage.color = colorFromPrice.correspondingColor;
-		glowImage.color = colorFromPrice.glowColor;
-		backgroundRay.gameObject.SetActive(!accessoryData.owns && accessoryData.isFeatured);
+		backgroundRay.gameObject.SetActive(accessoryData.isFeatured);
 		AccessoryBundleClient accessoryBundleClient = AccessoryDataManager.GetAccessoryBundleClient();
 		List<AccessoryBundleItem> accessoryBundleItems = accessoryBundleClient.accessoryBundleItems;
-		for (int j = 0; j < accessoryBundleItems.Count; j++)
+		for (int i = 0; i < accessoryBundleItems.Count; i++)
 		{
-			if (accessoryBundleItems[j].accessoryMetaDataID == accessoryData.accessoryMetaDataID)
+			if (accessoryBundleItems[i].accessoryMetaDataID == accessoryData.accessoryMetaDataID)
 			{
 				backgroundRay.gameObject.SetActive(value: true);
 				break;
 			}
 		}
-	}
-
-	public static RarityColor GetColorFromPrice(int price)
-	{
-		Array values = Enum.GetValues(typeof(PriceRange));
-		for (int i = 0; i < values.Length; i++)
-		{
-			int num = (int)values.GetValue(i);
-			if (price < num)
-			{
-				return priceColors[(PriceRange)num];
-			}
-		}
-		return priceColors[PriceRange.PriceLegendary];
 	}
 }

@@ -41,7 +41,13 @@ public class JetPackCamera : MVCameraBase
 
 	private float rotationSmoothTime = 0.1f;
 
+	private Camera mainCamera;
+
 	private const float rotationSmoothTimeMouseControlled = 0.1f;
+
+	private const string mouseX = "Mouse X";
+
+	private const string mouseY = "Mouse Y";
 
 	public override CameraType CameraType => CameraType.EditorCamera;
 
@@ -52,6 +58,7 @@ public class JetPackCamera : MVCameraBase
 		transform.position = lookAtTransform.position + lookAtOffset;
 		xAxis = (xAxisTarget = camController.transform.eulerAngles.x);
 		yAxis = (yAxisTarget = camController.transform.eulerAngles.y);
+		mainCamera = Camera.main;
 		ResetRotationToTargetTransform(camController);
 	}
 
@@ -77,7 +84,7 @@ public class JetPackCamera : MVCameraBase
 		{
 			float num = 3f;
 			Vector3 vector = new Vector3(MVInputWrapper.GetAxisRaw("Mouse X") * num, MVInputWrapper.GetAxisRaw("Mouse Y") * num, 0f);
-			float num2 = Camera.main.fieldOfView / (float)Screen.height;
+			float num2 = mainCamera.fieldOfView / (float)Screen.height;
 			yAxisTarget += vector.x * num2;
 			xAxisTarget += (0f - vector.y) * num2;
 			xAxisTarget = NormalizeAngle(xAxisTarget);
@@ -113,7 +120,7 @@ public class JetPackCamera : MVCameraBase
 	{
 		float num = wo.ComputeObjectRadius();
 		Debug.Log("r " + num);
-		float num2 = Camera.main.fieldOfView * 0.5f * 0.7f;
+		float num2 = mainCamera.fieldOfView * 0.5f * 0.7f;
 		float num3 = num / Mathf.Tan(num2 * ((float)Math.PI / 180f));
 		float num4 = num3;
 		Vector3 worldPivot = wo.WorldPivot;

@@ -94,6 +94,13 @@ public static class AvatarModifierPackageFactory
 			})
 		},
 		{
+			AvatarModifierPackageType.TimeAttackFlagDebriefSlow,
+			new AvatarModifierPackage(AvatarModifierPackageType.TimeAttackFlagDebriefSlow, AvatarModifierPackageAdditionPolicy.Renew, 7f, new AvatarModifierPackage.AvatarModifier[1]
+			{
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.Speed, Const(0.3f))
+			})
+		},
+		{
 			AvatarModifierPackageType.Shrunken,
 			new AvatarModifierPackage(AvatarModifierPackageType.Shrunken, AvatarModifierPackageAdditionPolicy.Renew, 35f, new AvatarModifierPackage.AvatarModifier[7]
 			{

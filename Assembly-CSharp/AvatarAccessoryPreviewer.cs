@@ -67,6 +67,7 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 			rotation = bodyClone.transform.rotation;
 		}
 		bodyClone = avatarBody.CreateClone();
+		avatarBody.AccessoryMoveOverride = false;
 		if (avatarResetToTransform != null)
 		{
 			Object.Destroy(avatarResetToTransform.gameObject);
@@ -77,7 +78,6 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 		}
 		avatarResetToTransform = new GameObject().transform;
 		toImage.color = new Color(1f, 1f, 1f, 1f);
-		avatarBody.AccessoryMoveOverride = true;
 		MonoBehaviour[] componentsInChildren = bodyClone.GetComponentsInChildren<MonoBehaviour>();
 		MonoBehaviour[] array = componentsInChildren;
 		foreach (MonoBehaviour monoBehaviour in array)
@@ -99,10 +99,20 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 		{
 			componentsInChildren4[l].GetComponent<Collider>().enabled = true;
 		}
-		SelectionBox[] componentsInChildren5 = bodyClone.GetComponentsInChildren<SelectionBox>();
+		AnimatedSpriteSheetTexture[] componentsInChildren5 = bodyClone.GetComponentsInChildren<AnimatedSpriteSheetTexture>(includeInactive: true);
 		for (int m = 0; m < componentsInChildren5.Length; m++)
 		{
-			Object.Destroy(componentsInChildren5[m].gameObject);
+			componentsInChildren5[m].enabled = true;
+		}
+		AnimatedTextureOffset[] componentsInChildren6 = bodyClone.GetComponentsInChildren<AnimatedTextureOffset>(includeInactive: true);
+		for (int n = 0; n < componentsInChildren6.Length; n++)
+		{
+			componentsInChildren6[n].enabled = true;
+		}
+		SelectionBox[] componentsInChildren7 = bodyClone.GetComponentsInChildren<SelectionBox>();
+		for (int num = 0; num < componentsInChildren7.Length; num++)
+		{
+			Object.Destroy(componentsInChildren7[num].gameObject);
 		}
 		InvulnerabilityBubble componentInChildren = bodyClone.GetComponentInChildren<InvulnerabilityBubble>();
 		if (componentInChildren != null)
@@ -110,22 +120,25 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 			componentInChildren.gameObject.SetActive(value: false);
 		}
 		RemoveSkinnedMeshOptimizers();
-		MeshRenderer[] componentsInChildren6 = bodyClone.GetComponentsInChildren<MeshRenderer>();
-		for (int n = 0; n < componentsInChildren6.Length; n++)
+		MeshRenderer[] componentsInChildren8 = bodyClone.GetComponentsInChildren<MeshRenderer>();
+		for (int num2 = 0; num2 < componentsInChildren8.Length; num2++)
 		{
-			for (int num = 0; num < componentsInChildren6[n].materials.Length; num++)
+			for (int num3 = 0; num3 < componentsInChildren8[num2].materials.Length; num3++)
 			{
-				Color color = componentsInChildren6[n].materials[num].color;
-				color.a = 1f;
-				componentsInChildren6[n].materials[num].color = color;
+				if (componentsInChildren8[num2].materials[num3].HasProperty("_Color"))
+				{
+					Color color = componentsInChildren8[num2].materials[num3].color;
+					color.a = 1f;
+					componentsInChildren8[num2].materials[num3].color = color;
+				}
 			}
 		}
 		goAnimation = bodyClone.GetComponentInChildren<Animation>();
 		goAnimation.Play(animations[currentAnimation]);
 		OnAnimationActivators = goAnimation.GetComponentsInChildren<ActivateOnAnimationBase>();
-		for (int num2 = 0; num2 < OnAnimationActivators.Length; num2++)
+		for (int num4 = 0; num4 < OnAnimationActivators.Length; num4++)
 		{
-			OnAnimationActivators[num2].OnAvatarAnimationChange(animations[currentAnimation]);
+			OnAnimationActivators[num4].OnAvatarAnimationChange(animations[currentAnimation]);
 		}
 		toPreviewer = Object.Instantiate(previewer);
 		toPreviewer.Initialize(previewDimensionsX, previewDimensionsY, CameraClearFlags.Color, MVGameControllerBase.WOCM.AvatarLocal.PreviewLayerMask, new Vector3(0f, -0.5f, -1f), avatarResetToTransform, new Vector3(100f, 100f, 100f), "Avatar accessory preview", MVGameControllerBase.WOCM.AvatarLocal, bodyClone, new Vector3(15f, 0f, 0f));

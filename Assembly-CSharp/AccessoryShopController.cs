@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using MV.Common;
@@ -36,9 +37,13 @@ public class AccessoryShopController : MonoBehaviour, IInventoryChanged, IAttach
 	[SerializeField]
 	private InventoryController inventoryControllerPrefab;
 
+	private AccessoryViewController accessoryViewController;
+
 	private UIPushOption currentlyPushOption;
 
 	private UIPushOption pushOption;
+
+	private AccessoryDataClient accessoryDataToShow;
 
 	private bool firstTimeSetup = true;
 
@@ -54,10 +59,36 @@ public class AccessoryShopController : MonoBehaviour, IInventoryChanged, IAttach
 		AccessoryDataManager.SetReady();
 	}
 
+	public void OpenInventoryAtItem(UIPushOption pushOption, AccessoryDataClient accessoryData)
+	{
+		accessoryDataToShow = accessoryData;
+		this.pushOption = pushOption;
+		AccessoryDataManager.readyCallback = (UnityAction)Delegate.Combine(AccessoryDataManager.readyCallback, new UnityAction(ReadyCallbackAccessoryView));
+		AccessoryDataManager.SetReady();
+	}
+
 	public void Activate(UIPushOption pushOption, AccessoryCategoryClient category)
 	{
 		startingCategory = category;
 		Activate(pushOption);
+	}
+
+	private void ReadyCallbackAccessoryView()
+	{
+		AccessoryDataManager.readyCallback = (UnityAction)Delegate.Remove(AccessoryDataManager.readyCallback, new UnityAction(ReadyCallbackAccessoryView));
+		ReadyCallback();
+		StartCoroutine(OpenAccessoryViewDelayed());
+	}
+
+	private IEnumerator OpenAccessoryViewDelayed()
+	{
+		yield return new WaitForEndOfFrame();
+		accessoryViewController = inventoryController.GetComponent<AccessoryViewController>();
+		if (accessoryViewController != null)
+		{
+			accessoryViewController.OpenAccessoryManagementScreen(accessoryDataToShow);
+			accessoryDataToShow = null;
+		}
 	}
 
 	public void DisplayPurchasableItems(bool displayShopItems)
@@ -141,7 +172,7 @@ public class AccessoryShopController : MonoBehaviour, IInventoryChanged, IAttach
 		{
 			x.Push(this.inventoryController.gameObject, pushOption, OnPop, UIGroupFlags.InventoryUI);
 		});
-		SetAccessoriesToSelectable(selectable: true);
+		SetAccessoriesToSelectable(selectable: false);
 		if (tabs.ContainsKey(255) && startingCategory != AccessoryCategoryClient.Bundles)
 		{
 			TabSelected(255);

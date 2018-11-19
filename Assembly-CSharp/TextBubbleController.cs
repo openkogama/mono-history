@@ -61,7 +61,14 @@ public class TextBubbleController : MonoBehaviour, IEventSystemHandler
 
 	private int currentBubbleId;
 
+	private Camera mainCamera;
+
 	private List<int> removeList = new List<int>();
+
+	private void Start()
+	{
+		mainCamera = Camera.main;
+	}
 
 	public int ShowBubble3D(Vector3 worldPosition, string text, float lifeTime, Transform parentTransform, int bubbleId, bool positionUpdate = true, bool contentUpdate = false)
 	{
@@ -72,18 +79,18 @@ public class TextBubbleController : MonoBehaviour, IEventSystemHandler
 
 	public int ShowBubble3D(Vector3 worldPosition, float lifeTime, List<RectTransform> content, Transform parentTransform, Vector2 offset)
 	{
-		Vector3 vector = Camera.main.WorldToScreenPoint(worldPosition);
+		Vector3 vector = mainCamera.WorldToScreenPoint(worldPosition);
 		vector += CalculateOffSet(offset, vector);
-		return ShowBubble2D(vector, Camera.main.WorldToScreenPoint(worldPosition) * 2f, lifeTime, content, parentTransform);
+		return ShowBubble2D(vector, mainCamera.WorldToScreenPoint(worldPosition) * 2f, lifeTime, content, parentTransform);
 	}
 
 	public void UpdatePosition3D(int bubbleId, Vector3 worldPosition, Vector2 offset)
 	{
-		Vector3 vector = Camera.main.WorldToScreenPoint(worldPosition);
+		Vector3 vector = mainCamera.WorldToScreenPoint(worldPosition);
 		if (!(vector.z <= 0f))
 		{
 			vector += CalculateOffSet(offset, vector);
-			UpdatePosition(bubbleId, vector, Camera.main.WorldToScreenPoint(worldPosition) * 2f);
+			UpdatePosition(bubbleId, vector, mainCamera.WorldToScreenPoint(worldPosition) * 2f);
 		}
 	}
 

@@ -89,12 +89,10 @@ public class AvatarSelectionController : MonoBehaviour, IAvatarSlotClicked, IEve
 
 	public void SellCurrentAvatar()
 	{
-		SellAvatarController sellAvatar = Object.Instantiate(sellAvatarPrefab);
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 		{
-			x.Push(sellAvatar.gameObject, UIPushOption.Blocking | UIPushOption.HideAll, null, UIGroupFlags.Popup);
+			x.CreateErrorNotificationPopup(TM._("You cannot sell your avatar through the standalone client. Play in browser to place in shop.\n"));
 		});
-		avatarBodyController.SellCurrentAvatar(sellAvatar);
 	}
 
 	public void TakeScreenshotForProfile()

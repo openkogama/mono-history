@@ -30,7 +30,7 @@ public class UseLever : MVLogicObject, IIsLogicObjectFiringEventHandler, ILogicW
 
 	public override Vector3 WorldPivot => transform.position;
 
-	public override Vector3 OutputConnectorOffset => new Vector3(2.2f, 0f, 0f);
+	public override Vector3 OutputConnectorOffset => new Vector3(1.2f, 0f, 0f);
 
 	private bool BeginActivated => (bool)Data["beginActivated"];
 

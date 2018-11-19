@@ -73,9 +73,9 @@ public class ModalPopupCreator : MonoBehaviour, IModalPopupCreator, IEventSystem
 		}
 	}
 
-	public void CreateErrorNotificationPopup(string error)
+	public void CreateErrorNotificationPopup(string error, string header = "Error")
 	{
-		Create(TM._("An error occured:\n\n") + error, TM._("Error"));
+		Create(error, header);
 	}
 
 	private static void OnGoldPurchaseDialogResult(bool result, ConfirmationPopup confirmationPopup)

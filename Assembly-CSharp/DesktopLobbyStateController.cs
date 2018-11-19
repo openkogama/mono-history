@@ -32,7 +32,7 @@ public class DesktopLobbyStateController : MonoBehaviour
 		playReward.gameObject.SetActive(value: false);
 		bool active = MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion && !MVGameControllerBase.GameSessionData.IsPlayedFromPoki;
 		touristRegisterButton.SetActive(active);
-		avatarAccessoriesButton.SetActive(!isTouristSession);
+		avatarAccessoriesButton.SetActive(value: true);
 		if (flag)
 		{
 			playReward.Initialize();

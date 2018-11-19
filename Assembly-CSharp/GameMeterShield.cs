@@ -28,12 +28,15 @@ public class GameMeterShield : GameMeterBase
 	{
 		if (!initialized)
 		{
-			avatarLocal = MVGameControllerBase.Game.LocalPlayer.Avatar;
-			MVRuntimeDataVariableClampedFloat shield = avatarLocal.Shield;
-			shield.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(shield.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnProgressUpdate));
-			enabled = true;
-			initialized = true;
-			OnProgressUpdate(avatarLocal.Shield.Value);
+			if (MVGameControllerBase.WOCM.AvatarLocal == null)
+			{
+				MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
+				mVPlayerContainer.OnLocalPlayerReady = (Action)Delegate.Combine(mVPlayerContainer.OnLocalPlayerReady, new Action(LateInitialize));
+			}
+			else
+			{
+				Initialize();
+			}
 		}
 	}
 
@@ -62,5 +65,22 @@ public class GameMeterShield : GameMeterBase
 	{
 		ShieldMeter.enabled = show;
 		progressBar.enabled = show;
+	}
+
+	private void Initialize()
+	{
+		avatarLocal = MVGameControllerBase.Game.LocalPlayer.Avatar;
+		MVRuntimeDataVariableClampedFloat shield = avatarLocal.Shield;
+		shield.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(shield.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnProgressUpdate));
+		enabled = true;
+		initialized = true;
+		OnProgressUpdate(avatarLocal.Shield.Value);
+	}
+
+	private void LateInitialize()
+	{
+		Initialize();
+		MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
+		mVPlayerContainer.OnLocalPlayerReady = (Action)Delegate.Remove(mVPlayerContainer.OnLocalPlayerReady, new Action(Initialize));
 	}
 }

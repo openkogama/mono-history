@@ -8,6 +8,8 @@ public class WorldEditorDrawPlane : MonoBehaviour
 
 	private const float CUBE_OFFSET = 0.5f;
 
+	private Camera mainCamera;
+
 	public AltitudeChangedDelegate OnAltitudeChanged;
 
 	public GameObject DrawPlaneVisualization;
@@ -145,6 +147,7 @@ public class WorldEditorDrawPlane : MonoBehaviour
 
 	public void Start()
 	{
+		mainCamera = Camera.main;
 		GenerateDrawPlane(DrawPlaneVisualization);
 		DrawPlaneVisualization.GetComponent<Renderer>().material.mainTextureScale = new Vector2(MeshScale, MeshScale);
 		DrawPlaneVisualization.GetComponent<Renderer>().material.mainTextureOffset = new Vector2(0.5f, 0.5f);
@@ -201,7 +204,7 @@ public class WorldEditorDrawPlane : MonoBehaviour
 
 	public void SetToCameraPos()
 	{
-		Vector3 forward = Camera.main.transform.forward;
+		Vector3 forward = mainCamera.transform.forward;
 		Vector3 vector = new Vector3((!(forward.x > 0.1f)) ? (-5f) : 5f, (!(forward.y > 0.1f)) ? (-5f) : 5f, (!(forward.z > 0f)) ? (-7f) : 5f);
 		SetToGridAlignedPos(MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position + vector);
 	}
@@ -285,7 +288,11 @@ public class WorldEditorDrawPlane : MonoBehaviour
 
 	public bool Pick(ref Vector3 hit)
 	{
-		Ray ray = Camera.main.ScreenPointToRay(new Vector3(MVInputWrapper.GetPointerPosition().x, MVInputWrapper.GetPointerPosition().y));
+		if (mainCamera == null)
+		{
+			mainCamera = Camera.main;
+		}
+		Ray ray = mainCamera.ScreenPointToRay(new Vector3(MVInputWrapper.GetPointerPosition().x, MVInputWrapper.GetPointerPosition().y));
 		return RayCast(ray, ref hit, ignoreActiveFlag: false);
 	}
 

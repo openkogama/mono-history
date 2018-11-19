@@ -45,7 +45,10 @@ public class AvatarAccessoryErrorPopup : MonoBehaviour
 		{
 			x.Pop();
 		});
-		resultCallback(confirmed);
+		if (resultCallback != null)
+		{
+			resultCallback(confirmed);
+		}
 	}
 
 	private void OnPreviewImageDownLoaded()

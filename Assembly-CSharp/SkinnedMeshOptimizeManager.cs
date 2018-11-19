@@ -5,9 +5,9 @@ public class SkinnedMeshOptimizeManager : MonoBehaviour
 {
 	public struct SkinnedMeshOptimizationData
 	{
-		public SkinnedMeshRenderer skinnedMesh;
+		public List<SkinnedMeshRenderer> skinnedMesh;
 
-		public MeshRenderer mesh;
+		public List<MeshRenderer> mesh;
 	}
 
 	private List<SkinnedMeshOptimizationData> optimizationDataList = new List<SkinnedMeshOptimizationData>();
@@ -37,7 +37,15 @@ public class SkinnedMeshOptimizeManager : MonoBehaviour
 		List<SkinnedMeshOptimizationData> list2 = new List<SkinnedMeshOptimizationData>();
 		for (int i = 0; i < optimizationDataList.Count; i++)
 		{
-			if (optimizationDataList[i].skinnedMesh.isVisible || optimizationDataList[i].mesh.isVisible)
+			bool flag = false;
+			for (int j = 0; j < optimizationDataList[i].skinnedMesh.Count; j++)
+			{
+				if (optimizationDataList[i].skinnedMesh[j].isVisible || optimizationDataList[i].mesh[j].isVisible)
+				{
+					flag = true;
+				}
+			}
+			if (flag)
 			{
 				int index;
 				if (list.Count < 5)
@@ -54,27 +62,36 @@ public class SkinnedMeshOptimizeManager : MonoBehaviour
 				{
 					list2.Add(optimizationDataList[i]);
 				}
-				optimizationDataList[i].skinnedMesh.enabled = false;
-				optimizationDataList[i].mesh.enabled = false;
+				for (int k = 0; k < optimizationDataList[i].skinnedMesh.Count; k++)
+				{
+					optimizationDataList[i].skinnedMesh[k].enabled = false;
+					optimizationDataList[i].mesh[k].enabled = false;
+				}
 			}
 		}
-		for (int j = 0; j < list.Count; j++)
+		for (int l = 0; l < list.Count; l++)
 		{
-			list[j].skinnedMesh.enabled = true;
+			for (int m = 0; m < list[l].skinnedMesh.Count; m++)
+			{
+				list[l].skinnedMesh[m].enabled = true;
+			}
 		}
-		for (int k = 0; k < list2.Count; k++)
+		for (int n = 0; n < list2.Count; n++)
 		{
-			list2[k].mesh.enabled = true;
+			for (int num = 0; num < list2[n].mesh.Count; num++)
+			{
+				list2[n].mesh[num].enabled = true;
+			}
 		}
 	}
 
 	private bool IsNewMeshCloser(SkinnedMeshOptimizationData newMesh, List<SkinnedMeshOptimizationData> oldMeshes, out int index)
 	{
 		index = -1;
-		float sqrMagnitude = (newMesh.skinnedMesh.transform.position - MVGameControllerBase.WOCM.AvatarLocal.Transform.position).sqrMagnitude;
+		float sqrMagnitude = (newMesh.skinnedMesh[0].transform.position - MVGameControllerBase.WOCM.AvatarLocal.Transform.position).sqrMagnitude;
 		for (int i = 0; i < oldMeshes.Count; i++)
 		{
-			float sqrMagnitude2 = (oldMeshes[i].skinnedMesh.transform.position - MVGameControllerBase.WOCM.AvatarLocal.Transform.position).sqrMagnitude;
+			float sqrMagnitude2 = (oldMeshes[i].skinnedMesh[0].transform.position - MVGameControllerBase.WOCM.AvatarLocal.Transform.position).sqrMagnitude;
 			if (sqrMagnitude < sqrMagnitude2)
 			{
 				index = i;

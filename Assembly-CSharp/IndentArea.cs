@@ -7,6 +7,8 @@ public class IndentArea : ICursor
 
 	private Material materialNone;
 
+	private Camera mainCamera;
+
 	private GameObject gameObject;
 
 	private float size;
@@ -25,6 +27,7 @@ public class IndentArea : ICursor
 	{
 		gameObject = new GameObject("IndentArea");
 		gameObject.layer = LayerMask.NameToLayer("UIItems");
+		mainCamera = Camera.main;
 		MeshRenderer meshRenderer = gameObject.AddComponent<MeshRenderer>();
 		gameObject.AddComponent<MeshFilter>();
 		materialNone = PrefabPool.Instance.IndentMaterial;
@@ -64,7 +67,7 @@ public class IndentArea : ICursor
 	public bool IsColliding()
 	{
 		Mesh mesh = gameObject.GetComponent<MeshFilter>().mesh;
-		Ray ray = Camera.main.ScreenPointToRay(MVInputWrapper.GetPointerPosition());
+		Ray ray = mainCamera.ScreenPointToRay(MVInputWrapper.GetPointerPosition());
 		Vector3[] array = new Vector3[4];
 		for (int i = 0; i < mesh.vertices.Length; i++)
 		{

@@ -48,6 +48,8 @@ public class AvatarEditModeBodyController : MonoBehaviour, IAvatarEditAnimationS
 
 	private GameObject publishAvatarBtn;
 
+	public static CloudyThemeBase Theme;
+
 	public MVBody CurrentBody => bodies[currentBodyIndex];
 
 	public Vector3 DisplayPos => displayPos;
@@ -83,6 +85,12 @@ public class AvatarEditModeBodyController : MonoBehaviour, IAvatarEditAnimationS
 			item3.WorldPosition = hidePos;
 			item3.WorldRotation = bodySpawnPoint.WorldRotation;
 		}
+		Theme = UnityEngine.Object.Instantiate(ThemeRepository.Instance.GetThemePrefab("Normal")) as CloudyThemeBase;
+		Theme.InitializeForPreview();
+		Theme.Settings.Initialize();
+		Theme.Activate();
+		Theme.Skybox.SunLightIntensity = 0.3f;
+		Theme.Skybox.RecalculateSunLight();
 	}
 
 	public void SetPublishAvatarGO(GameObject publishAvatarGO)
@@ -202,12 +210,10 @@ public class AvatarEditModeBodyController : MonoBehaviour, IAvatarEditAnimationS
 
 	public void TakeScreenshot()
 	{
-		UploadAvatarScreenshotHandler screenshotHandler = UnityEngine.Object.Instantiate(uploadAvatarScreenshotHandler);
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 		{
-			x.Push(screenshotHandler.gameObject, UIPushOption.Blocking | UIPushOption.InvisibleBlocker, null, UIGroupFlags.Popup);
+			x.CreateErrorNotificationPopup(TM._("Image upload is disabled in standalone. Reload game using the browser version.\n"));
 		});
-		screenshotHandler.TakeScreenshot(CurrentBody, ScreenShotCallback);
 	}
 
 	public void PurchaseAvatar(AvatarRepositoryItem item)
@@ -300,8 +306,14 @@ public class AvatarEditModeBodyController : MonoBehaviour, IAvatarEditAnimationS
 	{
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnActiveAvatarSet = (Action)Delegate.Remove(game.OnActiveAvatarSet, new Action(OnActiveAvatarSetAfterPurchase));
-		UploadAvatarScreenshotHandler uploadAvatarScreenshotHandler = UnityEngine.Object.Instantiate(this.uploadAvatarScreenshotHandler);
-		uploadAvatarScreenshotHandler.TakePurchasedScreenshot(CurrentBody, ScreenShotCallback);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.PopToGroup(UIGroupFlags.MainUI);
+		});
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+		{
+			x.CreateErrorNotificationPopup(TM._("You have a new active avatar set, please update image from the browser to display it on your profile.\n"), TM._("Warning"));
+		});
 	}
 
 	public void SellCurrentAvatar(SellAvatarController avatarSeller)

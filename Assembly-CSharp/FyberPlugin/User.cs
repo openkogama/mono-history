@@ -55,6 +55,8 @@ public class User
 
 	protected const string CONNECTION = "connection";
 
+	protected const string GDPR_CONSENT = "gdpr_consent";
+
 	protected const string DEVICE = "device";
 
 	protected const string APP_VERSION = "app_version";
@@ -189,6 +191,11 @@ public class User
 	public static void SetConnection(UserConnection connection)
 	{
 		Put("connection", connection);
+	}
+
+	public static void SetGdprConsent(bool gdprConsent)
+	{
+		Put("gdpr_consent", gdprConsent);
 	}
 
 	public static string GetDevice()

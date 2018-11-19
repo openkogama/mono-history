@@ -153,16 +153,14 @@ public abstract class StreamingAsset : MonoBehaviour
 
 	protected void Download_Cached(string url, UnityAction onAssetSetAction)
 	{
-		url += MVGameControllerBase.KoGaMaSettings.WebCacheInvalidationCodeStr;
 		this.onAssetSetAction = (UnityAction)Delegate.Combine(this.onAssetSetAction, new UnityAction(OnAssetSet));
-		AsyncWWWManager.WWWRequest(new CachedGetRequest(AssetBundleUrl + url, OnDownloadFinished, WWWRequestPriority.WaitUntilSyncronizingIsDone));
+		AsyncWWWManager.WWWRequest(new CachedAssetBundleRequest(AssetBundleUrl + url, OnDownloadFinished, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 	}
 
 	protected void Download_NonCached(string url, UnityAction onAssetSetAction)
 	{
-		url += MVGameControllerBase.KoGaMaSettings.WebCacheInvalidationCodeStr;
 		this.onAssetSetAction = (UnityAction)Delegate.Combine(this.onAssetSetAction, new UnityAction(OnAssetSet));
-		AsyncWWWManager.WWWRequest(new GetRequest(AssetBundleUrl + url, OnDownloadFinished, WWWRequestPriority.WaitUntilSyncronizingIsDone));
+		AsyncWWWManager.WWWRequest(new AssetBundleRequest(AssetBundleUrl + url, OnDownloadFinished, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 	}
 
 	protected abstract void OnDownloadFinished(WWW www);

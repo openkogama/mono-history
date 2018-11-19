@@ -1,12 +1,19 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SkinnedMeshOptimizer : MonoBehaviour
 {
-	[SerializeField]
-	private SkinnedMeshRenderer skinnedMesh;
+	[Serializable]
+	private struct MeshData
+	{
+		public SkinnedMeshRenderer skinnedMesh;
+
+		public MeshRenderer mesh;
+	}
 
 	[SerializeField]
-	private MeshRenderer mesh;
+	private List<MeshData> meshData;
 
 	private SkinnedMeshOptimizeManager.SkinnedMeshOptimizationData optimizationData = default;
 
@@ -14,7 +21,10 @@ public class SkinnedMeshOptimizer : MonoBehaviour
 
 	public void TurnOffMesh()
 	{
-		mesh.enabled = false;
+		for (int i = 0; i < meshData.Count; i++)
+		{
+			meshData[i].mesh.enabled = false;
+		}
 	}
 
 	public void DisableOptimizer()
@@ -25,8 +35,15 @@ public class SkinnedMeshOptimizer : MonoBehaviour
 
 	private void Start()
 	{
-		optimizationData.skinnedMesh = skinnedMesh;
-		optimizationData.mesh = mesh;
+		List<SkinnedMeshRenderer> list = new List<SkinnedMeshRenderer>();
+		List<MeshRenderer> list2 = new List<MeshRenderer>();
+		for (int i = 0; i < meshData.Count; i++)
+		{
+			list.Add(meshData[i].skinnedMesh);
+			list2.Add(meshData[i].mesh);
+		}
+		optimizationData.skinnedMesh = list;
+		optimizationData.mesh = list2;
 		if (isEnabled)
 		{
 			((AvatarLocal)MVGameControllerBase.WOCM.AvatarLocal.Avatar).SkinnedMeshOptimizeManager.AddOptimizationData(optimizationData);

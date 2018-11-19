@@ -2,31 +2,77 @@ using MV.Common;
 
 public static class TextCommand
 {
-	private const string kick = "/kick";
+	private class Command
+	{
+		private string[] commandComponents;
 
-	private const string ban = "/ban";
+		public string Name => commandComponents[0];
+
+		public int ArgCount => commandComponents.Length - 1;
+
+		private Command(string[] commandComponents)
+		{
+			this.commandComponents = commandComponents;
+		}
+
+		public string Arg(int i)
+		{
+			int num = i + 1;
+			if (num < commandComponents.Length)
+			{
+				return commandComponents[num];
+			}
+			return string.Empty;
+		}
+
+		public static implicit operator Command(string commandLine)
+		{
+			return new Command(commandLine.Split(' '));
+		}
+	}
 
 	public static void Resolve(string commandLine)
 	{
-		string[] array = commandLine.Split(' ');
-		_ = array[0];
-		NotifyUser($"{array[0]} is not a valid command.");
-	}
-
-	private static void NotifyUser(string msg)
-	{
-		MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, msg);
-	}
-
-	private static MVPlayer GetPlayer(string userName)
-	{
-		foreach (MVPlayer value in MVGameControllerBase.Game.MVPlayerContainer.Values)
+		Command command = commandLine;
+		switch (command.Name.ToLower())
 		{
-			if (value.Username == userName)
+		case "/abctest":
+		case "/assetbundlecachetest":
+			Command_AssetBundleCacheTest(command);
+			break;
+		default:
+			Command_Invalid(command);
+			break;
+		}
+	}
+
+	private static void Command_AssetBundleCacheTest(Command command)
+	{
+		if (command.ArgCount == 1)
+		{
+			string text = command.Arg(0);
+			if (int.TryParse(text, out var result))
 			{
-				return value;
+				AssetBundleCacheTest.Run(result);
+			}
+			else
+			{
+				NotifyUser($"{text} is not a valid version number argument, for {command.Name}");
 			}
 		}
-		return null;
+		else
+		{
+			NotifyUser($"Command failed. {command.Name} expects exactly one parameter.");
+		}
+	}
+
+	private static void Command_Invalid(Command command)
+	{
+		NotifyUser($"{command.Name} is not a valid command.");
+	}
+
+	public static void NotifyUser(string msg)
+	{
+		MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, msg);
 	}
 }

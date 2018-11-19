@@ -68,9 +68,6 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, I
 	private RawImage levelRequirement;
 
 	[SerializeField]
-	private GameObject priceBackground;
-
-	[SerializeField]
 	private AccessoryTimeLimitDisplayer timeLimitDisplayer;
 
 	private Transform rootTransform;
@@ -101,7 +98,7 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, I
 		{
 			if (highLights[i].highlightData.accessoryMetaDataId == accessoryDataClient.accessoryMetaDataID)
 			{
-				redDotNotification.SetActive(value: true);
+				redDotNotification.SetActive(locked);
 				highlightId = highLights[i].id;
 			}
 		}
@@ -122,11 +119,18 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, I
 	{
 		if (www == null || www.texture == null || !string.IsNullOrEmpty(www.error))
 		{
-			Debug.LogWarning("Badge not loaded for accessory level requirement, Error: " + www.error);
-			return;
+			string text = "www is null";
+			if (www != null)
+			{
+				text = www.error;
+			}
+			Debug.LogWarning("Badge not loaded for accessory level requirement, Error: " + text);
 		}
-		levelRequirement.gameObject.SetActive(value: true);
-		levelRequirement.texture = www.texture;
+		else if (levelRequirement != null && !wasDestroyed)
+		{
+			levelRequirement.gameObject.SetActive(value: true);
+			levelRequirement.texture = www.texture;
+		}
 	}
 
 	public void OnClicked()
@@ -223,41 +227,23 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, I
 
 	private void OnPreviewImageDownloadFinished()
 	{
+		if (wasDestroyed)
+		{
+			return;
+		}
+		StreamPngToSprite streamPngToSprite = previewImageStreaminAssetManual;
+		streamPngToSprite.OnDownloadFinish = (Action)Delegate.Remove(streamPngToSprite.OnDownloadFinish, new Action(OnPreviewImageDownloadFinished));
 		previewImage.gameObject.SetActive(value: true);
 		loadingWheel.SetActive(value: false);
 		accessoryItemBackground.gameObject.SetActive(value: true);
 		accessoryItemBackground.Initialize(accessoryDataClient);
-		newAccessoryImage.SetActive(accessoryDataClient.isNew);
+		newAccessoryImage.SetActive(accessoryDataClient.isNew && !accessoryDataClient.owns);
 		if (bundleView)
 		{
 			return;
 		}
-		timeLimitDisplayer.Initialize(accessoryDataClient.timelimit);
-		timeLimitDisplayer.gameObject.SetActive(locked && accessoryDataClient.timelimit.IsTimeLimited);
-		bool flag = accessoryDataClient.discount >= 100 || accessoryDataClient.priceGold == 0;
-		discount.SetActive(locked && accessoryDataClient.discount > 0 && !flag);
-		freeLabel.SetActive(locked && flag);
-		discountText.text = $"-{accessoryDataClient.discount.ToString()}%";
-		equipCheckbox.gameObject.SetActive(!locked);
-		if (!locked)
+		if (accessoryDataClient.level != 0 && locked)
 		{
-			equipCheckbox.isOn = targetBody.IsAccessoryEquipped(accessoryDataClient.streamingAssetID);
-		}
-		equipCheckbox.GetComponent<CanvasGroup>().alpha = ((!equipCheckbox.isOn) ? 1f : 0.5f);
-		equipCheckbox.onValueChanged.AddListener(OnEquip);
-		priceDisplay.SetActive(locked);
-		priceStrikeout.SetActive(locked && accessoryDataClient.discount > 0 && accessoryDataClient.priceGold > 0);
-		priceStrikeoutText.text = accessoryDataClient.priceGold.ToString("N0").Replace(",", " ");
-		priceText.text = accessoryDataClient.DiscountedPrice.ToString("N0").Replace(",", " ");
-		if (MVGameControllerBase.Game.LocalPlayer.Level < accessoryDataClient.level && locked)
-		{
-			priceBackground.SetActive(value: false);
-			discount.SetActive(value: false);
-			priceDisplay.SetActive(value: false);
-			priceText.gameObject.SetActive(value: false);
-			priceStrikeout.SetActive(value: false);
-			priceStrikeoutText.gameObject.SetActive(value: false);
-			freeLabel.SetActive(value: false);
 			if (LevelingManager.IsInitialized)
 			{
 				SetLevelBadge();
@@ -266,6 +252,27 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, I
 			{
 				LevelingManager.OnLevelingInitialized = (UnityAction)Delegate.Combine(LevelingManager.OnLevelingInitialized, new UnityAction(SetLevelBadge));
 			}
+		}
+		if (MVGameControllerBase.Game.LocalPlayer.Level > accessoryDataClient.level)
+		{
+			timeLimitDisplayer.Initialize(accessoryDataClient.timelimit);
+			timeLimitDisplayer.gameObject.SetActive(locked && accessoryDataClient.timelimit.IsTimeLimited);
+			bool flag = accessoryDataClient.discount >= 100 || accessoryDataClient.priceGold == 0;
+			discount.SetActive(locked && accessoryDataClient.discount > 0 && !flag);
+			freeLabel.SetActive(locked && flag);
+			discountText.text = $"-{accessoryDataClient.discount.ToString()}%";
+			equipCheckbox.gameObject.SetActive(!locked);
+			if (!locked)
+			{
+				equipCheckbox.isOn = targetBody.IsAccessoryEquipped(accessoryDataClient.streamingAssetID);
+			}
+			equipCheckbox.GetComponent<CanvasGroup>().alpha = ((!equipCheckbox.isOn) ? 1f : 0.5f);
+			equipCheckbox.onValueChanged.AddListener(OnEquip);
+			priceDisplay.SetActive(locked);
+			priceStrikeout.SetActive(locked && accessoryDataClient.discount > 0 && accessoryDataClient.priceGold > 0);
+			priceStrikeoutText.text = accessoryDataClient.priceGold.ToString("N0").Replace(",", " ");
+			priceText.text = accessoryDataClient.DiscountedPrice.ToString("N0").Replace(",", " ");
+			levelRequirement.rectTransform.localPosition = new Vector2(levelRequirement.rectTransform.localPosition.x, levelRequirement.rectTransform.localPosition.y + ((RectTransform)priceDisplay.transform).rect.height);
 		}
 	}
 

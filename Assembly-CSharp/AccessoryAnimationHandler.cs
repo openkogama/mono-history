@@ -11,6 +11,8 @@ public class AccessoryAnimationHandler : ActivateOnAnimationBase
 		public string animationName;
 
 		public float animationSpeed;
+
+		public string TransitionToAnimationName;
 	}
 
 	[SerializeField]
@@ -19,7 +21,11 @@ public class AccessoryAnimationHandler : ActivateOnAnimationBase
 	[SerializeField]
 	private List<AnimationData> animationData;
 
-	private bool shouldResetToIdle;
+	private string currentCrossFadedAnimation = string.Empty;
+
+	private bool shouldTransitionToNewAnimation;
+
+	private const float crossfadeDuration = 0.2f;
 
 	protected override void Start()
 	{
@@ -29,7 +35,7 @@ public class AccessoryAnimationHandler : ActivateOnAnimationBase
 
 	public override void OnAvatarAnimationChange(string newAnimation)
 	{
-		if (!animations.IsPlaying(newAnimation))
+		if (!(currentCrossFadedAnimation == newAnimation))
 		{
 			PlayAnimation(newAnimation);
 		}
@@ -65,22 +71,44 @@ public class AccessoryAnimationHandler : ActivateOnAnimationBase
 
 	public void PlayAnimation(string animationName)
 	{
-		if (gameObject.activeInHierarchy && HaveAnimationData(animationName))
+		if (!gameObject.activeInHierarchy)
 		{
-			shouldResetToIdle = false;
-			ApplyAnimationSpeed(animationName);
-			animations.Play(animationName);
-			AnimationState animationState = animations[animationName];
-			if (animationState.wrapMode == WrapMode.Once)
+			return;
+		}
+		bool flag = HaveAnimationData(animationName);
+		if (!flag && animationName != "Idle")
+		{
+			PlayAnimation("Idle");
+			return;
+		}
+		if (!flag && animationName == "Idle")
+		{
+			HandleNoIdleAnimation();
+			return;
+		}
+		shouldTransitionToNewAnimation = false;
+		ApplyAnimationSpeed(animationName);
+		StartCrossfading(animationName);
+		AnimationState animationState = animations[animationName];
+		if (animationState.wrapMode != WrapMode.Once)
+		{
+			return;
+		}
+		for (int i = 0; i < animationData.Count; i++)
+		{
+			if (animationData[i].animationName == animationName && animationData[i].TransitionToAnimationName != string.Empty)
 			{
-				StartCoroutine(ResetToIdle(animationState.length / GetAnimationSpeed(animationName)));
+				StartCoroutine(TransitionToNewAnimation(animationState.length / GetAnimationSpeed(animationName), animationData[i].TransitionToAnimationName));
 			}
 		}
 	}
 
 	private void ApplyAnimationSpeed(string animationName)
 	{
-		animations[animationName].speed = GetAnimationSpeed(animationName);
+		if (animations.GetClip(animationName) != null)
+		{
+			animations[animationName].speed = GetAnimationSpeed(animationName);
+		}
 	}
 
 	public float GetAnimationSpeed(string animationName)
@@ -98,8 +126,11 @@ public class AccessoryAnimationHandler : ActivateOnAnimationBase
 
 	public void Initialize()
 	{
-		ApplyAnimationSpeed("Idle");
-		animations.Play("Idle");
+		if (animations.GetClip("Idle") != null)
+		{
+			ApplyAnimationSpeed("Idle");
+			animations.Play("Idle");
+		}
 	}
 
 	public void SetAllAnimationToLooping()
@@ -110,17 +141,51 @@ public class AccessoryAnimationHandler : ActivateOnAnimationBase
 		}
 	}
 
-	private IEnumerator ResetToIdle(float resetDelay)
+	private IEnumerator TransitionToNewAnimation(float resetDelay, string transitionToAnimationName)
 	{
-		shouldResetToIdle = true;
+		shouldTransitionToNewAnimation = true;
 		float startTime = Time.time;
-		while (Time.time < startTime + resetDelay && shouldResetToIdle)
+		while (Time.time < startTime + resetDelay && shouldTransitionToNewAnimation)
 		{
 			yield return null;
 		}
-		if (shouldResetToIdle)
+		if (shouldTransitionToNewAnimation)
 		{
-			PlayAnimation("Idle");
+			StartTransitioning(transitionToAnimationName);
 		}
+	}
+
+	private void StartTransitioning(string transitionToAnimationName)
+	{
+		ApplyAnimationSpeed(transitionToAnimationName);
+		animations.Play(transitionToAnimationName);
+		animations[transitionToAnimationName].time = animations[transitionToAnimationName].length / GetAnimationSpeed(transitionToAnimationName);
+	}
+
+	private void StartCrossfading(string animationName)
+	{
+		currentCrossFadedAnimation = animationName;
+		animations.CrossFadeQueued(animationName, 0.2f, QueueMode.PlayNow);
+	}
+
+	private void HandleNoIdleAnimation()
+	{
+		if (!(currentCrossFadedAnimation == string.Empty))
+		{
+			animations.Play(currentCrossFadedAnimation);
+			StartCoroutine(StopAnimationNextFrame());
+		}
+	}
+
+	private IEnumerator StopAnimationNextFrame()
+	{
+		bool hasFramePassed = false;
+		while (!hasFramePassed)
+		{
+			hasFramePassed = true;
+			yield return null;
+		}
+		animations.Stop();
+		currentCrossFadedAnimation = string.Empty;
 	}
 }

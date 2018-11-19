@@ -47,6 +47,8 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 	{
 		SetNetworkObject(local: false);
 		IsInVehicle = false;
+		MVRuntimeDataVariable animation = Animation;
+		animation.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(animation.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnAnimationChange));
 	}
 
 	public override void Initialize()
@@ -149,6 +151,15 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 		TriggerBoxEvents triggerBoxEvents = gameObject.AddComponent<TriggerBoxEvents>();
 		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		return capsuleCollider;
+	}
+
+	private void OnAnimationChange(object newAnimationData)
+	{
+		if ((AvatarModeTypeFlags & 1) > 0)
+		{
+			Dictionary<object, object> dictionary = (Dictionary<object, object>)newAnimationData;
+			Body.Animation.Play((string)dictionary["state"]);
+		}
 	}
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)

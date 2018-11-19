@@ -39,11 +39,14 @@ public class SentryGunScript : MonoBehaviour
 
 	private float damageBlinkTimeoutTime;
 
+	private Camera mainCamera;
+
 	protected void Awake()
 	{
 		rangeVisualization = Object.Instantiate(PrefabPool.Instance.RangeVisualizationObject);
 		rangeVisualization.transform.parent = transform;
 		rangeVisualization.transform.localPosition = Vector3.zero;
+		mainCamera = Camera.main;
 	}
 
 	public void EnableSmoke()
@@ -129,7 +132,7 @@ public class SentryGunScript : MonoBehaviour
 
 	private void LateUpdate()
 	{
-		glowPlane.transform.up = -Camera.main.transform.forward;
+		glowPlane.transform.up = -mainCamera.transform.forward;
 		if (Time.time < damageBlinkTimeoutTime && Mathf.Repeat(Time.time * 4f, 1f) < 0.5f)
 		{
 			Graphics.DrawMesh(sentryMesh, sentryRenderer.transform.localToWorldMatrix, blinkDamageMaterial, LayerMask.NameToLayer("Default"));

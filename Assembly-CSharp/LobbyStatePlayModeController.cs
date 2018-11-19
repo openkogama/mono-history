@@ -49,11 +49,11 @@ public class LobbyStatePlayModeController : MonoBehaviour
 		if (flag && isInLobbyState)
 		{
 			Debug.Log("To play state");
+			SetObjectToLobbyState(isInLobbyState: false);
 			if (MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Hidden))
 			{
 				MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Playing);
 			}
-			SetObjectToLobbyState(isInLobbyState: false);
 		}
 		else if (!flag && !isInLobbyState)
 		{

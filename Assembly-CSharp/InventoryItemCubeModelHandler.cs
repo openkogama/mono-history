@@ -17,11 +17,9 @@ public class InventoryItemCubeModelHandler : InventoryItemPreview
 
 	public void OnSellClicked()
 	{
-		InventoryItemPreviewSell itemSell = Object.Instantiate(inventoryItemPreviewSellPrefab);
-		itemSell.Initialize(previewImage, item);
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 		{
-			x.Push(itemSell.gameObject, UIPushOption.Blocking, OnSellUpdated, UIGroupFlags.InventoryUISubMenu);
+			x.CreateErrorNotificationPopup(TM._("You cannot sell your model through the standalone client. Play in browser to place in shop.\n"));
 		});
 	}
 
