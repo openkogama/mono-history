@@ -7,6 +7,27 @@ using UnityEngine.UI;
 
 public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 {
+	public static class RewardTracker
+	{
+		public static bool IsCollected;
+
+		public static Action CollectedChanged;
+
+		public static void Reset()
+		{
+			IsCollected = false;
+		}
+
+		public static void PostResetCleanup()
+		{
+			if (CollectedChanged != null)
+			{
+				Debug.LogWarning("TimedPlayReward.RewardTracker.CollectedChanged still have subscribers.");
+				CollectedChanged = null;
+			}
+		}
+	}
+
 	private class RewardData
 	{
 		public bool rewardEnabled;
@@ -32,21 +53,17 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 	[SerializeField]
 	private Text timerText;
 
-	public static bool IsCollected;
+	public bool RewardAvailable { get; private set; }
 
-	public static Action CollectedChanged;
-
-	public bool rewardAvailable { get; private set; }
-
-	private int rewardXP { get; set; }
+	private int RewardXP { get; set; }
 
 	public void Initialize()
 	{
-		CollectedChanged = (Action)Delegate.Combine(CollectedChanged, new Action(OnCollectedChanged));
+		RewardTracker.CollectedChanged = (Action)Delegate.Combine(RewardTracker.CollectedChanged, new Action(OnCollectedChanged));
 		if (!MVGameControllerBase.UsingDevSessionData)
 		{
 			UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
-			rewardAvailable = false;
+			RewardAvailable = false;
 			gameObject.SetActive(value: false);
 			RequestRewardPermission();
 		}
@@ -61,29 +78,29 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 
 	private void OnCollectedChanged()
 	{
-		IsCollected = true;
+		RewardTracker.IsCollected = true;
 		OnFinishedViewingAd();
 	}
 
 	public void RewardClicked()
 	{
-		if (!IsCollected && CollectedChanged != null)
+		if (!RewardTracker.IsCollected && RewardTracker.CollectedChanged != null)
 		{
-			CollectedChanged();
+			RewardTracker.CollectedChanged();
 		}
 	}
 
 	private void OnFinishedViewingAd()
 	{
 		claimRewardBtn.gameObject.SetActive(value: false);
-		NotificationController.PushNotification(TM._("Thank you for playing this NEW game! Received " + rewardXP + " XP!"));
+		NotificationController.PushNotification(TM._("Thank you for playing this NEW game! Received " + RewardXP + " XP!"));
 		AvatarPooledXPParticles avatarPooledXPParticles = PrefabPool.Instance.EnumPoolManager.Instantiate<AvatarPooledXPParticles>(PoolEnums.XP);
 		avatarPooledXPParticles.transform.parent = MVGameControllerBase.WOCM.AvatarLocal.Transform;
 		avatarPooledXPParticles.transform.localPosition = new Vector3(0f, 1f, 0f);
 		avatarPooledXPParticles.transform.localRotation = Quaternion.identity;
 		avatarPooledXPParticles.transform.localScale = Vector3.one;
 		avatarPooledXPParticles.gameObject.layer = MVGameControllerBase.Game.LocalPlayer.Avatar.Body.GameObject.layer;
-		avatarPooledXPParticles.Initialize(rewardXP);
+		avatarPooledXPParticles.Initialize(RewardXP);
 		avatarPooledXPParticles.Play();
 		claimRewardBtn.interactable = false;
 		timerText.text = string.Empty;
@@ -108,11 +125,11 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 			return;
 		}
 		RewardData rewardData = JsonConvert.DeserializeObject<RewardData>(www.text);
-		rewardXP = rewardData.xp;
-		rewardAvailable = rewardData.rewardEnabled;
-		claimRewardBtn.gameObject.SetActive(rewardAvailable);
-		IsCollected = !rewardAvailable;
-		if (!rewardAvailable)
+		RewardXP = rewardData.xp;
+		RewardAvailable = rewardData.rewardEnabled;
+		claimRewardBtn.gameObject.SetActive(RewardAvailable);
+		RewardTracker.IsCollected = !RewardAvailable;
+		if (!RewardAvailable)
 		{
 			Debug.Log("no gold reward available");
 		}
@@ -124,13 +141,13 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 
 	public void UpdateControllerUpdate()
 	{
-		if (rewardAvailable)
+		if (RewardAvailable)
 		{
 			gameObject.SetActive(value: true);
 			if (waitForTicks.TimeIsUp)
 			{
 				claimRewardBtn.interactable = true;
-				rewardAvailable = false;
+				RewardAvailable = false;
 				timerText.text = TM._("Claim!");
 				Dictionary<object, object> dictionary = new Dictionary<object, object>();
 				dictionary.Add((byte)2, 8);
@@ -161,6 +178,6 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 		AsyncWWWManager.UnsubscribeWWWRequest(OnRewardData);
 		AsyncWWWManager.UnsubscribeWWWRequest(OnFinishedRewardCollecting);
 		UpdateController.RemoveUpdateObject(this);
-		CollectedChanged = (Action)Delegate.Remove(CollectedChanged, new Action(OnCollectedChanged));
+		RewardTracker.CollectedChanged = (Action)Delegate.Remove(RewardTracker.CollectedChanged, new Action(OnCollectedChanged));
 	}
 }

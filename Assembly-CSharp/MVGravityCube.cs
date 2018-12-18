@@ -30,7 +30,7 @@ public class MVGravityCube : MVLogicObject
 
 	public override void Destroy()
 	{
-		MVPhysics.Gravity = 30f;
+		MVPhysics.Reset();
 		base.Destroy();
 	}
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public static class MVPhysics
 {
-	public static ObscuredFloat gravity = 30f;
+	private static ObscuredFloat gravity = 30f;
 
 	public static PhysicalProperties airPhysicalProperties = new PhysicalProperties(0f, 0f, 0f, 0f, 0f);
 
@@ -18,6 +18,11 @@ public static class MVPhysics
 		{
 			gravity = value;
 		}
+	}
+
+	public static void Reset()
+	{
+		gravity = 30f;
 	}
 
 	public static float CalculateJumpVerticalSpeed(float targetJumpHeight)

@@ -16,6 +16,15 @@ public class DeathUIController : MonoBehaviour
 	private Image timerFill;
 
 	[SerializeField]
+	private NotificationFade buttonFader;
+
+	[SerializeField]
+	private Image readyToPlayTimerFill;
+
+	[SerializeField]
+	private GameObject readyToPlayTimerObject;
+
+	[SerializeField]
 	private ScoreBoardSingleBase scoreBoardSingle;
 
 	[SerializeField]
@@ -73,7 +82,7 @@ public class DeathUIController : MonoBehaviour
 	private void OnAvatarStateChanged(object state)
 	{
 		AvatarModeTypes avatarModeTypes = (AvatarModeTypes)state;
-		if ((avatarModeTypes & AvatarModeTypes.Hidden) != 0)
+		if (isDeathBriefActive && avatarModeTypes != AvatarModeTypes.Hidden && avatarModeTypes != AvatarModeTypes.Dead)
 		{
 			EndDeathBriefing();
 		}
@@ -83,6 +92,7 @@ public class DeathUIController : MonoBehaviour
 	{
 		fader.Deactivate();
 		fader.gameObject.SetActive(value: false);
+		buttonFader.Deactivate();
 		gameObject.SetActive(value: false);
 		isDeathBriefActive = false;
 	}
@@ -102,21 +112,30 @@ public class DeathUIController : MonoBehaviour
 			}
 			float num = waitTime + 1.2f;
 			timerFill.fillAmount = 1f - (Time.time - num) / 2.8f;
+			if (timerFill.fillAmount <= 0f)
+			{
+				OnFadeFinished();
+			}
+			readyToPlayTimerFill.fillAmount = 1f - (Time.time - num) / 2.8f;
 		}
 	}
 
 	private void OnFadeFinished()
 	{
-		fader.gameObject.SetActive(value: false);
-		gameObject.SetActive(value: false);
-		isDeathBriefActive = false;
+		if (fader.gameObject.activeSelf)
+		{
+			fader.gameObject.SetActive(value: false);
+			isDeathBriefActive = false;
+			gameObject.SetActive(value: false);
+		}
 	}
 
 	private void OnLocalAvatarKilled(string text)
 	{
-		waitTime = Time.time;
-		gameObject.SetActive(value: true);
-		deathReason.text = text;
+		if (!FlagDebriefingControl.IsInFlagDebriefing)
+		{
+			StartDeathBriefing(text);
+		}
 	}
 
 	private void HandleScoreBoardVisibility()
@@ -183,5 +202,24 @@ public class DeathUIController : MonoBehaviour
 			Dictionary<object, object> data = new Dictionary<object, object>();
 			NotificationController.PushNotification(NotificationType.CurrentProgress, data);
 		}
+	}
+
+	private void StartDeathBriefing(string deathText)
+	{
+		waitTime = Time.time;
+		gameObject.SetActive(value: true);
+		buttonFader.Activate();
+		buttonFader.PauseAt(0f);
+		readyToPlayTimerObject.SetActive(value: false);
+		deathReason.text = deathText;
+		MVGameControllerBase.WOCM.AvatarLocal.AvatarRespawnHandler.ShouldRespawnAsGhost = true;
+	}
+
+	public void OnPressPlay()
+	{
+		MVGameControllerDesktop.LockCursorManager.CursorLock = true;
+		buttonFader.Unpause();
+		readyToPlayTimerObject.SetActive(value: true);
+		MVGameControllerBase.WOCM.AvatarLocal.AvatarRespawnHandler.ShouldRespawnAsGhost = false;
 	}
 }

@@ -14,11 +14,11 @@ public class ToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
 	private float pointerEnterTime;
 
-	private static float timeBeforeToolTip = 0.1f;
-
 	private Vector2 mousePosOnToolTip = default;
 
 	private bool mousePosOnToolTipSet;
+
+	private const float timeBeforeToolTip = 0.1f;
 
 	private void Awake()
 	{
@@ -52,7 +52,7 @@ public class ToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 		{
 			hasEntered = false;
 		}
-		else if (Time.time - pointerEnterTime > timeBeforeToolTip)
+		else if (Time.time - pointerEnterTime > 0.1f)
 		{
 			if (!mousePosOnToolTipSet)
 			{

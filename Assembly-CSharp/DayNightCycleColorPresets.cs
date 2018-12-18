@@ -65,6 +65,8 @@ public class DayNightCycleColorPresets : ScriptableObject
 	[SerializeField]
 	private Preset[] presets;
 
+	public int Length => presets.Length;
+
 	public Preset this[int i]
 	{
 		get
@@ -77,8 +79,6 @@ public class DayNightCycleColorPresets : ScriptableObject
 			return preset;
 		}
 	}
-
-	public int Length => presets.Length;
 
 	protected void OnEnable()
 	{

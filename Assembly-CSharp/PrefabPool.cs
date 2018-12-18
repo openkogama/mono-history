@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using MV.Common;
 using UnityEngine;
 
 public class PrefabPool : MonoBehaviour
@@ -196,6 +198,9 @@ public class PrefabPool : MonoBehaviour
 
 	[SerializeField]
 	private ObjectPrefab timeAttackFlagPrefab;
+
+	[SerializeField]
+	private MVGamePointObject gamePointPrefab;
 
 	[Header("Game")]
 	[Space(20f)]
@@ -509,6 +514,10 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private Material indentMaterial;
 
+	private Dictionary<AvatarItemType, EquipableData> pickupPrefabLUT;
+
+	private Dictionary<MVJetPack.JetPackType, VehicleBaseObject> jetPackPrefabLUT;
+
 	public EnumPoolManager EnumPoolManager => enumPoolManager;
 
 	public static PrefabPool Instance => instance;
@@ -638,6 +647,8 @@ public class PrefabPool : MonoBehaviour
 	public GameObject GodzillaAreaPrefab => godzillaAreaPrefab;
 
 	public ObjectPrefab TimeAttackFlagPrefab => timeAttackFlagPrefab;
+
+	public MVGamePointObject GamePointPrefab => gamePointPrefab;
 
 	public Material GhostMarkerMaterial => ghostMarkerMaterial;
 
@@ -827,10 +838,19 @@ public class PrefabPool : MonoBehaviour
 
 	public Material IndentMaterial => indentMaterial;
 
-	private void Awake()
+	public static Dictionary<AvatarItemType, EquipableData> PickupPrefabLUT => instance.pickupPrefabLUT;
+
+	public static Dictionary<MVJetPack.JetPackType, VehicleBaseObject> JetPackPrefabLUT => instance.jetPackPrefabLUT;
+
+	protected void Awake()
 	{
 		instance = this;
-		Object.DontDestroyOnLoad(this);
+		BuildLookupTables();
+	}
+
+	protected void OnDestroy()
+	{
+		instance = null;
 	}
 
 	public RectTransform CubeEditHelpTextBubble(CubeModelingStateMachine.HoverType t)
@@ -841,6 +861,104 @@ public class PrefabPool : MonoBehaviour
 			CubeModelingStateMachine.HoverType.Edge => editEdgeHelpText, 
 			CubeModelingStateMachine.HoverType.Face => editFaceHelpText, 
 			_ => null, 
+		};
+	}
+
+	private void BuildLookupTables()
+	{
+		pickupPrefabLUT = new Dictionary<AvatarItemType, EquipableData>
+		{
+			{
+				AvatarItemType.CenterGun,
+				new EquipableData(AvatarCenterGunPrefab, AvatarEquipableType.Weapon)
+			},
+			{
+				AvatarItemType.ImpulseGun,
+				new EquipableData(AvatarImpulseGunPrefab, AvatarEquipableType.Weapon)
+			},
+			{
+				AvatarItemType.Health,
+				new EquipableData(AvatarHealthPrefab, AvatarEquipableType.Modifier)
+			},
+			{
+				AvatarItemType.Bazooka,
+				new EquipableData(AvatarBazookaPrefab, AvatarEquipableType.Weapon)
+			},
+			{
+				AvatarItemType.RailGun,
+				new EquipableData(AvatarRailGunPrefab, AvatarEquipableType.Weapon)
+			},
+			{
+				AvatarItemType.Mutant,
+				new EquipableData(AvatarMutantPrefab, AvatarEquipableType.Modifier)
+			},
+			{
+				AvatarItemType.Sword,
+				new EquipableData(AvatarSwordPrefab, AvatarEquipableType.Weapon)
+			},
+			{
+				AvatarItemType.Shotgun,
+				new EquipableData(AvatarShotgunPrefab, AvatarEquipableType.Weapon)
+			},
+			{
+				AvatarItemType.Flamethrower,
+				new EquipableData(AvatarFlamethrowerPrefab, AvatarEquipableType.Weapon)
+			},
+			{
+				AvatarItemType.CubeGun,
+				new EquipableData(AvatarCubeGunPrefab, AvatarEquipableType.Weapon)
+			},
+			{
+				AvatarItemType.NinjaRun,
+				new EquipableData(AvatarNinjaRunPrefab, AvatarEquipableType.Modifier)
+			},
+			{
+				AvatarItemType.SixShooter,
+				new EquipableData(AvatarSixShooterPrefab, AvatarEquipableType.Weapon)
+			},
+			{
+				AvatarItemType.DoubleSixShooter,
+				new EquipableData(AvatarDoubleSixShooterPrefab, AvatarEquipableType.Weapon)
+			},
+			{
+				AvatarItemType.ThrowingStar,
+				new EquipableData(AvatarThrowingStarPrefab, AvatarEquipableType.Weapon)
+			},
+			{
+				AvatarItemType.MultiThrowingStar,
+				new EquipableData(AvatarMultiThrowingStarPrefab, AvatarEquipableType.Weapon)
+			},
+			{
+				AvatarItemType.MouseGun,
+				new EquipableData(AvatarMouseGunPrefab, AvatarEquipableType.Weapon)
+			},
+			{
+				AvatarItemType.GrowthGun,
+				new EquipableData(AvatarGrowthGunPrefab, AvatarEquipableType.Weapon)
+			},
+			{
+				AvatarItemType.MousePack,
+				new EquipableData(AvatarMousePackPrefab, AvatarEquipableType.Modifier)
+			},
+			{
+				AvatarItemType.GrowthPack,
+				new EquipableData(AvatarGrowthPackPrefab, AvatarEquipableType.Modifier)
+			},
+			{
+				AvatarItemType.HealRay,
+				new EquipableData(AvatarHealRayPrefab, AvatarEquipableType.Weapon)
+			}
+		};
+		jetPackPrefabLUT = new Dictionary<MVJetPack.JetPackType, VehicleBaseObject>
+		{
+			{
+				MVJetPack.JetPackType.JetPack,
+				MVJetPackPrefab
+			},
+			{
+				MVJetPack.JetPackType.JetPackDeluxe,
+				MVJetPackDeluxePrefab
+			}
 		};
 	}
 }

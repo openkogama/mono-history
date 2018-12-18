@@ -9,13 +9,11 @@ public abstract class CatalogParser
 {
 	internal static readonly string[] LineSplitStrings = new string[3] { "\r\n", "\r", "\n" };
 
-	private string newLine;
-
-	public string NewLine => newLine;
+	public string NewLine { get; private set; }
 
 	public CatalogParser(string text, Encoding encoding)
 	{
-		newLine = GetNewLine(text, encoding);
+		NewLine = GetNewLine(text, encoding);
 	}
 
 	private static string GetNewLine(string text, Encoding encoding)

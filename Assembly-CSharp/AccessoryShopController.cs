@@ -137,7 +137,6 @@ public class AccessoryShopController : MonoBehaviour, IInventoryChanged, IAttach
 
 	private void ReadyCallback()
 	{
-		Debug.Log("ReadyCallback");
 		selectedTab = (int)startingCategory;
 		if (firstTimeSetup)
 		{
@@ -379,7 +378,7 @@ public class AccessoryShopController : MonoBehaviour, IInventoryChanged, IAttach
 		case AccessoryCategoryClient.Bundles:
 		{
 			List<AccessoryDataClient> list2 = new List<AccessoryDataClient>();
-			List<AccessoryBundleItem> accessoryBundleItems = AccessoryDataManager.GetAccessoryBundleClient().accessoryBundleItems;
+			List<AccessoryBundleItem> accessoryBundleItems = AccessoryDataManager.AccessoryBundleClient.accessoryBundleItems;
 			for (int j = 0; j < accessoryBundleItems.Count; j++)
 			{
 				AccessoryDataClient accessoryDataByMetaDataId = AccessoryDataManager.GetAccessoryDataByMetaDataId(accessoryBundleItems[j].accessoryMetaDataID);

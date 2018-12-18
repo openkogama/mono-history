@@ -43,10 +43,7 @@ public class Offset2DCameraInDirection
 
 	public Vector3 GetMovementOffset(Vector3 direction)
 	{
-		if (Mathf.Approximately(direction.magnitude, 0f) && !AndroidPlatformerCamera.snapbackMode)
-		{
-			return curOffset;
-		}
+		Mathf.Approximately(direction.magnitude, 0f);
 		Vector3 vector = direction;
 		Vector3 vector2 = vector;
 		vector2.x *= scaledValues.OffsetMagnitudeX;

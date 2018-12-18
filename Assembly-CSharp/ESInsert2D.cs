@@ -131,7 +131,7 @@ internal class ESInsert2D : ESStateBase
 
 	private static Vector3 ComputeSnapPosition(MVWorldObjectClient wo, Vector3 originalPos)
 	{
-		float gridSize = ((!MVGameControllerBase.IEditModeUI.IsGridSnap()) ? 0.0625f : 1f);
+		float gridSize = ((!MVGameControllerBase.EditModeUI.IsGridSnap()) ? 0.0625f : 1f);
 		return wo.GetClosestGridPoint(gridSize, originalPos);
 	}
 

@@ -10,13 +10,13 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 	{
 		public static readonly DamageSource none = new DamageSource();
 
-		private const float lifeTime = 4f;
-
 		public MVPlayer shooter;
 
 		public PlayerKilledByType damageType;
 
 		public float time;
+
+		private const float lifeTime = 4f;
 
 		public bool Outdated => Time.time - time > 4f;
 
@@ -149,6 +149,24 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 				MVGameControllerBase.OperationRequests.PostNotificationOperation(NotificationType.Kill, dictionary2);
 			}
 		}
+	}
+
+	public void DieFromFalling()
+	{
+		int actorNr = MVGameControllerBase.Game.LocalPlayer.ActorNr;
+		Dictionary<object, object> gameMsgData = GameMessages.MakePlayerKilledMessage(actorNr, actorNr, PlayerKilledByType.FallOffWorld);
+		MVGameControllerBase.OperationRequests.PostGameMsg(MVGameMsgType.AvatarKilled, gameMsgData);
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add((byte)7, MVGameControllerBase.Game.LocalPlayer.ActorNr);
+		dictionary.Add((byte)6, actorNr);
+		dictionary.Add((byte)8, PlayerKilledByType.FallOffWorld);
+		Dictionary<object, object> dictionary2 = dictionary;
+		NotificationController.OnNotificationReceived(NotificationType.Kill, dictionary2);
+		if (!KillNotificationBlacklist.Contains(PlayerKilledByType.FallOffWorld))
+		{
+			MVGameControllerBase.OperationRequests.PostNotificationOperation(NotificationType.Kill, dictionary2);
+		}
+		OnDamageTaken(1000f, null, PlayerKilledByType.FallOffWorld);
 	}
 
 	private float DamageShield(float amount)

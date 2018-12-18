@@ -37,6 +37,14 @@ public class LockCursorManager2DMode : MonoBehaviour, ILockCursorManager
 		}
 	}
 
+	public bool CursorLockWithoutCallback
+	{
+		set
+		{
+			wantsCursorLock = value;
+		}
+	}
+
 	private void LateUpdate()
 	{
 		if (Screen.fullScreen)
@@ -54,7 +62,7 @@ public class LockCursorManager2DMode : MonoBehaviour, ILockCursorManager
 
 	private void HandleCrosshairCursor()
 	{
-		bool flag = MVGameControllerBase.IPlayModeUI.GetCrossHair().Visible && !MVGameControllerBase.IPlayModeUI.InLobbyState;
+		bool flag = MVGameControllerBase.PlayModeUI.GetCrossHair().Visible && !MVGameControllerBase.PlayModeUI.InLobbyState;
 		if (flag && !showingCrosshairCursor)
 		{
 			Cursor.SetCursor(PrefabPool.Instance.CrosshairCursor, new Vector2(16f, 16f), CursorMode.Auto);

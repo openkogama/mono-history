@@ -186,7 +186,7 @@ public class MVCubeModelInstance : MVCubeModelBase
 	private Vector3[] GetCorners(Bounds bounds)
 	{
 		float num = 0f;
-		num = ((MVGameControllerBase.GameMode != MVGameMode.Edit || !MVGameControllerBase.IEditModeUI.IsGridSnap()) ? 0.0625f : 1f);
+		num = ((MVGameControllerBase.GameMode != MVGameMode.Edit || !MVGameControllerBase.EditModeUI.IsGridSnap()) ? 0.0625f : 1f);
 		Vector3 vector = Vector3.one * 0.5f;
 		Vector3 vector2 = bounds.min + vector;
 		Vector3 vector3 = bounds.max + vector;

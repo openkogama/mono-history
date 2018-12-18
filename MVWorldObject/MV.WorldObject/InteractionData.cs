@@ -125,7 +125,7 @@ public struct InteractionData
 		this.interactionType = interactionType;
 		InteractionData sharedData = GetSharedData(interactionType);
 		Validate(sharedData, interactionType, damage, impulse, playerKilledByType);
-		this.damage = (ValidateFloat(damage) ? damage : 0f);
+		this.damage = (MVMath.ValidateFloat(damage) ? damage : 0f);
 		this.impulse = (ValidateVector3(impulse) ? impulse : Vector3.zero);
 		this.playerKilledByType = playerKilledByType;
 		if (damage == 0f)
@@ -145,7 +145,7 @@ public struct InteractionData
 	private InteractionData(InteractionPackageType interactionType, float damage, Vector3 impulse, PlayerKilledByType playerKilledByType, bool isShared)
 	{
 		this.interactionType = interactionType;
-		this.damage = (ValidateFloat(damage) ? damage : 0f);
+		this.damage = (MVMath.ValidateFloat(damage) ? damage : 0f);
 		this.impulse = (ValidateVector3(impulse) ? impulse : Vector3.zero);
 		this.playerKilledByType = playerKilledByType;
 	}
@@ -207,16 +207,7 @@ public struct InteractionData
 
 	private static bool ValidateVector3(Vector3 validateVector)
 	{
-		if (!ValidateFloat(validateVector.x) || !ValidateFloat(validateVector.y) || !ValidateFloat(validateVector.z))
-		{
-			return false;
-		}
-		return true;
-	}
-
-	private static bool ValidateFloat(float validateFloat)
-	{
-		if (float.IsInfinity(validateFloat) || float.IsNaN(validateFloat))
+		if (!MVMath.ValidateFloat(validateVector.x) || !MVMath.ValidateFloat(validateVector.y) || !MVMath.ValidateFloat(validateVector.z))
 		{
 			return false;
 		}

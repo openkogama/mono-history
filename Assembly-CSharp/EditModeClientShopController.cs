@@ -35,7 +35,7 @@ public class EditModeClientShopController : MonoBehaviour, IPurchaseClientShopIt
 	public void Initialize(EditModeRepositoryController repositoryController)
 	{
 		this.repositoryController = repositoryController;
-		repository = MVGameControllerBase.IEditModeUI.ClientShopRepository;
+		repository = MVGameControllerBase.EditModeUI.ClientShopRepository;
 		selectedTab = 1;
 		int num = 1;
 		foreach (int key in repository.categories.Keys)

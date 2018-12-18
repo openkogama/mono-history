@@ -61,6 +61,12 @@ public class WinningConditionBriefing : MonoBehaviour
 	[SerializeField]
 	private List<WinningConditionBriefingDef> winningConditionMapping;
 
+	[SerializeField]
+	private GameObject DesktopPlayButtonPrefab;
+
+	[SerializeField]
+	private GameObject AndroidPlayButtonPrefab;
+
 	private WinningConditionType winConType;
 
 	private bool isInitialized;
@@ -68,6 +74,8 @@ public class WinningConditionBriefing : MonoBehaviour
 	private Action initializeCallback;
 
 	private Image winConImage;
+
+	private GameObject playButton;
 
 	private readonly Dictionary<WinningConditionType, string> headerMap = new Dictionary<WinningConditionType, string>
 	{
@@ -103,6 +111,7 @@ public class WinningConditionBriefing : MonoBehaviour
 		{
 			initializeCallback();
 		}
+		CreatePlayButton();
 	}
 
 	private void Start()
@@ -230,5 +239,11 @@ public class WinningConditionBriefing : MonoBehaviour
 			}
 		}
 		return num;
+	}
+
+	private void CreatePlayButton()
+	{
+		playButton = UnityEngine.Object.Instantiate(DesktopPlayButtonPrefab);
+		playButton.transform.SetParent(transform, worldPositionStays: false);
 	}
 }

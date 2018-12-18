@@ -261,6 +261,8 @@ public class KoGaMaPackageClient
 			return new MVGlobalSoundEmitter(worldObjectData, worldObjects);
 		case WorldObjectType.Theme:
 			return new ThemeWorldObject(worldObjectData, worldObjects);
+		case WorldObjectType.GamePoint:
+			return new MVGamePoint(worldObjectData, worldObjects);
 		default:
 			Debug.LogError("WOCM trying to create unknown type: " + worldObjectType);
 			return null;

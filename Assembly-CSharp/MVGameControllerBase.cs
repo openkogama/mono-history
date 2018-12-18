@@ -36,24 +36,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		}
 	}
 
-	private static bool disconnectIsOk;
-
-	private static bool quitHasBeenCalled;
-
-	private static int reAuthTestTries = 3;
-
-	private static TimeReward timeReward;
-
-	private static OverrideMaterials overrideMaterials;
-
-	private static GameSessionData gameSessionData;
-
-	private static LoadStats loadStats;
-
-	private static MVJoinState _joinState;
-
-	private static FirstFrameUpdateActorReady firstFrameUpdateActorReady;
-
 	[SerializeField]
 	protected KoGaMaSettingsContainer koGaMaSettings;
 
@@ -78,13 +60,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	[SerializeField]
 	private StreamingAssetManager streamingAssetManager;
 
-	protected static MVGameControllerBase instance;
-
-	protected static bool isInitialized;
-
-	protected static IPlayModeUI playModeUI;
-
-	protected static IEditModeUI editModeUI;
+	public const bool LevelingTestMode = false;
 
 	public static OnReceivedGameMsgDelegate OnReceivedGameMsg;
 
@@ -92,9 +68,31 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	public static OnPostGameInitDelegate OnPostGameInit;
 
-	public static bool LevelingTestMode;
+	protected static MVGameControllerBase instance;
 
-	private static Action<MVJoinState> onJoinStateChanged;
+	protected MVNetworkGame game;
+
+	private AudioManager audioManager;
+
+	private BrowserComm browserComm;
+
+	private LevelLoader levelLoader;
+
+	private bool quitHasBeenCalled;
+
+	private TimeReward timeReward;
+
+	private OverrideMaterials overrideMaterials;
+
+	private LoadStats loadStats;
+
+	private MVJoinState _joinState;
+
+	private FirstFrameUpdateActorReady firstFrameUpdateActorReady;
+
+	private int reAuthTestTries = 3;
+
+	private Action<MVJoinState> onJoinStateChanged;
 
 	[SerializeField]
 	private AudioBuild audioBuild;
@@ -107,33 +105,45 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	[SerializeField]
 	private SkyboxManager skyboxManager;
 
-	private static bool reportedError;
+	private bool reportedError;
 
-	private static bool reportedOngoingError;
+	private bool reportedOngoingError;
 
 	public static TextureIntegrityChecker TextureIntegrityChecker => instance.textureIntegrityChecker;
 
 	public static StreamingAssetManager StreamingAssetManager => instance.streamingAssetManager;
 
-	public static bool IsInitialized => isInitialized;
+	public static bool IsInitialized { get; protected set; }
 
-	public static bool DisconnectIsOk => disconnectIsOk;
+	public static bool DisconnectIsOk { get; private set; }
 
-	public static IPlayModeUI IPlayModeUI => playModeUI;
+	public static IPlayModeUI PlayModeUI { get; protected set; }
 
-	public static IEditModeUI IEditModeUI => editModeUI;
+	public static IEditModeUI EditModeUI { get; protected set; }
 
-	public static BuildTarget BuildTarget => GetBuildTarget();
+	public static bool IsAlive => instance != null;
+
+	public static MVNetworkGame Game => instance.game;
+
+	public static AudioManager AudioManager => instance.audioManager;
+
+	public static BrowserComm BrowserComm => instance.browserComm;
+
+	public static LevelLoader LevelLoader => instance.levelLoader;
+
+	public static GameSessionData GameSessionData { get; private set; }
+
+	public static BuildTarget BuildTarget => BuildTarget.StandAlone;
 
 	public static Action OnFirstFrameUpdateActorReady
 	{
 		get
 		{
-			return firstFrameUpdateActorReady.callbacks;
+			return instance.firstFrameUpdateActorReady.callbacks;
 		}
 		set
 		{
-			firstFrameUpdateActorReady.callbacks = value;
+			instance.firstFrameUpdateActorReady.callbacks = value;
 		}
 	}
 
@@ -141,38 +151,24 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	{
 		get
 		{
-			reAuthTestTries--;
-			if (reAuthTestTries >= 0)
-			{
-				return true;
-			}
-			return false;
+			instance.reAuthTestTries--;
+			return instance.reAuthTestTries >= 0;
 		}
 	}
 
-	public static int ReAuthTries => reAuthTestTries;
+	public static int ReAuthTries => instance.reAuthTestTries;
 
 	public static bool UsingDevSessionData => instance.koGaMaSettings.ShowDebugLogin || Application.isEditor;
 
-	public static MVNetworkGame Game { get; private set; }
-
 	public static MVNetworkGame.OperationRequests OperationRequests => Game.OperationRequestSender;
 
-	public static GameSessionData GameSessionData => gameSessionData;
+	public static LoadStats LoadStats => instance.loadStats;
 
-	public static LoadStats LoadStats => loadStats;
-
-	public static MVGameMode GameMode => gameSessionData.gameMode;
+	public static MVGameMode GameMode => GameSessionData.gameMode;
 
 	public static MVWorldObjectClientManager WOCM => Game.WorldObjectClientManager;
 
-	public static AudioManager AudioManager { get; private set; }
-
-	public static BrowserComm BrowserComm { get; set; }
-
-	public static TimeReward TimeReward => timeReward;
-
-	public static LevelLoader LevelLoader { get; private set; }
+	public static TimeReward TimeReward => instance.timeReward;
 
 	public static KoGaMaSettingsContainer KoGaMaSettings => instance.koGaMaSettings;
 
@@ -186,14 +182,14 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	{
 		get
 		{
-			return _joinState;
+			return instance._joinState;
 		}
 		set
 		{
-			_joinState = value;
-			if (onJoinStateChanged != null)
+			instance._joinState = value;
+			if (instance.onJoinStateChanged != null)
 			{
-				onJoinStateChanged(value);
+				instance.onJoinStateChanged(value);
 			}
 		}
 	}
@@ -202,14 +198,14 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	{
 		get
 		{
-			return onJoinStateChanged;
+			return instance.onJoinStateChanged;
 		}
 		set
 		{
-			onJoinStateChanged = value;
-			if (onJoinStateChanged != null)
+			instance.onJoinStateChanged = value;
+			if (instance.onJoinStateChanged != null)
 			{
-				onJoinStateChanged(_joinState);
+				instance.onJoinStateChanged(instance._joinState);
 			}
 		}
 	}
@@ -242,28 +238,110 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		}
 	}
 
-	public static WaterPlaneManager WaterPlaneManager
+	public static WaterPlaneManager WaterPlaneManager => instance.waterPlaneManager;
+
+	public static SkyboxManager SkyboxManager => instance.skyboxManager;
+
+	protected virtual void Awake()
 	{
-		get
+		instance = this;
+		StringBuilder stringBuilder = new StringBuilder(256);
+		stringBuilder.Append("Build info\n");
+		stringBuilder.AppendFormat("Version Number: {0}\n", KoGaMaSettings.VersionString);
+		stringBuilder.AppendFormat("Release Name: {0}\n", KoGaMaSettings.ReleaseName);
+		stringBuilder.AppendFormat("Branch: {0}\n", KoGaMaSettings.BranchName);
+		stringBuilder.AppendFormat("Latest commit message: {0}\n", koGaMaSettings.LatestCommitMessage);
+		stringBuilder.AppendFormat("Build time: {0}\n", koGaMaSettings.BuildTime);
+		Debug.Log(stringBuilder);
+		DebugLogHandler.Init();
+		if (!DebugLogHandler.IsSampling && !Debug.isDebugBuild)
 		{
-			if (instance.cameraController == null)
-			{
-				throw new NullReferenceException();
-			}
-			return instance.waterPlaneManager;
+			Debug.unityLogger.filterLogType = LogType.Warning;
+		}
+		styles = UnityEngine.Object.Instantiate(styles);
+		styles.transform.parent = transform;
+		loadStats = new LoadStats();
+		loadStats.GameStartTime = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+		UnityEngine.Object.Instantiate(prefabPool);
+		levelLoader = GetComponent<LevelLoader>();
+		audioManager = GetComponent<AudioManager>();
+		browserComm = GetComponentInChildren<BrowserComm>();
+		overrideMaterials = GetComponentInChildren<OverrideMaterials>();
+		timeReward = new TimeReward();
+		CheatHandling.Init();
+		AudioEventHandler.Init(audioBuild);
+		textureIntegrityChecker.Initialize();
+		themeRepository.Initialize();
+		UpdateController.AddFixedUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
+		UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
+		MeshDataPool.Create();
+		waterPlaneManager = UnityEngine.Object.Instantiate(instance.waterPlaneManagerPrefab);
+		Application.runInBackground = true;
+	}
+
+	protected virtual void OnDestroy()
+	{
+		try
+		{
+			DrawPlane.Reset();
+			BadgeManager.Reset();
+			MeshDataPool.Destroy();
+			LevelingManager.Destroy();
+			StreamedSharedMaterialHandler.Reset();
+			LoggerManager.Destroy();
+			CullingApiWrapper.Destroy();
+			HighlightManager.Reset();
+			FirstTimeEventManager.Destroy();
+			ThemeRepository.Destroy();
+			AudioEventHandler.Destroy();
+			DebugLogHandler.Reset();
+			AwayMonitor.Destroy();
+			TM.Destroy();
+			AsyncWWWManager.Reset();
+			UpdateController.Clear();
+			StreamingAsset.ClearCache();
+			AccessoryDataManager.Reset();
+			DataUploadManager.Reset();
+			TimedPlayReward.RewardTracker.Reset();
+			UpdateController.RemoveObject(this);
+		}
+		catch (Exception ex)
+		{
+			Debug.LogError("MVGameControllerBase.OnDestroy exception: " + ex.Message);
+		}
+		finally
+		{
+			OnPostGameInit = null;
+			GameSessionData = null;
+			IsInitialized = false;
+			instance = null;
 		}
 	}
 
-	public static SkyboxManager SkyboxManager
+	protected void Update()
 	{
-		get
+		UpdateController.Update();
+		HandleDebugShortCuts();
+		HandleStatHatErrorCount();
+	}
+
+	protected void FixedUpdate()
+	{
+		UpdateController.FixedUpdate();
+	}
+
+	protected virtual void LateUpdate()
+	{
+		if (IsInitialized)
 		{
-			if (instance.cameraController == null)
-			{
-				throw new NullReferenceException();
-			}
-			return instance.skyboxManager;
+			Game.World.WorldInventory.LateUpdate();
+			CameraController.UpdateCamera();
 		}
+	}
+
+	protected void OnDrawGizmos()
+	{
+		CullingApiWrapper.DebugVisualize();
 	}
 
 	public static void PostGameMsg(MVGameMsgType gameMsgType, Dictionary<object, object> gameMsgData)
@@ -281,122 +359,17 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		PostGameMsg(gameMsgType, dictionary);
 	}
 
-	private void Awake()
+	public static void PostDestroyCleanup()
 	{
-		instance = this;
-		Debug.Log("Version Number");
-		Debug.Log(KoGaMaSettings.VersionString);
-		Debug.Log("Release Name");
-		Debug.Log(KoGaMaSettings.ReleaseName);
-		Debug.Log("Branch");
-		Debug.Log(KoGaMaSettings.BranchName);
-		Debug.Log("Latest commit message");
-		Debug.Log(koGaMaSettings.LatestCommitMessage);
-		Debug.Log("Build time");
-		Debug.Log(koGaMaSettings.BuildTime);
-		DebugLogHandler.Init();
-		if (!DebugLogHandler.IsSampling && !Debug.isDebugBuild)
+		if (OnReceivedNotification != null)
 		{
-			Debug.unityLogger.filterLogType = LogType.Warning;
+			Debug.LogWarning("OnReceivedNotification still have subscribers");
+			OnReceivedNotification = null;
 		}
-		styles = UnityEngine.Object.Instantiate(styles);
-		styles.transform.parent = transform;
-		loadStats = new LoadStats();
-		loadStats.GameStartTime = DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
-		UnityEngine.Object.Instantiate(prefabPool);
-		LevelLoader = GetComponent<LevelLoader>();
-		AudioManager = GetComponent<AudioManager>();
-		BrowserComm = GetComponentInChildren<BrowserComm>();
-		overrideMaterials = GetComponentInChildren<OverrideMaterials>();
-		timeReward = new TimeReward();
-		CheatHandling.Init();
-		AudioEventHandler.Init(audioBuild);
-		textureIntegrityChecker.Initialize();
-		themeRepository.Initialize();
-		InitUpdateController();
-		waterPlaneManager = UnityEngine.Object.Instantiate(instance.waterPlaneManagerPrefab);
-		UnityEngine.Object.DontDestroyOnLoad(gameObject);
-		Application.runInBackground = true;
-	}
-
-	private void Update()
-	{
-		UpdateController.Update();
-		HandleDebugShortCuts();
-		HandleStatHatErrorCount();
-	}
-
-	private static void HandleStatHatErrorCount()
-	{
-		if (!reportedError && DebugLogHandler.ErrorDetected)
+		if (OnReceivedGameMsg != null)
 		{
-			StatHatWrapper.Count("errorcount", 1);
-			reportedError = true;
-		}
-		if (!reportedOngoingError && DebugLogHandler.OngoingErrorDetected)
-		{
-			StatHatWrapper.Count("errorcountongoing", 1);
-			reportedOngoingError = true;
-		}
-	}
-
-	private void OnDrawGizmos()
-	{
-		CullingApiWrapper.DebugVisualize();
-	}
-
-	private void HandleDebugShortCuts()
-	{
-		if (Input.GetKey(KeyCode.Alpha7) && Input.GetKeyUp(KeyCode.Alpha9))
-		{
-			if (Debug.unityLogger.filterLogType == LogType.Warning)
-			{
-				Debug.unityLogger.filterLogType = LogType.Log;
-				Debug.Log("Enabling logging!");
-			}
-			else if (Debug.unityLogger.filterLogType == LogType.Log)
-			{
-				Debug.Log("Disabling logging!");
-				Debug.unityLogger.filterLogType = LogType.Warning;
-			}
-		}
-	}
-
-	private void FixedUpdate()
-	{
-		UpdateController.FixedUpdate();
-	}
-
-	protected virtual void LateUpdate()
-	{
-		if (isInitialized)
-		{
-			Game.World.WorldInventory.LateUpdate();
-			CameraController.UpdateCamera();
-		}
-	}
-
-	private void OnApplicationQuit()
-	{
-		Debug.Log("On application quit");
-		HandleQuitDisconnect();
-		CleanUp();
-		CullingApiWrapper.Destroy();
-	}
-
-	protected void HandleQuitDisconnect()
-	{
-		disconnectIsOk = true;
-		if (Game != null)
-		{
-			if (GameSessionData != null)
-			{
-				SessionLocatorPing.LeaveSession();
-			}
-			if (Game.Peer != null && Game.ConnState == MVConnState.Joined)
-			{
-				Game.Peer.Disconnect();
-			}
+			Debug.LogWarning("OnReceivedGameMsg still have subscribers");
+			OnReceivedGameMsg = null;
 		}
 	}
 
@@ -427,29 +400,17 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	public static void SetGameSessionData(GameSessionData gameSessionData)
 	{
-		MVGameControllerBase.gameSessionData = gameSessionData;
+		GameSessionData = gameSessionData;
 		AwayMonitor.Initialize(gameSessionData.gameMode);
-	}
-
-	protected void StartGame()
-	{
-		disconnectIsOk = false;
-		StatHatWrapper.Count("MVGameControllerStartGame", 1);
-		Game = new MVNetworkGame();
-		firstFrameUpdateActorReady = new FirstFrameUpdateActorReady();
-		if (!Game.Join())
-		{
-			Debug.LogError("Failed to connect");
-		}
 	}
 
 	public static bool TryReauth()
 	{
 		if (Game != null && OkToReAuth)
 		{
-			disconnectIsOk = true;
+			DisconnectIsOk = true;
 			Game.Peer.Disconnect();
-			AsyncWWWManager.WWWRequest(new GetRequest(gameSessionData.reauthURL, instance.OnReceivedReAuthWebParametersFromHttpRequest, WWWRequestPriority.ExecuteIgnoreAllConstraints));
+			AsyncWWWManager.WWWRequest(new GetRequest(GameSessionData.reauthURL, instance.OnReceivedReAuthWebParametersFromHttpRequest, WWWRequestPriority.ExecuteIgnoreAllConstraints));
 			return true;
 		}
 		return false;
@@ -458,62 +419,82 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	public static void ApplicationQuit(QuitBaseCallback applicationQuitObject)
 	{
 		Debug.Log("Application quit");
-		if (!quitHasBeenCalled)
+		if (!instance.quitHasBeenCalled)
 		{
-			quitHasBeenCalled = true;
-			AsyncWWWManager.HandleQuit((bool handledAllRequest) =>
+			instance.quitHasBeenCalled = true;
+			AsyncWWWManager.ShutDown(() =>
 			{
-				Debug.Log("Did handle all request:" + handledAllRequest);
 				instance.HandleApplicationQuit(applicationQuitObject);
 			});
 		}
 	}
 
-	public abstract void HandleApplicationQuit(QuitBaseCallback quitBaseCallback);
-
 	public static void RegisterOverrideMaterials()
 	{
 		if (Application.isEditor)
 		{
-			overrideMaterials.Register();
+			instance.overrideMaterials.Register();
 		}
 	}
 
-	private static BuildTarget GetBuildTarget()
+	[DllImport("user32.dll")]
+	private static extern bool SetWindowPos(IntPtr hwnd, int hWndInsertAfter, int x, int Y, int cx, int cy, int wFlags);
+
+	[DllImport("user32.dll")]
+	public static extern IntPtr FindWindow(string className, string windowName);
+
+	public static void SetPosition(int x, int y, int resX = 0, int resY = 0)
 	{
-		return BuildTarget.StandAlone;
+		SetWindowPos(FindWindow(null, "KoGaMa"), 0, x, y, resX, resY, (resX * resY == 0) ? 1 : 0);
 	}
 
-	private void InitUpdateController()
+	protected void OnApplicationQuit()
 	{
-		UpdateController.AddFixedUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
-		UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
+		ShutDown();
 	}
 
-	private void ReceivedWebParamsCallback(bool ok, string data)
+	protected void ShutDown()
 	{
-		if (ok)
+		HandleQuitDisconnect();
+		CleanUp();
+	}
+
+	protected abstract void HandleApplicationQuit(QuitBaseCallback quitBaseCallback);
+
+	protected virtual void CleanUp()
+	{
+		Game.Cleanup();
+		CameraController.gameObject.SetActive(value: false);
+		gameObject.SetActive(value: false);
+		GameLoader.UnloadGame();
+	}
+
+	protected void HandleQuitDisconnect()
+	{
+		DisconnectIsOk = true;
+		if (Game != null)
 		{
-			Debug.Log("WEBPARAMS: " + data);
-			GameSessionData gameSessionData = JsonConvert.DeserializeObject<GameSessionData>(data);
-			StatHatWrapper.Initialize(gameSessionData.detailedStats);
-			Debug.Log(gameSessionData.pingURL);
-			Debug.Log(gameSessionData.disconnectURL);
-			SetGameSessionData(gameSessionData);
-			StartGame();
+			if (GameSessionData != null)
+			{
+				SessionLocatorPing.LeaveSession();
+			}
+			if (Game.Peer != null && Game.ConnState == MVConnState.Joined)
+			{
+				Game.Peer.Disconnect();
+			}
 		}
 	}
 
-	private void ReceivedLoadStatsCallback(bool ok, string data)
+	protected void StartGame()
 	{
-		if (!ok)
+		DisconnectIsOk = false;
+		StatHatWrapper.Count("MVGameControllerStartGame", 1);
+		game = new MVNetworkGame();
+		firstFrameUpdateActorReady = new FirstFrameUpdateActorReady();
+		if (!Game.Join())
 		{
-			Debug.LogWarning("Failed to get load stats data");
-			return;
+			Debug.LogError("Failed to connect");
 		}
-		LoadStats loadStats = JsonConvert.DeserializeObject<LoadStats>(data);
-		MVGameControllerBase.loadStats.DOMReady = loadStats.DOMReady;
-		MVGameControllerBase.loadStats.PluginInit = loadStats.PluginInit;
 	}
 
 	protected virtual void InitWebPlayer(bool developmentMode)
@@ -525,7 +506,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 			return;
 		}
 		BrowserComm.ToJavaScript.GetBrowserVersion();
-		BrowserComm.ToJavaScript.ExternalCall("sendPlayerParams", ReceivedWebParamsCallback);
+		BrowserComm.ToJavaScript.ExternalCall("sendPlayerParams", StartGameWithSessionData);
 		BrowserComm.ToJavaScript.ExternalCall("sendLoadStats", ReceivedLoadStatsCallback);
 	}
 
@@ -555,32 +536,88 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		byte[] bytes = Convert.FromBase64String(text);
 		string text3 = Encoding.UTF8.GetString(bytes);
 		Debug.Log(text3);
-		AsyncWWWManager.WWWRequest(new GetRequest(text3, OnReceivedWebParametersFromHttpRequest, WWWRequestPriority.ExecuteIgnoreAllConstraints));
-	}
-
-	[DllImport("user32.dll")]
-	private static extern bool SetWindowPos(IntPtr hwnd, int hWndInsertAfter, int x, int Y, int cx, int cy, int wFlags);
-
-	[DllImport("user32.dll")]
-	public static extern IntPtr FindWindow(string className, string windowName);
-
-	public static void SetPosition(int x, int y, int resX = 0, int resY = 0)
-	{
-		SetWindowPos(FindWindow(null, "KoGaMa"), 0, x, y, resX, resY, (resX * resY == 0) ? 1 : 0);
+		AsyncWWWManager.WWWRequest(new GetRequest(text3, OnReceivedSessionData, WWWRequestPriority.ExecuteIgnoreAllConstraints));
 	}
 
 	protected void OnReceivedReAuthWebParametersFromHttpRequest(WWW www)
 	{
 		string text = www.text;
 		Debug.Log("Reauth webParameters " + text);
-		ReceivedWebParamsCallback(ok: true, text);
+		StartGameWithSessionData(ok: true, text);
 	}
 
-	protected void OnReceivedWebParametersFromHttpRequest(WWW www)
+	protected void OnReceivedSessionData(WWW www)
 	{
 		string text = www.text;
 		Debug.Log(text);
-		ReceivedWebParamsCallback(ok: true, text);
+		StartGameWithSessionData(ok: true, text);
+	}
+
+	protected virtual void UpdateInternal()
+	{
+	}
+
+	protected void Initialize()
+	{
+		IsInitialized = true;
+		materialLoader.Initialize();
+	}
+
+	private static void HandleStatHatErrorCount()
+	{
+		if (!instance.reportedError && DebugLogHandler.ErrorDetected)
+		{
+			StatHatWrapper.Count("errorcount", 1);
+			instance.reportedError = true;
+		}
+		if (!instance.reportedOngoingError && DebugLogHandler.OngoingErrorDetected)
+		{
+			StatHatWrapper.Count("errorcountongoing", 1);
+			instance.reportedOngoingError = true;
+		}
+	}
+
+	private void HandleDebugShortCuts()
+	{
+		if (Input.GetKey(KeyCode.Alpha7) && Input.GetKeyUp(KeyCode.Alpha9))
+		{
+			if (Debug.unityLogger.filterLogType == LogType.Warning)
+			{
+				Debug.unityLogger.filterLogType = LogType.Log;
+				Debug.Log("Enabling logging!");
+			}
+			else if (Debug.unityLogger.filterLogType == LogType.Log)
+			{
+				Debug.Log("Disabling logging!");
+				Debug.unityLogger.filterLogType = LogType.Warning;
+			}
+		}
+	}
+
+	private void StartGameWithSessionData(bool ok, string sessionDataJson)
+	{
+		if (ok)
+		{
+			Debug.Log("WEBPARAMS: " + sessionDataJson);
+			GameSessionData gameSessionData = JsonConvert.DeserializeObject<GameSessionData>(sessionDataJson);
+			StatHatWrapper.Initialize(gameSessionData.detailedStats);
+			Debug.Log(gameSessionData.pingURL);
+			Debug.Log(gameSessionData.disconnectURL);
+			SetGameSessionData(gameSessionData);
+			StartGame();
+		}
+	}
+
+	private void ReceivedLoadStatsCallback(bool ok, string data)
+	{
+		if (!ok)
+		{
+			Debug.LogWarning("Failed to get load stats data");
+			return;
+		}
+		LoadStats loadStats = JsonConvert.DeserializeObject<LoadStats>(data);
+		this.loadStats.DOMReady = loadStats.DOMReady;
+		this.loadStats.PluginInit = loadStats.PluginInit;
 	}
 
 	private void UpdateGame()
@@ -594,34 +631,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		AudioEventHandler.Update();
 	}
 
-	protected virtual void UpdateInternal()
-	{
-	}
-
-	protected void Initialize()
-	{
-		isInitialized = true;
-		materialLoader.Initialize();
-	}
-
-	protected virtual void CleanUp()
-	{
-		try
-		{
-			Game.Cleanup();
-			Game = null;
-			UpdateController.Clear();
-			UnityEngine.Object.Destroy(gameObject);
-			DeleteScreenPlayerPrefs();
-			GC.Collect();
-		}
-		catch (Exception ex)
-		{
-			Debug.Log("From clean up " + ex.Message);
-		}
-	}
-
-	private static void DeleteScreenPlayerPrefs()
+	protected static void DeleteScreenPlayerPrefs()
 	{
 		PlayerPrefs.DeleteKey("Screenmanager Is Fullscreen mode");
 		PlayerPrefs.DeleteKey("Screenmanager Resolution Height");

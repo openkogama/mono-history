@@ -5,20 +5,18 @@ using UnityEngine;
 
 public class NotificationController : MonoBehaviour
 {
-	private static NotificationsManager CurrentManager;
-
-	private static bool hasSubscribed = false;
-
 	private static HashSet<int> incomingPlayerFriendRequests = new HashSet<int>();
 
-	public static void Register(NotificationsManager manager)
+	private static NotificationsManager NotificationsManager => NotificationsManager.ActiveInstance;
+
+	protected void Awake()
 	{
-		CurrentManager = manager;
-		if (!hasSubscribed)
-		{
-			hasSubscribed = true;
-			MVGameControllerBase.OnReceivedNotification = (MVGameControllerBase.OnReceivedNotificationEventDelegate)Delegate.Combine(MVGameControllerBase.OnReceivedNotification, new MVGameControllerBase.OnReceivedNotificationEventDelegate(OnNotificationReceived));
-		}
+		MVGameControllerBase.OnReceivedNotification = (MVGameControllerBase.OnReceivedNotificationEventDelegate)Delegate.Combine(MVGameControllerBase.OnReceivedNotification, new MVGameControllerBase.OnReceivedNotificationEventDelegate(OnNotificationReceived));
+	}
+
+	protected void OnDestroy()
+	{
+		MVGameControllerBase.OnReceivedNotification = (MVGameControllerBase.OnReceivedNotificationEventDelegate)Delegate.Remove(MVGameControllerBase.OnReceivedNotification, new MVGameControllerBase.OnReceivedNotificationEventDelegate(OnNotificationReceived));
 	}
 
 	public static void OnNotificationReceived(NotificationType type, Dictionary<object, object> data)
@@ -32,7 +30,7 @@ public class NotificationController : MonoBehaviour
 			FriendRequestAccepted(data);
 			break;
 		default:
-			CurrentManager.InstantiateNotification(type, data);
+			NotificationsManager.InstantiateNotification(type, data);
 			break;
 		}
 	}
@@ -53,7 +51,7 @@ public class NotificationController : MonoBehaviour
 		{
 			incomingPlayerFriendRequests.Add(friend.profileID);
 			data.Add((byte)15, friend.friendID);
-			CurrentManager.InstantiateNotification(NotificationType.FriendRequest, data);
+			NotificationsManager.InstantiateNotification(NotificationType.FriendRequest, data);
 		}
 	}
 
@@ -66,7 +64,7 @@ public class NotificationController : MonoBehaviour
 		{
 			dictionary.Add((byte)3, sprite);
 		}
-		CurrentManager.InstantiateNotification(NotificationType.ModalNotification, dictionary);
+		NotificationsManager.InstantiateNotification(NotificationType.ModalNotification, dictionary);
 	}
 
 	public static void PushNotification(NotificationType notificationType, NotificationLifetime lifeTime = NotificationLifetime.High)
@@ -78,7 +76,7 @@ public class NotificationController : MonoBehaviour
 	public static void PushNotification(NotificationType notificationType, Dictionary<object, object> data, NotificationLifetime lifeTime = NotificationLifetime.High)
 	{
 		data.Add((byte)2, lifeTime);
-		CurrentManager.InstantiateNotification(notificationType, data);
+		NotificationsManager.InstantiateNotification(notificationType, data);
 	}
 
 	public static void PushNoticationInstruction(string instruction, NotificationLifetime lifeTime = NotificationLifetime.High)

@@ -205,7 +205,7 @@ public class ChatControllerUGUI : MonoBehaviour
 		}
 		else
 		{
-			bool flag = MVGameControllerBase.IEditModeUI != null && !MVGameControllerBase.IEditModeUI.IsInPlayInEditMode;
+			bool flag = MVGameControllerBase.EditModeUI != null && !MVGameControllerBase.EditModeUI.IsInPlayInEditMode;
 			messageController.OnInputFocusChange(isFocused: false);
 			if (!currentlyInLobbyState || flag)
 			{

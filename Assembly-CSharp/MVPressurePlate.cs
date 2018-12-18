@@ -14,7 +14,7 @@ public class MVPressurePlate : MVLogicObject, IIsLogicObjectFiringEventHandler, 
 
 	private float speed = 1.8f;
 
-	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
+	private const UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
 	private UseInteractor useInteractor;
 
@@ -121,7 +121,7 @@ public class MVPressurePlate : MVLogicObject, IIsLogicObjectFiringEventHandler, 
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		if ((useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0)
+		if ((useInteractor.EvaluateRequirementsUsability() & (UseGUIResult.CanAfford | UseGUIResult.CannotAfford)) == 0)
 		{
 			int woIDWithLocalOwnerHighestInHierarchy = MVGameControllerBase.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(e.instigatorWOID);
 			if (woIDWithLocalOwnerHighestInHierarchy == -1)

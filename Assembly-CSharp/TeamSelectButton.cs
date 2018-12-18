@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class TeamSelectButton : MonoBehaviour
+public class TeamSelectButton : MonoBehaviour, IPointerDownHandler, IEventSystemHandler
 {
 	[SerializeField]
 	private Image buttonImage;
@@ -51,13 +51,18 @@ public class TeamSelectButton : MonoBehaviour
 		}
 	}
 
-	public void OnTeamSelected()
+	public void OnPointerDown(PointerEventData eventData)
 	{
+		if (eventData.button != PointerEventData.InputButton.Left)
+		{
+			return;
+		}
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Pop();
 		});
-		if (WinningConditionControl.TryGetPrioritizedWinCondition(out var condition))
+		bool flag = WinningConditionControl.TryGetPrioritizedWinCondition(out var condition);
+		if (flag)
 		{
 			WinningConditionBriefing winConMenu = Object.Instantiate(winningConditionBriefingMenu);
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
@@ -72,5 +77,14 @@ public class TeamSelectButton : MonoBehaviour
 			MVGameControllerBase.Game.GameStatCounterManager.RemoveTeamScoreOnActorLeave(MVGameControllerBase.Game.LocalPlayer.ActorNr, MVGameControllerBase.Game.LocalPlayer.Team);
 		}
 		MVGameControllerBase.Game.LocalPlayer.Team = teamData.team;
+		if (!flag)
+		{
+			StartPlaying();
+		}
+	}
+
+	private void StartPlaying()
+	{
+		MVGameControllerDesktop.LockCursorManager.CursorLock = true;
 	}
 }

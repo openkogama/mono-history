@@ -41,6 +41,11 @@ public static class DrawPlane
 		DrawPlane.drawPlaneController = drawPlaneController;
 	}
 
+	public static void Reset()
+	{
+		drawPlaneController = null;
+	}
+
 	public static bool Pick(ref Vector3 hit)
 	{
 		if (EventSystem.current.IsPointerOverGameObject())

@@ -18,4 +18,9 @@ public class LogicObjectManagerClient : LogicObjectManager
 		int num2 = LogicObjectManager.ResetChunk(link.outputWOID, worldObjectManager);
 		return num + num2;
 	}
+
+	public void Clear()
+	{
+		logicWorldObjects.Clear();
+	}
 }

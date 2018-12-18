@@ -79,13 +79,13 @@ public class GhostEye : MonoBehaviour
 
 	private class DieRollback : IGhostEyeState
 	{
-		private static float rollbackPitch = -90f;
+		private const float rollbackPitch = -90f;
 
 		private const float rollbackTime = 1f;
 
 		private float currentRollbackTime;
 
-		private Quaternion rollbackRotation = Quaternion.Euler(rollbackPitch, 0f, 0f);
+		private Quaternion rollbackRotation = Quaternion.Euler(-90f, 0f, 0f);
 
 		public void Enter(GhostEye ghostEye)
 		{

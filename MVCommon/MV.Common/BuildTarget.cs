@@ -2,8 +2,8 @@ namespace MV.Common;
 
 public enum BuildTarget : byte
 {
-	StandAlone,
+	StandAlone = 1,
 	WebGL,
-	WebPlayer,
-	Android
+	Android,
+	IOS
 }

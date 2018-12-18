@@ -83,7 +83,7 @@ public enum DBQuery
 	RewardPlanetOwner,
 	GetResetAvatar,
 	TestQuery,
-	RequestGameTypeID,
+	RequestGameMetaData,
 	RequestProtoPlanetID,
 	RequestDefaultInventory,
 	CreateDefaultItemInventory,
@@ -103,5 +103,14 @@ public enum DBQuery
 	PurchaseAccessoryBundle,
 	RequestInGameHighlight,
 	PostPurchaseRequestGoldAmount,
-	ResetAvatarToOriginalAvatar
+	ResetAvatarToOriginalAvatar,
+	RequestGoldPerLevelData,
+	RewardGold,
+	RequestGamePassesControlData,
+	UpdatePlayerGamePointScore,
+	RequestPublishedPlanetProfileData,
+	UpdatePublishedPlanetGamePointMetric,
+	ResetPlayerPlanetData,
+	GetPublishedPlanetHighScore,
+	GetPublishedPlanetPlayerRank
 }

@@ -34,7 +34,7 @@ public class FirstTimeActivatableExitPlayInEditPointer : FirstTimeActivatableBut
 	{
 		if (isDeleting)
 		{
-			ExecuteEvents.ExecuteHierarchy(((DesktopPlayModeController)MVGameControllerBase.IPlayModeUI).gameObject, null, (TextBubbleController x, BaseEventData y) =>
+			ExecuteEvents.ExecuteHierarchy(((DesktopPlayModeController)MVGameControllerBase.PlayModeUI).gameObject, null, (TextBubbleController x, BaseEventData y) =>
 			{
 				x.ClearBubblesWithId(bubbleId);
 			});
@@ -60,7 +60,7 @@ public class FirstTimeActivatableExitPlayInEditPointer : FirstTimeActivatableBut
 		{
 			isDeleting = true;
 			canShow = false;
-			ExecuteEvents.ExecuteHierarchy(((DesktopPlayModeController)MVGameControllerBase.IPlayModeUI).gameObject, null, (TextBubbleController x, BaseEventData y) =>
+			ExecuteEvents.ExecuteHierarchy(((DesktopPlayModeController)MVGameControllerBase.PlayModeUI).gameObject, null, (TextBubbleController x, BaseEventData y) =>
 			{
 				x.ClearBubblesWithId(bubbleId);
 			});

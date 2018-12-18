@@ -2,7 +2,7 @@ using System;
 using MV.Common;
 using UnityEngine;
 
-public static class AwayMonitor
+public class AwayMonitor
 {
 	private enum State
 	{
@@ -30,48 +30,55 @@ public static class AwayMonitor
 		}
 	}
 
-	private static DateTime latestResetAFKTime = DateTime.Now;
+	private static AwayMonitor instance;
 
-	private static readonly TimeSpan awayCheckFrequency = new TimeSpan(0, 0, 0, 59);
+	private DateTime latestResetAFKTime = DateTime.Now;
 
-	private static IdleKickTimes idleKickTimes;
+	private readonly TimeSpan awayCheckFrequency = new TimeSpan(0, 0, 0, 59);
 
-	private static State state = State.Active;
+	private IdleKickTimes idleKickTimes;
 
-	private static bool idleKickEnabled = true;
+	private State state;
 
-	private static DateTime latestMouseMoveTime = DateTime.Now;
+	private bool idleKickEnabled = true;
 
-	private static readonly string mouseX = "Mouse X";
+	private DateTime latestMouseMoveTime = DateTime.Now;
 
-	private static readonly string mouseY = "Mouse Y";
+	private const string mouseX = "Mouse X";
 
-	private static readonly string scroll = "Mouse ScrollWheel";
+	private const string mouseY = "Mouse Y";
+
+	private const string scroll = "Mouse ScrollWheel";
 
 	public static bool IdleKickEnabled
 	{
 		get
 		{
-			return idleKickEnabled;
+			return instance.idleKickEnabled;
 		}
 		set
 		{
-			idleKickEnabled = value;
+			instance.idleKickEnabled = value;
 		}
 	}
 
-	public static DateTime LatestMouseMoveTime => latestMouseMoveTime;
+	public DateTime LatestMouseMoveTime => latestMouseMoveTime;
+
+	private AwayMonitor()
+	{
+	}
 
 	public static void Initialize(MVGameMode mode)
 	{
+		instance = new AwayMonitor();
 		switch (mode)
 		{
 		case MVGameMode.Play:
-			idleKickTimes = new IdleKickTimes(5, 15);
+			instance.idleKickTimes = new IdleKickTimes(5, 15);
 			break;
 		case MVGameMode.Edit:
 		case MVGameMode.CharacterEditor:
-			idleKickTimes = new IdleKickTimes(15, 30);
+			instance.idleKickTimes = new IdleKickTimes(15, 30);
 			break;
 		default:
 			Debug.LogError(string.Concat("GameMode: ", mode, ", is not accounted"));
@@ -79,39 +86,44 @@ public static class AwayMonitor
 		}
 	}
 
+	public static void Destroy()
+	{
+		instance = null;
+	}
+
 	public static void Update()
 	{
-		UpdateMouse();
-		UpdateIdle();
+		instance.UpdateMouse();
+		instance.UpdateIdle();
 	}
 
 	public static void UpdateIdleAction()
 	{
-		latestMouseMoveTime = DateTime.Now;
+		instance.latestMouseMoveTime = DateTime.Now;
 	}
 
-	private static void UpdateIdle()
+	private void UpdateIdle()
 	{
 		if (DateTime.Now - LatestMouseMoveTime < awayCheckFrequency && DateTime.Now - latestResetAFKTime > awayCheckFrequency)
 		{
 			BrowserComm.ToJavaScript.ExternalCall("resetAFKtimer");
 			latestResetAFKTime = DateTime.Now;
 		}
-		if (IdleKickEnabled)
+		if (idleKickEnabled)
 		{
 			HandleIdle();
 		}
 	}
 
-	private static void UpdateMouse()
+	private void UpdateMouse()
 	{
-		if (MVInputWrapper.GetAxisRawWithoutSensitivity(scroll) > Mathf.Epsilon || MVInputWrapper.GetAxisRawWithoutSensitivity(mouseX) > Mathf.Epsilon || MVInputWrapper.GetAxisRawWithoutSensitivity(mouseY) > Mathf.Epsilon)
+		if (MVInputWrapper.GetAxisRawWithoutSensitivity("Mouse ScrollWheel") > Mathf.Epsilon || MVInputWrapper.GetAxisRawWithoutSensitivity("Mouse X") > Mathf.Epsilon || MVInputWrapper.GetAxisRawWithoutSensitivity("Mouse Y") > Mathf.Epsilon)
 		{
 			latestMouseMoveTime = DateTime.Now;
 		}
 	}
 
-	private static void HandleIdle()
+	private void HandleIdle()
 	{
 		if (state != State.Kicked)
 		{

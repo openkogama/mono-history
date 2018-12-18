@@ -5,13 +5,17 @@ using UnityEngine.Events;
 
 public static class AccessoryDataManager
 {
+	public static UnityAction readyCallback;
+
 	private static bool accessoriesRequested;
 
 	private static bool accessoriesReady;
 
 	private static AccessoryShopDataClient accessoryShopData;
 
-	public static UnityAction readyCallback;
+	public static int AccessoryBundleId => accessoryShopData.accessoryBundle.accessoryBundleID;
+
+	public static AccessoryBundleClient AccessoryBundleClient => accessoryShopData.accessoryBundle;
 
 	public static void SetReady()
 	{
@@ -29,14 +33,22 @@ public static class AccessoryDataManager
 		}
 	}
 
-	public static int GetAccessoryBundleId()
+	public static void Reset()
 	{
-		return accessoryShopData.accessoryBundle.accessoryBundleID;
+		readyCallback = null;
+		accessoriesRequested = false;
+		accessoriesReady = false;
+		accessoryShopData = null;
 	}
 
-	public static AccessoryBundleClient GetAccessoryBundleClient()
+	public static void SetAccessoryData(string accessoryData)
 	{
-		return accessoryShopData.accessoryBundle;
+		accessoryShopData = JsonConvert.DeserializeObject<AccessoryShopDataClient>(accessoryData);
+		accessoriesReady = true;
+		if (readyCallback != null)
+		{
+			readyCallback();
+		}
 	}
 
 	public static void SetToOwns(int streamingAssetId)
@@ -63,16 +75,6 @@ public static class AccessoryDataManager
 			}
 		}
 		return null;
-	}
-
-	public static void SetAccessoryData(string accessoryData)
-	{
-		accessoryShopData = JsonConvert.DeserializeObject<AccessoryShopDataClient>(accessoryData);
-		accessoriesReady = true;
-		if (readyCallback != null)
-		{
-			readyCallback();
-		}
 	}
 
 	public static Dictionary<AccessoryCategory, List<AccessoryDataClient>> GetAccessoriesCategoryMap()

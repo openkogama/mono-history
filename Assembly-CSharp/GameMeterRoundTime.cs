@@ -29,7 +29,7 @@ public class GameMeterRoundTime : GameMeterBase
 
 	private void OnDestroy()
 	{
-		if (MVGameControllerBase.Game != null)
+		if (MVGameControllerBase.IsAlive && MVGameControllerBase.Game != null)
 		{
 			MVNetworkGame game = MVGameControllerBase.Game;
 			game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Remove(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(ResetOnRoundEnd));
@@ -70,13 +70,18 @@ public class GameMeterRoundTime : GameMeterBase
 			Hide();
 			return;
 		}
-		int timeLeft = GetTimeLeft(roundCube);
-		if (timeLeft > 0)
+		int num = GetTimeLeft(roundCube);
+		if (MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded)
 		{
-			int num = (int)((float)timeLeft / 1000f) + 1;
-			roundTime.text = $"{num / 60:00}:{num % 60:00}";
+			num = 0;
+			roundTime.text = $"{0:00}:{0:00}";
 		}
-		HandleTimeNotifications(timeLeft);
+		if (num > 0)
+		{
+			int num2 = (int)((float)num / 1000f) + 1;
+			roundTime.text = $"{num2 / 60:00}:{num2 % 60:00}";
+		}
+		HandleTimeNotifications(num);
 	}
 
 	public override void SetShowGameMeter(bool show)
@@ -114,7 +119,7 @@ public class GameMeterRoundTime : GameMeterBase
 			Dictionary<object, object> dictionary = new Dictionary<object, object>();
 			dictionary.Add((byte)17, MVGameControllerBase.Game.ServerTimeInMilliSeconds);
 			dictionary.Add((byte)4, timeLeft);
-			WinningConditionNotificationManager.SendNotificaion(NotificationType.HurryUp, dictionary);
+			WinningConditionNotificationManager.SendNotification(NotificationType.HurryUp, dictionary);
 		}
 	}
 

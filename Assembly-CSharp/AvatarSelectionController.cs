@@ -4,8 +4,6 @@ using UnityEngine.EventSystems;
 
 public class AvatarSelectionController : MonoBehaviour, IAvatarSlotClicked, IEventSystemHandler
 {
-	private static int currSelectedSlot = -1;
-
 	[SerializeField]
 	private AvatarSelectionSlot avatarSelectionSlotPrefab;
 
@@ -18,32 +16,42 @@ public class AvatarSelectionController : MonoBehaviour, IAvatarSlotClicked, IEve
 	[SerializeField]
 	private GameObject publishAvatarGO;
 
-	private AvatarEditModeBodyController avatarBodyController;
+	private int currSelectedSlot = -1;
 
-	private static readonly Dictionary<int, AvatarSelectionSlot> avatarSlots = new Dictionary<int, AvatarSelectionSlot>();
+	private readonly Dictionary<int, AvatarSelectionSlot> avatarSlots = new Dictionary<int, AvatarSelectionSlot>();
+
+	private static AvatarSelectionController instance;
+
+	private AvatarEditModeBodyController avatarBodyController;
 
 	public static int CurrentlySelectedSlotIndex
 	{
 		get
 		{
-			return currSelectedSlot;
+			return instance.currSelectedSlot;
 		}
 		set
 		{
-			if (currSelectedSlot != -1)
+			if (instance.currSelectedSlot != -1)
 			{
-				avatarSlots[currSelectedSlot].ToggleActive(active: false);
-				avatarSlots[value].ToggleActive(active: true);
+				instance.avatarSlots[instance.currSelectedSlot].ToggleActive(active: false);
+				instance.avatarSlots[value].ToggleActive(active: true);
 			}
-			currSelectedSlot = value;
+			instance.currSelectedSlot = value;
 		}
 	}
 
 	public void Initialize(AvatarEditModeBodyController bodyController, EditorStateMachine esm)
 	{
+		instance = this;
 		avatarBodyController = bodyController;
 		avatarBodyController.SetPublishAvatarGO(publishAvatarGO);
 		avatarBodyController.CaptureScreenshotsForAllAvatars(OnPictureTakenCallback);
+	}
+
+	public void Destroy()
+	{
+		instance = null;
 	}
 
 	public void ResetCurrentAvatar()

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public class LoggerManager
@@ -8,7 +9,7 @@ public class LoggerManager
 	{
 		private LoggerManager manager;
 
-		private string name;
+		private readonly string name;
 
 		public Logger(LoggerManager manager, string name)
 		{
@@ -22,6 +23,8 @@ public class LoggerManager
 		}
 	}
 
+	private static LoggerManager instance;
+
 	private Dictionary<string, Logger> loggers = new Dictionary<string, Logger>();
 
 	private HashSet<string> interestingLoggers = new HashSet<string>();
@@ -29,8 +32,6 @@ public class LoggerManager
 	private bool appendAll = true;
 
 	private IAppender appender;
-
-	private static LoggerManager instance;
 
 	public static LoggerManager Instance
 	{
@@ -48,6 +49,35 @@ public class LoggerManager
 	{
 		appender = new UnityLogAppender();
 		appendAll = Debug.isDebugBuild;
+	}
+
+	public static void Destroy()
+	{
+		instance = null;
+	}
+
+	private void ApplySettingsFromIniFile()
+	{
+		appendAll = false;
+		using FileStream stream = new FileStream(Application.dataPath + "/../../LogSetup.ini", FileMode.OpenOrCreate, FileAccess.Read);
+		using StreamReader streamReader = new StreamReader(stream);
+		string text = streamReader.ReadLine();
+		if (text == null)
+		{
+			return;
+		}
+		string[] array = text.Split(',');
+		foreach (string text2 in array)
+		{
+			if (text2.Length > 0)
+			{
+				interestingLoggers.Add(text2);
+			}
+			if (text2.Equals("*"))
+			{
+				appendAll = true;
+			}
+		}
 	}
 
 	public ILogger GetLogger(Type type)

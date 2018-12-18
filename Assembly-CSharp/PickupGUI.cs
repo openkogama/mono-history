@@ -15,7 +15,7 @@ public class PickupGUI : MonoBehaviour
 	public void Initialize(MVPickupOwner pickupOwner)
 	{
 		this.pickupOwner = pickupOwner;
-		crossHair = MVGameControllerBase.IPlayModeUI.GetCrossHair();
+		crossHair = MVGameControllerBase.PlayModeUI.GetCrossHair();
 		crossHair.Visible = false;
 		pickupOwner.onEquipItem = (MVPickupOwner.OnEquipItemDelegate)Delegate.Combine(pickupOwner.onEquipItem, new MVPickupOwner.OnEquipItemDelegate(OnEquipItem));
 		pickupOwner.onUnequipItem = (MVPickupOwner.OnUnequipItemDelegate)Delegate.Combine(pickupOwner.onUnequipItem, new MVPickupOwner.OnUnequipItemDelegate(OnUnequipItem));
@@ -85,7 +85,7 @@ public class PickupGUI : MonoBehaviour
 
 	private void UpdateCrossHairVisibility()
 	{
-		bool flag = !MVGameControllerBase.IPlayModeUI.InLobbyState && canBeVisible && pickupOwner.IsLocal;
+		bool flag = !MVGameControllerBase.PlayModeUI.InLobbyState && canBeVisible && pickupOwner.IsLocal;
 		if (crossHair.Visible != flag)
 		{
 			crossHair.Visible = flag;

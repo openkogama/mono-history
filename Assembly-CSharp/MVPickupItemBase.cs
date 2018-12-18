@@ -5,91 +5,7 @@ using UnityEngine;
 
 public class MVPickupItemBase : MVLogicObject, IPickupStateHandler, IUpdatecontrollerSubscriber
 {
-	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
-
-	private static Dictionary<AvatarItemType, EquipableData> pickupPrefabLUT = new Dictionary<AvatarItemType, EquipableData>
-	{
-		{
-			AvatarItemType.CenterGun,
-			new EquipableData(PrefabPool.Instance.AvatarCenterGunPrefab, AvatarEquipableType.Weapon)
-		},
-		{
-			AvatarItemType.ImpulseGun,
-			new EquipableData(PrefabPool.Instance.AvatarImpulseGunPrefab, AvatarEquipableType.Weapon)
-		},
-		{
-			AvatarItemType.Health,
-			new EquipableData(PrefabPool.Instance.AvatarHealthPrefab, AvatarEquipableType.Modifier)
-		},
-		{
-			AvatarItemType.Bazooka,
-			new EquipableData(PrefabPool.Instance.AvatarBazookaPrefab, AvatarEquipableType.Weapon)
-		},
-		{
-			AvatarItemType.RailGun,
-			new EquipableData(PrefabPool.Instance.AvatarRailGunPrefab, AvatarEquipableType.Weapon)
-		},
-		{
-			AvatarItemType.Mutant,
-			new EquipableData(PrefabPool.Instance.AvatarMutantPrefab, AvatarEquipableType.Modifier)
-		},
-		{
-			AvatarItemType.Sword,
-			new EquipableData(PrefabPool.Instance.AvatarSwordPrefab, AvatarEquipableType.Weapon)
-		},
-		{
-			AvatarItemType.Shotgun,
-			new EquipableData(PrefabPool.Instance.AvatarShotgunPrefab, AvatarEquipableType.Weapon)
-		},
-		{
-			AvatarItemType.Flamethrower,
-			new EquipableData(PrefabPool.Instance.AvatarFlamethrowerPrefab, AvatarEquipableType.Weapon)
-		},
-		{
-			AvatarItemType.CubeGun,
-			new EquipableData(PrefabPool.Instance.AvatarCubeGunPrefab, AvatarEquipableType.Weapon)
-		},
-		{
-			AvatarItemType.NinjaRun,
-			new EquipableData(PrefabPool.Instance.AvatarNinjaRunPrefab, AvatarEquipableType.Modifier)
-		},
-		{
-			AvatarItemType.SixShooter,
-			new EquipableData(PrefabPool.Instance.AvatarSixShooterPrefab, AvatarEquipableType.Weapon)
-		},
-		{
-			AvatarItemType.DoubleSixShooter,
-			new EquipableData(PrefabPool.Instance.AvatarDoubleSixShooterPrefab, AvatarEquipableType.Weapon)
-		},
-		{
-			AvatarItemType.ThrowingStar,
-			new EquipableData(PrefabPool.Instance.AvatarThrowingStarPrefab, AvatarEquipableType.Weapon)
-		},
-		{
-			AvatarItemType.MultiThrowingStar,
-			new EquipableData(PrefabPool.Instance.AvatarMultiThrowingStarPrefab, AvatarEquipableType.Weapon)
-		},
-		{
-			AvatarItemType.MouseGun,
-			new EquipableData(PrefabPool.Instance.AvatarMouseGunPrefab, AvatarEquipableType.Weapon)
-		},
-		{
-			AvatarItemType.GrowthGun,
-			new EquipableData(PrefabPool.Instance.AvatarGrowthGunPrefab, AvatarEquipableType.Weapon)
-		},
-		{
-			AvatarItemType.MousePack,
-			new EquipableData(PrefabPool.Instance.AvatarMousePackPrefab, AvatarEquipableType.Modifier)
-		},
-		{
-			AvatarItemType.GrowthPack,
-			new EquipableData(PrefabPool.Instance.AvatarGrowthPackPrefab, AvatarEquipableType.Modifier)
-		},
-		{
-			AvatarItemType.HealRay,
-			new EquipableData(PrefabPool.Instance.AvatarHealRayPrefab, AvatarEquipableType.Weapon)
-		}
-	};
+	private const UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
 	private MVWorldObjectDocumentationType documentationType;
 
@@ -221,7 +137,7 @@ public class MVPickupItemBase : MVLogicObject, IPickupStateHandler, IUpdatecontr
 	private static ObjectPrefab GetPickupPrefabName(Dictionary<object, object> data)
 	{
 		Dictionary<object, object> dictionary = (Dictionary<object, object>)data[WorldObjectDataParameters.Data];
-		return pickupPrefabLUT[(AvatarItemType)dictionary["itemType"]].prefabObject;
+		return PrefabPool.PickupPrefabLUT[(AvatarItemType)dictionary["itemType"]].prefabObject;
 	}
 
 	private void SetupUseInteractor()
@@ -329,7 +245,7 @@ public class MVPickupItemBase : MVLogicObject, IPickupStateHandler, IUpdatecontr
 			return false;
 		}
 		MVEquipable mVEquipable = worldObjectClient.GameObject.GetComponent<MVEquipable>();
-		if (mVEquipable != null && mVEquipable.Equip(Type, pickupPrefabLUT[Type].equipableType, ItemData, VariantID))
+		if (mVEquipable != null && mVEquipable.Equip(Type, PrefabPool.PickupPrefabLUT[Type].equipableType, ItemData, VariantID))
 		{
 			MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, instigatorWOID);
 			canPickUp = false;
@@ -369,7 +285,7 @@ public class MVPickupItemBase : MVLogicObject, IPickupStateHandler, IUpdatecontr
 	{
 		bool flag = true;
 		bool flag2 = false;
-		if (pickupPrefabLUT[Type].equipableType == AvatarEquipableType.Weapon)
+		if (PrefabPool.PickupPrefabLUT[Type].equipableType == AvatarEquipableType.Weapon)
 		{
 			int woIDWithLocalOwnerHighestInHierarchy = MVGameControllerBase.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(instigator);
 			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDWithLocalOwnerHighestInHierarchy);
@@ -386,7 +302,7 @@ public class MVPickupItemBase : MVLogicObject, IPickupStateHandler, IUpdatecontr
 				}
 			}
 		}
-		if ((useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0 && flag)
+		if ((useInteractor.EvaluateRequirementsUsability() & (UseGUIResult.CanAfford | UseGUIResult.CannotAfford)) == 0 && flag)
 		{
 			return true;
 		}

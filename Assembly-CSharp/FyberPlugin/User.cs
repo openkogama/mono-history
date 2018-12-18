@@ -57,6 +57,8 @@ public class User
 
 	protected const string GDPR_CONSENT = "gdpr_consent";
 
+	protected const string GDPR_CONSENT_DATA = "gdpr_consent_data";
+
 	protected const string DEVICE = "device";
 
 	protected const string APP_VERSION = "app_version";
@@ -76,6 +78,11 @@ public class User
 	{
 		Utils.printWarningMessage();
 		return "{\"success\":false,\"error\":\"Unsupported platform\":\"key\":" + key + "}";
+	}
+
+	protected static void NativeClearGdprConsentData()
+	{
+		Utils.printWarningMessage();
 	}
 
 	public static void SetAge(int age)
@@ -198,6 +205,28 @@ public class User
 		Put("gdpr_consent", gdprConsent);
 	}
 
+	public static void SetGdprConsentData(Dictionary<string, string> gdprConsentData)
+	{
+		Dictionary<string, string> dictionary = null;
+		if (gdprConsentData != null)
+		{
+			dictionary = new Dictionary<string, string>();
+			foreach (KeyValuePair<string, string> gdprConsentDatum in gdprConsentData)
+			{
+				if (gdprConsentDatum.Value != null)
+				{
+					dictionary.Add(gdprConsentDatum.Key, gdprConsentDatum.Value);
+				}
+			}
+		}
+		Put("gdpr_consent_data", dictionary);
+	}
+
+	public static void ClearGdprConsentData()
+	{
+		NativeClearGdprConsentData();
+	}
+
 	public static string GetDevice()
 	{
 		return Get<string>("device");
@@ -251,15 +280,15 @@ public class User
 		Dictionary<string, object> dictionary = new Dictionary<string, object>();
 		dictionary.Add("action", "put");
 		dictionary.Add("key", key);
-		dictionary.Add("type", value.GetType().ToString());
-		if (value is DateTime)
+		string value2 = null;
+		object value3 = null;
+		if (value != null)
 		{
-			dictionary.Add("value", ((DateTime)value).ToString("yyyy/MM/dd"));
+			value2 = value.GetType().ToString();
+			value3 = ((!(value is DateTime dateTime)) ? value : dateTime.ToString("yyyy/MM/dd"));
 		}
-		else
-		{
-			dictionary.Add("value", value);
-		}
+		dictionary.Add("type", value2);
+		dictionary.Add("value", value3);
 		return JsonMapper.ToJson(dictionary);
 	}
 

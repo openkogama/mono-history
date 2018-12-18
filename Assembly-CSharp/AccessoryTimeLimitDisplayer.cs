@@ -10,7 +10,7 @@ public class AccessoryTimeLimitDisplayer : MonoBehaviour
 
 	private AccessoryTimelimit accessoryTimeLimitData;
 
-	private string format = "{0}h {1}m";
+	private static readonly string format = "{0:00}:{1:00}:{2:00}";
 
 	public void Initialize(AccessoryTimelimit accessoryData)
 	{
@@ -27,7 +27,15 @@ public class AccessoryTimeLimitDisplayer : MonoBehaviour
 			{
 				num2 = 0;
 			}
-			timeLeftText.text = string.Format(format, Mathf.FloorToInt((float)num2 / 3600f), (float)Mathf.FloorToInt((float)num2 / 60f) % 60f);
+			int num3 = Mathf.FloorToInt((float)num2 / 3600f);
+			if (num3 >= 48)
+			{
+				timeLeftText.text = Mathf.FloorToInt(num3 / 24) + 1 + TM._(" DAYS LEFT!");
+			}
+			else
+			{
+				timeLeftText.text = string.Format(format, num3, (float)Mathf.FloorToInt((float)num2 / 60f) % 60f, Mathf.FloorToInt((float)num2 % 60f));
+			}
 		}
 	}
 }

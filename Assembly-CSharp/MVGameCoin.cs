@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 
@@ -26,7 +28,7 @@ public class MVGameCoin : MVLogicObject
 
 	private float pickedUpTime;
 
-	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
+	private const UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
 	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.Coin;
 
@@ -58,6 +60,8 @@ public class MVGameCoin : MVLogicObject
 		MVGameControllerBase.Game.GameCoinManager.ReportPickupChangeInEditor();
 		base.Initialize();
 		SetupCulling(pickupObject.VisualObject);
+		MVNetworkGame game = MVGameControllerBase.Game;
+		game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Combine(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnWinningConditionFulfilled));
 	}
 
 	private void SetupUserInteractor()
@@ -97,6 +101,11 @@ public class MVGameCoin : MVLogicObject
 			useInteractor.OnDestroy(Data);
 			useInteractor = null;
 		}
+		if (MVGameControllerBase.Game != null)
+		{
+			MVNetworkGame game = MVGameControllerBase.Game;
+			game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Remove(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnWinningConditionFulfilled));
+		}
 		base.Destroy();
 	}
 
@@ -124,6 +133,10 @@ public class MVGameCoin : MVLogicObject
 			}
 			pickupObject.Particles.Play();
 			MVGameControllerBase.Game.GameCoinManager.GameCoinCollect();
+			if (MVClientSettings.IsFlagSet(ClientSettingFlags.GamePassSilentReleaseEnabled))
+			{
+				MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, MVGameControllerBase.Game.LocalPlayer.Avatar.Id);
+			}
 			return true;
 		}
 		return false;
@@ -179,7 +192,7 @@ public class MVGameCoin : MVLogicObject
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		if ((useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0)
+		if ((useInteractor.EvaluateRequirementsUsability() & (UseGUIResult.CanAfford | UseGUIResult.CannotAfford)) == 0)
 		{
 			OnPickup(MVGameControllerBase.WOCM.GetWorldObjectClient(e.instigatorWOID).OwnerActorNr);
 		}
@@ -190,5 +203,10 @@ public class MVGameCoin : MVLogicObject
 		Vector3 one = Vector3.one;
 		one *= 2f;
 		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, one);
+	}
+
+	private void OnWinningConditionFulfilled(IWinningCondition winningCondition)
+	{
+		Reset();
 	}
 }

@@ -29,6 +29,8 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			avatarModes.Add(AvatarRuntimeState.Godzilla, new GodzillaMode(avatar));
 			avatarModes.Add(AvatarRuntimeState.GodzillaDead, new GodzillaDeadMode(avatar));
 			avatarModes.Add(AvatarRuntimeState.TimeAttackFlagDebriefing, new TimeAttackFlagDebriefingMode(avatar));
+			avatarModes.Add(AvatarRuntimeState.Wait, new WaitMode(avatar));
+			avatarModes.Add(AvatarRuntimeState.Ghost, new GhostMode(avatar));
 			currentState = AvatarRuntimeState.Hidden;
 			currentMode = avatarModes[currentState];
 		}
@@ -45,10 +47,11 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 
 		public void SetMode(AvatarRuntimeState mode)
 		{
+			AvatarRuntimeState fromMode = currentState;
 			currentMode.DeActivate(mode);
 			currentMode = avatarModes[mode];
-			currentMode.Activate(currentState);
 			currentState = mode;
+			currentMode.Activate(fromMode);
 		}
 	}
 
@@ -109,6 +112,8 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 
 		protected const float deathBriefingDuration = 4f;
 
+		private bool haveRespawned;
+
 		public DeadMode(MVAvatarLocal mvAvatar)
 			: base(mvAvatar, 2)
 		{
@@ -128,6 +133,9 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 				mvAvatar.LeaveVehicle(leaveBecauseOfServer: false);
 			}
 			mvAvatar.triggerHandler.enabled = false;
+			haveRespawned = false;
+			MVGameControllerDesktop.LockCursorManager.CursorLock = false;
+			MVGameControllerBase.PlayModeUI.InLobbyState = false;
 		}
 
 		private void HandleDeathBriefingPause(string text)
@@ -142,16 +150,15 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 
 		private void HandleResetUIPause()
 		{
-			WinningConditionControl.TryGetPrioritizedStat(out var statType);
-			MVCheckpoint checkpoint = MVGameControllerBase.Game.LocalPlayer.GetCheckpoint();
-			if (statType == GameStatCounterType.TimeAttackFlag && checkpoint != null)
-			{
-				HandleDeathBriefingPause();
-			}
+			HandleDeathBriefingPause();
 		}
 
 		public override void DeActivate(AvatarRuntimeState toMode)
 		{
+			if (!haveRespawned)
+			{
+				MVGameControllerDesktop.LockCursorManager.CursorLock = true;
+			}
 		}
 
 		public override void FixedUpdate(IInputToPlayerMovement movementMap)
@@ -168,8 +175,14 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			}
 			if (Time.time - deadTime > deadInterval)
 			{
-				mvAvatar.SetMode(AvatarRuntimeState.Hidden);
+				RevivePlayer();
 			}
+		}
+
+		private void RevivePlayer()
+		{
+			haveRespawned = true;
+			MVGameControllerBase.WOCM.AvatarLocal.AvatarRespawnHandler.Respawn();
 		}
 	}
 
@@ -361,6 +374,80 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		public void DisableBehindDrawPlaneMode()
 		{
 			behindDrawPlaneModeEnabled = false;
+		}
+	}
+
+	public class GhostMode : AvatarMode
+	{
+		private bool haveSetTransparency;
+
+		private readonly IAvatarInputController avatarInputController;
+
+		public GhostMode(MVAvatarLocal mvAvatar)
+			: base(mvAvatar, 4)
+		{
+			avatarInputController = CreateInputController();
+		}
+
+		public override void Activate(AvatarRuntimeState fromMode)
+		{
+			base.Activate(fromMode);
+			mvAvatar.ResetAvatar();
+			mvAvatar.SetToSpawnTransform();
+			ResetCamera();
+			haveSetTransparency = false;
+		}
+
+		public override void DeActivate(AvatarRuntimeState toMode)
+		{
+			MVGameControllerBase.WOCM.AvatarLocal.SetTransparency = 1f;
+		}
+
+		public override void FrameUpdate(InputToInGameAction interactionMap)
+		{
+		}
+
+		public override void FixedUpdate(IInputToPlayerMovement movementMap)
+		{
+			if (!haveSetTransparency)
+			{
+				MVGameControllerBase.WOCM.AvatarLocal.SetTransparency = 0.5f;
+				haveSetTransparency = true;
+			}
+			mvAvatar.avatarMotor.FixedUpdateFunction(avatarInputController);
+		}
+
+		private void ResetCamera()
+		{
+			MVGameControllerBase.CameraController.AvatarLobbyFocus = false;
+			MVGameControllerBase.WOCM.AvatarLocal.Visible = true;
+			MVGameControllerBase.CameraController.SetPlayModeCam();
+			MVGameControllerBase.CameraController.CurCamera.Reset();
+			MVGameControllerBase.CameraController.CurCamera.transform.rotation = mvAvatar.transform.rotation;
+		}
+
+		private void SendNotification()
+		{
+			Dictionary<object, object> dictionary = new Dictionary<object, object>();
+			dictionary.Add((byte)18, true);
+			NotificationController.PushNotification(NotificationType.WaitCountDown, dictionary);
+		}
+
+		private IAvatarInputController CreateInputController()
+		{
+			if (MVGameControllerBase.GameMode == MVGameMode.CharacterEditor)
+			{
+				return new AvatarInputController();
+			}
+			if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
+			{
+				return new AvatarInputController();
+			}
+			if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
+			{
+				return new AvatarInputController2DPlayMode();
+			}
+			throw new Exception("Implement input controller");
 		}
 	}
 
@@ -610,7 +697,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			base.Activate(fromMode);
 			LayerUtil.SetLayerRecursively(mvAvatar.Body.Transform, "Player", "CamRotateTarget");
 			MVGameControllerBase.CameraController.AvatarLobbyFocus = true;
-			MVGameControllerBase.IPlayModeUI.InLobbyState = true;
+			MVGameControllerBase.PlayModeUI.InLobbyState = true;
 			mvAvatar.Body.Transform.localRotation = Quaternion.AngleAxis(180f, Vector3.up);
 			if (mvAvatar.Respawned != null)
 			{
@@ -844,6 +931,80 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		}
 	}
 
+	protected class WaitMode : AvatarMode
+	{
+		private readonly IAvatarInputController avatarInputController;
+
+		public WaitMode(MVAvatarLocal mvAvatar)
+			: base(mvAvatar, 4)
+		{
+			avatarInputController = CreateInputController();
+		}
+
+		public override void Activate(AvatarRuntimeState fromMode)
+		{
+			base.Activate(fromMode);
+			mvAvatar.ResetAvatar();
+			mvAvatar.SetToSpawnTransform();
+			ResetCamera();
+			SendNotification();
+			if (fromMode == AvatarRuntimeState.Ghost)
+			{
+				MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Ghost);
+			}
+		}
+
+		public override void DeActivate(AvatarRuntimeState toMode)
+		{
+		}
+
+		public override void FrameUpdate(InputToInGameAction interactionMap)
+		{
+			if ((float)MVGameControllerBase.Game.NetworkGameStateListener.TimeLeftMS <= 0f)
+			{
+				mvAvatar.SetMode(AvatarRuntimeState.Playing);
+			}
+		}
+
+		public override void FixedUpdate(IInputToPlayerMovement movementMap)
+		{
+			mvAvatar.avatarMotor.FixedUpdateFunction(avatarInputController);
+		}
+
+		private void ResetCamera()
+		{
+			MVGameControllerBase.CameraController.AvatarLobbyFocus = false;
+			MVGameControllerBase.WOCM.AvatarLocal.Visible = true;
+			MVGameControllerBase.CameraController.SetPlayModeCam();
+			MVGameControllerBase.CameraController.CurCamera.Reset();
+			MVGameControllerBase.CameraController.CurCamera.transform.rotation = mvAvatar.transform.rotation;
+		}
+
+		private void SendNotification()
+		{
+			Dictionary<object, object> dictionary = new Dictionary<object, object>();
+			dictionary.Add((byte)18, true);
+			NotificationController.PushNotification(NotificationType.WaitCountDown, dictionary);
+		}
+
+		private IAvatarInputController CreateInputController()
+		{
+			if (MVGameControllerBase.GameMode == MVGameMode.CharacterEditor)
+			{
+				return new AvatarInputController();
+			}
+			if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
+			{
+				return new AvatarInputController();
+			}
+			if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
+			{
+				return new AvatarInputController2DPlayMode();
+			}
+			throw new Exception("Implement input controller");
+		}
+	}
+
 	protected class WalkMode : AvatarMode
 	{
 		private const float maxFallBelow = 200f;
@@ -884,10 +1045,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			{
 				OnRespawn();
 			}
-			MVGameControllerBase.CameraController.AvatarLobbyFocus = false;
-			MVGameControllerBase.WOCM.AvatarLocal.Visible = true;
-			MVGameControllerBase.CameraController.SetPlayModeCam();
-			MVGameControllerBase.CameraController.CurCamera.Reset();
 			Transform transform = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>().Transform;
 			Bounds? axisAlignedBoundsRecursively = SharedCubeFunctions.GetAxisAlignedBoundsRecursively(transform);
 			Bounds bounds = (axisAlignedBoundsRecursively.HasValue ? axisAlignedBoundsRecursively.Value : default(Bounds));
@@ -895,11 +1052,23 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			mvAvatar.triggerHandler.enabled = true;
 			mvAvatar.ResetAvatar();
 			mvAvatar.Collider.enabled = true;
+			if (fromMode != AvatarRuntimeState.Edit)
+			{
+				mvAvatar.SetToSpawnTransform();
+			}
 			avatarInputController.Rotation = mvAvatar.transform.rotation;
 			mvAvatar.LimbManager.SetLimbRotatorActivity(shouldBeActive: true);
 			if (mvAvatar.Body != null)
 			{
 				mvAvatar.Body.Visible = true;
+			}
+			if (fromMode != AvatarRuntimeState.Wait)
+			{
+				MVGameControllerBase.CameraController.AvatarLobbyFocus = false;
+				MVGameControllerBase.WOCM.AvatarLocal.Visible = true;
+				MVGameControllerBase.CameraController.SetPlayModeCam();
+				MVGameControllerBase.CameraController.CurCamera.Reset();
+				MVGameControllerBase.CameraController.CurCamera.transform.rotation = mvAvatar.transform.rotation;
 			}
 		}
 
@@ -995,7 +1164,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 				return;
 			}
 			Vector3 moveDirection = movementMap.Direction;
-			if (MVGameControllerBase.IPlayModeUI.InLobbyState)
+			if (FlagDebriefingControl.IsInFlagDebriefing)
 			{
 				avatarInputController.Rotation = MVGameControllerBase.Game.LocalPlayer.Avatar.Transform.rotation;
 				moveDirection = Vector3.zero;
@@ -1011,11 +1180,11 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 
 		private static void HandleFocus()
 		{
-			if (MVGameControllerBase.CameraController.CurCamera.CameraType == CameraType.LobbyState && !MVGameControllerBase.IPlayModeUI.InLobbyState)
+			if (MVGameControllerBase.CameraController.CurCamera.CameraType == CameraType.LobbyState && !MVGameControllerBase.PlayModeUI.InLobbyState)
 			{
 				MVGameControllerBase.CameraController.RemoveCamera(CameraType.LobbyState);
 			}
-			else if (MVGameControllerBase.CameraController.CurCamera.CameraType != CameraType.LobbyState && MVGameControllerBase.IPlayModeUI.InLobbyState)
+			else if (MVGameControllerBase.CameraController.CurCamera.CameraType != CameraType.LobbyState && MVGameControllerBase.PlayModeUI.InLobbyState)
 			{
 				MVGameControllerBase.CameraController.PushCamera(CameraType.LobbyState);
 				LobbyStateCamera lobbyStateCamera = (LobbyStateCamera)MVGameControllerBase.CameraController.CurCamera;
@@ -1032,7 +1201,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		private void DieByFalling()
 		{
 			mvAvatar.Health.Value = 0f;
-			MVGameControllerBase.OperationRequests.PostGameMsg(MVGameMsgType.AvatarKilled, GameMessages.MakePlayerKilledMessage(MVGameControllerBase.Game.LocalPlayer.ActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr, PlayerKilledByType.FallOffWorld));
+			mvAvatar.InteractableLocal.DieFromFalling();
 		}
 
 		private void OnHandleFiring(bool isFiring)
@@ -1283,6 +1452,8 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 
 	private AvatarLocalModes avatarLocalModes;
 
+	private AvatarRespawnHandler avatarRespawnHandler = new AvatarRespawnHandler();
+
 	public Action<string> OnKilled;
 
 	public Action OnSuicide;
@@ -1297,7 +1468,9 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 
 	public AvatarPickupOwner PickupOwner => pickupOwner;
 
-	private AvatarRuntimeState CurrentState => avatarLocalModes.CurrentState;
+	public AvatarRespawnHandler AvatarRespawnHandler => avatarRespawnHandler;
+
+	public AvatarRuntimeState CurrentState => avatarLocalModes.CurrentState;
 
 	public Vector3 LookAtPos => transform.position + Vector3.up;
 
@@ -1445,6 +1618,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		limbManager = new AvatarLimbManagerLocal();
 		limbManager.Initialize(avatarPickupOwner, this);
 		avatarlateUpdateManager.Initialize(Body, limbManager);
+		avatarRespawnHandler.Initialize(this);
 	}
 
 	public void ResetMode()
@@ -1565,7 +1739,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 
 	public void Respawn()
 	{
-		if (IsInMode(AvatarModeTypes.Playing))
+		if (IsInMode(AvatarModeTypes.Playing) && !FlagDebriefingControl.IsInFlagDebriefing)
 		{
 			MVGameControllerBase.WOCM.AvatarLocal.Suicide();
 		}

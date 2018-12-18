@@ -59,8 +59,8 @@ public class CollectTheItemCollectableInstance : MVBlueprintBase, ITriggerBoxEve
 		{
 			if (MVGameControllerBase.GameMode == MVGameMode.Edit)
 			{
-				IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
-				iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Combine(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
+				IEditModeUI editModeUI = MVGameControllerBase.EditModeUI;
+				editModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Combine(editModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
 			}
 			collectTheItemObject.GreyOutScriptEditMode.InitializeOriginalMaterials();
 		}
@@ -335,8 +335,8 @@ public class CollectTheItemCollectableInstance : MVBlueprintBase, ITriggerBoxEve
 		base.Destroy();
 		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
 		{
-			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
-			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Remove(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
+			IEditModeUI editModeUI = MVGameControllerBase.EditModeUI;
+			editModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Remove(editModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
 		}
 		if (PositionChanged != null)
 		{

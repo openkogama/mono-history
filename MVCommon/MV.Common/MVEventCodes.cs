@@ -101,6 +101,10 @@ public enum MVEventCodes : byte
 	StartWave = 96,
 	ServerError = 97,
 	SetSayChatBubbleVisible = 98,
+	GetPublishedPlanetProfileData = 99,
+	PlayerPlanetData = 100,
+	GoldRewardedForLevel = 101,
+	NextLevelGoldReward = 102,
 	Join = byte.MaxValue,
 	Leave = 254,
 	PropertiesChanged = 253

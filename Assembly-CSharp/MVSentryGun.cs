@@ -8,18 +8,6 @@ using UnityEngine.Events;
 
 public class MVSentryGun : MVLogicObject, ILogicWorldObject
 {
-	private static readonly Dictionary<SentryGunBeamType, SentryGunBeam> prefabMap = new Dictionary<SentryGunBeamType, SentryGunBeam>
-	{
-		{
-			SentryGunBeamType.IceBeam,
-			PrefabPool.Instance.IceBeamObject
-		},
-		{
-			SentryGunBeamType.FireBeam,
-			PrefabPool.Instance.FireBeamObject
-		}
-	};
-
 	private float laserRange = 20f;
 
 	private float pushBackStrength = 5f;
@@ -29,8 +17,6 @@ public class MVSentryGun : MVLogicObject, ILogicWorldObject
 	private InteractionPackageType interactionType;
 
 	private IntervalWithRandomSeed intervalWithRandomSeed = new IntervalWithRandomSeed(1f);
-
-	private Dictionary<SentryGunBeamType, SentryGunBeam> prefabs = new Dictionary<SentryGunBeamType, SentryGunBeam>();
 
 	private Dictionary<int, SentryGunBeam> woIdsBeamsMap = new Dictionary<int, SentryGunBeam>();
 
@@ -124,10 +110,6 @@ public class MVSentryGun : MVLogicObject, ILogicWorldObject
 
 	public void InitializeCommon()
 	{
-		foreach (KeyValuePair<SentryGunBeamType, SentryGunBeam> item in prefabMap)
-		{
-			prefabs[item.Key] = item.Value;
-		}
 		if (Data.ContainsKey("beamType"))
 		{
 			beamType = (SentryGunBeamType)Data["beamType"];
@@ -225,21 +207,33 @@ public class MVSentryGun : MVLogicObject, ILogicWorldObject
 					mVObject = MVGameControllerBase.WOCM.GetWorldObjectClient(num2);
 					Vector3 targetPosition = mVObject.GetTargetPosition();
 					Ray ray = new Ray(gameObject.transform.position, (targetPosition - gameObject.transform.position).normalized);
-					if (HitsTarget(ray, num2) && !hashSet.Contains(num2))
+					if (!HitsTarget(ray, num2) || hashSet.Contains(num2))
 					{
-						if (woIdsBeamsMap.TryGetValue(mVObject.Id, out var value) && value != null)
-						{
-							value.RefreshTime();
-						}
-						else
-						{
-							woIdsBeamsMap.Remove(mVObject.Id);
-							value = SentryGunBeam.Create(prefabs[beamType], beamType, this);
-							woIdsBeamsMap.Add(mVObject.Id, value);
-						}
-						ApplyDamage(mVObject, interactionDataHandlerBase);
-						hashSet.Add(mVObject.Id);
+						continue;
 					}
+					if (woIdsBeamsMap.TryGetValue(mVObject.Id, out var value) && value != null)
+					{
+						value.RefreshTime();
+					}
+					else
+					{
+						woIdsBeamsMap.Remove(mVObject.Id);
+						switch (beamType)
+						{
+						case SentryGunBeamType.FireBeam:
+							value = SentryGunBeam.Create(PrefabPool.Instance.FireBeamObject, beamType, this);
+							break;
+						case SentryGunBeamType.IceBeam:
+							value = SentryGunBeam.Create(PrefabPool.Instance.IceBeamObject, beamType, this);
+							break;
+						default:
+							Debug.LogError("Sentry gun have an invalid beam type.");
+							break;
+						}
+						woIdsBeamsMap.Add(mVObject.Id, value);
+					}
+					ApplyDamage(mVObject, interactionDataHandlerBase);
+					hashSet.Add(mVObject.Id);
 				}
 				List<int> list = new List<int>();
 				foreach (KeyValuePair<int, SentryGunBeam> item in woIdsBeamsMap)

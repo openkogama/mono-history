@@ -13,7 +13,7 @@ public class CubeModelChunk
 		public Face face;
 	}
 
-	public static readonly bool UseAOShadows = true;
+	public const bool UseAOShadows = true;
 
 	private IntVector chunkPos;
 
@@ -23,7 +23,7 @@ public class CubeModelChunk
 
 	private Bounds meshBounds = default;
 
-	private string name;
+	private readonly string name;
 
 	private int cubeCount;
 
@@ -43,13 +43,13 @@ public class CubeModelChunk
 		new FaceData()
 	};
 
-	private static Vector2[] uvs = new Vector2[4];
+	private static readonly Vector2[] uvs = new Vector2[4];
+
+	private static readonly Vector2 uvOffsetVector0 = Vector2.one * 0.5f;
+
+	private static readonly Vector2 uvOffsetVector1 = new Vector2(-0.5f, 0.5f);
 
 	private static Vector2 uvOffsetVector = new Vector2(0f, 0f);
-
-	private static Vector2 uvOffsetVector0 = Vector2.one * 0.5f;
-
-	private static Vector2 uvOffsetVector1 = new Vector2(-0.5f, 0.5f);
 
 	public int TriangleCount => triangleCount;
 
@@ -71,7 +71,8 @@ public class CubeModelChunk
 	{
 		name = "chunk" + iVector.x + "." + iVector.y + "." + iVector.z;
 		chunkPos = iVector;
-		sharedMeshData = new SharedMeshData(new Mesh());
+		Mesh mesh = new Mesh();
+		sharedMeshData = new SharedMeshData(mesh);
 	}
 
 	public CubeModelChunk CloneGeometry(Vector3 scale)
@@ -212,7 +213,7 @@ public class CubeModelChunk
 
 	private void EvaluateReferenceCount(int oldReferenceCount, int newReferenceCount)
 	{
-		if (oldReferenceCount == 0 && newReferenceCount > 0 && MeshPool.Instance.GotFreeMesh)
+		if (oldReferenceCount == 0 && newReferenceCount > 0)
 		{
 			RebuildChunk(Vector3.one * 4f);
 			RestoreSharedMeshOnInstances();

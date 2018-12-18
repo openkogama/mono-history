@@ -32,11 +32,13 @@ public class TouristAdController : MonoBehaviour
 		{
 			if (timer >= timeBeforeAdShown)
 			{
+				MVGameControllerDesktop.LockCursorManager.CursorLock = false;
 				promotionSliderCreator.ShowAnyPromotionSlide();
 				timer = 0f;
 			}
 			else
 			{
+				MVGameControllerDesktop.LockCursorManager.CursorLock = false;
 				promotionSliderCreator.ShowAnyPromotionSlide();
 			}
 			hasBeenKilled = false;

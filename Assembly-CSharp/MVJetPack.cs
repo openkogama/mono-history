@@ -15,7 +15,7 @@ public class MVJetPack : MVVehicleBase
 		NotSet
 	}
 
-	private enum JetPackType : byte
+	public enum JetPackType : byte
 	{
 		JetPack,
 		JetPackDeluxe
@@ -319,18 +319,6 @@ public class MVJetPack : MVVehicleBase
 
 	private JetPackType jetPackType;
 
-	private static readonly Dictionary<JetPackType, VehicleBaseObject> jetPackTypes = new Dictionary<JetPackType, VehicleBaseObject>
-	{
-		{
-			JetPackType.JetPack,
-			PrefabPool.Instance.MVJetPackPrefab
-		},
-		{
-			JetPackType.JetPackDeluxe,
-			PrefabPool.Instance.MVJetPackDeluxePrefab
-		}
-	};
-
 	public override MVWorldObjectDocumentationType DocumentationType => jetPackType switch
 	{
 		JetPackType.JetPack => MVWorldObjectDocumentationType.SmallJetpack, 
@@ -476,6 +464,6 @@ public class MVJetPack : MVVehicleBase
 
 	private static VehicleBaseObject GetPickupPrefabName(Dictionary<object, object> data)
 	{
-		return jetPackTypes[GetJetPackType(data)];
+		return PrefabPool.JetPackPrefabLUT[GetJetPackType(data)];
 	}
 }

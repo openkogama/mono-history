@@ -61,7 +61,7 @@ public class AccessoryLoader
 			{
 				Urls.onStreamingAssetsUrlAvailable = (Urls.OnStreamingAssetsUrlAvailable)Delegate.Remove(Urls.onStreamingAssetsUrlAvailable, new Urls.OnStreamingAssetsUrlAvailable(LoadAccessory));
 				string path = StreamingAsset.DBUrlToServerUrl(StreamingAsset.AssetBundleUrl + subUrl);
-				GetRequest asyncRequest = new CachedGetRequest(path, Callback, WWWRequestPriority.WaitUntilSyncronizingIsDone);
+				GetRequest asyncRequest = new CachedAssetBundleRequest(path, Callback, WWWRequestPriority.WaitUntilSyncronizingIsDone);
 				AsyncWWWManager.WWWRequest(asyncRequest);
 			}
 			else
@@ -76,8 +76,8 @@ public class AccessoryLoader
 			{
 				return;
 			}
-			UnityEngine.Object original = StreamingAsset.UnpackBundle<GameObject>(www);
-			GameObject gameObject = (GameObject)UnityEngine.Object.Instantiate(original);
+			GameObject original = StreamingAsset.UnpackBundle_Cached<GameObject>(www);
+			GameObject gameObject = UnityEngine.Object.Instantiate(original);
 			AccessorySettings component = gameObject.GetComponent<AccessorySettings>();
 			if (component == null)
 			{

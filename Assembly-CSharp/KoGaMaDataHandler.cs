@@ -7,7 +7,7 @@ public static class KoGaMaDataHandler
 {
 	private class AsyncBookkeeping
 	{
-		private static float workTime = 1f;
+		private const float workTime = 1f;
 
 		private float workStartTime;
 
@@ -44,7 +44,7 @@ public static class KoGaMaDataHandler
 			get
 			{
 				float realtimeSinceStartup = Time.realtimeSinceStartup;
-				if (realtimeSinceStartup - workStartTime > workTime)
+				if (realtimeSinceStartup - workStartTime > 1f)
 				{
 					workStartTime = realtimeSinceStartup;
 					return true;
@@ -70,9 +70,9 @@ public static class KoGaMaDataHandler
 
 	private static AsyncBookkeeping asyncBookkeeping = null;
 
-	private static int serializeVersion = 11;
+	private static readonly int serializeVersion = 11;
 
-	private static int maxDeserializeTimeBeforeService = 1000;
+	private const int maxDeserializeTimeBeforeService = 1000;
 
 	private static int timeSinceService = WaitForTicksLocal.GetEnvironmentTick(0);
 
@@ -278,7 +278,7 @@ public static class KoGaMaDataHandler
 
 	private static void HandleService()
 	{
-		if (WaitForTicksLocal.Diff(timeSinceService) > maxDeserializeTimeBeforeService)
+		if (WaitForTicksLocal.Diff(timeSinceService) > 1000)
 		{
 			MVGameControllerBase.Game.Service();
 			timeSinceService = WaitForTicksLocal.GetEnvironmentTick(0);

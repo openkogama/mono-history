@@ -12,6 +12,8 @@ public class LobbyStatePlayModeController : MonoBehaviour
 
 	private RectTransform lobbyState;
 
+	private RectTransform inGameMenu;
+
 	private ChatControllerUGUI chatController;
 
 	public bool IsInLobbyState
@@ -27,12 +29,13 @@ public class LobbyStatePlayModeController : MonoBehaviour
 		}
 	}
 
-	public void Initialize(DesktopInGameGUIController inGameController, RectTransform lobbyState, ChatControllerUGUI chatController)
+	public void Initialize(DesktopInGameGUIController inGameController, RectTransform lobbyState, RectTransform inGameMenu, ChatControllerUGUI chatController)
 	{
 		ILockCursorManager lockCursorManager = MVGameControllerDesktop.LockCursorManager;
 		lockCursorManager.OnCursorLockChanged = (Action<bool>)Delegate.Combine(lockCursorManager.OnCursorLockChanged, new Action<bool>(OnCursorLockChanged));
 		this.inGameController = inGameController;
 		this.lobbyState = lobbyState;
+		this.inGameMenu = inGameMenu;
 		this.chatController = chatController;
 		SetObjectToLobbyState(isInLobbyState);
 	}
@@ -45,7 +48,7 @@ public class LobbyStatePlayModeController : MonoBehaviour
 
 	private void Update()
 	{
-		bool flag = MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.Round && wantsToEnterPlayState;
+		bool flag = wantsToEnterPlayState;
 		if (flag && isInLobbyState)
 		{
 			Debug.Log("To play state");
@@ -64,9 +67,40 @@ public class LobbyStatePlayModeController : MonoBehaviour
 
 	private void SetObjectToLobbyState(bool isInLobbyState)
 	{
+		if (isInLobbyState)
+		{
+			ActivateLobbyState();
+		}
+		else
+		{
+			DeactivateLobbyState();
+		}
 		this.isInLobbyState = isInLobbyState;
-		lobbyState.gameObject.SetActive(isInLobbyState);
-		inGameController.gameObject.SetActive(!isInLobbyState);
-		chatController.OnLobbyStateChange(!isInLobbyState);
+	}
+
+	private void ActivateLobbyState()
+	{
+		if (MVGameControllerBase.WOCM.AvatarLocal.CurrentState == AvatarRuntimeState.Hidden)
+		{
+			lobbyState.gameObject.SetActive(value: true);
+			inGameMenu.gameObject.SetActive(value: false);
+			inGameController.gameObject.SetActive(value: false);
+			chatController.OnLobbyStateChange(cursorLocked: false);
+		}
+		else
+		{
+			lobbyState.gameObject.SetActive(value: false);
+			inGameMenu.gameObject.SetActive(value: true);
+			inGameController.gameObject.SetActive(value: false);
+			chatController.OnLobbyStateChange(cursorLocked: false);
+		}
+	}
+
+	private void DeactivateLobbyState()
+	{
+		lobbyState.gameObject.SetActive(value: false);
+		inGameMenu.gameObject.SetActive(value: false);
+		inGameController.gameObject.SetActive(value: true);
+		chatController.OnLobbyStateChange(cursorLocked: true);
 	}
 }

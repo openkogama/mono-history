@@ -62,7 +62,7 @@ public class SoundLoader
 		{
 			string path = StreamingAsset.DBUrlToServerUrl(StreamingAsset.AssetBundleUrl + soundUrl);
 			AsyncWWWManager.UnsubscribeWWWRequest(OnDownloadFinished);
-			AsyncWWWManager.WWWRequest(new CachedGetRequest(path, OnDownloadFinished, WWWRequestPriority.WaitUntilSyncronizingIsDone));
+			AsyncWWWManager.WWWRequest(new CachedAssetBundleRequest(path, OnDownloadFinished, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 		}
 		else
 		{
@@ -78,7 +78,7 @@ public class SoundLoader
 			return;
 		}
 		StopAndDestroySound();
-		AudioClip clip = StreamingAsset.UnpackBundle<AudioClip>(www);
+		AudioClip clip = StreamingAsset.UnpackBundle_Cached<AudioClip>(www);
 		UpdateSound(clip);
 	}
 

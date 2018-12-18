@@ -86,7 +86,7 @@ public class HurryUpNotification : Notification
 
 	private void OnDestroy()
 	{
-		if (MVGameControllerBase.Game != null)
+		if (MVGameControllerBase.IsAlive && MVGameControllerBase.Game != null)
 		{
 			MVNetworkGame game = MVGameControllerBase.Game;
 			game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Remove(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnRoundEnd));

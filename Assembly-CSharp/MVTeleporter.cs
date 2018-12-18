@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class MVTeleporter : MVLogicObject
 {
-	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
+	private const UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
 	private List<MVAvatar> avatarIgnoreList = new List<MVAvatar>();
 
@@ -115,7 +115,7 @@ public class MVTeleporter : MVLogicObject
 				avatarIgnoreList.Remove(avatarLocal);
 			}
 		}
-		if (flag && (useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0)
+		if (flag && (useInteractor.EvaluateRequirementsUsability() & (UseGUIResult.CanAfford | UseGUIResult.CannotAfford)) == 0)
 		{
 			DoTeleport(e.instigatorWOID);
 		}

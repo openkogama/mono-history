@@ -16,6 +16,8 @@ public class NotificationAreaSingleInstanceQueue : NotificationArea
 
 	private Queue<NotificationQueueData> enqueuedNotifications = new Queue<NotificationQueueData>();
 
+	private bool shouldSkipDequeueCallback;
+
 	private const float decayTime = 10f;
 
 	public override void InstantiateNotification(NotificationType notificationType, Dictionary<object, object> data)
@@ -58,7 +60,9 @@ public class NotificationAreaSingleInstanceQueue : NotificationArea
 
 	private void ShowNotification(NotificationType notificationType, Dictionary<object, object> data)
 	{
+		shouldSkipDequeueCallback = true;
 		objectPool.ReturnAllExistingNotifications();
+		shouldSkipDequeueCallback = false;
 		Notification panel = objectPool.GetPanel(notificationType);
 		if (panel == null)
 		{
@@ -71,7 +75,7 @@ public class NotificationAreaSingleInstanceQueue : NotificationArea
 
 	private void OnActiveInstancesChanged()
 	{
-		if (objectPool.ActivateInstancesCount > 0 || enqueuedNotifications.Count == 0)
+		if (shouldSkipDequeueCallback || objectPool.ActivateInstancesCount > 0 || enqueuedNotifications.Count == 0)
 		{
 			return;
 		}

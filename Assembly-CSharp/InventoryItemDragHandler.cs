@@ -3,10 +3,10 @@ using UnityEngine.EventSystems;
 
 public class InventoryItemDragHandler : MonoBehaviour, IBeginDragHandler, IEndDragHandler, IDragHandler, IEventSystemHandler
 {
-	private static bool dragging;
-
 	[SerializeField]
 	private CanvasGroup canvasGroup;
+
+	private static bool dragging;
 
 	public static bool dragRejected;
 
@@ -29,8 +29,6 @@ public class InventoryItemDragHandler : MonoBehaviour, IBeginDragHandler, IEndDr
 	{
 		canvasGroup.blocksRaycasts = true;
 		dragging = false;
-		Debug.Log("OnEndDrag");
-		Debug.Log(transform.parent.name);
 		if (transform.parent.GetComponent<InventorySlot>() == null || dragRejected)
 		{
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IPlayerInventory x, BaseEventData y) =>

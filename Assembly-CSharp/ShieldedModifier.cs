@@ -43,7 +43,7 @@ public class ShieldedModifier : AvatarModifier
 		transform.SetParent(owner.mvAvatar.Body.BodyData.GetPartBone("Torso"));
 		MVRuntimeDataVariable avatarModeTypeFlags = owner.mvAvatar.avatarModeTypeFlags;
 		avatarModeTypeFlags.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(avatarModeTypeFlags.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChangedHandler));
-		if (MVGameControllerBase.IPlayModeUI.InLobbyState)
+		if (MVGameControllerBase.PlayModeUI.InLobbyState)
 		{
 			gameObject.SetActive(value: false);
 			lineRenderer.OnSetHidden();

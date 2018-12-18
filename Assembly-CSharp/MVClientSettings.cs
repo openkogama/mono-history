@@ -31,11 +31,13 @@ public static class MVClientSettings
 	{
 		get
 		{
-			if (!flagsSet)
-			{
-				return true;
-			}
-			return (ClientSettingFlags & ClientSettingFlags.StathatEnabled) == ClientSettingFlags.StathatEnabled;
+			bool flag = (ClientSettingFlags & ClientSettingFlags.StathatEnabled) == ClientSettingFlags.StathatEnabled;
+			return !flagsSet || flag;
 		}
+	}
+
+	public static bool IsFlagSet(ClientSettingFlags flag)
+	{
+		return (ClientSettingFlags & flag) == flag;
 	}
 }

@@ -47,7 +47,7 @@ public class InputToInGameAction
 		drop = false;
 		holster = false;
 		ignorePickupOwner = false;
-		if (MVGameControllerBase.IPlayModeUI == null || !MVGameControllerBase.IPlayModeUI.InLobbyState)
+		if (MVGameControllerBase.PlayModeUI == null || !MVGameControllerBase.PlayModeUI.InLobbyState)
 		{
 			if (MVInputWrapper.GetBooleanControlDown(KogamaControls.Use))
 			{

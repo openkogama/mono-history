@@ -43,7 +43,7 @@ public class FpsCounter : MonoBehaviour
 		}
 	}
 
-	public static float Fps;
+	private static FpsCounter instance;
 
 	private int idx;
 
@@ -51,16 +51,25 @@ public class FpsCounter : MonoBehaviour
 
 	private FPSMetricCollector metricsCollector;
 
-	private void Start()
+	private float fps;
+
+	public static float Fps => instance.fps;
+
+	protected void Awake()
 	{
-		Object.DontDestroyOnLoad(gameObject);
+		instance = this;
 	}
 
-	private void Update()
+	protected void OnDestroy()
+	{
+		instance = null;
+	}
+
+	protected void Update()
 	{
 		frameTimes[idx] = 1f / Time.deltaTime;
 		idx = (idx + 1) % frameTimes.Length;
-		Fps = frameTimes.Average();
+		fps = frameTimes.Average();
 		if (MVGameControllerBase.JoinState == MVJoinState.Playing)
 		{
 			if (metricsCollector == null)

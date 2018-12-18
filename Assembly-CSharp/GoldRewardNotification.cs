@@ -14,11 +14,11 @@ public class GoldRewardNotification : Notification
 
 	public void RewardClicked()
 	{
-		if (!TimedPlayReward.IsCollected)
+		if (!TimedPlayReward.RewardTracker.IsCollected)
 		{
-			if (TimedPlayReward.CollectedChanged != null)
+			if (TimedPlayReward.RewardTracker.CollectedChanged != null)
 			{
-				TimedPlayReward.CollectedChanged();
+				TimedPlayReward.RewardTracker.CollectedChanged();
 			}
 			Close();
 		}

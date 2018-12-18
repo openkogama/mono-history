@@ -5,7 +5,7 @@ using UnityEngine.Rendering;
 
 public class MaterialLoader : MonoBehaviour
 {
-	private static string highResAtlasFileName = "AssetBundles/Atlas/atlas.unity3d";
+	private const string highResAtlasFileName = "AssetBundles/Atlas/atlas.unity3d";
 
 	[SerializeField]
 	private Material cubeModelMaterialHigh;
@@ -28,11 +28,9 @@ public class MaterialLoader : MonoBehaviour
 	[SerializeField]
 	private Texture2D lowResMaterials;
 
-	private Material cubeModelMaterial;
-
 	private uint atlasHash;
 
-	public Material CubeModelMaterial => cubeModelMaterial;
+	public Material CubeModelMaterial { get; private set; }
 
 	public Shader PickupItemShader => pickupItemShader;
 
@@ -40,19 +38,29 @@ public class MaterialLoader : MonoBehaviour
 
 	public Shader DefaultDiffuseShader => defaultDiffuseShader;
 
-	public void Start()
+	protected void Awake()
 	{
 		cubeModelMaterialHigh = UnityEngine.Object.Instantiate(cubeModelMaterialHigh);
 		cubeModelMaterialLow = UnityEngine.Object.Instantiate(cubeModelMaterialLow);
 		cubeModelMaterialMobile = UnityEngine.Object.Instantiate(cubeModelMaterialMobile);
 		SetMainTexture(lowResMaterials);
+	}
+
+	protected void Start()
+	{
 		SetupMaterials();
-		MeshPool.Instance.MaxAmtMeshes = 100;
+	}
+
+	protected void OnDestroy()
+	{
+		UnityEngine.Object.Destroy(cubeModelMaterialLow);
+		UnityEngine.Object.Destroy(cubeModelMaterialHigh);
+		AsyncWWWManager.UnsubscribeWWWRequest(Callback);
 	}
 
 	public bool CheckAtlasIntegrity()
 	{
-		bool flag = Hash((Texture2D)cubeModelMaterial.mainTexture) == atlasHash;
+		bool flag = Hash((Texture2D)CubeModelMaterial.mainTexture) == atlasHash;
 		if (!flag)
 		{
 			StatHatWrapper.Count("TextureAtlasHackDetected", 1);
@@ -89,11 +97,11 @@ public class MaterialLoader : MonoBehaviour
 		}
 		if (flag)
 		{
-			cubeModelMaterial = cubeModelMaterialHigh;
+			CubeModelMaterial = cubeModelMaterialHigh;
 		}
 		else
 		{
-			cubeModelMaterial = cubeModelMaterialLow;
+			CubeModelMaterial = cubeModelMaterialLow;
 		}
 		InitAllMaterials(flag);
 	}
@@ -108,17 +116,12 @@ public class MaterialLoader : MonoBehaviour
 		if (Urls.StreamingAssetUrlReady())
 		{
 			Urls.onStreamingAssetsUrlAvailable = (Urls.OnStreamingAssetsUrlAvailable)Delegate.Remove(Urls.onStreamingAssetsUrlAvailable, new Urls.OnStreamingAssetsUrlAvailable(DownloadWhenPossible));
-			AsyncWWWManager.WWWRequest(new CachedAssetBundleRequest(Urls.StreamingAssets + highResAtlasFileName, Callback, WWWRequestPriority.WaitUntilSyncronizingIsDone));
+			AsyncWWWManager.WWWRequest(new CachedGetRequest(Urls.StreamingAssets + "AssetBundles/Atlas/atlas.unity3d" + MVGameControllerBase.KoGaMaSettings.UrlCacheAssetVersionArgument, Callback, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 		}
 		else
 		{
 			Urls.onStreamingAssetsUrlAvailable = (Urls.OnStreamingAssetsUrlAvailable)Delegate.Combine(Urls.onStreamingAssetsUrlAvailable, new Urls.OnStreamingAssetsUrlAvailable(DownloadWhenPossible));
 		}
-	}
-
-	private void OnDestroy()
-	{
-		AsyncWWWManager.UnsubscribeWWWRequest(Callback);
 	}
 
 	private void Callback(WWW www)
@@ -134,21 +137,22 @@ public class MaterialLoader : MonoBehaviour
 			Texture2D mainTexture = www.assetBundle.LoadAsset<Texture2D>(allAssetNames[0]);
 			SetMainTexture(mainTexture);
 			SetupMaterials();
+			www.assetBundle.Unload(unloadAllLoadedObjects: false);
 		}
 	}
 
 	private void InitAllMaterials(bool useSM3)
 	{
-		int num = Mathf.CeilToInt((float)cubeModelMaterial.mainTexture.width * (TextureAtlas.UV[0].width + 1f / (float)cubeModelMaterial.mainTexture.width));
+		int num = Mathf.CeilToInt((float)CubeModelMaterial.mainTexture.width * (TextureAtlas.UV[0].width + 1f / (float)CubeModelMaterial.mainTexture.width));
 		int num2 = Mathf.FloorToInt(Mathf.Log(num, 2f));
-		cubeModelMaterial.SetVector("_MaterialSize", new Vector4(TextureAtlas.UV[0].width, TextureAtlas.UV[0].height, num, num2));
-		cubeModelMaterial.mainTexture.filterMode = FilterMode.Point;
-		cubeModelMaterial.mainTexture.anisoLevel = 1;
+		CubeModelMaterial.SetVector("_MaterialSize", new Vector4(TextureAtlas.UV[0].width, TextureAtlas.UV[0].height, num, num2));
+		CubeModelMaterial.mainTexture.filterMode = FilterMode.Point;
+		CubeModelMaterial.mainTexture.anisoLevel = 1;
 		if (useSM3)
 		{
-			cubeModelMaterial.SetVector("_MaterialSize", new Vector4(TextureAtlas.UV[0].width, TextureAtlas.UV[0].height, num, num2));
-			cubeModelMaterial.mainTexture.filterMode = FilterMode.Bilinear;
-			cubeModelMaterial.mainTexture.anisoLevel = 2;
+			CubeModelMaterial.SetVector("_MaterialSize", new Vector4(TextureAtlas.UV[0].width, TextureAtlas.UV[0].height, num, num2));
+			CubeModelMaterial.mainTexture.filterMode = FilterMode.Bilinear;
+			CubeModelMaterial.mainTexture.anisoLevel = 2;
 		}
 	}
 

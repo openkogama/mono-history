@@ -17,7 +17,7 @@ public class EnterPlaySessionRoundCountDown : MonoBehaviour
 			{
 				x.Pop();
 			});
-			MVGameControllerBase.IPlayModeUI.InLobbyState = false;
+			MVGameControllerBase.PlayModeUI.InLobbyState = false;
 			if (MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Hidden))
 			{
 				MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Playing);

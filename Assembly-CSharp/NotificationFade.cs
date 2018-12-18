@@ -21,7 +21,7 @@ public class NotificationFade : MonoBehaviour
 
 	public Action OnFinished;
 
-	public bool IsPaused => pauseAt == duration;
+	public bool IsPaused => pauseAt != duration;
 
 	public void Deactivate()
 	{
@@ -52,7 +52,7 @@ public class NotificationFade : MonoBehaviour
 
 	public void Unpause()
 	{
-		if (!IsPaused)
+		if (IsPaused)
 		{
 			currentTime = pauseAt;
 			pauseAt = duration;

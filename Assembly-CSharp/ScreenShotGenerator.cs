@@ -20,6 +20,8 @@ public class ScreenShotGenerator : MonoBehaviour
 
 	private bool clonedObject;
 
+	private bool generating;
+
 	private GameObject targetObject;
 
 	private Bounds targetBounds;
@@ -27,8 +29,6 @@ public class ScreenShotGenerator : MonoBehaviour
 	private const int width = 512;
 
 	private const int height = 512;
-
-	private static bool generating = false;
 
 	private static readonly int renderLayers = (1 << LayerMask.NameToLayer("CamRotateTarget")) | (1 << LayerMask.NameToLayer("PlayerSelected"));
 
@@ -151,6 +151,7 @@ public class ScreenShotGenerator : MonoBehaviour
 			UnityEngine.Object.Destroy(genTexture);
 		}
 		UnityEngine.Object.Destroy(gameObject);
+		genRenderTexture.Release();
 		UnityEngine.Object.Destroy(genRenderTexture);
 	}
 

@@ -50,7 +50,7 @@ public class AvatarBadge : MonoBehaviour
 	{
 		BadgeManager.UnsubscribeGetBadgeRequest(StreamingAssetCallback);
 		LevelingManager.OnLevelingInitialized = (UnityAction)Delegate.Remove(LevelingManager.OnLevelingInitialized, new UnityAction(OnLevelingInitialized));
-		if (MVGameControllerBase.Game != null)
+		if (MVGameControllerBase.IsAlive && MVGameControllerBase.Game != null)
 		{
 			if (ownerActorId != -1 && MVGameControllerBase.Game.MVPlayerContainer.ContainsKey(ownerActorId))
 			{

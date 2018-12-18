@@ -78,10 +78,10 @@ public class UseLever : MVLogicObject, IIsLogicObjectFiringEventHandler, ILogicW
 	public override void Initialize()
 	{
 		base.Initialize();
-		if (MVGameControllerBase.IEditModeUI != null)
+		if (MVGameControllerBase.EditModeUI != null)
 		{
-			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
-			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Combine(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
+			IEditModeUI editModeUI = MVGameControllerBase.EditModeUI;
+			editModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Combine(editModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
 		}
 		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
 		{
@@ -159,10 +159,10 @@ public class UseLever : MVLogicObject, IIsLogicObjectFiringEventHandler, ILogicW
 
 	public override void Destroy()
 	{
-		if (MVGameControllerBase.IEditModeUI != null)
+		if (MVGameControllerBase.EditModeUI != null)
 		{
-			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
-			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Remove(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
+			IEditModeUI editModeUI = MVGameControllerBase.EditModeUI;
+			editModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Remove(editModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
 		}
 		useLeverObject.TriggerBoxEvents.TriggerEnter -= useLeverObject.UseInteractor.triggerBoxEvents_TriggerEnter;
 		useLeverObject.TriggerBoxEvents.TriggerExit -= useLeverObject.UseInteractor.triggerBoxEvents_TriggerExit;

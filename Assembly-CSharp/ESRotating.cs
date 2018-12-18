@@ -133,7 +133,7 @@ internal class ESRotating : ESStateBase
 	private void DoGridSnapping()
 	{
 		float num = 0f;
-		num = ((!MVGameControllerBase.IEditModeUI.IsGridSnap()) ? 0.0625f : 1f);
+		num = ((!MVGameControllerBase.EditModeUI.IsGridSnap()) ? 0.0625f : 1f);
 		foreach (WorldObjectClientRef target in targets)
 		{
 			MVWorldObjectClient worldObjectClient = target.WorldObjectClient;

@@ -47,7 +47,7 @@ public class BundleTab : TabMenuButtonBase
 	{
 		startPos = rectTransform.anchoredPosition.x;
 		List<Highlight<HighlightAccessoryBundle>> highLights = HighlightManager.GetHighLights<HighlightAccessoryBundle>(HighlightType.AccessoryBundle);
-		AccessoryBundleClient accessoryBundleClient = AccessoryDataManager.GetAccessoryBundleClient();
+		AccessoryBundleClient accessoryBundleClient = AccessoryDataManager.AccessoryBundleClient;
 		for (int i = 0; i < highLights.Count; i++)
 		{
 			if (highLights[i].highlightData.bundleId == accessoryBundleClient.accessoryBundleID)
@@ -65,12 +65,12 @@ public class BundleTab : TabMenuButtonBase
 				x.TabSelected(tabId);
 			});
 		});
-		if (AccessoryDataManager.GetAccessoryBundleClient().timelimit.IsTimeLimited)
+		if (AccessoryDataManager.AccessoryBundleClient.timelimit.IsTimeLimited)
 		{
-			TimeSpan timeLeft = AccessoryDataManager.GetAccessoryBundleClient().timelimit.GetTimeLeft();
+			TimeSpan timeLeft = AccessoryDataManager.AccessoryBundleClient.timelimit.GetTimeLeft();
 			timeLimitText.text = $"{timeLeft.Days}d {timeLeft.Hours}h";
 		}
-		int level = AccessoryDataManager.GetAccessoryBundleClient().level;
+		int level = AccessoryDataManager.AccessoryBundleClient.level;
 		if (level > 0)
 		{
 			if (LevelingManager.IsInitialized)
@@ -87,7 +87,7 @@ public class BundleTab : TabMenuButtonBase
 	private void SetLevelBadge()
 	{
 		LevelingManager.OnLevelingInitialized = (UnityAction)Delegate.Remove(LevelingManager.OnLevelingInitialized, new UnityAction(SetLevelBadge));
-		BadgeManager.GetBadgeTexture(AccessoryDataManager.GetAccessoryBundleClient().level, OnBadgeLoaded);
+		BadgeManager.GetBadgeTexture(AccessoryDataManager.AccessoryBundleClient.level, OnBadgeLoaded);
 	}
 
 	private void OnDestroy()

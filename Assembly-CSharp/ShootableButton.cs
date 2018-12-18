@@ -80,10 +80,10 @@ public class ShootableButton : MVLogicObject, IIsLogicObjectFiringEventHandler, 
 		interactable = gameObject.AddComponent<LogicInteractable>();
 		gameObject.AddComponent<ClientSideLogicInteractionHandler>();
 		interactable.OnDamageEvent += Activate;
-		if (MVGameControllerBase.IEditModeUI != null)
+		if (MVGameControllerBase.EditModeUI != null)
 		{
-			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
-			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Combine(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
+			IEditModeUI editModeUI = MVGameControllerBase.EditModeUI;
+			editModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Combine(editModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
 		}
 		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
 		{
@@ -180,10 +180,10 @@ public class ShootableButton : MVLogicObject, IIsLogicObjectFiringEventHandler, 
 
 	public override void Destroy()
 	{
-		if (MVGameControllerBase.IEditModeUI != null)
+		if (MVGameControllerBase.EditModeUI != null)
 		{
-			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
-			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Remove(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
+			IEditModeUI editModeUI = MVGameControllerBase.EditModeUI;
+			editModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Remove(editModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
 		}
 		base.Destroy();
 	}

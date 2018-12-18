@@ -21,7 +21,7 @@ public class ContextMenuController : MonoBehaviour, IHandlePointerDownOnContextM
 	public void Initialize(EditorStateMachine editorStateMachine)
 	{
 		this.editorStateMachine = editorStateMachine;
-		PlayerInventoryRepository playerInventoryRepository = MVGameControllerBase.IEditModeUI.PlayerInventoryRepository;
+		PlayerInventoryRepository playerInventoryRepository = MVGameControllerBase.EditModeUI.PlayerInventoryRepository;
 		playerInventoryRepository.OnFailedToAddItem = (Action)Delegate.Combine(playerInventoryRepository.OnFailedToAddItem, new Action(OnFailedToAddItem));
 	}
 

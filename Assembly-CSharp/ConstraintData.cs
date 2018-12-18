@@ -1,18 +1,18 @@
 public static class ConstraintData
 {
-	public static readonly string ConstraintType = "ConstraintType";
+	public const string ConstraintType = "ConstraintType";
 
-	public static readonly string MinX = "MinX";
+	public const string MinX = "MinX";
 
-	public static readonly string MinY = "MinY";
+	public const string MinY = "MinY";
 
-	public static readonly string MinZ = "MinZ";
+	public const string MinZ = "MinZ";
 
-	public static readonly string MaxX = "MaxX";
+	public const string MaxX = "MaxX";
 
-	public static readonly string MaxY = "MaxY";
+	public const string MaxY = "MaxY";
 
-	public static readonly string MaxZ = "MaxZ";
+	public const string MaxZ = "MaxZ";
 
-	public static readonly string MinCubeCount = "MinCubeCount";
+	public const string MinCubeCount = "MinCubeCount";
 }

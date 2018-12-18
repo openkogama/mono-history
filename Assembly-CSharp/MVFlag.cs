@@ -12,7 +12,7 @@ public class MVFlag : MVLogicObject
 
 	private UseInteractor useInteractor;
 
-	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
+	private const UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
 	private FlagObject flagObject;
 
@@ -70,7 +70,7 @@ public class MVFlag : MVLogicObject
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		if (worldObjectEnableController.EnableState == EnableState.Enable && (useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0)
+		if (worldObjectEnableController.EnableState == EnableState.Enable && (useInteractor.EvaluateRequirementsUsability() & (UseGUIResult.CanAfford | UseGUIResult.CannotAfford)) == 0)
 		{
 			DoCaptureFlag(MVGameControllerBase.WOCM.AvatarLocal.Id);
 		}

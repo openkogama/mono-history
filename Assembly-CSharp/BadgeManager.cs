@@ -4,15 +4,13 @@ using UnityEngine;
 
 public static class BadgeManager
 {
-	private static string baseUrl;
+	public const int defaultMaxFriendsLimit = 200;
 
 	private static Dictionary<int, BadgeUrlData> badgeUrls = new Dictionary<int, BadgeUrlData>();
 
 	private static int maxLevelBadge = 0;
 
-	private static string fromUnityArgument = "?Unity=2";
-
-	public const int defaultMaxFriendsLimit = 200;
+	private const string fromUnityArgument = "?Unity=2";
 
 	public static void Initialize(List<BadgeUrlData> badgeUrlDatas)
 	{
@@ -55,6 +53,12 @@ public static class BadgeManager
 			Debug.LogWarning("Level exceeds defined badges. Using maxBadge");
 			level = maxLevelBadge;
 		}
-		AsyncWWWManager.WWWRequest(new CachedGetRequest(badgeUrls[level].URL + fromUnityArgument, callback, WWWRequestPriority.WaitUntilSyncronizingIsDone));
+		AsyncWWWManager.WWWRequest(new CachedGetRequest(badgeUrls[level].URL + "?Unity=2", callback, WWWRequestPriority.WaitUntilSyncronizingIsDone));
+	}
+
+	public static void Reset()
+	{
+		badgeUrls = new Dictionary<int, BadgeUrlData>();
+		maxLevelBadge = 0;
 	}
 }

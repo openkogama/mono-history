@@ -20,7 +20,7 @@ public class TouristPromotion : MonoBehaviour
 		pleaseWaitOverlay.SetActive(value: false);
 	}
 
-	public void SkipCallback()
+	public virtual void SkipCallback()
 	{
 		StartCoroutine(FadeOutAndPopPromotion());
 	}

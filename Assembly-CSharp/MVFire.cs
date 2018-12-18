@@ -49,11 +49,11 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 	public override void Initialize()
 	{
 		base.Initialize();
-		this.fireObject.FireCollider.enabled = MVGameControllerBase.IEditModeUI == null;
-		if (MVGameControllerBase.IEditModeUI != null)
+		this.fireObject.FireCollider.enabled = MVGameControllerBase.EditModeUI == null;
+		if (MVGameControllerBase.EditModeUI != null)
 		{
-			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
-			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Combine(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
+			IEditModeUI editModeUI = MVGameControllerBase.EditModeUI;
+			editModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Combine(editModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
 		}
 		SetupCulling(this.fireObject.VisualObject);
 		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
@@ -302,10 +302,10 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 			FireObject fireObject = this.fireObject;
 			fireObject.OnFireObjectCreated = (Action)Delegate.Remove(fireObject.OnFireObjectCreated, new Action(OnFireObjectPlaced));
 		}
-		if (MVGameControllerBase.IEditModeUI != null)
+		if (MVGameControllerBase.EditModeUI != null)
 		{
-			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
-			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Remove(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
+			IEditModeUI editModeUI = MVGameControllerBase.EditModeUI;
+			editModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Remove(editModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
 		}
 	}
 

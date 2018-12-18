@@ -247,7 +247,7 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 			if (shooterActorNumber == MVGameControllerBase.Game.LocalPlayer.ActorNr)
 			{
 				MVGameControllerBase.CameraController.PlayPlingSound();
-				MVGameControllerBase.IPlayModeUI.GetCrossHair().ShowHasHitEffect();
+				MVGameControllerBase.PlayModeUI.GetCrossHair().ShowHasHitEffect();
 			}
 		}
 	}

@@ -38,7 +38,6 @@ public class AudioManager : MonoBehaviour
 			sound.audio = sound.go.AddComponent<AudioSource>();
 			pooledSounds.Add(sound);
 		}
-		Object.DontDestroyOnLoad(gameObject);
 	}
 
 	private void Update()

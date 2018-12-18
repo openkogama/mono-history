@@ -16,9 +16,9 @@ public class TimeAttackFlag : MVLogicObject
 
 	private const float captureCooldown = 5f;
 
-	private bool isTimeAttackDebriefingOn;
+	private const UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
-	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
+	private bool isTimeAttackDebriefingOn;
 
 	private TimeAttackFlagObject timeAttackFlagObject;
 
@@ -98,7 +98,7 @@ public class TimeAttackFlag : MVLogicObject
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		if (worldObjectEnableController.EnableState == EnableState.Enable && (useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0)
+		if (worldObjectEnableController.EnableState == EnableState.Enable && (useInteractor.EvaluateRequirementsUsability() & (UseGUIResult.CanAfford | UseGUIResult.CannotAfford)) == 0)
 		{
 			DoReachTimeAttackFlag(MVGameControllerBase.WOCM.AvatarLocal.Id);
 		}

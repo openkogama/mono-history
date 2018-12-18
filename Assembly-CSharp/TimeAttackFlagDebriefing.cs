@@ -53,7 +53,7 @@ public class TimeAttackFlagDebriefing : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		if (MVGameControllerBase.Game != null)
+		if (MVGameControllerBase.IsAlive)
 		{
 			MVRuntimeDataVariable avatarModeTypeFlags = MVGameControllerBase.WOCM.AvatarLocal.avatarModeTypeFlags;
 			avatarModeTypeFlags.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Remove(avatarModeTypeFlags.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnAvatarStateChanged));
@@ -70,7 +70,7 @@ public class TimeAttackFlagDebriefing : MonoBehaviour
 			}
 			if (waitStartTime + 4f < Time.time && MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState != MVGameStateType.RoundEnded)
 			{
-				MVGameControllerBase.IPlayModeUI.InLobbyState = false;
+				MVGameControllerBase.PlayModeUI.InLobbyState = false;
 				MVGameControllerDesktop.LockCursorManager.CursorLock = true;
 				isDebriefingOn = false;
 				isWaitingForStart = false;
@@ -99,7 +99,7 @@ public class TimeAttackFlagDebriefing : MonoBehaviour
 		isDebriefingOn = true;
 		canvasGroup.alpha = 1f;
 		scoreBoardCanvasGroup.alpha = 1f;
-		MVGameControllerBase.IPlayModeUI.InLobbyState = true;
+		MVGameControllerBase.PlayModeUI.InLobbyState = true;
 		scoreBoardSingle.Initialize(GameStatCounterType.TimeAttackFlag);
 		scoreBoardTeam.Initialize(GameStatCounterType.TimeAttackFlag);
 		localPlayerScore.Initialize();
@@ -117,7 +117,7 @@ public class TimeAttackFlagDebriefing : MonoBehaviour
 		if (!isDebriefingOn)
 		{
 			isDebriefingOn = true;
-			MVGameControllerBase.IPlayModeUI.InLobbyState = false;
+			MVGameControllerBase.PlayModeUI.InLobbyState = false;
 			LockCursor();
 			canvasGroup.alpha = 0f;
 			scoreBoardCanvasGroup.alpha = 1f;
@@ -258,7 +258,7 @@ public class TimeAttackFlagDebriefing : MonoBehaviour
 		}
 		AvatarModeTypes avatarModeTypes = (AvatarModeTypes)state;
 		WinningConditionControl.TryGetPrioritizedStat(out var statType);
-		if (!isDebriefingOn && statType == GameStatCounterType.TimeAttackFlag && avatarModeTypes == AvatarModeTypes.Playing && previousAvatarModeType == AvatarModeTypes.Hidden)
+		if (!isDebriefingOn && statType == GameStatCounterType.TimeAttackFlag && avatarModeTypes == AvatarModeTypes.Playing && (previousAvatarModeType == AvatarModeTypes.Hidden || previousAvatarModeType == AvatarModeTypes.Dead))
 		{
 			MVCheckpoint checkpoint = MVGameControllerBase.Game.LocalPlayer.GetCheckpoint();
 			if (checkpoint == null)

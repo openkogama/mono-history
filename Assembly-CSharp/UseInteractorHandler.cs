@@ -13,7 +13,7 @@ public class UseInteractorHandler : MVComponent
 
 	private MVInteractableBase interactionBase;
 
-	private static readonly UseGUIResult useGui = UseGUIResult.NoUseButton | UseGUIResult.NoCost | UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
+	private const UseGUIResult useGui = UseGUIResult.NoUseButton | UseGUIResult.NoCost | UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
 	public void Init(Collider triggingCollider)
 	{
@@ -80,7 +80,7 @@ public class UseInteractorHandler : MVComponent
 			if (useInteractor.GetInteractorCanBeUsed(interactionBase))
 			{
 				option = useInteractor.GetGUIShowOptions();
-				if ((useInteractor.EvaluateRequirementsUsability() & useGui) > UseGUIResult.NoUseButton)
+				if ((useInteractor.EvaluateRequirementsUsability() & (UseGUIResult.NoUseButton | UseGUIResult.NoCost | UseGUIResult.CanAfford | UseGUIResult.CannotAfford)) > UseGUIResult.NoUseButton)
 				{
 					flag = true;
 					woId = useInteractor.WoOwnerID;
@@ -89,11 +89,11 @@ public class UseInteractorHandler : MVComponent
 		}
 		if (flag)
 		{
-			MVGameControllerBase.IPlayModeUI.ShowEUseIcon(option, woId);
+			MVGameControllerBase.PlayModeUI.ShowEUseIcon(option, woId);
 		}
 		else
 		{
-			MVGameControllerBase.IPlayModeUI.HideEUseIcon();
+			MVGameControllerBase.PlayModeUI.HideEUseIcon();
 		}
 	}
 

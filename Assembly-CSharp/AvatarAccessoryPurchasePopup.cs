@@ -10,7 +10,7 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 	private AccessoryDataClient accessoryDataClient;
 
 	[SerializeField]
-	private StreamPngToSprite preview;
+	private StreamedSpriteToImageManual preview;
 
 	[SerializeField]
 	private GameObject loadingWheel;
@@ -59,9 +59,7 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 	{
 		loadingWheel.SetActive(value: true);
 		preview.gameObject.SetActive(value: false);
-		StreamPngToSprite streamPngToSprite = preview;
-		streamPngToSprite.OnDownloadFinish = (Action)Delegate.Combine(streamPngToSprite.OnDownloadFinish, new Action(OnPreviewImageDownLoaded));
-		preview.StartDownloading(previewImageUrl);
+		preview.Download(previewImageUrl, OnPreviewImageDownLoaded);
 		this.accessoryDataClient = accessoryDataClient;
 		priceText.text = accessoryDataClient.priceGold.ToString();
 		price = accessoryDataClient.priceGold;
@@ -194,12 +192,5 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 		loadingWheel.SetActive(value: false);
 		emptyFrame.SetActive(value: false);
 		preview.gameObject.SetActive(value: true);
-	}
-
-	private void OnDestroy()
-	{
-		StreamPngToSprite streamPngToSprite = preview;
-		streamPngToSprite.OnDownloadFinish = (Action)Delegate.Remove(streamPngToSprite.OnDownloadFinish, new Action(OnPreviewImageDownLoaded));
-		preview.DestroyTexture();
 	}
 }

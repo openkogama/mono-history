@@ -37,11 +37,11 @@ public static class RemoveCubes
 				}
 			}
 
-			private static int maxNumFallOffValues = 20;
+			private const int maxNumFallOffValues = 20;
 
-			private static int numFallOffValues = maxNumFallOffValues;
+			private static int numFallOffValues = 20;
 
-			private static FallOffValue[] fallOffValues = new FallOffValue[maxNumFallOffValues];
+			private static FallOffValue[] fallOffValues = new FallOffValue[20];
 
 			private static int noDamageSquaredDistance;
 
@@ -103,7 +103,7 @@ public static class RemoveCubes
 
 		private static class CornerCubes
 		{
-			private static byte[][] cornerCubes = new byte[4][]
+			private static readonly byte[][] cornerCubes = new byte[4][]
 			{
 				new byte[8] { 20, 120, 124, 124, 104, 104, 100, 0 },
 				new byte[8] { 120, 120, 124, 24, 4, 104, 100, 100 },
@@ -194,7 +194,7 @@ public static class RemoveCubes
 					{
 						IntVector intVector = new IntVector(localMin.x + i, localMin.y + j, localMin.z + k);
 						CubeBase cubeBase = wo.GetCubeBase(intVector);
-						if (!(cubeBase == null))
+						if (cubeBase != null)
 						{
 							DestructionState destructionState = CalculateCubeDestruction(intVector, cubeBase, getPhysicalProperites);
 							if (RemoveCube(destructionState, wo, fineGrainedTerrain, intVector))

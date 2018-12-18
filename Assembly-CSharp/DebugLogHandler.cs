@@ -15,11 +15,9 @@ public static class DebugLogHandler
 
 	private static Queue<Dictionary<string, object>> logContextQueue = new Queue<Dictionary<string, object>>();
 
-	private static int maxLogContextQueueCount = 4;
+	private const int maxLogContextQueueCount = 4;
 
-	private static int sampleErrorFrequency = 100;
-
-	private static RavenClient ravenClient = null;
+	private const int sampleErrorFrequency = 100;
 
 	private static bool isSampling = false;
 
@@ -27,25 +25,44 @@ public static class DebugLogHandler
 
 	private static HashSet<string> ignoreLogStrings = new HashSet<string> { "Fullscreen mode can only be enabled in the web player after clicking on the content." };
 
-	private static bool SendOnGoingError => 50 == errorCount;
+	public static RavenClient RavenClient { get; private set; }
 
 	public static bool ErrorDetected { get; private set; }
 
 	public static bool OngoingErrorDetected { get; private set; }
 
-	public static bool IsSampling => true;
+	private static bool SendOnGoingError => 50 == errorCount;
 
-	public static RavenClient RavenClient => ravenClient;
+	public static bool IsSampling => true;
 
 	public static void SetupSentryClient(string sentryUrl)
 	{
-		ravenClient = new RavenClient(sentryUrl);
+		RavenClient = new RavenClient(sentryUrl);
 	}
 
 	public static void Init()
 	{
-		isSampling = UnityEngine.Random.Range(0, sampleErrorFrequency + 1) == sampleErrorFrequency;
+		isSampling = UnityEngine.Random.Range(0, 101) == 100;
 		Application.logMessageReceived += HandleLog;
+	}
+
+	public static void Reset()
+	{
+		errorCount = 0;
+		logErrorHasBeenSendOnce = false;
+		logContextQueue.Clear();
+		RavenClient = null;
+		isSampling = false;
+		ErrorDetected = false;
+		OngoingErrorDetected = false;
+		try
+		{
+			Application.logMessageReceived -= HandleLog;
+		}
+		catch (Exception ex)
+		{
+			Debug.Log(ex.Message);
+		}
 	}
 
 	public static void ForceExtraErrorReport()
@@ -124,7 +141,7 @@ public static class DebugLogHandler
 		dictionary.Add("Frame", Time.frameCount);
 		dictionary.Add(type.ToString(), logString);
 		logContextQueue.Enqueue(dictionary);
-		if (logContextQueue.Count > maxLogContextQueueCount)
+		if (logContextQueue.Count > 4)
 		{
 			logContextQueue.Dequeue();
 		}

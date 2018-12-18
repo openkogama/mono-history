@@ -2,15 +2,10 @@ using UnityEngine;
 
 public class LoadingCube : MonoBehaviour
 {
-	private bool visible = true;
-
 	[SerializeField]
 	private GameObject cube;
 
-	private void Start()
-	{
-		Object.DontDestroyOnLoad(gameObject);
-	}
+	private bool visible = true;
 
 	private void Update()
 	{

@@ -7,9 +7,16 @@ public class NotificationsManager : MonoBehaviour
 	[SerializeField]
 	private NotificationArea[] notificationAreas;
 
-	private void OnEnable()
+	public static NotificationsManager ActiveInstance { get; private set; }
+
+	protected void OnEnable()
 	{
-		NotificationController.Register(this);
+		ActiveInstance = this;
+	}
+
+	protected void OnDestroy()
+	{
+		ActiveInstance = null;
 	}
 
 	public void InstantiateNotification(NotificationType notificationType, Dictionary<object, object> data)

@@ -5,43 +5,43 @@ public class MVQualitySettings : MonoBehaviour
 {
 	public delegate void OnQualityLevedChanged(int level);
 
-	private static LodData[] lodSettingsFastest = new LodData[2]
+	private static readonly LodData[] lodSettingsFastest = new LodData[2]
 	{
 		new LodData(0f, isVisible: true, shadows: true),
 		new LodData(300f, isVisible: false, shadows: true)
 	};
 
-	private static LodData[] lodSettingsFast = new LodData[2]
+	private static readonly LodData[] lodSettingsFast = new LodData[2]
 	{
 		new LodData(0f, isVisible: true, shadows: true),
 		new LodData(300f, isVisible: false, shadows: true)
 	};
 
-	private static LodData[] lodSettingsSimple = new LodData[2]
+	private static readonly LodData[] lodSettingsSimple = new LodData[2]
 	{
 		new LodData(0f, isVisible: true, shadows: true),
 		new LodData(300f, isVisible: false, shadows: true)
 	};
 
-	private static LodData[] lodSettingsGood = new LodData[2]
+	private static readonly LodData[] lodSettingsGood = new LodData[2]
 	{
 		new LodData(0f, isVisible: true, shadows: true),
 		new LodData(300f, isVisible: false, shadows: true)
 	};
 
-	private static LodData[] lodSettingsBeautiful = new LodData[2]
+	private static readonly LodData[] lodSettingsBeautiful = new LodData[2]
 	{
 		new LodData(0f, isVisible: true, shadows: true),
 		new LodData(500f, isVisible: false, shadows: true)
 	};
 
-	private static LodData[] lodSettingsFantastic = new LodData[2]
+	private static readonly LodData[] lodSettingsFantastic = new LodData[2]
 	{
 		new LodData(0f, isVisible: true, shadows: true),
 		new LodData(300f, isVisible: false, shadows: true)
 	};
 
-	private static LodData[][] lodSettings = new LodData[6][] { lodSettingsFastest, lodSettingsFast, lodSettingsSimple, lodSettingsGood, lodSettingsBeautiful, lodSettingsFantastic };
+	private static readonly LodData[][] lodSettings = new LodData[6][] { lodSettingsFastest, lodSettingsFast, lodSettingsSimple, lodSettingsGood, lodSettingsBeautiful, lodSettingsFantastic };
 
 	public const int QualitySD = 0;
 

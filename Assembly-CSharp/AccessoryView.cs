@@ -12,10 +12,10 @@ public class AccessoryView : MonoBehaviour
 	private AccessoryDataClient accessoryDataClient;
 
 	[SerializeField]
-	private RawImage previewImage;
+	private Image previewImage;
 
 	[SerializeField]
-	private StreamPngToSprite previewImageStreamingManager;
+	private StreamedSpriteToImageManual previewImageStreamingManager;
 
 	[SerializeField]
 	private Text nameText;
@@ -191,7 +191,7 @@ public class AccessoryView : MonoBehaviour
 				x.Push(popup.gameObject, UIPushOption.Blocking, null, UIGroupFlags.InventoryUISubMenu);
 			});
 		}
-		if (MVGameControllerBase.Game != null)
+		if (MVGameControllerBase.IsAlive && MVGameControllerBase.Game != null)
 		{
 			if (isPreviewing)
 			{
@@ -216,7 +216,6 @@ public class AccessoryView : MonoBehaviour
 				accessoryLoader.Destroy();
 			}
 			accessoryDataClient = null;
-			previewImageStreamingManager.DestroyTexture();
 		}
 	}
 
@@ -406,21 +405,19 @@ public class AccessoryView : MonoBehaviour
 			OnFinished();
 		}
 		OnFinished = null;
-		string text = "AccessoryShop/" + accessoryDataClient.category.ToString() + "Images/";
+		string text = "AvatarAccessory/" + accessoryDataClient.category.ToString() + "/Images/";
 		string[] array = accessoryDataClient.url.Split(new string[1] { "/" }, StringSplitOptions.None);
 		array = array[array.Length - 1].Split(new string[1] { "." }, StringSplitOptions.None);
 		string text2 = array[0];
-		text2 += "Image.png";
+		text2 += "Image.unity3d";
 		text += text2.ToLower();
-		StreamPngToSprite streamPngToSprite = previewImageStreamingManager;
-		streamPngToSprite.OnDownloadFinish = (Action)Delegate.Combine(streamPngToSprite.OnDownloadFinish, new Action(OnPreviewImageFinishedDownloading));
-		previewImageStreamingManager.StartDownloading(text);
-		previewImageUrl = text;
 		SkinnedMeshOptimizer[] componentsInChildren = avatarAccessory.GetComponentsInChildren<SkinnedMeshOptimizer>();
 		for (int i = 0; i < componentsInChildren.Length; i++)
 		{
 			componentsInChildren[i].DisableOptimizer();
 		}
+		previewImageStreamingManager.Download(text, OnPreviewImageFinishedDownloading);
+		previewImageUrl = text;
 	}
 
 	private void OnPreviewImageFinishedDownloading()

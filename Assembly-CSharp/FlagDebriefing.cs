@@ -45,7 +45,7 @@ public class FlagDebriefing : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		if (MVGameControllerBase.Game != null)
+		if (MVGameControllerBase.IsAlive && MVGameControllerBase.Game != null)
 		{
 			MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
 			mVPlayerContainer.OnLocalPlayerTeamChanged = (Action)Delegate.Remove(mVPlayerContainer.OnLocalPlayerTeamChanged, new Action(OnLocalPlayerChangeTeam));

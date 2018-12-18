@@ -55,12 +55,6 @@ public class ChatBubble : MonoBehaviour
 
 	private const float completelyFadeRadius = 20f;
 
-	public static bool BindingsExpanded;
-
-	public static bool ValuesExpanded;
-
-	public static bool ExtenderExpanded;
-
 	public bool IsActive => isActive;
 
 	public RectTransform rectTransform

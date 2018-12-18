@@ -22,10 +22,6 @@ public class RuntimePrototypeCubeModel
 
 	private List<byte> pendingDeltaCubes = new List<byte>();
 
-	private int authorProfileID;
-
-	private float scale;
-
 	protected int prototypeId = -1;
 
 	private DeltaCubes deltaCubes = new DeltaCubes();
@@ -75,9 +71,7 @@ public class RuntimePrototypeCubeModel
 		}
 	}
 
-	public int AuthorProfileID => authorProfileID;
-
-	public float Scale => scale;
+	public float Scale { get; private set; }
 
 	public int PrototypeId
 	{
@@ -90,6 +84,8 @@ public class RuntimePrototypeCubeModel
 			prototypeId = value;
 		}
 	}
+
+	public int AuthorProfileID { get; private set; }
 
 	public int InstancesCount => instances.Count;
 
@@ -151,8 +147,8 @@ public class RuntimePrototypeCubeModel
 	private void Create(int id, int authorProfileId, float scale, byte[] data)
 	{
 		prototypeId = id;
-		this.scale = scale;
-		authorProfileID = authorProfileId;
+		Scale = scale;
+		AuthorProfileID = authorProfileId;
 		BytePacker bp = new BytePacker(data);
 		CreateFromBytePackage(bp);
 		SetVisibility();
@@ -163,11 +159,11 @@ public class RuntimePrototypeCubeModel
 	public RuntimePrototypeCubeModel CloneGeometry(bool withDeltaCubes = false)
 	{
 		RuntimePrototypeCubeModel runtimePrototypeCubeModel = new RuntimePrototypeCubeModel();
-		runtimePrototypeCubeModel.scale = scale;
-		runtimePrototypeCubeModel.authorProfileID = authorProfileID;
+		runtimePrototypeCubeModel.Scale = Scale;
+		runtimePrototypeCubeModel.AuthorProfileID = AuthorProfileID;
 		foreach (KeyValuePair<IntVector, CubeModelChunk> chunk in chunks)
 		{
-			runtimePrototypeCubeModel.chunks.Add(chunk.Key, chunk.Value.CloneGeometry(Vector3.one * scale));
+			runtimePrototypeCubeModel.chunks.Add(chunk.Key, chunk.Value.CloneGeometry(Vector3.one * Scale));
 		}
 		if (withDeltaCubes)
 		{
@@ -193,7 +189,7 @@ public class RuntimePrototypeCubeModel
 		foreach (IntVector dirtyChunk in dirtyChunks)
 		{
 			hashSet.Add(dirtyChunk);
-			RebuildChunk(dirtyChunk, scale * Vector3.one);
+			RebuildChunk(dirtyChunk, Scale * Vector3.one);
 			meshUpdates--;
 		}
 		dirtyChunks.Clear();
@@ -205,7 +201,7 @@ public class RuntimePrototypeCubeModel
 		HashSet<IntVector> hashSet = new HashSet<IntVector>();
 		foreach (IntVector dirtyChunk in dirtyChunks)
 		{
-			RebuildChunk(dirtyChunk, scale * Vector3.one);
+			RebuildChunk(dirtyChunk, Scale * Vector3.one);
 			hashSet.Add(dirtyChunk);
 			meshUpdates--;
 			if (meshUpdates <= 0)
@@ -468,7 +464,7 @@ public class RuntimePrototypeCubeModel
 	{
 		foreach (KeyValuePair<IntVector, CubeModelChunk> chunk in chunks)
 		{
-			chunk.Value.RebuildChunk(Vector3.one * scale);
+			chunk.Value.RebuildChunk(Vector3.one * Scale);
 		}
 	}
 

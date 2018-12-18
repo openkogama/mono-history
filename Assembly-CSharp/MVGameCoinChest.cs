@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 
@@ -11,7 +12,7 @@ public class MVGameCoinChest : MVLogicObject
 		Open
 	}
 
-	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
+	private const UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
 	private GameCoinChestClientState state;
 
@@ -117,13 +118,17 @@ public class MVGameCoinChest : MVLogicObject
 		}
 		chestObject.Particles.Play();
 		MVGameControllerBase.Game.GameCoinManager.GameCoinChestCollect((int)Data["gameCoinAmount"]);
+		if (MVClientSettings.IsFlagSet(ClientSettingFlags.GamePassSilentReleaseEnabled))
+		{
+			MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, instigatorID);
+		}
 		state = GameCoinChestClientState.Open;
 		return true;
 	}
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		if (state == GameCoinChestClientState.Closed && (useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0)
+		if (state == GameCoinChestClientState.Closed && (useInteractor.EvaluateRequirementsUsability() & (UseGUIResult.CanAfford | UseGUIResult.CannotAfford)) == 0)
 		{
 			state = GameCoinChestClientState.Opening;
 		}

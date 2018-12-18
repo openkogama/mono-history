@@ -22,14 +22,7 @@ public class MVLocalPlayerRegistered : MVLocalPlayer
 	{
 		if (xpProgress.XPLimitExceeded)
 		{
-			if (!MVGameControllerBase.LevelingTestMode)
-			{
-				AsyncWWWManager.WWWRequest(new GetRequest(Urls.Level + ProfileID, LevelCallback, WWWRequestPriority.ExecuteWhileSyncronizing));
-			}
-			else
-			{
-				Level++;
-			}
+			AsyncWWWManager.WWWRequest(new GetRequest(Urls.Level + ProfileID, LevelCallback, WWWRequestPriority.ExecuteWhileSyncronizing));
 		}
 		else
 		{

@@ -43,7 +43,6 @@ internal class SocketWebTcp : IPhotonSocket
 		}
 		websocketConnectionObject = new GameObject("websocketConnectionObject");
 		MonoBehaviour monoBehaviour = websocketConnectionObject.AddComponent<MonoBehavior_>();
-		UnityEngine.Object.DontDestroyOnLoad(websocketConnectionObject);
 		sock = new WebSocket(new Uri(ServerAddress));
 		monoBehaviour.StartCoroutine(sock.Connect());
 		monoBehaviour.StartCoroutine(ReceiveLoop());

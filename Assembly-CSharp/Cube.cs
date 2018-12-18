@@ -181,11 +181,6 @@ public class Cube : CubeBase
 
 	private static void GetAverageLightValue(Face face, int vertex, Dictionary<IntVector, Cell> cells, IntVector cubePos, ref Color color, bool inside)
 	{
-		if (!CubeModelChunk.UseAOShadows)
-		{
-			color = Color.white;
-			return;
-		}
 		int num = (int)face * 4 + vertex;
 		IntVector[] array = ((!inside) ? SharedCubeFunctions.LightTestOffsets[num] : SharedCubeFunctions.LightTestOffsetsInside[num]);
 		int num2 = 0;
@@ -463,8 +458,6 @@ public class Cube : CubeBase
 			ref Vector3 reference2 = ref edge[1];
 			reference2 = edge[1] + value * axis;
 		}
-		float min = -0.5f;
-		float max = 0.5f;
 		if (IsOutOfBound(edge))
 		{
 			if (IsFaceBoxSideAligened(info.cube, info.pickedFace))
@@ -474,8 +467,8 @@ public class Cube : CubeBase
 			}
 			return;
 		}
-		MathFunctions.ClampVector(ref edge[0], min, max);
-		MathFunctions.ClampVector(ref edge[1], min, max);
+		MathFunctions.ClampVector(ref edge[0], -0.5f, 0.5f);
+		MathFunctions.ClampVector(ref edge[1], -0.5f, 0.5f);
 		ref Vector3 reference3 = ref edge[0];
 		reference3 = MathFunctions.RoundVector(edge[0], 3);
 		ref Vector3 reference4 = ref edge[1];
@@ -529,21 +522,19 @@ public class Cube : CubeBase
 
 	private static bool FaceIsOutOfCubeBoundery(Vector3[] faceVertices)
 	{
-		float num = -0.5f;
-		float num2 = 0.5f;
 		for (int i = 0; i < faceVertices.Length; i++)
 		{
 			ref Vector3 reference = ref faceVertices[i];
 			reference = MathFunctions.RoundVector(faceVertices[i], 3);
-			int num3 = 0;
+			int num = 0;
 			for (int j = 0; j < 3; j++)
 			{
-				if (faceVertices[i][j] >= num && faceVertices[i][j] <= num2)
+				if (faceVertices[i][j] >= -0.5f && faceVertices[i][j] <= 0.5f)
 				{
-					num3++;
+					num++;
 				}
 			}
-			if (num3 == 3)
+			if (num == 3)
 			{
 				return false;
 			}

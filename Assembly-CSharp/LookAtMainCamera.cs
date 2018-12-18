@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class LookAtMainCamera : MonoBehaviour
 {
-	private void LateUpdate()
+	protected void LateUpdate()
 	{
 		transform.rotation = MVGameControllerBase.CameraController.MainCamera.transform.rotation;
 	}

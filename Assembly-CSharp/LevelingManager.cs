@@ -8,7 +8,7 @@ public static class LevelingManager
 {
 	public static UnityAction OnLevelingInitialized;
 
-	public static Dictionary<int, XPLevelLimits> TestLevelToLimits = new Dictionary<int, XPLevelLimits>
+	public static readonly Dictionary<int, XPLevelLimits> TestLevelToLimits = new Dictionary<int, XPLevelLimits>
 	{
 		{
 			1,
@@ -40,24 +40,24 @@ public static class LevelingManager
 
 	public static void Destroy()
 	{
-		AsyncWWWManager.UnsubscribeWWWRequest(OnInitialData);
+		try
+		{
+			AsyncWWWManager.UnsubscribeWWWRequest(OnInitialData);
+		}
+		catch
+		{
+			Debug.LogError("LevelingManager failed to unsubscribe www request.");
+		}
+		finally
+		{
+			IsInitialized = false;
+			OnLevelingInitialized = null;
+		}
 	}
 
 	public static void Initialize(int profileID)
 	{
-		if (MVGameControllerBase.LevelingTestMode)
-		{
-			Test();
-		}
-		else
-		{
-			AsyncWWWManager.WWWRequest(new GetRequest(Urls.InitialData + profileID, OnInitialData, WWWRequestPriority.WaitUntilSyncronizingIsDone));
-		}
-	}
-
-	public static void Test()
-	{
-		Notify(CreateInitialLevelData());
+		AsyncWWWManager.WWWRequest(new GetRequest(Urls.InitialData + profileID, OnInitialData, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 	}
 
 	public static void OnInitialData(WWW result)

@@ -5,6 +5,8 @@ public static class FlagDebriefingControl
 {
 	public static float RunStartTime;
 
+	public static bool IsInFlagDebriefing;
+
 	public static Action<int> OnFlagDebriefing;
 
 	public static Action OnFlagCountDown;
@@ -21,6 +23,7 @@ public static class FlagDebriefingControl
 		{
 			OnFlagDebriefing(captureTime);
 		}
+		IsInFlagDebriefing = true;
 	}
 
 	public static void StartFlagCountDown()
@@ -29,6 +32,7 @@ public static class FlagDebriefingControl
 		{
 			OnFlagCountDown();
 		}
+		IsInFlagDebriefing = true;
 	}
 
 	public static void EndFlagDebriefing()
@@ -42,6 +46,7 @@ public static class FlagDebriefingControl
 	public static void EndFlagCountDown()
 	{
 		RunStartTime = Time.time;
+		IsInFlagDebriefing = false;
 		if (OnFlagCountDownEnd != null)
 		{
 			OnFlagCountDownEnd();

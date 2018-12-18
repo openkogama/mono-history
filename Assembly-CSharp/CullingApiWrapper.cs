@@ -10,27 +10,23 @@ public static class CullingApiWrapper
 
 	public const int npcDistanceBandOverride = 3;
 
-	private static CullingGroup cullingGroup;
-
-	private static int extraSpheres = 1000;
-
-	private static int numBoundingSpheres = 0;
-
-	private static Dictionary<int, ICullingSubscriber> cullingSubscribers = new Dictionary<int, ICullingSubscriber>();
-
-	private static float[] distances;
+	public static float baseDistance = 2.5f;
 
 	public static BoundingSphere[] spheres;
 
-	public static float baseDistance = 2.5f;
+	private const int extraSpheres = 1000;
 
-	private static float[] sizes = new float[7] { 0.05f, 1f, 2f, 4f, 8f, 20f, 28f };
+	private static CullingGroup cullingGroup;
 
-	public static int NumBoundSpheres => numBoundingSpheres;
+	private static Dictionary<int, ICullingSubscriber> cullingSubscribers = new Dictionary<int, ICullingSubscriber>();
+
+	private static readonly float[] sizes = new float[7] { 0.05f, 1f, 2f, 4f, 8f, 20f, 28f };
+
+	public static int NumBoundSpheres { get; private set; }
 
 	public static void Init(int initialSphereCount, Camera camera, float newBaseDistance, Transform distanceReferencePoint)
 	{
-		spheres = new BoundingSphere[initialSphereCount + extraSpheres];
+		spheres = new BoundingSphere[initialSphereCount + 1000];
 		CullingApiWrapper.cullingGroup = new CullingGroup();
 		CullingApiWrapper.cullingGroup.targetCamera = camera;
 		SetDistanceReferencePoint(distanceReferencePoint);
@@ -59,15 +55,14 @@ public static class CullingApiWrapper
 
 	public static void Subscribe(ICullingSubscriber iCullingGroupSubscriber)
 	{
-		if (spheres.Length == numBoundingSpheres)
+		if (spheres.Length == NumBoundSpheres)
 		{
-			Debug.Log("Array resize");
-			Array.Resize(ref spheres, spheres.Length + extraSpheres);
+			Array.Resize(ref spheres, spheres.Length + 1000);
 			cullingGroup.SetBoundingSpheres(spheres);
 		}
-		cullingSubscribers.Add(numBoundingSpheres, iCullingGroupSubscriber);
+		cullingSubscribers.Add(NumBoundSpheres, iCullingGroupSubscriber);
 		AddBoundingSphere();
-		iCullingGroupSubscriber.CullingIndex = numBoundingSpheres - 1;
+		iCullingGroupSubscriber.CullingIndex = NumBoundSpheres - 1;
 	}
 
 	public static void UnSubscribe(ICullingSubscriber unSubscriber)
@@ -77,30 +72,30 @@ public static class CullingApiWrapper
 			Debug.LogError("Trying to unsubscribe object with no index");
 			return;
 		}
-		if (numBoundingSpheres > 1)
+		if (NumBoundSpheres > 1)
 		{
 			ref BoundingSphere reference = ref spheres[unSubscriber.CullingIndex];
-			reference = spheres[numBoundingSpheres - 1];
-			ICullingSubscriber cullingSubscriber = cullingSubscribers[numBoundingSpheres - 1];
+			reference = spheres[NumBoundSpheres - 1];
+			ICullingSubscriber cullingSubscriber = cullingSubscribers[NumBoundSpheres - 1];
 			cullingSubscribers[unSubscriber.CullingIndex] = cullingSubscriber;
-			cullingSubscribers.Remove(numBoundingSpheres - 1);
+			cullingSubscribers.Remove(NumBoundSpheres - 1);
 			cullingSubscriber.CullingIndex = unSubscriber.CullingIndex;
 		}
 		else
 		{
-			cullingSubscribers.Remove(numBoundingSpheres - 1);
+			cullingSubscribers.Remove(NumBoundSpheres - 1);
 		}
 		unSubscriber.CullingIndex = -1;
-		numBoundingSpheres--;
+		NumBoundSpheres--;
 		if (cullingGroup != null)
 		{
-			cullingGroup.SetBoundingSphereCount(numBoundingSpheres);
+			cullingGroup.SetBoundingSphereCount(NumBoundSpheres);
 		}
 	}
 
 	public static void DebugVisualize()
 	{
-		for (int i = 0; i < numBoundingSpheres; i++)
+		for (int i = 0; i < NumBoundSpheres; i++)
 		{
 			Gizmos.DrawWireSphere(spheres[i].position, spheres[i].radius);
 		}
@@ -121,10 +116,10 @@ public static class CullingApiWrapper
 
 	public static void ChangeDistances(float newBaseDistance, Camera camera)
 	{
-		distances = UpdateDistances(newBaseDistance);
-		cullingGroup.SetBoundingDistances(distances);
+		float[] array = UpdateDistances(newBaseDistance);
+		cullingGroup.SetBoundingDistances(array);
 		float num = 0.6f;
-		camera.farClipPlane = (distances[distances.Length - 1] + sizes[sizes.Length - 1]) * num;
+		camera.farClipPlane = (array[array.Length - 1] + sizes[sizes.Length - 1]) * num;
 	}
 
 	public static int GetDistanceBand(float radius)
@@ -154,8 +149,26 @@ public static class CullingApiWrapper
 	{
 		if (cullingGroup != null)
 		{
+			cullingGroup.onStateChanged = null;
 			cullingGroup.Dispose();
 			cullingGroup = null;
+		}
+	}
+
+	public static void PostDestroyCleanup()
+	{
+		List<ICullingSubscriber> list = new List<ICullingSubscriber>(0);
+		foreach (KeyValuePair<int, ICullingSubscriber> cullingSubscriber in cullingSubscribers)
+		{
+			list.Add(cullingSubscriber.Value);
+		}
+		foreach (ICullingSubscriber item in list)
+		{
+			UnSubscribe(item);
+		}
+		if (list.Count > 0)
+		{
+			Debug.LogWarningFormat("{0} subscribers are never unsubscribing.", list.Count);
 		}
 	}
 
@@ -166,10 +179,10 @@ public static class CullingApiWrapper
 
 	private static void AddBoundingSphere()
 	{
-		ref BoundingSphere reference = ref spheres[numBoundingSpheres];
+		ref BoundingSphere reference = ref spheres[NumBoundSpheres];
 		reference = new BoundingSphere(Vector3.zero, 1f);
-		numBoundingSpheres++;
-		cullingGroup.SetBoundingSphereCount(numBoundingSpheres);
+		NumBoundSpheres++;
+		cullingGroup.SetBoundingSphereCount(NumBoundSpheres);
 	}
 
 	private static void OnStateChanged(CullingGroupEvent cullingGroupEvent)

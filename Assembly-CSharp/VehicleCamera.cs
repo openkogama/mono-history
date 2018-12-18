@@ -72,7 +72,7 @@ public class VehicleCamera : PlaymodeCamera, IVehicleCamera
 		Vector3 eulerAngles = targetRot.EulerAngles;
 		float num = 0f - eulerAngles.x;
 		float y = eulerAngles.y;
-		autoRotate = !MVGameControllerBase.IPlayModeUI.InLobbyState;
+		autoRotate = !MVGameControllerBase.PlayModeUI.InLobbyState;
 		if (autoRotate && (ignoreInputTypes & IgnoreInputTypes.MouseMovement) == 0)
 		{
 			rotationAroundY += MVInputWrapper.GetAxis("Mouse X") * mouseSensitivity;

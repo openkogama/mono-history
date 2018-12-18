@@ -5,9 +5,9 @@ using UnityEngine;
 
 public static class SharedCollisionFunctions
 {
-	private static RaycastHitComparer rayHitComparer = new RaycastHitComparer();
+	private static readonly RaycastHitComparer rayHitComparer = new RaycastHitComparer();
 
-	private static PhysicsCollisionDatasWrapper physicsCollisionWrapper = new PhysicsCollisionDatasWrapper();
+	private static readonly PhysicsCollisionDatasWrapper physicsCollisionWrapper = new PhysicsCollisionDatasWrapper();
 
 	public static PhysicsCollisionDatasWrapper GetPhysicsCollisionData(Collider[] overlapResult, RaycastHit[] hits, Vector3 origin)
 	{

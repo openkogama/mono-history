@@ -63,13 +63,18 @@ public class DesktopAvatarEditModeController : ModeControllerBase, IActivateUIEl
 		firstTimeActiveAvatar = activeAvatarId;
 	}
 
-	private void Update()
+	protected void Update()
 	{
 		HandleFpsShortcut();
 		if (editorStateMachine != null)
 		{
 			editorStateMachine.Update();
 		}
+	}
+
+	protected void OnDestroy()
+	{
+		avatarSelectionController.Destroy();
 	}
 
 	public override void Initialize()
@@ -85,6 +90,7 @@ public class DesktopAvatarEditModeController : ModeControllerBase, IActivateUIEl
 		avatarEditModeBodyController.Initialize();
 		editorStateMachine = new EditorStateMachine(gameObject, avatarEditModeBodyController.DisplayPos);
 		materialsController.Initialize(editorStateMachine.CubeModelingStateMachine);
+		avatarSelectionController.Initialize(avatarEditModeBodyController, editorStateMachine);
 		if (firstTimeActiveAvatar != -1)
 		{
 			avatarEditModeBodyController.SetCurrentBodyByWoId(firstTimeActiveAvatar);
@@ -92,7 +98,6 @@ public class DesktopAvatarEditModeController : ModeControllerBase, IActivateUIEl
 		editorStateMachine.EnterGroup(avatarEditModeBodyController.CurrentBody);
 		editorStateMachine.Event = EditorEvent.CERoamUUI;
 		editorStateMachine.CubeModelingStateMachine.CurrentMaterialId = 21;
-		avatarSelectionController.Initialize(avatarEditModeBodyController, editorStateMachine);
 		setupCubeModelTutorialUI.Initialize(editorStateMachine.CubeModelingStateMachine);
 	}
 

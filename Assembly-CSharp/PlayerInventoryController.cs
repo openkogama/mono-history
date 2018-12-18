@@ -42,7 +42,7 @@ public class PlayerInventoryController : MonoBehaviour, IPlayerInventory, IEvent
 
 	public void Initialize()
 	{
-		repository = MVGameControllerBase.IEditModeUI.PlayerInventoryRepository;
+		repository = MVGameControllerBase.EditModeUI.PlayerInventoryRepository;
 		selectedTab = 1;
 		int num = 1;
 		foreach (int key in repository.categories.Keys)
@@ -106,7 +106,7 @@ public class PlayerInventoryController : MonoBehaviour, IPlayerInventory, IEvent
 	public void OpenTab(UIPushOption options, int categoryId)
 	{
 		Activate(options);
-		string text = MVGameControllerBase.IEditModeUI.PlayerInventoryRepository.categories[categoryId];
+		string text = MVGameControllerBase.EditModeUI.PlayerInventoryRepository.categories[categoryId];
 		foreach (KeyValuePair<int, string> item in tabsNonLocalized)
 		{
 			if (text == item.Value)
@@ -123,7 +123,7 @@ public class PlayerInventoryController : MonoBehaviour, IPlayerInventory, IEvent
 	public void ActivateAtCategoryWithSlot(UIPushOption options, int categoryId, int slotPosition)
 	{
 		Activate(options);
-		string text = MVGameControllerBase.IEditModeUI.PlayerInventoryRepository.categories[categoryId];
+		string text = MVGameControllerBase.EditModeUI.PlayerInventoryRepository.categories[categoryId];
 		foreach (KeyValuePair<int, string> item in tabsNonLocalized)
 		{
 			if (text == item.Value)

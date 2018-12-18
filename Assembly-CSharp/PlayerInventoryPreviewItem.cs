@@ -84,7 +84,7 @@ public class PlayerInventoryPreviewItem : MonoBehaviour
 		{
 			if (item.itemCategoryID != 1)
 			{
-				int num = MVGameControllerBase.IEditModeUI.PlayerInventoryRepository.CountItemsWithOriginalID(item);
+				int num = MVGameControllerBase.EditModeUI.PlayerInventoryRepository.CountItemsWithOriginalID(item);
 				if (num > 1)
 				{
 					itemPreviewer = Object.Instantiate(itemPreviewerCubeModelPrefab);

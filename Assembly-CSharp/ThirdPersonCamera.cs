@@ -76,22 +76,25 @@ public class ThirdPersonCamera : PlaymodeCamera, ICameraSettings
 
 	private void UpdateTargetRotation()
 	{
-		Vector3 eulerAngles = targetRot.EulerAngles;
-		float num = 0f - eulerAngles.x;
-		float num2 = eulerAngles.y;
-		autoRotate = !MVGameControllerBase.IPlayModeUI.InLobbyState;
-		if (autoRotate && (ignoreInputTypes & IgnoreInputTypes.MouseMovement) == 0)
+		if (MVGameControllerDesktop.LockCursorManager.CursorLock)
 		{
-			num2 += MVInputWrapper.GetAxis("Mouse X") * mouseSensitivity;
-			num += MVInputWrapper.GetAxis("Mouse Y") * mouseSensitivity;
+			Vector3 eulerAngles = targetRot.EulerAngles;
+			float num = 0f - eulerAngles.x;
+			float num2 = eulerAngles.y;
+			autoRotate = !MVGameControllerBase.PlayModeUI.InLobbyState;
+			if (autoRotate && (ignoreInputTypes & IgnoreInputTypes.MouseMovement) == 0)
+			{
+				num2 += MVInputWrapper.GetAxis("Mouse X") * mouseSensitivity;
+				num += MVInputWrapper.GetAxis("Mouse Y") * mouseSensitivity;
+			}
+			num = MathFunctions.NormalizeAngle(num);
+			if (num > 180f)
+			{
+				num -= 360f;
+			}
+			num = Mathf.Clamp(num, minimumY, maximumY);
+			eulerAngles = new Vector3(0f - num, num2, 0f);
+			targetRot.SetTargetRotation(eulerAngles.x, eulerAngles.y);
 		}
-		num = MathFunctions.NormalizeAngle(num);
-		if (num > 180f)
-		{
-			num -= 360f;
-		}
-		num = Mathf.Clamp(num, minimumY, maximumY);
-		eulerAngles = new Vector3(0f - num, num2, 0f);
-		targetRot.SetTargetRotation(eulerAngles.x, eulerAngles.y);
 	}
 }

@@ -28,7 +28,7 @@ public class GameMeterHandler : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		if (MVGameControllerBase.Game != null)
+		if (MVGameControllerBase.IsAlive && MVGameControllerBase.Game != null)
 		{
 			MVGameControllerBase.Game.GameStatCounterManager.OnCounterTypeChanged -= CounterChanged;
 			MVGameControllerBase.Game.GameStatCounterManager.OnCounterTypeChanged -= OnGameStatUpdated;

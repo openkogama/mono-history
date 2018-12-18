@@ -7,5 +7,7 @@ public enum AvatarRuntimeState : byte
 	Dead,
 	Godzilla,
 	GodzillaDead,
-	TimeAttackFlagDebriefing
+	TimeAttackFlagDebriefing,
+	Wait,
+	Ghost
 }

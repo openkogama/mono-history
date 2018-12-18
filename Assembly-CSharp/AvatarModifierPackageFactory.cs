@@ -238,7 +238,10 @@ public static class AvatarModifierPackageFactory
 		{
 			new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Override, AvatarModifierEffect.Invulnerable, Const(1f))
 		};
-		return new AvatarModifierPackage(type, AvatarModifierPackageAdditionPolicy.Renew, time, avatarModifiers, null, persist: true);
+		Dictionary<AvatarModifierPackageType, ModifierActions> dictionary = new Dictionary<AvatarModifierPackageType, ModifierActions>();
+		dictionary.Add(AvatarModifierPackageType.SpawnProtection, ModifierActions.Renew);
+		Dictionary<AvatarModifierPackageType, ModifierActions> actionsToTakeVsTypes = dictionary;
+		return new AvatarModifierPackage(type, AvatarModifierPackageAdditionPolicy.Renew, time, avatarModifiers, actionsToTakeVsTypes, persist: true);
 	}
 
 	private static AvatarModifierPackage AssembleGodzillaModifierPackage(AvatarModifierPackageType godzillaType)

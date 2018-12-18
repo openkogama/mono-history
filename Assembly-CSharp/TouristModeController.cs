@@ -95,7 +95,7 @@ public class TouristModeController : MonoBehaviour
 
 	private class PromotionDataManager
 	{
-		private string baseAssetString = "Promotion/Promotion_{0}.png";
+		private const string baseAssetString = "Promotion/Promotion_{0}.png";
 
 		private static int promotionIndex = 4;
 
@@ -139,7 +139,7 @@ public class TouristModeController : MonoBehaviour
 
 		private string GetPath(int i)
 		{
-			return string.Format(baseAssetString, i.ToString("D2"));
+			return string.Format("Promotion/Promotion_{0}.png", i.ToString("D2"));
 		}
 	}
 

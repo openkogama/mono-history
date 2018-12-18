@@ -533,6 +533,11 @@ public class ThemeSkybox : ThemeComponent
 		skyboxMaterial = UnityEngine.Object.Instantiate((Material)skyboxMaterialSerialized);
 	}
 
+	protected void OnDestroy()
+	{
+		UnityEngine.Object.Destroy(skyboxMaterial);
+	}
+
 	public override void Activate()
 	{
 		previousSkyboxMaterial = Skybox.material;

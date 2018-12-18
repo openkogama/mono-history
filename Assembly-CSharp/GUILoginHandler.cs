@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Text.RegularExpressions;
 using MV.Common;
 using UnityEngine;
@@ -15,7 +16,7 @@ public class GUILoginHandler : MonoBehaviour
 		public int profileID = profile;
 	}
 
-	public enum DevServerTarget
+	private enum DevServerTarget
 	{
 		Dev,
 		Test,
@@ -52,6 +53,12 @@ public class GUILoginHandler : MonoBehaviour
 	[SerializeField]
 	private Button avatarEditButton;
 
+	private string _profileId;
+
+	private string _serverip;
+
+	private string _planetId;
+
 	private Dictionary<string, PlanetData> defaultPlanetData = new Dictionary<string, PlanetData>
 	{
 		{
@@ -72,13 +79,7 @@ public class GUILoginHandler : MonoBehaviour
 		{ "embedded", false }
 	};
 
-	private static string playerPrefKey = "Dev_profileId";
-
-	private string _profileId;
-
-	private string _serverip;
-
-	private string _planetId;
+	private string playerPrefKey = "Dev_profileId";
 
 	private static string GetIPFromDevServerTarget(DevServerTarget devTarget)
 	{
@@ -91,7 +92,7 @@ public class GUILoginHandler : MonoBehaviour
 		};
 	}
 
-	private void Awake()
+	protected void Awake()
 	{
 		playerPrefKey = "Dev_profileId_standalone";
 		SetValuesToPrefOrDefault();
@@ -208,21 +209,20 @@ public class GUILoginHandler : MonoBehaviour
 
 	private void StartGame(MVGameMode gameMode)
 	{
-		gameSessionData["gameMode"] = gameMode;
-		gameSessionData["language"] = "en_US";
-		gameSessionData["referrer"] = "gsm";
-		GameSessionData message = new GameSessionData(gameSessionData);
-		MVGameControllerBase.SetGameSessionData(message);
+		this.gameSessionData["gameMode"] = gameMode;
+		this.gameSessionData["language"] = "en_US";
+		this.gameSessionData["referrer"] = "gsm";
+		GameSessionData gameSessionData = new GameSessionData(this.gameSessionData);
+		StringBuilder stringBuilder = new StringBuilder(256);
+		stringBuilder.Append("GameSessionData:\n");
+		foreach (KeyValuePair<string, object> gameSessionDatum in this.gameSessionData)
+		{
+			stringBuilder.AppendFormat("{0} - {1}\n", gameSessionDatum.Key, gameSessionDatum.Value);
+		}
+		Debug.Log(stringBuilder);
+		MVGameControllerBase.SetGameSessionData(gameSessionData);
 		gameObject.SetActive(value: false);
-		Debug.Log(message);
-		if (gameMode == MVGameMode.Play || gameMode == MVGameMode.CharacterEditor)
-		{
-			SceneManager.LoadScene("DesktopBase");
-		}
-		else
-		{
-			SceneManager.LoadScene("DesktopBase");
-		}
+		SceneManager.LoadScene("DesktopBase");
 		if (disableCacheToggle.isOn)
 		{
 			Debug.LogWarning("Cache disabled.");

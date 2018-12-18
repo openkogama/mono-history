@@ -5,9 +5,9 @@ public class LevelBasedUseRequirement : UseRequirement
 {
 	private int levelAmount;
 
-	private static readonly UseRequirementType requirementType;
+	private const UseRequirementType requirementType = UseRequirementType.Level;
 
-	private bool hasUseWhenFree = true;
+	private readonly bool hasUseWhenFree = true;
 
 	private LevelDisplayCube displayObject;
 
@@ -120,7 +120,7 @@ public class LevelBasedUseRequirement : UseRequirement
 
 	public override UseRequirementType GetRequirementType()
 	{
-		return requirementType;
+		return UseRequirementType.Level;
 	}
 
 	public override bool IsActive()

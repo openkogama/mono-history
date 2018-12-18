@@ -51,7 +51,7 @@ public class ClientSideNPCInteractionHandler : InteractionDataHandlerBase
 				interaction.ToByteArray()
 			} });
 			MVGameControllerBase.CameraController.PlayPlingSound();
-			MVGameControllerBase.IPlayModeUI.GetCrossHair().ShowHasHitEffect();
+			MVGameControllerBase.PlayModeUI.GetCrossHair().ShowHasHitEffect();
 		}
 		else if (friendlyInteractions.Contains(interaction.InteractionType))
 		{

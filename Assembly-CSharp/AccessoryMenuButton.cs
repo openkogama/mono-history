@@ -83,7 +83,7 @@ public class AccessoryMenuButton : MonoBehaviour
 		{
 			uiBlocked = x.IsUIElementBlocked(gameObject);
 		});
-		if (uiBlocked || MVGameControllerBase.IEditModeUI != null)
+		if (uiBlocked || MVGameControllerBase.EditModeUI != null)
 		{
 			return;
 		}
@@ -136,7 +136,7 @@ public class AccessoryMenuButton : MonoBehaviour
 		int num = -1;
 		for (int i = 0; i < highLights.Count; i++)
 		{
-			if (highLights[i].highlightData.bundleId == AccessoryDataManager.GetAccessoryBundleId())
+			if (highLights[i].highlightData.bundleId == AccessoryDataManager.AccessoryBundleId)
 			{
 				num = highLights[i].id;
 				break;
@@ -146,7 +146,7 @@ public class AccessoryMenuButton : MonoBehaviour
 		{
 			return;
 		}
-		List<AccessoryBundleItem> accessoryBundleItems = AccessoryDataManager.GetAccessoryBundleClient().accessoryBundleItems;
+		List<AccessoryBundleItem> accessoryBundleItems = AccessoryDataManager.AccessoryBundleClient.accessoryBundleItems;
 		for (int j = 0; j < accessoryBundleItems.Count; j++)
 		{
 			AccessoryDataClient accessoryDataByMetaDataId = AccessoryDataManager.GetAccessoryDataByMetaDataId(accessoryBundleItems[j].accessoryMetaDataID);

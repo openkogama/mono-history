@@ -56,7 +56,7 @@ public class PlayerListsLayout : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		if (MVGameControllerBase.Game != null)
+		if (MVGameControllerBase.IsAlive && MVGameControllerBase.Game != null)
 		{
 			MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
 			mVPlayerContainer.OnPlayerListChanged = (Action)Delegate.Remove(mVPlayerContainer.OnPlayerListChanged, new Action(ReCreate));

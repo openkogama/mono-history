@@ -5,7 +5,7 @@ using UnityEngine;
 
 internal static class SharedCubeFunctions
 {
-	private static IntVector constaint = new IntVector(24, 24, 24);
+	private static readonly IntVector constraint = new IntVector(24, 24, 24);
 
 	public const float LowestCubeSize = 0.0625f;
 
@@ -361,9 +361,20 @@ internal static class SharedCubeFunctions
 		}
 	};
 
-	public static IntVector CubeConstraint => constaint;
+	public static IntVector CubeConstraint => constraint;
 
-	public static Vector3 CubeConstraintVector3 => new Vector3(constaint.x, constaint.y, constaint.z);
+	public static Vector3 CubeConstraintVector3
+	{
+		get
+		{
+			IntVector intVector = constraint;
+			float x = intVector.x;
+			IntVector intVector2 = constraint;
+			float y = intVector2.y;
+			IntVector intVector3 = constraint;
+			return new Vector3(x, y, intVector3.z);
+		}
+	}
 
 	public static void AddCubeMeshCubeLines(Mesh mesh, Vector3[] corners, float diagonalWidth)
 	{

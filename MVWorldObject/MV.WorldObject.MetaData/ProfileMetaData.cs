@@ -14,7 +14,8 @@ public class ProfileMetaData
 		TestData = 4,
 		ProfileHighlightState = 8,
 		MouseSensitivity = 0x10,
-		All = 0x1F
+		GoldRewardLevel = 0x20,
+		All = 0x3F
 	}
 
 	protected readonly bool IsInitialized = true;

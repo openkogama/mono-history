@@ -18,7 +18,6 @@ public class MaterialButtonTextureGenerator : MonoBehaviour
 
 	private void Awake()
 	{
-		Object.DontDestroyOnLoad(gameObject);
 		meshRenderer.sharedMaterial = MVGameControllerBase.MaterialLoader.CubeModelMaterial;
 	}
 

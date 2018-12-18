@@ -1,8 +1,8 @@
 public static class ConstraintType
 {
-	public static readonly string Box = "Box";
+	public const string Box = "Box";
 
-	public static readonly string DynamicBox = "DynamicBox";
+	public const string DynamicBox = "DynamicBox";
 
-	public static readonly string BoxCount = "BoxCount";
+	public const string BoxCount = "BoxCount";
 }

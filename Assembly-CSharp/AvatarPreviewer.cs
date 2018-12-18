@@ -45,13 +45,17 @@ public class AvatarPreviewer : MonoBehaviour
 		int antiAliasing = 2;
 		try
 		{
-			previewTexture = new RenderTexture(textureWidth, textureHeight, 16, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
-			previewTexture.antiAliasing = antiAliasing;
+			previewTexture = new RenderTexture(textureWidth, textureHeight, 16, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default)
+			{
+				antiAliasing = antiAliasing
+			};
 			if (!previewTexture.Create())
 			{
 				Object.Destroy(previewTexture);
-				previewTexture = new RenderTexture(256 * (textureWidth / textureHeight), 256, 16, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
-				previewTexture.antiAliasing = antiAliasing;
+				previewTexture = new RenderTexture(256 * (textureWidth / textureHeight), 256, 16, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default)
+				{
+					antiAliasing = antiAliasing
+				};
 				previewTexture.Create();
 			}
 		}
@@ -65,7 +69,10 @@ public class AvatarPreviewer : MonoBehaviour
 			previewTexture = null;
 			return;
 		}
-		previewTexture = RenderTexture.GetTemporary(textureWidth, textureHeight, 16, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, antiAliasing);
+		previewTexture = new RenderTexture(textureWidth, textureHeight, 16, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default)
+		{
+			antiAliasing = antiAliasing
+		};
 		previewCam.targetTexture = previewTexture;
 		PreviewGameObject = woGameObjectCopy;
 		PreviewGameObject.name = "Preview_" + name + "_Item_" + wo.ItemId + "_woID_" + wo.Id;
@@ -112,9 +119,10 @@ public class AvatarPreviewer : MonoBehaviour
 		}
 		if (previewTexture != null)
 		{
+			previewTexture.Release();
 			Object.Destroy(previewTexture);
+			previewTexture = null;
 		}
-		previewTexture = null;
 		Object.Destroy(gameObject);
 	}
 }

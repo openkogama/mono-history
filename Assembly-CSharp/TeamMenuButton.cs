@@ -43,5 +43,6 @@ public class TeamMenuButton : MonoBehaviour
 		{
 			x.Push(newTeamMenu.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
 		});
+		MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Hidden);
 	}
 }

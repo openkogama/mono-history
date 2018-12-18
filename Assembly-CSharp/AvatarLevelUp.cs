@@ -41,7 +41,7 @@ public class AvatarLevelUp : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		if (MVGameControllerBase.Game != null && MVGameControllerBase.Game.MVPlayerContainer.ContainsKey(ownerActorNr))
+		if (MVGameControllerBase.IsAlive && MVGameControllerBase.Game != null && MVGameControllerBase.Game.MVPlayerContainer.ContainsKey(ownerActorNr))
 		{
 			MVPlayer playerUnsafe = MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(ownerActorNr);
 			playerUnsafe.OnLevelChanged = (UnityAction<int>)Delegate.Remove(playerUnsafe.OnLevelChanged, new UnityAction<int>(OnLevelChanged));

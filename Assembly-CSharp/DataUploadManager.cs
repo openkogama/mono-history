@@ -5,11 +5,11 @@ using UnityEngine.Events;
 
 public static class DataUploadManager
 {
+	private const int chunkSize = 5000;
+
 	private static int id;
 
 	private static BytePacker bytePacker;
-
-	private static int chunkSize = 5000;
 
 	private static UnityAction doneNotification;
 
@@ -34,9 +34,28 @@ public static class DataUploadManager
 		}
 	}
 
+	public static void OnUploadBytes()
+	{
+		if (bytePacker.Length == bytePacker.Position)
+		{
+			HandleDone();
+		}
+		else
+		{
+			SendChunk();
+		}
+	}
+
+	public static void Reset()
+	{
+		id = 0;
+		bytePacker = null;
+		doneNotification = null;
+	}
+
 	private static void SendChunk()
 	{
-		int num = chunkSize;
+		int num = 5000;
 		if (bytePacker.Length - bytePacker.Position < num)
 		{
 			num = bytePacker.Length - bytePacker.Position;
@@ -52,18 +71,6 @@ public static class DataUploadManager
 		{
 			doneNotification();
 			doneNotification = null;
-		}
-	}
-
-	public static void OnUploadBytes()
-	{
-		if (bytePacker.Length == bytePacker.Position)
-		{
-			HandleDone();
-		}
-		else
-		{
-			SendChunk();
 		}
 	}
 }

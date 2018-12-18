@@ -46,7 +46,7 @@ public class AccessoryViewController : MonoBehaviour, IAccessoryClicked, IBundle
 
 	private void OnDestroy()
 	{
-		if (MVGameControllerBase.Game != null)
+		if (MVGameControllerBase.IsAlive && MVGameControllerBase.Game != null)
 		{
 			RenderSettings.ambientLight = prevLight;
 			MVGameControllerBase.SkyboxManager.enabled = wasEnabled;
@@ -107,7 +107,7 @@ public class AccessoryViewController : MonoBehaviour, IAccessoryClicked, IBundle
 
 	public void PurchasedBundle()
 	{
-		List<AccessoryBundleItem> accessoryBundleItems = AccessoryDataManager.GetAccessoryBundleClient().accessoryBundleItems;
+		List<AccessoryBundleItem> accessoryBundleItems = AccessoryDataManager.AccessoryBundleClient.accessoryBundleItems;
 		tabMenuAccessoryShop.DestroyTab(AccessoryCategoryClient.Bundles);
 		for (int i = 0; i < accessoryBundleItems.Count; i++)
 		{

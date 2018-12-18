@@ -55,7 +55,7 @@ public class PlayerInventoryItemManager : MonoBehaviour, ITabSelected, IEventSys
 		{
 			if (item.itemCategoryID != 1)
 			{
-				int num = MVGameControllerBase.IEditModeUI.PlayerInventoryRepository.CountItemsWithOriginalID(item);
+				int num = MVGameControllerBase.EditModeUI.PlayerInventoryRepository.CountItemsWithOriginalID(item);
 				if (num > 1)
 				{
 					AddTabMenuButton(2, "Sell", itemSellTabPrefab);

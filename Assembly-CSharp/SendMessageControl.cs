@@ -14,6 +14,10 @@ public class SendMessageControl : MonoBehaviour
 
 	public UnityAction SpamWarning;
 
+	private const string showPerGameData = "/gp";
+
+	private const string resetPlayerPlanetData = "/rgp";
+
 	private const string helpString = "/h";
 
 	private const string fps = "/f";
@@ -24,7 +28,7 @@ public class SendMessageControl : MonoBehaviour
 
 	private const string chatCommands = "/c";
 
-	private static string removeUI = "/ru";
+	private const string removeUI = "/ru";
 
 	private const string enableHD = "/hd";
 
@@ -40,6 +44,12 @@ public class SendMessageControl : MonoBehaviour
 
 	private const string chatChangeCommandSay = "/say";
 
+	private const string allChat = "[ All ]";
+
+	private const string teamChat = "[ Team ]";
+
+	private const string sayChat = "[ Say ]";
+
 	private const string startHeadShake = "/no";
 
 	private const string startNod = "/yes";
@@ -47,12 +57,6 @@ public class SendMessageControl : MonoBehaviour
 	private const string startWave = "/wave";
 
 	private const string fyberTestSuite = "/fyber";
-
-	private const string allChat = "[ All ]";
-
-	private const string teamChat = "[ Team ]";
-
-	private const string sayChat = "[ Say ]";
 
 	[SerializeField]
 	private Text currentChat;
@@ -101,7 +105,7 @@ public class SendMessageControl : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		if (MVGameControllerBase.Game != null)
+		if (MVGameControllerBase.IsAlive && MVGameControllerBase.Game != null)
 		{
 			MVTeamManager teamManager = MVGameControllerBase.Game.TeamManager;
 			teamManager.OnTeamsUpdated = (MVTeamManager.OnTeamsUpdatedDelegate)Delegate.Remove(teamManager.OnTeamsUpdated, new MVTeamManager.OnTeamsUpdatedDelegate(ChangeTeamChatColor));
@@ -277,49 +281,50 @@ public class SendMessageControl : MonoBehaviour
 		case "/hd":
 			ToggleHD();
 			break;
-		default:
-			if (chatMsg == removeUI)
+		case "/ru":
+		{
+			Canvas[] componentsInParent = GetComponentsInParent<Canvas>();
+			for (int num = 0; num < componentsInParent.Length; num++)
 			{
-				Canvas[] componentsInParent = GetComponentsInParent<Canvas>();
-				for (int i = 0; i < componentsInParent.Length; i++)
-				{
-					componentsInParent[i].gameObject.SetActive(value: false);
-				}
-				break;
+				componentsInParent[num].gameObject.SetActive(value: false);
 			}
-			switch (chatMsg)
+			break;
+		}
+		case "/gp":
+			GamePassesManager.ShowGamePassDataInConsole = !GamePassesManager.ShowGamePassDataInConsole;
+			break;
+		case "/rgp":
+			MVGameControllerBase.Game.OperationRequestSender.ResetPlayerPlanetData();
+			break;
+		case "/build":
+			ShowBuildInformation();
+			break;
+		case "/no":
+			MVGameControllerBase.WOCM.AvatarLocal.LimbManager.StartEmote(EmoteTypes.Shake);
+			break;
+		case "/yes":
+			MVGameControllerBase.WOCM.AvatarLocal.LimbManager.StartEmote(EmoteTypes.Nod);
+			break;
+		case "/wave":
+			MVGameControllerBase.WOCM.AvatarLocal.LimbManager.StartEmote(EmoteTypes.Wave);
+			break;
+		case "/export":
+			ObjExportHandler.InitializePicking();
+			break;
+		case "/exportself":
+			ObjExportHandler.ExportSelfAvatar();
+			break;
+		case "/fyber":
+			IntegrationAnalyzer.ShowTestSuite();
+			break;
+		default:
+			if (chatMsg[0] == '/')
 			{
-			case "/build":
-				ShowBuildInformation();
-				break;
-			case "/no":
-				MVGameControllerBase.WOCM.AvatarLocal.LimbManager.StartEmote(EmoteTypes.Shake);
-				break;
-			case "/yes":
-				MVGameControllerBase.WOCM.AvatarLocal.LimbManager.StartEmote(EmoteTypes.Nod);
-				break;
-			case "/wave":
-				MVGameControllerBase.WOCM.AvatarLocal.LimbManager.StartEmote(EmoteTypes.Wave);
-				break;
-			case "/export":
-				ObjExportHandler.InitializePicking();
-				break;
-			case "/exportself":
-				ObjExportHandler.ExportSelfAvatar();
-				break;
-			case "/fyber":
-				IntegrationAnalyzer.ShowTestSuite();
-				break;
-			default:
-				if (chatMsg[0] == '/')
-				{
-					TextCommand.Resolve(chatMsg);
-				}
-				else
-				{
-					result = true;
-				}
-				break;
+				TextCommand.Resolve(chatMsg);
+			}
+			else
+			{
+				result = true;
 			}
 			break;
 		}

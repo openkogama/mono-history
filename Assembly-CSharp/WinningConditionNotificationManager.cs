@@ -19,12 +19,12 @@ public static class WinningConditionNotificationManager
 				dictionary.Add((byte)9, actorNumber);
 				dictionary.Add((byte)5, counterType);
 				dictionary.Add((byte)4, scoreLeftToWin);
-				SendNotificaion(notificationType, dictionary);
+				SendNotification(notificationType, dictionary);
 			}
 		}
 	}
 
-	public static void SendNotificaion(NotificationType type, Dictionary<object, object> data)
+	public static void SendNotification(NotificationType type, Dictionary<object, object> data)
 	{
 		NotificationController.PushNotification(type, data);
 	}

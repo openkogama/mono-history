@@ -5,9 +5,6 @@ using UnityEngine.UI;
 public class DesktopLobbyStateController : MonoBehaviour
 {
 	[SerializeField]
-	private GameObject teamButton;
-
-	[SerializeField]
 	private GameObject respawnButton;
 
 	[SerializeField]
@@ -15,9 +12,6 @@ public class DesktopLobbyStateController : MonoBehaviour
 
 	[SerializeField]
 	private GameObject touristRegisterButton;
-
-	[SerializeField]
-	private TimedPlayReward playReward;
 
 	[SerializeField]
 	private AdOfferGold adOfferGold;
@@ -28,15 +22,9 @@ public class DesktopLobbyStateController : MonoBehaviour
 	private void Start()
 	{
 		bool isTouristSession = MVGameControllerBase.IsTouristSession;
-		bool flag = MVGameControllerBase.IEditModeUI == null && !isTouristSession && MVGameControllerBase.GameMode == MVGameMode.Play;
-		playReward.gameObject.SetActive(value: false);
 		bool active = MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion && !MVGameControllerBase.GameSessionData.IsPlayedFromPoki;
 		touristRegisterButton.SetActive(active);
 		avatarAccessoriesButton.SetActive(value: true);
-		if (flag)
-		{
-			playReward.Initialize();
-		}
 	}
 
 	private void Update()
@@ -58,17 +46,5 @@ public class DesktopLobbyStateController : MonoBehaviour
 			respawnButton.gameObject.SetActive(value: true);
 		}
 		MVInputWrapper.SuppressInGameInput();
-	}
-
-	private void OnEnable()
-	{
-		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
-		{
-			teamButton.SetActive(value: true);
-		}
-		else
-		{
-			teamButton.SetActive(value: false);
-		}
 	}
 }

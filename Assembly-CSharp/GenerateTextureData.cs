@@ -4,13 +4,11 @@ using UnityEngine;
 
 public class GenerateTextureData : MonoBehaviour
 {
-	private static bool isCreatingScreenShot;
-
-	public static bool IsCreatingScreenShot => isCreatingScreenShot;
+	public static bool IsCreatingScreenShot { get; private set; }
 
 	public void GenerateTextureDataCameraView(Action<byte[]> callback)
 	{
-		if (isCreatingScreenShot)
+		if (IsCreatingScreenShot)
 		{
 			UnityEngine.Object.Destroy(gameObject);
 			Debug.LogError("Texture is being generated");
@@ -23,7 +21,7 @@ public class GenerateTextureData : MonoBehaviour
 
 	private IEnumerator GenerateTexture(Action<byte[]> textureDataCallback)
 	{
-		isCreatingScreenShot = true;
+		IsCreatingScreenShot = true;
 		GameObject screenshotCamObject = new GameObject
 		{
 			layer = LayerMask.NameToLayer("Default")
@@ -58,9 +56,10 @@ public class GenerateTextureData : MonoBehaviour
 		byte[] bytes = screenshotTexture.EncodeToPNG();
 		textureDataCallback((byte[])bytes.Clone());
 		screenshotCam.targetTexture = null;
+		screenshotRenderTexture.Release();
 		RenderTexture.active = null;
 		UnityEngine.Object.Destroy(screenshotCamObject);
 		UnityEngine.Object.Destroy(gameObject);
-		isCreatingScreenShot = false;
+		IsCreatingScreenShot = false;
 	}
 }

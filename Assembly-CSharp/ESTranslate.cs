@@ -40,7 +40,7 @@ internal class ESTranslate : ESStateBase
 
 	public override void Enter(EditorStateMachine e)
 	{
-		if (MVGameControllerBase.IEditModeUI.IsGridSnap())
+		if (MVGameControllerBase.EditModeUI.IsGridSnap())
 		{
 			gridSize = 1f;
 		}

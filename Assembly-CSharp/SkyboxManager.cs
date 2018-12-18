@@ -9,29 +9,11 @@ public class SkyboxManager : MonoBehaviour
 	public delegate void SkyboxColorChangedDelegate(Color newColor);
 
 	[Header("Configuration")]
-	public static Color defaultColor = new Color(95f / 255f, 180f / 255f, 254f / 255f);
-
-	public static float defaultSunAngle = 80f;
-
-	public static float defaultFogDensity = 0.007f;
-
-	public Color currentColor = defaultColor;
-
-	public float currentSunAngle = defaultSunAngle;
-
-	public float currentFogDensity = defaultFogDensity;
-
-	private List<MVSkybox> mvSkyboxes = new List<MVSkybox>();
-
-	public Color brightAmbient = new Color(1f, 1f, 1f, 1f);
-
 	[SerializeField]
 	private float skyContrast = 0.1f;
 
 	[SerializeField]
 	private AnimationCurve lightDuskDawnFalloff;
-
-	public SkyboxColorChangedDelegate OnSkyboxColorChanged;
 
 	[Header("Dependencies")]
 	[SerializeField]
@@ -42,6 +24,24 @@ public class SkyboxManager : MonoBehaviour
 
 	[SerializeField]
 	private MeshRenderer horizontalPlane;
+
+	public static readonly Color defaultColor = new Color(95f / 255f, 180f / 255f, 254f / 255f);
+
+	public static readonly Color brightAmbient = new Color(1f, 1f, 1f, 1f);
+
+	public const float defaultSunAngle = 80f;
+
+	public const float defaultFogDensity = 0.007f;
+
+	public Color currentColor = defaultColor;
+
+	public float currentSunAngle = 80f;
+
+	public float currentFogDensity = 0.007f;
+
+	public SkyboxColorChangedDelegate OnSkyboxColorChanged;
+
+	private List<MVSkybox> mvSkyboxes = new List<MVSkybox>();
 
 	private Color targetColor;
 
@@ -106,6 +106,21 @@ public class SkyboxManager : MonoBehaviour
 		}));
 	}
 
+	public void Enable()
+	{
+		enabled = true;
+	}
+
+	public void Disable()
+	{
+		sunLight.enabled = false;
+		foreach (MVSkybox mvSkybox in mvSkyboxes)
+		{
+			mvSkybox.SetDeleteOnlyInteractionFlags();
+		}
+		enabled = false;
+	}
+
 	protected void OnEnable()
 	{
 		sunLight.enabled = true;
@@ -120,15 +135,6 @@ public class SkyboxManager : MonoBehaviour
 		if (initialized)
 		{
 			CalcAndSetSkyboxSettings();
-		}
-	}
-
-	protected void OnDisable()
-	{
-		sunLight.enabled = false;
-		foreach (MVSkybox mvSkybox in mvSkyboxes)
-		{
-			mvSkybox.SetDeleteOnlyInteractionFlags();
 		}
 	}
 
@@ -151,8 +157,8 @@ public class SkyboxManager : MonoBehaviour
 		if (num == 0)
 		{
 			color = defaultColor;
-			fogDensity = defaultFogDensity;
-			sunAngle = defaultSunAngle;
+			fogDensity = 0.007f;
+			sunAngle = 80f;
 			return;
 		}
 		float num2 = enumerable.Select((MVSkybox s) => s.SunAngle).Average();

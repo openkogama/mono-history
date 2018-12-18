@@ -33,7 +33,7 @@ public class LineDrawManager : MonoBehaviour
 
 	private Queue<LinkLine> linkLines = new Queue<LinkLine>();
 
-	private void OnPostRender()
+	protected void OnPostRender()
 	{
 		DrawEnqueuedLines();
 		Camera mainCamera = MVGameControllerBase.CameraController.MainCamera;

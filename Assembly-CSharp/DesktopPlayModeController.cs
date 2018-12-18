@@ -21,6 +21,9 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 	private RectTransform lobbyState;
 
 	[SerializeField]
+	private RectTransform inGameMenu;
+
+	[SerializeField]
 	private RectTransform playerListButton;
 
 	[SerializeField]
@@ -63,6 +66,8 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 	private TimeAttackFlagDebriefing timeAttackFlagDebriefing;
 
 	private RectTransform lobbyStateRect;
+
+	private RectTransform inGameMenuRect;
 
 	public UnityAction OnLeaveEditPlayMode;
 
@@ -116,6 +121,11 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 		HandleInput();
 	}
 
+	protected void OnDestroy()
+	{
+		MVGameControllerDesktop.UnregisterPlayModeController();
+	}
+
 	private void HandleInput()
 	{
 		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.LobbyMenu))
@@ -126,7 +136,7 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 		{
 			ToggleHD();
 		}
-		if (MVGameControllerBase.IEditModeUI != null && MVInputWrapper.GetBooleanControlDown(KogamaControls.ToggleLogicRendering))
+		if (MVGameControllerBase.EditModeUI != null && MVInputWrapper.GetBooleanControlDown(KogamaControls.ToggleLogicRendering))
 		{
 			ToggleLogicVisibility();
 		}
@@ -151,7 +161,7 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 	public override void Initialize()
 	{
 		base.Initialize();
-		if (MVGameControllerBase.IEditModeUI == null)
+		if (MVGameControllerBase.EditModeUI == null)
 		{
 			MVGameControllerBase.CameraController.AvatarLobbyFocus = true;
 		}
@@ -159,6 +169,8 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 		chatBubbleController.transform.SetParent(transform, worldPositionStays: false);
 		lobbyStateRect = UnityEngine.Object.Instantiate(lobbyState);
 		lobbyStateRect.SetParent(playModeState.transform, worldPositionStays: false);
+		inGameMenuRect = UnityEngine.Object.Instantiate(inGameMenu);
+		inGameMenuRect.SetParent(playModeState.transform, worldPositionStays: false);
 		timeAttackFlagDebriefing = UnityEngine.Object.Instantiate(timeAttackFlagDebriefing);
 		timeAttackFlagDebriefing.transform.SetParent(playModeState.transform, worldPositionStays: false);
 		FlagDebriefingControl.OnFlagDebriefing = (Action<int>)Delegate.Combine(FlagDebriefingControl.OnFlagDebriefing, new Action<int>(OnShowTimeAttackFlagDebriefing));
@@ -178,29 +190,13 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 		{
 			handler.PopGroups(UIGroupFlags.InventoryUI | UIGroupFlags.InventoryUISubMenu);
 		});
+		lobbyStatePlayModeController.Initialize(inGameController, lobbyStateRect, inGameMenuRect, chatController);
 		if (MVGameControllerBase.GameMode == MVGameMode.Play)
 		{
-			if (MVGameControllerBase.Game.TeamManager.TeamCount() <= 1 && WinningConditionControl.TryGetPrioritizedWinCondition(out var condition))
-			{
-				WinningConditionBriefing winConMenu = UnityEngine.Object.Instantiate(winningConditionBriefingMenu);
-				ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-				{
-					x.Push(winConMenu.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
-				});
-				winConMenu.Initialize(condition);
-			}
-			if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
-			{
-				TeamMenu newTeamMenu = UnityEngine.Object.Instantiate(teamMenu);
-				ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-				{
-					x.Push(newTeamMenu.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
-				});
-			}
+			InLobbyState = true;
 		}
 		chatController.Initialize();
 		playerListButton.gameObject.SetActive(value: true);
-		lobbyStatePlayModeController.Initialize(inGameController, lobbyStateRect, chatController);
 	}
 
 	private void ToggleLogicVisibility()
@@ -243,6 +239,7 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 		timeAttackFlagDebriefing.gameObject.SetActive(value: true);
 		timeAttackFlagDebriefing.Initialize(captureTime);
 		lobbyStateRect.gameObject.SetActive(value: false);
+		inGameMenuRect.gameObject.SetActive(value: false);
 		playerListButton.gameObject.SetActive(value: false);
 	}
 
@@ -251,6 +248,7 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 		timeAttackFlagDebriefing.InitializeCountDown();
 		timeAttackFlagDebriefing.gameObject.SetActive(value: true);
 		lobbyStateRect.gameObject.SetActive(value: false);
+		inGameMenuRect.gameObject.SetActive(value: false);
 		playerListButton.gameObject.SetActive(value: false);
 	}
 
@@ -267,6 +265,7 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 			timeAttackFlagDebriefing.OnRoundEnd();
 			timeAttackFlagDebriefing.gameObject.SetActive(value: false);
 			lobbyStateRect.gameObject.SetActive(value: true);
+			inGameMenuRect.gameObject.SetActive(value: true);
 		}
 	}
 

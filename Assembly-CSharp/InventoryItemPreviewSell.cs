@@ -117,7 +117,7 @@ public class InventoryItemPreviewSell : ManageItemPage
 		if (success)
 		{
 			txt = string.Format(TM._("Successfully removed {0} from your shop"), itemName.text);
-			MVGameControllerBase.IEditModeUI.PlayerInventoryRepository.UpdateShopInventoryID(previewItem.itemID, 0);
+			MVGameControllerBase.EditModeUI.PlayerInventoryRepository.UpdateShopInventoryID(previewItem.itemID, 0);
 		}
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 		{

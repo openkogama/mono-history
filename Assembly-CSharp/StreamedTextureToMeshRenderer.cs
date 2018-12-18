@@ -11,8 +11,6 @@ public class StreamedTextureToMeshRenderer : StreamingAsset<Texture, Texture>
 	[SerializeField]
 	private MeshRenderer meshRenderer;
 
-	public bool assetSet;
-
 	public Texture TextureAsset => Asset;
 
 	public void ReDownload()

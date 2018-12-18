@@ -15,7 +15,7 @@ public abstract class MvCharacterController : MonoBehaviour
 		public bool Valid => valid;
 	}
 
-	private static int maxRecursions = 7;
+	private const int maxRecursions = 7;
 
 	private const float unitsPerMeter = 100f;
 
@@ -23,15 +23,15 @@ public abstract class MvCharacterController : MonoBehaviour
 
 	protected const float veryCloseDistance = 0.005f;
 
-	private static float collisionMaxAngle = 89.95f;
+	private const float collisionMaxAngle = 89.95f;
 
 	private static int layerMask = -1;
+
+	private bool sendCollisionData = true;
 
 	protected Vector3 center;
 
 	protected Vector3 elipsoidRadius;
-
-	private bool sendCollisionData = true;
 
 	protected int collisionRecursionDepth;
 
@@ -145,7 +145,7 @@ public abstract class MvCharacterController : MonoBehaviour
 
 	protected Vector3 CollideWithWorld(ref Vector3 ePos, ref Vector3 eVel, ref bool foundValidPosition)
 	{
-		if (collisionRecursionDepth > maxRecursions)
+		if (collisionRecursionDepth > 7)
 		{
 			NoCollisionData noCollisionData = HandleNoCollision(ePos, eVel, adjustVerticalOnly: true);
 			if (noCollisionData.Valid)
@@ -169,7 +169,7 @@ public abstract class MvCharacterController : MonoBehaviour
 		float num = DistanceR3SpaceToESpace(voxelHit.distance, vector2, elipsoidRadius);
 		Vector3 ePoint = MathFunctions.DivideVector(ref voxelHit.point, ref elipsoidRadius);
 		float collisionAngle = GetCollisionAngle(ePos, eVel, num, ePoint);
-		if (collisionAngle > collisionMaxAngle && num != 0f)
+		if (collisionAngle > 89.95f && num != 0f)
 		{
 			Vector3 eVel2 = RecalcDirectionMoveAway(ePos, eVel, num, ePoint);
 			eVel2 *= eVel.magnitude;

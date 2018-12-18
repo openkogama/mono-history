@@ -12,7 +12,7 @@ public class DamageIndicator : MonoBehaviour
 
 		private IndicatorArrow nextArrow;
 
-		private Image arrow;
+		private DamageArrow arrow;
 
 		private Transform damageOrigin;
 
@@ -29,14 +29,14 @@ public class DamageIndicator : MonoBehaviour
 			}
 		}
 
-		public IndicatorArrow(int numberOfArrows, Image arrowBase, float indicationRadius)
+		public IndicatorArrow(int numberOfArrows, DamageArrow arrowBase, float indicationRadius)
 			: this(numberOfArrows, arrowBase, null)
 		{
 			IndicatorArrow.indicationRadius = indicationRadius;
 			_nextArrow = this;
 		}
 
-		private IndicatorArrow(int numberOfArrows, Image arrowBase, IndicatorArrow firstArrow)
+		private IndicatorArrow(int numberOfArrows, DamageArrow arrowBase, IndicatorArrow firstArrow)
 		{
 			arrow = Object.Instantiate(arrowBase);
 			arrow.transform.SetParent(arrowBase.transform.parent, worldPositionStays: false);
@@ -63,12 +63,35 @@ public class DamageIndicator : MonoBehaviour
 			idle = false;
 		}
 
+		public void Update()
+		{
+			for (IndicatorArrow indicatorArrow = nextArrow; indicatorArrow != this; indicatorArrow = indicatorArrow.nextArrow)
+			{
+				indicatorArrow.InternalUpdate();
+			}
+			InternalUpdate();
+		}
+
+		public void Reset()
+		{
+			for (IndicatorArrow indicatorArrow = nextArrow; indicatorArrow != this; indicatorArrow = indicatorArrow.nextArrow)
+			{
+				indicatorArrow.InternalReset();
+			}
+			arrow.enabled = false;
+		}
+
+		public void SetSprite(Sprite sprite)
+		{
+			arrow.Sprite = sprite;
+		}
+
 		private void UpdateArrowPosition()
 		{
 			Vector3 vector = MVGameControllerBase.CameraController.transform.worldToLocalMatrix.MultiplyPoint(damageOrigin.position);
 			Vector2 normalized = new Vector2(vector.x, vector.y).normalized;
-			arrow.rectTransform.localRotation = Quaternion.LookRotation(new Vector3(0f, 0f, 1f), new Vector3(normalized.x, normalized.y, 0f));
-			arrow.rectTransform.anchoredPosition = new Vector2(normalized.x, normalized.y) * indicationRadius;
+			arrow.RectTransform.localRotation = Quaternion.LookRotation(new Vector3(0f, 0f, 1f), new Vector3(normalized.x, normalized.y, 0f));
+			arrow.RectTransform.anchoredPosition = new Vector2(normalized.x, normalized.y) * indicationRadius;
 		}
 
 		private void InternalUpdate()
@@ -82,28 +105,10 @@ public class DamageIndicator : MonoBehaviour
 			}
 		}
 
-		public void Update()
-		{
-			for (IndicatorArrow indicatorArrow = nextArrow; indicatorArrow != this; indicatorArrow = indicatorArrow.nextArrow)
-			{
-				indicatorArrow.InternalUpdate();
-			}
-			InternalUpdate();
-		}
-
 		private void InternalReset()
 		{
 			arrow.enabled = false;
 			idle = true;
-		}
-
-		public void Reset()
-		{
-			for (IndicatorArrow indicatorArrow = nextArrow; indicatorArrow != this; indicatorArrow = indicatorArrow.nextArrow)
-			{
-				indicatorArrow.InternalReset();
-			}
-			arrow.enabled = false;
 		}
 	}
 
@@ -119,12 +124,18 @@ public class DamageIndicator : MonoBehaviour
 	[SerializeField]
 	private float durationPerPointOfDamage = 0.03f;
 
+	[SerializeField]
+	private int maxNumberOfArrows = 3;
+
 	[Header("Dependencies")]
 	[SerializeField]
 	private Image damageOverlay;
 
 	[SerializeField]
-	private Image directionArrowBase;
+	private StreamedSpriteToCallback arrowSpriteStream;
+
+	[SerializeField]
+	private DamageArrow directionArrowBase;
 
 	private IndicatorArrow directionArrow;
 
@@ -138,9 +149,19 @@ public class DamageIndicator : MonoBehaviour
 	{
 		timeNormalizationFactor = 100f * durationPerPointOfDamage;
 		transform.SetParent(null, worldPositionStays: false);
-		directionArrow = new IndicatorArrow(3, directionArrowBase, indicationRadius);
+		directionArrow = new IndicatorArrow(maxNumberOfArrows, directionArrowBase, indicationRadius);
+		arrowSpriteStream.onAssetSet = SetArrowSprites;
 		initialAlpha = damageOverlay.color.a;
 		ResetIndicators();
+	}
+
+	private void SetArrowSprites(Sprite sprite)
+	{
+		for (int i = 0; i < maxNumberOfArrows; i++)
+		{
+			directionArrow.SetSprite(sprite);
+			directionArrow = IndicatorArrow.NextArrow;
+		}
 	}
 
 	public void ResetIndicators()

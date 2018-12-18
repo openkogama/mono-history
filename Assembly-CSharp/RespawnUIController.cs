@@ -12,7 +12,19 @@ public class RespawnUIController : MonoBehaviour
 	private Image timerFill;
 
 	[SerializeField]
+	private Text restartText;
+
+	[SerializeField]
 	private NotificationFade resetUIFader;
+
+	[SerializeField]
+	private NotificationFade buttonFader;
+
+	[SerializeField]
+	private Image readyToPlayTimerFill;
+
+	[SerializeField]
+	private GameObject readyToPlayTimerObject;
 
 	[SerializeField]
 	private CanvasGroup resetUICanvasGroup;
@@ -27,8 +39,30 @@ public class RespawnUIController : MonoBehaviour
 
 	public void OnResetToSpawnPoint()
 	{
-		resetUIFader.Activate();
-		FlagDebriefingControl.ResetToSpawnPoint();
+		if (buttonFader.IsPaused && resetUIFader.gameObject.activeSelf)
+		{
+			resetUIFader.Activate();
+			buttonFader.Unpause();
+			readyToPlayTimerObject.SetActive(value: true);
+			MVGameControllerBase.WOCM.AvatarLocal.AvatarRespawnHandler.ShouldRespawnAsGhost = false;
+			FlagDebriefingControl.ResetToSpawnPoint();
+			restartText.text = "Respawning at start...";
+		}
+	}
+
+	public void OnPlayPressed()
+	{
+		if (buttonFader.IsPaused)
+		{
+			MVGameControllerDesktop.LockCursorManager.CursorLock = true;
+			buttonFader.Unpause();
+			if (resetUIFader.gameObject.activeSelf)
+			{
+				resetUIFader.Activate();
+			}
+			readyToPlayTimerObject.SetActive(value: true);
+			MVGameControllerBase.WOCM.AvatarLocal.AvatarRespawnHandler.ShouldRespawnAsGhost = false;
+		}
 	}
 
 	private void Start()
@@ -65,7 +99,7 @@ public class RespawnUIController : MonoBehaviour
 	private void OnAvatarStateChanged(object state)
 	{
 		AvatarModeTypes avatarModeTypes = (AvatarModeTypes)state;
-		if ((avatarModeTypes & AvatarModeTypes.Hidden) != 0)
+		if (isDeathBriefActive && avatarModeTypes != AvatarModeTypes.Hidden && avatarModeTypes != AvatarModeTypes.Dead)
 		{
 			fader.Deactivate();
 			fader.gameObject.SetActive(value: false);
@@ -87,6 +121,7 @@ public class RespawnUIController : MonoBehaviour
 			}
 			float num = waitTime + 1.2f;
 			timerFill.fillAmount = 1f - (Time.time - num) / 2.8f;
+			readyToPlayTimerFill.fillAmount = 1f - (Time.time - num) / 2.8f;
 		}
 		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.NotificationAcceptFriendshipRequest))
 		{
@@ -103,12 +138,32 @@ public class RespawnUIController : MonoBehaviour
 
 	private void OnLocalAvatarSuicide()
 	{
-		WinningConditionControl.TryGetPrioritizedStat(out var statType);
-		MVCheckpoint checkpoint = MVGameControllerBase.Game.LocalPlayer.GetCheckpoint();
-		if (statType == GameStatCounterType.TimeAttackFlag && checkpoint != null)
+		if (!FlagDebriefingControl.IsInFlagDebriefing)
 		{
+			WinningConditionControl.TryGetPrioritizedStat(out var statType);
+			MVCheckpoint checkpoint = MVGameControllerBase.Game.LocalPlayer.GetCheckpoint();
+			if (statType != GameStatCounterType.TimeAttackFlag || checkpoint == null)
+			{
+				resetUIFader.gameObject.SetActive(value: false);
+			}
+			else
+			{
+				resetUIFader.gameObject.SetActive(value: true);
+			}
 			waitTime = Time.time;
 			gameObject.SetActive(value: true);
+			buttonFader.Activate();
+			buttonFader.PauseAt(0f);
+			readyToPlayTimerObject.SetActive(value: false);
+			MVGameControllerBase.WOCM.AvatarLocal.AvatarRespawnHandler.ShouldRespawnAsGhost = true;
+			if (checkpoint != null)
+			{
+				restartText.text = "Respawning at checkpoint...";
+			}
+			else
+			{
+				restartText.text = "Respawning at start...";
+			}
 		}
 	}
 }

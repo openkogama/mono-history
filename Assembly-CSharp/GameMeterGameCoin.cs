@@ -35,7 +35,7 @@ public class GameMeterGameCoin : GameMeterBase
 
 	private void OnDestroy()
 	{
-		if (MVGameControllerBase.Game != null)
+		if (MVGameControllerBase.IsAlive && MVGameControllerBase.Game != null)
 		{
 			MVGameCoinManager gameCoinManager = MVGameControllerBase.Game.GameCoinManager;
 			gameCoinManager.OnActivationChange = (MVGameCoinManager.OnActivationChangeDelegate)Delegate.Remove(gameCoinManager.OnActivationChange, new MVGameCoinManager.OnActivationChangeDelegate(OnActivationChange));

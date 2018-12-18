@@ -92,6 +92,7 @@ public enum MVOperationCodes : byte
 	GetThemesData = 100,
 	SetMouseSensitivity = 101,
 	StartSessionTime = 102,
+	ResetPlayerPlanetData = 103,
 	Join = byte.MaxValue,
 	Leave = 254,
 	RaiseEvent = 253,

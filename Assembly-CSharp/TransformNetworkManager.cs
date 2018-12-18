@@ -8,13 +8,11 @@ public class TransformNetworkManager
 
 	private List<int> removeList = new List<int>();
 
-	private static int delayedTime;
-
 	public const int broadcastInterval = 200;
 
 	public const int clientDelay = 200;
 
-	public static int DelayedTime => delayedTime;
+	public static int DelayedTime { get; private set; }
 
 	public void RemoveNetworkObject(int woID)
 	{
@@ -64,7 +62,7 @@ public class TransformNetworkManager
 
 	public void Update(MVNetworkGame game)
 	{
-		delayedTime = game.ServerTimeInMilliSeconds - 200 - 200 - 200;
+		DelayedTime = game.ServerTimeInMilliSeconds - 200 - 200 - 200;
 		foreach (KeyValuePair<int, MVNetworkObject> networkedObject in networkedObjects)
 		{
 			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(networkedObject.Key);

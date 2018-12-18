@@ -15,7 +15,7 @@ public class ObjExportHandler : MonoBehaviour
 	public static void InitializePicking()
 	{
 		picking = true;
-		MVGameControllerBase.IPlayModeUI.GetCrossHair().Visible = true;
+		MVGameControllerBase.PlayModeUI.GetCrossHair().Visible = true;
 		ignoreIds.Add(MVGameControllerBase.Game.LocalPlayer.Avatar.Id);
 	}
 

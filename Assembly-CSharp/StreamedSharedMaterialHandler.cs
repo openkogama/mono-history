@@ -7,6 +7,11 @@ public class StreamedSharedMaterialHandler : MonoBehaviour
 
 	private static bool streamComponentSet;
 
+	public static void Reset()
+	{
+		streamComponentSet = false;
+	}
+
 	public void StartTextureStreaming()
 	{
 		if (!streamComponentSet)

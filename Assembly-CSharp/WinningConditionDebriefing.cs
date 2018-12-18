@@ -36,10 +36,13 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 
 	private void OnWinningConditionReceived(IWinningCondition winningCondition)
 	{
-		Debug.Log("OnWinningConditionReceived");
-		if (MVGameControllerBase.GameMode == MVGameMode.Play || (MVGameControllerBase.GameMode == MVGameMode.Edit && MVGameControllerBase.IEditModeUI.IsInPlayInEditMode))
+		if (isActiveAndEnabled)
 		{
-			GenerateDebriefing(winningCondition);
+			Debug.Log("OnWinningConditionReceived");
+			if (MVGameControllerBase.GameMode == MVGameMode.Play || (MVGameControllerBase.GameMode == MVGameMode.Edit && MVGameControllerBase.EditModeUI.IsInPlayInEditMode))
+			{
+				GenerateDebriefing(winningCondition);
+			}
 		}
 	}
 
@@ -66,6 +69,7 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 			}
 			group.blocksRaycasts = true;
 		}
+		ResetScoreWhenDone();
 	}
 
 	private void SetupDebriefingPlayer(WinningConditionType winType, List<ScoreActorEntry> scoreActorEntries, GameStatCounterType counterType)
@@ -366,5 +370,10 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 			}
 		}
 		return list;
+	}
+
+	private void ResetScoreWhenDone()
+	{
+		MVGameControllerBase.Game.WinningConditionManager.Reset();
 	}
 }

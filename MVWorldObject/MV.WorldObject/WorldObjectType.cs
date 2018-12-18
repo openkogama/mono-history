@@ -80,7 +80,7 @@ public enum WorldObjectType
 	Jakob13 = 127,
 	Jakob14 = 128,
 	Jakob15 = 129,
-	Christian1 = 130,
+	GamePoint = 130,
 	Christian2 = 131,
 	Christian3 = 132,
 	Christian4 = 133,

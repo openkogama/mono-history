@@ -10,9 +10,9 @@ public static class MVSweptElipsoidCheck
 
 	private const float MOVEBACK_FROM_BOX_COLLIDER = 1E-05f;
 
-	private static bool DEBUG_MODE = false;
+	private const bool DEBUG_MODE = false;
 
-	private static bool DEBUG_DRAW = false;
+	private const bool DEBUG_DRAW = false;
 
 	private static HashSet<IntVector> debugTestedIntVector = new HashSet<IntVector>();
 
@@ -244,10 +244,6 @@ public static class MVSweptElipsoidCheck
 		collisionState.elipsoidSpaceDistance = worldToElipsoidSpace.MultiplyVector(collisionState.direction * num2).magnitude;
 		collisionState.localOrigin = collisionData.transform.InverseTransformPoint(collisionState.origin);
 		Vector3 planeNormal = GetPlaneNormal(collisionState.localDirection);
-		if (DEBUG_DRAW)
-		{
-			Debug.DrawLine(collisionState.origin, collisionState.origin + planeNormal, Color.red, 1f);
-		}
 		if (planeNormal == Vector3.zero)
 		{
 			Debug.Log("scanRect cant be zero");
@@ -255,18 +251,6 @@ public static class MVSweptElipsoidCheck
 		collisionState.scanAxis = GetScanAxis(planeNormal);
 		collisionPlane.SetNormalAndPosition(collisionData.transform.TransformDirection(planeNormal), collisionData.point);
 		GetRaysProjectedOnPlane(boundRays, ref collisionPlane, collisionData.point, collisionData.transform.TransformDirection(planeNormal));
-		if (DEBUG_DRAW)
-		{
-			Debug.DrawLine(ray.origin, boundRays[0].origin, Color.red);
-			Debug.DrawLine(ray.origin, boundRays[1].origin, Color.red);
-			Debug.DrawLine(ray.origin, boundRays[2].origin, Color.red);
-			Debug.DrawLine(ray.origin, boundRays[3].origin, Color.red);
-			Debug.DrawLine(ray.origin, ray.origin + Vector3.up, Color.black);
-			Debug.DrawLine(pointsOnPlane[0], pointsOnPlane[2]);
-			Debug.DrawLine(pointsOnPlane[1], pointsOnPlane[3]);
-			Debug.DrawLine(collisionData.point, collisionData.point + Vector3.left, Color.red);
-			Debug.DrawLine(collisionData.point, collisionData.point + collisionData.transform.TransformDirection(planeNormal), Color.red);
-		}
 		if (collisionData.isInsideCollider)
 		{
 			MoveAxisAlignedRectBackward(pointsOnPlane, ray.origin, ray.direction);
@@ -275,10 +259,6 @@ public static class MVSweptElipsoidCheck
 		if (!collisionData.isInsideCollider)
 		{
 			MoveAxisAlignedRectOutOfBox(minMaxCalculateAxisAlignedRect, collisionState.localNormal, collisionState.localHitPoint, collisionState.localDirection);
-		}
-		if (DEBUG_DRAW)
-		{
-			DrawAxisAlignedRect(minMaxCalculateAxisAlignedRect[0], minMaxCalculateAxisAlignedRect[1], collisionState.scanAxis, chunk.transform, minMaxCalculateAxisAlignedRect[0][collisionState.scanAxis]);
 		}
 		if (LayerScan(radius, minMaxCalculateAxisAlignedRect, ref vh, num2, ref collisionState))
 		{
@@ -338,60 +318,30 @@ public static class MVSweptElipsoidCheck
 		}
 		num++;
 		num2++;
-		IntVector intVector5 = new IntVector(cellTraverser.VoxelPos.x, cellTraverser.VoxelPos.y, cellTraverser.VoxelPos.z);
+		IntVector pos = new IntVector(cellTraverser.VoxelPos.x, cellTraverser.VoxelPos.y, cellTraverser.VoxelPos.z);
 		int num3 = 0;
 		int num4 = 1000;
-		if (DEBUG_MODE)
+		while (pos[collisionState.scanAxis] <= collisionState.maxBounds[collisionState.scanAxis] && pos[collisionState.scanAxis] >= collisionState.minBounds[collisionState.scanAxis])
 		{
-			debugTestedIntVector.Clear();
-		}
-		while (intVector5[collisionState.scanAxis] <= collisionState.maxBounds[collisionState.scanAxis] && intVector5[collisionState.scanAxis] >= collisionState.minBounds[collisionState.scanAxis])
-		{
-			if (DEBUG_MODE && num3 > num4)
-			{
-				Debug.Log("scanAxis" + collisionState.scanAxis);
-				Debug.Log("testVector " + intVector5);
-				Debug.Log("testVector[scanAxis] " + intVector5[collisionState.scanAxis]);
-				Debug.Log("min[scanAxis] " + collisionState.minBounds[collisionState.scanAxis]);
-				Debug.Log("max[scanAxis] " + collisionState.maxBounds[collisionState.scanAxis]);
-				cellTraverser.DebugAll();
-				Debug.LogError("While loop did not exit");
-				break;
-			}
 			num3++;
 			for (int k = 0; k <= num; k++)
 			{
 				for (int l = 0; l <= num2; l++)
 				{
-					HandleCube(ref vh, intVector5, radius, distance, ref collisionState);
-					intVector5 += intVector2;
+					HandleCube(ref vh, pos, radius, distance, ref collisionState);
+					pos += intVector2;
 				}
-				intVector5 -= (num2 + 1) * intVector2;
-				intVector5 += intVector;
+				pos -= (num2 + 1) * intVector2;
+				pos += intVector;
 			}
 			cellTraverser.Step();
 			int num5 = 0;
 			int num6 = 1000;
 			while (cellTraverser.StepDir[collisionState.scanAxis] == 0)
 			{
-				if (DEBUG_MODE)
-				{
-					if (num5 > num6)
-					{
-						Debug.Log("scanAxis " + collisionState.scanAxis);
-						Debug.Log("testVector " + intVector5);
-						Debug.Log("testVector[scanAxis] " + intVector5[collisionState.scanAxis]);
-						Debug.Log("min[scanAxis] " + collisionState.minBounds[collisionState.scanAxis]);
-						Debug.Log("max[scanAxis] " + collisionState.maxBounds[collisionState.scanAxis]);
-						cellTraverser.DebugAll();
-						Debug.LogError("While loop did not exit");
-						break;
-					}
-					num5++;
-				}
-				intVector5.x = cellTraverser.VoxelPos.x;
-				intVector5.y = cellTraverser.VoxelPos.y;
-				intVector5.z = cellTraverser.VoxelPos.z;
+				pos.x = cellTraverser.VoxelPos.x;
+				pos.y = cellTraverser.VoxelPos.y;
+				pos.z = cellTraverser.VoxelPos.z;
 				bool flag2 = false;
 				for (int m = 0; m < 3; m++)
 				{
@@ -405,32 +355,32 @@ public static class MVSweptElipsoidCheck
 				{
 					if (cellTraverser.StepDir[key2] == intVector2[key2])
 					{
-						intVector5[key2] += (short)num2;
+						pos[key2] += (short)num2;
 					}
 					for (int n = 0; n <= num; n++)
 					{
-						HandleCube(ref vh, intVector5, radius, distance, ref collisionState);
-						intVector5 += intVector;
+						HandleCube(ref vh, pos, radius, distance, ref collisionState);
+						pos += intVector;
 					}
 				}
 				else
 				{
 					if (cellTraverser.StepDir[key] == intVector[key])
 					{
-						intVector5[key] += (short)num;
+						pos[key] += (short)num;
 					}
 					for (int num7 = 0; num7 <= num2; num7++)
 					{
-						HandleCube(ref vh, intVector5, radius, distance, ref collisionState);
-						intVector5 += intVector2;
+						HandleCube(ref vh, pos, radius, distance, ref collisionState);
+						pos += intVector2;
 					}
 				}
 				cellTraverser.Step();
 			}
-			intVector5.x = cellTraverser.VoxelPos.x;
-			intVector5.y = cellTraverser.VoxelPos.y;
-			intVector5.z = cellTraverser.VoxelPos.z;
-			if (collisionState.firstHitDetected && Mathf.Abs(intVector5[collisionState.scanAxis] - collisionState.firstHitScanAxis) > Mathf.CeilToInt(collisionState.scaledMaxRadius))
+			pos.x = cellTraverser.VoxelPos.x;
+			pos.y = cellTraverser.VoxelPos.y;
+			pos.z = cellTraverser.VoxelPos.z;
+			if (collisionState.firstHitDetected && Mathf.Abs(pos[collisionState.scanAxis] - collisionState.firstHitScanAxis) > Mathf.CeilToInt(collisionState.scaledMaxRadius))
 			{
 				break;
 			}
@@ -440,15 +390,6 @@ public static class MVSweptElipsoidCheck
 
 	private static void HandleCube(ref VoxelHit vh, IntVector pos, Vector3 radius, float distance, ref CollisionState collisionState)
 	{
-		if (DEBUG_MODE)
-		{
-			IntVector item = new IntVector(pos.x, pos.y, pos.z);
-			if (debugTestedIntVector.Contains(item))
-			{
-				Debug.LogWarning("testVector allReady tested " + pos);
-			}
-			debugTestedIntVector.Add(item);
-		}
 		bool flag = false;
 		if (IsWithinBounds(pos, ref collisionState) && CubeIsWithinSphereRadius(pos, ref collisionState))
 		{

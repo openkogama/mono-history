@@ -600,7 +600,7 @@ public class PickUpItemHealRay : PickupItem
 	private void ShowHitEffect()
 	{
 		MVGameControllerBase.CameraController.PlayPlingSound();
-		MVGameControllerBase.IPlayModeUI.GetCrossHair().ShowHasHitEffect();
+		MVGameControllerBase.PlayModeUI.GetCrossHair().ShowHasHitEffect();
 	}
 
 	private void UpdateStuckObject(MVWorldObjectClient hitObject)

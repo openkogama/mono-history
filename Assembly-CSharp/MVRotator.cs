@@ -8,8 +8,6 @@ public class MVRotator : MVMovable
 {
 	protected CullingSubscriberBase cullingSubscriberBase;
 
-	private Vector3 initAngularVelocity;
-
 	private static HashSet<MVRotator> selectedRotators = new HashSet<MVRotator>();
 
 	public override MVWorldObjectDocumentationType DocumentationType
@@ -28,9 +26,9 @@ public class MVRotator : MVMovable
 		}
 	}
 
-	private MVWorldObjectClientManager WOCM => MVGameControllerBase.WOCM;
+	public Vector3 InitAngularVelocity { get; private set; }
 
-	public Vector3 InitAngularVelocity => initAngularVelocity;
+	private MVWorldObjectClientManager WOCM => MVGameControllerBase.WOCM;
 
 	public bool Horizontal => AngularVelocity.x == 0f && AngularVelocity.y != 0f && AngularVelocity.z == 0f;
 
@@ -47,7 +45,7 @@ public class MVRotator : MVMovable
 	{
 		base.Initialize();
 		interactionFlags |= InteractionFlags.CanRotateY | InteractionFlags.CanEdit | InteractionFlags.HasSettings;
-		initAngularVelocity = AngularVelocity;
+		InitAngularVelocity = AngularVelocity;
 		IntVector min = new IntVector(-15, -15, -15);
 		IntVector max = new IntVector(15, 15, 15);
 		if (CubeModel == null)
@@ -71,8 +69,8 @@ public class MVRotator : MVMovable
 	{
 		cullingSubscriberBase = new CullingSubscriberBase(OnStateChanged);
 		SetupCullingSphere();
-		MVCubeModelInstance mVCubeModelInstance = CubeModel;
-		mVCubeModelInstance.Changed = (Action<CubeModelChangedEventArgs>)Delegate.Combine(mVCubeModelInstance.Changed, new Action<CubeModelChangedEventArgs>(Changed));
+		MVCubeModelInstance cubeModel = CubeModel;
+		cubeModel.Changed = (Action<CubeModelChangedEventArgs>)Delegate.Combine(cubeModel.Changed, new Action<CubeModelChangedEventArgs>(Changed));
 		PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
 	}
 

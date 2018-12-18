@@ -7,19 +7,21 @@ public class MVGameControllerDesktop : MVGameControllerBase
 	[SerializeField]
 	private GameObject eventSystem;
 
-	private static ModeControllerBase modeController;
+	private ILockCursorManager lockCursorManager;
 
-	private static ILockCursorManager lockCursorManager;
+	private ModeControllerBase modeController;
 
-	private static IEditModeObjectPicker editModeObjectPicker;
+	private IEditModeObjectPicker editModeObjectPicker;
 
-	private static bool applicationHasFocus = true;
-
-	public static ILockCursorManager LockCursorManager => lockCursorManager;
+	private bool applicationHasFocus = true;
 
 	public static UnityAction OnApplicationLostFocus { get; set; }
 
 	public static UnityAction OnApplicationRegainedFocus { get; set; }
+
+	public static ILockCursorManager LockCursorManager => Instance.lockCursorManager;
+
+	private static MVGameControllerDesktop Instance => (MVGameControllerDesktop)MVGameControllerBase.instance;
 
 	protected override bool IsPlayingInternal
 	{
@@ -29,13 +31,12 @@ public class MVGameControllerDesktop : MVGameControllerBase
 			{
 				return false;
 			}
-			return MVGameControllerBase.GameSessionData.gameMode == MVGameMode.Play || (MVGameControllerBase.GameSessionData.gameMode == MVGameMode.Edit && MVGameControllerBase.IEditModeUI.IsInPlayInEditMode);
+			return MVGameControllerBase.GameSessionData.gameMode == MVGameMode.Play || (MVGameControllerBase.GameSessionData.gameMode == MVGameMode.Edit && MVGameControllerBase.EditModeUI.IsInPlayInEditMode);
 		}
 	}
 
-	private void Start()
+	protected void Start()
 	{
-		Object.DontDestroyOnLoad(eventSystem);
 		bool developmentMode = Application.isEditor || koGaMaSettings.ShowDebugLogin;
 		InitStandAlone(developmentMode);
 		FullScreenController.FullScreen = false;
@@ -43,34 +44,52 @@ public class MVGameControllerDesktop : MVGameControllerBase
 		FullScreenController.Init(940, 482);
 	}
 
+	protected override void OnDestroy()
+	{
+		base.OnDestroy();
+		OnApplicationLostFocus = null;
+		OnApplicationRegainedFocus = null;
+	}
+
 	public static void RegisterPlayModeController(DesktopPlayModeController playModeController)
 	{
-		lockCursorManager = playModeController.LockCursorManager;
-		MVGameControllerBase.playModeUI = playModeController;
+		Instance.lockCursorManager = playModeController.LockCursorManager;
+		MVGameControllerBase.PlayModeUI = playModeController;
 		if (MVGameControllerBase.GameMode == MVGameMode.Play)
 		{
-			modeController = playModeController;
+			Instance.modeController = playModeController;
 		}
 		else
 		{
-			((DesktopEditModeController)modeController).RegisterPlayModeController(playModeController);
+			((DesktopEditModeController)Instance.modeController).RegisterPlayModeController(playModeController);
 		}
+	}
+
+	public static void UnregisterPlayModeController()
+	{
+		MVGameControllerBase.PlayModeUI = null;
 	}
 
 	public static void RegisterAvaterEditModeController(DesktopAvatarEditModeController avatarEditModeController)
 	{
-		modeController = avatarEditModeController;
+		Instance.modeController = avatarEditModeController;
 	}
 
 	public static void RegisterEditModeController(DesktopEditModeController editModeController)
 	{
-		modeController = editModeController;
-		MVGameControllerBase.editModeUI = editModeController;
+		Instance.modeController = editModeController;
+		MVGameControllerBase.EditModeUI = editModeController;
+	}
+
+	public static void UnregisterEditModeController()
+	{
+		Instance.modeController = null;
+		MVGameControllerBase.EditModeUI = null;
 	}
 
 	protected override void UpdateInternal()
 	{
-		if (!MVGameControllerBase.isInitialized)
+		if (!MVGameControllerBase.IsInitialized)
 		{
 			Initialize();
 			modeController.Initialize();
@@ -83,12 +102,6 @@ public class MVGameControllerDesktop : MVGameControllerBase
 	{
 		base.LateUpdate();
 		FullScreenController.LateUpdate();
-	}
-
-	public override void HandleApplicationQuit(QuitBaseCallback quitBaseCallback)
-	{
-		quitBaseCallback?.OnQuit();
-		Application.Quit();
 	}
 
 	protected void OnApplicationFocus(bool focus)
@@ -105,5 +118,17 @@ public class MVGameControllerDesktop : MVGameControllerBase
 				OnApplicationLostFocus();
 			}
 		}
+	}
+
+	protected override void HandleApplicationQuit(QuitBaseCallback quitBaseCallback)
+	{
+		quitBaseCallback?.OnQuit();
+		Application.Quit();
+	}
+
+	protected override void CleanUp()
+	{
+		MVGameControllerBase.DeleteScreenPlayerPrefs();
+		base.CleanUp();
 	}
 }

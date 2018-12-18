@@ -10,7 +10,7 @@ public class FriendRequestNotification : Notification
 
 	private int friendId;
 
-	private static int latestFriendId = -1;
+	private const int latestFriendId = -1;
 
 	protected override NotificationLifetime Lifetime => NotificationLifetime.High;
 
@@ -52,7 +52,7 @@ public class FriendRequestNotification : Notification
 	protected override void Update()
 	{
 		base.Update();
-		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.NotificationAcceptFriendshipRequest) && latestFriendId != friendId)
+		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.NotificationAcceptFriendshipRequest) && friendId != -1)
 		{
 			AcceptFriendship();
 		}

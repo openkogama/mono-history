@@ -11,6 +11,11 @@ public static class PricesManager
 		PricesManager.prices = prices;
 	}
 
+	public static void Reset()
+	{
+		prices = null;
+	}
+
 	public static Price GetPrice(string priceName)
 	{
 		if (!prices.ContainsKey(priceName))

@@ -106,6 +106,11 @@ public class DesktopEditModeController : ModeControllerBase, ISetEditState, IEdi
 		}
 	}
 
+	protected void OnDestroy()
+	{
+		MVGameControllerDesktop.UnregisterEditModeController();
+	}
+
 	private void Start()
 	{
 		RegisterShortcuts();

@@ -24,6 +24,21 @@ public class LockCursorManager3DMode : MonoBehaviour, ILockCursorManager
 		}
 	}
 
+	public bool CursorLockWithoutCallback
+	{
+		set
+		{
+			if (value)
+			{
+				LockCursorWithoutCallback();
+			}
+			else
+			{
+				UnlockCursorWithoutCallback();
+			}
+		}
+	}
+
 	protected void OnApplicationFocus(bool focus)
 	{
 		if (!focus)
@@ -42,6 +57,15 @@ public class LockCursorManager3DMode : MonoBehaviour, ILockCursorManager
 		}
 	}
 
+	protected void LockCursorWithoutCallback()
+	{
+		if (!CursorLock)
+		{
+			Cursor.lockState = CursorLockMode.Locked;
+			Cursor.visible = false;
+		}
+	}
+
 	protected void UnlockCursor()
 	{
 		if (CursorLock)
@@ -49,6 +73,15 @@ public class LockCursorManager3DMode : MonoBehaviour, ILockCursorManager
 			Cursor.lockState = CursorLockMode.None;
 			Cursor.visible = true;
 			OnCursorLockChanged(CursorLock);
+		}
+	}
+
+	protected void UnlockCursorWithoutCallback()
+	{
+		if (CursorLock)
+		{
+			Cursor.lockState = CursorLockMode.None;
+			Cursor.visible = true;
 		}
 	}
 }

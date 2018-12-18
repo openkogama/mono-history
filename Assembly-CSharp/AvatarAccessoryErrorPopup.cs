@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
@@ -7,7 +6,7 @@ using UnityEngine.UI;
 public class AvatarAccessoryErrorPopup : MonoBehaviour
 {
 	[SerializeField]
-	private StreamPngToSprite preview;
+	private StreamedSpriteToImageManual preview;
 
 	[SerializeField]
 	private AccessoryItemBackground itemBackground;
@@ -32,9 +31,7 @@ public class AvatarAccessoryErrorPopup : MonoBehaviour
 		this.header.text = header;
 		loadingWheel.SetActive(value: true);
 		preview.gameObject.SetActive(value: false);
-		StreamPngToSprite streamPngToSprite = preview;
-		streamPngToSprite.OnDownloadFinish = (Action)Delegate.Combine(streamPngToSprite.OnDownloadFinish, new Action(OnPreviewImageDownLoaded));
-		preview.StartDownloading(previewImageUrl);
+		preview.Download(previewImageUrl, OnPreviewImageDownLoaded);
 		this.resultCallback = resultCallback;
 		itemBackground.Initialize(accessoryData);
 	}
@@ -56,12 +53,5 @@ public class AvatarAccessoryErrorPopup : MonoBehaviour
 		loadingWheel.SetActive(value: false);
 		emptyFrame.SetActive(value: false);
 		preview.gameObject.SetActive(value: true);
-	}
-
-	private void OnDestroy()
-	{
-		StreamPngToSprite streamPngToSprite = preview;
-		streamPngToSprite.OnDownloadFinish = (Action)Delegate.Remove(streamPngToSprite.OnDownloadFinish, new Action(OnPreviewImageDownLoaded));
-		preview.DestroyTexture();
 	}
 }

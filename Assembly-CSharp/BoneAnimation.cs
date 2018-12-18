@@ -8,11 +8,11 @@ public class BoneAnimation : MonoBehaviour
 {
 	public Action<string> OnAnimationChange;
 
+	private const int REMOTE_ANIM_SPEEDUP = 20;
+
 	private float walkMinSpeed = 0.7f;
 
 	private float assumedWalkMaxSpeed = 8f;
-
-	private static readonly int REMOTE_ANIM_SPEEDUP = 20;
 
 	private MVAvatar mvAvatar;
 
@@ -165,7 +165,7 @@ public class BoneAnimation : MonoBehaviour
 
 	private void ComputeRemoteAnimation()
 	{
-		int num = TransformNetworkManager.DelayedTime + REMOTE_ANIM_SPEEDUP;
+		int num = TransformNetworkManager.DelayedTime + 20;
 		if (0 < animationQueue.Count)
 		{
 			if (nextAnim == null)

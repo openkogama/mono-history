@@ -8,7 +8,7 @@ public class MVCheckpoint : MVLogicObject
 
 	private UseInteractor useInteractor;
 
-	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
+	private const UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
 	private bool playingAnimation;
 
@@ -73,7 +73,7 @@ public class MVCheckpoint : MVLogicObject
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)
 	{
-		if ((useInteractor.EvaluateRequirementsUsability() & purchaseOptions) == 0)
+		if ((useInteractor.EvaluateRequirementsUsability() & (UseGUIResult.CanAfford | UseGUIResult.CannotAfford)) == 0)
 		{
 			DoReachCheckpoint(e.instigatorWOID);
 		}

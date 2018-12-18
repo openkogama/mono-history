@@ -74,8 +74,8 @@ public class CollectTheItemDropOff : MVBlueprintBase, ILogicWorldObject
 		triggerObject.Blinker.Visible = true;
 		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
 		{
-			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
-			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Combine(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
+			IEditModeUI editModeUI = MVGameControllerBase.EditModeUI;
+			editModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Combine(editModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
 			triggerObject.GreyOutScript.InitializeOriginalMaterials();
 			editableCubeModelWrapper.CubeModel.BeingEditedChanged += OnChunkEditReset;
 		}
@@ -230,8 +230,8 @@ public class CollectTheItemDropOff : MVBlueprintBase, ILogicWorldObject
 		OnPickupCollected = null;
 		if (MVGameControllerBase.GameMode == MVGameMode.Edit)
 		{
-			IEditModeUI iEditModeUI = MVGameControllerBase.IEditModeUI;
-			iEditModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Remove(iEditModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
+			IEditModeUI editModeUI = MVGameControllerBase.EditModeUI;
+			editModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Remove(editModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
 		}
 		if (cullingSubscriberBase != null)
 		{

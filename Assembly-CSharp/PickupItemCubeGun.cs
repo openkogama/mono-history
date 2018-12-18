@@ -233,8 +233,24 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	public override void OnStateChanged(Dictionary<object, object> newState)
 	{
+		if (!newState.ContainsKey("itemData"))
+		{
+			SetCubeBulletMaterial(24);
+			return;
+		}
 		Dictionary<object, object> dictionary = (Dictionary<object, object>)newState["itemData"];
+		if (!dictionary.ContainsKey("material"))
+		{
+			SetCubeBulletMaterial(24);
+			return;
+		}
 		material = (byte)dictionary["material"];
+		SetCubeBulletMaterial(material);
+	}
+
+	private void SetCubeBulletMaterial(byte materialId)
+	{
+		material = materialId;
 		cubeBullet.SetCubeMaterial(material);
 	}
 

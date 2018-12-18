@@ -32,6 +32,11 @@ public static class FirstTimeEventManager
 		}
 	}
 
+	public static void Destroy()
+	{
+		firstTimeState = null;
+	}
+
 	public static void SubscribeToFirstTimeState(Action<FirstTimeState, FirstTimeEvent> firstTimeStateReceiver)
 	{
 		if (firstTimeState != null)

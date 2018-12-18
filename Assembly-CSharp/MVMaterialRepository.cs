@@ -13,16 +13,36 @@ public class MVMaterialRepository
 
 	public const int DEFAULT_MATERIAL_ID = 21;
 
+	public bool allowDestructibleMaterialSelection;
+
+	private static MVMaterialRepository instance;
+
 	public int MaterialCount => materials.Count;
 
 	public MVMaterial InAirMaterial => inAirMaterial;
 
-	public static bool AllowDestructibleMaterialSelection { get; set; }
+	public static bool AllowDestructibleMaterialSelection
+	{
+		get
+		{
+			return instance.allowDestructibleMaterialSelection;
+		}
+		set
+		{
+			instance.allowDestructibleMaterialSelection = value;
+		}
+	}
 
 	public MVMaterialRepository()
 	{
+		instance = this;
 		noMaterial = new MVMaterial(24, MaterialDescription.materialDescriptions[24].Name, MaterialDescription.materialDescriptions[24].Description, physicalPropertiesDefault, MaterialSound.None, AvatarModifierPackageType.None, 0, isUnlocked: false, null);
 		inAirMaterial = new MVMaterial(MVPhysics.airPhysicalProperties, MaterialSound.None, AvatarModifierPackageType.None);
+	}
+
+	public void Reset()
+	{
+		instance = null;
 	}
 
 	public void SetMaterialPrice(int materialID, int materialUnlockPriceGold)

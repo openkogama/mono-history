@@ -27,6 +27,11 @@ public static class HighlightManager
 		highlightDatas = JsonConvert.DeserializeObject<Dictionary<int, AvailableHighlightData>>(availableHighlightDatasString);
 	}
 
+	public static void Reset()
+	{
+		highlightDatas = new Dictionary<int, AvailableHighlightData>();
+	}
+
 	public static void SetHighlightToSeen(int highlightId)
 	{
 		highlightDatas.Remove(highlightId);

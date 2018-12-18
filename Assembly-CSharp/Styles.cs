@@ -154,7 +154,7 @@ public class Styles : MonoBehaviour
 		public Sprite sprite;
 	}
 
-	private static Dictionary<MVTeam, ColorStyle> teamToColorStyle = new Dictionary<MVTeam, ColorStyle>
+	private static readonly Dictionary<MVTeam, ColorStyle> teamToColorStyle = new Dictionary<MVTeam, ColorStyle>
 	{
 		{
 			MVTeam.None,
@@ -178,7 +178,7 @@ public class Styles : MonoBehaviour
 		}
 	};
 
-	private static Dictionary<MVTeam, ColorStyle> teamToDarkColorStyle = new Dictionary<MVTeam, ColorStyle>
+	private static readonly Dictionary<MVTeam, ColorStyle> teamToDarkColorStyle = new Dictionary<MVTeam, ColorStyle>
 	{
 		{
 			MVTeam.None,
@@ -202,19 +202,19 @@ public class Styles : MonoBehaviour
 		}
 	};
 
-	private static Dictionary<ButtonStyle, ButtonStyleDef> buttonStylesDictionary = new Dictionary<ButtonStyle, ButtonStyleDef>();
+	private static Dictionary<ButtonStyle, ButtonStyleDef> buttonStylesDictionary;
 
-	private static Dictionary<TextStyle, TextStyleDef> textStylesDictionary = new Dictionary<TextStyle, TextStyleDef>();
+	private static Dictionary<TextStyle, TextStyleDef> textStylesDictionary;
 
-	private static Dictionary<ColorStyle, ColorStyleDef> colorStylesDictionary = new Dictionary<ColorStyle, ColorStyleDef>();
+	private static Dictionary<ColorStyle, ColorStyleDef> colorStylesDictionary;
 
-	private static Dictionary<MVTeam, TeamIconStyleDef> teamIconStylesDictionary = new Dictionary<MVTeam, TeamIconStyleDef>();
+	private static Dictionary<MVTeam, TeamIconStyleDef> teamIconStylesDictionary;
 
-	private static Dictionary<EffectStyle, EffectStyleDef> effectStylesDictionary = new Dictionary<EffectStyle, EffectStyleDef>();
+	private static Dictionary<EffectStyle, EffectStyleDef> effectStylesDictionary;
 
-	private static Dictionary<SoundStyle, AudioSource> soundStylesDictionary = new Dictionary<SoundStyle, AudioSource>();
+	private static Dictionary<SoundStyle, AudioSource> soundStylesDictionary;
 
-	private static Dictionary<AccessoryRarity, RarityStylesDef> accessoryRarityColorsDictionary = new Dictionary<AccessoryRarity, RarityStylesDef>();
+	private static Dictionary<AccessoryRarity, RarityStylesDef> accessoryRarityColorsDictionary;
 
 	[SerializeField]
 	private List<ButtonStyleDef> buttonStyles = new List<ButtonStyleDef>();
@@ -244,41 +244,59 @@ public class Styles : MonoBehaviour
 		Initialize();
 	}
 
+	protected void OnDestroy()
+	{
+		buttonStylesDictionary = null;
+		textStylesDictionary = null;
+		colorStylesDictionary = null;
+		teamIconStylesDictionary = null;
+		effectStylesDictionary = null;
+		soundStylesDictionary = null;
+		isInitialized = false;
+	}
+
 	public void Initialize()
 	{
 		if (isInitialized)
 		{
 			return;
 		}
-		isInitialized = true;
+		buttonStylesDictionary = new Dictionary<ButtonStyle, ButtonStyleDef>(buttonStyles.Count);
 		foreach (ButtonStyleDef buttonStyle in buttonStyles)
 		{
 			buttonStylesDictionary.Add(buttonStyle.buttonStyle, buttonStyle);
 		}
+		textStylesDictionary = new Dictionary<TextStyle, TextStyleDef>(textStyles.Count);
 		foreach (TextStyleDef textStyle in textStyles)
 		{
 			textStylesDictionary.Add(textStyle.textStyle, textStyle);
 		}
+		colorStylesDictionary = new Dictionary<ColorStyle, ColorStyleDef>(colorStyles.Count);
 		foreach (ColorStyleDef colorStyle in colorStyles)
 		{
 			colorStylesDictionary.Add(colorStyle.colorStyle, colorStyle);
 		}
+		teamIconStylesDictionary = new Dictionary<MVTeam, TeamIconStyleDef>(teamIconStyles.Count);
 		foreach (TeamIconStyleDef teamIconStyle in teamIconStyles)
 		{
 			teamIconStylesDictionary.Add(teamIconStyle.team, teamIconStyle);
 		}
+		effectStylesDictionary = new Dictionary<EffectStyle, EffectStyleDef>(effectStyles.Count);
 		foreach (EffectStyleDef effectStyle in effectStyles)
 		{
 			effectStylesDictionary.Add(effectStyle.effectStyle, effectStyle);
 		}
+		soundStylesDictionary = new Dictionary<SoundStyle, AudioSource>(soundStyles.Count);
 		foreach (SoundStyleDef soundStyle in soundStyles)
 		{
 			soundStylesDictionary.Add(soundStyle.soundStyle, soundStyle.audioSource);
 		}
+		accessoryRarityColorsDictionary = new Dictionary<AccessoryRarity, RarityStylesDef>(rarityStyles.Count);
 		foreach (RarityStylesDef rarityStyle in rarityStyles)
 		{
 			accessoryRarityColorsDictionary.Add(rarityStyle.rarity, rarityStyle);
 		}
+		isInitialized = true;
 	}
 
 	private static bool HandleUnInitalized()

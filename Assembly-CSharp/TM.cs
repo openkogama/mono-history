@@ -6,23 +6,21 @@ using GNU.Gettext;
 using MV.Common;
 using UnityEngine;
 
-public class TM : MonoBehaviour
+public class TM
 {
+	private Catalog catalog = new Catalog();
+
+	private string fileName = string.Empty;
+
+	private bool languageLoadingDone;
+
+	private readonly List<Action> languageChangedCallback = new List<Action>();
+
+	private string cultureName = "en-US";
+
+	private const string baseResourcesPath = "Languages/";
+
 	private static TM instance;
-
-	private static Catalog catalog = new Catalog();
-
-	private static string fileName = string.Empty;
-
-	private static bool languageLoadingDone = false;
-
-	private static readonly List<Action> languageChangedCallback = new List<Action>();
-
-	private static string baseResourcesPath = "Languages/";
-
-	private static string cultureName = "en-US";
-
-	public static string CultureName => cultureName;
 
 	private static TM Instance
 	{
@@ -30,9 +28,7 @@ public class TM : MonoBehaviour
 		{
 			if (instance == null)
 			{
-				GameObject gameObject = new GameObject("Default TextManager");
-				instance = (TM)gameObject.AddComponent(typeof(TM));
-				UnityEngine.Object.DontDestroyOnLoad(gameObject);
+				instance = new TM();
 			}
 			return instance;
 		}
@@ -42,17 +38,28 @@ public class TM : MonoBehaviour
 	{
 	}
 
-	public static TM GetInstance()
+	public static void Destroy()
 	{
-		return Instance;
+		if (instance != null)
+		{
+			instance = null;
+			try
+			{
+				AsyncWWWManager.UnsubscribeWWWRequest(StreamingAssetCallback);
+			}
+			catch (Exception ex)
+			{
+				Debug.Log("TM failed to unsubscribe www request: " + ex.Message);
+			}
+		}
 	}
 
 	public static string _(string key)
 	{
 		key = StripAssetStringFromFuncIdentifier(key);
-		if (!string.IsNullOrEmpty(key) && catalog != null)
+		if (!string.IsNullOrEmpty(key) && Instance.catalog != null)
 		{
-			CatalogEntry catalogEntry = catalog.FindItem(key, string.Empty);
+			CatalogEntry catalogEntry = Instance.catalog.FindItem(key, string.Empty);
 			if (catalogEntry != null)
 			{
 				string translation = catalogEntry.GetTranslation(0);
@@ -67,9 +74,9 @@ public class TM : MonoBehaviour
 
 	public static void LanguageChanged(Action onLanguageChangedCallback)
 	{
-		if (!languageLoadingDone)
+		if (!Instance.languageLoadingDone)
 		{
-			languageChangedCallback.Add(onLanguageChangedCallback);
+			Instance.languageChangedCallback.Add(onLanguageChangedCallback);
 		}
 	}
 
@@ -78,7 +85,7 @@ public class TM : MonoBehaviour
 		string text = _(index);
 		if (values != null)
 		{
-			text = string.Format(new CultureInfo(CultureName), text, values.GetValueParams());
+			text = string.Format(new CultureInfo(Instance.cultureName), text, values.GetValueParams());
 		}
 		return text;
 	}
@@ -90,11 +97,10 @@ public class TM : MonoBehaviour
 
 	public static void LoadLanguage(string languageName)
 	{
-		GetInstance();
 		string filename = GetFilename(languageName);
-		if (filename == null || filename.Replace('_', '-') == cultureName)
+		if (filename == null || filename.Replace('_', '-') == Instance.cultureName)
 		{
-			catalog = null;
+			Instance.catalog = null;
 			SetLanguageLoadingDone();
 		}
 		else
@@ -122,14 +128,9 @@ public class TM : MonoBehaviour
 
 	private static void TryGetTextAsset(string fileName)
 	{
-		TM.fileName = fileName;
-		string text = baseResourcesPath + fileName + ".txt?" + MVGameControllerBase.KoGaMaSettings.VersionGuid;
+		Instance.fileName = fileName;
+		string text = "Languages/" + fileName + ".txt?" + MVGameControllerBase.KoGaMaSettings.VersionGuid;
 		AsyncWWWManager.WWWRequest(new GetRequest(Urls.StreamingAssets + text, StreamingAssetCallback, WWWRequestPriority.ExecuteWhileSyncronizing));
-	}
-
-	private void OnDestroy()
-	{
-		AsyncWWWManager.UnsubscribeWWWRequest(StreamingAssetCallback);
 	}
 
 	private static void StreamingAssetCallback(WWW www)
@@ -141,26 +142,26 @@ public class TM : MonoBehaviour
 		}
 		try
 		{
-			catalog = new Catalog();
-			catalog.Load(www.text, fileName);
-			cultureName = fileName.Replace('_', '-');
+			Instance.catalog = new Catalog();
+			Instance.catalog.Load(www.text, Instance.fileName);
+			Instance.cultureName = Instance.fileName.Replace('_', '-');
 		}
 		catch (Exception message)
 		{
 			Debug.LogWarning(message);
-			catalog = null;
+			Instance.catalog = null;
 		}
 		SetLanguageLoadingDone();
 	}
 
 	private static void SetLanguageLoadingDone()
 	{
-		languageLoadingDone = true;
-		foreach (Action item in languageChangedCallback)
+		Instance.languageLoadingDone = true;
+		foreach (Action item in Instance.languageChangedCallback)
 		{
 			item();
 		}
-		languageChangedCallback.Clear();
+		Instance.languageChangedCallback.Clear();
 	}
 
 	private static string StripAssetStringFromFuncIdentifier(string key)

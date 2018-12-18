@@ -314,12 +314,17 @@ public class MVCameraController : MonoBehaviour
 		return cameraStack.GetCamera<T>();
 	}
 
-	private void Awake()
+	protected void Awake()
 	{
 		protectedTransform = new ProtectedTransform(transform);
 		cameraStack = new CameraStack(cameraBases, this);
 		baseVolume = AudioListener.volume;
 		Mute = false;
+	}
+
+	protected void OnDestroy()
+	{
+		cameraSettings.Clear();
 	}
 
 	public void Init()

@@ -39,6 +39,13 @@ public static class AudioEventHandler
 		AudioEventHandler.audioBuild = audioBuild;
 	}
 
+	public static void Destroy()
+	{
+		audioBuild = null;
+		translateSoundDatas.Clear();
+		translateSoundDatas.TrimExcess();
+	}
+
 	public static void AddTranslateSoundData(float moveValue, bool moveToGridPos, Vector3 worldPos)
 	{
 		translateSoundDatas.Add(new TranslateSoundData(moveValue, moveToGridPos, worldPos));

@@ -195,7 +195,7 @@ public class PickupItemCollectTheItem : PickupItem
 
 	private void OnDestroy()
 	{
-		if (MVGameControllerBase.Game == null)
+		if (!MVGameControllerBase.IsAlive || MVGameControllerBase.Game == null)
 		{
 			return;
 		}

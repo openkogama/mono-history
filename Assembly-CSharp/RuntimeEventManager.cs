@@ -10,13 +10,13 @@ public class RuntimeEventManager
 	{
 		private class AccumulatedCubeDamage
 		{
-			private static float intervalInSecondsBeforeReset = 5f;
+			private const float intervalInSecondsBeforeReset = 5f;
 
 			private float lastReceivedDamage = Time.time;
 
 			private float damage;
 
-			public bool Expired => Time.time - lastReceivedDamage > intervalInSecondsBeforeReset;
+			public bool Expired => Time.time - lastReceivedDamage > 5f;
 
 			public float AddDamage(float damageDelta)
 			{

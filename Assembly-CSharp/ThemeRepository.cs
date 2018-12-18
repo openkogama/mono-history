@@ -48,6 +48,11 @@ public class ThemeRepository : ScriptableObject
 		}
 	}
 
+	public static void Destroy()
+	{
+		Instance = null;
+	}
+
 	public Theme GetThemePrefab(string identifier)
 	{
 		if (IdentifierToTheme.ContainsKey(identifier))

@@ -44,7 +44,7 @@ public class LogicObjectManager
 
 	public const int updatesBeforeStepSend = 10;
 
-	private Dictionary<int, IInputSignalReceiver> logicWorldObjects = new Dictionary<int, IInputSignalReceiver>();
+	protected Dictionary<int, IInputSignalReceiver> logicWorldObjects = new Dictionary<int, IInputSignalReceiver>();
 
 	public readonly bool trackLoops;
 

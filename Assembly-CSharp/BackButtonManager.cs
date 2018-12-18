@@ -74,6 +74,11 @@ public static class BackButtonManager
 		}
 	}
 
+	public static void PostDestroyCleanup()
+	{
+		subscribers.Clear();
+	}
+
 	private static bool ContainsHandler(BackButtonHandler handler)
 	{
 		for (int i = 0; i < subscribers.Count; i++)

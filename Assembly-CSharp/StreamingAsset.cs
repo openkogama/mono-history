@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
 using UnityEngine.Events;
@@ -8,7 +9,7 @@ public abstract class StreamingAsset<AssetType, PreviewType> : StreamingAsset wh
 {
 	[SerializeField]
 	[Tooltip("If true, bundle will be cached in memory, and never unloaded. It will also require a unique bundle name. If false, bundle will be destroyed and resources freed on destruction.")]
-	private bool useCache = true;
+	protected bool useCache = true;
 
 	private AssetType asset;
 
@@ -62,12 +63,15 @@ public abstract class StreamingAsset<AssetType, PreviewType> : StreamingAsset wh
 
 	protected override void OnDownloadFinished(WWW www)
 	{
-		if (string.IsNullOrEmpty(www.error))
+		if (www != null && string.IsNullOrEmpty(www.error))
 		{
-			Asset = StreamingAsset.UnpackBundle<AssetType>(www);
 			if (!useCache)
 			{
-				StartCoroutine("DelayedUnload", www);
+				Asset = StreamingAsset.UnpackBundle_NonCached<AssetType>(www, this);
+			}
+			else
+			{
+				Asset = StreamingAsset.UnpackBundle_Cached<AssetType>(www);
 			}
 		}
 	}
@@ -79,10 +83,6 @@ public abstract class StreamingAsset<AssetType, PreviewType> : StreamingAsset wh
 
 	protected override void OnDestroy()
 	{
-		if (!useCache)
-		{
-			Resources.UnloadUnusedAssets();
-		}
 		base.OnDestroy();
 	}
 }
@@ -94,7 +94,9 @@ public abstract class StreamingAsset : MonoBehaviour
 
 	protected UnityAction onAssetSetAction;
 
-	private static string assetBundleUrl;
+	private static HashSet<WWW> cachedAssetBundles = new HashSet<WWW>();
+
+	private static string assetBundleUrl = null;
 
 	public string Url
 	{
@@ -122,7 +124,24 @@ public abstract class StreamingAsset : MonoBehaviour
 
 	protected abstract void OnAssetSet();
 
-	public static AssetType UnpackBundle<AssetType>(WWW www) where AssetType : UnityEngine.Object
+	public static void ClearCache()
+	{
+		foreach (WWW cachedAssetBundle in cachedAssetBundles)
+		{
+			try
+			{
+				cachedAssetBundle.assetBundle.Unload(unloadAllLoadedObjects: true);
+			}
+			catch (Exception ex)
+			{
+				Debug.LogError("StreamingAsset bundle unload failed: " + ex.Message);
+			}
+		}
+		cachedAssetBundles.Clear();
+		cachedAssetBundles.TrimExcess();
+	}
+
+	private static AssetType UnpackBundle<AssetType>(WWW www) where AssetType : UnityEngine.Object
 	{
 		AssetType[] array = www.assetBundle.LoadAllAssets<AssetType>();
 		if (array.Length == 0)
@@ -137,10 +156,26 @@ public abstract class StreamingAsset : MonoBehaviour
 		return array[0];
 	}
 
-	private IEnumerator DelayedUnload(WWW www)
+	public static AssetType UnpackBundle_Cached<AssetType>(WWW www) where AssetType : UnityEngine.Object
+	{
+		string text = www.url;
+		AssetType result = UnpackBundle<AssetType>(www);
+		cachedAssetBundles.Add(www);
+		return result;
+	}
+
+	protected static AssetType UnpackBundle_NonCached<AssetType>(WWW www, MonoBehaviour coroutineHost) where AssetType : UnityEngine.Object
+	{
+		AssetType result = UnpackBundle<AssetType>(www);
+		coroutineHost.StartCoroutine(DelayedUnload(www));
+		return result;
+	}
+
+	protected static IEnumerator DelayedUnload(WWW www)
 	{
 		yield return null;
 		www.assetBundle.Unload(unloadAllLoadedObjects: false);
+		Resources.UnloadUnusedAssets();
 	}
 
 	public static string DBUrlToServerUrl(string url)

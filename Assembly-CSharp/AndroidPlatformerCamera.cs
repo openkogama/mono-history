@@ -4,15 +4,15 @@ using UnityEngine;
 
 public class AndroidPlatformerCamera : MVCameraBase, ICameraSettings
 {
-	private float baseDistanceToAvatar = 18f;
+	public const bool snapbackMode = true;
 
-	private float distanceToAvatar = 18f;
-
-	private readonly Offset2DCameraInDirection offset2DCameraInDirection = new Offset2DCameraInDirection();
+	private const float baseDistanceToAvatar = 18f;
 
 	private const float distanceToAvatarOffset = 10f;
 
-	public static bool snapbackMode = true;
+	private readonly Offset2DCameraInDirection offset2DCameraInDirection = new Offset2DCameraInDirection();
+
+	private float distanceToAvatar = 18f;
 
 	public override CameraType CameraType => CameraType.Platformer;
 
@@ -32,13 +32,13 @@ public class AndroidPlatformerCamera : MVCameraBase, ICameraSettings
 	public void UpdateFromCameraSettings(Dictionary<object, object> data)
 	{
 		distanceToAvatar = (float)data["distanceToAvatar"] + 10f;
-		offset2DCameraInDirection.Scale = distanceToAvatar / baseDistanceToAvatar;
+		offset2DCameraInDirection.Scale = distanceToAvatar / 18f;
 	}
 
 	public void SetDefaultSettings()
 	{
-		distanceToAvatar = baseDistanceToAvatar;
-		offset2DCameraInDirection.Scale = distanceToAvatar / baseDistanceToAvatar;
+		distanceToAvatar = 18f;
+		offset2DCameraInDirection.Scale = distanceToAvatar / 18f;
 	}
 
 	public void ScaleCameraValues(float scale)

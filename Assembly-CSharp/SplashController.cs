@@ -87,6 +87,12 @@ public class SplashController : StreamedAudioClip.IReceiver
 		streamedSplashSound.Initialize(this);
 	}
 
+	public void Destroy()
+	{
+		objectIDToData.Clear();
+		currentObjectID = 0;
+	}
+
 	public void CleanUpInactiveObjectIDs()
 	{
 		int[] array = new int[objectIDToData.Keys.Count];

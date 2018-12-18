@@ -224,6 +224,7 @@ public enum MVParameterKeys : byte
 	CurrentPlayerXP = 219,
 	Visible = 220,
 	OperationType = 221,
+	PlayerPlanetData = 222,
 	GameId = byte.MaxValue,
 	ActorNr = 254,
 	TargetActorNr = 253,

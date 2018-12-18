@@ -10,7 +10,7 @@ public abstract class MVRigidBody : MVComponent
 	{
 		internal class StuckObject
 		{
-			private static float timeBeforeStuck = 2f;
+			private const float timeBeforeStuck = 2f;
 
 			private float stuckTime;
 
@@ -32,7 +32,7 @@ public abstract class MVRigidBody : MVComponent
 
 			public bool IsStuckInObject()
 			{
-				if (Time.time - stuckTime >= timeBeforeStuck)
+				if (Time.time - stuckTime >= 2f)
 				{
 					bool flag = HandleFineGrained();
 					return !flag;

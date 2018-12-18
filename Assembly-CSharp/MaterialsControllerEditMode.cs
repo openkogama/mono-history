@@ -4,19 +4,19 @@ using UnityEngine.Events;
 
 public class MaterialsControllerEditMode : MaterialsController, IHandleCubeModelEdit, IEventSystemHandler
 {
-	private DesktopCubeModelingController desktopCubeModelingControllerEditMode;
-
 	[SerializeField]
 	private CreateCubeModelController createCubeModelController;
-
-	private UnityAction closeCallback;
 
 	[SerializeField]
 	private DesktopCubeModelingController desktopCubeModelingControllerEditCubeModelPrefab;
 
-	private byte prevMaterial;
-
 	public static byte targetMaterial;
+
+	private DesktopCubeModelingController desktopCubeModelingControllerEditMode;
+
+	private UnityAction closeCallback;
+
+	private byte prevMaterial;
 
 	private void OnEnable()
 	{

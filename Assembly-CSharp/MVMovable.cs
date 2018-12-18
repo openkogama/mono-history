@@ -19,8 +19,6 @@ public class MVMovable : MVBlueprintBase
 
 	private MovableVisualization movableVisualization;
 
-	private MVCubeModelInstance cubeModel;
-
 	private float distance = 5f;
 
 	private Quaternion orgRotation;
@@ -39,9 +37,9 @@ public class MVMovable : MVBlueprintBase
 
 	private MVMovable parentMover;
 
-	public MVCubeModelInstance CubeModel => cubeModel;
+	public MVCubeModelInstance CubeModel { get; private set; }
 
-	public int CubeModelID => cubeModel.Id;
+	public int CubeModelID => CubeModel.Id;
 
 	public float Distance => distance;
 
@@ -115,8 +113,8 @@ public class MVMovable : MVBlueprintBase
 		InitializeCommon();
 		MVGameControllerBase.WOCM.MoveableController.AddMovable(this, isInventoryPreviewMovable: false);
 		movableVisualization = gameObject.AddComponent<MovableVisualization>();
-		movableVisualization.Init(cubeModel);
-		cubeModel.Visible = false;
+		movableVisualization.Init(CubeModel);
+		CubeModel.Visible = false;
 		Visible = isVisible;
 	}
 
@@ -139,11 +137,11 @@ public class MVMovable : MVBlueprintBase
 	private void InitializeCommon()
 	{
 		ReadWOData();
-		if (cubeModel != null)
+		if (CubeModel != null)
 		{
-			cubeModel.Position = Vector3.zero;
-			cubeModel.Rotation = Quaternion.identity;
-			orgRotation = cubeModel.WorldRotation;
+			CubeModel.Position = Vector3.zero;
+			CubeModel.Rotation = Quaternion.identity;
+			orgRotation = CubeModel.WorldRotation;
 		}
 	}
 
@@ -317,8 +315,8 @@ public class MVMovable : MVBlueprintBase
 				if (childIdMap.ContainsKey("movable"))
 				{
 					int num = (int)childIdMap["movable"];
-					cubeModel = (MVCubeModelInstance)GetChild(num);
-					if (cubeModel == null)
+					CubeModel = (MVCubeModelInstance)GetChild(num);
+					if (CubeModel == null)
 					{
 						Debug.LogWarning("Movable " + id + " init - Could not find child " + num + " to move! If this is a new movable restart the session. Otherwise it is broken.");
 					}
@@ -365,7 +363,7 @@ public class MVMovable : MVBlueprintBase
 
 	private void Move(float directionFactor, int breakid)
 	{
-		if (cubeModel == null)
+		if (CubeModel == null)
 		{
 			return;
 		}
@@ -395,7 +393,7 @@ public class MVMovable : MVBlueprintBase
 		Vector3 vector = WorldPosition;
 		if (ParentMover != null)
 		{
-			vector = ParentMover.cubeModel.WorldPosition + ParentMover.cubeModel.WorldRotation * (WorldPosition - ParentMover.WorldPosition);
+			vector = ParentMover.CubeModel.WorldPosition + ParentMover.CubeModel.WorldRotation * (WorldPosition - ParentMover.WorldPosition);
 		}
 		if (timeToEnd > 0.01f)
 		{
@@ -418,16 +416,16 @@ public class MVMovable : MVBlueprintBase
 		{
 			localPos = Vector3.zero;
 		}
-		cubeModel.WorldPosition = vector + localPos;
+		CubeModel.WorldPosition = vector + localPos;
 		Quaternion quaternion = Quaternion.AngleAxis(57.29578f * (AngularVelocity * num).magnitude, AngularVelocity.normalized);
 		Quaternion worldRotation = WorldRotation;
 		if (ParentMoverID != -1)
 		{
-			worldRotation = ParentMover.cubeModel.WorldRotation;
+			worldRotation = ParentMover.CubeModel.WorldRotation;
 		}
 		if (!pausedMovement)
 		{
-			cubeModel.WorldRotation = worldRotation * quaternion;
+			CubeModel.WorldRotation = worldRotation * quaternion;
 		}
 		if (breakid == CubeModelID)
 		{
@@ -467,7 +465,7 @@ public class MVMovable : MVBlueprintBase
 		e.EnterGroup(this);
 		e.SelectWO(CubeModelID, addToSelection: false);
 		e.Event = EditorEvent.EditCubes;
-		cubeModel.Visible = true;
+		CubeModel.Visible = true;
 		return true;
 	}
 
@@ -475,7 +473,7 @@ public class MVMovable : MVBlueprintBase
 	{
 		e.ExitGroupToRoot();
 		e.Event = EditorEvent.ESTerrainEdit;
-		cubeModel.Visible = false;
+		CubeModel.Visible = false;
 		return true;
 	}
 }

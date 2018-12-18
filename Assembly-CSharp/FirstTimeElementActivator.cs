@@ -21,13 +21,20 @@ public class FirstTimeElementActivator : MonoBehaviour, IFirstTimeElementActivat
 
 	private List<FirstTimeEvent> elementsToRemove = new List<FirstTimeEvent>();
 
-	private void Start()
+	protected void Start()
 	{
 		MVGameControllerBase.OnJoinStateChanged = (Action<MVJoinState>)Delegate.Combine(MVGameControllerBase.OnJoinStateChanged, new Action<MVJoinState>(OnJoinStateChanged));
 		uiStack.SubscribeToStackChanges(OnStackChange);
 		FirstTimeEventManager.SubscribeToFirstTimeState(FirstTimeStateReceiver);
 		evaluateActivatableElements = true;
 		FirstTimeEventManager.XPRewarded = (Action)Delegate.Combine(FirstTimeEventManager.XPRewarded, new Action(OnXPRewarded));
+	}
+
+	protected void OnDestroy()
+	{
+		FirstTimeEventManager.XPRewarded = (Action)Delegate.Remove(FirstTimeEventManager.XPRewarded, new Action(OnXPRewarded));
+		FirstTimeEventManager.UnSubscribeToFirstTimeState(FirstTimeStateReceiver);
+		uiStack.UnSubscribeToStackChanges(OnStackChange);
 	}
 
 	private void OnJoinStateChanged(MVJoinState mvJoinState)
@@ -97,12 +104,6 @@ public class FirstTimeElementActivator : MonoBehaviour, IFirstTimeElementActivat
 			activatableUiElements.Remove(item);
 		}
 		elementsToRemove.Clear();
-	}
-
-	private void OnDestroy()
-	{
-		uiStack.UnSubscribeToStackChanges(OnStackChange);
-		FirstTimeEventManager.UnSubscribeToFirstTimeState(FirstTimeStateReceiver);
 	}
 
 	public void RegisterActivatableElement(IActivatableFirstTimeUiElement firstTimeEventHandlerListener)

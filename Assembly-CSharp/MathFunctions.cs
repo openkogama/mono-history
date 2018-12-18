@@ -19,7 +19,7 @@ public static class MathFunctions
 
 		private static int[] p;
 
-		private static int[] perm;
+		private static readonly int[] perm;
 
 		static PerlinSimplexNoise()
 		{

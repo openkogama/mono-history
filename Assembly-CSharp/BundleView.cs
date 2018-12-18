@@ -59,7 +59,7 @@ public class BundleView : MonoBehaviour
 
 	public void Initialize()
 	{
-		bundleData = AccessoryDataManager.GetAccessoryBundleClient();
+		bundleData = AccessoryDataManager.AccessoryBundleClient;
 		if (MVGameControllerBase.Game.LocalPlayer.Level >= bundleData.level)
 		{
 			HandlePrices(bundleData);
@@ -107,7 +107,7 @@ public class BundleView : MonoBehaviour
 		{
 			MVNetworkGame game = MVGameControllerBase.Game;
 			game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Combine(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
-			MVGameControllerBase.OperationRequests.PurchaseAvatarAccessoryBundle(AccessoryDataManager.GetAccessoryBundleId());
+			MVGameControllerBase.OperationRequests.PurchaseAvatarAccessoryBundle(AccessoryDataManager.AccessoryBundleId);
 		}
 		else
 		{

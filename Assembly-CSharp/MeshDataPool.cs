@@ -1,51 +1,119 @@
 using System;
 using UnityEngine;
 
-public static class MeshDataPool
+public class MeshDataPool
 {
-	private static int maxVertices = 786432;
+	private const int maxVertices = 786432;
 
-	private static int maxIndices = 1179648;
+	private const int maxIndices = 1179648;
 
-	private static int vertexPos = 0;
+	private int vertexPos;
 
-	private static readonly Vector3[] vertices = new Vector3[maxVertices];
+	private readonly Vector3[] vertices = new Vector3[786432];
 
-	private static int uvPos = 0;
+	private int uvPos;
 
-	private static readonly Vector2[] uvs = new Vector2[maxVertices];
+	private readonly Vector2[] uvs = new Vector2[786432];
 
-	private static int colorPos = 0;
+	private int colorPos;
 
-	private static readonly Color[] colors = new Color[maxVertices];
+	private readonly Color[] colors = new Color[786432];
 
-	private static int indicesPos = 0;
+	private int indicesPos;
 
-	private static readonly int[] indices = new int[maxIndices];
+	private readonly int[] indices = new int[1179648];
+
+	private static MeshDataPool instance;
+
+	private static int VertexPos
+	{
+		get
+		{
+			return instance.vertexPos;
+		}
+		set
+		{
+			instance.vertexPos = value;
+		}
+	}
+
+	private static Vector3[] Vertices => instance.vertices;
+
+	private static int UvPos
+	{
+		get
+		{
+			return instance.uvPos;
+		}
+		set
+		{
+			instance.uvPos = value;
+		}
+	}
+
+	private static Vector2[] Uvs => instance.uvs;
+
+	private static int ColorPos
+	{
+		get
+		{
+			return instance.colorPos;
+		}
+		set
+		{
+			instance.colorPos = value;
+		}
+	}
+
+	private static Color[] Colors => instance.colors;
+
+	private static int IndicesPos
+	{
+		get
+		{
+			return instance.indicesPos;
+		}
+		set
+		{
+			instance.indicesPos = value;
+		}
+	}
+
+	private static int[] Indices => instance.indices;
+
+	public static void Create()
+	{
+		instance = new MeshDataPool();
+	}
+
+	public static void Destroy()
+	{
+		instance = null;
+	}
 
 	public static void AddVertex(Vector3 vertex)
 	{
-		vertices[vertexPos] = vertex;
-		vertexPos++;
+		Vertices[VertexPos] = vertex;
+		VertexPos++;
 	}
 
 	public static Vector3[] GetVertices()
 	{
-		Vector3[] array = new Vector3[vertexPos];
-		Array.Copy(vertices, 0, array, 0, vertexPos);
+		Vector3[] array = new Vector3[VertexPos];
+		Array.Copy(Vertices, 0, array, 0, VertexPos);
 		return array;
 	}
 
 	public static void AddUv(Vector2 uv)
 	{
-		uvs[uvPos] = uv;
-		uvPos++;
+		Uvs[UvPos] = uv;
+		UvPos++;
 	}
 
 	public static Vector2[] GetUvs()
 	{
-		Vector2[] array = new Vector2[uvPos];
-		Array.Copy(uvs, 0, array, 0, uvPos);
+		Vector2[] array = new Vector2[UvPos];
+		Array.Copy(Uvs, 0, array, 0, UvPos);
 		return array;
 	}
 
@@ -59,32 +127,35 @@ public static class MeshDataPool
 
 	public static void AddColor(Color color)
 	{
-		colors[colorPos] = color;
-		colorPos++;
+		Colors[ColorPos] = color;
+		ColorPos++;
 	}
 
 	public static Color[] GetColors()
 	{
-		Color[] array = new Color[colorPos];
-		Array.Copy(colors, 0, array, 0, colorPos);
+		Color[] array = new Color[ColorPos];
+		Array.Copy(Colors, 0, array, 0, ColorPos);
 		return array;
 	}
 
 	public static void AddIndex(int index)
 	{
-		indices[indicesPos] = index;
-		indicesPos++;
+		Indices[IndicesPos] = index;
+		IndicesPos++;
 	}
 
 	public static int[] GetIndices()
 	{
-		int[] array = new int[indicesPos];
-		Array.Copy(indices, array, indicesPos);
+		int[] array = new int[IndicesPos];
+		Array.Copy(Indices, array, IndicesPos);
 		return array;
 	}
 
 	public static void Reset()
 	{
-		vertexPos = (uvPos = (colorPos = (indicesPos = 0)));
+		int num = (IndicesPos = 0);
+		num = (ColorPos = num);
+		num = (UvPos = num);
+		VertexPos = num;
 	}
 }

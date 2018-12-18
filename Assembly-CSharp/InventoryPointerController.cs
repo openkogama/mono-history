@@ -34,7 +34,7 @@ public class InventoryPointerController : MonoBehaviour
 
 	private void Start()
 	{
-		PlayerInventoryRepository playerInventoryRepository = MVGameControllerBase.IEditModeUI.PlayerInventoryRepository;
+		PlayerInventoryRepository playerInventoryRepository = MVGameControllerBase.EditModeUI.PlayerInventoryRepository;
 		playerInventoryRepository.OnInventoryItemAdded = (Action<int, int>)Delegate.Combine(playerInventoryRepository.OnInventoryItemAdded, new Action<int, int>(CreateBubble));
 	}
 

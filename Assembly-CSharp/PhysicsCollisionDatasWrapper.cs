@@ -3,9 +3,9 @@ using UnityEngine;
 
 public class PhysicsCollisionDatasWrapper
 {
-	private static int length = 0;
+	private int length;
 
-	private static readonly List<PhysicsCollisionData> physicsCollisionDatas = new List<PhysicsCollisionData>(100);
+	private readonly List<PhysicsCollisionData> physicsCollisionDatas = new List<PhysicsCollisionData>(100);
 
 	public int Length => length;
 

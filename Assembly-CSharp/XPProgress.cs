@@ -37,15 +37,8 @@ public class XPProgress
 	{
 		if (xpProgressData.Level != level)
 		{
-			if (!MVGameControllerBase.LevelingTestMode)
-			{
-				Debug.LogWarning("Implement XPAPI");
-				AsyncWWWManager.WWWRequest(new GetRequest(Urls.XPLimit + level, XPLimitsCallback, WWWRequestPriority.ExecuteWhileSyncronizing));
-			}
-			else
-			{
-				OnXPLevelLimitsUpdated(LevelingManager.TestLevelToLimits[level]);
-			}
+			Debug.LogWarning("Implement XPAPI");
+			AsyncWWWManager.WWWRequest(new GetRequest(Urls.XPLimit + level, XPLimitsCallback, WWWRequestPriority.ExecuteWhileSyncronizing));
 		}
 	}
 

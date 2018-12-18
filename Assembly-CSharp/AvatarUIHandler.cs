@@ -44,13 +44,16 @@ public class AvatarUIHandler : MonoBehaviour
 
 	protected virtual void OnDestroy()
 	{
-		MVGameControllerBase.OnFirstFrameUpdateActorReady = (Action)Delegate.Remove(MVGameControllerBase.OnFirstFrameUpdateActorReady, new Action(HandleTeamChange));
-		if (MVGameControllerBase.Game != null)
+		if (MVGameControllerBase.IsAlive)
 		{
-			MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
-			mVPlayerContainer.OnPlayerListChanged = (Action)Delegate.Remove(mVPlayerContainer.OnPlayerListChanged, new Action(HandleTeamChange));
-			MVGameControllerBase.Game.TeamManager.OnTeamAdded -= HandleTeamChange;
-			MVGameControllerBase.Game.TeamManager.OnTeamRemoved -= HandleTeamChange;
+			MVGameControllerBase.OnFirstFrameUpdateActorReady = (Action)Delegate.Remove(MVGameControllerBase.OnFirstFrameUpdateActorReady, new Action(HandleTeamChange));
+			if (MVGameControllerBase.Game != null)
+			{
+				MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
+				mVPlayerContainer.OnPlayerListChanged = (Action)Delegate.Remove(mVPlayerContainer.OnPlayerListChanged, new Action(HandleTeamChange));
+				MVGameControllerBase.Game.TeamManager.OnTeamAdded -= HandleTeamChange;
+				MVGameControllerBase.Game.TeamManager.OnTeamRemoved -= HandleTeamChange;
+			}
 		}
 	}
 }

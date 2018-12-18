@@ -52,7 +52,7 @@ public class SkinnedMeshOptimizer : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		if (MVGameControllerBase.Game != null && isEnabled)
+		if (MVGameControllerBase.IsAlive && MVGameControllerBase.Game != null && isEnabled)
 		{
 			((AvatarLocal)MVGameControllerBase.WOCM.AvatarLocal.Avatar).SkinnedMeshOptimizeManager.RemoveoptimizationData(optimizationData);
 		}

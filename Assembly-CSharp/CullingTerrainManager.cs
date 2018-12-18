@@ -60,10 +60,15 @@ public class CullingTerrainManager
 
 	public void Clear()
 	{
+		DestroyCullingSubscribers();
+		terrainCullingSubscriberBases.Clear();
+	}
+
+	private void DestroyCullingSubscribers()
+	{
 		foreach (KeyValuePair<IntVector, CullingSubscriberTerrainChunk> terrainCullingSubscriberBasis in terrainCullingSubscriberBases)
 		{
 			terrainCullingSubscriberBasis.Value.Destroy();
 		}
-		terrainCullingSubscriberBases.Clear();
 	}
 }

@@ -8,7 +8,7 @@ public abstract class MVCameraBase : MonoBehaviour
 
 	public float cameraRadius = 0.3f;
 
-	protected bool InputActive => !MVGameControllerBase.IPlayModeUI.InLobbyState && (ignoreInputTypes & IgnoreInputTypes.MouseMovement) == 0;
+	protected bool InputActive => !MVGameControllerBase.PlayModeUI.InLobbyState && (ignoreInputTypes & IgnoreInputTypes.MouseMovement) == 0;
 
 	public abstract CameraType CameraType { get; }
 

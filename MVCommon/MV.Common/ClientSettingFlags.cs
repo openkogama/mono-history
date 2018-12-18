@@ -13,5 +13,6 @@ public enum ClientSettingFlags
 	SpinEnabled = 0x10,
 	StathatEnabled = 0x20,
 	InterstitalAdsEnabled = 0x40,
-	RewardedAdsEnabled = 0x80
+	RewardedAdsEnabled = 0x80,
+	GamePassSilentReleaseEnabled = 0x100
 }

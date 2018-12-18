@@ -26,7 +26,7 @@ public class AccessoryItemBackground : MonoBehaviour
 			return;
 		}
 		backgroundRay.gameObject.SetActive(accessoryData.isFeatured);
-		AccessoryBundleClient accessoryBundleClient = AccessoryDataManager.GetAccessoryBundleClient();
+		AccessoryBundleClient accessoryBundleClient = AccessoryDataManager.AccessoryBundleClient;
 		List<AccessoryBundleItem> accessoryBundleItems = accessoryBundleClient.accessoryBundleItems;
 		for (int i = 0; i < accessoryBundleItems.Count; i++)
 		{

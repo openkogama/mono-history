@@ -214,11 +214,6 @@ public class WorldNetwork : World
 		return links.Contains(linkID);
 	}
 
-	public bool ObjectLinksContains(int linkID)
-	{
-		return objectLinks.Contains(linkID);
-	}
-
 	public void AddObjectLink(ObjectLink objectLink)
 	{
 		MVWorldObjectClient worldObjectClient = worldObjectClientManager.GetWorldObjectClient(objectLink.objectConnectorWOID);
@@ -237,5 +232,10 @@ public class WorldNetwork : World
 		MVWorldObjectClient worldObjectClient = worldObjectClientManager.GetWorldObjectClient(objectLink.objectConnectorWOID);
 		MVWorldObjectClient worldObjectClient2 = worldObjectClientManager.GetWorldObjectClient(objectLink.objectWOID);
 		objectLinks.RemoveObjectLink(objectLink, worldObjectClient, worldObjectClient2);
+	}
+
+	public bool ObjectLinksContains(int linkID)
+	{
+		return objectLinks.Contains(linkID);
 	}
 }

@@ -74,6 +74,11 @@ public class WaterPlaneManager : MonoBehaviour
 		Splash.Initialize();
 	}
 
+	protected void OnDestroy()
+	{
+		Splash.Destroy();
+	}
+
 	protected void Start()
 	{
 		this.skyboxManager = MVGameControllerBase.SkyboxManager;

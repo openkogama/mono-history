@@ -16,7 +16,7 @@ public class CubeModelingStateMachine : FSMEntity
 		None
 	}
 
-	private static Vector3[] zDepth1Cube = new Vector3[8]
+	private static readonly Vector3[] zDepth1Cube = new Vector3[8]
 	{
 		new Vector3(-0.5f, 0.5f, 0.25f),
 		new Vector3(0.5f, 0.5f, 0.25f),
@@ -28,13 +28,11 @@ public class CubeModelingStateMachine : FSMEntity
 		new Vector3(-0.5f, -0.5f, 0.25f)
 	};
 
-	private static byte[] zDepth1CubeByteCorners = CubeDataPacker.CornersToByteArray(zDepth1Cube);
+	private static readonly byte[] zDepth1CubeByteCorners = CubeDataPacker.CornersToByteArray(zDepth1Cube);
 
 	private ObscuredByte currentMaterialId = (byte)0;
 
 	private Material currentMaterial;
-
-	private MVCubeModelBase targetCubeModel;
 
 	private IModelingConstraint constraint;
 
@@ -47,6 +45,39 @@ public class CubeModelingStateMachine : FSMEntity
 	private bool editMode2d;
 
 	private Camera mainCamera;
+
+	public CubePickingInfo SelectedCube { get; set; }
+
+	public byte CurrentMaterialId
+	{
+		get
+		{
+			return currentMaterialId;
+		}
+		set
+		{
+			MaterialsControllerEditMode.targetMaterial = value;
+			currentMaterialId = value;
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IHandleMaterial x, BaseEventData y) =>
+			{
+				x.OnMaterialChanged(currentMaterialId);
+			});
+		}
+	}
+
+	public MVCubeModelBase TargetCubeModel { get; private set; }
+
+	public bool CursorVisible
+	{
+		get
+		{
+			return ((CubeModelTool)currentState).CursorVisible;
+		}
+		set
+		{
+			((CubeModelTool)currentState).CursorVisible = value;
+		}
+	}
 
 	public Vector3[] CubeCorners
 	{
@@ -72,40 +103,7 @@ public class CubeModelingStateMachine : FSMEntity
 		}
 	}
 
-	public byte CurrentMaterialId
-	{
-		get
-		{
-			return currentMaterialId;
-		}
-		set
-		{
-			MaterialsControllerEditMode.targetMaterial = value;
-			currentMaterialId = value;
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IHandleMaterial x, BaseEventData y) =>
-			{
-				x.OnMaterialChanged(currentMaterialId);
-			});
-		}
-	}
-
 	public Material CurrentMaterial => MVGameControllerBase.MaterialLoader.CubeModelMaterial;
-
-	public CubePickingInfo SelectedCube { get; set; }
-
-	public MVCubeModelBase TargetCubeModel => targetCubeModel;
-
-	public bool CursorVisible
-	{
-		get
-		{
-			return ((CubeModelTool)currentState).CursorVisible;
-		}
-		set
-		{
-			((CubeModelTool)currentState).CursorVisible = value;
-		}
-	}
 
 	public CubeModelingStateMachine(GameObject gameObject)
 	{
@@ -117,13 +115,13 @@ public class CubeModelingStateMachine : FSMEntity
 
 	public void StartEdit(MVCubeModelBase targetCubeModel, IModelingConstraint constraint = null)
 	{
-		if (this.targetCubeModel != null)
+		if (TargetCubeModel != null)
 		{
-			this.targetCubeModel.BeingEdited = false;
+			TargetCubeModel.BeingEdited = false;
 		}
-		this.targetCubeModel = targetCubeModel;
+		TargetCubeModel = targetCubeModel;
 		SetConstraint(constraint);
-		this.targetCubeModel.BeingEdited = true;
+		TargetCubeModel.BeingEdited = true;
 		editMode2d = MVGameControllerBase.Game.GameType == MVGameType.Platformer && targetCubeModel is MVCubeModelPrototypeTerrain;
 		if (editMode2d && (CubeModelingEvent)curEvent == CubeModelingEvent.EditCubes)
 		{
@@ -143,20 +141,20 @@ public class CubeModelingStateMachine : FSMEntity
 
 	public void EndEdit()
 	{
-		targetCubeModel.BeingEdited = false;
-		targetCubeModel = null;
+		TargetCubeModel.BeingEdited = false;
+		TargetCubeModel = null;
 	}
 
 	public override void Update()
 	{
-		if (targetCubeModel == null)
+		if (TargetCubeModel == null)
 		{
 			Debug.Log("Not set");
 			return;
 		}
 		SelectedCube = DoPicking();
 		base.Update();
-		targetCubeModel.HandleDelta();
+		TargetCubeModel.HandleDelta();
 	}
 
 	public HoverType CurrentlyHovered()
@@ -179,7 +177,7 @@ public class CubeModelingStateMachine : FSMEntity
 	public CubePickingInfo DoPicking()
 	{
 		CubePickingInfo info = new CubePickingInfo();
-		if (EditModeObjectPicker.GetPickingInfo(targetCubeModel, ref info))
+		if (EditModeObjectPicker.GetPickingInfo(TargetCubeModel, ref info))
 		{
 			Vector3 hit = Vector3.zero;
 			if (DrawPlane.Pick(ref hit))
@@ -207,18 +205,18 @@ public class CubeModelingStateMachine : FSMEntity
 		switch (action)
 		{
 		case AudioActions.CubeAdded:
-			if (targetCubeModel.GetCube(pos) == null)
+			if (TargetCubeModel.GetCube(pos) == null)
 			{
-				AudioEventHandler.PlaySound(action, pos, targetCubeModel.GameObject);
+				AudioEventHandler.PlaySound(action, pos, TargetCubeModel.GameObject);
 			}
 			break;
 		case AudioActions.FaceMoved:
-			AudioEventHandler.PlaySound(action, pos, targetCubeModel.GameObject);
+			AudioEventHandler.PlaySound(action, pos, TargetCubeModel.GameObject);
 			break;
 		case AudioActions.CubeRemoved:
-			if (targetCubeModel.GetCube(pos) != null)
+			if (TargetCubeModel.GetCube(pos) != null)
 			{
-				AudioEventHandler.PlaySound(action, pos, targetCubeModel.GameObject);
+				AudioEventHandler.PlaySound(action, pos, TargetCubeModel.GameObject);
 			}
 			break;
 		}
@@ -244,7 +242,7 @@ public class CubeModelingStateMachine : FSMEntity
 
 	public bool CanAddCubeAt(IntVector requestedCubePos)
 	{
-		if ((targetCubeModel.InteractionFlags & InteractionFlags.IsTerrain) != 0)
+		if ((TargetCubeModel.InteractionFlags & InteractionFlags.IsTerrain) != 0)
 		{
 			return true;
 		}
@@ -262,7 +260,7 @@ public class CubeModelingStateMachine : FSMEntity
 
 	public bool CanRemoveCubeAt(IntVector requestedCubePos)
 	{
-		if ((targetCubeModel.InteractionFlags & InteractionFlags.IsTerrain) != 0)
+		if ((TargetCubeModel.InteractionFlags & InteractionFlags.IsTerrain) != 0)
 		{
 			return true;
 		}
@@ -275,7 +273,7 @@ public class CubeModelingStateMachine : FSMEntity
 
 	public bool CanEditCubeAt(IntVector requestedCubePos)
 	{
-		if ((targetCubeModel.InteractionFlags & InteractionFlags.IsTerrain) != 0)
+		if ((TargetCubeModel.InteractionFlags & InteractionFlags.IsTerrain) != 0)
 		{
 			return true;
 		}

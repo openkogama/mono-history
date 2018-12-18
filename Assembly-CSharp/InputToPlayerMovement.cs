@@ -47,6 +47,10 @@ public class InputToPlayerMovement : IInputToPlayerMovement
 
 	public void HandleInputState(bool fromFrameUpdate)
 	{
+		if (MVGameControllerBase.PlayModeUI.InLobbyState)
+		{
+			return;
+		}
 		MovementMapFlags movementMapFlags = MovementMapFlags.None;
 		movementMapState = MovementMapFlags.None;
 		if (MVInputWrapper.IsInGameInputSuppressed)
@@ -73,7 +77,7 @@ public class InputToPlayerMovement : IInputToPlayerMovement
 		{
 			movementMapFlags |= MovementMapFlags.Jump;
 		}
-		if (!MVGameControllerBase.IPlayModeUI.InLobbyState)
+		if (!MVGameControllerBase.PlayModeUI.InLobbyState)
 		{
 			if (fromFrameUpdate)
 			{

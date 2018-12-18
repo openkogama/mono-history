@@ -21,7 +21,7 @@ public class PlayerCurrentGoldAmountTracker : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		if (MVGameControllerBase.Game != null)
+		if (MVGameControllerBase.IsAlive && MVGameControllerBase.Game != null)
 		{
 			MVLocalPlayer localPlayer = MVGameControllerBase.Game.LocalPlayer;
 			localPlayer.OnGoldAmountChange = (Action)Delegate.Remove(localPlayer.OnGoldAmountChange, new Action(RefreshGoldAmount));

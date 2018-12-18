@@ -1,20 +1,8 @@
-public struct LodData
+public struct LodData(float activateDistance, bool isVisible, bool shadows)
 {
-	public static int idCounter;
+	public float activateDistance = activateDistance;
 
-	public int id = idCounter;
+	public bool isVisible = isVisible;
 
-	public float activateDistance;
-
-	public bool isVisible;
-
-	public bool shadows;
-
-	public LodData(float activateDistance, bool isVisible, bool shadows)
-	{
-		idCounter++;
-		this.activateDistance = activateDistance;
-		this.isVisible = isVisible;
-		this.shadows = shadows;
-	}
+	public bool shadows = shadows;
 }

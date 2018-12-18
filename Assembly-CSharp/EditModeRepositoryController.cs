@@ -35,9 +35,9 @@ public class EditModeRepositoryController : MonoBehaviour
 		});
 		if (returnCode == 0)
 		{
-			MVGameControllerBase.IEditModeUI.PlayerInventoryRepository.AddPurchasedItem(currentlyBuyingItem);
-			MVGameControllerBase.IEditModeUI.ClientShopRepository.RemoveItem(currentlyBuyingItem);
-			MVGameControllerBase.IEditModeUI.ClientShopRepository.ReorganizeBySlotPositions();
+			MVGameControllerBase.EditModeUI.PlayerInventoryRepository.AddPurchasedItem(currentlyBuyingItem);
+			MVGameControllerBase.EditModeUI.ClientShopRepository.RemoveItem(currentlyBuyingItem);
+			MVGameControllerBase.EditModeUI.ClientShopRepository.ReorganizeBySlotPositions();
 		}
 		else
 		{

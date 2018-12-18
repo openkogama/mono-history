@@ -25,23 +25,36 @@ public static class AsyncWWWManager
 				Unsubscribe(cachedRequest.Value, callback);
 			}
 		}
+
+		public void Clear()
+		{
+			cachedRequests.Clear();
+		}
 	}
 
-	private static Action<bool> quitCallback;
-
-	private static int quitTime = 0;
-
-	private static bool isQuiting = false;
-
-	private const int quitTimeOut = 5000;
-
-	private static int maxRequests = 4;
+	private class TemporaryHashSet<T> : HashSet<T>, IDisposable
+	{
+		public void Dispose()
+		{
+			Clear();
+		}
+	}
 
 	private static int retries = 3;
 
 	public static readonly int[] RetryTimeouts = new int[3] { 30, 20, 10 };
 
-	private static Dictionary<WWWRequestPriority, Queue<AsyncWebRequest>> requests = new Dictionary<WWWRequestPriority, Queue<AsyncWebRequest>>
+	private const int quitTimeOut = 5000;
+
+	private const int maxRequests = 4;
+
+	private static Action quitCallback;
+
+	private static int quitTime;
+
+	private static bool isQuiting = false;
+
+	private static readonly Dictionary<WWWRequestPriority, Queue<AsyncWebRequest>> requests = new Dictionary<WWWRequestPriority, Queue<AsyncWebRequest>>
 	{
 		{
 			WWWRequestPriority.WaitUntilSyncronizingIsDone,
@@ -57,19 +70,17 @@ public static class AsyncWWWManager
 		}
 	};
 
-	private static HashSet<AsyncWebRequest> activeRequest = new HashSet<AsyncWebRequest>();
+	private static readonly HashSet<AsyncWebRequest> activeRequests = new HashSet<AsyncWebRequest>();
 
-	private static HashSet<AsyncWebRequest> doneRequests = new HashSet<AsyncWebRequest>();
+	private static readonly TemporaryHashSet<AsyncWebRequest> tempHashSet = new TemporaryHashSet<AsyncWebRequest>();
 
 	private static Cache cache = new Cache();
-
-	private static bool dispose = false;
 
 	public static int Retries => retries;
 
 	public static void WWWRequest(AsyncWebRequest asyncRequest)
 	{
-		if (dispose || isQuiting)
+		if (isQuiting)
 		{
 			return;
 		}
@@ -84,40 +95,93 @@ public static class AsyncWWWManager
 		requests[asyncRequest.requestPriority].Enqueue(asyncRequest);
 	}
 
-	public static void HandleQuit(Action<bool> quitHandled)
+	public static void ShutDown(Action quitHandled)
 	{
-		if (isQuiting)
+		if (!isQuiting)
+		{
+			isQuiting = true;
+			requests[WWWRequestPriority.WaitUntilSyncronizingIsDone].Clear();
+			retries = 0;
+			AddRequestsToActiveRequests(requests[WWWRequestPriority.ExecuteIgnoreAllConstraints], int.MaxValue);
+			AddRequestsToActiveRequests(requests[WWWRequestPriority.ExecuteWhileSyncronizing], int.MaxValue);
+			quitTime = WaitForTicksLocal.GetEnvironmentTick(0);
+			quitCallback = quitHandled;
+		}
+		else
 		{
 			Debug.LogError("Handle quit called twice");
-			return;
 		}
-		isQuiting = true;
-		requests[WWWRequestPriority.WaitUntilSyncronizingIsDone].Clear();
-		retries = 0;
-		AddRequestsToActiveRequests(requests[WWWRequestPriority.ExecuteIgnoreAllConstraints], int.MaxValue);
-		AddRequestsToActiveRequests(requests[WWWRequestPriority.ExecuteWhileSyncronizing], int.MaxValue);
-		quitTime = WaitForTicksLocal.GetEnvironmentTick(0);
-		quitCallback = quitHandled;
 	}
 
 	public static void UnsubscribeWWWRequest(Action<WWW> callback)
 	{
-		foreach (AsyncWebRequest item in activeRequest)
+		foreach (AsyncWebRequest activeRequest in activeRequests)
 		{
-			Unsubscribe(item, callback);
-		}
-		foreach (AsyncWebRequest doneRequest in doneRequests)
-		{
-			Unsubscribe(doneRequest, callback);
+			Unsubscribe(activeRequest, callback);
 		}
 		foreach (KeyValuePair<WWWRequestPriority, Queue<AsyncWebRequest>> request in requests)
 		{
-			foreach (AsyncWebRequest item2 in request.Value)
+			foreach (AsyncWebRequest item in request.Value)
 			{
-				Unsubscribe(item2, callback);
+				Unsubscribe(item, callback);
 			}
 		}
 		cache.UnsubscribeCached(callback);
+	}
+
+	public static void Update()
+	{
+		AddRequestsToActiveRequests(requests[WWWRequestPriority.ExecuteIgnoreAllConstraints], int.MaxValue);
+		AddRequestsToActiveRequests(requests[WWWRequestPriority.ExecuteWhileSyncronizing], 4);
+		if (MVGameControllerBase.JoinState == MVJoinState.Playing)
+		{
+			AddRequestsToActiveRequests(requests[WWWRequestPriority.WaitUntilSyncronizingIsDone], 4);
+		}
+		using (TemporaryHashSet<AsyncWebRequest> temporaryHashSet = tempHashSet)
+		{
+			foreach (AsyncWebRequest activeRequest in activeRequests)
+			{
+				if (activeRequest.Update())
+				{
+					temporaryHashSet.Add(activeRequest);
+				}
+			}
+			foreach (AsyncWebRequest item in temporaryHashSet)
+			{
+				activeRequests.Remove(item);
+			}
+		}
+		if (isQuiting)
+		{
+			Quit();
+		}
+	}
+
+	public static void Reset()
+	{
+		retries = 3;
+		isQuiting = false;
+		foreach (Queue<AsyncWebRequest> value in requests.Values)
+		{
+			value.Clear();
+			value.TrimExcess();
+		}
+		foreach (AsyncWebRequest activeRequest in activeRequests)
+		{
+			activeRequest.Dispose();
+		}
+		activeRequests.Clear();
+		tempHashSet.TrimExcess();
+		cache.Clear();
+	}
+
+	public static void PostResetCleanup()
+	{
+		if (quitCallback != null)
+		{
+			Debug.LogWarning("AsyncWWWManager quitCallback is not null.");
+			quitCallback = null;
+		}
 	}
 
 	private static void Unsubscribe(AsyncWebRequest request, Action<WWW> callback)
@@ -130,71 +194,28 @@ public static class AsyncWWWManager
 
 	private static void AddRequestsToActiveRequests(Queue<AsyncWebRequest> requestQueue, int maxRequestForQueue)
 	{
-		while (activeRequest.Count < maxRequestForQueue && requestQueue.Count > 0)
+		while (activeRequests.Count < maxRequestForQueue && requestQueue.Count > 0)
 		{
-			activeRequest.Add(requestQueue.Dequeue());
+			activeRequests.Add(requestQueue.Dequeue());
 		}
 	}
 
-	public static void Update()
+	private static void Quit()
 	{
-		if (dispose)
+		if (quitCallback != null)
 		{
-			return;
-		}
-		AddRequestsToActiveRequests(requests[WWWRequestPriority.ExecuteIgnoreAllConstraints], int.MaxValue);
-		AddRequestsToActiveRequests(requests[WWWRequestPriority.ExecuteWhileSyncronizing], maxRequests);
-		if (MVGameControllerBase.JoinState == MVJoinState.Playing)
-		{
-			AddRequestsToActiveRequests(requests[WWWRequestPriority.WaitUntilSyncronizingIsDone], maxRequests);
-		}
-		foreach (AsyncWebRequest item in activeRequest)
-		{
-			if (item.Update())
+			if (activeRequests.Count == 0)
 			{
-				doneRequests.Add(item);
-			}
-		}
-		foreach (AsyncWebRequest doneRequest in doneRequests)
-		{
-			activeRequest.Remove(doneRequest);
-		}
-		doneRequests.Clear();
-		QuitHandling();
-	}
-
-	private static void QuitHandling()
-	{
-		if (isQuiting && quitCallback != null)
-		{
-			if (activeRequest.Count == 0)
-			{
-				quitCallback(obj: true);
+				Debug.Log("AsyncWWWManager did handle all request on quit: " + true);
+				quitCallback();
 				quitCallback = null;
 			}
 			else if (WaitForTicksLocal.Diff(quitTime) > 5000)
 			{
-				quitCallback(obj: false);
+				Debug.Log("AsyncWWWManager did handle all request on quit: " + false);
+				quitCallback();
 				quitCallback = null;
 			}
 		}
-	}
-
-	public static void Dispose()
-	{
-		dispose = true;
-		foreach (AsyncWebRequest item in activeRequest)
-		{
-			item.Dispose();
-		}
-		activeRequest.Clear();
-		foreach (KeyValuePair<WWWRequestPriority, Queue<AsyncWebRequest>> request in requests)
-		{
-			foreach (AsyncWebRequest item2 in request.Value)
-			{
-				item2.Dispose();
-			}
-		}
-		requests.Clear();
 	}
 }

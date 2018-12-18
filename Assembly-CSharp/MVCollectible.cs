@@ -108,27 +108,28 @@ public class MVCollectible : MVLogicObject
 	public override void Destroy()
 	{
 		base.Destroy();
-		if (initializedInWorld)
+		if (!initializedInWorld)
 		{
-			AllCollectiblesCollectedClient singletonWinnerConditionByType = MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<AllCollectiblesCollectedClient>();
-			if (singletonWinnerConditionByType == null)
-			{
-				throw new Exception("AllCollectiblesCollected not found.");
-			}
-			if (singletonWinnerConditionByType.Limit == 0)
-			{
-				throw new Exception("AllCollectiblesCollected limit is 0");
-			}
-			singletonWinnerConditionByType.SetLimit(singletonWinnerConditionByType.Limit - 1);
+			return;
+		}
+		AllCollectiblesCollectedClient singletonWinnerConditionByType = MVGameControllerBase.Game.WinningConditionManager.GetSingletonWinnerConditionByType<AllCollectiblesCollectedClient>();
+		if (singletonWinnerConditionByType == null)
+		{
+			throw new Exception("AllCollectiblesCollected not found.");
+		}
+		if (singletonWinnerConditionByType.Limit == 0)
+		{
+			throw new Exception("AllCollectiblesCollected limit is 0");
+		}
+		singletonWinnerConditionByType.SetLimit(singletonWinnerConditionByType.Limit - 1);
+		if (MVGameControllerBase.IsAlive && MVGameControllerBase.Game != null)
+		{
 			if (singletonWinnerConditionByType.Limit == 0)
 			{
 				MVGameControllerBase.Game.WinningConditionManager.RemoveWinnerCondition(singletonWinnerConditionByType.ID);
 			}
-			if (MVGameControllerBase.Game != null)
-			{
-				MVNetworkGame game = MVGameControllerBase.Game;
-				game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Remove(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnWinningConditionFulfilled));
-			}
+			MVNetworkGame game = MVGameControllerBase.Game;
+			game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Remove(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnWinningConditionFulfilled));
 		}
 	}
 
@@ -208,6 +209,7 @@ public class MVCollectible : MVLogicObject
 	private void OnWinningConditionFulfilled(IWinningCondition winningCondition)
 	{
 		takenByTeamList.Clear();
+		Reset();
 	}
 
 	protected override void OnUpdate()

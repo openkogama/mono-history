@@ -101,25 +101,25 @@ public class BrowserComm : MonoBehaviour
 		}
 	}
 
+	public static bool enableExternalCall = true;
+
+	public static bool enableBrowserRequest = true;
+
 	private static string browserName = "browser name not set";
 
 	private static int browserVersion = -1;
 
 	private static Dictionary<int, Callback> callbacks = new Dictionary<int, Callback>();
 
-	public static bool enableExternalCall = true;
-
-	public static bool enableBrowserRequest = true;
-
 	public static string BrowserName => browserName;
 
 	public static int BrowserVersion => browserVersion;
 
-	public static void ExecuteBrowserRequest(string browserRequest)
+	public static void ExecuteBrowserRequest(string url)
 	{
 		if (enableBrowserRequest)
 		{
-			Application.OpenURL(browserRequest);
+			Application.OpenURL(url);
 		}
 	}
 

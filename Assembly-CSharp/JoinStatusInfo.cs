@@ -7,7 +7,7 @@ public class JoinStatusInfo : MonoBehaviour
 
 	private MVConnState prevConnState;
 
-	private void Update()
+	protected void Update()
 	{
 		if (MVGameControllerBase.Game == null)
 		{

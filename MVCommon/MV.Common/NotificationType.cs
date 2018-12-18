@@ -28,5 +28,7 @@ public enum NotificationType
 	HurryUp,
 	FlagHighScore,
 	CurrentProgress,
-	TimeAttackFlagCountDown
+	TimeAttackFlagCountDown,
+	WaitCountDown,
+	NextLevelReward
 }

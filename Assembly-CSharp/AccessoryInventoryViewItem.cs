@@ -14,10 +14,10 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, I
 	private bool locked;
 
 	[SerializeField]
-	private RawImage previewImage;
+	private RectTransform previewImage;
 
 	[SerializeField]
-	private StreamPngToSprite previewImageStreaminAssetManual;
+	private StreamedSpriteToImageManual previewImageStreaminAssetManual;
 
 	[SerializeField]
 	private GameObject loadingWheel;
@@ -189,7 +189,7 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, I
 
 	private void OnDestroy()
 	{
-		if (MVGameControllerBase.Game != null)
+		if (MVGameControllerBase.IsAlive && MVGameControllerBase.Game != null)
 		{
 			MVNetworkGame game = MVGameControllerBase.Game;
 			game.OnAccessoryUnequipped = (Action)Delegate.Remove(game.OnAccessoryUnequipped, new Action(UnequipAccessoryCallback));
@@ -198,7 +198,6 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, I
 		accessoryLoader.Destroy();
 		accessoryLoader = null;
 		BadgeManager.UnsubscribeGetBadgeRequest(OnLevelRequirementLoaded);
-		previewImageStreaminAssetManual.CancelDownload();
 	}
 
 	private void AccessoryCreatedCallback(AvatarAccessory avatarAccessory)
@@ -209,15 +208,13 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, I
 			return;
 		}
 		avatarAccessory.transform.parent = rootTransform;
-		string text = "AccessoryShop/" + accessoryDataClient.category.ToString() + "Images/";
+		string text = "AvatarAccessory/" + accessoryDataClient.category.ToString() + "/Images/";
 		string[] array = accessoryDataClient.url.Split(new string[1] { "/" }, StringSplitOptions.None);
 		array = array[array.Length - 1].Split(new string[1] { "." }, StringSplitOptions.None);
 		string text2 = array[0];
-		text2 += "Image.png";
+		text2 += "Image.unity3d";
 		text += text2.ToLower();
-		StreamPngToSprite streamPngToSprite = previewImageStreaminAssetManual;
-		streamPngToSprite.OnDownloadFinish = (Action)Delegate.Combine(streamPngToSprite.OnDownloadFinish, new Action(OnPreviewImageDownloadFinished));
-		previewImageStreaminAssetManual.StartDownloading(text);
+		previewImageStreaminAssetManual.Download(text, OnPreviewImageDownloadFinished);
 		SkinnedMeshOptimizer[] componentsInChildren = avatarAccessory.GetComponentsInChildren<SkinnedMeshOptimizer>();
 		for (int i = 0; i < componentsInChildren.Length; i++)
 		{
@@ -231,8 +228,6 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, I
 		{
 			return;
 		}
-		StreamPngToSprite streamPngToSprite = previewImageStreaminAssetManual;
-		streamPngToSprite.OnDownloadFinish = (Action)Delegate.Remove(streamPngToSprite.OnDownloadFinish, new Action(OnPreviewImageDownloadFinished));
 		previewImage.gameObject.SetActive(value: true);
 		loadingWheel.SetActive(value: false);
 		accessoryItemBackground.gameObject.SetActive(value: true);
@@ -253,7 +248,7 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, I
 				LevelingManager.OnLevelingInitialized = (UnityAction)Delegate.Combine(LevelingManager.OnLevelingInitialized, new UnityAction(SetLevelBadge));
 			}
 		}
-		if (MVGameControllerBase.Game.LocalPlayer.Level > accessoryDataClient.level)
+		if (MVGameControllerBase.Game.LocalPlayer.Level >= accessoryDataClient.level)
 		{
 			timeLimitDisplayer.Initialize(accessoryDataClient.timelimit);
 			timeLimitDisplayer.gameObject.SetActive(locked && accessoryDataClient.timelimit.IsTimeLimited);
@@ -293,14 +288,14 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, I
 	private IEnumerator OnHoverEvent(float sizeOffset)
 	{
 		float startTime = Time.time;
-		Vector2 startSize = previewImage.rectTransform.sizeDelta;
+		Vector2 startSize = previewImage.sizeDelta;
 		Vector2 targetSize = new Vector2(sizeOffset, sizeOffset);
 		while (Time.time - startTime < effectDuration)
 		{
-			previewImage.rectTransform.sizeDelta = Vector2.Lerp(startSize, targetSize, (Time.time - startTime) / effectDuration);
+			previewImage.sizeDelta = Vector2.Lerp(startSize, targetSize, (Time.time - startTime) / effectDuration);
 			yield return null;
 		}
-		previewImage.rectTransform.sizeDelta = Vector2.Lerp(startSize, targetSize, 1f);
+		previewImage.sizeDelta = Vector2.Lerp(startSize, targetSize, 1f);
 		yield return null;
 	}
 }
