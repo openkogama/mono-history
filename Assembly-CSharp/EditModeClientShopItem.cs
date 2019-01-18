@@ -1,3 +1,4 @@
+using MV.WorldObject.Subscription;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -42,6 +43,26 @@ public class EditModeClientShopItem : MonoBehaviour
 	}
 
 	public void SlotPressed()
+	{
+		if (MVGameControllerBase.Game.LocalPlayer.SubscriptionRules.HasBenefit(SubscriptionBenefit.FreeBuildingGameObjects))
+		{
+			InventoryItem inventoryItem = new InventoryItem(item);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
+			{
+				handler.PopGroups(UIGroupFlags.InventoryUI);
+			});
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAddItemFromInventory x, BaseEventData y) =>
+			{
+				x.OnAddItemFromInventory(inventoryItem);
+			});
+		}
+		else
+		{
+			ShowPurchasePopUp();
+		}
+	}
+
+	public void ShowPurchasePopUp()
 	{
 		ItemPurchasePopup purchasePopup = Object.Instantiate(popup);
 		purchasePopup.Initialize(previewImage, item);

@@ -1,12 +1,17 @@
 using System.Collections.Generic;
+using MV.WorldObject.Subscription;
 
 public class ScoreBoardSingleBase : ScoreBoardBase
 {
 	public override void OnStatsChange(int actorNumber, int scoreCount)
 	{
-		if (MVGameControllerBase.Game.MVPlayerContainer.TryGetValue(actorNumber, out var player) && IsNewScoreBetter(scoreCount, scoreBoardPlayerData[scoreBoardPlayerData.Count - 1].Score))
+		if (MVGameControllerBase.Game.MVPlayerContainer.TryGetValue(actorNumber, out var player))
 		{
-			SortNewScore(player.Username, actorNumber, scoreCount);
+			bool activateMemberUI = player.SubscriptionRules.HasBenefit(SubscriptionBenefit.XPBoost);
+			if (IsNewScoreBetter(scoreCount, scoreBoardPlayerData[scoreBoardPlayerData.Count - 1].Score))
+			{
+				SortNewScore(player.UserProfileData.UserName, actorNumber, scoreCount, activateMemberUI);
+			}
 		}
 	}
 
@@ -53,9 +58,10 @@ public class ScoreBoardSingleBase : ScoreBoardBase
 			if (item.Value != null)
 			{
 				int actorCount = MVGameControllerBase.Game.GameStatCounterManager.GetActorCount(statType, item.Value.Team, item.Value.ActorNr);
+				bool activateMemberUI = item.Value.SubscriptionRules.HasBenefit(SubscriptionBenefit.XPBoost);
 				if (IsNewScoreBetter(actorCount, scoreBoardPlayerData[scoreBoardPlayerData.Count - 1].Score))
 				{
-					SortNewScore(item.Value.Username, item.Value.ActorNr, actorCount);
+					SortNewScore(item.Value.UserProfileData.UserName, item.Value.ActorNr, actorCount, activateMemberUI);
 				}
 			}
 		}

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MV.WorldObject.Subscription;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -38,7 +39,11 @@ public class MaterialViewItem : MonoBehaviour, IPointerEnterHandler, IPointerExi
 		this.isAvailable = isAvailable;
 		this.id = id;
 		this.locked = locked;
-		lockedImage.gameObject.SetActive(locked);
+		if (locked && MVGameControllerBase.Game.LocalPlayer.SubscriptionRules.HasBenefit(SubscriptionBenefit.FreeBuildingMaterials))
+		{
+			this.locked = false;
+		}
+		lockedImage.gameObject.SetActive(this.locked);
 		buttonImage.texture = texture2D;
 		if (!isAvailable)
 		{

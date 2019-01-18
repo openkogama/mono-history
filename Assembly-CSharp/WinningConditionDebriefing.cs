@@ -294,7 +294,7 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 			string empty = string.Empty;
 			if (list.Count == 1)
 			{
-				empty = list[0].Username;
+				empty = list[0].UserProfileData.UserName;
 			}
 			else
 			{
@@ -304,7 +304,7 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 					empty += " between ";
 					for (int k = 0; k < list.Count; k++)
 					{
-						empty += list[k].Username;
+						empty += list[k].UserProfileData.UserName;
 						if (k < list.Count - 1)
 						{
 							empty += " and ";

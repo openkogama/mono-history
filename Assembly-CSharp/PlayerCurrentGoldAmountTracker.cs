@@ -9,14 +9,14 @@ public class PlayerCurrentGoldAmountTracker : MonoBehaviour
 
 	private void Start()
 	{
-		goldAmount.text = MVGameControllerBase.Game.LocalPlayer.GoldAmount.ToString("N0").Replace(",", " ");
+		goldAmount.text = MVGameControllerBase.Game.LocalPlayer.UserProfileData.Gold.ToString("N0").Replace(",", " ");
 		MVLocalPlayer localPlayer = MVGameControllerBase.Game.LocalPlayer;
 		localPlayer.OnGoldAmountChange = (Action)Delegate.Combine(localPlayer.OnGoldAmountChange, new Action(RefreshGoldAmount));
 	}
 
 	private void RefreshGoldAmount()
 	{
-		goldAmount.text = MVGameControllerBase.Game.LocalPlayer.GoldAmount.ToString("N0").Replace(",", " ");
+		goldAmount.text = MVGameControllerBase.Game.LocalPlayer.UserProfileData.Gold.ToString("N0").Replace(",", " ");
 	}
 
 	private void OnDestroy()

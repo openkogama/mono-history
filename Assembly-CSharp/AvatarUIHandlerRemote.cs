@@ -1,4 +1,5 @@
 using MV.WorldObject;
+using MV.WorldObject.Subscription;
 using UnityEngine;
 
 public class AvatarUIHandlerRemote : AvatarUIHandler
@@ -52,6 +53,9 @@ public class AvatarUIHandlerRemote : AvatarUIHandler
 	[SerializeField]
 	private SayChatBubbleHandler sayChatBubbleHandler;
 
+	[SerializeField]
+	private GameObject memberFrame;
+
 	private bool shouldShowMobileIcon;
 
 	private bool nameTagLabelVisible;
@@ -95,6 +99,11 @@ public class AvatarUIHandlerRemote : AvatarUIHandler
 		avatarNameMaterial = avatarName.GetComponent<Renderer>().material;
 		avatarHealthMaterial = healthBarRenderer.material;
 		avatarShieldMaterial = shieldBarRenderer.material;
+		MVPlayer playerUnsafe = MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(mvAvatar.OwnerActorNr);
+		if (playerUnsafe != null)
+		{
+			memberFrame.SetActive(playerUnsafe.SubscriptionRules.HasBenefit(SubscriptionBenefit.XPBoost));
+		}
 	}
 
 	public override void SetShouldShowUI(bool shouldShow)
@@ -136,7 +145,7 @@ public class AvatarUIHandlerRemote : AvatarUIHandler
 	public void UpdateNameTag()
 	{
 		MVPlayer playerUnsafe = MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(mvAvatar.OwnerActorNr);
-		avatarName.text = playerUnsafe.Username;
+		avatarName.text = playerUnsafe.UserProfileData.UserName;
 		Color color = Color.white;
 		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
 		{

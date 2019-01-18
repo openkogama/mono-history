@@ -41,7 +41,7 @@ public class WinningWarningNotification : Notification
 		{
 			base.Initialize(data);
 			scoreText.text = (string)data[(byte)1];
-			userNameText.text = player.Username;
+			userNameText.text = player.UserProfileData.UserName;
 			fader.Activate();
 			SelectWinningConditionImage(winningConditionType, player);
 			SetWarningText(winningConditionType, scoreLeft);

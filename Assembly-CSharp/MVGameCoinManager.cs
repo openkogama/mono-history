@@ -2,6 +2,8 @@ using System;
 using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
 using MV.WorldObject;
+using MV.WorldObject.Subscription;
+using MV.WorldObject.Subscription.SubscriptionRules;
 using UnityEngine;
 
 public class MVGameCoinManager
@@ -16,11 +18,7 @@ public class MVGameCoinManager
 
 	private ObscuredInt intervalAmount = 1;
 
-	private ObscuredInt boostLeft;
-
 	private ObscuredBool boostEnabled;
-
-	private ObscuredInt prevBoostTime;
 
 	private ObscuredFloat boostedInterval = 2f;
 
@@ -36,7 +34,7 @@ public class MVGameCoinManager
 
 	public OnGameCoinAmountChangeDelegate OnGameCoinAmountChange;
 
-	public Action<int, bool> BoostStateChanged;
+	public Action<bool> BoostStateChanged;
 
 	public int GameCoinAmount => gameCoins;
 
@@ -44,23 +42,27 @@ public class MVGameCoinManager
 
 	public bool Active => isActive;
 
-	public int BoostLeft => boostLeft;
-
 	public bool BoostEnabled => boostEnabled;
 
-	public MVGameCoinManager(int boostLeft)
+	public MVGameCoinManager()
 	{
-		this.boostLeft = boostLeft;
+		if (MVGameControllerBase.Game.MVPlayerContainer.Count == 0 || !MVGameControllerBase.Game.LocalPlayer.IsReady)
+		{
+			MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
+			mVPlayerContainer.OnLocalPlayerReady = (Action)Delegate.Combine(mVPlayerContainer.OnLocalPlayerReady, new Action(LateInitialize));
+		}
+		else
+		{
+			Initialize();
+		}
 	}
 
-	public void OnGameBoostChanged(int boostLeft, bool boostEnabled)
+	public void OnGameBoostChanged(bool boostEnabled)
 	{
-		this.boostLeft = boostLeft;
 		this.boostEnabled = boostEnabled;
 		if (boostEnabled)
 		{
-			prevBoostTime = WaitForTicks.GetEnvironmentTick(0);
-			boostedInterval = 0.25f;
+			boostedInterval = (float)interval / (float)MVGameControllerBase.Game.LocalPlayer.SubscriptionRules.GetRule<GameCoinBooster>(SubscriptionBenefit.GameCoinBoost).GetBoostedGameCoins(1);
 		}
 		else
 		{
@@ -68,19 +70,12 @@ public class MVGameCoinManager
 		}
 		if (BoostStateChanged != null)
 		{
-			BoostStateChanged(boostLeft, boostEnabled);
+			BoostStateChanged(boostEnabled);
 		}
 	}
 
 	public void Update(MVNetworkGame game)
 	{
-		if ((bool)boostEnabled)
-		{
-			int num = WaitForTicks.Diff(prevBoostTime);
-			prevBoostTime = WaitForTicks.GetEnvironmentTick(0);
-			boostLeft = (int)boostLeft - num;
-			boostLeft = Math.Max(0, boostLeft);
-		}
 		if (!isActive)
 		{
 			return;
@@ -116,7 +111,8 @@ public class MVGameCoinManager
 
 	public void GameCoinCollect()
 	{
-		gameCoins = (int)gameCoins + (int)gameCoinPickupValue;
+		ObscuredInt obscuredInt = gameCoinPickupValue;
+		gameCoins = (int)gameCoins + (int)obscuredInt;
 		if (OnGameCoinAmountChange != null)
 		{
 			OnGameCoinAmountChange(gameCoins);
@@ -181,5 +177,18 @@ public class MVGameCoinManager
 				OnActivationChange(isActive);
 			}
 		}
+	}
+
+	private void LateInitialize()
+	{
+		MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
+		mVPlayerContainer.OnLocalPlayerReady = (Action)Delegate.Remove(mVPlayerContainer.OnLocalPlayerReady, new Action(LateInitialize));
+		Initialize();
+	}
+
+	private void Initialize()
+	{
+		boostEnabled = MVGameControllerBase.Game.LocalPlayer.SubscriptionRules.HasBenefit(SubscriptionBenefit.GameCoinBoost);
+		OnGameBoostChanged(boostEnabled);
 	}
 }

@@ -81,7 +81,7 @@ public class BundleView : MonoBehaviour
 			});
 			errorPopup.Initialize(OnInsufficientLevelCallback, bundleData.level);
 		}
-		else if (MVGameControllerBase.Game.LocalPlayer.GoldAmount < price)
+		else if (MVGameControllerBase.Game.LocalPlayer.UserProfileData.Gold < price)
 		{
 			BundleErrorPopUp errorPopup2 = UnityEngine.Object.Instantiate(bundleErrorPopUp);
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>

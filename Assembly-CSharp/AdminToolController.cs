@@ -163,7 +163,7 @@ public class AdminToolController : MonoBehaviour
 	{
 		foreach (MVPlayer value in MVGameControllerBase.Game.MVPlayerContainer.Values)
 		{
-			if (value.Username == userName)
+			if (value.UserProfileData.UserName == userName)
 			{
 				return value;
 			}

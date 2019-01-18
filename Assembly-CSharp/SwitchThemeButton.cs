@@ -1,3 +1,4 @@
+using MV.WorldObject.Subscription;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,6 +15,9 @@ public class SwitchThemeButton : MonoBehaviour
 
 	[SerializeField]
 	private Text priceTagNumber;
+
+	[SerializeField]
+	private GameObject memberUI;
 
 	[SerializeField]
 	private Button button;
@@ -50,13 +54,21 @@ public class SwitchThemeButton : MonoBehaviour
 		{
 			LevelRequirement = levelReq;
 			this.levelReq.SetActive(value: true);
+			memberUI.SetActive(value: false);
 			priceTag.SetActive(value: true);
+		}
+		else if (MVGameControllerBase.Game.LocalPlayer.SubscriptionRules.HasBenefit(SubscriptionBenefit.FreeBuildingGameObjects))
+		{
+			this.levelReq.SetActive(value: false);
+			priceTag.SetActive(value: false);
+			memberUI.SetActive(value: true);
 		}
 		else
 		{
 			GoldRequirement = goldReq;
 			this.levelReq.SetActive(value: false);
 			priceTag.SetActive(value: true);
+			memberUI.SetActive(value: false);
 		}
 	}
 

@@ -8,6 +8,8 @@ public class XPProgressData
 
 	private XPRewardType xpId;
 
+	private int memberCount;
+
 	private int xpDelta;
 
 	public XPLevelLimits XPLevelLimits
@@ -43,6 +45,18 @@ public class XPProgressData
 		set
 		{
 			playerCurrentXP = value;
+		}
+	}
+
+	public int MemberCount
+	{
+		get
+		{
+			return memberCount;
+		}
+		set
+		{
+			memberCount = value;
 		}
 	}
 

@@ -9,7 +9,7 @@ public class FirstTimePlayModeWelcome : MonoBehaviour
 	private void Start()
 	{
 		string text = TM._("Welcome:");
-		text = text + " " + MVGameControllerBase.Game.LocalPlayer.Username;
+		text = text + " " + MVGameControllerBase.Game.LocalPlayer.UserProfileData.UserName;
 		welcomeText.text = text;
 	}
 }

@@ -203,7 +203,7 @@ public class AndroidChatController : MonoBehaviour
 		{
 			format = chatMessageFromFriend;
 		}
-		string text2 = string.Format(format, Styles.ColorToHex(teamColor), mVPlayer.Username, Styles.ColorToHex(chatMessageColor), text);
+		string text2 = string.Format(format, Styles.ColorToHex(teamColor), mVPlayer.UserProfileData.UserName, Styles.ColorToHex(chatMessageColor), text);
 		AddLine(text2);
 	}
 
@@ -253,7 +253,7 @@ public class AndroidChatController : MonoBehaviour
 			teamColor = Styles.GetTeamColor(mVPlayer.Team);
 		}
 		Color color = teamColor;
-		return $"<color=#{Styles.ColorToHex(color)}>[{mVPlayer.Username}] </color><color=#{Styles.ColorToHex(teamColor)}>{text2}: </color><color=#{Styles.ColorToHex(chatMessageColor)}>{text}</color>";
+		return $"<color=#{Styles.ColorToHex(color)}>[{mVPlayer.UserProfileData.UserName}] </color><color=#{Styles.ColorToHex(teamColor)}>{text2}: </color><color=#{Styles.ColorToHex(chatMessageColor)}>{text}</color>";
 	}
 
 	private void HandleSayChatMessage(Dictionary<object, object> data)
@@ -285,6 +285,6 @@ public class AndroidChatController : MonoBehaviour
 			teamColor = Styles.GetTeamColor(mVPlayer.Team);
 		}
 		Color color = teamColor;
-		return $"<color=#{Styles.ColorToHex(color)}>[{mVPlayer.Username}] </color><color=#{Styles.ColorToHex(sayColor)}>{text2}: </color><color=#{Styles.ColorToHex(chatMessageColor)}>{text}</color>";
+		return $"<color=#{Styles.ColorToHex(color)}>[{mVPlayer.UserProfileData.UserName}] </color><color=#{Styles.ColorToHex(sayColor)}>{text2}: </color><color=#{Styles.ColorToHex(chatMessageColor)}>{text}</color>";
 	}
 }

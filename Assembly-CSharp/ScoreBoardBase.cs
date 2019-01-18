@@ -19,6 +19,12 @@ public abstract class ScoreBoardBase : MonoBehaviour
 		public int Score;
 
 		public Image Background;
+
+		public GameObject MemberUI;
+
+		public Text MemberPlacementText;
+
+		public bool ShouldShowMemberUI;
 	}
 
 	protected GameStatCounterType statType;
@@ -61,7 +67,7 @@ public abstract class ScoreBoardBase : MonoBehaviour
 		}
 	}
 
-	protected void SortNewScore(string playerName, int id, int scoreCount)
+	protected void SortNewScore(string playerName, int id, int scoreCount, bool activateMemberUI = false)
 	{
 		if (!HandleAlreadyOnScoreBoard(id, scoreCount))
 		{
@@ -70,6 +76,7 @@ public abstract class ScoreBoardBase : MonoBehaviour
 			scoreBoardPlayerData[scoreBoardPlayerData.Count - 1].Background.color = GetBackgroundColor(id);
 			scoreBoardPlayerData[scoreBoardPlayerData.Count - 1].Id = id;
 			scoreBoardPlayerData[scoreBoardPlayerData.Count - 1].ScoreText.text = ScoreIntoString(scoreCount);
+			scoreBoardPlayerData[scoreBoardPlayerData.Count - 1].ShouldShowMemberUI = activateMemberUI;
 			if (id < 0)
 			{
 				scoreBoardPlayerData[scoreBoardPlayerData.Count - 1].ScoreText.text = string.Empty;
@@ -97,6 +104,7 @@ public abstract class ScoreBoardBase : MonoBehaviour
 		for (int k = 0; k < scoreBoardPlayerData.Count; k++)
 		{
 			SetPlacementTextForIndex(k);
+			SetActiveMemberUI(k, scoreBoardPlayerData[k].ShouldShowMemberUI);
 			scoreBoardPlayerData[k].Background.transform.SetAsLastSibling();
 		}
 		HandleParticipantListChanged();
@@ -165,6 +173,10 @@ public abstract class ScoreBoardBase : MonoBehaviour
 	private void SetPlacementTextForIndex(int index)
 	{
 		scoreBoardPlayerData[index].PlacementText.text = (index + 1).ToString();
+		if ((bool)scoreBoardPlayerData[index].MemberPlacementText)
+		{
+			scoreBoardPlayerData[index].MemberPlacementText.text = (index + 1).ToString();
+		}
 	}
 
 	protected void ResetScoreBoard()
@@ -173,6 +185,19 @@ public abstract class ScoreBoardBase : MonoBehaviour
 		{
 			scoreBoardPlayerData[i].Score = -1;
 			scoreBoardPlayerData[i].Id = -1;
+			scoreBoardPlayerData[i].ShouldShowMemberUI = false;
+		}
+	}
+
+	private void SetActiveMemberUI(int index, bool shouldBeActive)
+	{
+		if (scoreBoardPlayerData[index].MemberUI != null)
+		{
+			scoreBoardPlayerData[index].MemberUI.SetActive(shouldBeActive);
+			if (shouldBeActive)
+			{
+				scoreBoardPlayerData[index].PlacementText.text = string.Empty;
+			}
 		}
 	}
 }

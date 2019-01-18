@@ -1194,8 +1194,8 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 
 		private void HandleStuck()
 		{
-			mvAvatar.Die();
-			MVGameControllerBase.OperationRequests.PostGameMsg(MVGameMsgType.AvatarKilled, GameMessages.MakePlayerKilledMessage(MVGameControllerBase.Game.LocalPlayer.ActorNr, MVGameControllerBase.Game.LocalPlayer.ActorNr, PlayerKilledByType.Crushed));
+			mvAvatar.Health.Value = 0f;
+			mvAvatar.InteractableLocal.DieFromStuck();
 		}
 
 		private void DieByFalling()
@@ -1564,9 +1564,9 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 				color = Styles.GetColor(ColorStyle.Gray);
 				color2 = Styles.GetColor(ColorStyle.Gray);
 			}
-			string username = MVGameControllerBase.Game.MVPlayerContainer[actorNr].Username;
-			string username2 = MVGameControllerBase.Game.MVPlayerContainer[num].Username;
-			string obj = string.Format(KillNotification.GetKillText(damageType, shotSelf), Styles.ColorToHex(color), username, Styles.ColorToHex(color2), username2);
+			string userName = MVGameControllerBase.Game.MVPlayerContainer[actorNr].UserProfileData.UserName;
+			string userName2 = MVGameControllerBase.Game.MVPlayerContainer[num].UserProfileData.UserName;
+			string obj = string.Format(KillNotification.GetKillText(damageType, shotSelf), Styles.ColorToHex(color), userName, Styles.ColorToHex(color2), userName2);
 			OnKilled(obj);
 		}
 	}

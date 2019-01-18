@@ -30,5 +30,7 @@ public enum NotificationType
 	CurrentProgress,
 	TimeAttackFlagCountDown,
 	WaitCountDown,
-	NextLevelReward
+	NextLevelReward,
+	SubscriberJoined,
+	XPBoost
 }

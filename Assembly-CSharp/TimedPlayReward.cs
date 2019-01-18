@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using MV.Common;
 using Newtonsoft.Json;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 {
@@ -47,15 +46,11 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 	[SerializeField]
 	private int timeInSeconds;
 
-	[SerializeField]
-	private Button claimRewardBtn;
-
-	[SerializeField]
-	private Text timerText;
-
 	public bool RewardAvailable { get; private set; }
 
 	private int RewardXP { get; set; }
+
+	public bool IsClaimable { get; private set; }
 
 	public void Initialize()
 	{
@@ -65,6 +60,7 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 			UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
 			RewardAvailable = false;
 			gameObject.SetActive(value: false);
+			IsClaimable = false;
 			RequestRewardPermission();
 		}
 	}
@@ -82,7 +78,7 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 		OnFinishedViewingAd();
 	}
 
-	public void RewardClicked()
+	public void ClaimReward()
 	{
 		if (!RewardTracker.IsCollected && RewardTracker.CollectedChanged != null)
 		{
@@ -92,7 +88,7 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 
 	private void OnFinishedViewingAd()
 	{
-		claimRewardBtn.gameObject.SetActive(value: false);
+		gameObject.SetActive(value: false);
 		NotificationController.PushNotification(TM._("Thank you for playing this NEW game! Received " + RewardXP + " XP!"));
 		AvatarPooledXPParticles avatarPooledXPParticles = PrefabPool.Instance.EnumPoolManager.Instantiate<AvatarPooledXPParticles>(PoolEnums.XP);
 		avatarPooledXPParticles.transform.parent = MVGameControllerBase.WOCM.AvatarLocal.Transform;
@@ -101,9 +97,7 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 		avatarPooledXPParticles.transform.localScale = Vector3.one;
 		avatarPooledXPParticles.gameObject.layer = MVGameControllerBase.Game.LocalPlayer.Avatar.Body.GameObject.layer;
 		avatarPooledXPParticles.Initialize(RewardXP);
-		avatarPooledXPParticles.Play();
-		claimRewardBtn.interactable = false;
-		timerText.text = string.Empty;
+		IsClaimable = false;
 		GameSessionData gameSessionData = MVGameControllerBase.GameSessionData;
 		WWWForm wWWForm = new WWWForm();
 		wWWForm.AddField("token", gameSessionData.token);
@@ -127,7 +121,7 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 		RewardData rewardData = JsonConvert.DeserializeObject<RewardData>(www.text);
 		RewardXP = rewardData.xp;
 		RewardAvailable = rewardData.rewardEnabled;
-		claimRewardBtn.gameObject.SetActive(RewardAvailable);
+		gameObject.SetActive(RewardAvailable);
 		RewardTracker.IsCollected = !RewardAvailable;
 		if (!RewardAvailable)
 		{
@@ -146,9 +140,8 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 			gameObject.SetActive(value: true);
 			if (waitForTicks.TimeIsUp)
 			{
-				claimRewardBtn.interactable = true;
+				IsClaimable = true;
 				RewardAvailable = false;
-				timerText.text = TM._("Claim!");
 				Dictionary<object, object> dictionary = new Dictionary<object, object>();
 				dictionary.Add((byte)2, 8);
 				NotificationController.OnNotificationReceived(NotificationType.GoldRewardReady, dictionary);
@@ -158,10 +151,9 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 			{
 				float num = timeInSeconds * 1000 - (MVGameControllerBase.Game.ServerTimeInMilliSeconds - waitForTicks.startTicks);
 				float num2 = num / 1000f;
-				string arg = Mathf.Max(Mathf.Floor(num2 / 60f), 0f).ToString("00");
-				string arg2 = (num2 % 60f).ToString("00");
-				timerText.text = $"{arg:00}:{arg2:00}";
-				claimRewardBtn.interactable = false;
+				string text = Mathf.Max(Mathf.Floor(num2 / 60f), 0f).ToString("00");
+				string text2 = (num2 % 60f).ToString("00");
+				IsClaimable = false;
 				DisableEffects();
 				float num3 = timeInSeconds * 1000;
 				UpdateOutline((num3 - num) / num3);

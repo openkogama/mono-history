@@ -165,7 +165,7 @@ public static class WinningConditionNotificationManager
 		}
 		if (MVGameControllerBase.Game.TeamManager.GetTeamList().Count <= 1)
 		{
-			return player.Username;
+			return player.UserProfileData.UserName;
 		}
 		return GetTeamName(player.Team);
 	}
@@ -177,7 +177,7 @@ public static class WinningConditionNotificationManager
 		{
 			return empty;
 		}
-		return player.Username;
+		return player.UserProfileData.UserName;
 	}
 
 	private static string GetTeamName(MVTeam team)

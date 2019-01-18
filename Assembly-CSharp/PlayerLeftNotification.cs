@@ -6,6 +6,6 @@ public class PlayerLeftNotification : PlayerNotification
 	{
 		base.Initialize(data);
 		MVPlayer mVPlayer = MVGameControllerBase.Game.MVPlayerContainer[(int)data[(byte)9]];
-		NameLabel.text = mVPlayer.Username + TM._(" left!");
+		NameLabel.text = mVPlayer.UserProfileData.UserName + TM._(" left!");
 	}
 }

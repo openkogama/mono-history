@@ -4,17 +4,38 @@ using UnityEngine.UI;
 
 public class ButtonAnimationController : MonoBehaviour, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IEventSystemHandler
 {
-	private const float pressedMoveAmount = -25f;
+	private enum ButtonType : byte
+	{
+		Square,
+		Small
+	}
 
-	private const float hoverMoveAmount = 10f;
+	private const float pressedSquareMoveAmount = -25f;
 
-	private const float disableMoveAmount = -10f;
+	private const float hoverSquareMoveAmount = 10f;
+
+	private const float disableSquareMoveAmount = -10f;
+
+	private const float pressedSmallMoveAmount = -6f;
+
+	private const float hoverSmallMoveAmount = 5f;
+
+	private const float disableSmallMoveAmount = -1f;
+
+	private float pressedMoveAmount = -25f;
+
+	private float hoverMoveAmount = 10f;
+
+	private float disableMoveAmount = -10f;
 
 	[SerializeField]
 	private Transform transformToMove;
 
 	[SerializeField]
 	private Button button;
+
+	[SerializeField]
+	private ButtonType buttonType;
 
 	private float originalValue;
 
@@ -26,6 +47,7 @@ public class ButtonAnimationController : MonoBehaviour, IPointerUpHandler, IPoin
 	{
 		originalValue = transformToMove.localPosition.y;
 		HandleButtonDisabled();
+		SetMoveAmount();
 	}
 
 	private void Update()
@@ -61,7 +83,7 @@ public class ButtonAnimationController : MonoBehaviour, IPointerUpHandler, IPoin
 			buttonHighlightedState++;
 			if (buttonPressedState == 0)
 			{
-				transformToMove.localPosition = new Vector3(transformToMove.localPosition.x, originalValue + 10f, transformToMove.localPosition.z);
+				transformToMove.localPosition = new Vector3(transformToMove.localPosition.x, originalValue + hoverMoveAmount, transformToMove.localPosition.z);
 			}
 			else
 			{
@@ -93,7 +115,7 @@ public class ButtonAnimationController : MonoBehaviour, IPointerUpHandler, IPoin
 		if (eventData.button == PointerEventData.InputButton.Left && button.interactable)
 		{
 			buttonPressedState++;
-			transformToMove.localPosition = new Vector3(transformToMove.localPosition.x, originalValue + -25f, transformToMove.localPosition.z);
+			transformToMove.localPosition = new Vector3(transformToMove.localPosition.x, originalValue + pressedMoveAmount, transformToMove.localPosition.z);
 			HandleButtonDisabled();
 		}
 	}
@@ -110,7 +132,24 @@ public class ButtonAnimationController : MonoBehaviour, IPointerUpHandler, IPoin
 	{
 		if (!button.interactable)
 		{
-			transformToMove.localPosition = new Vector3(transformToMove.localPosition.x, originalValue + -10f, transformToMove.localPosition.z);
+			transformToMove.localPosition = new Vector3(transformToMove.localPosition.x, originalValue + disableMoveAmount, transformToMove.localPosition.z);
+		}
+	}
+
+	private void SetMoveAmount()
+	{
+		switch (buttonType)
+		{
+		case ButtonType.Square:
+			pressedMoveAmount = -25f;
+			hoverMoveAmount = 10f;
+			disableMoveAmount = -10f;
+			break;
+		case ButtonType.Small:
+			pressedMoveAmount = -6f;
+			hoverMoveAmount = 5f;
+			disableMoveAmount = -1f;
+			break;
 		}
 	}
 }

@@ -143,7 +143,7 @@ public class FriendList
 				}
 				if (mVPlayer != null)
 				{
-					NotificationController.PushNotification(string.Format(TM._("Accepted friend request from {0}."), mVPlayer.Username), null, 3);
+					NotificationController.PushNotification(string.Format(TM._("Accepted friend request from {0}."), mVPlayer.UserProfileData.UserName), null, 3);
 				}
 				AddFriend(friendID, MVGameControllerBase.Game.LocalPlayer.ProfileID, profileID, status);
 			}

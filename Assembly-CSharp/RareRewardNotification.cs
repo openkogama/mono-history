@@ -23,7 +23,7 @@ public class RareRewardNotification : Notification
 		MVPlayer mVPlayer = MVGameControllerBase.Game.MVPlayerContainer[(int)data[(byte)9]];
 		string arg = TypeToText((RewardType)data[(byte)5]);
 		int num = (int)data[(byte)4];
-		text.text = string.Format(TM._("{0} won {1}{2} from spins!"), mVPlayer.Username, num, arg);
+		text.text = string.Format(TM._("{0} won {1}{2} from spins!"), mVPlayer.UserProfileData.UserName, num, arg);
 		switch (rewardRarity)
 		{
 		case RewardRarity.Epic:

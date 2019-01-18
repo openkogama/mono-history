@@ -151,6 +151,24 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 		}
 	}
 
+	public void DieFromStuck()
+	{
+		int actorNr = MVGameControllerBase.Game.LocalPlayer.ActorNr;
+		Dictionary<object, object> gameMsgData = GameMessages.MakePlayerKilledMessage(actorNr, actorNr, PlayerKilledByType.Crushed);
+		MVGameControllerBase.OperationRequests.PostGameMsg(MVGameMsgType.AvatarKilled, gameMsgData);
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add((byte)7, MVGameControllerBase.Game.LocalPlayer.ActorNr);
+		dictionary.Add((byte)6, actorNr);
+		dictionary.Add((byte)8, PlayerKilledByType.Crushed);
+		Dictionary<object, object> dictionary2 = dictionary;
+		NotificationController.OnNotificationReceived(NotificationType.Kill, dictionary2);
+		if (!KillNotificationBlacklist.Contains(PlayerKilledByType.Crushed))
+		{
+			MVGameControllerBase.OperationRequests.PostNotificationOperation(NotificationType.Kill, dictionary2);
+		}
+		OnDamageTaken(1000f, null, PlayerKilledByType.Crushed);
+	}
+
 	public void DieFromFalling()
 	{
 		int actorNr = MVGameControllerBase.Game.LocalPlayer.ActorNr;

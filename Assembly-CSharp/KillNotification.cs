@@ -19,7 +19,7 @@ public class KillNotification : Notification
 		MVPlayer mVPlayer = MVGameControllerBase.Game.MVPlayerContainer[(int)data[(byte)6]];
 		MVPlayer mVPlayer2 = MVGameControllerBase.Game.MVPlayerContainer[(int)data[(byte)7]];
 		bool shotSelf = false;
-		if (mVPlayer2.Username == mVPlayer.Username)
+		if (mVPlayer2.UserProfileData.UserName == mVPlayer.UserProfileData.UserName)
 		{
 			shotSelf = true;
 		}
@@ -35,7 +35,7 @@ public class KillNotification : Notification
 			color = Styles.GetColor(ColorStyle.TeamNone);
 			color2 = Styles.GetColor(ColorStyle.TeamNone);
 		}
-		Label.text = string.Format(GetKillText(data, shotSelf), Styles.ColorToHex(color), mVPlayer2.Username, Styles.ColorToHex(color2), mVPlayer.Username);
+		Label.text = string.Format(GetKillText(data, shotSelf), Styles.ColorToHex(color), mVPlayer2.UserProfileData.UserName, Styles.ColorToHex(color2), mVPlayer.UserProfileData.UserName);
 	}
 
 	public static string GetKillText(Dictionary<object, object> data, bool shotSelf)

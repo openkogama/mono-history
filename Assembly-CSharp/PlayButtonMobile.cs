@@ -9,6 +9,9 @@ public class PlayButtonMobile : MonoBehaviour
 	private Image countdownFill;
 
 	[SerializeField]
+	private TimedPlayReward timedPlayReward;
+
+	[SerializeField]
 	private bool shouldPop;
 
 	[SerializeField]
@@ -16,6 +19,10 @@ public class PlayButtonMobile : MonoBehaviour
 
 	public void Play()
 	{
+		if (timedPlayReward != null && timedPlayReward.IsClaimable)
+		{
+			timedPlayReward.ClaimReward();
+		}
 		if (MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.Round)
 		{
 			StartPlaying();
@@ -23,6 +30,10 @@ public class PlayButtonMobile : MonoBehaviour
 		else
 		{
 			button.interactable = false;
+		}
+		if (!FirstTimePressPlayController.HaveBeenPressed)
+		{
+			FirstTimePressPlayController.OnFirstTimePlayIsPressed();
 		}
 	}
 

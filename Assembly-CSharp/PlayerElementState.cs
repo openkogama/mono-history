@@ -39,7 +39,7 @@ public class PlayerElementState : MonoBehaviour
 	public void OpenUserManagement()
 	{
 		MVLocalPlayer localPlayer = MVGameControllerBase.Game.LocalPlayer;
-		if (localPlayer.ProfileID > 0 && localPlayer.IsAdmin)
+		if (localPlayer.ProfileID > 0 && localPlayer.UserProfileData.IsAdmin)
 		{
 			AdminToolController adminTools = UnityEngine.Object.Instantiate(adminToolsPrefab);
 			adminTools.Initialize(playerName.text);
@@ -69,7 +69,7 @@ public class PlayerElementState : MonoBehaviour
 		MVLocalPlayer localPlayer = MVGameControllerBase.Game.LocalPlayer;
 		bool flag = player.Avatar == localPlayer.Avatar;
 		bool flag2 = MVGameControllerBase.GameMode == MVGameMode.Edit && localPlayer.PlanetOwnership == MVLocalPlayer.PlanetOwnershipType.Owner;
-		manageUserButton.gameObject.SetActive(!localPlayer.IsTourist && (localPlayer.IsAdmin || flag2) && !flag);
+		manageUserButton.gameObject.SetActive(!localPlayer.IsTourist && (localPlayer.UserProfileData.IsAdmin || flag2) && !flag);
 		if (!player.IsTourist && !localPlayer.IsTourist && !flag)
 		{
 			requestFriendship.gameObject.SetActive(friend == null);

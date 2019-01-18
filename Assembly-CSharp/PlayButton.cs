@@ -6,6 +6,9 @@ using UnityEngine.UI;
 public class PlayButton : PlayButtonBase, IPointerEnterHandler, IPointerExitHandler, IPointerUpHandler, IEventSystemHandler
 {
 	[SerializeField]
+	private TimedPlayReward timedPlayReward;
+
+	[SerializeField]
 	private Button button;
 
 	private bool isMouseOver;
@@ -38,6 +41,15 @@ public class PlayButton : PlayButtonBase, IPointerEnterHandler, IPointerExitHand
 
 	public void Play()
 	{
+		if (!FirstTimePressPlayController.HaveBeenPressed)
+		{
+			FirstTimePressPlayController.OnFirstTimePlayIsPressed();
+		}
+		HandleRoundEnded();
+		if (timedPlayReward != null && timedPlayReward.IsClaimable)
+		{
+			timedPlayReward.ClaimReward();
+		}
 		if (!HandleRoundEnded())
 		{
 			StartPlaying();

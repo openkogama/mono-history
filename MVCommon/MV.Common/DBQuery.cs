@@ -3,7 +3,6 @@ namespace MV.Common;
 public enum DBQuery
 {
 	Undefined,
-	RequestProfileID,
 	RequestPlanetID,
 	RequestPublishedPlanetID,
 	RequestPlanetOwnershipTypes,
@@ -90,8 +89,6 @@ public enum DBQuery
 	GetMostLikedAvatars,
 	GetAvatarRevisionData,
 	GetAvatarMetaData,
-	GetProfileMetaData,
-	UpdateProfileMetaData,
 	GetAntiCheatData,
 	RevokeEditRights,
 	GetThemesData,

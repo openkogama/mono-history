@@ -85,6 +85,10 @@ public class TeamSelectButton : MonoBehaviour, IPointerDownHandler, IEventSystem
 
 	private void StartPlaying()
 	{
+		if (!FirstTimePressPlayController.HaveBeenPressed)
+		{
+			FirstTimePressPlayController.OnFirstTimePlayIsPressed();
+		}
 		MVGameControllerDesktop.LockCursorManager.CursorLock = true;
 	}
 }

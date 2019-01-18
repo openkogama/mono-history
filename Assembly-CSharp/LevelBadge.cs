@@ -1,4 +1,5 @@
 using System;
+using MV.WorldObject.Subscription;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -11,10 +12,14 @@ public class LevelBadge : MonoBehaviour
 	[SerializeField]
 	private ProgressBarAndroid xpBar;
 
+	[SerializeField]
+	private ProgressBarAndroid subscriberXPBar;
+
 	private void Awake()
 	{
 		levelBadge.enabled = false;
 		xpBar.gameObject.SetActive(value: false);
+		subscriberXPBar.gameObject.SetActive(value: false);
 		if (LevelingManager.IsInitialized)
 		{
 			OnLevelingInitialized();
@@ -49,6 +54,7 @@ public class LevelBadge : MonoBehaviour
 			Debug.LogError("processPercentage invalid.");
 		}
 		xpBar.Progress = num;
+		subscriberXPBar.Progress = num;
 	}
 
 	private void UpdateBadge(int level)
@@ -67,7 +73,9 @@ public class LevelBadge : MonoBehaviour
 		{
 			levelBadge.enabled = true;
 			levelBadge.texture = www.texture;
-			xpBar.gameObject.SetActive(value: true);
+			bool flag = MVGameControllerBase.Game.LocalPlayer.SubscriptionRules.HasBenefit(SubscriptionBenefit.XPBoost);
+			xpBar.gameObject.SetActive(!flag);
+			subscriberXPBar.gameObject.SetActive(flag);
 		}
 	}
 }

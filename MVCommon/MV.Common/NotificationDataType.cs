@@ -20,5 +20,6 @@ public enum NotificationDataType : byte
 	Id,
 	Custom,
 	TimeStamp,
-	Prioritised
+	Prioritised,
+	Count
 }

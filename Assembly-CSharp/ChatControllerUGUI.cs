@@ -322,7 +322,7 @@ public class ChatControllerUGUI : MonoBehaviour
 		{
 			color = friendNameColor;
 		}
-		return $"<color=#{Styles.ColorToHex(color)}>[{mVPlayer.Username}] </color><color=#{Styles.ColorToHex(teamColor)}>{text2}: </color><color=#{Styles.ColorToHex(chatMessageColor)}>{text}</color>";
+		return $"<color=#{Styles.ColorToHex(color)}>[{mVPlayer.UserProfileData.UserName}] </color><color=#{Styles.ColorToHex(teamColor)}>{text2}: </color><color=#{Styles.ColorToHex(chatMessageColor)}>{text}</color>";
 	}
 
 	private void HandleSayChatMessage(Dictionary<object, object> data)
@@ -358,7 +358,7 @@ public class ChatControllerUGUI : MonoBehaviour
 		{
 			color = friendNameColor;
 		}
-		return $"<color=#{Styles.ColorToHex(color)}>[{mVPlayer.Username}] </color><color=#{Styles.ColorToHex(sayColor)}>{text2}: </color><color=#{Styles.ColorToHex(chatMessageColor)}>{text}</color>";
+		return $"<color=#{Styles.ColorToHex(color)}>[{mVPlayer.UserProfileData.UserName}] </color><color=#{Styles.ColorToHex(sayColor)}>{text2}: </color><color=#{Styles.ColorToHex(chatMessageColor)}>{text}</color>";
 	}
 
 	private void AddChatLine(Dictionary<object, object> data)
@@ -378,7 +378,7 @@ public class ChatControllerUGUI : MonoBehaviour
 			format = "<color=#{0}>[{1}]: </color><color=#{2}>{3}</color>";
 			teamColor = friendNameColor;
 		}
-		string text2 = string.Format(format, Styles.ColorToHex(teamColor), mVPlayer.Username, Styles.ColorToHex(chatMessageColor), text);
+		string text2 = string.Format(format, Styles.ColorToHex(teamColor), mVPlayer.UserProfileData.UserName, Styles.ColorToHex(chatMessageColor), text);
 		AddLine(text2);
 	}
 

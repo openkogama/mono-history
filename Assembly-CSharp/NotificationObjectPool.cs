@@ -68,7 +68,10 @@ public class NotificationObjectPool : MonoBehaviour
 
 	public void Return(Notification notification)
 	{
-		notification.gameObject.SetActive(value: false);
+		if (notification.gameObject.activeSelf)
+		{
+			notification.gameObject.SetActive(value: false);
+		}
 		notification.transform.SetParent(transform);
 		RemoveFromActiveInstances(notification);
 		Instances.Add(notification);

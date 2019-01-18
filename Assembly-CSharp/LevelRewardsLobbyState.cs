@@ -68,7 +68,7 @@ public class LevelRewardsLobbyState : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		if (MVGameControllerBase.Game != null)
+		if (MVGameControllerBase.IsAlive && MVGameControllerBase.Game != null)
 		{
 			LevelRewardsManager levelRewardsManager = MVGameControllerBase.Game.LevelRewardsManager;
 			levelRewardsManager.OnRewardsReturned = (Action)Delegate.Remove(levelRewardsManager.OnRewardsReturned, new Action(ShowRewards));

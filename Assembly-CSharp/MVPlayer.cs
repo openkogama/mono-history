@@ -1,5 +1,8 @@
+using System;
 using MV.Common;
 using MV.WorldObject;
+using MV.WorldObject.MetaData;
+using MV.WorldObject.Subscription;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -17,17 +20,21 @@ public class MVPlayer
 
 	public UnityAction OnCheckpointReached;
 
+	public Action OnGoldAmountChange;
+
 	public int ProfileID { get; private set; }
 
 	public bool IsTourist => ProfileID == 0;
 
 	public int ActorNr { get; private set; }
 
-	public string Username { get; private set; }
-
 	public string RegionCode { get; private set; }
 
 	public BuildTarget BuildTarget { get; private set; }
+
+	public UserProfileData UserProfileData { get; private set; }
+
+	public SubscriptionRulesWrapper SubscriptionRules { get; private set; }
 
 	public bool IsReady { get; private set; }
 
@@ -66,23 +73,26 @@ public class MVPlayer
 
 	public MVAvatar Avatar => _avatar.WorldObjectClient;
 
-	public MVPlayer(int actorNumber, int profileID, string userName, string regionCode, BuildTarget buildTarget, bool isReady)
+	public MVPlayer(int actorNumber, int profileID, string regionCode, BuildTarget buildTarget, UserProfileData userProfileData, bool isReady)
 	{
 		ActorNr = actorNumber;
 		ProfileID = profileID;
 		BuildTarget = buildTarget;
+		UserProfileData = userProfileData;
+		Debug.Log(userProfileData.SubscriptionData.ExpiredSubscriptionType);
+		SubscriptionRules = new SubscriptionRulesWrapper(userProfileData.SubscriptionData.SubscriptionType);
+		Debug.Log("SubscriptionRules " + SubscriptionRules);
 		if (profileID <= 0)
 		{
 			string newValue = TM._("Tourist");
-			userName = userName.Replace("Tourist", newValue);
+			UserProfileData.UserName = UserProfileData.UserName.Replace("Tourist", newValue);
 		}
-		Username = userName;
 		RegionCode = regionCode;
 		IsReady = isReady;
 	}
 
-	public MVPlayer(int actorNumber, int profileID, string userName, int level, string regionCode, BuildTarget buildTarget, bool isReady)
-		: this(actorNumber, profileID, userName, regionCode, buildTarget, isReady)
+	public MVPlayer(int actorNumber, int profileID, int level, string regionCode, BuildTarget buildTarget, UserProfileData userProfileData, bool isReady)
+		: this(actorNumber, profileID, regionCode, buildTarget, userProfileData, isReady)
 	{
 		Level = level;
 	}

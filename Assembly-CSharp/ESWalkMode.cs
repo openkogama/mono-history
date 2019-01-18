@@ -54,7 +54,7 @@ internal class ESWalkMode : ESStateBase
 		MVGameControllerDesktop.LockCursorManager.CursorLock = false;
 		if (MVGameControllerBase.Game.GameCoinManager.BoostEnabled)
 		{
-			MVGameControllerBase.OperationRequests.SetGameCoinBoostState(gameCoinBoosterEnabled: false);
+			Debug.LogWarning("Game coints. Probably do this directly. ");
 		}
 		Cursor.visible = true;
 	}

@@ -93,11 +93,11 @@ public class PlayerJoinedNotification : PlayerNotification
 			{
 				empty = Country[text];
 			}
-			NameLabel.text = mVPlayer.Username + TM._(" joined from ") + empty;
+			NameLabel.text = mVPlayer.UserProfileData.UserName + TM._(" joined from ") + empty;
 		}
 		else
 		{
-			NameLabel.text = mVPlayer.Username + TM._(" joined!");
+			NameLabel.text = mVPlayer.UserProfileData.UserName + TM._(" joined!");
 		}
 	}
 }

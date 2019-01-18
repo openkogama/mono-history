@@ -1,4 +1,6 @@
 using System;
+using MV.WorldObject.Subscription;
+using MV.WorldObject.Subscription.SubscriptionRules;
 using UnityEngine;
 
 public class AvatarLocal : Avatar
@@ -23,7 +25,8 @@ public class AvatarLocal : Avatar
 		avatarPooledXPParticles.transform.localRotation = Quaternion.identity;
 		avatarPooledXPParticles.transform.localScale = Vector3.one;
 		avatarPooledXPParticles.gameObject.layer = mvAvatar.Body.GameObject.layer;
-		avatarPooledXPParticles.Initialize(xpProgressData.XPDelta);
-		avatarPooledXPParticles.Play();
+		int boostedXp = MVGameControllerBase.Game.LocalPlayer.SubscriptionRules.GetRule<XpBooster>(SubscriptionBenefit.XPBoost).GetBoostedXp(xpProgressData.XPDelta, xpProgressData.MemberCount);
+		int xpDelta = xpProgressData.XPDelta + Mathf.FloorToInt((float)(boostedXp - xpProgressData.XPDelta) * 2f);
+		avatarPooledXPParticles.Initialize(xpDelta);
 	}
 }

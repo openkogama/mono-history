@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using MV.Common;
+using MV.WorldObject.MetaData;
 using UnityEngine.Events;
 
 public abstract class MVLocalPlayer : MVPlayer
@@ -22,8 +23,6 @@ public abstract class MVLocalPlayer : MVPlayer
 
 	protected int joinTime;
 
-	public Action OnGoldAmountChange;
-
 	private int oldLevel;
 
 	public int PlanetOwnershipTypeID
@@ -44,24 +43,18 @@ public abstract class MVLocalPlayer : MVPlayer
 
 	public PlanetOwnershipType PlanetOwnership => (PlanetOwnershipType)PlanetOwnershipTypeID;
 
-	public virtual bool IsAdmin { get; private set; }
-
 	public XPProgressData XPProgressData => xpProgress.XPProgressData;
 
 	public int JoinTime => joinTime;
 
 	public bool CanGetXPProgressData => xpProgress != null;
 
-	public int GoldAmount { get; set; }
-
-	public MVLocalPlayer(int actorNumber, int profileID, string userName, string regionCode, int planetOwnershipTypeID, bool isAdmin, int goldAmount)
-		: base(actorNumber, profileID, userName, regionCode, MVGameControllerBase.BuildTarget, isReady: false)
+	public MVLocalPlayer(int actorNumber, int profileID, string regionCode, int planetOwnershipTypeID, UserProfileData userProfileData)
+		: base(actorNumber, profileID, regionCode, MVGameControllerBase.BuildTarget, userProfileData, isReady: false)
 	{
 		OnLevelChanged = (UnityAction<int>)Delegate.Combine(OnLevelChanged, new UnityAction<int>(OnLevelChangedLocal));
 		PlanetOwnershipTypeID = planetOwnershipTypeID;
 		joinTime = MVGameControllerBase.Game.ServerTimeInMilliSeconds;
-		IsAdmin = isAdmin;
-		GoldAmount = goldAmount;
 	}
 
 	public virtual void InitializeLeveling(InitialLevelData initialLevelData)
@@ -74,11 +67,11 @@ public abstract class MVLocalPlayer : MVPlayer
 		}
 	}
 
-	public void AddXp(int currentPlayerXP, XPRewardType typeId, int xpDelta)
+	public void AddXp(int currentPlayerXP, XPRewardType typeId, int xpDelta, int memberCount)
 	{
 		if (LevelingManager.IsInitialized)
 		{
-			xpProgress.Update(currentPlayerXP, typeId, xpDelta);
+			xpProgress.Update(currentPlayerXP, typeId, xpDelta, memberCount);
 		}
 	}
 
@@ -91,6 +84,7 @@ public abstract class MVLocalPlayer : MVPlayer
 		Dictionary<object, object> dictionary = new Dictionary<object, object>();
 		dictionary.Add((byte)4, xpProgressData.XPDelta);
 		dictionary.Add((byte)1, xpProgressData.XPString);
+		dictionary.Add((byte)19, xpProgressData.MemberCount);
 		Dictionary<object, object> data = dictionary;
 		NotificationController.OnNotificationReceived(NotificationType.XP, data);
 		BrowserComm.ToJavaScript.ExternalCall("increaseXP", xpProgressData.XP);

@@ -1,12 +1,13 @@
 using System;
 using MV.Common;
+using MV.WorldObject.MetaData;
 using Newtonsoft.Json;
 using UnityEngine;
 
 public class MVLocalPlayerRegistered : MVLocalPlayer
 {
-	public MVLocalPlayerRegistered(int actorNumber, int profileID, string userName, string regionCode, int planetOwnershipTypeId, bool isAdmin, int goldAmount)
-		: base(actorNumber, profileID, userName, regionCode, planetOwnershipTypeId, isAdmin, goldAmount)
+	public MVLocalPlayerRegistered(int actorNumber, int profileID, string regionCode, int planetOwnershipTypeId, UserProfileData userProfileData)
+		: base(actorNumber, profileID, regionCode, planetOwnershipTypeId, userProfileData)
 	{
 	}
 

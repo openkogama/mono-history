@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using MV.WorldObject;
+using MV.WorldObject.Subscription;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,11 +22,17 @@ public class LocalPlayerScore : MonoBehaviour
 	private Text rankingText;
 
 	[SerializeField]
+	private GameObject memberUI;
+
+	[SerializeField]
+	private Text memberRankingText;
+
+	[SerializeField]
 	private GameStatCounterType statTypeToShow;
 
 	public void Initialize()
 	{
-		playerNameText.text = MVGameControllerBase.Game.LocalPlayer.Username;
+		playerNameText.text = MVGameControllerBase.Game.LocalPlayer.UserProfileData.UserName;
 	}
 
 	public void Activate()
@@ -43,6 +50,10 @@ public class LocalPlayerScore : MonoBehaviour
 		int actorNr = MVGameControllerBase.Game.LocalPlayer.ActorNr;
 		MVTeam team = MVGameControllerBase.Game.LocalPlayer.Team;
 		int actorCount = MVGameControllerBase.Game.GameStatCounterManager.GetActorCount(statType, team, actorNr);
+		if (MVGameControllerBase.Game.LocalPlayer.SubscriptionRules.HasBenefit(SubscriptionBenefit.XPBoost))
+		{
+			memberUI.SetActive(value: true);
+		}
 		int localPlayerRanking = GetLocalPlayerRanking(statType, team, actorNr, actorCount);
 		if (localPlayerRanking > scoreBoardCount)
 		{
@@ -80,6 +91,7 @@ public class LocalPlayerScore : MonoBehaviour
 	{
 		gameObject.SetActive(value: true);
 		rankingText.text = currentRanking.ToString();
+		memberRankingText.text = currentRanking.ToString();
 		scoreText.text = WinningConditionControl.MakeIntoScoreText(localScore, statType);
 		background.color = Styles.GetTeamColor(localTeam);
 	}

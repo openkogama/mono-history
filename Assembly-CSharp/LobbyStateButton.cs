@@ -126,6 +126,10 @@ public class LobbyStateButton : MonoBehaviour, IPointerDownHandler, IPointerEnte
 
 	private void StartPlaying()
 	{
+		if (!FirstTimePressPlayController.HaveBeenPressed)
+		{
+			FirstTimePressPlayController.OnFirstTimePlayIsPressed();
+		}
 		if (!MVGameControllerDesktop.LockCursorManager.CursorLock)
 		{
 			MVGameControllerDesktop.LockCursorManager.CursorLock = true;
