@@ -110,7 +110,10 @@ public class XPBoostNotification : Notification
 
 	private void CloseNotification()
 	{
-		gameObject.SetActive(value: false);
+		if (gameObject.activeSelf)
+		{
+			gameObject.SetActive(value: false);
+		}
 		pool.Return(this);
 	}
 

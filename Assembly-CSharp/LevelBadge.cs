@@ -74,8 +74,14 @@ public class LevelBadge : MonoBehaviour
 			levelBadge.enabled = true;
 			levelBadge.texture = www.texture;
 			bool flag = MVGameControllerBase.Game.LocalPlayer.SubscriptionRules.HasBenefit(SubscriptionBenefit.XPBoost);
-			xpBar.gameObject.SetActive(!flag);
-			subscriberXPBar.gameObject.SetActive(flag);
+			if (xpBar.gameObject.activeSelf == flag)
+			{
+				xpBar.gameObject.SetActive(!flag);
+			}
+			if (subscriberXPBar.gameObject.activeSelf != flag)
+			{
+				subscriberXPBar.gameObject.SetActive(flag);
+			}
 		}
 	}
 }

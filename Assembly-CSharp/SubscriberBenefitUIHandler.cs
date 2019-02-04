@@ -16,22 +16,22 @@ public class SubscriberBenefitUIHandler : MonoBehaviour
 	{
 		if (MVGameControllerBase.Game.LocalPlayer.SubscriptionRules.HasBenefit(benefitType))
 		{
-			if (SubscriberUI != null)
+			if (SubscriberUI != null && !SubscriberUI.activeSelf)
 			{
 				SubscriberUI.SetActive(value: true);
 			}
-			if (NonSubscriberUI != null)
+			if (NonSubscriberUI != null && NonSubscriberUI.activeSelf)
 			{
 				NonSubscriberUI.SetActive(value: false);
 			}
 		}
 		else
 		{
-			if (NonSubscriberUI != null)
+			if (NonSubscriberUI != null && !NonSubscriberUI.activeSelf)
 			{
 				NonSubscriberUI.SetActive(value: true);
 			}
-			if (SubscriberUI != null)
+			if (SubscriberUI != null && SubscriberUI.activeSelf)
 			{
 				SubscriberUI.SetActive(value: false);
 			}

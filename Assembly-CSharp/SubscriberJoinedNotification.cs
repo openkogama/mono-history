@@ -107,7 +107,10 @@ public class SubscriberJoinedNotification : Notification
 		backGround.sizeDelta = backgroundOriginalSizeDelta;
 		currentState = subscriberJoinedStateType.NotInitializedState;
 		backgroundCanvasGroup.alpha = 0f;
-		content.SetActive(value: false);
+		if (content.gameObject.activeSelf)
+		{
+			content.SetActive(value: false);
+		}
 	}
 
 	private void ChangeState(subscriberJoinedStateType newState)
