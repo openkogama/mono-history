@@ -30,7 +30,7 @@ public class AccessoryTimeLimitDisplayer : MonoBehaviour
 			int num3 = Mathf.FloorToInt((float)num2 / 3600f);
 			if (num3 >= 48)
 			{
-				timeLeftText.text = Mathf.FloorToInt(num3 / 24) + 1 + TM._(" DAYS LEFT!");
+				timeLeftText.text = Mathf.FloorToInt(num3 / 24) + 1 + TM._(" DAYS");
 			}
 			else
 			{

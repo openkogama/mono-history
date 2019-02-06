@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using MV.Common;
-using MV.WorldObject;
 
 public static class WinningConditionNotificationManager
 {
@@ -167,7 +166,7 @@ public static class WinningConditionNotificationManager
 		{
 			return player.UserProfileData.UserName;
 		}
-		return GetTeamName(player.Team);
+		return MVGameControllerBase.Game.TeamManager.GetTeamNames()[player.Team];
 	}
 
 	private static string GetPlayerName(int actorNumber)
@@ -178,30 +177,6 @@ public static class WinningConditionNotificationManager
 			return empty;
 		}
 		return player.UserProfileData.UserName;
-	}
-
-	private static string GetTeamName(MVTeam team)
-	{
-		string result = string.Empty;
-		switch (team)
-		{
-		case MVTeam.Blue:
-			result = "Blue team";
-			break;
-		case MVTeam.Red:
-			result = "Red team";
-			break;
-		case MVTeam.Green:
-			result = "Green team";
-			break;
-		case MVTeam.Yellow:
-			result = "Yellow team";
-			break;
-		case MVTeam.None:
-			result = "None team";
-			break;
-		}
-		return result;
 	}
 
 	private static bool IsFlagScoreBestInGame(int score, int actorNumber)

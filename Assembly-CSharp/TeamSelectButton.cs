@@ -31,9 +31,9 @@ public class TeamSelectButton : MonoBehaviour, IPointerDownHandler, IEventSystem
 	public void Initialize(TeamData teamData)
 	{
 		this.teamData = teamData;
-		Styles.SetStyle(buttonImage, teamData.team);
+		buttonImage.color = Styles.GetTeamColor(teamData.team);
 		playerImage.color = Styles.GetTeamColor(teamData.team, darkTeam: true);
-		teamName.text = teamData.team.ToString();
+		teamName.text = teamData.representedName;
 		playerCountText.text = MVGameControllerBase.Game.TeamManager.GetNoOfPlayersInTeam(teamData.team).ToString();
 		Dictionary<int, MVPlayer> onlineFriends = MVGameControllerBase.Game.Friends.GetOnlineFriends();
 		int num = 0;

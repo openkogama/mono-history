@@ -52,7 +52,7 @@ public class AccessoryPreviewPopup : MonoBehaviour, IAccessoryClicked, IEventSys
 		});
 	}
 
-	public void DisplayFlare(bool show)
+	public void DisplayCategoryFeatures(AccessoryCategoryClient category)
 	{
 	}
 

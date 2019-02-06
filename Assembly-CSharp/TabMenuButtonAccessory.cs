@@ -15,7 +15,7 @@ public class TabMenuButtonAccessory : TabMenuButtonBase, IHighlightedElement
 	{
 		public AccessoryCategoryClient tabID;
 
-		public Image streamedImagePrefab;
+		public Graphic streamedImagePrefab;
 	}
 
 	[SerializeField]
@@ -41,7 +41,7 @@ public class TabMenuButtonAccessory : TabMenuButtonBase, IHighlightedElement
 
 	private float startTime;
 
-	private Image icon;
+	private Graphic icon;
 
 	private float defaultHeight = 120f;
 
@@ -106,7 +106,7 @@ public class TabMenuButtonAccessory : TabMenuButtonBase, IHighlightedElement
 		});
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAccessoryClicked x, BaseEventData y) =>
 		{
-			x.DisplayFlare(category == AccessoryCategoryClient.Featured);
+			x.DisplayCategoryFeatures(category);
 		});
 		StopAllCoroutines();
 		StartCoroutine(LerpToSize(selectedTabHeight));

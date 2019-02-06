@@ -28,6 +28,46 @@ public class MVTeamManager
 		}
 	};
 
+	private readonly Dictionary<MVTeam, string> teamNamesDefault = new Dictionary<MVTeam, string>
+	{
+		{
+			MVTeam.Blue,
+			TM._("Blue Team")
+		},
+		{
+			MVTeam.Red,
+			TM._("Red Team")
+		},
+		{
+			MVTeam.Green,
+			TM._("Green Team")
+		},
+		{
+			MVTeam.Yellow,
+			TM._("Yellow Team")
+		}
+	};
+
+	private Dictionary<MVTeam, string> teamNames = new Dictionary<MVTeam, string>
+	{
+		{
+			MVTeam.Blue,
+			TM._("Blue Team")
+		},
+		{
+			MVTeam.Red,
+			TM._("Red Team")
+		},
+		{
+			MVTeam.Green,
+			TM._("Green Team")
+		},
+		{
+			MVTeam.Yellow,
+			TM._("Yellow Team")
+		}
+	};
+
 	public OnTeamsUpdatedDelegate OnTeamsUpdated;
 
 	public event EventHandler<TeamEventArgs> OnTeamAdded;
@@ -43,10 +83,25 @@ public class MVTeamManager
 			{
 				int score = GetScore(teamActiveBool.Key, gameStatCounterType);
 				int noOfPlayersInTeam = GetNoOfPlayersInTeam(teamActiveBool.Key);
-				list.Add(new TeamData(teamActiveBool.Key, noOfPlayersInTeam, score));
+				list.Add(new TeamData(teamActiveBool.Key, noOfPlayersInTeam, score, teamNames[teamActiveBool.Key]));
 			}
 		}
 		return list;
+	}
+
+	public Dictionary<MVTeam, string> GetTeamNames()
+	{
+		return teamNames;
+	}
+
+	public void UpdateTeamName(MVTeam team, string name)
+	{
+		teamNames[team] = name;
+	}
+
+	public void SetTeamNameToDefault(MVTeam team)
+	{
+		teamNames[team] = teamNamesDefault[team];
 	}
 
 	public void AddTeam(MVTeam team)

@@ -105,6 +105,9 @@ public class SettingsFactory : MonoBehaviour
 	private FireSettings fireSettingsPrefab;
 
 	[SerializeField]
+	private TeamEditorSettings teamEditorSettingsPrefab;
+
+	[SerializeField]
 	private LevelRequirementSettings levelRequirementSettingsPrefab;
 
 	[SerializeField]
@@ -320,6 +323,12 @@ public class SettingsFactory : MonoBehaviour
 		{
 			FireSettings fireSettings = Object.Instantiate(fireSettingsPrefab);
 			fireSettings.Initialize(woID, gameObject);
+			break;
+		}
+		case WorldObjectType.TeamEditor:
+		{
+			TeamEditorSettings teamEditorSettings = Object.Instantiate(teamEditorSettingsPrefab);
+			teamEditorSettings.Initialize(woID, gameObject);
 			break;
 		}
 		default:

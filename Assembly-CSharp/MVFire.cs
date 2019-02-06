@@ -145,26 +145,28 @@ public class MVFire : MVLogicObject, ILogicWorldObject
 		{
 			return;
 		}
-		for (int i = 0; i < woList.Count; i++)
+		for (int num = woList.Count - 1; num >= 0; num--)
 		{
-			MVWorldObjectClient mVWorldObjectClient = woList[i];
+			MVWorldObjectClient mVWorldObjectClient = woList[num];
 			if (mVWorldObjectClient == null || mVWorldObjectClient.GameObject == null)
 			{
-				woList.RemoveAt(i);
-				continue;
+				woList.RemoveAt(num);
 			}
-			InteractionDataHandlerBase interactionDataHandlerBase = mVWorldObjectClient.InteractionDataHandlerBase;
-			if (!(interactionDataHandlerBase == null))
+			else
 			{
-				float num = Vector3.Distance(mVWorldObjectClient.WorldPosition, WorldPosition);
-				if (mVWorldObjectClient.Collider != null)
+				InteractionDataHandlerBase interactionDataHandlerBase = mVWorldObjectClient.InteractionDataHandlerBase;
+				if (!(interactionDataHandlerBase == null))
 				{
-					num = Vector3.Distance(mVWorldObjectClient.Collider.ClosestPointOnBounds(WorldPosition), WorldPosition);
+					float num2 = Vector3.Distance(mVWorldObjectClient.WorldPosition, WorldPosition);
+					if (mVWorldObjectClient.Collider != null)
+					{
+						num2 = Vector3.Distance(mVWorldObjectClient.Collider.ClosestPointOnBounds(WorldPosition), WorldPosition);
+					}
+					float num3 = CalculateDamageModifier();
+					float num4 = Time.deltaTime * 100f * (1f - num2 / damageRadius);
+					num4 = Mathf.Clamp(num3 * num4, 0f, 100f);
+					interactionDataHandlerBase.HandleInteraction(ProximityDamageAndImpulse.Create(num4, Vector3.zero, PlayerKilledByType.Fire), interactionIsLocal: true);
 				}
-				float num2 = CalculateDamageModifier();
-				float num3 = Time.deltaTime * 100f * (1f - num / damageRadius);
-				num3 = Mathf.Clamp(num2 * num3, 0f, 100f);
-				interactionDataHandlerBase.HandleInteraction(ProximityDamageAndImpulse.Create(num3, Vector3.zero, PlayerKilledByType.Fire), interactionIsLocal: true);
 			}
 		}
 	}

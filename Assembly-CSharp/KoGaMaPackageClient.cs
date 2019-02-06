@@ -189,6 +189,8 @@ public class KoGaMaPackageClient
 			return new MVCheckpoint(worldObjectData, worldObjects);
 		case WorldObjectType.TimeAttackFlag:
 			return new TimeAttackFlag(worldObjectData, worldObjects);
+		case WorldObjectType.TeamEditor:
+			return new TeamEditor(worldObjectData, worldObjects);
 		case WorldObjectType.Blueprint:
 		{
 			Dictionary<object, object> dictionary = (Dictionary<object, object>)worldObjectData[WorldObjectDataParameters.Data];

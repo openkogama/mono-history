@@ -21,7 +21,7 @@ public class TeamRequirementPanel : NotificationRequirementPanel
 	public override void OnToggleEnabled(object team, Sprite checkmarkSprite, bool enabled)
 	{
 		checkmark.sprite = checkmarkSprite;
-		textField.text = team.ToString();
+		textField.text = MVGameControllerBase.Game.TeamManager.GetTeamNames()[(MVTeam)team];
 		switch ((MVTeam)team)
 		{
 		case MVTeam.Red:

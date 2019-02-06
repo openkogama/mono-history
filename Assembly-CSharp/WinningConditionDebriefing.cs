@@ -127,7 +127,7 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 		scoreTeamEntries = GetWinningTeamsFromScoreTeamEntries(scoreTeamEntries, counterType);
 		if (scoreTeamEntries.Count == 1)
 		{
-			debriefing.SetWinnerText(scoreTeamEntries[0].team.ToString() + " team wins!");
+			debriefing.SetWinnerText(TM._("Winner: ") + MVGameControllerBase.Game.TeamManager.GetTeamNames()[scoreTeamEntries[0].team]);
 		}
 		else
 		{
@@ -137,7 +137,7 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 				text += " between ";
 				for (int i = 0; i < scoreTeamEntries.Count; i++)
 				{
-					text = text + scoreTeamEntries[i].team.ToString() + " team";
+					text += MVGameControllerBase.Game.TeamManager.GetTeamNames()[scoreTeamEntries[0].team];
 					if (i < scoreTeamEntries.Count - 1)
 					{
 						text += " and ";

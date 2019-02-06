@@ -26,6 +26,18 @@ public class TeamRequirementSettings : MonoBehaviour, IHandleSettingChanged, IEv
 	private SettingsButton buttonTeamYellow;
 
 	[SerializeField]
+	private Text buttonTeamBlueName;
+
+	[SerializeField]
+	private Text buttonTeamRedName;
+
+	[SerializeField]
+	private Text buttonTeamGreenName;
+
+	[SerializeField]
+	private Text buttonTeamYellowName;
+
+	[SerializeField]
 	private Outline outlineTeamNone;
 
 	[SerializeField]
@@ -45,24 +57,19 @@ public class TeamRequirementSettings : MonoBehaviour, IHandleSettingChanged, IEv
 	public void Initialize(int woID, GameObject root)
 	{
 		settingsBase.Initialize(woID, root, TM._("Team Requirement"));
-		Dictionary<object, object> dictionary2;
-		if (woID == -1)
+		Dictionary<object, object> data = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).Data;
+		if (!data.ContainsKey("team"))
 		{
-			Dictionary<object, object> dictionary = new Dictionary<object, object>();
-			dictionary.Add("team", Convert.ToInt32(MVTeam.None));
-			dictionary2 = dictionary;
-		}
-		else
-		{
-			dictionary2 = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).Data;
-		}
-		if (!dictionary2.ContainsKey("team"))
-		{
-			dictionary2["team"] = Convert.ToInt32(MVTeam.None);
+			data["team"] = Convert.ToInt32(MVTeam.None);
 		}
 		currentOutline = outlineTeamNone;
-		int num = Convert.ToInt32(dictionary2["team"]);
+		int num = Convert.ToInt32(data["team"]);
 		OnSettingChanged("team", num);
+		Dictionary<MVTeam, string> teamNames = MVGameControllerBase.Game.TeamManager.GetTeamNames();
+		buttonTeamBlueName.text = teamNames[MVTeam.Blue];
+		buttonTeamRedName.text = teamNames[MVTeam.Red];
+		buttonTeamGreenName.text = teamNames[MVTeam.Green];
+		buttonTeamYellowName.text = teamNames[MVTeam.Yellow];
 		buttonTeamNone.Initialize("team", Convert.ToInt32(MVTeam.None));
 		buttonTeamBlue.Initialize("team", Convert.ToInt32(MVTeam.Blue));
 		buttonTeamRed.Initialize("team", Convert.ToInt32(MVTeam.Red));

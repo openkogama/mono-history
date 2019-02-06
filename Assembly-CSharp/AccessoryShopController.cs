@@ -190,29 +190,29 @@ public class AccessoryShopController : MonoBehaviour, IInventoryChanged, IAttach
 
 	private void DisplayAllItems()
 	{
-		Dictionary<AccessoryCategory, List<AccessoryDataClient>> accessoriesCategoryMap = AccessoryDataManager.GetAccessoriesCategoryMap();
-		foreach (KeyValuePair<AccessoryCategory, List<AccessoryDataClient>> item in accessoriesCategoryMap)
-		{
-			TabState tabState = new TabState(LocalizedEnums._((AccessoryCategoryClient)item.Key), numberOfSlotsPrPage);
-			tabState.highestSlotIndex = item.Value.Count;
-			tabs.Add((int)item.Key, tabState);
-		}
-		List<AccessoryDataClient> accessoryDataFromCategoryType = GetAccessoryDataFromCategoryType(AccessoryCategoryClient.Bundles);
+		CreateAndAddTab(AccessoryCategoryClient.Hats, GetAccessoryDataFromCategoryType(AccessoryCategoryClient.Hats).Count);
+		CreateAndAddTab(AccessoryCategoryClient.Particles, GetAccessoryDataFromCategoryType(AccessoryCategoryClient.Particles).Count);
+		CreateAndAddTab(AccessoryCategoryClient.BackAccessories, GetAccessoryDataFromCategoryType(AccessoryCategoryClient.BackAccessories).Count);
+		AddDynamicTab(AccessoryCategoryClient.Bundles);
+		AddDynamicTab(AccessoryCategoryClient.Featured);
+		CreateAndAddTab(AccessoryCategoryClient.LevelUnlocks, GetAccessoryDataFromCategoryType(AccessoryCategoryClient.LevelUnlocks).Count);
+	}
+
+	private void AddDynamicTab(AccessoryCategoryClient category)
+	{
+		List<AccessoryDataClient> accessoryDataFromCategoryType = GetAccessoryDataFromCategoryType(category);
 		int count = accessoryDataFromCategoryType.Count;
 		if (count > 0)
 		{
-			TabState tabState2 = new TabState(LocalizedEnums._(AccessoryCategoryClient.Bundles), numberOfSlotsPrPage);
-			tabs.Add(254, tabState2);
-			tabState2.highestSlotIndex = count;
+			CreateAndAddTab(category, count);
 		}
-		List<AccessoryDataClient> accessoryDataFromCategoryType2 = GetAccessoryDataFromCategoryType(AccessoryCategoryClient.Featured);
-		int count2 = accessoryDataFromCategoryType2.Count;
-		if (count2 > 0)
-		{
-			TabState tabState3 = new TabState(LocalizedEnums._(AccessoryCategoryClient.Featured), numberOfSlotsPrPage);
-			tabs.Add(255, tabState3);
-			tabState3.highestSlotIndex = count2;
-		}
+	}
+
+	private void CreateAndAddTab(AccessoryCategoryClient category, int highestSlotIndex)
+	{
+		TabState tabState = new TabState(LocalizedEnums._(category), numberOfSlotsPrPage);
+		tabs.Add((int)category, tabState);
+		tabState.highestSlotIndex = highestSlotIndex;
 	}
 
 	private void DisplayOwnedItems()
@@ -356,16 +356,15 @@ public class AccessoryShopController : MonoBehaviour, IInventoryChanged, IAttach
 				}
 			}
 		}
-		accessoryDataFromCategoryType = accessoryDataFromCategoryType.OrderBy((AccessoryDataClient o) => o.position).ToList();
 		int num2 = tabs[selectedTab].SlotRange[0];
-		for (int num3 = num2; num3 < accessoryDataFromCategoryType.Count; num3++)
+		for (int i = num2; i < accessoryDataFromCategoryType.Count; i++)
 		{
-			AccessoryDataClient accessoryDataClient2 = accessoryDataFromCategoryType[num3];
+			AccessoryDataClient accessoryDataClient2 = accessoryDataFromCategoryType[i];
 			if (num2 < tabs[selectedTab].SlotRange[1] && (accessoryDataClient2.GetShowInShop() || accessoryDataClient2.owns))
 			{
 				AccessoryInventoryViewItem accessoryInventoryViewItem = UnityEngine.Object.Instantiate(accessoryInventoryItemPrefab);
 				inventoryController.AddObject(accessoryInventoryViewItem.gameObject, num2 % numberOfSlotsPrPage);
-				accessoryInventoryViewItem.Initialize(accessoryDataFromCategoryType[num3], previewItemsRoot, avatarBody, selectedTab == 254);
+				accessoryInventoryViewItem.Initialize(accessoryDataFromCategoryType[i], previewItemsRoot, avatarBody, selectedTab == 254);
 				num2++;
 			}
 		}
@@ -373,43 +372,67 @@ public class AccessoryShopController : MonoBehaviour, IInventoryChanged, IAttach
 
 	private List<AccessoryDataClient> GetAccessoryDataFromCategoryType(AccessoryCategoryClient category)
 	{
+		Dictionary<AccessoryCategory, List<AccessoryDataClient>> accessoriesCategoryMap = AccessoryDataManager.GetAccessoriesCategoryMap();
 		switch (category)
 		{
 		case AccessoryCategoryClient.Bundles:
 		{
-			List<AccessoryDataClient> list2 = new List<AccessoryDataClient>();
+			List<AccessoryDataClient> list3 = new List<AccessoryDataClient>();
 			List<AccessoryBundleItem> accessoryBundleItems = AccessoryDataManager.AccessoryBundleClient.accessoryBundleItems;
-			for (int j = 0; j < accessoryBundleItems.Count; j++)
+			for (int num4 = 0; num4 < accessoryBundleItems.Count; num4++)
 			{
-				AccessoryDataClient accessoryDataByMetaDataId = AccessoryDataManager.GetAccessoryDataByMetaDataId(accessoryBundleItems[j].accessoryMetaDataID);
+				AccessoryDataClient accessoryDataByMetaDataId = AccessoryDataManager.GetAccessoryDataByMetaDataId(accessoryBundleItems[num4].accessoryMetaDataID);
 				if (accessoryDataByMetaDataId != null && !accessoryDataByMetaDataId.owns)
 				{
-					list2.Add(accessoryDataByMetaDataId);
+					list3.Add(accessoryDataByMetaDataId);
 				}
 			}
-			return list2;
+			return list3.OrderBy((AccessoryDataClient o) => o.DiscountedPrice).ToList();
 		}
 		case AccessoryCategoryClient.Featured:
 		{
 			List<AccessoryDataClient> list = new List<AccessoryDataClient>();
-			Dictionary<AccessoryCategory, List<AccessoryDataClient>> accessoriesCategoryMap = AccessoryDataManager.GetAccessoriesCategoryMap();
+			foreach (KeyValuePair<AccessoryCategory, List<AccessoryDataClient>> item in accessoriesCategoryMap)
 			{
-				foreach (KeyValuePair<AccessoryCategory, List<AccessoryDataClient>> item in accessoriesCategoryMap)
+				for (int num2 = 0; num2 < item.Value.Count; num2++)
 				{
-					for (int i = 0; i < item.Value.Count; i++)
+					AccessoryDataClient accessoryDataClient = item.Value[num2];
+					if (accessoryDataClient.isFeatured && !accessoryDataClient.owns && !list.Contains(accessoryDataClient))
 					{
-						AccessoryDataClient accessoryDataClient = item.Value[i];
-						if (accessoryDataClient.isFeatured && !accessoryDataClient.owns && !list.Contains(accessoryDataClient))
-						{
-							list.Add(accessoryDataClient);
-						}
+						list.Add(accessoryDataClient);
 					}
 				}
-				return list;
 			}
+			return list.OrderBy((AccessoryDataClient o) => o.DiscountedPrice).ToList();
+		}
+		case AccessoryCategoryClient.LevelUnlocks:
+		{
+			List<AccessoryDataClient> list2 = new List<AccessoryDataClient>();
+			foreach (KeyValuePair<AccessoryCategory, List<AccessoryDataClient>> item2 in accessoriesCategoryMap)
+			{
+				for (int num3 = 0; num3 < item2.Value.Count; num3++)
+				{
+					AccessoryDataClient accessoryDataClient2 = item2.Value[num3];
+					if ((accessoryDataClient2.discount >= 100 || accessoryDataClient2.priceGold == 0) && accessoryDataClient2.level != 0 && !list2.Contains(accessoryDataClient2))
+					{
+						list2.Add(accessoryDataClient2);
+					}
+				}
+			}
+			return list2.OrderBy((AccessoryDataClient o) => o.level).ToList();
 		}
 		default:
-			return AccessoryDataManager.GetAccessoriesByCategoryId((AccessoryCategory)selectedTab);
+		{
+			List<AccessoryDataClient> accessoriesByCategoryId = AccessoryDataManager.GetAccessoriesByCategoryId((AccessoryCategory)selectedTab);
+			for (int num = accessoriesByCategoryId.Count - 1; num >= 0; num--)
+			{
+				if (accessoriesByCategoryId[num].DiscountedPrice == 0)
+				{
+					accessoriesByCategoryId.RemoveAt(num);
+				}
+			}
+			return accessoriesByCategoryId.OrderBy((AccessoryDataClient o) => o.DiscountedPrice).ToList();
+		}
 		}
 	}
 

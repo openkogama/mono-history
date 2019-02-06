@@ -20,6 +20,6 @@ public class TeamAnnouncement : Notification
 		MVTeam teamFromActorNr = MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(MVGameControllerBase.Game.LocalPlayer.ActorNr);
 		Color teamColor = Styles.GetTeamColor(teamFromActorNr);
 		teamColorText.color = teamColor;
-		teamColorText.text = string.Format(TM._("{0} Team"), teamFromActorNr.ToString());
+		teamColorText.text = MVGameControllerBase.Game.TeamManager.GetTeamNames()[teamFromActorNr];
 	}
 }

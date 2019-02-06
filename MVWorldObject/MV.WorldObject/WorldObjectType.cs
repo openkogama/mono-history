@@ -111,7 +111,7 @@ public enum WorldObjectType
 	Caspar14 = 158,
 	Caspar15 = 159,
 	ShrinkGun = 160,
-	Thomas2 = 161,
+	TeamEditor = 161,
 	Thomas3 = 162,
 	Thomas4 = 163,
 	CollectTheItemCollectableInstance = 164,

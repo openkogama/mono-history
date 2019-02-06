@@ -54,6 +54,7 @@ public static class LocalizedEnums
 			map.Add(74, TM._("Fetching Active Avatar"));
 			map.Add(73, TM._("Initialize Avatar Edit"));
 			map.Add(91, TM._("Getting Profile Meta Data"));
+			map.Add(99, TM._("Getting Planet Profile Data"));
 		}
 	}
 
@@ -93,6 +94,7 @@ public static class LocalizedEnums
 			map.Add(3, TM._("BACK ACCESSORIES"));
 			map.Add(254, TM._("BUNDLE"));
 			map.Add(255, TM._("FEATURED"));
+			map.Add(4, TM._("LEVEL UNLOCKS"));
 		}
 	}
 

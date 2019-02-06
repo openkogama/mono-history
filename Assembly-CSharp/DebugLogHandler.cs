@@ -15,11 +15,15 @@ public static class DebugLogHandler
 
 	private static Queue<Dictionary<string, object>> logContextQueue = new Queue<Dictionary<string, object>>();
 
+	private static string sanitizedString;
+
 	private const int maxLogContextQueueCount = 4;
 
 	private const int sampleErrorFrequency = 100;
 
 	private static bool isSampling = false;
+
+	private static List<string> sanitizeLogSubstrings = new List<string> { "Could not allocate memory: System out of memory!", "Failed to update dynamic font", "Screen position out of view frustum" };
 
 	private static string firstError = string.Empty;
 
@@ -100,8 +104,24 @@ public static class DebugLogHandler
 	{
 		if (MVClientSettings.EnableSentry || isSampling)
 		{
+			logString = SanitizeLogStringForUniqueErrors(logString);
 			MVGameControllerBase.OperationRequests.SendClientLog(logString, stackTrace, type, GetExtraSentryData(), GetTags());
 		}
+	}
+
+	private static string SanitizeLogStringForUniqueErrors(string logString)
+	{
+		for (int i = 0; i < sanitizeLogSubstrings.Count; i++)
+		{
+			string text = sanitizeLogSubstrings[i];
+			if (logString.Contains(text))
+			{
+				sanitizedString = logString.Remove(logString.IndexOf(text), text.Length);
+				logString = text;
+				break;
+			}
+		}
+		return logString;
 	}
 
 	private static void SendToConsole(string logString, string stackTrace)
@@ -162,6 +182,11 @@ public static class DebugLogHandler
 		dictionary.Add("RuntimePlatform", Application.platform.ToString());
 		dictionary.Add("SystemInfo", GetSystemInfo());
 		dictionary.Add("Log Context", GetLogContext());
+		if (!string.IsNullOrEmpty(sanitizedString))
+		{
+			sanitizedString.Trim();
+			dictionary.Add("Sanitized Error Data", sanitizedString);
+		}
 		if (SendOnGoingError)
 		{
 			dictionary.Add("First Error", firstError);

@@ -342,6 +342,10 @@ public class InventoryItem
 		{
 			MVWorldObjectDocumentationType.TimeAttackFlag,
 			new ItemDescription(TM._("Game Objective: Time Attack Flag"), TM._("Records the time it took for a player to reach it, without resetting the round."), TM._("Lets players take their time reaching the flag."))
+		},
+		{
+			MVWorldObjectDocumentationType.TeamEditor,
+			new ItemDescription(TM._("Team Editor"), TM._("This object allows you to change the name of the teams."), TM._("Modify the roles of your teams. Blue team are the guards and Red team is for the bandits!"))
 		}
 	};
 

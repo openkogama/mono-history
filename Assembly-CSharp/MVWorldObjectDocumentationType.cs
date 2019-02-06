@@ -69,5 +69,6 @@ public enum MVWorldObjectDocumentationType
 	Lever,
 	CollectTheItem,
 	HealRay,
-	TimeAttackFlag
+	TimeAttackFlag,
+	TeamEditor
 }

@@ -38,7 +38,7 @@ public class AccessoryData
 
 	public override string ToString()
 	{
-		return $"{name}:\r\n  isAvailable {isAvailable}\r\n  isNew {isNew}\r\n  isFeatured {isFeatured}\r\n  priceGold {priceGold}\r\n  discount {discount}\r\n  level {level}\r\n  category {category}\r\n  position {position}\r\n  url {url}\r\n  accessorySlotType {accessorySlotType}";
+		return $"{name}:\r\n  isAvailable {isAvailable}\r\n  isLimited {isNew}\r\n  isFeatured {isFeatured}\r\n  priceGold {priceGold}\r\n  discount {discount}\r\n  level {level}\r\n  category {category}\r\n  position {position}\r\n  url {url}\r\n  accessorySlotType {accessorySlotType}";
 	}
 
 	public bool GetShowInShop()

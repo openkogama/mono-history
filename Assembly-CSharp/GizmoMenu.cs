@@ -20,9 +20,12 @@ public class GizmoMenu : MonoBehaviour
 
 	private int woID;
 
-	public void Initialize(int woID, Vector3 worldPosition)
+	private EditorStateMachine editorStateMachine;
+
+	public void Initialize(int woID, Vector3 worldPosition, EditorStateMachine esm)
 	{
 		this.woID = woID;
+		editorStateMachine = esm;
 		this.worldPosition = worldPosition;
 		Setup(woID);
 		SetToScreenPoint();
@@ -31,6 +34,7 @@ public class GizmoMenu : MonoBehaviour
 	private void Update()
 	{
 		SetToScreenPoint();
+		HandleCloningHotkey();
 	}
 
 	private void Setup(int woID)
@@ -49,6 +53,21 @@ public class GizmoMenu : MonoBehaviour
 	{
 		Vector3 position = MVGameControllerBase.CameraController.MainCamera.WorldToScreenPoint(worldPosition);
 		rectTransform.transform.position = position;
+	}
+
+	private void HandleCloningHotkey()
+	{
+		if (Input.GetKeyUp(KeyCode.Q))
+		{
+			if (CanClone())
+			{
+				Clone();
+			}
+			else if (CanCloneRoot())
+			{
+				CloneRoot();
+			}
+		}
 	}
 
 	private void LateUpdate()
@@ -75,5 +94,54 @@ public class GizmoMenu : MonoBehaviour
 	private void PopWoDestroyed(object obj, WorldObjectDestroyedEventArgs args)
 	{
 		Pop();
+	}
+
+	private void Clone()
+	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
+		{
+			handler.PopGroups(UIGroupFlags.GameObjectUI);
+		});
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (ICloneHandler handler, BaseEventData data) =>
+		{
+			handler.Clone(MVGameControllerBase.WOCM.GetWorldObjectClient(woID), cloneToRoot: false, setAsPreviewItem: false);
+		});
+	}
+
+	private void CloneRoot()
+	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
+		{
+			handler.PopGroups(UIGroupFlags.GameObjectUI);
+		});
+		MVWorldObjectClient root = MVGameControllerBase.WOCM.GetWorldObjectClientRoot(woID);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (ICloneHandler handler, BaseEventData data) =>
+		{
+			handler.Clone(root, cloneToRoot: false, setAsPreviewItem: false);
+		});
+	}
+
+	private bool CanClone()
+	{
+		foreach (MVWorldObjectClient selectedWO in editorStateMachine.SelectedWOs)
+		{
+			if (!selectedWO.HasInteractionFlag(InteractionFlags.CanClone) || selectedWO.HasInteractionFlag(InteractionFlags.IsPreview))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private bool CanCloneRoot()
+	{
+		foreach (MVWorldObjectClient selectedWO in editorStateMachine.SelectedWOs)
+		{
+			if (!selectedWO.HasInteractionFlag(InteractionFlags.CanCloneRoot) || selectedWO.HasInteractionFlag(InteractionFlags.IsPreview))
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 }

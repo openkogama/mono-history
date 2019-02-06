@@ -19,7 +19,7 @@ public class GizmoController : MonoBehaviour, IGizmoHandler, IEventSystemHandler
 	public void Show(int woID, Vector3 worldPosition, EditorStateMachine e)
 	{
 		GizmoMenu gizmoMenu = Object.Instantiate(gizmoMenuPrefab);
-		gizmoMenu.Initialize(woID, worldPosition);
+		gizmoMenu.Initialize(woID, worldPosition, e);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
 		{
 			handler.PopGroups(UIGroupFlags.GameObjectUI);

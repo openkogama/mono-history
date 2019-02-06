@@ -88,7 +88,7 @@ public class SubscriberJoinedNotification : Notification
 	{
 		if (pool != null)
 		{
-			CloseNotification();
+			ResetNotificationUI();
 		}
 	}
 

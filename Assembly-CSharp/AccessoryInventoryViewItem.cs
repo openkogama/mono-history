@@ -232,7 +232,7 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, I
 		loadingWheel.SetActive(value: false);
 		accessoryItemBackground.gameObject.SetActive(value: true);
 		accessoryItemBackground.Initialize(accessoryDataClient);
-		newAccessoryImage.SetActive(accessoryDataClient.isNew && !accessoryDataClient.owns);
+		newAccessoryImage.SetActive((accessoryDataClient.isNew || accessoryDataClient.timelimit.IsTimeLimited) && !accessoryDataClient.owns);
 		if (bundleView)
 		{
 			return;
@@ -248,6 +248,10 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, I
 				LevelingManager.OnLevelingInitialized = (UnityAction)Delegate.Combine(LevelingManager.OnLevelingInitialized, new UnityAction(SetLevelBadge));
 			}
 		}
+		Rect rect = ((RectTransform)transform).rect;
+		Vector3 localScale = new Vector3(rect.width / 400f, rect.height / 400f, 1f);
+		discount.transform.localScale = localScale;
+		timeLimitDisplayer.transform.localScale = localScale;
 		if (MVGameControllerBase.Game.LocalPlayer.Level >= accessoryDataClient.level)
 		{
 			timeLimitDisplayer.Initialize(accessoryDataClient.timelimit);

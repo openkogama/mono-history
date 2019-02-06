@@ -8,5 +8,5 @@ public interface IAccessoryClicked : IEventSystemHandler
 
 	void UpdateHighlightedTab(AccessoryCategoryClient category);
 
-	void DisplayFlare(bool show);
+	void DisplayCategoryFeatures(AccessoryCategoryClient category);
 }

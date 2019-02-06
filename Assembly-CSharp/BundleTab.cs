@@ -118,7 +118,7 @@ public class BundleTab : TabMenuButtonBase
 		});
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAccessoryClicked x, BaseEventData y) =>
 		{
-			x.DisplayFlare(show: true);
+			x.DisplayCategoryFeatures(AccessoryCategoryClient.Bundles);
 		});
 		gameObject.SetActive(value: true);
 		StopAllCoroutines();
@@ -135,6 +135,13 @@ public class BundleTab : TabMenuButtonBase
 		gameObject.SetActive(value: true);
 		StopAllCoroutines();
 		StartCoroutine(LerpToSize(startPos));
+	}
+
+	private void OnDisable()
+	{
+		Vector2 anchoredPosition = rectTransform.anchoredPosition;
+		anchoredPosition.x = startPos;
+		rectTransform.anchoredPosition = anchoredPosition;
 	}
 
 	private IEnumerator LerpToSize(float size)

@@ -26,6 +26,9 @@ public class AccessoryViewController : MonoBehaviour, IAccessoryClicked, IBundle
 	[SerializeField]
 	private GameObject featuredTabFlare;
 
+	[SerializeField]
+	private LevelProgressAccessoryShop levelProgress;
+
 	private Color prevLight;
 
 	private bool wasEnabled;
@@ -123,8 +126,14 @@ public class AccessoryViewController : MonoBehaviour, IAccessoryClicked, IBundle
 		});
 	}
 
-	public void DisplayFlare(bool show)
+	public void DisplayCategoryFeatures(AccessoryCategoryClient category)
 	{
-		featuredTabFlare.SetActive(show);
+		featuredTabFlare.SetActive(category == AccessoryCategoryClient.Featured || category == AccessoryCategoryClient.Bundles);
+		levelProgress.gameObject.SetActive(category == AccessoryCategoryClient.LevelUnlocks);
+		TabMenuButtonBase tabMenuButton = tabMenuAccessoryShop.GetTabMenuButton(AccessoryCategoryClient.Bundles);
+		if (tabMenuButton != null)
+		{
+			tabMenuButton.gameObject.SetActive(category != AccessoryCategoryClient.LevelUnlocks);
+		}
 	}
 }

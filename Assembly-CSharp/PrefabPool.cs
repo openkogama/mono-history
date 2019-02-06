@@ -202,6 +202,9 @@ public class PrefabPool : MonoBehaviour
 	[SerializeField]
 	private MVGamePointObject gamePointPrefab;
 
+	[SerializeField]
+	private ObjectPrefab teamEditorPrefab;
+
 	[Header("Game")]
 	[Space(20f)]
 	[SerializeField]
@@ -553,6 +556,8 @@ public class PrefabPool : MonoBehaviour
 	public ObjectPrefab MVBatteryPrefab => mvBatteryPrefab;
 
 	public ObjectPrefab MVCameraSettingsPrefab => mvCameraSettingsPrefab;
+
+	public ObjectPrefab TeamEditorPrefab => teamEditorPrefab;
 
 	public MVCollectibleObject MVCollectiblePrefab => mvCollectiblePrefab;
 
