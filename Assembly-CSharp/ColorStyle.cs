@@ -50,5 +50,9 @@ public enum ColorStyle
 	Success = 54,
 	Error = 55,
 	DisabledButton = 56,
-	OffGray = 57
+	OffGray = 57,
+	BackgroundBlocker = 58,
+	HeaderGray = 59,
+	ButtonBlack = 60,
+	EliteYellow = 61
 }

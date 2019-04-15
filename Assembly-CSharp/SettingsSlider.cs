@@ -20,16 +20,16 @@ public class SettingsSlider : MonoBehaviour
 	{
 		this.key = key;
 		slider.maxValue = maxValue;
-		slider.value = value;
 		slider.minValue = minValue;
+		slider.value = value;
 	}
 
 	public void Initialize(string key, int value, int minValue, int maxValue)
 	{
 		this.key = key;
 		slider.maxValue = maxValue;
-		slider.value = value;
 		slider.minValue = minValue;
+		slider.value = value;
 	}
 
 	public void ValueChanged()

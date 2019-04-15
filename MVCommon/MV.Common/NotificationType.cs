@@ -32,5 +32,6 @@ public enum NotificationType
 	WaitCountDown,
 	NextLevelReward,
 	SubscriberJoined,
-	XPBoost
+	XPBoost,
+	TierUnlocked
 }

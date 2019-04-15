@@ -83,8 +83,11 @@ public class MVGameControllerDesktop : MVGameControllerBase
 
 	public static void UnregisterEditModeController()
 	{
-		Instance.modeController = null;
-		MVGameControllerBase.EditModeUI = null;
+		if (MVGameControllerBase.IsAlive)
+		{
+			Instance.modeController = null;
+			MVGameControllerBase.EditModeUI = null;
+		}
 	}
 
 	protected override void UpdateInternal()

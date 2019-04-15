@@ -17,7 +17,12 @@ public class DesktopLobbyStateController : MonoBehaviour
 	private AdOfferGold adOfferGold;
 
 	[SerializeField]
+	private GamePassesUI gamePassesUIPrefab;
+
+	[SerializeField]
 	private Image lobbyStateBlockingOverlay;
+
+	private GamePassesUI gamePassesUI;
 
 	private void Start()
 	{
@@ -25,6 +30,14 @@ public class DesktopLobbyStateController : MonoBehaviour
 		bool active = MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion && !MVGameControllerBase.GameSessionData.IsPlayedFromPoki;
 		touristRegisterButton.SetActive(active);
 		avatarAccessoriesButton.SetActive(value: true);
+		gamePassesUI = Object.Instantiate(gamePassesUIPrefab);
+		gamePassesUI.transform.SetParent(transform, worldPositionStays: false);
+		gamePassesUI.Initialize();
+		gamePassesUI.TryShowWelcomeReward();
+		if (!GamePassProgressionController.IsProgressionEnabled || MVGameControllerBase.GameSessionData.gameMode == MVGameMode.Edit || !GamePassesManager.GamePassesActive)
+		{
+			gamePassesUI.gameObject.SetActive(value: false);
+		}
 	}
 
 	private void Update()
@@ -46,5 +59,13 @@ public class DesktopLobbyStateController : MonoBehaviour
 			respawnButton.gameObject.SetActive(value: true);
 		}
 		MVInputWrapper.SuppressInGameInput();
+	}
+
+	private void OnEnable()
+	{
+		if (gamePassesUI != null)
+		{
+			gamePassesUI.gameObject.SetActive(GamePassProgressionController.IsProgressionEnabled && GamePassesManager.GamePassesActive);
+		}
 	}
 }

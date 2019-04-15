@@ -183,7 +183,6 @@ public class DamageIndicator : MonoBehaviour
 		if (damageType != PlayerKilledByType.Environmental)
 		{
 			damageOverlayTimer = Mathf.Max(damageOverlayTimer, damageAmount * durationPerPointOfDamage);
-			Debug.Log(damageOverlayTimer);
 			damageOverlay.enabled = true;
 		}
 	}

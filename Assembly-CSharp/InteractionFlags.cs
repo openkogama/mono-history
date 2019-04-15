@@ -31,5 +31,8 @@ public enum InteractionFlags
 	Sounds = 0x1000000,
 	CanUseTeam = 0x2000000,
 	CanCloneRoot = 0x4000000,
-	GlobalSounds = 0x8000000
+	GlobalSounds = 0x8000000,
+	CanUseGameRank = 0x10000000,
+	CanEarnGamePoints = 0x20000000,
+	CanEarnGamePointsMinor = 0x40000000
 }

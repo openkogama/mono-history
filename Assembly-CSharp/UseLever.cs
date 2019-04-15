@@ -55,6 +55,7 @@ public class UseLever : MVLogicObject, IIsLogicObjectFiringEventHandler, ILogicW
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
 		interactionFlags |= InteractionFlags.CanUseLevel;
 		interactionFlags |= InteractionFlags.CanUseStars;
+		interactionFlags |= InteractionFlags.CanUseGameRank;
 		interactionFlags |= InteractionFlags.CanResetLogic;
 		useLeverObject = (UseLeverObject)component;
 		useLeverObject.UseInteractor = new UseInteractor(this, useLeverObject.useInteractionRotator, reset: false, useLeverObject.LeverCollider, Use);
@@ -66,6 +67,8 @@ public class UseLever : MVLogicObject, IIsLogicObjectFiringEventHandler, ILogicW
 		useLeverObject.UseInteractor.AddRequirement(useRequirement2);
 		StarRequirement useRequirement3 = new StarRequirement(useLeverObject.useInteractionRotator);
 		useLeverObject.UseInteractor.AddRequirement(useRequirement3);
+		GameRankRequirement useRequirement4 = new GameRankRequirement(useLeverObject.useInteractionRotator);
+		useLeverObject.UseInteractor.AddRequirement(useRequirement4);
 	}
 
 	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)

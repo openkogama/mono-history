@@ -42,6 +42,7 @@ public class MVPressurePlate : MVLogicObject, IIsLogicObjectFiringEventHandler, 
 		interactionFlags |= InteractionFlags.CanUseLevel;
 		interactionFlags |= InteractionFlags.CanUseStars;
 		InteractionFlags |= InteractionFlags.CanUseTeam;
+		InteractionFlags |= InteractionFlags.CanUseGameRank;
 		plateObject.TriggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		plateObject.TriggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
 		SetVisibility();
@@ -54,8 +55,10 @@ public class MVPressurePlate : MVLogicObject, IIsLogicObjectFiringEventHandler, 
 		useInteractor.AddRequirement(useRequirement2);
 		StarRequirement useRequirement3 = new StarRequirement(plateObject.useInteractionRotator, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement3);
-		TeamRequirement useRequirement4 = new TeamRequirement(plateObject.TintObject, hasUseButtonWhenFree: false);
+		GameRankRequirement useRequirement4 = new GameRankRequirement(plateObject.useInteractionRotator, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement4);
+		TeamRequirement useRequirement5 = new TeamRequirement(plateObject.TintObject, hasUseButtonWhenFree: false);
+		useInteractor.AddRequirement(useRequirement5);
 	}
 
 	public override void Initialize()
@@ -186,7 +189,7 @@ public class MVPressurePlate : MVLogicObject, IIsLogicObjectFiringEventHandler, 
 
 	private void SetVisibility()
 	{
-		MeshRenderer[] meshRenderers = plateObject.MeshRenderers;
+		Renderer[] meshRenderers = plateObject.MeshRenderers;
 		for (int i = 0; i < meshRenderers.Length; i++)
 		{
 			meshRenderers[i].gameObject.SetActive(IsVisible());

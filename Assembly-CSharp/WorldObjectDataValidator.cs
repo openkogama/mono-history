@@ -9,6 +9,7 @@ public static class WorldObjectDataValidator
 		{ "levelAmount", 0 },
 		{ "gameCoinAmount", 0 },
 		{ "starAmount", 0 },
+		{ "RequiredRank", 0 },
 		{ "team", 0 },
 		{ "Lives", -1 }
 	};

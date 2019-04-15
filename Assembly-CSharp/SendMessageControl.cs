@@ -284,9 +284,22 @@ public class SendMessageControl : MonoBehaviour
 		case "/ru":
 		{
 			Canvas[] componentsInParent = GetComponentsInParent<Canvas>();
-			for (int num = 0; num < componentsInParent.Length; num++)
+			for (int i = 0; i < componentsInParent.Length; i++)
 			{
-				componentsInParent[num].gameObject.SetActive(value: false);
+				componentsInParent[i].gameObject.SetActive(value: false);
+			}
+			MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
+			foreach (MVPlayer value in mVPlayerContainer.Values)
+			{
+				value.Avatar.Avatar.AvatarUIHandler.SetShouldShowUI(shouldShow: false);
+			}
+			if (MVGameControllerBase.EditModeUI != null && !MVGameControllerBase.EditModeUI.IsInPlayInEditMode)
+			{
+				MVGameControllerBase.Game.LocalPlayer.Avatar.CurrentItem.Value = new Dictionary<object, object>
+				{
+					{ "type", 5 },
+					{ "variantId", 0 }
+				};
 			}
 			break;
 		}

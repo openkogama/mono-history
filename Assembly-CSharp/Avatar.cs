@@ -153,11 +153,6 @@ public class Avatar : MonoBehaviour, IBulletImpactVisualizer, IMovable
 		bulletImpactVisualizer.VisualizeBulletImpact(voxelHit, lineOfFire, shooterActorNumber, damage);
 	}
 
-	public bool HasModifierPackage(AvatarModifierPackageType modifierPackageType)
-	{
-		return modifiers.ContainsKey(modifierPackageType);
-	}
-
 	public bool HasModifierEffect(AvatarModifierEffect modifierEffect)
 	{
 		return modifierEffectCount[(int)modifierEffect] > 0;

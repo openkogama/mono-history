@@ -9,7 +9,15 @@ public class AndroidInGameMenu : MonoBehaviour
 	[SerializeField]
 	private TimedPlayReward playReward;
 
-	private void Start()
+	[SerializeField]
+	private GameObject winningConditionDebriefing;
+
+	[SerializeField]
+	private GamePassesUI gamePassesUIPrefab;
+
+	private GamePassesUI gamePassesUI;
+
+	public void Initialize()
 	{
 		bool isTouristSession = MVGameControllerBase.IsTouristSession;
 		bool flag = MVGameControllerBase.EditModeUI == null && !isTouristSession && MVGameControllerBase.GameMode == MVGameMode.Play;
@@ -19,6 +27,22 @@ public class AndroidInGameMenu : MonoBehaviour
 		if (flag)
 		{
 			playReward.Initialize();
+		}
+		gamePassesUI = Object.Instantiate(gamePassesUIPrefab);
+		gamePassesUI.transform.SetParent(transform, worldPositionStays: false);
+		gamePassesUI.Initialize();
+		if (!GamePassProgressionController.IsProgressionEnabled || !GamePassesManager.GamePassesActive)
+		{
+			gamePassesUI.gameObject.SetActive(value: false);
+		}
+		winningConditionDebriefing.transform.SetAsLastSibling();
+	}
+
+	private void OnEnable()
+	{
+		if (gamePassesUI != null)
+		{
+			gamePassesUI.gameObject.SetActive(GamePassProgressionController.IsProgressionEnabled && GamePassesManager.GamePassesActive);
 		}
 	}
 

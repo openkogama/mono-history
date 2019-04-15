@@ -31,4 +31,8 @@ public class MVGamePointObject : ObjectPrefab
 	public RotateLocal RotateLocal => rotateLocal;
 
 	public GameObject VisualObject => visualObject;
+
+	protected override void OnValidate()
+	{
+	}
 }

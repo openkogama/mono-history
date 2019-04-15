@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TimeAttackFlag : MVLogicObject
+public class TimeAttackFlag : MVGamePointRewardLogicObject
 {
 	private TriggerBoxEvents triggerBoxEvents;
 
@@ -16,9 +16,9 @@ public class TimeAttackFlag : MVLogicObject
 
 	private const float captureCooldown = 5f;
 
-	private const UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
-
 	private bool isTimeAttackDebriefingOn;
+
+	private const UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
 	private TimeAttackFlagObject timeAttackFlagObject;
 
@@ -33,6 +33,7 @@ public class TimeAttackFlag : MVLogicObject
 		triggerBoxEvents = timeAttackFlagObject.TriggerBoxEvents;
 		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		interactionFlags |= InteractionFlags.CanUseTeam;
+		interactionFlags |= InteractionFlags.CanEarnGamePoints;
 	}
 
 	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
@@ -112,7 +113,7 @@ public class TimeAttackFlag : MVLogicObject
 		}
 		lastCaptureTime = Time.time;
 		int captureTime = Mathf.FloorToInt((Time.time - FlagDebriefingControl.RunStartTime) * 1000f);
-		MVGameControllerBase.OperationRequests.ReportReachedTimeAttackFlag(captureTime);
+		MVGameControllerBase.OperationRequests.ReportReachedTimeAttackFlag(captureTime, Id);
 		FlagDebriefingControl.StartFlagDebriefing(captureTime);
 		return true;
 	}

@@ -265,6 +265,12 @@ public class KoGaMaPackageClient
 			return new ThemeWorldObject(worldObjectData, worldObjects);
 		case WorldObjectType.GamePoint:
 			return new MVGamePoint(worldObjectData, worldObjects);
+		case WorldObjectType.GamePointChest:
+			return new MVGamePointChest(worldObjectData, worldObjects);
+		case WorldObjectType.GamePassProgressionDataObject:
+			return new MVGamePassProgressionDataObject(worldObjectData, worldObjects);
+		case WorldObjectType.TriggerCube:
+			return new TriggerCube(worldObjectData, worldObjects);
 		default:
 			Debug.LogError("WOCM trying to create unknown type: " + worldObjectType);
 			return null;

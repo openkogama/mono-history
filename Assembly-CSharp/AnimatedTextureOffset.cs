@@ -18,7 +18,7 @@ public class AnimatedTextureOffset : ActivateOnAnimationBase
 	private Renderer skinnedRenderer;
 
 	[SerializeField]
-	private Renderer renderer;
+	private Renderer meshRenderer;
 
 	[SerializeField]
 	private float animationFrameAmount = 24f;
@@ -78,15 +78,15 @@ public class AnimatedTextureOffset : ActivateOnAnimationBase
 
 	private bool FindAnimatedTexture()
 	{
-		if (!renderer)
+		if (!meshRenderer)
 		{
 			Debug.Log("Error in AnimatedTextureOffset: Could not find a renderer on this object.");
 			return false;
 		}
-		Texture mainTexture = renderer.material.mainTexture;
+		Texture mainTexture = meshRenderer.material.mainTexture;
 		offsetRatio = (float)mainTexture.height / (float)mainTexture.width;
 		Vector2 value = new Vector2(offsetRatio, 1f);
-		renderer.material.SetTextureScale("_MainTex", value);
+		meshRenderer.material.SetTextureScale("_MainTex", value);
 		if (!skinnedRenderer)
 		{
 			Debug.Log("Error in AnimatedTextureOffset: Could not find a renderer on this object.");

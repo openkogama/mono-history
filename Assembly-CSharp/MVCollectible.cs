@@ -4,7 +4,7 @@ using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 
-public class MVCollectible : MVLogicObject
+public class MVCollectible : MVGamePointRewardLogicObject
 {
 	public enum CollectibleClientState
 	{
@@ -65,6 +65,7 @@ public class MVCollectible : MVLogicObject
 			Debug.LogError("A AllWorldObjectTriggerBoxEvents object is missing in PickupItem type: " + GetType().Name);
 		}
 		SetVisible();
+		interactionFlags |= InteractionFlags.CanEarnGamePointsMinor;
 	}
 
 	public override void Initialize()

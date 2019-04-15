@@ -18,6 +18,12 @@ public class XpBooster : SubscriptionRule
 		this.maxMemberBoost = maxMemberBoost;
 	}
 
+	public int GetBaseBoostedXP(int xp)
+	{
+		float num = (float)xp * ((float)baseBoost / 100f);
+		return (int)((float)xp + num);
+	}
+
 	public int GetBoostedXp(int xp, int membersCount)
 	{
 		float num = (float)xp * ((float)baseBoost / 100f);

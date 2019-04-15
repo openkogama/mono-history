@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class MVGameCoinChest : MVLogicObject
 {
-	public enum GameCoinChestClientState
+	private enum GameCoinChestClientState
 	{
 		Closed,
 		Opening,

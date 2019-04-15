@@ -22,7 +22,7 @@ public class OperationResponsePendingManager
 			return false;
 		}
 		pendingOperations.Add(operationCode);
-		peer.OpCustom((byte)operationCode, data, sendReliable: true);
+		peer.SendOperation((byte)operationCode, data, SendOptions.SendReliable);
 		return true;
 	}
 

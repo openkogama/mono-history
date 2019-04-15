@@ -10,15 +10,15 @@ public class ButtonAnimationController : MonoBehaviour, IPointerUpHandler, IPoin
 		Small
 	}
 
-	private const float pressedSquareMoveAmount = -25f;
+	private const float pressedSquareMoveAmount = -15f;
 
-	private const float hoverSquareMoveAmount = 10f;
+	private const float hoverSquareMoveAmount = 0f;
 
 	private const float disableSquareMoveAmount = -10f;
 
-	private const float pressedSmallMoveAmount = -6f;
+	private const float pressedSmallMoveAmount = -3f;
 
-	private const float hoverSmallMoveAmount = 5f;
+	private const float hoverSmallMoveAmount = 0f;
 
 	private const float disableSmallMoveAmount = -1f;
 
@@ -60,7 +60,7 @@ public class ButtonAnimationController : MonoBehaviour, IPointerUpHandler, IPoin
 
 	public void OnPointerUp(PointerEventData eventData)
 	{
-		if (eventData.button == PointerEventData.InputButton.Left && (button.interactable || buttonPressedState != 0))
+		if (eventData.button == PointerEventData.InputButton.Left && button.interactable && buttonPressedState != 0)
 		{
 			buttonPressedState--;
 			if (buttonPressedState == 0)
@@ -99,6 +99,7 @@ public class ButtonAnimationController : MonoBehaviour, IPointerUpHandler, IPoin
 		if (button.interactable || buttonHighlightedState != 0)
 		{
 			buttonHighlightedState--;
+			buttonPressedState = 0;
 			if (buttonHighlightedState == 0)
 			{
 				transformToMove.localPosition = new Vector3(transformToMove.localPosition.x, originalValue, transformToMove.localPosition.z);
@@ -141,13 +142,13 @@ public class ButtonAnimationController : MonoBehaviour, IPointerUpHandler, IPoin
 		switch (buttonType)
 		{
 		case ButtonType.Square:
-			pressedMoveAmount = -25f;
-			hoverMoveAmount = 10f;
+			pressedMoveAmount = -15f;
+			hoverMoveAmount = 0f;
 			disableMoveAmount = -10f;
 			break;
 		case ButtonType.Small:
-			pressedMoveAmount = -6f;
-			hoverMoveAmount = 5f;
+			pressedMoveAmount = -3f;
+			hoverMoveAmount = 0f;
 			disableMoveAmount = -1f;
 			break;
 		}

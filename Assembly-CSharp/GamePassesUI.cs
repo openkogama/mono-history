@@ -1,0 +1,122 @@
+using System.Collections.Generic;
+using MV.Common;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+
+public class GamePassesUI : MonoBehaviour
+{
+	[SerializeField]
+	private GamePassesShop gamePassesShopPrefab;
+
+	[SerializeField]
+	private Text totalGamePointAmountText;
+
+	[SerializeField]
+	private GamePassesHighScoreList highScoreListPrefab;
+
+	[SerializeField]
+	private GamePassesHighlightArrowManager highLightArrowManager;
+
+	[SerializeField]
+	private GameTierProgressBar tierProgressBar;
+
+	[SerializeField]
+	private GameTierProgressBarGainEffectController gainEffectController;
+
+	[SerializeField]
+	private GamePassesWelcomeRewardPopup welcomeRewardPopupPrefab;
+
+	private bool isInitialized;
+
+	public void Initialize()
+	{
+		if (!isInitialized)
+		{
+			isInitialized = true;
+			if (GamePassesManager.GamePassesActive)
+			{
+				totalGamePointAmountText.text = GamePassesManager.PlayerPlanetData.highScoreGamePoints.ToString();
+				GamePassesShop.UpdateHighestTierRewardShown(GamePassesManager.PlayerPlanetData.gamePassTier);
+			}
+			tierProgressBar.Initialize();
+			gainEffectController.Initialize();
+		}
+	}
+
+	public void TryShowWelcomeReward()
+	{
+		if (ShouldShowWelcomeReward())
+		{
+			ShowWelcomeRewardPopup();
+		}
+	}
+
+	public void OnTier1ShopPressed()
+	{
+		ShowGamePassesShop(GamePassTier.Tier1);
+	}
+
+	public void OnTier2ShopPressed()
+	{
+		ShowGamePassesShop(GamePassTier.Tier2);
+	}
+
+	public void OnTier3ShopPressed()
+	{
+		ShowGamePassesShop(GamePassTier.Tier3);
+	}
+
+	public void ShowHighScore()
+	{
+		GamePassesHighScoreList highScoreList = Object.Instantiate(highScoreListPrefab);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Push(highScoreList.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
+		});
+	}
+
+	private void ShowGamePassesShop(GamePassTier tierToShow)
+	{
+		InstantiateGamePassesShop(tierToShow);
+		highLightArrowManager.OnTierBeingShown(tierToShow);
+	}
+
+	private void InstantiateGamePassesShop(GamePassTier tierToShow)
+	{
+		GamePassesShop gamePassesShop = Object.Instantiate(gamePassesShopPrefab);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Push(gamePassesShop.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
+		});
+		gamePassesShop.Initialize(tierToShow, new List<int>());
+	}
+
+	private void OnEnable()
+	{
+		if (GamePassesManager.GamePassesActive)
+		{
+			totalGamePointAmountText.text = GamePassesManager.PlayerPlanetData.highScoreGamePoints.ToString();
+		}
+	}
+
+	private bool ShouldShowWelcomeReward()
+	{
+		if (GamePassesManager.playerTierStateCalculator == null)
+		{
+			return false;
+		}
+		int welcomeReward = GamePassesManager.playerTierStateCalculator.welcomeReward;
+		return welcomeReward > 0 && GamePassProgressionController.IsProgressionEnabled && !GamePassesManager.PlayerPlanetData.playerPlanetMetaData.welcomeRewardClaimed && GamePassesManager.playerTierStateCalculator.gamePassRewardsActivated;
+	}
+
+	private void ShowWelcomeRewardPopup()
+	{
+		GamePassesWelcomeRewardPopup welcomeRewardPopup = Object.Instantiate(welcomeRewardPopupPrefab);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Push(welcomeRewardPopup.gameObject, UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
+		});
+		welcomeRewardPopup.Initialize();
+	}
+}

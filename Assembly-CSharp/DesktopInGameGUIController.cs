@@ -6,6 +6,9 @@ using UnityEngine.UI;
 public class DesktopInGameGUIController : MonoBehaviour
 {
 	[SerializeField]
+	private GameObject content;
+
+	[SerializeField]
 	private ShowUse2D use2DPrefab;
 
 	[SerializeField]
@@ -24,6 +27,9 @@ public class DesktopInGameGUIController : MonoBehaviour
 
 	[SerializeField]
 	private Image logo;
+
+	[SerializeField]
+	private LevelBadge levelBadge;
 
 	private Dictionary<LoadLogoType, string> logoToPathMap = new Dictionary<LoadLogoType, string> { 
 	{
@@ -53,6 +59,8 @@ public class DesktopInGameGUIController : MonoBehaviour
 				AsyncWWWManager.WWWRequest(new CachedGetRequest(path, StreamingAssetCallback, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 			}
 		}
+		levelBadge = Object.Instantiate(levelBadge);
+		levelBadge.transform.SetParent(content.transform, worldPositionStays: false);
 	}
 
 	private void StreamingAssetCallback(WWW www)

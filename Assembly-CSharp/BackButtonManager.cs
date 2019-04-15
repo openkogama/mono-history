@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Events;
 
 public static class BackButtonManager
@@ -76,7 +77,11 @@ public static class BackButtonManager
 
 	public static void PostDestroyCleanup()
 	{
-		subscribers.Clear();
+		if (subscribers.Count > 0)
+		{
+			Debug.LogWarningFormat("{0} subscribers are never unsubscribing.", subscribers.Count);
+			subscribers.Clear();
+		}
 	}
 
 	private static bool ContainsHandler(BackButtonHandler handler)

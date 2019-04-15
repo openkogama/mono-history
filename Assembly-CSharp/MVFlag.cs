@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MVFlag : MVLogicObject
+public class MVFlag : MVGamePointRewardLogicObject
 {
 	private TriggerBoxEvents triggerBoxEvents;
 
@@ -26,7 +26,7 @@ public class MVFlag : MVLogicObject
 		flagObject = (FlagObject)component;
 		triggerBoxEvents = flagObject.TriggerBoxEvents;
 		triggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
-		interactionFlags |= InteractionFlags.CanUseGameCoins | InteractionFlags.CanUseTeam;
+		interactionFlags |= InteractionFlags.CanUseGameCoins | InteractionFlags.CanUseTeam | InteractionFlags.CanEarnGamePoints;
 	}
 
 	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
@@ -78,7 +78,7 @@ public class MVFlag : MVLogicObject
 
 	private bool DoCaptureFlag(int instigator)
 	{
-		MVGameControllerBase.OperationRequests.ReportCaptureFlag();
+		MVGameControllerBase.OperationRequests.ReportCaptureFlag(Id);
 		return true;
 	}
 

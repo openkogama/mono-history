@@ -55,9 +55,10 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 	{
 		base.Initialize();
 		((AvatarUIHandlerRemote)avatar.AvatarUIHandler).UpdateNameTag();
-		if (MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(OwnerActorNr).BuildTarget == BuildTarget.Android)
+		BuildTarget buildTarget = MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(OwnerActorNr).BuildTarget;
+		if (buildTarget == BuildTarget.Android || buildTarget == BuildTarget.IOS)
 		{
-			((AvatarUIHandlerRemote)avatar.AvatarUIHandler).ShowMobileIcon();
+			((AvatarUIHandlerRemote)avatar.AvatarUIHandler).ShowMobileIcon(buildTarget);
 		}
 		((AvatarUIHandlerRemote)avatar.AvatarUIHandler).HealthBar.Oxygen = 0f;
 		InitializeHealth();

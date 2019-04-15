@@ -3,12 +3,12 @@ using UnityEngine;
 public class ObjectPrefab : MonoBehaviour
 {
 	[SerializeField]
-	protected MeshRenderer[] meshRenderers;
+	protected Renderer[] meshRenderers;
 
 	[SerializeField]
 	protected Collider mainCollider;
 
-	public MeshRenderer[] MeshRenderers => meshRenderers;
+	public Renderer[] MeshRenderers => meshRenderers;
 
 	public Collider Collider => mainCollider;
 

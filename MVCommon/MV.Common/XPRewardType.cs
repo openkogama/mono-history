@@ -8,5 +8,6 @@ public enum XPRewardType : byte
 	AvatarEditModeRepeatPlayTime,
 	SmallFirstTimeReward,
 	MediumFirstTimeReward,
-	HugeFirstTimeReward
+	HugeFirstTimeReward,
+	TierUnlockedReward
 }

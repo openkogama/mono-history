@@ -1,6 +1,7 @@
 using System;
 using MV.Common;
 using MV.WorldObject;
+using MV.WorldObject.GamePassSystem;
 using MV.WorldObject.MetaData;
 using MV.WorldObject.Subscription;
 using UnityEngine;
@@ -20,6 +21,8 @@ public class MVPlayer
 
 	public UnityAction OnCheckpointReached;
 
+	protected PlayerPlanetDataRemote playerPlanetDataRemote;
+
 	public Action OnGoldAmountChange;
 
 	public int ProfileID { get; private set; }
@@ -31,6 +34,18 @@ public class MVPlayer
 	public string RegionCode { get; private set; }
 
 	public BuildTarget BuildTarget { get; private set; }
+
+	public PlayerPlanetDataRemote PlayerPlanetDataRemote
+	{
+		get
+		{
+			return playerPlanetDataRemote;
+		}
+		set
+		{
+			playerPlanetDataRemote = value;
+		}
+	}
 
 	public UserProfileData UserProfileData { get; private set; }
 
@@ -91,10 +106,11 @@ public class MVPlayer
 		IsReady = isReady;
 	}
 
-	public MVPlayer(int actorNumber, int profileID, int level, string regionCode, BuildTarget buildTarget, UserProfileData userProfileData, bool isReady)
+	public MVPlayer(int actorNumber, int profileID, int level, string regionCode, BuildTarget buildTarget, UserProfileData userProfileData, bool isReady, PlayerPlanetDataRemote playerPlanetDataRemote)
 		: this(actorNumber, profileID, regionCode, buildTarget, userProfileData, isReady)
 	{
 		Level = level;
+		PlayerPlanetDataRemote = playerPlanetDataRemote;
 	}
 
 	public void SetCheckpoint(int woid)

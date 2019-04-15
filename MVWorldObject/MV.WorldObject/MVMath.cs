@@ -24,7 +24,25 @@ public static class MVMath
 		return f;
 	}
 
+	public static double TryValidateDouble(double d)
+	{
+		if (double.IsInfinity(d) || double.IsNaN(d))
+		{
+			throw new InvalidDoubleException();
+		}
+		return d;
+	}
+
 	public static bool IsApproximatelyEqual(float a, float b, float delta)
+	{
+		if (Math.Abs(a - b) < delta)
+		{
+			return true;
+		}
+		return false;
+	}
+
+	public static bool IsApproximatelyEqual(double a, double b, double delta)
 	{
 		if (Math.Abs(a - b) < delta)
 		{

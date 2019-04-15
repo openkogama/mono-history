@@ -61,4 +61,43 @@ public static class FlagDebriefingControl
 			OnResetToSpawnPoint();
 		}
 	}
+
+	public static void PostResetCleanup()
+	{
+		if (OnFlagDebriefing != null)
+		{
+			Debug.LogWarning("FlagDebriefingControl.OnFlagDebriefing still have subscribers.");
+			OnFlagDebriefing = null;
+		}
+		if (OnFlagCountDown != null)
+		{
+			Debug.LogWarning("FlagDebriefingControl.OnFlagCountDown still have subscribers.");
+			OnFlagCountDown = null;
+		}
+		if (OnFlagDebriefingEnd != null)
+		{
+			Debug.LogWarning("FlagDebriefingControl.OnFlagDebriefingEnd still have subscribers.");
+			OnFlagDebriefingEnd = null;
+		}
+		if (OnFlagCountDownEnd != null)
+		{
+			Debug.LogWarning("FlagDebriefingControl.OnFlagCountDownEnd still have subscribers.");
+			OnFlagCountDownEnd = null;
+		}
+		if (OnResetToSpawnPoint != null)
+		{
+			Debug.LogWarning("FlagDebriefingControl.OnResetToSpawnPoint still have subscribers.");
+			OnResetToSpawnPoint = null;
+		}
+		if (IsInFlagDebriefing)
+		{
+			Debug.LogWarning("IsInFlagDebriefing is not properly reset on game unload.");
+			IsInFlagDebriefing = false;
+		}
+		if (RunStartTime != 0f)
+		{
+			Debug.LogWarning("RunStartTime is not properly reset on game unload.");
+			RunStartTime = 0f;
+		}
+	}
 }

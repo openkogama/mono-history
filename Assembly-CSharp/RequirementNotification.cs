@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -25,6 +26,9 @@ public class RequirementNotification : Notification
 
 	[SerializeField]
 	private NotificationRequirementPanel TeamPanel;
+
+	[SerializeField]
+	private NotificationRequirementPanel GameTierPanel;
 
 	private List<GameObject> PanelsToDestroy = new List<GameObject>();
 
@@ -59,6 +63,11 @@ public class RequirementNotification : Notification
 		{
 			MVTeam team = (MVTeam)worldObjectClient.Data["team"];
 			ShowTeamRequirement(team);
+		}
+		if (worldObjectClient.Data.ContainsKey("RequiredRank"))
+		{
+			GamePassTier tier = (GamePassTier)(int)worldObjectClient.Data["RequiredRank"];
+			ShowGameTierRequirement(tier);
 		}
 	}
 
@@ -104,6 +113,21 @@ public class RequirementNotification : Notification
 		ExecuteEvents.Execute(target, null, (INotificationRequirementPanel x, BaseEventData y) =>
 		{
 			x.OnToggleEnabled(level, checkMark, enabled);
+		});
+	}
+
+	private void ShowGameTierRequirement(GamePassTier tier)
+	{
+		GameObject target = InstantiatePanel(GameTierPanel);
+		bool enabled = false;
+		if (GamePassesManager.GamePassesActive)
+		{
+			enabled = (int)tier <= (int)GamePassesManager.PlayerPlanetData.gamePassTier;
+		}
+		Sprite checkMark = ((!enabled) ? OffSprite : OnSprite);
+		ExecuteEvents.Execute(target, null, (INotificationRequirementPanel x, BaseEventData y) =>
+		{
+			x.OnToggleEnabled((int)tier, checkMark, enabled);
 		});
 	}
 

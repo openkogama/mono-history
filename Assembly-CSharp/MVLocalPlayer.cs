@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using MV.Common;
+using MV.WorldObject.GamePassSystem;
 using MV.WorldObject.MetaData;
 using UnityEngine.Events;
 
@@ -13,6 +14,8 @@ public abstract class MVLocalPlayer : MVPlayer
 		Owner
 	}
 
+	private PlayerPlanetData playerPlanetData;
+
 	public Action OnInitializeLeveling;
 
 	protected XPProgress xpProgress;
@@ -24,6 +27,19 @@ public abstract class MVLocalPlayer : MVPlayer
 	protected int joinTime;
 
 	private int oldLevel;
+
+	public PlayerPlanetData PlayerPlanetData
+	{
+		get
+		{
+			return playerPlanetData;
+		}
+		set
+		{
+			playerPlanetData = value;
+			playerPlanetDataRemote = new PlayerPlanetDataRemote(playerPlanetData.highScoreGamePoints, playerPlanetData.gamePassTier);
+		}
+	}
 
 	public int PlanetOwnershipTypeID
 	{

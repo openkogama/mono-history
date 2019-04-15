@@ -12,7 +12,7 @@ public class LobbyStatePlayModeController : MonoBehaviour
 
 	private RectTransform lobbyState;
 
-	private RectTransform inGameMenu;
+	private InGameMenu inGameMenu;
 
 	private ChatControllerUGUI chatController;
 
@@ -29,7 +29,7 @@ public class LobbyStatePlayModeController : MonoBehaviour
 		}
 	}
 
-	public void Initialize(DesktopInGameGUIController inGameController, RectTransform lobbyState, RectTransform inGameMenu, ChatControllerUGUI chatController)
+	public void Initialize(DesktopInGameGUIController inGameController, RectTransform lobbyState, InGameMenu inGameMenu, ChatControllerUGUI chatController)
 	{
 		ILockCursorManager lockCursorManager = MVGameControllerDesktop.LockCursorManager;
 		lockCursorManager.OnCursorLockChanged = (Action<bool>)Delegate.Combine(lockCursorManager.OnCursorLockChanged, new Action<bool>(OnCursorLockChanged));
@@ -87,7 +87,7 @@ public class LobbyStatePlayModeController : MonoBehaviour
 			inGameController.gameObject.SetActive(value: false);
 			chatController.OnLobbyStateChange(cursorLocked: false);
 		}
-		else
+		else if (MVGameControllerBase.WOCM.AvatarLocal.CurrentState != AvatarRuntimeState.Edit)
 		{
 			lobbyState.gameObject.SetActive(value: false);
 			inGameMenu.gameObject.SetActive(value: true);

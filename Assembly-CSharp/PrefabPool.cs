@@ -203,7 +203,13 @@ public class PrefabPool : MonoBehaviour
 	private MVGamePointObject gamePointPrefab;
 
 	[SerializeField]
+	private TriggerCubePrefab triggerCubePrefab;
+
+	[SerializeField]
 	private ObjectPrefab teamEditorPrefab;
+
+	[SerializeField]
+	private ObjectPrefab gamePointChestPrefab;
 
 	[Header("Game")]
 	[Space(20f)]
@@ -224,6 +230,9 @@ public class PrefabPool : MonoBehaviour
 
 	[SerializeField]
 	private LevelDisplayCube levelDisplayPrefab;
+
+	[SerializeField]
+	private GameRankDisplayObject gameRankDisplayPrefab;
 
 	[SerializeField]
 	private GameCoinDisplayObject gameCoinDisplayPrefab;
@@ -655,6 +664,10 @@ public class PrefabPool : MonoBehaviour
 
 	public MVGamePointObject GamePointPrefab => gamePointPrefab;
 
+	public ObjectPrefab GamePointChestPrefab => gamePointChestPrefab;
+
+	public TriggerCubePrefab TriggerCubePrefab => triggerCubePrefab;
+
 	public Material GhostMarkerMaterial => ghostMarkerMaterial;
 
 	public Material ObjectHiddenMaterial => objectHiddenMaterial;
@@ -666,6 +679,8 @@ public class PrefabPool : MonoBehaviour
 	public StarDisplayObject StarDisplayPrefab => starDisplayPrefab;
 
 	public LevelDisplayCube LevelDisplayPrefab => levelDisplayPrefab;
+
+	public GameRankDisplayObject GameRankDisplayPrefab => gameRankDisplayPrefab;
 
 	public GameCoinDisplayObject GameCoinDisplayPrefab => gameCoinDisplayPrefab;
 

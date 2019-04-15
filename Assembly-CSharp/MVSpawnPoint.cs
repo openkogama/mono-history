@@ -27,4 +27,9 @@ public abstract class MVSpawnPoint : MVLogicObject
 		}
 		return base.Delete(worldObjectClientManager, ref errorText);
 	}
+
+	public override void OnDataUpdate()
+	{
+		base.OnDataUpdate();
+	}
 }

@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class GameCoinChestModelSelector : MonoBehaviour
 {
-	public MeshRenderer closedMesh;
+	public Renderer closedMesh;
 
-	public MeshRenderer openMesh;
+	public Renderer openMesh;
 
 	private void Awake()
 	{

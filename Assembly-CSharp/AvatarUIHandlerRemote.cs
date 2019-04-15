@@ -1,3 +1,4 @@
+using MV.Common;
 using MV.WorldObject;
 using MV.WorldObject.Subscription;
 using UnityEngine;
@@ -48,7 +49,13 @@ public class AvatarUIHandlerRemote : AvatarUIHandler
 	private Transform nameTagLabel;
 
 	[SerializeField]
-	private GameObject mobileIcon;
+	private MeshRenderer mobileIcon;
+
+	[SerializeField]
+	private Texture androidTexture;
+
+	[SerializeField]
+	private Texture iOSTexture;
 
 	[SerializeField]
 	private SayChatBubbleHandler sayChatBubbleHandler;
@@ -84,9 +91,18 @@ public class AvatarUIHandlerRemote : AvatarUIHandler
 
 	public SayChatBubbleHandler SayChatBubbleHandler => sayChatBubbleHandler;
 
-	public void ShowMobileIcon()
+	public void ShowMobileIcon(BuildTarget bT)
 	{
-		mobileIcon.SetActive(value: true);
+		mobileIcon.gameObject.SetActive(value: true);
+		switch (bT)
+		{
+		case BuildTarget.Android:
+			mobileIcon.material.mainTexture = androidTexture;
+			break;
+		case BuildTarget.IOS:
+			mobileIcon.material.mainTexture = iOSTexture;
+			break;
+		}
 		shouldShowMobileIcon = true;
 	}
 
@@ -118,8 +134,9 @@ public class AvatarUIHandlerRemote : AvatarUIHandler
 		shieldBar.gameObject.SetActive(shouldShow);
 		if (shouldShowMobileIcon)
 		{
-			mobileIcon.SetActive(shouldShow);
+			mobileIcon.gameObject.SetActive(shouldShow);
 		}
+		NameTagLabelVisible = shouldShow;
 		teamIcon.gameObject.SetActive(shouldShow);
 	}
 

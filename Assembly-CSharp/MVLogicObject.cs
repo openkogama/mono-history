@@ -36,11 +36,11 @@ public abstract class MVLogicObject : MVWorldObjectClient, IUpdatecontrollerSubs
 		transform.position += new Vector3(0f, 0.001f, 0f);
 	}
 
-	protected CullingSubscriberBase SetupCulling(GameObject lodGameObject)
+	protected CullingSubscriberBase SetupCulling(GameObject lodGameObject, float cullingRadius = 2f)
 	{
 		this.lodGameObject = lodGameObject;
 		PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
-		cullingSubscriberBase = new CullingSubscriberBase(2f, WorldPosition, OnStateChanged);
+		cullingSubscriberBase = new CullingSubscriberBase(cullingRadius, WorldPosition, OnStateChanged);
 		return cullingSubscriberBase;
 	}
 
@@ -104,7 +104,7 @@ public abstract class MVLogicObject : MVWorldObjectClient, IUpdatecontrollerSubs
 		}
 	}
 
-	protected Bounds ComputeLocalBounds(Vector3 origin, MeshRenderer[] meshRenderers)
+	protected Bounds ComputeLocalBounds(Vector3 origin, Renderer[] meshRenderers)
 	{
 		Bounds result = new Bounds(Vector3.zero, Vector3.zero);
 		if (meshRenderers.Length > 0)

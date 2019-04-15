@@ -1,4 +1,5 @@
 using System;
+using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -46,6 +47,10 @@ public class ContextMenuController : MonoBehaviour, IHandlePointerDownOnContextM
 		{
 			contextMenu.AddButton(TM._("Levels"), ShowLevelsDialog);
 		}
+		if (!MVClientSettings.IsFlagSet(ClientSettingFlags.GamePassSilentReleaseEnabled) && worldObjectClient.HasInteractionFlag(InteractionFlags.CanUseGameRank))
+		{
+			contextMenu.AddButton(TM._("Game Tier"), ShowGameRankDialog);
+		}
 		if (worldObjectClient.HasInteractionFlag(InteractionFlags.HasSettings))
 		{
 			contextMenu.AddButton(TM._("Settings"), ShowSettingsDialog);
@@ -65,6 +70,14 @@ public class ContextMenuController : MonoBehaviour, IHandlePointerDownOnContextM
 		if (worldObjectClient.HasInteractionFlag(InteractionFlags.CanResetLogic))
 		{
 			contextMenu.AddButton(TM._("Reset Logic"), ResetLogic);
+		}
+		if (!MVClientSettings.IsFlagSet(ClientSettingFlags.GamePassSilentReleaseEnabled) && worldObjectClient.HasInteractionFlag(InteractionFlags.CanEarnGamePoints))
+		{
+			contextMenu.AddButton(TM._("Crystals"), ShowGamePointsDialog);
+		}
+		if (!MVClientSettings.IsFlagSet(ClientSettingFlags.GamePassSilentReleaseEnabled) && worldObjectClient.HasInteractionFlag(InteractionFlags.CanEarnGamePointsMinor))
+		{
+			contextMenu.AddButton(TM._("Crystals"), ShowMinorGamePointsDialog);
 		}
 		if (CanClone())
 		{
@@ -133,6 +146,33 @@ public class ContextMenuController : MonoBehaviour, IHandlePointerDownOnContextM
 			handler.PopGroups(UIGroupFlags.GameObjectUI);
 		});
 		settingsFactory.CreateSettingsDialog(woID, UseRequirementType.Star);
+	}
+
+	private void ShowGameRankDialog()
+	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
+		{
+			handler.PopGroups(UIGroupFlags.GameObjectUI);
+		});
+		settingsFactory.CreateSettingsDialog(woID, UseRequirementType.GameRank);
+	}
+
+	private void ShowGamePointsDialog()
+	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
+		{
+			handler.PopGroups(UIGroupFlags.GameObjectUI);
+		});
+		settingsFactory.CreateGamePointsSettings(woID);
+	}
+
+	private void ShowMinorGamePointsDialog()
+	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
+		{
+			handler.PopGroups(UIGroupFlags.GameObjectUI);
+		});
+		settingsFactory.CreateGamePointsMinorRewardSettings(woID);
 	}
 
 	private void ShowTeamDialog()
@@ -249,7 +289,12 @@ public class ContextMenuController : MonoBehaviour, IHandlePointerDownOnContextM
 		if (confirmed)
 		{
 			ItemImageUploaded(woID);
+			return;
 		}
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Pop();
+		});
 	}
 
 	private void ItemImageUploaded(int woId)

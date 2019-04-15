@@ -1,6 +1,6 @@
 namespace MV.WorldObject.GamePassSystem;
 
-public class TierState
+public class PlayerTierState
 {
 	public readonly TierLockState tierLockState;
 
@@ -12,7 +12,7 @@ public class TierState
 
 	public readonly int gamePointRequirementBase;
 
-	public TierState(TierLockState tierLockState, int remainingGamePointRequired, int gamePointRequirementBase, int remainingGoldPriceRequired, int goldPriceRequirementBase)
+	public PlayerTierState(TierLockState tierLockState, int remainingGamePointRequired, int gamePointRequirementBase, int remainingGoldPriceRequired, int goldPriceRequirementBase)
 	{
 		this.tierLockState = tierLockState;
 		this.remainingGamePointRequired = remainingGamePointRequired;

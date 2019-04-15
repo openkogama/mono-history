@@ -105,7 +105,19 @@ public class SettingsFactory : MonoBehaviour
 	private FireSettings fireSettingsPrefab;
 
 	[SerializeField]
+	private TriggerCubeSettings triggerCubeSettingsPrefab;
+
+	[SerializeField]
 	private TeamEditorSettings teamEditorSettingsPrefab;
+
+	[SerializeField]
+	private GamePointSettings gamePointSettingsPrefab;
+
+	[SerializeField]
+	private GamePointMinorRewardSettings gamePointMinorRewardSettingsPrefab;
+
+	[SerializeField]
+	private GamePointChestSettings gamePointChestSettingsPrefab;
 
 	[SerializeField]
 	private LevelRequirementSettings levelRequirementSettingsPrefab;
@@ -118,6 +130,9 @@ public class SettingsFactory : MonoBehaviour
 
 	[SerializeField]
 	private TeamRequirementSettings teamRequirementSettingsPrefab;
+
+	[SerializeField]
+	private GameRankRequirementSettings gameRankRequirementSettingsPrefab;
 
 	public void CreateSettingsDialog(int woID)
 	{
@@ -151,6 +166,12 @@ public class SettingsFactory : MonoBehaviour
 		{
 			TeamRequirementSettings teamRequirementSettings = Object.Instantiate(teamRequirementSettingsPrefab);
 			teamRequirementSettings.Initialize(woID, gameObject);
+			break;
+		}
+		case UseRequirementType.GameRank:
+		{
+			GameRankRequirementSettings gameRankRequirementSettings = Object.Instantiate(gameRankRequirementSettingsPrefab);
+			gameRankRequirementSettings.Initialize(woID, gameObject);
 			break;
 		}
 		}
@@ -325,6 +346,18 @@ public class SettingsFactory : MonoBehaviour
 			fireSettings.Initialize(woID, gameObject);
 			break;
 		}
+		case WorldObjectType.TriggerCube:
+		{
+			TriggerCubeSettings triggerCubeSettings = Object.Instantiate(triggerCubeSettingsPrefab);
+			triggerCubeSettings.Initialize(woID, gameObject);
+			break;
+		}
+		case WorldObjectType.GamePointChest:
+		{
+			GamePointChestSettings gamePointChestSettings = Object.Instantiate(gamePointChestSettingsPrefab);
+			gamePointChestSettings.Initialize(woID, gameObject);
+			break;
+		}
 		case WorldObjectType.TeamEditor:
 		{
 			TeamEditorSettings teamEditorSettings = Object.Instantiate(teamEditorSettingsPrefab);
@@ -347,6 +380,18 @@ public class SettingsFactory : MonoBehaviour
 	{
 		SoundInventoryController soundInventoryController = Object.Instantiate(globalSoundInventoryControllerPrefab);
 		soundInventoryController.Initialize(woID, gameObject);
+	}
+
+	public void CreateGamePointsSettings(int woID)
+	{
+		GamePointSettings gamePointSettings = Object.Instantiate(gamePointSettingsPrefab);
+		gamePointSettings.Initialize(woID, gameObject);
+	}
+
+	public void CreateGamePointsMinorRewardSettings(int woID)
+	{
+		GamePointMinorRewardSettings gamePointMinorRewardSettings = Object.Instantiate(gamePointMinorRewardSettingsPrefab);
+		gamePointMinorRewardSettings.Initialize(woID, gameObject);
 	}
 
 	private void CreateBlueprintSettings(int woID)

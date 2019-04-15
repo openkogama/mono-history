@@ -33,13 +33,25 @@ public class AvatarModifierPackages
 	{
 		for (int num = packages.Count - 1; num >= 0; num--)
 		{
+			if (OnModifierExpired != null)
+			{
+				OnModifierExpired(packages[num]);
+			}
+			packages.RemoveAt(num);
+		}
+	}
+
+	public void ClearNonPersistantModifiers()
+	{
+		for (int num = packages.Count - 1; num >= 0; num--)
+		{
 			if (!packages[num].persistant)
 			{
 				if (OnModifierExpired != null)
 				{
 					OnModifierExpired(packages[num]);
 				}
-				packages.Remove(packages[num]);
+				packages.RemoveAt(num);
 			}
 		}
 	}

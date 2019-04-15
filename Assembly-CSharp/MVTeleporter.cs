@@ -49,6 +49,7 @@ public class MVTeleporter : MVLogicObject
 		interactionFlags |= InteractionFlags.CanUseLevel;
 		interactionFlags |= InteractionFlags.CanUseStars;
 		interactionFlags |= InteractionFlags.CanUseTeam;
+		interactionFlags |= InteractionFlags.CanUseGameRank;
 	}
 
 	public override void Initialize()
@@ -70,6 +71,8 @@ public class MVTeleporter : MVLogicObject
 	{
 		useInteractor = new UseInteractor(this, teleportObject.useInteractionRotator, reset: false, teleportObject.TriggerBoxEvents.Collider, DoTeleport);
 		GameCoinLogic useRequirement = new GameCoinLogic(teleportObject.useInteractionRotator, hasUseButtonWhenFree: false);
+		GameRankRequirement gameRankRequirement = new GameRankRequirement(teleportObject.useInteractionRotator, hasUseButtonWhenFree: false);
+		gameRankRequirement.OnDataUpdate(Data, id);
 		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(teleportObject.useInteractionRotator, hasUseButtonWhenFree: false);
 		StarRequirement useRequirement3 = new StarRequirement(teleportObject.useInteractionRotator, hasUseButtonWhenFree: false);
 		TeamRequirement useRequirement4 = new TeamRequirement(teleportObject.TintObject, hasUseButtonWhenFree: false);
@@ -77,6 +80,7 @@ public class MVTeleporter : MVLogicObject
 		useInteractor.AddRequirement(useRequirement);
 		useInteractor.AddRequirement(useRequirement3);
 		useInteractor.AddRequirement(useRequirement4);
+		useInteractor.AddRequirement(gameRankRequirement);
 		teleportObject.TriggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
 		teleportObject.TriggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
 	}

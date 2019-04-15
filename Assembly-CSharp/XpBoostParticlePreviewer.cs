@@ -2,12 +2,6 @@ using UnityEngine;
 
 public class XpBoostParticlePreviewer : MonoBehaviour
 {
-	private float previewObjMaxSize = 2f;
-
-	private float previewCamAdditionalHeight = 0.5f;
-
-	private float previewCamDist = 1.5f;
-
 	private LayerFlags layersToRender;
 
 	[SerializeField]

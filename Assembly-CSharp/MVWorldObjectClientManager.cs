@@ -179,6 +179,7 @@ public abstract class MVWorldObjectClientManager : IWorldObjectManager
 	{
 		MoveableController = new MoveableController();
 		worldObjectMapping = new WorldObjectMapping();
+		GenericStrippingPreventionManager.Initialize();
 	}
 
 	public bool Contains(int woID)

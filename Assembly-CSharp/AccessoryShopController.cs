@@ -426,7 +426,7 @@ public class AccessoryShopController : MonoBehaviour, IInventoryChanged, IAttach
 			List<AccessoryDataClient> accessoriesByCategoryId = AccessoryDataManager.GetAccessoriesByCategoryId((AccessoryCategory)selectedTab);
 			for (int num = accessoriesByCategoryId.Count - 1; num >= 0; num--)
 			{
-				if (accessoriesByCategoryId[num].DiscountedPrice == 0)
+				if (accessoriesByCategoryId[num].DiscountedPrice == 0 && !accessoriesByCategoryId[num].owns)
 				{
 					accessoriesByCategoryId.RemoveAt(num);
 				}

@@ -70,5 +70,8 @@ public enum MVWorldObjectDocumentationType
 	CollectTheItem,
 	HealRay,
 	TimeAttackFlag,
-	TeamEditor
+	TriggerCube,
+	TeamEditor,
+	GamePoint,
+	GamePointChest
 }

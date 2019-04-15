@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-public class MVOculusKillLimit : MVLogicObject
+public class MVOculusKillLimit : MVGamePointRewardLogicObject
 {
 	private bool initializedInWorld;
 
@@ -9,10 +9,13 @@ public class MVOculusKillLimit : MVLogicObject
 
 	private int KillLimit => (int)Data["killLimit"];
 
+	protected override int GamePointRewardAmount => GetGamePointsRewardAmount(Data) * KillLimit;
+
 	public MVOculusKillLimit(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVOculusKillLimitPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
+		interactionFlags |= InteractionFlags.CanEarnGamePointsMinor;
 		interactionFlags &= ~InteractionFlags.CanClone;
 	}
 

@@ -75,8 +75,9 @@ public class TeamSelectButton : MonoBehaviour, IPointerDownHandler, IEventSystem
 		{
 			MVGameControllerBase.OperationRequests.SetTeam(teamData.team);
 			MVGameControllerBase.Game.GameStatCounterManager.RemoveTeamScoreOnActorLeave(MVGameControllerBase.Game.LocalPlayer.ActorNr, MVGameControllerBase.Game.LocalPlayer.Team);
+			MVGameControllerBase.Game.LocalPlayer.ResetCheckpoint();
+			MVGameControllerBase.Game.LocalPlayer.Team = teamData.team;
 		}
-		MVGameControllerBase.Game.LocalPlayer.Team = teamData.team;
 		if (!flag)
 		{
 			StartPlaying();

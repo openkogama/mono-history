@@ -104,10 +104,17 @@ public enum DBQuery
 	RequestGoldPerLevelData,
 	RewardGold,
 	RequestGamePassesControlData,
-	UpdatePlayerGamePointScore,
+	UpdatePlayerPlanetData,
 	RequestPublishedPlanetProfileData,
 	UpdatePublishedPlanetGamePointMetric,
 	ResetPlayerPlanetData,
 	GetPublishedPlanetHighScore,
-	GetPublishedPlanetPlayerRank
+	UpdatePlayerPlanetHighScore,
+	GetPublishedPlanetEarnings,
+	GetPlanetOwners,
+	GetGoldRemainder,
+	GetVat,
+	ExecuteTierPurchaseAndPayout,
+	SetEarningsReportToSeen,
+	GetPublishedPlanetTopHighScore
 }

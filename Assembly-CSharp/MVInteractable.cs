@@ -128,7 +128,7 @@ public abstract class MVInteractable : MVInteractableBase
 
 	public override void ClearModifiers()
 	{
-		modifierPackages.ClearModifiers();
+		modifierPackages.ClearNonPersistantModifiers();
 	}
 
 	public override bool HasModifierEffect(AvatarModifierEffect avatarModifierEffect)

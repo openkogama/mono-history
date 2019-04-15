@@ -150,13 +150,10 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 			else
 			{
 				float num = timeInSeconds * 1000 - (MVGameControllerBase.Game.ServerTimeInMilliSeconds - waitForTicks.startTicks);
-				float num2 = num / 1000f;
-				string text = Mathf.Max(Mathf.Floor(num2 / 60f), 0f).ToString("00");
-				string text2 = (num2 % 60f).ToString("00");
 				IsClaimable = false;
 				DisableEffects();
-				float num3 = timeInSeconds * 1000;
-				UpdateOutline((num3 - num) / num3);
+				float num2 = timeInSeconds * 1000;
+				UpdateOutline((num2 - num) / num2);
 			}
 		}
 	}
