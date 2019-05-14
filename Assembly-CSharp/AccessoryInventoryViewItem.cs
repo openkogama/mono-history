@@ -96,7 +96,7 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, I
 		List<Highlight<HighlightAccessory>> highLights = HighlightManager.GetHighLights<HighlightAccessory>(HighlightType.Accessory);
 		for (int i = 0; i < highLights.Count; i++)
 		{
-			if (highLights[i].highlightData.accessoryMetaDataId == accessoryDataClient.accessoryMetaDataID)
+			if (highLights[i].highlightData.accessoryMetaDataId == accessoryDataClient.aMDID)
 			{
 				redDotNotification.SetActive(locked);
 				highlightId = highLights[i].id;
@@ -112,7 +112,7 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, I
 	private void SetLevelBadge()
 	{
 		LevelingManager.OnLevelingInitialized = (UnityAction)Delegate.Remove(LevelingManager.OnLevelingInitialized, new UnityAction(SetLevelBadge));
-		BadgeManager.GetBadgeTexture(accessoryDataClient.level, OnLevelRequirementLoaded);
+		BadgeManager.GetBadgeTexture(accessoryDataClient.lvl, OnLevelRequirementLoaded);
 	}
 
 	private void OnLevelRequirementLoaded(WWW www)
@@ -141,7 +141,7 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, I
 			HighlightManager.SetHighlightToSeen(highlightId);
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAccessoryClicked x, BaseEventData y) =>
 			{
-				x.UpdateHighlightedTab((AccessoryCategoryClient)accessoryDataClient.category);
+				x.UpdateHighlightedTab((AccessoryCategoryClient)accessoryDataClient.cat);
 			});
 		}
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAccessoryClicked x, BaseEventData y) =>
@@ -160,14 +160,14 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, I
 		{
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAttachToBody x, BaseEventData y) =>
 			{
-				x.AttachToBody(accessoryDataClient.streamingAssetID, 0f, 1f);
+				x.AttachToBody(accessoryDataClient.sAID, 0f, 1f);
 			});
 		}
 		else
 		{
 			MVNetworkGame game = MVGameControllerBase.Game;
 			game.OnAccessoryUnequipped = (Action)Delegate.Combine(game.OnAccessoryUnequipped, new Action(UnequipAccessoryCallback));
-			MVGameControllerBase.OperationRequests.UnEquipAccessory(targetBody.Id, accessoryDataClient.accessorySlotType);
+			MVGameControllerBase.OperationRequests.UnEquipAccessory(targetBody.Id, accessoryDataClient.slot);
 		}
 	}
 
@@ -208,7 +208,7 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, I
 			return;
 		}
 		avatarAccessory.transform.parent = rootTransform;
-		string text = "AvatarAccessory/" + accessoryDataClient.category.ToString() + "/Images/";
+		string text = "AvatarAccessory/" + accessoryDataClient.cat.ToString() + "/Images/";
 		string[] array = accessoryDataClient.url.Split(new string[1] { "/" }, StringSplitOptions.None);
 		array = array[array.Length - 1].Split(new string[1] { "." }, StringSplitOptions.None);
 		string text2 = array[0];
@@ -232,12 +232,12 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, I
 		loadingWheel.SetActive(value: false);
 		accessoryItemBackground.gameObject.SetActive(value: true);
 		accessoryItemBackground.Initialize(accessoryDataClient);
-		newAccessoryImage.SetActive((accessoryDataClient.isNew || accessoryDataClient.timelimit.IsTimeLimited) && !accessoryDataClient.owns);
+		newAccessoryImage.SetActive((accessoryDataClient.iNew || accessoryDataClient.time.IsTimeLimited) && !accessoryDataClient.owns);
 		if (bundleView)
 		{
 			return;
 		}
-		if (accessoryDataClient.level != 0 && locked)
+		if (accessoryDataClient.lvl != 0 && locked)
 		{
 			if (LevelingManager.IsInitialized)
 			{
@@ -252,24 +252,24 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, I
 		Vector3 localScale = new Vector3(rect.width / 400f, rect.height / 400f, 1f);
 		discount.transform.localScale = localScale;
 		timeLimitDisplayer.transform.localScale = localScale;
-		if (MVGameControllerBase.Game.LocalPlayer.Level >= accessoryDataClient.level)
+		if (MVGameControllerBase.Game.LocalPlayer.Level >= accessoryDataClient.lvl)
 		{
-			timeLimitDisplayer.Initialize(accessoryDataClient.timelimit);
-			timeLimitDisplayer.gameObject.SetActive(locked && accessoryDataClient.timelimit.IsTimeLimited);
-			bool flag = accessoryDataClient.discount >= 100 || accessoryDataClient.priceGold == 0;
-			discount.SetActive(locked && accessoryDataClient.discount > 0 && !flag);
+			timeLimitDisplayer.Initialize(accessoryDataClient.time);
+			timeLimitDisplayer.gameObject.SetActive(locked && accessoryDataClient.time.IsTimeLimited);
+			bool flag = accessoryDataClient.dsc >= 100 || accessoryDataClient.cost == 0;
+			discount.SetActive(locked && accessoryDataClient.dsc > 0 && !flag);
 			freeLabel.SetActive(locked && flag);
-			discountText.text = $"-{accessoryDataClient.discount.ToString()}%";
+			discountText.text = $"-{accessoryDataClient.dsc.ToString()}%";
 			equipCheckbox.gameObject.SetActive(!locked);
 			if (!locked)
 			{
-				equipCheckbox.isOn = targetBody.IsAccessoryEquipped(accessoryDataClient.streamingAssetID);
+				equipCheckbox.isOn = targetBody.IsAccessoryEquipped(accessoryDataClient.sAID);
 			}
 			equipCheckbox.GetComponent<CanvasGroup>().alpha = ((!equipCheckbox.isOn) ? 1f : 0.5f);
 			equipCheckbox.onValueChanged.AddListener(OnEquip);
 			priceDisplay.SetActive(locked);
-			priceStrikeout.SetActive(locked && accessoryDataClient.discount > 0 && accessoryDataClient.priceGold > 0);
-			priceStrikeoutText.text = accessoryDataClient.priceGold.ToString("N0").Replace(",", " ");
+			priceStrikeout.SetActive(locked && accessoryDataClient.dsc > 0 && accessoryDataClient.cost > 0);
+			priceStrikeoutText.text = accessoryDataClient.cost.ToString("N0").Replace(",", " ");
 			priceText.text = accessoryDataClient.DiscountedPrice.ToString("N0").Replace(",", " ");
 			levelRequirement.rectTransform.localPosition = new Vector2(levelRequirement.rectTransform.localPosition.x, levelRequirement.rectTransform.localPosition.y + ((RectTransform)priceDisplay.transform).rect.height);
 		}

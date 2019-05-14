@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
-public abstract class TierUnlockedPopupContentBase : MonoBehaviour
+public class TierUnlockedPopupContentBase : MonoBehaviour
 {
 	protected enum PopupState
 	{

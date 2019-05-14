@@ -4,53 +4,48 @@ namespace MV.WorldObject.Accessories;
 
 public class AccessoryData
 {
-	public int accessoryMetaDataID;
+	public int aMDID;
 
-	public int streamingAssetID;
+	public int sAID;
 
-	public bool isAvailable;
+	public bool iAvlb;
 
-	public bool isNew;
+	public bool iNew;
 
-	public bool isFeatured;
+	public bool iFtr;
 
-	public int priceGold;
+	public int cost;
 
-	public int discount;
+	public int dsc;
 
-	public int level;
+	public int lvl;
 
 	public string name;
 
-	public AccessoryCategory category;
+	public AccessoryCategory cat;
 
-	public int position;
+	public int pos;
 
 	public string url;
 
 	public bool owns;
 
-	public AccessorySlotType accessorySlotType;
+	public AccessorySlotType slot;
 
-	public AccessoryTimelimit timelimit = new AccessoryTimelimit();
+	public AccessoryTimelimit time = new AccessoryTimelimit();
 
-	public int DiscountedPrice => priceGold - priceGold * discount / 100;
-
-	public override string ToString()
-	{
-		return $"{name}:\r\n  isAvailable {isAvailable}\r\n  isLimited {isNew}\r\n  isFeatured {isFeatured}\r\n  priceGold {priceGold}\r\n  discount {discount}\r\n  level {level}\r\n  category {category}\r\n  position {position}\r\n  url {url}\r\n  accessorySlotType {accessorySlotType}";
-	}
+	public int DiscountedPrice => cost - cost * dsc / 100;
 
 	public bool GetShowInShop()
 	{
 		bool flag = true;
-		if (timelimit.IsTimeLimited)
+		if (time.IsTimeLimited)
 		{
-			flag = timelimit.GetHasTimeLeft();
+			flag = time.GetHasTimeLeft();
 		}
 		if (flag)
 		{
-			return isAvailable;
+			return iAvlb;
 		}
 		return false;
 	}

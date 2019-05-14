@@ -45,6 +45,10 @@ public class GameSessionData
 
 	public string disconnectedURL = string.Empty;
 
+	public string playerProfileURL = string.Empty;
+
+	public string eliteUpgradeURL = string.Empty;
+
 	public string region = "RegionNotDefined";
 
 	public string ezKey = "h5g9REtmi1LT7JY5";

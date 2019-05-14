@@ -24,8 +24,7 @@ public class QuitConnectionError : QuitBaseCallback
 	{
 		if (gotoDisconnectPage)
 		{
-			BrowserComm.ToJavaScript.ExternalCall("gotoDisconnectedPage");
-			BrowserComm.ExecuteBrowserRequest(MVGameControllerBase.GameSessionData.disconnectedURL);
+			BrowserCommGotoRequests.GotoDisconnected();
 		}
 	}
 }

@@ -47,7 +47,7 @@ public class PurchasedAccessoryPreviewer : MonoBehaviour
 		targetHeight = Screen.currentResolution.height;
 		previewData = previewAccessories;
 		RarityStylesDef rarityStylesDef = null;
-		rarityStylesDef = ((previewData[currentStreamingAssetIndex].level == 0 || previewData[currentStreamingAssetIndex].priceGold != 0) ? Styles.GetAccessoryColorsFromPrice(previewData[currentStreamingAssetIndex].priceGold) : Styles.GetAccessoryColorsFromLevel(previewData[currentStreamingAssetIndex].level));
+		rarityStylesDef = ((previewData[currentStreamingAssetIndex].lvl == 0 || previewData[currentStreamingAssetIndex].cost != 0) ? Styles.GetAccessoryColorsFromPrice(previewData[currentStreamingAssetIndex].cost) : Styles.GetAccessoryColorsFromLevel(previewData[currentStreamingAssetIndex].lvl));
 		targetColorBackground = rarityStylesDef.backgroundColor;
 		targetColorGlow = rarityStylesDef.glowColor;
 		string imageUrl = GetImageUrl(previewData[currentStreamingAssetIndex]);
@@ -61,7 +61,7 @@ public class PurchasedAccessoryPreviewer : MonoBehaviour
 
 	private string GetImageUrl(AccessoryDataClient accessoryDataClient)
 	{
-		string text = "AvatarAccessory/" + accessoryDataClient.category.ToString() + "/Images/";
+		string text = "AvatarAccessory/" + accessoryDataClient.cat.ToString() + "/Images/";
 		string[] array = accessoryDataClient.url.Split(new string[1] { "/" }, StringSplitOptions.None);
 		array = array[array.Length - 1].Split(new string[1] { "." }, StringSplitOptions.None);
 		string text2 = array[0];
@@ -85,7 +85,7 @@ public class PurchasedAccessoryPreviewer : MonoBehaviour
 		{
 			EvaluateImageAtTime(0f, 0f);
 			currentStreamingAssetIndex++;
-			RarityStylesDef rarityStylesDef = ((previewData[currentStreamingAssetIndex].level == 0 || previewData[currentStreamingAssetIndex].priceGold != 0) ? Styles.GetAccessoryColorsFromPrice(previewData[currentStreamingAssetIndex].priceGold) : Styles.GetAccessoryColorsFromLevel(previewData[currentStreamingAssetIndex].level));
+			RarityStylesDef rarityStylesDef = ((previewData[currentStreamingAssetIndex].lvl == 0 || previewData[currentStreamingAssetIndex].cost != 0) ? Styles.GetAccessoryColorsFromPrice(previewData[currentStreamingAssetIndex].cost) : Styles.GetAccessoryColorsFromLevel(previewData[currentStreamingAssetIndex].lvl));
 			targetColorBackground = rarityStylesDef.backgroundColor;
 			targetColorGlow = rarityStylesDef.glowColor;
 			StartCoroutine(DisplayAndFadeImages());

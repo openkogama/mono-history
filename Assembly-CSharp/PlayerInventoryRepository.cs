@@ -1,20 +1,39 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MV.WorldObject;
 using UnityEngine;
 
 public class PlayerInventoryRepository
 {
 	private readonly Dictionary<int, List<InventoryItem>> repository = new Dictionary<int, List<InventoryItem>>();
 
-	public readonly Dictionary<int, string> categories = new Dictionary<int, string>
+	public readonly Dictionary<InventoryCategoryType, string> categories = new Dictionary<InventoryCategoryType, string>
 	{
-		{ 1, "Cube\nModels" },
-		{ 5, "Premium\nModels" },
-		{ 7, "Pickups" },
-		{ 8, "Blueprints" },
-		{ 6, "Logic" },
-		{ 10, "Advanced\nLogic" }
+		{
+			InventoryCategoryType.CubeModels,
+			"Cube\nModels"
+		},
+		{
+			InventoryCategoryType.PremiumModels,
+			"Premium\nModels"
+		},
+		{
+			InventoryCategoryType.Pickups,
+			"Pickups"
+		},
+		{
+			InventoryCategoryType.Blueprints,
+			"Blueprints"
+		},
+		{
+			InventoryCategoryType.Logic,
+			"Logic"
+		},
+		{
+			InventoryCategoryType.AdvancedLogic,
+			"Advanced\nLogic"
+		}
 	};
 
 	public Action OnInventoryChanged;
@@ -25,10 +44,10 @@ public class PlayerInventoryRepository
 
 	public PlayerInventoryRepository()
 	{
-		foreach (int key in categories.Keys)
+		foreach (InventoryCategoryType key in categories.Keys)
 		{
 			List<InventoryItem> value = new List<InventoryItem>();
-			repository.Add(key, value);
+			repository.Add((int)key, value);
 		}
 	}
 
@@ -112,12 +131,51 @@ public class PlayerInventoryRepository
 		}
 	}
 
-	public List<InventoryItem> GetItemsInCategory(string category)
+	public List<InventoryItem> GetItemsInCategory(InventoryCategoryType category)
 	{
-		int key = categories.FirstOrDefault((KeyValuePair<int, string> x) => x.Value == category).Key;
+		List<InventoryItem> list = new List<InventoryItem>(repository[(int)category]);
+		list.Reverse();
+		return list;
+	}
+
+	public List<InventoryItem> GetItemsInCategorySlow(string category)
+	{
+		int key = 0;
+		foreach (KeyValuePair<InventoryCategoryType, string> category2 in categories)
+		{
+			if (category2.Value == category)
+			{
+				key = (int)category2.Key;
+				break;
+			}
+		}
 		List<InventoryItem> list = new List<InventoryItem>(repository[key]);
 		list.Reverse();
 		return list;
+	}
+
+	public bool GetItemByWorldObjectTypeInCategory(InventoryCategoryType inventoryCategory, WorldObjectType wo, out InventoryItem item)
+	{
+		List<InventoryItem> list = new List<InventoryItem>(repository[(int)inventoryCategory]);
+		for (int i = 0; i < list.Count; i++)
+		{
+			BytePacker koGaMaData = new BytePacker(list[i].data);
+			KoGaMaPackageClient koGaMaPackageClient = new KoGaMaPackageClient(koGaMaData, readRuntimeValues: false);
+			koGaMaPackageClient.Destroy();
+			Dictionary<int, MVWorldObjectClient> worldObjects = koGaMaPackageClient.worldObjects;
+			foreach (MVWorldObjectClient value in worldObjects.Values)
+			{
+				if (value.WorldObjectType == wo)
+				{
+					item = list[i];
+					koGaMaPackageClient.Destroy();
+					return true;
+				}
+			}
+			koGaMaPackageClient.Destroy();
+		}
+		item = null;
+		return false;
 	}
 
 	public int CategoryItemCount(int category)
@@ -125,12 +183,12 @@ public class PlayerInventoryRepository
 		return repository[category].Count;
 	}
 
-	public int HighestSlotIndex(int category)
+	public int HighestSlotIndex(InventoryCategoryType category)
 	{
 		int num = 1;
-		for (int i = 0; i < repository[category].Count; i++)
+		for (int i = 0; i < repository[(int)category].Count; i++)
 		{
-			int slotPosition = repository[category][i].slotPosition;
+			int slotPosition = repository[(int)category][i].slotPosition;
 			if (num < slotPosition)
 			{
 				num = slotPosition;

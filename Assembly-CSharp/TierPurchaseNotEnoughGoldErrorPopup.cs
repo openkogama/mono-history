@@ -15,8 +15,9 @@ public class TierPurchaseNotEnoughGoldErrorPopup : MonoBehaviour
 		text.text = num.ToString();
 	}
 
-	public void Close()
+	public void GetGold()
 	{
+		BrowserCommGotoRequests.GotoPurchaseGold(newTab: false, modalPopup: true);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Pop();

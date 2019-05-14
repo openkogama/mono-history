@@ -45,7 +45,7 @@ public class PlayerInventoryController : MonoBehaviour, IPlayerInventory, IEvent
 		repository = MVGameControllerBase.EditModeUI.PlayerInventoryRepository;
 		selectedTab = 1;
 		int num = 1;
-		foreach (int key in repository.categories.Keys)
+		foreach (InventoryCategoryType key in repository.categories.Keys)
 		{
 			tabsNonLocalized[num] = repository.categories[key];
 			tabs[num] = new TabState(TM._(repository.categories[key]), numberOfSlotsPrPage);
@@ -64,7 +64,7 @@ public class PlayerInventoryController : MonoBehaviour, IPlayerInventory, IEvent
 	private void UpdatePageCount()
 	{
 		int num = 1;
-		foreach (int key in repository.categories.Keys)
+		foreach (InventoryCategoryType key in repository.categories.Keys)
 		{
 			tabs[num].highestSlotIndex = repository.HighestSlotIndex(key) + numberOfSlotsPrPage;
 			num++;
@@ -106,7 +106,7 @@ public class PlayerInventoryController : MonoBehaviour, IPlayerInventory, IEvent
 	public void OpenTab(UIPushOption options, int categoryId)
 	{
 		Activate(options);
-		string text = MVGameControllerBase.EditModeUI.PlayerInventoryRepository.categories[categoryId];
+		string text = MVGameControllerBase.EditModeUI.PlayerInventoryRepository.categories[(InventoryCategoryType)categoryId];
 		foreach (KeyValuePair<int, string> item in tabsNonLocalized)
 		{
 			if (text == item.Value)
@@ -123,7 +123,7 @@ public class PlayerInventoryController : MonoBehaviour, IPlayerInventory, IEvent
 	public void ActivateAtCategoryWithSlot(UIPushOption options, int categoryId, int slotPosition)
 	{
 		Activate(options);
-		string text = MVGameControllerBase.EditModeUI.PlayerInventoryRepository.categories[categoryId];
+		string text = MVGameControllerBase.EditModeUI.PlayerInventoryRepository.categories[(InventoryCategoryType)categoryId];
 		foreach (KeyValuePair<int, string> item in tabsNonLocalized)
 		{
 			if (text == item.Value)
@@ -222,7 +222,7 @@ public class PlayerInventoryController : MonoBehaviour, IPlayerInventory, IEvent
 		}
 		inventoryController.Clear();
 		inventoryController.SelectTab(selectedTab, tabs[selectedTab].currentPage, tabs[selectedTab].MaxPages);
-		items = repository.GetItemsInCategory(tabsNonLocalized[selectedTab]);
+		items = repository.GetItemsInCategorySlow(tabsNonLocalized[selectedTab]);
 		for (int j = 0; j < items.Count; j++)
 		{
 			if (tabs[selectedTab].SlotIndexIsInRange(items[j].slotPosition))

@@ -62,6 +62,9 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 	[SerializeField]
 	private TimeAttackFlagDebriefing timeAttackFlagDebriefing;
 
+	[SerializeField]
+	private GoldPurchasedTracker goldPurchasedTracker;
+
 	private RectTransform lobbyStateRect;
 
 	private InGameMenu inGameMenu;
@@ -177,6 +180,7 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 		FlagDebriefingControl.OnFlagCountDownEnd = (Action)Delegate.Combine(FlagDebriefingControl.OnFlagCountDownEnd, new Action(OnHideTimeAttackFlagCountDown));
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Combine(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnRoundEnd));
+		goldPurchasedTracker.Initialize();
 		if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
 		{
 			MVInputWrapper.SetInputMap(new DesktopPlayMode());

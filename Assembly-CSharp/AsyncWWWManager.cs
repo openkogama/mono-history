@@ -76,6 +76,8 @@ public static class AsyncWWWManager
 
 	private static Cache cache = new Cache();
 
+	private static bool isBackgroundUpdate = false;
+
 	public static int Retries => retries;
 
 	public static void WWWRequest(AsyncWebRequest asyncRequest)
@@ -129,32 +131,24 @@ public static class AsyncWWWManager
 		cache.UnsubscribeCached(callback);
 	}
 
+	public static void BackgroundUpdate()
+	{
+		isBackgroundUpdate = true;
+		AddRequestsToActiveRequests(requests[WWWRequestPriority.ExecuteIgnoreAllConstraints], int.MaxValue);
+		AddRequestsToActiveRequests(requests[WWWRequestPriority.ExecuteWhileSyncronizing], 4);
+		InternalUpdate();
+	}
+
 	public static void Update()
 	{
+		isBackgroundUpdate = false;
 		AddRequestsToActiveRequests(requests[WWWRequestPriority.ExecuteIgnoreAllConstraints], int.MaxValue);
 		AddRequestsToActiveRequests(requests[WWWRequestPriority.ExecuteWhileSyncronizing], 4);
 		if (MVGameControllerBase.JoinState == MVJoinState.Playing)
 		{
 			AddRequestsToActiveRequests(requests[WWWRequestPriority.WaitUntilSyncronizingIsDone], 4);
 		}
-		using (TemporaryHashSet<AsyncWebRequest> temporaryHashSet = tempHashSet)
-		{
-			foreach (AsyncWebRequest activeRequest in activeRequests)
-			{
-				if (activeRequest.Update())
-				{
-					temporaryHashSet.Add(activeRequest);
-				}
-			}
-			foreach (AsyncWebRequest item in temporaryHashSet)
-			{
-				activeRequests.Remove(item);
-			}
-		}
-		if (isQuiting)
-		{
-			Quit();
-		}
+		InternalUpdate();
 	}
 
 	public static void Reset()
@@ -181,6 +175,31 @@ public static class AsyncWWWManager
 		{
 			Debug.LogWarning("AsyncWWWManager quitCallback is not null.");
 			quitCallback = null;
+		}
+	}
+
+	private static void InternalUpdate()
+	{
+		UpdateActiveRequests();
+		if (isQuiting)
+		{
+			Quit();
+		}
+	}
+
+	private static void UpdateActiveRequests()
+	{
+		using TemporaryHashSet<AsyncWebRequest> temporaryHashSet = tempHashSet;
+		foreach (AsyncWebRequest activeRequest in activeRequests)
+		{
+			if ((activeRequest.requestPriority != WWWRequestPriority.WaitUntilSyncronizingIsDone || !isBackgroundUpdate) && activeRequest.Update())
+			{
+				temporaryHashSet.Add(activeRequest);
+			}
+		}
+		foreach (AsyncWebRequest item in temporaryHashSet)
+		{
+			activeRequests.Remove(item);
 		}
 	}
 

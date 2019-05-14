@@ -117,7 +117,7 @@ public class AccessoryViewController : MonoBehaviour, IAccessoryClicked, IBundle
 			AccessoryDataClient accessoryDataByMetaDataId = AccessoryDataManager.GetAccessoryDataByMetaDataId(accessoryBundleItems[i].accessoryMetaDataID);
 			if (accessoryDataByMetaDataId != null)
 			{
-				AccessoryDataManager.SetToOwns(accessoryDataByMetaDataId.streamingAssetID);
+				AccessoryDataManager.SetToOwns(accessoryDataByMetaDataId.sAID);
 			}
 		}
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAccessoryInventoryControl x, BaseEventData y) =>

@@ -193,8 +193,7 @@ public class BundleView : MonoBehaviour
 		});
 		if (confirmed)
 		{
-			BrowserComm.ToJavaScript.ExternalCall("gotoPurchaseGold");
-			BrowserComm.ExecuteBrowserRequest(MVGameControllerBase.GameSessionData.purchaseGoldURL);
+			BrowserCommGotoRequests.GotoPurchaseGold(newTab: false, modalPopup: true);
 		}
 	}
 
@@ -215,7 +214,7 @@ public class BundleView : MonoBehaviour
 			AccessoryDataClient accessoryDataByMetaDataId = AccessoryDataManager.GetAccessoryDataByMetaDataId(accessoryBundleItems[i].accessoryMetaDataID);
 			if (accessoryDataByMetaDataId != null && !accessoryDataByMetaDataId.owns)
 			{
-				originalPrice += accessoryDataByMetaDataId.priceGold;
+				originalPrice += accessoryDataByMetaDataId.cost;
 				num++;
 			}
 		}

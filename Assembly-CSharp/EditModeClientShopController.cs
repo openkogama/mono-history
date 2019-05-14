@@ -38,7 +38,7 @@ public class EditModeClientShopController : MonoBehaviour, IPurchaseClientShopIt
 		repository = MVGameControllerBase.EditModeUI.ClientShopRepository;
 		selectedTab = 1;
 		int num = 1;
-		foreach (int key in repository.categories.Keys)
+		foreach (InventoryCategoryType key in repository.categories.Keys)
 		{
 			tabsNonLocalized[num] = repository.categories[key];
 			tabs[num] = new TabState(TM._(repository.categories[key]), numberOfSlotsPrPage);
@@ -119,16 +119,16 @@ public class EditModeClientShopController : MonoBehaviour, IPurchaseClientShopIt
 		previewedObjects.Clear();
 		inventoryController.Clear();
 		inventoryController.SelectTab(selectedTab, tabs[selectedTab].currentPage, tabs[selectedTab].MaxPages);
-		List<ShopItem> itemsInCategory = repository.GetItemsInCategory(tabsNonLocalized[selectedTab]);
-		for (int j = 0; j < itemsInCategory.Count; j++)
+		List<ShopItem> itemsInCategorySlow = repository.GetItemsInCategorySlow(tabsNonLocalized[selectedTab]);
+		for (int j = 0; j < itemsInCategorySlow.Count; j++)
 		{
-			if (tabs[selectedTab].SlotIndexIsInRange(itemsInCategory[j].slotPosition))
+			if (tabs[selectedTab].SlotIndexIsInRange(itemsInCategorySlow[j].slotPosition))
 			{
 				EditModeClientShopItem editModeClientShopItem = UnityEngine.Object.Instantiate(previewItemPrefab);
-				MVWorldObjectClient worldObjectFromItemData = GetWorldObjectFromItemData(itemsInCategory[j]);
+				MVWorldObjectClient worldObjectFromItemData = GetWorldObjectFromItemData(itemsInCategorySlow[j]);
 				previewedObjects.Add(worldObjectFromItemData);
-				editModeClientShopItem.Initialize(previewRootTransform, itemsInCategory[j], worldObjectFromItemData);
-				inventoryController.AddObject(editModeClientShopItem.gameObject, itemsInCategory[j].slotPosition % numberOfSlotsPrPage);
+				editModeClientShopItem.Initialize(previewRootTransform, itemsInCategorySlow[j], worldObjectFromItemData);
+				inventoryController.AddObject(editModeClientShopItem.gameObject, itemsInCategorySlow[j].slotPosition % numberOfSlotsPrPage);
 			}
 		}
 	}

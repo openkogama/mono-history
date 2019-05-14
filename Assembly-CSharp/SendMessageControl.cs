@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using FyberPlugin;
 using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -326,9 +325,6 @@ public class SendMessageControl : MonoBehaviour
 			break;
 		case "/exportself":
 			ObjExportHandler.ExportSelfAvatar();
-			break;
-		case "/fyber":
-			IntegrationAnalyzer.ShowTestSuite();
 			break;
 		default:
 			if (chatMsg[0] == '/')

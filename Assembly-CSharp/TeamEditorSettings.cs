@@ -74,6 +74,7 @@ public class TeamEditorSettings : MonoBehaviour, IHandleSettingChanged, IEventSy
 			MVGameControllerBase.OperationRequests.RemoveWorldObjectDataPartial(woID, dictionary);
 			MVGameControllerBase.Game.TeamManager.SetTeamNameToDefault((MVTeam)Enum.Parse(typeof(MVTeam), key, ignoreCase: true));
 			SetActiveButtons(data);
+			settingsBase.RemoveData(key);
 		}
 		else
 		{

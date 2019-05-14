@@ -103,7 +103,7 @@ public class PlayerSocialPopup : MonoBehaviour
 	public void OnViewProfileClicked()
 	{
 		Debug.Log("Goto profile of player: " + profileId);
-		BrowserComm.ToJavaScript.ExternalCall("gotoPlayerProfile", profileId);
+		BrowserCommGotoRequests.GotoPlayerProfile(profileId, newTab: true);
 	}
 
 	private void FriendRequestReceived()

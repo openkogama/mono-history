@@ -98,6 +98,7 @@ public enum MVOperationCodes : byte
 	SetEarningsReportToSeenOperation = 107,
 	GetTopHighScoreList = 108,
 	ClaimGamePointWelcomeReward = 109,
+	UpdateGold = 110,
 	Join = byte.MaxValue,
 	Leave = 254,
 	RaiseEvent = 253,

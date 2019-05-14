@@ -397,7 +397,7 @@ public class AccessoryShopController : MonoBehaviour, IInventoryChanged, IAttach
 				for (int num2 = 0; num2 < item.Value.Count; num2++)
 				{
 					AccessoryDataClient accessoryDataClient = item.Value[num2];
-					if (accessoryDataClient.isFeatured && !accessoryDataClient.owns && !list.Contains(accessoryDataClient))
+					if (accessoryDataClient.iFtr && !accessoryDataClient.owns && !list.Contains(accessoryDataClient))
 					{
 						list.Add(accessoryDataClient);
 					}
@@ -413,13 +413,13 @@ public class AccessoryShopController : MonoBehaviour, IInventoryChanged, IAttach
 				for (int num3 = 0; num3 < item2.Value.Count; num3++)
 				{
 					AccessoryDataClient accessoryDataClient2 = item2.Value[num3];
-					if ((accessoryDataClient2.discount >= 100 || accessoryDataClient2.priceGold == 0) && accessoryDataClient2.level != 0 && !list2.Contains(accessoryDataClient2))
+					if ((accessoryDataClient2.dsc >= 100 || accessoryDataClient2.cost == 0) && accessoryDataClient2.lvl != 0 && !list2.Contains(accessoryDataClient2))
 					{
 						list2.Add(accessoryDataClient2);
 					}
 				}
 			}
-			return list2.OrderBy((AccessoryDataClient o) => o.level).ToList();
+			return list2.OrderBy((AccessoryDataClient o) => o.lvl).ToList();
 		}
 		default:
 		{

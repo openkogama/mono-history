@@ -43,6 +43,7 @@ public static class AccessoryDataManager
 
 	public static void SetAccessoryData(string accessoryData)
 	{
+		MVGameControllerBase.Game.ReceivedAccessoryData -= SetAccessoryData;
 		accessoryShopData = JsonConvert.DeserializeObject<AccessoryShopDataClient>(accessoryData);
 		accessoriesReady = true;
 		if (readyCallback != null)
@@ -69,7 +70,7 @@ public static class AccessoryDataManager
 	{
 		foreach (KeyValuePair<int, AccessoryDataClient> accessoryData in accessoryShopData.accessoryDatas)
 		{
-			if (accessoryData.Value.accessoryMetaDataID == id)
+			if (accessoryData.Value.aMDID == id)
 			{
 				return accessoryData.Value;
 			}
@@ -85,11 +86,11 @@ public static class AccessoryDataManager
 			AccessoryDataClient value = accessoryData.Value;
 			if (value.ShowItem)
 			{
-				if (!dictionary.ContainsKey(value.category))
+				if (!dictionary.ContainsKey(value.cat))
 				{
-					dictionary.Add(value.category, new List<AccessoryDataClient>());
+					dictionary.Add(value.cat, new List<AccessoryDataClient>());
 				}
-				dictionary[value.category].Add(value);
+				dictionary[value.cat].Add(value);
 			}
 		}
 		return dictionary;
@@ -100,7 +101,7 @@ public static class AccessoryDataManager
 		List<AccessoryDataClient> list = new List<AccessoryDataClient>();
 		foreach (AccessoryDataClient value in accessoryShopData.accessoryDatas.Values)
 		{
-			if (value.ShowItem && value.category == category)
+			if (value.ShowItem && value.cat == category)
 			{
 				list.Add(value);
 			}

@@ -92,7 +92,7 @@ public class AccessoryMenuButton : MonoBehaviour
 		for (int num = 0; num < highLights.Count; num++)
 		{
 			AccessoryDataClient accessoryDataByMetaDataId = AccessoryDataManager.GetAccessoryDataByMetaDataId(highLights[num].highlightData.accessoryMetaDataId);
-			if (accessoryDataByMetaDataId != null && accessoryDataByMetaDataId.GetShowInShop() && !accessoryDataByMetaDataId.owns && accessoryDataByMetaDataId.isAvailable)
+			if (accessoryDataByMetaDataId != null && accessoryDataByMetaDataId.GetShowInShop() && !accessoryDataByMetaDataId.owns && accessoryDataByMetaDataId.iAvlb)
 			{
 				HighlightManager.SetHighlightToSeen(highLights[num].id);
 				list.Add(accessoryDataByMetaDataId);

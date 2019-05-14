@@ -4,6 +4,6 @@ public class GotoSubscriptionURL : MonoBehaviour
 {
 	public void OnGotoSubscription()
 	{
-		BrowserComm.ToJavaScript.ExternalCall("goToEliteUpgrade");
+		BrowserCommGotoRequests.GotoEliteUpgrade(newTab: true);
 	}
 }

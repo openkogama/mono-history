@@ -40,7 +40,7 @@ public class AvatarAccessoryEquipPopup : MonoBehaviour, IEventSystemHandler
 	{
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IAttachToBody x, BaseEventData y) =>
 		{
-			x.AttachToBody(accessoryDataClient.streamingAssetID, accessoryOffset, accessoryScale);
+			x.AttachToBody(accessoryDataClient.sAID, accessoryOffset, accessoryScale);
 		});
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{

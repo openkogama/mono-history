@@ -16,7 +16,7 @@ public class TierUnlockedPopupController : MonoBehaviour
 	private TierUnlockedPopupContentXP PopupContentXPPrefab;
 
 	[SerializeField]
-	private TierUnlockedPopupContentCreatorSupport PopupContentCreatorSupportPrefab;
+	private TierUnlockedPopupContentBase PopupContentCreatorSupportPrefab;
 
 	[SerializeField]
 	private float fadeDuration;
@@ -61,10 +61,10 @@ public class TierUnlockedPopupController : MonoBehaviour
 		popupContentList.Add(tierUnlockedPopupContentXP);
 		if (wasPurchased)
 		{
-			TierUnlockedPopupContentCreatorSupport tierUnlockedPopupContentCreatorSupport = Object.Instantiate(PopupContentCreatorSupportPrefab);
-			tierUnlockedPopupContentCreatorSupport.transform.SetParent(transform, worldPositionStays: false);
-			tierUnlockedPopupContentCreatorSupport.gameObject.SetActive(value: false);
-			popupContentList.Add(tierUnlockedPopupContentCreatorSupport);
+			TierUnlockedPopupContentBase tierUnlockedPopupContentBase = Object.Instantiate(PopupContentCreatorSupportPrefab);
+			tierUnlockedPopupContentBase.transform.SetParent(transform, worldPositionStays: false);
+			tierUnlockedPopupContentBase.gameObject.SetActive(value: false);
+			popupContentList.Add(tierUnlockedPopupContentBase);
 		}
 		StartNewPopupContent(0);
 		Background.color = popupContentList[0].BackgroundColor;

@@ -39,7 +39,6 @@ public static class CheatHandling
 	private static void ExecuteBan(CheatType cheatType)
 	{
 		MVGameControllerBase.OperationRequests.Ban(cheatType);
-		MVGameControllerBase.ApplicationQuit(null);
-		BrowserComm.ToJavaScript.ExternalCall("gotoSignout", null, null);
+		BrowserCommGotoRequests.GotoSignout();
 	}
 }

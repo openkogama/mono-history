@@ -63,6 +63,9 @@ public class DesktopEditModeController : ModeControllerBase, ISetEditState, IEdi
 	[SerializeField]
 	private SetupCubeModelTutorialUI setupCubeModelTutorialUI;
 
+	[SerializeField]
+	private GoldPurchasedTracker goldPurchasedTracker;
+
 	private float focusTime;
 
 	private bool focusSuppressInput = true;
@@ -198,6 +201,7 @@ public class DesktopEditModeController : ModeControllerBase, ISetEditState, IEdi
 		playerInventoryController.Initialize();
 		desktopPlayModeController.Initialize();
 		MVGameControllerBase.WOCM.RootGroup.PlayModeInitialize();
+		goldPurchasedTracker.Initialize();
 		notificationsManager = UnityEngine.Object.Instantiate(notificationsManager);
 		notificationsManager.transform.SetParent(stackBottom.transform, worldPositionStays: false);
 		firstTimeSetupTerrainEditTutorial.Initialize(EditModeStateMachine.CubeModelingStateMachine, materialsController);

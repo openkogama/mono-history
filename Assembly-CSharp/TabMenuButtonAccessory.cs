@@ -87,7 +87,7 @@ public class TabMenuButtonAccessory : TabMenuButtonBase, IHighlightedElement
 		{
 			for (int j = 0; j < accessoriesByCategoryId.Count; j++)
 			{
-				if (accessoriesByCategoryId[j].accessoryMetaDataID == highLights[i].highlightData.accessoryMetaDataId && accessoriesByCategoryId[j].GetShowInShop() && !accessoriesByCategoryId[j].owns)
+				if (accessoriesByCategoryId[j].aMDID == highLights[i].highlightData.accessoryMetaDataId && accessoriesByCategoryId[j].GetShowInShop() && !accessoriesByCategoryId[j].owns)
 				{
 					num++;
 				}

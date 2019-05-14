@@ -31,4 +31,11 @@ public static class GamePointGainEffectManager
 			OnTierProgressBarGamePointGainEffectShown(gamePointAmountShown);
 		}
 	}
+
+	public static void PostResetCleanup()
+	{
+		OnGamePointGainEffectShown = null;
+		OnInGamePointGainEffectShown = null;
+		OnTierProgressBarGamePointGainEffectShown = null;
+	}
 }

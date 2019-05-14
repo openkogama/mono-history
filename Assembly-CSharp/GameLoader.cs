@@ -41,6 +41,7 @@ public class GameLoader : MonoBehaviour
 		TimedPlayReward.RewardTracker.PostResetCleanup();
 		BackButtonManager.PostDestroyCleanup();
 		FlagDebriefingControl.PostResetCleanup();
+		GamePointGainEffectManager.PostResetCleanup();
 	}
 
 	private void CloseGame()

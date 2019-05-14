@@ -10,8 +10,6 @@ public class FyberSettings : ScriptableObject
 
 	private const string fyberSettingsAssetExtension = ".asset";
 
-	private static FyberSettings instance;
-
 	[SerializeField]
 	[HideInInspector]
 	private string bundlesJson;
@@ -23,6 +21,8 @@ public class FyberSettings : ScriptableObject
 	[SerializeField]
 	[HideInInspector]
 	private int bundlesCount;
+
+	private static FyberSettings instance;
 
 	public static FyberSettings Instance => GetInstance();
 

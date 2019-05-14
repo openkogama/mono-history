@@ -9,13 +9,13 @@ public class GamePassesShowDetailsButton : MonoBehaviour
 	private GameObject disabledButton;
 
 	[SerializeField]
-	private GamePassesTextBubble disabledButtonToolTip;
-
-	[SerializeField]
 	private GamePassesTextBubble OnActivatedToolTip;
 
 	[SerializeField]
 	private GamePassesShopDetails shopDetails;
+
+	[SerializeField]
+	private GameObject crystalPopup;
 
 	private void Start()
 	{
@@ -73,6 +73,10 @@ public class GamePassesShowDetailsButton : MonoBehaviour
 
 	public void OnDisabledButtonPressed()
 	{
-		disabledButtonToolTip.Activate("Add Crystals to unlock Tiers");
+		GameObject popup = UnityEngine.Object.Instantiate(crystalPopup);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Push(popup, UIPushOption.Blocking, null, UIGroupFlags.Popup);
+		});
 	}
 }

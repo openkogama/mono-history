@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security;
+using System.Text;
 using CodeStage.AntiCheat.ObscuredTypes;
 using ExitGames.Client.Photon;
 using MV.Common;
@@ -795,6 +796,13 @@ public class MVNetworkGame : IPhotonPeerListener
 					MVGameControllerBase.Game.ReceivedItemFromQuery(this, e);
 				}
 				break;
+			case QueryType.AccessoryUserData:
+			{
+				byte[] bytes = gameDataQuery.GetBytePacker().ToArray();
+				string obj = Encoding.ASCII.GetString(bytes);
+				MVGameControllerBase.Game.ReceivedAccessoryData(obj);
+				break;
+			}
 			}
 		}
 	}
@@ -2067,12 +2075,18 @@ public class MVNetworkGame : IPhotonPeerListener
 
 		public void RequestAccessoryData()
 		{
+			MVGameControllerBase.Game.ReceivedAccessoryData += AccessoryDataManager.SetAccessoryData;
 			peer.SendOperation(95, new Dictionary<byte, object>(), SendOptions.SendReliable);
 		}
 
 		public void SetEarningsReportToSeenOperation()
 		{
 			peer.SendOperation(107, new Dictionary<byte, object>(), SendOptions.SendReliable);
+		}
+
+		public void RequestUpdateGoldResponse()
+		{
+			peer.SendOperation(110, new Dictionary<byte, object>(), SendOptions.SendReliable);
 		}
 
 		private void PurchaseProduct(MVProductType productTypeID, Dictionary<object, object> productData)
@@ -2110,6 +2124,7 @@ public class MVNetworkGame : IPhotonPeerListener
 
 		private void ExecuteOperationResponse(MVOperationCodes opCode, Dictionary<byte, object> returnValues, short returnCode)
 		{
+			Debug.Log("OP Response: " + opCode);
 			switch (opCode)
 			{
 			case MVOperationCodes.Join:
@@ -2227,6 +2242,16 @@ public class MVNetworkGame : IPhotonPeerListener
 				}
 				break;
 			}
+			case MVOperationCodes.UpdateGold:
+				if (returnValues.ContainsKey(130))
+				{
+					MVGameControllerBase.Game.LocalPlayer.UserProfileData.Gold = (int)returnValues[130];
+					if (MVGameControllerBase.Game.LocalPlayer.OnGoldAmountChange != null)
+					{
+						MVGameControllerBase.Game.LocalPlayer.OnGoldAmountChange();
+					}
+				}
+				break;
 			case MVOperationCodes.CloneWorldObjectTree:
 			case MVOperationCodes.CloneWorldObjectTreeWithPosition:
 			{
@@ -2320,9 +2345,6 @@ public class MVNetworkGame : IPhotonPeerListener
 				}
 				break;
 			}
-			case MVOperationCodes.RequestAccessoryData:
-				AccessoryDataManager.SetAccessoryData((string)returnValues[207]);
-				break;
 			case MVOperationCodes.UnEquipAccessory:
 				if (networkGame.OnAccessoryUnequipped != null)
 				{
@@ -2610,6 +2632,8 @@ public class MVNetworkGame : IPhotonPeerListener
 	public RuntimeVariableNetworkManager RuntimeVariableNetworkManager => runtimeVariableNetworkManager;
 
 	public event EventHandler<ReceivedItemFromQueryEventArgs> ReceivedItemFromQuery;
+
+	public event Action<string> ReceivedAccessoryData;
 
 	public event EventHandler<ScreenshotUploadedEventArgs> ScreenshotUploaded;
 

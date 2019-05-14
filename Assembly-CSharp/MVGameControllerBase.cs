@@ -464,6 +464,10 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	protected virtual void CleanUp()
 	{
 		Game.Cleanup();
+		if (PlayModeUI != null)
+		{
+			((MonoBehaviour)PlayModeUI).gameObject.SetActive(value: false);
+		}
 		CameraController.gameObject.SetActive(value: false);
 		gameObject.SetActive(value: false);
 		GameLoader.UnloadGame();

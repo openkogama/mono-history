@@ -56,8 +56,7 @@ public class BundlePurchasePopUp : MonoBehaviour
 		});
 		if (result)
 		{
-			BrowserComm.ToJavaScript.ExternalCall("gotoPurchaseGold");
-			BrowserComm.ExecuteBrowserRequest(MVGameControllerBase.GameSessionData.purchaseGoldURL);
+			BrowserCommGotoRequests.GotoPurchaseGold(newTab: false, modalPopup: true);
 		}
 	}
 

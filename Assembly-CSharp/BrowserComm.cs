@@ -6,6 +6,13 @@ using UnityEngine;
 
 public class BrowserComm : MonoBehaviour
 {
+	private class JsonGoldUpdateData
+	{
+		public int goldAmountDelta;
+
+		public int currentGold;
+	}
+
 	private class JsonReturnData
 	{
 		public int callbackId = -1;
@@ -111,6 +118,8 @@ public class BrowserComm : MonoBehaviour
 
 	private static Dictionary<int, Callback> callbacks = new Dictionary<int, Callback>();
 
+	public Action<int, int> OnGoldPurchasedFromWeb;
+
 	public static string BrowserName => browserName;
 
 	public static int BrowserVersion => browserVersion;
@@ -142,6 +151,15 @@ public class BrowserComm : MonoBehaviour
 		string[] array = browserinfo.Split(',');
 		browserName = array[0];
 		browserVersion = int.Parse(array[1]);
+	}
+
+	public void UserGoldUpdate(string data)
+	{
+		JsonGoldUpdateData jsonGoldUpdateData = JsonConvert.DeserializeObject<JsonGoldUpdateData>(data);
+		if (OnGoldPurchasedFromWeb != null)
+		{
+			OnGoldPurchasedFromWeb(jsonGoldUpdateData.currentGold, jsonGoldUpdateData.goldAmountDelta);
+		}
 	}
 
 	public void ExternalCallback(string jsonData)

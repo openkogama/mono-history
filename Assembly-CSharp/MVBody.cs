@@ -210,14 +210,14 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		Dictionary<object, object> dictionary = new Dictionary<object, object>();
 		dictionary = HashtableFunctions.DeepCopyHashTable(GetAccessoryData());
 		Dictionary<object, object> dictionary2 = new Dictionary<object, object>();
-		dictionary2[AvatarAccessoryData.Slot.ToString("d")] = (int)viewItem.accessorySlotType;
-		dictionary2[AvatarAccessoryData.InventoryID.ToString("d")] = viewItem.streamingAssetID;
+		dictionary2[AvatarAccessoryData.Slot.ToString("d")] = (int)viewItem.slot;
+		dictionary2[AvatarAccessoryData.InventoryID.ToString("d")] = viewItem.sAID;
 		dictionary2[AvatarAccessoryData.Offset.ToString("d")] = 0f;
 		dictionary2[AvatarAccessoryData.Scale.ToString("d")] = 1f;
 		dictionary2[AvatarAccessoryData.AssetPath.ToString("d")] = viewItem.url;
 		Dictionary<object, object> dictionary3 = dictionary;
-		int accessorySlotType = (int)viewItem.accessorySlotType;
-		dictionary3[accessorySlotType.ToString()] = dictionary2;
+		int slot = (int)viewItem.slot;
+		dictionary3[slot.ToString()] = dictionary2;
 		bodyAccessoriesController.UpdateAccessoryVisibility(visible: false);
 		bodyAccessoriesController.AccessoryMoveOverride = false;
 		previewBodyAccessoriesController = new BodyAccessoriesController(Id, BodyData, dictionary, isVisible: true);

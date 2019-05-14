@@ -36,6 +36,9 @@ public class DesktopAvatarEditModeController : ModeControllerBase, IActivateUIEl
 	[SerializeField]
 	private SetupCubeModelTutorialUI setupCubeModelTutorialUI;
 
+	[SerializeField]
+	private GoldPurchasedTracker goldPurchasedTracker;
+
 	private int firstTimeActiveAvatar = -1;
 
 	private void Awake()
@@ -99,6 +102,7 @@ public class DesktopAvatarEditModeController : ModeControllerBase, IActivateUIEl
 		editorStateMachine.Event = EditorEvent.CERoamUUI;
 		editorStateMachine.CubeModelingStateMachine.CurrentMaterialId = 21;
 		setupCubeModelTutorialUI.Initialize(editorStateMachine.CubeModelingStateMachine);
+		goldPurchasedTracker.Initialize();
 	}
 
 	public void Activate(ActivateUIElement element)

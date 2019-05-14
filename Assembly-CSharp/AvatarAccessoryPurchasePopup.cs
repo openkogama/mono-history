@@ -61,8 +61,8 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 		preview.gameObject.SetActive(value: false);
 		preview.Download(previewImageUrl, OnPreviewImageDownLoaded);
 		this.accessoryDataClient = accessoryDataClient;
-		priceText.text = accessoryDataClient.priceGold.ToString();
-		price = accessoryDataClient.priceGold;
+		priceText.text = accessoryDataClient.cost.ToString();
+		price = accessoryDataClient.cost;
 		this.previewImageUrl = previewImageUrl;
 		accessoryItemBackground.Initialize(accessoryDataClient);
 		HandleNotOwnedUI();
@@ -76,7 +76,7 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 		});
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.PurchaseProductResponseHandler = (Action<int, Dictionary<object, object>>)Delegate.Combine(game.PurchaseProductResponseHandler, new Action<int, Dictionary<object, object>>(ProductPurchaseResponseHandler));
-		MVGameControllerBase.OperationRequests.PurchaseAvatarAccessory(accessoryDataClient.streamingAssetID);
+		MVGameControllerBase.OperationRequests.PurchaseAvatarAccessory(accessoryDataClient.sAID);
 	}
 
 	private void ProductPurchaseResponseHandler(int returnCode, Dictionary<object, object> purchaseResponseData)
@@ -123,8 +123,7 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 		});
 		if (result)
 		{
-			BrowserComm.ToJavaScript.ExternalCall("gotoPurchaseGold");
-			BrowserComm.ExecuteBrowserRequest(MVGameControllerBase.GameSessionData.purchaseGoldURL);
+			BrowserCommGotoRequests.GotoPurchaseGold(newTab: false, modalPopup: true);
 		}
 	}
 
@@ -157,17 +156,17 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 
 	private void HandlePrices(AccessoryDataClient streamingAssetInfo)
 	{
-		int priceGold = streamingAssetInfo.priceGold;
-		int discount = streamingAssetInfo.discount;
-		int num = priceGold;
-		originalPriceText.gameObject.SetActive(discount > 0);
-		discountTag.SetActive(discount > 0);
-		if (discount > 0)
+		int cost = streamingAssetInfo.cost;
+		int dsc = streamingAssetInfo.dsc;
+		int num = cost;
+		originalPriceText.gameObject.SetActive(dsc > 0);
+		discountTag.SetActive(dsc > 0);
+		if (dsc > 0)
 		{
-			discountTagText.text = ((discount < 100) ? ("-" + discount + "%") : "FREE");
-			int num2 = Mathf.FloorToInt((float)priceGold * ((float)discount / 100f));
-			num = priceGold - num2;
-			originalPriceText.text = priceGold.ToString("N0").Replace(",", " ");
+			discountTagText.text = ((dsc < 100) ? ("-" + dsc + "%") : "FREE");
+			int num2 = Mathf.FloorToInt((float)cost * ((float)dsc / 100f));
+			num = cost - num2;
+			originalPriceText.text = cost.ToString("N0").Replace(",", " ");
 		}
 		freeItemTag.SetActive(num == 0);
 		if (num == 0)
@@ -182,9 +181,9 @@ public class AvatarAccessoryPurchasePopup : MonoBehaviour
 	private void HandleNotOwnedUI()
 	{
 		HandlePrices(accessoryDataClient);
-		timeLimitDisplayer.Initialize(accessoryDataClient.timelimit);
-		timeLimitDisplayer.gameObject.SetActive(accessoryDataClient.timelimit.IsTimeLimited);
-		newAccessoryImage.SetActive(accessoryDataClient.isNew);
+		timeLimitDisplayer.Initialize(accessoryDataClient.time);
+		timeLimitDisplayer.gameObject.SetActive(accessoryDataClient.time.IsTimeLimited);
+		newAccessoryImage.SetActive(accessoryDataClient.iNew);
 	}
 
 	private void OnPreviewImageDownLoaded()

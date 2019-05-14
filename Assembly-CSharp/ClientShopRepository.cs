@@ -1,26 +1,42 @@
 using System.Collections.Generic;
 using System.Linq;
+using MV.WorldObject;
 using UnityEngine;
 
 public class ClientShopRepository
 {
 	private readonly Dictionary<int, List<ShopItem>> repository = new Dictionary<int, List<ShopItem>>();
 
-	public readonly Dictionary<int, string> categories = new Dictionary<int, string>
+	public readonly Dictionary<InventoryCategoryType, string> categories = new Dictionary<InventoryCategoryType, string>
 	{
-		{ 5, "Premium\nModels" },
-		{ 7, "Pickups" },
-		{ 8, "Blueprints" },
-		{ 6, "Logic" },
-		{ 10, "Advanced\nLogic" }
+		{
+			InventoryCategoryType.PremiumModels,
+			"Premium\nModels"
+		},
+		{
+			InventoryCategoryType.Pickups,
+			"Pickups"
+		},
+		{
+			InventoryCategoryType.Blueprints,
+			"Blueprints"
+		},
+		{
+			InventoryCategoryType.Logic,
+			"Logic"
+		},
+		{
+			InventoryCategoryType.AdvancedLogic,
+			"Advanced\nLogic"
+		}
 	};
 
 	public ClientShopRepository()
 	{
-		foreach (int key in categories.Keys)
+		foreach (InventoryCategoryType key in categories.Keys)
 		{
 			List<ShopItem> value = new List<ShopItem>();
-			repository.Add(key, value);
+			repository.Add((int)key, value);
 		}
 	}
 
@@ -41,20 +57,59 @@ public class ClientShopRepository
 		repository[item.itemCategoryID].Remove(item);
 	}
 
-	public List<ShopItem> GetItemsInCategory(string category)
+	public List<ShopItem> GetItemsInCategory(InventoryCategoryType category)
 	{
-		int key = categories.FirstOrDefault((KeyValuePair<int, string> x) => x.Value == category).Key;
-		return new List<ShopItem>(repository[key]);
+		return new List<ShopItem>(repository[(int)category]);
 	}
 
-	public string GetCategoryStringFromId(int category)
+	public List<ShopItem> GetItemsInCategorySlow(string category)
+	{
+		int key = 0;
+		foreach (KeyValuePair<InventoryCategoryType, string> category2 in categories)
+		{
+			if (category2.Value == category)
+			{
+				key = (int)category2.Key;
+				break;
+			}
+		}
+		List<ShopItem> list = new List<ShopItem>(repository[key]);
+		list.Reverse();
+		return list;
+	}
+
+	public string GetCategoryStringFromId(InventoryCategoryType category)
 	{
 		return categories[category];
 	}
 
-	public int CategoryItemCount(int category)
+	public int CategoryItemCount(InventoryCategoryType category)
 	{
-		return repository[category].Count;
+		return repository[(int)category].Count;
+	}
+
+	public bool GetItemByWorldObjectTypeInCategory(InventoryCategoryType inventoryCategory, WorldObjectType wo, out ShopItem item)
+	{
+		List<ShopItem> list = new List<ShopItem>(repository[(int)inventoryCategory]);
+		for (int i = 0; i < list.Count; i++)
+		{
+			BytePacker koGaMaData = new BytePacker(list[i].data);
+			KoGaMaPackageClient koGaMaPackageClient = new KoGaMaPackageClient(koGaMaData, readRuntimeValues: false);
+			koGaMaPackageClient.Destroy();
+			Dictionary<int, MVWorldObjectClient> worldObjects = koGaMaPackageClient.worldObjects;
+			foreach (MVWorldObjectClient value in worldObjects.Values)
+			{
+				if (value.WorldObjectType == wo)
+				{
+					item = list[i];
+					koGaMaPackageClient.Destroy();
+					return true;
+				}
+			}
+			koGaMaPackageClient.Destroy();
+		}
+		item = null;
+		return false;
 	}
 
 	public void ReorganizeBySlotPositions()
