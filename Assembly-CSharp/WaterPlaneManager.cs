@@ -1,5 +1,4 @@
 using System;
-using MV.Common;
 using UnityEngine;
 
 public class WaterPlaneManager : MonoBehaviour
@@ -26,10 +25,6 @@ public class WaterPlaneManager : MonoBehaviour
 	private MVWaterPlane waterPlaneLogicCube;
 
 	private SkyboxManager skyboxManager;
-
-	private float localAvatarOxygen = 100f;
-
-	private AvatarModifierPackage.AvatarModifier[] additionalUnderWaterModifiers;
 
 	private Camera mainCamera;
 
@@ -66,11 +61,6 @@ public class WaterPlaneManager : MonoBehaviour
 
 	protected void Awake()
 	{
-		additionalUnderWaterModifiers = new AvatarModifierPackage.AvatarModifier[2]
-		{
-			new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.Speed, UnderwaterModifierCallback),
-			new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.JumpPower, UnderwaterJumpPowerModifierCallback)
-		};
 		Splash.Initialize();
 	}
 
@@ -94,28 +84,16 @@ public class WaterPlaneManager : MonoBehaviour
 
 	protected void Update()
 	{
-		if (waterPlaneLogicCube == null)
+		if (waterPlaneLogicCube != null)
 		{
-			return;
-		}
-		UpdateUnderwaterCameraEffects();
-		Splash.CleanUpInactiveObjectIDs();
-		MVAvatarLocal avatarLocal = MVGameControllerBase.WOCM.AvatarLocal;
-		if (avatarLocal == null)
-		{
-			return;
-		}
-		water.transform.position = avatarLocal.Transform.position;
-		Vector3 localPosition = water.transform.localPosition;
-		localPosition.y = 0f;
-		water.transform.localPosition = localPosition;
-		if (avatarLocal.InteractionDataHandlerBase.enabled)
-		{
-			MVInteractableBase component = avatarLocal.GameObject.GetComponent<MVInteractableBase>();
-			if (component != null)
+			UpdateUnderwaterCameraEffects();
+			Splash.CleanUpInactiveObjectIDs();
+			if (MVGameControllerBase.Game.LocalPlayer.IsReady)
 			{
-				UpdateLocalAvatarModifers(avatarLocal, component);
-				UpdateLocalAvatarOxygen(avatarLocal, component);
+				water.transform.position = MVGameControllerBase.MainCameraManager.transform.position;
+				Vector3 localPosition = water.transform.localPosition;
+				localPosition.y = 0f;
+				water.transform.localPosition = localPosition;
 			}
 		}
 	}
@@ -200,56 +178,6 @@ public class WaterPlaneManager : MonoBehaviour
 			lowPassFilter.enabled = false;
 			reverbFilter.enabled = false;
 		}
-	}
-
-	private void UpdateLocalAvatarModifers(MVAvatarLocal avatar, MVInteractableBase avatarInteractable)
-	{
-		if (avatar.GameObject.transform.position.y < transform.position.y)
-		{
-			avatarInteractable.AddModifier(AvatarModifierPackageType.Underwater, -1, additionalUnderWaterModifiers);
-			if (waterPlaneLogicCube != null && waterPlaneLogicCube.Data.ContainsKey("avatarModifierPackageType"))
-			{
-				AvatarModifierPackageType avatarModifierPackageType = (AvatarModifierPackageType)waterPlaneLogicCube.Data["avatarModifierPackageType"];
-				if (avatarModifierPackageType != AvatarModifierPackageType.None)
-				{
-					AvatarModifierPackage package = AvatarModifierPackageFactory.GetPackage(avatarModifierPackageType);
-					avatarInteractable.AddModifier(avatarModifierPackageType, package.id, package.avatarModifiers);
-				}
-			}
-		}
-		else if (avatarInteractable.HasModifier(AvatarModifierPackageType.Underwater))
-		{
-			avatarInteractable.RemoveModifier(AvatarModifierPackageType.Underwater);
-		}
-	}
-
-	private void UpdateLocalAvatarOxygen(MVAvatarLocal avatar, MVInteractableBase avatarInteractable)
-	{
-		float num = ComputeAvatarWaterProximity(avatar.GameObject.transform.position);
-		if (num >= 0.6f)
-		{
-			localAvatarOxygen = Mathf.Max(0f, localAvatarOxygen - Time.deltaTime * 5f);
-		}
-		else
-		{
-			localAvatarOxygen = Mathf.Min(100f, localAvatarOxygen + Time.deltaTime * 25f);
-		}
-		if (localAvatarOxygen <= 0f)
-		{
-			avatarInteractable.TakeDamage(5f * Time.deltaTime, null, PlayerKilledByType.Environmental);
-		}
-	}
-
-	private float UnderwaterJumpPowerModifierCallback()
-	{
-		float num = ComputeAvatarWaterProximity(MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position);
-		return (!((double)num > 0.7)) ? 1f : 2f;
-	}
-
-	private float UnderwaterModifierCallback()
-	{
-		float num = 1f - ComputeAvatarWaterProximity(MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position);
-		return num * 0.3f + 0.7f;
 	}
 
 	private void HandleSkyboxColorChanged(Color newColor)

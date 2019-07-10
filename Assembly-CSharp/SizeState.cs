@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using MV.Common;
 using UnityEngine;
 
 public class SizeState
@@ -46,19 +45,6 @@ public class SizeState
 		new Vector3(1f, 1f, 1f)
 	};
 
-	private static List<Vector3> relativePositionsPlatformer = new List<Vector3>
-	{
-		new Vector3(0f, 0f, 0f),
-		new Vector3(0f, 1f, 0f),
-		new Vector3(0f, -1f, 0f),
-		new Vector3(1f, 0f, 0f),
-		new Vector3(-1f, 0f, 0f),
-		new Vector3(1f, 1f, 0f),
-		new Vector3(1f, -1f, 0f),
-		new Vector3(-1f, 1f, 0f),
-		new Vector3(-1f, -1f, 0f)
-	};
-
 	public float ControllerRadius => controllerLocal.Radius;
 
 	public float ControllerCenterY => controllerLocal.Center.y;
@@ -71,10 +57,6 @@ public class SizeState
 
 	public SizeState(MVInteractable interactable, MvCharacterController controller)
 	{
-		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-		{
-			relativePositions = relativePositionsPlatformer;
-		}
 		interactableLocal = interactable;
 		controllerLocal = controller;
 	}

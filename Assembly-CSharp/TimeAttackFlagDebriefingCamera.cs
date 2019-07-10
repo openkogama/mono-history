@@ -16,18 +16,25 @@ public class TimeAttackFlagDebriefingCamera : MVCameraBase
 
 	private HashSet<int> ignoreAvatarId;
 
+	private MVAvatarLocal avatarLocal;
+
 	public override CameraType CameraType => CameraType.TimeAttackFlagDebriefingCamera;
+
+	public void Initialize(MVAvatarLocal avatarLocal)
+	{
+		this.avatarLocal = avatarLocal;
+	}
 
 	public override void Enter(MVCameraController camController)
 	{
-		ignoreAvatarId = new HashSet<int> { MVGameControllerBase.WOCM.AvatarLocal.Id };
-		camController.StartTransitionCam(0.5f);
+		ignoreAvatarId = new HashSet<int> { avatarLocal.Id };
+		MVGameControllerBase.MainCameraManager.StartTransitionCam(0.5f);
 		flagTransform = GetClosestTimeAttackFlag();
 	}
 
 	public override void Exit(MVCameraController camController)
 	{
-		camController.StartTransitionCam(0.5f);
+		MVGameControllerBase.MainCameraManager.StartTransitionCam(0.5f);
 	}
 
 	public override void Reset()
@@ -39,7 +46,7 @@ public class TimeAttackFlagDebriefingCamera : MVCameraBase
 	{
 		Vector3 lookAtPosition = GetLookAtPosition();
 		transform.position = lookAtPosition + transform.rotation * offset;
-		if (!MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Hidden))
+		if (!avatarLocal.IsInMode(SpawnRoleModeType.Hidden))
 		{
 			transform.position = PositionAfterCollision(transform.position, lookAtPosition);
 		}
@@ -88,7 +95,7 @@ public class TimeAttackFlagDebriefingCamera : MVCameraBase
 		{
 			throw new Exception("Entered TimeAttackFlagDebriefingCamera without there being a timeAttackFlag in the game!");
 		}
-		Vector3 position = MVGameControllerBase.WOCM.AvatarLocal.Position;
+		Vector3 position = avatarLocal.Position;
 		for (int i = 0; i < worldObjectsByType.Count; i++)
 		{
 			float sqrMagnitude = (position - worldObjectsByType[i].Position).sqrMagnitude;

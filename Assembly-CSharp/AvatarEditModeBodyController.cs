@@ -62,7 +62,7 @@ public class AvatarEditModeBodyController : MonoBehaviour, IAvatarEditAnimationS
 		hidePos = bodySpawnPoint.WorldPosition - 51f * Vector3.up;
 		displayRotation = bodySpawnPoint.WorldRotation;
 		bodySpawnPoint.GameObject.SetActive(value: false);
-		IEnumerable<MVWorldObjectClient> enumerable = from s in MVGameControllerBase.WOCM.GetWorldObjectClientsWhere((MVWorldObjectClient wo) => wo is MVBody mVBody2 && mVBody2.AttachedAvatar == null)
+		IEnumerable<MVWorldObjectClient> enumerable = from s in MVGameControllerBase.WOCM.GetWorldObjectClientsWhere((MVWorldObjectClient wo) => wo is MVBody mVBody2 && !mVBody2.IsPlayerBody)
 			orderby s.Id
 			select s;
 		foreach (MVWorldObjectClient item in enumerable)

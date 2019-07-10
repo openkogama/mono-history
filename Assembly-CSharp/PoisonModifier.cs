@@ -5,6 +5,8 @@ public class PoisonModifier : AvatarModifier
 {
 	public ParticleSystem poisonParticles;
 
+	private bool isDeactivating;
+
 	public override AvatarModifierPackageType ModifierType => AvatarModifierPackageType.Poison;
 
 	protected override void OnActivated(Avatar target)
@@ -18,6 +20,7 @@ public class PoisonModifier : AvatarModifier
 
 	protected override void OnDeactivated(Avatar target)
 	{
+		isDeactivating = true;
 		if (gameObject.activeInHierarchy)
 		{
 			transform.parent = null;
@@ -27,6 +30,14 @@ public class PoisonModifier : AvatarModifier
 		{
 			poisonParticles.Stop();
 			Destroy();
+		}
+	}
+
+	private void OnDisable()
+	{
+		if (isDeactivating)
+		{
+			Object.Destroy(gameObject);
 		}
 	}
 

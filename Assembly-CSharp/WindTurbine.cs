@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
 
-public class WindTurbine : MVLogicObject, ILogicWorldObject
+public class WindTurbine : MVLogicObject, ILogicWorldObject, IUpdatecontrollerSubscriberFixedUpdate, IUpdatecontrollerSubscriberBase
 {
 	private Dictionary<int, MVRigidBody> affectedBodies;
 

@@ -32,14 +32,6 @@ public class HamsterWheelMotor : SimpleVehicleMotorBase
 
 	private float maxUnderWaterYMovement = 40f;
 
-	private float platformerRotSpeed = 4.4f;
-
-	private Vector3 lastKnownMovementDir = Vector3.zero;
-
-	private Vector3 platformerSpeed = Vector3.zero;
-
-	private float platformerSpeedFactor = 0.75f;
-
 	private MVInteractableBase interactable;
 
 	public IVehicleCamera VehicleCamera { private get; set; }
@@ -104,12 +96,7 @@ public class HamsterWheelMotor : SimpleVehicleMotorBase
 
 	private Vector3 GetVehicleVelocity(Vector3 velocity, Vector3 baseVelocity)
 	{
-		return MVGameControllerBase.Game.GameType switch
-		{
-			MVGameType.Classic => GetVehicleVelocityClassicCam(velocity, baseVelocity), 
-			MVGameType.Platformer => GetVehicleVelocityPlatformerCam(velocity, baseVelocity), 
-			_ => GetVehicleVelocityClassicCam(velocity, baseVelocity), 
-		};
+		return GetVehicleVelocityClassicCam(velocity, baseVelocity);
 	}
 
 	private Vector3 GetVehicleVelocityClassicCam(Vector3 velocity, Vector3 movableVelocity)
@@ -156,64 +143,6 @@ public class HamsterWheelMotor : SimpleVehicleMotorBase
 		}
 		Vector3 vector = transform.forward * speed * Time.fixedDeltaTime;
 		velocity += vector;
-		float num2 = WaterProximity();
-		velocity = ((!(num2 > waterProximityThresshold)) ? ApplyGravity(velocity, curVelocity, interactableLocal) : ApplyWaterGravity(velocity, num2));
-		velocity = bounceState.ApplyBounceVelocityMaterials(velocity);
-		velocity = jumpState.ApplyJumping(interactableLocal, groundState, density, 0f, Jump, velocity, movableVelocity);
-		velocity = GetImpulse(velocity, interactableLocal);
-		return velocity;
-	}
-
-	private Vector3 GetVehicleVelocityPlatformerCam(Vector3 velocity, Vector3 movableVelocity)
-	{
-		velocity -= (velocity - 0.98f * velocity) * (Time.fixedDeltaTime / 0.02f);
-		float num = interactable.HandleModifierEffect(AvatarModifierEffect.Speed, maxSpeed);
-		if (DirectInputMoveMap.sqrMagnitude > 0f)
-		{
-			lastKnownMovementDir = DirectInputMoveMap;
-		}
-		if (lastKnownMovementDir.sqrMagnitude > 0f)
-		{
-			Controller.transform.rotation = Quaternion.Lerp(Controller.transform.rotation, Quaternion.LookRotation(lastKnownMovementDir), platformerRotSpeed * Time.fixedDeltaTime);
-		}
-		platformerSpeed.y = 0f;
-		if (DirectInputMoveMap.x > 0f)
-		{
-			if (platformerSpeed.x < num)
-			{
-				platformerSpeed.x += 48f * Time.fixedDeltaTime;
-			}
-		}
-		else if (DirectInputMoveMap.x < 0f)
-		{
-			if (platformerSpeed.x > 0f - num)
-			{
-				platformerSpeed.x -= 48f * Time.fixedDeltaTime;
-			}
-		}
-		else
-		{
-			platformerSpeed.x = 0f;
-		}
-		if (DirectInputMoveMap.z > 0f)
-		{
-			if (platformerSpeed.z < num)
-			{
-				platformerSpeed.z += 48f * Time.fixedDeltaTime;
-			}
-		}
-		else if (DirectInputMoveMap.z < 0f)
-		{
-			if (platformerSpeed.z > 0f - num)
-			{
-				platformerSpeed.z -= 48f * Time.fixedDeltaTime;
-			}
-		}
-		else
-		{
-			platformerSpeed.z = 0f;
-		}
-		velocity += platformerSpeed * platformerSpeedFactor * Time.fixedDeltaTime;
 		float num2 = WaterProximity();
 		velocity = ((!(num2 > waterProximityThresshold)) ? ApplyGravity(velocity, curVelocity, interactableLocal) : ApplyWaterGravity(velocity, num2));
 		velocity = bounceState.ApplyBounceVelocityMaterials(velocity);

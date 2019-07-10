@@ -2,7 +2,7 @@ public class AvatarRespawnHandler
 {
 	private MVAvatarLocal mvAvatar;
 
-	private bool shouldRespawnAsGhost;
+	private bool shouldRespawnAsGhost = true;
 
 	public bool ShouldRespawnAsGhost
 	{
@@ -21,10 +21,13 @@ public class AvatarRespawnHandler
 	{
 		if (shouldRespawnAsGhost)
 		{
-			MVGameControllerBase.PlayModeUI.InLobbyState = true;
+			if (MVGameControllerBase.FlagDebriefingControl.IsInFlagDebriefing)
+			{
+				return;
+			}
 			mvAvatar.SetMode(AvatarRuntimeState.Ghost);
 		}
-		else if (FlagDebriefingControl.IsInFlagDebriefing)
+		else if (MVGameControllerBase.FlagDebriefingControl.IsInFlagDebriefing)
 		{
 			mvAvatar.SetMode(AvatarRuntimeState.TimeAttackFlagDebriefing);
 		}
@@ -32,5 +35,6 @@ public class AvatarRespawnHandler
 		{
 			mvAvatar.SetMode(AvatarRuntimeState.Playing);
 		}
+		shouldRespawnAsGhost = true;
 	}
 }

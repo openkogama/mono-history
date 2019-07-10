@@ -10,14 +10,27 @@ public class LobbyStateCamera : MVCameraBase
 	[SerializeField]
 	private float height = 1f;
 
+	private Vector3 avatarHeadOffset = new Vector3(0f, 1.5f, 0f);
+
+	private MVAvatarLocal avatarLocal;
+
 	private HashSet<int> ignoreAvatarId;
+
+	protected AvatarCameraDistTransparency avatarCameraDistTransparency;
 
 	public override CameraType CameraType => CameraType.LobbyState;
 
+	public void Initialize(MVAvatarLocal avatarLocal)
+	{
+		this.avatarLocal = avatarLocal;
+		avatarCameraDistTransparency = new AvatarCameraDistTransparency(avatarHeadOffset, 4f, 1f);
+	}
+
 	public override void Enter(MVCameraController camController)
 	{
-		ignoreAvatarId = new HashSet<int> { MVGameControllerBase.WOCM.AvatarLocal.Id };
-		camController.StartTransitionCam(0.5f);
+		ignoreAvatarId = new HashSet<int> { avatarLocal.Id };
+		avatarCameraDistTransparency.Update(avatarLocal);
+		MVGameControllerBase.MainCameraManager.StartTransitionCam(0.5f);
 	}
 
 	public void SetRotation(Quaternion rotation)
@@ -29,11 +42,12 @@ public class LobbyStateCamera : MVCameraBase
 	{
 		Vector3 lookAtPosition = GetLookAtPosition();
 		transform.position = lookAtPosition + transform.rotation * offset;
-		if (!MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Hidden))
+		if (!MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Hidden))
 		{
 			transform.position = PositionAfterCollision(transform.position, lookAtPosition);
 		}
 		base.UpdateCamera(camController, targetTransform);
+		avatarCameraDistTransparency.Update(avatarLocal);
 	}
 
 	private Vector3 PositionAfterCollision(Vector3 desiredPosition, Vector3 moveToPosition)
@@ -66,12 +80,12 @@ public class LobbyStateCamera : MVCameraBase
 
 	private Vector3 GetLookAtPosition()
 	{
-		return MVGameControllerBase.WOCM.AvatarLocal.Transform.position + new Vector3(0f, height, 0f);
+		return avatarLocal.Transform.position + new Vector3(0f, height, 0f);
 	}
 
 	public override void Exit(MVCameraController camController)
 	{
-		camController.StartTransitionCam(0.5f);
+		MVGameControllerBase.MainCameraManager.StartTransitionCam(0.5f);
 	}
 
 	public override void Reset()

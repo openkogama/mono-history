@@ -3,8 +3,23 @@ using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
 
-public class MVLocalObjectController : IUpdatecontrollerSubscriber
+public class MVLocalObjectController : IUpdatecontrollerSubscriberUpdate, IUpdatecontrollerSubscriberFixedUpdate, IUpdatecontrollerSubscriberBase
 {
+	private class AvatarLocalObjectPlaceHolder : ILocalObject
+	{
+		public int Id { get; private set; }
+
+		public InputToInGameAction Update(InputToInGameAction movementMap)
+		{
+			throw new NotImplementedException();
+		}
+
+		public IInputToPlayerMovement FixedUpdate(IInputToPlayerMovement movementMap)
+		{
+			throw new NotImplementedException();
+		}
+	}
+
 	internal interface IAttachInterface
 	{
 	}
@@ -79,7 +94,10 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 
 	private IAttachInterface attachState;
 
-	private Stack<ILocalObject> localControlledStack = new Stack<ILocalObject>();
+	private List<ILocalObject> localControlledStack = new List<ILocalObject>
+	{
+		new AvatarLocalObjectPlaceHolder()
+	};
 
 	private Dictionary<int, DismountedPlayerControlledObject> dismountedLocalControlledObjects = new Dictionary<int, DismountedPlayerControlledObject>();
 
@@ -120,7 +138,7 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 			{
 				return null;
 			}
-			int id = localControlledStack.Peek().Id;
+			int id = localControlledStack[localControlledStack.Count - 1].Id;
 			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(id);
 			if (worldObjectClient == null)
 			{
@@ -130,31 +148,36 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 		}
 	}
 
-	public MVLocalObjectController(MVWorldObjectClientManagerNetwork worldObjectClientManagerNetwork, MVGameType gameType)
+	public MVLocalObjectController(MVWorldObjectClientManagerNetwork worldObjectClientManagerNetwork)
 	{
 		UpdateController.AddUpdateObject(this, UpdatePriority.PRE_UPDATEBUCKET_10);
 		UpdateController.AddFixedUpdateObject(this, UpdatePriority.PRE_UPDATEBUCKET_10);
 		this.worldObjectClientManagerNetwork = worldObjectClientManagerNetwork;
-		movementMap = CreateInputToPlayerMovement(MVGameControllerBase.GameMode, gameType);
+		movementMap = CreateInputToPlayerMovement(MVGameControllerBase.GameMode);
 	}
 
-	private static IInputToPlayerMovement CreateInputToPlayerMovement(MVGameMode gameMode, MVGameType gameType)
+	private static IInputToPlayerMovement CreateInputToPlayerMovement(MVGameMode gameMode)
 	{
 		if (gameMode == MVGameMode.CharacterEditor)
 		{
 			return new InputToPlayerMovementAvatarEdit();
 		}
-		return gameType switch
-		{
-			MVGameType.Classic => (IInputToPlayerMovement)new InputToPlayerMovement(), 
-			MVGameType.Platformer => new InputToPlayerMovement(), 
-			_ => throw new Exception("gametype not supported: " + gameType), 
-		};
+		return new InputToPlayerMovement();
+	}
+
+	public void SetAvatarLocalObject(ILocalObject localObject)
+	{
+		localControlledStack[0] = localObject;
+	}
+
+	public void RemoveAvatarLocalObject()
+	{
+		localControlledStack[0] = new AvatarLocalObjectPlaceHolder();
 	}
 
 	public void Push(ILocalObject localObject)
 	{
-		localControlledStack.Push(localObject);
+		localControlledStack.Add(localObject);
 	}
 
 	public void UpdateControllerUpdate()
@@ -187,7 +210,8 @@ public class MVLocalObjectController : IUpdatecontrollerSubscriber
 			Debug.LogError("Trying to detach but nothing in stack to detach");
 			return false;
 		}
-		ILocalObject localObject = localControlledStack.Pop();
+		ILocalObject localObject = localControlledStack[localControlledStack.Count - 1];
+		localControlledStack.RemoveAt(localControlledStack.Count - 1);
 		if (!leaveBecauseOfServer)
 		{
 			if (!dismountedLocalControlledObjects.ContainsKey(localObject.Id))

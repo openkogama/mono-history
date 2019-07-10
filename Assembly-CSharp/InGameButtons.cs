@@ -41,15 +41,15 @@ public class InGameButtons : MonoBehaviour
 			dropWeapon.gameObject.SetActive((PickupGUI.ShowEquipableUI & PickupGUIFlags.CanUnequip) != 0);
 			showingEquipableUI = PickupGUI.ShowEquipableUI;
 		}
-		if (MVGameControllerBase.WOCM.AvatarLocal.IsSeated != leaveVehicle.gameObject.activeInHierarchy)
+		if (MVGameControllerBase.SpawnRoleDataMediatorLocal.IsSeated != leaveVehicle.gameObject.activeInHierarchy)
 		{
-			leaveVehicle.gameObject.SetActive(MVGameControllerBase.WOCM.AvatarLocal.IsSeated);
+			leaveVehicle.gameObject.SetActive(MVGameControllerBase.SpawnRoleDataMediatorLocal.IsSeated);
 		}
-		if (MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Playing))
+		if (MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Playing))
 		{
 			HandleInPlayMode();
 		}
-		else if (!MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Playing))
+		else if (!MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Playing))
 		{
 			HandleNotInPlayMode();
 		}
@@ -63,10 +63,8 @@ public class InGameButtons : MonoBehaviour
 		{
 			fire.gameObject.SetActive(value: true);
 			point.gameObject.SetActive(value: false);
-			return;
 		}
-		PickupItem currentItem = MVGameControllerBase.WOCM.AvatarLocal.PickupOwner.CurrentItem;
-		if (currentItem.IsHolstered || currentItem == null || currentItem.Type == AvatarItemType.Hand)
+		else if (!MVGameControllerBase.SpawnRoleDataMediatorLocal.PickupItemIsInHand)
 		{
 			fire.gameObject.SetActive(value: false);
 			point.gameObject.SetActive(value: true);

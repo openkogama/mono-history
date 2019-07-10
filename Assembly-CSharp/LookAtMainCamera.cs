@@ -4,6 +4,6 @@ public class LookAtMainCamera : MonoBehaviour
 {
 	protected void LateUpdate()
 	{
-		transform.rotation = MVGameControllerBase.CameraController.MainCamera.transform.rotation;
+		transform.rotation = MVGameControllerBase.MainCameraManager.MainCamera.transform.rotation;
 	}
 }

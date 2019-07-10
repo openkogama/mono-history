@@ -4,5 +4,6 @@ public enum ActivateUIElement
 	AvatarAccessoryShopBundles,
 	Materials,
 	AvatarShop,
-	ClientShop
+	ClientShop,
+	BoosterMenu
 }

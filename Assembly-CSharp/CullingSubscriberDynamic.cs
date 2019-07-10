@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class CullingSubscriberDynamic : IUpdatecontrollerSubscriber, ICullingSubscriber
+public class CullingSubscriberDynamic : IUpdatecontrollerSubscriberUpdate, ICullingSubscriber, IUpdatecontrollerSubscriberBase
 {
 	private int cullingBandIndex;
 

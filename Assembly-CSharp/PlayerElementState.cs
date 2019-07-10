@@ -67,7 +67,7 @@ public class PlayerElementState : MonoBehaviour
 		requestFriendship.gameObject.SetActive(value: false);
 		manageUserButton.gameObject.SetActive(value: false);
 		MVLocalPlayer localPlayer = MVGameControllerBase.Game.LocalPlayer;
-		bool flag = player.Avatar == localPlayer.Avatar;
+		bool flag = player.ActorNr == localPlayer.ActorNr;
 		bool flag2 = MVGameControllerBase.GameMode == MVGameMode.Edit && localPlayer.PlanetOwnership == MVLocalPlayer.PlanetOwnershipType.Owner;
 		manageUserButton.gameObject.SetActive(!localPlayer.IsTourist && (localPlayer.UserProfileData.IsAdmin || flag2) && !flag);
 		if (!player.IsTourist && !localPlayer.IsTourist && !flag)

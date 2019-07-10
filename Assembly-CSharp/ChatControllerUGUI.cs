@@ -153,6 +153,7 @@ public class ChatControllerUGUI : MonoBehaviour
 			inputField.DeactivateInputField();
 			messageController.OnInputFocusChange(isFocused: false);
 		}
+		SayChatBubbleVisibilityManager.OnSayChatMessageHeard = (Action<Dictionary<object, object>>)Delegate.Combine(SayChatBubbleVisibilityManager.OnSayChatMessageHeard, new Action<Dictionary<object, object>>(OnSayChatMessageHeard));
 	}
 
 	private void Update()
@@ -299,8 +300,7 @@ public class ChatControllerUGUI : MonoBehaviour
 	{
 		int actorNr = (int)data[(byte)0];
 		MVPlayer playerUnsafe = MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(actorNr);
-		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(playerUnsafe.Avatar.Id);
-		if (worldObjectClient != null && MVGameControllerBase.Game.TeamManager.IsOnSameTeam(MVGameControllerBase.WOCM.AvatarLocal, worldObjectClient))
+		if (MVGameControllerBase.Game.LocalPlayer.IsOnSameTeam(playerUnsafe))
 		{
 			AddLine(FormatTeamChatMessage(data));
 		}
@@ -327,19 +327,20 @@ public class ChatControllerUGUI : MonoBehaviour
 
 	private void HandleSayChatMessage(Dictionary<object, object> data)
 	{
-		if (MVGameControllerBase.Game.LocalPlayer.IsReady)
+		int num = (int)data[(byte)0];
+		if (MVGameControllerBase.Game.LocalPlayer.ActorNr == num)
 		{
-			int actorNumber = (int)data[(byte)0];
-			Vector3 position = MVGameControllerBase.WOCM.AvatarLocal.Avatar.transform.position;
-			MVAvatar avatar = MVGameControllerBase.Game.MVPlayerContainer[actorNumber].Avatar;
-			Vector3 position2 = avatar.Transform.position;
-			if ((position - position2).magnitude <= 15f)
-			{
-				AddLine(FormatSayChatMessage(data));
-				string text = (string)data[(byte)5];
-				ChatBubbleManager.ShowChatBubble(text, avatar.Id, avatar.Avatar.AvatarUIHandler.ChatBubbleAnchor);
-			}
+			OnSayChatMessageHeard(data);
 		}
+		if (MVGameControllerBase.Game.LocalPlayer.IsReady && gameObject.activeInHierarchy && SayChatBubbleVisibilityManager.OnSayChatMessageRecieved != null)
+		{
+			SayChatBubbleVisibilityManager.OnSayChatMessageRecieved(num, data);
+		}
+	}
+
+	private void OnSayChatMessageHeard(Dictionary<object, object> data)
+	{
+		AddLine(FormatSayChatMessage(data));
 	}
 
 	private string FormatSayChatMessage(Dictionary<object, object> data)
@@ -419,5 +420,10 @@ public class ChatControllerUGUI : MonoBehaviour
 	{
 		shouldUpdateFade = true;
 		UpdateFadeTime();
+	}
+
+	private void OnDestroy()
+	{
+		SayChatBubbleVisibilityManager.OnSayChatMessageHeard = (Action<Dictionary<object, object>>)Delegate.Remove(SayChatBubbleVisibilityManager.OnSayChatMessageHeard, new Action<Dictionary<object, object>>(OnSayChatMessageHeard));
 	}
 }

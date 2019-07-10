@@ -36,7 +36,6 @@ public class VehicleCamera : PlaymodeCamera, IVehicleCamera
 	public override void UpdateCamera(MVCameraController camController, ProtectedTransform targetTransform)
 	{
 		UpdateTargetRotation();
-		HandleGunMode();
 		base.UpdateCamera(camController, targetTransform);
 	}
 
@@ -53,18 +52,6 @@ public class VehicleCamera : PlaymodeCamera, IVehicleCamera
 		base.Exit(camController);
 		Debug.Log("VehicleCamera exit");
 		transform.parent = originalTransformParent;
-	}
-
-	protected override void HandleGunMode()
-	{
-		if (MVGameControllerBase.WOCM.AvatarLocal.InGunMode)
-		{
-			currentLookAtOffset = shoulderOffset;
-		}
-		else
-		{
-			currentLookAtOffset = lookAtOffset;
-		}
 	}
 
 	private void UpdateTargetRotation()

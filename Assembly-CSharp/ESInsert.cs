@@ -18,8 +18,6 @@ internal class ESInsert : ESStateBase
 
 	private Vector3 insertOffset = Vector3.zero;
 
-	private ILaserPointer laser;
-
 	private Vector3 pivotToOrigin;
 
 	private InsertCursor insertCursor;
@@ -39,9 +37,8 @@ internal class ESInsert : ESStateBase
 	public override void Enter(EditorStateMachine e)
 	{
 		mainCamera = Camera.main;
-		laser = MVGameControllerBase.WOCM.AvatarLocal.LaserPointer;
-		laser.ChangeState(LaserPointerState.Inserting);
-		laser.LaserActive = true;
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.ChangeState(LaserPointerState.Inserting);
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.SetLaserActiveState(isActive: true);
 		if (!previewMaterial)
 		{
 			previewMaterial = PrefabPool.Instance.InsertPreviewMaterial;
@@ -68,7 +65,7 @@ internal class ESInsert : ESStateBase
 		woIgnoreList = ((!(e.SingleSelectedWO is MVGroup)) ? new HashSet<int> { e.SingleSelectedWO.Id } : (e.SingleSelectedWO as MVGroup).GetHierarchyWorldObjectIDs());
 		if (e.SingleSelectedWO.GameObject.layer == LayerUtil.GetLayerNumber(LayerFlags.Logic))
 		{
-			MVGameControllerBase.CameraController.IsLogicRendered = true;
+			MVGameControllerBase.MainCameraManager.IsLogicRendered = true;
 		}
 		e.SingleSelectedWO.GameObject.SetActive(value: false);
 		if (MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect))
@@ -109,7 +106,7 @@ internal class ESInsert : ESStateBase
 			insertPosition = ray.origin + vector3.normalized * Mathf.Lerp(vector2.magnitude, vector3.magnitude, Time.deltaTime * 5f);
 			rawPosition = insertPosition - pivotToOrigin;
 		}
-		laser.UpdatePosition(rawPosition);
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.UpdatePosition(rawPosition);
 		Vector3 b = ComputeSnapPosition(e.SingleSelectedWO, insertPosition);
 		e.SingleSelectedWO.SyncPos = Vector3.Lerp(e.SingleSelectedWO.WorldPosition, b, Time.deltaTime * 20f);
 		DrawObject(e.SingleSelectedWO.GameObject);
@@ -117,7 +114,7 @@ internal class ESInsert : ESStateBase
 		{
 			if (isNewPrototype)
 			{
-				MVGameControllerBase.CameraController.CurCamera.FocusOnObject(e.SingleSelectedWO);
+				MVGameControllerBase.MainCameraManager.CurrentCamera.FocusOnObject(e.SingleSelectedWO);
 				e.Event = EditorEvent.EditCubes;
 			}
 			else
@@ -133,8 +130,8 @@ internal class ESInsert : ESStateBase
 		Cursor.visible = true;
 		insertCursor.enabled = false;
 		UnityEngine.Object.Destroy(insertCursor.gameObject);
-		laser.ChangeState(LaserPointerState.Idle);
-		laser.LaserActive = false;
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.ChangeState(LaserPointerState.Idle);
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.SetLaserActiveState(isActive: false);
 		Vector3 position = ComputeSnapPosition(e.SingleSelectedWO, insertPosition);
 		e.SingleSelectedWO.GameObject.transform.position = position;
 		e.SingleSelectedWO.SyncPos = e.SingleSelectedWO.WorldPosition;
@@ -168,7 +165,7 @@ internal class ESInsert : ESStateBase
 			Vector3 hit = Vector3.zero;
 			if (DrawPlane.Pick(ref hit))
 			{
-				Vector3 vector = ((!(DrawPlane.Pos.y < MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position.y)) ? Vector3.up : (-Vector3.up));
+				Vector3 vector = ((!(DrawPlane.Pos.y < MVGameControllerBase.SpawnRoleDataMediatorLocal.Position.Value.y)) ? Vector3.up : (-Vector3.up));
 				Vector3 vector2 = ComputeObjectOffset(wo, vector);
 				position = hit - vector2;
 				rawPosition = hit;

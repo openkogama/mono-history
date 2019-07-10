@@ -77,6 +77,7 @@ public class AndroidChatController : MonoBehaviour
 		MVGameControllerBase.OnReceivedGameMsg = (MVGameControllerBase.OnReceivedGameMsgDelegate)Delegate.Combine(MVGameControllerBase.OnReceivedGameMsg, new MVGameControllerBase.OnReceivedGameMsgDelegate(ReceiveMessage));
 		ConsoleDragAndTapHandler consoleDragAndTapHandler = enterChatButton;
 		consoleDragAndTapHandler.OnClick = (UnityAction)Delegate.Combine(consoleDragAndTapHandler.OnClick, new UnityAction(OnChatModeTapped));
+		SayChatBubbleVisibilityManager.OnSayChatMessageHeard = (Action<Dictionary<object, object>>)Delegate.Combine(SayChatBubbleVisibilityManager.OnSayChatMessageHeard, new Action<Dictionary<object, object>>(OnSayChatMessageHeard));
 		chatConsoleModes = UnityEngine.Object.Instantiate(chatConsoleModes);
 		chatConsoleModes.transform.SetParent(transform.parent, worldPositionStays: false);
 		messageController.SayChatColor = sayColor;
@@ -234,8 +235,7 @@ public class AndroidChatController : MonoBehaviour
 	{
 		int actorNr = (int)data[(byte)0];
 		MVPlayer playerUnsafe = MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(actorNr);
-		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(playerUnsafe.Avatar.Id);
-		if (worldObjectClient != null && MVGameControllerBase.Game.TeamManager.IsOnSameTeam(MVGameControllerBase.WOCM.AvatarLocal, worldObjectClient))
+		if (playerUnsafe.IsOnSameTeam(MVGameControllerBase.Game.LocalPlayer))
 		{
 			AddLine(FormatTeamChatMessage(data));
 		}
@@ -258,19 +258,20 @@ public class AndroidChatController : MonoBehaviour
 
 	private void HandleSayChatMessage(Dictionary<object, object> data)
 	{
-		if (MVGameControllerBase.Game.LocalPlayer.IsReady)
+		int num = (int)data[(byte)0];
+		if (MVGameControllerBase.Game.LocalPlayer.ActorNr == num)
 		{
-			int actorNumber = (int)data[(byte)0];
-			Vector3 position = MVGameControllerBase.WOCM.AvatarLocal.Avatar.transform.position;
-			MVAvatar avatar = MVGameControllerBase.Game.MVPlayerContainer[actorNumber].Avatar;
-			Vector3 position2 = avatar.Transform.position;
-			if ((position - position2).magnitude <= 15f)
-			{
-				AddLine(FormatSayChatMessage(data));
-				string text = (string)data[(byte)5];
-				ChatBubbleManager.ShowChatBubble(text, avatar.Id, avatar.Avatar.AvatarUIHandler.ChatBubbleAnchor);
-			}
+			OnSayChatMessageHeard(data);
 		}
+		if (MVGameControllerBase.Game.LocalPlayer.IsReady && SayChatBubbleVisibilityManager.OnSayChatMessageRecieved != null)
+		{
+			SayChatBubbleVisibilityManager.OnSayChatMessageRecieved(num, data);
+		}
+	}
+
+	private void OnSayChatMessageHeard(Dictionary<object, object> data)
+	{
+		AddLine(FormatSayChatMessage(data));
 	}
 
 	private string FormatSayChatMessage(Dictionary<object, object> data)
@@ -286,5 +287,10 @@ public class AndroidChatController : MonoBehaviour
 		}
 		Color color = teamColor;
 		return $"<color=#{Styles.ColorToHex(color)}>[{mVPlayer.UserProfileData.UserName}] </color><color=#{Styles.ColorToHex(sayColor)}>{text2}: </color><color=#{Styles.ColorToHex(chatMessageColor)}>{text}</color>";
+	}
+
+	private void OnDestroy()
+	{
+		SayChatBubbleVisibilityManager.OnSayChatMessageHeard = (Action<Dictionary<object, object>>)Delegate.Remove(SayChatBubbleVisibilityManager.OnSayChatMessageHeard, new Action<Dictionary<object, object>>(OnSayChatMessageHeard));
 	}
 }

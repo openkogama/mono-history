@@ -10,11 +10,7 @@ public class ClientSideNPCInteractionHandler : InteractionDataHandlerBase
 	private readonly HashSet<InteractionPackageType> unableToDamageNPCs = new HashSet<InteractionPackageType>
 	{
 		InteractionPackageType.FlamethrowerHit,
-		InteractionPackageType.HealRayHit,
-		InteractionPackageType.GodzillaLaserBurnS,
-		InteractionPackageType.GodzillaLaserBurnM,
-		InteractionPackageType.GodzillaLaserBurnL,
-		InteractionPackageType.GodzillaLaserBurnXL
+		InteractionPackageType.HealRayHit
 	};
 
 	private readonly HashSet<InteractionPackageType> friendlyInteractions = new HashSet<InteractionPackageType> { InteractionPackageType.HealRayHit };
@@ -50,7 +46,7 @@ public class ClientSideNPCInteractionHandler : InteractionDataHandlerBase
 				(byte)0,
 				interaction.ToByteArray()
 			} });
-			MVGameControllerBase.CameraController.PlayPlingSound();
+			MVGameControllerBase.MainCameraManager.PlayPlingSound();
 			MVGameControllerBase.PlayModeUI.GetCrossHair().ShowHasHitEffect();
 		}
 		else if (friendlyInteractions.Contains(interaction.InteractionType))

@@ -1,13 +1,9 @@
 public enum AvatarRuntimeState : byte
 {
-	Hidden,
-	Playing,
-	Edit,
-	Edit2D,
-	Dead,
-	Godzilla,
-	GodzillaDead,
-	TimeAttackFlagDebriefing,
-	Wait,
-	Ghost
+	Hidden = 0,
+	Playing = 1,
+	Dead = 4,
+	TimeAttackFlagDebriefing = 7,
+	Wait = 8,
+	Ghost = 9
 }

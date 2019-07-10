@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class RuntimeEventManager
 {
-	private class AccumulatedCubeDamages : IUpdatecontrollerSubscriber
+	private class AccumulatedCubeDamages : IUpdatecontrollerSubscriberUpdate, IUpdatecontrollerSubscriberBase
 	{
 		private class AccumulatedCubeDamage
 		{

@@ -22,6 +22,8 @@ public class SwitchThemeButton : MonoBehaviour
 	[SerializeField]
 	private Button button;
 
+	private Texture2D levelRequirementTextureAsset;
+
 	public Button Button => button;
 
 	private int LevelRequirement
@@ -76,13 +78,15 @@ public class SwitchThemeButton : MonoBehaviour
 	{
 		if (string.IsNullOrEmpty(www.error))
 		{
-			levelReqImage.texture = www.texture;
+			levelRequirementTextureAsset = www.texture;
+			levelReqImage.texture = levelRequirementTextureAsset;
 		}
 	}
 
-	protected void Destroy()
+	protected void OnDestroy()
 	{
 		BadgeManager.UnsubscribeGetBadgeRequest(OnLevelTextureReceived);
+		Object.Destroy(levelRequirementTextureAsset);
 	}
 
 	protected void Reset()

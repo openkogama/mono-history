@@ -150,7 +150,7 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 		MVGameControllerBase.WOCM.GetWorldObjectClient(SpawnWorldObjectID)?.Select(color);
 	}
 
-	protected override bool CheckCanUse(MVInteractableBase avatarInteractable)
+	protected override bool CheckCanUse(int woId, MVInteractableBase avatarInteractable)
 	{
 		if (spawnStateWrapper.SpawnState == SpawnState.Taken)
 		{

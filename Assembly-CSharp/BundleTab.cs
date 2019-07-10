@@ -37,6 +37,8 @@ public class BundleTab : TabMenuButtonBase
 	[SerializeField]
 	private Text redDotCount;
 
+	private Texture2D badgeTextureAsset;
+
 	private float startPos = 200f;
 
 	private float startTime;
@@ -93,14 +95,19 @@ public class BundleTab : TabMenuButtonBase
 	private void OnDestroy()
 	{
 		BadgeManager.UnsubscribeGetBadgeRequest(OnBadgeLoaded);
+		UnityEngine.Object.Destroy(badgeTextureAsset);
 	}
 
 	private void OnBadgeLoaded(WWW www)
 	{
-		if (!(levelBadge == null) && www != null && string.IsNullOrEmpty(www.error) && www.texture != null)
+		if (!(levelBadge == null))
 		{
-			levelBadge.texture = www.texture;
-			levelBadge.gameObject.SetActive(value: true);
+			badgeTextureAsset = www.texture;
+			if (badgeTextureAsset != null)
+			{
+				levelBadge.texture = badgeTextureAsset;
+				levelBadge.gameObject.SetActive(value: true);
+			}
 		}
 	}
 

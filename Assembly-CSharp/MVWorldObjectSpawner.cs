@@ -77,7 +77,7 @@ public abstract class MVWorldObjectSpawner : MVBlueprintBase
 		}
 	}
 
-	protected abstract bool CheckCanUse(MVInteractableBase userWoID);
+	protected abstract bool CheckCanUse(int woId, MVInteractableBase userWoID);
 
 	protected abstract bool Use(int userWoID);
 }

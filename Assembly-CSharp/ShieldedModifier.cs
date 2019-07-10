@@ -37,12 +37,12 @@ public class ShieldedModifier : AvatarModifier
 		transform.localPosition += new Vector3(0f, 1f, 0f);
 		shieldMat = shieldRenderer.material;
 		prevHealth = owner.mvAvatar.Health.Value;
-		MVRuntimeDataVariableClampedFloat health = owner.mvAvatar.Health;
+		MVRuntimeDataVariable<float> health = owner.mvAvatar.Health;
 		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnHealthChange));
 		lineRenderer.Initialize();
 		transform.SetParent(owner.mvAvatar.Body.BodyData.GetPartBone("Torso"));
-		MVRuntimeDataVariable avatarModeTypeFlags = owner.mvAvatar.avatarModeTypeFlags;
-		avatarModeTypeFlags.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(avatarModeTypeFlags.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChangedHandler));
+		MVRuntimeDataVariable spawnRoleModeTypes = owner.mvAvatar.SpawnRoleModeTypes;
+		spawnRoleModeTypes.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(spawnRoleModeTypes.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChangedHandler));
 		if (MVGameControllerBase.PlayModeUI.InLobbyState)
 		{
 			gameObject.SetActive(value: false);
@@ -52,10 +52,10 @@ public class ShieldedModifier : AvatarModifier
 
 	protected override void OnDeactivated(Avatar target)
 	{
-		MVRuntimeDataVariableClampedFloat health = owner.mvAvatar.Health;
+		MVRuntimeDataVariable<float> health = owner.mvAvatar.Health;
 		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Remove(health.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnHealthChange));
-		MVRuntimeDataVariable avatarModeTypeFlags = owner.mvAvatar.avatarModeTypeFlags;
-		avatarModeTypeFlags.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Remove(avatarModeTypeFlags.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChangedHandler));
+		MVRuntimeDataVariable spawnRoleModeTypes = owner.mvAvatar.SpawnRoleModeTypes;
+		spawnRoleModeTypes.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Remove(spawnRoleModeTypes.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChangedHandler));
 		UnityEngine.Object.Destroy(gameObject);
 	}
 

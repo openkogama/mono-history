@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
@@ -26,6 +27,9 @@ public class GamePassesUI : MonoBehaviour
 
 	[SerializeField]
 	private GamePassesWelcomeRewardPopup welcomeRewardPopupPrefab;
+
+	[SerializeField]
+	private GamePassesWelcomeRewardPopup doubleWelcomeRewardPopupPrefab;
 
 	private bool isInitialized;
 
@@ -69,7 +73,7 @@ public class GamePassesUI : MonoBehaviour
 
 	public void ShowHighScore()
 	{
-		GamePassesHighScoreList highScoreList = Object.Instantiate(highScoreListPrefab);
+		GamePassesHighScoreList highScoreList = UnityEngine.Object.Instantiate(highScoreListPrefab);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Push(highScoreList.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
@@ -84,7 +88,7 @@ public class GamePassesUI : MonoBehaviour
 
 	private void InstantiateGamePassesShop(GamePassTier tierToShow)
 	{
-		GamePassesShop gamePassesShop = Object.Instantiate(gamePassesShopPrefab);
+		GamePassesShop gamePassesShop = UnityEngine.Object.Instantiate(gamePassesShopPrefab);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Push(gamePassesShop.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
@@ -97,6 +101,15 @@ public class GamePassesUI : MonoBehaviour
 		if (GamePassesManager.GamePassesActive)
 		{
 			totalGamePointAmountText.text = GamePassesManager.PlayerPlanetData.highScoreGamePoints.ToString();
+			GamePassesManager.OnPlayerPlanetDataUpdated = (Action)Delegate.Combine(GamePassesManager.OnPlayerPlanetDataUpdated, new Action(OnPlayerPlanetDataUpdated));
+		}
+	}
+
+	private void OnDisable()
+	{
+		if (GamePassesManager.GamePassesActive)
+		{
+			GamePassesManager.OnPlayerPlanetDataUpdated = (Action)Delegate.Remove(GamePassesManager.OnPlayerPlanetDataUpdated, new Action(OnPlayerPlanetDataUpdated));
 		}
 	}
 
@@ -107,16 +120,41 @@ public class GamePassesUI : MonoBehaviour
 			return false;
 		}
 		int welcomeReward = GamePassesManager.playerTierStateCalculator.welcomeReward;
-		return welcomeReward > 0 && GamePassProgressionController.IsProgressionEnabled && !GamePassesManager.PlayerPlanetData.playerPlanetMetaData.welcomeRewardClaimed && GamePassesManager.playerTierStateCalculator.gamePassRewardsActivated;
+		return welcomeReward > 0 && GamePassProgressionController.IsProgressionEnabled && !GamePassesManager.PlayerPlanetData.playerPlanetMetaData.DailyWelcomeRewardClaimedToday() && GamePassesManager.playerTierStateCalculator.gamePassRewardsActivated;
 	}
 
 	private void ShowWelcomeRewardPopup()
 	{
-		GamePassesWelcomeRewardPopup welcomeRewardPopup = Object.Instantiate(welcomeRewardPopupPrefab);
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		Action<bool> action = (bool adAvailable) =>
 		{
-			x.Push(welcomeRewardPopup.gameObject, UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Pop();
+			});
+			GamePassesWelcomeRewardPopup welcomeRewardPopup;
+			if (adAvailable)
+			{
+				welcomeRewardPopup = UnityEngine.Object.Instantiate(doubleWelcomeRewardPopupPrefab);
+			}
+			else
+			{
+				welcomeRewardPopup = UnityEngine.Object.Instantiate(welcomeRewardPopupPrefab);
+			}
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(welcomeRewardPopup.gameObject, UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
+			});
+			welcomeRewardPopup.Initialize();
+		};
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+		{
+			x.Create();
 		});
-		welcomeRewardPopup.Initialize();
+		action(obj: false);
+	}
+
+	private void OnPlayerPlanetDataUpdated()
+	{
+		totalGamePointAmountText.text = GamePassesManager.PlayerPlanetData.highScoreGamePoints.ToString();
 	}
 }

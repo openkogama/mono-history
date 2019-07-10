@@ -14,9 +14,20 @@ public class PlayButtonBase : MonoBehaviour
 	protected void UpdateButton()
 	{
 		bool flag = MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded;
+		bool flag2 = Time.time < MVGameControllerBase.LocalPlayer.RespawnTime;
 		if (flag)
 		{
 			countdownFill.fillAmount = MVGameControllerBase.Game.NetworkGameStateListener.CountdownInPercentage;
+			if (!countdownFill.gameObject.activeSelf)
+			{
+				countdownFill.gameObject.SetActive(value: true);
+			}
+		}
+		else if (flag2)
+		{
+			float num = MVGameControllerBase.LocalPlayer.RespawnTime - Time.time;
+			float fillAmount = num / MVGameControllerBase.LocalPlayer.RespawnDuration;
+			countdownFill.fillAmount = fillAmount;
 			if (!countdownFill.gameObject.activeSelf)
 			{
 				countdownFill.gameObject.SetActive(value: true);
@@ -26,7 +37,7 @@ public class PlayButtonBase : MonoBehaviour
 		{
 			countdownFill.gameObject.SetActive(value: false);
 		}
-		if (!flag)
+		if (!flag && !flag2)
 		{
 			OnCountDownEnd();
 		}

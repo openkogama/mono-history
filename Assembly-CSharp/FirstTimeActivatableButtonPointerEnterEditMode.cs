@@ -74,7 +74,6 @@ public class FirstTimeActivatableButtonPointerEnterEditMode : FirstTimeActivatab
 
 	private void Clear()
 	{
-		Debug.Log("Clear");
 		EnterPlayModeButton enterPlayModeButton = button;
 		enterPlayModeButton.enteringPlayMode = (Action)Delegate.Remove(enterPlayModeButton.enteringPlayMode, new Action(OnShown));
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (TextBubbleController x, BaseEventData y) =>

@@ -5,7 +5,7 @@ internal class PaintCubes : CubeModelTool
 	public override void Enter(CubeModelingStateMachine e)
 	{
 		paintCursor = new PaintCursor(e.CubeCorners);
-		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.PaintCubes);
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.ChangeState(LaserPointerState.PaintCubes);
 		waitForMouseUp = MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect);
 	}
 
@@ -33,7 +33,7 @@ internal class PaintCubes : CubeModelTool
 
 	public override void Exit(CubeModelingStateMachine e)
 	{
-		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.Idle);
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.ChangeState(LaserPointerState.Idle);
 		HideCursor();
 	}
 

@@ -1,8 +1,10 @@
+using UnityEngine;
+
 public class FirstTimeActivatableRewardFirstLobby : FirstTimeActivatableSetEventOnShow
 {
 	public override void OnShow()
 	{
 		base.OnShow();
-		gameObject.AddComponent<FirstTimeAvatarJumpAnimator>();
+		Debug.Log(FirstTimeEvent);
 	}
 }

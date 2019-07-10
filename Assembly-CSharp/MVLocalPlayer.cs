@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using Assets.Scripts.Network.Player.SpawnRoles.SpawnRoleData.Mediator;
 using MV.Common;
 using MV.WorldObject.GamePassSystem;
 using MV.WorldObject.MetaData;
+using MV.WorldObject.SpawnRoles;
 using UnityEngine.Events;
 
 public abstract class MVLocalPlayer : MVPlayer
@@ -16,7 +18,13 @@ public abstract class MVLocalPlayer : MVPlayer
 
 	private PlayerPlanetData playerPlanetData;
 
+	private BoostController boostController = new BoostController();
+
+	private int defaultBodyWoId = -1;
+
 	public Action OnInitializeLeveling;
+
+	private readonly SpawnRoleDataMediator spawnRoleDataMediator = new SpawnRoleDataMediator();
 
 	protected XPProgress xpProgress;
 
@@ -26,7 +34,15 @@ public abstract class MVLocalPlayer : MVPlayer
 
 	protected int joinTime;
 
+	protected const float respawnDuration = 4f;
+
+	protected float respawnTime;
+
 	private int oldLevel;
+
+	public MVBody Body => MVGameControllerBase.WOCM.GetWorldObjectClient<MVBody>(defaultBodyWoId);
+
+	public SpawnRoleDataMediator SpawnRoleDataMediator => spawnRoleDataMediator;
 
 	public PlayerPlanetData PlayerPlanetData
 	{
@@ -38,6 +54,18 @@ public abstract class MVLocalPlayer : MVPlayer
 		{
 			playerPlanetData = value;
 			playerPlanetDataRemote = new PlayerPlanetDataRemote(playerPlanetData.highScoreGamePoints, playerPlanetData.gamePassTier);
+		}
+	}
+
+	public BoostController BoostController
+	{
+		get
+		{
+			return boostController;
+		}
+		private set
+		{
+			boostController = value;
 		}
 	}
 
@@ -65,12 +93,33 @@ public abstract class MVLocalPlayer : MVPlayer
 
 	public bool CanGetXPProgressData => xpProgress != null;
 
+	public float RespawnDuration => 4f;
+
+	public float RespawnTime
+	{
+		get
+		{
+			return respawnTime;
+		}
+		set
+		{
+			respawnTime = value;
+		}
+	}
+
 	public MVLocalPlayer(int actorNumber, int profileID, string regionCode, int planetOwnershipTypeID, UserProfileData userProfileData)
 		: base(actorNumber, profileID, regionCode, MVGameControllerBase.BuildTarget, userProfileData, isReady: false)
 	{
 		OnLevelChanged = (UnityAction<int>)Delegate.Combine(OnLevelChanged, new UnityAction<int>(OnLevelChangedLocal));
 		PlanetOwnershipTypeID = planetOwnershipTypeID;
 		joinTime = MVGameControllerBase.Game.ServerTimeInMilliSeconds;
+	}
+
+	public void SetupPlayerWorldObjects(int defaultBodyWoId, SpawnRolesRuntimeData spawnRolesRuntimeData)
+	{
+		this.defaultBodyWoId = defaultBodyWoId;
+		SpawnRoleChangeHandlerLocal spawnRoleChangeHandler = new SpawnRoleChangeHandlerLocal(spawnRoleDataMediator);
+		SetupSpawnRoleManager(spawnRoleChangeHandler, spawnRolesRuntimeData);
 	}
 
 	public virtual void InitializeLeveling(InitialLevelData initialLevelData)
@@ -103,6 +152,7 @@ public abstract class MVLocalPlayer : MVPlayer
 		dictionary.Add((byte)19, xpProgressData.MemberCount);
 		Dictionary<object, object> data = dictionary;
 		NotificationController.OnNotificationReceived(NotificationType.XP, data);
+		MVGameControllerBase.GameEventManager.NotifyXPDeltaAmount(xpProgressData.XPDelta);
 		BrowserComm.ToJavaScript.ExternalCall("increaseXP", xpProgressData.XP);
 	}
 

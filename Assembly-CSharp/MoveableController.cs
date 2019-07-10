@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class MoveableController : IUpdatecontrollerSubscriber
+public class MoveableController : IUpdatecontrollerSubscriberFixedUpdate, IUpdatecontrollerSubscriberBase
 {
 	public Dictionary<int, Vector3> Velocities = new Dictionary<int, Vector3>();
 

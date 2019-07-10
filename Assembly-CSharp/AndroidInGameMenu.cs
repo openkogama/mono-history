@@ -15,6 +15,12 @@ public class AndroidInGameMenu : MonoBehaviour
 	[SerializeField]
 	private GamePassesUI gamePassesUIPrefab;
 
+	[SerializeField]
+	private GameObject boostButton;
+
+	[SerializeField]
+	private GameObject respawnButton;
+
 	private GamePassesUI gamePassesUI;
 
 	public void Initialize()
@@ -44,12 +50,13 @@ public class AndroidInGameMenu : MonoBehaviour
 		{
 			gamePassesUI.gameObject.SetActive(GamePassProgressionController.IsProgressionEnabled && GamePassesManager.GamePassesActive);
 		}
-	}
-
-	public void OnPressQuit()
-	{
-		MVGameControllerBase.PlayModeUI.InLobbyState = false;
-		MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Hidden);
-		MVGameControllerBase.PlayModeUI.InLobbyState = true;
+		if (MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Hidden) && respawnButton.gameObject.activeSelf)
+		{
+			respawnButton.gameObject.SetActive(value: false);
+		}
+		else if (MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Playing) && !respawnButton.gameObject.activeSelf)
+		{
+			respawnButton.gameObject.SetActive(value: true);
+		}
 	}
 }

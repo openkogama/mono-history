@@ -10,7 +10,7 @@ internal class SprayCubes : CubeModelTool
 	public override void Enter(CubeModelingStateMachine e)
 	{
 		sprayCursor = new SprayCursor(e.CubeCorners);
-		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.SprayCubes);
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.ChangeState(LaserPointerState.SprayCubes);
 		waitForMouseUp = MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect);
 	}
 
@@ -56,7 +56,7 @@ internal class SprayCubes : CubeModelTool
 	public override void Exit(CubeModelingStateMachine e)
 	{
 		HideCursor();
-		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.Idle);
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.ChangeState(LaserPointerState.Idle);
 	}
 
 	public override void HideCursor()

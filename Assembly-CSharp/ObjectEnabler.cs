@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class ObjectEnabler : MonoBehaviour, IUpdatecontrollerSubscriber
+public class ObjectEnabler : MonoBehaviour, IUpdatecontrollerSubscriberUpdate, IUpdatecontrollerSubscriberBase
 {
 	public MVObjectEnabler woObjectEnabler;
 

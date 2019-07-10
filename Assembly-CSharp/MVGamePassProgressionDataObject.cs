@@ -46,7 +46,6 @@ public class MVGamePassProgressionDataObject : MVWorldObjectClient
 	public MVGamePassProgressionDataObject(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, worldObjects)
 	{
-		Debug.Log(this);
 	}
 
 	public override void OnDataUpdate()

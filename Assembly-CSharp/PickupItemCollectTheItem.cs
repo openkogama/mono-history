@@ -131,14 +131,7 @@ public class PickupItemCollectTheItem : PickupItem
 			{
 				SetupDropOffArrow(dropOffId);
 			}
-			MVGameControllerBase.Game.WinningConditionManager.OnWinningConditionChanged += OnChanged;
 		}
-	}
-
-	private void OnChanged(object sender, EventArgs args)
-	{
-		MVGameControllerBase.Game.WinningConditionManager.OnWinningConditionChanged -= OnChanged;
-		ForceUnequipPickup();
 	}
 
 	private void SetupDropOffArrow(int dropoffId)

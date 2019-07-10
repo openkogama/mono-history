@@ -65,6 +65,9 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 	[SerializeField]
 	private GoldPurchasedTracker goldPurchasedTracker;
 
+	[SerializeField]
+	private BoostMenuController boosterMenu;
+
 	private RectTransform lobbyStateRect;
 
 	private InGameMenu inGameMenu;
@@ -72,6 +75,8 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 	public UnityAction OnLeaveEditPlayMode;
 
 	private GameObject playModeState;
+
+	public GameObject InGameUIRoot => inGameController.gameObject;
 
 	public ILockCursorManager LockCursorManager => lockCursorManager;
 
@@ -91,14 +96,7 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 	{
 		uiStack.Push(stackBottom, UIPushOption.None, null, UIGroupFlags.StackBottom);
 		CreateGUI();
-		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-		{
-			lockCursorManager = gameObject.AddComponent<LockCursorManager2DMode>();
-		}
-		else
-		{
-			lockCursorManager = gameObject.AddComponent<LockCursorManager3DMode>();
-		}
+		lockCursorManager = gameObject.AddComponent<LockCursorManager3DMode>();
 		MVGameControllerDesktop.RegisterPlayModeController(this);
 		if (MVGameControllerBase.Game.LocalPlayer.IsReady)
 		{
@@ -152,10 +150,7 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 
 	private void Respawn()
 	{
-		if (MVGameControllerBase.WOCM.AvatarLocal != null)
-		{
-			MVGameControllerBase.WOCM.AvatarLocal.Respawn();
-		}
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.KillSelf();
 	}
 
 	public override void Initialize()
@@ -163,7 +158,7 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 		base.Initialize();
 		if (MVGameControllerBase.EditModeUI == null)
 		{
-			MVGameControllerBase.CameraController.AvatarLobbyFocus = true;
+			MVGameControllerBase.MainCameraManager.CamMaskMode = MaskMode.AvatarLobbyFocus;
 		}
 		chatBubbleController = UnityEngine.Object.Instantiate(chatBubbleController);
 		chatBubbleController.transform.SetParent(transform, worldPositionStays: false);
@@ -175,20 +170,16 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 		inGameMenu.Initialize();
 		timeAttackFlagDebriefing = UnityEngine.Object.Instantiate(timeAttackFlagDebriefing);
 		timeAttackFlagDebriefing.transform.SetParent(playModeState.transform, worldPositionStays: false);
-		FlagDebriefingControl.OnFlagDebriefing = (Action<int>)Delegate.Combine(FlagDebriefingControl.OnFlagDebriefing, new Action<int>(OnShowTimeAttackFlagDebriefing));
-		FlagDebriefingControl.OnFlagCountDown = (Action)Delegate.Combine(FlagDebriefingControl.OnFlagCountDown, new Action(OnShowTimeAttackFlagCountDown));
-		FlagDebriefingControl.OnFlagCountDownEnd = (Action)Delegate.Combine(FlagDebriefingControl.OnFlagCountDownEnd, new Action(OnHideTimeAttackFlagCountDown));
+		FlagDebriefingControl flagDebriefingControl = MVGameControllerBase.FlagDebriefingControl;
+		flagDebriefingControl.OnFlagDebriefing = (Action<int>)Delegate.Combine(flagDebriefingControl.OnFlagDebriefing, new Action<int>(OnShowTimeAttackFlagDebriefing));
+		FlagDebriefingControl flagDebriefingControl2 = MVGameControllerBase.FlagDebriefingControl;
+		flagDebriefingControl2.OnFlagCountDown = (Action)Delegate.Combine(flagDebriefingControl2.OnFlagCountDown, new Action(OnShowTimeAttackFlagCountDown));
+		FlagDebriefingControl flagDebriefingControl3 = MVGameControllerBase.FlagDebriefingControl;
+		flagDebriefingControl3.OnFlagCountDownEnd = (Action)Delegate.Combine(flagDebriefingControl3.OnFlagCountDownEnd, new Action(OnHideTimeAttackFlagCountDown));
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Combine(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnRoundEnd));
 		goldPurchasedTracker.Initialize();
-		if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
-		{
-			MVInputWrapper.SetInputMap(new DesktopPlayMode());
-		}
-		else if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-		{
-			MVInputWrapper.SetInputMap(new Desktop2DPlayMode());
-		}
+		MVInputWrapper.SetInputMap(new DesktopPlayMode());
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
 		{
 			handler.PopGroups(UIGroupFlags.InventoryUI | UIGroupFlags.InventoryUISubMenu);
@@ -200,11 +191,17 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 		}
 		chatController.Initialize();
 		playerListButton.gameObject.SetActive(value: true);
+		ChatCommandManager.UpdateChatCommandCallback(ChatCommand.HideAllUI, (Action)Delegate.Combine(ChatCommandManager.GetChatCommandCallback(ChatCommand.HideAllUI), new Action(HideUI)));
+	}
+
+	private void HideUI()
+	{
+		gameObject.SetActive(value: false);
 	}
 
 	private void ToggleLogicVisibility()
 	{
-		MVGameControllerBase.CameraController.IsLogicRendered = !MVGameControllerBase.CameraController.IsLogicRendered;
+		MVGameControllerBase.MainCameraManager.IsLogicRendered = !MVGameControllerBase.MainCameraManager.IsLogicRendered;
 	}
 
 	private void ToggleHD()
@@ -229,8 +226,6 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 		notificationsManager.transform.SetParent(stackBottom.transform, worldPositionStays: false);
 		if (MVGameControllerBase.IsTouristSession && !MVGameControllerBase.GameSessionData.IsPlayedFromPoki)
 		{
-			touristAdController = UnityEngine.Object.Instantiate(touristAdController);
-			touristAdController.transform.SetParent(playModeState.transform, worldPositionStays: false);
 			touristAdController.Initialize(touristModeController);
 		}
 	}
@@ -300,6 +295,13 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 		case ActivateUIElement.AvatarAccessoryShopBundles:
 			accessoryShopController.Activate(UIPushOption.HideAll, AccessoryCategoryClient.Bundles);
 			break;
+		case ActivateUIElement.BoosterMenu:
+		{
+			BoostMenuController boostMenuController = UnityEngine.Object.Instantiate(boosterMenu);
+			uiStack.Push(boostMenuController.gameObject, UIPushOption.InvisibleBlocker, null, UIGroupFlags.GameObjectUI);
+			boostMenuController.Initialize();
+			break;
+		}
 		}
 	}
 

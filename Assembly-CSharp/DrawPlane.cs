@@ -84,9 +84,4 @@ public static class DrawPlane
 	{
 		drawPlaneController.MoveDrawPlane(dir);
 	}
-
-	public static void SetToTerrain(bool active)
-	{
-		((DrawPlaneController2DUUI)drawPlaneController).SetToTerrain(active);
-	}
 }

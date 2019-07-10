@@ -15,7 +15,6 @@ internal class ESTerrainEdit : ESStateBase
 		terrain = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>();
 		e.CubeModelingStateMachine.StartEdit(terrain);
 		tintedWo = MVWorldObjectClientManager.GetWorldObjectClientRefNullRef();
-		MVGameControllerBase.CameraController.FieldOfView = MVGameControllerBase.CameraController.CurCamera.FieldOfView;
 	}
 
 	public override void Execute(EditorStateMachine e)
@@ -47,7 +46,7 @@ internal class ESTerrainEdit : ESStateBase
 		{
 			e.CubeModelingStateMachine.CursorVisible = false;
 		}
-		if (!MVGameControllerBase.CameraController.IsLogicRendered || !MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelectAlt))
+		if (!MVGameControllerBase.MainCameraManager.IsLogicRendered || !MVInputWrapper.GetBooleanControlDown(KogamaControls.PointerSelectAlt))
 		{
 			return;
 		}
@@ -57,7 +56,7 @@ internal class ESTerrainEdit : ESStateBase
 		{
 			num = hit2.distance;
 		}
-		Ray ray = MVGameControllerBase.CameraController.MainCamera.ScreenPointToRay(MVInputWrapper.GetPointerPosition());
+		Ray ray = MVGameControllerBase.MainCameraManager.MainCamera.ScreenPointToRay(MVInputWrapper.GetPointerPosition());
 		int layerMask = 1 << LayerUtil.GetLayerNumber(LayerFlags.Logic);
 		Physics.Raycast(ray, out var hitInfo, float.PositiveInfinity, layerMask);
 		if (hitInfo.collider != null)
@@ -93,7 +92,7 @@ internal class ESTerrainEdit : ESStateBase
 	public override void Exit(EditorStateMachine e)
 	{
 		MVMaterialRepository.AllowDestructibleMaterialSelection = false;
-		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.Idle);
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.ChangeState(LaserPointerState.Idle);
 		if (e.SelectedIDs.Count == 0)
 		{
 			DeTintCurrent();

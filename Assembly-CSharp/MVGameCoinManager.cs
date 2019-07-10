@@ -18,6 +18,8 @@ public class MVGameCoinManager
 
 	private ObscuredInt intervalAmount = 1;
 
+	private int currentBoostMultiplier = 1;
+
 	private ObscuredBool boostEnabled;
 
 	private ObscuredFloat boostedInterval = 2f;
@@ -86,13 +88,18 @@ public class MVGameCoinManager
 		}
 		else if (Time.time - (float)startTime > (float)boostedInterval)
 		{
-			gameCoins = (int)gameCoins + (int)intervalAmount;
+			gameCoins = (int)gameCoins + GetBoostedGameCoinCount(intervalAmount);
 			if (OnGameCoinAmountChange != null)
 			{
 				OnGameCoinAmountChange(gameCoins);
 			}
 			startTime = Time.time;
 		}
+	}
+
+	private int GetBoostedGameCoinCount(int defaultAmount)
+	{
+		return defaultAmount * currentBoostMultiplier;
 	}
 
 	public void Reset(MVNetworkGame game)
@@ -112,7 +119,7 @@ public class MVGameCoinManager
 	public void GameCoinCollect()
 	{
 		ObscuredInt obscuredInt = gameCoinPickupValue;
-		gameCoins = (int)gameCoins + (int)obscuredInt;
+		gameCoins = (int)gameCoins + GetBoostedGameCoinCount(obscuredInt);
 		if (OnGameCoinAmountChange != null)
 		{
 			OnGameCoinAmountChange(gameCoins);
@@ -121,7 +128,7 @@ public class MVGameCoinManager
 
 	public void GameCoinChestCollect(int amount)
 	{
-		gameCoins = (int)gameCoins + amount;
+		gameCoins = (int)gameCoins + GetBoostedGameCoinCount(amount);
 		if (OnGameCoinAmountChange != null)
 		{
 			OnGameCoinAmountChange(gameCoins);
@@ -176,6 +183,7 @@ public class MVGameCoinManager
 			{
 				OnActivationChange(isActive);
 			}
+			MVGameControllerBase.Game.LocalPlayer.BoostController.AllowBoost(BoostType.GameCoinsIntMultiplier, active);
 		}
 	}
 
@@ -190,5 +198,16 @@ public class MVGameCoinManager
 	{
 		boostEnabled = MVGameControllerBase.Game.LocalPlayer.SubscriptionRules.HasBenefit(SubscriptionBenefit.GameCoinBoost);
 		OnGameBoostChanged(boostEnabled);
+		MVGameControllerBase.Game.LocalPlayer.BoostController.SubscribeToBoostChanged(BoostType.GameCoinsIntMultiplier, OnGameCoinBoostChanged);
+		OnGameCoinBoostChanged();
+	}
+
+	private void OnGameCoinBoostChanged()
+	{
+		currentBoostMultiplier = 1;
+		if (MVGameControllerBase.Game.LocalPlayer.BoostController.TryGetActiveBoost(BoostType.GameCoinsIntMultiplier, out var boost))
+		{
+			currentBoostMultiplier = (int)boost.Value;
+		}
 	}
 }

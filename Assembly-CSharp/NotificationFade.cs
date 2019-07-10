@@ -19,16 +19,29 @@ public class NotificationFade : MonoBehaviour
 
 	private float pauseAt = 1f;
 
+	private bool shouldHideWhenDone = true;
+
 	public Action OnFinished;
 
 	public bool IsPaused => pauseAt != duration;
+
+	public bool ShouldHideWhenDone
+	{
+		set
+		{
+			shouldHideWhenDone = value;
+		}
+	}
 
 	public void Deactivate()
 	{
 		if (playing)
 		{
 			playing = false;
-			group.alpha = 0f;
+			if (shouldHideWhenDone)
+			{
+				group.alpha = 0f;
+			}
 			currentTime = 0f;
 			if (OnFinished != null)
 			{

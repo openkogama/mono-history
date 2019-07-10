@@ -255,7 +255,7 @@ public class AccessoryShopController : MonoBehaviour, IInventoryChanged, IAttach
 		}
 		else
 		{
-			currentBody = MVGameControllerBase.Game.LocalPlayer.Avatar.Body;
+			currentBody = MVGameControllerBase.LocalPlayer.Body;
 		}
 		currentBody.AccessoryMoveOverride = selectable;
 	}
@@ -338,7 +338,7 @@ public class AccessoryShopController : MonoBehaviour, IInventoryChanged, IAttach
 		}
 		else
 		{
-			UpdateContentWithBody(MVGameControllerBase.Game.LocalPlayer.Avatar.Body);
+			UpdateContentWithBody(MVGameControllerBase.LocalPlayer.Body);
 		}
 	}
 
@@ -451,7 +451,7 @@ public class AccessoryShopController : MonoBehaviour, IInventoryChanged, IAttach
 		}
 		else
 		{
-			Attach(MVGameControllerBase.Game.LocalPlayer.Avatar.Body, offset, scale);
+			Attach(MVGameControllerBase.LocalPlayer.Body, offset, scale);
 		}
 	}
 

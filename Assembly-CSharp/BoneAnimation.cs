@@ -16,6 +16,8 @@ public class BoneAnimation : MonoBehaviour
 
 	private MVAvatar mvAvatar;
 
+	private bool isLocal;
+
 	private AudioSource audioSource;
 
 	private Queue<AnimationData> animationQueue = new Queue<AnimationData>();
@@ -62,9 +64,10 @@ public class BoneAnimation : MonoBehaviour
 		{
 			return;
 		}
-		if (mvAvatar.Avatar.IsLocal)
+		if (isLocal)
 		{
-			if (MVGameControllerBase.WOCM.AvatarLocal.RigidBody.Grounded && !MVGameControllerBase.WOCM.AvatarLocal.IsInVehicle)
+			MVAvatarLocal mVAvatarLocal = (MVAvatarLocal)mvAvatar;
+			if (mVAvatarLocal.RigidBody.Grounded && !mVAvatarLocal.IsInVehicle)
 			{
 				AudioSource.pitch = GetFootstepPitch();
 				MVGameControllerBase.AudioManager.Play("Footstep", AudioSource, mainCamera.transform.position + mainCamera.transform.forward);
@@ -85,37 +88,39 @@ public class BoneAnimation : MonoBehaviour
 	public void Attach(MVAvatar mvAvatar, bool isLocal)
 	{
 		this.mvAvatar = mvAvatar;
-		MVRuntimeDataVariable animation = this.mvAvatar.Animation;
-		animation.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(animation.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AnimationChangeHandler));
+		this.isLocal = isLocal;
 	}
 
 	public void Detach()
 	{
 		Debug.Log("Detach " + gameObject.name);
 		avatarAnimation.Stop();
-		MVRuntimeDataVariable animation = mvAvatar.Animation;
-		animation.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Remove(animation.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AnimationChangeHandler));
 		animationQueue.Clear();
 		prevAnim = (currentAnim = (nextAnim = null));
 	}
 
-	private void AnimationChangeHandler(object animData)
+	public void AnimationChangeHandler(object animData)
 	{
 		Dictionary<object, object> dictionary = (Dictionary<object, object>)animData;
-		string text = (string)dictionary["state"];
+		string newAnimation = (string)dictionary["state"];
 		int timeStamp = (int)dictionary["timeStamp"];
+		StartAnimation(newAnimation, timeStamp);
+	}
+
+	public void StartAnimation(string newAnimation, int timeStamp)
+	{
 		if (OnAnimationChange != null)
 		{
-			OnAnimationChange(text);
+			OnAnimationChange(newAnimation);
 		}
-		if (mvAvatar is MVAvatarLocal)
+		if (isLocal)
 		{
-			currentAnim = new AnimationData(text, timeStamp);
+			currentAnim = new AnimationData(newAnimation, timeStamp);
 			ComputeAnimation();
 		}
 		else
 		{
-			animationQueue.Enqueue(new AnimationData(text, timeStamp));
+			animationQueue.Enqueue(new AnimationData(newAnimation, timeStamp));
 			ComputeRemoteAnimation();
 		}
 	}
@@ -227,7 +232,7 @@ public class BoneAnimation : MonoBehaviour
 
 	private void Update()
 	{
-		if (mvAvatar is MVAvatarRemote)
+		if (!isLocal)
 		{
 			ComputeRemoteAnimation();
 		}

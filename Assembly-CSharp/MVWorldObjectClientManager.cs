@@ -143,11 +143,7 @@ public abstract class MVWorldObjectClientManager : IWorldObjectManager
 
 	public EventHandler<OnTransferOwnershipResponseEventArgs> OnWorldObjectTransferOwnershipResponse;
 
-	public EventHandler<OnRequestedPrototypeCreatedEventArgs> OnRequestedPrototypeCreated;
-
 	public EventHandler<OnHierarchyLockedEventArgs> OnHierarchyLockedResponse;
-
-	public EventHandler<OnUngroupResponseEventArgs> OnUngroupResponse;
 
 	public EventHandler<OnTransferWosResponseEventArgs> OnTransferWosResponse;
 
@@ -158,8 +154,6 @@ public abstract class MVWorldObjectClientManager : IWorldObjectManager
 	public MoveableController MoveableController { get; private set; }
 
 	public Bounds WorldBounds => worldBounds;
-
-	public MVAvatarLocal AvatarLocal { get; set; }
 
 	public int Count => worldObjects.Count;
 

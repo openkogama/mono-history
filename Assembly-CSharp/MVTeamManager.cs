@@ -195,39 +195,4 @@ public class MVTeamManager
 	{
 		return GetPlayersInTeam(team).Count;
 	}
-
-	public bool IsOnSameTeam(MVWorldObjectClient a, MVWorldObjectClient b)
-	{
-		if (TeamCount() <= 1)
-		{
-			return false;
-		}
-		if (a is ITeamInteractorNPC && b is ITeamInteractorNPC)
-		{
-			return a.OwnerActorNr == b.OwnerActorNr;
-		}
-		MVPlayer player = null;
-		MVPlayer player2 = null;
-		if (MVGameControllerBase.Game.MVPlayerContainer.TryGetValue(a.OwnerActorNr, out player))
-		{
-			ITeamInteractorNPC teamInteractorNPC = b as ITeamInteractorNPC;
-			if (b.OwnerActorNr == 0 && teamInteractorNPC != null)
-			{
-				return teamInteractorNPC.IsOnSameTeam(player.Team);
-			}
-		}
-		if (MVGameControllerBase.Game.MVPlayerContainer.TryGetValue(b.OwnerActorNr, out player2))
-		{
-			ITeamInteractorNPC teamInteractorNPC2 = a as ITeamInteractorNPC;
-			if (a.OwnerActorNr == 0 && teamInteractorNPC2 != null)
-			{
-				return teamInteractorNPC2.IsOnSameTeam(player2.Team);
-			}
-		}
-		if (player != null && player2 != null && player.Team == player2.Team)
-		{
-			return true;
-		}
-		return a.OwnerActorNr == b.OwnerActorNr;
-	}
 }

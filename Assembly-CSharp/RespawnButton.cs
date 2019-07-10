@@ -4,6 +4,7 @@ public class RespawnButton : MonoBehaviour
 {
 	public void Respawn()
 	{
-		MVGameControllerBase.WOCM.AvatarLocal.Respawn();
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.KillSelf();
+		MVGameControllerBase.PlayModeUI.InLobbyState = false;
 	}
 }

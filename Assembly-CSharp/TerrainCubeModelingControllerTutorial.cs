@@ -19,19 +19,19 @@ public class TerrainCubeModelingControllerTutorial : MonoBehaviour
 		desktopCubeModelingController.Initialize(cubeModelingStateMachine);
 		materialsController.materialChange = (UnityAction<byte>)Delegate.Combine(materialsController.materialChange, new UnityAction<byte>(SetMaterial));
 		SetMaterial(cubeModelingStateMachine.CurrentMaterialId);
-		MVGameControllerBase.CameraController.IsLogicRendered = false;
+		MVGameControllerBase.MainCameraManager.IsLogicRendered = false;
 	}
 
 	private void SetMaterial(byte materialId)
 	{
 		materialsButtonImage.texture = MVGameControllerBase.Game.MaterialRepository.GetMaterial(materialId).ButtonTexture;
-		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.CurrentCubeMaterial = materialId;
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.SetCurrentCubeMaterial(materialId);
 	}
 
 	private void OnDestroy()
 	{
 		MaterialsController materialsController = this.materialsController;
 		materialsController.materialChange = (UnityAction<byte>)Delegate.Remove(materialsController.materialChange, new UnityAction<byte>(SetMaterial));
-		MVGameControllerBase.CameraController.IsLogicRendered = true;
+		MVGameControllerBase.MainCameraManager.IsLogicRendered = true;
 	}
 }

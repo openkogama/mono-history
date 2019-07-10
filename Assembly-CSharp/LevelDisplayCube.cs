@@ -6,9 +6,11 @@ public class LevelDisplayCube : MonoBehaviour
 {
 	public GameObject cube;
 
-	private Renderer[] renderers;
+	private Texture2D badgeTextureAsset;
 
 	private bool waitingForBadgeTexture;
+
+	private Renderer[] renderers;
 
 	public Renderer[] Renderers
 	{
@@ -39,7 +41,7 @@ public class LevelDisplayCube : MonoBehaviour
 			{
 				LevelingManager.OnLevelingInitialized = (UnityAction)Delegate.Combine(LevelingManager.OnLevelingInitialized, (UnityAction)(() =>
 				{
-					BadgeManager.GetBadgeTexture(levelAmount, StreamingAssetCallback);
+					BadgeManager.GetBadgeTexture(levelAmount, OnBadgeTextureReceived);
 					waitingForBadgeTexture = false;
 				}));
 				waitingForBadgeTexture = true;
@@ -47,11 +49,11 @@ public class LevelDisplayCube : MonoBehaviour
 		}
 		else
 		{
-			BadgeManager.GetBadgeTexture(levelAmount, StreamingAssetCallback);
+			BadgeManager.GetBadgeTexture(levelAmount, OnBadgeTextureReceived);
 		}
 	}
 
-	private void StreamingAssetCallback(WWW www)
+	private void OnBadgeTextureReceived(WWW www)
 	{
 		if (!string.IsNullOrEmpty(www.error))
 		{
@@ -66,14 +68,15 @@ public class LevelDisplayCube : MonoBehaviour
 				{
 					UnityEngine.Object.Destroy(renderer.material.mainTexture);
 				}
-				renderer.material.mainTexture = www.texture;
+				badgeTextureAsset = www.texture;
+				renderer.material.mainTexture = badgeTextureAsset;
 			}
 		}
 	}
 
 	public void Destroy()
 	{
-		BadgeManager.UnsubscribeGetBadgeRequest(StreamingAssetCallback);
+		BadgeManager.UnsubscribeGetBadgeRequest(OnBadgeTextureReceived);
 		Renderer[] array = Renderers;
 		foreach (Renderer renderer in array)
 		{
@@ -87,6 +90,7 @@ public class LevelDisplayCube : MonoBehaviour
 			UnityEngine.Object.Destroy(Renderers[j].gameObject);
 		}
 		UnityEngine.Object.Destroy(cube);
+		UnityEngine.Object.Destroy(badgeTextureAsset);
 	}
 
 	public void SetScale(Vector3 size)

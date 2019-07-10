@@ -134,6 +134,10 @@ public class GamePassesShop : MonoBehaviour
 		{
 			ShowTouristInformationPopup();
 		}
+		else
+		{
+			statusFooterObject.SetActive(value: false);
+		}
 	}
 
 	private void Start()

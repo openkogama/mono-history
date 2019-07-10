@@ -72,7 +72,7 @@ public class MVJetPack : MVVehicleBase
 				Debug.LogError("Failed to get component. Cant create LocalObjects for JetPack");
 				return;
 			}
-			SmoothCharacterController smoothCharacterController = avatarController.Clone(vehicleBase.GameObject, seat.gameObject, null);
+			SmoothCharacterController smoothCharacterController = avatarController.Clone(vehicleBase.GameObject, seat.gameObject, null, vehicleBase);
 			vehicleUser.SetCharacterController(smoothCharacterController);
 			thrustTimeOverheatThreshold = jetPackTypeParameters.thrustTimeOverheatThreshold;
 			coolDownFactor = jetPackTypeParameters.coolDownFactor;
@@ -81,7 +81,7 @@ public class MVJetPack : MVVehicleBase
 			GameObject gameObject = vehicleBase.GameObject;
 			jetPackVisualization = gameObject.GetComponentInChildren<JetPackVisualization>();
 			VehicleInteractable vehicleInteractable = gameObject.AddComponent<VehicleInteractable>();
-			vehicleInteractable.Init(vehicleBase.Modifiers, vehicleBase.Health, vehicleBase.Shield);
+			vehicleInteractable.Init(vehicleBase.Modifiers, vehicleBase.Health, null, vehicleBase.Shield);
 			JetPackMotor jetPackMotor = gameObject.AddComponent<JetPackMotor>();
 			jetPackMotor.Init(component, vehicleInteractable, smoothCharacterController, jetPackTypeParameters.thrustStrength, jetPackTypeParameters.density);
 			MVEquipableProxy mVEquipableProxy = gameObject.AddComponent<MVEquipableProxy>();
@@ -141,14 +141,7 @@ public class MVJetPack : MVVehicleBase
 			leaveMode = false;
 			vehicleMotor.LeaveMode = false;
 			triggerHandler.enabled = true;
-			if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-			{
-				vehicleUser.ForceRotateAvatarToFiringDirection = false;
-			}
-			else
-			{
-				vehicleUser.ForceRotateAvatarToFiringDirection = true;
-			}
+			vehicleUser.ForceRotateAvatarToFiringDirection = true;
 			MVPickupOwner mVPickupOwner = avatarPickupOwner;
 			mVPickupOwner.onHandleFiring = (MVPickupOwner.OnHandleFiringDelegate)Delegate.Combine(mVPickupOwner.onHandleFiring, new MVPickupOwner.OnHandleFiringDelegate(OnFiring));
 		}
@@ -258,7 +251,7 @@ public class MVJetPack : MVVehicleBase
 				{
 					jetPackVisualization.DoOverheatBlinking();
 				}
-				if (!vehicleMotor.LeaveMode && MVGameControllerBase.CameraController.CurCamera.CameraType == CameraType.FirstPersonCamera)
+				if (!vehicleMotor.LeaveMode && MVGameControllerBase.MainCameraManager.CurrentCamera.CameraType == CameraType.FirstPersonCamera)
 				{
 					jetPackVisualization.ShowOverHeatWarning();
 				}

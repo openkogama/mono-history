@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
 using UnityEngine;
 
@@ -83,27 +82,21 @@ public class VehicleSeatManager : MonoBehaviour
 		triggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
 		foreach (MVWorldObjectClient child in wo.Children)
 		{
-			if (!(child is MVAvatar))
+			if (child is MVAvatar)
 			{
-				continue;
+				int seatID = ((MVAvatar)child).SeatID;
+				if (seatID == -1)
+				{
+					Debug.LogError("Found avatar child with seatID -1");
+					continue;
+				}
+				Debug.Log("Found avatar child with seat ID " + seatID);
+				SetToSeatTransform((MVAvatar)child, seatID);
 			}
-			if (!child.RunTimeData.ContainsObscuredKey("seat"))
-			{
-				Debug.LogError("Did not find seat key");
-				continue;
-			}
-			int num = (ObscuredInt)child.RunTimeData.GetObscuredType("seat");
-			if (num == -1)
-			{
-				Debug.LogError("Found avatar child with seatID -1");
-				continue;
-			}
-			Debug.Log("Found avatar child with seat ID " + num);
-			SetToSeatTransform((MVAvatar)child, num);
 		}
 	}
 
-	private bool CheckCanUse(MVInteractableBase avatarInteractable)
+	private bool CheckCanUse(int woId, MVInteractableBase avatarInteractable)
 	{
 		if (avatarInteractable.HasModifierEffect(AvatarModifierEffect.DisableVehicles))
 		{
@@ -143,11 +136,6 @@ public class VehicleSeatManager : MonoBehaviour
 	public void AttachWorldObjectToSeat(int instigatorActorNr, bool instigatorIsLocal, MVAvatar vehicleUser, int vehicleSeatID)
 	{
 		VehicleSeatBase vehicleSeatBase = seats[vehicleSeatID];
-		if (!vehicleUser.RunTimeData.ContainsObscuredKey("seat"))
-		{
-			Debug.LogError("RunTimeData of wo does not contain seat");
-			return;
-		}
 		bool flag = instigatorActorNr == woOwner.OwnerActorNr;
 		bool flag2 = woOwner.OwnerActorNr == MVGameControllerBase.Game.LocalPlayer.ActorNr;
 		if (!flag && flag2)
@@ -184,7 +172,7 @@ public class VehicleSeatManager : MonoBehaviour
 		}
 		woOwner.TransferChild(vehicleUser.Id);
 		MVGameControllerBase.Game.TransformNetworkManager.RemoveNetworkObject(vehicleUser.Id);
-		vehicleUser.RunTimeData.SetObscuredType("seat", (ObscuredInt)vehicleSeatID);
+		vehicleUser.SeatID = vehicleSeatID;
 		SetToSeatTransform(vehicleUser, vehicleSeatID);
 		if (instigatorIsLocal)
 		{
@@ -229,13 +217,13 @@ public class VehicleSeatManager : MonoBehaviour
 
 	public void DetachFromSeat(MVAvatar vehicleUser)
 	{
-		int index = (ObscuredInt)vehicleUser.RunTimeData.GetObscuredType("seat");
+		int seatID = vehicleUser.SeatID;
 		vehicleUser.GameObject.transform.parent = woOwner.GameObject.transform;
-		VehicleSeatBase vehicleSeatBase = seats[index];
+		VehicleSeatBase vehicleSeatBase = seats[seatID];
 		vehicleUser.GameObject.transform.localPosition = vehicleSeatBase.transform.localPosition - vehicleUser.CharacterControllerCenterOffset;
 		vehicleUser.GameObject.transform.localRotation = vehicleSeatBase.transform.localRotation;
 		MVGameControllerBase.WOCM.RootGroup.TransferChild(vehicleUser.Id);
-		vehicleUser.RunTimeData.SetObscuredType("seat", (ObscuredInt)(-1));
+		vehicleUser.SeatID = -1;
 		if (vehicleUser.GetType() == typeof(MVAvatarLocal))
 		{
 			vehicleSeatBase.RemoveCamera();

@@ -1,4 +1,4 @@
-using System;
+using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -12,15 +12,13 @@ public class TeamMenuButton : MonoBehaviour
 
 	private void Start()
 	{
-		MVRuntimeDataVariable avatarModeTypeFlags = MVGameControllerBase.WOCM.AvatarLocal.avatarModeTypeFlags;
-		avatarModeTypeFlags.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(avatarModeTypeFlags.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChanged));
+		MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.OnChange += AvatarStateChanged;
 		SetButtonIsActive();
 	}
 
-	private void AvatarStateChanged(object state)
+	private void AvatarStateChanged(SpawnRoleModeType state)
 	{
-		int num = (int)state;
-		if ((num & 4) > 0)
+		if ((state & SpawnRoleModeType.Hidden) > SpawnRoleModeType.None)
 		{
 			SetButtonIsActive();
 		}
@@ -34,7 +32,7 @@ public class TeamMenuButton : MonoBehaviour
 
 	public void ShowTeamMenu()
 	{
-		TeamMenu newTeamMenu = UnityEngine.Object.Instantiate(teamMenuPrefab);
+		TeamMenu newTeamMenu = Object.Instantiate(teamMenuPrefab);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
 		{
 			handler.PopGroups(UIGroupFlags.InventoryUI | UIGroupFlags.InventoryUISubMenu);
@@ -43,6 +41,7 @@ public class TeamMenuButton : MonoBehaviour
 		{
 			x.Push(newTeamMenu.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
 		});
-		MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Hidden);
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.RemoveFromGame();
+		Debug.Log("ShowTeamMenu");
 	}
 }

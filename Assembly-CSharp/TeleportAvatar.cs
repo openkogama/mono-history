@@ -1,5 +1,5 @@
-using System;
 using System.Collections;
+using MV.Common;
 using UnityEngine;
 
 public class TeleportAvatar : MonoBehaviour
@@ -12,7 +12,7 @@ public class TeleportAvatar : MonoBehaviour
 
 	public Vector3 originPosition;
 
-	public MVAvatar avatar;
+	public MVAvatarLocal avatar;
 
 	private bool shouldCancelTeleportation;
 
@@ -42,9 +42,7 @@ public class TeleportAvatar : MonoBehaviour
 			rigidBody.IsMovementLocked = true;
 			rigidBody.Reset();
 		}
-		FlagDebriefingControl.OnFlagDebriefingEnd = (Action)Delegate.Combine(FlagDebriefingControl.OnFlagDebriefingEnd, new Action(CancelTeleportation));
-		MVNetworkGame game = MVGameControllerBase.Game;
-		game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Combine(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(CancelTeleportation));
+		MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.OnChange += OnAvatarStateChanged;
 		yield return StartCoroutine(DoForSeconds(teleportTime, (float t) =>
 		{
 			avatar.SetTransparency = 1f - BlockStep(t, 10f);
@@ -72,7 +70,7 @@ public class TeleportAvatar : MonoBehaviour
 		shouldCancelTeleportation = true;
 	}
 
-	private void CancelTeleportation(IWinningCondition winningCondition)
+	private void OnAvatarStateChanged(SpawnRoleModeType mode)
 	{
 		CancelTeleportation();
 	}
@@ -83,9 +81,7 @@ public class TeleportAvatar : MonoBehaviour
 		{
 			rigidBody.IsMovementLocked = false;
 		}
-		FlagDebriefingControl.OnFlagDebriefingEnd = (Action)Delegate.Remove(FlagDebriefingControl.OnFlagDebriefingEnd, new Action(CancelTeleportation));
-		MVNetworkGame game = MVGameControllerBase.Game;
-		game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Remove(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(CancelTeleportation));
-		UnityEngine.Object.Destroy(gameObject);
+		MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.OnChange -= OnAvatarStateChanged;
+		Object.Destroy(gameObject);
 	}
 }

@@ -1,4 +1,5 @@
 using System;
+using MV.WorldObject;
 using UnityEngine;
 
 public class AvatarLimbManagerRemote : AvatarLimbManager
@@ -34,6 +35,74 @@ public class AvatarLimbManagerRemote : AvatarLimbManager
 		}
 	}
 
+	private class AvatarLimbDataManagerRemote
+	{
+		private float newHeadYawValue;
+
+		private float newHeadPitchValue;
+
+		private float newPointYawValue;
+
+		private float newPointPitchValue;
+
+		private AvatarLimbManagerRemote limbManager;
+
+		public void Initialize(LimbRotationRuntimeData limbRotationRuntimeData, AvatarLimbManagerRemote limbManager)
+		{
+			this.limbManager = limbManager;
+			MVRuntimeDataVariable headRotationYaw = limbRotationRuntimeData.HeadRotationYaw;
+			headRotationYaw.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(headRotationYaw.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnHeadYawChange));
+			MVRuntimeDataVariable headRotationPitch = limbRotationRuntimeData.HeadRotationPitch;
+			headRotationPitch.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(headRotationPitch.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnHeadPitchChange));
+			MVRuntimeDataVariable pointRotationYaw = limbRotationRuntimeData.PointRotationYaw;
+			pointRotationYaw.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(pointRotationYaw.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnPointYawChange));
+			MVRuntimeDataVariable pointRotationPitch = limbRotationRuntimeData.PointRotationPitch;
+			pointRotationPitch.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(pointRotationPitch.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnPointPitchChange));
+			MVRuntimeDataVariable emote = limbRotationRuntimeData.Emote;
+			emote.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(emote.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnEmoteDataChange));
+		}
+
+		private void OnHeadYawChange(object headYaw)
+		{
+			newHeadYawValue = (float)headYaw;
+			UpdateHeadRotation();
+		}
+
+		private void OnHeadPitchChange(object headPitch)
+		{
+			newHeadPitchValue = (float)headPitch;
+			UpdateHeadRotation();
+		}
+
+		private void UpdateHeadRotation()
+		{
+			limbManager.UpdateHeadRotationRemotely(newHeadYawValue, newHeadPitchValue);
+		}
+
+		private void OnPointYawChange(object pointYaw)
+		{
+			newPointYawValue = (float)pointYaw;
+			UpdatePointRotation();
+		}
+
+		private void OnPointPitchChange(object pointPitch)
+		{
+			newPointPitchValue = (float)pointPitch;
+			UpdatePointRotation();
+		}
+
+		private void UpdatePointRotation()
+		{
+			limbManager.UpdatePointingRemotely(newPointYawValue, newPointPitchValue);
+		}
+
+		private void OnEmoteDataChange(object newEmoteData)
+		{
+			EmoteTypes emoteType = (EmoteTypes)(int)newEmoteData;
+			limbManager.StartEmote(emoteType);
+		}
+	}
+
 	private class AvatarPointingHandlerRemote : AvatarPointingHandler
 	{
 		private Quaternion remoteYawRotation;
@@ -46,20 +115,14 @@ public class AvatarLimbManagerRemote : AvatarLimbManager
 			remoteYawRotation = Quaternion.identity;
 			remotePitchRotation = Quaternion.identity;
 			pointingDuration = 1.5f;
+			shouldPoint = false;
 		}
 
 		public override void UpdatePointing(Vector3 localLookDirection)
 		{
-			if (elapsedPointingTime > 0f)
+			if (shouldPoint)
 			{
-				if (shouldPoint)
-				{
-					HandlePointing(remoteYawRotation, remotePitchRotation);
-				}
-				else
-				{
-					StopPointing();
-				}
+				HandlePointing(remoteYawRotation, remotePitchRotation);
 			}
 			base.UpdatePointing(localLookDirection);
 		}
@@ -68,9 +131,16 @@ public class AvatarLimbManagerRemote : AvatarLimbManager
 		{
 			if (isActive)
 			{
+				if (yaw == Quaternion.identity.eulerAngles.y && pitch == Quaternion.identity.eulerAngles.x)
+				{
+					shouldPoint = false;
+					StopPointing();
+					return;
+				}
 				remoteYawRotation.eulerAngles = new Vector3(0f, yaw, 0f);
 				remotePitchRotation.eulerAngles = new Vector3(pitch, 0f, 0f);
 				elapsedPointingTime = pointingDuration;
+				shouldPoint = true;
 			}
 		}
 	}
@@ -79,22 +149,26 @@ public class AvatarLimbManagerRemote : AvatarLimbManager
 
 	private AvatarPointingHandlerRemote pointingHandler;
 
-	public override void Initialize(AvatarPickupOwner avatarPickupOwner, MVAvatar mvAvatar)
+	private AvatarLimbDataManagerRemote dataManager;
+
+	public override void Initialize(MVWorldObjectClient avatarWO, MVBody body, AvatarEnabledChangeHandler enabledChangeHandler, LimbRotationRuntimeData limbRotationRuntimeData)
 	{
-		base.Initialize(avatarPickupOwner, mvAvatar);
+		base.Initialize(avatarWO, body, enabledChangeHandler, limbRotationRuntimeData);
 		headRotationHandler = new AvatarHeadRotationHandlerRemote();
 		headRotationHandler.Initialize(this, limbRotator, lookDirectionHandler);
 		pointingHandler = new AvatarPointingHandlerRemote();
-		pointingHandler.Initialize(this, limbRotator, mvAvatar.Avatar.EnabledChangeHandler);
+		pointingHandler.Initialize(this, limbRotator, enabledChangeHandler);
 		emoteHandler = new AvatarEmoteHandler();
-		emoteHandler.Initialize(this, lookDirectionHandler, pointingHandler, headRotationHandler, limbRotator, mvAvatar.Avatar.EnabledChangeHandler);
+		emoteHandler.Initialize(this, lookDirectionHandler, pointingHandler, headRotationHandler, limbRotator, enabledChangeHandler);
 		AvatarEmoteHandler avatarEmoteHandler = emoteHandler;
 		avatarEmoteHandler.OnEmoteStart = (Action<string>)Delegate.Combine(avatarEmoteHandler.OnEmoteStart, new Action<string>(OnStartEmote));
+		dataManager = new AvatarLimbDataManagerRemote();
+		dataManager.Initialize(limbRotationRuntimeData, this);
 	}
 
-	public override void UpdateLimbRotations()
+	public override void UpdateLimbRotations(Vector3 lookDirection)
 	{
-		base.UpdateLimbRotations();
+		base.UpdateLimbRotations(lookDirection);
 		Vector3 localLookDirection = lookDirectionHandler.LocalLookDirection;
 		emoteHandler.UpdateEmotes();
 		headRotationHandler.UpdateRotation();
@@ -116,5 +190,18 @@ public class AvatarLimbManagerRemote : AvatarLimbManager
 	public override void StartEmote(EmoteTypes emoteType)
 	{
 		emoteHandler.TryStartEmote(emoteType);
+	}
+
+	private void OnHeadRotationDataChange(object newHeadRotationData)
+	{
+		Quaternion quaternion = QuaternionCompression.ToQuaternion((byte[])newHeadRotationData);
+		UpdateHeadRotationRemotely(quaternion.eulerAngles.y, quaternion.eulerAngles.x);
+	}
+
+	private void OnPointRotationDataChange(object newPointRotationData)
+	{
+		Quaternion quaternion = QuaternionCompression.ToQuaternion((byte[])newPointRotationData);
+		UpdateHeadRotationRemotely(quaternion.eulerAngles.y, quaternion.eulerAngles.x);
+		UpdatePointingRemotely(quaternion.eulerAngles.y, quaternion.eulerAngles.x);
 	}
 }

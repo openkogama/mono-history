@@ -8,6 +8,8 @@ public class LobbyStatePlayModeController : MonoBehaviour
 
 	private bool wantsToEnterPlayState;
 
+	private bool shouldOpenLobbyMenu = true;
+
 	private DesktopInGameGUIController inGameController;
 
 	private RectTransform lobbyState;
@@ -38,6 +40,7 @@ public class LobbyStatePlayModeController : MonoBehaviour
 		this.inGameMenu = inGameMenu;
 		this.chatController = chatController;
 		SetObjectToLobbyState(isInLobbyState);
+		shouldOpenLobbyMenu = false;
 	}
 
 	private void OnCursorLockChanged(bool cursorLocked)
@@ -53,9 +56,10 @@ public class LobbyStatePlayModeController : MonoBehaviour
 		{
 			Debug.Log("To play state");
 			SetObjectToLobbyState(isInLobbyState: false);
-			if (MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Hidden))
+			if (MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Hidden))
 			{
-				MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Playing);
+				Debug.Log("MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Playing)");
+				MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.Spawn();
 			}
 		}
 		else if (!flag && !isInLobbyState)
@@ -80,20 +84,10 @@ public class LobbyStatePlayModeController : MonoBehaviour
 
 	private void ActivateLobbyState()
 	{
-		if (MVGameControllerBase.WOCM.AvatarLocal.CurrentState == AvatarRuntimeState.Hidden)
-		{
-			lobbyState.gameObject.SetActive(value: true);
-			inGameMenu.gameObject.SetActive(value: false);
-			inGameController.gameObject.SetActive(value: false);
-			chatController.OnLobbyStateChange(cursorLocked: false);
-		}
-		else if (MVGameControllerBase.WOCM.AvatarLocal.CurrentState != AvatarRuntimeState.Edit)
-		{
-			lobbyState.gameObject.SetActive(value: false);
-			inGameMenu.gameObject.SetActive(value: true);
-			inGameController.gameObject.SetActive(value: false);
-			chatController.OnLobbyStateChange(cursorLocked: false);
-		}
+		lobbyState.gameObject.SetActive(shouldOpenLobbyMenu);
+		inGameMenu.gameObject.SetActive(!shouldOpenLobbyMenu);
+		inGameController.gameObject.SetActive(value: false);
+		chatController.OnLobbyStateChange(cursorLocked: false);
 	}
 
 	private void DeactivateLobbyState()

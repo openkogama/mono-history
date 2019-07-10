@@ -85,21 +85,14 @@ public class PickupItemRailGun : PickupItemWithDelay
 	private void Awake()
 	{
 		hitLayerMask = (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("Player"));
-		currentAmmo = maxAmmo;
-		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-		{
-			toFieldOfView = initialFOV;
-		}
-		else
-		{
-			toFieldOfView = targetFieldOfView;
-		}
+		ResetAmmo();
+		toFieldOfView = targetFieldOfView;
 	}
 
 	public override void ResetAmmo()
 	{
 		base.ResetAmmo();
-		currentAmmo = maxAmmo;
+		currentAmmo = GetAmmoMultiplier(maxAmmo);
 	}
 
 	private void DoChargingAnimation()
@@ -108,7 +101,7 @@ public class PickupItemRailGun : PickupItemWithDelay
 		chargeAudioSource.pitch = 0.2f + currentCharge;
 		if (owner.IsLocal)
 		{
-			MVGameControllerBase.CameraController.MainCamera.fieldOfView = Mathf.Lerp(initialFOV, toFieldOfView, currentCharge);
+			MVGameControllerBase.MainCameraManager.MainCamera.fieldOfView = Mathf.Lerp(initialFOV, toFieldOfView, currentCharge);
 		}
 		chargeParticles.time = currentCharge;
 	}
@@ -135,7 +128,7 @@ public class PickupItemRailGun : PickupItemWithDelay
 			}
 			if (owner.IsLocal)
 			{
-				MVGameControllerBase.CameraController.MainCamera.fieldOfView = initialFOV;
+				MVGameControllerBase.MainCameraManager.MainCamera.fieldOfView = initialFOV;
 			}
 		}
 	}
@@ -143,7 +136,7 @@ public class PickupItemRailGun : PickupItemWithDelay
 	public override void OnEquip()
 	{
 		base.OnEquip();
-		initialFOV = MVGameControllerBase.CameraController.MainCamera.fieldOfView;
+		initialFOV = MVGameControllerBase.MainCameraManager.MainCamera.fieldOfView;
 	}
 
 	public override void OnUnequip()
@@ -153,7 +146,7 @@ public class PickupItemRailGun : PickupItemWithDelay
 		if (owner.IsLocal)
 		{
 			isCharging = false;
-			MVGameControllerBase.CameraController.MainCamera.fieldOfView = initialFOV;
+			MVGameControllerBase.MainCameraManager.MainCamera.fieldOfView = initialFOV;
 		}
 	}
 
@@ -217,7 +210,7 @@ public class PickupItemRailGun : PickupItemWithDelay
 				{
 					MVGameControllerBase.Game.World.RuntimeEventManager.SendRemoveOneFineGrainedCube(voxelHit, baseDamage);
 					InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
-					if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient, MVGameControllerBase.Game.LocalPlayer.Avatar))
+					if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.LocalPlayer.IsOnSameTeam(worldObjectClient))
 					{
 						InteractionData interaction = RailgunHitPackage.Create();
 						interactionDataHandlerBase.HandleInteraction(owner, interaction, interactionIsLocal: false);

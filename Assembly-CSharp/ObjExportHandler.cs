@@ -16,14 +16,15 @@ public class ObjExportHandler : MonoBehaviour
 	{
 		picking = true;
 		MVGameControllerBase.PlayModeUI.GetCrossHair().Visible = true;
-		ignoreIds.Add(MVGameControllerBase.Game.LocalPlayer.Avatar.Id);
+		ignoreIds.Add(MVGameControllerBase.Game.LocalPlayer.SpawnRoleDataMediator.WoId);
 	}
 
 	public static void ExportSelfAvatar()
 	{
 		try
 		{
-			MeshFilter[] componentsInChildren = MVGameControllerBase.Game.LocalPlayer.Avatar.GameObject.GetComponentsInChildren<MeshFilter>();
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(MVGameControllerBase.Game.LocalPlayer.SpawnRoleDataMediator.WoId);
+			MeshFilter[] componentsInChildren = worldObjectClient.GameObject.GetComponentsInChildren<MeshFilter>();
 			for (int i = 0; i < componentsInChildren.Length; i++)
 			{
 				ObjExporterScript.MeshToFile(componentsInChildren[i], Application.dataPath + "/../" + componentsInChildren[i].gameObject.name + i + ".obj", append: false);

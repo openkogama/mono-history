@@ -16,6 +16,8 @@ public class MVGameCoinChest : MVLogicObject
 
 	private GameCoinChestClientState state;
 
+	private int instigator = -1;
+
 	private UseInteractor useInteractor;
 
 	private MVGameCoinChestObject chestObject;
@@ -96,11 +98,12 @@ public class MVGameCoinChest : MVLogicObject
 	{
 		if (state == GameCoinChestClientState.Opening)
 		{
-			OpenChest(MVGameControllerBase.WOCM.AvatarLocal.Id);
+			OpenChest(instigator);
+			instigator = -1;
 		}
 	}
 
-	public bool IsUsable(MVInteractableBase avatarInteractable)
+	public bool IsUsable(int woId, MVInteractableBase avatarInteractable)
 	{
 		if (state != GameCoinChestClientState.Closed)
 		{
@@ -111,6 +114,7 @@ public class MVGameCoinChest : MVLogicObject
 
 	private bool OpenChest(int instigatorID)
 	{
+		instigator = instigatorID;
 		chestObject.ModelSelector.Open();
 		if ((bool)chestObject.AudioSource)
 		{

@@ -131,10 +131,7 @@ public class UseInteratorVisualization : MonoBehaviour
 	private void Update()
 	{
 		transform.Rotate(Vector3.up, Time.deltaTime * 20f);
-		if (MVGameControllerBase.WOCM.AvatarLocal != null)
-		{
-			ChangeLOD((transform.position - MVGameControllerBase.WOCM.AvatarLocal.Transform.position).magnitude);
-		}
+		ChangeLOD((transform.position - MVGameControllerBase.SpawnRoleDataMediatorLocal.Position).magnitude);
 	}
 
 	private void ChangeLOD(float distance)

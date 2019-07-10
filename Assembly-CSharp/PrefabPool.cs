@@ -23,6 +23,12 @@ public class PrefabPool : MonoBehaviour
 	private GameObject mvRemoteAvatarPrefab;
 
 	[SerializeField]
+	private GameObject mvLocalAvatarBuildModePrefab;
+
+	[SerializeField]
+	private GameObject mvRemoteAvatarBuildModePrefab;
+
+	[SerializeField]
 	private AdvancedGhostObject mvAdvancedGhostPrefab;
 
 	[SerializeField]
@@ -191,12 +197,6 @@ public class PrefabPool : MonoBehaviour
 	private SpawnerObject spawnerObject;
 
 	[SerializeField]
-	private GodzillaTriggerObject godzillaTriggerPrefab;
-
-	[SerializeField]
-	private GameObject godzillaAreaPrefab;
-
-	[SerializeField]
 	private ObjectPrefab timeAttackFlagPrefab;
 
 	[SerializeField]
@@ -324,9 +324,6 @@ public class PrefabPool : MonoBehaviour
 
 	[SerializeField]
 	private GameObject avatarItemRailGun;
-
-	[SerializeField]
-	private GameObject avatarItemGodzillaLaser;
 
 	[SerializeField]
 	private GameObject avatarItemSword;
@@ -470,15 +467,6 @@ public class PrefabPool : MonoBehaviour
 
 	[Header("Cameras")]
 	[Space(20f)]
-	[SerializeField]
-	private GodzillaCameraDesktop godzillaCameraDesktop;
-
-	[SerializeField]
-	private GodzillaCamera2D godzillaCamera2D;
-
-	[SerializeField]
-	private FirstPersonDeathCamera firstPersonDeathCamera;
-
 	[Header("Editor")]
 	[Space(20f)]
 	[SerializeField]
@@ -541,6 +529,10 @@ public class PrefabPool : MonoBehaviour
 	public GameObject MVLocalAvatarPrefab => mvLocalAvatarPrefab;
 
 	public GameObject MVRemoteAvatarPrefab => mvRemoteAvatarPrefab;
+
+	public GameObject MVAvatarLocalBuildModePrefab => mvLocalAvatarBuildModePrefab;
+
+	public GameObject MVAvatarRemoteBuildModePrefab => mvRemoteAvatarBuildModePrefab;
 
 	public AdvancedGhostObject MVAdvancedGhostPrefab => mvAdvancedGhostPrefab;
 
@@ -656,10 +648,6 @@ public class PrefabPool : MonoBehaviour
 
 	public SpawnerObject SpawnerObjectPrefab => spawnerObject;
 
-	public GodzillaTriggerObject GodzillaTriggerPrefab => godzillaTriggerPrefab;
-
-	public GameObject GodzillaAreaPrefab => godzillaAreaPrefab;
-
 	public ObjectPrefab TimeAttackFlagPrefab => timeAttackFlagPrefab;
 
 	public MVGamePointObject GamePointPrefab => gamePointPrefab;
@@ -740,8 +728,6 @@ public class PrefabPool : MonoBehaviour
 
 	public GameObject AvatarItemRailGun => avatarItemRailGun;
 
-	public GameObject AvatarItemGodzillaLaser => avatarItemGodzillaLaser;
-
 	public GameObject AvatarItemSword => avatarItemSword;
 
 	public GameObject AvatarItemShotgun => avatarItemShotgun;
@@ -821,12 +807,6 @@ public class PrefabPool : MonoBehaviour
 	public InsertCursor InsertCursor => insertCursor;
 
 	public ChatBubble ChatBubble => chatBubble;
-
-	public GodzillaCameraDesktop GodzillaCameraDesktop => godzillaCameraDesktop;
-
-	public GodzillaCamera2D GodzillaCamera2D => godzillaCamera2D;
-
-	public FirstPersonDeathCamera FirstPersonDeathCamera => firstPersonDeathCamera;
 
 	public Material CellCursorErrorMaterial => cellCursorErrorMaterial;
 

@@ -42,13 +42,13 @@ public class PickupItemFlamethrower : PickupItem
 
 	private void Awake()
 	{
-		currentFuel = maxFuelTime;
+		ResetAmmo();
 	}
 
 	public override void ResetAmmo()
 	{
 		base.ResetAmmo();
-		currentFuel = maxFuelTime;
+		currentFuel = GetAmmoMultiplier((int)(float)maxFuelTime);
 	}
 
 	private IEnumerator DoFlaming()
@@ -60,7 +60,7 @@ public class PickupItemFlamethrower : PickupItem
 			for (int i = 0; i < hits.Count; i++)
 			{
 				MVWorldObjectClient mVObject = MVWorldObjectClientManager.GetMVObject(hits[i].transform);
-				if (mVObject == null || MVGameControllerBase.Game.TeamManager.IsOnSameTeam(mVObject, MVGameControllerBase.Game.LocalPlayer.Avatar))
+				if (mVObject == null || MVGameControllerBase.Game.LocalPlayer.IsOnSameTeam(mVObject))
 				{
 					continue;
 				}

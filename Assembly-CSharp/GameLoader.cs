@@ -40,7 +40,6 @@ public class GameLoader : MonoBehaviour
 		AsyncWWWManager.PostResetCleanup();
 		TimedPlayReward.RewardTracker.PostResetCleanup();
 		BackButtonManager.PostDestroyCleanup();
-		FlagDebriefingControl.PostResetCleanup();
 		GamePointGainEffectManager.PostResetCleanup();
 	}
 

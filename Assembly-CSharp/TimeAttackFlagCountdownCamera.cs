@@ -9,18 +9,25 @@ public class TimeAttackFlagCountdownCamera : MVCameraBase
 
 	private HashSet<int> ignoreAvatarId;
 
+	private MVAvatarLocal avatarLocal;
+
 	public override CameraType CameraType => CameraType.TimeAttackFlagCountdownCamera;
+
+	public void Initialize(MVAvatarLocal avatarLocal)
+	{
+		this.avatarLocal = avatarLocal;
+	}
 
 	public override void Enter(MVCameraController camController)
 	{
-		ignoreAvatarId = new HashSet<int> { MVGameControllerBase.WOCM.AvatarLocal.Id };
-		camController.StartTransitionCam(0.5f);
+		ignoreAvatarId = new HashSet<int> { avatarLocal.Id };
+		MVGameControllerBase.MainCameraManager.StartTransitionCam(0.5f);
 		base.Enter(camController);
 	}
 
 	public override void Exit(MVCameraController camController)
 	{
-		camController.StartTransitionCam(0.5f);
+		MVGameControllerBase.MainCameraManager.StartTransitionCam(0.5f);
 	}
 
 	public override void Reset()
@@ -31,9 +38,9 @@ public class TimeAttackFlagCountdownCamera : MVCameraBase
 	public override void UpdateCamera(MVCameraController camController, ProtectedTransform targetTransform)
 	{
 		base.UpdateCamera(camController, targetTransform);
-		Vector3 position = MVGameControllerBase.WOCM.AvatarLocal.Position;
+		Vector3 position = avatarLocal.Position;
 		transform.position = position + transform.rotation * offset;
-		if (!MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Hidden))
+		if (!avatarLocal.IsInMode(SpawnRoleModeType.Hidden))
 		{
 			transform.position = PositionAfterCollision(transform.position, position);
 		}

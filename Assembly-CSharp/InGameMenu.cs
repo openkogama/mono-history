@@ -25,6 +25,9 @@ public class InGameMenu : MonoBehaviour
 	[SerializeField]
 	private GamePassesUI gamePassesUIPrefab;
 
+	[SerializeField]
+	private GameObject boostButton;
+
 	private GamePassesUI gamePassesUI;
 
 	public void Initialize()
@@ -58,11 +61,11 @@ public class InGameMenu : MonoBehaviour
 		{
 			inGameMenuBlockingOverlay.raycastTarget = false;
 		}
-		if (!MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Playing) && respawnButton.gameObject.activeSelf)
+		if (!MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Playing) && respawnButton.gameObject.activeSelf)
 		{
 			respawnButton.gameObject.SetActive(value: false);
 		}
-		else if (MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Playing) && !respawnButton.gameObject.activeSelf)
+		else if (MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Playing) && !respawnButton.gameObject.activeSelf)
 		{
 			respawnButton.gameObject.SetActive(value: true);
 		}
@@ -75,12 +78,5 @@ public class InGameMenu : MonoBehaviour
 		{
 			gamePassesUI.gameObject.SetActive(GamePassProgressionController.IsProgressionEnabled && GamePassesManager.GamePassesActive);
 		}
-	}
-
-	public void OnPressQuit()
-	{
-		MVGameControllerBase.PlayModeUI.InLobbyState = false;
-		MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Hidden);
-		MVGameControllerBase.PlayModeUI.InLobbyState = true;
 	}
 }

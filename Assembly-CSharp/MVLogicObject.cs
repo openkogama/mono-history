@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public abstract class MVLogicObject : MVWorldObjectClient, IUpdatecontrollerSubscriber
+public abstract class MVLogicObject : MVWorldObjectClient, IUpdatecontrollerSubscriberUpdate, IUpdatecontrollerSubscriberBase
 {
 	private Bounds localBounds = new Bounds(Vector3.zero, Vector3.one);
 

@@ -48,7 +48,7 @@ internal class EditCubes : CubeModelTool
 		delta = 0f;
 		deltaAccum = 0f;
 		modelCursor = new ModelCursor3D(e.CubeCorners);
-		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.EditingCube);
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.ChangeState(LaserPointerState.EditingCube);
 		waitForMouseUp = MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect);
 		currentInternalState = BuildState.MainState;
 	}
@@ -362,7 +362,7 @@ internal class EditCubes : CubeModelTool
 		}
 		HideCursor();
 		Cursor.visible = true;
-		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.Idle);
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.ChangeState(LaserPointerState.Idle);
 	}
 
 	public override void HideCursor()
@@ -399,7 +399,7 @@ internal class EditCubes : CubeModelTool
 		if (e.SelectedCube != null && movingEdgeCube == null)
 		{
 			Vector3 vector = SharedCubeFunctions.LocalToWorld(e.TargetCubeModel.GameObject, e.SelectedCube.iLocalPos);
-			if ((MVGameControllerBase.CameraController.transform.position - vector).magnitude > detailEditModeMaxDistance * e.TargetCubeModel.Scale.y)
+			if ((MVGameControllerBase.MainCameraManager.transform.position - vector).magnitude > detailEditModeMaxDistance * e.TargetCubeModel.Scale.y)
 			{
 				mouseSensitivity = 0.1325f;
 				modelCursor.SetIndentAreaSize(1f);

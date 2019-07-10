@@ -15,6 +15,8 @@ public class LevelBadge : MonoBehaviour
 	[SerializeField]
 	private ProgressBarAndroid subscriberXPBar;
 
+	private Texture2D badgeTextureAsset;
+
 	private void Awake()
 	{
 		levelBadge.enabled = false;
@@ -65,14 +67,16 @@ public class LevelBadge : MonoBehaviour
 	private void OnDestroy()
 	{
 		BadgeManager.UnsubscribeGetBadgeRequest(StreamingAssetCallback);
+		UnityEngine.Object.Destroy(badgeTextureAsset);
 	}
 
 	private void StreamingAssetCallback(WWW www)
 	{
-		if (www != null && www.texture != null)
+		badgeTextureAsset = www.texture;
+		if (badgeTextureAsset != null)
 		{
 			levelBadge.enabled = true;
-			levelBadge.texture = www.texture;
+			levelBadge.texture = badgeTextureAsset;
 			bool flag = MVGameControllerBase.Game.LocalPlayer.SubscriptionRules.HasBenefit(SubscriptionBenefit.XPBoost);
 			if (xpBar.gameObject.activeSelf == flag)
 			{

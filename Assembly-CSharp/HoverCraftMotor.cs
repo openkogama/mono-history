@@ -34,17 +34,9 @@ public class HoverCraftMotor : SimpleVehicleMotorBase
 
 	private float hullRotationFactorClassic = 20f;
 
-	private float hullRotationFactorPlatformer = 50f;
-
-	private float extraThrustFactor = 0.8f;
-
 	private float maxUnderWaterYMovement = 40f;
 
 	private float recalibrateCameraFactor = 1.25f;
-
-	private float platformerRotSpeed = 180f;
-
-	private Vector3 lastKnownMovementDir = Vector3.zero;
 
 	private const string horizontal = "Horizontal";
 
@@ -177,12 +169,7 @@ public class HoverCraftMotor : SimpleVehicleMotorBase
 
 	private Vector3 GetVehicleInputVelocity(Vector3 velocity)
 	{
-		return MVGameControllerBase.Game.GameType switch
-		{
-			MVGameType.Classic => GetVehicleInputVelocityClassicCam(velocity), 
-			MVGameType.Platformer => GetVehicleInputVelocityPlatformerCam(velocity), 
-			_ => GetVehicleInputVelocityClassicCam(velocity), 
-		};
+		return GetVehicleInputVelocityClassicCam(velocity);
 	}
 
 	private Vector3 GetVehicleInputVelocityClassicCam(Vector3 velocity)
@@ -220,38 +207,6 @@ public class HoverCraftMotor : SimpleVehicleMotorBase
 		return velocity;
 	}
 
-	private Vector3 GetVehicleInputVelocityPlatformerCam(Vector3 velocity)
-	{
-		velocity = HoverCraftFrictionXZ(velocity);
-		Vector3 vector = DirectInputMoveMap;
-		vector.Normalize();
-		if (groundState.Grounded)
-		{
-			vector = MVRigidBody.AdjustGroundVelocityToNormal(vector, groundState.GroundNormal);
-		}
-		Vector3 normalized = velocity.normalized;
-		float sqrMagnitude = velocity.sqrMagnitude;
-		Vector3 vector2 = VerticalDrag(normalized, sqrMagnitude);
-		Vector3 vector3 = XZDrag(normalized, sqrMagnitude);
-		Vector3 vector4 = HullRotationDrag(normalized, sqrMagnitude, hullRotationFactorPlatformer);
-		Vector3 vector5 = vector2 + vector3 + vector4;
-		Vector3 vector6 = vector * interactableLocal.HandleModifierEffect(AvatarModifierEffect.Speed, thrustFactor);
-		Vector3 vector7 = Controller.transform.rotation * vector * extraThrustFactor;
-		Vector3 vector8 = (vector6 + vector5 + vector7) / mass;
-		velocity += vector8 * Time.fixedDeltaTime;
-		velocity = HandleVerticalThrust(velocity);
-		if (vector.magnitude > 0.999f)
-		{
-			lastKnownMovementDir = vector;
-		}
-		if (lastKnownMovementDir.magnitude > 0.999f)
-		{
-			FixedRotationSpeedPlatformer(lastKnownMovementDir);
-		}
-		velocity = PlatformerDriftCorrection(velocity, lastKnownMovementDir);
-		return velocity;
-	}
-
 	private Vector3 PlatformerDriftCorrection(Vector3 velocity, Vector3 targetDir)
 	{
 		Vector3 vec = velocity;
@@ -281,34 +236,6 @@ public class HoverCraftMotor : SimpleVehicleMotorBase
 		}
 		Quaternion quaternion = Quaternion.Euler(0f, num4 * num3, 0f);
 		return quaternion * vec;
-	}
-
-	private float GetDriftCorrectValue(float val)
-	{
-		float num = Mathf.Abs(val);
-		float num2 = Mathf.Max(0f, num - driftCorrectionRotation * Time.fixedDeltaTime);
-		if (val < 0f)
-		{
-			return 0f - num2;
-		}
-		return num2;
-	}
-
-	private void FixedRotationSpeedPlatformer(Vector3 targetDir)
-	{
-		float num = 57.29578f * MathFunctions.SignedAngle(Controller.transform.rotation * Vector3.forward, targetDir, Vector3.up);
-		float num2 = Mathf.Abs(num);
-		float num3 = 1f;
-		if (num < 0f)
-		{
-			num3 = -1f;
-		}
-		float num4 = platformerRotSpeed * Time.fixedDeltaTime;
-		if (num4 > num2)
-		{
-			num4 = num2;
-		}
-		Controller.transform.Rotate(Vector3.up, num4 * num3, Space.World);
 	}
 
 	private Vector3 HoverCraftFrictionXZ(Vector3 velocity)

@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
@@ -31,9 +30,6 @@ public class DesktopEditModeController : ModeControllerBase, ISetEditState, IEdi
 	private DrawPlaneControllerUUI drawPlaneController;
 
 	[SerializeField]
-	private DrawPlaneController2DUUI drawPlaneController2D;
-
-	[SerializeField]
 	private MaterialsControllerEditMode materialsController;
 
 	[SerializeField]
@@ -56,6 +52,9 @@ public class DesktopEditModeController : ModeControllerBase, ISetEditState, IEdi
 
 	[SerializeField]
 	private RectTransform notificationsManager;
+
+	[SerializeField]
+	private ChatBubbleController chatBubbleController;
 
 	[SerializeField]
 	private FirstTimeSetupTerrainEditTutorial firstTimeSetupTerrainEditTutorial;
@@ -175,18 +174,11 @@ public class DesktopEditModeController : ModeControllerBase, ISetEditState, IEdi
 	public override void Initialize()
 	{
 		base.Initialize();
-		MVGameControllerBase.CameraController.IsLogicRendered = true;
-		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-		{
-			drawPlaneController2D.Initialize();
-			DrawPlane.Initialize(drawPlaneController2D);
-			DrawPlane.SetToTerrain(active: false);
-		}
-		else
-		{
-			drawPlaneController.Initialize();
-			DrawPlane.Initialize(drawPlaneController);
-		}
+		MVGameControllerBase.MainCameraManager.IsLogicRendered = true;
+		drawPlaneController.Initialize();
+		DrawPlane.Initialize(drawPlaneController);
+		chatBubbleController = UnityEngine.Object.Instantiate(chatBubbleController);
+		chatBubbleController.transform.SetParent(transform, worldPositionStays: false);
 		EditModeStateMachine = new EditorStateMachine(gameObject, contextMenuController, gizmoController);
 		editorWorldObjectCreation.Initialize(EditModeStateMachine);
 		materialsController.Initialize(EditModeStateMachine.CubeModelingStateMachine);
@@ -206,6 +198,12 @@ public class DesktopEditModeController : ModeControllerBase, ISetEditState, IEdi
 		notificationsManager.transform.SetParent(stackBottom.transform, worldPositionStays: false);
 		firstTimeSetupTerrainEditTutorial.Initialize(EditModeStateMachine.CubeModelingStateMachine, materialsController);
 		setupCubeModelTutorialUI.Initialize(EditModeStateMachine.CubeModelingStateMachine);
+		ChatCommandManager.UpdateChatCommandCallback(ChatCommand.HideAllUI, (Action)Delegate.Combine(ChatCommandManager.GetChatCommandCallback(ChatCommand.HideAllUI), new Action(HideUI)));
+	}
+
+	private void HideUI()
+	{
+		gameObject.SetActive(value: false);
 	}
 
 	public void SetState(EditorEvent editorEvent)
@@ -274,10 +272,7 @@ public class DesktopEditModeController : ModeControllerBase, ISetEditState, IEdi
 
 	public void Respawn()
 	{
-		if (MVGameControllerBase.WOCM.AvatarLocal != null)
-		{
-			MVGameControllerBase.WOCM.AvatarLocal.Respawn();
-		}
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.KillSelf();
 	}
 
 	public void MoveToSelectedObject()
@@ -285,7 +280,7 @@ public class DesktopEditModeController : ModeControllerBase, ISetEditState, IEdi
 		MVWorldObjectClient singleSelectedWO = EditModeStateMachine.SingleSelectedWO;
 		if (singleSelectedWO != null)
 		{
-			MVGameControllerBase.CameraController.CurCamera.FocusOnObject(singleSelectedWO);
+			MVGameControllerBase.MainCameraManager.CurrentCamera.FocusOnObject(singleSelectedWO);
 		}
 	}
 
@@ -313,6 +308,5 @@ public class DesktopEditModeController : ModeControllerBase, ISetEditState, IEdi
 	{
 		uiStack.SetStackReady();
 		MVGameControllerBase.OnFirstFrameUpdateActorReady = (Action)Delegate.Remove(MVGameControllerBase.OnFirstFrameUpdateActorReady, new Action(SetUIReady));
-		Debug.Log("EditModeUI Shown");
 	}
 }

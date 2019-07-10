@@ -11,7 +11,7 @@ public class GameMeterKillBase : GameMeterBase
 
 	public override GameMeterType GameMeterType => GameMeterType.Kills;
 
-	private void Start()
+	public override void Initialize()
 	{
 		killsText.text = string.Empty;
 	}

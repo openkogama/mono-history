@@ -307,11 +307,11 @@ public class MVGroup : MVWorldObjectClient
 
 	public override bool OnEnterObject(EditorStateMachine e)
 	{
-		MVGameControllerBase.CameraController.CurCamera.FocusOnObject(this);
+		MVGameControllerBase.MainCameraManager.CurrentCamera.FocusOnObject(this);
 		Debug.Log("*** Entering group: " + ToString());
 		e.EnterGroup(this);
 		SharedCubeFunctions.SetLayerRecursively(e.ParentGroup.Transform, select: true);
-		e.CameraController.BlueModeEnabled = true;
+		e.MainCameraManager.BlueModeEnabled = true;
 		e.Event = EditorEvent.ObjectSelected;
 		return true;
 	}

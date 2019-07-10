@@ -30,11 +30,10 @@ public struct AvatarModifierPackage(AvatarModifierPackageType avatarModifierPack
 
 	private AvatarModifierPackageAdditionPolicy avatarModifierPackageAdditionPolicy = avatarModifierPackageAdditionPolicy;
 
-	public static string[] AvatarModifierPackageTypeLookupTable = new string[29]
+	public static string[] AvatarModifierPackageTypeLookupTable = new string[20]
 	{
 		"_None", "_Fire", "_Mutant", "_Sticky", "_Poison", "_WallJump", "_InstantDeath", "_NoFriction", "_FlamerBurn", "_Underwater",
-		"_Frozen", "_NinjaRun", "_Shrunken", "_WindFriction", "_DisableVehiclePickup", "_Enlarged", "_Shielded", "_GodzillaS", "_GodzillaM", "_GodzillaL",
-		"_GodzillaXL", "_GodzillaLaserBurnS", "_GodzillaLaserBurnM", "_GodzillaLaserBurnL", "_GodzillaLaserBurnXL", "_GodzillaGrowthInvulnerability", "_SpawnProtection", "_RayHeal", "_TimeAttackFlagDebriefSlow"
+		"_Frozen", "_NinjaRun", "_Shrunken", "_WindFriction", "_DisableVehiclePickup", "_Enlarged", "_Shielded", "_SpawnProtection", "_RayHeal", "_TimeAttackFlagDebriefSlow"
 	};
 
 	public AvatarModifierPackageType AvatarModifierPackageType => avatarModifierPackageType;

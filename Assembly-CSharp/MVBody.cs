@@ -27,7 +27,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 
 	private bool initialized;
 
-	private MVAvatar attachedAvatar;
+	private bool hasAvatarBeenAttached;
 
 	private Vector3 modelScale = Vector3.zero;
 
@@ -35,7 +35,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 
 	public BoneAnimation Animation => bodyObject.BoneAnimation;
 
-	public MVAvatar AttachedAvatar => attachedAvatar;
+	public bool IsPlayerBody => Group.Group != null;
 
 	public BodyData BodyData => bodyObject.BodyData;
 
@@ -110,7 +110,14 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		MVWorldObjectClient value = null;
 		if (worldObjects.TryGetValue(groupId, out value))
 		{
-			attachedAvatar = value as MVAvatar;
+			if (value is MVAvatar)
+			{
+				hasAvatarBeenAttached = true;
+			}
+			if (value is MVBuildModeAvatar)
+			{
+				hasAvatarBeenAttached = true;
+			}
 		}
 		previewLayerMask |= LayerFlags.Player;
 		gameObject.layer = LayerMask.NameToLayer("Player");
@@ -270,7 +277,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		MeshFilter[] componentsInChildren = gameObject.GetComponentsInChildren<MeshFilter>();
 		bodyObject.AvatarBlinker.MeshFilters = componentsInChildren;
 		InitializeCommon();
-		if (attachedAvatar != null)
+		if (hasAvatarBeenAttached)
 		{
 			CollidersEnabled = false;
 			BlobShadow.enabled = true;
@@ -316,17 +323,17 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 
 	public void Attach(MVAvatar mvAvatar, bool isLocal)
 	{
-		attachedAvatar = mvAvatar;
-		if (attachedAvatar != null)
+		hasAvatarBeenAttached = true;
+		if (mvAvatar != null)
 		{
 			if (bodyObject.BoneAnimation != null)
 			{
-				bodyObject.BoneAnimation.Attach(attachedAvatar, isLocal);
+				bodyObject.BoneAnimation.Attach(mvAvatar, isLocal);
 			}
 			if (bodyObject.AvatarBlinker != null)
 			{
 				bodyObject.AvatarBlinker.Visible = visible;
-				bodyObject.AvatarBlinker.Attach(mvAvatar);
+				bodyObject.AvatarBlinker.EnableBlinking();
 			}
 			CollidersEnabled = false;
 			BlobShadow.enabled = true;
@@ -338,7 +345,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		bodyObject.BoneAnimation.Detach();
 		if (bodyObject.AvatarBlinker != null)
 		{
-			bodyObject.AvatarBlinker.Detach();
+			bodyObject.AvatarBlinker.DisableBlinking();
 		}
 		BlobShadow.enabled = false;
 	}
@@ -435,7 +442,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 	public override MVWorldObjectClient Clone(int ownerActorNumber, int cloneGroupId, CloneBookkeeping cloneBookkeeping, Dictionary<int, MVWorldObjectClient> worldObjects, Dictionary<int, RuntimePrototypeCubeModel> prototypes)
 	{
 		MVBody mVBody = (MVBody)base.Clone(ownerActorNumber, cloneGroupId, cloneBookkeeping, worldObjects, prototypes);
-		mVBody.attachedAvatar = null;
+		mVBody.hasAvatarBeenAttached = false;
 		return mVBody;
 	}
 
@@ -463,6 +470,37 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		base.OnDataUpdate();
 		RefreshAccessories();
 		Debug.Log("OnDataUpdate");
+	}
+
+	public void OnAnimationUpdate(object newAnimationData)
+	{
+		bodyObject.BoneAnimation.AnimationChangeHandler(newAnimationData);
+	}
+
+	public void OnHealthUpdate(object newHealthData)
+	{
+		bodyObject.AvatarBlinker.HealthChangeHandler(newHealthData);
+	}
+
+	public void OnShieldUpdate(object newShieldData)
+	{
+		bodyObject.AvatarBlinker.ShieldChangeHandler(newShieldData);
+	}
+
+	public void EnableBodyBlinker()
+	{
+		bodyObject.AvatarBlinker.EnableBlinking();
+	}
+
+	public void DisableBodyBlinker()
+	{
+		bodyObject.AvatarBlinker.DisableBlinking();
+	}
+
+	public void StartAnimation(string newAnimation)
+	{
+		int serverTimeInMilliSeconds = MVGameControllerBase.Game.ServerTimeInMilliSeconds;
+		bodyObject.BoneAnimation.StartAnimation(newAnimation, serverTimeInMilliSeconds);
 	}
 
 	public MVCubeModelInstance GetBodyPart(string part)

@@ -13,6 +13,10 @@ public class LevelErrorPopup : MonoBehaviour
 
 	private UnityAction resultCallback;
 
+	private Texture2D requiredLevelTextureAsset;
+
+	private Texture2D playerLevelTextureAsset;
+
 	public void Initialize(UnityAction resultCallback, int requiredLevel)
 	{
 		BadgeManager.GetBadgeTexture(requiredLevel, OnLevelRequirementLoaded);
@@ -22,25 +26,27 @@ public class LevelErrorPopup : MonoBehaviour
 
 	private void OnLevelRequirementLoaded(WWW www)
 	{
-		if (www == null || www.texture == null)
+		requiredLevelTextureAsset = www.texture;
+		if (requiredLevelTextureAsset == null)
 		{
 			Debug.LogWarning("Badge not loaded for accessory level requirement");
 		}
 		else
 		{
-			requiredLevelImage.texture = www.texture;
+			requiredLevelImage.texture = requiredLevelTextureAsset;
 		}
 	}
 
 	private void OnPlayerLevelLoaded(WWW www)
 	{
-		if (www == null || www.texture == null)
+		playerLevelTextureAsset = www.texture;
+		if (playerLevelTextureAsset == null)
 		{
 			Debug.LogWarning("Badge not loaded for accessory level requirement");
 		}
 		else
 		{
-			playerLevelImage.texture = www.texture;
+			playerLevelImage.texture = playerLevelTextureAsset;
 		}
 	}
 
@@ -50,6 +56,8 @@ public class LevelErrorPopup : MonoBehaviour
 		{
 			x.Pop();
 		});
+		Object.Destroy(requiredLevelTextureAsset);
+		Object.Destroy(playerLevelTextureAsset);
 		if (resultCallback != null)
 		{
 			resultCallback();

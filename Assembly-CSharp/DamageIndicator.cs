@@ -88,7 +88,7 @@ public class DamageIndicator : MonoBehaviour
 
 		private void UpdateArrowPosition()
 		{
-			Vector3 vector = MVGameControllerBase.CameraController.transform.worldToLocalMatrix.MultiplyPoint(damageOrigin.position);
+			Vector3 vector = MVGameControllerBase.MainCameraManager.transform.worldToLocalMatrix.MultiplyPoint(damageOrigin.position);
 			Vector2 normalized = new Vector2(vector.x, vector.y).normalized;
 			arrow.RectTransform.localRotation = Quaternion.LookRotation(new Vector3(0f, 0f, 1f), new Vector3(normalized.x, normalized.y, 0f));
 			arrow.RectTransform.anchoredPosition = new Vector2(normalized.x, normalized.y) * indicationRadius;
@@ -175,9 +175,10 @@ public class DamageIndicator : MonoBehaviour
 		if (damageDealer != null && damageDealer.ActorNr != MVGameControllerBase.Game.LocalPlayer.ActorNr)
 		{
 			directionArrow = IndicatorArrow.NextArrow;
-			if (!damageDealer.Avatar.GameObject.activeInHierarchy)
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(damageDealer.WoId);
+			if (!worldObjectClient.GameObject.activeInHierarchy)
 			{
-				directionArrow.Show(damageDealer.Avatar.Transform, damageAmount * durationPerPointOfDamage, indicationRadius);
+				directionArrow.Show(worldObjectClient.Transform, damageAmount * durationPerPointOfDamage, indicationRadius);
 			}
 		}
 		if (damageType != PlayerKilledByType.Environmental)

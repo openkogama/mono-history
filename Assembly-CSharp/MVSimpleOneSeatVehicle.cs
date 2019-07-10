@@ -27,7 +27,7 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase, ICurrentItemOwner
 			health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnHealthChange));
 			GameObject gameObject = vehicleBase.GameObject;
 			VehicleInteractable vehicleInteractable = gameObject.AddComponent<VehicleInteractable>();
-			vehicleInteractable.Init(vehicleBase.Modifiers, vehicleBase.Health, vehicleBase.Shield);
+			vehicleInteractable.Init(vehicleBase.Modifiers, vehicleBase.Health, null, vehicleBase.Shield);
 			motor.Init(smoothController, vehicleInteractable);
 			onLeave = (Action)Delegate.Combine(onLeave, new Action(motor.OnLocalVehicleLeave));
 			VehicleEquipable vehicleEquipable = gameObject.AddComponent<VehicleEquipable>();
@@ -36,7 +36,7 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase, ICurrentItemOwner
 			pickupOwner.IsLocal = true;
 			onDestroy = (Action)Delegate.Combine(onDestroy, new Action(pickupOwner.OnLocalObjectsDestroyed));
 			pickupGUI = gameObject.AddComponent<PickupGUI>();
-			pickupGUI.Initialize(pickupOwner);
+			pickupGUI.Initialize(vehicleBase.Id, pickupOwner);
 			onEnter = (Action)Delegate.Combine(onEnter, new Action(pickupGUI.Enter));
 			onLeave = (Action)Delegate.Combine(onLeave, new Action(pickupGUI.Leave));
 			triggerHandler = gameObject.AddComponent<MVTriggerHandler>();
@@ -61,6 +61,10 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase, ICurrentItemOwner
 			base.Leave();
 			owner.IsFiring.Value = false;
 			triggerHandler.Reset();
+			if (pickupOwner.CurrentItem != null)
+			{
+				pickupOwner.CurrentItem.OnLeaveVehicleWithWeapon();
+			}
 		}
 
 		public override void Enter()

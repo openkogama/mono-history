@@ -184,7 +184,7 @@ public abstract class MVRigidBody : MVComponent
 
 	public void AddImpulse(MVPlayer shooter, Vector3 impulse, bool suspendImpactDamage = false)
 	{
-		if (shooter == null || !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(shooter.Avatar, MVGameControllerBase.Game.LocalPlayer.Avatar) || shooter.Avatar.Avatar.IsLocal)
+		if (shooter == null || !MVGameControllerBase.Game.LocalPlayer.IsOnSameTeam(shooter) || MVGameControllerBase.Game.LocalPlayer.ActorNr == shooter.ActorNr)
 		{
 			AddImpulse(impulse, suspendImpactDamage);
 		}

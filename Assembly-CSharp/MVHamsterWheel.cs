@@ -149,7 +149,7 @@ public class MVHamsterWheel : MVSimpleOneSeatVehicle
 	protected override LocalObjectsBase CreateLocalObjects(int seatID, MVAvatarLocal vehicleUser)
 	{
 		SmoothCharacterController smoothCharacterController = gameObject.AddComponent<SmoothCharacterController>();
-		smoothCharacterController.Init(gameObject, null);
+		smoothCharacterController.Init(gameObject, null, this);
 		smoothCharacterController.Controller.Init(1.5f, 3f, Vector3.up * 0.5f);
 		smoothCharacterController.Controller.IgnoreWoIds = WorldIDsRecursive;
 		HamsterWheelMotor hamsterWheelMotor = gameObject.AddComponent<HamsterWheelMotor>();

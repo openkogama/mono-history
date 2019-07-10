@@ -63,25 +63,28 @@ public abstract class FirstPersonCamera : MVCameraBase
 		maxLookAngleUpward = Mathf.Clamp(maxLookAngleUpward, 0.1f, 89f);
 	}
 
-	private void Initialize(MVCameraController cameraController)
+	public void Initialize(MVAvatarLocal avatarLocal)
 	{
-		localAvatar = MVGameControllerBase.WOCM.AvatarLocal;
-		targetRotation.x = cameraController.transform.rotation.eulerAngles.x;
-		targetRotation.y = cameraController.transform.rotation.eulerAngles.y;
-		transform.localRotation = cameraController.transform.localRotation;
+		localAvatar = avatarLocal;
+	}
+
+	private void Initialize()
+	{
+		targetRotation.x = MVGameControllerBase.MainCameraManager.transform.rotation.eulerAngles.x;
+		targetRotation.y = MVGameControllerBase.MainCameraManager.transform.rotation.eulerAngles.y;
+		transform.localRotation = MVGameControllerBase.MainCameraManager.transform.localRotation;
 		modifierIndicator.Initialize(localAvatar);
-		MVGameControllerBase.CameraController.StartTransitionCam(0.3f);
-		MVGameControllerBase.WOCM.AvatarLocal.SetTransparency = 1f;
-		cameraController.AvatarCameraFade.enabled = false;
+		MVGameControllerBase.MainCameraManager.StartTransitionCam(0.3f);
+		localAvatar.SetTransparency = 1f;
 		haveHiddenVehicle = false;
 	}
 
 	public override void Enter(MVCameraController cameraController)
 	{
 		base.Enter(cameraController);
-		Initialize(cameraController);
+		Initialize();
 		ActivateFirstPerson();
-		UpdateCamera(cameraController, cameraController.ProtectedTransform);
+		UpdateCamera(cameraController, MVGameControllerBase.MainCameraManager.ProtectedTransform);
 	}
 
 	public override void Resume(MVCameraController cameraController)
@@ -89,13 +92,13 @@ public abstract class FirstPersonCamera : MVCameraBase
 		if (localAvatar.CurrentPickup.FirstPersonCapable)
 		{
 			base.Resume(cameraController);
-			Initialize(cameraController);
+			Initialize();
 			ActivateFirstPerson();
-			UpdateCamera(cameraController, cameraController.ProtectedTransform);
+			UpdateCamera(cameraController, MVGameControllerBase.MainCameraManager.ProtectedTransform);
 		}
 		else
 		{
-			MVGameControllerBase.CameraController.RemoveCamera(CameraType);
+			((AvatarLocal)localAvatar.Avatar).CameraController.RemoveCamera(CameraType);
 		}
 	}
 
@@ -103,23 +106,12 @@ public abstract class FirstPersonCamera : MVCameraBase
 	{
 		base.Exit(camController);
 		DeactivateFirstPerson();
-		EnableFading(camController);
 	}
 
 	public override void Suspend(MVCameraController camController)
 	{
 		base.Suspend(camController);
 		DeactivateFirstPerson();
-		EnableFading(camController);
-	}
-
-	private void EnableFading(MVCameraController camController)
-	{
-		AvatarCameraFade component = camController.gameObject.GetComponent<AvatarCameraFade>();
-		if (component != null)
-		{
-			component.enabled = true;
-		}
 	}
 
 	private void ActivateFirstPerson()
@@ -160,8 +152,9 @@ public abstract class FirstPersonCamera : MVCameraBase
 		damageIndicator.enabled = false;
 		modifierIndicator.ResetIndicators();
 		modifierIndicator.enabled = false;
-		MVGameControllerBase.WOCM.AvatarLocal.Avatar.AvatarFader.SetTransparency(0f);
-		MVGameControllerBase.WOCM.AvatarLocal.Avatar.AvatarFader.enabled = true;
+		localAvatar.Avatar.AvatarFader.SetTransparency(0f);
+		localAvatar.Avatar.AvatarFader.enabled = true;
+		MVGameControllerBase.MainCameraManager.StartTransitionCam(0.25f);
 	}
 
 	private void MoveItemToFirstpersonView(PickupItem item)
@@ -225,7 +218,7 @@ public abstract class FirstPersonCamera : MVCameraBase
 
 	public override void UpdateCamera(MVCameraController camController, ProtectedTransform targetTransform)
 	{
-		if (MVGameControllerBase.WOCM.AvatarLocal.InGunMode)
+		if (localAvatar.CurrentPickup.IsInFirstPersonMode)
 		{
 			UpdateAvatar();
 			UpdateCameraPosition();
@@ -233,11 +226,6 @@ public abstract class FirstPersonCamera : MVCameraBase
 			weaponBob.Update();
 			UpdateImpactSimulation(targetTransform);
 			base.UpdateCamera(camController, targetTransform);
-		}
-		else
-		{
-			MVGameControllerBase.CameraController.SetCamera(CameraType.ThirdPerson);
-			MVGameControllerBase.CameraController.StartTransitionCam(0.3f);
 		}
 	}
 
@@ -248,10 +236,10 @@ public abstract class FirstPersonCamera : MVCameraBase
 
 	private void UpdateAvatar()
 	{
-		if (!MVGameControllerBase.WOCM.AvatarLocal.IsInVehicle)
+		if (!localAvatar.IsInVehicle)
 		{
 			haveHiddenVehicle = false;
-			Transform transform = MVGameControllerBase.WOCM.AvatarLocal.Transform;
+			Transform transform = localAvatar.Transform;
 			transform.localRotation = Quaternion.Euler(0f, base.transform.localRotation.eulerAngles.y, 0f);
 		}
 		else if (!haveHiddenVehicle)

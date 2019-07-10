@@ -14,6 +14,8 @@ public class LevelProgressAccessoryShop : MonoBehaviour
 	[SerializeField]
 	private RawImage badgeTexture;
 
+	private Texture2D badgeTextureAsset;
+
 	private int badgeLevel = 1;
 
 	public void Start()
@@ -58,6 +60,7 @@ public class LevelProgressAccessoryShop : MonoBehaviour
 		MVLocalPlayer localPlayer = MVGameControllerBase.Game.LocalPlayer;
 		localPlayer.OnXPProgressData = (XPProgress.OnXPProgressDataDelegate)Delegate.Remove(localPlayer.OnXPProgressData, new XPProgress.OnXPProgressDataDelegate(OnXPUpdate));
 		BadgeManager.UnsubscribeGetBadgeRequest(OnLevelingBadgeLoaded);
+		UnityEngine.Object.Destroy(badgeTextureAsset);
 	}
 
 	private void OnLevelingBadgeLoaded(WWW www)
@@ -67,11 +70,10 @@ public class LevelProgressAccessoryShop : MonoBehaviour
 			if (!string.IsNullOrEmpty(www.error))
 			{
 				Debug.LogWarning("Texture not loaded: " + www.error);
+				return;
 			}
-			else
-			{
-				badgeTexture.texture = www.texture;
-			}
+			badgeTextureAsset = www.texture;
+			badgeTexture.texture = badgeTextureAsset;
 		}
 	}
 }

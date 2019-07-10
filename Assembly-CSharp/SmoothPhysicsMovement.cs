@@ -23,16 +23,19 @@ public class SmoothPhysicsMovement : MonoBehaviour
 
 	private CullingSubscriberBase cullingSubscriberBase;
 
+	private MVWorldObjectClient worldObjectOwner;
+
 	private Package next;
 
 	private Package current;
 
 	private Transform targetTransform;
 
-	public void Init(Transform targetTransform, CullingSubscriberBase cullingSubscriberBase)
+	public void Init(Transform targetTransform, CullingSubscriberBase cullingSubscriberBase, MVWorldObjectClient worldObjectOwner)
 	{
 		this.targetTransform = targetTransform;
 		this.cullingSubscriberBase = cullingSubscriberBase;
+		this.worldObjectOwner = worldObjectOwner;
 	}
 
 	public void SmoothMove()
@@ -57,6 +60,11 @@ public class SmoothPhysicsMovement : MonoBehaviour
 			num2 = (num - current.time) / Time.fixedDeltaTime;
 			transform.localPosition = Vector3.Lerp(current.position, next.position, num2);
 			transform.localRotation = Quaternion.Slerp(current.rotation, next.rotation, num2);
+			if (worldObjectOwner != null)
+			{
+				worldObjectOwner.WorldPosition = Vector3.Lerp(current.position, next.position, num2);
+				worldObjectOwner.WorldRotation = Quaternion.Slerp(current.rotation, next.rotation, num2);
+			}
 			if (cullingSubscriberBase != null)
 			{
 				cullingSubscriberBase.Position = transform.position;

@@ -29,6 +29,9 @@ public class AccessoryViewController : MonoBehaviour, IAccessoryClicked, IBundle
 	[SerializeField]
 	private LevelProgressAccessoryShop levelProgress;
 
+	[SerializeField]
+	private GameObject playerGoldGameObject;
+
 	private Color prevLight;
 
 	private bool wasEnabled;
@@ -45,6 +48,7 @@ public class AccessoryViewController : MonoBehaviour, IAccessoryClicked, IBundle
 		MVGameControllerBase.SkyboxManager.enabled = false;
 		float num = 0.55f;
 		RenderSettings.ambientLight = Color.white * num;
+		playerGoldGameObject.SetActive(value: true);
 	}
 
 	private void OnDestroy()

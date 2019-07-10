@@ -120,10 +120,6 @@ public class InventoryItem
 			new ItemDescription(TM._("Mouse Gun"), TM._("A pistol that shrinks the target."), TM._("Turn enemy players into helpless little rodents, or help your friends navigate narrow areas."))
 		},
 		{
-			MVWorldObjectDocumentationType.Colossus,
-			new ItemDescription(MVAvatarLocal.GodzillaMode.screenName, TM._("Players can enter this object and transform into ") + MVAvatarLocal.GodzillaMode.screenName, TM._("Become the all powerful ") + MVAvatarLocal.GodzillaMode.screenName + TM._(", capable of frying any foe within your sights!"))
-		},
-		{
 			MVWorldObjectDocumentationType.ThrowingStar,
 			new ItemDescription(TM._("Shuriken"), TM._("A classic ninja shuriken."), TM._("Become one with the shadows using this classic shuriken."))
 		},

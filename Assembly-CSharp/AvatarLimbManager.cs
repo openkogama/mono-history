@@ -66,6 +66,8 @@ public abstract class AvatarLimbManager
 
 		public Action<string> OnEmoteStart;
 
+		public Action<int> OnEmoteUpdate;
+
 		public void Initialize(AvatarLimbManager limbManager, AvatarLookDirectionHandler lookDirectionHandler, AvatarPointingHandler pointingHandler, AvatarHeadRotationHandler headRotationHandler, LimbRotator limbRotator, AvatarEnabledChangeHandler enableChangeHandler)
 		{
 			this.limbManager = limbManager;
@@ -127,7 +129,7 @@ public abstract class AvatarLimbManager
 
 		public void TryStartEmote(EmoteTypes emoteType)
 		{
-			if (CanStartEmote(emoteDatas[emoteType]))
+			if (emoteType != EmoteTypes.None && CanStartEmote(emoteDatas[emoteType]))
 			{
 				StartEmote(emoteType);
 			}
@@ -143,6 +145,10 @@ public abstract class AvatarLimbManager
 				{
 					OnEmoteStart(emoteType.ToString());
 				}
+				if (OnEmoteUpdate != null)
+				{
+					OnEmoteUpdate((int)emoteType);
+				}
 			}
 		}
 
@@ -151,6 +157,10 @@ public abstract class AvatarLimbManager
 			if (currentRunningEmoteData == emoteDatas[emoteType])
 			{
 				currentRunningEmoteData = null;
+				if (OnEmoteUpdate != null)
+				{
+					OnEmoteUpdate(0);
+				}
 			}
 		}
 
@@ -297,7 +307,7 @@ public abstract class AvatarLimbManager
 
 		public Action OnRotationChange;
 
-		private MVAvatar avatar;
+		private MVWorldObjectClient avatarWO;
 
 		private Vector3 localLookDirection;
 
@@ -309,14 +319,14 @@ public abstract class AvatarLimbManager
 
 		public Vector3 LocalLookDirection => localLookDirection;
 
-		public void Initialize(MVAvatar avatar)
+		public void Initialize(MVWorldObjectClient avatarWO)
 		{
-			this.avatar = avatar;
+			this.avatarWO = avatarWO;
 		}
 
 		public void Update(Vector3 lookDirection)
 		{
-			Transform transform = avatar.Transform;
+			Transform transform = avatarWO.Transform;
 			localLookDirection = transform.InverseTransformPoint(transform.position + lookDirection);
 			UpdateYaw();
 			UpdatePitch();
@@ -325,7 +335,7 @@ public abstract class AvatarLimbManager
 
 		private void UpdateYaw()
 		{
-			float y = MVGameControllerBase.CameraController.transform.rotation.eulerAngles.y;
+			float y = MVGameControllerBase.MainCameraManager.transform.rotation.eulerAngles.y;
 			if (y != previousYaw)
 			{
 				if (OnLookDirectionYawChange != null)
@@ -338,7 +348,7 @@ public abstract class AvatarLimbManager
 
 		private void UpdatePitch()
 		{
-			float x = MVGameControllerBase.CameraController.transform.rotation.eulerAngles.x;
+			float x = MVGameControllerBase.MainCameraManager.transform.rotation.eulerAngles.x;
 			if (x != previousPitch)
 			{
 				if (OnLookDirectionPitchChange != null)
@@ -692,15 +702,15 @@ public abstract class AvatarLimbManager
 			return false;
 		}
 
-		public void Initialize(MVAvatar avatar, AvatarLimbManager limbManager)
+		public void Initialize(MVWorldObjectClient avatarWO, MVBody body, AvatarLimbManager limbManager)
 		{
 			limbControllers = new Dictionary<BodyData.PartIndex, LimbController>();
-			BoneAnimation animation = avatar.Body.Animation;
+			BoneAnimation animation = body.Animation;
 			animation.OnAnimationChange = (Action<string>)Delegate.Combine(animation.OnAnimationChange, new Action<string>(OnAnimationChange));
-			CreateLimbController(BodyData.PartIndex.Torso, avatar, limbManager);
-			CreateLimbController(BodyData.PartIndex.Head, avatar, limbManager);
-			CreateLimbController(BodyData.PartIndex.RArm, avatar, limbManager);
-			CreateLimbController(BodyData.PartIndex.LArm, avatar, limbManager);
+			CreateLimbController(BodyData.PartIndex.Torso, avatarWO, body, limbManager);
+			CreateLimbController(BodyData.PartIndex.Head, avatarWO, body, limbManager);
+			CreateLimbController(BodyData.PartIndex.RArm, avatarWO, body, limbManager);
+			CreateLimbController(BodyData.PartIndex.LArm, avatarWO, body, limbManager);
 		}
 
 		private void OnAnimationChange(string newAnimation)
@@ -711,7 +721,7 @@ public abstract class AvatarLimbManager
 			}
 		}
 
-		private void CreateLimbController(BodyData.PartIndex partIndex, MVAvatar avatar, AvatarLimbManager limbManager)
+		private void CreateLimbController(BodyData.PartIndex partIndex, MVWorldObjectClient avatarWO, MVBody body, AvatarLimbManager limbManager)
 		{
 			switch (partIndex)
 			{
@@ -721,7 +731,7 @@ public abstract class AvatarLimbManager
 				List<string> blendAnimations4 = new List<string>();
 				List<string> list4 = new List<string>();
 				list4.Add("Dead");
-				limbController4.Initialize(limbManager, avatar, partIndex, Quaternion.identity, Quaternion.identity, blendAnimations4, list4, 89f, 45f);
+				limbController4.Initialize(limbManager, avatarWO, body, partIndex, Quaternion.identity, Quaternion.identity, blendAnimations4, list4, 89f, 45f);
 				limbControllers.Add(partIndex, limbController4);
 				break;
 			}
@@ -731,7 +741,7 @@ public abstract class AvatarLimbManager
 				List<string> blendAnimations3 = new List<string>();
 				List<string> list3 = new List<string>();
 				list3.Add("Dead");
-				limbController3.Initialize(limbManager, avatar, partIndex, Quaternion.identity, Quaternion.identity, blendAnimations3, list3, 90f, 20f);
+				limbController3.Initialize(limbManager, avatarWO, body, partIndex, Quaternion.identity, Quaternion.identity, blendAnimations3, list3, 90f, 20f);
 				limbControllers.Add(partIndex, limbController3);
 				break;
 			}
@@ -746,7 +756,7 @@ public abstract class AvatarLimbManager
 				identity3.eulerAngles = new Vector3(0f, 270f, 0f);
 				Quaternion identity4 = Quaternion.identity;
 				identity4.eulerAngles = new Vector3(355.2f, 359f, 282f);
-				limbController2.Initialize(limbManager, avatar, partIndex, identity3, identity4, blendAnimations2, list2, 90f, 45f);
+				limbController2.Initialize(limbManager, avatarWO, body, partIndex, identity3, identity4, blendAnimations2, list2, 90f, 45f);
 				limbControllers.Add(partIndex, limbController2);
 				break;
 			}
@@ -761,7 +771,7 @@ public abstract class AvatarLimbManager
 				identity.eulerAngles = new Vector3(0f, 90f, 0f);
 				Quaternion identity2 = Quaternion.identity;
 				identity2.eulerAngles = new Vector3(6.2f, 358.5f, 76.2f);
-				limbController.Initialize(limbManager, avatar, partIndex, identity, identity2, blendAnimations, list, 90f, 45f);
+				limbController.Initialize(limbManager, avatarWO, body, partIndex, identity, identity2, blendAnimations, list, 90f, 45f);
 				limbControllers.Add(partIndex, limbController);
 				break;
 			}
@@ -770,7 +780,7 @@ public abstract class AvatarLimbManager
 
 		public void UpdateLimbs()
 		{
-			if (!isActive || MVGameControllerBase.CameraController.BlueModeEnabled)
+			if (!isActive || MVGameControllerBase.MainCameraManager.BlueModeEnabled)
 			{
 				return;
 			}
@@ -827,9 +837,7 @@ public abstract class AvatarLimbManager
 
 	public Action<string> OnEmoteStart;
 
-	protected MVAvatar mvAvatar;
-
-	protected AvatarPickupOwner avatarPickupOwner;
+	protected MVWorldObjectClient avatarWO;
 
 	protected AvatarEmoteHandler emoteHandler;
 
@@ -841,30 +849,28 @@ public abstract class AvatarLimbManager
 
 	private const float maxYawAllowed = 30f;
 
-	public virtual void Initialize(AvatarPickupOwner avatarPickupOwner, MVAvatar mvAvatar)
+	public virtual void Initialize(MVWorldObjectClient avatarWO, MVBody body, AvatarEnabledChangeHandler enabledChangeHandler, LimbRotationRuntimeData limbRotationRuntimeData)
 	{
-		this.avatarPickupOwner = avatarPickupOwner;
-		this.mvAvatar = mvAvatar;
+		this.avatarWO = avatarWO;
 		lookDirectionHandler = new AvatarLookDirectionHandler();
-		lookDirectionHandler.Initialize(mvAvatar);
+		lookDirectionHandler.Initialize(avatarWO);
 		limbRotator = new LimbRotator();
-		limbRotator.Initialize(mvAvatar, this);
+		limbRotator.Initialize(avatarWO, body, this);
 	}
 
-	public virtual void UpdateLimbRotations()
+	public virtual void UpdateLimbRotations(Vector3 lookDirection)
 	{
-		Vector3 lookDirection = avatarPickupOwner.LookDirection;
 		lookDirectionHandler.Update(lookDirection);
 	}
 
 	protected void CheckAvatarRotation()
 	{
-		float f = QuaternionAngleToNormalAngle(mvAvatar.Transform.rotation.eulerAngles.y) - QuaternionAngleToNormalAngle(previousTransformRotation.eulerAngles.y);
+		float f = QuaternionAngleToNormalAngle(avatarWO.Transform.rotation.eulerAngles.y) - QuaternionAngleToNormalAngle(previousTransformRotation.eulerAngles.y);
 		if (Mathf.Abs(f) > 30f && OnAvatarRotate != null)
 		{
 			OnAvatarRotate();
 		}
-		previousTransformRotation = mvAvatar.Transform.rotation;
+		previousTransformRotation = avatarWO.Transform.rotation;
 	}
 
 	protected void OnStartEmote(string newAnimation)

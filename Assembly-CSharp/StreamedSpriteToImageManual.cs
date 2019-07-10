@@ -31,8 +31,6 @@ public class StreamedSpriteToImageManual : StreamingAsset<Sprite, Texture2D>
 
 	private UnityAction onAssetSetManual;
 
-	private static StreamedAssetSpriteHandler streamedSpriteHandler = new StreamedAssetSpriteHandler();
-
 	protected override void Start()
 	{
 	}

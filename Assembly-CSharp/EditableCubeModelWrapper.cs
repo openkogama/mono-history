@@ -22,7 +22,7 @@ public class EditableCubeModelWrapper
 	public virtual bool OnEnterObject(EditorStateMachine e)
 	{
 		Debug.Log(e);
-		MVGameControllerBase.CameraController.CurCamera.FocusOnObject(cubeModelBase);
+		MVGameControllerBase.MainCameraManager.CurrentCamera.FocusOnObject(cubeModelBase);
 		e.SelectWO(cubeModelBase.Id, addToSelection: false);
 		e.Event = EditorEvent.EditCubes;
 		return true;

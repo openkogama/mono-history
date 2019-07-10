@@ -18,9 +18,8 @@ public class GameMeterRoundTime : GameMeterBase
 
 	public override GameMeterType GameMeterType => GameMeterType.Time;
 
-	private void Start()
+	public override void Initialize()
 	{
-		SetGameMeterVisibility();
 		timeNotifications = new List<int>();
 		ResetTimeNotifications();
 		MVNetworkGame game = MVGameControllerBase.Game;

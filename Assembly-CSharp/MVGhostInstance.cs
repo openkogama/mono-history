@@ -6,7 +6,7 @@ using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class MVGhostInstance : MVWorldObjectClient, IUpdatecontrollerSubscriber, IGameStateControllerSubscriber
+public class MVGhostInstance : MVWorldObjectClient, IUpdatecontrollerSubscriberUpdate, IUpdatecontrollerSubscriberFixedUpdate, IGameStateControllerSubscriber, IUpdatecontrollerSubscriberBase
 {
 	private enum GameEffect
 	{
@@ -133,7 +133,7 @@ public class MVGhostInstance : MVWorldObjectClient, IUpdatecontrollerSubscriber,
 		InitializeCommon();
 		SetupCulling();
 		smoothPhysicsMovement = _ghostInstance.AddComponent<SmoothPhysicsMovement>();
-		smoothPhysicsMovement.Init(moveTarget, cullingSubscriberBase);
+		smoothPhysicsMovement.Init(moveTarget, cullingSubscriberBase, null);
 		MVGameControllerBase.Game.GameStateController.AddUpdateObject(this);
 	}
 
@@ -287,7 +287,8 @@ public class MVGhostInstance : MVWorldObjectClient, IUpdatecontrollerSubscriber,
 
 	public override void Destroy()
 	{
-		UpdateController.RemoveObject(this);
+		UpdateController.RemoveUpdateObject(this);
+		UpdateController.RemoveFixedUpdateObject(this);
 		MVGameControllerBase.Game.GameStateController.RemoveObject(this);
 		base.Destroy();
 		if (cullingSubscriberBase != null)
@@ -307,14 +308,14 @@ public class MVGhostInstance : MVWorldObjectClient, IUpdatecontrollerSubscriber,
 
 	public void UpdateControllerFixedUpdate()
 	{
-		MVWorldObjectClient mVWorldObjectClient = (from a in MVGameControllerBase.WOCM.GetWorldObjectsByType(WorldObjectType.Avatar)
+		MVWorldObjectClient mVWorldObjectClient = (from a in MVGameControllerBase.WOCM.GetWorldObjectsByType(WorldObjectType.PlayModeAvatar)
 			orderby (a.WorldPosition - WorldPosition).sqrMagnitude
 			select a).FirstOrDefault();
 		MoveGhost(mVWorldObjectClient);
 		InteractionDataHandlerBase interactionDataHandlerBase = mVWorldObjectClient.InteractionDataHandlerBase;
-		if (interactionDataHandlerBase != null && mVWorldObjectClient is MVAvatarLocal)
+		if (interactionDataHandlerBase != null)
 		{
-			ApplyGameEffect((MVAvatarLocal)mVWorldObjectClient, interactionDataHandlerBase);
+			ApplyGameEffect(mVWorldObjectClient, interactionDataHandlerBase);
 		}
 		UpdateVisualEffects(IsTouchingAvatar(mVWorldObjectClient));
 	}
@@ -360,21 +361,18 @@ public class MVGhostInstance : MVWorldObjectClient, IUpdatecontrollerSubscriber,
 		return Vector3.up + WorldPosition + Quaternion.AngleAxis(time * 10f * GetSpeed(patrolling) / distance, Vector3.up) * (Vector3.forward * distance * Mathf.Sin(time * GetSpeed(patrolling) / (distance * 10f)));
 	}
 
-	private void ApplyGameEffect(MVAvatarLocal TargetAvatar, InteractionDataHandlerBase interactionHandler)
+	private void ApplyGameEffect(MVWorldObjectClient targetAvatar, InteractionDataHandlerBase interactionHandler)
 	{
 		switch (gameEffect)
 		{
 		case GameEffect.DAMAGE_OVER_TIME:
-			if (IsTouchingAvatar(TargetAvatar))
+			if (IsTouchingAvatar(targetAvatar))
 			{
 				interactionHandler.HandleInteraction(ProximityDamageAndImpulse.Create(damagePerSecond * Time.fixedDeltaTime, Vector3.zero, PlayerKilledByType.Ghost), interactionIsLocal: true);
 			}
 			break;
 		case GameEffect.INSTANT_DEATH:
-			if (IsTouchingAvatar(TargetAvatar))
-			{
-				interactionHandler.HandleInteraction(ProximityDamageAndImpulse.Create(MVGameControllerBase.WOCM.AvatarLocal.Health.Value, Vector3.zero, PlayerKilledByType.Ghost), interactionIsLocal: true);
-			}
+			Debug.LogError("GameEffect.INSTANT_DEATH out commented. Is not expected to be used by anything.");
 			break;
 		}
 	}

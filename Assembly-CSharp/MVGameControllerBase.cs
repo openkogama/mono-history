@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 using AntiHack;
+using Assets.Scripts.Network.Player.SpawnRoles.SpawnRoleData.Mediator;
 using MV.Common;
 using Newtonsoft.Json;
 using UnityEngine;
 
-public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSubscriber
+public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSubscriberUpdate, IUpdatecontrollerSubscriberBase
 {
 	public delegate void OnReceivedGameMsgDelegate(MVGameMsgType type, Dictionary<object, object> gameMsgData);
 
@@ -40,7 +41,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	protected KoGaMaSettingsContainer koGaMaSettings;
 
 	[SerializeField]
-	private MVCameraController cameraController;
+	private MainCameraManager mainCameraManager;
 
 	[SerializeField]
 	private Styles styles;
@@ -78,6 +79,10 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	private LevelLoader levelLoader;
 
+	private SkinnedMeshOptimizeManager skinnedMeshOptimizeManager = new SkinnedMeshOptimizeManager();
+
+	private FlagDebriefingControl flagDebriefingControl = new FlagDebriefingControl();
+
 	private bool quitHasBeenCalled;
 
 	private TimeReward timeReward;
@@ -109,6 +114,12 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	private bool reportedOngoingError;
 
+	public static SpawnRoleDataMediator SpawnRoleDataMediatorLocal => Game.LocalPlayer.SpawnRoleDataMediator;
+
+	public static MVLocalPlayer LocalPlayer => Game.LocalPlayer;
+
+	public static GameEventManager GameEventManager => Game.GameEventManager;
+
 	public static TextureIntegrityChecker TextureIntegrityChecker => instance.textureIntegrityChecker;
 
 	public static StreamingAssetManager StreamingAssetManager => instance.streamingAssetManager;
@@ -130,6 +141,10 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	public static BrowserComm BrowserComm => instance.browserComm;
 
 	public static LevelLoader LevelLoader => instance.levelLoader;
+
+	public static SkinnedMeshOptimizeManager SkinnedMeshOptimizeManager => instance.skinnedMeshOptimizeManager;
+
+	public static FlagDebriefingControl FlagDebriefingControl => instance.flagDebriefingControl;
 
 	public static GameSessionData GameSessionData { get; private set; }
 
@@ -226,15 +241,15 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		}
 	}
 
-	public static MVCameraController CameraController
+	public static MainCameraManager MainCameraManager
 	{
 		get
 		{
-			if (instance.cameraController == null)
+			if (instance.mainCameraManager == null)
 			{
 				throw new NullReferenceException();
 			}
-			return instance.cameraController;
+			return instance.mainCameraManager;
 		}
 	}
 
@@ -272,7 +287,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		AudioEventHandler.Init(audioBuild);
 		textureIntegrityChecker.Initialize();
 		themeRepository.Initialize();
-		UpdateController.AddFixedUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
 		UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
 		MeshDataPool.Create();
 		waterPlaneManager = UnityEngine.Object.Instantiate(instance.waterPlaneManagerPrefab);
@@ -303,7 +317,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 			AccessoryDataManager.Reset();
 			DataUploadManager.Reset();
 			TimedPlayReward.RewardTracker.Reset();
-			UpdateController.RemoveObject(this);
+			UpdateController.RemoveUpdateObject(this);
 		}
 		catch (Exception ex)
 		{
@@ -332,10 +346,11 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	protected virtual void LateUpdate()
 	{
+		UpdateController.LateUpdate();
 		if (IsInitialized)
 		{
 			Game.World.WorldInventory.LateUpdate();
-			CameraController.UpdateCamera();
+			MainCameraManager.UpdateCamera();
 		}
 	}
 
@@ -392,10 +407,6 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 			}
 			Debug.LogError("Exception in Update: " + ex.ToString());
 		}
-	}
-
-	public void UpdateControllerFixedUpdate()
-	{
 	}
 
 	public static void SetGameSessionData(GameSessionData gameSessionData)
@@ -468,7 +479,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		{
 			((MonoBehaviour)PlayModeUI).gameObject.SetActive(value: false);
 		}
-		CameraController.gameObject.SetActive(value: false);
+		MainCameraManager.gameObject.SetActive(value: false);
 		gameObject.SetActive(value: false);
 		GameLoader.UnloadGame();
 	}
@@ -640,5 +651,10 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		PlayerPrefs.DeleteKey("Screenmanager Is Fullscreen mode");
 		PlayerPrefs.DeleteKey("Screenmanager Resolution Height");
 		PlayerPrefs.DeleteKey("Screenmanager Resolution Width");
+	}
+
+	public void UpdateControllerLateUpdate()
+	{
+		throw new NotImplementedException();
 	}
 }

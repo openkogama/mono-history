@@ -91,7 +91,7 @@ public class PickUpItemHealRay : PickupItem
 
 	private void Awake()
 	{
-		currentAmmoLeft = maxAmmoTime;
+		ResetAmmo();
 		lerpStartRotation = rayParticles.transform.rotation;
 		hitOffset = Vector3.zero;
 	}
@@ -130,7 +130,7 @@ public class PickUpItemHealRay : PickupItem
 	public override void ResetAmmo()
 	{
 		base.ResetAmmo();
-		currentAmmoLeft = maxAmmoTime;
+		currentAmmoLeft = GetAmmoMultiplier((int)(float)maxAmmoTime);
 	}
 
 	private bool IsStillChargingRay()
@@ -599,7 +599,7 @@ public class PickUpItemHealRay : PickupItem
 
 	private void ShowHitEffect()
 	{
-		MVGameControllerBase.CameraController.PlayPlingSound();
+		MVGameControllerBase.MainCameraManager.PlayPlingSound();
 		MVGameControllerBase.PlayModeUI.GetCrossHair().ShowHasHitEffect();
 	}
 

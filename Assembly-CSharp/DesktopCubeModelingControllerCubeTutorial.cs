@@ -113,7 +113,7 @@ public class DesktopCubeModelingControllerCubeTutorial : MonoBehaviour
 	private void DoSetMaterial(byte materialId)
 	{
 		materialsButtonImage.texture = MVGameControllerBase.Game.MaterialRepository.GetMaterial(materialId).ButtonTexture;
-		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.CurrentCubeMaterial = materialId;
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.SetCurrentCubeMaterial(materialId);
 	}
 
 	public void MaterialsPop()

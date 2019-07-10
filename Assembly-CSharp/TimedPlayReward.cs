@@ -4,7 +4,7 @@ using MV.Common;
 using Newtonsoft.Json;
 using UnityEngine;
 
-public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
+public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriberUpdate, IUpdatecontrollerSubscriberBase
 {
 	public static class RewardTracker
 	{
@@ -90,13 +90,7 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriber
 	{
 		gameObject.SetActive(value: false);
 		NotificationController.PushNotification(TM._("Thank you for playing this NEW game! Received " + RewardXP + " XP!"));
-		AvatarPooledXPParticles avatarPooledXPParticles = PrefabPool.Instance.EnumPoolManager.Instantiate<AvatarPooledXPParticles>(PoolEnums.XP);
-		avatarPooledXPParticles.transform.parent = MVGameControllerBase.WOCM.AvatarLocal.Transform;
-		avatarPooledXPParticles.transform.localPosition = new Vector3(0f, 1f, 0f);
-		avatarPooledXPParticles.transform.localRotation = Quaternion.identity;
-		avatarPooledXPParticles.transform.localScale = Vector3.one;
-		avatarPooledXPParticles.gameObject.layer = MVGameControllerBase.Game.LocalPlayer.Avatar.Body.GameObject.layer;
-		avatarPooledXPParticles.Initialize(RewardXP);
+		MVGameControllerBase.GameEventManager.NotifyXPDeltaAmount(RewardXP);
 		IsClaimable = false;
 		GameSessionData gameSessionData = MVGameControllerBase.GameSessionData;
 		WWWForm wWWForm = new WWWForm();

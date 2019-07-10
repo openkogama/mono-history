@@ -11,6 +11,9 @@ public class LobbyStateController : MonoBehaviour
 	[SerializeField]
 	private GamePassesUI gamePassesUIPrefab;
 
+	[SerializeField]
+	private GameObject boostButton;
+
 	private GamePassesUI gamePassesUI;
 
 	private void Start()

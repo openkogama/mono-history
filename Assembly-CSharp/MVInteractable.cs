@@ -10,16 +10,19 @@ public abstract class MVInteractable : MVInteractableBase
 
 	protected MVRuntimeDataVariable runtimeDataModifiers;
 
-	protected MVRuntimeDataVariableClampedFloat health;
+	protected MVRuntimeDataVariable<float> health;
+
+	protected MVRuntimeDataVariable<float> maxHealth;
 
 	protected MVRuntimeDataVariableClampedFloat shield;
 
 	public AvatarModifierPackages ModifierPackages => modifierPackages;
 
-	public virtual void Init(MVRuntimeDataVariable runtimeDataModifiers, MVRuntimeDataVariableClampedFloat health, MVRuntimeDataVariableClampedFloat shield)
+	public virtual void Init(MVRuntimeDataVariable runtimeDataModifiers, MVRuntimeDataVariable<float> health, MVRuntimeDataVariable<float> maxHealth, MVRuntimeDataVariableClampedFloat shield)
 	{
 		this.runtimeDataModifiers = runtimeDataModifiers;
 		this.health = health;
+		this.maxHealth = maxHealth;
 		this.shield = shield;
 		AvatarModifierPackages avatarModifierPackages = modifierPackages;
 		avatarModifierPackages.OnModifierExpired = (AvatarModifierPackages.OnModifierExpiredDelegate)Delegate.Combine(avatarModifierPackages.OnModifierExpired, (AvatarModifierPackages.OnModifierExpiredDelegate)((AvatarModifierPackage modifier) =>
@@ -31,7 +34,7 @@ public abstract class MVInteractable : MVInteractableBase
 	protected bool IgnoreDamage(MVPlayer damageDealer)
 	{
 		MVTeam teamFromActorNr = MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(worldObjectParent.OwnerActorNr);
-		if ((MVGameControllerBase.Game.TeamManager.TeamCount() > 1 && damageDealer != null && teamFromActorNr == damageDealer.Team && teamFromActorNr != MVTeam.None && MVGameControllerBase.Game.LocalPlayer.ActorNr != damageDealer.ActorNr) || !MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Playing))
+		if ((MVGameControllerBase.Game.TeamManager.TeamCount() > 1 && damageDealer != null && teamFromActorNr == damageDealer.Team && teamFromActorNr != MVTeam.None && MVGameControllerBase.Game.LocalPlayer.ActorNr != damageDealer.ActorNr) || !MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Playing))
 		{
 			return true;
 		}
@@ -41,7 +44,7 @@ public abstract class MVInteractable : MVInteractableBase
 	protected bool IgnoreHealing(MVPlayer damageDealer)
 	{
 		MVTeam teamFromActorNr = MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(worldObjectParent.OwnerActorNr);
-		if ((MVGameControllerBase.Game.TeamManager.TeamCount() > 1 && damageDealer != null && teamFromActorNr != damageDealer.Team && teamFromActorNr != MVTeam.None && MVGameControllerBase.Game.LocalPlayer.ActorNr != damageDealer.ActorNr) || !MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Playing))
+		if ((MVGameControllerBase.Game.TeamManager.TeamCount() > 1 && damageDealer != null && teamFromActorNr != damageDealer.Team && teamFromActorNr != MVTeam.None && MVGameControllerBase.Game.LocalPlayer.ActorNr != damageDealer.ActorNr) || !MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Playing))
 		{
 			return true;
 		}

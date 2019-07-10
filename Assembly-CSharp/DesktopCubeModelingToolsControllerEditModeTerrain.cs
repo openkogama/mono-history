@@ -1,23 +1,11 @@
-using MV.Common;
-
 public class DesktopCubeModelingToolsControllerEditModeTerrain : DesktopCubeModelingToolsController
 {
 	public override void SetupButtons()
 	{
-		if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
+		editCube.onClick.AddListener(() =>
 		{
-			editCube.onClick.AddListener(() =>
-			{
-				SetToolActive(CubeModelingEvent.EditCubes);
-			});
-		}
-		else
-		{
-			editCube.onClick.AddListener(() =>
-			{
-				SetToolActive(CubeModelingEvent.EditCubes2D);
-			});
-		}
+			SetToolActive(CubeModelingEvent.EditCubes);
+		});
 		deletecube.onClick.AddListener(() =>
 		{
 			SetToolActive(CubeModelingEvent.DeleteCubes);

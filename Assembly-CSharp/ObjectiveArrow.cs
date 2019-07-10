@@ -41,7 +41,7 @@ public class ObjectiveArrow : MonoBehaviour
 		targetDropOff = dropOff;
 		targetPickup = pickup;
 		initialHeight = arrowOffset.y;
-		farPlane = MVGameControllerBase.CameraController.MainCamera.farClipPlane;
+		farPlane = MVGameControllerBase.MainCameraManager.MainCamera.farClipPlane;
 		float arrowBobbing = Mathf.Min((targetDropOff.position - targetPickup.position).magnitude, farPlane - 100f);
 		SetArrowBobbing(arrowBobbing);
 		transform.position = startPos + arrowOffset;

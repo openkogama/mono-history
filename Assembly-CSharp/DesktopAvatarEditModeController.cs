@@ -84,7 +84,7 @@ public class DesktopAvatarEditModeController : ModeControllerBase, IActivateUIEl
 	{
 		base.Initialize();
 		avatarShopController.Initialize(avatarEditModeBodyController);
-		MVGameControllerBase.CameraController.IsLogicRendered = false;
+		MVGameControllerBase.MainCameraManager.IsLogicRendered = false;
 		InitializeLocalAvatar();
 		drawPlaneController.Initialize();
 		DrawPlane.Initialize(drawPlaneController);
@@ -140,10 +140,7 @@ public class DesktopAvatarEditModeController : ModeControllerBase, IActivateUIEl
 	private void InitializeLocalAvatar()
 	{
 		MVSpawnPointBlue mVSpawnPointBlue = (MVSpawnPointBlue)MVGameControllerBase.WOCM.GetWorldObjectClientWhere((MVWorldObjectClient wo) => wo is MVSpawnPointBlue);
-		MVAvatarLocal avatarLocal = MVGameControllerBase.WOCM.AvatarLocal;
-		avatarLocal.WorldPosition = mVSpawnPointBlue.WorldPosition - Vector3.up;
-		avatarLocal.WorldRotation = mVSpawnPointBlue.WorldRotation;
-		avatarLocal.SetMode(AvatarRuntimeState.Edit);
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.SetSpawn(mVSpawnPointBlue.WorldPosition - Vector3.up, mVSpawnPointBlue.WorldRotation);
 	}
 
 	public void SelectEditorStateMachineToBodyGroup()

@@ -8,6 +8,7 @@ public class AwayMonitor
 	{
 		Active,
 		IdleAndWarned,
+		PendingKick,
 		Kicked
 	}
 
@@ -95,6 +96,7 @@ public class AwayMonitor
 	{
 		instance.UpdateMouse();
 		instance.UpdateIdle();
+		instance.CheckAndResolvePendingKick();
 	}
 
 	public static void UpdateIdleAction()
@@ -134,15 +136,23 @@ public class AwayMonitor
 			}
 			else if (timeSpan > idleKickTimes.warningTimeSpan && state != State.IdleAndWarned)
 			{
-				MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, $"Idle.You will be kicked in {idleKickTimes.idleKickTimeMinutes - idleKickTimes.warningTimeMinutes} min.");
+				MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, $"Idle. You will be kicked in {idleKickTimes.idleKickTimeMinutes - idleKickTimes.warningTimeMinutes} min.");
 				state = State.IdleAndWarned;
 			}
 			else if (timeSpan > idleKickTimes.idleKickTimeSpan && state != State.Kicked)
 			{
-				MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, $"Kicked. Idle for {idleKickTimes.idleKickTimeMinutes} min.");
-				MVGameControllerBase.ApplicationQuit(new QuitIdle());
-				state = State.Kicked;
+				state = State.PendingKick;
 			}
+		}
+	}
+
+	private void CheckAndResolvePendingKick()
+	{
+		if (instance.state == State.PendingKick)
+		{
+			MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, $"Kicked. Idle for {instance.idleKickTimes.idleKickTimeMinutes} min.");
+			MVGameControllerBase.ApplicationQuit(new QuitIdle());
+			instance.state = State.Kicked;
 		}
 	}
 }

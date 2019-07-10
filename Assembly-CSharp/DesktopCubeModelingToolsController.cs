@@ -87,16 +87,11 @@ public class DesktopCubeModelingToolsController : MonoBehaviour
 		case CubeModelingEvent.EditCubes:
 			SetAlpha(editCube.image, enabledAlpha);
 			break;
-		case CubeModelingEvent.EditCubes2D:
-			SetAlpha(editCube.image, enabledAlpha);
-			break;
 		case CubeModelingEvent.DeleteCubes:
 			SetAlpha(deletecube.image, enabledAlpha);
 			break;
 		case CubeModelingEvent.PaintCubes:
 			SetAlpha(paintCube.image, enabledAlpha);
-			break;
-		case CubeModelingEvent.SprayCubes:
 			break;
 		}
 	}

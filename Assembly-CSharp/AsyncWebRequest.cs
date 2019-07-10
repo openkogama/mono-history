@@ -143,7 +143,7 @@ public abstract class AsyncWebRequest
 				www = Create();
 				return false;
 			}
-			Debug.Log("Failed url: " + www.url);
+			Debug.LogWarning("Failed url: " + www.url);
 			Debug.LogError(www.error);
 		}
 		return true;

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -92,7 +91,7 @@ internal class ESSelection : ESStateBase
 		editorStateMachine.SelectionController.SelectedWorldObjectDeleted += SelectionController_SelectedWorldObjectDeletedHandler;
 		if (!e.ParentGroupIsRoot && !flag)
 		{
-			e.CameraController.BlueModeEnabled = true;
+			e.MainCameraManager.BlueModeEnabled = true;
 		}
 		VoxelHit hit = default;
 		if (EditModeObjectPicker.Pick(ref hit))
@@ -175,16 +174,8 @@ internal class ESSelection : ESStateBase
 		{
 			if (flag && pickedTarget != null && ((pickedTarget.mousePosition - MVInputWrapper.GetPointerPosition()).magnitude > 0.5f || MVInputWrapper.GetAxisRawWithoutSensitivity("Mouse ScrollWheel") != 0f))
 			{
-				if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-				{
-					e.Data.Add("translateMode", TranslateMode.XY);
-					e.Data.Add("moveWithAvatar", false);
-				}
-				else
-				{
-					e.Data.Add("translateMode", TranslateMode.XZ);
-					e.Data.Add("moveWithAvatar", true);
-				}
+				e.Data.Add("translateMode", TranslateMode.XZ);
+				e.Data.Add("moveWithAvatar", true);
 				e.PushState(EditorEvent.ESTranslate);
 			}
 		}
@@ -263,7 +254,7 @@ internal class ESSelection : ESStateBase
 	{
 		if (e.ParentGroupIsRoot || (e.SingleSelectedWO != null && e.SingleSelectedWO.HasInteractionFlag(InteractionFlags.DirectlySelectable)))
 		{
-			e.CameraController.BlueModeEnabled = false;
+			e.MainCameraManager.BlueModeEnabled = false;
 		}
 		editorStateMachine.SelectionController.SelectedWorldObjectDeleted -= SelectionController_SelectedWorldObjectDeletedHandler;
 	}
@@ -294,14 +285,14 @@ internal class ESSelection : ESStateBase
 
 	private LinkObjectBase GetLinkHit(EditorStateMachine e, ref VoxelHit hit)
 	{
-		if (MVGameControllerBase.CameraController.IsLogicRendered)
+		if (MVGameControllerBase.MainCameraManager.IsLogicRendered)
 		{
 			float num = float.PositiveInfinity;
 			if (EditModeObjectPicker.Pick(ref hit))
 			{
 				num = hit.distance;
 			}
-			Ray ray = MVGameControllerBase.CameraController.MainCamera.ScreenPointToRay(MVInputWrapper.GetPointerPosition());
+			Ray ray = MVGameControllerBase.MainCameraManager.MainCamera.ScreenPointToRay(MVInputWrapper.GetPointerPosition());
 			int layerMask = 1 << LayerMask.NameToLayer("Logic");
 			Physics.Raycast(ray, out var hitInfo, float.PositiveInfinity, layerMask);
 			if (hitInfo.collider != null && hitInfo.distance < num)
@@ -324,7 +315,7 @@ internal class ESSelection : ESStateBase
 	{
 		if (e.ParentGroupIsRoot)
 		{
-			e.CameraController.BlueModeEnabled = false;
+			e.MainCameraManager.BlueModeEnabled = false;
 			e.DeSelectAll();
 			e.Event = EditorEvent.ESTerrainEdit;
 			return;
@@ -333,7 +324,7 @@ internal class ESSelection : ESStateBase
 		e.ExitGroup();
 		if (e.ParentGroupIsRoot)
 		{
-			e.CameraController.BlueModeEnabled = false;
+			e.MainCameraManager.BlueModeEnabled = false;
 			e.DeSelectAll();
 			e.Event = EditorEvent.ESTerrainEdit;
 		}

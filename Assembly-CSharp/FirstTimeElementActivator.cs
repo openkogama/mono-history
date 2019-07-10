@@ -98,6 +98,7 @@ public class FirstTimeElementActivator : MonoBehaviour, IFirstTimeElementActivat
 		if (activatableFirstTimeUiElement != null && !activatableFirstTimeUiElement.IsShowing)
 		{
 			activatableFirstTimeUiElement.Show();
+			MVGameControllerBase.GameEventManager.NotifyFirstTimeEvent(activatableFirstTimeUiElement.FirstTimeEvent);
 		}
 		foreach (FirstTimeEvent item in elementsToRemove)
 		{

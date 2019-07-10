@@ -1,6 +1,6 @@
 public abstract class MVNetworkObject
 {
-	private MVWorldObjectClient worldObject;
+	protected MVWorldObjectClient worldObject;
 
 	public abstract bool RemoveFromUpdate { get; }
 

@@ -10,7 +10,7 @@ public abstract class ModeControllerBase : MonoBehaviour, IToggleFps, IEventSyst
 
 	public virtual void Initialize()
 	{
-		MVGameControllerBase.CameraController.Init();
+		MVGameControllerBase.MainCameraManager.Init();
 	}
 
 	public void ToggleFps()

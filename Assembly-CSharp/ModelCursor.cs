@@ -56,7 +56,7 @@ public class ModelCursor
 		{
 			vector2 += (vector - vector2) * 0.2f;
 		}
-		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.UpdatePosition(vector2);
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.UpdatePosition(vector2);
 	}
 
 	protected void HandleLaser(CubePickingInfo movingEdgeCube, CubePickingInfo selectedCube, GameObject targetGameObject, BuildState buildState, bool addCube)
@@ -66,22 +66,22 @@ public class ModelCursor
 			Vector3 hit = default;
 			if (DrawPlane.Pick(ref hit))
 			{
-				MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ActivateLaserForDuration(addCubeLaserOnTime);
-				MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.UpdatePosition(hit);
+				MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.ActivateLaserForDuration(addCubeLaserOnTime);
+				MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.UpdatePosition(hit);
 			}
 		}
 		else if (movingEdgeCube != null)
 		{
 			HandleLaserMovingEdge(movingEdgeCube, targetGameObject);
-			MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ActivateLaserForDuration(addCubeLaserOnTime);
+			MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.ActivateLaserForDuration(addCubeLaserOnTime);
 		}
 		else if (addCube)
 		{
-			MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ActivateLaserForDuration(addCubeLaserOnTime);
+			MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.ActivateLaserForDuration(addCubeLaserOnTime);
 		}
 		else if (selectedCube != null)
 		{
-			MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.UpdatePosition(selectedCube.point);
+			MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.UpdatePosition(selectedCube.point);
 		}
 	}
 

@@ -80,7 +80,7 @@ public class TerrainLODComponent
 			return;
 		}
 		float num = 100f;
-		Vector3 position = MVGameControllerBase.CameraController.transform.position;
+		Vector3 position = MVGameControllerBase.MainCameraManager.transform.position;
 		int num2 = Mathf.Max(1, Mathf.RoundToInt(num * Time.deltaTime));
 		for (int i = 0; i < num2; i++)
 		{

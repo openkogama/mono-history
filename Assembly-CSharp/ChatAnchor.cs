@@ -96,7 +96,7 @@ public class ChatAnchor : MonoBehaviour
 			{
 				snapTracking = true;
 			}
-			Camera mainCamera = MVGameControllerBase.CameraController.MainCamera;
+			Camera mainCamera = MVGameControllerBase.MainCameraManager.MainCamera;
 			Vector3 position = transform.position;
 			position = mainCamera.WorldToScreenPoint(position);
 			position.z = AttachedBubble.rectTransform.position.z;

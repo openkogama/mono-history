@@ -15,22 +15,13 @@ public class ThirdPersonCamera : PlaymodeCamera, ICameraSettings
 	public override void Awake()
 	{
 		base.Awake();
-		MVCameraController.RegisterCameraWithSettings(MVGameType.Classic, this);
+		MainCameraManager.RegisterCameraWithSettings(MVGameType.Classic, this);
 	}
 
 	public override void UpdateCamera(MVCameraController camController, ProtectedTransform targetTransform)
 	{
 		UpdateTargetRotation();
-		HandleGunMode();
 		base.UpdateCamera(camController, targetTransform);
-	}
-
-	protected override void HandleGunMode()
-	{
-		if (MVGameControllerBase.WOCM.AvatarLocal.InGunMode)
-		{
-			MVGameControllerBase.CameraController.PushCamera(CameraType.FirstPersonCamera);
-		}
 	}
 
 	public void UpdateFromCameraSettings(Dictionary<object, object> data)
@@ -59,7 +50,7 @@ public class ThirdPersonCamera : PlaymodeCamera, ICameraSettings
 		}
 		shoulderOffset *= scale;
 		targetDistanceStrength *= scale;
-		MVGameControllerBase.CameraController.AvatarCameraFade.SetScaleFadeDistance(scale);
+		avatarCameraDistTransparency.SetScaleFadeDistance(scale);
 	}
 
 	private void ResetScaleValues()
@@ -67,7 +58,7 @@ public class ThirdPersonCamera : PlaymodeCamera, ICameraSettings
 		distanceToAvatar = baseDistanceSettings;
 		height = 1.5f;
 		cameraRadius = 0.3f;
-		lookAtTransform = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform;
+		lookAtTransform = avatarLocal.GameObject.transform;
 		currentLookAtOffset = lookAtOffset;
 		lookAtScaleCorrection = 1f;
 		shoulderOffset = new Vector3(1.5f, 0f, -0.2f);

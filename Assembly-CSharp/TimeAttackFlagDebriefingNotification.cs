@@ -28,12 +28,17 @@ public class TimeAttackFlagDebriefingNotification : Notification
 
 	private void Start()
 	{
-		FlagDebriefingControl.OnFlagDebriefingEnd = (Action)Delegate.Combine(FlagDebriefingControl.OnFlagDebriefingEnd, new Action(OnTimeFlagDebriefingEnd));
+		FlagDebriefingControl flagDebriefingControl = MVGameControllerBase.FlagDebriefingControl;
+		flagDebriefingControl.OnFlagDebriefingEnd = (Action)Delegate.Combine(flagDebriefingControl.OnFlagDebriefingEnd, new Action(OnTimeFlagDebriefingEnd));
 	}
 
 	private void OnDestroy()
 	{
-		FlagDebriefingControl.OnFlagDebriefingEnd = (Action)Delegate.Remove(FlagDebriefingControl.OnFlagDebriefingEnd, new Action(OnTimeFlagDebriefingEnd));
+		if (MVGameControllerBase.IsAlive)
+		{
+			FlagDebriefingControl flagDebriefingControl = MVGameControllerBase.FlagDebriefingControl;
+			flagDebriefingControl.OnFlagDebriefingEnd = (Action)Delegate.Remove(flagDebriefingControl.OnFlagDebriefingEnd, new Action(OnTimeFlagDebriefingEnd));
+		}
 	}
 
 	public override void Initialize(Dictionary<object, object> data)

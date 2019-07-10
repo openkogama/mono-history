@@ -54,13 +54,8 @@ public class EditorWorldObjectCreation : MonoBehaviour, ICloneHandler, IAddItemF
 		{
 			Debug.Log("Creating new wo");
 			esm.Event = EditorEvent.ESWaitForSelect;
-			Quaternion rotation = Quaternion.identity;
-			if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-			{
-				WorldObjectType worldObjectType = koGaMaPackageFromItem.worldObjects[koGaMaPackageFromItem.worldObjectRoot].WorldObjectType;
-				rotation = HandlePlatformerRotationSpecialCases(item.itemCategoryID, worldObjectType);
-			}
-			MVGameControllerBase.OperationRequests.AddItemToWorld(item.itemID, esm.ParentGroupID, Vector3.up * 10f, rotation, localOwner: false, transferOwnershipToServerOnLeave: true, isPreviewItem: false);
+			Quaternion identity = Quaternion.identity;
+			MVGameControllerBase.OperationRequests.AddItemToWorld(item.itemID, esm.ParentGroupID, Vector3.up * 10f, identity, localOwner: false, transferOwnershipToServerOnLeave: true, isPreviewItem: false);
 		}
 		koGaMaPackageFromItem.Destroy();
 	}
@@ -111,7 +106,7 @@ public class EditorWorldObjectCreation : MonoBehaviour, ICloneHandler, IAddItemF
 				List<MVWorldObjectClient> worldObjectsByType = MVGameControllerBase.WOCM.GetWorldObjectsByType(value.WorldObjectType);
 				if (worldObjectsByType.Count > 0)
 				{
-					MVGameControllerBase.CameraController.CurCamera.FocusOnObject(worldObjectsByType[0]);
+					MVGameControllerBase.MainCameraManager.CurrentCamera.FocusOnObject(worldObjectsByType[0]);
 					NotificationController.PushNotification(TM._("There can be only one of this object."));
 					return false;
 				}
@@ -190,23 +185,6 @@ public class EditorWorldObjectCreation : MonoBehaviour, ICloneHandler, IAddItemF
 			return worldObjectsByType4;
 		}
 		return null;
-	}
-
-	private Quaternion HandlePlatformerRotationSpecialCases(int itemCategory, WorldObjectType worldObjectType)
-	{
-		switch (worldObjectType)
-		{
-		case WorldObjectType.GameCoinChest:
-			return Quaternion.AngleAxis(-90f, Vector3.up);
-		case WorldObjectType.AdvancedGhost:
-			return Quaternion.identity;
-		default:
-			if (itemCategory == 8)
-			{
-				return Quaternion.AngleAxis(90f, Vector3.up);
-			}
-			return Quaternion.identity;
-		}
 	}
 
 	private void WOCM_InitializedGameQueryData(object sender, InitializedGameQueryDataEventArgs e)

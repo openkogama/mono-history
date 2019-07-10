@@ -121,7 +121,7 @@ public class MVGameCoin : MVLogicObject
 
 	public virtual bool OnPickup(int instigatorID)
 	{
-		if ((instigatorID == MVGameControllerBase.Game.LocalPlayer.ActorNr || instigatorID == MVGameControllerBase.Game.LocalPlayer.Avatar.Id) && state == GameCoinClientState.Visible)
+		if ((instigatorID == MVGameControllerBase.Game.LocalPlayer.ActorNr || instigatorID == MVGameControllerBase.Game.LocalPlayer.SpawnRoleDataMediator.WoId) && state == GameCoinClientState.Visible)
 		{
 			isVisible = false;
 			pickupObject.PickupItem.GreyOut();
@@ -135,14 +135,14 @@ public class MVGameCoin : MVLogicObject
 			MVGameControllerBase.Game.GameCoinManager.GameCoinCollect();
 			if (MVClientSettings.IsFlagSet(ClientSettingFlags.GamePassSilentReleaseEnabled))
 			{
-				MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, MVGameControllerBase.Game.LocalPlayer.Avatar.Id);
+				MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, MVGameControllerBase.Game.LocalPlayer.SpawnRoleDataMediator.WoId);
 			}
 			return true;
 		}
 		return false;
 	}
 
-	public bool IsCoinTakeable(MVInteractableBase avatarInteractable)
+	public bool IsCoinTakeable(int woId, MVInteractableBase avatarInteractable)
 	{
 		if (state != GameCoinClientState.Visible)
 		{

@@ -57,7 +57,7 @@ public class CurrentProgressNotification : Notification
 				break;
 			case GameStatCounterType.TimeAttackFlag:
 				currentProgressText.text = string.Empty;
-				scoreText.text = WinningConditionControl.MakeIntoScoreText(ConvertSecondsToMilliSeconds(Time.time - FlagDebriefingControl.RunStartTime), GameStatCounterType.TimeAttackFlag);
+				scoreText.text = WinningConditionControl.MakeIntoScoreText(ConvertSecondsToMilliSeconds(Time.time - MVGameControllerBase.FlagDebriefingControl.RunStartTime), GameStatCounterType.TimeAttackFlag);
 				shouldShowCurrentTime = true;
 				break;
 			default:
@@ -142,7 +142,7 @@ public class CurrentProgressNotification : Notification
 	{
 		if (currentDisplayedStatType == GameStatCounterType.TimeAttackFlag)
 		{
-			return ConvertSecondsToMilliSeconds(Time.time - FlagDebriefingControl.RunStartTime);
+			return ConvertSecondsToMilliSeconds(Time.time - MVGameControllerBase.FlagDebriefingControl.RunStartTime);
 		}
 		return MVGameControllerBase.Game.ServerTimeInMilliSeconds - startTime;
 	}

@@ -8,6 +8,8 @@ public class LevelRequirementPanel : MonoBehaviour
 	[SerializeField]
 	private RawImage levelRequirementImage;
 
+	private Texture2D levelRequirementTextureAsset;
+
 	private int prevLevel = -1;
 
 	private int desiredLevel;
@@ -43,16 +45,16 @@ public class LevelRequirementPanel : MonoBehaviour
 	private void OnDestroy()
 	{
 		BadgeManager.UnsubscribeGetBadgeRequest(StreamingAssetCallback);
+		UnityEngine.Object.Destroy(levelRequirementTextureAsset);
 	}
 
 	private void StreamingAssetCallback(WWW www)
 	{
-		if (www != null && www.texture != null)
+		levelRequirementTextureAsset = www.texture;
+		if (levelRequirementTextureAsset != null)
 		{
-			Debug.Log("www.texture.width " + www.texture.width);
 			levelRequirementImage.enabled = true;
-			Debug.Log(desiredLevel);
-			levelRequirementImage.texture = www.texture;
+			levelRequirementImage.texture = levelRequirementTextureAsset;
 		}
 	}
 }

@@ -72,7 +72,7 @@ public class MVFlag : MVGamePointRewardLogicObject
 	{
 		if (worldObjectEnableController.EnableState == EnableState.Enable && (useInteractor.EvaluateRequirementsUsability() & (UseGUIResult.CanAfford | UseGUIResult.CannotAfford)) == 0)
 		{
-			DoCaptureFlag(MVGameControllerBase.WOCM.AvatarLocal.Id);
+			DoCaptureFlag(e.instigatorWOID);
 		}
 	}
 

@@ -206,7 +206,7 @@ public class WorldEditorDrawPlane : MonoBehaviour
 	{
 		Vector3 forward = mainCamera.transform.forward;
 		Vector3 vector = new Vector3((!(forward.x > 0.1f)) ? (-5f) : 5f, (!(forward.y > 0.1f)) ? (-5f) : 5f, (!(forward.z > 0f)) ? (-7f) : 5f);
-		SetToGridAlignedPos(MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position + vector);
+		SetToGridAlignedPos(MVGameControllerBase.SpawnRoleDataMediatorLocal.Position + vector);
 	}
 
 	public void SetToGridAlignedPos(Vector3 pos)
@@ -261,7 +261,7 @@ public class WorldEditorDrawPlane : MonoBehaviour
 
 	private void FollowAvatar()
 	{
-		Vector3 vector = transform.InverseTransformPoint(MVGameControllerBase.CameraController.transform.position);
+		Vector3 vector = transform.InverseTransformPoint(MVGameControllerBase.MainCameraManager.transform.position);
 		vector = MathFunctions.RoundVector(vector, 0);
 		vector.y = 0f;
 		DrawPlaneVisualization.transform.localPosition = vector;
@@ -316,7 +316,7 @@ public class WorldEditorDrawPlane : MonoBehaviour
 
 	private Vector3 GetCubePlaceOffset()
 	{
-		Vector3 vector = transform.InverseTransformPoint(MVGameControllerBase.CameraController.transform.position);
+		Vector3 vector = transform.InverseTransformPoint(MVGameControllerBase.MainCameraManager.transform.position);
 		Vector3 offsetVector = GetOffsetVector();
 		return offsetVector * ((vector.y > 0f) ? 1 : (-1));
 	}

@@ -1,6 +1,7 @@
 using System;
 using MV.Common;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class RespawnUIController : MonoBehaviour
@@ -29,6 +30,9 @@ public class RespawnUIController : MonoBehaviour
 	[SerializeField]
 	private CanvasGroup resetUICanvasGroup;
 
+	[SerializeField]
+	private DeathUIBoostMenuController boostMenuPrefab;
+
 	private float waitTime;
 
 	private const float delayDuration = 1.2f;
@@ -44,8 +48,8 @@ public class RespawnUIController : MonoBehaviour
 			resetUIFader.Activate();
 			buttonFader.Unpause();
 			readyToPlayTimerObject.SetActive(value: true);
-			MVGameControllerBase.WOCM.AvatarLocal.AvatarRespawnHandler.ShouldRespawnAsGhost = false;
-			FlagDebriefingControl.ResetToSpawnPoint();
+			MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.SetRespawnWhenPossible();
+			MVGameControllerBase.FlagDebriefingControl.ResetToSpawnPoint();
 			restartText.text = "Respawning at start...";
 		}
 	}
@@ -61,45 +65,40 @@ public class RespawnUIController : MonoBehaviour
 				resetUIFader.Activate();
 			}
 			readyToPlayTimerObject.SetActive(value: true);
-			MVGameControllerBase.WOCM.AvatarLocal.AvatarRespawnHandler.ShouldRespawnAsGhost = false;
+			MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.SetRespawnWhenPossible();
 		}
 	}
 
 	private void Start()
 	{
 		gameObject.SetActive(value: false);
-		if (MVGameControllerBase.WOCM.AvatarLocal == null)
+		Initialize();
+	}
+
+	private void OnDestroy()
+	{
+		if (MVGameControllerBase.IsAlive)
 		{
-			MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
-			mVPlayerContainer.OnLocalPlayerReady = (Action)Delegate.Combine(mVPlayerContainer.OnLocalPlayerReady, new Action(LateInitialize));
-		}
-		else
-		{
-			Initialize();
+			MVGameControllerBase.SpawnRoleDataMediatorLocal.OnSuicide -= OnLocalAvatarSuicide;
+			MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.OnChange -= OnAvatarStateChanged;
+			MVNetworkGame game = MVGameControllerBase.Game;
+			game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Remove(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnRoundEnd));
 		}
 	}
 
 	private void Initialize()
 	{
-		MVAvatarLocal avatarLocal = MVGameControllerBase.WOCM.AvatarLocal;
-		avatarLocal.OnSuicide = (Action)Delegate.Combine(avatarLocal.OnSuicide, new Action(OnLocalAvatarSuicide));
-		MVRuntimeDataVariable avatarModeTypeFlags = MVGameControllerBase.WOCM.AvatarLocal.avatarModeTypeFlags;
-		avatarModeTypeFlags.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(avatarModeTypeFlags.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnAvatarStateChanged));
+		MVGameControllerBase.SpawnRoleDataMediatorLocal.OnSuicide += OnLocalAvatarSuicide;
+		MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.OnChange += OnAvatarStateChanged;
+		MVNetworkGame game = MVGameControllerBase.Game;
+		game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Combine(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnRoundEnd));
 		NotificationFade notificationFade = fader;
 		notificationFade.OnFinished = (Action)Delegate.Combine(notificationFade.OnFinished, new Action(OnFadeFinished));
 	}
 
-	private void LateInitialize()
+	private void OnAvatarStateChanged(SpawnRoleModeType mode)
 	{
-		Initialize();
-		MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
-		mVPlayerContainer.OnLocalPlayerReady = (Action)Delegate.Remove(mVPlayerContainer.OnLocalPlayerReady, new Action(Initialize));
-	}
-
-	private void OnAvatarStateChanged(object state)
-	{
-		AvatarModeTypes avatarModeTypes = (AvatarModeTypes)state;
-		if (isDeathBriefActive && avatarModeTypes != AvatarModeTypes.Hidden && avatarModeTypes != AvatarModeTypes.Dead)
+		if (isDeathBriefActive && mode != SpawnRoleModeType.Hidden && mode != SpawnRoleModeType.Dead)
 		{
 			fader.Deactivate();
 			fader.gameObject.SetActive(value: false);
@@ -111,21 +110,17 @@ public class RespawnUIController : MonoBehaviour
 
 	private void Update()
 	{
-		if (waitTime + 1.2f < Time.time)
+		if (waitTime + 1.2f < Time.time && !isDeathBriefActive && MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState != MVGameStateType.RoundEnded)
 		{
-			if (!isDeathBriefActive)
+			isDeathBriefActive = true;
+			float num = waitTime;
+			float timeUntilGhostMode = num + 1.2f + 2.8f - Time.time;
+			DeathUIBoostMenuController boostMenu = UnityEngine.Object.Instantiate(boostMenuPrefab);
+			boostMenu.Initialize(timeUntilGhostMode);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 			{
-				fader.gameObject.SetActive(value: true);
-				fader.Activate();
-				isDeathBriefActive = true;
-			}
-			float num = waitTime + 1.2f;
-			timerFill.fillAmount = 1f - (Time.time - num) / 2.8f;
-			readyToPlayTimerFill.fillAmount = 1f - (Time.time - num) / 2.8f;
-		}
-		if (MVInputWrapper.GetBooleanControlDown(KogamaControls.NotificationAcceptFriendshipRequest))
-		{
-			OnResetToSpawnPoint();
+				x.Push(boostMenu.gameObject, UIPushOption.HideAll, null, UIGroupFlags.GameObjectUI);
+			});
 		}
 	}
 
@@ -138,7 +133,7 @@ public class RespawnUIController : MonoBehaviour
 
 	private void OnLocalAvatarSuicide()
 	{
-		if (!FlagDebriefingControl.IsInFlagDebriefing)
+		if (!MVGameControllerBase.FlagDebriefingControl.IsInFlagDebriefing)
 		{
 			WinningConditionControl.TryGetPrioritizedStat(out var statType);
 			MVCheckpoint checkpoint = MVGameControllerBase.Game.LocalPlayer.GetCheckpoint();
@@ -155,7 +150,6 @@ public class RespawnUIController : MonoBehaviour
 			buttonFader.Activate();
 			buttonFader.PauseAt(0f);
 			readyToPlayTimerObject.SetActive(value: false);
-			MVGameControllerBase.WOCM.AvatarLocal.AvatarRespawnHandler.ShouldRespawnAsGhost = true;
 			if (checkpoint != null)
 			{
 				restartText.text = "Respawning at checkpoint...";
@@ -165,5 +159,14 @@ public class RespawnUIController : MonoBehaviour
 				restartText.text = "Respawning at start...";
 			}
 		}
+	}
+
+	private void OnRoundEnd(IWinningCondition winningCondition)
+	{
+		fader.Deactivate();
+		fader.gameObject.SetActive(value: false);
+		gameObject.SetActive(value: false);
+		isDeathBriefActive = false;
+		resetUICanvasGroup.alpha = 1f;
 	}
 }

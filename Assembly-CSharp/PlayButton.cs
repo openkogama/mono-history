@@ -45,12 +45,12 @@ public class PlayButton : PlayButtonBase, IPointerEnterHandler, IPointerExitHand
 		{
 			FirstTimePressPlayController.OnFirstTimePlayIsPressed();
 		}
-		HandleRoundEnded();
+		HandlePlayAvailable();
 		if (timedPlayReward != null && timedPlayReward.IsClaimable)
 		{
 			timedPlayReward.ClaimReward();
 		}
-		if (!HandleRoundEnded())
+		if (!HandlePlayAvailable())
 		{
 			StartPlaying();
 		}
@@ -66,9 +66,11 @@ public class PlayButton : PlayButtonBase, IPointerEnterHandler, IPointerExitHand
 		button.interactable = true;
 	}
 
-	private bool HandleRoundEnded()
+	private bool HandlePlayAvailable()
 	{
-		if (MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded)
+		bool flag = MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded;
+		bool flag2 = Time.time < MVGameControllerBase.LocalPlayer.RespawnTime;
+		if (flag || flag2)
 		{
 			button.interactable = false;
 			MVGameControllerDesktop.LockCursorManager.CursorLockWithoutCallback = true;

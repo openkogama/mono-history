@@ -7,7 +7,7 @@ internal class DeleteCubes : CubeModelTool
 	public override void Enter(CubeModelingStateMachine e)
 	{
 		deleteCursor = new DeleteCursor(e.CubeCorners);
-		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.DeletingCubes);
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.ChangeState(LaserPointerState.DeletingCubes);
 		waitForMouseUp = MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelect);
 	}
 
@@ -44,7 +44,7 @@ internal class DeleteCubes : CubeModelTool
 
 	public override void Exit(CubeModelingStateMachine e)
 	{
-		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.Idle);
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.ChangeState(LaserPointerState.Idle);
 		HideCursor();
 	}
 

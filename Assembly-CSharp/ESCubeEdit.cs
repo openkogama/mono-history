@@ -1,4 +1,3 @@
-using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -45,11 +44,7 @@ internal class ESCubeEdit : ESStateBase
 			e.PopState();
 			return;
 		}
-		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-		{
-			MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Edit);
-		}
-		((MVAvatarLocal.JetPackMode)MVGameControllerBase.WOCM.AvatarLocal.CurrentMode).ModifySpeed(Mathf.Min(1f, 2f * e.SingleSelectedWO.Scale.x), Mathf.Min(1f, 2f * e.SingleSelectedWO.Scale.x));
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.EnterBuildStateEvent(stateType, new MVBuildModeAvatarLocal.EditMode.EditCubesSetupData(e.SingleSelectedWO.Id));
 		DrawPlane.HideDrawPlane();
 		ExecuteEvents.ExecuteHierarchy(e.GameObject, null, (IHandleCubeModelEdit handler, BaseEventData data) =>
 		{
@@ -73,8 +68,8 @@ internal class ESCubeEdit : ESStateBase
 		SharedCubeFunctions.SetLayerRecursively(TargetCubeModel.Transform, select: true);
 		DrawPlane.DrawPlaneToModel(TargetCubeModel.GameObject);
 		e.CubeModelingStateMachine.StartEdit(TargetCubeModel, constraint);
-		MVGameControllerBase.CameraController.CurCamera.FocusOnObject(TargetCubeModel);
-		e.CameraController.BlueModeEnabled = true;
+		MVGameControllerBase.MainCameraManager.CurrentCamera.FocusOnObject(TargetCubeModel);
+		e.MainCameraManager.BlueModeEnabled = true;
 	}
 
 	public override void Execute(EditorStateMachine e)
@@ -122,7 +117,7 @@ internal class ESCubeEdit : ESStateBase
 		});
 		if (TargetCubeModel == null)
 		{
-			e.CameraController.BlueModeEnabled = false;
+			e.MainCameraManager.BlueModeEnabled = false;
 		}
 		else
 		{
@@ -135,7 +130,7 @@ internal class ESCubeEdit : ESStateBase
 				SharedCubeFunctions.SetLayerRecursively(MVGameControllerBase.WOCM.GetWorldObjectClient(e.ParentGroupID).Transform, select: false);
 			}
 			SharedCubeFunctions.SetLayerRecursively(TargetCubeModel.Transform, select: false);
-			e.CameraController.BlueModeEnabled = false;
+			e.MainCameraManager.BlueModeEnabled = false;
 		}
 		DrawPlane.ReturnDrawPlaneToLandscape();
 		if (constraintVisualizer != null)
@@ -147,19 +142,14 @@ internal class ESCubeEdit : ESStateBase
 			modelingDynamicBoxConstraint.DetachFromCubeModel();
 		}
 		constraint = null;
-		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.Idle);
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.ChangeState(LaserPointerState.Idle);
 		if (e.SelectedIDs.Count == 0)
 		{
 			DeTintCurrent();
 		}
 		e.CubeModelingStateMachine.RemoveCursors();
 		e.CubeModelingStateMachine.EndEdit();
-		((MVAvatarLocal.JetPackMode)MVGameControllerBase.WOCM.AvatarLocal.CurrentMode).ModifySpeed(1f, 1f);
-		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-		{
-			MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Edit2D);
-			DrawPlane.SetToTerrain(active: true);
-		}
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.ExitBuildStateEvent(stateType, null);
 	}
 
 	private void Exit()

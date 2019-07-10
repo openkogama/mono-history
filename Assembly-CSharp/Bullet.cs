@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using MV.Common;
 using UnityEngine;
 
 public class Bullet : MonoBehaviour
@@ -337,15 +336,12 @@ public class Bullet : MonoBehaviour
 
 	public Vector3 FindTargetPos(float maxRange)
 	{
-		if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
+		LayerMask layerMask = -5;
+		layerMask = (int)layerMask & ~(1 << LayerMask.NameToLayer("Logic"));
+		if (CollisionDetection.MVHit(lineOfFire, out var voxelHit, maxRange, ignoreWoIDs, layerMask))
 		{
-			LayerMask layerMask = -5;
-			layerMask = (int)layerMask & ~(1 << LayerMask.NameToLayer("Logic"));
-			if (CollisionDetection.MVHit(lineOfFire, out var voxelHit, maxRange, ignoreWoIDs, layerMask))
-			{
-				Debug.DrawLine(lineOfFire.origin, lineOfFire.GetPoint(voxelHit.distance), Color.yellow, 10f);
-				return voxelHit.point;
-			}
+			Debug.DrawLine(lineOfFire.origin, lineOfFire.GetPoint(voxelHit.distance), Color.yellow, 10f);
+			return voxelHit.point;
 		}
 		return gameObject.transform.position + lineOfFire.direction * maxRange;
 	}

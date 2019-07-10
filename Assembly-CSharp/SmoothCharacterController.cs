@@ -1,4 +1,3 @@
-using MV.Common;
 using UnityEngine;
 
 public class SmoothCharacterController : MonoBehaviour
@@ -9,22 +8,15 @@ public class SmoothCharacterController : MonoBehaviour
 
 	public MvCharacterController Controller => controller;
 
-	public void Init(GameObject worldObjectRoot, CullingSubscriberBase cullingSubscriberBase)
+	public void Init(GameObject worldObjectRoot, CullingSubscriberBase cullingSubscriberBase, MVWorldObjectClient worldObjectOwner)
 	{
 		GameObject gameObject = new GameObject(worldObjectRoot.name + " physics controller");
 		gameObject.transform.parent = worldObjectRoot.transform.parent;
 		gameObject.transform.position = worldObjectRoot.transform.position;
 		gameObject.transform.rotation = worldObjectRoot.transform.rotation;
-		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-		{
-			controller = gameObject.AddComponent<MVCharacterController2D>();
-		}
-		else
-		{
-			controller = gameObject.AddComponent<MVCharacterController3D>();
-		}
+		controller = gameObject.AddComponent<MVCharacterController3D>();
 		smoothPhysicsMovement = base.gameObject.AddComponent<SmoothPhysicsMovement>();
-		smoothPhysicsMovement.Init(controller.transform, cullingSubscriberBase);
+		smoothPhysicsMovement.Init(controller.transform, cullingSubscriberBase, worldObjectOwner);
 	}
 
 	public void Reset()
@@ -45,10 +37,10 @@ public class SmoothCharacterController : MonoBehaviour
 		Object.Destroy(smoothPhysicsMovement);
 	}
 
-	public SmoothCharacterController Clone(GameObject targetGameObject, GameObject seat, CullingSubscriberBase cullingSubscriberBase)
+	public SmoothCharacterController Clone(GameObject targetGameObject, GameObject seat, CullingSubscriberBase cullingSubscriberBase, MVWorldObjectClient worldObjectOwner)
 	{
 		SmoothCharacterController smoothCharacterController = targetGameObject.AddComponent<SmoothCharacterController>();
-		smoothCharacterController.Init(targetGameObject, cullingSubscriberBase);
+		smoothCharacterController.Init(targetGameObject, cullingSubscriberBase, worldObjectOwner);
 		smoothCharacterController.Controller.Init(Controller.Radius, Controller.Height, seat.transform.localPosition);
 		return smoothCharacterController;
 	}

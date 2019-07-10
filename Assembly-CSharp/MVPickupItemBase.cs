@@ -3,7 +3,7 @@ using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 
-public class MVPickupItemBase : MVLogicObject, IPickupStateHandler, IUpdatecontrollerSubscriber
+public class MVPickupItemBase : MVLogicObject, IPickupStateHandler, IUpdatecontrollerSubscriberUpdate, IUpdatecontrollerSubscriberBase
 {
 	private const UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
@@ -163,6 +163,10 @@ public class MVPickupItemBase : MVLogicObject, IPickupStateHandler, IUpdatecontr
 		UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
 		baseObject.TriggerBoxEvents.TriggerEnter += triggerBoxEvents_TriggerEnter;
 		baseObject.TriggerBoxEvents.TriggerExit += triggerBoxEvents_TriggerExit;
+		if (PrefabPool.PickupPrefabLUT[Type].equipableType == AvatarEquipableType.Weapon)
+		{
+			MVGameControllerBase.Game.LocalPlayer.BoostController.AllowBoost(BoostType.AmmoIntMultiplier, allowed: true);
+		}
 	}
 
 	public override void Destroy()
@@ -215,7 +219,7 @@ public class MVPickupItemBase : MVLogicObject, IPickupStateHandler, IUpdatecontr
 		}
 	}
 
-	private bool CheckCanUse(MVInteractableBase avatarInteractable)
+	private bool CheckCanUse(int woId, MVInteractableBase avatarInteractable)
 	{
 		if (avatarInteractable.HasModifierEffect(AvatarModifierEffect.DisablePickups) || avatarInteractable.HasModifierEffect(AvatarModifierEffect.DisableWeapons))
 		{
@@ -225,8 +229,8 @@ public class MVPickupItemBase : MVLogicObject, IPickupStateHandler, IUpdatecontr
 		{
 			return false;
 		}
-		int woIDWithLocalOwnerHighestInHierarchy = MVGameControllerBase.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(MVGameControllerBase.WOCM.AvatarLocal.Id);
-		if (ShouldDoAutoPickup(woIDWithLocalOwnerHighestInHierarchy))
+		woId = MVGameControllerBase.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(woId);
+		if (ShouldDoAutoPickup(woId))
 		{
 			return false;
 		}
@@ -313,7 +317,7 @@ public class MVPickupItemBase : MVLogicObject, IPickupStateHandler, IUpdatecontr
 		return false;
 	}
 
-	void IUpdatecontrollerSubscriber.UpdateControllerUpdate()
+	void IUpdatecontrollerSubscriberUpdate.UpdateControllerUpdate()
 	{
 		if (!canPickUp)
 		{
@@ -330,9 +334,5 @@ public class MVPickupItemBase : MVLogicObject, IPickupStateHandler, IUpdatecontr
 				DoPickup(instigatorsInTrigger[num]);
 			}
 		}
-	}
-
-	void IUpdatecontrollerSubscriber.UpdateControllerFixedUpdate()
-	{
 	}
 }

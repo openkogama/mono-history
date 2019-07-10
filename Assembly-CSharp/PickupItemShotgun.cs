@@ -43,13 +43,13 @@ public class PickupItemShotgun : PickupItemWithDelay
 
 	private void Awake()
 	{
-		currentAmmo = maxAmmo;
+		ResetAmmo();
 	}
 
 	public override void ResetAmmo()
 	{
 		base.ResetAmmo();
-		currentAmmo = maxAmmo;
+		currentAmmo = GetAmmoMultiplier(maxAmmo);
 	}
 
 	protected override void OnFire(bool isLocal)
@@ -103,7 +103,7 @@ public class PickupItemShotgun : PickupItemWithDelay
 		if (worldObjectClient != null)
 		{
 			InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
-			if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient, MVGameControllerBase.Game.LocalPlayer.Avatar))
+			if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.LocalPlayer.IsOnSameTeam(worldObjectClient))
 			{
 				Vector3 impulse = lineOfFire.direction * impulseStrength;
 				InteractionData interaction = ShotgunHitPackage.Create(impulse);

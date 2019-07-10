@@ -27,6 +27,14 @@ public static class MVClientSettings
 
 	public static bool SpinEnabled => (ClientSettingFlags & ClientSettingFlags.SpinEnabled) == ClientSettingFlags.SpinEnabled;
 
+	public static bool PostGameInterstitialEnabled => IsFlagSet(ClientSettingFlags.PostGameInterstitialEnabled);
+
+	public static int PostGameInterstitialIntervalInSeconds { get; set; }
+
+	public static bool BoostersEnabledWebGL => IsFlagSet(ClientSettingFlags.BoostersEnabledWebGL);
+
+	public static bool BoostersEnabledAndroid => IsFlagSet(ClientSettingFlags.BoostersEnabledAndroid);
+
 	public static bool EnableStathat
 	{
 		get

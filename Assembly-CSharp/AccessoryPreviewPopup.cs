@@ -29,7 +29,7 @@ public class AccessoryPreviewPopup : MonoBehaviour, IAccessoryClicked, IEventSys
 		}
 		else
 		{
-			body = MVGameControllerBase.WOCM.AvatarLocal.Body;
+			body = MVGameControllerBase.LocalPlayer.Body;
 		}
 		for (int num = 0; num < previewedAccessories.Count; num++)
 		{

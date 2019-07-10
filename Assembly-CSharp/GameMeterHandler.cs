@@ -17,6 +17,7 @@ public class GameMeterHandler : MonoBehaviour
 	{
 		for (int i = 0; i < gameMeters.Count; i++)
 		{
+			gameMeters[i].Initialize();
 			gameMeters[i].SetGameMeterVisibility();
 		}
 		MVGameControllerBase.Game.GameStatCounterManager.OnCounterTypeChanged += CounterChanged;
@@ -57,7 +58,7 @@ public class GameMeterHandler : MonoBehaviour
 	private void OnGameStatUpdated(object sender, OnCounterTypeChangedArgs args)
 	{
 		WinningConditionNotificationManager.UpdateNotification(args.actorNumber, args.counterType, args.count);
-		if (args.actorNumber != MVGameControllerBase.WOCM.AvatarLocal.OwnerActorNr)
+		if (args.actorNumber != MVGameControllerBase.LocalPlayer.ActorNr)
 		{
 			return;
 		}
@@ -76,7 +77,7 @@ public class GameMeterHandler : MonoBehaviour
 
 	private void CounterChanged(object sender, OnCounterTypeChangedArgs args)
 	{
-		if (MVGameControllerBase.Game.GameStatCounterManager.ActiveTeams.Count > 1 || args.actorNumber == MVGameControllerBase.WOCM.AvatarLocal.OwnerActorNr)
+		if (MVGameControllerBase.Game.GameStatCounterManager.ActiveTeams.Count > 1 || args.actorNumber == MVGameControllerBase.LocalPlayer.ActorNr)
 		{
 			UpdateValue();
 		}

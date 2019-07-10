@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using UnityEngine;
 
-public class TimeReward : IUpdatecontrollerSubscriber
+public class TimeReward : IUpdatecontrollerSubscriberUpdate, IUpdatecontrollerSubscriberBase
 {
 	private abstract class RewardStateBase
 	{

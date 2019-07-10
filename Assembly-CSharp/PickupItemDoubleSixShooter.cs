@@ -47,13 +47,13 @@ public class PickupItemDoubleSixShooter : PickupItemWithDelay
 
 	private void Awake()
 	{
-		currentAmmo = maxAmmo;
+		ResetAmmo();
 	}
 
 	public override void ResetAmmo()
 	{
 		base.ResetAmmo();
-		currentAmmo = maxAmmo;
+		currentAmmo = GetAmmoMultiplier(maxAmmo);
 	}
 
 	protected override void OnFire(bool isLocal)
@@ -117,7 +117,7 @@ public class PickupItemDoubleSixShooter : PickupItemWithDelay
 		if (worldObjectClient != null)
 		{
 			InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
-			if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient, MVGameControllerBase.Game.LocalPlayer.Avatar))
+			if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.LocalPlayer.IsOnSameTeam(worldObjectClient))
 			{
 				Vector3 value = voxelHit.point - owner.transform.position;
 				value = Vector3.Normalize(value);

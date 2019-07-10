@@ -85,7 +85,7 @@ public class MVSentryGunBlueprint : MVBlueprintBase
 
 	public override bool OnEnterObject(EditorStateMachine e)
 	{
-		MVGameControllerBase.CameraController.CurCamera.FocusOnObject(this);
+		MVGameControllerBase.MainCameraManager.CurrentCamera.FocusOnObject(this);
 		e.SelectWO(EditableCubesWO.Id, addToSelection: false);
 		e.Event = EditorEvent.EditCubes;
 		return true;

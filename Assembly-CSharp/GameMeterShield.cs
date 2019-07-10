@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,8 +8,6 @@ public class GameMeterShield : GameMeterBase
 
 	[SerializeField]
 	private ProgressBar progressBar;
-
-	private MVAvatar avatarLocal;
 
 	private bool initialized;
 
@@ -24,20 +21,16 @@ public class GameMeterShield : GameMeterBase
 
 	public override GameMeterType GameMeterType => GameMeterType.Shield;
 
+	public override void Initialize()
+	{
+		MVGameControllerBase.SpawnRoleDataMediatorLocal.Shield.OnChange += OnProgressUpdate;
+		enabled = true;
+		initialized = true;
+		OnProgressUpdate(MVGameControllerBase.SpawnRoleDataMediatorLocal.Shield.Value);
+	}
+
 	public override void SetGameMeterVisibility()
 	{
-		if (!initialized)
-		{
-			if (MVGameControllerBase.WOCM.AvatarLocal == null)
-			{
-				MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
-				mVPlayerContainer.OnLocalPlayerReady = (Action)Delegate.Combine(mVPlayerContainer.OnLocalPlayerReady, new Action(LateInitialize));
-			}
-			else
-			{
-				Initialize();
-			}
-		}
 	}
 
 	public override void UpdateValue()
@@ -55,9 +48,9 @@ public class GameMeterShield : GameMeterBase
 		}
 	}
 
-	private void OnProgressUpdate(object newValue)
+	private void OnProgressUpdate(float newValue)
 	{
-		interpolateTowardsShieldProgress = avatarLocal.Shield.Value / 100f;
+		interpolateTowardsShieldProgress = newValue / 100f;
 		elapsedInterpolationTime = 0f;
 	}
 
@@ -65,22 +58,5 @@ public class GameMeterShield : GameMeterBase
 	{
 		ShieldMeter.enabled = show;
 		progressBar.enabled = show;
-	}
-
-	private void Initialize()
-	{
-		avatarLocal = MVGameControllerBase.Game.LocalPlayer.Avatar;
-		MVRuntimeDataVariableClampedFloat shield = avatarLocal.Shield;
-		shield.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(shield.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnProgressUpdate));
-		enabled = true;
-		initialized = true;
-		OnProgressUpdate(avatarLocal.Shield.Value);
-	}
-
-	private void LateInitialize()
-	{
-		Initialize();
-		MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
-		mVPlayerContainer.OnLocalPlayerReady = (Action)Delegate.Remove(mVPlayerContainer.OnLocalPlayerReady, new Action(Initialize));
 	}
 }

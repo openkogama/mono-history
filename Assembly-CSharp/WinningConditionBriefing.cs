@@ -129,6 +129,7 @@ public class WinningConditionBriefing : MonoBehaviour
 
 	private void SetupBriefing()
 	{
+		MVGameControllerBase.MainCameraManager.CamMaskMode = MaskMode.SkyBoxOnly;
 		initializeCallback = (Action)Delegate.Remove(initializeCallback, new Action(SetupBriefing));
 		WinningConditionBriefingDef winningConditionBriefingDef = null;
 		for (int i = 0; i < winningConditionMapping.Count; i++)
@@ -189,7 +190,6 @@ public class WinningConditionBriefing : MonoBehaviour
 
 	private void Update()
 	{
-		MVGameControllerBase.WOCM.AvatarLocal.Visible = false;
 		if (screensize.x != (float)Screen.width || screensize.y != (float)Screen.height)
 		{
 			screensize = new Vector2(Screen.width, Screen.height);
@@ -206,7 +206,6 @@ public class WinningConditionBriefing : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		MVGameControllerBase.WOCM.AvatarLocal.Visible = true;
 	}
 
 	private IEnumerator FixAspectRatioDelay()

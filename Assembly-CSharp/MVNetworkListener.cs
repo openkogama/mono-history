@@ -21,14 +21,26 @@ public class MVNetworkListener : MVNetworkObject
 	public MVNetworkListener(MVWorldObjectClient owner)
 		: base(owner)
 	{
-		NetworkTransformPackage item = new NetworkTransformPackage
-		{
-			packageType = TransformPackageType.Interpolate,
-			timestamp = MVGameControllerBase.Game.ServerTimeInMilliSeconds - 200,
-			position = owner.Position,
-			rotation = owner.Rotation
-		};
+		NetworkTransformPackage item = CreateCurPosTransformPackage();
 		transformQueue.Enqueue(item);
+	}
+
+	private NetworkTransformPackage CreateCurPosTransformPackage()
+	{
+		NetworkTransformPackage networkTransformPackage = new NetworkTransformPackage();
+		networkTransformPackage.packageType = TransformPackageType.Interpolate;
+		networkTransformPackage.timestamp = MVGameControllerBase.Game.ServerTimeInMilliSeconds - 200;
+		networkTransformPackage.position = worldObject.Position;
+		networkTransformPackage.rotation = worldObject.Rotation;
+		return networkTransformPackage;
+	}
+
+	public void SetToCurrentPosition()
+	{
+		transformQueue.Clear();
+		NetworkTransformPackage item = CreateCurPosTransformPackage();
+		transformQueue.Enqueue(item);
+		SetOwnerTransformToMostResentPackage();
 	}
 
 	public void SetOwnerTransformToMostResentPackage()

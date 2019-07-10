@@ -1,6 +1,6 @@
 using System;
 
-public class SpawnStateWrapper : IUpdatecontrollerSubscriber
+public class SpawnStateWrapper : IUpdatecontrollerSubscriberUpdate, IUpdatecontrollerSubscriberBase
 {
 	private SpawnState prevSpawnState;
 
@@ -54,6 +54,6 @@ public class SpawnStateWrapper : IUpdatecontrollerSubscriber
 
 	public void Destroy()
 	{
-		UpdateController.RemoveObject(this);
+		UpdateController.RemoveUpdateObject(this);
 	}
 }

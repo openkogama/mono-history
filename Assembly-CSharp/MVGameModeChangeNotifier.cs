@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using MV.Common;
 
-public class MVGameModeChangeNotifier : IUpdatecontrollerSubscriber
+public class MVGameModeChangeNotifier : IUpdatecontrollerSubscriberUpdate, IUpdatecontrollerSubscriberBase
 {
 	private UpdateCondition _currentState = UpdateCondition.ALLWAYS;
 

@@ -9,9 +9,8 @@ public class GameMeterFlag : GameMeterBase
 
 	public override GameMeterType GameMeterType => GameMeterType.Flag;
 
-	private void Start()
+	public override void Initialize()
 	{
-		SetGameMeterVisibility();
 	}
 
 	public override void SetGameMeterVisibility()

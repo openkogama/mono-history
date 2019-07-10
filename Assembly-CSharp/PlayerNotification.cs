@@ -19,6 +19,8 @@ public class PlayerNotification : Notification
 
 	private MVPlayer player;
 
+	private Texture2D badgeTextureAsset;
+
 	private const int PrestigiousLevelRequirement = 25;
 
 	protected NotificationLifetime lifeTime = NotificationLifetime.Low;
@@ -55,22 +57,19 @@ public class PlayerNotification : Notification
 	private void OnDestroy()
 	{
 		BadgeManager.UnsubscribeGetBadgeRequest(BadgeCallback);
+		Object.Destroy(badgeTextureAsset);
 	}
 
 	private void BadgeCallback(WWW www)
 	{
-		if (www != null && www.texture != null)
+		badgeTextureAsset = www.texture;
+		if (badgeTextureAsset != null)
 		{
-			BadgeImage.sprite = GetBadgeSprite(www.texture);
+			BadgeImage.sprite = Sprite.Create(badgeTextureAsset, new Rect(Vector2.zero, new Vector2(badgeTextureAsset.width, badgeTextureAsset.height)), Vector2.one / 2f);
 		}
 		else
 		{
 			Debug.Log("Failed to get: " + www.url);
 		}
-	}
-
-	private Sprite GetBadgeSprite(Texture2D source)
-	{
-		return Sprite.Create(source, new Rect(Vector2.zero, new Vector2(source.width, source.height)), Vector2.one / 2f);
 	}
 }

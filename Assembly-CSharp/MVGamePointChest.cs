@@ -143,11 +143,11 @@ public class MVGamePointChest : MVGamePointRewardLogicObject
 	{
 		if (state == GamePointChestClientState.Opening)
 		{
-			OpenChest(MVGameControllerBase.WOCM.AvatarLocal.Id);
+			OpenChest(MVGameControllerBase.LocalPlayer.WoId);
 		}
 	}
 
-	public bool IsUsable(MVInteractableBase avatarInteractable)
+	public bool IsUsable(int id, MVInteractableBase avatarInteractable)
 	{
 		if (state != GamePointChestClientState.Closed)
 		{

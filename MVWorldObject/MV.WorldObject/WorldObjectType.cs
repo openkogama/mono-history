@@ -2,7 +2,7 @@ namespace MV.WorldObject;
 
 public enum WorldObjectType
 {
-	Avatar = 0,
+	PlayModeAvatar = 0,
 	CubeModel = 1,
 	PointLight = 2,
 	TriggerBox = 3,
@@ -83,7 +83,7 @@ public enum WorldObjectType
 	GamePoint = 130,
 	GamePassProgressionDataObject = 131,
 	Christian3 = 132,
-	Christian4 = 133,
+	BuildModeAvatar = 133,
 	Christian5 = 134,
 	Christian6 = 135,
 	Christian7 = 136,
@@ -97,7 +97,6 @@ public enum WorldObjectType
 	Christian15 = 144,
 	CameraSettings = 145,
 	GravityCube = 146,
-	GodzillaTrigger = 147,
 	GameCoin = 148,
 	GameCoinChest = 149,
 	Theme = 150,

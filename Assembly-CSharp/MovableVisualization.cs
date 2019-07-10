@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
 
-public class MovableVisualization : MonoBehaviour, IUpdatecontrollerSubscriber
+public class MovableVisualization : MonoBehaviour, IUpdatecontrollerSubscriberFixedUpdate, IUpdatecontrollerSubscriberBase
 {
 	private class Package
 	{

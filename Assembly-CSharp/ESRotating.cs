@@ -18,8 +18,6 @@ internal class ESRotating : ESStateBase
 
 	private Vector3 pivot;
 
-	private ILaserPointer laser;
-
 	public override void Enter(EditorStateMachine e)
 	{
 		Debug.Log(GetType().ToString());
@@ -46,9 +44,8 @@ internal class ESRotating : ESStateBase
 		{
 			pivot = SharedCubeFunctions.GetWorldCenter(list);
 		}
-		laser = MVGameControllerBase.WOCM.AvatarLocal.LaserPointer;
-		laser.ChangeState(LaserPointerState.Transforming);
-		laser.LaserActive = true;
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.ChangeState(LaserPointerState.Transforming);
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.SetLaserActiveState(isActive: true);
 	}
 
 	private bool ValidateTargets()
@@ -114,7 +111,7 @@ internal class ESRotating : ESStateBase
 				xAcc -= num * rotateThreshold;
 			}
 			prevMouseX = MVInputWrapper.GetPointerPosition().x;
-			laser.UpdatePosition(pivot);
+			MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.UpdatePosition(pivot);
 		}
 		else
 		{
@@ -124,8 +121,8 @@ internal class ESRotating : ESStateBase
 
 	public override void Exit(EditorStateMachine e)
 	{
-		laser.ChangeState(LaserPointerState.Idle);
-		laser.LaserActive = false;
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.ChangeState(LaserPointerState.Idle);
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.SetLaserActiveState(isActive: false);
 		DoGridSnapping();
 		e.NetworkSelector.RequestReleaseOwnership(e.SelectedIDs);
 	}

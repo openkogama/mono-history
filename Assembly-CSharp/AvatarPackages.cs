@@ -66,26 +66,6 @@ public static class AvatarPackages
 			new GrowthGunHitPackage()
 		},
 		{
-			InteractionPackageType.GodzillaLaserHit,
-			new GodzillaLaserHitPackage()
-		},
-		{
-			InteractionPackageType.GodzillaLaserBurnS,
-			new GodzillaLaserBurnPackageS()
-		},
-		{
-			InteractionPackageType.GodzillaLaserBurnM,
-			new GodzillaLaserBurnPackageM()
-		},
-		{
-			InteractionPackageType.GodzillaLaserBurnL,
-			new GodzillaLaserBurnPackageL()
-		},
-		{
-			InteractionPackageType.GodzillaLaserBurnXL,
-			new GodzillaLaserBurnPackageXL()
-		},
-		{
 			InteractionPackageType.MultiThrowingStarHit,
 			new MultiThrowingStarHitPackage()
 		},

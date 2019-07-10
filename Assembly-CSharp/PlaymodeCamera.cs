@@ -50,6 +50,8 @@ public abstract class PlaymodeCamera : MVPlaymodeCameraBase
 
 	private Vector3 avatarHeadOffset = new Vector3(0f, 1.5f, 0f);
 
+	protected AvatarCameraDistTransparency avatarCameraDistTransparency;
+
 	public float targetDistanceStrength = 2f;
 
 	public float followRotationSpeed = 2f;
@@ -81,6 +83,8 @@ public abstract class PlaymodeCamera : MVPlaymodeCameraBase
 
 	protected float lookAtScaleCorrection = 1f;
 
+	protected MVAvatarLocal avatarLocal;
+
 	private SmoothLookAt smoothLookAt = new SmoothLookAt();
 
 	private Vector3 prevLookAtTransformPos = Vector3.zero;
@@ -92,19 +96,23 @@ public abstract class PlaymodeCamera : MVPlaymodeCameraBase
 		currentLookAtOffset = lookAtOffset;
 	}
 
+	public virtual void Initialize(MVAvatarLocal avatarLocal)
+	{
+		this.avatarLocal = avatarLocal;
+		avatarCameraDistTransparency = new AvatarCameraDistTransparency(avatarHeadOffset, 4f, 1f);
+	}
+
 	public override void Enter(MVCameraController cameraController)
 	{
 		base.Enter(cameraController);
-		lookAtTransform = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform;
-		currentLookAt = cameraController.transform.position;
-		transform.position = cameraController.transform.position;
-		transform.rotation = cameraController.transform.rotation;
+		lookAtTransform = avatarLocal.GameObject.transform;
+		currentLookAt = MVGameControllerBase.MainCameraManager.transform.position;
+		transform.position = MVGameControllerBase.MainCameraManager.transform.position;
+		transform.rotation = MVGameControllerBase.MainCameraManager.transform.rotation;
 		prevLookAtTransformPos = lookAtTransform.transform.position;
-		targetRot.SetTargetRotation(cameraController.transform.rotation);
+		targetRot.SetTargetRotation(MVGameControllerBase.MainCameraManager.transform.rotation);
 		distance = distanceToAvatar;
-		ignoreAvatarId = new HashSet<int> { MVGameControllerBase.WOCM.AvatarLocal.Id };
-		cameraController.AvatarCameraFade.enabled = true;
-		cameraController.AvatarCameraFade.Setup(avatarHeadOffset, 4f, 1f);
+		ignoreAvatarId = new HashSet<int> { avatarLocal.Id };
 	}
 
 	public override void Reset()
@@ -131,9 +139,8 @@ public abstract class PlaymodeCamera : MVPlaymodeCameraBase
 		targetTransform.position = transform.position + shakeOffset;
 		targetTransform.rotation = b * transform.rotation;
 		UpdateImpactSimulation(targetTransform);
+		avatarCameraDistTransparency.Update(avatarLocal);
 	}
-
-	protected abstract void HandleGunMode();
 
 	private void UpdatePosition()
 	{
@@ -143,7 +150,7 @@ public abstract class PlaymodeCamera : MVPlaymodeCameraBase
 		identity.eulerAngles = new Vector3(0f, transform.rotation.eulerAngles.y, 0f);
 		lookAtPos = lookAtTransform.position + identity * (avatarHeadOffset + currentLookAtOffset * num);
 		currentLookAt = lookAtPos;
-		Vector3 vector = smoothLookAt.GetCurrentLookAt(MVGameControllerBase.WOCM.AvatarLocal.RigidBody.Velocity);
+		Vector3 vector = smoothLookAt.GetCurrentLookAt(avatarLocal.VelocityRelative);
 		currentLookAt -= vector;
 		Vector3 vector2 = lookAtTransform.position + avatarHeadOffset;
 		Vector3 vector3 = (currentLookAt - vector2) * num;
@@ -154,7 +161,7 @@ public abstract class PlaymodeCamera : MVPlaymodeCameraBase
 		actualLookAt = vector2 + vector3;
 		currentLookAt = actualLookAt;
 		transform.position = actualLookAt - transform.forward * num3;
-		float magnitude2 = MVGameControllerBase.WOCM.AvatarLocal.RigidBody.Velocity.magnitude;
+		float magnitude2 = avatarLocal.VelocityRelative.magnitude;
 		Shake(magnitude2);
 		prevLookAtTransformPos = lookAtTransform.position;
 	}

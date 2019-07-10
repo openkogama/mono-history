@@ -12,19 +12,22 @@ public class ChatBubbleController : MonoBehaviour
 		chatBubbleList = new Dictionary<int, ChatBubble>();
 	}
 
-	private void ShowChatBubble(string text, int woid, ChatAnchor chatBubbleAnchor)
+	private void ShowChatBubble(string text, int anchorId, ChatAnchor chatBubbleAnchor)
 	{
-		if (!chatBubbleList.ContainsKey(woid))
+		if (gameObject.activeInHierarchy)
 		{
-			ChatBubble chatBubble = UnityEngine.Object.Instantiate(PrefabPool.Instance.ChatBubble);
-			chatBubble.transform.SetParent(transform);
-			chatBubbleList.Add(woid, chatBubble);
-			chatBubbleAnchor.BindAttachedBubble(chatBubbleList[woid]);
+			if (!chatBubbleList.ContainsKey(anchorId))
+			{
+				ChatBubble chatBubble = UnityEngine.Object.Instantiate(PrefabPool.Instance.ChatBubble);
+				chatBubble.transform.SetParent(transform);
+				chatBubbleList.Add(anchorId, chatBubble);
+				chatBubbleAnchor.BindAttachedBubble(chatBubbleList[anchorId]);
+			}
+			if (chatBubbleList[anchorId].IsActive)
+			{
+				chatBubbleList[anchorId].BindMessageValue(text);
+			}
+			chatBubbleList[anchorId].rectTransform.SetAsLastSibling();
 		}
-		if (chatBubbleList[woid].IsActive)
-		{
-			chatBubbleList[woid].BindMessageValue(text);
-		}
-		chatBubbleList[woid].rectTransform.SetAsLastSibling();
 	}
 }

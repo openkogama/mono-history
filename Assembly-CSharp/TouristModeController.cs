@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -68,7 +69,7 @@ public class TouristModeController : MonoBehaviour
 		{
 			if (TouristPromotionAllowed)
 			{
-				if (!isDead && MVGameControllerBase.WOCM.AvatarLocal.IsDead)
+				if (!isDead && MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Dead))
 				{
 					isDead = true;
 					deaths++;
@@ -78,7 +79,7 @@ public class TouristModeController : MonoBehaviour
 						deathConditionTriggered = false;
 					}
 				}
-				else if (isDead && !MVGameControllerBase.WOCM.AvatarLocal.IsDead)
+				else if (isDead && !MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Dead))
 				{
 					isDead = false;
 				}
@@ -97,44 +98,53 @@ public class TouristModeController : MonoBehaviour
 	{
 		private const string baseAssetString = "Promotion/Promotion_{0}.png";
 
+		private const int promotionCount = 4;
+
 		private static int promotionIndex = 4;
 
-		private static readonly int promotionCount = 4;
-
 		private UnityAction<Texture> OnTextureReadyCallback;
+
+		private Dictionary<string, Texture2D> textureAssetCache = new Dictionary<string, Texture2D>(4);
 
 		public void GetTextureDataToSet(UnityAction<Texture> OnTextureReady)
 		{
 			OnTextureReadyCallback = OnTextureReady;
-			AsyncWWWManager.WWWRequest(new CachedGetRequest(Urls.StreamingAssets + GetPath(promotionIndex % promotionCount + 1), StreamingTextureLoaded, WWWRequestPriority.WaitUntilSyncronizingIsDone));
+			AsyncWWWManager.WWWRequest(new CachedGetRequest(Urls.StreamingAssets + GetPath(promotionIndex % 4 + 1), OnTextureReceived, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 		}
 
 		public void GetRandomTextureData(UnityAction<Texture> OnTextureReady)
 		{
 			OnTextureReadyCallback = OnTextureReady;
-			int num = promotionIndex % promotionCount;
-			AsyncWWWManager.WWWRequest(new CachedGetRequest(Urls.StreamingAssets + GetPath(Random.Range(num, num + promotionCount) + 1), StreamingTextureLoaded, WWWRequestPriority.WaitUntilSyncronizingIsDone));
+			int num = promotionIndex % 4;
+			string path = Urls.StreamingAssets + GetPath(Random.Range(num, num + 4) + 1);
+			AsyncWWWManager.WWWRequest(new CachedGetRequest(path, OnTextureReceived, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 		}
 
 		public void Destroy()
 		{
-			AsyncWWWManager.UnsubscribeWWWRequest(StreamingTextureLoaded);
+			AsyncWWWManager.UnsubscribeWWWRequest(OnTextureReceived);
+			foreach (KeyValuePair<string, Texture2D> item in textureAssetCache)
+			{
+				Object.Destroy(item.Value);
+			}
+			textureAssetCache.Clear();
 		}
 
-		private void StreamingTextureLoaded(WWW www)
+		private void OnTextureReceived(WWW www)
 		{
-			if (www != null && www.texture != null)
+			Texture2D value = null;
+			if (!textureAssetCache.TryGetValue(www.url, out value))
 			{
-				if (string.IsNullOrEmpty(www.error))
+				if (!string.IsNullOrEmpty(www.error))
 				{
-					promotionIndex++;
-					OnTextureReadyCallback(www.texture);
+					Debug.LogError("Tourist promotion 'OnTextureReceived' failed : " + www.error);
+					return;
 				}
-				else
-				{
-					Debug.LogError("Tourist promotion 'StreamingTextureLoaded' failed : " + www.error);
-				}
+				value = www.texture;
+				textureAssetCache[www.url] = value;
 			}
+			OnTextureReadyCallback(value);
+			promotionIndex++;
 		}
 
 		private string GetPath(int i)
@@ -163,41 +173,16 @@ public class TouristModeController : MonoBehaviour
 
 	private TouristPromotion promotion;
 
-	public void Awake()
-	{
-		touristPromotionActive = MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion;
-		touristPromotionActive &= !MVGameControllerBase.GameSessionData.IsPlayedFromPoki;
-		if (!touristPromotionActive)
-		{
-			Object.Destroy(this);
-			return;
-		}
-		promotionDataManager = new PromotionDataManager();
-		showPromotionBookkeeping = new ShowPromotionBookkeeping();
-		SetActive(active: false);
-	}
-
 	public void SetActive(bool active)
 	{
 		enabled = active;
 	}
 
-	private void Update()
+	public void PopPromotions()
 	{
-		if (showPromotionBookkeeping.Show)
-		{
-			PushPromotionSlide(touristPromotionPrefab);
-			promotionDataManager.GetTextureDataToSet(SetPromotionTexture);
-			showPromotionBookkeeping.Continue();
-		}
-	}
-
-	private void PushPromotionSlide(TouristPromotion prefab)
-	{
-		promotion = Object.Instantiate(prefab);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			x.Push(promotion.gameObject, UIPushOption.Blocking, PromitionPopped, UIGroupFlags.Popup);
+			x.PopToGroup(UIGroupFlags.MainUI);
 		});
 	}
 
@@ -217,6 +202,39 @@ public class TouristModeController : MonoBehaviour
 	{
 		PushPromotionSlide(touristPromotionWithAdPrefab);
 		promotionDataManager.GetTextureDataToSet(SetPromotionTexture);
+	}
+
+	private void Awake()
+	{
+		touristPromotionActive = MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion;
+		touristPromotionActive &= !MVGameControllerBase.GameSessionData.IsPlayedFromPoki;
+		if (!touristPromotionActive)
+		{
+			Object.Destroy(this);
+			return;
+		}
+		promotionDataManager = new PromotionDataManager();
+		showPromotionBookkeeping = new ShowPromotionBookkeeping();
+		SetActive(active: false);
+	}
+
+	private void Update()
+	{
+		if (showPromotionBookkeeping.Show)
+		{
+			PushPromotionSlide(touristPromotionPrefab);
+			promotionDataManager.GetTextureDataToSet(SetPromotionTexture);
+			showPromotionBookkeeping.Continue();
+		}
+	}
+
+	private void PushPromotionSlide(TouristPromotion prefab)
+	{
+		promotion = Object.Instantiate(prefab);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Push(promotion.gameObject, UIPushOption.Blocking, PromitionPopped, UIGroupFlags.Popup);
+		});
 	}
 
 	private void PromitionPopped()

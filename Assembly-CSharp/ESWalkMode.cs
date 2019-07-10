@@ -13,15 +13,14 @@ internal class ESWalkMode : ESStateBase
 		Debug.Log(MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState);
 		if (MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.Round)
 		{
-			MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Playing);
+			MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.Spawn();
 			MVGameControllerDesktop.LockCursorManager.CursorLock = true;
 		}
 		else if (MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded)
 		{
-			MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Hidden);
+			MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.RemoveFromGame();
 			MVGameControllerDesktop.LockCursorManager.CursorLock = false;
 		}
-		MVGameControllerBase.WOCM.AvatarLocal.Visible = true;
 		MVGameControllerBase.WOCM.MoveableController.ResetMoveables();
 		MVTeam team = MVGameControllerBase.Game.LocalPlayer.Team;
 		MVTeamManager teamManager = MVGameControllerBase.Game.TeamManager;
@@ -31,6 +30,7 @@ internal class ESWalkMode : ESStateBase
 			MVGameControllerBase.OperationRequests.SetTeam(teamList[0]);
 		}
 		DrawPlane.HideDrawPlane();
+		((MVLocalPlayerBuilder)MVGameControllerBase.LocalPlayer).EnterPlayMode();
 	}
 
 	public override void Execute(EditorStateMachine e)
@@ -39,16 +39,7 @@ internal class ESWalkMode : ESStateBase
 
 	public override void Exit(EditorStateMachine esm)
 	{
-		if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
-		{
-			MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Edit);
-		}
-		else if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-		{
-			MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Edit2D);
-			((MVAvatarLocal.EditorAvatarMode2D)MVGameControllerBase.WOCM.AvatarLocal.CurrentMode).ResetToZPos();
-			MVGameControllerBase.CameraController.StartTransitionCam(0.5f);
-		}
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.SetToEditMode();
 		MVGameControllerBase.WOCM.MoveableController.ResetMoveables();
 		MVGameControllerBase.WOCM.RootGroup.PlayModeInitialize();
 		MVGameControllerDesktop.LockCursorManager.CursorLock = false;
@@ -57,5 +48,6 @@ internal class ESWalkMode : ESStateBase
 			Debug.LogWarning("Game coints. Probably do this directly. ");
 		}
 		Cursor.visible = true;
+		((MVLocalPlayerBuilder)MVGameControllerBase.LocalPlayer).EnterBuildMode();
 	}
 }

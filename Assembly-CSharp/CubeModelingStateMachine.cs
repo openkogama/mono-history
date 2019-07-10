@@ -1,5 +1,4 @@
 using CodeStage.AntiCheat.ObscuredTypes;
-using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -16,20 +15,6 @@ public class CubeModelingStateMachine : FSMEntity
 		None
 	}
 
-	private static readonly Vector3[] zDepth1Cube = new Vector3[8]
-	{
-		new Vector3(-0.5f, 0.5f, 0.25f),
-		new Vector3(0.5f, 0.5f, 0.25f),
-		new Vector3(0.5f, 0.5f, 0.5f),
-		new Vector3(-0.5f, 0.5f, 0.5f),
-		new Vector3(-0.5f, -0.5f, 0.5f),
-		new Vector3(0.5f, -0.5f, 0.5f),
-		new Vector3(0.5f, -0.5f, 0.25f),
-		new Vector3(-0.5f, -0.5f, 0.25f)
-	};
-
-	private static readonly byte[] zDepth1CubeByteCorners = CubeDataPacker.CornersToByteArray(zDepth1Cube);
-
 	private ObscuredByte currentMaterialId = (byte)0;
 
 	private Material currentMaterial;
@@ -41,8 +26,6 @@ public class CubeModelingStateMachine : FSMEntity
 	public bool useLasers = true;
 
 	private GameObject gameObject;
-
-	private bool editMode2d;
 
 	private Camera mainCamera;
 
@@ -79,29 +62,9 @@ public class CubeModelingStateMachine : FSMEntity
 		}
 	}
 
-	public Vector3[] CubeCorners
-	{
-		get
-		{
-			if (editMode2d)
-			{
-				return zDepth1Cube;
-			}
-			return CubeBase.IdentityCorners;
-		}
-	}
+	public Vector3[] CubeCorners => CubeBase.IdentityCorners;
 
-	public byte[] ByteCubeCorners
-	{
-		get
-		{
-			if (editMode2d)
-			{
-				return zDepth1CubeByteCorners;
-			}
-			return CubeBase.IdentityByteCorners;
-		}
-	}
+	public byte[] ByteCubeCorners => CubeBase.IdentityByteCorners;
 
 	public Material CurrentMaterial => MVGameControllerBase.MaterialLoader.CubeModelMaterial;
 
@@ -122,15 +85,6 @@ public class CubeModelingStateMachine : FSMEntity
 		TargetCubeModel = targetCubeModel;
 		SetConstraint(constraint);
 		TargetCubeModel.BeingEdited = true;
-		editMode2d = MVGameControllerBase.Game.GameType == MVGameType.Platformer && targetCubeModel is MVCubeModelPrototypeTerrain;
-		if (editMode2d && (CubeModelingEvent)curEvent == CubeModelingEvent.EditCubes)
-		{
-			curEvent = CubeModelingEvent.EditCubes2D;
-		}
-		if (!editMode2d && (CubeModelingEvent)curEvent == CubeModelingEvent.EditCubes2D)
-		{
-			curEvent = CubeModelingEvent.EditCubes;
-		}
 		Event = curEvent;
 	}
 

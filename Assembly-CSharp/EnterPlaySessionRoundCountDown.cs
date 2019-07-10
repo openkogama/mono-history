@@ -18,9 +18,9 @@ public class EnterPlaySessionRoundCountDown : MonoBehaviour
 				x.Pop();
 			});
 			MVGameControllerBase.PlayModeUI.InLobbyState = false;
-			if (MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Hidden))
+			if (MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Hidden))
 			{
-				MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Playing);
+				MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.Spawn();
 			}
 		}
 	}

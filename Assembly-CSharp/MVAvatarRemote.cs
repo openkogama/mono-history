@@ -4,9 +4,9 @@ using MV.Common;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
+public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer, ISpawnRoleRemote
 {
-	private CullingSubscriberDynamic cullingSubscriberDynamic;
+	private DynamicCullingHandler cullingHandler = new DynamicCullingHandler(3.5f);
 
 	private CapsuleCollider triggerCollider;
 
@@ -74,15 +74,15 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 			mVPlayerContainer.OnLocalPlayerReady = (Action)Delegate.Combine(mVPlayerContainer.OnLocalPlayerReady, new Action(InitAvatarState));
 		}
 		avatarRemoteMovementCalculator = gameObject.AddComponent<AvatarRemoteMovementCalculator>();
-		InitializeCulling();
 		limbManager = new AvatarLimbManagerRemote();
-		limbManager.Initialize(avatarPickupOwner, this);
-		avatarlateUpdateManager.Initialize(Body, limbManager);
+		limbManager.Initialize(this, Body, avatar.EnabledChangeHandler, LimbRotationRuntimeData);
+		gameObject.SetActive(value: false);
+		MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(OwnerActorNr).NotifyAvatarCreated(Id);
 	}
 
 	private void InitAvatarState()
 	{
-		AvatarStateChangedHandler(avatarModeTypeFlags.Value);
+		AvatarStateChangedHandler(SpawnRoleModeTypes.Value);
 		MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
 		mVPlayerContainer.OnLocalPlayerReady = (Action)Delegate.Remove(mVPlayerContainer.OnLocalPlayerReady, new Action(InitAvatarState));
 	}
@@ -92,33 +92,22 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 		base.Destroy();
 		MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
 		mVPlayerContainer.OnLocalPlayerReady = (Action)Delegate.Remove(mVPlayerContainer.OnLocalPlayerReady, new Action(InitAvatarState));
-		if (cullingSubscriberDynamic != null)
-		{
-			cullingSubscriberDynamic.Destroy();
-			cullingSubscriberDynamic = null;
-		}
-	}
-
-	private void InitializeCulling()
-	{
-		cullingSubscriberDynamic = new CullingSubscriberDynamic(3.5f, 3, gameObject);
-		ScaleChanged = (UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>)Delegate.Combine(ScaleChanged, new UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>(UpdateCullingRadius));
-	}
-
-	private void UpdateCullingRadius(MVWorldObjectClient objArg, ScaleChangedEventArgs scaleArg)
-	{
-		CullingSubscriberDynamic cullingSubscriberDynamic = this.cullingSubscriberDynamic;
-		Vector3 newScale = scaleArg.NewScale;
-		cullingSubscriberDynamic.SetCullingRadius(3.5f * newScale.y);
+		cullingHandler.DeActivateCulling();
+		ScaleChanged = (UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>)Delegate.Remove(ScaleChanged, new UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>(cullingHandler.UpdateCullingRadius));
 	}
 
 	private void InitializeHealth()
 	{
-		MVRuntimeDataVariableClampedFloat health = Health;
+		MVRuntimeDataVariable<float> health = Health;
 		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object obj) =>
 		{
 			TrySpawningHealParticles(((AvatarUIHandlerRemote)avatar.AvatarUIHandler).HealthBar.Health, Health.Value);
 			((AvatarUIHandlerRemote)avatar.AvatarUIHandler).HealthBar.Health = (float)obj;
+		}));
+		MVRuntimeDataVariable<float> maxHealth = MaxHealth;
+		maxHealth.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(maxHealth.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object obj) =>
+		{
+			((AvatarUIHandlerRemote)avatar.AvatarUIHandler).HealthBar.MaxHealth = (float)obj;
 		}));
 		((AvatarUIHandlerRemote)avatar.AvatarUIHandler).HealthBar.Health = Health.Value;
 		Body.InitializeHealth(Health.Value);
@@ -154,9 +143,10 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 		return capsuleCollider;
 	}
 
-	private void OnAnimationChange(object newAnimationData)
+	protected override void OnAnimationChange(object newAnimationData)
 	{
-		if ((AvatarModeTypeFlags & 1) > 0)
+		base.OnAnimationChange(newAnimationData);
+		if (((int)SpawnRoleModeTypes.Value & 1) > 0)
 		{
 			Dictionary<object, object> dictionary = (Dictionary<object, object>)newAnimationData;
 			Body.Animation.Play((string)dictionary["state"]);
@@ -214,13 +204,13 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 		else
 		{
 			Body.Visible = true;
-			((AvatarUIHandlerRemote)avatar.AvatarUIHandler).SetHealthBarColor(MVGameControllerBase.Game.TeamManager.IsOnSameTeam(this, MVGameControllerBase.Game.LocalPlayer.Avatar));
+			((AvatarUIHandlerRemote)avatar.AvatarUIHandler).SetHealthBarColor(MVGameControllerBase.Game.LocalPlayer.IsOnSameTeam(this));
 			((AvatarUIHandlerRemote)avatar.AvatarUIHandler).NameTagLabelVisible = true;
 			triggerCollider.enabled = true;
 		}
 	}
 
-	public override void AttachBody(MVBody newBody)
+	protected override void AttachBody(MVBody newBody)
 	{
 		base.AttachBody(newBody);
 		newBody.Visible = true;
@@ -242,14 +232,34 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer
 	public void VisualizeBulletImpact(VoxelHit voxelHit, Ray lineOfFire, int shooterActorNumber, float damage = 100f)
 	{
 		MVPlayer player = null;
-		if (MVGameControllerBase.Game.MVPlayerContainer.TryGetValue(shooterActorNumber, out player) && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(this, player.Avatar) && !IsInMode(AvatarModeTypes.Dead) && !avatar.HasModifierEffect(AvatarModifierEffect.Invulnerable))
+		if (MVGameControllerBase.Game.MVPlayerContainer.TryGetValue(shooterActorNumber, out player) && !player.IsOnSameTeam(this) && !IsInMode(SpawnRoleModeType.Dead) && !avatar.HasModifierEffect(AvatarModifierEffect.Invulnerable))
 		{
 			avatar.VisualizeBulletImpact(voxelHit, lineOfFire, shooterActorNumber, damage);
 			if (shooterActorNumber == MVGameControllerBase.Game.LocalPlayer.ActorNr)
 			{
-				MVGameControllerBase.CameraController.PlayPlingSound();
+				MVGameControllerBase.MainCameraManager.PlayPlingSound();
 				MVGameControllerBase.PlayModeUI.GetCrossHair().ShowHasHitEffect();
 			}
 		}
+	}
+
+	public void Activate(int idFrom, Vector3 position, Quaternion rotation)
+	{
+		Debug.Log("MVAvatarRemote Activate");
+		Position = position;
+		Rotation = rotation;
+		((MVNetworkListener)MVGameControllerBase.Game.TransformNetworkManager.GetNetworkObject(Id))?.SetToCurrentPosition();
+		gameObject.SetActive(value: true);
+		avatar.AvatarUIHandler.Activate();
+		cullingHandler.ActivateCulling(gameObject);
+		ScaleChanged = (UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>)Delegate.Combine(ScaleChanged, new UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>(cullingHandler.UpdateCullingRadius));
+	}
+
+	public void DeActivate(int idTo)
+	{
+		gameObject.SetActive(value: false);
+		avatar.AvatarUIHandler.Deactivate();
+		cullingHandler.DeActivateCulling();
+		ScaleChanged = (UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>)Delegate.Remove(ScaleChanged, new UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>(cullingHandler.UpdateCullingRadius));
 	}
 }

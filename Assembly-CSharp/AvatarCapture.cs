@@ -68,7 +68,8 @@ public class AvatarCapture : MonoBehaviour
 			}
 			for (int k = 0; k < count; k++)
 			{
-				Transform transform = sortedList[i][k].Avatar.Body.Transform;
+				Debug.LogWarning("Replaced: sortedList[i][j].Avatar.Body.Transform; with Transform avatarTransform = sortedList[i][j].ActiveSpawnRole.WorldObjectClient.Transform;");
+				Transform transform = MVGameControllerBase.WOCM.GetWorldObjectClient(sortedList[i][k].WoId).Transform;
 				Transform transform2 = renderCam.transform;
 				transform2.position = transform.position;
 				transform2.position += transform.right * cameraOffset.x;
@@ -92,7 +93,8 @@ public class AvatarCapture : MonoBehaviour
 		positions.Reverse();
 		for (int i = 0; i < players.Count; i++)
 		{
-			Transform transform = players[i].Avatar.Body.Transform;
+			Debug.LogWarning("Replaced: Transform avatarTransform = players[i].Avatar.Body.Transform with : players[i].ActiveSpawnRole.WorldObjectClient.Transform");
+			Transform transform = MVGameControllerBase.WOCM.GetWorldObjectClient(players[i].WoId).Transform;
 			Transform transform2 = renderCam.transform;
 			transform2.position = transform.position;
 			transform2.position += transform.right * cameraOffset.x;
@@ -108,7 +110,7 @@ public class AvatarCapture : MonoBehaviour
 
 	private void InitializeCamera()
 	{
-		MVGameControllerBase.WOCM.AvatarLocal.Avatar.AvatarFader.SetTransparency(1f);
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.ReadyScreenShot();
 		renderCam.clearFlags = CameraClearFlags.Depth;
 		RenderTexture temporary = RenderTexture.GetTemporary(1024, 512, 16, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, 1);
 		RenderTexture active = RenderTexture.active;
@@ -131,11 +133,14 @@ public class AvatarCapture : MonoBehaviour
 			MeshFilter meshFilter = componentsInChildren[i];
 			Mesh mesh = componentsInChildren[i].mesh;
 			Renderer component = meshFilter.gameObject.GetComponent<Renderer>();
-			for (int j = 0; j < mesh.subMeshCount; j++)
+			if (!LayerUtil.HasFlags(meshFilter.gameObject.layer, 2))
 			{
-				Material material = component.sharedMaterials[j];
-				Matrix4x4 localToWorldMatrix = meshFilter.transform.localToWorldMatrix;
-				Graphics.DrawMesh(mesh, localToWorldMatrix, material, LayerMask.NameToLayer("UXElementSecondary"), renderCam, j);
+				for (int j = 0; j < mesh.subMeshCount; j++)
+				{
+					Material material = component.sharedMaterials[j];
+					Matrix4x4 localToWorldMatrix = meshFilter.transform.localToWorldMatrix;
+					Graphics.DrawMesh(mesh, localToWorldMatrix, material, LayerMask.NameToLayer("UXElementSecondary"), renderCam, j);
+				}
 			}
 		}
 	}

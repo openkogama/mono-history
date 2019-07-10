@@ -18,11 +18,6 @@ public abstract class MVPlaymodeCameraBase : MVCameraBase
 
 	public override void Exit(MVCameraController camController)
 	{
-		AvatarCameraFade component = camController.gameObject.GetComponent<AvatarCameraFade>();
-		if (component != null)
-		{
-			component.enabled = false;
-		}
 	}
 
 	protected void Shake(float speed)

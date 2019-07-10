@@ -54,7 +54,7 @@ internal class ESAddLink : ESStateBase
 			endColor = PrefabPool.Instance.LogicCubeConnectorRedMaterial.color;
 			startColor = new Color(endColor.r, 0.6f, endColor.b);
 		}
-		MVGameControllerBase.CameraController.LineDrawManager.SetTempLink(tempLink);
+		MVGameControllerBase.MainCameraManager.LineDrawManager.SetTempLink(tempLink);
 		singleSelectedWO.HighlightConnector(state: true);
 		woRef = MVGameControllerBase.WOCM.GetWorldObjectClientRef(singleSelectedWO.Id);
 	}
@@ -123,7 +123,7 @@ internal class ESAddLink : ESStateBase
 		{
 			woRef.WorldObjectClient.HighlightConnector(state: false);
 		}
-		MVGameControllerBase.CameraController.LineDrawManager.SetTempLink(null);
+		MVGameControllerBase.MainCameraManager.LineDrawManager.SetTempLink(null);
 		PrefabPool.Instance.LogicCubeConnectorRedMaterial.color = originalRedConnectorColor;
 		PrefabPool.Instance.LogicCubeConnectorBlueMaterial.color = originalBlueConnectorColor;
 	}

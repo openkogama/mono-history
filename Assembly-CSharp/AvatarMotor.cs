@@ -9,6 +9,8 @@ public class AvatarMotor : MVRigidBody
 
 	public delegate void OnActiveBounceDelegate();
 
+	private float walkSpeedDefault = 8f;
+
 	private float walkSpeed = 8f;
 
 	private float speed;
@@ -24,6 +26,8 @@ public class AvatarMotor : MVRigidBody
 	private BounceState bounceState;
 
 	private SizeState sizeState;
+
+	private WaterState waterState;
 
 	private SmoothCharacterController smoothCharacterController;
 
@@ -63,18 +67,21 @@ public class AvatarMotor : MVRigidBody
 		return stuckEvaluator.Update();
 	}
 
-	public void Init(AvatarInteractable interactableLocal, Vector3 centerOffset)
+	public void Init(AvatarInteractable interactableLocal, Vector3 centerOffset, MVWorldObjectClient worldObjectOwner)
 	{
 		Init();
 		smoothCharacterController = gameObject.AddComponent<SmoothCharacterController>();
-		smoothCharacterController.Init(gameObject, null);
+		smoothCharacterController.Init(gameObject, null, worldObjectOwner);
 		Controller.Init(0.45f, 1.9f, centerOffset);
+		MVGameControllerBase.Game.LocalPlayer.BoostController.SubscribeToBoostChanged(BoostType.MovementSpeedFloatMultiplier, HandleMovementBoost);
+		HandleMovementBoost();
 		HashSet<int> worldIDsRecursive = worldObjectParent.WorldIDsRecursive;
 		Controller.IgnoreWoIds = worldIDsRecursive;
 		stuckEvaluator = new StuckEvaluator(Controller.GetOverlappingObjects);
 		movableMotorState = new MVMovableMotorState();
 		this.interactableLocal = interactableLocal;
 		bounceState = new BounceState(interactableLocal);
+		waterState = new WaterState();
 		sizeState = new SizeState(interactableLocal, Controller);
 		this.jumpState = new JumpState(0.2f);
 		JumpState jumpState = this.jumpState;
@@ -142,6 +149,7 @@ public class AvatarMotor : MVRigidBody
 			DealImpactDamage(velocityPrevFrame, prevVelocity);
 			HandleSoundEffects(motorApi.Jump);
 			sizeState.UpdateScale();
+			waterState.Update(Controller.transform.position, interactableLocal);
 		}
 	}
 
@@ -155,6 +163,22 @@ public class AvatarMotor : MVRigidBody
 		if (bounceState.Bounced && inputJump && OnActiveBounce != null)
 		{
 			OnActiveBounce();
+		}
+	}
+
+	private void HandleMovementBoost()
+	{
+		if (MVGameControllerBase.Game.LocalPlayer.BoostController.TryGetActiveBoost(BoostType.MovementSpeedFloatMultiplier, out var boost))
+		{
+			walkSpeed = walkSpeedDefault * (float)boost.Value;
+		}
+	}
+
+	private void OnDestroy()
+	{
+		if (MVGameControllerBase.IsAlive)
+		{
+			MVGameControllerBase.Game.LocalPlayer.BoostController.UnSubscribeToBoostChanged(BoostType.MovementSpeedFloatMultiplier, HandleMovementBoost);
 		}
 	}
 

@@ -68,6 +68,10 @@ public class LevelRewardAnimation : MonoBehaviour
 
 	private KeyValuePair<int, int> currentReward;
 
+	private Texture2D previousBadgeTextureAsset;
+
+	private Texture2D currentBadgeTextureAsset;
+
 	public void Initialize(Dictionary<int, int> levelRewards)
 	{
 		foreach (KeyValuePair<int, int> levelReward in levelRewards)
@@ -105,25 +109,29 @@ public class LevelRewardAnimation : MonoBehaviour
 	private void OnDestroy()
 	{
 		BadgeManager.UnsubscribeGetBadgeRequest(OnPrevBadgeLoaded);
+		Object.Destroy(previousBadgeTextureAsset);
 		BadgeManager.UnsubscribeGetBadgeRequest(OnNextBadgeLoaded);
+		Object.Destroy(currentBadgeTextureAsset);
 	}
 
 	private void OnPrevBadgeLoaded(WWW www)
 	{
-		if (www == null || www.texture == null || !string.IsNullOrEmpty(www.error))
+		previousBadgeTextureAsset = www.texture;
+		if (previousBadgeTextureAsset == null || !string.IsNullOrEmpty(www.error))
 		{
 			Debug.LogWarning("Error downloading prevLevel badge.");
 		}
-		prevLevelBadge.texture = www.texture;
+		prevLevelBadge.texture = previousBadgeTextureAsset;
 	}
 
 	private void OnNextBadgeLoaded(WWW www)
 	{
-		if (www == null || www.texture == null || !string.IsNullOrEmpty(www.error))
+		currentBadgeTextureAsset = www.texture;
+		if (currentBadgeTextureAsset == null || !string.IsNullOrEmpty(www.error))
 		{
 			Debug.LogWarning("Error downloading nextLevel badge.");
 		}
-		nextLevelBadge.texture = www.texture;
+		nextLevelBadge.texture = currentBadgeTextureAsset;
 	}
 
 	private IEnumerator DisplayAndFadePrevBadge()

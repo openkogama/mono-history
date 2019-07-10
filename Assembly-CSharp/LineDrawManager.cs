@@ -36,7 +36,7 @@ public class LineDrawManager : MonoBehaviour
 	protected void OnPostRender()
 	{
 		DrawEnqueuedLines();
-		Camera mainCamera = MVGameControllerBase.CameraController.MainCamera;
+		Camera mainCamera = MVGameControllerBase.MainCameraManager.MainCamera;
 		if (!(mainCamera != null))
 		{
 			return;
@@ -116,9 +116,9 @@ public class LineDrawManager : MonoBehaviour
 		}
 		try
 		{
-			if (MVGameControllerBase.CameraController != null)
+			if (MVGameControllerBase.MainCameraManager != null)
 			{
-				Camera mainCamera = MVGameControllerBase.CameraController.MainCamera;
+				Camera mainCamera = MVGameControllerBase.MainCameraManager.MainCamera;
 				if (mainCamera != null && (mainCamera.cullingMask & (1 << LayerMask.NameToLayer("Logic"))) != 0)
 				{
 					lineMaterial.SetPass(0);

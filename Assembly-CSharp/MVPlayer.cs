@@ -3,31 +3,34 @@ using MV.Common;
 using MV.WorldObject;
 using MV.WorldObject.GamePassSystem;
 using MV.WorldObject.MetaData;
+using MV.WorldObject.SpawnRoles;
 using MV.WorldObject.Subscription;
 using UnityEngine;
 using UnityEngine.Events;
 
 public class MVPlayer
 {
-	private WorldObjectClientRef<MVAvatar> _avatar;
-
 	private int checkpointWOID = -1;
+
+	protected PlayerPlanetDataRemote playerPlanetDataRemote;
 
 	protected int level = 1;
 
 	private MVTeam team = MVTeam.None;
 
+	public Action OnGoldAmountChange;
+
 	public UnityAction<int> OnLevelChanged;
 
 	public UnityAction OnCheckpointReached;
 
-	protected PlayerPlanetDataRemote playerPlanetDataRemote;
-
-	public Action OnGoldAmountChange;
+	protected SpawnRolesManager spawnRolesManager;
 
 	public int ProfileID { get; private set; }
 
 	public bool IsTourist => ProfileID == 0;
+
+	public int WoId => spawnRolesManager.SpawnRoleId;
 
 	public int ActorNr { get; private set; }
 
@@ -79,14 +82,10 @@ public class MVPlayer
 		set
 		{
 			team = value;
-			if (_avatar != null)
-			{
-				Avatar.SetTeam();
-			}
 		}
 	}
 
-	public MVAvatar Avatar => _avatar.WorldObjectClient;
+	public SpawnRolesManager SpawnRolesManager => spawnRolesManager;
 
 	public MVPlayer(int actorNumber, int profileID, string regionCode, BuildTarget buildTarget, UserProfileData userProfileData, bool isReady)
 	{
@@ -94,9 +93,7 @@ public class MVPlayer
 		ProfileID = profileID;
 		BuildTarget = buildTarget;
 		UserProfileData = userProfileData;
-		Debug.Log(userProfileData.SubscriptionData.ExpiredSubscriptionType);
 		SubscriptionRules = new SubscriptionRulesWrapper(userProfileData.SubscriptionData.SubscriptionType);
-		Debug.Log("SubscriptionRules " + SubscriptionRules);
 		if (profileID <= 0)
 		{
 			string newValue = TM._("Tourist");
@@ -111,6 +108,39 @@ public class MVPlayer
 	{
 		Level = level;
 		PlayerPlanetDataRemote = playerPlanetDataRemote;
+	}
+
+	public void NotifyAvatarCreated(int id)
+	{
+		spawnRolesManager.OnAvatarCreated(id);
+	}
+
+	public bool IsOnSameTeam(MVPlayer other)
+	{
+		if (MVGameControllerBase.Game.TeamManager.TeamCount() <= 1)
+		{
+			return false;
+		}
+		return team == other.Team;
+	}
+
+	public bool IsOnSameTeam(MVWorldObjectClient wo)
+	{
+		if (MVGameControllerBase.Game.TeamManager.TeamCount() <= 1)
+		{
+			return false;
+		}
+		ITeamInteractorNPC teamInteractorNPC = wo as ITeamInteractorNPC;
+		if (wo.OwnerActorNr == 0 && teamInteractorNPC != null)
+		{
+			return teamInteractorNPC.IsOnSameTeam(Team);
+		}
+		MVPlayer player = null;
+		if (MVGameControllerBase.Game.MVPlayerContainer.TryGetValue(wo.OwnerActorNr, out player))
+		{
+			return Team == player.Team;
+		}
+		return ActorNr == wo.OwnerActorNr;
 	}
 
 	public void SetCheckpoint(int woid)
@@ -159,8 +189,8 @@ public class MVPlayer
 		IsReady = true;
 	}
 
-	public void SetAvatar(int worldObjectId)
+	public void SetupSpawnRoleManager(ISpawnRoleChangeHandler spawnRoleChangeHandler, SpawnRolesRuntimeData spawnRolesRuntimeData)
 	{
-		_avatar = MVGameControllerBase.WOCM.GetWorldObjectClientRef<MVAvatar>(worldObjectId);
+		spawnRolesManager = new SpawnRolesManager(spawnRoleChangeHandler, spawnRolesRuntimeData);
 	}
 }

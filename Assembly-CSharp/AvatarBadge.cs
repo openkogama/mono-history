@@ -14,7 +14,7 @@ public class AvatarBadge : MonoBehaviour
 	[SerializeField]
 	private ScaleAnimations scaleAnimation;
 
-	private Texture texture;
+	private Texture badgeTextureAsset;
 
 	private int ownerActorId = -1;
 
@@ -42,13 +42,13 @@ public class AvatarBadge : MonoBehaviour
 
 	private void UpdateBadge(int level)
 	{
-		BadgeManager.GetBadgeTexture(level, StreamingAssetCallback);
+		BadgeManager.GetBadgeTexture(level, OnBadgeTextureReceived);
 		levelText.text = level.ToString();
 	}
 
 	private void OnDestroy()
 	{
-		BadgeManager.UnsubscribeGetBadgeRequest(StreamingAssetCallback);
+		BadgeManager.UnsubscribeGetBadgeRequest(OnBadgeTextureReceived);
 		LevelingManager.OnLevelingInitialized = (UnityAction)Delegate.Remove(LevelingManager.OnLevelingInitialized, new UnityAction(OnLevelingInitialized));
 		if (MVGameControllerBase.IsAlive && MVGameControllerBase.Game != null)
 		{
@@ -66,12 +66,13 @@ public class AvatarBadge : MonoBehaviour
 		}
 	}
 
-	private void StreamingAssetCallback(WWW www)
+	private void OnBadgeTextureReceived(WWW www)
 	{
-		if (www != null && www.texture != null)
+		Texture2D texture = www.texture;
+		if (texture != null)
 		{
 			badgeRenderer.gameObject.layer = LayerMask.NameToLayer("UIItems");
-			texture = www.texture;
+			badgeTextureAsset = texture;
 			scaleAnimation.Play();
 		}
 		else
@@ -84,8 +85,8 @@ public class AvatarBadge : MonoBehaviour
 	{
 		if (SceneManager.GetActiveScene().name != "GUIDevScene")
 		{
-			badgeRenderer.material.mainTexture = texture;
-			texture = null;
+			badgeRenderer.material.mainTexture = badgeTextureAsset;
+			badgeTextureAsset = null;
 		}
 	}
 }

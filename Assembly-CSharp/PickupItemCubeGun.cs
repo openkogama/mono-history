@@ -61,7 +61,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 
 	private void Awake()
 	{
-		currentAmmo = Mathf.Max(maxAmmo, currentAmmo);
+		ResetAmmo();
 		primaryCursor = UnityEngine.Object.Instantiate(primaryCursor);
 		secondaryCursor = UnityEngine.Object.Instantiate(secondaryCursor);
 		primaryCursor.FadeOverride = FadeOverride.FadeAllOut;
@@ -228,7 +228,7 @@ public class PickupItemCubeGun : PickupItemWithDelay
 	public override void ResetAmmo()
 	{
 		base.ResetAmmo();
-		currentAmmo = Mathf.Max(maxAmmo, currentAmmo);
+		currentAmmo = Mathf.Max(GetAmmoMultiplier(maxAmmo), currentAmmo);
 	}
 
 	public override void OnStateChanged(Dictionary<object, object> newState)

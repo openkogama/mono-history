@@ -8,12 +8,12 @@ public class ToggleLogic : ToggleHandler
 
 	private void Update()
 	{
-		toggleStatHandlerBase.ToggleState = MVGameControllerBase.CameraController.IsLogicRendered;
+		toggleStatHandlerBase.ToggleState = MVGameControllerBase.MainCameraManager.IsLogicRendered;
 	}
 
 	public override void ExecuteToggleState(bool toggleState, UnityAction<bool> toggleCallback)
 	{
-		MVGameControllerBase.CameraController.IsLogicRendered = toggleState;
+		MVGameControllerBase.MainCameraManager.IsLogicRendered = toggleState;
 		toggleCallback(toggleState);
 	}
 }

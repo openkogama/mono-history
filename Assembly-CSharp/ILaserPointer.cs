@@ -2,13 +2,11 @@ using UnityEngine;
 
 public interface ILaserPointer
 {
-	bool LaserActive { get; set; }
+	void SetLaserActiveState(bool isActive);
 
-	byte CurrentCubeMaterial { get; set; }
+	void SetCurrentCubeMaterial(byte cubeMaterial);
 
 	void ChangeState(LaserPointerState newState);
-
-	void SetLaserCubeVisible(bool visible);
 
 	void UpdatePosition(Vector3 to);
 

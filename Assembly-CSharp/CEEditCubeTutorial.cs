@@ -144,10 +144,8 @@ public class CEEditCubeTutorial : ESStateBase
 		{
 			cubeModelWrapper = new EditableCubeModelWrapper(selectedInstance, new IntVector(-1, -1, -1), new IntVector(1, 1, 1), 27);
 		}
-		((MVAvatarLocal.JetPackMode)MVGameControllerBase.WOCM.AvatarLocal.CurrentMode).ModifySpeed(Mathf.Min(1f, 1f * e.SingleSelectedWO.Scale.x), Mathf.Min(1f, 1f * e.SingleSelectedWO.Scale.x));
 		DrawPlane.HideDrawPlane();
-		MVAvatarLocal.JetPackMode jetPackMode = (MVAvatarLocal.JetPackMode)MVGameControllerBase.WOCM.AvatarLocal.CurrentMode;
-		jetPackMode.SetMoveConstraint(new Vector3(0f, 0f, 0f), 25f);
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.EnterBuildStateEvent(stateType, new MVBuildModeAvatarLocal.EditMode.ESEditCubeTutorialData(e.SingleSelectedWO.Id));
 		ExecuteEvents.ExecuteHierarchy(e.GameObject, null, (IHandleCubeEditTutorial handler, BaseEventData data) =>
 		{
 			handler.PushCubeEditCubeTutorialTools(OnClosed);
@@ -164,9 +162,9 @@ public class CEEditCubeTutorial : ESStateBase
 		}
 		SharedCubeFunctions.SetLayerRecursively(TargetCubeModel.Transform, select: true);
 		CMSM.StartEdit(TargetCubeModel, constraint);
-		mainCameraDefaultMask = e.CameraController.MainCamera.cullingMask;
-		e.CameraController.MainCamera.cullingMask = 0;
-		e.CameraController.BlueModeEnabled = true;
+		mainCameraDefaultMask = e.MainCameraManager.MainCamera.cullingMask;
+		e.MainCameraManager.MainCamera.cullingMask = 0;
+		e.MainCameraManager.BlueModeEnabled = true;
 		SetupBlinker();
 	}
 
@@ -231,9 +229,7 @@ public class CEEditCubeTutorial : ESStateBase
 	public override void Exit(EditorStateMachine esm)
 	{
 		base.Exit(esm);
-		esm.CameraController.MainCamera.cullingMask = mainCameraDefaultMask;
-		MVAvatarLocal.JetPackMode jetPackMode = (MVAvatarLocal.JetPackMode)MVGameControllerBase.WOCM.AvatarLocal.CurrentMode;
-		jetPackMode.MovementConstrained = false;
+		esm.MainCameraManager.MainCamera.cullingMask = mainCameraDefaultMask;
 		string err = string.Empty;
 		if (!TargetCubeModel.Delete(MVGameControllerBase.WOCM, ref err))
 		{
@@ -243,10 +239,7 @@ public class CEEditCubeTutorial : ESStateBase
 			});
 		}
 		UnityEngine.Object.Destroy(constraintVisualizer.gameObject);
-		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.Idle);
-		MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Edit);
-		((MVAvatarLocal.JetPackMode)MVGameControllerBase.WOCM.AvatarLocal.CurrentMode).ModifySpeed(1f, 1f);
-		MVGameControllerBase.WOCM.AvatarLocal.SetToSpawnTransform();
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.ExitBuildStateEvent(stateType, null);
 		esm.CubeModelingStateMachine.RemoveCursors();
 		esm.CubeModelingStateMachine.EndEdit();
 		TargetCubeModel = null;
@@ -260,14 +253,14 @@ public class CEEditCubeTutorial : ESStateBase
 	private void SetFocus(float distance)
 	{
 		Vector3 avatarPosition = TargetCubeModel.Transform.position + TargetCubeModel.Transform.rotation * focusOffset * distance;
-		JetPackCamera jetPackCamera = (JetPackCamera)MVGameControllerBase.CameraController.CurCamera;
+		JetPackCamera jetPackCamera = (JetPackCamera)MVGameControllerBase.MainCameraManager.CurrentCamera;
 		jetPackCamera.FocusOnPointFromAvatarPosition(TargetCubeModel.WorldPivot, avatarPosition);
 	}
 
 	private void SetupBlinker()
 	{
 		blinker = TargetCubeModel.GameObject.AddComponent<FirstTimeCubeModelBlinker>();
-		blinker.Initialize(new Material(PrefabPool.Instance.BlinkerDefaultMaterial), MVGameControllerBase.CameraController.SecondaryCamera, TargetCubeModel);
+		blinker.Initialize(new Material(PrefabPool.Instance.BlinkerDefaultMaterial), MVGameControllerBase.MainCameraManager.SecondaryCamera, TargetCubeModel);
 		blinker.Visible = true;
 	}
 
@@ -333,7 +326,7 @@ public class CEEditCubeTutorial : ESStateBase
 			bordersExpanded = true;
 			cubeModelWrapper = new EditableCubeModelWrapper(selectedInstance, new IntVector(-15, -15, -15), new IntVector(15, 15, 15), 1);
 			SetFocus(multiCubeDistance);
-			MVGameControllerBase.CameraController.StartTransitionCam(1f);
+			MVGameControllerBase.MainCameraManager.StartTransitionCam(1f);
 			if (constraintVisualizer != null)
 			{
 				UnityEngine.Object.Destroy(constraintVisualizer.gameObject);

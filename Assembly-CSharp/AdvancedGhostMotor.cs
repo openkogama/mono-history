@@ -54,7 +54,7 @@ public class AdvancedGhostMotor : MVRigidBody
 		gameObject.transform.rotation = ghostBehaviour.transform.rotation;
 		targetTransform = gameObject.transform;
 		smoothPhysicsMovement = ghostBehaviour.AddComponent<SmoothPhysicsMovement>();
-		smoothPhysicsMovement.Init(targetTransform, cullingSubscriberBase);
+		smoothPhysicsMovement.Init(targetTransform, cullingSubscriberBase, null);
 	}
 
 	public void FixedUpdateFunction()

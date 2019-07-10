@@ -6,6 +6,8 @@ public class NotificationLevelRequirementPanel : NotificationRequirementPanel
 	[SerializeField]
 	private Image LevelImage;
 
+	private Texture2D badgeTextureAsset;
+
 	public override void OnToggleEnabled(object text, Sprite checkmarkSprite, bool enabled)
 	{
 		base.OnToggleEnabled(text, checkmarkSprite, enabled);
@@ -18,13 +20,15 @@ public class NotificationLevelRequirementPanel : NotificationRequirementPanel
 	private void OnDestroy()
 	{
 		BadgeManager.UnsubscribeGetBadgeRequest(BadgeCallback);
+		Object.Destroy(badgeTextureAsset);
 	}
 
 	private void BadgeCallback(WWW www)
 	{
-		if (www != null && www.texture != null)
+		badgeTextureAsset = www.texture;
+		if (badgeTextureAsset != null)
 		{
-			LevelImage.sprite = GetBadgeSprite(www.texture);
+			LevelImage.sprite = GetBadgeSprite(badgeTextureAsset);
 		}
 		else
 		{

@@ -86,16 +86,12 @@ public abstract class PickupItem : MonoBehaviour
 		};
 	}
 
-	public void HolsterPickup()
+	public void HolsterPickup(Transform targetHolsterTransform)
 	{
 		if (!IsHolstered)
 		{
-			if (owner.WorldObjectOwner is MVAvatar mVAvatar)
-			{
-				Transform partBone = mVAvatar.Body.BodyData.GetPartBone(BodyData.PartIndex.Holster);
-				AlignThisTo(partBone, holsterTransformOffset);
-				IsHolstered = true;
-			}
+			AlignThisTo(targetHolsterTransform, holsterTransformOffset);
+			IsHolstered = true;
 			OnHolstered();
 		}
 	}
@@ -195,6 +191,15 @@ public abstract class PickupItem : MonoBehaviour
 
 	protected virtual void OnUnholstered()
 	{
+	}
+
+	protected virtual int GetAmmoMultiplier(int defaultAmmo)
+	{
+		if (MVGameControllerBase.Game.LocalPlayer.BoostController.TryGetActiveBoost(BoostType.AmmoIntMultiplier, out var boost))
+		{
+			return defaultAmmo * (int)boost.Value;
+		}
+		return defaultAmmo;
 	}
 
 	public virtual void UpdateWithDirection(Vector3 dir)

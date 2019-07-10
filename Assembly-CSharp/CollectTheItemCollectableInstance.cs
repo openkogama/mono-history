@@ -170,7 +170,7 @@ public class CollectTheItemCollectableInstance : MVBlueprintBase, ITriggerBoxEve
 		collectTheItemObject.Blinker.MeshFilters = collectTheItemObject.VisualObject.GetComponentsInChildren<MeshFilter>();
 	}
 
-	private bool CheckCanUse(MVInteractableBase interactable)
+	private bool CheckCanUse(int woId, MVInteractableBase interactable)
 	{
 		if (interactable.HasModifierEffect(AvatarModifierEffect.DisableWeapons) || interactable.HasModifierEffect(AvatarModifierEffect.DisablePickups))
 		{
@@ -180,7 +180,7 @@ public class CollectTheItemCollectableInstance : MVBlueprintBase, ITriggerBoxEve
 		{
 			return false;
 		}
-		if (CanPickupWithoutUse(MVGameControllerBase.WOCM.AvatarLocal.Id))
+		if (CanPickupWithoutUse(woId))
 		{
 			return false;
 		}
@@ -207,8 +207,8 @@ public class CollectTheItemCollectableInstance : MVBlueprintBase, ITriggerBoxEve
 			}
 			else if (worldObjectClient is MVJetPack)
 			{
-				MVPickupOwner mVPickupOwner2 = MVGameControllerBase.WOCM.AvatarLocal.GameObject.GetComponent<MVPickupOwner>();
-				if (mVPickupOwner2 != null && (mVPickupOwner2.CurrentItem == null || (mVPickupOwner2.CurrentItem != null && mVPickupOwner2.CurrentItem.Type == AvatarItemType.Hand)))
+				MVPickupOwner componentInChildren = worldObjectClient.GameObject.GetComponentInChildren<MVPickupOwner>();
+				if (componentInChildren != null && (componentInChildren.CurrentItem == null || (componentInChildren.CurrentItem != null && componentInChildren.CurrentItem.Type == AvatarItemType.Hand)))
 				{
 					return true;
 				}

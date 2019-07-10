@@ -36,8 +36,6 @@ internal class ESTranslate : ESStateBase
 
 	private bool enteredStateWithPointerSelectReleased;
 
-	private ILaserPointer laser;
-
 	public override void Enter(EditorStateMachine e)
 	{
 		if (MVGameControllerBase.EditModeUI.IsGridSnap())
@@ -63,24 +61,23 @@ internal class ESTranslate : ESStateBase
 		recalcLocalDirCamToObjects = true;
 		translateDatas = new List<TranslateData>();
 		targets = new List<MVWorldObjectClient>();
-		e.CameraController.IgnoreInputTypes(IgnoreInputTypes.MouseScroll | IgnoreInputTypes.Avatar);
+		e.MainCameraManager.IgnoreInputTypes(IgnoreInputTypes.MouseScroll | IgnoreInputTypes.Avatar);
 		if (!e.NetworkSelector.RequestOwnership(e.SelectedIDs))
 		{
 			Debug.Log("Ownership request failed");
 			e.PopState();
 			return;
 		}
-		laser = MVGameControllerBase.WOCM.AvatarLocal.LaserPointer;
-		laser.ChangeState(LaserPointerState.Transforming);
-		laser.LaserActive = true;
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.ChangeState(LaserPointerState.Transforming);
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.SetLaserActiveState(isActive: true);
 		foreach (int selectedID in e.SelectedIDs)
 		{
 			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(selectedID);
 			targets.Add(worldObjectClient);
 			translateDatas.Add(new TranslateData(worldObjectClient, gridSize));
 		}
-		e.CameraController.TertiaryCameraActive = true;
-		e.CameraController.TertiaryCamera.SetReplacementShader(e.CameraController.transparentMultiplyColor, string.Empty);
+		e.MainCameraManager.TertiaryCameraActive = true;
+		e.MainCameraManager.TertiaryCamera.SetReplacementShader(e.MainCameraManager.transparentMultiplyColor, string.Empty);
 		woIds = new HashSet<int>();
 		foreach (TranslateData translateData in translateDatas)
 		{
@@ -88,7 +85,7 @@ internal class ESTranslate : ESStateBase
 			SharedCubeFunctions.SetLayerRecursively(translateData.Wo.Transform, select: true);
 		}
 		Cursor.visible = false;
-		originPrevFrame = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position;
+		originPrevFrame = MVGameControllerBase.SpawnRoleDataMediatorLocal.Position;
 		enteredStateWithPointerSelectReleased = MVInputWrapper.GetBooleanControlUp(KogamaControls.PointerSelect);
 	}
 
@@ -106,8 +103,8 @@ internal class ESTranslate : ESStateBase
 			{
 				recalcLocalDirCamToObjects = true;
 			}
-			Vector3 vector = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position - originPrevFrame;
-			originPrevFrame = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position;
+			Vector3 vector = MVGameControllerBase.SpawnRoleDataMediatorLocal.Position - originPrevFrame;
+			originPrevFrame = MVGameControllerBase.SpawnRoleDataMediatorLocal.Position;
 			for (int i = 0; i < translateDatas.Count; i++)
 			{
 				if (moveWithAvatar)
@@ -171,7 +168,7 @@ internal class ESTranslate : ESStateBase
 	{
 		if (wos.Count == 1)
 		{
-			laser.UpdatePosition(wos[0].WorldPivot);
+			MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.UpdatePosition(wos[0].WorldPivot);
 			return;
 		}
 		List<Transform> list = new List<Transform>();
@@ -179,16 +176,16 @@ internal class ESTranslate : ESStateBase
 		{
 			list.Add(wo.Transform);
 		}
-		laser.UpdatePosition(SharedCubeFunctions.GetWorldCenter(list));
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.UpdatePosition(SharedCubeFunctions.GetWorldCenter(list));
 	}
 
 	public override void Exit(EditorStateMachine e)
 	{
-		laser.ChangeState(LaserPointerState.Idle);
-		laser.LaserActive = false;
-		e.CameraController.IgnoreInputTypes(IgnoreInputTypes.None);
-		e.CameraController.TertiaryCameraActive = false;
-		e.CameraController.TertiaryCamera.ResetReplacementShader();
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.ChangeState(LaserPointerState.Idle);
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.SetLaserActiveState(isActive: false);
+		e.MainCameraManager.IgnoreInputTypes(IgnoreInputTypes.None);
+		e.MainCameraManager.TertiaryCameraActive = false;
+		e.MainCameraManager.TertiaryCamera.ResetReplacementShader();
 		foreach (TranslateData translateData in translateDatas)
 		{
 			if (translateData.Wo != null)
@@ -207,7 +204,7 @@ internal class ESTranslate : ESStateBase
 		VoxelHit hit = default;
 		if (EditModeObjectPicker.Pick(ref hit) && hit.woId != -1 && e.SelectedIDs.Contains(hit.woId))
 		{
-			hitDistance = (hit.point - MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position).magnitude;
+			hitDistance = (hit.point - MVGameControllerBase.SpawnRoleDataMediatorLocal.Position).magnitude;
 			return true;
 		}
 		return false;
@@ -217,10 +214,10 @@ internal class ESTranslate : ESStateBase
 	{
 		float num = 0f;
 		int num2 = 0;
-		Vector3 position = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position;
+		Vector3 vector = MVGameControllerBase.SpawnRoleDataMediatorLocal.Position;
 		foreach (MVWorldObjectClient selectedWO in e.SelectedWOs)
 		{
-			num += (selectedWO.WorldPosition - position).magnitude;
+			num += (selectedWO.WorldPosition - vector).magnitude;
 			num2++;
 		}
 		return num / (float)num2;
@@ -233,11 +230,11 @@ internal class ESTranslate : ESStateBase
 			Matrix4x4 matrix4x = default;
 			if (!fixedToYPlane)
 			{
-				matrix4x = Matrix4x4.TRS(Vector3.zero, e.CameraController.transform.rotation, Vector3.one);
+				matrix4x = Matrix4x4.TRS(Vector3.zero, e.MainCameraManager.transform.rotation, Vector3.one);
 			}
 			else
 			{
-				float y = MathFunctions.Yaw(e.CameraController.transform.rotation * Vector3.forward);
+				float y = MathFunctions.Yaw(e.MainCameraManager.transform.rotation * Vector3.forward);
 				Vector3 eulerAngles = new Vector3(0f, y, 0f);
 				Quaternion identity = Quaternion.identity;
 				identity.eulerAngles = eulerAngles;
@@ -246,31 +243,31 @@ internal class ESTranslate : ESStateBase
 			matrix4x = Matrix4x4.Inverse(matrix4x);
 			for (int i = 0; i < translateDatas.Count; i++)
 			{
-				translateDatas[i].localDirCamToObject = matrix4x.MultiplyVector((translateDatas[i].Wo.WorldPosition - MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position).normalized);
+				translateDatas[i].localDirCamToObject = matrix4x.MultiplyVector((translateDatas[i].Wo.WorldPosition - MVGameControllerBase.SpawnRoleDataMediatorLocal.Position).normalized);
 			}
 			recalcLocalDirCamToObjects = false;
 		}
-		float magnitude = (translateDatas[targetIndex].Wo.WorldPosition - MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position).magnitude;
+		float magnitude = (translateDatas[targetIndex].Wo.WorldPosition - MVGameControllerBase.SpawnRoleDataMediatorLocal.Position).magnitude;
 		Matrix4x4 matrix4x2 = default;
 		if (!fixedToYPlane)
 		{
-			matrix4x2 = Matrix4x4.TRS(Vector3.zero, e.CameraController.transform.rotation, Vector3.one);
+			matrix4x2 = Matrix4x4.TRS(Vector3.zero, e.MainCameraManager.transform.rotation, Vector3.one);
 		}
 		else
 		{
-			float y2 = MathFunctions.Yaw(e.CameraController.transform.rotation * Vector3.forward);
+			float y2 = MathFunctions.Yaw(e.MainCameraManager.transform.rotation * Vector3.forward);
 			Vector3 eulerAngles2 = new Vector3(0f, y2, 0f);
 			Quaternion identity2 = Quaternion.identity;
 			identity2.eulerAngles = eulerAngles2;
 			matrix4x2 = Matrix4x4.TRS(Vector3.zero, identity2, Vector3.one);
 		}
 		Vector3 vector = matrix4x2.MultiplyVector(translateDatas[targetIndex].localDirCamToObject);
-		translateDatas[targetIndex].ungridifiedPosition = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.position + vector * magnitude;
+		translateDatas[targetIndex].ungridifiedPosition = MVGameControllerBase.SpawnRoleDataMediatorLocal.Position + vector * magnitude;
 	}
 
 	private Vector3 GetDeltaMouse(EditorStateMachine e)
 	{
-		Vector3 v = e.CameraController.transform.rotation * Vector3.forward;
+		Vector3 v = e.MainCameraManager.transform.rotation * Vector3.forward;
 		v.y = 0f;
 		v.Normalize();
 		float y = MathFunctions.SignedAngle(Vector3.forward, v, Vector3.up) * 57.29578f;

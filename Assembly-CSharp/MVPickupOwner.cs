@@ -53,6 +53,8 @@ public abstract class MVPickupOwner : MVComponent
 		}
 	}
 
+	public bool PickupItemIsInHand => !CurrentItem.IsHolstered && CurrentItem.Type != AvatarItemType.Hand;
+
 	public MVWorldObjectClient WorldObjectOwner => worldObjectParent;
 
 	public virtual HashSet<int> IgnoreWOIDs => worldObjectParent.WorldIDsRecursive;
@@ -92,10 +94,6 @@ public abstract class MVPickupOwner : MVComponent
 	{
 		this.lookOrigin = lookOrigin;
 		this.lookDirection = lookDirection;
-		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer && CurrentItem != null && !CurrentItem.IsHolstered)
-		{
-			CurrentItem.UpdateWithDirection(lookDirection);
-		}
 	}
 
 	protected void Init(MVRuntimeDataVariable currentItemRuntimeVariable, MVRuntimeDataVariable isFiringRuntimeVariable)
@@ -128,30 +126,10 @@ public abstract class MVPickupOwner : MVComponent
 
 	public void SetLineOfFireLocal()
 	{
-		Vector3 vector;
-		Vector3 vector2;
-		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-		{
-			vector = ((!(CurrentItem == null)) ? CurrentItem.Origin : MVGameControllerBase.WOCM.AvatarLocal.LookAtPos);
-			vector2 = GetAvatarPlanePosition() - vector;
-		}
-		else
-		{
-			vector2 = MVGameControllerBase.CameraController.FireDirection;
-			vector = MVGameControllerBase.CameraController.FireOrigin;
-		}
-		vector2 = GetLookDirectionWithAddedVelocityMagnitude(vector2.normalized);
-		SetLineOfFire(vector, vector2);
-	}
-
-	private Vector3 GetAvatarPlanePosition()
-	{
-		Ray ray = MVGameControllerBase.CameraController.MainCamera.ScreenPointToRay(Input.mousePosition);
-		if (new Plane(Vector3.back, MVGameControllerBase.WOCM.AvatarLocal.LookAtPos).Raycast(ray, out var enter))
-		{
-			return ray.GetPoint(enter);
-		}
-		return Vector3.zero;
+		Vector3 fireDirection = MVGameControllerBase.MainCameraManager.FireDirection;
+		Vector3 fireOrigin = MVGameControllerBase.MainCameraManager.FireOrigin;
+		fireDirection = GetLookDirectionWithAddedVelocityMagnitude(fireDirection.normalized);
+		SetLineOfFire(fireOrigin, fireDirection);
 	}
 
 	private void UpdateCurrentItem(Dictionary<object, object> newState)
@@ -176,10 +154,14 @@ public abstract class MVPickupOwner : MVComponent
 		{
 			if ((updateItemState & UpdateItemState.Holster) != 0 && !currentItem.IsHolstered)
 			{
-				currentItem.HolsterPickup();
-				if (OnHolsteredChanged != null)
+				Transform targetHolsterTransform = GetTargetHolsterTransform();
+				if (targetHolsterTransform != null)
 				{
-					OnHolsteredChanged(obj: true);
+					currentItem.HolsterPickup(targetHolsterTransform);
+					if (OnHolsteredChanged != null)
+					{
+						OnHolsteredChanged(obj: true);
+					}
 				}
 			}
 			if ((updateItemState & UpdateItemState.Unholster) != 0 && currentItem.IsHolstered)
@@ -192,6 +174,16 @@ public abstract class MVPickupOwner : MVComponent
 			}
 		}
 		currentItem.OnStateChanged(newState);
+	}
+
+	private Transform GetTargetHolsterTransform()
+	{
+		Transform result = null;
+		if (WorldObjectOwner is MVAvatar mVAvatar)
+		{
+			result = mVAvatar.Body.BodyData.GetPartBone(BodyData.PartIndex.Holster);
+		}
+		return result;
 	}
 
 	private void HandleFiring(bool isFiring)
@@ -217,6 +209,8 @@ public abstract class MVPickupOwner : MVComponent
 	{
 		avatarItem.owner = this;
 		gameObject.AddComponent<FadeableObject>();
+		FadeableAvatarObject fadeableAvatarObject = avatarItem.gameObject.AddComponent<FadeableAvatarObject>();
+		fadeableAvatarObject.Initialize(gameObject);
 		if (currentItem != avatarItem)
 		{
 			Unequip();
@@ -239,7 +233,6 @@ public abstract class MVPickupOwner : MVComponent
 			return component;
 		}
 		component.VariantID = variantId;
-		SetAvatarItemAsCurrent(component);
 		return component;
 	}
 }

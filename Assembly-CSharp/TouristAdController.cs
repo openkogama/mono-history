@@ -1,20 +1,40 @@
+using MV.Common;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class TouristAdController : MonoBehaviour
+public class TouristAdController : MonoBehaviour, ITouristAdController, IEventSystemHandler
 {
 	[SerializeField]
 	private float timeBeforeAdShown = 180f;
 
 	private float timer;
 
-	private bool hasBeenKilled;
+	private bool isDead;
+
+	private const float showAdDelay = 1.25f;
 
 	private TouristModeController promotionSliderCreator;
+
+	private TouristAdStateHandler adHandler = new TouristAdStateHandler();
 
 	public void Initialize(TouristModeController promotionSliderController)
 	{
 		promotionSliderCreator = promotionSliderController;
 		gameObject.SetActive(value: true);
+		enabled = true;
+	}
+
+	public void ShowAd()
+	{
+		adHandler.ShowAd(Pop);
+	}
+
+	public void Pop()
+	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Pop();
+		});
 	}
 
 	private void Update()
@@ -24,24 +44,27 @@ public class TouristAdController : MonoBehaviour
 			return;
 		}
 		timer += Time.deltaTime;
-		if (MVGameControllerBase.WOCM.AvatarLocal.IsDead)
+		if (MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Dead))
 		{
-			hasBeenKilled = true;
+			if (!isDead)
+			{
+				if (timer >= timeBeforeAdShown && Time.time > MVGameControllerBase.LocalPlayer.RespawnTime - (MVGameControllerBase.LocalPlayer.RespawnDuration - 1.25f))
+				{
+					isDead = true;
+					promotionSliderCreator.ShowAnyPromotionSlide();
+					timer = 0f;
+				}
+				else if (Time.time > MVGameControllerBase.LocalPlayer.RespawnTime - (MVGameControllerBase.LocalPlayer.RespawnDuration - 1.25f))
+				{
+					isDead = true;
+					MVGameControllerDesktop.LockCursorManager.CursorLock = false;
+					promotionSliderCreator.ShowAnyPromotionSlide();
+				}
+			}
 		}
-		else if (hasBeenKilled)
+		else
 		{
-			if (timer >= timeBeforeAdShown)
-			{
-				MVGameControllerDesktop.LockCursorManager.CursorLock = false;
-				promotionSliderCreator.ShowAnyPromotionSlide();
-				timer = 0f;
-			}
-			else
-			{
-				MVGameControllerDesktop.LockCursorManager.CursorLock = false;
-				promotionSliderCreator.ShowAnyPromotionSlide();
-			}
-			hasBeenKilled = false;
+			isDead = false;
 		}
 	}
 }

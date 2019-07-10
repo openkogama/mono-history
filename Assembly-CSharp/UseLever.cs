@@ -90,10 +90,6 @@ public class UseLever : MVLogicObject, IIsLogicObjectFiringEventHandler, ILogicW
 		{
 			OnEditModeChange(new EditModeChangeArgs(state: false));
 		}
-		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-		{
-			transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, 180f, transform.localEulerAngles.z);
-		}
 		useLeverObject.UseInteractor.UpdateData(Data);
 		SetupCulling(useLeverObject.VisualRoot);
 		InputSignalReceiver = LogicClientsideFactory.CreateInputSignalReceiver(this, defaultInput: true, SignalCallback);

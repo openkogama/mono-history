@@ -30,7 +30,7 @@ public class SkinnedMeshOptimizer : MonoBehaviour
 	public void DisableOptimizer()
 	{
 		isEnabled = false;
-		((AvatarLocal)MVGameControllerBase.WOCM.AvatarLocal.Avatar).SkinnedMeshOptimizeManager.RemoveoptimizationData(optimizationData);
+		MVGameControllerBase.SkinnedMeshOptimizeManager.RemoveoptimizationData(optimizationData);
 	}
 
 	private void Start()
@@ -46,7 +46,7 @@ public class SkinnedMeshOptimizer : MonoBehaviour
 		optimizationData.mesh = list2;
 		if (isEnabled)
 		{
-			((AvatarLocal)MVGameControllerBase.WOCM.AvatarLocal.Avatar).SkinnedMeshOptimizeManager.AddOptimizationData(optimizationData);
+			MVGameControllerBase.SkinnedMeshOptimizeManager.AddOptimizationData(optimizationData);
 		}
 	}
 
@@ -54,7 +54,7 @@ public class SkinnedMeshOptimizer : MonoBehaviour
 	{
 		if (MVGameControllerBase.IsAlive && MVGameControllerBase.Game != null && isEnabled)
 		{
-			((AvatarLocal)MVGameControllerBase.WOCM.AvatarLocal.Avatar).SkinnedMeshOptimizeManager.RemoveoptimizationData(optimizationData);
+			MVGameControllerBase.SkinnedMeshOptimizeManager.RemoveoptimizationData(optimizationData);
 		}
 	}
 }

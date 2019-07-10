@@ -33,13 +33,13 @@ public class SizeGunBase : PickupItemWithDelay
 	private void Awake()
 	{
 		layerMask = (1 << LayerMask.NameToLayer("Default")) | (1 << LayerMask.NameToLayer("Player"));
-		currentAmmo = maxAmmo;
+		ResetAmmo();
 	}
 
 	public override void ResetAmmo()
 	{
 		base.ResetAmmo();
-		currentAmmo = maxAmmo;
+		currentAmmo = GetAmmoMultiplier(maxAmmo);
 	}
 
 	protected override void OnFire(bool isLocal)
@@ -56,7 +56,7 @@ public class SizeGunBase : PickupItemWithDelay
 			if (owner.IsLocal && worldObjectClient != null && worldObjectClient is MVAvatar)
 			{
 				InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
-				if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient, MVGameControllerBase.Game.LocalPlayer.Avatar))
+				if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.LocalPlayer.IsOnSameTeam(worldObjectClient))
 				{
 					interactionDataHandlerBase.HandleInteraction(owner, GetPackageData(), interactionIsLocal: false);
 					((IBulletImpactVisualizer)worldObjectClient).VisualizeBulletImpact(voxelHit, ray, owner.WorldObjectOwner.OwnerActorNr, 0f);

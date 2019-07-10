@@ -23,7 +23,9 @@ public class PlayButtonMobile : MonoBehaviour
 		{
 			timedPlayReward.ClaimReward();
 		}
-		if (MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.Round)
+		bool flag = MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded;
+		bool flag2 = Time.time < MVGameControllerBase.LocalPlayer.RespawnTime;
+		if (!flag && !flag2)
 		{
 			StartPlaying();
 		}
@@ -39,9 +41,22 @@ public class PlayButtonMobile : MonoBehaviour
 
 	private void Update()
 	{
-		if (MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded)
+		bool flag = MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded;
+		bool flag2 = Time.time < MVGameControllerBase.LocalPlayer.RespawnTime;
+		if (flag)
 		{
 			countdownFill.fillAmount = MVGameControllerBase.Game.NetworkGameStateListener.CountdownInPercentage;
+			if (!countdownFill.enabled)
+			{
+				countdownFill.enabled = true;
+			}
+			return;
+		}
+		if (flag2)
+		{
+			float num = MVGameControllerBase.LocalPlayer.RespawnTime - Time.time;
+			float fillAmount = num / MVGameControllerBase.LocalPlayer.RespawnDuration;
+			countdownFill.fillAmount = fillAmount;
 			if (!countdownFill.enabled)
 			{
 				countdownFill.enabled = true;
@@ -62,9 +77,9 @@ public class PlayButtonMobile : MonoBehaviour
 	private void StartPlaying()
 	{
 		MVGameControllerBase.PlayModeUI.InLobbyState = false;
-		if (MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Hidden))
+		if (MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Hidden))
 		{
-			MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Playing);
+			MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.Spawn();
 		}
 		if (shouldPop)
 		{

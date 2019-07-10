@@ -461,7 +461,7 @@ public class MVMovable : MVBlueprintBase
 
 	public override bool OnEnterObject(EditorStateMachine e)
 	{
-		MVGameControllerBase.CameraController.CurCamera.FocusOnObject(CubeModel);
+		MVGameControllerBase.MainCameraManager.CurrentCamera.FocusOnObject(CubeModel);
 		e.EnterGroup(this);
 		e.SelectWO(CubeModelID, addToSelection: false);
 		e.Event = EditorEvent.EditCubes;

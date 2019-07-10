@@ -65,11 +65,11 @@ public class SharedWorldObjectGameplayFunctions
 
 	private static bool DoParticleEffect(Vector3 position)
 	{
-		Vector3 rhs = position - MVGameControllerBase.CameraController.MainCamera.transform.position;
+		Vector3 rhs = position - MVGameControllerBase.MainCameraManager.MainCamera.transform.position;
 		float sqrMagnitude = rhs.sqrMagnitude;
 		rhs.Normalize();
-		float num = Vector3.Dot(MVGameControllerBase.CameraController.MainCamera.transform.rotation * Vector3.forward, rhs);
-		if (num > 0f && sqrMagnitude < MVGameControllerBase.CameraController.MainCamera.farClipPlane * MVGameControllerBase.CameraController.MainCamera.farClipPlane)
+		float num = Vector3.Dot(MVGameControllerBase.MainCameraManager.MainCamera.transform.rotation * Vector3.forward, rhs);
+		if (num > 0f && sqrMagnitude < MVGameControllerBase.MainCameraManager.MainCamera.farClipPlane * MVGameControllerBase.MainCameraManager.MainCamera.farClipPlane)
 		{
 			return true;
 		}

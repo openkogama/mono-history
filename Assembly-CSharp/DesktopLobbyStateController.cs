@@ -20,6 +20,9 @@ public class DesktopLobbyStateController : MonoBehaviour
 	private GamePassesUI gamePassesUIPrefab;
 
 	[SerializeField]
+	private GameObject boostButton;
+
+	[SerializeField]
 	private Image lobbyStateBlockingOverlay;
 
 	private GamePassesUI gamePassesUI;
@@ -50,11 +53,11 @@ public class DesktopLobbyStateController : MonoBehaviour
 		{
 			lobbyStateBlockingOverlay.raycastTarget = false;
 		}
-		if (!MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Playing) && respawnButton.gameObject.activeSelf)
+		if (!MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Playing) && respawnButton.gameObject.activeSelf)
 		{
 			respawnButton.gameObject.SetActive(value: false);
 		}
-		else if (MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Playing) && !respawnButton.gameObject.activeSelf)
+		else if (MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Playing) && !respawnButton.gameObject.activeSelf)
 		{
 			respawnButton.gameObject.SetActive(value: true);
 		}

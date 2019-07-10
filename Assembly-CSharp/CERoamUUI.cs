@@ -27,24 +27,11 @@ public class CERoamUUI : ESStateBase
 		esm.CubeModelingStateMachine.RemoveCursors();
 		tintedWo = MVWorldObjectClientManager.GetWorldObjectClientRefNullRef();
 		SharedCubeFunctions.SetLayerRecursively(esm.ParentGroup.Transform, select: true);
-		esm.CameraController.BlueModeEnabled = false;
-		if (esm.ParentGroup is MVBody)
+		ExecuteEvents.ExecuteHierarchy(esm.GameObject, null, (IAvatarEditAnimationState x, BaseEventData y) =>
 		{
-			MVAvatarLocal.JetPackMode jetPackMode = (MVAvatarLocal.JetPackMode)MVGameControllerBase.WOCM.AvatarLocal.CurrentMode;
-			jetPackMode.SetMoveConstraint(centerPos, 10f);
-			jetPackMode.ModifySpeed(0.8f, 0.25f);
-			ExecuteEvents.ExecuteHierarchy(esm.GameObject, null, (IAvatarEditAnimationState x, BaseEventData y) =>
-			{
-				x.Set("Idle");
-			});
-			MVGameControllerBase.CameraController.SetCamera(CameraType.AvatarEditModeCamera);
-			((AvatarEditModeCamera)MVGameControllerBase.CameraController.CurCamera).ResetDistanceAndDirectionToAvatar(esm.ParentGroup.Transform.position + Vector3.up);
-		}
-		else
-		{
-			Debug.LogError("No MVBody");
-		}
-		MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ChangeState(LaserPointerState.Idle);
+			x.Set("Idle");
+		});
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.EnterBuildStateEvent(stateType, new MVBuildModeAvatarLocal.EditMode.CERoamUUISetupData(centerPos, esm.ParentGroup.Transform.position + Vector3.up));
 	}
 
 	public override void Execute(EditorStateMachine esm)
@@ -64,8 +51,8 @@ public class CERoamUUI : ESStateBase
 	public override void Exit(EditorStateMachine esm)
 	{
 		DeTintCurrent();
-		((MVAvatarLocal.JetPackMode)MVGameControllerBase.WOCM.AvatarLocal.CurrentMode).ModifySpeed(1f, 1f);
 		didExit = true;
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.ExitBuildStateEvent(stateType, null);
 	}
 
 	private bool HandleSelect(EditorStateMachine esm)
@@ -109,7 +96,7 @@ public class CERoamUUI : ESStateBase
 				MVGroup mVGroup = (MVGroup)esm.SingleSelectedWO;
 				esm.EnterGroup(mVGroup);
 				SharedCubeFunctions.SetLayerRecursively(mVGroup.Transform, select: true);
-				esm.CameraController.BlueModeEnabled = true;
+				esm.MainCameraManager.BlueModeEnabled = true;
 				esm.Event = EditorEvent.CERoamUUI;
 				return true;
 			}

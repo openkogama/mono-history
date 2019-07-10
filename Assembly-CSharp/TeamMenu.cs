@@ -25,9 +25,9 @@ public class TeamMenu : MonoBehaviour
 
 	private void Update()
 	{
-		if (MVGameControllerBase.CameraController.BlueModeEnabled)
+		if (MVGameControllerBase.MainCameraManager.BlueModeEnabled)
 		{
-			MVGameControllerBase.WOCM.AvatarLocal.Visible = false;
+			MVGameControllerBase.MainCameraManager.CamMaskMode = MaskMode.SkyBoxOnly;
 		}
 	}
 
@@ -35,7 +35,7 @@ public class TeamMenu : MonoBehaviour
 	{
 		if (!WinningConditionControl.TryGetPrioritizedWinCondition(out var _))
 		{
-			MVGameControllerBase.WOCM.AvatarLocal.Visible = true;
+			MVGameControllerBase.MainCameraManager.CamMaskMode = MaskMode.Default;
 		}
 	}
 }

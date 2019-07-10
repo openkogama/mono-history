@@ -114,7 +114,7 @@ public class PickupItemSword : PickupItemWithDelay
 			return;
 		}
 		InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
-		if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient, MVGameControllerBase.Game.LocalPlayer.Avatar))
+		if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.LocalPlayer.IsOnSameTeam(worldObjectClient))
 		{
 			Vector3 lookDirection = owner.LookDirection;
 			lookDirection.y = 0.02f;

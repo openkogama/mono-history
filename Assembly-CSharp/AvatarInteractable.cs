@@ -39,28 +39,14 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 
 	private DamageSource lastDamageSource = DamageSource.none;
 
+	private float boostedHealthMultiplier = 1f;
+
 	private HashSet<PlayerKilledByType> KillNotificationBlacklist = new HashSet<PlayerKilledByType>
 	{
 		PlayerKilledByType.Environmental,
 		PlayerKilledByType.Crushed,
 		PlayerKilledByType.FallOffWorld,
 		PlayerKilledByType.Impact
-	};
-
-	private readonly AvatarModifierPackageType[] canAffectGodzilla = new AvatarModifierPackageType[12]
-	{
-		AvatarModifierPackageType.Fire,
-		AvatarModifierPackageType.FlamerBurn,
-		AvatarModifierPackageType.Poison,
-		AvatarModifierPackageType.GodzillaS,
-		AvatarModifierPackageType.GodzillaM,
-		AvatarModifierPackageType.GodzillaL,
-		AvatarModifierPackageType.GodzillaXL,
-		AvatarModifierPackageType.GodzillaLaserBurnS,
-		AvatarModifierPackageType.GodzillaLaserBurnM,
-		AvatarModifierPackageType.GodzillaLaserBurnL,
-		AvatarModifierPackageType.GodzillaLaserBurnXL,
-		AvatarModifierPackageType.GodzillaGrowthInvulnerability
 	};
 
 	private readonly MaterialHitPackage[] hitPackages = new MaterialHitPackage[1]
@@ -72,10 +58,20 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 
 	public DamageSource LastDamageSource => (!lastDamageSource.Outdated) ? lastDamageSource : null;
 
-	public override void Init(MVRuntimeDataVariable runtimeDataModifiers, MVRuntimeDataVariableClampedFloat health, MVRuntimeDataVariableClampedFloat shield)
+	public override void Init(MVRuntimeDataVariable runtimeDataModifiers, MVRuntimeDataVariable<float> health, MVRuntimeDataVariable<float> maxHealth, MVRuntimeDataVariableClampedFloat shield)
 	{
-		base.Init(runtimeDataModifiers, health, shield);
+		base.Init(runtimeDataModifiers, health, maxHealth, shield);
 		materialHitHandler.Initialize(hitPackages, transform);
+		MVGameControllerBase.Game.LocalPlayer.BoostController.SubscribeToBoostChanged(BoostType.ExtraHealthFloatMultiplier, SetupBoostedHealthMultiplier);
+		SetupBoostedHealthMultiplier();
+	}
+
+	private void OnDestroy()
+	{
+		if (MVGameControllerBase.IsAlive)
+		{
+			MVGameControllerBase.Game.LocalPlayer.BoostController.UnSubscribeToBoostChanged(BoostType.ExtraHealthFloatMultiplier, SetupBoostedHealthMultiplier);
+		}
 	}
 
 	public override void TakeDamage(float amount, MVPlayer damageDealer, PlayerKilledByType damageType)
@@ -93,7 +89,7 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 			{
 				return;
 			}
-			if (health.Value >= 100f)
+			if (health.Value >= GetBoostedHealth(100f))
 			{
 				float num = HandleModifierEffect(AvatarModifierEffect.OverHeal, 0f) * Time.deltaTime;
 				shield.Value += num;
@@ -110,7 +106,15 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 		amount *= HandleModifierEffect(AvatarModifierEffect.DamageMultiplier, 1f);
 		amount = DamageShield(amount);
 		float value = health.Value;
-		health.Value -= amount;
+		if (maxHealth != null)
+		{
+			float value2 = Mathf.Clamp(health.Value - amount, 0f, maxHealth.Value);
+			health.Value = value2;
+		}
+		else
+		{
+			health.Value -= amount;
+		}
 		if (damageDealer != null)
 		{
 			lastDamageSource = new DamageSource(damageDealer, damageType);
@@ -151,6 +155,11 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 		}
 	}
 
+	private float GetBoostedHealth(float defaultHealth)
+	{
+		return defaultHealth * boostedHealthMultiplier;
+	}
+
 	public void DieFromStuck()
 	{
 		int actorNr = MVGameControllerBase.Game.LocalPlayer.ActorNr;
@@ -187,6 +196,24 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 		OnDamageTaken(1000f, null, PlayerKilledByType.FallOffWorld);
 	}
 
+	public void DieFromBeingStuck()
+	{
+		int actorNr = MVGameControllerBase.Game.LocalPlayer.ActorNr;
+		Dictionary<object, object> gameMsgData = GameMessages.MakePlayerKilledMessage(actorNr, actorNr, PlayerKilledByType.Crushed);
+		MVGameControllerBase.OperationRequests.PostGameMsg(MVGameMsgType.AvatarKilled, gameMsgData);
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add((byte)7, MVGameControllerBase.Game.LocalPlayer.ActorNr);
+		dictionary.Add((byte)6, actorNr);
+		dictionary.Add((byte)8, PlayerKilledByType.Crushed);
+		Dictionary<object, object> dictionary2 = dictionary;
+		NotificationController.OnNotificationReceived(NotificationType.Kill, dictionary2);
+		if (!KillNotificationBlacklist.Contains(PlayerKilledByType.Crushed))
+		{
+			MVGameControllerBase.OperationRequests.PostNotificationOperation(NotificationType.Kill, dictionary2);
+		}
+		OnDamageTaken(1000f, null, PlayerKilledByType.Crushed);
+	}
+
 	private float DamageShield(float amount)
 	{
 		if (amount < 0f)
@@ -205,24 +232,15 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 
 	public override void AddModifier(AvatarModifierPackageType type, int id = -1, AvatarModifierPackage.AvatarModifier[] additionalModifers = null)
 	{
-		if (!MVGameControllerBase.Game.IsPlaying)
+		if (MVGameControllerBase.Game.IsPlaying)
 		{
-			return;
-		}
-		BitArray bitArray = new BitArray(29);
-		if (HasModifierEffect(AvatarModifierEffect.GodzillaImmunity))
-		{
-			bitArray.SetAll(value: true);
-			for (int i = 0; i < canAffectGodzilla.Length; i++)
+			BitArray bitArray = new BitArray(20);
+			bitArray.Set(0, value: true);
+			bitArray.Set(4, HasModifierEffect(AvatarModifierEffect.PoisonImmune));
+			if (!bitArray[(int)type])
 			{
-				bitArray.Set((int)canAffectGodzilla[i], value: false);
+				base.AddModifier(type, id, additionalModifers);
 			}
-		}
-		bitArray.Set(0, value: true);
-		bitArray.Set(4, HasModifierEffect(AvatarModifierEffect.PoisonImmune));
-		if (!bitArray[(int)type])
-		{
-			base.AddModifier(type, id, additionalModifers);
 		}
 	}
 
@@ -233,5 +251,14 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 			AddModifier(moveHit.material.ModifierPackageType);
 		}
 		materialHitHandler.HandleHit(moveHit);
+	}
+
+	private void SetupBoostedHealthMultiplier()
+	{
+		boostedHealthMultiplier = 1f;
+		if (MVGameControllerBase.Game.LocalPlayer.BoostController.TryGetActiveBoost(BoostType.ExtraHealthFloatMultiplier, out var boost))
+		{
+			boostedHealthMultiplier = (float)boost.Value;
+		}
 	}
 }

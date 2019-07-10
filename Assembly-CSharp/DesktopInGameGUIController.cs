@@ -9,18 +9,12 @@ public class DesktopInGameGUIController : MonoBehaviour
 	private GameObject content;
 
 	[SerializeField]
-	private ShowUse2D use2DPrefab;
-
-	[SerializeField]
 	private ShowUse3D use3DPrefab;
 
 	private ShowUse use;
 
 	[SerializeField]
 	private CrossHair crossHair;
-
-	[SerializeField]
-	private CrossHair crossHair2D;
 
 	[SerializeField]
 	private GameObject touristLogo;
@@ -39,14 +33,7 @@ public class DesktopInGameGUIController : MonoBehaviour
 
 	public void Initialize()
 	{
-		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-		{
-			use = Object.Instantiate(use2DPrefab);
-		}
-		else
-		{
-			use = Object.Instantiate(use3DPrefab);
-		}
+		use = Object.Instantiate(use3DPrefab);
 		use.transform.SetParent(transform, worldPositionStays: false);
 		use.transform.SetAsFirstSibling();
 		if (MVGameControllerBase.IsTouristSession)
@@ -65,7 +52,8 @@ public class DesktopInGameGUIController : MonoBehaviour
 
 	private void StreamingAssetCallback(WWW www)
 	{
-		if (www != null && www.texture != null)
+		Texture2D texture = www.texture;
+		if (texture != null)
 		{
 			if (!string.IsNullOrEmpty(www.error))
 			{
@@ -73,9 +61,9 @@ public class DesktopInGameGUIController : MonoBehaviour
 				return;
 			}
 			logo.gameObject.SetActive(value: true);
-			Texture2D texture2D = new Texture2D(www.texture.width, www.texture.height, www.texture.format, mipChain: false);
+			Texture2D texture2D = new Texture2D(texture.width, texture.height, texture.format, mipChain: false);
 			texture2D.wrapMode = TextureWrapMode.Clamp;
-			texture2D.SetPixels32(www.texture.GetPixels32());
+			texture2D.SetPixels32(texture.GetPixels32());
 			texture2D.Apply();
 			logo.sprite = Sprite.Create(texture2D, new Rect(0f, 0f, texture2D.width, texture2D.height), new Vector2(0.5f, 0.5f));
 			Debug.Log("referrer logo set from callback with string: " + MVGameControllerBase.GameSessionData.referrer);
@@ -86,8 +74,9 @@ public class DesktopInGameGUIController : MonoBehaviour
 			{
 				Debug.LogWarning("Streaming asset callback failed for referral logo: " + www.error);
 			}
-			Debug.LogWarning("Streaming asset callback: www is null - " + (www == null) + ", www.texture is null - " + (www.texture == null));
+			Debug.LogWarning("Streaming asset callback: www is null - " + (www == null) + ", www.texture is null - " + (texture == null));
 		}
+		Object.Destroy(texture);
 	}
 
 	public void ShowEUseIcon(ShowUseOption option, int woID = 0)
@@ -103,10 +92,6 @@ public class DesktopInGameGUIController : MonoBehaviour
 
 	public IGUICrossHair GetCrossHair()
 	{
-		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-		{
-			return crossHair2D;
-		}
 		return crossHair;
 	}
 

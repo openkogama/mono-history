@@ -44,7 +44,6 @@ public class AvatarLimbManagerLocal : AvatarLimbManager
 			if (CanStartEmote(emoteDatas[EmoteTypes.Shake]))
 			{
 				StartEmote(EmoteTypes.Shake);
-				MVGameControllerBase.OperationRequests.StartHeadShake();
 				((AvatarLimbManagerLocal)limbManager).DelayHeadRotationNetworkMessage(emoteDatas[EmoteTypes.Shake].emote.LifeTime);
 			}
 		}
@@ -54,7 +53,6 @@ public class AvatarLimbManagerLocal : AvatarLimbManager
 			if (CanStartEmote(emoteDatas[EmoteTypes.Nod]))
 			{
 				StartEmote(EmoteTypes.Nod);
-				MVGameControllerBase.OperationRequests.StartHeadNod();
 				((AvatarLimbManagerLocal)limbManager).DelayHeadRotationNetworkMessage(emoteDatas[EmoteTypes.Nod].emote.LifeTime);
 			}
 		}
@@ -64,7 +62,6 @@ public class AvatarLimbManagerLocal : AvatarLimbManager
 			if (CanStartEmote(emoteDatas[EmoteTypes.Wave]))
 			{
 				StartEmote(EmoteTypes.Wave);
-				MVGameControllerBase.OperationRequests.StartWave();
 				((AvatarLimbManagerLocal)limbManager).DelayHeadRotationNetworkMessage(emoteDatas[EmoteTypes.Wave].emote.LifeTime);
 				((AvatarLimbManagerLocal)limbManager).DelayPointingNetworkMessage(emoteDatas[EmoteTypes.Wave].emote.LifeTime);
 			}
@@ -326,6 +323,8 @@ public class AvatarLimbManagerLocal : AvatarLimbManager
 
 		private Quaternion pitchRotation = Quaternion.identity;
 
+		public Action<Quaternion> OnUpdateHeadRotationValue;
+
 		public override void UpdateRotation()
 		{
 			UpdateNetworkMessage(yawRotation * pitchRotation);
@@ -345,7 +344,10 @@ public class AvatarLimbManagerLocal : AvatarLimbManager
 			networkMessageCooldown -= Time.deltaTime;
 			if (networkMessageCooldown <= 0f && shouldSendNetworkMessage)
 			{
-				MVGameControllerBase.OperationRequests.UpdateHeadRotation(rotation);
+				if (OnUpdateHeadRotationValue != null)
+				{
+					OnUpdateHeadRotationValue(rotation);
+				}
 				ResetNetworkMessageCooldown(1f);
 			}
 		}
@@ -373,6 +375,33 @@ public class AvatarLimbManagerLocal : AvatarLimbManager
 		}
 	}
 
+	private class AvatarLimbDataManagerLocal
+	{
+		private LimbRotationRuntimeData limbRotationRuntimeData;
+
+		public void Initialize(LimbRotationRuntimeData limbRotationRuntimeData)
+		{
+			this.limbRotationRuntimeData = limbRotationRuntimeData;
+		}
+
+		public void SynchronizeHeadRotationUpdate(Quaternion newHeadRotation)
+		{
+			limbRotationRuntimeData.HeadRotationYaw.Value = newHeadRotation.eulerAngles.y;
+			limbRotationRuntimeData.HeadRotationPitch.Value = newHeadRotation.eulerAngles.x;
+		}
+
+		public void SynchronizePointRotationUpdate(Quaternion newPointRotation)
+		{
+			limbRotationRuntimeData.PointRotationYaw.Value = newPointRotation.eulerAngles.y;
+			limbRotationRuntimeData.PointRotationPitch.Value = newPointRotation.eulerAngles.x;
+		}
+
+		public void SynchronizeEmoteUpdate(int newEmote)
+		{
+			limbRotationRuntimeData.Emote.Value = newEmote;
+		}
+	}
+
 	private class AvatarPointingHandlerLocal : AvatarPointingHandler
 	{
 		private float networkMessageCooldown;
@@ -386,6 +415,8 @@ public class AvatarLimbManagerLocal : AvatarLimbManager
 		private const float rArmYawRotationOffset = 20f;
 
 		public Action<bool> OnIsPointingChange;
+
+		public Action<Quaternion> OnUpdatePointingValue;
 
 		public Vector3 PointingDirection => pointingDirection;
 
@@ -416,9 +447,16 @@ public class AvatarLimbManagerLocal : AvatarLimbManager
 					StopPointing();
 				}
 			}
-			else if (OnIsPointingChange != null)
+			else
 			{
-				OnIsPointingChange(obj: false);
+				if (OnUpdatePointingValue != null)
+				{
+					OnUpdatePointingValue(Quaternion.identity);
+				}
+				if (OnIsPointingChange != null)
+				{
+					OnIsPointingChange(obj: false);
+				}
 			}
 			base.UpdatePointing(localLookDirection);
 		}
@@ -426,22 +464,22 @@ public class AvatarLimbManagerLocal : AvatarLimbManager
 		private void UpdateNetworkMessage(Quaternion rotation)
 		{
 			networkMessageCooldown -= Time.deltaTime;
-			if (networkMessageCooldown <= 0f)
+			if (!(networkMessageCooldown <= 0f))
+			{
+				return;
+			}
+			if (OnUpdatePointingValue != null)
 			{
 				if (shouldPoint)
 				{
-					MVGameControllerBase.OperationRequests.UpdatePointingAndHeadRotation(rotation);
+					OnUpdatePointingValue(rotation);
 				}
 				else
 				{
-					MVGameControllerBase.OperationRequests.UpdateHeadRotation(Quaternion.identity);
-				}
-				ResetNetworkMessageDelay(pointingDuration);
-				if (((AvatarLimbManagerLocal)limbManager).DelayHeadRotationNetworkMessage != null)
-				{
-					((AvatarLimbManagerLocal)limbManager).DelayHeadRotationNetworkMessage(1.1f);
+					OnUpdatePointingValue(Quaternion.identity);
 				}
 			}
+			ResetNetworkMessageDelay(pointingDuration);
 		}
 
 		public void ResetNetworkMessageDelay(float networkMessageDelay)
@@ -536,30 +574,43 @@ public class AvatarLimbManagerLocal : AvatarLimbManager
 
 	private AvatarPointingRotationCalculator pointingRotationCalculator;
 
+	private AvatarLimbDataManagerLocal dataManager;
+
 	public Action<float> DelayHeadRotationNetworkMessage;
 
 	public Action<float> DelayPointingNetworkMessage;
 
-	public override void Initialize(AvatarPickupOwner avatarPickupOwner, MVAvatar mvAvatar)
+	public override void Initialize(MVWorldObjectClient avatarWO, MVBody body, AvatarEnabledChangeHandler enabledChangeHandler, LimbRotationRuntimeData limbRotationRuntimeData)
 	{
-		base.Initialize(avatarPickupOwner, mvAvatar);
+		base.Initialize(avatarWO, body, enabledChangeHandler, limbRotationRuntimeData);
 		headRotationCalculator = new AvatarHeadRotationCalculator();
 		headRotationHandler = new AvatarHeadRotationHandlerLocal();
 		headRotationHandler.Initialize(this, limbRotator, lookDirectionHandler);
 		pointingRotationCalculator = new AvatarPointingRotationCalculator();
 		pointingHandler = new AvatarPointingHandlerLocal();
-		pointingHandler.Initialize(this, limbRotator, mvAvatar.Avatar.EnabledChangeHandler);
+		pointingHandler.Initialize(this, limbRotator, enabledChangeHandler);
 		emoteHandler = new AvatarEmoteHandlerLocal();
-		emoteHandler.Initialize(this, lookDirectionHandler, pointingHandler, headRotationHandler, limbRotator, mvAvatar.Avatar.EnabledChangeHandler);
+		emoteHandler.Initialize(this, lookDirectionHandler, pointingHandler, headRotationHandler, limbRotator, enabledChangeHandler);
+		dataManager = new AvatarLimbDataManagerLocal();
+		dataManager.Initialize(limbRotationRuntimeData);
 		DelayHeadRotationNetworkMessage = (Action<float>)Delegate.Combine(DelayHeadRotationNetworkMessage, new Action<float>(headRotationHandler.ResetNetworkMessageCooldown));
 		DelayPointingNetworkMessage = (Action<float>)Delegate.Combine(DelayPointingNetworkMessage, new Action<float>(pointingHandler.ResetNetworkMessageDelay));
 		AvatarEmoteHandler avatarEmoteHandler = emoteHandler;
 		avatarEmoteHandler.OnEmoteStart = (Action<string>)Delegate.Combine(avatarEmoteHandler.OnEmoteStart, new Action<string>(OnStartEmote));
+		AvatarHeadRotationHandlerLocal avatarHeadRotationHandlerLocal = headRotationHandler;
+		avatarHeadRotationHandlerLocal.OnUpdateHeadRotationValue = (Action<Quaternion>)Delegate.Combine(avatarHeadRotationHandlerLocal.OnUpdateHeadRotationValue, new Action<Quaternion>(SynchronizeHeadRotation));
+		AvatarPointingHandlerLocal avatarPointingHandlerLocal = pointingHandler;
+		avatarPointingHandlerLocal.OnUpdatePointingValue = (Action<Quaternion>)Delegate.Combine(avatarPointingHandlerLocal.OnUpdatePointingValue, new Action<Quaternion>(SynchronizePointing));
+		AvatarEmoteHandler avatarEmoteHandler2 = emoteHandler;
+		avatarEmoteHandler2.OnEmoteUpdate = (Action<int>)Delegate.Combine(avatarEmoteHandler2.OnEmoteUpdate, new Action<int>(SynchronizeEmote));
+		ChatCommandManager.UpdateChatCommandCallback(ChatCommand.StartShake, (Action)Delegate.Combine(ChatCommandManager.GetChatCommandCallback(ChatCommand.StartShake), new Action(OnShakeChatCommand)));
+		ChatCommandManager.UpdateChatCommandCallback(ChatCommand.StartNod, (Action)Delegate.Combine(ChatCommandManager.GetChatCommandCallback(ChatCommand.StartNod), new Action(OnNodChatCommand)));
+		ChatCommandManager.UpdateChatCommandCallback(ChatCommand.StartWave, (Action)Delegate.Combine(ChatCommandManager.GetChatCommandCallback(ChatCommand.StartWave), new Action(OnWaveChatCommand)));
 	}
 
-	public override void UpdateLimbRotations()
+	public override void UpdateLimbRotations(Vector3 lookDirection)
 	{
-		base.UpdateLimbRotations();
+		base.UpdateLimbRotations(lookDirection);
 		Vector3 localLookDirection = lookDirectionHandler.LocalLookDirection;
 		emoteHandler.UpdateEmotes();
 		headRotationHandler.HandleResult(headRotationCalculator.CalculateHeadRotation(localLookDirection));
@@ -578,5 +629,35 @@ public class AvatarLimbManagerLocal : AvatarLimbManager
 	public void StartPointing()
 	{
 		pointingHandler.StartPointing();
+	}
+
+	private void OnShakeChatCommand()
+	{
+		StartEmote(EmoteTypes.Shake);
+	}
+
+	private void OnNodChatCommand()
+	{
+		StartEmote(EmoteTypes.Nod);
+	}
+
+	private void OnWaveChatCommand()
+	{
+		StartEmote(EmoteTypes.Wave);
+	}
+
+	private void SynchronizeHeadRotation(Quaternion newHeadRotation)
+	{
+		dataManager.SynchronizeHeadRotationUpdate(newHeadRotation);
+	}
+
+	private void SynchronizePointing(Quaternion newPointRotation)
+	{
+		dataManager.SynchronizePointRotationUpdate(newPointRotation);
+	}
+
+	private void SynchronizeEmote(int newEmote)
+	{
+		dataManager.SynchronizeEmoteUpdate(newEmote);
 	}
 }

@@ -29,6 +29,8 @@ public class SendMessageControl : MonoBehaviour
 
 	private const string removeUI = "/ru";
 
+	private const string switchAvatarTest = "/sat";
+
 	private const string enableHD = "/hd";
 
 	private const string buildInformation = "/build";
@@ -56,6 +58,8 @@ public class SendMessageControl : MonoBehaviour
 	private const string startWave = "/wave";
 
 	private const string fyberTestSuite = "/fyber";
+
+	private const string showAd = "/ad";
 
 	[SerializeField]
 	private Text currentChat;
@@ -281,27 +285,10 @@ public class SendMessageControl : MonoBehaviour
 			ToggleHD();
 			break;
 		case "/ru":
-		{
-			Canvas[] componentsInParent = GetComponentsInParent<Canvas>();
-			for (int i = 0; i < componentsInParent.Length; i++)
-			{
-				componentsInParent[i].gameObject.SetActive(value: false);
-			}
-			MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
-			foreach (MVPlayer value in mVPlayerContainer.Values)
-			{
-				value.Avatar.Avatar.AvatarUIHandler.SetShouldShowUI(shouldShow: false);
-			}
-			if (MVGameControllerBase.EditModeUI != null && !MVGameControllerBase.EditModeUI.IsInPlayInEditMode)
-			{
-				MVGameControllerBase.Game.LocalPlayer.Avatar.CurrentItem.Value = new Dictionary<object, object>
-				{
-					{ "type", 5 },
-					{ "variantId", 0 }
-				};
-			}
+			Debug.Log("Remote Playmode Avatar should remove his UI. Build mode avatar should do the same and also unequip the edit mode cube.");
+			Debug.LogError("Build and play mode UI not implemented yet.");
+			ChatCommandManager.ChatCommandActivated(ChatCommand.HideAllUI);
 			break;
-		}
 		case "/gp":
 			GamePassesManager.ShowGamePassDataInConsole = !GamePassesManager.ShowGamePassDataInConsole;
 			break;
@@ -312,13 +299,16 @@ public class SendMessageControl : MonoBehaviour
 			ShowBuildInformation();
 			break;
 		case "/no":
-			MVGameControllerBase.WOCM.AvatarLocal.LimbManager.StartEmote(EmoteTypes.Shake);
+			ChatCommandManager.ChatCommandActivated(ChatCommand.StartShake);
 			break;
 		case "/yes":
-			MVGameControllerBase.WOCM.AvatarLocal.LimbManager.StartEmote(EmoteTypes.Nod);
+			ChatCommandManager.ChatCommandActivated(ChatCommand.StartNod);
 			break;
 		case "/wave":
-			MVGameControllerBase.WOCM.AvatarLocal.LimbManager.StartEmote(EmoteTypes.Wave);
+			ChatCommandManager.ChatCommandActivated(ChatCommand.StartWave);
+			break;
+		case "/ad":
+			BrowserComm.ToJavaScript.ExternalCall("showVideoAd", OnAdShownCallback);
 			break;
 		case "/export":
 			ObjExportHandler.InitializePicking();
@@ -336,8 +326,15 @@ public class SendMessageControl : MonoBehaviour
 				result = true;
 			}
 			break;
+		case "/sat":
+			break;
 		}
 		return result;
+	}
+
+	private void OnAdShownCallback(bool ok, string json)
+	{
+		Debug.Log("WebGL Ad shown.");
 	}
 
 	private void ShowBuildInformation()
@@ -506,8 +503,7 @@ public class SendMessageControl : MonoBehaviour
 	{
 		if (selectedChat == MVGameMsgType.TeamChat)
 		{
-			MVPlayer mVPlayer = MVGameControllerBase.Game.MVPlayerContainer[MVGameControllerBase.WOCM.AvatarLocal.OwnerActorNr];
-			currentChat.color = Styles.GetTeamColor(mVPlayer.Team);
+			currentChat.color = Styles.GetTeamColor(MVGameControllerBase.LocalPlayer.Team);
 		}
 	}
 

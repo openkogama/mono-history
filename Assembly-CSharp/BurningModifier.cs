@@ -5,6 +5,8 @@ public class BurningModifier : AvatarModifier
 {
 	public ParticleSystem fireParticles;
 
+	private bool isDeactivating;
+
 	public override AvatarModifierPackageType ModifierType => AvatarModifierPackageType.Fire;
 
 	protected override void OnActivated(Avatar target)
@@ -17,6 +19,7 @@ public class BurningModifier : AvatarModifier
 
 	protected override void OnDeactivated(Avatar target)
 	{
+		isDeactivating = true;
 		if (gameObject.activeInHierarchy)
 		{
 			transform.parent = null;
@@ -26,6 +29,14 @@ public class BurningModifier : AvatarModifier
 		{
 			fireParticles.Stop();
 			Destroy();
+		}
+	}
+
+	private void OnDisable()
+	{
+		if (isDeactivating)
+		{
+			Object.Destroy(gameObject);
 		}
 	}
 

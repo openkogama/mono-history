@@ -6,10 +6,6 @@ public class AvatarPickupOwner : MVPickupOwner
 {
 	private MVAvatar mvAvatar;
 
-	private ILaserPointer laserPointer;
-
-	private PickupItem laserPointerAvatarItem;
-
 	public override HashSet<int> IgnoreWOIDs
 	{
 		get
@@ -25,55 +21,20 @@ public class AvatarPickupOwner : MVPickupOwner
 
 	public HashSet<int> AdditionalIgnoreWOIDS { private get; set; }
 
-	public ILaserPointer LaserPointer
-	{
-		get
-		{
-			if (currentItem is ILaserPointer laserPointer && laserPointer != this.laserPointer)
-			{
-				MVEquipable component = GetComponent<MVEquipable>();
-				if (component != null)
-				{
-					component.Equip(AvatarItemType.LaserPointer, AvatarEquipableType.Weapon, null);
-				}
-			}
-			return this.laserPointer;
-		}
-	}
-
 	public void Init(MVRuntimeDataVariable currentItemRuntimeDataVariable, MVRuntimeDataVariable isFiringRuntimeDataVariable, MVAvatar mvAvatar)
 	{
-		InitLaser();
 		this.mvAvatar = mvAvatar;
 		Init(currentItemRuntimeDataVariable, isFiringRuntimeDataVariable);
-	}
-
-	private void InitLaser()
-	{
-		LaserPointer component = PickupItem.InstantiateAvatarItemType(AvatarItemType.LaserPointer).GetComponent<LaserPointer>();
-		component.gameObject.SetActive(value: false);
-		component.owner = this;
-		laserPointer = component;
-		laserPointerAvatarItem = component;
 	}
 
 	protected override void Equip(AvatarItemType type, int variantId)
 	{
 		PickupItem pickupItem = null;
-		if (type == AvatarItemType.LaserPointer)
+		pickupItem = CreateAvatarItem(type, variantId);
+		if (pickupItem == null)
 		{
-			pickupItem = laserPointerAvatarItem;
-			pickupItem.VariantID = 0;
-			SetAvatarItemAsCurrent(pickupItem);
-		}
-		else
-		{
-			pickupItem = CreateAvatarItem(type, variantId);
-			if (pickupItem == null)
-			{
-				Debug.LogError("AvatarItem is null. This is thought to be cheaters manipulating equip data. Equipping Hand.");
-				pickupItem = CreateAvatarItem(AvatarItemType.Hand, variantId);
-			}
+			Debug.LogError("AvatarItem is null. This is thought to be cheaters manipulating equip data. Equipping Hand.");
+			pickupItem = CreateAvatarItem(AvatarItemType.Hand, variantId);
 		}
 		if (mvAvatar.Body != null)
 		{
@@ -87,6 +48,7 @@ public class AvatarPickupOwner : MVPickupOwner
 			pickupItem.transform.localPosition = new Vector3(0f, 0.6f, 0f);
 			pickupItem.transform.localRotation = Quaternion.identity;
 		}
+		SetAvatarItemAsCurrent(pickupItem);
 		currentItem.OnEquip();
 		if (onEquipItem != null)
 		{

@@ -40,21 +40,27 @@ public static class LocalizedEnums
 		private static void Init(Dictionary<int, string> map)
 		{
 			map.Add(255, TM._("Joining"));
-			map.Add(62, TM._("Fetching Materials"));
-			map.Add(64, TM._("Fetching Item Types"));
-			map.Add(63, TM._("Fetching Ownership Types"));
-			map.Add(69, TM._("Fetching Inventory"));
-			map.Add(71, TM._("Fetching BuiltIn Items"));
-			map.Add(70, TM._("Fetching Shop Inventory"));
-			map.Add(72, TM._("Fetching Avatar Shop Inventory"));
-			map.Add(66, TM._("Fetching Game Snapshot"));
-			map.Add(65, TM._("Creating Game Snapshot"));
-			map.Add(68, TM._("Fetching Friends"));
-			map.Add(67, TM._("Setting Actor Ready"));
-			map.Add(74, TM._("Fetching Active Avatar"));
-			map.Add(73, TM._("Initialize Avatar Edit"));
-			map.Add(91, TM._("Getting Profile Meta Data"));
-			map.Add(99, TM._("Getting Planet Profile Data"));
+			map.Add(60, TM._("Fetching Materials"));
+			map.Add(62, TM._("Fetching Item Types"));
+			map.Add(61, TM._("Fetching Ownership Types"));
+			map.Add(67, TM._("Fetching Inventory"));
+			map.Add(69, TM._("Fetching BuiltIn Items"));
+			map.Add(68, TM._("Fetching Shop Inventory"));
+			map.Add(70, TM._("Fetching Avatar Shop Inventory"));
+			map.Add(64, TM._("Fetching Game Snapshot"));
+			map.Add(63, TM._("Setup User Play mode"));
+			map.Add(66, TM._("Fetching Friends"));
+			map.Add(65, TM._("Setting Actor Ready"));
+			map.Add(72, TM._("Fetching Active Avatar"));
+			map.Add(71, TM._("Initialize Avatar Edit"));
+			map.Add(89, TM._("Getting Profile Meta Data"));
+			map.Add(92, TM._("Getting Planet Profile Data"));
+			map.Add(99, TM._("Getting Project Earnings"));
+			map.Add(100, TM._("Getting Top High Scores"));
+			map.Add(101, TM._("Getting KoGaMa VAT"));
+			map.Add(102, TM._("Getting Subscription Perk Data"));
+			map.Add(103, TM._("Setting Up User"));
+			map.Add(104, TM._("Setting Up User"));
 		}
 	}
 

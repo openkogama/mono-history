@@ -147,7 +147,7 @@ public class PickupItemImpulseGun : PickupItem
 			{
 				MVWorldObjectClient mVWorldObjectClient = list[i];
 				InteractionDataHandlerBase interactionDataHandlerBase = mVWorldObjectClient.InteractionDataHandlerBase;
-				if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(mVWorldObjectClient, MVGameControllerBase.Game.LocalPlayer.Avatar))
+				if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.LocalPlayer.IsOnSameTeam(mVWorldObjectClient))
 				{
 					Vector3 impulse = ComputeImpulseDirection(lineOfFire) * impulseMagnitude;
 					interactionDataHandlerBase.HandleInteraction(owner, ImpulseHitPackage.Create(impulse), interactionIsLocal: false);

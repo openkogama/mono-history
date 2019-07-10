@@ -33,7 +33,7 @@ public class GenerateTextureData : MonoBehaviour
 		screenshotCam.backgroundColor = color;
 		Skybox skybox = screenshotCamObject.AddComponent<Skybox>();
 		screenshotCamObject.AddComponent<FlareLayer>();
-		skybox.material = MVGameControllerBase.CameraController.Skybox.material;
+		skybox.material = MVGameControllerBase.MainCameraManager.Skybox.material;
 		screenshotCam.fieldOfView = Camera.main.fieldOfView;
 		screenshotCam.aspect = Camera.main.aspect;
 		int height = (int)(920f / Camera.main.aspect);

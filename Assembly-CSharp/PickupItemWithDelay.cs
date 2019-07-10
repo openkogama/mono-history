@@ -1,7 +1,7 @@
 using CodeStage.AntiCheat.ObscuredTypes;
 using UnityEngine;
 
-public abstract class PickupItemWithDelay : PickupItem, IUpdatecontrollerSubscriber
+public abstract class PickupItemWithDelay : PickupItem, IUpdatecontrollerSubscriberUpdate, IUpdatecontrollerSubscriberBase
 {
 	public Color crossHairCannotFireLow = Color.red;
 

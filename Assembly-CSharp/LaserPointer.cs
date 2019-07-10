@@ -1,9 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using MV.Common;
 using UnityEngine;
 
-public class LaserPointer : PickupItem, ILaserPointer
+public class LaserPointer : MonoBehaviour, ILaserPointer
 {
 	private enum NetworkStateKey : byte
 	{
@@ -33,6 +33,10 @@ public class LaserPointer : PickupItem, ILaserPointer
 
 	public Color beamEditColor = new Color(0f, 0f, 1f, 0.8f);
 
+	private float lastSyncTime;
+
+	private Dictionary<object, object> syncBuffer = new Dictionary<object, object>();
+
 	private Material currentCubeMaterial;
 
 	private byte currentCubeMaterialId;
@@ -59,35 +63,43 @@ public class LaserPointer : PickupItem, ILaserPointer
 	[SerializeField]
 	private MeshFilter cubeMeshFilter;
 
-	private float lastSyncTime;
+	private bool isActive;
 
-	private Dictionary<object, object> syncBuffer = new Dictionary<object, object>();
+	private bool isLocal;
+
+	private MVRuntimeDataVariable currentItem;
 
 	public Renderer CubeRenderer => cubeRenderer;
 
 	public MeshFilter CubeMeshFilter => cubeMeshFilter;
 
-	public bool LaserActive { get; set; }
-
-	public byte CurrentCubeMaterial
+	public void SetLaserActiveState(bool isActive)
 	{
-		get
+		this.isActive = isActive;
+	}
+
+	public void Initialize(bool isLocal, MVRuntimeDataVariable currentItem, Transform parent)
+	{
+		this.isLocal = isLocal;
+		this.currentItem = currentItem;
+		transform.parent = parent;
+		if (!isLocal)
 		{
-			return currentCubeMaterialId;
-		}
-		set
-		{
-			currentCubeMaterialId = value;
-			SyncState(new Dictionary<object, object> { { "cm", currentCubeMaterialId } });
-			ApplyMaterialForState();
+			currentItem.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(currentItem.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnChange));
 		}
 	}
 
-	public override AvatarItemType Type => AvatarItemType.LaserPointer;
+	private void OnChange(object newvalue)
+	{
+		OnStateChanged((Dictionary<object, object>)newvalue);
+	}
 
-	public override bool ActivateGunModeOnEquip => false;
-
-	public override bool CanHolster => false;
+	public void SetCurrentCubeMaterial(byte cubeMaterial)
+	{
+		currentCubeMaterialId = cubeMaterial;
+		SyncState(new Dictionary<object, object> { { "cm", currentCubeMaterialId } });
+		ApplyMaterialForState();
+	}
 
 	public void SetLaserCubeVisible(bool visible)
 	{
@@ -118,15 +130,15 @@ public class LaserPointer : PickupItem, ILaserPointer
 
 	public void ActivateLaserForDuration(float duration)
 	{
-		LaserActive = true;
+		isActive = true;
 		activeDuration = Mathf.Min(activeDuration + duration, 0.2f);
 		StopCoroutine("DoDeactivateLaserAfterDuration");
 		StartCoroutine("DoDeactivateLaserAfterDuration");
 	}
 
-	public override void OnStateChanged(Dictionary<object, object> newState)
+	public void OnStateChanged(Dictionary<object, object> newState)
 	{
-		if (!owner.IsLocal)
+		if (!isLocal)
 		{
 			if (newState.ContainsKey("tx"))
 			{
@@ -147,7 +159,7 @@ public class LaserPointer : PickupItem, ILaserPointer
 			}
 			if (newState.ContainsKey("fire"))
 			{
-				LaserActive = (bool)newState["fire"];
+				isActive = (bool)newState["fire"];
 			}
 			if (newState.ContainsKey("cm"))
 			{
@@ -157,9 +169,9 @@ public class LaserPointer : PickupItem, ILaserPointer
 		}
 	}
 
-	public override void OnEquip()
+	public void OnEquip()
 	{
-		if (owner.IsLocal)
+		if (isLocal)
 		{
 			cube.parent = Camera.main.transform;
 			cube.localPosition = offset;
@@ -169,12 +181,26 @@ public class LaserPointer : PickupItem, ILaserPointer
 		cube.gameObject.SetActive(value: true);
 	}
 
-	public override void OnUnequip()
+	public void SubscribeToCommands()
 	{
-		cube.gameObject.SetActive(value: false);
-		gameObject.SetActive(value: false);
-		enabled = false;
-		LaserActive = false;
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.OnCubeMaterialChanged += SetCurrentCubeMaterial;
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.OnActivateLaserForDuration += ActivateLaserForDuration;
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.OnChangeState += ChangeState;
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.OnLaserActiveChanged += SetLaserActiveState;
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.OnUpdatePosition += UpdatePosition;
+	}
+
+	private void OnEnable()
+	{
+		cube.gameObject.SetActive(value: true);
+	}
+
+	private void OnDisable()
+	{
+		if (cube != null)
+		{
+			cube.gameObject.SetActive(value: false);
+		}
 	}
 
 	private void Start()
@@ -185,12 +211,12 @@ public class LaserPointer : PickupItem, ILaserPointer
 
 	private void LateUpdate()
 	{
-		if (owner.IsLocal && isFiring != LaserActive)
+		if (isLocal && isFiring != isActive)
 		{
-			isFiring = LaserActive;
+			isFiring = isActive;
 			SyncState(new Dictionary<object, object> { { "fire", isFiring } });
 		}
-		if (!owner.IsLocal)
+		if (!isLocal)
 		{
 			Vector3 vector = cube.position + relativeTargetPosition - transform.parent.position;
 			vector.y = 0f;
@@ -201,15 +227,15 @@ public class LaserPointer : PickupItem, ILaserPointer
 		if (lineRenderer.enabled)
 		{
 			lineRenderer.SetPosition(0, cube.position);
-			if (LaserActive)
+			if (isActive)
 			{
 				lineRenderer.SetPosition(1, cube.position + relativeCurrentTargetPosition);
 			}
 		}
 		float num;
-		if (LaserActive)
+		if (isActive)
 		{
-			num = ((!owner.IsLocal) ? 1f : 0.8f);
+			num = ((!isLocal) ? 1f : 0.8f);
 		}
 		else
 		{
@@ -226,7 +252,7 @@ public class LaserPointer : PickupItem, ILaserPointer
 		beamColor.a = currentLaserAlpha;
 		lineRenderer.enabled = beamColor.a > Mathf.Epsilon;
 		lineRenderer.material.SetColor("_TintColor", beamColor);
-		if (owner.IsLocal && !lineRenderer.enabled)
+		if (isLocal && !lineRenderer.enabled)
 		{
 			Vector3 forward = cube.parent.position + cube.parent.forward * 10f - cube.position;
 			Quaternion b = Quaternion.LookRotation(forward, cube.parent.up);
@@ -240,13 +266,13 @@ public class LaserPointer : PickupItem, ILaserPointer
 	private IEnumerator DoDeactivateLaserAfterDuration()
 	{
 		float t = 0f;
-		while (LaserActive && t < activeDuration)
+		while (isActive && t < activeDuration)
 		{
 			t += Time.deltaTime;
 			yield return 0;
 		}
 		activeDuration = 0f;
-		LaserActive = false;
+		isActive = false;
 	}
 
 	private void ApplyMaterialForState()
@@ -291,18 +317,11 @@ public class LaserPointer : PickupItem, ILaserPointer
 
 	protected void SyncState(Dictionary<object, object> newState)
 	{
-		if (owner.CurrentItem == this)
+		if (!newState.ContainsKey("type"))
 		{
-			if (!newState.ContainsKey("type"))
-			{
-				newState.Add("type", (int)Type);
-			}
-			((MVAvatar)owner.WorldObjectOwner).CurrentItem.Value = newState;
+			newState.Add("type", 0);
 		}
-		else
-		{
-			Debug.LogWarning("Trying to sync non-equipped item!");
-		}
+		currentItem.Value = newState;
 	}
 
 	protected void IntervalSyncState(Dictionary<object, object> newState, float interval)

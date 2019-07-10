@@ -100,7 +100,7 @@ public class KoGaMaPackageClient
 		WorldObjectType worldObjectType = (WorldObjectType)(int)worldObjectData[WorldObjectDataParameters.WorldObjectType];
 		switch (worldObjectType)
 		{
-		case WorldObjectType.Avatar:
+		case WorldObjectType.PlayModeAvatar:
 			if ((int)worldObjectData[WorldObjectDataParameters.OwnerActorNumber] == MVGameControllerBase.Game.LocalPlayer.ActorNr)
 			{
 				return new MVAvatarLocal(worldObjectData, worldObjects);
@@ -213,7 +213,7 @@ public class KoGaMaPackageClient
 			case BlueprintType.Rotator:
 				return new MVRotator(worldObjectData, worldObjects);
 			case BlueprintType.Ghost:
-				return new MVGhost(worldObjectData, worldObjects);
+				return new MVGhostInstance(worldObjectData, worldObjects);
 			default:
 				Debug.LogError("WOCM trying to create unknown blueprint: " + blueprintType);
 				return null;
@@ -257,8 +257,6 @@ public class KoGaMaPackageClient
 			return new CollectTheItem(worldObjectData, worldObjects);
 		case WorldObjectType.CollectTheItemCollectableInstance:
 			return new CollectTheItemCollectableInstance(worldObjectData, worldObjects);
-		case WorldObjectType.GodzillaTrigger:
-			return new GodzillaTrigger(worldObjectData, worldObjects);
 		case WorldObjectType.GlobalSoundEmitter:
 			return new MVGlobalSoundEmitter(worldObjectData, worldObjects);
 		case WorldObjectType.Theme:
@@ -271,6 +269,12 @@ public class KoGaMaPackageClient
 			return new MVGamePassProgressionDataObject(worldObjectData, worldObjects);
 		case WorldObjectType.TriggerCube:
 			return new TriggerCube(worldObjectData, worldObjects);
+		case WorldObjectType.BuildModeAvatar:
+			if ((int)worldObjectData[WorldObjectDataParameters.OwnerActorNumber] == MVGameControllerBase.Game.LocalPlayer.ActorNr)
+			{
+				return new MVBuildModeAvatarLocal(worldObjectData, worldObjects);
+			}
+			return new MVBuildModeAvatarRemote(worldObjectData, worldObjects);
 		default:
 			Debug.LogError("WOCM trying to create unknown type: " + worldObjectType);
 			return null;

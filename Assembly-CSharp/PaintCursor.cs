@@ -17,9 +17,9 @@ public class PaintCursor
 			paintCursor.SetCursor(selectedCube.iLocalPos, targetCubeModel.GameObject);
 			if (isPainting)
 			{
-				MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ActivateLaserForDuration(0.5f);
+				MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.ActivateLaserForDuration(0.5f);
 			}
-			MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.UpdatePosition(selectedCube.point);
+			MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.UpdatePosition(selectedCube.point);
 		}
 		else
 		{

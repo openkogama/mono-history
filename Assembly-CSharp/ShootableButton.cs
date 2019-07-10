@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using CodeStage.AntiCheat.ObscuredTypes;
-using MV.Common;
 using UnityEngine;
 
 public class ShootableButton : MVLogicObject, IIsLogicObjectFiringEventHandler, ILogicWorldObject
@@ -85,17 +84,8 @@ public class ShootableButton : MVLogicObject, IIsLogicObjectFiringEventHandler, 
 			IEditModeUI editModeUI = MVGameControllerBase.EditModeUI;
 			editModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Combine(editModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
 		}
-		if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-		{
-			buttonObject.TargetCollider3D.enabled = false;
-			targetCollider = buttonObject.TargetCollider2D;
-			transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, 90f, transform.localEulerAngles.z);
-		}
-		else
-		{
-			buttonObject.TargetCollider2D.enabled = false;
-			targetCollider = buttonObject.TargetCollider3D;
-		}
+		buttonObject.TargetCollider2D.enabled = false;
+		targetCollider = buttonObject.TargetCollider3D;
 		collider = targetCollider;
 		SetupCulling(buttonObject.VisualRoot);
 		InputSignalReceiver = LogicClientsideFactory.CreateInputSignalReceiver(this, defaultInput: false, SignalCallback);

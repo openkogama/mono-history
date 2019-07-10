@@ -4,8 +4,6 @@ using UnityEngine.EventSystems;
 
 public class GoldPurchasedTracker : MonoBehaviour
 {
-	private bool goldPurchased;
-
 	private int goldDeltaExpected;
 
 	private int currentGold;

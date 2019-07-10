@@ -185,9 +185,9 @@ public class ChatBubble : MonoBehaviour
 
 	private void UpdateDistanceFading()
 	{
-		if (MVGameControllerBase.WOCM.AvatarLocal != null && !(anchor == null))
+		if (MVGameControllerBase.Game.LocalPlayer.IsReady && !(anchor == null))
 		{
-			float magnitude = (anchor.transform.position - MVGameControllerBase.WOCM.AvatarLocal.Transform.position).magnitude;
+			float magnitude = (anchor.transform.position - MVGameControllerBase.SpawnRoleDataMediatorLocal.Position).magnitude;
 			if (magnitude > 17.5f)
 			{
 				float num = 2.5f;

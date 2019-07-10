@@ -97,7 +97,7 @@ public class MVHoverCraft : MVSimpleOneSeatVehicle
 	protected override LocalObjectsBase CreateLocalObjects(int seatID, MVAvatarLocal vehicleUser)
 	{
 		SmoothCharacterController smoothCharacterController = gameObject.AddComponent<SmoothCharacterController>();
-		smoothCharacterController.Init(gameObject, null);
+		smoothCharacterController.Init(gameObject, null, this);
 		smoothCharacterController.Controller.Init(1.3f, 2f, Vector3.up * 0.3f);
 		smoothCharacterController.Controller.IgnoreWoIds = WorldIDsRecursive;
 		HoverCraftMotor hoverCraftMotor = gameObject.AddComponent<HoverCraftMotor>();

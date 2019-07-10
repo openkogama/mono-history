@@ -56,7 +56,7 @@ public class TimeAttackFlag : MVGamePointRewardLogicObject
 		useInteractor.UpdateData(Data);
 		worldObjectEnableController = gameObject.GetComponentInChildren<WorldObjectEnableController>();
 		SetupCulling(timeAttackFlagObject.VisualObject);
-		if (MVGameControllerBase.WOCM.AvatarLocal == null)
+		if (!MVGameControllerBase.LocalPlayer.IsReady)
 		{
 			MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
 			mVPlayerContainer.OnLocalPlayerReady = (Action)Delegate.Combine(mVPlayerContainer.OnLocalPlayerReady, new Action(LateInitialize));
@@ -76,8 +76,10 @@ public class TimeAttackFlag : MVGamePointRewardLogicObject
 
 	private void InitializeCallbacks()
 	{
-		FlagDebriefingControl.OnFlagDebriefing = (Action<int>)Delegate.Combine(FlagDebriefingControl.OnFlagDebriefing, new Action<int>(OnStartFlagDebriefing));
-		FlagDebriefingControl.OnFlagDebriefingEnd = (Action)Delegate.Combine(FlagDebriefingControl.OnFlagDebriefingEnd, new Action(OnEndFlagDebriefing));
+		FlagDebriefingControl flagDebriefingControl = MVGameControllerBase.FlagDebriefingControl;
+		flagDebriefingControl.OnFlagDebriefing = (Action<int>)Delegate.Combine(flagDebriefingControl.OnFlagDebriefing, new Action<int>(OnStartFlagDebriefing));
+		FlagDebriefingControl flagDebriefingControl2 = MVGameControllerBase.FlagDebriefingControl;
+		flagDebriefingControl2.OnFlagDebriefingEnd = (Action)Delegate.Combine(flagDebriefingControl2.OnFlagDebriefingEnd, new Action(OnEndFlagDebriefing));
 	}
 
 	private void SetupUseInteractor()
@@ -101,7 +103,7 @@ public class TimeAttackFlag : MVGamePointRewardLogicObject
 	{
 		if (worldObjectEnableController.EnableState == EnableState.Enable && (useInteractor.EvaluateRequirementsUsability() & (UseGUIResult.CanAfford | UseGUIResult.CannotAfford)) == 0)
 		{
-			DoReachTimeAttackFlag(MVGameControllerBase.WOCM.AvatarLocal.Id);
+			DoReachTimeAttackFlag(e.instigatorWOID);
 		}
 	}
 
@@ -112,9 +114,9 @@ public class TimeAttackFlag : MVGamePointRewardLogicObject
 			return false;
 		}
 		lastCaptureTime = Time.time;
-		int captureTime = Mathf.FloorToInt((Time.time - FlagDebriefingControl.RunStartTime) * 1000f);
+		int captureTime = Mathf.FloorToInt((Time.time - MVGameControllerBase.FlagDebriefingControl.RunStartTime) * 1000f);
 		MVGameControllerBase.OperationRequests.ReportReachedTimeAttackFlag(captureTime, Id);
-		FlagDebriefingControl.StartFlagDebriefing(captureTime);
+		MVGameControllerBase.FlagDebriefingControl.StartFlagDebriefing(captureTime);
 		return true;
 	}
 

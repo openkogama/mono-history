@@ -43,14 +43,14 @@ public class PickupItemBazooka : PickupItemWithDelay
 
 	private void Awake()
 	{
-		currentAmmo = maxAmmo;
+		ResetAmmo();
 		layerMask = (1 << LayerUtil.GetLayerNumber(LayerFlags.Player)) + (1 << LayerUtil.GetLayerNumber(LayerFlags.Default));
 	}
 
 	public override void ResetAmmo()
 	{
 		base.ResetAmmo();
-		currentAmmo = maxAmmo;
+		currentAmmo = GetAmmoMultiplier(maxAmmo);
 	}
 
 	protected override void OnFire(bool isLocal)
@@ -98,7 +98,7 @@ public class PickupItemBazooka : PickupItemWithDelay
 				continue;
 			}
 			InteractionDataHandlerBase interactionDataHandlerBase = mVObject.InteractionDataHandlerBase;
-			if (!(interactionDataHandlerBase != null) || (mVObject.OwnerActorNr != MVGameControllerBase.Game.LocalPlayer.ActorNr && MVGameControllerBase.Game.TeamManager.IsOnSameTeam(mVObject, MVGameControllerBase.Game.LocalPlayer.Avatar)))
+			if (!(interactionDataHandlerBase != null) || (mVObject.OwnerActorNr != MVGameControllerBase.Game.LocalPlayer.ActorNr && MVGameControllerBase.Game.LocalPlayer.IsOnSameTeam(mVObject)))
 			{
 				continue;
 			}

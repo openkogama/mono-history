@@ -14,5 +14,8 @@ public enum ClientSettingFlags
 	StathatEnabled = 0x20,
 	InterstitalAdsEnabled = 0x40,
 	RewardedAdsEnabled = 0x80,
-	GamePassSilentReleaseEnabled = 0x100
+	GamePassSilentReleaseEnabled = 0x100,
+	PostGameInterstitialEnabled = 0x200,
+	BoostersEnabledWebGL = 0x400,
+	BoostersEnabledAndroid = 0x800
 }

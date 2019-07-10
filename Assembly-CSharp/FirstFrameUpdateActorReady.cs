@@ -1,6 +1,6 @@
 using System;
 
-public class FirstFrameUpdateActorReady : IUpdatecontrollerSubscriber
+public class FirstFrameUpdateActorReady : IUpdatecontrollerSubscriberUpdate, IUpdatecontrollerSubscriberBase
 {
 	private bool localPlayerIsReady;
 

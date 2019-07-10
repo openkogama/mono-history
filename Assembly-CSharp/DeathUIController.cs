@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class DeathUIController : MonoBehaviour
@@ -33,6 +34,9 @@ public class DeathUIController : MonoBehaviour
 	[SerializeField]
 	private LocalPlayerScore localPlayeScore;
 
+	[SerializeField]
+	private DeathUIBoostMenuController boostMenuPrefab;
+
 	private GameStatCounterType statType;
 
 	private float waitTime;
@@ -46,31 +50,32 @@ public class DeathUIController : MonoBehaviour
 	private void Awake()
 	{
 		gameObject.SetActive(value: false);
-		if (MVGameControllerBase.WOCM.AvatarLocal == null)
-		{
-			MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
-			mVPlayerContainer.OnLocalPlayerReady = (Action)Delegate.Combine(mVPlayerContainer.OnLocalPlayerReady, new Action(LateInitialize));
-		}
-		else
-		{
-			Initialize();
-		}
+		Initialize();
 	}
 
-	private void LateInitialize()
+	private void OnDestroy()
 	{
-		Initialize();
-		MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
-		mVPlayerContainer.OnLocalPlayerReady = (Action)Delegate.Remove(mVPlayerContainer.OnLocalPlayerReady, new Action(Initialize));
+		if (MVGameControllerBase.IsAlive)
+		{
+			MVGameControllerBase.SpawnRoleDataMediatorLocal.OnKilled -= OnLocalPlayerKilled;
+			MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.OnChange -= OnAvatarStateChanged;
+			FlagDebriefingControl flagDebriefingControl = MVGameControllerBase.FlagDebriefingControl;
+			flagDebriefingControl.OnFlagDebriefingEnd = (Action)Delegate.Remove(flagDebriefingControl.OnFlagDebriefingEnd, new Action(EndDeathBriefing));
+			MVNetworkGame game = MVGameControllerBase.Game;
+			game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Remove(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnRoundEnd));
+			NotificationFade notificationFade = fader;
+			notificationFade.OnFinished = (Action)Delegate.Remove(notificationFade.OnFinished, new Action(OnFadeFinished));
+		}
 	}
 
 	private void Initialize()
 	{
-		MVAvatarLocal avatarLocal = MVGameControllerBase.WOCM.AvatarLocal;
-		avatarLocal.OnKilled = (Action<string>)Delegate.Combine(avatarLocal.OnKilled, new Action<string>(OnLocalAvatarKilled));
-		MVRuntimeDataVariable avatarModeTypeFlags = MVGameControllerBase.WOCM.AvatarLocal.avatarModeTypeFlags;
-		avatarModeTypeFlags.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(avatarModeTypeFlags.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnAvatarStateChanged));
-		FlagDebriefingControl.OnFlagDebriefingEnd = (Action)Delegate.Combine(FlagDebriefingControl.OnFlagDebriefingEnd, new Action(EndDeathBriefing));
+		MVGameControllerBase.SpawnRoleDataMediatorLocal.OnKilled += OnLocalPlayerKilled;
+		MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.OnChange += OnAvatarStateChanged;
+		FlagDebriefingControl flagDebriefingControl = MVGameControllerBase.FlagDebriefingControl;
+		flagDebriefingControl.OnFlagDebriefingEnd = (Action)Delegate.Combine(flagDebriefingControl.OnFlagDebriefingEnd, new Action(EndDeathBriefing));
+		MVNetworkGame game = MVGameControllerBase.Game;
+		game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Combine(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnRoundEnd));
 		NotificationFade notificationFade = fader;
 		notificationFade.OnFinished = (Action)Delegate.Combine(notificationFade.OnFinished, new Action(OnFadeFinished));
 		WinningConditionControl.TryGetPrioritizedStat(out statType);
@@ -79,10 +84,9 @@ public class DeathUIController : MonoBehaviour
 		localPlayeScore.Initialize();
 	}
 
-	private void OnAvatarStateChanged(object state)
+	private void OnAvatarStateChanged(SpawnRoleModeType mode)
 	{
-		AvatarModeTypes avatarModeTypes = (AvatarModeTypes)state;
-		if (isDeathBriefActive && avatarModeTypes != AvatarModeTypes.Hidden && avatarModeTypes != AvatarModeTypes.Dead)
+		if (isDeathBriefActive && mode != SpawnRoleModeType.Hidden && mode != SpawnRoleModeType.Dead)
 		{
 			EndDeathBriefing();
 		}
@@ -99,24 +103,17 @@ public class DeathUIController : MonoBehaviour
 
 	private void Update()
 	{
-		if (waitTime + 1.2f < Time.time)
+		if (waitTime + 1.2f < Time.time && !isDeathBriefActive && MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState != MVGameStateType.RoundEnded)
 		{
-			if (!isDeathBriefActive)
+			isDeathBriefActive = true;
+			float num = waitTime;
+			float timeUntilGhostMode = num + 1.2f + 2.8f - Time.time;
+			DeathUIBoostMenuController boostMenu = UnityEngine.Object.Instantiate(boostMenuPrefab);
+			boostMenu.Initialize(timeUntilGhostMode);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 			{
-				fader.gameObject.SetActive(value: true);
-				fader.Activate();
-				HandleScoreBoardVisibility();
-				localPlayeScore.Activate();
-				SendCurrentProgressNotification();
-				isDeathBriefActive = true;
-			}
-			float num = waitTime + 1.2f;
-			timerFill.fillAmount = 1f - (Time.time - num) / 2.8f;
-			if (timerFill.fillAmount <= 0f)
-			{
-				OnFadeFinished();
-			}
-			readyToPlayTimerFill.fillAmount = 1f - (Time.time - num) / 2.8f;
+				x.Push(boostMenu.gameObject, UIPushOption.HideAll, null, UIGroupFlags.GameObjectUI);
+			});
 		}
 	}
 
@@ -130,11 +127,27 @@ public class DeathUIController : MonoBehaviour
 		}
 	}
 
-	private void OnLocalAvatarKilled(string text)
+	private void OnLocalPlayerKilled(int localPlayerActorNr, int dmgDealerActorNr, PlayerKilledByType damageType)
 	{
-		if (!FlagDebriefingControl.IsInFlagDebriefing)
+		bool shotSelf = localPlayerActorNr == dmgDealerActorNr;
+		Color color;
+		Color color2;
+		if (MVGameControllerBase.Game.TeamManager.GetTeamList().Count > 1)
 		{
-			StartDeathBriefing(text);
+			color = Styles.GetTeamColor(MVGameControllerBase.Game.MVPlayerContainer[localPlayerActorNr].Team);
+			color2 = Styles.GetTeamColor(MVGameControllerBase.Game.MVPlayerContainer[dmgDealerActorNr].Team);
+		}
+		else
+		{
+			color = Styles.GetColor(ColorStyle.Gray);
+			color2 = Styles.GetColor(ColorStyle.Gray);
+		}
+		string userName = MVGameControllerBase.Game.MVPlayerContainer[localPlayerActorNr].UserProfileData.UserName;
+		string userName2 = MVGameControllerBase.Game.MVPlayerContainer[dmgDealerActorNr].UserProfileData.UserName;
+		string deathText = string.Format(KillNotification.GetKillText(damageType, shotSelf), Styles.ColorToHex(color), userName, Styles.ColorToHex(color2), userName2);
+		if (!MVGameControllerBase.FlagDebriefingControl.IsInFlagDebriefing)
+		{
+			StartDeathBriefing(deathText);
 		}
 	}
 
@@ -212,7 +225,11 @@ public class DeathUIController : MonoBehaviour
 		buttonFader.PauseAt(0f);
 		readyToPlayTimerObject.SetActive(value: false);
 		deathReason.text = deathText;
-		MVGameControllerBase.WOCM.AvatarLocal.AvatarRespawnHandler.ShouldRespawnAsGhost = true;
+	}
+
+	private void OnRoundEnd(IWinningCondition winningCondition)
+	{
+		EndDeathBriefing();
 	}
 
 	public void OnPressPlay()
@@ -220,6 +237,6 @@ public class DeathUIController : MonoBehaviour
 		MVGameControllerDesktop.LockCursorManager.CursorLock = true;
 		buttonFader.Unpause();
 		readyToPlayTimerObject.SetActive(value: true);
-		MVGameControllerBase.WOCM.AvatarLocal.AvatarRespawnHandler.ShouldRespawnAsGhost = false;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.SetRespawnWhenPossible();
 	}
 }

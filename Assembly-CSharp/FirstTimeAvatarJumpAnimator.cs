@@ -7,11 +7,18 @@ public class FirstTimeAvatarJumpAnimator : MonoBehaviour
 
 	private string jumpAnimationName = "Jump";
 
+	private MVAvatarLocal avatarLocal;
+
+	public void Initialize(MVAvatarLocal avatarLocal)
+	{
+		this.avatarLocal = avatarLocal;
+	}
+
 	private void Update()
 	{
-		if (!MVGameControllerBase.WOCM.AvatarLocal.Body.Animation.IsPlaying(jumpAnimationName) && jumps > 1)
+		if (!avatarLocal.Body.Animation.IsPlaying(jumpAnimationName) && jumps > 1)
 		{
-			MVGameControllerBase.WOCM.AvatarLocal.Body.Animation.Play(jumpAnimationName);
+			avatarLocal.Body.Animation.Play(jumpAnimationName);
 			jumps--;
 		}
 		else if (jumps == 1)
@@ -19,7 +26,7 @@ public class FirstTimeAvatarJumpAnimator : MonoBehaviour
 			Dictionary<object, object> dictionary = new Dictionary<object, object>();
 			dictionary["state"] = "Walk";
 			dictionary["timeStamp"] = MVGameControllerBase.Game.ServerTimeInMilliSeconds;
-			MVGameControllerBase.WOCM.AvatarLocal.Body.Animation.ComputeBlendAnimation(dictionary);
+			avatarLocal.Body.Animation.ComputeBlendAnimation(dictionary);
 			jumps--;
 		}
 		else if (jumps == 0)
@@ -27,7 +34,7 @@ public class FirstTimeAvatarJumpAnimator : MonoBehaviour
 			Dictionary<object, object> dictionary2 = new Dictionary<object, object>();
 			dictionary2["state"] = "Idle";
 			dictionary2["timeStamp"] = MVGameControllerBase.Game.ServerTimeInMilliSeconds;
-			MVGameControllerBase.WOCM.AvatarLocal.Body.Animation.ComputeBlendAnimation(dictionary2);
+			avatarLocal.Body.Animation.ComputeBlendAnimation(dictionary2);
 			Object.Destroy(this);
 		}
 	}

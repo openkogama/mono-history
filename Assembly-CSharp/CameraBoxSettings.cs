@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -19,14 +18,7 @@ public class CameraBoxSettings : MonoBehaviour, IHandleSettingChanged, IEventSys
 	{
 		settingsBase.Initialize(woID, root, MVWorldObjectDocumentationType.CameraSettings);
 		Dictionary<object, object> data = MVGameControllerBase.WOCM.GetWorldObjectClient(woID).Data;
-		if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
-		{
-			slider.Initialize("distanceToAvatar", Convert.ToSingle(data["distanceToAvatar"]), 3f, 10f);
-		}
-		else if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-		{
-			slider.Initialize("distanceToAvatar", Convert.ToSingle(data["distanceToAvatar"]), 15f, 45f);
-		}
+		slider.Initialize("distanceToAvatar", Convert.ToSingle(data["distanceToAvatar"]), 3f, 10f);
 		inputField.Initialize("distanceToAvatar", Convert.ToSingle(data["distanceToAvatar"]));
 	}
 

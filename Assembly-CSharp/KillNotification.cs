@@ -84,10 +84,6 @@ public class KillNotification : Notification
 			return TM._("<color=#{2}>{3}</color> eliminated <color=#{0}>{1}</color> with a shotgun.");
 		case PlayerKilledByType.Suicide:
 			return TM._("<color=#{0}>{1}</color> respawned.");
-		case PlayerKilledByType.GodzillaLaser:
-			return TM._("<color=#{0}>{1}</color> was incinerated by Colossus.");
-		case PlayerKilledByType.KillZone:
-			return TM._("<color=#{0}>{1}</color> was crushed by Colossus.");
 		default:
 			return TM._("<color=#{2}>{3}</color> eliminated <color=#{0}>{1}</color>.");
 		}

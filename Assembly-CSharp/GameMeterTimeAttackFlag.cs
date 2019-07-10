@@ -14,20 +14,22 @@ public class GameMeterTimeAttackFlag : GameMeterBase
 
 	public override GameMeterType GameMeterType => GameMeterType.TimeAttackFlag;
 
-	private void Start()
+	public override void Initialize()
 	{
-		SetGameMeterVisibility();
 		timeAttackFlagText.text = "00:00:00";
-		FlagDebriefingControl.OnFlagDebriefing = (Action<int>)Delegate.Combine(FlagDebriefingControl.OnFlagDebriefing, new Action<int>(OnStartFlagCountdown));
-		FlagDebriefingControl.OnFlagCountDown = (Action)Delegate.Combine(FlagDebriefingControl.OnFlagCountDown, new Action(OnStartFlagCountdown));
-		FlagDebriefingControl.OnFlagCountDownEnd = (Action)Delegate.Combine(FlagDebriefingControl.OnFlagCountDownEnd, new Action(OnEndFlagCountdown));
+		FlagDebriefingControl flagDebriefingControl = MVGameControllerBase.FlagDebriefingControl;
+		flagDebriefingControl.OnFlagDebriefing = (Action<int>)Delegate.Combine(flagDebriefingControl.OnFlagDebriefing, new Action<int>(OnStartFlagCountdown));
+		FlagDebriefingControl flagDebriefingControl2 = MVGameControllerBase.FlagDebriefingControl;
+		flagDebriefingControl2.OnFlagCountDown = (Action)Delegate.Combine(flagDebriefingControl2.OnFlagCountDown, new Action(OnStartFlagCountdown));
+		FlagDebriefingControl flagDebriefingControl3 = MVGameControllerBase.FlagDebriefingControl;
+		flagDebriefingControl3.OnFlagCountDownEnd = (Action)Delegate.Combine(flagDebriefingControl3.OnFlagCountDownEnd, new Action(OnEndFlagCountdown));
 	}
 
 	private void Update()
 	{
 		if (shouldUpdate)
 		{
-			int score = Mathf.FloorToInt((Time.time - FlagDebriefingControl.RunStartTime) * 1000f);
+			int score = Mathf.FloorToInt((Time.time - MVGameControllerBase.FlagDebriefingControl.RunStartTime) * 1000f);
 			string text = WinningConditionControl.MakeIntoScoreText(score, GameStatCounterType.TimeAttackFlag);
 			timeAttackFlagText.text = text;
 		}

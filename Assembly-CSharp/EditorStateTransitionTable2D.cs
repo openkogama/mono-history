@@ -12,7 +12,6 @@ internal class EditorStateTransitionTable2D : EditorStateTransitionTableBase
 		table.Add(EditorEvent.ESWaitForClone, new ESWaitForClone());
 		table.Add(EditorEvent.ESAddLink, new ESAddLink());
 		table.Add(EditorEvent.ESWalkMode, new ESWalkMode());
-		table.Add(EditorEvent.ESInsert, new ESInsert2D());
 		table.Add(EditorEvent.ESAddObjectLink, new ESAddObjectLink());
 		table.Add(EditorEvent.ESAddToMarketPlaceState, new ESAddToMarketPlaceState());
 		SetStateTypes();

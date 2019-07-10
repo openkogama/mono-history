@@ -799,7 +799,7 @@ public class MVWorldObjectClient : MVWorldObject
 
 	private bool DoesScreenPointHitCollider(Vector3 point, Collider collider)
 	{
-		Ray ray = MVGameControllerBase.CameraController.MainCamera.ScreenPointToRay(point);
+		Ray ray = MVGameControllerBase.MainCameraManager.MainCamera.ScreenPointToRay(point);
 		int num = Physics.RaycastNonAlloc(ray, CollisionDetectionGlobalBuffers.rayHitBuffer);
 		for (int i = 0; i < num; i++)
 		{

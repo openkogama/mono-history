@@ -7,8 +7,6 @@ public class GameMeterXP : GameMeterBase
 	[SerializeField]
 	private GameObject XPMeter;
 
-	private bool initialized;
-
 	private float interpolateTowardsXPProgress;
 
 	private float previousXPProgress;
@@ -17,16 +15,29 @@ public class GameMeterXP : GameMeterBase
 
 	public override GameMeterType GameMeterType => GameMeterType.XP;
 
+	public override void Initialize()
+	{
+		if (LevelingManager.IsInitialized && MVGameControllerBase.Game.LocalPlayer.CanGetXPProgressData)
+		{
+			Init();
+		}
+		else
+		{
+			LevelingManager.OnLevelingInitialized = (UnityAction)Delegate.Combine(LevelingManager.OnLevelingInitialized, new UnityAction(Init));
+		}
+	}
+
+	private void Init()
+	{
+		MVLocalPlayer localPlayer = MVGameControllerBase.Game.LocalPlayer;
+		localPlayer.OnXPProgressData = (XPProgress.OnXPProgressDataDelegate)Delegate.Combine(localPlayer.OnXPProgressData, new XPProgress.OnXPProgressDataDelegate(OnProgressUpdate));
+		enabled = true;
+		LevelingManager.OnLevelingInitialized = (UnityAction)Delegate.Remove(LevelingManager.OnLevelingInitialized, new UnityAction(Init));
+		OnProgressUpdate(MVGameControllerBase.Game.LocalPlayer.XPProgressData);
+	}
+
 	public override void SetGameMeterVisibility()
 	{
-		if (!initialized && MVGameControllerBase.Game.LocalPlayer.CanGetXPProgressData)
-		{
-			Initialize();
-		}
-		else if (!initialized)
-		{
-			LevelingManager.OnLevelingInitialized = (UnityAction)Delegate.Combine(LevelingManager.OnLevelingInitialized, new UnityAction(LateInitialize));
-		}
 	}
 
 	public override void UpdateValue()
@@ -60,20 +71,5 @@ public class GameMeterXP : GameMeterBase
 	public override void SetShowGameMeter(bool show)
 	{
 		XPMeter.SetActive(show);
-	}
-
-	private void Initialize()
-	{
-		MVLocalPlayer localPlayer = MVGameControllerBase.Game.LocalPlayer;
-		localPlayer.OnXPProgressData = (XPProgress.OnXPProgressDataDelegate)Delegate.Combine(localPlayer.OnXPProgressData, new XPProgress.OnXPProgressDataDelegate(OnProgressUpdate));
-		enabled = true;
-		initialized = true;
-		OnProgressUpdate(MVGameControllerBase.Game.LocalPlayer.XPProgressData);
-	}
-
-	private void LateInitialize()
-	{
-		Initialize();
-		LevelingManager.OnLevelingInitialized = (UnityAction)Delegate.Remove(LevelingManager.OnLevelingInitialized, new UnityAction(LateInitialize));
 	}
 }

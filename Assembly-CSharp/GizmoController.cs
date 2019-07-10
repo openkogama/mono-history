@@ -1,4 +1,3 @@
-using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -39,25 +38,11 @@ public class GizmoController : MonoBehaviour, IGizmoHandler, IEventSystemHandler
 		switch (action)
 		{
 		case GizmoAction.Rotate:
-			if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-			{
-				editorStateMachine.Data.Add("rotationDegreesStep", 90f);
-			}
-			else
-			{
-				editorStateMachine.Data.Add("rotationDegreesStep", 15f);
-			}
+			editorStateMachine.Data.Add("rotationDegreesStep", 15f);
 			editorStateMachine.PushState(EditorEvent.Rotating);
 			break;
 		case GizmoAction.TranslateY:
-			if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-			{
-				editorStateMachine.Data.Add("moveWithAvatar", false);
-			}
-			else
-			{
-				editorStateMachine.Data.Add("moveWithAvatar", true);
-			}
+			editorStateMachine.Data.Add("moveWithAvatar", true);
 			editorStateMachine.Data.Add("translateMode", TranslateMode.Y);
 			editorStateMachine.PushState(EditorEvent.ESTranslate);
 			break;

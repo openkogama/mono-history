@@ -168,42 +168,6 @@ public static class AvatarModifierPackageFactory
 			})
 		},
 		{
-			AvatarModifierPackageType.GodzillaS,
-			AssembleGodzillaModifierPackage(AvatarModifierPackageType.GodzillaS)
-		},
-		{
-			AvatarModifierPackageType.GodzillaM,
-			AssembleGodzillaModifierPackage(AvatarModifierPackageType.GodzillaM)
-		},
-		{
-			AvatarModifierPackageType.GodzillaL,
-			AssembleGodzillaModifierPackage(AvatarModifierPackageType.GodzillaL)
-		},
-		{
-			AvatarModifierPackageType.GodzillaXL,
-			AssembleGodzillaModifierPackage(AvatarModifierPackageType.GodzillaXL)
-		},
-		{
-			AvatarModifierPackageType.GodzillaLaserBurnS,
-			AssembleGodzillaLaserBurnModifierPackage(AvatarModifierPackageType.GodzillaS)
-		},
-		{
-			AvatarModifierPackageType.GodzillaLaserBurnM,
-			AssembleGodzillaLaserBurnModifierPackage(AvatarModifierPackageType.GodzillaM)
-		},
-		{
-			AvatarModifierPackageType.GodzillaLaserBurnL,
-			AssembleGodzillaLaserBurnModifierPackage(AvatarModifierPackageType.GodzillaL)
-		},
-		{
-			AvatarModifierPackageType.GodzillaLaserBurnXL,
-			AssembleGodzillaLaserBurnModifierPackage(AvatarModifierPackageType.GodzillaXL)
-		},
-		{
-			AvatarModifierPackageType.GodzillaGrowthInvulnerability,
-			AssembleInvulnerabilityPackage(AvatarModifierPackageType.GodzillaGrowthInvulnerability, 3f)
-		},
-		{
 			AvatarModifierPackageType.SpawnProtection,
 			AssembleInvulnerabilityPackage(AvatarModifierPackageType.SpawnProtection, 4f)
 		},
@@ -242,32 +206,6 @@ public static class AvatarModifierPackageFactory
 		dictionary.Add(AvatarModifierPackageType.SpawnProtection, ModifierActions.Renew);
 		Dictionary<AvatarModifierPackageType, ModifierActions> actionsToTakeVsTypes = dictionary;
 		return new AvatarModifierPackage(type, AvatarModifierPackageAdditionPolicy.Renew, time, avatarModifiers, actionsToTakeVsTypes, persist: true);
-	}
-
-	private static AvatarModifierPackage AssembleGodzillaModifierPackage(AvatarModifierPackageType godzillaType)
-	{
-		float sizeModifier = GodzillaModifier.constants[(GodzillaModifier.GodzillaModifierPackageType)godzillaType].sizeModifier;
-		AvatarModifierPackage.AvatarModifier[] avatarModifiers = new AvatarModifierPackage.AvatarModifier[3]
-		{
-			new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Override, AvatarModifierEffect.DamageMultiplier, Const(0.4f / sizeModifier)),
-			new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Override, AvatarModifierEffect.GodzillaImmunity, Const(1f)),
-			new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Override, AvatarModifierEffect.PoisonImmune, Const(1f))
-		};
-		return new AvatarModifierPackage(godzillaType, AvatarModifierPackageAdditionPolicy.Renew, float.PositiveInfinity, avatarModifiers);
-	}
-
-	private static AvatarModifierPackage AssembleGodzillaLaserBurnModifierPackage(AvatarModifierPackageType godzillaType)
-	{
-		AvatarModifierPackageType laserBurnModifierPackageType = GodzillaModifier.constants[(GodzillaModifier.GodzillaModifierPackageType)godzillaType].laserBurnModifierPackageType;
-		float sizeModifier = GodzillaModifier.constants[(GodzillaModifier.GodzillaModifierPackageType)godzillaType].sizeModifier;
-		AvatarModifierPackage.AvatarModifier[] avatarModifiers = new AvatarModifierPackage.AvatarModifier[1]
-		{
-			new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Override, AvatarModifierEffect.FlamerDamagePrSec, Const(0.25f * sizeModifier))
-		};
-		Dictionary<AvatarModifierPackageType, ModifierActions> dictionary = new Dictionary<AvatarModifierPackageType, ModifierActions>();
-		dictionary.Add(laserBurnModifierPackageType, ModifierActions.Renew);
-		Dictionary<AvatarModifierPackageType, ModifierActions> actionsToTakeVsTypes = dictionary;
-		return new AvatarModifierPackage(laserBurnModifierPackageType, AvatarModifierPackageAdditionPolicy.Renew, 2f, avatarModifiers, actionsToTakeVsTypes);
 	}
 
 	public static AvatarModifierPackage GetPackage(AvatarModifierPackageType packageType)

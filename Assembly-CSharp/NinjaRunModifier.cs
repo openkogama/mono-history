@@ -50,11 +50,20 @@ public class NinjaRunModifier : AvatarModifier
 
 	protected override void OnDeactivated(Avatar target)
 	{
+		isDestroying = true;
 		if (gameObject.activeInHierarchy)
 		{
 			StartCoroutine(DoFadeAndDestroy());
 		}
 		else
+		{
+			Object.Destroy(gameObject);
+		}
+	}
+
+	private void OnDisable()
+	{
+		if (isDestroying)
 		{
 			Object.Destroy(gameObject);
 		}
@@ -72,7 +81,7 @@ public class NinjaRunModifier : AvatarModifier
 
 	private void Update()
 	{
-		trailRenderer.enabled = !owner.IsLocal || MVGameControllerBase.CameraController.CurCamera.CameraType != CameraType.FirstPersonCamera;
+		trailRenderer.enabled = !owner.IsLocal || MVGameControllerBase.MainCameraManager.CurrentCamera.CameraType != CameraType.FirstPersonCamera;
 		if (oldPosition != ownerTransform.position && !isDestroying)
 		{
 			float magnitude = (ownerTransform.position - oldPosition).magnitude;

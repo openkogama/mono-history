@@ -1,5 +1,4 @@
 using System;
-using MV.Common;
 
 public class TouristPromotionDesktop : TouristPromotion
 {
@@ -16,10 +15,6 @@ public class TouristPromotionDesktop : TouristPromotion
 
 	public override void SkipCallback()
 	{
-		if (MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState != MVGameStateType.RoundEnded)
-		{
-			MVGameControllerDesktop.LockCursorManager.CursorLock = true;
-		}
 		base.SkipCallback();
 	}
 

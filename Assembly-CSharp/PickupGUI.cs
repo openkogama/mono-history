@@ -8,12 +8,15 @@ public class PickupGUI : MonoBehaviour
 
 	private MVPickupOwner pickupOwner;
 
+	private int worldObjectId = -1;
+
 	private bool canBeVisible;
 
 	public static PickupGUIFlags ShowEquipableUI { get; private set; }
 
-	public void Initialize(MVPickupOwner pickupOwner)
+	public void Initialize(int worldObjectId, MVPickupOwner pickupOwner)
 	{
+		this.worldObjectId = worldObjectId;
 		this.pickupOwner = pickupOwner;
 		crossHair = MVGameControllerBase.PlayModeUI.GetCrossHair();
 		crossHair.Visible = false;
@@ -24,7 +27,7 @@ public class PickupGUI : MonoBehaviour
 
 	public void OnHolstered(bool isHolstered)
 	{
-		if (!MVGameControllerBase.WOCM.AvatarLocal.IsSeated || IsInJetpack())
+		if (!MVGameControllerBase.SpawnRoleDataMediatorLocal.IsSeated || IsInJetpack())
 		{
 			HolsterTip.Show();
 		}
@@ -43,7 +46,7 @@ public class PickupGUI : MonoBehaviour
 
 	private bool IsInJetpack()
 	{
-		int woIDWithLocalOwnerHighestInHierarchy = MVGameControllerBase.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(MVGameControllerBase.WOCM.AvatarLocal.Id);
+		int woIDWithLocalOwnerHighestInHierarchy = MVGameControllerBase.WOCM.GetWoIDWithLocalOwnerHighestInHierarchy(worldObjectId);
 		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woIDWithLocalOwnerHighestInHierarchy);
 		if (worldObjectClient is MVJetPack)
 		{
@@ -83,6 +86,11 @@ public class PickupGUI : MonoBehaviour
 		pickupOwner.CurrentItem.OnEnterVehicleWithWeapon();
 	}
 
+	public void Leave()
+	{
+		enabled = false;
+	}
+
 	private void UpdateCrossHairVisibility()
 	{
 		bool flag = !MVGameControllerBase.PlayModeUI.InLobbyState && canBeVisible && pickupOwner.IsLocal;
@@ -92,31 +100,22 @@ public class PickupGUI : MonoBehaviour
 		}
 	}
 
-	public void Leave()
+	public void AvatarLeftVehicle()
 	{
-		enabled = false;
-		GameObject gameObject = MVGameControllerBase.WOCM.AvatarLocal.GameObject;
-		MVPickupOwner component = gameObject.GetComponent<MVPickupOwner>();
-		if (component != null)
+		Debug.Log("Pickup GUI LEAVE " + gameObject.name);
+		if (pickupOwner.CurrentItem != null && pickupOwner.CurrentItem.Type != AvatarItemType.Hand)
 		{
-			if (component.CurrentItem != null && component.CurrentItem.Type != AvatarItemType.Hand)
-			{
-				OnEquipItem(component.CurrentItem);
-				ShowEquipableUI &= ~PickupGUIFlags.IsHolstered;
-				crossHair.UpdateCrossHair(component.CurrentItem);
-				UpdateCrossHairVisibility();
-			}
-			else
-			{
-				canBeVisible = false;
-				UpdateCrossHairVisibility();
-				crossHair.Visible = false;
-				ShowEquipableUI = PickupGUIFlags.None;
-			}
+			OnEquipItem(pickupOwner.CurrentItem);
+			ShowEquipableUI &= ~PickupGUIFlags.IsHolstered;
+			crossHair.UpdateCrossHair(pickupOwner.CurrentItem);
+			UpdateCrossHairVisibility();
 		}
-		if (pickupOwner.CurrentItem != null)
+		else
 		{
-			pickupOwner.CurrentItem.OnLeaveVehicleWithWeapon();
+			canBeVisible = false;
+			UpdateCrossHairVisibility();
+			crossHair.Visible = false;
+			ShowEquipableUI = PickupGUIFlags.None;
 		}
 	}
 
@@ -125,7 +124,7 @@ public class PickupGUI : MonoBehaviour
 		ShowEquipableUI = PickupGUIFlags.None;
 		if (item.CanHolster)
 		{
-			if (!MVGameControllerBase.WOCM.AvatarLocal.IsSeated || IsInJetpack())
+			if (!MVGameControllerBase.SpawnRoleDataMediatorLocal.IsSeated || IsInJetpack())
 			{
 				HolsterTip.Show();
 			}

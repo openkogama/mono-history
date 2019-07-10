@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class LimbController
 {
-	private MVAvatar avatar;
+	private MVWorldObjectClient avatarWO;
 
 	private Transform limbTransform;
 
@@ -72,15 +72,15 @@ public class LimbController
 		}
 	}
 
-	public void Initialize(AvatarLimbManager limbManager, MVAvatar avatar, BodyData.PartIndex partIndex, Quaternion modelRotationOffset, Quaternion originalRotation, List<string> blendAnimations, List<string> cancelAnimations, float maxYaw, float maxPitch)
+	public void Initialize(AvatarLimbManager limbManager, MVWorldObjectClient avatarWO, MVBody body, BodyData.PartIndex partIndex, Quaternion modelRotationOffset, Quaternion originalRotation, List<string> blendAnimations, List<string> cancelAnimations, float maxYaw, float maxPitch)
 	{
-		this.avatar = avatar;
+		this.avatarWO = avatarWO;
 		this.modelRotationOffset = modelRotationOffset;
 		this.blendAnimations = blendAnimations;
 		this.cancelAnimations = cancelAnimations;
 		this.maxYaw = maxYaw;
 		this.maxPitch = maxPitch;
-		limbTransform = avatar.Body.BodyData.GetPartBone(partIndex).transform;
+		limbTransform = body.BodyData.GetPartBone(partIndex).transform;
 		previousLimbRotation = limbTransform.rotation;
 		limbsOriginalRotation = originalRotation;
 		limbManager.OnAvatarRotate = (Action)Delegate.Combine(limbManager.OnAvatarRotate, new Action(FinishInterpolation));
@@ -186,7 +186,7 @@ public class LimbController
 	private Quaternion CalculateBlendedRotation()
 	{
 		Vector3 forward = limbTransform.forward;
-		forward = avatar.Transform.InverseTransformPoint(avatar.Transform.position + forward);
+		forward = avatarWO.Transform.InverseTransformPoint(avatarWO.Transform.position + forward);
 		Quaternion yawRotation = GetYawRotation(forward);
 		Quaternion pitchRotation = GetPitchRotation(forward);
 		elapsedInterpolationTime = 0f;
@@ -198,7 +198,7 @@ public class LimbController
 	private void UpdateInterpolation(Quaternion interpolateTowardsRotation)
 	{
 		elapsedInterpolationTime += Time.deltaTime * interpolationSpeed;
-		Quaternion rotation = Quaternion.Lerp(previousLimbRotation, avatar.Transform.rotation * interpolateTowardsRotation * Quaternion.Inverse(limbsOriginalRotation) * modelRotationOffset, elapsedInterpolationTime);
+		Quaternion rotation = Quaternion.Lerp(previousLimbRotation, avatarWO.Transform.rotation * interpolateTowardsRotation * Quaternion.Inverse(limbsOriginalRotation) * modelRotationOffset, elapsedInterpolationTime);
 		limbTransform.rotation = rotation;
 	}
 

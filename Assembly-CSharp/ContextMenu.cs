@@ -58,7 +58,7 @@ public class ContextMenu : MonoBehaviour
 
 	private void SetToScreenPoint()
 	{
-		Vector3 position = MVGameControllerBase.CameraController.MainCamera.WorldToScreenPoint(worldPosition);
+		Vector3 position = MVGameControllerBase.MainCameraManager.MainCamera.WorldToScreenPoint(worldPosition);
 		rectTransform.transform.position = position;
 	}
 

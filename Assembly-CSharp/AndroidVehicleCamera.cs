@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class AndroidVehicleCamera : MVCameraBase, IVehicleCamera
 {
+	private MVAvatarLocal avatarLocal;
+
 	private Transform originalTransformParent;
 
 	private readonly CameraLerpToDesiredDistance cameraLerpToDesiredDistance = new CameraLerpToDesiredDistance();
@@ -56,11 +58,17 @@ public class AndroidVehicleCamera : MVCameraBase, IVehicleCamera
 
 	public override CameraType CameraType => CameraType.VehicleCamera;
 
+	public void Initialize(MVAvatarLocal avatarLocal)
+	{
+		this.avatarLocal = avatarLocal;
+	}
+
 	public override void Enter(MVCameraController camController)
 	{
+		Debug.Log("Camera enter!!!!!");
 		originalTransformParent = transform.parent;
 		transform.parent = null;
-		ignoreAvatarId = new HashSet<int> { MVGameControllerBase.WOCM.AvatarLocal.Id };
+		ignoreAvatarId = new HashSet<int> { avatarLocal.Id };
 		targetRotation.SetTargetRotation(initialYRotation, 0f);
 		Quaternion rotation = transform.rotation;
 		rotation.eulerAngles = targetRotation.EulerAngles;
@@ -73,7 +81,7 @@ public class AndroidVehicleCamera : MVCameraBase, IVehicleCamera
 		UpdateTargetRotation();
 		HandlePos();
 		HandleCollision();
-		targetTransform.position = cameraShake.Shake(transform.position, MVGameControllerBase.WOCM.AvatarLocal.VelocityRelative.magnitude);
+		targetTransform.position = cameraShake.Shake(transform.position, avatarLocal.VelocityRelative.magnitude);
 		targetTransform.rotation = transform.rotation * Quaternion.Euler(localPitch, 0f, 0f);
 	}
 

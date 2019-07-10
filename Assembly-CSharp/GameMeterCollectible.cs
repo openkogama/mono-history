@@ -16,9 +16,8 @@ public class GameMeterCollectible : GameMeterBase
 
 	public override GameMeterType GameMeterType => GameMeterType.Collectibles;
 
-	private void Start()
+	public override void Initialize()
 	{
-		SetGameMeterVisibility();
 		MVGameControllerBase.Game.WinningConditionManager.OnWinningConditionReset += OnVictoryConditionMet;
 	}
 

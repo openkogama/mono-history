@@ -617,7 +617,7 @@ public class GameTierProgressBar : MonoBehaviour
 	private void CreateAvatarHeadImages()
 	{
 		headPreviewer = UnityEngine.Object.Instantiate(previewer);
-		MVCubeModelInstance bodyPart = MVGameControllerBase.WOCM.AvatarLocal.Body.GetBodyPart("Head");
+		MVCubeModelInstance bodyPart = MVGameControllerBase.LocalPlayer.Body.GetBodyPart("Head");
 		GameObject gameObject = UnityEngine.Object.Instantiate(bodyPart.GameObject);
 		gameObject.SetLayerRecursively(LayerUtil.GetLayerNumber(LayerFlags.Preview));
 		MeshRenderer[] componentsInChildren = gameObject.GetComponentsInChildren<MeshRenderer>();

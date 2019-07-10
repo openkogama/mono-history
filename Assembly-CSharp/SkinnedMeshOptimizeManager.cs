@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SkinnedMeshOptimizeManager : MonoBehaviour
+public class SkinnedMeshOptimizeManager : IUpdatecontrollerSubscriberUpdate, IUpdatecontrollerSubscriberBase
 {
 	public struct SkinnedMeshOptimizationData
 	{
@@ -16,6 +16,10 @@ public class SkinnedMeshOptimizeManager : MonoBehaviour
 
 	public void AddOptimizationData(SkinnedMeshOptimizationData optimizationData)
 	{
+		if (optimizationDataList.Count == 0)
+		{
+			UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
+		}
 		optimizationDataList.Add(optimizationData);
 	}
 
@@ -25,9 +29,13 @@ public class SkinnedMeshOptimizeManager : MonoBehaviour
 		{
 			optimizationDataList.Remove(optimizationData);
 		}
+		if (optimizationDataList.Count == 0)
+		{
+			UpdateController.RemoveUpdateObject(this);
+		}
 	}
 
-	private void Update()
+	public void UpdateControllerUpdate()
 	{
 		if (optimizationDataList.Count <= 0)
 		{
@@ -85,13 +93,17 @@ public class SkinnedMeshOptimizeManager : MonoBehaviour
 		}
 	}
 
+	public void UpdateControllerFixedUpdate()
+	{
+	}
+
 	private bool IsNewMeshCloser(SkinnedMeshOptimizationData newMesh, List<SkinnedMeshOptimizationData> oldMeshes, out int index)
 	{
 		index = -1;
-		float sqrMagnitude = (newMesh.skinnedMesh[0].transform.position - MVGameControllerBase.WOCM.AvatarLocal.Transform.position).sqrMagnitude;
+		float sqrMagnitude = (newMesh.skinnedMesh[0].transform.position - MVGameControllerBase.SpawnRoleDataMediatorLocal.Position).sqrMagnitude;
 		for (int i = 0; i < oldMeshes.Count; i++)
 		{
-			float sqrMagnitude2 = (oldMeshes[i].skinnedMesh[0].transform.position - MVGameControllerBase.WOCM.AvatarLocal.Transform.position).sqrMagnitude;
+			float sqrMagnitude2 = (oldMeshes[i].skinnedMesh[0].transform.position - MVGameControllerBase.SpawnRoleDataMediatorLocal.Position).sqrMagnitude;
 			if (sqrMagnitude < sqrMagnitude2)
 			{
 				index = i;

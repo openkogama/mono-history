@@ -45,36 +45,43 @@ public class JetPackCamera : MVCameraBase
 
 	private const float rotationSmoothTimeMouseControlled = 0.1f;
 
+	protected MVBuildModeAvatarLocal avatarLocal;
+
 	private const string mouseX = "Mouse X";
 
 	private const string mouseY = "Mouse Y";
 
 	public override CameraType CameraType => CameraType.EditorCamera;
 
+	public virtual void Initialize(MVBuildModeAvatarLocal avatarLocal)
+	{
+		this.avatarLocal = avatarLocal;
+	}
+
 	public override void Enter(MVCameraController camController)
 	{
-		lookAtTransform = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform;
+		lookAtTransform = avatarLocal.GameObject.transform;
 		lookAtOffset = 2f * Vector3.up;
 		transform.position = lookAtTransform.position + lookAtOffset;
-		xAxis = (xAxisTarget = camController.transform.eulerAngles.x);
-		yAxis = (yAxisTarget = camController.transform.eulerAngles.y);
+		xAxis = (xAxisTarget = MVGameControllerBase.MainCameraManager.transform.eulerAngles.x);
+		yAxis = (yAxisTarget = MVGameControllerBase.MainCameraManager.transform.eulerAngles.y);
 		mainCamera = Camera.main;
-		ResetRotationToTargetTransform(camController);
+		ResetRotationToTargetTransform();
 	}
 
 	public override void Reset()
 	{
 		base.Reset();
 		Vector3 eulerAngles = transform.eulerAngles;
-		eulerAngles.y = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform.eulerAngles.y;
+		eulerAngles.y = avatarLocal.GameObject.transform.eulerAngles.y;
 		yAxis = (yAxisTarget = eulerAngles.y);
 		xAxis = (xAxisTarget = eulerAngles.x);
 		transform.eulerAngles = eulerAngles;
 	}
 
-	private void ResetRotationToTargetTransform(MVCameraController camController)
+	private void ResetRotationToTargetTransform()
 	{
-		Vector3 eulerAngles = camController.transform.eulerAngles;
+		Vector3 eulerAngles = MVGameControllerBase.MainCameraManager.transform.eulerAngles;
 		transform.eulerAngles = eulerAngles;
 	}
 
@@ -124,27 +131,26 @@ public class JetPackCamera : MVCameraBase
 		float num3 = num / Mathf.Tan(num2 * ((float)Math.PI / 180f));
 		float num4 = num3;
 		Vector3 worldPivot = wo.WorldPivot;
-		Transform transform = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform;
+		Transform transform = avatarLocal.GameObject.transform;
 		Vector3 vector = worldPivot - (transform.position + lookAtOffset);
 		Vector3 position = transform.position;
 		position += vector.normalized * (vector.magnitude - num4) + avatarOffset;
 		transform.position = position;
 		SetToPosition(transform.position);
 		LookAt(worldPivot);
-		MVGameControllerBase.CameraController.StartTransitionCam(transitionTime, soft: true);
+		MVGameControllerBase.MainCameraManager.StartTransitionCam(transitionTime, soft: true);
 	}
 
 	public void FocusOnPointFromAvatarPosition(Vector3 focusPoint, Vector3 avatarPosition)
 	{
-		MVGameControllerBase.WOCM.AvatarLocal.Transform.position = GetLookAtAvatarPosition(avatarPosition);
-		SetToPosition(MVGameControllerBase.WOCM.AvatarLocal.Transform.position);
+		avatarLocal.Transform.position = GetLookAtAvatarPosition(avatarPosition);
+		SetToPosition(avatarLocal.Transform.position);
 		LookAt(focusPoint);
 	}
 
 	public void ResetDistanceAndDirectionToAvatar(Vector3 lookAtPosition)
 	{
 		MVSpawnPointBlue mVSpawnPointBlue = (MVSpawnPointBlue)MVGameControllerBase.WOCM.GetWorldObjectClientWhere((MVWorldObjectClient wo) => wo is MVSpawnPointBlue);
-		MVAvatarLocal avatarLocal = MVGameControllerBase.WOCM.AvatarLocal;
 		float magnitude = (mVSpawnPointBlue.WorldPosition - lookAtPosition).magnitude;
 		Vector3 vector = avatarLocal.WorldPosition - lookAtPosition;
 		vector.y = 0f;
@@ -156,10 +162,10 @@ public class JetPackCamera : MVCameraBase
 
 	public void FocusOnPosition(Vector3 lookAtPosition, float transitionTime = 2f)
 	{
-		Transform transform = MVGameControllerBase.WOCM.AvatarLocal.GameObject.transform;
+		Transform transform = avatarLocal.GameObject.transform;
 		SetToPosition(transform.position);
 		LookAt(lookAtPosition);
-		MVGameControllerBase.CameraController.StartTransitionCam(transitionTime, soft: true);
+		MVGameControllerBase.MainCameraManager.StartTransitionCam(transitionTime, soft: true);
 	}
 
 	private void SetToPosition(Vector3 position)

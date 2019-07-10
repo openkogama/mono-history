@@ -13,10 +13,13 @@ public class UseInteractorHandler : MVComponent
 
 	private MVInteractableBase interactionBase;
 
+	private int ownerWoId = -1;
+
 	private const UseGUIResult useGui = UseGUIResult.NoUseButton | UseGUIResult.NoCost | UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
-	public void Init(Collider triggingCollider)
+	public void Init(int ownerWoId, Collider triggingCollider)
 	{
+		this.ownerWoId = ownerWoId;
 		this.triggingCollider = triggingCollider;
 		interactionBase = gameObject.GetComponent<MVInteractableBase>();
 	}
@@ -67,7 +70,7 @@ public class UseInteractorHandler : MVComponent
 
 	private void UpdateUseVisuals()
 	{
-		if (!MVGameControllerBase.WOCM.AvatarLocal.IsInMode(AvatarModeTypes.Playing))
+		if (!MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Playing))
 		{
 			return;
 		}
@@ -77,7 +80,7 @@ public class UseInteractorHandler : MVComponent
 		if (useInteractors.Count > 0)
 		{
 			UseInteractor useInteractor = SortByDistance()[0];
-			if (useInteractor.GetInteractorCanBeUsed(interactionBase))
+			if (useInteractor.GetInteractorCanBeUsed(ownerWoId, interactionBase))
 			{
 				option = useInteractor.GetGUIShowOptions();
 				if ((useInteractor.EvaluateRequirementsUsability() & (UseGUIResult.NoUseButton | UseGUIResult.NoCost | UseGUIResult.CanAfford | UseGUIResult.CannotAfford)) > UseGUIResult.NoUseButton)
@@ -115,7 +118,7 @@ public class UseInteractorHandler : MVComponent
 		List<UseInteractor> list = SortByDistance();
 		foreach (UseInteractor item in list)
 		{
-			if (item.GetInteractorCanBeUsed(interactionBase) && item.Use(worldObjectParent.Id))
+			if (item.GetInteractorCanBeUsed(ownerWoId, interactionBase) && item.Use(worldObjectParent.Id))
 			{
 				item.PayUseCost();
 				useInteractor = item;

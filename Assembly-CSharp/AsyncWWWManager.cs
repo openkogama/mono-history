@@ -40,13 +40,17 @@ public static class AsyncWWWManager
 		}
 	}
 
-	private static int retries = 3;
-
-	public static readonly int[] RetryTimeouts = new int[3] { 30, 20, 10 };
-
 	private const int quitTimeOut = 5000;
 
 	private const int maxRequests = 4;
+
+	private static readonly HashSet<AsyncWebRequest> activeRequests = new HashSet<AsyncWebRequest>();
+
+	private static readonly TemporaryHashSet<AsyncWebRequest> tempHashSet = new TemporaryHashSet<AsyncWebRequest>();
+
+	private static int retries = 3;
+
+	public static readonly int[] RetryTimeouts = new int[3] { 30, 20, 10 };
 
 	private static Action quitCallback;
 
@@ -70,13 +74,7 @@ public static class AsyncWWWManager
 		}
 	};
 
-	private static readonly HashSet<AsyncWebRequest> activeRequests = new HashSet<AsyncWebRequest>();
-
-	private static readonly TemporaryHashSet<AsyncWebRequest> tempHashSet = new TemporaryHashSet<AsyncWebRequest>();
-
 	private static Cache cache = new Cache();
-
-	private static bool isBackgroundUpdate = false;
 
 	public static int Retries => retries;
 
@@ -133,22 +131,48 @@ public static class AsyncWWWManager
 
 	public static void BackgroundUpdate()
 	{
-		isBackgroundUpdate = true;
 		AddRequestsToActiveRequests(requests[WWWRequestPriority.ExecuteIgnoreAllConstraints], int.MaxValue);
 		AddRequestsToActiveRequests(requests[WWWRequestPriority.ExecuteWhileSyncronizing], 4);
-		InternalUpdate();
+		using TemporaryHashSet<AsyncWebRequest> temporaryHashSet = tempHashSet;
+		foreach (AsyncWebRequest activeRequest in activeRequests)
+		{
+			if (activeRequest.requestPriority != WWWRequestPriority.WaitUntilSyncronizingIsDone && activeRequest.Update())
+			{
+				temporaryHashSet.Add(activeRequest);
+			}
+		}
+		foreach (AsyncWebRequest item in temporaryHashSet)
+		{
+			activeRequests.Remove(item);
+		}
 	}
 
 	public static void Update()
 	{
-		isBackgroundUpdate = false;
 		AddRequestsToActiveRequests(requests[WWWRequestPriority.ExecuteIgnoreAllConstraints], int.MaxValue);
 		AddRequestsToActiveRequests(requests[WWWRequestPriority.ExecuteWhileSyncronizing], 4);
 		if (MVGameControllerBase.JoinState == MVJoinState.Playing)
 		{
 			AddRequestsToActiveRequests(requests[WWWRequestPriority.WaitUntilSyncronizingIsDone], 4);
 		}
-		InternalUpdate();
+		using (TemporaryHashSet<AsyncWebRequest> temporaryHashSet = tempHashSet)
+		{
+			foreach (AsyncWebRequest activeRequest in activeRequests)
+			{
+				if (activeRequest.Update())
+				{
+					temporaryHashSet.Add(activeRequest);
+				}
+			}
+			foreach (AsyncWebRequest item in temporaryHashSet)
+			{
+				activeRequests.Remove(item);
+			}
+		}
+		if (isQuiting)
+		{
+			Quit();
+		}
 	}
 
 	public static void Reset()
@@ -178,31 +202,6 @@ public static class AsyncWWWManager
 		}
 	}
 
-	private static void InternalUpdate()
-	{
-		UpdateActiveRequests();
-		if (isQuiting)
-		{
-			Quit();
-		}
-	}
-
-	private static void UpdateActiveRequests()
-	{
-		using TemporaryHashSet<AsyncWebRequest> temporaryHashSet = tempHashSet;
-		foreach (AsyncWebRequest activeRequest in activeRequests)
-		{
-			if ((activeRequest.requestPriority != WWWRequestPriority.WaitUntilSyncronizingIsDone || !isBackgroundUpdate) && activeRequest.Update())
-			{
-				temporaryHashSet.Add(activeRequest);
-			}
-		}
-		foreach (AsyncWebRequest item in temporaryHashSet)
-		{
-			activeRequests.Remove(item);
-		}
-	}
-
 	private static void Unsubscribe(AsyncWebRequest request, Action<WWW> callback)
 	{
 		if (request.Callback == callback)
@@ -225,13 +224,13 @@ public static class AsyncWWWManager
 		{
 			if (activeRequests.Count == 0)
 			{
-				Debug.Log("AsyncWWWManager did handle all request on quit: " + true);
+				Debug.Log("AsyncWWWManager successfully handled all request on quit.");
 				quitCallback();
 				quitCallback = null;
 			}
 			else if (WaitForTicksLocal.Diff(quitTime) > 5000)
 			{
-				Debug.Log("AsyncWWWManager did handle all request on quit: " + false);
+				Debug.Log("AsyncWWWManager failed to handle all request on quit.");
 				quitCallback();
 				quitCallback = null;
 			}

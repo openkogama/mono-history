@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,8 +14,6 @@ public class AvatarBlinker : BlinkerBase
 	public Color blinkHealingColor = new Color(233f, 249f, 9f);
 
 	public Color blinkShieldColor = new Color(25f, 25f, 112f);
-
-	private MVAvatar mvAvatar;
 
 	private float previousBlinkHealth = 100f;
 
@@ -53,22 +50,14 @@ public class AvatarBlinker : BlinkerBase
 		};
 	}
 
-	public void Attach(MVAvatar mvAvatar)
+	public void EnableBlinking()
 	{
-		this.mvAvatar = mvAvatar;
-		MVRuntimeDataVariableClampedFloat health = mvAvatar.Health;
-		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(HealthChangeHandler));
-		MVRuntimeDataVariableClampedFloat shield = mvAvatar.Shield;
-		shield.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(shield.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(ShieldChangeHandler));
+		visible = true;
 	}
 
-	public void Detach()
+	public void DisableBlinking()
 	{
 		visible = false;
-		MVRuntimeDataVariableClampedFloat health = mvAvatar.Health;
-		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Remove(health.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(HealthChangeHandler));
-		MVRuntimeDataVariableClampedFloat shield = mvAvatar.Shield;
-		shield.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Remove(shield.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(ShieldChangeHandler));
 	}
 
 	public void HealthChangeHandler(object v)
@@ -96,11 +85,7 @@ public class AvatarBlinker : BlinkerBase
 
 	private void HandleDamageBlinking(float previousValue, float currentValue, BlinkType blinkType)
 	{
-		if (mvAvatar.CurrentPickup.IsInFirstPersonMode && mvAvatar.Avatar.IsLocal)
-		{
-			StopBlinking(blinkType);
-		}
-		else if (currentValue < previousValue)
+		if (currentValue < previousValue)
 		{
 			StartBlinking(blinkType, 0.5f);
 		}

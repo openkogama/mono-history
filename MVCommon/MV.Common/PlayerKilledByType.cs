@@ -23,7 +23,5 @@ public enum PlayerKilledByType : byte
 	DoubleSixShooter,
 	ThrowingStar,
 	MultiThrowingStar,
-	GodzillaLaser,
-	KillZone,
 	SlapGun
 }

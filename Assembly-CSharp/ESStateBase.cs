@@ -68,7 +68,7 @@ public class ESStateBase : IState
 			return false;
 		}
 		MVWorldObjectClient worldObjectClientRoot = MVGameControllerBase.WOCM.GetWorldObjectClientRoot(woId);
-		if (!MVGameControllerBase.CameraController.IsLogicRendered && worldObjectClientRoot != null)
+		if (!MVGameControllerBase.MainCameraManager.IsLogicRendered && worldObjectClientRoot != null)
 		{
 			int layerNumber = LayerUtil.GetLayerNumber(LayerFlags.Default);
 			if (worldObjectClientRoot.GameObject.layer == layerNumber)

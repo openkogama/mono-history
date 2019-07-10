@@ -61,17 +61,8 @@ public class VehicleSeatBase : MonoBehaviour
 			Debug.LogWarning("Camera is null");
 			return;
 		}
-		switch (MVGameControllerBase.Game.GameType)
-		{
-		case MVGameType.Classic:
-			MVGameControllerBase.CameraController.PushCamera(seatCamera);
-			break;
-		case MVGameType.Platformer:
-			break;
-		default:
-			MVGameControllerBase.CameraController.PushCamera(seatCamera);
-			break;
-		}
+		((IVehicleCamera)seatCamera).Initialize((MVAvatarLocal)Owner);
+		((AvatarLocal)Owner.Avatar).CameraController.PushCamera(seatCamera);
 	}
 
 	public virtual void RemoveCamera()
@@ -79,18 +70,10 @@ public class VehicleSeatBase : MonoBehaviour
 		if (seatCamera == null)
 		{
 			Debug.LogWarning("Camera is null");
-			return;
 		}
-		switch (MVGameControllerBase.Game.GameType)
+		else
 		{
-		case MVGameType.Classic:
-			MVGameControllerBase.CameraController.RemoveCamera(seatCamera);
-			break;
-		case MVGameType.Platformer:
-			break;
-		default:
-			MVGameControllerBase.CameraController.RemoveCamera(seatCamera);
-			break;
+			((AvatarLocal)Owner.Avatar).CameraController.RemoveCamera(seatCamera);
 		}
 	}
 

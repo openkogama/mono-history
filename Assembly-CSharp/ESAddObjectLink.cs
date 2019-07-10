@@ -20,7 +20,7 @@ internal class ESAddObjectLink : ESStateBase
 		if (singleSelectedWO.SelectedConnector == SelectedConnector.Object)
 		{
 			tempLink.objectConnectorWOID = esm.SingleSelectedWO.Id;
-			MVGameControllerBase.CameraController.LineDrawManager.SetTempObjectLink(tempLink);
+			MVGameControllerBase.MainCameraManager.LineDrawManager.SetTempObjectLink(tempLink);
 			woRef = MVGameControllerBase.WOCM.GetWorldObjectClientRef(singleSelectedWO.Id);
 		}
 		else
@@ -73,7 +73,7 @@ internal class ESAddObjectLink : ESStateBase
 
 	public override void Exit(EditorStateMachine esm)
 	{
-		MVGameControllerBase.CameraController.LineDrawManager.SetTempObjectLink(null);
+		MVGameControllerBase.MainCameraManager.LineDrawManager.SetTempObjectLink(null);
 	}
 
 	private bool DoAddLink()

@@ -8,9 +8,8 @@ public class GameMeterOculus : GameMeterKillBase
 
 	public override GameMeterType GameMeterType => GameMeterType.OculusKills;
 
-	private void Start()
+	public override void Initialize()
 	{
-		SetGameMeterVisibility();
 		MVGameControllerBase.Game.WinningConditionManager.OnWinningConditionReset += OnVictoryConditionMet;
 	}
 

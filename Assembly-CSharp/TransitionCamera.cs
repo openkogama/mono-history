@@ -20,11 +20,11 @@ public class TransitionCamera : MVCameraBase
 
 	public override CameraType CameraType => CameraType.TransitionCamera;
 
-	public void InitTransition(MVCameraController camController, Transform targetCameraTransform, float transitionTime = 2f, bool soft = false)
+	public void InitTransition(Transform targetCameraTransform, float transitionTime = 2f, bool soft = false)
 	{
-		prevCameraPosition = camController.transform.position;
-		prevCameraRotation = camController.transform.localRotation;
-		fieldOfView = camController.FieldOfView;
+		prevCameraPosition = MVGameControllerBase.MainCameraManager.transform.position;
+		prevCameraRotation = MVGameControllerBase.MainCameraManager.transform.localRotation;
+		fieldOfView = MVGameControllerBase.MainCameraManager.FieldOfView;
 		transform.position = prevCameraPosition;
 		transform.localRotation = prevCameraRotation;
 		time = transitionTime;
@@ -60,7 +60,7 @@ public class TransitionCamera : MVCameraBase
 				transform.position = Vector3.Slerp(prevCameraPosition, camController.CurCamera.transform.position, transitionPercentage);
 				transform.localRotation = quaternion4 * quaternion3;
 			}
-			camController.FieldOfView = Mathf.Lerp(FieldOfView, camController.CurCamera.FieldOfView, transitionPercentage);
+			MVGameControllerBase.MainCameraManager.FieldOfView = Mathf.Lerp(FieldOfView, camController.CurCamera.FieldOfView, transitionPercentage);
 			base.UpdateCamera(camController, targetTransform);
 		}
 	}

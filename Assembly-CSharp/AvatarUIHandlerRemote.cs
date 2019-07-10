@@ -1,3 +1,4 @@
+using System;
 using MV.Common;
 using MV.WorldObject;
 using MV.WorldObject.Subscription;
@@ -106,20 +107,24 @@ public class AvatarUIHandlerRemote : AvatarUIHandler
 		shouldShowMobileIcon = true;
 	}
 
-	public override void Initialize(bool isLocal, MVAvatar mvAvatar)
+	public override void Initialize(bool isLocal, MVWorldObjectClient wo, int ownerActorNr, ChatAnchor chatBubbleAnchor)
 	{
-		base.Initialize(isLocal, mvAvatar);
-		avatarBadge.Initialize(mvAvatar.OwnerActorNr);
+		base.Initialize(isLocal, wo, ownerActorNr, chatBubbleAnchor);
+		avatarBadge.Initialize(ownerActorNr);
 		cullingSubscriberBase = new CullingSubscriberBase(0.5f, teamIconRenderer.transform.position, OnStateChanged);
 		teamIcon.gameObject.SetActive(value: true);
 		avatarNameMaterial = avatarName.GetComponent<Renderer>().material;
 		avatarHealthMaterial = healthBarRenderer.material;
 		avatarShieldMaterial = shieldBarRenderer.material;
-		MVPlayer playerUnsafe = MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(mvAvatar.OwnerActorNr);
+		sayChatBubbleHandler.Initialize(ownerActorNr, chatBubbleAnchor);
+		MVPlayer playerUnsafe = MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(ownerActorNr);
 		if (playerUnsafe != null)
 		{
 			memberFrame.SetActive(playerUnsafe.SubscriptionRules.HasBenefit(SubscriptionBenefit.XPBoost));
 		}
+		UpdateNameTag();
+		UpdateHealthBarColor();
+		ChatCommandManager.UpdateChatCommandCallback(ChatCommand.HideAllUI, (Action)Delegate.Combine(ChatCommandManager.GetChatCommandCallback(ChatCommand.HideAllUI), new Action(HideUI)));
 	}
 
 	public override void SetShouldShowUI(bool shouldShow)
@@ -140,6 +145,18 @@ public class AvatarUIHandlerRemote : AvatarUIHandler
 		teamIcon.gameObject.SetActive(shouldShow);
 	}
 
+	public override void Activate()
+	{
+		base.Activate();
+		sayChatBubbleHandler.Activate();
+	}
+
+	public override void Deactivate()
+	{
+		base.Deactivate();
+		sayChatBubbleHandler.Deactivate();
+	}
+
 	public override void OnPositionChanged(MVWorldObjectClient arg0, PositionChangedEventArgs positionChangedEventArgs)
 	{
 		cullingSubscriberBase.Position = teamIconRenderer.transform.position;
@@ -147,6 +164,13 @@ public class AvatarUIHandlerRemote : AvatarUIHandler
 	}
 
 	public override void HandleTeamChange()
+	{
+		UpdateNameTag();
+		UpdateHealthBarColor();
+		base.HandleTeamChange();
+	}
+
+	public void UpdateHealthBarColor()
 	{
 		if (IsOnSameTeamAsLocalAvatar())
 		{
@@ -156,12 +180,15 @@ public class AvatarUIHandlerRemote : AvatarUIHandler
 		{
 			SetHealthBarColor(isFriendly: false);
 		}
-		base.HandleTeamChange();
 	}
 
 	public void UpdateNameTag()
 	{
-		MVPlayer playerUnsafe = MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(mvAvatar.OwnerActorNr);
+		if (!MVGameControllerBase.Game.MVPlayerContainer.ContainsKey(ownerActorNr))
+		{
+			return;
+		}
+		MVPlayer playerUnsafe = MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(ownerActorNr);
 		avatarName.text = playerUnsafe.UserProfileData.UserName;
 		Color color = Color.white;
 		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
@@ -181,10 +208,6 @@ public class AvatarUIHandlerRemote : AvatarUIHandler
 				color = Color.yellow;
 				break;
 			}
-		}
-		if (MVGameControllerBase.WOCM.AvatarLocal != null)
-		{
-			SetHealthBarColor(MVGameControllerBase.Game.TeamManager.IsOnSameTeam(mvAvatar, MVGameControllerBase.Game.LocalPlayer.Avatar));
 		}
 		avatarNameMaterial.color = color;
 	}
@@ -215,11 +238,16 @@ public class AvatarUIHandlerRemote : AvatarUIHandler
 
 	private bool IsOnSameTeamAsLocalAvatar()
 	{
-		if (MVGameControllerBase.Game.TeamManager.IsOnSameTeam(mvAvatar, MVGameControllerBase.Game.LocalPlayer.Avatar))
+		if (MVGameControllerBase.Game.LocalPlayer.IsOnSameTeam(worldObject))
 		{
 			return true;
 		}
 		return false;
+	}
+
+	private void HideUI()
+	{
+		SetShouldShowUI(shouldShow: false);
 	}
 
 	protected override void OnDestroy()
@@ -229,8 +257,9 @@ public class AvatarUIHandlerRemote : AvatarUIHandler
 			cullingSubscriberBase.Destroy();
 			cullingSubscriberBase = null;
 		}
-		Object.Destroy(avatarNameMaterial);
-		Object.Destroy(avatarHealthMaterial);
+		UnityEngine.Object.Destroy(avatarNameMaterial);
+		UnityEngine.Object.Destroy(avatarHealthMaterial);
+		ChatCommandManager.UpdateChatCommandCallback(ChatCommand.HideAllUI, (Action)Delegate.Remove(ChatCommandManager.GetChatCommandCallback(ChatCommand.HideAllUI), new Action(HideUI)));
 		base.OnDestroy();
 	}
 }

@@ -1,22 +1,22 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
 
 public class CloseApp : MonoBehaviour
 {
 	public void Close()
 	{
+		UnityAction<bool, ConfirmationPopup> quit = (bool confirmation, ConfirmationPopup popup) =>
+		{
+			if (confirmation)
+			{
+				MVGameControllerBase.ApplicationQuit(null);
+			}
+			popup.Pop();
+		};
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 		{
-			x.Create(TM._("Quit game?"), Callback, string.Empty);
+			x.Create(TM._("Quit game?"), quit, string.Empty);
 		});
-	}
-
-	private void Callback(bool wantToQuit, ConfirmationPopup confirmationPopup)
-	{
-		if (wantToQuit)
-		{
-			MVGameControllerBase.ApplicationQuit(null);
-		}
-		confirmationPopup.Pop();
 	}
 }

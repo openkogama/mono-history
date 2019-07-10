@@ -36,13 +36,13 @@ public class PickupItemCenterGun : PickupItemWithDelay
 
 	private void Awake()
 	{
-		currentAmmo = maxAmmo;
+		ResetAmmo();
 	}
 
 	public override void ResetAmmo()
 	{
 		base.ResetAmmo();
-		currentAmmo = maxAmmo;
+		currentAmmo = GetAmmoMultiplier(maxAmmo);
 	}
 
 	public override void TriggerBegin(int instigatorActorNr)
@@ -93,7 +93,7 @@ public class PickupItemCenterGun : PickupItemWithDelay
 		if (worldObjectClient != null)
 		{
 			InteractionDataHandlerBase interactionDataHandlerBase = worldObjectClient.InteractionDataHandlerBase;
-			if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(worldObjectClient, MVGameControllerBase.Game.LocalPlayer.Avatar))
+			if (interactionDataHandlerBase != null && !MVGameControllerBase.Game.LocalPlayer.IsOnSameTeam(worldObjectClient))
 			{
 				InteractionData interaction = CenterGunHitPackage.Create(lineOfFire.direction * impulseStrength);
 				interactionDataHandlerBase.HandleInteraction(owner, interaction, interactionIsLocal: false);

@@ -8,8 +8,12 @@ public static class RuntimeVariablesRepository
 	private static Dictionary<WorldObjectType, Dictionary<object, object>> runtimeVariables = new Dictionary<WorldObjectType, Dictionary<object, object>>
 	{
 		{
-			WorldObjectType.Avatar,
+			WorldObjectType.PlayModeAvatar,
 			AvatarRuntimeData()
+		},
+		{
+			WorldObjectType.BuildModeAvatar,
+			BuildModeAvatarRuntimeData()
 		},
 		{
 			WorldObjectType.HoverCraft,
@@ -36,10 +40,6 @@ public static class RuntimeVariablesRepository
 			HamsterWheelRuntimeData()
 		},
 		{
-			WorldObjectType.GodzillaTrigger,
-			GodzillaTriggerRuntimeData()
-		},
-		{
 			WorldObjectType.CollectibleItem,
 			CollectibleRuntimeData()
 		}
@@ -63,6 +63,7 @@ public static class RuntimeVariablesRepository
 	{
 		Dictionary<object, object> dictionary = new Dictionary<object, object>();
 		dictionary.Add("health", 100f);
+		dictionary.Add("maxHealth", 100f);
 		dictionary.Add("shield", 0f);
 		dictionary.Add("isFiring", false);
 		dictionary.Add("modifiers", new Dictionary<object, object>());
@@ -70,7 +71,29 @@ public static class RuntimeVariablesRepository
 		dictionary.Add("lineOfFire", new Dictionary<object, object>());
 		dictionary.Add("invulnerable", false);
 		dictionary.Add("seat", -1);
-		dictionary.Add("avatarModeTypes", 4);
+		dictionary.Add("spawnRoleModeType", 4);
+		dictionary.Add("headRotationYaw", 0f);
+		dictionary.Add("headRotationPitch", 0f);
+		dictionary.Add("pointRotationYaw", 0f);
+		dictionary.Add("pointRotationPitch", 0f);
+		dictionary.Add("emote", 0);
+		Dictionary<object, object> dictionary2 = new Dictionary<object, object>();
+		dictionary2.Add("state", "Idle");
+		dictionary2.Add("timeStamp", 0);
+		Dictionary<object, object> value = dictionary2;
+		dictionary.Add("animation", value);
+		return dictionary;
+	}
+
+	private static Dictionary<object, object> BuildModeAvatarRuntimeData()
+	{
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add("currentItem", new Dictionary<object, object> { { "type", 5 } });
+		dictionary.Add("headRotationYaw", 0f);
+		dictionary.Add("headRotationPitch", 0f);
+		dictionary.Add("pointRotationYaw", 0f);
+		dictionary.Add("pointRotationPitch", 0f);
+		dictionary.Add("emote", 0);
 		Dictionary<object, object> dictionary2 = new Dictionary<object, object>();
 		dictionary2.Add("state", "Idle");
 		dictionary2.Add("timeStamp", 0);
@@ -144,13 +167,6 @@ public static class RuntimeVariablesRepository
 		Dictionary<object, object> dictionary = new Dictionary<object, object>();
 		dictionary.Add("health", 300f);
 		dictionary.Add("shield", 0f);
-		return dictionary;
-	}
-
-	private static Dictionary<object, object> GodzillaTriggerRuntimeData()
-	{
-		Dictionary<object, object> dictionary = new Dictionary<object, object>();
-		dictionary.Add("occupantWOID", -1);
 		return dictionary;
 	}
 

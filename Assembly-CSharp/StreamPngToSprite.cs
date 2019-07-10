@@ -42,9 +42,10 @@ public class StreamPngToSprite : MonoBehaviour
 	private void StreamingTextureLoaded(WWW www)
 	{
 		currentlyDownloading = false;
-		if (www != null && www.texture != null && string.IsNullOrEmpty(www.error))
+		Texture2D texture = www.texture;
+		if (texture != null && string.IsNullOrEmpty(www.error))
 		{
-			SetImageTexture(www.texture);
+			SetImageTexture(texture);
 			if (OnDownloadFinish != null)
 			{
 				OnDownloadFinish();

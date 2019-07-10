@@ -14,19 +14,9 @@ public class MVWorldInventory
 
 	private const int numberOfLowPriorityMeshGenerations = 1;
 
-	private int fineGrainedTerrainPrototypeID = -1;
-
 	public OnWorldInventoryChangeDelegate OnWorldInventoryChange;
 
 	public Dictionary<int, RuntimePrototypeCubeModel> RuntimePrototypes => runtimePrototypes;
-
-	public int FineGrainedTerrainPrototypeID
-	{
-		set
-		{
-			fineGrainedTerrainPrototypeID = value;
-		}
-	}
 
 	public void AddRuntimePrototypeToDirty(RuntimePrototypeCubeModel rpcm)
 	{
@@ -86,7 +76,7 @@ public class MVWorldInventory
 		float scale = (float)data[PrototypeDataParameters.Scale];
 		int authorProfileId = (int)data[PrototypeDataParameters.AuthorProfileId];
 		byte[] data2 = (byte[])data[PrototypeDataParameters.Data];
-		RuntimePrototypeCubeModel value = ((num == fineGrainedTerrainPrototypeID) ? new RuntimePrototypeCubeModel(num, authorProfileId, scale, data2, 16) : new RuntimePrototypeCubeModel(num, authorProfileId, scale, data2));
+		RuntimePrototypeCubeModel value = new RuntimePrototypeCubeModel(num, authorProfileId, scale, data2);
 		runtimePrototypes.Add(num, value);
 		NotifyWorldInventoryChange();
 	}

@@ -21,7 +21,7 @@ public class ObjectLinks
 
 	public void Update()
 	{
-		if (MVGameControllerBase.GameMode != MVGameMode.Edit || !MVGameControllerBase.CameraController.IsLogicRendered)
+		if (MVGameControllerBase.GameMode != MVGameMode.Edit || !MVGameControllerBase.MainCameraManager.IsLogicRendered)
 		{
 			return;
 		}

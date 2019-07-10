@@ -524,9 +524,9 @@ public class ThemeSkybox : ThemeComponent
 		}
 	}
 
-	private Skybox Skybox => MVGameControllerBase.CameraController.Skybox;
+	private Skybox Skybox => MVGameControllerBase.MainCameraManager.Skybox;
 
-	private Camera Camera => MVGameControllerBase.CameraController.MainCamera;
+	private Camera Camera => MVGameControllerBase.MainCameraManager.MainCamera;
 
 	protected void Awake()
 	{

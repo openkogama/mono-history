@@ -27,11 +27,7 @@ public class LevelRewardsLobbyState : MonoBehaviour
 
 	private void OnEnable()
 	{
-		if (MVGameControllerBase.WOCM.AvatarLocal.CurrentState != AvatarRuntimeState.Playing && MVGameControllerBase.WOCM.AvatarLocal.CurrentState != AvatarRuntimeState.Dead)
-		{
-			Debug.Log("Do not show any rewards in initial lobby mode on enable.");
-		}
-		else
+		if (MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Playing) || MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Dead))
 		{
 			ShowRewards();
 		}

@@ -14,7 +14,6 @@ public enum MVWorldObjectDocumentationType
 	GrowthPill,
 	MousePill,
 	MouseGun,
-	Colossus,
 	ThrowingStar,
 	MultiThrowingStar,
 	CubeGun,

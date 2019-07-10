@@ -1,8 +1,11 @@
+using System;
 using System.Collections.Generic;
 
 public class MVCameraSettings : MVLogicObject
 {
 	private bool isPreview;
+
+	private bool needToUnsubscribeToSettingsCallback;
 
 	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.CameraSettings;
 
@@ -31,8 +34,16 @@ public class MVCameraSettings : MVLogicObject
 
 	public override void OnDataUpdate()
 	{
-		ICameraSettings settings = MVCameraController.GetSettings(MVGameControllerBase.Game.GameType);
-		settings.UpdateFromCameraSettings(Data);
+		if (MainCameraManager.HasSetting(MVGameControllerBase.Game.GameType))
+		{
+			ICameraSettings settings = MainCameraManager.GetSettings(MVGameControllerBase.Game.GameType);
+			settings.UpdateFromCameraSettings(Data);
+		}
+		else
+		{
+			MainCameraManager.OnCameraSettingAdded = (Action)Delegate.Combine(MainCameraManager.OnCameraSettingAdded, new Action(OnCameraSettingAdded));
+			needToUnsubscribeToSettingsCallback = true;
+		}
 	}
 
 	public override bool IsSingletonObject()
@@ -42,11 +53,25 @@ public class MVCameraSettings : MVLogicObject
 
 	public override void Destroy()
 	{
-		if (!isPreview)
+		if (!isPreview && MainCameraManager.HasSetting(MVGameControllerBase.Game.GameType))
 		{
-			ICameraSettings settings = MVCameraController.GetSettings(MVGameControllerBase.Game.GameType);
+			ICameraSettings settings = MainCameraManager.GetSettings(MVGameControllerBase.Game.GameType);
 			settings.SetDefaultSettings();
 		}
+		if (needToUnsubscribeToSettingsCallback)
+		{
+			MainCameraManager.OnCameraSettingAdded = (Action)Delegate.Remove(MainCameraManager.OnCameraSettingAdded, new Action(OnCameraSettingAdded));
+		}
 		base.Destroy();
+	}
+
+	private void OnCameraSettingAdded()
+	{
+		if (MainCameraManager.HasSetting(MVGameControllerBase.Game.GameType))
+		{
+			ICameraSettings settings = MainCameraManager.GetSettings(MVGameControllerBase.Game.GameType);
+			settings.UpdateFromCameraSettings(Data);
+			needToUnsubscribeToSettingsCallback = false;
+		}
 	}
 }

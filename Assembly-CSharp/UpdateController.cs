@@ -5,27 +5,36 @@ using UnityEngine;
 
 public static class UpdateController
 {
-	private static readonly List<PriorityData>[] updateBuckets = new List<PriorityData>[5]
+	private static readonly List<PriorityDataUpdate>[] updateBuckets = new List<PriorityDataUpdate>[5]
 	{
-		new List<PriorityData>(),
-		new List<PriorityData>(),
-		new List<PriorityData>(),
-		new List<PriorityData>(),
-		new List<PriorityData>()
+		new List<PriorityDataUpdate>(),
+		new List<PriorityDataUpdate>(),
+		new List<PriorityDataUpdate>(),
+		new List<PriorityDataUpdate>(),
+		new List<PriorityDataUpdate>()
 	};
 
-	private static readonly List<PriorityData>[] fixedUpdateBuckets = new List<PriorityData>[5]
+	private static readonly List<PriorityDataFixedUpdate>[] fixedUpdateBuckets = new List<PriorityDataFixedUpdate>[5]
 	{
-		new List<PriorityData>(),
-		new List<PriorityData>(),
-		new List<PriorityData>(),
-		new List<PriorityData>(),
-		new List<PriorityData>()
+		new List<PriorityDataFixedUpdate>(),
+		new List<PriorityDataFixedUpdate>(),
+		new List<PriorityDataFixedUpdate>(),
+		new List<PriorityDataFixedUpdate>(),
+		new List<PriorityDataFixedUpdate>()
 	};
 
-	public static void AddUpdateObject(IUpdatecontrollerSubscriber obj, UpdatePriority priority, int conditionInp = 1)
+	private static readonly List<PriorityDataLateUpdate>[] lateUpdateBuckets = new List<PriorityDataLateUpdate>[5]
 	{
-		PriorityData item = new PriorityData
+		new List<PriorityDataLateUpdate>(),
+		new List<PriorityDataLateUpdate>(),
+		new List<PriorityDataLateUpdate>(),
+		new List<PriorityDataLateUpdate>(),
+		new List<PriorityDataLateUpdate>()
+	};
+
+	public static void AddUpdateObject(IUpdatecontrollerSubscriberUpdate obj, UpdatePriority priority, int conditionInp = 1)
+	{
+		PriorityDataUpdate item = new PriorityDataUpdate
 		{
 			obj = obj,
 			priority = priority,
@@ -34,9 +43,9 @@ public static class UpdateController
 		updateBuckets[(int)priority].Add(item);
 	}
 
-	public static void AddFixedUpdateObject(IUpdatecontrollerSubscriber obj, UpdatePriority priority, int conditionInp = 1)
+	public static void AddFixedUpdateObject(IUpdatecontrollerSubscriberFixedUpdate obj, UpdatePriority priority, int conditionInp = 1)
 	{
-		PriorityData item = new PriorityData
+		PriorityDataFixedUpdate item = new PriorityDataFixedUpdate
 		{
 			obj = obj,
 			priority = priority,
@@ -45,25 +54,38 @@ public static class UpdateController
 		fixedUpdateBuckets[(int)priority].Add(item);
 	}
 
-	public static void RemoveObject(IUpdatecontrollerSubscriber obj)
+	public static void AddLateUpdateObject(IUpdatecontrollerSubscriberLateUpdate obj, UpdatePriority priority, int conditionInp = 1)
 	{
-		RemoveUpdateObject(obj);
-		RemoveFixedUpdateObject(obj);
+		PriorityDataLateUpdate item = new PriorityDataLateUpdate
+		{
+			obj = obj,
+			priority = priority,
+			condition = conditionInp
+		};
+		lateUpdateBuckets[(int)priority].Add(item);
 	}
 
-	public static void RemoveUpdateObject(IUpdatecontrollerSubscriber obj)
+	public static void RemoveUpdateObject(IUpdatecontrollerSubscriberUpdate obj)
 	{
 		for (int i = 0; i < updateBuckets.Length; i++)
 		{
-			updateBuckets[i].RemoveAll((PriorityData x) => x.obj == obj);
+			updateBuckets[i].RemoveAll((PriorityDataUpdate x) => x.obj == obj);
 		}
 	}
 
-	public static void RemoveFixedUpdateObject(IUpdatecontrollerSubscriber obj)
+	public static void RemoveFixedUpdateObject(IUpdatecontrollerSubscriberFixedUpdate obj)
 	{
 		for (int i = 0; i < fixedUpdateBuckets.Length; i++)
 		{
-			fixedUpdateBuckets[i].RemoveAll((PriorityData x) => x.obj == obj);
+			fixedUpdateBuckets[i].RemoveAll((PriorityDataFixedUpdate x) => x.obj == obj);
+		}
+	}
+
+	public static void RemoveLateUpdateObject(IUpdatecontrollerSubscriberLateUpdate obj)
+	{
+		for (int i = 0; i < lateUpdateBuckets.Length; i++)
+		{
+			lateUpdateBuckets[i].RemoveAll((PriorityDataLateUpdate x) => x.obj == obj);
 		}
 	}
 
@@ -76,7 +98,7 @@ public static class UpdateController
 		}
 	}
 
-	private static void UpdateList(int state, List<PriorityData> priorityDatas)
+	private static void UpdateList(int state, List<PriorityDataUpdate> priorityDatas)
 	{
 		for (int i = 0; i < priorityDatas.Count; i++)
 		{
@@ -108,7 +130,7 @@ public static class UpdateController
 		}
 	}
 
-	private static void FixedUpdateList(int state, List<PriorityData> priorityDatas)
+	private static void FixedUpdateList(int state, List<PriorityDataFixedUpdate> priorityDatas)
 	{
 		for (int i = 0; i < priorityDatas.Count; i++)
 		{
@@ -131,6 +153,38 @@ public static class UpdateController
 		}
 	}
 
+	public static void LateUpdate()
+	{
+		int presentState = GetPresentState();
+		for (int i = 0; i < lateUpdateBuckets.Length; i++)
+		{
+			LateUpdateList(presentState, lateUpdateBuckets[i]);
+		}
+	}
+
+	private static void LateUpdateList(int state, List<PriorityDataLateUpdate> priorityDatas)
+	{
+		for (int i = 0; i < priorityDatas.Count; i++)
+		{
+			if ((state & priorityDatas[i].condition) <= 0)
+			{
+				continue;
+			}
+			try
+			{
+				priorityDatas[i].obj.UpdateControllerLateUpdate();
+			}
+			catch (Exception ex)
+			{
+				if (Application.isEditor)
+				{
+					throw ex;
+				}
+				Debug.LogError("Exception in UpdateControllerLateUpdate: " + ex.ToString());
+			}
+		}
+	}
+
 	public static void Clear()
 	{
 		for (int i = 0; i < updateBuckets.Length; i++)
@@ -140,6 +194,10 @@ public static class UpdateController
 		for (int j = 0; j < fixedUpdateBuckets.Length; j++)
 		{
 			fixedUpdateBuckets[j].Clear();
+		}
+		for (int k = 0; k < lateUpdateBuckets.Length; k++)
+		{
+			lateUpdateBuckets[k].Clear();
 		}
 	}
 

@@ -2,13 +2,15 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SessionLocatorPing : IUpdatecontrollerSubscriber
+public class SessionLocatorPing : IUpdatecontrollerSubscriberUpdate, IUpdatecontrollerSubscriberBase
 {
 	private WaitForTicksLocal waitForTicks = new WaitForTicksLocal(0);
 
 	private int pingIntervalInMilliSeconds = 60000;
 
-	private bool pingSend;
+	private bool pingInFlight;
+
+	private bool connectionLost;
 
 	public SessionLocatorPing()
 	{
@@ -17,31 +19,50 @@ public class SessionLocatorPing : IUpdatecontrollerSubscriber
 
 	public void UpdateControllerUpdate()
 	{
-		if (waitForTicks.TimeIsUp && !pingSend)
+		InternalUpdate();
+		if (connectionLost)
 		{
-			pingSend = true;
-			AsyncWWWManager.WWWRequest(new GetRequest(MVGameControllerBase.GameSessionData.pingURL, WWWCallBack, WWWRequestPriority.ExecuteIgnoreAllConstraints));
+			CloseApplication();
 		}
+	}
+
+	public void BackgroundUpdate()
+	{
+		InternalUpdate();
+	}
+
+	public void UpdateControllerFixedUpdate()
+	{
 	}
 
 	public static void LeaveSession()
 	{
-		Debug.Log("LeaveSession");
 		AsyncWWWManager.WWWRequest(new GetRequest(MVGameControllerBase.GameSessionData.disconnectURL, null, WWWRequestPriority.ExecuteIgnoreAllConstraints));
+	}
+
+	private void InternalUpdate()
+	{
+		if (waitForTicks.TimeIsUp && !pingInFlight)
+		{
+			pingInFlight = true;
+			AsyncWWWManager.WWWRequest(new GetRequest(MVGameControllerBase.GameSessionData.pingURL, WWWCallBack, WWWRequestPriority.ExecuteIgnoreAllConstraints));
+		}
 	}
 
 	private void WWWCallBack(WWW result)
 	{
-		if (!string.IsNullOrEmpty(result.error))
+		if (string.IsNullOrEmpty(result.error))
 		{
-			ErrorCallback(result);
-			return;
+			waitForTicks = new WaitForTicksLocal(pingIntervalInMilliSeconds);
+			pingInFlight = false;
 		}
-		waitForTicks = new WaitForTicksLocal(pingIntervalInMilliSeconds);
-		pingSend = false;
+		else
+		{
+			OnPingError(result);
+		}
 	}
 
-	private void ErrorCallback(WWW result)
+	private void OnPingError(WWW result)
 	{
 		try
 		{
@@ -55,18 +76,17 @@ public class SessionLocatorPing : IUpdatecontrollerSubscriber
 		}
 		catch (Exception ex)
 		{
-			Debug.LogError("Error in session locator error callback " + ex.Message);
+			Debug.LogError("Error in session locator error callback: " + ex.Message);
 		}
-		Debug.Log("Quiting from session locator error callback");
-		Coroutines.Start(WaitForFrames.Frames(5, DoApplicationQuit));
+		connectionLost = true;
 	}
 
-	private void DoApplicationQuit()
+	private void CloseApplication()
 	{
-		MVGameControllerBase.ApplicationQuit(new QuitConnectionError());
-	}
-
-	public void UpdateControllerFixedUpdate()
-	{
+		Debug.Log("Quiting due to connection error, attempting to ping session locator.");
+		Coroutines.Start(WaitForFrames.Frames(5, () =>
+		{
+			MVGameControllerBase.ApplicationQuit(new QuitConnectionError());
+		}));
 	}
 }

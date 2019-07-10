@@ -13,15 +13,7 @@ public class LevelLoader : MonoBehaviour
 			new string[1] { "DesktopPlayModeGUI" }
 		},
 		{
-			ScenesForMode.PlayMode2D,
-			new string[1] { "DesktopPlayModeGUI" }
-		},
-		{
 			ScenesForMode.PlayModeTourist,
-			new string[1] { "DesktopPlayModeGUI" }
-		},
-		{
-			ScenesForMode.PlayModeTourist2D,
 			new string[1] { "DesktopPlayModeGUI" }
 		},
 		{
@@ -38,33 +30,18 @@ public class LevelLoader : MonoBehaviour
 
 	private Action callback;
 
-	public void LoadScenes(MVGameMode gameMode, MVGameType gameType, bool tourist, Action callback)
+	public void LoadScenes(MVGameMode gameMode, bool tourist, Action callback)
 	{
 		switch (gameMode)
 		{
 		case MVGameMode.Play:
-			switch (gameType)
+			if (tourist)
 			{
-			case MVGameType.Classic:
-				if (tourist)
-				{
-					LoadScenes(ScenesForMode.PlayModeTourist, callback);
-				}
-				else
-				{
-					LoadScenes(ScenesForMode.PlayMode, callback);
-				}
-				break;
-			case MVGameType.Platformer:
-				if (tourist)
-				{
-					LoadScenes(ScenesForMode.PlayModeTourist2D, callback);
-				}
-				else
-				{
-					LoadScenes(ScenesForMode.PlayMode2D, callback);
-				}
-				break;
+				LoadScenes(ScenesForMode.PlayModeTourist, callback);
+			}
+			else
+			{
+				LoadScenes(ScenesForMode.PlayMode, callback);
 			}
 			break;
 		case MVGameMode.Edit:

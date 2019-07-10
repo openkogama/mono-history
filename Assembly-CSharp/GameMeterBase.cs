@@ -26,6 +26,8 @@ public abstract class GameMeterBase : MonoBehaviour
 		}
 	}
 
+	public abstract void Initialize();
+
 	public abstract void SetShowGameMeter(bool show);
 
 	public abstract void UpdateValue();

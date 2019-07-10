@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
-using CodeStage.AntiCheat.ObscuredTypes;
+using Assets.Scripts.Network.Player.SpawnRoles.SpawnRoleData.Mediator;
 using MV.Common;
 using MV.WorldObject;
+using MV.WorldObject.MetaData;
 using UnityEngine;
+using UnityEngine.Events;
 
-public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, ICurrentItemOwner
+public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, ICurrentItemOwner, ISpawnRoleLocal
 {
 	private class AvatarLocalModes
 	{
@@ -22,16 +24,12 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		public AvatarLocalModes(MVAvatarLocal avatar)
 		{
 			avatarModes.Add(AvatarRuntimeState.Playing, new WalkMode(avatar));
-			avatarModes.Add(AvatarRuntimeState.Edit2D, new EditorAvatarMode2D(avatar));
-			avatarModes.Add(AvatarRuntimeState.Edit, new JetPackMode(avatar));
 			avatarModes.Add(AvatarRuntimeState.Dead, new DeadMode(avatar));
 			avatarModes.Add(AvatarRuntimeState.Hidden, new LobbyMode(avatar));
-			avatarModes.Add(AvatarRuntimeState.Godzilla, new GodzillaMode(avatar));
-			avatarModes.Add(AvatarRuntimeState.GodzillaDead, new GodzillaDeadMode(avatar));
 			avatarModes.Add(AvatarRuntimeState.TimeAttackFlagDebriefing, new TimeAttackFlagDebriefingMode(avatar));
 			avatarModes.Add(AvatarRuntimeState.Wait, new WaitMode(avatar));
 			avatarModes.Add(AvatarRuntimeState.Ghost, new GhostMode(avatar));
-			currentState = AvatarRuntimeState.Hidden;
+			currentState = GetStartState();
 			currentMode = avatarModes[currentState];
 		}
 
@@ -52,6 +50,21 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			currentMode = avatarModes[mode];
 			currentState = mode;
 			currentMode.Activate(fromMode);
+		}
+
+		public void SetToStartMode()
+		{
+			SetMode(GetStartState());
+		}
+
+		private AvatarRuntimeState GetStartState()
+		{
+			AvatarRuntimeState result = AvatarRuntimeState.Hidden;
+			if (MVGameControllerBase.GameSessionData.gameMode == MVGameMode.Edit)
+			{
+				result = ((MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState != MVGameStateType.RoundEnded) ? AvatarRuntimeState.Playing : AvatarRuntimeState.Hidden);
+			}
+			return result;
 		}
 	}
 
@@ -75,7 +88,12 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 
 		public virtual void Activate(AvatarRuntimeState fromMode)
 		{
-			mvAvatar.AvatarModeTypeFlags = modeTypes;
+			SetModeTypes();
+		}
+
+		private void SetModeTypes()
+		{
+			mvAvatar.SpawnRoleModeTypes.Value = modeTypes;
 		}
 	}
 
@@ -104,28 +122,25 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 
 		protected float deadTime;
 
-		protected float deadInterval = 2.5f;
+		protected float deadInterval = 4f;
 
 		private AvatarInputControllerDead inputController = new AvatarInputControllerDead();
-
-		protected const float deathDuration = 2.5f;
-
-		protected const float deathBriefingDuration = 4f;
 
 		private bool haveRespawned;
 
 		public DeadMode(MVAvatarLocal mvAvatar)
 			: base(mvAvatar, 2)
 		{
-			mvAvatar.OnKilled = (Action<string>)Delegate.Combine(mvAvatar.OnKilled, new Action<string>(HandleDeathBriefingPause));
+			mvAvatar.OnKilled = (Action<int, int, PlayerKilledByType>)Delegate.Combine(mvAvatar.OnKilled, new Action<int, int, PlayerKilledByType>(HandleDeathBriefingPause));
 			mvAvatar.OnSuicide = (Action)Delegate.Combine(mvAvatar.OnSuicide, new Action(HandleResetUIPause));
 		}
 
 		public override void Activate(AvatarRuntimeState fromMode)
 		{
 			base.Activate(fromMode);
-			deadInterval = 2.5f;
 			deadTime = Time.time;
+			deadInterval = MVGameControllerBase.LocalPlayer.RespawnDuration;
+			MVGameControllerBase.LocalPlayer.RespawnTime = Time.time + deadInterval;
 			mvAvatar.SetAnimation("Dead");
 			mvAvatar.avatarEquipable.Unequip();
 			if (mvAvatar.IsSeated)
@@ -136,28 +151,38 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			haveRespawned = false;
 			MVGameControllerDesktop.LockCursorManager.CursorLock = false;
 			MVGameControllerBase.PlayModeUI.InLobbyState = false;
+			if (!mvAvatar.InGunMode && MVGameControllerBase.MainCameraManager.CurrentCamera.CameraType == CameraType.FirstPersonCamera)
+			{
+				mvAvatar.AvatarLocal.CameraController.SetCamera(CameraType.ThirdPerson);
+			}
 		}
 
-		private void HandleDeathBriefingPause(string text)
+		private void HandleDeathBriefingPause(int localPlayerActorNr, int dmgDealerActorNr, PlayerKilledByType damageType)
 		{
 			HandleDeathBriefingPause();
 		}
 
 		private void HandleDeathBriefingPause()
 		{
-			deadInterval = 4f;
+			deadInterval = MVGameControllerBase.LocalPlayer.RespawnDuration;
+			MVGameControllerBase.LocalPlayer.RespawnTime = Time.time + deadInterval;
 		}
 
 		private void HandleResetUIPause()
 		{
-			HandleDeathBriefingPause();
+			deadInterval = MVGameControllerBase.LocalPlayer.RespawnDuration;
+			MVGameControllerBase.LocalPlayer.RespawnTime = Time.time + deadInterval;
 		}
 
 		public override void DeActivate(AvatarRuntimeState toMode)
 		{
-			if (!haveRespawned)
+			if (!haveRespawned && MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState != MVGameStateType.RoundEnded && (MVGameControllerBase.GameMode != MVGameMode.Edit || (MVGameControllerBase.GameMode == MVGameMode.Edit && MVGameControllerBase.EditModeUI.IsInPlayInEditMode)) && toMode != AvatarRuntimeState.Hidden)
 			{
 				MVGameControllerDesktop.LockCursorManager.CursorLock = true;
+			}
+			if (toMode == AvatarRuntimeState.Playing)
+			{
+				mvAvatar.OnRespawn();
 			}
 		}
 
@@ -182,7 +207,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		private void RevivePlayer()
 		{
 			haveRespawned = true;
-			MVGameControllerBase.WOCM.AvatarLocal.AvatarRespawnHandler.Respawn();
+			mvAvatar.avatarRespawnHandler.Respawn();
 		}
 	}
 
@@ -201,197 +226,21 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		}
 	}
 
-	public class EditorAvatarMode2D(MVAvatarLocal mvAvatar) : EditAvatarModeBase(mvAvatar, 0)
-	{
-		private float resetZ;
-
-		private float speed = 8f;
-
-		private float fastSpeed = 35f;
-
-		private float speedSmoothingTime = 10f;
-
-		private float moveBehindOnInsert = -0.3f;
-
-		private float closestDistanceInBehindDrawPlaneMode = -0.1f;
-
-		private bool behindDrawPlaneModeEnabled;
-
-		private float zSpawnOffset = -30f;
-
-		private float keyVelocity;
-
-		private float keyAcceleration = 10f;
-
-		private float keyDamping = 10f;
-
-		private const float distanceModifierDivider = -15f;
-
-		private const float distanceMinModifier = 1f;
-
-		private const float distanceMaxModifier = 10f;
-
-		private readonly float heightAdjustSpeed = 5f;
-
-		public override void Activate(AvatarRuntimeState fromMode)
-		{
-			base.Activate(fromMode);
-			mvAvatar.SetAnimation("Idle");
-			if (mvAvatar.Body == null)
-			{
-				Debug.LogWarning("mvAvatar.Body not present");
-				return;
-			}
-			mvAvatar.Body.Visible = false;
-			MVGameControllerBase.CameraController.SetCamera(CameraType.EditorCamera2D);
-			mvAvatar.ResetAvatar();
-			SetToEditMode();
-			mvAvatar.Collider.enabled = false;
-		}
-
-		public override void DeActivate(AvatarRuntimeState toMode)
-		{
-			if (toMode == AvatarRuntimeState.Playing)
-			{
-				float z = GetSpawnTransform().position.z;
-				Vector3 position = mvAvatar.gameObject.transform.position;
-				resetZ = position.z;
-				position.z = z;
-				mvAvatar.gameObject.transform.position = position;
-				MVGameControllerBase.CameraController.StartTransitionCam(0.5f);
-			}
-		}
-
-		public void SetToSpawn()
-		{
-			mvAvatar.SetToSpawnTransform();
-			Vector3 position = mvAvatar.Transform.position;
-			position.z += zSpawnOffset;
-			mvAvatar.SetTransform(position, mvAvatar.transform.rotation);
-		}
-
-		protected void SetToZPos(float z)
-		{
-			Vector3 position = mvAvatar.gameObject.transform.position;
-			position.z = z;
-			mvAvatar.SetTransform(position, mvAvatar.transform.rotation);
-		}
-
-		public override void FixedUpdate(IInputToPlayerMovement movementMap)
-		{
-		}
-
-		public void ResetToZPos()
-		{
-			SetToZPos(resetZ);
-		}
-
-		public override void FrameUpdate(InputToInGameAction interactionMap)
-		{
-			Vector3 inputDirection = GetInputDirection();
-			float b = speed;
-			if (MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveFast))
-			{
-				b = fastSpeed;
-			}
-			speed = Mathf.Lerp(speed, b, speedSmoothingTime * Time.deltaTime);
-			Vector3 vector = speed * inputDirection * Time.deltaTime;
-			float distanceToPlaneModifier = 1f;
-			if (mvAvatar.WorldPosition.z < 0f)
-			{
-				distanceToPlaneModifier = Mathf.Clamp(mvAvatar.WorldPosition.z / -15f, 1f, 10f);
-			}
-			mvAvatar.Transform.position += vector + GetElevationVelocity(distanceToPlaneModifier);
-			if (behindDrawPlaneModeEnabled && mvAvatar.WorldPosition.z > closestDistanceInBehindDrawPlaneMode)
-			{
-				Vector3 position = mvAvatar.Transform.position;
-				position.z = closestDistanceInBehindDrawPlaneMode;
-				mvAvatar.Transform.position = position;
-			}
-		}
-
-		protected Vector3 GetElevationVelocity(float distanceToPlaneModifier)
-		{
-			if (MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveUp))
-			{
-				keyVelocity += keyAcceleration * Time.deltaTime;
-			}
-			else if (MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveDown))
-			{
-				keyVelocity -= keyAcceleration * Time.deltaTime;
-			}
-			else if (MVInputWrapper.GetAxisWithoutSensitivity("Mouse ScrollWheel") != 0f)
-			{
-				if (MVInputWrapper.GetAxisWithoutSensitivity("Mouse ScrollWheel") > 0f)
-				{
-					keyVelocity = 3f;
-				}
-				else
-				{
-					keyVelocity = -3f;
-				}
-			}
-			else
-			{
-				float num = Mathf.Min(1f, keyDamping * Time.deltaTime);
-				keyVelocity = (1f - num) * keyVelocity;
-			}
-			float num2 = keyVelocity * distanceToPlaneModifier * Time.deltaTime;
-			return num2 * Vector3.up * heightAdjustSpeed;
-		}
-
-		private static Vector3 GetInputDirection()
-		{
-			Vector3 zero = Vector3.zero;
-			if (MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveForward))
-			{
-				zero += Vector3.forward;
-			}
-			if (MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveBackwards))
-			{
-				zero += Vector3.back;
-			}
-			if (MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveLeft))
-			{
-				zero += Vector3.left;
-			}
-			if (MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveRight))
-			{
-				zero += Vector3.right;
-			}
-			return zero.normalized;
-		}
-
-		public void EnableBehindDrawPlaneMode()
-		{
-			if (mvAvatar.WorldPosition.z > closestDistanceInBehindDrawPlaneMode)
-			{
-				SetToZPos(moveBehindOnInsert);
-			}
-			behindDrawPlaneModeEnabled = true;
-		}
-
-		public void DisableBehindDrawPlaneMode()
-		{
-			behindDrawPlaneModeEnabled = false;
-		}
-	}
-
 	public class GhostMode : AvatarMode
 	{
 		private bool haveSetTransparency;
 
-		private readonly IAvatarInputController avatarInputController;
-
 		public GhostMode(MVAvatarLocal mvAvatar)
 			: base(mvAvatar, 4)
 		{
-			avatarInputController = CreateInputController();
+			CreateInputController();
 		}
 
 		public override void Activate(AvatarRuntimeState fromMode)
 		{
 			base.Activate(fromMode);
+			mvAvatar.HealParticleSpawnTime = Time.time;
+			mvAvatar.Shield.Value = 0f;
 			mvAvatar.ResetAvatar();
 			mvAvatar.SetToSpawnTransform();
 			ResetCamera();
@@ -400,7 +249,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 
 		public override void DeActivate(AvatarRuntimeState toMode)
 		{
-			MVGameControllerBase.WOCM.AvatarLocal.SetTransparency = 1f;
+			mvAvatar.SetTransparency = 1f;
 		}
 
 		public override void FrameUpdate(InputToInGameAction interactionMap)
@@ -411,19 +260,18 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		{
 			if (!haveSetTransparency)
 			{
-				MVGameControllerBase.WOCM.AvatarLocal.SetTransparency = 0.5f;
+				mvAvatar.SetTransparency = 0.5f;
 				haveSetTransparency = true;
 			}
-			mvAvatar.avatarMotor.FixedUpdateFunction(avatarInputController);
 		}
 
 		private void ResetCamera()
 		{
-			MVGameControllerBase.CameraController.AvatarLobbyFocus = false;
-			MVGameControllerBase.WOCM.AvatarLocal.Visible = true;
-			MVGameControllerBase.CameraController.SetPlayModeCam();
-			MVGameControllerBase.CameraController.CurCamera.Reset();
-			MVGameControllerBase.CameraController.CurCamera.transform.rotation = mvAvatar.transform.rotation;
+			MVGameControllerBase.MainCameraManager.CamMaskMode = MaskMode.Default;
+			mvAvatar.Visible = true;
+			mvAvatar.AvatarLocal.CameraController.SetCamera(CameraType.ThirdPerson);
+			MVGameControllerBase.MainCameraManager.CurrentCamera.Reset();
+			MVGameControllerBase.MainCameraManager.CurrentCamera.transform.rotation = mvAvatar.transform.rotation;
 		}
 
 		private void SendNotification()
@@ -439,249 +287,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			{
 				return new AvatarInputController();
 			}
-			if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
-			{
-				return new AvatarInputController();
-			}
-			if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-			{
-				return new AvatarInputController2DPlayMode();
-			}
-			throw new Exception("Implement input controller");
-		}
-	}
-
-	public class JetPackMode : EditAvatarModeBase
-	{
-		private readonly float maxSpeed = 1.75f;
-
-		private readonly float speedModifier = 5f;
-
-		private Vector3 jetPackTargetDeltaPos;
-
-		private float targetSpeed;
-
-		private float speed;
-
-		private float speedSmoothingTime = 10f;
-
-		private bool moveConstraintSet;
-
-		private Vector3 moveConstraintCenter;
-
-		private float moveConstraintRadius;
-
-		private const float moveSlowDownPoint = 0.75f;
-
-		private DoubleTapMovementChecker doubleTap = new DoubleTapMovementChecker();
-
-		private Camera mainCamera;
-
-		private float keyVelocity;
-
-		private float keyAcceleration = 20f;
-
-		private float keyDamping = 10f;
-
-		private readonly float heightAdjustSpeed = 5f;
-
-		private float YMovementSpeedScale { get; set; }
-
-		private float XZMovementSpeedScale { get; set; }
-
-		public bool MovementConstrained
-		{
-			get
-			{
-				return moveConstraintSet;
-			}
-			set
-			{
-				moveConstraintSet = value;
-			}
-		}
-
-		public JetPackMode(MVAvatarLocal mvAvatar)
-			: base(mvAvatar, 0)
-		{
-			mainCamera = Camera.main;
-			YMovementSpeedScale = 1f;
-			XZMovementSpeedScale = 1f;
-		}
-
-		public override void Activate(AvatarRuntimeState fromMode)
-		{
-			base.Activate(fromMode);
-			mvAvatar.SetAnimation("Idle");
-			if (mvAvatar.Body == null)
-			{
-				Debug.LogWarning("mvAvatar.Body not present");
-				return;
-			}
-			mvAvatar.Body.Visible = false;
-			mvAvatar.ResetAvatar();
-			SetToEditMode();
-			MVGameControllerBase.CameraController.SetCamera(CameraType.EditorCamera);
-			mvAvatar.Collider.enabled = false;
-		}
-
-		public override void DeActivate(AvatarRuntimeState toMode)
-		{
-		}
-
-		public void SetToSpawn()
-		{
-			mvAvatar.SetToSpawnTransform();
-			MVGameControllerBase.CameraController.CurCamera.Reset();
-		}
-
-		public void ModifySpeed(float xz, float y)
-		{
-			XZMovementSpeedScale = xz;
-			YMovementSpeedScale = y;
-		}
-
-		public override void FrameUpdate(InputToInGameAction interactionMap)
-		{
-			doubleTap.FrameUpdate();
-			Move(GetMovementVelocity());
-			MoveCharacter(GetElevationVelocity() * YMovementSpeedScale);
-			UpdateRotationToCamera();
-		}
-
-		public override void FixedUpdate(IInputToPlayerMovement movementMap)
-		{
-		}
-
-		public void SetMoveConstraint(Vector3 center, float radius)
-		{
-			MovementConstrained = true;
-			moveConstraintCenter = center;
-			moveConstraintRadius = radius;
-		}
-
-		private void UpdateRotationToCamera()
-		{
-			Vector3 eulerAngles = mvAvatar.GameObject.transform.eulerAngles;
-			eulerAngles.y = MVGameControllerBase.CameraController.transform.eulerAngles.y;
-			mvAvatar.GameObject.transform.eulerAngles = eulerAngles;
-		}
-
-		private void MoveCharacter(Vector3 moveDelta)
-		{
-			if (moveConstraintSet)
-			{
-				Vector3 position = mvAvatar.GameObject.transform.position;
-				Vector3 b = position + moveDelta;
-				Vector3 normalized = (moveConstraintCenter - position).normalized;
-				Vector3 normalized2 = moveDelta.normalized;
-				if (!(0.5f < Vector3.Dot(normalized2, normalized)))
-				{
-					float num = Vector3.Distance(moveConstraintCenter, b);
-					float num2 = 0.75f * moveConstraintRadius;
-					if (num2 < num)
-					{
-						float num3 = num - num2;
-						float num4 = 0.25f * moveConstraintRadius;
-						float num5 = 0f;
-						if (num3 < num4)
-						{
-							num5 = 1f - num3 / num4;
-						}
-						moveDelta *= num5 * num5;
-					}
-				}
-			}
-			mvAvatar.GameObject.transform.position += moveDelta;
-		}
-
-		protected Vector3 GetElevationVelocity()
-		{
-			if (MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveUp) && !MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveDown))
-			{
-				keyVelocity += keyAcceleration * Time.deltaTime;
-			}
-			else if (MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveDown))
-			{
-				keyVelocity -= keyAcceleration * Time.deltaTime;
-			}
-			else if (MVInputWrapper.GetAxisWithoutSensitivity("Mouse ScrollWheel") != 0f)
-			{
-				if (MVInputWrapper.GetAxisWithoutSensitivity("Mouse ScrollWheel") > 0f)
-				{
-					keyVelocity = 3f;
-				}
-				else
-				{
-					keyVelocity = -3f;
-				}
-			}
-			else
-			{
-				float num = Mathf.Min(1f, keyDamping * Time.deltaTime);
-				keyVelocity = (1f - num) * keyVelocity;
-			}
-			float num2 = keyVelocity * Time.deltaTime;
-			return num2 * Vector3.up * heightAdjustSpeed;
-		}
-
-		private void Move(Vector3 velocity)
-		{
-			Vector3 vector = velocity * Time.deltaTime;
-			MoveCharacter(vector);
-			Vector3 forward = vector;
-			forward.y = 0f;
-			if ((double)forward.sqrMagnitude > 0.001)
-			{
-				mvAvatar.GameObject.transform.rotation = Quaternion.LookRotation(forward);
-			}
-		}
-
-		private Vector3 GetDirection(bool freeFlight)
-		{
-			Transform transform = mainCamera.transform;
-			Vector3 result = transform.rotation * GetInputDirection();
-			if (!freeFlight)
-			{
-				result.y = 0f;
-			}
-			result.Normalize();
-			return result;
-		}
-
-		private static Vector3 GetInputDirection()
-		{
-			Vector3 zero = Vector3.zero;
-			if (MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveForward))
-			{
-				zero += Vector3.forward;
-			}
-			if (MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveBackwards))
-			{
-				zero += Vector3.back;
-			}
-			if (MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveLeft))
-			{
-				zero += Vector3.left;
-			}
-			if (MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveRight))
-			{
-				zero += Vector3.right;
-			}
-			return zero.normalized;
-		}
-
-		private Vector3 GetMovementVelocity()
-		{
-			bool booleanControl = MVInputWrapper.GetBooleanControl(KogamaControls.PointerSelectAlt);
-			Vector3 direction = GetDirection(booleanControl);
-			targetSpeed = direction.magnitude * maxSpeed;
-			if (MVInputWrapper.GetBooleanControl(KogamaControls.EditMoveFast) || doubleTap.DoubleTap)
-			{
-				targetSpeed *= speedModifier;
-			}
-			speed = Mathf.Lerp(speed, targetSpeed, speedSmoothingTime * Time.deltaTime);
-			return direction * speed * speedModifier * XZMovementSpeedScale;
+			return new AvatarInputController();
 		}
 	}
 
@@ -694,19 +300,19 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 
 		public override void Activate(AvatarRuntimeState fromMode)
 		{
+			bool flag = MVGameControllerBase.GameMode != MVGameMode.Edit || (MVGameControllerBase.GameMode == MVGameMode.Edit && MVGameControllerBase.EditModeUI.IsInPlayInEditMode);
 			base.Activate(fromMode);
 			LayerUtil.SetLayerRecursively(mvAvatar.Body.Transform, "Player", "CamRotateTarget");
-			MVGameControllerBase.CameraController.AvatarLobbyFocus = true;
+			if (flag)
+			{
+				MVGameControllerBase.MainCameraManager.CamMaskMode = MaskMode.AvatarLobbyFocus;
+			}
 			MVGameControllerBase.PlayModeUI.InLobbyState = true;
 			mvAvatar.Body.Transform.localRotation = Quaternion.AngleAxis(180f, Vector3.up);
-			if (mvAvatar.Respawned != null)
-			{
-				mvAvatar.Respawned(this, EventArgs.Empty);
-			}
 			mvAvatar.ResetAvatar();
 			mvAvatar.SetToSpawnTransform();
-			MVGameControllerBase.CameraController.PushCamera(CameraType.LobbyState);
-			LobbyStateCamera lobbyStateCamera = (LobbyStateCamera)MVGameControllerBase.CameraController.CurCamera;
+			mvAvatar.AvatarLocal.CameraController.PushCamera(CameraType.LobbyState);
+			LobbyStateCamera lobbyStateCamera = (LobbyStateCamera)MVGameControllerBase.MainCameraManager.CurrentCamera;
 			lobbyStateCamera.SetRotation(mvAvatar.transform.rotation);
 			mvAvatar.Body.Visible = true;
 		}
@@ -714,9 +320,13 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		public override void DeActivate(AvatarRuntimeState toMode)
 		{
 			mvAvatar.Body.Transform.localRotation = Quaternion.AngleAxis(0f, Vector3.up);
-			MVGameControllerBase.CameraController.AvatarLobbyFocus = false;
+			MVGameControllerBase.MainCameraManager.CamMaskMode = MaskMode.Default;
 			LayerUtil.SetLayerRecursively(mvAvatar.Body.Transform, "CamRotateTarget", "Player");
-			MVGameControllerBase.CameraController.RemoveCamera(CameraType.LobbyState);
+			mvAvatar.AvatarLocal.CameraController.RemoveCamera(CameraType.LobbyState);
+			if (toMode == AvatarRuntimeState.Playing)
+			{
+				mvAvatar.OnRespawn();
+			}
 		}
 
 		public override void FixedUpdate(IInputToPlayerMovement movementMap)
@@ -735,8 +345,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		private bool isInDebriefing;
 
 		private Transform flagTransform;
-
-		private MVInteractableBase localPlayerInteractableBase;
 
 		private Quaternion currentDirectionRotation = Quaternion.identity;
 
@@ -762,8 +370,10 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			: base(mvAvatar, 1)
 		{
 			avatarInputController = CreateInputController();
-			FlagDebriefingControl.OnFlagDebriefing = (Action<int>)Delegate.Combine(FlagDebriefingControl.OnFlagDebriefing, new Action<int>(OnEnterTimeAttackFlagDebriefing));
-			FlagDebriefingControl.OnFlagDebriefingEnd = (Action)Delegate.Combine(FlagDebriefingControl.OnFlagDebriefingEnd, new Action(OnExitTimeAttackFlagDebriefing));
+			FlagDebriefingControl flagDebriefingControl = MVGameControllerBase.FlagDebriefingControl;
+			flagDebriefingControl.OnFlagDebriefing = (Action<int>)Delegate.Combine(flagDebriefingControl.OnFlagDebriefing, new Action<int>(OnEnterTimeAttackFlagDebriefing));
+			FlagDebriefingControl flagDebriefingControl2 = MVGameControllerBase.FlagDebriefingControl;
+			flagDebriefingControl2.OnFlagDebriefingEnd = (Action)Delegate.Combine(flagDebriefingControl2.OnFlagDebriefingEnd, new Action(OnExitTimeAttackFlagDebriefing));
 		}
 
 		public override void Activate(AvatarRuntimeState fromMode)
@@ -771,10 +381,10 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			base.Activate(fromMode);
 			avatarInputController.Rotation = mvAvatar.transform.rotation;
 			flagTransform = GetClosestTimeAttackFlag();
-			localPlayerInteractableBase = MVGameControllerBase.WOCM.AvatarLocal.Avatar.GetComponent<MVInteractableBase>();
+			mvAvatar.avatarEquipable.Unequip();
 			if (!isInDebriefing)
 			{
-				MVGameControllerBase.CameraController.PushCamera(CameraType.LobbyState);
+				mvAvatar.AvatarLocal.CameraController.PushCamera(CameraType.LobbyState);
 			}
 			else
 			{
@@ -784,6 +394,9 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 
 		public override void DeActivate(AvatarRuntimeState toMode)
 		{
+			Debug.Log("Time attack flag debriefing mode deactivated: " + toMode);
+			Debug.Log("DeActivate " + Time.frameCount);
+			mvAvatar.InteractableLocal.AddModifier(AvatarModifierPackageType.SpawnProtection);
 		}
 
 		public override void FrameUpdate(InputToInGameAction interactionMap)
@@ -791,6 +404,15 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			if (mvAvatar.avatarMotor.enabled)
 			{
 				mvAvatar.avatarMotor.UpdateFunction();
+			}
+			if (!isInDebriefing && MVGameControllerBase.MainCameraManager.CurrentCamera.CameraType != CameraType.TimeAttackFlagCountdownCamera)
+			{
+				mvAvatar.AvatarLocal.CameraController.PushCamera(CameraType.TimeAttackFlagCountdownCamera);
+			}
+			if (MVGameControllerBase.MainCameraManager.CurrentCamera.CameraType == CameraType.TimeAttackFlagDebriefingCamera)
+			{
+				float num = 36f;
+				MVGameControllerBase.MainCameraManager.CurrentCamera.transform.Rotate(new Vector3(0f, num * Time.deltaTime, 0f));
 			}
 		}
 
@@ -805,7 +427,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 				mvAvatar.avatarMotor.UpdateVelocity();
 				return;
 			}
-			localPlayerInteractableBase.AddModifier(AvatarModifierPackageType.TimeAttackFlagDebriefSlow);
+			mvAvatar.InteractableLocal.AddModifier(AvatarModifierPackageType.TimeAttackFlagDebriefSlow);
 			Vector3 avatarMoveDirection = GetAvatarMoveDirection();
 			avatarInputController.HandleInput(avatarMoveDirection, movementMap.Jump, didShoot: false, Vector3.zero, mvAvatar.InGunMode, mvAvatar.ForceRotateAvatarToFiringDirection);
 			mvAvatar.avatarMotor.FixedUpdateFunction(avatarInputController);
@@ -823,15 +445,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			{
 				return new AvatarInputController();
 			}
-			if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
-			{
-				return new AvatarInputController();
-			}
-			if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-			{
-				return new AvatarInputController2DPlayMode();
-			}
-			throw new Exception("Implement input controller");
+			return new AvatarInputController();
 		}
 
 		private Transform GetClosestTimeAttackFlag()
@@ -885,7 +499,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			lastAngle = angle;
 			Quaternion identity = Quaternion.identity;
 			identity.eulerAngles = new Vector3(0f, angle, 0f);
-			identity = Quaternion.Inverse(MVGameControllerBase.CameraController.CurCamera.transform.rotation) * identity;
+			identity = Quaternion.Inverse(MVGameControllerBase.MainCameraManager.CurrentCamera.transform.rotation) * identity;
 			if (!(currentDirectionRotation == Quaternion.identity))
 			{
 				identity = (currentDirectionRotation = Quaternion.Lerp(currentDirectionRotation, identity, (Time.time - directionInterpolationStartTime) / 0.4f));
@@ -905,23 +519,28 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 				mvAvatar.LeaveVehicle(leaveBecauseOfServer: false);
 			}
 			mvAvatar.pickupOwner.HandleFire(inputFire: false, mvAvatar.IsFiring);
-			MVGameControllerBase.CameraController.PushCamera(CameraType.TimeAttackFlagDebriefingCamera);
+			mvAvatar.AvatarLocal.CameraController.PushCamera(CameraType.TimeAttackFlagDebriefingCamera);
 			isInDebriefing = true;
+			mvAvatar.Avatar.AvatarFader.SetTransparency(1f);
 		}
 
 		private void OnExitTimeAttackFlagDebriefing()
 		{
 			isInDebriefing = false;
 			avatarInputController.Rotation = mvAvatar.transform.rotation;
-			if (MVGameControllerBase.CameraController.CurCamera.CameraType == CameraType.TimeAttackFlagDebriefingCamera)
+			if (MVGameControllerBase.MainCameraManager.CurrentCamera.CameraType == CameraType.TimeAttackFlagDebriefingCamera)
 			{
-				MVGameControllerBase.CameraController.PushCamera(CameraType.LobbyState);
+				mvAvatar.AvatarLocal.CameraController.PushCamera(CameraType.LobbyState);
 			}
 			else
 			{
-				MVGameControllerBase.CameraController.PushCamera(CameraType.ThirdPerson);
+				mvAvatar.AvatarLocal.CameraController.PushCamera(CameraType.ThirdPerson);
 			}
-			CullingApiWrapper.SetDistanceReferencePoint(MVGameControllerBase.CameraController.MainCamera.transform);
+			CullingApiWrapper.SetDistanceReferencePoint(MVGameControllerBase.MainCameraManager.MainCamera.transform);
+			mvAvatar.ResetAvatar();
+			mvAvatar.SetToSpawnTransform();
+			MVGameControllerBase.MainCameraManager.CurrentCamera.Reset();
+			mvAvatar.Body.Animation.Play("Idle");
 		}
 
 		private void DieByFalling()
@@ -950,7 +569,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			SendNotification();
 			if (fromMode == AvatarRuntimeState.Ghost)
 			{
-				MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Ghost);
+				mvAvatar.SetMode(AvatarRuntimeState.Ghost);
 			}
 		}
 
@@ -973,11 +592,11 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 
 		private void ResetCamera()
 		{
-			MVGameControllerBase.CameraController.AvatarLobbyFocus = false;
-			MVGameControllerBase.WOCM.AvatarLocal.Visible = true;
-			MVGameControllerBase.CameraController.SetPlayModeCam();
-			MVGameControllerBase.CameraController.CurCamera.Reset();
-			MVGameControllerBase.CameraController.CurCamera.transform.rotation = mvAvatar.transform.rotation;
+			MVGameControllerBase.MainCameraManager.CamMaskMode = MaskMode.Default;
+			mvAvatar.Visible = true;
+			mvAvatar.AvatarLocal.CameraController.SetCamera(CameraType.ThirdPerson);
+			MVGameControllerBase.MainCameraManager.CurrentCamera.Reset();
+			MVGameControllerBase.MainCameraManager.CurrentCamera.transform.rotation = mvAvatar.transform.rotation;
 		}
 
 		private void SendNotification()
@@ -993,15 +612,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			{
 				return new AvatarInputController();
 			}
-			if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
-			{
-				return new AvatarInputController();
-			}
-			if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-			{
-				return new AvatarInputController2DPlayMode();
-			}
-			throw new Exception("Implement input controller");
+			return new AvatarInputController();
 		}
 	}
 
@@ -1041,34 +652,32 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		public override void Activate(AvatarRuntimeState fromMode)
 		{
 			base.Activate(fromMode);
-			if (fromMode == AvatarRuntimeState.Hidden || fromMode == AvatarRuntimeState.Dead || fromMode == AvatarRuntimeState.GodzillaDead)
-			{
-				OnRespawn();
-			}
 			Transform transform = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVCubeModelPrototypeTerrain>().Transform;
 			Bounds? axisAlignedBoundsRecursively = SharedCubeFunctions.GetAxisAlignedBoundsRecursively(transform);
 			Bounds bounds = (axisAlignedBoundsRecursively.HasValue ? axisAlignedBoundsRecursively.Value : default(Bounds));
 			MVGameControllerBase.WOCM.UpdateWorldBounds(bounds);
+			mvAvatar.HealParticleSpawnTime = Time.time;
+			mvAvatar.Shield.Value = 0f;
 			mvAvatar.triggerHandler.enabled = true;
 			mvAvatar.ResetAvatar();
 			mvAvatar.Collider.enabled = true;
-			if (fromMode != AvatarRuntimeState.Edit)
-			{
-				mvAvatar.SetToSpawnTransform();
-			}
 			avatarInputController.Rotation = mvAvatar.transform.rotation;
 			mvAvatar.LimbManager.SetLimbRotatorActivity(shouldBeActive: true);
 			if (mvAvatar.Body != null)
 			{
 				mvAvatar.Body.Visible = true;
 			}
-			if (fromMode != AvatarRuntimeState.Wait)
+			if (MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded)
 			{
-				MVGameControllerBase.CameraController.AvatarLobbyFocus = false;
-				MVGameControllerBase.WOCM.AvatarLocal.Visible = true;
-				MVGameControllerBase.CameraController.SetPlayModeCam();
-				MVGameControllerBase.CameraController.CurCamera.Reset();
-				MVGameControllerBase.CameraController.CurCamera.transform.rotation = mvAvatar.transform.rotation;
+				mvAvatar.SetMode(AvatarRuntimeState.Wait);
+			}
+			else if (fromMode != AvatarRuntimeState.Wait)
+			{
+				MVGameControllerBase.MainCameraManager.CamMaskMode = MaskMode.Default;
+				mvAvatar.Visible = true;
+				mvAvatar.AvatarLocal.CameraController.SetCamera(CameraType.ThirdPerson);
+				MVGameControllerBase.MainCameraManager.CurrentCamera.Reset();
+				MVGameControllerBase.MainCameraManager.CurrentCamera.transform.rotation = mvAvatar.transform.rotation;
 			}
 		}
 
@@ -1106,6 +715,14 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			if (!mvAvatar.IsSeated && mvAvatar.avatarMotor.IsStuck())
 			{
 				HandleStuck();
+			}
+			if (mvAvatar.InGunMode && MVGameControllerBase.MainCameraManager.CurrentCamera.CameraType == CameraType.ThirdPerson)
+			{
+				mvAvatar.AvatarLocal.CameraController.SetCamera(CameraType.FirstPersonCamera);
+			}
+			else if (!mvAvatar.InGunMode && MVGameControllerBase.MainCameraManager.CurrentCamera.CameraType == CameraType.FirstPersonCamera)
+			{
+				mvAvatar.AvatarLocal.CameraController.SetCamera(CameraType.ThirdPerson);
 			}
 		}
 
@@ -1164,38 +781,38 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 				return;
 			}
 			Vector3 moveDirection = movementMap.Direction;
-			if (FlagDebriefingControl.IsInFlagDebriefing)
+			if (MVGameControllerBase.FlagDebriefingControl.IsInFlagDebriefing)
 			{
-				avatarInputController.Rotation = MVGameControllerBase.Game.LocalPlayer.Avatar.Transform.rotation;
+				avatarInputController.Rotation = mvAvatar.Transform.rotation;
 				moveDirection = Vector3.zero;
 			}
 			HandleWaterplane();
 			avatarInputController.HandleInput(moveDirection, movementMap.Jump, isFiring, mvAvatar.avatarMotor.Velocity, mvAvatar.InGunMode, mvAvatar.ForceRotateAvatarToFiringDirection);
 			mvAvatar.avatarMotor.FixedUpdateFunction(avatarInputController);
-			if (!mvAvatar.IsDead)
+			if (!mvAvatar.IsInMode(SpawnRoleModeType.Dead))
 			{
 				SetAnimationState(avatarInputController.Direction);
 			}
 		}
 
-		private static void HandleFocus()
+		private void HandleFocus()
 		{
-			if (MVGameControllerBase.CameraController.CurCamera.CameraType == CameraType.LobbyState && !MVGameControllerBase.PlayModeUI.InLobbyState)
+			if (MVGameControllerBase.MainCameraManager.CurrentCamera.CameraType == CameraType.LobbyState && !MVGameControllerBase.PlayModeUI.InLobbyState)
 			{
-				MVGameControllerBase.CameraController.RemoveCamera(CameraType.LobbyState);
+				mvAvatar.AvatarLocal.CameraController.RemoveCamera(CameraType.LobbyState);
 			}
-			else if (MVGameControllerBase.CameraController.CurCamera.CameraType != CameraType.LobbyState && MVGameControllerBase.PlayModeUI.InLobbyState)
+			else if (MVGameControllerBase.MainCameraManager.CurrentCamera.CameraType != CameraType.LobbyState && MVGameControllerBase.PlayModeUI.InLobbyState)
 			{
-				MVGameControllerBase.CameraController.PushCamera(CameraType.LobbyState);
-				LobbyStateCamera lobbyStateCamera = (LobbyStateCamera)MVGameControllerBase.CameraController.CurCamera;
-				lobbyStateCamera.SetRotation(MVGameControllerBase.CameraController.transform.rotation);
+				mvAvatar.AvatarLocal.CameraController.PushCamera(CameraType.LobbyState);
+				LobbyStateCamera lobbyStateCamera = (LobbyStateCamera)MVGameControllerBase.MainCameraManager.CurrentCamera;
+				lobbyStateCamera.SetRotation(MVGameControllerBase.MainCameraManager.transform.rotation);
 			}
 		}
 
 		private void HandleStuck()
 		{
 			mvAvatar.Health.Value = 0f;
-			mvAvatar.InteractableLocal.DieFromStuck();
+			mvAvatar.InteractableLocal.DieFromBeingStuck();
 		}
 
 		private void DieByFalling()
@@ -1251,184 +868,11 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			{
 				return new AvatarInputController();
 			}
-			if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
-			{
-				return new AvatarInputController();
-			}
-			if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-			{
-				return new AvatarInputController2DPlayMode();
-			}
-			throw new Exception("Implement input controller");
-		}
-
-		public void OnRespawn()
-		{
-			mvAvatar.interactableLocal.AddModifier(AvatarModifierPackageType.SpawnProtection);
+			return new AvatarInputController();
 		}
 	}
 
-	protected class GodzillaDeadMode : DeadMode
-	{
-		private const float modRemovalDelay = 0.25f;
-
-		private bool hasRestoredFromGodzillamode;
-
-		private FirstPersonDeathCamera camera;
-
-		public GodzillaDeadMode(MVAvatarLocal mvAvatar)
-			: base(mvAvatar)
-		{
-		}
-
-		public override void Activate(AvatarRuntimeState fromMode)
-		{
-			mvAvatar.AvatarModeTypeFlags = modeTypes;
-			deadTime = Time.time;
-			hasRestoredFromGodzillamode = false;
-			mvAvatar.SetAnimation("Dead");
-			camera = UnityEngine.Object.Instantiate(PrefabPool.Instance.FirstPersonDeathCamera);
-			MVGameControllerBase.CameraController.PushCamera(camera);
-		}
-
-		public override void DeActivate(AvatarRuntimeState toMode)
-		{
-			base.DeActivate(toMode);
-			MVGameControllerBase.CameraController.RemoveCamera(camera);
-			UnityEngine.Object.Destroy(camera.gameObject);
-		}
-
-		public override void FrameUpdate(InputToInGameAction interactionMap)
-		{
-			if (!hasRestoredFromGodzillamode && (Time.time - deadTime) / deadInterval > 0.25f)
-			{
-				mvAvatar.interactableLocal.RemoveModifier(AvatarModifierPackageType.GodzillaS);
-				mvAvatar.interactableLocal.RemoveModifier(AvatarModifierPackageType.GodzillaM);
-				mvAvatar.interactableLocal.RemoveModifier(AvatarModifierPackageType.GodzillaL);
-				mvAvatar.interactableLocal.RemoveModifier(AvatarModifierPackageType.GodzillaXL);
-				mvAvatar.avatarEquipable.Unequip();
-			}
-			base.FrameUpdate(interactionMap);
-		}
-	}
-
-	public class GodzillaMode : AvatarMode
-	{
-		public static readonly string screenName = TM._("Colossus");
-
-		private const float levitationHeight = 0.2f;
-
-		private MVCameraBase camera;
-
-		private GodzillaTrigger triggerRef;
-
-		private AvatarModifierPackageType activeModifierPackageType;
-
-		public GodzillaMode(MVAvatarLocal mvAvatar)
-			: base(mvAvatar, 1)
-		{
-		}
-
-		public override void Activate(AvatarRuntimeState fromMode)
-		{
-			base.Activate(fromMode);
-			if (mvAvatar.IsSeated)
-			{
-				mvAvatar.LeaveVehicle(leaveBecauseOfServer: false);
-			}
-			mvAvatar.triggerHandler.enabled = false;
-			mvAvatar.Collider.enabled = true;
-			mvAvatar.RigidBody.enabled = false;
-			mvAvatar.SetAnimation("Idle");
-			mvAvatar.Body.Visible = true;
-			mvAvatar.interactableLocal.ClearModifiers();
-			ActivateGodzillaCamera();
-		}
-
-		public void ActivateModifier(AvatarModifierPackageType godzillaType)
-		{
-			if (activeModifierPackageType != AvatarModifierPackageType.None)
-			{
-				mvAvatar.interactableLocal.AddModifier(godzillaType);
-				activeModifierPackageType = godzillaType;
-				mvAvatar.avatarEquipable.Unequip();
-			}
-			activeModifierPackageType = godzillaType;
-			mvAvatar.interactableLocal.AddModifier(godzillaType);
-			mvAvatar.interactableLocal.AddModifier(AvatarModifierPackageType.GodzillaGrowthInvulnerability);
-			Dictionary<object, object> dictionary = new Dictionary<object, object>();
-			dictionary.Add("avatarModifierPackageType", (byte)activeModifierPackageType);
-			Dictionary<object, object> itemData = dictionary;
-			mvAvatar.avatarEquipable.Equip(AvatarItemType.GodzillaLaser, AvatarEquipableType.Weapon, itemData);
-		}
-
-		public override void DeActivate(AvatarRuntimeState toMode)
-		{
-			DeactivateGodzillaCamera();
-			mvAvatar.RigidBody.enabled = true;
-			mvAvatar.avatarMotor.Reset();
-			if (triggerRef != null)
-			{
-				triggerRef.Exit(mvAvatar.id);
-			}
-			if (toMode != AvatarRuntimeState.GodzillaDead)
-			{
-				mvAvatar.interactableLocal.RemoveModifier(activeModifierPackageType);
-				mvAvatar.avatarEquipable.Unequip();
-			}
-			activeModifierPackageType = AvatarModifierPackageType.None;
-		}
-
-		public override void FixedUpdate(IInputToPlayerMovement movementMap)
-		{
-		}
-
-		public override void FrameUpdate(InputToInGameAction interactionMap)
-		{
-			if (triggerRef == null)
-			{
-				mvAvatar.SetMode(AvatarRuntimeState.Playing);
-				return;
-			}
-			float y = 0.2f * mvAvatar.Scale.y;
-			mvAvatar.Position = triggerRef.Position + new Vector3(0f, y, 0f);
-			if (!interactionMap.IgnorePickupOwner)
-			{
-				mvAvatar.pickupOwner.HandleFire(interactionMap.Fire, mvAvatar.IsFiring);
-			}
-		}
-
-		public void SetGodzillaTriggerRef(GodzillaTrigger trigger)
-		{
-			triggerRef = trigger;
-		}
-
-		private void ActivateGodzillaCamera()
-		{
-			MVGameControllerBase.CameraController.BlueModeEnabled = false;
-			switch (MVGameControllerBase.Game.GameType)
-			{
-			case MVGameType.Classic:
-				camera = UnityEngine.Object.Instantiate(PrefabPool.Instance.GodzillaCameraDesktop);
-				break;
-			case MVGameType.Platformer:
-				camera = UnityEngine.Object.Instantiate(PrefabPool.Instance.GodzillaCamera2D);
-				((GodzillaCamera2D)camera).SetScale(GodzillaModifier.constants[(GodzillaModifier.GodzillaModifierPackageType)activeModifierPackageType].sizeModifier);
-				break;
-			default:
-				Debug.LogError("Unknown game mode.");
-				break;
-			}
-			MVGameControllerBase.CameraController.PushCamera(camera);
-		}
-
-		private void DeactivateGodzillaCamera()
-		{
-			MVGameControllerBase.CameraController.CancelTransitionCam();
-			MVGameControllerBase.CameraController.RemoveCamera(camera);
-			UnityEngine.Object.Destroy(camera.gameObject);
-		}
-	}
+	protected SpawnRoleDataReceiver spawnRoleDataReceiver;
 
 	private string currAnim = string.Empty;
 
@@ -1454,38 +898,25 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 
 	private AvatarRespawnHandler avatarRespawnHandler = new AvatarRespawnHandler();
 
-	public Action<string> OnKilled;
+	private Action<int, int, PlayerKilledByType> OnKilled;
 
-	public Action OnSuicide;
+	private Action OnSuicide;
 
 	private float previousHealth;
 
 	private float previousShield;
 
+	private float boostedHealthMultiplier = 1f;
+
 	public Action<float, MVPlayer, PlayerKilledByType> OnDamageTaken;
+
+	private Vector3 LookAtPos => transform.position + Vector3.up;
 
 	public AvatarInteractable InteractableLocal => interactableLocal;
 
+	public override Vector3 VelocityAbsolute => (!IsInVehicle) ? RigidBody.Velocity : vehicleRigidBody.Velocity;
+
 	public AvatarPickupOwner PickupOwner => pickupOwner;
-
-	public AvatarRespawnHandler AvatarRespawnHandler => avatarRespawnHandler;
-
-	public AvatarRuntimeState CurrentState => avatarLocalModes.CurrentState;
-
-	public Vector3 LookAtPos => transform.position + Vector3.up;
-
-	public bool IsSeated
-	{
-		get
-		{
-			if (!RunTimeData.ContainsObscuredKey("seat"))
-			{
-				Debug.LogError("MVAvatarLocal does not contain key seat");
-				return false;
-			}
-			return (int)(ObscuredInt)RunTimeData.GetObscuredType("seat") != -1;
-		}
-	}
 
 	public bool InGunMode
 	{
@@ -1501,13 +932,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 
 	public bool ForceRotateAvatarToFiringDirection { private get; set; }
 
-	public ILaserPointer LaserPointer => avatarPickupOwner.LaserPointer;
-
 	public MVRigidBody RigidBody => avatarMotor;
-
-	public MVTriggerHandler TriggerHandler => triggerHandler;
-
-	public bool IsDead => IsInMode(AvatarModeTypes.Dead);
 
 	public bool IsEnteringVehicle => MVGameControllerBase.Game.PlayerController.IsEnteringVehicle;
 
@@ -1525,11 +950,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		}
 	}
 
-	public override Vector3 VelocityAbsolute => (!IsInVehicle) ? RigidBody.Velocity : vehicleRigidBody.Velocity;
-
-	public AvatarMode CurrentMode => avatarLocalModes.CurrentMode;
-
-	public event EventHandler Respawned;
+	private AvatarLocal AvatarLocal => (AvatarLocal)Avatar;
 
 	public MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVLocalAvatarPrefab, worldObjects)
@@ -1537,38 +958,9 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		SetNetworkObject(local: true);
 	}
 
-	private void RelayDamageEvent(float amount, MVPlayer damageDealer, PlayerKilledByType damageType)
+	public bool IsSpawnRoleActive()
 	{
-		if (OnDamageTaken != null)
-		{
-			OnDamageTaken(amount, damageDealer, damageType);
-		}
-		if (!(Health.Value <= 0f))
-		{
-			return;
-		}
-		int num = damageDealer?.ActorNr ?? MVGameControllerBase.Game.LocalPlayer.ActorNr;
-		int actorNr = MVGameControllerBase.Game.LocalPlayer.ActorNr;
-		if (OnKilled != null)
-		{
-			bool shotSelf = actorNr == num;
-			Color color;
-			Color color2;
-			if (MVGameControllerBase.Game.TeamManager.GetTeamList().Count > 1)
-			{
-				color = Styles.GetTeamColor(MVGameControllerBase.Game.MVPlayerContainer[actorNr].Team);
-				color2 = Styles.GetTeamColor(MVGameControllerBase.Game.MVPlayerContainer[num].Team);
-			}
-			else
-			{
-				color = Styles.GetColor(ColorStyle.Gray);
-				color2 = Styles.GetColor(ColorStyle.Gray);
-			}
-			string userName = MVGameControllerBase.Game.MVPlayerContainer[actorNr].UserProfileData.UserName;
-			string userName2 = MVGameControllerBase.Game.MVPlayerContainer[num].UserProfileData.UserName;
-			string obj = string.Format(KillNotification.GetKillText(damageType, shotSelf), Styles.ColorToHex(color), userName, Styles.ColorToHex(color2), userName2);
-			OnKilled(obj);
-		}
+		return spawnRoleDataReceiver != null && spawnRoleDataReceiver.IsActive;
 	}
 
 	public float GetColliderRadius()
@@ -1582,30 +974,31 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		avatarMotor = gameObject.AddComponent<AvatarMotor>();
 		triggerHandler = gameObject.AddComponent<MVTriggerHandler>();
 		AvatarInteractable avatarInteractable = gameObject.AddComponent<AvatarInteractable>();
-		avatarInteractable.Init(Modifiers, Health, Shield);
+		avatarInteractable.Init(Modifiers, Health, MaxHealth, Shield);
 		interactableLocal = avatarInteractable;
 		AvatarInteractable avatarInteractable2 = interactableLocal;
 		avatarInteractable2.OnDamageTaken = (Action<float, MVPlayer, PlayerKilledByType>)Delegate.Combine(avatarInteractable2.OnDamageTaken, new Action<float, MVPlayer, PlayerKilledByType>(RelayDamageEvent));
 		avatarEquipable = gameObject.AddComponent<AvatarEquipable>();
 		avatarEquipable.Init(interactableLocal, CurrentItem);
-		avatarMotor.Init(avatarInteractable, CharacterControllerCenterOffset);
-		pickupOwner = avatarPickupOwner;
+		avatarMotor.Init(avatarInteractable, CharacterControllerCenterOffset, this);
+		pickupOwner = base.avatarPickupOwner;
 		if (MVGameControllerBase.GameMode != MVGameMode.CharacterEditor)
 		{
 			pickupGUI = gameObject.AddComponent<PickupGUI>();
-			pickupGUI.Initialize(pickupOwner);
+			pickupGUI.Initialize(Id, pickupOwner);
 		}
+		AvatarPickupOwner avatarPickupOwner = pickupOwner;
+		avatarPickupOwner.onEquipItem = (MVPickupOwner.OnEquipItemDelegate)Delegate.Combine(avatarPickupOwner.onEquipItem, new MVPickupOwner.OnEquipItemDelegate(OnEquipItem));
+		AvatarPickupOwner avatarPickupOwner2 = pickupOwner;
+		avatarPickupOwner2.OnHolsteredChanged = (Action<bool>)Delegate.Combine(avatarPickupOwner2.OnHolsteredChanged, new Action<bool>(OnHolsteredChanged));
 		avatarLocalModes = new AvatarLocalModes(this);
 		InitializeHealth();
 		InitializeShield();
-		MVGameControllerBase.WOCM.AvatarLocal = this;
-		InitializeAvatarState(MVGameControllerBase.GameMode, MVGameControllerBase.Game.GameType);
 		if (MVGameControllerBase.GameMode != MVGameMode.CharacterEditor)
 		{
 			useInteractorHandler = gameObject.AddComponent<UseInteractorHandler>();
-			useInteractorHandler.Init(Collider);
+			useInteractorHandler.Init(Id, Collider);
 		}
-		MVGameControllerBase.Game.PlayerController.Push(this);
 		avatarMotor.GetSizeState.EquipSlapGunEvent += avatarEquipable.EquipSlapGun;
 		avatarMotor.GetSizeState.CameraScaleEvent += OnCameraScale;
 		avatarMotor.GetSizeState.UnEquipSlapGunEvent += OnUnequip;
@@ -1614,32 +1007,80 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		AvatarShieldDecay avatarShieldDecay = gameObject.AddComponent<AvatarShieldDecay>();
 		avatarShieldDecay.Init(Shield);
 		avatarInteractable.OnShieldReplenished = (Action)Delegate.Combine(avatarInteractable.OnShieldReplenished, new Action(avatarShieldDecay.ResetDecayTimer));
-		CullingApiWrapper.SetDistanceReferencePoint(transform);
 		limbManager = new AvatarLimbManagerLocal();
-		limbManager.Initialize(avatarPickupOwner, this);
-		avatarlateUpdateManager.Initialize(Body, limbManager);
+		limbManager.Initialize(this, Body, avatar.EnabledChangeHandler, LimbRotationRuntimeData);
 		avatarRespawnHandler.Initialize(this);
+		PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
+		RotationChanged = (UnityAction<MVWorldObjectClient, RotationChangedEventArgs>)Delegate.Combine(RotationChanged, new UnityAction<MVWorldObjectClient, RotationChangedEventArgs>(OnRotationChanged));
+		ScaleChanged = (UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>)Delegate.Combine(ScaleChanged, new UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>(OnScaleChanged));
+		gameObject.SetActive(value: false);
+		MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(OwnerActorNr).NotifyAvatarCreated(Id);
 	}
 
-	public void ResetMode()
+	public void Activate(int idFrom, SpawnRoleDataReceiver spawnRoleDataReceiver, Vector3 position, Quaternion rotation)
 	{
-		SetMode(CurrentState);
+		Debug.Log("Activate " + Id);
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnKillSelf += KillSelf;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSetRespawnWhenPossible += OnSetRespawnWhenPossible;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSpawn += AvatarCommandsPlayModeOnOnSpawn;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSetToSpawnPoint += AvatarCommandsOnSetToSpawnPoint;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnReadyScreenShot += AvatarCommandsPlayModeOnOnReadyScreenShot;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnWinningConditionIntermediateDebriefing += AvatarCommandsPlayModeOnOnWinningConditionIntermediateDebriefing;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnRemoveFromGame += AvatarCommandsPlayModeOnOnRemoveFromGame;
+		MVGameControllerBase.GameEventManager.GameState.GameStateType.OnChange += GameStateTypeOnOnChange;
+		MVGameControllerBase.GameEventManager.OnFirstTimeEvent += GameEventManagerOnOnFirstTimeEvent;
+		MVGameControllerBase.GameEventManager.OnXPRewarded += GameEventManagerOnOnXpRewarded;
+		MVGameControllerBase.Game.LocalPlayer.BoostController.SubscribeToBoostChanged(BoostType.ExtraHealthFloatMultiplier, OnHealthBoostedChanged);
+		OnHealthBoostedChanged();
+		this.spawnRoleDataReceiver = spawnRoleDataReceiver;
+		Position = position;
+		Rotation = rotation;
+		SetTransform(Position, Rotation);
+		spawnRoleDataReceiver.position.Value = Position;
+		spawnRoleDataReceiver.rotation.Value = Rotation;
+		spawnRoleDataReceiver.scale.Value = Scale;
+		spawnRoleDataReceiver.woId.Value = Id;
+		((AvatarLocal)avatar).CameraController.ActivateCameraController();
+		avatarLocalModes.SetToStartMode();
+		gameObject.SetActive(value: true);
+		MVGameControllerBase.Game.PlayerController.SetAvatarLocalObject(this);
+		MVWorldObject worldObject = MVGameControllerBase.WOCM.GetWorldObject(idFrom);
+		if (idFrom > 0)
+		{
+			MVGameControllerBase.MainCameraManager.CurrentCamera.Reset();
+			MVGameControllerBase.MainCameraManager.CurrentCamera.transform.rotation = worldObject.Rotation;
+		}
+		CullingApiWrapper.SetDistanceReferencePoint(transform);
+	}
+
+	public void DeActivate(int idTo, SpawnRoleDataReceiver spawnRoleDataReceiver)
+	{
+		avatarLocalModes.SetToStartMode();
+		if (IsInVehicle)
+		{
+			LeaveVehicle(leaveBecauseOfServer: false);
+		}
+		avatarEquipable.Unequip();
+		interactableLocal.ClearModifiers();
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnKillSelf -= KillSelf;
+		MVGameControllerBase.GameEventManager.OnFirstTimeEvent -= GameEventManagerOnOnFirstTimeEvent;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSetRespawnWhenPossible -= OnSetRespawnWhenPossible;
+		MVGameControllerBase.GameEventManager.OnXPRewarded -= GameEventManagerOnOnXpRewarded;
+		MVGameControllerBase.GameEventManager.GameState.GameStateType.OnChange -= GameStateTypeOnOnChange;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnReadyScreenShot -= AvatarCommandsPlayModeOnOnReadyScreenShot;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSpawn -= AvatarCommandsPlayModeOnOnSpawn;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSetToSpawnPoint -= AvatarCommandsOnSetToSpawnPoint;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnWinningConditionIntermediateDebriefing -= AvatarCommandsPlayModeOnOnWinningConditionIntermediateDebriefing;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnRemoveFromGame -= AvatarCommandsPlayModeOnOnRemoveFromGame;
+		MVGameControllerBase.Game.LocalPlayer.BoostController.UnSubscribeToBoostChanged(BoostType.ExtraHealthFloatMultiplier, OnHealthBoostedChanged);
+		gameObject.SetActive(value: false);
+		this.spawnRoleDataReceiver = null;
+		MVGameControllerBase.Game.PlayerController.RemoveAvatarLocalObject();
 	}
 
 	public void SetMode(AvatarRuntimeState localMode)
 	{
-		healParticleSpawnTime = Time.time;
-		Shield.Value = 0f;
 		avatarLocalModes.SetMode(localMode);
-	}
-
-	public void OnUnequip(object sender, EventArgs e)
-	{
-		AvatarEquipable avatarEquipable = gameObject.GetComponent<MVEquipable>() as AvatarEquipable;
-		if (!(interactableLocal.HandleModifierEffect(AvatarModifierEffect.Scale, 1f) > 1f) || !avatarEquipable.GetIsEquipped(AvatarItemType.SlapGun))
-		{
-			avatarEquipable.Unequip();
-		}
 	}
 
 	public void SetCharacterController(SmoothCharacterController characterController)
@@ -1674,21 +1115,15 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			}
 		}
 		HandleLeaveVehicle();
-		MVGameControllerBase.CameraController.SetPlayModeCam();
+		AvatarLocal.CameraController.SetCamera(CameraType.ThirdPerson);
 		RigidBody.Reset();
 		RigidBody.enabled = true;
 		triggerHandler.enabled = true;
 		RigidBody.AddImpulse(impulse);
 		MVGameControllerBase.Game.TransformNetworkManager.AddReporter(id, new MVNetworkReporter(this));
 		OnLeaveVehicle();
-	}
-
-	private Vector3 CalculateVehicleExitMomentum(Vector3 velocity)
-	{
-		velocity /= Time.deltaTime;
-		velocity /= 2f;
-		velocity.y += velocity.magnitude / 7f;
-		return velocity;
+		spawnRoleDataReceiver.isInVehicle.Value = false;
+		pickupGUI.AvatarLeftVehicle();
 	}
 
 	public override void BeforeVehicleEntered()
@@ -1705,6 +1140,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			triggerHandler.enabled = false;
 		}
 		vehicleRigidBody = MVWorldObjectClientManager.GetEnabledMonoBehaviourHighestInHierarchy<MVRigidBody>(gameObject);
+		spawnRoleDataReceiver.isInVehicle.Value = true;
 	}
 
 	public InputToInGameAction Update(InputToInGameAction interactionMap)
@@ -1717,6 +1153,25 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 	{
 		avatarLocalModes.FixedUpdate(movementMap);
 		return movementMap;
+	}
+
+	public Dictionary<object, object> GetCurrentItemState()
+	{
+		return (Dictionary<object, object>)CurrentItem.Value;
+	}
+
+	public void SetCurrentItemState(Dictionary<object, object> aNewState)
+	{
+		CurrentItem.Value = aNewState;
+	}
+
+	public void VisualizeBulletImpact(VoxelHit voxelHit, Ray lineOfFire, int shooterActorNumber, float damage = 100f)
+	{
+		MVPlayer player = null;
+		if (MVGameControllerBase.Game.MVPlayerContainer.TryGetValue(shooterActorNumber, out player) && !player.IsOnSameTeam(this) && !IsInMode(SpawnRoleModeType.Dead) && !avatar.HasModifierEffect(AvatarModifierEffect.Invulnerable))
+		{
+			avatar.VisualizeBulletImpact(voxelHit, lineOfFire, shooterActorNumber, damage);
+		}
 	}
 
 	public void SetAnimation(string animationState)
@@ -1737,31 +1192,234 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		}
 	}
 
-	public void Respawn()
+	protected override void OnSeatedChanged(bool isSeated)
 	{
-		if (IsInMode(AvatarModeTypes.Playing) && !FlagDebriefingControl.IsInFlagDebriefing)
+		spawnRoleDataReceiver.isSeated.Value = isSeated;
+	}
+
+	protected override void AvatarStateChangedHandler(object a)
+	{
+		base.AvatarStateChangedHandler(a);
+		spawnRoleDataReceiver.spawnRoleMode.Value = (SpawnRoleModeType)a;
+	}
+
+	protected override void AttachBody(MVBody newBody)
+	{
+		base.AttachBody(newBody);
+		if (!MVGameControllerBase.Game.IsPlaying)
 		{
-			MVGameControllerBase.WOCM.AvatarLocal.Suicide();
+			newBody.Visible = false;
 		}
-		else if (CurrentState == AvatarRuntimeState.Edit)
+		else
 		{
-			MVGameControllerBase.WOCM.AvatarLocal.SetToSpawnTransform();
+			newBody.Visible = true;
 		}
-		else if (CurrentState == AvatarRuntimeState.Edit2D)
+		MVGameControllerBase.OperationRequests.TransferOwnership(newBody.Id, 0, null);
+		foreach (MVWorldObjectClient child in newBody.Children)
 		{
-			((EditorAvatarMode2D)avatarLocalModes.CurrentMode).SetToSpawn();
+			MVGameControllerBase.OperationRequests.TransferOwnership(child.Id, 0, null);
 		}
 	}
 
-	public void SetToSpawnTransform()
+	private void AvatarCommandsPlayModeOnOnRemoveFromGame()
 	{
+		SetMode(AvatarRuntimeState.Hidden);
+	}
+
+	private void AvatarCommandsPlayModeOnOnWinningConditionIntermediateDebriefing(WinningConditionType winningConditionType)
+	{
+		if (winningConditionType != WinningConditionType.TimeAttackFlag)
+		{
+			throw new Exception("Not implemented");
+		}
+		SetMode(AvatarRuntimeState.TimeAttackFlagDebriefing);
+	}
+
+	private void AvatarCommandsOnSetToSpawnPoint()
+	{
+		SetToSpawnTransform();
+	}
+
+	private void AvatarCommandsPlayModeOnOnSpawn()
+	{
+		SetMode(AvatarRuntimeState.Playing);
+	}
+
+	private void AvatarCommandsPlayModeOnOnReadyScreenShot()
+	{
+		avatar.AvatarFader.SetTransparency(1f);
+	}
+
+	private void GameStateTypeOnOnChange(MVGameStateType gameStateType)
+	{
+		if (gameStateType == MVGameStateType.RoundEnded)
+		{
+			SetMode(AvatarRuntimeState.Wait);
+		}
+	}
+
+	private void GameEventManagerOnOnXpRewarded(int obj)
+	{
+		AvatarLocal.OnXpProgressing(obj);
+	}
+
+	private void OnSetRespawnWhenPossible()
+	{
+		avatarRespawnHandler.ShouldRespawnAsGhost = false;
+	}
+
+	private void GameEventManagerOnOnFirstTimeEvent(FirstTimeEvent firstTimeEvent)
+	{
+		if (firstTimeEvent == FirstTimeEvent.PM_LobbyState)
+		{
+			FirstTimeAvatarJumpAnimator firstTimeAvatarJumpAnimator = gameObject.AddComponent<FirstTimeAvatarJumpAnimator>();
+			firstTimeAvatarJumpAnimator.Initialize(this);
+		}
+	}
+
+	private void OnHolsteredChanged(bool obj)
+	{
+		HandleBlinkerVisibility();
+		spawnRoleDataReceiver.pickupItemIsInHand.Value = pickupOwner.PickupItemIsInHand;
+	}
+
+	private void OnUnequip(object sender, EventArgs e)
+	{
+		AvatarEquipable avatarEquipable = gameObject.GetComponent<MVEquipable>() as AvatarEquipable;
+		if (!(interactableLocal.HandleModifierEffect(AvatarModifierEffect.Scale, 1f) > 1f) || !avatarEquipable.GetIsEquipped(AvatarItemType.SlapGun))
+		{
+			avatarEquipable.Unequip();
+		}
+	}
+
+	private void KillSelf()
+	{
+		if (IsInMode(SpawnRoleModeType.Playing) && !MVGameControllerBase.FlagDebriefingControl.IsInFlagDebriefing)
+		{
+			Suicide();
+		}
+	}
+
+	private void SetToSpawnTransform()
+	{
+		Debug.Log("SetToSpawnTransform");
 		Transform spawnTransform = GetSpawnTransform();
 		SetTransform(spawnTransform.position, spawnTransform.rotation);
 	}
 
+	private void ResetAvatar()
+	{
+		triggerHandler.enabled = true;
+		int actorNr = MVGameControllerBase.Game.LocalPlayer.ActorNr;
+		MVTeam teamFromActorNr = MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(actorNr);
+		if (teamFromActorNr != MVTeam.None && !MVGameControllerBase.Game.TeamManager.IsTeamActive(teamFromActorNr))
+		{
+			List<MVTeam> teamList = MVGameControllerBase.Game.TeamManager.GetTeamList();
+			MVGameControllerBase.OperationRequests.SetTeam(teamList[0]);
+		}
+		SetAnimation("Idle");
+		MaxHealth.Value = GetBoostedHealth(100f);
+		Health.Value = MaxHealth.Value;
+		if (IsSeated)
+		{
+			LeaveVehicle(leaveBecauseOfServer: false);
+		}
+		avatarEquipable.Unequip();
+		interactableLocal.ClearModifiers();
+		avatarMotor.Reset();
+	}
+
+	private float GetBoostedHealth(float defaultValue)
+	{
+		return defaultValue * boostedHealthMultiplier;
+	}
+
+	private void OnHealthBoostedChanged()
+	{
+		boostedHealthMultiplier = 1f;
+		if (MVGameControllerBase.Game.LocalPlayer.BoostController.TryGetActiveBoost(BoostType.ExtraHealthFloatMultiplier, out var boost))
+		{
+			boostedHealthMultiplier = (float)boost.Value;
+			MaxHealth.Value = 100f * boostedHealthMultiplier;
+			Health.Value = MaxHealth.Value;
+		}
+	}
+
+	private void Die()
+	{
+		if (IsInMode(SpawnRoleModeType.Playing))
+		{
+			Shield.Value = 0f;
+			avatarLocalModes.SetMode(AvatarRuntimeState.Dead);
+		}
+	}
+
+	private void OnRespawn()
+	{
+		interactableLocal.AddModifier(AvatarModifierPackageType.SpawnProtection);
+		SetToSpawnTransform();
+	}
+
+	private void SetTransform(Vector3 position, Quaternion rotation)
+	{
+		WorldObjectClient.WorldPosition = position;
+		WorldObjectClient.WorldRotation = rotation;
+		GameObject.transform.position = position;
+		GameObject.transform.rotation = rotation;
+		avatarMotor.Reset();
+	}
+
+	private void InitializeShield()
+	{
+		previousShield = Shield.Value;
+		MVRuntimeDataVariableClampedFloat mVRuntimeDataVariableClampedFloat = Shield;
+		mVRuntimeDataVariableClampedFloat.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(mVRuntimeDataVariableClampedFloat.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object shield) =>
+		{
+			TrySpawningHealParticles(previousShield, Shield.Value);
+			previousShield = Shield.Value;
+			spawnRoleDataReceiver.shield.Value = (float)shield;
+		}));
+	}
+
+	private void OnDisableVehicles(object sender, EventArgs args)
+	{
+		if (IsSeated)
+		{
+			LeaveVehicle(leaveBecauseOfServer: false);
+		}
+	}
+
+	private void OnCameraScale(object sender, ScaleArgs args)
+	{
+		MainCameraManager.GetSettings(MVGameControllerBase.Game.GameType).ScaleCameraValues(args.scale);
+	}
+
+	private void InitializeHealth()
+	{
+		previousHealth = Health.Value;
+		MVRuntimeDataVariable<float> health = Health;
+		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object obj) =>
+		{
+			if ((float)obj == 0f)
+			{
+				Die();
+			}
+			else
+			{
+				TrySpawningHealParticles(previousHealth, Health.Value);
+			}
+			previousHealth = Health.Value;
+			spawnRoleDataReceiver.health.Value = (float)obj;
+		}));
+	}
+
+	private void InitializeAvatarState(MVGameMode gameMode)
+	{
+	}
+
 	private void Suicide()
 	{
-		if (IsInMode(AvatarModeTypes.Dead))
+		if (IsInMode(SpawnRoleModeType.Dead))
 		{
 			return;
 		}
@@ -1771,12 +1429,45 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			if (OnSuicide != null)
 			{
 				OnSuicide();
+				spawnRoleDataReceiver.NotifySuicide();
 			}
 		}
 		else
 		{
 			interactableLocal.TakeDamage(100f, interactableLocal.LastDamageSource.shooter, interactableLocal.LastDamageSource.damageType);
 		}
+	}
+
+	private Vector3 CalculateVehicleExitMomentum(Vector3 velocity)
+	{
+		velocity /= Time.deltaTime;
+		velocity /= 2f;
+		velocity.y += velocity.magnitude / 7f;
+		return velocity;
+	}
+
+	private void RelayDamageEvent(float amount, MVPlayer damageDealer, PlayerKilledByType damageType)
+	{
+		if (OnDamageTaken != null)
+		{
+			OnDamageTaken(amount, damageDealer, damageType);
+		}
+		if (Health.Value <= 0f)
+		{
+			int num = damageDealer?.ActorNr ?? MVGameControllerBase.Game.LocalPlayer.ActorNr;
+			int actorNr = MVGameControllerBase.Game.LocalPlayer.ActorNr;
+			if (OnKilled != null)
+			{
+				OnKilled(actorNr, num, damageType);
+				spawnRoleDataReceiver.NotifyKilled(actorNr, num, damageType);
+			}
+		}
+	}
+
+	private void OnEquipItem(PickupItem equippeditem)
+	{
+		spawnRoleDataReceiver.isInGunMode.Value = pickupOwner.InGunMode;
+		spawnRoleDataReceiver.pickupItemIsInHand.Value = pickupOwner.PickupItemIsInHand;
 	}
 
 	private static Transform GetSpawnTransform()
@@ -1795,153 +1486,36 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		return validSpawnPoint.Transform;
 	}
 
-	private void InitializeAvatarState(MVGameMode gameMode, MVGameType gameType)
+	private void OnPositionChanged(MVWorldObjectClient wo, PositionChangedEventArgs positionChangedEventArgs)
 	{
-		switch (gameMode)
-		{
-		case MVGameMode.Edit:
-			switch (gameType)
-			{
-			case MVGameType.Platformer:
-				avatarLocalModes.SetMode(AvatarRuntimeState.Edit2D);
-				((EditorAvatarMode2D)avatarLocalModes.CurrentMode).SetToSpawn();
-				break;
-			case MVGameType.Classic:
-				avatarLocalModes.SetMode(AvatarRuntimeState.Edit);
-				((JetPackMode)avatarLocalModes.CurrentMode).SetToSpawn();
-				break;
-			}
-			break;
-		case MVGameMode.CharacterEditor:
-			avatarLocalModes.SetMode(AvatarRuntimeState.Edit);
-			break;
-		case MVGameMode.Play:
-			avatarLocalModes.SetMode(AvatarRuntimeState.Hidden);
-			break;
-		}
+		spawnRoleDataReceiver.position.Value = positionChangedEventArgs.NewPos;
 	}
 
-	private void InitializeHealth()
+	private void OnRotationChanged(MVWorldObjectClient wo, RotationChangedEventArgs rotationChangedEventArgs)
 	{
-		previousHealth = Health.Value;
-		MVRuntimeDataVariableClampedFloat health = Health;
-		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object obj) =>
-		{
-			if ((float)obj == 0f)
-			{
-				Die();
-			}
-			else
-			{
-				TrySpawningHealParticles(previousHealth, Health.Value);
-			}
-			previousHealth = Health.Value;
-		}));
+		spawnRoleDataReceiver.rotation.Value = rotationChangedEventArgs.NewRotation;
 	}
 
-	private void InitializeShield()
+	private void OnScaleChanged(MVWorldObjectClient wo, ScaleChangedEventArgs scaleChangedEventArgs)
 	{
-		previousShield = Shield.Value;
-		MVRuntimeDataVariableClampedFloat mVRuntimeDataVariableClampedFloat = Shield;
-		mVRuntimeDataVariableClampedFloat.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(mVRuntimeDataVariableClampedFloat.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object shield) =>
-		{
-			TrySpawningHealParticles(previousShield, Shield.Value);
-			previousShield = Shield.Value;
-		}));
+		spawnRoleDataReceiver.scale.Value = scaleChangedEventArgs.NewScale;
 	}
 
-	private void OnDisableVehicles(object sender, EventArgs args)
+	protected override void OnCurrentPickupChange(object newPickupDataData)
 	{
-		if (IsSeated)
-		{
-			LeaveVehicle(leaveBecauseOfServer: false);
-		}
+		base.OnCurrentPickupChange(newPickupDataData);
+		HandleBlinkerVisibility();
 	}
 
-	private void OnCameraScale(object sender, ScaleArgs args)
+	private void HandleBlinkerVisibility()
 	{
-		MVCameraController.GetSettings(MVGameControllerBase.Game.GameType).ScaleCameraValues(args.scale);
-	}
-
-	public override void AttachBody(MVBody newBody)
-	{
-		base.AttachBody(newBody);
-		if (!MVGameControllerBase.Game.IsPlaying)
+		if (CurrentPickup.IsInFirstPersonMode)
 		{
-			newBody.Visible = false;
+			Body.DisableBodyBlinker();
 		}
 		else
 		{
-			newBody.Visible = true;
+			Body.EnableBodyBlinker();
 		}
-		MVGameControllerBase.OperationRequests.TransferOwnership(newBody.Id, 0, null);
-		foreach (MVWorldObjectClient child in newBody.Children)
-		{
-			MVGameControllerBase.OperationRequests.TransferOwnership(child.Id, 0, null);
-		}
-	}
-
-	private void Die()
-	{
-		if (IsInMode(AvatarModeTypes.Playing))
-		{
-			Shield.Value = 0f;
-			AvatarRuntimeState currentState = CurrentState;
-			if (currentState == AvatarRuntimeState.Godzilla)
-			{
-				avatarLocalModes.SetMode(AvatarRuntimeState.GodzillaDead);
-			}
-			else
-			{
-				avatarLocalModes.SetMode(AvatarRuntimeState.Dead);
-			}
-		}
-	}
-
-	public void ResetAvatar()
-	{
-		triggerHandler.enabled = true;
-		int actorNr = MVGameControllerBase.Game.LocalPlayer.ActorNr;
-		MVTeam teamFromActorNr = MVGameControllerBase.Game.TeamManager.GetTeamFromActorNr(actorNr);
-		if (teamFromActorNr != MVTeam.None && !MVGameControllerBase.Game.TeamManager.IsTeamActive(teamFromActorNr))
-		{
-			List<MVTeam> teamList = MVGameControllerBase.Game.TeamManager.GetTeamList();
-			MVGameControllerBase.OperationRequests.SetTeam(teamList[0]);
-		}
-		SetAnimation("Idle");
-		Health.Value = 100f;
-		if (IsSeated)
-		{
-			LeaveVehicle(leaveBecauseOfServer: false);
-		}
-		avatarEquipable.Unequip();
-		interactableLocal.ClearModifiers();
-		avatarMotor.Reset();
-	}
-
-	private void SetTransform(Vector3 position, Quaternion rotation)
-	{
-		GameObject.transform.position = position;
-		GameObject.transform.rotation = rotation;
-		avatarMotor.Reset();
-	}
-
-	public void VisualizeBulletImpact(VoxelHit voxelHit, Ray lineOfFire, int shooterActorNumber, float damage = 100f)
-	{
-		MVPlayer player = null;
-		if (MVGameControllerBase.Game.MVPlayerContainer.TryGetValue(shooterActorNumber, out player) && !MVGameControllerBase.Game.TeamManager.IsOnSameTeam(this, player.Avatar) && !IsInMode(AvatarModeTypes.Dead) && !avatar.HasModifierEffect(AvatarModifierEffect.Invulnerable))
-		{
-			avatar.VisualizeBulletImpact(voxelHit, lineOfFire, shooterActorNumber, damage);
-		}
-	}
-
-	public Dictionary<object, object> GetCurrentItemState()
-	{
-		return (Dictionary<object, object>)CurrentItem.Value;
-	}
-
-	public void SetCurrentItemState(Dictionary<object, object> aNewState)
-	{
-		CurrentItem.Value = aNewState;
 	}
 }

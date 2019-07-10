@@ -1,4 +1,3 @@
-using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -43,15 +42,15 @@ public class GizmoMenu : MonoBehaviour
 		MVGameControllerBase.WOCM.SubscribeWODestroyedEvent(woID, PopWoDestroyed);
 		bool active = worldObjectClient.HasInteractionFlag(InteractionFlags.CanRotateX) || worldObjectClient.HasInteractionFlag(InteractionFlags.CanRotateY) || worldObjectClient.HasInteractionFlag(InteractionFlags.CanRotateZ);
 		rotate.gameObject.SetActive(active);
-		bool active2 = (!worldObjectClient.HasInteractionFlag(InteractionFlags.NotTranslatbleXZ) && MVGameControllerBase.Game.GameType != MVGameType.Platformer) || (worldObjectClient.HasInteractionFlag(InteractionFlags.TranslatbleXZ2D) && MVGameControllerBase.Game.GameType == MVGameType.Platformer);
+		bool active2 = !worldObjectClient.HasInteractionFlag(InteractionFlags.NotTranslatbleXZ);
 		xzTranslate.gameObject.SetActive(active2);
-		bool active3 = MVGameControllerBase.Game.GameType != MVGameType.Platformer && !worldObjectClient.HasInteractionFlag(InteractionFlags.NotTranslatbleY);
+		bool active3 = !worldObjectClient.HasInteractionFlag(InteractionFlags.NotTranslatbleY);
 		yTranslate.gameObject.SetActive(active3);
 	}
 
 	private void SetToScreenPoint()
 	{
-		Vector3 position = MVGameControllerBase.CameraController.MainCamera.WorldToScreenPoint(worldPosition);
+		Vector3 position = MVGameControllerBase.MainCameraManager.MainCamera.WorldToScreenPoint(worldPosition);
 		rectTransform.transform.position = position;
 	}
 

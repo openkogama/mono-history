@@ -12,7 +12,7 @@ public class Avatar : MonoBehaviour, IBulletImpactVisualizer, IMovable
 
 	private Dictionary<AvatarModifierPackageType, byte> currentModifierByteState = new Dictionary<AvatarModifierPackageType, byte>();
 
-	private byte[] modifierEffectCount = new byte[22];
+	private byte[] modifierEffectCount = new byte[21];
 
 	private InteractionDataHandlerBase interactionDataHandler;
 
@@ -39,6 +39,9 @@ public class Avatar : MonoBehaviour, IBulletImpactVisualizer, IMovable
 	[SerializeField]
 	protected AvatarUIHandler avatarUIHandler;
 
+	[SerializeField]
+	private ChatAnchor chatBubbleAnchor;
+
 	public bool IsLocal => isLocal;
 
 	public InteractionDataHandlerBase InteractionDataHandlerBase => interactionDataHandler;
@@ -50,6 +53,8 @@ public class Avatar : MonoBehaviour, IBulletImpactVisualizer, IMovable
 	public AvatarEnabledChangeHandler EnabledChangeHandler => enabledChangeHandler;
 
 	public AvatarUIHandler AvatarUIHandler => avatarUIHandler;
+
+	public ChatAnchor ChatBubbleAnchor => chatBubbleAnchor;
 
 	public Vector3 Velocity => mvAvatar.VelocityAbsolute;
 
@@ -66,7 +71,8 @@ public class Avatar : MonoBehaviour, IBulletImpactVisualizer, IMovable
 		avatarCollider = GetComponent<Collider>();
 		avatarLevelUp.Init(mvAvatar.OwnerActorNr);
 		waterSplashComponent.Initialize(this);
-		avatarUIHandler.Initialize(IsLocal, mvAvatar);
+		avatarUIHandler.Initialize(IsLocal, mvAvatar, mvAvatar.OwnerActorNr, chatBubbleAnchor);
+		chatBubbleAnchor.Initialize(isLocal, this);
 	}
 
 	public void UpdateModifiers(Dictionary<object, object> newModifiers)

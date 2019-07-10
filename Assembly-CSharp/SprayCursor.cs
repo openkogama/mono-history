@@ -18,7 +18,7 @@ public class SprayCursor
 	{
 		if (addCube)
 		{
-			MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ActivateLaserForDuration(addCubeLaserOnTime);
+			MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.ActivateLaserForDuration(addCubeLaserOnTime);
 			addCubeTime = Time.time;
 		}
 		if (selectedCube != null)
@@ -29,7 +29,7 @@ public class SprayCursor
 			if (Time.time - addCubeTime < addCubeLaserOnTime)
 			{
 			}
-			MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.UpdatePosition(selectedCube.point);
+			MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.UpdatePosition(selectedCube.point);
 		}
 		else
 		{

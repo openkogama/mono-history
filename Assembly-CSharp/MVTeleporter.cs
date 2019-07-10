@@ -5,7 +5,7 @@ public class MVTeleporter : MVLogicObject
 {
 	private const UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
-	private List<MVAvatar> avatarIgnoreList = new List<MVAvatar>();
+	private List<int> avatarIgnoreList = new List<int>();
 
 	private MVTeleporterObject teleportObject;
 
@@ -113,10 +113,10 @@ public class MVTeleporter : MVLogicObject
 		bool flag = InputLinkRefs.Count == 0 || InputState;
 		if ((useInteractor.EvaluateRequirementsUsability() & UseGUIResult.CanAfford) != 0)
 		{
-			MVAvatarLocal avatarLocal = MVGameControllerBase.WOCM.AvatarLocal;
-			if (e.instigatorWOID == avatarLocal.Id)
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(e.instigatorWOID);
+			if (worldObjectClient is MVAvatarLocal)
 			{
-				avatarIgnoreList.Remove(avatarLocal);
+				avatarIgnoreList.Remove(worldObjectClient.Id);
 			}
 		}
 		if (flag && (useInteractor.EvaluateRequirementsUsability() & (UseGUIResult.CanAfford | UseGUIResult.CannotAfford)) == 0)
@@ -127,40 +127,45 @@ public class MVTeleporter : MVLogicObject
 
 	private bool DoTeleport(int instigatorWOID)
 	{
+		Debug.Log("DoTeleport");
 		MVTeleporter mVTeleporter = target;
-		if (!(MVGameControllerBase.WOCM.GetWorldObjectClient(instigatorWOID) is MVAvatarLocal))
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(instigatorWOID);
+		if (!(worldObjectClient is MVAvatarLocal))
 		{
 			return false;
 		}
-		MVAvatarLocal avatarLocal = MVGameControllerBase.WOCM.AvatarLocal;
-		if (avatarLocal.IsEnteringVehicle)
+		Debug.Log("DoTeleport2");
+		MVAvatarLocal mVAvatarLocal = (MVAvatarLocal)worldObjectClient;
+		if (mVAvatarLocal.IsEnteringVehicle)
 		{
 			return false;
 		}
-		if (avatarLocal.IsSeated)
+		if (mVAvatarLocal.IsSeated)
 		{
-			avatarLocal.LeaveVehicle(leaveBecauseOfServer: false);
+			mVAvatarLocal.LeaveVehicle(leaveBecauseOfServer: false);
 		}
-		if (!avatarIgnoreList.Contains(avatarLocal))
+		if (!mVAvatarLocal.IsSpawnRoleActive())
+		{
+			return false;
+		}
+		if (!avatarIgnoreList.Contains(mVAvatarLocal.Id))
 		{
 			TeleportAvatar teleportAvatar = Object.Instantiate(teleportAvatarPrefab, transform.position, Quaternion.identity);
-			teleportAvatar.avatar = avatarLocal;
+			teleportAvatar.avatar = mVAvatarLocal;
 			teleportAvatar.targetPosition = target.WorldPosition;
 			teleportAvatar.originPosition = transform.position;
-			mVTeleporter.avatarIgnoreList.Add(avatarLocal);
+			mVTeleporter.avatarIgnoreList.Add(mVAvatarLocal.Id);
+			Debug.LogWarning("actor ignore list should use ids");
 		}
 		return true;
 	}
 
 	private void triggerBoxEvents_TriggerExit(object sender, TriggerEventArgs e)
 	{
-		if (MVGameControllerBase.WOCM.GetWorldObjectClient(e.instigatorWOID) is MVAvatarLocal)
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(e.instigatorWOID);
+		if (worldObjectClient is MVAvatarLocal)
 		{
-			MVAvatarLocal avatarLocal = MVGameControllerBase.WOCM.AvatarLocal;
-			if (e.instigatorWOID == avatarLocal.Id)
-			{
-				avatarIgnoreList.Remove(avatarLocal);
-			}
+			avatarIgnoreList.Remove(worldObjectClient.Id);
 		}
 	}
 

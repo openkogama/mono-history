@@ -43,10 +43,6 @@ public class JetPackMotor : MVRigidBody
 
 	protected StuckEvaluator stuckEvaluator;
 
-	private Vector3 lastKnownMovementDir = Vector3.zero;
-
-	private float platformerRotSpeed = 5.8f;
-
 	private bool leaveMode;
 
 	private MvCharacterController Controller => smoothController.Controller;
@@ -151,43 +147,31 @@ public class JetPackMotor : MVRigidBody
 	public void FixedUpdateFunction(Quaternion setQuaternion, bool shouldSetRotation)
 	{
 		waterProximity = MVGameControllerBase.WaterPlaneManager.ComputeAvatarWaterProximity(Controller.gameObject.transform.position);
-		if (IsMovementLocked)
+		if (!IsMovementLocked)
 		{
-			return;
-		}
-		if (shouldSetRotation && MVGameControllerBase.Game.GameType == MVGameType.Classic)
-		{
-			Controller.transform.rotation = setQuaternion;
-		}
-		else if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-		{
-			if (InputMoveDirection.sqrMagnitude > 0f)
+			if (shouldSetRotation)
 			{
-				lastKnownMovementDir = InputMoveDirection;
+				Controller.transform.rotation = setQuaternion;
 			}
-			if (lastKnownMovementDir.sqrMagnitude > 0f)
+			Vector3 prevVelocity = velocityPrevFrame;
+			Vector3 velocity = velocityPrevFrame;
+			bool flag = movableMotorState.Move(velocity, Controller, Controller.Radius, groundState, out var movableVelocityVector);
+			velocity = GetVelocity(velocity, movableVelocityVector);
+			if (flag)
 			{
-				Controller.transform.rotation = Quaternion.Lerp(Controller.transform.rotation, Quaternion.LookRotation(lastKnownMovementDir), platformerRotSpeed * Time.fixedDeltaTime);
+				Move(velocity, Vector3.zero);
 			}
+			else
+			{
+				Move(velocity, movableVelocityVector);
+			}
+			velocityPrevFrame = Controller.Velocity / Time.fixedDeltaTime;
+			if (!flag)
+			{
+				velocityPrevFrame -= movableVelocityVector;
+			}
+			DealImpactDamage(velocityPrevFrame, prevVelocity);
 		}
-		Vector3 prevVelocity = velocityPrevFrame;
-		Vector3 velocity = velocityPrevFrame;
-		bool flag = movableMotorState.Move(velocity, Controller, Controller.Radius, groundState, out var movableVelocityVector);
-		velocity = GetVelocity(velocity, movableVelocityVector);
-		if (flag)
-		{
-			Move(velocity, Vector3.zero);
-		}
-		else
-		{
-			Move(velocity, movableVelocityVector);
-		}
-		velocityPrevFrame = Controller.Velocity / Time.fixedDeltaTime;
-		if (!flag)
-		{
-			velocityPrevFrame -= movableVelocityVector;
-		}
-		DealImpactDamage(velocityPrevFrame, prevVelocity);
 	}
 
 	private Vector3 GetVelocity(Vector3 velocity, Vector3 baseVelocity)

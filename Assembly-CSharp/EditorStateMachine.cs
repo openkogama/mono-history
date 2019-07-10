@@ -1,12 +1,11 @@
 using System.Collections.Generic;
-using MV.Common;
 using UnityEngine;
 
 public class EditorStateMachine : FSMEntity
 {
 	private SelectionController selectionController;
 
-	private MVCameraController weCamera;
+	private MainCameraManager weCamera;
 
 	private CubeModelingStateMachine cubeModelingStateMachine;
 
@@ -18,7 +17,7 @@ public class EditorStateMachine : FSMEntity
 
 	public MVNetworkSelector NetworkSelector => networkSelector;
 
-	public MVCameraController CameraController => weCamera;
+	public MainCameraManager MainCameraManager => weCamera;
 
 	public bool GridMode { get; set; }
 
@@ -52,7 +51,7 @@ public class EditorStateMachine : FSMEntity
 		cubeModelingStateMachine = new CubeModelingStateMachine(gameObject);
 		networkSelector = new MVNetworkSelector(this);
 		selectionController = new SelectionController();
-		weCamera = MVGameControllerBase.CameraController;
+		weCamera = MVGameControllerBase.MainCameraManager;
 		GridMode = true;
 	}
 
@@ -65,14 +64,7 @@ public class EditorStateMachine : FSMEntity
 	public EditorStateMachine(GameObject gameObject, ContextMenuController contextMenuController, GizmoController gizmoController)
 		: this(gameObject)
 	{
-		if (MVGameControllerBase.Game.GameType == MVGameType.Classic)
-		{
-			transitionTable = new EditorStateTransitionTable3D(contextMenuController, gizmoController);
-		}
-		else if (MVGameControllerBase.Game.GameType == MVGameType.Platformer)
-		{
-			transitionTable = new EditorStateTransitionTable2D(contextMenuController, gizmoController);
-		}
+		transitionTable = new EditorStateTransitionTable3D(contextMenuController, gizmoController);
 	}
 
 	public void EnterGroup(MVGroup group)

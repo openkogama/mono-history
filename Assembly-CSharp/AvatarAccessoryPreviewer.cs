@@ -60,6 +60,7 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 
 	public void SetupPreviewer(MVBody avatarBody)
 	{
+		Debug.Log("SETUP");
 		this.avatarBody = avatarBody;
 		Quaternion rotation = Quaternion.identity * Quaternion.Euler(0f, 180f, 0f);
 		if (bodyClone != null)
@@ -141,7 +142,7 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 			OnAnimationActivators[num4].OnAvatarAnimationChange(animations[currentAnimation]);
 		}
 		toPreviewer = Object.Instantiate(previewer);
-		toPreviewer.Initialize(previewDimensionsX, previewDimensionsY, CameraClearFlags.Color, MVGameControllerBase.WOCM.AvatarLocal.PreviewLayerMask, new Vector3(0f, -0.5f, -1f), avatarResetToTransform, new Vector3(100f, 100f, 100f), "Avatar accessory preview", MVGameControllerBase.WOCM.AvatarLocal, bodyClone, new Vector3(15f, 0f, 0f));
+		toPreviewer.Initialize(previewDimensionsX, previewDimensionsY, CameraClearFlags.Color, MVGameControllerBase.LocalPlayer.Body.PreviewLayerMask, new Vector3(0f, -0.5f, -1f), avatarResetToTransform, new Vector3(100f, 100f, 100f), "Avatar accessory preview", MVGameControllerBase.LocalPlayer.Body, bodyClone, new Vector3(15f, 0f, 0f));
 		toPreviewer.previewCam.transform.position += new Vector3(0f, 1.22f, 0f);
 		bodyClone.transform.rotation = rotation;
 		startFov = toPreviewer.previewCam.fieldOfView;
@@ -191,7 +192,7 @@ public class AvatarAccessoryPreviewer : MonoBehaviour, IDragHandler, IPointerDow
 		}
 		else
 		{
-			SetupPreviewer(MVGameControllerBase.WOCM.AvatarLocal.Body);
+			SetupPreviewer(MVGameControllerBase.LocalPlayer.Body);
 		}
 	}
 

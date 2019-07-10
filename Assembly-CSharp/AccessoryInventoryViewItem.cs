@@ -78,6 +78,8 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, I
 
 	private AccessoryDataClient accessoryDataClient;
 
+	private Texture2D levelRequirementTextureAsset;
+
 	private int highlightId = -1;
 
 	private bool bundleView;
@@ -117,19 +119,15 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, I
 
 	private void OnLevelRequirementLoaded(WWW www)
 	{
-		if (www == null || www.texture == null || !string.IsNullOrEmpty(www.error))
+		if (!string.IsNullOrEmpty(www.error))
 		{
-			string text = "www is null";
-			if (www != null)
-			{
-				text = www.error;
-			}
-			Debug.LogWarning("Badge not loaded for accessory level requirement, Error: " + text);
+			Debug.LogWarning("Badge not loaded for accessory level requirement, Error: " + www.error);
 		}
 		else if (levelRequirement != null && !wasDestroyed)
 		{
+			levelRequirementTextureAsset = www.texture;
 			levelRequirement.gameObject.SetActive(value: true);
-			levelRequirement.texture = www.texture;
+			levelRequirement.texture = levelRequirementTextureAsset;
 		}
 	}
 
@@ -198,6 +196,7 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, I
 		accessoryLoader.Destroy();
 		accessoryLoader = null;
 		BadgeManager.UnsubscribeGetBadgeRequest(OnLevelRequirementLoaded);
+		UnityEngine.Object.Destroy(levelRequirementTextureAsset);
 	}
 
 	private void AccessoryCreatedCallback(AvatarAccessory avatarAccessory)

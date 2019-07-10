@@ -17,7 +17,7 @@ public class DeleteCursor
 	{
 		if (deletedCube)
 		{
-			MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.ActivateLaserForDuration(deleteCubeLaserOnTime);
+			MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.ActivateLaserForDuration(deleteCubeLaserOnTime);
 			deleteCubeTime = Time.time;
 		}
 		if (Time.time - deleteCubeTime < deleteCubeLaserOnTime)
@@ -25,7 +25,7 @@ public class DeleteCursor
 		}
 		if (selectedCube != null)
 		{
-			MVGameControllerBase.WOCM.AvatarLocal.LaserPointer.UpdatePosition(selectedCube.point);
+			MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.LaserCommands.UpdatePosition(selectedCube.point);
 			deleteCursor.Active = true;
 			deleteCursor.SetCursor(selectedCube.iLocalPos, targetCubeModel.GameObject);
 		}

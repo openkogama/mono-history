@@ -37,6 +37,14 @@ public class MutantModifier : AvatarModifier
 		}
 	}
 
+	private void OnDisable()
+	{
+		if (isDeactivating)
+		{
+			Object.Destroy(gameObject);
+		}
+	}
+
 	private IEnumerator DoFadeAndDestroy()
 	{
 		ParticleSystem.EmissionModule em = fireParticles.emission;

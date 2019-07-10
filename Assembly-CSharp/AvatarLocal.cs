@@ -1,32 +1,33 @@
-using System;
-using MV.WorldObject.Subscription;
-using MV.WorldObject.Subscription.SubscriptionRules;
 using UnityEngine;
 
 public class AvatarLocal : Avatar
 {
-	[SerializeField]
-	private SkinnedMeshOptimizeManager skinnedMeshOptimizeManager;
+	private IAvatarCameraController avatarCameraController;
 
-	public SkinnedMeshOptimizeManager SkinnedMeshOptimizeManager => skinnedMeshOptimizeManager;
+	[SerializeField]
+	private AvatarCamerasMobile avatarCamerasMobile;
+
+	[SerializeField]
+	private AvatarCamerasDesktop avatarCamerasDesktop;
+
+	public IAvatarCameraController CameraController => avatarCameraController;
 
 	public override void Initialize(MVAvatar mvAvatar, bool isLocal)
 	{
 		base.Initialize(mvAvatar, isLocal);
-		MVLocalPlayer localPlayer = MVGameControllerBase.Game.LocalPlayer;
-		localPlayer.OnXPProgressData = (XPProgress.OnXPProgressDataDelegate)Delegate.Combine(localPlayer.OnXPProgressData, new XPProgress.OnXPProgressDataDelegate(OnXpProgress));
+		avatarCameraController = Object.Instantiate(avatarCamerasDesktop);
+		avatarCameraController.Initialize((MVAvatarLocal)mvAvatar);
 	}
 
-	private void OnXpProgress(XPProgressData xpProgressData)
+	public void OnXpProgressing(int xp)
 	{
+		Debug.Log("OnXpProgressing....................");
 		AvatarPooledXPParticles avatarPooledXPParticles = PrefabPool.Instance.EnumPoolManager.Instantiate<AvatarPooledXPParticles>(PoolEnums.XP);
 		avatarPooledXPParticles.transform.parent = transform;
 		avatarPooledXPParticles.transform.localPosition = Vector3.up;
 		avatarPooledXPParticles.transform.localRotation = Quaternion.identity;
 		avatarPooledXPParticles.transform.localScale = Vector3.one;
 		avatarPooledXPParticles.gameObject.layer = mvAvatar.Body.GameObject.layer;
-		int boostedXp = MVGameControllerBase.Game.LocalPlayer.SubscriptionRules.GetRule<XpBooster>(SubscriptionBenefit.XPBoost).GetBoostedXp(xpProgressData.XPDelta, xpProgressData.MemberCount);
-		int xpDelta = xpProgressData.XPDelta + Mathf.FloorToInt((float)(boostedXp - xpProgressData.XPDelta) * 2f);
-		avatarPooledXPParticles.Initialize(xpDelta);
+		avatarPooledXPParticles.Initialize(xp);
 	}
 }

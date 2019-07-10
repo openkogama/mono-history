@@ -8,9 +8,8 @@ public class GameMeterKillLimit : GameMeterKillBase
 
 	public override GameMeterType GameMeterType => GameMeterType.Kills;
 
-	private void Start()
+	public override void Initialize()
 	{
-		SetGameMeterVisibility();
 		MVGameControllerBase.Game.WinningConditionManager.OnWinningConditionReset += OnVictoryConditionMet;
 	}
 

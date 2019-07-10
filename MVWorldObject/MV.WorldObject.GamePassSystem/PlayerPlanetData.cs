@@ -28,7 +28,7 @@ public class PlayerPlanetData
 		this.progressionGamePoints = progressionGamePoints;
 		this.gamePassTier = gamePassTier;
 		this.playtime = playtime;
-		this.playerPlanetMetaData = new PlayerPlanetMetaDataClient(playerPlanetMetaData.gamePassTierSeen, playerPlanetMetaData.welcomeRewardClaimed);
+		this.playerPlanetMetaData = new PlayerPlanetMetaDataClient(playerPlanetMetaData.gamePassTierSeen, playerPlanetMetaData.welcomeRewardClaimed, playerPlanetMetaData.lastDailyWelcomeRewardClaim);
 	}
 
 	public void UpdateWithPurchase(int deltaGamePoints, GamePassTier gamePassTier)

@@ -132,7 +132,7 @@ public class AccessoryView : MonoBehaviour
 		}
 		else
 		{
-			HandlePreviewing(MVGameControllerBase.WOCM.AvatarLocal.Body);
+			HandlePreviewing(MVGameControllerBase.LocalPlayer.Body);
 		}
 		goldSavedText.gameObject.SetActive(value: false);
 		nameText.text = accessoryData.name.ToUpper();
@@ -232,13 +232,14 @@ public class AccessoryView : MonoBehaviour
 
 	private void OnLevelRequirementLoaded(WWW www)
 	{
-		if (www == null || www.texture == null)
+		Texture2D texture = www.texture;
+		if (texture == null)
 		{
 			Debug.LogWarning("Badge not loaded for accessory level requirement");
 		}
 		else
 		{
-			levelRequirementPurchaseButton.texture = www.texture;
+			levelRequirementPurchaseButton.texture = texture;
 		}
 	}
 

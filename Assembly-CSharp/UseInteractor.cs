@@ -7,7 +7,7 @@ public class UseInteractor
 {
 	private Func<int, bool> useFunction;
 
-	private Func<MVInteractableBase, bool> checkCanUseFunction;
+	private Func<int, MVInteractableBase, bool> checkCanUseFunction;
 
 	private Collider triggerCollider;
 
@@ -23,7 +23,7 @@ public class UseInteractor
 
 	public int WoOwnerID => woOwnerID;
 
-	public UseInteractor(MVWorldObjectClient wo, GameObject owner, bool reset, Collider triggerCollider, Func<int, bool> useFunction, Func<MVInteractableBase, bool> checkCanUseFunction = null, float yOffset = 2.5f)
+	public UseInteractor(MVWorldObjectClient wo, GameObject owner, bool reset, Collider triggerCollider, Func<int, bool> useFunction, Func<int, MVInteractableBase, bool> checkCanUseFunction = null, float yOffset = 2.5f)
 	{
 		useInteractorVisuals = owner.AddComponent<UseInteratorVisualization>();
 		useInteractorVisuals.Initialize(yOffset, wo);
@@ -34,11 +34,11 @@ public class UseInteractor
 		this.checkCanUseFunction = checkCanUseFunction;
 	}
 
-	public bool GetInteractorCanBeUsed(MVInteractableBase avatarInteractable)
+	public bool GetInteractorCanBeUsed(int woId, MVInteractableBase avatarInteractable)
 	{
 		if (checkCanUseFunction != null)
 		{
-			return checkCanUseFunction(avatarInteractable);
+			return checkCanUseFunction(woId, avatarInteractable);
 		}
 		return true;
 	}

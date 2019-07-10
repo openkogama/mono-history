@@ -1,22 +1,27 @@
 using System;
+using System.Collections.Generic;
 using MV.WorldObject;
 using UnityEngine;
 
 public class AvatarUIHandler : MonoBehaviour
 {
-	[SerializeField]
-	private ChatAnchor chatBubbleAnchor;
+	protected ChatAnchor chatBubbleAnchor;
 
-	protected MVAvatar mvAvatar;
+	protected MVWorldObjectClient worldObject;
+
+	protected int ownerActorNr;
 
 	protected bool shouldShowUI = true;
 
-	public ChatAnchor ChatBubbleAnchor => chatBubbleAnchor;
-
-	public virtual void Initialize(bool isLocal, MVAvatar mvAvatar)
+	public virtual void Initialize(bool isLocal, MVWorldObjectClient wo, int ownerActorNr, ChatAnchor chatBubbleAnchor)
 	{
-		this.mvAvatar = mvAvatar;
-		chatBubbleAnchor.Initialize(isLocal, mvAvatar.Avatar);
+		worldObject = wo;
+		this.ownerActorNr = ownerActorNr;
+		this.chatBubbleAnchor = chatBubbleAnchor;
+		if (isLocal)
+		{
+			SayChatBubbleVisibilityManager.OnSayChatMessageRecieved = (Action<int, Dictionary<object, object>>)Delegate.Combine(SayChatBubbleVisibilityManager.OnSayChatMessageRecieved, new Action<int, Dictionary<object, object>>(OnSayChatMessageRecieved));
+		}
 		MVGameControllerBase.OnFirstFrameUpdateActorReady = (Action)Delegate.Combine(MVGameControllerBase.OnFirstFrameUpdateActorReady, new Action(HandleTeamChange));
 		MVPlayerContainer mVPlayerContainer = MVGameControllerBase.Game.MVPlayerContainer;
 		mVPlayerContainer.OnPlayerListChanged = (Action)Delegate.Combine(mVPlayerContainer.OnPlayerListChanged, new Action(HandleTeamChange));
@@ -24,8 +29,26 @@ public class AvatarUIHandler : MonoBehaviour
 		MVGameControllerBase.Game.TeamManager.OnTeamRemoved += HandleTeamChange;
 	}
 
+	public virtual void Activate()
+	{
+	}
+
+	public virtual void Deactivate()
+	{
+	}
+
 	public virtual void OnPositionChanged(MVWorldObjectClient arg0, PositionChangedEventArgs positionChangedEventArgs)
 	{
+	}
+
+	public void OnSayChatMessageRecieved(int actorNr, Dictionary<object, object> data)
+	{
+		if (ownerActorNr == actorNr && gameObject.activeInHierarchy)
+		{
+			int instanceID = chatBubbleAnchor.GetInstanceID();
+			string text = (string)data[(byte)5];
+			ChatBubbleManager.ShowChatBubble(text, instanceID, chatBubbleAnchor);
+		}
 	}
 
 	private void HandleTeamChange(object sender, TeamEventArgs eventArgs)
@@ -40,6 +63,11 @@ public class AvatarUIHandler : MonoBehaviour
 	public virtual void SetShouldShowUI(bool shouldShow)
 	{
 		shouldShowUI = shouldShow;
+	}
+
+	public void ForceDestroy()
+	{
+		OnDestroy();
 	}
 
 	protected virtual void OnDestroy()

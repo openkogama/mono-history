@@ -38,7 +38,7 @@ public class AccessoryOffsetSlider : MonoBehaviour
 		}
 		else
 		{
-			Initialize(MVGameControllerBase.WOCM.AvatarLocal.Body);
+			Initialize(MVGameControllerBase.LocalPlayer.Body);
 		}
 	}
 

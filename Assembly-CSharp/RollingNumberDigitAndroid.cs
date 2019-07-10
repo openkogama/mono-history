@@ -7,9 +7,9 @@ public class RollingNumberDigitAndroid : MonoBehaviour
 
 	private int targetNumber;
 
-	private float firstNumPosY;
+	private float firstNumPosY = 29.5f;
 
-	private float digitSize = 6.8f;
+	private float digitSize = 29.5f;
 
 	private float currPos;
 
@@ -50,7 +50,6 @@ public class RollingNumberDigitAndroid : MonoBehaviour
 	private void Start()
 	{
 		firstNumPosY = rollingDigitTransform.localPosition.y;
-		digitSize = rollingDigitTransform.rect.height / 11f;
 		Vector2 sizeDelta = GetComponent<RectTransform>().sizeDelta;
 		GetComponent<RectTransform>().sizeDelta = new Vector2(sizeDelta.x, digitSize);
 		currPos = firstNumPosY + digitSize;

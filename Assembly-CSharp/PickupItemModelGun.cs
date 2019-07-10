@@ -170,7 +170,7 @@ public class PickupItemModelGun : PickupItemWithDelay
 	public override void ResetAmmo()
 	{
 		base.ResetAmmo();
-		currentAmmo = ammo;
+		currentAmmo = GetAmmoMultiplier(ammo);
 	}
 
 	protected override void OnFire(bool isLocal)

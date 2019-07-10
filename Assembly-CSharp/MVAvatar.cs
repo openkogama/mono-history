@@ -1,13 +1,16 @@
 using System;
 using System.Collections.Generic;
+using CodeStage.AntiCheat.ObscuredTypes;
 using MV.Common;
 using UnityEngine;
 
-public abstract class MVAvatar : MVGroup, IHealRayAttachementObject
+public abstract class MVAvatar : MVGroup, IHealRayAttachementObject, IUpdatecontrollerSubscriberLateUpdate, IUpdatecontrollerSubscriberBase
 {
 	protected Avatar avatar;
 
-	public MVRuntimeDataVariableClampedFloat Health;
+	public MVRuntimeDataVariable<float> Health;
+
+	public MVRuntimeDataVariable<float> MaxHealth;
 
 	private MVRuntimeDataVariableClampedFloat shield;
 
@@ -19,7 +22,9 @@ public abstract class MVAvatar : MVGroup, IHealRayAttachementObject
 
 	public MVRuntimeDataVariable Animation;
 
-	public MVRuntimeDataVariable avatarModeTypeFlags;
+	public MVRuntimeDataVariable SpawnRoleModeTypes;
+
+	public LimbRotationRuntimeData LimbRotationRuntimeData = new LimbRotationRuntimeData();
 
 	private readonly Vector3 characterControllerCenterOffset = new Vector3(0f, 0.95f, 0f);
 
@@ -34,8 +39,6 @@ public abstract class MVAvatar : MVGroup, IHealRayAttachementObject
 	private MVBody body;
 
 	private GameObject healRayAttachmentObject;
-
-	protected AvatarlateUpdateManager avatarlateUpdateManager;
 
 	protected AvatarPickupOwner avatarPickupOwner;
 
@@ -53,19 +56,15 @@ public abstract class MVAvatar : MVGroup, IHealRayAttachementObject
 		}
 	}
 
-	public int AvatarModeTypeFlags
+	public Vector3 CharacterControllerCenterOffset => characterControllerCenterOffset;
+
+	public float HealParticleSpawnTime
 	{
-		get
-		{
-			return (int)avatarModeTypeFlags.Value;
-		}
 		set
 		{
-			avatarModeTypeFlags.Value = value;
+			healParticleSpawnTime = value;
 		}
 	}
-
-	public Vector3 CharacterControllerCenterOffset => characterControllerCenterOffset;
 
 	public PickupItem CurrentPickup => avatarPickupOwner.CurrentItem;
 
@@ -81,11 +80,48 @@ public abstract class MVAvatar : MVGroup, IHealRayAttachementObject
 
 	public MVBody Body => body;
 
+	public bool IsSeated
+	{
+		get
+		{
+			if (!RunTimeData.ContainsObscuredKey("seat"))
+			{
+				Debug.LogError("MVAvatar does not contain key seat");
+				return false;
+			}
+			return (int)(ObscuredInt)RunTimeData.GetObscuredType("seat") != -1;
+		}
+	}
+
+	public int SeatID
+	{
+		get
+		{
+			if (!RunTimeData.ContainsObscuredKey("seat"))
+			{
+				Debug.LogError("MVAvatar does not contain key seat");
+				return -1;
+			}
+			return (ObscuredInt)RunTimeData.GetObscuredType("seat");
+		}
+		set
+		{
+			bool isSeated = IsSeated;
+			RunTimeData.SetObscuredType("seat", (ObscuredInt)value);
+			if (IsSeated != isSeated)
+			{
+				OnSeatedChanged(IsSeated);
+			}
+		}
+	}
+
 	public Avatar Avatar => avatar;
 
 	public abstract Vector3 VelocityRelative { get; }
 
 	public abstract Vector3 VelocityAbsolute { get; }
+
+	public MVWorldObjectClient WorldObjectClient => this;
 
 	public MVAvatar(Dictionary<object, object> data, GameObject avatarPrefab, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, avatarPrefab, worldObjects)
@@ -93,20 +129,30 @@ public abstract class MVAvatar : MVGroup, IHealRayAttachementObject
 		isLocal = OwnerActorNr == MVGameControllerBase.Game.LocalPlayer.ActorNr;
 		interactionFlags = InteractionFlags.None;
 		PlayInteractionType = PlayInteractionType.HandlesHits;
-		Health = RuntimeDataVariables.NewClampedFloat("health", 0.2f, writeThrough: false, 0f, 100f);
-		shield = RuntimeDataVariables.NewClampedFloat("shield", 0.2f, writeThrough: false, 0f, 100f);
+		Health = RuntimeDataVariables.New<float>("health", 0.2f, writeThrough: false);
+		MaxHealth = RuntimeDataVariables.New<float>("maxHealth", 0f, writeThrough: true);
+		shield = RuntimeDataVariables.NewClampedFloat("shield", 0.2f, writeThrough: false, 0f, 150f);
 		IsFiring = RuntimeDataVariables.New("isFiring", 0f, writeThrough: false);
 		Modifiers = RuntimeDataVariables.New("modifiers", 1f, writeThrough: false);
 		CurrentItem = RuntimeDataVariables.New("currentItem", 0f, writeThrough: true);
-		avatarModeTypeFlags = RuntimeDataVariables.New("avatarModeTypes", 0f, writeThrough: true);
+		SpawnRoleModeTypes = RuntimeDataVariables.New("spawnRoleModeType", 0f, writeThrough: true);
 		Animation = RuntimeDataVariables.New("animation", 0f, writeThrough: false);
+		LimbRotationRuntimeData.HeadRotationYaw = RuntimeDataVariables.New("headRotationYaw", 0.8f, writeThrough: false);
+		LimbRotationRuntimeData.HeadRotationPitch = RuntimeDataVariables.New("headRotationPitch", 0.8f, writeThrough: false);
+		LimbRotationRuntimeData.PointRotationYaw = RuntimeDataVariables.New("pointRotationYaw", 0.8f, writeThrough: false);
+		LimbRotationRuntimeData.PointRotationPitch = RuntimeDataVariables.New("pointRotationPitch", 0.8f, writeThrough: false);
+		LimbRotationRuntimeData.Emote = RuntimeDataVariables.New("emote", 0.5f, writeThrough: false);
 		gameObject.layer = LayerMask.NameToLayer("Player");
 		avatar = gameObject.GetComponent<Avatar>();
 	}
 
-	public bool IsInMode(AvatarModeTypes t)
+	protected virtual void OnSeatedChanged(bool isSeated)
 	{
-		return (int)((uint)AvatarModeTypeFlags & (uint)t) > 0;
+	}
+
+	public bool IsInMode(SpawnRoleModeType t)
+	{
+		return (int)((uint)(int)SpawnRoleModeTypes.Value & (uint)t) > 0;
 	}
 
 	public virtual void BeforeVehicleEntered()
@@ -121,6 +167,62 @@ public abstract class MVAvatar : MVGroup, IHealRayAttachementObject
 	public virtual void OnLeaveVehicle()
 	{
 		avatar.OnExitVehicle();
+	}
+
+	public override void Initialize()
+	{
+		base.Initialize();
+		body.Attach(this, isLocal);
+		avatarPickupOwner = gameObject.AddComponent<AvatarPickupOwner>();
+		avatarPickupOwner.IsLocal = isLocal;
+		avatarPickupOwner.Init(CurrentItem, IsFiring, this);
+		avatar.Initialize(this, isLocal);
+		avatar.InteractionDataHandlerBase.FindWorldObjectParent();
+		InitializeModifiers();
+		healParticleSpawnTime = Time.time;
+		BodyData.PartIndex part = BodyData.PartIndex.Head;
+		healRayAttachmentObject = Body.BodyData.GetPartBone(part).gameObject;
+		MVRuntimeDataVariable spawnRoleModeTypes = SpawnRoleModeTypes;
+		spawnRoleModeTypes.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(spawnRoleModeTypes.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChangedHandler));
+		MVRuntimeDataVariable animation = Animation;
+		animation.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(animation.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnAnimationChange));
+		MVRuntimeDataVariable<float> health = Health;
+		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnHealthChange));
+		MVRuntimeDataVariableClampedFloat mVRuntimeDataVariableClampedFloat = Shield;
+		mVRuntimeDataVariableClampedFloat.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(mVRuntimeDataVariableClampedFloat.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnShieldChange));
+		MVRuntimeDataVariable currentItem = CurrentItem;
+		currentItem.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(currentItem.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnCurrentPickupChange));
+		UpdateController.AddLateUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
+	}
+
+	public override void Destroy()
+	{
+		base.Destroy();
+		avatar.AvatarUIHandler.ForceDestroy();
+		UpdateController.RemoveLateUpdateObject(this);
+	}
+
+	public void SetTeam()
+	{
+		if (!avatar.IsLocal)
+		{
+			((AvatarUIHandlerRemote)avatar.AvatarUIHandler).UpdateNameTag();
+			((AvatarUIHandlerRemote)avatar.AvatarUIHandler).SetHealthBarColor(MVGameControllerBase.Game.LocalPlayer.IsOnSameTeam(this));
+			return;
+		}
+		foreach (MVPlayer value in MVGameControllerBase.Game.MVPlayerContainer.Values)
+		{
+			if (value.ActorNr != MVGameControllerBase.Game.LocalPlayer.ActorNr)
+			{
+				Debug.LogWarning("Reimplement with callback function. Spawn role interface should support this.");
+			}
+		}
+	}
+
+	public void UpdateControllerLateUpdate()
+	{
+		limbManager.UpdateLimbRotations(avatarPickupOwner.LookDirection);
+		body.UpdateBlinking();
 	}
 
 	protected void HandleLeaveVehicle()
@@ -148,46 +250,10 @@ public abstract class MVAvatar : MVGroup, IHealRayAttachementObject
 		}
 	}
 
-	public void SetTeam()
-	{
-		if (!avatar.IsLocal)
-		{
-			((AvatarUIHandlerRemote)avatar.AvatarUIHandler).UpdateNameTag();
-			((AvatarUIHandlerRemote)avatar.AvatarUIHandler).SetHealthBarColor(MVGameControllerBase.Game.TeamManager.IsOnSameTeam(this, MVGameControllerBase.Game.LocalPlayer.Avatar));
-			return;
-		}
-		foreach (MVPlayer value in MVGameControllerBase.Game.MVPlayerContainer.Values)
-		{
-			if (!value.Avatar.isLocal)
-			{
-				((AvatarUIHandlerRemote)value.Avatar.avatar.AvatarUIHandler).UpdateNameTag();
-			}
-		}
-	}
-
-	public override void Initialize()
-	{
-		base.Initialize();
-		body.Attach(this, isLocal);
-		avatarPickupOwner = gameObject.AddComponent<AvatarPickupOwner>();
-		avatarPickupOwner.IsLocal = isLocal;
-		avatarPickupOwner.Init(CurrentItem, IsFiring, this);
-		avatar.Initialize(this, isLocal);
-		avatar.InteractionDataHandlerBase.FindWorldObjectParent();
-		InitializeModifiers();
-		avatarlateUpdateManager = transform.gameObject.AddComponent<AvatarlateUpdateManager>();
-		healParticleSpawnTime = Time.time;
-		MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(OwnerActorNr)?.SetAvatar(Id);
-		BodyData.PartIndex part = BodyData.PartIndex.Head;
-		healRayAttachmentObject = Body.BodyData.GetPartBone(part).gameObject;
-		MVRuntimeDataVariable mVRuntimeDataVariable = avatarModeTypeFlags;
-		mVRuntimeDataVariable.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(mVRuntimeDataVariable.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChangedHandler));
-	}
-
 	protected virtual void AvatarStateChangedHandler(object a)
 	{
-		AvatarModeTypes avatarModeTypes = (AvatarModeTypes)a;
-		if ((avatarModeTypes & AvatarModeTypes.Hidden) > AvatarModeTypes.None)
+		SpawnRoleModeType spawnRoleModeType = (SpawnRoleModeType)a;
+		if ((spawnRoleModeType & SpawnRoleModeType.Hidden) > SpawnRoleModeType.None)
 		{
 			avatar.Collider.enabled = false;
 			avatar.InteractionDataHandlerBase.enabled = false;
@@ -236,7 +302,7 @@ public abstract class MVAvatar : MVGroup, IHealRayAttachementObject
 		}
 	}
 
-	public virtual void AttachBody(MVBody newBody)
+	protected virtual void AttachBody(MVBody newBody)
 	{
 		if (body != null)
 		{
@@ -276,6 +342,25 @@ public abstract class MVAvatar : MVGroup, IHealRayAttachementObject
 
 	protected void OnStateChangeToHidden()
 	{
-		avatar.AvatarUIHandler.ChatBubbleAnchor.HideChatBubble();
+		avatar.ChatBubbleAnchor.HideChatBubble();
+	}
+
+	protected virtual void OnAnimationChange(object newAnimationData)
+	{
+		body.OnAnimationUpdate(newAnimationData);
+	}
+
+	protected virtual void OnHealthChange(object newHealthData)
+	{
+		body.OnHealthUpdate(newHealthData);
+	}
+
+	protected virtual void OnShieldChange(object newShieldData)
+	{
+		body.OnShieldUpdate(newShieldData);
+	}
+
+	protected virtual void OnCurrentPickupChange(object newPickupDataData)
+	{
 	}
 }
