@@ -71,13 +71,23 @@ public class AndroidThirdPersonCamera : MVCameraBase, ICameraSettings
 		lookAtHeightOffset = lookAtHeightOffsetBase;
 		currentDistanceToAvatar = distanceToAvatarBase;
 		desiredDistanceToAvatar = distanceToAvatarBase;
-		MainCameraManager.RegisterCameraWithSettings(MVGameType.Classic, this);
 	}
 
 	public void Initialize(MVAvatarLocal avatarLocal)
 	{
 		this.avatarLocal = avatarLocal;
 		avatarCameraDistTransparency = new AvatarCameraDistTransparency(lookAtOffset, 2f, 1f);
+	}
+
+	public override void Activate()
+	{
+		MainCameraManager.RegisterCameraWithSettings(MVGameType.Classic, this);
+	}
+
+	public override void Deactivate()
+	{
+		MainCameraManager.UnRegisterCameraWithSettings(MVGameType.Classic);
+		base.Deactivate();
 	}
 
 	public void SetDefaultSettings()

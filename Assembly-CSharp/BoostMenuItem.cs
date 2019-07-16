@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using MV.Common;
+using MV.WorldObject.KogamaSettings.SpecializedSettingsTypes.GameBoosterSettings.GameBoosterSettingTypes;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -18,7 +20,16 @@ public class BoostMenuItem : MonoBehaviour
 	private GameObject boostUnlockedGlow;
 
 	[SerializeField]
-	private GameObject boostActiveIcon;
+	private GameObject boostActiveUI;
+
+	[SerializeField]
+	private RectTransform boostActiveIcon;
+
+	[SerializeField]
+	private NotificationFade boostActiveIconFader;
+
+	[SerializeField]
+	private CanvasGroup boostActiveIconCanvasGroup;
 
 	[SerializeField]
 	private RectTransform boostTypeImageParent;
@@ -27,18 +38,48 @@ public class BoostMenuItem : MonoBehaviour
 	private Button getWithAd;
 
 	[SerializeField]
+	private Button getWithGold;
+
+	[SerializeField]
+	private Button getWithTest;
+
+	[SerializeField]
 	private Text boostDescription;
+
+	[SerializeField]
+	private Text timeLeftText;
+
+	[SerializeField]
+	private Text priceText;
+
+	[SerializeField]
+	private BoostPurchasePopup purchasePopupPrefab;
 
 	[SerializeField]
 	private List<BoosterDef> boosterList;
 
-	private BoostType boostType;
+	[SerializeField]
+	private BoostImageController boostImageController;
+
+	[SerializeField]
+	private AnimationCurve activeIconScaleEffect;
+
+	[SerializeField]
+	private float activeIconScaleEffectDuration;
+
+	private float activeIconScaleEffectStartTime;
+
+	private Boost boost;
 
 	public void Initialize(Boost boost, bool boostUnlocked)
 	{
-		boostType = boost.Type;
+		this.boost = boost;
 		boostDescription.text = boost.Description;
+		BoostRadialUpdate boostRadialUpdate = UnityEngine.Object.Instantiate(boostImageController.GetBoostVisualization(boost.Type));
+		boostRadialUpdate.Initialize(boost);
+		boostRadialUpdate.transform.SetParent(boostActiveIcon.transform, worldPositionStays: false);
 		SetBoostUIUnlocked(boostUnlocked);
+		MVGameControllerBase.LocalPlayer.BoostController.SubscribeToBoostChanged(boost.Type, BoostChanged);
 		for (int i = 0; i < boosterList.Count; i++)
 		{
 			if (boosterList[i].type == boost.Type)
@@ -48,25 +89,120 @@ public class BoostMenuItem : MonoBehaviour
 				break;
 			}
 		}
+		if (boostUnlocked)
+		{
+			boostActiveIconCanvasGroup.alpha = 1f;
+		}
+		priceText.text = GetBoostPrice().ToString("N0").Replace(",", ".");
+	}
+
+	private void Update()
+	{
+		if (boostActiveUI.activeInHierarchy)
+		{
+			timeLeftText.text = $"{(int)(boost.BoostSecondsLeft / 60f):D2}:{(int)boost.BoostSecondsLeft % 60:D2}";
+		}
+		float num = activeIconScaleEffect.Evaluate((Time.time - activeIconScaleEffectStartTime) / activeIconScaleEffectDuration);
+		boostActiveIcon.localScale = new Vector3(num, num);
 	}
 
 	private void SetBoostUIUnlocked(bool boostUnlocked)
 	{
+		timeLeftText.gameObject.SetActive(boostUnlocked);
 		boostUnlockedGlow.SetActive(boostUnlocked);
-		boostActiveIcon.SetActive(boostUnlocked);
+		boostActiveUI.SetActive(boostUnlocked);
 		getWithAd.gameObject.SetActive(!boostUnlocked);
+		getWithGold.gameObject.SetActive(!MVGameControllerBase.IsTouristSession && !boostUnlocked && MVGameControllerBase.GameMode != MVGameMode.Edit);
+		getWithTest.gameObject.SetActive(!boostUnlocked && MVGameControllerBase.GameMode == MVGameMode.Edit);
+	}
+
+	private void ActivateActiveBoostIconEffect()
+	{
+		boostActiveIconFader.ShouldHideWhenDone = false;
+		boostActiveIconFader.Activate();
+		activeIconScaleEffectStartTime = Time.time;
 	}
 
 	public void OnUnlockBoostWithAdClicked()
 	{
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IBoostAdController x, BaseEventData y) =>
 		{
-			x.TryShowAd(boostType, BoostUnlockedResponse);
+			x.TryShowAd(boost.Type, BoostUnlockedResponse);
 		});
+	}
+
+	public void OnPurchaseBoostPressed()
+	{
+		BoostPurchasePopup boostPurchasePopup = UnityEngine.Object.Instantiate(purchasePopupPrefab);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Push(boostPurchasePopup.gameObject, UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
+		});
+		int boostPrice = GetBoostPrice();
+		boostPurchasePopup.Initialize(boost.Type, boost.BoostKey, boost.EditTitle, boostPrice, OnPurchaseSuccessful);
+	}
+
+	public void OnTestPressed()
+	{
+		MVGameControllerBase.Game.LocalPlayer.BoostController.ActivateBoost(boost.Type);
+		bool flag = MVGameControllerBase.LocalPlayer.BoostController.IsBoostActive(boost.Type);
+		SetBoostUIUnlocked(flag);
+		if (flag)
+		{
+			ActivateActiveBoostIconEffect();
+		}
+	}
+
+	private int GetBoostPrice()
+	{
+		MVGameBoosterDataObject singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVGameBoosterDataObject>();
+		List<GameBoosterSettingWithGoldSetting> activeSettingsList = singletonWorldObject.GameBoosterSettingsManager.ActiveSettingsList;
+		for (int i = 0; i < activeSettingsList.Count; i++)
+		{
+			if (activeSettingsList[i].Key == boost.BoostKey)
+			{
+				GameBoosterSettingWithGoldSetting gameBoosterSettingWithGoldSetting = activeSettingsList[i];
+				return gameBoosterSettingWithGoldSetting.GoldPrice.NumericValue;
+			}
+		}
+		return 0;
+	}
+
+	private void BoostChanged()
+	{
+		bool flag = MVGameControllerBase.LocalPlayer.BoostController.IsBoostActive(boost.Type);
+		SetBoostUIUnlocked(flag);
+		if (flag)
+		{
+			ActivateActiveBoostIconEffect();
+		}
 	}
 
 	private void BoostUnlockedResponse(bool boostUnlocked)
 	{
 		SetBoostUIUnlocked(boostUnlocked);
+		if (boostUnlocked)
+		{
+			ActivateActiveBoostIconEffect();
+		}
+	}
+
+	private void OnPurchaseSuccessful()
+	{
+		MVGameControllerBase.Game.LocalPlayer.BoostController.ActivateBoost(boost.Type);
+		bool flag = MVGameControllerBase.LocalPlayer.BoostController.IsBoostActive(boost.Type);
+		SetBoostUIUnlocked(flag);
+		if (flag)
+		{
+			ActivateActiveBoostIconEffect();
+		}
+	}
+
+	private void OnDestroy()
+	{
+		if (MVGameControllerBase.IsAlive)
+		{
+			MVGameControllerBase.LocalPlayer.BoostController.UnSubscribeToBoostChanged(boost.Type, BoostChanged);
+		}
 	}
 }

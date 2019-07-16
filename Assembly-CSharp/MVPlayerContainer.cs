@@ -123,6 +123,24 @@ public class MVPlayerContainer : IEnumerator, IEnumerable<KeyValuePair<int, MVPl
 		}
 	}
 
+	public void UpdateTeamForPlayersOnRemovedTeam(MVTeam removedTeam, MVTeam defaultTeam)
+	{
+		foreach (KeyValuePair<int, MVPlayer> pendingPlayer in pendingPlayers)
+		{
+			if (pendingPlayer.Value.Team == removedTeam)
+			{
+				UpdateTeam(pendingPlayer.Value.ActorNr, defaultTeam);
+			}
+		}
+		foreach (KeyValuePair<int, MVPlayer> player in players)
+		{
+			if (player.Value.Team == removedTeam)
+			{
+				UpdateTeam(player.Value.ActorNr, defaultTeam);
+			}
+		}
+	}
+
 	public MVPlayer GetPlayerUnsafe(int actorNr)
 	{
 		if (pendingPlayers.ContainsKey(actorNr))

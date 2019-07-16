@@ -463,28 +463,16 @@ public abstract class MVWorldObjectClientManager : IWorldObjectManager
 		return null;
 	}
 
-	public MVSpawnPoint GetValidSpawnPoint()
+	public MVWorldObjectClient GetValidSpawnPoint()
 	{
-		List<MVWorldObjectClient> list = ((MVGameControllerBase.Game.TeamManager.TeamCount() <= 1) ? GetWorldObjectsByType(GetSpawnPointTypeForNoneTeam()) : GetWorldObjectsByType(GetSpawnPointTypeForTeam(MVGameControllerBase.Game.LocalPlayer.Team)));
-		if (list.Count > 0)
+		List<MVWorldObjectClient> spawnPointsForTeam = MVGameControllerBase.Game.TeamManager.GetSpawnPointsForTeam(MVGameControllerBase.Game.LocalPlayer.Team);
+		if (spawnPointsForTeam.Count > 0)
 		{
-			int index = UnityEngine.Random.Range(0, list.Count);
-			return (MVSpawnPoint)list[index];
+			int index = UnityEngine.Random.Range(0, spawnPointsForTeam.Count);
+			return spawnPointsForTeam[index];
 		}
 		Debug.LogError("No valid SpawnPoint on planet...");
 		return null;
-	}
-
-	private WorldObjectType GetSpawnPointTypeForTeam(MVTeam team)
-	{
-		return team switch
-		{
-			MVTeam.Blue => WorldObjectType.SpawnPointBlue, 
-			MVTeam.Red => WorldObjectType.SpawnPointRed, 
-			MVTeam.Green => WorldObjectType.SpawnPointGreen, 
-			MVTeam.Yellow => WorldObjectType.SpawnPointYellow, 
-			_ => GetSpawnPointTypeForNoneTeam(), 
-		};
 	}
 
 	private WorldObjectType GetSpawnPointTypeForNoneTeam()

@@ -1,3 +1,4 @@
+using System;
 using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -12,10 +13,12 @@ public class PlayButtonMobile : MonoBehaviour
 	private TimedPlayReward timedPlayReward;
 
 	[SerializeField]
-	private bool shouldPop;
+	protected bool shouldPop;
 
 	[SerializeField]
 	private Button button;
+
+	public Action OnPlayButtonPressed;
 
 	public void Play()
 	{
@@ -36,6 +39,14 @@ public class PlayButtonMobile : MonoBehaviour
 		if (!FirstTimePressPlayController.HaveBeenPressed)
 		{
 			FirstTimePressPlayController.OnFirstTimePlayIsPressed();
+		}
+	}
+
+	public void OnConfirmPlay()
+	{
+		if (OnPlayButtonPressed != null)
+		{
+			OnPlayButtonPressed();
 		}
 	}
 
@@ -74,7 +85,7 @@ public class PlayButtonMobile : MonoBehaviour
 		}
 	}
 
-	private void StartPlaying()
+	protected virtual void StartPlaying()
 	{
 		MVGameControllerBase.PlayModeUI.InLobbyState = false;
 		if (MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Hidden))

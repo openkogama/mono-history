@@ -16,6 +16,8 @@ public abstract class MVLocalPlayer : MVPlayer
 		Owner
 	}
 
+	protected SpawnRolesMetaData spawnRolesMetaData;
+
 	private PlayerPlanetData playerPlanetData;
 
 	private BoostController boostController = new BoostController();
@@ -41,6 +43,8 @@ public abstract class MVLocalPlayer : MVPlayer
 	private int oldLevel;
 
 	public MVBody Body => MVGameControllerBase.WOCM.GetWorldObjectClient<MVBody>(defaultBodyWoId);
+
+	public int DefaultSpawnRoleId => spawnRolesMetaData.spawnRolesDefaultTypeWoIDMap[DefaultSpawnRoleType.DefaultPlayModeSpawnRole];
 
 	public SpawnRoleDataMediator SpawnRoleDataMediator => spawnRoleDataMediator;
 
@@ -68,6 +72,8 @@ public abstract class MVLocalPlayer : MVPlayer
 			boostController = value;
 		}
 	}
+
+	public int DefaultBodyWoId => defaultBodyWoId;
 
 	public int PlanetOwnershipTypeID
 	{
@@ -113,6 +119,7 @@ public abstract class MVLocalPlayer : MVPlayer
 		OnLevelChanged = (UnityAction<int>)Delegate.Combine(OnLevelChanged, new UnityAction<int>(OnLevelChangedLocal));
 		PlanetOwnershipTypeID = planetOwnershipTypeID;
 		joinTime = MVGameControllerBase.Game.ServerTimeInMilliSeconds;
+		boostController.Initialize();
 	}
 
 	public void SetupPlayerWorldObjects(int defaultBodyWoId, SpawnRolesRuntimeData spawnRolesRuntimeData)
@@ -130,6 +137,11 @@ public abstract class MVLocalPlayer : MVPlayer
 		{
 			OnInitializeLeveling();
 		}
+	}
+
+	public void SetSpawnRoleMetaData(SpawnRolesMetaData spawnRolesMetaData)
+	{
+		this.spawnRolesMetaData = spawnRolesMetaData;
 	}
 
 	public void AddXp(int currentPlayerXP, XPRewardType typeId, int xpDelta, int memberCount)

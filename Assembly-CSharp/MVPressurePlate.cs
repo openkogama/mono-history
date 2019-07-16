@@ -55,7 +55,7 @@ public class MVPressurePlate : MVLogicObject, IIsLogicObjectFiringEventHandler, 
 		useInteractor.AddRequirement(useRequirement2);
 		StarRequirement useRequirement3 = new StarRequirement(plateObject.useInteractionRotator, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement3);
-		GameRankRequirement useRequirement4 = new GameRankRequirement(plateObject.useInteractionRotator, hasUseButtonWhenFree: false);
+		GameRankRequirement useRequirement4 = new GameRankRequirement(plateObject.useInteractionRotator, this, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement4);
 		TeamRequirement useRequirement5 = new TeamRequirement(plateObject.TintObject, hasUseButtonWhenFree: false);
 		useInteractor.AddRequirement(useRequirement5);
@@ -120,6 +120,18 @@ public class MVPressurePlate : MVLogicObject, IIsLogicObjectFiringEventHandler, 
 	{
 		base.InitializeInventory();
 		plateObject.TriggerBoxLogic.SetActive(value: false);
+	}
+
+	public override void SetupTierInventory()
+	{
+		plateObject.TriggerBoxLogic.SetActive(value: false);
+		base.SetupTierInventory();
+	}
+
+	public override void UnSetupTierInventory()
+	{
+		plateObject.TriggerBoxLogic.SetActive(value: true);
+		base.UnSetupTierInventory();
 	}
 
 	private void triggerBoxEvents_TriggerEnter(object sender, TriggerEventArgs e)

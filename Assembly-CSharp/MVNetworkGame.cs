@@ -336,12 +336,6 @@ public class MVNetworkGame : IPhotonPeerListener
 			case MVEventCodes.SetTeam:
 				networkGame.OnSetTeamEvent((int)photonEvent[254], (MVTeam)Enum.ToObject(typeof(MVTeam), (int)photonEvent[89]));
 				break;
-			case MVEventCodes.AddTeam:
-				networkGame.OnAddTeamEvent((MVTeam)Enum.ToObject(typeof(MVTeam), (int)photonEvent[89]));
-				break;
-			case MVEventCodes.RemoveTeam:
-				networkGame.OnRemoveTeamEvent((MVTeam)Enum.ToObject(typeof(MVTeam), (int)photonEvent[89]), (Dictionary<object, object>)photonEvent[245]);
-				break;
 			case MVEventCodes.TransferWorldObjectsToGroup:
 				networkGame.OnTransferWorldObjectsToGroup(photonEvent);
 				break;
@@ -636,6 +630,15 @@ public class MVNetworkGame : IPhotonPeerListener
 			case MVEventCodes.GetSubscriptionPerksData:
 				SubscriberRewardDataManager.SetBaseXPBonus((int)photonEvent[245]);
 				break;
+			case MVEventCodes.SetSpawnRoleBody:
+			{
+				SpawnRoleBodySwitchData spawnRoleBodySwitchData = JsonConvert.DeserializeObject<SpawnRoleBodySwitchData>((string)photonEvent[245]);
+				networkGame.OnUnregisterWorldObjectEvent(spawnRoleBodySwitchData.deletedProtoBodyWoId);
+				networkGame.OnUnregisterWorldObjectEvent(spawnRoleBodySwitchData.deletedBodyWoId);
+				MVAvatarSpawnRoleCreator mVAvatarSpawnRoleCreator = (MVAvatarSpawnRoleCreator)MVGameControllerBase.WOCM.GetWorldObjectClient(spawnRoleBodySwitchData.spawnRoleCreatorWoId);
+				mVAvatarSpawnRoleCreator.UpdateAvatarBody(spawnRoleBodySwitchData);
+				break;
+			}
 			default:
 				Debug.LogError("Unknown event: " + eventCode);
 				break;
@@ -763,8 +766,15 @@ public class MVNetworkGame : IPhotonPeerListener
 			case QueryType.Item:
 				if (MVGameControllerBase.Game.ReceivedItemFromQuery != null)
 				{
+					ReceivedItemFromQueryEventArgs e2 = new ReceivedItemFromQueryEventArgs(gameDataQuery.GetBytePacker(), gameDataQuery.InstigatorActorNumber);
+					MVGameControllerBase.Game.ReceivedItemFromQuery(this, e2);
+				}
+				break;
+			case QueryType.Bodies:
+				if (MVGameControllerBase.Game.ReceivedAvatarBodiesFromQuery != null)
+				{
 					ReceivedItemFromQueryEventArgs e = new ReceivedItemFromQueryEventArgs(gameDataQuery.GetBytePacker(), gameDataQuery.InstigatorActorNumber);
-					MVGameControllerBase.Game.ReceivedItemFromQuery(this, e);
+					MVGameControllerBase.Game.ReceivedAvatarBodiesFromQuery(this, e);
 				}
 				break;
 			case QueryType.AccessoryUserData:
@@ -996,6 +1006,14 @@ public class MVNetworkGame : IPhotonPeerListener
 			peer.SendOperation(60, new Dictionary<byte, object>(), SendOptions.SendReliable);
 		}
 
+		public void SetSpawnRoleBody(int avatarCreatorWoId, int avatarBodyDbId)
+		{
+			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
+			dictionary.Add(22, avatarCreatorWoId);
+			dictionary.Add(191, avatarBodyDbId);
+			peer.SendOperation(115, dictionary, SendOptions.SendReliable);
+		}
+
 		public void GetHighScoreList()
 		{
 			peer.SendOperation(104, new Dictionary<byte, object>(), SendOptions.SendReliable);
@@ -1004,6 +1022,23 @@ public class MVNetworkGame : IPhotonPeerListener
 		public void GetTopHighScoreList()
 		{
 			peer.SendOperation(108, new Dictionary<byte, object>(), SendOptions.SendReliable);
+		}
+
+		public void CustomDevCommands()
+		{
+			peer.SendOperation(112, new Dictionary<byte, object>(), SendOptions.SendReliable);
+		}
+
+		public void GetAvatarBodies()
+		{
+			peer.SendOperation(114, new Dictionary<byte, object>(), SendOptions.SendReliable);
+		}
+
+		public void CreateSpawnRole(int worldObjectId)
+		{
+			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
+			dictionary.Add(22, worldObjectId);
+			peer.SendOperation(113, dictionary, SendOptions.SendReliable);
 		}
 
 		public void ClaimGamePointWelcomeReward(bool doubleReward = false)
@@ -1860,6 +1895,13 @@ public class MVNetworkGame : IPhotonPeerListener
 			PurchaseProduct(MVProductType.GamePassTier, dictionary);
 		}
 
+		public void PurchaseGameBooster(string gameBooster)
+		{
+			Dictionary<object, object> dictionary = new Dictionary<object, object>();
+			dictionary[(byte)245] = gameBooster;
+			PurchaseProduct(MVProductType.GameBooster, dictionary);
+		}
+
 		public void PurchaseAvatarAccessoryBundle(int bundleId)
 		{
 			Dictionary<object, object> dictionary = new Dictionary<object, object>();
@@ -2052,7 +2094,6 @@ public class MVNetworkGame : IPhotonPeerListener
 
 		private void ExecuteOperationResponse(MVOperationCodes opCode, Dictionary<byte, object> returnValues, short returnCode)
 		{
-			Debug.Log("OP Response: " + opCode);
 			switch (opCode)
 			{
 			case MVOperationCodes.Join:
@@ -2485,6 +2526,8 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public int PublishLevel { get; private set; }
 
+	public string AdConsentEndpointURL { get; private set; }
+
 	public int ServerTimeInMilliSeconds
 	{
 		get
@@ -2518,6 +2561,8 @@ public class MVNetworkGame : IPhotonPeerListener
 	public PlayerRepository PlayerRepository { get; private set; }
 
 	public ShopRepository ShopRepository { get; private set; }
+
+	public GameTierShopRepository GameTierShopRepository { get; private set; }
 
 	public AvatarRepository AvatarShopRepository { get; private set; }
 
@@ -2562,6 +2607,8 @@ public class MVNetworkGame : IPhotonPeerListener
 	public RuntimeVariableNetworkManager RuntimeVariableNetworkManager => runtimeVariableNetworkManager;
 
 	public event EventHandler<ReceivedItemFromQueryEventArgs> ReceivedItemFromQuery;
+
+	public event EventHandler<ReceivedItemFromQueryEventArgs> ReceivedAvatarBodiesFromQuery;
 
 	public event Action<string> ReceivedAccessoryData;
 
@@ -2742,7 +2789,9 @@ public class MVNetworkGame : IPhotonPeerListener
 		WorldNetwork worldNetwork = this.worldNetwork;
 		worldNetwork.InitializedGameQueryData = (EventHandler<InitializedGameQueryDataEventArgs>)Delegate.Combine(worldNetwork.InitializedGameQueryData, new EventHandler<InitializedGameQueryDataEventArgs>(WOCM_InitializedGameQueryDataHandler));
 		SetupLogicManager((int)photonEvent[35]);
-		CreateTeamList((Dictionary<object, object>)photonEvent[90]);
+		string value2 = (string)photonEvent[207];
+		SpawnRolesMetaData spawnRoleMetaData = JsonConvert.DeserializeObject<SpawnRolesMetaData>(value2);
+		MVGameControllerBase.LocalPlayer.SetSpawnRoleMetaData(spawnRoleMetaData);
 	}
 
 	public void PlayModeSetup(EventData photonEvent)
@@ -2758,9 +2807,6 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public void BuildModeSetup(EventData photonEvent)
 	{
-		string value = (string)photonEvent[207];
-		SpawnRolesMetaData spawnRoleMetaData = JsonConvert.DeserializeObject<SpawnRolesMetaData>(value);
-		((MVLocalPlayerBuilder)MVGameControllerBase.LocalPlayer).SetSpawnRoleMetaData(spawnRoleMetaData);
 	}
 
 	private void SetupLogicManager(int stepTimestamp)
@@ -2892,6 +2938,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		playerContainer.SetLocalPlayer(mVLocalPlayer.ActorNr);
 		MVClientSettings.ClientSettingFlags = (ClientSettingFlags)returnValues[168];
 		MVClientSettings.PostGameInterstitialIntervalInSeconds = (int)returnValues[215];
+		AdConsentEndpointURL = (string)returnValues[225];
 		isPublished = (bool)returnValues[82];
 		MVGameControllerBase.JoinState = MVJoinState.LoadGUI;
 		LoadModeGui();
@@ -2912,6 +2959,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		MaterialRepository = new MVMaterialRepository();
 		PlayerRepository = new PlayerRepository();
 		ShopRepository = new ShopRepository();
+		GameTierShopRepository = new GameTierShopRepository();
 		AvatarShopRepository = new AvatarRepository();
 		Friends = new FriendList();
 		GameStateController = new MVGameModeChangeNotifier();
@@ -3066,30 +3114,6 @@ public class MVNetworkGame : IPhotonPeerListener
 		Debug.LogWarning("OnRequestWoUniquePrototypeFailed");
 		int woId = (int)returnValues[22];
 		worldNetwork.WorldInventory.UnpendRuntimePrototype(woId);
-	}
-
-	private void CreateTeamList(Dictionary<object, object> teamList)
-	{
-		Dictionary<object, object> dictionary = (Dictionary<object, object>)teamList[0];
-		Dictionary<object, object> dictionary2 = (Dictionary<object, object>)teamList[1];
-		Dictionary<object, object> dictionary3 = (Dictionary<object, object>)teamList[2];
-		Dictionary<object, object> dictionary4 = (Dictionary<object, object>)teamList[3];
-		if ((bool)dictionary[(byte)0])
-		{
-			OnAddTeamEvent(MVTeam.Blue);
-		}
-		if ((bool)dictionary2[(byte)0])
-		{
-			OnAddTeamEvent(MVTeam.Red);
-		}
-		if ((bool)dictionary3[(byte)0])
-		{
-			OnAddTeamEvent(MVTeam.Green);
-		}
-		if ((bool)dictionary4[(byte)0])
-		{
-			OnAddTeamEvent(MVTeam.Yellow);
-		}
 	}
 
 	private void OnLockHierarchyEvent(EventData eventData)
@@ -3290,25 +3314,6 @@ public class MVNetworkGame : IPhotonPeerListener
 		GameStatCounterManager.RemoveStatsFromActor(playerContainer.LocalPlayer.ActorNr);
 	}
 
-	public void OnAddTeamEvent(MVTeam team)
-	{
-		TeamManager.AddTeam(team);
-	}
-
-	public void OnRemoveTeamEvent(MVTeam team, Dictionary<object, object> actorsWithNewTeam)
-	{
-		Debug.Log("Team removed");
-		foreach (KeyValuePair<object, object> item in actorsWithNewTeam)
-		{
-			int num = (int)item.Key;
-			MVTeam mVTeam = (MVTeam)(int)item.Value;
-			Debug.Log(num);
-			Debug.Log(mVTeam);
-			playerContainer.UpdateTeam(num, mVTeam);
-		}
-		TeamManager.RemoveTeam(team);
-	}
-
 	public void OnSetWorldObjectsToPurchasedEvent(int purchaseProfileId, int itemId)
 	{
 		worldNetwork.WorldObjectClientManagerNetwork.OnSetWorldObjectsToPurchasedEvent(purchaseProfileId, itemId);
@@ -3327,9 +3332,10 @@ public class MVNetworkGame : IPhotonPeerListener
 		int ownerActorNumber = (int)eventData[20];
 		int cloneLinkId = (int)eventData[58];
 		int cloneObjectLinkId = (int)eventData[92];
-		bool cloneToRootGroup = (bool)eventData[101];
+		bool flag = (bool)eventData[101];
+		Debug.Log("CloneToRootGroup " + flag);
 		int previewProfileOwnerId = (int)eventData[128];
-		return worldNetwork.OnCloneWorldObjectTreeEvent(ownerActorNumber, previewProfileOwnerId, cloneToRootGroup, array[0], array[1], cloneLinkId, cloneObjectLinkId);
+		return worldNetwork.OnCloneWorldObjectTreeEvent(ownerActorNumber, previewProfileOwnerId, flag, array[0], array[1], cloneLinkId, cloneObjectLinkId);
 	}
 
 	public MVWorldObjectClient OnCloneWorldObjectTreePosition(EventData eventData)

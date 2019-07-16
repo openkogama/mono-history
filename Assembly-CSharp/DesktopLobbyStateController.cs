@@ -2,7 +2,7 @@ using MV.Common;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class DesktopLobbyStateController : MonoBehaviour
+public class DesktopLobbyStateController : LobbyFlowMenu
 {
 	[SerializeField]
 	private GameObject respawnButton;
@@ -17,6 +17,9 @@ public class DesktopLobbyStateController : MonoBehaviour
 	private AdOfferGold adOfferGold;
 
 	[SerializeField]
+	private LobbyStateButton lobbyStatePlayButton;
+
+	[SerializeField]
 	private GamePassesUI gamePassesUIPrefab;
 
 	[SerializeField]
@@ -27,8 +30,11 @@ public class DesktopLobbyStateController : MonoBehaviour
 
 	private GamePassesUI gamePassesUI;
 
-	private void Start()
+	protected override LobbyFlowMenuType MenuType => LobbyFlowMenuType.LobbyState;
+
+	public override void Start()
 	{
+		base.Start();
 		bool isTouristSession = MVGameControllerBase.IsTouristSession;
 		bool active = MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion && !MVGameControllerBase.GameSessionData.IsPlayedFromPoki;
 		touristRegisterButton.SetActive(active);
@@ -41,6 +47,11 @@ public class DesktopLobbyStateController : MonoBehaviour
 		{
 			gamePassesUI.gameObject.SetActive(value: false);
 		}
+	}
+
+	public void SetShouldPopOnExit(bool shouldPop)
+	{
+		lobbyStatePlayButton.ShouldPop = shouldPop;
 	}
 
 	private void Update()

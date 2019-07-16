@@ -40,6 +40,11 @@ public class SpawnRolesRuntimeData
 		activeSpawnRole = id;
 	}
 
+	public void RemoveSpawnRole(int id)
+	{
+		spawnRoleAvatarIds.Remove(id);
+	}
+
 	public override string ToString()
 	{
 		string text = $"ActiveSpawnRole: {activeSpawnRole}.\n";

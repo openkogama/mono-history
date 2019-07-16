@@ -2,9 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class WinningConditionBriefing : MonoBehaviour
+public class WinningConditionBriefing : LobbyFlowMenu
 {
 	[Serializable]
 	private class WinningConditionBriefingDef
@@ -62,10 +63,10 @@ public class WinningConditionBriefing : MonoBehaviour
 	private List<WinningConditionBriefingDef> winningConditionMapping;
 
 	[SerializeField]
-	private GameObject DesktopPlayButtonPrefab;
+	private PlayButton DesktopPlayButtonPrefab;
 
 	[SerializeField]
-	private GameObject AndroidPlayButtonPrefab;
+	private PlayButtonMobile AndroidPlayButtonPrefab;
 
 	private WinningConditionType winConType;
 
@@ -76,6 +77,10 @@ public class WinningConditionBriefing : MonoBehaviour
 	private Image winConImage;
 
 	private GameObject playButton;
+
+	private PlayButton desktopPlayButton;
+
+	private PlayButtonMobile androidPlayButton;
 
 	private readonly Dictionary<WinningConditionType, string> headerMap = new Dictionary<WinningConditionType, string>
 	{
@@ -103,6 +108,8 @@ public class WinningConditionBriefing : MonoBehaviour
 
 	private Vector2 screensize;
 
+	protected override LobbyFlowMenuType MenuType => LobbyFlowMenuType.Briefing;
+
 	public void Initialize(WinningConditionType winConType)
 	{
 		this.winConType = winConType;
@@ -114,8 +121,9 @@ public class WinningConditionBriefing : MonoBehaviour
 		CreatePlayButton();
 	}
 
-	private void Start()
+	public override void Start()
 	{
+		base.Start();
 		screensize = new Vector2(Screen.width, Screen.height);
 		if (isInitialized)
 		{
@@ -204,8 +212,9 @@ public class WinningConditionBriefing : MonoBehaviour
 		}
 	}
 
-	private void OnDestroy()
+	protected override void OnDestroy()
 	{
+		base.OnDestroy();
 	}
 
 	private IEnumerator FixAspectRatioDelay()
@@ -242,7 +251,35 @@ public class WinningConditionBriefing : MonoBehaviour
 
 	private void CreatePlayButton()
 	{
-		playButton = UnityEngine.Object.Instantiate(DesktopPlayButtonPrefab);
-		playButton.transform.SetParent(transform, worldPositionStays: false);
+		desktopPlayButton = UnityEngine.Object.Instantiate(DesktopPlayButtonPrefab);
+		PlayButton playButton = desktopPlayButton;
+		playButton.OnPlayButtonPressed = (Action)Delegate.Combine(playButton.OnPlayButtonPressed, new Action(OnPlayPressed));
+		this.playButton = desktopPlayButton.gameObject;
+		this.playButton.transform.SetParent(transform, worldPositionStays: false);
+	}
+
+	private void OnPlayPressed()
+	{
+		if (MVGameControllerBase.Game.TeamManager.TeamHasSpawnRoles(MVGameControllerBase.LocalPlayer.Team))
+		{
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Pop();
+			});
+			SpawnRoleMenu spawnRoleMenu = UnityEngine.Object.Instantiate(spawnRoleMenuPrefab);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(spawnRoleMenu.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
+			});
+			return;
+		}
+		if (desktopPlayButton != null)
+		{
+			desktopPlayButton.Play();
+		}
+		if (androidPlayButton != null)
+		{
+			androidPlayButton.Play();
+		}
 	}
 }

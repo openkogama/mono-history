@@ -33,6 +33,14 @@ internal class JumpState
 
 	private readonly float jumpTimeOutWallJump = 0.25f;
 
+	private readonly bool canWallJumpAnySurface;
+
+	private readonly int airJumpsAllowed;
+
+	private float jumpVelocityMultiplier = 1f;
+
+	private int airJumpsDone;
+
 	private bool holdingJumpButton;
 
 	private float lastStartTime;
@@ -55,6 +63,16 @@ internal class JumpState
 
 	public bool Jumping => jumping;
 
+	public JumpState(float regularButtonDownTimeLimit, WorldObjectSkillDataManager skillDataManager)
+		: this(regularButtonDownTimeLimit)
+	{
+		bool flag = skillDataManager.HasSkill("JumpHeight");
+		jumpVelocityMultiplier = ((!flag) ? 1f : ((float)skillDataManager.GetSkillIntValue("JumpHeight") / 100f));
+		bool flag2 = skillDataManager.HasSkill("DoubleJump");
+		airJumpsAllowed = (flag2 ? 1 : 0);
+		canWallJumpAnySurface = skillDataManager.HasSkill("CanWallJumpAnySurface");
+	}
+
 	public JumpState(float regularButtonDownTimeLimit)
 	{
 		this.regularButtonDownTimeLimit = regularButtonDownTimeLimit;
@@ -65,6 +83,7 @@ internal class JumpState
 		if (groundChange == GroundChange.FromAirToGrounded)
 		{
 			jumping = false;
+			airJumpsDone = 0;
 		}
 	}
 
@@ -86,7 +105,8 @@ internal class JumpState
 		}
 		bool flag = waterProximity >= Math.Min(1f, interactableLocal.HandleModifierEffect(AvatarModifierEffect.Scale, 1f) / 2f) && Time.time - lastStartTime >= 0.5f && inputJump;
 		bool flag2 = interactableLocal.HandleModifierEffect(AvatarModifierEffect.WallJump, 0f) > 0f;
-		if ((groundState.Grounded || flag2 || flag) && Time.time - lastStartTime > jumpTimeOut)
+		bool flag3 = !flag2 && !flag && CanAirJump() && inputJump && Time.time - lastStartTime >= 0.2f && !holdingJumpButton && !groundState.Grounded;
+		if ((groundState.Grounded || flag2 || flag || flag3) && Time.time - lastStartTime > jumpTimeOut)
 		{
 			float num = regularButtonDownTimeLimit;
 			if (interactableLocal.HandleModifierEffect(AvatarModifierEffect.Bounciness, groundState.GroundMaterial.PhysicalProperties.bouncyness) > bouncinessThresshold)
@@ -94,11 +114,17 @@ internal class JumpState
 				num = bouncyMaterialButtonDownTimeLimit;
 			}
 			holdingJumpButton = false;
-			if (Time.time - lastButtonDownTime < num || flag)
+			if (Time.time - lastButtonDownTime < num || flag || flag3)
 			{
-				float sliperyFactor = GetSliperyFactor(interactableLocal, groundState, waterProximity, flag);
+				if (flag3)
+				{
+					velocity.y = 0f;
+					movableVelocity.y = 0f;
+					airJumpsDone++;
+				}
+				float sliperyFactor = GetSliperyFactor(interactableLocal, groundState, waterProximity, flag, flag3);
 				SetJumpState(flag2, sliperyFactor);
-				float jumpSpeed = GetJumpSpeed(interactableLocal, sliperyFactor);
+				float jumpSpeed = GetJumpSpeed(interactableLocal, sliperyFactor, flag3);
 				JumpType jumpType = JumpType.Regular;
 				jumpDir = JumpDir(ref jumpType, groundState, sliperyFactor, flag2, flag);
 				velocity = GetJumpTypeVelocity(velocity, jumpType);
@@ -130,20 +156,28 @@ internal class JumpState
 		accExtraHeight = extraHeight - extraHeight * sliperyFactor;
 	}
 
-	private float GetSliperyFactor(MVInteractableBase interactableLocal, MVGroundState groundState, float waterProximity, bool canWaterJump)
+	private float GetSliperyFactor(MVInteractableBase interactableLocal, MVGroundState groundState, float waterProximity, bool canWaterJump, bool isDoingAirJump)
 	{
 		float num = Mathf.Sin(groundState.GradientAngle * ((float)Math.PI / 180f)) * (1f - SpreadFunction(interactableLocal.HandleModifierEffect(AvatarModifierEffect.Friction, groundState.GroundMaterial.PhysicalProperties.friction)));
 		if (num < sliperyValMin || (canWaterJump && waterProximity > 0.5f))
 		{
 			num = 0f;
 		}
+		else if (isDoingAirJump)
+		{
+			num = 0f;
+		}
 		return num;
 	}
 
-	private float GetJumpSpeed(MVInteractableBase interactableLocal, float sliperyFactor)
+	private float GetJumpSpeed(MVInteractableBase interactableLocal, float sliperyFactor, bool isDoingAirJump)
 	{
-		float num = MVPhysics.CalculateJumpVerticalSpeed(interactableLocal.HandleModifierEffect(AvatarModifierEffect.JumpPower, baseHeight));
-		return num - num * sliperyFactor;
+		float num = MVPhysics.CalculateJumpVerticalSpeed(interactableLocal.HandleModifierEffect(AvatarModifierEffect.JumpPower, baseHeight) * jumpVelocityMultiplier);
+		if (!isDoingAirJump)
+		{
+			num -= num * sliperyFactor;
+		}
+		return num;
 	}
 
 	private Vector3 GetJumpTypeVelocity(Vector3 velocity, JumpType jumpType)
@@ -226,7 +260,7 @@ internal class JumpState
 
 	public void HandleMoveHit(MVControllerColliderHit moveHit)
 	{
-		if (moveHit.material.ModifierPackageType == AvatarModifierPackageType.WallJump)
+		if (moveHit.material.ModifierPackageType == AvatarModifierPackageType.WallJump || canWallJumpAnySurface)
 		{
 			wallJumpHits.Add(moveHit);
 		}
@@ -235,5 +269,10 @@ internal class JumpState
 	private float SpreadFunction(float x)
 	{
 		return 0f - x * x + 2f * x;
+	}
+
+	private bool CanAirJump()
+	{
+		return airJumpsDone < airJumpsAllowed;
 	}
 }

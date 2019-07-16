@@ -54,5 +54,8 @@ public enum ColorStyle
 	BackgroundBlocker = 58,
 	HeaderGray = 59,
 	ButtonBlack = 60,
-	EliteYellow = 61
+	EliteYellow = 61,
+	PositiveGreen = 62,
+	NegativeRed = 63,
+	EarningsYellow = 64
 }

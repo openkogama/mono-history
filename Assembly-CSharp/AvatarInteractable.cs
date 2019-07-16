@@ -41,6 +41,8 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 
 	private float boostedHealthMultiplier = 1f;
 
+	private float damageMultiplier = 1f;
+
 	private HashSet<PlayerKilledByType> KillNotificationBlacklist = new HashSet<PlayerKilledByType>
 	{
 		PlayerKilledByType.Environmental,
@@ -56,11 +58,14 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 
 	private InteractableMaterialHitHandler materialHitHandler = new InteractableMaterialHitHandler();
 
+	private bool canWallJumpAnySurfaces;
+
 	public DamageSource LastDamageSource => (!lastDamageSource.Outdated) ? lastDamageSource : null;
 
-	public override void Init(MVRuntimeDataVariable runtimeDataModifiers, MVRuntimeDataVariable<float> health, MVRuntimeDataVariable<float> maxHealth, MVRuntimeDataVariableClampedFloat shield)
+	public override void Init(MVRuntimeDataVariable runtimeDataModifiers, MVRuntimeDataVariable<float> health, MVRuntimeDataVariable<int> maxHealth, MVRuntimeDataVariableClampedFloat shield, WorldObjectSkillDataManager skillDataManager)
 	{
-		base.Init(runtimeDataModifiers, health, maxHealth, shield);
+		base.Init(runtimeDataModifiers, health, maxHealth, shield, skillDataManager);
+		InitializeSkills(skillDataManager);
 		materialHitHandler.Initialize(hitPackages, transform);
 		MVGameControllerBase.Game.LocalPlayer.BoostController.SubscribeToBoostChanged(BoostType.ExtraHealthFloatMultiplier, SetupBoostedHealthMultiplier);
 		SetupBoostedHealthMultiplier();
@@ -72,6 +77,13 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 		{
 			MVGameControllerBase.Game.LocalPlayer.BoostController.UnSubscribeToBoostChanged(BoostType.ExtraHealthFloatMultiplier, SetupBoostedHealthMultiplier);
 		}
+	}
+
+	public void InitializeSkills(WorldObjectSkillDataManager skillDataManager)
+	{
+		bool flag = skillDataManager.HasSkill("DamageReduction");
+		damageMultiplier = ((!flag) ? 1f : ((float)(100 - skillDataManager.GetSkillIntValue("DamageReduction")) / 100f));
+		canWallJumpAnySurfaces = skillDataManager.HasSkill("CanWallJumpAnySurface");
 	}
 
 	public override void TakeDamage(float amount, MVPlayer damageDealer, PlayerKilledByType damageType)
@@ -91,12 +103,8 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 			}
 			if (health.Value >= GetBoostedHealth(100f))
 			{
-				float num = HandleModifierEffect(AvatarModifierEffect.OverHeal, 0f) * Time.deltaTime;
-				shield.Value += num;
-				if (OnShieldReplenished != null)
-				{
-					OnShieldReplenished();
-				}
+				float restoredShieldAmount = HandleModifierEffect(AvatarModifierEffect.OverHeal, 0f) * Time.deltaTime;
+				RestoreShield(restoredShieldAmount);
 			}
 		}
 		if (!MVGameControllerBase.Game.IsPlaying || HasModifierEffect(AvatarModifierEffect.Invulnerable))
@@ -104,6 +112,7 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 			return;
 		}
 		amount *= HandleModifierEffect(AvatarModifierEffect.DamageMultiplier, 1f);
+		amount *= damageMultiplier;
 		amount = DamageShield(amount);
 		float value = health.Value;
 		if (maxHealth != null)
@@ -214,6 +223,15 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 		OnDamageTaken(1000f, null, PlayerKilledByType.Crushed);
 	}
 
+	protected override void RestoreShield(float restoredShieldAmount)
+	{
+		base.RestoreShield(restoredShieldAmount);
+		if (OnShieldReplenished != null)
+		{
+			OnShieldReplenished();
+		}
+	}
+
 	private float DamageShield(float amount)
 	{
 		if (amount < 0f)
@@ -250,6 +268,10 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 		{
 			AddModifier(moveHit.material.ModifierPackageType);
 		}
+		if (canWallJumpAnySurfaces)
+		{
+			AddModifier(AvatarModifierPackageType.WallJump);
+		}
 		materialHitHandler.HandleHit(moveHit);
 	}
 
@@ -258,7 +280,7 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 		boostedHealthMultiplier = 1f;
 		if (MVGameControllerBase.Game.LocalPlayer.BoostController.TryGetActiveBoost(BoostType.ExtraHealthFloatMultiplier, out var boost))
 		{
-			boostedHealthMultiplier = (float)boost.Value;
+			boostedHealthMultiplier = 1f + (float)(int)boost.Value / 100f;
 		}
 	}
 }

@@ -44,7 +44,7 @@ public class GamePassesXpRewardInfo : MonoBehaviour
 		this.tier = tier;
 		ChangeBackground(tier);
 		TeamRequirementImage.color = Styles.GetTeamColor(MVTeam.None, darkTeam: true);
-		if (MVGameControllerBase.GameSessionData.gameMode != MVGameMode.Edit)
+		if (MVGameControllerBase.GameSessionData.gameMode != MVGameMode.Edit || MVGameControllerBase.EditModeUI.IsInPlayInEditMode)
 		{
 			optionsButton.SetActive(value: false);
 		}

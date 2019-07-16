@@ -50,7 +50,7 @@ public class AndroidInGameMenu : MonoBehaviour
 		{
 			gamePassesUI.gameObject.SetActive(GamePassProgressionController.IsProgressionEnabled && GamePassesManager.GamePassesActive);
 		}
-		if (MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Hidden) && respawnButton.gameObject.activeSelf)
+		if ((MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Hidden) || MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Dead)) && respawnButton.gameObject.activeSelf)
 		{
 			respawnButton.gameObject.SetActive(value: false);
 		}

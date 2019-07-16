@@ -1,3 +1,4 @@
+using System;
 using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -11,13 +12,25 @@ public class PlayButton : PlayButtonBase, IPointerEnterHandler, IPointerExitHand
 	[SerializeField]
 	private Button button;
 
+	[SerializeField]
+	private bool shouldConfirmPlay;
+
 	private bool isMouseOver;
+
+	public Action OnPlayButtonPressed;
 
 	public void OnPointerUp(PointerEventData eventData)
 	{
 		if (isMouseOver && eventData.button == PointerEventData.InputButton.Left)
 		{
-			Play();
+			if (shouldConfirmPlay)
+			{
+				ConfirmPlay();
+			}
+			else
+			{
+				Play();
+			}
 		}
 	}
 
@@ -25,7 +38,14 @@ public class PlayButton : PlayButtonBase, IPointerEnterHandler, IPointerExitHand
 	{
 		if (isMouseOver && eventData.button == PointerEventData.InputButton.Left)
 		{
-			Play();
+			if (shouldConfirmPlay)
+			{
+				ConfirmPlay();
+			}
+			else
+			{
+				Play();
+			}
 		}
 	}
 
@@ -56,6 +76,14 @@ public class PlayButton : PlayButtonBase, IPointerEnterHandler, IPointerExitHand
 		}
 	}
 
+	private void ConfirmPlay()
+	{
+		if (OnPlayButtonPressed != null && !HandlePlayAvailable())
+		{
+			OnPlayButtonPressed();
+		}
+	}
+
 	private void Update()
 	{
 		UpdateButton();
@@ -73,7 +101,10 @@ public class PlayButton : PlayButtonBase, IPointerEnterHandler, IPointerExitHand
 		if (flag || flag2)
 		{
 			button.interactable = false;
-			MVGameControllerDesktop.LockCursorManager.CursorLockWithoutCallback = true;
+			if (!shouldConfirmPlay)
+			{
+				MVGameControllerDesktop.LockCursorManager.CursorLockWithoutCallback = true;
+			}
 			return true;
 		}
 		return false;
@@ -85,7 +116,11 @@ public class PlayButton : PlayButtonBase, IPointerEnterHandler, IPointerExitHand
 		{
 			return;
 		}
-		if (!MVGameControllerDesktop.LockCursorManager.CursorLock)
+		if (shouldConfirmPlay)
+		{
+			ConfirmPlay();
+		}
+		else if (!MVGameControllerDesktop.LockCursorManager.CursorLock)
 		{
 			StartPlaying();
 		}

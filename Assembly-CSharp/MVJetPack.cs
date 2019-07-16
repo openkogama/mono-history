@@ -81,7 +81,7 @@ public class MVJetPack : MVVehicleBase
 			GameObject gameObject = vehicleBase.GameObject;
 			jetPackVisualization = gameObject.GetComponentInChildren<JetPackVisualization>();
 			VehicleInteractable vehicleInteractable = gameObject.AddComponent<VehicleInteractable>();
-			vehicleInteractable.Init(vehicleBase.Modifiers, vehicleBase.Health, null, vehicleBase.Shield);
+			vehicleInteractable.Init(vehicleBase.Modifiers, vehicleBase.Health, null, vehicleBase.Shield, null);
 			JetPackMotor jetPackMotor = gameObject.AddComponent<JetPackMotor>();
 			jetPackMotor.Init(component, vehicleInteractable, smoothCharacterController, jetPackTypeParameters.thrustStrength, jetPackTypeParameters.density);
 			MVEquipableProxy mVEquipableProxy = gameObject.AddComponent<MVEquipableProxy>();

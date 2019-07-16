@@ -101,11 +101,24 @@ public class KoGaMaPackageClient
 		switch (worldObjectType)
 		{
 		case WorldObjectType.PlayModeAvatar:
-			if ((int)worldObjectData[WorldObjectDataParameters.OwnerActorNumber] == MVGameControllerBase.Game.LocalPlayer.ActorNr)
+		{
+			if (!worldObjectData.ContainsKey(WorldObjectDataParameters.OwnerActorNumber))
+			{
+				Debug.Log(HashtableFunctions.PrettyString(worldObjectData));
+				Debug.Log(worldObjectData.ContainsKey(WorldObjectDataParameters.Scale));
+			}
+			Debug.Log("(int)worldObjectData[WorldObjectDataParameters.OwnerActorNumber] " + (int)worldObjectData[WorldObjectDataParameters.OwnerActorNumber]);
+			int num = (int)worldObjectData[WorldObjectDataParameters.OwnerActorNumber];
+			if (num == MVGameControllerBase.Game.LocalPlayer.ActorNr)
 			{
 				return new MVAvatarLocal(worldObjectData, worldObjects);
 			}
+			if (num == -1)
+			{
+				return new MVPreviewAvatar(worldObjectData, worldObjects);
+			}
 			return new MVAvatarRemote(worldObjectData, worldObjects);
+		}
 		case WorldObjectType.CubeModel:
 			return new MVCubeModelInstance(worldObjectData, worldObjects, prototypes);
 		case WorldObjectType.Skybox:
@@ -275,6 +288,10 @@ public class KoGaMaPackageClient
 				return new MVBuildModeAvatarLocal(worldObjectData, worldObjects);
 			}
 			return new MVBuildModeAvatarRemote(worldObjectData, worldObjects);
+		case WorldObjectType.AvatarSpawnRoleCreator:
+			return new MVAvatarSpawnRoleCreator(worldObjectData, worldObjects);
+		case WorldObjectType.GameBoosterDataObject:
+			return new MVGameBoosterDataObject(worldObjectData, worldObjects);
 		default:
 			Debug.LogError("WOCM trying to create unknown type: " + worldObjectType);
 			return null;

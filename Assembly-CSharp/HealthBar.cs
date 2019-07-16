@@ -6,28 +6,19 @@ public class HealthBar : MonoBehaviour
 
 	public Transform oxygenPivot;
 
-	private float healthBoost = 1f;
-
-	private float maxHealth = 100f;
-
-	public float MaxHealth
-	{
-		set
-		{
-			maxHealth = value;
-			SetScaleFromHealth(Health);
-		}
-	}
+	public float MaxHealth { get; set; }
 
 	public float Health
 	{
 		get
 		{
-			return healthPivot.localScale.x * maxHealth;
+			return healthPivot.localScale.x * MaxHealth;
 		}
 		set
 		{
-			SetScaleFromHealth(value);
+			Vector3 localScale = healthPivot.localScale;
+			localScale.x = Mathf.Clamp01(value / MaxHealth);
+			healthPivot.localScale = localScale;
 		}
 	}
 
@@ -44,12 +35,7 @@ public class HealthBar : MonoBehaviour
 	private void SetScaleFromHealth(float value)
 	{
 		Vector3 localScale = healthPivot.localScale;
-		localScale.x = Mathf.Clamp01(value / maxHealth);
+		localScale.x = Mathf.Clamp01(value / MaxHealth);
 		healthPivot.localScale = localScale;
-	}
-
-	private float GetBoostedHealth(float defaultHealth)
-	{
-		return defaultHealth * healthBoost;
 	}
 }

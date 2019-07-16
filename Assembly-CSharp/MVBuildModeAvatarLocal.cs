@@ -498,7 +498,6 @@ public class MVBuildModeAvatarLocal : MVBuildModeAvatar, ILocalObject, ISpawnRol
 		laserPoint = InitLaser(isLocal: true);
 		laserPoint.SubscribeToCommands();
 		PositionChanged = (UnityAction<MVWorldObjectClient, PositionChangedEventArgs>)Delegate.Combine(PositionChanged, new UnityAction<MVWorldObjectClient, PositionChangedEventArgs>(OnPositionChanged));
-		RotationChanged = (UnityAction<MVWorldObjectClient, RotationChangedEventArgs>)Delegate.Combine(RotationChanged, new UnityAction<MVWorldObjectClient, RotationChangedEventArgs>(OnRotationChanged));
 		ScaleChanged = (UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>)Delegate.Combine(ScaleChanged, new UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>(OnScaleChanged));
 		base.Initialize();
 		limbManager = new AvatarLimbManagerLocal();
@@ -520,8 +519,8 @@ public class MVBuildModeAvatarLocal : MVBuildModeAvatar, ILocalObject, ISpawnRol
 		if (idFrom > 0)
 		{
 			spawnRoleDataReceiver.position.Value = Position;
-			spawnRoleDataReceiver.rotation.Value = Rotation;
 		}
+		spawnRoleDataReceiver.woId.Value = Id;
 		CullingApiWrapper.SetDistanceReferencePoint(transform);
 		ChatCommandManager.UpdateChatCommandCallback(ChatCommand.HideAllUI, (Action)Delegate.Combine(ChatCommandManager.GetChatCommandCallback(ChatCommand.HideAllUI), new Action(HideEditCube)));
 	}
@@ -553,7 +552,7 @@ public class MVBuildModeAvatarLocal : MVBuildModeAvatar, ILocalObject, ISpawnRol
 
 	private void SetToSpawn()
 	{
-		MVLogicObject validSpawnPoint = MVGameControllerBase.WOCM.GetValidSpawnPoint();
+		MVWorldObjectClient validSpawnPoint = MVGameControllerBase.WOCM.GetValidSpawnPoint();
 		WorldPosition = validSpawnPoint.WorldPosition;
 		WorldRotation = validSpawnPoint.WorldRotation;
 		MVGameControllerBase.MainCameraManager.CurrentCamera.Reset();
@@ -567,11 +566,6 @@ public class MVBuildModeAvatarLocal : MVBuildModeAvatar, ILocalObject, ISpawnRol
 	private void OnPositionChanged(MVWorldObjectClient wo, PositionChangedEventArgs positionChangedEventArgs)
 	{
 		spawnRoleDataReceiver.position.Value = positionChangedEventArgs.NewPos;
-	}
-
-	private void OnRotationChanged(MVWorldObjectClient wo, RotationChangedEventArgs rotationChangedEventArgs)
-	{
-		spawnRoleDataReceiver.rotation.Value = rotationChangedEventArgs.NewRotation;
 	}
 
 	private void OnScaleChanged(MVWorldObjectClient wo, ScaleChangedEventArgs scaleChangedEventArgs)

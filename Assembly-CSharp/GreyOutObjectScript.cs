@@ -33,6 +33,10 @@ public class GreyOutObjectScript : MonoBehaviour
 
 	private List<PickupOriginalMaterials> pickupOriginalMaterials = new List<PickupOriginalMaterials>();
 
+	private bool isGreyedIn = true;
+
+	public bool IsGreyedIn => isGreyedIn;
+
 	private void Awake()
 	{
 		enabled = false;
@@ -50,11 +54,13 @@ public class GreyOutObjectScript : MonoBehaviour
 	public void GreyIn()
 	{
 		ExecuteOnMaterials(GreyInExec);
+		isGreyedIn = true;
 	}
 
 	public void GreyOut()
 	{
 		ExecuteOnMaterials(GreyOutExec);
+		isGreyedIn = false;
 	}
 
 	public void InitializeOriginalMaterials()

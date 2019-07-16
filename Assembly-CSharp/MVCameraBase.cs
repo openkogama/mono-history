@@ -83,7 +83,15 @@ public abstract class MVCameraBase : MonoBehaviour
 	{
 	}
 
-	public virtual void FocusOnObject(MVWorldObjectClient wo, float transitionTime = 2f, Vector3 avatarOffset = default(Vector3))
+	public virtual void FocusOnObject(MVWorldObjectClient wo, float transitionTime = 2f, Vector3 avatarOffset = default(Vector3), Vector3 cameraOffset = default(Vector3))
+	{
+	}
+
+	public virtual void Activate()
+	{
+	}
+
+	public virtual void Deactivate()
 	{
 	}
 }

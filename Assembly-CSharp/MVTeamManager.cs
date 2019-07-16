@@ -8,26 +8,6 @@ public class MVTeamManager
 {
 	public delegate void OnTeamsUpdatedDelegate();
 
-	private Dictionary<MVTeam, bool> teamActiveBools = new Dictionary<MVTeam, bool>
-	{
-		{
-			MVTeam.Blue,
-			false
-		},
-		{
-			MVTeam.Red,
-			false
-		},
-		{
-			MVTeam.Green,
-			false
-		},
-		{
-			MVTeam.Yellow,
-			false
-		}
-	};
-
 	private readonly Dictionary<MVTeam, string> teamNamesDefault = new Dictionary<MVTeam, string>
 	{
 		{
@@ -70,6 +50,21 @@ public class MVTeamManager
 
 	public OnTeamsUpdatedDelegate OnTeamsUpdated;
 
+	private Dictionary<MVTeam, HashSet<int>> teams = new Dictionary<MVTeam, HashSet<int>>();
+
+	public int NumSpawnPoint
+	{
+		get
+		{
+			int num = 0;
+			foreach (HashSet<int> value in teams.Values)
+			{
+				num += value.Count;
+			}
+			return num;
+		}
+	}
+
 	public event EventHandler<TeamEventArgs> OnTeamAdded;
 
 	public event EventHandler<TeamEventArgs> OnTeamRemoved;
@@ -77,14 +72,11 @@ public class MVTeamManager
 	public List<TeamData> GetTeamDatas(GameStatCounterType gameStatCounterType)
 	{
 		List<TeamData> list = new List<TeamData>();
-		foreach (KeyValuePair<MVTeam, bool> teamActiveBool in teamActiveBools)
+		foreach (MVTeam key in teams.Keys)
 		{
-			if (teamActiveBool.Value)
-			{
-				int score = GetScore(teamActiveBool.Key, gameStatCounterType);
-				int noOfPlayersInTeam = GetNoOfPlayersInTeam(teamActiveBool.Key);
-				list.Add(new TeamData(teamActiveBool.Key, noOfPlayersInTeam, score, teamNames[teamActiveBool.Key]));
-			}
+			int score = GetScore(key, gameStatCounterType);
+			int noOfPlayersInTeam = GetNoOfPlayersInTeam(key);
+			list.Add(new TeamData(key, noOfPlayersInTeam, score, teamNames[key]));
 		}
 		return list;
 	}
@@ -104,50 +96,91 @@ public class MVTeamManager
 		teamNames[team] = teamNamesDefault[team];
 	}
 
-	public void AddTeam(MVTeam team)
+	public void OnAddSpawnPoint(int woId, MVTeam team)
 	{
+		Debug.Log("AddTeam(MVTeam team) " + team);
 		if (team == MVTeam.Server)
 		{
 			Debug.LogError("Attempt to AddTeam of type Server");
 			return;
 		}
-		teamActiveBools[team] = true;
-		if (OnTeamsUpdated != null)
+		bool flag = false;
+		if (!teams.ContainsKey(team))
 		{
-			OnTeamsUpdated();
+			teams.Add(team, new HashSet<int>());
+			flag = true;
 		}
-		if (OnTeamAdded != null && OnTeamAdded != null)
+		teams[team].Add(woId);
+		if (flag)
 		{
-			OnTeamAdded(this, new TeamEventArgs(team));
+			if (OnTeamsUpdated != null)
+			{
+				OnTeamsUpdated();
+			}
+			if (OnTeamAdded != null && OnTeamAdded != null)
+			{
+				OnTeamAdded(this, new TeamEventArgs(team));
+			}
 		}
+		Debug.Log("OnAddSpawnPoint");
+		Debug.Log(ToString());
 	}
 
-	public void RemoveTeam(MVTeam team)
+	public void OnRemoveSpawnPoint(int id, MVTeam team)
 	{
-		if (team == MVTeam.Server)
+		if (!teams[team].Remove(id))
 		{
-			Debug.LogError("Attempt to RemoveTeam of type Server");
-			return;
+			throw new Exception("Team wo id already removed");
 		}
-		teamActiveBools[team] = false;
-		if (OnTeamsUpdated != null)
+		if (teams[team].Count == 0)
 		{
-			OnTeamsUpdated();
+			teams.Remove(team);
+			if (OnTeamsUpdated != null)
+			{
+				OnTeamsUpdated();
+			}
+			if (OnTeamRemoved != null && OnTeamRemoved != null)
+			{
+				OnTeamRemoved(this, new TeamEventArgs(team));
+			}
+			MVTeam defaultTeam = GetDefaultTeam();
+			MVGameControllerBase.Game.MVPlayerContainer.UpdateTeamForPlayersOnRemovedTeam(team, defaultTeam);
 		}
-		if (OnTeamRemoved != null && OnTeamRemoved != null)
+		Debug.Log("OnRemoveSpawnPoint");
+		Debug.Log(ToString());
+	}
+
+	public List<MVWorldObjectClient> GetSpawnPointsForTeam(MVTeam team)
+	{
+		List<MVWorldObjectClient> list = new List<MVWorldObjectClient>();
+		foreach (int item in teams[team])
 		{
-			OnTeamRemoved(this, new TeamEventArgs(team));
+			list.Add(MVGameControllerBase.WOCM.GetWorldObjectClient(item));
 		}
+		return list;
+	}
+
+	public MVTeam GetDefaultTeam()
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			MVTeam mVTeam = (MVTeam)i;
+			if (teams.ContainsKey(mVTeam))
+			{
+				return mVTeam;
+			}
+		}
+		throw new Exception("Could not find default team");
 	}
 
 	public bool IsTeamActive(MVTeam team)
 	{
-		return teamActiveBools[team];
+		return teams.ContainsKey(team);
 	}
 
 	public int GetScore(MVTeam team, GameStatCounterType gameStatCounterType)
 	{
-		if (!teamActiveBools[team])
+		if (!teams.ContainsKey(team))
 		{
 			return 0;
 		}
@@ -156,29 +189,47 @@ public class MVTeamManager
 
 	public int TeamCount()
 	{
-		int num = 0;
-		foreach (KeyValuePair<MVTeam, bool> teamActiveBool in teamActiveBools)
-		{
-			if (teamActiveBool.Value)
-			{
-				num++;
-			}
-		}
-		return num;
+		return teams.Count;
 	}
 
 	public List<MVTeam> GetTeamList()
 	{
-		List<MVTeam> list = new List<MVTeam>();
-		foreach (KeyValuePair<MVTeam, bool> teamActiveBool in teamActiveBools)
+		return teams.Keys.ToList();
+	}
+
+	public bool HasTeam(MVTeam team)
+	{
+		return teams.ContainsKey(team);
+	}
+
+	public bool TeamHasSpawnPoints(MVTeam team)
+	{
+		List<MVWorldObjectClient> spawnPointsForTeam = MVGameControllerBase.Game.TeamManager.GetSpawnPointsForTeam(team);
+		bool result = false;
+		for (int i = 0; i < spawnPointsForTeam.Count; i++)
 		{
-			if (teamActiveBool.Value)
+			if (spawnPointsForTeam[i] is MVSpawnPoint)
 			{
-				MVTeam key = teamActiveBool.Key;
-				list.Add(key);
+				result = true;
+				break;
 			}
 		}
-		return list;
+		return result;
+	}
+
+	public bool TeamHasSpawnRoles(MVTeam team)
+	{
+		List<MVWorldObjectClient> spawnPointsForTeam = MVGameControllerBase.Game.TeamManager.GetSpawnPointsForTeam(team);
+		bool result = false;
+		for (int i = 0; i < spawnPointsForTeam.Count; i++)
+		{
+			if (spawnPointsForTeam[i].WorldObjectType == WorldObjectType.AvatarSpawnRoleCreator)
+			{
+				result = true;
+				break;
+			}
+		}
+		return result;
 	}
 
 	public List<MVPlayer> GetPlayersInTeam(MVTeam team)
@@ -194,5 +245,15 @@ public class MVTeamManager
 	public int GetNoOfPlayersInTeam(MVTeam team)
 	{
 		return GetPlayersInTeam(team).Count;
+	}
+
+	public override string ToString()
+	{
+		string text = string.Empty;
+		foreach (MVTeam team in GetTeamList())
+		{
+			text = text + "\n" + team;
+		}
+		return text;
 	}
 }

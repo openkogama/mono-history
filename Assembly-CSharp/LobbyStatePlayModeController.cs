@@ -35,6 +35,8 @@ public class LobbyStatePlayModeController : MonoBehaviour
 	{
 		ILockCursorManager lockCursorManager = MVGameControllerDesktop.LockCursorManager;
 		lockCursorManager.OnCursorLockChanged = (Action<bool>)Delegate.Combine(lockCursorManager.OnCursorLockChanged, new Action<bool>(OnCursorLockChanged));
+		GameEventManager.GameStateManager gameState = MVGameControllerBase.GameEventManager.GameState;
+		gameState.OnEnableLobbyState = (Action)Delegate.Combine(gameState.OnEnableLobbyState, new Action(EnableLobbyState));
 		this.inGameController = inGameController;
 		this.lobbyState = lobbyState;
 		this.inGameMenu = inGameMenu;
@@ -88,6 +90,7 @@ public class LobbyStatePlayModeController : MonoBehaviour
 		inGameMenu.gameObject.SetActive(!shouldOpenLobbyMenu);
 		inGameController.gameObject.SetActive(value: false);
 		chatController.OnLobbyStateChange(cursorLocked: false);
+		shouldOpenLobbyMenu = false;
 	}
 
 	private void DeactivateLobbyState()
@@ -96,5 +99,13 @@ public class LobbyStatePlayModeController : MonoBehaviour
 		inGameMenu.gameObject.SetActive(value: false);
 		inGameController.gameObject.SetActive(value: true);
 		chatController.OnLobbyStateChange(cursorLocked: true);
+	}
+
+	private void EnableLobbyState()
+	{
+		if (!lobbyState.gameObject.activeSelf)
+		{
+			shouldOpenLobbyMenu = true;
+		}
 	}
 }

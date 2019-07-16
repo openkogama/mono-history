@@ -71,7 +71,7 @@ public class MVTeleporter : MVLogicObject
 	{
 		useInteractor = new UseInteractor(this, teleportObject.useInteractionRotator, reset: false, teleportObject.TriggerBoxEvents.Collider, DoTeleport);
 		GameCoinLogic useRequirement = new GameCoinLogic(teleportObject.useInteractionRotator, hasUseButtonWhenFree: false);
-		GameRankRequirement gameRankRequirement = new GameRankRequirement(teleportObject.useInteractionRotator, hasUseButtonWhenFree: false);
+		GameRankRequirement gameRankRequirement = new GameRankRequirement(teleportObject.useInteractionRotator, this, hasUseButtonWhenFree: false);
 		gameRankRequirement.OnDataUpdate(Data, id);
 		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(teleportObject.useInteractionRotator, hasUseButtonWhenFree: false);
 		StarRequirement useRequirement3 = new StarRequirement(teleportObject.useInteractionRotator, hasUseButtonWhenFree: false);

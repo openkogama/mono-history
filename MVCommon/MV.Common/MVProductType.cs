@@ -12,5 +12,6 @@ public enum MVProductType
 	MarketPlaceAvatar,
 	Theme,
 	AccessoryBundle,
-	GamePassTier
+	GamePassTier,
+	GameBooster
 }

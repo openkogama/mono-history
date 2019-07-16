@@ -11,7 +11,7 @@ public class TouristAdController : MonoBehaviour, ITouristAdController, IEventSy
 
 	private bool isDead;
 
-	private const float showAdDelay = 1.25f;
+	private const float showAdDelay = 1.26f;
 
 	private TouristModeController promotionSliderCreator;
 
@@ -48,13 +48,13 @@ public class TouristAdController : MonoBehaviour, ITouristAdController, IEventSy
 		{
 			if (!isDead)
 			{
-				if (timer >= timeBeforeAdShown && Time.time > MVGameControllerBase.LocalPlayer.RespawnTime - (MVGameControllerBase.LocalPlayer.RespawnDuration - 1.25f))
+				if (timer >= timeBeforeAdShown && Time.time > MVGameControllerBase.LocalPlayer.RespawnTime - (MVGameControllerBase.LocalPlayer.RespawnDuration - 1.26f))
 				{
 					isDead = true;
 					promotionSliderCreator.ShowAnyPromotionSlide();
 					timer = 0f;
 				}
-				else if (Time.time > MVGameControllerBase.LocalPlayer.RespawnTime - (MVGameControllerBase.LocalPlayer.RespawnDuration - 1.25f))
+				else if (Time.time > MVGameControllerBase.LocalPlayer.RespawnTime - (MVGameControllerBase.LocalPlayer.RespawnDuration - 1.26f))
 				{
 					isDead = true;
 					MVGameControllerDesktop.LockCursorManager.CursorLock = false;

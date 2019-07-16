@@ -5,5 +5,6 @@ public enum QueryType : byte
 	GameWorld,
 	Item,
 	AddToGameWorld,
-	AccessoryUserData
+	AccessoryUserData,
+	Bodies
 }

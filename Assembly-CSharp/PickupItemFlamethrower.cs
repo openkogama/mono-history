@@ -96,7 +96,7 @@ public class PickupItemFlamethrower : PickupItem
 					mvRigidBody.AddImpulse(new Vector3(0f, 0f - num, 0f), suspendImpactDamage: true);
 				}
 			}
-			if ((float)currentFuel <= 0f)
+			if (IsAmmoDepleted)
 			{
 				MVEquipable component = owner.WorldObjectOwner.GameObject.GetComponent<MVEquipable>();
 				if (component != null)

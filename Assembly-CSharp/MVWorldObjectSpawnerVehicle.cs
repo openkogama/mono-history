@@ -65,13 +65,15 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 		useInteractor = new UseInteractor(this, spawnerObject.UseInteractorRotator, reset: true, triggerBoxEvents.Collider, Use, CheckCanUse, 3.5f);
 		triggerBoxEvents.TriggerEnterOverride += useInteractor.triggerBoxEvents_TriggerEnter;
 		triggerBoxEvents.TriggerExitOverride += useInteractor.triggerBoxEvents_TriggerExit;
+		InitializeCommon();
 		GameCoinLogic useRequirement = new GameCoinLogic(spawnerObject.UseInteractorRotator);
 		useInteractor.AddRequirement(useRequirement);
 		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(spawnerObject.UseInteractorRotator);
 		useInteractor.AddRequirement(useRequirement2);
+		GameRankRequirement useRequirement3 = new GameRankRequirement(spawnerObject.UseInteractorRotator, this, hasUseButtonWhenFree: false);
+		useInteractor.AddRequirement(useRequirement3);
 		useInteractor.UpdateData(Data);
 		lodGameObject = mVVehicleBase.Visualization.gameObject;
-		InitializeCommon();
 		interactionFlags |= mVVehicleBase.InteractionFlags;
 		interactionFlags |= InteractionFlags.DirectlySelectable;
 		interactionFlags |= InteractionFlags.CanUseLevel;
@@ -121,6 +123,12 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 		groundAura.transform.localPosition = Vector3.zero + Vector3.up * (0f - mVVehicleBase.GetLocalBounds(BoundsContext.BoxVisualization).extents.y) * 0.9f;
 		groundAura.transform.rotation = Quaternion.identity;
 		documentationType = mVVehicleBase.DocumentationType;
+	}
+
+	public override void SetupTierInventory()
+	{
+		lodGameObject.SetActive(value: true);
+		base.SetupTierInventory();
 	}
 
 	protected override void OnSpawnStateChange(SpawnState spawnState)

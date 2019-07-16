@@ -9,8 +9,6 @@ public class GameMeterShield : GameMeterBase
 	[SerializeField]
 	private ProgressBar progressBar;
 
-	private bool initialized;
-
 	private const float maxShieldValue = 100f;
 
 	private float interpolateTowardsShieldProgress;
@@ -25,7 +23,6 @@ public class GameMeterShield : GameMeterBase
 	{
 		MVGameControllerBase.SpawnRoleDataMediatorLocal.Shield.OnChange += OnProgressUpdate;
 		enabled = true;
-		initialized = true;
 		OnProgressUpdate(MVGameControllerBase.SpawnRoleDataMediatorLocal.Shield.Value);
 	}
 

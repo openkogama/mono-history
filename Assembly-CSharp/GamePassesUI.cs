@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -93,7 +92,7 @@ public class GamePassesUI : MonoBehaviour
 		{
 			x.Push(gamePassesShop.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
 		});
-		gamePassesShop.Initialize(tierToShow, new List<int>());
+		gamePassesShop.Initialize(tierToShow);
 	}
 
 	private void OnEnable()

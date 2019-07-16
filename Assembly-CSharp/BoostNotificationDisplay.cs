@@ -19,13 +19,15 @@ public class BoostNotificationDisplay : MonoBehaviour
 	private void Start()
 	{
 		BoostController boostController = MVGameControllerBase.Game.LocalPlayer.BoostController;
-		boostController.BoostCountChanged = (Action<int>)Delegate.Combine(boostController.BoostCountChanged, new Action<int>(OnBoostCountChanged));
+		boostController.BoostCountChanged = (Action)Delegate.Combine(boostController.BoostCountChanged, new Action(OnBoostCountChanged));
+		OnBoostCountChanged();
 	}
 
-	private void OnBoostCountChanged(int activeBoostsCount)
+	private void OnBoostCountChanged()
 	{
-		boostsActive.text = activeBoostsCount.ToString();
-		backgroundColor.color = ((activeBoostsCount <= 0) ? boostInactiveColor : boostActiveColor);
+		int count = MVGameControllerBase.Game.LocalPlayer.BoostController.GetActiveBoosts().Count;
+		boostsActive.text = count.ToString();
+		backgroundColor.color = ((count <= 0) ? boostInactiveColor : boostActiveColor);
 	}
 
 	private void OnDestroy()
@@ -33,7 +35,7 @@ public class BoostNotificationDisplay : MonoBehaviour
 		if (MVGameControllerBase.IsAlive)
 		{
 			BoostController boostController = MVGameControllerBase.Game.LocalPlayer.BoostController;
-			boostController.BoostCountChanged = (Action<int>)Delegate.Remove(boostController.BoostCountChanged, new Action<int>(OnBoostCountChanged));
+			boostController.BoostCountChanged = (Action)Delegate.Remove(boostController.BoostCountChanged, new Action(OnBoostCountChanged));
 		}
 	}
 }

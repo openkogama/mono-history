@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using Assets.Scripts.Network.Player.SpawnRoles.SpawnRoleData.Mediator;
 using MV.Common;
 using MV.WorldObject;
+using MV.WorldObject.KogamaSettings.KogamaSettingsCore;
+using MV.WorldObject.KogamaSettings.KogamaSettingsCore.KogamaSettingTypes;
+using MV.WorldObject.KogamaSettings.SpecializedSettingsTypes.AttributeSettings;
+using MV.WorldObject.KogamaSettings.SpecializedSettingsTypes.AttributeSettings.AttributePrototypeSettings;
 using MV.WorldObject.MetaData;
 using UnityEngine;
 using UnityEngine.Events;
@@ -59,12 +63,12 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 
 		private AvatarRuntimeState GetStartState()
 		{
-			AvatarRuntimeState result = AvatarRuntimeState.Hidden;
-			if (MVGameControllerBase.GameSessionData.gameMode == MVGameMode.Edit)
+			AvatarRuntimeState avatarRuntimeState = AvatarRuntimeState.Playing;
+			if (MVGameControllerBase.PlayModeUI.InLobbyState)
 			{
-				result = ((MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState != MVGameStateType.RoundEnded) ? AvatarRuntimeState.Playing : AvatarRuntimeState.Hidden);
+				return AvatarRuntimeState.Hidden;
 			}
-			return result;
+			return AvatarRuntimeState.Playing;
 		}
 	}
 
@@ -323,10 +327,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			MVGameControllerBase.MainCameraManager.CamMaskMode = MaskMode.Default;
 			LayerUtil.SetLayerRecursively(mvAvatar.Body.Transform, "CamRotateTarget", "Player");
 			mvAvatar.AvatarLocal.CameraController.RemoveCamera(CameraType.LobbyState);
-			if (toMode == AvatarRuntimeState.Playing)
-			{
-				mvAvatar.OnRespawn();
-			}
 		}
 
 		public override void FixedUpdate(IInputToPlayerMovement movementMap)
@@ -910,6 +910,8 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 
 	public Action<float, MVPlayer, PlayerKilledByType> OnDamageTaken;
 
+	private int spawnWorldObjectId = -1;
+
 	private Vector3 LookAtPos => transform.position + Vector3.up;
 
 	public AvatarInteractable InteractableLocal => interactableLocal;
@@ -950,7 +952,21 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		}
 	}
 
+	public KogamaSettingWrapperBase Settings => KogamaSettingTools.CreateFromValues(Data, AttributePrototypeSettingsManager.GetRoot(AttributeSettingWoType.Avatar), AttributeSettingsFactory.KogamaSettingValueFactoryAttributeSettings);
+
 	private AvatarLocal AvatarLocal => (AvatarLocal)Avatar;
+
+	public int SpawnId
+	{
+		private get
+		{
+			return spawnWorldObjectId;
+		}
+		set
+		{
+			spawnWorldObjectId = value;
+		}
+	}
 
 	public MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVLocalAvatarPrefab, worldObjects)
@@ -970,17 +986,19 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 
 	public override void Initialize()
 	{
+		skillDataManager = new WorldObjectSkillDataManager();
+		skillDataManager.Initialize(Settings);
 		base.Initialize();
 		avatarMotor = gameObject.AddComponent<AvatarMotor>();
 		triggerHandler = gameObject.AddComponent<MVTriggerHandler>();
 		AvatarInteractable avatarInteractable = gameObject.AddComponent<AvatarInteractable>();
-		avatarInteractable.Init(Modifiers, Health, MaxHealth, Shield);
+		avatarInteractable.Init(Modifiers, Health, MaxHealth, Shield, skillDataManager);
 		interactableLocal = avatarInteractable;
 		AvatarInteractable avatarInteractable2 = interactableLocal;
 		avatarInteractable2.OnDamageTaken = (Action<float, MVPlayer, PlayerKilledByType>)Delegate.Combine(avatarInteractable2.OnDamageTaken, new Action<float, MVPlayer, PlayerKilledByType>(RelayDamageEvent));
 		avatarEquipable = gameObject.AddComponent<AvatarEquipable>();
-		avatarEquipable.Init(interactableLocal, CurrentItem);
-		avatarMotor.Init(avatarInteractable, CharacterControllerCenterOffset, this);
+		avatarEquipable.Init(interactableLocal, CurrentItem, skillDataManager);
+		avatarMotor.Init(avatarInteractable, CharacterControllerCenterOffset, this, skillDataManager);
 		pickupOwner = base.avatarPickupOwner;
 		if (MVGameControllerBase.GameMode != MVGameMode.CharacterEditor)
 		{
@@ -994,6 +1012,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		avatarLocalModes = new AvatarLocalModes(this);
 		InitializeHealth();
 		InitializeShield();
+		UpdateMaxHealth();
 		if (MVGameControllerBase.GameMode != MVGameMode.CharacterEditor)
 		{
 			useInteractorHandler = gameObject.AddComponent<UseInteractorHandler>();
@@ -1015,6 +1034,12 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		ScaleChanged = (UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>)Delegate.Combine(ScaleChanged, new UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>(OnScaleChanged));
 		gameObject.SetActive(value: false);
 		MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(OwnerActorNr).NotifyAvatarCreated(Id);
+		KogamaSettingTools.Traverse(Settings, Callback);
+	}
+
+	private void Callback(KogamaSettingWrapperBase obj)
+	{
+		Debug.Log(obj);
 	}
 
 	public void Activate(int idFrom, SpawnRoleDataReceiver spawnRoleDataReceiver, Vector3 position, Quaternion rotation)
@@ -1030,27 +1055,37 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		MVGameControllerBase.GameEventManager.GameState.GameStateType.OnChange += GameStateTypeOnOnChange;
 		MVGameControllerBase.GameEventManager.OnFirstTimeEvent += GameEventManagerOnOnFirstTimeEvent;
 		MVGameControllerBase.GameEventManager.OnXPRewarded += GameEventManagerOnOnXpRewarded;
-		MVGameControllerBase.Game.LocalPlayer.BoostController.SubscribeToBoostChanged(BoostType.ExtraHealthFloatMultiplier, OnHealthBoostedChanged);
-		OnHealthBoostedChanged();
 		this.spawnRoleDataReceiver = spawnRoleDataReceiver;
-		Position = position;
-		Rotation = rotation;
-		SetTransform(Position, Rotation);
+		if (MVGameControllerBase.LocalPlayer.IsReady && MVGameControllerDesktop.LockCursorManager.CursorLock)
+		{
+			MVGameControllerBase.PlayModeUI.InLobbyState = false;
+		}
+		SetToSpawnTransform();
+		MVWorldObject worldObject = MVGameControllerBase.WOCM.GetWorldObject(idFrom);
+		if (worldObject is MVBuildModeAvatar)
+		{
+			Position = position;
+			Rotation = rotation;
+			SetTransform(Position, Rotation);
+		}
 		spawnRoleDataReceiver.position.Value = Position;
 		spawnRoleDataReceiver.rotation.Value = Rotation;
 		spawnRoleDataReceiver.scale.Value = Scale;
 		spawnRoleDataReceiver.woId.Value = Id;
+		spawnRoleDataReceiver.maxHealth.Value = MaxHealth.Value;
+		OnHealthBoostedChanged();
 		((AvatarLocal)avatar).CameraController.ActivateCameraController();
 		avatarLocalModes.SetToStartMode();
 		gameObject.SetActive(value: true);
 		MVGameControllerBase.Game.PlayerController.SetAvatarLocalObject(this);
-		MVWorldObject worldObject = MVGameControllerBase.WOCM.GetWorldObject(idFrom);
 		if (idFrom > 0)
 		{
 			MVGameControllerBase.MainCameraManager.CurrentCamera.Reset();
 			MVGameControllerBase.MainCameraManager.CurrentCamera.transform.rotation = worldObject.Rotation;
 		}
 		CullingApiWrapper.SetDistanceReferencePoint(transform);
+		MVGameControllerBase.Game.LocalPlayer.BoostController.SubscribeToBoostChanged(BoostType.ExtraHealthFloatMultiplier, OnHealthBoostedChanged);
+		OnHealthBoostedChanged();
 	}
 
 	public void DeActivate(int idTo, SpawnRoleDataReceiver spawnRoleDataReceiver)
@@ -1245,6 +1280,11 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		SetMode(AvatarRuntimeState.Playing);
 	}
 
+	private void AvatarCommandsOnSetToSpawnMode()
+	{
+		SetToSpawnTransform();
+	}
+
 	private void AvatarCommandsPlayModeOnOnReadyScreenShot()
 	{
 		avatar.AvatarFader.SetTransparency(1f);
@@ -1318,7 +1358,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			MVGameControllerBase.OperationRequests.SetTeam(teamList[0]);
 		}
 		SetAnimation("Idle");
-		MaxHealth.Value = GetBoostedHealth(100f);
 		Health.Value = MaxHealth.Value;
 		if (IsSeated)
 		{
@@ -1329,9 +1368,9 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		avatarMotor.Reset();
 	}
 
-	private float GetBoostedHealth(float defaultValue)
+	private int GetBoostedHealth(int unBoostedMaxHealth)
 	{
-		return defaultValue * boostedHealthMultiplier;
+		return Mathf.FloorToInt((float)unBoostedMaxHealth * boostedHealthMultiplier);
 	}
 
 	private void OnHealthBoostedChanged()
@@ -1339,16 +1378,35 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		boostedHealthMultiplier = 1f;
 		if (MVGameControllerBase.Game.LocalPlayer.BoostController.TryGetActiveBoost(BoostType.ExtraHealthFloatMultiplier, out var boost))
 		{
-			boostedHealthMultiplier = (float)boost.Value;
-			MaxHealth.Value = 100f * boostedHealthMultiplier;
+			boostedHealthMultiplier = 1f + (float)(int)boost.Value / 100f;
+			UpdateMaxHealth();
 			Health.Value = MaxHealth.Value;
+		}
+		else
+		{
+			float num = (float)MaxHealth.Value / Health.Value;
+			UpdateMaxHealth();
+			Health.Value = (float)MaxHealth.Value / num;
+		}
+	}
+
+	private void UpdateMaxHealth()
+	{
+		int unBoostedMaxHealth = ((!skillDataManager.HasSkill("MaxHealth")) ? 100 : skillDataManager.GetSkillIntValue("MaxHealth"));
+		int boostedHealth = GetBoostedHealth(unBoostedMaxHealth);
+		MaxHealth.Value = boostedHealth;
+		if (spawnRoleDataReceiver != null)
+		{
+			spawnRoleDataReceiver.maxHealth.Value = MaxHealth.Value;
 		}
 	}
 
 	private void Die()
 	{
+		Debug.Log("Die");
 		if (IsInMode(SpawnRoleModeType.Playing))
 		{
+			Debug.Log("Goto dead state");
 			Shield.Value = 0f;
 			avatarLocalModes.SetMode(AvatarRuntimeState.Dead);
 		}
@@ -1400,7 +1458,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		MVRuntimeDataVariable<float> health = Health;
 		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object obj) =>
 		{
-			if ((float)obj == 0f)
+			if ((float)obj <= 0f)
 			{
 				Die();
 			}
@@ -1434,7 +1492,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		}
 		else
 		{
-			interactableLocal.TakeDamage(100f, interactableLocal.LastDamageSource.shooter, interactableLocal.LastDamageSource.damageType);
+			interactableLocal.TakeDamage(MaxHealth.Value, interactableLocal.LastDamageSource.shooter, interactableLocal.LastDamageSource.damageType);
 		}
 	}
 
@@ -1470,14 +1528,22 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		spawnRoleDataReceiver.pickupItemIsInHand.Value = pickupOwner.PickupItemIsInHand;
 	}
 
-	private static Transform GetSpawnTransform()
+	private Transform GetSpawnTransform()
 	{
 		MVCheckpoint checkpoint = MVGameControllerBase.Game.LocalPlayer.GetCheckpoint();
 		if (checkpoint != null)
 		{
 			return checkpoint.Transform;
 		}
-		MVLogicObject validSpawnPoint = MVGameControllerBase.WOCM.GetValidSpawnPoint();
+		if (SpawnId != -1)
+		{
+			if (MVGameControllerBase.WOCM.TryGetWorldObject(SpawnId, out var worldObject))
+			{
+				return ((MVWorldObjectClient)worldObject).Transform;
+			}
+			Debug.LogWarning("Spawn role creator was destroyed. This might be ok.");
+		}
+		MVWorldObjectClient validSpawnPoint = MVGameControllerBase.WOCM.GetValidSpawnPoint();
 		if (validSpawnPoint == null)
 		{
 			Debug.LogError("No spawn-point found on planet!");

@@ -27,7 +27,7 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase, ICurrentItemOwner
 			health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnHealthChange));
 			GameObject gameObject = vehicleBase.GameObject;
 			VehicleInteractable vehicleInteractable = gameObject.AddComponent<VehicleInteractable>();
-			vehicleInteractable.Init(vehicleBase.Modifiers, vehicleBase.Health, null, vehicleBase.Shield);
+			vehicleInteractable.Init(vehicleBase.Modifiers, vehicleBase.Health, null, vehicleBase.Shield, null);
 			motor.Init(smoothController, vehicleInteractable);
 			onLeave = (Action)Delegate.Combine(onLeave, new Action(motor.OnLocalVehicleLeave));
 			VehicleEquipable vehicleEquipable = gameObject.AddComponent<VehicleEquipable>();
@@ -143,6 +143,7 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase, ICurrentItemOwner
 	protected MVSimpleOneSeatVehicle(Dictionary<object, object> data, VehicleBaseObject _vehiclePrefab, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, _vehiclePrefab, worldObjects)
 	{
+		SetNetworkObject(MVGameControllerBase.Game.LocalPlayer.ActorNr == OwnerActorNr);
 	}
 
 	public override void Initialize()

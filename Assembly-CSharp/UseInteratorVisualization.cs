@@ -183,6 +183,14 @@ public class UseInteratorVisualization : MonoBehaviour
 		visible = false;
 	}
 
+	public void Disable()
+	{
+		for (int i = 0; i < useRequirements.Count; i++)
+		{
+			useRequirements[i].GameObject.SetActive(value: false);
+		}
+	}
+
 	private void OnDisable()
 	{
 		Vector3 scale = new Vector3(0f, 0f, 0f);

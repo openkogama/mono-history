@@ -19,6 +19,8 @@ public abstract class MVPickupOwner : MVComponent
 
 	private const float _updateLineOfFireInterval = 0.5f;
 
+	private bool hasUnlimitedAmmoSetting;
+
 	protected PickupItem currentItem;
 
 	public OnEquipItemDelegate onEquipItem;
@@ -36,6 +38,8 @@ public abstract class MVPickupOwner : MVComponent
 	public Vector3 LookOrigin => lookOrigin;
 
 	public Vector3 LookDirection => lookDirection.normalized;
+
+	public bool HasUnlimitedAmmo => hasUnlimitedAmmoSetting;
 
 	public bool InGunMode
 	{
@@ -107,6 +111,11 @@ public abstract class MVPickupOwner : MVComponent
 		{
 			HandleFiring((bool)value);
 		}));
+	}
+
+	protected void InitializeSettings(bool hasUnlimitedAmmoSetting)
+	{
+		this.hasUnlimitedAmmoSetting = hasUnlimitedAmmoSetting;
 	}
 
 	private Vector3 GetLookDirectionWithAddedVelocityMagnitude(Vector3 lookDirection)

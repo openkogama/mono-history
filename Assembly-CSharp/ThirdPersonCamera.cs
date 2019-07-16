@@ -12,10 +12,15 @@ public class ThirdPersonCamera : PlaymodeCamera, ICameraSettings
 
 	public override CameraType CameraType => CameraType.ThirdPerson;
 
-	public override void Awake()
+	public override void Activate()
 	{
-		base.Awake();
 		MainCameraManager.RegisterCameraWithSettings(MVGameType.Classic, this);
+	}
+
+	public override void Deactivate()
+	{
+		MainCameraManager.UnRegisterCameraWithSettings(MVGameType.Classic);
+		base.Deactivate();
 	}
 
 	public override void UpdateCamera(MVCameraController camController, ProtectedTransform targetTransform)

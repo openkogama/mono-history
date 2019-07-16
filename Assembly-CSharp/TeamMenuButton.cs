@@ -1,4 +1,5 @@
 using MV.Common;
+using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -13,6 +14,8 @@ public class TeamMenuButton : MonoBehaviour
 	private void Start()
 	{
 		MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.OnChange += AvatarStateChanged;
+		MVGameControllerBase.Game.TeamManager.OnTeamAdded += TeamChanged;
+		MVGameControllerBase.Game.TeamManager.OnTeamRemoved += TeamChanged;
 		SetButtonIsActive();
 	}
 
@@ -22,6 +25,11 @@ public class TeamMenuButton : MonoBehaviour
 		{
 			SetButtonIsActive();
 		}
+	}
+
+	private void TeamChanged(object sender, TeamEventArgs eventArgs)
+	{
+		SetButtonIsActive();
 	}
 
 	private void SetButtonIsActive()

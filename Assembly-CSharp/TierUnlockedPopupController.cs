@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using MV.Common;
+using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -14,6 +15,9 @@ public class TierUnlockedPopupController : MonoBehaviour
 
 	[SerializeField]
 	private TierUnlockedPopupContentXP PopupContentXPPrefab;
+
+	[SerializeField]
+	private TierUnlockedPopupContentSpawnRole popupContentSpawnRolePrefab;
 
 	[SerializeField]
 	private TierUnlockedPopupContentBase PopupContentCreatorSupportPrefab;
@@ -48,6 +52,8 @@ public class TierUnlockedPopupController : MonoBehaviour
 
 	private float fadeEffectStartTime;
 
+	public static GamePassTier HighestTierRewardShown;
+
 	public void Initialize(GamePassTier unlockedTier, bool wasPurchased)
 	{
 		this.unlockedTier = unlockedTier;
@@ -59,6 +65,18 @@ public class TierUnlockedPopupController : MonoBehaviour
 		tierUnlockedPopupContentXP.transform.SetParent(transform, worldPositionStays: false);
 		tierUnlockedPopupContentXP.gameObject.SetActive(value: false);
 		popupContentList.Add(tierUnlockedPopupContentXP);
+		List<MVWorldObjectClient> worldObjectsByType = MVGameControllerBase.Game.WorldObjectClientManager.GetWorldObjectsByType(WorldObjectType.AvatarSpawnRoleCreator);
+		for (int i = 0; i < worldObjectsByType.Count; i++)
+		{
+			if (worldObjectsByType[i] is MVAvatarSpawnRoleCreator && ((MVAvatarSpawnRoleCreator)worldObjectsByType[i]).Tier == unlockedTier)
+			{
+				TierUnlockedPopupContentSpawnRole tierUnlockedPopupContentSpawnRole = Object.Instantiate(popupContentSpawnRolePrefab);
+				tierUnlockedPopupContentSpawnRole.SetupPreviewImage(((MVAvatarSpawnRoleCreator)worldObjectsByType[i]).GetSpawnRolePreviewObject());
+				tierUnlockedPopupContentSpawnRole.transform.SetParent(transform, worldPositionStays: false);
+				tierUnlockedPopupContentSpawnRole.gameObject.SetActive(value: false);
+				popupContentList.Add(tierUnlockedPopupContentSpawnRole);
+			}
+		}
 		if (wasPurchased)
 		{
 			TierUnlockedPopupContentBase tierUnlockedPopupContentBase = Object.Instantiate(PopupContentCreatorSupportPrefab);
@@ -68,6 +86,7 @@ public class TierUnlockedPopupController : MonoBehaviour
 		}
 		StartNewPopupContent(0);
 		Background.color = popupContentList[0].BackgroundColor;
+		HighestTierRewardShown = unlockedTier;
 	}
 
 	private void Update()

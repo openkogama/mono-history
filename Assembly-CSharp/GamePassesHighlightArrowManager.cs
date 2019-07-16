@@ -17,15 +17,7 @@ public class GamePassesHighlightArrowManager : MonoBehaviour
 
 	private static bool isHighlightingTierUnlocked;
 
-	private static GamePassTier highestTierRewardShown;
-
 	private static bool shouldDestroyHighlighArrow;
-
-	public static void IncreaseHighestTierRewardShown()
-	{
-		highestTierRewardShown++;
-		shouldDestroyHighlighArrow = true;
-	}
 
 	public void OnTierBeingShown(GamePassTier tierBeingShown)
 	{
@@ -34,7 +26,6 @@ public class GamePassesHighlightArrowManager : MonoBehaviour
 			DestroyHighlighArrow();
 			if (isHighlightingTierUnlocked)
 			{
-				highestTierRewardShown = tierBeingShown;
 				isHighlightingTierUnlocked = false;
 			}
 		}
@@ -42,10 +33,6 @@ public class GamePassesHighlightArrowManager : MonoBehaviour
 
 	private void Start()
 	{
-		if (GamePassesManager.GamePassesActive && highestTierRewardShown == GamePassTier.Tier0 && !isHighlightingTierUnlocked)
-		{
-			highestTierRewardShown = GamePassesManager.PlayerPlanetData.gamePassTier;
-		}
 		GamePassesManager.OnPlayerPlanetDataUpdated = (Action)Delegate.Combine(GamePassesManager.OnPlayerPlanetDataUpdated, new Action(OnPlayerPlanetDataUpdated));
 		if (isHighlightingTierUnlocked)
 		{
@@ -73,7 +60,7 @@ public class GamePassesHighlightArrowManager : MonoBehaviour
 	private void HandleUnseenTierUnlockReward()
 	{
 		GamePassTier gamePassTier = GamePassesManager.PlayerPlanetData.gamePassTier;
-		if ((int)highestTierRewardShown < (int)gamePassTier)
+		if ((int)TierUnlockedPopupController.HighestTierRewardShown < (int)gamePassTier)
 		{
 			DestroyHighlighArrow();
 			CreateHighlightArrow(gamePassTier);

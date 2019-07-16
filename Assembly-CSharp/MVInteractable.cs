@@ -12,13 +12,17 @@ public abstract class MVInteractable : MVInteractableBase
 
 	protected MVRuntimeDataVariable<float> health;
 
-	protected MVRuntimeDataVariable<float> maxHealth;
+	protected MVRuntimeDataVariable<int> maxHealth;
 
 	protected MVRuntimeDataVariableClampedFloat shield;
 
+	private float healthRegenerationPerSecondSetting;
+
+	private float shieldRegenerationPerSecondSetting;
+
 	public AvatarModifierPackages ModifierPackages => modifierPackages;
 
-	public virtual void Init(MVRuntimeDataVariable runtimeDataModifiers, MVRuntimeDataVariable<float> health, MVRuntimeDataVariable<float> maxHealth, MVRuntimeDataVariableClampedFloat shield)
+	public virtual void Init(MVRuntimeDataVariable runtimeDataModifiers, MVRuntimeDataVariable<float> health, MVRuntimeDataVariable<int> maxHealth, MVRuntimeDataVariableClampedFloat shield, WorldObjectSkillDataManager skillDataManager)
 	{
 		this.runtimeDataModifiers = runtimeDataModifiers;
 		this.health = health;
@@ -29,6 +33,17 @@ public abstract class MVInteractable : MVInteractableBase
 		{
 			RemoveModifier(modifier.AvatarModifierPackageType, modifier.id);
 		}));
+	}
+
+	public virtual void InitializeSetings(float healthRegenerationPerSecondSetting, float shieldRegenerationPerSecondSetting)
+	{
+		this.healthRegenerationPerSecondSetting = healthRegenerationPerSecondSetting;
+		this.shieldRegenerationPerSecondSetting = shieldRegenerationPerSecondSetting;
+	}
+
+	protected virtual void RestoreShield(float restoredShieldAmount)
+	{
+		shield.Value += restoredShieldAmount;
 	}
 
 	protected bool IgnoreDamage(MVPlayer damageDealer)
@@ -68,6 +83,16 @@ public abstract class MVInteractable : MVInteractableBase
 		if (num2 != 0f)
 		{
 			TakeDamage(num2, null, PlayerKilledByType.Environmental);
+		}
+		float num3 = healthRegenerationPerSecondSetting * Time.deltaTime;
+		if (num3 != 0f)
+		{
+			TakeDamage(0f - num3, null, PlayerKilledByType.None);
+		}
+		float num4 = shieldRegenerationPerSecondSetting * Time.deltaTime;
+		if (num4 != 0f)
+		{
+			RestoreShield(num4);
 		}
 	}
 

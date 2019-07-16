@@ -28,7 +28,7 @@ public class SizeGunBase : PickupItemWithDelay
 
 	public override AvatarItemType Type => AvatarItemType.MouseGun;
 
-	protected override bool IsAmmoDepleted => (int)currentAmmo <= 0;
+	protected override bool IsAmmoDepleted => (int)currentAmmo <= 0 && !HasUnlimitedAmmo;
 
 	private void Awake()
 	{

@@ -129,6 +129,7 @@ public class MVPickupItemBase : MVLogicObject, IPickupStateHandler, IUpdatecontr
 		baseObject = (MVPickupItemBaseObject)component;
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
 		interactionFlags |= InteractionFlags.CanUseLevel;
+		interactionFlags |= InteractionFlags.CanUseGameRank;
 		Dictionary<object, object> dictionary = (Dictionary<object, object>)data[WorldObjectDataParameters.Data];
 		AvatarItemType key = (AvatarItemType)dictionary["itemType"];
 		documentationType = (avatarItemToToinventoryItemDescrip.ContainsKey(key) ? avatarItemToToinventoryItemDescrip[key] : MVWorldObjectDocumentationType.Missing);
@@ -147,6 +148,8 @@ public class MVPickupItemBase : MVLogicObject, IPickupStateHandler, IUpdatecontr
 		useInteractor.AddRequirement(useRequirement);
 		LevelBasedUseRequirement useRequirement2 = new LevelBasedUseRequirement(baseObject.useInteractionRotator);
 		useInteractor.AddRequirement(useRequirement2);
+		GameRankRequirement useRequirement3 = new GameRankRequirement(baseObject.useInteractionRotator, this, hasUseButtonWhenFree: false);
+		useInteractor.AddRequirement(useRequirement3);
 		baseObject.TriggerBoxEvents.TriggerEnter += useInteractor.triggerBoxEvents_TriggerEnter;
 		baseObject.TriggerBoxEvents.TriggerExit += useInteractor.triggerBoxEvents_TriggerExit;
 	}

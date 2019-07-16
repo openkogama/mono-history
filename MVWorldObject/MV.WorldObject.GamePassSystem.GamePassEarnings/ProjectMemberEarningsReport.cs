@@ -15,9 +15,14 @@ public class ProjectMemberEarningsReport
 		this.earningsReport = earningsReport;
 	}
 
-	public void AddGoldRevenue(int goldAmount, GamePassTier gamePassTier)
+	public void AddTierGoldRevenue(int goldAmount, GamePassTier gamePassTier)
 	{
-		earningsReport.AddGoldRevenue(goldAmount, gamePassTier);
+		earningsReport.AddTierGoldRevenue(goldAmount, gamePassTier);
+	}
+
+	public void AddGameBoosterGoldRevenue(int goldAmount, string gameBooster)
+	{
+		earningsReport.AddGameBoosterGoldRevenue(goldAmount, gameBooster);
 	}
 
 	public override string ToString()

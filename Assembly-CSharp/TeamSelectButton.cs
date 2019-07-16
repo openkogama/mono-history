@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class TeamSelectButton : MonoBehaviour, IPointerDownHandler, IEventSystemHandler
@@ -23,14 +24,14 @@ public class TeamSelectButton : MonoBehaviour, IPointerDownHandler, IEventSystem
 	[SerializeField]
 	private GameObject friendIcon;
 
-	[SerializeField]
-	private WinningConditionBriefing winningConditionBriefingMenu;
-
 	private TeamData teamData;
 
-	public void Initialize(TeamData teamData)
+	private UnityAction OnTeamSelected;
+
+	public void Initialize(TeamData teamData, UnityAction OnTeamSelected)
 	{
 		this.teamData = teamData;
+		this.OnTeamSelected = OnTeamSelected;
 		buttonImage.color = Styles.GetTeamColor(teamData.team);
 		playerImage.color = Styles.GetTeamColor(teamData.team, darkTeam: true);
 		teamName.text = teamData.representedName;
@@ -53,34 +54,16 @@ public class TeamSelectButton : MonoBehaviour, IPointerDownHandler, IEventSystem
 
 	public void OnPointerDown(PointerEventData eventData)
 	{
-		if (eventData.button != PointerEventData.InputButton.Left)
+		if (eventData.button == PointerEventData.InputButton.Left)
 		{
-			return;
-		}
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-		{
-			x.Pop();
-		});
-		bool flag = WinningConditionControl.TryGetPrioritizedWinCondition(out var condition);
-		if (flag)
-		{
-			WinningConditionBriefing winConMenu = Object.Instantiate(winningConditionBriefingMenu);
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			if (MVGameControllerBase.Game.LocalPlayer.Team != teamData.team)
 			{
-				x.Push(winConMenu.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
-			});
-			winConMenu.Initialize(condition);
-		}
-		if (MVGameControllerBase.Game.LocalPlayer.Team != teamData.team)
-		{
-			MVGameControllerBase.OperationRequests.SetTeam(teamData.team);
-			MVGameControllerBase.Game.GameStatCounterManager.RemoveTeamScoreOnActorLeave(MVGameControllerBase.Game.LocalPlayer.ActorNr, MVGameControllerBase.Game.LocalPlayer.Team);
-			MVGameControllerBase.Game.LocalPlayer.ResetCheckpoint();
-			MVGameControllerBase.Game.LocalPlayer.Team = teamData.team;
-		}
-		if (!flag)
-		{
-			StartPlaying();
+				MVGameControllerBase.OperationRequests.SetTeam(teamData.team);
+				MVGameControllerBase.Game.GameStatCounterManager.RemoveTeamScoreOnActorLeave(MVGameControllerBase.Game.LocalPlayer.ActorNr, MVGameControllerBase.Game.LocalPlayer.Team);
+				MVGameControllerBase.Game.LocalPlayer.ResetCheckpoint();
+				MVGameControllerBase.Game.LocalPlayer.Team = teamData.team;
+			}
+			OnTeamSelected();
 		}
 	}
 
@@ -91,5 +74,9 @@ public class TeamSelectButton : MonoBehaviour, IPointerDownHandler, IEventSystem
 			FirstTimePressPlayController.OnFirstTimePlayIsPressed();
 		}
 		MVGameControllerDesktop.LockCursorManager.CursorLock = true;
+		if (MVGameControllerBase.LocalPlayer.SpawnRoleDataMediator.WoId != MVGameControllerBase.LocalPlayer.DefaultSpawnRoleId)
+		{
+			MVGameControllerBase.OperationRequests.SetActiveSpawnRole(MVGameControllerBase.LocalPlayer.DefaultSpawnRoleId);
+		}
 	}
 }

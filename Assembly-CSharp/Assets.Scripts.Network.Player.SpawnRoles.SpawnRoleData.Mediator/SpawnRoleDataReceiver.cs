@@ -15,6 +15,8 @@ public class SpawnRoleDataReceiver
 
 	public SpawnRoleReceiverVariable<float> health;
 
+	public SpawnRoleReceiverVariable<int> maxHealth;
+
 	public SpawnRoleReceiverVariable<float> shield;
 
 	public SpawnRoleReceiverVariable<bool> isInGunMode;

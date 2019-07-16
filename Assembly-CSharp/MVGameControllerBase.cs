@@ -193,6 +193,8 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	public static bool RewardedAdsEnabled { get; set; }
 
+	public static bool SeekAdConsent { get; set; }
+
 	public static MVJoinState JoinState
 	{
 		get
@@ -256,6 +258,8 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	public static WaterPlaneManager WaterPlaneManager => instance.waterPlaneManager;
 
 	public static SkyboxManager SkyboxManager => instance.skyboxManager;
+
+	public static bool Quitting { get; private set; }
 
 	protected virtual void Awake()
 	{
@@ -461,6 +465,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	protected void OnApplicationQuit()
 	{
+		Quitting = true;
 		ShutDown();
 	}
 

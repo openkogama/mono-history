@@ -3,21 +3,31 @@ using UnityEngine;
 
 public class WaterState
 {
-	private readonly AvatarModifierPackage.AvatarModifier[] additionalUnderWaterModifiers;
-
-	private float localAvatarOxygen = 100f;
+	private const float suffocationDamage = 5f;
 
 	private const float avatarHeight = 2.1f;
 
+	private readonly AvatarModifierPackage.AvatarModifier[] additionalUnderWaterModifiers;
+
+	private readonly float oxygenMax = 20f;
+
+	private float oxygen = 20f;
+
 	private Vector3 worldPosition = Vector3.zero;
 
-	public WaterState()
+	private bool hasGillsNoLungs;
+
+	public WaterState(WorldObjectSkillDataManager skillDataManager)
 	{
 		additionalUnderWaterModifiers = new AvatarModifierPackage.AvatarModifier[2]
 		{
 			new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.Speed, UnderwaterModifierCallback),
 			new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.JumpPower, UnderwaterJumpPowerModifierCallback)
 		};
+		bool flag = skillDataManager.HasSkill("OxygenSupply");
+		oxygenMax = ((!flag) ? 20f : skillDataManager.GetSkillFloatValue("OxygenSupply"));
+		oxygen = oxygenMax;
+		hasGillsNoLungs = skillDataManager.HasSkill("BreathesWater");
 	}
 
 	public void Update(Vector3 worldPosition, MVInteractableBase avatarInteractable)
@@ -42,17 +52,18 @@ public class WaterState
 	private void UpdateLocalAvatarOxygen(MVInteractableBase avatarInteractable)
 	{
 		float num = ComputeAvatarWaterProximity(worldPosition);
-		if (num >= 0.6f)
+		bool flag = num >= 0.6f;
+		if (flag ^ hasGillsNoLungs)
 		{
-			localAvatarOxygen = Mathf.Max(0f, localAvatarOxygen - Time.deltaTime * 5f);
+			oxygen = Mathf.Max(0f, oxygen - Time.deltaTime);
+			if (oxygen <= 0f)
+			{
+				avatarInteractable.TakeDamage(5f * Time.deltaTime, null, PlayerKilledByType.Environmental);
+			}
 		}
 		else
 		{
-			localAvatarOxygen = Mathf.Min(100f, localAvatarOxygen + Time.deltaTime * 25f);
-		}
-		if (localAvatarOxygen <= 0f)
-		{
-			avatarInteractable.TakeDamage(5f * Time.deltaTime, null, PlayerKilledByType.Environmental);
+			oxygen = oxygenMax;
 		}
 	}
 

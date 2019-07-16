@@ -9,62 +9,76 @@ public class AvatarEquipable : MVEquipable
 
 	private MVRuntimeDataVariable currentItem;
 
-	public void Init(MVInteractableBase interactableLocal, MVRuntimeDataVariable currentItem)
+	private bool isAbleToCollectPickups = true;
+
+	private bool isAbleToEquipWeapons = true;
+
+	public void Init(MVInteractableBase interactableLocal, MVRuntimeDataVariable currentItem, WorldObjectSkillDataManager skillsDataManager)
 	{
 		this.interactableLocal = interactableLocal;
 		this.currentItem = currentItem;
+		isAbleToCollectPickups = !skillsDataManager.HasSkill("UnableToCollectModifierPickups");
+		isAbleToEquipWeapons = !skillsDataManager.HasSkill("UnableToEquipWeapons");
 	}
 
 	public override bool Equip(AvatarItemType type, AvatarEquipableType equipType, Dictionary<object, object> itemData, int variantID = 0, bool holsterable = true)
 	{
 		if (equipType == AvatarEquipableType.Modifier)
 		{
-			switch (type)
+			if (isAbleToCollectPickups)
 			{
-			case AvatarItemType.Health:
-				interactableLocal.RemoveModifier(AvatarModifierPackageType.Poison);
-				interactableLocal.TakeDamage(float.NegativeInfinity, null, PlayerKilledByType.None);
-				break;
-			case AvatarItemType.Mutant:
-				interactableLocal.RemoveModifier(AvatarModifierPackageType.NinjaRun);
-				interactableLocal.AddModifier(AvatarModifierPackageType.Mutant);
-				break;
-			case AvatarItemType.NinjaRun:
-				interactableLocal.RemoveModifier(AvatarModifierPackageType.Mutant);
-				interactableLocal.RemoveModifier(AvatarModifierPackageType.NinjaRun);
-				interactableLocal.AddModifier(AvatarModifierPackageType.NinjaRun);
-				break;
-			case AvatarItemType.MousePack:
-				interactableLocal.AddModifier(AvatarModifierPackageType.Shrunken);
-				break;
-			case AvatarItemType.GrowthPack:
-				interactableLocal.AddModifier(AvatarModifierPackageType.Enlarged);
-				break;
-			default:
-				Debug.LogError(string.Concat("AvatarItemType ", type, " does not exist in the switch case, it has not been accounted for yet! AvatarEquipable.cs"));
-				return false;
+				switch (type)
+				{
+				case AvatarItemType.Health:
+					interactableLocal.RemoveModifier(AvatarModifierPackageType.Poison);
+					interactableLocal.TakeDamage(float.NegativeInfinity, null, PlayerKilledByType.None);
+					break;
+				case AvatarItemType.Mutant:
+					interactableLocal.RemoveModifier(AvatarModifierPackageType.NinjaRun);
+					interactableLocal.AddModifier(AvatarModifierPackageType.Mutant);
+					break;
+				case AvatarItemType.NinjaRun:
+					interactableLocal.RemoveModifier(AvatarModifierPackageType.Mutant);
+					interactableLocal.RemoveModifier(AvatarModifierPackageType.NinjaRun);
+					interactableLocal.AddModifier(AvatarModifierPackageType.NinjaRun);
+					break;
+				case AvatarItemType.MousePack:
+					interactableLocal.AddModifier(AvatarModifierPackageType.Shrunken);
+					break;
+				case AvatarItemType.GrowthPack:
+					interactableLocal.AddModifier(AvatarModifierPackageType.Enlarged);
+					break;
+				default:
+					Debug.LogError(string.Concat("AvatarItemType ", type, " does not exist in the switch case, it has not been accounted for yet! AvatarEquipable.cs"));
+					return false;
+				}
+				return true;
 			}
-			return true;
+			return false;
 		}
-		if (!interactableLocal.HasModifierEffect(AvatarModifierEffect.DisableWeapons))
+		if (isAbleToEquipWeapons)
 		{
-			Dictionary<object, object> dictionary = new Dictionary<object, object>();
-			dictionary.Add("type", (int)type);
-			dictionary.Add("variantId", variantID);
-			dictionary.Add("updateItemState", 4);
-			Dictionary<object, object> dictionary2 = dictionary;
-			if (itemData != null)
+			if (!interactableLocal.HasModifierEffect(AvatarModifierEffect.DisableWeapons))
 			{
-				dictionary2.Add("itemData", itemData);
+				Dictionary<object, object> dictionary = new Dictionary<object, object>();
+				dictionary.Add("type", (int)type);
+				dictionary.Add("variantId", variantID);
+				dictionary.Add("updateItemState", 4);
+				Dictionary<object, object> dictionary2 = dictionary;
+				if (itemData != null)
+				{
+					dictionary2.Add("itemData", itemData);
+				}
+				currentItem.Value = dictionary2;
+				return true;
 			}
-			currentItem.Value = dictionary2;
-			return true;
+			currentItem.Value = new Dictionary<object, object>
+			{
+				{ "type", 5 },
+				{ "variantId", 0 }
+			};
+			return false;
 		}
-		currentItem.Value = new Dictionary<object, object>
-		{
-			{ "type", 5 },
-			{ "variantId", 0 }
-		};
 		return false;
 	}
 

@@ -17,5 +17,6 @@ public enum ClientSettingFlags
 	GamePassSilentReleaseEnabled = 0x100,
 	PostGameInterstitialEnabled = 0x200,
 	BoostersEnabledWebGL = 0x400,
-	BoostersEnabledAndroid = 0x800
+	BoostersEnabledAndroid = 0x800,
+	SeekAdConsent = 0x1000
 }

@@ -29,6 +29,11 @@ public class SlideOnClick : GameMeterVisualEffect, IPointerEnterHandler, IPointe
 		startPos = rectTransform.anchoredPosition;
 	}
 
+	public void SetNewStartPosition(Vector3 newPos)
+	{
+		targetPos = newPos;
+	}
+
 	public override void ExecuteEffect()
 	{
 		if (gameObject.activeInHierarchy && readyForSlide)

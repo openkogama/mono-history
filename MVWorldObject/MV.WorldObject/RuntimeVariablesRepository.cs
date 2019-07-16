@@ -63,7 +63,7 @@ public static class RuntimeVariablesRepository
 	{
 		Dictionary<object, object> dictionary = new Dictionary<object, object>();
 		dictionary.Add("health", 100f);
-		dictionary.Add("maxHealth", 100f);
+		dictionary.Add("maxHealth", 100);
 		dictionary.Add("shield", 0f);
 		dictionary.Add("isFiring", false);
 		dictionary.Add("modifiers", new Dictionary<object, object>());

@@ -39,7 +39,7 @@ public class PickupItemBazooka : PickupItemWithDelay
 
 	public override int Quantity => currentAmmo;
 
-	protected override bool IsAmmoDepleted => (int)currentAmmo <= 0;
+	protected override bool IsAmmoDepleted => (int)currentAmmo <= 0 && !HasUnlimitedAmmo;
 
 	private void Awake()
 	{

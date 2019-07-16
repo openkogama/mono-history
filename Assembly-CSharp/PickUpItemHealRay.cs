@@ -209,7 +209,7 @@ public class PickUpItemHealRay : PickupItem
 			muzzlePoint.transform.forward = owner.LookDirection;
 			DoFloating();
 		}
-		if (Quantity <= 0)
+		if (IsAmmoDepleted)
 		{
 			MVEquipable component = owner.WorldObjectOwner.GameObject.GetComponent<MVEquipable>();
 			if (component != null)

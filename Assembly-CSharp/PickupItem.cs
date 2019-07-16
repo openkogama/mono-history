@@ -33,7 +33,7 @@ public abstract class PickupItem : MonoBehaviour
 
 	public bool IsHolstered { get; private set; }
 
-	protected virtual bool IsAmmoDepleted => Quantity <= 0;
+	protected virtual bool IsAmmoDepleted => Quantity <= 0 && !HasUnlimitedAmmo;
 
 	public Vector3 Origin => center.position;
 
@@ -46,6 +46,8 @@ public abstract class PickupItem : MonoBehaviour
 	public virtual bool ActivateGunModeOnEquip => true;
 
 	public virtual bool CanHolster => true;
+
+	public virtual bool HasUnlimitedAmmo => owner.HasUnlimitedAmmo;
 
 	public bool FirstPersonCapable => firstPersonTransform != null;
 
@@ -195,9 +197,9 @@ public abstract class PickupItem : MonoBehaviour
 
 	protected virtual int GetAmmoMultiplier(int defaultAmmo)
 	{
-		if (MVGameControllerBase.Game.LocalPlayer.BoostController.TryGetActiveBoost(BoostType.AmmoIntMultiplier, out var boost))
+		if (MVGameControllerBase.Game.LocalPlayer.BoostController.TryGetActiveBoost(BoostType.AmmoIntMultiplier, out var _))
 		{
-			return defaultAmmo * (int)boost.Value;
+			return defaultAmmo * 2;
 		}
 		return defaultAmmo;
 	}

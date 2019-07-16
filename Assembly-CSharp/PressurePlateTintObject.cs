@@ -15,12 +15,11 @@ public class PressurePlateTintObject : TintObject
 	[SerializeField]
 	private Texture defaultTexture;
 
-	private Color OriginalColor;
+	private Color OriginalColor = new Color(1f, 1f, 1f, 0f);
 
 	private void Awake()
 	{
 		meshRendererToTint.materials = new Material[1] { materialCylinderToTint };
-		OriginalColor = materialCylinderToTint.color;
 		materialCylinderToTint = meshRendererToTint.materials[0];
 	}
 

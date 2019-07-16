@@ -182,6 +182,11 @@ public class MainCameraManager : MonoBehaviour
 		}
 	}
 
+	public static void UnRegisterCameraWithSettings(MVGameType gameType)
+	{
+		cameraSettings.Remove(gameType);
+	}
+
 	public static ICameraSettings GetSettings(MVGameType gameType)
 	{
 		return cameraSettings[gameType];
@@ -199,7 +204,12 @@ public class MainCameraManager : MonoBehaviour
 
 	public void SetCameraController(MVCameraController cameraController)
 	{
+		if (this.cameraController != null)
+		{
+			this.cameraController.Deactivate();
+		}
 		this.cameraController = cameraController;
+		cameraController.Activate();
 	}
 
 	public bool IsCameraControllerSet()

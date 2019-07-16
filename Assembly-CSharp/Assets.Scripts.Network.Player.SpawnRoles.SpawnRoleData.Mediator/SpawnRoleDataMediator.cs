@@ -37,6 +37,8 @@ public class SpawnRoleDataMediator
 
 	protected readonly SpawnRoleVariableInternal<float> health = new SpawnRoleVariableInternal<float>(0f);
 
+	protected readonly SpawnRoleVariableInternal<int> maxHealth = new SpawnRoleVariableInternal<int>(100);
+
 	protected readonly SpawnRoleVariableInternal<float> shield = new SpawnRoleVariableInternal<float>(0f);
 
 	protected readonly SpawnRoleVariableInternal<bool> isInGunMode = new SpawnRoleVariableInternal<bool>(value: false);
@@ -58,6 +60,8 @@ public class SpawnRoleDataMediator
 	public SpawnRoleVariable<bool> IsSeated => isSeated;
 
 	public SpawnRoleVariable<float> Health => health;
+
+	public SpawnRoleVariable<int> MaxHealth => maxHealth;
 
 	public SpawnRoleVariable<float> Shield => shield;
 
@@ -110,6 +114,7 @@ public class SpawnRoleDataMediator
 		spawnRoleDataReceiver.spawnRoleMode = new SpawnRoleReceiverVariable<SpawnRoleModeType>(spawnRoleMode.SubscribableVariable, spawnRoleDataReceiver);
 		spawnRoleDataReceiver.isSeated = new SpawnRoleReceiverVariable<bool>(isSeated.SubscribableVariable, spawnRoleDataReceiver);
 		spawnRoleDataReceiver.health = new SpawnRoleReceiverVariable<float>(health.SubscribableVariable, spawnRoleDataReceiver);
+		spawnRoleDataReceiver.maxHealth = new SpawnRoleReceiverVariable<int>(maxHealth.SubscribableVariable, spawnRoleDataReceiver);
 		spawnRoleDataReceiver.shield = new SpawnRoleReceiverVariable<float>(shield.SubscribableVariable, spawnRoleDataReceiver);
 		spawnRoleDataReceiver.isInGunMode = new SpawnRoleReceiverVariable<bool>(isInGunMode.SubscribableVariable, spawnRoleDataReceiver);
 		spawnRoleDataReceiver.isInVehicle = new SpawnRoleReceiverVariable<bool>(isInVehicle.SubscribableVariable, spawnRoleDataReceiver);

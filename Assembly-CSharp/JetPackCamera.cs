@@ -123,7 +123,7 @@ public class JetPackCamera : MVCameraBase
 		return angle;
 	}
 
-	public override void FocusOnObject(MVWorldObjectClient wo, float transitionTime = 2f, Vector3 avatarOffset = default(Vector3))
+	public override void FocusOnObject(MVWorldObjectClient wo, float transitionTime = 2f, Vector3 avatarOffset = default(Vector3), Vector3 cameraOffset = default(Vector3))
 	{
 		float num = wo.ComputeObjectRadius();
 		Debug.Log("r " + num);
@@ -137,7 +137,7 @@ public class JetPackCamera : MVCameraBase
 		position += vector.normalized * (vector.magnitude - num4) + avatarOffset;
 		transform.position = position;
 		SetToPosition(transform.position);
-		LookAt(worldPivot);
+		LookAt(worldPivot + cameraOffset);
 		MVGameControllerBase.MainCameraManager.StartTransitionCam(transitionTime, soft: true);
 	}
 

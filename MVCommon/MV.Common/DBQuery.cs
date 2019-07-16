@@ -116,5 +116,6 @@ public enum DBQuery
 	GetVat,
 	ExecuteTierPurchaseAndPayout,
 	SetEarningsReportToSeen,
-	GetPublishedPlanetTopHighScore
+	GetPublishedPlanetTopHighScore,
+	ExecuteGameBoosterPurchaseAndPayout
 }

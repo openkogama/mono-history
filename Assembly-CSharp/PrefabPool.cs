@@ -29,10 +29,16 @@ public class PrefabPool : MonoBehaviour
 	private GameObject mvRemoteAvatarBuildModePrefab;
 
 	[SerializeField]
+	private GameObject mvPreviewAvatarPrefab;
+
+	[SerializeField]
 	private AdvancedGhostObject mvAdvancedGhostPrefab;
 
 	[SerializeField]
 	private MVBodyObject mvBodyPrefab;
+
+	[SerializeField]
+	private MVAvatarSpawnRoleCreatorObject mvAvatarSpawnRoleCreatorPrefab;
 
 	[SerializeField]
 	private VehicleBaseObject mvHamsterWheelPrefab;
@@ -522,6 +528,8 @@ public class PrefabPool : MonoBehaviour
 
 	public static PrefabPool Instance => instance;
 
+	public ObjectPrefab MVAvatarSpawnRoleCreatorPrefab => mvAvatarSpawnRoleCreatorPrefab;
+
 	public ObjectPrefab MVFirePrefab => mvFirePrefab;
 
 	public ObjectPrefab MVAndPrefab => mvAndPrefab;
@@ -533,6 +541,8 @@ public class PrefabPool : MonoBehaviour
 	public GameObject MVAvatarLocalBuildModePrefab => mvLocalAvatarBuildModePrefab;
 
 	public GameObject MVAvatarRemoteBuildModePrefab => mvRemoteAvatarBuildModePrefab;
+
+	public GameObject MVPreviewAvatarPrefab => mvPreviewAvatarPrefab;
 
 	public AdvancedGhostObject MVAdvancedGhostPrefab => mvAdvancedGhostPrefab;
 

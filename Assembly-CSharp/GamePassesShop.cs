@@ -52,6 +52,12 @@ public class GamePassesShop : MonoBehaviour
 	private GamePassesXpRewardInfo xpRewardInfoPrefab;
 
 	[SerializeField]
+	private TierUnlockedItemsRewardInfo tierUnlockedItemsRewardInfoPrefab;
+
+	[SerializeField]
+	private GamePassesSpawnRoleRewardInfo spawnRoleRewardInfoPrefab;
+
+	[SerializeField]
 	private GamePassesPurchaseButton purchaseButton;
 
 	[SerializeField]
@@ -100,26 +106,24 @@ public class GamePassesShop : MonoBehaviour
 
 	private bool shouldLerp;
 
-	private static GamePassTier highestTierRewardShown;
-
 	private static bool haveInitializedHighestTierRewardShown;
 
 	public static void UpdateHighestTierRewardShown(GamePassTier newHighestTierRewardShown)
 	{
 		if (!haveInitializedHighestTierRewardShown)
 		{
-			highestTierRewardShown = newHighestTierRewardShown;
+			TierUnlockedPopupController.HighestTierRewardShown = newHighestTierRewardShown;
 			haveInitializedHighestTierRewardShown = true;
 		}
 	}
 
-	public void Initialize(GamePassTier gamePassTierToDisplay, List<int> tierContent)
+	public void Initialize(GamePassTier gamePassTierToDisplay)
 	{
 		headerText.text = "Game Tier " + (int)gamePassTierToDisplay;
 		gamePassTierDisplayed = gamePassTierToDisplay;
 		crystalAmount.text = GamePointAmountManager.GetTotalGamePointAmount().ToString();
 		UpdateProgressBar(gamePassTierToDisplay);
-		AddTierContent(tierContent, gamePassTierToDisplay);
+		AddTierContent(gamePassTierToDisplay);
 		purchaseButton.Initialize(gamePassTierToDisplay);
 		HandlePurchaseButtonVisibility(gamePassTierDisplayed);
 		if (MVGameControllerBase.GameSessionData.gameMode == MVGameMode.Edit)
@@ -317,7 +321,9 @@ public class GamePassesShop : MonoBehaviour
 	private void UpdateTierCostTets()
 	{
 		unlockPriceText.text = GamePassesManager.playerTierStateCalculator.progressionThresholds[gamePassTierDisplayed].goldPriceRequirement.ToString();
-		unlockTimeText.text = GamePassesManager.playerTierStateCalculator.progressionThresholds[gamePassTierDisplayed].estimatedRequiredPlaytime.Minutes + " min.";
+		int minutes = GamePassesManager.playerTierStateCalculator.progressionThresholds[gamePassTierDisplayed].estimatedRequiredPlaytime.Minutes;
+		minutes += Mathf.FloorToInt((float)GamePassesManager.playerTierStateCalculator.progressionThresholds[gamePassTierDisplayed].estimatedRequiredPlaytime.Hours * 60f);
+		unlockTimeText.text = minutes + " min.";
 	}
 
 	private int ReduceGamePointsWithPreviousTierRequirements(GamePassTier gamePassTierToDisplay, int gamePoints, Dictionary<GamePassTier, PlayerTierState> gameTierShopStatus)
@@ -330,32 +336,20 @@ public class GamePassesShop : MonoBehaviour
 		return gamePoints;
 	}
 
-	private void AddTierContent(List<int> tierContent, GamePassTier gamePassTierToDisplay)
+	private void AddTierContent(GamePassTier gamePassTierToDisplay)
 	{
 		CreateXPRewardInfo(gamePassTierToDisplay);
-		for (int i = 0; i < tierContent.Count; i++)
+		Dictionary<MVWorldObjectDocumentationType, List<MVWorldObjectClient>> tierItemData = MVGameControllerBase.Game.GameTierShopRepository.GetTierItemData(gamePassTierToDisplay);
+		if (tierItemData != null)
 		{
-			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(tierContent[i]);
-			if (worldObjectClient != null)
+			CreateUnlockedItemsInfo(gamePassTierDisplayed, tierItemData);
+		}
+		List<MVWorldObjectClient> worldObjectsByType = MVGameControllerBase.Game.WorldObjectClientManager.GetWorldObjectsByType(WorldObjectType.AvatarSpawnRoleCreator);
+		for (int i = 0; i < worldObjectsByType.Count; i++)
+		{
+			if (worldObjectsByType[i] is MVAvatarSpawnRoleCreator && ((MVAvatarSpawnRoleCreator)worldObjectsByType[i]).Tier == gamePassTierToDisplay)
 			{
-				switch (worldObjectClient.WorldObjectType)
-				{
-				case WorldObjectType.SpawnPointBlue:
-					CreateSpawnPointInfo(MVTeam.Blue);
-					break;
-				case WorldObjectType.SpawnPointRed:
-					CreateSpawnPointInfo(MVTeam.Red);
-					break;
-				case WorldObjectType.SpawnPointGreen:
-					CreateSpawnPointInfo(MVTeam.Green);
-					break;
-				case WorldObjectType.SpawnPointYellow:
-					CreateSpawnPointInfo(MVTeam.Yellow);
-					break;
-				case WorldObjectType.SpawnPoint:
-					CreateSpawnPointInfo(MVTeam.None);
-					break;
-				}
+				CreateSpawnRoleInfo(i, (MVAvatarSpawnRoleCreator)worldObjectsByType[i], gamePassTierToDisplay);
 			}
 		}
 		LayoutRebuilder.ForceRebuildLayoutImmediate(tierListContainer);
@@ -379,6 +373,20 @@ public class GamePassesShop : MonoBehaviour
 		gamePassesXpRewardInfo.Initialize(tier);
 	}
 
+	private void CreateUnlockedItemsInfo(GamePassTier tier, Dictionary<MVWorldObjectDocumentationType, List<MVWorldObjectClient>> tierShopData)
+	{
+		TierUnlockedItemsRewardInfo tierUnlockedItemsRewardInfo = UnityEngine.Object.Instantiate(tierUnlockedItemsRewardInfoPrefab);
+		tierUnlockedItemsRewardInfo.transform.SetParent(tierListContainer.transform, worldPositionStays: false);
+		tierUnlockedItemsRewardInfo.Initialize(tier, tierShopData);
+	}
+
+	private void CreateSpawnRoleInfo(int spawnRoleIndex, MVAvatarSpawnRoleCreator spawnRole, GamePassTier tier)
+	{
+		GamePassesSpawnRoleRewardInfo gamePassesSpawnRoleRewardInfo = UnityEngine.Object.Instantiate(spawnRoleRewardInfoPrefab);
+		gamePassesSpawnRoleRewardInfo.transform.SetParent(tierListContainer.transform, worldPositionStays: false);
+		gamePassesSpawnRoleRewardInfo.Initialize(spawnRoleIndex, spawnRole.GetSpawnRolePreviewObject(), spawnRole, tier);
+	}
+
 	private void ShowTierUnlockedPopup(bool wasPurchased)
 	{
 		TierUnlockedPopupController tierUnlockedPopupController = UnityEngine.Object.Instantiate(TierUnlockedPopupControllerPrefab);
@@ -387,10 +395,6 @@ public class GamePassesShop : MonoBehaviour
 			x.Push(tierUnlockedPopupController.gameObject, UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
 		});
 		tierUnlockedPopupController.Initialize(gamePassTierDisplayed, wasPurchased);
-		if ((int)highestTierRewardShown < (int)gamePassTierDisplayed)
-		{
-			highestTierRewardShown = gamePassTierDisplayed;
-		}
 	}
 
 	private void ShowTouristInformationPopup()
@@ -446,7 +450,6 @@ public class GamePassesShop : MonoBehaviour
 	private void OnSuccessfulPurchase()
 	{
 		ShowTierUnlockedPopup(wasPurchased: true);
-		GamePassesHighlightArrowManager.IncreaseHighestTierRewardShown();
 		purchaseButtonObject.gameObject.SetActive(value: false);
 		progressBar.Progress = 1f;
 		disabledProgressBar.Progress = 1f;
@@ -495,12 +498,7 @@ public class GamePassesShop : MonoBehaviour
 		{
 			return false;
 		}
-		bool flag = (int)highestTierRewardShown < (int)GamePassesManager.PlayerPlanetData.gamePassTier && (int)highestTierRewardShown < (int)tierToShow && (int)tierToShow <= (int)GamePassesManager.PlayerPlanetData.gamePassTier;
-		if (flag)
-		{
-			highestTierRewardShown = tierToShow;
-		}
-		return flag;
+		return (int)TierUnlockedPopupController.HighestTierRewardShown < (int)GamePassesManager.PlayerPlanetData.gamePassTier && (int)TierUnlockedPopupController.HighestTierRewardShown < (int)tierToShow && (int)tierToShow <= (int)GamePassesManager.PlayerPlanetData.gamePassTier;
 	}
 
 	private bool IsProgressBarEnabled()

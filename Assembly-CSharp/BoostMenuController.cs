@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MV.WorldObject.KogamaSettings.SpecializedSettingsTypes.GameBoosterSettings.GameBoosterSettingTypes;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -31,11 +32,19 @@ public class BoostMenuController : MonoBehaviour, IBoostAdController, IEventSyst
 	{
 		BoostController boostController = MVGameControllerBase.Game.LocalPlayer.BoostController;
 		Dictionary<BoostType, Boost>.ValueCollection allBoosts = boostController.GetAllBoosts();
+		MVGameBoosterDataObject singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVGameBoosterDataObject>();
+		List<GameBoosterSettingWithGoldSetting> activeSettingsList = singletonWorldObject.GameBoosterSettingsManager.ActiveSettingsList;
 		foreach (Boost item in allBoosts)
 		{
-			BoostMenuItem boostMenuItem = UnityEngine.Object.Instantiate(boostPrefab);
-			boostMenuItem.transform.SetParent(boostItemsContent, worldPositionStays: false);
-			boostMenuItem.Initialize(item, boostController.IsBoostActive(item.Type));
+			for (int i = 0; i < activeSettingsList.Count; i++)
+			{
+				if (item.BoostKey == activeSettingsList[i].Key)
+				{
+					BoostMenuItem boostMenuItem = UnityEngine.Object.Instantiate(boostPrefab);
+					boostMenuItem.transform.SetParent(boostItemsContent, worldPositionStays: false);
+					boostMenuItem.Initialize(item, boostController.IsBoostActive(item.Type));
+				}
+			}
 		}
 		LayoutRebuilder.ForceRebuildLayoutImmediate(boostItemsContent);
 		if (boostItemsScrollRect.rect.width < boostItemsContent.rect.width)

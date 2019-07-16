@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using MV.Common;
+using MV.WorldObject;
 using UnityEngine;
 
 public class GameRankRequirement : UseRequirement
@@ -7,6 +8,8 @@ public class GameRankRequirement : UseRequirement
 	private GamePassTier requiredRank;
 
 	private UseRequirementType requirementType = UseRequirementType.Star;
+
+	private MVWorldObjectClient worldObject;
 
 	private Vector3 displayObjectOffset = new Vector3(0f, 0f, 0f);
 
@@ -18,19 +21,23 @@ public class GameRankRequirement : UseRequirement
 
 	private bool hasUseWhenFree = true;
 
+	private WorldObjectType worldObjectType;
+
 	public GamePassTier RequiredRank => requiredRank;
 
 	public override GameObject GameObject => displayGO.gameObject;
 
-	public GameRankRequirement(GameObject root, bool hasUseButtonWhenFree = true)
+	public GameRankRequirement(GameObject root, MVWorldObjectClient worldObject, bool hasUseButtonWhenFree = true)
 	{
 		hasUseWhenFree = hasUseButtonWhenFree;
+		this.worldObject = worldObject;
 		displayObjectRoot = root;
 	}
 
-	public GameRankRequirement(GameObject root, Vector3 displayOffset, bool hasUseButtonWhenFree = true, int woid = -1)
+	public GameRankRequirement(GameObject root, Vector3 displayOffset, MVWorldObjectClient worldObject, bool hasUseButtonWhenFree = true)
 	{
 		hasUseWhenFree = hasUseButtonWhenFree;
+		this.worldObject = worldObject;
 		displayObjectOffset += displayOffset;
 		displayObjectRoot = root;
 	}
@@ -78,34 +85,54 @@ public class GameRankRequirement : UseRequirement
 
 	public override void OnDataUpdate(Dictionary<object, object> data, int ownerID)
 	{
-		if (data.ContainsKey("RequiredRank"))
+		if (!data.ContainsKey("RequiredRank"))
 		{
-			requiredRank = (GamePassTier)(int)data["RequiredRank"];
-			if (displayObject == null)
+			return;
+		}
+		GamePassTier gamePassTier = requiredRank;
+		requiredRank = (GamePassTier)(int)data["RequiredRank"];
+		if (displayObject == null)
+		{
+			CreateDisplayObject();
+			if (ShouldBeDisplayedInTierShop(worldObject))
 			{
-				CreateDisplayObject();
+				MVGameControllerBase.Game.GameTierShopRepository.AddItemToTierShop(requiredRank, worldObject.DocumentationType, worldObject);
 			}
-			if ((int)requiredRank > 0)
-			{
-				displayObject.SetAmount(requiredRank);
-			}
-			if (requiredRank == GamePassTier.Tier0)
-			{
-				Dictionary<object, object> dictionary = new Dictionary<object, object>();
-				dictionary.Add("RequiredRank", 0);
-				MVGameControllerBase.OperationRequests.RemoveWorldObjectDataPartial(ownerID, dictionary);
-				Object.Destroy(displayObject.gameObject);
-			}
+		}
+		if (gamePassTier != GamePassTier.Tier0 && gamePassTier != requiredRank && ShouldBeDisplayedInTierShop(worldObject))
+		{
+			MVGameControllerBase.Game.GameTierShopRepository.RemoveItemToTierShop(gamePassTier, worldObject.DocumentationType, worldObject.Id);
+			MVGameControllerBase.Game.GameTierShopRepository.AddItemToTierShop(requiredRank, worldObject.DocumentationType, worldObject);
+		}
+		if ((int)requiredRank > 0)
+		{
+			displayObject.SetAmount(requiredRank);
+		}
+		if (requiredRank == GamePassTier.Tier0)
+		{
+			Dictionary<object, object> dictionary = new Dictionary<object, object>();
+			dictionary.Add("RequiredRank", 0);
+			MVGameControllerBase.OperationRequests.RemoveWorldObjectDataPartial(ownerID, dictionary);
+			Object.Destroy(displayObject.gameObject);
 		}
 	}
 
 	public void OnDelete()
 	{
+		if (MVGameControllerBase.IsAlive && ShouldBeDisplayedInTierShop(worldObject))
+		{
+			MVGameControllerBase.Game.GameTierShopRepository.RemoveItemToTierShop(requiredRank, worldObject.DocumentationType, worldObject.Id);
+		}
 	}
 
 	public override void SetScale(Vector3 scale)
 	{
 		displayObject.SetScale(scale);
+	}
+
+	private bool ShouldBeDisplayedInTierShop(MVWorldObjectClient worldObject)
+	{
+		return worldObject is MVPickupItemBase || worldObject is MVWorldObjectSpawnerVehicle;
 	}
 
 	private void CreateDisplayObject()
@@ -122,6 +149,7 @@ public class GameRankRequirement : UseRequirement
 		{
 			displayObject.Destroy();
 			Object.Destroy(displayGO);
+			OnDelete();
 		}
 	}
 

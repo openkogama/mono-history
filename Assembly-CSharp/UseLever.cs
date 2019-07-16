@@ -67,7 +67,7 @@ public class UseLever : MVLogicObject, IIsLogicObjectFiringEventHandler, ILogicW
 		useLeverObject.UseInteractor.AddRequirement(useRequirement2);
 		StarRequirement useRequirement3 = new StarRequirement(useLeverObject.useInteractionRotator);
 		useLeverObject.UseInteractor.AddRequirement(useRequirement3);
-		GameRankRequirement useRequirement4 = new GameRankRequirement(useLeverObject.useInteractionRotator);
+		GameRankRequirement useRequirement4 = new GameRankRequirement(useLeverObject.useInteractionRotator, this);
 		useLeverObject.UseInteractor.AddRequirement(useRequirement4);
 	}
 

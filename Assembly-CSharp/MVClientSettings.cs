@@ -35,6 +35,8 @@ public static class MVClientSettings
 
 	public static bool BoostersEnabledAndroid => IsFlagSet(ClientSettingFlags.BoostersEnabledAndroid);
 
+	public static bool SeekAdConsent => IsFlagSet(ClientSettingFlags.SeekAdConsent);
+
 	public static bool EnableStathat
 	{
 		get

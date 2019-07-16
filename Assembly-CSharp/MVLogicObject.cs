@@ -104,6 +104,17 @@ public abstract class MVLogicObject : MVWorldObjectClient, IUpdatecontrollerSubs
 		}
 	}
 
+	public override void SetupTierInventory()
+	{
+		base.SetupTierInventory();
+		StopCulling();
+	}
+
+	private void StopCulling()
+	{
+		lodGameObject.SetActive(value: true);
+	}
+
 	protected Bounds ComputeLocalBounds(Vector3 origin, Renderer[] meshRenderers)
 	{
 		Bounds result = new Bounds(Vector3.zero, Vector3.zero);

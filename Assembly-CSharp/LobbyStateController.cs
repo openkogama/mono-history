@@ -1,12 +1,15 @@
 using UnityEngine;
 
-public class LobbyStateController : MonoBehaviour
+public class LobbyStateController : LobbyFlowMenu
 {
 	[SerializeField]
 	private GameObject touristRegisterButton;
 
 	[SerializeField]
 	private GameObject accessoryShop;
+
+	[SerializeField]
+	private LobbyStateButton lobbyStatePlayButton;
 
 	[SerializeField]
 	private GamePassesUI gamePassesUIPrefab;
@@ -16,8 +19,11 @@ public class LobbyStateController : MonoBehaviour
 
 	private GamePassesUI gamePassesUI;
 
-	private void Start()
+	protected override LobbyFlowMenuType MenuType => LobbyFlowMenuType.LobbyState;
+
+	public override void Start()
 	{
+		base.Start();
 		bool isTouristSession = MVGameControllerBase.IsTouristSession;
 		touristRegisterButton.SetActive(isTouristSession && !MVGameControllerBase.GameSessionData.IsPlayedFromPoki);
 		accessoryShop.SetActive(value: true);
@@ -29,6 +35,11 @@ public class LobbyStateController : MonoBehaviour
 		{
 			gamePassesUI.gameObject.SetActive(value: false);
 		}
+	}
+
+	public void SetShouldPopOnExit(bool shouldPop)
+	{
+		lobbyStatePlayButton.ShouldPop = shouldPop;
 	}
 
 	private void OnEnable()

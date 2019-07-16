@@ -54,6 +54,12 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer, ISpawnRoleRemot
 	public override void Initialize()
 	{
 		base.Initialize();
+		Debug.Log("OwnerActorNr " + OwnerActorNr);
+		if (OwnerActorNr == -1)
+		{
+			Debug.LogWarning("OwnerActorNr == -1");
+			return;
+		}
 		((AvatarUIHandlerRemote)avatar.AvatarUIHandler).UpdateNameTag();
 		BuildTarget buildTarget = MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(OwnerActorNr).BuildTarget;
 		if (buildTarget == BuildTarget.Android || buildTarget == BuildTarget.IOS)
@@ -98,19 +104,21 @@ public class MVAvatarRemote : MVAvatar, IBulletImpactVisualizer, ISpawnRoleRemot
 
 	private void InitializeHealth()
 	{
+		HealthBar healthBar = ((AvatarUIHandlerRemote)avatar.AvatarUIHandler).HealthBar;
+		healthBar.Health = Health.Value;
+		Body.InitializeHealth(Health.Value);
 		MVRuntimeDataVariable<float> health = Health;
 		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object obj) =>
 		{
-			TrySpawningHealParticles(((AvatarUIHandlerRemote)avatar.AvatarUIHandler).HealthBar.Health, Health.Value);
-			((AvatarUIHandlerRemote)avatar.AvatarUIHandler).HealthBar.Health = (float)obj;
+			TrySpawningHealParticles(healthBar.Health, Health.Value);
+			healthBar.Health = (float)obj;
 		}));
-		MVRuntimeDataVariable<float> maxHealth = MaxHealth;
+		healthBar.MaxHealth = MaxHealth.Value;
+		MVRuntimeDataVariable<int> maxHealth = MaxHealth;
 		maxHealth.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(maxHealth.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object obj) =>
 		{
-			((AvatarUIHandlerRemote)avatar.AvatarUIHandler).HealthBar.MaxHealth = (float)obj;
+			healthBar.MaxHealth = (int)obj;
 		}));
-		((AvatarUIHandlerRemote)avatar.AvatarUIHandler).HealthBar.Health = Health.Value;
-		Body.InitializeHealth(Health.Value);
 	}
 
 	private void InitializeShield()

@@ -205,9 +205,9 @@ public class MVGameCoinManager
 	private void OnGameCoinBoostChanged()
 	{
 		currentBoostMultiplier = 1;
-		if (MVGameControllerBase.Game.LocalPlayer.BoostController.TryGetActiveBoost(BoostType.GameCoinsIntMultiplier, out var boost))
+		if (MVGameControllerBase.Game.LocalPlayer.BoostController.TryGetActiveBoost(BoostType.GameCoinsIntMultiplier, out var _))
 		{
-			currentBoostMultiplier = (int)boost.Value;
+			currentBoostMultiplier = 2;
 		}
 	}
 }

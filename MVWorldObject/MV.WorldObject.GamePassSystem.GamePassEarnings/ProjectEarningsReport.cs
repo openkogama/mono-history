@@ -19,7 +19,7 @@ public class ProjectEarningsReport
 		this.projectMemberEarningsReports = projectMemberEarningsReports;
 	}
 
-	public void AddGoldRevenue(int goldPerRegularMember, int goldPerSubscriberMember, GamePassTier gamePassTier, Dictionary<int, bool> projectMembers)
+	public void AddTierGoldRevenue(int goldPerRegularMember, int goldPerSubscriberMember, GamePassTier gamePassTier, Dictionary<int, bool> projectMembers)
 	{
 		int num = 0;
 		foreach (KeyValuePair<int, bool> projectMember in projectMembers)
@@ -33,10 +33,30 @@ public class ProjectEarningsReport
 			{
 				num2 = goldPerSubscriberMember;
 			}
-			projectMemberEarningsReports[projectMember.Key].AddGoldRevenue(num2, gamePassTier);
+			projectMemberEarningsReports[projectMember.Key].AddTierGoldRevenue(num2, gamePassTier);
 			num += num2;
 		}
-		earningsReport.AddGoldRevenue(num, gamePassTier);
+		earningsReport.AddTierGoldRevenue(num, gamePassTier);
+	}
+
+	public void AddGameBoosterGoldRevenue(int goldPerRegularMember, int goldPerSubscriberMember, string gameBooster, Dictionary<int, bool> projectMembers)
+	{
+		int num = 0;
+		foreach (KeyValuePair<int, bool> projectMember in projectMembers)
+		{
+			if (!projectMemberEarningsReports.ContainsKey(projectMember.Key))
+			{
+				projectMemberEarningsReports.Add(projectMember.Key, new ProjectMemberEarningsReport());
+			}
+			int num2 = goldPerRegularMember;
+			if (projectMember.Value)
+			{
+				num2 = goldPerSubscriberMember;
+			}
+			projectMemberEarningsReports[projectMember.Key].AddGameBoosterGoldRevenue(num2, gameBooster);
+			num += num2;
+		}
+		earningsReport.AddGameBoosterGoldRevenue(num, gameBooster);
 	}
 
 	public override string ToString()

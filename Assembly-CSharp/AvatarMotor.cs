@@ -25,8 +25,6 @@ public class AvatarMotor : MVRigidBody
 
 	private BounceState bounceState;
 
-	private SizeState sizeState;
-
 	private WaterState waterState;
 
 	private SmoothCharacterController smoothCharacterController;
@@ -36,6 +34,12 @@ public class AvatarMotor : MVRigidBody
 	private MVMovableMotorState movableMotorState;
 
 	private AvatarInteractable interactableLocal;
+
+	private float speedBoostSetting = 1f;
+
+	private float slowFallVelocityMultiplier = 1f;
+
+	private float frictionMultiplier = 1f;
 
 	protected StuckEvaluator stuckEvaluator;
 
@@ -49,7 +53,9 @@ public class AvatarMotor : MVRigidBody
 
 	private MvCharacterController Controller => smoothCharacterController.Controller;
 
-	public SizeState GetSizeState => sizeState;
+	public SizeState GetSizeState { get; private set; }
+
+	private float FrictionCoefficient => MathFunctions.Pow2(interactableLocal.HandleModifierEffect(AvatarModifierEffect.Friction, groundState.GroundMaterial.PhysicalProperties.friction * frictionMultiplier));
 
 	public override Vector3 Velocity => Controller.Velocity / Time.fixedDeltaTime;
 
@@ -67,9 +73,10 @@ public class AvatarMotor : MVRigidBody
 		return stuckEvaluator.Update();
 	}
 
-	public void Init(AvatarInteractable interactableLocal, Vector3 centerOffset, MVWorldObjectClient worldObjectOwner)
+	public void Init(AvatarInteractable interactableLocal, Vector3 centerOffset, MVWorldObjectClient worldObjectOwner, WorldObjectSkillDataManager skillDataManager)
 	{
 		Init();
+		InitSkills(skillDataManager);
 		smoothCharacterController = gameObject.AddComponent<SmoothCharacterController>();
 		smoothCharacterController.Init(gameObject, null, worldObjectOwner);
 		Controller.Init(0.45f, 1.9f, centerOffset);
@@ -81,9 +88,9 @@ public class AvatarMotor : MVRigidBody
 		movableMotorState = new MVMovableMotorState();
 		this.interactableLocal = interactableLocal;
 		bounceState = new BounceState(interactableLocal);
-		waterState = new WaterState();
-		sizeState = new SizeState(interactableLocal, Controller);
-		this.jumpState = new JumpState(0.2f);
+		waterState = new WaterState(skillDataManager);
+		GetSizeState = new SizeState(interactableLocal, Controller);
+		this.jumpState = new JumpState(0.2f, skillDataManager);
 		JumpState jumpState = this.jumpState;
 		jumpState.OnWallJump = (JumpState.OnWallJumpDelegate)Delegate.Combine(jumpState.OnWallJump, (JumpState.OnWallJumpDelegate)(() =>
 		{
@@ -95,7 +102,7 @@ public class AvatarMotor : MVRigidBody
 		MVGroundState mVGroundState = groundState;
 		mVGroundState.OnGroundChange = (Action<GroundChange>)Delegate.Combine(mVGroundState.OnGroundChange, new Action<GroundChange>(this.jumpState.UpdateJumpState));
 		MvCharacterController controller = Controller;
-		controller.OnControllerColliderHit = (Action<MVControllerColliderHit>)Delegate.Combine(controller.OnControllerColliderHit, new Action<MVControllerColliderHit>(sizeState.OnScalingWhileColliding));
+		controller.OnControllerColliderHit = (Action<MVControllerColliderHit>)Delegate.Combine(controller.OnControllerColliderHit, new Action<MVControllerColliderHit>(GetSizeState.OnScalingWhileColliding));
 		MvCharacterController controller2 = Controller;
 		controller2.OnControllerColliderHit = (Action<MVControllerColliderHit>)Delegate.Combine(controller2.OnControllerColliderHit, new Action<MVControllerColliderHit>(interactableLocal.HandleMoveHit));
 		MvCharacterController controller3 = Controller;
@@ -104,6 +111,18 @@ public class AvatarMotor : MVRigidBody
 		controller4.OnControllerColliderHit = (Action<MVControllerColliderHit>)Delegate.Combine(controller4.OnControllerColliderHit, new Action<MVControllerColliderHit>(bounceState.HandleMoveHit));
 		MvCharacterController controller5 = Controller;
 		controller5.OnControllerColliderHit = (Action<MVControllerColliderHit>)Delegate.Combine(controller5.OnControllerColliderHit, new Action<MVControllerColliderHit>(impactState.HandleMoveHit));
+	}
+
+	private void InitSkills(WorldObjectSkillDataManager skillDataManager)
+	{
+		if (skillDataManager.HasSkill("SuperSpeed"))
+		{
+			speedBoostSetting = (float)skillDataManager.GetSkillIntValue("SuperSpeed") / 100f;
+		}
+		bool flag = skillDataManager.HasSkill("SlowFall");
+		slowFallVelocityMultiplier = ((!flag) ? 1f : ((float)(100 - skillDataManager.GetSkillIntValue("SlowFall")) / 100f));
+		bool flag2 = skillDataManager.HasSkill("FrictionMultiplier");
+		frictionMultiplier = ((!flag2) ? 1f : ((float)(100 - skillDataManager.GetSkillIntValue("FrictionMultiplier")) / 100f));
 	}
 
 	public void OverrideCharacterController(SmoothCharacterController controller)
@@ -148,7 +167,7 @@ public class AvatarMotor : MVRigidBody
 			}
 			DealImpactDamage(velocityPrevFrame, prevVelocity);
 			HandleSoundEffects(motorApi.Jump);
-			sizeState.UpdateScale();
+			GetSizeState.UpdateScale();
 			waterState.Update(Controller.transform.position, interactableLocal);
 		}
 	}
@@ -168,9 +187,10 @@ public class AvatarMotor : MVRigidBody
 
 	private void HandleMovementBoost()
 	{
+		walkSpeed = walkSpeedDefault;
 		if (MVGameControllerBase.Game.LocalPlayer.BoostController.TryGetActiveBoost(BoostType.MovementSpeedFloatMultiplier, out var boost))
 		{
-			walkSpeed = walkSpeedDefault * (float)boost.Value;
+			walkSpeed = walkSpeedDefault * (1f + (float)(int)boost.Value / 100f);
 		}
 	}
 
@@ -187,13 +207,17 @@ public class AvatarMotor : MVRigidBody
 		if (groundState.Grounded)
 		{
 			velocity = groundState.ApplySlidingVelocity(velocity, density, interactableLocal);
-			velocity -= velocity * MathFunctions.Pow2(interactableLocal.HandleModifierEffect(AvatarModifierEffect.Friction, groundState.GroundMaterial.PhysicalProperties.friction)) * Time.fixedDeltaTime;
+			velocity -= velocity * FrictionCoefficient * Time.fixedDeltaTime;
 			velocity = ApplyInputVelocityChangeGrounded(velocity, inputDirection);
 		}
 		else
 		{
 			velocity = ApplyInputVelocityChange(velocity, inputDirection);
 			velocity = ApplyGravity(velocity, velocityPrevFrame, interactableLocal);
+			if (inputJump && velocity.y < 0f)
+			{
+				velocity.y *= slowFallVelocityMultiplier;
+			}
 		}
 		velocity = bounceState.ApplyBounceVelocity(velocity);
 		velocity = jumpState.ApplyJumping(interactableLocal, groundState, density, MVGameControllerBase.WaterPlaneManager.ComputeAvatarWaterProximity(Controller.gameObject.transform.position), inputJump, velocity, movableVelocity);
@@ -224,9 +248,9 @@ public class AvatarMotor : MVRigidBody
 		Vector3 hVelocity = inputDirection * speed;
 		hVelocity = MVRigidBody.AdjustGroundVelocityToNormal(hVelocity, groundState.GroundNormal);
 		Vector3 vector = hVelocity - velocity;
-		vector *= MathFunctions.Pow2(interactableLocal.HandleModifierEffect(AvatarModifierEffect.Friction, groundState.GroundMaterial.PhysicalProperties.friction)) * Time.fixedDeltaTime / 0.02f;
+		vector *= FrictionCoefficient * Time.fixedDeltaTime / 0.02f;
 		velocity += vector;
-		if (MathFunctions.Pow2(interactableLocal.HandleModifierEffect(AvatarModifierEffect.Friction, groundState.GroundMaterial.PhysicalProperties.friction)) < 0.1f && hVelocity.magnitude != 0f)
+		if (FrictionCoefficient < 0.1f && hVelocity.magnitude != 0f)
 		{
 			velocity += hVelocity * 0.5f * Time.fixedDeltaTime;
 		}
@@ -266,7 +290,7 @@ public class AvatarMotor : MVRigidBody
 	private float GetSpeed(float currentSpeed, Vector3 inputDirection)
 	{
 		float baseValue = walkSpeed;
-		baseValue = interactableLocal.HandleModifierEffect(AvatarModifierEffect.Speed, baseValue);
+		baseValue = interactableLocal.HandleModifierEffect(AvatarModifierEffect.Speed, baseValue) * speedBoostSetting;
 		currentLerp += Time.fixedDeltaTime;
 		if (currentLerp > lerpTime)
 		{

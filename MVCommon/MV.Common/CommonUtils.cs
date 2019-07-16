@@ -39,24 +39,55 @@ public static class CommonUtils
 
 	public static void PartialRemoveFromHashtable(Dictionary<object, object> target, Dictionary<object, object> source)
 	{
+		PartialRemoveFromHashtable(target, source, acceptMissingValuesInTarget: false);
+	}
+
+	public static bool PruneEmptyDictionaries(Dictionary<object, object> target)
+	{
+		List<string> list = new List<string>();
+		foreach (KeyValuePair<object, object> item in target)
+		{
+			if (item.Value is Dictionary<object, object>)
+			{
+				Dictionary<object, object> target2 = (Dictionary<object, object>)item.Value;
+				if (PruneEmptyDictionaries(target2))
+				{
+					list.Add((string)item.Key);
+				}
+			}
+		}
+		foreach (string item2 in list)
+		{
+			target.Remove(item2);
+		}
+		if (target.Count == 0)
+		{
+			return true;
+		}
+		return false;
+	}
+
+	public static void PartialRemoveFromHashtable(Dictionary<object, object> target, Dictionary<object, object> source, bool acceptMissingValuesInTarget)
+	{
 		foreach (KeyValuePair<object, object> item in source)
 		{
 			if (item.Value == null)
 			{
 				target.Remove(item.Key);
-				continue;
 			}
-			if (!(item.Value is Dictionary<object, object> source2))
+			else if (!(item.Value is Dictionary<object, object> source2))
 			{
 				target.Remove(item.Key);
-				continue;
 			}
-			if (target[item.Key] is Dictionary<object, object> target2)
+			else if (target.ContainsKey(item.Key))
 			{
-				PartialRemoveFromHashtable(target2, source2);
-				continue;
+				Dictionary<object, object> target2 = target[item.Key] as Dictionary<object, object>;
+				PartialRemoveFromHashtable(target2, source2, acceptMissingValuesInTarget);
 			}
-			throw new ArgumentException(string.Concat("Target hashtable doesn't contain an inner hashtable for key [", item.Key, "]"));
+			else if (!acceptMissingValuesInTarget)
+			{
+				throw new ArgumentException(string.Concat("Target hashtable doesn't contain an inner hashtable for key [", item.Key, "]"));
+			}
 		}
 	}
 }

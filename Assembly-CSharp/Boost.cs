@@ -1,18 +1,63 @@
+using System.Collections.Generic;
+using MV.WorldObject.KogamaSettings.SpecializedSettingsTypes.GameBoosterSettings.GameBoosterSettingTypes;
+
 public class Boost
 {
+	private string description;
+
 	public BoostType Type { get; private set; }
 
-	public object Value { get; private set; }
+	public object Value
+	{
+		get
+		{
+			MVGameBoosterDataObject singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVGameBoosterDataObject>();
+			List<GameBoosterSettingWithGoldSetting> activeSettingsList = singletonWorldObject.GameBoosterSettingsManager.ActiveSettingsList;
+			activeSettingsList.AddRange(singletonWorldObject.GameBoosterSettingsManager.InactiveGameBoosterSettingsList);
+			for (int i = 0; i < activeSettingsList.Count; i++)
+			{
+				if (BoostKey == activeSettingsList[i].Key)
+				{
+					return activeSettingsList[i].Setting.KogamaSetting.Value;
+				}
+			}
+			return 0;
+		}
+	}
 
-	public string Description { get; private set; }
+	public string BoostKey { get; private set; }
+
+	public string Description
+	{
+		get
+		{
+			return string.Format(description, Value);
+		}
+		private set
+		{
+			description = value;
+		}
+	}
+
+	public string ValueDescription { get; private set; }
+
+	public string EditTitle { get; private set; }
 
 	public bool AllowedForGame { get; set; }
 
-	public Boost(BoostType type, string desc, bool allowedForGame, object val)
+	public float BoostSecondsLeft { get; set; }
+
+	public float BoostMaxDurationSeconds { get; private set; }
+
+	public Boost(BoostType type, string boostKey, string desc, string valueDesc, string title, bool allowedForGame, float durationInSeconds)
 	{
 		Type = type;
-		Value = val;
+		BoostKey = boostKey;
 		Description = desc;
+		ValueDescription = valueDesc;
+		EditTitle = title;
 		AllowedForGame = allowedForGame;
+		BoostMaxDurationSeconds = durationInSeconds;
+		BoostSecondsLeft = durationInSeconds;
 	}
 }

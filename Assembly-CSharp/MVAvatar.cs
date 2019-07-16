@@ -10,7 +10,7 @@ public abstract class MVAvatar : MVGroup, IHealRayAttachementObject, IUpdatecont
 
 	public MVRuntimeDataVariable<float> Health;
 
-	public MVRuntimeDataVariable<float> MaxHealth;
+	public MVRuntimeDataVariable<int> MaxHealth;
 
 	private MVRuntimeDataVariableClampedFloat shield;
 
@@ -43,6 +43,8 @@ public abstract class MVAvatar : MVGroup, IHealRayAttachementObject, IUpdatecont
 	protected AvatarPickupOwner avatarPickupOwner;
 
 	protected AvatarLimbManager limbManager;
+
+	protected WorldObjectSkillDataManager skillDataManager;
 
 	public MVRuntimeDataVariableClampedFloat Shield
 	{
@@ -130,8 +132,8 @@ public abstract class MVAvatar : MVGroup, IHealRayAttachementObject, IUpdatecont
 		interactionFlags = InteractionFlags.None;
 		PlayInteractionType = PlayInteractionType.HandlesHits;
 		Health = RuntimeDataVariables.New<float>("health", 0.2f, writeThrough: false);
-		MaxHealth = RuntimeDataVariables.New<float>("maxHealth", 0f, writeThrough: true);
-		shield = RuntimeDataVariables.NewClampedFloat("shield", 0.2f, writeThrough: false, 0f, 150f);
+		MaxHealth = RuntimeDataVariables.New<int>("maxHealth", 0f, writeThrough: true);
+		shield = RuntimeDataVariables.NewClampedFloat("shield", 0.2f, writeThrough: false, 0f, 100f);
 		IsFiring = RuntimeDataVariables.New("isFiring", 0f, writeThrough: false);
 		Modifiers = RuntimeDataVariables.New("modifiers", 1f, writeThrough: false);
 		CurrentItem = RuntimeDataVariables.New("currentItem", 0f, writeThrough: true);
@@ -172,27 +174,30 @@ public abstract class MVAvatar : MVGroup, IHealRayAttachementObject, IUpdatecont
 	public override void Initialize()
 	{
 		base.Initialize();
-		body.Attach(this, isLocal);
-		avatarPickupOwner = gameObject.AddComponent<AvatarPickupOwner>();
-		avatarPickupOwner.IsLocal = isLocal;
-		avatarPickupOwner.Init(CurrentItem, IsFiring, this);
-		avatar.Initialize(this, isLocal);
-		avatar.InteractionDataHandlerBase.FindWorldObjectParent();
-		InitializeModifiers();
-		healParticleSpawnTime = Time.time;
-		BodyData.PartIndex part = BodyData.PartIndex.Head;
-		healRayAttachmentObject = Body.BodyData.GetPartBone(part).gameObject;
-		MVRuntimeDataVariable spawnRoleModeTypes = SpawnRoleModeTypes;
-		spawnRoleModeTypes.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(spawnRoleModeTypes.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChangedHandler));
-		MVRuntimeDataVariable animation = Animation;
-		animation.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(animation.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnAnimationChange));
-		MVRuntimeDataVariable<float> health = Health;
-		health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnHealthChange));
-		MVRuntimeDataVariableClampedFloat mVRuntimeDataVariableClampedFloat = Shield;
-		mVRuntimeDataVariableClampedFloat.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(mVRuntimeDataVariableClampedFloat.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnShieldChange));
-		MVRuntimeDataVariable currentItem = CurrentItem;
-		currentItem.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(currentItem.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnCurrentPickupChange));
-		UpdateController.AddLateUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
+		if (OwnerActorNr != -1)
+		{
+			body.Attach(this, isLocal);
+			avatarPickupOwner = gameObject.AddComponent<AvatarPickupOwner>();
+			avatarPickupOwner.IsLocal = isLocal;
+			avatarPickupOwner.Init(CurrentItem, IsFiring, this, skillDataManager);
+			avatar.Initialize(this, isLocal);
+			avatar.InteractionDataHandlerBase.FindWorldObjectParent();
+			InitializeModifiers();
+			healParticleSpawnTime = Time.time;
+			BodyData.PartIndex part = BodyData.PartIndex.Head;
+			healRayAttachmentObject = Body.BodyData.GetPartBone(part).gameObject;
+			MVRuntimeDataVariable spawnRoleModeTypes = SpawnRoleModeTypes;
+			spawnRoleModeTypes.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(spawnRoleModeTypes.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(AvatarStateChangedHandler));
+			MVRuntimeDataVariable animation = Animation;
+			animation.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(animation.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnAnimationChange));
+			MVRuntimeDataVariable<float> health = Health;
+			health.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(health.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnHealthChange));
+			MVRuntimeDataVariableClampedFloat mVRuntimeDataVariableClampedFloat = Shield;
+			mVRuntimeDataVariableClampedFloat.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(mVRuntimeDataVariableClampedFloat.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnShieldChange));
+			MVRuntimeDataVariable currentItem = CurrentItem;
+			currentItem.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(currentItem.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnCurrentPickupChange));
+			UpdateController.AddLateUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
+		}
 	}
 
 	public override void Destroy()

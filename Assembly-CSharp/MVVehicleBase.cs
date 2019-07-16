@@ -178,6 +178,7 @@ public abstract class MVVehicleBase : MVBlueprintBase, IBulletImpactVisualizer
 		LayerUtil.SetLayerRecursively(transform, "Default", "Player");
 		interactionFlags |= InteractionFlags.CanUseGameCoins;
 		interactionFlags |= InteractionFlags.CanUseLevel;
+		interactionFlags |= InteractionFlags.CanUseGameRank;
 	}
 
 	public void LeaveLocal()

@@ -6,6 +6,8 @@ public class AvatarPickupOwner : MVPickupOwner
 {
 	private MVAvatar mvAvatar;
 
+	private bool hasUnlimitedAmmo;
+
 	public override HashSet<int> IgnoreWOIDs
 	{
 		get
@@ -21,10 +23,20 @@ public class AvatarPickupOwner : MVPickupOwner
 
 	public HashSet<int> AdditionalIgnoreWOIDS { private get; set; }
 
-	public void Init(MVRuntimeDataVariable currentItemRuntimeDataVariable, MVRuntimeDataVariable isFiringRuntimeDataVariable, MVAvatar mvAvatar)
+	public void Init(MVRuntimeDataVariable currentItemRuntimeDataVariable, MVRuntimeDataVariable isFiringRuntimeDataVariable, MVAvatar mvAvatar, WorldObjectSkillDataManager skillsDataManager)
 	{
 		this.mvAvatar = mvAvatar;
 		Init(currentItemRuntimeDataVariable, isFiringRuntimeDataVariable);
+		InitSkills(skillsDataManager);
+		InitializeSettings(hasUnlimitedAmmo);
+	}
+
+	private void InitSkills(WorldObjectSkillDataManager skillDataManager)
+	{
+		if (skillDataManager != null && skillDataManager.HasSkill("EndlessAmmo"))
+		{
+			hasUnlimitedAmmo = true;
+		}
 	}
 
 	protected override void Equip(AvatarItemType type, int variantId)

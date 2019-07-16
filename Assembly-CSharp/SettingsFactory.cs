@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class SettingsFactory : MonoBehaviour
 {
@@ -115,6 +116,9 @@ public class SettingsFactory : MonoBehaviour
 
 	[SerializeField]
 	private GamePointChestSettings gamePointChestSettingsPrefab;
+
+	[SerializeField]
+	private SpawnRoleEditorMenu spawnRoleEditorPrefab;
 
 	[SerializeField]
 	private LevelRequirementSettings levelRequirementSettingsPrefab;
@@ -353,6 +357,16 @@ public class SettingsFactory : MonoBehaviour
 		{
 			TeamEditorSettings teamEditorSettings = Object.Instantiate(teamEditorSettingsPrefab);
 			teamEditorSettings.Initialize(woID, gameObject);
+			break;
+		}
+		case WorldObjectType.AvatarSpawnRoleCreator:
+		{
+			SpawnRoleEditorMenu spawnRoleEditor = Object.Instantiate(spawnRoleEditorPrefab);
+			spawnRoleEditor.Initialize(woID);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(spawnRoleEditor.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
+			});
 			break;
 		}
 		default:

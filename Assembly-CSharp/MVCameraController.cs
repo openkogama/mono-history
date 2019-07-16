@@ -28,6 +28,22 @@ public class MVCameraController
 			}
 		}
 
+		public void Activate()
+		{
+			foreach (MVCameraBase value in cameras.Values)
+			{
+				value.Activate();
+			}
+		}
+
+		public void Deactivate()
+		{
+			foreach (MVCameraBase value in cameras.Values)
+			{
+				value.Deactivate();
+			}
+		}
+
 		public void UpdateCamera(MVCameraController cameraController, ProtectedTransform protectedTransform)
 		{
 			CurCamera.UpdateCamera(cameraController, protectedTransform);
@@ -128,6 +144,16 @@ public class MVCameraController
 	public void Initialize(List<MVCameraBase> cameraBases)
 	{
 		cameraStack = new CameraStack(cameraBases, this);
+	}
+
+	public void Activate()
+	{
+		cameraStack.Activate();
+	}
+
+	public void Deactivate()
+	{
+		cameraStack.Deactivate();
 	}
 
 	public void Respawn()

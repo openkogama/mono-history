@@ -43,7 +43,7 @@ public class PlayButtonBase : MonoBehaviour
 		}
 	}
 
-	protected void StartPlaying()
+	protected virtual void StartPlaying()
 	{
 		MVGameControllerDesktop.LockCursorManager.CursorLock = true;
 		if (shouldPop)

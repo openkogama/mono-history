@@ -20,9 +20,6 @@ public class ConfirmationPopup : MonoBehaviour
 	private Button cancelButton;
 
 	[SerializeField]
-	private GameObject pleaseWaitOverlay;
-
-	[SerializeField]
 	public bool hideAll;
 
 	public void Initialize(string text, UnityAction<bool, ConfirmationPopup> resultCallback, string header)
@@ -44,13 +41,19 @@ public class ConfirmationPopup : MonoBehaviour
 
 	private void Ok()
 	{
-		resultCallback(arg0: true, this);
-		pleaseWaitOverlay.SetActive(value: true);
+		if (resultCallback != null)
+		{
+			resultCallback(arg0: true, this);
+		}
+		resultCallback = null;
 	}
 
 	private void Cancel()
 	{
-		resultCallback(arg0: false, this);
-		pleaseWaitOverlay.SetActive(value: true);
+		if (resultCallback != null)
+		{
+			resultCallback(arg0: false, this);
+		}
+		resultCallback = null;
 	}
 }

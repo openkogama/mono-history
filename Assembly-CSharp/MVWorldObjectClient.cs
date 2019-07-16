@@ -528,12 +528,19 @@ public class MVWorldObjectClient : MVWorldObject
 		RunTimeData = base.RunTimeData;
 		dictionary[WorldObjectDataParameters.Id] = cloneBookkeeping.cloneIdIncrement;
 		dictionary[WorldObjectDataParameters.GroudId] = cloneGroupId;
-		dictionary[WorldObjectDataParameters.OwnerActorNumber] = ownerActorNumber;
+		if (OwnerActorNr == -1 && ownerActorNumber == 0)
+		{
+			Debug.LogWarning("This is a hack created for spawn roles. The MVAvatar classes (WorldObjectType.PlayModeAvatar) uses ownership in KoGaMaPackageClient to determine runtime type");
+			dictionary[WorldObjectDataParameters.OwnerActorNumber] = -1;
+		}
+		else
+		{
+			dictionary[WorldObjectDataParameters.OwnerActorNumber] = ownerActorNumber;
+		}
 		dictionary[WorldObjectDataParameters.ItemId] = itemId;
 		dictionary[WorldObjectDataParameters.PreviewOwnerProfileId] = PreviewOwnerProfileId;
 		MVWorldObjectClient mVWorldObjectClient = KoGaMaPackageClient.WorldObjectFactory(dictionary, worldObjects, prototypes);
 		cloneBookkeeping.worldObjectIdsMaps.Add(id, mVWorldObjectClient.id);
-		mVWorldObjectClient.SetNetworkObject(MVGameControllerBase.Game.LocalPlayer.ActorNr == ownerActorNumber);
 		MVGameControllerBase.Game.AddCloneToWorldObjects(mVWorldObjectClient);
 		GetLinksForClone(cloneBookkeeping.linkIds);
 		GetObjectLinksForClone(cloneBookkeeping.objectLinkIds);
@@ -552,6 +559,11 @@ public class MVWorldObjectClient : MVWorldObject
 	{
 		if (GetType() != typeof(MVCubeModelFineGrainedTerrain) && GetType() != typeof(MVCubeModelPrototypeTerrain) && local)
 		{
+			if (MVGameControllerBase.Game.TransformNetworkManager.GetNetworkObject(id) != null)
+			{
+				Debug.LogWarning("Problem: network reporter is added automatically by avatar constructor as well as in clone. What is the expected behaviour? ");
+				return;
+			}
 			MVGameControllerBase.Game.TransformNetworkManager.AddReporter(id, new MVNetworkReporter(this));
 			MVGameControllerBase.Game.RuntimeVariableNetworkManager.AddRuntimeDataVariables(id);
 		}
@@ -572,6 +584,16 @@ public class MVWorldObjectClient : MVWorldObject
 
 	public virtual void PlayModeInitialize()
 	{
+	}
+
+	public virtual void SetupTierInventory()
+	{
+		HideConnectors();
+	}
+
+	public virtual void UnSetupTierInventory()
+	{
+		ShowConnectors();
 	}
 
 	public virtual void Destroy()
@@ -903,19 +925,43 @@ public class MVWorldObjectClient : MVWorldObject
 		}
 	}
 
+	protected virtual void HideConnectors()
+	{
+		if (HasInputConnector)
+		{
+			inputConnectorObject.SetActive(value: false);
+		}
+		if (HasOutputConnector)
+		{
+			outputConnectorObject.SetActive(value: false);
+		}
+		if (HasObjectConnector)
+		{
+			objectConnectorObject.SetActive(value: false);
+		}
+	}
+
+	protected virtual void ShowConnectors()
+	{
+		if (HasInputConnector)
+		{
+			inputConnectorObject.SetActive(value: true);
+		}
+		if (HasOutputConnector)
+		{
+			outputConnectorObject.SetActive(value: true);
+		}
+		if (HasObjectConnector)
+		{
+			objectConnectorObject.SetActive(value: true);
+		}
+	}
+
 	public virtual bool Delete(MVWorldObjectClientManager worldObjectClientManager, ref string errorText)
 	{
 		gameObject.SetActive(value: false);
 		worldObjectClientManager.UnregisterWorldObject(id);
 		return true;
-	}
-
-	public virtual void DeleteFailed()
-	{
-		if (gameObject != null)
-		{
-			gameObject.SetActive(value: true);
-		}
 	}
 
 	public void SetName()
