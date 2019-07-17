@@ -176,7 +176,7 @@ public static class KogamaSettingTools
 				foreach (KeyValuePair<object, object> item in dictionary)
 				{
 					KogamaSettingWrapperBase prototype2 = kogamaSettingsCollectionBase2.Children[(string)item.Key];
-					KogamaSettingWrapperBase kogamaSetting = CreateFromValues(item, prototype2, kogamaSettingsCollectionBase2, factoryFunc);
+					KogamaSettingWrapperBase kogamaSetting = CreateFromValues(item, prototype2, kogamaSettingsCollectionBase, factoryFunc);
 					kogamaSettingsCollectionBase.AddChild(kogamaSetting);
 				}
 				return kogamaSettingsCollectionBase;

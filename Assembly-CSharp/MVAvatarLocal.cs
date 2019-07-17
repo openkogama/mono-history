@@ -64,7 +64,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		private AvatarRuntimeState GetStartState()
 		{
 			AvatarRuntimeState avatarRuntimeState = AvatarRuntimeState.Playing;
-			if (MVGameControllerBase.PlayModeUI.InLobbyState)
+			if (MVGameControllerBase.PlayModeUI.InLobbyState || MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded)
 			{
 				return AvatarRuntimeState.Hidden;
 			}
@@ -1075,7 +1075,14 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		spawnRoleDataReceiver.maxHealth.Value = MaxHealth.Value;
 		OnHealthBoostedChanged();
 		((AvatarLocal)avatar).CameraController.ActivateCameraController();
-		avatarLocalModes.SetToStartMode();
+		if (Id == idFrom || MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded)
+		{
+			avatarLocalModes.SetMode(AvatarRuntimeState.Hidden);
+		}
+		else
+		{
+			avatarLocalModes.SetMode(AvatarRuntimeState.Playing);
+		}
 		gameObject.SetActive(value: true);
 		MVGameControllerBase.Game.PlayerController.SetAvatarLocalObject(this);
 		if (idFrom > 0)

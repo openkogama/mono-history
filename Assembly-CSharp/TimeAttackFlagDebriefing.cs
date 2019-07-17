@@ -46,6 +46,7 @@ public class TimeAttackFlagDebriefing : MonoBehaviour
 	private void Start()
 	{
 		MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.OnChange += OnAvatarStateChanged;
+		MVGameControllerBase.Game.GameEventManager.AvatarCommandsBuildMode.OnSetToEditMode += OnLeavePlayMode;
 		if (!MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Hidden))
 		{
 			previousAvatarModeType = SpawnRoleModeType.Playing;
@@ -58,6 +59,7 @@ public class TimeAttackFlagDebriefing : MonoBehaviour
 		if (MVGameControllerBase.IsAlive)
 		{
 			MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.OnChange -= OnAvatarStateChanged;
+			MVGameControllerBase.Game.GameEventManager.AvatarCommandsBuildMode.OnSetToEditMode -= OnLeavePlayMode;
 		}
 	}
 
@@ -302,6 +304,7 @@ public class TimeAttackFlagDebriefing : MonoBehaviour
 		{
 			MVGameControllerBase.FlagDebriefingControl.EndFlagDebriefing();
 			MVGameControllerDesktop.LockCursorManager.CursorLock = true;
+			MVGameControllerBase.PlayModeUI.InLobbyState = false;
 			isDebriefingOn = false;
 			isWaitingForStart = false;
 			gameObject.SetActive(value: false);

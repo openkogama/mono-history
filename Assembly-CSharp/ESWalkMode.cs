@@ -40,7 +40,7 @@ internal class ESWalkMode : ESStateBase
 		MVGameControllerBase.WOCM.MoveableController.ResetMoveables();
 		MVGameControllerBase.WOCM.RootGroup.PlayModeInitialize();
 		MVGameControllerDesktop.LockCursorManager.CursorLock = false;
-		if (MVGameControllerBase.MainCameraManager.CamMaskMode == MaskMode.SkyBoxOnly)
+		if (MVGameControllerBase.MainCameraManager.CamMaskMode != MaskMode.Default)
 		{
 			MVGameControllerBase.MainCameraManager.CamMaskMode = MaskMode.Default;
 		}

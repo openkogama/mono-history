@@ -35,11 +35,6 @@ public class MVGameBoosterDataObject : MVWorldObjectClient
 		Debug.Log("data after\n" + HashtableFunctions.PrettyString(Data));
 	}
 
-	public override void Initialize()
-	{
-		Debug.LogWarning("TEST CODE");
-	}
-
 	private void PartialDataRemove(int arg1, Dictionary<object, object> arg2)
 	{
 		MVGameControllerBase.OperationRequests.RemoveWorldObjectDataPartial(arg1, arg2);

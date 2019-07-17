@@ -28,7 +28,7 @@ public abstract class LobbyFlowMenu : MonoBehaviour
 
 	public virtual void Start()
 	{
-		MVGameControllerBase.MainCameraManager.CamMaskMode = MaskMode.SkyBoxOnly;
+		MVGameControllerBase.MainCameraManager.CamMaskMode = MaskMode.AvatarLobbyFocus;
 		UpdateAvailableMenues();
 	}
 

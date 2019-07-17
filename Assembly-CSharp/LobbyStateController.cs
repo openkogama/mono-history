@@ -48,5 +48,6 @@ public class LobbyStateController : LobbyFlowMenu
 		{
 			gamePassesUI.gameObject.SetActive(GamePassProgressionController.IsProgressionEnabled && GamePassesManager.GamePassesActive);
 		}
+		MVGameControllerBase.MainCameraManager.CamMaskMode = MaskMode.AvatarLobbyFocus;
 	}
 }
