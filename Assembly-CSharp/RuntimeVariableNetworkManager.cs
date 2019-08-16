@@ -36,7 +36,7 @@ public class RuntimeVariableNetworkManager
 		foreach (int runtimeDataVariable in runtimeDataVariables)
 		{
 			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(runtimeDataVariable);
-			if (SendRuntimeData(worldObjectClient))
+			if (SendRuntimeData(worldObjectClient, immediateSend: false))
 			{
 				removeList.Add(runtimeDataVariable);
 			}
@@ -48,14 +48,14 @@ public class RuntimeVariableNetworkManager
 		removeList.Clear();
 	}
 
-	public bool SendRuntimeData(MVWorldObjectClient wo)
+	public bool SendRuntimeData(MVWorldObjectClient wo, bool immediateSend)
 	{
 		if (wo == null)
 		{
 			Debug.LogError("Attempt to update world object, but object not registered in world");
 			return true;
 		}
-		Dictionary<object, object> dictionary = wo.RuntimeDataVariables.Send();
+		Dictionary<object, object> dictionary = wo.RuntimeDataVariables.Send(immediateSend);
 		if (dictionary.Count > 0)
 		{
 			MVGameControllerBase.OperationRequests.UpdateWorldObjectRunTimeData(wo.Id, dictionary);

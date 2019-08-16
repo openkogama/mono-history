@@ -62,7 +62,6 @@ public class DeathUIBoostMenuController : MonoBehaviour
 		startTime = Time.time;
 		fader.Activate();
 		fader.ShouldHideWhenDone = false;
-		boostMenu.gameObject.SetActive(value: false);
 		respawnButton.Initialize(OnRespawn);
 		resetButton.Initialize(OnResetToSpawnPoint);
 		MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.OnChange += OnAvatarStateChanged;

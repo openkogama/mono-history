@@ -16,10 +16,7 @@ public class AndroidInGameMenu : MonoBehaviour
 	private GamePassesUI gamePassesUIPrefab;
 
 	[SerializeField]
-	private GameObject boostButton;
-
-	[SerializeField]
-	private GameObject respawnButton;
+	private FreeGoldAndroid rewardedAd;
 
 	private GamePassesUI gamePassesUI;
 
@@ -34,6 +31,7 @@ public class AndroidInGameMenu : MonoBehaviour
 		{
 			playReward.Initialize();
 		}
+		rewardedAd.Initialize();
 		gamePassesUI = Object.Instantiate(gamePassesUIPrefab);
 		gamePassesUI.transform.SetParent(transform, worldPositionStays: false);
 		gamePassesUI.Initialize();
@@ -49,14 +47,6 @@ public class AndroidInGameMenu : MonoBehaviour
 		if (gamePassesUI != null)
 		{
 			gamePassesUI.gameObject.SetActive(GamePassProgressionController.IsProgressionEnabled && GamePassesManager.GamePassesActive);
-		}
-		if ((MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Hidden) || MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Dead)) && respawnButton.gameObject.activeSelf)
-		{
-			respawnButton.gameObject.SetActive(value: false);
-		}
-		else if (MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Playing) && !respawnButton.gameObject.activeSelf)
-		{
-			respawnButton.gameObject.SetActive(value: true);
 		}
 	}
 }

@@ -179,7 +179,7 @@ public class MVGroup : MVWorldObjectClient
 		base.InitializeInventory();
 		foreach (MVWorldObjectClient value in children.Values)
 		{
-			value.InitializeInventory();
+			value.InventoryInitialize();
 		}
 	}
 

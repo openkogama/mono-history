@@ -99,6 +99,7 @@ public enum MVOperationCodes : byte
 	CreateSpawnRole = 113,
 	GetAvatarBodies = 114,
 	SetSpawnRoleBody = 115,
+	ClaimRewardedAdXP = 116,
 	Join = byte.MaxValue,
 	Leave = 254,
 	RaiseEvent = 253,

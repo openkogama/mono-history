@@ -136,6 +136,11 @@ public class LobbyStateButton : MonoBehaviour, IPointerDownHandler, IPointerEnte
 		}
 	}
 
+	public void CancelEnterPlay()
+	{
+		lobbyStateButton.interactable = true;
+	}
+
 	private void OnCountDownEnd()
 	{
 		if (!lobbyStateButton.interactable)

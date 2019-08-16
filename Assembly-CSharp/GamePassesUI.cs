@@ -124,32 +124,20 @@ public class GamePassesUI : MonoBehaviour
 
 	private void ShowWelcomeRewardPopup()
 	{
-		Action<bool> action = (bool adAvailable) =>
+		GamePassesWelcomeRewardPopup welcomeRewardPopup;
+		if (MVGameControllerBase.AdManager.ReadyForRewardedAdRequest)
 		{
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-			{
-				x.Pop();
-			});
-			GamePassesWelcomeRewardPopup welcomeRewardPopup;
-			if (adAvailable)
-			{
-				welcomeRewardPopup = UnityEngine.Object.Instantiate(doubleWelcomeRewardPopupPrefab);
-			}
-			else
-			{
-				welcomeRewardPopup = UnityEngine.Object.Instantiate(welcomeRewardPopupPrefab);
-			}
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-			{
-				x.Push(welcomeRewardPopup.gameObject, UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
-			});
-			welcomeRewardPopup.Initialize();
-		};
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+			welcomeRewardPopup = UnityEngine.Object.Instantiate(doubleWelcomeRewardPopupPrefab);
+		}
+		else
 		{
-			x.Create();
+			welcomeRewardPopup = UnityEngine.Object.Instantiate(welcomeRewardPopupPrefab);
+		}
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Push(welcomeRewardPopup.gameObject, UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
 		});
-		action(obj: false);
+		welcomeRewardPopup.Initialize();
 	}
 
 	private void OnPlayerPlanetDataUpdated()

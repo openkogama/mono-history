@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using MV.Common;
@@ -30,6 +31,8 @@ public class SendMessageControl : MonoBehaviour
 	private const string removeUI = "/ru";
 
 	private const string switchAvatarTest = "/sat";
+
+	private const string oomTest = "/oom";
 
 	private const string enableHD = "/hd";
 
@@ -88,6 +91,10 @@ public class SendMessageControl : MonoBehaviour
 	private bool isSayChatIconVisible;
 
 	private Color sayChatColor;
+
+	private List<byte> oomBytes = new List<byte>();
+
+	private int bytesPerFrame = 1048576;
 
 	public Color SayChatColor
 	{
@@ -330,6 +337,16 @@ public class SendMessageControl : MonoBehaviour
 			break;
 		}
 		return result;
+	}
+
+	private IEnumerator OOMTest()
+	{
+		while (!MVGameControllerBase.Quitting)
+		{
+			byte[] newBytes = new byte[bytesPerFrame];
+			oomBytes.AddRange(newBytes);
+			yield return null;
+		}
 	}
 
 	private void OnAdShownCallback(bool ok, string json)

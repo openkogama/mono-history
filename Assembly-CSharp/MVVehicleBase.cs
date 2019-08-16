@@ -158,6 +158,7 @@ public abstract class MVVehicleBase : MVBlueprintBase, IBulletImpactVisualizer
 		: base(data, vehiclePrefab, worldObjects)
 	{
 		vehicleBaseObject = (VehicleBaseObject)component;
+		SetNetworkObject(MVGameControllerBase.Game.LocalPlayer.ActorNr == OwnerActorNr);
 	}
 
 	public override void OnDataUpdate()

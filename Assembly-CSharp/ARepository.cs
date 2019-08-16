@@ -54,7 +54,7 @@ public abstract class ARepository
 		BytePacker koGaMaData = new BytePacker(data);
 		KoGaMaPackageClient koGaMaPackageClient = new KoGaMaPackageClient(koGaMaData, readRuntimeValues: false);
 		MVWorldObjectClient mVWorldObjectClient = koGaMaPackageClient.worldObjects[koGaMaPackageClient.worldObjectRoot];
-		mVWorldObjectClient.InitializeInventory();
+		mVWorldObjectClient.InventoryInitialize();
 		return koGaMaPackageClient;
 	}
 

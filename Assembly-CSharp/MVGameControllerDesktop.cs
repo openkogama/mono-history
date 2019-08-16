@@ -1,3 +1,5 @@
+using Assets.Scripts.AdIntegration;
+using Assets.Scripts.AdIntegration.Dummy;
 using MV.Common;
 using UnityEngine;
 using UnityEngine.Events;
@@ -7,13 +9,17 @@ public class MVGameControllerDesktop : MVGameControllerBase
 	[SerializeField]
 	private GameObject eventSystem;
 
-	private ILockCursorManager lockCursorManager;
-
 	private ModeControllerBase modeController;
 
 	private IEditModeObjectPicker editModeObjectPicker;
 
 	private bool applicationHasFocus = true;
+
+	private ILockCursorManager lockCursorManager;
+
+	private IAdManager adManager = new DummyAdManager();
+
+	private static MVGameControllerDesktop Instance => (MVGameControllerDesktop)MVGameControllerBase.instance;
 
 	public static UnityAction OnApplicationLostFocus { get; set; }
 
@@ -21,7 +27,7 @@ public class MVGameControllerDesktop : MVGameControllerBase
 
 	public static ILockCursorManager LockCursorManager => Instance.lockCursorManager;
 
-	private static MVGameControllerDesktop Instance => (MVGameControllerDesktop)MVGameControllerBase.instance;
+	protected override IAdManager GetAdManager => adManager;
 
 	protected override bool IsPlayingInternal
 	{

@@ -160,6 +160,26 @@ public class MVTeamManager
 		return list;
 	}
 
+	public List<MVWorldObjectClient> GetOnlySpawnPointsForTeam(MVTeam team)
+	{
+		if (TeamHasSpawnPoints(team))
+		{
+			List<MVWorldObjectClient> list = new List<MVWorldObjectClient>();
+			{
+				foreach (int item in teams[team])
+				{
+					MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(item);
+					if (worldObjectClient is MVSpawnPoint)
+					{
+						list.Add(worldObjectClient);
+					}
+				}
+				return list;
+			}
+		}
+		return GetSpawnPointsForTeam(team);
+	}
+
 	public MVTeam GetDefaultTeam()
 	{
 		for (int i = 0; i < 4; i++)

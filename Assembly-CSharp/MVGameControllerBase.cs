@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 using AntiHack;
+using Assets.Scripts.AdIntegration;
 using Assets.Scripts.Network.Player.SpawnRoles.SpawnRoleData.Mediator;
 using MV.Common;
 using Newtonsoft.Json;
@@ -188,6 +189,10 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	public static KoGaMaSettingsContainer KoGaMaSettings => instance.koGaMaSettings;
 
 	public static bool IsTouristSession => GameSessionData.profileID <= 0;
+
+	public static IAdManager AdManager => instance.GetAdManager;
+
+	protected abstract IAdManager GetAdManager { get; }
 
 	public static bool InterstitialAdsEnabled { get; set; }
 
@@ -505,7 +510,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		}
 	}
 
-	protected void StartGame()
+	protected virtual void StartGame()
 	{
 		DisconnectIsOk = false;
 		StatHatWrapper.Count("MVGameControllerStartGame", 1);

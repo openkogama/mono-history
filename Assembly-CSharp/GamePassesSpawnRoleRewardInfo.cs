@@ -20,13 +20,16 @@ public class GamePassesSpawnRoleRewardInfo : MonoBehaviour
 	private Text spawnRoleCostAmount;
 
 	[SerializeField]
-	private GameObject spawnRoleMoreInfoText;
+	private GameObject spawnRoleEditButton;
 
 	[SerializeField]
 	private SpawnRoleEditorMenu spawnRoleEditorMenuPrefab;
 
 	[SerializeField]
 	private SpawnRolePreviewer spawnRolePreviewerPrefab;
+
+	[SerializeField]
+	private SpawnRoleSelectionSkillMenu skillMenuPrefab;
 
 	[SerializeField]
 	private GameObject backgroundTier1;
@@ -49,6 +52,12 @@ public class GamePassesSpawnRoleRewardInfo : MonoBehaviour
 
 	private MVAvatarSpawnRoleCreator spawnRole;
 
+	private int woid;
+
+	private GamePassTier tierRequirment;
+
+	private GameObject spawnRolePreviewObject;
+
 	private void OnDestroy()
 	{
 		MVAvatarSpawnRoleCreator mVAvatarSpawnRoleCreator = spawnRole;
@@ -63,11 +72,15 @@ public class GamePassesSpawnRoleRewardInfo : MonoBehaviour
 	{
 		this.spawnRoleIndex = spawnRoleIndex;
 		this.spawnRole = spawnRole;
+		this.tierRequirment = tierRequirment;
+		this.spawnRolePreviewObject = spawnRolePreviewObject;
+		woid = spawnRole.Id;
+		spawnRoleTeamImage.color = GetTeamRequirementColor(spawnRole.Team);
 		ChangeBackground(tierRequirment);
 		SetupPreviewImage(spawnRolePreviewObject);
 		if (MVGameControllerBase.GameSessionData.gameMode != MVGameMode.Edit || MVGameControllerBase.EditModeUI.IsInPlayInEditMode)
 		{
-			spawnRoleMoreInfoText.SetActive(value: false);
+			spawnRoleEditButton.SetActive(value: false);
 		}
 		int skillCost = CalculateSpawnRoleCost();
 		spawnRoleCostAmount.text = skillCost.ToString();
@@ -77,16 +90,37 @@ public class GamePassesSpawnRoleRewardInfo : MonoBehaviour
 
 	public void OnPressed()
 	{
+		SpawnRoleSelectionSkillMenu skillMenu = UnityEngine.Object.Instantiate(skillMenuPrefab);
+		skillMenu.Initialize(woid, tierRequirment, spawnRolePreviewObject);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Push(skillMenu.gameObject, UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
+		});
+	}
+
+	public void OnEditPressed()
+	{
 		if (MVGameControllerBase.GameSessionData.gameMode == MVGameMode.Edit && !MVGameControllerBase.EditModeUI.IsInPlayInEditMode)
 		{
-			List<MVWorldObjectClient> worldObjectsByType = MVGameControllerBase.Game.WorldObjectClientManager.GetWorldObjectsByType(WorldObjectType.AvatarSpawnRoleCreator);
 			SpawnRoleEditorMenu spawnRoleMenu = UnityEngine.Object.Instantiate(spawnRoleEditorMenuPrefab);
-			spawnRoleMenu.Initialize(worldObjectsByType[0].Id);
+			spawnRoleMenu.Initialize(spawnRole.Id);
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 			{
 				x.Push(spawnRoleMenu.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
 			});
 		}
+	}
+
+	private Color GetTeamRequirementColor(MVTeam team)
+	{
+		return team switch
+		{
+			MVTeam.Blue => Styles.GetColor(ColorStyle.TeamBlue), 
+			MVTeam.Red => Styles.GetColor(ColorStyle.TeamRed), 
+			MVTeam.Green => Styles.GetColor(ColorStyle.TeamGreen), 
+			MVTeam.Yellow => Styles.GetColor(ColorStyle.TeamYellow), 
+			_ => Styles.GetColor(ColorStyle.TeamNone), 
+		};
 	}
 
 	private void ChangeBackground(GamePassTier tier)

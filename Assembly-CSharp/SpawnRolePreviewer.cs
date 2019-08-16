@@ -66,6 +66,7 @@ public class SpawnRolePreviewer : MonoBehaviour
 	{
 		if (body != null)
 		{
+			body.BoneAnimation.FallBackWalkSpeed = 0.7f;
 			body.BoneAnimation.StartAnimation("Walk", MVGameControllerBase.Game.ServerTimeInMilliSeconds - 500);
 		}
 	}

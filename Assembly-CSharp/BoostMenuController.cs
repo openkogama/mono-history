@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Assets.Scripts.AdIntegration;
 using MV.WorldObject.KogamaSettings.SpecializedSettingsTypes.GameBoosterSettings.GameBoosterSettingTypes;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -16,17 +17,9 @@ public class BoostMenuController : MonoBehaviour, IBoostAdController, IEventSyst
 	[SerializeField]
 	private RectTransform boostItemsContent;
 
-	private BoostAdController boostAdController = new BoostAdController();
-
 	private BoostType adRewardType;
 
 	private Action<bool> boostUnlockedCallback;
-
-	private bool requestingAd;
-
-	private float timeSinceLastRequest;
-
-	private static readonly float delayBetweenRequests = 15f;
 
 	public void Initialize()
 	{
@@ -51,30 +44,23 @@ public class BoostMenuController : MonoBehaviour, IBoostAdController, IEventSyst
 		{
 			boostItemsContent.pivot = new Vector2(0f, 0.5f);
 		}
+		if (MVGameControllerBase.MainCameraManager.CamMaskMode == MaskMode.AvatarLobbyFocus)
+		{
+			MVGameControllerBase.MainCameraManager.CamMaskMode = MaskMode.SkyBoxOnly;
+		}
 	}
 
 	public void TryShowAd(BoostType type, Action<bool> OnUnlockedCallback)
 	{
-		if (!requestingAd || !(Time.time - timeSinceLastRequest < delayBetweenRequests))
+		boostUnlockedCallback = OnUnlockedCallback;
+		adRewardType = type;
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 		{
-			timeSinceLastRequest = Time.time;
-			requestingAd = true;
-			boostUnlockedCallback = OnUnlockedCallback;
-			adRewardType = type;
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
-			{
-				x.Create();
-			});
-			boostAdController.RequestAdAvailability(AdAvailable);
-		}
-	}
-
-	private void AdAvailable(bool available)
-	{
-		requestingAd = false;
-		if (available)
+			x.Create();
+		});
+		if (MVGameControllerBase.AdManager.ReadyForRewardedAdRequest)
 		{
-			boostAdController.ShowAd(OnAdFinished);
+			MVGameControllerBase.AdManager.RequestRewardedAd(RewardedAdCallback, "Booster");
 		}
 		else
 		{
@@ -82,8 +68,14 @@ public class BoostMenuController : MonoBehaviour, IBoostAdController, IEventSyst
 		}
 	}
 
+	private void RewardedAdCallback(RewardedAdResult obj)
+	{
+		OnAdFinished(obj == RewardedAdResult.RewardUnlocked);
+	}
+
 	private void OnAdFinished(bool adWasSuccessful)
 	{
+		Debug.Log("Ad finished");
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Pop();

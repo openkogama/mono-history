@@ -14,6 +14,12 @@ public class SpawnRoleSelectionElement : DefaultSpawnRoleSelectionElement
 	private Text spawnRoleCostAmount;
 
 	[SerializeField]
+	private GameObject spawnRoleCostObject;
+
+	[SerializeField]
+	private GameObject moreInfoButton;
+
+	[SerializeField]
 	private SpawnRoleSelectionSkillMenu skillMenuPrefab;
 
 	[SerializeField]
@@ -48,26 +54,21 @@ public class SpawnRoleSelectionElement : DefaultSpawnRoleSelectionElement
 		}
 	}
 
-	public override void Initialize(int spawnRoleIndex, int woId, GamePassTier tierRequirement, UnityAction<int> onSelectedCallback)
+	public override void Initialize(int spawnRoleIndex, int woId, GamePassTier tierRequirement, UnityAction<int> onSelectedCallback, UnityAction<int> onActivatedCallback)
 	{
-		base.Initialize(spawnRoleIndex, woId, tierRequirement, onSelectedCallback);
+		base.Initialize(spawnRoleIndex, woId, tierRequirement, onSelectedCallback, onActivatedCallback);
 		this.tierRequirement = tierRequirement;
 		int skillCost = CalculateTotalSpawnRoleCost(woId);
 		spawnRoleCostAmount.text = skillCost.ToString();
 		spawnRoleCostAmount.color = SpawnRolesSkillDataManager.GetCostColor(skillCost);
+		spawnRoleCostObject.SetActive(value: false);
+		moreInfoButton.SetActive(value: false);
 		ChangeBackground(tierRequirement);
 	}
 
-	public override void Select()
+	public void ShowSkillMenu()
 	{
-		if (isSelected)
-		{
-			OnShowSkillMenu();
-		}
-		else
-		{
-			onSelectedCallback(spawnRoleIndex);
-		}
+		OnShowSkillMenu();
 	}
 
 	public void OnShowSkillMenu()
@@ -95,5 +96,19 @@ public class SpawnRoleSelectionElement : DefaultSpawnRoleSelectionElement
 			num += ((IAttributeSetting)child.Value).AttributeValue;
 		}
 		return num;
+	}
+
+	public override void OnSelected()
+	{
+		base.OnSelected();
+		spawnRoleCostObject.SetActive(value: true);
+		moreInfoButton.SetActive(value: true);
+	}
+
+	public override void OnUnSelected()
+	{
+		base.OnUnSelected();
+		spawnRoleCostObject.SetActive(value: false);
+		moreInfoButton.SetActive(value: false);
 	}
 }

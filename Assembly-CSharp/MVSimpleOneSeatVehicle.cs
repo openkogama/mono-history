@@ -143,7 +143,6 @@ public abstract class MVSimpleOneSeatVehicle : MVVehicleBase, ICurrentItemOwner
 	protected MVSimpleOneSeatVehicle(Dictionary<object, object> data, VehicleBaseObject _vehiclePrefab, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, _vehiclePrefab, worldObjects)
 	{
-		SetNetworkObject(MVGameControllerBase.Game.LocalPlayer.ActorNr == OwnerActorNr);
 	}
 
 	public override void Initialize()

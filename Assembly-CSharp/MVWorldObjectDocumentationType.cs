@@ -72,5 +72,6 @@ public enum MVWorldObjectDocumentationType
 	TriggerCube,
 	TeamEditor,
 	GamePoint,
-	GamePointChest
+	GamePointChest,
+	AvatarClass
 }

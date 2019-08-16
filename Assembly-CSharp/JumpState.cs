@@ -57,11 +57,26 @@ internal class JumpState
 
 	private bool jumping;
 
+	private bool airJumping;
+
 	public OnWallJumpDelegate OnWallJump;
 
 	private List<MVControllerColliderHit> wallJumpHits = new List<MVControllerColliderHit>();
 
 	public bool Jumping => jumping;
+
+	public bool AirJumping
+	{
+		get
+		{
+			if (airJumping)
+			{
+				airJumping = false;
+				return true;
+			}
+			return false;
+		}
+	}
 
 	public JumpState(float regularButtonDownTimeLimit, WorldObjectSkillDataManager skillDataManager)
 		: this(regularButtonDownTimeLimit)
@@ -121,6 +136,7 @@ internal class JumpState
 					velocity.y = 0f;
 					movableVelocity.y = 0f;
 					airJumpsDone++;
+					airJumping = true;
 				}
 				float sliperyFactor = GetSliperyFactor(interactableLocal, groundState, waterProximity, flag, flag3);
 				SetJumpState(flag2, sliperyFactor);

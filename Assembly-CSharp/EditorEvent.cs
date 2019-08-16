@@ -28,5 +28,7 @@ public enum EditorEvent
 	CEAvatarAccessoryUUI = 54,
 	ESEnterCubeTutorial = 55,
 	ESEditCubeTutorial = 56,
-	ESLeaveCubeTutorial = 57
+	ESLeaveCubeTutorial = 57,
+	ESWaitForPlayModeAvatar = 58,
+	ESWaitForBuildModeAvatar = 59
 }

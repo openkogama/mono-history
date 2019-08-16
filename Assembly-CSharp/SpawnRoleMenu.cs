@@ -47,6 +47,8 @@ public class SpawnRoleMenu : LobbyFlowMenu
 
 	private float dragStartPositionX;
 
+	private bool awaitingSpawn;
+
 	public static Action<int> OnNewSpawnRoleSelected;
 
 	protected override LobbyFlowMenuType MenuType => LobbyFlowMenuType.SpawnRoleSelect;
@@ -83,24 +85,25 @@ public class SpawnRoleMenu : LobbyFlowMenu
 
 	public void OnSelectButtonPressed()
 	{
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
-		{
-			handler.Pop();
-		});
-		MVGameControllerBase.MainCameraManager.CamMaskMode = MaskMode.Default;
 		int wOID = SelectionElementsList[selectedSpawnRole].WOID;
 		if (wOID == MVGameControllerBase.LocalPlayer.SpawnRoleDataMediator.WoId)
 		{
+			Close();
 			StartPlaying();
 			return;
 		}
+		AwaitSpawnThenClose();
 		if (wOID == MVGameControllerBase.LocalPlayer.DefaultSpawnRoleId)
 		{
-			MVGameControllerBase.Game.OperationRequestSender.SetActiveSpawnRole(wOID);
+			MVGameControllerBase.Game.LocalPlayer.SetActiveSpawnRole(wOID);
+			if (OnNewSpawnRoleSelected != null)
+			{
+				OnNewSpawnRoleSelected(MVGameControllerBase.LocalPlayer.DefaultSpawnRoleId);
+			}
 		}
 		else
 		{
-			MVGameControllerBase.Game.OperationRequestSender.CreateSpawnRole(wOID);
+			MVGameControllerBase.Game.LocalPlayer.CreateSpawnRole(wOID);
 			if (OnNewSpawnRoleSelected != null)
 			{
 				OnNewSpawnRoleSelected(wOID);
@@ -141,29 +144,18 @@ public class SpawnRoleMenu : LobbyFlowMenu
 		List<ISpawnRolePreviewObject> sortedList = GetSortedList(list);
 		List<MVWorldObjectClient> sortedWorldObjectList = GetSortedWorldObjectList(list2, list);
 		bool flag = MVGameControllerBase.Game.TeamManager.TeamHasSpawnPoints(MVGameControllerBase.Game.LocalPlayer.Team);
-		int num = 0;
+		int startIndex = 0;
 		if (flag)
 		{
-			num = 1;
+			startIndex = 1;
 		}
 		for (int j = 0; j < sortedList.Count; j++)
 		{
-			SpawnRoleSelectionElement spawnRoleSelectionElement = UnityEngine.Object.Instantiate(selectionElementPrefab);
-			spawnRoleSelectionElement.Initialize(num + j, sortedWorldObjectList[j].Id, sortedList[j].GetTierRequirement(), OnSpawnRoleSelected);
-			spawnRoleSelectionElement.SetupPreviewImage(sortedList[j].GetSpawnRolePreviewObject());
-			spawnRoleSelectionElement.OnUnSelected();
-			spawnRoleSelectionElement.transform.SetParent(elementContainer, worldPositionStays: false);
-			SelectionElementsList.Add(spawnRoleSelectionElement);
+			CreateSpawnRoleSelectionElement(startIndex, j, sortedList, sortedWorldObjectList);
 		}
 		if (flag)
 		{
-			DefaultSpawnRoleSelectionElement defaultSpawnRoleSelectionElement = UnityEngine.Object.Instantiate(defaultSelectionElementPrefab);
-			defaultSpawnRoleSelectionElement.Initialize(0, MVGameControllerBase.LocalPlayer.DefaultSpawnRoleId, GamePassTier.Tier0, OnSpawnRoleSelected);
-			defaultSpawnRoleSelectionElement.SetupPreviewImage(MVGameControllerBase.LocalPlayer.Body.GameObject);
-			defaultSpawnRoleSelectionElement.OnUnSelected();
-			defaultSpawnRoleSelectionElement.transform.SetParent(elementContainer, worldPositionStays: false);
-			defaultSpawnRoleSelectionElement.transform.SetAsFirstSibling();
-			SelectionElementsList.Insert(0, defaultSpawnRoleSelectionElement);
+			CreateDefaultAvatarElement();
 		}
 		LayoutRebuilder.ForceRebuildLayoutImmediate(elementContainer);
 		menuHalfWidth = elementContainer.rect.width / 2f;
@@ -176,6 +168,10 @@ public class SpawnRoleMenu : LobbyFlowMenu
 	{
 		base.OnDestroy();
 		GamePassesManager.OnPlayerPlanetDataUpdated = (Action)Delegate.Remove(GamePassesManager.OnPlayerPlanetDataUpdated, new Action(OnPlayerPlanetDataUpdated));
+		if (awaitingSpawn)
+		{
+			MVGameControllerBase.LocalPlayer.SpawnRolesManager.OnSpawnRoleActivated -= Close;
+		}
 	}
 
 	private void Update()
@@ -187,6 +183,27 @@ public class SpawnRoleMenu : LobbyFlowMenu
 		}
 	}
 
+	private void CreateSpawnRoleSelectionElement(int startIndex, int index, List<ISpawnRolePreviewObject> sortedSpawnRoles, List<MVWorldObjectClient> sortedWorldObjects)
+	{
+		SpawnRoleSelectionElement spawnRoleSelectionElement = UnityEngine.Object.Instantiate(selectionElementPrefab);
+		spawnRoleSelectionElement.Initialize(startIndex + index, sortedWorldObjects[index].Id, sortedSpawnRoles[index].GetTierRequirement(), OnSpawnRoleSelected, OnSpawnRoleActivated);
+		spawnRoleSelectionElement.SetupPreviewImage(sortedSpawnRoles[index].GetSpawnRolePreviewObject());
+		spawnRoleSelectionElement.OnUnSelected();
+		spawnRoleSelectionElement.transform.SetParent(elementContainer, worldPositionStays: false);
+		SelectionElementsList.Add(spawnRoleSelectionElement);
+	}
+
+	private void CreateDefaultAvatarElement()
+	{
+		DefaultSpawnRoleSelectionElement defaultSpawnRoleSelectionElement = UnityEngine.Object.Instantiate(defaultSelectionElementPrefab);
+		defaultSpawnRoleSelectionElement.Initialize(0, MVGameControllerBase.LocalPlayer.DefaultSpawnRoleId, GamePassTier.Tier0, OnSpawnRoleSelected, OnSpawnRoleActivated);
+		defaultSpawnRoleSelectionElement.SetupPreviewImage(MVGameControllerBase.LocalPlayer.Body.GameObject);
+		defaultSpawnRoleSelectionElement.OnUnSelected();
+		defaultSpawnRoleSelectionElement.transform.SetParent(elementContainer, worldPositionStays: false);
+		defaultSpawnRoleSelectionElement.transform.SetAsFirstSibling();
+		SelectionElementsList.Insert(0, defaultSpawnRoleSelectionElement);
+	}
+
 	private void OnSpawnRoleSelected(int newSelectedSpawnRole)
 	{
 		SelectionElementsList[selectedSpawnRole].OnUnSelected();
@@ -194,6 +211,24 @@ public class SpawnRoleMenu : LobbyFlowMenu
 		SelectionElementsList[newSelectedSpawnRole].OnSelected();
 		RecalculateInterpolation(selectedSpawnRole);
 		buttonController.OnNewSelectedSpawnRole(SelectionElementsList[selectedSpawnRole].Tier);
+	}
+
+	private void OnSpawnRoleActivated(int newSelectedSpawnRole)
+	{
+		GamePassTier tier = SelectionElementsList[selectedSpawnRole].Tier;
+		GamePassTier gamePassTier = GamePassesManager.PlayerPlanetData.gamePassTier;
+		if ((int)tier <= (int)gamePassTier)
+		{
+			OnSelectButtonPressed();
+		}
+		else if (tier == gamePassTier + 1)
+		{
+			OpenTierShopButtonPressed();
+		}
+		else
+		{
+			LockedButtonPressed();
+		}
 	}
 
 	private void RecalculateInterpolation(int index)
@@ -216,7 +251,7 @@ public class SpawnRoleMenu : LobbyFlowMenu
 			return 0;
 		}
 		int count = SelectionElementsList.Count;
-		float num = CalculateElementPosition(count - 1) - CalculateElementPosition(0);
+		float num = CalculateElementPosition(count - 1);
 		float x = elementContainer.localPosition.x;
 		float num2 = ((!(dragStartPositionX < x)) ? 1f : (-1f));
 		x = menuHalfWidth - elementContainer.localPosition.x - CalculateElementPosition(0) / 2f;
@@ -234,10 +269,6 @@ public class SpawnRoleMenu : LobbyFlowMenu
 			FirstTimePressPlayController.OnFirstTimePlayIsPressed();
 		}
 		MVGameControllerDesktop.LockCursorManager.CursorLock = true;
-		if (MVGameControllerBase.GameSessionData.gameMode == MVGameMode.Edit && MVGameControllerBase.EditModeUI.IsInPlayInEditMode)
-		{
-			((MVLocalPlayerBuilder)MVGameControllerBase.LocalPlayer).EnterPlayMode();
-		}
 	}
 
 	private void PrepareForSpawnRoleActivating()
@@ -321,5 +352,20 @@ public class SpawnRoleMenu : LobbyFlowMenu
 	private void OnPlayerPlanetDataUpdated()
 	{
 		buttonController.OnNewSelectedSpawnRole(SelectionElementsList[selectedSpawnRole].Tier);
+	}
+
+	private void AwaitSpawnThenClose()
+	{
+		awaitingSpawn = true;
+		MVGameControllerBase.LocalPlayer.SpawnRolesManager.OnSpawnRoleActivated += Close;
+	}
+
+	private void Close(int spawnRoleID = 0)
+	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
+		{
+			handler.Pop();
+		});
+		MVGameControllerBase.MainCameraManager.CamMaskMode = MaskMode.Default;
 	}
 }

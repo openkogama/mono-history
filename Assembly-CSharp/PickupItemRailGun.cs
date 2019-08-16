@@ -56,6 +56,8 @@ public class PickupItemRailGun : PickupItemWithDelay
 
 	public override AvatarItemType Type => AvatarItemType.RailGun;
 
+	protected override bool IsAmmoDepleted => (int)currentAmmo <= 0 && !HasUnlimitedAmmo;
+
 	public override int Quantity => currentAmmo;
 
 	public override float ChargeState
@@ -184,7 +186,7 @@ public class PickupItemRailGun : PickupItemWithDelay
 		Fire();
 		isCharging = false;
 		currentAmmo = (int)currentAmmo - 1;
-		if ((int)currentAmmo == 0)
+		if ((int)currentAmmo == 0 && !HasUnlimitedAmmo)
 		{
 			MVEquipable component = owner.GetComponent<MVEquipable>();
 			if (component != null)

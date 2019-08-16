@@ -92,7 +92,7 @@ public class SpawnRoleSkillsEditor : MonoBehaviour
 	private void CreateSkillSetting(string skillKey, KogamaSettingWrapperBase skillSettingData)
 	{
 		SkillSettingBase skillsSettingsClone = skillDataManager.GetSkillsSettingsClone(skillKey);
-		skillsSettingsClone.Initialize(skillKey, skillDataManager, ((IAttributeSetting)skillSettingData).AttributeValue, spawnRoleCost, spawnRoleTier, (KogamaSettingValueWrapperBase)skillSettingData, RemoveSkillCallback, UpdateSkillCallback, CantUpdateSkillCallback);
+		skillsSettingsClone.Initialize(skillKey, skillDataManager, ((IAttributeSetting)skillSettingData).AttributeValue, spawnRoleCost, spawnRoleTier, (KogamaSettingValueWrapperBase)skillSettingData, RemoveSkillCallback, UpdateSkillCallback, CantUpdateSkillCallback, CantRemoveSkillCallback);
 		skillSettingList.Add(skillsSettingsClone);
 		switch (skillDataManager.GetSkillsCategory(skillKey))
 		{
@@ -148,12 +148,22 @@ public class SpawnRoleSkillsEditor : MonoBehaviour
 
 	private void CantAddSkillCallback()
 	{
-		cantAddSkillInfoTextBubble.Activate("Can't add skill because class cost would be higher than the allowed class cost for tier 0!");
+		ShowPowerErrorTipBubble();
 	}
 
 	private void CantUpdateSkillCallback()
 	{
-		cantAddSkillInfoTextBubble.Activate("Can't update skill because class cost would be higher than the allowed class cost for tier 0!");
+		ShowPowerErrorTipBubble();
+	}
+
+	private void CantRemoveSkillCallback()
+	{
+		ShowPowerErrorTipBubble();
+	}
+
+	private void ShowPowerErrorTipBubble()
+	{
+		cantAddSkillInfoTextBubble.Activate("The Power of the Class will be too high. Upgrade to Tier 1 or higher to proceed.");
 	}
 
 	private void RemoveSkillCallback(KogamaSettingValueWrapperBase attributeSetting)

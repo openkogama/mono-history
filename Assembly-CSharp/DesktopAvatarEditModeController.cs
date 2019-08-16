@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class DesktopAvatarEditModeController : ModeControllerBase, IActivateUIElement, IAvatarEditUIState, ISetEditState, IAvatarSetBodyGroup, IGetCurrentBody, IAccessoryPopupHandler, IEventSystemHandler
+public class DesktopAvatarEditModeController : ModeControllerBase, IActivateUIElement, IAvatarEditUIState, IEditStateCommands, IAvatarSetBodyGroup, IGetCurrentBody, IAccessoryPopupHandler, IEventSystemHandler
 {
 	private EditorStateMachine editorStateMachine;
 
@@ -135,6 +135,11 @@ public class DesktopAvatarEditModeController : ModeControllerBase, IActivateUIEl
 	public void SetState(EditorEvent editorEvent)
 	{
 		editorStateMachine.Event = editorEvent;
+	}
+
+	public void ClearStateStack()
+	{
+		editorStateMachine.ClearStateStack();
 	}
 
 	private void InitializeLocalAvatar()
