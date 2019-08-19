@@ -29,7 +29,7 @@ public static class AttributePrototypeSettingsManager
 	private static KogamaSettingWrapperBase CreateAvatarPrototypes()
 	{
 		KogamaSettingsCollectionBase kogamaSettingsCollectionBase = new KogamaSettingsCollectionBase("AvatarSettings", null);
-		AttributeSettingInt kogamaSetting = new AttributeSettingInt("SuperSpeed", 100, 20, 200, new APIntCalcZeroValueLinear(100, 0.5f), AttributeSettingsExclusivityFlag.None, kogamaSettingsCollectionBase);
+		AttributeSettingInt kogamaSetting = new AttributeSettingInt("SuperSpeed", 100, 0, 200, new APIntCalcZeroValueLinear(0.5f, 100), AttributeSettingsExclusivityFlag.None, kogamaSettingsCollectionBase);
 		kogamaSettingsCollectionBase.AddChild(kogamaSetting);
 		KogamaSettingBoolBase kogamaSetting2 = new AttributeSettingBool("DoubleJump", value: true, 100, AttributeSettingsExclusivityFlag.None, kogamaSettingsCollectionBase);
 		kogamaSettingsCollectionBase.AddChild(kogamaSetting2);
@@ -37,13 +37,13 @@ public static class AttributePrototypeSettingsManager
 		kogamaSettingsCollectionBase.AddChild(kogamaSetting3);
 		AttributeSettingFloat kogamaSetting4 = new AttributeSettingFloat("OxygenSupply", 20f, 0f, 500f, new APFloatCalcZeroValueLinear(20f, 0.1f, 0.5f), AttributeSettingsExclusivityFlag.None, kogamaSettingsCollectionBase);
 		kogamaSettingsCollectionBase.AddChild(kogamaSetting4);
-		AttributeSettingInt kogamaSetting5 = new AttributeSettingInt("MaxHealth", 100, 1, 200, new APIntCalcZeroValueLinear(100, 0.5f, 1f), AttributeSettingsExclusivityFlag.None, kogamaSettingsCollectionBase);
+		AttributeSettingInt kogamaSetting5 = new AttributeSettingInt("MaxHealth", 100, 1, 200, new APIntCalcZeroValueLinear(0.5f, 100), AttributeSettingsExclusivityFlag.None, kogamaSettingsCollectionBase);
 		kogamaSettingsCollectionBase.AddChild(kogamaSetting5);
-		AttributeSettingInt kogamaSetting6 = new AttributeSettingInt("DamageReduction", 20, 10, 80, new APIntCalcLinear(3f), AttributeSettingsExclusivityFlag.None, kogamaSettingsCollectionBase);
+		AttributeSettingInt kogamaSetting6 = new AttributeSettingInt("DamageReduction", 50, 10, 99, new APIntCalcLinear(15f), AttributeSettingsExclusivityFlag.None, kogamaSettingsCollectionBase);
 		kogamaSettingsCollectionBase.AddChild(kogamaSetting6);
-		AttributeSettingInt kogamaSetting7 = new AttributeSettingInt("JumpHeight", 100, 20, 200, new APIntCalcZeroValueLinear(100, 0.5f), AttributeSettingsExclusivityFlag.None, kogamaSettingsCollectionBase);
+		AttributeSettingInt kogamaSetting7 = new AttributeSettingInt("JumpHeight", 100, 1, 200, new APIntCalcLinear(0.5f), AttributeSettingsExclusivityFlag.None, kogamaSettingsCollectionBase);
 		kogamaSettingsCollectionBase.AddChild(kogamaSetting7);
-		AttributeSettingInt kogamaSetting8 = new AttributeSettingInt("SlowFall", 50, 20, 80, new APIntCalcLinear(0.5f), AttributeSettingsExclusivityFlag.None, kogamaSettingsCollectionBase);
+		AttributeSettingInt kogamaSetting8 = new AttributeSettingInt("SlowFall", 50, 1, 100, new APIntCalcLinear(0.5f), AttributeSettingsExclusivityFlag.None, kogamaSettingsCollectionBase);
 		kogamaSettingsCollectionBase.AddChild(kogamaSetting8);
 		KogamaSettingBoolBase kogamaSetting9 = new AttributeSettingBool("CanWallJumpAnySurface", value: true, 25, AttributeSettingsExclusivityFlag.None, kogamaSettingsCollectionBase);
 		kogamaSettingsCollectionBase.AddChild(kogamaSetting9);
@@ -51,9 +51,9 @@ public static class AttributePrototypeSettingsManager
 		kogamaSettingsCollectionBase.AddChild(kogamaSetting10);
 		KogamaSettingBoolBase kogamaSetting11 = new AttributeSettingBool("BreathesWater", value: true, 0, AttributeSettingsExclusivityFlag.None, kogamaSettingsCollectionBase);
 		kogamaSettingsCollectionBase.AddChild(kogamaSetting11);
-		KogamaSettingBoolBase kogamaSetting12 = new AttributeSettingBool("UnableToEquipWeapons", value: true, -50, AttributeSettingsExclusivityFlag.None, kogamaSettingsCollectionBase);
+		KogamaSettingBoolBase kogamaSetting12 = new AttributeSettingBool("UnableToEquipWeapons", value: true, -20, AttributeSettingsExclusivityFlag.None, kogamaSettingsCollectionBase);
 		kogamaSettingsCollectionBase.AddChild(kogamaSetting12);
-		KogamaSettingBoolBase kogamaSetting13 = new AttributeSettingBool("UnableToCollectModifierPickups", value: true, -30, AttributeSettingsExclusivityFlag.None, kogamaSettingsCollectionBase);
+		KogamaSettingBoolBase kogamaSetting13 = new AttributeSettingBool("UnableToCollectModifierPickups", value: true, -10, AttributeSettingsExclusivityFlag.None, kogamaSettingsCollectionBase);
 		kogamaSettingsCollectionBase.AddChild(kogamaSetting13);
 		return kogamaSettingsCollectionBase;
 	}

@@ -8,8 +8,4 @@ public interface ISpawnRoleLocal
 	void Activate(int idFrom, SpawnRoleDataReceiver spawnRoleDataReceiver, Vector3 position, Quaternion rotation);
 
 	void DeActivate(int idTo, SpawnRoleDataReceiver spawnRoleDataReceiver);
-
-	void Suspend();
-
-	void UnSuspend();
 }

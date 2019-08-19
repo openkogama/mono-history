@@ -133,7 +133,7 @@ public class PickupItemMultiThrowingStar : PickupItemWithDelay
 			fireTime = Time.time;
 			Fire(isLocal);
 		}
-		if ((int)currentAmmo <= 0 && !HasUnlimitedAmmo)
+		if ((int)currentAmmo <= 0)
 		{
 			MVEquipable component = owner.WorldObjectOwner.GameObject.GetComponent<MVEquipable>();
 			if (component != null)

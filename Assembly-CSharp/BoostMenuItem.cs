@@ -38,9 +38,6 @@ public class BoostMenuItem : MonoBehaviour
 	private Button getWithAd;
 
 	[SerializeField]
-	private Button getWithAdDisabled;
-
-	[SerializeField]
 	private Button getWithGold;
 
 	[SerializeField]
@@ -111,12 +108,10 @@ public class BoostMenuItem : MonoBehaviour
 
 	private void SetBoostUIUnlocked(bool boostUnlocked)
 	{
-		bool flag = false;
 		timeLeftText.gameObject.SetActive(boostUnlocked);
 		boostUnlockedGlow.SetActive(boostUnlocked);
 		boostActiveUI.SetActive(boostUnlocked);
-		getWithAd.gameObject.SetActive(!boostUnlocked && flag);
-		getWithAdDisabled.gameObject.SetActive(!boostUnlocked && !flag);
+		getWithAd.gameObject.SetActive(!boostUnlocked);
 		getWithGold.gameObject.SetActive(!MVGameControllerBase.IsTouristSession && !boostUnlocked && MVGameControllerBase.GameMode != MVGameMode.Edit);
 		getWithTest.gameObject.SetActive(!boostUnlocked && MVGameControllerBase.GameMode == MVGameMode.Edit);
 	}

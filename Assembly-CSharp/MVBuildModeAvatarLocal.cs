@@ -486,6 +486,7 @@ public class MVBuildModeAvatarLocal : MVBuildModeAvatar, ILocalObject, ISpawnRol
 		: base(data, PrefabPool.Instance.MVAvatarLocalBuildModePrefab, worldObjects)
 	{
 		avatarScriptObject = gameObject.GetComponent<AvatarLocalBuildMode>();
+		SetNetworkObject(local: true);
 	}
 
 	public override void Initialize()
@@ -506,7 +507,6 @@ public class MVBuildModeAvatarLocal : MVBuildModeAvatar, ILocalObject, ISpawnRol
 
 	public void Activate(int idFrom, SpawnRoleDataReceiver spawnRoleDataReceiver, Vector3 position, Quaternion rotation)
 	{
-		SetNetworkObject(local: true);
 		this.spawnRoleDataReceiver = spawnRoleDataReceiver;
 		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnKillSelf += SetToSpawn;
 		laserPoint.gameObject.SetActive(value: true);
@@ -523,18 +523,6 @@ public class MVBuildModeAvatarLocal : MVBuildModeAvatar, ILocalObject, ISpawnRol
 		spawnRoleDataReceiver.woId.Value = Id;
 		CullingApiWrapper.SetDistanceReferencePoint(transform);
 		ChatCommandManager.UpdateChatCommandCallback(ChatCommand.HideAllUI, (Action)Delegate.Combine(ChatCommandManager.GetChatCommandCallback(ChatCommand.HideAllUI), new Action(HideEditCube)));
-	}
-
-	public void Suspend()
-	{
-		MVGameControllerBase.Game.TransformNetworkManager.RemoveNetworkObject(Id);
-		MVGameControllerBase.Game.RuntimeVariableNetworkManager.SendRuntimeData(this, immediateSend: true);
-		MVGameControllerBase.Game.RuntimeVariableNetworkManager.RemoveRuntimeDataVariables(Id);
-	}
-
-	public void UnSuspend()
-	{
-		SetNetworkObject(local: true);
 	}
 
 	public void DeActivate(int idTo, SpawnRoleDataReceiver spawnRoleDataReceiver)

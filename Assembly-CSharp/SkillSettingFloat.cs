@@ -19,11 +19,11 @@ public class SkillSettingFloat : SkillSettingBase
 
 	private AttributeSettingFloat skillPercentageSetting;
 
-	public override void Initialize(string skill, SpawnRolesSkillDataManager skillDataManager, int skillCost, int spawnRoleCost, GamePassTier spawnRoleTier, KogamaSettingValueWrapperBase skillSetting, UnityAction<KogamaSettingValueWrapperBase> removeSkillCallback, UnityAction<KogamaSettingValueWrapperBase> updateSkillCallback, UnityAction cantUpdateSkillCallback, UnityAction cantRemoveSkillCallback)
+	public override void Initialize(string skill, SpawnRolesSkillDataManager skillDataManager, int skillCost, int spawnRoleCost, GamePassTier spawnRoleTier, KogamaSettingValueWrapperBase skillSetting, UnityAction<KogamaSettingValueWrapperBase> removeSkillCallback, UnityAction<KogamaSettingValueWrapperBase> updateSkillCallback, UnityAction cantUpdateSkillCallback)
 	{
 		skillPercentageSetting = (AttributeSettingFloat)skillSetting;
 		settingValue = skillPercentageSetting.NumericValue;
-		base.Initialize(skill, skillDataManager, skillCost, spawnRoleCost, spawnRoleTier, skillSetting, removeSkillCallback, updateSkillCallback, cantUpdateSkillCallback, cantRemoveSkillCallback);
+		base.Initialize(skill, skillDataManager, skillCost, spawnRoleCost, spawnRoleTier, skillSetting, removeSkillCallback, updateSkillCallback, cantUpdateSkillCallback);
 		slider.minValue = skillPercentageSetting.KogamaSettingNumeric.RangeValidator.min;
 		slider.maxValue = skillPercentageSetting.KogamaSettingNumeric.RangeValidator.max;
 		slider.value = settingValue;
@@ -70,7 +70,6 @@ public class SkillSettingFloat : SkillSettingBase
 
 	public void SliderValueChanged()
 	{
-		slider.value = Mathf.Floor(slider.value);
 		UpdateTextInputFieldWithSliderValue();
 		UpdateSkillData(slider.value);
 	}

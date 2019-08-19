@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class FreeGoldAndroid : MonoBehaviour
+public class FreeGoldAndroid : MonoBehaviour, IUpdatecontrollerSubscriberUpdate, IUpdatecontrollerSubscriberBase
 {
 	[SerializeField]
 	private GameObject freeGoldButton;

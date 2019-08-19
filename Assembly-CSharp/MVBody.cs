@@ -33,8 +33,6 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 
 	private BodyClone bodyClone;
 
-	public string LayerToSetTo { private get; set; }
-
 	public BoneAnimation Animation => bodyObject.BoneAnimation;
 
 	public bool IsPlayerBody => Group.Group != null;
@@ -122,8 +120,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 			}
 		}
 		previewLayerMask |= LayerFlags.Player;
-		LayerToSetTo = "Player";
-		gameObject.layer = LayerMask.NameToLayer(LayerToSetTo);
+		gameObject.layer = LayerMask.NameToLayer("Player");
 		if (!blueprintData.ContainsKey(BlueprintData.AvatarAccessoryData2.ToString("d")))
 		{
 			Debug.LogWarning("Accessory data not found. This should only happen in the avatar shop. This is due to the fact that the server sends the body data to the clients w/o deserializing.");
@@ -531,7 +528,7 @@ public class MVBody : MVBlueprintBase, IWorldObjectWithModelingConstraint
 		attachedPartModels.Add(bodyPart);
 		GameObject gameObject = bodyPart.GameObject;
 		gameObject.name = boneName + " model " + bodyPart.Id;
-		gameObject.SetLayerRecursively(LayerMask.NameToLayer(LayerToSetTo));
+		gameObject.SetLayerRecursively(LayerMask.NameToLayer("Player"));
 		modelScale = gameObject.transform.localScale;
 		gameObject.transform.parent = partBone;
 		gameObject.transform.localPosition = Vector3.zero;

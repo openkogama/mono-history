@@ -288,7 +288,7 @@ public class PlayerInventoryController : MonoBehaviour, IPlayerInventory, IEvent
 		BytePacker koGaMaData = new BytePacker(data);
 		KoGaMaPackageClient koGaMaPackageClient = new KoGaMaPackageClient(koGaMaData, readRuntimeValues: false);
 		MVWorldObjectClient mVWorldObjectClient = koGaMaPackageClient.worldObjects[koGaMaPackageClient.worldObjectRoot];
-		mVWorldObjectClient.InventoryInitialize();
+		mVWorldObjectClient.InitializeInventory();
 		return mVWorldObjectClient;
 	}
 

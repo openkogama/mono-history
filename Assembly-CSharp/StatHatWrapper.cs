@@ -21,7 +21,7 @@ public static class StatHatWrapper
 
 	public static void Count(string key, int count)
 	{
-		if (StathatReportingEnabled && MVGameControllerBase.GameSessionData != null)
+		if (StathatReportingEnabled)
 		{
 			string allBtKey = $"{MVGameControllerBase.GameSessionData.region}.u.{key}";
 			string btKey = $"{MVGameControllerBase.GameSessionData.region}.u.standalone.{key}";
@@ -37,7 +37,7 @@ public static class StatHatWrapper
 
 	public static void Value(string key, int value)
 	{
-		if (StathatReportingEnabled && MVGameControllerBase.GameSessionData != null)
+		if (StathatReportingEnabled)
 		{
 			string allBtKey = $"{MVGameControllerBase.GameSessionData.region}.u.{key}";
 			string btKey = $"{MVGameControllerBase.GameSessionData.region}.u.standalone.{key}";
@@ -53,7 +53,7 @@ public static class StatHatWrapper
 
 	public static void Value(string key, float value)
 	{
-		if (StathatReportingEnabled && MVGameControllerBase.GameSessionData != null)
+		if (StathatReportingEnabled)
 		{
 			string allBtKey = $"{MVGameControllerBase.GameSessionData.region}.u.{key}";
 			string btKey = $"{MVGameControllerBase.GameSessionData.region}.u.standalone.{key}";

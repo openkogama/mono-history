@@ -140,7 +140,7 @@ public class PickUpItemHealRay : PickupItem
 
 	private void DoHealing()
 	{
-		if (IsStillChargingRay() && ((float)currentAmmoLeft > 0f || HasUnlimitedAmmo))
+		if (IsStillChargingRay() && (float)currentAmmoLeft > 0f)
 		{
 			Vector3 direction;
 			if (stuckObject != null)

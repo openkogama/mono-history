@@ -298,8 +298,8 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 		case ActivateUIElement.BoosterMenu:
 		{
 			BoostMenuController boostMenuController = UnityEngine.Object.Instantiate(boosterMenu);
+			uiStack.Push(boostMenuController.gameObject, UIPushOption.HideAll, null, UIGroupFlags.GameObjectUI);
 			boostMenuController.Initialize();
-			uiStack.Push(boostMenuController.gameObject, UIPushOption.InvisibleBlocker, null, UIGroupFlags.GameObjectUI);
 			break;
 		}
 		}

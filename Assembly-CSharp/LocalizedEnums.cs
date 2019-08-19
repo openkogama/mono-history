@@ -81,7 +81,6 @@ public static class LocalizedEnums
 			map.Add(4, TM._("Cool!"));
 			map.Add(5, TM._("Nice!"));
 			map.Add(6, TM._("Awesome!"));
-			map.Add(8, TM._("Ad completed!"));
 		}
 	}
 

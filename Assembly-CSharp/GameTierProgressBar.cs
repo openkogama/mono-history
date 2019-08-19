@@ -20,6 +20,8 @@ public class GameTierProgressBar : MonoBehaviour
 
 		public GamePassesTextBubble progressBarTextBubble;
 
+		public Text hoverProgressText;
+
 		public GamePassesTextBubble avatarHead;
 
 		public RawImage avatarHeadImage;
@@ -29,6 +31,10 @@ public class GameTierProgressBar : MonoBehaviour
 		public ProgressBar disabledProgressBar;
 
 		public Text disabledProgressText;
+
+		public NotificationFade notificationFade;
+
+		public NotificationFade disabledNotificationFade;
 
 		public GameObject disabledProgressDivider;
 
@@ -170,6 +176,7 @@ public class GameTierProgressBar : MonoBehaviour
 			int progressionGamePoints = GamePassesManager.PlayerPlanetData.progressionGamePoints;
 			UpdateProgressBars(progressionGamePoints);
 			UpdateDividerVisibility(progressionGamePoints);
+			HideProgressText();
 		}
 	}
 
@@ -186,6 +193,8 @@ public class GameTierProgressBar : MonoBehaviour
 		{
 			num = interpolateTowardsProgressValue - (float)value;
 			shouldInterpolate = false;
+			tierProgressDataList[value].notificationFade.Unpause();
+			tierProgressDataList[value].disabledNotificationFade.Unpause();
 		}
 		if (num >= 1f)
 		{
@@ -193,6 +202,8 @@ public class GameTierProgressBar : MonoBehaviour
 			tierProgressDataList[value].progressDivider.SetActive(value: false);
 			tierProgressDataList[value].disabledProgressDivider.SetActive(value: false);
 			ActivateBar(value);
+			tierProgressDataList[value].notificationFade.Unpause();
+			tierProgressDataList[value].disabledNotificationFade.Unpause();
 			int num2 = value + 1;
 			previousProgressValue = num2;
 			interpolationStartTime = Time.time;
@@ -201,6 +212,10 @@ public class GameTierProgressBar : MonoBehaviour
 				tierProgressDataList[num2].avatarHeadUI.gameObject.SetActive(value: true);
 				tierProgressDataList[num2].progressDivider.SetActive(value: true);
 				tierProgressDataList[num2].disabledProgressDivider.SetActive(value: true);
+				tierProgressDataList[num2].notificationFade.Activate();
+				tierProgressDataList[num2].notificationFade.PauseAt(0.5f);
+				tierProgressDataList[num2].disabledNotificationFade.Activate();
+				tierProgressDataList[num2].disabledNotificationFade.PauseAt(0.5f);
 			}
 		}
 		tierProgressDataList[value].progressBar.Progress = num;
@@ -228,6 +243,10 @@ public class GameTierProgressBar : MonoBehaviour
 		int num = Mathf.FloorToInt(Mathf.Clamp(previousProgressValue, 0f, tierProgressDataList.Count - 1));
 		if (shouldInterpolate)
 		{
+			tierProgressDataList[num].notificationFade.Activate();
+			tierProgressDataList[num].notificationFade.PauseAt(0.5f);
+			tierProgressDataList[num].disabledNotificationFade.Activate();
+			tierProgressDataList[num].disabledNotificationFade.PauseAt(0.5f);
 			int num2 = num;
 			for (float num3 = interpolateTowardsProgressValue - (float)num2; num3 > 0f; num3--)
 			{
@@ -311,9 +330,10 @@ public class GameTierProgressBar : MonoBehaviour
 				{
 					num = 0;
 				}
-				string text = num + " / " + gamePointRequirementBase;
+				string text = ((float)num / (float)gamePointRequirementBase * 100f).ToString("0.00") + "%";
 				tierProgressDataList[(int)(progressBarToUpdate - 1)].progressBar.Progress = num2;
 				tierProgressDataList[(int)(progressBarToUpdate - 1)].progressText.text = text;
+				tierProgressDataList[(int)(progressBarToUpdate - 1)].hoverProgressText.text = text;
 				tierProgressDataList[(int)(progressBarToUpdate - 1)].disabledProgressBar.Progress = num2;
 				tierProgressDataList[(int)(progressBarToUpdate - 1)].disabledProgressText.text = text;
 				if (num2 >= 1f)
@@ -337,6 +357,7 @@ public class GameTierProgressBar : MonoBehaviour
 		{
 			tierProgressDataList[(int)(progressBarToUpdate - 1)].progressBar.Progress = 0f;
 			tierProgressDataList[(int)(progressBarToUpdate - 1)].progressText.text = string.Empty;
+			tierProgressDataList[(int)(progressBarToUpdate - 1)].hoverProgressText.text = string.Empty;
 			tierProgressDataList[(int)(progressBarToUpdate - 1)].disabledProgressBar.Progress = 0f;
 			tierProgressDataList[(int)(progressBarToUpdate - 1)].disabledProgressText.text = string.Empty;
 			if (IsTierUnlocked(progressBarToUpdate))
@@ -345,6 +366,15 @@ public class GameTierProgressBar : MonoBehaviour
 				tierProgressDataList[(int)(progressBarToUpdate - 1)].progressBar.Progress = 1f;
 				ActivateBar((int)(progressBarToUpdate - 1));
 			}
+		}
+	}
+
+	private void HideProgressText()
+	{
+		for (int i = 0; i < tierProgressDataList.Count; i++)
+		{
+			tierProgressDataList[i].notificationFade.Deactivate();
+			tierProgressDataList[i].disabledNotificationFade.Deactivate();
 		}
 	}
 
@@ -504,8 +534,9 @@ public class GameTierProgressBar : MonoBehaviour
 		Dictionary<GamePassTier, PlayerTierState> tierPricingState = GamePassesManager.playerTierStateCalculator.GetTierPricingState(progressionGamePoints, gamePassTier);
 		int num = ReduceGamePointsWithPreviousTierRequirements(currentTier, gamePoints, tierPricingState);
 		int gamePointRequirementBase = tierPricingState[currentTier].gamePointRequirementBase;
-		string text = num + " / " + gamePointRequirementBase;
+		string text = ((float)num / (float)gamePointRequirementBase * 100f).ToString("0.00") + "%";
 		tierProgressDataList[(int)(currentTier - 1)].progressText.text = text;
+		tierProgressDataList[(int)(currentTier - 1)].hoverProgressText.text = text;
 		tierProgressDataList[(int)(currentTier - 1)].disabledProgressText.text = text;
 	}
 

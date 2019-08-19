@@ -60,7 +60,7 @@ public static class Post
 		}
 	}
 
-	private const string BaseUrl = "https://api.stathat.com";
+	private const string BaseUrl = "http://api.stathat.com";
 
 	public static void Counter(string key, string ukey, float count)
 	{
@@ -68,7 +68,7 @@ public static class Post
 		dictionary.Add("key", key);
 		dictionary.Add("ukey", ukey);
 		dictionary.Add("count", count.ToString());
-		new FormPoster("https://api.stathat.com", "/c", dictionary);
+		new FormPoster("http://api.stathat.com", "/c", dictionary);
 	}
 
 	public static void Counter(string key, string ukey, int count)
@@ -82,7 +82,7 @@ public static class Post
 		dictionary.Add("key", key);
 		dictionary.Add("ukey", ukey);
 		dictionary.Add("value", value.ToString());
-		new FormPoster("https://api.stathat.com", "/v", dictionary);
+		new FormPoster("http://api.stathat.com", "/v", dictionary);
 	}
 
 	public static void Value(string key, string ukey, int value)
@@ -96,7 +96,7 @@ public static class Post
 		dictionary.Add("ezkey", ezkey);
 		dictionary.Add("stat", stat);
 		dictionary.Add("count", count.ToString());
-		new FormPoster("https://api.stathat.com", "/ez", dictionary);
+		new FormPoster("http://api.stathat.com", "/ez", dictionary);
 	}
 
 	public static void EzCounter(string ezkey, string stat, int count)
@@ -110,7 +110,7 @@ public static class Post
 		dictionary.Add("ezkey", ezkey);
 		dictionary.Add("stat", stat);
 		dictionary.Add("value", value.ToString());
-		new FormPoster("https://api.stathat.com", "/ez", dictionary);
+		new FormPoster("http://api.stathat.com", "/ez", dictionary);
 	}
 
 	public static void EzValue(string ezkey, string stat, int value)
@@ -124,7 +124,7 @@ public static class Post
 		dictionary.Add("key", key);
 		dictionary.Add("ukey", ukey);
 		dictionary.Add("count", count.ToString());
-		new FormPoster("https://api.stathat.com", "/c", dictionary, callback);
+		new FormPoster("http://api.stathat.com", "/c", dictionary, callback);
 	}
 
 	public static void Counter(string key, string ukey, int count, Action<WWW> callback)
@@ -138,7 +138,7 @@ public static class Post
 		dictionary.Add("key", key);
 		dictionary.Add("ukey", ukey);
 		dictionary.Add("value", value.ToString());
-		new FormPoster("https://api.stathat.com", "/v", dictionary, callback);
+		new FormPoster("http://api.stathat.com", "/v", dictionary, callback);
 	}
 
 	public static void Value(string key, string ukey, int value, Action<WWW> callback)
@@ -152,7 +152,7 @@ public static class Post
 		dictionary.Add("ezkey", ezkey);
 		dictionary.Add("stat", stat);
 		dictionary.Add("count", count.ToString());
-		new FormPoster("https://api.stathat.com", "/ez", dictionary, callback);
+		new FormPoster("http://api.stathat.com", "/ez", dictionary, callback);
 	}
 
 	public static void EzCounter(string ezkey, string stat, int count, Action<WWW> callback)
@@ -166,7 +166,7 @@ public static class Post
 		dictionary.Add("ezkey", ezkey);
 		dictionary.Add("stat", stat);
 		dictionary.Add("value", value.ToString());
-		new FormPoster("https://api.stathat.com", "/ez", dictionary, callback);
+		new FormPoster("http://api.stathat.com", "/ez", dictionary, callback);
 	}
 
 	public static void EzValue(string ezkey, string stat, int value, Action<WWW> callback)

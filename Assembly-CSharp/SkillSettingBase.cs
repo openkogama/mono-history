@@ -43,15 +43,13 @@ public class SkillSettingBase : MonoBehaviour
 
 	protected UnityAction cantUpdateSkillCallback;
 
-	protected UnityAction cantRemoveSkillCallback;
-
 	protected int currentSkillCost;
 
 	private int spawnRoleCost;
 
 	private GamePassTier spawnRoleTier;
 
-	public virtual void Initialize(string skill, SpawnRolesSkillDataManager skillDataManager, int skillCost, int spawnRoleCost, GamePassTier spawnRoleTier, KogamaSettingValueWrapperBase skillSetting, UnityAction<KogamaSettingValueWrapperBase> removeSkillCallback, UnityAction<KogamaSettingValueWrapperBase> updateSkillCallback, UnityAction cantUpdateSkillCallback, UnityAction cantRemoveSkillCallback)
+	public virtual void Initialize(string skill, SpawnRolesSkillDataManager skillDataManager, int skillCost, int spawnRoleCost, GamePassTier spawnRoleTier, KogamaSettingValueWrapperBase skillSetting, UnityAction<KogamaSettingValueWrapperBase> removeSkillCallback, UnityAction<KogamaSettingValueWrapperBase> updateSkillCallback, UnityAction cantUpdateSkillCallback)
 	{
 		this.skillDataManager = skillDataManager;
 		currentSkillCost = skillCost;
@@ -61,7 +59,6 @@ public class SkillSettingBase : MonoBehaviour
 		this.removeSkillCallback = removeSkillCallback;
 		this.updateSkillCallback = updateSkillCallback;
 		this.cantUpdateSkillCallback = cantUpdateSkillCallback;
-		this.cantRemoveSkillCallback = cantRemoveSkillCallback;
 		nameText.text = skillDataManager.GetNameText(skill);
 		skillCostText.text = skillCost.ToString();
 		skillCostText.color = SpawnRolesSkillDataManager.GetCostColor(skillCost);
@@ -73,15 +70,8 @@ public class SkillSettingBase : MonoBehaviour
 
 	public void RemoveSkill()
 	{
-		if (CanRemoveSkill())
-		{
-			removeSkillCallback(skillSetting);
-			Object.Destroy(gameObject);
-		}
-		else
-		{
-			cantRemoveSkillCallback();
-		}
+		removeSkillCallback(skillSetting);
+		Object.Destroy(gameObject);
 	}
 
 	public void UpdateSpawnRoleCost(int newSpawnRoleCost)
@@ -118,21 +108,6 @@ public class SkillSettingBase : MonoBehaviour
 		int num2 = newSkillCost - currentSkillCost;
 		int num3 = spawnRoleCost + num2;
 		if (num3 <= num)
-		{
-			return true;
-		}
-		return false;
-	}
-
-	protected bool CanRemoveSkill()
-	{
-		if (spawnRoleTier != GamePassTier.Tier0)
-		{
-			return true;
-		}
-		int num = 100;
-		int num2 = spawnRoleCost - currentSkillCost;
-		if (num2 <= num)
 		{
 			return true;
 		}

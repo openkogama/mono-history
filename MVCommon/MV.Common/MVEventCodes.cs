@@ -108,7 +108,6 @@ public enum MVEventCodes : byte
 	SetActiveSpawnRole = 103,
 	ReplicateSpawnRoleData = 104,
 	SetSpawnRoleBody = 105,
-	XPRewardedAdReady = 106,
 	Join = byte.MaxValue,
 	Leave = 254,
 	PropertiesChanged = 253

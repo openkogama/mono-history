@@ -11,7 +11,7 @@ using MV.WorldObject.MetaData;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects) : MVAvatar(data, PrefabPool.Instance.MVLocalAvatarPrefab, worldObjects), ILocalObject, IBulletImpactVisualizer, ICurrentItemOwner, ISpawnRoleLocal
+public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, ICurrentItemOwner, ISpawnRoleLocal
 {
 	private class AvatarLocalModes
 	{
@@ -159,7 +159,6 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 			{
 				mvAvatar.AvatarLocal.CameraController.SetCamera(CameraType.ThirdPerson);
 			}
-			MVGameControllerBase.Game.GameEventManager.AvatarCommandsBuildMode.OnSetToEditMode += OnEnterEditMode;
 		}
 
 		private void HandleDeathBriefingPause(int localPlayerActorNr, int dmgDealerActorNr, PlayerKilledByType damageType)
@@ -189,7 +188,6 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 			{
 				mvAvatar.OnRespawn();
 			}
-			MVGameControllerBase.Game.GameEventManager.AvatarCommandsBuildMode.OnSetToEditMode -= OnEnterEditMode;
 		}
 
 		public override void FixedUpdate(IInputToPlayerMovement movementMap)
@@ -214,11 +212,6 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 		{
 			haveRespawned = true;
 			mvAvatar.avatarRespawnHandler.Respawn();
-		}
-
-		private void OnEnterEditMode()
-		{
-			MVGameControllerBase.PlayModeUI.InLobbyState = true;
 		}
 	}
 
@@ -256,13 +249,11 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 			mvAvatar.SetToSpawnTransform();
 			ResetCamera();
 			haveSetTransparency = false;
-			MVGameControllerBase.Game.GameEventManager.AvatarCommandsBuildMode.OnSetToEditMode += OnEnterEditMode;
 		}
 
 		public override void DeActivate(AvatarRuntimeState toMode)
 		{
 			mvAvatar.SetTransparency = 1f;
-			MVGameControllerBase.Game.GameEventManager.AvatarCommandsBuildMode.OnSetToEditMode -= OnEnterEditMode;
 		}
 
 		public override void FrameUpdate(InputToInGameAction interactionMap)
@@ -292,11 +283,6 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 			Dictionary<object, object> dictionary = new Dictionary<object, object>();
 			dictionary.Add((byte)18, true);
 			NotificationController.PushNotification(NotificationType.WaitCountDown, dictionary);
-		}
-
-		private void OnEnterEditMode()
-		{
-			MVGameControllerBase.PlayModeUI.InLobbyState = true;
 		}
 
 		private IAvatarInputController CreateInputController()
@@ -384,6 +370,10 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 			: base(mvAvatar, 1)
 		{
 			avatarInputController = CreateInputController();
+			FlagDebriefingControl flagDebriefingControl = MVGameControllerBase.FlagDebriefingControl;
+			flagDebriefingControl.OnFlagDebriefing = (Action<int>)Delegate.Combine(flagDebriefingControl.OnFlagDebriefing, new Action<int>(OnEnterTimeAttackFlagDebriefing));
+			FlagDebriefingControl flagDebriefingControl2 = MVGameControllerBase.FlagDebriefingControl;
+			flagDebriefingControl2.OnFlagDebriefingEnd = (Action)Delegate.Combine(flagDebriefingControl2.OnFlagDebriefingEnd, new Action(OnExitTimeAttackFlagDebriefing));
 		}
 
 		public override void Activate(AvatarRuntimeState fromMode)
@@ -400,10 +390,6 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 			{
 				CullingApiWrapper.SetDistanceReferencePoint(flagTransform);
 			}
-			FlagDebriefingControl flagDebriefingControl = MVGameControllerBase.FlagDebriefingControl;
-			flagDebriefingControl.OnFlagDebriefing = (Action<int>)Delegate.Combine(flagDebriefingControl.OnFlagDebriefing, new Action<int>(OnEnterTimeAttackFlagDebriefing));
-			FlagDebriefingControl flagDebriefingControl2 = MVGameControllerBase.FlagDebriefingControl;
-			flagDebriefingControl2.OnFlagDebriefingEnd = (Action)Delegate.Combine(flagDebriefingControl2.OnFlagDebriefingEnd, new Action(OnExitTimeAttackFlagDebriefing));
 		}
 
 		public override void DeActivate(AvatarRuntimeState toMode)
@@ -411,10 +397,6 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 			Debug.Log("Time attack flag debriefing mode deactivated: " + toMode);
 			Debug.Log("DeActivate " + Time.frameCount);
 			mvAvatar.InteractableLocal.AddModifier(AvatarModifierPackageType.SpawnProtection);
-			FlagDebriefingControl flagDebriefingControl = MVGameControllerBase.FlagDebriefingControl;
-			flagDebriefingControl.OnFlagDebriefing = (Action<int>)Delegate.Remove(flagDebriefingControl.OnFlagDebriefing, new Action<int>(OnEnterTimeAttackFlagDebriefing));
-			FlagDebriefingControl flagDebriefingControl2 = MVGameControllerBase.FlagDebriefingControl;
-			flagDebriefingControl2.OnFlagDebriefingEnd = (Action)Delegate.Remove(flagDebriefingControl2.OnFlagDebriefingEnd, new Action(OnExitTimeAttackFlagDebriefing));
 		}
 
 		public override void FrameUpdate(InputToInGameAction interactionMap)
@@ -862,18 +844,12 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 		private void SetAnimationState(Vector3 moveDirection)
 		{
 			isJumping = mvAvatar.avatarMotor.IsJumping();
-			bool flag = mvAvatar.avatarMotor.IsAirJumping();
 			if (IsSwimming)
 			{
 				mvAvatar.SetAnimation("Swim");
 			}
-			else if (isJumping && !flag)
+			else if (isJumping)
 			{
-				mvAvatar.SetAnimation("Jump");
-			}
-			else if (isJumping && flag)
-			{
-				mvAvatar.SetAnimation("Idle");
 				mvAvatar.SetAnimation("Jump");
 			}
 			else if (moveDirection.sqrMagnitude > 0f)
@@ -992,6 +968,12 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 		}
 	}
 
+	public MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
+		: base(data, PrefabPool.Instance.MVLocalAvatarPrefab, worldObjects)
+	{
+		SetNetworkObject(local: true);
+	}
+
 	public bool IsSpawnRoleActive()
 	{
 		return spawnRoleDataReceiver != null && spawnRoleDataReceiver.IsActive;
@@ -1052,12 +1034,17 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 		ScaleChanged = (UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>)Delegate.Combine(ScaleChanged, new UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>(OnScaleChanged));
 		gameObject.SetActive(value: false);
 		MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(OwnerActorNr).NotifyAvatarCreated(Id);
+		KogamaSettingTools.Traverse(Settings, Callback);
+	}
+
+	private void Callback(KogamaSettingWrapperBase obj)
+	{
+		Debug.Log(obj);
 	}
 
 	public void Activate(int idFrom, SpawnRoleDataReceiver spawnRoleDataReceiver, Vector3 position, Quaternion rotation)
 	{
 		Debug.Log("Activate " + Id);
-		SetNetworkObject(local: true);
 		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnKillSelf += KillSelf;
 		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSetRespawnWhenPossible += OnSetRespawnWhenPossible;
 		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSpawn += AvatarCommandsPlayModeOnOnSpawn;
@@ -1131,18 +1118,6 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 		gameObject.SetActive(value: false);
 		this.spawnRoleDataReceiver = null;
 		MVGameControllerBase.Game.PlayerController.RemoveAvatarLocalObject();
-	}
-
-	public void Suspend()
-	{
-		MVGameControllerBase.Game.TransformNetworkManager.RemoveNetworkObject(Id);
-		MVGameControllerBase.Game.RuntimeVariableNetworkManager.SendRuntimeData(this, immediateSend: true);
-		MVGameControllerBase.Game.RuntimeVariableNetworkManager.RemoveRuntimeDataVariables(Id);
-	}
-
-	public void UnSuspend()
-	{
-		SetNetworkObject(local: true);
 	}
 
 	public void SetMode(AvatarRuntimeState localMode)
@@ -1375,7 +1350,6 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 	private void SetToSpawnTransform()
 	{
 		Debug.Log("SetToSpawnTransform");
-		MVGameControllerBase.MainCameraManager.CancelTransitionCam();
 		Transform spawnTransform = GetSpawnTransform();
 		SetTransform(spawnTransform.position, spawnTransform.rotation);
 	}

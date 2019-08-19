@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using UnityEngine;
 
 public class MVPreviewAvatar : MVGroup
 {
@@ -16,15 +15,5 @@ public class MVPreviewAvatar : MVGroup
 			((MVAvatarLocal)mVWorldObjectClient).SpawnId = Id;
 		}
 		return mVWorldObjectClient;
-	}
-
-	public override void Select(Color color)
-	{
-		AddSelectionBox();
-	}
-
-	public override void DeSelect()
-	{
-		RemoveSelectionBox();
 	}
 }

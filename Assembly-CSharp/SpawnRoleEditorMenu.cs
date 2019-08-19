@@ -88,14 +88,6 @@ public class SpawnRoleEditorMenu : MonoBehaviour
 		{
 			MVGameControllerBase.MainCameraManager.BlueModeEnabled = true;
 		}
-		if (MVGameControllerBase.WOCM.GetWorldObjectClient(spawnRoleWoId) == null)
-		{
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-			{
-				x.Pop();
-			});
-		}
-		MVInputWrapper.SuppressAllInput();
 	}
 
 	private Vector3 CalculatePreviewOffset(MVWorldObjectClient spawnRole)

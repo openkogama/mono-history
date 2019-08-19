@@ -101,7 +101,7 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 			{
 				return;
 			}
-			if (health.Value >= (float)maxHealth.Value)
+			if (health.Value >= GetBoostedHealth(100f))
 			{
 				float restoredShieldAmount = HandleModifierEffect(AvatarModifierEffect.OverHeal, 0f) * Time.deltaTime;
 				RestoreShield(restoredShieldAmount);

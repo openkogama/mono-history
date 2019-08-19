@@ -21,19 +21,9 @@ public class GameRankRequirement : UseRequirement
 
 	private bool hasUseWhenFree = true;
 
-	private bool shouldDeleteWhenTier0 = true;
-
 	private WorldObjectType worldObjectType;
 
 	public GamePassTier RequiredRank => requiredRank;
-
-	public bool ShouldDeleteWhenTier0
-	{
-		set
-		{
-			shouldDeleteWhenTier0 = value;
-		}
-	}
 
 	public override GameObject GameObject => displayGO.gameObject;
 
@@ -120,12 +110,9 @@ public class GameRankRequirement : UseRequirement
 		}
 		if (requiredRank == GamePassTier.Tier0)
 		{
-			if (shouldDeleteWhenTier0)
-			{
-				Dictionary<object, object> dictionary = new Dictionary<object, object>();
-				dictionary.Add("RequiredRank", 0);
-				MVGameControllerBase.OperationRequests.RemoveWorldObjectDataPartial(ownerID, dictionary);
-			}
+			Dictionary<object, object> dictionary = new Dictionary<object, object>();
+			dictionary.Add("RequiredRank", 0);
+			MVGameControllerBase.OperationRequests.RemoveWorldObjectDataPartial(ownerID, dictionary);
 			Object.Destroy(displayObject.gameObject);
 		}
 	}

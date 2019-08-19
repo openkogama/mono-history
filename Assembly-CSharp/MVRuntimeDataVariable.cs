@@ -66,12 +66,12 @@ public class MVRuntimeDataVariable
 		}
 	}
 
-	public void Send(ref Dictionary<object, object> runtimeDataDelta, bool immediateSend)
+	public void Send(ref Dictionary<object, object> runtimeDataDelta)
 	{
 		if (!value.Equals(sendValue))
 		{
 			float time = Time.time;
-			if (time > lastSendTime + sendInterval || immediateSend)
+			if (time > lastSendTime + sendInterval)
 			{
 				runtimeDataDelta[variableId] = value;
 				sendValue = value;

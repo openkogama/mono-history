@@ -13,12 +13,6 @@ public class AvatarEquipable : MVEquipable
 
 	private bool isAbleToEquipWeapons = true;
 
-	private List<AvatarItemType> nonWeaponPickups = new List<AvatarItemType>
-	{
-		AvatarItemType.Hand,
-		AvatarItemType.CollectTheItemCollectable
-	};
-
 	public void Init(MVInteractableBase interactableLocal, MVRuntimeDataVariable currentItem, WorldObjectSkillDataManager skillsDataManager)
 	{
 		this.interactableLocal = interactableLocal;
@@ -62,7 +56,7 @@ public class AvatarEquipable : MVEquipable
 			}
 			return false;
 		}
-		if (isAbleToEquipWeapons || (!isAbleToEquipWeapons && nonWeaponPickups.Contains(type)))
+		if (isAbleToEquipWeapons)
 		{
 			if (!interactableLocal.HasModifierEffect(AvatarModifierEffect.DisableWeapons))
 			{

@@ -1,6 +1,5 @@
 using MV.Common;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class DesktopLobbyStateController : LobbyFlowMenu
@@ -15,9 +14,6 @@ public class DesktopLobbyStateController : LobbyFlowMenu
 	private GameObject touristRegisterButton;
 
 	[SerializeField]
-	private LobbyStateButton playButton;
-
-	[SerializeField]
 	private AdOfferGold adOfferGold;
 
 	[SerializeField]
@@ -27,7 +23,7 @@ public class DesktopLobbyStateController : LobbyFlowMenu
 	private GamePassesUI gamePassesUIPrefab;
 
 	[SerializeField]
-	private BoostMenuController boosterMenu;
+	private GameObject boostButton;
 
 	[SerializeField]
 	private Image lobbyStateBlockingOverlay;
@@ -43,7 +39,6 @@ public class DesktopLobbyStateController : LobbyFlowMenu
 		bool active = MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion && !MVGameControllerBase.GameSessionData.IsPlayedFromPoki;
 		touristRegisterButton.SetActive(active);
 		avatarAccessoriesButton.SetActive(value: true);
-		SetCamMaskMode();
 		gamePassesUI = Object.Instantiate(gamePassesUIPrefab);
 		gamePassesUI.transform.SetParent(transform, worldPositionStays: false);
 		gamePassesUI.Initialize();
@@ -57,17 +52,6 @@ public class DesktopLobbyStateController : LobbyFlowMenu
 	public void SetShouldPopOnExit(bool shouldPop)
 	{
 		lobbyStatePlayButton.ShouldPop = shouldPop;
-	}
-
-	public void ShowBoostMenu()
-	{
-		BoostMenuController boostMenu = Object.Instantiate(boosterMenu);
-		boostMenu.Initialize();
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-		{
-			x.Push(boostMenu.gameObject, UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
-		});
-		playButton.CancelEnterPlay();
 	}
 
 	private void Update()
@@ -91,25 +75,13 @@ public class DesktopLobbyStateController : LobbyFlowMenu
 		MVInputWrapper.SuppressInGameInput();
 	}
 
-	private void SetCamMaskMode()
-	{
-		if (MVGameControllerBase.GameMode != MVGameMode.Edit)
-		{
-			MVGameControllerBase.MainCameraManager.CamMaskMode = MaskMode.AvatarLobbyFocus;
-		}
-		else if (MVGameControllerBase.GameMode == MVGameMode.Edit)
-		{
-			MVGameControllerBase.MainCameraManager.CamMaskMode = MaskMode.Default;
-		}
-	}
-
 	private void OnEnable()
 	{
 		if (gamePassesUI != null)
 		{
 			gamePassesUI.gameObject.SetActive(GamePassProgressionController.IsProgressionEnabled && GamePassesManager.GamePassesActive);
 		}
-		SetCamMaskMode();
+		MVGameControllerBase.MainCameraManager.CamMaskMode = MaskMode.AvatarLobbyFocus;
 	}
 
 	private void OnDisable()

@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 public class LobbyStateController : LobbyFlowMenu
 {
@@ -13,13 +12,10 @@ public class LobbyStateController : LobbyFlowMenu
 	private LobbyStateButton lobbyStatePlayButton;
 
 	[SerializeField]
-	private LobbyStateButton playButton;
-
-	[SerializeField]
 	private GamePassesUI gamePassesUIPrefab;
 
 	[SerializeField]
-	private BoostMenuController boosterMenu;
+	private GameObject boostButton;
 
 	private GamePassesUI gamePassesUI;
 
@@ -44,17 +40,6 @@ public class LobbyStateController : LobbyFlowMenu
 	public void SetShouldPopOnExit(bool shouldPop)
 	{
 		lobbyStatePlayButton.ShouldPop = shouldPop;
-	}
-
-	public void ShowBoostMenu()
-	{
-		BoostMenuController boostMenu = Object.Instantiate(boosterMenu);
-		boostMenu.Initialize();
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-		{
-			x.Push(boostMenu.gameObject, UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
-		});
-		playButton.CancelEnterPlay();
 	}
 
 	private void OnEnable()

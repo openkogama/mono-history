@@ -1,12 +1,14 @@
 {
-    "id": "b156dbfc-3c37-40de-a8e8-010da6fbc5d6",
-    "version": "2.10.1",
+    "id": "c2209916-7391-486c-a277-013028ade326",
+    "version": "2.8.9",
     "unityVersion": "2018.3.14f1",
-    "timestamp": 1565968788,
-    "sha256": "4ed0cb7656cb74086d2d30ed321194d45c1677565b41959bfda381f7ce0f74a8",
+    "timestamp": 1566212955,
+    "sha256": "fffeb671c0e83c7162c4d2eee9aedef481b2aa66a4bbdce5e663d3dbe410d7de",
     "assemblies": [
         "Assembly-CSharp-firstpass.dll",
         "Assembly-CSharp.dll",
+        "FyberLitJson.dll",
+        "FyberPlugin.dll",
         "MVCommon.dll",
         "MVWorldObject.dll",
         "Mono.Security.dll",

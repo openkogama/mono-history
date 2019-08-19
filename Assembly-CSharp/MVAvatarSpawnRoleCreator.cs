@@ -14,11 +14,7 @@ public class MVAvatarSpawnRoleCreator : MVBlueprintBase, ISpawnRolePreviewObject
 
 	private bool isInWorld;
 
-	private UseInteractor useInteractor;
-
 	private readonly SettingsReporter settingsReporter;
-
-	private CullingSubscriberDynamic cullingSubscriberDynamic;
 
 	public Action OnBodyUpdate;
 
@@ -27,8 +23,6 @@ public class MVAvatarSpawnRoleCreator : MVBlueprintBase, ISpawnRolePreviewObject
 	public const string tierKey = "RequiredRank";
 
 	private int AvatarRuntimePrototypeRoot { get; set; }
-
-	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.AvatarClass;
 
 	private MVPreviewAvatar AvatarPrototype => (MVPreviewAvatar)children[AvatarRuntimePrototypeRoot];
 
@@ -72,12 +66,6 @@ public class MVAvatarSpawnRoleCreator : MVBlueprintBase, ISpawnRolePreviewObject
 		InteractionFlags |= InteractionFlags.HasSettings;
 		spawnRoleCreatorObject = (MVAvatarSpawnRoleCreatorObject)component;
 		spawnRoleCreatorObject.SpawnPlate.TeamTint(Team);
-		useInteractor = new UseInteractor(this, spawnRoleCreatorObject.useInteractionRotator, reset: false, null, null);
-		GameRankRequirement useRequirement = new GameRankRequirement(spawnRoleCreatorObject.useInteractionRotator, this, hasUseButtonWhenFree: false)
-		{
-			ShouldDeleteWhenTier0 = false
-		};
-		useInteractor.AddRequirement(useRequirement);
 	}
 
 	public override void Initialize()
@@ -101,16 +89,6 @@ public class MVAvatarSpawnRoleCreator : MVBlueprintBase, ISpawnRolePreviewObject
 		Debug.Log("AvatarRuntimePrototypeRoot " + AvatarRuntimePrototypeRoot);
 		MVGameControllerBase.Game.TeamManager.OnAddSpawnPoint(Id, Team);
 		HideBody();
-		useInteractor.UpdateData(Data);
-		spawnRoleCreatorObject.useInteractionRotator.transform.SetLayerRecursively(LayerMask.NameToLayer("Logic"));
-		cullingSubscriberDynamic = new CullingSubscriberDynamic(4f, 3, spawnRoleCreatorObject.gameObject);
-	}
-
-	public override void InitializeInventory()
-	{
-		base.Initialize();
-		base.InitializeInventory();
-		TryShowBody();
 	}
 
 	public void UpdateAvatarBody(SpawnRoleBodySwitchData spawnRoleBodySwitchData)
@@ -126,12 +104,7 @@ public class MVAvatarSpawnRoleCreator : MVBlueprintBase, ISpawnRolePreviewObject
 			OnBodyUpdate();
 		}
 		transform.SetLayerRecursively(LayerMask.NameToLayer("Logic"));
-		if (MVGameControllerBase.MainCameraManager.BlueModeEnabled)
-		{
-			SharedCubeFunctions.SetLayerRecursively(AvatarPrototype.Transform, select: true);
-			SharedCubeFunctions.SetLayerRecursively(spawnRoleCreatorObject.SpawnPlate.transform, select: true);
-		}
-		HideBody();
+		SharedCubeFunctions.SetLayerRecursively(AvatarPrototype.Transform, select: true);
 	}
 
 	public GameObject GetSpawnRolePreviewObject()
@@ -147,19 +120,6 @@ public class MVAvatarSpawnRoleCreator : MVBlueprintBase, ISpawnRolePreviewObject
 	public GamePassTier GetTierRequirement()
 	{
 		return Tier;
-	}
-
-	public override void OnDataUpdate()
-	{
-		base.OnDataUpdate();
-		useInteractor.UpdateData(Data);
-		spawnRoleCreatorObject.useInteractionRotator.transform.SetLayerRecursively(LayerMask.NameToLayer("Logic"));
-		if (MVGameControllerBase.MainCameraManager.BlueModeEnabled)
-		{
-			SharedCubeFunctions.SetLayerRecursively(spawnRoleCreatorObject.useInteractionRotator.transform, select: true);
-		}
-		spawnRoleCreatorObject.useInteractionRotator.SetActive(value: false);
-		spawnRoleCreatorObject.useInteractionRotator.SetActive(value: true);
 	}
 
 	public override void PartialUpdateWOData(Dictionary<object, object> woData)
@@ -190,11 +150,6 @@ public class MVAvatarSpawnRoleCreator : MVBlueprintBase, ISpawnRolePreviewObject
 		{
 			MVGameControllerBase.Game.TeamManager.OnRemoveSpawnPoint(Id, Team);
 		}
-		if (cullingSubscriberDynamic != null)
-		{
-			cullingSubscriberDynamic.Destroy();
-			cullingSubscriberDynamic = null;
-		}
 	}
 
 	public override bool Delete(MVWorldObjectClientManager worldObjectClientManager, ref string errorText)
@@ -205,12 +160,6 @@ public class MVAvatarSpawnRoleCreator : MVBlueprintBase, ISpawnRolePreviewObject
 			return false;
 		}
 		return base.Delete(worldObjectClientManager, ref errorText);
-	}
-
-	public override Vector3 GetClosestGridPoint(float gridSize, Vector3 position)
-	{
-		Vector3 vector = Vector3.one * 2.2f;
-		return SharedCubeFunctions.GetClosestGridPoint(position, gameObject.transform.rotation, gridSize, vector);
 	}
 
 	private void SettingsReporterOnOnValueRemovedLocal(Dictionary<object, object> obj)
@@ -240,37 +189,5 @@ public class MVAvatarSpawnRoleCreator : MVBlueprintBase, ISpawnRolePreviewObject
 	{
 		int num = (int)childIdMap["bodyId"];
 		((MVWorldObjectClient)MVGameControllerBase.WOCM.GetWorldObject(num))?.GameObject.SetActive(value: false);
-	}
-
-	private void TryShowBody()
-	{
-		int num = (int)childIdMap["bodyId"];
-		MVWorldObjectClient mVWorldObjectClient = (MVWorldObjectClient)MVGameControllerBase.WOCM.GetWorldObject(num);
-		if (mVWorldObjectClient != null && mVWorldObjectClient is MVGroup)
-		{
-			ShowBody(mVWorldObjectClient);
-			return;
-		}
-		foreach (MVWorldObjectClient child in Children)
-		{
-			if (child is MVBody)
-			{
-				ShowBody(this);
-				break;
-			}
-		}
-	}
-
-	private void ShowBody(MVWorldObjectClient originalBody)
-	{
-		foreach (MVWorldObjectClient child in ((MVGroup)originalBody).Children)
-		{
-			if (child is MVBody)
-			{
-				((MVBody)child).LayerToSetTo = "Hidden";
-				break;
-			}
-		}
-		Transform.SetLayerRecursively(LayerMask.NameToLayer("Hidden"));
 	}
 }

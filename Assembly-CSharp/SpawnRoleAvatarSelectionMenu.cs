@@ -8,9 +8,6 @@ public class SpawnRoleAvatarSelectionMenu : MonoBehaviour
 	private Transform avatarElementContainer;
 
 	[SerializeField]
-	private GameObject loadingWheel;
-
-	[SerializeField]
 	private SpawnRoleAvatarSelectionElement avatarSelectionElementPrefab;
 
 	private int spawnRoleId;
@@ -36,12 +33,11 @@ public class SpawnRoleAvatarSelectionMenu : MonoBehaviour
 	private void GameOnReceivedAvatarBodiesFromQuery(object sender, ReceivedItemFromQueryEventArgs e)
 	{
 		int num = 0;
-		loadingWheel.SetActive(value: false);
 		while (e.KoGaMaData.Length != e.KoGaMaData.Position)
 		{
 			KoGaMaPackageClient koGaMaPackageClient = new KoGaMaPackageClient(e.KoGaMaData, readRuntimeValues: true);
 			MVWorldObjectClient mVWorldObjectClient = koGaMaPackageClient.worldObjects[koGaMaPackageClient.worldObjectRoot];
-			mVWorldObjectClient.InventoryInitialize();
+			mVWorldObjectClient.InitializeInventory();
 			avatarList.Add(mVWorldObjectClient);
 			int avatarId = (ObscuredInt)koGaMaPackageClient.worldObjects[koGaMaPackageClient.worldObjectRoot].RunTimeData.GetObscuredType("DBId");
 			SpawnRoleAvatarSelectionElement spawnRoleAvatarSelectionElement = Object.Instantiate(avatarSelectionElementPrefab);

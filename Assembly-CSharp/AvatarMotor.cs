@@ -19,7 +19,7 @@ public class AvatarMotor : MVRigidBody
 
 	private Vector3 velocityPrevFrame;
 
-	private const float airAccelerationDefault = 3f;
+	private float inAirControlFactor = 3f;
 
 	private JumpState jumpState;
 
@@ -237,7 +237,6 @@ public class AvatarMotor : MVRigidBody
 
 	private void Move(Vector3 velocity, Vector3 movableVelocity)
 	{
-		Controller.Velocity = velocity;
 		Vector3 motion = (velocity + movableVelocity) * Time.fixedDeltaTime;
 		Controller.Move(motion);
 		groundState.Update(Controller, velocity);
@@ -266,18 +265,12 @@ public class AvatarMotor : MVRigidBody
 		{
 			return velocity;
 		}
-		Vector3 vector2 = new Vector3
-		{
-			x = velocity.x,
-			y = 0f,
-			z = velocity.z
-		};
+		Vector3 vector2 = velocity;
+		vector2.y = 0f;
 		float magnitude = vector2.magnitude;
-		vector2 += vector * 3f * Time.fixedDeltaTime;
+		vector2 += vector * inAirControlFactor * Time.fixedDeltaTime;
 		float magnitude2 = vector2.magnitude;
-		bool flag = magnitude2 > magnitude;
-		bool flag2 = magnitude2 > speed;
-		if (flag && flag2)
+		if (magnitude2 > magnitude && magnitude2 > speed)
 		{
 			vector2.Normalize();
 			vector2 *= magnitude;
@@ -313,10 +306,5 @@ public class AvatarMotor : MVRigidBody
 	public bool IsJumping()
 	{
 		return jumpState.Jumping;
-	}
-
-	public bool IsAirJumping()
-	{
-		return jumpState.AirJumping;
 	}
 }

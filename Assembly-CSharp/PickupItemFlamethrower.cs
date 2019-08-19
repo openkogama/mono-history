@@ -53,7 +53,7 @@ public class PickupItemFlamethrower : PickupItem
 
 	private IEnumerator DoFlaming()
 	{
-		while (IsStillFlaming() && ((float)currentFuel > 0f || HasUnlimitedAmmo))
+		while (IsStillFlaming() && (float)currentFuel > 0f)
 		{
 			Ray lineofFire = new Ray(muzzlePoint.position, owner.LookDirection);
 			List<VoxelHit> hits = CollisionDetection.MVSphereCastAll(layerMask: 1 << LayerMask.NameToLayer("Player"), ray: lineofFire, radius: hitRadius, distance: maxRange, ignoreWoIds: owner.IgnoreWOIDs);

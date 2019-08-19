@@ -45,12 +45,12 @@ public class MVRuntimeDataVariables
 		}
 	}
 
-	public Dictionary<object, object> Send(bool immediateSend)
+	public Dictionary<object, object> Send()
 	{
 		Dictionary<object, object> runtimeDataDelta = new Dictionary<object, object>();
 		foreach (MVRuntimeDataVariable variable in variables)
 		{
-			variable.Send(ref runtimeDataDelta, immediateSend);
+			variable.Send(ref runtimeDataDelta);
 		}
 		return (Dictionary<object, object>)ObscuredTypesConverter.CreateUnObscuredValue(runtimeDataDelta);
 	}
@@ -59,7 +59,7 @@ public class MVRuntimeDataVariables
 	{
 		if (MVGameControllerBase.Game.RuntimeVariableNetworkManager.ContainsRuntimeVariables(owner.Id))
 		{
-			MVGameControllerBase.Game.RuntimeVariableNetworkManager.SendRuntimeData(owner, immediateSend: false);
+			MVGameControllerBase.Game.RuntimeVariableNetworkManager.SendRuntimeData(owner);
 		}
 	}
 }

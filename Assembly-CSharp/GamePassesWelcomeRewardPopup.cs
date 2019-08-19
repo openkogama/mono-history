@@ -1,4 +1,4 @@
-using Assets.Scripts.AdIntegration;
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -28,30 +28,7 @@ public class GamePassesWelcomeRewardPopup : MonoBehaviour
 
 	public void OnDoublePressed()
 	{
-		MVGameControllerBase.AdManager.RequestRewardedAd(RewardedAdCallback, "ShowDailyCrystals");
-	}
-
-	private void RewardedAdCallback(RewardedAdResult result)
-	{
-		switch (result)
-		{
-		case RewardedAdResult.RewardUnlocked:
-			ClaimReward(doubleReward: true);
-			break;
-		case RewardedAdResult.RewardNotUnlocked:
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
-			{
-				x.Create(TM._("The video was canceled. Your reward has not been doubled."), TM._("Video canceled"));
-			});
-			break;
-		case RewardedAdResult.ErrorClient:
-		case RewardedAdResult.ErrorInternal:
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
-			{
-				x.Create(TM._("The reward cannot be doubled at this moment."), TM._("An error occurred"));
-			});
-			break;
-		}
+		throw new NotImplementedException("Function not available for this platform.");
 	}
 
 	private void ClaimReward(bool doubleReward = false)

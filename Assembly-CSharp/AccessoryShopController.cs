@@ -144,7 +144,7 @@ public class AccessoryShopController : MonoBehaviour, IInventoryChanged, IAttach
 			firstTimeSetup = false;
 		}
 		AccessoryDataManager.readyCallback = (UnityAction)Delegate.Remove(AccessoryDataManager.readyCallback, new UnityAction(ReadyCallback));
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IEditStateCommands x, BaseEventData y) =>
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (ISetEditState x, BaseEventData y) =>
 		{
 			x.SetState(EditorEvent.CEAvatarAccessoryUUI);
 		});
@@ -302,7 +302,7 @@ public class AccessoryShopController : MonoBehaviour, IInventoryChanged, IAttach
 	private void OnPop()
 	{
 		AccessoryDataManager.readyCallback = (UnityAction)Delegate.Remove(AccessoryDataManager.readyCallback, new UnityAction(ReadyCallback));
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IEditStateCommands x, BaseEventData y) =>
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (ISetEditState x, BaseEventData y) =>
 		{
 			x.SetState(EditorEvent.CERoamUUI);
 		});

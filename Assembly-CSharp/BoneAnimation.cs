@@ -10,13 +10,9 @@ public class BoneAnimation : MonoBehaviour
 
 	private const int REMOTE_ANIM_SPEEDUP = 20;
 
-	private const float walkAnimationMinSpeed = 0.5f;
+	private float walkMinSpeed = 0.7f;
 
-	private const float walkAnimationMaxSpeed = 1.1f;
-
-	private const float animationWalkSpeed = 8f;
-
-	private float fallbackWalkSpeed = 8f;
+	private float assumedWalkMaxSpeed = 8f;
 
 	private MVAvatar mvAvatar;
 
@@ -43,6 +39,8 @@ public class BoneAnimation : MonoBehaviour
 
 	private Camera mainCamera;
 
+	private float speed = 1f;
+
 	public AudioSource AudioSource
 	{
 		get
@@ -52,14 +50,6 @@ public class BoneAnimation : MonoBehaviour
 				audioSource = GetComponent<AudioSource>();
 			}
 			return audioSource;
-		}
-	}
-
-	public float FallBackWalkSpeed
-	{
-		set
-		{
-			fallbackWalkSpeed = value * 8f;
 		}
 	}
 
@@ -257,10 +247,17 @@ public class BoneAnimation : MonoBehaviour
 		}
 		foreach (AnimationState item2 in avatarAnimation)
 		{
-			if (item2.name == "Walk" && item2.enabled && MVGameControllerBase.GameMode != MVGameMode.CharacterEditor)
+			if (item2.name == "Walk" && item2.enabled)
 			{
-				float num = ((mvAvatar == null) ? fallbackWalkSpeed : mvAvatar.VelocityRelative.magnitude);
-				item2.speed = Mathf.Clamp(num / 8f, 0.5f, 1.1f);
+				speed = 1f;
+				if (mvAvatar != null)
+				{
+					speed = mvAvatar.VelocityRelative.magnitude;
+				}
+				if (MVGameControllerBase.GameMode != MVGameMode.CharacterEditor)
+				{
+					item2.speed = Mathf.Clamp(speed / assumedWalkMaxSpeed, walkMinSpeed, 1f);
+				}
 			}
 			if (playingAnimations.Contains(item2.name) && !item2.enabled)
 			{

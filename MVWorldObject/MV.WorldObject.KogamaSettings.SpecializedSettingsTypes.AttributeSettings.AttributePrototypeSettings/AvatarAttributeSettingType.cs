@@ -6,6 +6,8 @@ public static class AvatarAttributeSettingType
 
 	public const string bodyIdKey = "bodyId";
 
+	public const string avatarRuntimePrototypeRootKey = "avatarRuntimePrototypeRoot";
+
 	public const string AvatarSettings = "AvatarSettings";
 
 	public const string SuperSpeed = "SuperSpeed";

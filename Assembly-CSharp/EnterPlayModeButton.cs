@@ -12,9 +12,9 @@ public class EnterPlayModeButton : MonoBehaviour
 		{
 			enteringPlayMode();
 		}
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IEditModeController x, BaseEventData y) =>
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (ISetEditState x, BaseEventData y) =>
 		{
-			x.EnterPlayMode();
+			x.SetState(EditorEvent.ESWalkMode);
 		});
 	}
 }

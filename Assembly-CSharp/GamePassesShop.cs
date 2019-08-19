@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using MV.Common;
 using MV.WorldObject;
 using MV.WorldObject.GamePassSystem;
-using MV.WorldObject.KogamaSettings.KogamaSettingsCore.KogamaSettingTypes;
-using MV.WorldObject.KogamaSettings.SpecializedSettingsTypes.AttributeSettings;
-using MV.WorldObject.KogamaSettings.SpecializedSettingsTypes.AttributeSettings.AttributeSettingTypes;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -205,7 +202,7 @@ public class GamePassesShop : MonoBehaviour
 			{
 				DeactivateBar();
 			}
-			string text = Mathf.Floor(progressBar.Progress * (float)gamePointRequirementBase) + " / " + gamePointRequirementBase;
+			string text = (progressBar.Progress * (float)gamePointRequirementBase / (float)gamePointRequirementBase * 100f).ToString("0.00") + "%";
 			progressText.text = text;
 			disabledProgressBar.Progress = Mathf.Lerp((float)num2 / (float)gamePointRequirementBase, (float)num3 / (float)gamePointRequirementBase, num);
 			if (!progressBarDivider.activeSelf && num4 > 0f)
@@ -257,7 +254,7 @@ public class GamePassesShop : MonoBehaviour
 			float progress = (float)num2 / (float)gamePointRequirementBase;
 			progressBar.Progress = progress;
 			disabledProgressBar.Progress = progress;
-			string text2 = num2.ToString() + " / " + gamePointRequirementBase;
+			string text2 = ((float)num2 / (float)gamePointRequirementBase * 100f).ToString("0.00") + "%";
 			progressText.text = text2;
 			if (progressBarDivider.activeSelf && progressBar.Progress <= 0f)
 			{
@@ -341,13 +338,20 @@ public class GamePassesShop : MonoBehaviour
 
 	private void AddTierContent(GamePassTier gamePassTierToDisplay)
 	{
-		CreateSpawnRoleContent(gamePassTierDisplayed);
+		CreateXPRewardInfo(gamePassTierToDisplay);
 		Dictionary<MVWorldObjectDocumentationType, List<MVWorldObjectClient>> tierItemData = MVGameControllerBase.Game.GameTierShopRepository.GetTierItemData(gamePassTierToDisplay);
 		if (tierItemData != null)
 		{
 			CreateUnlockedItemsInfo(gamePassTierDisplayed, tierItemData);
 		}
-		CreateXPRewardInfo(gamePassTierToDisplay);
+		List<MVWorldObjectClient> worldObjectsByType = MVGameControllerBase.Game.WorldObjectClientManager.GetWorldObjectsByType(WorldObjectType.AvatarSpawnRoleCreator);
+		for (int i = 0; i < worldObjectsByType.Count; i++)
+		{
+			if (worldObjectsByType[i] is MVAvatarSpawnRoleCreator && ((MVAvatarSpawnRoleCreator)worldObjectsByType[i]).Tier == gamePassTierToDisplay)
+			{
+				CreateSpawnRoleInfo(i, (MVAvatarSpawnRoleCreator)worldObjectsByType[i], gamePassTierToDisplay);
+			}
+		}
 		LayoutRebuilder.ForceRebuildLayoutImmediate(tierListContainer);
 		if (tierList.rect.width < tierListContainer.rect.width)
 		{
@@ -374,69 +378,6 @@ public class GamePassesShop : MonoBehaviour
 		TierUnlockedItemsRewardInfo tierUnlockedItemsRewardInfo = UnityEngine.Object.Instantiate(tierUnlockedItemsRewardInfoPrefab);
 		tierUnlockedItemsRewardInfo.transform.SetParent(tierListContainer.transform, worldPositionStays: false);
 		tierUnlockedItemsRewardInfo.Initialize(tier, tierShopData);
-	}
-
-	private void CreateSpawnRoleContent(GamePassTier gamePassTierToDisplay)
-	{
-		List<MVAvatarSpawnRoleCreator> sortedSpawnRoles = GetSortedSpawnRoles(gamePassTierDisplayed);
-		for (int i = 0; i < sortedSpawnRoles.Count; i++)
-		{
-			CreateSpawnRoleInfo(i, sortedSpawnRoles[i], gamePassTierToDisplay);
-		}
-	}
-
-	private List<MVAvatarSpawnRoleCreator> GetSortedSpawnRoles(GamePassTier gamePassTierToDisplay)
-	{
-		List<MVWorldObjectClient> worldObjectsByType = MVGameControllerBase.Game.WorldObjectClientManager.GetWorldObjectsByType(WorldObjectType.AvatarSpawnRoleCreator);
-		List<MVAvatarSpawnRoleCreator> list = new List<MVAvatarSpawnRoleCreator>();
-		List<MVAvatarSpawnRoleCreator> list2 = new List<MVAvatarSpawnRoleCreator>();
-		for (int i = 0; i < worldObjectsByType.Count; i++)
-		{
-			if (worldObjectsByType[i] is MVAvatarSpawnRoleCreator && ((MVAvatarSpawnRoleCreator)worldObjectsByType[i]).Tier == gamePassTierToDisplay)
-			{
-				list.Add((MVAvatarSpawnRoleCreator)worldObjectsByType[i]);
-			}
-		}
-		for (int j = 0; j < list.Count; j++)
-		{
-			bool flag = false;
-			for (int k = 0; k < list2.Count; k++)
-			{
-				if (list[j].Team < list2[k].Team)
-				{
-					list2.Insert(k, list[j]);
-					flag = true;
-					break;
-				}
-				if (list[j].Team == list2[k].Team && CalculateTotalSpawnRoleCost(list[j]) > CalculateTotalSpawnRoleCost(list2[k]))
-				{
-					list2.Insert(k, list[j]);
-					flag = true;
-					break;
-				}
-			}
-			if (!flag)
-			{
-				list2.Add(list[j]);
-			}
-		}
-		return list2;
-	}
-
-	private int CalculateTotalSpawnRoleCost(MVAvatarSpawnRoleCreator spawnRoleCreator)
-	{
-		AttributeSettingsManager attributeSettingsManagerAvatar = spawnRoleCreator.AttributeSettingsManagerAvatar;
-		KogamaSettingsCollectionBase kogamaSettingsCollectionBase = (KogamaSettingsCollectionBase)attributeSettingsManagerAvatar.Settings;
-		if (kogamaSettingsCollectionBase == null)
-		{
-			return 0;
-		}
-		int num = 0;
-		foreach (KeyValuePair<string, KogamaSettingWrapperBase> child in kogamaSettingsCollectionBase.Children)
-		{
-			num += ((IAttributeSetting)child.Value).AttributeValue;
-		}
-		return num;
 	}
 
 	private void CreateSpawnRoleInfo(int spawnRoleIndex, MVAvatarSpawnRoleCreator spawnRole, GamePassTier tier)
@@ -516,7 +457,7 @@ public class GamePassesShop : MonoBehaviour
 		GamePassTier gamePassTier = GamePassesManager.PlayerPlanetData.gamePassTier;
 		Dictionary<GamePassTier, PlayerTierState> tierPricingState = GamePassesManager.playerTierStateCalculator.GetTierPricingState(0, gamePassTier);
 		int gamePointRequirementBase = tierPricingState[gamePassTierDisplayed].gamePointRequirementBase;
-		string text = gamePointRequirementBase.ToString() + " / " + gamePointRequirementBase;
+		string text = ((float)gamePointRequirementBase / (float)gamePointRequirementBase * 100f).ToString("0.00") + "%";
 		progressText.text = text;
 		GamePointGainEffectManager.HaveShownGamePointGainEffect(GetTotalGamePointRequirementForTier(gamePassTierDisplayed));
 	}

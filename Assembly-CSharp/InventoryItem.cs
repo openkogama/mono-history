@@ -354,10 +354,6 @@ public class InventoryItem
 		{
 			MVWorldObjectDocumentationType.GamePointChest,
 			new ItemDescription(TM._("Crystal Vein"), TM._("Contains lots of crystals, which are used to give progression towards unlocking game tiers."), TM._("Use this to reward players for reaching certain points, or for finding secrets in your game."))
-		},
-		{
-			MVWorldObjectDocumentationType.AvatarClass,
-			new ItemDescription(TM._("Class"), TM._("Allows players to spawn as a class, with a different look and skills than their ordinary avatar."), TM._("Customize different Classes with skills, accessories and avatars to better control the look and feel of your game!"))
 		}
 	};
 

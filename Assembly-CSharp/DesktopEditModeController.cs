@@ -4,12 +4,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-public class DesktopEditModeController : ModeControllerBase, IEditStateCommands, IEditModeUI, IGridSnapHandler, IEditModeController, IEventSystemHandler
+public class DesktopEditModeController : ModeControllerBase, ISetEditState, IEditModeUI, IGridSnapHandler, IEditModeController, IEventSystemHandler
 {
-	private bool enterPlayModeOnceGuard;
-
-	private bool enterBuildModeOnceGuard = true;
-
 	private bool isInPlayInEditMode;
 
 	private Action<EditModeChangeArgs> editModeChange;
@@ -210,59 +206,24 @@ public class DesktopEditModeController : ModeControllerBase, IEditStateCommands,
 		gameObject.SetActive(value: false);
 	}
 
-	public void DisableEditMode()
-	{
-		Debug.Log("Goto play mode");
-		isInPlayInEditMode = true;
-		desktopPlayModeController.gameObject.SetActive(value: true);
-		gameObject.SetActive(value: false);
-		if (editModeChange != null)
-		{
-			editModeChange(new EditModeChangeArgs(state: true));
-		}
-		enterBuildModeOnceGuard = false;
-	}
-
-	public void EnterPlayMode()
-	{
-		if (!enterPlayModeOnceGuard)
-		{
-			ClearStateStack();
-			SetState(EditorEvent.ESWaitForPlayModeAvatar);
-			enterPlayModeOnceGuard = true;
-		}
-	}
-
-	private void LeaveEditPlayMode()
-	{
-		if (!enterBuildModeOnceGuard)
-		{
-			desktopPlayModeController.gameObject.SetActive(value: false);
-			gameObject.SetActive(value: true);
-			EditModeStateMachine.Event = EditorEvent.ESWaitForBuildModeAvatar;
-			enterBuildModeOnceGuard = true;
-		}
-	}
-
-	public void EnterBuildMode()
-	{
-		isInPlayInEditMode = false;
-		StartCoroutine(HandleCursorVisible());
-		if (editModeChange != null)
-		{
-			editModeChange(new EditModeChangeArgs(state: false));
-		}
-		enterPlayModeOnceGuard = false;
-	}
-
 	public void SetState(EditorEvent editorEvent)
 	{
-		EditModeStateMachine.Event = editorEvent;
-	}
-
-	public void ClearStateStack()
-	{
-		EditModeStateMachine.ClearStateStack();
+		if (editorEvent == EditorEvent.ESWalkMode)
+		{
+			EditModeStateMachine.ClearStateStack();
+			isInPlayInEditMode = true;
+			EditModeStateMachine.Event = EditorEvent.ESWalkMode;
+			desktopPlayModeController.gameObject.SetActive(value: true);
+			gameObject.SetActive(value: false);
+			if (editModeChange != null)
+			{
+				editModeChange(new EditModeChangeArgs(state: true));
+			}
+		}
+		else
+		{
+			EditModeStateMachine.Event = editorEvent;
+		}
 	}
 
 	private IEnumerator HandleCursorVisible()
@@ -271,6 +232,19 @@ public class DesktopEditModeController : ModeControllerBase, IEditStateCommands,
 		{
 			Cursor.visible = true;
 			yield return null;
+		}
+	}
+
+	private void LeaveEditPlayMode()
+	{
+		isInPlayInEditMode = false;
+		EditModeStateMachine.Event = EditorEvent.ESTerrainEdit;
+		desktopPlayModeController.gameObject.SetActive(value: false);
+		gameObject.SetActive(value: true);
+		StartCoroutine(HandleCursorVisible());
+		if (editModeChange != null)
+		{
+			editModeChange(new EditModeChangeArgs(state: false));
 		}
 	}
 

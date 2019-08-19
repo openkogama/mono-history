@@ -8,7 +8,7 @@ public class BriefingPlayButtonMobile : PlayButtonMobile
 		MVGameControllerBase.PlayModeUI.InLobbyState = false;
 		if (MVGameControllerBase.LocalPlayer.SpawnRoleDataMediator.WoId != MVGameControllerBase.LocalPlayer.DefaultSpawnRoleId)
 		{
-			MVGameControllerBase.LocalPlayer.SetActiveSpawnRole(MVGameControllerBase.LocalPlayer.DefaultSpawnRoleId);
+			MVGameControllerBase.OperationRequests.SetActiveSpawnRole(MVGameControllerBase.LocalPlayer.DefaultSpawnRoleId);
 		}
 		else if (MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Hidden))
 		{

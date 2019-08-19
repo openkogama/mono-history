@@ -16,6 +16,9 @@ public class AndroidInGameMenu : MonoBehaviour
 	private GamePassesUI gamePassesUIPrefab;
 
 	[SerializeField]
+	private GameObject boostButton;
+
+	[SerializeField]
 	private FreeGoldAndroid rewardedAd;
 
 	private GamePassesUI gamePassesUI;

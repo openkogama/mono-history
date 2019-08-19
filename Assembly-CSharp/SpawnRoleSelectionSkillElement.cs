@@ -47,14 +47,14 @@ public class SpawnRoleSelectionSkillElement : MonoBehaviour
 			obj = ((AttributeSettingInt)skillSetting).NumericValue;
 			float max = ((AttributeSettingInt)skillSetting).KogamaSettingNumeric.RangeValidator.max;
 			float min = ((AttributeSettingInt)skillSetting).KogamaSettingNumeric.RangeValidator.min;
-			fillAmount = CalculateSkillPowerPercentage((int)obj, max, min, zeroValue);
+			fillAmount = CalculateSkillPowerPercentage((float)(int)obj - zeroValue, max, min);
 		}
 		else if (skillSetting is AttributeSettingFloat)
 		{
 			obj = ((AttributeSettingFloat)skillSetting).NumericValue;
 			float max2 = ((AttributeSettingFloat)skillSetting).KogamaSettingNumeric.RangeValidator.max;
 			float min2 = ((AttributeSettingFloat)skillSetting).KogamaSettingNumeric.RangeValidator.min;
-			fillAmount = CalculateSkillPowerPercentage((float)obj, max2, min2, zeroValue);
+			fillAmount = CalculateSkillPowerPercentage((float)obj - zeroValue, max2, min2);
 		}
 		descriptionText.text = skillDataManager.GetSkillDescription(skill, obj, attributeValue);
 		bool flag = attributeValue < 0;
@@ -64,21 +64,13 @@ public class SpawnRoleSelectionSkillElement : MonoBehaviour
 		negativePowerFillImage.gameObject.SetActive(flag);
 	}
 
-	private float CalculateSkillPowerPercentage(float value, float max, float min, float zeroValue)
+	private float CalculateSkillPowerPercentage(float value, float max, float min)
 	{
-		if (zeroValue < value)
+		float num = ((!(max > 0f)) ? ((value - max) / (min - max)) : ((value - min) / (max - min)));
+		if (num < 0f)
 		{
-			float num = min;
-			if (min < zeroValue)
-			{
-				num = zeroValue;
-			}
-			if (max > 0f)
-			{
-				return (value - num) / (max - num);
-			}
-			return (value - max) / (min - max);
+			num *= -1f;
 		}
-		return 1f - (value - min) / (zeroValue - min);
+		return num;
 	}
 }

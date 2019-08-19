@@ -26,8 +26,6 @@ public class SpawnRoleLooksEditorMenu : MonoBehaviour
 
 	private MVAvatarSpawnRoleCreator spawnRole;
 
-	private int renewPreviewerFrameDelay = -1;
-
 	public void Initialize(int spawnRoleId, MVAvatarSpawnRoleCreator spawnRole)
 	{
 		this.spawnRoleId = spawnRoleId;
@@ -46,25 +44,13 @@ public class SpawnRoleLooksEditorMenu : MonoBehaviour
 		});
 	}
 
-	private void Update()
-	{
-		if (renewPreviewerFrameDelay >= 0)
-		{
-			renewPreviewerFrameDelay--;
-			if (renewPreviewerFrameDelay == -1)
-			{
-				SetupPreviewImage(spawnRole.GetSpawnRolePreviewObject());
-			}
-		}
-	}
-
 	private void SetupPreviewImage(GameObject spawnRolePreviewObject)
 	{
+		SharedCubeFunctions.SetLayerRecursively(spawnRolePreviewObject.transform, select: false);
 		if (spawnRolePreviewer != null)
 		{
 			UnityEngine.Object.Destroy(spawnRolePreviewer);
 		}
-		SharedCubeFunctions.SetLayerRecursively(spawnRolePreviewObject.transform, select: false);
 		spawnRolePreviewer = UnityEngine.Object.Instantiate(spawnRolePreviewerPrefab);
 		GameObject gameObject = UnityEngine.Object.Instantiate(spawnRolePreviewObject);
 		gameObject.transform.localRotation = Quaternion.identity;
@@ -78,7 +64,7 @@ public class SpawnRoleLooksEditorMenu : MonoBehaviour
 
 	private void OnSpawnRoleBodyUpdate()
 	{
-		renewPreviewerFrameDelay = 3;
+		SetupPreviewImage(spawnRole.GetSpawnRolePreviewObject());
 	}
 
 	private void OnDestroy()

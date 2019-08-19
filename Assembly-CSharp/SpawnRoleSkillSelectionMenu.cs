@@ -11,9 +11,6 @@ public class SpawnRoleSkillSelectionMenu : MonoBehaviour
 	private Transform skillSelectionElementContainer;
 
 	[SerializeField]
-	private GameObject noSkillsText;
-
-	[SerializeField]
 	private SpawnRoleSkillSelectionElement skillSelectionElementPrefab;
 
 	private UnityAction<KogamaSettingValueWrapperBase> addSkillCallback;
@@ -30,7 +27,6 @@ public class SpawnRoleSkillSelectionMenu : MonoBehaviour
 	{
 		if (notAppliedSettings == null)
 		{
-			noSkillsText.SetActive(value: true);
 			return;
 		}
 		this.spawnRoleCost = spawnRoleCost;
@@ -39,16 +35,13 @@ public class SpawnRoleSkillSelectionMenu : MonoBehaviour
 		this.addSkillCallback = addSkillCallback;
 		this.cantAddSkillCallback = cantAddSkillCallback;
 		KogamaSettingsCollectionBase kogamaSettingsCollectionBase = (KogamaSettingsCollectionBase)notAppliedSettings;
-		bool flag = false;
 		foreach (KeyValuePair<string, KogamaSettingWrapperBase> child in kogamaSettingsCollectionBase.Children)
 		{
 			if (skillDataManager.GetSkillsCategory(child.Key) == skillCategory)
 			{
 				CreateSkillSelectionElement(child.Key, child.Value);
-				flag = true;
 			}
 		}
-		noSkillsText.SetActive(!flag);
 	}
 
 	private void CreateSkillSelectionElement(string skillKey, KogamaSettingWrapperBase skillSetting)

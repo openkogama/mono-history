@@ -15,9 +15,6 @@ public class SpawnRoleSelectionSkillMenu : MonoBehaviour
 	private GameObject leftBorder;
 
 	[SerializeField]
-	private GameObject noSkillsText;
-
-	[SerializeField]
 	private RawImage spawnRolePreviewImage;
 
 	[SerializeField]
@@ -58,23 +55,26 @@ public class SpawnRoleSelectionSkillMenu : MonoBehaviour
 		MVAvatarSpawnRoleCreator mVAvatarSpawnRoleCreator = (MVAvatarSpawnRoleCreator)MVGameControllerBase.WOCM.GetWorldObject(spawnRoleId);
 		AttributeSettingsManager attributeSettingsManagerAvatar = mVAvatarSpawnRoleCreator.AttributeSettingsManagerAvatar;
 		KogamaSettingsCollectionBase kogamaSettingsCollectionBase = (KogamaSettingsCollectionBase)attributeSettingsManagerAvatar.Settings;
-		bool flag = false;
-		if (kogamaSettingsCollectionBase != null)
+		if (kogamaSettingsCollectionBase == null)
 		{
-			foreach (KeyValuePair<string, KogamaSettingWrapperBase> child in kogamaSettingsCollectionBase.Children)
-			{
-				flag = true;
-				SpawnRoleSelectionSkillElement spawnRoleSelectionSkillElement = Object.Instantiate(skillElementPrefab);
-				spawnRoleSelectionSkillElement.Initialize(child.Key, skillDataManager, (KogamaSettingValueWrapperBase)child.Value);
-				spawnRoleSelectionSkillElement.transform.SetParent(skillElementContainer);
-			}
-			int skillCost = CalculateTotalCostOfSkills(kogamaSettingsCollectionBase);
-			spawnRoleCost.text = skillCost.ToString();
-			spawnRoleCost.color = SpawnRolesSkillDataManager.GetCostColor(skillCost);
+			return;
+		}
+		bool flag = false;
+		foreach (KeyValuePair<string, KogamaSettingWrapperBase> child in kogamaSettingsCollectionBase.Children)
+		{
+			flag = true;
+			SpawnRoleSelectionSkillElement spawnRoleSelectionSkillElement = Object.Instantiate(skillElementPrefab);
+			spawnRoleSelectionSkillElement.Initialize(child.Key, skillDataManager, (KogamaSettingValueWrapperBase)child.Value);
+			spawnRoleSelectionSkillElement.transform.SetParent(skillElementContainer);
 		}
 		leftBorder.transform.SetAsFirstSibling();
-		leftBorder.SetActive(flag);
-		noSkillsText.SetActive(!flag);
+		if (!flag)
+		{
+			leftBorder.SetActive(value: false);
+		}
+		int skillCost = CalculateTotalCostOfSkills(kogamaSettingsCollectionBase);
+		spawnRoleCost.text = skillCost.ToString();
+		spawnRoleCost.color = SpawnRolesSkillDataManager.GetCostColor(skillCost);
 	}
 
 	private void ChangeBackground(GamePassTier tier)

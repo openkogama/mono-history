@@ -3,23 +3,16 @@ using System.Collections.Generic;
 using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 internal class ESWalkMode : ESStateBase
 {
-	private enum EnterPlayFromEditState
-	{
-		EnterPlayMode,
-		SelectTeamOrSpawnRole,
-		WaitForRoundToStart
-	}
+	private int selectedSpawnRoleCreatorId = -1;
+
+	private MVTeam selectedTeam = MVTeam.None;
 
 	public override void Enter(EditorStateMachine esm)
 	{
-		ExecuteEvents.ExecuteHierarchy(esm.GameObject, null, (IEditModeController x, BaseEventData y) =>
-		{
-			x.DisableEditMode();
-		});
+		SpawnRoleMenu.OnNewSpawnRoleSelected = (Action<int>)Delegate.Combine(SpawnRoleMenu.OnNewSpawnRoleSelected, new Action<int>(OnNewSpawnRoleSelected));
 		esm.DeSelectAll();
 		esm.ExitGroupToRoot();
 		MVGameControllerBase.WOCM.RootGroup.PlayModeInitialize();
@@ -34,7 +27,6 @@ internal class ESWalkMode : ESStateBase
 			MVGameControllerBase.OperationRequests.SetTeam(teamList[0]);
 		}
 		DrawPlane.HideDrawPlane();
-		SpawnRoleMenu.OnNewSpawnRoleSelected = (Action<int>)Delegate.Combine(SpawnRoleMenu.OnNewSpawnRoleSelected, new Action<int>(OnNewSpawnRoleSelected));
 	}
 
 	public override void Execute(EditorStateMachine e)
@@ -44,71 +36,91 @@ internal class ESWalkMode : ESStateBase
 	public override void Exit(EditorStateMachine esm)
 	{
 		SpawnRoleMenu.OnNewSpawnRoleSelected = (Action<int>)Delegate.Remove(SpawnRoleMenu.OnNewSpawnRoleSelected, new Action<int>(OnNewSpawnRoleSelected));
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.SetToEditMode();
+		MVGameControllerBase.WOCM.MoveableController.ResetMoveables();
+		MVGameControllerBase.WOCM.RootGroup.PlayModeInitialize();
+		MVGameControllerDesktop.LockCursorManager.CursorLock = false;
+		if (MVGameControllerBase.MainCameraManager.CamMaskMode != MaskMode.Default)
+		{
+			MVGameControllerBase.MainCameraManager.CamMaskMode = MaskMode.Default;
+		}
+		if (MVGameControllerBase.Game.GameCoinManager.BoostEnabled)
+		{
+			Debug.LogWarning("Game coints. Probably do this directly. ");
+		}
+		Cursor.visible = true;
+		((MVLocalPlayerBuilder)MVGameControllerBase.LocalPlayer).EnterBuildMode();
+		selectedTeam = MVGameControllerBase.LocalPlayer.Team;
 	}
 
 	private void HandleEnterPlayInEditMode()
 	{
-		EnterPlayFromEditState enterState = CalculateEnterPlayFromEditState();
-		HandleEnterState(enterState);
-	}
-
-	private EnterPlayFromEditState CalculateEnterPlayFromEditState()
-	{
-		MVTeam selectedTeam = ((MVLocalPlayerBuilder)MVGameControllerBase.LocalPlayer).EnterPlayStateData.selectedTeam;
-		int selectedSpawnRoleCreator = ((MVLocalPlayerBuilder)MVGameControllerBase.LocalPlayer).EnterPlayStateData.selectedSpawnRoleCreator;
+		bool flag = MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded;
 		List<MVWorldObjectClient> worldObjectsByType = MVGameControllerBase.Game.WorldObjectClientManager.GetWorldObjectsByType(WorldObjectType.AvatarSpawnRoleCreator);
-		bool flag = worldObjectsByType.Count > 0;
-		bool flag2 = MVGameControllerBase.Game.TeamManager.TeamCount() > 1;
-		bool isTeamValid = MVGameControllerBase.Game.TeamManager.HasTeam(selectedTeam) || !flag2;
-		bool isSpawnRoleValid = MVGameControllerBase.Game.WorldObjectClientManager.GetWorldObject(selectedSpawnRoleCreator) != null || !flag;
-		bool flag3 = MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded;
-		if (ShouldSelectTeamOrSpawnRole(isSpawnRoleValid, isTeamValid))
+		int numSpawnPoint = MVGameControllerBase.Game.TeamManager.NumSpawnPoint;
+		bool flag2 = worldObjectsByType.Count > 0;
+		bool flag3 = MVGameControllerBase.Game.TeamManager.TeamCount() > 1;
+		bool flag4 = MVGameControllerBase.Game.TeamManager.HasTeam(selectedTeam) || !flag3;
+		bool flag5 = MVGameControllerBase.Game.WorldObjectClientManager.GetWorldObject(selectedSpawnRoleCreatorId) != null || !flag2;
+		if (flag3 && flag4 && !MVGameControllerBase.Game.TeamManager.TeamHasSpawnRoles(selectedTeam))
 		{
-			return EnterPlayFromEditState.SelectTeamOrSpawnRole;
+			if (!flag5 && selectedSpawnRoleCreatorId >= 0)
+			{
+				flag5 = false;
+			}
+			else
+			{
+				flag2 = false;
+				flag5 = true;
+			}
+			selectedSpawnRoleCreatorId = -1;
 		}
-		if (flag3)
+		if (!flag5 && !flag3 && numSpawnPoint == 1)
 		{
-			return EnterPlayFromEditState.WaitForRoundToStart;
+			selectedSpawnRoleCreatorId = worldObjectsByType[0].Id;
+			MVGameControllerBase.Game.OperationRequestSender.CreateSpawnRole(worldObjectsByType[0].Id);
+			if (flag)
+			{
+				MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.RemoveFromGame();
+				MVGameControllerDesktop.LockCursorManager.CursorLock = false;
+			}
+			else
+			{
+				TryLockCursor();
+			}
 		}
-		return EnterPlayFromEditState.EnterPlayMode;
-	}
-
-	private bool ShouldSelectTeamOrSpawnRole(bool isSpawnRoleValid, bool isTeamValid)
-	{
-		return (!isSpawnRoleValid && !WasPlayingAsDefaultAvatar()) || !isTeamValid;
-	}
-
-	private void HandleEnterState(EnterPlayFromEditState enterState)
-	{
-		switch (enterState)
+		else if (!flag5 || !flag4)
 		{
-		case EnterPlayFromEditState.EnterPlayMode:
-			HandleEnterPlayMode();
-			break;
-		case EnterPlayFromEditState.SelectTeamOrSpawnRole:
-			HandleSelectTeamOrSpawnRole();
-			break;
-		case EnterPlayFromEditState.WaitForRoundToStart:
-			HanldeWaitForRoundToStart();
-			break;
+			MVGameControllerBase.GameEventManager.GameState.OnEnableLobbyState();
+			MVGameControllerDesktop.LockCursorManager.CursorLock = false;
 		}
-	}
-
-	private void HandleEnterPlayMode()
-	{
-		TryLockCursor();
-	}
-
-	private void HandleSelectTeamOrSpawnRole()
-	{
-		MVGameControllerBase.GameEventManager.GameState.OnEnableLobbyState();
-		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.RemoveFromGame();
-		MVGameControllerDesktop.LockCursorManager.CursorLock = false;
-	}
-
-	private void HanldeWaitForRoundToStart()
-	{
-		SetToHiddenMode();
+		else if (flag2)
+		{
+			MVGameControllerBase.Game.OperationRequestSender.CreateSpawnRole(selectedSpawnRoleCreatorId);
+			if (flag)
+			{
+				MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.RemoveFromGame();
+				MVGameControllerDesktop.LockCursorManager.CursorLock = false;
+			}
+			else
+			{
+				TryLockCursor();
+			}
+		}
+		else
+		{
+			if (flag)
+			{
+				MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.RemoveFromGame();
+				MVGameControllerDesktop.LockCursorManager.CursorLock = false;
+			}
+			else
+			{
+				MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.Spawn();
+				TryLockCursor();
+			}
+			((MVLocalPlayerBuilder)MVGameControllerBase.LocalPlayer).EnterPlayMode();
+		}
 	}
 
 	private void TryLockCursor()
@@ -124,21 +136,8 @@ internal class ESWalkMode : ESStateBase
 		}
 	}
 
-	private void SetToHiddenMode()
-	{
-		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.RemoveFromGame();
-		MVGameControllerDesktop.LockCursorManager.CursorLock = false;
-	}
-
-	private bool WasPlayingAsDefaultAvatar()
-	{
-		return ((MVLocalPlayerBuilder)MVGameControllerBase.LocalPlayer).EnterPlayStateData.previousSpawnRoleId == MVGameControllerBase.LocalPlayer.DefaultSpawnRoleId;
-	}
-
 	private void OnNewSpawnRoleSelected(int newSpawnRoleId)
 	{
-		MVLocalPlayerBuilder.EnterPlayStateDataStruct enterPlayStateData = ((MVLocalPlayerBuilder)MVGameControllerBase.LocalPlayer).EnterPlayStateData;
-		enterPlayStateData.selectedSpawnRoleCreator = newSpawnRoleId;
-		((MVLocalPlayerBuilder)MVGameControllerBase.LocalPlayer).EnterPlayStateData = enterPlayStateData;
+		selectedSpawnRoleCreatorId = newSpawnRoleId;
 	}
 }

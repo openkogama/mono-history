@@ -100,13 +100,9 @@ public class TierPurchaseDetailsPopup : MonoBehaviour
 
 	private void OnEnable()
 	{
-		if (MVGameControllerBase.LocalPlayer.PlayerPlanetData != null && OnPurchaseSuccessful != null && (int)MVGameControllerBase.LocalPlayer.PlayerPlanetData.gamePassTier >= (int)tierToPurchase)
+		if (MVGameControllerBase.LocalPlayer.PlayerPlanetData != null && (int)MVGameControllerBase.LocalPlayer.PlayerPlanetData.gamePassTier >= (int)tierToPurchase)
 		{
 			OnPurchaseSuccessful();
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-			{
-				x.Pop();
-			});
 		}
 	}
 
