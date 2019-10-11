@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Assets.Scripts.GamePasses;
 using MV.Common;
 using MV.WorldObject.GamePassSystem;
 
@@ -45,6 +46,18 @@ public static class GamePassesManager
 			{
 				GamePassesActive = false;
 			}
+		}
+	}
+
+	public static TogglePreviewState TogglePreviewState
+	{
+		get
+		{
+			if (!GamePassesActive)
+			{
+				return null;
+			}
+			return new TogglePreviewState(PlayerPlanetData.previewGamePassTier, PlayerPlanetData.gamePassTier);
 		}
 	}
 

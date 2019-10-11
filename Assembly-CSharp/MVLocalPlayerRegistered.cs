@@ -2,7 +2,7 @@ using System;
 using MV.Common;
 using MV.WorldObject.MetaData;
 using Newtonsoft.Json;
-using UnityEngine;
+using UnityEngine.Networking;
 
 public class MVLocalPlayerRegistered : MVLocalPlayer
 {
@@ -31,9 +31,9 @@ public class MVLocalPlayerRegistered : MVLocalPlayer
 		}
 	}
 
-	private void LevelCallback(WWW result)
+	private void LevelCallback(UnityWebRequest result)
 	{
-		Level = JsonConvert.DeserializeObject<int>(result.text);
+		Level = JsonConvert.DeserializeObject<int>(result.downloadHandler.text);
 	}
 
 	private void OnLevelChangedLocalReceivedLevelData(int level)

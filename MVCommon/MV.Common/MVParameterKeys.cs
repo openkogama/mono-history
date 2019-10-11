@@ -228,6 +228,7 @@ public enum MVParameterKeys : byte
 	PlayerPlanetData = 223,
 	UserProfileData = 224,
 	AdConsentEndpointURL = 225,
+	KogamaMainpageURL = 226,
 	GameId = byte.MaxValue,
 	ActorNr = 254,
 	TargetActorNr = 253,

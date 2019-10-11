@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -22,13 +23,30 @@ public abstract class LobbyFlowMenu : MonoBehaviour
 	[SerializeField]
 	protected SpawnRoleMenu spawnRoleMenuPrefab;
 
+	private bool haveSetSelectedTeam;
+
+	protected MVTeam selectedTeam;
+
 	private List<LobbyFlowMenuType> menuOrder = new List<LobbyFlowMenuType>();
 
 	protected abstract LobbyFlowMenuType MenuType { get; }
 
+	protected MVTeam SelectedTeam
+	{
+		set
+		{
+			selectedTeam = value;
+			haveSetSelectedTeam = true;
+		}
+	}
+
 	public virtual void Start()
 	{
 		MVGameControllerBase.MainCameraManager.CamMaskMode = MaskMode.AvatarLobbyFocus;
+		if (!haveSetSelectedTeam)
+		{
+			selectedTeam = MVGameControllerBase.LocalPlayer.Team;
+		}
 		UpdateAvailableMenues();
 	}
 
@@ -171,11 +189,13 @@ public abstract class LobbyFlowMenu : MonoBehaviour
 				x.Push(winConMenu.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
 			});
 			winConMenu.Initialize(condition);
+			winConMenu.SelectedTeam = selectedTeam;
 			break;
 		}
 		case LobbyFlowMenuType.SpawnRoleSelect:
 		{
 			SpawnRoleMenu spawnRoleMenu = Object.Instantiate(spawnRoleMenuPrefab);
+			spawnRoleMenu.Initialize(selectedTeam);
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 			{
 				x.Push(spawnRoleMenu.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);

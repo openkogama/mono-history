@@ -19,6 +19,9 @@ public class SpawnRoleSelectionButtonController : MonoBehaviour
 	[SerializeField]
 	private Text lockedTierButtonText;
 
+	[SerializeField]
+	private GameObject FreeTryUI;
+
 	private GamePassTier currentSpawnRoleGamePassTier;
 
 	public void OnNewSelectedSpawnRole(GamePassTier spawnRoleTier)
@@ -27,7 +30,10 @@ public class SpawnRoleSelectionButtonController : MonoBehaviour
 		if (GamePassesManager.PlayerPlanetData != null)
 		{
 			GamePassTier gamePassTier = GamePassesManager.PlayerPlanetData.gamePassTier;
-			if ((int)spawnRoleTier <= (int)gamePassTier)
+			GamePassTier previewGamePassTier = GamePassesManager.PlayerPlanetData.previewGamePassTier;
+			bool active = spawnRoleTier == previewGamePassTier && spawnRoleTier != GamePassTier.Tier0;
+			FreeTryUI.SetActive(active);
+			if ((int)spawnRoleTier <= (int)gamePassTier || (int)spawnRoleTier <= (int)previewGamePassTier)
 			{
 				selectButton.SetActive(value: true);
 				buyTierButton.SetActive(value: false);

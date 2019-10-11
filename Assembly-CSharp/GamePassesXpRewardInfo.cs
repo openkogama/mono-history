@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class GamePassesXpRewardInfo : MonoBehaviour
+public class GamePassesXpRewardInfo : MonoBehaviour, IGamePassShopContent
 {
 	[SerializeField]
 	private Image TeamRequirementImage;
@@ -67,6 +67,14 @@ public class GamePassesXpRewardInfo : MonoBehaviour
 	{
 		UpdateXPText();
 		UpdateXPTextVisibility();
+	}
+
+	public void Activate()
+	{
+	}
+
+	public void Deactivate()
+	{
 	}
 
 	private void ChangeBackground(GamePassTier tier)

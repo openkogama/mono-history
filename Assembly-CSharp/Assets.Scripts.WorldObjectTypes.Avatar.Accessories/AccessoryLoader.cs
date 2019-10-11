@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace Assets.Scripts.WorldObjectTypes.Avatar.Accessories;
 
@@ -70,7 +71,7 @@ public class AccessoryLoader
 			}
 		}
 
-		private void Callback(WWW www)
+		private void Callback(UnityWebRequest www)
 		{
 			if (!string.IsNullOrEmpty(www.error))
 			{

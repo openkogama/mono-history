@@ -7,8 +7,6 @@ public static class KoGaMaDataHandler
 {
 	private class AsyncBookkeeping
 	{
-		private const float workTime = 1f;
-
 		private float workStartTime;
 
 		private readonly UnityAction<int> doneCallback;
@@ -39,12 +37,14 @@ public static class KoGaMaDataHandler
 
 		public bool waitOneFrameBeforeDoneCallback = true;
 
+		public float workTime = 1f;
+
 		public bool WaitFrame
 		{
 			get
 			{
 				float realtimeSinceStartup = Time.realtimeSinceStartup;
-				if (realtimeSinceStartup - workStartTime > 1f)
+				if (realtimeSinceStartup - workStartTime > workTime)
 				{
 					workStartTime = realtimeSinceStartup;
 					return true;
@@ -75,6 +75,17 @@ public static class KoGaMaDataHandler
 	private const int maxDeserializeTimeBeforeService = 1000;
 
 	private static int timeSinceService = WaitForTicksLocal.GetEnvironmentTick(0);
+
+	public static bool SlowWorldCreation
+	{
+		set
+		{
+			if (asyncBookkeeping != null)
+			{
+				asyncBookkeeping.workTime = ((!value) ? 1f : (1f / 30f));
+			}
+		}
+	}
 
 	public static int GetKoGaMaData(BytePacker bp, UnityAction<Dictionary<object, object>, KogamaDataType> callBack, bool readRuntimeData)
 	{

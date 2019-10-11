@@ -56,6 +56,10 @@ public class MVGhostInstance : MVWorldObjectClient, IUpdatecontrollerSubscriberU
 
 	private Vector3 lodSphereOffset = Vector3.up;
 
+	private int playerLayer = LayerMask.NameToLayer("Player");
+
+	private List<MVWorldObjectClient> targetWos = new List<MVWorldObjectClient>();
+
 	public override MVWorldObjectDocumentationType DocumentationType => MVWorldObjectDocumentationType.Ghost;
 
 	public float Distance
@@ -308,16 +312,26 @@ public class MVGhostInstance : MVWorldObjectClient, IUpdatecontrollerSubscriberU
 
 	public void UpdateControllerFixedUpdate()
 	{
-		MVWorldObjectClient mVWorldObjectClient = (from a in MVGameControllerBase.WOCM.GetWorldObjectsByType(WorldObjectType.PlayModeAvatar)
-			orderby (a.WorldPosition - WorldPosition).sqrMagnitude
-			select a).FirstOrDefault();
-		MoveGhost(mVWorldObjectClient);
-		InteractionDataHandlerBase interactionDataHandlerBase = mVWorldObjectClient.InteractionDataHandlerBase;
-		if (interactionDataHandlerBase != null)
+		targetWos = MVGameControllerBase.WOCM.GetWorldObjectsByType(WorldObjectType.PlayModeAvatar);
+		for (int num = targetWos.Count - 1; num >= 0; num--)
 		{
-			ApplyGameEffect(mVWorldObjectClient, interactionDataHandlerBase);
+			if (targetWos[num].GameObject.layer != playerLayer || !targetWos[num].GameObject.activeInHierarchy)
+			{
+				targetWos.RemoveAt(num);
+			}
 		}
-		UpdateVisualEffects(IsTouchingAvatar(mVWorldObjectClient));
+		MVWorldObjectClient mVWorldObjectClient = targetWos.OrderBy((MVWorldObjectClient a) => (a.WorldPosition - WorldPosition).sqrMagnitude).FirstOrDefault();
+		if (mVWorldObjectClient != null)
+		{
+			targetWos.Clear();
+			MoveGhost(mVWorldObjectClient);
+			InteractionDataHandlerBase interactionDataHandlerBase = mVWorldObjectClient.InteractionDataHandlerBase;
+			if (interactionDataHandlerBase != null)
+			{
+				ApplyGameEffect(mVWorldObjectClient, interactionDataHandlerBase);
+			}
+			UpdateVisualEffects(IsTouchingAvatar(mVWorldObjectClient));
+		}
 	}
 
 	private void MoveGhost(MVWorldObjectClient TargetAvatar)

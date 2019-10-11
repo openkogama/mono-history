@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class TimeReward : IUpdatecontrollerSubscriberUpdate, IUpdatecontrollerSubscriberBase
 {
@@ -90,7 +91,7 @@ public class TimeReward : IUpdatecontrollerSubscriberUpdate, IUpdatecontrollerSu
 			return this;
 		}
 
-		private void OnRewardData(WWW www)
+		private void OnRewardData(UnityWebRequest www)
 		{
 			Debug.Log("www.error: " + www.error);
 			if (!string.IsNullOrEmpty(www.error))
@@ -98,8 +99,9 @@ public class TimeReward : IUpdatecontrollerSubscriberUpdate, IUpdatecontrollerSu
 				Debug.LogError(www.error);
 				return;
 			}
-			RewardData rewardData = JsonConvert.DeserializeObject<RewardData>(www.text);
-			Debug.Log("www.text: " + www.text);
+			string text = www.downloadHandler.text;
+			RewardData rewardData = JsonConvert.DeserializeObject<RewardData>(text);
+			Debug.Log("www.text: " + text);
 			Debug.Log("!rewardData.rewardEnabled: " + !rewardData.rewardEnabled);
 			if (!rewardData.rewardEnabled)
 			{

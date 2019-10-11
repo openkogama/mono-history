@@ -41,11 +41,16 @@ public class DeathUIBoostMenuController : MonoBehaviour
 	[SerializeField]
 	private BoostMenuController boostMenu;
 
+	[SerializeField]
+	private ContinueTierBoostPopup continueTierBoostPopupPrefab;
+
 	private float startTime;
 
 	private float timeUntilGhostMode;
 
 	private bool shouldPop;
+
+	private bool shouldShowPlayButtonAfterUnblocked;
 
 	public void OpenMenu()
 	{
@@ -62,7 +67,6 @@ public class DeathUIBoostMenuController : MonoBehaviour
 		startTime = Time.time;
 		fader.Activate();
 		fader.ShouldHideWhenDone = false;
-		boostMenu.gameObject.SetActive(value: false);
 		respawnButton.Initialize(OnRespawn);
 		resetButton.Initialize(OnResetToSpawnPoint);
 		MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.OnChange += OnAvatarStateChanged;
@@ -74,10 +78,25 @@ public class DeathUIBoostMenuController : MonoBehaviour
 		if (checkpoint != null)
 		{
 			restartText.text = "Respawning at checkpoint...";
-			return;
 		}
-		resetButtonFader.gameObject.SetActive(value: false);
-		restartText.text = "Respawning at start...";
+		else
+		{
+			resetButtonFader.gameObject.SetActive(value: false);
+			restartText.text = "Respawning at start...";
+		}
+		if (GamePassesManager.PlayerPlanetData != null)
+		{
+			GamePassTier previewGamePassTier = GamePassesManager.PlayerPlanetData.previewGamePassTier;
+			if (previewGamePassTier != GamePassTier.Tier0)
+			{
+				ShowContinueTierPopup(previewGamePassTier);
+			}
+		}
+		if (MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion)
+		{
+			shouldShowPlayButtonAfterUnblocked = true;
+			respawnButton.gameObject.SetActive(value: false);
+		}
 	}
 
 	private void OnDestroy()
@@ -97,6 +116,13 @@ public class DeathUIBoostMenuController : MonoBehaviour
 		{
 			isBlocked = x.IsUIElementBlocked(gameObject);
 		});
+		if (shouldShowPlayButtonAfterUnblocked && !isBlocked)
+		{
+			shouldShowPlayButtonAfterUnblocked = false;
+			respawnButton.gameObject.SetActive(value: true);
+			buttonFader.Activate();
+			buttonFader.PauseAt(0f);
+		}
 		if (shouldPop && !isBlocked)
 		{
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
@@ -144,5 +170,15 @@ public class DeathUIBoostMenuController : MonoBehaviour
 		{
 			shouldPop = true;
 		}
+	}
+
+	private void ShowContinueTierPopup(GamePassTier previewTier)
+	{
+		ContinueTierBoostPopup continueTierBoostPopup = Object.Instantiate(continueTierBoostPopupPrefab);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Push(continueTierBoostPopup.gameObject, UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
+		});
+		continueTierBoostPopup.Initialize((int)previewTier);
 	}
 }

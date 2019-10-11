@@ -26,6 +26,8 @@ public class DefaultSpawnRoleSelectionElement : MonoBehaviour, IPointerDownHandl
 
 	protected UnityAction<int> onSelectedCallback;
 
+	protected UnityAction<int> onActivatedCallback;
+
 	protected SpawnRolePreviewer spawnRolePreviewer;
 
 	protected GameObject spawnRolePreviewObject;
@@ -44,11 +46,12 @@ public class DefaultSpawnRoleSelectionElement : MonoBehaviour, IPointerDownHandl
 
 	public virtual GamePassTier Tier => GamePassTier.Tier0;
 
-	public virtual void Initialize(int spawnRoleIndex, int woId, GamePassTier tierRequirement, UnityAction<int> onSelectedCallback)
+	public virtual void Initialize(int spawnRoleIndex, int woId, GamePassTier tierRequirement, UnityAction<int> onSelectedCallback, UnityAction<int> onActivatedCallback)
 	{
 		this.spawnRoleIndex = spawnRoleIndex;
 		this.woId = woId;
 		this.onSelectedCallback = onSelectedCallback;
+		this.onActivatedCallback = onActivatedCallback;
 	}
 
 	public void SetupPreviewImage(GameObject spawnRoleObject)
@@ -58,25 +61,35 @@ public class DefaultSpawnRoleSelectionElement : MonoBehaviour, IPointerDownHandl
 		GameObject gameObject = Object.Instantiate(spawnRoleObject);
 		gameObject.transform.localRotation = Quaternion.identity;
 		Transform previewSpawnRoleRoot = new GameObject("Preview Root - TierShopItem").transform;
-		Vector3 previewPosition = new Vector3(500f, 500f, 10f * (float)spawnRoleIndex);
-		Vector3 cameraOffset = new Vector3(0f, 1f, -4.5f);
+		Vector3 previewPosition = new Vector3(500f, 100f, 100f + 10f * (float)spawnRoleIndex);
+		Vector3 cameraOffset = new Vector3(0f, 1.5f, -6f);
 		spawnRolePreviewer.Initialize(previewWidth, previewHeight, CameraClearFlags.Color, LayerFlags.Default | LayerFlags.CamRotateTarget, cameraOffset, previewSpawnRoleRoot, previewPosition, "SpawnRole", spawnRoleIndex, gameObject);
 		spawnRoleImage.texture = spawnRolePreviewer.PreviewTexture;
 	}
 
 	public virtual void Select()
 	{
-		onSelectedCallback(spawnRoleIndex);
+		if (!isSelected)
+		{
+			onSelectedCallback(spawnRoleIndex);
+		}
 	}
 
-	public void OnSelected()
+	public virtual void OnSelctionHighlight()
 	{
 		isSelected = true;
 		spawnRolePreviewer.SetRenderGrey(shouldRenderAsGrey: false);
 		spawnRolePreviewer.StartActiveAnimation();
 	}
 
-	public void OnUnSelected()
+	public virtual void OnSelected()
+	{
+		isSelected = true;
+		spawnRolePreviewer.SetRenderGrey(shouldRenderAsGrey: false);
+		spawnRolePreviewer.StartActiveAnimation();
+	}
+
+	public virtual void OnUnSelected()
 	{
 		isSelected = false;
 		spawnRolePreviewer.SetRenderGrey(shouldRenderAsGrey: true);
@@ -93,5 +106,20 @@ public class DefaultSpawnRoleSelectionElement : MonoBehaviour, IPointerDownHandl
 		{
 			Select();
 		}
+	}
+
+	public void Activate()
+	{
+		spawnRolePreviewer.ActivatePreview();
+	}
+
+	public void Deactivate()
+	{
+		spawnRolePreviewer.DeactivatePreview();
+	}
+
+	private void OnDestroy()
+	{
+		Object.Destroy(spawnRolePreviewer);
 	}
 }

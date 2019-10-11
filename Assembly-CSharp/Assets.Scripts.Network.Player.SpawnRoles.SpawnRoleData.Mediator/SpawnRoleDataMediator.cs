@@ -53,6 +53,8 @@ public class SpawnRoleDataMediator
 
 	protected readonly SpawnRoleVariableInternal<bool> pickupItemIsInHand = new SpawnRoleVariableInternal<bool>(value: false);
 
+	protected readonly SpawnRoleVariableInternal<GamePassTier> tierRequirement = new SpawnRoleVariableInternal<GamePassTier>(GamePassTier.Tier0);
+
 	public SpawnRoleVariable<int> WoId => woId;
 
 	public SpawnRoleVariable<SpawnRoleModeType> SpawnRoleMode => spawnRoleMode;
@@ -76,6 +78,8 @@ public class SpawnRoleDataMediator
 	public SpawnRoleVariable<bool> PickupItemIsInHand => pickupItemIsInHand;
 
 	public SpawnRoleVariable<Vector3> Scale => scale;
+
+	public SpawnRoleVariable<GamePassTier> TierRequirement => tierRequirement;
 
 	public event Action<int, int, PlayerKilledByType> OnKilled;
 
@@ -122,6 +126,7 @@ public class SpawnRoleDataMediator
 		spawnRoleDataReceiver.rotation = new SpawnRoleReceiverVariable<Quaternion>(rotation.SubscribableVariable, spawnRoleDataReceiver);
 		spawnRoleDataReceiver.scale = new SpawnRoleReceiverVariable<Vector3>(scale.SubscribableVariable, spawnRoleDataReceiver);
 		spawnRoleDataReceiver.pickupItemIsInHand = new SpawnRoleReceiverVariable<bool>(pickupItemIsInHand.SubscribableVariable, spawnRoleDataReceiver);
+		spawnRoleDataReceiver.tierRequirement = new SpawnRoleReceiverVariable<GamePassTier>(tierRequirement.SubscribableVariable, spawnRoleDataReceiver);
 		spawnRoleDataReceiver.OnKilled += SpawnRoleDataReceiverOnOnKilled;
 		spawnRoleDataReceiver.OnSuicide += SpawnRoleDataReceiverOnOnSuicide;
 	}

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using MV.WorldObject.KogamaSettings.KogamaSettingsCore.KogamaSettingTypes;
 using MV.WorldObject.KogamaSettings.SpecializedSettingsTypes.GameBoosterSettings.GameBoosterSettingTypes;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
@@ -31,6 +32,8 @@ public class BoostEditPopup : MonoBehaviour
 	[SerializeField]
 	private List<BoosterDef> boosterList;
 
+	protected int originalPrice;
+
 	protected bool isInitialized;
 
 	protected GameBoosterSettingWithGoldSetting boostSetting;
@@ -53,7 +56,27 @@ public class BoostEditPopup : MonoBehaviour
 		priceSlider.maxValue = goldPrice.KogamaSettingNumeric.RangeValidator.max;
 		priceSlider.minValue = goldPrice.KogamaSettingNumeric.RangeValidator.min;
 		priceSlider.value = goldPrice.NumericValue;
+		originalPrice = goldPrice.NumericValue;
 		isInitialized = true;
+	}
+
+	public virtual void OnConfirmButtonPressed()
+	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Pop();
+		});
+		submitDataCallback();
+	}
+
+	public virtual void OnCancelBoostEdit()
+	{
+		priceSlider.value = originalPrice;
+		UpdatePriceData();
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Pop();
+		});
 	}
 
 	private void CreateBoostImage(Boost boost)
@@ -67,11 +90,6 @@ public class BoostEditPopup : MonoBehaviour
 				break;
 			}
 		}
-	}
-
-	private void OnDestroy()
-	{
-		submitDataCallback();
 	}
 
 	private void UpdatePriceTextInputFieldWithPriceSliderValue()

@@ -1,6 +1,7 @@
 using System;
 using MV.Common;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class StreamPngToSprite : MonoBehaviour
@@ -39,13 +40,13 @@ public class StreamPngToSprite : MonoBehaviour
 		}
 	}
 
-	private void StreamingTextureLoaded(WWW www)
+	private void StreamingTextureLoaded(UnityWebRequest www)
 	{
 		currentlyDownloading = false;
-		Texture2D texture = www.texture;
-		if (texture != null && string.IsNullOrEmpty(www.error))
+		Texture2D content = DownloadHandlerTexture.GetContent(www);
+		if (content != null && string.IsNullOrEmpty(www.error))
 		{
-			SetImageTexture(texture);
+			SetImageTexture(content);
 			if (OnDownloadFinish != null)
 			{
 				OnDownloadFinish();

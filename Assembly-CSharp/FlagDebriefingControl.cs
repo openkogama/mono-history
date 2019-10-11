@@ -17,11 +17,11 @@ public class FlagDebriefingControl
 
 	public void StartFlagDebriefing(int captureTime)
 	{
+		IsInFlagDebriefing = true;
 		if (OnFlagDebriefing != null)
 		{
 			OnFlagDebriefing(captureTime);
 		}
-		IsInFlagDebriefing = true;
 	}
 
 	public void StartFlagCountDown()

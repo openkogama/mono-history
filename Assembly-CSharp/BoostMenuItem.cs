@@ -38,6 +38,9 @@ public class BoostMenuItem : MonoBehaviour
 	private Button getWithAd;
 
 	[SerializeField]
+	private Button getWithAdDisabled;
+
+	[SerializeField]
 	private Button getWithGold;
 
 	[SerializeField]
@@ -54,6 +57,9 @@ public class BoostMenuItem : MonoBehaviour
 
 	[SerializeField]
 	private BoostPurchasePopup purchasePopupPrefab;
+
+	[SerializeField]
+	private GameObject boostTouristInformation;
 
 	[SerializeField]
 	private List<BoosterDef> boosterList;
@@ -108,11 +114,14 @@ public class BoostMenuItem : MonoBehaviour
 
 	private void SetBoostUIUnlocked(bool boostUnlocked)
 	{
+		bool flag = false;
+		flag = MVClientSettings.BoostersEnabled;
 		timeLeftText.gameObject.SetActive(boostUnlocked);
 		boostUnlockedGlow.SetActive(boostUnlocked);
 		boostActiveUI.SetActive(boostUnlocked);
-		getWithAd.gameObject.SetActive(!boostUnlocked);
-		getWithGold.gameObject.SetActive(!MVGameControllerBase.IsTouristSession && !boostUnlocked && MVGameControllerBase.GameMode != MVGameMode.Edit);
+		getWithAd.gameObject.SetActive(!boostUnlocked && flag);
+		getWithAdDisabled.gameObject.SetActive(!boostUnlocked && !flag);
+		getWithGold.gameObject.SetActive(!boostUnlocked && MVGameControllerBase.GameMode != MVGameMode.Edit);
 		getWithTest.gameObject.SetActive(!boostUnlocked && MVGameControllerBase.GameMode == MVGameMode.Edit);
 	}
 
@@ -133,6 +142,15 @@ public class BoostMenuItem : MonoBehaviour
 
 	public void OnPurchaseBoostPressed()
 	{
+		if (MVGameControllerBase.IsTouristSession)
+		{
+			GameObject informationPopup = UnityEngine.Object.Instantiate(boostTouristInformation);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(informationPopup, UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
+			});
+			return;
+		}
 		BoostPurchasePopup boostPurchasePopup = UnityEngine.Object.Instantiate(purchasePopupPrefab);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{

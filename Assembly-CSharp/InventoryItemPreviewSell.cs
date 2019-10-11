@@ -162,7 +162,9 @@ public class InventoryItemPreviewSell : ManageItemPage
 		MVGameControllerBase.Game.ReceivedItemFromQuery -= OnLoadMarketPlaceItem;
 		BytePacker koGaMaData = e.KoGaMaData;
 		KoGaMaPackageClient koGaMaPackageClient = new KoGaMaPackageClient(new BytePacker(previewItem.data), readRuntimeValues: false);
+		koGaMaPackageClient.InventoryInitialize();
 		KoGaMaPackageClient koGaMaPackageClient2 = new KoGaMaPackageClient(koGaMaData, readRuntimeValues: false);
+		koGaMaPackageClient2.InventoryInitialize();
 		float num = KoGaMaPackageClient.Compare(koGaMaPackageClient2, koGaMaPackageClient);
 		koGaMaPackageClient.Destroy();
 		koGaMaPackageClient2.Destroy();

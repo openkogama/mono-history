@@ -94,7 +94,7 @@ public class PlayButton : PlayButtonBase, IPointerEnterHandler, IPointerExitHand
 		button.interactable = true;
 	}
 
-	private bool HandlePlayAvailable()
+	protected virtual bool HandlePlayAvailable()
 	{
 		bool flag = MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded;
 		bool flag2 = Time.time < MVGameControllerBase.LocalPlayer.RespawnTime;

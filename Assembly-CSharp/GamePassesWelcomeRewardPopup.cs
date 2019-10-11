@@ -1,4 +1,4 @@
-using System;
+using Assets.Scripts.AdIntegration;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -28,12 +28,40 @@ public class GamePassesWelcomeRewardPopup : MonoBehaviour
 
 	public void OnDoublePressed()
 	{
-		throw new NotImplementedException("Function not available for this platform.");
+		MVGameControllerBase.AdManager.RequestRewardedAd(RewardedAdCallback, AdContext.ShowDailyCrystals);
+	}
+
+	private void RewardedAdCallback(RewardedAdResult result)
+	{
+		switch (result)
+		{
+		case RewardedAdResult.RewardUnlocked:
+			ClaimReward(doubleReward: true);
+			break;
+		case RewardedAdResult.RewardNotUnlocked:
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+			{
+				x.Create(TM._("The video was canceled. Your reward has not been doubled."), TM._("Video canceled"));
+			});
+			break;
+		case RewardedAdResult.ErrorClient:
+		case RewardedAdResult.ErrorInternal:
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+			{
+				x.Create(TM._("The reward cannot be doubled at this moment."), TM._("An error occurred"));
+			});
+			break;
+		case RewardedAdResult.ErrorTimeout:
+			break;
+		}
 	}
 
 	private void ClaimReward(bool doubleReward = false)
 	{
-		MVGameControllerBase.OperationRequests.ClaimGamePointWelcomeReward(doubleReward);
+		if (!GamePassesManager.PlayerPlanetData.playerPlanetMetaData.DailyWelcomeRewardClaimedToday())
+		{
+			MVGameControllerBase.OperationRequests.ClaimGamePointWelcomeReward(doubleReward);
+		}
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Pop();

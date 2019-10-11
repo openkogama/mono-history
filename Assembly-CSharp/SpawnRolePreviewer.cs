@@ -66,6 +66,7 @@ public class SpawnRolePreviewer : MonoBehaviour
 	{
 		if (body != null)
 		{
+			body.BoneAnimation.FallBackWalkSpeed = 0.7f;
 			body.BoneAnimation.StartAnimation("Walk", MVGameControllerBase.Game.ServerTimeInMilliSeconds - 500);
 		}
 	}
@@ -78,6 +79,18 @@ public class SpawnRolePreviewer : MonoBehaviour
 			int timeStamp = MVGameControllerBase.Game.ServerTimeInMilliSeconds - 500 - num;
 			body.BoneAnimation.StartAnimation("Idle", timeStamp);
 		}
+	}
+
+	public void ActivatePreview()
+	{
+		previewCam.enabled = true;
+		rootObject.SetActive(value: true);
+	}
+
+	public void DeactivatePreview()
+	{
+		previewCam.enabled = false;
+		rootObject.SetActive(value: false);
 	}
 
 	private void OnPreCull()

@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class LevelRequirementPanel : MonoBehaviour
@@ -48,9 +49,9 @@ public class LevelRequirementPanel : MonoBehaviour
 		UnityEngine.Object.Destroy(levelRequirementTextureAsset);
 	}
 
-	private void StreamingAssetCallback(WWW www)
+	private void StreamingAssetCallback(UnityWebRequest www)
 	{
-		levelRequirementTextureAsset = www.texture;
+		levelRequirementTextureAsset = DownloadHandlerTexture.GetContent(www);
 		if (levelRequirementTextureAsset != null)
 		{
 			levelRequirementImage.enabled = true;

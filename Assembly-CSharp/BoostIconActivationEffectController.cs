@@ -108,6 +108,10 @@ public class BoostIconActivationEffectController : MonoBehaviour
 				SetState(EffectState.Inactive);
 			}
 		}
+		else if (currentState == EffectState.Inactive)
+		{
+			canvasGroup.alpha = 0f;
+		}
 	}
 
 	private void SetState(EffectState newState)

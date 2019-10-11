@@ -15,6 +15,9 @@ public class SpawnRoleSelectionSkillMenu : MonoBehaviour
 	private GameObject leftBorder;
 
 	[SerializeField]
+	private GameObject noSkillsText;
+
+	[SerializeField]
 	private RawImage spawnRolePreviewImage;
 
 	[SerializeField]
@@ -44,37 +47,44 @@ public class SpawnRoleSelectionSkillMenu : MonoBehaviour
 	[SerializeField]
 	protected int previewHeight;
 
+	[SerializeField]
+	private RectTransform contentScrollRect;
+
+	[SerializeField]
+	private RectTransform contentRectTransform;
+
 	private SpawnRolePreviewer spawnRolePreviewer;
 
 	public void Initialize(int spawnRoleId, GamePassTier tierRequirement, GameObject spawnRolePreviewObject)
 	{
-		SpawnRolesSkillDataManager skillDataManager = Object.Instantiate(skillDataManagerPrefab);
 		ChangeBackground(tierRequirement);
 		spawnRolePreviewer = Object.Instantiate(spawnRolePreviewerPrefab);
 		SetupPreviewImage(spawnRolePreviewObject);
 		MVAvatarSpawnRoleCreator mVAvatarSpawnRoleCreator = (MVAvatarSpawnRoleCreator)MVGameControllerBase.WOCM.GetWorldObject(spawnRoleId);
 		AttributeSettingsManager attributeSettingsManagerAvatar = mVAvatarSpawnRoleCreator.AttributeSettingsManagerAvatar;
 		KogamaSettingsCollectionBase kogamaSettingsCollectionBase = (KogamaSettingsCollectionBase)attributeSettingsManagerAvatar.Settings;
-		if (kogamaSettingsCollectionBase == null)
-		{
-			return;
-		}
 		bool flag = false;
-		foreach (KeyValuePair<string, KogamaSettingWrapperBase> child in kogamaSettingsCollectionBase.Children)
+		if (kogamaSettingsCollectionBase != null)
 		{
-			flag = true;
-			SpawnRoleSelectionSkillElement spawnRoleSelectionSkillElement = Object.Instantiate(skillElementPrefab);
-			spawnRoleSelectionSkillElement.Initialize(child.Key, skillDataManager, (KogamaSettingValueWrapperBase)child.Value);
-			spawnRoleSelectionSkillElement.transform.SetParent(skillElementContainer);
+			foreach (KeyValuePair<string, KogamaSettingWrapperBase> child in kogamaSettingsCollectionBase.Children)
+			{
+				flag = true;
+				SpawnRoleSelectionSkillElement spawnRoleSelectionSkillElement = Object.Instantiate(skillElementPrefab);
+				spawnRoleSelectionSkillElement.Initialize(child.Key, skillDataManagerPrefab, (KogamaSettingValueWrapperBase)child.Value);
+				spawnRoleSelectionSkillElement.transform.SetParent(skillElementContainer, worldPositionStays: false);
+			}
+			int skillCost = CalculateTotalCostOfSkills(kogamaSettingsCollectionBase);
+			spawnRoleCost.text = skillCost.ToString();
+			spawnRoleCost.color = SpawnRolesSkillDataManager.GetCostColor(skillCost);
 		}
 		leftBorder.transform.SetAsFirstSibling();
-		if (!flag)
+		leftBorder.SetActive(flag);
+		noSkillsText.SetActive(!flag);
+		LayoutRebuilder.ForceRebuildLayoutImmediate(contentRectTransform);
+		if (contentScrollRect.rect.width < contentRectTransform.rect.width)
 		{
-			leftBorder.SetActive(value: false);
+			contentRectTransform.pivot = new Vector2(0f, 0f);
 		}
-		int skillCost = CalculateTotalCostOfSkills(kogamaSettingsCollectionBase);
-		spawnRoleCost.text = skillCost.ToString();
-		spawnRoleCost.color = SpawnRolesSkillDataManager.GetCostColor(skillCost);
 	}
 
 	private void ChangeBackground(GamePassTier tier)
@@ -102,7 +112,7 @@ public class SpawnRoleSelectionSkillMenu : MonoBehaviour
 		gameObject.transform.localRotation = Quaternion.identity;
 		Transform previewSpawnRoleRoot = new GameObject("Preview Root - TierShopItem").transform;
 		Vector3 previewPosition = new Vector3(500f, 500f, 0f);
-		Vector3 cameraOffset = new Vector3(0f, 1f, -4.5f);
+		Vector3 cameraOffset = new Vector3(0f, 1.5f, -6f);
 		spawnRolePreviewer.Initialize(previewWidth, previewHeight, CameraClearFlags.Color, LayerFlags.Default | LayerFlags.CamRotateTarget, cameraOffset, previewSpawnRoleRoot, previewPosition, "SpawnRole", 0, gameObject);
 		spawnRolePreviewImage.texture = spawnRolePreviewer.PreviewTexture;
 	}

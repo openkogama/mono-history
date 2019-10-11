@@ -161,6 +161,7 @@ public class PlayerInventoryRepository
 		{
 			BytePacker koGaMaData = new BytePacker(list[i].data);
 			KoGaMaPackageClient koGaMaPackageClient = new KoGaMaPackageClient(koGaMaData, readRuntimeValues: false);
+			koGaMaPackageClient.InventoryInitialize();
 			koGaMaPackageClient.Destroy();
 			Dictionary<int, MVWorldObjectClient> worldObjects = koGaMaPackageClient.worldObjects;
 			foreach (MVWorldObjectClient value in worldObjects.Values)
@@ -168,11 +169,9 @@ public class PlayerInventoryRepository
 				if (value.WorldObjectType == wo)
 				{
 					item = list[i];
-					koGaMaPackageClient.Destroy();
 					return true;
 				}
 			}
-			koGaMaPackageClient.Destroy();
 		}
 		item = null;
 		return false;

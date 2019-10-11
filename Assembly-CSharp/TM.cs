@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using GNU.Gettext;
 using MV.Common;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class TM
 {
@@ -133,7 +134,7 @@ public class TM
 		AsyncWWWManager.WWWRequest(new GetRequest(Urls.StreamingAssets + text, StreamingAssetCallback, WWWRequestPriority.ExecuteWhileSyncronizing));
 	}
 
-	private static void StreamingAssetCallback(WWW www)
+	private static void StreamingAssetCallback(UnityWebRequest www)
 	{
 		if (www.error != null)
 		{
@@ -143,7 +144,7 @@ public class TM
 		try
 		{
 			Instance.catalog = new Catalog();
-			Instance.catalog.Load(www.text, Instance.fileName);
+			Instance.catalog.Load(www.downloadHandler.text, Instance.fileName);
 			Instance.cultureName = Instance.fileName.Replace('_', '-');
 		}
 		catch (Exception message)

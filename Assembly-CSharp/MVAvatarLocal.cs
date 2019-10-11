@@ -11,7 +11,7 @@ using MV.WorldObject.MetaData;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, ICurrentItemOwner, ISpawnRoleLocal
+public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects) : MVAvatar(data, PrefabPool.Instance.MVLocalAvatarPrefab, worldObjects), ILocalObject, IBulletImpactVisualizer, ICurrentItemOwner, ISpawnRoleLocal
 {
 	private class AvatarLocalModes
 	{
@@ -107,7 +107,16 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		{
 			private Quaternion rot = Quaternion.identity;
 
-			public Vector3 Direction => Vector3.zero;
+			public Vector3 Direction
+			{
+				get
+				{
+					return Vector3.zero;
+				}
+				set
+				{
+				}
+			}
 
 			public Quaternion Rotation
 			{
@@ -159,6 +168,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			{
 				mvAvatar.AvatarLocal.CameraController.SetCamera(CameraType.ThirdPerson);
 			}
+			MVGameControllerBase.Game.GameEventManager.AvatarCommandsBuildMode.OnSetToEditMode += OnEnterEditMode;
 		}
 
 		private void HandleDeathBriefingPause(int localPlayerActorNr, int dmgDealerActorNr, PlayerKilledByType damageType)
@@ -188,6 +198,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			{
 				mvAvatar.OnRespawn();
 			}
+			MVGameControllerBase.Game.GameEventManager.AvatarCommandsBuildMode.OnSetToEditMode -= OnEnterEditMode;
 		}
 
 		public override void FixedUpdate(IInputToPlayerMovement movementMap)
@@ -212,6 +223,11 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		{
 			haveRespawned = true;
 			mvAvatar.avatarRespawnHandler.Respawn();
+		}
+
+		private void OnEnterEditMode()
+		{
+			MVGameControllerBase.PlayModeUI.InLobbyState = true;
 		}
 	}
 
@@ -249,11 +265,13 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			mvAvatar.SetToSpawnTransform();
 			ResetCamera();
 			haveSetTransparency = false;
+			MVGameControllerBase.Game.GameEventManager.AvatarCommandsBuildMode.OnSetToEditMode += OnEnterEditMode;
 		}
 
 		public override void DeActivate(AvatarRuntimeState toMode)
 		{
 			mvAvatar.SetTransparency = 1f;
+			MVGameControllerBase.Game.GameEventManager.AvatarCommandsBuildMode.OnSetToEditMode -= OnEnterEditMode;
 		}
 
 		public override void FrameUpdate(InputToInGameAction interactionMap)
@@ -283,6 +301,11 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			Dictionary<object, object> dictionary = new Dictionary<object, object>();
 			dictionary.Add((byte)18, true);
 			NotificationController.PushNotification(NotificationType.WaitCountDown, dictionary);
+		}
+
+		private void OnEnterEditMode()
+		{
+			MVGameControllerBase.PlayModeUI.InLobbyState = true;
 		}
 
 		private IAvatarInputController CreateInputController()
@@ -370,10 +393,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			: base(mvAvatar, 1)
 		{
 			avatarInputController = CreateInputController();
-			FlagDebriefingControl flagDebriefingControl = MVGameControllerBase.FlagDebriefingControl;
-			flagDebriefingControl.OnFlagDebriefing = (Action<int>)Delegate.Combine(flagDebriefingControl.OnFlagDebriefing, new Action<int>(OnEnterTimeAttackFlagDebriefing));
-			FlagDebriefingControl flagDebriefingControl2 = MVGameControllerBase.FlagDebriefingControl;
-			flagDebriefingControl2.OnFlagDebriefingEnd = (Action)Delegate.Combine(flagDebriefingControl2.OnFlagDebriefingEnd, new Action(OnExitTimeAttackFlagDebriefing));
 		}
 
 		public override void Activate(AvatarRuntimeState fromMode)
@@ -382,6 +401,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			avatarInputController.Rotation = mvAvatar.transform.rotation;
 			flagTransform = GetClosestTimeAttackFlag();
 			mvAvatar.avatarEquipable.Unequip();
+			isInDebriefing = MVGameControllerBase.FlagDebriefingControl.IsInFlagDebriefing;
 			if (!isInDebriefing)
 			{
 				mvAvatar.AvatarLocal.CameraController.PushCamera(CameraType.LobbyState);
@@ -389,7 +409,12 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			else
 			{
 				CullingApiWrapper.SetDistanceReferencePoint(flagTransform);
+				OnEnterTimeAttackFlagDebriefing(MVGameControllerBase.Game.GameStatCounterManager.GetActorCount(GameStatCounterType.TimeAttackFlag, MVGameControllerBase.LocalPlayer.Team, MVGameControllerBase.LocalPlayer.ActorNr));
 			}
+			FlagDebriefingControl flagDebriefingControl = MVGameControllerBase.FlagDebriefingControl;
+			flagDebriefingControl.OnFlagDebriefing = (Action<int>)Delegate.Combine(flagDebriefingControl.OnFlagDebriefing, new Action<int>(OnEnterTimeAttackFlagDebriefing));
+			FlagDebriefingControl flagDebriefingControl2 = MVGameControllerBase.FlagDebriefingControl;
+			flagDebriefingControl2.OnFlagDebriefingEnd = (Action)Delegate.Combine(flagDebriefingControl2.OnFlagDebriefingEnd, new Action(OnExitTimeAttackFlagDebriefing));
 		}
 
 		public override void DeActivate(AvatarRuntimeState toMode)
@@ -397,6 +422,10 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			Debug.Log("Time attack flag debriefing mode deactivated: " + toMode);
 			Debug.Log("DeActivate " + Time.frameCount);
 			mvAvatar.InteractableLocal.AddModifier(AvatarModifierPackageType.SpawnProtection);
+			FlagDebriefingControl flagDebriefingControl = MVGameControllerBase.FlagDebriefingControl;
+			flagDebriefingControl.OnFlagDebriefing = (Action<int>)Delegate.Remove(flagDebriefingControl.OnFlagDebriefing, new Action<int>(OnEnterTimeAttackFlagDebriefing));
+			FlagDebriefingControl flagDebriefingControl2 = MVGameControllerBase.FlagDebriefingControl;
+			flagDebriefingControl2.OnFlagDebriefingEnd = (Action)Delegate.Remove(flagDebriefingControl2.OnFlagDebriefingEnd, new Action(OnExitTimeAttackFlagDebriefing));
 		}
 
 		public override void FrameUpdate(InputToInGameAction interactionMap)
@@ -408,11 +437,17 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			if (!isInDebriefing && MVGameControllerBase.MainCameraManager.CurrentCamera.CameraType != CameraType.TimeAttackFlagCountdownCamera)
 			{
 				mvAvatar.AvatarLocal.CameraController.PushCamera(CameraType.TimeAttackFlagCountdownCamera);
+				MVGameControllerBase.MainCameraManager.CurrentCamera.transform.rotation = mvAvatar.transform.rotation;
 			}
 			if (MVGameControllerBase.MainCameraManager.CurrentCamera.CameraType == CameraType.TimeAttackFlagDebriefingCamera)
 			{
 				float num = 36f;
 				MVGameControllerBase.MainCameraManager.CurrentCamera.transform.Rotate(new Vector3(0f, num * Time.deltaTime, 0f));
+			}
+			if (!isInDebriefing)
+			{
+				avatarInputController.Rotation = mvAvatar.transform.rotation;
+				avatarInputController.Direction = mvAvatar.transform.forward;
 			}
 		}
 
@@ -844,12 +879,18 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		private void SetAnimationState(Vector3 moveDirection)
 		{
 			isJumping = mvAvatar.avatarMotor.IsJumping();
+			bool flag = mvAvatar.avatarMotor.IsAirJumping();
 			if (IsSwimming)
 			{
 				mvAvatar.SetAnimation("Swim");
 			}
-			else if (isJumping)
+			else if (isJumping && !flag)
 			{
+				mvAvatar.SetAnimation("Jump");
+			}
+			else if (isJumping && flag)
+			{
+				mvAvatar.SetAnimation("Idle");
 				mvAvatar.SetAnimation("Jump");
 			}
 			else if (moveDirection.sqrMagnitude > 0f)
@@ -968,12 +1009,6 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		}
 	}
 
-	public MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
-		: base(data, PrefabPool.Instance.MVLocalAvatarPrefab, worldObjects)
-	{
-		SetNetworkObject(local: true);
-	}
-
 	public bool IsSpawnRoleActive()
 	{
 		return spawnRoleDataReceiver != null && spawnRoleDataReceiver.IsActive;
@@ -1034,17 +1069,11 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		ScaleChanged = (UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>)Delegate.Combine(ScaleChanged, new UnityAction<MVWorldObjectClient, ScaleChangedEventArgs>(OnScaleChanged));
 		gameObject.SetActive(value: false);
 		MVGameControllerBase.Game.MVPlayerContainer.GetPlayerUnsafe(OwnerActorNr).NotifyAvatarCreated(Id);
-		KogamaSettingTools.Traverse(Settings, Callback);
-	}
-
-	private void Callback(KogamaSettingWrapperBase obj)
-	{
-		Debug.Log(obj);
 	}
 
 	public void Activate(int idFrom, SpawnRoleDataReceiver spawnRoleDataReceiver, Vector3 position, Quaternion rotation)
 	{
-		Debug.Log("Activate " + Id);
+		SetNetworkObject(local: true);
 		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnKillSelf += KillSelf;
 		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSetRespawnWhenPossible += OnSetRespawnWhenPossible;
 		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSpawn += AvatarCommandsPlayModeOnOnSpawn;
@@ -1073,6 +1102,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		spawnRoleDataReceiver.scale.Value = Scale;
 		spawnRoleDataReceiver.woId.Value = Id;
 		spawnRoleDataReceiver.maxHealth.Value = MaxHealth.Value;
+		spawnRoleDataReceiver.tierRequirement.Value = GetTierRequirement();
 		OnHealthBoostedChanged();
 		((AvatarLocal)avatar).CameraController.ActivateCameraController();
 		if (Id == idFrom || MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded)
@@ -1118,6 +1148,24 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		gameObject.SetActive(value: false);
 		this.spawnRoleDataReceiver = null;
 		MVGameControllerBase.Game.PlayerController.RemoveAvatarLocalObject();
+		MVNetworkObject networkObject = MVGameControllerBase.Game.TransformNetworkManager.GetNetworkObject(Id);
+		if (networkObject != null)
+		{
+			Debug.LogWarning("Removing network object again as this is added multiple times when leaving play mode from a vehicle");
+			MVGameControllerBase.Game.TransformNetworkManager.RemoveNetworkObject(id);
+		}
+	}
+
+	public void Suspend()
+	{
+		MVGameControllerBase.Game.TransformNetworkManager.RemoveNetworkObject(Id);
+		MVGameControllerBase.Game.RuntimeVariableNetworkManager.SendRuntimeData(this, immediateSend: true);
+		MVGameControllerBase.Game.RuntimeVariableNetworkManager.RemoveRuntimeDataVariables(Id);
+	}
+
+	public void UnSuspend()
+	{
+		SetNetworkObject(local: true);
 	}
 
 	public void SetMode(AvatarRuntimeState localMode)
@@ -1162,10 +1210,10 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 		RigidBody.enabled = true;
 		triggerHandler.enabled = true;
 		RigidBody.AddImpulse(impulse);
-		MVGameControllerBase.Game.TransformNetworkManager.AddReporter(id, new MVNetworkReporter(this));
 		OnLeaveVehicle();
 		spawnRoleDataReceiver.isInVehicle.Value = false;
 		pickupGUI.AvatarLeftVehicle();
+		MVGameControllerBase.Game.TransformNetworkManager.AddReporter(id, new MVNetworkReporter(this));
 	}
 
 	public override void BeforeVehicleEntered()
@@ -1349,7 +1397,7 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 
 	private void SetToSpawnTransform()
 	{
-		Debug.Log("SetToSpawnTransform");
+		MVGameControllerBase.MainCameraManager.CancelTransitionCam();
 		Transform spawnTransform = GetSpawnTransform();
 		SetTransform(spawnTransform.position, spawnTransform.rotation);
 	}
@@ -1557,6 +1605,15 @@ public class MVAvatarLocal : MVAvatar, ILocalObject, IBulletImpactVisualizer, IC
 			return null;
 		}
 		return validSpawnPoint.Transform;
+	}
+
+	private GamePassTier GetTierRequirement()
+	{
+		if (MVGameControllerBase.WOCM.TryGetWorldObject(SpawnId, out var worldObject) && worldObject is MVAvatarSpawnRoleCreator)
+		{
+			return ((MVAvatarSpawnRoleCreator)worldObject).Tier;
+		}
+		return GamePassTier.Tier0;
 	}
 
 	private void OnPositionChanged(MVWorldObjectClient wo, PositionChangedEventArgs positionChangedEventArgs)

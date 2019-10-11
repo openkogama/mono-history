@@ -226,7 +226,7 @@ public class MVWorldObjectSpawnerVehicle : MVWorldObjectSpawner
 			return false;
 		}
 		MVWorldObjectSpawnerVehicle mVWorldObjectSpawnerVehicle = (MVWorldObjectSpawnerVehicle)wo;
-		if (Data.ContainsKey("gameCoinAmount") || Data.ContainsKey("starAmount") || Data.ContainsKey("levelAmount"))
+		if (Data.ContainsKey("gameCoinAmount") || Data.ContainsKey("starAmount") || Data.ContainsKey("levelAmount") || Data.ContainsKey("RequiredRank"))
 		{
 			return false;
 		}

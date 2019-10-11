@@ -129,7 +129,7 @@ public class AvatarEditModeBodyController : MonoBehaviour, IAvatarEditAnimationS
 		{
 			x.SetBodyGroup(CurrentBody);
 		});
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (ISetEditState x, BaseEventData y) =>
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IEditStateCommands x, BaseEventData y) =>
 		{
 			x.SetState(EditorEvent.CERoamUUI);
 		});
@@ -361,7 +361,7 @@ public class AvatarEditModeBodyController : MonoBehaviour, IAvatarEditAnimationS
 		{
 			x.Push(popup.gameObject, UIPushOption.Blocking);
 		});
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (ISetEditState x, BaseEventData y) =>
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IEditStateCommands x, BaseEventData y) =>
 		{
 			x.SetState(EditorEvent.CERoamUUI);
 		});

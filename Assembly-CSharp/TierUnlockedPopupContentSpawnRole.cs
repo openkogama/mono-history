@@ -1,4 +1,5 @@
 using MV.Common;
+using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -34,5 +35,19 @@ public class TierUnlockedPopupContentSpawnRole : TierUnlockedPopupContentBase
 		Vector3 cameraOffset = new Vector3(0f, 1f, -4.5f);
 		spawnRolePreviewer.Initialize(previewWidth, previewHeight, CameraClearFlags.Color, LayerFlags.Default | LayerFlags.CamRotateTarget, cameraOffset, previewSpawnRoleRoot, previewPosition, "SpawnRole", 0, gameObject);
 		spawnRolePreviewImage.texture = spawnRolePreviewer.PreviewTexture;
+	}
+
+	public void SetupColor(MVTeam spawnRoleTeam)
+	{
+		backgroundColor = GetColor(spawnRoleTeam);
+	}
+
+	private Color GetColor(MVTeam spawnRoleTeam)
+	{
+		if (MVGameControllerBase.Game.TeamManager.GetTeamList().Count <= 1)
+		{
+			return Styles.GetColor(ColorStyle.OffGray);
+		}
+		return Styles.GetTeamColor(spawnRoleTeam);
 	}
 }

@@ -113,8 +113,11 @@ public class MVSkybox : MVLogicObject, ILogicWorldObject
 			base.Destroy();
 			return;
 		}
-		skybox.Remove(this);
-		skybox.RefreshColor();
+		if (skybox != null)
+		{
+			skybox.Remove(this);
+			skybox.RefreshColor();
+		}
 		base.Destroy();
 	}
 

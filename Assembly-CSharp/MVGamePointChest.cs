@@ -15,6 +15,14 @@ public class MVGamePointChest : MVGamePointRewardLogicObject
 
 	private static readonly UseGUIResult purchaseOptions = UseGUIResult.CanAfford | UseGUIResult.CannotAfford;
 
+	private bool canRespawn;
+
+	private int respawnTime;
+
+	private float pickUpTime;
+
+	private const string respawnString = "respawnTime";
+
 	private const string gamePointAwardedString = "gamePointAmount";
 
 	private GamePointChestClientState state;
@@ -56,6 +64,7 @@ public class MVGamePointChest : MVGamePointRewardLogicObject
 		: base(data, PrefabPool.Instance.GamePointChestPrefab, worldObjects)
 	{
 		interactionFlags |= InteractionFlags.HasSettings;
+		interactionFlags |= InteractionFlags.CanRespawn;
 		chestObject = (MVGamePointChestObject)component;
 		if (chestObject.TriggerBoxEvents != null)
 		{
@@ -65,6 +74,7 @@ public class MVGamePointChest : MVGamePointRewardLogicObject
 		{
 			Debug.LogError("A TriggerBoxEvents object is missing in PickupItem type: " + GetType().Name);
 		}
+		UpdateCanRespawn(Data);
 	}
 
 	public override void Initialize()
@@ -78,6 +88,7 @@ public class MVGamePointChest : MVGamePointRewardLogicObject
 		HandleStandaloneDisabling();
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Combine(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnWinningConditionFulfilled));
+		UpdateCanRespawn(Data);
 	}
 
 	private void SetupUseInteractor()
@@ -114,6 +125,16 @@ public class MVGamePointChest : MVGamePointRewardLogicObject
 		}
 	}
 
+	private void UpdateCanRespawn(Dictionary<object, object> newData)
+	{
+		canRespawn = newData.ContainsKey("respawnTime");
+		if (canRespawn)
+		{
+			respawnTime = (int)newData["respawnTime"];
+		}
+		chestObject.ModelSelector.ShouldGreyOut = canRespawn;
+	}
+
 	private bool HandleDifferentChestSizeStages(float percentage)
 	{
 		int num = 100;
@@ -131,6 +152,7 @@ public class MVGamePointChest : MVGamePointRewardLogicObject
 		UpdateChestSize();
 		useInteractor.UpdateData(Data);
 		base.OnDataUpdate();
+		UpdateCanRespawn(Data);
 	}
 
 	public override void InitializeInventory()
@@ -144,6 +166,10 @@ public class MVGamePointChest : MVGamePointRewardLogicObject
 		if (state == GamePointChestClientState.Opening)
 		{
 			OpenChest(MVGameControllerBase.LocalPlayer.WoId);
+		}
+		if (canRespawn && state == GamePointChestClientState.Open && Time.time > pickUpTime + (float)respawnTime)
+		{
+			Reset();
 		}
 	}
 
@@ -175,6 +201,7 @@ public class MVGamePointChest : MVGamePointRewardLogicObject
 			state = GamePointChestClientState.Opening;
 			MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, e.instigatorWOID);
 			FakeGamePointGainEffectManager.FakeGainEffect(gamePointsRewarded);
+			pickUpTime = Time.time;
 		}
 	}
 
@@ -214,6 +241,7 @@ public class MVGamePointChest : MVGamePointRewardLogicObject
 	{
 		state = GamePointChestClientState.Open;
 		chestObject.ModelSelector.Disable();
+		canRespawn = false;
 	}
 
 	public override MVWorldObjectClient Clone(int ownerActorNumber, int cloneGroupId, CloneBookkeeping cloneBookkeeping, Dictionary<int, MVWorldObjectClient> worldObjects, Dictionary<int, RuntimePrototypeCubeModel> prototypes)

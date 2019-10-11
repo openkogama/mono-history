@@ -9,5 +9,6 @@ public enum XPRewardType : byte
 	SmallFirstTimeReward,
 	MediumFirstTimeReward,
 	HugeFirstTimeReward,
-	TierUnlockedReward
+	TierUnlockedReward,
+	RewardedAd
 }

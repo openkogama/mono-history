@@ -71,6 +71,10 @@ public class ContextMenuController : MonoBehaviour, IHandlePointerDownOnContextM
 		{
 			contextMenu.AddButton(TM._("Reset Logic"), ResetLogic);
 		}
+		if (worldObjectClient.HasInteractionFlag(InteractionFlags.CanEnterPlay))
+		{
+			contextMenu.AddButton(TM._("Play"), EnterPlay);
+		}
 		if (!MVClientSettings.IsFlagSet(ClientSettingFlags.GamePassSilentReleaseEnabled) && worldObjectClient.HasInteractionFlag(InteractionFlags.CanEarnGamePoints))
 		{
 			contextMenu.AddButton(TM._("Crystals"), ShowGamePointsDialog);
@@ -78,6 +82,10 @@ public class ContextMenuController : MonoBehaviour, IHandlePointerDownOnContextM
 		if (!MVClientSettings.IsFlagSet(ClientSettingFlags.GamePassSilentReleaseEnabled) && worldObjectClient.HasInteractionFlag(InteractionFlags.CanEarnGamePointsMinor))
 		{
 			contextMenu.AddButton(TM._("Crystals"), ShowMinorGamePointsDialog);
+		}
+		if (worldObjectClient.HasInteractionFlag(InteractionFlags.CanRespawn))
+		{
+			contextMenu.AddButton(TM._("Respawn"), ShowRespawnDialog);
 		}
 		if (CanClone())
 		{
@@ -173,6 +181,15 @@ public class ContextMenuController : MonoBehaviour, IHandlePointerDownOnContextM
 			handler.PopGroups(UIGroupFlags.GameObjectUI);
 		});
 		settingsFactory.CreateGamePointsMinorRewardSettings(woID);
+	}
+
+	private void ShowRespawnDialog()
+	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
+		{
+			handler.PopGroups(UIGroupFlags.GameObjectUI);
+		});
+		settingsFactory.CreateRespawnSetting(woID);
 	}
 
 	private void ShowTeamDialog()
@@ -281,6 +298,27 @@ public class ContextMenuController : MonoBehaviour, IHandlePointerDownOnContextM
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 		{
 			x.Create(TM._("Image upload is disabled in standalone. Reload game using the browser version to update image of model.\n"), OnClosedStandaloneError, TM._("Are you sure?"));
+		});
+	}
+
+	private void EnterPlay()
+	{
+		MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(woID);
+		if (MVGameControllerBase.WOCM.GetWorldObjectClient(woID) is MVAvatarSpawnRoleCreator)
+		{
+			MVLocalPlayerBuilder.EnterPlayStateDataStruct enterPlayStateData = ((MVLocalPlayerBuilder)MVGameControllerBase.LocalPlayer).EnterPlayStateData;
+			enterPlayStateData.selectedSpawnRoleCreator = woID;
+			((MVLocalPlayerBuilder)MVGameControllerBase.LocalPlayer).EnterPlayStateData = enterPlayStateData;
+			GamePassTier tier = ((MVAvatarSpawnRoleCreator)worldObjectClient).Tier;
+			if ((int)tier > (int)GamePassesManager.PlayerPlanetData.gamePassTier)
+			{
+				MVGameControllerBase.OperationRequests.SetTier(tier);
+			}
+		}
+		MVGameControllerBase.GameEventManager.GameState.OnDisableLobbyState();
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IEditModeController x, BaseEventData y) =>
+		{
+			x.EnterPlayMode();
 		});
 	}
 

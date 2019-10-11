@@ -109,11 +109,11 @@ public class DeathUIController : MonoBehaviour
 			float num = waitTime;
 			float timeUntilGhostMode = num + 1.2f + 2.8f - Time.time;
 			DeathUIBoostMenuController boostMenu = UnityEngine.Object.Instantiate(boostMenuPrefab);
-			boostMenu.Initialize(timeUntilGhostMode);
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 			{
 				x.Push(boostMenu.gameObject, UIPushOption.HideAll, null, UIGroupFlags.GameObjectUI);
 			});
+			boostMenu.Initialize(timeUntilGhostMode);
 		}
 	}
 

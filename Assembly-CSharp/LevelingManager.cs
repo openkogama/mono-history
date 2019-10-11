@@ -3,6 +3,7 @@ using MV.Common;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Networking;
 
 public static class LevelingManager
 {
@@ -60,9 +61,9 @@ public static class LevelingManager
 		AsyncWWWManager.WWWRequest(new GetRequest(Urls.InitialData + profileID, OnInitialData, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 	}
 
-	public static void OnInitialData(WWW result)
+	public static void OnInitialData(UnityWebRequest result)
 	{
-		InitialLevelData initialLevelData = JsonConvert.DeserializeObject<InitialLevelData>(result.text);
+		InitialLevelData initialLevelData = JsonConvert.DeserializeObject<InitialLevelData>(result.downloadHandler.text);
 		Notify(initialLevelData);
 	}
 

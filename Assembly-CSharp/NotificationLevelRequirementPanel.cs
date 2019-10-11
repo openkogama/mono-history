@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class NotificationLevelRequirementPanel : NotificationRequirementPanel
@@ -23,9 +24,9 @@ public class NotificationLevelRequirementPanel : NotificationRequirementPanel
 		Object.Destroy(badgeTextureAsset);
 	}
 
-	private void BadgeCallback(WWW www)
+	private void BadgeCallback(UnityWebRequest www)
 	{
-		badgeTextureAsset = www.texture;
+		badgeTextureAsset = DownloadHandlerTexture.GetContent(www);
 		if (badgeTextureAsset != null)
 		{
 			LevelImage.sprite = GetBadgeSprite(badgeTextureAsset);

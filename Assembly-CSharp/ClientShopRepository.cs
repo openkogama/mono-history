@@ -95,6 +95,7 @@ public class ClientShopRepository
 		{
 			BytePacker koGaMaData = new BytePacker(list[i].data);
 			KoGaMaPackageClient koGaMaPackageClient = new KoGaMaPackageClient(koGaMaData, readRuntimeValues: false);
+			koGaMaPackageClient.InventoryInitialize();
 			koGaMaPackageClient.Destroy();
 			Dictionary<int, MVWorldObjectClient> worldObjects = koGaMaPackageClient.worldObjects;
 			foreach (MVWorldObjectClient value in worldObjects.Values)
@@ -102,13 +103,24 @@ public class ClientShopRepository
 				if (value.WorldObjectType == wo)
 				{
 					item = list[i];
-					koGaMaPackageClient.Destroy();
 					return true;
 				}
 			}
-			koGaMaPackageClient.Destroy();
 		}
 		item = null;
+		return false;
+	}
+
+	public bool IsItemShopInventory(string itemName, InventoryCategoryType inventoryCategory)
+	{
+		List<ShopItem> list = new List<ShopItem>(repository[(int)inventoryCategory]);
+		for (int i = 0; i < list.Count; i++)
+		{
+			if (list[i].name == itemName)
+			{
+				return true;
+			}
+		}
 		return false;
 	}
 

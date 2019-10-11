@@ -7,7 +7,7 @@ public class BriefingPlayButton : PlayButton
 		MVGameControllerDesktop.LockCursorManager.CursorLock = true;
 		if (MVGameControllerBase.LocalPlayer.SpawnRoleDataMediator.WoId != MVGameControllerBase.LocalPlayer.DefaultSpawnRoleId)
 		{
-			MVGameControllerBase.OperationRequests.SetActiveSpawnRole(MVGameControllerBase.LocalPlayer.DefaultSpawnRoleId);
+			MVGameControllerBase.LocalPlayer.SetActiveSpawnRole(MVGameControllerBase.LocalPlayer.DefaultSpawnRoleId);
 		}
 		if (shouldPop)
 		{
@@ -15,6 +15,12 @@ public class BriefingPlayButton : PlayButton
 			{
 				handler.Pop();
 			});
+			MVGameControllerBase.PlayModeUI.InLobbyState = false;
 		}
+	}
+
+	protected override bool HandlePlayAvailable()
+	{
+		return base.HandlePlayAvailable();
 	}
 }

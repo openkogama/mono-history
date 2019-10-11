@@ -72,6 +72,7 @@ public class AvatarUIHandler : MonoBehaviour
 
 	protected virtual void OnDestroy()
 	{
+		SayChatBubbleVisibilityManager.OnSayChatMessageRecieved = (Action<int, Dictionary<object, object>>)Delegate.Remove(SayChatBubbleVisibilityManager.OnSayChatMessageRecieved, new Action<int, Dictionary<object, object>>(OnSayChatMessageRecieved));
 		if (MVGameControllerBase.IsAlive)
 		{
 			MVGameControllerBase.OnFirstFrameUpdateActorReady = (Action)Delegate.Remove(MVGameControllerBase.OnFirstFrameUpdateActorReady, new Action(HandleTeamChange));

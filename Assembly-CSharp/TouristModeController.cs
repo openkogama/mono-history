@@ -1,8 +1,6 @@
-using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Events;
 
 public class TouristModeController : MonoBehaviour
 {
@@ -94,67 +92,6 @@ public class TouristModeController : MonoBehaviour
 		}
 	}
 
-	private class PromotionDataManager
-	{
-		private const string baseAssetString = "Promotion/Promotion_{0}.png";
-
-		private const int promotionCount = 4;
-
-		private static int promotionIndex = 4;
-
-		private UnityAction<Texture> OnTextureReadyCallback;
-
-		private Dictionary<string, Texture2D> textureAssetCache = new Dictionary<string, Texture2D>(4);
-
-		public void GetTextureDataToSet(UnityAction<Texture> OnTextureReady)
-		{
-			OnTextureReadyCallback = OnTextureReady;
-			AsyncWWWManager.WWWRequest(new CachedGetRequest(Urls.StreamingAssets + GetPath(promotionIndex % 4 + 1), OnTextureReceived, WWWRequestPriority.WaitUntilSyncronizingIsDone));
-		}
-
-		public void GetRandomTextureData(UnityAction<Texture> OnTextureReady)
-		{
-			OnTextureReadyCallback = OnTextureReady;
-			int num = promotionIndex % 4;
-			string path = Urls.StreamingAssets + GetPath(Random.Range(num, num + 4) + 1);
-			AsyncWWWManager.WWWRequest(new CachedGetRequest(path, OnTextureReceived, WWWRequestPriority.WaitUntilSyncronizingIsDone));
-		}
-
-		public void Destroy()
-		{
-			AsyncWWWManager.UnsubscribeWWWRequest(OnTextureReceived);
-			foreach (KeyValuePair<string, Texture2D> item in textureAssetCache)
-			{
-				Object.Destroy(item.Value);
-			}
-			textureAssetCache.Clear();
-		}
-
-		private void OnTextureReceived(WWW www)
-		{
-			Texture2D value = null;
-			if (!textureAssetCache.TryGetValue(www.url, out value))
-			{
-				if (!string.IsNullOrEmpty(www.error))
-				{
-					Debug.LogError("Tourist promotion 'OnTextureReceived' failed : " + www.error);
-					return;
-				}
-				value = www.texture;
-				textureAssetCache[www.url] = value;
-			}
-			OnTextureReadyCallback(value);
-			promotionIndex++;
-		}
-
-		private string GetPath(int i)
-		{
-			return string.Format("Promotion/Promotion_{0}.png", i.ToString("D2"));
-		}
-	}
-
-	private PromotionDataManager promotionDataManager;
-
 	private ShowPromotionBookkeeping showPromotionBookkeeping;
 
 	private bool touristPromotionActive;
@@ -189,19 +126,16 @@ public class TouristModeController : MonoBehaviour
 	public void ShowAnyPromotionSlide()
 	{
 		PushPromotionSlide(touristPromotionPrefab);
-		promotionDataManager.GetTextureDataToSet(SetPromotionTexture);
 	}
 
 	public void ShowAnyAndroidPromotionSlide()
 	{
 		PushPromotionSlide(touristPromotionAndroidPrefab);
-		promotionDataManager.GetTextureDataToSet(SetPromotionTexture);
 	}
 
 	public void ShowAdPromotionSlide()
 	{
 		PushPromotionSlide(touristPromotionWithAdPrefab);
-		promotionDataManager.GetTextureDataToSet(SetPromotionTexture);
 	}
 
 	private void Awake()
@@ -213,7 +147,6 @@ public class TouristModeController : MonoBehaviour
 			Object.Destroy(this);
 			return;
 		}
-		promotionDataManager = new PromotionDataManager();
 		showPromotionBookkeeping = new ShowPromotionBookkeeping();
 		SetActive(active: false);
 	}
@@ -223,7 +156,6 @@ public class TouristModeController : MonoBehaviour
 		if (showPromotionBookkeeping.Show)
 		{
 			PushPromotionSlide(touristPromotionPrefab);
-			promotionDataManager.GetTextureDataToSet(SetPromotionTexture);
 			showPromotionBookkeeping.Continue();
 		}
 	}
@@ -240,13 +172,5 @@ public class TouristModeController : MonoBehaviour
 	private void PromitionPopped()
 	{
 		promotion = null;
-	}
-
-	private void SetPromotionTexture(Texture promotionTexture)
-	{
-		if (!(promotion == null))
-		{
-			promotion.SetPromotionTexture(promotionTexture);
-		}
 	}
 }

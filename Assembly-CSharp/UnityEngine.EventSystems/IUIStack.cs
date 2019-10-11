@@ -4,6 +4,8 @@ namespace UnityEngine.EventSystems;
 
 public interface IUIStack : IEventSystemHandler
 {
+	bool StackReady { get; }
+
 	void Push(GameObject gameObject, UIPushOption pushOption, UnityAction onPop = null, UIGroupFlags group = UIGroupFlags.Default);
 
 	void Pop();

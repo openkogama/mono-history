@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using MV.Common;
+using UnityEngine;
 
 public class MVGamePoint : MVGamePointRewardLogicObject
 {
@@ -16,6 +17,14 @@ public class MVGamePoint : MVGamePointRewardLogicObject
 
 	private bool isVisible = true;
 
+	private bool canRespawn;
+
+	private int respawnTime;
+
+	private float pickUpTime;
+
+	private const string respawnString = "respawnTime";
+
 	private MVGamePointObject gamePointObject;
 
 	protected override int GamePointRewardAmount => 1;
@@ -30,6 +39,8 @@ public class MVGamePoint : MVGamePointRewardLogicObject
 		: base(data, PrefabPool.Instance.GamePointPrefab, worldObjects)
 	{
 		Create();
+		interactionFlags |= InteractionFlags.CanRespawn;
+		UpdateCanRespawn(Data);
 	}
 
 	private void Create()
@@ -41,6 +52,7 @@ public class MVGamePoint : MVGamePointRewardLogicObject
 		}
 		SetVisible();
 		HandleStandaloneDisabling();
+		UpdateCanRespawn(Data);
 	}
 
 	public override void Initialize()
@@ -68,8 +80,10 @@ public class MVGamePoint : MVGamePointRewardLogicObject
 			state = GamePointClientState.PickedUp;
 			isVisible = false;
 			gamePointObject.PickupItem.GreyOut();
+			gamePointObject.PickupItem.gameObject.SetActive(canRespawn);
 			MVGameControllerBase.OperationRequests.TriggerBoxEnter(Id, e.instigatorWOID);
 			FakeGamePointGainEffectManager.FakeGainEffect(1);
+			pickUpTime = Time.time;
 		}
 	}
 
@@ -78,6 +92,7 @@ public class MVGamePoint : MVGamePointRewardLogicObject
 		if (!isVisible)
 		{
 			gamePointObject.PickupItem.GreyIn();
+			gamePointObject.PickupItem.gameObject.SetActive(value: true);
 			isVisible = true;
 		}
 		state = GamePointClientState.Visible;
@@ -110,5 +125,36 @@ public class MVGamePoint : MVGamePointRewardLogicObject
 		state = GamePointClientState.PickedUp;
 		isVisible = false;
 		gamePointObject.PickupItem.GreyOut();
+		canRespawn = false;
+	}
+
+	private void UpdateCanRespawn(Dictionary<object, object> newData)
+	{
+		canRespawn = newData.ContainsKey("respawnTime");
+		if (canRespawn)
+		{
+			respawnTime = (int)newData["respawnTime"];
+		}
+	}
+
+	public override void OnDataUpdate()
+	{
+		base.OnDataUpdate();
+		UpdateCanRespawn(Data);
+	}
+
+	public override void PartialUpdateWOData(Dictionary<object, object> woData)
+	{
+		base.PartialUpdateWOData(woData);
+		UpdateCanRespawn(woData);
+	}
+
+	protected override void OnUpdate()
+	{
+		base.OnUpdate();
+		if (canRespawn && state == GamePointClientState.PickedUp && Time.time > pickUpTime + (float)respawnTime)
+		{
+			Reset();
+		}
 	}
 }

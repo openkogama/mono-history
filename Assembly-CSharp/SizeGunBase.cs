@@ -85,7 +85,7 @@ public class SizeGunBase : PickupItemWithDelay
 	private void ReduceAmmo()
 	{
 		--currentAmmo;
-		if ((int)currentAmmo <= 0)
+		if ((int)currentAmmo <= 0 && !HasUnlimitedAmmo)
 		{
 			MVEquipable component = owner.GetComponent<MVEquipable>();
 			if (component != null)

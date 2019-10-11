@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class LevelUpNotification : Notification
@@ -30,9 +31,9 @@ public class LevelUpNotification : Notification
 		Object.Destroy(textureAsset);
 	}
 
-	private void BadgeCallback(WWW www)
+	private void BadgeCallback(UnityWebRequest www)
 	{
-		textureAsset = www.texture;
+		textureAsset = DownloadHandlerTexture.GetContent(www);
 		if (textureAsset != null)
 		{
 			Icon.sprite = Sprite.Create(textureAsset, new Rect(Vector2.zero, new Vector2(textureAsset.width, textureAsset.height)), Vector2.one / 2f);

@@ -55,6 +55,8 @@ public class UIStack : MonoBehaviour, IUIStack, IEventSystemHandler
 
 	private List<StackElement> stackableUiElements = new List<StackElement>();
 
+	public bool StackReady => stackReady;
+
 	private void Start()
 	{
 		origBlockerAlpha = blockingObjectImage.color.a;

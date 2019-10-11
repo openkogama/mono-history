@@ -1,9 +1,9 @@
 using System;
-using UnityEngine;
+using UnityEngine.Networking;
 
 public class CachedGetRequest : GetRequest
 {
-	public CachedGetRequest(string path, Action<WWW> callback, WWWRequestPriority requestPriority)
+	public CachedGetRequest(string path, Action<UnityWebRequest> callback, WWWRequestPriority requestPriority)
 		: base(path, callback, requestPriority)
 	{
 	}
@@ -22,15 +22,15 @@ public class CachedGetRequest : GetRequest
 		return false;
 	}
 
-	protected void AddToCallback(Action<WWW> callbackOther)
+	protected void AddToCallback(Action<UnityWebRequest> callbackOther)
 	{
 		if (isDone)
 		{
-			callbackOther(www);
+			callbackOther(request);
 		}
 		else
 		{
-			callback = (Action<WWW>)Delegate.Combine(callback, callbackOther);
+			callback = (Action<UnityWebRequest>)Delegate.Combine(callback, callbackOther);
 		}
 	}
 }

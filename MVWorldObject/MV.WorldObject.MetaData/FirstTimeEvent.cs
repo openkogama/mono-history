@@ -83,5 +83,15 @@ public enum FirstTimeEvent
 	BM_Outro = 155,
 	BM_AddCubeModel = 156,
 	BM_ClickSettings = 157,
+	BM_Themes = 158,
+	BM_TeamNamesMessage = 159,
+	BM_TeamNamesInventory = 160,
+	BM_TriggerAreaMessage = 161,
+	BM_TriggerAreaInventory = 162,
+	BM_SpawnRolesMessage = 163,
+	BM_SpawnRolesInventory = 164,
+	BM_ClickBoostMenu = 165,
+	BM_ClickTierMenu = 166,
+	BM_ClickEarningMenu = 167,
 	WebEvent = 250
 }

@@ -1,11 +1,31 @@
 using System;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class TouristPromotionDesktop : TouristPromotion
 {
-	private void Start()
+	[SerializeField]
+	private GameObject visitKogamaPopupPrefab;
+
+	[SerializeField]
+	private GameObject redirectButton;
+
+	[SerializeField]
+	private Text redirectButtonURLText;
+
+	[SerializeField]
+	private GameObject goToKogamaPopupPrefab;
+
+	protected override void Start()
 	{
+		base.Start();
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Combine(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnWinningConditionFulfilled));
+		Debug.Log("Referrer: " + MVGameControllerBase.GameSessionData.referrer);
+		redirectButton.SetActive(MVGameControllerBase.GameSessionData.embedded);
+		Uri uri = new Uri(MVGameControllerBase.Game.KogamaMainpageURL);
+		redirectButtonURLText.text = uri.Host.Replace("www.", string.Empty).ToUpper();
 	}
 
 	public void SignupCallback()
@@ -13,14 +33,33 @@ public class TouristPromotionDesktop : TouristPromotion
 		BrowserCommGotoRequests.GotoSignup(newTab: false, modalPopup: true);
 	}
 
-	public override void SkipCallback()
-	{
-		base.SkipCallback();
-	}
-
 	public void LoginCallback()
 	{
 		BrowserCommGotoRequests.GotoLogin(newTab: false, modalPopup: true);
+	}
+
+	public void KogamaRedirect()
+	{
+		if (MVGameControllerBase.Game.LocalPlayer.IsTourist)
+		{
+			if (MVGameControllerBase.GameSessionData.GetIsRedirectAllowed())
+			{
+				BrowserCommGotoRequests.GotoMainpage(newTab: true);
+			}
+			else
+			{
+				ShowGoToKogamaPopup();
+			}
+		}
+	}
+
+	private void ShowGoToKogamaPopup()
+	{
+		GameObject popUp = UnityEngine.Object.Instantiate(goToKogamaPopupPrefab);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Push(popUp, UIPushOption.Blocking, null, UIGroupFlags.Popup);
+		});
 	}
 
 	private void OnWinningConditionFulfilled(IWinningCondition winningCondition)
@@ -32,10 +71,5 @@ public class TouristPromotionDesktop : TouristPromotion
 	{
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Remove(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnWinningConditionFulfilled));
-	}
-
-	public void ContinueCallback()
-	{
-		SkipCallback();
 	}
 }

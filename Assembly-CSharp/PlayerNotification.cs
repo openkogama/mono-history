@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class PlayerNotification : Notification
@@ -60,9 +61,9 @@ public class PlayerNotification : Notification
 		Object.Destroy(badgeTextureAsset);
 	}
 
-	private void BadgeCallback(WWW www)
+	private void BadgeCallback(UnityWebRequest www)
 	{
-		badgeTextureAsset = www.texture;
+		badgeTextureAsset = DownloadHandlerTexture.GetContent(www);
 		if (badgeTextureAsset != null)
 		{
 			BadgeImage.sprite = Sprite.Create(badgeTextureAsset, new Rect(Vector2.zero, new Vector2(badgeTextureAsset.width, badgeTextureAsset.height)), Vector2.one / 2f);

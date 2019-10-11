@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public static class AsyncWWWManager
 {
@@ -18,7 +19,7 @@ public static class AsyncWWWManager
 			cachedRequests.Add(path, cachedGetRequest);
 		}
 
-		public void UnsubscribeCached(Action<WWW> callback)
+		public void UnsubscribeCached(Action<UnityWebRequest> callback)
 		{
 			foreach (KeyValuePair<string, CachedGetRequest> cachedRequest in cachedRequests)
 			{
@@ -113,7 +114,7 @@ public static class AsyncWWWManager
 		}
 	}
 
-	public static void UnsubscribeWWWRequest(Action<WWW> callback)
+	public static void UnsubscribeWWWRequest(Action<UnityWebRequest> callback)
 	{
 		foreach (AsyncWebRequest activeRequest in activeRequests)
 		{
@@ -202,11 +203,11 @@ public static class AsyncWWWManager
 		}
 	}
 
-	private static void Unsubscribe(AsyncWebRequest request, Action<WWW> callback)
+	private static void Unsubscribe(AsyncWebRequest request, Action<UnityWebRequest> callback)
 	{
 		if (request.Callback == callback)
 		{
-			request.Callback = (Action<WWW>)Delegate.Remove(request.Callback, callback);
+			request.Callback = (Action<UnityWebRequest>)Delegate.Remove(request.Callback, callback);
 		}
 	}
 

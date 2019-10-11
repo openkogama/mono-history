@@ -36,9 +36,9 @@ public class SpawnRoleSelectionSkillElement : MonoBehaviour
 	{
 		nameText.text = skillDataManager.GetNameText(skill);
 		int attributeValue = ((IAttributeSetting)skillSetting).AttributeValue;
-		SpawnRoleSkillIconController spawnRoleSkillIconController = Object.Instantiate(skillDataManager.GetImageClone(skill, iconColor, iconBackgroundColor, iconWidth, iconHeight));
-		spawnRoleSkillIconController.transform.SetParent(skillIconContainer, worldPositionStays: false);
-		spawnRoleSkillIconController.HandleNegativeState(attributeValue);
+		SpawnRoleSkillIconController imageClone = skillDataManager.GetImageClone(skill, iconColor, iconBackgroundColor, iconWidth, iconHeight);
+		imageClone.transform.SetParent(skillIconContainer, worldPositionStays: false);
+		imageClone.HandleNegativeState(attributeValue);
 		object obj = 0;
 		float fillAmount = 1f;
 		float zeroValue = skillDataManager.GetZeroValue(skill);
@@ -47,14 +47,14 @@ public class SpawnRoleSelectionSkillElement : MonoBehaviour
 			obj = ((AttributeSettingInt)skillSetting).NumericValue;
 			float max = ((AttributeSettingInt)skillSetting).KogamaSettingNumeric.RangeValidator.max;
 			float min = ((AttributeSettingInt)skillSetting).KogamaSettingNumeric.RangeValidator.min;
-			fillAmount = CalculateSkillPowerPercentage((float)(int)obj - zeroValue, max, min);
+			fillAmount = CalculateSkillPowerPercentage((int)obj, max, min, zeroValue);
 		}
 		else if (skillSetting is AttributeSettingFloat)
 		{
 			obj = ((AttributeSettingFloat)skillSetting).NumericValue;
 			float max2 = ((AttributeSettingFloat)skillSetting).KogamaSettingNumeric.RangeValidator.max;
 			float min2 = ((AttributeSettingFloat)skillSetting).KogamaSettingNumeric.RangeValidator.min;
-			fillAmount = CalculateSkillPowerPercentage((float)obj - zeroValue, max2, min2);
+			fillAmount = CalculateSkillPowerPercentage((float)obj, max2, min2, zeroValue);
 		}
 		descriptionText.text = skillDataManager.GetSkillDescription(skill, obj, attributeValue);
 		bool flag = attributeValue < 0;
@@ -64,13 +64,21 @@ public class SpawnRoleSelectionSkillElement : MonoBehaviour
 		negativePowerFillImage.gameObject.SetActive(flag);
 	}
 
-	private float CalculateSkillPowerPercentage(float value, float max, float min)
+	private float CalculateSkillPowerPercentage(float value, float max, float min, float zeroValue)
 	{
-		float num = ((!(max > 0f)) ? ((value - max) / (min - max)) : ((value - min) / (max - min)));
-		if (num < 0f)
+		if (zeroValue < value)
 		{
-			num *= -1f;
+			float num = min;
+			if (min < zeroValue)
+			{
+				num = zeroValue;
+			}
+			if (max > 0f)
+			{
+				return (value - num) / (max - num);
+			}
+			return (value - max) / (min - max);
 		}
-		return num;
+		return 1f - (value - min) / (zeroValue - min);
 	}
 }

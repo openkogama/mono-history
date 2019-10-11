@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class SessionLocatorPing : IUpdatecontrollerSubscriberUpdate, IUpdatecontrollerSubscriberBase
 {
@@ -49,7 +50,7 @@ public class SessionLocatorPing : IUpdatecontrollerSubscriberUpdate, IUpdatecont
 		}
 	}
 
-	private void WWWCallBack(WWW result)
+	private void WWWCallBack(UnityWebRequest result)
 	{
 		if (string.IsNullOrEmpty(result.error))
 		{
@@ -62,13 +63,13 @@ public class SessionLocatorPing : IUpdatecontrollerSubscriberUpdate, IUpdatecont
 		}
 	}
 
-	private void OnPingError(WWW result)
+	private void OnPingError(UnityWebRequest result)
 	{
 		try
 		{
 			Debug.Log("Ping failed url: " + result.url);
 			Debug.Log("Response headers");
-			foreach (KeyValuePair<string, string> responseHeader in result.responseHeaders)
+			foreach (KeyValuePair<string, string> responseHeader in result.GetResponseHeaders())
 			{
 				Debug.LogFormat("{0} {1}", responseHeader.Key, responseHeader.Value);
 			}

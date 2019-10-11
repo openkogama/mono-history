@@ -59,7 +59,9 @@ internal class ESAddToMarketPlaceState : ESStateBase
 		case AddToMarketPlaceInternalState.CompareMarketPlaceItemWithInventoryItem:
 		{
 			KoGaMaPackageClient koGaMaPackageClient = new KoGaMaPackageClient(inventoryItemData, readRuntimeValues: false);
+			koGaMaPackageClient.InventoryInitialize();
 			KoGaMaPackageClient koGaMaPackageClient2 = new KoGaMaPackageClient(marketPlaceItemData, readRuntimeValues: false);
+			koGaMaPackageClient2.InventoryInitialize();
 			float num = KoGaMaPackageClient.Compare(koGaMaPackageClient2, koGaMaPackageClient);
 			if (num <= CommonValues.CompareThreshold)
 			{

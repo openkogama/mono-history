@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public static class BadgeManager
 {
@@ -36,12 +37,12 @@ public static class BadgeManager
 		return badgeUrls[level].FriendsLimit;
 	}
 
-	public static void UnsubscribeGetBadgeRequest(Action<WWW> callback)
+	public static void UnsubscribeGetBadgeRequest(Action<UnityWebRequest> callback)
 	{
 		AsyncWWWManager.UnsubscribeWWWRequest(callback);
 	}
 
-	public static void GetBadgeTexture(int level, Action<WWW> callback)
+	public static void GetBadgeTexture(int level, Action<UnityWebRequest> callback)
 	{
 		if (maxLevelBadge == 0)
 		{
@@ -53,7 +54,7 @@ public static class BadgeManager
 			Debug.LogWarning("Level exceeds defined badges. Using maxBadge");
 			level = maxLevelBadge;
 		}
-		AsyncWWWManager.WWWRequest(new CachedGetRequest(badgeUrls[level].URL + "?Unity=2", callback, WWWRequestPriority.WaitUntilSyncronizingIsDone));
+		AsyncWWWManager.WWWRequest(new CachedTextureRequest(badgeUrls[level].URL + "?Unity=2", callback, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 	}
 
 	public static void Reset()

@@ -5,6 +5,7 @@ using MV.Common;
 using MV.WorldObject.GamePassSystem;
 using MV.WorldObject.MetaData;
 using MV.WorldObject.SpawnRoles;
+using UnityEngine;
 using UnityEngine.Events;
 
 public abstract class MVLocalPlayer : MVPlayer
@@ -142,6 +143,40 @@ public abstract class MVLocalPlayer : MVPlayer
 	public void SetSpawnRoleMetaData(SpawnRolesMetaData spawnRolesMetaData)
 	{
 		this.spawnRolesMetaData = spawnRolesMetaData;
+	}
+
+	public void SetActiveSpawnRole(int existingAvatarWoId)
+	{
+		if (existingAvatarWoId == SpawnRolesManager.SpawnRoleId)
+		{
+			throw new Exception("Trying to set active spawn role to already active spawnRole");
+		}
+		SuspendCurrentSpawnRole();
+		MVGameControllerBase.OperationRequests.SetActiveSpawnRole(existingAvatarWoId);
+	}
+
+	public void CreateSpawnRole(int avatarSpawnerWoId)
+	{
+		Debug.LogWarning("If this fails then remember to un-suspend. This can happen in build mode if the avatar spawner is removed by another player.");
+		SuspendCurrentSpawnRole();
+		MVGameControllerBase.OperationRequests.CreateSpawnRole(avatarSpawnerWoId);
+	}
+
+	public void CreateSpawnRoleFailed()
+	{
+		UnSuspendCurrentSpawnRole();
+	}
+
+	private void SuspendCurrentSpawnRole()
+	{
+		ISpawnRoleLocal spawnRoleLocal = (ISpawnRoleLocal)MVGameControllerBase.WOCM.GetWorldObject(SpawnRolesManager.SpawnRoleId);
+		spawnRoleLocal.Suspend();
+	}
+
+	private void UnSuspendCurrentSpawnRole()
+	{
+		ISpawnRoleLocal spawnRoleLocal = (ISpawnRoleLocal)MVGameControllerBase.WOCM.GetWorldObject(SpawnRolesManager.SpawnRoleId);
+		spawnRoleLocal.UnSuspend();
 	}
 
 	public void AddXp(int currentPlayerXP, XPRewardType typeId, int xpDelta, int memberCount)

@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-public class EditModeClientShopController : MonoBehaviour, IPurchaseClientShopItem, IOpenClientShop, IEventSystemHandler
+public class EditModeClientShopController : MonoBehaviour, IPurchaseClientShopItem, IOpenClientShop, IHighLightClientShopItem, IOpenClientShopTab, IOpenClientShopPage, IEventSystemHandler
 {
 	[SerializeField]
 	private InventoryController inventoryControllerPrefab;
@@ -138,13 +138,62 @@ public class EditModeClientShopController : MonoBehaviour, IPurchaseClientShopIt
 		byte[] data = item.data;
 		BytePacker koGaMaData = new BytePacker(data);
 		KoGaMaPackageClient koGaMaPackageClient = new KoGaMaPackageClient(koGaMaData, readRuntimeValues: false);
-		MVWorldObjectClient mVWorldObjectClient = koGaMaPackageClient.worldObjects[koGaMaPackageClient.worldObjectRoot];
-		mVWorldObjectClient.InitializeInventory();
-		return mVWorldObjectClient;
+		koGaMaPackageClient.InventoryInitialize();
+		return koGaMaPackageClient.worldObjects[koGaMaPackageClient.worldObjectRoot];
 	}
 
 	public void PurchaseItem(ShopItem item)
 	{
 		repositoryController.PurchaseClientShopItem(item, UpdateContent);
+	}
+
+	public void HighlightAtCategoryWithSlot(UIPushOption options, int categoryId, int slotPosition)
+	{
+		Activate(options);
+		string text = MVGameControllerBase.EditModeUI.PlayerInventoryRepository.categories[(InventoryCategoryType)categoryId];
+		foreach (KeyValuePair<int, string> item in tabsNonLocalized)
+		{
+			if (text == item.Value)
+			{
+				selectedTab = item.Key;
+				break;
+			}
+		}
+		inventoryController.HighlightSlot(slotPosition % numberOfSlotsPrPage);
+		UpdateContent();
+	}
+
+	public void OpenTab(UIPushOption options, int categoryId)
+	{
+		Activate(options);
+		string text = MVGameControllerBase.EditModeUI.PlayerInventoryRepository.categories[(InventoryCategoryType)categoryId];
+		foreach (KeyValuePair<int, string> item in tabsNonLocalized)
+		{
+			if (text == item.Value)
+			{
+				selectedTab = item.Key;
+				break;
+			}
+		}
+		int page = Mathf.CeilToInt(1f / (float)numberOfSlotsPrPage);
+		tabs[selectedTab].SetPage(page);
+		UpdateContent();
+	}
+
+	public void OpenPage(UIPushOption options, int categoryId, int slotPosition)
+	{
+		Activate(options);
+		string text = MVGameControllerBase.EditModeUI.PlayerInventoryRepository.categories[(InventoryCategoryType)categoryId];
+		foreach (KeyValuePair<int, string> item in tabsNonLocalized)
+		{
+			if (text == item.Value)
+			{
+				selectedTab = item.Key;
+				break;
+			}
+		}
+		int page = Mathf.CeilToInt(((float)slotPosition + 1f) / (float)numberOfSlotsPrPage);
+		tabs[selectedTab].SetPage(page);
+		UpdateContent();
 	}
 }

@@ -26,6 +26,8 @@ public class GameEventManager
 	{
 		public Action OnEnableLobbyState;
 
+		public Action OnDisableLobbyState;
+
 		private GameEventSubscribableVariable<MVGameStateType> gameStateType = new GameEventSubscribableVariable<MVGameStateType>(MVGameStateType.None);
 
 		public SubscribableVariableBase<MVGameStateType> GameStateType => gameStateType;

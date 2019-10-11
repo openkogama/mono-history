@@ -14,6 +14,18 @@ public class SpawnRoleSelectionElement : DefaultSpawnRoleSelectionElement
 	private Text spawnRoleCostAmount;
 
 	[SerializeField]
+	private GameObject spawnRoleCostObject;
+
+	[SerializeField]
+	private NotificationFade spawnRoleCostFader;
+
+	[SerializeField]
+	private GameObject moreInfoButton;
+
+	[SerializeField]
+	private NotificationFade moreInfoButtonFader;
+
+	[SerializeField]
 	private SpawnRoleSelectionSkillMenu skillMenuPrefab;
 
 	[SerializeField]
@@ -48,36 +60,33 @@ public class SpawnRoleSelectionElement : DefaultSpawnRoleSelectionElement
 		}
 	}
 
-	public override void Initialize(int spawnRoleIndex, int woId, GamePassTier tierRequirement, UnityAction<int> onSelectedCallback)
+	public override void Initialize(int spawnRoleIndex, int woId, GamePassTier tierRequirement, UnityAction<int> onSelectedCallback, UnityAction<int> onActivatedCallback)
 	{
-		base.Initialize(spawnRoleIndex, woId, tierRequirement, onSelectedCallback);
+		base.Initialize(spawnRoleIndex, woId, tierRequirement, onSelectedCallback, onActivatedCallback);
 		this.tierRequirement = tierRequirement;
 		int skillCost = CalculateTotalSpawnRoleCost(woId);
 		spawnRoleCostAmount.text = skillCost.ToString();
 		spawnRoleCostAmount.color = SpawnRolesSkillDataManager.GetCostColor(skillCost);
+		spawnRoleCostObject.SetActive(value: false);
+		moreInfoButton.SetActive(value: false);
+		spawnRoleCostFader.ShouldHideWhenDone = false;
+		moreInfoButtonFader.ShouldHideWhenDone = false;
 		ChangeBackground(tierRequirement);
 	}
 
-	public override void Select()
+	public void ShowSkillMenu()
 	{
-		if (isSelected)
-		{
-			OnShowSkillMenu();
-		}
-		else
-		{
-			onSelectedCallback(spawnRoleIndex);
-		}
+		OnShowSkillMenu();
 	}
 
 	public void OnShowSkillMenu()
 	{
 		SpawnRoleSelectionSkillMenu skillMenu = Object.Instantiate(skillMenuPrefab);
-		skillMenu.Initialize(WOID, tierRequirement, spawnRolePreviewObject);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Push(skillMenu.gameObject, UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
 		});
+		skillMenu.Initialize(WOID, tierRequirement, spawnRolePreviewObject);
 	}
 
 	private int CalculateTotalSpawnRoleCost(int spawnRoleId)
@@ -95,5 +104,26 @@ public class SpawnRoleSelectionElement : DefaultSpawnRoleSelectionElement
 			num += ((IAttributeSetting)child.Value).AttributeValue;
 		}
 		return num;
+	}
+
+	public override void OnSelctionHighlight()
+	{
+		base.OnSelctionHighlight();
+	}
+
+	public override void OnSelected()
+	{
+		base.OnSelected();
+		spawnRoleCostObject.SetActive(value: true);
+		moreInfoButton.SetActive(value: true);
+		spawnRoleCostFader.Activate();
+		moreInfoButtonFader.Activate();
+	}
+
+	public override void OnUnSelected()
+	{
+		base.OnUnSelected();
+		spawnRoleCostObject.SetActive(value: false);
+		moreInfoButton.SetActive(value: false);
 	}
 }

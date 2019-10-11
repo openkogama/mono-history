@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using MV.Common;
 using Newtonsoft.Json;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriberUpdate, IUpdatecontrollerSubscriberBase
 {
@@ -100,19 +101,19 @@ public class TimedPlayReward : RewardButtonBase, IUpdatecontrollerSubscriberUpda
 		AsyncWWWManager.WWWRequest(new PostRequest(gameSessionData.gameRewardURL, wWWForm, OnFinishedRewardCollecting, WWWRequestPriority.ExecuteWhileSyncronizing));
 	}
 
-	private void OnFinishedRewardCollecting(WWW www)
+	private void OnFinishedRewardCollecting(UnityWebRequest www)
 	{
 		RequestRewardPermission();
 	}
 
-	private void OnRewardData(WWW www)
+	private void OnRewardData(UnityWebRequest www)
 	{
 		if (!string.IsNullOrEmpty(www.error))
 		{
 			Debug.LogError(www.error);
 			return;
 		}
-		RewardData rewardData = JsonConvert.DeserializeObject<RewardData>(www.text);
+		RewardData rewardData = JsonConvert.DeserializeObject<RewardData>(www.downloadHandler.text);
 		RewardXP = rewardData.xp;
 		RewardAvailable = rewardData.rewardEnabled;
 		gameObject.SetActive(RewardAvailable);

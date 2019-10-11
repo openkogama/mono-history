@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using MV.Common;
+using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -36,14 +37,20 @@ public class TeamMenu : LobbyFlowMenu
 		}
 	}
 
-	private void OnTeamSelected()
+	private void OnTeamSelected(MVTeam selectedTeam)
 	{
+		base.selectedTeam = selectedTeam;
 		if (MVGameControllerBase.LocalPlayer.SpawnRoleDataMediator.SpawnRoleMode.Value == SpawnRoleModeType.Hidden)
 		{
 			MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.SetToSpawnPoint();
 		}
 		UpdateAvailableMenues();
 		GoToNextMenu();
+	}
+
+	protected override bool CanShowSpawnRoleSelect()
+	{
+		return MVGameControllerBase.Game.TeamManager.TeamHasSpawnRoles(selectedTeam);
 	}
 
 	protected override void StartPlaying()
@@ -59,7 +66,7 @@ public class TeamMenu : LobbyFlowMenu
 		MVGameControllerDesktop.LockCursorManager.CursorLock = true;
 		if (MVGameControllerBase.LocalPlayer.SpawnRoleDataMediator.WoId != MVGameControllerBase.LocalPlayer.DefaultSpawnRoleId)
 		{
-			MVGameControllerBase.OperationRequests.SetActiveSpawnRole(MVGameControllerBase.LocalPlayer.DefaultSpawnRoleId);
+			MVGameControllerBase.LocalPlayer.SetActiveSpawnRole(MVGameControllerBase.LocalPlayer.DefaultSpawnRoleId);
 		}
 	}
 }

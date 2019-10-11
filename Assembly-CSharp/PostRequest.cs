@@ -1,19 +1,20 @@
 using System;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class PostRequest : AsyncWebRequest
 {
 	private readonly WWWForm form;
 
-	public PostRequest(string path, WWWForm form, Action<WWW> callback, WWWRequestPriority requestPriority)
+	public PostRequest(string path, WWWForm form, Action<UnityWebRequest> callback, WWWRequestPriority requestPriority)
 		: base(path, callback, requestPriority)
 	{
 		form.AddBinaryData("binary", new byte[1]);
 		this.form = form;
 	}
 
-	protected override WWW Create()
+	protected override UnityWebRequest Create()
 	{
-		return new WWW(path, form);
+		return UnityWebRequest.Post(path, form);
 	}
 }

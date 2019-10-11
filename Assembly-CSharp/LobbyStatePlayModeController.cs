@@ -37,6 +37,8 @@ public class LobbyStatePlayModeController : MonoBehaviour
 		lockCursorManager.OnCursorLockChanged = (Action<bool>)Delegate.Combine(lockCursorManager.OnCursorLockChanged, new Action<bool>(OnCursorLockChanged));
 		GameEventManager.GameStateManager gameState = MVGameControllerBase.GameEventManager.GameState;
 		gameState.OnEnableLobbyState = (Action)Delegate.Combine(gameState.OnEnableLobbyState, new Action(EnableLobbyState));
+		GameEventManager.GameStateManager gameState2 = MVGameControllerBase.GameEventManager.GameState;
+		gameState2.OnDisableLobbyState = (Action)Delegate.Combine(gameState2.OnDisableLobbyState, new Action(DisableLobbyState));
 		this.inGameController = inGameController;
 		this.lobbyState = lobbyState;
 		this.inGameMenu = inGameMenu;
@@ -47,7 +49,6 @@ public class LobbyStatePlayModeController : MonoBehaviour
 
 	private void OnCursorLockChanged(bool cursorLocked)
 	{
-		Debug.Log("On cursor change " + cursorLocked);
 		wantsToEnterPlayState = cursorLocked;
 	}
 
@@ -56,11 +57,9 @@ public class LobbyStatePlayModeController : MonoBehaviour
 		bool flag = wantsToEnterPlayState;
 		if (flag && isInLobbyState)
 		{
-			Debug.Log("To play state");
 			SetObjectToLobbyState(isInLobbyState: false);
 			if (MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Hidden))
 			{
-				Debug.Log("MVGameControllerBase.WOCM.AvatarLocal.SetMode(AvatarRuntimeState.Playing)");
 				MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.Spawn();
 			}
 		}
@@ -106,6 +105,16 @@ public class LobbyStatePlayModeController : MonoBehaviour
 		if (!lobbyState.gameObject.activeSelf)
 		{
 			shouldOpenLobbyMenu = true;
+		}
+	}
+
+	private void DisableLobbyState()
+	{
+		shouldOpenLobbyMenu = false;
+		if (lobbyState.gameObject.activeSelf)
+		{
+			lobbyState.gameObject.SetActive(value: false);
+			inGameMenu.gameObject.SetActive(value: true);
 		}
 	}
 }

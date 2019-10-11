@@ -58,9 +58,9 @@ public class SpawnRoleSkillSelectionElement : MonoBehaviour
 		nameText.text = skillDataManager.GetNameText(skill);
 		spawnRoleCostText.text = skillCost.ToString();
 		spawnRoleCostText.color = SpawnRolesSkillDataManager.GetCostColor(skillCost);
-		SpawnRoleSkillIconController spawnRoleSkillIconController = Object.Instantiate(skillDataManager.GetImageClone(skill, iconColor, iconBackgroundColor, iconWidth, iconHeight));
-		spawnRoleSkillIconController.transform.SetParent(imageContainer, worldPositionStays: false);
-		spawnRoleSkillIconController.HandleNegativeState(skillCost);
+		SpawnRoleSkillIconController imageClone = skillDataManager.GetImageClone(skill, iconColor, iconBackgroundColor, iconWidth, iconHeight);
+		imageClone.transform.SetParent(imageContainer, worldPositionStays: false);
+		imageClone.HandleNegativeState(skillCost);
 		cogWheelIcon.gameObject.SetActive(!(skillSetting is KogamaSettingBoolBase));
 		InitializeInfoButton(skill, skillDataManager);
 	}

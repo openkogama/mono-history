@@ -1,15 +1,18 @@
 using System;
-using UnityEngine;
+using UnityEngine.Networking;
 
 public class AssetBundleRequest : GetRequest
 {
-	public AssetBundleRequest(string path, Action<WWW> callback, WWWRequestPriority requestPriority)
+	public AssetBundleRequest(string path, Action<UnityWebRequest> callback, WWWRequestPriority requestPriority)
 		: base(path, callback, requestPriority)
 	{
 	}
 
-	protected override WWW Create()
+	protected override UnityWebRequest Create()
 	{
-		return WWW.LoadFromCacheOrDownload(path + MVGameControllerBase.KoGaMaSettings.UrlCacheAssetVersionArgument, MVGameControllerBase.KoGaMaSettings.LocalDiscCacheAssetVersion);
+		string uri = path + MVGameControllerBase.KoGaMaSettings.UrlCacheAssetVersionArgument;
+		uint crc = 0u;
+		uint localDiscCacheAssetVersion = (uint)MVGameControllerBase.KoGaMaSettings.LocalDiscCacheAssetVersion;
+		return UnityWebRequestAssetBundle.GetAssetBundle(uri, localDiscCacheAssetVersion, crc);
 	}
 }

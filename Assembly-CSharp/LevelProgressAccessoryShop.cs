@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class LevelProgressAccessoryShop : MonoBehaviour
@@ -63,7 +64,7 @@ public class LevelProgressAccessoryShop : MonoBehaviour
 		UnityEngine.Object.Destroy(badgeTextureAsset);
 	}
 
-	private void OnLevelingBadgeLoaded(WWW www)
+	private void OnLevelingBadgeLoaded(UnityWebRequest www)
 	{
 		if (www != null)
 		{
@@ -72,7 +73,7 @@ public class LevelProgressAccessoryShop : MonoBehaviour
 				Debug.LogWarning("Texture not loaded: " + www.error);
 				return;
 			}
-			badgeTextureAsset = www.texture;
+			badgeTextureAsset = DownloadHandlerTexture.GetContent(www);
 			badgeTexture.texture = badgeTextureAsset;
 		}
 	}

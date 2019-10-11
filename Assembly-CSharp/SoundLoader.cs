@@ -1,6 +1,7 @@
 using System;
 using MV.Common;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class SoundLoader
 {
@@ -70,7 +71,7 @@ public class SoundLoader
 		}
 	}
 
-	private void OnDownloadFinished(WWW www)
+	private void OnDownloadFinished(UnityWebRequest www)
 	{
 		if (!string.IsNullOrEmpty(www.error))
 		{

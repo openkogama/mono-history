@@ -1,6 +1,7 @@
 using System;
 using MV.Common;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.Rendering;
 
 public class MaterialLoader : MonoBehaviour
@@ -116,7 +117,7 @@ public class MaterialLoader : MonoBehaviour
 		if (Urls.StreamingAssetUrlReady())
 		{
 			Urls.onStreamingAssetsUrlAvailable = (Urls.OnStreamingAssetsUrlAvailable)Delegate.Remove(Urls.onStreamingAssetsUrlAvailable, new Urls.OnStreamingAssetsUrlAvailable(DownloadWhenPossible));
-			AsyncWWWManager.WWWRequest(new CachedGetRequest(Urls.StreamingAssets + "AssetBundles/Atlas/atlas.unity3d" + MVGameControllerBase.KoGaMaSettings.UrlCacheAssetVersionArgument, Callback, WWWRequestPriority.WaitUntilSyncronizingIsDone));
+			AsyncWWWManager.WWWRequest(new CachedAssetBundleRequest(Urls.StreamingAssets + "AssetBundles/Atlas/atlas.unity3d", Callback, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 		}
 		else
 		{
@@ -124,20 +125,21 @@ public class MaterialLoader : MonoBehaviour
 		}
 	}
 
-	private void Callback(WWW www)
+	private void Callback(UnityWebRequest www)
 	{
 		if (string.IsNullOrEmpty(www.error))
 		{
-			string[] allAssetNames = www.assetBundle.GetAllAssetNames();
+			AssetBundle content = DownloadHandlerAssetBundle.GetContent(www);
+			string[] allAssetNames = content.GetAllAssetNames();
 			if (allAssetNames.Length != 1)
 			{
 				Debug.LogError("Failed to load highres texture from bundle as multiple assets where included");
 				return;
 			}
-			Texture2D mainTexture = www.assetBundle.LoadAsset<Texture2D>(allAssetNames[0]);
+			Texture2D mainTexture = content.LoadAsset<Texture2D>(allAssetNames[0]);
 			SetMainTexture(mainTexture);
 			SetupMaterials();
-			www.assetBundle.Unload(unloadAllLoadedObjects: false);
+			content.Unload(unloadAllLoadedObjects: false);
 		}
 	}
 

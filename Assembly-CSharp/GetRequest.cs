@@ -1,15 +1,15 @@
 using System;
-using UnityEngine;
+using UnityEngine.Networking;
 
 public class GetRequest : AsyncWebRequest
 {
-	public GetRequest(string path, Action<WWW> callback, WWWRequestPriority requestPriority)
+	public GetRequest(string path, Action<UnityWebRequest> callback, WWWRequestPriority requestPriority)
 		: base(path, callback, requestPriority)
 	{
 	}
 
-	protected override WWW Create()
+	protected override UnityWebRequest Create()
 	{
-		return new WWW(path);
+		return UnityWebRequest.Get(path);
 	}
 }

@@ -31,11 +31,17 @@ public static class MVClientSettings
 
 	public static int PostGameInterstitialIntervalInSeconds { get; set; }
 
-	public static bool BoostersEnabledWebGL => IsFlagSet(ClientSettingFlags.BoostersEnabledWebGL);
-
-	public static bool BoostersEnabledAndroid => IsFlagSet(ClientSettingFlags.BoostersEnabledAndroid);
-
 	public static bool SeekAdConsent => IsFlagSet(ClientSettingFlags.SeekAdConsent);
+
+	public static bool JoinFlowAdsEnabled => IsFlagSet(ClientSettingFlags.JoinFlowAdsEnabled);
+
+	public static bool WebAdSDKsEnabled => IsFlagSet(ClientSettingFlags.WebAdSDKSEnabled);
+
+	public static bool BoostersEnabled => false;
+
+	public static bool InterstitialsAdsEnabled => false;
+
+	public static bool RewardedAdsEnabled => false;
 
 	public static bool EnableStathat
 	{

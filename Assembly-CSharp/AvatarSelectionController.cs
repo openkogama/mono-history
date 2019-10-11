@@ -80,7 +80,7 @@ public class AvatarSelectionController : MonoBehaviour, IAvatarSlotClicked, IEve
 		{
 			x.SetBodyGroup(avatarBodyController.CurrentBody);
 		});
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (ISetEditState x, BaseEventData y) =>
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IEditStateCommands x, BaseEventData y) =>
 		{
 			x.SetState(EditorEvent.CERoamUUI);
 		});

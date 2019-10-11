@@ -14,7 +14,6 @@ public class GoldPurchasedTracker : MonoBehaviour
 
 	public void Initialize()
 	{
-		Debug.Log("initialize gold purchased tracker");
 		BrowserComm browserComm = MVGameControllerBase.BrowserComm;
 		browserComm.OnGoldPurchasedFromWeb = (Action<int, int>)Delegate.Combine(browserComm.OnGoldPurchasedFromWeb, new Action<int, int>(StartGoldPurchasePendingUpdate));
 	}

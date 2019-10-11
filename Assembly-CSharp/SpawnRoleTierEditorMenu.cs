@@ -46,7 +46,7 @@ public class SpawnRoleTierEditorMenu : MonoBehaviour
 		else
 		{
 			progressBar.Progress = 1f;
-			progressBarText.text = num.ToString();
+			progressBarText.text = spawnRoleCost.ToString();
 		}
 		canSelectTier0 = spawnRoleCost <= num;
 	}

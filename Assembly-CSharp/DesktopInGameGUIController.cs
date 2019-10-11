@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class DesktopInGameGUIController : MonoBehaviour
 {
 	[SerializeField]
-	private GameObject content;
+	private GameObject winningConditionLayoutGroup;
 
 	[SerializeField]
 	private ShowUse3D use3DPrefab;
@@ -42,41 +43,28 @@ public class DesktopInGameGUIController : MonoBehaviour
 			LoadLogoType loadLogoType = MVGameControllerBase.GameSessionData.LoadLogoType;
 			if (loadLogoType != LoadLogoType.None)
 			{
+				logo.gameObject.SetActive(value: true);
 				string path = Urls.StreamingAssets + logoToPathMap[loadLogoType];
 				AsyncWWWManager.WWWRequest(new CachedGetRequest(path, StreamingAssetCallback, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 			}
 		}
 		levelBadge = Object.Instantiate(levelBadge);
-		levelBadge.transform.SetParent(content.transform, worldPositionStays: false);
+		levelBadge.transform.SetParent(winningConditionLayoutGroup.transform, worldPositionStays: false);
+		levelBadge.transform.SetAsFirstSibling();
 	}
 
-	private void StreamingAssetCallback(WWW www)
+	private void StreamingAssetCallback(UnityWebRequest www)
 	{
-		Texture2D texture = www.texture;
-		if (texture != null)
+		if (www == null || www.isNetworkError || www.isHttpError)
 		{
-			if (!string.IsNullOrEmpty(www.error))
-			{
-				Debug.LogWarning("Streaming asset callback failed for referral logo: " + www.error);
-				return;
-			}
-			logo.gameObject.SetActive(value: true);
-			Texture2D texture2D = new Texture2D(texture.width, texture.height, texture.format, mipChain: false);
-			texture2D.wrapMode = TextureWrapMode.Clamp;
-			texture2D.SetPixels32(texture.GetPixels32());
-			texture2D.Apply();
-			logo.sprite = Sprite.Create(texture2D, new Rect(0f, 0f, texture2D.width, texture2D.height), new Vector2(0.5f, 0.5f));
-			Debug.Log("referrer logo set from callback with string: " + MVGameControllerBase.GameSessionData.referrer);
+			Debug.LogWarning("Streaming asset callback failed for referral logo: " + www.error);
+			return;
 		}
-		else
-		{
-			if (!string.IsNullOrEmpty(www.error))
-			{
-				Debug.LogWarning("Streaming asset callback failed for referral logo: " + www.error);
-			}
-			Debug.LogWarning("Streaming asset callback: www is null - " + (www == null) + ", www.texture is null - " + (texture == null));
-		}
-		Object.Destroy(texture);
+		byte[] data = www.downloadHandler.data;
+		Texture2D texture2D = new Texture2D(2, 2);
+		texture2D.LoadImage(data);
+		logo.sprite = Sprite.Create(texture2D, new Rect(0f, 0f, texture2D.width, texture2D.height), new Vector2(0.5f, 0.5f));
+		Debug.Log("referrer logo set from callback with string: " + MVGameControllerBase.GameSessionData.referrer);
 	}
 
 	public void ShowEUseIcon(ShowUseOption option, int woID = 0)

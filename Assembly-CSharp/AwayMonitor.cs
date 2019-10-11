@@ -113,7 +113,7 @@ public class AwayMonitor
 		}
 		if (idleKickEnabled)
 		{
-			HandleIdle();
+			HandleIdle(fromBackgroundUpdate: false);
 		}
 	}
 
@@ -125,24 +125,28 @@ public class AwayMonitor
 		}
 	}
 
-	private void HandleIdle()
+	private void HandleIdle(bool fromBackgroundUpdate)
 	{
-		if (state != State.Kicked)
+		if (state == State.Kicked)
 		{
-			TimeSpan timeSpan = DateTime.Now - LatestMouseMoveTime;
-			if (timeSpan < idleKickTimes.warningTimeSpan)
-			{
-				state = State.Active;
-			}
-			else if (timeSpan > idleKickTimes.warningTimeSpan && state != State.IdleAndWarned)
+			return;
+		}
+		TimeSpan timeSpan = DateTime.Now - LatestMouseMoveTime;
+		if (timeSpan < idleKickTimes.warningTimeSpan)
+		{
+			state = State.Active;
+		}
+		else if (timeSpan > idleKickTimes.warningTimeSpan && state != State.IdleAndWarned)
+		{
+			if (!fromBackgroundUpdate)
 			{
 				MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, $"Idle. You will be kicked in {idleKickTimes.idleKickTimeMinutes - idleKickTimes.warningTimeMinutes} min.");
-				state = State.IdleAndWarned;
 			}
-			else if (timeSpan > idleKickTimes.idleKickTimeSpan && state != State.Kicked)
-			{
-				state = State.PendingKick;
-			}
+			state = State.IdleAndWarned;
+		}
+		else if (timeSpan > idleKickTimes.idleKickTimeSpan && state != State.Kicked)
+		{
+			state = State.PendingKick;
 		}
 	}
 

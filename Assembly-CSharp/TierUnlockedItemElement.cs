@@ -20,6 +20,9 @@ public class TierUnlockedItemElement : MonoBehaviour
 	[SerializeField]
 	private Text itemAmountText;
 
+	[SerializeField]
+	private Image teamRequirementImage;
+
 	private InventoryItemPreviewer objectPreviewer;
 
 	private Transform rootTransform;
@@ -27,6 +30,15 @@ public class TierUnlockedItemElement : MonoBehaviour
 	private MVWorldObjectClient previewObject;
 
 	private Vector3 cameraOffset = new Vector3(0f, 0f, 0f);
+
+	private MVTeam team = MVTeam.None;
+
+	public void SetTeam(MVTeam team)
+	{
+		this.team = team;
+		teamRequirementImage.gameObject.SetActive(value: true);
+		teamRequirementImage.color = GetTeamColor(team);
+	}
 
 	public void Initialize(List<MVWorldObjectClient> tierShopItemData, int itemIndex)
 	{
@@ -71,7 +83,7 @@ public class TierUnlockedItemElement : MonoBehaviour
 			monoBehaviour.enabled = false;
 			if (monoBehaviour is TintObject)
 			{
-				((TintObject)monoBehaviour).TeamTint(MVTeam.None);
+				((TintObject)monoBehaviour).TeamTint(team);
 			}
 			if (monoBehaviour is MVPickupOwner)
 			{
@@ -118,6 +130,19 @@ public class TierUnlockedItemElement : MonoBehaviour
 			}
 		}
 		return gameObject;
+	}
+
+	private Color GetTeamColor(MVTeam team)
+	{
+		return team switch
+		{
+			MVTeam.Red => Styles.GetColor(ColorStyle.TeamRed), 
+			MVTeam.Blue => Styles.GetColor(ColorStyle.TeamBlue), 
+			MVTeam.Green => Styles.GetColor(ColorStyle.TeamGreen), 
+			MVTeam.Yellow => Styles.GetColor(ColorStyle.TeamYellow), 
+			MVTeam.None => Styles.GetColor(ColorStyle.OffWhite), 
+			_ => Styles.GetColor(ColorStyle.OffWhite), 
+		};
 	}
 
 	private void OnDestroy()

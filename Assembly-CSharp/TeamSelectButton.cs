@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
@@ -19,21 +20,17 @@ public class TeamSelectButton : MonoBehaviour, IPointerDownHandler, IEventSystem
 	private Text friendCountText;
 
 	[SerializeField]
-	private Image playerImage;
-
-	[SerializeField]
 	private GameObject friendIcon;
 
 	private TeamData teamData;
 
-	private UnityAction OnTeamSelected;
+	private UnityAction<MVTeam> OnTeamSelected;
 
-	public void Initialize(TeamData teamData, UnityAction OnTeamSelected)
+	public void Initialize(TeamData teamData, UnityAction<MVTeam> OnTeamSelected)
 	{
 		this.teamData = teamData;
 		this.OnTeamSelected = OnTeamSelected;
 		buttonImage.color = Styles.GetTeamColor(teamData.team);
-		playerImage.color = Styles.GetTeamColor(teamData.team, darkTeam: true);
 		teamName.text = teamData.representedName;
 		playerCountText.text = MVGameControllerBase.Game.TeamManager.GetNoOfPlayersInTeam(teamData.team).ToString();
 		Dictionary<int, MVPlayer> onlineFriends = MVGameControllerBase.Game.Friends.GetOnlineFriends();
@@ -56,14 +53,14 @@ public class TeamSelectButton : MonoBehaviour, IPointerDownHandler, IEventSystem
 	{
 		if (eventData.button == PointerEventData.InputButton.Left)
 		{
-			if (MVGameControllerBase.Game.LocalPlayer.Team != teamData.team)
+			if (MVGameControllerBase.Game.LocalPlayer.Team != teamData.team && !MVGameControllerBase.Game.TeamManager.TeamHasSpawnRoles(teamData.team))
 			{
 				MVGameControllerBase.OperationRequests.SetTeam(teamData.team);
 				MVGameControllerBase.Game.GameStatCounterManager.RemoveTeamScoreOnActorLeave(MVGameControllerBase.Game.LocalPlayer.ActorNr, MVGameControllerBase.Game.LocalPlayer.Team);
 				MVGameControllerBase.Game.LocalPlayer.ResetCheckpoint();
 				MVGameControllerBase.Game.LocalPlayer.Team = teamData.team;
 			}
-			OnTeamSelected();
+			OnTeamSelected(teamData.team);
 		}
 	}
 
@@ -76,7 +73,7 @@ public class TeamSelectButton : MonoBehaviour, IPointerDownHandler, IEventSystem
 		MVGameControllerDesktop.LockCursorManager.CursorLock = true;
 		if (MVGameControllerBase.LocalPlayer.SpawnRoleDataMediator.WoId != MVGameControllerBase.LocalPlayer.DefaultSpawnRoleId)
 		{
-			MVGameControllerBase.OperationRequests.SetActiveSpawnRole(MVGameControllerBase.LocalPlayer.DefaultSpawnRoleId);
+			MVGameControllerBase.LocalPlayer.SetActiveSpawnRole(MVGameControllerBase.LocalPlayer.DefaultSpawnRoleId);
 		}
 	}
 }

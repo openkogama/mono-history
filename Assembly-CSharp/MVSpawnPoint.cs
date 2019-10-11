@@ -9,7 +9,7 @@ public abstract class MVSpawnPoint : MVLogicObject
 	public MVSpawnPoint(Dictionary<object, object> data, ObjectPrefab prefabObject, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, prefabObject, worldObjects)
 	{
-		interactionFlags = InteractionFlags.Selectable | InteractionFlags.CanRotateY;
+		interactionFlags = InteractionFlags.Selectable | InteractionFlags.CanRotateY | InteractionFlags.CanClone;
 	}
 
 	public override void Initialize()

@@ -44,6 +44,8 @@ public class PickupItemRailGun : PickupItemWithDelay
 
 	private float initialFOV;
 
+	private bool canDoFOVZoom = true;
+
 	private bool isCharging;
 
 	private float chargeBeginTime;
@@ -55,6 +57,8 @@ public class PickupItemRailGun : PickupItemWithDelay
 	private int hitLayerMask;
 
 	public override AvatarItemType Type => AvatarItemType.RailGun;
+
+	protected override bool IsAmmoDepleted => (int)currentAmmo <= 0 && !HasUnlimitedAmmo;
 
 	public override int Quantity => currentAmmo;
 
@@ -95,13 +99,27 @@ public class PickupItemRailGun : PickupItemWithDelay
 		currentAmmo = GetAmmoMultiplier(maxAmmo);
 	}
 
+	public override void OnLeaveVehicleWithWeapon()
+	{
+		canDoFOVZoom = false;
+	}
+
+	public override void OnEnterVehicleWithWeapon()
+	{
+		canDoFOVZoom = true;
+	}
+
 	private void DoChargingAnimation()
 	{
 		currentCharge = chargeCurve.Evaluate((Time.time - chargeBeginTime) / curveChargeLength);
 		chargeAudioSource.pitch = 0.2f + currentCharge;
-		if (owner.IsLocal)
+		if (owner.IsLocal && canDoFOVZoom)
 		{
 			MVGameControllerBase.MainCameraManager.MainCamera.fieldOfView = Mathf.Lerp(initialFOV, toFieldOfView, currentCharge);
+		}
+		else if (!canDoFOVZoom)
+		{
+			MVGameControllerBase.MainCameraManager.MainCamera.fieldOfView = initialFOV;
 		}
 		chargeParticles.time = currentCharge;
 	}
@@ -184,7 +202,7 @@ public class PickupItemRailGun : PickupItemWithDelay
 		Fire();
 		isCharging = false;
 		currentAmmo = (int)currentAmmo - 1;
-		if ((int)currentAmmo == 0)
+		if ((int)currentAmmo == 0 && !HasUnlimitedAmmo)
 		{
 			MVEquipable component = owner.GetComponent<MVEquipable>();
 			if (component != null)

@@ -26,6 +26,10 @@ public class EditModeClientShopItem : MonoBehaviour
 
 	private bool initialized;
 
+	private MVWorldObjectDocumentationType documentationType;
+
+	public MVWorldObjectDocumentationType DocumentationType => documentationType;
+
 	public void Initialize(Transform rootTransform, ShopItem item, MVWorldObjectClient woPreviewObject)
 	{
 		this.item = item;
@@ -39,6 +43,7 @@ public class EditModeClientShopItem : MonoBehaviour
 		}
 		objectPreviewer.Initialize(previewWidth, previewHeight, CameraClearFlags.Color, woPreviewObject.PreviewLayerMask, cameraOffset, rootTransform, previewPosition, item.name, woPreviewObject, woPreviewObject.GameObject);
 		previewImage.texture = objectPreviewer.PreviewTexture;
+		documentationType = woPreviewObject.DocumentationType;
 		initialized = true;
 	}
 
@@ -82,5 +87,10 @@ public class EditModeClientShopItem : MonoBehaviour
 		{
 			objectPreviewer.UpdateRotation();
 		}
+	}
+
+	public InventoryItem GetItem()
+	{
+		return new InventoryItem(item);
 	}
 }

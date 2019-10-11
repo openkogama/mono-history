@@ -10,7 +10,17 @@ public class AvatarInputController : IAvatarInputController, IMotorAPI
 
 	private static Camera mainCamera;
 
-	public Vector3 Direction => direction;
+	public Vector3 Direction
+	{
+		get
+		{
+			return direction;
+		}
+		set
+		{
+			direction = value;
+		}
+	}
 
 	public Quaternion Rotation
 	{

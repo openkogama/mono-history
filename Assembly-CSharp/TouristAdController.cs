@@ -1,3 +1,4 @@
+using Assets.Scripts.AdIntegration;
 using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -26,10 +27,10 @@ public class TouristAdController : MonoBehaviour, ITouristAdController, IEventSy
 
 	public void ShowAd()
 	{
-		adHandler.ShowAd(Pop);
+		MVGameControllerBase.AdManager.RequestInterstitial(InterstitialAdResult, AdContext.TouristPromotion);
 	}
 
-	public void Pop()
+	public void InterstitialAdResult(InterstitialAdResult obj)
 	{
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{

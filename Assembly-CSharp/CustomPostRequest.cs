@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
+using UnityEngine.Networking;
 
 public class CustomPostRequest : AsyncWebRequest
 {
@@ -10,7 +10,7 @@ public class CustomPostRequest : AsyncWebRequest
 
 	private readonly Dictionary<string, string> headers;
 
-	public CustomPostRequest(string url, byte[] postData, Dictionary<string, string> headers, Action<WWW> callback, WWWRequestPriority requestPriority)
+	public CustomPostRequest(string url, byte[] postData, Dictionary<string, string> headers, Action<UnityWebRequest> callback, WWWRequestPriority requestPriority)
 		: base(string.Empty, callback, requestPriority)
 	{
 		this.url = url;
@@ -18,8 +18,16 @@ public class CustomPostRequest : AsyncWebRequest
 		this.headers = headers;
 	}
 
-	protected override WWW Create()
+	protected override UnityWebRequest Create()
 	{
-		return new WWW(url, postData, headers);
+		UnityWebRequest unityWebRequest = new UnityWebRequest(url, "POST");
+		UploadHandlerRaw uploadHandlerRaw = new UploadHandlerRaw(postData);
+		uploadHandlerRaw.contentType = "application/x-www-form-urlencoded";
+		unityWebRequest.uploadHandler = uploadHandlerRaw;
+		foreach (KeyValuePair<string, string> header in headers)
+		{
+			unityWebRequest.SetRequestHeader(header.Key, header.Value);
+		}
+		return unityWebRequest;
 	}
 }

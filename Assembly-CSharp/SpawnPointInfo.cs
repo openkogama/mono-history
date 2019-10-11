@@ -2,7 +2,7 @@ using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SpawnPointInfo : MonoBehaviour
+public class SpawnPointInfo : MonoBehaviour, IGamePassShopContent
 {
 	[SerializeField]
 	private Image TeamRequirementImage;
@@ -15,5 +15,13 @@ public class SpawnPointInfo : MonoBehaviour
 			darkTeam = true;
 		}
 		TeamRequirementImage.color = Styles.GetTeamColor(teamRequirement, darkTeam);
+	}
+
+	public void Activate()
+	{
+	}
+
+	public void Deactivate()
+	{
 	}
 }

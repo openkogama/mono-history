@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Networking;
 
 public abstract class StreamingAsset<AssetType, PreviewType> : StreamingAsset where AssetType : UnityEngine.Object where PreviewType : UnityEngine.Object
 {
@@ -61,7 +62,7 @@ public abstract class StreamingAsset<AssetType, PreviewType> : StreamingAsset wh
 		}
 	}
 
-	protected override void OnDownloadFinished(WWW www)
+	protected override void OnDownloadFinished(UnityWebRequest www)
 	{
 		if (www != null && string.IsNullOrEmpty(www.error))
 		{
@@ -94,7 +95,7 @@ public abstract class StreamingAsset : MonoBehaviour
 
 	protected UnityAction onAssetSetAction;
 
-	private static HashSet<WWW> cachedAssetBundles = new HashSet<WWW>();
+	private static HashSet<UnityWebRequest> cachedAssetBundles = new HashSet<UnityWebRequest>();
 
 	private static string assetBundleUrl = null;
 
@@ -126,11 +127,12 @@ public abstract class StreamingAsset : MonoBehaviour
 
 	public static void ClearCache()
 	{
-		foreach (WWW cachedAssetBundle in cachedAssetBundles)
+		foreach (UnityWebRequest cachedAssetBundle in cachedAssetBundles)
 		{
 			try
 			{
-				cachedAssetBundle.assetBundle.Unload(unloadAllLoadedObjects: true);
+				AssetBundle content = DownloadHandlerAssetBundle.GetContent(cachedAssetBundle);
+				content.Unload(unloadAllLoadedObjects: true);
 			}
 			catch (Exception ex)
 			{
@@ -141,11 +143,19 @@ public abstract class StreamingAsset : MonoBehaviour
 		cachedAssetBundles.TrimExcess();
 	}
 
-	private static AssetType UnpackBundle<AssetType>(WWW www) where AssetType : UnityEngine.Object
+	private static AssetType UnpackBundle<AssetType>(UnityWebRequest www) where AssetType : UnityEngine.Object
 	{
-		AssetType[] array = www.assetBundle.LoadAllAssets<AssetType>();
+		AssetBundle content = DownloadHandlerAssetBundle.GetContent(www);
+		if (content == null)
+		{
+			Debug.Log("Attempt to extract bundle: " + www.url);
+			Debug.LogError("Unable to extract asset bundle from web request.");
+			return (AssetType)null;
+		}
+		AssetType[] array = content.LoadAllAssets<AssetType>();
 		if (array.Length == 0)
 		{
+			Debug.Log("Attempt to extract bundle: " + www.url);
 			Debug.LogError("Download failed. Asset is null after assignment. Most likely asset is of incompatible type.");
 			return (AssetType)null;
 		}
@@ -156,7 +166,7 @@ public abstract class StreamingAsset : MonoBehaviour
 		return array[0];
 	}
 
-	public static AssetType UnpackBundle_Cached<AssetType>(WWW www) where AssetType : UnityEngine.Object
+	public static AssetType UnpackBundle_Cached<AssetType>(UnityWebRequest www) where AssetType : UnityEngine.Object
 	{
 		string text = www.url;
 		AssetType result = UnpackBundle<AssetType>(www);
@@ -164,17 +174,18 @@ public abstract class StreamingAsset : MonoBehaviour
 		return result;
 	}
 
-	protected static AssetType UnpackBundle_NonCached<AssetType>(WWW www, MonoBehaviour coroutineHost) where AssetType : UnityEngine.Object
+	protected static AssetType UnpackBundle_NonCached<AssetType>(UnityWebRequest www, MonoBehaviour coroutineHost) where AssetType : UnityEngine.Object
 	{
 		AssetType result = UnpackBundle<AssetType>(www);
 		coroutineHost.StartCoroutine(DelayedUnload(www));
 		return result;
 	}
 
-	protected static IEnumerator DelayedUnload(WWW www)
+	protected static IEnumerator DelayedUnload(UnityWebRequest www)
 	{
 		yield return null;
-		www.assetBundle.Unload(unloadAllLoadedObjects: false);
+		AssetBundle assetBundle = DownloadHandlerAssetBundle.GetContent(www);
+		assetBundle.Unload(unloadAllLoadedObjects: false);
 		Resources.UnloadUnusedAssets();
 	}
 
@@ -198,7 +209,7 @@ public abstract class StreamingAsset : MonoBehaviour
 		AsyncWWWManager.WWWRequest(new AssetBundleRequest(AssetBundleUrl + url, OnDownloadFinished, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 	}
 
-	protected abstract void OnDownloadFinished(WWW www);
+	protected abstract void OnDownloadFinished(UnityWebRequest www);
 
 	protected virtual void OnDestroy()
 	{

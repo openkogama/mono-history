@@ -18,12 +18,6 @@ public class CloudyTheme : CloudyThemeBase
 
 	public override string Description => description;
 
-	protected void OnValidate()
-	{
-		displayName = Validate(displayName);
-		description = Validate(description);
-	}
-
 	private string Validate(string str)
 	{
 		if (str.Length < "_(\"".Length || str.Substring(0, "_(\"".Length) != "_(\"")

@@ -4,6 +4,7 @@ using Assets.Scripts.WorldObjectTypes.Avatar.Accessories;
 using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class AccessoryView : MonoBehaviour
@@ -230,16 +231,16 @@ public class AccessoryView : MonoBehaviour
 		}
 	}
 
-	private void OnLevelRequirementLoaded(WWW www)
+	private void OnLevelRequirementLoaded(UnityWebRequest www)
 	{
-		Texture2D texture = www.texture;
-		if (texture == null)
+		Texture2D content = DownloadHandlerTexture.GetContent(www);
+		if (content == null)
 		{
 			Debug.LogWarning("Badge not loaded for accessory level requirement");
 		}
 		else
 		{
-			levelRequirementPurchaseButton.texture = texture;
+			levelRequirementPurchaseButton.texture = content;
 		}
 	}
 

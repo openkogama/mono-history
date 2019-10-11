@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 
 public class AvatarBadge : MonoBehaviour
@@ -66,13 +67,13 @@ public class AvatarBadge : MonoBehaviour
 		}
 	}
 
-	private void OnBadgeTextureReceived(WWW www)
+	private void OnBadgeTextureReceived(UnityWebRequest www)
 	{
-		Texture2D texture = www.texture;
-		if (texture != null)
+		Texture2D content = DownloadHandlerTexture.GetContent(www);
+		if (content != null)
 		{
 			badgeRenderer.gameObject.layer = LayerMask.NameToLayer("UIItems");
-			badgeTextureAsset = texture;
+			badgeTextureAsset = content;
 			scaleAnimation.Play();
 		}
 		else

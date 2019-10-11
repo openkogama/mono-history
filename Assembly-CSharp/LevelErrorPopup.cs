@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class LevelErrorPopup : MonoBehaviour
@@ -24,9 +25,9 @@ public class LevelErrorPopup : MonoBehaviour
 		this.resultCallback = resultCallback;
 	}
 
-	private void OnLevelRequirementLoaded(WWW www)
+	private void OnLevelRequirementLoaded(UnityWebRequest www)
 	{
-		requiredLevelTextureAsset = www.texture;
+		requiredLevelTextureAsset = DownloadHandlerTexture.GetContent(www);
 		if (requiredLevelTextureAsset == null)
 		{
 			Debug.LogWarning("Badge not loaded for accessory level requirement");
@@ -37,9 +38,9 @@ public class LevelErrorPopup : MonoBehaviour
 		}
 	}
 
-	private void OnPlayerLevelLoaded(WWW www)
+	private void OnPlayerLevelLoaded(UnityWebRequest www)
 	{
-		playerLevelTextureAsset = www.texture;
+		playerLevelTextureAsset = DownloadHandlerTexture.GetContent(www);
 		if (playerLevelTextureAsset == null)
 		{
 			Debug.LogWarning("Badge not loaded for accessory level requirement");

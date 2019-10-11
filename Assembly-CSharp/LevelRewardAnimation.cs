@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class LevelRewardAnimation : MonoBehaviour
@@ -114,9 +115,9 @@ public class LevelRewardAnimation : MonoBehaviour
 		Object.Destroy(currentBadgeTextureAsset);
 	}
 
-	private void OnPrevBadgeLoaded(WWW www)
+	private void OnPrevBadgeLoaded(UnityWebRequest www)
 	{
-		previousBadgeTextureAsset = www.texture;
+		previousBadgeTextureAsset = DownloadHandlerTexture.GetContent(www);
 		if (previousBadgeTextureAsset == null || !string.IsNullOrEmpty(www.error))
 		{
 			Debug.LogWarning("Error downloading prevLevel badge.");
@@ -124,9 +125,9 @@ public class LevelRewardAnimation : MonoBehaviour
 		prevLevelBadge.texture = previousBadgeTextureAsset;
 	}
 
-	private void OnNextBadgeLoaded(WWW www)
+	private void OnNextBadgeLoaded(UnityWebRequest www)
 	{
-		currentBadgeTextureAsset = www.texture;
+		currentBadgeTextureAsset = DownloadHandlerTexture.GetContent(www);
 		if (currentBadgeTextureAsset == null || !string.IsNullOrEmpty(www.error))
 		{
 			Debug.LogWarning("Error downloading nextLevel badge.");

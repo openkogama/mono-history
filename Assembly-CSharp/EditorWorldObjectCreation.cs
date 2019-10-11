@@ -65,8 +65,7 @@ public class EditorWorldObjectCreation : MonoBehaviour, ICloneHandler, IAddItemF
 		byte[] data = item.data;
 		BytePacker koGaMaData = new BytePacker(data);
 		KoGaMaPackageClient koGaMaPackageClient = new KoGaMaPackageClient(koGaMaData, readRuntimeValues: false);
-		MVWorldObjectClient mVWorldObjectClient = koGaMaPackageClient.worldObjects[koGaMaPackageClient.worldObjectRoot];
-		mVWorldObjectClient.InitializeInventory();
+		koGaMaPackageClient.InventoryInitialize();
 		return koGaMaPackageClient;
 	}
 

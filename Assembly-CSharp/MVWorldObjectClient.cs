@@ -62,6 +62,8 @@ public class MVWorldObjectClient : MVWorldObject
 
 	private MVRuntimeDataVariables runtimeDataVariables;
 
+	private bool initializedFromInventory;
+
 	public override Vector3 Position
 	{
 		get
@@ -578,6 +580,12 @@ public class MVWorldObjectClient : MVWorldObject
 		}
 	}
 
+	public void InventoryInitialize()
+	{
+		initializedFromInventory = true;
+		InitializeInventory();
+	}
+
 	public virtual void InitializeInventory()
 	{
 	}
@@ -602,7 +610,7 @@ public class MVWorldObjectClient : MVWorldObject
 		{
 			UnityEngine.Object.Destroy(gameObject);
 		}
-		if (MVGameControllerBase.Game.RuntimeVariableNetworkManager.ContainsRuntimeVariables(id))
+		if (!initializedFromInventory && MVGameControllerBase.Game.RuntimeVariableNetworkManager.ContainsRuntimeVariables(id))
 		{
 			MVGameControllerBase.Game.RuntimeVariableNetworkManager.RemoveRuntimeDataVariables(id);
 		}

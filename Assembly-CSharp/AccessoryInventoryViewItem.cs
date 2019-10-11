@@ -7,6 +7,7 @@ using MV.WorldObject.HighlightSystem.HighlightPayloads;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IEventSystemHandler
@@ -117,7 +118,7 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, I
 		BadgeManager.GetBadgeTexture(accessoryDataClient.lvl, OnLevelRequirementLoaded);
 	}
 
-	private void OnLevelRequirementLoaded(WWW www)
+	private void OnLevelRequirementLoaded(UnityWebRequest www)
 	{
 		if (!string.IsNullOrEmpty(www.error))
 		{
@@ -125,7 +126,7 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, I
 		}
 		else if (levelRequirement != null && !wasDestroyed)
 		{
-			levelRequirementTextureAsset = www.texture;
+			levelRequirementTextureAsset = DownloadHandlerTexture.GetContent(www);
 			levelRequirement.gameObject.SetActive(value: true);
 			levelRequirement.texture = levelRequirementTextureAsset;
 		}

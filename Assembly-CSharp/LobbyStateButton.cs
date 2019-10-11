@@ -136,6 +136,11 @@ public class LobbyStateButton : MonoBehaviour, IPointerDownHandler, IPointerEnte
 		}
 	}
 
+	public void CancelEnterPlay()
+	{
+		lobbyStateButton.interactable = true;
+	}
+
 	private void OnCountDownEnd()
 	{
 		if (!lobbyStateButton.interactable)
@@ -210,6 +215,7 @@ public class LobbyStateButton : MonoBehaviour, IPointerDownHandler, IPointerEnte
 			});
 		}
 		SpawnRoleMenu spawnRoleMenu = Object.Instantiate(spawnRoleMenuPrefab);
+		spawnRoleMenu.Initialize(MVGameControllerBase.LocalPlayer.Team);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Push(spawnRoleMenu.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);

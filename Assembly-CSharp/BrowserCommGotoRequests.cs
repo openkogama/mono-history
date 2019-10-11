@@ -43,6 +43,11 @@ public static class BrowserCommGotoRequests
 		BrowserComm.ExecuteBrowserRequest(MVGameControllerBase.GameSessionData.loginURL);
 	}
 
+	public static void GotoMainpage(bool newTab = false, bool modalPopup = false)
+	{
+		BrowserComm.ExecuteBrowserRequest(MVGameControllerBase.Game.KogamaMainpageURL);
+	}
+
 	public static void GotoSignup(bool newTab = false, bool modalPopup = false)
 	{
 		BrowserComm.ExecuteBrowserRequest(MVGameControllerBase.GameSessionData.signupURL);

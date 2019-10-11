@@ -25,9 +25,6 @@ public class InGameMenu : MonoBehaviour
 	[SerializeField]
 	private GamePassesUI gamePassesUIPrefab;
 
-	[SerializeField]
-	private GameObject boostButton;
-
 	private GamePassesUI gamePassesUI;
 
 	public void Initialize()

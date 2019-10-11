@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class StreamedSpriteToImageManual : StreamingAsset<Sprite, Texture2D>
@@ -43,7 +44,7 @@ public class StreamedSpriteToImageManual : StreamingAsset<Sprite, Texture2D>
 		DownloadWhenPossible();
 	}
 
-	protected override void OnDownloadFinished(WWW www)
+	protected override void OnDownloadFinished(UnityWebRequest www)
 	{
 		if (www != null && string.IsNullOrEmpty(www.error))
 		{

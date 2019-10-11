@@ -17,6 +17,12 @@ public class GamePassesPurchaseButton : MonoBehaviour
 	private GameObject testToggle;
 
 	[SerializeField]
+	private GameObject freeTryButton;
+
+	[SerializeField]
+	private GameObject freeTryActivated;
+
+	[SerializeField]
 	private ToggleButtonAnimation toggleButton;
 
 	[SerializeField]
@@ -49,6 +55,7 @@ public class GamePassesPurchaseButton : MonoBehaviour
 			break;
 		case TierLockState.PurchaseUnlock:
 			SetUpPurchaseButton(tierToDisplay, tierPricingState);
+			SetupFreeTryButton();
 			break;
 		case TierLockState.Locked:
 			SetUpDisableButton(tierToDisplay, tierPricingState);
@@ -71,6 +78,12 @@ public class GamePassesPurchaseButton : MonoBehaviour
 	public void OnDisabledButtonPressed()
 	{
 		informationTextBubble.Activate("You need to unlock game tier " + (int)(tierDisplayed - 1) + " first!");
+	}
+
+	public void SetFreeTryActivated(bool isActive)
+	{
+		freeTryButton.SetActive(!isActive);
+		freeTryActivated.SetActive(isActive);
 	}
 
 	private void OnDestroy()
@@ -106,6 +119,11 @@ public class GamePassesPurchaseButton : MonoBehaviour
 		purchaseButton.gameObject.SetActive(value: false);
 		disabledPurchaseButton.gameObject.SetActive(value: true);
 		disabledPriceText.text = gameTierShopStatus[tierToDisplay].remainingGoldPriceRequired.ToString();
+	}
+
+	private void SetupFreeTryButton()
+	{
+		freeTryButton.SetActive(value: true);
 	}
 
 	private void UpdatePriceText()

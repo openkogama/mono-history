@@ -74,7 +74,6 @@ public abstract class FirstPersonCamera : MVCameraBase
 		targetRotation.y = MVGameControllerBase.MainCameraManager.transform.rotation.eulerAngles.y;
 		transform.localRotation = MVGameControllerBase.MainCameraManager.transform.localRotation;
 		modifierIndicator.Initialize(localAvatar);
-		MVGameControllerBase.MainCameraManager.StartTransitionCam(0.3f);
 		localAvatar.SetTransparency = 1f;
 		haveHiddenVehicle = false;
 	}
@@ -131,6 +130,7 @@ public abstract class FirstPersonCamera : MVCameraBase
 		mVAvatarLocal2.OnDamageTaken = (Action<float, MVPlayer, PlayerKilledByType>)Delegate.Combine(mVAvatarLocal2.OnDamageTaken, new Action<float, MVPlayer, PlayerKilledByType>(damageIndicator.ShowDamage));
 		damageIndicator.enabled = true;
 		modifierIndicator.enabled = true;
+		MVGameControllerBase.MainCameraManager.StartTransitionCam(0.3f);
 	}
 
 	private void DeactivateFirstPerson()

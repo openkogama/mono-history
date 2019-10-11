@@ -28,6 +28,78 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	private class EventHandling
 	{
+		private class DynamicEventCallbackManager
+		{
+			private class EventCallback
+			{
+				public event Action<EventData> OnEventData;
+
+				public void Notify(EventData eventData)
+				{
+					if (OnEventData != null)
+					{
+						OnEventData(eventData);
+					}
+					else
+					{
+						Debug.LogError("No subscribers to event data");
+					}
+				}
+
+				public void Subscribe(Action<EventData> callback)
+				{
+					OnEventData += callback;
+				}
+
+				public bool UnSubscribe(Action<EventData> callback)
+				{
+					OnEventData -= callback;
+					if (OnEventData == null)
+					{
+						return false;
+					}
+					return true;
+				}
+			}
+
+			private Dictionary<MVEventCodes, EventCallback> eventCallbacks = new Dictionary<MVEventCodes, EventCallback>();
+
+			private readonly HashSet<MVEventCodes> eventsHandledByDynamicEventCallbackManager = new HashSet<MVEventCodes> { MVEventCodes.XPRewardedAdReady };
+
+			public bool IsDynamicEvent(MVEventCodes eventCode)
+			{
+				return eventsHandledByDynamicEventCallbackManager.Contains(eventCode);
+			}
+
+			public void Notify(MVEventCodes eventCode, EventData eventData)
+			{
+				eventCallbacks[eventCode].Notify(eventData);
+			}
+
+			public void SubscribeToEvent(MVEventCodes eventCode, Action<EventData> callback)
+			{
+				if (!eventsHandledByDynamicEventCallbackManager.Contains(eventCode))
+				{
+					throw new Exception("Event not handled by dynamic event callback manager");
+				}
+				if (!eventCallbacks.ContainsKey(eventCode))
+				{
+					eventCallbacks.Add(eventCode, new EventCallback());
+				}
+				eventCallbacks[eventCode].Subscribe(callback);
+			}
+
+			public void UnSubscribeToEvent(MVEventCodes eventCode, Action<EventData> callback)
+			{
+				if (!eventCallbacks[eventCode].UnSubscribe(callback))
+				{
+					eventCallbacks.Remove(eventCode);
+				}
+			}
+		}
+
+		private DynamicEventCallbackManager dynamicEventCallbackManager = new DynamicEventCallbackManager();
+
 		private bool cacheEvents;
 
 		private Queue<EventData> cachedEvents = new Queue<EventData>();
@@ -569,6 +641,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			case MVEventCodes.PlayerPlanetData:
 			{
 				PlayerPlanetData playerPlanetData = JsonConvert.DeserializeObject<PlayerPlanetData>((string)photonEvent[245]);
+				Debug.Log(playerPlanetData);
 				GamePassesManager.UpdatePlayerPlanetData(playerPlanetData);
 				networkGame.MVPlayerContainer.LocalPlayer.PlayerPlanetData = playerPlanetData;
 				break;
@@ -640,9 +713,26 @@ public class MVNetworkGame : IPhotonPeerListener
 				break;
 			}
 			default:
-				Debug.LogError("Unknown event: " + eventCode);
+				if (dynamicEventCallbackManager.IsDynamicEvent(eventCode))
+				{
+					dynamicEventCallbackManager.Notify(eventCode, photonEvent);
+				}
+				else
+				{
+					Debug.LogError("Unknown event: " + eventCode);
+				}
 				break;
 			}
+		}
+
+		public void SubscribeToEvent(MVEventCodes eventCode, Action<EventData> callback)
+		{
+			dynamicEventCallbackManager.SubscribeToEvent(eventCode, callback);
+		}
+
+		public void UnSubscribeToEvent(MVEventCodes eventCode, Action<EventData> callback)
+		{
+			dynamicEventCallbackManager.UnSubscribeToEvent(eventCode, callback);
 		}
 
 		private void HandleActorReadyMetric()
@@ -1001,6 +1091,13 @@ public class MVNetworkGame : IPhotonPeerListener
 			peer.SendOperation(58, new Dictionary<byte, object>(), SendOptions.SendReliable);
 		}
 
+		public void ClaimRewardedAdXP(bool success)
+		{
+			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
+			dictionary.Add(208, success);
+			peer.SendOperation(117, dictionary, SendOptions.SendReliable);
+		}
+
 		public void SyncronizePing()
 		{
 			peer.SendOperation(60, new Dictionary<byte, object>(), SendOptions.SendReliable);
@@ -1012,6 +1109,11 @@ public class MVNetworkGame : IPhotonPeerListener
 			dictionary.Add(22, avatarCreatorWoId);
 			dictionary.Add(191, avatarBodyDbId);
 			peer.SendOperation(115, dictionary, SendOptions.SendReliable);
+		}
+
+		public void TogglePreviewTier()
+		{
+			peer.SendOperation(116, new Dictionary<byte, object>(), SendOptions.SendReliable);
 		}
 
 		public void GetHighScoreList()
@@ -1034,10 +1136,10 @@ public class MVNetworkGame : IPhotonPeerListener
 			peer.SendOperation(114, new Dictionary<byte, object>(), SendOptions.SendReliable);
 		}
 
-		public void CreateSpawnRole(int worldObjectId)
+		public void CreateSpawnRole(int avatarSpawnerWoId)
 		{
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
-			dictionary.Add(22, worldObjectId);
+			dictionary.Add(22, avatarSpawnerWoId);
 			peer.SendOperation(113, dictionary, SendOptions.SendReliable);
 		}
 
@@ -2320,6 +2422,12 @@ public class MVNetworkGame : IPhotonPeerListener
 					networkGame.OnAccessoryUnequipped();
 				}
 				break;
+			case MVOperationCodes.CreateSpawnRole:
+				if (returnCode == -1)
+				{
+					MVGameControllerBase.LocalPlayer.CreateSpawnRoleFailed();
+				}
+				break;
 			default:
 				Debug.LogWarning("Unhandled operation code " + opCode);
 				break;
@@ -2528,6 +2636,8 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public string AdConsentEndpointURL { get; private set; }
 
+	public string KogamaMainpageURL { get; private set; }
+
 	public int ServerTimeInMilliSeconds
 	{
 		get
@@ -2624,6 +2734,16 @@ public class MVNetworkGame : IPhotonPeerListener
 		CreatePrivateClasses();
 		NetworkGameStateListener = new MVNetworkGameStateListener();
 		NetworkGameStateListener.OnGameStateChanged += networkGameStateListener_OnGameStateChanged;
+	}
+
+	public void SubscribeToEvent(MVEventCodes eventCode, Action<EventData> callback)
+	{
+		eventHandling.SubscribeToEvent(eventCode, callback);
+	}
+
+	public void UnSubscribeToEvent(MVEventCodes eventCode, Action<EventData> callback)
+	{
+		eventHandling.UnSubscribeToEvent(eventCode, callback);
 	}
 
 	private void CreatePrivateClasses()
@@ -2913,8 +3033,6 @@ public class MVNetworkGame : IPhotonPeerListener
 		int actorNumber = (int)returnValues[254];
 		int num = (int)returnValues[14];
 		UserProfileData userProfileData = JsonConvert.DeserializeObject<UserProfileData>((string)returnValues[224]);
-		MVGameControllerBase.InterstitialAdsEnabled = (bool)returnValues[213];
-		MVGameControllerBase.RewardedAdsEnabled = (bool)returnValues[214];
 		MVLocalPlayer mVLocalPlayer;
 		if (MVGameControllerBase.IsTouristSession)
 		{
@@ -2939,6 +3057,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		MVClientSettings.ClientSettingFlags = (ClientSettingFlags)returnValues[168];
 		MVClientSettings.PostGameInterstitialIntervalInSeconds = (int)returnValues[215];
 		AdConsentEndpointURL = (string)returnValues[225];
+		KogamaMainpageURL = (string)returnValues[226];
 		isPublished = (bool)returnValues[82];
 		MVGameControllerBase.JoinState = MVJoinState.LoadGUI;
 		LoadModeGui();

@@ -121,6 +121,9 @@ public class SettingsFactory : MonoBehaviour
 	private SpawnRoleEditorMenu spawnRoleEditorPrefab;
 
 	[SerializeField]
+	private RespawnSettings respawnSettingsPrefab;
+
+	[SerializeField]
 	private LevelRequirementSettings levelRequirementSettingsPrefab;
 
 	[SerializeField]
@@ -397,6 +400,12 @@ public class SettingsFactory : MonoBehaviour
 	{
 		GamePointMinorRewardSettings gamePointMinorRewardSettings = Object.Instantiate(gamePointMinorRewardSettingsPrefab);
 		gamePointMinorRewardSettings.Initialize(woID, gameObject);
+	}
+
+	public void CreateRespawnSetting(int woID)
+	{
+		RespawnSettings respawnSettings = Object.Instantiate(respawnSettingsPrefab);
+		respawnSettings.Initialize(woID, gameObject);
 	}
 
 	private void CreateBlueprintSettings(int woID)

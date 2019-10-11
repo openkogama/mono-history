@@ -71,8 +71,8 @@ public class ResetAvatarHandler : MonoBehaviour, IDragHandler, IPointerDownHandl
 	{
 		MVGameControllerBase.Game.ReceivedItemFromQuery -= GameOnReceivedItemFromQuery;
 		KoGaMaPackageClient koGaMaPackageClient = new KoGaMaPackageClient(receivedItemFromQueryEventArgs.KoGaMaData, readRuntimeValues: false);
+		koGaMaPackageClient.InventoryInitialize();
 		MVWorldObjectClient mVWorldObjectClient = koGaMaPackageClient.worldObjects[koGaMaPackageClient.worldObjectRoot];
-		mVWorldObjectClient.InitializeInventory();
 		toImage.color = new Color(1f, 1f, 1f, 1f);
 		fromImage.color = new Color(1f, 1f, 1f, 1f);
 		toPreviewer = UnityEngine.Object.Instantiate(previewer);

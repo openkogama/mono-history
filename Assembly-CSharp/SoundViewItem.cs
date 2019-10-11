@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class SoundViewItem : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IEventSystemHandler
@@ -47,10 +48,10 @@ public class SoundViewItem : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 			selectedImage.gameObject.SetActive(value: true);
 		}
 		string path = StreamingAsset.DBUrlToServerUrl(StreamingAsset.AssetBundleUrl + tabInfo.url);
-		AsyncWWWManager.WWWRequest(new CachedGetRequest(path, OnDownloadFinished, WWWRequestPriority.WaitUntilSyncronizingIsDone));
+		AsyncWWWManager.WWWRequest(new CachedAssetBundleRequest(path, OnDownloadFinished, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 	}
 
-	private void OnDownloadFinished(WWW www)
+	private void OnDownloadFinished(UnityWebRequest www)
 	{
 		if (www == null)
 		{

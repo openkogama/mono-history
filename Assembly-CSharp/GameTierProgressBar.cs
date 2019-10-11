@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class GameTierProgressBar : MonoBehaviour
+public class GameTierProgressBar : MonoBehaviour, HoverInputReceiver
 {
 	[Serializable]
 	private struct TierProgressData
@@ -20,8 +20,6 @@ public class GameTierProgressBar : MonoBehaviour
 
 		public GamePassesTextBubble progressBarTextBubble;
 
-		public Text hoverProgressText;
-
 		public GamePassesTextBubble avatarHead;
 
 		public RawImage avatarHeadImage;
@@ -30,21 +28,25 @@ public class GameTierProgressBar : MonoBehaviour
 
 		public ProgressBar disabledProgressBar;
 
-		public Text disabledProgressText;
-
-		public NotificationFade notificationFade;
-
-		public NotificationFade disabledNotificationFade;
-
 		public GameObject disabledProgressDivider;
 
 		public GamePassesTextBubble disabledBarTextBubble;
 
 		public GameObject tierIconCheckmark;
 
+		public GameObject tierIconTempUnlock;
+
 		public GameObject tierIconNumber;
 
 		public ProgressBar endResultProgressBar;
+
+		public GameObject tempProgress;
+
+		public GameObject disabledTempProgress;
+
+		public GamePassesTextBubble freeTryTextBubble;
+
+		public HoverInputHandler hoverInputHandler;
 	}
 
 	[SerializeField]
@@ -115,9 +117,25 @@ public class GameTierProgressBar : MonoBehaviour
 		}
 	}
 
+	public void OnHoverEnter()
+	{
+		ShowFreeTryTextBubble();
+	}
+
+	public void OnHoverExit()
+	{
+	}
+
 	public GamePassTier GetCurrentTier()
 	{
 		return (GamePassTier)((byte)Mathf.FloorToInt(previousProgressValue) + 1);
+	}
+
+	public void DeactivateFreeTryBubble()
+	{
+		GamePassTier gamePassTier = GamePassesManager.PlayerPlanetData.gamePassTier;
+		int index = (int)gamePassTier;
+		tierProgressDataList[index].freeTryTextBubble.gameObject.SetActive(value: false);
 	}
 
 	public void Initialize()
@@ -134,7 +152,10 @@ public class GameTierProgressBar : MonoBehaviour
 				int progressionGamePoints = GamePassesManager.PlayerPlanetData.progressionGamePoints;
 				UpdateProgressBars(progressionGamePoints);
 				UpdateDividerVisibility(progressionGamePoints);
+				UpdateTempProgressVisibility();
+				UpdateTierIconHoverInput();
 				HandleDisabledProgressBarVisibility();
+				HandleFreeTryVisibility();
 				previousProgressValue = CalculateTotalProgressValue(progressionGamePoints);
 				interpolateTowardsProgressValue = previousProgressValue;
 				CreateAvatarHeadImages();
@@ -166,6 +187,8 @@ public class GameTierProgressBar : MonoBehaviour
 			int progressionGamePoints = GamePassesManager.PlayerPlanetData.progressionGamePoints;
 			GamePointGainEffectManager.HaveShownTierProgressBarGamePointGainEffect(progressionGamePoints);
 		}
+		UpdateTempProgressVisibility();
+		UpdateTierIconHoverInput();
 	}
 
 	private void OnDisable()
@@ -176,7 +199,6 @@ public class GameTierProgressBar : MonoBehaviour
 			int progressionGamePoints = GamePassesManager.PlayerPlanetData.progressionGamePoints;
 			UpdateProgressBars(progressionGamePoints);
 			UpdateDividerVisibility(progressionGamePoints);
-			HideProgressText();
 		}
 	}
 
@@ -193,8 +215,6 @@ public class GameTierProgressBar : MonoBehaviour
 		{
 			num = interpolateTowardsProgressValue - (float)value;
 			shouldInterpolate = false;
-			tierProgressDataList[value].notificationFade.Unpause();
-			tierProgressDataList[value].disabledNotificationFade.Unpause();
 		}
 		if (num >= 1f)
 		{
@@ -202,8 +222,6 @@ public class GameTierProgressBar : MonoBehaviour
 			tierProgressDataList[value].progressDivider.SetActive(value: false);
 			tierProgressDataList[value].disabledProgressDivider.SetActive(value: false);
 			ActivateBar(value);
-			tierProgressDataList[value].notificationFade.Unpause();
-			tierProgressDataList[value].disabledNotificationFade.Unpause();
 			int num2 = value + 1;
 			previousProgressValue = num2;
 			interpolationStartTime = Time.time;
@@ -212,10 +230,6 @@ public class GameTierProgressBar : MonoBehaviour
 				tierProgressDataList[num2].avatarHeadUI.gameObject.SetActive(value: true);
 				tierProgressDataList[num2].progressDivider.SetActive(value: true);
 				tierProgressDataList[num2].disabledProgressDivider.SetActive(value: true);
-				tierProgressDataList[num2].notificationFade.Activate();
-				tierProgressDataList[num2].notificationFade.PauseAt(0.5f);
-				tierProgressDataList[num2].disabledNotificationFade.Activate();
-				tierProgressDataList[num2].disabledNotificationFade.PauseAt(0.5f);
 			}
 		}
 		tierProgressDataList[value].progressBar.Progress = num;
@@ -225,6 +239,7 @@ public class GameTierProgressBar : MonoBehaviour
 
 	private void OnPlayerPlanetDataUpdated()
 	{
+		UpdateTempProgressVisibility();
 		if (MVGameControllerBase.GameSessionData.gameMode == MVGameMode.Edit)
 		{
 			UpdateEditModeDisabledProgressBars();
@@ -243,10 +258,6 @@ public class GameTierProgressBar : MonoBehaviour
 		int num = Mathf.FloorToInt(Mathf.Clamp(previousProgressValue, 0f, tierProgressDataList.Count - 1));
 		if (shouldInterpolate)
 		{
-			tierProgressDataList[num].notificationFade.Activate();
-			tierProgressDataList[num].notificationFade.PauseAt(0.5f);
-			tierProgressDataList[num].disabledNotificationFade.Activate();
-			tierProgressDataList[num].disabledNotificationFade.PauseAt(0.5f);
 			int num2 = num;
 			for (float num3 = interpolateTowardsProgressValue - (float)num2; num3 > 0f; num3--)
 			{
@@ -330,12 +341,10 @@ public class GameTierProgressBar : MonoBehaviour
 				{
 					num = 0;
 				}
-				string text = ((float)num / (float)gamePointRequirementBase * 100f).ToString("0.00") + "%";
+				string text = num + " / " + gamePointRequirementBase;
 				tierProgressDataList[(int)(progressBarToUpdate - 1)].progressBar.Progress = num2;
 				tierProgressDataList[(int)(progressBarToUpdate - 1)].progressText.text = text;
-				tierProgressDataList[(int)(progressBarToUpdate - 1)].hoverProgressText.text = text;
 				tierProgressDataList[(int)(progressBarToUpdate - 1)].disabledProgressBar.Progress = num2;
-				tierProgressDataList[(int)(progressBarToUpdate - 1)].disabledProgressText.text = text;
 				if (num2 >= 1f)
 				{
 					ActivateBar((int)(progressBarToUpdate - 1));
@@ -357,24 +366,13 @@ public class GameTierProgressBar : MonoBehaviour
 		{
 			tierProgressDataList[(int)(progressBarToUpdate - 1)].progressBar.Progress = 0f;
 			tierProgressDataList[(int)(progressBarToUpdate - 1)].progressText.text = string.Empty;
-			tierProgressDataList[(int)(progressBarToUpdate - 1)].hoverProgressText.text = string.Empty;
 			tierProgressDataList[(int)(progressBarToUpdate - 1)].disabledProgressBar.Progress = 0f;
-			tierProgressDataList[(int)(progressBarToUpdate - 1)].disabledProgressText.text = string.Empty;
 			if (IsTierUnlocked(progressBarToUpdate))
 			{
 				tierProgressDataList[(int)(progressBarToUpdate - 1)].disabledProgressBar.Progress = 1f;
 				tierProgressDataList[(int)(progressBarToUpdate - 1)].progressBar.Progress = 1f;
 				ActivateBar((int)(progressBarToUpdate - 1));
 			}
-		}
-	}
-
-	private void HideProgressText()
-	{
-		for (int i = 0; i < tierProgressDataList.Count; i++)
-		{
-			tierProgressDataList[i].notificationFade.Deactivate();
-			tierProgressDataList[i].disabledNotificationFade.Deactivate();
 		}
 	}
 
@@ -389,6 +387,10 @@ public class GameTierProgressBar : MonoBehaviour
 		if (tierProgressDataList[barIndex].tierIconNumber.activeSelf)
 		{
 			tierProgressDataList[barIndex].tierIconNumber.SetActive(value: false);
+		}
+		if (tierProgressDataList[barIndex].tierIconTempUnlock.activeSelf)
+		{
+			tierProgressDataList[barIndex].tierIconTempUnlock.SetActive(value: false);
 		}
 	}
 
@@ -464,6 +466,87 @@ public class GameTierProgressBar : MonoBehaviour
 		}
 	}
 
+	private void UpdateTempProgressVisibility()
+	{
+		bool flag = HasTempTier(GamePassTier.Tier1);
+		bool flag2 = HasTempTier(GamePassTier.Tier2);
+		bool flag3 = HasTempTier(GamePassTier.Tier3);
+		tierProgressDataList[0].tempProgress.SetActive(flag);
+		tierProgressDataList[0].disabledTempProgress.SetActive(flag);
+		tierProgressDataList[0].tierIconTempUnlock.SetActive(flag);
+		tierProgressDataList[0].tierIconNumber.SetActive(!flag && tierProgressDataList[0].progressBar.Progress < 1f);
+		tierProgressDataList[1].tempProgress.SetActive(flag2);
+		tierProgressDataList[1].disabledTempProgress.SetActive(flag2);
+		tierProgressDataList[1].tierIconTempUnlock.SetActive(flag2);
+		tierProgressDataList[1].tierIconNumber.SetActive(!flag2 && tierProgressDataList[1].progressBar.Progress < 1f);
+		tierProgressDataList[2].tempProgress.SetActive(flag3);
+		tierProgressDataList[2].disabledTempProgress.SetActive(flag3);
+		tierProgressDataList[2].tierIconTempUnlock.SetActive(flag3);
+		tierProgressDataList[2].tierIconNumber.SetActive(!flag3 && tierProgressDataList[2].progressBar.Progress < 1f);
+	}
+
+	private bool HasTempTier(GamePassTier tier)
+	{
+		if (!GamePassesManager.GamePassesActive)
+		{
+			return false;
+		}
+		GamePassTier previewGamePassTier = GamePassesManager.PlayerPlanetData.previewGamePassTier;
+		GamePassTier gamePassTier = GamePassesManager.PlayerPlanetData.gamePassTier;
+		return tier == previewGamePassTier && tier != gamePassTier;
+	}
+
+	private bool HasAnyTempTier()
+	{
+		return GamePassesManager.PlayerPlanetData.previewGamePassTier != GamePassTier.Tier0;
+	}
+
+	private void UpdateTierIconHoverInput()
+	{
+		if (GamePassesManager.GamePassesActive)
+		{
+			for (int i = 0; i < tierProgressDataList.Count; i++)
+			{
+				tierProgressDataList[i].hoverInputHandler.UnsubscribeToHoverInput(this);
+			}
+			GamePassTier gamePassTier = GamePassesManager.PlayerPlanetData.gamePassTier;
+			if (gamePassTier != GamePassTier.Tier3 && !HasTempTier(gamePassTier + 1))
+			{
+				int index = (int)gamePassTier;
+				tierProgressDataList[index].hoverInputHandler.SubscribeToHoverInput(this);
+			}
+		}
+	}
+
+	private void ShowFreeTryTextBubble()
+	{
+		GamePassTier gamePassTier = GamePassesManager.PlayerPlanetData.gamePassTier;
+		if (CanShowFreeTryBubble() && MVGameControllerBase.Game.GameTierShopRepository.GetTierItemData(gamePassTier + 1) != null)
+		{
+			int index = (int)gamePassTier;
+			if (!tierProgressDataList[index].freeTryTextBubble.IsActive)
+			{
+				tierProgressDataList[index].freeTryTextBubble.gameObject.SetActive(value: true);
+				tierProgressDataList[index].freeTryTextBubble.Activate(TM._("FREE TRY"));
+			}
+		}
+	}
+
+	private bool CanShowFreeTryBubble()
+	{
+		if (GamePassesManager.PlayerPlanetData == null)
+		{
+			return false;
+		}
+		GamePassTier gamePassTier = GamePassesManager.PlayerPlanetData.gamePassTier;
+		bool flag = MVGameControllerBase.GameMode == MVGameMode.Edit;
+		if (gamePassTier == GamePassTier.Tier3 || HasAnyTempTier() || flag || !MVClientSettings.RewardedAdsEnabled)
+		{
+			return false;
+		}
+		return true;
+	}
+
 	private float CalculateTotalProgressValue(int gamePoints)
 	{
 		int progressionGamePoints = GamePassesManager.PlayerPlanetData.progressionGamePoints;
@@ -534,10 +617,8 @@ public class GameTierProgressBar : MonoBehaviour
 		Dictionary<GamePassTier, PlayerTierState> tierPricingState = GamePassesManager.playerTierStateCalculator.GetTierPricingState(progressionGamePoints, gamePassTier);
 		int num = ReduceGamePointsWithPreviousTierRequirements(currentTier, gamePoints, tierPricingState);
 		int gamePointRequirementBase = tierPricingState[currentTier].gamePointRequirementBase;
-		string text = ((float)num / (float)gamePointRequirementBase * 100f).ToString("0.00") + "%";
+		string text = num + " / " + gamePointRequirementBase;
 		tierProgressDataList[(int)(currentTier - 1)].progressText.text = text;
-		tierProgressDataList[(int)(currentTier - 1)].hoverProgressText.text = text;
-		tierProgressDataList[(int)(currentTier - 1)].disabledProgressText.text = text;
 	}
 
 	private void HandleDisabledProgressBarVisibility()
@@ -553,6 +634,15 @@ public class GameTierProgressBar : MonoBehaviour
 			}
 			tierProgressDataList[i - 1].progressBar.gameObject.SetActive(flag2);
 			tierProgressDataList[i - 1].disabledProgressBar.gameObject.SetActive(!flag2);
+		}
+	}
+
+	private void HandleFreeTryVisibility()
+	{
+		for (int i = 1; i <= 3; i++)
+		{
+			tierProgressDataList[i - 1].freeTryTextBubble.DeactivateAfterFade = true;
+			tierProgressDataList[i - 1].freeTryTextBubble.gameObject.SetActive(value: false);
 		}
 	}
 
@@ -574,8 +664,9 @@ public class GameTierProgressBar : MonoBehaviour
 			int index = Mathf.Clamp((int)(gamePassTier - 1), 0, tierProgressDataList.Count);
 			tierProgressDataList[index].disabledBarTextBubble.Activate("Progression is disabled in build mode");
 			tierProgressDataList[index].progressBarTextBubble.Activate("Progression is disabled in build mode");
+			return;
 		}
-		else if (isTouristSession)
+		if (isTouristSession)
 		{
 			tierProgressDataList[0].disabledBarTextBubble.Activate("Sign up to be able to save progression");
 			tierProgressDataList[0].progressBarTextBubble.Activate("Sign up to be able to save progression");
@@ -594,6 +685,7 @@ public class GameTierProgressBar : MonoBehaviour
 			tierProgressDataList[index3].disabledBarTextBubble.Activate("Progression locked while the game is in Beta-Mode");
 			tierProgressDataList[index3].progressBarTextBubble.Activate("Progression locked while the game is in Beta-Mode");
 		}
+		ShowFreeTryTextBubble();
 	}
 
 	private bool IsProgressBarEnabled()

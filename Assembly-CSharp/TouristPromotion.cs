@@ -6,18 +6,28 @@ using UnityEngine.UI;
 public class TouristPromotion : MonoBehaviour
 {
 	[SerializeField]
-	private RawImage buttonRawImage;
+	private RectTransform promotionImageParent;
 
 	[SerializeField]
 	private CanvasGroup canvasGroup;
 
 	[SerializeField]
-	private GameObject pleaseWaitOverlay;
+	private Text promotionHeader;
 
-	public void SetPromotionTexture(Texture tex)
+	[SerializeField]
+	private TouristPromotionLooksData looksData;
+
+	protected virtual void Start()
 	{
-		buttonRawImage.texture = tex;
-		pleaseWaitOverlay.SetActive(value: false);
+		looksData.RandomizePromotion();
+		promotionHeader.text = looksData.GetPromotionText();
+		Image promotionImage = looksData.GetPromotionImage();
+		promotionImage.transform.SetParent(promotionImageParent, worldPositionStays: false);
+	}
+
+	public void Initialize(string header)
+	{
+		promotionHeader.text = header;
 	}
 
 	public virtual void SkipCallback()

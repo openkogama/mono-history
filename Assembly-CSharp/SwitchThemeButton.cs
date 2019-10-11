@@ -1,5 +1,6 @@
 using MV.WorldObject.Subscription;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class SwitchThemeButton : MonoBehaviour
@@ -74,11 +75,11 @@ public class SwitchThemeButton : MonoBehaviour
 		}
 	}
 
-	private void OnLevelTextureReceived(WWW www)
+	private void OnLevelTextureReceived(UnityWebRequest www)
 	{
 		if (string.IsNullOrEmpty(www.error))
 		{
-			levelRequirementTextureAsset = www.texture;
+			levelRequirementTextureAsset = DownloadHandlerTexture.GetContent(www);
 			levelReqImage.texture = levelRequirementTextureAsset;
 		}
 	}

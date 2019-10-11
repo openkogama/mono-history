@@ -61,6 +61,8 @@ public class GameSessionData
 
 	public bool detailedStats;
 
+	private List<string> redirectProhibitedUrls = new List<string> { "crazygames.com" };
+
 	private Dictionary<string, LoadLogoType> referralToLogoMap = new Dictionary<string, LoadLogoType> { 
 	{
 		"gsm",
@@ -108,6 +110,11 @@ public class GameSessionData
 		{
 			planetID = -1;
 		}
+	}
+
+	public bool GetIsRedirectAllowed()
+	{
+		return true;
 	}
 
 	public override string ToString()

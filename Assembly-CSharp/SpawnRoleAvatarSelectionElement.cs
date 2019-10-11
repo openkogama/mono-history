@@ -54,6 +54,16 @@ public class SpawnRoleAvatarSelectionElement : MonoBehaviour
 		avatarImage.texture = spawnRolePreviewer.PreviewTexture;
 	}
 
+	public void Activate()
+	{
+		spawnRolePreviewer.ActivatePreview();
+	}
+
+	public void Deactivate()
+	{
+		spawnRolePreviewer.DeactivatePreview();
+	}
+
 	private void OnDestroy()
 	{
 		Object.Destroy(spawnRolePreviewer);

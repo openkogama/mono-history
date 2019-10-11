@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Networking;
 
 public class LevelDisplayCube : MonoBehaviour
 {
@@ -53,7 +54,7 @@ public class LevelDisplayCube : MonoBehaviour
 		}
 	}
 
-	private void OnBadgeTextureReceived(WWW www)
+	private void OnBadgeTextureReceived(UnityWebRequest www)
 	{
 		if (!string.IsNullOrEmpty(www.error))
 		{
@@ -68,7 +69,7 @@ public class LevelDisplayCube : MonoBehaviour
 				{
 					UnityEngine.Object.Destroy(renderer.material.mainTexture);
 				}
-				badgeTextureAsset = www.texture;
+				badgeTextureAsset = DownloadHandlerTexture.GetContent(www);
 				renderer.material.mainTexture = badgeTextureAsset;
 			}
 		}

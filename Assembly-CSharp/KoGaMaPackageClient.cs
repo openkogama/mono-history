@@ -20,6 +20,12 @@ public class KoGaMaPackageClient
 		worldObjectRoot = KoGaMaDataHandler.GetKoGaMaData(koGaMaData, HandleDeserializedData, readRuntimeValues);
 	}
 
+	public void InventoryInitialize()
+	{
+		MVWorldObjectClient mVWorldObjectClient = worldObjects[worldObjectRoot];
+		mVWorldObjectClient.InventoryInitialize();
+	}
+
 	public void Destroy()
 	{
 		MVWorldObjectClient wo = worldObjects[worldObjectRoot];

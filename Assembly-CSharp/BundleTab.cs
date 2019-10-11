@@ -6,6 +6,7 @@ using MV.WorldObject.HighlightSystem.HighlightPayloads;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class BundleTab : TabMenuButtonBase
@@ -98,11 +99,11 @@ public class BundleTab : TabMenuButtonBase
 		UnityEngine.Object.Destroy(badgeTextureAsset);
 	}
 
-	private void OnBadgeLoaded(WWW www)
+	private void OnBadgeLoaded(UnityWebRequest www)
 	{
 		if (!(levelBadge == null))
 		{
-			badgeTextureAsset = www.texture;
+			badgeTextureAsset = DownloadHandlerTexture.GetContent(www);
 			if (badgeTextureAsset != null)
 			{
 				levelBadge.texture = badgeTextureAsset;

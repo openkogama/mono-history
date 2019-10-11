@@ -10,7 +10,7 @@ public class TouristPromotionSkipButton : MonoBehaviour, IPointerDownHandler, IE
 	{
 		if (eventData.button == PointerEventData.InputButton.Left)
 		{
-			touristPromotionDesktop.ContinueCallback();
+			touristPromotionDesktop.SkipCallback();
 		}
 	}
 }

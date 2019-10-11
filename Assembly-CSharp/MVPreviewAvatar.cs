@@ -1,7 +1,18 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 public class MVPreviewAvatar : MVGroup
 {
+	private int spawnRoleCreatorId;
+
+	public int SpawnRoleCreatorId
+	{
+		set
+		{
+			spawnRoleCreatorId = value;
+		}
+	}
+
 	public MVPreviewAvatar(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, PrefabPool.Instance.MVPreviewAvatarPrefab, worldObjects)
 	{
@@ -12,8 +23,18 @@ public class MVPreviewAvatar : MVGroup
 		MVWorldObjectClient mVWorldObjectClient = base.Clone(ownerActorNumber, cloneGroupId, cloneBookkeeping, worldObjects, prototypes);
 		if (mVWorldObjectClient.GetType() == typeof(MVAvatarLocal))
 		{
-			((MVAvatarLocal)mVWorldObjectClient).SpawnId = Id;
+			((MVAvatarLocal)mVWorldObjectClient).SpawnId = spawnRoleCreatorId;
 		}
 		return mVWorldObjectClient;
+	}
+
+	public override void Select(Color color)
+	{
+		AddSelectionBox();
+	}
+
+	public override void DeSelect()
+	{
+		RemoveSelectionBox();
 	}
 }

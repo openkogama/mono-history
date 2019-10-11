@@ -1,3 +1,4 @@
+using System;
 using MV.WorldObject;
 using MV.WorldObject.SpawnRoles;
 using UnityEngine;
@@ -10,6 +11,8 @@ public class SpawnRolesManager
 
 	public int SpawnRoleId => spawnRolesRuntimeData.activeSpawnRole;
 
+	public event Action<int> OnSpawnRoleActivated;
+
 	public SpawnRolesManager(ISpawnRoleChangeHandler spawnRoleChangeHandler, SpawnRolesRuntimeData spawnRolesRuntimeData)
 	{
 		this.spawnRolesRuntimeData = spawnRolesRuntimeData;
@@ -21,6 +24,10 @@ public class SpawnRolesManager
 		int activeSpawnRole = spawnRolesRuntimeData.activeSpawnRole;
 		spawnRolesRuntimeData.activeSpawnRole = newSpawnRoleId;
 		spawnRoleChangeHandler.ActivateSpawnRole(activeSpawnRole, newSpawnRoleId, position, rotation);
+		if (OnSpawnRoleActivated != null)
+		{
+			OnSpawnRoleActivated(newSpawnRoleId);
+		}
 	}
 
 	public void OnAvatarCreated(int id)

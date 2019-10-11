@@ -287,9 +287,8 @@ public class PlayerInventoryController : MonoBehaviour, IPlayerInventory, IEvent
 		byte[] data = item.data;
 		BytePacker koGaMaData = new BytePacker(data);
 		KoGaMaPackageClient koGaMaPackageClient = new KoGaMaPackageClient(koGaMaData, readRuntimeValues: false);
-		MVWorldObjectClient mVWorldObjectClient = koGaMaPackageClient.worldObjects[koGaMaPackageClient.worldObjectRoot];
-		mVWorldObjectClient.InitializeInventory();
-		return mVWorldObjectClient;
+		koGaMaPackageClient.InventoryInitialize();
+		return koGaMaPackageClient.worldObjects[koGaMaPackageClient.worldObjectRoot];
 	}
 
 	public void SetCurrentDragTarget(GameObject draggingGameObject)

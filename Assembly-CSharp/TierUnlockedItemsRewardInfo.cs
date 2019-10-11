@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class TierUnlockedItemsRewardInfo : MonoBehaviour
+public class TierUnlockedItemsRewardInfo : MonoBehaviour, IGamePassShopContent
 {
 	[SerializeField]
 	private GameObject backgroundTier1;
@@ -43,6 +43,14 @@ public class TierUnlockedItemsRewardInfo : MonoBehaviour
 		tierUnlockedItemsPopup.Initialize(tier, tierShopData);
 	}
 
+	public void Activate()
+	{
+	}
+
+	public void Deactivate()
+	{
+	}
+
 	private void ChangeBackground(GamePassTier tier)
 	{
 		bool flag = tier == GamePassTier.Tier1;
@@ -69,6 +77,6 @@ public class TierUnlockedItemsRewardInfo : MonoBehaviour
 		{
 			num += value.Count;
 		}
-		itemAmountText.text = num + " In-game items";
+		itemAmountText.text = "x" + num;
 	}
 }

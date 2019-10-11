@@ -15,6 +15,8 @@ public class BoostEditIntPopup : BoostEditPopup
 	[SerializeField]
 	private InputField boostInputField;
 
+	private int originalSettingValue;
+
 	public override void Initialize(Boost boost, GameBoosterSettingWithGoldSetting boostSetting, UnityAction<object> settingChangedCallback, UnityAction<int> priceChangedCallback, UnityAction submitDataCallback)
 	{
 		boostSliderDescription.text = boost.ValueDescription;
@@ -22,7 +24,15 @@ public class BoostEditIntPopup : BoostEditPopup
 		boostSlider.maxValue = kogamaSettingNumericBase.KogamaSettingNumeric.RangeValidator.max;
 		boostSlider.minValue = kogamaSettingNumericBase.KogamaSettingNumeric.RangeValidator.min;
 		boostSlider.value = kogamaSettingNumericBase.NumericValue;
+		originalSettingValue = kogamaSettingNumericBase.NumericValue;
 		base.Initialize(boost, boostSetting, settingChangedCallback, priceChangedCallback, submitDataCallback);
+	}
+
+	public override void OnCancelBoostEdit()
+	{
+		boostSlider.value = originalSettingValue;
+		UpdateSettingData();
+		base.OnCancelBoostEdit();
 	}
 
 	private void UpdateBoostTextInputFieldWithBoostSliderValue()

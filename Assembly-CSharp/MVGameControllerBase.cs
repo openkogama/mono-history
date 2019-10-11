@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 using AntiHack;
+using Assets.Scripts.AdIntegration;
 using Assets.Scripts.Network.Player.SpawnRoles.SpawnRoleData.Mediator;
 using MV.Common;
 using Newtonsoft.Json;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSubscriberUpdate, IUpdatecontrollerSubscriberBase
 {
@@ -189,9 +191,9 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	public static bool IsTouristSession => GameSessionData.profileID <= 0;
 
-	public static bool InterstitialAdsEnabled { get; set; }
+	public static IAdManager AdManager => instance.GetAdManager;
 
-	public static bool RewardedAdsEnabled { get; set; }
+	protected abstract IAdManager GetAdManager { get; }
 
 	public static bool SeekAdConsent { get; set; }
 
@@ -505,7 +507,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		}
 	}
 
-	protected void StartGame()
+	protected virtual void StartGame()
 	{
 		DisconnectIsOk = false;
 		StatHatWrapper.Count("MVGameControllerStartGame", 1);
@@ -517,7 +519,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		}
 	}
 
-	protected virtual void InitWebPlayer(bool developmentMode)
+	protected virtual void InitWebGL(bool developmentMode)
 	{
 		BrowserComm.enableExternalCall = !developmentMode;
 		if (developmentMode)
@@ -559,16 +561,16 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		AsyncWWWManager.WWWRequest(new GetRequest(text3, OnReceivedSessionData, WWWRequestPriority.ExecuteIgnoreAllConstraints));
 	}
 
-	protected void OnReceivedReAuthWebParametersFromHttpRequest(WWW www)
+	protected void OnReceivedReAuthWebParametersFromHttpRequest(UnityWebRequest www)
 	{
-		string text = www.text;
+		string text = www.downloadHandler.text;
 		Debug.Log("Reauth webParameters " + text);
 		StartGameWithSessionData(ok: true, text);
 	}
 
-	protected void OnReceivedSessionData(WWW www)
+	protected void OnReceivedSessionData(UnityWebRequest www)
 	{
-		string text = www.text;
+		string text = www.downloadHandler.text;
 		Debug.Log(text);
 		StartGameWithSessionData(ok: true, text);
 	}

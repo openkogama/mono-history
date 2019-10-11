@@ -60,11 +60,11 @@ public class GamePassesShopDetails : MonoBehaviour
 	private void InstantiateGamePassesShop(GamePassTier tierToShow)
 	{
 		GamePassesShop gamePassesShop = Object.Instantiate(gamePassesShopPrefab);
+		gamePassesShop.Initialize(tierToShow);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Push(gamePassesShop.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
 		});
-		gamePassesShop.Initialize(tierToShow);
 	}
 
 	public void Exit()

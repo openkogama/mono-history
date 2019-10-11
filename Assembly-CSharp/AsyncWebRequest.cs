@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public abstract class AsyncWebRequest
 {
@@ -11,7 +12,7 @@ public abstract class AsyncWebRequest
 		Waiting
 	}
 
-	protected Action<WWW> callback;
+	protected Action<UnityWebRequest> callback;
 
 	protected readonly string path;
 
@@ -23,7 +24,7 @@ public abstract class AsyncWebRequest
 
 	protected State state;
 
-	protected WWW www;
+	protected UnityWebRequest request;
 
 	protected bool isDone;
 
@@ -31,7 +32,7 @@ public abstract class AsyncWebRequest
 
 	protected static bool CacheCompatibility => CheckCacheCompatibility();
 
-	public Action<WWW> Callback
+	public Action<UnityWebRequest> Callback
 	{
 		get
 		{
@@ -43,7 +44,7 @@ public abstract class AsyncWebRequest
 		}
 	}
 
-	protected AsyncWebRequest(string path, Action<WWW> callback, WWWRequestPriority requestPriority)
+	protected AsyncWebRequest(string path, Action<UnityWebRequest> callback, WWWRequestPriority requestPriority)
 	{
 		this.requestPriority = requestPriority;
 		this.path = path;
@@ -80,21 +81,22 @@ public abstract class AsyncWebRequest
 
 	public void Dispose()
 	{
-		if (www != null)
+		if (request != null)
 		{
-			www.Dispose();
+			request.Dispose();
 		}
 	}
 
 	private void GotoRunState()
 	{
-		www = Create();
+		request = Create();
 		state = State.Running;
+		request.SendWebRequest();
 	}
 
 	protected virtual bool UpdateRunningState()
 	{
-		bool flag = www.isDone;
+		bool flag = request.isDone;
 		if (flag)
 		{
 			if (!ReadyToDoCallback())
@@ -106,7 +108,7 @@ public abstract class AsyncWebRequest
 			{
 				if (callback != null)
 				{
-					callback(www);
+					callback(request);
 				}
 			}
 			catch (Exception message)
@@ -123,10 +125,10 @@ public abstract class AsyncWebRequest
 
 	protected bool ReadyToDoCallback()
 	{
-		if (www.error != null)
+		if (request.error != null)
 		{
 			bool flag = true;
-			if (int.TryParse(www.error[0].ToString(), out var result) && result == 4)
+			if (int.TryParse(request.error[0].ToString(), out var result) && result == 4)
 			{
 				flag = false;
 			}
@@ -136,15 +138,15 @@ public abstract class AsyncWebRequest
 				retryTime = DateTime.Now;
 				currentTimeout = new TimeSpan(0, 0, 0, AsyncWWWManager.RetryTimeouts[retries]);
 				state = State.Waiting;
-				foreach (KeyValuePair<string, string> responseHeader in www.responseHeaders)
+				foreach (KeyValuePair<string, string> responseHeader in request.GetResponseHeaders())
 				{
 					Debug.LogFormat("{0} {1}", responseHeader.Key, responseHeader.Value);
 				}
-				www = Create();
+				request = Create();
 				return false;
 			}
-			Debug.LogWarning("Failed url: " + www.url);
-			Debug.LogError(www.error);
+			Debug.LogWarning("Failed url: " + request.url);
+			Debug.LogError(request.error);
 		}
 		return true;
 	}
@@ -158,7 +160,7 @@ public abstract class AsyncWebRequest
 		return false;
 	}
 
-	protected abstract WWW Create();
+	protected abstract UnityWebRequest Create();
 
 	public override string ToString()
 	{

@@ -21,9 +21,19 @@ public class GameRankRequirement : UseRequirement
 
 	private bool hasUseWhenFree = true;
 
+	private bool shouldDeleteWhenTier0 = true;
+
 	private WorldObjectType worldObjectType;
 
 	public GamePassTier RequiredRank => requiredRank;
+
+	public bool ShouldDeleteWhenTier0
+	{
+		set
+		{
+			shouldDeleteWhenTier0 = value;
+		}
+	}
 
 	public override GameObject GameObject => displayGO.gameObject;
 
@@ -44,7 +54,7 @@ public class GameRankRequirement : UseRequirement
 
 	public override UseGUIResult GetCanUseGUIResult()
 	{
-		if (requiredRank == GamePassTier.Tier0 || (int)GetLocalPLayerRank() >= (int)requiredRank)
+		if (requiredRank == GamePassTier.Tier0 || (int)GetLocalPLayerRank() >= (int)requiredRank || (int)GetLocalPlayerTempRank() >= (int)requiredRank)
 		{
 			if (hasUseWhenFree)
 			{
@@ -52,7 +62,7 @@ public class GameRankRequirement : UseRequirement
 			}
 			return UseGUIResult.NoUseButton;
 		}
-		if ((int)GetLocalPLayerRank() >= (int)requiredRank)
+		if ((int)GetLocalPLayerRank() >= (int)requiredRank || (int)GetLocalPlayerTempRank() >= (int)requiredRank)
 		{
 			return UseGUIResult.CanAfford;
 		}
@@ -94,12 +104,9 @@ public class GameRankRequirement : UseRequirement
 		if (displayObject == null)
 		{
 			CreateDisplayObject();
-			if (ShouldBeDisplayedInTierShop(worldObject))
-			{
-				MVGameControllerBase.Game.GameTierShopRepository.AddItemToTierShop(requiredRank, worldObject.DocumentationType, worldObject);
-			}
+			MVGameControllerBase.Game.GameTierShopRepository.AddItemToTierShop(requiredRank, worldObject.DocumentationType, worldObject);
 		}
-		if (gamePassTier != GamePassTier.Tier0 && gamePassTier != requiredRank && ShouldBeDisplayedInTierShop(worldObject))
+		if (gamePassTier != GamePassTier.Tier0 && gamePassTier != requiredRank)
 		{
 			MVGameControllerBase.Game.GameTierShopRepository.RemoveItemToTierShop(gamePassTier, worldObject.DocumentationType, worldObject.Id);
 			MVGameControllerBase.Game.GameTierShopRepository.AddItemToTierShop(requiredRank, worldObject.DocumentationType, worldObject);
@@ -110,16 +117,19 @@ public class GameRankRequirement : UseRequirement
 		}
 		if (requiredRank == GamePassTier.Tier0)
 		{
-			Dictionary<object, object> dictionary = new Dictionary<object, object>();
-			dictionary.Add("RequiredRank", 0);
-			MVGameControllerBase.OperationRequests.RemoveWorldObjectDataPartial(ownerID, dictionary);
+			if (shouldDeleteWhenTier0)
+			{
+				Dictionary<object, object> dictionary = new Dictionary<object, object>();
+				dictionary.Add("RequiredRank", 0);
+				MVGameControllerBase.OperationRequests.RemoveWorldObjectDataPartial(ownerID, dictionary);
+			}
 			Object.Destroy(displayObject.gameObject);
 		}
 	}
 
 	public void OnDelete()
 	{
-		if (MVGameControllerBase.IsAlive && ShouldBeDisplayedInTierShop(worldObject))
+		if (MVGameControllerBase.IsAlive)
 		{
 			MVGameControllerBase.Game.GameTierShopRepository.RemoveItemToTierShop(requiredRank, worldObject.DocumentationType, worldObject.Id);
 		}
@@ -128,11 +138,6 @@ public class GameRankRequirement : UseRequirement
 	public override void SetScale(Vector3 scale)
 	{
 		displayObject.SetScale(scale);
-	}
-
-	private bool ShouldBeDisplayedInTierShop(MVWorldObjectClient worldObject)
-	{
-		return worldObject is MVPickupItemBase || worldObject is MVWorldObjectSpawnerVehicle;
 	}
 
 	private void CreateDisplayObject()
@@ -176,5 +181,10 @@ public class GameRankRequirement : UseRequirement
 	private GamePassTier GetLocalPLayerRank()
 	{
 		return GamePassesManager.PlayerPlanetData.gamePassTier;
+	}
+
+	private GamePassTier GetLocalPlayerTempRank()
+	{
+		return GamePassesManager.PlayerPlanetData.previewGamePassTier;
 	}
 }

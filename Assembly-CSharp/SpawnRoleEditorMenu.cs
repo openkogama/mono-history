@@ -37,6 +37,8 @@ public class SpawnRoleEditorMenu : MonoBehaviour
 
 	private SpawnRoleSkillsEditor skillsEditorMenu;
 
+	private float timeUntilEnterPlayMode;
+
 	public void OnTeamEditPressed()
 	{
 		SpawnRoleTeamEditor teamEditor = UnityEngine.Object.Instantiate(teamEditorPrefab);
@@ -67,15 +69,31 @@ public class SpawnRoleEditorMenu : MonoBehaviour
 		});
 	}
 
+	public void OnEnterPlayMode()
+	{
+		MVGameControllerBase.GameEventManager.AvatarCommandsBuildMode.SetSpawn(spawnRole.Position, spawnRole.Rotation);
+		MVLocalPlayerBuilder.EnterPlayStateDataStruct enterPlayStateData = ((MVLocalPlayerBuilder)MVGameControllerBase.LocalPlayer).EnterPlayStateData;
+		enterPlayStateData.selectedSpawnRoleCreator = spawnRoleWoId;
+		((MVLocalPlayerBuilder)MVGameControllerBase.LocalPlayer).EnterPlayStateData = enterPlayStateData;
+		if ((int)spawnRole.Tier > (int)GamePassesManager.PlayerPlanetData.gamePassTier)
+		{
+			MVGameControllerBase.OperationRequests.SetTier(spawnRole.Tier);
+		}
+		timeUntilEnterPlayMode = 1f;
+		if (spawnRole != null)
+		{
+			SharedCubeFunctions.SetLayerRecursively(spawnRole.Transform, select: false);
+		}
+		MVGameControllerBase.GameEventManager.GameState.OnDisableLobbyState();
+	}
+
 	public void Initialize(int spawnRoleWoId)
 	{
 		this.spawnRoleWoId = spawnRoleWoId;
 		spawnRole = (MVAvatarSpawnRoleCreator)MVGameControllerBase.WOCM.GetWorldObjectClient(spawnRoleWoId);
 		spawnRoleAttributeSettingsManager = spawnRole.AttributeSettingsManagerAvatar;
 		SharedCubeFunctions.SetLayerRecursively(spawnRole.Transform, select: true);
-		Vector3 avatarOffset = CalculatePreviewOffset(spawnRole);
-		Vector3 cameraOffset = spawnRole.Transform.right * 1f;
-		MVGameControllerBase.MainCameraManager.CurrentCamera.FocusOnObject(spawnRole, 2f, avatarOffset, cameraOffset);
+		FocusCameraOnSpawnRole();
 		ChangeTeamImageColor(spawnRole.Team);
 		int newspawnRoleCost = CalculateSpawnRoleCost();
 		tierEditorMenu.Initialize(spawnRole.Tier, newspawnRoleCost, OnChangeTier);
@@ -87,7 +105,48 @@ public class SpawnRoleEditorMenu : MonoBehaviour
 		if (!MVGameControllerBase.MainCameraManager.BlueModeEnabled)
 		{
 			MVGameControllerBase.MainCameraManager.BlueModeEnabled = true;
+			FocusCameraOnSpawnRole();
+			MVWorldObjectClient worldObjectClient = MVGameControllerBase.WOCM.GetWorldObjectClient(spawnRoleWoId);
+			if (worldObjectClient != null)
+			{
+				SharedCubeFunctions.SetLayerRecursively(worldObjectClient.Transform, select: true);
+			}
 		}
+		if (timeUntilEnterPlayMode > 0f)
+		{
+			timeUntilEnterPlayMode -= Time.deltaTime;
+			if (timeUntilEnterPlayMode <= 0f)
+			{
+				ExecuteEvents.ExecuteHierarchy(gameObject, null, (IEditModeController x, BaseEventData y) =>
+				{
+					x.EnterPlayMode();
+				});
+			}
+		}
+		if (MVGameControllerBase.WOCM.GetWorldObjectClient(spawnRoleWoId) == null)
+		{
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Pop();
+			});
+		}
+		MVInputWrapper.SuppressAllInput();
+	}
+
+	private void OnEnable()
+	{
+	}
+
+	private void OnDisable()
+	{
+		MVGameControllerBase.MainCameraManager.BlueModeEnabled = false;
+	}
+
+	private void FocusCameraOnSpawnRole()
+	{
+		Vector3 avatarOffset = CalculatePreviewOffset(spawnRole);
+		Vector3 cameraOffset = spawnRole.Transform.right * 1f;
+		MVGameControllerBase.MainCameraManager.CurrentCamera.FocusOnObject(spawnRole, 2f, avatarOffset, cameraOffset);
 	}
 
 	private Vector3 CalculatePreviewOffset(MVWorldObjectClient spawnRole)

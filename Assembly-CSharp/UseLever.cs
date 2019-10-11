@@ -138,6 +138,18 @@ public class UseLever : MVLogicObject, IIsLogicObjectFiringEventHandler, ILogicW
 		useLeverObject.EditCollider.gameObject.SetActive(value: false);
 	}
 
+	public override void SetupTierInventory()
+	{
+		useLeverObject.EditCollider.gameObject.SetActive(value: false);
+		base.SetupTierInventory();
+	}
+
+	public override void UnSetupTierInventory()
+	{
+		useLeverObject.EditCollider.gameObject.SetActive(value: true);
+		base.UnSetupTierInventory();
+	}
+
 	public override Bounds GetLocalBounds(BoundsContext boundsContext)
 	{
 		return new Bounds(Vector3.zero, new Vector3(1.2f, 1.2f, 0.2f));

@@ -465,11 +465,11 @@ public abstract class MVWorldObjectClientManager : IWorldObjectManager
 
 	public MVWorldObjectClient GetValidSpawnPoint()
 	{
-		List<MVWorldObjectClient> spawnPointsForTeam = MVGameControllerBase.Game.TeamManager.GetSpawnPointsForTeam(MVGameControllerBase.Game.LocalPlayer.Team);
-		if (spawnPointsForTeam.Count > 0)
+		List<MVWorldObjectClient> onlySpawnPointsForTeam = MVGameControllerBase.Game.TeamManager.GetOnlySpawnPointsForTeam(MVGameControllerBase.Game.LocalPlayer.Team);
+		if (onlySpawnPointsForTeam.Count > 0)
 		{
-			int index = UnityEngine.Random.Range(0, spawnPointsForTeam.Count);
-			return spawnPointsForTeam[index];
+			int index = UnityEngine.Random.Range(0, onlySpawnPointsForTeam.Count);
+			return onlySpawnPointsForTeam[index];
 		}
 		Debug.LogError("No valid SpawnPoint on planet...");
 		return null;

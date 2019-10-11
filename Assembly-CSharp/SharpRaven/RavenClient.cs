@@ -89,8 +89,7 @@ public class RavenClient
 		dictionary.Add("X-Sentry-Auth", PacketBuilder.CreateAuthenticationHeader(dsn));
 		dictionary.Add("User-Agent", "SharpRaven/1.0.0.0");
 		string packetData = packet.Serialize();
-		byte[] postData = CreatePostData(packetData);
-		AsyncWWWManager.WWWRequest(new CustomPostRequest(dsn.SentryURI, postData, dictionary, null, WWWRequestPriority.ExecuteIgnoreAllConstraints));
+		AsyncWWWManager.WWWRequest(new CustomPostRequest(dsn.SentryURI, CreatePostData(packetData), dictionary, null, WWWRequestPriority.ExecuteIgnoreAllConstraints));
 		return true;
 	}
 

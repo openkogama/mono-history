@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Networking;
 
 internal static class AssetBundleCacheTest
 {
@@ -12,7 +13,7 @@ internal static class AssetBundleCacheTest
 		DownloadTestAsset(OnFirstDownloadFinished, localDiscCacheAssetVersion);
 	}
 
-	public static void OnFirstDownloadFinished(WWW result, float startTime, int currentStreamingAssetVersion)
+	public static void OnFirstDownloadFinished(UnityWebRequest result, float startTime, int currentStreamingAssetVersion)
 	{
 		if (string.IsNullOrEmpty(result.error))
 		{
@@ -26,7 +27,7 @@ internal static class AssetBundleCacheTest
 		Debug.LogError(text);
 	}
 
-	public static void OnSecondDownloadFinished(WWW result, float startTime, int currentStreamingAssetVersion)
+	public static void OnSecondDownloadFinished(UnityWebRequest result, float startTime, int currentStreamingAssetVersion)
 	{
 		if (string.IsNullOrEmpty(result.error))
 		{
@@ -41,12 +42,12 @@ internal static class AssetBundleCacheTest
 		MVGameControllerBase.KoGaMaSettings.SetStreamingAssetVersion(currentStreamingAssetVersion);
 	}
 
-	private static void DownloadTestAsset(Action<WWW, float, int> onDownloadFinished, int currentStreamingAssetVersion)
+	private static void DownloadTestAsset(Action<UnityWebRequest, float, int> onDownloadFinished, int currentStreamingAssetVersion)
 	{
 		float startTime = Time.realtimeSinceStartup;
 		string text = StreamingAsset.AssetBundleUrl + "Test/bignoise.unity3d";
 		Debug.LogFormat("Url: {0}\nUrl appendage: {1}\nVersion: {2}", text, MVGameControllerBase.KoGaMaSettings.UrlCacheAssetVersionArgument, MVGameControllerBase.KoGaMaSettings.LocalDiscCacheAssetVersion);
-		AsyncWWWManager.WWWRequest(new CachedAssetBundleRequest(text, (WWW www) =>
+		AsyncWWWManager.WWWRequest(new CachedAssetBundleRequest(text, (UnityWebRequest www) =>
 		{
 			onDownloadFinished(www, startTime, currentStreamingAssetVersion);
 		}, WWWRequestPriority.WaitUntilSyncronizingIsDone));

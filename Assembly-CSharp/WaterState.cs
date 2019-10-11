@@ -24,10 +24,19 @@ public class WaterState
 			new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.Speed, UnderwaterModifierCallback),
 			new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Multiply, AvatarModifierEffect.JumpPower, UnderwaterJumpPowerModifierCallback)
 		};
+		MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleMode.OnChange += OnAvatarModeChange;
 		bool flag = skillDataManager.HasSkill("OxygenSupply");
 		oxygenMax = ((!flag) ? 20f : skillDataManager.GetSkillFloatValue("OxygenSupply"));
 		oxygen = oxygenMax;
 		hasGillsNoLungs = skillDataManager.HasSkill("BreathesWater");
+	}
+
+	public void Destroy()
+	{
+		if (MVGameControllerBase.IsAlive)
+		{
+			MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleMode.OnChange -= OnAvatarModeChange;
+		}
 	}
 
 	public void Update(Vector3 worldPosition, MVInteractableBase avatarInteractable)
@@ -86,5 +95,10 @@ public class WaterState
 			return 0f;
 		}
 		return Mathf.Clamp01((MVGameControllerBase.WaterPlaneManager.WaterLevel - position.y) / 2.1f);
+	}
+
+	private void OnAvatarModeChange(SpawnRoleModeType newSpawnRoleMode)
+	{
+		oxygen = oxygenMax;
 	}
 }

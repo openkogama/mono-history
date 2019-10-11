@@ -1,0 +1,57 @@
+using MV.WorldObject;
+using UnityEngine.EventSystems;
+
+public class FirstTimeActivatableTeamNameMessage : FirstTimeActivatableButtonPointer
+{
+	private bool haveCheckedItemAvailability;
+
+	private bool itemAvailable;
+
+	public override bool CanShow
+	{
+		get
+		{
+			bool flag = IsItemInShop(WorldObjectType.TeamEditor);
+			if (!flag)
+			{
+				Register();
+			}
+			bool isBlocked = IsBlocked;
+			bool activeInHierarchy = gameObject.activeInHierarchy;
+			bool flag2 = MVGameControllerBase.Game.TeamManager.GetTeamList().Count > 1;
+			return !isBlocked && activeInHierarchy && flag && flag2;
+		}
+	}
+
+	private bool IsItemInShop(WorldObjectType worldObjectType)
+	{
+		if (!haveCheckedItemAvailability)
+		{
+			itemAvailable = CheckItemAvailability(worldObjectType);
+			haveCheckedItemAvailability = true;
+		}
+		return itemAvailable;
+	}
+
+	private bool CheckItemAvailability(WorldObjectType worldObjectType)
+	{
+		foreach (InventoryCategoryType key in MVGameControllerBase.EditModeUI.ClientShopRepository.categories.Keys)
+		{
+			MVGameControllerBase.EditModeUI.ClientShopRepository.GetItemByWorldObjectTypeInCategory(key, worldObjectType, out var item);
+			if (item != null)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void Register()
+	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IFirstTimeElementActivator x, BaseEventData y) =>
+		{
+			x.RegisterActivatableElement(this);
+		});
+		isRegistered = true;
+	}
+}

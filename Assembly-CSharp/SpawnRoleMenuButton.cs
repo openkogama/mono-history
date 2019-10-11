@@ -45,6 +45,7 @@ public class SpawnRoleMenuButton : MonoBehaviour
 	public void ShowSpawnRoleMenu()
 	{
 		SpawnRoleMenu newSpawnRoleMenu = Object.Instantiate(spawnRoleMenuPrefab);
+		newSpawnRoleMenu.Initialize(MVGameControllerBase.LocalPlayer.Team);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
 		{
 			handler.PopGroups(UIGroupFlags.InventoryUI | UIGroupFlags.InventoryUISubMenu);

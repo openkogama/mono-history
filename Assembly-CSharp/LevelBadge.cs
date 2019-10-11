@@ -2,6 +2,7 @@ using System;
 using MV.WorldObject.Subscription;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class LevelBadge : MonoBehaviour
@@ -70,9 +71,9 @@ public class LevelBadge : MonoBehaviour
 		UnityEngine.Object.Destroy(badgeTextureAsset);
 	}
 
-	private void StreamingAssetCallback(WWW www)
+	private void StreamingAssetCallback(UnityWebRequest www)
 	{
-		badgeTextureAsset = www.texture;
+		badgeTextureAsset = DownloadHandlerTexture.GetContent(www);
 		if (badgeTextureAsset != null)
 		{
 			levelBadge.enabled = true;

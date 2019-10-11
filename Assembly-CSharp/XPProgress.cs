@@ -3,6 +3,7 @@ using MV.Common;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Networking;
 
 public class XPProgress
 {
@@ -48,10 +49,10 @@ public class XPProgress
 		AsyncWWWManager.UnsubscribeWWWRequest(XPLimitsCallback);
 	}
 
-	private void XPLimitsCallback(WWW result)
+	private void XPLimitsCallback(UnityWebRequest result)
 	{
 		Debug.Log(result.url);
-		XPLevelLimits xpLevelLimits = JsonConvert.DeserializeObject<XPLevelLimits>(result.text);
+		XPLevelLimits xpLevelLimits = JsonConvert.DeserializeObject<XPLevelLimits>(result.downloadHandler.text);
 		OnXPLevelLimitsUpdated(xpLevelLimits);
 	}
 

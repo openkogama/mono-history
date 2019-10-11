@@ -1,0 +1,112 @@
+using System;
+using Assets.Scripts.AdIntegration;
+using MV.Common;
+using UnityEngine;
+using UnityEngine.EventSystems;
+
+public class GamePassesProgressBarFreeTryHandler : MonoBehaviour
+{
+	[SerializeField]
+	private GameTierProgressBar tierProgressBar;
+
+	[SerializeField]
+	private TierUnlockedPopupController TierUnlockedPopupControllerPrefab;
+
+	private GamePassTier tierToTry;
+
+	private bool isWaitingForFreeTryTier;
+
+	public void OnFreeTryTier(int tierToTry)
+	{
+		this.tierToTry = (GamePassTier)tierToTry;
+		ShowAd();
+	}
+
+	private void ShowTierUnlock(bool wasPurchased, bool wasTempUnlocked)
+	{
+		TierUnlockedPopupController tierUnlockedPopupController = UnityEngine.Object.Instantiate(TierUnlockedPopupControllerPrefab);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Push(tierUnlockedPopupController.gameObject, UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
+		});
+		tierUnlockedPopupController.Initialize(tierToTry, wasPurchased, wasTempUnlocked);
+	}
+
+	private void ShowAd()
+	{
+		if (GamePassesManager.TogglePreviewState.CanToggle)
+		{
+			MVGameControllerBase.AdManager.RequestRewardedAd(RewardedAdCallback, AdContext.PreviewTier);
+			return;
+		}
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+		{
+			x.Create(TM._("Free try cannot be activated at this moment."), TM._("An error occurred"));
+		});
+	}
+
+	private void RewardedAdCallback(RewardedAdResult result)
+	{
+		switch (result)
+		{
+		case RewardedAdResult.RewardUnlocked:
+			PreviewTier();
+			break;
+		case RewardedAdResult.RewardNotUnlocked:
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+			{
+				x.Create(TM._("The video was canceled. Your Free Try have not been activated."), TM._("Video canceled"));
+			});
+			break;
+		case RewardedAdResult.ErrorClient:
+		case RewardedAdResult.ErrorInternal:
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+			{
+				x.Create(TM._("Free try cannot be activated at this moment."), TM._("An error occurred"));
+			});
+			break;
+		case RewardedAdResult.ErrorTimeout:
+			break;
+		}
+	}
+
+	private void PreviewTier()
+	{
+		if (GamePassesManager.TogglePreviewState.CanToggle)
+		{
+			MVGameControllerBase.OperationRequests.TogglePreviewTier();
+			GamePassesManager.OnPlayerPlanetDataUpdated = (Action)Delegate.Combine(GamePassesManager.OnPlayerPlanetDataUpdated, new Action(OnPlayerPlanetDataUpdated));
+			tierProgressBar.DeactivateFreeTryBubble();
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+			{
+				x.Create();
+			});
+			isWaitingForFreeTryTier = true;
+		}
+		else
+		{
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+			{
+				x.Create(TM._("Free try cannot be activated at this moment."), TM._("An error occurred"));
+			});
+		}
+	}
+
+	private void OnPlayerPlanetDataUpdated()
+	{
+		if (isWaitingForFreeTryTier)
+		{
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Pop();
+			});
+			isWaitingForFreeTryTier = false;
+		}
+		GamePassTier previewGamePassTier = GamePassesManager.PlayerPlanetData.previewGamePassTier;
+		if ((int)previewGamePassTier >= (int)tierToTry)
+		{
+			GamePassesManager.OnPlayerPlanetDataUpdated = (Action)Delegate.Remove(GamePassesManager.OnPlayerPlanetDataUpdated, new Action(OnPlayerPlanetDataUpdated));
+			ShowTierUnlock(wasPurchased: false, wasTempUnlocked: true);
+		}
+	}
+}

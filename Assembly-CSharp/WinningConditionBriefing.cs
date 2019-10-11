@@ -260,26 +260,29 @@ public class WinningConditionBriefing : LobbyFlowMenu
 
 	private void OnPlayPressed()
 	{
-		if (MVGameControllerBase.Game.TeamManager.TeamHasSpawnRoles(MVGameControllerBase.LocalPlayer.Team))
+		if (MVGameControllerBase.Game.TeamManager.TeamHasSpawnRoles(selectedTeam))
 		{
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 			{
 				x.Pop();
 			});
 			SpawnRoleMenu spawnRoleMenu = UnityEngine.Object.Instantiate(spawnRoleMenuPrefab);
+			spawnRoleMenu.Initialize(selectedTeam);
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 			{
 				x.Push(spawnRoleMenu.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
 			});
-			return;
 		}
-		if (desktopPlayButton != null)
+		else
 		{
-			desktopPlayButton.Play();
-		}
-		if (androidPlayButton != null)
-		{
-			androidPlayButton.Play();
+			if (desktopPlayButton != null)
+			{
+				desktopPlayButton.Play();
+			}
+			if (androidPlayButton != null)
+			{
+				androidPlayButton.Play();
+			}
 		}
 	}
 }
