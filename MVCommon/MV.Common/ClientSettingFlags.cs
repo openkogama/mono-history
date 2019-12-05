@@ -22,5 +22,10 @@ public enum ClientSettingFlags
 	JoinFlowAdsEnabled = 0x2000,
 	InterstitalAdsEnabledAndroid = 0x4000,
 	RewardedAdsEnabledAndroid = 0x8000,
-	WebAdSDKSEnabled = 0x10000
+	WebAdSDKSEnabled = 0x10000,
+	PlayButtonAdsRegisteredUsers = 0x20000,
+	GameDistributionAdSDKEnabled = 0x40000,
+	PokiAdsEnabled = 0x80000,
+	PlayButtonAdsEnabled = 0x100000,
+	PlayButtonAdsEnabledMobile = 0x200000
 }

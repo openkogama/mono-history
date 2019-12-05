@@ -15,6 +15,9 @@ public abstract class LobbyFlowMenu : MonoBehaviour
 	}
 
 	[SerializeField]
+	protected MaskMode cameraMaskMode = MaskMode.SkyBoxOnly;
+
+	[SerializeField]
 	protected TeamMenu teamMenuPrefab;
 
 	[SerializeField]
@@ -42,7 +45,7 @@ public abstract class LobbyFlowMenu : MonoBehaviour
 
 	public virtual void Start()
 	{
-		MVGameControllerBase.MainCameraManager.CamMaskMode = MaskMode.AvatarLobbyFocus;
+		MVGameControllerBase.MainCameraManager.CamMaskMode = cameraMaskMode;
 		if (!haveSetSelectedTeam)
 		{
 			selectedTeam = MVGameControllerBase.LocalPlayer.Team;
@@ -178,6 +181,7 @@ public abstract class LobbyFlowMenu : MonoBehaviour
 			{
 				x.Push(newTeamMenu.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
 			});
+			newTeamMenu.UpdateBackButtonVisibility();
 			break;
 		}
 		case LobbyFlowMenuType.Briefing:

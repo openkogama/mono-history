@@ -5,6 +5,8 @@ namespace Assets.Scripts.AdIntegration.Dummy;
 
 public class DummyAdManager : IAdManager
 {
+	public string RewardedAdNotAvailableText => TM._("Ads not set up for this build target.");
+
 	public TimeSpan TimeSinceLastAd => TimeSpan.MaxValue;
 
 	public TimeSpan TimeSinceLastInterstitial => TimeSpan.MaxValue;

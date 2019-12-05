@@ -8,6 +8,7 @@ public class CachedTextureRequest : CachedGetRequest
 	public CachedTextureRequest(string path, Action<UnityWebRequest> callback, WWWRequestPriority requestPriority, bool readable = false)
 		: base(path, callback, requestPriority)
 	{
+		ReadableTextureData = readable;
 	}
 
 	protected override UnityWebRequest Create()

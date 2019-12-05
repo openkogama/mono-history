@@ -277,7 +277,7 @@ public class SpawnRoleMenu : LobbyFlowMenu, IDragInputReciever
 	private void CreateSpawnRoleSelectionElement(int startIndex, int index, List<ISpawnRolePreviewObject> sortedSpawnRoles, List<MVWorldObjectClient> sortedWorldObjects)
 	{
 		SpawnRoleSelectionElement spawnRoleSelectionElement = UnityEngine.Object.Instantiate(selectionElementPrefab);
-		spawnRoleSelectionElement.Initialize(startIndex + index, sortedWorldObjects[index].Id, sortedSpawnRoles[index].GetTierRequirement(), OnSpawnRoleSelected, OnSpawnRoleActivated);
+		spawnRoleSelectionElement.Initialize(startIndex + index, sortedWorldObjects[index].Id, sortedSpawnRoles[index].GetTierRequirement(), shownTeam, OnSpawnRoleSelected, OnSpawnRoleActivated);
 		spawnRoleSelectionElement.SetupPreviewImage(sortedSpawnRoles[index].GetSpawnRolePreviewObject());
 		spawnRoleSelectionElement.OnUnSelected();
 		spawnRoleSelectionElement.transform.SetParent(elementContainer, worldPositionStays: false);
@@ -287,7 +287,7 @@ public class SpawnRoleMenu : LobbyFlowMenu, IDragInputReciever
 	private void CreateDefaultAvatarElement()
 	{
 		DefaultSpawnRoleSelectionElement defaultSpawnRoleSelectionElement = UnityEngine.Object.Instantiate(defaultSelectionElementPrefab);
-		defaultSpawnRoleSelectionElement.Initialize(0, MVGameControllerBase.LocalPlayer.DefaultSpawnRoleId, GamePassTier.Tier0, OnSpawnRoleSelected, OnSpawnRoleActivated);
+		defaultSpawnRoleSelectionElement.Initialize(0, MVGameControllerBase.LocalPlayer.DefaultSpawnRoleId, GamePassTier.Tier0, shownTeam, OnSpawnRoleSelected, OnSpawnRoleActivated);
 		defaultSpawnRoleSelectionElement.SetupPreviewImage(MVGameControllerBase.LocalPlayer.Body.GameObject);
 		defaultSpawnRoleSelectionElement.OnUnSelected();
 		defaultSpawnRoleSelectionElement.transform.SetParent(elementContainer, worldPositionStays: false);
@@ -479,11 +479,19 @@ public class SpawnRoleMenu : LobbyFlowMenu, IDragInputReciever
 	private void OnPurchaseGamePassTier()
 	{
 		buttonController.OnNewSelectedSpawnRole(SelectionElementsList[selectedSpawnRole].Tier);
+		for (int i = 0; i < SelectionElementsList.Count; i++)
+		{
+			SelectionElementsList[i].UpdateButtonUI();
+		}
 	}
 
 	private void OnPlayerPlanetDataUpdated()
 	{
 		buttonController.OnNewSelectedSpawnRole(SelectionElementsList[selectedSpawnRole].Tier);
+		for (int i = 0; i < SelectionElementsList.Count; i++)
+		{
+			SelectionElementsList[i].UpdateButtonUI();
+		}
 	}
 
 	private void AwaitSpawnThenClose()

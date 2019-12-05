@@ -1,8 +1,9 @@
+using Assets.Scripts.AdIntegration;
 using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class RegisteredPromotionController : MonoBehaviour
+public class RegisteredPromotionController : MonoBehaviour, IRegisterPromotionAdController, IEventSystemHandler
 {
 	[SerializeField]
 	private RegisteredPromotionPopup registeredPromotionPopupPrefab;
@@ -15,6 +16,19 @@ public class RegisteredPromotionController : MonoBehaviour
 	private bool isDead;
 
 	private const float showAdDelay = 1.26f;
+
+	public void ShowRegisteredPromotionAd()
+	{
+		MVGameControllerBase.AdManager.RequestInterstitial(InterstitialAdResult, AdContext.RegisteredEmbeddedPromotion);
+	}
+
+	public void InterstitialAdResult(InterstitialAdResult obj)
+	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Pop();
+		});
+	}
 
 	private void Update()
 	{

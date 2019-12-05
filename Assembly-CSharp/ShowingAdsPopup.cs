@@ -20,6 +20,18 @@ public class ShowingAdsPopup : MonoBehaviour
 		this.timeoutTime = timeoutTime;
 	}
 
+	private void OnEnable()
+	{
+		Debug.Log("Muting audio");
+		MainCameraManager.Mute = true;
+	}
+
+	private void OnDisable()
+	{
+		Debug.Log("Resuming audio");
+		MainCameraManager.Mute = false;
+	}
+
 	private void Update()
 	{
 		if (Time.time - startTime >= timeoutTime)

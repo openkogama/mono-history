@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using Assets.Scripts.AdIntegration;
 using MV.Common;
 using MV.WorldObject;
 using UnityEngine;
@@ -22,6 +24,21 @@ public class LobbyStateButton : MonoBehaviour, IPointerDownHandler, IPointerEnte
 	[SerializeField]
 	private Button lobbyStateButton;
 
+	[SerializeField]
+	private LevelRewardsLobbyState levelRewards;
+
+	[SerializeField]
+	private ContinueButtonLockCursor continueScreenPrefab;
+
+	[SerializeField]
+	private Image playButtonImage;
+
+	[SerializeField]
+	private Sprite watchAdPlayButtonImageSprite;
+
+	[SerializeField]
+	private GamePassesTextBubble signupToRemoveAds;
+
 	private bool shouldUpdateFillImage;
 
 	private bool isMoveOverButton;
@@ -36,6 +53,8 @@ public class LobbyStateButton : MonoBehaviour, IPointerDownHandler, IPointerEnte
 		}
 	}
 
+	private bool IsRoundEnded => MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded;
+
 	private void Start()
 	{
 		if (!WinningConditionControl.TryGetPrioritizedWinCondition(out var _))
@@ -46,6 +65,13 @@ public class LobbyStateButton : MonoBehaviour, IPointerDownHandler, IPointerEnte
 		else
 		{
 			countdownFill.enabled = false;
+		}
+		if (MVClientSettings.PlayButtonAdsEnabled)
+		{
+			Debug.Log("Lobby state button interstitial.");
+			countdownFill.enabled = false;
+			shouldUpdateFillImage = false;
+			playButtonImage.sprite = watchAdPlayButtonImageSprite;
 		}
 	}
 
@@ -91,41 +117,88 @@ public class LobbyStateButton : MonoBehaviour, IPointerDownHandler, IPointerEnte
 
 	public void OnPressPlay()
 	{
-		bool flag = MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded;
-		bool flag2 = WinningConditionControl.TryGetPrioritizedWinCondition(out var condition);
+		levelRewards.ShowLevelNotification();
+		bool hasGameWinningCondition = WinningConditionControl.TryGetPrioritizedWinCondition(out var winCon);
 		List<MVWorldObjectClient> worldObjectsByType = MVGameControllerBase.Game.WorldObjectClientManager.GetWorldObjectsByType(WorldObjectType.AvatarSpawnRoleCreator);
-		bool flag3 = worldObjectsByType.Count > 0;
+		bool flag = worldObjectsByType.Count > 0;
 		if (MVGameControllerBase.Game.TeamManager.TeamCount() > 1)
 		{
-			if (flag && !flag2)
+			Action<InterstitialAdResult> callback = (InterstitialAdResult result) =>
 			{
-				lobbyStateButton.interactable = false;
-			}
-			else if (flag && flag2)
-			{
-				CreateTeamMenu();
-			}
-			else
-			{
-				CreateTeamMenu();
-			}
+				if (IsRoundEnded && !hasGameWinningCondition)
+				{
+					lobbyStateButton.interactable = false;
+				}
+				else if (IsRoundEnded)
+				{
+					CreateTeamMenu();
+				}
+				else
+				{
+					CreateTeamMenu();
+				}
+			};
+			RequestAdWithCallback(callback);
 		}
-		else if (flag2)
+		else if (hasGameWinningCondition)
 		{
-			CreateBriefing(condition);
-		}
-		else if (flag3)
-		{
-			if (flag)
+			Action<InterstitialAdResult> callback2 = (InterstitialAdResult result) =>
 			{
-				lobbyStateButton.interactable = false;
-			}
-			else
-			{
-				CreateSpawnRoleSelectionMenu();
-			}
+				CreateBriefing(winCon);
+			};
+			RequestAdWithCallback(callback2);
 		}
 		else if (flag)
+		{
+			RequestAdWithCallback(OnShowAdFinishedSpawnRolesPresent);
+		}
+		else
+		{
+			RequestAdWithCallback(OnShowAdFinishedEnterPlaymode);
+		}
+	}
+
+	private void RequestAdWithCallback(Action<InterstitialAdResult> callback)
+	{
+		if (MVClientSettings.PlayButtonAdsEnabled)
+		{
+			MVGameControllerBase.AdManager.RequestInterstitial(callback, AdContext.PlayButtonAd);
+		}
+		else
+		{
+			callback(InterstitialAdResult.Done);
+		}
+	}
+
+	private void OnShowAdFinishedSpawnRolesPresent(InterstitialAdResult result)
+	{
+		if (IsRoundEnded)
+		{
+			lobbyStateButton.interactable = false;
+		}
+		else
+		{
+			CreateSpawnRoleSelectionMenu();
+		}
+	}
+
+	private void OnShowAdFinishedEnterPlaymode(InterstitialAdResult result)
+	{
+		DoLockCursor();
+	}
+
+	private void PopThenLockCursor()
+	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Pop();
+		});
+		DoLockCursor();
+	}
+
+	private void DoLockCursor()
+	{
+		if (IsRoundEnded)
 		{
 			lobbyStateButton.interactable = false;
 			LockCursor();
@@ -198,7 +271,7 @@ public class LobbyStateButton : MonoBehaviour, IPointerDownHandler, IPointerEnte
 				x.Pop();
 			});
 		}
-		TeamMenu newTeamMenu = Object.Instantiate(teamMenuPrefab);
+		TeamMenu newTeamMenu = UnityEngine.Object.Instantiate(teamMenuPrefab);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Push(newTeamMenu.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
@@ -214,7 +287,7 @@ public class LobbyStateButton : MonoBehaviour, IPointerDownHandler, IPointerEnte
 				x.Pop();
 			});
 		}
-		SpawnRoleMenu spawnRoleMenu = Object.Instantiate(spawnRoleMenuPrefab);
+		SpawnRoleMenu spawnRoleMenu = UnityEngine.Object.Instantiate(spawnRoleMenuPrefab);
 		spawnRoleMenu.Initialize(MVGameControllerBase.LocalPlayer.Team);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
@@ -231,7 +304,7 @@ public class LobbyStateButton : MonoBehaviour, IPointerDownHandler, IPointerEnte
 				x.Pop();
 			});
 		}
-		WinningConditionBriefing winConMenu = Object.Instantiate(winningConditionBriefingMenu);
+		WinningConditionBriefing winConMenu = UnityEngine.Object.Instantiate(winningConditionBriefingMenu);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Push(winConMenu.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);

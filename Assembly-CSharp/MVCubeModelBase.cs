@@ -300,9 +300,14 @@ public class MVCubeModelBase : MVWorldObjectClient, ICubeModel, ICubeModelCollid
 		return transform.TransformPoint(GetBounds().center);
 	}
 
+	public override void OnObjectLinkChanged()
+	{
+		ObjectLinkChanged(visible: false);
+	}
+
 	public void ObjectLinkChanged(bool visible)
 	{
-		bool active = visible;
+		bool active = visible || ObjectLinkRefs.Count == 0;
 		foreach (ObjectLink objectLinkRef in ObjectLinkRefs)
 		{
 			if (objectLinkRef.isSet)

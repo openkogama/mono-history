@@ -1,4 +1,5 @@
 using MV.Common;
+using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
@@ -46,7 +47,7 @@ public class DefaultSpawnRoleSelectionElement : MonoBehaviour, IPointerDownHandl
 
 	public virtual GamePassTier Tier => GamePassTier.Tier0;
 
-	public virtual void Initialize(int spawnRoleIndex, int woId, GamePassTier tierRequirement, UnityAction<int> onSelectedCallback, UnityAction<int> onActivatedCallback)
+	public virtual void Initialize(int spawnRoleIndex, int woId, GamePassTier tierRequirement, MVTeam team, UnityAction<int> onSelectedCallback, UnityAction<int> onActivatedCallback)
 	{
 		this.spawnRoleIndex = spawnRoleIndex;
 		this.woId = woId;
@@ -96,6 +97,10 @@ public class DefaultSpawnRoleSelectionElement : MonoBehaviour, IPointerDownHandl
 		spawnRolePreviewer.StartInactiveAnimation();
 	}
 
+	public virtual void UpdateButtonUI()
+	{
+	}
+
 	public void OnPointerDown(PointerEventData eventData)
 	{
 	}
@@ -118,7 +123,7 @@ public class DefaultSpawnRoleSelectionElement : MonoBehaviour, IPointerDownHandl
 		spawnRolePreviewer.DeactivatePreview();
 	}
 
-	private void OnDestroy()
+	protected virtual void OnDestroy()
 	{
 		Object.Destroy(spawnRolePreviewer);
 	}

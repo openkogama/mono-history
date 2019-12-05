@@ -1,8 +1,7 @@
 using System;
-using System.Text;
-using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public static class EmbeddedSiteDetector
 {
@@ -11,7 +10,9 @@ public static class EmbeddedSiteDetector
 		public string domain = string.Empty;
 	}
 
-	private static readonly string[] crazyGamesSites = new string[4] { "gioca.re", "1001juegos.com", "speelspelletjes.nl", "onlinegame.co.id" };
+	private static readonly string[] gameDistributionSites = new string[1] { "gamedistribution.com" };
+
+	private static readonly string[] pokiSites = new string[1] { "poki.com" };
 
 	public static EmbeddedSite GetEmbeddedSite()
 	{
@@ -45,65 +46,57 @@ public static class EmbeddedSiteDetector
 				Debug.Log("Made uri from URL: " + text);
 				Debug.Log("uri: " + result.ToString());
 			}
-			if (IsOnCrazyGames(text))
+			string text2 = UnityWebRequest.UnEscapeURL(text);
+			Debug.Log("unescape url: " + text2);
+			try
 			{
-				site = EmbeddedSite.CrazyGames;
+				if (IsOnGameDistribution(text2))
+				{
+					site = EmbeddedSite.GameDistribution;
+				}
+				else if (IsOnPoki(text2))
+				{
+					site = EmbeddedSite.Poki;
+				}
+			}
+			catch (Exception message)
+			{
+				Debug.Log(message);
+				Debug.Log("Unable to generate URI from fetched domain.");
 			}
 		};
 		BrowserComm.ToJavaScript.ExternalCall("requestDomain", callback);
 		return site;
 	}
 
-	private static bool IsOnCrazyGames(string host)
+	private static bool IsOnGameDistribution(string host)
 	{
-		string[] array = host.Split("."[0]);
-		int num = -1;
-		for (int i = 0; i < array.Length; i++)
-		{
-			string text = array[i].ToLower();
-			if (text == "crazygames" || text == "dev-crazygames")
-			{
-				num = i;
-				break;
-			}
-		}
-		Debug.Log("crazyIndex: " + num);
-		if ((num >= 0 && array.Length == num + 2) || (array.Length == num + 3 && array[num + 1].Length <= 3))
-		{
-			return IsValidHost(host, crazyGamesSites);
-		}
-		return false;
+		return IsValidHost(host, gameDistributionSites);
+	}
+
+	private static bool IsOnPoki(string host)
+	{
+		return IsValidHost(host, pokiSites);
 	}
 
 	private static bool IsValidHost(string host, string[] hosts)
 	{
-		if (Debug.isDebugBuild)
+		int num = host.IndexOf("://");
+		if (num > 0)
 		{
-			StringBuilder stringBuilder = new StringBuilder();
-			stringBuilder.Append("Checking against list of hosts: ");
-			foreach (string value in hosts)
-			{
-				stringBuilder.Append(value);
-				stringBuilder.Append(",");
-			}
-			Debug.Log(stringBuilder.ToString());
+			host = host.Substring(num + 3);
 		}
-		Regex regex = new Regex("^(\\w+)://(?<hostname>[^/]+?)(?<port>:\\d+)?/");
-		Match match = regex.Match(host);
-		if (!match.Success)
-		{
-			return false;
-		}
-		string value2 = match.Groups["hostname"].Value;
-		string[] array = value2.Split("."[0]);
+		Uri uri = new UriBuilder("https", host).Uri;
 		foreach (string text in hosts)
 		{
-			if (DoesHostMatch(text, array))
+			Debug.Log("comparing " + text.ToString() + " to " + uri.Host.ToString());
+			if (uri.Host.Contains(text))
 			{
-				Debug.Log("Host match found: " + text + " matching " + array);
+				Debug.Log("Host match found: " + text + " matching " + uri.Host);
 				return true;
 			}
 		}
+		Debug.Log("no host match found for host: " + host);
 		return false;
 	}
 

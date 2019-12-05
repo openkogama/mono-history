@@ -24,6 +24,15 @@ public class RegisteredPromotionPopup : MonoBehaviour
 	[SerializeField]
 	private CanvasGroup canvasGroup;
 
+	[SerializeField]
+	private Button continueButton;
+
+	private bool waitingForAd;
+
+	private float startTime;
+
+	private float timeoutDelay = 20f;
+
 	public void KogamaRedirect()
 	{
 		if (MVGameControllerBase.GameSessionData.GetIsRedirectAllowed())
@@ -62,6 +71,18 @@ public class RegisteredPromotionPopup : MonoBehaviour
 		StartCoroutine(FadeOutAndPopPromotion());
 	}
 
+	public void OnViewAdClicked()
+	{
+		Debug.Log("Showing Ad");
+		waitingForAd = true;
+		continueButton.interactable = false;
+		startTime = Time.time;
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IRegisterPromotionAdController x, BaseEventData y) =>
+		{
+			x.ShowRegisteredPromotionAd();
+		});
+	}
+
 	private IEnumerator FadeOutAndPopPromotion()
 	{
 		yield return StartCoroutine(pTween.To(0.5f, 1f, 0f, (float t) =>
@@ -90,5 +111,15 @@ public class RegisteredPromotionPopup : MonoBehaviour
 		{
 			x.Push(popUp, UIPushOption.Blocking, null, UIGroupFlags.Popup);
 		});
+	}
+
+	private void Update()
+	{
+		if (waitingForAd && Time.time - startTime >= timeoutDelay)
+		{
+			Debug.Log("Show Ad timeout, try again");
+			continueButton.interactable = true;
+			waitingForAd = false;
+		}
 	}
 }

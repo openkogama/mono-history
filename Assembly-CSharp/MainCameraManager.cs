@@ -131,6 +131,7 @@ public class MainCameraManager : MonoBehaviour
 			case MaskMode.Default:
 				mainCamera.cullingMask = cullingMask;
 				blueModeEnabled = false;
+				RenderLogic(isLogicRendered);
 				break;
 			case MaskMode.AvatarLobbyFocus:
 				mainCamera.cullingMask = 1 << LayerMask.NameToLayer("CamRotateTarget");

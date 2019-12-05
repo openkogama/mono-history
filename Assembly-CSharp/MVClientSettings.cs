@@ -1,4 +1,5 @@
 using MV.Common;
+using MV.WorldObject.Subscription;
 
 public static class MVClientSettings
 {
@@ -33,9 +34,17 @@ public static class MVClientSettings
 
 	public static bool SeekAdConsent => IsFlagSet(ClientSettingFlags.SeekAdConsent);
 
-	public static bool JoinFlowAdsEnabled => IsFlagSet(ClientSettingFlags.JoinFlowAdsEnabled);
+	public static bool JoinFlowAdsEnabled => IsFlagSet(ClientSettingFlags.JoinFlowAdsEnabled) && InterstitialsAdsEnabled;
 
 	public static bool WebAdSDKsEnabled => IsFlagSet(ClientSettingFlags.WebAdSDKSEnabled);
+
+	public static bool GameDistributionAdsEnabled => IsFlagSet(ClientSettingFlags.GameDistributionAdSDKEnabled);
+
+	public static bool PokiAdsEnabled => IsFlagSet(ClientSettingFlags.PokiAdsEnabled);
+
+	public static bool PlayButtonAdsRegisteredUsers => IsFlagSet(ClientSettingFlags.PlayButtonAdsRegisteredUsers);
+
+	public static bool PlayButtonAdsEnabled => false;
 
 	public static bool BoostersEnabled => false;
 
@@ -55,5 +64,10 @@ public static class MVClientSettings
 	public static bool IsFlagSet(ClientSettingFlags flag)
 	{
 		return (ClientSettingFlags & flag) == flag;
+	}
+
+	private static bool IsSubscriber()
+	{
+		return MVGameControllerBase.Game.LocalPlayer.SubscriptionRules.SubscriptionType != SubscriptionType.None;
 	}
 }

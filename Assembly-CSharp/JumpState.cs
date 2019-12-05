@@ -15,7 +15,9 @@ internal class JumpState
 
 	private readonly float extraHeight = 4.1f;
 
-	private readonly float baseHeight = 1f;
+	private const float baseHeight = 1f;
+
+	private float jumpHeight = 1f;
 
 	private readonly float sliperyValMin = 0.3f;
 
@@ -83,6 +85,8 @@ internal class JumpState
 	{
 		bool flag = skillDataManager.HasSkill("JumpHeight");
 		jumpVelocityMultiplier = ((!flag) ? 1f : ((float)skillDataManager.GetSkillIntValue("JumpHeight") / 100f));
+		MVGameControllerBase.Game.LocalPlayer.BoostController.SubscribeToBoostChanged(BoostType.JumpPowerFloatMultiplier, HandleJumpBoost);
+		HandleJumpBoost();
 		bool flag2 = skillDataManager.HasSkill("DoubleJump");
 		airJumpsAllowed = (flag2 ? 1 : 0);
 		canWallJumpAnySurface = skillDataManager.HasSkill("CanWallJumpAnySurface");
@@ -91,6 +95,14 @@ internal class JumpState
 	public JumpState(float regularButtonDownTimeLimit)
 	{
 		this.regularButtonDownTimeLimit = regularButtonDownTimeLimit;
+	}
+
+	public void Destroy()
+	{
+		if (MVGameControllerBase.IsAlive)
+		{
+			MVGameControllerBase.Game.LocalPlayer.BoostController.UnSubscribeToBoostChanged(BoostType.JumpPowerFloatMultiplier, HandleJumpBoost);
+		}
 	}
 
 	public void UpdateJumpState(GroundChange groundChange)
@@ -114,7 +126,7 @@ internal class JumpState
 		{
 			lastButtonDownTime = Time.time;
 		}
-		if (!groundState.Grounded && jumping && holdingJumpButton && Time.time < lastStartTime + interactableLocal.HandleModifierEffect(AvatarModifierEffect.JumpPower, accExtraHeight) / MVPhysics.CalculateJumpVerticalSpeed(interactableLocal.HandleModifierEffect(AvatarModifierEffect.JumpPower, baseHeight)))
+		if (!groundState.Grounded && jumping && holdingJumpButton && Time.time < lastStartTime + interactableLocal.HandleModifierEffect(AvatarModifierEffect.JumpPower, accExtraHeight) / MVPhysics.CalculateJumpVerticalSpeed(interactableLocal.HandleModifierEffect(AvatarModifierEffect.JumpPower, 1f)))
 		{
 			velocity += jumpDir * MVPhysics.Gravity * interactableLocal.HandleModifierEffect(AvatarModifierEffect.Density, density) * Time.deltaTime;
 		}
@@ -188,7 +200,7 @@ internal class JumpState
 
 	private float GetJumpSpeed(MVInteractableBase interactableLocal, float sliperyFactor, bool isDoingAirJump)
 	{
-		float num = MVPhysics.CalculateJumpVerticalSpeed(interactableLocal.HandleModifierEffect(AvatarModifierEffect.JumpPower, baseHeight) * jumpVelocityMultiplier);
+		float num = MVPhysics.CalculateJumpVerticalSpeed(interactableLocal.HandleModifierEffect(AvatarModifierEffect.JumpPower, jumpHeight) * jumpVelocityMultiplier);
 		if (!isDoingAirJump)
 		{
 			num -= num * sliperyFactor;
@@ -290,5 +302,14 @@ internal class JumpState
 	private bool CanAirJump()
 	{
 		return airJumpsDone < airJumpsAllowed;
+	}
+
+	private void HandleJumpBoost()
+	{
+		jumpHeight = 1f;
+		if (MVGameControllerBase.Game.LocalPlayer.BoostController.TryGetActiveBoost(BoostType.JumpPowerFloatMultiplier, out var boost))
+		{
+			jumpHeight = 1f * (1f + (float)(int)boost.Value / 100f);
+		}
 	}
 }

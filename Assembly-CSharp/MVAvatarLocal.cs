@@ -151,6 +151,7 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 		public override void Activate(AvatarRuntimeState fromMode)
 		{
 			base.Activate(fromMode);
+			MVGameControllerBase.OperationRequests.IncrementStatRequest(IncrementStatRequestType.Died);
 			deadTime = Time.time;
 			deadInterval = MVGameControllerBase.LocalPlayer.RespawnDuration;
 			MVGameControllerBase.LocalPlayer.RespawnTime = Time.time + deadInterval;
@@ -951,6 +952,8 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 
 	public Action<float, MVPlayer, PlayerKilledByType> OnDamageTaken;
 
+	private bool suspended;
+
 	private int spawnWorldObjectId = -1;
 
 	private Vector3 LookAtPos => transform.position + Vector3.up;
@@ -1073,6 +1076,7 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 
 	public void Activate(int idFrom, SpawnRoleDataReceiver spawnRoleDataReceiver, Vector3 position, Quaternion rotation)
 	{
+		suspended = false;
 		SetNetworkObject(local: true);
 		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnKillSelf += KillSelf;
 		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSetRespawnWhenPossible += OnSetRespawnWhenPossible;
@@ -1097,6 +1101,10 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 			Rotation = rotation;
 			SetTransform(Position, Rotation);
 		}
+		float num = ((!skillDataManager.HasSkill("Size")) ? 1f : skillDataManager.GetSkillFloatValue("Size"));
+		spawnRoleDataReceiver.size.Value = num;
+		Scale = new Vector3(num, num, num);
+		Size.Value = num;
 		spawnRoleDataReceiver.position.Value = Position;
 		spawnRoleDataReceiver.rotation.Value = Rotation;
 		spawnRoleDataReceiver.scale.Value = Scale;
@@ -1128,10 +1136,6 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 	public void DeActivate(int idTo, SpawnRoleDataReceiver spawnRoleDataReceiver)
 	{
 		avatarLocalModes.SetToStartMode();
-		if (IsInVehicle)
-		{
-			LeaveVehicle(leaveBecauseOfServer: false);
-		}
 		avatarEquipable.Unequip();
 		interactableLocal.ClearModifiers();
 		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnKillSelf -= KillSelf;
@@ -1158,6 +1162,16 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 
 	public void Suspend()
 	{
+		if (suspended)
+		{
+			Debug.LogError("Already suspended");
+			return;
+		}
+		suspended = true;
+		if (IsInVehicle)
+		{
+			LeaveVehicle(leaveBecauseOfServer: false);
+		}
 		MVGameControllerBase.Game.TransformNetworkManager.RemoveNetworkObject(Id);
 		MVGameControllerBase.Game.RuntimeVariableNetworkManager.SendRuntimeData(this, immediateSend: true);
 		MVGameControllerBase.Game.RuntimeVariableNetworkManager.RemoveRuntimeDataVariables(Id);
@@ -1165,6 +1179,7 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 
 	public void UnSuspend()
 	{
+		suspended = false;
 		SetNetworkObject(local: true);
 	}
 
@@ -1547,7 +1562,7 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 		}
 		else
 		{
-			interactableLocal.TakeDamage(MaxHealth.Value, interactableLocal.LastDamageSource.shooter, interactableLocal.LastDamageSource.damageType);
+			interactableLocal.DieFromRespawn(interactableLocal.LastDamageSource.shooter, interactableLocal.LastDamageSource.damageType);
 		}
 	}
 

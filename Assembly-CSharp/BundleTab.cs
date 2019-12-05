@@ -96,7 +96,7 @@ public class BundleTab : TabMenuButtonBase
 	private void OnDestroy()
 	{
 		BadgeManager.UnsubscribeGetBadgeRequest(OnBadgeLoaded);
-		UnityEngine.Object.Destroy(badgeTextureAsset);
+		badgeTextureAsset = null;
 	}
 
 	private void OnBadgeLoaded(UnityWebRequest www)

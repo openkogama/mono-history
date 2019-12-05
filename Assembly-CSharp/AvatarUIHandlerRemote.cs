@@ -44,6 +44,9 @@ public class AvatarUIHandlerRemote : AvatarUIHandler
 	private Material enemyIconMaterial;
 
 	[SerializeField]
+	private Material enemyIconMaterialVisibleThroughWalls;
+
+	[SerializeField]
 	private TeamIconScaleWithDistance teamIcon;
 
 	[SerializeField]
@@ -67,6 +70,8 @@ public class AvatarUIHandlerRemote : AvatarUIHandler
 	private bool shouldShowMobileIcon;
 
 	private bool nameTagLabelVisible;
+
+	private Material EnemyIconMaterial => (!MVGameControllerBase.Game.LocalPlayer.BoostController.IsBoostActive(BoostType.XRayVision)) ? enemyIconMaterial : enemyIconMaterialVisibleThroughWalls;
 
 	public bool NameTagLabelVisible
 	{
@@ -149,12 +154,20 @@ public class AvatarUIHandlerRemote : AvatarUIHandler
 	{
 		base.Activate();
 		sayChatBubbleHandler.Activate();
+		OnXRayBoostChanged();
+		MVGameControllerBase.Game.LocalPlayer.BoostController.SubscribeToBoostChanged(BoostType.XRayVision, OnXRayBoostChanged);
 	}
 
 	public override void Deactivate()
 	{
 		base.Deactivate();
 		sayChatBubbleHandler.Deactivate();
+		MVGameControllerBase.Game.LocalPlayer.BoostController.UnSubscribeToBoostChanged(BoostType.XRayVision, OnXRayBoostChanged);
+	}
+
+	private void OnXRayBoostChanged()
+	{
+		teamIconRenderer.material = EnemyIconMaterial;
 	}
 
 	public override void OnPositionChanged(MVWorldObjectClient arg0, PositionChangedEventArgs positionChangedEventArgs)
@@ -221,13 +234,16 @@ public class AvatarUIHandlerRemote : AvatarUIHandler
 			teamIconRenderer.material = teamIconMaterial;
 			return;
 		}
-		Color red = Color.red;
-		red.r = 1f;
-		red.g = 99f / 255f;
-		red.b = 71f / 255f;
-		avatarHealthMaterial.color = red;
-		enemyIconMaterial.color = red;
-		teamIconRenderer.material = enemyIconMaterial;
+		Color color = new Color
+		{
+			r = 1f,
+			g = 99f / 255f,
+			b = 71f / 255f,
+			a = 1f
+		};
+		avatarHealthMaterial.color = color;
+		EnemyIconMaterial.color = color;
+		teamIconRenderer.material = EnemyIconMaterial;
 	}
 
 	private void OnStateChanged(CullingGroupEvent cullingEvent)
@@ -259,6 +275,10 @@ public class AvatarUIHandlerRemote : AvatarUIHandler
 		}
 		UnityEngine.Object.Destroy(avatarNameMaterial);
 		UnityEngine.Object.Destroy(avatarHealthMaterial);
+		if (MVGameControllerBase.IsAlive)
+		{
+			MVGameControllerBase.Game.LocalPlayer.BoostController.UnSubscribeToBoostChanged(BoostType.XRayVision, OnXRayBoostChanged);
+		}
 		ChatCommandManager.UpdateChatCommandCallback(ChatCommand.HideAllUI, (Action)Delegate.Remove(ChatCommandManager.GetChatCommandCallback(ChatCommand.HideAllUI), new Action(HideUI)));
 		base.OnDestroy();
 	}

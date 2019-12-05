@@ -110,9 +110,9 @@ public class LevelRewardAnimation : MonoBehaviour
 	private void OnDestroy()
 	{
 		BadgeManager.UnsubscribeGetBadgeRequest(OnPrevBadgeLoaded);
-		Object.Destroy(previousBadgeTextureAsset);
+		previousBadgeTextureAsset = null;
 		BadgeManager.UnsubscribeGetBadgeRequest(OnNextBadgeLoaded);
-		Object.Destroy(currentBadgeTextureAsset);
+		currentBadgeTextureAsset = null;
 	}
 
 	private void OnPrevBadgeLoaded(UnityWebRequest www)

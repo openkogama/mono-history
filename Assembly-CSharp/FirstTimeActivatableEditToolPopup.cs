@@ -11,28 +11,74 @@ public class FirstTimeActivatableEditToolPopup : FirstTimeActivatableElementBase
 	[SerializeField]
 	private FirstTimeEventPopup popupPrefab;
 
+	[SerializeField]
+	private GameObject stackParent;
+
 	private FirstTimeEventPopup popup;
 
 	private bool showing;
 
+	private bool wantsToShow;
+
 	[SerializeField]
 	protected bool skipAllowed = true;
 
-	public override bool CanShow => !IsBlocked && gameObject.activeInHierarchy;
+	public override bool CanShow
+	{
+		get
+		{
+			Debug.Log("canshow:" + (!IsBlocked && gameObject.activeInHierarchy));
+			return !IsBlocked && gameObject.activeInHierarchy;
+		}
+	}
 
 	public override void OnShow()
 	{
 		if (!showing)
 		{
-			CubeModelTool.OnEditCubeChange = (Action<int, EditCubeChange>)Delegate.Combine(CubeModelTool.OnEditCubeChange, new Action<int, EditCubeChange>(OnCubeChanged));
-			popup = UnityEngine.Object.Instantiate(popupPrefab);
-			popup.SetSkippable(skipAllowed);
-			popup.FadeIn();
-			showing = true;
+			bool blocked = false;
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 			{
-				x.Push(popup.gameObject, UIPushOption.None, null, UIGroupFlags.Popup);
+				blocked = x.Peak() != stackParent;
 			});
+			if (blocked)
+			{
+				wantsToShow = true;
+			}
+			else
+			{
+				ShowPopup();
+			}
+		}
+	}
+
+	private void ShowPopup()
+	{
+		Debug.Log("onshow:" + gameObject.name);
+		CubeModelTool.OnEditCubeChange = (Action<int, EditCubeChange>)Delegate.Combine(CubeModelTool.OnEditCubeChange, new Action<int, EditCubeChange>(OnCubeChanged));
+		popup = UnityEngine.Object.Instantiate(popupPrefab);
+		popup.SetSkippable(skipAllowed);
+		popup.FadeIn();
+		showing = true;
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Push(popup.gameObject, UIPushOption.None, null, UIGroupFlags.Popup);
+		});
+	}
+
+	private void Update()
+	{
+		if (wantsToShow)
+		{
+			bool blocked = false;
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				blocked = x.Peak() != stackParent;
+			});
+			if (!blocked)
+			{
+				ShowPopup();
+			}
 		}
 	}
 

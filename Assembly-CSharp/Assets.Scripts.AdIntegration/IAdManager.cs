@@ -4,6 +4,8 @@ namespace Assets.Scripts.AdIntegration;
 
 public interface IAdManager
 {
+	string RewardedAdNotAvailableText { get; }
+
 	TimeSpan TimeSinceLastAd { get; }
 
 	TimeSpan TimeSinceLastInterstitial { get; }

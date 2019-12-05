@@ -197,6 +197,7 @@ public class AvatarMotor : MVRigidBody
 	private void OnDestroy()
 	{
 		waterState.Destroy();
+		jumpState.Destroy();
 		if (MVGameControllerBase.IsAlive)
 		{
 			MVGameControllerBase.Game.LocalPlayer.BoostController.UnSubscribeToBoostChanged(BoostType.MovementSpeedFloatMultiplier, HandleMovementBoost);

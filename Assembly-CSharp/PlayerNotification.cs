@@ -58,7 +58,7 @@ public class PlayerNotification : Notification
 	private void OnDestroy()
 	{
 		BadgeManager.UnsubscribeGetBadgeRequest(BadgeCallback);
-		Object.Destroy(badgeTextureAsset);
+		badgeTextureAsset = null;
 	}
 
 	private void BadgeCallback(UnityWebRequest www)

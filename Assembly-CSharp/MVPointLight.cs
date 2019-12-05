@@ -13,7 +13,7 @@ public class MVPointLight : MVLogicObject, ILogicWorldObject
 
 	private float rangeMaxValue = 10f;
 
-	private float scaleRestriction = 10f;
+	private float scaleRestriction = 2f;
 
 	private bool inputVisible;
 
@@ -123,26 +123,19 @@ public class MVPointLight : MVLogicObject, ILogicWorldObject
 			float[] array = (float[])Data["color"];
 			lightComponent.color = new Color(array[0], array[1], array[2]);
 		}
-		else
-		{
-			Debug.LogWarning("'OLD' light object discovered...updating the Data field to include light settings");
-		}
 		if (Data.ContainsKey("intensity") && Data.ContainsKey("range"))
 		{
 			float num = (float)Data["range"];
-			float num2 = (float)Data["intensity"];
-			lightComponent.intensity = num2;
+			float intensity = (float)Data["intensity"];
+			lightComponent.intensity = intensity;
 			lightComponent.range = num;
-			float num3 = num2 / intensityMaxValue;
-			num3 /= scaleRestriction;
-			float num4 = num / rangeMaxValue;
-			num4 /= scaleRestriction;
-			float num5 = ((!(num4 < num3)) ? num3 : num4);
-			if (num5 < minumumScale)
+			float num2 = num / rangeMaxValue;
+			num2 /= scaleRestriction;
+			if (num2 < minumumScale)
 			{
-				num5 = minumumScale;
+				num2 = minumumScale;
 			}
-			lightObject.PointLightPlaneTransform.localScale = new Vector3(num5, num5, num5);
+			lightObject.PointLightPlaneTransform.localScale = new Vector3(num2, num2, num2);
 			cullingSubscriberBase.Radius = num;
 		}
 	}

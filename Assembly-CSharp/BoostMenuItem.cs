@@ -77,6 +77,8 @@ public class BoostMenuItem : MonoBehaviour
 
 	private Boost boost;
 
+	private int price;
+
 	public void Initialize(Boost boost, bool boostUnlocked)
 	{
 		this.boost = boost;
@@ -156,8 +158,8 @@ public class BoostMenuItem : MonoBehaviour
 		{
 			x.Push(boostPurchasePopup.gameObject, UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
 		});
-		int boostPrice = GetBoostPrice();
-		boostPurchasePopup.Initialize(boost.Type, boost.BoostKey, boost.EditTitle, boostPrice, OnPurchaseSuccessful);
+		price = GetBoostPrice();
+		boostPurchasePopup.Initialize(boost.Type, boost.BoostKey, boost.EditTitle, price, OnPurchaseSuccessful);
 	}
 
 	public void OnTestPressed()
@@ -208,6 +210,8 @@ public class BoostMenuItem : MonoBehaviour
 	private void OnPurchaseSuccessful()
 	{
 		MVGameControllerBase.Game.LocalPlayer.BoostController.ActivateBoost(boost.Type);
+		StatHatWrapper.Count("Purchase.Booster." + boost.Type, 1);
+		StatHatWrapper.Count("Purchase.Booster.GoldSpent", price);
 		bool flag = MVGameControllerBase.LocalPlayer.BoostController.IsBoostActive(boost.Type);
 		SetBoostUIUnlocked(flag);
 		if (flag)

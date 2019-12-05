@@ -79,6 +79,12 @@ public class GamePassesUI : MonoBehaviour
 		});
 	}
 
+	public void ReplayGainEffect(int previousGamePointAmount, int newGamePointAmount)
+	{
+		tierProgressBar.ReplayGainEffect(previousGamePointAmount, newGamePointAmount);
+		gainEffectController.ReplayGainEffect(previousGamePointAmount, newGamePointAmount);
+	}
+
 	private void ShowGamePassesShop(GamePassTier tierToShow)
 	{
 		InstantiateGamePassesShop(tierToShow);
@@ -114,7 +120,7 @@ public class GamePassesUI : MonoBehaviour
 
 	private bool ShouldShowWelcomeReward()
 	{
-		if (GamePassesManager.playerTierStateCalculator == null)
+		if (GamePassesManager.playerTierStateCalculator == null || MVGameControllerBase.GoldRewardManager.CanGetGoldReward())
 		{
 			return false;
 		}

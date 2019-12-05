@@ -16,7 +16,7 @@ public class PlayButtonMobile : MonoBehaviour
 	protected bool shouldPop;
 
 	[SerializeField]
-	private Button button;
+	protected Button button;
 
 	public Action OnPlayButtonPressed;
 
@@ -42,7 +42,7 @@ public class PlayButtonMobile : MonoBehaviour
 		}
 	}
 
-	public void OnConfirmPlay()
+	public virtual void OnConfirmPlay()
 	{
 		if (OnPlayButtonPressed != null)
 		{
@@ -80,7 +80,7 @@ public class PlayButtonMobile : MonoBehaviour
 		}
 		if (!button.interactable)
 		{
-			StartPlaying();
+			OnCountdownEnd();
 			button.interactable = true;
 		}
 	}
@@ -99,5 +99,10 @@ public class PlayButtonMobile : MonoBehaviour
 				handler.Pop();
 			});
 		}
+	}
+
+	protected virtual void OnCountdownEnd()
+	{
+		StartPlaying();
 	}
 }

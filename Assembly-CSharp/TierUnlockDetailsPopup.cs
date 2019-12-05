@@ -161,6 +161,9 @@ public class TierUnlockDetailsPopup : MonoBehaviour
 
 	private void HandleSuccessfulPurchase()
 	{
+		StatHatWrapper.Count("Purchase.Tier", 1);
+		StatHatWrapper.Count("Purchase.Tier." + tierToPurchase, 1);
+		StatHatWrapper.Count("Purchase.Tier.GoldSpent", price);
 		ShowTierUnlock(wasPurchased: true, wasTempUnlocked: false);
 		OnPurchaseSuccessful();
 	}
@@ -223,14 +226,14 @@ public class TierUnlockDetailsPopup : MonoBehaviour
 		case RewardedAdResult.RewardNotUnlocked:
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 			{
-				x.Create(TM._("The video was canceled. Your Free Try have not been activated."), TM._("Video canceled"));
+				x.Create(TM._("The video was canceled. Your Free Try has not been activated."), TM._("Video canceled"));
 			});
 			break;
 		case RewardedAdResult.ErrorClient:
 		case RewardedAdResult.ErrorInternal:
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 			{
-				x.Create(TM._("Free try cannot be activated at this moment."), TM._("An error occurred"));
+				x.Create(MVGameControllerBase.AdManager.RewardedAdNotAvailableText, TM._("No Ad Available"));
 			});
 			break;
 		case RewardedAdResult.ErrorTimeout:

@@ -10,20 +10,32 @@ public class BoostController : IUpdatecontrollerSubscriberUpdate, IUpdatecontrol
 	private static readonly Dictionary<BoostType, Boost> boosts = new Dictionary<BoostType, Boost>
 	{
 		{
+			BoostType.XRayVision,
+			new Boost(BoostType.XRayVision, "XRayVision", TM._("X-ray vision"), string.Empty, TM._("X-ray vision"), allowedForGame: true, 180f)
+		},
+		{
 			BoostType.AmmoIntMultiplier,
-			new Boost(BoostType.AmmoIntMultiplier, "Ammo", TM._("x2 Ammo"), TM._("Ammo Percentage"), TM._("Ammo"), allowedForGame: false, 600f)
+			new Boost(BoostType.AmmoIntMultiplier, "Ammo", TM._("x2 Ammo"), TM._("Ammo Percentage"), TM._("Ammo"), allowedForGame: false, 180f)
 		},
 		{
 			BoostType.MovementSpeedFloatMultiplier,
-			new Boost(BoostType.MovementSpeedFloatMultiplier, "Speed", TM._("+{0}% Speed"), TM._("Speed Percentage"), TM._("Speed"), allowedForGame: true, 600f)
+			new Boost(BoostType.MovementSpeedFloatMultiplier, "Speed", TM._("+{0}% Speed"), TM._("Speed Percentage"), TM._("Speed"), allowedForGame: true, 180f)
 		},
 		{
 			BoostType.GameCoinsIntMultiplier,
-			new Boost(BoostType.GameCoinsIntMultiplier, "GameCoinBoost", TM._("x2 Gamecoins"), TM._("Coin Percentage"), TM._("Coins"), allowedForGame: false, 600f)
+			new Boost(BoostType.GameCoinsIntMultiplier, "GameCoinBoost", TM._("x2 Gamecoins"), TM._("Coin Percentage"), TM._("Coins"), allowedForGame: false, 180f)
 		},
 		{
 			BoostType.ExtraHealthFloatMultiplier,
-			new Boost(BoostType.ExtraHealthFloatMultiplier, "Health", TM._("+{0}% HP"), TM._("HP Percentage"), TM._("Health"), allowedForGame: true, 600f)
+			new Boost(BoostType.ExtraHealthFloatMultiplier, "Health", TM._("+{0}% HP"), TM._("HP Percentage"), TM._("Health"), allowedForGame: true, 180f)
+		},
+		{
+			BoostType.JumpPowerFloatMultiplier,
+			new Boost(BoostType.JumpPowerFloatMultiplier, "JumpPower", TM._("+{0}% Jump"), TM._("Jump Percentage"), TM._("Jump"), allowedForGame: true, 180f)
+		},
+		{
+			BoostType.PoisonResistPercentage,
+			new Boost(BoostType.PoisonResistPercentage, "PoisonResist", TM._("+{0}% Poison Resist"), TM._("Poison Resist"), TM._("Poison Resist"), allowedForGame: true, 180f)
 		}
 	};
 
@@ -44,10 +56,35 @@ public class BoostController : IUpdatecontrollerSubscriberUpdate, IUpdatecontrol
 		{
 			BoostType.ExtraHealthFloatMultiplier,
 			null
+		},
+		{
+			BoostType.XRayVision,
+			null
+		},
+		{
+			BoostType.JumpPowerFloatMultiplier,
+			null
+		},
+		{
+			BoostType.PoisonResistPercentage,
+			null
 		}
 	};
 
+	public List<BoostType> boostPriorityList = new List<BoostType>
+	{
+		BoostType.ExtraHealthFloatMultiplier,
+		BoostType.MovementSpeedFloatMultiplier,
+		BoostType.AmmoIntMultiplier,
+		BoostType.JumpPowerFloatMultiplier,
+		BoostType.GameCoinsIntMultiplier,
+		BoostType.PoisonResistPercentage,
+		BoostType.XRayVision
+	};
+
 	private Dictionary<BoostType, Boost> activeBoosts = new Dictionary<BoostType, Boost>();
+
+	private List<BoostType> expiredBoosts = new List<BoostType>();
 
 	private List<Boost> removeList = new List<Boost>();
 
@@ -69,6 +106,7 @@ public class BoostController : IUpdatecontrollerSubscriberUpdate, IUpdatecontrol
 		}
 		for (int i = 0; i < removeList.Count; i++)
 		{
+			expiredBoosts.Add(removeList[i].Type);
 			activeBoosts.Remove(removeList[i].Type);
 			BoostUpdated(removeList[i].Type);
 		}
@@ -82,11 +120,39 @@ public class BoostController : IUpdatecontrollerSubscriberUpdate, IUpdatecontrol
 			activeBoosts[type] = boosts[type];
 			activeBoosts[type].BoostSecondsLeft = boosts[type].BoostMaxDurationSeconds;
 			BoostUpdated(type);
+			if (expiredBoosts.Contains(type))
+			{
+				expiredBoosts.Remove(type);
+			}
 		}
 		else
 		{
 			Debug.LogWarning("Boost: " + type.ToString() + ". Active boosts: " + activeBoosts.ToString());
 			Debug.LogError("Trying to activate boost, but boost is already active.");
+		}
+	}
+
+	public void ActivateOrRenewBoost(BoostType type)
+	{
+		if (IsBoostActive(type))
+		{
+			RenewBoost(type);
+		}
+		else
+		{
+			ActivateBoost(type);
+		}
+	}
+
+	private void RenewBoost(BoostType type)
+	{
+		if (IsBoostActive(type))
+		{
+			activeBoosts[type].BoostSecondsLeft = boosts[type].BoostMaxDurationSeconds;
+		}
+		else
+		{
+			Debug.LogError("Can't renew " + type.ToString() + " boost because it is not active");
 		}
 	}
 
@@ -181,5 +247,26 @@ public class BoostController : IUpdatecontrollerSubscriberUpdate, IUpdatecontrol
 		}
 		boost = null;
 		return false;
+	}
+
+	public List<BoostType> GetCurrentAndExpiredBoosts()
+	{
+		List<BoostType> list = new List<BoostType>();
+		list.AddRange(expiredBoosts);
+		foreach (BoostType key in activeBoosts.Keys)
+		{
+			list.Add(key);
+		}
+		return list;
+	}
+
+	public void RemoveAllExpiredBoosts()
+	{
+		expiredBoosts.Clear();
+	}
+
+	public bool HasExpiredBoosts()
+	{
+		return expiredBoosts.Count > 0;
 	}
 }

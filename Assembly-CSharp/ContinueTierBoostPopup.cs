@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using Assets.Scripts.AdIntegration;
 using MV.Common;
+using MV.WorldObject;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -14,10 +16,31 @@ public class ContinueTierBoostPopup : MonoBehaviour
 	private Text continueRewardDescriptionText;
 
 	[SerializeField]
+	private Text tempClassContinueRewardDescriptionText;
+
+	[SerializeField]
 	private Image countdownFillImage;
 
 	[SerializeField]
 	private Text countdownText;
+
+	[SerializeField]
+	private GameObject defaultUI;
+
+	[SerializeField]
+	private GameObject tempClassUI;
+
+	[SerializeField]
+	private CurrentSpawnRolePreviewer spawnRolePreviewer;
+
+	[SerializeField]
+	private GameObject backgroundTier1;
+
+	[SerializeField]
+	private GameObject backgroundTier2;
+
+	[SerializeField]
+	private GameObject backgroundTier3;
 
 	[SerializeField]
 	private TierUnlockedPopupController TierUnlockedPopupControllerPrefab;
@@ -26,11 +49,14 @@ public class ContinueTierBoostPopup : MonoBehaviour
 	private SpawnRoleMenu spawnRoleSelectionMenuPrefab;
 
 	[SerializeField]
+	private TeamMenu teamMenuPrefab;
+
+	[SerializeField]
 	private float countDownDuration;
 
 	private float timeLeft = 100f;
 
-	private const string rewardDescription = "Do you want to continue as Tier {0}?";
+	private const string rewardDescription = "Keep playing as Tier {0}?";
 
 	private GamePassTier previousPreviewTier;
 
@@ -51,7 +77,16 @@ public class ContinueTierBoostPopup : MonoBehaviour
 	public void Initialize(int tier)
 	{
 		tierNumber.text = tier.ToString();
-		continueRewardDescriptionText.text = string.Format(TM._("Do you want to continue as Tier {0}?"), tier);
+		continueRewardDescriptionText.text = string.Format(TM._("Keep playing as Tier {0}?"), tier);
+		tempClassContinueRewardDescriptionText.text = string.Format(TM._("Keep playing as Tier {0}?"), tier);
+		bool flag = IsInTempClass();
+		defaultUI.SetActive(!flag);
+		tempClassUI.SetActive(flag);
+		if (flag)
+		{
+			spawnRolePreviewer.SetupPreviewer(307, 614);
+			ChangeBackground((GamePassTier)tier);
+		}
 	}
 
 	private void Start()
@@ -102,6 +137,16 @@ public class ContinueTierBoostPopup : MonoBehaviour
 		spawnRoleSelectionMenu.HideBackButton();
 	}
 
+	private void ShowTeamSelectionMenu()
+	{
+		TeamMenu newTeamMenu = UnityEngine.Object.Instantiate(teamMenuPrefab);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Push(newTeamMenu.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker);
+		});
+		newTeamMenu.UpdateBackButtonVisibility();
+	}
+
 	private void ShowAd()
 	{
 		shouldUpdate = false;
@@ -121,7 +166,7 @@ public class ContinueTierBoostPopup : MonoBehaviour
 		case RewardedAdResult.RewardNotUnlocked:
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 			{
-				x.Create(TM._("The video was canceled. Your Free Try have not been activated."), TM._("Video canceled"));
+				x.Create(TM._("The video was canceled. Your Free Try has not been activated."), TM._("Video canceled"));
 			});
 			shouldUpdate = true;
 			break;
@@ -129,7 +174,7 @@ public class ContinueTierBoostPopup : MonoBehaviour
 		case RewardedAdResult.ErrorInternal:
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 			{
-				x.Create(TM._("Free try cannot be activated at this moment."), TM._("An error occurred"));
+				x.Create(MVGameControllerBase.AdManager.RewardedAdNotAvailableText, TM._("No Ad Available"));
 			});
 			shouldUpdate = true;
 			break;
@@ -174,15 +219,63 @@ public class ContinueTierBoostPopup : MonoBehaviour
 		{
 			x.Pop();
 		});
-		GamePassTier gamePassTier = MVGameControllerBase.LocalPlayer.SpawnRoleDataMediator.TierRequirement;
-		GamePassTier gamePassTier2 = GamePassesManager.PlayerPlanetData.gamePassTier;
-		if ((int)gamePassTier > (int)gamePassTier2)
+		if (IsInTempClass())
 		{
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 			{
 				x.Pop();
 			});
-			ShowSpawnRoleSelectionMenu();
+			if (CanSpawnInTeam(MVGameControllerBase.LocalPlayer.Team))
+			{
+				ShowSpawnRoleSelectionMenu();
+			}
+			else
+			{
+				ShowTeamSelectionMenu();
+			}
+		}
+	}
+
+	private bool IsInTempClass()
+	{
+		GamePassTier gamePassTier = MVGameControllerBase.LocalPlayer.SpawnRoleDataMediator.TierRequirement;
+		GamePassTier gamePassTier2 = GamePassesManager.PlayerPlanetData.gamePassTier;
+		return (int)gamePassTier > (int)gamePassTier2;
+	}
+
+	private bool CanSpawnInTeam(MVTeam team)
+	{
+		if (MVGameControllerBase.Game.TeamManager.GetTeamList().Count <= 1 || MVGameControllerBase.Game.TeamManager.TeamHasSpawnPoints(team))
+		{
+			return true;
+		}
+		List<MVWorldObjectClient> spawnPointsForTeam = MVGameControllerBase.Game.TeamManager.GetSpawnPointsForTeam(team);
+		for (int i = 0; i < spawnPointsForTeam.Count; i++)
+		{
+			if (spawnPointsForTeam[i] is MVAvatarSpawnRoleCreator && (int)((MVAvatarSpawnRoleCreator)spawnPointsForTeam[i]).Tier < (int)(GamePassTier)MVGameControllerBase.LocalPlayer.SpawnRoleDataMediator.TierRequirement)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void ChangeBackground(GamePassTier tier)
+	{
+		bool flag = tier == GamePassTier.Tier1;
+		bool flag2 = tier == GamePassTier.Tier2;
+		bool flag3 = tier == GamePassTier.Tier3;
+		if (backgroundTier1.activeSelf != flag)
+		{
+			backgroundTier1.SetActive(flag);
+		}
+		if (backgroundTier2.activeSelf != flag2)
+		{
+			backgroundTier2.SetActive(flag2);
+		}
+		if (backgroundTier3.activeSelf != flag3)
+		{
+			backgroundTier3.SetActive(flag3);
 		}
 	}
 }

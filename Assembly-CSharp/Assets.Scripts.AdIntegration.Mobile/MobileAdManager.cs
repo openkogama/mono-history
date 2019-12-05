@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using GoogleMobileAds.Api;
-using GoogleMobileAds.Api.Mediation.AdColony;
 using GoogleMobileAds.Api.Mediation.IronSource;
 using GoogleMobileAds.Api.Mediation.Tapjoy;
 using GoogleMobileAds.Api.Mediation.UnityAds;
 using GoogleMobileAds.Api.Mediation.Vungle;
+using MV.Common;
 using Newtonsoft.Json;
 using UnityEngine;
 
@@ -424,6 +424,10 @@ public class MobileAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IU
 		{
 			try
 			{
+				if (interstitialAdResult == InterstitialAdResult.Done)
+				{
+					SendStat("Ad.InterstitialShown");
+				}
 				adUIManager.PopInterstitial(interstitialAdResult);
 				interstitialCallback(interstitialAdResult);
 			}
@@ -460,6 +464,10 @@ public class MobileAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IU
 		{
 			try
 			{
+				if (rewardedAdResult == RewardedAdResult.RewardUnlocked)
+				{
+					SendStat("Ad.RewardedShown");
+				}
 				adUIManager.PopRewardedVideo(rewardedAdResult);
 				rewardedAdCallback(rewardedAdResult);
 			}
@@ -593,6 +601,8 @@ public class MobileAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IU
 
 	private IAdUIManager adUIManager;
 
+	public string RewardedAdNotAvailableText => TM._("Please try again later.");
+
 	public TimeSpan TimeSinceLastAd => internalAdManagerState.TimeSinceLastAd;
 
 	public TimeSpan TimeSinceLastInterstitial => internalAdManagerState.TimeSinceLastInterstitial;
@@ -663,10 +673,23 @@ public class MobileAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IU
 			rewardedAdCallback(RewardedAdResult.ErrorClient);
 			return;
 		}
-		SendStat("Ad.RewardRequest." + context);
+		if (adUIManager.AdShowing())
+		{
+			Debug.Log("Ad already showing, aborting");
+			rewardedAdCallback(RewardedAdResult.ErrorClient);
+			return;
+		}
+		SendRewardRequestStats(context);
 		adUIManager.ShowRewardedVideo(RewardedAdCallback);
 		rewardedAdResultHandler = new RewardedAdResultHandler(rewardedAdCallback, adUIManager);
 		internalAdManagerState.RequestRewardedAd(RewardedAdCallback);
+	}
+
+	private void SendRewardRequestStats(AdContext context)
+	{
+		SendStat("Ad.RewardRequest");
+		SendStat("Ad.RewardRequest." + context);
+		MVGameControllerBase.OperationRequests.IncrementStatRequest(IncrementStatRequestType.RewardedAdRequest);
 	}
 
 	public void RequestInterstitial(Action<InterstitialAdResult> interstitialCallback, AdContext context)
@@ -677,10 +700,23 @@ public class MobileAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IU
 			interstitialCallback(InterstitialAdResult.ErrorClient);
 			return;
 		}
-		SendStat("Ad.InterstitialRequest." + context);
+		if (adUIManager.AdShowing())
+		{
+			Debug.Log("Ad already showing, aborting");
+			interstitialCallback(InterstitialAdResult.ErrorClient);
+			return;
+		}
+		SendInterstitialAdRequestStats(context);
 		adUIManager.ShowInterstitial(InterstitialCallback);
 		interstitialAdResultHandler = new InterstitialAdResultHandler(interstitialCallback, adUIManager);
 		internalAdManagerState.RequestInterstitial(InterstitialCallback);
+	}
+
+	private void SendInterstitialAdRequestStats(AdContext context)
+	{
+		SendStat("Ad.InterstitialRequest." + context);
+		SendStat("Ad.InterstitialRequest");
+		MVGameControllerBase.OperationRequests.IncrementStatRequest(IncrementStatRequestType.InterstitialAdRequest);
 	}
 
 	private void InterstitialCallback(InterstitialAdResult obj)
@@ -732,7 +768,6 @@ public class MobileAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IU
 		SetConsentUnityAds(hasConsented);
 		SetConsentTapJoy(hasConsented, isGDPRConsentRequired);
 		SetConsentIronSource(hasConsented);
-		SetConsentAdColony(hasConsented, isGDPRConsentRequired);
 	}
 
 	private static AdRequest CreateAdRequest()
@@ -777,12 +812,6 @@ public class MobileAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IU
 	private void SetConsentIronSource(bool hasConsented)
 	{
 		IronSource.SetConsent(hasConsented);
-	}
-
-	private void SetConsentAdColony(bool hasConsented, bool isGDPRConsentRequired)
-	{
-		AdColonyAppOptions.SetGDPRRequired(isGDPRConsentRequired);
-		AdColonyAppOptions.SetGDPRConsentString(BoolToString(hasConsented));
 	}
 
 	private static string BoolToString(bool b)

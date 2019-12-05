@@ -9,5 +9,9 @@ public enum AdContext
 	TouristPromotion,
 	JoinFlow,
 	FreeXP,
-	PreviewTier
+	PreviewTier,
+	PlayButtonAd,
+	Reboost,
+	RegisteredEmbeddedPromotion,
+	GoldReward
 }

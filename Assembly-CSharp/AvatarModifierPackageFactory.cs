@@ -37,7 +37,7 @@ public static class AvatarModifierPackageFactory
 			AvatarModifierPackageType.Poison,
 			new AvatarModifierPackage(AvatarModifierPackageType.Poison, AvatarModifierPackageAdditionPolicy.Renew, float.PositiveInfinity, new AvatarModifierPackage.AvatarModifier[1]
 			{
-				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Addition, AvatarModifierEffect.EnvironmentDamagePrSec, Const(25f))
+				new AvatarModifierPackage.AvatarModifier(AvatarModifierType.Addition, AvatarModifierEffect.PoisonDamagePrSec, Const(25f))
 			})
 		},
 		{

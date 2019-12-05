@@ -21,7 +21,7 @@ public class NotificationLevelRequirementPanel : NotificationRequirementPanel
 	private void OnDestroy()
 	{
 		BadgeManager.UnsubscribeGetBadgeRequest(BadgeCallback);
-		Object.Destroy(badgeTextureAsset);
+		badgeTextureAsset = null;
 	}
 
 	private void BadgeCallback(UnityWebRequest www)

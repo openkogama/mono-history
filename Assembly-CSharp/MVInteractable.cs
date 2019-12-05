@@ -16,6 +16,8 @@ public abstract class MVInteractable : MVInteractableBase
 
 	protected MVRuntimeDataVariableClampedFloat shield;
 
+	protected float poisonResist;
+
 	private float healthRegenerationPerSecondSetting;
 
 	private float shieldRegenerationPerSecondSetting;
@@ -84,15 +86,21 @@ public abstract class MVInteractable : MVInteractableBase
 		{
 			TakeDamage(num2, null, PlayerKilledByType.Environmental);
 		}
-		float num3 = healthRegenerationPerSecondSetting * Time.deltaTime;
+		float num3 = HandleModifierEffect(AvatarModifierEffect.PoisonDamagePrSec, 0f) * Time.deltaTime;
+		num3 *= 1f - poisonResist;
 		if (num3 != 0f)
 		{
-			TakeDamage(0f - num3, null, PlayerKilledByType.None);
+			TakeDamage(num3, null, PlayerKilledByType.Environmental);
 		}
-		float num4 = shieldRegenerationPerSecondSetting * Time.deltaTime;
+		float num4 = healthRegenerationPerSecondSetting * Time.deltaTime;
 		if (num4 != 0f)
 		{
-			RestoreShield(num4);
+			TakeDamage(0f - num4, null, PlayerKilledByType.None);
+		}
+		float num5 = shieldRegenerationPerSecondSetting * Time.deltaTime;
+		if (num5 != 0f)
+		{
+			RestoreShield(num5);
 		}
 	}
 

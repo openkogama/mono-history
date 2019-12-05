@@ -14,6 +14,9 @@ public class TeamMenu : LobbyFlowMenu
 	[SerializeField]
 	private TeamSelectButton teamPrefab;
 
+	[SerializeField]
+	private GameObject backButton;
+
 	protected override LobbyFlowMenuType MenuType => LobbyFlowMenuType.TeamSelect;
 
 	public override void Start()
@@ -27,6 +30,11 @@ public class TeamMenu : LobbyFlowMenu
 			teamSelectButton.Initialize(list[num], OnTeamSelected);
 			teamSelectButton.transform.SetParent(teamLayoutGroup.transform, worldPositionStays: false);
 		}
+	}
+
+	public void UpdateBackButtonVisibility()
+	{
+		backButton.SetActive(CanSpawnAsSelectedClass());
 	}
 
 	private void Update()
@@ -51,6 +59,18 @@ public class TeamMenu : LobbyFlowMenu
 	protected override bool CanShowSpawnRoleSelect()
 	{
 		return MVGameControllerBase.Game.TeamManager.TeamHasSpawnRoles(selectedTeam);
+	}
+
+	private bool CanSpawnAsSelectedClass()
+	{
+		if (GamePassesManager.PlayerPlanetData == null)
+		{
+			return true;
+		}
+		GamePassTier gamePassTier = MVGameControllerBase.LocalPlayer.SpawnRoleDataMediator.TierRequirement;
+		GamePassTier gamePassTier2 = GamePassesManager.PlayerPlanetData.gamePassTier;
+		GamePassTier previewGamePassTier = GamePassesManager.PlayerPlanetData.previewGamePassTier;
+		return (int)gamePassTier <= (int)gamePassTier2 || (int)gamePassTier <= (int)previewGamePassTier;
 	}
 
 	protected override void StartPlaying()

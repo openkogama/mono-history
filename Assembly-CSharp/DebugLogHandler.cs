@@ -19,7 +19,7 @@ public static class DebugLogHandler
 
 	private const int maxLogContextQueueCount = 4;
 
-	private const int sampleErrorFrequency = 100;
+	private const int sampleErrorFrequency = 10;
 
 	private static bool isSampling = false;
 
@@ -46,7 +46,7 @@ public static class DebugLogHandler
 
 	public static void Init()
 	{
-		isSampling = UnityEngine.Random.Range(0, 101) == 100;
+		isSampling = UnityEngine.Random.Range(0, 11) == 10;
 		Application.logMessageReceived += HandleLog;
 	}
 

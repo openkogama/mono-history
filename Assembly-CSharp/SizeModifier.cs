@@ -23,6 +23,8 @@ public abstract class SizeModifier : AvatarModifier
 	[SerializeField]
 	protected AudioSource audioSource;
 
+	protected Vector3 defaultScale = Vector3.one;
+
 	protected bool isDeactivating;
 
 	public AudioClip growSound;
@@ -35,13 +37,14 @@ public abstract class SizeModifier : AvatarModifier
 		timeStamp = Time.time;
 		owner = target;
 		owner.mvAvatar.Body.BlobShadow.ScaleShadow(sizeModifier);
+		defaultScale = MVGameControllerBase.Game.LocalPlayer.SpawnRoleDataMediator.Scale;
 		Scale();
 	}
 
 	public override void ResetTimeStamp()
 	{
 		timeStamp = Time.time;
-		owner.mvAvatar.Scale = Vector3.one * sizeModifier;
+		owner.mvAvatar.Scale = defaultScale * sizeModifier;
 	}
 
 	protected override void OnDeactivated(Avatar target)
@@ -87,7 +90,7 @@ public abstract class SizeModifier : AvatarModifier
 		if (num > sizeUnstableAfterSeconds)
 		{
 			unstableSpeed += Time.deltaTime;
-			owner.mvAvatar.Scale = Vector3.one * sizeModifier + Vector3.one * 0.03f * (1f - Mathf.Sin((num - sizeUnstableAfterSeconds) * unstableSpeed));
+			owner.mvAvatar.Scale = defaultScale * sizeModifier + defaultScale * 0.03f * (1f - Mathf.Sin((num - sizeUnstableAfterSeconds) * unstableSpeed));
 		}
 	}
 }

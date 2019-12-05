@@ -85,6 +85,8 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 
 	private FlagDebriefingControl flagDebriefingControl = new FlagDebriefingControl();
 
+	private GoldRewardManager goldRewardManager = new GoldRewardManager();
+
 	private bool quitHasBeenCalled;
 
 	private TimeReward timeReward;
@@ -147,6 +149,8 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	public static SkinnedMeshOptimizeManager SkinnedMeshOptimizeManager => instance.skinnedMeshOptimizeManager;
 
 	public static FlagDebriefingControl FlagDebriefingControl => instance.flagDebriefingControl;
+
+	public static GoldRewardManager GoldRewardManager => instance.goldRewardManager;
 
 	public static GameSessionData GameSessionData { get; private set; }
 
@@ -279,6 +283,8 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		{
 			Debug.unityLogger.filterLogType = LogType.Warning;
 		}
+		PlayerPrefsManager.EarlyInitialize();
+		Debug.Log("Is first time session " + PlayerPrefsManager.IsFirstTimeSession);
 		styles = UnityEngine.Object.Instantiate(styles);
 		styles.transform.parent = transform;
 		loadStats = new LoadStats();
@@ -418,6 +424,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 	public static void SetGameSessionData(GameSessionData gameSessionData)
 	{
 		GameSessionData = gameSessionData;
+		PlayerPrefsManager.Initialize(gameSessionData);
 		AwayMonitor.Initialize(gameSessionData.gameMode);
 	}
 
@@ -622,7 +629,7 @@ public abstract class MVGameControllerBase : MonoBehaviour, IUpdatecontrollerSub
 		{
 			Debug.Log("WEBPARAMS: " + sessionDataJson);
 			GameSessionData gameSessionData = JsonConvert.DeserializeObject<GameSessionData>(sessionDataJson);
-			StatHatWrapper.Initialize(gameSessionData.detailedStats);
+			StatHatWrapper.Initialize(PlayerPrefsManager.IsFirstTimeSession);
 			Debug.Log(gameSessionData.pingURL);
 			Debug.Log(gameSessionData.disconnectURL);
 			SetGameSessionData(gameSessionData);

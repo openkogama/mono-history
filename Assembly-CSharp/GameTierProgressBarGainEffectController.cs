@@ -76,6 +76,12 @@ public class GameTierProgressBarGainEffectController : MonoBehaviour
 		}
 	}
 
+	public void ReplayGainEffect(int previousGamePointAmount, int newGamePointAmount)
+	{
+		currentGamePoints = previousGamePointAmount;
+		HandleNewGamePointAmount(newGamePointAmount);
+	}
+
 	private void Start()
 	{
 		Initialize();

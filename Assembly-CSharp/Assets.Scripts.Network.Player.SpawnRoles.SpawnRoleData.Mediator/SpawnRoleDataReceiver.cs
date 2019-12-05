@@ -31,6 +31,8 @@ public class SpawnRoleDataReceiver
 
 	public SpawnRoleReceiverVariable<Vector3> scale;
 
+	public SpawnRoleReceiverVariable<float> size;
+
 	public SpawnRoleReceiverVariable<GamePassTier> tierRequirement;
 
 	protected bool isActive = true;

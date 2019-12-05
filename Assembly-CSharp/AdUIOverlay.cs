@@ -10,6 +10,11 @@ public class AdUIOverlay : MonoBehaviour, IAdUIManager
 
 	private bool popupShowing;
 
+	public bool AdShowing()
+	{
+		return popupShowing;
+	}
+
 	private void Awake()
 	{
 		MVGameControllerBase.AdManager.InitializeCallbackManager(this);
@@ -56,6 +61,7 @@ public class AdUIOverlay : MonoBehaviour, IAdUIManager
 	{
 		if (popupShowing)
 		{
+			popupShowing = false;
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 			{
 				x.Pop();

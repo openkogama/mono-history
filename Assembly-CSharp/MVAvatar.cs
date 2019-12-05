@@ -24,6 +24,8 @@ public abstract class MVAvatar : MVGroup, IHealRayAttachementObject, IUpdatecont
 
 	public MVRuntimeDataVariable SpawnRoleModeTypes;
 
+	public MVRuntimeDataVariableClampedFloat Size;
+
 	public LimbRotationRuntimeData LimbRotationRuntimeData = new LimbRotationRuntimeData();
 
 	private readonly Vector3 characterControllerCenterOffset = new Vector3(0f, 0.95f, 0f);
@@ -146,6 +148,7 @@ public abstract class MVAvatar : MVGroup, IHealRayAttachementObject, IUpdatecont
 		LimbRotationRuntimeData.Emote = RuntimeDataVariables.New("emote", 0.5f, writeThrough: false);
 		gameObject.layer = LayerMask.NameToLayer("Player");
 		avatar = gameObject.GetComponent<Avatar>();
+		Size = RuntimeDataVariables.NewClampedFloat("size", 0f, writeThrough: true, 0.01f, 10f);
 	}
 
 	protected virtual void OnSeatedChanged(bool isSeated)
@@ -196,6 +199,13 @@ public abstract class MVAvatar : MVGroup, IHealRayAttachementObject, IUpdatecont
 			mVRuntimeDataVariableClampedFloat.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(mVRuntimeDataVariableClampedFloat.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnShieldChange));
 			MVRuntimeDataVariable currentItem = CurrentItem;
 			currentItem.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(currentItem.OnChange, new MVRuntimeDataVariable.OnChangeDelegate(OnCurrentPickupChange));
+			MVRuntimeDataVariableClampedFloat size = Size;
+			size.OnChange = (MVRuntimeDataVariable.OnChangeDelegate)Delegate.Combine(size.OnChange, (MVRuntimeDataVariable.OnChangeDelegate)((object val) =>
+			{
+				float num = (float)val;
+				base.Scale = new Vector3(num, num, num);
+			}));
+			Scale = new Vector3(Size.Value, Size.Value, Size.Value);
 			UpdateController.AddLateUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
 		}
 	}

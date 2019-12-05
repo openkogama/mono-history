@@ -28,7 +28,7 @@ public class LevelUpNotification : Notification
 	private void OnDestroy()
 	{
 		BadgeManager.UnsubscribeGetBadgeRequest(BadgeCallback);
-		Object.Destroy(textureAsset);
+		textureAsset = null;
 	}
 
 	private void BadgeCallback(UnityWebRequest www)

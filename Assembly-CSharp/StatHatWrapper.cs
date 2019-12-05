@@ -2,21 +2,21 @@ using StatHat;
 
 public static class StatHatWrapper
 {
-	private static bool doDetailedStatsForSession;
+	private static bool isFirstTimeSession;
 
 	private const string allBtFormat = "{0}.u.{1}";
 
-	private const string allBtFormatDetailedStats = "{0}.u.detailedstat.{1}";
+	private const string allBtFormatFtsStats = "{0}.u.fts.{1}";
 
 	private const string btFormat = "{0}.u.standalone.{1}";
 
-	private const string btFormatDetailedStats = "{0}.u.detailedstat.standalone.{1}";
+	private const string btFormatFtsStats = "{0}.u.fts.standalone.{1}";
 
 	private static bool StathatReportingEnabled => MVClientSettings.EnableStathat;
 
-	public static void Initialize(bool doDetailedStatsForSession)
+	public static void Initialize(bool isFirstTimeSession)
 	{
-		StatHatWrapper.doDetailedStatsForSession = doDetailedStatsForSession;
+		StatHatWrapper.isFirstTimeSession = isFirstTimeSession;
 	}
 
 	public static void Count(string key, int count)
@@ -26,10 +26,10 @@ public static class StatHatWrapper
 			string allBtKey = $"{MVGameControllerBase.GameSessionData.region}.u.{key}";
 			string btKey = $"{MVGameControllerBase.GameSessionData.region}.u.standalone.{key}";
 			Count(allBtKey, btKey, count);
-			if (doDetailedStatsForSession)
+			if (isFirstTimeSession)
 			{
-				string allBtKey2 = $"{MVGameControllerBase.GameSessionData.region}.u.detailedstat.{key}";
-				string btKey2 = $"{MVGameControllerBase.GameSessionData.region}.u.detailedstat.standalone.{key}";
+				string allBtKey2 = $"{MVGameControllerBase.GameSessionData.region}.u.fts.{key}";
+				string btKey2 = $"{MVGameControllerBase.GameSessionData.region}.u.fts.standalone.{key}";
 				Count(allBtKey2, btKey2, count);
 			}
 		}
@@ -42,10 +42,10 @@ public static class StatHatWrapper
 			string allBtKey = $"{MVGameControllerBase.GameSessionData.region}.u.{key}";
 			string btKey = $"{MVGameControllerBase.GameSessionData.region}.u.standalone.{key}";
 			Value(allBtKey, btKey, value);
-			if (doDetailedStatsForSession)
+			if (isFirstTimeSession)
 			{
-				string allBtKey2 = $"{MVGameControllerBase.GameSessionData.region}.u.detailedstat.{key}";
-				string btKey2 = $"{MVGameControllerBase.GameSessionData.region}.u.detailedstat.standalone.{key}";
+				string allBtKey2 = $"{MVGameControllerBase.GameSessionData.region}.u.fts.{key}";
+				string btKey2 = $"{MVGameControllerBase.GameSessionData.region}.u.fts.standalone.{key}";
 				Value(allBtKey2, btKey2, value);
 			}
 		}
@@ -58,10 +58,10 @@ public static class StatHatWrapper
 			string allBtKey = $"{MVGameControllerBase.GameSessionData.region}.u.{key}";
 			string btKey = $"{MVGameControllerBase.GameSessionData.region}.u.standalone.{key}";
 			Value(allBtKey, btKey, value);
-			if (doDetailedStatsForSession)
+			if (isFirstTimeSession)
 			{
-				string allBtKey2 = $"{MVGameControllerBase.GameSessionData.region}.u.detailedstat.{key}";
-				string btKey2 = $"{MVGameControllerBase.GameSessionData.region}.u.detailedstat.standalone.{key}";
+				string allBtKey2 = $"{MVGameControllerBase.GameSessionData.region}.u.fts.{key}";
+				string btKey2 = $"{MVGameControllerBase.GameSessionData.region}.u.fts.standalone.{key}";
 				Value(allBtKey2, btKey2, value);
 			}
 		}

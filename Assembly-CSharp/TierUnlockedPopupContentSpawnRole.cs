@@ -50,4 +50,9 @@ public class TierUnlockedPopupContentSpawnRole : TierUnlockedPopupContentBase
 		}
 		return Styles.GetTeamColor(spawnRoleTeam);
 	}
+
+	private void OnDestroy()
+	{
+		Object.Destroy(spawnRolePreviewer);
+	}
 }

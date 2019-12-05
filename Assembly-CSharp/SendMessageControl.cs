@@ -38,6 +38,8 @@ public class SendMessageControl : MonoBehaviour
 
 	private const string urlTest = "/url";
 
+	private const string testDateTime = "/dt";
+
 	private const string enableHD = "/hd";
 
 	private const string buildInformation = "/build";
@@ -306,6 +308,19 @@ public class SendMessageControl : MonoBehaviour
 		case "/rgp":
 			MVGameControllerBase.Game.OperationRequestSender.ResetPlayerPlanetData();
 			break;
+		case "/dt":
+		{
+			bool flag = GamePassesManager.PlayerPlanetData.playerPlanetMetaData.DailyWelcomeRewardClaimedToday();
+			Debug.Log("resultDailyWelcomeRewardClaimedToday " + flag);
+			DateTime utcNow = DateTime.UtcNow;
+			DateTime lastDailyWelcomeRewardClaim = GamePassesManager.PlayerPlanetData.playerPlanetMetaData.lastDailyWelcomeRewardClaim;
+			Debug.Log("utcNow " + utcNow);
+			Debug.Log("GamePassesManager.PlayerPlanetData.playerPlanetMetaData.lastDailyWelcomeRewardClaim " + GamePassesManager.PlayerPlanetData.playerPlanetMetaData.lastDailyWelcomeRewardClaim);
+			Debug.Log("lastDailyWelcomeRewardClaim.DayOfYear " + lastDailyWelcomeRewardClaim.DayOfYear);
+			Debug.Log("utcNow.DayOfYear " + utcNow.DayOfYear);
+			Debug.Log("resultDebug " + (lastDailyWelcomeRewardClaim.DayOfYear == utcNow.DayOfYear && lastDailyWelcomeRewardClaim.Year == utcNow.Year));
+			break;
+		}
 		case "/build":
 			ShowBuildInformation();
 			break;
@@ -324,20 +339,23 @@ public class SendMessageControl : MonoBehaviour
 		case "/url":
 			Debug.LogError("Testing: Redirect allowed: " + MVGameControllerBase.GameSessionData.GetIsRedirectAllowed());
 			break;
-		case "/cgi":
+		case "/iad":
 			MVGameControllerBase.AdManager.RequestInterstitial(OnAdShownCallback, AdContext.None);
 			break;
-		case "/cgr":
+		case "/rad":
 			MVGameControllerBase.AdManager.RequestRewardedAd(OnAdShownCallback, AdContext.None);
 			break;
 		case "/site":
 			Debug.Log("EmbeddedSiteDetector.GetEmbeddedSite(): " + EmbeddedSiteDetector.GetEmbeddedSite());
 			break;
-		case "/cgtest":
+		case "/adtest":
 			(MVGameControllerBase.AdManager as WebAdManager).CreateAdManagerHack();
 			break;
-		case "/cgforce":
-			(MVGameControllerBase.AdManager as WebAdManager).ForceCreateCrazygamesSDK();
+		case "/gdforce":
+			(MVGameControllerBase.AdManager as WebAdManager).ForceCreateEmbeddedSiteSDK(EmbeddedSite.GameDistribution);
+			break;
+		case "/pokiforce":
+			(MVGameControllerBase.AdManager as WebAdManager).ForceCreateEmbeddedSiteSDK(EmbeddedSite.Poki);
 			break;
 		case "/export":
 			ObjExportHandler.InitializePicking();

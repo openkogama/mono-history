@@ -4,5 +4,7 @@ public enum BoostType
 	MovementSpeedFloatMultiplier,
 	GameCoinsIntMultiplier,
 	ExtraHealthFloatMultiplier,
-	TierBoost
+	XRayVision,
+	JumpPowerFloatMultiplier,
+	PoisonResistPercentage
 }

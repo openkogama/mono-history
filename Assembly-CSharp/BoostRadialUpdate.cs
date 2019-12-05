@@ -15,6 +15,9 @@ public class BoostRadialUpdate : MonoBehaviour
 
 	private void Update()
 	{
-		radialImage.fillAmount = 1f - boost.BoostSecondsLeft / boost.BoostMaxDurationSeconds;
+		if (boost != null)
+		{
+			radialImage.fillAmount = 1f - boost.BoostSecondsLeft / boost.BoostMaxDurationSeconds;
+		}
 	}
 }

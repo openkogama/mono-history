@@ -51,6 +51,8 @@ public class SpawnRoleDataMediator
 
 	protected readonly SpawnRoleVariableInternal<Vector3> scale = new SpawnRoleVariableInternal<Vector3>(Vector3.one);
 
+	protected readonly SpawnRoleVariableInternal<float> size = new SpawnRoleVariableInternal<float>(1f);
+
 	protected readonly SpawnRoleVariableInternal<bool> pickupItemIsInHand = new SpawnRoleVariableInternal<bool>(value: false);
 
 	protected readonly SpawnRoleVariableInternal<GamePassTier> tierRequirement = new SpawnRoleVariableInternal<GamePassTier>(GamePassTier.Tier0);
@@ -80,6 +82,8 @@ public class SpawnRoleDataMediator
 	public SpawnRoleVariable<Vector3> Scale => scale;
 
 	public SpawnRoleVariable<GamePassTier> TierRequirement => tierRequirement;
+
+	public SpawnRoleVariable<float> Size => size;
 
 	public event Action<int, int, PlayerKilledByType> OnKilled;
 
@@ -119,6 +123,7 @@ public class SpawnRoleDataMediator
 		spawnRoleDataReceiver.isSeated = new SpawnRoleReceiverVariable<bool>(isSeated.SubscribableVariable, spawnRoleDataReceiver);
 		spawnRoleDataReceiver.health = new SpawnRoleReceiverVariable<float>(health.SubscribableVariable, spawnRoleDataReceiver);
 		spawnRoleDataReceiver.maxHealth = new SpawnRoleReceiverVariable<int>(maxHealth.SubscribableVariable, spawnRoleDataReceiver);
+		spawnRoleDataReceiver.size = new SpawnRoleReceiverVariable<float>(size.SubscribableVariable, spawnRoleDataReceiver);
 		spawnRoleDataReceiver.shield = new SpawnRoleReceiverVariable<float>(shield.SubscribableVariable, spawnRoleDataReceiver);
 		spawnRoleDataReceiver.isInGunMode = new SpawnRoleReceiverVariable<bool>(isInGunMode.SubscribableVariable, spawnRoleDataReceiver);
 		spawnRoleDataReceiver.isInVehicle = new SpawnRoleReceiverVariable<bool>(isInVehicle.SubscribableVariable, spawnRoleDataReceiver);

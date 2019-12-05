@@ -49,6 +49,18 @@ public class SizeState
 
 	public float ControllerCenterY => controllerLocal.Center.y;
 
+	private float AvatarScale
+	{
+		get
+		{
+			if (interactableLocal.HasModifierEffect(AvatarModifierEffect.Scale))
+			{
+				return interactableLocal.HandleModifierEffect(AvatarModifierEffect.Scale, 1f);
+			}
+			return MVGameControllerBase.SpawnRoleDataMediatorLocal.Size.Value;
+		}
+	}
+
 	public event EventHandler EquipSlapGunEvent;
 
 	public event EventHandler<ScaleArgs> CameraScaleEvent;
@@ -63,8 +75,8 @@ public class SizeState
 
 	public void UpdateScale()
 	{
-		float num = interactableLocal.HandleModifierEffect(AvatarModifierEffect.Scale, 1f);
-		if (currentSize != num)
+		float avatarScale = AvatarScale;
+		if (currentSize != avatarScale)
 		{
 			ScaleChanged();
 		}
@@ -72,8 +84,8 @@ public class SizeState
 
 	public void OnScalingWhileColliding(MVControllerColliderHit hitData)
 	{
-		float num = interactableLocal.HandleModifierEffect(AvatarModifierEffect.Scale, 1f);
-		if (currentSize < num && hitData.slopeNormal != Vector3.up)
+		float avatarScale = AvatarScale;
+		if (currentSize < avatarScale && hitData.slopeNormal != Vector3.up)
 		{
 			MoveOutOfScalingCollision(hitData);
 		}
@@ -81,10 +93,10 @@ public class SizeState
 
 	public void ScaleChanged()
 	{
-		float num = interactableLocal.HandleModifierEffect(AvatarModifierEffect.Scale, 1f);
-		if (currentSize < num)
+		float avatarScale = AvatarScale;
+		if (currentSize < avatarScale)
 		{
-			Vector3 position = FindValidMoveLocation(num);
+			Vector3 position = FindValidMoveLocation(avatarScale);
 			controllerLocal.transform.position = position;
 			if (interactableLocal.HasModifierEffect(AvatarModifierEffect.Scale))
 			{
@@ -95,12 +107,12 @@ public class SizeState
 		{
 			UnEquipSlapGunEvent(this, EventArgs.Empty);
 		}
-		controllerLocal.SetScale(num);
+		controllerLocal.SetScale(avatarScale);
 		if (CameraScaleEvent != null)
 		{
-			CameraScaleEvent(this, new ScaleArgs(num));
+			CameraScaleEvent(this, new ScaleArgs(avatarScale));
 		}
-		currentSize = num;
+		currentSize = avatarScale;
 	}
 
 	private Vector3 FindValidMoveLocation(float scale)

@@ -197,7 +197,7 @@ public class AccessoryInventoryViewItem : MonoBehaviour, IPointerEnterHandler, I
 		accessoryLoader.Destroy();
 		accessoryLoader = null;
 		BadgeManager.UnsubscribeGetBadgeRequest(OnLevelRequirementLoaded);
-		UnityEngine.Object.Destroy(levelRequirementTextureAsset);
+		levelRequirementTextureAsset = null;
 	}
 
 	private void AccessoryCreatedCallback(AvatarAccessory avatarAccessory)

@@ -68,7 +68,7 @@ public class LevelBadge : MonoBehaviour
 	private void OnDestroy()
 	{
 		BadgeManager.UnsubscribeGetBadgeRequest(StreamingAssetCallback);
-		UnityEngine.Object.Destroy(badgeTextureAsset);
+		badgeTextureAsset = null;
 	}
 
 	private void StreamingAssetCallback(UnityWebRequest www)

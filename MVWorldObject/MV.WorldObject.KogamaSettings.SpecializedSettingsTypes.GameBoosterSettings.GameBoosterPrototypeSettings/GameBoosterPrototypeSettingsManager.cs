@@ -25,11 +25,13 @@ public static class GameBoosterPrototypeSettingsManager
 	public static KogamaSettingWrapperBase CreateGameBoosterSettingPrototypes()
 	{
 		KogamaSettingsCollectionBase result = new KogamaSettingsCollectionBase("GameBoosterPrototypeSetting", null);
-		CreateDefaultFloat(2f, 1.2f, 3f, "JumpPower", result);
-		CreateDefaultInt(10, 5, 25, "Speed", result);
-		CreateDefaultInt(50, 25, 100, "Health", result);
+		CreateDefaultInt(50, 10, 100, "PoisonResist", result);
+		CreateDefaultInt(50, 10, 100, "JumpPower", result);
+		CreateDefaultInt(10, 5, 100, "Speed", result);
+		CreateDefaultInt(50, 25, 200, "Health", result);
 		CreateDefaultBool("GameCoinBoost", result);
 		CreateDefaultBool("Ammo", result);
+		CreateDefaultBool("XRayVision", result);
 		return result;
 	}
 

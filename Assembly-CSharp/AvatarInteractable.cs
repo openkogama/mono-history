@@ -69,6 +69,8 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 		materialHitHandler.Initialize(hitPackages, transform);
 		MVGameControllerBase.Game.LocalPlayer.BoostController.SubscribeToBoostChanged(BoostType.ExtraHealthFloatMultiplier, SetupBoostedHealthMultiplier);
 		SetupBoostedHealthMultiplier();
+		MVGameControllerBase.Game.LocalPlayer.BoostController.SubscribeToBoostChanged(BoostType.PoisonResistPercentage, HandlePoisonResistBoost);
+		HandlePoisonResistBoost();
 	}
 
 	private void OnDestroy()
@@ -76,6 +78,7 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 		if (MVGameControllerBase.IsAlive)
 		{
 			MVGameControllerBase.Game.LocalPlayer.BoostController.UnSubscribeToBoostChanged(BoostType.ExtraHealthFloatMultiplier, SetupBoostedHealthMultiplier);
+			MVGameControllerBase.Game.LocalPlayer.BoostController.UnSubscribeToBoostChanged(BoostType.PoisonResistPercentage, HandlePoisonResistBoost);
 		}
 	}
 
@@ -107,66 +110,81 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 				RestoreShield(restoredShieldAmount);
 			}
 		}
-		if (!MVGameControllerBase.Game.IsPlaying || HasModifierEffect(AvatarModifierEffect.Invulnerable))
+		if (MVGameControllerBase.Game.IsPlaying && !HasModifierEffect(AvatarModifierEffect.Invulnerable))
 		{
-			return;
-		}
-		amount *= HandleModifierEffect(AvatarModifierEffect.DamageMultiplier, 1f);
-		amount *= damageMultiplier;
-		amount = DamageShield(amount);
-		float value = health.Value;
-		if (maxHealth != null)
-		{
-			float value2 = Mathf.Clamp(health.Value - amount, 0f, maxHealth.Value);
-			health.Value = value2;
-		}
-		else
-		{
-			health.Value -= amount;
-		}
-		if (damageDealer != null)
-		{
-			lastDamageSource = new DamageSource(damageDealer, damageType);
-		}
-		if (OnDamageTaken != null)
-		{
-			OnDamageTaken(amount, damageDealer, damageType);
-		}
-		if (health.Value <= 0f && value > 0f)
-		{
-			PlayerKilledByType playerKilledByType = damageType;
-			int actorNr;
-			if (damageDealer != null)
+			amount *= HandleModifierEffect(AvatarModifierEffect.DamageMultiplier, 1f);
+			amount *= damageMultiplier;
+			amount = DamageShield(amount);
+			float value = health.Value;
+			if (maxHealth != null)
 			{
-				actorNr = damageDealer.ActorNr;
-			}
-			else if (LastDamageSource != null)
-			{
-				actorNr = LastDamageSource.shooter.ActorNr;
-				playerKilledByType = LastDamageSource.damageType;
+				float value2 = Mathf.Clamp(health.Value - amount, 0f, maxHealth.Value);
+				health.Value = value2;
 			}
 			else
 			{
-				actorNr = MVGameControllerBase.Game.LocalPlayer.ActorNr;
+				health.Value -= amount;
 			}
-			Dictionary<object, object> gameMsgData = GameMessages.MakePlayerKilledMessage(MVGameControllerBase.Game.LocalPlayer.ActorNr, actorNr, playerKilledByType);
-			MVGameControllerBase.OperationRequests.PostGameMsg(MVGameMsgType.AvatarKilled, gameMsgData);
-			Dictionary<object, object> dictionary = new Dictionary<object, object>();
-			dictionary.Add((byte)7, MVGameControllerBase.Game.LocalPlayer.ActorNr);
-			dictionary.Add((byte)6, actorNr);
-			dictionary.Add((byte)8, playerKilledByType);
-			Dictionary<object, object> dictionary2 = dictionary;
-			NotificationController.OnNotificationReceived(NotificationType.Kill, dictionary2);
-			if (!KillNotificationBlacklist.Contains(playerKilledByType))
+			if (damageDealer != null)
 			{
-				MVGameControllerBase.OperationRequests.PostNotificationOperation(NotificationType.Kill, dictionary2);
+				lastDamageSource = new DamageSource(damageDealer, damageType);
 			}
+			if (OnDamageTaken != null)
+			{
+				OnDamageTaken(amount, damageDealer, damageType);
+			}
+			if (health.Value <= 0f && value > 0f)
+			{
+				DoKilledNotification(damageDealer, damageType);
+			}
+		}
+	}
+
+	private void DoKilledNotification(MVPlayer damageDealer, PlayerKilledByType defaultDamageType)
+	{
+		PlayerKilledByType playerKilledByType = defaultDamageType;
+		int actorNr;
+		if (damageDealer != null)
+		{
+			actorNr = damageDealer.ActorNr;
+		}
+		else if (LastDamageSource != null)
+		{
+			actorNr = LastDamageSource.shooter.ActorNr;
+			playerKilledByType = LastDamageSource.damageType;
+		}
+		else
+		{
+			actorNr = MVGameControllerBase.Game.LocalPlayer.ActorNr;
+		}
+		Dictionary<object, object> gameMsgData = GameMessages.MakePlayerKilledMessage(MVGameControllerBase.Game.LocalPlayer.ActorNr, actorNr, playerKilledByType);
+		MVGameControllerBase.OperationRequests.PostGameMsg(MVGameMsgType.AvatarKilled, gameMsgData);
+		Dictionary<object, object> dictionary = new Dictionary<object, object>();
+		dictionary.Add((byte)7, MVGameControllerBase.Game.LocalPlayer.ActorNr);
+		dictionary.Add((byte)6, actorNr);
+		dictionary.Add((byte)8, playerKilledByType);
+		Dictionary<object, object> dictionary2 = dictionary;
+		NotificationController.OnNotificationReceived(NotificationType.Kill, dictionary2);
+		if (!KillNotificationBlacklist.Contains(playerKilledByType))
+		{
+			MVGameControllerBase.OperationRequests.PostNotificationOperation(NotificationType.Kill, dictionary2);
 		}
 	}
 
 	private float GetBoostedHealth(float defaultHealth)
 	{
 		return defaultHealth * boostedHealthMultiplier;
+	}
+
+	public void DieFromRespawn(MVPlayer damageDealer, PlayerKilledByType damageType)
+	{
+		float value = health.Value;
+		health.Value = 0f;
+		if (OnDamageTaken != null)
+		{
+			OnDamageTaken(value, damageDealer, damageType);
+		}
+		DoKilledNotification(damageDealer, damageType);
 	}
 
 	public void DieFromStuck()
@@ -281,6 +299,15 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 		if (MVGameControllerBase.Game.LocalPlayer.BoostController.TryGetActiveBoost(BoostType.ExtraHealthFloatMultiplier, out var boost))
 		{
 			boostedHealthMultiplier = 1f + (float)(int)boost.Value / 100f;
+		}
+	}
+
+	private void HandlePoisonResistBoost()
+	{
+		poisonResist = 0f;
+		if (MVGameControllerBase.Game.LocalPlayer.BoostController.TryGetActiveBoost(BoostType.PoisonResistPercentage, out var boost))
+		{
+			poisonResist = (float)(int)boost.Value / 100f;
 		}
 	}
 }

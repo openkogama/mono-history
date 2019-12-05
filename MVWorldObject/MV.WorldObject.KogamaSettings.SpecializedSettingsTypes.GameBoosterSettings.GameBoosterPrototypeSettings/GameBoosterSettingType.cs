@@ -11,4 +11,8 @@ public static class GameBoosterSettingType
 	public const string Ammo = "Ammo";
 
 	public const string Health = "Health";
+
+	public const string XRayVision = "XRayVision";
+
+	public const string PoisonResist = "PoisonResist";
 }

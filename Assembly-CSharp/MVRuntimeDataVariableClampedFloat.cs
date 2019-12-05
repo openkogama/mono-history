@@ -7,7 +7,7 @@ public class MVRuntimeDataVariableClampedFloat : MVRuntimeDataVariable<float>
 
 	private float max;
 
-	public new float Value
+	public override float Value
 	{
 		get
 		{

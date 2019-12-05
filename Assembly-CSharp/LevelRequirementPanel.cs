@@ -46,7 +46,7 @@ public class LevelRequirementPanel : MonoBehaviour
 	private void OnDestroy()
 	{
 		BadgeManager.UnsubscribeGetBadgeRequest(StreamingAssetCallback);
-		UnityEngine.Object.Destroy(levelRequirementTextureAsset);
+		levelRequirementTextureAsset = null;
 	}
 
 	private void StreamingAssetCallback(UnityWebRequest www)

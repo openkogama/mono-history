@@ -16,7 +16,13 @@ public class LobbyStateController : LobbyFlowMenu
 	private LobbyStateButton playButton;
 
 	[SerializeField]
+	private GameObject goldIconOnPlayButton;
+
+	[SerializeField]
 	private GamePassesUI gamePassesUIPrefab;
+
+	[SerializeField]
+	private GameObject startGoldRewardPopupPrefab;
 
 	[SerializeField]
 	private BoostMenuController boosterMenu;
@@ -39,6 +45,10 @@ public class LobbyStateController : LobbyFlowMenu
 		{
 			gamePassesUI.gameObject.SetActive(value: false);
 		}
+		if (MVGameControllerBase.GoldRewardManager.CanGetGoldReward() && !MVGameControllerBase.GoldRewardManager.IsCountingDownGoldReward)
+		{
+			EnableGoldReward();
+		}
 	}
 
 	public void SetShouldPopOnExit(bool shouldPop)
@@ -57,6 +67,15 @@ public class LobbyStateController : LobbyFlowMenu
 		playButton.CancelEnterPlay();
 	}
 
+	public void CreateStartGoldRewardPopup()
+	{
+		GameObject startGoldRewardPopup = Object.Instantiate(startGoldRewardPopupPrefab);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Push(startGoldRewardPopup.gameObject, UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
+		});
+	}
+
 	private void OnEnable()
 	{
 		if (gamePassesUI != null)
@@ -64,5 +83,11 @@ public class LobbyStateController : LobbyFlowMenu
 			gamePassesUI.gameObject.SetActive(GamePassProgressionController.IsProgressionEnabled && GamePassesManager.GamePassesActive);
 		}
 		MVGameControllerBase.MainCameraManager.CamMaskMode = MaskMode.AvatarLobbyFocus;
+	}
+
+	private void EnableGoldReward()
+	{
+		MVGameControllerBase.GoldRewardManager.StartGoldRewardCountdownWhenReady();
+		goldIconOnPlayButton.SetActive(value: true);
 	}
 }

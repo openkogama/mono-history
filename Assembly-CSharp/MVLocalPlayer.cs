@@ -121,6 +121,13 @@ public abstract class MVLocalPlayer : MVPlayer
 		PlanetOwnershipTypeID = planetOwnershipTypeID;
 		joinTime = MVGameControllerBase.Game.ServerTimeInMilliSeconds;
 		boostController.Initialize();
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSpawn += AvatarCommandsPlayModeOnOnSpawn;
+	}
+
+	private void AvatarCommandsPlayModeOnOnSpawn()
+	{
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSpawn -= AvatarCommandsPlayModeOnOnSpawn;
+		MVGameControllerBase.OperationRequests.IncrementStatRequest(IncrementStatRequestType.PlayerHasEnteredWorldFirstTime);
 	}
 
 	public void SetupPlayerWorldObjects(int defaultBodyWoId, SpawnRolesRuntimeData spawnRolesRuntimeData)
@@ -219,5 +226,6 @@ public abstract class MVLocalPlayer : MVPlayer
 	public virtual void Destroy()
 	{
 		xpProgress.Destroy();
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSpawn -= AvatarCommandsPlayModeOnOnSpawn;
 	}
 }

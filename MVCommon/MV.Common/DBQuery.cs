@@ -117,5 +117,6 @@ public enum DBQuery
 	ExecuteTierPurchaseAndPayout,
 	SetEarningsReportToSeen,
 	GetPublishedPlanetTopHighScore,
-	ExecuteGameBoosterPurchaseAndPayout
+	ExecuteGameBoosterPurchaseAndPayout,
+	UpdatePublishedPlanetMetric
 }

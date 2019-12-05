@@ -12,7 +12,7 @@ public class Avatar : MonoBehaviour, IBulletImpactVisualizer, IMovable
 
 	private Dictionary<AvatarModifierPackageType, byte> currentModifierByteState = new Dictionary<AvatarModifierPackageType, byte>();
 
-	private byte[] modifierEffectCount = new byte[21];
+	private byte[] modifierEffectCount = new byte[22];
 
 	private InteractionDataHandlerBase interactionDataHandler;
 

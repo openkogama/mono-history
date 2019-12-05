@@ -1,5 +1,6 @@
 using MV.Common;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class AndroidInGameMenu : MonoBehaviour
 {
@@ -17,6 +18,9 @@ public class AndroidInGameMenu : MonoBehaviour
 
 	[SerializeField]
 	private FreeGoldAndroid rewardedAd;
+
+	[SerializeField]
+	private GameObject claimGoldRewardPopupPrefab;
 
 	private GamePassesUI gamePassesUI;
 
@@ -47,6 +51,14 @@ public class AndroidInGameMenu : MonoBehaviour
 		if (gamePassesUI != null)
 		{
 			gamePassesUI.gameObject.SetActive(GamePassProgressionController.IsProgressionEnabled && GamePassesManager.GamePassesActive);
+		}
+		if (MVGameControllerBase.GoldRewardManager.CanGetGoldReward() && MVGameControllerBase.GoldRewardManager.GetGoldRewardTimeLeft() <= 0f)
+		{
+			GameObject claimGoldRewardPopup = Object.Instantiate(claimGoldRewardPopupPrefab);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(claimGoldRewardPopup.gameObject, UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
+			});
 		}
 	}
 }

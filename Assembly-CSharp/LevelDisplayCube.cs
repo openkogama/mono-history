@@ -60,16 +60,12 @@ public class LevelDisplayCube : MonoBehaviour
 		{
 			return;
 		}
+		badgeTextureAsset = DownloadHandlerTexture.GetContent(www);
 		Renderer[] array = Renderers;
 		foreach (Renderer renderer in array)
 		{
 			if (!(renderer == null))
 			{
-				if (renderer.material.mainTexture != null)
-				{
-					UnityEngine.Object.Destroy(renderer.material.mainTexture);
-				}
-				badgeTextureAsset = DownloadHandlerTexture.GetContent(www);
 				renderer.material.mainTexture = badgeTextureAsset;
 			}
 		}
@@ -78,20 +74,12 @@ public class LevelDisplayCube : MonoBehaviour
 	public void Destroy()
 	{
 		BadgeManager.UnsubscribeGetBadgeRequest(OnBadgeTextureReceived);
-		Renderer[] array = Renderers;
-		foreach (Renderer renderer in array)
+		for (int i = 0; i < Renderers.Length; i++)
 		{
-			if (renderer.material.mainTexture != null)
-			{
-				UnityEngine.Object.Destroy(renderer.material.mainTexture);
-			}
-		}
-		for (int j = 0; j < Renderers.Length; j++)
-		{
-			UnityEngine.Object.Destroy(Renderers[j].gameObject);
+			UnityEngine.Object.Destroy(Renderers[i].gameObject);
 		}
 		UnityEngine.Object.Destroy(cube);
-		UnityEngine.Object.Destroy(badgeTextureAsset);
+		badgeTextureAsset = null;
 	}
 
 	public void SetScale(Vector3 size)

@@ -163,6 +163,17 @@ public class GameTierProgressBar : MonoBehaviour, HoverInputReceiver
 		}
 	}
 
+	public void ReplayGainEffect(int previousGamePointAmount, int newGamePointAmount)
+	{
+		UpdateProgressBars(previousGamePointAmount);
+		UpdateDividerVisibility(previousGamePointAmount);
+		previousProgressValue = CalculateTotalProgressValue(previousGamePointAmount);
+		interpolateTowardsProgressValue = CalculateTotalProgressValue(newGamePointAmount);
+		interpolationStartTime = Time.time;
+		shouldInterpolate = true;
+		GamePointGainEffectManager.HaveShownTierProgressBarGamePointGainEffect(newGamePointAmount);
+	}
+
 	private void Start()
 	{
 		if (!haveShownTips)

@@ -175,11 +175,10 @@ public class AccessoryShopController : MonoBehaviour, IInventoryChanged, IAttach
 		if (tabs.ContainsKey(255) && startingCategory != AccessoryCategoryClient.Bundles)
 		{
 			TabSelected(255);
+			return;
 		}
-		else
-		{
-			UpdateContent();
-		}
+		this.inventoryController.SetHeaderText(LocalizedEnums._((AccessoryCategoryClient)selectedTab));
+		UpdateContent();
 	}
 
 	private void ClearShop()

@@ -176,6 +176,7 @@ public class MVGameCoinManager
 
 	private void HandleActivationChange(bool active)
 	{
+		MVGameControllerBase.Game.LocalPlayer.BoostController.AllowBoost(BoostType.GameCoinsIntMultiplier, active);
 		if (active != (bool)isActive)
 		{
 			isActive = active;
@@ -183,7 +184,6 @@ public class MVGameCoinManager
 			{
 				OnActivationChange(isActive);
 			}
-			MVGameControllerBase.Game.LocalPlayer.BoostController.AllowBoost(BoostType.GameCoinsIntMultiplier, active);
 		}
 	}
 

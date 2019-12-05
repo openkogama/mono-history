@@ -61,7 +61,7 @@ public class LevelProgressAccessoryShop : MonoBehaviour
 		MVLocalPlayer localPlayer = MVGameControllerBase.Game.LocalPlayer;
 		localPlayer.OnXPProgressData = (XPProgress.OnXPProgressDataDelegate)Delegate.Remove(localPlayer.OnXPProgressData, new XPProgress.OnXPProgressDataDelegate(OnXPUpdate));
 		BadgeManager.UnsubscribeGetBadgeRequest(OnLevelingBadgeLoaded);
-		UnityEngine.Object.Destroy(badgeTextureAsset);
+		badgeTextureAsset = null;
 	}
 
 	private void OnLevelingBadgeLoaded(UnityWebRequest www)

@@ -37,7 +37,7 @@ public class TimeAttackFlagDebriefing : MonoBehaviour
 
 	private float waitStartTime;
 
-	private SpawnRoleModeType previousAvatarModeType;
+	private SpawnRoleModeType previousAvatarModeType = SpawnRoleModeType.Hidden;
 
 	private float countdownEndTime;
 

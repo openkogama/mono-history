@@ -6,10 +6,10 @@ public class MouseModifier : SizeModifier
 
 	protected override void Scale()
 	{
-		owner.mvAvatar.Scale = Vector3.one;
+		owner.mvAvatar.Scale = defaultScale;
 		if (!owner.gameObject.activeInHierarchy)
 		{
-			owner.mvAvatar.Scale = Vector3.one * sizeModifier;
+			owner.mvAvatar.Scale = defaultScale * sizeModifier;
 			return;
 		}
 		if (audioSource.gameObject.activeInHierarchy)
@@ -18,17 +18,17 @@ public class MouseModifier : SizeModifier
 		}
 		StartCoroutine(DoForSeconds(timeToSize, (float t) =>
 		{
-			owner.mvAvatar.Scale = Vector3.one * (1f - BlockStep(t, 40f, 0f, 1f - sizeModifier)) + Vector3.one * sizeModifier * (1f - Mathf.Sin(t * sineStrength));
+			owner.mvAvatar.Scale = defaultScale * (1f - BlockStep(t, 40f, 0f, 1f - sizeModifier)) + defaultScale * sizeModifier * (1f - Mathf.Sin(t * sineStrength));
 			if (t == timeToSize)
 			{
-				owner.mvAvatar.Scale = Vector3.one * sizeModifier;
+				owner.mvAvatar.Scale = defaultScale * sizeModifier;
 			}
 		}));
 	}
 
 	protected override void UnScale()
 	{
-		owner.mvAvatar.Scale = Vector3.one * sizeModifier;
+		owner.mvAvatar.Scale = defaultScale * sizeModifier;
 		if (!owner.gameObject.activeInHierarchy)
 		{
 			Destroy();
@@ -40,7 +40,7 @@ public class MouseModifier : SizeModifier
 		}
 		StartCoroutine(DoForSeconds(timeToSize, (float t) =>
 		{
-			owner.mvAvatar.Scale = Vector3.one * BlockStep(t, 40f, sizeModifier, 1f) + Vector3.one * sizeModifier * (1f - Mathf.Sin(t * sineStrength));
+			owner.mvAvatar.Scale = defaultScale * BlockStep(t, 40f, sizeModifier, 1f) + defaultScale * sizeModifier * (1f - Mathf.Sin(t * sineStrength));
 			if (t == timeToSize)
 			{
 				Destroy();
@@ -55,19 +55,19 @@ public class MouseModifier : SizeModifier
 		{
 			if (isDeactivating)
 			{
-				owner.mvAvatar.Scale = Vector3.one;
+				owner.mvAvatar.Scale = defaultScale;
 				Destroy();
 			}
 			else
 			{
-				owner.mvAvatar.Scale = Vector3.one * sizeModifier;
+				owner.mvAvatar.Scale = defaultScale * sizeModifier;
 			}
 		}
 	}
 
 	private void Destroy()
 	{
-		owner.mvAvatar.Scale = Vector3.one;
+		owner.mvAvatar.Scale = defaultScale;
 		Object.Destroy(gameObject);
 	}
 

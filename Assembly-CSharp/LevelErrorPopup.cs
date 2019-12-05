@@ -57,11 +57,17 @@ public class LevelErrorPopup : MonoBehaviour
 		{
 			x.Pop();
 		});
-		Object.Destroy(requiredLevelTextureAsset);
-		Object.Destroy(playerLevelTextureAsset);
+		requiredLevelTextureAsset = null;
+		playerLevelTextureAsset = null;
 		if (resultCallback != null)
 		{
 			resultCallback();
 		}
+	}
+
+	private void OnDestroy()
+	{
+		BadgeManager.UnsubscribeGetBadgeRequest(OnLevelRequirementLoaded);
+		BadgeManager.UnsubscribeGetBadgeRequest(OnPlayerLevelLoaded);
 	}
 }

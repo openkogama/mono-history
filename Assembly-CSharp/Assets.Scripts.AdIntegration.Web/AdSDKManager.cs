@@ -13,6 +13,8 @@ public class AdSDKManager : IAdManager
 
 	private bool wasInitializedSuccessfully;
 
+	public string RewardedAdNotAvailableText => TM._("Unable to display rewarded ad. Please try again later.");
+
 	public TimeSpan TimeSinceLastAd => new TimeSpan(Math.Min(TimeSinceLastInterstitial.Ticks, TimeSinceLastRewarded.Ticks));
 
 	public TimeSpan TimeSinceLastInterstitial => TimeSpan.MaxValue;
@@ -27,26 +29,43 @@ public class AdSDKManager : IAdManager
 	{
 	}
 
+	private void OnAdSDKInitReady()
+	{
+		if (!adSDK.TryInitialize())
+		{
+			Debug.LogError("AdSDKManager failed to init adSDK for site.");
+			return;
+		}
+		Debug.Log("adSDK initialized");
+		wasInitializedSuccessfully = true;
+	}
+
 	public void RequestInterstitial(Action<InterstitialAdResult> interstitialCallback, AdContext context)
 	{
+		Debug.Log("RequestInterstitial in adsdkmanager: " + context);
 		if (!wasInitializedSuccessfully)
 		{
+			Debug.Log("wasInitializedSuccessfully is false.");
 			interstitialCallback(InterstitialAdResult.ErrorInternal);
 		}
 		else
 		{
+			Debug.Log("adSDK.RequestInterstitial.");
 			adSDK.ShowInterstitial(interstitialCallback);
 		}
 	}
 
 	public void RequestRewardedAd(Action<RewardedAdResult> rewardedAdCallback, AdContext context)
 	{
+		Debug.Log("RequestRewardedAd in adsdkmanager: " + context);
 		if (!wasInitializedSuccessfully)
 		{
+			Debug.Log("wasInitializedSuccessfully is false.");
 			rewardedAdCallback(RewardedAdResult.ErrorInternal);
 		}
 		else
 		{
+			Debug.Log("adSDK.ShowRewardedAd.");
 			adSDK.ShowRewardedAd(rewardedAdCallback);
 		}
 	}

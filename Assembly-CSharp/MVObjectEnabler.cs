@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MV.WorldObject;
 
@@ -44,6 +45,11 @@ public class MVObjectEnabler : MVLogicObject, ILogicWorldObject
 		SetupCulling(goObjectEnabler.gameObject);
 		goObjectEnabler.Initialize();
 		isInitialized = true;
+		if (MVGameControllerBase.EditModeUI != null)
+		{
+			IEditModeUI editModeUI = MVGameControllerBase.EditModeUI;
+			editModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Combine(editModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
+		}
 	}
 
 	private void InputStateUpdateCallback(LogicInputState logicInputState, LogicObjectManager logicObjectManager)
@@ -52,6 +58,21 @@ public class MVObjectEnabler : MVLogicObject, ILogicWorldObject
 		{
 			UpdateShowObjects();
 		}
+	}
+
+	public override void Destroy()
+	{
+		base.Destroy();
+		if (MVGameControllerBase.EditModeUI != null)
+		{
+			IEditModeUI editModeUI = MVGameControllerBase.EditModeUI;
+			editModeUI.EditModeChange = (Action<EditModeChangeArgs>)Delegate.Remove(editModeUI.EditModeChange, new Action<EditModeChangeArgs>(OnEditModeChange));
+		}
+	}
+
+	private void OnEditModeChange(EditModeChangeArgs arg)
+	{
+		UpdateShowObjects();
 	}
 
 	public override void PlayModeInitialize()

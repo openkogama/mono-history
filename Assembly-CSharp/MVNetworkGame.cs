@@ -609,6 +609,8 @@ public class MVNetworkGame : IPhotonPeerListener
 					FirstTimeEventManager.Initialize(profileMetaData.FirstTimeState);
 					HighlightManager.Init((string)photonEvent[245]);
 					MVInputWrapper.MouseSensitivityModifier = profileMetaData.MS;
+					MVGameControllerBase.GoldRewardManager.Initialize((bool)photonEvent[196]);
+					Debug.Log("(bool)photonEvent[(byte)MVParameterKeys.GoldRewardedGame] " + (bool)photonEvent[196]);
 				}
 				break;
 			case MVEventCodes.ServerError:
@@ -771,11 +773,20 @@ public class MVNetworkGame : IPhotonPeerListener
 			if (MVGameControllerBase.IsTouristSession)
 			{
 				StatHatWrapper.Count("SessionType.Tourist" + networkGame.GameType, 1);
+				if (MVGameControllerBase.GameSessionData.embedded)
+				{
+					StatHatWrapper.Count("SessionType.TouristEmbedded" + networkGame.GameType, 1);
+				}
 			}
 			else
 			{
 				StatHatWrapper.Count("SessionType." + networkGame.GameType, 1);
+				if (MVGameControllerBase.GameSessionData.embedded)
+				{
+					StatHatWrapper.Count("SessionType.Embedded" + networkGame.GameType, 1);
+				}
 			}
+			MVGameControllerBase.OperationRequests.IncrementStatRequest(IncrementStatRequestType.JoinCompleted);
 		}
 	}
 
@@ -1066,6 +1077,8 @@ public class MVNetworkGame : IPhotonPeerListener
 
 		private PhotonPeer peer;
 
+		private bool gamepointWelcomeClaimed;
+
 		public OperationRequests(MVNetworkGame networkGame)
 		{
 			this.networkGame = networkGame;
@@ -1116,6 +1129,22 @@ public class MVNetworkGame : IPhotonPeerListener
 			peer.SendOperation(116, new Dictionary<byte, object>(), SendOptions.SendReliable);
 		}
 
+		public void IncrementStatRequest(IncrementStatRequestType statRequestType, int value = 0)
+		{
+			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
+			dictionary.Add(191, (short)statRequestType);
+			if (value != 0)
+			{
+				dictionary.Add(160, value);
+			}
+			peer.SendOperation(118, dictionary, SendOptions.SendReliable);
+		}
+
+		public void ClaimPlayingNewGameRewardedGold()
+		{
+			peer.SendOperation(87, new Dictionary<byte, object>(), SendOptions.SendReliable);
+		}
+
 		public void GetHighScoreList()
 		{
 			peer.SendOperation(104, new Dictionary<byte, object>(), SendOptions.SendReliable);
@@ -1145,6 +1174,11 @@ public class MVNetworkGame : IPhotonPeerListener
 
 		public void ClaimGamePointWelcomeReward(bool doubleReward = false)
 		{
+			if (gamepointWelcomeClaimed)
+			{
+				throw new Exception("ClaimGamePointWelcomeReward being called twice on the client side");
+			}
+			gamepointWelcomeClaimed = true;
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(208, doubleReward);
 			Dictionary<byte, object> operationParameters = dictionary;
@@ -1307,6 +1341,24 @@ public class MVNetworkGame : IPhotonPeerListener
 			dictionary.Add(188, MVGameControllerBase.BuildTarget);
 			dictionary.Add(209, MVGameControllerBase.ReAuthTries);
 			dictionary.Add(217, MVGameControllerBase.KoGaMaSettings.VersionString);
+			JoinSessionFlags joinSessionFlags = JoinSessionFlags.None;
+			if (PlayerPrefsManager.IsFirstTimeSession)
+			{
+				joinSessionFlags |= JoinSessionFlags.IsFirstTimeSession;
+			}
+			if (PlayerPrefsManager.IsReturningPlayer)
+			{
+				joinSessionFlags |= JoinSessionFlags.IsReturning;
+			}
+			if (PlayerPrefsManager.IsReturningAsSignedUp)
+			{
+				joinSessionFlags |= JoinSessionFlags.IsReturningAsSignedUp;
+			}
+			if (!MVGameControllerBase.GameSessionData.embedded)
+			{
+				joinSessionFlags |= JoinSessionFlags.IsOnSite;
+			}
+			dictionary.Add(207, (int)joinSessionFlags);
 			List<FileData> cRCData = DllProtector.GetCRCData();
 			dictionary.Add(218, JsonConvert.SerializeObject(cRCData));
 			peer.SendOperation(byte.MaxValue, dictionary, SendOptions.SendReliable);
@@ -1417,7 +1469,7 @@ public class MVNetworkGame : IPhotonPeerListener
 			Dictionary<byte, object> dictionary = new Dictionary<byte, object>();
 			dictionary.Add(87, (int)chatMsgType);
 			dictionary.Add(88, gameMsgData);
-			peer.SendOperation(87, dictionary, SendOptions.SendReliable);
+			peer.SendOperation(88, dictionary, SendOptions.SendReliable);
 		}
 
 		public void PostNotificationOperation(NotificationType type, Dictionary<object, object> notificationData)
@@ -2426,6 +2478,16 @@ public class MVNetworkGame : IPhotonPeerListener
 				if (returnCode == -1)
 				{
 					MVGameControllerBase.LocalPlayer.CreateSpawnRoleFailed();
+				}
+				break;
+			case MVOperationCodes.ClaimPlayingNewGameRewardedGold:
+				if (returnCode == -1)
+				{
+					Debug.LogError("Failed to claim gold");
+				}
+				else
+				{
+					Debug.Log("Gold claimed. Marcus: Handle this.");
 				}
 				break;
 			default:

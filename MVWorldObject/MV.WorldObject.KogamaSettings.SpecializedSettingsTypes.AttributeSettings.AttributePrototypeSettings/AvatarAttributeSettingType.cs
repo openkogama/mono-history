@@ -33,4 +33,6 @@ public static class AvatarAttributeSettingType
 	public const string unableToEquipWeapons = "UnableToEquipWeapons";
 
 	public const string unableToCollectPickups = "UnableToCollectModifierPickups";
+
+	public const string size = "Size";
 }

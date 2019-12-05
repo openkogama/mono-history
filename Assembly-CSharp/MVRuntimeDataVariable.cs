@@ -94,7 +94,7 @@ public class MVRuntimeDataVariable
 }
 public class MVRuntimeDataVariable<T> : MVRuntimeDataVariable
 {
-	public new T Value
+	public new virtual T Value
 	{
 		get
 		{

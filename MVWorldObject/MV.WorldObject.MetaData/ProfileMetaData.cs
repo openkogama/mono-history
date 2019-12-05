@@ -15,7 +15,8 @@ public class ProfileMetaData
 		ProfileHighlightState = 8,
 		MouseSensitivity = 0x10,
 		GoldRewardLevel = 0x20,
-		All = 0x3F
+		PlayNewGamesForGoldData = 0x40,
+		All = 0x7F
 	}
 
 	protected readonly bool IsInitialized = true;

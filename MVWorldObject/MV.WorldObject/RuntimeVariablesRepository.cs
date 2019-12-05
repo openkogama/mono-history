@@ -76,6 +76,7 @@ public static class RuntimeVariablesRepository
 		dictionary.Add("headRotationPitch", 0f);
 		dictionary.Add("pointRotationYaw", 0f);
 		dictionary.Add("pointRotationPitch", 0f);
+		dictionary.Add("size", 1f);
 		dictionary.Add("emote", 0);
 		Dictionary<object, object> dictionary2 = new Dictionary<object, object>();
 		dictionary2.Add("state", "Idle");

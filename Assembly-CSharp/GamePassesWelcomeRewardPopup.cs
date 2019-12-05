@@ -48,7 +48,7 @@ public class GamePassesWelcomeRewardPopup : MonoBehaviour
 		case RewardedAdResult.ErrorInternal:
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 			{
-				x.Create(TM._("The reward cannot be doubled at this moment."), TM._("An error occurred"));
+				x.Create(MVGameControllerBase.AdManager.RewardedAdNotAvailableText, TM._("No Ad Available"));
 			});
 			break;
 		case RewardedAdResult.ErrorTimeout:
@@ -58,13 +58,13 @@ public class GamePassesWelcomeRewardPopup : MonoBehaviour
 
 	private void ClaimReward(bool doubleReward = false)
 	{
-		if (!GamePassesManager.PlayerPlanetData.playerPlanetMetaData.DailyWelcomeRewardClaimedToday())
-		{
-			MVGameControllerBase.OperationRequests.ClaimGamePointWelcomeReward(doubleReward);
-		}
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Pop();
 		});
+		if (!GamePassesManager.PlayerPlanetData.playerPlanetMetaData.DailyWelcomeRewardClaimedToday())
+		{
+			MVGameControllerBase.OperationRequests.ClaimGamePointWelcomeReward(doubleReward);
+		}
 	}
 }

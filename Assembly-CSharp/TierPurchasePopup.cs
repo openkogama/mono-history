@@ -75,6 +75,9 @@ public class TierPurchasePopup : MonoBehaviour
 
 	private void HandleSuccessfulPurchase()
 	{
+		StatHatWrapper.Count("Purchase.Tier", 1);
+		StatHatWrapper.Count("Purchase.Tier." + tierToPurchase, 1);
+		StatHatWrapper.Count("Purchase.Tier.GoldSpent", price);
 		OnPurchaseSuccessful();
 	}
 }

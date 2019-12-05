@@ -145,5 +145,6 @@ public enum DBQueryKeys
 	MetaData,
 	Url,
 	Boolean,
-	Data
+	Data,
+	TimeSpan
 }

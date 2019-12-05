@@ -1,4 +1,5 @@
 using System.Linq;
+using MV.Common;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -40,6 +41,8 @@ public class FpsCounter : MonoBehaviour
 			StatHatWrapper.Value("FPS", num);
 			metricsCollected = true;
 			StatHatWrapper.Value("RoundTripTime", MVGameControllerBase.Game.Peer.RoundTripTime);
+			Debug.Log("FPS");
+			MVGameControllerBase.OperationRequests.IncrementStatRequest(IncrementStatRequestType.FPS, (int)num);
 		}
 	}
 

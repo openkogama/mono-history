@@ -12,6 +12,9 @@ public class GamePassesProgressBarFreeTryHandler : MonoBehaviour
 	[SerializeField]
 	private TierUnlockedPopupController TierUnlockedPopupControllerPrefab;
 
+	[SerializeField]
+	private GamePassesShop gamePassesShopPrefab;
+
 	private GamePassTier tierToTry;
 
 	private bool isWaitingForFreeTryTier;
@@ -19,7 +22,12 @@ public class GamePassesProgressBarFreeTryHandler : MonoBehaviour
 	public void OnFreeTryTier(int tierToTry)
 	{
 		this.tierToTry = (GamePassTier)tierToTry;
-		ShowAd();
+		GamePassesShop gamePassesShop = UnityEngine.Object.Instantiate(gamePassesShopPrefab);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Push(gamePassesShop.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
+		});
+		gamePassesShop.Initialize(this.tierToTry);
 	}
 
 	private void ShowTierUnlock(bool wasPurchased, bool wasTempUnlocked)
@@ -41,7 +49,7 @@ public class GamePassesProgressBarFreeTryHandler : MonoBehaviour
 		}
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 		{
-			x.Create(TM._("Free try cannot be activated at this moment."), TM._("An error occurred"));
+			x.Create(MVGameControllerBase.AdManager.RewardedAdNotAvailableText, TM._("No Ad Available"));
 		});
 	}
 
@@ -55,14 +63,14 @@ public class GamePassesProgressBarFreeTryHandler : MonoBehaviour
 		case RewardedAdResult.RewardNotUnlocked:
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 			{
-				x.Create(TM._("The video was canceled. Your Free Try have not been activated."), TM._("Video canceled"));
+				x.Create(TM._("The video was canceled. Your Free Try has not been activated."), TM._("Video canceled"));
 			});
 			break;
 		case RewardedAdResult.ErrorClient:
 		case RewardedAdResult.ErrorInternal:
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 			{
-				x.Create(TM._("Free try cannot be activated at this moment."), TM._("An error occurred"));
+				x.Create(MVGameControllerBase.AdManager.RewardedAdNotAvailableText, TM._("No Ad Available"));
 			});
 			break;
 		case RewardedAdResult.ErrorTimeout:

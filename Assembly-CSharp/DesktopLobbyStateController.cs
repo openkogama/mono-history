@@ -18,6 +18,9 @@ public class DesktopLobbyStateController : LobbyFlowMenu
 	private LobbyStateButton playButton;
 
 	[SerializeField]
+	private GameObject goldIconOnPlayButton;
+
+	[SerializeField]
 	private AdOfferGold adOfferGold;
 
 	[SerializeField]
@@ -25,6 +28,9 @@ public class DesktopLobbyStateController : LobbyFlowMenu
 
 	[SerializeField]
 	private GamePassesUI gamePassesUIPrefab;
+
+	[SerializeField]
+	private GameObject startGoldRewardPopupPrefab;
 
 	[SerializeField]
 	private BoostMenuController boosterMenu;
@@ -52,6 +58,10 @@ public class DesktopLobbyStateController : LobbyFlowMenu
 		{
 			gamePassesUI.gameObject.SetActive(value: false);
 		}
+		if (MVGameControllerBase.GoldRewardManager.CanGetGoldReward() && !MVGameControllerBase.GoldRewardManager.IsCountingDownGoldReward)
+		{
+			EnableGoldReward();
+		}
 	}
 
 	public void SetShouldPopOnExit(bool shouldPop)
@@ -68,6 +78,15 @@ public class DesktopLobbyStateController : LobbyFlowMenu
 			x.Push(boostMenu.gameObject, UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
 		});
 		playButton.CancelEnterPlay();
+	}
+
+	public void CreateStartGoldRewardPopup()
+	{
+		GameObject startGoldRewardPopup = Object.Instantiate(startGoldRewardPopupPrefab);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Push(startGoldRewardPopup.gameObject, UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
+		});
 	}
 
 	private void Update()
@@ -101,6 +120,12 @@ public class DesktopLobbyStateController : LobbyFlowMenu
 		{
 			MVGameControllerBase.MainCameraManager.CamMaskMode = MaskMode.Default;
 		}
+	}
+
+	private void EnableGoldReward()
+	{
+		MVGameControllerBase.GoldRewardManager.StartGoldRewardCountdownWhenReady();
+		goldIconOnPlayButton.SetActive(value: true);
 	}
 
 	private void OnEnable()
