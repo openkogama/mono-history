@@ -99,7 +99,6 @@ public class MVAvatarSpawnRoleCreator : MVBlueprintBase, ISpawnRolePreviewObject
 				flag = true;
 			}
 		}
-		Debug.Log("AvatarRuntimePrototypeRoot " + AvatarRuntimePrototypeRoot);
 		MVGameControllerBase.Game.TeamManager.OnAddSpawnPoint(Id, Team);
 		HideBody();
 		useInteractor.UpdateData(Data);

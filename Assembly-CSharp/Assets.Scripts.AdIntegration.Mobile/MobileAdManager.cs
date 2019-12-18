@@ -408,8 +408,11 @@ public class MobileAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IU
 
 		private IAdUIManager adUIManager;
 
-		public InterstitialAdResultHandler(Action<InterstitialAdResult> interstitialCallback, IAdUIManager adUIManager)
+		private AdContext context;
+
+		public InterstitialAdResultHandler(Action<InterstitialAdResult> interstitialCallback, IAdUIManager adUIManager, AdContext context)
 		{
+			this.context = context;
 			this.adUIManager = adUIManager;
 			this.interstitialCallback = interstitialCallback;
 		}
@@ -424,9 +427,15 @@ public class MobileAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IU
 		{
 			try
 			{
+				SendStat("Ad.InterstitialFinished." + context);
 				if (interstitialAdResult == InterstitialAdResult.Done)
 				{
 					SendStat("Ad.InterstitialShown");
+					SendStat(string.Concat("Ad.InterstitialFinished.", context, ".Success"));
+				}
+				else
+				{
+					SendStat(string.Concat("Ad.InterstitialFinished.", context, ".Failure"));
 				}
 				adUIManager.PopInterstitial(interstitialAdResult);
 				interstitialCallback(interstitialAdResult);
@@ -448,8 +457,11 @@ public class MobileAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IU
 
 		private IAdUIManager adUIManager;
 
-		public RewardedAdResultHandler(Action<RewardedAdResult> rewardedAdCallback, IAdUIManager adUIManager)
+		private AdContext context;
+
+		public RewardedAdResultHandler(Action<RewardedAdResult> rewardedAdCallback, IAdUIManager adUIManager, AdContext context)
 		{
+			this.context = context;
 			this.adUIManager = adUIManager;
 			this.rewardedAdCallback = rewardedAdCallback;
 		}
@@ -464,9 +476,15 @@ public class MobileAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IU
 		{
 			try
 			{
+				SendStat("Ad.RewardedFinished." + context);
 				if (rewardedAdResult == RewardedAdResult.RewardUnlocked)
 				{
 					SendStat("Ad.RewardedShown");
+					SendStat(string.Concat("Ad.RewardedFinished.", context, ".Success"));
+				}
+				else
+				{
+					SendStat(string.Concat("Ad.RewardedFinished.", context, ".Failure"));
 				}
 				adUIManager.PopRewardedVideo(rewardedAdResult);
 				rewardedAdCallback(rewardedAdResult);
@@ -681,7 +699,7 @@ public class MobileAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IU
 		}
 		SendRewardRequestStats(context);
 		adUIManager.ShowRewardedVideo(RewardedAdCallback);
-		rewardedAdResultHandler = new RewardedAdResultHandler(rewardedAdCallback, adUIManager);
+		rewardedAdResultHandler = new RewardedAdResultHandler(rewardedAdCallback, adUIManager, context);
 		internalAdManagerState.RequestRewardedAd(RewardedAdCallback);
 	}
 
@@ -708,7 +726,7 @@ public class MobileAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IU
 		}
 		SendInterstitialAdRequestStats(context);
 		adUIManager.ShowInterstitial(InterstitialCallback);
-		interstitialAdResultHandler = new InterstitialAdResultHandler(interstitialCallback, adUIManager);
+		interstitialAdResultHandler = new InterstitialAdResultHandler(interstitialCallback, adUIManager, context);
 		internalAdManagerState.RequestInterstitial(InterstitialCallback);
 	}
 

@@ -98,7 +98,6 @@ public class MVTeamManager
 
 	public void OnAddSpawnPoint(int woId, MVTeam team)
 	{
-		Debug.Log("AddTeam(MVTeam team) " + team);
 		if (team == MVTeam.Server)
 		{
 			Debug.LogError("Attempt to AddTeam of type Server");
@@ -122,8 +121,6 @@ public class MVTeamManager
 				OnTeamAdded(this, new TeamEventArgs(team));
 			}
 		}
-		Debug.Log("OnAddSpawnPoint");
-		Debug.Log(ToString());
 	}
 
 	public void OnRemoveSpawnPoint(int id, MVTeam team)

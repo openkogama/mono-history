@@ -1362,7 +1362,7 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 
 	private void GameStateTypeOnOnChange(MVGameStateType gameStateType)
 	{
-		if (gameStateType == MVGameStateType.RoundEnded)
+		if (gameStateType == MVGameStateType.RoundEnded && avatarLocalModes.CurrentState != AvatarRuntimeState.Hidden)
 		{
 			SetMode(AvatarRuntimeState.Wait);
 		}

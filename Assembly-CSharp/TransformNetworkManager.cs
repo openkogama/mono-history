@@ -22,7 +22,6 @@ public class TransformNetworkManager
 
 	public void AddReporter(int woID, MVNetworkReporter networkReporter)
 	{
-		Debug.Log("AddReporter " + woID);
 		if (networkedObjects.ContainsKey(woID))
 		{
 			throw new Exception("Trying to add reporter while network object already in place " + networkedObjects[woID]);

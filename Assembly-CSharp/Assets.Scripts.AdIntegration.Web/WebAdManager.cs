@@ -35,6 +35,16 @@ public class WebAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUpda
 
 	private EmbeddedSite embeddedSite;
 
+	private bool probablyWatchingAd;
+
+	private float probablyWatchingAdDelay = 3f;
+
+	private float probablyWatchingAdStarted;
+
+	private AdContext currentAdType;
+
+	private bool showingAd;
+
 	public string RewardedAdNotAvailableText => TM._("Please ensure AdBlock is disabled, and try again later.");
 
 	public TimeSpan TimeSinceLastAd => new TimeSpan(Math.Min(TimeSinceLastInterstitial.Ticks, TimeSinceLastRewarded.Ticks));
@@ -87,6 +97,8 @@ public class WebAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUpda
 			rewardedAdCallback(RewardedAdResult.ErrorClient);
 			return;
 		}
+		currentAdType = context;
+		StartedWatchingAd();
 		SendRewardRequestStats(context);
 		adUIManager.ShowRewardedVideo(rewardedAdCallback);
 		if (embeddedSiteSDKAvailable && sdkManager.ReadyForRewardedAdRequest)
@@ -106,6 +118,13 @@ public class WebAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUpda
 		}
 	}
 
+	private void StartedWatchingAd()
+	{
+		showingAd = true;
+		probablyWatchingAd = false;
+		probablyWatchingAdStarted = Time.time;
+	}
+
 	private void SendRewardRequestStats(AdContext context)
 	{
 		SendStat("Ad.RewardRequest");
@@ -121,6 +140,8 @@ public class WebAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUpda
 			interstitialCB(InterstitialAdResult.ErrorClient);
 			return;
 		}
+		currentAdType = context;
+		StartedWatchingAd();
 		SendInterstitialAdRequestStats(context);
 		Debug.Log("RequestInterstitial");
 		adUIManager.ShowInterstitial(interstitialCB);
@@ -159,6 +180,7 @@ public class WebAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUpda
 		Debug.Log("Interstitial ad shown.");
 		SendStat("Ad.InterstitialShown");
 		SendStat("Ad.InterstitialShown." + embeddedSite);
+		SetFinishedWatchingAd("Interstitial");
 		adUIManager.PopInterstitial(InterstitialAdResult.Done);
 	}
 
@@ -173,6 +195,7 @@ public class WebAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUpda
 		Debug.Log("Rewarded ad shown.");
 		SendStat("Ad.RewardedShown");
 		SendStat("Ad.RewardedShown." + embeddedSite);
+		SetFinishedWatchingAd("Rewarded");
 		adUIManager.PopRewardedVideo(result);
 	}
 
@@ -186,6 +209,21 @@ public class WebAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUpda
 	{
 		Debug.Log("no embedded sdk available/initialized. requesting kogama rewarded ad");
 		BrowserComm.ToJavaScript.ExternalCall("showRewardedVideoAd", OnRewardedAdShownCallback);
+	}
+
+	private void SetFinishedWatchingAd(string adType)
+	{
+		showingAd = false;
+		SendStat("Ad." + adType + "Finished." + currentAdType);
+		if (probablyWatchingAd)
+		{
+			probablyWatchingAd = false;
+			SendStat(string.Concat("Ad.", adType, "Finished.", currentAdType, ".Success"));
+		}
+		else
+		{
+			SendStat(string.Concat("Ad.", adType, "Finished.", currentAdType, ".Failure"));
+		}
 	}
 
 	private static void SendStat(string stat)
@@ -202,12 +240,17 @@ public class WebAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUpda
 			BrowserComm.ToJavaScript.ExternalCall("requestVideoAd", WebCallbackAdAvailable);
 			BrowserComm.ToJavaScript.ExternalCall("requestRewardedVideoAd", WebCallbackRewardedAdAvailable);
 		}
+		if (showingAd && !probablyWatchingAd && Time.time - probablyWatchingAdStarted >= probablyWatchingAdDelay)
+		{
+			probablyWatchingAd = true;
+		}
 	}
 
 	private void OnInterstitialShownCallback(bool ok, string json)
 	{
 		SendStat("Ad.InterstitialShown");
 		SendStat("Ad.InterstitialShown.Kogama");
+		SetFinishedWatchingAd("Interstitial");
 		adUIManager.PopInterstitial(InterstitialAdResult.Done);
 		Debug.Log("Interstitial ad shown.");
 	}
@@ -231,6 +274,7 @@ public class WebAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUpda
 				Debug.Log("Ad not finished. No reward given");
 			}
 		}
+		SetFinishedWatchingAd("Rewarded");
 		adUIManager.PopRewardedVideo(adResult);
 	}
 
