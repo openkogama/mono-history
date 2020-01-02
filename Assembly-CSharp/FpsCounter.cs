@@ -38,6 +38,7 @@ public class FpsCounter : MonoBehaviour
 			{
 				StatHatWrapper.Count("FPSBucket30+", 1);
 			}
+			Debug.Log("FPS collected: " + averageFPS);
 			StatHatWrapper.Value("FPS", num);
 			metricsCollected = true;
 			StatHatWrapper.Value("RoundTripTime", MVGameControllerBase.Game.Peer.RoundTripTime);
@@ -58,6 +59,8 @@ public class FpsCounter : MonoBehaviour
 
 	public static float Fps => instance.fps;
 
+	public static bool StartedPlaying { get; set; }
+
 	protected void Awake()
 	{
 		instance = this;
@@ -73,7 +76,7 @@ public class FpsCounter : MonoBehaviour
 		frameTimes[idx] = 1f / Time.deltaTime;
 		idx = (idx + 1) % frameTimes.Length;
 		fps = frameTimes.Average();
-		if (MVGameControllerBase.JoinState == MVJoinState.Playing)
+		if (MVGameControllerBase.JoinState == MVJoinState.Playing && StartedPlaying)
 		{
 			if (metricsCollector == null)
 			{

@@ -97,6 +97,9 @@ public class TouristModeController : MonoBehaviour
 	private bool touristPromotionActive;
 
 	[SerializeField]
+	private TouristPromotionExternalEvaluator touristPromotionExternalEvaluator;
+
+	[SerializeField]
 	private TouristPromotion touristPromotionPrefab;
 
 	[SerializeField]
@@ -125,17 +128,31 @@ public class TouristModeController : MonoBehaviour
 
 	public void ShowAnyPromotionSlide()
 	{
-		PushPromotionSlide(touristPromotionPrefab);
+		if (touristPromotionExternalEvaluator.TryGetExternalPromotion(out var externalPromotion))
+		{
+			PushPromotionSlide(externalPromotion, withAd: false);
+		}
+		else
+		{
+			PushPromotionSlide(touristPromotionPrefab, withAd: false);
+		}
 	}
 
 	public void ShowAnyAndroidPromotionSlide()
 	{
-		PushPromotionSlide(touristPromotionAndroidPrefab);
+		PushPromotionSlide(touristPromotionAndroidPrefab, withAd: false);
 	}
 
 	public void ShowAdPromotionSlide()
 	{
-		PushPromotionSlide(touristPromotionWithAdPrefab);
+		if (touristPromotionExternalEvaluator.TryGetExternalPromotion(out var externalPromotion))
+		{
+			PushPromotionSlide(externalPromotion, withAd: true);
+		}
+		else
+		{
+			PushPromotionSlide(touristPromotionWithAdPrefab, withAd: true);
+		}
 	}
 
 	private void Awake()
@@ -155,14 +172,15 @@ public class TouristModeController : MonoBehaviour
 	{
 		if (showPromotionBookkeeping.Show)
 		{
-			PushPromotionSlide(touristPromotionPrefab);
+			PushPromotionSlide(touristPromotionPrefab, withAd: false);
 			showPromotionBookkeeping.Continue();
 		}
 	}
 
-	private void PushPromotionSlide(TouristPromotion prefab)
+	private void PushPromotionSlide(TouristPromotion prefab, bool withAd)
 	{
 		promotion = Object.Instantiate(prefab);
+		promotion.Initialize(withAd);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Push(promotion.gameObject, UIPushOption.Blocking, PromitionPopped, UIGroupFlags.Popup);

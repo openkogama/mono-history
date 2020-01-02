@@ -13,7 +13,6 @@ public class MobileAdManagerTestScript : MonoBehaviour
 
 	private void Start()
 	{
-		MobileAdManagerCredentials.Setup(Application.identifier);
 		mobileAdManager = new MobileAdManager(testing: true);
 		Application.logMessageReceived += ApplicationOnLogMessageReceived;
 	}

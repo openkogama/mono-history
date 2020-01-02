@@ -68,7 +68,6 @@ public class AvatarCapture : MonoBehaviour
 			}
 			for (int k = 0; k < count; k++)
 			{
-				Debug.LogWarning("Replaced: sortedList[i][j].Avatar.Body.Transform; with Transform avatarTransform = sortedList[i][j].ActiveSpawnRole.WorldObjectClient.Transform;");
 				Transform transform = MVGameControllerBase.WOCM.GetWorldObjectClient(sortedList[i][k].WoId).Transform;
 				Transform transform2 = renderCam.transform;
 				transform2.position = transform.position;
@@ -93,7 +92,6 @@ public class AvatarCapture : MonoBehaviour
 		positions.Reverse();
 		for (int i = 0; i < players.Count; i++)
 		{
-			Debug.LogWarning("Replaced: Transform avatarTransform = players[i].Avatar.Body.Transform with : players[i].ActiveSpawnRole.WorldObjectClient.Transform");
 			Transform transform = MVGameControllerBase.WOCM.GetWorldObjectClient(players[i].WoId).Transform;
 			Transform transform2 = renderCam.transform;
 			transform2.position = transform.position;

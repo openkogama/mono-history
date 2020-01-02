@@ -22,16 +22,8 @@ public class CurrentSpawnRolePreviewer : MonoBehaviour
 
 	private AvatarPreviewer previewer;
 
-	private int previewDimensionsX = 512;
-
-	private int previewDimensionsY = 1024;
-
-	private float startFov;
-
 	public void SetupPreviewer(int previewDimensionsX = 512, int previewDimensionsY = 1024)
 	{
-		this.previewDimensionsX = previewDimensionsX;
-		this.previewDimensionsY = previewDimensionsY;
 		avatarBody = ((MVAvatarLocal)MVGameControllerBase.WOCM.GetWorldObjectClient(MVGameControllerBase.SpawnRoleDataMediatorLocal.WoId)).Body;
 		Quaternion rotation = Quaternion.identity * Quaternion.Euler(0f, 180f, 0f);
 		if (bodyClone != null)
@@ -105,7 +97,6 @@ public class CurrentSpawnRolePreviewer : MonoBehaviour
 		previewer.Initialize(previewDimensionsX, previewDimensionsY, CameraClearFlags.Color, MVGameControllerBase.LocalPlayer.Body.PreviewLayerMask, new Vector3(0f, -0.5f, -1f), avatarResetToTransform, new Vector3(100f, 100f, 100f), "CurrentSpawnRole preview", MVGameControllerBase.LocalPlayer.Body, bodyClone, new Vector3(15f, 0f, 0f));
 		previewer.previewCam.transform.position += new Vector3(0f, 1.22f, 0f);
 		bodyClone.transform.rotation = rotation;
-		startFov = previewer.previewCam.fieldOfView;
 		bodyClone.SetLayerRecursively(LayerUtil.GetLayerNumber(LayerFlags.Hidden));
 		previewImage.texture = previewer.PreviewTexture;
 		GameObject gameObject = Object.Instantiate(dropShadowPlane);

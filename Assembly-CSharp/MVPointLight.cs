@@ -9,8 +9,6 @@ public class MVPointLight : MVLogicObject, ILogicWorldObject
 
 	private float minumumScale = 0.03f;
 
-	private float intensityMaxValue = 20f;
-
 	private float rangeMaxValue = 10f;
 
 	private float scaleRestriction = 2f;

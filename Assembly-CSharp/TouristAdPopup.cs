@@ -25,6 +25,7 @@ public class TouristAdPopup : TouristPromotion
 
 	public void OnViewAdClicked()
 	{
+		StatHatWrapper.Count("TouristPromotion.Kogama.ContinueAd", 1);
 		Debug.Log("Showing Ad");
 		waitingForAd = true;
 		continueButton.interactable = false;
@@ -41,6 +42,7 @@ public class TouristAdPopup : TouristPromotion
 		{
 			if (MVGameControllerBase.GameSessionData.GetIsRedirectAllowed())
 			{
+				StatHatWrapper.Count("TouristPromotion.Kogama.Redirect", 1);
 				BrowserCommGotoRequests.GotoMainpage(newTab: true);
 			}
 			else
@@ -73,11 +75,13 @@ public class TouristAdPopup : TouristPromotion
 
 	public void SignupCallback()
 	{
+		StatHatWrapper.Count("TouristPromotion.Kogama.Signup", 1);
 		BrowserCommGotoRequests.GotoSignup(newTab: false, modalPopup: true);
 	}
 
 	public void LoginCallback()
 	{
+		StatHatWrapper.Count("TouristPromotion.Kogama.Login", 1);
 		BrowserCommGotoRequests.GotoLogin(newTab: false, modalPopup: true);
 	}
 

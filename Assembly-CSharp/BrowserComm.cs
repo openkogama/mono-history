@@ -61,7 +61,7 @@ public class BrowserComm : MonoBehaviour
 		{
 			if (enableExternalCall)
 			{
-				Application.ExternalCall("get_browser_version");
+				JSBridge.ExternalCall("get_browser_version");
 			}
 		}
 
@@ -69,7 +69,7 @@ public class BrowserComm : MonoBehaviour
 		{
 			if (enableExternalCall)
 			{
-				Application.ExternalCall(ToNameSpace(functionName), args);
+				JSBridge.ExternalCall(ToNameSpace(functionName), args);
 			}
 		}
 
@@ -82,7 +82,7 @@ public class BrowserComm : MonoBehaviour
 				dictionary.Add("callbackId", callbackIdCounter);
 				Dictionary<object, object> value = dictionary;
 				string text = JsonConvert.SerializeObject(value);
-				Application.ExternalCall(ToNameSpace(functionName), text);
+				JSBridge.ExternalCall(ToNameSpace(functionName), text);
 				callbackIdCounter++;
 			}
 		}

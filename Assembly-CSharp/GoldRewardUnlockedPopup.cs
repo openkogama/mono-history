@@ -28,7 +28,6 @@ public class GoldRewardUnlockedPopup : MonoBehaviour
 	private void StartEffect()
 	{
 		bounceEffectStartTime = Time.time;
-		float num = bounceEffect.Evaluate((Time.time - bounceEffectStartTime) / bounceEffectDuration);
 	}
 
 	private void Update()

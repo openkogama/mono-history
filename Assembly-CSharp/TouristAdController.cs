@@ -16,8 +16,6 @@ public class TouristAdController : MonoBehaviour, ITouristAdController, IEventSy
 
 	private TouristModeController promotionSliderCreator;
 
-	private TouristAdStateHandler adHandler = new TouristAdStateHandler();
-
 	public void Initialize(TouristModeController promotionSliderController)
 	{
 		promotionSliderCreator = promotionSliderController;

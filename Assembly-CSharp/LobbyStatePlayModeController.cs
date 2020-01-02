@@ -68,6 +68,11 @@ public class LobbyStatePlayModeController : MonoBehaviour
 			MVGameControllerDesktop.LockCursorManager.CursorLock = false;
 			SetObjectToLobbyState(isInLobbyState: true);
 		}
+		if (MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleMode == SpawnRoleModeType.Playing && !MVGameControllerDesktop.LockCursorManager.CursorLock && !MVGameControllerBase.PlayModeUI.InLobbyState)
+		{
+			Debug.LogError("Bad state");
+			MVGameControllerBase.PlayModeUI.InLobbyState = true;
+		}
 	}
 
 	private void SetObjectToLobbyState(bool isInLobbyState)

@@ -16,6 +16,28 @@ public class SpawnRoleVariable<T>
 		subscribableVariable.OnChange += SubscribableVariableOnOnChange;
 	}
 
+	public override bool Equals(object obj)
+	{
+		if (object.ReferenceEquals(null, obj))
+		{
+			return false;
+		}
+		if (object.ReferenceEquals(this, obj))
+		{
+			return true;
+		}
+		if (obj.GetType() != GetType())
+		{
+			return false;
+		}
+		return Equals((SpawnRoleVariable<T>)obj);
+	}
+
+	public override int GetHashCode()
+	{
+		return (subscribableVariable != null) ? subscribableVariable.GetHashCode() : 0;
+	}
+
 	private void SubscribableVariableOnOnChange(T value)
 	{
 		if (OnChange != null)

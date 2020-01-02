@@ -35,6 +35,8 @@ public class TimeAttackFlagDebriefing : MonoBehaviour
 
 	private bool isExitingDebriefing;
 
+	private bool shouldStartFlagCountdown;
+
 	private float waitStartTime;
 
 	private SpawnRoleModeType previousAvatarModeType = SpawnRoleModeType.Hidden;
@@ -91,6 +93,11 @@ public class TimeAttackFlagDebriefing : MonoBehaviour
 		{
 			UpdateButton();
 		}
+		if (shouldStartFlagCountdown)
+		{
+			shouldStartFlagCountdown = false;
+			MVGameControllerBase.FlagDebriefingControl.StartFlagCountDown();
+		}
 	}
 
 	public void Initialize(int captureTime)
@@ -129,7 +136,6 @@ public class TimeAttackFlagDebriefing : MonoBehaviour
 			isWaitingForStart = true;
 			waitStartTime = Time.time - 1f;
 			SendCountDownNotification();
-			MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.SetIntermediateDebriefing(WinningConditionType.TimeAttackFlag);
 		}
 	}
 
@@ -253,7 +259,8 @@ public class TimeAttackFlagDebriefing : MonoBehaviour
 			MVCheckpoint checkpoint = MVGameControllerBase.Game.LocalPlayer.GetCheckpoint();
 			if (checkpoint == null)
 			{
-				MVGameControllerBase.FlagDebriefingControl.StartFlagCountDown();
+				gameObject.SetActive(value: true);
+				shouldStartFlagCountdown = true;
 			}
 		}
 		previousAvatarModeType = mode;

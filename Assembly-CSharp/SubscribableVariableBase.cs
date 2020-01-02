@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 public abstract class SubscribableVariableBase<T>
 {
@@ -11,6 +12,28 @@ public abstract class SubscribableVariableBase<T>
 	protected SubscribableVariableBase(T value)
 	{
 		this.value = value;
+	}
+
+	public override bool Equals(object obj)
+	{
+		if (object.ReferenceEquals(null, obj))
+		{
+			return false;
+		}
+		if (object.ReferenceEquals(this, obj))
+		{
+			return true;
+		}
+		if (obj.GetType() != GetType())
+		{
+			return false;
+		}
+		return Equals((SubscribableVariableBase<T>)obj);
+	}
+
+	public override int GetHashCode()
+	{
+		return EqualityComparer<T>.Default.GetHashCode(value);
 	}
 
 	public static implicit operator T(SubscribableVariableBase<T> s)

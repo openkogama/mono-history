@@ -615,7 +615,7 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 
 		public override void FrameUpdate(InputToInGameAction interactionMap)
 		{
-			if ((float)MVGameControllerBase.Game.NetworkGameStateListener.TimeLeftMS <= 0f)
+			if (MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState != MVGameStateType.RoundEnded)
 			{
 				mvAvatar.SetMode(AvatarRuntimeState.Playing);
 			}

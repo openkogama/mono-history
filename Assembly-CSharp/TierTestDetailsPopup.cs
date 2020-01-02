@@ -16,12 +16,9 @@ public class TierTestDetailsPopup : MonoBehaviour
 
 	private GamePassTier tierToPurchase;
 
-	private int price;
-
 	public void Initialize(GamePassTier tierToPurchase, int price)
 	{
 		this.tierToPurchase = tierToPurchase;
-		this.price = price;
 		Text text = tierText;
 		int num = (int)tierToPurchase;
 		text.text = num.ToString();

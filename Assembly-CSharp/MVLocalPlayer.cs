@@ -121,13 +121,15 @@ public abstract class MVLocalPlayer : MVPlayer
 		PlanetOwnershipTypeID = planetOwnershipTypeID;
 		joinTime = MVGameControllerBase.Game.ServerTimeInMilliSeconds;
 		boostController.Initialize();
-		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSpawn += AvatarCommandsPlayModeOnOnSpawn;
 	}
 
-	private void AvatarCommandsPlayModeOnOnSpawn()
+	private void SpawnRoleModeOnOnChange(SpawnRoleModeType value)
 	{
-		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSpawn -= AvatarCommandsPlayModeOnOnSpawn;
-		MVGameControllerBase.OperationRequests.IncrementStatRequest(IncrementStatRequestType.PlayerHasEnteredWorldFirstTime);
+		if (value == SpawnRoleModeType.Playing)
+		{
+			MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleMode.OnChange -= SpawnRoleModeOnOnChange;
+			MVGameControllerBase.OperationRequests.IncrementStatRequest(IncrementStatRequestType.PlayerHasEnteredWorldFirstTime);
+		}
 	}
 
 	public void SetupPlayerWorldObjects(int defaultBodyWoId, SpawnRolesRuntimeData spawnRolesRuntimeData)
@@ -135,6 +137,7 @@ public abstract class MVLocalPlayer : MVPlayer
 		this.defaultBodyWoId = defaultBodyWoId;
 		SpawnRoleChangeHandlerLocal spawnRoleChangeHandler = new SpawnRoleChangeHandlerLocal(spawnRoleDataMediator);
 		SetupSpawnRoleManager(spawnRoleChangeHandler, spawnRolesRuntimeData);
+		MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleMode.OnChange += SpawnRoleModeOnOnChange;
 	}
 
 	public virtual void InitializeLeveling(InitialLevelData initialLevelData)
@@ -226,6 +229,5 @@ public abstract class MVLocalPlayer : MVPlayer
 	public virtual void Destroy()
 	{
 		xpProgress.Destroy();
-		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSpawn -= AvatarCommandsPlayModeOnOnSpawn;
 	}
 }

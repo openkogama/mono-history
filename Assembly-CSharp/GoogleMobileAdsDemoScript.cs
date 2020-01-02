@@ -27,7 +27,6 @@ public class GoogleMobileAdsDemoScript : MonoBehaviour
 	public void Start()
 	{
 		MobileAds.SetiOSAppPauseOnBackground(pause: true);
-		MobileAdManagerCredentials.Setup(Application.identifier);
 		MobileAds.Initialize(MobileAdManagerCredentials.GetAdMobCredentials().AppId);
 	}
 

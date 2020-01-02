@@ -17,8 +17,16 @@ public class TouristPromotion : MonoBehaviour
 	[SerializeField]
 	private TouristPromotionLooksData looksData;
 
+	protected bool popupWithAd;
+
+	public void Initialize(bool withAd)
+	{
+		popupWithAd = withAd;
+	}
+
 	protected virtual void Start()
 	{
+		StatHatWrapper.Count("TouristPromotion.Kogama", 1);
 		looksData.RandomizePromotion();
 		promotionHeader.text = looksData.GetPromotionText();
 		Image promotionImage = looksData.GetPromotionImage();

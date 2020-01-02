@@ -10,6 +10,7 @@ public static class FirstTimePressPlayController
 	public static void OnFirstTimePlayIsPressed()
 	{
 		haveBeenPressed = true;
+		FpsCounter.StartedPlaying = true;
 		Dictionary<object, object> data = new Dictionary<object, object>();
 		NotificationController.PushNotification(NotificationType.XPBoost, data);
 	}

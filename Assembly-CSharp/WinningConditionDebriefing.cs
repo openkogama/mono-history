@@ -48,7 +48,6 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 
 	private void GenerateDebriefing(IWinningCondition winningCondition)
 	{
-		Debug.Log("Generate debriefing");
 		if (winningCondition is IWinningConditionBriefing)
 		{
 			((IWinningConditionBriefing)winningCondition).GetDebriefing(this);

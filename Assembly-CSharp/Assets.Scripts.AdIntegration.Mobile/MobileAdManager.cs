@@ -752,8 +752,11 @@ public class MobileAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IU
 		UpdateController.RemoveUpdateObject(this);
 		rewardedAdResultHandler = null;
 		interstitialAdResultHandler = null;
-		internalAdManagerState.Destroy();
-		internalAdManagerState = null;
+		if (internalAdManagerState != null)
+		{
+			internalAdManagerState.Destroy();
+			internalAdManagerState = null;
+		}
 		isInitialized = false;
 	}
 

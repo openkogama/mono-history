@@ -2700,6 +2700,12 @@ public class MVNetworkGame : IPhotonPeerListener
 
 	public string KogamaMainpageURL { get; private set; }
 
+	public int TouristPromotionCreyFrequencyPercent { get; private set; }
+
+	public string TouristPromotionCreyURL { get; private set; }
+
+	public bool TouristPromotionCreyRedirect { get; private set; }
+
 	public int ServerTimeInMilliSeconds
 	{
 		get
@@ -3120,6 +3126,9 @@ public class MVNetworkGame : IPhotonPeerListener
 		MVClientSettings.PostGameInterstitialIntervalInSeconds = (int)returnValues[215];
 		AdConsentEndpointURL = (string)returnValues[225];
 		KogamaMainpageURL = (string)returnValues[226];
+		TouristPromotionCreyFrequencyPercent = (int)returnValues[228];
+		TouristPromotionCreyURL = (string)returnValues[229];
+		TouristPromotionCreyRedirect = (bool)returnValues[230];
 		isPublished = (bool)returnValues[82];
 		MVGameControllerBase.JoinState = MVJoinState.LoadGUI;
 		LoadModeGui();

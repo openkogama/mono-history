@@ -30,6 +30,7 @@ public class TouristPromotionDesktop : TouristPromotion
 
 	public void SignupCallback()
 	{
+		StatHatWrapper.Count("TouristPromotion.Kogama.Signup", 1);
 		BrowserCommGotoRequests.GotoSignup(newTab: false, modalPopup: true);
 	}
 
@@ -44,6 +45,7 @@ public class TouristPromotionDesktop : TouristPromotion
 		{
 			if (MVGameControllerBase.GameSessionData.GetIsRedirectAllowed())
 			{
+				StatHatWrapper.Count("TouristPromotion.Kogama.Redirect", 1);
 				BrowserCommGotoRequests.GotoMainpage(newTab: true);
 			}
 			else
@@ -51,6 +53,12 @@ public class TouristPromotionDesktop : TouristPromotion
 				ShowGoToKogamaPopup();
 			}
 		}
+	}
+
+	public override void SkipCallback()
+	{
+		StatHatWrapper.Count("TouristPromotion.Kogama.Continue", 1);
+		base.SkipCallback();
 	}
 
 	private void ShowGoToKogamaPopup()

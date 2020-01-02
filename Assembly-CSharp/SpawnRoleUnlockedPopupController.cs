@@ -57,8 +57,6 @@ public class SpawnRoleUnlockedPopupController : MonoBehaviour
 
 	private float bounceEffectStartTime;
 
-	private string tempUnlockInformation = "Game Tier {0} is now available until the next time you respawn. Enjoy!";
-
 	private bool awaitingSpawn;
 
 	public void Initialize(GamePassTier unlockedTier, bool wasPurchased, bool wasTempUnlocked, int spawnRoleWoId)
@@ -148,7 +146,6 @@ public class SpawnRoleUnlockedPopupController : MonoBehaviour
 	private void StartEffect()
 	{
 		bounceEffectStartTime = Time.time;
-		float num = bounceEffect.Evaluate((Time.time - bounceEffectStartTime) / bounceEffectDuration);
 	}
 
 	private void HandleTeamSwitching()
