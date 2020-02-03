@@ -65,6 +65,9 @@ public class GamePassesSpawnRoleRewardInfo : MonoBehaviour, IGamePassShopContent
 	[SerializeField]
 	private int previewHeight;
 
+	[SerializeField]
+	private Image buttonAdImage;
+
 	private SpawnRolePreviewer spawnRolePreviewer;
 
 	private int spawnRoleIndex;
@@ -127,6 +130,7 @@ public class GamePassesSpawnRoleRewardInfo : MonoBehaviour, IGamePassShopContent
 		GamePassesManager.OnPlayerPlanetDataUpdated = (Action)Delegate.Combine(GamePassesManager.OnPlayerPlanetDataUpdated, new Action(OnPlayerPlanetDataUpdated));
 		ContinueButtonHandler continueButtonHandler = this.continueButtonHandler;
 		continueButtonHandler.OnClick = (Action)Delegate.Combine(continueButtonHandler.OnClick, new Action(OnPlayPressed));
+		buttonAdImage.enabled = !GamePassesManager.TogglePreviewState.FreeTryWithoutAdAvailable;
 	}
 
 	public void OnPressed()
@@ -351,13 +355,23 @@ public class GamePassesSpawnRoleRewardInfo : MonoBehaviour, IGamePassShopContent
 	{
 		if (GamePassesManager.TogglePreviewState.CanToggle)
 		{
-			MVGameControllerBase.AdManager.RequestRewardedAd(RewardedAdCallback, AdContext.PreviewTier);
-			return;
+			if (GamePassesManager.TogglePreviewState.FreeTryWithoutAdAvailable)
+			{
+				PreviewTier();
+				GamePassesManager.TogglePreviewState.FreeTryWithoutAdAvailable = false;
+			}
+			else
+			{
+				MVGameControllerBase.AdManager.RequestRewardedAd(RewardedAdCallback, AdContext.PreviewTier);
+			}
 		}
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+		else
 		{
-			x.Create(TM._("Free try cannot be activated at this moment."), TM._("An error occurred"));
-		});
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+			{
+				x.Create(TM._("Free try cannot be activated at this moment."), TM._("An error occurred"));
+			});
+		}
 	}
 
 	private void RewardedAdCallback(RewardedAdResult result)

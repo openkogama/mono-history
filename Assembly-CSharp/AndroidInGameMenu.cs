@@ -36,12 +36,15 @@ public class AndroidInGameMenu : MonoBehaviour
 			playReward.Initialize();
 		}
 		rewardedAd.Initialize();
-		gamePassesUI = Object.Instantiate(gamePassesUIPrefab);
-		gamePassesUI.transform.SetParent(transform, worldPositionStays: false);
-		gamePassesUI.Initialize();
-		if (!GamePassProgressionController.IsProgressionEnabled || !GamePassesManager.GamePassesActive)
+		if (GamePassesManager.GamePassesActive)
 		{
-			gamePassesUI.gameObject.SetActive(value: false);
+			gamePassesUI = Object.Instantiate(gamePassesUIPrefab);
+			gamePassesUI.transform.SetParent(transform, worldPositionStays: false);
+			gamePassesUI.Initialize();
+			if (!GamePassProgressionController.IsProgressionEnabled || !GamePassesManager.GamePassesActive)
+			{
+				gamePassesUI.gameObject.SetActive(value: false);
+			}
 		}
 		winningConditionDebriefing.transform.SetAsLastSibling();
 	}

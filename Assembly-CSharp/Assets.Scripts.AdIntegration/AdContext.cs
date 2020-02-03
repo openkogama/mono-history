@@ -13,5 +13,6 @@ public enum AdContext
 	PlayButtonAd,
 	Reboost,
 	RegisteredEmbeddedPromotion,
+	RegisteredElitePromotion,
 	GoldReward
 }

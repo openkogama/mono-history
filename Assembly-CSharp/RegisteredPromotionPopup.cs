@@ -33,6 +33,30 @@ public class RegisteredPromotionPopup : MonoBehaviour
 
 	private float timeoutDelay = 20f;
 
+	public void Initialize(bool isEmbeddedPromotion)
+	{
+		if (isEmbeddedPromotion)
+		{
+			looksData.RandomizePromotion();
+			promotionHeader.text = looksData.GetPromotionText();
+			Image promotionImage = looksData.GetPromotionImage();
+			promotionImage.transform.SetParent(promotionImageParent, worldPositionStays: false);
+			MVNetworkGame game = MVGameControllerBase.Game;
+			game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Combine(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnWinningConditionFulfilled));
+			Uri uri = new Uri(MVGameControllerBase.Game.KogamaMainpageURL);
+			redirectButtonURLText.text = uri.Host.Replace("www.", string.Empty).ToUpper();
+		}
+	}
+
+	protected void OnDestroy()
+	{
+		if (MVGameControllerBase.IsAlive)
+		{
+			MVNetworkGame game = MVGameControllerBase.Game;
+			game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Remove(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnWinningConditionFulfilled));
+		}
+	}
+
 	public void KogamaRedirect()
 	{
 		if (MVGameControllerBase.GameSessionData.GetIsRedirectAllowed())
@@ -42,27 +66,6 @@ public class RegisteredPromotionPopup : MonoBehaviour
 		else
 		{
 			ShowGoToKogamaPopup();
-		}
-	}
-
-	protected void Start()
-	{
-		looksData.RandomizePromotion();
-		promotionHeader.text = looksData.GetPromotionText();
-		Image promotionImage = looksData.GetPromotionImage();
-		promotionImage.transform.SetParent(promotionImageParent, worldPositionStays: false);
-		MVNetworkGame game = MVGameControllerBase.Game;
-		game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Combine(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnWinningConditionFulfilled));
-		Uri uri = new Uri(MVGameControllerBase.Game.KogamaMainpageURL);
-		redirectButtonURLText.text = uri.Host.Replace("www.", string.Empty).ToUpper();
-	}
-
-	protected void OnDestroy()
-	{
-		if (MVGameControllerBase.IsAlive)
-		{
-			MVNetworkGame game = MVGameControllerBase.Game;
-			game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Remove(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnWinningConditionFulfilled));
 		}
 	}
 

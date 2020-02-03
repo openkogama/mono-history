@@ -49,8 +49,8 @@ public class Pool
 			{
 				if (pool[i] == value)
 				{
-					value.transform.parent = parent;
 					value.gameObject.SetActive(value: false);
+					value.transform.parent = parent;
 					available.Add(i);
 					return;
 				}
@@ -70,8 +70,8 @@ public class Pool
 		{
 			if (pool[i] == obj)
 			{
-				obj.transform.parent = parent;
 				obj.gameObject.SetActive(value: false);
+				obj.transform.parent = parent;
 				available.Add(i);
 				return;
 			}
@@ -88,8 +88,8 @@ public class Pool
 		{
 			pool[i] = UnityEngine.Object.Instantiate(prefab);
 			available.Add(i);
-			pool[i].transform.parent = parent;
 			pool[i].gameObject.SetActive(value: false);
+			pool[i].transform.parent = parent;
 		}
 	}
 }

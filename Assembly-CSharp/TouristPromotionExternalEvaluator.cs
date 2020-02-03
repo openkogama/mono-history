@@ -23,7 +23,7 @@ public class TouristPromotionExternalEvaluator : MonoBehaviour
 
 	public void Start()
 	{
-		availablePromotions.Add(new TouristPromotionExternalDef(creyGamesPrefab, MVGameControllerBase.Game.TouristPromotionCreyFrequencyPercent));
+		availablePromotions.Add(new TouristPromotionExternalDef(creyGamesPrefab, MVGameControllerBase.Game.CreySettings.TouristPromotionCreyFrequencyPercent));
 	}
 
 	public bool TryGetExternalPromotion(out TouristPromotion externalPromotion)

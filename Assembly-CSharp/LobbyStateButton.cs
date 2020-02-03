@@ -66,7 +66,7 @@ public class LobbyStateButton : MonoBehaviour, IPointerDownHandler, IPointerEnte
 		{
 			countdownFill.enabled = false;
 		}
-		if (MVClientSettings.PlayButtonAdsEnabled)
+		if (MVClientSettings.PlayButtonAdsEnabled && MVGameControllerBase.EditModeUI == null)
 		{
 			Debug.Log("Lobby state button interstitial.");
 			countdownFill.enabled = false;

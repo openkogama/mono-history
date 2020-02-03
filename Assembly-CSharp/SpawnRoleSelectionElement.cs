@@ -61,6 +61,9 @@ public class SpawnRoleSelectionElement : DefaultSpawnRoleSelectionElement
 	[SerializeField]
 	private GameObject backgroundTier3;
 
+	[SerializeField]
+	private Image buttonAdImage;
+
 	private GamePassTier tierRequirement;
 
 	private MVTeam teamRequirement;
@@ -108,6 +111,7 @@ public class SpawnRoleSelectionElement : DefaultSpawnRoleSelectionElement
 		HandlePlayButtonVisibility();
 		ContinueButtonHandler continueButtonHandler = this.continueButtonHandler;
 		continueButtonHandler.OnClick = (Action)Delegate.Combine(continueButtonHandler.OnClick, new Action(OnPressPlay));
+		buttonAdImage.enabled = !GamePassesManager.TogglePreviewState.FreeTryWithoutAdAvailable;
 	}
 
 	public void ShowSkillMenu()
@@ -275,13 +279,23 @@ public class SpawnRoleSelectionElement : DefaultSpawnRoleSelectionElement
 	{
 		if (GamePassesManager.TogglePreviewState.CanToggle)
 		{
-			MVGameControllerBase.AdManager.RequestRewardedAd(RewardedAdCallback, AdContext.PreviewTier);
-			return;
+			if (GamePassesManager.TogglePreviewState.FreeTryWithoutAdAvailable)
+			{
+				PreviewTier();
+				GamePassesManager.TogglePreviewState.FreeTryWithoutAdAvailable = false;
+			}
+			else
+			{
+				MVGameControllerBase.AdManager.RequestRewardedAd(RewardedAdCallback, AdContext.PreviewTier);
+			}
 		}
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+		else
 		{
-			x.Create(TM._("Free try cannot be activated at this moment."), TM._("An error occurred"));
-		});
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+			{
+				x.Create(TM._("Free try cannot be activated at this moment."), TM._("An error occurred"));
+			});
+		}
 	}
 
 	private void RewardedAdCallback(RewardedAdResult result)

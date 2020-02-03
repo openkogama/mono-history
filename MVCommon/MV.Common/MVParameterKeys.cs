@@ -233,6 +233,8 @@ public enum MVParameterKeys : byte
 	TouristPromotionCreyFrequencyPercent = 228,
 	TouristPromotionCreyURL = 229,
 	TouristPromotionCreyRedirectUser = 230,
+	ElitePromotionEnabled = 231,
+	ElitePromotionInterval = 232,
 	GameId = byte.MaxValue,
 	ActorNr = 254,
 	TargetActorNr = 253,

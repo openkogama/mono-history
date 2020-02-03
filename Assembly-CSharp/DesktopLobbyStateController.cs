@@ -50,13 +50,16 @@ public class DesktopLobbyStateController : LobbyFlowMenu
 		touristRegisterButton.SetActive(active);
 		avatarAccessoriesButton.SetActive(value: true);
 		SetCamMaskMode();
-		gamePassesUI = Object.Instantiate(gamePassesUIPrefab);
-		gamePassesUI.transform.SetParent(transform, worldPositionStays: false);
-		gamePassesUI.Initialize();
-		gamePassesUI.TryShowWelcomeReward();
-		if (!GamePassProgressionController.IsProgressionEnabled || MVGameControllerBase.GameSessionData.gameMode == MVGameMode.Edit || !GamePassesManager.GamePassesActive)
+		if (GamePassesManager.GamePassesActive)
 		{
-			gamePassesUI.gameObject.SetActive(value: false);
+			gamePassesUI = Object.Instantiate(gamePassesUIPrefab);
+			gamePassesUI.transform.SetParent(transform, worldPositionStays: false);
+			gamePassesUI.Initialize();
+			gamePassesUI.TryShowWelcomeReward();
+			if (!GamePassProgressionController.IsProgressionEnabled || MVGameControllerBase.GameSessionData.gameMode == MVGameMode.Edit)
+			{
+				gamePassesUI.gameObject.SetActive(value: false);
+			}
 		}
 		if (MVGameControllerBase.GoldRewardManager.CanGetGoldReward() && !MVGameControllerBase.GoldRewardManager.IsCountingDownGoldReward)
 		{

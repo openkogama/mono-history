@@ -13,6 +13,8 @@ public class ShowingAdsPopup : MonoBehaviour
 
 	private Action skipAction;
 
+	private bool previousMuteState;
+
 	public void Initialize(float timeoutTime, Action OnSkipPressed)
 	{
 		skipAction = OnSkipPressed;
@@ -22,14 +24,15 @@ public class ShowingAdsPopup : MonoBehaviour
 
 	private void OnEnable()
 	{
+		previousMuteState = MainCameraManager.Mute;
 		Debug.Log("Muting audio");
 		MainCameraManager.Mute = true;
 	}
 
-	private void OnDisable()
+	private void OnDestroy()
 	{
 		Debug.Log("Resuming audio");
-		MainCameraManager.Mute = false;
+		MainCameraManager.Mute = previousMuteState;
 	}
 
 	private void Update()

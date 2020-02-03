@@ -48,7 +48,7 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 	private TouristModeController touristModeController;
 
 	[SerializeField]
-	private RegisteredPromotionController registeredPromotionControllerPrefab;
+	private RegisteredPromotionController registeredPromotionController;
 
 	[SerializeField]
 	private GameObject fullscreenPlayModeStateTransform;
@@ -231,7 +231,6 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 		{
 			touristAdController.Initialize(touristModeController);
 		}
-		registeredPromotionControllerPrefab.enabled = !MVGameControllerBase.IsTouristSession && MVGameControllerBase.GameSessionData.embedded;
 	}
 
 	private void OnShowTimeAttackFlagDebriefing(int captureTime)

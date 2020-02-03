@@ -37,13 +37,16 @@ public class LobbyStateController : LobbyFlowMenu
 		bool isTouristSession = MVGameControllerBase.IsTouristSession;
 		touristRegisterButton.SetActive(isTouristSession && !MVGameControllerBase.GameSessionData.IsPlayedFromPoki);
 		accessoryShop.SetActive(value: true);
-		gamePassesUI = Object.Instantiate(gamePassesUIPrefab);
-		gamePassesUI.transform.SetParent(transform, worldPositionStays: false);
-		gamePassesUI.Initialize();
-		gamePassesUI.TryShowWelcomeReward();
-		if (!GamePassProgressionController.IsProgressionEnabled || !GamePassesManager.GamePassesActive)
+		if (GamePassesManager.GamePassesActive)
 		{
-			gamePassesUI.gameObject.SetActive(value: false);
+			gamePassesUI = Object.Instantiate(gamePassesUIPrefab);
+			gamePassesUI.transform.SetParent(transform, worldPositionStays: false);
+			gamePassesUI.Initialize();
+			gamePassesUI.TryShowWelcomeReward();
+			if (!GamePassProgressionController.IsProgressionEnabled || !GamePassesManager.GamePassesActive)
+			{
+				gamePassesUI.gameObject.SetActive(value: false);
+			}
 		}
 		if (MVGameControllerBase.GoldRewardManager.CanGetGoldReward() && !MVGameControllerBase.GoldRewardManager.IsCountingDownGoldReward)
 		{

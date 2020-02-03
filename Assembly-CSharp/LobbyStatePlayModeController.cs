@@ -70,6 +70,7 @@ public class LobbyStatePlayModeController : MonoBehaviour
 		}
 		if (MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleMode == SpawnRoleModeType.Playing && !MVGameControllerDesktop.LockCursorManager.CursorLock && !MVGameControllerBase.PlayModeUI.InLobbyState)
 		{
+			Debug.Log("This happens when playmode avatar is in lobby mode while edit mode avatar tries to spawn as a spawn role when a time attack flag is present");
 			Debug.LogError("Bad state");
 			MVGameControllerBase.PlayModeUI.InLobbyState = true;
 		}

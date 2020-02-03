@@ -27,5 +27,6 @@ public enum ClientSettingFlags
 	GameDistributionAdSDKEnabled = 0x40000,
 	PokiAdsEnabled = 0x80000,
 	PlayButtonAdsEnabled = 0x100000,
-	PlayButtonAdsEnabledMobile = 0x200000
+	PlayButtonAdsEnabledMobile = 0x200000,
+	FirstPreviewTierFreeEnabled = 0x400000
 }

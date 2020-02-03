@@ -88,19 +88,22 @@ public class DeathUIBoostMenuController : MonoBehaviour
 			restartText.text = "Respawning at start...";
 		}
 		int gamePointAmountShown = GamePointGainEffectManager.GamePointAmountShown;
-		GamePassesUI gamePassesUI = Object.Instantiate(gamePassesUIPrefab);
-		gamePassesUI.transform.SetParent(transform, worldPositionStays: false);
-		gamePassesUI.Initialize();
-		if (!GamePassProgressionController.IsProgressionEnabled || !GamePassesManager.GamePassesActive)
+		if (GamePassesManager.GamePassesActive)
 		{
-			gamePassesUI.gameObject.SetActive(value: false);
-		}
-		else
-		{
-			int progressionGamePoints = GamePassesManager.PlayerPlanetData.progressionGamePoints;
-			if (gamePointAmountShown < progressionGamePoints)
+			GamePassesUI gamePassesUI = Object.Instantiate(gamePassesUIPrefab);
+			gamePassesUI.transform.SetParent(transform, worldPositionStays: false);
+			gamePassesUI.Initialize();
+			if (!GamePassProgressionController.IsProgressionEnabled || !GamePassesManager.GamePassesActive)
 			{
-				gamePassesUI.ReplayGainEffect(gamePointAmountShown, progressionGamePoints);
+				gamePassesUI.gameObject.SetActive(value: false);
+			}
+			else
+			{
+				int progressionGamePoints = GamePassesManager.PlayerPlanetData.progressionGamePoints;
+				if (gamePointAmountShown < progressionGamePoints)
+				{
+					gamePassesUI.ReplayGainEffect(gamePointAmountShown, progressionGamePoints);
+				}
 			}
 		}
 		if (GamePassesManager.PlayerPlanetData != null)

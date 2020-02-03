@@ -54,6 +54,9 @@ public class ContinueTierBoostPopup : MonoBehaviour
 	[SerializeField]
 	private float countDownDuration;
 
+	[SerializeField]
+	private Image buttonAdImage;
+
 	private float timeLeft = 100f;
 
 	private const string rewardDescription = "Keep playing as Tier {0}?";
@@ -87,6 +90,7 @@ public class ContinueTierBoostPopup : MonoBehaviour
 			spawnRolePreviewer.SetupPreviewer(307, 614);
 			ChangeBackground((GamePassTier)tier);
 		}
+		buttonAdImage.enabled = !GamePassesManager.TogglePreviewState.FreeTryWithoutAdAvailable;
 	}
 
 	private void Start()
@@ -172,13 +176,12 @@ public class ContinueTierBoostPopup : MonoBehaviour
 			break;
 		case RewardedAdResult.ErrorClient:
 		case RewardedAdResult.ErrorInternal:
+		case RewardedAdResult.ErrorTimeout:
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
 			{
 				x.Create(MVGameControllerBase.AdManager.RewardedAdNotAvailableText, TM._("No Ad Available"));
 			});
 			shouldUpdate = true;
-			break;
-		case RewardedAdResult.ErrorTimeout:
 			break;
 		}
 	}

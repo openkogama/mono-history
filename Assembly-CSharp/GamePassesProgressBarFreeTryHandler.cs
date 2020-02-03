@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using Assets.Scripts.AdIntegration;
 using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class GamePassesProgressBarFreeTryHandler : MonoBehaviour
 {
@@ -15,9 +17,20 @@ public class GamePassesProgressBarFreeTryHandler : MonoBehaviour
 	[SerializeField]
 	private GamePassesShop gamePassesShopPrefab;
 
+	[SerializeField]
+	private List<Image> buttonAdImages;
+
 	private GamePassTier tierToTry;
 
 	private bool isWaitingForFreeTryTier;
+
+	private void OnEnable()
+	{
+		for (int i = 0; i < buttonAdImages.Count; i++)
+		{
+			buttonAdImages[i].enabled = !GamePassesManager.TogglePreviewState.FreeTryWithoutAdAvailable;
+		}
+	}
 
 	public void OnFreeTryTier(int tierToTry)
 	{
@@ -44,13 +57,23 @@ public class GamePassesProgressBarFreeTryHandler : MonoBehaviour
 	{
 		if (GamePassesManager.TogglePreviewState.CanToggle)
 		{
-			MVGameControllerBase.AdManager.RequestRewardedAd(RewardedAdCallback, AdContext.PreviewTier);
-			return;
+			if (GamePassesManager.TogglePreviewState.FreeTryWithoutAdAvailable)
+			{
+				PreviewTier();
+				GamePassesManager.TogglePreviewState.FreeTryWithoutAdAvailable = false;
+			}
+			else
+			{
+				MVGameControllerBase.AdManager.RequestRewardedAd(RewardedAdCallback, AdContext.PreviewTier);
+			}
 		}
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+		else
 		{
-			x.Create(MVGameControllerBase.AdManager.RewardedAdNotAvailableText, TM._("No Ad Available"));
-		});
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+			{
+				x.Create(MVGameControllerBase.AdManager.RewardedAdNotAvailableText, TM._("No Ad Available"));
+			});
+		}
 	}
 
 	private void RewardedAdCallback(RewardedAdResult result)

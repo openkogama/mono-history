@@ -26,6 +26,9 @@ public class DesktopInGameGUIController : MonoBehaviour
 	[SerializeField]
 	private LevelBadge levelBadge;
 
+	[SerializeField]
+	private GameObject leaveEditPlayModeButton;
+
 	private Dictionary<LoadLogoType, string> logoToPathMap = new Dictionary<LoadLogoType, string> { 
 	{
 		LoadLogoType.Poki,
@@ -47,6 +50,10 @@ public class DesktopInGameGUIController : MonoBehaviour
 				string path = Urls.StreamingAssets + logoToPathMap[loadLogoType];
 				AsyncWWWManager.WWWRequest(new CachedGetRequest(path, StreamingAssetCallback, WWWRequestPriority.WaitUntilSyncronizingIsDone));
 			}
+		}
+		if (MVGameControllerBase.EditModeUI != null)
+		{
+			leaveEditPlayModeButton.SetActive(value: true);
 		}
 		levelBadge = Object.Instantiate(levelBadge);
 		levelBadge.transform.SetParent(winningConditionLayoutGroup.transform, worldPositionStays: false);

@@ -37,6 +37,9 @@ public class TierUnlockDetailsPopup : MonoBehaviour
 	[SerializeField]
 	private TierUnlockedPopupController TierUnlockedPopupControllerPrefab;
 
+	[SerializeField]
+	private Image buttonAdImage;
+
 	private GamePassTier tierToPurchase;
 
 	private int price;
@@ -59,6 +62,7 @@ public class TierUnlockDetailsPopup : MonoBehaviour
 		{
 			UpdateTierProgressBar();
 		}
+		buttonAdImage.enabled = !GamePassesManager.TogglePreviewState.FreeTryWithoutAdAvailable;
 	}
 
 	public void ShowTier()
@@ -207,13 +211,23 @@ public class TierUnlockDetailsPopup : MonoBehaviour
 	{
 		if (GamePassesManager.TogglePreviewState.CanToggle)
 		{
-			MVGameControllerBase.AdManager.RequestRewardedAd(RewardedAdCallback, AdContext.PreviewTier);
-			return;
+			if (GamePassesManager.TogglePreviewState.FreeTryWithoutAdAvailable)
+			{
+				PreviewTier();
+				GamePassesManager.TogglePreviewState.FreeTryWithoutAdAvailable = false;
+			}
+			else
+			{
+				MVGameControllerBase.AdManager.RequestRewardedAd(RewardedAdCallback, AdContext.PreviewTier);
+			}
 		}
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+		else
 		{
-			x.Create(TM._("Free try cannot be activated at this moment."), TM._("An error occurred"));
-		});
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+			{
+				x.Create(TM._("Free try cannot be activated at this moment."), TM._("An error occurred"));
+			});
+		}
 	}
 
 	private void RewardedAdCallback(RewardedAdResult result)

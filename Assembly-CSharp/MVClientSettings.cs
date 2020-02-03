@@ -44,6 +44,8 @@ public static class MVClientSettings
 
 	public static bool PlayButtonAdsRegisteredUsers => IsFlagSet(ClientSettingFlags.PlayButtonAdsRegisteredUsers);
 
+	public static bool FirstPreviewTierFreeEnabled => IsFlagSet(ClientSettingFlags.FirstPreviewTierFreeEnabled);
+
 	public static bool PlayButtonAdsEnabled => false;
 
 	public static bool BoostersEnabled => false;
@@ -66,7 +68,7 @@ public static class MVClientSettings
 		return (ClientSettingFlags & flag) == flag;
 	}
 
-	private static bool IsSubscriber()
+	public static bool IsSubscriber()
 	{
 		return MVGameControllerBase.Game.LocalPlayer.SubscriptionRules.SubscriptionType != SubscriptionType.None;
 	}

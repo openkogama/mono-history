@@ -109,6 +109,9 @@ public class GamePassesShop : MonoBehaviour
 	[SerializeField]
 	private GameObject gamePassesShopInformationPrefab;
 
+	[SerializeField]
+	private Image buttonAdImage;
+
 	private GamePassTier gamePassTierDisplayed;
 
 	private float lerpStartTime;
@@ -152,15 +155,15 @@ public class GamePassesShop : MonoBehaviour
 		if (ShouldShowTierReward(gamePassTierToDisplay))
 		{
 			ShowTierUnlockedPopup(wasPurchased: false, wasTempUnlocked: false);
+			return;
 		}
-		else if (MVGameControllerBase.IsTouristSession)
+		if (MVGameControllerBase.IsTouristSession)
 		{
 			ShowTouristInformationPopup();
+			return;
 		}
-		else
-		{
-			statusFooterObject.SetActive(value: false);
-		}
+		buttonAdImage.enabled = !GamePassesManager.TogglePreviewState.FreeTryWithoutAdAvailable;
+		statusFooterObject.SetActive(value: false);
 	}
 
 	private void Start()
@@ -390,12 +393,6 @@ public class GamePassesShop : MonoBehaviour
 	private void AddTierContent(GamePassTier gamePassTierToDisplay)
 	{
 		CreateSpawnRoleContent(gamePassTierDisplayed);
-		Dictionary<MVWorldObjectDocumentationType, List<MVWorldObjectClient>> tierItemData = MVGameControllerBase.Game.GameTierShopRepository.GetTierItemData(gamePassTierToDisplay);
-		if (tierItemData != null)
-		{
-			CreateUnlockedItemsInfo(gamePassTierDisplayed, tierItemData);
-			CreateUnlockedAccessItemsInfo(gamePassTierDisplayed, tierItemData);
-		}
 		CreateXPRewardInfo(gamePassTierToDisplay);
 	}
 
@@ -689,13 +686,23 @@ public class GamePassesShop : MonoBehaviour
 	{
 		if (GamePassesManager.TogglePreviewState.CanToggle)
 		{
-			MVGameControllerBase.AdManager.RequestRewardedAd(RewardedAdCallback, AdContext.PreviewTier);
-			return;
+			if (GamePassesManager.TogglePreviewState.FreeTryWithoutAdAvailable)
+			{
+				PreviewTier();
+				GamePassesManager.TogglePreviewState.FreeTryWithoutAdAvailable = false;
+			}
+			else
+			{
+				MVGameControllerBase.AdManager.RequestRewardedAd(RewardedAdCallback, AdContext.PreviewTier);
+			}
 		}
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+		else
 		{
-			x.Create(TM._("Free try cannot be activated at this moment."), TM._("An error occurred"));
-		});
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IModalPopupCreator x, BaseEventData y) =>
+			{
+				x.Create(TM._("Free try cannot be activated at this moment."), TM._("An error occurred"));
+			});
+		}
 	}
 
 	private void RewardedAdCallback(RewardedAdResult result)

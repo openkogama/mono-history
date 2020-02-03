@@ -8,6 +8,20 @@ public class TogglePreviewState
 
 	private readonly GamePassTier currentTier;
 
+	private bool freeTry;
+
+	public bool FreeTryWithoutAdAvailable
+	{
+		get
+		{
+			return freeTry;
+		}
+		set
+		{
+			freeTry = value;
+		}
+	}
+
 	public bool IsOn => previewTier != GamePassTier.Tier0;
 
 	public bool CanToggle
@@ -26,8 +40,9 @@ public class TogglePreviewState
 		}
 	}
 
-	public TogglePreviewState(GamePassTier previewTier, GamePassTier currentTier)
+	public TogglePreviewState(GamePassTier previewTier, GamePassTier currentTier, bool freeFirstTry)
 	{
+		FreeTryWithoutAdAvailable = freeFirstTry;
 		this.previewTier = previewTier;
 		this.currentTier = currentTier;
 	}

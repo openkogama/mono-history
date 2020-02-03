@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Assets.Scripts.GamePasses;
 using MV.Common;
 using MV.WorldObject.GamePassSystem;
+using UnityEngine;
 
 public static class GamePassesManager
 {
@@ -13,6 +14,8 @@ public static class GamePassesManager
 	public static Action OnPlayerPlanetDataUpdated;
 
 	private static PlayerPlanetData playerPlanetData;
+
+	private static TogglePreviewState togglePreviewState;
 
 	public static bool ShowGamePassDataInConsole
 	{
@@ -55,9 +58,14 @@ public static class GamePassesManager
 		{
 			if (!GamePassesActive)
 			{
+				Debug.Log("GamePassesActive is false. Returning null here results in null reference.");
 				return null;
 			}
-			return new TogglePreviewState(PlayerPlanetData.previewGamePassTier, PlayerPlanetData.gamePassTier);
+			if (togglePreviewState == null)
+			{
+				togglePreviewState = new TogglePreviewState(PlayerPlanetData.previewGamePassTier, PlayerPlanetData.gamePassTier, MVClientSettings.FirstPreviewTierFreeEnabled);
+			}
+			return togglePreviewState;
 		}
 	}
 
@@ -65,6 +73,7 @@ public static class GamePassesManager
 	{
 		HandleNewTierUnlocked(playerPlanetData);
 		GamePassesManager.playerPlanetData = playerPlanetData;
+		UpdateToggleState();
 		if (ShowGamePassDataInConsole)
 		{
 			MVGameControllerBase.PostGameMsg(MVGameMsgType.AdminMsg, playerPlanetData.ToString());
@@ -82,6 +91,16 @@ public static class GamePassesManager
 		{
 			OnPlayerPlanetDataUpdated();
 		}
+	}
+
+	private static void UpdateToggleState()
+	{
+		bool freeFirstTry = MVClientSettings.FirstPreviewTierFreeEnabled;
+		if (togglePreviewState != null)
+		{
+			freeFirstTry = togglePreviewState.FreeTryWithoutAdAvailable;
+		}
+		togglePreviewState = new TogglePreviewState(PlayerPlanetData.previewGamePassTier, PlayerPlanetData.gamePassTier, freeFirstTry);
 	}
 
 	public static void SendCompleteStatus()
