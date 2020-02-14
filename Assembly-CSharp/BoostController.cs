@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using MV.WorldObject.KogamaSettings.SpecializedSettingsTypes.GameBoosterSettings.GameBoosterSettingTypes;
 using UnityEngine;
 
-public class BoostController : IUpdatecontrollerSubscriberUpdate, IUpdatecontrollerSubscriberBase
+public class BoostController
 {
 	public Action BoostCountChanged;
 
@@ -11,31 +11,31 @@ public class BoostController : IUpdatecontrollerSubscriberUpdate, IUpdatecontrol
 	{
 		{
 			BoostType.XRayVision,
-			new Boost(BoostType.XRayVision, "XRayVision", TM._("X-ray vision"), string.Empty, TM._("X-ray vision"), allowedForGame: true, 180f)
+			new Boost(BoostType.XRayVision, "XRayVision", TM._("X-ray vision"), string.Empty, TM._("X-ray vision"), allowedForGame: true)
 		},
 		{
 			BoostType.AmmoIntMultiplier,
-			new Boost(BoostType.AmmoIntMultiplier, "Ammo", TM._("x2 Ammo"), TM._("Ammo Percentage"), TM._("Ammo"), allowedForGame: false, 180f)
+			new Boost(BoostType.AmmoIntMultiplier, "Ammo", TM._("x2 Ammo"), TM._("Ammo Percentage"), TM._("Ammo"), allowedForGame: false)
 		},
 		{
 			BoostType.MovementSpeedFloatMultiplier,
-			new Boost(BoostType.MovementSpeedFloatMultiplier, "Speed", TM._("+{0}% Speed"), TM._("Speed Percentage"), TM._("Speed"), allowedForGame: true, 180f)
+			new Boost(BoostType.MovementSpeedFloatMultiplier, "Speed", TM._("+{0}% Speed"), TM._("Speed Percentage"), TM._("Speed"), allowedForGame: true)
 		},
 		{
 			BoostType.GameCoinsIntMultiplier,
-			new Boost(BoostType.GameCoinsIntMultiplier, "GameCoinBoost", TM._("x2 Gamecoins"), TM._("Coin Percentage"), TM._("Coins"), allowedForGame: false, 180f)
+			new Boost(BoostType.GameCoinsIntMultiplier, "GameCoinBoost", TM._("x2 Gamecoins"), TM._("Coin Percentage"), TM._("Coins"), allowedForGame: false)
 		},
 		{
 			BoostType.ExtraHealthFloatMultiplier,
-			new Boost(BoostType.ExtraHealthFloatMultiplier, "Health", TM._("+{0}% HP"), TM._("HP Percentage"), TM._("Health"), allowedForGame: true, 180f)
+			new Boost(BoostType.ExtraHealthFloatMultiplier, "Health", TM._("+{0}% HP"), TM._("HP Percentage"), TM._("Health"), allowedForGame: true)
 		},
 		{
 			BoostType.JumpPowerFloatMultiplier,
-			new Boost(BoostType.JumpPowerFloatMultiplier, "JumpPower", TM._("+{0}% Jump"), TM._("Jump Percentage"), TM._("Jump"), allowedForGame: true, 180f)
+			new Boost(BoostType.JumpPowerFloatMultiplier, "JumpPower", TM._("+{0}% Jump"), TM._("Jump Percentage"), TM._("Jump"), allowedForGame: true)
 		},
 		{
 			BoostType.PoisonResistPercentage,
-			new Boost(BoostType.PoisonResistPercentage, "PoisonResist", TM._("+{0}% Poison Resist"), TM._("Poison Resist"), TM._("Poison Resist"), allowedForGame: true, 180f)
+			new Boost(BoostType.PoisonResistPercentage, "PoisonResist", TM._("+{0}% Poison Resist"), TM._("Poison Resist"), TM._("Poison Resist"), allowedForGame: true)
 		}
 	};
 
@@ -84,46 +84,14 @@ public class BoostController : IUpdatecontrollerSubscriberUpdate, IUpdatecontrol
 
 	private Dictionary<BoostType, Boost> activeBoosts = new Dictionary<BoostType, Boost>();
 
-	private List<BoostType> expiredBoosts = new List<BoostType>();
-
 	private List<Boost> removeList = new List<Boost>();
-
-	public void Initialize()
-	{
-		UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
-	}
-
-	public void UpdateControllerUpdate()
-	{
-		foreach (Boost value in activeBoosts.Values)
-		{
-			value.BoostSecondsLeft -= Time.deltaTime;
-			if (value.BoostSecondsLeft <= 0f)
-			{
-				value.BoostSecondsLeft = value.BoostMaxDurationSeconds;
-				removeList.Add(value);
-			}
-		}
-		for (int i = 0; i < removeList.Count; i++)
-		{
-			expiredBoosts.Add(removeList[i].Type);
-			activeBoosts.Remove(removeList[i].Type);
-			BoostUpdated(removeList[i].Type);
-		}
-		removeList.Clear();
-	}
 
 	public void ActivateBoost(BoostType type)
 	{
 		if (!IsBoostActive(type))
 		{
 			activeBoosts[type] = boosts[type];
-			activeBoosts[type].BoostSecondsLeft = boosts[type].BoostMaxDurationSeconds;
 			BoostUpdated(type);
-			if (expiredBoosts.Contains(type))
-			{
-				expiredBoosts.Remove(type);
-			}
 		}
 		else
 		{
@@ -132,28 +100,18 @@ public class BoostController : IUpdatecontrollerSubscriberUpdate, IUpdatecontrol
 		}
 	}
 
-	public void ActivateOrRenewBoost(BoostType type)
+	public void RemoveAllBoosts()
 	{
-		if (IsBoostActive(type))
+		foreach (Boost value in activeBoosts.Values)
 		{
-			RenewBoost(type);
+			removeList.Add(value);
 		}
-		else
+		for (int i = 0; i < removeList.Count; i++)
 		{
-			ActivateBoost(type);
+			activeBoosts.Remove(removeList[i].Type);
+			BoostUpdated(removeList[i].Type);
 		}
-	}
-
-	private void RenewBoost(BoostType type)
-	{
-		if (IsBoostActive(type))
-		{
-			activeBoosts[type].BoostSecondsLeft = boosts[type].BoostMaxDurationSeconds;
-		}
-		else
-		{
-			Debug.LogError("Can't renew " + type.ToString() + " boost because it is not active");
-		}
+		removeList.Clear();
 	}
 
 	private void BoostUpdated(BoostType type)
@@ -182,7 +140,7 @@ public class BoostController : IUpdatecontrollerSubscriberUpdate, IUpdatecontrol
 
 	public bool HasAvailableBoosts()
 	{
-		MVGameBoosterDataObject singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVGameBoosterDataObject>();
+		MVGameOptionDataObject singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVGameOptionDataObject>();
 		Dictionary<BoostType, Boost>.ValueCollection allBoosts = GetAllBoosts();
 		foreach (Boost item in allBoosts)
 		{
@@ -247,26 +205,5 @@ public class BoostController : IUpdatecontrollerSubscriberUpdate, IUpdatecontrol
 		}
 		boost = null;
 		return false;
-	}
-
-	public List<BoostType> GetCurrentAndExpiredBoosts()
-	{
-		List<BoostType> list = new List<BoostType>();
-		list.AddRange(expiredBoosts);
-		foreach (BoostType key in activeBoosts.Keys)
-		{
-			list.Add(key);
-		}
-		return list;
-	}
-
-	public void RemoveAllExpiredBoosts()
-	{
-		expiredBoosts.Clear();
-	}
-
-	public bool HasExpiredBoosts()
-	{
-		return expiredBoosts.Count > 0;
 	}
 }

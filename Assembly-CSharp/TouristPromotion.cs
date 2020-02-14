@@ -17,12 +17,10 @@ public class TouristPromotion : MonoBehaviour
 	[SerializeField]
 	private TouristPromotionLooksData looksData;
 
-	protected bool popupWithAd;
+	[SerializeField]
+	private GameObject adIcon;
 
-	public void Initialize(bool withAd)
-	{
-		popupWithAd = withAd;
-	}
+	protected bool promotionShowsAd;
 
 	protected virtual void Start()
 	{
@@ -33,14 +31,35 @@ public class TouristPromotion : MonoBehaviour
 		promotionImage.transform.SetParent(promotionImageParent, worldPositionStays: false);
 	}
 
-	public void Initialize(string header)
+	public void Initialize(bool withAd)
 	{
-		promotionHeader.text = header;
+		promotionShowsAd = withAd;
+		adIcon.SetActive(promotionShowsAd);
 	}
 
-	public virtual void SkipCallback()
+	public void OnRegisterClicked()
 	{
-		StartCoroutine(FadeOutAndPopPromotion());
+		BrowserCommGotoRequests.GotoSignup();
+	}
+
+	public void OnLoginClicked()
+	{
+		BrowserCommGotoRequests.GotoLogin();
+	}
+
+	public virtual void OnContinueClicked()
+	{
+		if (promotionShowsAd)
+		{
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (ITouristAdController x, BaseEventData y) =>
+			{
+				x.ShowAd();
+			});
+		}
+		else
+		{
+			StartCoroutine(FadeOutAndPopPromotion());
+		}
 	}
 
 	private IEnumerator FadeOutAndPopPromotion()

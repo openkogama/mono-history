@@ -29,6 +29,7 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 		{
 			avatarModes.Add(AvatarRuntimeState.Playing, new WalkMode(avatar));
 			avatarModes.Add(AvatarRuntimeState.Dead, new DeadMode(avatar));
+			avatarModes.Add(AvatarRuntimeState.Revive, new ReviveMode(avatar));
 			avatarModes.Add(AvatarRuntimeState.Hidden, new LobbyMode(avatar));
 			avatarModes.Add(AvatarRuntimeState.TimeAttackFlagDebriefing, new TimeAttackFlagDebriefingMode(avatar));
 			avatarModes.Add(AvatarRuntimeState.Wait, new WaitMode(avatar));
@@ -139,8 +140,6 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 
 		private AvatarInputControllerDead inputController = new AvatarInputControllerDead();
 
-		private bool haveRespawned;
-
 		public DeadMode(MVAvatarLocal mvAvatar)
 			: base(mvAvatar, 2)
 		{
@@ -162,7 +161,6 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 				mvAvatar.LeaveVehicle(leaveBecauseOfServer: false);
 			}
 			mvAvatar.triggerHandler.enabled = false;
-			haveRespawned = false;
 			MVGameControllerDesktop.LockCursorManager.CursorLock = false;
 			MVGameControllerBase.PlayModeUI.InLobbyState = false;
 			if (!mvAvatar.InGunMode && MVGameControllerBase.MainCameraManager.CurrentCamera.CameraType == CameraType.FirstPersonCamera)
@@ -191,10 +189,6 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 
 		public override void DeActivate(AvatarRuntimeState toMode)
 		{
-			if (!haveRespawned && MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState != MVGameStateType.RoundEnded && (MVGameControllerBase.GameMode != MVGameMode.Edit || (MVGameControllerBase.GameMode == MVGameMode.Edit && MVGameControllerBase.EditModeUI.IsInPlayInEditMode)) && toMode != AvatarRuntimeState.Hidden)
-			{
-				MVGameControllerDesktop.LockCursorManager.CursorLock = true;
-			}
 			if (toMode == AvatarRuntimeState.Playing)
 			{
 				mvAvatar.OnRespawn();
@@ -222,7 +216,6 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 
 		private void RevivePlayer()
 		{
-			haveRespawned = true;
 			mvAvatar.avatarRespawnHandler.Respawn();
 		}
 
@@ -264,8 +257,9 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 			mvAvatar.Shield.Value = 0f;
 			mvAvatar.ResetAvatar();
 			mvAvatar.SetToSpawnTransform();
-			ResetCamera();
 			haveSetTransparency = false;
+			mvAvatar.AvatarLocal.CameraController.SetCamera(CameraType.GhostCamera);
+			MVGameControllerBase.MainCameraManager.CurrentCamera.Reset();
 			MVGameControllerBase.Game.GameEventManager.AvatarCommandsBuildMode.OnSetToEditMode += OnEnterEditMode;
 		}
 
@@ -273,6 +267,7 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 		{
 			mvAvatar.SetTransparency = 1f;
 			MVGameControllerBase.Game.GameEventManager.AvatarCommandsBuildMode.OnSetToEditMode -= OnEnterEditMode;
+			ResetCamera();
 		}
 
 		public override void FrameUpdate(InputToInGameAction interactionMap)
@@ -359,6 +354,113 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 
 		public override void FrameUpdate(InputToInGameAction interactionMap)
 		{
+		}
+	}
+
+	protected class ReviveMode(MVAvatarLocal mvAvatar) : AvatarMode(mvAvatar, 2)
+	{
+		private class AvatarInputControllerDead : IMotorAPI
+		{
+			private Quaternion rot = Quaternion.identity;
+
+			public Vector3 Direction
+			{
+				get
+				{
+					return Vector3.zero;
+				}
+				set
+				{
+				}
+			}
+
+			public Quaternion Rotation
+			{
+				get
+				{
+					return rot;
+				}
+				set
+				{
+					rot = value;
+				}
+			}
+
+			public bool Jump => false;
+		}
+
+		protected float deadTime;
+
+		protected float reviveInterval = 10f;
+
+		private bool reviveElapsed;
+
+		private AvatarInputControllerDead inputController = new AvatarInputControllerDead();
+
+		public override void Activate(AvatarRuntimeState fromMode)
+		{
+			base.Activate(fromMode);
+			reviveElapsed = false;
+			deadTime = Time.time;
+			reviveInterval = MVGameControllerBase.LocalPlayer.ReviveTimeout;
+			mvAvatar.SetAnimation("Dead");
+			mvAvatar.avatarEquipable.Unequip();
+			if (mvAvatar.IsSeated)
+			{
+				mvAvatar.LeaveVehicle(leaveBecauseOfServer: false);
+			}
+			mvAvatar.triggerHandler.enabled = false;
+			MVGameControllerBase.LocalPlayer.RespawnTime = Time.time + reviveInterval;
+			MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnMoveBodyToSafeSpot += MovedToSafeSpot;
+			MVGameControllerDesktop.LockCursorManager.CursorLock = false;
+			MVGameControllerBase.PlayModeUI.InLobbyState = false;
+			mvAvatar.AvatarLocal.CameraController.SetCamera(CameraType.DeadCamera);
+			MVGameControllerBase.Game.GameEventManager.AvatarCommandsBuildMode.OnSetToEditMode += OnEnterEditMode;
+		}
+
+		public override void DeActivate(AvatarRuntimeState toMode)
+		{
+			MVGameControllerBase.Game.GameEventManager.AvatarCommandsBuildMode.OnSetToEditMode -= OnEnterEditMode;
+			mvAvatar.SetTransparency = 1f;
+		}
+
+		public override void FixedUpdate(IInputToPlayerMovement movementMap)
+		{
+			inputController.Rotation = mvAvatar.avatarMotor.transform.rotation;
+			if (mvAvatar.avatarMotor.enabled)
+			{
+				mvAvatar.avatarMotor.FixedUpdateFunction(inputController);
+			}
+		}
+
+		public override void FrameUpdate(InputToInGameAction interactionMap)
+		{
+			if (mvAvatar.avatarMotor.enabled)
+			{
+				mvAvatar.avatarMotor.UpdateFunction();
+			}
+			if (!reviveElapsed && Time.time - deadTime > reviveInterval)
+			{
+				NoButtonPressed();
+			}
+		}
+
+		private void NoButtonPressed()
+		{
+			reviveElapsed = true;
+			MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.ReviveTimeElapsed();
+		}
+
+		private void MovedToSafeSpot(int index)
+		{
+			mvAvatar.AvatarLocal.CameraController.SetCamera(CameraType.GhostCamera);
+			mvAvatar.SetAnimation("Idle");
+			mvAvatar.SetTransparency = 0.5f;
+		}
+
+		private void OnEnterEditMode()
+		{
+			MVGameControllerBase.PlayModeUI.InLobbyState = true;
 		}
 	}
 
@@ -703,11 +805,16 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 			{
 				mvAvatar.Body.Visible = true;
 			}
+			if (MVClientSettings.ReviveEnabled)
+			{
+				MVGameControllerBase.SpawnRoleDataMediatorLocal.ReviveState.Value.ResetSafePostions();
+			}
 			if (MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded)
 			{
 				mvAvatar.SetMode(AvatarRuntimeState.Wait);
+				return;
 			}
-			else if (fromMode != AvatarRuntimeState.Wait)
+			if (fromMode != AvatarRuntimeState.Wait)
 			{
 				MVGameControllerBase.MainCameraManager.CamMaskMode = MaskMode.Default;
 				mvAvatar.Visible = true;
@@ -715,6 +822,7 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 				MVGameControllerBase.MainCameraManager.CurrentCamera.Reset();
 				MVGameControllerBase.MainCameraManager.CurrentCamera.transform.rotation = mvAvatar.transform.rotation;
 			}
+			MVGameControllerDesktop.LockCursorManager.CursorLock = true;
 		}
 
 		public override void DeActivate(AvatarRuntimeState toMode)
@@ -1034,6 +1142,8 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 		interactableLocal = avatarInteractable;
 		AvatarInteractable avatarInteractable2 = interactableLocal;
 		avatarInteractable2.OnDamageTaken = (Action<float, MVPlayer, PlayerKilledByType>)Delegate.Combine(avatarInteractable2.OnDamageTaken, new Action<float, MVPlayer, PlayerKilledByType>(RelayDamageEvent));
+		AvatarInteractable avatarInteractable3 = interactableLocal;
+		avatarInteractable3.OnNewSafePosition = (Action<Vector3>)Delegate.Combine(avatarInteractable3.OnNewSafePosition, new Action<Vector3>(RelayNewSafePosition));
 		avatarEquipable = gameObject.AddComponent<AvatarEquipable>();
 		avatarEquipable.Init(interactableLocal, CurrentItem, skillDataManager);
 		avatarMotor.Init(avatarInteractable, CharacterControllerCenterOffset, this, skillDataManager);
@@ -1078,16 +1188,7 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 	{
 		suspended = false;
 		SetNetworkObject(local: true);
-		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnKillSelf += KillSelf;
-		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSetRespawnWhenPossible += OnSetRespawnWhenPossible;
-		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSpawn += AvatarCommandsPlayModeOnOnSpawn;
-		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSetToSpawnPoint += AvatarCommandsOnSetToSpawnPoint;
-		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnReadyScreenShot += AvatarCommandsPlayModeOnOnReadyScreenShot;
-		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnWinningConditionIntermediateDebriefing += AvatarCommandsPlayModeOnOnWinningConditionIntermediateDebriefing;
-		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnRemoveFromGame += AvatarCommandsPlayModeOnOnRemoveFromGame;
-		MVGameControllerBase.GameEventManager.GameState.GameStateType.OnChange += GameStateTypeOnOnChange;
-		MVGameControllerBase.GameEventManager.OnFirstTimeEvent += GameEventManagerOnOnFirstTimeEvent;
-		MVGameControllerBase.GameEventManager.OnXPRewarded += GameEventManagerOnOnXpRewarded;
+		SubscribeToExternalEvents();
 		this.spawnRoleDataReceiver = spawnRoleDataReceiver;
 		if (MVGameControllerBase.LocalPlayer.IsReady && MVGameControllerDesktop.LockCursorManager.CursorLock)
 		{
@@ -1101,17 +1202,7 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 			Rotation = rotation;
 			SetTransform(Position, Rotation);
 		}
-		float num = ((!skillDataManager.HasSkill("Size")) ? 1f : skillDataManager.GetSkillFloatValue("Size"));
-		spawnRoleDataReceiver.size.Value = num;
-		Scale = new Vector3(num, num, num);
-		Size.Value = num;
-		spawnRoleDataReceiver.position.Value = Position;
-		spawnRoleDataReceiver.rotation.Value = Rotation;
-		spawnRoleDataReceiver.scale.Value = Scale;
-		spawnRoleDataReceiver.woId.Value = Id;
-		spawnRoleDataReceiver.maxHealth.Value = MaxHealth.Value;
-		spawnRoleDataReceiver.tierRequirement.Value = GetTierRequirement();
-		OnHealthBoostedChanged();
+		SetupSpawnroleReceiver(spawnRoleDataReceiver);
 		((AvatarLocal)avatar).CameraController.ActivateCameraController();
 		if (Id == idFrom || MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded)
 		{
@@ -1133,22 +1224,53 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 		OnHealthBoostedChanged();
 	}
 
-	public void DeActivate(int idTo, SpawnRoleDataReceiver spawnRoleDataReceiver)
+	private void SubscribeToExternalEvents()
 	{
-		avatarLocalModes.SetToStartMode();
-		avatarEquipable.Unequip();
-		interactableLocal.ClearModifiers();
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnKillSelf += KillSelf;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSetRespawnWhenPossible += OnSetRespawnWhenPossible;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnEnterPlaymode += AvatarCommandsPlayModeOnOnSpawn;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSetToSpawnPoint += AvatarCommandsOnSetToSpawnPoint;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnMoveBodyToSafeSpot += AvatarCommandsOnMoveBodyToSafeSpot;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSpawnAtSafeSpot += AvatarCommandsOnSpawnAtSafeSpot;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnReadyScreenShot += AvatarCommandsPlayModeOnOnReadyScreenShot;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnWinningConditionIntermediateDebriefing += AvatarCommandsPlayModeOnOnWinningConditionIntermediateDebriefing;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnRemoveFromGame += AvatarCommandsPlayModeOnOnRemoveFromGame;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSpawnAsGhost += OnSetSpawnAsGhost;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSetToDeadMode += OnSetToDeadMode;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnRespawn += AvatarCommandsOnRespawn;
+		MVGameControllerBase.GameEventManager.GameState.GameStateType.OnChange += GameStateTypeOnOnChange;
+		MVGameControllerBase.GameEventManager.OnFirstTimeEvent += GameEventManagerOnOnFirstTimeEvent;
+		MVGameControllerBase.GameEventManager.OnXPRewarded += GameEventManagerOnOnXpRewarded;
+	}
+
+	private void UnsubscribeFromExternalEvents()
+	{
 		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnKillSelf -= KillSelf;
 		MVGameControllerBase.GameEventManager.OnFirstTimeEvent -= GameEventManagerOnOnFirstTimeEvent;
 		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSetRespawnWhenPossible -= OnSetRespawnWhenPossible;
 		MVGameControllerBase.GameEventManager.OnXPRewarded -= GameEventManagerOnOnXpRewarded;
 		MVGameControllerBase.GameEventManager.GameState.GameStateType.OnChange -= GameStateTypeOnOnChange;
 		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnReadyScreenShot -= AvatarCommandsPlayModeOnOnReadyScreenShot;
-		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSpawn -= AvatarCommandsPlayModeOnOnSpawn;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnMoveBodyToSafeSpot -= AvatarCommandsOnMoveBodyToSafeSpot;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSpawnAtSafeSpot -= AvatarCommandsOnSpawnAtSafeSpot;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnRespawn -= AvatarCommandsOnRespawn;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnEnterPlaymode -= AvatarCommandsPlayModeOnOnSpawn;
 		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSetToSpawnPoint -= AvatarCommandsOnSetToSpawnPoint;
 		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnWinningConditionIntermediateDebriefing -= AvatarCommandsPlayModeOnOnWinningConditionIntermediateDebriefing;
 		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnRemoveFromGame -= AvatarCommandsPlayModeOnOnRemoveFromGame;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSpawnAsGhost -= OnSetSpawnAsGhost;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSetToDeadMode -= OnSetToDeadMode;
+		MVLocalPlayer localPlayer = MVGameControllerBase.LocalPlayer;
+		localPlayer.OnCheckpointReached = (UnityAction)Delegate.Remove(localPlayer.OnCheckpointReached, new UnityAction(SetReviveSafeSpotToCheckpoint));
 		MVGameControllerBase.Game.LocalPlayer.BoostController.UnSubscribeToBoostChanged(BoostType.ExtraHealthFloatMultiplier, OnHealthBoostedChanged);
+	}
+
+	public void DeActivate(int idTo, SpawnRoleDataReceiver spawnRoleDataReceiver)
+	{
+		avatarLocalModes.SetToStartMode();
+		avatarEquipable.Unequip();
+		interactableLocal.ClearModifiers();
+		UnsubscribeFromExternalEvents();
 		gameObject.SetActive(value: false);
 		this.spawnRoleDataReceiver = null;
 		MVGameControllerBase.Game.PlayerController.RemoveAvatarLocalObject();
@@ -1158,6 +1280,25 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 			Debug.LogWarning("Removing network object again as this is added multiple times when leaving play mode from a vehicle");
 			MVGameControllerBase.Game.TransformNetworkManager.RemoveNetworkObject(id);
 		}
+	}
+
+	private void SetupSpawnroleReceiver(SpawnRoleDataReceiver spawnRoleDataReceiver)
+	{
+		float num = ((!skillDataManager.HasSkill("Size")) ? 1f : skillDataManager.GetSkillFloatValue("Size"));
+		spawnRoleDataReceiver.size.Value = num;
+		Scale = new Vector3(num, num, num);
+		Size.Value = num;
+		spawnRoleDataReceiver.reviveState.Value = new ReviveState();
+		spawnRoleDataReceiver.lastRespawnType.Value = LastRespawnType.None;
+		spawnRoleDataReceiver.position.Value = Position;
+		spawnRoleDataReceiver.rotation.Value = Rotation;
+		spawnRoleDataReceiver.defaultScale.Value = Scale;
+		spawnRoleDataReceiver.scale.Value = Scale;
+		spawnRoleDataReceiver.woId.Value = Id;
+		spawnRoleDataReceiver.maxHealth.Value = MaxHealth.Value;
+		spawnRoleDataReceiver.tierRequirement.Value = GetTierRequirement();
+		MVLocalPlayer localPlayer = MVGameControllerBase.LocalPlayer;
+		localPlayer.OnCheckpointReached = (UnityAction)Delegate.Combine(localPlayer.OnCheckpointReached, new UnityAction(SetReviveSafeSpotToCheckpoint));
 	}
 
 	public void Suspend()
@@ -1305,6 +1446,7 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 	protected override void AvatarStateChangedHandler(object a)
 	{
 		base.AvatarStateChangedHandler(a);
+		Debug.Log("avatar: " + GameObject.name + " - a: " + (SpawnRoleModeType)a/*cast due to constrained. prefix*/);
 		spawnRoleDataReceiver.spawnRoleMode.Value = (SpawnRoleModeType)a;
 	}
 
@@ -1350,6 +1492,11 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 		SetMode(AvatarRuntimeState.Playing);
 	}
 
+	private void AvatarCommandsOnRespawn()
+	{
+		avatarRespawnHandler.Respawn();
+	}
+
 	private void AvatarCommandsOnSetToSpawnMode()
 	{
 		SetToSpawnTransform();
@@ -1376,6 +1523,17 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 	private void OnSetRespawnWhenPossible()
 	{
 		avatarRespawnHandler.ShouldRespawnAsGhost = false;
+	}
+
+	private void OnSetSpawnAsGhost()
+	{
+		avatarRespawnHandler.ShouldRespawnAsGhost = true;
+		avatarRespawnHandler.Respawn();
+	}
+
+	private void OnSetToDeadMode()
+	{
+		SetMode(AvatarRuntimeState.Dead);
 	}
 
 	private void GameEventManagerOnOnFirstTimeEvent(FirstTimeEvent firstTimeEvent)
@@ -1478,7 +1636,19 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 		{
 			Debug.Log("Goto dead state");
 			Shield.Value = 0f;
-			avatarLocalModes.SetMode(AvatarRuntimeState.Dead);
+			bool flag = MVClientSettings.ReviveEnabled && spawnRoleDataReceiver.reviveState.Value.CanSafelySpawn && avatarMotor.GetSizeState.GetIsValidScaledPosition(spawnRoleDataReceiver.reviveState.Value.SafeGroundedData.Position, 1f);
+			if (!flag && !IsInTempTier() && MVGameControllerBase.LocalPlayer.BoostController.GetActiveBoosts().Count == 0)
+			{
+				spawnRoleDataReceiver.reviveState.Value.ResetSafePostions();
+			}
+			if (flag)
+			{
+				avatarLocalModes.SetMode(AvatarRuntimeState.Revive);
+			}
+			else
+			{
+				avatarLocalModes.SetMode(AvatarRuntimeState.Dead);
+			}
 		}
 	}
 
@@ -1541,10 +1711,6 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 		}));
 	}
 
-	private void InitializeAvatarState(MVGameMode gameMode)
-	{
-	}
-
 	private void Suicide()
 	{
 		if (IsInMode(SpawnRoleModeType.Dead))
@@ -1592,6 +1758,36 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 		}
 	}
 
+	private void RelayNewSafePosition(Vector3 lastSafePosition)
+	{
+		Transform transform = MVGameControllerBase.MainCameraManager.CurrentCamera.transform;
+		SafeSpotData safeGroundedData = new SafeSpotData(lastSafePosition, spawnRoleDataReceiver.rotation.Value, transform.position, transform.rotation);
+		spawnRoleDataReceiver.reviveState.Value.SafeGroundedData = safeGroundedData;
+	}
+
+	private void AvatarCommandsOnMoveBodyToSafeSpot(int safeSpotIndex)
+	{
+		Debug.Log("Move to safe spot");
+		spawnRoleDataReceiver.lastRespawnType.Value = LastRespawnType.Revive;
+		spawnRoleDataReceiver.reviveState.Value.SetSafeGroundedDataIndex(safeSpotIndex);
+		SafeSpotData safeGroundedDataAtSelectedIndex = spawnRoleDataReceiver.reviveState.Value.GetSafeGroundedDataAtSelectedIndex();
+		Vector3 eulerAngles = safeGroundedDataAtSelectedIndex.Rotation.eulerAngles;
+		SetTransform(rotation: Quaternion.Euler(new Vector3(y: safeGroundedDataAtSelectedIndex.CameraRotation.eulerAngles.y, x: eulerAngles.x, z: eulerAngles.z)), position: safeGroundedDataAtSelectedIndex.Position);
+		MVGameControllerBase.MainCameraManager.CurrentCamera.transform.rotation = safeGroundedDataAtSelectedIndex.CameraRotation;
+	}
+
+	private void AvatarCommandsOnSpawnAtSafeSpot(int safeSpotIndex)
+	{
+		Debug.Log("SetMode to playing from SafeSpot");
+		AvatarCommandsOnMoveBodyToSafeSpot(safeSpotIndex);
+		if (MVGameControllerBase.LocalPlayer.BoostController.GetActiveBoosts().Count == 0 && !IsInTempTier())
+		{
+			spawnRoleDataReceiver.reviveState.Value.ResetSafePostions();
+		}
+		avatarRespawnHandler.ShouldRespawnAsGhost = false;
+		avatarRespawnHandler.Respawn();
+	}
+
 	private void OnEquipItem(PickupItem equippeditem)
 	{
 		spawnRoleDataReceiver.isInGunMode.Value = pickupOwner.InGunMode;
@@ -1603,8 +1799,10 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 		MVCheckpoint checkpoint = MVGameControllerBase.Game.LocalPlayer.GetCheckpoint();
 		if (checkpoint != null)
 		{
+			spawnRoleDataReceiver.lastRespawnType.Value = LastRespawnType.Checkpoint;
 			return checkpoint.Transform;
 		}
+		spawnRoleDataReceiver.lastRespawnType.Value = LastRespawnType.Spawnpoint;
 		if (SpawnId != -1)
 		{
 			if (MVGameControllerBase.WOCM.TryGetWorldObject(SpawnId, out var worldObject))
@@ -1620,6 +1818,37 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 			return null;
 		}
 		return validSpawnPoint.Transform;
+	}
+
+	private void SetReviveSafeSpotToCheckpoint()
+	{
+		if (MVClientSettings.ReviveEnabled)
+		{
+			Vector3 pos = default;
+			MVCheckpoint checkpoint = MVGameControllerBase.Game.LocalPlayer.GetCheckpoint();
+			if (checkpoint != null)
+			{
+				pos = checkpoint.Transform.position;
+			}
+			spawnRoleDataReceiver.reviveState.Value.ResetSafePostions();
+			if (MVGameControllerBase.LocalPlayer.BoostController.GetActiveBoosts().Count > 0 || IsInTempTier())
+			{
+				Transform transform = MVGameControllerBase.MainCameraManager.CurrentCamera.transform;
+				SafeSpotData safeGroundedData = new SafeSpotData(pos, spawnRoleDataReceiver.rotation.Value, transform.position, transform.rotation);
+				spawnRoleDataReceiver.reviveState.Value.SafeGroundedData = safeGroundedData;
+			}
+		}
+	}
+
+	private bool IsInTempTier()
+	{
+		if (!GamePassesManager.GamePassesActive)
+		{
+			return false;
+		}
+		GamePassTier previewGamePassTier = GamePassesManager.PlayerPlanetData.previewGamePassTier;
+		GamePassTier gamePassTier = GamePassesManager.PlayerPlanetData.gamePassTier;
+		return (int)previewGamePassTier > (int)gamePassTier;
 	}
 
 	private GamePassTier GetTierRequirement()

@@ -24,6 +24,18 @@ public static class CullingApiWrapper
 
 	public static int NumBoundSpheres { get; private set; }
 
+	public static Camera TargetCamera
+	{
+		get
+		{
+			return cullingGroup.targetCamera;
+		}
+		set
+		{
+			cullingGroup.targetCamera = value;
+		}
+	}
+
 	public static void Init(int initialSphereCount, Camera camera, float newBaseDistance, Transform distanceReferencePoint)
 	{
 		spheres = new BoundingSphere[initialSphereCount + 1000];

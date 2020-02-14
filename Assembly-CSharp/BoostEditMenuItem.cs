@@ -55,7 +55,7 @@ public class BoostEditMenuItem : MonoBehaviour
 		this.boost = boost;
 		boostDescription.text = boost.Description;
 		activeToggleButton.Initialize();
-		MVGameBoosterDataObject singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVGameBoosterDataObject>();
+		MVGameOptionDataObject singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVGameOptionDataObject>();
 		List<GameBoosterSettingWithGoldSetting> activeSettingsList = singletonWorldObject.GameBoosterSettingsManager.ActiveSettingsList;
 		List<GameBoosterSettingWithGoldSetting> inactiveGameBoosterSettingsList = singletonWorldObject.GameBoosterSettingsManager.InactiveGameBoosterSettingsList;
 		for (int i = 0; i < activeSettingsList.Count; i++)
@@ -129,16 +129,16 @@ public class BoostEditMenuItem : MonoBehaviour
 
 	public void OnActiveToggle()
 	{
-		MVGameBoosterDataObject singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVGameBoosterDataObject>();
+		MVGameOptionDataObject singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVGameOptionDataObject>();
 		if (isActive)
 		{
-			singletonWorldObject.GameBoosterSettingsManager.RemoveSetting(boosterSetting);
-			singletonWorldObject.GameBoosterSettingsManager.Submit();
+			singletonWorldObject.RemoveSetting(boosterSetting);
+			singletonWorldObject.Submit();
 		}
 		else
 		{
-			singletonWorldObject.GameBoosterSettingsManager.UpdateSetting(boosterSetting);
-			singletonWorldObject.GameBoosterSettingsManager.Submit();
+			singletonWorldObject.UpdateSetting(boosterSetting);
+			singletonWorldObject.Submit();
 		}
 		isActive = !isActive;
 	}
@@ -159,31 +159,31 @@ public class BoostEditMenuItem : MonoBehaviour
 
 	private void OnBoostSettingChange(object newValue)
 	{
-		MVGameBoosterDataObject singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVGameBoosterDataObject>();
+		MVGameOptionDataObject singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVGameOptionDataObject>();
 		if (boosterSetting.Setting is KogamaSettingNumericBase<int>)
 		{
 			((KogamaSettingNumericBase<int>)boosterSetting.Setting).NumericValue = (int)newValue;
-			singletonWorldObject.GameBoosterSettingsManager.UpdateSetting(boosterSetting);
+			singletonWorldObject.UpdateSetting(boosterSetting);
 		}
 		else if (boosterSetting.Setting is KogamaSettingNumericBase<float>)
 		{
 			((KogamaSettingNumericBase<float>)boosterSetting.Setting).NumericValue = (float)newValue;
-			singletonWorldObject.GameBoosterSettingsManager.UpdateSetting(boosterSetting);
+			singletonWorldObject.UpdateSetting(boosterSetting);
 		}
 		boostDescription.text = boost.Description;
 	}
 
 	private void OnPriceSettingChanged(int newPrice)
 	{
-		MVGameBoosterDataObject singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVGameBoosterDataObject>();
+		MVGameOptionDataObject singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVGameOptionDataObject>();
 		boosterSetting.GoldPrice.NumericValue = newPrice;
-		singletonWorldObject.GameBoosterSettingsManager.UpdateSetting(boosterSetting);
+		singletonWorldObject.UpdateSetting(boosterSetting);
 		goldPriceText.text = newPrice.ToString("N0").Replace(",", ".");
 	}
 
 	private void OnSubmitData()
 	{
-		MVGameBoosterDataObject singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVGameBoosterDataObject>();
-		singletonWorldObject.GameBoosterSettingsManager.Submit();
+		MVGameOptionDataObject singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVGameOptionDataObject>();
+		singletonWorldObject.Submit();
 	}
 }

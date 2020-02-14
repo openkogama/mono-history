@@ -42,6 +42,11 @@ public class ToggleButtonAnimation : MonoBehaviour
 
 	public bool IsToggleOn => isToggleOn;
 
+	private void Start()
+	{
+		Initialize();
+	}
+
 	public void Initialize()
 	{
 		if (!isInitialized)
@@ -113,11 +118,6 @@ public class ToggleButtonAnimation : MonoBehaviour
 		interpolateToggleMaskNewPositionX = toggleOffMaskTransform.localPosition.x;
 		interpolateToggleContentNewPositionX = toggleOffContentTransform.localPosition.x;
 		interpolateToggleButtonNewPositionX = toggleButtonTransform.localPosition.x;
-	}
-
-	private void Start()
-	{
-		Initialize();
 	}
 
 	private void HandleToggle()

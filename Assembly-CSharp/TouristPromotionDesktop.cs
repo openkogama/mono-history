@@ -55,10 +55,10 @@ public class TouristPromotionDesktop : TouristPromotion
 		}
 	}
 
-	public override void SkipCallback()
+	public override void OnContinueClicked()
 	{
 		StatHatWrapper.Count("TouristPromotion.Kogama.Continue", 1);
-		base.SkipCallback();
+		base.OnContinueClicked();
 	}
 
 	private void ShowGoToKogamaPopup()

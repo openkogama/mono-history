@@ -47,6 +47,9 @@ public class DeathUIBoostMenuController : MonoBehaviour
 	[SerializeField]
 	private ContinueTierBoostPopup continueTierBoostPopupPrefab;
 
+	[SerializeField]
+	private ContinueButtonLockCursor continueButtonLockCursor;
+
 	private float startTime;
 
 	private float timeUntilGhostMode;
@@ -55,18 +58,23 @@ public class DeathUIBoostMenuController : MonoBehaviour
 
 	private bool shouldShowPlayButtonAfterUnblocked;
 
-	public void OpenMenu()
-	{
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-		{
-			x.Pop();
-		});
-		MVGameControllerBase.PlayModeUI.InLobbyState = true;
-	}
+	private bool wantsToPlay;
+
+	private bool isGhost;
 
 	public void Initialize(float timeUntilGhostMode)
 	{
-		this.timeUntilGhostMode = timeUntilGhostMode;
+		this.timeUntilGhostMode = Mathf.Max(timeUntilGhostMode, 0f);
+		if (timeUntilGhostMode <= 0f)
+		{
+			readyToPlayTimerFill.gameObject.SetActive(value: false);
+			timerFill.gameObject.SetActive(value: false);
+			if (MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleMode.Value != SpawnRoleModeType.Hidden)
+			{
+				MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.SpawnAsGhost();
+			}
+			isGhost = true;
+		}
 		startTime = Time.time;
 		fader.Activate();
 		fader.ShouldHideWhenDone = false;
@@ -88,37 +96,43 @@ public class DeathUIBoostMenuController : MonoBehaviour
 			restartText.text = "Respawning at start...";
 		}
 		int gamePointAmountShown = GamePointGainEffectManager.GamePointAmountShown;
-		if (GamePassesManager.GamePassesActive)
+		if (!GamePassesManager.GamePassesActive)
 		{
-			GamePassesUI gamePassesUI = Object.Instantiate(gamePassesUIPrefab);
-			gamePassesUI.transform.SetParent(transform, worldPositionStays: false);
-			gamePassesUI.Initialize();
-			if (!GamePassProgressionController.IsProgressionEnabled || !GamePassesManager.GamePassesActive)
-			{
-				gamePassesUI.gameObject.SetActive(value: false);
-			}
-			else
-			{
-				int progressionGamePoints = GamePassesManager.PlayerPlanetData.progressionGamePoints;
-				if (gamePointAmountShown < progressionGamePoints)
-				{
-					gamePassesUI.ReplayGainEffect(gamePointAmountShown, progressionGamePoints);
-				}
-			}
+			return;
 		}
-		if (GamePassesManager.PlayerPlanetData != null)
+		GamePassesUI gamePassesUI = Object.Instantiate(gamePassesUIPrefab);
+		gamePassesUI.transform.SetParent(transform, worldPositionStays: false);
+		gamePassesUI.Initialize();
+		if (!GamePassProgressionController.IsProgressionEnabled || !GamePassesManager.GamePassesActive)
 		{
-			GamePassTier previewGamePassTier = GamePassesManager.PlayerPlanetData.previewGamePassTier;
-			if (previewGamePassTier != GamePassTier.Tier0)
-			{
-				ShowContinueTierPopup(previewGamePassTier);
-			}
+			gamePassesUI.gameObject.SetActive(value: false);
+			return;
 		}
-		if (MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion)
+		int progressionGamePoints = GamePassesManager.PlayerPlanetData.progressionGamePoints;
+		if (gamePointAmountShown < progressionGamePoints)
 		{
-			shouldShowPlayButtonAfterUnblocked = true;
-			respawnButton.gameObject.SetActive(value: false);
+			gamePassesUI.ReplayGainEffect(gamePointAmountShown, progressionGamePoints);
 		}
+	}
+
+	public void OpenMenu()
+	{
+		if (buttonFader.IsPaused)
+		{
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IDeathPromotionSelector x, BaseEventData y) =>
+			{
+				x.TryShowPromotion(ReadyToEnterMenu);
+			});
+		}
+	}
+
+	private void ReadyToEnterMenu(bool promotionPushedToStack)
+	{
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Pop();
+		});
+		MVGameControllerBase.PlayModeUI.InLobbyState = true;
 	}
 
 	private void OnDestroy()
@@ -131,8 +145,9 @@ public class DeathUIBoostMenuController : MonoBehaviour
 
 	private void Update()
 	{
-		timerFill.fillAmount = 1f - (Time.time - startTime) / timeUntilGhostMode;
-		readyToPlayTimerFill.fillAmount = 1f - (Time.time - startTime) / timeUntilGhostMode;
+		float num = 1f - (Time.time - startTime) / timeUntilGhostMode;
+		timerFill.fillAmount = num;
+		readyToPlayTimerFill.fillAmount = num;
 		bool isBlocked = false;
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
@@ -151,6 +166,16 @@ public class DeathUIBoostMenuController : MonoBehaviour
 			{
 				x.Pop();
 			});
+		}
+		if (!isGhost && num <= 0f)
+		{
+			MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.SpawnAsGhost();
+			isGhost = true;
+		}
+		if (wantsToPlay && num <= 0f)
+		{
+			wantsToPlay = false;
+			MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.EnterPlayingState();
 		}
 	}
 
@@ -175,21 +200,47 @@ public class DeathUIBoostMenuController : MonoBehaviour
 	{
 		if (buttonFader.IsPaused)
 		{
-			MVGameControllerDesktop.LockCursorManager.CursorLock = true;
-			if (MVGameControllerBase.LocalPlayer.SpawnRoleDataMediator.SpawnRoleMode.Value == SpawnRoleModeType.Dead)
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IDeathPromotionSelector x, BaseEventData y) =>
 			{
-				buttonFader.Unpause();
-				readyToPlayTimerObject.SetActive(value: true);
-				resetButtonFader.Activate();
-				boostFader.Activate();
-				menuButtonFader.Activate();
-				MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.SetRespawnWhenPossible();
-			}
-			else
+				x.TryShowPromotion(ReadyToSpawn);
+			});
+			bool isBlocked = false;
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 			{
-				MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.Spawn();
-			}
+				isBlocked = x.IsUIElementBlocked(gameObject);
+			});
+			shouldShowPlayButtonAfterUnblocked = isBlocked;
+			respawnButton.gameObject.SetActive(value: false);
 		}
+	}
+
+	private void ReadyToSpawn(bool promotionPushedToStack)
+	{
+		float num = 1f - (Time.time - startTime) / timeUntilGhostMode;
+		if (MVGameControllerBase.LocalPlayer.SpawnRoleDataMediator.SpawnRoleMode.Value == SpawnRoleModeType.Dead || num > 0f)
+		{
+			buttonFader.Unpause();
+			readyToPlayTimerObject.SetActive(value: true);
+			resetButtonFader.Activate();
+			boostFader.Activate();
+			menuButtonFader.Activate();
+			MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.SetRespawnWhenPossible();
+			wantsToPlay = true;
+		}
+		else
+		{
+			MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.EnterPlayingState();
+		}
+	}
+
+	private void LockCursorAndPop()
+	{
+		MVGameControllerDesktop.LockCursorManager.CursorLock = true;
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Pop();
+		});
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.EnterPlayingState();
 	}
 
 	private void OnAvatarStateChanged(SpawnRoleModeType mode)
@@ -198,15 +249,5 @@ public class DeathUIBoostMenuController : MonoBehaviour
 		{
 			shouldPop = true;
 		}
-	}
-
-	private void ShowContinueTierPopup(GamePassTier previewTier)
-	{
-		ContinueTierBoostPopup continueTierBoostPopup = Object.Instantiate(continueTierBoostPopupPrefab);
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-		{
-			x.Push(continueTierBoostPopup.gameObject, UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
-		});
-		continueTierBoostPopup.Initialize((int)previewTier);
 	}
 }

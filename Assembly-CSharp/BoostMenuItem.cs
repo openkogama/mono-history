@@ -83,9 +83,8 @@ public class BoostMenuItem : MonoBehaviour
 	{
 		this.boost = boost;
 		boostDescription.text = boost.Description;
-		BoostRadialUpdate boostRadialUpdate = UnityEngine.Object.Instantiate(boostImageController.GetBoostVisualization(boost.Type));
-		boostRadialUpdate.Initialize(boost);
-		boostRadialUpdate.transform.SetParent(boostActiveIcon.transform, worldPositionStays: false);
+		Image image = UnityEngine.Object.Instantiate(boostImageController.GetBoostVisualization(boost.Type));
+		image.transform.SetParent(boostActiveIcon.transform, worldPositionStays: false);
 		SetBoostUIUnlocked(boostUnlocked);
 		MVGameControllerBase.LocalPlayer.BoostController.SubscribeToBoostChanged(boost.Type, BoostChanged);
 		for (int i = 0; i < boosterList.Count; i++)
@@ -106,10 +105,6 @@ public class BoostMenuItem : MonoBehaviour
 
 	private void Update()
 	{
-		if (boostActiveUI.activeInHierarchy)
-		{
-			timeLeftText.text = $"{(int)(boost.BoostSecondsLeft / 60f):D2}:{(int)boost.BoostSecondsLeft % 60:D2}";
-		}
 		float num = activeIconScaleEffect.Evaluate((Time.time - activeIconScaleEffectStartTime) / activeIconScaleEffectDuration);
 		boostActiveIcon.localScale = new Vector3(num, num);
 	}
@@ -175,7 +170,7 @@ public class BoostMenuItem : MonoBehaviour
 
 	private int GetBoostPrice()
 	{
-		MVGameBoosterDataObject singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVGameBoosterDataObject>();
+		MVGameOptionDataObject singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVGameOptionDataObject>();
 		List<GameBoosterSettingWithGoldSetting> activeSettingsList = singletonWorldObject.GameBoosterSettingsManager.ActiveSettingsList;
 		for (int i = 0; i < activeSettingsList.Count; i++)
 		{

@@ -42,13 +42,7 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 	private Canvas canvas;
 
 	[SerializeField]
-	private TouristAdController touristAdController;
-
-	[SerializeField]
-	private TouristModeController touristModeController;
-
-	[SerializeField]
-	private RegisteredPromotionController registeredPromotionController;
+	private DeathPromotionController deathPromotionController;
 
 	[SerializeField]
 	private GameObject fullscreenPlayModeStateTransform;
@@ -182,6 +176,7 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Combine(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnRoundEnd));
 		goldPurchasedTracker.Initialize();
+		deathPromotionController.Initialize();
 		MVInputWrapper.SetInputMap(new DesktopPlayMode());
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack handler, BaseEventData data) =>
 		{
@@ -227,10 +222,6 @@ public class DesktopPlayModeController : ModeControllerBase, IPlayModeUI, IActiv
 		playerListButton.transform.SetParent(playModeState.transform, worldPositionStays: false);
 		notificationsManager = UnityEngine.Object.Instantiate(notificationsManager);
 		notificationsManager.transform.SetParent(stackBottom.transform, worldPositionStays: false);
-		if (MVGameControllerBase.IsTouristSession && !MVGameControllerBase.GameSessionData.IsPlayedFromPoki)
-		{
-			touristAdController.Initialize(touristModeController);
-		}
 	}
 
 	private void OnShowTimeAttackFlagDebriefing(int captureTime)

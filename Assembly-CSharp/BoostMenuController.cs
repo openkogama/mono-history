@@ -18,15 +18,6 @@ public class BoostMenuController : MonoBehaviour, IBoostAdController, IEventSyst
 	[SerializeField]
 	private RectTransform boostItemsContent;
 
-	[SerializeField]
-	private RectTransform reboostContent;
-
-	[SerializeField]
-	private ReboostController reboostControllerPrefab;
-
-	[SerializeField]
-	private float reboostBackgroundAlpha = 0.8f;
-
 	private BoostType adRewardType;
 
 	private Action<bool> boostUnlockedCallback;
@@ -35,7 +26,7 @@ public class BoostMenuController : MonoBehaviour, IBoostAdController, IEventSyst
 	{
 		BoostController boostController = MVGameControllerBase.Game.LocalPlayer.BoostController;
 		Dictionary<BoostType, Boost>.ValueCollection allBoosts = boostController.GetAllBoosts();
-		MVGameBoosterDataObject singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVGameBoosterDataObject>();
+		MVGameOptionDataObject singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVGameOptionDataObject>();
 		List<GameBoosterSettingWithGoldSetting> activeSettingsList = singletonWorldObject.GameBoosterSettingsManager.ActiveSettingsList;
 		List<Boost> sortedBoosts = GetSortedBoosts(allBoosts, boostController);
 		for (int i = 0; i < sortedBoosts.Count; i++)
@@ -52,9 +43,6 @@ public class BoostMenuController : MonoBehaviour, IBoostAdController, IEventSyst
 		}
 		LayoutRebuilder.ForceRebuildLayoutImmediate(boostItemsContent);
 		StartCoroutine(FixContentPivot());
-		ReboostController reboostController = UnityEngine.Object.Instantiate(reboostControllerPrefab);
-		reboostController.transform.SetParent(reboostContent, worldPositionStays: false);
-		reboostController.ChangeBackgroundAlpha(reboostBackgroundAlpha);
 	}
 
 	public void TryShowAd(BoostType type, Action<bool> OnUnlockedCallback)
@@ -64,20 +52,6 @@ public class BoostMenuController : MonoBehaviour, IBoostAdController, IEventSyst
 		if (MVGameControllerBase.AdManager.ReadyForRewardedAdRequest)
 		{
 			MVGameControllerBase.AdManager.RequestRewardedAd(RewardedAdCallback, AdContext.Booster);
-		}
-		else
-		{
-			OnAdFinished(adWasSuccessful: false);
-		}
-	}
-
-	public void TryShowAdForReboost(BoostType type, Action<bool> OnUnlockedCallback)
-	{
-		boostUnlockedCallback = OnUnlockedCallback;
-		adRewardType = type;
-		if (MVGameControllerBase.AdManager.ReadyForRewardedAdRequest)
-		{
-			MVGameControllerBase.AdManager.RequestRewardedAd(RewardedAdCallback, AdContext.Reboost);
 		}
 		else
 		{

@@ -13,6 +13,7 @@ public class LockCursorManager3DMode : MonoBehaviour, ILockCursorManager
 		}
 		set
 		{
+			Debug.Log("Cursor locked: " + value);
 			if (value)
 			{
 				LockCursor();

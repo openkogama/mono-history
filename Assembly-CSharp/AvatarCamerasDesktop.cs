@@ -22,6 +22,12 @@ public class AvatarCamerasDesktop : MonoBehaviour, IAvatarCameraController
 	[SerializeField]
 	private TimeAttackFlagCountdownCamera timeAttackFlagCountdownCamera;
 
+	[SerializeField]
+	private GhostCamera ghostCamera;
+
+	[SerializeField]
+	private DeadCamera deadCamera;
+
 	public void Initialize(MVAvatarLocal avatarLocal)
 	{
 		firstPersonDesktopCamera.Initialize(avatarLocal);
@@ -29,11 +35,15 @@ public class AvatarCamerasDesktop : MonoBehaviour, IAvatarCameraController
 		lobbyStateCamera.Initialize(avatarLocal);
 		timeAttackFlagDebriefingCamera.Initialize(avatarLocal);
 		timeAttackFlagCountdownCamera.Initialize(avatarLocal);
+		ghostCamera.Initialize(avatarLocal);
+		deadCamera.Initialize(avatarLocal);
 		avatarCamerasWrapper.Add(firstPersonDesktopCamera);
 		avatarCamerasWrapper.Add(thirdPersonDesktopCamera);
 		avatarCamerasWrapper.Add(lobbyStateCamera);
 		avatarCamerasWrapper.Add(timeAttackFlagDebriefingCamera);
 		avatarCamerasWrapper.Add(timeAttackFlagCountdownCamera);
+		avatarCamerasWrapper.Add(ghostCamera);
+		avatarCamerasWrapper.Add(deadCamera);
 		cameraController.Initialize(GetCameraBases());
 		if (!MVGameControllerBase.MainCameraManager.IsCameraControllerSet())
 		{

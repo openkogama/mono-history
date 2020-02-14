@@ -46,6 +46,8 @@ public static class MVClientSettings
 
 	public static bool FirstPreviewTierFreeEnabled => IsFlagSet(ClientSettingFlags.FirstPreviewTierFreeEnabled);
 
+	public static bool ReviveEnabled => IsFlagSet(ClientSettingFlags.ReviveEnabled) && RewardedAdsEnabled && GameSetupOptions.IsReviveEnabled;
+
 	public static bool PlayButtonAdsEnabled => false;
 
 	public static bool BoostersEnabled => false;

@@ -60,7 +60,7 @@ public class LobbyStatePlayModeController : MonoBehaviour
 			SetObjectToLobbyState(isInLobbyState: false);
 			if (MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Hidden))
 			{
-				MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.Spawn();
+				MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.EnterPlayingState();
 			}
 		}
 		else if (!flag && !isInLobbyState)
@@ -78,6 +78,7 @@ public class LobbyStatePlayModeController : MonoBehaviour
 
 	private void SetObjectToLobbyState(bool isInLobbyState)
 	{
+		this.isInLobbyState = isInLobbyState;
 		if (isInLobbyState)
 		{
 			ActivateLobbyState();
@@ -86,7 +87,6 @@ public class LobbyStatePlayModeController : MonoBehaviour
 		{
 			DeactivateLobbyState();
 		}
-		this.isInLobbyState = isInLobbyState;
 	}
 
 	private void ActivateLobbyState()

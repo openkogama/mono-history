@@ -10,5 +10,7 @@ public enum CameraType
 	AvatarEditModeCamera = 12,
 	FirstPersonCamera = 16,
 	TimeAttackFlagDebriefingCamera = 17,
-	TimeAttackFlagCountdownCamera = 18
+	TimeAttackFlagCountdownCamera = 18,
+	GhostCamera = 19,
+	DeadCamera = 20
 }

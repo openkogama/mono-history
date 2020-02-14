@@ -46,13 +46,25 @@ public class GameEventManager
 
 		public event Action OnReadyScreenShot;
 
-		public event Action OnSpawn;
+		public event Action OnEnterPlaymode;
 
 		public event Action OnSetToSpawnPoint;
 
 		public event Action<WinningConditionType> OnWinningConditionIntermediateDebriefing;
 
 		public event Action OnRemoveFromGame;
+
+		public event Action OnRespawn;
+
+		public event Action OnSetToDeadMode;
+
+		public event Action<int> OnMoveBodyToSafeSpot;
+
+		public event Action<int> OnSpawnAtSafeSpot;
+
+		public event Action OnSpawnAsGhost;
+
+		public event Action OnReviveTimeElapsed;
 
 		public void KillSelf()
 		{
@@ -62,11 +74,35 @@ public class GameEventManager
 			}
 		}
 
-		public void Spawn()
+		public void ReviveTimeElapsed()
 		{
-			if (OnSpawn != null)
+			if (OnReviveTimeElapsed != null)
 			{
-				OnSpawn();
+				OnReviveTimeElapsed();
+			}
+		}
+
+		public void EnterPlayingState()
+		{
+			if (OnEnterPlaymode != null)
+			{
+				OnEnterPlaymode();
+			}
+		}
+
+		public void SetToDeadMode()
+		{
+			if (OnSetToDeadMode != null)
+			{
+				OnSetToDeadMode();
+			}
+		}
+
+		public void Respawn()
+		{
+			if (OnRespawn != null)
+			{
+				OnRespawn();
 			}
 		}
 
@@ -78,11 +114,35 @@ public class GameEventManager
 			}
 		}
 
+		public void SpawnAsGhost()
+		{
+			if (OnSpawnAsGhost != null)
+			{
+				OnSpawnAsGhost();
+			}
+		}
+
 		public void SetRespawnWhenPossible()
 		{
 			if (OnSetRespawnWhenPossible != null)
 			{
 				OnSetRespawnWhenPossible();
+			}
+		}
+
+		public void MoveBodyToSafeSpot(int index)
+		{
+			if (OnMoveBodyToSafeSpot != null)
+			{
+				OnMoveBodyToSafeSpot(index);
+			}
+		}
+
+		public void SpawnAtSafeSpot(int safeSpotIndex)
+		{
+			if (OnSpawnAtSafeSpot != null)
+			{
+				OnSpawnAtSafeSpot(safeSpotIndex);
 			}
 		}
 

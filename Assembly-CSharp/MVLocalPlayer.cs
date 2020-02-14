@@ -41,6 +41,8 @@ public abstract class MVLocalPlayer : MVPlayer
 
 	protected float respawnTime;
 
+	protected const float reviveTimeout = 10f;
+
 	private int oldLevel;
 
 	public MVBody Body => MVGameControllerBase.WOCM.GetWorldObjectClient<MVBody>(defaultBodyWoId);
@@ -114,13 +116,14 @@ public abstract class MVLocalPlayer : MVPlayer
 		}
 	}
 
+	public float ReviveTimeout => 10f;
+
 	public MVLocalPlayer(int actorNumber, int profileID, string regionCode, int planetOwnershipTypeID, UserProfileData userProfileData)
 		: base(actorNumber, profileID, regionCode, MVGameControllerBase.BuildTarget, userProfileData, isReady: false)
 	{
 		OnLevelChanged = (UnityAction<int>)Delegate.Combine(OnLevelChanged, new UnityAction<int>(OnLevelChangedLocal));
 		PlanetOwnershipTypeID = planetOwnershipTypeID;
 		joinTime = MVGameControllerBase.Game.ServerTimeInMilliSeconds;
-		boostController.Initialize();
 	}
 
 	private void SpawnRoleModeOnOnChange(SpawnRoleModeType value)

@@ -209,15 +209,6 @@ public abstract class MVRigidBody : MVComponent
 
 	protected void Init()
 	{
-		MVGroundState mVGroundState = groundState;
-		mVGroundState.OnGroundChange = (Action<GroundChange>)Delegate.Combine(mVGroundState.OnGroundChange, new Action<GroundChange>(HandleGroundStateChange));
-	}
-
-	private void HandleGroundStateChange(GroundChange groundChange)
-	{
-		if (isPlayerControlled)
-		{
-		}
 	}
 
 	protected Vector3 GetImpulse(Vector3 velocity, MVInteractableBase interactableLocal)

@@ -35,6 +35,8 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 
 	public Action<float, MVPlayer, PlayerKilledByType> OnDamageTaken;
 
+	public Action<Vector3> OnNewSafePosition;
+
 	public Action OnShieldReplenished;
 
 	private DamageSource lastDamageSource = DamageSource.none;
@@ -282,15 +284,29 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 
 	public void HandleMoveHit(MVControllerColliderHit moveHit)
 	{
-		if (moveHit.material.ModifierPackageType != AvatarModifierPackageType.None)
+		AvatarModifierPackageType modifierPackageType = moveHit.material.ModifierPackageType;
+		if (modifierPackageType != AvatarModifierPackageType.None)
 		{
 			AddModifier(moveHit.material.ModifierPackageType);
+		}
+		if (modifierPackageType == AvatarModifierPackageType.None && IsGroundedSafely(moveHit) && MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleMode.Value == SpawnRoleModeType.Playing && OnNewSafePosition != null)
+		{
+			OnNewSafePosition(moveHit.positionTouchingHit);
 		}
 		if (canWallJumpAnySurfaces)
 		{
 			AddModifier(AvatarModifierPackageType.WallJump);
 		}
 		materialHitHandler.HandleHit(moveHit);
+	}
+
+	private bool IsGroundedSafely(MVControllerColliderHit moveHit)
+	{
+		float friction = moveHit.material.PhysicalProperties.friction;
+		float y = moveHit.slopeNormal.y;
+		float num = y * friction;
+		float sqrMagnitude = moveHit.impactVelocity.sqrMagnitude;
+		return num >= 0.35f && y >= 0.6f && friction > 0.2f && sqrMagnitude < 1000f;
 	}
 
 	private void SetupBoostedHealthMultiplier()

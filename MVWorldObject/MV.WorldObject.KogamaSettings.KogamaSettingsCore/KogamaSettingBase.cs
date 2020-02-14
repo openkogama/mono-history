@@ -12,7 +12,7 @@ public abstract class KogamaSettingBase : IKogamaSetting
 		{
 			return value;
 		}
-		protected set
+		set
 		{
 			this.value = value;
 			if (OnValueChange != null)

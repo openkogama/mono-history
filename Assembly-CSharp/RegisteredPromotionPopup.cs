@@ -61,7 +61,7 @@ public class RegisteredPromotionPopup : MonoBehaviour
 	{
 		if (MVGameControllerBase.GameSessionData.GetIsRedirectAllowed())
 		{
-			BrowserCommGotoRequests.GotoMainpage();
+			BrowserCommGotoRequests.GotoMainpage(newTab: true);
 		}
 		else
 		{

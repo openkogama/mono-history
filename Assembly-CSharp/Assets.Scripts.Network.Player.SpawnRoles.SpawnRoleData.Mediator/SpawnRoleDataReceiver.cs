@@ -29,9 +29,15 @@ public class SpawnRoleDataReceiver
 
 	public SpawnRoleReceiverVariable<Quaternion> rotation;
 
+	public SpawnRoleReceiverVariable<Vector3> defaultScale;
+
 	public SpawnRoleReceiverVariable<Vector3> scale;
 
 	public SpawnRoleReceiverVariable<float> size;
+
+	public SpawnRoleReceiverVariable<ReviveState> reviveState;
+
+	public SpawnRoleReceiverVariable<LastRespawnType> lastRespawnType;
 
 	public SpawnRoleReceiverVariable<GamePassTier> tierRequirement;
 

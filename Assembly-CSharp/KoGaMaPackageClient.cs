@@ -296,8 +296,8 @@ public class KoGaMaPackageClient
 			return new MVBuildModeAvatarRemote(worldObjectData, worldObjects);
 		case WorldObjectType.AvatarSpawnRoleCreator:
 			return new MVAvatarSpawnRoleCreator(worldObjectData, worldObjects);
-		case WorldObjectType.GameBoosterDataObject:
-			return new MVGameBoosterDataObject(worldObjectData, worldObjects);
+		case WorldObjectType.GameOptionsDataObject:
+			return new MVGameOptionDataObject(worldObjectData, worldObjects);
 		default:
 			Debug.LogError("WOCM trying to create unknown type: " + worldObjectType);
 			return null;

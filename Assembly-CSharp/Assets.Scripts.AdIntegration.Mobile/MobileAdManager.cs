@@ -619,7 +619,7 @@ public class MobileAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IU
 
 	private IAdUIManager adUIManager;
 
-	public string RewardedAdNotAvailableText => TM._("Please try again later.");
+	public string RewardedAdNotAvailableText => TM._("Please watch the ad from start to finish, or try again later.");
 
 	public TimeSpan TimeSinceLastAd => internalAdManagerState.TimeSinceLastAd;
 

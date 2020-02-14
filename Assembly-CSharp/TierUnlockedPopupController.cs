@@ -32,12 +32,6 @@ public class TierUnlockedPopupController : MonoBehaviour
 	private TierUnlockedPopupContentTierTempUnlocked popupContentTierTempUnlockPrefab;
 
 	[SerializeField]
-	private TierUnlockedPopupContentLoot PopupContentLootPrefab;
-
-	[SerializeField]
-	private TierUnlockedPopupContentAccess PopupContentAccessPrefab;
-
-	[SerializeField]
 	private float fadeDuration;
 
 	[SerializeField]
@@ -91,20 +85,6 @@ public class TierUnlockedPopupController : MonoBehaviour
 			TierUnlockedPopupContentTierTempUnlocked tierUnlockedPopupContentTierTempUnlocked = Object.Instantiate(popupContentTierTempUnlockPrefab);
 			tierUnlockedPopupContentTierTempUnlocked.transform.SetParent(transform, worldPositionStays: false);
 			popupContentList.Add(tierUnlockedPopupContentTierTempUnlocked);
-		}
-		if (ShouldShowLootPopup())
-		{
-			TierUnlockedPopupContentLoot tierUnlockedPopupContentLoot = Object.Instantiate(PopupContentLootPrefab);
-			tierUnlockedPopupContentLoot.transform.SetParent(transform, worldPositionStays: false);
-			tierUnlockedPopupContentLoot.gameObject.SetActive(value: false);
-			popupContentList.Add(tierUnlockedPopupContentLoot);
-		}
-		if (ShouldShowAccessPopup())
-		{
-			TierUnlockedPopupContentAccess tierUnlockedPopupContentAccess = Object.Instantiate(PopupContentAccessPrefab);
-			tierUnlockedPopupContentAccess.transform.SetParent(transform, worldPositionStays: false);
-			tierUnlockedPopupContentAccess.gameObject.SetActive(value: false);
-			popupContentList.Add(tierUnlockedPopupContentAccess);
 		}
 		List<MVWorldObjectClient> worldObjectsByType = MVGameControllerBase.Game.WorldObjectClientManager.GetWorldObjectsByType(WorldObjectType.AvatarSpawnRoleCreator);
 		for (int i = 0; i < worldObjectsByType.Count; i++)
@@ -190,51 +170,5 @@ public class TierUnlockedPopupController : MonoBehaviour
 		popupContentList[currentContentBeingShowed].UpdateScale(newScale);
 		float newAlpha = fadeEffect.Evaluate((Time.time - fadeEffectStartTime) / fadeDuration);
 		popupContentList[currentContentBeingShowed].UpdateAlpha(newAlpha);
-	}
-
-	private bool ShouldShowLootPopup()
-	{
-		Dictionary<MVWorldObjectDocumentationType, List<MVWorldObjectClient>> tierItemData = MVGameControllerBase.Game.GameTierShopRepository.GetTierItemData(unlockedTier);
-		if (tierItemData == null)
-		{
-			return false;
-		}
-		Dictionary<MVWorldObjectDocumentationType, List<MVWorldObjectClient>> dictionary = new Dictionary<MVWorldObjectDocumentationType, List<MVWorldObjectClient>>();
-		foreach (KeyValuePair<MVWorldObjectDocumentationType, List<MVWorldObjectClient>> item in tierItemData)
-		{
-			if (item.Value.Count > 0 && IsTierItemALootItem(item.Value[0]))
-			{
-				dictionary.Add(item.Key, item.Value);
-			}
-		}
-		return dictionary.Count > 0;
-	}
-
-	private bool IsTierItemALootItem(MVWorldObjectClient item)
-	{
-		return item is MVPickupItemBase || item is MVWorldObjectSpawnerVehicle;
-	}
-
-	private bool ShouldShowAccessPopup()
-	{
-		Dictionary<MVWorldObjectDocumentationType, List<MVWorldObjectClient>> tierItemData = MVGameControllerBase.Game.GameTierShopRepository.GetTierItemData(unlockedTier);
-		if (tierItemData == null)
-		{
-			return false;
-		}
-		Dictionary<MVWorldObjectDocumentationType, List<MVWorldObjectClient>> dictionary = new Dictionary<MVWorldObjectDocumentationType, List<MVWorldObjectClient>>();
-		foreach (KeyValuePair<MVWorldObjectDocumentationType, List<MVWorldObjectClient>> item in tierItemData)
-		{
-			if (item.Value.Count > 0 && IsTierItemAnAccessItem(item.Key, item.Value[0]))
-			{
-				dictionary.Add(item.Key, item.Value);
-			}
-		}
-		return dictionary.Count > 0;
-	}
-
-	private bool IsTierItemAnAccessItem(MVWorldObjectDocumentationType worldObjectType, MVWorldObjectClient item)
-	{
-		return worldObjectType == MVWorldObjectDocumentationType.Lever || worldObjectType == MVWorldObjectDocumentationType.PressurePlate || item is MVTeleporter;
 	}
 }

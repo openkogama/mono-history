@@ -5,5 +5,6 @@ public enum AvatarRuntimeState : byte
 	Dead = 4,
 	TimeAttackFlagDebriefing = 7,
 	Wait = 8,
-	Ghost = 9
+	Ghost = 9,
+	Revive = 10
 }

@@ -111,7 +111,11 @@ public class SpawnRoleSelectionElement : DefaultSpawnRoleSelectionElement
 		HandlePlayButtonVisibility();
 		ContinueButtonHandler continueButtonHandler = this.continueButtonHandler;
 		continueButtonHandler.OnClick = (Action)Delegate.Combine(continueButtonHandler.OnClick, new Action(OnPressPlay));
-		buttonAdImage.enabled = !GamePassesManager.TogglePreviewState.FreeTryWithoutAdAvailable;
+		buttonAdImage.enabled = false;
+		if (GamePassesManager.GamePassesActive)
+		{
+			buttonAdImage.enabled = !GamePassesManager.TogglePreviewState.FreeTryWithoutAdAvailable;
+		}
 	}
 
 	public void ShowSkillMenu()

@@ -127,7 +127,7 @@ public class SizeState
 			foreach (Vector3 relativePosition in relativePositions)
 			{
 				Vector3 vector = relativePosition * num2;
-				if (GetIsValidScaledPosition(vector, num2))
+				if (GetIsValidScaledRelativePosition(vector, num2))
 				{
 					controllerLocal.transform.position += vector;
 					position = controllerLocal.transform.position;
@@ -144,11 +144,16 @@ public class SizeState
 		return position;
 	}
 
-	public bool GetIsValidScaledPosition(Vector3 relativeTestPos, float scale)
+	public bool GetIsValidScaledRelativePosition(Vector3 relativeTestPos, float scale)
+	{
+		return GetIsValidScaledPosition(controllerLocal.transform.position + relativeTestPos, scale);
+	}
+
+	public bool GetIsValidScaledPosition(Vector3 position, float scale)
 	{
 		Vector3 vector = controllerLocal.centerBase * scale;
 		Vector3 radius = new Vector3(controllerLocal.radiusBase.x, controllerLocal.radiusBase.y, controllerLocal.radiusBase.z) * scale;
-		return !MVElipsoidOverlapCheck.ElipsoidOverlapCheckBool(radius, controllerLocal.transform.position + relativeTestPos + vector, Quaternion.identity, layerMask, controllerLocal.IgnoreWoIds);
+		return !MVElipsoidOverlapCheck.ElipsoidOverlapCheckBool(radius, position + vector, Quaternion.identity, layerMask, controllerLocal.IgnoreWoIds);
 	}
 
 	public void MoveOutOfScalingCollision(MVControllerColliderHit hitData)

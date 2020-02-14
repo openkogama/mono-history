@@ -8,13 +8,13 @@ public class TouristPromotionCrey : TouristPromotion
 
 	protected override void Start()
 	{
-		adContinueButton.SetActive(popupWithAd);
+		adContinueButton.SetActive(promotionShowsAd);
 		StatHatWrapper.Count("TouristPromotion.CreyGames", 1);
 	}
 
 	public void Continue()
 	{
-		if (popupWithAd)
+		if (promotionShowsAd)
 		{
 			StatHatWrapper.Count("TouristPromotion.CreyGames.ContinueAd", 1);
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (ITouristAdController x, BaseEventData y) =>
@@ -25,7 +25,7 @@ public class TouristPromotionCrey : TouristPromotion
 		else
 		{
 			StatHatWrapper.Count("TouristPromotion.CreyGames.Continue", 1);
-			SkipCallback();
+			OnContinueClicked();
 		}
 	}
 

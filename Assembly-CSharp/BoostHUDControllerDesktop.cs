@@ -30,10 +30,9 @@ public class BoostHUDControllerDesktop : MonoBehaviour
 		Dictionary<BoostType, Boost>.ValueCollection activeBoosts = boostController.GetActiveBoosts();
 		foreach (Boost item in activeBoosts)
 		{
-			BoostRadialUpdate boostRadialUpdate = UnityEngine.Object.Instantiate(boostImageController.GetBoostVisualization(item.Type));
-			boostRadialUpdate.Initialize(item);
-			currentBoosts.Add(boostRadialUpdate.gameObject);
-			boostRadialUpdate.transform.SetParent(content.transform, worldPositionStays: false);
+			Image image = UnityEngine.Object.Instantiate(boostImageController.GetBoostVisualization(item.Type));
+			currentBoosts.Add(image.gameObject);
+			image.transform.SetParent(content.transform, worldPositionStays: false);
 		}
 	}
 

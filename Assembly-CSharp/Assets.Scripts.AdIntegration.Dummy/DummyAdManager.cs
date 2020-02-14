@@ -3,8 +3,16 @@ using UnityEngine;
 
 namespace Assets.Scripts.AdIntegration.Dummy;
 
-public class DummyAdManager : IAdManager
+public class DummyAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUpdatecontrollerSubscriberBase
 {
+	private IAdUIManager adUIHandler;
+
+	private float startTime;
+
+	private float delay = 2f;
+
+	private bool rewarded;
+
 	public string RewardedAdNotAvailableText => TM._("Ads not set up for this build target.");
 
 	public TimeSpan TimeSinceLastAd => TimeSpan.MaxValue;
@@ -13,23 +21,59 @@ public class DummyAdManager : IAdManager
 
 	public TimeSpan TimeSinceLastRewarded => TimeSpan.MaxValue;
 
-	public bool ReadyForRewardedAdRequest => false;
+	public bool ReadyForRewardedAdRequest => true;
 
-	public bool ReadyForInterstitialAdRequest => false;
+	public bool ReadyForInterstitialAdRequest => true;
 
 	public void InitializeCallbackManager(IAdUIManager handler)
 	{
+		UpdateController.AddUpdateObject(this, UpdatePriority.UPDATEBUCKET_STANDARD);
+		adUIHandler = handler;
 	}
 
 	public void RequestRewardedAd(Action<RewardedAdResult> rewardedAdCallback, AdContext context)
 	{
-		Debug.LogErrorFormat("Requesting ad from dummy manager will always return {0}. Context: {1}.", RewardedAdResult.ErrorClient, context.ToString());
-		rewardedAdCallback(RewardedAdResult.ErrorClient);
+		if (adUIHandler.AdShowing())
+		{
+			Debug.LogError("Ad showing already!");
+			rewardedAdCallback(RewardedAdResult.ErrorClient);
+		}
+		else
+		{
+			startTime = Time.time;
+			adUIHandler.ShowRewardedVideo(rewardedAdCallback);
+			rewarded = true;
+		}
 	}
 
 	public void RequestInterstitial(Action<InterstitialAdResult> interstitialCallback, AdContext context)
 	{
-		Debug.LogErrorFormat("Requesting ad from dummy manager will always return {0}. Context: {1}.", InterstitialAdResult.ErrorClient, context.ToString());
-		interstitialCallback(InterstitialAdResult.ErrorClient);
+		if (adUIHandler.AdShowing())
+		{
+			Debug.LogError("Ad showing already!");
+			interstitialCallback(InterstitialAdResult.ErrorClient);
+		}
+		else
+		{
+			startTime = Time.time;
+			adUIHandler.ShowInterstitial(interstitialCallback);
+			rewarded = false;
+		}
+	}
+
+	public void UpdateControllerUpdate()
+	{
+		if (adUIHandler.AdShowing() && Time.time > startTime + delay)
+		{
+			Debug.Log("ad finished");
+			if (!rewarded)
+			{
+				adUIHandler.PopInterstitial(InterstitialAdResult.Done);
+			}
+			else
+			{
+				adUIHandler.PopRewardedVideo(RewardedAdResult.RewardUnlocked);
+			}
+		}
 	}
 }

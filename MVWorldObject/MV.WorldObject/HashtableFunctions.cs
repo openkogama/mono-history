@@ -103,7 +103,7 @@ public static class HashtableFunctions
 
 	public static string PrettyString(Dictionary<object, object> dictionary)
 	{
-		return PrettyString(dictionary, 0);
+		return "\n" + PrettyString(dictionary, 0);
 	}
 
 	private static string PrettyString(Dictionary<object, object> dictionary, int padLeft)

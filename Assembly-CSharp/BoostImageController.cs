@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BoostImageController : MonoBehaviour
 {
@@ -9,19 +10,19 @@ public class BoostImageController : MonoBehaviour
 	{
 		public BoostType type;
 
-		public BoostRadialUpdate radialUpdater;
+		public Image image;
 	}
 
 	[SerializeField]
 	private List<BoosterImageDef> boosterImages;
 
-	public BoostRadialUpdate GetBoostVisualization(BoostType type)
+	public Image GetBoostVisualization(BoostType type)
 	{
 		for (int i = 0; i < boosterImages.Count; i++)
 		{
 			if (boosterImages[i].type == type)
 			{
-				return boosterImages[i].radialUpdater;
+				return boosterImages[i].image;
 			}
 		}
 		Debug.LogWarning("Boost type: " + type);

@@ -118,5 +118,7 @@ public enum DBQuery
 	SetEarningsReportToSeen,
 	GetPublishedPlanetTopHighScore,
 	ExecuteGameBoosterPurchaseAndPayout,
-	UpdatePublishedPlanetMetric
+	UpdatePublishedPlanetMetric,
+	UpdatePublishedPlanetPlayerCount,
+	DeletePlanetPlayerCountDataForServer
 }

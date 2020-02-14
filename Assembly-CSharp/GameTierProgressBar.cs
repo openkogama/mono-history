@@ -90,6 +90,8 @@ public class GameTierProgressBar : MonoBehaviour, HoverInputReceiver
 
 	private static bool haveShownTips;
 
+	private Transform previewHeadRoot;
+
 	public void OnHeadClick()
 	{
 		int num = Mathf.FloorToInt(previousProgressValue);
@@ -188,6 +190,17 @@ public class GameTierProgressBar : MonoBehaviour, HoverInputReceiver
 		GamePassProgressionController.OnGamePassesProgressionUpdate = (Action)Delegate.Remove(GamePassProgressionController.OnGamePassesProgressionUpdate, new Action(HandleDisabledProgressBarVisibility));
 		GamePointGainEffectManager.OnGamePointGainEffectShown = (Action<int>)Delegate.Remove(GamePointGainEffectManager.OnGamePointGainEffectShown, new Action<int>(OnHaveShownGainEffect));
 		GamePointGainEffectManager.OnTierProgressBarGamePointGainEffectShown = (Action<int>)Delegate.Remove(GamePointGainEffectManager.OnTierProgressBarGamePointGainEffectShown, new Action<int>(OnHaveShownTierProgressBarGainEffect));
+		DestroyHeadPreview();
+	}
+
+	private void DestroyHeadPreview()
+	{
+		if (previewHeadRoot != null)
+		{
+			UnityEngine.Object.Destroy(previewHeadRoot.gameObject);
+			headPreviewer = null;
+			previewHeadRoot = null;
+		}
 	}
 
 	private void OnEnable()
@@ -719,6 +732,7 @@ public class GameTierProgressBar : MonoBehaviour, HoverInputReceiver
 
 	private void CreateAvatarHeadImages()
 	{
+		DestroyHeadPreview();
 		headPreviewer = UnityEngine.Object.Instantiate(previewer);
 		MVCubeModelInstance bodyPart = MVGameControllerBase.LocalPlayer.Body.GetBodyPart("Head");
 		GameObject gameObject = UnityEngine.Object.Instantiate(bodyPart.GameObject);
@@ -736,8 +750,8 @@ public class GameTierProgressBar : MonoBehaviour, HoverInputReceiver
 				}
 			}
 		}
-		Transform previewItemsRoot = new GameObject().transform;
-		headPreviewer.Initialize(128, 128, CameraClearFlags.Color, LayerFlags.Preview, new Vector3(0f, -0.5f, -1f), previewItemsRoot, new Vector3(100f, 100f, 100f), "Avatar Head preview", bodyPart, gameObject, new Vector3(15f, 0f, 0f));
+		previewHeadRoot = new GameObject().transform;
+		headPreviewer.Initialize(128, 128, CameraClearFlags.Color, LayerFlags.Preview, new Vector3(0f, -0.5f, -1f), previewHeadRoot, new Vector3(100f, 100f, 100f), "Avatar Head preview", bodyPart, gameObject, new Vector3(15f, 0f, 0f));
 		headPreviewer.previewCam.transform.position += new Vector3(0f, 0.72f, 0f);
 		headPreviewer.PreviewGameObject.transform.Rotate(new Vector3(0f, 227f, 0f));
 		for (int k = 0; k < tierProgressDataList.Count; k++)

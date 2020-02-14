@@ -80,7 +80,7 @@ public class BlinkerBase : MonoBehaviour
 			MeshFilter[] array = meshFilters;
 			foreach (MeshFilter meshFilter in array)
 			{
-				if (meshFilter.gameObject.activeInHierarchy)
+				if (!(meshFilter == null) && meshFilter.gameObject.activeInHierarchy)
 				{
 					Transform tfm = meshFilter.transform;
 					value.Draw(meshFilter.sharedMesh, tfm, targetCamera, layerMask);

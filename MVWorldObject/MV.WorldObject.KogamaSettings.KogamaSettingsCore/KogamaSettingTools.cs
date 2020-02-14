@@ -18,6 +18,59 @@ public static class KogamaSettingTools
 		}
 	}
 
+	public static KogamaSettingWrapperBase CreatePrototypeWithUserValues(Dictionary<object, object> userValuesDict, KogamaSettingWrapperBase prototypeRoot, Func<KeyValuePair<object, object>, KogamaSettingValueWrapperBase, KogamaSettingsCollectionBase, KogamaSettingValueWrapperBase> factoryFunc)
+	{
+		KogamaSettingWrapperBase kogamaSettingWrapperBase = CreateFromValues(userValuesDict, prototypeRoot, factoryFunc);
+		KogamaSettingWrapperBase kogamaSettingWrapperBase2 = CreateDeepCopy(prototypeRoot, factoryFunc);
+		if (kogamaSettingWrapperBase != null)
+		{
+			OverrideValues(kogamaSettingWrapperBase2, kogamaSettingWrapperBase);
+		}
+		return kogamaSettingWrapperBase2;
+	}
+
+	public static KogamaSettingWrapperBase CreateDeepCopy(KogamaSettingWrapperBase source, Func<KeyValuePair<object, object>, KogamaSettingValueWrapperBase, KogamaSettingsCollectionBase, KogamaSettingValueWrapperBase> factoryFunc)
+	{
+		Dictionary<object, object> values = KogamaSettingsToDictionary(source);
+		return CreateFromValues(values, source, factoryFunc);
+	}
+
+	public static void OverrideValues(KogamaSettingWrapperBase target, KogamaSettingWrapperBase source)
+	{
+		if (target == null)
+		{
+			throw new Exception("Entry not found in target");
+		}
+		if (source == null)
+		{
+			throw new Exception("Source is null");
+		}
+		if (source.GetType() != target.GetType())
+		{
+			throw new Exception("Source and target type are not the same");
+		}
+		if (source is KogamaSettingValueWrapperBase)
+		{
+			((KogamaSettingValueWrapperBase)target).KogamaSetting.Value = ((KogamaSettingValueWrapperBase)source).KogamaSetting.Value;
+			Console.WriteLine("Hmmmmmm");
+			return;
+		}
+		if (source is KogamaSettingsCollectionBase)
+		{
+			KogamaSettingsCollectionBase kogamaSettingsCollectionBase = (KogamaSettingsCollectionBase)source;
+			KogamaSettingsCollectionBase kogamaSettingsCollectionBase2 = (KogamaSettingsCollectionBase)target;
+			{
+				foreach (KeyValuePair<string, KogamaSettingWrapperBase> child in kogamaSettingsCollectionBase.Children)
+				{
+					KogamaSettingWrapperBase target2 = kogamaSettingsCollectionBase2.Children[child.Key];
+					OverrideValues(target2, child.Value);
+				}
+				return;
+			}
+		}
+		throw new Exception("Unknown base type");
+	}
+
 	public static KogamaSettingWrapperBase CreateFromValues(Dictionary<object, object> values, KogamaSettingWrapperBase prototypeRoot, Func<KeyValuePair<object, object>, KogamaSettingValueWrapperBase, KogamaSettingsCollectionBase, KogamaSettingValueWrapperBase> factoryFunc)
 	{
 		foreach (KeyValuePair<object, object> value in values)

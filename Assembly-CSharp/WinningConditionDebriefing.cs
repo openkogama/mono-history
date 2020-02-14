@@ -36,13 +36,18 @@ public class WinningConditionDebriefing : MonoBehaviour, IDebriefing
 
 	private void OnWinningConditionReceived(IWinningCondition winningCondition)
 	{
-		if (isActiveAndEnabled)
+		if (!isActiveAndEnabled)
 		{
-			Debug.Log("OnWinningConditionReceived");
-			if (MVGameControllerBase.GameMode == MVGameMode.Play || (MVGameControllerBase.GameMode == MVGameMode.Edit && MVGameControllerBase.EditModeUI.IsInPlayInEditMode))
+			return;
+		}
+		Debug.Log("OnWinningConditionReceived");
+		if (MVGameControllerBase.GameMode == MVGameMode.Play || (MVGameControllerBase.GameMode == MVGameMode.Edit && MVGameControllerBase.EditModeUI.IsInPlayInEditMode))
+		{
+			if (MVClientSettings.ReviveEnabled)
 			{
-				GenerateDebriefing(winningCondition);
+				MVGameControllerBase.SpawnRoleDataMediatorLocal.ReviveState.Value.ResetSafePostions();
 			}
+			GenerateDebriefing(winningCondition);
 		}
 	}
 

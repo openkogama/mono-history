@@ -11,7 +11,7 @@ public class Boost
 	{
 		get
 		{
-			MVGameBoosterDataObject singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVGameBoosterDataObject>();
+			MVGameOptionDataObject singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVGameOptionDataObject>();
 			List<GameBoosterSettingWithGoldSetting> activeSettingsList = singletonWorldObject.GameBoosterSettingsManager.ActiveSettingsList;
 			activeSettingsList.AddRange(singletonWorldObject.GameBoosterSettingsManager.InactiveGameBoosterSettingsList);
 			for (int i = 0; i < activeSettingsList.Count; i++)
@@ -45,11 +45,7 @@ public class Boost
 
 	public bool AllowedForGame { get; set; }
 
-	public float BoostSecondsLeft { get; set; }
-
-	public float BoostMaxDurationSeconds { get; private set; }
-
-	public Boost(BoostType type, string boostKey, string desc, string valueDesc, string title, bool allowedForGame, float durationInSeconds)
+	public Boost(BoostType type, string boostKey, string desc, string valueDesc, string title, bool allowedForGame)
 	{
 		Type = type;
 		BoostKey = boostKey;
@@ -57,7 +53,5 @@ public class Boost
 		ValueDescription = valueDesc;
 		EditTitle = title;
 		AllowedForGame = allowedForGame;
-		BoostMaxDurationSeconds = durationInSeconds;
-		BoostSecondsLeft = durationInSeconds;
 	}
 }

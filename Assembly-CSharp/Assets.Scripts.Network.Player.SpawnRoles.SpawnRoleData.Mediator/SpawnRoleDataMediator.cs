@@ -51,9 +51,15 @@ public class SpawnRoleDataMediator
 
 	protected readonly SpawnRoleVariableInternal<Vector3> scale = new SpawnRoleVariableInternal<Vector3>(Vector3.one);
 
+	protected readonly SpawnRoleVariableInternal<Vector3> defaultScale = new SpawnRoleVariableInternal<Vector3>(Vector3.one);
+
 	protected readonly SpawnRoleVariableInternal<float> size = new SpawnRoleVariableInternal<float>(1f);
 
+	protected readonly SpawnRoleVariableInternal<LastRespawnType> lastRespawnType = new SpawnRoleVariableInternal<LastRespawnType>(LastRespawnType.None);
+
 	protected readonly SpawnRoleVariableInternal<bool> pickupItemIsInHand = new SpawnRoleVariableInternal<bool>(value: false);
+
+	protected readonly SpawnRoleVariableInternal<ReviveState> reviveState = new SpawnRoleVariableInternal<ReviveState>(new ReviveState());
 
 	protected readonly SpawnRoleVariableInternal<GamePassTier> tierRequirement = new SpawnRoleVariableInternal<GamePassTier>(GamePassTier.Tier0);
 
@@ -79,11 +85,17 @@ public class SpawnRoleDataMediator
 
 	public SpawnRoleVariable<bool> PickupItemIsInHand => pickupItemIsInHand;
 
+	public SpawnRoleVariable<Vector3> DefaultScale => defaultScale;
+
 	public SpawnRoleVariable<Vector3> Scale => scale;
 
 	public SpawnRoleVariable<GamePassTier> TierRequirement => tierRequirement;
 
 	public SpawnRoleVariable<float> Size => size;
+
+	public SpawnRoleVariable<ReviveState> ReviveState => reviveState;
+
+	public SpawnRoleVariable<LastRespawnType> LastAvatarRespawnType => lastRespawnType;
 
 	public event Action<int, int, PlayerKilledByType> OnKilled;
 
@@ -124,12 +136,15 @@ public class SpawnRoleDataMediator
 		spawnRoleDataReceiver.health = new SpawnRoleReceiverVariable<float>(health.SubscribableVariable, spawnRoleDataReceiver);
 		spawnRoleDataReceiver.maxHealth = new SpawnRoleReceiverVariable<int>(maxHealth.SubscribableVariable, spawnRoleDataReceiver);
 		spawnRoleDataReceiver.size = new SpawnRoleReceiverVariable<float>(size.SubscribableVariable, spawnRoleDataReceiver);
+		spawnRoleDataReceiver.lastRespawnType = new SpawnRoleReceiverVariable<LastRespawnType>(lastRespawnType.SubscribableVariable, spawnRoleDataReceiver);
 		spawnRoleDataReceiver.shield = new SpawnRoleReceiverVariable<float>(shield.SubscribableVariable, spawnRoleDataReceiver);
 		spawnRoleDataReceiver.isInGunMode = new SpawnRoleReceiverVariable<bool>(isInGunMode.SubscribableVariable, spawnRoleDataReceiver);
 		spawnRoleDataReceiver.isInVehicle = new SpawnRoleReceiverVariable<bool>(isInVehicle.SubscribableVariable, spawnRoleDataReceiver);
 		spawnRoleDataReceiver.position = new SpawnRoleReceiverVariable<Vector3>(position.SubscribableVariable, spawnRoleDataReceiver);
 		spawnRoleDataReceiver.rotation = new SpawnRoleReceiverVariable<Quaternion>(rotation.SubscribableVariable, spawnRoleDataReceiver);
 		spawnRoleDataReceiver.scale = new SpawnRoleReceiverVariable<Vector3>(scale.SubscribableVariable, spawnRoleDataReceiver);
+		spawnRoleDataReceiver.defaultScale = new SpawnRoleReceiverVariable<Vector3>(defaultScale.SubscribableVariable, spawnRoleDataReceiver);
+		spawnRoleDataReceiver.reviveState = new SpawnRoleReceiverVariable<ReviveState>(reviveState.SubscribableVariable, spawnRoleDataReceiver);
 		spawnRoleDataReceiver.pickupItemIsInHand = new SpawnRoleReceiverVariable<bool>(pickupItemIsInHand.SubscribableVariable, spawnRoleDataReceiver);
 		spawnRoleDataReceiver.tierRequirement = new SpawnRoleReceiverVariable<GamePassTier>(tierRequirement.SubscribableVariable, spawnRoleDataReceiver);
 		spawnRoleDataReceiver.OnKilled += SpawnRoleDataReceiverOnOnKilled;

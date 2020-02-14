@@ -28,6 +28,9 @@ public class GameSetupMenu : MonoBehaviour
 	[SerializeField]
 	private GameObject crystalPopupPrefab;
 
+	[SerializeField]
+	private GameSetupOptions optionsMenuPrefab;
+
 	private void Start()
 	{
 		UpdateTierButtonVisibility();
@@ -124,6 +127,15 @@ public class GameSetupMenu : MonoBehaviour
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Push(earningsMenu.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
+		});
+	}
+
+	public void ShowMiscOptions()
+	{
+		GameSetupOptions optionsMenu = UnityEngine.Object.Instantiate(optionsMenuPrefab);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Push(optionsMenu.gameObject, UIPushOption.HideAll | UIPushOption.InvisibleBlocker, null, UIGroupFlags.InventoryUI);
 		});
 	}
 }

@@ -14,36 +14,33 @@ public class DeathUIController : MonoBehaviour
 	private NotificationFade fader;
 
 	[SerializeField]
-	private Image timerFill;
-
-	[SerializeField]
-	private NotificationFade buttonFader;
-
-	[SerializeField]
-	private Image readyToPlayTimerFill;
-
-	[SerializeField]
-	private GameObject readyToPlayTimerObject;
-
-	[SerializeField]
-	private ScoreBoardSingleBase scoreBoardSingle;
-
-	[SerializeField]
-	private ScoreBoardTeamBase scoreBoardTeam;
-
-	[SerializeField]
-	private LocalPlayerScore localPlayeScore;
+	private TierUnlockedPopupController tierUnlockedPopupControllerPrefab;
 
 	[SerializeField]
 	private DeathUIBoostMenuController boostMenuPrefab;
 
-	private GameStatCounterType statType;
+	[SerializeField]
+	private ReviveUIHandler reviveHandler;
+
+	[SerializeField]
+	private ReviveUIHandlerBoosts reviveHandlerBoosts;
+
+	[SerializeField]
+	private TierOnDeathProgress tierOnDeathProgress;
+
+	[SerializeField]
+	private GameObject claimGoldRewardPopupPrefab;
+
+	[SerializeField]
+	private TierBoostStateHandler tierHandler;
+
+	[SerializeField]
+	private GameObject invisibleBlocker;
+
+	[SerializeField]
+	private GameObject deathMessageBar;
 
 	private float waitTime;
-
-	private const float delayDuration = 1.2f;
-
-	private const float briefingDuration = 2.8f;
 
 	private bool isDeathBriefActive;
 
@@ -51,21 +48,6 @@ public class DeathUIController : MonoBehaviour
 	{
 		gameObject.SetActive(value: false);
 		Initialize();
-	}
-
-	private void OnDestroy()
-	{
-		if (MVGameControllerBase.IsAlive)
-		{
-			MVGameControllerBase.SpawnRoleDataMediatorLocal.OnKilled -= OnLocalPlayerKilled;
-			MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.OnChange -= OnAvatarStateChanged;
-			FlagDebriefingControl flagDebriefingControl = MVGameControllerBase.FlagDebriefingControl;
-			flagDebriefingControl.OnFlagDebriefingEnd = (Action)Delegate.Remove(flagDebriefingControl.OnFlagDebriefingEnd, new Action(EndDeathBriefing));
-			MVNetworkGame game = MVGameControllerBase.Game;
-			game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Remove(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnRoundEnd));
-			NotificationFade notificationFade = fader;
-			notificationFade.OnFinished = (Action)Delegate.Remove(notificationFade.OnFinished, new Action(OnFadeFinished));
-		}
 	}
 
 	private void Initialize()
@@ -76,12 +58,9 @@ public class DeathUIController : MonoBehaviour
 		flagDebriefingControl.OnFlagDebriefingEnd = (Action)Delegate.Combine(flagDebriefingControl.OnFlagDebriefingEnd, new Action(EndDeathBriefing));
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Combine(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnRoundEnd));
+		MVGameControllerBase.SpawnRoleDataMediatorLocal.OnSuicide += OnLocalAvatarSuicide;
 		NotificationFade notificationFade = fader;
 		notificationFade.OnFinished = (Action)Delegate.Combine(notificationFade.OnFinished, new Action(OnFadeFinished));
-		WinningConditionControl.TryGetPrioritizedStat(out statType);
-		scoreBoardSingle.Initialize(statType);
-		scoreBoardTeam.Initialize(statType);
-		localPlayeScore.Initialize();
 	}
 
 	private void OnAvatarStateChanged(SpawnRoleModeType mode)
@@ -96,25 +75,159 @@ public class DeathUIController : MonoBehaviour
 	{
 		fader.Deactivate();
 		fader.gameObject.SetActive(value: false);
-		buttonFader.Deactivate();
 		gameObject.SetActive(value: false);
 		isDeathBriefActive = false;
 	}
 
 	private void Update()
 	{
-		if (waitTime + 1.2f < Time.time && !isDeathBriefActive && MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState != MVGameStateType.RoundEnded)
+		if (waitTime < Time.time && !isDeathBriefActive && MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState != MVGameStateType.RoundEnded)
 		{
 			isDeathBriefActive = true;
-			float num = waitTime;
-			float timeUntilGhostMode = num + 1.2f + 2.8f - Time.time;
-			DeathUIBoostMenuController boostMenu = UnityEngine.Object.Instantiate(boostMenuPrefab);
+			TierProgress();
+			fader.gameObject.SetActive(value: true);
+			fader.Activate();
+		}
+	}
+
+	private void TierProgress()
+	{
+		if (!GamePassesManager.GamePassesActive)
+		{
+			tierOnDeathProgress.gameObject.SetActive(value: false);
+			return;
+		}
+		GamePassTier gamePassTier = GamePassesManager.PlayerPlanetData.gamePassTier;
+		bool flag = gamePassTier != GamePassTier.Tier3 && GamePassesManager.playerTierStateCalculator.gamePassRewardsActivated;
+		tierOnDeathProgress.gameObject.SetActive(flag);
+		if (flag)
+		{
+			tierOnDeathProgress.Initialize(gamePassTier);
+		}
+	}
+
+	private void OnDestroy()
+	{
+		if (MVGameControllerBase.IsAlive)
+		{
+			MVGameControllerBase.SpawnRoleDataMediatorLocal.OnSuicide -= OnLocalAvatarSuicide;
+			MVGameControllerBase.SpawnRoleDataMediatorLocal.OnKilled -= OnLocalPlayerKilled;
+			MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.OnChange -= OnAvatarStateChanged;
+			FlagDebriefingControl flagDebriefingControl = MVGameControllerBase.FlagDebriefingControl;
+			flagDebriefingControl.OnFlagDebriefingEnd = (Action)Delegate.Remove(flagDebriefingControl.OnFlagDebriefingEnd, new Action(EndDeathBriefing));
+			MVNetworkGame game = MVGameControllerBase.Game;
+			game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Remove(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(OnRoundEnd));
+			NotificationFade notificationFade = fader;
+			notificationFade.OnFinished = (Action)Delegate.Remove(notificationFade.OnFinished, new Action(OnFadeFinished));
+		}
+	}
+
+	private void OnLocalAvatarSuicide()
+	{
+		if (!MVGameControllerBase.FlagDebriefingControl.IsInFlagDebriefing)
+		{
+			Debug.Log("LocalSuicide");
+			gameObject.SetActive(value: true);
+			string deathText = TM._("Respawning..");
+			deathMessageBar.SetActive(value: false);
+			StartDeathBriefing(deathText);
+		}
+	}
+
+	private void ShowReviveMenu(bool reboostOnly)
+	{
+		if (reboostOnly)
+		{
+			ReviveUIHandlerBoosts revivePopup = UnityEngine.Object.Instantiate(reviveHandlerBoosts);
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 			{
-				x.Push(boostMenu.gameObject, UIPushOption.HideAll, null, UIGroupFlags.GameObjectUI);
+				x.Push(revivePopup.gameObject, UIPushOption.HideAll, null, UIGroupFlags.GameObjectUI);
 			});
-			boostMenu.Initialize(timeUntilGhostMode);
+			revivePopup.Initialize(ReboostNotClicked);
 		}
+		else
+		{
+			ReviveUIHandler revivePopup2 = UnityEngine.Object.Instantiate(reviveHandler);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(revivePopup2.gameObject, UIPushOption.HideAll, null, UIGroupFlags.GameObjectUI);
+			});
+			revivePopup2.Initialize(ReviveNotClicked);
+		}
+	}
+
+	private void ReboostNotClicked()
+	{
+		if (MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleMode.Value == SpawnRoleModeType.Dead)
+		{
+			MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.SetToDeadMode();
+		}
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Pop();
+		});
+		MVGameControllerBase.Game.LocalPlayer.BoostController.RemoveAllBoosts();
+		if (GamePassesManager.GamePassesActive && tierHandler.IsInTempTier())
+		{
+			tierHandler.StopPreviewTier(OnFinishPreviewTier);
+		}
+		else
+		{
+			ShowBoostMenu();
+		}
+	}
+
+	private void ReviveNotClicked()
+	{
+		if (MVClientSettings.ReviveEnabled && MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleMode.Value == SpawnRoleModeType.Dead)
+		{
+			MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.SetToDeadMode();
+		}
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Pop();
+		});
+		MVGameControllerBase.Game.LocalPlayer.BoostController.RemoveAllBoosts();
+		tierHandler.StopPreviewTier(OnFinishPreviewTier);
+	}
+
+	private void NotReviving()
+	{
+		if (MVClientSettings.ReviveEnabled && MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleMode.Value == SpawnRoleModeType.Dead)
+		{
+			MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.SetToDeadMode();
+		}
+		MVGameControllerBase.Game.LocalPlayer.BoostController.RemoveAllBoosts();
+		tierHandler.StopPreviewTier(OnFinishPreviewTier);
+	}
+
+	private void OnFinishPreviewTier(bool openBoostMenu)
+	{
+		if (openBoostMenu)
+		{
+			ShowBoostMenu();
+		}
+	}
+
+	private void OnDisable()
+	{
+		Debug.Log("Disabled");
+		fader.PauseAt(0f);
+		fader.Deactivate();
+		fader.gameObject.SetActive(value: false);
+		isDeathBriefActive = false;
+	}
+
+	private void ShowBoostMenu()
+	{
+		float respawnTime = MVGameControllerBase.LocalPlayer.RespawnTime;
+		float timeUntilGhostMode = respawnTime - Time.time;
+		DeathUIBoostMenuController boostMenu = UnityEngine.Object.Instantiate(boostMenuPrefab);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Push(boostMenu.gameObject, UIPushOption.HideAll, null, UIGroupFlags.GameObjectUI);
+		});
+		boostMenu.Initialize(timeUntilGhostMode);
 	}
 
 	private void OnFadeFinished()
@@ -124,7 +237,76 @@ public class DeathUIController : MonoBehaviour
 			fader.gameObject.SetActive(value: false);
 			isDeathBriefActive = false;
 			gameObject.SetActive(value: false);
+			Debug.Log("Fade finished");
+			if (!MVGameControllerBase.PlayModeUI.InLobbyState && GamePassesManager.GamePassesActive && ShouldShowTierReward(GamePassesManager.PlayerPlanetData.gamePassTier))
+			{
+				ShowTierUnlockedPopup(wasPurchased: false, wasTempUnlocked: false);
+			}
+			else if (!ShowingClaimGold())
+			{
+				ShowDeadmodeUI();
+			}
 		}
+	}
+
+	private void ShowTierUnlockedPopup(bool wasPurchased, bool wasTempUnlocked)
+	{
+		TierUnlockedPopupController tierUnlockedPopupController = UnityEngine.Object.Instantiate(tierUnlockedPopupControllerPrefab);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Push(tierUnlockedPopupController.gameObject, UIPushOption.InvisibleBlocker, OnTierUnlockedPop, UIGroupFlags.InventoryUI);
+		});
+		tierUnlockedPopupController.Initialize(GamePassesManager.PlayerPlanetData.gamePassTier, wasPurchased, wasTempUnlocked);
+	}
+
+	private void OnTierUnlockedPop()
+	{
+		if (!ShowingClaimGold())
+		{
+			ShowDeadmodeUI();
+		}
+	}
+
+	private bool ShowingClaimGold()
+	{
+		if (MVGameControllerBase.GoldRewardManager.CanGetGoldReward() && MVGameControllerBase.GoldRewardManager.GetGoldRewardTimeLeft() <= 0f)
+		{
+			GameObject claimGoldRewardPopup = UnityEngine.Object.Instantiate(claimGoldRewardPopupPrefab);
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+			{
+				x.Push(claimGoldRewardPopup.gameObject, UIPushOption.InvisibleBlocker, ShowDeadmodeUI, UIGroupFlags.InventoryUI);
+			});
+			return true;
+		}
+		return false;
+	}
+
+	private void ShowDeadmodeUI()
+	{
+		Debug.Log("ShowDeadmodeUI");
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Pop();
+		});
+		bool canSafelySpawn = MVGameControllerBase.SpawnRoleDataMediatorLocal.ReviveState.Value.CanSafelySpawn;
+		bool flag = ((GamePassesManager.GamePassesActive && tierHandler.IsInTempTier()) || MVGameControllerBase.LocalPlayer.BoostController.GetActiveBoosts().Count > 0) && !canSafelySpawn;
+		if ((MVClientSettings.ReviveEnabled && canSafelySpawn) || flag)
+		{
+			ShowReviveMenu(flag);
+		}
+		else
+		{
+			NotReviving();
+		}
+	}
+
+	private bool ShouldShowTierReward(GamePassTier tierToShow)
+	{
+		if (MVGameControllerBase.GameSessionData.gameMode == MVGameMode.Edit)
+		{
+			return false;
+		}
+		return (int)TierUnlockedPopupController.HighestTierRewardShown < (int)GamePassesManager.PlayerPlanetData.gamePassTier && (int)TierUnlockedPopupController.HighestTierRewardShown < (int)tierToShow && (int)tierToShow <= (int)GamePassesManager.PlayerPlanetData.gamePassTier;
 	}
 
 	private void OnLocalPlayerKilled(int localPlayerActorNr, int dmgDealerActorNr, PlayerKilledByType damageType)
@@ -147,70 +329,15 @@ public class DeathUIController : MonoBehaviour
 		string deathText = string.Format(KillNotification.GetKillText(damageType, shotSelf), Styles.ColorToHex(color), userName, Styles.ColorToHex(color2), userName2);
 		if (!MVGameControllerBase.FlagDebriefingControl.IsInFlagDebriefing)
 		{
+			deathMessageBar.SetActive(value: true);
 			StartDeathBriefing(deathText);
-		}
-	}
-
-	private void HandleScoreBoardVisibility()
-	{
-		WinningConditionControl.TryGetPrioritizedStat(out var gameStatCounterType);
-		if (gameStatCounterType == GameStatCounterType.None)
-		{
-			if (scoreBoardSingle.gameObject.activeSelf)
-			{
-				scoreBoardSingle.gameObject.SetActive(value: false);
-			}
-			if (scoreBoardTeam.gameObject.activeSelf)
-			{
-				scoreBoardTeam.gameObject.SetActive(value: false);
-			}
-		}
-		else if (MVGameControllerBase.Game.TeamManager.GetTeamList().Count > 1)
-		{
-			if (!scoreBoardTeam.gameObject.activeSelf)
-			{
-				scoreBoardTeam.gameObject.SetActive(value: true);
-			}
-			if (scoreBoardSingle.gameObject.activeSelf)
-			{
-				scoreBoardSingle.gameObject.SetActive(value: false);
-			}
-			if (gameStatCounterType != statType)
-			{
-				statType = gameStatCounterType;
-				scoreBoardTeam.ChangeStatType(statType);
-			}
-			else
-			{
-				scoreBoardTeam.ReSortScoreBoard();
-			}
-		}
-		else
-		{
-			if (!scoreBoardSingle.gameObject.activeSelf)
-			{
-				scoreBoardSingle.gameObject.SetActive(value: true);
-			}
-			if (scoreBoardTeam.gameObject.activeSelf)
-			{
-				scoreBoardTeam.gameObject.SetActive(value: false);
-			}
-			if (gameStatCounterType != statType)
-			{
-				statType = gameStatCounterType;
-				scoreBoardSingle.ChangeStatType(statType);
-			}
-			else
-			{
-				scoreBoardSingle.ReSortScoreBoard();
-			}
 		}
 	}
 
 	private void SendCurrentProgressNotification()
 	{
-		WinningConditionControl.TryGetPrioritizedStat(out var gameStatCounterType);
-		if (gameStatCounterType != GameStatCounterType.None)
+		WinningConditionControl.TryGetPrioritizedStat(out var statType);
+		if (statType != GameStatCounterType.None)
 		{
 			Dictionary<object, object> data = new Dictionary<object, object>();
 			NotificationController.PushNotification(NotificationType.CurrentProgress, data);
@@ -219,12 +346,21 @@ public class DeathUIController : MonoBehaviour
 
 	private void StartDeathBriefing(string deathText)
 	{
-		waitTime = Time.time;
-		gameObject.SetActive(value: true);
-		buttonFader.Activate();
-		buttonFader.PauseAt(0f);
-		readyToPlayTimerObject.SetActive(value: false);
-		deathReason.text = deathText;
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Push(UnityEngine.Object.Instantiate(invisibleBlocker), UIPushOption.InvisibleBlocker, null, UIGroupFlags.Popup);
+		});
+		Debug.Log("StartDeathBriefing");
+		if (!MVGameControllerBase.PlayModeUI.InLobbyState)
+		{
+			waitTime = Time.time;
+			gameObject.SetActive(value: true);
+			deathReason.text = deathText;
+		}
+		else
+		{
+			ShowDeadmodeUI();
+		}
 	}
 
 	private void OnRoundEnd(IWinningCondition winningCondition)
@@ -235,8 +371,6 @@ public class DeathUIController : MonoBehaviour
 	public void OnPressPlay()
 	{
 		MVGameControllerDesktop.LockCursorManager.CursorLock = true;
-		buttonFader.Unpause();
-		readyToPlayTimerObject.SetActive(value: true);
 		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.SetRespawnWhenPossible();
 	}
 }

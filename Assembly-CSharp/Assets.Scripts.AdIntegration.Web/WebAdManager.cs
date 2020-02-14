@@ -45,7 +45,7 @@ public class WebAdManager : IAdManager, IUpdatecontrollerSubscriberUpdate, IUpda
 
 	private bool showingAd;
 
-	public string RewardedAdNotAvailableText => TM._("Please ensure AdBlock is disabled, and try again later.");
+	public string RewardedAdNotAvailableText => TM._("Please ensure AdBlock is disabled, and be sure to watch the ad from start to finish.");
 
 	public TimeSpan TimeSinceLastAd => new TimeSpan(Math.Min(TimeSinceLastInterstitial.Ticks, TimeSinceLastRewarded.Ticks));
 

@@ -90,7 +90,7 @@ public class PlayButtonMobile : MonoBehaviour
 		MVGameControllerBase.PlayModeUI.InLobbyState = false;
 		if (MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Hidden))
 		{
-			MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.Spawn();
+			MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.EnterPlayingState();
 		}
 		if (shouldPop)
 		{

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using MV.Common;
 using UnityEngine;
 
@@ -6,6 +7,13 @@ public class JoinStatusInfo : MonoBehaviour
 	private MVEventCodes prevGameState = MVEventCodes.AddObjectLink;
 
 	private MVConnState prevConnState;
+
+	private static readonly HashSet<MVEventCodes> createGameSnapshotEvents = new HashSet<MVEventCodes>
+	{
+		MVEventCodes.SetupUserAvatarEdit,
+		MVEventCodes.SetupUserBuildMode,
+		MVEventCodes.SetupUserPlayMode
+	};
 
 	protected void Update()
 	{
@@ -22,6 +30,10 @@ public class JoinStatusInfo : MonoBehaviour
 		while (JoinUIUpdater.JoinEventCodes.Count > 0)
 		{
 			MVEventCodes mVEventCodes = JoinUIUpdater.JoinEventCodes.Dequeue();
+			if (createGameSnapshotEvents.Contains(mVEventCodes))
+			{
+				StatHatWrapper.Count("CreateGameSnapshot", 1);
+			}
 			if (mVEventCodes != prevGameState)
 			{
 				string message = TM._("Game") + ": " + LocalizedEnums._(mVEventCodes);

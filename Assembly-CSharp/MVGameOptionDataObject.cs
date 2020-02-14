@@ -2,20 +2,43 @@ using System.Collections.Generic;
 using MV.Common;
 using MV.WorldObject;
 using MV.WorldObject.KogamaSettings.KogamaSettingsCore.Client;
+using MV.WorldObject.KogamaSettings.KogamaSettingsCore.KogamaSettingTypes;
 using MV.WorldObject.KogamaSettings.SpecializedSettingsTypes.GameBoosterSettings;
+using MV.WorldObject.KogamaSettings.SpecializedSettingsTypes.GameOptions;
 using UnityEngine;
 
-public class MVGameBoosterDataObject : MVWorldObjectClient
+public class MVGameOptionDataObject : MVWorldObjectClient
 {
 	private readonly SettingsReporter setttingsReporter;
 
-	public GameBoosterSettingsManager GameBoosterSettingsManager => new GameBoosterSettingsManager(Data, setttingsReporter);
+	private readonly SettingsManager settingsManager;
 
-	public MVGameBoosterDataObject(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
+	public GameBoosterSettingsManager GameBoosterSettingsManager => new GameBoosterSettingsManager(Data);
+
+	public GameOptionSettingsManager GameOptionSettingsManager => new GameOptionSettingsManager(Data);
+
+	public MVGameOptionDataObject(Dictionary<object, object> data, Dictionary<int, MVWorldObjectClient> worldObjects)
 		: base(data, worldObjects)
 	{
 		Debug.Log(HashtableFunctions.PrettyString(Data));
 		setttingsReporter = new SettingsReporter(this, PartialDataUpdate, PartialDataRemove);
+		settingsManager = new SettingsManager(setttingsReporter);
+	}
+
+	public void UpdateSetting(KogamaSettingWrapperBase obj)
+	{
+		settingsManager.UpdateSetting(obj);
+	}
+
+	public void RemoveSetting(KogamaSettingWrapperBase obj)
+	{
+		settingsManager.RemoveSetting(obj);
+	}
+
+	public void Submit()
+	{
+		settingsManager.Submit();
+		CommonUtils.PruneEmptyDictionaries(Data);
 	}
 
 	public override void PartialUpdateWOData(Dictionary<object, object> woData)

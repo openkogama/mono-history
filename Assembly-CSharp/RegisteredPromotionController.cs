@@ -1,9 +1,9 @@
 using Assets.Scripts.AdIntegration;
-using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
 
-public class RegisteredPromotionController : MonoBehaviour, IRegisterPromotionAdController, IEventSystemHandler
+public class RegisteredPromotionController : MonoBehaviour, IRegisterPromotionAdController, IPromotionController, IEventSystemHandler
 {
 	[SerializeField]
 	private RegisteredPromotionPopup registeredPromotionPopupPrefab;
@@ -19,18 +19,19 @@ public class RegisteredPromotionController : MonoBehaviour, IRegisterPromotionAd
 
 	private float timer;
 
-	private bool isDead;
-
 	private bool embedded;
 
 	private bool subscriber;
 
 	private float timeBeforeShownPromotion = 180f;
 
-	private const float showAdDelay = 1.26f;
+	private UnityAction<bool> onPromotionWasPopped;
+
+	public bool IsPromotionAvailable => timer >= timeBeforeShownPromotion;
 
 	public void Initialize()
 	{
+		enabled = true;
 		joinTheElitePromoInterval = MVGameControllerBase.Game.EliteSettings.ElitePromotionInterval;
 		embedded = MVGameControllerBase.GameSessionData.embedded;
 		subscriber = MVClientSettings.IsSubscriber();
@@ -51,27 +52,6 @@ public class RegisteredPromotionController : MonoBehaviour, IRegisterPromotionAd
 		});
 	}
 
-	private void Update()
-	{
-		if (MVGameControllerBase.GameMode != MVGameMode.Play)
-		{
-			return;
-		}
-		timer += Time.deltaTime;
-		if (MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Dead))
-		{
-			if (!isDead && timer >= timeBeforeShownPromotion && Time.time > MVGameControllerBase.LocalPlayer.RespawnTime - (MVGameControllerBase.LocalPlayer.RespawnDuration - 1.26f))
-			{
-				isDead = true;
-				ShowRegisteredPromotionPopup();
-			}
-		}
-		else
-		{
-			isDead = false;
-		}
-	}
-
 	private void ShowRegisteredPromotionPopup()
 	{
 		if (embedded && !subscriber && timer > playFromKogamaPromoInterval)
@@ -82,6 +62,18 @@ public class RegisteredPromotionController : MonoBehaviour, IRegisterPromotionAd
 		{
 			PushPromotionSlide(registeredElitePromotionPopupPrefab, isEmbeddedPromotion: false);
 		}
+		else if (onPromotionWasPopped != null)
+		{
+			onPromotionWasPopped(arg0: false);
+		}
+	}
+
+	private void OnPromotionPop()
+	{
+		if (onPromotionWasPopped != null)
+		{
+			onPromotionWasPopped(arg0: true);
+		}
 	}
 
 	private void PushPromotionSlide(RegisteredPromotionPopup popupPrefab, bool isEmbeddedPromotion)
@@ -90,8 +82,22 @@ public class RegisteredPromotionController : MonoBehaviour, IRegisterPromotionAd
 		registeredPromotion.Initialize(isEmbeddedPromotion);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
-			x.Push(registeredPromotion.gameObject, UIPushOption.InvisibleBlocker, null, UIGroupFlags.Popup);
+			x.Push(registeredPromotion.gameObject, UIPushOption.InvisibleBlocker, OnPromotionPop, UIGroupFlags.Popup);
 		});
 		timer = 0f;
+	}
+
+	private void Update()
+	{
+		if (MVGameControllerBase.JoinState == MVJoinState.Playing)
+		{
+			timer += Time.deltaTime;
+		}
+	}
+
+	public void ShowPromotion(UnityAction<bool> onPop)
+	{
+		onPromotionWasPopped = onPop;
+		ShowRegisteredPromotionPopup();
 	}
 }

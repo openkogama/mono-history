@@ -78,7 +78,7 @@ public class TimeAttackFlagDebriefing : MonoBehaviour
 				scoreBoardCanvasGroup.alpha = 0f;
 				MVGameControllerBase.FlagDebriefingControl.EndFlagCountDown();
 				Debug.Log("Count down");
-				MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.Spawn();
+				MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.EnterPlayingState();
 				if (!MVGameControllerDesktop.LockCursorManager.CursorLock)
 				{
 					MVGameControllerBase.PlayModeUI.InLobbyState = true;
@@ -115,6 +115,7 @@ public class TimeAttackFlagDebriefing : MonoBehaviour
 		HandleScoreBoardVisibility(captureTime);
 		localPlayerScore.Activate();
 		sunshineObject.SetActive(flag);
+		MVGameControllerBase.SpawnRoleDataMediatorLocal.ReviveState.Value.ResetSafePostions();
 		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.SetIntermediateDebriefing(WinningConditionType.TimeAttackFlag);
 		SendNotification(captureTime, flag);
 	}
@@ -249,21 +250,16 @@ public class TimeAttackFlagDebriefing : MonoBehaviour
 
 	private void OnAvatarStateChanged(SpawnRoleModeType mode)
 	{
-		if (isWaitingForStart || countdownEndTime + 4f > Time.time)
+		if (!isWaitingForStart && !(countdownEndTime + 4f > Time.time))
 		{
-			return;
-		}
-		WinningConditionControl.TryGetPrioritizedStat(out var statType);
-		if (!isDebriefingOn && statType == GameStatCounterType.TimeAttackFlag && mode == SpawnRoleModeType.Playing && (previousAvatarModeType == SpawnRoleModeType.Hidden || previousAvatarModeType == SpawnRoleModeType.Dead))
-		{
-			MVCheckpoint checkpoint = MVGameControllerBase.Game.LocalPlayer.GetCheckpoint();
-			if (checkpoint == null)
+			WinningConditionControl.TryGetPrioritizedStat(out var statType);
+			if (!isDebriefingOn && statType == GameStatCounterType.TimeAttackFlag && mode == SpawnRoleModeType.Playing && (previousAvatarModeType == SpawnRoleModeType.Hidden || previousAvatarModeType == SpawnRoleModeType.Dead) && MVGameControllerBase.LocalPlayer.SpawnRoleDataMediator.LastAvatarRespawnType.Value == LastRespawnType.Spawnpoint)
 			{
 				gameObject.SetActive(value: true);
 				shouldStartFlagCountdown = true;
 			}
+			previousAvatarModeType = mode;
 		}
-		previousAvatarModeType = mode;
 	}
 
 	private void UpdateButton()
@@ -301,7 +297,7 @@ public class TimeAttackFlagDebriefing : MonoBehaviour
 		}
 		if (previousAvatarModeType != SpawnRoleModeType.Playing)
 		{
-			MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.Spawn();
+			MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.EnterPlayingState();
 		}
 	}
 
@@ -318,7 +314,7 @@ public class TimeAttackFlagDebriefing : MonoBehaviour
 			countdownEndTime = Time.time;
 			scoreBoardCanvasGroup.alpha = 0f;
 			MVGameControllerBase.FlagDebriefingControl.EndFlagCountDown();
-			MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.Spawn();
+			MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.EnterPlayingState();
 		}
 	}
 

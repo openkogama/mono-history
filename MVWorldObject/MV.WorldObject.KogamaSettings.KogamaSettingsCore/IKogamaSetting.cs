@@ -4,7 +4,7 @@ namespace MV.WorldObject.KogamaSettings.KogamaSettingsCore;
 
 public interface IKogamaSetting
 {
-	object Value { get; }
+	object Value { get; set; }
 
 	KogamaSettingValueType KogamaSettingValueType { get; }
 

@@ -85,7 +85,7 @@ public enum WorldObjectType
 	Christian3 = 132,
 	BuildModeAvatar = 133,
 	AvatarSpawnRoleCreator = 134,
-	GameBoosterDataObject = 135,
+	GameOptionsDataObject = 135,
 	Christian7 = 136,
 	Christian8 = 137,
 	Christian9 = 138,

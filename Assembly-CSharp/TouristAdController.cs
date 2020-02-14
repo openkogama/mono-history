@@ -2,25 +2,50 @@ using Assets.Scripts.AdIntegration;
 using MV.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
 
-public class TouristAdController : MonoBehaviour, ITouristAdController, IEventSystemHandler
+public class TouristAdController : MonoBehaviour, ITouristAdController, IPromotionController, IEventSystemHandler
 {
+	[SerializeField]
+	private TouristPromotion touristPromotionPrefab;
+
 	[SerializeField]
 	private float timeBeforeAdShown = 180f;
 
 	private float timer;
 
-	private bool isDead;
+	private UnityAction<bool> onPromotionWasPopped;
 
-	private const float showAdDelay = 1.26f;
+	public bool IsPromotionAvailable => !MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Playing) && TouristPromotionAllowed();
 
-	private TouristModeController promotionSliderCreator;
-
-	public void Initialize(TouristModeController promotionSliderController)
+	public void Initialize()
 	{
-		promotionSliderCreator = promotionSliderController;
-		gameObject.SetActive(value: true);
 		enabled = true;
+	}
+
+	private void OnPromotionPopped()
+	{
+		if (onPromotionWasPopped != null)
+		{
+			onPromotionWasPopped(arg0: true);
+		}
+	}
+
+	public void ShowPromotion(UnityAction<bool> onPop)
+	{
+		onPromotionWasPopped = onPop;
+		bool withAd = timer >= timeBeforeAdShown;
+		TouristPromotion promotion = Object.Instantiate(touristPromotionPrefab);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Push(promotion.gameObject, UIPushOption.Blocking, OnPromotionPopped, UIGroupFlags.Popup);
+		});
+		promotion.Initialize(withAd);
+	}
+
+	private bool TouristPromotionAllowed()
+	{
+		return MVGameControllerBase.IsTouristSession && MVGameControllerBase.Game.IsPlaying && MVGameControllerBase.JoinState == MVJoinState.Playing;
 	}
 
 	public void ShowAd()
@@ -30,6 +55,7 @@ public class TouristAdController : MonoBehaviour, ITouristAdController, IEventSy
 
 	public void InterstitialAdResult(InterstitialAdResult obj)
 	{
+		timer = 0f;
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Pop();
@@ -38,32 +64,9 @@ public class TouristAdController : MonoBehaviour, ITouristAdController, IEventSy
 
 	private void Update()
 	{
-		if (MVGameControllerBase.JoinState != MVJoinState.Playing)
+		if (MVGameControllerBase.JoinState == MVJoinState.Playing)
 		{
-			return;
-		}
-		timer += Time.deltaTime;
-		if (MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleModeTypeWrapper.IsInMode(SpawnRoleModeType.Dead))
-		{
-			if (!isDead)
-			{
-				if (timer >= timeBeforeAdShown && Time.time > MVGameControllerBase.LocalPlayer.RespawnTime - (MVGameControllerBase.LocalPlayer.RespawnDuration - 1.26f))
-				{
-					isDead = true;
-					promotionSliderCreator.ShowAnyPromotionSlide();
-					timer = 0f;
-				}
-				else if (Time.time > MVGameControllerBase.LocalPlayer.RespawnTime - (MVGameControllerBase.LocalPlayer.RespawnDuration - 1.26f))
-				{
-					isDead = true;
-					MVGameControllerDesktop.LockCursorManager.CursorLock = false;
-					promotionSliderCreator.ShowAnyPromotionSlide();
-				}
-			}
-		}
-		else
-		{
-			isDead = false;
+			timer += Time.deltaTime;
 		}
 	}
 }

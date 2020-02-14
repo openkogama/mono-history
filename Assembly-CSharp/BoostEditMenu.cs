@@ -20,7 +20,7 @@ public class BoostEditMenu : MonoBehaviour
 
 	public void Start()
 	{
-		MVGameBoosterDataObject singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVGameBoosterDataObject>();
+		MVGameOptionDataObject singletonWorldObject = MVGameControllerBase.WOCM.GetSingletonWorldObject<MVGameOptionDataObject>();
 		BoostController boostController = MVGameControllerBase.Game.LocalPlayer.BoostController;
 		Dictionary<BoostType, Boost>.ValueCollection allBoosts = boostController.GetAllBoosts();
 		foreach (Boost item in allBoosts)

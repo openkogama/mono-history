@@ -28,20 +28,19 @@ public class XPNotification : Notification
 	public override void Initialize(Dictionary<object, object> data)
 	{
 		base.Initialize(data);
-		string text = data[(byte)1].ToString();
 		int num = int.Parse(data[(byte)4].ToString());
 		int membersCount = (int)data[(byte)19];
 		int boostedXp = MVGameControllerBase.Game.LocalPlayer.SubscriptionRules.GetRule<XpBooster>(SubscriptionBenefit.XPBoost).GetBoostedXp(num, membersCount);
 		int num2 = boostedXp - num;
 		if (num2 > 0)
 		{
-			AmountLabel.text = text + " " + boostedXp.ToString() + " XP! (" + num2 + " from boost)";
+			AmountLabel.text = boostedXp.ToString() + " XP! (" + num2 + " from boost)";
 			boostedNotification.SetActive(value: true);
 			defaultNotification.SetActive(value: false);
 		}
 		else
 		{
-			AmountLabel.text = text + " " + boostedXp + " XP!";
+			AmountLabel.text = boostedXp + " XP!";
 			boostedNotification.SetActive(value: false);
 			defaultNotification.SetActive(value: true);
 			timeSinceStart = (float)Lifetime - 5f;

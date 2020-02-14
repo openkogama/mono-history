@@ -37,7 +37,7 @@ public abstract class SizeModifier : AvatarModifier
 		timeStamp = Time.time;
 		owner = target;
 		owner.mvAvatar.Body.BlobShadow.ScaleShadow(sizeModifier);
-		defaultScale = MVGameControllerBase.Game.LocalPlayer.SpawnRoleDataMediator.Scale;
+		defaultScale = MVGameControllerBase.Game.LocalPlayer.SpawnRoleDataMediator.DefaultScale;
 		Scale();
 	}
 
