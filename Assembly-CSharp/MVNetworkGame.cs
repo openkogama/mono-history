@@ -3122,6 +3122,7 @@ public class MVNetworkGame : IPhotonPeerListener
 		playerContainer.SetLocalPlayer(mVLocalPlayer.ActorNr);
 		MVClientSettings.ClientSettingFlags = (ClientSettingFlags)returnValues[168];
 		MVClientSettings.PostGameInterstitialIntervalInSeconds = (int)returnValues[215];
+		MVClientSettings.ReviveFlags = (int)returnValues[233];
 		AdConsentEndpointURL = (string)returnValues[225];
 		KogamaMainpageURL = (string)returnValues[226];
 		CreySettings = new CreySettings((int)returnValues[228], (string)returnValues[229], (bool)returnValues[230]);

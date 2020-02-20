@@ -20,6 +20,10 @@ public static class MVClientSettings
 		}
 	}
 
+	public static int PostGameInterstitialIntervalInSeconds { get; set; }
+
+	public static int ReviveFlags { get; set; }
+
 	public static bool TouristChatAllowed => (ClientSettingFlags & ClientSettingFlags.TouristChatAllowed) == ClientSettingFlags.TouristChatAllowed;
 
 	public static bool EnableSentry => (ClientSettingFlags & ClientSettingFlags.EnableClientSentry) == ClientSettingFlags.EnableClientSentry;
@@ -29,8 +33,6 @@ public static class MVClientSettings
 	public static bool SpinEnabled => (ClientSettingFlags & ClientSettingFlags.SpinEnabled) == ClientSettingFlags.SpinEnabled;
 
 	public static bool PostGameInterstitialEnabled => IsFlagSet(ClientSettingFlags.PostGameInterstitialEnabled);
-
-	public static int PostGameInterstitialIntervalInSeconds { get; set; }
 
 	public static bool SeekAdConsent => IsFlagSet(ClientSettingFlags.SeekAdConsent);
 
@@ -46,7 +48,7 @@ public static class MVClientSettings
 
 	public static bool FirstPreviewTierFreeEnabled => IsFlagSet(ClientSettingFlags.FirstPreviewTierFreeEnabled);
 
-	public static bool ReviveEnabled => IsFlagSet(ClientSettingFlags.ReviveEnabled) && RewardedAdsEnabled && GameSetupOptions.IsReviveEnabled;
+	public static bool ReviveEnabled => IsReviveFlagEnabledForSessionType() && RewardedAdsEnabled && GameSetupOptions.IsReviveEnabled;
 
 	public static bool PlayButtonAdsEnabled => false;
 
@@ -68,6 +70,14 @@ public static class MVClientSettings
 	public static bool IsFlagSet(ClientSettingFlags flag)
 	{
 		return (ClientSettingFlags & flag) == flag;
+	}
+
+	private static bool IsReviveFlagEnabledForSessionType()
+	{
+		if (MVGameControllerBase.IsTouristSession)
+		{
+		}
+		return false;
 	}
 
 	public static bool IsSubscriber()
