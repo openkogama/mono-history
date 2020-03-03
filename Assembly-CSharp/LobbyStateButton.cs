@@ -160,7 +160,7 @@ public class LobbyStateButton : MonoBehaviour, IPointerDownHandler, IPointerEnte
 
 	private void RequestAdWithCallback(Action<InterstitialAdResult> callback)
 	{
-		if (MVClientSettings.PlayButtonAdsEnabled)
+		if (MVClientSettings.PlayButtonAdsEnabled && MVGameControllerBase.EditModeUI == null)
 		{
 			MVGameControllerBase.AdManager.RequestInterstitial(callback, AdContext.PlayButtonAd);
 		}

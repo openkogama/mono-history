@@ -38,13 +38,13 @@ public class BoostMenuItem : MonoBehaviour
 	private Button getWithAd;
 
 	[SerializeField]
+	private GameObject buttonAdImage;
+
+	[SerializeField]
 	private Button getWithAdDisabled;
 
 	[SerializeField]
 	private Button getWithGold;
-
-	[SerializeField]
-	private Button getWithTest;
 
 	[SerializeField]
 	private Text boostDescription;
@@ -112,14 +112,14 @@ public class BoostMenuItem : MonoBehaviour
 	private void SetBoostUIUnlocked(bool boostUnlocked)
 	{
 		bool flag = false;
-		flag = MVClientSettings.BoostersEnabled;
+		flag = MVClientSettings.BoostersEnabled || MVGameControllerBase.GameMode == MVGameMode.Edit;
 		timeLeftText.gameObject.SetActive(boostUnlocked);
 		boostUnlockedGlow.SetActive(boostUnlocked);
 		boostActiveUI.SetActive(boostUnlocked);
 		getWithAd.gameObject.SetActive(!boostUnlocked && flag);
 		getWithAdDisabled.gameObject.SetActive(!boostUnlocked && !flag);
 		getWithGold.gameObject.SetActive(!boostUnlocked && MVGameControllerBase.GameMode != MVGameMode.Edit);
-		getWithTest.gameObject.SetActive(!boostUnlocked && MVGameControllerBase.GameMode == MVGameMode.Edit);
+		buttonAdImage.SetActive(MVGameControllerBase.GameMode != MVGameMode.Edit);
 	}
 
 	private void ActivateActiveBoostIconEffect()
@@ -155,17 +155,6 @@ public class BoostMenuItem : MonoBehaviour
 		});
 		price = GetBoostPrice();
 		boostPurchasePopup.Initialize(boost.Type, boost.BoostKey, boost.EditTitle, price, OnPurchaseSuccessful);
-	}
-
-	public void OnTestPressed()
-	{
-		MVGameControllerBase.Game.LocalPlayer.BoostController.ActivateBoost(boost.Type);
-		bool flag = MVGameControllerBase.LocalPlayer.BoostController.IsBoostActive(boost.Type);
-		SetBoostUIUnlocked(flag);
-		if (flag)
-		{
-			ActivateActiveBoostIconEffect();
-		}
 	}
 
 	private int GetBoostPrice()

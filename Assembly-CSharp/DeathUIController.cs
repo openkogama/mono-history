@@ -81,12 +81,27 @@ public class DeathUIController : MonoBehaviour
 
 	private void Update()
 	{
-		if (waitTime < Time.time && !isDeathBriefActive && MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState != MVGameStateType.RoundEnded)
+		if (!(waitTime < Time.time))
+		{
+			return;
+		}
+		if (!isDeathBriefActive && MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState != MVGameStateType.RoundEnded)
 		{
 			isDeathBriefActive = true;
 			TierProgress();
 			fader.gameObject.SetActive(value: true);
 			fader.Activate();
+		}
+		if (tierOnDeathProgress.gameObject.activeInHierarchy)
+		{
+			if (tierOnDeathProgress.IsShowingTierProgress)
+			{
+				fader.PauseAt(0.99f);
+			}
+			else if (fader.IsPaused)
+			{
+				fader.Unpause();
+			}
 		}
 	}
 
@@ -98,11 +113,11 @@ public class DeathUIController : MonoBehaviour
 			return;
 		}
 		GamePassTier gamePassTier = GamePassesManager.PlayerPlanetData.gamePassTier;
-		bool flag = gamePassTier != GamePassTier.Tier3 && GamePassesManager.playerTierStateCalculator.gamePassRewardsActivated;
+		bool flag = (TierUnlockedPopupController.HighestTierRewardShown != gamePassTier || gamePassTier != GamePassTier.Tier3) && GamePassesManager.playerTierStateCalculator.gamePassRewardsActivated;
 		tierOnDeathProgress.gameObject.SetActive(flag);
 		if (flag)
 		{
-			tierOnDeathProgress.Initialize(gamePassTier);
+			tierOnDeathProgress.Initialize();
 		}
 	}
 
@@ -193,10 +208,6 @@ public class DeathUIController : MonoBehaviour
 
 	private void NotReviving()
 	{
-		if (MVClientSettings.ReviveEnabled && MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleMode.Value == SpawnRoleModeType.Dead)
-		{
-			MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.SetToDeadMode();
-		}
 		MVGameControllerBase.Game.LocalPlayer.BoostController.RemoveAllBoosts();
 		tierHandler.StopPreviewTier(OnFinishPreviewTier);
 	}
@@ -220,14 +231,12 @@ public class DeathUIController : MonoBehaviour
 
 	private void ShowBoostMenu()
 	{
-		float respawnTime = MVGameControllerBase.LocalPlayer.RespawnTime;
-		float timeUntilGhostMode = respawnTime - Time.time;
 		DeathUIBoostMenuController boostMenu = UnityEngine.Object.Instantiate(boostMenuPrefab);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Push(boostMenu.gameObject, UIPushOption.HideAll, null, UIGroupFlags.GameObjectUI);
 		});
-		boostMenu.Initialize(timeUntilGhostMode);
+		boostMenu.Initialize();
 	}
 
 	private void OnFadeFinished()
@@ -290,7 +299,7 @@ public class DeathUIController : MonoBehaviour
 		});
 		bool canSafelySpawn = MVGameControllerBase.SpawnRoleDataMediatorLocal.ReviveState.Value.CanSafelySpawn;
 		bool flag = ((GamePassesManager.GamePassesActive && tierHandler.IsInTempTier()) || MVGameControllerBase.LocalPlayer.BoostController.GetActiveBoosts().Count > 0) && !canSafelySpawn;
-		if ((MVClientSettings.ReviveEnabled && canSafelySpawn) || flag)
+		if (MVClientSettings.RewardedAdsEnabled && ((MVClientSettings.ReviveEnabled && canSafelySpawn) || flag))
 		{
 			ShowReviveMenu(flag);
 		}

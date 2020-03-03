@@ -19,6 +19,16 @@ public class AvatarLocal : Avatar
 		avatarCameraController.Initialize((MVAvatarLocal)mvAvatar);
 	}
 
+	private void OnDestroy()
+	{
+		MonoBehaviour monoBehaviour = avatarCameraController as MonoBehaviour;
+		if (monoBehaviour != null)
+		{
+			Object.Destroy(monoBehaviour.gameObject);
+			avatarCameraController = null;
+		}
+	}
+
 	public void OnXpProgressing(int xp)
 	{
 		Debug.Log("OnXpProgressing....................");

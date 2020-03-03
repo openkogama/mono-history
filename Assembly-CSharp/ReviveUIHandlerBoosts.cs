@@ -105,7 +105,6 @@ public class ReviveUIHandlerBoosts : ReviveUIHandlerBase
 		switch (result)
 		{
 		case RewardedAdResult.RewardUnlocked:
-			OnAdFinishedContinue();
 			break;
 		case RewardedAdResult.ErrorTimeout:
 			continueButton.onClick.Invoke();

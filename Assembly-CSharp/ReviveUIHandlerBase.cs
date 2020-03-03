@@ -1,6 +1,8 @@
 using System;
 using Assets.Scripts.AdIntegration;
+using MV.Common;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
@@ -24,6 +26,9 @@ public abstract class ReviveUIHandlerBase : MonoBehaviour
 	[SerializeField]
 	protected NotificationPopup errorNotification;
 
+	[SerializeField]
+	protected GameObject adIcon;
+
 	private bool watchAdClicked;
 
 	private float started;
@@ -40,6 +45,7 @@ public abstract class ReviveUIHandlerBase : MonoBehaviour
 		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnReviveTimeElapsed += ReviveTimeElapsed;
 		duration = MVGameControllerBase.LocalPlayer.ReviveTimeout;
 		started = Time.time;
+		adIcon.SetActive(MVGameControllerBase.GameMode != MVGameMode.Edit);
 	}
 
 	private void ReviveTimeElapsed()
@@ -90,6 +96,26 @@ public abstract class ReviveUIHandlerBase : MonoBehaviour
 		MVNetworkGame game = MVGameControllerBase.Game;
 		game.OnWinningConditionFulfilled = (Action<IWinningCondition>)Delegate.Combine(game.OnWinningConditionFulfilled, new Action<IWinningCondition>(RoundEnded));
 		watchAdClicked = true;
-		MVGameControllerBase.AdManager.RequestRewardedAd(OnRewardedAdWatched, AdContext.Revive);
+		MVGameControllerDesktop.LockCursorManager.CursorLock = false;
+		ContinueButtonLockCursor popup = UnityEngine.Object.Instantiate(continuePopup);
+		popup.Initialize(OnAdFinishedContinue);
+		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
+		{
+			x.Push(popup.gameObject, UIPushOption.Blocking | UIPushOption.HideAll, () =>
+			{
+				ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack z, BaseEventData c) =>
+				{
+					z.Pop();
+				});
+			}, UIGroupFlags.Popup);
+		});
+		if (MVGameControllerBase.EditModeUI == null)
+		{
+			MVGameControllerBase.AdManager.RequestRewardedAd(OnRewardedAdWatched, AdContext.Revive);
+		}
+		else
+		{
+			OnRewardedAdWatched(RewardedAdResult.RewardUnlocked);
+		}
 	}
 }

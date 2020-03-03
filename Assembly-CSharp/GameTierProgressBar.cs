@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using GameMeterVisuals;
 using MV.Common;
@@ -32,8 +33,6 @@ public class GameTierProgressBar : MonoBehaviour, HoverInputReceiver
 
 		public GamePassesTextBubble disabledBarTextBubble;
 
-		public GameObject tierIconCheckmark;
-
 		public GameObject tierIconTempUnlock;
 
 		public GameObject tierIconNumber;
@@ -47,6 +46,8 @@ public class GameTierProgressBar : MonoBehaviour, HoverInputReceiver
 		public GamePassesTextBubble freeTryTextBubble;
 
 		public HoverInputHandler hoverInputHandler;
+
+		public CanvasGroup LockedTierIcon;
 	}
 
 	[SerializeField]
@@ -63,6 +64,9 @@ public class GameTierProgressBar : MonoBehaviour, HoverInputReceiver
 
 	[SerializeField]
 	private GameObject touristInformationPopup;
+
+	[SerializeField]
+	private float unlockedTierLerpDuration;
 
 	[SerializeField]
 	protected List<GameMeterVisualEffect> gameMeterVisualEffects = new List<GameMeterVisualEffect>();
@@ -245,6 +249,7 @@ public class GameTierProgressBar : MonoBehaviour, HoverInputReceiver
 			tierProgressDataList[value].avatarHeadUI.gameObject.SetActive(value: false);
 			tierProgressDataList[value].progressDivider.SetActive(value: false);
 			tierProgressDataList[value].disabledProgressDivider.SetActive(value: false);
+			StartCoroutine(ScaleAndFadeLockForTier(value));
 			ActivateBar(value);
 			int num2 = value + 1;
 			previousProgressValue = num2;
@@ -289,6 +294,8 @@ public class GameTierProgressBar : MonoBehaviour, HoverInputReceiver
 				num2++;
 			}
 		}
+		UpdateProgressBars(GamePassesManager.PlayerPlanetData.progressionGamePoints);
+		UpdateDividerVisibility(GamePassesManager.PlayerPlanetData.progressionGamePoints);
 	}
 
 	private void OnHaveShownGainEffect(int newGamePointAmountShown)
@@ -354,6 +361,7 @@ public class GameTierProgressBar : MonoBehaviour, HoverInputReceiver
 			Dictionary<GamePassTier, PlayerTierState> tierPricingState = GamePassesManager.playerTierStateCalculator.GetTierPricingState(playerGamePoints, gamePassTier);
 			int num = ReduceGamePointsWithPreviousTierRequirements(progressBarToUpdate, playerGamePoints, tierPricingState);
 			int gamePointRequirementBase = tierPricingState[progressBarToUpdate].gamePointRequirementBase;
+			bool flag = IsTierUnlocked(progressBarToUpdate);
 			if (gamePointRequirementBase > 0)
 			{
 				float num2 = (float)num / (float)gamePointRequirementBase;
@@ -369,15 +377,17 @@ public class GameTierProgressBar : MonoBehaviour, HoverInputReceiver
 				tierProgressDataList[(int)(progressBarToUpdate - 1)].progressBar.Progress = num2;
 				tierProgressDataList[(int)(progressBarToUpdate - 1)].progressText.text = text;
 				tierProgressDataList[(int)(progressBarToUpdate - 1)].disabledProgressBar.Progress = num2;
+				SetLockedStateForTier((int)(progressBarToUpdate - 1), flag);
 				if (num2 >= 1f)
 				{
 					ActivateBar((int)(progressBarToUpdate - 1));
 				}
 			}
-			else if (IsTierUnlocked(progressBarToUpdate))
+			else if (flag)
 			{
 				tierProgressDataList[(int)(progressBarToUpdate - 1)].disabledProgressBar.Progress = 1f;
 				tierProgressDataList[(int)(progressBarToUpdate - 1)].progressBar.Progress = 1f;
+				SetLockedStateForTier((int)(progressBarToUpdate - 1), flag);
 				ActivateBar((int)(progressBarToUpdate - 1));
 			}
 			else
@@ -391,7 +401,9 @@ public class GameTierProgressBar : MonoBehaviour, HoverInputReceiver
 			tierProgressDataList[(int)(progressBarToUpdate - 1)].progressBar.Progress = 0f;
 			tierProgressDataList[(int)(progressBarToUpdate - 1)].progressText.text = string.Empty;
 			tierProgressDataList[(int)(progressBarToUpdate - 1)].disabledProgressBar.Progress = 0f;
-			if (IsTierUnlocked(progressBarToUpdate))
+			bool flag2 = IsTierUnlocked(progressBarToUpdate);
+			SetLockedStateForTier((int)(progressBarToUpdate - 1), flag2);
+			if (flag2)
 			{
 				tierProgressDataList[(int)(progressBarToUpdate - 1)].disabledProgressBar.Progress = 1f;
 				tierProgressDataList[(int)(progressBarToUpdate - 1)].progressBar.Progress = 1f;
@@ -400,18 +412,32 @@ public class GameTierProgressBar : MonoBehaviour, HoverInputReceiver
 		}
 	}
 
+	private IEnumerator ScaleAndFadeLockForTier(int tier)
+	{
+		float progress = 0f;
+		float alpha = 1f;
+		tierProgressDataList[tier].LockedTierIcon.alpha = 1f;
+		while (alpha > 0f)
+		{
+			progress += Time.deltaTime;
+			alpha = 1f - progress / unlockedTierLerpDuration;
+			tierProgressDataList[tier].LockedTierIcon.alpha = alpha;
+			yield return null;
+		}
+		tierProgressDataList[tier].LockedTierIcon.alpha = 0f;
+		yield return null;
+	}
+
+	private void SetLockedStateForTier(int tier, bool tierUnlocked)
+	{
+		float alpha = ((!tierUnlocked) ? 1f : 0f);
+		tierProgressDataList[tier].LockedTierIcon.alpha = alpha;
+	}
+
 	private void ActivateBar(int barIndex)
 	{
 		tierProgressDataList[barIndex].progressBar.Progress = 1f;
 		tierProgressDataList[barIndex].disabledProgressBar.Progress = 1f;
-		if (!tierProgressDataList[barIndex].tierIconCheckmark.activeSelf)
-		{
-			tierProgressDataList[barIndex].tierIconCheckmark.SetActive(value: true);
-		}
-		if (tierProgressDataList[barIndex].tierIconNumber.activeSelf)
-		{
-			tierProgressDataList[barIndex].tierIconNumber.SetActive(value: false);
-		}
 		if (tierProgressDataList[barIndex].tierIconTempUnlock.activeSelf)
 		{
 			tierProgressDataList[barIndex].tierIconTempUnlock.SetActive(value: false);
@@ -422,14 +448,6 @@ public class GameTierProgressBar : MonoBehaviour, HoverInputReceiver
 	{
 		tierProgressDataList[barIndex].progressBar.Progress = 0f;
 		tierProgressDataList[barIndex].disabledProgressBar.Progress = 0f;
-		if (tierProgressDataList[barIndex].tierIconCheckmark.activeSelf)
-		{
-			tierProgressDataList[barIndex].tierIconCheckmark.SetActive(value: false);
-		}
-		if (!tierProgressDataList[barIndex].tierIconNumber.activeSelf)
-		{
-			tierProgressDataList[barIndex].tierIconNumber.SetActive(value: true);
-		}
 	}
 
 	private float GetProgressBarPercentage(GamePassTier tierToShowProgressFor)
@@ -498,15 +516,18 @@ public class GameTierProgressBar : MonoBehaviour, HoverInputReceiver
 		tierProgressDataList[0].tempProgress.SetActive(flag);
 		tierProgressDataList[0].disabledTempProgress.SetActive(flag);
 		tierProgressDataList[0].tierIconTempUnlock.SetActive(flag);
-		tierProgressDataList[0].tierIconNumber.SetActive(!flag && tierProgressDataList[0].progressBar.Progress < 1f);
+		tierProgressDataList[0].tierIconNumber.SetActive(!flag);
+		tierProgressDataList[0].LockedTierIcon.gameObject.SetActive(!flag);
 		tierProgressDataList[1].tempProgress.SetActive(flag2);
 		tierProgressDataList[1].disabledTempProgress.SetActive(flag2);
 		tierProgressDataList[1].tierIconTempUnlock.SetActive(flag2);
-		tierProgressDataList[1].tierIconNumber.SetActive(!flag2 && tierProgressDataList[1].progressBar.Progress < 1f);
+		tierProgressDataList[1].tierIconNumber.SetActive(!flag2);
+		tierProgressDataList[1].LockedTierIcon.gameObject.SetActive(!flag2);
 		tierProgressDataList[2].tempProgress.SetActive(flag3);
 		tierProgressDataList[2].disabledTempProgress.SetActive(flag3);
 		tierProgressDataList[2].tierIconTempUnlock.SetActive(flag3);
-		tierProgressDataList[2].tierIconNumber.SetActive(!flag3 && tierProgressDataList[2].progressBar.Progress < 1f);
+		tierProgressDataList[2].tierIconNumber.SetActive(!flag3);
+		tierProgressDataList[2].LockedTierIcon.gameObject.SetActive(!flag3);
 	}
 
 	private bool HasTempTier(GamePassTier tier)

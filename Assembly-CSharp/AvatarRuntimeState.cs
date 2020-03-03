@@ -6,5 +6,6 @@ public enum AvatarRuntimeState : byte
 	TimeAttackFlagDebriefing = 7,
 	Wait = 8,
 	Ghost = 9,
-	Revive = 10
+	Revive = 10,
+	ReviveWait = 11
 }

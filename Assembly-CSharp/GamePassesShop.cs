@@ -38,9 +38,6 @@ public class GamePassesShop : MonoBehaviour
 	private Text gameTierIconText;
 
 	[SerializeField]
-	private GameObject tierCheckmarkIcon;
-
-	[SerializeField]
 	private GameObject unlockedText;
 
 	[SerializeField]
@@ -112,6 +109,9 @@ public class GamePassesShop : MonoBehaviour
 	[SerializeField]
 	private Image buttonAdImage;
 
+	[SerializeField]
+	private Image lockedTierIcon;
+
 	private GamePassTier gamePassTierDisplayed;
 
 	private float lerpStartTime;
@@ -126,6 +126,8 @@ public class GamePassesShop : MonoBehaviour
 
 	private bool haveShownFreeTryUnlock;
 
+	private bool delayedInit;
+
 	private static bool haveInitializedHighestTierRewardShown;
 
 	public static void UpdateHighestTierRewardShown(GamePassTier newHighestTierRewardShown)
@@ -139,20 +141,25 @@ public class GamePassesShop : MonoBehaviour
 
 	public void Initialize(GamePassTier gamePassTierToDisplay)
 	{
+		delayedInit = true;
 		headerText.text = "Game Tier " + (int)gamePassTierToDisplay;
 		gamePassTierDisplayed = gamePassTierToDisplay;
+	}
+
+	private void DelayedInitialize()
+	{
 		crystalAmount.text = GamePointAmountManager.GetTotalGamePointAmount().ToString();
-		UpdateProgressBar(gamePassTierToDisplay);
-		AddTierContent(gamePassTierToDisplay);
+		UpdateProgressBar(gamePassTierDisplayed);
+		AddTierContent(gamePassTierDisplayed);
 		contentCuller.Initialize();
-		purchaseButton.Initialize(gamePassTierToDisplay);
+		purchaseButton.Initialize(gamePassTierDisplayed);
 		HandlePurchaseButtonVisibility(gamePassTierDisplayed);
 		UpdateFreeTryUI();
 		if (MVGameControllerBase.GameSessionData.gameMode == MVGameMode.Edit)
 		{
 			HandleEditModeUI();
 		}
-		if (ShouldShowTierReward(gamePassTierToDisplay))
+		if (ShouldShowTierReward(gamePassTierDisplayed))
 		{
 			ShowTierUnlockedPopup(wasPurchased: false, wasTempUnlocked: false);
 			return;
@@ -243,6 +250,11 @@ public class GamePassesShop : MonoBehaviour
 				shouldLerp = false;
 			}
 		}
+		if (delayedInit)
+		{
+			DelayedInitialize();
+			delayedInit = false;
+		}
 	}
 
 	private void UpdateProgressBar(GamePassTier gamePassTierToDisplay)
@@ -298,14 +310,7 @@ public class GamePassesShop : MonoBehaviour
 
 	private void ActivateBar()
 	{
-		if (!tierCheckmarkIcon.activeSelf)
-		{
-			tierCheckmarkIcon.SetActive(value: true);
-		}
-		if (gameTierIconText.gameObject.activeSelf)
-		{
-			gameTierIconText.gameObject.SetActive(value: false);
-		}
+		lockedTierIcon.gameObject.SetActive(value: false);
 		if (MVGameControllerBase.GameSessionData.gameMode != MVGameMode.Edit && !unlockedText.activeSelf)
 		{
 			unlockedText.SetActive(value: true);
@@ -341,14 +346,7 @@ public class GamePassesShop : MonoBehaviour
 				unlockedText.SetActive(value: false);
 			}
 		}
-		if (tierCheckmarkIcon.activeSelf)
-		{
-			tierCheckmarkIcon.SetActive(value: false);
-		}
-		if (!gameTierIconText.gameObject.activeSelf)
-		{
-			gameTierIconText.gameObject.SetActive(value: true);
-		}
+		lockedTierIcon.gameObject.SetActive(value: true);
 	}
 
 	private void UpdateUI()
@@ -374,6 +372,7 @@ public class GamePassesShop : MonoBehaviour
 		GamePassTier previewGamePassTier = GamePassesManager.PlayerPlanetData.previewGamePassTier;
 		purchaseButton.SetFreeTryActivated(previewGamePassTier == gamePassTierDisplayed);
 		GamePassTier gamePassTier = GamePassesManager.PlayerPlanetData.gamePassTier;
+		lockedTierIcon.gameObject.SetActive((int)previewGamePassTier < (int)gamePassTierDisplayed && (int)gamePassTier < (int)gamePassTierDisplayed);
 		bool flag = MVGameControllerBase.GameMode == MVGameMode.Edit;
 		bool flag2 = MVGameControllerBase.Game.GameTierShopRepository.GetTierItemData(gamePassTierDisplayed) != null;
 		bool active = (int)gamePassTier < 3 && gamePassTierDisplayed == gamePassTier + 1 && !flag && flag2 && MVClientSettings.RewardedAdsEnabled;
@@ -707,6 +706,10 @@ public class GamePassesShop : MonoBehaviour
 
 	private void RewardedAdCallback(RewardedAdResult result)
 	{
+		if (MVGameControllerBase.EditModeUI != null)
+		{
+			result = RewardedAdResult.RewardUnlocked;
+		}
 		switch (result)
 		{
 		case RewardedAdResult.RewardUnlocked:

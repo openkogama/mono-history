@@ -42,9 +42,6 @@ public class DeathUIBoostMenuController : MonoBehaviour
 	private BoostMenuController boostMenu;
 
 	[SerializeField]
-	private GamePassesUI gamePassesUIPrefab;
-
-	[SerializeField]
 	private ContinueTierBoostPopup continueTierBoostPopupPrefab;
 
 	[SerializeField]
@@ -52,19 +49,16 @@ public class DeathUIBoostMenuController : MonoBehaviour
 
 	private float startTime;
 
-	private float timeUntilGhostMode;
+	private readonly float timeUntilGhostMode = 2f;
 
 	private bool shouldPop;
-
-	private bool shouldShowPlayButtonAfterUnblocked;
 
 	private bool wantsToPlay;
 
 	private bool isGhost;
 
-	public void Initialize(float timeUntilGhostMode)
+	public void Initialize()
 	{
-		this.timeUntilGhostMode = Mathf.Max(timeUntilGhostMode, 0f);
 		if (timeUntilGhostMode <= 0f)
 		{
 			readyToPlayTimerFill.gameObject.SetActive(value: false);
@@ -96,43 +90,18 @@ public class DeathUIBoostMenuController : MonoBehaviour
 			restartText.text = "Respawning at start...";
 		}
 		int gamePointAmountShown = GamePointGainEffectManager.GamePointAmountShown;
-		if (!GamePassesManager.GamePassesActive)
-		{
-			return;
-		}
-		GamePassesUI gamePassesUI = Object.Instantiate(gamePassesUIPrefab);
-		gamePassesUI.transform.SetParent(transform, worldPositionStays: false);
-		gamePassesUI.Initialize();
-		if (!GamePassProgressionController.IsProgressionEnabled || !GamePassesManager.GamePassesActive)
-		{
-			gamePassesUI.gameObject.SetActive(value: false);
-			return;
-		}
-		int progressionGamePoints = GamePassesManager.PlayerPlanetData.progressionGamePoints;
-		if (gamePointAmountShown < progressionGamePoints)
-		{
-			gamePassesUI.ReplayGainEffect(gamePointAmountShown, progressionGamePoints);
-		}
 	}
 
 	public void OpenMenu()
 	{
 		if (buttonFader.IsPaused)
 		{
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IDeathPromotionSelector x, BaseEventData y) =>
+			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 			{
-				x.TryShowPromotion(ReadyToEnterMenu);
+				x.Pop();
 			});
+			MVGameControllerBase.PlayModeUI.InLobbyState = true;
 		}
-	}
-
-	private void ReadyToEnterMenu(bool promotionPushedToStack)
-	{
-		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-		{
-			x.Pop();
-		});
-		MVGameControllerBase.PlayModeUI.InLobbyState = true;
 	}
 
 	private void OnDestroy()
@@ -153,13 +122,6 @@ public class DeathUIBoostMenuController : MonoBehaviour
 		{
 			isBlocked = x.IsUIElementBlocked(gameObject);
 		});
-		if (shouldShowPlayButtonAfterUnblocked && !isBlocked)
-		{
-			shouldShowPlayButtonAfterUnblocked = false;
-			respawnButton.gameObject.SetActive(value: true);
-			buttonFader.Activate();
-			buttonFader.PauseAt(0f);
-		}
 		if (shouldPop && !isBlocked)
 		{
 			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
@@ -204,12 +166,6 @@ public class DeathUIBoostMenuController : MonoBehaviour
 			{
 				x.TryShowPromotion(ReadyToSpawn);
 			});
-			bool isBlocked = false;
-			ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
-			{
-				isBlocked = x.IsUIElementBlocked(gameObject);
-			});
-			shouldShowPlayButtonAfterUnblocked = isBlocked;
 			respawnButton.gameObject.SetActive(value: false);
 		}
 	}

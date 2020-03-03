@@ -30,6 +30,7 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 			avatarModes.Add(AvatarRuntimeState.Playing, new WalkMode(avatar));
 			avatarModes.Add(AvatarRuntimeState.Dead, new DeadMode(avatar));
 			avatarModes.Add(AvatarRuntimeState.Revive, new ReviveMode(avatar));
+			avatarModes.Add(AvatarRuntimeState.ReviveWait, new ReviveWaitMode(avatar));
 			avatarModes.Add(AvatarRuntimeState.Hidden, new LobbyMode(avatar));
 			avatarModes.Add(AvatarRuntimeState.TimeAttackFlagDebriefing, new TimeAttackFlagDebriefingMode(avatar));
 			avatarModes.Add(AvatarRuntimeState.Wait, new WaitMode(avatar));
@@ -395,6 +396,8 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 
 		private bool reviveElapsed;
 
+		private bool setDeadCamDelayed;
+
 		private AvatarInputControllerDead inputController = new AvatarInputControllerDead();
 
 		public override void Activate(AvatarRuntimeState fromMode)
@@ -411,17 +414,20 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 			}
 			mvAvatar.triggerHandler.enabled = false;
 			MVGameControllerBase.LocalPlayer.RespawnTime = Time.time + reviveInterval;
-			MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnMoveBodyToSafeSpot += MovedToSafeSpot;
 			MVGameControllerDesktop.LockCursorManager.CursorLock = false;
 			MVGameControllerBase.PlayModeUI.InLobbyState = false;
-			mvAvatar.AvatarLocal.CameraController.SetCamera(CameraType.DeadCamera);
+			setDeadCamDelayed = false;
+			if (mvAvatar.InGunMode || MVGameControllerBase.MainCameraManager.CurrentCamera.CameraType == CameraType.FirstPersonCamera)
+			{
+				mvAvatar.AvatarLocal.CameraController.SetCamera(CameraType.ThirdPerson);
+				setDeadCamDelayed = true;
+			}
 			MVGameControllerBase.Game.GameEventManager.AvatarCommandsBuildMode.OnSetToEditMode += OnEnterEditMode;
 		}
 
 		public override void DeActivate(AvatarRuntimeState toMode)
 		{
 			MVGameControllerBase.Game.GameEventManager.AvatarCommandsBuildMode.OnSetToEditMode -= OnEnterEditMode;
-			mvAvatar.SetTransparency = 1f;
 		}
 
 		public override void FixedUpdate(IInputToPlayerMovement movementMap)
@@ -443,24 +449,51 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 			{
 				NoButtonPressed();
 			}
+			if (setDeadCamDelayed && Time.time - deadTime > 0.5f)
+			{
+				mvAvatar.AvatarLocal.CameraController.SetCamera(CameraType.DeadCamera);
+				setDeadCamDelayed = false;
+			}
 		}
 
 		private void NoButtonPressed()
 		{
 			reviveElapsed = true;
-			MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.ReviveTimeElapsed();
-		}
-
-		private void MovedToSafeSpot(int index)
-		{
-			mvAvatar.AvatarLocal.CameraController.SetCamera(CameraType.GhostCamera);
-			mvAvatar.SetAnimation("Idle");
-			mvAvatar.SetTransparency = 0.5f;
 		}
 
 		private void OnEnterEditMode()
 		{
 			MVGameControllerBase.PlayModeUI.InLobbyState = true;
+		}
+	}
+
+	protected class ReviveWaitMode : AvatarMode
+	{
+		public ReviveWaitMode(MVAvatarLocal mvAvatar)
+			: base(mvAvatar, 4)
+		{
+		}
+
+		public override void Activate(AvatarRuntimeState fromMode)
+		{
+			base.Activate(fromMode);
+			mvAvatar.ResetAvatar();
+			mvAvatar.AvatarLocal.CameraController.SetCamera(CameraType.GhostCamera);
+			mvAvatar.SetAnimation("Idle");
+			mvAvatar.SetTransparency = 0.5f;
+		}
+
+		public override void DeActivate(AvatarRuntimeState toMode)
+		{
+			mvAvatar.SetTransparency = 1f;
+		}
+
+		public override void FrameUpdate(InputToInGameAction interactionMap)
+		{
+		}
+
+		public override void FixedUpdate(IInputToPlayerMovement movementMap)
+		{
 		}
 	}
 
@@ -1261,7 +1294,7 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSpawnAsGhost -= OnSetSpawnAsGhost;
 		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.OnSetToDeadMode -= OnSetToDeadMode;
 		MVLocalPlayer localPlayer = MVGameControllerBase.LocalPlayer;
-		localPlayer.OnCheckpointReached = (UnityAction)Delegate.Remove(localPlayer.OnCheckpointReached, new UnityAction(SetReviveSafeSpotToCheckpoint));
+		localPlayer.OnCheckpointReached = (UnityAction)Delegate.Remove(localPlayer.OnCheckpointReached, new UnityAction(OnCheckpointReachedResetRevive));
 		MVGameControllerBase.Game.LocalPlayer.BoostController.UnSubscribeToBoostChanged(BoostType.ExtraHealthFloatMultiplier, OnHealthBoostedChanged);
 	}
 
@@ -1298,7 +1331,7 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 		spawnRoleDataReceiver.maxHealth.Value = MaxHealth.Value;
 		spawnRoleDataReceiver.tierRequirement.Value = GetTierRequirement();
 		MVLocalPlayer localPlayer = MVGameControllerBase.LocalPlayer;
-		localPlayer.OnCheckpointReached = (UnityAction)Delegate.Combine(localPlayer.OnCheckpointReached, new UnityAction(SetReviveSafeSpotToCheckpoint));
+		localPlayer.OnCheckpointReached = (UnityAction)Delegate.Combine(localPlayer.OnCheckpointReached, new UnityAction(OnCheckpointReachedResetRevive));
 	}
 
 	public void Suspend()
@@ -1637,7 +1670,7 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 			Debug.Log("Goto dead state");
 			Shield.Value = 0f;
 			bool flag = MVClientSettings.ReviveEnabled && spawnRoleDataReceiver.reviveState.Value.CanSafelySpawn && avatarMotor.GetSizeState.GetIsValidScaledPosition(spawnRoleDataReceiver.reviveState.Value.SafeGroundedData.Position, 1f);
-			if (!flag && !IsInTempTier() && MVGameControllerBase.LocalPlayer.BoostController.GetActiveBoosts().Count == 0)
+			if (!flag)
 			{
 				spawnRoleDataReceiver.reviveState.Value.ResetSafePostions();
 			}
@@ -1774,16 +1807,13 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 		Vector3 eulerAngles = safeGroundedDataAtSelectedIndex.Rotation.eulerAngles;
 		SetTransform(rotation: Quaternion.Euler(new Vector3(y: safeGroundedDataAtSelectedIndex.CameraRotation.eulerAngles.y, x: eulerAngles.x, z: eulerAngles.z)), position: safeGroundedDataAtSelectedIndex.Position);
 		MVGameControllerBase.MainCameraManager.CurrentCamera.transform.rotation = safeGroundedDataAtSelectedIndex.CameraRotation;
+		SetMode(AvatarRuntimeState.ReviveWait);
 	}
 
 	private void AvatarCommandsOnSpawnAtSafeSpot(int safeSpotIndex)
 	{
 		Debug.Log("SetMode to playing from SafeSpot");
 		AvatarCommandsOnMoveBodyToSafeSpot(safeSpotIndex);
-		if (MVGameControllerBase.LocalPlayer.BoostController.GetActiveBoosts().Count == 0 && !IsInTempTier())
-		{
-			spawnRoleDataReceiver.reviveState.Value.ResetSafePostions();
-		}
 		avatarRespawnHandler.ShouldRespawnAsGhost = false;
 		avatarRespawnHandler.Respawn();
 	}
@@ -1820,23 +1850,11 @@ public class MVAvatarLocal(Dictionary<object, object> data, Dictionary<int, MVWo
 		return validSpawnPoint.Transform;
 	}
 
-	private void SetReviveSafeSpotToCheckpoint()
+	private void OnCheckpointReachedResetRevive()
 	{
 		if (MVClientSettings.ReviveEnabled)
 		{
-			Vector3 pos = default;
-			MVCheckpoint checkpoint = MVGameControllerBase.Game.LocalPlayer.GetCheckpoint();
-			if (checkpoint != null)
-			{
-				pos = checkpoint.Transform.position;
-			}
 			spawnRoleDataReceiver.reviveState.Value.ResetSafePostions();
-			if (MVGameControllerBase.LocalPlayer.BoostController.GetActiveBoosts().Count > 0 || IsInTempTier())
-			{
-				Transform transform = MVGameControllerBase.MainCameraManager.CurrentCamera.transform;
-				SafeSpotData safeGroundedData = new SafeSpotData(pos, spawnRoleDataReceiver.rotation.Value, transform.position, transform.rotation);
-				spawnRoleDataReceiver.reviveState.Value.SafeGroundedData = safeGroundedData;
-			}
 		}
 	}
 

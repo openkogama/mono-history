@@ -38,7 +38,6 @@ public class GhostCamera : MVCameraBase
 	{
 		this.avatarLocal = avatarLocal;
 		lookAtTransform = avatarLocal.GameObject.transform;
-		distance = (transform.position - lookAtTransform.position).magnitude;
 	}
 
 	public override void Enter(MVCameraController camController)

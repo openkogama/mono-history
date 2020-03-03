@@ -306,7 +306,12 @@ public class AvatarInteractable : MVInteractable, IMoveHitHandler
 		float y = moveHit.slopeNormal.y;
 		float num = y * friction;
 		float sqrMagnitude = moveHit.impactVelocity.sqrMagnitude;
-		return num >= 0.35f && y >= 0.6f && friction > 0.2f && sqrMagnitude < 1000f;
+		bool flag = sqrMagnitude < 1000f;
+		if (!flag)
+		{
+			MVGameControllerBase.SpawnRoleDataMediatorLocal.ReviveState.Value.SuppressSafeSpotSaving(1f);
+		}
+		return num >= 0.35f && y >= 0.6f && friction > 0.2f && flag;
 	}
 
 	private void SetupBoostedHealthMultiplier()

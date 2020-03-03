@@ -15,6 +15,9 @@ public class PlayButton : PlayButtonBase, IPointerEnterHandler, IPointerExitHand
 	[SerializeField]
 	private bool shouldConfirmPlay;
 
+	[SerializeField]
+	private ContinueButtonLockCursor continueButtonPrefab;
+
 	private bool isMouseOver;
 
 	public Action OnPlayButtonPressed;
@@ -61,15 +64,43 @@ public class PlayButton : PlayButtonBase, IPointerEnterHandler, IPointerExitHand
 
 	public void Play()
 	{
-		if (!FirstTimePressPlayController.HaveBeenPressed)
+		bool haveBeenPressed = FirstTimePressPlayController.HaveBeenPressed;
+		if (!haveBeenPressed)
 		{
 			FirstTimePressPlayController.OnFirstTimePlayIsPressed();
 		}
-		HandlePlayAvailable();
-		if (timedPlayReward != null && timedPlayReward.IsClaimable)
+		if (haveBeenPressed && MVGameControllerBase.IsTouristSession && MVClientSettings.ShowTouristPromotion)
 		{
-			timedPlayReward.ClaimReward();
+			SpawnRoleModeType value = MVGameControllerBase.SpawnRoleDataMediatorLocal.SpawnRoleMode.Value;
+			bool flag = MVGameControllerBase.Game.NetworkGameStateListener.CurrentGameState == MVGameStateType.RoundEnded;
+			if ((value == SpawnRoleModeType.Dead || value == SpawnRoleModeType.Hidden) && !flag)
+			{
+				ExecuteEvents.ExecuteHierarchy(gameObject, null, (IDeathPromotionSelector x, BaseEventData y) =>
+				{
+					x.TryShowPromotion(OnPromotionShown);
+				});
+			}
+			else if (!HandlePlayAvailable())
+			{
+				StartPlaying();
+			}
 		}
+		else
+		{
+			HandlePlayAvailable();
+			if (timedPlayReward != null && timedPlayReward.IsClaimable)
+			{
+				timedPlayReward.ClaimReward();
+			}
+			if (!HandlePlayAvailable())
+			{
+				StartPlaying();
+			}
+		}
+	}
+
+	private void OnPromotionShown(bool promotionShown)
+	{
 		if (!HandlePlayAvailable())
 		{
 			StartPlaying();

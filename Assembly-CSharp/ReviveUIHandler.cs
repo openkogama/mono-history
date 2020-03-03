@@ -65,17 +65,18 @@ public class ReviveUIHandler : ReviveUIHandlerBase
 
 	public override void OnWatchAdClicked()
 	{
-		base.OnWatchAdClicked();
 		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.MoveBodyToSafeSpot(currentSafePointSelected);
+		base.OnWatchAdClicked();
 	}
 
 	protected override void OnAdFinishedContinue()
 	{
+		MVGameControllerDesktop.LockCursorManager.CursorLock = true;
+		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.SpawnAtSafeSpot(currentSafePointSelected);
 		ExecuteEvents.ExecuteHierarchy(gameObject, null, (IUIStack x, BaseEventData y) =>
 		{
 			x.Pop();
 		});
-		MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.SpawnAtSafeSpot(currentSafePointSelected);
 	}
 
 	protected override void OnRewardedAdWatched(RewardedAdResult result)
@@ -95,7 +96,7 @@ public class ReviveUIHandler : ReviveUIHandlerBase
 		switch (result)
 		{
 		case RewardedAdResult.RewardUnlocked:
-			OnAdFinishedContinue();
+			MVGameControllerBase.GameEventManager.AvatarCommandsPlayMode.MoveBodyToSafeSpot(currentSafePointSelected);
 			break;
 		case RewardedAdResult.ErrorTimeout:
 			continueButton.onClick.Invoke();

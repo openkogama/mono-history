@@ -133,6 +133,22 @@ public abstract class FirstPersonCamera : MVCameraBase
 		MVGameControllerBase.MainCameraManager.StartTransitionCam(0.3f);
 	}
 
+	private void OnDestroy()
+	{
+		if (damageIndicator != null)
+		{
+			UnityEngine.Object.Destroy(damageIndicator.gameObject);
+		}
+		if (healingIndicator != null)
+		{
+			UnityEngine.Object.Destroy(healingIndicator.gameObject);
+		}
+		if (modifierIndicator != null)
+		{
+			UnityEngine.Object.Destroy(modifierIndicator.gameObject);
+		}
+	}
+
 	private void DeactivateFirstPerson()
 	{
 		localAvatar.CurrentPickup.LeaveFirstPersonView();

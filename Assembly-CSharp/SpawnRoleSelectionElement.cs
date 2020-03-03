@@ -304,6 +304,10 @@ public class SpawnRoleSelectionElement : DefaultSpawnRoleSelectionElement
 
 	private void RewardedAdCallback(RewardedAdResult result)
 	{
+		if (MVGameControllerBase.EditModeUI != null)
+		{
+			result = RewardedAdResult.RewardUnlocked;
+		}
 		switch (result)
 		{
 		case RewardedAdResult.RewardUnlocked:

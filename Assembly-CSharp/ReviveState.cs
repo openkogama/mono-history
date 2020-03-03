@@ -9,6 +9,10 @@ public class ReviveState
 
 	private int maxNumberOfSafePositions = 3;
 
+	private float safeSpotSuppressedTime;
+
+	private float safeSpotSuppressedDuration;
+
 	private int currentPreviewedSafePosition;
 
 	public bool CanSafelySpawn => safePositions.Count > 0;
@@ -29,7 +33,11 @@ public class ReviveState
 			{
 				return;
 			}
-			if (safePositions.Count == 0)
+			if (Time.time - safeSpotSuppressedTime < safeSpotSuppressedDuration)
+			{
+				Debug.LogWarning("Currently Suppressing safe spot saving.");
+			}
+			else if (safePositions.Count == 0)
 			{
 				safePositions.Add(value);
 			}
@@ -53,6 +61,12 @@ public class ReviveState
 	{
 		currentPreviewedSafePosition = 0;
 		safePositions.Clear();
+	}
+
+	public void SuppressSafeSpotSaving(float duration)
+	{
+		safeSpotSuppressedTime = Time.time;
+		safeSpotSuppressedDuration = duration;
 	}
 
 	public void SetSafeGroundedDataIndex(int index)

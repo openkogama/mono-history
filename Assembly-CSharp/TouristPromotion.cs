@@ -39,12 +39,12 @@ public class TouristPromotion : MonoBehaviour
 
 	public void OnRegisterClicked()
 	{
-		BrowserCommGotoRequests.GotoSignup();
+		BrowserCommGotoRequests.GotoSignup(newTab: false, modalPopup: true);
 	}
 
 	public void OnLoginClicked()
 	{
-		BrowserCommGotoRequests.GotoLogin();
+		BrowserCommGotoRequests.GotoLogin(newTab: false, modalPopup: true);
 	}
 
 	public virtual void OnContinueClicked()

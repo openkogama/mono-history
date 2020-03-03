@@ -49,7 +49,11 @@ public class BoostMenuController : MonoBehaviour, IBoostAdController, IEventSyst
 	{
 		boostUnlockedCallback = OnUnlockedCallback;
 		adRewardType = type;
-		if (MVGameControllerBase.AdManager.ReadyForRewardedAdRequest)
+		if (MVGameControllerBase.EditModeUI != null)
+		{
+			OnAdFinished(adWasSuccessful: true);
+		}
+		else if (MVGameControllerBase.AdManager.ReadyForRewardedAdRequest)
 		{
 			MVGameControllerBase.AdManager.RequestRewardedAd(RewardedAdCallback, AdContext.Booster);
 		}
